@@ -66,7 +66,6 @@
  *  - cvt with rounding modes. also, what does it do?
  *  - mad with rounding modes
  *  - figure out tex
- *  - figure out thread/warp/block/multiprocessor/GPU/device hierarchy
  *
  * TODO for when it's possible:
  *
@@ -79,8 +78,7 @@
  *  - why some instructions have 0 for predicates?
  * Counting stuff
  *  - $a5-$a7?
- *  - how to set up all the memory spaces and how many are there?
- *  - what the fuck is up with multiple g[]'s?
+ *  - how to set up all the memory spaces and how big are they?
  *  - sad.f32?
  * Misc
  *  - orthogofuckingnalise cvt. MORE.
@@ -158,17 +156,18 @@
  *
  * Special registers, all 32-bit:
  * - %physid:
- *     &0x0000001f: %laneid
- *     &0x00001f00: %warpid
- *     &0x000f0000: low %smid
- *     &0x0ff00000: high %smid
- *     CUDA %smid = low %smid + (high %smid << 2) [overlap]
+ *     &0x0000001f: %laneid: identifies a single thread inside a warp, 0-31
+ *     &0x00001f00: %warpid: identifies a warp inside a SM, 0-23 for sm_10-sm_11, 0-31 for sm_12-sm_13
+ *     &0x00030000: %smidl: identifies a SM in group of SM. 0-1 for <NVA0, 0-2 for >= NVA0 XXX what with stuff that only has a single SM?
+ *     &0x00f00000: %smidh: identifies SM group on a device. 0 - up to 7 on <NVA0, 0 - up to 9 on NVA0.
+ *     CUDA %smid = %smidl + (%smidh << 2)
  * - %clock: multiplied by 2 before use in CUDA for some reason.
  * - %pm0-%pm3.
  *
  * Memory spaces:
  * - local memory: l[...]. Local to each thread, can do 64-bit and 128-bit
- *   accesses. Usable in everything. Can be up to 4kB long.
+ *   accesses. Usable in everything. Can be up to ??? long. CUDA complains
+ *   about >4KB, but I got full 64kB just fine with tesla.
  * - shared memory: s[...]. Shared between threads in a single block. Exists
  *   only in CP. Can be up to 16kB long.
  * - attribute memory: a[...]. Exists only in VP and GP, contains their inputs.
@@ -204,7 +203,7 @@
  * To make life fun, encodings used for s[] in CP and a[] in VP/GP collide and
  * are rather incompatible. Yay.
  *
- * At beginning of shared space when using cuda:
+ * At beginning of shared space on CP:
  * - 0x0/16: gridid
  * - 0x2/16: ntid.x
  * - 0x4/16: ntid.y
@@ -2093,13 +2092,13 @@ struct insn tabl[] = {
 	{ AP, 0xd0000000, 0xf0000002, 0x60000000, 0xe0000000,
 		N("mov"), T(ldstm), LOCAL, T(ldsto) },
 
-	{ AP, 0xd0000000, 0xf0000002, 0x80000000, 0xe0000000,
+	{ CP, 0xd0000000, 0xf0000002, 0x80000000, 0xe0000000,
 		N("mov"), T(ldstm), T(ldsto), GLOBAL },
-	{ AP, 0xd0000000, 0xf0000002, 0xa0000000, 0xe0000000,
+	{ CP, 0xd0000000, 0xf0000002, 0xa0000000, 0xe0000000,
 		N("mov"), T(ldstm), GLOBAL, T(ldsto) },
-	{ AP, 0xd0000000, 0xf0000002, 0xc0000000, 0xe0000000,
+	{ CP, 0xd0000000, 0xf0000002, 0xc0000000, 0xe0000000,
 		T(redm), GLOBAL, T(ldsto) },
-	{ AP, 0xd0000000, 0xf0000002, 0xe0000000, 0xe0000000,
+	{ CP, 0xd0000000, 0xf0000002, 0xe0000000, 0xe0000000,
 		T(atomm), T(ldsto), GLOBAL2, T(ldsts2), T(mldsts3) },
 
 	// e
