@@ -72,7 +72,7 @@
  * Branching
  *  - branching/joining?
  *  - is .uni flag just for lulz?
- *  - where does call store its return addresses? why are there two types?
+ *  - why are there two types of call?
  *  - what if you try to predicate joins/exits?
  * Predicates
  *  - why some instructions have 0 for predicates?
@@ -96,7 +96,6 @@
  *  - make sure all cvt's work as expected
  *
  * Disassembler stuff
- *  - make atomctarg use BF()
  *  - cleanup cvt mess.
  *  - make $a0 show as 0?
  *
@@ -120,6 +119,7 @@
  *  - check lfm1 and lfm2 on all float operations.
  *  - mad with rounding modes.
  *  - slct? wtf?
+ *  - what happens for unaligned long instructions?
  * On non-CP:
  *  - check exact encoding for a[] and v[], figure out size and what's in there.
  *  - g[] possible?
@@ -380,7 +380,7 @@
  *   7. Control Flow
  *    - { }		done
  *    - @		done
- *    - bra		XXX need to figure out target range, but sounds hard
+ *    - bra		desc...
  *    - call		XXX WTF?
  *    - ret		desc...
  *    - exit		desc...
@@ -397,7 +397,7 @@
  *    - pmevent		desc... XXX
  *  10. Undocumented/implicit stuff
  *    - join		XXX what does it do?
- *    - joinat		XXX what does it do?
+ *    - joinat		desc...
  *    - interp		XXX Needs figuring out.
  *    - discard		XXX what happens after you use it?
  *    - emit/reset	XXX can do combo?
@@ -644,18 +644,16 @@ void atomoops APROTO {
  * Code target field
  *
  * This field represents a code address and is used for branching and the
- * likes. Target is counted in two-word chunks from the start point of code
- * segment [which does NOT have to be entry point of code. it is for CUDA, but
- * not for shaders]. Low part of target is in 0/12-26, high part is in 1/14-?.
+ * likes. Target is counted in 32-bit words from the start point of code
+ * segment [which does NOT have to be entry point of code. it is for CUDA, but // XXX ORLY? and CP_START_ID is what?
+ * not for shaders]. Low part of target is in 0/11-26, high part is in 1/14-19.
  * It's unknown yet how big this field realy is. Some CUDA manual claims code
  * can be up to 8M PTX instructions long, which would make it 23 bits in total.
  */
 
 #define CTARG atomctarg, 0
 void atomctarg APROTO {
-	fprintf (out, " %s%#x", cbr, ((a[0]>>12&0x7fff) | (a[1]<<1&0x1fff8000))<<3);
-	a[0] &= ~0x07fff000;
-	a[1] &= ~0x0fffc000; // ...?
+	fprintf (out, " %s%#x", cbr, BF(0, 11, 16)<<2 | BF(1, 14, 6) << 18);
 }
 
 /*
