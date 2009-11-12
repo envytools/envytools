@@ -2160,8 +2160,9 @@ struct insn tabl[] = {
 	{ FP, 0x00000002, 0xf0000002, 0, 0, N("discard") },
 	{ AP, 0x10000002, 0xf0000002, 0, 0, N("bra"), CTARG },
 	{ AP, 0x20000002, 0xf0000002, 0, 0, N("call"), CTARG },
-
 	{ AP, 0x30000002, 0xf0000002, 0, 0, N("ret") },
+	{ AP, 0x60000002, 0xf0000002, 0, 0, N("quadon") },
+	{ AP, 0x70000002, 0xf0000002, 0, 0, N("quadpop") },
 	{ AP, 0x861ffe02, 0xf61ffe02, 0, 0, N("bar sync"), BAR },
 	{ AP, 0x90000002, 0xf0000002, 0, 0, N("trap") },
 	{ AP, 0xa0000002, 0xf0000002, 0, 0, N("joinat"), CTARG },
