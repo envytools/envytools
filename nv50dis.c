@@ -1300,7 +1300,7 @@ struct insn tabi[] = {
  *
  * for mov from sreg: registers are physid, clock, ?, ?, pm0, pm1, pm2, pm3
  *
- * 1	0	mov d s1	XXX needs 0xf in LSRC3 for some reason
+ * 1	0	mov d s1	XXX lanemask in LSRC3
  * 1	2	mov d c[]	XXX
  * 1	4	mov d s[]	XXX can do lock, new on sm_11?	!FP
  * 1	6	vote $c		LSRC abused for type: 0 uni 1 any 2 all, needs sm_12
@@ -1707,7 +1707,7 @@ struct insn tabcvtiisrc[] ={
 
 struct insn tabtexp[] = {
 	{ AP, 0x00000000, 0x06000000, 0x00000000, 0x0000c000,
-		OOPS },
+		N("none") },
 	{ AP, 0x02000000, 0x06000000, 0x00000000, 0x0000c000,
 		N("x") },
 	{ AP, 0x04000000, 0x06000000, 0x00000000, 0x0000c000,
@@ -1764,10 +1764,29 @@ struct insn tablmus2[] = {
 	{ AP, 0, 0, 0x00004000, 0x00004000, N("s16") },
 };
 
+struct insn tablane[] = {
+	{ AP, 0, 0, 0x00000000, 0x0003c000, N("lnone") },
+	{ AP, 0, 0, 0x00004000, 0x0003c000, N("l0") },
+	{ AP, 0, 0, 0x00008000, 0x0003c000, N("l1") },
+	{ AP, 0, 0, 0x0000c000, 0x0003c000, N("l01") },
+	{ AP, 0, 0, 0x00010000, 0x0003c000, N("l2") },
+	{ AP, 0, 0, 0x00014000, 0x0003c000, N("l02") },
+	{ AP, 0, 0, 0x00018000, 0x0003c000, N("l12") },
+	{ AP, 0, 0, 0x0001c000, 0x0003c000, N("l012") },
+	{ AP, 0, 0, 0x00020000, 0x0003c000, N("l3") },
+	{ AP, 0, 0, 0x00024000, 0x0003c000, N("l03") },
+	{ AP, 0, 0, 0x00028000, 0x0003c000, N("l13") },
+	{ AP, 0, 0, 0x0002c000, 0x0003c000, N("l013") },
+	{ AP, 0, 0, 0x00030000, 0x0003c000, N("l23") },
+	{ AP, 0, 0, 0x00034000, 0x0003c000, N("l023") },
+	{ AP, 0, 0, 0x00038000, 0x0003c000, N("l123") },
+	{ AP, 0, 0, 0x0003c000, 0x0003c000 },
+};
+
 struct insn tabl[] = {
 	// 0
-	{ VP|GP, 0x00000000, 0xf0000002, 0x0423c000, 0xe423c000,
-		N("mov b32"), LLDST, FATTR },
+	{ VP|GP, 0x00000000, 0xf0000002, 0x04200000, 0xe4200000,
+		T(lane), N("mov b32"), LLDST, FATTR },
 	{ AP, 0x00000000, 0xf0000002, 0x20000000, 0xe0000000,
 		N("mov"), LDST, COND },
 	{ AP, 0x00000000, 0xf0000002, 0x40000000, 0xe0000000,	// no, OFFS doesn't work.
@@ -1801,10 +1820,10 @@ struct insn tabl[] = {
 		N("mov unlock b32"), FSHARED, LSRC3 },
 
 	// 1
-	{ AP, 0x10000000, 0xf0000002, 0x0003c000, 0xe403c000,
-		N("mov b16"), LLHDST, T(lsh) },
-	{ AP, 0x10000000, 0xf0000002, 0x0403c000, 0xe403c000,
-		N("mov b32"), LLDST, T(lsw) },
+	{ AP, 0x10000000, 0xf0000002, 0x00000000, 0xe4000000,
+		T(lane), N("mov b16"), LLHDST, T(lsh) },
+	{ AP, 0x10000000, 0xf0000002, 0x04000000, 0xe4000000,
+		T(lane), N("mov b32"), LLDST, T(lsw) },
 
 	{ AP, 0x10000000, 0xf0000002, 0x20000000, 0xe4000000,
 		N("mov b16"), LLHDST, T(fcon) },
