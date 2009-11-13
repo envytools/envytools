@@ -2114,7 +2114,7 @@ struct insn tabl[] = {
 		N("mul"), T(mf32r), N("f32"), LLDST, T(lneg1), T(lsw), T(lneg2), T(lc2w) },
 
 	{ AP, 0xc0000000, 0xf0040002, 0x80000000, 0xf0000000,
-		N("quadop f32"), T(qop0), T(qop1), T(qop2), T(qop3), LDST, T(qs1), LSRC, LSRC3 },
+		N("quadop f32"), T(qop0), T(qop1), T(qop2), T(qop3), MCDST, LLDST, T(qs1), LSRC, LSRC3 },
 
 	{ AP, 0xc0140000, 0xf0150002, 0x89800000, 0x8bc00000,	// XXX fuck me harder.
 		N("dfdx f32"), LDST, LSRC, LSRC3 },
