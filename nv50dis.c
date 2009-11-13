@@ -34,97 +34,22 @@
 /*
  * Table of Contents
  *  0. Table of Contents
- *  1. TODOs
- *  2. Some general info about nv50 architecture
- *  3. Instructions
- *  4. Differences from PTX
- *  5. General instruction format
- *  6. Misc. hack alerts
- *  7. Color scheme
- *  8. Table format
- *  9. Code target field
- * 10. Immediate field
- * 11. Misc number fields
- * 12. Register fields
- * 13. Memory fields
- * 14. Short instructions
- * 15. Immediate instructions
- * 16. Long instructions
- * 17. Non-predicated long instructions
- * 18. Disassembler driver
- */
-
-/*
- * TODOs
- *
- * Queue for immediate execution:
- * 
- *  - mad madness
- *  - mul24/mad24 with immediates. and short forms. and negations.
- *  - sad again
- *  - const spaces: how many bits do addresses have?
- *  - cvt with rounding modes. also, what does it do?
- *  - mad with rounding modes
- *
- * TODO for when it's possible:
- *
- * Branching
- *  - branching/joining?
- *  - is .uni flag just for lulz?
- *  - why are there two types of call?
- *  - what if you try to predicate joins/exits?
- * Predicates
- *  - why some instructions have 0 for predicates?
- * Counting stuff
- *  - $a5-$a7?
- *  - how to set up all the memory spaces and how big are they?
- *  - sad.f32?
- * Misc
- *  - orthogofuckingnalise cvt. MORE.
- *  - try to make sense and orthogonalise atomic stuff and load/stores.
- *  - figure out paired movs.
- *  - libGL blob uses weird 0x00010000 flag on cvt's with rounding. wtf?
- *  - what the fuck is up with a different shared memory load insn on >=sm_11?
- *  - how does shared atomic work with locking/unlocking exactly?
- *
- * Cleanup for after everything is said and done:
- *  - edge cases everywhere, write descriptions.
- *  - look for long instructions with possibly missed short forms and the other
- *    way around.
- *  - look for XXXes.
- *  - make sure all cvt's work as expected
- *
- * Disassembler stuff
- *  - cleanup cvt mess.
- *  - make $a0 show as 0?
- *
- * Stuff to check by throwing crap at GLSL:
- *  - indirect interpolants?
- *  - How big are v[] and a[]?
- *  - What instructions allow $o?
- *    - apparently all of them
- *  - GP emit instruction
- *  - life after discard
- *    - kills a shader instantly, or just sets a flag?
- *
- * Needs to be checked experimentaly by running code:
- *  - what exactly happens when DST is unallocated?
- *  - loading 8/16-bit stuff: how?
- *  - how do 16-bit operations on 32-bit registers behave?
- *  - what do presin and preex2 do, exactly?
- *  - check all addressing bit combinations with long, short, immediate insns.
- *    try to involve instructions with all possible argcnts.
- *  - verify multi-$a addressing...
- *  - check lfm1 and lfm2 on all float operations.
- *  - mad with rounding modes.
- *  - slct? wtf?
- *  - what happens for unaligned long instructions?
- * On non-CP:
- *  - check exact encoding for a[] and v[], figure out size and what's in there.
- *  - g[] possible?
- * Needs sm_12 or sm_13:
- *  - output of vote: just negative 0 flag?
- *  - cvt weirdness: cvt.rpi.f64 on 1.25, cvt.rmi.f64 on -1.25
+ *  1. Instructions
+ *  2. Differences from PTX
+ *  3. General instruction format
+ *  4. Misc. hack alerts
+ *  5. Color scheme
+ *  6. Table format
+ *  7. Code target field
+ *  8. Immediate field
+ *  9. Misc number fields
+ * 10. Register fields
+ * 11. Memory fields
+ * 12. Short instructions
+ * 13. Immediate instructions
+ * 14. Long instructions
+ * 15. Non-predicated long instructions
+ * 16. Disassembler driver
  */
 
 #define VP 1
@@ -1237,148 +1162,148 @@ struct insn tabi[] = {
  *
  * Teh opcodes: [subop shifted left to be in alignment with the hexit you see]
  *
- * op	subop	insn
+ * op	subop	tested	insn
  * 0	0	!FP
- * 0	2	mov d $c
- * 0	4	mov d $a	$a taken from usual addressing field
- * 0	6	mov d sreg	sreg in LSRC3
+ * 0	2		mov d $c
+ * 0	4		mov d $a	$a taken from usual addressing field
+ * 0	6		mov d sreg	sreg in LSRC3
  * 0	8	!FP
- * 0	a	mov $c s1
- * 0	c	shl $a s1 shcnt	immediate shift count in LSRC2, no special flag
- * 0	e	mov s[] s3	XXX	WTF? works on FP
+ * 0	a		mov $c s1
+ * 0	c		shl $a s1 shcnt	immediate shift count in LSRC2, no special flag
+ * 0	e		mov s[] s3	XXX	WTF? does something on FP
  *
  * for mov from sreg: registers are physid, clock, ?, ?, pm0, pm1, pm2, pm3
  *
- * 1	0	mov d s1	XXX lanemask in LSRC3
- * 1	2	mov d c[]	XXX
- * 1	4	mov d s[]	XXX can do lock, new on sm_11?	!FP
- * 1	6	vote $c		LSRC abused for type: 0 uni 1 any 2 all, needs sm_12
- * 1	8	!FP
- * 1	a	!FP
- * 1	c	!FP
- * 1	e	!FP
+ * 1	0		mov d s1	lanemask in LSRC3
+ * 1	2		mov d c[]	XXX
+ * 1	4		mov d s[]	XXX can do lock, new on sm_11?	!FP
+ * 1	6		vote $c		LSRC abused for type: 0 uni 1 any 2 all, needs sm_12
+ * 1	8		!FP
+ * 1	a		!FP
+ * 1	c		!FP
+ * 1	e		!FP
  *
- * 2	0	add d s1 s3	highest bit of LSRC2 clear, misc for sat, 32/16
- * 		sub d s1 s3	highest bit of LSRC2 set, misc for sat, 32/16
- * 2	2	!FP
- * 2	4	!FP
- * 2	6	!FP
- * 2	8	!FP
- * 2	a	!FP
- * 2	c	!FP
- * 2	e	!FP
+ * 2	0		add d s1 s3	highest bit of LSRC2 clear, misc for sat, 32/16
+ * 			sub d s1 s3	highest bit of LSRC2 set, misc for sat, 32/16
+ * 2	2		!FP
+ * 2	4		!FP
+ * 2	6		!FP
+ * 2	8		!FP
+ * 2	a		!FP
+ * 2	c		!FP
+ * 2	e		!FP
  *
- * 3	0	subr d s1 s3	highest bit of LSRC2 clear, misc for sat, 32/16
- * 		addc d s1 s3 $c	highest bit of LSRC2 set, misc for sat, 32/16
- * 3	2	!FP
- * 3	4	!FP
- * 3	6	set d s1 s2	LSRC3 abused for code, misc for s/u and 32/16
- * 3	8	max d s1 s2	misc for s/u and 32/16
- * 3	a	min d s1 s2	misc for s/u and 32/16
- * 3	c	shl d s1 s2	highest bit of LSRC3 for imm s2, misc for 32/16
- * 3	e	shr d s1 s2	highest bit of LSRC3 for imm s2, misc for 32/16, s/u
+ * 3	0		subr d s1 s3	highest bit of LSRC2 clear, misc for sat, 32/16
+ * 			addc d s1 s3 $c	highest bit of LSRC2 set, misc for sat, 32/16
+ * 3	2		!FP
+ * 3	4		!FP
+ * 3	6		set d s1 s2	LSRC3 abused for code, misc for s/u and 32/16
+ * 3	8		max d s1 s2	misc for s/u and 32/16
+ * 3	a		min d s1 s2	misc for s/u and 32/16
+ * 3	c		shl d s1 s2	highest bit of LSRC3 for imm s2, misc for 32/16
+ * 3	e		shr d s1 s2	highest bit of LSRC3 for imm s2, misc for 32/16, s/u
  *
- * 4	0	mul d s1 s2	LSRC3 abused for subsubop and s/u
- * 		mul24 d s1 s2	same
- * 4	2	
- * 4	4	?
- * 4	6	?
- * 4	8	?
- * 4	a	?
- * 4	c	?
- * 4	e	?
+ * 4	0		mul d s1 s2	LSRC3 abused for subsubop and s/u
+ * 			mul24 d s1 s2	same
+ * 4	2		
+ * 4	4		?
+ * 4	6		?
+ * 4	8		?
+ * 4	a		?
+ * 4	c		?
+ * 4	e		?
  *
- * 5	0	sad d s1 s2 s3	misc for s/u and 32/16
- * 5	2	!FP
- * 5	4	!FP
- * 5	6	!FP
- * 5	8	!FP
- * 5	a	!FP
- * 5	c	!FP
- * 5	e	!FP
+ * 5	0		sad d s1 s2 s3	misc for s/u and 32/16
+ * 5	2		!FP
+ * 5	4		!FP
+ * 5	6		!FP
+ * 5	8		!FP
+ * 5	a		!FP
+ * 5	c		!FP
+ * 5	e		!FP
  *
- * 6	0	mad u16 d s1 s2 s3	misc for carry??
- * 6	2	mad s16 d s1 s2 s3
- * 6	4	mad sat s16 s1 s2 s3	[?]
- * 6	6	mad24l u32 d s1 s2 s3
- * 6	8	mad24l s32 d s1 s2 s3
- * 6	a	XXX ??? probably mad24l sat s32.
- * 6	c	mad24h u32 d s1 s2 s3
- * 6	e	mad24h s32 d s1 s2 s3
+ * 6	0		mad u16 d s1 s2 s3	misc for carry??
+ * 6	2		mad s16 d s1 s2 s3
+ * 6	4		mad sat s16 s1 s2 s3	[?]
+ * 6	6		mad24l u32 d s1 s2 s3
+ * 6	8		mad24l s32 d s1 s2 s3
+ * 6	a		XXX ??? probably mad24l sat s32.
+ * 6	c		mad24h u32 d s1 s2 s3
+ * 6	e		mad24h s32 d s1 s2 s3
  *
- * 7	0	mas24h s32 sat d s1 s2 s3
- * 7	2	XXX USED! \
- * 7	4	XXX USED! |
- * 7	6	XXX USED! |
- * 7	8	XXX USED! | seem to give the same result
- * 7	a	XXX USED! |
- * 7	c	XXX USED! |
- * 7	e	XXX USED! /
+ * 7	0		mas24h s32 sat d s1 s2 s3
+ * 7	2		XXX USED! \
+ * 7	4		XXX USED! |
+ * 7	6		XXX USED! |
+ * 7	8		XXX USED! | seem to give the same result
+ * 7	a		XXX USED! |
+ * 7	c		XXX USED! |
+ * 7	e		XXX USED! /
  *
- * 8	0	interp	weird format
- * 8	2	!FP
- * 8	4	!FP
- * 8	6	!FP
- * 8	8	!FP
- * 8	a	!FP
- * 8	c	!FP
- * 8	e	!FP
+ * 8	0		interp	weird format
+ * 8	2		!FP
+ * 8	4		!FP
+ * 8	6		!FP
+ * 8	8		!FP
+ * 8	a		!FP
+ * 8	c		!FP
+ * 8	e		!FP
  *
- * 9	0	rcp f32 d s1	doesn't work with SHARED
- * 9	2	!FP
- * 9	4	rsqrt f32 d s1	same
- * 9	6	lg2 f32 d s1	same
- * 9	8	sin f32 d s1	same
- * 9	a	cos f32 d s1	same
- * 9	c	ex2 f32 d s1	same
- * 9	e	!FP
+ * 9	0		rcp f32 d s1	doesn't work with SHARED
+ * 9	2		!FP
+ * 9	4		rsqrt f32 d s1	same
+ * 9	6		lg2 f32 d s1	same
+ * 9	8		sin f32 d s1	same
+ * 9	a		cos f32 d s1	same
+ * 9	c		ex2 f32 d s1	same
+ * 9	e		!FP
  *
- * a	*	cvt
+ * a	*		cvt
  *
- * b	0	add f32 d s1 s3		misc: neg s1/s2, LSRC2: rounding
- * b	2	XXX USED!
- * b	4	!FP
- * b	6	set f32 d s1 s2		misc: neg, high LSRC3: abs, low LSRC3: cond
- * b	8	max f32 d s1 s2		misc: neg, high LSRC3: abs
- * b	a	min f32 d s1 s2		misc: neg, high LSRC3: abs
- * b	c	pre f32 d s1 s2		low LSRC3: subsubop, 0-sin/cos, 1-ex2.
- * b	e	!FP
+ * b	0		add f32 d s1 s3		misc: neg s1/s2, LSRC2: rounding
+ * b	2		XXX USED!
+ * b	4		!FP
+ * b	6		set f32 d s1 s2		misc: neg, high LSRC3: abs, low LSRC3: cond
+ * b	8		max f32 d s1 s2		misc: neg, high LSRC3: abs
+ * b	a		min f32 d s1 s2		misc: neg, high LSRC3: abs
+ * b	c		pre f32 d s1 s2		low LSRC3: subsubop, 0-sin/cos, 1-ex2.
+ * b	e		!FP
  *
- * c	0	mul f32 d s1 s2		misc: neg, LSRC3: rounding
- * c	2	!FP
- * c	4	XXX USED!
- * c	6	XXX USED!
- * c	8	inter-lane stuff	fucked up format
- * c	a	!FP
- * c	c	!FP
- * c	e	!FP
+ * c	0		mul f32 d s1 s2		misc: neg, LSRC3: rounding
+ * c	2		!FP
+ * c	4		XXX USED!
+ * c	6		XXX USED!
+ * c	8		inter-lane stuff	fucked up format
+ * c	a		!FP
+ * c	c		!FP
+ * c	e		!FP
  *
- * d	0	lop d s1 s2	misc: 32/16, LSRC3: op and not's for both args
- * d	2	add $a offs $a	a LEA.
- * d	4	mov d l[]		weird format
- * d	6	mov l[] d		weird format
- * d	8	mov d g[]		weird format
- * d	a	mov g[] d		weird format
- * d	c	atom g[] d		weird format
- * d	e	ld atom d g[] s2 s3	weird format
+ * d	0		lop d s1 s2	misc: 32/16, LSRC3: op and not's for both args
+ * d	2		add $a offs $a	a LEA.
+ * d	4		mov d l[]		weird format
+ * d	6		mov l[] d		weird format
+ * d	8		mov d g[]		weird format
+ * d	a		mov g[] d		weird format
+ * d	c		atom g[] d		weird format
+ * d	e		ld atom d g[] s2 s3	weird format
  *
- * e	0	mad f32 d s1 s2 s3	misc: neg
- * e	2	mad f32 sat d s1 s2 s3	misc: neg
- * e	4	mad f64 d s1 s2 s3	misc: neg, const space abused as rounding
- * e	6	add f64 d s1 s3		misc: neg, LSRC3/2-3: rounding
- * e	8	mul f64 d s1 s2		misc: neg, LSRC3/3-4: rounding
- * e	a	min f64 d s1 s2		misc: neg, high LSRC3: abs
- * e	c	max f64 d s1 s2		misc: neg, high LSRC3: abs
- * e	e	set f64 d s1 s2		misc: neg, high LSRC3: abs, low LSRC3: cond
+ * e	0		mad f32 d s1 s2 s3	misc: neg
+ * e	2		mad f32 sat d s1 s2 s3	misc: neg
+ * e	4		mad f64 d s1 s2 s3	misc: neg, const space abused as rounding
+ * e	6		add f64 d s1 s3		misc: neg, LSRC3/2-3: rounding
+ * e	8		mul f64 d s1 s2		misc: neg, LSRC3/3-4: rounding
+ * e	a		min f64 d s1 s2		misc: neg, high LSRC3: abs
+ * e	c		max f64 d s1 s2		misc: neg, high LSRC3: abs
+ * e	e		set f64 d s1 s2		misc: neg, high LSRC3: abs, low LSRC3: cond
  *
- * f	0	tex		weird format
- * f	2	tex bias	weird format
- * f	4	tex lod		weird format
- * f	6	tex size	weird format
- * f	8	XXX USED!
- * f	a	XXX USED!
- * f	c	emit,restart
- * f	e	XXX USED!
+ * f	0		tex		weird format
+ * f	2		tex bias	weird format
+ * f	4		tex lod		weird format
+ * f	6		tex size	weird format
+ * f	8		XXX USED!
+ * f	a		XXX USED!
+ * f	c		emit,restart
+ * f	e		XXX USED!
  *
  */
 
@@ -1667,9 +1592,14 @@ struct insn tablmus1[] = {
 	{ AP, 0, 0, 0x00008000, 0x00008000, N("s16") },
 };
 
+struct insn tabdtex[] = { // suspected to enable implicit derivatives on non-FPs.
+	{ AP, 0, 0, 0x00000000, 0x00000008 },
+	{ AP, 0, 0, 0x00000008, 0x00000008, N("deriv") },
+};
+
 struct insn tabltex[] = {
-	{ AP, 0, 0, 0x00000000, 0x00000004, N("all") },
-	{ AP, 0, 0, 0x00000004, 0x00000004, N("live") },
+	{ AP, 0, 0, 0x00000000, 0x00000004, N("all"), T(dtex) },
+	{ AP, 0, 0, 0x00000004, 0x00000004, N("live"), T(dtex) },
 };
 
 

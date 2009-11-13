@@ -1,0 +1,65 @@
+Queue for immediate execution:
+
+ - mad madness
+ - mul24/mad24 with immediates. and short forms. and negations.
+ - sad again
+ - const spaces: how many bits do addresses have?
+ - cvt with rounding modes. also, what does it do?
+ - mad with rounding modes
+
+Branching
+ - branching/joining?
+ - why are there two types of call?
+ - what does quadon do?
+ - control opcodes 4 and 5
+Predicates
+ - what if you try to predicate joins/exits?
+ - which instructions ignore predicates?
+Counting stuff
+ - $a5-$a7?
+ - how to set up all the memory spaces and how big are they?
+ - sad.f32?
+Misc
+ - orthogofuckingnalise cvt. MORE.
+ - try to make sense and orthogonalise atomic stuff and load/stores.
+ - figure out paired movs.
+ - libGL blob uses weird 0x00010000 flag on cvt's with rounding. wtf?
+ - what the fuck is up with a different shared memory load insn on >=sm_11?
+
+Cleanup for after everything is said and done:
+ - edge cases everywhere, write descriptions.
+ - look for long instructions with possibly missed short forms and the other
+   way around.
+ - look for XXXes.
+ - make sure all cvt's work as expected
+
+Disassembler stuff
+ - cleanup cvt mess.
+ - make $a0 show as 0?
+
+Shader-related:
+ - How big are v[] and a[]?
+ - What instructions allow $o?
+   - apparently all of them
+ - GP emit instruction: supports combo with restart?
+ - life after discard
+   - kills a shader instantly, or just sets a flag?
+
+Needs to be checked experimentaly by running code:
+ - what exactly happens when DST is unallocated?
+ - what do presin and preex2 do, exactly?
+ - check all addressing bit combinations with long, short, immediate insns.
+   try to involve instructions with all possible argcnts.
+ - verify multi-$a addressing...
+ - check how and where p[] works
+ - check lfm1 and lfm2 on all float operations.
+ - mad with rounding modes.
+ - slct? wtf?
+ - what happens for unaligned long instructions?
+On non-CP:
+ - check exact encoding for a[] and v[], figure out size and what's in there.
+ - g[] possible?
+Needs sm_12 or sm_13:
+ - output of vote: just negative 0 flag?
+ - cvt weirdness: cvt.rpi.f64 on 1.25, cvt.rmi.f64 on -1.25
+ - how does shared atomic work with locking/unlocking exactly?
