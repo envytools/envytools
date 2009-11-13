@@ -1024,6 +1024,7 @@ struct insn tabi[] = {
 	{ AP, 0xd0000000, 0xf0008102, 0, 0, N("and b32"), SDST, T(snot1), T(ssw), IMM },
 	{ AP, 0xd0000100, 0xf0008102, 0, 0, N("or b32"), SDST, T(snot1), T(ssw), IMM },
 	{ AP, 0xd0008000, 0xf0008102, 0, 0, N("xor b32"), SDST, T(snot1), T(ssw), IMM },
+	{ AP, 0xd0008100, 0xf0008102, 0, 0, N("mov2 b32"), SDST, T(snot1), T(ssw), IMM },
 
 	{ AP, 0xe0000000, 0xf0000002, 0, 0, N("mad"), T(ssat), N("f32"), SDST, T(sneg1), T(ssw), IMM, T(sneg2), SDST },
 
@@ -1892,11 +1893,10 @@ struct insn tabl[] = {
 		N("xor b16"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
 	{ AP, 0xd0000000, 0xf0000002, 0x04008000, 0xe400c000,
 		N("xor b32"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
-
-	{ AP, 0xd0000000, 0xf0000002, 0x0002c000, 0xe403c000,
-		N("not b16"), MCDST, LLHDST, LHSRC2 },
-	{ AP, 0xd0000000, 0xf0000002, 0x0402c000, 0xe403c000,
-		N("not b32"), MCDST, LLDST, LSRC2 },
+	{ AP, 0xd0000000, 0xf0000002, 0x0000c000, 0xe400c000,
+		N("mov2 b16"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
+	{ AP, 0xd0000000, 0xf0000002, 0x0400c000, 0xe400c000,
+		N("mov2 b32"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
 
 	{ AP, 0xd0000000, 0xf0000002, 0x20000000, 0xe0000000,	// really a LEA.
 		N("add"), ADST, OFFS, AREG },

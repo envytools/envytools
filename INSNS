@@ -4,6 +4,7 @@ Instructions
 1. MOV
 2. Integer ADD family
 3. Integer short MUL
+4. Bit operations
 
 0. Conventions
 
@@ -105,3 +106,40 @@ Instructions
   		0x00000000 0x00008000 src1 is signed
   		0x00000000 0x00004000 src2 is signed
   		operands: MCDST, LDST, LHSRC1/LHSHARED, LHSRC2/LHCONST2
+
+4. Bit operations
+
+  and b32/b16 DST [not] SRC1 [not] SRC2		O2=0, O1=0
+  or b32/b16 DST [not] SRC1 [not] SRC2		O2=0, O1=1
+  xor b32/b16 DST [not] SRC1 [not] SRC2		O2=1, O1=0
+  mov2 b32/b16 DST [not] SRC1 [not] SRC2	O2=1, O1=1
+
+  Immediate forms only allows 32-bit operands, and cannot negate second op.
+
+	s1 = (not1 ? ~SRC1 : SRC1);
+	s2 = (not2 ? ~SRC2 : SRC2);
+	switch (OP) {
+		case and: res = s1 & s2; break;
+		case or: res = s1 | s2; break;
+		case xor: res = s1 ^ s2; break;
+		case mov2: res = s2; break;
+	}
+	CDST.O = 0;
+	CDST.C = 0;
+	CDST.S = S(res);
+	CDST.Z = res == 0;
+	DST = res;
+
+  Imm:		0xd0000000 base opcode
+		0x00400000 not1
+		0x00008000 O2 bit
+		0x00000100 O1 bit
+		operands: SDST, SSRC/SSHARED, IMM
+
+  Long:		0xd0000000 0x00000000 base opcode
+		0x00000000 0x04000000 0: b16, 1: b32
+		0x00000000 0x00020000 not2
+		0x00000000 0x00010000 not1
+		0x00000000 0x00008000 O2 bit
+		0x00000000 0x00004000 O1 bit
+		operands: MCDST, LL*DST, L*SRC1/L*SHARED, L*SRC2/L*CONST2
