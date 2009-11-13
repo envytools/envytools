@@ -67,7 +67,7 @@ Instructions
 		0x00000100 sat flag
 		operands: S*DST, S*SRC1/S*SHARED, S*SRC2/S*CONST/IMM, $c0
 
-  Long:	0x20000000 0x00000000 base opcode
+  Long:		0x20000000 0x00000000 base opcode
 		0x10000000 0x00000000 O2 bit
 		0x00400000 0x00000000 O1 bit
 		0x00000000 0x04000000 0: b16, 1: b32
@@ -101,7 +101,7 @@ Instructions
   		0x00000100 src2 is signed
   		operands: SDST, SHSRC/SHSHARED, SHSRC2/SHCONST/IMM
 
-  Long:	0x40000000 0x00000000 base opcode
+  Long:		0x40000000 0x00000000 base opcode
   		0x00000000 0x00008000 src1 is signed
   		0x00000000 0x00004000 src2 is signed
   		operands: MCDST, LDST, LHSRC1/LHSHARED, LHSRC2/LHCONST2
