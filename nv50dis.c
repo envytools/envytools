@@ -65,7 +65,6 @@
  *  - const spaces: how many bits do addresses have?
  *  - cvt with rounding modes. also, what does it do?
  *  - mad with rounding modes
- *  - figure out tex
  *
  * TODO for when it's possible:
  *
@@ -376,7 +375,7 @@
  *    - st		desc...
  *    - cvt		XXX cleanup, rounding modes
  *   6. Texture
- *    - tex		TODO
+ *    - tex		desc...
  *   7. Control Flow
  *    - { }		done
  *    - @		done
@@ -827,6 +826,39 @@ void atomareg APROTO {
 	fprintf (out, " %s$a%d", cmag, getareg(a, m, 1));
 }
 
+#define LTDST atomltdst, 0
+void atomltdst APROTO {
+	int base = BF(0, 2, 7);
+	int mask = BF(1, 14, 2)<<2 | BF(0, 25, 2);
+	int k = 0, i;
+	fprintf (out, " %s{", cnorm);
+	for (i = 0; i < 4; i++)
+		if (mask & 1<<i)
+			fprintf (out, " %s$r%d", cbl, base+k++);
+		else
+			fprintf (out, " %s_", cbl);
+	fprintf (out, " %s}", cnorm);
+}
+#define STDST atomstdst, 0
+void atomstdst APROTO {
+	int base = BF(0, 2, 7);
+	int i;
+	fprintf (out, " %s{", cnorm);
+	for (i = 0; i < 4; i++)
+		fprintf (out, " %s$r%d", cbl, base+i);
+	fprintf (out, " %s}", cnorm);
+}
+#define TSRC atomtsrc, 0
+void atomtsrc APROTO {
+	int base = BF(0, 2, 7);
+	int cnt = BF(0, 22, 2);
+	int i;
+	fprintf (out, " %s{", cnorm);
+	for (i = 0; i <= cnt; i++)
+		fprintf (out, " %s$r%d", cbl, base+i);
+	fprintf (out, " %s}", cnorm);
+}
+
 
 #define LLDST T(lldst)
 struct insn tablldst[] = {
@@ -1164,10 +1196,8 @@ struct insn tabs[] = {
 
 	{ AP, 0xe0000000, 0xf0000002, 0, 0, N("mad f32"), SDST, SSRC, SSRC2, SDST },	// XXX: flags like tabi?
 
-	{ AP, 0xf0000000, 0xffc00002, 0, 0, N("tex 1d f32"), T(stex), SQDST, TEX },
-	{ AP, 0xf0400000, 0xffc00002, 0, 0, N("tex 2d f32"), T(stex), SQDST, TEX },
-	{ AP, 0xf0800000, 0xffc00002, 0, 0, N("tex 3d f32"), T(stex), SQDST, TEX },
-	{ AP, 0xf1000000, 0xffc00002, 0, 0, N("tex 1d s32"), T(stex), SQDST, TEX },
+	{ AP, 0xf0000000, 0xf1000002, 0, 0, N("texauto"), T(stex), STDST, TEX, TSRC },
+	{ AP, 0xf1000000, 0xf1000002, 0, 0, N("texfetch"), T(stex), STDST, TEX, TSRC },
 
 	{ AP, 0, 2, 0, 0, OOPS, SDST, T(ssw), T(scw) },
 	{ AP, 0, 0, 0, 0, OOPS }
@@ -1715,41 +1745,6 @@ struct insn tabcvtiisrc[] ={
 	{ AP, 0, 0, 0, 0, OOPS }
 };
 
-struct insn tabtexp[] = {
-	{ AP, 0x00000000, 0x06000000, 0x00000000, 0x0000c000,
-		N("none") },
-	{ AP, 0x02000000, 0x06000000, 0x00000000, 0x0000c000,
-		N("x") },
-	{ AP, 0x04000000, 0x06000000, 0x00000000, 0x0000c000,
-		N("y") },
-	{ AP, 0x06000000, 0x06000000, 0x00000000, 0x0000c000,
-		N("xy") },
-	{ AP, 0x00000000, 0x06000000, 0x00004000, 0x0000c000,
-		N("z") },
-	{ AP, 0x02000000, 0x06000000, 0x00004000, 0x0000c000,
-		N("xz") },
-	{ AP, 0x04000000, 0x06000000, 0x00004000, 0x0000c000,
-		N("yz") },
-	{ AP, 0x06000000, 0x06000000, 0x00004000, 0x0000c000,
-		N("xyz") },
-	{ AP, 0x00000000, 0x06000000, 0x00008000, 0x0000c000,
-		N("w") },
-	{ AP, 0x02000000, 0x06000000, 0x00008000, 0x0000c000,
-		N("xw") },
-	{ AP, 0x04000000, 0x06000000, 0x00008000, 0x0000c000,
-		N("yw") },
-	{ AP, 0x06000000, 0x06000000, 0x00008000, 0x0000c000,
-		N("xyw") },
-	{ AP, 0x00000000, 0x06000000, 0x0000c000, 0x0000c000,
-		N("zw") },
-	{ AP, 0x02000000, 0x06000000, 0x0000c000, 0x0000c000,
-		N("xzw") },
-	{ AP, 0x04000000, 0x06000000, 0x0000c000, 0x0000c000,
-		N("yzw") },
-	{ AP, 0x06000000, 0x06000000, 0x0000c000, 0x0000c000,
-		N("xyzw") },
-};
-
 struct insn tabfcon[] = {
 	{ AP, 0, 0, 0x00000000, 0x0000c000, N("u8"), FBCONST },
 	{ AP, 0, 0, 0x00004000, 0x0000c000, N("u16"), FHCONST },
@@ -2187,18 +2182,26 @@ struct insn tabl[] = {
 		N("set"), T(setf), N("f64"), MCDST, LLDST, T(lfm1), LDSRC, T(lfm2), LDSRC2 },
 
 	// f
-	{ AP, 0xf0000000, 0xf1c00002, 0x00000000, 0x80000000,
-		N("tex 1d f32"), T(ltex), T(texp), LQDST, TEX, TOFFX },
-	{ AP, 0xf0400000, 0xf1c00002, 0x00000000, 0x80000000,
-		N("tex 2d f32"), T(ltex), T(texp), LQDST, TEX, TOFFX, TOFFY },
-	{ AP, 0xf0800000, 0xf1c00002, 0x00000000, 0x80000000,
-		N("tex 3d f32"), T(ltex), T(texp), LQDST, TEX, TOFFX, TOFFY, TOFFZ },
-	{ AP, 0xf1000000, 0xf1c00002, 0x00000000, 0x80000000,
-		N("tex 1d s32"), T(ltex), T(texp), LQDST, TEX },
-	{ AP, 0xf1800000, 0xf1c00002, 0x00000000, 0x80000000,
-		N("tex 2d s32"), T(ltex), T(texp), LQDST, TEX },
-	{ AP, 0xf1c00000, 0xf1c00002, 0x00000000, 0x80000000,
-		N("tex 3d s32"), T(ltex), T(texp), LQDST, TEX },
+	{ AP, 0xf0000000, 0xf9000002, 0x00000000, 0xf0000000, // order of inputs: x, y, z, index, dref, bias/lod. index is integer, others float.
+		N("texauto"), T(ltex), LTDST, TEX, TSRC, TOFFX, TOFFY, TOFFZ },
+	{ AP, 0xf8000000, 0xf9000002, 0x00000000, 0xf0000000,
+		N("texauto cube"), T(ltex), LTDST, TEX, TSRC },
+
+	{ AP, 0xf1000000, 0xf1000002, 0x00000000, 0xf0000000, // takes integer inputs.
+		N("texfetch"), T(ltex), LTDST, TEX, TSRC, TOFFX, TOFFY, TOFFZ },
+
+	{ AP, 0xf0000000, 0xf8000002, 0x20000000, 0xf0000000, // bias needs to be same for everything, or else.
+		N("texbias"), T(ltex), LTDST, TEX, TSRC, TOFFX, TOFFY, TOFFZ },
+	{ AP, 0xf8000000, 0xf8000002, 0x20000000, 0xf0000000,
+		N("texbias cube"), T(ltex), LTDST, TEX, TSRC },
+
+	{ AP, 0xf0000000, 0xf8000002, 0x40000000, 0xf0000000, // lod needs to be same for everything, or else.
+		N("texlod"), T(ltex), LTDST, TEX, TSRC, TOFFX, TOFFY, TOFFZ },
+	{ AP, 0xf8000000, 0xf8000002, 0x40000000, 0xf0000000,
+		N("texlod cube"), T(ltex), LTDST, TEX, TSRC },
+
+	{ AP, 0xf0000000, 0xf0000002, 0x60000000, 0xf0000000, // integer input and output.
+		N("texsize"), T(ltex), LTDST, TEX, LDST }, // in: LOD, out: size.x, size.y, size.z
 
 	{ GP, 0xf0000200, 0xf0000602, 0xc0000000, 0xe0000000, N("emit") },
 	{ GP, 0xf0000400, 0xf0000602, 0xc0000000, 0xe0000000, N("restart") },
