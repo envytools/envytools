@@ -1949,9 +1949,16 @@ struct insn tabl[] = {
 		N("set"), T(setf), N("f32"), MCDST, LLDST, T(lfm1), T(lsw), T(lfm2), T(lc2w) },
 
 	{ AP, 0xb0000000, 0xf0000002, 0xc0000000, 0xe0004000,
-		N("presin f32"), LDST, T(lsw) },
+		N("presin f32"), LLDST, T(lsw) },
 	{ AP, 0xb0000000, 0xf0000002, 0xc0004000, 0xe0004000,
-		N("preex2 f32"), LDST, T(lsw) },
+		N("preex2 f32"), LLDST, T(lsw) },
+	/* preex2 converts float to fixed point, results:
+	 * 0-0x3fffffff: 7.23 fixed-point number
+	 * 0x40000000: +nan
+	 * 0x40800000: +infinity
+	 * flip bit 0x80000000 in any of the above for negative numbers.
+	 * presin divides by pi/2, mods with 4 [or with 2*pi, pre-mod], then does preex2
+	 */
 
 	// c
 	{ AP, 0xc0000000, 0xf0000002, 0x00000000, 0xe0000000,
