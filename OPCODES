@@ -1,0 +1,273 @@
+Control instructions:
+
+They don't seem to have short or immediate forms, nor use op2. Needs to be
+checked some day.
+
+op	tested	pred	insn
+0	F	+	discard
+1	*	+	bra
+2	*	-	call
+3	*	+	ret		
+4	C		XXX ???
+5	C		XXX ??? ends a single thread sometimes
+6	*	-	quadon
+7	*	-	quadpop
+8	C		bar sync
+9	C	-	trap
+a	*	-	joinat
+b	C		brkpt	sm11
+c	!C
+d	!C
+e	!C
+f	!C
+
+Short instructions:
+
+Usual format:
+
+0x00000003: set to 0
+0x000000fc: S*DST
+0x00000100: flag1
+0x00007e00: S*SRC or S*SHARED
+0x00008000: flag2
+0x003f0000: S*SRC2 or S*CONST
+0x00400000: flag3
+0x00800000: use S*CONST
+0x01000000: use S*SHARED
+0x0e000000: addressing
+0xf0000000: opcode
+
+op	tested	insn
+0	!CF
+1	*	mov
+2	*	add
+3	*	add
+4	*	mul
+5	C	XXX ???
+6	*	madd
+7	C	XXX ???
+8	F	interp
+9	*	rcp
+a
+b	*	add f32
+c	*	mul f32
+d	!CF
+e	*	madd f32
+f	*	tex
+
+Immediate instructions:
+
+Looks like there are no immediate instructions with non-0 op2, but let's check
+anyway.
+
+Usual format:
+
+0x0000000000000003: set to 1
+0x00000000000000fc: S*DST
+0x0000000000000100: flag1
+0x0000000000007e00: S*SRC or S*SHARED
+0x0000000000008000: flag2
+0x00000000003f0000: IMMD, low part
+0x0000000000400000: flag3
+0x0000000000800000: -
+0x0000000001000000: use S*SHARED
+0x000000000e000000: addressing
+0x00000000f0000000: opcode
+0x0000000300000000: set to 3
+0x0ffffffc00000000: IMMD, high part
+0x1000000000000000: -
+0xe000000000000000: op2
+
+op	op2	tested	insn
+0	0	!C
+1	0	*	mov
+2	0	*	add
+3	0	*	add
+4	0	*	mul
+5	0	!C
+6	0	*	madd
+7	0	C	XXX ???
+8	0	!C
+9	0	!C
+a	0	!C
+b	0	*	add f32
+c	0	*	mul f32
+d	0	*	bitop
+e	0	*	madd f32
+f	0	!C
+
+All non-0 op2's were tried on CP and didn't work.
+
+
+Long instructions
+
+Mostly, destination is in L*DST or LLDST, sources are in:
+ - 1: L*SRC or L*SHARED
+ - 2: L*SRC2 or L*CONST2, or SHCNT for shift insns
+ - 3: L*SRC3 or L*CONST3
+
+Some insns can also set $c registers with MCDST, or read them eith COND.
+
+Usual format:
+
+0x0000000000000003: set to 1
+0x00000000000001fc: L*DST
+0x000000000000fe00: L*SRC or L*SHARED
+0x00000000007f0000: L*SRC2 or L*CONST2
+0x0000000000800000: use L*CONST2
+0x0000000001000000: use L*CONST3
+0x000000000e000000: addressing
+0x00000000f0000000: opcode
+0x0000000300000000: 0 normal, 1 with exit, 2 with join
+0x0000000400000000: addressing
+0x0000000800000000: $o DST instead of $r
+0x0000003000000000: $c reg to set
+0x0000004000000000: enable setting that $c.
+0x00000f8000000000: predicate condition
+0x0000300000000000: $c to use for predicate and/or carry input
+0x001fc00000000000: L*SRC3 or L*CONST3
+0x0020000000000000: use L*SHARED
+0x03c0000000000000: c[] space to use
+0x0c00000000000000: misc flags
+0x1000000000000000: -
+0xe000000000000000: op2
+
+[op2 shifted left to be in alignment with the hexit you see]
+
+op	op2	tested	insn
+0	0	!F
+0	2	*	mov from $c
+0	4	*	mov from $a
+0	6	*	mov from special reg
+0	8	!F
+0	a	*	mov to $c
+0	c	*	shl to $a
+0	e	C	mov to s[]	XXX	WTF? does something on FP
+
+1	0	*	mov
+1	2	*	mov from c[]
+1	4	C !F	mov from s[]	sm11
+1	6		vote		sm12
+1	8	!F
+1	a	!F
+1	c	!F
+1	e	!F
+
+2	0	*	add
+2	2	!F
+2	4	!F
+2	6	!F
+2	8	!F
+2	a	!F
+2	c	!F
+2	e	!F
+
+3	0	*	add
+3	2	!F
+3	4	!F
+3	6	*	set
+3	8	*	max
+3	a	*	min
+3	c	*	shl
+3	e	*	shr
+
+4	0	*	mul
+4	2
+4	4
+4	6
+4	8
+4	a
+4	c
+4	e
+
+5	0	*	sad
+5	2	!F
+5	4	!F
+5	6	!F
+5	8	!F
+5	a	!F
+5	c	!F
+5	e	!F
+
+6	0	*	madd
+6	2	*	madd
+6	4	*	madd
+6	6	*	madd
+6	8	*	madd
+6	a	*	madd
+6	c	*	madd
+6	e	*	madd
+
+7	0	*	madd
+7	2		XXX ??? \
+7	4		XXX ??? |
+7	6		XXX ??? |
+7	8		XXX ??? | seem to give the same result
+7	a		XXX ??? |
+7	c		XXX ??? |
+7	e		XXX ??? /
+
+8	0	F	interp
+8	2	!F
+8	4	!F
+8	6	!F
+8	8	!F
+8	a	!F
+8	c	!F
+8	e	!F
+
+9	0	*	rcp f32
+9	2	!F
+9	4	*	rsqrt f32
+9	6	*	lg2 f32
+9	8	*	sin f32
+9	a	*	cos f32
+9	c	*	ex2 f32
+9	e	!F
+
+a	*	*	cvt
+
+b	0	*	add f32
+b	2		XXX ???
+b	4	!F
+b	6	*	set f32
+b	8	*	max f32
+b	a	*	min f32
+b	c	*	pre f32
+b	e	!F
+
+c	0	*	mul f32
+c	2	!F
+c	4		XXX ?
+c	6		XXX ???
+c	8	*	quadop
+c	a	!F
+c	c	!F
+c	e	!F
+
+d	0	*	bitop
+d	2	*	add from $a to $a
+d	4	C	mov from l[]
+d	6	C	mov to l[]
+d	8	C	mov from g[]		weird format
+d	a	C	mov to g[]
+d	c	C	atom g[]
+d	e	C	ld atom g[]
+
+e	0	*	madd f32
+e	2	*	madd f32
+e	4		madd f64
+e	6		add f64
+e	8		mul f64
+e	a		min f64
+e	c		max f64
+e	e		set f64
+
+f	0	*	tex
+f	2	*	tex
+f	4	*	tex
+f	6	*	tex
+f	8		XXX ???
+f	a		XXX ???
+f	c	G	emit,restart
+f	e	*	nop/pmevent
