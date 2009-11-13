@@ -109,10 +109,10 @@ Instructions
 
 4. Bit operations
 
-  and b32/b16 DST [not] SRC1 [not] SRC2		O2=0, O1=0
-  or b32/b16 DST [not] SRC1 [not] SRC2		O2=0, O1=1
-  xor b32/b16 DST [not] SRC1 [not] SRC2		O2=1, O1=0
-  mov2 b32/b16 DST [not] SRC1 [not] SRC2	O2=1, O1=1
+  and b32/b16 [CDST] DST [not] SRC1 [not] SRC2		O2=0, O1=0
+  or b32/b16 [CDST] DST [not] SRC1 [not] SRC2		O2=0, O1=1
+  xor b32/b16 [CDST] DST [not] SRC1 [not] SRC2		O2=1, O1=0
+  mov2 b32/b16 [CDST] DST [not] SRC1 [not] SRC2	O2=1, O1=1
 
   Immediate forms only allows 32-bit operands, and cannot negate second op.
 
