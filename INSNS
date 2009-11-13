@@ -2,9 +2,13 @@ Instructions
 
 0. Conventions
 1. MOV
-2. Integer ADD family
-3. Integer short MUL
-4. Bit operations
+2. Special regs
+ 2.1. MOV from $c
+ 2.2. MOV from $a
+ 2.3. MOV from sreg
+3. Integer ADD family
+4. Integer short MUL
+5. Bit operations
 
 0. Conventions
 
@@ -12,7 +16,7 @@ Instructions
   SEX(x): sign-extension of x
   ZEX(x): zero-extension of x
 
-1. MOV
+1. Normal MOV
 
   [lanemask] mov b32/b16 DST SRC
 
@@ -33,7 +37,50 @@ Instructions
   		0x00000000 0x0003c000 lanemask
 		operands: LL*DST, L*SRC1/L*SHARED
 
-2. Integer ADD family
+2.1. MOV from $c
+
+  mov DST COND
+
+  DST is 32-bit $r.
+
+	DST = COND;
+
+  Long:		0x00000000 0x20000000 base opcode
+  		operands: LDST, COND
+
+2.2. MOV from $a
+
+  mov DST AREG
+
+  DST is 32-bit $r. Setting flag normally used for autoincrement mode doesn't
+  work, but still causes crash when using non-writable $a's.
+
+	DST = AREG;
+
+  Long:		0x00000000 0x40000000 base opcode
+  		0x02000000 0x00000000 crashy flag
+  		operands: LDST, AREG
+
+2.3. MOV from sreg
+
+  mov DST physid	S=0
+  mov DST clock		S=1
+  mov DST sreg2		S=2
+  mov DST sreg3		S=3
+  mov DST pm0		S=4
+  mov DST pm1		S=5
+  mov DST pm2		S=6
+  mov DST pm3		S=7
+
+  DST is 32-bit $r.
+
+	DST = SREG;
+
+  Long:		0x00000000 0x60000000 base opcode
+  		0x00000000 0x0001c000 S
+  		operands: LDST
+
+3. Integer ADD family
 
   add [sat] b32/b16 [CDST] DST SRC1 SRC2		O2=0, O1=0
   sub [sat] b32/b16 [CDST] DST SRC1 SRC2		O2=0, O1=1
@@ -75,7 +122,7 @@ Instructions
 		0x00000000 0x08000000 sat flag
 		operands: MCDST, LL*DST, L*SRC1/L*SHARED, L*SRC3/L*CONST3, COND
 
-3. Integer short MUL
+4. Integer short MUL
 
   mul [CDST] DST u16/s16 SRC1 u16/s16 SRC2
 
@@ -107,7 +154,7 @@ Instructions
   		0x00000000 0x00004000 src2 is signed
   		operands: MCDST, LDST, LHSRC1/LHSHARED, LHSRC2/LHCONST2
 
-4. Bit operations
+5. Bit operations
 
   and b32/b16 [CDST] DST [not] SRC1 [not] SRC2		O2=0, O1=0
   or b32/b16 [CDST] DST [not] SRC1 [not] SRC2		O2=0, O1=1
