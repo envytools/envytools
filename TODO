@@ -25,6 +25,7 @@ Misc
  - figure out paired movs.
  - libGL blob uses weird 0x00010000 flag on cvt's with rounding. wtf?
  - what the fuck is up with a different shared memory load insn on >=sm_11?
+ - how to do bar sync, and how does it work?
 
 Cleanup for after everything is said and done:
  - edge cases everywhere, write descriptions.
