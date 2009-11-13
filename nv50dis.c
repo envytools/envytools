@@ -678,19 +678,29 @@ void atomimm APROTO {
  *  - HSHCNT: used in 16-bit shift-by-immediate insns for shift amount
  */
 
-int pmoff[] = { 0, 10, 4 };
-int baroff[] = { 0, 21, 4 };
-int offoff[] = { 0, 9, 16 };
-int shcntoff[] = { 0, 16, 5 };
-int hshcntoff[] = { 0, 16, 4 };
+int pmoff[] = { 0, 10, 4, 0 };
+int baroff[] = { 0, 21, 4, 0 };
+int offoff[] = { 0, 9, 16, 0 };
+int shcntoff[] = { 0, 16, 5, 0 };
+int hshcntoff[] = { 0, 16, 4, 0 };
+int toffxoff[] = { 1, 24, 4, 1 };
+int toffyoff[] = { 1, 20, 4, 1 };
+int toffzoff[] = { 1, 16, 4, 1 };
 #define PM atomnum, pmoff
 #define BAR atomnum, baroff
 #define OFFS atomnum, offoff
 #define SHCNT atomnum, shcntoff
 #define HSHCNT atomnum, hshcntoff
+#define TOFFX atomnum, toffxoff
+#define TOFFY atomnum, toffyoff
+#define TOFFZ atomnum, toffzoff
 void atomnum APROTO {
 	const int *n = v;
-	fprintf (out, " %s%#x", cyel, BF(n[0], n[1], n[2]));
+	uint32_t num = BF(n[0], n[1], n[2]);
+	if (n[3] && num&1<<(n[2]-1))
+		fprintf (out, " %s-%#x", cyel, (1<<n[2]) - num);
+	else
+		fprintf (out, " %s%#x", cyel, num);
 }
 
 /*
@@ -2178,11 +2188,11 @@ struct insn tabl[] = {
 
 	// f
 	{ AP, 0xf0000000, 0xf1c00002, 0x00000000, 0x80000000,
-		N("tex 1d f32"), T(ltex), T(texp), LQDST, TEX },
+		N("tex 1d f32"), T(ltex), T(texp), LQDST, TEX, TOFFX },
 	{ AP, 0xf0400000, 0xf1c00002, 0x00000000, 0x80000000,
-		N("tex 2d f32"), T(ltex), T(texp), LQDST, TEX },
+		N("tex 2d f32"), T(ltex), T(texp), LQDST, TEX, TOFFX, TOFFY },
 	{ AP, 0xf0800000, 0xf1c00002, 0x00000000, 0x80000000,
-		N("tex 3d f32"), T(ltex), T(texp), LQDST, TEX },
+		N("tex 3d f32"), T(ltex), T(texp), LQDST, TEX, TOFFX, TOFFY, TOFFZ },
 	{ AP, 0xf1000000, 0xf1c00002, 0x00000000, 0x80000000,
 		N("tex 1d s32"), T(ltex), T(texp), LQDST, TEX },
 	{ AP, 0xf1800000, 0xf1c00002, 0x00000000, 0x80000000,
