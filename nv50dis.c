@@ -1957,7 +1957,7 @@ struct insn tabl[] = {
 	 * 0x40000000: +nan
 	 * 0x40800000: +infinity
 	 * flip bit 0x80000000 in any of the above for negative numbers.
-	 * presin divides by pi/2, mods with 4 [or with 2*pi, pre-mod], then does preex2
+	 * presin divides by pi/2, mods with 4 [or with 2*pi, pre-div], then does preex2
 	 */
 
 	// c
