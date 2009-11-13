@@ -1265,7 +1265,7 @@ struct insn tablasat[] = {
 };
 
 struct insn tabla[] = {
-	{ AP, 0, 0, 0x00000000, 0x04000000, N("b16"), T(lasat), LHDST, T(lsh), T(lc3h) },
+	{ AP, 0, 0, 0x00000000, 0x04000000, N("b16"), T(lasat), MCDST, LLHDST, T(lsh), T(lc3h) },
 	{ AP, 0, 0, 0x04000000, 0x04000000, N("b32"), T(lasat), MCDST, LLDST, T(lsw), T(lc3w) },
 	{ AP, 0, 0, 0, 0, OOPS }
 };
