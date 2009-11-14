@@ -135,11 +135,11 @@ Usual format:
 [op2 shifted left to be in alignment with the hexit you see]
 
 op	op2	tested	insn
-0	0	!F
+0	0	!FC	mov from a[]
 0	2	*	mov from $c
 0	4	*	mov from $a
 0	6	*	mov from special reg
-0	8	!F
+0	8	!FC
 0	a	*	mov to $c
 0	c	*	shl to $a
 0	e	C	mov to s[]	XXX	WTF? does something on FP
@@ -154,17 +154,17 @@ op	op2	tested	insn
 1	e	!F
 
 2	0	*	add
-2	2	!F
-2	4	!F
-2	6	!F
-2	8	!F
-2	a	!F
-2	c	!F
-2	e	!F
+2	2	!FC
+2	4	!FC
+2	6	!FC
+2	8	!FC
+2	a	!FC
+2	c	!FC
+2	e	!FC
 
 3	0	*	add
-3	2	!F
-3	4	!F
+3	2	!FC
+3	4	!FC
 3	6	*	set
 3	8	*	max
 3	a	*	min
@@ -172,22 +172,22 @@ op	op2	tested	insn
 3	e	*	shr
 
 4	0	*	mul
-4	2
-4	4
-4	6
-4	8
-4	a
-4	c
-4	e
+4	2	!C
+4	4	!C
+4	6	!C
+4	8	!C
+4	a	!C
+4	c	!C
+4	e	!C
 
 5	0	*	sad
-5	2	!F
-5	4	!F
-5	6	!F
-5	8	!F
-5	a	!F
-5	c	!F
-5	e	!F
+5	2	!FC
+5	4	!FC
+5	6	!FC
+5	8	!FC
+5	a	!FC
+5	c	!FC
+5	e	!FC
 
 6	0	*	madd
 6	2	*	madd
@@ -202,7 +202,7 @@ op	op2	tested	insn
 7	2		XXX ??? \
 7	4		XXX ??? |
 7	6		XXX ??? |
-7	8		XXX ??? | seem to give the same result
+7	8		XXX ??? | seem to be copies of 6/6 for some reason.
 7	a		XXX ??? |
 7	c		XXX ??? |
 7	e		XXX ??? /
