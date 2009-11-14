@@ -845,6 +845,11 @@ struct insn tabsm24us[] = {
 	{ AP, 0x00008000, 0x00008000, 0, 0, N("s24") },
 };
 
+struct insn tabsm24high[] = {
+	{ AP, 0x00000000, 0x00000100, 0, 0 },
+	{ AP, 0x00000100, 0x00000100, 0, 0, N("high") },
+};
+
 struct insn tabstex[] = {
 	{ AP, 0x00000000, 0x00000100, 0, 0, N("all") },
 	{ AP, 0x00000100, 0x00000100, 0, 0, N("live") },
@@ -861,8 +866,7 @@ struct insn tabs[] = {
 	{ AP, 0x30400000, 0xf0400002, 0, 0, N("addc"), T(as), C0 },
 
 	{ AP, 0x40000000, 0xf0400002, 0, 0, N("mul"), SDST, T(smus2), T(ssh), T(smus1), T(sch) },
-	{ AP, 0x40400000, 0xf0400102, 0, 0, N("mul"), SDST, T(sm24us), T(ssw), T(scw) },
-	{ AP, 0x40400100, 0xf0400102, 0, 0, N("mul"), SDST, N("high"), T(sm24us), T(ssw), T(scw) },
+	{ AP, 0x40400000, 0xf0400002, 0, 0, N("mul"), SDST, T(sm24high), T(sm24us), T(ssw), T(scw) },
 
 	/// SCAN 5
 	// XXX sad
@@ -919,12 +923,10 @@ struct insn tabi[] = {
 	{ AP, 0x30000000, 0xf0400002, 0, 0, N("subr"), T(gi) },
 	{ AP, 0x30400000, 0xf0400002, 0, 0, N("add"), T(gi), C0 },
 
-	// SCAN 4-F
 	{ AP, 0x40000000, 0xf0400002, 0, 0, N("mul"), SDST, T(smus2), T(ssh), T(smus1), IMM },
+	{ AP, 0x40400000, 0xf0400002, 0, 0, N("mul"), SDST, T(sm24high), T(sm24us), T(ssw), IMM },
 
-	{ AP, 0x40400000, 0xf0408002, 0, 0, N("mul u24"), SDST, T(ssw), IMM },
-	{ AP, 0x40408000, 0xf0408002, 0, 0, N("mul s24"), SDST, T(ssw), IMM },
-
+	// SCAN 6-F
 	{ AP, 0x60000000, 0xf0000002, 0, 0, N("mad"), SDST, T(smus1), T(ssh), IMM, SDST },
 
 	{ AP, 0xb0000000, 0xf0000002, 0, 0, N("add"), T(ssat), N("f32"), SDST, T(sneg1), T(ssw), T(sneg2), IMM },
@@ -1324,6 +1326,16 @@ struct insn tabignce[] = {
 	{ AP, 0, 0, 0x40, 0x40 },
 };
 
+struct insn tablm24us[] = {
+	{ AP, 0, 0, 0x00000000, 0x00008000, N("u24") },
+	{ AP, 0, 0, 0x00008000, 0x00008000, N("s24") },
+};
+
+struct insn tablm24high[] = {
+	{ AP, 0, 0, 0x00000000, 0x00004000 },
+	{ AP, 0, 0, 0x00004000, 0x00004000, N("high") },
+};
+
 struct insn tabl[] = {
 	// 0
 	{ VP|GP, 0x00000000, 0xf0000002, 0x04200000, 0xe4200000,
@@ -1433,14 +1445,8 @@ struct insn tabl[] = {
 	// 4
 	{ AP, 0x40000000, 0xf0000002, 0x00000000, 0xe0010000,
 		N("mul"), MCDST, LLDST, T(lmus1), T(lsh), T(lmus2), T(lc2h) },
-	{ AP, 0x40000000, 0xf0000002, 0x00010000, 0xe003c000,
-		N("mul u24"), LDST, T(lsw), T(lc2w) },
-	{ AP, 0x40000000, 0xf0000002, 0x00014000, 0xe003c000,
-		N("mul high u24"), LDST, T(lsw), T(lc2w) },
-	{ AP, 0x40000000, 0xf0000002, 0x00018000, 0xe003c000,
-		N("mul s24"), LDST, T(lsw), T(lc2w) },
-	{ AP, 0x40000000, 0xf0000002, 0x0001c000, 0xe003c000,
-		N("mul high s24"), LDST, T(lsw), T(lc2w) },
+	{ AP, 0x40000000, 0xf0000002, 0x00010000, 0xe0010000,
+		N("mul"), MCDST, LLDST, T(lm24high), T(lm24us), T(lsw), T(lc2w) },
 
 	// 5
 	{ AP, 0x50000000, 0xf0000002, 0x00000000, 0xec000000,

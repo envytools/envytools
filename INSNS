@@ -11,7 +11,8 @@ Instructions
  2.6. MOV from sreg
 3. Integer ADD family
 4. Integer short MUL
-5. Bit operations
+5. Integer 24-bit MUL
+6. Bit operations
 
 0. Conventions
 
@@ -193,7 +194,39 @@ Instructions
   		0x00000000 0x00004000 src2 is signed
   		operands: MCDST, LLDST, LHSRC1/LHSHARED, LHSRC2/LHCONST2
 
-5. Bit operations
+5. Integer 24-bit MUL
+
+  mul [CDST] DST [high] u24/s24 SRC1 SRC2
+
+  All operands are 32-bit.
+
+	b48 s1, s2;
+	if (signed) {
+		s1 = SEX((b24)SRC1);
+		s2 = SEX((b24)SRC2);
+	} else {
+		s1 = ZEX((b24)SRC1);
+		s2 = ZEX((b24)SRC2);
+	}
+	b48 m = s1*s2;	// modulo 2^48
+	b32 res = (high ? m >> 16 : m & 0xffffffff);
+	CDST.O = 0;
+	CDST.C = 0;
+	CDST.S = S(res);
+	CDST.Z = res == 0;
+	DST = res;
+
+  Short/imm:	0x40000000 base opcode
+  		0x00008000 src are signed
+  		0x00000100 high
+  		operands: SDST, SSRC/SSHARED, SSRC2/SCONST/IMM
+
+  Long:		0x40000000 0x00000000 base opcode
+  		0x00000000 0x00008000 src are signed
+  		0x00000000 0x00004000 high
+  		operands: MCDST, LLDST, LSRC1/LSHARED, LSRC2/LCONST2
+
+6. Bit operations
 
   and b32/b16 [CDST] DST [not] SRC1 [not] SRC2		O2=0, O1=0
   or b32/b16 [CDST] DST [not] SRC1 [not] SRC2		O2=0, O1=1
