@@ -1432,7 +1432,7 @@ struct insn tabl[] = {
 
 	// 4
 	{ AP, 0x40000000, 0xf0000002, 0x00000000, 0xe0010000,
-		N("mul"), MCDST, LDST, T(lmus1), T(lsh), T(lmus2), T(lc2h) },
+		N("mul"), MCDST, LLDST, T(lmus1), T(lsh), T(lmus2), T(lc2h) },
 	{ AP, 0x40000000, 0xf0000002, 0x00010000, 0xe003c000,
 		N("mul u24"), LDST, T(lsw), T(lc2w) },
 	{ AP, 0x40000000, 0xf0000002, 0x00014000, 0xe003c000,

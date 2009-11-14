@@ -191,7 +191,7 @@ Instructions
   Long:		0x40000000 0x00000000 base opcode
   		0x00000000 0x00008000 src1 is signed
   		0x00000000 0x00004000 src2 is signed
-  		operands: MCDST, LDST, LHSRC1/LHSHARED, LHSRC2/LHCONST2
+  		operands: MCDST, LLDST, LHSRC1/LHSHARED, LHSRC2/LHCONST2
 
 5. Bit operations
 
