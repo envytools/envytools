@@ -1313,6 +1313,17 @@ struct insn tabsreg[] = {
 	{ AP, 0, 0, 0x0001c000, 0x0001c000, N("pm3") },
 };
 
+/*
+ * Ignores CDST enable bit.
+ *
+ * We don't normally have ignore rules for all bits known to be ignored,
+ * but blob uses this one, so let's avoid spurious red.
+ */
+struct insn tabignce[] = {
+	{ AP, 0, 0, 0x00, 0x40 },
+	{ AP, 0, 0, 0x40, 0x40 },
+};
+
 struct insn tabl[] = {
 	// 0
 	{ VP|GP, 0x00000000, 0xf0000002, 0x04200000, 0xe4200000,
@@ -1324,8 +1335,8 @@ struct insn tabl[] = {
 	{ AP, 0x00000000, 0xf0000002, 0x60000000, 0xe0000000,
 		N("mov"), LDST, T(sreg) },
 
-	{ AP, 0x00000000, 0xf0000002, 0xa0000040, 0xe0000040,
-		N("mov"), CDST, LSRC },
+	{ AP, 0x00000000, 0xf0000002, 0xa0000000, 0xe0000000,
+		N("mov"), CDST, LSRC, T(ignce) },
 	{ AP, 0x00000000, 0xf0000002, 0xc0000000, 0xe0000000,
 		N("shl b32"),	ADST, T(lsw), HSHCNT },
 	
@@ -1629,8 +1640,8 @@ struct insn tabl[] = {
 	{ AP, 0xd0000000, 0xf0000002, 0x0400c000, 0xe400c000,
 		N("mov2 b32"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
 
-	{ AP, 0xd0000000, 0xf0000002, 0x20000000, 0xe0000000,	// really a LEA.
-		N("add"), ADST, OFFS, AREG },
+	{ AP, 0xd0000000, 0xf0000002, 0x20000000, 0xe0000000,
+		N("add"), ADST, AREG, OFFS },
 
 	{ AP, 0xd0000000, 0xf0000002, 0x40000000, 0xe0000000,
 		N("mov"), T(ldstm), T(ldsto), LOCAL },

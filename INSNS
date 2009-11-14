@@ -4,8 +4,11 @@ Instructions
 1. MOV
 2. Special regs
  2.1. MOV from $c
- 2.2. MOV from $a
- 2.3. MOV from sreg
+ 2.2. MOV to $c
+ 2.3. MOV from $a
+ 2.4. SHL to $a
+ 2.5. ADD from $a to $a
+ 2.6. MOV from sreg
 3. Integer ADD family
 4. Integer short MUL
 5. Bit operations
@@ -48,7 +51,19 @@ Instructions
   Long:		0x00000000 0x20000000 base opcode
   		operands: LDST, COND
 
-2.2. MOV from $a
+2.2. MOV to $c
+
+  mov CDST SRC
+
+  SRC is 32-bit $r. Yes, the 0x40 $c write enable flag in second word is
+  actually ignored.
+
+	CDST = SRC;
+
+  Long:		0x00000000 0xa0000000 base opcode
+  		operands: CDST, LSRC1
+
+2.3. MOV from $a
 
   mov DST AREG
 
@@ -61,7 +76,31 @@ Instructions
   		0x02000000 0x00000000 crashy flag
   		operands: LDST, AREG
 
-2.3. MOV from sreg
+2.4. SHL to $a
+
+  shl ADST SRC SHCNT
+
+  SRC is 32-bit $r.
+
+	ADST = SRC << SHCNT;
+
+  Long:		0x00000000 0xc0000000 base opcode
+  		operands: ADST, LSRC1/LSHARED, HSHCNT
+
+2.5. ADD from $a to $a
+
+  add ADST AREG OFFS
+
+  Like mov from $a, setting flag normally used for autoincrement mode doesn't
+  work, but still causes crash when using non-writable $a's.
+
+	ADST = AREG + OFFS;
+
+  Long:		0xd0000000 0x20000000 base opcode
+  		0x02000000 0x00000000 crashy flag
+  		operands: ADST, AREG, OFFS
+
+2.6. MOV from sreg
 
   mov DST physid	S=0
   mov DST clock		S=1
