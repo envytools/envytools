@@ -380,10 +380,8 @@ void atomoops APROTO {
  *
  * This field represents a code address and is used for branching and the
  * likes. Target is counted in 32-bit words from the start point of code
- * segment [which does NOT have to be entry point of code. it is for CUDA, but // XXX ORLY? and CP_START_ID is what?
- * not for shaders]. Low part of target is in 0/11-26, high part is in 1/14-19.
- * It's unknown yet how big this field realy is. Some CUDA manual claims code
- * can be up to 8M PTX instructions long, which would make it 23 bits in total.
+ * segment. Low part of target is in 0/11-26, high part is in 1/14-19. Code
+ * addresses max out at 0xfffffc.
  */
 
 #define CTARG atomctarg, 0
