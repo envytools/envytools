@@ -1590,6 +1590,8 @@ struct insn tabl[] = {
 	// b
 	{ AP, 0xb0000000, 0xf0000002, 0x00000000, 0xe0000000,
 		N("add"), T(af32r),  N("f32"), LLDST, T(lneg1), T(lsw), T(lneg2), T(lc3w) },
+	{ AP, 0xb0000000, 0xf0000002, 0x20000000, 0xe0000000,
+		N("add sat"), T(af32r),  N("f32"), LLDST, T(lneg1), T(lsw), T(lneg2), T(lc3w) },
 	{ AP, 0xb0000000, 0xf0000002, 0x80000000, 0xe0000000,
 		N("max f32"), LLDST, T(lfm1), T(lsw), T(lfm2), T(lc2w) },
 	{ AP, 0xb0000000, 0xf0000002, 0xa0000000, 0xe0000000,

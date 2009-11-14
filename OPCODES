@@ -228,7 +228,7 @@ op	op2	tested	insn
 a	*	*	cvt
 
 b	0	*	add f32
-b	2		XXX ???
+b	2		add f32
 b	4	!F
 b	6	*	set f32
 b	8	*	max f32
