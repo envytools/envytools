@@ -147,11 +147,11 @@ op	op2	tested	insn
 1	0	*	mov
 1	2	*	mov from c[]
 1	4	C !F	mov from s[]	sm11
-1	6		vote		sm12
-1	8	!F
-1	a	!F
-1	c	!F
-1	e	!F
+1	6	C	vote		sm12
+1	8	!FC
+1	a	!FC
+1	c	!FC
+1	e	!FC
 
 2	0	*	add
 2	2	!FC
@@ -207,48 +207,48 @@ op	op2	tested	insn
 7	c		XXX ??? |
 7	e		XXX ??? /
 
-8	0	F	interp
-8	2	!F
-8	4	!F
-8	6	!F
-8	8	!F
-8	a	!F
-8	c	!F
-8	e	!F
+8	0	F !C	interp
+8	2	!FC
+8	4	!FC
+8	6	!FC
+8	8	!FC
+8	a	!FC
+8	c	!FC
+8	e	!FC
 
 9	0	*	rcp f32
-9	2	!F
+9	2	!FC
 9	4	*	rsqrt f32
 9	6	*	lg2 f32
 9	8	*	sin f32
 9	a	*	cos f32
 9	c	*	ex2 f32
-9	e	!F
+9	e	!FC
 
 a	*	*	cvt
 
 b	0	*	add f32
-b	2		add f32
-b	4	!F
+b	2	*	add f32
+b	4	!FC
 b	6	*	set f32
 b	8	*	max f32
 b	a	*	min f32
 b	c	*	pre f32
-b	e	!F
+b	e	!FC
 
 c	0	*	mul f32
-c	2	!F
-c	4		XXX ?
-c	6		XXX ???
+c	2	!FC
+c	4	C	XXX ?
+c	6	C	XXX ???
 c	8	*	quadop
-c	a	!F
-c	c	!F
-c	e	!F
+c	a	!FC
+c	c	!FC
+c	e	!FC
 
 d	0	*	bitop
 d	2	*	add from $a to $a
-d	4	C	mov from l[]
-d	6	C	mov to l[]
+d	4	*	mov from l[]
+d	6	*	mov to l[]
 d	8	C	mov from g[]		weird format
 d	a	C	mov to g[]
 d	c	C	atom g[]
@@ -256,18 +256,18 @@ d	e	C	ld atom g[]
 
 e	0	*	madd f32
 e	2	*	madd f32
-e	4		madd f64
-e	6		add f64
-e	8		mul f64
-e	a		min f64
-e	c		max f64
-e	e		set f64
+e	4	C	madd f64
+e	6	C	add f64
+e	8	C	mul f64
+e	a	C	min f64
+e	c	C	max f64
+e	e	C	set f64
 
 f	0	*	tex
 f	2	*	tex
 f	4	*	tex
 f	6	*	tex
-f	8		XXX ???
-f	a		XXX ???
-f	c	G	emit,restart
-f	e	*	nop/pmevent
+f	8	C	XXX, another tex?
+f	a	C	XXX ???
+f	c	G !C	emit,restart
+f	e	*/C	nop/pmevent
