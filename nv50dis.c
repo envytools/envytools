@@ -1379,8 +1379,6 @@ struct insn tabl[] = {
 	{ CP, 0x10000000, 0xf0000002, 0x4480c040, 0xe480c040,
 		N("mov lock b32"), CDST, LDST, LSHARED },
 
-	{ AP, 0x10000000, 0xf0000602, 0x60000040, 0xe0000040,
-		N("vote uni"), CDST },	// sm_12
 	{ AP, 0x10000200, 0xf0000602, 0x60000040, 0xe0000040,
 		N("vote any"), CDST },	// sm_12
 	{ AP, 0x10000400, 0xf0000602, 0x60000040, 0xe0000040,
