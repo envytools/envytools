@@ -1789,7 +1789,6 @@ void nv50dis (FILE *out, uint32_t *code, int num, int ptype) {
 	int cur = 0;
 	while (cur < num) {
 		uint32_t a[2] = {code[cur], 0}, m[2] = { 0, 0 };
-		int end = 0;
 		fprintf (out, "%s%08x: %s", cgray, cur*4, cnorm);
 		if (code[cur++]&1) {
 			if (cur >= num) {
@@ -1817,7 +1816,6 @@ void nv50dis (FILE *out, uint32_t *code, int num, int ptype) {
 			fprintf (out, "]%s", cnorm);
 		}
 		printf ("%s\n", cnorm);
-		if (end) fprintf(out, "                                  %sexit%s\n", cgr, cnorm);
 	}
 }
 
