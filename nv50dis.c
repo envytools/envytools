@@ -575,16 +575,26 @@ void atomltdst APROTO {
 }
 #define STDST atomstdst, 0
 void atomstdst APROTO {
-	int base = BF(0, 2, 7);
+	int base = BF(0, 2, 6);
 	int i;
 	fprintf (out, " %s{", cnorm);
 	for (i = 0; i < 4; i++)
 		fprintf (out, " %s$r%d", cbl, base+i);
 	fprintf (out, " %s}", cnorm);
 }
-#define TSRC atomtsrc, 0
-void atomtsrc APROTO {
+#define LTSRC atomltsrc, 0
+void atomltsrc APROTO {
 	int base = BF(0, 2, 7);
+	int cnt = BF(0, 22, 2);
+	int i;
+	fprintf (out, " %s{", cnorm);
+	for (i = 0; i <= cnt; i++)
+		fprintf (out, " %s$r%d", cbl, base+i);
+	fprintf (out, " %s}", cnorm);
+}
+#define STSRC atomstsrc, 0
+void atomstsrc APROTO {
+	int base = BF(0, 2, 6);
 	int cnt = BF(0, 22, 2);
 	int i;
 	fprintf (out, " %s{", cnorm);
@@ -894,8 +904,8 @@ struct insn tabs[] = {
 
 	{ AP, 0xe0000000, 0xf0000002, 0, 0, N("mad f32"), SDST, SSRC, SSRC2, SDST },	// XXX: flags like tabi?
 
-	{ AP, 0xf0000000, 0xf1000002, 0, 0, N("texauto"), T(stex), STDST, TEX, TSRC },
-	{ AP, 0xf1000000, 0xf1000002, 0, 0, N("texfetch"), T(stex), STDST, TEX, TSRC },
+	{ AP, 0xf0000000, 0xf1000002, 0, 0, N("texauto"), T(stex), STDST, TEX, STSRC },
+	{ AP, 0xf1000000, 0xf1000002, 0, 0, N("texfetch"), T(stex), STDST, TEX, STSRC },
 
 	{ AP, 0, 2, 0, 0, OOPS, SDST, T(ssw), T(scw) },
 	{ AP, 0, 0, 0, 0, OOPS }
@@ -1379,10 +1389,10 @@ struct insn tabl[] = {
 	{ CP, 0x10000000, 0xf0000002, 0x4480c040, 0xe480c040,
 		N("mov lock b32"), CDST, LDST, LSHARED },
 
-	{ AP, 0x10000200, 0xf0000602, 0x60000040, 0xe0000040,
-		N("vote any"), CDST },	// sm_12
-	{ AP, 0x10000400, 0xf0000602, 0x60000040, 0xe0000040,
-		N("vote all"), CDST },	// sm_12
+	{ AP, 0x10000200, 0xf0000602, 0x60000000, 0xe0000000,
+		N("vote any"), CDST, T(ignce) },	// sm_12
+	{ AP, 0x10000400, 0xf0000602, 0x60000000, 0xe0000000,
+		N("vote all"), CDST, T(ignce) },	// sm_12
 
 	// 2
 	{ AP, 0x20000000, 0xf0400002, 0x00000000, 0x00000000,
@@ -1682,22 +1692,22 @@ struct insn tabl[] = {
 
 	// f
 	{ AP, 0xf0000000, 0xf9000002, 0x00000000, 0xf0000000, // order of inputs: x, y, z, index, dref, bias/lod. index is integer, others float.
-		N("texauto"), T(ltex), LTDST, TEX, TSRC, TOFFX, TOFFY, TOFFZ },
+		N("texauto"), T(ltex), LTDST, TEX, LTSRC, TOFFX, TOFFY, TOFFZ },
 	{ AP, 0xf8000000, 0xf9000002, 0x00000000, 0xf0000000,
-		N("texauto cube"), T(ltex), LTDST, TEX, TSRC },
+		N("texauto cube"), T(ltex), LTDST, TEX, LTSRC },
 
 	{ AP, 0xf1000000, 0xf1000002, 0x00000000, 0xf0000000, // takes integer inputs.
-		N("texfetch"), T(ltex), LTDST, TEX, TSRC, TOFFX, TOFFY, TOFFZ },
+		N("texfetch"), T(ltex), LTDST, TEX, LTSRC, TOFFX, TOFFY, TOFFZ },
 
 	{ AP, 0xf0000000, 0xf8000002, 0x20000000, 0xf0000000, // bias needs to be same for everything, or else.
-		N("texbias"), T(ltex), LTDST, TEX, TSRC, TOFFX, TOFFY, TOFFZ },
+		N("texbias"), T(ltex), LTDST, TEX, LTSRC, TOFFX, TOFFY, TOFFZ },
 	{ AP, 0xf8000000, 0xf8000002, 0x20000000, 0xf0000000,
-		N("texbias cube"), T(ltex), LTDST, TEX, TSRC },
+		N("texbias cube"), T(ltex), LTDST, TEX, LTSRC },
 
 	{ AP, 0xf0000000, 0xf8000002, 0x40000000, 0xf0000000, // lod needs to be same for everything, or else.
-		N("texlod"), T(ltex), LTDST, TEX, TSRC, TOFFX, TOFFY, TOFFZ },
+		N("texlod"), T(ltex), LTDST, TEX, LTSRC, TOFFX, TOFFY, TOFFZ },
 	{ AP, 0xf8000000, 0xf8000002, 0x40000000, 0xf0000000,
-		N("texlod cube"), T(ltex), LTDST, TEX, TSRC },
+		N("texlod cube"), T(ltex), LTDST, TEX, LTSRC },
 
 	{ AP, 0xf0000000, 0xf0000002, 0x60000000, 0xf0000000, // integer input and output.
 		N("texsize"), T(ltex), LTDST, TEX, LDST }, // in: LOD, out: size.x, size.y, size.z
