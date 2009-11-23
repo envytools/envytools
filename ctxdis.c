@@ -160,12 +160,27 @@ void atomctarg APROTO {
 // BF, shift
 
 int unitoff[] = { 0, 5, 0 };
+int gsizeoff[] = { 16, 4, 0 };
+int immoff[] = { 0, 16, 0 };
 #define UNIT atomnum, unitoff
+#define GSIZE atomnum, gsizeoff
+#define IMM atomnum, immoff
 void atomnum APROTO {
 	const int *n = v;
 	uint32_t num = BF(n[0], n[1])<<n[2];
 	fprintf (out, " %s%#x", cyel, num);
 }
+
+/*
+ * Registers
+ */
+
+#define R(x) atomreg, x
+void atomreg APROTO {
+	fprintf (out, " %s$%s", cbl, (char *)v);
+}
+#define RA R("a")	// Accumulator. Whatever.
+#define RR R("r")	// RAMIN offset register.
 
 /*
  * Memory fields
@@ -195,10 +210,13 @@ struct insn tabpred[] = {
 };
 
 struct insn tabm[] = {
-	{ 0x00100000, 0x00f00000, N("pgraph"), PGRAPH },
-	{ 0x00400000, 0x00fc0000, N("jmp"), T(pred), CTARG },
-	{ 0x00440000, 0x00fc0000, N("call"), T(pred), CTARG },
-	{ 0x00480000, 0x00fc0000, N("ret"), T(pred) },
+	{ 0x100000, 0xff0000, N("pgraph"), PGRAPH, RA },
+	{ 0x100000, 0xf00000, N("pgraph"), PGRAPH, GSIZE },
+	{ 0x200000, 0xff0000, N("mov"), RA, IMM },
+	{ 0x400000, 0xfc0000, N("jmp"), T(pred), CTARG },
+	{ 0x440000, 0xfc0000, N("call"), T(pred), CTARG },
+	{ 0x480000, 0xfc0000, N("ret"), T(pred) },
+	{ 0x600006, 0xffffff, N("mov"), RR, RA },
 	{ 0, 0, OOPS },
 };
 
