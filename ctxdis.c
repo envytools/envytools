@@ -162,9 +162,11 @@ void atomctarg APROTO {
 int unitoff[] = { 0, 5, 0 };
 int gsizeoff[] = { 16, 4, 0 };
 int immoff[] = { 0, 16, 0 };
+int goffoff[] = { 0, 16, 11 };
 #define UNIT atomnum, unitoff
 #define GSIZE atomnum, gsizeoff
 #define IMM atomnum, immoff
+#define GOFF atomnum, goffoff
 void atomnum APROTO {
 	const int *n = v;
 	uint32_t num = BF(n[0], n[1])<<n[2];
@@ -180,6 +182,7 @@ void atomreg APROTO {
 	fprintf (out, " %s$%s", cbl, (char *)v);
 }
 #define RA R("a")	// Accumulator. Whatever.
+#define RG R("g")	// PGRAPH offset register.
 #define RR R("r")	// RAMIN offset register.
 
 /*
@@ -194,6 +197,7 @@ int pgmem[] = { 0, 16, 2, 'G' };
 void atommem APROTO {
 	const int *n = v;
 	fprintf (out, " %s%c[", ccy, n[3]);
+	if (n[3] == 'G') printf("%s$g%s+", cbl, ccy);
 	int mo = BF(n[0], n[1])<<n[2];
 	fprintf (out, "%s%#x%s]", cyel, mo, ccy);
 }
@@ -212,7 +216,8 @@ struct insn tabpred[] = {
 struct insn tabm[] = {
 	{ 0x100000, 0xff0000, N("pgraph"), PGRAPH, RA },
 	{ 0x100000, 0xf00000, N("pgraph"), PGRAPH, GSIZE },
-	{ 0x200000, 0xff0000, N("mov"), RA, IMM },
+	{ 0x200000, 0xf00000, N("mov"), RA, IMM },
+	{ 0x300000, 0xff0000, N("mov"), RG, GOFF },
 	{ 0x400000, 0xfc0000, N("jmp"), T(pred), CTARG },
 	{ 0x440000, 0xfc0000, N("call"), T(pred), CTARG },
 	{ 0x480000, 0xfc0000, N("ret"), T(pred) },
