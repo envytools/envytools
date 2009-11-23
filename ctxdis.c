@@ -152,6 +152,22 @@ void atomctarg APROTO {
 }
 
 /*
+ * Misc number fields
+ *
+ * Used for plain numerical arguments.
+ */
+
+// BF, shift
+
+int unitoff[] = { 0, 5, 0 };
+#define UNIT atomnum, unitoff
+void atomnum APROTO {
+	const int *n = v;
+	uint32_t num = BF(n[0], n[1])<<n[2];
+	fprintf (out, " %s%#x", cyel, num);
+}
+
+/*
  * Memory fields
  */
 
@@ -168,7 +184,8 @@ void atommem APROTO {
 }
 
 struct insn tabrpred[] = {
-	{ 0x4d, 0xff },	// always
+	{ 0x4d, 0x7f },	// always
+	{ 0x60, 0x60, N("unit"), UNIT }, // if given unit present
 	{ 0, 0, OOPS },
 };
 
