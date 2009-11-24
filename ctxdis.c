@@ -161,7 +161,7 @@ void atomctarg APROTO {
 
 int unitoff[] = { 0, 5, 0 };
 int gsizeoff[] = { 16, 4, 0 };
-int immoff[] = { 0, 16, 0 };
+int immoff[] = { 0, 20, 0 };
 int goffoff[] = { 0, 16, 11 };
 #define UNIT atomnum, unitoff
 #define GSIZE atomnum, gsizeoff
@@ -184,6 +184,7 @@ void atomreg APROTO {
 #define RA R("a")	// Accumulator. Whatever.
 #define RG R("g")	// PGRAPH offset register.
 #define RR R("r")	// RAMIN offset register.
+#define RM R("m")	// 0x40033c
 
 /*
  * Memory fields
@@ -203,6 +204,7 @@ void atommem APROTO {
 }
 
 struct insn tabrpred[] = {
+	{ 0x00, 0x60, N("flag"), UNIT }, // if given flag set in PGRAPH+0x824
 	{ 0x4d, 0x7f },	// always
 	{ 0x60, 0x60, N("unit"), UNIT }, // if given unit present
 	{ 0, 0, OOPS },
@@ -221,7 +223,12 @@ struct insn tabm[] = {
 	{ 0x400000, 0xfc0000, N("jmp"), T(pred), CTARG },
 	{ 0x440000, 0xfc0000, N("call"), T(pred), CTARG },
 	{ 0x480000, 0xfc0000, N("ret"), T(pred) },
+	{ 0x500000, 0xf00000, N("assert"), T(pred) },
 	{ 0x600006, 0xffffff, N("mov"), RR, RA },
+	{ 0x600007, 0xffffff, N("mov"), RM, RA },
+	{ 0x60000c, 0xffffff, N("exit") },
+	{ 0x700000, 0xf00080, N("clear"), T(rpred) },
+	{ 0x700080, 0xf00080, N("set"), T(rpred) },
 	{ 0, 0, OOPS },
 };
 
