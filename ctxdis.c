@@ -31,6 +31,10 @@
 #include <stdint.h>
 #include <unistd.h>
 
+#define NV4x 1
+#define NV5x 2 /* and 8x and 9x and Ax */
+#define NVxx 3
+
 /*
  * Color scheme
  */
@@ -101,7 +105,7 @@ char cmag[] = "\x1b[35m";	// pink: funny registers
 #define BF(s, l) (m[0] |= ((1<<l)-1<<s), a[0]>>s&(1<<l)-1)
 #define RCL(s, l) (a[0] &= ~((1<<l)-1<<s))
 
-#define APROTO (FILE *out, uint32_t *a, uint32_t *m, const void *v)
+#define APROTO (FILE *out, uint32_t *a, uint32_t *m, const void *v, int ptype)
 
 typedef void (*afun) APROTO;
 
@@ -111,6 +115,7 @@ struct atom {
 };
 
 struct insn {
+	int ptype;
 	uint32_t val;
 	uint32_t mask;
 	struct atom atoms[10];
@@ -120,12 +125,12 @@ struct insn {
 void atomtab APROTO {
 	const struct insn *tab = v;
 	int i;
-	while ((a[0]&tab->mask) != tab->val)
+	while ((a[0]&tab->mask) != tab->val || !(tab->ptype&ptype))
 		tab++;
 	m[0] |= tab->mask;
 	for (i = 0; i < 10; i++)
 		if (tab->atoms[i].fun)
-			tab->atoms[i].fun (out, a, m, tab->atoms[i].arg);
+			tab->atoms[i].fun (out, a, m, tab->atoms[i].arg, ptype);
 }
 
 #define N(x) atomname, x
@@ -160,11 +165,15 @@ void atomctarg APROTO {
 // BF, shift
 
 int unitoff[] = { 0, 5, 0 };
-int gsizeoff[] = { 16, 4, 0 };
+int flagoff[] = { 0, 7, 0 };
+int gsize4off[] = { 14, 6, 0 };
+int gsize5off[] = { 16, 4, 0 };
 int immoff[] = { 0, 20, 0 };
 int goffoff[] = { 0, 16, 11 };
 #define UNIT atomnum, unitoff
-#define GSIZE atomnum, gsizeoff
+#define FLAG atomnum, flagoff
+#define GSIZE4 atomnum, gsize4off
+#define GSIZE5 atomnum, gsize5off
 #define IMM atomnum, immoff
 #define GOFF atomnum, goffoff
 void atomnum APROTO {
@@ -192,9 +201,11 @@ void atomreg APROTO {
 
 // BF, offset shift, 'l'
 
-int pgmem[] = { 0, 16, 2, 'G' };
+int pgmem4[] = { 0, 14, 2, 'G' };
+int pgmem5[] = { 0, 16, 2, 'G' };
 
-#define PGRAPH atommem, pgmem
+#define PGRAPH4 atommem, pgmem4
+#define PGRAPH5 atommem, pgmem5
 void atommem APROTO {
 	const int *n = v;
 	fprintf (out, " %s%c[", ccy, n[3]);
@@ -204,32 +215,35 @@ void atommem APROTO {
 }
 
 struct insn tabrpred[] = {
-	{ 0x00, 0x60, N("flag"), UNIT }, // if given flag set in PGRAPH+0x824
-	{ 0x4d, 0x7f },	// always
-	{ 0x60, 0x60, N("unit"), UNIT }, // if given unit present
-	{ 0, 0, OOPS },
+	{ NVxx, 0x00, 0x7f, N("dir") }, // the direction flag
+	{ NV5x, 0x4d, 0x7f },	// always?
+	{ NV5x, 0x60, 0x60, N("unit"), UNIT }, // if given unit present
+	{ NVxx, 0x00, 0x00, N("flag"), FLAG }, // if given flag set in PGRAPH+0x824
 };
 
 struct insn tabpred[] = {
-	{ 0x80, 0x80, N("not"), T(rpred) },
-	{ 0x00, 0x80, T(rpred) },
+	{ NVxx, 0x80, 0x80, N("not"), T(rpred) },
+	{ NVxx, 0x00, 0x80, T(rpred) },
 };
 
 struct insn tabm[] = {
-	{ 0x100000, 0xff0000, N("pgraph"), PGRAPH, RA },
-	{ 0x100000, 0xf00000, N("pgraph"), PGRAPH, GSIZE },
-	{ 0x200000, 0xf00000, N("mov"), RA, IMM },
-	{ 0x300000, 0xff0000, N("mov"), RG, GOFF },
-	{ 0x400000, 0xfc0000, N("jmp"), T(pred), CTARG },
-	{ 0x440000, 0xfc0000, N("call"), T(pred), CTARG },
-	{ 0x480000, 0xfc0000, N("ret"), T(pred) },
-	{ 0x500000, 0xf00000, N("assert"), T(pred) },
-	{ 0x600006, 0xffffff, N("mov"), RR, RA },
-	{ 0x600007, 0xffffff, N("mov"), RM, RA },
-	{ 0x60000c, 0xffffff, N("exit") },
-	{ 0x700000, 0xf00080, N("clear"), T(rpred) },
-	{ 0x700080, 0xf00080, N("set"), T(rpred) },
-	{ 0, 0, OOPS },
+	{ NV5x, 0x100000, 0xff0000, N("pgraph"), PGRAPH5, RA },
+	{ NV5x, 0x100000, 0xf00000, N("pgraph"), PGRAPH5, GSIZE5 },
+	{ NV4x, 0x100000, 0xffc000, N("pgraph"), PGRAPH4, RA },
+	{ NV4x, 0x100000, 0xf00000, N("pgraph"), PGRAPH4, GSIZE4 },
+	{ NVxx, 0x200000, 0xf00000, N("mov"), RA, IMM },
+	{ NV5x, 0x300000, 0xff0000, N("mov"), RG, GOFF },
+	{ NVxx, 0x400000, 0xfc0000, N("jmp"), T(pred), CTARG },
+	{ NV5x, 0x440000, 0xfc0000, N("call"), T(pred), CTARG },
+	{ NV5x, 0x480000, 0xfc0000, N("ret"), T(pred) },
+	{ NVxx, 0x500000, 0xf00000, N("assert"), T(pred) },
+	{ NV5x, 0x600006, 0xffffff, N("mov"), RR, RA },
+	{ NV5x, 0x600007, 0xffffff, N("mov"), RM, RA },
+	{ NV5x, 0x60000c, 0xffffff, N("exit") },
+	{ NV4x, 0x60000e, 0xffffff, N("exit") },
+	{ NVxx, 0x700000, 0xf00080, N("clear"), T(rpred) },
+	{ NVxx, 0x700080, 0xf00080, N("set"), T(rpred) },
+	{ NVxx, 0, 0, OOPS },
 };
 
 /*
@@ -239,13 +253,13 @@ struct insn tabm[] = {
  * FILE*.
  */
 
-void nv50dis (FILE *out, uint32_t *code, int num) {
+void nv50dis (FILE *out, uint32_t *code, int num, int ptype) {
 	int cur = 0;
 	while (cur < num) {
 		uint32_t a[1] = {code[cur++]}, m[1] = { 0 };
 		fprintf (out, "%s%08x: %s", cgray, cur*4, cnorm);
 		fprintf (out, "%08x         ", a[0]);
-		atomtab (out, a, m, tabm);
+		atomtab (out, a, m, tabm, ptype);
 		a[0] &= ~m[0];
 		if (a[0]) {
 			fprintf (out, " %s[unknown: %08x", cred, a[0]);
@@ -256,6 +270,18 @@ void nv50dis (FILE *out, uint32_t *code, int num) {
 }
 
 int main(int argc, char **argv) {
+	int ptype = NV5x;
+	char c;
+	while ((c = getopt (argc, argv, "45")) != -1)
+		switch (c) {
+			case '4':
+				ptype = NV4x;
+				break;
+			case '5':
+				ptype = NV5x;
+				break;
+		}
+
 	int num = 0;
 	int maxnum = 16;
 	uint32_t *code = malloc (maxnum * 4);
@@ -264,6 +290,6 @@ int main(int argc, char **argv) {
 		if (num == maxnum) maxnum *= 2, code = realloc (code, maxnum*4);
 		code[num++] = t;
 	}
-	nv50dis (stdout, code, num);
+	nv50dis (stdout, code, num, ptype);
 	return 0;
 }
