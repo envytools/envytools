@@ -286,9 +286,10 @@ int main(int argc, char **argv) {
 	int maxnum = 16;
 	uint32_t *code = malloc (maxnum * 4);
 	uint32_t t;
-	while (scanf ("%x", &t) == 1) {
+	while (!feof(stdin) && scanf ("%x", &t) == 1) {
 		if (num == maxnum) maxnum *= 2, code = realloc (code, maxnum*4);
 		code[num++] = t;
+		scanf (" ,");
 	}
 	nv50dis (stdout, code, num, ptype);
 	return 0;
