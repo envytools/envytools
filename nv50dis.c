@@ -861,6 +861,11 @@ struct insn tabstex[] = {
 	{ AP, 0x00000100, 0x00000100, 0, 0, N("live") },
 };
 
+struct insn tabsslus2[] = {
+	{ AP, 0x00000000, 0x00008000, 0, 0, N("u32") },
+	{ AP, 0x00008000, 0x00008000, 0, 0, N("s32") },
+};
+
 struct insn tabs[] = {
 	// SCAN 0-1
 	{ AP, 0x10000000, 0xf0008002, 0, 0, N("mov b16"), SHDST, T(ssh) },
@@ -874,8 +879,8 @@ struct insn tabs[] = {
 	{ AP, 0x40000000, 0xf0400002, 0, 0, N("mul"), SDST, T(smus2), T(ssh), T(smus1), T(sch) },
 	{ AP, 0x40400000, 0xf0400002, 0, 0, N("mul"), SDST, T(sm24high), T(sm24us), T(ssw), T(scw) },
 
-	/// SCAN 5
-	// XXX sad
+	{ AP, 0x50000000, 0xf0008002, 0, 0, N("sad"), SDST, T(smus1), SHSRC, SHSRC2, SDST },
+	{ AP, 0x50008000, 0xf0008002, 0, 0, N("sad"), SDST, T(sslus2), SSRC, SSRC2, SDST },
 
 	{ AP, 0x60000000, 0xf0400002, 0, 0, N("madd"), T(ms) },
 	{ AP, 0x60400000, 0xf0400002, 0, 0, N("msub"), T(ms) },
