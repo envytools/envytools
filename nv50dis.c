@@ -874,8 +874,8 @@ struct insn tabs[] = {
 	{ AP, 0x40000000, 0xf0400002, 0, 0, N("mul"), SDST, T(sus2), T(ssh), T(sus1), T(sch) },
 	{ AP, 0x40400000, 0xf0400002, 0, 0, N("mul24"), SDST, T(sm24high), T(sus2), T(ssw), T(scw) },
 
-	{ AP, 0x50000000, 0xf0008002, 0, 0, N("sad"), SDST, T(sus1), SHSRC, SHSRC2, SDST },
-	{ AP, 0x50008000, 0xf0008002, 0, 0, N("sad"), SDST, T(sus1), SSRC, SSRC2, SDST },
+	{ AP, 0x50000000, 0xf0008002, 0, 0, N("sad"), SDST, T(sus1), T(ssh), T(sch), SDST },
+	{ AP, 0x50008000, 0xf0008002, 0, 0, N("sad"), SDST, T(sus1), T(ssw), T(scw), SDST },
 
 	{ AP, 0x60000000, 0xf0400002, 0, 0, N("madd"), T(ms) },
 	{ AP, 0x60400000, 0xf0400002, 0, 0, N("msub"), T(ms) },
@@ -1453,9 +1453,9 @@ struct insn tabl[] = {
 
 	// 5
 	{ AP, 0x50000000, 0xf0000002, 0x00000000, 0xe4000000,
-		N("sad"), LDST, T(lusm2), T(lsh), T(lc2h), T(lc3w) },
+		N("sad"), MCDST, LLDST, T(lusm2), T(lsh), T(lc2h), T(lc3w) },
 	{ AP, 0x50000000, 0xf0000002, 0x04000000, 0xe4000000,
-		N("sad"), LDST, T(lusm2), T(lsw), T(lc2w), T(lc3w) },
+		N("sad"), MCDST, LLDST, T(lusm2), T(lsw), T(lc2w), T(lc3w) },
 
 	// 6
 	{ AP, 0x60000000, 0xf0000002, 0x00000000, 0xec000000,

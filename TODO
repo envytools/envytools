@@ -2,7 +2,6 @@ Queue for immediate execution:
 
  - mad madness
  - mul24/mad24 with immediates. and short forms. and negations.
- - sad again
  - const spaces: how many bits do addresses have?
  - cvt with rounding modes. also, what does it do?
  - mad with rounding modes

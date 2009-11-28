@@ -12,7 +12,8 @@ Instructions
 3. Integer ADD family
 4. Integer short MUL
 5. Integer 24-bit MUL
-6. Bit operations
+6. Integer SAD
+7. Bit operations
 
 0. Conventions
 
@@ -222,7 +223,41 @@ Instructions
   		0x00000000 0x00004000 high
   		operands: MCDST, LLDST, LSRC1/LSHARED, LSRC2/LCONST2
 
-6. Bit operations
+6. Integer SAD
+
+  sad [CDST] DST u/s HSRC1 HSRC2 SRC3		b16
+  sad [CDST] DST u/s SRC1 SRC2 SRC3		b32
+
+  Short variant is restricted to DST same as SRC3.
+
+	int s1, s2; // infinite precision
+	if (signed) {
+		s1 = SEX(SRC1);
+		s2 = SEX(SRC2);
+	} else {
+		s1 = ZEX(SRC1);
+		s2 = ZEX(SRC2);
+	}
+	b32 mres = abs(s1-s2);	// modulo 2^32
+	res = mres+s3;		// infinite precision
+	CDST.C = res >> (b32 ? 32 : 16);
+	res = res & (b32 ? 0xffffffff : 0xffff);
+	CDST.O = (S(mres) == S(s3)) && (S(mres) != S(res));
+	CDST.S = S(res);
+	CDST.Z = res == 0;
+	DST = res;
+
+  Short:	0x50000000 base opcode
+  		0x00008000 0: b16 1: b32
+		0x00000100 src are signed
+		operands: DST, SDST, S*SRC/S*SHARED, S*SRC2/S*CONST, SDST
+
+  Long:		0x50000000 0x00000000 base opcode
+		0x00000000 0x04000000 0: b16, 1: b32
+  		0x00000000 0x08000000 src sre signed
+		operands: MCDST, LLDST, L*SRC1/L*SHARED, L*SRC2/L*CONST2, L*SRC3/L*CONST3
+
+7. Bit operations
 
   and [CDST] HDST [not] HSRC1 [not] HSRC2	O2=0, O1=0, b16
   and [CDST] DST [not] SRC1 [not] SRC2		O2=0, O1=0, b32
