@@ -20,9 +20,12 @@ Instructions
   SEX(x): sign-extension of x
   ZEX(x): zero-extension of x
 
+  DST, SRC* refer to 32-bit $r or memory, HDST and HSRC* are 16-bit half-$r or memory.
+
 1. Normal MOV
 
-  [lanemask] mov b32/b16 DST SRC
+  [lanemask] mov DST SRC	b16
+  [lanemask] mov HDST HSRC	b32
 
   lanemask assumed 0xf for short and immediate versions.
 
@@ -45,8 +48,6 @@ Instructions
 
   mov DST COND
 
-  DST is 32-bit $r.
-
 	DST = COND;
 
   Long:		0x00000000 0x20000000 base opcode
@@ -56,8 +57,7 @@ Instructions
 
   mov CDST SRC
 
-  SRC is 32-bit $r. Yes, the 0x40 $c write enable flag in second word is
-  actually ignored.
+  Yes, the 0x40 $c write enable flag in second word is actually ignored.
 
 	CDST = SRC;
 
@@ -68,8 +68,8 @@ Instructions
 
   mov DST AREG
 
-  DST is 32-bit $r. Setting flag normally used for autoincrement mode doesn't
-  work, but still causes crash when using non-writable $a's.
+  Setting flag normally used for autoincrement mode doesn't work, but still
+  causes crash when using non-writable $a's.
 
 	DST = AREG;
 
@@ -80,8 +80,6 @@ Instructions
 2.4. SHL to $a
 
   shl ADST SRC SHCNT
-
-  SRC is 32-bit $r.
 
 	ADST = SRC << SHCNT;
 
@@ -112,8 +110,6 @@ Instructions
   mov DST pm2		S=6
   mov DST pm3		S=7
 
-  DST is 32-bit $r.
-
 	DST = SREG;
 
   Long:		0x00000000 0x60000000 base opcode
@@ -122,10 +118,14 @@ Instructions
 
 3. Integer ADD family
 
-  add [sat] b32/b16 [CDST] DST SRC1 SRC2		O2=0, O1=0
-  sub [sat] b32/b16 [CDST] DST SRC1 SRC2		O2=0, O1=1
-  subr [sat] b32/b16 [CDST] DST SRC1 SRC2		O2=1, O1=0
-  addc [sat] b32/b16 [CDST] DST SRC1 SRC2 COND		O2=1, O1=1
+  add [sat] [CDST] HDST HSRC1 HSRC2		O2=0, O1=0, b16
+  add [sat] [CDST] DST SRC1 SRC2		O2=0, O1=0, b32
+  sub [sat] [CDST] HDST HSRC1 HSRC2		O2=0, O1=1, b16
+  sub [sat] [CDST] DST SRC1 SRC2		O2=0, O1=1, b32
+  subr [sat] [CDST] HDST HSRC1 HSRC2		O2=1, O1=0, b16
+  subr [sat] [CDST] DST SRC1 SRC2		O2=1, O1=0, b32
+  addc [sat] [CDST] HDST HSRC1 HSRC2 COND	O2=1, O1=1, b16
+  addc [sat] [CDST] DST SRC1 SRC2 COND		O2=1, O1=1, b32
 
   All operands are 32-bit or 16-bit according to size specifier.
 
@@ -164,9 +164,7 @@ Instructions
 
 4. Integer short MUL
 
-  mul [CDST] DST u16/s16 SRC1 u16/s16 SRC2
-
-  DST is 32-bit, SRC1 and SRC2 are 16-bit.
+  mul [CDST] DST u16/s16 HSRC1 u16/s16 HSRC2
 
 	b32 s1, s2;
 	if (src1_signed)
@@ -198,8 +196,6 @@ Instructions
 
   mul [CDST] DST [high] u24/s24 SRC1 SRC2
 
-  All operands are 32-bit.
-
 	b48 s1, s2;
 	if (signed) {
 		s1 = SEX((b24)SRC1);
@@ -228,10 +224,14 @@ Instructions
 
 6. Bit operations
 
-  and b32/b16 [CDST] DST [not] SRC1 [not] SRC2		O2=0, O1=0
-  or b32/b16 [CDST] DST [not] SRC1 [not] SRC2		O2=0, O1=1
-  xor b32/b16 [CDST] DST [not] SRC1 [not] SRC2		O2=1, O1=0
-  mov2 b32/b16 [CDST] DST [not] SRC1 [not] SRC2	O2=1, O1=1
+  and [CDST] HDST [not] HSRC1 [not] HSRC2	O2=0, O1=0, b16
+  and [CDST] DST [not] SRC1 [not] SRC2		O2=0, O1=0, b32
+  or [CDST] HDST [not] HSRC1 [not] HSRC2	O2=0, O1=1, b16
+  or [CDST] DST [not] SRC1 [not] SRC2		O2=0, O1=1, b32
+  xor [CDST] HDST [not] HSRC1 [not] HSRC2	O2=1, O1=0, b16
+  xor [CDST] DST [not] SRC1 [not] SRC2		O2=1, O1=0, b32
+  mov2 [CDST] HDST [not] HSRC1 [not] HSRC2	O2=1, O1=1, b16
+  mov2 [CDST] DST [not] SRC1 [not] SRC2		O2=1, O1=1, b32
 
   Immediate forms only allows 32-bit operands, and cannot negate second op.
 
@@ -254,6 +254,7 @@ Instructions
 		0x00008000 O2 bit
 		0x00000100 O1 bit
 		operands: SDST, SSRC/SSHARED, IMM
+		assumed: not2=0 and b32.
 
   Long:		0xd0000000 0x00000000 base opcode
 		0x00000000 0x04000000 0: b16, 1: b32

@@ -309,7 +309,7 @@ char cmag[] = "\x1b[35m";	// pink: funny registers
  * This doesn't work for $a, as there is a special case here: only the first
  * field using it actually gets its value, next ones just use 0. This is
  * hacked around by zeroing out the field directly in passed opcode parameter
- * in the op reading it. This gives proper behavior on stuff like add b32 $r0,
+ * in the op reading it. This gives proper behavior on stuff like add $r0,
  * s[$a1+0x4], c0[0x10].
  *
  * Macros provided for quickly getting the bitfields: BF(...) gets value of
@@ -824,8 +824,8 @@ struct insn tabsnot1[] = {
 };
 
 struct insn tabas[] = {
-	{ AP, 0x00000000, 0x00008000, 0, 0, T(ssat), N("b16"), SHDST, T(ssh), T(sch) },
-	{ AP, 0x00008000, 0x00008000, 0, 0, T(ssat), N("b32"), SDST, T(ssw), T(scw) },
+	{ AP, 0x00000000, 0x00008000, 0, 0, T(ssat), SHDST, T(ssh), T(sch) },
+	{ AP, 0x00008000, 0x00008000, 0, 0, T(ssat), SDST, T(ssw), T(scw) },
 	{ AP, 0, 0, 0, 0, OOPS }
 };
 
@@ -868,8 +868,8 @@ struct insn tabsslus2[] = {
 
 struct insn tabs[] = {
 	// SCAN 0-1
-	{ AP, 0x10000000, 0xf0008002, 0, 0, N("mov b16"), SHDST, T(ssh) },
-	{ AP, 0x10008000, 0xf0008002, 0, 0, N("mov b32"), SDST, T(ssw) },
+	{ AP, 0x10000000, 0xf0008002, 0, 0, N("mov"), SHDST, T(ssh) },
+	{ AP, 0x10008000, 0xf0008002, 0, 0, N("mov"), SDST, T(ssw) },
 
 	{ AP, 0x20000000, 0xf0400002, 0, 0, N("add"), T(as) },
 	{ AP, 0x20400000, 0xf0400002, 0, 0, N("sub"), T(as) },
@@ -919,15 +919,15 @@ struct insn tabs[] = {
  */
 
 struct insn tabgi[] = {
-	{ AP, 0x00000000, 0x00008000, 0, 0, T(ssat), N("b16"), SHDST, T(ssh), IMM },
-	{ AP, 0x00008000, 0x00008000, 0, 0, T(ssat), N("b32"), SDST, T(ssw), IMM },
+	{ AP, 0x00000000, 0x00008000, 0, 0, T(ssat), SHDST, T(ssh), IMM },
+	{ AP, 0x00008000, 0x00008000, 0, 0, T(ssat), SDST, T(ssw), IMM },
 	{ AP, 0, 0, 0, 0, OOPS }
 };
 
 struct insn tabi[] = {
 	// SCAN 0-1
-	{ AP, 0x10000000, 0xf0008002, 0, 0, N("mov b16"), LHDST, IMM },
-	{ AP, 0x10008000, 0xf0008002, 0, 0, N("mov b32"), LDST, IMM },	// yes. LDST. special case.
+	{ AP, 0x10000000, 0xf0008002, 0, 0, N("mov"), LHDST, IMM },
+	{ AP, 0x10008000, 0xf0008002, 0, 0, N("mov"), LDST, IMM },	// yes. LDST. special case.
 
 	{ AP, 0x20000000, 0xf0400002, 0, 0, N("add"), T(gi) },
 	{ AP, 0x20400000, 0xf0400002, 0, 0, N("sub"), T(gi) },
@@ -944,10 +944,10 @@ struct insn tabi[] = {
 
 	{ AP, 0xc0000000, 0xf0000002, 0, 0, N("mul f32"), SDST, T(sneg1), T(ssw), T(sneg2), IMM },
 
-	{ AP, 0xd0000000, 0xf0008102, 0, 0, N("and b32"), SDST, T(snot1), T(ssw), IMM },
-	{ AP, 0xd0000100, 0xf0008102, 0, 0, N("or b32"), SDST, T(snot1), T(ssw), IMM },
-	{ AP, 0xd0008000, 0xf0008102, 0, 0, N("xor b32"), SDST, T(snot1), T(ssw), IMM },
-	{ AP, 0xd0008100, 0xf0008102, 0, 0, N("mov2 b32"), SDST, T(snot1), T(ssw), IMM },
+	{ AP, 0xd0000000, 0xf0008102, 0, 0, N("and"), SDST, T(snot1), T(ssw), IMM },
+	{ AP, 0xd0000100, 0xf0008102, 0, 0, N("or"), SDST, T(snot1), T(ssw), IMM },
+	{ AP, 0xd0008000, 0xf0008102, 0, 0, N("xor"), SDST, T(snot1), T(ssw), IMM },
+	{ AP, 0xd0008100, 0xf0008102, 0, 0, N("mov2"), SDST, T(snot1), T(ssw), IMM },
 
 	{ AP, 0xe0000000, 0xf0000002, 0, 0, N("mad"), T(ssat), N("f32"), SDST, T(sneg1), T(ssw), IMM, T(sneg2), SDST },
 
@@ -1010,8 +1010,8 @@ struct insn tablasat[] = {
 };
 
 struct insn tabla[] = {
-	{ AP, 0, 0, 0x00000000, 0x04000000, N("b16"), T(lasat), MCDST, LLHDST, T(lsh), T(lc3h) },
-	{ AP, 0, 0, 0x04000000, 0x04000000, N("b32"), T(lasat), MCDST, LLDST, T(lsw), T(lc3w) },
+	{ AP, 0, 0, 0x00000000, 0x04000000, T(lasat), MCDST, LLHDST, T(lsh), T(lc3h) },
+	{ AP, 0, 0, 0x04000000, 0x04000000, T(lasat), MCDST, LLDST, T(lsw), T(lc3w) },
 	{ AP, 0, 0, 0, 0, OOPS }
 };
 
@@ -1350,7 +1350,7 @@ struct insn tablm24high[] = {
 struct insn tabl[] = {
 	// 0
 	{ VP|GP, 0x00000000, 0xf0000002, 0x04200000, 0xe4200000,
-		T(lane), N("mov b32"), LLDST, FATTR },
+		T(lane), N("mov"), LLDST, FATTR },
 	{ AP, 0x00000000, 0xf0000002, 0x20000000, 0xe0000000,
 		N("mov"), LDST, COND },
 	{ AP, 0x00000000, 0xf0000002, 0x40000000, 0xe0000000,
@@ -1361,7 +1361,7 @@ struct insn tabl[] = {
 	{ AP, 0x00000000, 0xf0000002, 0xa0000000, 0xe0000000,
 		N("mov"), CDST, LSRC, T(ignce) },
 	{ AP, 0x00000000, 0xf0000002, 0xc0000000, 0xe0000000,
-		N("shl b32"),	ADST, T(lsw), HSHCNT },
+		N("shl"),	ADST, T(lsw), HSHCNT },
 	
 	{ CP, 0x00000000, 0xf0000002, 0xe0000000, 0xe4400000,	// XXX ok, seriously, what's up with all thse flags?
 		N("mov b16"), FHSHARED, LHSRC3 },
@@ -1374,9 +1374,9 @@ struct insn tabl[] = {
 
 	// 1
 	{ AP, 0x10000000, 0xf0000002, 0x00000000, 0xe4000000,
-		T(lane), N("mov b16"), LLHDST, T(lsh) },
+		T(lane), N("mov"), LLHDST, T(lsh) },
 	{ AP, 0x10000000, 0xf0000002, 0x04000000, 0xe4000000,
-		T(lane), N("mov b32"), LLDST, T(lsw) },
+		T(lane), N("mov"), LLDST, T(lsw) },
 
 	{ AP, 0x10000000, 0xf0000002, 0x20000000, 0xe4000000,
 		N("mov b16"), LLHDST, T(fcon) },
@@ -1459,13 +1459,13 @@ struct insn tabl[] = {
 
 	// 5
 	{ AP, 0x50000000, 0xf0000002, 0x00000000, 0xec000000,
-		N("sad u16"), LDST, T(lsh), T(lc2h), T(lc3w) },
+		N("sad"), LDST, N("u16"), T(lsh), T(lc2h), T(lc3w) },
 	{ AP, 0x50000000, 0xf0000002, 0x04000000, 0xec000000,
-		N("sad u32"), LDST, T(lsw), T(lc2w), T(lc3w) },
+		N("sad"), LDST, N("u32"), T(lsw), T(lc2w), T(lc3w) },
 	{ AP, 0x50000000, 0xf0000002, 0x08000000, 0xec000000,
-		N("sad s16"), LDST, T(lsh), T(lc2h), T(lc3w) },
+		N("sad"), LDST, N("s16"), T(lsh), T(lc2h), T(lc3w) },
 	{ AP, 0x50000000, 0xf0000002, 0x0c000000, 0xec000000,
-		N("sad s32"), LDST, T(lsw), T(lc2w), T(lc3w) },
+		N("sad"), LDST, N("u32"), T(lsw), T(lc2w), T(lc3w) },
 
 	// 6
 	{ AP, 0x60000000, 0xf0000002, 0x00000000, 0xec000000,
@@ -1641,21 +1641,21 @@ struct insn tabl[] = {
 
 	// d
 	{ AP, 0xd0000000, 0xf0000002, 0x00000000, 0xe400c000,
-		N("and b16"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
+		N("and"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
 	{ AP, 0xd0000000, 0xf0000002, 0x04000000, 0xe400c000,
-		N("and b32"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
+		N("and"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
 	{ AP, 0xd0000000, 0xf0000002, 0x00004000, 0xe400c000,
-		N("or b16"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
+		N("or"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
 	{ AP, 0xd0000000, 0xf0000002, 0x04004000, 0xe400c000,
-		N("or b32"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
+		N("or"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
 	{ AP, 0xd0000000, 0xf0000002, 0x00008000, 0xe400c000,
-		N("xor b16"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
+		N("xor"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
 	{ AP, 0xd0000000, 0xf0000002, 0x04008000, 0xe400c000,
-		N("xor b32"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
+		N("xor"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
 	{ AP, 0xd0000000, 0xf0000002, 0x0000c000, 0xe400c000,
-		N("mov2 b16"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
+		N("mov2"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
 	{ AP, 0xd0000000, 0xf0000002, 0x0400c000, 0xe400c000,
-		N("mov2 b32"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
+		N("mov2"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
 
 	{ AP, 0xd0000000, 0xf0000002, 0x20000000, 0xe0000000,
 		N("add"), ADST, AREG, OFFS },
