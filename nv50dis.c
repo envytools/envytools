@@ -62,9 +62,7 @@
  * Instructions, from PTX manual:
  *   
  *   1. Integer Arithmetic
- *    - mul		desc...
  *    - mad		desc...
- *    - mul24		XXX
  *    - mad24		XXX
  *    - sad		XXX
  *    - sad.64		TODO	emulated
