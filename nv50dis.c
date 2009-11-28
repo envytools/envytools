@@ -846,11 +846,6 @@ struct insn tabms[] = {
 	{ AP, 0x00008100, 0x00008100, 0, 0, SDST, N("u24"), T(ssw), T(scw), SDST },
 };
 
-struct insn tabsm24us[] = {
-	{ AP, 0x00000000, 0x00008000, 0, 0, N("u24") },
-	{ AP, 0x00008000, 0x00008000, 0, 0, N("s24") },
-};
-
 struct insn tabsm24high[] = {
 	{ AP, 0x00000000, 0x00000100, 0, 0 },
 	{ AP, 0x00000100, 0x00000100, 0, 0, N("high") },
