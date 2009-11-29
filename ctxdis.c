@@ -55,6 +55,7 @@ char cmag[] = "\x1b[35m";	// pink: funny registers
  *
  * Decoding various fields is done by multi-level tables of decode operations.
  * Fields of a single table entry:
+ *  - bitmask of program types for which this entry applies
  *  - value that needs to match
  *  - mask of bits in opcode that need to match the val
  *  - a sequence of 0 to 8 operations to perform if this entry is matched.
@@ -70,9 +71,10 @@ char cmag[] = "\x1b[35m";	// pink: funny registers
  * into another table to decude a subfield. T(too) is an op shorthand for use
  * in tables.
  *
- * Each op takes four arguments: output file to print to, pointer to the
+ * Each op takes five arguments: output file to print to, pointer to the
  * opcode being decoded, pointer to a mask value of already-used fields,
- * and a free-form void * specified in table entry that called this op.
+ * a free-form void * specified in table entry that called this op, and
+ * allowed program type bitmask.
  *
  * The mask argument is supposed to detect unknown fields in opcodes: if some
  * bit in decoded opcode is set, but no op executed along the way claims to
@@ -87,7 +89,7 @@ char cmag[] = "\x1b[35m";	// pink: funny registers
  * This doesn't work for $a, as there is a special case here: only the first
  * field using it actually gets its value, next ones just use 0. This is
  * hacked around by zeroing out the field directly in passed opcode parameter
- * in the op reading it. This gives proper behavior on stuff like add b32 $r0,
+ * in the op reading it. This gives proper behavior on stuff like add $r0,
  * s[$a1+0x4], c0[0x10].
  *
  * Macros provided for quickly getting the bitfields: BF(...) gets value of
@@ -100,12 +102,13 @@ char cmag[] = "\x1b[35m";	// pink: funny registers
  * OOPS is for unknown encodings, NL is for separating instructions in case
  * a single opcode represents two [only possible with join and exit].
  */
- 
 
-#define BF(s, l) (m[0] |= ((1<<l)-1<<s), a[0]>>s&(1<<l)-1)
-#define RCL(s, l) (a[0] &= ~((1<<l)-1<<s))
+typedef unsigned long long ull;
 
-#define APROTO (FILE *out, uint32_t *a, uint32_t *m, const void *v, int ptype)
+#define BF(s, l) (*m |= ((1ull<<l)-1<<s), *a>>s&(1ull<<l)-1)
+#define RCL(s, l) (*a &= ~((1ull<<l)-1<<s))
+
+#define APROTO (FILE *out, ull *a, ull *m, const void *v, int ptype)
 
 typedef void (*afun) APROTO;
 
@@ -116,10 +119,26 @@ struct atom {
 
 struct insn {
 	int ptype;
-	uint32_t val;
-	uint32_t mask;
+	ull val;
+	ull mask;
 	struct atom atoms[10];
 };
+
+/*
+ * Makes a simple table for checking a single flag.
+ *
+ * Arguments: table name, flag position, ops for 0, ops for 1.
+ */
+
+#define F(n, f, a, b) struct insn tab ## n[] = {\
+	{ AP, 0,		1ull<<(f), a },\
+	{ AP, 1ull<<(f),	1ull<<(f), b },\
+};
+#define F1(n, f, b) struct insn tab ## n[] = {\
+	{ AP, 0,		1ull<<(f) },\
+	{ AP, 1ull<<(f),	1ull<<(f), b },\
+};
+
 
 #define T(x) atomtab, tab ## x
 void atomtab APROTO {
@@ -153,7 +172,7 @@ void atomoops APROTO {
 
 #define CTARG atomctarg, 0
 void atomctarg APROTO {
-	fprintf (out, " %s%#x", cbr, BF(8, 10)+1<<2);
+	fprintf (out, " %s%#llx", cbr, BF(8, 10)+1<<2);
 }
 
 /*
@@ -256,14 +275,14 @@ struct insn tabm[] = {
 void nv50dis (FILE *out, uint32_t *code, int num, int ptype) {
 	int cur = 0;
 	while (cur < num) {
-		uint32_t a[1] = {code[cur++]}, m[1] = { 0 };
+		ull a = code[cur], m = 0;
+		cur++;
 		fprintf (out, "%s%08x: %s", cgray, cur*4, cnorm);
-		fprintf (out, "%08x         ", a[0]);
-		atomtab (out, a, m, tabm, ptype);
-		a[0] &= ~m[0];
-		if (a[0]) {
-			fprintf (out, " %s[unknown: %08x", cred, a[0]);
-			fprintf (out, "]%s", cnorm);
+		fprintf (out, "%08llx", a);
+		atomtab (out, &a, &m, tabm, ptype);
+		a &= ~m;
+		if (a) {
+			fprintf (out, " %s[unknown: %08llx]%s", cred, a, cnorm);
 		}
 		printf ("%s\n", cnorm);
 	}
@@ -281,7 +300,6 @@ int main(int argc, char **argv) {
 				ptype = NV5x;
 				break;
 		}
-
 	int num = 0;
 	int maxnum = 16;
 	uint32_t *code = malloc (maxnum * 4);

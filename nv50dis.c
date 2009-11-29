@@ -311,7 +311,7 @@ char cmag[] = "\x1b[35m";	// pink: funny registers
  * Macros provided for quickly getting the bitfields: BF(...) gets value of
  * given bitfield and marks it as used in the mask, RCL(...) wipes it
  * from the opcode field directly, allowing for the $a special case. Args are
- * given as word number [0-based], start bit, size in bits.
+ * given as start bit, size in bits.
  *
  * Also, three simple ops are provided: N("string") prints a literal to output
  * and is supposed to be used for instruction names and various modifiers.
@@ -1704,9 +1704,7 @@ struct insn tab2w[] = {
  * Disassembler driver
  *
  * You pass a block of memory to this function, disassembly goes out to given
- * FILE*. Optionally specify a start address of the code, to be used for
- * proper display of address on the left [so that addresses match the ones
- * used in branch insns].
+ * FILE*.
  */
 
 void nv50dis (FILE *out, uint32_t *code, int num, int ptype) {
