@@ -190,13 +190,10 @@
 /*
  * General instruction format
  * 
- * Notation for bitfields: 0/4-9 is bits 4-9 of first word, 1/8-9 is bits 8-9
- * of second word.
- *
  * Machine code is read in 64-bit naturaly-aligned chunks, consisting of two
  * 32-bit words. If bit 0 of first word is 0, this chunk consists of two
- * single-word ishort instructions. Otherwise, it's a dobule-word instruction.
- * For double-word instructions, 1/0-1 further determines its type:
+ * single-word short instructions. Otherwise, it's a double-word instruction.
+ * For double-word instructions, bits 0x20-0x21 further determine its type:
  *  00: long
  *  01: long with exit after it
  *  10: long with join before it
@@ -205,7 +202,7 @@
  * Short, long, and immediate instructions each have separate encoding tables.
  *
  * All [?] long instructions can be predicated. $c register number to be used
- * is in 1/12-13, 1/7-11 specifies condition to be checked in that register:
+ * is in 0x2c-0x2d, 0x27-0x2b specifies condition to be checked in that register:
  *  code   $c formula		meaning for sub/cmp	meaning for set-to-res
  *  00000: never
  *  00001: (S & ~Z) ^ O		s/f <			<0
@@ -232,15 +229,15 @@
  *  11110: ~C			u <
  *  11111: ~O			no signed overflow
  *
- * 0/1 is yet another instruction subtype: 0 is normal instruction, 1 is
+ * Bit 1 is yet another instruction subtype: 0 is normal instruction, 1 is
  * a control instruction [branches and stuff like that]. For all types and
- * subtypes, the major opcode field is 0/28-31. For long instructions, 1/29-31
- * is subopcode. From there on, there seems to be little regularity.
+ * subtypes, the major opcode field is 0x1c-0x1f. For long instructions,
+ * 0x3d-0x3f is subopcode. From there on, there is little regularity.
  */
 
 /*
  * Misc. hack alerts:
- *  - 1/12-13 is read twice in addc instructions: it selects $c to use for
+ *  - 0x2c-0x2d is read twice in addc instructions: it selects $c to use for
  *    a carry flag, and selects $c to use for conditional execution. Printing
  *    it depends on zeroing happening after decoding the instruction.
  *    Same thing also happens in mov-from-$c instruction.
@@ -277,7 +274,6 @@ char cmag[] = "\x1b[35m";	// pink: funny registers
  *  - bitmask of program types for which this entry applies
  *  - value that needs to match
  *  - mask of bits in opcode that need to match the val
- *  - same fields, but for the second word, in case of two-word insns
  *  - a sequence of 0 to 8 operations to perform if this entry is matched.
  *
  * Each table is scanned linearly until a matching entry is found, then all
@@ -322,12 +318,13 @@ char cmag[] = "\x1b[35m";	// pink: funny registers
  * OOPS is for unknown encodings, NL is for separating instructions in case
  * a single opcode represents two [only possible with join and exit].
  */
- 
 
-#define BF(w, s, l) (m[w] |= ((1<<l)-1<<s), a[w]>>s&(1<<l)-1)
-#define RCL(w, s, l) (a[w] &= ~((1<<l)-1<<s))
+typedef unsigned long long ull;
 
-#define APROTO (FILE *out, uint32_t *a, uint32_t *m, const void *v, int ptype)
+#define BF(s, l) (*m |= ((1ull<<l)-1<<s), *a>>s&(1ull<<l)-1)
+#define RCL(s, l) (*a &= ~((1ull<<l)-1<<s))
+
+#define APROTO (FILE *out, ull *a, ull *m, const void *v, int ptype)
 
 typedef void (*afun) APROTO;
 
@@ -338,21 +335,34 @@ struct atom {
 
 struct insn {
 	int ptype;
-	uint32_t val;
-	uint32_t mask;
-	uint32_t val2;
-	uint32_t mask2;
+	ull val;
+	ull mask;
 	struct atom atoms[10];
 };
+
+/*
+ * Makes a simple table for checking a single flag.
+ *
+ * Arguments: table name, flag position, ops for 0, ops for 1.
+ */
+
+#define F(n, f, a, b) struct insn tab ## n[] = {\
+	{ AP, 0,		1ull<<(f), a },\
+	{ AP, 1ull<<(f),	1ull<<(f), b },\
+};
+#define F1(n, f, b) struct insn tab ## n[] = {\
+	{ AP, 0,		1ull<<(f) },\
+	{ AP, 1ull<<(f),	1ull<<(f), b },\
+};
+
 
 #define T(x) atomtab, tab ## x
 void atomtab APROTO {
 	const struct insn *tab = v;
 	int i;
-	while ((a[0]&tab->mask) != tab->val || (a[1]&tab->mask2) != tab->val2 || !(tab->ptype&ptype))
+	while ((a[0]&tab->mask) != tab->val || !(tab->ptype&ptype))
 		tab++;
 	m[0] |= tab->mask;
-	m[1] |= tab->mask2;
 	for (i = 0; i < 10; i++)
 		if (tab->atoms[i].fun)
 			tab->atoms[i].fun (out, a, m, tab->atoms[i].arg, ptype);
@@ -365,7 +375,7 @@ void atomname APROTO {
 
 #define NL atomnl, 0
 void atomnl APROTO {
-	fprintf (out, "\n                           ");
+	fprintf (out, "\n                          ");
 }
 
 #define OOPS atomoops, 0
@@ -384,7 +394,7 @@ void atomoops APROTO {
 
 #define CTARG atomctarg, 0
 void atomctarg APROTO {
-	fprintf (out, " %s%#x", cbr, BF(0, 11, 16)<<2 | BF(1, 14, 6) << 18);
+	fprintf (out, " %s%#llx", cbr, BF(0xb, 16)<<2 | BF(0x2e, 6) << 18);
 }
 
 /*
@@ -395,7 +405,7 @@ void atomctarg APROTO {
 
 #define IMM atomimm, 0
 void atomimm APROTO {
-	fprintf (out, " %s%#x", cyel, (BF(0, 16, 6)) | (BF(1, 2, 26)<<6));
+	fprintf (out, " %s%#llx", cyel, (BF(0x10, 6)) | (BF(0x22, 26)<<6));
 }
 
 /*
@@ -409,14 +419,14 @@ void atomimm APROTO {
  *  - HSHCNT: used in 16-bit shift-by-immediate insns for shift amount
  */
 
-int pmoff[] = { 0, 10, 4, 0 };
-int baroff[] = { 0, 21, 4, 0 };
-int offoff[] = { 0, 9, 16, 0 };
-int shcntoff[] = { 0, 16, 5, 0 };
-int hshcntoff[] = { 0, 16, 4, 0 };
-int toffxoff[] = { 1, 24, 4, 1 };
-int toffyoff[] = { 1, 20, 4, 1 };
-int toffzoff[] = { 1, 16, 4, 1 };
+int pmoff[] = { 0xa, 4, 0 };
+int baroff[] = { 0x15, 4, 0 };
+int offoff[] = { 9, 16, 0 };
+int shcntoff[] = { 0x10, 5, 0 };
+int hshcntoff[] = { 0x10, 4, 0 };
+int toffxoff[] = { 0x38, 4, 1 };
+int toffyoff[] = { 0x34, 4, 1 };
+int toffzoff[] = { 0x30, 4, 1 };
 #define PM atomnum, pmoff
 #define BAR atomnum, baroff
 #define OFFS atomnum, offoff
@@ -427,9 +437,9 @@ int toffzoff[] = { 1, 16, 4, 1 };
 #define TOFFZ atomnum, toffzoff
 void atomnum APROTO {
 	const int *n = v;
-	uint32_t num = BF(n[0], n[1], n[2]);
-	if (n[3] && num&1<<(n[2]-1))
-		fprintf (out, " %s-%#x", cyel, (1<<n[2]) - num);
+	uint32_t num = BF(n[0], n[1]);
+	if (n[2] && num&1<<(n[1]-1))
+		fprintf (out, " %s-%#x", cyel, (1<<n[1]) - num);
 	else
 		fprintf (out, " %s%#x", cyel, num);
 }
@@ -438,12 +448,12 @@ void atomnum APROTO {
  * Register fields
  *
  * There are four locations of register fields for $r:
- *  - DST: 0/2 and up, used for destination reg of most insns, but for source
+ *  - DST: 2 and up, used for destination reg of most insns, but for source
  *         in store instructions. Insn seems to get ignored if this field is
  *         > number of allocated regs, so don't use that for storing 0s.
- *  - SRC: 0/9 and up, used as a source register in all types of insns.
- *  - SRC2: 0/16 and up, used as a source register in short and long insns.
- *  - SRC3: 1/14 and up, used as s source register in long insns.
+ *  - SRC: 9 and up, used as a source register in all types of insns.
+ *  - SRC2: 0x10 and up, used as a source register in short and long insns.
+ *  - SRC3: 0x2e and up, used as s source register in long insns.
  *
  * These fields can be unused, or used as part of opcode or modifiers if insn
  * doesn't need all available fields.
@@ -459,10 +469,9 @@ void atomnum APROTO {
  * to be even.
  *
  * DST field seems to sometimes store $o registers instead of $r. If it can,
- * using $o instead of $r is indicated by 1/3 being set. LLDST means either
- * $o or $r in DST. It's unknown yet in what instructions it can be used
- * [probably all longs?] and whether it works for 16-bit halves [$o63h
- * encoding is used as a bit bucket for sure, however].
+ * using $o instead of $r is indicated by bit 0x23 being set. LLDST means
+ * either $o or $r in DST. It's unknown yet in what instructions it can be
+ * used [probably all non-tex non-access-g[] longs?]
  *
  * ADST is a smaller version of DST field used for storing $a destination in
  * insns that allow one.
@@ -472,30 +481,30 @@ void atomnum APROTO {
  *
  * CDST is $c register used for output. It's set according to insn result for
  * most insns that allow it. Writing to $c in this field needs to be enabled
- * by setting 1/6. MCDST is an op that reflects that and is used for insns
+ * by setting bit 0x26. MCDST is an op that reflects that and is used for insns
  * that can function both with or without $c output.
  * 
  * AREG is a field storing $a register used in insn for memory addressing,
  * or as a normal source register sometimes. It's especially ugly, because
- * it's spread out across 0/26-27 [low part] and 1/2 [high part], with the
+ * it's spread out across 0x1a-0x1b [low part] and 0x22 [high part], with the
  * high part assumed 0 if insn is short or immediate. Also, if two memory
  * accesses are used in the same insn, this field applies only to the first.
  *
  */
 
-int sdstoff[] = { 0, 2, 6, 'r' };
-int ldstoff[] = { 0, 2, 7, 'r' };
-int ssrcoff[] = { 0, 9, 6, 'r' };
-int lsrcoff[] = { 0, 9, 7, 'r' };
-int ssrc2off[] = { 0, 16, 6, 'r' };
-int lsrc2off[] = { 0, 16, 7, 'r' };
-int lsrc3off[] = { 1, 14, 7, 'r' };
-int odstoff[] = { 0, 2, 7, 'o' };
-int adstoff[] = { 0, 2, 3, 'a' };
-int condoff[] = { 1, 12, 2, 'c' };
-int c0off[] = { 0, 0, 0, 'c' };
-int cdstoff[] = { 1, 4, 2, 'c' };
-int texoff[] = { 0, 9, 7, 't' };
+int sdstoff[] = { 2, 6, 'r' };
+int ldstoff[] = { 2, 7, 'r' };
+int ssrcoff[] = { 9, 6, 'r' };
+int lsrcoff[] = { 9, 7, 'r' };
+int ssrc2off[] = { 0x10, 6, 'r' };
+int lsrc2off[] = { 0x10, 7, 'r' };
+int lsrc3off[] = { 0x2e, 7, 'r' };
+int odstoff[] = { 2, 7, 'o' };
+int adstoff[] = { 2, 3, 'a' };
+int condoff[] = { 0x2c, 2, 'c' };
+int c0off[] = { 0, 0, 'c' };
+int cdstoff[] = { 0x24, 2, 'c' };
+int texoff[] = { 9, 7, 't' };
 #define SDST atomreg, sdstoff
 #define LDST atomreg, ldstoff
 #define SHDST atomhreg, sdstoff
@@ -525,31 +534,31 @@ int texoff[] = { 0, 9, 7, 't' };
 #define TEX atomreg, texoff
 void atomreg APROTO {
 	const int *n = v;
-	int r = BF(n[0], n[1], n[2]);
-	if (r == 127 && n[3] == 'o') fprintf (out, " %s_", cbl);
-	else fprintf (out, " %s$%c%d", (n[3]=='r')?cbl:cmag, n[3], r);
+	int r = BF(n[0], n[1]);
+	if (r == 127 && n[2] == 'o') fprintf (out, " %s_", cbl);
+	else fprintf (out, " %s$%c%d", (n[2]=='r')?cbl:cmag, n[2], r);
 }
 void atomdreg APROTO {
 	const int *n = v;
-	fprintf (out, " %s$%c%dd", (n[3]=='r')?cbl:cmag, n[3], BF(n[0], n[1], n[2]));
+	fprintf (out, " %s$%c%lldd", (n[2]=='r')?cbl:cmag, n[2], BF(n[0], n[1]));
 }
 void atomqreg APROTO {
 	const int *n = v;
-	fprintf (out, " %s$%c%dq", (n[3]=='r')?cbl:cmag, n[3], BF(n[0], n[1], n[2]));
+	fprintf (out, " %s$%c%lldq", (n[2]=='r')?cbl:cmag, n[2], BF(n[0], n[1]));
 }
 void atomhreg APROTO {
 	const int *n = v;
-	int r = BF(n[0], n[1], n[2]);
-	if (r == 127 && n[3] == 'o') fprintf (out, " %s_", cbl);
-	else fprintf (out, " %s$%c%d%c", (n[3]=='r')?cbl:cmag, n[3], r>>1, "lh"[r&1]);
+	int r = BF(n[0], n[1]);
+	if (r == 127 && n[2] == 'o') fprintf (out, " %s_", cbl);
+	else fprintf (out, " %s$%c%d%c", (n[2]=='r')?cbl:cmag, n[2], r>>1, "lh"[r&1]);
 }
 
-int getareg (uint32_t *a, uint32_t *m, int l) {
-	int r = BF(0, 26, 2);
-	RCL(0, 26, 2);
+int getareg (ull *a, ull *m, int l) {
+	int r = BF(0x1a, 2);
+	RCL(0x1a, 2);
 	if (l) {
-		r |= BF(1, 2, 1)<<2;
-		RCL(1, 2, 1);
+		r |= BF(0x22, 1)<<2;
+		RCL(0x22, 1);
 	}
 	return r;
 }
@@ -560,8 +569,8 @@ void atomareg APROTO {
 
 #define LTDST atomltdst, 0
 void atomltdst APROTO {
-	int base = BF(0, 2, 7);
-	int mask = BF(1, 14, 2)<<2 | BF(0, 25, 2);
+	int base = BF(2, 7);
+	int mask = BF(0x2e, 2)<<2 | BF(0x19, 2);
 	int k = 0, i;
 	fprintf (out, " %s{", cnorm);
 	for (i = 0; i < 4; i++)
@@ -573,7 +582,7 @@ void atomltdst APROTO {
 }
 #define STDST atomstdst, 0
 void atomstdst APROTO {
-	int base = BF(0, 2, 6);
+	int base = BF(2, 6);
 	int i;
 	fprintf (out, " %s{", cnorm);
 	for (i = 0; i < 4; i++)
@@ -582,8 +591,8 @@ void atomstdst APROTO {
 }
 #define LTSRC atomltsrc, 0
 void atomltsrc APROTO {
-	int base = BF(0, 2, 7);
-	int cnt = BF(0, 22, 2);
+	int base = BF(2, 7);
+	int cnt = BF(0x16, 2);
 	int i;
 	fprintf (out, " %s{", cnorm);
 	for (i = 0; i <= cnt; i++)
@@ -592,8 +601,8 @@ void atomltsrc APROTO {
 }
 #define STSRC atomstsrc, 0
 void atomstsrc APROTO {
-	int base = BF(0, 2, 6);
-	int cnt = BF(0, 22, 2);
+	int base = BF(2, 6);
+	int cnt = BF(0x16, 2);
 	int i;
 	fprintf (out, " %s{", cnorm);
 	for (i = 0; i <= cnt; i++)
@@ -603,21 +612,12 @@ void atomstsrc APROTO {
 
 
 #define LLDST T(lldst)
-struct insn tablldst[] = {
-	{ AP, 0, 0, 0, 8, LDST },
-	{ AP, 0, 0, 8, 8, ODST },
-};
+F(lldst, 0x23, LDST, ODST)
 #define LLHDST T(llhdst)
-struct insn tabllhdst[] = {
-	{ AP, 0, 0, 0, 8, LHDST },
-	{ AP, 0, 0, 8, 8, OHDST },
-};
+F(llhdst, 0x23, LHDST, OHDST)
 
 #define MCDST T(mcdst)
-struct insn tabmcdst[] = {
-	{ AP, 0, 0, 0x40, 0x40, CDST },
-	{ AP, 0, 0, 0, 0 }
-};
+F1(mcdst, 0x26, CDST)
 
 /*
  * Memory fields
@@ -670,37 +670,37 @@ struct insn tabmcdst[] = {
 // BF, offset shift, 'l', flags, const space num BF. flags: 1 supports $a, 2 supports full 3-bit $a, 4 supports autoincrement
 
 // shared
-int ssmem[] = { 0, 9, 4, 2, 's', 5, 0, 0, 0 };		// done
-int shsmem[] = { 0, 9, 4, 1, 's', 5, 0, 0, 0 };		// done
-int sbsmem[] = { 0, 9, 4, 0, 's', 5, 0, 0, 0 };		// done
-int lsmem[] = { 0, 9, 5, 2, 's', 7, 0, 0, 0 };		// done
-int lhsmem[] = { 0, 9, 5, 1, 's', 7, 0, 0, 0 };		// done
-int lbsmem[] = { 0, 9, 5, 0, 's', 7, 0, 0, 0 };		// done
-int fsmem[] = { 0, 9, 14, 2, 's', 7, 0, 0, 0 };		// done
-int fhsmem[] = { 0, 9, 15, 1, 's', 7, 0, 0, 0 };	// done
-int fbsmem[] = { 0, 9, 16, 0, 's', 7, 0, 0, 0 };	// done
+int ssmem[] = { 9, 4, 2, 's', 5, 0, 0 };		// done
+int shsmem[] = { 9, 4, 1, 's', 5, 0, 0 };		// done
+int sbsmem[] = { 9, 4, 0, 's', 5, 0, 0 };		// done
+int lsmem[] = { 9, 5, 2, 's', 7, 0, 0 };		// done
+int lhsmem[] = { 9, 5, 1, 's', 7, 0, 0 };		// done
+int lbsmem[] = { 9, 5, 0, 's', 7, 0, 0 };		// done
+int fsmem[] = { 9, 14, 2, 's', 7, 0, 0 };		// done
+int fhsmem[] = { 9, 15, 1, 's', 7, 0, 0 };		// done
+int fbsmem[] = { 9, 16, 0, 's', 7, 0, 0 };		// done
 // attr
-int samem[] = { 0, 9, 6, 2, 'a', 0, 0, 0, 0 };		// TODO
-int lamem[] = { 0, 9, 7, 2, 'a', 0, 0, 0, 0 };		// TODO
-int famem[] = { 0, 9, 7, 2, 'a', 3, 0, 0, 0 };		// TODO
+int samem[] = { 9, 6, 2, 'a', 0, 0, 0 };		// TODO
+int lamem[] = { 9, 7, 2, 'a', 0, 0, 0 };		// TODO
+int famem[] = { 9, 7, 2, 'a', 3, 0, 0 };		// TODO
 // prim
-int spmem[] = { 0, 9, 6, 2, 'p', 1, 0, 0, 0 };		// TODO
-int lpmem[] = { 0, 9, 7, 2, 'p', 3, 0, 0, 0 };		// TODO
+int spmem[] = { 9, 6, 2, 'p', 1, 0, 0 };		// TODO
+int lpmem[] = { 9, 7, 2, 'p', 3, 0, 0 };		// TODO
 // const
-int scmem[] = { 0, 16, 5, 2, 'c', 1, 0, 21, 1 };	// TODO
-int shcmem[] = { 0, 16, 5, 1, 'c', 1, 0, 21, 1 };	// TODO
-int lcmem2[] = { 0, 16, 7, 2, 'c', 3, 1, 22, 4 };	// TODO
-int lhcmem2[] = { 0, 16, 7, 1, 'c', 3, 1, 22, 4 };	// TODO
-int lcmem3[] = { 1, 14, 7, 2, 'c', 3, 1, 22, 4 };	// TODO
-int lhcmem3[] = { 1, 14, 7, 1, 'c', 3, 1, 22, 4 };	// TODO
-int fcmem[] = { 0, 9, 14, 2, 'c', 7, 1, 22, 4 };	// done
-int fhcmem[] = { 0, 9, 15, 1, 'c', 7, 1, 22, 4 };	// done
-int fbcmem[] = { 0, 9, 16, 0, 'c', 7, 1, 22, 4 };	// done
+int scmem[] = { 0x10, 5, 2, 'c', 1, 0x15, 1 };		// TODO
+int shcmem[] = { 0x10, 5, 1, 'c', 1, 0x15, 1 };		// TODO
+int lcmem2[] = { 0x10, 7, 2, 'c', 3, 0x36, 4 };		// TODO
+int lhcmem2[] = { 0x10, 7, 1, 'c', 3, 0x36, 4 };	// TODO
+int lcmem3[] = { 0x2e, 7, 2, 'c', 3, 0x36, 4 };		// TODO
+int lhcmem3[] = { 0x2e, 7, 1, 'c', 3, 0x36, 4 };	// TODO
+int fcmem[] = { 9, 14, 2, 'c', 7, 0x36, 4 };		// done
+int fhcmem[] = { 9, 15, 1, 'c', 7, 0x36, 4 };		// done
+int fbcmem[] = { 9, 16, 0, 'c', 7, 0x36, 4 };		// done
 // local
-int lmem[] = { 0, 9, 16, 0, 'l', 7, 0, 0, 0 };		// done
+int lmem[] = { 9, 16, 0, 'l', 7, 0, 0 };		// done
 // varying
-int svmem[] = { 0, 16, 8, 2, 'v', 1, 0, 0, 0 };		// TODO
-int lvmem[] = { 0, 16, 8, 2, 'v', 3, 0, 0, 0 };		// TODO
+int svmem[] = { 0x10, 8, 2, 'v', 1, 0, 0 };		// TODO
+int lvmem[] = { 0x10, 8, 2, 'v', 3, 0, 0 };		// TODO
 
 #define SSHARED atommem, ssmem
 #define SHSHARED atommem, shsmem
@@ -730,15 +730,15 @@ int lvmem[] = { 0, 16, 8, 2, 'v', 3, 0, 0, 0 };		// TODO
 #define LVAR atommem, lvmem
 void atommem APROTO {
 	const int *n = v;
-	fprintf (out, " %s%c", ccy, n[4]);
-	if (n[8]) fprintf (out, "%d", BF(n[6], n[7], n[8]));
+	fprintf (out, " %s%c", ccy, n[3]);
+	if (n[6]) fprintf (out, "%lld", BF(n[5], n[6]));
 	fprintf (out, "[", ccy);
-	int mo = BF(n[0], n[1], n[2])<<n[3];
-	int r = (n[5]&1?getareg(a, m, n[5]&2):0);
-	if (n[5]&4 && BF(0, 25, 1))  {
+	int mo = BF(n[0], n[1])<<n[2];
+	int r = (n[4]&1?getareg(a, m, n[4]&2):0);
+	if (n[4]&4 && BF(0x19, 1))  {
 		fprintf (out, "%s$a%d%s++", cmag, r, ccy);
-		if (mo&(1<<(n[2]+n[3]-1)))
-			mo += (1<<16)-(1<<(n[2]+n[3]));
+		if (mo&(1<<(n[1]+n[2]-1)))
+			mo += (1<<16)-(1<<(n[1]+n[2]));
 		fprintf (out, "%s%#x%s]", cyel, mo, ccy);
 	} else {
 		if (r) fprintf (out, "%s$a%d%s+", cmag, r, ccy);
@@ -746,33 +746,33 @@ void atommem APROTO {
 	}
 }
 
-int g1mem[] = { 0, 16, 4 };
-int g2mem[] = { 0, 23, 4 };
+int g1mem[] = { 0x10, 4 };
+int g2mem[] = { 0x17, 4 };
 #define GLOBAL atomglobal, g1mem
 #define GLOBAL2 atomglobal, g2mem
 void atomglobal APROTO {
 	const int *n = v;
-	fprintf (out, " %sg%d[%s$r%d%s]", ccy, BF(n[0], n[1], n[2]), cbl, BF(0, 9, 7), ccy);
+	fprintf (out, " %sg%lld[%s$r%lld%s]", ccy, BF(n[0], n[1]), cbl, BF(9, 7), ccy);
 }
 
 struct insn tabss[] = {
-	{ GP, 0x01800000, 0x01800000, 0, 0, SPRIM },	// XXX check
-	{ CP, 0x00000000, 0x00006000, 0, 0, N("u8"), SBSHARED },
-	{ CP, 0x00002000, 0x00006000, 0, 0, N("u16"), SHSHARED },
-	{ CP, 0x00004000, 0x00006000, 0, 0, N("s16"), SHSHARED },
-	{ CP, 0x00006000, 0x00006000, 0, 0, N("b32"), SSHARED },
-	{ VP|GP, 0, 0, 0, 0, SATTR },
-	{ AP, 0, 0, 0, 0, OOPS },
+	{ GP, 0x01800000, 0x01800000, SPRIM },	// XXX check
+	{ CP, 0x00000000, 0x00006000, N("u8"), SBSHARED },
+	{ CP, 0x00002000, 0x00006000, N("u16"), SHSHARED },
+	{ CP, 0x00004000, 0x00006000, N("s16"), SHSHARED },
+	{ CP, 0x00006000, 0x00006000, N("b32"), SSHARED },
+	{ VP|GP, 0, 0, SATTR },
+	{ AP, 0, 0, OOPS },
 };
 
 struct insn tabls[] = {
-	{ GP, 0x01800000, 0x01800000, 0, 0, LPRIM },	// XXX check
-	{ CP, 0x00000000, 0x0000c000, 0, 0, N("u8"), LBSHARED },
-	{ CP, 0x00004000, 0x0000c000, 0, 0, N("u16"), LHSHARED },
-	{ CP, 0x00008000, 0x0000c000, 0, 0, N("s16"), LHSHARED },
-	{ CP, 0x0000c000, 0x0000c000, 0, 0, N("b32"), LSHARED },
-	{ VP|GP, 0, 0, 0, 0, LATTR },
-	{ AP, 0, 0, 0, 0, OOPS },
+	{ GP, 0x01800000, 0x01800000, LPRIM },	// XXX check
+	{ CP, 0x00000000, 0x0000c000, N("u8"), LBSHARED },
+	{ CP, 0x00004000, 0x0000c000, N("u16"), LHSHARED },
+	{ CP, 0x00008000, 0x0000c000, N("s16"), LHSHARED },
+	{ CP, 0x0000c000, 0x0000c000, N("b32"), LSHARED },
+	{ VP|GP, 0, 0, LATTR },
+	{ AP, 0, 0, OOPS },
 };
 
 /*
@@ -780,128 +780,128 @@ struct insn tabls[] = {
  */
 
 struct insn tabssh[] = {
-	{ AP, 0x00000000, 0x01000000, 0, 0, SHSRC },
-	{ AP, 0x01000000, 0x01000000, 0, 0, T(ss) },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0x00000000, 0x01000000, SHSRC },
+	{ AP, 0x01000000, 0x01000000, T(ss) },
+	{ AP, 0, 0, OOPS }
 };
 
 struct insn tabssw[] = {
-	{ AP, 0x00000000, 0x01000000, 0, 0, SSRC },
-	{ AP, 0x01000000, 0x01000000, 0, 0, T(ss) },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0x00000000, 0x01000000, SSRC },
+	{ AP, 0x01000000, 0x01000000, T(ss) },
+	{ AP, 0, 0, OOPS }
 };
 
 struct insn tabsch[] = {
-	{ AP, 0x00800000, 0x01800000, 0, 0, SHCONST },
-	{ AP, 0x00000000, 0x00000000, 0, 0, SHSRC2 },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0x00800000, 0x01800000, SHCONST },
+	{ AP, 0x00000000, 0x00000000, SHSRC2 },
+	{ AP, 0, 0, OOPS }
 };
 
 struct insn tabscw[] = {
-	{ AP, 0x00800000, 0x01800000, 0, 0, SCONST },
-	{ AP, 0x00000000, 0x00000000, 0, 0, SSRC2 },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0x00800000, 0x01800000, SCONST },
+	{ AP, 0x00000000, 0x00000000, SSRC2 },
+	{ AP, 0, 0, OOPS }
 };
 
 struct insn tabssat[] = {
-	{ AP, 0x00000000, 0x00000100, 0, 0 },
-	{ AP, 0x00000100, 0x00000100, 0, 0, N("sat") },
+	{ AP, 0x00000000, 0x00000100 },
+	{ AP, 0x00000100, 0x00000100, N("sat") },
 };
 
 struct insn tabsneg1[] = {
-	{ AP, 0x00000000, 0x00008000, 0, 0 },
-	{ AP, 0x00008000, 0x00008000, 0, 0, N("neg") },
+	{ AP, 0x00000000, 0x00008000 },
+	{ AP, 0x00008000, 0x00008000, N("neg") },
 };
 
 struct insn tabsneg2[] = {
-	{ AP, 0x00000000, 0x00400000, 0, 0 },
-	{ AP, 0x00400000, 0x00400000, 0, 0, N("neg") },
+	{ AP, 0x00000000, 0x00400000 },
+	{ AP, 0x00400000, 0x00400000, N("neg") },
 };
 
 struct insn tabsnot1[] = {
-	{ AP, 0x00000000, 0x00400000, 0, 0 },
-	{ AP, 0x00400000, 0x00400000, 0, 0, N("not") },
+	{ AP, 0x00000000, 0x00400000 },
+	{ AP, 0x00400000, 0x00400000, N("not") },
 };
 
 struct insn tabas[] = {
-	{ AP, 0x00000000, 0x00008000, 0, 0, T(ssat), SHDST, T(ssh), T(sch) },
-	{ AP, 0x00008000, 0x00008000, 0, 0, T(ssat), SDST, T(ssw), T(scw) },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0x00000000, 0x00008000, T(ssat), SHDST, T(ssh), T(sch) },
+	{ AP, 0x00008000, 0x00008000, T(ssat), SDST, T(ssw), T(scw) },
+	{ AP, 0, 0, OOPS }
 };
 
 struct insn tabsus1[] = {
-	{ AP, 0x00000000, 0x00000100, 0, 0, N("u") },
-	{ AP, 0x00000100, 0x00000100, 0, 0, N("s") },
+	{ AP, 0x00000000, 0x00000100, N("u") },
+	{ AP, 0x00000100, 0x00000100, N("s") },
 };
 
 struct insn tabsus2[] = {
-	{ AP, 0x00000000, 0x00008000, 0, 0, N("u") },
-	{ AP, 0x00008000, 0x00008000, 0, 0, N("s") },
+	{ AP, 0x00000000, 0x00008000, N("u") },
+	{ AP, 0x00008000, 0x00008000, N("s") },
 };
 
 struct insn tabms[] = {
-	{ AP, 0x00000000, 0x00008100, 0, 0, SDST, N("u"), T(ssh), T(sch), SDST },
-	{ AP, 0x00000100, 0x00008100, 0, 0, SDST, N("s"), T(ssh), T(sch), SDST },
-	{ AP, 0x00008000, 0x00008100, 0, 0, N("sat"), SDST, N("s"), T(ssh), T(sch), SDST },
-	{ AP, 0x00008100, 0x00008100, 0, 0, SDST, N("u24"), T(ssw), T(scw), SDST },
+	{ AP, 0x00000000, 0x00008100, SDST, N("u"), T(ssh), T(sch), SDST },
+	{ AP, 0x00000100, 0x00008100, SDST, N("s"), T(ssh), T(sch), SDST },
+	{ AP, 0x00008000, 0x00008100, N("sat"), SDST, N("s"), T(ssh), T(sch), SDST },
+	{ AP, 0x00008100, 0x00008100, SDST, N("u24"), T(ssw), T(scw), SDST },
 };
 
 struct insn tabsm24high[] = {
-	{ AP, 0x00000000, 0x00000100, 0, 0 },
-	{ AP, 0x00000100, 0x00000100, 0, 0, N("high") },
+	{ AP, 0x00000000, 0x00000100 },
+	{ AP, 0x00000100, 0x00000100, N("high") },
 };
 
 struct insn tabstex[] = {
-	{ AP, 0x00000000, 0x00000100, 0, 0, N("all") },
-	{ AP, 0x00000100, 0x00000100, 0, 0, N("live") },
+	{ AP, 0x00000000, 0x00000100, N("all") },
+	{ AP, 0x00000100, 0x00000100, N("live") },
 };
 
 struct insn tabs[] = {
 	// SCAN 0-1
-	{ AP, 0x10000000, 0xf0008002, 0, 0, N("mov"), SHDST, T(ssh) },
-	{ AP, 0x10008000, 0xf0008002, 0, 0, N("mov"), SDST, T(ssw) },
+	{ AP, 0x10000000, 0xf0008002, N("mov"), SHDST, T(ssh) },
+	{ AP, 0x10008000, 0xf0008002, N("mov"), SDST, T(ssw) },
 
-	{ AP, 0x20000000, 0xf0400002, 0, 0, N("add"), T(as) },
-	{ AP, 0x20400000, 0xf0400002, 0, 0, N("sub"), T(as) },
-	{ AP, 0x30000000, 0xf0400002, 0, 0, N("subr"), T(as) },
-	{ AP, 0x30400000, 0xf0400002, 0, 0, N("addc"), T(as), C0 },
+	{ AP, 0x20000000, 0xf0400002, N("add"), T(as) },
+	{ AP, 0x20400000, 0xf0400002, N("sub"), T(as) },
+	{ AP, 0x30000000, 0xf0400002, N("subr"), T(as) },
+	{ AP, 0x30400000, 0xf0400002, N("addc"), T(as), C0 },
 
-	{ AP, 0x40000000, 0xf0400002, 0, 0, N("mul"), SDST, T(sus2), T(ssh), T(sus1), T(sch) },
-	{ AP, 0x40400000, 0xf0400002, 0, 0, N("mul24"), SDST, T(sm24high), T(sus2), T(ssw), T(scw) },
+	{ AP, 0x40000000, 0xf0400002, N("mul"), SDST, T(sus2), T(ssh), T(sus1), T(sch) },
+	{ AP, 0x40400000, 0xf0400002, N("mul24"), SDST, T(sm24high), T(sus2), T(ssw), T(scw) },
 
-	{ AP, 0x50000000, 0xf0008002, 0, 0, N("sad"), SDST, T(sus1), T(ssh), T(sch), SDST },
-	{ AP, 0x50008000, 0xf0008002, 0, 0, N("sad"), SDST, T(sus1), T(ssw), T(scw), SDST },
+	{ AP, 0x50000000, 0xf0008002, N("sad"), SDST, T(sus1), T(ssh), T(sch), SDST },
+	{ AP, 0x50008000, 0xf0008002, N("sad"), SDST, T(sus1), T(ssw), T(scw), SDST },
 
-	{ AP, 0x60000000, 0xf0400002, 0, 0, N("madd"), T(ms) },
-	{ AP, 0x60400000, 0xf0400002, 0, 0, N("msub"), T(ms) },
-	{ AP, 0x70000000, 0xf0400002, 0, 0, N("msubr"), T(ms) },
-	{ AP, 0x70400000, 0xf0400002, 0, 0, N("maddc"), T(ms), C0 },
+	{ AP, 0x60000000, 0xf0400002, N("madd"), T(ms) },
+	{ AP, 0x60400000, 0xf0400002, N("msub"), T(ms) },
+	{ AP, 0x70000000, 0xf0400002, N("msubr"), T(ms) },
+	{ AP, 0x70400000, 0xf0400002, N("maddc"), T(ms), C0 },
 
 
 	// SCAN 9-F
 
-	{ FP, 0x80000000, 0xf3000102, 0, 0, N("interp"), SDST, SVAR },		// most likely something is wrong with this.
-	{ FP, 0x81000000, 0xf3000102, 0, 0, N("interp"), SDST, N("cent"), SVAR },
-	{ FP, 0x82000000, 0xf3000102, 0, 0, N("interp"), SDST, SVAR, SSRC },
-	{ FP, 0x83000000, 0xf3000102, 0, 0, N("interp"), SDST, N("cent"), SVAR, SSRC },
-	{ FP, 0x80000100, 0xf3000102, 0, 0, N("interp"), SDST, N("flat"), SVAR },
+	{ FP, 0x80000000, 0xf3000102, N("interp"), SDST, SVAR },		// most likely something is wrong with this.
+	{ FP, 0x81000000, 0xf3000102, N("interp"), SDST, N("cent"), SVAR },
+	{ FP, 0x82000000, 0xf3000102, N("interp"), SDST, SVAR, SSRC },
+	{ FP, 0x83000000, 0xf3000102, N("interp"), SDST, N("cent"), SVAR, SSRC },
+	{ FP, 0x80000100, 0xf3000102, N("interp"), SDST, N("flat"), SVAR },
 
-	{ AP, 0x90000000, 0xf0000002, 0, 0, N("rcp f32"), SDST, SSRC },
+	{ AP, 0x90000000, 0xf0000002, N("rcp f32"), SDST, SSRC },
 
 	// cvt ? probably not.
 
-	{ AP, 0xb0000000, 0xf0000002, 0, 0, N("add"), T(ssat), N("f32"), SDST, T(sneg1), T(ssw), T(sneg2), T(scw) },
+	{ AP, 0xb0000000, 0xf0000002, N("add"), T(ssat), N("f32"), SDST, T(sneg1), T(ssw), T(sneg2), T(scw) },
 
-	{ AP, 0xc0000000, 0xf0000002, 0, 0, N("mul f32"), SDST, T(sneg1), T(ssw), T(sneg2), T(scw) },
+	{ AP, 0xc0000000, 0xf0000002, N("mul f32"), SDST, T(sneg1), T(ssw), T(sneg2), T(scw) },
 	// and
 
-	{ AP, 0xe0000000, 0xf0000002, 0, 0, N("mad f32"), SDST, SSRC, SSRC2, SDST },	// XXX: flags like tabi?
+	{ AP, 0xe0000000, 0xf0000002, N("mad f32"), SDST, SSRC, SSRC2, SDST },	// XXX: flags like tabi?
 
-	{ AP, 0xf0000000, 0xf1000002, 0, 0, N("texauto"), T(stex), STDST, TEX, STSRC },
-	{ AP, 0xf1000000, 0xf1000002, 0, 0, N("texfetch"), T(stex), STDST, TEX, STSRC },
+	{ AP, 0xf0000000, 0xf1000002, N("texauto"), T(stex), STDST, TEX, STSRC },
+	{ AP, 0xf1000000, 0xf1000002, N("texfetch"), T(stex), STDST, TEX, STSRC },
 
-	{ AP, 0, 2, 0, 0, OOPS, SDST, T(ssw), T(scw) },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0, 2, OOPS, SDST, T(ssw), T(scw) },
+	{ AP, 0, 0, OOPS }
 };
 
 /*
@@ -909,219 +909,191 @@ struct insn tabs[] = {
  */
 
 struct insn tabgi[] = {
-	{ AP, 0x00000000, 0x00008000, 0, 0, T(ssat), SHDST, T(ssh), IMM },
-	{ AP, 0x00008000, 0x00008000, 0, 0, T(ssat), SDST, T(ssw), IMM },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0x00000000, 0x00008000, T(ssat), SHDST, T(ssh), IMM },
+	{ AP, 0x00008000, 0x00008000, T(ssat), SDST, T(ssw), IMM },
+	{ AP, 0, 0, OOPS }
 };
 
 struct insn tabi[] = {
 	// SCAN 0-1
-	{ AP, 0x10000000, 0xf0008002, 0, 0, N("mov"), LHDST, IMM },
-	{ AP, 0x10008000, 0xf0008002, 0, 0, N("mov"), LDST, IMM },	// yes. LDST. special case.
+	{ AP, 0x10000000, 0xf0008002, N("mov"), LHDST, IMM },
+	{ AP, 0x10008000, 0xf0008002, N("mov"), LDST, IMM },	// yes. LDST. special case.
 
-	{ AP, 0x20000000, 0xf0400002, 0, 0, N("add"), T(gi) },
-	{ AP, 0x20400000, 0xf0400002, 0, 0, N("sub"), T(gi) },
-	{ AP, 0x30000000, 0xf0400002, 0, 0, N("subr"), T(gi) },
-	{ AP, 0x30400000, 0xf0400002, 0, 0, N("add"), T(gi), C0 },
+	{ AP, 0x20000000, 0xf0400002, N("add"), T(gi) },
+	{ AP, 0x20400000, 0xf0400002, N("sub"), T(gi) },
+	{ AP, 0x30000000, 0xf0400002, N("subr"), T(gi) },
+	{ AP, 0x30400000, 0xf0400002, N("add"), T(gi), C0 },
 
-	{ AP, 0x40000000, 0xf0400002, 0, 0, N("mul"), SDST, T(sus2), T(ssh), T(sus1), IMM },
-	{ AP, 0x40400000, 0xf0400002, 0, 0, N("mul24"), SDST, T(sm24high), T(sus2), T(ssw), IMM },
+	{ AP, 0x40000000, 0xf0400002, N("mul"), SDST, T(sus2), T(ssh), T(sus1), IMM },
+	{ AP, 0x40400000, 0xf0400002, N("mul24"), SDST, T(sm24high), T(sus2), T(ssw), IMM },
 
 	// SCAN 6-F
-	{ AP, 0x60000000, 0xf0000002, 0, 0, N("mad"), SDST, T(sus1), T(ssh), IMM, SDST },
+	{ AP, 0x60000000, 0xf0000002, N("mad"), SDST, T(sus1), T(ssh), IMM, SDST },
 
-	{ AP, 0xb0000000, 0xf0000002, 0, 0, N("add"), T(ssat), N("f32"), SDST, T(sneg1), T(ssw), T(sneg2), IMM },
+	{ AP, 0xb0000000, 0xf0000002, N("add"), T(ssat), N("f32"), SDST, T(sneg1), T(ssw), T(sneg2), IMM },
 
-	{ AP, 0xc0000000, 0xf0000002, 0, 0, N("mul f32"), SDST, T(sneg1), T(ssw), T(sneg2), IMM },
+	{ AP, 0xc0000000, 0xf0000002, N("mul f32"), SDST, T(sneg1), T(ssw), T(sneg2), IMM },
 
-	{ AP, 0xd0000000, 0xf0008102, 0, 0, N("and"), SDST, T(snot1), T(ssw), IMM },
-	{ AP, 0xd0000100, 0xf0008102, 0, 0, N("or"), SDST, T(snot1), T(ssw), IMM },
-	{ AP, 0xd0008000, 0xf0008102, 0, 0, N("xor"), SDST, T(snot1), T(ssw), IMM },
-	{ AP, 0xd0008100, 0xf0008102, 0, 0, N("mov2"), SDST, T(snot1), T(ssw), IMM },
+	{ AP, 0xd0000000, 0xf0008102, N("and"), SDST, T(snot1), T(ssw), IMM },
+	{ AP, 0xd0000100, 0xf0008102, N("or"), SDST, T(snot1), T(ssw), IMM },
+	{ AP, 0xd0008000, 0xf0008102, N("xor"), SDST, T(snot1), T(ssw), IMM },
+	{ AP, 0xd0008100, 0xf0008102, N("mov2"), SDST, T(snot1), T(ssw), IMM },
 
-	{ AP, 0xe0000000, 0xf0000002, 0, 0, N("mad"), T(ssat), N("f32"), SDST, T(sneg1), T(ssw), IMM, T(sneg2), SDST },
+	{ AP, 0xe0000000, 0xf0000002, N("mad"), T(ssat), N("f32"), SDST, T(sneg1), T(ssw), IMM, T(sneg2), SDST },
 
-	{ AP, 0, 2, 0, 0, OOPS, SDST, T(ssw), IMM },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0, 2, OOPS, SDST, T(ssw), IMM },
+	{ AP, 0, 0, OOPS }
 };
 
 /*
  * Long instructions
  */
 
-struct insn tablsh[] = {
-	{ AP, 0, 0, 0x00000000, 0x00200000, LHSRC },
-	{ AP, 0, 0, 0x00200000, 0x00200000, T(ls) },
-	{ AP, 0, 0, 0, 0, OOPS }
-};
-
-struct insn tablsw[] = {
-	{ AP, 0, 0, 0x00000000, 0x00200000, LSRC },
-	{ AP, 0, 0, 0x00200000, 0x00200000, T(ls) },
-	{ AP, 0, 0, 0, 0, OOPS }
-};
+F(lsh, 0x35, LHSRC, T(ls))
+F(lsw, 0x35, LSRC, T(ls))
 
 struct insn tablc2h[] = {
-	{ AP, 0x00800000, 0x01800000, 0, 0, LHCONST2 },
-	{ AP, 0x00000000, 0x00000000, 0, 0, LHSRC2 },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0x00800000, 0x01800000, LHCONST2 },
+	{ AP, 0x00000000, 0x00000000, LHSRC2 },
+	{ AP, 0, 0, OOPS }
 };
 
 struct insn tablc2w[] = {
-	{ AP, 0x00800000, 0x01800000, 0, 0, LCONST2 },
-	{ AP, 0x00000000, 0x00000000, 0, 0, LSRC2 },
+	{ AP, 0x00800000, 0x01800000, LCONST2 },
+	{ AP, 0x00000000, 0x00000000, LSRC2 },
 };
 
 struct insn tablc3h[] = {
-	{ AP, 0x01000000, 0x01800000, 0, 0, LHCONST3 },
-	{ AP, 0x00000000, 0x00000000, 0, 0, LHSRC3 },
+	{ AP, 0x01000000, 0x01800000, LHCONST3 },
+	{ AP, 0x00000000, 0x00000000, LHSRC3 },
 };
 
 struct insn tablc3w[] = {
-	{ AP, 0x01000000, 0x01800000, 0, 0, LCONST3 },
-	{ AP, 0x00000000, 0x00000000, 0, 0, LSRC3 },
+	{ AP, 0x01000000, 0x01800000, LCONST3 },
+	{ AP, 0x00000000, 0x00000000, LSRC3 },
 };
 
-struct insn tabshcnt[] = {
-	{ AP, 0, 0, 0x00000000, 0x00100000, T(lc2w) },
-	{ AP, 0, 0, 0x00100000, 0x00100000, SHCNT },
-	{ AP, 0, 0, 0, 0, OOPS }
-};
+F(shcnt, 0x34, T(lc2w), SHCNT)
+F(hshcnt, 0x34, T(lc2h), SHCNT)
 
-struct insn tabhshcnt[] = {
-	{ AP, 0, 0, 0x00000000, 0x00100000, T(lc2h) },
-	{ AP, 0, 0, 0x00100000, 0x00100000, SHCNT },
-	{ AP, 0, 0, 0, 0, OOPS }
-};
-
-struct insn tablasat[] = {
-	{ AP, 0, 0, 0x08000000, 0x08000000, N("sat") },
-	{ AP, 0, 0, 0, 0 }
-};
+F1(lasat, 0x3b, N("sat"))
 
 struct insn tabla[] = {
-	{ AP, 0, 0, 0x00000000, 0x04000000, T(lasat), MCDST, LLHDST, T(lsh), T(lc3h) },
-	{ AP, 0, 0, 0x04000000, 0x04000000, T(lasat), MCDST, LLDST, T(lsw), T(lc3w) },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0x0000000000000000, 0x0400000000000000, T(lasat), MCDST, LLHDST, T(lsh), T(lc3h) },
+	{ AP, 0x0400000000000000, 0x0400000000000000, T(lasat), MCDST, LLDST, T(lsw), T(lc3w) },
 };
 
 struct insn tabldstm[] = {
-	{ AP, 0, 0, 0x00000000, 0x00e00000, N("u8") },
-	{ AP, 0, 0, 0x00200000, 0x00e00000, N("s8") },
-	{ AP, 0, 0, 0x00400000, 0x00e00000, N("u16") },
-	{ AP, 0, 0, 0x00600000, 0x00e00000, N("s16") },
-	{ AP, 0, 0, 0x00800000, 0x00e00000, N("b64") },
-	{ AP, 0, 0, 0x00a00000, 0x00e00000, N("b128") },
-	{ AP, 0, 0, 0x00c00000, 0x00e00000, N("b32") },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0x0000000000000000, 0x00e0000000000000, N("u8") },
+	{ AP, 0x0020000000000000, 0x00e0000000000000, N("s8") },
+	{ AP, 0x0040000000000000, 0x00e0000000000000, N("u16") },
+	{ AP, 0x0060000000000000, 0x00e0000000000000, N("s16") },
+	{ AP, 0x0080000000000000, 0x00e0000000000000, N("b64") },
+	{ AP, 0x00a0000000000000, 0x00e0000000000000, N("b128") },
+	{ AP, 0x00c0000000000000, 0x00e0000000000000, N("b32") },
+	{ AP, 0, 0, OOPS }
 };
 
 struct insn tabldsto[] = {	// hack alert: reads the bitfield second time.
-	{ AP, 0, 0, 0x00000000, 0x00e00000, LDST },
-	{ AP, 0, 0, 0x00200000, 0x00e00000, LDST },
-	{ AP, 0, 0, 0x00400000, 0x00e00000, LDST },
-	{ AP, 0, 0, 0x00600000, 0x00e00000, LDST },
-	{ AP, 0, 0, 0x00800000, 0x00e00000, LDDST },
-	{ AP, 0, 0, 0x00a00000, 0x00e00000, LQDST },
-	{ AP, 0, 0, 0x00c00000, 0x00e00000, LDST },
-	{ AP, 0, 0, 0, 0, LDST },
+	{ AP, 0x0000000000000000, 0x00e0000000000000, LDST },
+	{ AP, 0x0020000000000000, 0x00e0000000000000, LDST },
+	{ AP, 0x0040000000000000, 0x00e0000000000000, LDST },
+	{ AP, 0x0060000000000000, 0x00e0000000000000, LDST },
+	{ AP, 0x0080000000000000, 0x00e0000000000000, LDDST },
+	{ AP, 0x00a0000000000000, 0x00e0000000000000, LQDST },
+	{ AP, 0x00c0000000000000, 0x00e0000000000000, LDST },
+	{ AP, 0, 0, LDST },
 };
 
 struct insn tabldsts2[] = {
-	{ AP, 0, 0, 0x00800000, 0x00e00000, LDSRC2 },
-	{ AP, 0, 0, 0x00c00000, 0x00e00000, LSRC2 },
-	{ AP, 0, 0, 0x00e00000, 0x00e00000, LSRC2 },
-	{ AP, 0, 0, 0, 0, OOPS },
+	{ AP, 0x0080000000000000, 0x00e0000000000000, LDSRC2 },
+	{ AP, 0x00c0000000000000, 0x00e0000000000000, LSRC2 },
+	{ AP, 0x00e0000000000000, 0x00e0000000000000, LSRC2 },
+	{ AP, 0, 0, OOPS },
 };
 
 struct insn tabldsts3[] = {
-	{ AP, 0, 0, 0x00800000, 0x00e00000, LDSRC3 },
-	{ AP, 0, 0, 0x00c00000, 0x00e00000, LSRC3 },
-	{ AP, 0, 0, 0x00e00000, 0x00e00000, LSRC3 },
-	{ AP, 0, 0, 0, 0, OOPS },
+	{ AP, 0x0080000000000000, 0x00e0000000000000, LDSRC3 },
+	{ AP, 0x00c0000000000000, 0x00e0000000000000, LSRC3 },
+	{ AP, 0x00e0000000000000, 0x00e0000000000000, LSRC3 },
+	{ AP, 0, 0, OOPS },
 };
 
 struct insn tabmldsts3[] = {
-	{ AP, 0, 0, 0x08, 0x3c, T(ldsts3) },
-	{ AP, 0, 0, 0, 0 },
+	{ AP, 0x0000000800000000, 0x0000000800000000, T(ldsts3) },
+	{ AP, 0, 0 },
 };
 
 struct insn tabraadd[] = {
-	{ AP, 0, 0, 0x00800000, 0x00e00000, N("u64") },
-	{ AP, 0, 0, 0x00c00000, 0x00e00000, N("u32") },
-	{ AP, 0, 0, 0x00e00000, 0x00e00000, N("s32") },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0x0080000000000000, 0x00e0000000000000, N("u64") },
+	{ AP, 0x00c0000000000000, 0x00e0000000000000, N("u32") },
+	{ AP, 0x00e0000000000000, 0x00e0000000000000, N("s32") },
+	{ AP, 0, 0, OOPS }
 };
 
 struct insn tabrab[] = {
-	{ AP, 0, 0, 0x00800000, 0x00e00000, N("b64") },
-	{ AP, 0, 0, 0x00c00000, 0x00e00000, N("b32") },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0x0080000000000000, 0x00e0000000000000, N("b64") },
+	{ AP, 0x00c0000000000000, 0x00e0000000000000, N("b32") },
+	{ AP, 0, 0, OOPS }
 };
 
 struct insn tabramm[] = {
-	{ AP, 0, 0, 0x00c00000, 0x00e00000, N("u32") },
-	{ AP, 0, 0, 0x00e00000, 0x00e00000, N("s32") },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0x00c0000000000000, 0x00e0000000000000, N("u32") },
+	{ AP, 0x00e0000000000000, 0x00e0000000000000, N("s32") },
+	{ AP, 0, 0, OOPS }
 };
 
 struct insn tabrab32[] = {
-	{ AP, 0, 0, 0x00c00000, 0x00e00000, N("b32") },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0x00c0000000000000, 0x00e0000000000000, N("b32") },
+	{ AP, 0, 0, OOPS }
 };
 
 struct insn tabrau32[] = {
-	{ AP, 0, 0, 0x00c00000, 0x00e00000, N("u32") },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0x00c0000000000000, 0x00e0000000000000, N("u32") },
+	{ AP, 0, 0, OOPS }
 };
 
 struct insn tabredm[] = {
-	{ AP, 0, 0, 0x00, 0x3c, N("add"), T(raadd), },
-	{ AP, 0, 0, 0x10, 0x3c, N("inc"), T(rau32), },
-	{ AP, 0, 0, 0x14, 0x3c, N("dec"), T(rau32), },
-	{ AP, 0, 0, 0x18, 0x3c, N("max"), T(ramm), },
-	{ AP, 0, 0, 0x1c, 0x3c, N("min"), T(ramm), },
-	{ AP, 0, 0, 0x28, 0x3c, N("and"), T(rab32), },
-	{ AP, 0, 0, 0x2c, 0x3c, N("or"), T(rab32), },
-	{ AP, 0, 0, 0x30, 0x3c, N("xor"), T(rab32), },
-	{ AP, 0, 0, 0, 0, OOPS },
+	{ AP, 0x0000000000000000, 0x0000003c00000000, N("add"), T(raadd), },
+	{ AP, 0x0000001000000000, 0x0000003c00000000, N("inc"), T(rau32), },
+	{ AP, 0x0000001400000000, 0x0000003c00000000, N("dec"), T(rau32), },
+	{ AP, 0x0000001800000000, 0x0000003c00000000, N("max"), T(ramm), },
+	{ AP, 0x0000001c00000000, 0x0000003c00000000, N("min"), T(ramm), },
+	{ AP, 0x0000002800000000, 0x0000003c00000000, N("and"), T(rab32), },
+	{ AP, 0x0000002c00000000, 0x0000003c00000000, N("or"), T(rab32), },
+	{ AP, 0x0000003000000000, 0x0000003c00000000, N("xor"), T(rab32), },
+	{ AP, 0, 0, OOPS },
 };
 
 struct insn tabatomm[] = {
-	{ AP, 0, 0, 0x04, 0x3c, N("exch"), T(rab), },
-	{ AP, 0, 0, 0x08, 0x3c, N("cas"), T(rab), },
-	{ AP, 0, 0, 0, 0, N("ld"), T(redm) },
+	{ AP, 0x0000000400000000, 0x0000003c00000000, N("exch"), T(rab), },
+	{ AP, 0x0000000800000000, 0x0000003c00000000, N("cas"), T(rab), },
+	{ AP, 0, 0, N("ld"), T(redm) },
 };
 
-struct insn tabcvtneg[] = {
-	{ AP, 0, 0, 0x20000000, 0x20000000, N("neg")  },
-	{ AP, 0, 0, 0, 0 },
-};
+F1(cvtneg, 0x3d, N("neg"))
+F1(cvtabs, 0x34, N("abs"))
 
 struct insn tabcvtmod[] = {
-	{ AP, 0, 0, 0x00100000, 0x00100000, N("abs"), T(cvtneg) },
-	{ AP, 0, 0, 0, 0, T(cvtneg) }
+	{ AP, 0, 0, T(cvtabs), T(cvtneg) },
 };
 
-struct insn tabcvtffsat[] = {
-	{ AP, 0, 0, 0x00080000, 0x00080000, N("sat") },
-	{ AP, 0, 0, 0, 0 }
-};
+F1(cvtffsat, 0x33, N("sat"))
 
 struct insn tabcvtrnd[] = {
-	{ AP, 0, 0, 0x00000000, 0x00060000, N("rn") },
-	{ AP, 0, 0, 0x00020000, 0x00060000, N("rm") },
-	{ AP, 0, 0, 0x00040000, 0x00060000, N("rp") },
-	{ AP, 0, 0, 0x00060000, 0x00060000, N("rz") },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0x0000000000000000, 0x0006000000000000, N("rn") },
+	{ AP, 0x0002000000000000, 0x0006000000000000, N("rm") },
+	{ AP, 0x0004000000000000, 0x0006000000000000, N("rp") },
+	{ AP, 0x0006000000000000, 0x0006000000000000, N("rz") },
+	{ AP, 0, 0, OOPS }
 };
 
 struct insn tabcvtrint[] = {
-	{ AP, 0, 0, 0x00000000, 0x00060000, N("rni") },
-	{ AP, 0, 0, 0x00020000, 0x00060000, N("rmi") },
-	{ AP, 0, 0, 0x00040000, 0x00060000, N("rpi") },
-	{ AP, 0, 0, 0x00060000, 0x00060000, N("rzi") },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0x0000000000000000, 0x0006000000000000, N("rni") },
+	{ AP, 0x0002000000000000, 0x0006000000000000, N("rmi") },
+	{ AP, 0x0004000000000000, 0x0006000000000000, N("rpi") },
+	{ AP, 0x0006000000000000, 0x0006000000000000, N("rzi") },
+	{ AP, 0, 0, OOPS }
 };
 
 struct insn tabaf64r[] = {
@@ -1134,143 +1106,115 @@ struct insn tabaf64r[] = {
 struct insn tabaf32r[] = {
 	{ AP, 0x00000000, 0x00030000, 0, 0, N("rn") },
 	{ AP, 0x00030000, 0x00030000, 0, 0, N("rz") },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0, 0, OOPS }
 };
 
 struct insn tabmf32r[] = {
-	{ AP, 0, 0, 0x00000000, 0x0000c000, N("rn") },
-	{ AP, 0, 0, 0x0000c000, 0x0000c000, N("rz") },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0x0000000000000000, 0x0000c00000000000, N("rn") },
+	{ AP, 0x0000c00000000000, 0x0000c00000000000, N("rz") },
+	{ AP, 0, 0, OOPS }
 };
 
 struct insn tabmad64r[] = {
-	{ AP, 0, 0, 0x00000000, 0x00c00000, N("rn") },
-	{ AP, 0, 0, 0x00400000, 0x00c00000, N("rm") },
-	{ AP, 0, 0, 0x00800000, 0x00c00000, N("rp") },
-	{ AP, 0, 0, 0x00c00000, 0x00c00000, N("rz") },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0x0000000000000000, 0x00c0000000000000, N("rn") },
+	{ AP, 0x0040000000000000, 0x00c0000000000000, N("rm") },
+	{ AP, 0x0080000000000000, 0x00c0000000000000, N("rp") },
+	{ AP, 0x00c0000000000000, 0x00c0000000000000, N("rz") },
+	{ AP, 0, 0, OOPS }
 };
 
-struct insn tabnot1[] = {
-	{ AP, 0, 0, 0x00010000, 0x00010000, N("not") },
-	{ AP, 0, 0, 0, 0 }
-};
-
-struct insn tabnot2[] = {
-	{ AP, 0, 0, 0x00020000, 0x00020000, N("not") },
-	{ AP, 0, 0, 0, 0 }
-};
+F1(not1, 0x30, N("not"))
+F1(not2, 0x31, N("not"))
 
 struct insn tabseti[] = {
-	{ AP, 0, 0, 0x00004000, 0x0003c000, N("lt") },
-	{ AP, 0, 0, 0x00008000, 0x0003c000, N("eq") },
-	{ AP, 0, 0, 0x0000c000, 0x0003c000, N("le") },
-	{ AP, 0, 0, 0x00010000, 0x0003c000, N("gt") },
-	{ AP, 0, 0, 0x00014000, 0x0003c000, N("ne") },
-	{ AP, 0, 0, 0x00018000, 0x0003c000, N("ge") },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0x0000400000000000, 0x0001c00000000000, N("lt") },
+	{ AP, 0x0000800000000000, 0x0001c00000000000, N("eq") },
+	{ AP, 0x0000c00000000000, 0x0001c00000000000, N("le") },
+	{ AP, 0x0001000000000000, 0x0001c00000000000, N("gt") },
+	{ AP, 0x0001400000000000, 0x0001c00000000000, N("ne") },
+	{ AP, 0x0001800000000000, 0x0001c00000000000, N("ge") },
+	{ AP, 0, 0, OOPS }
 };
 
 struct insn tabsetf[] = {
-	{ AP, 0, 0, 0x00004000, 0x0003c000, N("lt") },
-	{ AP, 0, 0, 0x00008000, 0x0003c000, N("eq") },
-	{ AP, 0, 0, 0x0000c000, 0x0003c000, N("le") },
-	{ AP, 0, 0, 0x00010000, 0x0003c000, N("gt") },
-	{ AP, 0, 0, 0x00014000, 0x0003c000, N("ne") },
-	{ AP, 0, 0, 0x00018000, 0x0003c000, N("ge") },
-	{ AP, 0, 0, 0x0001c000, 0x0003c000, N("num") },
-	{ AP, 0, 0, 0x00020000, 0x0003c000, N("nan") },
-	{ AP, 0, 0, 0x00024000, 0x0003c000, N("ltu") },
-	{ AP, 0, 0, 0x00028000, 0x0003c000, N("equ") },
-	{ AP, 0, 0, 0x0002c000, 0x0003c000, N("leu") },
-	{ AP, 0, 0, 0x00030000, 0x0003c000, N("gtu") },
-	{ AP, 0, 0, 0x00034000, 0x0003c000, N("neu") },
-	{ AP, 0, 0, 0x00038000, 0x0003c000, N("geu") },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0x0000400000000000, 0x0003c00000000000, N("lt") },
+	{ AP, 0x0000800000000000, 0x0003c00000000000, N("eq") },
+	{ AP, 0x0000c00000000000, 0x0003c00000000000, N("le") },
+	{ AP, 0x0001000000000000, 0x0003c00000000000, N("gt") },
+	{ AP, 0x0001400000000000, 0x0003c00000000000, N("ne") },
+	{ AP, 0x0001800000000000, 0x0003c00000000000, N("ge") },
+	{ AP, 0x0001c00000000000, 0x0003c00000000000, N("num") },
+	{ AP, 0x0002000000000000, 0x0003c00000000000, N("nan") },
+	{ AP, 0x0002400000000000, 0x0003c00000000000, N("ltu") },
+	{ AP, 0x0002800000000000, 0x0003c00000000000, N("equ") },
+	{ AP, 0x0002c00000000000, 0x0003c00000000000, N("leu") },
+	{ AP, 0x0003000000000000, 0x0003c00000000000, N("gtu") },
+	{ AP, 0x0003400000000000, 0x0003c00000000000, N("neu") },
+	{ AP, 0x0003800000000000, 0x0003c00000000000, N("geu") },
+	{ AP, 0, 0, OOPS }
 };
 
-struct insn tablneg1[] = {
-	{ AP, 0, 0, 0x04000000, 0x04000000, N("neg") },
-	{ AP, 0, 0, 0, 0 }
-};
-
-struct insn tablneg2[] = {
-	{ AP, 0, 0, 0x08000000, 0x08000000, N("neg") },
-	{ AP, 0, 0, 0, 0 }
-};
+F1(lneg1, 0x3a, N("neg"))
+F1(lneg2, 0x3b, N("neg"))
+F1(labs1, 0x34, N("abs"))
+F1(labs2, 0x33, N("abs"))
 
 struct insn tablfm1[] = {
-	{ AP, 0, 0, 0x00100000, 0x00100000, N("abs"), T(lneg1) },
-	{ AP, 0, 0, 0, 0, T(lneg1) }
+	{ AP, 0, 0, T(labs1), T(lneg1) }
 };
 
 struct insn tablfm2[] = {
-	{ AP, 0, 0, 0x00080000, 0x00080000, N("abs"), T(lneg2) },
-	{ AP, 0, 0, 0, 0, T(lneg2) }
+	{ AP, 0, 0, T(labs2), T(lneg2) }
 };
 
 struct insn tabcvtiisrc[] ={
-	{ AP, 0, 0, 0x00000000, 0x0001c000, N("u16"), T(lsh) },
-	{ AP, 0, 0, 0x00004000, 0x0001c000, N("u32"), T(lsw) },
-	{ AP, 0, 0, 0x00008000, 0x0001c000, N("u8"), T(lsh) },
-	{ AP, 0, 0, 0x0000c000, 0x0001c000, N("u8"), LSRC },	// what about mem?
-	{ AP, 0, 0, 0x00010000, 0x0001c000, N("s16"), T(lsh) },
-	{ AP, 0, 0, 0x00014000, 0x0001c000, N("s32"), T(lsw) },
-	{ AP, 0, 0, 0x00018000, 0x0001c000, N("s8"), T(lsh) },
-	{ AP, 0, 0, 0x0001c000, 0x0001c000, N("s8"), LSRC },	// what about mem?
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0x0000000000000000, 0x0001c00000000000, N("u16"), T(lsh) },
+	{ AP, 0x0000400000000000, 0x0001c00000000000, N("u32"), T(lsw) },
+	{ AP, 0x0000800000000000, 0x0001c00000000000, N("u8"), T(lsh) },
+	{ AP, 0x0000c00000000000, 0x0001c00000000000, N("u8"), LSRC },	// what about mem?
+	{ AP, 0x0001000000000000, 0x0001c00000000000, N("s16"), T(lsh) },
+	{ AP, 0x0001400000000000, 0x0001c00000000000, N("s32"), T(lsw) },
+	{ AP, 0x0001800000000000, 0x0001c00000000000, N("s8"), T(lsh) },
+	{ AP, 0x0001c00000000000, 0x0001c00000000000, N("s8"), LSRC },	// what about mem?
+	{ AP, 0, 0, OOPS }
 };
 
 struct insn tabfcon[] = {
-	{ AP, 0, 0, 0x00000000, 0x0000c000, N("u8"), FBCONST },
-	{ AP, 0, 0, 0x00004000, 0x0000c000, N("u16"), FHCONST },
-	{ AP, 0, 0, 0x00008000, 0x0000c000, N("s16"), FHCONST },
-	{ AP, 0, 0, 0x0000c000, 0x0000c000, N("b32"), FCONST },
-	{ AP, 0, 0, 0, 0, OOPS }
+	{ AP, 0x0000000000000000, 0x0000c00000000000, N("u8"), FBCONST },
+	{ AP, 0x0000400000000000, 0x0000c00000000000, N("u16"), FHCONST },
+	{ AP, 0x0000800000000000, 0x0000c00000000000, N("s16"), FHCONST },
+	{ AP, 0x0000c00000000000, 0x0000c00000000000, N("b32"), FCONST },
+	{ AP, 0, 0, OOPS }
 };
 
-struct insn tablus1[] = {
-	{ AP, 0, 0, 0x00000000, 0x00008000, N("u") },
-	{ AP, 0, 0, 0x00008000, 0x00008000, N("s") },
-};
+F(lus1, 0x2f, N("u"), N("s"))
+F(lus2, 0x2e, N("u"), N("s"))
+F(lusm2, 0x3b, N("u"), N("s"))
 
-struct insn tablus2[] = {
-	{ AP, 0, 0, 0x00000000, 0x00004000, N("u") },
-	{ AP, 0, 0, 0x00004000, 0x00004000, N("s") },
-};
+F1(dtex, 0x23, N("deriv")) // suspected to enable implicit derivatives on non-FPs.
+F(ltex, 0x23, N("all"), N("live"))
 
-struct insn tablusm2[] = {
-	{ AP, 0, 0, 0x00000000, 0x08000000, N("u") },
-	{ AP, 0, 0, 0x08000000, 0x08000000, N("s") },
-};
-
-struct insn tabdtex[] = { // suspected to enable implicit derivatives on non-FPs.
-	{ AP, 0, 0, 0x00000000, 0x00000008 },
-	{ AP, 0, 0, 0x00000008, 0x00000008, N("deriv") },
-};
-
-struct insn tabltex[] = {
-	{ AP, 0, 0, 0x00000000, 0x00000004, N("all"), T(dtex) },
-	{ AP, 0, 0, 0x00000004, 0x00000004, N("live"), T(dtex) },
+struct insn tabtexf[] = {
+	{ AP, 0, 0, T(ltex), T(dtex) },
 };
 
 struct insn tablane[] = {
-	{ AP, 0, 0, 0x00000000, 0x0003c000, N("lnone") },
-	{ AP, 0, 0, 0x00004000, 0x0003c000, N("l0") },
-	{ AP, 0, 0, 0x00008000, 0x0003c000, N("l1") },
-	{ AP, 0, 0, 0x0000c000, 0x0003c000, N("l01") },
-	{ AP, 0, 0, 0x00010000, 0x0003c000, N("l2") },
-	{ AP, 0, 0, 0x00014000, 0x0003c000, N("l02") },
-	{ AP, 0, 0, 0x00018000, 0x0003c000, N("l12") },
-	{ AP, 0, 0, 0x0001c000, 0x0003c000, N("l012") },
-	{ AP, 0, 0, 0x00020000, 0x0003c000, N("l3") },
-	{ AP, 0, 0, 0x00024000, 0x0003c000, N("l03") },
-	{ AP, 0, 0, 0x00028000, 0x0003c000, N("l13") },
-	{ AP, 0, 0, 0x0002c000, 0x0003c000, N("l013") },
-	{ AP, 0, 0, 0x00030000, 0x0003c000, N("l23") },
-	{ AP, 0, 0, 0x00034000, 0x0003c000, N("l023") },
-	{ AP, 0, 0, 0x00038000, 0x0003c000, N("l123") },
-	{ AP, 0, 0, 0x0003c000, 0x0003c000 },
+	{ AP, 0x0000000000000000, 0x0003c00000000000, N("lnone") },
+	{ AP, 0x0000400000000000, 0x0003c00000000000, N("l0") },
+	{ AP, 0x0000800000000000, 0x0003c00000000000, N("l1") },
+	{ AP, 0x0000c00000000000, 0x0003c00000000000, N("l01") },
+	{ AP, 0x0001000000000000, 0x0003c00000000000, N("l2") },
+	{ AP, 0x0001400000000000, 0x0003c00000000000, N("l02") },
+	{ AP, 0x0001800000000000, 0x0003c00000000000, N("l12") },
+	{ AP, 0x0001c00000000000, 0x0003c00000000000, N("l012") },
+	{ AP, 0x0002000000000000, 0x0003c00000000000, N("l3") },
+	{ AP, 0x0002400000000000, 0x0003c00000000000, N("l03") },
+	{ AP, 0x0002800000000000, 0x0003c00000000000, N("l13") },
+	{ AP, 0x0002c00000000000, 0x0003c00000000000, N("l013") },
+	{ AP, 0x0003000000000000, 0x0003c00000000000, N("l23") },
+	{ AP, 0x0003400000000000, 0x0003c00000000000, N("l023") },
+	{ AP, 0x0003800000000000, 0x0003c00000000000, N("l123") },
+	{ AP, 0x0003c00000000000, 0x0003c00000000000 },
 };
 
 struct insn tabqs1[] = {
@@ -1278,28 +1222,28 @@ struct insn tabqs1[] = {
 	{ AP, 0x00010000, 0x00030000, 0, 0, N("l1") },
 	{ AP, 0x00020000, 0x00030000, 0, 0, N("l2") },
 	{ AP, 0x00030000, 0x00030000, 0, 0, N("l3") },
-	{ AP, 0, 0, 0, 0 },
+	{ AP, 0, 0 },
 };
 
 struct insn tabqop0[] = {
-	{ AP, 0, 0, 0x00000000, 0x0c000000, N("add") },
-	{ AP, 0, 0, 0x04000000, 0x0c000000, N("subr") },
-	{ AP, 0, 0, 0x08000000, 0x0c000000, N("sub") },
-	{ AP, 0, 0, 0x0c000000, 0x0c000000, N("mov2") },
+	{ AP, 0x0000000000000000, 0x0c00000000000000, N("add") },
+	{ AP, 0x0400000000000000, 0x0c00000000000000, N("subr") },
+	{ AP, 0x0800000000000000, 0x0c00000000000000, N("sub") },
+	{ AP, 0x0c00000000000000, 0x0c00000000000000, N("mov2") },
 };
 
 struct insn tabqop1[] = {
-	{ AP, 0, 0, 0x00000000, 0x03000000, N("add") },
-	{ AP, 0, 0, 0x01000000, 0x03000000, N("subr") },
-	{ AP, 0, 0, 0x02000000, 0x03000000, N("sub") },
-	{ AP, 0, 0, 0x03000000, 0x03000000, N("mov2") },
+	{ AP, 0x0000000000000000, 0x0300000000000000, N("add") },
+	{ AP, 0x0100000000000000, 0x0300000000000000, N("subr") },
+	{ AP, 0x0200000000000000, 0x0300000000000000, N("sub") },
+	{ AP, 0x0300000000000000, 0x0300000000000000, N("mov2") },
 };
 
 struct insn tabqop2[] = {
-	{ AP, 0, 0, 0x00000000, 0x00c00000, N("add") },
-	{ AP, 0, 0, 0x00400000, 0x00c00000, N("subr") },
-	{ AP, 0, 0, 0x00800000, 0x00c00000, N("sub") },
-	{ AP, 0, 0, 0x00c00000, 0x00c00000, N("mov2") },
+	{ AP, 0x0000000000000000, 0x00c0000000000000, N("add") },
+	{ AP, 0x0040000000000000, 0x00c0000000000000, N("subr") },
+	{ AP, 0x0080000000000000, 0x00c0000000000000, N("sub") },
+	{ AP, 0x00c0000000000000, 0x00c0000000000000, N("mov2") },
 };
 
 struct insn tabqop3[] = {
@@ -1310,14 +1254,14 @@ struct insn tabqop3[] = {
 };
 
 struct insn tabsreg[] = {
-	{ AP, 0, 0, 0x00000000, 0x0001c000, N("physid") },
-	{ AP, 0, 0, 0x00004000, 0x0001c000, N("clock") },
-	{ AP, 0, 0, 0x00008000, 0x0001c000, N("sreg2") },
-	{ AP, 0, 0, 0x0000c000, 0x0001c000, N("sreg3") },
-	{ AP, 0, 0, 0x00010000, 0x0001c000, N("pm0") },
-	{ AP, 0, 0, 0x00014000, 0x0001c000, N("pm1") },
-	{ AP, 0, 0, 0x00018000, 0x0001c000, N("pm2") },
-	{ AP, 0, 0, 0x0001c000, 0x0001c000, N("pm3") },
+	{ AP, 0x0000000000000000, 0x0001c00000000000, N("physid") },
+	{ AP, 0x0000400000000000, 0x0001c00000000000, N("clock") },
+	{ AP, 0x0000800000000000, 0x0001c00000000000, N("sreg2") },
+	{ AP, 0x0000c00000000000, 0x0001c00000000000, N("sreg3") },
+	{ AP, 0x0001000000000000, 0x0001c00000000000, N("pm0") },
+	{ AP, 0x0001400000000000, 0x0001c00000000000, N("pm1") },
+	{ AP, 0x0001800000000000, 0x0001c00000000000, N("pm2") },
+	{ AP, 0x0001c00000000000, 0x0001c00000000000, N("pm3") },
 };
 
 /*
@@ -1326,283 +1270,278 @@ struct insn tabsreg[] = {
  * We don't normally have ignore rules for all bits known to be ignored,
  * but blob uses this one, so let's avoid spurious red.
  */
-struct insn tabignce[] = {
-	{ AP, 0, 0, 0x00, 0x40 },
-	{ AP, 0, 0, 0x40, 0x40 },
-};
+F(ignce, 0x26, , )
 
-struct insn tablm24high[] = {
-	{ AP, 0, 0, 0x00000000, 0x00004000 },
-	{ AP, 0, 0, 0x00004000, 0x00004000, N("high") },
-};
+F1(lm24high, 0x2e, N("high"))
 
+/// XXX FUCKUP WRONG WRONG HERE
 struct insn tabl[] = {
 	// 0
-	{ VP|GP, 0x00000000, 0xf0000002, 0x04200000, 0xe4200000,
+	{ VP|GP, 0x0420000000000000, 0xe4200000f0000002,
 		T(lane), N("mov"), LLDST, FATTR },
-	{ AP, 0x00000000, 0xf0000002, 0x20000000, 0xe0000000,
+	{ AP, 0x2000000000000000, 0xe0000000f0000002,
 		N("mov"), LDST, COND },
-	{ AP, 0x00000000, 0xf0000002, 0x40000000, 0xe0000000,
+	{ AP, 0x4000000000000000, 0xe0000000f0000002,
 		N("mov"), LDST, AREG },
-	{ AP, 0x00000000, 0xf0000002, 0x60000000, 0xe0000000,
+	{ AP, 0x6000000000000000, 0xe0000000f0000002,
 		N("mov"), LDST, T(sreg) },
 
-	{ AP, 0x00000000, 0xf0000002, 0xa0000000, 0xe0000000,
+	{ AP, 0xa000000000000000, 0xe0000000f0000002,
 		N("mov"), CDST, LSRC, T(ignce) },
-	{ AP, 0x00000000, 0xf0000002, 0xc0000000, 0xe0000000,
+	{ AP, 0xc000000000000000, 0xe0000000f0000002,
 		N("shl"), ADST, T(lsw), HSHCNT },
 	
-	{ CP, 0x00000000, 0xf0000002, 0xe0000000, 0xe4400000,	// XXX ok, seriously, what's up with all thse flags?
+	{ CP, 0xe000000000000000, 0xe4400000f0000002,	// XXX ok, seriously, what's up with all thse flags?
 		N("mov b16"), FHSHARED, LHSRC3 },
-	{ CP, 0x00000000, 0xf0000002, 0xe0400000, 0xe4400000,
+	{ CP, 0xe040000000000000, 0xe4400000f0000002,
 		N("mov b8"), FBSHARED, LHSRC3 },
-	{ CP, 0x00000000, 0xf0000002, 0xe4200000, 0xe4a00000,
+	{ CP, 0xe420000000000000, 0xe4a00000f0000002,
 		N("mov b32"), FSHARED, LSRC3 },
-	{ CP, 0x00000000, 0xf0000002, 0xe4a00000, 0xe4a00000,
+	{ CP, 0xe4a0000000000000, 0xe4a00000f0000002,
 		N("mov unlock b32"), FSHARED, LSRC3 },
 
 	// 1
-	{ AP, 0x10000000, 0xf0000002, 0x00000000, 0xe4000000,
+	{ AP, 0x0000000010000000, 0xe4000000f0000002,
 		T(lane), N("mov"), LLHDST, T(lsh) },
-	{ AP, 0x10000000, 0xf0000002, 0x04000000, 0xe4000000,
+	{ AP, 0x0400000010000000, 0xe4000000f0000002,
 		T(lane), N("mov"), LLDST, T(lsw) },
 
-	{ AP, 0x10000000, 0xf0000002, 0x20000000, 0xe4000000,
+	{ AP, 0x2000000010000000, 0xe4000000f0000002,
 		N("mov b16"), LLHDST, T(fcon) },
-	{ AP, 0x10000000, 0xf0000002, 0x24000000, 0xe4000000,
+	{ AP, 0x2400000010000000, 0xe4000000f0000002,
 		N("mov b32"), LLDST, T(fcon) },
 
-	{ CP, 0x10000000, 0xf0000002, 0x40004000, 0xe400c000,	// sm_11. ptxas inexplicably starts using
+	{ CP, 0x4000400010000000, 0xe400c000f0000002,	// sm_11. ptxas inexplicably starts using
 		N("mov u16"), LHDST, LHSHARED },		// these forms instead of the other one
-	{ CP, 0x10000000, 0xf0000002, 0x40008000, 0xe400c000,	// on >=sm_11. XXX check length XXX mode
+	{ CP, 0x4000800010000000, 0xe400c000f0000002,	// on >=sm_11. XXX check length XXX mode
 		N("mov s16"), LHDST, LHSHARED },
-	{ CP, 0x10000000, 0xf0000002, 0x4400c000, 0xe480c000,	// getting ridiculous.
+	{ CP, 0x4400c00010000000, 0xe480c000f0000002,	// getting ridiculous.
 		N("mov b32"), LDST, LSHARED },
-	{ CP, 0x10000000, 0xf0000002, 0x4480c040, 0xe480c040,
+	{ CP, 0x4480c04010000000, 0xe480c040f0000002,
 		N("mov lock b32"), CDST, LDST, LSHARED },
 
-	{ AP, 0x10000200, 0xf0000602, 0x60000000, 0xe0000000,
+	{ AP, 0x6000000010000200, 0xe0000000f0000602,
 		N("vote any"), CDST, T(ignce) },	// sm_12
-	{ AP, 0x10000400, 0xf0000602, 0x60000000, 0xe0000000,
+	{ AP, 0x6000000010000400, 0xe0000000f0000602,
 		N("vote all"), CDST, T(ignce) },	// sm_12
 
 	// 2
-	{ AP, 0x20000000, 0xf0400002, 0x00000000, 0x00000000,
+	{ AP, 0x0000000020000000, 0x00000000f0400002,
 		N("add"), T(la) },
-	{ AP, 0x20400000, 0xf0400002, 0x00000000, 0x00000000,
+	{ AP, 0x0000000020400000, 0x00000000f0400002,
 		N("sub"), T(la) },
 
 	// 3
-	{ AP, 0x30000000, 0xf0400002, 0x00000000, 0xe0000000,
+	{ AP, 0x0000000030000000, 0xe0000000f0400002,
 		N("subr"), T(la) },
-	{ AP, 0x30400000, 0xf0400002, 0x00000000, 0xe0000000,
+	{ AP, 0x0000000030400000, 0xe0000000f0400002,
 		N("addc"), T(la), COND },
 
 	// YARLY.
-	{ AP, 0x30000000, 0xf0000002, 0x60000000, 0xec000000,
+	{ AP, 0x6000000030000000, 0xec000000f0000002,
 		N("set"), T(seti), N("u16"), MCDST, LLHDST, T(lsh), T(lc2h) },
-	{ AP, 0x30000000, 0xf0000002, 0x68000000, 0xec000000,
+	{ AP, 0x6800000030000000, 0xec000000f0000002,
 		N("set"), T(seti), N("s16"), MCDST, LLHDST, T(lsh), T(lc2h) },
-	{ AP, 0x30000000, 0xf0000002, 0x64000000, 0xec000000,
+	{ AP, 0x6400000030000000, 0xec000000f0000002,
 		N("set"), T(seti), N("u32"), MCDST, LLDST, T(lsw), T(lc2w) },
-	{ AP, 0x30000000, 0xf0000002, 0x6c000000, 0xec000000,
+	{ AP, 0x6c00000030000000, 0xec000000f0000002,
 		N("set"), T(seti), N("s32"), MCDST, LLDST, T(lsw), T(lc2w) },
 
-	{ AP, 0x30000000, 0xf0000002, 0x80000000, 0xec000000,
+	{ AP, 0x8000000030000000, 0xec000000f0000002,
 		N("max u16"), LHDST, T(lsh), T(lc2h) },
-	{ AP, 0x30000000, 0xf0000002, 0x88000000, 0xec000000,
+	{ AP, 0x8800000030000000, 0xec000000f0000002,
 		N("max s16"), LHDST, T(lsh), T(lc2h) },
-	{ AP, 0x30000000, 0xf0000002, 0x84000000, 0xec000000,
+	{ AP, 0x8400000030000000, 0xec000000f0000002,
 		N("max u32"), LDST, T(lsw), T(lc2w) },
-	{ AP, 0x30000000, 0xf0000002, 0x8c000000, 0xec000000,
+	{ AP, 0x8c00000030000000, 0xec000000f0000002,
 		N("max s32"), LDST, T(lsw), T(lc2w) },
 
-	{ AP, 0x30000000, 0xf0000002, 0xa0000000, 0xec000000,
+	{ AP, 0xa000000030000000, 0xec000000f0000002,
 		N("min u16"), LHDST, T(lsh), T(lc2h) },
-	{ AP, 0x30000000, 0xf0000002, 0xa8000000, 0xec000000,
+	{ AP, 0xa800000030000000, 0xec000000f0000002,
 		N("min s16"), LHDST, T(lsh), T(lc2h) },
-	{ AP, 0x30000000, 0xf0000002, 0xa4000000, 0xec000000,
+	{ AP, 0xa400000030000000, 0xec000000f0000002,
 		N("min u32"), LDST, T(lsw), T(lc2w) },
-	{ AP, 0x30000000, 0xf0000002, 0xac000000, 0xec000000,
+	{ AP, 0xac00000030000000, 0xec000000f0000002,
 		N("min s32"), LDST, T(lsw), T(lc2w) },
 
-	{ AP, 0x30000000, 0xf0000002, 0xc0000000, 0xe4000000,	// XXX FUCK ALERT: shift count *CAN* be 16-bit.
+	{ AP, 0xc000000030000000, 0xe4000000f0000002,	// XXX FUCK ALERT: shift count *CAN* be 16-bit.
 		N("shl b16"), LHDST, T(lsh), T(hshcnt) },
-	{ AP, 0x30000000, 0xf0000002, 0xc4000000, 0xe4000000,
+	{ AP, 0xc400000030000000, 0xe4000000f0000002,
 		N("shl b32"), LDST, T(lsw), T(shcnt) },
-	{ AP, 0x30000000, 0xf0000002, 0xe0000000, 0xec000000,
+	{ AP, 0xe000000030000000, 0xec000000f0000002,
 		N("shr u16"), LHDST, T(lsh), T(hshcnt) },
-	{ AP, 0x30000000, 0xf0000002, 0xe4000000, 0xec000000,
+	{ AP, 0xe400000030000000, 0xec000000f0000002,
 		N("shr u32"), LDST, T(lsw), T(shcnt) },
-	{ AP, 0x30000000, 0xf0000002, 0xe8000000, 0xec000000,
+	{ AP, 0xe800000030000000, 0xec000000f0000002,
 		N("shr s16"), LHDST, T(lsh), T(hshcnt) },
-	{ AP, 0x30000000, 0xf0000002, 0xec000000, 0xec000000,
+	{ AP, 0xec00000030000000, 0xec000000f0000002,
 		N("shr s32"), LDST, T(lsw), T(shcnt) },
 
 
 	// 4
-	{ AP, 0x40000000, 0xf0000002, 0x00000000, 0xe0010000,
+	{ AP, 0x0000000040000000, 0xe0010000f0000002,
 		N("mul"), MCDST, LLDST, T(lus1), T(lsh), T(lus2), T(lc2h) },
-	{ AP, 0x40000000, 0xf0000002, 0x00010000, 0xe0010000,
+	{ AP, 0x0001000040000000, 0xe0010000f0000002,
 		N("mul24"), MCDST, LLDST, T(lm24high), T(lus1), T(lsw), T(lc2w) },
 
 	// 5
-	{ AP, 0x50000000, 0xf0000002, 0x00000000, 0xe4000000,
+	{ AP, 0x0000000050000000, 0xe4000000f0000002,
 		N("sad"), MCDST, LLDST, T(lusm2), T(lsh), T(lc2h), T(lc3w) },
-	{ AP, 0x50000000, 0xf0000002, 0x04000000, 0xe4000000,
+	{ AP, 0x0400000050000000, 0xe4000000f0000002,
 		N("sad"), MCDST, LLDST, T(lusm2), T(lsw), T(lc2w), T(lc3w) },
 
 	// 6
-	{ AP, 0x60000000, 0xf0000002, 0x00000000, 0xec000000,
+	{ AP, 0x0000000060000000, 0xec000000f0000002,
 		N("mad u16"), MCDST, LLDST, T(lsh), T(lc2h), T(lc3w) },
-	{ AP, 0x60000000, 0xf0000002, 0x0c000000, 0xec000000,
+	{ AP, 0x0c00000060000000, 0xec000000f0000002,
 		N("mad u16"), MCDST, LLDST, T(lsh), T(lc2h), T(lc3w), COND },
-	{ AP, 0x60000000, 0xf0000002, 0x20000000, 0xe0000000,
+	{ AP, 0x2000000060000000, 0xe0000000f0000002,
 		N("mad s16"), MCDST, LLDST, T(lsh), T(lc2h), T(lc3w) },
-	{ AP, 0x60000000, 0xf0000002, 0x60000000, 0xe0000000,
+	{ AP, 0x6000000060000000, 0xe0000000f0000002,
 		N("mad u24"), LDST, T(lsw), T(lc2w), T(lc3w) },
-	{ AP, 0x60000000, 0xf0000002, 0x80000000, 0xe0000000,
+	{ AP, 0x8000000060000000, 0xe0000000f0000002,
 		N("mad s24"), LDST, T(lsw), T(lc2w), T(lc3w) },
-	{ AP, 0x60000000, 0xf0000002, 0xc0000000, 0xe0000000,
+	{ AP, 0xc000000060000000, 0xe0000000f0000002,
 		N("mad high u24"), LDST, T(lsw), T(lc2w), T(lc3w) },
-	{ AP, 0x60000000, 0xf0000002, 0xe0000000, 0xe0000000,
+	{ AP, 0xe000000060000000, 0xe0000000f0000002,
 		N("mad high s24"), LDST, T(lsw), T(lc2w), T(lc3w) },
 
 	// 7
-	{ AP, 0x70000000, 0xf0000002, 0x00000000, 0xe0000000,
+	{ AP, 0x0000000070000000, 0xe0000000f0000002,
 		N("mad high s24 sat"), LDST, T(lsw), T(lc2w), T(lc3w) },
 
 	// 8
-	{ FP, 0x80000000, 0xf0000002, 0x00000000, 0x00070000,
+	{ FP, 0x0000000080000000, 0x00070000f0000002,
 		N("interp"), LDST, LVAR },
-	{ FP, 0x80000000, 0xf0000002, 0x00010000, 0x00070000,
+	{ FP, 0x0001000080000000, 0x00070000f0000002,
 		N("interp"), LDST, N("cent"), LVAR },
-	{ FP, 0x80000000, 0xf0000002, 0x00020000, 0x00070000,
+	{ FP, 0x0002000080000000, 0x00070000f0000002,
 		N("interp"), LDST, LVAR, LSRC },
-	{ FP, 0x80000000, 0xf0000002, 0x00030000, 0x00070000,
+	{ FP, 0x0003000080000000, 0x00070000f0000002,
 		N("interp"), LDST, N("cent"), LVAR, LSRC },
-	{ FP, 0x80000000, 0xf0000002, 0x00040000, 0x00070000,
+	{ FP, 0x0004000080000000, 0x00070000f0000002,
 		N("interp"), LDST, N("flat"), LVAR },
 
 	// 9
-	{ AP, 0x90000000, 0xf0000002, 0x00000000, 0xe0000000,
+	{ AP, 0x0000000090000000, 0xe0000000f0000002,
 		N("rcp f32"), LLDST, LSRC },
-	{ AP, 0x90000000, 0xf0000002, 0x40000000, 0xe0000000,
+	{ AP, 0x4000000090000000, 0xe0000000f0000002,
 		N("rsqrt f32"),  LLDST, LSRC },
-	{ AP, 0x90000000, 0xf0000002, 0x60000000, 0xe0000000,
+	{ AP, 0x6000000090000000, 0xe0000000f0000002,
 		N("lg2 f32"), LLDST, LSRC },
-	{ AP, 0x90000000, 0xf0000002, 0x80000000, 0xe0000000,
+	{ AP, 0x8000000090000000, 0xe0000000f0000002,
 		N("sin f32"), LLDST, LSRC },
-	{ AP, 0x90000000, 0xf0000002, 0xa0000000, 0xe0000000,
+	{ AP, 0xa000000090000000, 0xe0000000f0000002,
 		N("cos f32"), LLDST, LSRC },
-	{ AP, 0x90000000, 0xf0000002, 0xc0000000, 0xe0000000,
+	{ AP, 0xc000000090000000, 0xe0000000f0000002,
 		N("ex2 f32"), LLDST, LSRC },
 
 	// a
-	{ AP, 0xa0000000, 0xf0000002, 0xc0000000, 0xcc404000,
+	{ AP, 0xc0000000a0000000, 0xcc404000f0000002,
 		N("cvt"), T(cvtmod), T(cvtffsat), N("f16"), LHDST, N("f16"), T(lsh) },
-	{ AP, 0xa0000000, 0xf0000002, 0xc8000000, 0xcc404000,
+	{ AP, 0xc8000000a0000000, 0xcc404000f0000002,
 		N("cvt"), T(cvtmod), T(cvtffsat), T(cvtrint), N("f16"), LHDST, N("f16"), T(lsh) },
-	{ AP, 0xa0000000, 0xf0000002, 0xc0004000, 0xc4404000,
+	{ AP, 0xc0004000a0000000, 0xc4404000f0000002,
 		N("cvt"), T(cvtmod), T(cvtffsat), T(cvtrnd), N("f16"), LHDST, N("f32"), T(lsw) },
-	{ AP, 0xa0000000, 0xf0000002, 0xc4004000, 0xcc404000,
+	{ AP, 0xc4004000a0000000, 0xcc404000f0000002,
 		N("cvt"), T(cvtmod), T(cvtffsat), N("f32"), MCDST, LLDST, N("f32"), T(lsw) },
-	{ AP, 0xa0000000, 0xf0000002, 0xcc004000, 0xcc404000,
+	{ AP, 0xcc004000a0000000, 0xcc404000f0000002,
 		N("cvt"), T(cvtmod), T(cvtffsat), T(cvtrint), N("f32"), LDST, N("f32"), T(lsw) },
-	{ AP, 0xa0000000, 0xf0000002, 0xc4000000, 0xc4404000,
+	{ AP, 0xc4000000a0000000, 0xc4404000f0000002,
 		N("cvt"), T(cvtmod), T(cvtffsat), N("f32"), LDST, N("f16"), T(lsh) },
 
-	{ AP, 0xa0000000, 0xf0000002, 0xc0404000, 0xc4404000,
+	{ AP, 0xc0404000a0000000, 0xc4404000f0000002,
 		N("cvt"), T(cvtmod), T(cvtrnd), N("f32"), LDST, N("f64"), LDSRC },
-	{ AP, 0xa0000000, 0xf0000002, 0xc4404000, 0xcc404000,
+	{ AP, 0xc4404000a0000000, 0xcc404000f0000002,
 		N("cvt"), T(cvtmod), N("f64"), LDDST, N("f64"), LDSRC },
-	{ AP, 0xa0000000, 0xf0000002, 0xcc404000, 0xcc404000,
+	{ AP, 0xcc404000a0000000, 0xcc404000f0000002,
 		N("cvt"), T(cvtmod), T(cvtrint), N("f64"), LDDST, N("f64"), LDSRC },
-	{ AP, 0xa0000000, 0xf0000002, 0xc4400000, 0xc4404000,
+	{ AP, 0xc4400000a0000000, 0xc4404000f0000002,
 		N("cvt"), T(cvtmod), N("f64"), LDDST, N("f32"), T(lsw) },
 
-	{ AP, 0xa0000000, 0xf0000002, 0x80000000, 0xcc404000,
+	{ AP, 0x80000000a0000000, 0xcc404000f0000002,
 		N("cvt"), T(cvtmod), T(cvtrint), N("u16"), LHDST, N("f16"), T(lsh) },
-	{ AP, 0xa0000000, 0xf0000002, 0x80004000, 0xcc404000,
+	{ AP, 0x80004000a0000000, 0xcc404000f0000002,
 		N("cvt"), T(cvtmod), T(cvtrint), N("u16"), LHDST, N("f32"), T(lsw) },
-	{ AP, 0xa0000000, 0xf0000002, 0x88000000, 0xcc404000,
+	{ AP, 0x88000000a0000000, 0xcc404000f0000002,
 		N("cvt"), T(cvtmod), T(cvtrint), N("s16"), LHDST, N("f16"), T(lsh) },
-	{ AP, 0xa0000000, 0xf0000002, 0x88004000, 0xcc404000,
+	{ AP, 0x88004000a0000000, 0xcc404000f0000002,
 		N("cvt"), T(cvtmod), T(cvtrint), N("s16"), LHDST, N("f32"), T(lsw) },
-	{ AP, 0xa0000000, 0xf0000002, 0x84000000, 0xcc404000,
+	{ AP, 0x84000000a0000000, 0xcc404000f0000002,
 		N("cvt"), T(cvtmod), T(cvtrint), N("u32"), LDST, N("f16"), T(lsh) },
-	{ AP, 0xa0000000, 0xf0000002, 0x84004000, 0xcc404000,
+	{ AP, 0x84004000a0000000, 0xcc404000f0000002,
 		N("cvt"), T(cvtmod), T(cvtrint), N("u32"), LDST, N("f32"), T(lsw) },
-	{ AP, 0xa0000000, 0xf0000002, 0x8c000000, 0xcc404000,
+	{ AP, 0x8c000000a0000000, 0xcc404000f0000002,
 		N("cvt"), T(cvtmod), T(cvtrint), N("s32"), LDST, N("f16"), T(lsh) },
-	{ AP, 0xa0000000, 0xf0000002, 0x8c004000, 0xcc404000,
+	{ AP, 0x8c004000a0000000, 0xcc404000f0000002,
 		N("cvt"), T(cvtmod), T(cvtrint), N("s32"), LDST, N("f32"), T(lsw) },
 
-	{ AP, 0xa0000000, 0xf0000002, 0x80404000, 0xcc404000,
+	{ AP, 0x80404000a0000000, 0xcc404000f0000002,
 		N("cvt"), T(cvtmod), T(cvtrint), N("u32"), LDST, N("f64"), LDSRC },
-	{ AP, 0xa0000000, 0xf0000002, 0x88404000, 0xcc404000,
+	{ AP, 0x88404000a0000000, 0xcc404000f0000002,
 		N("cvt"), T(cvtmod), T(cvtrint), N("s32"), LDST, N("f64"), LDSRC },
-	{ AP, 0xa0000000, 0xf0000002, 0x84400000, 0xcc404000,
+	{ AP, 0x84400000a0000000, 0xcc404000f0000002,
 		N("cvt"), T(cvtmod), T(cvtrint), N("u64"), LDDST, N("f32"), T(lsw) },
-	{ AP, 0xa0000000, 0xf0000002, 0x84404000, 0xcc404000,
+	{ AP, 0x84404000a0000000, 0xcc404000f0000002,
 		N("cvt"), T(cvtmod), T(cvtrint), N("u64"), LDDST, N("f64"), LDSRC },
-	{ AP, 0xa0000000, 0xf0000002, 0x8c400000, 0xcc404000,
+	{ AP, 0x8c400000a0000000, 0xcc404000f0000002,
 		N("cvt"), T(cvtmod), T(cvtrint), N("s64"), LDDST, N("f32"), T(lsw) },
-	{ AP, 0xa0000000, 0xf0000002, 0x8c404000, 0xcc404000,
+	{ AP, 0x8c404000a0000000, 0xcc404000f0000002,
 		N("cvt"), T(cvtmod), T(cvtrint), N("s64"), LDDST, N("f64"), LDSRC },
 
-	{ AP, 0xa0000000, 0xf0000002, 0x40000000, 0xc4400000,
+	{ AP, 0x40000000a0000000, 0xc4400000f0000002,
 		N("cvt"), T(cvtmod), T(cvtffsat), T(cvtrnd), N("f16"), LHDST, T(cvtiisrc) },
-	{ AP, 0xa0000000, 0xf0000002, 0x44000000, 0xc4400000,
+	{ AP, 0x44000000a0000000, 0xc4400000f0000002,
 		N("cvt"), T(cvtmod), T(cvtffsat), T(cvtrnd), N("f32"), LDST, T(cvtiisrc) },
 
-	{ AP, 0xa0000000, 0xf0000002, 0x44400000, 0xc4414000,
+	{ AP, 0x44400000a0000000, 0xc4414000f0000002,
 		N("cvt"), T(cvtmod), T(cvtffsat), T(cvtrnd), N("f64"), LDDST, N("u32"), T(lsw) },
-	{ AP, 0xa0000000, 0xf0000002, 0x44410000, 0xc4414000,
+	{ AP, 0x44410000a0000000, 0xc4414000f0000002,
 		N("cvt"), T(cvtmod), T(cvtffsat), T(cvtrnd), N("f64"), LDDST, N("s32"), T(lsw) },
-	{ AP, 0xa0000000, 0xf0000002, 0x40404000, 0xc4414000,
+	{ AP, 0x40404000a0000000, 0xc4414000f0000002,
 		N("cvt"), T(cvtmod), T(cvtffsat), T(cvtrnd), N("f32"), LDST, N("u64"), LDSRC },
-	{ AP, 0xa0000000, 0xf0000002, 0x40414000, 0xc4414000,
+	{ AP, 0x40414000a0000000, 0xc4414000f0000002,
 		N("cvt"), T(cvtmod), T(cvtffsat), T(cvtrnd), N("f32"), LDST, N("s64"), LDSRC },
-	{ AP, 0xa0000000, 0xf0000002, 0x44404000, 0xc4414000,
+	{ AP, 0x44404000a0000000, 0xc4414000f0000002,
 		N("cvt"), T(cvtmod), T(cvtffsat), T(cvtrnd), N("f64"), LDDST, N("u64"), LDSRC },
-	{ AP, 0xa0000000, 0xf0000002, 0x44414000, 0xc4414000,
+	{ AP, 0x44414000a0000000, 0xc4414000f0000002,
 		N("cvt"), T(cvtmod), T(cvtffsat), T(cvtrnd), N("f64"), LDDST, N("s64"), LDSRC },
 
-	{ AP, 0xa0000000, 0xf0000002, 0x00000000, 0xcc080000,
+	{ AP, 0x00000000a0000000, 0xcc080000f0000002,
 		N("cvt"), T(cvtmod), N("u16"), MCDST, LLHDST, T(cvtiisrc) },
-	{ AP, 0xa0000000, 0xf0000002, 0x00080000, 0xcc080000,
+	{ AP, 0x00080000a0000000, 0xcc080000f0000002,
 		N("cvt"), T(cvtmod), N("u8"), LHDST, T(cvtiisrc) },
-	{ AP, 0xa0000000, 0xf0000002, 0x04000000, 0xcc080000,
+	{ AP, 0x04000000a0000000, 0xcc080000f0000002,
 		N("cvt"), T(cvtmod), N("u32"), MCDST, LLDST, T(cvtiisrc) },
-	{ AP, 0xa0000000, 0xf0000002, 0x04080000, 0xcc080000,
+	{ AP, 0x04080000a0000000, 0xcc080000f0000002,
 		N("cvt"), T(cvtmod), N("u8"), LDST, T(cvtiisrc) },
-	{ AP, 0xa0000000, 0xf0000002, 0x08000000, 0xcc080000,
+	{ AP, 0x08000000a0000000, 0xcc080000f0000002,
 		N("cvt"), T(cvtmod), N("s16"), MCDST, LLHDST, T(cvtiisrc) },
-	{ AP, 0xa0000000, 0xf0000002, 0x08080000, 0xcc080000,
+	{ AP, 0x08080000a0000000, 0xcc080000f0000002,
 		N("cvt"), T(cvtmod), N("s8"), LHDST, T(cvtiisrc) },
-	{ AP, 0xa0000000, 0xf0000002, 0x0c000000, 0xcc080000,
+	{ AP, 0x0c000000a0000000, 0xcc080000f0000002,
 		N("cvt"), T(cvtmod), N("s32"), MCDST, LLDST, T(cvtiisrc) },
-	{ AP, 0xa0000000, 0xf0000002, 0x0c080000, 0xcc080000,
+	{ AP, 0x0c080000a0000000, 0xcc080000f0000002,
 		N("cvt"), T(cvtmod), N("s8"), LDST, T(cvtiisrc) },
 
 
 	// b
-	{ AP, 0xb0000000, 0xf0000002, 0x00000000, 0xe0000000,
+	{ AP, 0x00000000b0000000, 0xe0000000f0000002,
 		N("add"), T(af32r),  N("f32"), LLDST, T(lneg1), T(lsw), T(lneg2), T(lc3w) },
-	{ AP, 0xb0000000, 0xf0000002, 0x20000000, 0xe0000000,
+	{ AP, 0x20000000b0000000, 0xe0000000f0000002,
 		N("add sat"), T(af32r),  N("f32"), LLDST, T(lneg1), T(lsw), T(lneg2), T(lc3w) },
-	{ AP, 0xb0000000, 0xf0000002, 0x80000000, 0xe0000000,
+	{ AP, 0x80000000b0000000, 0xe0000000f0000002,
 		N("max f32"), LLDST, T(lfm1), T(lsw), T(lfm2), T(lc2w) },
-	{ AP, 0xb0000000, 0xf0000002, 0xa0000000, 0xe0000000,
+	{ AP, 0xa0000000b0000000, 0xe0000000f0000002,
 		N("min f32"), LLDST, T(lfm1), T(lsw), T(lfm2), T(lc2w) },
 
-	{ AP, 0xb0000000, 0xf0000002, 0x60000000, 0xe0000000,
+	{ AP, 0x60000000b0000000, 0xe0000000f0000002,
 		N("set"), T(setf), N("f32"), MCDST, LLDST, T(lfm1), T(lsw), T(lfm2), T(lc2w) },
 
-	{ AP, 0xb0000000, 0xf0000002, 0xc0000000, 0xe0004000,
+	{ AP, 0xc0000000b0000000, 0xe0004000f0000002,
 		N("presin f32"), LLDST, T(lsw) },
-	{ AP, 0xb0000000, 0xf0000002, 0xc0004000, 0xe0004000,
+	{ AP, 0xc0004000b0000000, 0xe0004000f0000002,
 		N("preex2 f32"), LLDST, T(lsw) },
 	/* preex2 converts float to fixed point, results:
 	 * 0-0x3fffffff: 7.23 fixed-point number
@@ -1613,116 +1552,113 @@ struct insn tabl[] = {
 	 */
 
 	// c
-	{ AP, 0xc0000000, 0xf0000002, 0x00000000, 0xe0000000,
+	{ AP, 0x00000000c0000000, 0xe0000000f0000002,
 		N("mul"), T(mf32r), N("f32"), LLDST, T(lneg1), T(lsw), T(lneg2), T(lc2w) },
 
-	{ AP, 0xc0000000, 0xf0040002, 0x80000000, 0xf0000000,
+	{ AP, 0x80000000c0000000, 0xf0000000f0040002,
 		N("quadop f32"), T(qop0), T(qop1), T(qop2), T(qop3), MCDST, LLDST, T(qs1), LSRC, LSRC3 },
 
-	{ AP, 0xc0140000, 0xf0150002, 0x89800000, 0x8bc00000,	// XXX fuck me harder.
+	{ AP, 0x89800000c0140000, 0x8bc00000f0150002,	// XXX fuck me harder.
 		N("dfdx f32"), LDST, LSRC, LSRC3 },
-	{ AP, 0xc0150000, 0xf0150002, 0x8a400000, 0x8bc00000,
+	{ AP, 0x8a400000c0150000, 0x8bc00000f0150002,
 		N("dfdy f32"), LDST, LSRC, LSRC3 },
 
 	// d
-	{ AP, 0xd0000000, 0xf0000002, 0x00000000, 0xe400c000,
+	{ AP, 0x00000000d0000000, 0xe400c000f0000002,
 		N("and"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
-	{ AP, 0xd0000000, 0xf0000002, 0x04000000, 0xe400c000,
+	{ AP, 0x04000000d0000000, 0xe400c000f0000002,
 		N("and"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
-	{ AP, 0xd0000000, 0xf0000002, 0x00004000, 0xe400c000,
+	{ AP, 0x00004000d0000000, 0xe400c000f0000002,
 		N("or"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
-	{ AP, 0xd0000000, 0xf0000002, 0x04004000, 0xe400c000,
+	{ AP, 0x04004000d0000000, 0xe400c000f0000002,
 		N("or"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
-	{ AP, 0xd0000000, 0xf0000002, 0x00008000, 0xe400c000,
+	{ AP, 0x00008000d0000000, 0xe400c000f0000002,
 		N("xor"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
-	{ AP, 0xd0000000, 0xf0000002, 0x04008000, 0xe400c000,
+	{ AP, 0x04008000d0000000, 0xe400c000f0000002,
 		N("xor"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
-	{ AP, 0xd0000000, 0xf0000002, 0x0000c000, 0xe400c000,
+	{ AP, 0x0000c000d0000000, 0xe400c000f0000002,
 		N("mov2"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
-	{ AP, 0xd0000000, 0xf0000002, 0x0400c000, 0xe400c000,
+	{ AP, 0x0400c000d0000000, 0xe400c000f0000002,
 		N("mov2"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
 
-	{ AP, 0xd0000000, 0xf0000002, 0x20000000, 0xe0000000,
+	{ AP, 0x20000000d0000000, 0xe0000000f0000002,
 		N("add"), ADST, AREG, OFFS },
 
-	{ AP, 0xd0000000, 0xf0000002, 0x40000000, 0xe0000000,
+	{ AP, 0x40000000d0000000, 0xe0000000f0000002,
 		N("mov"), T(ldstm), T(ldsto), LOCAL },
-	{ AP, 0xd0000000, 0xf0000002, 0x60000000, 0xe0000000,
+	{ AP, 0x60000000d0000000, 0xe0000000f0000002,
 		N("mov"), T(ldstm), LOCAL, T(ldsto) },
 
-	{ CP, 0xd0000000, 0xf0000002, 0x80000000, 0xe0000000,
+	{ CP, 0x80000000d0000000, 0xe0000000f0000002,
 		N("mov"), T(ldstm), T(ldsto), GLOBAL },
-	{ CP, 0xd0000000, 0xf0000002, 0xa0000000, 0xe0000000,
+	{ CP, 0xa0000000d0000000, 0xe0000000f0000002,
 		N("mov"), T(ldstm), GLOBAL, T(ldsto) },
-	{ CP, 0xd0000000, 0xf0000002, 0xc0000000, 0xe0000000,
+	{ CP, 0xc0000000d0000000, 0xe0000000f0000002,
 		T(redm), GLOBAL, T(ldsto) },
-	{ CP, 0xd0000000, 0xf0000002, 0xe0000000, 0xe0000000,
+	{ CP, 0xe0000000d0000000, 0xe0000000f0000002,
 		T(atomm), T(ldsto), GLOBAL2, T(ldsts2), T(mldsts3) },
 
 	// e
-	{ AP, 0xe0000000, 0xf0000002, 0x00000000, 0xe0000000,
+	{ AP, 0x00000000e0000000, 0xe0000000f0000002,
 		N("mad f32"), LLDST, T(lneg1), T(lsw), T(lc2w), T(lneg2), T(lc3w) },	// XXX what happens if you try both?
-	{ AP, 0xe0000000, 0xf0000002, 0x20000000, 0xe0000000,
+	{ AP, 0x20000000e0000000, 0xe0000000f0000002,
 		N("mad sat f32"), LLDST, T(lneg1), T(lsw), T(lc2w), T(lneg2), T(lc3w) },	// XXX what happens if you try both?
 
-	{ AP, 0xe0000000, 0xf0000002, 0x40000000, 0xe0000000,
+	{ AP, 0x40000000e0000000, 0xe0000000f0000002,
 		N("mad"), T(mad64r), N("f64"), LDDST, T(lneg1), LDSRC, LDSRC2, T(lneg2), LDSRC3 },
-	{ AP, 0xe0000000, 0xf0000002, 0x60000000, 0xe0000000,
+	{ AP, 0x60000000e0000000, 0xe0000000f0000002,
 		N("add"), T(af64r), N("f64"), LDDST, T(lneg1), LDSRC, T(lneg2), LDSRC3 },
-	{ AP, 0xe0000000, 0xf0000002, 0x80000000, 0xe0000000,
+	{ AP, 0x80000000e0000000, 0xe0000000f0000002,
 		N("mul"), T(cvtrnd), N("f64"), LDDST, T(lneg1), LDSRC, LDSRC2 },
-	{ AP, 0xe0000000, 0xf0000002, 0xa0000000, 0xe0000000,
+	{ AP, 0xa0000000e0000000, 0xe0000000f0000002,
 		N("min"), N("f64"), LDDST, T(lfm1), LDSRC, T(lfm2), LDSRC2 },
-	{ AP, 0xe0000000, 0xf0000002, 0xc0000000, 0xe0000000,
+	{ AP, 0xc0000000e0000000, 0xe0000000f0000002,
 		N("max"), N("f64"), LDDST, T(lfm1), LDSRC, T(lfm2), LDSRC2 },
-	{ AP, 0xe0000000, 0xf0000002, 0xe0000000, 0xe0000000,
+	{ AP, 0xe0000000e0000000, 0xe0000000f0000002,
 		N("set"), T(setf), N("f64"), MCDST, LLDST, T(lfm1), LDSRC, T(lfm2), LDSRC2 },
 
 	// f
-	{ AP, 0xf0000000, 0xf9000002, 0x00000000, 0xf0000000, // order of inputs: x, y, z, index, dref, bias/lod. index is integer, others float.
-		N("texauto"), T(ltex), LTDST, TEX, LTSRC, TOFFX, TOFFY, TOFFZ },
-	{ AP, 0xf8000000, 0xf9000002, 0x00000000, 0xf0000000,
-		N("texauto cube"), T(ltex), LTDST, TEX, LTSRC },
+	{ AP, 0x00000000f0000000, 0xf0000000f9000002, // order of inputs: x, y, z, index, dref, bias/lod. index is integer, others float.
+		N("texauto"), T(texf), LTDST, TEX, LTSRC, TOFFX, TOFFY, TOFFZ },
+	{ AP, 0x00000000f8000000, 0xf0000000f9000002,
+		N("texauto cube"), T(texf), LTDST, TEX, LTSRC },
 
-	{ AP, 0xf1000000, 0xf1000002, 0x00000000, 0xf0000000, // takes integer inputs.
-		N("texfetch"), T(ltex), LTDST, TEX, LTSRC, TOFFX, TOFFY, TOFFZ },
+	{ AP, 0x00000000f1000000, 0xf0000000f1000002, // takes integer inputs.
+		N("texfetch"), T(texf), LTDST, TEX, LTSRC, TOFFX, TOFFY, TOFFZ },
 
-	{ AP, 0xf0000000, 0xf8000002, 0x20000000, 0xf0000000, // bias needs to be same for everything, or else.
-		N("texbias"), T(ltex), LTDST, TEX, LTSRC, TOFFX, TOFFY, TOFFZ },
-	{ AP, 0xf8000000, 0xf8000002, 0x20000000, 0xf0000000,
-		N("texbias cube"), T(ltex), LTDST, TEX, LTSRC },
+	{ AP, 0x20000000f0000000, 0xf0000000f8000002, // bias needs to be same for everything, or else.
+		N("texbias"), T(texf), LTDST, TEX, LTSRC, TOFFX, TOFFY, TOFFZ },
+	{ AP, 0x20000000f8000000, 0xf0000000f8000002,
+		N("texbias cube"), T(texf), LTDST, TEX, LTSRC },
 
-	{ AP, 0xf0000000, 0xf8000002, 0x40000000, 0xf0000000, // lod needs to be same for everything, or else.
-		N("texlod"), T(ltex), LTDST, TEX, LTSRC, TOFFX, TOFFY, TOFFZ },
-	{ AP, 0xf8000000, 0xf8000002, 0x40000000, 0xf0000000,
-		N("texlod cube"), T(ltex), LTDST, TEX, LTSRC },
+	{ AP, 0x40000000f0000000, 0xf0000000f8000002, // lod needs to be same for everything, or else.
+		N("texlod"), T(texf), LTDST, TEX, LTSRC, TOFFX, TOFFY, TOFFZ },
+	{ AP, 0x40000000f8000000, 0xf0000000f8000002,
+		N("texlod cube"), T(texf), LTDST, TEX, LTSRC },
 
-	{ AP, 0xf0000000, 0xf0000002, 0x60000000, 0xf0000000, // integer input and output.
-		N("texsize"), T(ltex), LTDST, TEX, LDST }, // in: LOD, out: size.x, size.y, size.z
+	{ AP, 0x60000000f0000000, 0xf0000000f0000002, // integer input and output.
+		N("texsize"), T(texf), LTDST, TEX, LDST }, // in: LOD, out: size.x, size.y, size.z
 
-	{ GP, 0xf0000200, 0xf0000602, 0xc0000000, 0xe0000000, N("emit") },
-	{ GP, 0xf0000400, 0xf0000602, 0xc0000000, 0xe0000000, N("restart") },
+	{ GP, 0xc0000000f0000200, 0xe0000000f0000602, N("emit") },
+	{ GP, 0xc0000000f0000400, 0xe0000000f0000602, N("restart") },
 
-	{ AP, 0xf0000000, 0xf0000002, 0xe0000000, 0xe0000004, N("nop") },
-	{ AP, 0xf0000000, 0xf0000002, 0xe0000004, 0xe0000004, N("pmevent"), PM },
+	{ AP, 0xe0000000f0000000, 0xe0000004f0000002, N("nop") },
+	{ AP, 0xe0000004f0000000, 0xe0000004f0000002, N("pmevent"), PM },
 
-	{ FP, 0x00000002, 0xf0000002, 0, 0, N("discard") },
-	{ AP, 0x10000002, 0xf0000002, 0, 0, N("bra"), CTARG },
-	{ AP, 0x20000002, 0xf0000002, 0, 0, N("call"), CTARG },
-	{ AP, 0x30000002, 0xf0000002, 0, 0, N("ret") },
-	{ AP, 0x60000002, 0xf0000002, 0, 0, N("quadon") },
-	{ AP, 0x70000002, 0xf0000002, 0, 0, N("quadpop") },
-	{ AP, 0x861ffe02, 0xf61ffe02, 0, 0, N("bar sync"), BAR },
-	{ AP, 0x90000002, 0xf0000002, 0, 0, N("trap") },
-	{ AP, 0xa0000002, 0xf0000002, 0, 0, N("joinat"), CTARG },
-	{ AP, 0xb0000002, 0xf0000002, 0, 0, N("brkpt") }, // sm_11
+	{ FP, 0x00000002, 0xf0000002, N("discard") },
+	{ AP, 0x10000002, 0xf0000002, N("bra"), CTARG },
+	{ AP, 0x20000002, 0xf0000002, N("call"), CTARG },
+	{ AP, 0x30000002, 0xf0000002, N("ret") },
+	{ AP, 0x60000002, 0xf0000002, N("quadon") },
+	{ AP, 0x70000002, 0xf0000002, N("quadpop") },
+	{ AP, 0x861ffe02, 0xf61ffe02, N("bar sync"), BAR },
+	{ AP, 0x90000002, 0xf0000002, N("trap") },
+	{ AP, 0xa0000002, 0xf0000002, N("joinat"), CTARG },
+	{ AP, 0xb0000002, 0xf0000002, N("brkpt") }, // sm_11
 	
 	// try to print out *some* info.
-//	{ 0, 2, 0x00000000, 0x04000000, { OOPS, LHDST, T(lsh), T(lc3h) },
-//	{ 0, 2, 0x04000000, 0x04000000, { OOPS, LLDST, T(lsw), T(lc3w) },
-	// remaining stuff is floating point, no use for b16.
-	{ AP, 0, 2, 0, 0, OOPS, MCDST, LLDST, T(lsw), T(lc2w), T(lc3w) },
-	{ AP, 0, 0, 0, 0, OOPS },
+	{ AP, 0, 2, OOPS, MCDST, LLDST, T(lsw), T(lc2w), T(lc3w) },
+	{ AP, 0, 0, OOPS },
 
 };
 
@@ -1730,38 +1666,38 @@ struct insn tabl[] = {
  * Predicates
  */
 struct insn tabp[] = {
-	{ AP, 0, 0, 0x00000000, 0x00000f80, N("never") },
-	{ AP, 0, 0, 0x00000080, 0x00000f80, N("l"), COND },
-	{ AP, 0, 0, 0x00000100, 0x00000f80, N("e"), COND },
-	{ AP, 0, 0, 0x00000180, 0x00000f80, N("le"), COND },
-	{ AP, 0, 0, 0x00000200, 0x00000f80, N("g"), COND },
-	{ AP, 0, 0, 0x00000280, 0x00000f80, N("lg"), COND },
-	{ AP, 0, 0, 0x00000300, 0x00000f80, N("ge"), COND },
-	{ AP, 0, 0, 0x00000380, 0x00000f80, N("lge"), COND },
-	{ AP, 0, 0, 0x00000400, 0x00000f80, N("u"), COND },
-	{ AP, 0, 0, 0x00000480, 0x00000f80, N("lu"), COND },
-	{ AP, 0, 0, 0x00000500, 0x00000f80, N("eu"), COND },
-	{ AP, 0, 0, 0x00000580, 0x00000f80, N("leu"), COND },
-	{ AP, 0, 0, 0x00000600, 0x00000f80, N("gu"), COND },
-	{ AP, 0, 0, 0x00000680, 0x00000f80, N("lgu"), COND },
-	{ AP, 0, 0, 0x00000700, 0x00000f80, N("geu"), COND },
-	{ AP, 0, 0, 0x00000780, 0x00000f80 },
-	{ AP, 0, 0, 0x00000800, 0x00000f80, N("o"), COND },
-	{ AP, 0, 0, 0x00000880, 0x00000f80, N("c"), COND },
-	{ AP, 0, 0, 0x00000900, 0x00000f80, N("a"), COND },
-	{ AP, 0, 0, 0x00000980, 0x00000f80, N("s"), COND },
-	{ AP, 0, 0, 0x00000e00, 0x00000f80, N("ns"), COND },
-	{ AP, 0, 0, 0x00000e80, 0x00000f80, N("na"), COND },
-	{ AP, 0, 0, 0x00000f00, 0x00000f80, N("nc"), COND },
-	{ AP, 0, 0, 0x00000f80, 0x00000f80, N("no"), COND },
-	{ AP, 0, 0, 0, 0, OOPS },
+	{ AP, 0x0000000000000000, 0x00000f8000000000, N("never") },
+	{ AP, 0x0000008000000000, 0x00000f8000000000, N("l"), COND },
+	{ AP, 0x0000010000000000, 0x00000f8000000000, N("e"), COND },
+	{ AP, 0x0000018000000000, 0x00000f8000000000, N("le"), COND },
+	{ AP, 0x0000020000000000, 0x00000f8000000000, N("g"), COND },
+	{ AP, 0x0000028000000000, 0x00000f8000000000, N("lg"), COND },
+	{ AP, 0x0000030000000000, 0x00000f8000000000, N("ge"), COND },
+	{ AP, 0x0000038000000000, 0x00000f8000000000, N("lge"), COND },
+	{ AP, 0x0000040000000000, 0x00000f8000000000, N("u"), COND },
+	{ AP, 0x0000048000000000, 0x00000f8000000000, N("lu"), COND },
+	{ AP, 0x0000050000000000, 0x00000f8000000000, N("eu"), COND },
+	{ AP, 0x0000058000000000, 0x00000f8000000000, N("leu"), COND },
+	{ AP, 0x0000060000000000, 0x00000f8000000000, N("gu"), COND },
+	{ AP, 0x0000068000000000, 0x00000f8000000000, N("lgu"), COND },
+	{ AP, 0x0000070000000000, 0x00000f8000000000, N("geu"), COND },
+	{ AP, 0x0000078000000000, 0x00000f8000000000 },
+	{ AP, 0x0000080000000000, 0x00000f8000000000, N("o"), COND },
+	{ AP, 0x0000088000000000, 0x00000f8000000000, N("c"), COND },
+	{ AP, 0x0000090000000000, 0x00000f8000000000, N("a"), COND },
+	{ AP, 0x0000098000000000, 0x00000f8000000000, N("s"), COND },
+	{ AP, 0x00000e0000000000, 0x00000f8000000000, N("ns"), COND },
+	{ AP, 0x00000e8000000000, 0x00000f8000000000, N("na"), COND },
+	{ AP, 0x00000f0000000000, 0x00000f8000000000, N("nc"), COND },
+	{ AP, 0x00000f8000000000, 0x00000f8000000000, N("no"), COND },
+	{ AP, 0, 0, OOPS },
 };
 
 struct insn tab2w[] = {
-	{ AP, 0, 0, 0, 3, T(p), T(l) },
-	{ AP, 0, 0, 1, 3, T(p), T(l), NL, N("exit") },
-	{ AP, 0, 0, 2, 3, N("join"), NL, T(p), T(l) },
-	{ AP, 0, 0, 3, 3, T(i) },
+	{ AP, 0x0000000000000000, 0x0000000300000000, T(p), T(l) },
+	{ AP, 0x0000000100000000, 0x0000000300000000, T(p), T(l), NL, N("exit") },
+	{ AP, 0x0000000200000000, 0x0000000300000000, N("join"), NL, T(p), T(l) },
+	{ AP, 0x0000000300000000, 0x0000000300000000, T(i) },
 };
 
 /*
@@ -1776,32 +1712,29 @@ struct insn tab2w[] = {
 void nv50dis (FILE *out, uint32_t *code, int num, int ptype) {
 	int cur = 0;
 	while (cur < num) {
-		uint32_t a[2] = {code[cur], 0}, m[2] = { 0, 0 };
+		ull a = code[cur], m = 0;
 		fprintf (out, "%s%08x: %s", cgray, cur*4, cnorm);
 		if (code[cur++]&1) {
 			if (cur >= num) {
-				fprintf (out, "%08x          ", a[0]);
+				fprintf (out, "        %08llx ", a);
 				fprintf (out, "%sincomplete%s\n", cred, cnorm);
 				return;
 			}
 /*			if (!(cur&1)) {
-				fprintf (out, "%08x          ", a);
+				fprintf (out, "        %08x ", a);
 				fprintf (out, "%smisaligned%s\n", cred, cnorm);
 				continue;
 			}*/
-			a[1] = code[cur++];
-			fprintf (out, "%08x %08x", a[0], a[1]);
+			a |= (ull)code[cur++] << 32;
+			fprintf (out, "%016llx", a);
 		} else {
-			fprintf (out, "%08x         ", a[0]);
+			fprintf (out, "        %08llx", a);
 		}
-		struct insn *tab = ((a[0]&1)?tab2w:tabs);
-		atomtab (out, a, m, tab, ptype);
-		a[0] &= ~m[0];
-		a[1] &= ~m[1];
-		if (a[0] & ~1 || a[1]) {
-			fprintf (out, " %s[unknown: %08x", cred, a[0]&~1);
-			if (a[0]&1) fprintf (out, " %08x", a[1]);
-			fprintf (out, "]%s", cnorm);
+		struct insn *tab = ((a&1)?tab2w:tabs);
+		atomtab (out, &a, &m, tab, ptype);
+		a &= ~m;
+		if (a & ~1ull) {
+			fprintf (out, (a&1?" %s[unknown: %016llx]%s":" %s[unknown: %08llx]%s"), cred, a&~1ull, cnorm);
 		}
 		printf ("%s\n", cnorm);
 	}
