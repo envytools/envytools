@@ -1705,7 +1705,7 @@ struct insn tabc[] = {
 	{ AP, 0x30000000, 0xf0000000, T(p), N("ret") },
 	{ AP, 0x60000000, 0xf0000000, IGNPRED, N("quadon") },
 	{ AP, 0x70000000, 0xf0000000, IGNPRED, N("quadpop") },
-	{ AP, 0x861ffe00, 0xf61ffe00, T(p), N("bar sync"), BAR }, // predicates? hm
+	{ AP, 0x861ffe00, 0xf61ffe00, IGNPRED, N("bar sync"), BAR },
 	{ AP, 0x90000000, 0xf0000000, IGNPRED, N("trap") },
 	{ AP, 0xa0000000, 0xf0000000, IGNPRED, N("joinat"), CTARG },
 	{ AP, 0xb0000000, 0xf0000000, T(p), N("brkpt") }, // sm_11. check predicates.
