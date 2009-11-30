@@ -305,7 +305,7 @@ char cmag[] = "\x1b[35m";	// pink: funny registers
  * This doesn't work for $a, as there is a special case here: only the first
  * field using it actually gets its value, next ones just use 0. This is
  * hacked around by zeroing out the field directly in passed opcode parameter
- * in the op reading it. This gives proper behavior on stuff like add $r0,
+ * in the op reading it. This gives proper behavior on stuff like add b32 $r0,
  * s[$a1+0x4], c0[0x10].
  *
  * Macros provided for quickly getting the bitfields: BF(...) gets value of
@@ -848,8 +848,8 @@ struct insn tabsnot1[] = {
 };
 
 struct insn tabas[] = {
-	{ AP, 0x00000000, 0x00008000, T(ssat), SHDST, T(ssh), T(sch) },
-	{ AP, 0x00008000, 0x00008000, T(ssat), SDST, T(ssw), T(scw) },
+	{ AP, 0x00000000, 0x00008000, T(ssat), N("b16"), SHDST, T(ssh), T(sch) },
+	{ AP, 0x00008000, 0x00008000, T(ssat), N("b32"), SDST, T(ssw), T(scw) },
 	{ AP, 0, 0, OOPS }
 };
 
@@ -892,8 +892,8 @@ struct insn tabsslus2[] = {
 
 struct insn tabs[] = {
 	// SCAN 0-1
-	{ AP, 0x10000000, 0xf0008002, N("mov"), SHDST, T(ssh) },
-	{ AP, 0x10008000, 0xf0008002, N("mov"), SDST, T(ssw) },
+	{ AP, 0x10000000, 0xf0008002, N("mov"), N("b16"), SHDST, T(ssh) },
+	{ AP, 0x10008000, 0xf0008002, N("mov"), N("b32"), SDST, T(ssw) },
 
 	{ AP, 0x20000000, 0xf0400002, N("add"), T(as) },
 	{ AP, 0x20400000, 0xf0400002, N("sub"), T(as) },
@@ -943,15 +943,15 @@ struct insn tabs[] = {
  */
 
 struct insn tabgi[] = {
-	{ AP, 0x00000000, 0x00008000, T(ssat), SHDST, T(ssh), IMM },
-	{ AP, 0x00008000, 0x00008000, T(ssat), SDST, T(ssw), IMM },
+	{ AP, 0x00000000, 0x00008000, T(ssat), N("b16"), SHDST, T(ssh), IMM },
+	{ AP, 0x00008000, 0x00008000, T(ssat), N("b32"), SDST, T(ssw), IMM },
 	{ AP, 0, 0, OOPS }
 };
 
 struct insn tabi[] = {
 	// SCAN 0-1
-	{ AP, 0x10000000, 0xf0008000, N("mov"), LHDST, IMM },
-	{ AP, 0x10008000, 0xf0008000, N("mov"), LDST, IMM },	// yes. LDST. special case.
+	{ AP, 0x10000000, 0xf0008000, N("mov"), N("b16"), LHDST, IMM },
+	{ AP, 0x10008000, 0xf0008000, N("mov"), N("b32"), LDST, IMM },	// yes. LDST. special case.
 
 	{ AP, 0x20000000, 0xf0400000, N("add"), T(gi) },
 	{ AP, 0x20400000, 0xf0400000, N("sub"), T(gi) },
@@ -968,10 +968,10 @@ struct insn tabi[] = {
 
 	{ AP, 0xc0000000, 0xf0000000, N("mul f32"), SDST, T(sneg1), T(ssw), T(sneg2), IMM },
 
-	{ AP, 0xd0000000, 0xf0008100, N("and"), SDST, T(snot1), T(ssw), IMM },
-	{ AP, 0xd0000100, 0xf0008100, N("or"), SDST, T(snot1), T(ssw), IMM },
-	{ AP, 0xd0008000, 0xf0008100, N("xor"), SDST, T(snot1), T(ssw), IMM },
-	{ AP, 0xd0008100, 0xf0008100, N("mov2"), SDST, T(snot1), T(ssw), IMM },
+	{ AP, 0xd0000000, 0xf0008100, N("and"), N("b32"), SDST, T(snot1), T(ssw), IMM },
+	{ AP, 0xd0000100, 0xf0008100, N("or"), N("b32"), SDST, T(snot1), T(ssw), IMM },
+	{ AP, 0xd0008000, 0xf0008100, N("xor"), N("b32"), SDST, T(snot1), T(ssw), IMM },
+	{ AP, 0xd0008100, 0xf0008100, N("mov2"), N("b32"), SDST, T(snot1), T(ssw), IMM },
 
 	{ AP, 0xe0000000, 0xf0000000, N("mad"), T(ssat), N("f32"), SDST, T(sneg1), T(ssw), IMM, T(sneg2), SDST },
 
@@ -1013,8 +1013,8 @@ F(hshcnt, 0x34, T(lc2h), SHCNT)
 F1(lasat, 0x3b, N("sat"))
 
 struct insn tabla[] = {
-	{ AP, 0x0000000000000000ull, 0x0400000000000000ull, T(lasat), MCDST, LLHDST, T(lsh), T(lc3h) },
-	{ AP, 0x0400000000000000ull, 0x0400000000000000ull, T(lasat), MCDST, LLDST, T(lsw), T(lc3w) },
+	{ AP, 0x0000000000000000ull, 0x0400000000000000ull, N("b16"), T(lasat), MCDST, LLHDST, T(lsh), T(lc3h) },
+	{ AP, 0x0400000000000000ull, 0x0400000000000000ull, N("b32"), T(lasat), MCDST, LLDST, T(lsw), T(lc3w) },
 };
 
 struct insn tabldstm[] = {
@@ -1300,6 +1300,13 @@ struct insn tabsreg[] = {
 	{ AP, 0x0001c00000000000ull, 0x0001c00000000000ull, N("pm3") },
 };
 
+struct insn tablogop[] = {
+	{ AP, 0x0000000000000000ull, 0x0000c00000000000ull, N("and") },
+	{ AP, 0x0000400000000000ull, 0x0000c00000000000ull, N("or") },
+	{ AP, 0x0000800000000000ull, 0x0000c00000000000ull, N("xor") },
+	{ AP, 0x0000c00000000000ull, 0x0000c00000000000ull, N("mov2") },
+};
+
 F(lm24us, 0x2e, N("u24"), N("s24"))
 F1(lm24high, 0x2e, N("high"))
 
@@ -1307,7 +1314,7 @@ F1(lm24high, 0x2e, N("high"))
 struct insn tabl[] = {
 	// 0
 	{ VP|GP, 0x0420000000000000ull, 0xe4200000f0000000ull,
-		T(lane), N("mov"), LLDST, FATTR },
+		T(lane), N("mov"), N("b32"), LLDST, FATTR },
 	{ AP, 0x2000000000000000ull, 0xe0000000f0000000ull,
 		N("mov"), LDST, COND },
 	{ AP, 0x4000000000000000ull, 0xe0000000f0000000ull,
@@ -1331,9 +1338,9 @@ struct insn tabl[] = {
 
 	// 1
 	{ AP, 0x0000000010000000ull, 0xe4000000f0000000ull,
-		T(lane), N("mov"), LLHDST, T(lsh) },
+		T(lane), N("mov"), N("b16"), LLHDST, T(lsh) },
 	{ AP, 0x0400000010000000ull, 0xe4000000f0000000ull,
-		T(lane), N("mov"), LLDST, T(lsw) },
+		T(lane), N("mov"), N("b32"), LLDST, T(lsw) },
 
 	{ AP, 0x2000000010000000ull, 0xe4000000f0000000ull,
 		N("mov b16"), LLHDST, T(fcon) },
@@ -1593,22 +1600,10 @@ struct insn tabl[] = {
 		N("dfdy f32"), LDST, LSRC, LSRC3 },
 
 	// d
-	{ AP, 0x00000000d0000000ull, 0xe400c000f0000000ull,
-		N("and"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
-	{ AP, 0x04000000d0000000ull, 0xe400c000f0000000ull,
-		N("and"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
-	{ AP, 0x00004000d0000000ull, 0xe400c000f0000000ull,
-		N("or"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
-	{ AP, 0x04004000d0000000ull, 0xe400c000f0000000ull,
-		N("or"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
-	{ AP, 0x00008000d0000000ull, 0xe400c000f0000000ull,
-		N("xor"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
-	{ AP, 0x04008000d0000000ull, 0xe400c000f0000000ull,
-		N("xor"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
-	{ AP, 0x0000c000d0000000ull, 0xe400c000f0000000ull,
-		N("mov2"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
-	{ AP, 0x0400c000d0000000ull, 0xe400c000f0000000ull,
-		N("mov2"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
+	{ AP, 0x00000000d0000000ull, 0xe4000000f0000000ull,
+		T(logop), N("b16"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
+	{ AP, 0x04000000d0000000ull, 0xe4000000f0000000ull,
+		T(logop), N("b32"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
 
 	{ AP, 0x20000000d0000000ull, 0xe0000000f0000000ull,
 		N("add"), ADST, AREG, OFFS },
