@@ -1,7 +1,7 @@
 Queue for immediate execution:
 
  - mad madness
- - mul24/mad24 with immediates. and short forms. and negations.
+ - mad24 with immediates. and short forms. and negations.
  - const spaces: how many bits do addresses have?
  - cvt with rounding modes. also, what does it do?
  - mad with rounding modes
@@ -17,7 +17,6 @@ Predicates
 Counting stuff
  - $a5-$a7?
  - how to set up all the memory spaces and how big are they?
- - sad.f32?
 Misc
  - orthogofuckingnalise cvt. MORE.
  - try to make sense and orthogonalise atomic stuff and load/stores.
@@ -47,7 +46,6 @@ Shader-related:
 
 Needs to be checked experimentaly by running code:
  - what exactly happens when DST is unallocated?
- - what do presin and preex2 do, exactly?
  - check all addressing bit combinations with long, short, immediate insns.
    try to involve instructions with all possible argcnts.
  - verify multi-$a addressing...
@@ -60,6 +58,5 @@ On non-CP:
  - check exact encoding for a[] and v[], figure out size and what's in there.
  - g[] possible?
 Needs sm_12 or sm_13:
- - output of vote: just negative 0 flag?
  - cvt weirdness: cvt.rpi.f64 on 1.25, cvt.rmi.f64 on -1.25
  - how does shared atomic work with locking/unlocking exactly?
