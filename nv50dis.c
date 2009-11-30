@@ -1192,7 +1192,7 @@ F(lus2, 0x2e, N("u"), N("s"))
 F(lusm2, 0x3b, N("u"), N("s"))
 
 F1(dtex, 0x23, N("deriv")) // suspected to enable implicit derivatives on non-FPs.
-F(ltex, 0x23, N("all"), N("live"))
+F(ltex, 0x22, N("all"), N("live"))
 
 struct insn tabtexf[] = {
 	{ AP, 0, 0, T(ltex), T(dtex) },
