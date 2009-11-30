@@ -803,6 +803,21 @@ struct insn tabls[] = {
  * Short instructions
  */
 
+// various stuff available for filling the misc bits.
+
+F1(sm1sat, 8, N("sat"))
+F(sm1us16, 8, N("u16"), N("s16"))
+F1(sm1high, 8, N("high"))
+F(sm1tex, 8, N("all"), N("live"))
+
+F1(sm2neg, 0xf, N("neg"))
+F(sm2us16, 0xf, N("u16"), N("s16"))
+F(sm2us24, 0xf, N("u24"), N("s24"))
+F(sslus2, 0xf, N("u32"), N("s32"))
+
+F1(sm3neg, 0x16, N("neg"))
+F1(sm3not, 0x16, N("not"))
+
 struct insn tabssh[] = {
 	{ AP, 0x00000000, 0x01000000, SHSRC },
 	{ AP, 0x01000000, 0x01000000, T(ss) },
@@ -827,19 +842,11 @@ struct insn tabscw[] = {
 	{ AP, 0, 0, OOPS }
 };
 
-F1(ssat, 8, N("sat"))
-F1(sneg1, 0xf, N("neg"))
-F1(sneg2, 0x16, N("neg"))
-F1(snot1, 0x16, N("not"))
-
 struct insn tabas[] = {
-	{ AP, 0x00000000, 0x00008000, T(ssat), N("b16"), SHDST, T(ssh), T(sch) },
-	{ AP, 0x00008000, 0x00008000, T(ssat), N("b32"), SDST, T(ssw), T(scw) },
+	{ AP, 0x00000000, 0x00008000, T(sm1sat), N("b16"), SHDST, T(ssh), T(sch) },
+	{ AP, 0x00008000, 0x00008000, T(sm1sat), N("b32"), SDST, T(ssw), T(scw) },
 	{ AP, 0, 0, OOPS }
 };
-
-F(smus1, 8, N("u16"), N("s16"))
-F(smus2, 0xf, N("u16"), N("s16"))
 
 struct insn tabms[] = {
 	{ AP, 0x00000000, 0x00008100, SDST, N("u16"), T(ssh), T(sch), SDST },
@@ -847,11 +854,6 @@ struct insn tabms[] = {
 	{ AP, 0x00008000, 0x00008100, N("sat"), SDST, N("s16"), T(ssh), T(sch), SDST },
 	{ AP, 0x00008100, 0x00008100, SDST, N("u24"), T(ssw), T(scw), SDST },
 };
-
-F(sm24us, 0xf, N("u24"), N("s24"))
-F1(sm24high, 8, N("high"))
-F(stex, 8, N("all"), N("live"))
-F(sslus2, 0xf, N("u32"), N("s32"))
 
 struct insn tabs[] = {
 	// SCAN 0-1
@@ -863,10 +865,10 @@ struct insn tabs[] = {
 	{ AP, 0x30000000, 0xf0400002, N("subr"), T(as) },
 	{ AP, 0x30400000, 0xf0400002, N("addc"), T(as), C0 },
 
-	{ AP, 0x40000000, 0xf0400002, N("mul"), SDST, T(smus2), T(ssh), T(smus1), T(sch) },
-	{ AP, 0x40400000, 0xf0400002, N("mul"), SDST, T(sm24high), T(sm24us), T(ssw), T(scw) },
+	{ AP, 0x40000000, 0xf0400002, N("mul"), SDST, T(sm2us16), T(ssh), T(sm1us16), T(sch) },
+	{ AP, 0x40400000, 0xf0400002, N("mul"), SDST, T(sm1high), T(sm2us24), T(ssw), T(scw) },
 
-	{ AP, 0x50000000, 0xf0008002, N("sad"), SDST, T(smus1), SHSRC, SHSRC2, SDST },
+	{ AP, 0x50000000, 0xf0008002, N("sad"), SDST, T(sm1us16), SHSRC, SHSRC2, SDST },
 	{ AP, 0x50008000, 0xf0008002, N("sad"), SDST, T(sslus2), SSRC, SSRC2, SDST },
 
 	{ AP, 0x60000000, 0xf0400002, N("madd"), T(ms) },
@@ -887,15 +889,15 @@ struct insn tabs[] = {
 
 	// cvt ? probably not.
 
-	{ AP, 0xb0000000, 0xf0000002, N("add"), T(ssat), N("f32"), SDST, T(sneg1), T(ssw), T(sneg2), T(scw) },
+	{ AP, 0xb0000000, 0xf0000002, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), T(scw) },
 
-	{ AP, 0xc0000000, 0xf0000002, N("mul f32"), SDST, T(sneg1), T(ssw), T(sneg2), T(scw) },
+	{ AP, 0xc0000000, 0xf0000002, N("mul f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), T(scw) },
 	// and
 
 	{ AP, 0xe0000000, 0xf0000002, N("mad f32"), SDST, SSRC, SSRC2, SDST },	// XXX: flags like tabi?
 
-	{ AP, 0xf0000000, 0xf1000002, N("texauto"), T(stex), STDST, TEX, STSRC, IGNDTEX },
-	{ AP, 0xf1000000, 0xf1000002, N("texfetch"), T(stex), STDST, TEX, STSRC, IGNDTEX },
+	{ AP, 0xf0000000, 0xf1000002, N("texauto"), T(sm1tex), STDST, TEX, STSRC, IGNDTEX },
+	{ AP, 0xf1000000, 0xf1000002, N("texfetch"), T(sm1tex), STDST, TEX, STSRC, IGNDTEX },
 
 	{ AP, 0, 2, OOPS, SDST, T(ssw), T(scw) },
 	{ AP, 0, 0, OOPS }
@@ -906,8 +908,8 @@ struct insn tabs[] = {
  */
 
 struct insn tabgi[] = {
-	{ AP, 0x00000000, 0x00008000, T(ssat), N("b16"), SHDST, T(ssh), IMM },
-	{ AP, 0x00008000, 0x00008000, T(ssat), N("b32"), SDST, T(ssw), IMM },
+	{ AP, 0x00000000, 0x00008000, T(sm1sat), N("b16"), SHDST, T(ssh), IMM },
+	{ AP, 0x00008000, 0x00008000, T(sm1sat), N("b32"), SDST, T(ssw), IMM },
 	{ AP, 0, 0, OOPS }
 };
 
@@ -921,22 +923,22 @@ struct insn tabi[] = {
 	{ AP, 0x30000000, 0xf0400000, N("subr"), T(gi) },
 	{ AP, 0x30400000, 0xf0400000, N("add"), T(gi), C0 },
 
-	{ AP, 0x40000000, 0xf0400000, N("mul"), SDST, T(smus2), T(ssh), T(smus1), IMM },
-	{ AP, 0x40400000, 0xf0400000, N("mul"), SDST, T(sm24high), T(sm24us), T(ssw), IMM },
+	{ AP, 0x40000000, 0xf0400000, N("mul"), SDST, T(sm2us16), T(ssh), T(sm1us16), IMM },
+	{ AP, 0x40400000, 0xf0400000, N("mul"), SDST, T(sm1high), T(sm2us24), T(ssw), IMM },
 
 	// SCAN 6-F
-	{ AP, 0x60000000, 0xf0000000, N("mad"), SDST, T(smus1), T(ssh), IMM, SDST },
+	{ AP, 0x60000000, 0xf0000000, N("mad"), SDST, T(sm1us16), T(ssh), IMM, SDST },
 
-	{ AP, 0xb0000000, 0xf0000000, N("add"), T(ssat), N("f32"), SDST, T(sneg1), T(ssw), T(sneg2), IMM },
+	{ AP, 0xb0000000, 0xf0000000, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), IMM },
 
-	{ AP, 0xc0000000, 0xf0000000, N("mul f32"), SDST, T(sneg1), T(ssw), T(sneg2), IMM },
+	{ AP, 0xc0000000, 0xf0000000, N("mul f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), IMM },
 
-	{ AP, 0xd0000000, 0xf0008100, N("and"), N("b32"), SDST, T(snot1), T(ssw), IMM },
-	{ AP, 0xd0000100, 0xf0008100, N("or"), N("b32"), SDST, T(snot1), T(ssw), IMM },
-	{ AP, 0xd0008000, 0xf0008100, N("xor"), N("b32"), SDST, T(snot1), T(ssw), IMM },
-	{ AP, 0xd0008100, 0xf0008100, N("mov2"), N("b32"), SDST, T(snot1), T(ssw), IMM },
+	{ AP, 0xd0000000, 0xf0008100, N("and"), N("b32"), SDST, T(sm3not), T(ssw), IMM },
+	{ AP, 0xd0000100, 0xf0008100, N("or"), N("b32"), SDST, T(sm3not), T(ssw), IMM },
+	{ AP, 0xd0008000, 0xf0008100, N("xor"), N("b32"), SDST, T(sm3not), T(ssw), IMM },
+	{ AP, 0xd0008100, 0xf0008100, N("mov2"), N("b32"), SDST, T(sm3not), T(ssw), IMM },
 
-	{ AP, 0xe0000000, 0xf0000000, N("mad"), T(ssat), N("f32"), SDST, T(sneg1), T(ssw), IMM, T(sneg2), SDST },
+	{ AP, 0xe0000000, 0xf0000000, N("mad"), T(sm1sat), N("f32"), SDST, T(sm2neg), T(ssw), IMM, T(sm3neg), SDST },
 
 	{ AP, 0, 2, OOPS, SDST, T(ssw), IMM },
 	{ AP, 0, 0, OOPS }
