@@ -827,25 +827,10 @@ struct insn tabscw[] = {
 	{ AP, 0, 0, OOPS }
 };
 
-struct insn tabssat[] = {
-	{ AP, 0x00000000, 0x00000100 },
-	{ AP, 0x00000100, 0x00000100, N("sat") },
-};
-
-struct insn tabsneg1[] = {
-	{ AP, 0x00000000, 0x00008000 },
-	{ AP, 0x00008000, 0x00008000, N("neg") },
-};
-
-struct insn tabsneg2[] = {
-	{ AP, 0x00000000, 0x00400000 },
-	{ AP, 0x00400000, 0x00400000, N("neg") },
-};
-
-struct insn tabsnot1[] = {
-	{ AP, 0x00000000, 0x00400000 },
-	{ AP, 0x00400000, 0x00400000, N("not") },
-};
+F1(ssat, 8, N("sat"))
+F1(sneg1, 0xf, N("neg"))
+F1(sneg2, 0x16, N("neg"))
+F1(snot1, 0x16, N("not"))
 
 struct insn tabas[] = {
 	{ AP, 0x00000000, 0x00008000, T(ssat), N("b16"), SHDST, T(ssh), T(sch) },
@@ -853,15 +838,8 @@ struct insn tabas[] = {
 	{ AP, 0, 0, OOPS }
 };
 
-struct insn tabsmus1[] = {
-	{ AP, 0x00000000, 0x00000100, N("u16") },
-	{ AP, 0x00000100, 0x00000100, N("s16") },
-};
-
-struct insn tabsmus2[] = {
-	{ AP, 0x00000000, 0x00008000, N("u16") },
-	{ AP, 0x00008000, 0x00008000, N("s16") },
-};
+F(smus1, 8, N("u16"), N("s16"))
+F(smus2, 0xf, N("u16"), N("s16"))
 
 struct insn tabms[] = {
 	{ AP, 0x00000000, 0x00008100, SDST, N("u16"), T(ssh), T(sch), SDST },
@@ -870,25 +848,10 @@ struct insn tabms[] = {
 	{ AP, 0x00008100, 0x00008100, SDST, N("u24"), T(ssw), T(scw), SDST },
 };
 
-struct insn tabsm24us[] = {
-	{ AP, 0x00000000, 0x00008000, N("u24") },
-	{ AP, 0x00008000, 0x00008000, N("s24") },
-};
-
-struct insn tabsm24high[] = {
-	{ AP, 0x00000000, 0x00000100 },
-	{ AP, 0x00000100, 0x00000100, N("high") },
-};
-
-struct insn tabstex[] = {
-	{ AP, 0x00000000, 0x00000100, N("all") },
-	{ AP, 0x00000100, 0x00000100, N("live") },
-};
-
-struct insn tabsslus2[] = {
-	{ AP, 0x00000000, 0x00008000, N("u32") },
-	{ AP, 0x00008000, 0x00008000, N("s32") },
-};
+F(sm24us, 0xf, N("u24"), N("s24"))
+F1(sm24high, 8, N("high"))
+F(stex, 8, N("all"), N("live"))
+F(sslus2, 0xf, N("u32"), N("s32"))
 
 struct insn tabs[] = {
 	// SCAN 0-1
