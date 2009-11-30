@@ -559,7 +559,7 @@ int texoff[] = { 9, 7, 't' };
 void atomreg APROTO {
 	const int *n = v;
 	int r = BF(n[0], n[1]);
-	if (r == 127 && n[2] == 'o') fprintf (out, " %s_", cbl);
+	if (r == 127 && n[2] == 'o') fprintf (out, " %s#", cbl);
 	else fprintf (out, " %s$%c%d", (n[2]=='r')?cbl:cmag, n[2], r);
 }
 void atomdreg APROTO {
@@ -573,7 +573,7 @@ void atomqreg APROTO {
 void atomhreg APROTO {
 	const int *n = v;
 	int r = BF(n[0], n[1]);
-	if (r == 127 && n[2] == 'o') fprintf (out, " %s_", cbl);
+	if (r == 127 && n[2] == 'o') fprintf (out, " %s#", cbl);
 	else fprintf (out, " %s$%c%d%c", (n[2]=='r')?cbl:cmag, n[2], r>>1, "lh"[r&1]);
 }
 
@@ -601,7 +601,7 @@ void atomltdst APROTO {
 		if (mask & 1<<i)
 			fprintf (out, " %s$r%d", cbl, base+k++);
 		else
-			fprintf (out, " %s_", cbl);
+			fprintf (out, " %s#", cbl);
 	fprintf (out, " %s}", cnorm);
 }
 #define STDST atomstdst, 0
