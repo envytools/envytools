@@ -445,6 +445,27 @@ void atomnum APROTO {
 }
 
 /*
+ * Ignored fields
+ *
+ * Used in cases when some bitfield doesn't do anything, but nvidia's blob
+ * sets it due to stupi^H^H^H^H^Hdesign decisions.
+ *  - IGNCE: $c write enable
+ *  - IGNDTEX: texture id duplicated in higher bits for some reason
+ *
+ * The whole point of this op is to kill spurious red when disassembling
+ * ptxas output and blob shaders. Don't include all random unused fields here.
+ */
+
+int ignce[] = { 0x26, 1 };
+int igndtex[] = { 0x10, 6 };
+#define IGNCE atomign, ignce
+#define IGNDTEX atomign, igndtex
+void atomign APROTO {
+	const int *n = v;
+	BF(n[0], n[1]);
+}
+
+/*
  * Register fields
  *
  * There are four locations of register fields for $r:
@@ -897,8 +918,8 @@ struct insn tabs[] = {
 
 	{ AP, 0xe0000000, 0xf0000002, N("mad f32"), SDST, SSRC, SSRC2, SDST },	// XXX: flags like tabi?
 
-	{ AP, 0xf0000000, 0xf1000002, N("texauto"), T(stex), STDST, TEX, STSRC },
-	{ AP, 0xf1000000, 0xf1000002, N("texfetch"), T(stex), STDST, TEX, STSRC },
+	{ AP, 0xf0000000, 0xf1000002, N("texauto"), T(stex), STDST, TEX, STSRC, IGNDTEX },
+	{ AP, 0xf1000000, 0xf1000002, N("texfetch"), T(stex), STDST, TEX, STSRC, IGNDTEX },
 
 	{ AP, 0, 2, OOPS, SDST, T(ssw), T(scw) },
 	{ AP, 0, 0, OOPS }
@@ -1195,7 +1216,7 @@ F1(dtex, 0x23, N("deriv")) // suspected to enable implicit derivatives on non-FP
 F(ltex, 0x22, N("all"), N("live"))
 
 struct insn tabtexf[] = {
-	{ AP, 0, 0, T(ltex), T(dtex) },
+	{ AP, 0, 0, T(ltex), T(dtex), IGNDTEX },
 };
 
 struct insn tablane[] = {
@@ -1264,14 +1285,6 @@ struct insn tabsreg[] = {
 	{ AP, 0x0001c00000000000ull, 0x0001c00000000000ull, N("pm3") },
 };
 
-/*
- * Ignores CDST enable bit.
- *
- * We don't normally have ignore rules for all bits known to be ignored,
- * but blob uses this one, so let's avoid spurious red.
- */
-F(ignce, 0x26, , )
-
 F1(lm24high, 0x2e, N("high"))
 
 /// XXX FUCKUP WRONG WRONG HERE
@@ -1287,7 +1300,7 @@ struct insn tabl[] = {
 		N("mov"), LDST, T(sreg) },
 
 	{ AP, 0xa000000000000000ull, 0xe0000000f0000002ull,
-		N("mov"), CDST, LSRC, T(ignce) },
+		N("mov"), CDST, LSRC, IGNCE },
 	{ AP, 0xc000000000000000ull, 0xe0000000f0000002ull,
 		N("shl"), ADST, T(lsw), HSHCNT },
 	
@@ -1321,9 +1334,9 @@ struct insn tabl[] = {
 		N("mov lock b32"), CDST, LDST, LSHARED },
 
 	{ AP, 0x6000000010000200ull, 0xe0000000f0000602ull,
-		N("vote any"), CDST, T(ignce) },	// sm_12
+		N("vote any"), CDST, IGNCE },	// sm_12
 	{ AP, 0x6000000010000400ull, 0xe0000000f0000602ull,
-		N("vote all"), CDST, T(ignce) },	// sm_12
+		N("vote all"), CDST, IGNCE },	// sm_12
 
 	// 2
 	{ AP, 0x0000000020000000ull, 0x00000000f0400002ull,
