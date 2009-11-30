@@ -451,6 +451,7 @@ void atomnum APROTO {
  * sets it due to stupi^H^H^H^H^Hdesign decisions.
  *  - IGNCE: $c write enable
  *  - IGNDTEX: texture id duplicated in higher bits for some reason
+ *  - IGNPRED: predicates, for instructions that don't use them.
  *
  * The whole point of this op is to kill spurious red when disassembling
  * ptxas output and blob shaders. Don't include all random unused fields here.
@@ -458,8 +459,10 @@ void atomnum APROTO {
 
 int ignce[] = { 0x26, 1 };
 int igndtex[] = { 0x10, 6 };
+int ignpred[] = { 0x27, 7 };
 #define IGNCE atomign, ignce
 #define IGNDTEX atomign, igndtex
+#define IGNPRED atomign, ignpred
 void atomign APROTO {
 	const int *n = v;
 	BF(n[0], n[1]);
@@ -937,30 +940,30 @@ struct insn tabgi[] = {
 
 struct insn tabi[] = {
 	// SCAN 0-1
-	{ AP, 0x10000000, 0xf0008002, N("mov"), LHDST, IMM },
-	{ AP, 0x10008000, 0xf0008002, N("mov"), LDST, IMM },	// yes. LDST. special case.
+	{ AP, 0x10000000, 0xf0008000, N("mov"), LHDST, IMM },
+	{ AP, 0x10008000, 0xf0008000, N("mov"), LDST, IMM },	// yes. LDST. special case.
 
-	{ AP, 0x20000000, 0xf0400002, N("add"), T(gi) },
-	{ AP, 0x20400000, 0xf0400002, N("sub"), T(gi) },
-	{ AP, 0x30000000, 0xf0400002, N("subr"), T(gi) },
-	{ AP, 0x30400000, 0xf0400002, N("add"), T(gi), C0 },
+	{ AP, 0x20000000, 0xf0400000, N("add"), T(gi) },
+	{ AP, 0x20400000, 0xf0400000, N("sub"), T(gi) },
+	{ AP, 0x30000000, 0xf0400000, N("subr"), T(gi) },
+	{ AP, 0x30400000, 0xf0400000, N("add"), T(gi), C0 },
 
-	{ AP, 0x40000000, 0xf0400002, N("mul"), SDST, T(sus2), T(ssh), T(sus1), IMM },
-	{ AP, 0x40400000, 0xf0400002, N("mul24"), SDST, T(sm24high), T(sus2), T(ssw), IMM },
+	{ AP, 0x40000000, 0xf0400000, N("mul"), SDST, T(sus2), T(ssh), T(sus1), IMM },
+	{ AP, 0x40400000, 0xf0400000, N("mul24"), SDST, T(sm24high), T(sus2), T(ssw), IMM },
 
 	// SCAN 6-F
-	{ AP, 0x60000000, 0xf0000002, N("mad"), SDST, T(sus1), T(ssh), IMM, SDST },
+	{ AP, 0x60000000, 0xf0000000, N("mad"), SDST, T(sus1), T(ssh), IMM, SDST },
 
-	{ AP, 0xb0000000, 0xf0000002, N("add"), T(ssat), N("f32"), SDST, T(sneg1), T(ssw), T(sneg2), IMM },
+	{ AP, 0xb0000000, 0xf0000000, N("add"), T(ssat), N("f32"), SDST, T(sneg1), T(ssw), T(sneg2), IMM },
 
-	{ AP, 0xc0000000, 0xf0000002, N("mul f32"), SDST, T(sneg1), T(ssw), T(sneg2), IMM },
+	{ AP, 0xc0000000, 0xf0000000, N("mul f32"), SDST, T(sneg1), T(ssw), T(sneg2), IMM },
 
-	{ AP, 0xd0000000, 0xf0008102, N("and"), SDST, T(snot1), T(ssw), IMM },
-	{ AP, 0xd0000100, 0xf0008102, N("or"), SDST, T(snot1), T(ssw), IMM },
-	{ AP, 0xd0008000, 0xf0008102, N("xor"), SDST, T(snot1), T(ssw), IMM },
-	{ AP, 0xd0008100, 0xf0008102, N("mov2"), SDST, T(snot1), T(ssw), IMM },
+	{ AP, 0xd0000000, 0xf0008100, N("and"), SDST, T(snot1), T(ssw), IMM },
+	{ AP, 0xd0000100, 0xf0008100, N("or"), SDST, T(snot1), T(ssw), IMM },
+	{ AP, 0xd0008000, 0xf0008100, N("xor"), SDST, T(snot1), T(ssw), IMM },
+	{ AP, 0xd0008100, 0xf0008100, N("mov2"), SDST, T(snot1), T(ssw), IMM },
 
-	{ AP, 0xe0000000, 0xf0000002, N("mad"), T(ssat), N("f32"), SDST, T(sneg1), T(ssw), IMM, T(sneg2), SDST },
+	{ AP, 0xe0000000, 0xf0000000, N("mad"), T(ssat), N("f32"), SDST, T(sneg1), T(ssw), IMM, T(sneg2), SDST },
 
 	{ AP, 0, 2, OOPS, SDST, T(ssw), IMM },
 	{ AP, 0, 0, OOPS }
@@ -1290,271 +1293,271 @@ F1(lm24high, 0x2e, N("high"))
 /// XXX FUCKUP WRONG WRONG HERE
 struct insn tabl[] = {
 	// 0
-	{ VP|GP, 0x0420000000000000ull, 0xe4200000f0000002ull,
+	{ VP|GP, 0x0420000000000000ull, 0xe4200000f0000000ull,
 		T(lane), N("mov"), LLDST, FATTR },
-	{ AP, 0x2000000000000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x2000000000000000ull, 0xe0000000f0000000ull,
 		N("mov"), LDST, COND },
-	{ AP, 0x4000000000000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x4000000000000000ull, 0xe0000000f0000000ull,
 		N("mov"), LDST, AREG },
-	{ AP, 0x6000000000000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x6000000000000000ull, 0xe0000000f0000000ull,
 		N("mov"), LDST, T(sreg) },
 
-	{ AP, 0xa000000000000000ull, 0xe0000000f0000002ull,
+	{ AP, 0xa000000000000000ull, 0xe0000000f0000000ull,
 		N("mov"), CDST, LSRC, IGNCE },
-	{ AP, 0xc000000000000000ull, 0xe0000000f0000002ull,
+	{ AP, 0xc000000000000000ull, 0xe0000000f0000000ull,
 		N("shl"), ADST, T(lsw), HSHCNT },
 	
-	{ CP, 0xe000000000000000ull, 0xe4400000f0000002ull,	// XXX ok, seriously, what's up with all thse flags?
+	{ CP, 0xe000000000000000ull, 0xe4400000f0000000ull,	// XXX ok, seriously, what's up with all thse flags?
 		N("mov b16"), FHSHARED, LHSRC3 },
-	{ CP, 0xe040000000000000ull, 0xe4400000f0000002ull,
+	{ CP, 0xe040000000000000ull, 0xe4400000f0000000ull,
 		N("mov b8"), FBSHARED, LHSRC3 },
-	{ CP, 0xe420000000000000ull, 0xe4a00000f0000002ull,
+	{ CP, 0xe420000000000000ull, 0xe4a00000f0000000ull,
 		N("mov b32"), FSHARED, LSRC3 },
-	{ CP, 0xe4a0000000000000ull, 0xe4a00000f0000002ull,
+	{ CP, 0xe4a0000000000000ull, 0xe4a00000f0000000ull,
 		N("mov unlock b32"), FSHARED, LSRC3 },
 
 	// 1
-	{ AP, 0x0000000010000000ull, 0xe4000000f0000002ull,
+	{ AP, 0x0000000010000000ull, 0xe4000000f0000000ull,
 		T(lane), N("mov"), LLHDST, T(lsh) },
-	{ AP, 0x0400000010000000ull, 0xe4000000f0000002ull,
+	{ AP, 0x0400000010000000ull, 0xe4000000f0000000ull,
 		T(lane), N("mov"), LLDST, T(lsw) },
 
-	{ AP, 0x2000000010000000ull, 0xe4000000f0000002ull,
+	{ AP, 0x2000000010000000ull, 0xe4000000f0000000ull,
 		N("mov b16"), LLHDST, T(fcon) },
-	{ AP, 0x2400000010000000ull, 0xe4000000f0000002ull,
+	{ AP, 0x2400000010000000ull, 0xe4000000f0000000ull,
 		N("mov b32"), LLDST, T(fcon) },
 
-	{ CP, 0x4000400010000000ull, 0xe400c000f0000002ull,	// sm_11. ptxas inexplicably starts using
+	{ CP, 0x4000400010000000ull, 0xe400c000f0000000ull,	// sm_11. ptxas inexplicably starts using
 		N("mov u16"), LHDST, LHSHARED },		// these forms instead of the other one
-	{ CP, 0x4000800010000000ull, 0xe400c000f0000002ull,	// on >=sm_11. XXX check length XXX mode
+	{ CP, 0x4000800010000000ull, 0xe400c000f0000000ull,	// on >=sm_11. XXX check length XXX mode
 		N("mov s16"), LHDST, LHSHARED },
-	{ CP, 0x4400c00010000000ull, 0xe480c000f0000002ull,	// getting ridiculous.
+	{ CP, 0x4400c00010000000ull, 0xe480c000f0000000ull,	// getting ridiculous.
 		N("mov b32"), LDST, LSHARED },
-	{ CP, 0x4480c04010000000ull, 0xe480c040f0000002ull,
+	{ CP, 0x4480c04010000000ull, 0xe480c040f0000000ull,
 		N("mov lock b32"), CDST, LDST, LSHARED },
 
-	{ AP, 0x6000000010000200ull, 0xe0000000f0000602ull,
+	{ AP, 0x6000000010000200ull, 0xe0000000f0000600ull,
 		N("vote any"), CDST, IGNCE },	// sm_12
-	{ AP, 0x6000000010000400ull, 0xe0000000f0000602ull,
+	{ AP, 0x6000000010000400ull, 0xe0000000f0000600ull,
 		N("vote all"), CDST, IGNCE },	// sm_12
 
 	// 2
-	{ AP, 0x0000000020000000ull, 0x00000000f0400002ull,
+	{ AP, 0x0000000020000000ull, 0x00000000f0400000ull,
 		N("add"), T(la) },
-	{ AP, 0x0000000020400000ull, 0x00000000f0400002ull,
+	{ AP, 0x0000000020400000ull, 0x00000000f0400000ull,
 		N("sub"), T(la) },
 
 	// 3
-	{ AP, 0x0000000030000000ull, 0xe0000000f0400002ull,
+	{ AP, 0x0000000030000000ull, 0xe0000000f0400000ull,
 		N("subr"), T(la) },
-	{ AP, 0x0000000030400000ull, 0xe0000000f0400002ull,
+	{ AP, 0x0000000030400000ull, 0xe0000000f0400000ull,
 		N("addc"), T(la), COND },
 
 	// YARLY.
-	{ AP, 0x6000000030000000ull, 0xec000000f0000002ull,
+	{ AP, 0x6000000030000000ull, 0xec000000f0000000ull,
 		N("set"), T(seti), N("u16"), MCDST, LLHDST, T(lsh), T(lc2h) },
-	{ AP, 0x6800000030000000ull, 0xec000000f0000002ull,
+	{ AP, 0x6800000030000000ull, 0xec000000f0000000ull,
 		N("set"), T(seti), N("s16"), MCDST, LLHDST, T(lsh), T(lc2h) },
-	{ AP, 0x6400000030000000ull, 0xec000000f0000002ull,
+	{ AP, 0x6400000030000000ull, 0xec000000f0000000ull,
 		N("set"), T(seti), N("u32"), MCDST, LLDST, T(lsw), T(lc2w) },
-	{ AP, 0x6c00000030000000ull, 0xec000000f0000002ull,
+	{ AP, 0x6c00000030000000ull, 0xec000000f0000000ull,
 		N("set"), T(seti), N("s32"), MCDST, LLDST, T(lsw), T(lc2w) },
 
-	{ AP, 0x8000000030000000ull, 0xec000000f0000002ull,
+	{ AP, 0x8000000030000000ull, 0xec000000f0000000ull,
 		N("max u16"), LHDST, T(lsh), T(lc2h) },
-	{ AP, 0x8800000030000000ull, 0xec000000f0000002ull,
+	{ AP, 0x8800000030000000ull, 0xec000000f0000000ull,
 		N("max s16"), LHDST, T(lsh), T(lc2h) },
-	{ AP, 0x8400000030000000ull, 0xec000000f0000002ull,
+	{ AP, 0x8400000030000000ull, 0xec000000f0000000ull,
 		N("max u32"), LDST, T(lsw), T(lc2w) },
-	{ AP, 0x8c00000030000000ull, 0xec000000f0000002ull,
+	{ AP, 0x8c00000030000000ull, 0xec000000f0000000ull,
 		N("max s32"), LDST, T(lsw), T(lc2w) },
 
-	{ AP, 0xa000000030000000ull, 0xec000000f0000002ull,
+	{ AP, 0xa000000030000000ull, 0xec000000f0000000ull,
 		N("min u16"), LHDST, T(lsh), T(lc2h) },
-	{ AP, 0xa800000030000000ull, 0xec000000f0000002ull,
+	{ AP, 0xa800000030000000ull, 0xec000000f0000000ull,
 		N("min s16"), LHDST, T(lsh), T(lc2h) },
-	{ AP, 0xa400000030000000ull, 0xec000000f0000002ull,
+	{ AP, 0xa400000030000000ull, 0xec000000f0000000ull,
 		N("min u32"), LDST, T(lsw), T(lc2w) },
-	{ AP, 0xac00000030000000ull, 0xec000000f0000002ull,
+	{ AP, 0xac00000030000000ull, 0xec000000f0000000ull,
 		N("min s32"), LDST, T(lsw), T(lc2w) },
 
-	{ AP, 0xc000000030000000ull, 0xe4000000f0000002ull,	// XXX FUCK ALERT: shift count *CAN* be 16-bit.
+	{ AP, 0xc000000030000000ull, 0xe4000000f0000000ull,	// XXX FUCK ALERT: shift count *CAN* be 16-bit.
 		N("shl b16"), LHDST, T(lsh), T(hshcnt) },
-	{ AP, 0xc400000030000000ull, 0xe4000000f0000002ull,
+	{ AP, 0xc400000030000000ull, 0xe4000000f0000000ull,
 		N("shl b32"), LDST, T(lsw), T(shcnt) },
-	{ AP, 0xe000000030000000ull, 0xec000000f0000002ull,
+	{ AP, 0xe000000030000000ull, 0xec000000f0000000ull,
 		N("shr u16"), LHDST, T(lsh), T(hshcnt) },
-	{ AP, 0xe400000030000000ull, 0xec000000f0000002ull,
+	{ AP, 0xe400000030000000ull, 0xec000000f0000000ull,
 		N("shr u32"), LDST, T(lsw), T(shcnt) },
-	{ AP, 0xe800000030000000ull, 0xec000000f0000002ull,
+	{ AP, 0xe800000030000000ull, 0xec000000f0000000ull,
 		N("shr s16"), LHDST, T(lsh), T(hshcnt) },
-	{ AP, 0xec00000030000000ull, 0xec000000f0000002ull,
+	{ AP, 0xec00000030000000ull, 0xec000000f0000000ull,
 		N("shr s32"), LDST, T(lsw), T(shcnt) },
 
 
 	// 4
-	{ AP, 0x0000000040000000ull, 0xe0010000f0000002ull,
+	{ AP, 0x0000000040000000ull, 0xe0010000f0000000ull,
 		N("mul"), MCDST, LLDST, T(lus1), T(lsh), T(lus2), T(lc2h) },
-	{ AP, 0x0001000040000000ull, 0xe0010000f0000002ull,
+	{ AP, 0x0001000040000000ull, 0xe0010000f0000000ull,
 		N("mul24"), MCDST, LLDST, T(lm24high), T(lus1), T(lsw), T(lc2w) },
 
 	// 5
-	{ AP, 0x0000000050000000ull, 0xe4000000f0000002ull,
+	{ AP, 0x0000000050000000ull, 0xe4000000f0000000ull,
 		N("sad"), MCDST, LLDST, T(lusm2), T(lsh), T(lc2h), T(lc3w) },
-	{ AP, 0x0400000050000000ull, 0xe4000000f0000002ull,
+	{ AP, 0x0400000050000000ull, 0xe4000000f0000000ull,
 		N("sad"), MCDST, LLDST, T(lusm2), T(lsw), T(lc2w), T(lc3w) },
 
 	// 6
-	{ AP, 0x0000000060000000ull, 0xec000000f0000002ull,
+	{ AP, 0x0000000060000000ull, 0xec000000f0000000ull,
 		N("mad u16"), MCDST, LLDST, T(lsh), T(lc2h), T(lc3w) },
-	{ AP, 0x0c00000060000000ull, 0xec000000f0000002ull,
+	{ AP, 0x0c00000060000000ull, 0xec000000f0000000ull,
 		N("mad u16"), MCDST, LLDST, T(lsh), T(lc2h), T(lc3w), COND },
-	{ AP, 0x2000000060000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x2000000060000000ull, 0xe0000000f0000000ull,
 		N("mad s16"), MCDST, LLDST, T(lsh), T(lc2h), T(lc3w) },
-	{ AP, 0x6000000060000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x6000000060000000ull, 0xe0000000f0000000ull,
 		N("mad u24"), LDST, T(lsw), T(lc2w), T(lc3w) },
-	{ AP, 0x8000000060000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x8000000060000000ull, 0xe0000000f0000000ull,
 		N("mad s24"), LDST, T(lsw), T(lc2w), T(lc3w) },
-	{ AP, 0xc000000060000000ull, 0xe0000000f0000002ull,
+	{ AP, 0xc000000060000000ull, 0xe0000000f0000000ull,
 		N("mad high u24"), LDST, T(lsw), T(lc2w), T(lc3w) },
-	{ AP, 0xe000000060000000ull, 0xe0000000f0000002ull,
+	{ AP, 0xe000000060000000ull, 0xe0000000f0000000ull,
 		N("mad high s24"), LDST, T(lsw), T(lc2w), T(lc3w) },
 
 	// 7
-	{ AP, 0x0000000070000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x0000000070000000ull, 0xe0000000f0000000ull,
 		N("mad high s24 sat"), LDST, T(lsw), T(lc2w), T(lc3w) },
 
 	// 8
-	{ FP, 0x0000000080000000ull, 0x00070000f0000002ull,
+	{ FP, 0x0000000080000000ull, 0x00070000f0000000ull,
 		N("interp"), LDST, LVAR },
-	{ FP, 0x0001000080000000ull, 0x00070000f0000002ull,
+	{ FP, 0x0001000080000000ull, 0x00070000f0000000ull,
 		N("interp"), LDST, N("cent"), LVAR },
-	{ FP, 0x0002000080000000ull, 0x00070000f0000002ull,
+	{ FP, 0x0002000080000000ull, 0x00070000f0000000ull,
 		N("interp"), LDST, LVAR, LSRC },
-	{ FP, 0x0003000080000000ull, 0x00070000f0000002ull,
+	{ FP, 0x0003000080000000ull, 0x00070000f0000000ull,
 		N("interp"), LDST, N("cent"), LVAR, LSRC },
-	{ FP, 0x0004000080000000ull, 0x00070000f0000002ull,
+	{ FP, 0x0004000080000000ull, 0x00070000f0000000ull,
 		N("interp"), LDST, N("flat"), LVAR },
 
 	// 9
-	{ AP, 0x0000000090000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x0000000090000000ull, 0xe0000000f0000000ull,
 		N("rcp f32"), LLDST, LSRC },
-	{ AP, 0x4000000090000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x4000000090000000ull, 0xe0000000f0000000ull,
 		N("rsqrt f32"),  LLDST, LSRC },
-	{ AP, 0x6000000090000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x6000000090000000ull, 0xe0000000f0000000ull,
 		N("lg2 f32"), LLDST, LSRC },
-	{ AP, 0x8000000090000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x8000000090000000ull, 0xe0000000f0000000ull,
 		N("sin f32"), LLDST, LSRC },
-	{ AP, 0xa000000090000000ull, 0xe0000000f0000002ull,
+	{ AP, 0xa000000090000000ull, 0xe0000000f0000000ull,
 		N("cos f32"), LLDST, LSRC },
-	{ AP, 0xc000000090000000ull, 0xe0000000f0000002ull,
+	{ AP, 0xc000000090000000ull, 0xe0000000f0000000ull,
 		N("ex2 f32"), LLDST, LSRC },
 
 	// a
-	{ AP, 0xc0000000a0000000ull, 0xcc404000f0000002ull,
+	{ AP, 0xc0000000a0000000ull, 0xcc404000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtffsat), N("f16"), LHDST, N("f16"), T(lsh) },
-	{ AP, 0xc8000000a0000000ull, 0xcc404000f0000002ull,
+	{ AP, 0xc8000000a0000000ull, 0xcc404000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtffsat), T(cvtrint), N("f16"), LHDST, N("f16"), T(lsh) },
-	{ AP, 0xc0004000a0000000ull, 0xc4404000f0000002ull,
+	{ AP, 0xc0004000a0000000ull, 0xc4404000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtffsat), T(cvtrnd), N("f16"), LHDST, N("f32"), T(lsw) },
-	{ AP, 0xc4004000a0000000ull, 0xcc404000f0000002ull,
+	{ AP, 0xc4004000a0000000ull, 0xcc404000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtffsat), N("f32"), MCDST, LLDST, N("f32"), T(lsw) },
-	{ AP, 0xcc004000a0000000ull, 0xcc404000f0000002ull,
+	{ AP, 0xcc004000a0000000ull, 0xcc404000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtffsat), T(cvtrint), N("f32"), LDST, N("f32"), T(lsw) },
-	{ AP, 0xc4000000a0000000ull, 0xc4404000f0000002ull,
+	{ AP, 0xc4000000a0000000ull, 0xc4404000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtffsat), N("f32"), LDST, N("f16"), T(lsh) },
 
-	{ AP, 0xc0404000a0000000ull, 0xc4404000f0000002ull,
+	{ AP, 0xc0404000a0000000ull, 0xc4404000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtrnd), N("f32"), LDST, N("f64"), LDSRC },
-	{ AP, 0xc4404000a0000000ull, 0xcc404000f0000002ull,
+	{ AP, 0xc4404000a0000000ull, 0xcc404000f0000000ull,
 		N("cvt"), T(cvtmod), N("f64"), LDDST, N("f64"), LDSRC },
-	{ AP, 0xcc404000a0000000ull, 0xcc404000f0000002ull,
+	{ AP, 0xcc404000a0000000ull, 0xcc404000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtrint), N("f64"), LDDST, N("f64"), LDSRC },
-	{ AP, 0xc4400000a0000000ull, 0xc4404000f0000002ull,
+	{ AP, 0xc4400000a0000000ull, 0xc4404000f0000000ull,
 		N("cvt"), T(cvtmod), N("f64"), LDDST, N("f32"), T(lsw) },
 
-	{ AP, 0x80000000a0000000ull, 0xcc404000f0000002ull,
+	{ AP, 0x80000000a0000000ull, 0xcc404000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtrint), N("u16"), LHDST, N("f16"), T(lsh) },
-	{ AP, 0x80004000a0000000ull, 0xcc404000f0000002ull,
+	{ AP, 0x80004000a0000000ull, 0xcc404000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtrint), N("u16"), LHDST, N("f32"), T(lsw) },
-	{ AP, 0x88000000a0000000ull, 0xcc404000f0000002ull,
+	{ AP, 0x88000000a0000000ull, 0xcc404000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtrint), N("s16"), LHDST, N("f16"), T(lsh) },
-	{ AP, 0x88004000a0000000ull, 0xcc404000f0000002ull,
+	{ AP, 0x88004000a0000000ull, 0xcc404000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtrint), N("s16"), LHDST, N("f32"), T(lsw) },
-	{ AP, 0x84000000a0000000ull, 0xcc404000f0000002ull,
+	{ AP, 0x84000000a0000000ull, 0xcc404000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtrint), N("u32"), LDST, N("f16"), T(lsh) },
-	{ AP, 0x84004000a0000000ull, 0xcc404000f0000002ull,
+	{ AP, 0x84004000a0000000ull, 0xcc404000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtrint), N("u32"), LDST, N("f32"), T(lsw) },
-	{ AP, 0x8c000000a0000000ull, 0xcc404000f0000002ull,
+	{ AP, 0x8c000000a0000000ull, 0xcc404000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtrint), N("s32"), LDST, N("f16"), T(lsh) },
-	{ AP, 0x8c004000a0000000ull, 0xcc404000f0000002ull,
+	{ AP, 0x8c004000a0000000ull, 0xcc404000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtrint), N("s32"), LDST, N("f32"), T(lsw) },
 
-	{ AP, 0x80404000a0000000ull, 0xcc404000f0000002ull,
+	{ AP, 0x80404000a0000000ull, 0xcc404000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtrint), N("u32"), LDST, N("f64"), LDSRC },
-	{ AP, 0x88404000a0000000ull, 0xcc404000f0000002ull,
+	{ AP, 0x88404000a0000000ull, 0xcc404000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtrint), N("s32"), LDST, N("f64"), LDSRC },
-	{ AP, 0x84400000a0000000ull, 0xcc404000f0000002ull,
+	{ AP, 0x84400000a0000000ull, 0xcc404000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtrint), N("u64"), LDDST, N("f32"), T(lsw) },
-	{ AP, 0x84404000a0000000ull, 0xcc404000f0000002ull,
+	{ AP, 0x84404000a0000000ull, 0xcc404000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtrint), N("u64"), LDDST, N("f64"), LDSRC },
-	{ AP, 0x8c400000a0000000ull, 0xcc404000f0000002ull,
+	{ AP, 0x8c400000a0000000ull, 0xcc404000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtrint), N("s64"), LDDST, N("f32"), T(lsw) },
-	{ AP, 0x8c404000a0000000ull, 0xcc404000f0000002ull,
+	{ AP, 0x8c404000a0000000ull, 0xcc404000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtrint), N("s64"), LDDST, N("f64"), LDSRC },
 
-	{ AP, 0x40000000a0000000ull, 0xc4400000f0000002ull,
+	{ AP, 0x40000000a0000000ull, 0xc4400000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtffsat), T(cvtrnd), N("f16"), LHDST, T(cvtiisrc) },
-	{ AP, 0x44000000a0000000ull, 0xc4400000f0000002ull,
+	{ AP, 0x44000000a0000000ull, 0xc4400000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtffsat), T(cvtrnd), N("f32"), LDST, T(cvtiisrc) },
 
-	{ AP, 0x44400000a0000000ull, 0xc4414000f0000002ull,
+	{ AP, 0x44400000a0000000ull, 0xc4414000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtffsat), T(cvtrnd), N("f64"), LDDST, N("u32"), T(lsw) },
-	{ AP, 0x44410000a0000000ull, 0xc4414000f0000002ull,
+	{ AP, 0x44410000a0000000ull, 0xc4414000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtffsat), T(cvtrnd), N("f64"), LDDST, N("s32"), T(lsw) },
-	{ AP, 0x40404000a0000000ull, 0xc4414000f0000002ull,
+	{ AP, 0x40404000a0000000ull, 0xc4414000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtffsat), T(cvtrnd), N("f32"), LDST, N("u64"), LDSRC },
-	{ AP, 0x40414000a0000000ull, 0xc4414000f0000002ull,
+	{ AP, 0x40414000a0000000ull, 0xc4414000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtffsat), T(cvtrnd), N("f32"), LDST, N("s64"), LDSRC },
-	{ AP, 0x44404000a0000000ull, 0xc4414000f0000002ull,
+	{ AP, 0x44404000a0000000ull, 0xc4414000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtffsat), T(cvtrnd), N("f64"), LDDST, N("u64"), LDSRC },
-	{ AP, 0x44414000a0000000ull, 0xc4414000f0000002ull,
+	{ AP, 0x44414000a0000000ull, 0xc4414000f0000000ull,
 		N("cvt"), T(cvtmod), T(cvtffsat), T(cvtrnd), N("f64"), LDDST, N("s64"), LDSRC },
 
-	{ AP, 0x00000000a0000000ull, 0xcc080000f0000002ull,
+	{ AP, 0x00000000a0000000ull, 0xcc080000f0000000ull,
 		N("cvt"), T(cvtmod), N("u16"), MCDST, LLHDST, T(cvtiisrc) },
-	{ AP, 0x00080000a0000000ull, 0xcc080000f0000002ull,
+	{ AP, 0x00080000a0000000ull, 0xcc080000f0000000ull,
 		N("cvt"), T(cvtmod), N("u8"), LHDST, T(cvtiisrc) },
-	{ AP, 0x04000000a0000000ull, 0xcc080000f0000002ull,
+	{ AP, 0x04000000a0000000ull, 0xcc080000f0000000ull,
 		N("cvt"), T(cvtmod), N("u32"), MCDST, LLDST, T(cvtiisrc) },
-	{ AP, 0x04080000a0000000ull, 0xcc080000f0000002ull,
+	{ AP, 0x04080000a0000000ull, 0xcc080000f0000000ull,
 		N("cvt"), T(cvtmod), N("u8"), LDST, T(cvtiisrc) },
-	{ AP, 0x08000000a0000000ull, 0xcc080000f0000002ull,
+	{ AP, 0x08000000a0000000ull, 0xcc080000f0000000ull,
 		N("cvt"), T(cvtmod), N("s16"), MCDST, LLHDST, T(cvtiisrc) },
-	{ AP, 0x08080000a0000000ull, 0xcc080000f0000002ull,
+	{ AP, 0x08080000a0000000ull, 0xcc080000f0000000ull,
 		N("cvt"), T(cvtmod), N("s8"), LHDST, T(cvtiisrc) },
-	{ AP, 0x0c000000a0000000ull, 0xcc080000f0000002ull,
+	{ AP, 0x0c000000a0000000ull, 0xcc080000f0000000ull,
 		N("cvt"), T(cvtmod), N("s32"), MCDST, LLDST, T(cvtiisrc) },
-	{ AP, 0x0c080000a0000000ull, 0xcc080000f0000002ull,
+	{ AP, 0x0c080000a0000000ull, 0xcc080000f0000000ull,
 		N("cvt"), T(cvtmod), N("s8"), LDST, T(cvtiisrc) },
 
 
 	// b
-	{ AP, 0x00000000b0000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x00000000b0000000ull, 0xe0000000f0000000ull,
 		N("add"), T(af32r),  N("f32"), LLDST, T(lneg1), T(lsw), T(lneg2), T(lc3w) },
-	{ AP, 0x20000000b0000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x20000000b0000000ull, 0xe0000000f0000000ull,
 		N("add sat"), T(af32r),  N("f32"), LLDST, T(lneg1), T(lsw), T(lneg2), T(lc3w) },
-	{ AP, 0x80000000b0000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x80000000b0000000ull, 0xe0000000f0000000ull,
 		N("max f32"), LLDST, T(lfm1), T(lsw), T(lfm2), T(lc2w) },
-	{ AP, 0xa0000000b0000000ull, 0xe0000000f0000002ull,
+	{ AP, 0xa0000000b0000000ull, 0xe0000000f0000000ull,
 		N("min f32"), LLDST, T(lfm1), T(lsw), T(lfm2), T(lc2w) },
 
-	{ AP, 0x60000000b0000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x60000000b0000000ull, 0xe0000000f0000000ull,
 		N("set"), T(setf), N("f32"), MCDST, LLDST, T(lfm1), T(lsw), T(lfm2), T(lc2w) },
 
-	{ AP, 0xc0000000b0000000ull, 0xe0004000f0000002ull,
+	{ AP, 0xc0000000b0000000ull, 0xe0004000f0000000ull,
 		N("presin f32"), LLDST, T(lsw) },
-	{ AP, 0xc0004000b0000000ull, 0xe0004000f0000002ull,
+	{ AP, 0xc0004000b0000000ull, 0xe0004000f0000000ull,
 		N("preex2 f32"), LLDST, T(lsw) },
 	/* preex2 converts float to fixed point, results:
 	 * 0-0x3fffffff: 7.23 fixed-point number
@@ -1565,113 +1568,102 @@ struct insn tabl[] = {
 	 */
 
 	// c
-	{ AP, 0x00000000c0000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x00000000c0000000ull, 0xe0000000f0000000ull,
 		N("mul"), T(mf32r), N("f32"), LLDST, T(lneg1), T(lsw), T(lneg2), T(lc2w) },
 
-	{ AP, 0x80000000c0000000ull, 0xf0000000f0040002ull,
+	{ AP, 0x80000000c0000000ull, 0xf0000000f0040000ull,
 		N("quadop f32"), T(qop0), T(qop1), T(qop2), T(qop3), MCDST, LLDST, T(qs1), LSRC, LSRC3 },
 
-	{ AP, 0x89800000c0140000ull, 0x8bc00000f0150002ull,	// XXX fuck me harder.
+	{ AP, 0x89800000c0140000ull, 0x8bc00000f0150000ull,	// XXX fuck me harder.
 		N("dfdx f32"), LDST, LSRC, LSRC3 },
-	{ AP, 0x8a400000c0150000ull, 0x8bc00000f0150002ull,
+	{ AP, 0x8a400000c0150000ull, 0x8bc00000f0150000ull,
 		N("dfdy f32"), LDST, LSRC, LSRC3 },
 
 	// d
-	{ AP, 0x00000000d0000000ull, 0xe400c000f0000002ull,
+	{ AP, 0x00000000d0000000ull, 0xe400c000f0000000ull,
 		N("and"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
-	{ AP, 0x04000000d0000000ull, 0xe400c000f0000002ull,
+	{ AP, 0x04000000d0000000ull, 0xe400c000f0000000ull,
 		N("and"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
-	{ AP, 0x00004000d0000000ull, 0xe400c000f0000002ull,
+	{ AP, 0x00004000d0000000ull, 0xe400c000f0000000ull,
 		N("or"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
-	{ AP, 0x04004000d0000000ull, 0xe400c000f0000002ull,
+	{ AP, 0x04004000d0000000ull, 0xe400c000f0000000ull,
 		N("or"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
-	{ AP, 0x00008000d0000000ull, 0xe400c000f0000002ull,
+	{ AP, 0x00008000d0000000ull, 0xe400c000f0000000ull,
 		N("xor"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
-	{ AP, 0x04008000d0000000ull, 0xe400c000f0000002ull,
+	{ AP, 0x04008000d0000000ull, 0xe400c000f0000000ull,
 		N("xor"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
-	{ AP, 0x0000c000d0000000ull, 0xe400c000f0000002ull,
+	{ AP, 0x0000c000d0000000ull, 0xe400c000f0000000ull,
 		N("mov2"), MCDST, LLHDST, T(not1), T(lsh), T(not2), T(lc2h) },
-	{ AP, 0x0400c000d0000000ull, 0xe400c000f0000002ull,
+	{ AP, 0x0400c000d0000000ull, 0xe400c000f0000000ull,
 		N("mov2"), MCDST, LLDST, T(not1), T(lsw), T(not2), T(lc2w) },
 
-	{ AP, 0x20000000d0000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x20000000d0000000ull, 0xe0000000f0000000ull,
 		N("add"), ADST, AREG, OFFS },
 
-	{ AP, 0x40000000d0000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x40000000d0000000ull, 0xe0000000f0000000ull,
 		N("mov"), T(ldstm), T(ldsto), LOCAL },
-	{ AP, 0x60000000d0000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x60000000d0000000ull, 0xe0000000f0000000ull,
 		N("mov"), T(ldstm), LOCAL, T(ldsto) },
 
-	{ CP, 0x80000000d0000000ull, 0xe0000000f0000002ull,
+	{ CP, 0x80000000d0000000ull, 0xe0000000f0000000ull,
 		N("mov"), T(ldstm), T(ldsto), GLOBAL },
-	{ CP, 0xa0000000d0000000ull, 0xe0000000f0000002ull,
+	{ CP, 0xa0000000d0000000ull, 0xe0000000f0000000ull,
 		N("mov"), T(ldstm), GLOBAL, T(ldsto) },
-	{ CP, 0xc0000000d0000000ull, 0xe0000000f0000002ull,
+	{ CP, 0xc0000000d0000000ull, 0xe0000000f0000000ull,
 		T(redm), GLOBAL, T(ldsto) },
-	{ CP, 0xe0000000d0000000ull, 0xe0000000f0000002ull,
+	{ CP, 0xe0000000d0000000ull, 0xe0000000f0000000ull,
 		T(atomm), T(ldsto), GLOBAL2, T(ldsts2), T(mldsts3) },
 
 	// e
-	{ AP, 0x00000000e0000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x00000000e0000000ull, 0xe0000000f0000000ull,
 		N("mad f32"), LLDST, T(lneg1), T(lsw), T(lc2w), T(lneg2), T(lc3w) },	// XXX what happens if you try both?
-	{ AP, 0x20000000e0000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x20000000e0000000ull, 0xe0000000f0000000ull,
 		N("mad sat f32"), LLDST, T(lneg1), T(lsw), T(lc2w), T(lneg2), T(lc3w) },	// XXX what happens if you try both?
 
-	{ AP, 0x40000000e0000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x40000000e0000000ull, 0xe0000000f0000000ull,
 		N("mad"), T(mad64r), N("f64"), LDDST, T(lneg1), LDSRC, LDSRC2, T(lneg2), LDSRC3 },
-	{ AP, 0x60000000e0000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x60000000e0000000ull, 0xe0000000f0000000ull,
 		N("add"), T(af64r), N("f64"), LDDST, T(lneg1), LDSRC, T(lneg2), LDSRC3 },
-	{ AP, 0x80000000e0000000ull, 0xe0000000f0000002ull,
+	{ AP, 0x80000000e0000000ull, 0xe0000000f0000000ull,
 		N("mul"), T(cvtrnd), N("f64"), LDDST, T(lneg1), LDSRC, LDSRC2 },
-	{ AP, 0xa0000000e0000000ull, 0xe0000000f0000002ull,
+	{ AP, 0xa0000000e0000000ull, 0xe0000000f0000000ull,
 		N("min"), N("f64"), LDDST, T(lfm1), LDSRC, T(lfm2), LDSRC2 },
-	{ AP, 0xc0000000e0000000ull, 0xe0000000f0000002ull,
+	{ AP, 0xc0000000e0000000ull, 0xe0000000f0000000ull,
 		N("max"), N("f64"), LDDST, T(lfm1), LDSRC, T(lfm2), LDSRC2 },
-	{ AP, 0xe0000000e0000000ull, 0xe0000000f0000002ull,
+	{ AP, 0xe0000000e0000000ull, 0xe0000000f0000000ull,
 		N("set"), T(setf), N("f64"), MCDST, LLDST, T(lfm1), LDSRC, T(lfm2), LDSRC2 },
 
 	// f
-	{ AP, 0x00000000f0000000ull, 0xf0000000f9000002ull, // order of inputs: x, y, z, index, dref, bias/lod. index is integer, others float.
+	{ AP, 0x00000000f0000000ull, 0xf0000000f9000000ull, // order of inputs: x, y, z, index, dref, bias/lod. index is integer, others float.
 		N("texauto"), T(texf), LTDST, TEX, LTSRC, TOFFX, TOFFY, TOFFZ },
-	{ AP, 0x00000000f8000000ull, 0xf0000000f9000002ull,
+	{ AP, 0x00000000f8000000ull, 0xf0000000f9000000ull,
 		N("texauto cube"), T(texf), LTDST, TEX, LTSRC },
 
-	{ AP, 0x00000000f1000000ull, 0xf0000000f1000002ull, // takes integer inputs.
+	{ AP, 0x00000000f1000000ull, 0xf0000000f1000000ull, // takes integer inputs.
 		N("texfetch"), T(texf), LTDST, TEX, LTSRC, TOFFX, TOFFY, TOFFZ },
 
-	{ AP, 0x20000000f0000000ull, 0xf0000000f8000002ull, // bias needs to be same for everything, or else.
+	{ AP, 0x20000000f0000000ull, 0xf0000000f8000000ull, // bias needs to be same for everything, or else.
 		N("texbias"), T(texf), LTDST, TEX, LTSRC, TOFFX, TOFFY, TOFFZ },
-	{ AP, 0x20000000f8000000ull, 0xf0000000f8000002ull,
+	{ AP, 0x20000000f8000000ull, 0xf0000000f8000000ull,
 		N("texbias cube"), T(texf), LTDST, TEX, LTSRC },
 
-	{ AP, 0x40000000f0000000ull, 0xf0000000f8000002ull, // lod needs to be same for everything, or else.
+	{ AP, 0x40000000f0000000ull, 0xf0000000f8000000ull, // lod needs to be same for everything, or else.
 		N("texlod"), T(texf), LTDST, TEX, LTSRC, TOFFX, TOFFY, TOFFZ },
-	{ AP, 0x40000000f8000000ull, 0xf0000000f8000002ull,
+	{ AP, 0x40000000f8000000ull, 0xf0000000f8000000ull,
 		N("texlod cube"), T(texf), LTDST, TEX, LTSRC },
 
-	{ AP, 0x60000000f0000000ull, 0xf0000000f0000002ull, // integer input and output.
+	{ AP, 0x60000000f0000000ull, 0xf0000000f0000000ull, // integer input and output.
 		N("texsize"), T(texf), LTDST, TEX, LDST }, // in: LOD, out: size.x, size.y, size.z
 
-	{ GP, 0xc0000000f0000200ull, 0xe0000000f0000602ull, N("emit") },
-	{ GP, 0xc0000000f0000400ull, 0xe0000000f0000602ull, N("restart") },
+	{ GP, 0xc0000000f0000200ull, 0xe0000000f0000600ull, N("emit") },
+	{ GP, 0xc0000000f0000400ull, 0xe0000000f0000600ull, N("restart") },
 
-	{ AP, 0xe0000000f0000000ull, 0xe0000004f0000002ull, N("nop") },
-	{ AP, 0xe0000004f0000000ull, 0xe0000004f0000002ull, N("pmevent"), PM },
+	{ AP, 0xe0000000f0000000ull, 0xe0000004f0000000ull, N("nop") },
+	{ AP, 0xe0000004f0000000ull, 0xe0000004f0000000ull, N("pmevent"), PM },
 
-	{ FP, 0x00000002, 0xf0000002, N("discard") },
-	{ AP, 0x10000002, 0xf0000002, N("bra"), CTARG },
-	{ AP, 0x20000002, 0xf0000002, N("call"), CTARG },
-	{ AP, 0x30000002, 0xf0000002, N("ret") },
-	{ AP, 0x60000002, 0xf0000002, N("quadon") },
-	{ AP, 0x70000002, 0xf0000002, N("quadpop") },
-	{ AP, 0x861ffe02, 0xf61ffe02, N("bar sync"), BAR },
-	{ AP, 0x90000002, 0xf0000002, N("trap") },
-	{ AP, 0xa0000002, 0xf0000002, N("joinat"), CTARG },
-	{ AP, 0xb0000002, 0xf0000002, N("brkpt") }, // sm_11
 	
 	// try to print out *some* info.
-	{ AP, 0, 2, OOPS, MCDST, LLDST, T(lsw), T(lc2w), T(lc3w) },
-	{ AP, 0, 0, OOPS },
+	{ AP, 0, 0, OOPS, MCDST, LLDST, T(lsw), T(lc2w), T(lc3w) },
 
 };
 
@@ -1706,7 +1698,22 @@ struct insn tabp[] = {
 	{ AP, 0, 0, OOPS },
 };
 
+struct insn tabc[] = {
+	{ FP, 0x00000000, 0xf0000000, T(p), N("discard") },
+	{ AP, 0x10000000, 0xf0000000, T(p), N("bra"), CTARG },
+	{ AP, 0x20000000, 0xf0000000, IGNPRED, N("call"), CTARG },
+	{ AP, 0x30000000, 0xf0000000, T(p), N("ret") },
+	{ AP, 0x60000000, 0xf0000000, IGNPRED, N("quadon") },
+	{ AP, 0x70000000, 0xf0000000, IGNPRED, N("quadpop") },
+	{ AP, 0x861ffe00, 0xf61ffe00, T(p), N("bar sync"), BAR }, // predicates? hm
+	{ AP, 0x90000000, 0xf0000000, IGNPRED, N("trap") },
+	{ AP, 0xa0000000, 0xf0000000, IGNPRED, N("joinat"), CTARG },
+	{ AP, 0xb0000000, 0xf0000000, T(p), N("brkpt") }, // sm_11. check predicates.
+	{ AP, 0, 0, T(p), OOPS, CTARG },
+};
+
 struct insn tab2w[] = {
+	{ AP, 0x0000000000000002ull, 0x0000000000000002ull, T(c) },
 	{ AP, 0x0000000000000000ull, 0x0000000300000000ull, T(p), T(l) },
 	{ AP, 0x0000000100000000ull, 0x0000000300000000ull, T(p), T(l), NL, N("exit") },
 	{ AP, 0x0000000200000000ull, 0x0000000300000000ull, N("join"), NL, T(p), T(l) },
