@@ -799,6 +799,13 @@ struct insn tabls[] = {
 	{ AP, 0, 0, OOPS },
 };
 
+struct insn tabaddop[] = {
+	{ AP, 0x00000000, 0x10400000, N("add") },
+	{ AP, 0x00400000, 0x10400000, N("sub") },
+	{ AP, 0x10000000, 0x10400000, N("subr") },
+	{ AP, 0x10400000, 0x10400000, N("addc") },
+};
+
 /*
  * Short instructions
  */
@@ -842,17 +849,15 @@ struct insn tabscw[] = {
 	{ AP, 0, 0, OOPS }
 };
 
+struct insn tabaddc0[] = {
+	{ AP, 0x10400000, 0x10400000, C0 },
+	{ AP, 0, 0 }
+};
+
 struct insn tabas[] = {
 	{ AP, 0x00000000, 0x00008000, T(sm1sat), N("b16"), SHDST, T(ssh), T(sch) },
 	{ AP, 0x00008000, 0x00008000, T(sm1sat), N("b32"), SDST, T(ssw), T(scw) },
 	{ AP, 0, 0, OOPS }
-};
-
-struct insn tabms[] = {
-	{ AP, 0x00000000, 0x00008100, SDST, N("u16"), T(ssh), T(sch), SDST },
-	{ AP, 0x00000100, 0x00008100, SDST, N("s16"), T(ssh), T(sch), SDST },
-	{ AP, 0x00008000, 0x00008100, N("sat"), SDST, N("s16"), T(ssh), T(sch), SDST },
-	{ AP, 0x00008100, 0x00008100, SDST, N("u24"), T(ssw), T(scw), SDST },
 };
 
 struct insn tabs[] = {
@@ -860,10 +865,8 @@ struct insn tabs[] = {
 	{ AP, 0x10000000, 0xf0008002, N("mov"), N("b16"), SHDST, T(ssh) },
 	{ AP, 0x10008000, 0xf0008002, N("mov"), N("b32"), SDST, T(ssw) },
 
-	{ AP, 0x20000000, 0xf0400002, N("add"), T(as) },
-	{ AP, 0x20400000, 0xf0400002, N("sub"), T(as) },
-	{ AP, 0x30000000, 0xf0400002, N("subr"), T(as) },
-	{ AP, 0x30400000, 0xf0400002, N("addc"), T(as), C0 },
+	{ AP, 0x20000000, 0xe0008002, T(addop), T(sm1sat), N("b16"), SHDST, T(ssh), T(sch), T(addc0) },
+	{ AP, 0x20008000, 0xe0008002, T(addop), T(sm1sat), N("b32"), SDST, T(ssw), T(scw), T(addc0) },
 
 	{ AP, 0x40000000, 0xf0400002, N("mul"), SDST, T(sm2us16), T(ssh), T(sm1us16), T(sch) },
 	{ AP, 0x40400000, 0xf0400002, N("mul"), SDST, T(sm1high), T(sm2us24), T(ssw), T(scw) },
@@ -871,11 +874,10 @@ struct insn tabs[] = {
 	{ AP, 0x50000000, 0xf0008002, N("sad"), SDST, T(sm1us16), SHSRC, SHSRC2, SDST },
 	{ AP, 0x50008000, 0xf0008002, N("sad"), SDST, T(sslus2), SSRC, SSRC2, SDST },
 
-	{ AP, 0x60000000, 0xf0400002, N("madd"), T(ms) },
-	{ AP, 0x60400000, 0xf0400002, N("msub"), T(ms) },
-	{ AP, 0x70000000, 0xf0400002, N("msubr"), T(ms) },
-	{ AP, 0x70400000, 0xf0400002, N("maddc"), T(ms), C0 },
-
+	{ AP, 0x60000000, 0xe0008102, T(addop), SDST, N("mul"), N("u16"), T(ssh), T(sch), SDST, T(addc0) },
+	{ AP, 0x60000100, 0xe0008102, T(addop), SDST, N("mul"), N("s16"), T(ssh), T(sch), SDST, T(addc0) },
+	{ AP, 0x60008000, 0xe0008102, T(addop), N("sat"), SDST, N("mul"), N("s16"), T(ssh), T(sch), SDST, T(addc0) },
+	{ AP, 0x60008100, 0xe0008102, T(addop), SDST, N("mul"), N("u24"), T(ssw), T(scw), SDST, T(addc0) },
 
 	// SCAN 9-F
 
@@ -907,27 +909,22 @@ struct insn tabs[] = {
  * Immediate instructions
  */
 
-struct insn tabgi[] = {
-	{ AP, 0x00000000, 0x00008000, T(sm1sat), N("b16"), SHDST, T(ssh), IMM },
-	{ AP, 0x00008000, 0x00008000, T(sm1sat), N("b32"), SDST, T(ssw), IMM },
-	{ AP, 0, 0, OOPS }
-};
-
 struct insn tabi[] = {
 	// SCAN 0-1
 	{ AP, 0x10000000, 0xf0008000, N("mov"), N("b16"), LHDST, IMM },
 	{ AP, 0x10008000, 0xf0008000, N("mov"), N("b32"), LDST, IMM },	// yes. LDST. special case.
 
-	{ AP, 0x20000000, 0xf0400000, N("add"), T(gi) },
-	{ AP, 0x20400000, 0xf0400000, N("sub"), T(gi) },
-	{ AP, 0x30000000, 0xf0400000, N("subr"), T(gi) },
-	{ AP, 0x30400000, 0xf0400000, N("add"), T(gi), C0 },
+	{ AP, 0x20000000, 0xe0008000, T(addop), T(sm1sat), N("b16"), SHDST, T(ssh), IMM, T(addc0) },
+	{ AP, 0x20008000, 0xe0008000, T(addop), T(sm1sat), N("b32"), SDST, T(ssw), IMM, T(addc0) },
 
 	{ AP, 0x40000000, 0xf0400000, N("mul"), SDST, T(sm2us16), T(ssh), T(sm1us16), IMM },
 	{ AP, 0x40400000, 0xf0400000, N("mul"), SDST, T(sm1high), T(sm2us24), T(ssw), IMM },
 
 	// SCAN 6-F
-	{ AP, 0x60000000, 0xf0000000, N("mad"), SDST, T(sm1us16), T(ssh), IMM, SDST },
+	{ AP, 0x60000000, 0xe0008100, T(addop), SDST, N("mul"), N("u16"), T(ssh), IMM, SDST, T(addc0) }, // XXX: warning: guess here.
+	{ AP, 0x60000100, 0xe0008100, T(addop), SDST, N("mul"), N("s16"), T(ssh), IMM, SDST, T(addc0) },
+	{ AP, 0x60008000, 0xe0008100, T(addop), N("sat"), SDST, N("mul"), N("s16"), T(ssh), IMM, SDST, T(addc0) },
+	{ AP, 0x60008100, 0xe0008100, T(addop), SDST, N("mul"), N("u24"), T(ssw), IMM, SDST, T(addc0) },
 
 	{ AP, 0xb0000000, 0xf0000000, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), IMM },
 
@@ -1280,9 +1277,9 @@ struct insn tablogop[] = {
 	{ AP, 0x0000c00000000000ull, 0x0000c00000000000ull, N("mov2") },
 };
 
-struct insn tabla[] = {
-	{ AP, 0x0000000000000000ull, 0x0400000000000000ull, N("b16"), T(m2sat), MCDST, LLHDST, T(lsh), T(lc3h) },
-	{ AP, 0x0400000000000000ull, 0x0400000000000000ull, N("b32"), T(m2sat), MCDST, LLDST, T(lsw), T(lc3w) },
+struct insn tabaddcond[] = {
+	{ AP, 0x10400000, 0x10400000, COND },
+	{ AP, 0, 0 }
 };
 
 struct insn tabl[] = {
@@ -1335,17 +1332,9 @@ struct insn tabl[] = {
 	{ AP, 0x6000000010000400ull, 0xe0000000f0000600ull,
 		N("vote all"), CDST, IGNCE },	// sm_12
 
-	// 2
-	{ AP, 0x0000000020000000ull, 0x00000000f0400000ull,
-		N("add"), T(la) },
-	{ AP, 0x0000000020400000ull, 0x00000000f0400000ull,
-		N("sub"), T(la) },
-
-	// 3
-	{ AP, 0x0000000030000000ull, 0xe0000000f0400000ull,
-		N("subr"), T(la) },
-	{ AP, 0x0000000030400000ull, 0xe0000000f0400000ull,
-		N("addc"), T(la), COND },
+	// 2 and 3
+	{ AP, 0x0000000020000000ull, 0xe4000000e0000000ull, T(addop), N("b16"), T(m2sat), MCDST, LLHDST, T(lsh), T(lc3h), T(addcond) },
+	{ AP, 0x0400000020000000ull, 0xe4000000e0000000ull, T(addop), N("b32"), T(m2sat), MCDST, LLDST, T(lsw), T(lc3w), T(addcond) },
 
 	// YARLY.
 	{ AP, 0x6000000030000000ull, 0xec000000f0000000ull,
