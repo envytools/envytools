@@ -853,21 +853,26 @@ struct insn tabas[] = {
 	{ AP, 0, 0, OOPS }
 };
 
-struct insn tabsus1[] = {
-	{ AP, 0x00000000, 0x00000100, N("u") },
-	{ AP, 0x00000100, 0x00000100, N("s") },
+struct insn tabsmus1[] = {
+	{ AP, 0x00000000, 0x00000100, N("u16") },
+	{ AP, 0x00000100, 0x00000100, N("s16") },
 };
 
-struct insn tabsus2[] = {
-	{ AP, 0x00000000, 0x00008000, N("u") },
-	{ AP, 0x00008000, 0x00008000, N("s") },
+struct insn tabsmus2[] = {
+	{ AP, 0x00000000, 0x00008000, N("u16") },
+	{ AP, 0x00008000, 0x00008000, N("s16") },
 };
 
 struct insn tabms[] = {
-	{ AP, 0x00000000, 0x00008100, SDST, N("u"), T(ssh), T(sch), SDST },
-	{ AP, 0x00000100, 0x00008100, SDST, N("s"), T(ssh), T(sch), SDST },
-	{ AP, 0x00008000, 0x00008100, N("sat"), SDST, N("s"), T(ssh), T(sch), SDST },
+	{ AP, 0x00000000, 0x00008100, SDST, N("u16"), T(ssh), T(sch), SDST },
+	{ AP, 0x00000100, 0x00008100, SDST, N("s16"), T(ssh), T(sch), SDST },
+	{ AP, 0x00008000, 0x00008100, N("sat"), SDST, N("s16"), T(ssh), T(sch), SDST },
 	{ AP, 0x00008100, 0x00008100, SDST, N("u24"), T(ssw), T(scw), SDST },
+};
+
+struct insn tabsm24us[] = {
+	{ AP, 0x00000000, 0x00008000, N("u24") },
+	{ AP, 0x00008000, 0x00008000, N("s24") },
 };
 
 struct insn tabsm24high[] = {
@@ -880,6 +885,11 @@ struct insn tabstex[] = {
 	{ AP, 0x00000100, 0x00000100, N("live") },
 };
 
+struct insn tabsslus2[] = {
+	{ AP, 0x00000000, 0x00008000, N("u32") },
+	{ AP, 0x00008000, 0x00008000, N("s32") },
+};
+
 struct insn tabs[] = {
 	// SCAN 0-1
 	{ AP, 0x10000000, 0xf0008002, N("mov"), SHDST, T(ssh) },
@@ -890,11 +900,11 @@ struct insn tabs[] = {
 	{ AP, 0x30000000, 0xf0400002, N("subr"), T(as) },
 	{ AP, 0x30400000, 0xf0400002, N("addc"), T(as), C0 },
 
-	{ AP, 0x40000000, 0xf0400002, N("mul"), SDST, T(sus2), T(ssh), T(sus1), T(sch) },
-	{ AP, 0x40400000, 0xf0400002, N("mul24"), SDST, T(sm24high), T(sus2), T(ssw), T(scw) },
+	{ AP, 0x40000000, 0xf0400002, N("mul"), SDST, T(smus2), T(ssh), T(smus1), T(sch) },
+	{ AP, 0x40400000, 0xf0400002, N("mul"), SDST, T(sm24high), T(sm24us), T(ssw), T(scw) },
 
-	{ AP, 0x50000000, 0xf0008002, N("sad"), SDST, T(sus1), T(ssh), T(sch), SDST },
-	{ AP, 0x50008000, 0xf0008002, N("sad"), SDST, T(sus1), T(ssw), T(scw), SDST },
+	{ AP, 0x50000000, 0xf0008002, N("sad"), SDST, T(smus1), SHSRC, SHSRC2, SDST },
+	{ AP, 0x50008000, 0xf0008002, N("sad"), SDST, T(sslus2), SSRC, SSRC2, SDST },
 
 	{ AP, 0x60000000, 0xf0400002, N("madd"), T(ms) },
 	{ AP, 0x60400000, 0xf0400002, N("msub"), T(ms) },
@@ -948,11 +958,11 @@ struct insn tabi[] = {
 	{ AP, 0x30000000, 0xf0400000, N("subr"), T(gi) },
 	{ AP, 0x30400000, 0xf0400000, N("add"), T(gi), C0 },
 
-	{ AP, 0x40000000, 0xf0400000, N("mul"), SDST, T(sus2), T(ssh), T(sus1), IMM },
-	{ AP, 0x40400000, 0xf0400000, N("mul24"), SDST, T(sm24high), T(sus2), T(ssw), IMM },
+	{ AP, 0x40000000, 0xf0400000, N("mul"), SDST, T(smus2), T(ssh), T(smus1), IMM },
+	{ AP, 0x40400000, 0xf0400000, N("mul"), SDST, T(sm24high), T(sm24us), T(ssw), IMM },
 
 	// SCAN 6-F
-	{ AP, 0x60000000, 0xf0000000, N("mad"), SDST, T(sus1), T(ssh), IMM, SDST },
+	{ AP, 0x60000000, 0xf0000000, N("mad"), SDST, T(smus1), T(ssh), IMM, SDST },
 
 	{ AP, 0xb0000000, 0xf0000000, N("add"), T(ssat), N("f32"), SDST, T(sneg1), T(ssw), T(sneg2), IMM },
 
@@ -1211,9 +1221,10 @@ struct insn tabfcon[] = {
 	{ AP, 0, 0, OOPS }
 };
 
-F(lus1, 0x2f, N("u"), N("s"))
-F(lus2, 0x2e, N("u"), N("s"))
-F(lusm2, 0x3b, N("u"), N("s"))
+F(lmus1, 0x2f, N("u16"), N("s16"))
+F(lmus2, 0x2e, N("u16"), N("s16"))
+F(lusm216, 0x3b, N("u16"), N("s16"))
+F(lusm232, 0x3b, N("u32"), N("s32"))
 
 F1(dtex, 0x23, N("deriv")) // suspected to enable implicit derivatives on non-FPs.
 F(ltex, 0x22, N("all"), N("live"))
@@ -1221,6 +1232,7 @@ F(ltex, 0x22, N("all"), N("live"))
 struct insn tabtexf[] = {
 	{ AP, 0, 0, T(ltex), T(dtex), IGNDTEX },
 };
+
 
 struct insn tablane[] = {
 	{ AP, 0x0000000000000000ull, 0x0003c00000000000ull, N("lnone") },
@@ -1288,6 +1300,7 @@ struct insn tabsreg[] = {
 	{ AP, 0x0001c00000000000ull, 0x0001c00000000000ull, N("pm3") },
 };
 
+F(lm24us, 0x2e, N("u24"), N("s24"))
 F1(lm24high, 0x2e, N("high"))
 
 /// XXX FUCKUP WRONG WRONG HERE
@@ -1397,15 +1410,15 @@ struct insn tabl[] = {
 
 	// 4
 	{ AP, 0x0000000040000000ull, 0xe0010000f0000000ull,
-		N("mul"), MCDST, LLDST, T(lus1), T(lsh), T(lus2), T(lc2h) },
+		N("mul"), MCDST, LLDST, T(lmus1), T(lsh), T(lmus2), T(lc2h) },
 	{ AP, 0x0001000040000000ull, 0xe0010000f0000000ull,
-		N("mul24"), MCDST, LLDST, T(lm24high), T(lus1), T(lsw), T(lc2w) },
+		N("mul"), MCDST, LLDST, T(lm24high), T(lm24us), T(lsw), T(lc2w) },
 
 	// 5
 	{ AP, 0x0000000050000000ull, 0xe4000000f0000000ull,
-		N("sad"), MCDST, LLDST, T(lusm2), T(lsh), T(lc2h), T(lc3w) },
+		N("sad"), MCDST, LLDST, T(lusm216), T(lsh), T(lc2h), T(lc3w) },
 	{ AP, 0x0400000050000000ull, 0xe4000000f0000000ull,
-		N("sad"), MCDST, LLDST, T(lusm2), T(lsw), T(lc2w), T(lc3w) },
+		N("sad"), MCDST, LLDST, T(lusm232), T(lsw), T(lc2w), T(lc3w) },
 
 	// 6
 	{ AP, 0x0000000060000000ull, 0xec000000f0000000ull,

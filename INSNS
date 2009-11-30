@@ -165,7 +165,7 @@ Instructions
 
 4. Integer short MUL
 
-  mul [CDST] DST u/s HSRC1 u/s HSRC2
+  mul [CDST] DST u16/s16 HSRC1 u16/s16 HSRC2
 
 	b32 s1, s2;
 	if (src1_signed)
@@ -195,7 +195,7 @@ Instructions
 
 5. Integer 24-bit MUL
 
-  mul24 [CDST] DST [high] u/s SRC1 SRC2
+  mul [CDST] DST [high] u24/s24 SRC1 SRC2
 
 	b48 s1, s2;
 	if (signed) {
