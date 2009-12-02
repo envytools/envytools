@@ -220,12 +220,11 @@ void atomoops APROTO {
  *
  * This field represents a code address and is used for branching and the
  * likes. Target is counted in 32-bit words from the start of microcode.
- * It needs +4 offset for some reason.
  */
 
 #define CTARG atomctarg, 0
 void atomctarg APROTO {
-	fprintf (out, " %s%#llx", cbr, BF(8, 10)+1<<2);
+	fprintf (out, " %s%#llx", cbr, BF(8, 10)<<2);
 }
 
 /*
@@ -345,7 +344,6 @@ void nv50dis (FILE *out, uint32_t *code, int num, int ptype) {
 	int cur = 0;
 	while (cur < num) {
 		ull a = code[cur], m = 0;
-		cur++;
 		fprintf (out, "%s%08x: %s", cgray, cur*4, cnorm);
 		fprintf (out, "%08llx", a);
 		atomtab (out, &a, &m, tabm, ptype);
@@ -354,6 +352,7 @@ void nv50dis (FILE *out, uint32_t *code, int num, int ptype) {
 			fprintf (out, " %s[unknown: %08llx]%s", cred, a, cnorm);
 		}
 		printf ("%s\n", cnorm);
+		cur++;
 	}
 }
 
