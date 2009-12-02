@@ -224,7 +224,7 @@ void atomoops APROTO {
 
 #define CTARG atomctarg, 0
 void atomctarg APROTO {
-	fprintf (out, " %s%#llx", cbr, BF(8, 10)<<2);
+	fprintf (out, " %s%#llx", cbr, BF(8, 9)<<2);
 }
 
 /*
