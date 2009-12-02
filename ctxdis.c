@@ -209,10 +209,10 @@ void atomnum APROTO {
 void atomreg APROTO {
 	fprintf (out, " %s$%s", cbl, (char *)v);
 }
-#define RA R("a")	// Accumulator. Whatever.
+#define RA R("a")	// The scratch register. 0x40031c
 #define RG R("g")	// PGRAPH offset register.
-#define RR R("r")	// RAMIN offset register.
-#define RM R("m")	// 0x40033c
+#define RR R("r")	// RAMIN offset register. 0x400334
+#define RM R("m")	// ??? 0x40033c. always aligned to 8.
 
 /*
  * Memory fields
