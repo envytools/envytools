@@ -55,8 +55,8 @@
  *    - rem		TODO
  *    - abs		TODO
  *    - neg		TODO
- *    - min		TODO
- *    - max		TODO
+ *    - min		TODO started
+ *    - max		TODO started
  *   2. Floating-Point
  *    - add		done
  *    - sub		done
@@ -68,8 +68,8 @@
  *    - div.f64		TODO
  *    - abs		TODO
  *    - neg		TODO
- *    - min		TODO
- *    - max		TODO
+ *    - min		done
+ *    - max		done
  *    - rcp.f32		TODO
  *    - rcp.f64		TODO
  *    - sqrt.f32	TODO
@@ -383,6 +383,12 @@ F1(abs2, 6, N("abs"))
 F(us32, 5, N("u32"), N("s32"))
 
 struct insn tabm[] = {
+	{ AP, 0x080e000000000000ull, 0xf81e000000000007ull, N("min"), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) }, // ummm... and these e bits?
+	{ AP, 0x081e000000000000ull, 0xf81e000000000007ull, N("max"), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
+	{ AP, 0x080e000000000001ull, 0xf81e000000000007ull, N("min"), N("f64"), DSTD, T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2) },
+	{ AP, 0x081e000000000001ull, 0xf81e000000000007ull, N("max"), N("f64"), DSTD, T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2) },
+	{ AP, 0x080e000000000003ull, 0xf81e000000000007ull, N("min"), T(us32), DST, SRC1, T(is2) },
+	{ AP, 0x081e000000000003ull, 0xf81e000000000007ull, N("max"), T(us32), DST, SRC1, T(is2) },
 	{ AP, 0x0800000000000002ull, 0xf800000000000007ull, N("add"), T(ias), N("b32"), DST, SRC1, LIMM },
 	{ AP, 0x0800000000000002ull, 0xf800000000000007ull, N("subr"), T(ias), N("b32"), DST, SRC1, LIMM },
 	{ AP, 0x180e00000001c003ull, 0xf80e00000001c007ull, N("set"), T(us32), PDST, T(setit), SRC1, T(is2) }, // ... what the hell are all those bits?
