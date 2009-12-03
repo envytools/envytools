@@ -401,6 +401,7 @@ struct insn tabm[] = {
 
 	{ AP, 0x0800000000000002ull, 0xf800000000000007ull, N("add"), T(ias), N("b32"), DST, SRC1, LIMM },
 	{ AP, 0x0800000000000002ull, 0xf800000000000007ull, N("subr"), T(ias), N("b32"), DST, SRC1, LIMM },
+	{ AP, 0x18000000000001e2ull, 0xf8000000000001e7ull, N("mov"), DST, LIMM }, // wanna bet these unknown bits are tesla-like lanemask?
 	{ AP, 0x3800000000000002ull, 0xf8000000000000c7ull, N("and"), N("b32"), DST, SRC1, LIMM },
 	{ AP, 0x3800000000000042ull, 0xf8000000000000c7ull, N("or"), N("b32"), DST, SRC1, LIMM },
 	{ AP, 0x3800000000000082ull, 0xf8000000000000c7ull, N("xor"), N("b32"), DST, SRC1, LIMM },
@@ -420,10 +421,13 @@ struct insn tabm[] = {
 	{ AP, 0x0000000000000003ull, 0x0000000000000007ull, OOPS, N("b32"), DST, SRC1, T(is2), SRC3 },
 
 
-	{ AP, 0x40000000000001e7ull, 0xf0000000000001ffull, N("bra"), CTARG },
+	{ AP, 0x28000000000001e4ull, 0xf8000000000001e7ull, N("mov"), DST, SRC2 },
+
+
+	{ AP, 0x40000000000001e7ull, 0xf0000000000001e7ull, N("bra"), CTARG },
 	{ AP, 0x5000000000010007ull, 0xf000000000010007ull, N("call"), CTARG }, // XXX: this has no predicate field. implement it someday.
-	{ AP, 0x80000000000001e7ull, 0xf0000000000001ffull, N("exit") },
-	{ AP, 0x90000000000001e7ull, 0xf0000000000001ffull, N("ret") },
+	{ AP, 0x80000000000001e7ull, 0xf0000000000001e7ull, N("exit") },
+	{ AP, 0x90000000000001e7ull, 0xf0000000000001e7ull, N("ret") },
 	{ AP, 0xd00000000000c007ull, 0xf00000000000c007ull, N("trap") },
 	{ AP, 0x0000000000000007ull, 0x0000000000000007ull, OOPS, CTARG },
 
