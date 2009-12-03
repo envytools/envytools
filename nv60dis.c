@@ -101,12 +101,12 @@
  *   6. Texture
  *    - tex		TODO
  *   7. Control Flow
- *    - { }		TODO
- *    - @		TODO
- *    - bra		TODO
- *    - call		TODO
- *    - ret		TODO
- *    - exit		TODO
+ *    - { }		done
+ *    - @		done
+ *    - bra		TODO started
+ *    - call		TODO started
+ *    - ret		done
+ *    - exit		done
  *   8. Parallel Synchronization and Communication
  *    - bar		TODO
  *    - membar.cta	TODO
@@ -416,12 +416,15 @@ struct insn tabm[] = {
 	{ AP, 0x4800000000000203ull, 0xf800000000000307ull, N("subr"), T(ias), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x5000000000000000ull, 0xf800000000000007ull, N("add"), T(faf), T(fas), T(farm), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
 	{ AP, 0x5000000000000001ull, 0xf800000000000007ull, N("mul"), T(farm), T(neg1), N("f64"), DSTD, SRC1D, T(ds2) },
+	{ AP, 0x5000000000010007ull, 0xf000000000010007ull, N("call"), CTARG }, // XXX: this has no predicate field. implement it someday.
 	{ AP, 0x5800000000000000ull, 0xf800000000000007ull, N("mul"), T(fmf), T(ias), T(farm), T(fmneg), N("f32"), DST, SRC1, T(fs2) },
 	{ AP, 0x6800000000000003ull, 0xf8000000000000c7ull, N("and"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x6800000000000043ull, 0xf8000000000000c7ull, N("or"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x6800000000000083ull, 0xf8000000000000c7ull, N("xor"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x68000000000001c3ull, 0xf8000000000001c7ull, N("not2"), N("b32"), DST, SRC1, T(is2) }, // yes, this is probably just a mov2 with a not bit set.
 	{ AP, 0x80000000000001e7ull, 0xf8000000000001ffull, N("exit") },
+	{ AP, 0x90000000000001e7ull, 0xf0000000000001ffull, N("ret") },
+	{ AP, 0xd00000000000c007ull, 0xf00000000000c007ull, N("trap") },
 	{ AP, 0x0, 0x0, OOPS, DST, SRC1, T(is2) },
 };
 
