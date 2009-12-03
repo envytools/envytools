@@ -243,11 +243,6 @@ void atomname APROTO {
 	fprintf (out, " %s%s", cgr, (char *)v);
 }
 
-#define NL atomnl, 0
-void atomnl APROTO {
-	fprintf (out, "\n                          ");
-}
-
 #define OOPS atomoops, 0
 void atomoops APROTO {
 	fprintf (out, " %s???", cred);
@@ -317,8 +312,7 @@ int pdstoff[] = { 0x11, 3, 'p' };
 void atomreg APROTO {
 	const int *n = v;
 	int r = BF(n[0], n[1]);
-	if (r == 127 && n[2] == 'o') fprintf (out, " %s#", cbl);
-	else fprintf (out, " %s$%c%d", (n[2]=='r')?cbl:cmag, n[2], r);
+	fprintf (out, " %s$%c%d", (n[2]=='r')?cbl:cmag, n[2], r);
 }
 void atomdreg APROTO {
 	const int *n = v;
@@ -327,12 +321,6 @@ void atomdreg APROTO {
 void atomqreg APROTO {
 	const int *n = v;
 	fprintf (out, " %s$%c%lldq", (n[2]=='r')?cbl:cmag, n[2], BF(n[0], n[1]));
-}
-void atomhreg APROTO {
-	const int *n = v;
-	int r = BF(n[0], n[1]);
-	if (r == 127 && n[2] == 'o') fprintf (out, " %s#", cbl);
-	else fprintf (out, " %s$%c%d%c", (n[2]=='r')?cbl:cmag, n[2], r>>1, "lh"[r&1]);
 }
 
 /*
