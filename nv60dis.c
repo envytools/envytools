@@ -31,7 +31,6 @@
 #include <stdint.h>
 #include <unistd.h>
 
-
 #define VP 1
 #define GP 2
 #define FP 4
@@ -59,9 +58,12 @@
  *    - min		TODO
  *    - max		TODO
  *   2. Floating-Point
- *    - add		TODO started
- *    - sub		TODO
- *    - mul		TODO started
+ *    - add.f32		done
+ *    - add.f64		TODO
+ *    - sub.f32		done
+ *    - sub.f64		TODO
+ *    - mul.f32		done
+ *    - mul.f64		TODO
  *    - fma		TODO
  *    - mad		TODO
  *    - div.approxf32	TODO
@@ -359,6 +361,14 @@ struct insn tabfs2[] = {
 };
 
 F1(ias, 5, N("sat"))
+F1(fas, 0x31, N("sat"))
+F1(faf, 5, N("ftz"))
+F1(fmf, 6, N("ftz"))
+F1(fmneg, 0x39, N("neg"))
+F1(neg1, 9, N("neg"))
+F1(neg2, 8, N("neg"))
+F1(abs1, 7, N("abs"))
+F1(abs2, 6, N("abs"))
 F(us32, 5, N("u32"), N("s32"))
 
 struct insn tabm[] = {
@@ -372,8 +382,8 @@ struct insn tabm[] = {
 	{ AP, 0x4800000000000003ull, 0xf800000000000307ull, N("add"), T(ias), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x4800000000000103ull, 0xf800000000000307ull, N("sub"), T(ias), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x4800000000000203ull, 0xf800000000000307ull, N("subr"), T(ias), N("b32"), DST, SRC1, T(is2) },
-	{ AP, 0x5000000000000000ull, 0xf800000000000007ull, N("add"), T(farm), N("f32"), DST, SRC1, T(fs2) },
-	{ AP, 0x5800000000000000ull, 0xf800000000000007ull, N("mul"), T(farm), N("f32"), DST, SRC1, T(fs2) },
+	{ AP, 0x5000000000000000ull, 0xf800000000000007ull, N("add"), T(faf), T(fas), T(farm), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
+	{ AP, 0x5800000000000000ull, 0xf800000000000007ull, N("mul"), T(fmf), T(ias), T(farm), T(fmneg), N("f32"), DST, SRC1, T(fs2) },
 	{ AP, 0x6800000000000003ull, 0xf8000000000000c7ull, N("and"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x6800000000000043ull, 0xf8000000000000c7ull, N("or"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x6800000000000083ull, 0xf8000000000000c7ull, N("xor"), N("b32"), DST, SRC1, T(is2) },
