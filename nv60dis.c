@@ -194,7 +194,7 @@ typedef unsigned long long ull;
 #define BF(s, l) (*m |= ((1ull<<l)-1<<s), *a>>s&(1ull<<l)-1)
 #define RCL(s, l) (*a &= ~((1ull<<l)-1<<s))
 
-#define APROTO (FILE *out, ull *a, ull *m, const void *v, int ptype)
+#define APROTO (FILE *out, ull *a, ull *m, const void *v, int ptype, uint32_t pos)
 
 typedef void (*afun) APROTO;
 
@@ -235,7 +235,7 @@ void atomtab APROTO {
 	m[0] |= tab->mask;
 	for (i = 0; i < 16; i++)
 		if (tab->atoms[i].fun)
-			tab->atoms[i].fun (out, a, m, tab->atoms[i].arg, ptype);
+			tab->atoms[i].fun (out, a, m, tab->atoms[i].arg, ptype, pos);
 }
 
 #define N(x) atomname, x
@@ -251,6 +251,17 @@ void atomnl APROTO {
 #define OOPS atomoops, 0
 void atomoops APROTO {
 	fprintf (out, " %s???", cred);
+}
+
+/*
+ * Code target field
+ */
+
+#define CTARG atomctarg, 0
+void atomctarg APROTO {
+	uint32_t delta = BF(26, 24);
+	if (delta & 0x800000) delta += 0xff000000;
+	fprintf (out, " %s%#x", cbr, pos + delta);
 }
 
 /*
@@ -398,6 +409,7 @@ struct insn tabm[] = {
 	{ AP, 0x3800000000000002ull, 0xf8000000000000c7ull, N("and"), N("b32"), DST, SRC1, LIMM },
 	{ AP, 0x3800000000000042ull, 0xf8000000000000c7ull, N("or"), N("b32"), DST, SRC1, LIMM },
 	{ AP, 0x3800000000000082ull, 0xf8000000000000c7ull, N("xor"), N("b32"), DST, SRC1, LIMM },
+	{ AP, 0x40000000000001e7ull, 0xf0000000000001ffull, N("bra"), CTARG },
 	{ AP, 0x4800000000000001ull, 0xf800000000000007ull, N("add"), T(farm), N("f64"), DSTD, T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2) },
 	{ AP, 0x4800000000000003ull, 0xf800000000000307ull, N("add"), T(ias), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x4800000000000103ull, 0xf800000000000307ull, N("sub"), T(ias), N("b32"), DST, SRC1, T(is2) },
@@ -447,7 +459,7 @@ void nv50dis (FILE *out, uint32_t *code, int num, int ptype) {
 			a |= (ull)code[cur++] << 32;
 			fprintf (out, "%016llx", a);
 		struct insn *tab = tabs;
-		atomtab (out, &a, &m, tab, ptype);
+		atomtab (out, &a, &m, tab, ptype, cur*4);
 		a &= ~m;
 		if (a) {
 			fprintf (out, (" %s[unknown: %016llx]%s"), cred, a, cnorm);
