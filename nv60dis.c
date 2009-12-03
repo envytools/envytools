@@ -258,6 +258,8 @@ void atomoops APROTO {
  * Misc number fields
  */
 
+int immoff[] = { 0x1a, 20, 1 };
+#define IMM atomnum, immoff
 void atomnum APROTO {
 	const int *n = v;
 	uint32_t num = BF(n[0], n[1]);
@@ -311,11 +313,18 @@ void atomhreg APROTO {
  * The instructions
  */
 
+struct insn tabis2[] = {
+	{ AP, 0x0000000000000000ull, 0x0000c00000000000ull, SRC2 },
+	{ AP, 0x0000c00000000000ull, 0x0000c00000000000ull, IMM },
+	{ AP, 0, 0, OOPS },
+};
+
 F1(ias, 5, N("sat"))
 
 struct insn tabm[] = {
-	{ AP, 0x4800000000001c03ull, 0xff00000000003fdfull, N("add"), T(ias), N("b32"), DST, SRC1, SRC2 },
-	{ AP, 0x4800000000001d03ull, 0xff00000000003fdfull, N("sub"), T(ias), N("b32"), DST, SRC1, SRC2 },
+	{ AP, 0x4800000000001c03ull, 0xff00000000003fdfull, N("add"), T(ias), N("b32"), DST, SRC1, T(is2) },
+	{ AP, 0x4800000000001d03ull, 0xff00000000003fdfull, N("sub"), T(ias), N("b32"), DST, SRC1, T(is2) },
+	{ AP, 0x4800000000001e03ull, 0xff00000000003fdfull, N("subr"), T(ias), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x8000000000001de7ull, 0xff00000000003fffull, N("exit") },
 	{ AP, 0x0, 0x0, OOPS },
 };
