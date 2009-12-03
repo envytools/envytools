@@ -384,36 +384,51 @@ F(us32, 5, N("u32"), N("s32"))
 struct insn tabm[] = {
 	{ AP, 0x080e000000000000ull, 0xf81e000000000007ull, N("min"), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) }, // ummm... and these e bits?
 	{ AP, 0x081e000000000000ull, 0xf81e000000000007ull, N("max"), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
+	{ AP, 0x200e00000001c000ull, 0xf80e00000001c007ull, N("set"), N("f32"), PDST, T(setit), SRC1, T(fs2) },
+	{ AP, 0x3000000000000000ull, 0xf800000000000007ull, N("add"), T(fmf), T(ias), T(farm), N("f32"), DST, T(neg1), N("mul"), SRC1, T(fs2), T(neg2), SRC3 },
+	{ AP, 0x5000000000000000ull, 0xf800000000000007ull, N("add"), T(faf), T(fas), T(farm), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
+	{ AP, 0x5800000000000000ull, 0xf800000000000007ull, N("mul"), T(fmf), T(ias), T(farm), T(fmneg), N("f32"), DST, SRC1, T(fs2) },
+	{ AP, 0x0000000000000000ull, 0x0000000000000007ull, OOPS, T(farm), N("f32"), DST, SRC1, T(fs2), SRC3 },
+
+
 	{ AP, 0x080e000000000001ull, 0xf81e000000000007ull, N("min"), N("f64"), DSTD, T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2) },
 	{ AP, 0x081e000000000001ull, 0xf81e000000000007ull, N("max"), N("f64"), DSTD, T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2) },
-	{ AP, 0x080e000000000003ull, 0xf81e000000000007ull, N("min"), T(us32), DST, SRC1, T(is2) },
-	{ AP, 0x081e000000000003ull, 0xf81e000000000007ull, N("max"), T(us32), DST, SRC1, T(is2) },
+	{ AP, 0x2000000000000001ull, 0xf800000000000007ull, N("add"), T(farm), N("f64"), DSTD, T(neg1), N("mul"), SRC1D, T(ds2), T(neg2), SRC3D },
+	{ AP, 0x4800000000000001ull, 0xf800000000000007ull, N("add"), T(farm), N("f64"), DSTD, T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2) },
+	{ AP, 0x5000000000000001ull, 0xf800000000000007ull, N("mul"), T(farm), T(neg1), N("f64"), DSTD, SRC1D, T(ds2) },
+	{ AP, 0x0000000000000001ull, 0x0000000000000007ull, OOPS, T(farm), N("f64"), DSTD, SRC1D, T(ds2), SRC3D },
+
+
 	{ AP, 0x0800000000000002ull, 0xf800000000000007ull, N("add"), T(ias), N("b32"), DST, SRC1, LIMM },
 	{ AP, 0x0800000000000002ull, 0xf800000000000007ull, N("subr"), T(ias), N("b32"), DST, SRC1, LIMM },
-	{ AP, 0x180e00000001c003ull, 0xf80e00000001c007ull, N("set"), T(us32), PDST, T(setit), SRC1, T(is2) }, // ... what the hell are all those bits?
-	{ AP, 0x200e00000001c000ull, 0xf80e00000001c007ull, N("set"), N("f32"), PDST, T(setit), SRC1, T(fs2) },
-	{ AP, 0x2000000000000001ull, 0xf800000000000007ull, N("add"), T(farm), N("f64"), DSTD, T(neg1), N("mul"), SRC1D, T(ds2), T(neg2), SRC3D },
-	{ AP, 0x3000000000000000ull, 0xf800000000000007ull, N("add"), T(fmf), T(ias), T(farm), N("f32"), DST, T(neg1), N("mul"), SRC1, T(fs2), T(neg2), SRC3 },
 	{ AP, 0x3800000000000002ull, 0xf8000000000000c7ull, N("and"), N("b32"), DST, SRC1, LIMM },
 	{ AP, 0x3800000000000042ull, 0xf8000000000000c7ull, N("or"), N("b32"), DST, SRC1, LIMM },
 	{ AP, 0x3800000000000082ull, 0xf8000000000000c7ull, N("xor"), N("b32"), DST, SRC1, LIMM },
-	{ AP, 0x40000000000001e7ull, 0xf0000000000001ffull, N("bra"), CTARG },
-	{ AP, 0x4800000000000001ull, 0xf800000000000007ull, N("add"), T(farm), N("f64"), DSTD, T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2) },
+	{ AP, 0x0000000000000002ull, 0x0000000000000007ull, OOPS, N("b32"), DST, SRC1, LIMM },
+
+
+	{ AP, 0x080e000000000003ull, 0xf81e000000000007ull, N("min"), T(us32), DST, SRC1, T(is2) },
+	{ AP, 0x081e000000000003ull, 0xf81e000000000007ull, N("max"), T(us32), DST, SRC1, T(is2) },
+	{ AP, 0x180e00000001c003ull, 0xf80e00000001c007ull, N("set"), T(us32), PDST, T(setit), SRC1, T(is2) }, // ... what the hell are all those bits?
 	{ AP, 0x4800000000000003ull, 0xf800000000000307ull, N("add"), T(ias), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x4800000000000103ull, 0xf800000000000307ull, N("sub"), T(ias), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x4800000000000203ull, 0xf800000000000307ull, N("subr"), T(ias), N("b32"), DST, SRC1, T(is2) },
-	{ AP, 0x5000000000000000ull, 0xf800000000000007ull, N("add"), T(faf), T(fas), T(farm), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
-	{ AP, 0x5000000000000001ull, 0xf800000000000007ull, N("mul"), T(farm), T(neg1), N("f64"), DSTD, SRC1D, T(ds2) },
-	{ AP, 0x5000000000010007ull, 0xf000000000010007ull, N("call"), CTARG }, // XXX: this has no predicate field. implement it someday.
-	{ AP, 0x5800000000000000ull, 0xf800000000000007ull, N("mul"), T(fmf), T(ias), T(farm), T(fmneg), N("f32"), DST, SRC1, T(fs2) },
 	{ AP, 0x6800000000000003ull, 0xf8000000000000c7ull, N("and"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x6800000000000043ull, 0xf8000000000000c7ull, N("or"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x6800000000000083ull, 0xf8000000000000c7ull, N("xor"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x68000000000001c3ull, 0xf8000000000001c7ull, N("not2"), N("b32"), DST, SRC1, T(is2) }, // yes, this is probably just a mov2 with a not bit set.
-	{ AP, 0x80000000000001e7ull, 0xf8000000000001ffull, N("exit") },
+	{ AP, 0x0000000000000003ull, 0x0000000000000007ull, OOPS, N("b32"), DST, SRC1, T(is2), SRC3 },
+
+
+	{ AP, 0x40000000000001e7ull, 0xf0000000000001ffull, N("bra"), CTARG },
+	{ AP, 0x5000000000010007ull, 0xf000000000010007ull, N("call"), CTARG }, // XXX: this has no predicate field. implement it someday.
+	{ AP, 0x80000000000001e7ull, 0xf0000000000001ffull, N("exit") },
 	{ AP, 0x90000000000001e7ull, 0xf0000000000001ffull, N("ret") },
 	{ AP, 0xd00000000000c007ull, 0xf00000000000c007ull, N("trap") },
-	{ AP, 0x0, 0x0, OOPS, DST, SRC1, T(is2) },
+	{ AP, 0x0000000000000007ull, 0x0000000000000007ull, OOPS, CTARG },
+
+
+	{ AP, 0x0, 0x0, OOPS, DST, SRC1, T(is2), SRC3 },
 };
 
 struct insn tabs[] = {
