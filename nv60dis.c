@@ -267,11 +267,11 @@ int limmoff[] = { 0x1a, 32, 0, 0 };
 #define LIMM atomnum, limmoff
 void atomnum APROTO {
 	const int *n = v;
-	uint32_t num = BF(n[0], n[1])<<n[2];
-	if (n[3] && num&1<<(n[1]-1))
-		fprintf (out, " %s-%#x", cyel, (1<<n[1]) - num);
+	ull num = BF(n[0], n[1])<<n[2];
+	if (n[3] && num&1ull<<(n[1]-1))
+		fprintf (out, " %s-%#llx", cyel, (1ull<<n[1]) - num);
 	else
-		fprintf (out, " %s%#x", cyel, num);
+		fprintf (out, " %s%#llx", cyel, num);
 }
 
 /*
