@@ -42,8 +42,8 @@
  * Instructions, from PTX manual:
  *   
  *   1. Integer Arithmetic
- *    - add		TODO
- *    - sub		TODO
+ *    - add		TODO started
+ *    - sub		TODO started
  *    - addc		TODO
  *    - subc		TODO
  *    - mul		TODO
@@ -87,10 +87,10 @@
  *    - selp		TODO
  *    - slct		TODO
  *   4. Logic and Shift
- *    - and		TODO
- *    - or		TODO
- *    - xor		TODO
- *    - not		TODO
+ *    - and		done, check not bitfields for all 4
+ *    - or		done
+ *    - xor		done
+ *    - not		done
  *    - cnot		TODO
  *    - shl		TODO
  *    - shr		TODO
@@ -325,6 +325,10 @@ struct insn tabm[] = {
 	{ AP, 0x4800000000001c03ull, 0xff00000000003fdfull, N("add"), T(ias), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x4800000000001d03ull, 0xff00000000003fdfull, N("sub"), T(ias), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x4800000000001e03ull, 0xff00000000003fdfull, N("subr"), T(ias), N("b32"), DST, SRC1, T(is2) },
+	{ AP, 0x6800000000001c03ull, 0xf800000000003fffull, N("and"), N("b32"), DST, SRC1, T(is2) },
+	{ AP, 0x6800000000001c43ull, 0xf800000000003fffull, N("or"), N("b32"), DST, SRC1, T(is2) },
+	{ AP, 0x6800000000001c83ull, 0xf800000000003fffull, N("xor"), N("b32"), DST, SRC1, T(is2) },
+	{ AP, 0x6800000000001dc3ull, 0xf800000000003fffull, N("not2"), N("b32"), DST, SRC1, T(is2) }, // yes, this is probably just a mov2 with a not bit set.
 	{ AP, 0x8000000000001de7ull, 0xff00000000003fffull, N("exit") },
 	{ AP, 0x0, 0x0, OOPS },
 };
