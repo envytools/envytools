@@ -259,7 +259,9 @@ void atomoops APROTO {
  */
 
 int immoff[] = { 0x1a, 20, 1 };
+int limmoff[] = { 0x1a, 32, 0 };
 #define IMM atomnum, immoff
+#define LIMM atomnum, limmoff
 void atomnum APROTO {
 	const int *n = v;
 	uint32_t num = BF(n[0], n[1]);
@@ -322,14 +324,19 @@ struct insn tabis2[] = {
 F1(ias, 5, N("sat"))
 
 struct insn tabm[] = {
-	{ AP, 0x4800000000001c03ull, 0xff00000000003fdfull, N("add"), T(ias), N("b32"), DST, SRC1, T(is2) },
-	{ AP, 0x4800000000001d03ull, 0xff00000000003fdfull, N("sub"), T(ias), N("b32"), DST, SRC1, T(is2) },
-	{ AP, 0x4800000000001e03ull, 0xff00000000003fdfull, N("subr"), T(ias), N("b32"), DST, SRC1, T(is2) },
+	{ AP, 0x0800000000001c02ull, 0xf800000000003fffull, N("add"), T(ias), N("b32"), DST, SRC1, LIMM },
+	{ AP, 0x0800000000001c02ull, 0xf800000000003fffull, N("subr"), T(ias), N("b32"), DST, SRC1, LIMM },
+	{ AP, 0x3800000000001c02ull, 0xf800000000003fffull, N("and"), N("b32"), DST, SRC1, LIMM },
+	{ AP, 0x3800000000001c42ull, 0xf800000000003fffull, N("or"), N("b32"), DST, SRC1, LIMM },
+	{ AP, 0x3800000000001c82ull, 0xf800000000003fffull, N("xor"), N("b32"), DST, SRC1, LIMM },
+	{ AP, 0x4800000000001c03ull, 0xf800000000003fdfull, N("add"), T(ias), N("b32"), DST, SRC1, T(is2) },
+	{ AP, 0x4800000000001d03ull, 0xf800000000003fdfull, N("sub"), T(ias), N("b32"), DST, SRC1, T(is2) },
+	{ AP, 0x4800000000001e03ull, 0xf800000000003fdfull, N("subr"), T(ias), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x6800000000001c03ull, 0xf800000000003fffull, N("and"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x6800000000001c43ull, 0xf800000000003fffull, N("or"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x6800000000001c83ull, 0xf800000000003fffull, N("xor"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x6800000000001dc3ull, 0xf800000000003fffull, N("not2"), N("b32"), DST, SRC1, T(is2) }, // yes, this is probably just a mov2 with a not bit set.
-	{ AP, 0x8000000000001de7ull, 0xff00000000003fffull, N("exit") },
+	{ AP, 0x8000000000001de7ull, 0xf800000000003fffull, N("exit") },
 	{ AP, 0x0, 0x0, OOPS },
 };
 
