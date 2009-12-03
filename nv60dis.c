@@ -354,7 +354,7 @@ struct insn tabm[] = {
 	{ AP, 0x6800000000001c83ull, 0xf800000000003fffull, N("xor"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x6800000000001dc3ull, 0xf800000000003fffull, N("not2"), N("b32"), DST, SRC1, T(is2) }, // yes, this is probably just a mov2 with a not bit set.
 	{ AP, 0x8000000000001de7ull, 0xf800000000003fffull, N("exit") },
-	{ AP, 0x0, 0x0, OOPS },
+	{ AP, 0x0, 0x0, OOPS, DST, SRC1, T(is2) },
 };
 
 /*
