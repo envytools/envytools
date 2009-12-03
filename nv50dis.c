@@ -337,7 +337,7 @@ struct insn {
 	int ptype;
 	ull val;
 	ull mask;
-	struct atom atoms[10];
+	struct atom atoms[16];
 };
 
 /*
@@ -363,7 +363,7 @@ void atomtab APROTO {
 	while ((a[0]&tab->mask) != tab->val || !(tab->ptype&ptype))
 		tab++;
 	m[0] |= tab->mask;
-	for (i = 0; i < 10; i++)
+	for (i = 0; i < 16; i++)
 		if (tab->atoms[i].fun)
 			tab->atoms[i].fun (out, a, m, tab->atoms[i].arg, ptype);
 }
