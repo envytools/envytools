@@ -59,9 +59,9 @@
  *    - min		TODO
  *    - max		TODO
  *   2. Floating-Point
- *    - add		TODO
+ *    - add		TODO started
  *    - sub		TODO
- *    - mul		TODO
+ *    - mul		TODO started
  *    - fma		TODO
  *    - mad		TODO
  *    - div.approxf32	TODO
@@ -258,14 +258,16 @@ void atomoops APROTO {
  * Misc number fields
  */
 
-int immoff[] = { 0x1a, 20, 1 };
-int limmoff[] = { 0x1a, 32, 0 };
+int immoff[] = { 0x1a, 20, 0, 1 };
+int fimmoff[] = { 0x1a, 20, 12, 0 };
+int limmoff[] = { 0x1a, 32, 0, 0 };
 #define IMM atomnum, immoff
+#define FIMM atomnum, fimmoff
 #define LIMM atomnum, limmoff
 void atomnum APROTO {
 	const int *n = v;
-	uint32_t num = BF(n[0], n[1]);
-	if (n[2] && num&1<<(n[1]-1))
+	uint32_t num = BF(n[0], n[1])<<n[2];
+	if (n[3] && num&1<<(n[1]-1))
 		fprintf (out, " %s-%#x", cyel, (1<<n[1]) - num);
 	else
 		fprintf (out, " %s%#x", cyel, num);
@@ -315,9 +317,22 @@ void atomhreg APROTO {
  * The instructions
  */
 
+struct insn tabfarm[] = {
+	{ AP, 0x0000000000000000ull, 0x0180000000000000ull, N("rn") },
+	{ AP, 0x0080000000000000ull, 0x0180000000000000ull, N("rm") },
+	{ AP, 0x0100000000000000ull, 0x0180000000000000ull, N("rp") },
+	{ AP, 0x0180000000000000ull, 0x0180000000000000ull, N("rz") },
+};
+
 struct insn tabis2[] = {
 	{ AP, 0x0000000000000000ull, 0x0000c00000000000ull, SRC2 },
 	{ AP, 0x0000c00000000000ull, 0x0000c00000000000ull, IMM },
+	{ AP, 0, 0, OOPS },
+};
+
+struct insn tabfs2[] = {
+	{ AP, 0x0000000000000000ull, 0x0000c00000000000ull, SRC2 },
+	{ AP, 0x0000c00000000000ull, 0x0000c00000000000ull, FIMM },
 	{ AP, 0, 0, OOPS },
 };
 
@@ -332,6 +347,8 @@ struct insn tabm[] = {
 	{ AP, 0x4800000000001c03ull, 0xf800000000003fdfull, N("add"), T(ias), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x4800000000001d03ull, 0xf800000000003fdfull, N("sub"), T(ias), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x4800000000001e03ull, 0xf800000000003fdfull, N("subr"), T(ias), N("b32"), DST, SRC1, T(is2) },
+	{ AP, 0x5000000000001c00ull, 0xf800000000003fffull, N("add"), T(farm), N("f32"), DST, SRC1, T(fs2) },
+	{ AP, 0x5800000000001c00ull, 0xf800000000003fffull, N("mul"), T(farm), N("f32"), DST, SRC1, T(fs2) },
 	{ AP, 0x6800000000001c03ull, 0xf800000000003fffull, N("and"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x6800000000001c43ull, 0xf800000000003fffull, N("or"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x6800000000001c83ull, 0xf800000000003fffull, N("xor"), N("b32"), DST, SRC1, T(is2) },
