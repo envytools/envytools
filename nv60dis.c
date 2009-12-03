@@ -307,9 +307,15 @@ void atomhreg APROTO {
 	else fprintf (out, " %s$%c%d%c", (n[2]=='r')?cbl:cmag, n[2], r>>1, "lh"[r&1]);
 }
 
+/*
+ * The instructions
+ */
+
+F1(ias, 5, N("sat"))
 
 struct insn tabm[] = {
-	{ AP, 0x4800000000001c03ull, 0xff00000000003fffull, N("add"), DST, SRC1, SRC2 },
+	{ AP, 0x4800000000001c03ull, 0xff00000000003fdfull, N("add"), T(ias), N("b32"), DST, SRC1, SRC2 },
+	{ AP, 0x4800000000001d03ull, 0xff00000000003fdfull, N("sub"), T(ias), N("b32"), DST, SRC1, SRC2 },
 	{ AP, 0x8000000000001de7ull, 0xff00000000003fffull, N("exit") },
 	{ AP, 0x0, 0x0, OOPS },
 };
