@@ -301,6 +301,7 @@ int predoff[] = { 0xa, 3, 'p' };
 int pdstoff[] = { 0x11, 3, 'p' };
 #define DST atomreg, dstoff
 #define DSTD atomdreg, dstoff
+#define DSTQ atomqreg, dstoff
 #define SRC1 atomreg, src1off
 #define SRC1D atomdreg, src1off
 #define SRC2 atomreg, src2off
@@ -324,8 +325,52 @@ void atomqreg APROTO {
 }
 
 /*
+ * Memory fields
+ */
+
+int gmem[] = { 'g', 0 };
+int gdmem[] = { 'g', 1 };
+#define GLOBAL atommem, gmem
+#define GLOBALD atommem, gdmem
+void atommem APROTO {
+	const int *n = v;
+	uint32_t delta = BF(26, 32);
+	fprintf (out, " %s%c", ccy, n[0]);
+	if (n[0] == 'c')
+		fprintf (out, "%lld", BF(0x2a, 4));
+	fprintf (out, "[%s$r%lld%s", cbl, BF(20, 6), n[1]?"d":"");
+	if (delta & 0x80000000U)
+		fprintf (out, "%s-%s%#x%s]", ccy, cyel, -delta, ccy);
+	else
+		fprintf (out, "%s+%s%#x%s]", ccy, cyel, delta, ccy);
+}
+
+/*
  * The instructions
  */
+
+F(gmem, 0x3a, GLOBAL, GLOBALD)
+struct insn tabldstt[] = {
+	{ AP, 0x00, 0xe0, N("u8") },
+	{ AP, 0x20, 0xe0, N("s8") },
+	{ AP, 0x40, 0xe0, N("u16") },
+	{ AP, 0x60, 0xe0, N("s16") },
+	{ AP, 0x80, 0xe0, N("b32") },
+	{ AP, 0xa0, 0xe0, N("b64") },
+	{ AP, 0xc0, 0xe0, N("b128") },
+	{ AP, 0, 0, OOPS },
+};
+
+struct insn tabldstd[] = {
+	{ AP, 0x00, 0xe0, DST },
+	{ AP, 0x20, 0xe0, DST },
+	{ AP, 0x40, 0xe0, DST },
+	{ AP, 0x60, 0xe0, DST },
+	{ AP, 0x80, 0xe0, DST },
+	{ AP, 0xa0, 0xe0, DSTD },
+	{ AP, 0xc0, 0xe0, DSTQ },
+	{ AP, 0, 0, OOPS, DST },
+};
 
 struct insn tabfarm[] = {
 	{ AP, 0x0000000000000000ull, 0x0180000000000000ull, N("rn") },
@@ -422,6 +467,11 @@ struct insn tabm[] = {
 
 
 	{ AP, 0x28000000000001e4ull, 0xf8000000000001e7ull, N("mov"), DST, SRC2 },
+
+
+	{ AP, 0x8000000000000105ull, 0xf800000000000107ull, N("mov"), T(ldstt), T(ldstd), T(gmem) }, // XXX wtf is this flag?
+	{ AP, 0x9000000000000005ull, 0xf800000000000107ull, N("mov"), T(ldstt), T(gmem), T(ldstd) },
+	{ AP, 0x0000000000000005ull, 0x0000000000000007ull, OOPS, T(ldstt), T(ldstd), T(gmem), SRC3 },
 
 
 	{ AP, 0x40000000000001e7ull, 0xf0000000000001e7ull, N("bra"), CTARG },
