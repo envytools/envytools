@@ -51,6 +51,8 @@
  *           counted in whole insns.
  * 0x400328: code upload, WO. writes given insn to code segment and
  *           autoincrements upload address.
+ * 0x40032c: current context RAMIN address, shifted right by 12 bits [?]
+ * 0x400330: next context RAMIN address, shifted right by 12 bits
  * 0x400334: $r register, offset in RAMIN context to read/write with opcode 1.
  *           in units of 32-bit words.
  * 0x400338: Some register, set with opcode 3. Used on NVAx with values 0-9 to
@@ -296,8 +298,8 @@ void atommem APROTO {
  *  - 0x824 and 0x828, remaining bits [0x01-0x3f]: ??? RW
  *  - 0x82c [0x40-0x5f]: RO, some sort of PGRAPH status or something...
  *  - 0x82c bit 13 [0x4d]: always set, used for unconditional jumps
- *  - 0x830 bits 0-10 [0x60-0x69]: copied straight from relevant bits in PMC
- *    0x1540, the TP enable bits.
+ *  - 0x830 bits 0-10 [0x60-0x69]: used as the TP enable bits. copied from
+ *    0x8fc, which in turn is a mirror of some bits from PMC+0x1540.
  *
  * None of this checked on NV40.
  */
@@ -327,9 +329,11 @@ struct insn tabm[] = {
 	{ NV5x, 0x600006, 0xffffff, N("mov"), RR, RA },			// copies $a to $r
 	{ NV5x, 0x600007, 0xffffff, N("mov"), RM, RA },			// copies $a to $r, anding it with 0xffff8
 	{ NV5x, 0x60000c, 0xffffff, N("exit") },			// halts program execution, resets PC to 0
+	{ NV5x, 0x60000d, 0xffffff, N("ctxsw") },			// movs new RAMIN address to current RAMIN address, basically where the real switch happens
 	{ NV4x, 0x60000e, 0xffffff, N("exit") },
 	{ NVxx, 0x700000, 0xf00080, N("clear"), T(rpred) },		// clears given flag
 	{ NVxx, 0x700080, 0xf00080, N("set"), T(rpred) },		// sets given flag
+	{ NV5x, 0xa00000, 0xf10000, N("mov"), N("units"), PGRAPH5 },	// movs given PGRAPH register to 0x400830.
 	{ NVxx, 0, 0, OOPS },
 };
 
