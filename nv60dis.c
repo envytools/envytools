@@ -289,9 +289,13 @@ void atomign APROTO {
 int dstoff[] = { 0xe, 6, 'r' };
 int src1off[] = { 0x14, 6, 'r' };
 int src2off[] = { 0x1a, 6, 'r' };
+int predoff[] = { 0xa, 3, 'p' };
+int pdstoff[] = { 0x11, 3, 'p' };
 #define DST atomreg, dstoff
 #define SRC1 atomreg, src1off
 #define SRC2 atomreg, src2off
+#define PRED atomreg, predoff
+#define PDST atomreg, pdstoff
 void atomreg APROTO {
 	const int *n = v;
 	int r = BF(n[0], n[1]);
@@ -324,6 +328,24 @@ struct insn tabfarm[] = {
 	{ AP, 0x0180000000000000ull, 0x0180000000000000ull, N("rz") },
 };
 
+struct insn tabsetit[] = {
+	{ AP, 0x0080000000000000ull, 0x0780000000000000ull, N("lt") },
+	{ AP, 0x0100000000000000ull, 0x0780000000000000ull, N("eq") },
+	{ AP, 0x0180000000000000ull, 0x0780000000000000ull, N("le") },
+	{ AP, 0x0200000000000000ull, 0x0780000000000000ull, N("gt") },
+	{ AP, 0x0280000000000000ull, 0x0780000000000000ull, N("ne") },
+	{ AP, 0x0300000000000000ull, 0x0780000000000000ull, N("ge") },
+	{ AP, 0x0380000000000000ull, 0x0780000000000000ull, N("num") },
+	{ AP, 0x0400000000000000ull, 0x0780000000000000ull, N("nan") },
+	{ AP, 0x0480000000000000ull, 0x0780000000000000ull, N("ltu") },
+	{ AP, 0x0500000000000000ull, 0x0780000000000000ull, N("equ") },
+	{ AP, 0x0580000000000000ull, 0x0780000000000000ull, N("leu") },
+	{ AP, 0x0600000000000000ull, 0x0780000000000000ull, N("gtu") },
+	{ AP, 0x0680000000000000ull, 0x0780000000000000ull, N("neu") },
+	{ AP, 0x0700000000000000ull, 0x0780000000000000ull, N("geu") },
+	{ AP, 0, 0, OOPS },
+};
+
 struct insn tabis2[] = {
 	{ AP, 0x0000000000000000ull, 0x0000c00000000000ull, SRC2 },
 	{ AP, 0x0000c00000000000ull, 0x0000c00000000000ull, IMM },
@@ -337,24 +359,35 @@ struct insn tabfs2[] = {
 };
 
 F1(ias, 5, N("sat"))
+F(us32, 5, N("u32"), N("s32"))
 
 struct insn tabm[] = {
-	{ AP, 0x0800000000001c02ull, 0xf800000000003fffull, N("add"), T(ias), N("b32"), DST, SRC1, LIMM },
-	{ AP, 0x0800000000001c02ull, 0xf800000000003fffull, N("subr"), T(ias), N("b32"), DST, SRC1, LIMM },
-	{ AP, 0x3800000000001c02ull, 0xf800000000003fffull, N("and"), N("b32"), DST, SRC1, LIMM },
-	{ AP, 0x3800000000001c42ull, 0xf800000000003fffull, N("or"), N("b32"), DST, SRC1, LIMM },
-	{ AP, 0x3800000000001c82ull, 0xf800000000003fffull, N("xor"), N("b32"), DST, SRC1, LIMM },
-	{ AP, 0x4800000000001c03ull, 0xf800000000003fdfull, N("add"), T(ias), N("b32"), DST, SRC1, T(is2) },
-	{ AP, 0x4800000000001d03ull, 0xf800000000003fdfull, N("sub"), T(ias), N("b32"), DST, SRC1, T(is2) },
-	{ AP, 0x4800000000001e03ull, 0xf800000000003fdfull, N("subr"), T(ias), N("b32"), DST, SRC1, T(is2) },
-	{ AP, 0x5000000000001c00ull, 0xf800000000003fffull, N("add"), T(farm), N("f32"), DST, SRC1, T(fs2) },
-	{ AP, 0x5800000000001c00ull, 0xf800000000003fffull, N("mul"), T(farm), N("f32"), DST, SRC1, T(fs2) },
-	{ AP, 0x6800000000001c03ull, 0xf800000000003fffull, N("and"), N("b32"), DST, SRC1, T(is2) },
-	{ AP, 0x6800000000001c43ull, 0xf800000000003fffull, N("or"), N("b32"), DST, SRC1, T(is2) },
-	{ AP, 0x6800000000001c83ull, 0xf800000000003fffull, N("xor"), N("b32"), DST, SRC1, T(is2) },
-	{ AP, 0x6800000000001dc3ull, 0xf800000000003fffull, N("not2"), N("b32"), DST, SRC1, T(is2) }, // yes, this is probably just a mov2 with a not bit set.
-	{ AP, 0x8000000000001de7ull, 0xf800000000003fffull, N("exit") },
+	{ AP, 0x0800000000000002ull, 0xf800000000000007ull, N("add"), T(ias), N("b32"), DST, SRC1, LIMM },
+	{ AP, 0x0800000000000002ull, 0xf800000000000007ull, N("subr"), T(ias), N("b32"), DST, SRC1, LIMM },
+	{ AP, 0x180e00000001c003ull, 0xf80e00000001c007ull, N("set"), T(us32), PDST, T(setit), SRC1, T(is2) }, // ... what the hell are all those bits?
+	{ AP, 0x200e00000001c000ull, 0xf80e00000001c007ull, N("set"), N("f32"), PDST, T(setit), SRC1, T(fs2) },
+	{ AP, 0x3800000000000002ull, 0xf8000000000000c7ull, N("and"), N("b32"), DST, SRC1, LIMM },
+	{ AP, 0x3800000000000042ull, 0xf8000000000000c7ull, N("or"), N("b32"), DST, SRC1, LIMM },
+	{ AP, 0x3800000000000082ull, 0xf8000000000000c7ull, N("xor"), N("b32"), DST, SRC1, LIMM },
+	{ AP, 0x4800000000000003ull, 0xf800000000000307ull, N("add"), T(ias), N("b32"), DST, SRC1, T(is2) },
+	{ AP, 0x4800000000000103ull, 0xf800000000000307ull, N("sub"), T(ias), N("b32"), DST, SRC1, T(is2) },
+	{ AP, 0x4800000000000203ull, 0xf800000000000307ull, N("subr"), T(ias), N("b32"), DST, SRC1, T(is2) },
+	{ AP, 0x5000000000000000ull, 0xf800000000000007ull, N("add"), T(farm), N("f32"), DST, SRC1, T(fs2) },
+	{ AP, 0x5800000000000000ull, 0xf800000000000007ull, N("mul"), T(farm), N("f32"), DST, SRC1, T(fs2) },
+	{ AP, 0x6800000000000003ull, 0xf8000000000000c7ull, N("and"), N("b32"), DST, SRC1, T(is2) },
+	{ AP, 0x6800000000000043ull, 0xf8000000000000c7ull, N("or"), N("b32"), DST, SRC1, T(is2) },
+	{ AP, 0x6800000000000083ull, 0xf8000000000000c7ull, N("xor"), N("b32"), DST, SRC1, T(is2) },
+	{ AP, 0x68000000000001c3ull, 0xf8000000000001c7ull, N("not2"), N("b32"), DST, SRC1, T(is2) }, // yes, this is probably just a mov2 with a not bit set.
+	{ AP, 0x80000000000001e7ull, 0xf8000000000001ffull, N("exit") },
 	{ AP, 0x0, 0x0, OOPS, DST, SRC1, T(is2) },
+};
+
+struct insn tabs[] = {
+	{ AP, 0x1c00, 0x3c00, T(m) },
+	{ AP, 0x3c00, 0x3c00, N("never"), T(m) },	// probably.
+	{ AP, 0x0000, 0x2000, PRED, T(m) },
+	{ AP, 0x2000, 0x2000, N("not"), PRED, T(m) },
+	{ AP, 0x0, 0x0, OOPS, T(m) },
 };
 
 /*
@@ -382,7 +415,7 @@ void nv50dis (FILE *out, uint32_t *code, int num, int ptype) {
 			}*/
 			a |= (ull)code[cur++] << 32;
 			fprintf (out, "%016llx", a);
-		struct insn *tab = tabm;
+		struct insn *tab = tabs;
 		atomtab (out, &a, &m, tab, ptype);
 		a &= ~m;
 		if (a) {
