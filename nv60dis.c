@@ -64,7 +64,7 @@
  *    - sub.f64		TODO
  *    - mul.f32		done
  *    - mul.f64		TODO
- *    - fma		TODO
+ *    - fma		done
  *    - mad		TODO
  *    - div.approxf32	TODO
  *    - div.full.f32	TODO
@@ -291,11 +291,13 @@ void atomign APROTO {
 int dstoff[] = { 0xe, 6, 'r' };
 int src1off[] = { 0x14, 6, 'r' };
 int src2off[] = { 0x1a, 6, 'r' };
+int src3off[] = { 0x31, 6, 'r' };
 int predoff[] = { 0xa, 3, 'p' };
 int pdstoff[] = { 0x11, 3, 'p' };
 #define DST atomreg, dstoff
 #define SRC1 atomreg, src1off
 #define SRC2 atomreg, src2off
+#define SRC3 atomreg, src3off
 #define PRED atomreg, predoff
 #define PDST atomreg, pdstoff
 void atomreg APROTO {
@@ -376,6 +378,7 @@ struct insn tabm[] = {
 	{ AP, 0x0800000000000002ull, 0xf800000000000007ull, N("subr"), T(ias), N("b32"), DST, SRC1, LIMM },
 	{ AP, 0x180e00000001c003ull, 0xf80e00000001c007ull, N("set"), T(us32), PDST, T(setit), SRC1, T(is2) }, // ... what the hell are all those bits?
 	{ AP, 0x200e00000001c000ull, 0xf80e00000001c007ull, N("set"), N("f32"), PDST, T(setit), SRC1, T(fs2) },
+	{ AP, 0x3000000000000000ull, 0xf800000000000007ull, N("add"), T(fmf), T(ias), T(farm), N("f32"), DST, T(neg1), N("mul"), SRC1, T(fs2), T(neg2), SRC3 },
 	{ AP, 0x3800000000000002ull, 0xf8000000000000c7ull, N("and"), N("b32"), DST, SRC1, LIMM },
 	{ AP, 0x3800000000000042ull, 0xf8000000000000c7ull, N("or"), N("b32"), DST, SRC1, LIMM },
 	{ AP, 0x3800000000000082ull, 0xf8000000000000c7ull, N("xor"), N("b32"), DST, SRC1, LIMM },
