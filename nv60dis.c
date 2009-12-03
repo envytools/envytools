@@ -58,14 +58,11 @@
  *    - min		TODO
  *    - max		TODO
  *   2. Floating-Point
- *    - add.f32		done
- *    - add.f64		TODO
- *    - sub.f32		done
- *    - sub.f64		TODO
- *    - mul.f32		done
- *    - mul.f64		TODO
+ *    - add		done
+ *    - sub		done
+ *    - mul		done
  *    - fma		done
- *    - mad		TODO
+ *    - mad		done
  *    - div.approxf32	TODO
  *    - div.full.f32	TODO
  *    - div.f64		TODO
@@ -262,9 +259,11 @@ void atomoops APROTO {
 
 int immoff[] = { 0x1a, 20, 0, 1 };
 int fimmoff[] = { 0x1a, 20, 12, 0 };
+int dimmoff[] = { 0x1a, 20, 44, 0 };
 int limmoff[] = { 0x1a, 32, 0, 0 };
 #define IMM atomnum, immoff
 #define FIMM atomnum, fimmoff
+#define DIMM atomnum, dimmoff
 #define LIMM atomnum, limmoff
 void atomnum APROTO {
 	const int *n = v;
@@ -295,9 +294,13 @@ int src3off[] = { 0x31, 6, 'r' };
 int predoff[] = { 0xa, 3, 'p' };
 int pdstoff[] = { 0x11, 3, 'p' };
 #define DST atomreg, dstoff
+#define DSTD atomdreg, dstoff
 #define SRC1 atomreg, src1off
+#define SRC1D atomdreg, src1off
 #define SRC2 atomreg, src2off
+#define SRC2D atomdreg, src2off
 #define SRC3 atomreg, src3off
+#define SRC3D atomdreg, src3off
 #define PRED atomreg, predoff
 #define PDST atomreg, pdstoff
 void atomreg APROTO {
@@ -362,6 +365,12 @@ struct insn tabfs2[] = {
 	{ AP, 0, 0, OOPS },
 };
 
+struct insn tabds2[] = {
+	{ AP, 0x0000000000000000ull, 0x0000c00000000000ull, SRC2D },
+	{ AP, 0x0000c00000000000ull, 0x0000c00000000000ull, DIMM },
+	{ AP, 0, 0, OOPS },
+};
+
 F1(ias, 5, N("sat"))
 F1(fas, 0x31, N("sat"))
 F1(faf, 5, N("ftz"))
@@ -378,14 +387,17 @@ struct insn tabm[] = {
 	{ AP, 0x0800000000000002ull, 0xf800000000000007ull, N("subr"), T(ias), N("b32"), DST, SRC1, LIMM },
 	{ AP, 0x180e00000001c003ull, 0xf80e00000001c007ull, N("set"), T(us32), PDST, T(setit), SRC1, T(is2) }, // ... what the hell are all those bits?
 	{ AP, 0x200e00000001c000ull, 0xf80e00000001c007ull, N("set"), N("f32"), PDST, T(setit), SRC1, T(fs2) },
+	{ AP, 0x2000000000000001ull, 0xf800000000000007ull, N("add"), T(farm), N("f64"), DSTD, T(neg1), N("mul"), SRC1D, T(ds2), T(neg2), SRC3D },
 	{ AP, 0x3000000000000000ull, 0xf800000000000007ull, N("add"), T(fmf), T(ias), T(farm), N("f32"), DST, T(neg1), N("mul"), SRC1, T(fs2), T(neg2), SRC3 },
 	{ AP, 0x3800000000000002ull, 0xf8000000000000c7ull, N("and"), N("b32"), DST, SRC1, LIMM },
 	{ AP, 0x3800000000000042ull, 0xf8000000000000c7ull, N("or"), N("b32"), DST, SRC1, LIMM },
 	{ AP, 0x3800000000000082ull, 0xf8000000000000c7ull, N("xor"), N("b32"), DST, SRC1, LIMM },
+	{ AP, 0x4800000000000001ull, 0xf800000000000007ull, N("add"), T(farm), N("f64"), DSTD, T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2) },
 	{ AP, 0x4800000000000003ull, 0xf800000000000307ull, N("add"), T(ias), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x4800000000000103ull, 0xf800000000000307ull, N("sub"), T(ias), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x4800000000000203ull, 0xf800000000000307ull, N("subr"), T(ias), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x5000000000000000ull, 0xf800000000000007ull, N("add"), T(faf), T(fas), T(farm), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
+	{ AP, 0x5000000000000001ull, 0xf800000000000007ull, N("mul"), T(farm), T(neg1), N("f64"), DSTD, SRC1D, T(ds2) },
 	{ AP, 0x5800000000000000ull, 0xf800000000000007ull, N("mul"), T(fmf), T(ias), T(farm), T(fmneg), N("f32"), DST, SRC1, T(fs2) },
 	{ AP, 0x6800000000000003ull, 0xf8000000000000c7ull, N("and"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x6800000000000043ull, 0xf8000000000000c7ull, N("or"), N("b32"), DST, SRC1, T(is2) },
