@@ -38,6 +38,18 @@
 #define AP (VP|GP|FP|CP)
 
 /*
+ * Registers:
+ *
+ *  - $r0-$r62: Normal, usable 32-bit regs. Allocated just like on tesla.
+ *    Grouped into $r0d-$r60d for 64-bit quantities like doubles, into
+ *    $r0q-$r56q for 128-bit quantities. There are no half-regs.
+ *  - $r63: Bit bucket on write, 0 on read. Maybe just normal unallocated reg,
+ *    like on tesla.
+ *  - $p0-$p6: 1-bit predicate registers, usable.
+ *  - $p7: Always-true predicate.
+ */
+
+/*
  * Instructions, from PTX manual:
  *   
  *   1. Integer Arithmetic
@@ -457,6 +469,27 @@ struct insn tabsetlop[] = {
 	{ AP, 0x0040000000000000ull, 0x0060000000000000ull, N("xor"), T(pnot3), PSRC3 },
 	{ AP, 0, 0, OOPS, T(pnot3), PSRC3 },
 };
+
+/*
+ * Opcode format
+ *
+ * 0000000000000007 insn type, roughly: 0: float 1: double 2: long immediate 3: integer 4: moving and converting 5: g/s/l[] memory access 6: c[] and texture access 7: control
+ * 0000000000000018 ??? never seen used
+ * 00000000000003e0 misc flags
+ * 0000000000001c00 used predicate [7 is always true]
+ * 0000000000002000 negate predicate
+ * 00000000000fc000 DST
+ * 0000000003f00000 SRC1
+ * 00000000fc000000 SRC2
+ * 000003fffc000000 CONST offset
+ * 00003c0000000000 CONST space
+ * 00003ffffc000000 IMM/FIMM/DIMM
+ * 0000c00000000000 0 = use SRC2, 1 = use CONST, 2 = ???, 3 = IMM/FIMM/DIMM
+ * 0001000000000000 misc flag
+ * 007e000000000000 SRC3
+ * 0780000000000000 misc field. rounding mode or comparison subop or...
+ * f800000000000000 opcode
+ */
 
 struct insn tabm[] = {
 	{ AP, 0x080e000000000000ull, 0xf81e000000000007ull, N("min"), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) }, // looks like min/max is selected by a normal predicate. fun. needs to be checked
