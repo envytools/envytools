@@ -57,16 +57,16 @@
  *    - sub		TODO started
  *    - addc		TODO
  *    - subc		TODO
- *    - mul		TODO
- *    - mul24		TODO
- *    - mad		TODO
- *    - mad24		TODO
- *    - sad		TODO
+ *    - mul		TODO started
+ *    - mul24		done
+ *    - mad		TODO started
+ *    - mad24		done
+ *    - sad		done
  *    - sad.64		TODO
  *    - div		TODO
  *    - rem		TODO
- *    - abs		TODO
- *    - neg		TODO
+ *    - abs		done
+ *    - neg		done
  *    - min		done, check predicate selecting min/max
  *    - max		done
  *   2. Floating-Point
@@ -78,8 +78,8 @@
  *    - div.approxf32	TODO
  *    - div.full.f32	TODO
  *    - div.f64		TODO
- *    - abs		TODO
- *    - neg		TODO
+ *    - abs		done
+ *    - neg		done
  *    - min		done
  *    - max		done
  *    - rcp		TODO started
@@ -100,15 +100,15 @@
  *    - xor		done
  *    - not		done
  *    - cnot		TODO
- *    - shl		TODO
- *    - shr		TODO
+ *    - shl		TODO started
+ *    - shr		TODO started
  *   5. Data Movement and Conversion
- *    - mov		TODO started
+ *    - mov		done
  *    - ld		done
  *    - st		done
- *    - cvt		TODO
+ *    - cvt		TODO started
  *   6. Texture
- *    - tex		TODO
+ *    - tex		done, needs OpenGL stuff
  *   7. Control Flow
  *    - { }		done
  *    - @		done
