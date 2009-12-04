@@ -593,6 +593,13 @@ struct insn tabsreg[] = {
 	{ AP, 0, 0, OOPS },
 };
 
+struct insn tabaddop[] = {
+	{ AP, 0x0000000000000000ull, 0x0000000000000300ull, N("add") },
+	{ AP, 0x0000000000000100ull, 0x0000000000000300ull, N("sub") },
+	{ AP, 0x0000000000000200ull, 0x0000000000000300ull, N("subr") },
+	{ AP, 0, 0, OOPS },
+};
+
 /*
  * Opcode format
  *
@@ -653,8 +660,7 @@ struct insn tabm[] = {
 	{ AP, 0x0000000000000001ull, 0x0000000000000007ull, OOPS, T(farm), N("f64"), DSTD, SRC1D, T(ds2), SRC3D },
 
 
-	{ AP, 0x0800000000000002ull, 0xf800000000000307ull, N("add"), T(ias), N("b32"), T(acout2), DST, SRC1, LIMM, T(acin) },
-	{ AP, 0x0800000000000202ull, 0xf800000000000307ull, N("subr"), T(ias), N("b32"), T(acout2), DST, SRC1, LIMM, T(acin) },
+	{ AP, 0x0800000000000002ull, 0xf800000000000007ull, T(addop), T(ias), N("b32"), T(acout2), DST, SRC1, LIMM, T(acin) },
 	// 10?
 	{ AP, 0x18000000000001e2ull, 0xf8000000000001e7ull, N("mov"), N("b32"), DST, LIMM }, // wanna bet these unknown bits are tesla-like lanemask?
 	// 20?
@@ -670,15 +676,13 @@ struct insn tabm[] = {
 	{ AP, 0x081e000000000003ull, 0xf81e000000000007ull, N("max"), T(us32), DST, SRC1, T(is2) },
 	{ AP, 0x1000000000000003ull, 0xf800000000000007ull, N("set"), DST, T(setit), T(us32), SRC1, T(is2), T(setlop) },
 	{ AP, 0x180000000001c003ull, 0xf80000000001c007ull, N("set"), PDST, T(setit), T(us32), SRC1, T(is2), T(setlop) },
-	{ AP, 0x2000000000000003ull, 0xf8000000000000a7ull, N("add"), T(acout), DST, N("mul"), T(high), N("u32"), SRC1, T(is2), SRC3, T(acin2) }, // bet you these bits are independent s/u for each source, like on tesla?
-	{ AP, 0x20000000000000a3ull, 0xf8000000000000a7ull, N("add"), T(acout), DST, N("mul"), T(high), N("s32"), SRC1, T(is2), SRC3, T(acin2) },
+	{ AP, 0x2000000000000003ull, 0xf8000000000000a7ull, T(addop), T(acout), DST, N("mul"), T(high), N("u32"), SRC1, T(is2), SRC3, T(acin2) }, // bet you these bits are independent s/u for each source, like on tesla?
+	{ AP, 0x20000000000000a3ull, 0xf8000000000000a7ull, T(addop), T(acout), DST, N("mul"), T(high), N("s32"), SRC1, T(is2), SRC3, T(acin2) },
 	{ AP, 0x2800000000000003ull, 0xf800000000000007ull, N("ins"), N("b32"), DST, SRC1, T(is2), SRC3 },
 	{ AP, 0x3000000000000003ull, 0xf800000000000007ull, N("slct"), N("b32"), DST, SRC1, T(is2), T(setit), T(us32), SRC3 },
 	{ AP, 0x3800000000000003ull, 0xf800000000000007ull, N("sad"), T(us32), DST, SRC1, T(is2), SRC3 },
 	// 40?
-	{ AP, 0x4800000000000003ull, 0xf800000000000307ull, N("add"), T(ias), N("b32"), T(acout), DST, SRC1, T(is2), T(acin) },
-	{ AP, 0x4800000000000103ull, 0xf800000000000307ull, N("sub"), T(ias), N("b32"), T(acout), DST, SRC1, T(is2), T(acin) },
-	{ AP, 0x4800000000000203ull, 0xf800000000000307ull, N("subr"), T(ias), N("b32"), T(acout), DST, SRC1, T(is2), T(acin) },
+	{ AP, 0x4800000000000003ull, 0xf800000000000007ull, T(addop), T(ias), N("b32"), T(acout), DST, SRC1, T(is2), T(acin) },
 	{ AP, 0x5000000000000003ull, 0xf8000000000000a7ull, N("mul"), T(high), N("u32"), T(acout), DST, SRC1, T(is2) },	// looks like acout, but... wouldn't it always be 0? hm.
 	{ AP, 0x50000000000000a3ull, 0xf8000000000000a7ull, N("mul"), T(high), N("s32"), T(acout), DST, SRC1, T(is2) },
 	{ AP, 0x5800000000000003ull, 0xf800000000000007ull, N("shr"), T(us32), DST, SRC1, T(is2) },
