@@ -126,7 +126,7 @@
  *   9. Miscellaneous
  *    - trap		done
  *    - brkpt		done
- *    - pmevent		TODO
+ *    - pmevent		done, but needs figuring out relationship with pm counters.
  *
  */
 
@@ -273,6 +273,7 @@ void atomctarg APROTO {
  */
 
 int baroff[] = { 0x14, 4, 0, 0 };
+int pmoff[] = { 0x1a, 16, 0, 0 };
 int tcntoff[] = { 0x1a, 12, 0, 0 };
 int immoff[] = { 0x1a, 20, 0, 1 };
 int fimmoff[] = { 0x1a, 20, 12, 0 };
@@ -281,6 +282,7 @@ int limmoff[] = { 0x1a, 32, 0, 0 };
 int bnumoff[] = { 0x37, 2, 0, 0 };
 int hnumoff[] = { 0x38, 1, 0, 0 };
 #define BAR atomnum, baroff
+#define PM atomnum, pmoff
 #define TCNT atomnum, tcntoff
 #define IMM atomnum, immoff
 #define FIMM atomnum, fimmoff
@@ -715,6 +717,7 @@ struct insn tabm[] = {
 	{ AP, 0x2c00000000000004ull, 0xfc00000000000007ull, N("mov"), N("b32"), DST, T(sreg) },
 	// 30?
 	// 38?
+	{ AP, 0x40040000000001e4ull, 0xf8040000000001e7ull, N("pmevent"), PM }, // ... a bitmask of triggered pmevents? with 0 ignored?
 	// 40?
 	{ AP, 0x48000000000fc004ull, 0xf8000000000fc067ull, N("vote"), N("all"), PDST2, T(pnot1), PSRC1 },
 	{ AP, 0x48000000000fc024ull, 0xf8000000000fc067ull, N("vote"), N("any"), PDST2, T(pnot1), PSRC1 },
