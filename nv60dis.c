@@ -53,10 +53,10 @@
  * Instructions, from PTX manual:
  *   
  *   1. Integer Arithmetic
- *    - add		TODO started
- *    - sub		TODO started
- *    - addc		TODO
- *    - subc		TODO
+ *    - add		done
+ *    - sub		done
+ *    - addc		done
+ *    - subc		done
  *    - mul		TODO started
  *    - mul24		done
  *    - mad		TODO started
@@ -322,6 +322,7 @@ int psrc3off[] = { 0x31, 3, 'p' };
 int predoff[] = { 0xa, 3, 'p' };
 int pdstoff[] = { 0x11, 3, 'p' };
 int texoff[] = { 0x20, 7, 't' };
+int cfoff[] = { 0, 0, 'c' };
 #define DST atomreg, dstoff
 #define DSTD atomdreg, dstoff
 #define DSTQ atomqreg, dstoff
@@ -337,6 +338,7 @@ int texoff[] = { 0x20, 7, 't' };
 #define PRED atomreg, predoff
 #define PDST atomreg, pdstoff
 #define TEX atomreg, texoff
+#define CF atomreg, cfoff
 void atomreg APROTO {
 	const int *n = v;
 	int r = BF(n[0], n[1]);
@@ -499,6 +501,11 @@ F1(neg2, 8, N("neg"))
 F1(abs1, 7, N("abs"))
 F1(abs2, 6, N("abs"))
 F1(rint, 7, N("rint"))
+
+F1(acout, 0x30, CF)
+F1(acout2, 0x3a, CF)
+F1(acin, 6, CF)
+
 F(us32, 5, N("u32"), N("s32"))
 F1(high, 6, N("high"))
 
@@ -646,8 +653,8 @@ struct insn tabm[] = {
 	{ AP, 0x0000000000000001ull, 0x0000000000000007ull, OOPS, T(farm), N("f64"), DSTD, SRC1D, T(ds2), SRC3D },
 
 
-	{ AP, 0x0800000000000002ull, 0xf800000000000307ull, N("add"), T(ias), N("b32"), DST, SRC1, LIMM },
-	{ AP, 0x0800000000000202ull, 0xf800000000000307ull, N("subr"), T(ias), N("b32"), DST, SRC1, LIMM },
+	{ AP, 0x0800000000000002ull, 0xf800000000000307ull, N("add"), T(ias), N("b32"), T(acout2), DST, SRC1, LIMM, T(acin) },
+	{ AP, 0x0800000000000202ull, 0xf800000000000307ull, N("subr"), T(ias), N("b32"), T(acout2), DST, SRC1, LIMM, T(acin) },
 	// 10?
 	{ AP, 0x18000000000001e2ull, 0xf8000000000001e7ull, N("mov"), N("b32"), DST, LIMM }, // wanna bet these unknown bits are tesla-like lanemask?
 	// 20?
@@ -669,9 +676,9 @@ struct insn tabm[] = {
 	{ AP, 0x3000000000000003ull, 0xf800000000000007ull, N("slct"), N("b32"), DST, SRC1, T(is2), T(setit), T(us32), SRC3 },
 	{ AP, 0x3800000000000003ull, 0xf800000000000007ull, N("sad"), T(us32), DST, SRC1, T(is2), SRC3 },
 	// 40?
-	{ AP, 0x4800000000000003ull, 0xf800000000000307ull, N("add"), T(ias), N("b32"), DST, SRC1, T(is2) },
-	{ AP, 0x4800000000000103ull, 0xf800000000000307ull, N("sub"), T(ias), N("b32"), DST, SRC1, T(is2) },
-	{ AP, 0x4800000000000203ull, 0xf800000000000307ull, N("subr"), T(ias), N("b32"), DST, SRC1, T(is2) },
+	{ AP, 0x4800000000000003ull, 0xf800000000000307ull, N("add"), T(ias), N("b32"), T(acout), DST, SRC1, T(is2), T(acin) },
+	{ AP, 0x4800000000000103ull, 0xf800000000000307ull, N("sub"), T(ias), N("b32"), T(acout), DST, SRC1, T(is2), T(acin) },
+	{ AP, 0x4800000000000203ull, 0xf800000000000307ull, N("subr"), T(ias), N("b32"), T(acout), DST, SRC1, T(is2), T(acin) },
 	{ AP, 0x5000000000000003ull, 0xf8000000000000a7ull, N("mul"), T(high), N("u32"), DST, SRC1, T(is2) },
 	{ AP, 0x50000000000000a3ull, 0xf8000000000000a7ull, N("mul"), T(high), N("s32"), DST, SRC1, T(is2) },
 	{ AP, 0x5800000000000003ull, 0xf800000000000007ull, N("shr"), T(us32), DST, SRC1, T(is2) },
