@@ -293,6 +293,8 @@ void atomnum APROTO {
  * Ignored fields
  */
 
+int igndtex[] = { 0x28, 5 }; // how can you make the same bug twice? hm.
+#define IGNDTEX atomign, igndtex
 void atomign APROTO {
 	const int *n = v;
 	BF(n[0], n[1]);
@@ -311,6 +313,7 @@ int src3off[] = { 0x31, 6, 'r' };
 int psrc3off[] = { 0x31, 3, 'p' };
 int predoff[] = { 0xa, 3, 'p' };
 int pdstoff[] = { 0x11, 3, 'p' };
+int texoff[] = { 0x20, 7, 't' };
 #define DST atomreg, dstoff
 #define DSTD atomdreg, dstoff
 #define DSTQ atomqreg, dstoff
@@ -325,6 +328,7 @@ int pdstoff[] = { 0x11, 3, 'p' };
 #define PSRC3 atomreg, psrc3off
 #define PRED atomreg, predoff
 #define PDST atomreg, pdstoff
+#define TEX atomreg, texoff
 void atomreg APROTO {
 	const int *n = v;
 	int r = BF(n[0], n[1]);
@@ -337,6 +341,29 @@ void atomdreg APROTO {
 void atomqreg APROTO {
 	const int *n = v;
 	fprintf (out, " %s$%c%lldq", (n[2]=='r')?cbl:cmag, n[2], BF(n[0], n[1]));
+}
+#define TDST atomtdst, 0
+void atomtdst APROTO {
+	int base = BF(0xe, 6);
+	int mask = BF(0x2e, 4);
+	int k = 0, i;
+	fprintf (out, " %s{", cnorm);
+	for (i = 0; i < 4; i++)
+		if (mask & 1<<i)
+			fprintf (out, " %s$r%d", cbl, base+k++);
+		else
+			fprintf (out, " %s_", cbl);
+	fprintf (out, " %s}", cnorm);
+}
+#define TSRC atomtsrc, 0
+void atomtsrc APROTO {
+	int base = BF(0x14, 6);
+	int cnt = BF(0x34, 2);
+	int i;
+	fprintf (out, " %s{", cnorm);
+	for (i = 0; i <= cnt; i++)
+		fprintf (out, " %s$r%d", cbl, base+i);
+	fprintf (out, " %s}", cnorm);
 }
 
 /*
@@ -462,6 +489,8 @@ F1(pnot1, 0x17, N("not"))
 F1(pnot2, 0x1d, N("not"))
 F1(pnot3, 0x34, N("not"))
 
+F(ltex, 9, N("all"), N("live"))
+
 struct insn tabsetlop[] = {
 	{ AP, 0x000e000000000000ull, 0x006e000000000000ull },	// noop, really "and $p7"
 	{ AP, 0x0000000000000000ull, 0x0060000000000000ull, N("and"), T(pnot3), PSRC3 },
@@ -583,6 +612,9 @@ struct insn tabm[] = {
 
 
 	{ AP, 0x1400000000000006ull, 0xfc00000000000007ull, N("mov"), T(ldstt), T(ldstd), FCONST },
+	{ AP, 0x80000000fc000086ull, 0xfc000000fc000087ull, N("texauto"), T(ltex), TDST, TEX, TSRC, IGNDTEX }, // mad as a hatter.
+	{ AP, 0x90000000fc000086ull, 0xfc000000fc000087ull, N("texfetch"), T(ltex), TDST, TEX, TSRC, IGNDTEX },
+	{ AP, 0x0000000000000006ull, 0x0000000000000007ull, OOPS, T(ltex), TDST, TEX, TSRC, IGNDTEX }, // is assuming a tex instruction a good idea here? probably. there are loads of unknown tex insns after all.
 
 
 	{ AP, 0x40000000000001e7ull, 0xf0000000000001e7ull, N("bra"), CTARG },
