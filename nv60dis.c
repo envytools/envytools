@@ -116,7 +116,7 @@
  *    - ret		done
  *    - exit		done
  *   8. Parallel Synchronization and Communication
- *    - bar		TODO
+ *    - bar		done, but needs orthogonalising when we can test it.
  *    - membar.cta	done, but needs figuring out what each half does.
  *    - membar.gl	done
  *    - membar.sys	done
@@ -321,6 +321,7 @@ int src3off[] = { 0x31, 6, 'r' };
 int psrc3off[] = { 0x31, 3, 'p' };
 int predoff[] = { 0xa, 3, 'p' };
 int pdstoff[] = { 0x11, 3, 'p' };
+int pdst3off[] = { 0x35, 3, 'p' }; // ...the hell?
 int texoff[] = { 0x20, 7, 't' };
 int cfoff[] = { 0, 0, 'c' };
 #define DST atomreg, dstoff
@@ -337,6 +338,7 @@ int cfoff[] = { 0, 0, 'c' };
 #define PSRC3 atomreg, psrc3off
 #define PRED atomreg, predoff
 #define PDST atomreg, pdstoff
+#define PDST3 atomreg, pdst3off
 #define TEX atomreg, texoff
 #define CF atomreg, cfoff
 void atomreg APROTO {
@@ -601,6 +603,8 @@ struct insn tabaddop[] = {
 	{ AP, 0, 0, OOPS },
 };
 
+F(bar, 0x2f, SRC1, BAR)
+
 /*
  * Opcode format
  *
@@ -711,12 +715,12 @@ struct insn tabm[] = {
 	// 38?
 	// 40?
 	// 48?
-	{ AP, 0x50ee8000fc0fc004ull, 0xf8ff8000fc0fc087ull, N("bar sync"), BAR }, // ... what a fucking mess
-	{ AP, 0x50ee0000fc0fc004ull, 0xf8ff8000fc0fc087ull, N("bar sync"), SRC1 },
-	{ AP, 0x50ee0000000fc084ull, 0xf8ffc000000fc087ull, N("bar arrive"), SRC1, SRC2 },
-	{ AP, 0x50ee4000000fc084ull, 0xf8ffc000000fc087ull, N("bar arrive"), SRC1, TCNT },
-	{ AP, 0x50ee8000000fc084ull, 0xf8ffc000000fc087ull, N("bar arrive"), BAR, SRC2 },
-	{ AP, 0x50eec000000fc084ull, 0xf8ffc000000fc087ull, N("bar arrive"), BAR, TCNT },
+	{ AP, 0x50ee0000fc0fc004ull, 0xf8ee0000fc0fc0e7ull, N("bar sync"), T(bar) }, // ... what a fucking mess. clean this up once we can run stuff.
+	{ AP, 0x50e00000fc000004ull, 0xf8e00000fc0000e7ull, N("bar popc"), N("u32"), DST, T(bar), T(pnot3), PSRC3 }, // and yes, sync is just a special case of this.
+	{ AP, 0x50000000fc0fc024ull, 0xf8000000fc0fc0e7ull, N("bar and"), PDST3, T(bar), T(pnot3), PSRC3 },
+	{ AP, 0x50000000fc0fc044ull, 0xf8000000fc0fc0e7ull, N("bar or"), PDST3, T(bar), T(pnot3), PSRC3 },
+	{ AP, 0x50ee0000000fc084ull, 0xf8ee4000000fc0e7ull, N("bar arrive"), T(bar), SRC2 }, // ... maybe bit 7 is just enable-threadlimit field?
+	{ AP, 0x50ee4000000fc084ull, 0xf8ee4000000fc0e7ull, N("bar arrive"), T(bar), TCNT },
 
 
 	{ AP, 0x8000000000000105ull, 0xf800000000000307ull, N("mov"), T(ldstt), T(ldstd), T(gmem) }, // XXX wtf is this flag?
