@@ -496,6 +496,7 @@ F1(abs1, 7, N("abs"))
 F1(abs2, 6, N("abs"))
 F1(rint, 7, N("rint"))
 F(us32, 5, N("u32"), N("s32"))
+F1(high, 6, N("high"))
 
 F1(pnot1, 0x17, N("not"))
 F1(pnot2, 0x1d, N("not"))
@@ -658,7 +659,8 @@ struct insn tabm[] = {
 	{ AP, 0x081e000000000003ull, 0xf81e000000000007ull, N("max"), T(us32), DST, SRC1, T(is2) },
 	{ AP, 0x1000000000000003ull, 0xf800000000000007ull, N("set"), DST, T(setit), T(us32), SRC1, T(is2), T(setlop) },
 	{ AP, 0x180000000001c003ull, 0xf80000000001c007ull, N("set"), PDST, T(setit), T(us32), SRC1, T(is2), T(setlop) },
-	// 20?
+	{ AP, 0x2000000000000003ull, 0xf8000000000000a7ull, N("add"), DST, N("mul"), T(high), N("u32"), SRC1, T(is2), SRC3 }, // bet you these bits are independent s/u for each source, like on tesla?
+	{ AP, 0x20000000000000a3ull, 0xf8000000000000a7ull, N("add"), DST, N("mul"), T(high), N("s32"), SRC1, T(is2), SRC3 },
 	{ AP, 0x2800000000000003ull, 0xf800000000000007ull, N("ins"), N("b32"), DST, SRC1, T(is2), SRC3 },
 	{ AP, 0x3000000000000003ull, 0xf800000000000007ull, N("slct"), N("b32"), DST, SRC1, T(is2), T(setit), T(us32), SRC3 },
 	{ AP, 0x3800000000000003ull, 0xf800000000000007ull, N("sad"), T(us32), DST, SRC1, T(is2), SRC3 },
@@ -666,10 +668,8 @@ struct insn tabm[] = {
 	{ AP, 0x4800000000000003ull, 0xf800000000000307ull, N("add"), T(ias), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x4800000000000103ull, 0xf800000000000307ull, N("sub"), T(ias), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x4800000000000203ull, 0xf800000000000307ull, N("subr"), T(ias), N("b32"), DST, SRC1, T(is2) },
-	{ AP, 0x5000000000000043ull, 0xf8000000000000e7ull, N("mul high"), N("u32"), DST, SRC1, T(is2) },
-	{ AP, 0x50000000000000e3ull, 0xf8000000000000e7ull, N("mul high"), N("s32"), DST, SRC1, T(is2) },
-	{ AP, 0x5000000000000003ull, 0xf8000000000000e7ull, N("mul"), N("u32"), DST, SRC1, T(is2) },
-	{ AP, 0x50000000000000a3ull, 0xf8000000000000e7ull, N("mul"), N("s32"), DST, SRC1, T(is2) },
+	{ AP, 0x5000000000000003ull, 0xf8000000000000a7ull, N("mul"), T(high), N("u32"), DST, SRC1, T(is2) },
+	{ AP, 0x50000000000000a3ull, 0xf8000000000000a7ull, N("mul"), T(high), N("s32"), DST, SRC1, T(is2) },
 	{ AP, 0x5800000000000003ull, 0xf800000000000007ull, N("shr"), T(us32), DST, SRC1, T(is2) },
 	{ AP, 0x6000000000000003ull, 0xf800000000000007ull, N("shl"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x6800000000000003ull, 0xf8000000000000c7ull, N("and"), N("b32"), DST, SRC1, T(is2) },
