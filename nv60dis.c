@@ -482,7 +482,8 @@ struct insn tabm[] = {
 	{ AP, 0x0000000000000003ull, 0x0000000000000007ull, OOPS, N("b32"), DST, SRC1, T(is2), SRC3 },
 
 
-	{ AP, 0x28000000000001e4ull, 0xf8000000000001e7ull, N("mov"), DST, SRC2 },
+	{ AP, 0x2000000000000004ull, 0xf800000000000007ull, N("selp"), N("b32"), DST, SRC1, T(is2), T(pnot3), PSRC3 },
+	{ AP, 0x28000000000001e4ull, 0xf8000000000001e7ull, N("mov"), N("b32"), DST, SRC2 },
 
 
 	{ AP, 0x8000000000000105ull, 0xf800000000000107ull, N("mov"), T(ldstt), T(ldstd), T(gmem) }, // XXX wtf is this flag?
