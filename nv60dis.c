@@ -55,8 +55,8 @@
  *    - rem		TODO
  *    - abs		TODO
  *    - neg		TODO
- *    - min		TODO started
- *    - max		TODO started
+ *    - min		done, check predicate selecting min/max
+ *    - max		done
  *   2. Floating-Point
  *    - add		done
  *    - sub		done
@@ -70,21 +70,18 @@
  *    - neg		TODO
  *    - min		done
  *    - max		done
- *    - rcp.f32		TODO
- *    - rcp.f64		TODO
- *    - sqrt.f32	TODO
- *    - sqrt.f64	TODO
- *    - rsqrt.f32	TODO
- *    - rsqrt.f64	TODO
- *    - sin		TODO
- *    - cos		TODO
- *    - lg2		TODO
- *    - ex2		TODO
+ *    - rcp		TODO started
+ *    - sqrt		TODO started
+ *    - rsqrt		TODO started
+ *    - sin		done
+ *    - cos		done
+ *    - lg2		TODO started
+ *    - ex2		TODO started
  *   3. Comparison and selection
- *    - set		TODO
- *    - setp		TODO
- *    - selp		TODO
- *    - slct		TODO
+ *    - set		done, check these 3 bits
+ *    - setp		done
+ *    - selp		done
+ *    - slct		done
  *   4. Logic and Shift
  *    - and		done, check not bitfields for all 4
  *    - or		done
@@ -94,9 +91,9 @@
  *    - shl		TODO
  *    - shr		TODO
  *   5. Data Movement and Conversion
- *    - mov		TODO
- *    - ld		TODO
- *    - st		TODO
+ *    - mov		TODO started
+ *    - ld		TODO started
+ *    - st		TODO started
  *    - cvt		TODO
  *   6. Texture
  *    - tex		TODO
@@ -110,13 +107,13 @@
  *   8. Parallel Synchronization and Communication
  *    - bar		TODO
  *    - membar.cta	TODO
- *    - membar.gl	sweet mother of God, what?
+ *    - membar.gl	TODO
  *    - atom		TODO
  *    - red		TODO
  *    - vote		TODO
  *   9. Miscellaneous
- *    - trap		TODO
- *    - brkpt		TODO
+ *    - trap		done
+ *    - brkpt		done
  *    - pmevent		TODO
  *
  */
@@ -448,13 +445,18 @@ struct insn tabm[] = {
 	{ AP, 0x080e000000000000ull, 0xf81e000000000007ull, N("min"), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) }, // looks like min/max is selected by a normal predicate. fun. needs to be checked
 	{ AP, 0x081e000000000000ull, 0xf81e000000000007ull, N("max"), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
 	{ AP, 0x1000000000000000ull, 0xf800000000000007ull, N("set"), DST, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) },
+	// 18?
 	{ AP, 0x200000000001c000ull, 0xf80000000001c007ull, N("set"), PDST, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) }, // and these unknown bits are what? another predicate?
+	// 28?
 	{ AP, 0x3000000000000000ull, 0xf800000000000007ull, N("add"), T(fmf), T(ias), T(farm), N("f32"), DST, T(neg1), N("mul"), SRC1, T(fs2), T(neg2), SRC3 },
 	{ AP, 0x3800000000000000ull, 0xf800000000000007ull, N("slct"), N("b32"), DST, SRC1, T(fs2), T(setit), N("f32"), SRC3 },
+	// 40?
+	// 48?
 	{ AP, 0x5000000000000000ull, 0xf800000000000007ull, N("add"), T(faf), T(fas), T(farm), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
 	{ AP, 0x5800000000000000ull, 0xf800000000000007ull, N("mul"), T(fmf), T(ias), T(farm), T(fmneg), N("f32"), DST, SRC1, T(fs2) },
 	{ AP, 0x6000000000000000ull, 0xf800000000000027ull, N("presin"), N("f32"), DST, T(fs2) },
 	{ AP, 0x6000000000000020ull, 0xf800000000000027ull, N("preex2"), N("f32"), DST, T(fs2) },
+	// 68-c0?
 	{ AP, 0xc800000000000000ull, 0xf80000001c000007ull, N("cos"), N("f32"), DST, SRC1 },
 	{ AP, 0xc800000004000000ull, 0xf80000001c000007ull, N("sin"), N("f32"), DST, SRC1 },
 	{ AP, 0xc800000008000000ull, 0xf80000001c000007ull, N("ex2"), N("f32"), DST, SRC1 },
@@ -469,6 +471,10 @@ struct insn tabm[] = {
 	{ AP, 0x1000000000000001ull, 0xf800000000000007ull, N("set"), DST, T(setit), N("f64"), T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2), T(setlop) },
 	{ AP, 0x180000000001c001ull, 0xf80000000001c007ull, N("set"), PDST, T(setit), N("f64"), T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2), T(setlop) },
 	{ AP, 0x2000000000000001ull, 0xf800000000000007ull, N("add"), T(farm), N("f64"), DSTD, T(neg1), N("mul"), SRC1D, T(ds2), T(neg2), SRC3D },
+	// 28?
+	// 30?
+	// 38?
+	// 40?
 	{ AP, 0x4800000000000001ull, 0xf800000000000007ull, N("add"), T(farm), N("f64"), DSTD, T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2) },
 	{ AP, 0x5000000000000001ull, 0xf800000000000007ull, N("mul"), T(farm), T(neg1), N("f64"), DSTD, SRC1D, T(ds2) },
 	{ AP, 0x0000000000000001ull, 0x0000000000000007ull, OOPS, T(farm), N("f64"), DSTD, SRC1D, T(ds2), SRC3D },
@@ -476,7 +482,11 @@ struct insn tabm[] = {
 
 	{ AP, 0x0800000000000002ull, 0xf800000000000007ull, N("add"), T(ias), N("b32"), DST, SRC1, LIMM },
 	{ AP, 0x0800000000000002ull, 0xf800000000000007ull, N("subr"), T(ias), N("b32"), DST, SRC1, LIMM },
+	// 10?
 	{ AP, 0x18000000000001e2ull, 0xf8000000000001e7ull, N("mov"), N("b32"), DST, LIMM }, // wanna bet these unknown bits are tesla-like lanemask?
+	// 20?
+	// 28?
+	// 30?
 	{ AP, 0x3800000000000002ull, 0xf8000000000000c7ull, N("and"), N("b32"), DST, SRC1, LIMM },
 	{ AP, 0x3800000000000042ull, 0xf8000000000000c7ull, N("or"), N("b32"), DST, SRC1, LIMM },
 	{ AP, 0x3800000000000082ull, 0xf8000000000000c7ull, N("xor"), N("b32"), DST, SRC1, LIMM },
@@ -487,10 +497,17 @@ struct insn tabm[] = {
 	{ AP, 0x081e000000000003ull, 0xf81e000000000007ull, N("max"), T(us32), DST, SRC1, T(is2) },
 	{ AP, 0x1000000000000003ull, 0xf800000000000007ull, N("set"), DST, T(setit), T(us32), SRC1, T(is2), T(setlop) },
 	{ AP, 0x180000000001c003ull, 0xf80000000001c007ull, N("set"), PDST, T(setit), T(us32), SRC1, T(is2), T(setlop) },
+	// 20?
+	// 28?
 	{ AP, 0x3000000000000003ull, 0xf800000000000007ull, N("slct"), N("b32"), DST, SRC1, T(is2), T(setit), T(us32), SRC3 },
+	// 38?
+	// 40?
 	{ AP, 0x4800000000000003ull, 0xf800000000000307ull, N("add"), T(ias), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x4800000000000103ull, 0xf800000000000307ull, N("sub"), T(ias), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x4800000000000203ull, 0xf800000000000307ull, N("subr"), T(ias), N("b32"), DST, SRC1, T(is2) },
+	// 50?
+	// 58?
+	// 60?
 	{ AP, 0x6800000000000003ull, 0xf8000000000000c7ull, N("and"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x6800000000000043ull, 0xf8000000000000c7ull, N("or"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x6800000000000083ull, 0xf8000000000000c7ull, N("xor"), N("b32"), DST, SRC1, T(is2) },
@@ -498,9 +515,12 @@ struct insn tabm[] = {
 	{ AP, 0x0000000000000003ull, 0x0000000000000007ull, OOPS, N("b32"), DST, SRC1, T(is2), SRC3 },
 
 
+	// 08?
 	{ AP, 0x0c0e00000001c004ull, 0xfc0e0000c001c007ull, N("and"), PDST, T(pnot1), PSRC1, T(pnot2), PSRC2 },
 	{ AP, 0x0c0e00004001c004ull, 0xfc0e0000c001c007ull, N("or"), PDST, T(pnot1), PSRC1, T(pnot2), PSRC2 },
 	{ AP, 0x0c0e00008001c004ull, 0xfc0e0000c001c007ull, N("xor"), PDST, T(pnot1), PSRC1, T(pnot2), PSRC2 },
+	// 10?
+	// 18?
 	{ AP, 0x2000000000000004ull, 0xf800000000000007ull, N("selp"), N("b32"), DST, SRC1, T(is2), T(pnot3), PSRC3 },
 	{ AP, 0x28000000000001e4ull, 0xf8000000000001e7ull, N("mov"), N("b32"), DST, SRC2 },
 
