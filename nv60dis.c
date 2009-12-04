@@ -530,8 +530,8 @@ struct insn tabm[] = {
 	{ AP, 0x0000000000000001ull, 0x0000000000000007ull, OOPS, T(farm), N("f64"), DSTD, SRC1D, T(ds2), SRC3D },
 
 
-	{ AP, 0x0800000000000002ull, 0xf800000000000007ull, N("add"), T(ias), N("b32"), DST, SRC1, LIMM },
-	{ AP, 0x0800000000000002ull, 0xf800000000000007ull, N("subr"), T(ias), N("b32"), DST, SRC1, LIMM },
+	{ AP, 0x0800000000000002ull, 0xf800000000000307ull, N("add"), T(ias), N("b32"), DST, SRC1, LIMM },
+	{ AP, 0x0800000000000202ull, 0xf800000000000307ull, N("subr"), T(ias), N("b32"), DST, SRC1, LIMM },
 	// 10?
 	{ AP, 0x18000000000001e2ull, 0xf8000000000001e7ull, N("mov"), N("b32"), DST, LIMM }, // wanna bet these unknown bits are tesla-like lanemask?
 	// 20?
