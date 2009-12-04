@@ -507,6 +507,10 @@ F1(neg2, 8, N("neg"))
 F1(abs1, 7, N("abs"))
 F1(abs2, 6, N("abs"))
 F1(rint, 7, N("rint"))
+F1(rev, 8, N("rev"))
+
+F1(not1, 9, N("not"))
+F1(not2, 8, N("not"))
 
 F1(acout, 0x30, CF)
 F1(acout2, 0x3a, CF)
@@ -700,7 +704,8 @@ struct insn tabm[] = {
 	{ AP, 0x6800000000000043ull, 0xf8000000000000c7ull, N("or"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x6800000000000083ull, 0xf8000000000000c7ull, N("xor"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x68000000000001c3ull, 0xf8000000000001c7ull, N("not2"), N("b32"), DST, SRC1, T(is2) }, // yes, this is probably just a mov2 with a not bit set.
-	{ AP, 0x7000000000000003ull, 0xf800000000000007ull, N("ext"), T(us32), DST, SRC1, T(is2) },
+	{ AP, 0x7000000000000003ull, 0xf800000000000007ull, N("ext"), T(rev), T(us32), DST, SRC1, T(is2) }, // yes. this can reverse bits in a bitfield. really.
+	{ AP, 0x7800000000000003ull, 0xf800000000000007ull, N("bfind"), T(us32), DST, T(not2), T(is2) }, // index of highest bit set, counted from 0, -1 for 0 src. or highest bit different from sign for signed version. check me.
 	{ AP, 0x0000000000000003ull, 0x0000000000000007ull, OOPS, N("b32"), DST, SRC1, T(is2), SRC3 },
 
 
@@ -729,6 +734,7 @@ struct insn tabm[] = {
 	{ AP, 0x50000000fc0fc044ull, 0xf8000000fc0fc0e7ull, N("bar or"), PDST3, T(bar), T(pnot3), PSRC3 },
 	{ AP, 0x50ee0000000fc084ull, 0xf8ee4000000fc0e7ull, N("bar arrive"), T(bar), SRC2 }, // ... maybe bit 7 is just enable-threadlimit field?
 	{ AP, 0x50ee4000000fc084ull, 0xf8ee4000000fc0e7ull, N("bar arrive"), T(bar), TCNT },
+	{ AP, 0x5400000000000004ull, 0xfc00000000000007ull, N("popc"), DST, T(not1), SRC1, T(not2), T(is2) }, // XXX: popc(SRC1 & SRC2)? insane idea, but I don't have any better
 
 
 	{ AP, 0x8000000000000105ull, 0xf800000000000307ull, N("mov"), T(ldstt), T(ldstd), T(gmem) }, // XXX wtf is this flag?
