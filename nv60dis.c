@@ -556,8 +556,8 @@ struct insn tabm[] = {
 	{ AP, 0x4800000000000103ull, 0xf800000000000307ull, N("sub"), T(ias), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x4800000000000203ull, 0xf800000000000307ull, N("subr"), T(ias), N("b32"), DST, SRC1, T(is2) },
 	// 50?
-	// 58?
-	// 60?
+	{ AP, 0x5800000000000003ull, 0xf800000000000007ull, N("shr"), T(us32), DST, SRC1, T(is2) },
+	{ AP, 0x6000000000000003ull, 0xf800000000000007ull, N("shl"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x6800000000000003ull, 0xf8000000000000c7ull, N("and"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x6800000000000043ull, 0xf8000000000000c7ull, N("or"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x6800000000000083ull, 0xf8000000000000c7ull, N("xor"), N("b32"), DST, SRC1, T(is2) },
