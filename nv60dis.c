@@ -295,7 +295,9 @@ void atomign APROTO {
 
 int dstoff[] = { 0xe, 6, 'r' };
 int src1off[] = { 0x14, 6, 'r' };
+int psrc1off[] = { 0x14, 3, 'p' };
 int src2off[] = { 0x1a, 6, 'r' };
+int psrc2off[] = { 0x1a, 3, 'p' };
 int src3off[] = { 0x31, 6, 'r' };
 int psrc3off[] = { 0x31, 3, 'p' };
 int predoff[] = { 0xa, 3, 'p' };
@@ -305,8 +307,10 @@ int pdstoff[] = { 0x11, 3, 'p' };
 #define DSTQ atomqreg, dstoff
 #define SRC1 atomreg, src1off
 #define SRC1D atomdreg, src1off
+#define PSRC1 atomreg, psrc1off
 #define SRC2 atomreg, src2off
 #define SRC2D atomdreg, src2off
+#define PSRC2 atomreg, psrc2off
 #define SRC3 atomreg, src3off
 #define SRC3D atomdreg, src3off
 #define PSRC3 atomreg, psrc3off
@@ -428,6 +432,8 @@ F1(abs1, 7, N("abs"))
 F1(abs2, 6, N("abs"))
 F(us32, 5, N("u32"), N("s32"))
 
+F1(pnot1, 0x17, N("not"))
+F1(pnot2, 0x1d, N("not"))
 F1(pnot3, 0x34, N("not"))
 
 struct insn tabsetlop[] = {
@@ -482,6 +488,9 @@ struct insn tabm[] = {
 	{ AP, 0x0000000000000003ull, 0x0000000000000007ull, OOPS, N("b32"), DST, SRC1, T(is2), SRC3 },
 
 
+	{ AP, 0x0c0e00000001c004ull, 0xfc0e0000c001c007ull, N("and"), PDST, T(pnot1), PSRC1, T(pnot2), PSRC2 },
+	{ AP, 0x0c0e00004001c004ull, 0xfc0e0000c001c007ull, N("or"), PDST, T(pnot1), PSRC1, T(pnot2), PSRC2 },
+	{ AP, 0x0c0e00008001c004ull, 0xfc0e0000c001c007ull, N("xor"), PDST, T(pnot1), PSRC1, T(pnot2), PSRC2 },
 	{ AP, 0x2000000000000004ull, 0xf800000000000007ull, N("selp"), N("b32"), DST, SRC1, T(is2), T(pnot3), PSRC3 },
 	{ AP, 0x28000000000001e4ull, 0xf8000000000001e7ull, N("mov"), N("b32"), DST, SRC2 },
 
