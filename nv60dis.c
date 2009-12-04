@@ -499,6 +499,37 @@ struct insn tabsetlop[] = {
 	{ AP, 0, 0, OOPS, T(pnot3), PSRC3 },
 };
 
+struct insn tabsreg[] = {
+	{ AP, 0x0000000000000000ull, 0x00000000fc000000ull, N("laneid") },
+	{ AP, 0x0000000008000000ull, 0x00000000fc000000ull, N("nphysid") }, // bits 8-14: nwarpid, bits 20-28: nsmid
+	{ AP, 0x000000000c000000ull, 0x00000000fc000000ull, N("physid") }, // bits 8-12: warpid, bits 20-28: smid
+	{ AP, 0x0000000010000000ull, 0x00000000fc000000ull, N("pm0") },
+	{ AP, 0x0000000014000000ull, 0x00000000fc000000ull, N("pm1") },
+	{ AP, 0x0000000018000000ull, 0x00000000fc000000ull, N("pm2") },
+	{ AP, 0x000000001c000000ull, 0x00000000fc000000ull, N("pm3") },
+	{ AP, 0x0000000140000000ull, 0x00000001fc000000ull, N("clock") }, // XXX some weird shift happening here.
+	{ AP, 0x0000000144000000ull, 0x00000001fc000000ull, N("clockhi") },
+	{ AP, 0x0000000084000000ull, 0x00000000fc000000ull, N("tidx") },
+	{ AP, 0x0000000088000000ull, 0x00000000fc000000ull, N("tidy") },
+	{ AP, 0x000000008c000000ull, 0x00000000fc000000ull, N("tidz") },
+	{ AP, 0x0000000094000000ull, 0x00000000fc000000ull, N("ctaidx") },
+	{ AP, 0x0000000098000000ull, 0x00000000fc000000ull, N("ctaidy") },
+	{ AP, 0x000000009c000000ull, 0x00000000fc000000ull, N("ctaidz") },
+	{ AP, 0x00000000a4000000ull, 0x00000000fc000000ull, N("ntidx") },
+	{ AP, 0x00000000a8000000ull, 0x00000000fc000000ull, N("ntidy") },
+	{ AP, 0x00000000ac000000ull, 0x00000000fc000000ull, N("ntidz") },
+	{ AP, 0x00000000b0000000ull, 0x00000000fc000000ull, N("gridid") },
+	{ AP, 0x00000000b4000000ull, 0x00000000fc000000ull, N("nctaidx") },
+	{ AP, 0x00000000b8000000ull, 0x00000000fc000000ull, N("nctaidy") },
+	{ AP, 0x00000000bc000000ull, 0x00000000fc000000ull, N("nctaidz") },
+	{ AP, 0x00000000e0000000ull, 0x00000000fc000000ull, N("lanemask_eq") }, // I have no idea what these do, but ptxas eats them just fine.
+	{ AP, 0x00000000e4000000ull, 0x00000000fc000000ull, N("lanemask_lt") },
+	{ AP, 0x00000000e8000000ull, 0x00000000fc000000ull, N("lanemask_le") },
+	{ AP, 0x00000000ec000000ull, 0x00000000fc000000ull, N("lanemask_gt") },
+	{ AP, 0x00000000f0000000ull, 0x00000000fc000000ull, N("lanemask_ge") },
+	{ AP, 0, 0, OOPS },
+};
+
 /*
  * Opcode format
  *
@@ -602,6 +633,7 @@ struct insn tabm[] = {
 	// 18?
 	{ AP, 0x2000000000000004ull, 0xf800000000000007ull, N("selp"), N("b32"), DST, SRC1, T(is2), T(pnot3), PSRC3 },
 	{ AP, 0x28000000000001e4ull, 0xfc000000000001e7ull, N("mov"), N("b32"), DST, T(is2) },
+	{ AP, 0x2c00000000000004ull, 0xfc00000000000007ull, N("mov"), N("b32"), DST, T(sreg) },
 
 
 	{ AP, 0x8000000000000105ull, 0xf800000000000107ull, N("mov"), T(ldstt), T(ldstd), T(gmem) }, // XXX wtf is this flag?
