@@ -272,12 +272,16 @@ void atomctarg APROTO {
  * Misc number fields
  */
 
+int baroff[] = { 0x14, 4, 0, 0 };
+int tcntoff[] = { 0x1a, 12, 0, 0 };
 int immoff[] = { 0x1a, 20, 0, 1 };
 int fimmoff[] = { 0x1a, 20, 12, 0 };
 int dimmoff[] = { 0x1a, 20, 44, 0 };
 int limmoff[] = { 0x1a, 32, 0, 0 };
 int bnumoff[] = { 0x37, 2, 0, 0 };
 int hnumoff[] = { 0x38, 1, 0, 0 };
+#define BAR atomnum, baroff
+#define TCNT atomnum, tcntoff
 #define IMM atomnum, immoff
 #define FIMM atomnum, fimmoff
 #define DIMM atomnum, dimmoff
@@ -691,6 +695,16 @@ struct insn tabm[] = {
 	{ AP, 0x2000000000000004ull, 0xf800000000000007ull, N("selp"), N("b32"), DST, SRC1, T(is2), T(pnot3), PSRC3 },
 	{ AP, 0x28000000000001e4ull, 0xfc000000000001e7ull, N("mov"), N("b32"), DST, T(is2) },
 	{ AP, 0x2c00000000000004ull, 0xfc00000000000007ull, N("mov"), N("b32"), DST, T(sreg) },
+	// 30?
+	// 38?
+	// 40?
+	// 48?
+	{ AP, 0x50ee8000fc0fc004ull, 0xf8ff8000fc0fc087ull, N("bar sync"), BAR }, // ... what a fucking mess
+	{ AP, 0x50ee0000fc0fc004ull, 0xf8ff8000fc0fc087ull, N("bar sync"), SRC1 },
+	{ AP, 0x50ee0000000fc084ull, 0xf8ffc000000fc087ull, N("bar arrive"), SRC1, SRC2 },
+	{ AP, 0x50ee4000000fc084ull, 0xf8ffc000000fc087ull, N("bar arrive"), SRC1, TCNT },
+	{ AP, 0x50ee8000000fc084ull, 0xf8ffc000000fc087ull, N("bar arrive"), BAR, SRC2 },
+	{ AP, 0x50eec000000fc084ull, 0xf8ffc000000fc087ull, N("bar arrive"), BAR, TCNT },
 
 
 	{ AP, 0x8000000000000105ull, 0xf800000000000107ull, N("mov"), T(ldstt), T(ldstd), T(gmem) }, // XXX wtf is this flag?
