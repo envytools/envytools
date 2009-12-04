@@ -718,8 +718,10 @@ struct insn tabm[] = {
 	{ AP, 0x50eec000000fc084ull, 0xf8ffc000000fc087ull, N("bar arrive"), BAR, TCNT },
 
 
-	{ AP, 0x8000000000000105ull, 0xf800000000000107ull, N("mov"), T(ldstt), T(ldstd), T(gmem) }, // XXX wtf is this flag?
-	{ AP, 0x9000000000000005ull, 0xf800000000000107ull, N("mov"), T(ldstt), T(gmem), T(ldstd) },
+	{ AP, 0x8000000000000105ull, 0xf800000000000307ull, N("mov"), T(ldstt), T(ldstd), T(gmem) }, // XXX wtf is this flag?
+	{ AP, 0x8000000000000305ull, 0xf800000000000307ull, N("mov"), T(ldstt), T(ldstd), N("volatile"), T(gmem) },
+	{ AP, 0x9000000000000005ull, 0xf800000000000307ull, N("mov"), T(ldstt), T(gmem), T(ldstd) },
+	{ AP, 0x9000000000000305ull, 0xf800000000000307ull, N("mov"), T(ldstt), N("volatile"), T(gmem), T(ldstd) },
 	{ AP, 0xc000000000000005ull, 0xf800000000000007ull, N("mov"), T(ldstt), T(ldstd), T(slmem) },
 	{ AP, 0xc800000000000005ull, 0xf800000000000007ull, N("mov"), T(ldstt), T(slmem), T(ldstd) },
 	{ AP, 0x0000000000000005ull, 0x0000000000000007ull, OOPS, T(ldstt), T(ldstd), T(gmem), SRC3 },
