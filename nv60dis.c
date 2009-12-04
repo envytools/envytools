@@ -57,9 +57,9 @@
  *    - sub		done
  *    - addc		done
  *    - subc		done
- *    - mul		TODO started
+ *    - mul		done
  *    - mul24		done
- *    - mad		TODO started
+ *    - mad		done
  *    - mad24		done
  *    - sad		done
  *    - sad.64		TODO
