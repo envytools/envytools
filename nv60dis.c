@@ -436,6 +436,13 @@ struct insn tabfarm[] = {
 	{ AP, 0x0180000000000000ull, 0x0180000000000000ull, N("rz") },
 };
 
+struct insn tabfcrm[] = {
+	{ AP, 0x0000000000000000ull, 0x0006000000000000ull, N("rn") },
+	{ AP, 0x0002000000000000ull, 0x0006000000000000ull, N("rm") },
+	{ AP, 0x0004000000000000ull, 0x0006000000000000ull, N("rp") },
+	{ AP, 0x0006000000000000ull, 0x0006000000000000ull, N("rz") },
+};
+
 struct insn tabsetit[] = {
 	{ AP, 0x0080000000000000ull, 0x0780000000000000ull, N("lt") },
 	{ AP, 0x0100000000000000ull, 0x0780000000000000ull, N("eq") },
@@ -483,6 +490,7 @@ F1(neg1, 9, N("neg"))
 F1(neg2, 8, N("neg"))
 F1(abs1, 7, N("abs"))
 F1(abs2, 6, N("abs"))
+F1(rint, 7, N("rint"))
 F(us32, 5, N("u32"), N("s32"))
 
 F1(pnot1, 0x17, N("not"))
@@ -497,6 +505,45 @@ struct insn tabsetlop[] = {
 	{ AP, 0x0020000000000000ull, 0x0060000000000000ull, N("or"), T(pnot3), PSRC3 },
 	{ AP, 0x0040000000000000ull, 0x0060000000000000ull, N("xor"), T(pnot3), PSRC3 },
 	{ AP, 0, 0, OOPS, T(pnot3), PSRC3 },
+};
+
+// TODO: this definitely needs a second pass to see which combinations really work.
+struct insn tabcvtfdst[] = {
+	{ AP, 0x0000000000100000ull, 0x0000000000700000ull, T(ias), N("f16"), DST },
+	{ AP, 0x0000000000200000ull, 0x0000000000700000ull, T(ias), N("f32"), DST },
+	{ AP, 0x0000000000300000ull, 0x0000000000700000ull, N("f64"), DSTD },
+	{ AP, 0, 0, OOPS, DST },
+};
+
+struct insn tabcvtidst[] = {
+	{ AP, 0x0000000000000000ull, 0x0000000000700080ull, N("u8"), DST },
+	{ AP, 0x0000000000000080ull, 0x0000000000700080ull, N("s8"), DST },
+	{ AP, 0x0000000000100000ull, 0x0000000000700080ull, N("u16"), DST },
+	{ AP, 0x0000000000100080ull, 0x0000000000700080ull, N("s16"), DST },
+	{ AP, 0x0000000000200000ull, 0x0000000000700080ull, N("u32"), DST },
+	{ AP, 0x0000000000200080ull, 0x0000000000700080ull, N("s32"), DST },
+	{ AP, 0x0000000000300000ull, 0x0000000000700080ull, N("u64"), DSTD },
+	{ AP, 0x0000000000300080ull, 0x0000000000700080ull, N("s64"), DSTD },
+	{ AP, 0, 0, OOPS, DST },
+};
+
+struct insn tabcvtfsrc[] = {
+	{ AP, 0x0000000000800000ull, 0x0000000003800000ull, T(neg2), T(abs2), N("f16"), SRC2 },
+	{ AP, 0x0000000001000000ull, 0x0000000003800000ull, T(neg2), T(abs2), N("f32"), SRC2 },
+	{ AP, 0x0000000001800000ull, 0x0000000003800000ull, T(neg2), T(abs2), N("f64"), SRC2D },
+	{ AP, 0, 0, OOPS, T(neg2), T(abs2), SRC2 },
+};
+
+struct insn tabcvtisrc[] = {
+	{ AP, 0x0000000000000000ull, 0x0000000003800200ull, T(neg2), T(abs2), N("u8"), SRC2 },
+	{ AP, 0x0000000000000200ull, 0x0000000003800200ull, T(neg2), T(abs2), N("s8"), SRC2 },
+	{ AP, 0x0000000000800000ull, 0x0000000003800200ull, T(neg2), T(abs2), N("u16"), SRC2 },
+	{ AP, 0x0000000000800200ull, 0x0000000003800200ull, T(neg2), T(abs2), N("s16"), SRC2 },
+	{ AP, 0x0000000001000000ull, 0x0000000003800200ull, T(neg2), T(abs2), N("u32"), SRC2 },
+	{ AP, 0x0000000001000200ull, 0x0000000003800200ull, T(neg2), T(abs2), N("s32"), SRC2 },
+	{ AP, 0x0000000001800000ull, 0x0000000003800200ull, T(neg2), T(abs2), N("u64"), SRC2D },
+	{ AP, 0x0000000001800200ull, 0x0000000003800200ull, T(neg2), T(abs2), N("s64"), SRC2D },
+	{ AP, 0, 0, OOPS, T(neg2), T(abs2), SRC2 },
 };
 
 struct insn tabsreg[] = {
@@ -629,8 +676,10 @@ struct insn tabm[] = {
 	{ AP, 0x0c0e00000001c004ull, 0xfc0e0000c001c007ull, N("and"), PDST, T(pnot1), PSRC1, T(pnot2), PSRC2 },
 	{ AP, 0x0c0e00004001c004ull, 0xfc0e0000c001c007ull, N("or"), PDST, T(pnot1), PSRC1, T(pnot2), PSRC2 },
 	{ AP, 0x0c0e00008001c004ull, 0xfc0e0000c001c007ull, N("xor"), PDST, T(pnot1), PSRC1, T(pnot2), PSRC2 },
-	// 10?
-	// 18?
+	{ AP, 0x1000000000000004ull, 0xfc00000000000007ull, N("cvt"), T(rint), T(fcrm), T(cvtfdst), T(cvtfsrc) },
+	{ AP, 0x1400000000000004ull, 0xfc00000000000007ull, N("cvt"), T(fcrm), T(cvtidst), T(cvtfsrc) },
+	{ AP, 0x1800000000000004ull, 0xfc00000000000007ull, N("cvt"), T(fcrm), T(cvtfdst), T(cvtisrc) },
+	{ AP, 0x1c00000000000004ull, 0xfc00000000000007ull, N("cvt"), T(ias), T(cvtidst), T(cvtisrc) },
 	{ AP, 0x2000000000000004ull, 0xf800000000000007ull, N("selp"), N("b32"), DST, SRC1, T(is2), T(pnot3), PSRC3 },
 	{ AP, 0x28000000000001e4ull, 0xfc000000000001e7ull, N("mov"), N("b32"), DST, T(is2) },
 	{ AP, 0x2c00000000000004ull, 0xfc00000000000007ull, N("mov"), N("b32"), DST, T(sreg) },
