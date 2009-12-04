@@ -276,10 +276,14 @@ int immoff[] = { 0x1a, 20, 0, 1 };
 int fimmoff[] = { 0x1a, 20, 12, 0 };
 int dimmoff[] = { 0x1a, 20, 44, 0 };
 int limmoff[] = { 0x1a, 32, 0, 0 };
+int bnumoff[] = { 0x37, 2, 0, 0 };
+int hnumoff[] = { 0x38, 1, 0, 0 };
 #define IMM atomnum, immoff
 #define FIMM atomnum, fimmoff
 #define DIMM atomnum, dimmoff
 #define LIMM atomnum, limmoff
+#define BNUM atomnum, bnumoff
+#define HNUM atomnum, hnumoff
 void atomnum APROTO {
 	const int *n = v;
 	ull num = BF(n[0], n[1])<<n[2];
@@ -535,10 +539,10 @@ struct insn tabcvtfsrc[] = {
 };
 
 struct insn tabcvtisrc[] = {
-	{ AP, 0x0000000000000000ull, 0x0000000003800200ull, T(neg2), T(abs2), N("u8"), SRC2 },
-	{ AP, 0x0000000000000200ull, 0x0000000003800200ull, T(neg2), T(abs2), N("s8"), SRC2 },
-	{ AP, 0x0000000000800000ull, 0x0000000003800200ull, T(neg2), T(abs2), N("u16"), SRC2 },
-	{ AP, 0x0000000000800200ull, 0x0000000003800200ull, T(neg2), T(abs2), N("s16"), SRC2 },
+	{ AP, 0x0000000000000000ull, 0x0000000003800200ull, T(neg2), T(abs2), N("u8"), BNUM, SRC2 },
+	{ AP, 0x0000000000000200ull, 0x0000000003800200ull, T(neg2), T(abs2), N("s8"), BNUM, SRC2 },
+	{ AP, 0x0000000000800000ull, 0x0000000003800200ull, T(neg2), T(abs2), N("u16"), HNUM, SRC2 },
+	{ AP, 0x0000000000800200ull, 0x0000000003800200ull, T(neg2), T(abs2), N("s16"), HNUM, SRC2 },
 	{ AP, 0x0000000001000000ull, 0x0000000003800200ull, T(neg2), T(abs2), N("u32"), SRC2 },
 	{ AP, 0x0000000001000200ull, 0x0000000003800200ull, T(neg2), T(abs2), N("s32"), SRC2 },
 	{ AP, 0x0000000001800000ull, 0x0000000003800200ull, T(neg2), T(abs2), N("u64"), SRC2D },
@@ -655,7 +659,7 @@ struct insn tabm[] = {
 	{ AP, 0x1000000000000003ull, 0xf800000000000007ull, N("set"), DST, T(setit), T(us32), SRC1, T(is2), T(setlop) },
 	{ AP, 0x180000000001c003ull, 0xf80000000001c007ull, N("set"), PDST, T(setit), T(us32), SRC1, T(is2), T(setlop) },
 	// 20?
-	// 28?
+	{ AP, 0x2800000000000003ull, 0xf800000000000007ull, N("ins"), N("b32"), DST, SRC1, T(is2), SRC3 },
 	{ AP, 0x3000000000000003ull, 0xf800000000000007ull, N("slct"), N("b32"), DST, SRC1, T(is2), T(setit), T(us32), SRC3 },
 	{ AP, 0x3800000000000003ull, 0xf800000000000007ull, N("sad"), T(us32), DST, SRC1, T(is2), SRC3 },
 	// 40?
@@ -669,6 +673,7 @@ struct insn tabm[] = {
 	{ AP, 0x6800000000000043ull, 0xf8000000000000c7ull, N("or"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x6800000000000083ull, 0xf8000000000000c7ull, N("xor"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x68000000000001c3ull, 0xf8000000000001c7ull, N("not2"), N("b32"), DST, SRC1, T(is2) }, // yes, this is probably just a mov2 with a not bit set.
+	{ AP, 0x7000000000000003ull, 0xf800000000000007ull, N("ext"), T(us32), DST, SRC1, T(is2) },
 	{ AP, 0x0000000000000003ull, 0x0000000000000007ull, OOPS, N("b32"), DST, SRC1, T(is2), SRC3 },
 
 
