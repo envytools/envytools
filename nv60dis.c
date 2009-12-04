@@ -62,7 +62,6 @@
  *    - mad		done
  *    - mad24		done
  *    - sad		done
- *    - sad.64		TODO
  *    - div		TODO
  *    - rem		TODO
  *    - abs		done
