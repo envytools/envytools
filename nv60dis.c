@@ -92,8 +92,8 @@
  *    - shr		TODO
  *   5. Data Movement and Conversion
  *    - mov		TODO started
- *    - ld		TODO started
- *    - st		TODO started
+ *    - ld		done
+ *    - st		done
  *    - cvt		TODO
  *   6. Texture
  *    - tex		TODO
@@ -331,13 +331,19 @@ void atomqreg APROTO {
  * Memory fields
  */
 
-int gmem[] = { 'g', 0 };
-int gdmem[] = { 'g', 1 };
+int gmem[] = { 'g', 0, 32 };
+int gdmem[] = { 'g', 1, 32 };
+int smem[] = { 's', 0, 24 };
+int lmem[] = { 'l', 0, 24 };
+int fcmem[] = { 'c', 0, 16 };
 #define GLOBAL atommem, gmem
 #define GLOBALD atommem, gdmem
+#define SHARED atommem, smem
+#define LOCAL atommem, lmem
+#define FCONST atommem, fcmem
 void atommem APROTO {
 	const int *n = v;
-	uint32_t delta = BF(26, 32);
+	uint32_t delta = BF(26, n[2]);
 	fprintf (out, " %s%c", ccy, n[0]);
 	if (n[0] == 'c')
 		fprintf (out, "%lld", BF(0x2a, 4));
@@ -360,6 +366,8 @@ void atomconst APROTO {
  */
 
 F(gmem, 0x3a, GLOBAL, GLOBALD)
+F(slmem, 0x38, LOCAL, SHARED)
+
 struct insn tabldstt[] = {
 	{ AP, 0x00, 0xe0, N("u8") },
 	{ AP, 0x20, 0xe0, N("s8") },
@@ -536,7 +544,12 @@ struct insn tabm[] = {
 
 	{ AP, 0x8000000000000105ull, 0xf800000000000107ull, N("mov"), T(ldstt), T(ldstd), T(gmem) }, // XXX wtf is this flag?
 	{ AP, 0x9000000000000005ull, 0xf800000000000107ull, N("mov"), T(ldstt), T(gmem), T(ldstd) },
+	{ AP, 0xc000000000000005ull, 0xf800000000000007ull, N("mov"), T(ldstt), T(ldstd), T(slmem) },
+	{ AP, 0xc800000000000005ull, 0xf800000000000007ull, N("mov"), T(ldstt), T(slmem), T(ldstd) },
 	{ AP, 0x0000000000000005ull, 0x0000000000000007ull, OOPS, T(ldstt), T(ldstd), T(gmem), SRC3 },
+
+
+	{ AP, 0x1400000000000006ull, 0xfc00000000000007ull, N("mov"), T(ldstt), T(ldstd), FCONST },
 
 
 	{ AP, 0x40000000000001e7ull, 0xf0000000000001e7ull, N("bra"), CTARG },
