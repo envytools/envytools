@@ -757,24 +757,33 @@ struct insn tabm[] = {
 	{ AP, 0x0000000000000006ull, 0x0000000000000007ull, OOPS, T(ltex), TDST, TEX, TSRC, IGNDTEX }, // is assuming a tex instruction a good idea here? probably. there are loads of unknown tex insns after all.
 
 
-	{ AP, 0x40000000000001e7ull, 0xf0000000000001e7ull, N("bra"), CTARG },
-	{ AP, 0x5000000000010007ull, 0xf000000000010007ull, N("call"), CTARG }, // XXX: this has no predicate field. implement it someday.
-	{ AP, 0x80000000000001e7ull, 0xf0000000000001e7ull, N("exit") },
-	{ AP, 0x90000000000001e7ull, 0xf0000000000001e7ull, N("ret") },
-	{ AP, 0xd000000000000007ull, 0xf00000000000c007ull, N("membar"), N("cta") }, // also predicateless.
-	{ AP, 0xd00000000000c007ull, 0xf00000000000c007ull, N("trap") },
-	{ AP, 0x0000000000000007ull, 0x0000000000000007ull, OOPS, CTARG },
 
 
 	{ AP, 0x0, 0x0, OOPS, DST, SRC1, T(is2), SRC3 },
 };
 
+struct insn tabp[] = {
+	{ AP, 0x1c00, 0x3c00 },
+	{ AP, 0x3c00, 0x3c00, N("never") },	// probably.
+	{ AP, 0x0000, 0x2000, PRED },
+	{ AP, 0x2000, 0x2000, N("not"), PRED },
+};
+
+F1(brawarp, 0xf, N("allwarp")) // probably jumps if the whole warp has the predicate evaluate to true.
+
+struct insn tabc[] = {
+	{ AP, 0x40000000000001e7ull, 0xf0000000000001e7ull, T(brawarp), T(p), N("bra"), CTARG },
+	{ AP, 0x5000000000010007ull, 0xf000000000010007ull, N("call"), CTARG },
+	{ AP, 0x80000000000001e7ull, 0xf0000000000001e7ull, T(p), N("exit") },
+	{ AP, 0x90000000000001e7ull, 0xf0000000000001e7ull, T(p), N("ret") },
+	{ AP, 0xd000000000000007ull, 0xf00000000000c007ull, N("membar"), N("cta") },
+	{ AP, 0xd00000000000c007ull, 0xf00000000000c007ull, N("trap") },
+	{ AP, 0x0000000000000007ull, 0x0000000000000007ull, T(p), OOPS, CTARG },
+};
+
 struct insn tabs[] = {
-	{ AP, 0x1c00, 0x3c00, T(m) },
-	{ AP, 0x3c00, 0x3c00, N("never"), T(m) },	// probably.
-	{ AP, 0x0000, 0x2000, PRED, T(m) },
-	{ AP, 0x2000, 0x2000, N("not"), PRED, T(m) },
-	{ AP, 0x0, 0x0, OOPS, T(m) },
+	{ AP, 7, 7, T(c) }, // control instructions, special-cased.
+	{ AP, 0x0, 0x0, T(p), T(m) },
 };
 
 /*
