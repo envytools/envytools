@@ -348,6 +348,13 @@ void atommem APROTO {
 		fprintf (out, "%s+%s%#x%s]", ccy, cyel, delta, ccy);
 }
 
+#define CONST atomconst, 0
+void atomconst APROTO {
+	int delta = BF(0x1a, 16);
+	int space = BF(0x2a, 4);
+	fprintf (out, " %sc%d[%s%#x%s]", ccy, space, cyel, delta, ccy);
+}
+
 /*
  * The instructions
  */
@@ -402,12 +409,14 @@ struct insn tabsetit[] = {
 
 struct insn tabis2[] = {
 	{ AP, 0x0000000000000000ull, 0x0000c00000000000ull, SRC2 },
+	{ AP, 0x0000400000000000ull, 0x0000c00000000000ull, CONST },
 	{ AP, 0x0000c00000000000ull, 0x0000c00000000000ull, IMM },
 	{ AP, 0, 0, OOPS },
 };
 
 struct insn tabfs2[] = {
 	{ AP, 0x0000000000000000ull, 0x0000c00000000000ull, SRC2 },
+	{ AP, 0x0000400000000000ull, 0x0000c00000000000ull, CONST },
 	{ AP, 0x0000c00000000000ull, 0x0000c00000000000ull, FIMM },
 	{ AP, 0, 0, OOPS },
 };
@@ -522,7 +531,7 @@ struct insn tabm[] = {
 	// 10?
 	// 18?
 	{ AP, 0x2000000000000004ull, 0xf800000000000007ull, N("selp"), N("b32"), DST, SRC1, T(is2), T(pnot3), PSRC3 },
-	{ AP, 0x28000000000001e4ull, 0xf8000000000001e7ull, N("mov"), N("b32"), DST, SRC2 },
+	{ AP, 0x28000000000001e4ull, 0xfc000000000001e7ull, N("mov"), N("b32"), DST, T(is2) },
 
 
 	{ AP, 0x8000000000000105ull, 0xf800000000000107ull, N("mov"), T(ldstt), T(ldstd), T(gmem) }, // XXX wtf is this flag?
