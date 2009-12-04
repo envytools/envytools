@@ -252,6 +252,11 @@ void atomname APROTO {
 	fprintf (out, " %s%s", cgr, (char *)v);
 }
 
+#define NL atomnl, 0
+void atomnl APROTO {
+	fprintf (out, "\n                          ");
+}
+
 #define OOPS atomoops, 0
 void atomoops APROTO {
 	fprintf (out, " %s???", cred);
@@ -726,6 +731,7 @@ struct insn tabm[] = {
 	{ AP, 0x2c00000000000004ull, 0xfc00000000000007ull, N("mov"), N("b32"), DST, T(sreg) },
 	// 30?
 	// 38?
+	{ AP, 0x40000000000001e4ull, 0xf8040000000001e7ull, N("nop") },
 	{ AP, 0x40040000000001e4ull, 0xf8040000000001e7ull, N("pmevent"), PM }, // ... a bitmask of triggered pmevents? with 0 ignored?
 	{ AP, 0x48000000000fc004ull, 0xf8000000000fc067ull, N("vote"), N("all"), PDST2, T(pnot1), PSRC1 },
 	{ AP, 0x48000000000fc024ull, 0xf8000000000fc067ull, N("vote"), N("any"), PDST2, T(pnot1), PSRC1 },
@@ -775,6 +781,7 @@ F1(brawarp, 0xf, N("allwarp")) // probably jumps if the whole warp has the predi
 struct insn tabc[] = {
 	{ AP, 0x40000000000001e7ull, 0xf0000000000001e7ull, T(brawarp), T(p), N("bra"), CTARG },
 	{ AP, 0x5000000000010007ull, 0xf000000000010007ull, N("call"), CTARG },
+	{ AP, 0x6000000000000007ull, 0xf000000000000007ull, N("joinat"), CTARG },
 	{ AP, 0x80000000000001e7ull, 0xf0000000000001e7ull, T(p), N("exit") },
 	{ AP, 0x90000000000001e7ull, 0xf0000000000001e7ull, T(p), N("ret") },
 	{ AP, 0xd000000000000007ull, 0xf00000000000c007ull, N("membar"), N("cta") },
@@ -784,7 +791,8 @@ struct insn tabc[] = {
 
 struct insn tabs[] = {
 	{ AP, 7, 7, T(c) }, // control instructions, special-cased.
-	{ AP, 0x0, 0x0, T(p), T(m) },
+	{ AP, 0x0, 0x10, T(p), T(m) },
+	{ AP, 0x10, 0x10, T(p), T(m), NL, N("join") },
 };
 
 /*
