@@ -122,7 +122,7 @@
  *    - membar.sys	done
  *    - atom		TODO
  *    - red		TODO
- *    - vote		TODO
+ *    - vote		done, but needs orthogonalising.
  *   9. Miscellaneous
  *    - trap		done
  *    - brkpt		done
@@ -321,6 +321,7 @@ int src3off[] = { 0x31, 6, 'r' };
 int psrc3off[] = { 0x31, 3, 'p' };
 int predoff[] = { 0xa, 3, 'p' };
 int pdstoff[] = { 0x11, 3, 'p' };
+int pdst2off[] = { 0x36, 3, 'p' };
 int pdst3off[] = { 0x35, 3, 'p' }; // ...the hell?
 int texoff[] = { 0x20, 7, 't' };
 int cfoff[] = { 0, 0, 'c' };
@@ -338,6 +339,7 @@ int cfoff[] = { 0, 0, 'c' };
 #define PSRC3 atomreg, psrc3off
 #define PRED atomreg, predoff
 #define PDST atomreg, pdstoff
+#define PDST2 atomreg, pdst2off
 #define PDST3 atomreg, pdst3off
 #define TEX atomreg, texoff
 #define CF atomreg, cfoff
@@ -714,7 +716,10 @@ struct insn tabm[] = {
 	// 30?
 	// 38?
 	// 40?
-	// 48?
+	{ AP, 0x48000000000fc004ull, 0xf8000000000fc067ull, N("vote"), N("all"), PDST2, T(pnot1), PSRC1 },
+	{ AP, 0x48000000000fc024ull, 0xf8000000000fc067ull, N("vote"), N("any"), PDST2, T(pnot1), PSRC1 },
+	{ AP, 0x48000000000fc044ull, 0xf8000000000fc067ull, N("vote"), N("uni"), PDST2, T(pnot1), PSRC1 },
+	{ AP, 0x49c0000000000024ull, 0xf9c0000000000027ull, N("vote"), N("ballot"), DST, T(pnot1), PSRC1 }, // same insn as vote any, really... but need to check what happens for vote all and vote uni with non bit-bucked destination before unifying.
 	{ AP, 0x50ee0000fc0fc004ull, 0xf8ee0000fc0fc0e7ull, N("bar sync"), T(bar) }, // ... what a fucking mess. clean this up once we can run stuff.
 	{ AP, 0x50e00000fc000004ull, 0xf8e00000fc0000e7ull, N("bar popc"), N("u32"), DST, T(bar), T(pnot3), PSRC3 }, // and yes, sync is just a special case of this.
 	{ AP, 0x50000000fc0fc024ull, 0xf8000000fc0fc0e7ull, N("bar and"), PDST3, T(bar), T(pnot3), PSRC3 },
