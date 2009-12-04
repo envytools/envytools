@@ -117,8 +117,9 @@
  *    - exit		done
  *   8. Parallel Synchronization and Communication
  *    - bar		TODO
- *    - membar.cta	TODO
- *    - membar.gl	TODO
+ *    - membar.cta	done, but needs figuring out what each half does.
+ *    - membar.gl	done
+ *    - membar.sys	done
  *    - atom		TODO
  *    - red		TODO
  *    - vote		TODO
@@ -724,6 +725,9 @@ struct insn tabm[] = {
 	{ AP, 0x9000000000000305ull, 0xf800000000000307ull, N("mov"), T(ldstt), N("volatile"), T(gmem), T(ldstd) },
 	{ AP, 0xc000000000000005ull, 0xf800000000000007ull, N("mov"), T(ldstt), T(ldstd), T(slmem) },
 	{ AP, 0xc800000000000005ull, 0xf800000000000007ull, N("mov"), T(ldstt), T(slmem), T(ldstd) },
+	{ AP, 0xe000000000000005ull, 0xf800000000000067ull, N("membar"), N("prep") }, // always used before all 3 other membars.
+	{ AP, 0xe000000000000025ull, 0xf800000000000067ull, N("membar"), N("gl") },
+	{ AP, 0xe000000000000045ull, 0xf800000000000067ull, N("membar"), N("sys") },
 	{ AP, 0x0000000000000005ull, 0x0000000000000007ull, OOPS, T(ldstt), T(ldstd), T(gmem), SRC3 },
 
 
@@ -737,6 +741,7 @@ struct insn tabm[] = {
 	{ AP, 0x5000000000010007ull, 0xf000000000010007ull, N("call"), CTARG }, // XXX: this has no predicate field. implement it someday.
 	{ AP, 0x80000000000001e7ull, 0xf0000000000001e7ull, N("exit") },
 	{ AP, 0x90000000000001e7ull, 0xf0000000000001e7ull, N("ret") },
+	{ AP, 0xd000000000000007ull, 0xf00000000000c007ull, N("membar"), N("cta") }, // also predicateless.
 	{ AP, 0xd00000000000c007ull, 0xf00000000000c007ull, N("trap") },
 	{ AP, 0x0000000000000007ull, 0x0000000000000007ull, OOPS, CTARG },
 
