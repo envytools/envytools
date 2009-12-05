@@ -634,6 +634,11 @@ struct insn tabprmtmod[] = {
 	{ AP, 0, 0, OOPS },
 };
 
+struct insn tabminmax[] = {
+	{ AP, 0x000e000000000000ull, 0x001e000000000000ull, N("min") }, // looks like min/max is selected by a normal predicate. fun. needs to be checked
+	{ AP, 0x001e000000000000ull, 0x001e000000000000ull, N("max") },
+};
+
 /*
  * Opcode format
  *
@@ -656,8 +661,7 @@ struct insn tabprmtmod[] = {
  */
 
 struct insn tabm[] = {
-	{ AP, 0x080e000000000000ull, 0xf81e000000000007ull, N("min"), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) }, // looks like min/max is selected by a normal predicate. fun. needs to be checked
-	{ AP, 0x081e000000000000ull, 0xf81e000000000007ull, N("max"), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
+	{ AP, 0x0800000000000000ull, 0xf800000000000007ull, T(minmax), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
 	// 10?
 	{ AP, 0x1800000000000000ull, 0xf800000000000007ull, N("set"), DST, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) },
 	{ AP, 0x200000000001c000ull, 0xf80000000001c007ull, N("set"), PDST, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) }, // and these unknown bits are what? another predicate?
@@ -680,8 +684,7 @@ struct insn tabm[] = {
 	{ AP, 0x0000000000000000ull, 0x0000000000000007ull, OOPS, T(farm), N("f32"), DST, SRC1, T(fs2), SRC3 },
 
 
-	{ AP, 0x080e000000000001ull, 0xf81e000000000007ull, N("min"), N("f64"), DSTD, T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2) },
-	{ AP, 0x081e000000000001ull, 0xf81e000000000007ull, N("max"), N("f64"), DSTD, T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2) },
+	{ AP, 0x0800000000000001ull, 0xf800000000000007ull, T(minmax), N("f64"), DSTD, T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2) },
 	{ AP, 0x1000000000000001ull, 0xf800000000000007ull, N("set"), DST, T(setit), N("f64"), T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2), T(setlop) },
 	{ AP, 0x180000000001c001ull, 0xf80000000001c007ull, N("set"), PDST, T(setit), N("f64"), T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2), T(setlop) },
 	{ AP, 0x2000000000000001ull, 0xf800000000000007ull, N("add"), T(farm), N("f64"), DSTD, T(neg1), N("mul"), SRC1D, T(ds2), T(neg2), SRC3D },
@@ -707,8 +710,9 @@ struct insn tabm[] = {
 	{ AP, 0x0000000000000002ull, 0x0000000000000007ull, OOPS, N("b32"), DST, SRC1, LIMM },
 
 
-	{ AP, 0x080e000000000003ull, 0xf81e000000000007ull, N("min"), T(us32), DST, SRC1, T(is2) },
-	{ AP, 0x081e000000000003ull, 0xf81e000000000007ull, N("max"), T(us32), DST, SRC1, T(is2) },
+	{ AP, 0x0800000000000003ull, 0xf8010000000000c7ull, T(minmax), T(us32), DST, SRC1, T(is2) },
+	{ AP, 0x0800000000000043ull, 0xf8010000000000c7ull, T(minmax), T(us32), DST, SRC1, T(is2), CC }, // NFI what these bits mean, exactly.
+	{ AP, 0x08010000000000c3ull, 0xf8010000000000c7ull, T(minmax), T(us32), CC, DST, SRC1, T(is2) },
 	{ AP, 0x1000000000000003ull, 0xf800000000000007ull, N("set"), DST, T(setit), T(us32), SRC1, T(is2), T(acin), T(setlop) },
 	{ AP, 0x180000000001c003ull, 0xf80000000001c007ull, N("set"), PDST, T(setit), T(us32), SRC1, T(is2), T(acin), T(setlop) },
 	{ AP, 0x2000000000000003ull, 0xf8000000000000a7ull, T(addop), T(acout), DST, N("mul"), T(high), N("u32"), SRC1, T(is2), SRC3, T(acin2) }, // bet you these bits are independent s/u for each source, like on tesla?
