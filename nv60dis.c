@@ -329,6 +329,7 @@ int src2off[] = { 0x1a, 6, 'r' };
 int psrc2off[] = { 0x1a, 3, 'p' };
 int src3off[] = { 0x31, 6, 'r' };
 int psrc3off[] = { 0x31, 3, 'p' };
+int dst2off[] = { 0x2b, 6, 'r' }; // for atom
 int predoff[] = { 0xa, 3, 'p' };
 int pdstoff[] = { 0x11, 3, 'p' };
 int pdst2off[] = { 0x36, 3, 'p' };
@@ -347,6 +348,8 @@ int ccoff[] = { 0, 0, 'c' };
 #define SRC3 atomreg, src3off
 #define SRC3D atomdreg, src3off
 #define PSRC3 atomreg, psrc3off
+#define DST2 atomreg, dst2off
+#define DST2D atomdreg, dst2off
 #define PRED atomreg, predoff
 #define PDST atomreg, pdstoff
 #define PDST2 atomreg, pdst2off
@@ -422,6 +425,17 @@ void atomconst APROTO {
 	int delta = BF(0x1a, 16);
 	int space = BF(0x2a, 4);
 	fprintf (out, " %sc%d[%s%#x%s]", ccy, space, cyel, delta, ccy);
+}
+
+#define GATOM atomgatom, 0
+void atomgatom APROTO {
+	const int *n = v;
+	uint32_t delta = BF(0x1a, 17) | BF(0x37, 3)<<17;
+	fprintf (out, " %sg[%s$r%lld%s", ccy, cbl, BF(20, 6), BF(0x3a, 1)?"d":"");
+	if (delta & 0x80000)
+		fprintf (out, "%s-%s%#x%s]", ccy, cyel, 0x100000-delta, ccy);
+	else
+		fprintf (out, "%s+%s%#x%s]", ccy, cyel, delta, ccy);
 }
 
 /*
@@ -787,6 +801,14 @@ struct insn tabm[] = {
 	{ AP, 0x1000000000000205ull, 0xf800000000000207ull, N("add"), N("u64"), T(gmem), DSTD },
 	{ AP, 0x1800000000000205ull, 0xf800000000000207ull, T(redops), N("s32"), T(gmem), DST },
 	{ AP, 0x2800000000000205ull, 0xf800000000000207ull, N("add"), N("f32"), T(gmem), DST },
+	{ AP, 0x507e000000000005ull, 0xf87e000000000307ull, N("ld"), T(redop), N("u32"), DST2, GATOM, DST }, // yet another big ugly mess. but seems to work.
+	{ AP, 0x507e000000000205ull, 0xf87e0000000003e7ull, N("ld"), N("add"), N("u64"), DST2, GATOM, DST },
+	{ AP, 0x507e000000000105ull, 0xf87e0000000003e7ull, N("exch"), N("b32"), DST2, GATOM, DST },
+	{ AP, 0x507e000000000305ull, 0xf87e0000000003e7ull, N("exch"), N("b64"), DST2D, GATOM, DSTD },
+	{ AP, 0x5000000000000125ull, 0xf8000000000003e7ull, N("cas"), N("b32"), DST2, GATOM, DST, SRC3 },
+	{ AP, 0x5000000000000325ull, 0xf8000000000003e7ull, N("cas"), N("b64"), DST2D, GATOM, DSTD, SRC3D },
+	{ AP, 0x587e000000000205ull, 0xf87e000000000307ull, N("ld"), T(redops), N("s32"), DST2, GATOM, DST },
+	{ AP, 0x687e000000000205ull, 0xf87e0000000003e7ull, N("ld"), N("add"), N("f32"), DST2, GATOM, DST },
 	{ AP, 0x8000000000000105ull, 0xf800000000000307ull, N("mov"), T(ldstt), T(ldstd), T(gmem) }, // XXX wtf is this flag?
 	{ AP, 0x8000000000000305ull, 0xf800000000000307ull, N("mov"), T(ldstt), T(ldstd), N("volatile"), T(gmem) },
 	{ AP, 0x9000000000000005ull, 0xf800000000000307ull, N("mov"), T(ldstt), T(gmem), T(ldstd) },
