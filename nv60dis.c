@@ -639,6 +639,24 @@ struct insn tabminmax[] = {
 	{ AP, 0x001e000000000000ull, 0x001e000000000000ull, N("max") },
 };
 
+// XXX: orthogonalise it. if possible.
+struct insn tabredop[] = {
+	{ AP, 0x00, 0xe0, N("add") },
+	{ AP, 0x20, 0xe0, N("min") },
+	{ AP, 0x40, 0xe0, N("max") },
+	{ AP, 0x60, 0xe0, N("inc") },
+	{ AP, 0x80, 0xe0, N("dec") },
+	{ AP, 0xa0, 0xe0, N("and") },
+	{ AP, 0xc0, 0xe0, N("or") },
+	{ AP, 0xe0, 0xe0, N("xor") },
+};
+
+struct insn tabredops[] = {
+	{ AP, 0x00, 0xe0, N("add") },
+	{ AP, 0x20, 0xe0, N("min") },
+	{ AP, 0x40, 0xe0, N("max") },
+};
+
 /*
  * Opcode format
  *
@@ -765,6 +783,10 @@ struct insn tabm[] = {
 	{ AP, 0x5400000000000004ull, 0xfc00000000000007ull, N("popc"), DST, T(not1), SRC1, T(not2), T(is2) }, // XXX: popc(SRC1 & SRC2)? insane idea, but I don't have any better
 
 
+	{ AP, 0x1000000000000005ull, 0xf800000000000207ull, T(redop), N("u32"), T(gmem), DST },
+	{ AP, 0x1000000000000205ull, 0xf800000000000207ull, N("add"), N("u64"), T(gmem), DSTD },
+	{ AP, 0x1800000000000205ull, 0xf800000000000207ull, T(redops), N("s32"), T(gmem), DST },
+	{ AP, 0x2800000000000205ull, 0xf800000000000207ull, N("add"), N("f32"), T(gmem), DST },
 	{ AP, 0x8000000000000105ull, 0xf800000000000307ull, N("mov"), T(ldstt), T(ldstd), T(gmem) }, // XXX wtf is this flag?
 	{ AP, 0x8000000000000305ull, 0xf800000000000307ull, N("mov"), T(ldstt), T(ldstd), N("volatile"), T(gmem) },
 	{ AP, 0x9000000000000005ull, 0xf800000000000307ull, N("mov"), T(ldstt), T(gmem), T(ldstd) },
