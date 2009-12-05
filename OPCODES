@@ -238,8 +238,8 @@ b	e	!FC
 
 c	0	*	mul f32
 c	2	!FC
-c	4	C	XXX ?
-c	6	C	XXX ???
+c	4	*	slct f32
+c	6	*	slct f32 neg
 c	8	*	quadop
 c	a	!FC
 c	c	!FC

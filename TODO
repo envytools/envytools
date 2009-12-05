@@ -52,7 +52,6 @@ Needs to be checked experimentaly by running code:
  - check how and where p[] works
  - check lfm1 and lfm2 on all float operations.
  - mad with rounding modes.
- - slct? wtf?
  - what happens for unaligned long instructions?
 On non-CP:
  - check exact encoding for a[] and v[], figure out size and what's in there.

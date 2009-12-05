@@ -99,7 +99,7 @@
  *    - set		desc...
  *    - setp		desc...
  *    - selp		desc...
- *    - slct		XXX slct WTF?
+ *    - slct		desc...
  *   4. Logic and Shift
  *    - shl		desc... XXX overfl
  *    - shr		desc...
@@ -1551,6 +1551,9 @@ struct insn tabl[] = {
 	// c
 	{ AP, 0x00000000c0000000ull, 0xe0000000f0000000ull,
 		N("mul"), T(mf32r), N("f32"), LLDST, T(m1neg), T(lsw), T(m2neg), T(lc2w) },
+
+	{ AP, 0x40000000c0000000ull, 0xc0000000f0000000ull,
+		N("slct"), N("b32"), LDST, T(lsw), T(lc2w), N("f32"), T(o0neg), T(lc3w) },
 
 	{ AP, 0x80000000c0000000ull, 0xf0000000f0040000ull,
 		N("quadop f32"), T(qop0), T(qop1), T(qop2), T(qop3), MCDST, LLDST, T(qs1), LSRC, LSRC3 },
