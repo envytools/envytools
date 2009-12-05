@@ -334,6 +334,7 @@ int predoff[] = { 0xa, 3, 'p' };
 int pdstoff[] = { 0x11, 3, 'p' };
 int pdst2off[] = { 0x36, 3, 'p' };
 int pdst3off[] = { 0x35, 3, 'p' }; // ...the hell?
+int pdst4off[] = { 0x32, 3, 'p' }; // yay.
 int texoff[] = { 0x20, 7, 't' };
 int ccoff[] = { 0, 0, 'c' };
 #define DST atomreg, dstoff
@@ -354,6 +355,7 @@ int ccoff[] = { 0, 0, 'c' };
 #define PDST atomreg, pdstoff
 #define PDST2 atomreg, pdst2off
 #define PDST3 atomreg, pdst3off
+#define PDST4 atomreg, pdst4off
 #define TEX atomreg, texoff
 #define CC atomreg, ccoff
 void atomreg APROTO {
@@ -813,8 +815,10 @@ struct insn tabm[] = {
 	{ AP, 0x8000000000000305ull, 0xf800000000000307ull, N("mov"), T(ldstt), T(ldstd), N("volatile"), T(gmem) },
 	{ AP, 0x9000000000000005ull, 0xf800000000000307ull, N("mov"), T(ldstt), T(gmem), T(ldstd) },
 	{ AP, 0x9000000000000305ull, 0xf800000000000307ull, N("mov"), T(ldstt), N("volatile"), T(gmem), T(ldstd) },
-	{ AP, 0xc000000000000005ull, 0xf800000000000007ull, N("mov"), T(ldstt), T(ldstd), T(slmem) },
-	{ AP, 0xc800000000000005ull, 0xf800000000000007ull, N("mov"), T(ldstt), T(slmem), T(ldstd) },
+	{ AP, 0xc000000000000005ull, 0xfc00000000000007ull, N("mov"), T(ldstt), T(ldstd), T(slmem) },
+	{ AP, 0xc400000000000005ull, 0xfc00000000000007ull, N("mov"), N("lock"), T(ldstt), PDST4, T(ldstd), SHARED },
+	{ AP, 0xc800000000000005ull, 0xfc00000000000007ull, N("mov"), T(ldstt), T(slmem), T(ldstd) },
+	{ AP, 0xcc00000000000005ull, 0xfc00000000000007ull, N("mov"), N("unlock"), T(ldstt), SHARED, T(ldstd) },
 	{ AP, 0xe000000000000005ull, 0xf800000000000067ull, N("membar"), N("prep") }, // always used before all 3 other membars.
 	{ AP, 0xe000000000000025ull, 0xf800000000000067ull, N("membar"), N("gl") },
 	{ AP, 0xe000000000000045ull, 0xf800000000000067ull, N("membar"), N("sys") },
