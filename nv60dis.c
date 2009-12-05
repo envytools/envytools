@@ -620,6 +620,17 @@ struct insn tabaddop[] = {
 
 F(bar, 0x2f, SRC1, BAR)
 
+struct insn tabprmtmod[] = {
+	{ AP, 0x00, 0xe0 },
+	{ AP, 0x20, 0xe0, N("f4e") },
+	{ AP, 0x40, 0xe0, N("b4e") },
+	{ AP, 0x60, 0xe0, N("rc8") },
+	{ AP, 0x80, 0xe0, N("ecl") },
+	{ AP, 0xa0, 0xe0, N("ecr") },
+	{ AP, 0xc0, 0xe0, N("rc16") },
+	{ AP, 0, 0, OOPS },
+};
+
 /*
  * Opcode format
  *
@@ -726,7 +737,7 @@ struct insn tabm[] = {
 	{ AP, 0x1800000000000004ull, 0xfc00000000000007ull, N("cvt"), T(fcrm), T(cvtfdst), T(cvtisrc) },
 	{ AP, 0x1c00000000000004ull, 0xfc00000000000007ull, N("cvt"), T(ias), T(cvtidst), T(cvtisrc) },
 	{ AP, 0x2000000000000004ull, 0xfc00000000000007ull, N("selp"), N("b32"), DST, SRC1, T(is2), T(pnot3), PSRC3 },
-	{ AP, 0x2400000000000004ull, 0xfc00000000000007ull, N("prmt"), N("b32"), DST, SRC1, SRC3, T(is2) }, // NFI what this does. and sources 2 and 3 are swapped for some reason.
+	{ AP, 0x2400000000000004ull, 0xfc00000000000007ull, N("prmt"), T(prmtmod), N("b32"), DST, SRC1, SRC3, T(is2) }, // NFI what this does. and sources 2 and 3 are swapped for some reason.
 	{ AP, 0x28000000000001e4ull, 0xfc000000000001e7ull, N("mov"), N("b32"), DST, T(is2) },
 	{ AP, 0x2c00000000000004ull, 0xfc00000000000007ull, N("mov"), N("b32"), DST, T(sreg) },
 	// 30?
