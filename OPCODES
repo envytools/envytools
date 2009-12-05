@@ -8,12 +8,12 @@ op	tested	pred	insn
 1	*	+	bra
 2	*	-	call
 3	*	+	ret		
-4	C	?	XXX ???
-5	C	?	XXX ??? ends a single thread sometimes
+4	*	-	breakaddr
+5	*	+	break
 6	*	-	quadon
 7	*	-	quadpop
 8	C	-	bar sync
-9	C	-	trap
+9	*	-	trap
 a	*	-	joinat
 b	C	?	brkpt	sm11
 c	!C

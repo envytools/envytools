@@ -1673,6 +1673,8 @@ struct insn tabc[] = {
 	{ AP, 0x10000000, 0xf0000000, T(p), N("bra"), CTARG },
 	{ AP, 0x20000000, 0xf0000000, IGNPRED, N("call"), CTARG },
 	{ AP, 0x30000000, 0xf0000000, T(p), N("ret") },
+	{ AP, 0x40000000, 0xf0000000, IGNPRED, N("breakaddr"), CTARG },
+	{ AP, 0x50000000, 0xf0000000, T(p), N("break") },
 	{ AP, 0x60000000, 0xf0000000, IGNPRED, N("quadon") },
 	{ AP, 0x70000000, 0xf0000000, IGNPRED, N("quadpop") },
 	{ AP, 0x861ffe00, 0xf61ffe00, IGNPRED, N("bar sync"), BAR },

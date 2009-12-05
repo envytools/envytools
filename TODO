@@ -10,7 +10,6 @@ Branching
  - branching/joining?
  - why are there two types of call?
  - what does quadon do?
- - control opcodes 4 and 5
 Predicates
  - what if you try to predicate joins/exits?
  - which instructions ignore predicates?
