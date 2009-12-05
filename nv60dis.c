@@ -47,6 +47,9 @@
  *    like on tesla.
  *  - $p0-$p6: 1-bit predicate registers, usable.
  *  - $p7: Always-true predicate.
+ *  - $c0: Condition code register. Don't know exact bits yet, but at least
+ *    zero, sign, and carry flags exist. Probably overflow too. Likely same
+ *    bits as nv50.
  */
 
 /*
@@ -331,7 +334,7 @@ int pdstoff[] = { 0x11, 3, 'p' };
 int pdst2off[] = { 0x36, 3, 'p' };
 int pdst3off[] = { 0x35, 3, 'p' }; // ...the hell?
 int texoff[] = { 0x20, 7, 't' };
-int cfoff[] = { 0, 0, 'c' };
+int ccoff[] = { 0, 0, 'c' };
 #define DST atomreg, dstoff
 #define DSTD atomdreg, dstoff
 #define DSTQ atomqreg, dstoff
@@ -349,7 +352,7 @@ int cfoff[] = { 0, 0, 'c' };
 #define PDST2 atomreg, pdst2off
 #define PDST3 atomreg, pdst3off
 #define TEX atomreg, texoff
-#define CF atomreg, cfoff
+#define CC atomreg, ccoff
 void atomreg APROTO {
 	const int *n = v;
 	int r = BF(n[0], n[1]);
@@ -517,10 +520,10 @@ F1(rev, 8, N("rev"))
 F1(not1, 9, N("not"))
 F1(not2, 8, N("not"))
 
-F1(acout, 0x30, CF)
-F1(acout2, 0x3a, CF)
-F1(acin, 6, CF)
-F1(acin2, 0x37, CF)
+F1(acout, 0x30, CC)
+F1(acout2, 0x3a, CC)
+F1(acin, 6, CC)
+F1(acin2, 0x37, CC)
 
 F(us32, 5, N("u32"), N("s32"))
 F1(high, 6, N("high"))
