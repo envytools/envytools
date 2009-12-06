@@ -34,6 +34,10 @@
 /*
  * PGRAPH registers of interest
  *
+ * 0x400040: disables subunits of PGRAPH. or at least disables access to them
+ *           through MMIO. each bit corresponds to a unit, and the full mask
+ *           is 0x7fffff. writing 1 to a given bit disables the unit, 0
+ *           enables.
  * 0x400300: some sort of status register... shows 0xe when execution stopped,
  *           0xX3 when running or paused.
  * 0x400304: control register. For writes:
@@ -242,13 +246,15 @@ int flagoff[] = { 0, 7, 0 };
 int gsize4off[] = { 14, 6, 0 };
 int gsize5off[] = { 16, 4, 0 };
 int immoff[] = { 0, 20, 0 };
-int goffoff[] = { 0, 20, 0 };
+int dis0off[] = { 0, 16, 0 };
+int dis1off[] = { 0, 16, 16 };
 #define UNIT atomnum, unitoff
 #define FLAG atomnum, flagoff
 #define GSIZE4 atomnum, gsize4off
 #define GSIZE5 atomnum, gsize5off
 #define IMM atomnum, immoff
-#define GOFF atomnum, goffoff
+#define DIS0 atomnum, dis0off
+#define DIS1 atomnum, dis1off
 void atomnum APROTO {
 	const int *n = v;
 	uint32_t num = BF(n[0], n[1])<<n[2];
@@ -321,18 +327,21 @@ struct insn tabm[] = {
 	{ NV4x, 0x100000, 0xffc000, N("pgraph"), PGRAPH4, RA },
 	{ NV4x, 0x100000, 0xf00000, N("pgraph"), PGRAPH4, GSIZE4 },
 	{ NVxx, 0x200000, 0xf00000, N("mov"), RA, IMM },		// moves 20-bit immediate to scratch reg
-	{ NV5x, 0x300000, 0xff0000, N("mov"), RG, GOFF },		// moves 20-bit immediate to $g reg
+	{ NV5x, 0x300000, 0xf00000, N("mov"), RG, IMM },		// moves 20-bit immediate to $g reg
 	{ NVxx, 0x400000, 0xfc0000, N("jmp"), T(pred), CTARG },		// jumps if condition true
 	{ NV5x, 0x440000, 0xfc0000, N("call"), T(pred), CTARG },	// calls if condition true, NVAx only
 	{ NV5x, 0x480000, 0xfc0000, N("ret"), T(pred) },		// rets if condition true, NVAx only
 	{ NV5x, 0x500000, 0xf00000, N("wait"), T(pred) },		// waits until condition true.
 	{ NV5x, 0x600006, 0xffffff, N("mov"), RR, RA },			// copies $a to $r
 	{ NV5x, 0x600007, 0xffffff, N("mov"), RM, RA },			// copies $a to $r, anding it with 0xffff8
+	{ NV5x, 0x600009, 0xffffff, N("enable") },			// resets 0x40 to 0
 	{ NV5x, 0x60000c, 0xffffff, N("exit") },			// halts program execution, resets PC to 0
 	{ NV5x, 0x60000d, 0xffffff, N("ctxsw") },			// movs new RAMIN address to current RAMIN address, basically where the real switch happens
 	{ NV4x, 0x60000e, 0xffffff, N("exit") },
 	{ NVxx, 0x700000, 0xf00080, N("clear"), T(rpred) },		// clears given flag
 	{ NVxx, 0x700080, 0xf00080, N("set"), T(rpred) },		// sets given flag
+	{ NV5x, 0x900000, 0x9f0000, N("disable"), DIS0 },		// ors 0x40 with given immediate.
+	{ NV5x, 0x910000, 0x9f0000, N("disable"), DIS1 },
 	{ NV5x, 0xa00000, 0xf10000, N("mov"), N("units"), PGRAPH5 },	// movs given PGRAPH register to 0x400830.
 	{ NVxx, 0, 0, OOPS },
 };
