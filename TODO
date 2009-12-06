@@ -13,6 +13,7 @@ Branching
 Predicates
  - what if you try to predicate joins/exits?
  - which instructions ignore predicates?
+ - check each instruction for predicate setting powers.
 Counting stuff
  - $a5-$a7?
  - how to set up all the memory spaces and how big are they?
@@ -26,8 +27,6 @@ Misc
 
 Cleanup for after everything is said and done:
  - edge cases everywhere, write descriptions.
- - look for long instructions with possibly missed short forms and the other
-   way around.
  - look for XXXes.
  - make sure all cvt's work as expected
 
@@ -37,8 +36,6 @@ Disassembler stuff
 
 Shader-related:
  - How big are v[] and a[]?
- - What instructions allow $o?
-   - apparently all of them
  - GP emit instruction: supports combo with restart?
  - life after discard
    - kills a shader instantly, or just sets a flag?
