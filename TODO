@@ -4,7 +4,6 @@ Queue for immediate execution:
  - mad24 with immediates. and short forms. and negations.
  - const spaces: how many bits do addresses have?
  - cvt with rounding modes. also, what does it do?
- - mad with rounding modes
 
 Branching
  - branching/joining?
@@ -13,7 +12,6 @@ Branching
 Predicates
  - what if you try to predicate joins/exits?
  - which instructions ignore predicates?
- - check each instruction for predicate setting powers.
 Counting stuff
  - $a5-$a7?
  - how to set up all the memory spaces and how big are they?
@@ -47,7 +45,6 @@ Needs to be checked experimentaly by running code:
  - verify multi-$a addressing...
  - check how and where p[] works
  - check lfm1 and lfm2 on all float operations.
- - mad with rounding modes.
  - what happens for unaligned long instructions?
 On non-CP:
  - check exact encoding for a[] and v[], figure out size and what's in there.
