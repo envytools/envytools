@@ -84,10 +84,9 @@
  */
 
 /*
- * All of the above has been checked on my NV86 laptop card and will be
- * checked soon on my NVA5. Should probably apply to all NV50 family cards.
- * NV40 is rather different, but should be somewhat similar, needs to be
- * checked some day.
+ * All of the above has been checked on my NV86 laptop card and on my NVA5.
+ * Should probably apply to all NV50 family cards. NV40 is rather different,
+ * but should follow the same idea. Needs to be checked some day.
  */
 
 #define NV4x 1
@@ -327,13 +326,13 @@ struct insn tabm[] = {
 	{ NV4x, 0x100000, 0xffc000, N("pgraph"), PGRAPH4, RA },
 	{ NV4x, 0x100000, 0xf00000, N("pgraph"), PGRAPH4, GSIZE4 },
 	{ NVxx, 0x200000, 0xf00000, N("mov"), RA, IMM },		// moves 20-bit immediate to scratch reg
-	{ NV5x, 0x300000, 0xf00000, N("mov"), RG, IMM },		// moves 20-bit immediate to $g reg
+	{ NV5x, 0x300000, 0xf00000, N("mov"), RG, IMM },		// moves 20-bit immediate to 338
 	{ NVxx, 0x400000, 0xfc0000, N("jmp"), T(pred), CTARG },		// jumps if condition true
 	{ NV5x, 0x440000, 0xfc0000, N("call"), T(pred), CTARG },	// calls if condition true, NVAx only
 	{ NV5x, 0x480000, 0xfc0000, N("ret"), T(pred) },		// rets if condition true, NVAx only
 	{ NV5x, 0x500000, 0xf00000, N("wait"), T(pred) },		// waits until condition true.
-	{ NV5x, 0x600006, 0xffffff, N("mov"), RR, RA },			// copies $a to $r
-	{ NV5x, 0x600007, 0xffffff, N("mov"), RM, RA },			// copies $a to $r, anding it with 0xffff8
+	{ NV5x, 0x600006, 0xffffff, N("mov"), RR, RA },			// copies scratch to 334
+	{ NV5x, 0x600007, 0xffffff, N("mov"), RM, RA },			// copies scratch to 33c, anding it with 0xffff8
 	{ NV5x, 0x600009, 0xffffff, N("enable") },			// resets 0x40 to 0
 	{ NV5x, 0x60000c, 0xffffff, N("exit") },			// halts program execution, resets PC to 0
 	{ NV5x, 0x60000d, 0xffffff, N("ctxsw") },			// movs new RAMIN address to current RAMIN address, basically where the real switch happens
