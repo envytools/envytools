@@ -896,7 +896,7 @@ struct insn tabs[] = {
 	{ AP, 0xc0000000, 0xf0000002, N("mul f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), T(scw) },
 	// and
 
-	{ AP, 0xe0000000, 0xf0000002, N("mad f32"), SDST, SSRC, SSRC2, SDST },	// XXX: flags like tabi?
+	{ AP, 0xe0000000, 0xf0000002, N("add f32"), SDST, N("mul"), SSRC, SSRC2, SDST },	// XXX: flags like tabi?
 
 	{ AP, 0xf0000000, 0xf1000002, N("texauto"), T(sm1tex), STDST, TEX, STSRC, IGNDTEX },
 	{ AP, 0xf1000000, 0xf1000002, N("texfetch"), T(sm1tex), STDST, TEX, STSRC, IGNDTEX },
@@ -1573,18 +1573,18 @@ struct insn tabl[] = {
 
 	// e
 	{ AP, 0x00000000e0000000ull, 0xc0000000f0000000ull,
-		N("mad"), T(o0sat), N("f32"), MCDST, LLDST, T(m1neg), T(lsw), T(lc2w), T(m2neg), T(lc3w) },	// XXX what happens if you try both?
+		N("add"), T(o0sat), N("f32"), MCDST, LLDST, T(m1neg), N("mul"), T(lsw), T(lc2w), T(m2neg), T(lc3w) },	// multiply, round, add, round. meh.
 
 	{ AP, 0x40000000e0000000ull, 0xe0000000f0000000ull,
-		N("mad"), T(mad64r), N("f64"), LDDST, T(m1neg), LDSRC, LDSRC2, T(m2neg), LDSRC3 },
+		N("fma"), T(mad64r), N("f64"), MCDST, LDDST, T(m1neg), LDSRC, LDSRC2, T(m2neg), LDSRC3 },	// *fused* multiply-add, no intermediate rounding :)
 	{ AP, 0x60000000e0000000ull, 0xe0000000f0000000ull,
-		N("add"), T(af64r), N("f64"), LDDST, T(m1neg), LDSRC, T(m2neg), LDSRC3 },
+		N("add"), T(af64r), N("f64"), MCDST, LDDST, T(m1neg), LDSRC, T(m2neg), LDSRC3 },
 	{ AP, 0x80000000e0000000ull, 0xe0000000f0000000ull,
-		N("mul"), T(cvtrnd), N("f64"), LDDST, T(m1neg), LDSRC, LDSRC2 },
+		N("mul"), T(cvtrnd), N("f64"), MCDST, LDDST, T(m1neg), LDSRC, LDSRC2 },
 	{ AP, 0xa0000000e0000000ull, 0xe0000000f0000000ull,
-		N("min"), N("f64"), LDDST, T(lfm1), LDSRC, T(lfm2), LDSRC2 },
+		N("min"), N("f64"), MCDST, LDDST, T(lfm1), LDSRC, T(lfm2), LDSRC2 },
 	{ AP, 0xc0000000e0000000ull, 0xe0000000f0000000ull,
-		N("max"), N("f64"), LDDST, T(lfm1), LDSRC, T(lfm2), LDSRC2 },
+		N("max"), N("f64"), MCDST, LDDST, T(lfm1), LDSRC, T(lfm2), LDSRC2 },
 	{ AP, 0xe0000000e0000000ull, 0xe0000000f0000000ull,
 		N("set"), T(setf), N("f64"), MCDST, LLDST, T(lfm1), LDSRC, T(lfm2), LDSRC2 },
 
