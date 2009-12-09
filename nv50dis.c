@@ -304,7 +304,6 @@ int toffzoff[] = { 0x30, 4, 0, 1 };
  * Used in cases when some bitfield doesn't do anything, but nvidia's blob
  * sets it due to stupi^H^H^H^H^Hdesign decisions.
  *  - IGNCE: $c write enable
- *  - IGNDTEX: texture id duplicated in higher bits for some reason
  *  - IGNPRED: predicates, for instructions that don't use them.
  *
  * The whole point of this op is to kill spurious red when disassembling
@@ -312,10 +311,8 @@ int toffzoff[] = { 0x30, 4, 0, 1 };
  */
 
 int ignce[] = { 0x26, 1 };
-int igndtex[] = { 0x10, 6 };
 int ignpred[] = { 0x27, 7 };
 #define IGNCE atomign, ignce
-#define IGNDTEX atomign, igndtex
 #define IGNPRED atomign, ignpred
 
 /*
@@ -379,6 +376,7 @@ int condoff[] = { 0x2c, 2, 'c' };
 int c0off[] = { 0, 0, 'c' };
 int cdstoff[] = { 0x24, 2, 'c' };
 int texoff[] = { 9, 7, 't' };
+int sampoff[] = { 0x11, 4, 's' };
 #define SDST atomreg, sdstoff
 #define LDST atomreg, ldstoff
 #define SHDST atomhreg, sdstoff
@@ -406,6 +404,7 @@ int texoff[] = { 9, 7, 't' };
 #define C0 atomreg, c0off
 #define CDST atomreg, cdstoff
 #define TEX atomreg, texoff
+#define SAMP atomreg, sampoff
 
 int getareg (ull *a, ull *m, int l) {
 	int r = BF(0x1a, 2);
@@ -728,8 +727,8 @@ struct insn tabs[] = {
 
 	{ AP, 0xe0000000, 0xf0000002, N("add f32"), SDST, N("mul"), SSRC, SSRC2, SDST },	// XXX: flags like tabi?
 
-	{ AP, 0xf0000000, 0xf1000002, N("texauto"), T(sm1tex), STDST, TEX, STSRC, IGNDTEX },
-	{ AP, 0xf1000000, 0xf1000002, N("texfetch"), T(sm1tex), STDST, TEX, STSRC, IGNDTEX },
+	{ AP, 0xf0000000, 0xf1000002, N("texauto"), T(sm1tex), STDST, TEX, SAMP, STSRC },
+	{ AP, 0xf1000000, 0xf1000002, N("texfetch"), T(sm1tex), STDST, TEX, SAMP, STSRC},
 
 	{ AP, 0, 2, OOPS, SDST, T(ssw), T(scw) },
 	{ AP, 0, 0, OOPS }
@@ -1019,7 +1018,7 @@ F1(dtex, 0x23, N("deriv")) // suspected to enable implicit derivatives on non-FP
 F(ltex, 0x22, N("all"), N("live"))
 
 struct insn tabtexf[] = {
-	{ AP, 0, 0, T(ltex), T(dtex), IGNDTEX },
+	{ AP, 0, 0, T(ltex), T(dtex) },
 };
 
 // for mov
@@ -1420,28 +1419,28 @@ struct insn tabl[] = {
 
 	// f
 	{ AP, 0x00000000f0000000ull, 0xf0000000f9000000ull, // order of inputs: x, y, z, index, dref, bias/lod. index is integer, others float.
-		N("texauto"), T(texf), LTDST, TEX, LTSRC, TOFFX, TOFFY, TOFFZ },
+		N("texauto"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
 	{ AP, 0x00000000f8000000ull, 0xf0000000f9000000ull,
-		N("texauto cube"), T(texf), LTDST, TEX, LTSRC },
+		N("texauto cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
 
 	{ AP, 0x00000000f1000000ull, 0xf0000000f1000000ull, // takes integer inputs.
-		N("texfetch"), T(texf), LTDST, TEX, LTSRC, TOFFX, TOFFY, TOFFZ },
+		N("texfetch"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
 
 	{ AP, 0x20000000f0000000ull, 0xf0000000f8000000ull, // bias needs to be same for everything, or else.
-		N("texbias"), T(texf), LTDST, TEX, LTSRC, TOFFX, TOFFY, TOFFZ },
+		N("texbias"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
 	{ AP, 0x20000000f8000000ull, 0xf0000000f8000000ull,
-		N("texbias cube"), T(texf), LTDST, TEX, LTSRC },
+		N("texbias cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
 
 	{ AP, 0x40000000f0000000ull, 0xf0000000f8000000ull, // lod needs to be same for everything, or else.
-		N("texlod"), T(texf), LTDST, TEX, LTSRC, TOFFX, TOFFY, TOFFZ },
+		N("texlod"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
 	{ AP, 0x40000000f8000000ull, 0xf0000000f8000000ull,
-		N("texlod cube"), T(texf), LTDST, TEX, LTSRC },
+		N("texlod cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
 
 	{ AP, 0x60000000f0000000ull, 0xf0000000f0000000ull, // integer input and output.
-		N("texsize"), T(texf), LTDST, TEX, LDST }, // in: LOD, out: size.x, size.y, size.z
+		N("texsize"), T(texf), LTDST, TEX, SAMP, LDST }, // in: LOD, out: size.x, size.y, size.z
 
 	{ AP, 0x80000000f0000000ull, 0xf0000000f0000000ull, // no idea what this is. but it *is* texturing.
-		OOPS, T(texf), LTDST, TEX, LTSRC, TOFFX, TOFFY, TOFFZ },
+		OOPS, T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
 
 	{ GP, 0xc0000000f0000200ull, 0xe0000000f0000600ull, N("emit") },
 	{ GP, 0xc0000000f0000400ull, 0xe0000000f0000600ull, N("restart") },
