@@ -23,10 +23,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
+#include "coredis.h"
 
 /*
  * PGRAPH registers of interest
@@ -91,133 +88,6 @@
 #define NVxx 3
 
 /*
- * Color scheme
- */
-
-char cnorm[] = "\x1b[0m";	// lighgray: instruction code and misc stuff
-char cgray[] = "\x1b[37m";	// darkgray: instruction address
-char cgr[] = "\x1b[32m";	// green: instruction name and mods
-char cbl[] = "\x1b[34m";	// blue: $r registers
-char ccy[] = "\x1b[36m";	// cyan: memory accesses
-char cyel[] = "\x1b[33m";	// yellow: numbers
-char cred[] = "\x1b[31m";	// red: unknown stuff
-char cbr[] = "\x1b[37m";	// white: code labels
-char cmag[] = "\x1b[35m";	// pink: funny registers
-
-
-/*
- * Table format
- *
- * Decoding various fields is done by multi-level tables of decode operations.
- * Fields of a single table entry:
- *  - bitmask of program types for which this entry applies
- *  - value that needs to match
- *  - mask of bits in opcode that need to match the val
- *  - a sequence of 0 to 8 operations to perform if this entry is matched.
- *
- * Each table is scanned linearly until a matching entry is found, then all
- * ops in this entry are executed. Length of a table is not checked, so they
- * need either a terminator showing '???' for unknown stuff, or match all
- * possible values.
- *
- * A single op is supposed to decode some field of the instruction and print
- * it. In the table, an op is just a function pointer plus a void* that gets
- * passed to it as an argument. atomtab is an op that descends recursively
- * into another table to decude a subfield. T(too) is an op shorthand for use
- * in tables.
- *
- * Each op takes five arguments: output file to print to, pointer to the
- * opcode being decoded, pointer to a mask value of already-used fields,
- * a free-form void * specified in table entry that called this op, and
- * allowed program type bitmask.
- *
- * The mask argument is supposed to detect unknown fields in opcodes: if some
- * bit in decoded opcode is set, but no op executed along the way claims to
- * use it, it's probably some unknown field that could totally change the
- * meaning of instruction and will be printed in bold fucking red to alert
- * the user. Each op ors in the bitmask that it uses, and after all ops are
- * executed, main code prints unclaimed bits. This works for fields that can
- * be used multiple times, like the COND field: it'll be read fine by all ops
- * that happen to use it, but will be marked red if no op used it, like
- * an unconditional non-addc non-mov-from-$c insn.
- *
- * This doesn't work for $a, as there is a special case here: only the first
- * field using it actually gets its value, next ones just use 0. This is
- * hacked around by zeroing out the field directly in passed opcode parameter
- * in the op reading it. This gives proper behavior on stuff like add $r0,
- * s[$a1+0x4], c0[0x10].
- *
- * Macros provided for quickly getting the bitfields: BF(...) gets value of
- * given bitfield and marks it as used in the mask, RCL(...) wipes it
- * from the opcode field directly, allowing for the $a special case. Args are
- * given as start bit, size in bits.
- *
- * Also, three simple ops are provided: N("string") prints a literal to output
- * and is supposed to be used for instruction names and various modifiers.
- * OOPS is for unknown encodings, NL is for separating instructions in case
- * a single opcode represents two [only possible with join and exit].
- */
-
-typedef unsigned long long ull;
-
-#define BF(s, l) (*m |= ((1ull<<l)-1<<s), *a>>s&(1ull<<l)-1)
-#define RCL(s, l) (*a &= ~((1ull<<l)-1<<s))
-
-#define APROTO (FILE *out, ull *a, ull *m, const void *v, int ptype)
-
-typedef void (*afun) APROTO;
-
-struct atom {
-	afun fun;
-	const void *arg;
-};
-
-struct insn {
-	int ptype;
-	ull val;
-	ull mask;
-	struct atom atoms[16];
-};
-
-/*
- * Makes a simple table for checking a single flag.
- *
- * Arguments: table name, flag position, ops for 0, ops for 1.
- */
-
-#define F(n, f, a, b) struct insn tab ## n[] = {\
-	{ AP, 0,		1ull<<(f), a },\
-	{ AP, 1ull<<(f),	1ull<<(f), b },\
-};
-#define F1(n, f, b) struct insn tab ## n[] = {\
-	{ AP, 0,		1ull<<(f) },\
-	{ AP, 1ull<<(f),	1ull<<(f), b },\
-};
-
-
-#define T(x) atomtab, tab ## x
-void atomtab APROTO {
-	const struct insn *tab = v;
-	int i;
-	while ((a[0]&tab->mask) != tab->val || !(tab->ptype&ptype))
-		tab++;
-	m[0] |= tab->mask;
-	for (i = 0; i < 16; i++)
-		if (tab->atoms[i].fun)
-			tab->atoms[i].fun (out, a, m, tab->atoms[i].arg, ptype);
-}
-
-#define N(x) atomname, x
-void atomname APROTO {
-	fprintf (out, " %s%s", cgr, (char *)v);
-}
-
-#define OOPS atomoops, 0
-void atomoops APROTO {
-	fprintf (out, " %s???", cred);
-}
-
-/*
  * Code target field
  *
  * This field represents a code address and is used for branching and the
@@ -235,15 +105,13 @@ void atomctarg APROTO {
  * Used for plain numerical arguments.
  */
 
-// BF, shift
-
-int unitoff[] = { 0, 5, 0 };
-int flagoff[] = { 0, 7, 0 };
-int gsize4off[] = { 14, 6, 0 };
-int gsize5off[] = { 16, 4, 0 };
-int immoff[] = { 0, 20, 0 };
-int dis0off[] = { 0, 16, 0 };
-int dis1off[] = { 0, 16, 16 };
+int unitoff[] = { 0, 5, 0, 0 };
+int flagoff[] = { 0, 7, 0, 0 };
+int gsize4off[] = { 14, 6, 0, 0 };
+int gsize5off[] = { 16, 4, 0, 0 };
+int immoff[] = { 0, 20, 0, 0 };
+int dis0off[] = { 0, 16, 0, 0 };
+int dis1off[] = { 0, 16, 16, 0 };
 #define UNIT atomnum, unitoff
 #define FLAG atomnum, flagoff
 #define GSIZE4 atomnum, gsize4off
@@ -251,18 +119,13 @@ int dis1off[] = { 0, 16, 16 };
 #define IMM atomnum, immoff
 #define DIS0 atomnum, dis0off
 #define DIS1 atomnum, dis1off
-void atomnum APROTO {
-	const int *n = v;
-	uint32_t num = BF(n[0], n[1])<<n[2];
-	fprintf (out, " %s%#x", cyel, num);
-}
 
 /*
  * Registers
  */
 
-#define R(x) atomreg, x
-void atomreg APROTO {
+#define R(x) atomsreg, x
+void atomsreg APROTO {
 	fprintf (out, " %s$%s", cbl, (char *)v);
 }
 #define RA R("a")	// The scratch register. 0x40031c
@@ -355,7 +218,7 @@ void nv50dis (FILE *out, uint32_t *code, int num, int ptype) {
 		ull a = code[cur], m = 0;
 		fprintf (out, "%s%08x: %s", cgray, cur*4, cnorm);
 		fprintf (out, "%08llx", a);
-		atomtab (out, &a, &m, tabm, ptype);
+		atomtab (out, &a, &m, tabm, ptype, cur);
 		a &= ~m;
 		if (a) {
 			fprintf (out, " %s[unknown: %08llx]%s", cred, a, cnorm);
