@@ -162,13 +162,6 @@ int hnumoff[] = { 0x38, 1, 0, 0 };
 #define HNUM atomnum, hnumoff
 
 /*
- * Ignored fields
- */
-
-int igndtex[] = { 0x28, 5 }; // how can you make the same bug twice? hm.
-#define IGNDTEX atomign, igndtex
-
-/*
  * Register fields
  */
 
@@ -186,6 +179,7 @@ int pdst2off[] = { 0x36, 3, 'p' };
 int pdst3off[] = { 0x35, 3, 'p' }; // ...the hell?
 int pdst4off[] = { 0x32, 3, 'p' }; // yay.
 int texoff[] = { 0x20, 7, 't' };
+int sampoff[] = { 0x28, 5, 's' };
 int ccoff[] = { 0, 0, 'c' };
 #define DST atomreg, dstoff
 #define DSTD atomdreg, dstoff
@@ -207,6 +201,7 @@ int ccoff[] = { 0, 0, 'c' };
 #define PDST3 atomreg, pdst3off
 #define PDST4 atomreg, pdst4off
 #define TEX atomreg, texoff
+#define SAMP atomreg, sampoff // big guesswork.
 #define CC atomreg, ccoff
 
 #define TDST atomtdst, 0
@@ -664,9 +659,9 @@ struct insn tabm[] = {
 
 
 	{ AP, 0x1400000000000006ull, 0xfc00000000000007ull, N("mov"), T(ldstt), T(ldstd), FCONST },
-	{ AP, 0x80000000fc000086ull, 0xfc000000fc000087ull, N("texauto"), T(ltex), TDST, TEX, TSRC, IGNDTEX }, // mad as a hatter.
-	{ AP, 0x90000000fc000086ull, 0xfc000000fc000087ull, N("texfetch"), T(ltex), TDST, TEX, TSRC, IGNDTEX },
-	{ AP, 0x0000000000000006ull, 0x0000000000000007ull, OOPS, T(ltex), TDST, TEX, TSRC, IGNDTEX }, // is assuming a tex instruction a good idea here? probably. there are loads of unknown tex insns after all.
+	{ AP, 0x80000000fc000086ull, 0xfc000000fc000087ull, N("texauto"), T(ltex), TDST, TEX, SAMP, TSRC }, // mad as a hatter.
+	{ AP, 0x90000000fc000086ull, 0xfc000000fc000087ull, N("texfetch"), T(ltex), TDST, TEX, SAMP, TSRC },
+	{ AP, 0x0000000000000006ull, 0x0000000000000007ull, OOPS, T(ltex), TDST, TEX, SAMP, TSRC }, // is assuming a tex instruction a good idea here? probably. there are loads of unknown tex insns after all.
 
 
 
