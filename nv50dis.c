@@ -1111,6 +1111,44 @@ struct insn tabaddcond[] = {
 	{ AP, 0, 0 }
 };
 
+struct insn tabaddop2[] = {
+	{ AP, 0x0000000000000000ull, 0x0c00000000000000ull, N("add") },
+	{ AP, 0x0400000000000000ull, 0x0c00000000000000ull, N("sub") },
+	{ AP, 0x0800000000000000ull, 0x0c00000000000000ull, N("subr") },
+	{ AP, 0x0c00000000000000ull, 0x0c00000000000000ull, N("addc") },
+};
+
+struct insn tabaddcond2[] = {
+	{ AP, 0x0c00000000000000ull, 0x0c00000000000000ull, COND },
+	{ AP, 0, 0 }
+};
+
+struct insn tabimad[] = {
+	{ AP, 0x0000000060000000ull, 0xe0000000f0000000ull, N("mul"), N("u16") },
+	{ AP, 0x2000000060000000ull, 0xe0000000f0000000ull, N("mul"), N("s16") },
+	{ AP, 0x4000000060000000ull, 0xe0000000f0000000ull, N("mul"), N("s16") },
+	{ AP, 0x6000000060000000ull, 0xe0000000f0000000ull, N("mul24"), N("u32") },
+	{ AP, 0x8000000060000000ull, 0xe0000000f0000000ull, N("mul24"), N("s32") },
+	{ AP, 0xa000000060000000ull, 0xe0000000f0000000ull, N("mul24"), N("s32") },
+	{ AP, 0xc000000060000000ull, 0xe0000000f0000000ull, N("mul24"), N("high"), N("u32") },
+	{ AP, 0xe000000060000000ull, 0xe0000000f0000000ull, N("mul24"), N("high"), N("s32") },
+	{ AP, 0x0000000070000000ull, 0xe0000000f0000000ull, N("mul24"), N("high"), N("s32") },
+	{ AP, 0, 0, OOPS },
+};
+
+struct insn tabimadsat[] = {
+	{ AP, 0x0000000060000000ull, 0xe0000000f0000000ull },
+	{ AP, 0x2000000060000000ull, 0xe0000000f0000000ull },
+	{ AP, 0x4000000060000000ull, 0xe0000000f0000000ull, N("sat") },
+	{ AP, 0x6000000060000000ull, 0xe0000000f0000000ull },
+	{ AP, 0x8000000060000000ull, 0xe0000000f0000000ull },
+	{ AP, 0xa000000060000000ull, 0xe0000000f0000000ull, N("sat") },
+	{ AP, 0xc000000060000000ull, 0xe0000000f0000000ull },
+	{ AP, 0xe000000060000000ull, 0xe0000000f0000000ull },
+	{ AP, 0x0000000070000000ull, 0xe0000000f0000000ull, N("sat") },
+	{ AP, 0, 0, OOPS },
+};
+
 struct insn tabl[] = {
 	// 0
 	{ VP|GP, 0x0420000000000000ull, 0xe4200000f0000000ull,
@@ -1205,22 +1243,8 @@ struct insn tabl[] = {
 		N("sad"), MCDST, LLDST, T(lm2us32), T(lsw), T(lc2w), T(lc3w) },
 
 	// 6 and 7
-	{ AP, 0x0000000060000000ull, 0xec000000f0000000ull,
-		N("mad u16"), MCDST, LLDST, T(lsh), T(lc2h), T(lc3w) },
-	{ AP, 0x0c00000060000000ull, 0xec000000f0000000ull,
-		N("mad u16"), MCDST, LLDST, T(lsh), T(lc2h), T(lc3w), COND },
-	{ AP, 0x2000000060000000ull, 0xe0000000f0000000ull,
-		N("mad s16"), MCDST, LLDST, T(lsh), T(lc2h), T(lc3w) },
-	{ AP, 0x6000000060000000ull, 0xe0000000f0000000ull,
-		N("mad u24"), MCDST, LLDST, T(lsw), T(lc2w), T(lc3w) },
-	{ AP, 0x8000000060000000ull, 0xe0000000f0000000ull,
-		N("mad s24"), MCDST, LLDST, T(lsw), T(lc2w), T(lc3w) },
-	{ AP, 0xc000000060000000ull, 0xe0000000f0000000ull,
-		N("mad high u24"), MCDST, LLDST, T(lsw), T(lc2w), T(lc3w) },
-	{ AP, 0xe000000060000000ull, 0xe0000000f0000000ull,
-		N("mad high s24"), MCDST, LLDST, T(lsw), T(lc2w), T(lc3w) },
-	{ AP, 0x0000000070000000ull, 0xe0000000f0000000ull,
-		N("mad high s24 sat"), MCDST, LLDST, T(lsw), T(lc2w), T(lc3w) },
+	{ AP, 0x0000000060000000ull, 0x00000000e0000000ull,
+		T(addop2), T(imadsat), MCDST, LLDST, T(imad), T(lsh), T(lc2h), T(lc3w), T(addcond2) },
 
 	// 8
 	{ FP, 0x0000000080000000ull, 0x00070000f0000000ull,
