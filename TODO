@@ -2,6 +2,8 @@ Queue for immediate execution:
 
  - mad madness
  - mad24 with immediates. and short forms. and negations.
+ - check&describe int insns: mad, min/max, shl/shr, set.
+ - check allowed s[] kinds for all insns.
  - const spaces: how many bits do addresses have?
  - cvt with rounding modes. also, what does it do?
 

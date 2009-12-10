@@ -703,6 +703,7 @@ struct insn tabs[] = {
 	{ AP, 0x50000000, 0xf0008002, N("sad"), SDST, T(sm1us16), SHSRC, SHSRC2, SDST },
 	{ AP, 0x50008000, 0xf0008002, N("sad"), SDST, T(sslus2), SSRC, SSRC2, SDST },
 
+	// desc VVV
 	{ AP, 0x60000000, 0xe0008102, T(addop), SDST, N("mul"), N("u16"), T(ssh), T(sch), SDST, T(addc0) },
 	{ AP, 0x60000100, 0xe0008102, T(addop), SDST, N("mul"), N("s16"), T(ssh), T(sch), SDST, T(addc0) },
 	{ AP, 0x60008000, 0xe0008102, T(addop), N("sat"), SDST, N("mul"), N("s16"), T(ssh), T(sch), SDST, T(addc0) },
@@ -729,6 +730,7 @@ struct insn tabs[] = {
 
 	{ AP, 0xf0000000, 0xf1000002, N("texauto"), T(sm1tex), STDST, TEX, SAMP, STSRC },
 	{ AP, 0xf1000000, 0xf1000002, N("texfetch"), T(sm1tex), STDST, TEX, SAMP, STSRC},
+	// desc ^^^
 
 	{ AP, 0, 2, OOPS, SDST, T(ssw), T(scw) },
 	{ AP, 0, 0, OOPS }
@@ -749,6 +751,7 @@ struct insn tabi[] = {
 	{ AP, 0x40000000, 0xf0400000, N("mul"), SDST, T(sm2us16), T(ssh), T(sm1us16), IMM },
 	{ AP, 0x40400000, 0xf0400000, N("mul"), SDST, T(sm1high), T(sm2us24), T(ssw), IMM },
 
+	// desc VVV
 	// SCAN 6-F
 	{ AP, 0x60000000, 0xe0008100, T(addop), SDST, N("mul"), N("u16"), T(ssh), IMM, SDST, T(addc0) }, // XXX: warning: guess here.
 	{ AP, 0x60000100, 0xe0008100, T(addop), SDST, N("mul"), N("s16"), T(ssh), IMM, SDST, T(addc0) },
@@ -765,9 +768,9 @@ struct insn tabi[] = {
 	{ AP, 0xd0008100, 0xf0008100, N("mov2"), N("b32"), SDST, T(sm3not), T(ssw), IMM },
 
 	{ AP, 0xe0000000, 0xf0000000, N("mad"), T(sm1sat), N("f32"), SDST, T(sm2neg), T(ssw), IMM, T(sm3neg), SDST },
+	// desc ^^^
 
-	{ AP, 0, 2, OOPS, SDST, T(ssw), IMM },
-	{ AP, 0, 0, OOPS }
+	{ AP, 0, 0, OOPS, SDST, T(ssw), IMM },
 };
 
 /*
@@ -1151,8 +1154,10 @@ struct insn tabimadsat[] = {
 
 struct insn tabl[] = {
 	// 0
+	// desc VVV
 	{ VP|GP, 0x0420000000000000ull, 0xe4200000f0000000ull,
 		T(lane), N("mov"), N("b32"), LLDST, FATTR },
+	// desc ^^^
 	{ AP, 0x2000000000000000ull, 0xe0000000f0000000ull,
 		N("mov"), LDST, COND },
 	{ AP, 0x4000000000000000ull, 0xe0000000f0000000ull,
@@ -1165,6 +1170,7 @@ struct insn tabl[] = {
 	{ AP, 0xc000000000000000ull, 0xe0000000f0000000ull,
 		N("shl"), ADST, T(lsw), HSHCNT },
 	
+	// desc VVV
 	{ CP, 0xe000000000000000ull, 0xe4400000f0000000ull,	// XXX ok, seriously, what's up with all thse flags?
 		N("mov b16"), FHSHARED, LHSRC3 },
 	{ CP, 0xe040000000000000ull, 0xe4400000f0000000ull,
@@ -1173,6 +1179,7 @@ struct insn tabl[] = {
 		N("mov b32"), FSHARED, LSRC3 },
 	{ CP, 0xe4a0000000000000ull, 0xe4a00000f0000000ull,
 		N("mov unlock b32"), FSHARED, LSRC3 },
+	// desc ^^^
 
 	// 1
 	{ AP, 0x0000000010000000ull, 0xe4000000f0000000ull,
@@ -1180,6 +1187,7 @@ struct insn tabl[] = {
 	{ AP, 0x0400000010000000ull, 0xe4000000f0000000ull,
 		T(lane), N("mov"), N("b32"), LLDST, T(lsw) },
 
+	// desc VVV
 	{ AP, 0x2000000010000000ull, 0xe4000000f0000000ull,
 		N("mov b16"), LLHDST, T(fcon) },
 	{ AP, 0x2400000010000000ull, 0xe4000000f0000000ull,
@@ -1198,11 +1206,13 @@ struct insn tabl[] = {
 		N("vote any"), CDST, IGNCE },	// sm_12
 	{ AP, 0x6000000010000400ull, 0xe0000000f0000600ull,
 		N("vote all"), CDST, IGNCE },	// sm_12
+	// desc ^^^
 
 	// 2 and 3
 	{ AP, 0x0000000020000000ull, 0xe4000000e0000000ull, T(addop), N("b16"), T(m2sat), MCDST, LLHDST, T(lsh), T(lc3h), T(addcond) },
 	{ AP, 0x0400000020000000ull, 0xe4000000e0000000ull, T(addop), N("b32"), T(m2sat), MCDST, LLDST, T(lsw), T(lc3w), T(addcond) },
 
+	// desc VVV
 	// YARLY.
 	{ AP, 0x6000000030000000ull, 0xe4000000f0000000ull,
 		N("set"), T(seti), T(lm2us16), MCDST, LLHDST, T(lsh), T(lc2h) },
@@ -1228,6 +1238,7 @@ struct insn tabl[] = {
 		N("shr"), T(lm2us16), MCDST, LLHDST, T(lsh), T(hshcnt) },
 	{ AP, 0xe400000030000000ull, 0xe4000000f0000000ull,
 		N("shr"), T(lm2us32), MCDST, LLDST, T(lsw), T(shcnt) },
+	// desc ^^^
 
 
 	// 4
@@ -1242,6 +1253,7 @@ struct insn tabl[] = {
 	{ AP, 0x0400000050000000ull, 0xe4000000f0000000ull,
 		N("sad"), MCDST, LLDST, T(lm2us32), T(lsw), T(lc2w), T(lc3w) },
 
+	// desc VVV
 	// 6 and 7
 	{ AP, 0x0000000060000000ull, 0x00000000e0000000ull,
 		T(addop2), T(imadsat), MCDST, LLDST, T(imad), T(lsh), T(lc2h), T(lc3w), T(addcond2) },
@@ -1400,6 +1412,7 @@ struct insn tabl[] = {
 		N("dfdx f32"), MCDST, LLDST, LSRC, LSRC3 },
 	{ AP, 0x8a400000c0150000ull, 0x8bc00000f0150000ull,
 		N("dfdy f32"), MCDST, LLDST, LSRC, LSRC3 },
+	// desc ^^^
 
 	// d
 	{ AP, 0x00000000d0000000ull, 0xe4000000f0000000ull,
@@ -1410,6 +1423,7 @@ struct insn tabl[] = {
 	{ AP, 0x20000000d0000000ull, 0xe0000000f0000000ull,
 		N("add"), ADST, AREG, OFFS },
 
+	// desc VVV
 	{ AP, 0x40000000d0000000ull, 0xe0000000f0000000ull,
 		N("mov"), T(ldstm), T(ldsto), LOCAL },
 	{ AP, 0x60000000d0000000ull, 0xe0000000f0000000ull,
@@ -1472,6 +1486,7 @@ struct insn tabl[] = {
 	{ AP, 0xe0000000f0000000ull, 0xe0000004f0000000ull, N("nop") },
 	{ AP, 0xe0000004f0000000ull, 0xe0000004f0000000ull, N("pmevent"), PM },
 
+	// desc ^^^
 	
 	// try to print out *some* info.
 	{ AP, 0, 0, OOPS, MCDST, LLDST, T(lsw), T(lc2w), T(lc3w) },
