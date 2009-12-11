@@ -21,6 +21,7 @@ Instructions
 5. Integer 24-bit MUL
 6. Integer SAD
 7. Bit operations
+8. TBD
 
 0. Conventions
 
@@ -305,3 +306,229 @@ Instructions
 		0x00000000 0x00008000 O2 bit
 		0x00000000 0x00004000 O1 bit
 		operands: MCDST, LL*DST, L*SRC1/L*SHARED, L*SRC2/L*CONST2
+
+8. TBD
+
+  add [options] [CDST] DST mul [options] SRC1 SRC2 SRC3
+  sub [options] [CDST] DST mul [options] SRC1 SRC2 SRC3
+  subr [options] [CDST] DST mul [options] SRC1 SRC2 SRC3
+  addc [options] [CDST] DST mul [options] SRC1 SRC2 SRC3 COND
+    
+    Single-instruction integer mul+add
+
+  interp [cent] [flat] DST v[] [SRC]
+
+    Gets interpolated FP input, optionally multiplying by a given value
+
+  rcp f32 DST SRC
+  rsqrt f32 DST SRC
+  lg2 f32 DST SRC
+  sin f32 DST SRC
+  cos f32 DST SRC
+  ex2 f32 DST SRC
+
+    Computes a transcendential function of the argument. rcp is 1/x, rsqrt is
+    1/sqrt(x). sin, cos, ex2 need arguments preprocessed by appropriate pre
+    insn. rcp, rsqrt, lg2 take a float argument directly.
+
+  presin f32 DST SRC
+  preex2 f32 DST SRC
+
+    Preprocesses a float argument for use in subsequent sin/cos or ex2
+    operation, respectively.
+
+  mov lock CDST DST s[]
+
+    Tries to lock a word of s[] memory and load a word from it. CDST tells
+    you if it was successfully locked+loaded, or no. A successfully locked
+    word can't be locked by any other thread until it is unlocked.
+
+  mov unlock s[] SRC
+
+    Stores a word to previously-locked s[] word and unlocks it.
+
+  PREDICATE vote any/all CDST
+
+    This instruction doesn't use the predicate field for conditional execution,
+    abusing it instead as an input argument. vote any sets CDST to true iff the
+    input predicate evaluated to true in any of the warp's active threads.
+    vote all sets it to true iff the predicate evaluated to true in all acive
+    threads of the current warp.
+
+  set [CDST] DST <cmpop> u16/s16/u32/s32/f32/f64 SRC1 SRC2
+
+    Does given comparison operation on SRC1 and SRC2. DST is set to 0xffffffff
+    [or 0xffff for 16-bit version] if comparison evaluats true, 0 if it
+    evaluates false. if used, CDST.SZ are set according to DST.
+
+  min u16/s16/u32/s32/f32/f64 DST SRC1 SRC2
+  max u16/s16/u32/s32/f32/f64 DST SRC1 SRC2
+
+    Sets DST to the smaller/larger of two SRC1 operands. For f32 version,
+    if one operand is NaN, DST is set to the non-NaN operand. If both are
+    NaN, DST is set to NaN.
+
+  shl b16/b32 DST SRC1 SRC2
+  shl b16/b32 DST SRC1 SHCNT
+  shr u16/u32/s16/s32 DST SRC1 SRC2
+  shr u16/u32/s16/s32 DST SRC1 SHCNT
+
+    Shifts SRC1 left/right by SRC2/SHCNT bits, puts result into DST. Shift
+    counts over 16/32 get handled properly, without wrapping around.
+
+  cvt <integer dst> <integer src>
+  cvt <integer rounding modifier> <integer dst> <float src>
+  cvt <rounding modifier> <float dst> <integer src>
+  cvt <rounding modifier> <float dst> <float src>
+  cvt <integer rounding modifier> <float dst> <float src>
+
+    Converts between formats. For integer destinations, always clamps result
+    to target type range.
+
+  add [sat] rn/rz f32 DST SRC1 SRC2
+
+    Adds two floating point numbers together.
+
+  mul [sat] rn/rz f32 DST SRC1 SRC2
+
+    Multiplies two floating point numbers together
+
+  slct b32 DST SRC1 SRC2 f32 SRC3
+
+    Sets DST to SRC1 if SRC3 is positive or 0, to SRC2 if SRC3 negative or NaN.
+
+  quadop f32 <op1> <op2> <op3> <op4> DST <srclane> SRC1 SRC2
+
+    Intra-quad information exchange instruction. Mad as a hatter.
+    First, SRC1 is taken from the given lane in current quad. Then
+    op<currentlanenumber> is executed on it and SRC2, results get
+    written to DST. ops can be add [SRC1+SRC2], sub [SRC1-SRC2],
+    subr [SRC2-SRC1], mov2 [SRC2]. srclane can be at least l0, l1,
+    l2, l3, and these work everywhere. If you're running in FP, looks
+    like you can also use dox [use current lane number ^ 1] and doy
+    [use current lane number ^ 2], but using these elsewhere results
+    in always getting 0 as the result...
+
+  add f32 DST mul SRC1 SRC2 SRC3
+
+    A multiply-add instruction. With intermediate rounding. Nothing
+    interesting. DST = SRC1 * SRC2 + SRC3;
+
+  fma f64 DST SRC1 SRC2 SRC3
+
+    Fused multiply-add, with no intermediate rounding.
+
+  texauto [deriv] live/all <texargs>
+
+    Does a texture fetch. Inputs are: x, y, z, array index, dref [skip all
+    that your current sampler setup doesn't use]. x, y, z, dref are floats,
+    array index is integer. If running in FP or the deriv flag is on,
+    derivatives are computed based on coordinates in all threads of current
+    quad. Otherwise, derivatives are assumed 0. For FP, if the live flag
+    is on, the tex instruction is only run for fragments that are going to
+    be actually written to the render target, ie. for ones that are inside
+    the rendered primitive and haven't been discarded yet. all executes
+    the tex even for non-visible fragments, which is needed if they're going
+    to be used for further derivatives, explicit or implicit.
+
+  texbias [deriv] live/all <texargs>
+
+    Same as texauto, except takes an additional [last] float input specifying
+    the LOD bias to add. Note that bias needs to be the same for all threads
+    in the current quad executing the texbias insn.
+
+  texlod live/all <texargs>
+
+    Does a texture fetch with given coordinates and LOD. Inputs are like
+    texbias, except you have explicit LOD instead of the bias. Just like
+    in texbias, the LOD should be the same for all threads involved.
+
+  texsize live/all <texargs>
+
+    Gives you (width, height, depth, mipmap level count) in output, takes
+    integer LOD parameter as its only input.
+
+  texfetch live/all <texargs>
+
+    A single-texel fetch. The inputs are x, y, z, index, lod, and are all
+    integer.
+
+  emit
+
+    GP-only instruction that emits current contents of $o registers as the
+    next vertex in the output primitive and clears $o for some reason.
+
+  restart
+
+    GP-only instruction that finishes current output primitive and starts
+    a new one.
+
+  bra <code target>
+
+    Branches to the given place in the code. If only some subset of threads
+    in the current warp executes it, one of the paths is chosen as the active
+    one, and the other is suspended until the active path exits or rejoins.
+
+  call <code target>
+
+    Pushes address of the next insn onto the stack and branches to given place.
+    Cannot be predicated.
+
+  ret
+
+    Returns from a called function. If there's some not-yet-returned divergent
+    path on the current stack level, switches to it. Otherwise pops off the
+    entry from stack, rejoins all the paths to the pre-call state, and
+    continues execution from the return address on stack. Accepts predicates.
+
+  breakaddr <code target>
+
+    Like call, except doesn't branch anywhere, uses given operand as the
+    return address, and pushes a different type of entry onto the stack.
+
+  break
+  
+    Like ret, except accepts breakaddr's stack entry type, not call's.
+
+  quadon
+
+    Temporarily enables all threads in the current quad, even if they were
+    disabled before [by diverging, exitting, or not getting started at all].
+    Nesting this is probably a bad idea, and so is using any non-quadpop
+    control insns while this is active. For diverged threads, the saved PC
+    is unaffected by this temporal enabling.
+
+  quadpop
+
+    Undoes a previous quadon command.
+
+  bar sync <barrier number>
+
+    Waits until all threads in the block arrive at the barrier, then continues
+    execution... probably... somehow...
+
+  trap
+
+    Causes an error, killing the program instantly.
+
+  joinat <code target>
+
+    The arugment is address of a future join instruction and gets pushed
+    onto the stack, together with a mask of currently active threads, for
+    future rejoining.
+
+  brkpt
+  
+    Doesn't seem to do anything, probably generates a breakpoint when enabled
+    somewhere in PGRAPH, somehow.
+  
+  exit
+
+    Actually, not a separate instruction, just a modifier available on all
+    long insns. Finishes thread's execution after the current insn ends.
+
+  join
+
+    Also a modifier. Switches to other diverged execution paths on the same
+    stack level, until they've all reached the join point, then pops off the
+    entry and continues execution with a rejoined path.
