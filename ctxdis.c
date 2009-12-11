@@ -45,6 +45,7 @@
  * 0x400310: PC. Readable and writable. In units of single insns.
  * 0x40031c: the scratch register, written by opcode 2, holding params to
  *           various stuff.
+ * 0x400320: WO, CMD register. Writing here launches a cmd, see below.
  * 0x400324: code upload index, WO. selects address to write in ctxprog code,
  *           counted in whole insns.
  * 0x400328: code upload, WO. writes given insn to code segment and
@@ -66,8 +67,8 @@
  * Execution can be in one of 3 states: stopped, running, and paused.
  * Initially, it's stopped. The only way to start execution is to poke 0x400304
  * with bit 0 set. When you do this, the uc starts executing opcodes from
- * current PC. The only way to stop execution is to hit opcode 0x60000c.
- * Note that 0x60000c resets PC to 0, so ctxprog will start over from there
+ * current PC. The only way to stop execution is to use CMD 0xc.
+ * Note that CMD 0xc resets PC to 0, so ctxprog will start over from there
  * next time, unless you poke PC before that. Running <-> paused transition
  * happens by poking 0x400304 with the appropriate bit set to 1. Poking with
  * *both* bits set to 1 causes it to reload the opcode register from current
@@ -75,6 +76,10 @@
  * Poking with bits 4 and 0 set together causes it to start with paused state.
  *
  * Oh, also, PC has 9 valid bits. So you can have ctxprogs of max. 512 insns.
+ *
+ * CMD: These are some special operations that can be launched either from
+ * host by poking the CMD number to 0x400320, or by ctxprog by running opcode
+ * 6 with the CMD number in its immediate field. See tabcmd.
  */
 
 /*
@@ -159,7 +164,7 @@ void atommem APROTO {
  * through 0x830. Known ones:
  *
  *  - 0x824 bit 0 [0x00]: direction flag used by pgraph opcode to select
- *    transfer direction.
+ *    transfer direction. 0 is RAMIN->PGRAPH, 1 is PGRAPH->RAMIN
  *  - 0x824 and 0x828, remaining bits [0x01-0x3f]: ??? RW
  *  - 0x82c [0x40-0x5f]: RO, some sort of PGRAPH status or something...
  *  - 0x82c bit 13 [0x4d]: always set, used for unconditional jumps
@@ -180,6 +185,16 @@ struct insn tabpred[] = {
 	{ NVxx, 0x00, 0x80, T(rpred) },
 };
 
+struct insn tabcmd[] = {
+	{ NV5x, 0x06, 0x1f, N("mov"), RR, RA },		// copies scratch to 334
+	{ NV5x, 0x07, 0x1f, N("mov"), RM, RA },		// copies scratch to 33c, anding it with 0xffff8
+	{ NV5x, 0x09, 0x1f, N("enable") },		// resets 0x40 to 0
+	{ NV5x, 0x0c, 0x1f, N("exit") },		// halts program execution, resets PC to 0
+	{ NV5x, 0x0d, 0x1f, N("ctxsw") },		// movs new RAMIN address to current RAMIN address, basically where the real switch happens
+	{ NV4x, 0x0e, 0x1f, N("exit") },
+	{ NVxx, 0, 0, OOPS },
+};
+
 struct insn tabm[] = {
 	{ NV5x, 0x100000, 0xff0000, N("pgraph"), PGRAPH5, RA },
 	{ NV5x, 0x100000, 0xf00000, N("pgraph"), PGRAPH5, GSIZE5 },
@@ -191,12 +206,7 @@ struct insn tabm[] = {
 	{ NV5x, 0x440000, 0xfc0000, N("call"), T(pred), CTARG },	// calls if condition true, NVAx only
 	{ NV5x, 0x480000, 0xfc0000, N("ret"), T(pred) },		// rets if condition true, NVAx only
 	{ NV5x, 0x500000, 0xf00000, N("wait"), T(pred) },		// waits until condition true.
-	{ NV5x, 0x600006, 0xffffff, N("mov"), RR, RA },			// copies scratch to 334
-	{ NV5x, 0x600007, 0xffffff, N("mov"), RM, RA },			// copies scratch to 33c, anding it with 0xffff8
-	{ NV5x, 0x600009, 0xffffff, N("enable") },			// resets 0x40 to 0
-	{ NV5x, 0x60000c, 0xffffff, N("exit") },			// halts program execution, resets PC to 0
-	{ NV5x, 0x60000d, 0xffffff, N("ctxsw") },			// movs new RAMIN address to current RAMIN address, basically where the real switch happens
-	{ NV4x, 0x60000e, 0xffffff, N("exit") },
+	{ NVxx, 0x600000, 0xf00000, N("cmd"), T(cmd) },			// runs a CMD.
 	{ NVxx, 0x700000, 0xf00080, N("clear"), T(rpred) },		// clears given flag
 	{ NVxx, 0x700080, 0xf00080, N("set"), T(rpred) },		// sets given flag
 	{ NV5x, 0x900000, 0x9f0000, N("disable"), DIS0 },		// ors 0x40 with given immediate.
