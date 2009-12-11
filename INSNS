@@ -21,8 +21,9 @@ Instructions
 5. Integer 24-bit MUL
 6. Integer MUL-ADD
 7. Integer SAD
-8. Bit operations
-9. TBD
+8. Integer MIN/MAX
+9. Bit operations
+10. TBD
 
 0. Conventions
 
@@ -348,7 +349,31 @@ Instructions
   		0x00000000 0x08000000 src sre signed
 		operands: MCDST, LLDST, L*SRC1/L*SHARED, L*SRC2/L*CONST2, L*SRC3/L*CONST3
 
-8. Bit operations
+8. Integer MIN/MAX
+
+  min u16/u32/s16/s32 [CDST] DST SRC1 SRC2
+  max u16/u32/s16/s32 [CDST] DST SRC1 SRC2
+
+  All operands are 32-bit or 16-bit according to size specifier.
+
+	if (SRC1 < SRC2) { // signed comparison for s16/s32, unsigned for u16/u32.
+		res = (min ? SRC1 : SRC2);
+	} else {
+		res = (min ? SRC2 : SRC1);
+	}
+	CDST.O = 0;
+	CDST.C = 0;
+	CDST.S = S(res);
+	CDST.Z = res == 0;
+	DST = res;
+
+  Long:		0x30000000 0x80000000 base opcode
+  		0x00000000 0x20000000 0: max, 1: min
+		0x00000000 0x08000000 src are signed
+		0x00000000 0x04000000 0: b16, 1: b32
+		operands: MCDST, L*DST, L*SRC1/L*SHARED, L*SRC2/L*CONST2
+
+9. Bit operations
 
   and b32/b16 [CDST] DST [not] SRC1 [not] SRC2		O2=0, O1=0
   or b32/b16 [CDST] DST [not] SRC1 [not] SRC2		O2=0, O1=1
@@ -386,7 +411,7 @@ Instructions
 		0x00000000 0x00004000 O1 bit
 		operands: MCDST, LL*DST, L*SRC1/L*SHARED, L*SRC2/L*CONST2
 
-9. TBD
+10. TBD
 
   interp [cent] [flat] DST v[] [SRC]
 
@@ -433,12 +458,11 @@ Instructions
     [or 0xffff for 16-bit version] if comparison evaluats true, 0 if it
     evaluates false. if used, CDST.SZ are set according to DST.
 
-  min u16/s16/u32/s32/f32/f64 DST SRC1 SRC2
-  max u16/s16/u32/s32/f32/f64 DST SRC1 SRC2
+  min f32/f64 DST SRC1 SRC2
+  max f32/f64 DST SRC1 SRC2
 
-    Sets DST to the smaller/larger of two SRC1 operands. For f32 version,
-    if one operand is NaN, DST is set to the non-NaN operand. If both are
-    NaN, DST is set to NaN.
+    Sets DST to the smaller/larger of two SRC1 operands. If one operand is NaN,
+    DST is set to the non-NaN operand. If both are NaN, DST is set to NaN.
 
   shl b16/b32 DST SRC1 SRC2
   shl b16/b32 DST SRC1 SHCNT

@@ -1,6 +1,6 @@
 Queue for immediate execution:
 
- - check&describe int insns: min/max, shl/shr, set.
+ - check&describe int insns: shl/shr, set.
  - check allowed s[] kinds for all insns.
  - const spaces: how many bits do addresses have?
  - cvt with rounding modes. also, what does it do?

@@ -61,8 +61,6 @@
  *    - rem		TODO	emulated
  *    - abs		desc...
  *    - neg		desc...
- *    - min		desc...
- *    - max		desc...
  *   2. Floating-Point
  *    - add		desc...
  *    - sub		desc...
@@ -1183,6 +1181,7 @@ struct insn tabl[] = {
 		N("set"), T(seti), T(lm2us16), MCDST, LLHDST, T(lsh), T(lc2h) },
 	{ AP, 0x6400000030000000ull, 0xe4000000f0000000ull,
 		N("set"), T(seti), T(lm2us32), MCDST, LLDST, T(lsw), T(lc2w) },
+	// desc ^^^
 
 	{ AP, 0x8000000030000000ull, 0xe4000000f0000000ull,
 		N("max"), T(lm2us16), MCDST, LLHDST, T(lsh), T(lc2h) },
@@ -1194,6 +1193,7 @@ struct insn tabl[] = {
 	{ AP, 0xa400000030000000ull, 0xe4000000f0000000ull,
 		N("min"), T(lm2us32), MCDST, LLDST, T(lsw), T(lc2w) },
 
+	// desc VVV
 	{ AP, 0xc000000030000000ull, 0xe4000000f0000000ull,	// XXX FUCK ALERT: shift count *CAN* be 16-bit.
 		N("shl"), N("b16"), MCDST, LLHDST, T(lsh), T(hshcnt) },
 	{ AP, 0xc400000030000000ull, 0xe4000000f0000000ull,
