@@ -19,9 +19,10 @@ Instructions
 3. Integer ADD family
 4. Integer short MUL
 5. Integer 24-bit MUL
-6. Integer SAD
-7. Bit operations
-8. TBD
+6. Integer MUL-ADD
+7. Integer SAD
+8. Bit operations
+9. TBD
 
 0. Conventions
 
@@ -235,7 +236,85 @@ Instructions
   		0x00000000 0x00004000 high
   		operands: MCDST, LLDST, LSRC1/LSHARED, LSRC2/LCONST2
 
-6. Integer SAD
+6. Integer MUL-ADD
+
+  addop [CDST] DST mul u16 SRC1 SRC2 SRC3		O1=0 O2=000	S2=0 S1=0
+  addop [CDST] DST mul s16 SRC1 SRC2 SRC3		O1=0 O2=001	S2=0 S1=1
+  addop sat [CDST] DST mul s16 SRC1 SRC2 SRC3		O1=0 O2=010	S2=1 S1=0
+  addop [CDST] DST mul u24 SRC1 SRC2 SRC3		O1=0 O2=011	S2=1 S1=1
+  addop [CDST] DST mul s24 SRC1 SRC2 SRC3		O1=0 O2=100
+  addop sat [CDST] DST mul s24 SRC1 SRC2 SRC3		O1=0 O2=101
+  addop [CDST] DST mul high u24 SRC1 SRC2 SRC3	O1=0 O2=110
+  addop [CDST] DST mul high s24 SRC1 SRC2 SRC3	O1=0 O2=111
+  addop sat [CDST] DST mul high s24 SRC1 SRC2 SRC3	O1=1 O2=000
+
+  addop is one of:
+
+  add	O3=00	S4=0 S3=0
+  sub	O3=01	S4=0 S3=1
+  subr	O3=10	S4=1 S3=0
+  addc	O3=11	S4=1 S3=1
+
+  If addop is addc, insn also takes an additional COND parameter. DST and
+  SRC3 are always 32-bit, SRC1 and SRC2 are 16-bit for u16/s16 variants,
+  32-bit for u24/s24 variants. Only a few of the variants are encodable as
+  short/immediate, and they're restricted to DST=SRC3.
+
+	if (u24 || s24) {
+		b48 s1, s2;
+		if (s24) {
+			s1 = SEX((b24)SRC1);
+			s2 = SEX((b24)SRC2);
+		} else {
+			s1 = ZEX((b24)SRC1);
+			s2 = ZEX((b24)SRC2);
+		}
+		b48 m = s1*s2;	// modulo 2^48
+		b32 mres = (high ? m >> 16 : m & 0xffffffff);
+	} else {
+		b32 s1, s2;
+		if (s16) {
+			s1 = SEX(SRC1);
+			s2 = SEX(SRC2);
+		} else {
+			s1 = ZEX(SRC1);
+			s2 = ZEX(SRC2);
+		}
+		b32 mres = s1*s2;	// modulo 2^32
+	}
+	b32 s1, s2;
+	bool c;
+	switch (OP) {
+		case add: s1 = mres, s2 = SRC3, c = 0; break;
+		case sub: s1 = mres, s2 = ~SRC3, c = 1; break;
+		case subr: s1 = ~mres, s2 = SRC3, c = 1; break;
+		case addc: s1 = mres, s2 = SRC3, c = COND.C; break;
+	}
+	res = s1+s2+c;	// infinite precision
+	CDST.C = res >> 32;
+	res = res & 0xffffffff;
+	CDST.O = (S(s1) == S(s2)) && (S(s1) != S(res));
+	if (sat && CDST.O)
+		if (S(res)) res = 0x7fffffff;
+		else res = 0x80000000;
+	CDST.S = S(res);
+	CDST.Z = res == 0;
+	DST = res;
+
+  Short/imm:	0x60000000 base opcode
+  		0x00000100 S1
+		0x00008000 S2
+		0x00400000 S3
+		0x10000000 S4
+		operands: SDST, S*SRC/S*SHARED, S*SRC2/S*CONST/IMM, SDST, $c0
+
+  Long:		0x60000000 0x00000000 base opcode
+  		0x10000000 0x00000000 O1
+		0x00000000 0xe0000000 O2
+		0x00000000 0x0c000000 O3
+		operands: MCDST, LLDST, L*SRC1/L*SHARED, L*SRC2/L*CONST2, L*SRC3/L*CONST3, COND
+
+7. Integer SAD
 
   sad [CDST] DST u/s HSRC1 HSRC2 SRC3		b16
   sad [CDST] DST u/s SRC1 SRC2 SRC3		b32
@@ -269,7 +348,7 @@ Instructions
   		0x00000000 0x08000000 src sre signed
 		operands: MCDST, LLDST, L*SRC1/L*SHARED, L*SRC2/L*CONST2, L*SRC3/L*CONST3
 
-7. Bit operations
+8. Bit operations
 
   and b32/b16 [CDST] DST [not] SRC1 [not] SRC2		O2=0, O1=0
   or b32/b16 [CDST] DST [not] SRC1 [not] SRC2		O2=0, O1=1
@@ -307,14 +386,7 @@ Instructions
 		0x00000000 0x00004000 O1 bit
 		operands: MCDST, LL*DST, L*SRC1/L*SHARED, L*SRC2/L*CONST2
 
-8. TBD
-
-  add [options] [CDST] DST mul [options] SRC1 SRC2 SRC3
-  sub [options] [CDST] DST mul [options] SRC1 SRC2 SRC3
-  subr [options] [CDST] DST mul [options] SRC1 SRC2 SRC3
-  addc [options] [CDST] DST mul [options] SRC1 SRC2 SRC3 COND
-    
-    Single-instruction integer mul+add
+9. TBD
 
   interp [cent] [flat] DST v[] [SRC]
 

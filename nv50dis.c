@@ -56,9 +56,6 @@
  * Instructions, from PTX manual:
  *   
  *   1. Integer Arithmetic
- *    - mad		desc...
- *    - mad24		XXX
- *    - sad		XXX
  *    - sad.64		TODO	emulated
  *    - div		TODO	emulated
  *    - rem		TODO	emulated
@@ -1126,32 +1123,6 @@ struct insn tabaddcond2[] = {
 	{ AP, 0, 0 }
 };
 
-struct insn tabimad[] = {
-	{ AP, 0x0000000060000000ull, 0xe0000000f0000000ull, N("mul"), N("u16") },
-	{ AP, 0x2000000060000000ull, 0xe0000000f0000000ull, N("mul"), N("s16") },
-	{ AP, 0x4000000060000000ull, 0xe0000000f0000000ull, N("mul"), N("s16") },
-	{ AP, 0x6000000060000000ull, 0xe0000000f0000000ull, N("mul24"), N("u32") },
-	{ AP, 0x8000000060000000ull, 0xe0000000f0000000ull, N("mul24"), N("s32") },
-	{ AP, 0xa000000060000000ull, 0xe0000000f0000000ull, N("mul24"), N("s32") },
-	{ AP, 0xc000000060000000ull, 0xe0000000f0000000ull, N("mul24"), N("high"), N("u32") },
-	{ AP, 0xe000000060000000ull, 0xe0000000f0000000ull, N("mul24"), N("high"), N("s32") },
-	{ AP, 0x0000000070000000ull, 0xe0000000f0000000ull, N("mul24"), N("high"), N("s32") },
-	{ AP, 0, 0, OOPS },
-};
-
-struct insn tabimadsat[] = {
-	{ AP, 0x0000000060000000ull, 0xe0000000f0000000ull },
-	{ AP, 0x2000000060000000ull, 0xe0000000f0000000ull },
-	{ AP, 0x4000000060000000ull, 0xe0000000f0000000ull, N("sat") },
-	{ AP, 0x6000000060000000ull, 0xe0000000f0000000ull },
-	{ AP, 0x8000000060000000ull, 0xe0000000f0000000ull },
-	{ AP, 0xa000000060000000ull, 0xe0000000f0000000ull, N("sat") },
-	{ AP, 0xc000000060000000ull, 0xe0000000f0000000ull },
-	{ AP, 0xe000000060000000ull, 0xe0000000f0000000ull },
-	{ AP, 0x0000000070000000ull, 0xe0000000f0000000ull, N("sat") },
-	{ AP, 0, 0, OOPS },
-};
-
 struct insn tabl[] = {
 	// 0
 	// desc VVV
@@ -1255,8 +1226,24 @@ struct insn tabl[] = {
 
 	// desc VVV
 	// 6 and 7
-	{ AP, 0x0000000060000000ull, 0x00000000e0000000ull,
-		T(addop2), T(imadsat), MCDST, LLDST, T(imad), T(lsh), T(lc2h), T(lc3w), T(addcond2) },
+	{ AP, 0x0000000060000000ull, 0xe0000000f0000000ull,
+		T(addop2), MCDST, LLDST, N("mul"), N("u16"), T(lsh), T(lc2h), T(lc3w), T(addcond2) },
+	{ AP, 0x2000000060000000ull, 0xe0000000f0000000ull,
+		T(addop2), MCDST, LLDST, N("mul"), N("s16"), T(lsh), T(lc2h), T(lc3w), T(addcond2) },
+	{ AP, 0x4000000060000000ull, 0xe0000000f0000000ull,
+		T(addop2), N("sat"), MCDST, LLDST, N("mul"), N("s16"), T(lsh), T(lc2h), T(lc3w), T(addcond2) },
+	{ AP, 0x6000000060000000ull, 0xe0000000f0000000ull,
+		T(addop2), MCDST, LLDST, N("mul"), N("u24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
+	{ AP, 0x8000000060000000ull, 0xe0000000f0000000ull,
+		T(addop2), MCDST, LLDST, N("mul"), N("s24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
+	{ AP, 0xa000000060000000ull, 0xe0000000f0000000ull,
+		T(addop2), N("sat"), MCDST, LLDST, N("mul"), N("s24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
+	{ AP, 0xc000000060000000ull, 0xe0000000f0000000ull,
+		T(addop2), MCDST, LLDST, N("mul"), N("high"), N("u24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
+	{ AP, 0xe000000060000000ull, 0xe0000000f0000000ull,
+		T(addop2), MCDST, LLDST, N("mul"), N("high"), N("s24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
+	{ AP, 0x0000000070000000ull, 0xe0000000f0000000ull,
+		T(addop2), N("sat"), MCDST, LLDST, N("mul"), N("high"), N("s24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
 
 	// 8
 	{ FP, 0x0000000080000000ull, 0x00070000f0000000ull,
