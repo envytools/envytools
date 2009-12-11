@@ -316,10 +316,10 @@ Instructions
 
 7. Integer SAD
 
-  sad [CDST] DST u/s HSRC1 HSRC2 SRC3		b16
-  sad [CDST] DST u/s SRC1 SRC2 SRC3		b32
+  sad [CDST] DST u16/s16/u32/s32 SRC1 SRC2 SRC3
 
-  Short variant is restricted to DST same as SRC3.
+  Short variant is restricted to DST same as SRC3. All operands are 32-bit or
+  16-bit according to size specifier.
 
 	int s1, s2; // infinite precision
 	if (signed) {
