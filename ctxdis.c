@@ -50,8 +50,8 @@
  *           counted in whole insns.
  * 0x400328: code upload, WO. writes given insn to code segment and
  *           autoincrements upload address.
- * 0x40032c: current context RAMIN address, shifted right by 12 bits [?]
- * 0x400330: next context RAMIN address, shifted right by 12 bits
+ * 0x40032c: current channel RAMIN address, shifted right by 12 bits. bit 31 == valid
+ * 0x400330: next channel RAMIN address, shifted right by 12 bits. bit 31 == valid
  * 0x400334: $r register, offset in RAMIN context to read/write with opcode 1.
  *           in units of 32-bit words.
  * 0x400338: Some register, set with opcode 3. Used on NVAx with values 0-9 to
@@ -60,6 +60,8 @@
  * 0x40033c: Some other register. Set with opcode 0x600007. Related to and
  *           modified by opcode 8. Setting with opcode 0x600007 always ands
  *           contents with 0xffff8 for some reason.
+ * 0x400784: channel RAMIN address used for memory reads/writes. needs to be
+ *           flushed with CMD 4 after it's changed.
  * 0x400824-0x400830: Flags, see below.
  *
  * How execution works:
@@ -186,11 +188,13 @@ struct insn tabpred[] = {
 };
 
 struct insn tabcmd[] = {
+	{ NV5x, 0x04, 0x1f, N("newctx") },		// fetches ctx RAMIN address from channel object in 878
+	{ NV5x, 0x05, 0x1f, N("newchan") },		// copies 330 [new channel] to 878 [channel used for ctx RAM access]
 	{ NV5x, 0x06, 0x1f, N("mov"), RR, RA },		// copies scratch to 334
 	{ NV5x, 0x07, 0x1f, N("mov"), RM, RA },		// copies scratch to 33c, anding it with 0xffff8
 	{ NV5x, 0x09, 0x1f, N("enable") },		// resets 0x40 to 0
 	{ NV5x, 0x0c, 0x1f, N("exit") },		// halts program execution, resets PC to 0
-	{ NV5x, 0x0d, 0x1f, N("ctxsw") },		// movs new RAMIN address to current RAMIN address, basically where the real switch happens
+	{ NV5x, 0x0d, 0x1f, N("chansw") },		// movs new channel RAMIN address to current channel RAMIN address, basically where the real switch happens
 	{ NV4x, 0x0e, 0x1f, N("exit") },
 	{ NVxx, 0, 0, OOPS },
 };
