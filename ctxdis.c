@@ -188,8 +188,8 @@ struct insn tabpred[] = {
 };
 
 struct insn tabcmd[] = {
-	{ NV5x, 0x04, 0x1f, N("newctx") },		// fetches ctx RAMIN address from channel object in 878
-	{ NV5x, 0x05, 0x1f, N("newchan") },		// copies 330 [new channel] to 878 [channel used for ctx RAM access]
+	{ NV5x, 0x04, 0x1f, N("newctx") },		// fetches ctx RAMIN address from channel object in 784
+	{ NV5x, 0x05, 0x1f, N("newchan") },		// copies 330 [new channel] to 784 [channel used for ctx RAM access]
 	{ NV5x, 0x06, 0x1f, N("mov"), RR, RA },		// copies scratch to 334
 	{ NV5x, 0x07, 0x1f, N("mov"), RM, RA },		// copies scratch to 33c, anding it with 0xffff8
 	{ NV5x, 0x09, 0x1f, N("enable") },		// resets 0x40 to 0
