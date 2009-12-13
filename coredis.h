@@ -122,12 +122,12 @@ struct insn {
  */
 
 #define F(n, f, a, b) struct insn tab ## n[] = {\
-	{ AP, 0,		1ull<<(f), a },\
-	{ AP, 1ull<<(f),	1ull<<(f), b },\
+	{ ~0, 0,		1ull<<(f), a },\
+	{ ~0, 1ull<<(f),	1ull<<(f), b },\
 };
 #define F1(n, f, b) struct insn tab ## n[] = {\
-	{ AP, 0,		1ull<<(f) },\
-	{ AP, 1ull<<(f),	1ull<<(f), b },\
+	{ ~0, 0,		1ull<<(f) },\
+	{ ~0, 1ull<<(f),	1ull<<(f), b },\
 };
 
 #define T(x) atomtab, tab ## x

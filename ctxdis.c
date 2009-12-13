@@ -26,7 +26,7 @@
 #include "coredis.h"
 
 /*
- * PGRAPH registers of interest
+ * PGRAPH registers of interest, NV50
  *
  * 0x400040: disables subunits of PGRAPH. or at least disables access to them
  *           through MMIO. each bit corresponds to a unit, and the full mask
@@ -62,7 +62,10 @@
  *           contents with 0xffff8 for some reason.
  * 0x400784: channel RAMIN address used for memory reads/writes. needs to be
  *           flushed with CMD 4 after it's changed.
- * 0x400824-0x400830: Flags, see below.
+ * 0x400824: Flags, 0x00-0x1f, RW
+ * 0x400828: Flags, 0x20-0x3f, RW
+ * 0x40082c: Flags, 0x40-0x5f, RO... this is some sort of hardware status
+ * 0x400830: Flags, 0x60-0x7f, RW
  *
  * How execution works:
  *
@@ -82,13 +85,43 @@
  * CMD: These are some special operations that can be launched either from
  * host by poking the CMD number to 0x400320, or by ctxprog by running opcode
  * 6 with the CMD number in its immediate field. See tabcmd.
+ *
  */
 
 /*
  * All of the above has been checked on my NV86 laptop card and on my NVA5.
- * Should probably apply to all NV50 family cards. NV40 is rather different,
- * but should follow the same idea. Needs to be checked some day.
+ * Should probably apply to all NV50 family cards.
  */
+
+/*
+ * PGRAPH registers of interest, NV40
+ *
+ * 0x400040: disables subunits of PGRAPH. or at least disables access to them
+ *           through MMIO. each bit corresponds to a unit, and the full mask
+ *           is 0x7fffff. writing 1 to a given bit disables the unit, 0
+ *           enables.
+ * 0x400300: some sort of status register... shows 0xe when execution stopped,
+ *           0xX3 when running or paused.
+ * 0x400304: control register. Writing 1 startx prog, writing 2 kills it.
+ * 0x400308: Current PC+opcode. PC is in high 8 bits, opcode is in low 24 bits.
+ * 0x400310: Flags 0-0xf, RW
+ * 0x400314: Flags 0x20-0x2f, RW
+ * 0x400318: Flags 0x60-0x6f, RO, hardware status
+ * 0x40031c: the scratch register, written by opcode 2, holding params to
+ *           various stuff.
+ * 0x400324: code upload index, RW. selects address to write in ctxprog code,
+ *           counted in whole insns.
+ * 0x400328: code upload. writes given insn to code segment and
+ *           autoincrements upload address. RW, but returns something crazy on
+ *           read
+ * 0x40032c: current channel RAMIN address, shifted right by 12 bits. bit 24 == valid
+ * 0x400330: next channel RAMIN address, shifted right by 12 bits. bit 24 == valid
+ * 0x400338: Some register, set with opcode 3
+ * 0x400784: channel RAMIN address used for memory reads/writes. needs to be
+ *           flushed with CMD 4 after it's changed.
+ *
+ */
+
 
 #define NV4x 1
 #define NV5x 2 /* and 8x and 9x and Ax */
@@ -159,26 +192,28 @@ void atommem APROTO {
 	fprintf (out, "%s%#x%s]", cyel, mo, ccy);
 }
 
-/*
- * The flags, used as predicates for jump and wait insns.
- *
- * There are 0x80 of them, mapping directly to bits in PGRAPH regs 0x824
- * through 0x830. Known ones:
- *
- *  - 0x824 bit 0 [0x00]: direction flag used by pgraph opcode to select
- *    transfer direction. 0 is RAMIN->PGRAPH, 1 is PGRAPH->RAMIN
- *  - 0x824 and 0x828, remaining bits [0x01-0x3f]: ??? RW
- *  - 0x82c [0x40-0x5f]: RO, some sort of PGRAPH status or something...
- *  - 0x82c bit 13 [0x4d]: always set, used for unconditional jumps
- *  - 0x830 bits 0-10 [0x60-0x69]: used as the TP enable bits. copied from
- *    0x8fc, which in turn is a mirror of some bits from PMC+0x1540.
- *
- * None of this checked on NV40.
- */
+F1(p0, 0, N("a0"))
+F1(p1, 1, N("a1"))
+F1(p2, 2, N("a2"))
+F1(p3, 3, N("a3"))
+F1(p4, 4, N("a4"))
+F1(p5, 5, N("a5"))
+F1(p6, 6, N("a6"))
+F1(p7, 7, N("a7"))
+
+struct insn tabarea[] = {
+	{ NVxx, 0, 0, T(p0), T(p1), T(p2), T(p3), T(p4), T(p5), T(p6), T(p7) },
+};
+
+
 struct insn tabrpred[] = {
 	{ NVxx, 0x00, 0x7f, N("dir") }, // the direction flag
-	{ NV5x, 0x4d, 0x7f },	// always?
+	{ NV5x, 0x4a, 0x7f, N("newctxdone") },	// newctx CMD finished with loading new address... or something like that, it seems to be turned back off *very shortly* after the newctx CMD. only check it with a wait right after newctx. weird.
+	{ NV5x, 0x4b, 0x7f, N("xferbusy") },	// RAMIN xfer in progress
+//	{ NV5x, 0x4c, 0x7f, OOPS },	// CMD 8 done.
+	{ NV5x, 0x4d, 0x7f },	// always
 	{ NV5x, 0x60, 0x60, N("unit"), UNIT }, // if given unit present
+	{ NV4x, 0x68, 0x7f },	// always
 	{ NVxx, 0x00, 0x00, N("flag"), FLAG },
 };
 
@@ -187,14 +222,21 @@ struct insn tabpred[] = {
 	{ NVxx, 0x00, 0x80, T(rpred) },
 };
 
-struct insn tabcmd[] = {
+struct insn tabcmd5[] = {
 	{ NV5x, 0x04, 0x1f, N("newctx") },		// fetches ctx RAMIN address from channel object in 784
 	{ NV5x, 0x05, 0x1f, N("newchan") },		// copies 330 [new channel] to 784 [channel used for ctx RAM access]
 	{ NV5x, 0x06, 0x1f, N("mov"), RR, RA },		// copies scratch to 334
 	{ NV5x, 0x07, 0x1f, N("mov"), RM, RA },		// copies scratch to 33c, anding it with 0xffff8
+//	{ NV5x, 0x08, 0x1f, OOPS },			// does something with scratch contents...
 	{ NV5x, 0x09, 0x1f, N("enable") },		// resets 0x40 to 0
 	{ NV5x, 0x0c, 0x1f, N("exit") },		// halts program execution, resets PC to 0
 	{ NV5x, 0x0d, 0x1f, N("chansw") },		// movs new channel RAMIN address to current channel RAMIN address, basically where the real switch happens
+	{ NVxx, 0, 0, OOPS },
+};
+
+struct insn tabcmd4[] = {
+	{ NV4x, 0x07, 0x1f, N("newchan") },		// copies 330 [new channel] to 784 [channel used for ctx RAM access]
+	{ NV4x, 0x09, 0x1f, N("chansw") },		// movs new channel RAMIN address to current channel RAMIN address, basically where the real switch happens
 	{ NV4x, 0x0e, 0x1f, N("exit") },
 	{ NVxx, 0, 0, OOPS },
 };
@@ -205,17 +247,20 @@ struct insn tabm[] = {
 	{ NV4x, 0x100000, 0xffc000, N("pgraph"), PGRAPH4, RA },
 	{ NV4x, 0x100000, 0xf00000, N("pgraph"), PGRAPH4, GSIZE4 },
 	{ NVxx, 0x200000, 0xf00000, N("mov"), RA, IMM },		// moves 20-bit immediate to scratch reg
-	{ NV5x, 0x300000, 0xf00000, N("mov"), RG, IMM },		// moves 20-bit immediate to 338
+	{ NVxx, 0x300000, 0xf00000, N("mov"), RG, IMM },		// moves 20-bit immediate to 338
 	{ NVxx, 0x400000, 0xfc0000, N("jmp"), T(pred), CTARG },		// jumps if condition true
 	{ NV5x, 0x440000, 0xfc0000, N("call"), T(pred), CTARG },	// calls if condition true, NVAx only
 	{ NV5x, 0x480000, 0xfc0000, N("ret"), T(pred) },		// rets if condition true, NVAx only
-	{ NV5x, 0x500000, 0xf00000, N("wait"), T(pred) },		// waits until condition true.
-	{ NVxx, 0x600000, 0xf00000, N("cmd"), T(cmd) },			// runs a CMD.
+	{ NVxx, 0x500000, 0xf00000, N("wait"), T(pred) },		// waits until condition true.
+	{ NV5x, 0x600000, 0xf00000, N("cmd"), T(cmd5) },		// runs a CMD.
+	{ NV4x, 0x600000, 0xf00000, N("cmd"), T(cmd4) },		// runs a CMD.
 	{ NVxx, 0x700000, 0xf00080, N("clear"), T(rpred) },		// clears given flag
 	{ NVxx, 0x700080, 0xf00080, N("set"), T(rpred) },		// sets given flag
+	{ NV5x, 0x800000, 0xf00000, N("xfer"), T(area) },
 	{ NV5x, 0x900000, 0x9f0000, N("disable"), DIS0 },		// ors 0x40 with given immediate.
 	{ NV5x, 0x910000, 0x9f0000, N("disable"), DIS1 },
-	{ NV5x, 0xa00000, 0xf10000, N("mov"), N("units"), PGRAPH5 },	// movs given PGRAPH register to 0x400830.
+	{ NV5x, 0xa00000, 0xf00000, N("mov"), N("units"), PGRAPH5 },	// movs given PGRAPH register to 0x400830.
+	{ NV5x, 0xc00000, 0xf00000, N("seek"), T(area) },
 	{ NVxx, 0, 0, OOPS },
 };
 
