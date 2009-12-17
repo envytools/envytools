@@ -149,6 +149,7 @@ int immoff[] = { 0x1a, 20, 0, 1 };
 int fimmoff[] = { 0x1a, 20, 12, 0 };
 int dimmoff[] = { 0x1a, 20, 44, 0 };
 int limmoff[] = { 0x1a, 32, 0, 0 };
+int shcntoff[] = { 5, 5, 0, 0 };
 int bnumoff[] = { 0x37, 2, 0, 0 };
 int hnumoff[] = { 0x38, 1, 0, 0 };
 #define BAR atomnum, baroff
@@ -158,6 +159,7 @@ int hnumoff[] = { 0x38, 1, 0, 0 };
 #define FIMM atomnum, fimmoff
 #define DIMM atomnum, dimmoff
 #define LIMM atomnum, limmoff
+#define SHCNT atomnum, shcntoff
 #define BNUM atomnum, bnumoff
 #define HNUM atomnum, hnumoff
 
@@ -470,6 +472,13 @@ struct insn tabaddop[] = {
 	{ AP, 0, 0, OOPS },
 };
 
+struct insn tabaddop2[] = {
+	{ AP, 0x0000000000000000ull, 0x0180000000000000ull, N("add") },
+	{ AP, 0x0080000000000000ull, 0x0180000000000000ull, N("sub") },
+	{ AP, 0x0100000000000000ull, 0x0180000000000000ull, N("subr") },
+	{ AP, 0, 0, OOPS },
+};
+
 F(bar, 0x2f, SRC1, BAR)
 
 struct insn tabprmtmod[] = {
@@ -587,7 +596,7 @@ struct insn tabm[] = {
 	{ AP, 0x2800000000000003ull, 0xf800000000000007ull, N("ins"), N("b32"), DST, SRC1, T(is2), SRC3 },
 	{ AP, 0x3000000000000003ull, 0xf800000000000007ull, N("slct"), N("b32"), DST, SRC1, T(is2), T(setit), T(us32), SRC3 },
 	{ AP, 0x3800000000000003ull, 0xf800000000000007ull, N("sad"), T(us32), DST, SRC1, T(is2), SRC3 },
-	// 40?
+	{ AP, 0x4000000000000003ull, 0xf800000000000007ull, T(addop2), N("b32"), DST, N("shl"), SRC1, SHCNT, SRC2 },
 	{ AP, 0x4800000000000003ull, 0xf800000000000007ull, T(addop), T(ias), N("b32"), T(acout), DST, SRC1, T(is2), T(acin) },
 	{ AP, 0x5000000000000003ull, 0xf8000000000000a7ull, N("mul"), T(high), N("u32"), T(acout), DST, SRC1, T(is2) },	// looks like acout, but... wouldn't it always be 0? hm.
 	{ AP, 0x50000000000000a3ull, 0xf8000000000000a7ull, N("mul"), T(high), N("s32"), T(acout), DST, SRC1, T(is2) },
