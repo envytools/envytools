@@ -73,7 +73,7 @@ void atomnum APROTO {
 
 void atomign APROTO {
 	const int *n = v;
-	BF(n[0], n[1]);
+	(void)BF(n[0], n[1]);
 }
 
 void atomreg APROTO {
