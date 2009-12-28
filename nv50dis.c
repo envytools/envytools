@@ -807,8 +807,8 @@ F1(s33not, 0x31, N("not"))
 F1(s35sat, 0x33, N("sat"))
 F1(s35abs, 0x33, N("abs"))
 F1(s36abs, 0x34, N("abs"))
-F1(m1neg, 0x3a, N("neg"))
 // the actual misc field
+F1(m1neg, 0x3a, N("neg"))
 F1(m2neg, 0x3b, N("neg"))
 F1(m2sat, 0x3b, N("sat"))
 F(lm2us16, 0x3b, N("u16"), N("s16"))
@@ -818,15 +818,15 @@ F1(o0neg, 0x3d, N("neg"))
 F1(o0sat, 0x3d, N("sat"))
 
 struct insn tablfm1[] = {
-	{ AP, 0, 0, T(s36abs), T(m1neg) }
+	{ AP, 0, 0, T(m1neg), T(s36abs) }
 };
 
 struct insn tablfm2[] = {
-	{ AP, 0, 0, T(s35abs), T(m2neg) }
+	{ AP, 0, 0, T(m2neg), T(s35abs) }
 };
 
 struct insn tabcvtmod[] = {
-	{ AP, 0, 0, T(s36abs), T(o0neg) },
+	{ AP, 0, 0, T(o0neg), T(s36abs) },
 };
 
 // for g[] and l[] insns.
