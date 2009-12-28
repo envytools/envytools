@@ -1253,11 +1253,11 @@ struct insn tabl[] = {
 
 	// 9
 	{ AP, 0x0000000090000000ull, 0xe0000000f0000000ull,
-		N("rcp f32"), LLDST, LSRC },
+		N("rcp f32"), LLDST, T(lfm1), LSRC },
 	{ AP, 0x4000000090000000ull, 0xe0000000f0000000ull,
-		N("rsqrt f32"), LLDST, LSRC },
+		N("rsqrt f32"), LLDST, T(lfm1), LSRC },
 	{ AP, 0x6000000090000000ull, 0xe0000000f0000000ull,
-		N("lg2 f32"), LLDST, LSRC },
+		N("lg2 f32"), LLDST, T(lfm1), LSRC },
 	{ AP, 0x8000000090000000ull, 0xe0000000f0000000ull,
 		N("sin f32"), LLDST, LSRC },
 	{ AP, 0xa000000090000000ull, 0xe0000000f0000000ull,
@@ -1368,9 +1368,9 @@ struct insn tabl[] = {
 		N("min"), N("f32"), MCDST, LLDST, T(lfm1), T(lsw), T(lfm2), T(lc2w) },
 
 	{ AP, 0xc0000000b0000000ull, 0xe0004000f0000000ull,
-		N("presin f32"), LLDST, T(lsw) },
+		N("presin f32"), LLDST, T(lfm1), T(lsw) },
 	{ AP, 0xc0004000b0000000ull, 0xe0004000f0000000ull,
-		N("preex2 f32"), LLDST, T(lsw) },
+		N("preex2 f32"), LLDST, T(lfm1), T(lsw) },
 	/* preex2 converts float to fixed point, results:
 	 * 0-0x3fffffff: 7.23 fixed-point number
 	 * 0x40000000: +nan
