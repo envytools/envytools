@@ -127,9 +127,6 @@
  * ISA differences from what's published about PTX:
  *
  * Instructions that don't really exist and are emulated:
- *  - subc -> not+addc
- *  - add/sub on b64 -> long addition/substraction with addc
- *  - neg on integers -> subr with 0
  *  - sqrt.f32 -> rsqrt, rcp
  *  - neg and abs on f32 -> cvt
  *  - cvt.sat to f64 is implemented in software.
@@ -143,10 +140,6 @@
  *  - selp and slct. Emulated with set and predicated mov's.
  * Additional instructions and other stuff:
  *  - a lot of instructions can accept c?[], s[] directly
- *  - there is subr instruction, which is sub with reversed 2nd and 3rd arg
- *  - instructions and, xor, or can optionally not either one or both arguments
- *    before use
- *  - sad.b16 actually has first and fourth parameters 32-bit.
  *  - cvt can optionally abs and neg stuff before use. the sequence of
  *    operations is: abs, neg, convert+round, sat
  * Instructions that behave otherwise than you'd expect:
@@ -162,7 +155,7 @@
  * Misc:
  *  - explicit join points
  *  - $a registers exist
- *  - there are multiple const spaces. how many?
+ *  - there are actually 16 const spaces and global spaces.
  * Incl. graphics stuff:
  *  - v[] space exists
  *  - interp instruction
