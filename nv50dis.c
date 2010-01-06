@@ -89,9 +89,6 @@
  *    - setp		desc...
  *    - selp		desc...
  *    - slct		desc...
- *   4. Logic and Shift
- *    - shl		desc... XXX overfl
- *    - shr		desc...
  *   5. Data Movement and Conversion
  *    - mov		desc...
  *    - ld		desc...
@@ -272,7 +269,7 @@ void atomimm APROTO {
  *  - PM: PM event id for pmevent
  *  - BAR: barrier id for bar.sync
  *  - OFFS: an offset to add in add $a, num, $a, which is basically a LEA
- *  - SHCNT: used in 32-bit shift-by-immediate insns for shift amount
+ *  - SHCNT: used in shift-by-immediate insns for shift amount
  *  - HSHCNT: used in $a shift-by-immediate insn for shift amount
  */
 
@@ -1193,8 +1190,7 @@ struct insn tabl[] = {
 	{ AP, 0xa400000030000000ull, 0xe4000000f0000000ull,
 		N("min"), T(lm2us32), MCDST, LLDST, T(lsw), T(lc2w) },
 
-	// desc VVV
-	{ AP, 0xc000000030000000ull, 0xe4000000f0000000ull,	// XXX FUCK ALERT: shift count *CAN* be 16-bit.
+	{ AP, 0xc000000030000000ull, 0xe4000000f0000000ull,
 		N("shl"), N("b16"), MCDST, LLHDST, T(lsh), T(hshcnt) },
 	{ AP, 0xc400000030000000ull, 0xe4000000f0000000ull,
 		N("shl"), N("b32"), MCDST, LLDST, T(lsw), T(shcnt) },
@@ -1203,8 +1199,6 @@ struct insn tabl[] = {
 		N("shr"), T(lm2us16), MCDST, LLHDST, T(lsh), T(hshcnt) },
 	{ AP, 0xe400000030000000ull, 0xe4000000f0000000ull,
 		N("shr"), T(lm2us32), MCDST, LLDST, T(lsw), T(shcnt) },
-	// desc ^^^
-
 
 	// 4
 	{ AP, 0x0000000040000000ull, 0xe0010000f0000000ull,

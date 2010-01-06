@@ -23,7 +23,8 @@ Instructions
 7. Integer SAD
 8. Integer MIN/MAX
 9. Bit operations
-10. TBD
+10. Bit shifts
+11. TBD
 
 0. Conventions
 
@@ -369,7 +370,7 @@ Instructions
 
   Long:		0x30000000 0x80000000 base opcode
   		0x00000000 0x20000000 0: max, 1: min
-		0x00000000 0x08000000 src are signed
+		0x00000000 0x08000000 0: u16/u32, 1: s16/s32
 		0x00000000 0x04000000 0: b16, 1: b32
 		operands: MCDST, L*DST, L*SRC1/L*SHARED, L*SRC2/L*CONST2
 
@@ -378,7 +379,7 @@ Instructions
   and b32/b16 [CDST] DST [not] SRC1 [not] SRC2		O2=0, O1=0
   or b32/b16 [CDST] DST [not] SRC1 [not] SRC2		O2=0, O1=1
   xor b32/b16 [CDST] DST [not] SRC1 [not] SRC2		O2=1, O1=0
-  mov2 b32/b16 [CDST] DST [not] SRC1 [not] SRC2	O2=1, O1=1
+  mov2 b32/b16 [CDST] DST [not] SRC1 [not] SRC2		O2=1, O1=1
 
   Immediate forms only allows 32-bit operands, and cannot negate second op.
 
@@ -411,7 +412,59 @@ Instructions
 		0x00000000 0x00004000 O1 bit
 		operands: MCDST, LL*DST, L*SRC1/L*SHARED, L*SRC2/L*CONST2
 
-10. TBD
+10. Bit shifts
+
+  shl b16/b32 [CDST] DST SRC1 SRC2
+  shl b16/b32 [CDST] DST SRC1 SHCNT
+  shr u16/u32 [CDST] DST SRC1 SRC2
+  shr u16/u32 [CDST] DST SRC1 SHCNT
+  shr s16/s32 [CDST] DST SRC1 SRC2
+  shr s16/s32 [CDST] DST SRC1 SHCNT
+
+    All operands 16/32-bit according to size specifier, except SHCNT. Shift
+    counts are always treated as unsigned, passing negative value to shl
+    doesn't get you a shr.
+
+    	int size = (b32 ? 32 : 16);
+	if (shl) {
+		res = SRC1 << SRC2; // infinite precision, shift count doesn't wrap.
+		if (SRC2 < size) { // yes, <. So if you shift 1 left by 32 bits, you DON'T get CDST.C set. but shift 2 left by 31 bits, and it gets set just fine.
+			CDST.C = (res >> size) & 1; // basically, the bit that got shifted out.
+		} else {
+			CDST.C = 0;
+		}
+		res = res & (b32 ? 0xffffffff : 0xffff);
+	} else {
+		res = SRC1 >> SRC2; // infinite precision, shift count doesn't wrap.
+		if (signed && S(SRC1)) {
+			if (SRC2 < size)
+				res |= (1<<size)-(1<<(size-SRC2)); // fill out the upper bits with 1's.
+			else
+				res |= (1<<size)-1;
+		}
+		if (SRC2 < size && SRC2 > 0) {
+			CDST.C = (SRC1 >> (SRC2-1)) & 1;
+		} else {
+			CDST.C = 0;
+		}
+	}
+	if (SRC2 == 1) {
+		CDST.O = (S(SRC1) != S(res));
+	} else {
+		CDST.O = 0;
+	}
+	CDST.S = S(res);
+	CDST.Z = res == 0;
+	DST = res;
+
+  Long:		0x30000000 0xc0000000 base opcode
+  		0x00000000 0x20000000 0: shl, 1: shr
+		0x00000000 0x08000000 0: u16/u32, 1: s16/s32 [shr only]
+		0x00000000 0x04000000 0: b16, 1: b32
+		0x00000000 0x00010000 0: use SRC2, 1: use SHCNT
+		operands: MCDST, LL*DST, L*SRC1/L*SHARED, L*SRC2/L*CONST2/SHCNT
+
+11. TBD
 
   interp [cent] [flat] DST v[] [SRC]
 
@@ -463,14 +516,6 @@ Instructions
 
     Sets DST to the smaller/larger of two SRC1 operands. If one operand is NaN,
     DST is set to the non-NaN operand. If both are NaN, DST is set to NaN.
-
-  shl b16/b32 DST SRC1 SRC2
-  shl b16/b32 DST SRC1 SHCNT
-  shr u16/u32/s16/s32 DST SRC1 SRC2
-  shr u16/u32/s16/s32 DST SRC1 SHCNT
-
-    Shifts SRC1 left/right by SRC2/SHCNT bits, puts result into DST. Shift
-    counts over 16/32 get handled properly, without wrapping around.
 
   cvt <integer dst> <integer src>
   cvt <integer rounding modifier> <integer dst> <float src>
