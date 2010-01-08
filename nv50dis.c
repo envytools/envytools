@@ -1107,7 +1107,7 @@ struct insn tabaddcond2[] = {
 
 F(sstreg, 0x35, LHSRC3, LSRC3)
 F1(unlock, 0x37, N("unlock"))
-F(csldreg, 0x35, LLHDST, LLDST)
+F(csldreg, 0x3a, LLHDST, LLDST)
 
 struct insn tabl[] = {
 	// 0
