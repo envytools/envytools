@@ -1106,6 +1106,7 @@ struct insn tabaddcond2[] = {
 };
 
 F(sstreg, 0x35, LHSRC3, LSRC3)
+F1(unlock, 0x37, N("unlock"))
 
 struct insn tabl[] = {
 	// 0
@@ -1126,14 +1127,12 @@ struct insn tabl[] = {
 		N("shl"), ADST, T(lsw), HSHCNT },
 	
 	// desc VVV
-	{ CP, 0xe000000000000000ull, 0xe4400000f0000000ull,	// XXX ok, seriously, what's up with all thse flags?
-		N("mov b16"), FHSHARED, T(sstreg) },
-	{ CP, 0xe040000000000000ull, 0xe4400000f0000000ull,
-		N("mov b8"), FBSHARED, T(sstreg) },
-	{ CP, 0xe400000000000000ull, 0xe4800000f0000000ull,
-		N("mov b32"), FSHARED, T(sstreg) },
-	{ CP, 0xe480000000000000ull, 0xe4800000f0000000ull,
-		N("mov unlock b32"), FSHARED, T(sstreg) },
+	{ CP, 0xe040000000000000ull, 0xe0400000f0000000ull,
+		N("mov"), N("b8"), FBSHARED, T(sstreg) },
+	{ CP, 0xe000000000000000ull, 0xe4400000f0000000ull,
+		N("mov"), N("b16"), FHSHARED, T(sstreg) },
+	{ CP, 0xe400000000000000ull, 0xe4400000f0000000ull,
+		N("mov"), T(unlock), N("b32"), FSHARED, T(sstreg) },
 	// desc ^^^
 
 	// 1
