@@ -1107,6 +1107,7 @@ struct insn tabaddcond2[] = {
 
 F(sstreg, 0x35, LHSRC3, LSRC3)
 F1(unlock, 0x37, N("unlock"))
+F(csldreg, 0x35, LLHDST, LLDST)
 
 struct insn tabl[] = {
 	// 0
@@ -1142,19 +1143,19 @@ struct insn tabl[] = {
 		T(lane), N("mov"), N("b32"), LLDST, T(lsw) },
 
 	// desc VVV
-	{ AP, 0x2000000010000000ull, 0xe4000000f0000000ull,
-		N("mov b16"), LLHDST, T(fcon) },
-	{ AP, 0x2400000010000000ull, 0xe4000000f0000000ull,
-		N("mov b32"), LLDST, T(fcon) },
+	{ AP, 0x2000000010000000ull, 0xe0000000f0000000ull,
+		N("mov"), T(csldreg), T(fcon) },
 
-	{ CP, 0x4000400010000000ull, 0xe400c000f0000000ull,	// sm_11. ptxas inexplicably starts using
-		N("mov u16"), LHDST, LHSHARED },		// these forms instead of the other one
-	{ CP, 0x4000800010000000ull, 0xe400c000f0000000ull,	// on >=sm_11. XXX check length XXX mode
-		N("mov s16"), LHDST, LHSHARED },
-	{ CP, 0x4400c00010000000ull, 0xe480c000f0000000ull,	// getting ridiculous.
-		N("mov b32"), LDST, LSHARED },
-	{ CP, 0x4480c04010000000ull, 0xe480c040f0000000ull,
-		N("mov lock b32"), CDST, LDST, LSHARED },
+	{ CP, 0x4000000010000000ull, 0xe000c000f0000000ull,	// sm_11. ptxas inexplicably starts using
+		N("mov"), T(csldreg), N("u8"), LBSHARED },	// these forms instead of the other one
+	{ CP, 0x4000400010000000ull, 0xe000c000f0000000ull,	// on >=sm_11.
+		N("mov"), T(csldreg), N("u16"), LHSHARED },
+	{ CP, 0x4000800010000000ull, 0xe000c000f0000000ull,
+		N("mov"), T(csldreg), N("s16"), LHSHARED },
+	{ CP, 0x4000c00010000000ull, 0xe080c000f0000000ull,
+		N("mov"), T(csldreg), N("b32"), LSHARED },
+	{ CP, 0x4080c04010000000ull, 0xe080c040f0000000ull,
+		N("mov"), N("lock"), CDST, T(csldreg), N("b32"), LSHARED },
 
 	{ AP, 0x6000000010000200ull, 0xe0000000f0000600ull,
 		N("vote any"), CDST, IGNCE },	// sm_12
