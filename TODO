@@ -48,7 +48,6 @@ Needs to be checked experimentaly by running code:
  - what happens for unaligned long instructions?
 On non-CP:
  - check exact encoding for a[] and v[], figure out size and what's in there.
- - g[] possible?
 Needs sm_12 or sm_13:
  - cvt weirdness: cvt.rpi.f64 on 1.25, cvt.rmi.f64 on -1.25
  - how does shared atomic work with locking/unlocking exactly?
