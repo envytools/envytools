@@ -16,15 +16,17 @@ Instructions
  2.4. SHL to $a
  2.5. ADD from $a to $a
  2.6. MOV from sreg
-3. Integer ADD family
-4. Integer short MUL
-5. Integer 24-bit MUL
-6. Integer MUL-ADD
-7. Integer SAD
-8. Integer MIN/MAX
-9. Bit operations
-10. Bit shifts
-11. TBD
+3. Integer instructions
+ 3.1. Integer ADD family
+ 3.2. Integer short MUL
+ 3.3. Integer 24-bit MUL
+ 3.4. Integer MUL-ADD
+ 3.5. Integer SAD
+ 3.6. Integer MIN/MAX
+4. Bit instructions
+ 4.1. Bit operations
+ 4.2. Bit shifts
+5. TBD
 
 0. Conventions
 
@@ -132,7 +134,7 @@ Instructions
   		0x00000000 0x0001c000 S
   		operands: LDST
 
-3. Integer ADD family
+3.1. Integer ADD family
 
   add [sat] b32/b16 [CDST] DST SRC1 SRC2		O2=0, O1=0
   sub [sat] b32/b16 [CDST] DST SRC1 SRC2		O2=0, O1=1
@@ -174,7 +176,7 @@ Instructions
 		0x00000000 0x08000000 sat flag
 		operands: MCDST, LL*DST, L*SRC1/L*SHARED, L*SRC3/L*CONST3, COND
 
-4. Integer short MUL
+3.2. Integer short MUL
 
   mul [CDST] DST u16/s16 SRC1 u16/s16 SRC2
 
@@ -206,7 +208,7 @@ Instructions
   		0x00000000 0x00004000 src2 is signed
   		operands: MCDST, LLDST, LHSRC1/LHSHARED, LHSRC2/LHCONST2
 
-5. Integer 24-bit MUL
+3.3. Integer 24-bit MUL
 
   mul [CDST] DST [high] u24/s24 SRC1 SRC2
 
@@ -238,7 +240,7 @@ Instructions
   		0x00000000 0x00004000 high
   		operands: MCDST, LLDST, LSRC1/LSHARED, LSRC2/LCONST2
 
-6. Integer MUL-ADD
+3.4. Integer MUL-ADD
 
   addop [CDST] DST mul u16 SRC1 SRC2 SRC3		O1=0 O2=000	S2=0 S1=0
   addop [CDST] DST mul s16 SRC1 SRC2 SRC3		O1=0 O2=001	S2=0 S1=1
@@ -316,7 +318,7 @@ Instructions
 		0x00000000 0x0c000000 O3
 		operands: MCDST, LLDST, L*SRC1/L*SHARED, L*SRC2/L*CONST2, L*SRC3/L*CONST3, COND
 
-7. Integer SAD
+3.5. Integer SAD
 
   sad [CDST] DST u16/s16/u32/s32 SRC1 SRC2 SRC3
 
@@ -350,7 +352,7 @@ Instructions
   		0x00000000 0x08000000 src sre signed
 		operands: MCDST, LLDST, L*SRC1/L*SHARED, L*SRC2/L*CONST2, L*SRC3/L*CONST3
 
-8. Integer MIN/MAX
+3.6. Integer MIN/MAX
 
   min u16/u32/s16/s32 [CDST] DST SRC1 SRC2
   max u16/u32/s16/s32 [CDST] DST SRC1 SRC2
@@ -374,7 +376,7 @@ Instructions
 		0x00000000 0x04000000 0: b16, 1: b32
 		operands: MCDST, L*DST, L*SRC1/L*SHARED, L*SRC2/L*CONST2
 
-9. Bit operations
+4.1. Bit operations
 
   and b32/b16 [CDST] DST [not] SRC1 [not] SRC2		O2=0, O1=0
   or b32/b16 [CDST] DST [not] SRC1 [not] SRC2		O2=0, O1=1
@@ -412,7 +414,7 @@ Instructions
 		0x00000000 0x00004000 O1 bit
 		operands: MCDST, LL*DST, L*SRC1/L*SHARED, L*SRC2/L*CONST2
 
-10. Bit shifts
+4.2. Bit shifts
 
   shl b16/b32 [CDST] DST SRC1 SRC2
   shl b16/b32 [CDST] DST SRC1 SHCNT
@@ -464,7 +466,7 @@ Instructions
 		0x00000000 0x00010000 0: use SRC2, 1: use SHCNT
 		operands: MCDST, LL*DST, L*SRC1/L*SHARED, L*SRC2/L*CONST2/SHCNT
 
-11. TBD
+5. TBD
 
   interp [cent] [flat] DST v[] [SRC]
 
