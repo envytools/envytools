@@ -23,6 +23,7 @@ Instructions
  3.4. Integer MUL-ADD
  3.5. Integer SAD
  3.6. Integer MIN/MAX
+ 3.7. Integer SET
 4. Bit instructions
  4.1. Bit operations
  4.2. Bit shifts
@@ -374,7 +375,49 @@ Instructions
   		0x00000000 0x20000000 0: max, 1: min
 		0x00000000 0x08000000 0: u16/u32, 1: s16/s32
 		0x00000000 0x04000000 0: b16, 1: b32
-		operands: MCDST, L*DST, L*SRC1/L*SHARED, L*SRC2/L*CONST2
+		operands: MCDST, LL*DST, L*SRC1/L*SHARED, L*SRC2/L*CONST2
+
+3.7 Integer SET
+
+  set [CDST] DST cond u16/s16/u32/s32 SRC1 SRC2
+
+  cond can be any subset of {l, g, e}.
+
+  All operands are 32-bit or 16-bit according to size specifier.
+ 
+	int s1, s2; // infinite precision
+	if (signed) {
+		s1 = SEX(SRC1);
+		s2 = SEX(SRC2);
+	} else {
+		s1 = ZEX(SRC1);
+		s2 = ZEX(SRC2);
+	}
+	bool c;
+	if (s1 < s2)
+		c = cond.l;
+	else if (s1 == s2)
+		c = cond.e;
+	else /* s1 > s2 */
+		c = cond.g;
+	if (c) {
+		res = (b32?0xffffffff:0xffff);
+	} else {
+		res = 0;
+	}
+	CDST.O = 0;
+	CDST.C = 0;
+	CDST.S = S(res);
+	CDST.Z = res == 0;
+	DST = res;
+
+  Long:		0x30000000 0x60000000 base opcode
+		0x00000000 0x08000000 0: u16/u32, 1: s16/s32
+		0x00000000 0x04000000 0: b16, 1: b32
+		0x00000000 0x00010000 cond.g
+		0x00000000 0x00008000 cond.e
+		0x00000000 0x00004000 cond.l
+		operands: MCDST, LL*DST, L*SRC1/L*SHARED, L*SRC2/L*CONST2
 
 4.1. Bit operations
 
@@ -507,11 +550,11 @@ Instructions
     vote all sets it to true iff the predicate evaluated to true in all acive
     threads of the current warp.
 
-  set [CDST] DST <cmpop> u16/s16/u32/s32/f32/f64 SRC1 SRC2
+  set [CDST] DST <cmpop> f32/f64 SRC1 SRC2
 
     Does given comparison operation on SRC1 and SRC2. DST is set to 0xffffffff
-    [or 0xffff for 16-bit version] if comparison evaluats true, 0 if it
-    evaluates false. if used, CDST.SZ are set according to DST.
+    if comparison evaluats true, 0 if it evaluates false. if used, CDST.SZ are
+    set according to DST.
 
   min f32/f64 DST SRC1 SRC2
   max f32/f64 DST SRC1 SRC2

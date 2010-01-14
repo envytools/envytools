@@ -85,8 +85,6 @@
  *    - lg2		desc
  *    - ex2		XXX
  *   3. Comparison and selection
- *    - set		desc...
- *    - setp		desc...
  *    - selp		desc...
  *    - slct		desc...
  *   5. Data Movement and Conversion
@@ -954,30 +952,34 @@ struct insn tabmad64r[] = {
 
 // ops for set
 struct insn tabseti[] = {
-	{ AP, 0x0000400000000000ull, 0x0001c00000000000ull, N("lt") },
-	{ AP, 0x0000800000000000ull, 0x0001c00000000000ull, N("eq") },
+	{ AP, 0x0000000000000000ull, 0x0001c00000000000ull, N("never") },
+	{ AP, 0x0000400000000000ull, 0x0001c00000000000ull, N("l") },
+	{ AP, 0x0000800000000000ull, 0x0001c00000000000ull, N("e") },
 	{ AP, 0x0000c00000000000ull, 0x0001c00000000000ull, N("le") },
-	{ AP, 0x0001000000000000ull, 0x0001c00000000000ull, N("gt") },
-	{ AP, 0x0001400000000000ull, 0x0001c00000000000ull, N("ne") },
+	{ AP, 0x0001000000000000ull, 0x0001c00000000000ull, N("g") },
+	{ AP, 0x0001400000000000ull, 0x0001c00000000000ull, N("lg") },
 	{ AP, 0x0001800000000000ull, 0x0001c00000000000ull, N("ge") },
+	{ AP, 0x0001c00000000000ull, 0x0001c00000000000ull, N("always") },
 	{ AP, 0, 0, OOPS }
 };
 
 struct insn tabsetf[] = {
-	{ AP, 0x0000400000000000ull, 0x0003c00000000000ull, N("lt") },
-	{ AP, 0x0000800000000000ull, 0x0003c00000000000ull, N("eq") },
+	{ AP, 0x0000000000000000ull, 0x0003c00000000000ull, N("never") },
+	{ AP, 0x0000400000000000ull, 0x0003c00000000000ull, N("l") },
+	{ AP, 0x0000800000000000ull, 0x0003c00000000000ull, N("e") },
 	{ AP, 0x0000c00000000000ull, 0x0003c00000000000ull, N("le") },
-	{ AP, 0x0001000000000000ull, 0x0003c00000000000ull, N("gt") },
-	{ AP, 0x0001400000000000ull, 0x0003c00000000000ull, N("ne") },
+	{ AP, 0x0001000000000000ull, 0x0003c00000000000ull, N("g") },
+	{ AP, 0x0001400000000000ull, 0x0003c00000000000ull, N("lg") },
 	{ AP, 0x0001800000000000ull, 0x0003c00000000000ull, N("ge") },
-	{ AP, 0x0001c00000000000ull, 0x0003c00000000000ull, N("num") },
-	{ AP, 0x0002000000000000ull, 0x0003c00000000000ull, N("nan") },
-	{ AP, 0x0002400000000000ull, 0x0003c00000000000ull, N("ltu") },
-	{ AP, 0x0002800000000000ull, 0x0003c00000000000ull, N("equ") },
+	{ AP, 0x0001c00000000000ull, 0x0003c00000000000ull, N("lge") },
+	{ AP, 0x0002000000000000ull, 0x0003c00000000000ull, N("u") },
+	{ AP, 0x0002400000000000ull, 0x0003c00000000000ull, N("lu") },
+	{ AP, 0x0002800000000000ull, 0x0003c00000000000ull, N("eu") },
 	{ AP, 0x0002c00000000000ull, 0x0003c00000000000ull, N("leu") },
-	{ AP, 0x0003000000000000ull, 0x0003c00000000000ull, N("gtu") },
-	{ AP, 0x0003400000000000ull, 0x0003c00000000000ull, N("neu") },
+	{ AP, 0x0003000000000000ull, 0x0003c00000000000ull, N("gu") },
+	{ AP, 0x0003400000000000ull, 0x0003c00000000000ull, N("lgu") },
 	{ AP, 0x0003800000000000ull, 0x0003c00000000000ull, N("geu") },
+	{ AP, 0x0003c00000000000ull, 0x0003c00000000000ull, N("always") },
 	{ AP, 0, 0, OOPS }
 };
 
@@ -1167,13 +1169,10 @@ struct insn tabl[] = {
 	{ AP, 0x0000000020000000ull, 0xe4000000e0000000ull, T(addop), N("b16"), T(m2sat), MCDST, LLHDST, T(lsh), T(lc3h), T(addcond) },
 	{ AP, 0x0400000020000000ull, 0xe4000000e0000000ull, T(addop), N("b32"), T(m2sat), MCDST, LLDST, T(lsw), T(lc3w), T(addcond) },
 
-	// desc VVV
-	// YARLY.
 	{ AP, 0x6000000030000000ull, 0xe4000000f0000000ull,
-		N("set"), T(seti), T(lm2us16), MCDST, LLHDST, T(lsh), T(lc2h) },
+		N("set"), MCDST, LLHDST, T(seti), T(lm2us16), T(lsh), T(lc2h) },
 	{ AP, 0x6400000030000000ull, 0xe4000000f0000000ull,
-		N("set"), T(seti), T(lm2us32), MCDST, LLDST, T(lsw), T(lc2w) },
-	// desc ^^^
+		N("set"), MCDST, LLDST, T(seti), T(lm2us32), T(lsw), T(lc2w) },
 
 	{ AP, 0x8000000030000000ull, 0xe4000000f0000000ull,
 		N("max"), T(lm2us16), MCDST, LLHDST, T(lsh), T(lc2h) },
@@ -1348,7 +1347,7 @@ struct insn tabl[] = {
 		N("add"), T(o0sat), T(af32r), N("f32"), MCDST, LLDST, T(m1neg), T(lsw), T(m2neg), T(lc3w) },
 
 	{ AP, 0x60000000b0000000ull, 0xe0000000f0000000ull,
-		N("set"), T(setf), N("f32"), MCDST, LLDST, T(lfm1), T(lsw), T(lfm2), T(lc2w) },
+		N("set"), MCDST, LLDST, T(setf), N("f32"), T(lfm1), T(lsw), T(lfm2), T(lc2w) },
 
 	{ AP, 0x80000000b0000000ull, 0xe0000000f0000000ull,
 		N("max"), N("f32"), MCDST, LLDST, T(lfm1), T(lsw), T(lfm2), T(lc2w) },
@@ -1423,7 +1422,7 @@ struct insn tabl[] = {
 	{ AP, 0xc0000000e0000000ull, 0xe0000000f0000000ull,
 		N("max"), N("f64"), MCDST, LDDST, T(lfm1), LDSRC, T(lfm2), LDSRC2 },
 	{ AP, 0xe0000000e0000000ull, 0xe0000000f0000000ull,
-		N("set"), T(setf), N("f64"), MCDST, LLDST, T(lfm1), LDSRC, T(lfm2), LDSRC2 },
+		N("set"), MCDST, LLDST, T(setf), N("f64"), T(lfm1), LDSRC, T(lfm2), LDSRC2 },
 
 	// f
 	{ AP, 0x00000000f0000000ull, 0xf0000000f9000000ull, // order of inputs: x, y, z, index, dref, bias/lod. index is integer, others float.
