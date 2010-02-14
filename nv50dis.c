@@ -1036,10 +1036,12 @@ struct insn tabfcon[] = {
 
 // for quadop
 struct insn tabqs1[] = {
-	{ AP, 0x00000000, 0x00030000, N("l0") },
-	{ AP, 0x00010000, 0x00030000, N("l1") },
-	{ AP, 0x00020000, 0x00030000, N("l2") },
-	{ AP, 0x00030000, 0x00030000, N("l3") },
+	{ AP, 0x00000000, 0x00070000, N("l0") },
+	{ AP, 0x00010000, 0x00070000, N("l1") },
+	{ AP, 0x00020000, 0x00070000, N("l2") },
+	{ AP, 0x00030000, 0x00070000, N("l3") },
+	{ AP, 0x00040000, 0x00050000, N("dx") },
+	{ AP, 0x00050000, 0x00050000, N("dy") },
 	{ AP, 0, 0 },
 };
 
@@ -1374,13 +1376,8 @@ struct insn tabl[] = {
 	{ AP, 0x40000000c0000000ull, 0xc0000000f0000000ull,
 		N("slct"), N("b32"), MCDST, LLDST, T(lsw), T(lc2w), N("f32"), T(o0neg), T(lc3w) },
 
-	{ AP, 0x80000000c0000000ull, 0xf0000000f0040000ull,
+	{ AP, 0x80000000c0000000ull, 0xf0000000f0000000ull,
 		N("quadop f32"), T(qop0), T(qop1), T(qop2), T(qop3), MCDST, LLDST, T(qs1), LSRC, LSRC3 },
-
-	{ AP, 0x89800000c0140000ull, 0x8bc00000f0150000ull,	// XXX fuck me harder.
-		N("dfdx f32"), MCDST, LLDST, LSRC, LSRC3 },
-	{ AP, 0x8a400000c0150000ull, 0x8bc00000f0150000ull,
-		N("dfdy f32"), MCDST, LLDST, LSRC, LSRC3 },
 	// desc ^^^
 
 	// d
