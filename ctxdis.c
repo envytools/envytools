@@ -161,19 +161,6 @@ int dis1off[] = { 0, 16, 16, 0 };
 #define DIS1 atomnum, dis1off
 
 /*
- * Registers
- */
-
-#define R(x) atomsreg, x
-void atomsreg APROTO {
-	fprintf (out, " %s$%s", cbl, (char *)v);
-}
-#define RA R("a")	// The scratch register. 0x40031c
-#define RG R("g")	// PGRAPH offset register [?]. 0x400338
-#define RR R("r")	// RAMIN offset register. 0x400334
-#define RM R("m")	// ??? 0x40033c, writing from ctxprog aligns to 8.
-
-/*
  * Memory fields
  */
 
@@ -223,44 +210,46 @@ struct insn tabpred[] = {
 };
 
 struct insn tabcmd5[] = {
-	{ NV5x, 0x04, 0x1f, N("newctx") },		// fetches ctx RAMIN address from channel object in 784
-	{ NV5x, 0x05, 0x1f, N("newchan") },		// copies 330 [new channel] to 784 [channel used for ctx RAM access]
-	{ NV5x, 0x06, 0x1f, N("mov"), RR, RA },		// copies scratch to 334
-	{ NV5x, 0x07, 0x1f, N("mov"), RM, RA },		// copies scratch to 33c, anding it with 0xffff8
+	{ NV5x, 0x04, 0x1f, N("NEWCTX") },		// fetches grctx DMA object from channel object in 784
+	{ NV5x, 0x05, 0x1f, N("NEXT_TO_SWAP") },	// copies 330 [new channel] to 784 [channel used for ctx RAM access]
+	{ NV5x, 0x06, 0x1f, N("SET_CONTEXT_POINTER") },	// copies scratch to 334
+	{ NV5x, 0x07, 0x1f, N("SET_XFER_POINTER") },	// copies scratch to 33c, anding it with 0xffff8
 //	{ NV5x, 0x08, 0x1f, OOPS },			// does something with scratch contents...
-	{ NV5x, 0x09, 0x1f, N("enable") },		// resets 0x40 to 0
-	{ NV5x, 0x0c, 0x1f, N("exit") },		// halts program execution, resets PC to 0
-	{ NV5x, 0x0d, 0x1f, N("chansw") },		// movs new channel RAMIN address to current channel RAMIN address, basically where the real switch happens
+	{ NV5x, 0x09, 0x1f, N("ENABLE") },		// resets 0x40 to 0
+	{ NV5x, 0x0c, 0x1f, N("END") },			// halts program execution, resets PC to 0
+	{ NV5x, 0x0d, 0x1f, N("NEXT_TO_CURRENT") },	// movs new channel RAMIN address to current channel RAMIN address, basically where the real switch happens
 	{ NVxx, 0, 0, OOPS },
 };
 
 struct insn tabcmd4[] = {
-	{ NV4x, 0x07, 0x1f, N("newchan") },		// copies 330 [new channel] to 784 [channel used for ctx RAM access]
-	{ NV4x, 0x09, 0x1f, N("chansw") },		// movs new channel RAMIN address to current channel RAMIN address, basically where the real switch happens
-	{ NV4x, 0x0e, 0x1f, N("exit") },
+	{ NV4x, 0x07, 0x1f, N("NEXT_TO_SWAP") },	// copies 330 [new channel] to 784 [channel used for ctx RAM access]
+	{ NV4x, 0x09, 0x1f, N("NEXT_TO_CURRENT") },	// movs new channel RAMIN address to current channel RAMIN address, basically where the real switch happens
+	{ NV4x, 0x0e, 0x1f, N("END") },
 	{ NVxx, 0, 0, OOPS },
 };
 
 struct insn tabm[] = {
-	{ NV5x, 0x100000, 0xff0000, N("pgraph"), PGRAPH5, RA },
-	{ NV5x, 0x100000, 0xf00000, N("pgraph"), PGRAPH5, GSIZE5 },
-	{ NV4x, 0x100000, 0xffc000, N("pgraph"), PGRAPH4, RA },
-	{ NV4x, 0x100000, 0xf00000, N("pgraph"), PGRAPH4, GSIZE4 },
-	{ NVxx, 0x200000, 0xf00000, N("mov"), RA, IMM },		// moves 20-bit immediate to scratch reg
-	{ NVxx, 0x300000, 0xf00000, N("mov"), RG, IMM },		// moves 20-bit immediate to 338
+	{ NV5x, 0x100000, 0xff0000, N("ctx"), PGRAPH5, N("sr") },
+	{ NV5x, 0x100000, 0xf00000, N("ctx"), PGRAPH5, GSIZE5 },
+	{ NV4x, 0x100000, 0xffc000, N("ctx"), PGRAPH4, N("sr") },
+	{ NV4x, 0x100000, 0xf00000, N("ctx"), PGRAPH4, GSIZE4 },
+	{ NVxx, 0x200000, 0xf00000, N("lsr"), IMM },			// moves 20-bit immediate to scratch reg
+	{ NVxx, 0x300000, 0xf00000, N("lsr2"), IMM },			// moves 20-bit immediate to 338
 	{ NVxx, 0x400000, 0xfc0000, N("jmp"), T(pred), CTARG },		// jumps if condition true
 	{ NV5x, 0x440000, 0xfc0000, N("call"), T(pred), CTARG },	// calls if condition true, NVAx only
 	{ NV5x, 0x480000, 0xfc0000, N("ret"), T(pred) },		// rets if condition true, NVAx only
-	{ NVxx, 0x500000, 0xf00000, N("wait"), T(pred) },		// waits until condition true.
+	{ NVxx, 0x500000, 0xf00000, N("waitfor"), T(pred) },		// waits until condition true.
 	{ NV5x, 0x600000, 0xf00000, N("cmd"), T(cmd5) },		// runs a CMD.
 	{ NV4x, 0x600000, 0xf00000, N("cmd"), T(cmd4) },		// runs a CMD.
 	{ NVxx, 0x700000, 0xf00080, N("clear"), T(rpred) },		// clears given flag
 	{ NVxx, 0x700080, 0xf00080, N("set"), T(rpred) },		// sets given flag
-	{ NV5x, 0x800000, 0xf00000, N("xfer"), T(area) },
+	{ NV5x, 0x800000, 0xf80000, N("xfer1"), T(area) },
+	{ NV5x, 0x880000, 0xf80000, N("xfer2"), T(area) },
 	{ NV5x, 0x900000, 0x9f0000, N("disable"), DIS0 },		// ors 0x40 with given immediate.
 	{ NV5x, 0x910000, 0x9f0000, N("disable"), DIS1 },
-	{ NV5x, 0xa00000, 0xf00000, N("mov"), N("units"), PGRAPH5 },	// movs given PGRAPH register to 0x400830.
-	{ NV5x, 0xc00000, 0xf00000, N("seek"), T(area) },
+	{ NV5x, 0xa00000, 0xf00000, N("fl3"), PGRAPH5 },		// movs given PGRAPH register to 0x400830.
+	{ NV5x, 0xc00000, 0xf80000, N("seek1"), T(area) },
+	{ NV5x, 0xc80000, 0xf80000, N("seek2"), T(area) },
 	{ NVxx, 0, 0, OOPS },
 };
 
