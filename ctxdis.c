@@ -140,6 +140,14 @@ void atomctarg APROTO {
 }
 
 /*
+ * CMDs
+ */
+#define C(x) atomcmd, x
+void atomcmd APROTO {
+	fprintf (out, " %s%s", cmag, (char *)v);
+}
+
+/*
  * Misc number fields
  *
  * Used for plain numerical arguments.
@@ -210,21 +218,21 @@ struct insn tabpred[] = {
 };
 
 struct insn tabcmd5[] = {
-	{ NV5x, 0x04, 0x1f, N("NEWCTX") },		// fetches grctx DMA object from channel object in 784
-	{ NV5x, 0x05, 0x1f, N("NEXT_TO_SWAP") },	// copies 330 [new channel] to 784 [channel used for ctx RAM access]
-	{ NV5x, 0x06, 0x1f, N("SET_CONTEXT_POINTER") },	// copies scratch to 334
-	{ NV5x, 0x07, 0x1f, N("SET_XFER_POINTER") },	// copies scratch to 33c, anding it with 0xffff8
+	{ NV5x, 0x04, 0x1f, C("NEWCTX") },		// fetches grctx DMA object from channel object in 784
+	{ NV5x, 0x05, 0x1f, C("NEXT_TO_SWAP") },	// copies 330 [new channel] to 784 [channel used for ctx RAM access]
+	{ NV5x, 0x06, 0x1f, C("SET_CONTEXT_POINTER") },	// copies scratch to 334
+	{ NV5x, 0x07, 0x1f, C("SET_XFER_POINTER") },	// copies scratch to 33c, anding it with 0xffff8
 //	{ NV5x, 0x08, 0x1f, OOPS },			// does something with scratch contents...
-	{ NV5x, 0x09, 0x1f, N("ENABLE") },		// resets 0x40 to 0
-	{ NV5x, 0x0c, 0x1f, N("END") },			// halts program execution, resets PC to 0
-	{ NV5x, 0x0d, 0x1f, N("NEXT_TO_CURRENT") },	// movs new channel RAMIN address to current channel RAMIN address, basically where the real switch happens
+	{ NV5x, 0x09, 0x1f, C("ENABLE") },		// resets 0x40 to 0
+	{ NV5x, 0x0c, 0x1f, C("END") },			// halts program execution, resets PC to 0
+	{ NV5x, 0x0d, 0x1f, C("NEXT_TO_CURRENT") },	// movs new channel RAMIN address to current channel RAMIN address, basically where the real switch happens
 	{ NVxx, 0, 0, OOPS },
 };
 
 struct insn tabcmd4[] = {
-	{ NV4x, 0x07, 0x1f, N("NEXT_TO_SWAP") },	// copies 330 [new channel] to 784 [channel used for ctx RAM access]
-	{ NV4x, 0x09, 0x1f, N("NEXT_TO_CURRENT") },	// movs new channel RAMIN address to current channel RAMIN address, basically where the real switch happens
-	{ NV4x, 0x0e, 0x1f, N("END") },
+	{ NV4x, 0x07, 0x1f, C("NEXT_TO_SWAP") },	// copies 330 [new channel] to 784 [channel used for ctx RAM access]
+	{ NV4x, 0x09, 0x1f, C("NEXT_TO_CURRENT") },	// movs new channel RAMIN address to current channel RAMIN address, basically where the real switch happens
+	{ NV4x, 0x0e, 0x1f, C("END") },
 	{ NVxx, 0, 0, OOPS },
 };
 
