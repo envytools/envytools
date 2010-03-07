@@ -1,0 +1,218 @@
+1. Introduction to rules-ng-ng text format
+
+This mini-specification defines a text format that can be converted to and from rules-ng-ng XML.
+It is intended to allow to create rules-ng-ng files with much less typing and with a more readable text.
+
+This specification is an addendum to the rules-ng-ng specification and assumes familiarity with it.
+
+The text format is an XML rules-ng file, but with an added <terse> tag.
+The content of the <terse> tag is text formatted according to the rules detailed below.
+Tools will automatically replace <terse> tags with the equivalent rules-ng XML, and viceversa.
+Only a subset of rules-ng-ng tags can be generated this way.
+
+Indenting is significant, and must be done with a single tab.
+However, if the mimimum indentation of all non-empty lines in a <terse> tag is N, with N > 0, the first N tabs of each line are ignored.
+
+1.1. Tools
+
+The terse format is not supported by the usual rules-ng-ng tools.
+
+The only tool supporting it is a tool that converts to/from a rules-ng-ng XML representation.
+
+2. <terse>
+
+The <terse> tag contains a textual representation of rules-ng-ng XML.
+It currently contains no attributes.
+
+2.1 Text representation of tags
+
+[...] means that the portion is optional
+Characters prefixed by a backslash do not have the special meanings above
+
+If not otherwise specified, uppercase placeholder, generate an XML attribute of the same name
+
+Those are the rules to determine the type of a tag:
+- If the last non-whitespace character in a line is "=", it is an <array>,
+- If the last non-whitespace character in a line is ":" and it starts with a digit or with "stripe" it is a <stripe>
+- If the last non-whitespace character in a line is ":" and it starts with the appropriate keywords, it is a keyword tag
+- Within a <variant-set>, if it contains "=" (not inside the brief string!), it is a <variant-group>
+- Otherwise, within a <variant-set>, it is a <variant>
+- Otherwise it is a <reg>
+
+Anything in a line past "//" is ignored, and appended as a line to a <doc> tag associated with the current tag.
+"// doc" is allowed both after a tag definition, or on a dedicated line after it.
+
+3. Register/register-like tags
+
+3.1. <reg8>/<reg16>/<reg32>/<reg64>
+
+OFFSET [<< SHR] [\[ARRAY_LENGTH\]] NAME [!ACCESS] [= TYPE[LEN]] [([VARSET:]VARIANTS)]
+
+OFFSET is hexadecimal without a 0x prefix
+LEN, if present, causes a regLEN tag to be generated.
+If LEN is not present, the domain "width" attribute dictates the reg tag generated
+TYPE may either be the "type" attribute or an enum or bitset name
+
+If ARRAY_LENGTH is present, the reg tag is surrounded by an <array> of length ARRAY_LENGTH.
+
+Examples:
+368 LAUNCH (NV50_COMPUTE)
+100 INTR !rw
+1234 TEXTURE_FORMAT = SURFACE_FORMAT
+400784 << 12 PGRAPH_CTXCTL_SWAP
+
+3.2. <reg...> subtags
+
+Bitfields and inline values are represented by indented lines following a reg line.
+
+If the first non-whitespace character in the line is a digit, it is a bitfield line, otherwise it is an enum value line.
+
+3.2.1 <bitfield>
+
+LOW[:HIGH] NAME [= TYPE[LEN]] [([VARSET:]VARIANTS)] 
+
+3.2.2 <value>
+
+Note that use-enum is specified by setting TYPE to the enum name
+
+NAME = VALUE [([VARSET:]VARIANTS)] 
+
+VALUE is decimal, or hexadecimal if prefixed by 0x
+
+3.3 <array>
+
+OFFSET [<< SHR] {STRIDE} \[LENGTH\] NAME [([VARSET:]VARIANTS)] =
+
+The members of the arrays are indented lines following the array line.
+
+Examples:
+200 MP {0x80} [2] =
+	70 TRAPPED_OPCODE
+314 MP_TRAP
+
+3.4. <stripe>
+
+OFFSET [<< SHR] [{STRIDE}] [\[LENGTH\]] [NAME] [([VARSET:]VARIANTS)]:
+stripe [{STRIDE}] [\[LENGTH\]] [NAME] [([VARSET:]VARIANTS)]:
+
+Examples:
+400000 PGRAPH (NV0x):
+	100 INTR // pending interrupts, set a bit to acknowledge it
+	140 INTR_EN // mask of enabled interrupts
+
+4. Keyword tags
+
+The general format is:
+
+KEYWORD NAME AD_HOC_PART [ATTRIBUTE(ATTRIBUTE_VALUE)...]
+
+KEYWORD is used to identify the tag
+NAME is the value of the name attribute
+AD_HOC_PART is ad-hoc
+ATTRIBUTE/ATTRIBUTE_VALUE generate attributes, that must not be already specified otherwise
+
+If the line start with attributes, it is a prefix
+
+4.1. <use-bitset>
+
+Put this in the TYPE field instead if possible.
+
+use bitset NAME
+
+4.2. <use-enum>
+
+Put this in the TYPE field instead if possible.
+
+use enum NAME
+
+4.3. <prefix>
+
+[ATTRIBUTE(ATTRIBUTE_VALUE)...]:
+
+4.4. <enum>
+
+[inline] enum NAME [ATTRIBUTE(ATTRIBUTE_VALUE)...]:
+
+See 3.2.2 for how to specify values
+
+4.5. <bitset>
+
+bitset NAME:
+
+See 3.2.1 for how to specify values
+
+4.6. <group>
+
+group NAME:
+
+4.7. <domain>
+
+domain NAME [{SIZE}] [ATTRIBUTE(ATTRIBUTE_VALUE)...]:
+
+4.8 <variant-set>
+
+variant-set NAME ["BRIEF"] [ATTRIBUTE(ATTRIBUTE_VALUE)...]:
+
+Example:
+variant-set chipset "The chipset of the card":
+	NV04 "RIVA TNT"
+	NV05 "RIVA TNT2"
+	NV0x "NV04 generation cards" = NV04 NV05
+	pre50 = NV0x NV10
+	NV5x = NV50 NV84 NVA0 NVA5
+
+4.9 <import>
+
+#import "FILENAME"
+
+will import FILENAME as an XML file
+
+#include "FILENAME"
+
+will import FILENAME as a file containing <terse> body text
+
+5. Variant-set subtages
+
+5.1. <variant>
+
+NAME ["BRIEF"] [ATTRIBUTE(ATTRIBUTE_VALUE)...]
+
+5.2. <variant-group>
+
+NAME ["BRIEF"] = VARIANTS
+
+6. Example
+
+domain NV_OBJECT prefix(grobj-class):
+	stripe (m2mf):
+		200 LINEAR_IN (NV50_MEMORY_TO_MEMORY_FORMAT)
+		328 BUFFER_NOTIFY
+	stripe (NV50_COMPUTE):
+		368 LAUNCH
+		400 {0x20} [16] GLOBAL:
+			0  ADDRESS_HIGH
+			4  ADDRESS_LOW
+			8  PITCH
+			c  LIMIT
+			10 MODE
+		600 [64] USER_PARAM
+
+Results in:
+
+<domain name="NV_OBJECT" prefix="grobj-class">
+	<stripe variants="m2mf">
+		<reg32 offset="0x200" name="LINEAR_IN" variants="NV50_MEMORY_TO_MEMORY_FORMAT" />
+		<reg32 offset="0x328" name="BUFFER_NOTIFY" />
+	</stripe>
+	<stripe variants="NV50_COMPUTE">
+		<reg32 offset="0x368" name="LAUNCH" />
+		<stripe name="GLOBAL" offset="0x400" stride="0x20" length="16">
+			<reg32 offset="0" name="ADDRESS_HIGH" />
+			<reg32 offset="4" name="ADDRESS_LOW" />
+			<reg32 offset="8" name="PITCH" />
+			<reg32 offset="0xc" name="LIMIT" />
+			<reg32 offset="0x10" name="MODE" />
+		</stripe>
+		<reg32 offset="0x0600" name="USER_PARAM" length="64" />
+	</stripe>
+</domain>
