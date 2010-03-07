@@ -101,7 +101,7 @@ NV04_NV_MMIO_PMC_BOOT_0.
 
 <domain name="NV_MMIO" size="0x1000000" prefix="chipset">
 	<reg32 offset="0" name="PMC_BOOT_0" />
-	<reg32 offset="4" name="PMC_BOOT_1" varset="chipset" variants="NV10+" />
+	<reg32 offset="4" name="PMC_BOOT_1" varset="chipset" variants="NV10-" />
 	<reg32 offset="0x100" name="PMC_INTR" />
 </domain>
 
@@ -150,8 +150,14 @@ are:
    domains.
  - varset [optional]: the <enum> to choose from by the variant attribute.
    Defaults to first <enum> used in currently active prefix.
- - variants [optional]: space-separated list of <value>s and
-   <value-group>s that support this register
+ - variants [optional]: space-separated list of and variant ranges that this
+   register is present on. The items of this list can be:
+    - var1: a single variant
+    - var1-var2: all variants starting with var1 up to and including var2
+    - var1<var2: all variants starting with var1 up to, but not including var2
+    - <var1: all variants before var1
+    - -var1: all variants up to and including var1
+    - var1-: all variants starting from var1
  - type [optional]: How to interpret the contents of this register.
    Space-separated list of types in decreasing order of preference. Types
    include:
@@ -233,7 +239,7 @@ tags can also be written directly inside <reg*> tag.
 
 <enum name="SURFACE_FORMAT" prefix="chipset">
 	<value value="6" name="A8R8G8B8" />
-	<value value="0x12" name="A8R8G8B8_RECT" variants="NV10+" />
+	<value value="0x12" name="A8R8G8B8_RECT" variants="NV10-" />
 </enum>
 
 <enum name="gl_shade_model" inline="yes">
@@ -266,9 +272,7 @@ defining items that are only present when you're dealing with something of the
 matching variant. The variant space is "multidimensional" - so you can have
 a variant "dimension" representing what GPU chipset you're using at the
 moment, and another dimension representing what grobj class you're dealing
-with [taken from another enum]. Both of these can be independent. When dealing
-with variant-specific items, it's often useful to group variants. This is what
-the <value-group> tag is for:
+with [taken from another enum]. Both of these can be independent.
 
 <enum name="chipset">
 	<brief>The chipset of the card</brief>
@@ -293,13 +297,6 @@ the <value-group> tag is for:
 	<value name="NVA5">
 		<brief>GT216: GeForce GT 220</brief>
 	</value>
-	<value-group name="NV0x" values="NV04 NV05">
-		<brief>NV04 generation cards</brief>
-	</value-group>
-	<value-group name="pre50" values="NV0x NV10" />
-	<value-group name="NV5x" values="NV50 NV84 NVA0 NVA5" />
-	<value-group name="old5x" values="NV50 NV84" />
-	<value-group name="NV10+" values="NV10 NV5x" />
 </enum>
 
 If enabled for a given domain, the name of the earliest variant to support
@@ -307,21 +304,16 @@ a given register / bitfield / value / whatever will be automatically prepended
 to its name. For this purpose, "earliest" is defined as "comes first in the
 XML file".
 
-The <value-group>s are merely a shorthand to type less, they'll get expanded
-on sight. So their names will never make it to the header file, and can be of
-any case.
-
 <enum>s used for this purpose can still be used as normal enums. And can even
 have variant-specific values referencing another <enum>. Example:
 
 <enum name="grobj-class" prefix="chipset">
-	<value name="MEMORY_TO_MEMORY_FORMAT" value="0x0039" variants="pre50" />
-	<value name="MEMORY_TO_MEMORY_FORMAT" value="0x5039" variants="NV5x" />
-	<value name="2D" value="0x502d" variants="NV5x" />
-	<value name="TCL" value="0x5097" variants="old5x" />
+	<value name="MEMORY_TO_MEMORY_FORMAT" value="0x0039" variants="<NV50" />
+	<value name="MEMORY_TO_MEMORY_FORMAT" value="0x5039" variants="NV50-" />
+	<value name="2D" value="0x502d" variants="NV50-" />
+	<value name="TCL" value="0x5097" variants="NV50<NVA0" />
 	<value name="TCL" value="0x8297" variants="NV84" />
-	<value name="COMPUTE" value="0x50c0" variants="NV5x" />
-	<value-group name="m2mf" values="NV04_MEMORY_TO_MEMORY_FORMAT NV50_MEMORY_TO_MEMORY_FORMAT" />
+	<value name="COMPUTE" value="0x50c0" variants="NV50-" />
 </enum>
 
 In generated .h file, this will result in:
@@ -507,12 +499,12 @@ Definitions are emitted like for arrays, but:
 
 Examples:
 
-<stripe name="PGRAPH" offset="0x400000" variants="NV0x">
+<stripe name="PGRAPH" offset="0x400000" variants="NV04-NV05">
 	<reg32 offset="0x100" name="INTR" />
 	<reg32 offset="0x140" name="INTR_EN" />
 </stripe>
 
-<stripe name="PGRAPH" offset="0x400000" variants="NV5x">
+<stripe name="PGRAPH" offset="0x400000" variants="NV50-">
 	<reg32 offset="0x100" name="INTR" />
 	<reg32 offset="0x108" name="TRAP" />
 	<reg32 offset="0x138" name="TRAP_EN" />
@@ -550,11 +542,11 @@ Results in:
 <domain name="NV_OBJECT" prefix="none">
 	<stripe name="OBJECT" prefix="chipset">
 		<reg32 offset="0x00" name="NAME" />
-		<reg32 offset="0x10" name="FENCE_ADDRESS_HIGH" variants="NV5x" />
+		<reg32 offset="0x10" name="FENCE_ADDRESS_HIGH" variants="NV50-" />
 		<!-- more PFIFO methods -->
 	</stripe>
 	<stripe prefix="grobj-class">
-		<stripe variants="m2mf">
+		<stripe variants="NV04_MEMORY_TO_MEMORY_FORMAT-NV05_MEMORY_TO_MEMORY_FORMAT">
 			<reg32 offset="0x200" name="LINEAR_IN" variants="NV50_MEMORY_TO_MEMORY_FORMAT" />
 			<reg32 offset="0x328" name="BUFFER_NOTIFY" />
 			<!-- more m2mf methods -->
@@ -607,13 +599,13 @@ wherever <reg*> can, including inside a <group>.
 	<!-- ... -->
 </group>
 
-<array offset="0x408000" name="PGRAPH_TP" stride="0x1000" length="8" variants="pre50">
+<array offset="0x408000" name="PGRAPH_TP" stride="0x1000" length="8" variants="NV50<NVA0">
 	<array offset="0x200" name="MP" stride="0x80" length="2">
 		<use-group name="nv50_mp" />
 	</array>
 	<!-- ... -->
 </array>
-<array offset="0x408000" name="PGRAPH_TP" stride="0x800" length="10" variants="NVAx">
+<array offset="0x408000" name="PGRAPH_TP" stride="0x800" length="10" variants="NVA0-">
 	<array offset="0x100" name="MP" stride="0x80" length="4">
 		<use-group name="nv50_mp" />
 	</array>
@@ -659,10 +651,6 @@ decode them. The splitting to method,data pair will be done by nv-specific
 code, then the pair will be handed over to generic rules-ng lookup.
 
 4. Issues
-
- - Variants: what about allowing ranges like variants="NV10-NV30"? This could
-   also get rid of the need for actual <value-group>s, since they seem to be
-   mostly of this form.
 
  - Prefixes: hmm. what about allowing arbitrary constants as prefixes? In the
    example in 2.4, we're restricted to using only the domain name as prefix.
