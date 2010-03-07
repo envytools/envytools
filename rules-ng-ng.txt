@@ -158,7 +158,8 @@ are:
     - "uint": unsigned decimal integer
     - "int": signed decimal integer
     - "hex": unsigned hexadecimal integer
-    - "float" being IEEE 32-bit floating point format
+    - "float" IEEE 16-bit, 32-bit or 64-bit floating point format, depending
+      on register/bitfield size
     - any defined enum name: value from that anum
     - "enum": value from the inline <value> tags in this <reg*>
     - any defined bitset name: value decoded further according to that bitset
