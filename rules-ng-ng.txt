@@ -135,37 +135,7 @@ corresponding to a single register. Definitions are:
 #define NV50_PFB_VM_TRAP_ADDRMID	4
 #define NV50_PFB_VM_TRAP_ADDRHIGH	5
 
-2.3. Additional prefixing
-
-Sometimes a single prefix= attribute per domain is not enough, and you want
-some part prefixed with one style of prefixes, and another part not prefixed
-at all, or prefixed with something else. This is what <prefix> is for:
-
-<domain name="OBJECT">
-	<prefix prefix="chipset name">
-		<reg32 offset="0" name="NAME" />
-		<reg32 offset="0x10" name="FENCE_ADDRESS_HIGH" varset="chipset" variants="NV5x" />
-		<!-- more FENCE stuff -->
-		<reg32 offset="0x60" name="DMA_SEMAPHORE" varset="chipset" variants="NV10+" />
-		<!-- more SEMAPHORE stuff -->
-	</prefix>
-	<prefix prefix="grobj-class">
-		<reg32 offset="0x328" name="BUFFER_NOTIFY" varset="grobj-class" variants="m2mf" />
-		<!-- more m2mf methods -->
-		<reg32 offset="0x368" name="LAUNCH" varset="grobj-class" variants="NV50_COMPUTE" />
-		<!-- more NV50_COMPUTE methods -->
-	</prefix>
-</domain>
-
-Results in:
-
-#define NV04_OBJECT_NAME				0
-#define NV50_OBJECT_FENCE_ADDRESS_HIGH			0x10
-#define NV10_OBJECT_DMA_SEMAPHORE			0x60
-#define NV04_MEMORY_TO_MEMORY_FORMAT_BUFFER_NOTIFY	0x328
-#define NV50_COMPUTE_LAUNCH				0x368
-
-2.4. Registers
+2.3. Registers
 
 What we really want all the time is defining registers. This is done with
 <reg8>, <reg16>, <reg32> or <reg64> tags. The register of course takes
@@ -228,7 +198,7 @@ results in
 The <reg*> tags can also contain either bitfield definitions, or enum value
 definitions.
 
-2.5. Enums and variants
+2.4. Enums and variants
 
 Enum is, basically, a set of values. They're defined by <enum> tag with the
 following attributes:
@@ -358,7 +328,7 @@ In generated .h file, this will result in:
 #define NV84_TCL			0x8297
 #define NV50_COMPUTE			0x50c0
 
-2.6. Bitfields
+2.5. Bitfields
 
 Often, registers store not a single full-width value, but are split into
 bitfields. Like values can be grouped in enums, bitfields can be called in
@@ -458,7 +428,7 @@ Result:
 #define POINT_Y		0xffff0000
 #define POINT_Y__SHIFT		16
 
-2.7. Arrays and stripes.
+2.6. Arrays and stripes.
 
 Sometimes you have multiple copies of a register. Sometimes you actually have
 multiple copies of a whole set of registers. And sometimes this set itself
@@ -523,6 +493,7 @@ or a prefix to a bigger set of elements. Attributes:
  - length [optional]: like in array. Defaults to 1.
  - varset [optional]: as in <reg*>
  - variants [optional]: as in <reg*>
+ - prefix [optional]: as in <domain>, overrides parent's prefix option.
 
 Definitions are emitted like for arrays, but:
  - if no name is given, the definitions for stripe itself won't be emitted
@@ -576,28 +547,37 @@ Results in:
 #define PVIDEO_LUMINANCE	(0x8910+(i)*4)
 #define PVIDEO_CHROMINANCE	(0x8918+(i)*4)
 
-<domain name="NV_OBJECT" prefix="grobj-class">
-	<stripe variants="m2mf">
-		<reg32 offset="0x200" name="LINEAR_IN" variants="NV50_MEMORY_TO_MEMORY_FORMAT" />
-		<reg32 offset="0x328" name="BUFFER_NOTIFY" />
-		<!-- more m2mf methods -->
+<domain name="NV_OBJECT" prefix="none">
+	<stripe name="OBJECT" prefix="chipset">
+		<reg32 offset="0x00" name="NAME" />
+		<reg32 offset="0x10" name="FENCE_ADDRESS_HIGH" variants="NV5x" />
+		<!-- more PFIFO methods -->
 	</stripe>
-	<stripe variants="NV50_COMPUTE">
-		<reg32 offset="0x368" name="LAUNCH" />
-		<stripe name="GLOBAL" offset="0x400" stride="0x20" length="16">
-			<reg32 offset="0" name="ADDRESS_HIGH" />
-			<reg32 offset="4" name="ADDRESS_LOW" />
-			<reg32 offset="8" name="PITCH" />
-			<reg32 offset="0xc" name="LIMIT" />
-			<reg32 offset="0x10" name="MODE" />
+	<stripe prefix="grobj-class">
+		<stripe variants="m2mf">
+			<reg32 offset="0x200" name="LINEAR_IN" variants="NV50_MEMORY_TO_MEMORY_FORMAT" />
+			<reg32 offset="0x328" name="BUFFER_NOTIFY" />
+			<!-- more m2mf methods -->
 		</stripe>
-		<!-- more NV50_COMPUTE methods -->
-		<reg32 offset="0x0600" name="USER_PARAM" length="64" />
+		<stripe variants="NV50_COMPUTE">
+			<reg32 offset="0x368" name="LAUNCH" />
+			<stripe name="GLOBAL" offset="0x400" stride="0x20" length="16">
+				<reg32 offset="0" name="ADDRESS_HIGH" />
+				<reg32 offset="4" name="ADDRESS_LOW" />
+				<reg32 offset="8" name="PITCH" />
+				<reg32 offset="0xc" name="LIMIT" />
+				<reg32 offset="0x10" name="MODE" />
+			</stripe>
+			<!-- more NV50_COMPUTE methods -->
+			<reg32 offset="0x0600" name="USER_PARAM" length="64" />
+		</stripe>
 	</stripe>
 </domain>
 
 Results in:
 
+#define NV01_OBJECT_NAME				0x00
+#define	NV50_OBJECT_FENCE_ADDRESS_HIGH			0x10
 #define NV50_MEMORY_TO_MEMORY_FORMAT_LINEAR_IN		0x200
 #define NV04_MEMORY_TO_MEMORY_FORMAT_BUFFER_NOTIFY	0x328
 #define NV50_COMPUTE_LAUNCH				0x368
@@ -613,7 +593,7 @@ Results in:
 #define NV50_COMPUTE_USER_PARAM__LEN			64
 #define NV50_COMPUTE_USER_PARAM__ESIZE			4
 
-2.8. Groups
+2.7. Groups
 
 Groups are just sets of registers and/or arrays that can be copied-and-pasted
 together, when they're duplicated in several places in the same <domain>,
@@ -689,7 +669,8 @@ code, then the pair will be handed over to generic rules-ng lookup.
    So we either call domain "OBJECT" and end up with "OBJECT__SIZE" if we want
    to specify it, or call it "NV_OBJECT" and end up with better sounding
    "NV_OBJECT__SIZE", but screw up all the prefixed names to
-   "NV04_NV_OBJECT_NAME" etc.
+   "NV04_NV_OBJECT_NAME" etc. Or we could just use <stripe name="..."> for
+   cases when prefix="name" is unwieldy.
 
  - Random typing-saving feature for bitfields: make high default to same value
    as low, to have one less attribute for single-bit bitfields?
@@ -713,5 +694,4 @@ code, then the pair will be handed over to generic rules-ng lookup.
 
 5. TODO
 
- - do away with <prefix>
  - figure out <use-domain>
