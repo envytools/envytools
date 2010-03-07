@@ -152,15 +152,24 @@ are:
    Defaults to first <enum> used in currently active prefix.
  - variants [optional]: space-separated list of <value>s and
    <value-group>s that support this register
- - type [optional]: How to interpret the contents of this register, if it has
-   no bitfields or enum values. Space-separated list of types in decreasing
-   order of preference. Generally useful values include: "uint" being unsigned
-   decimal integer of appropriate size, "int" being signed decimal integer,
-   "hex" being unsigned hexadecimal integer, "float" being IEEE 32-bit
-   floating point format. Unrecognised type is not an error, and parsing
-   application should just fall back to the first type it knows. Failing that,
-   it should fall back to "hex". "hex" is also the default value if this field
-   is not specified.
+ - type [optional]: How to interpret the contents of this register.
+   Space-separated list of types in decreasing order of preference. Types
+   include:
+    - "uint": unsigned decimal integer
+    - "int": signed decimal integer
+    - "hex": unsigned hexadecimal integer
+    - "float" being IEEE 32-bit floating point format
+    - any defined enum name: value from that anum
+    - "enum": value from the inline <value> tags in this <reg*>
+    - any defined bitset name: value decoded further according to that bitset
+    - "bitfield": value decoded further according to the inline <bitfield>
+      tags
+    - any defined domain name: value decoded as an offset in that domain
+   Unrecognised type is not an error: it could be a database-specific type
+   that is only understood by special tools. The specified type list always
+   gets "enum bitfield hex" appended to the end, as a default/fallback.
+   Applications that want to decode the value of a register should try each
+   type in the list, and use the first one that successfully decodes.
  - shr [optional]: the value in this register is the real value shifted right
    by this many bits. Ie. for register with shr="12", register value 0x1234
    should be interpreted as 0x1234000. May sound too specific, but happens
@@ -206,8 +215,7 @@ following attributes:
  - name [required]: an identifying name.
  - inline [optional]: "yes" or "no", with "no" being the default. Selects if
    this enum should emit its own definitions in .h file, or be inlined into
-   any <reg*> / <bitfield> definitions that reference it, as if <use-enum>
-   tag was replaced by its contents.
+   any <reg*> / <bitfield> definitions that reference it.
  - prefix [optional]: only for no-inline enums, behaves like prefix attribute
    to <domain>.
 
@@ -218,9 +226,9 @@ The <enum> tag contains <value> tags with the following attributes:
  - varset [optional]: like in <reg*>
  - variants [optional]: like in <reg*>
 
-The <enum>s are referenced from inside <reg*> and <bitfield> tags by <use-enum
-name="..." /> tag. For single-use enums, the <value> tags can also be written
-directly inside <reg*> tag.
+The <enum>s are referenced from inside <reg*> and <bitfield> tags by setting
+the type attribute to the name of the enum. For single-use enums, the <value>
+tags can also be written directly inside <reg*> tag.
 
 <enum name="SURFACE_FORMAT" prefix="chipset">
 	<value value="6" name="A8R8G8B8" />
@@ -232,12 +240,8 @@ directly inside <reg*> tag.
 	<value value="0x1d01" name="SMOOTH" />
 </enum>
 
-<reg32 offset="0x1234" name="TEXTURE_FORMAT">
-	<use-enum name="SURFACE_FORMAT" />
-</reg32>
-<reg32 offset="0x1238" name="SHADE_MODEL">
-	<use-enum name="gl_shade_model" />
-</reg32>
+<reg32 offset="0x1234" name="TEXTURE_FORMAT" type="SURFACE_FORMAT" />
+<reg32 offset="0x1238" name="SHADE_MODEL" type="gl_shade_model" />
 <reg32 offset="0x123c" name="PATTERN_SELECT">
 	<value value="1" name="MONO" />
 	<value value="2" name="COLOR" />
@@ -341,15 +345,16 @@ contains <bitfield> tags with the following attributes:
  - high [required]: index of the highest bit belonging to this bitfield.
  - varset [optional]: like in <reg*>
  - variants [optional]: like in <reg*>
- - type [optional]: like in <reg*>
+ - type [optional]: like in <reg*>, but "bitfield" and bitset names are not
+   allowed.
  - shr [optional]: like in <reg*>
 
 Like <value>s, <bitfield>s are also allowed to be written directly inside
-<reg*> tags. You cannot use both <bitfield>s and <value>s for a single <reg*>.
+<reg*> tags.
 
-<bitfield>s themselves can contain <value>s or <use-enum>s. The defines
-generated for <bitfield>s include "name" equal to the bitmask corresponding to
-given bitfield, "name__SHIFT" equal to the low attribute, "name__SHR" equal to
+<bitfield>s themselves can contain <value>s. The defines generated for
+<bitfield>s include "name" equal to the bitmask corresponding to given
+bitfield, "name__SHIFT" equal to the low attribute, "name__SHR" equal to
 the shr attribute [if defined]. If the bitfield contains any <value>s or
 references an inlined enum, defines for its values are also generated,
 pre-shifted to the correct position. Example:
@@ -368,9 +373,7 @@ pre-shifted to the correct position. Example:
 	<bitfield high="12" low="12" name="CHROMA_KEY" />
 	<bitfield high="13" low="13" name="USER_CLIP" />
 	<bitfield high="14" low="14" name="SWIZZLE" />
-	<bitfield high="17" low="15" name="PATCH_CONFIG">
-		<use-enum name="nv03_operation" />
-	</bitfield>
+	<bitfield high="17" low="15" name="PATCH_CONFIG" type="nv03_operation" />
 	<!-- ... -->
 </bitset>
 
@@ -379,9 +382,7 @@ pre-shifted to the correct position. Example:
 	<bitfield high="31" low="16" name="Y" />
 </bitset>
 
-<reg32 offset="0x40014c" name="PGRAPH_CTX_SWITCH_1">
-	<use-bitset name="NV04_GROBJ_1" />
-</reg32>
+<reg32 offset="0x40014c" name="PGRAPH_CTX_SWITCH_1" type="NV04_GROBJ_1" />
 
 <reg32 offset="0x0404" name="FORMAT">
 	<bitfield high="15" low="0" name="PITCH" />
@@ -389,9 +390,7 @@ pre-shifted to the correct position. Example:
 	<bitfield high="31" low="24" name="FILTER" />
 </reg32>
 
-<reg32 offset="0x040c" name="POINT">
-	<use-bitset name="xy16" />
-</reg32>
+<reg32 offset="0x040c" name="POINT" type="xy16" />
 
 Result:
 
@@ -691,7 +690,3 @@ code, then the pair will be handed over to generic rules-ng lookup.
  - Another thing that renouveau.xml does is disassembling NV20-NV40 shaders.
    Do we want that in rules-ng? IMO we'd be better off hacking nv50dis to
    support it...
-
-5. TODO
-
- - figure out <use-domain>
