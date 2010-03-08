@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<enum name="chipset" prefix="none">
+	<brief>The chipset of the card</brief>
+
+	<value name="NV01">
+		<brief>Diamond Edge 3D</brief>
+	</value>
+
+	<value name="NV03">
+		<brief>RIVA 128</brief>
+	</value>
+
+	<value name="NV04">
+		<brief>RIVA TNT</brief>
+	</value>
+	<value name="NV05">
+		<brief>RIVA TNT2</brief>
+	</value>
+
+	<value value="0x10" name="NV10">
+		<brief>GeForce 256</brief>
+	</value>
+	<value value="0x11" name="NV11">
+		<brief>GeForce2 MX</brief>
+	</value>
+	<value value="0x15" name="NV15">
+		<brief>GeForce2 Ti, Pro, GTS</brief>
+	</value>
+	<value value="0x16" name="NV16">
+		<brief>GeForce2 Ultra</brief>
+	</value>
+	<value value="0x17" name="NV17" />
+	<value value="0x18" name="NV18" />
+	<value value="0x1a" name="NV1A" />
+	<value value="0x1f" name="NV1F" />
+
+	<value value="0x20" name="NV20" />
+	<value value="0x25" name="NV25" />
+	<value value="0x28" name="NV28" />
+	<value value="0x2a" name="NV2A" />
+
+	<value value="0x30" name="NV30" />
+	<value value="0x31" name="NV31" />
+	<value value="0x34" name="NV34" />
+	<value value="0x35" name="NV35" />
+	<value value="0x36" name="NV36" />
+	<value value="0x38" name="NV38" />
+
+	<value value="0x40" name="NV40" />
+	<value value="0x41" name="NV41" />
+	<value value="0x42" name="NV42" />
+	<value value="0x43" name="NV43" />
+	<value value="0x44" name="NV44" />
+	<value value="0x45" name="NV45" />
+	<value value="0x46" name="NV46" />
+	<value value="0x47" name="NV47" />
+	<value value="0x49" name="NV49" />
+	<value value="0x4a" name="NV4A" />
+	<value value="0x4b" name="NV4B" />
+	<value value="0x4c" name="NV4C" />
+	<value value="0x4e" name="NV4E" />
+	<value value="0x67" name="NV67" />
+
+	<value value="0x50" name="NV50">
+		<brief>G80: GeForce 8800 GTX, Tesla *870, ...</brief>
+	</value>
+	<value value="0x84" name="NV84">
+		<brief>G84: GeForce 8600 GT, ...</brief>
+	</value>
+	<value value="0x86" name="NV86" />
+	<value value="0x92" name="NV92" />
+	<value value="0x94" name="NV94" />
+	<value value="0x96" name="NV96" />
+	<value value="0x98" name="NV98" />
+	<value value="0xa0" name="NVA0">
+		<brief>G200: GeForce 260 GTX, Tesla C1060, ...</brief>
+	</value>
+	<value value="0xaa" name="NVAA" />
+	<value value="0xac" name="NVAC" />
+	<value value="0xa5" name="NVA5">
+		<brief>GT216: GeForce GT 220</brief>
+	</value>
+	<value value="0xa8" name="NVA8" />
+</enum>
+
+</database>
