@@ -154,8 +154,8 @@ are:
    register is present on. The items of this list can be:
     - var1: a single variant
     - var1-var2: all variants starting with var1 up to and including var2
-    - var1<var2: all variants starting with var1 up to, but not including var2
-    - <var1: all variants before var1
+    - var1:var2: all variants starting with var1 up to, but not including var2
+    - :var1: all variants before var1
     - -var1: all variants up to and including var1
     - var1-: all variants starting from var1
  - type [optional]: How to interpret the contents of this register.
@@ -308,10 +308,10 @@ XML file".
 have variant-specific values referencing another <enum>. Example:
 
 <enum name="grobj-class" prefix="chipset">
-	<value name="MEMORY_TO_MEMORY_FORMAT" value="0x0039" variants="<NV50" />
+	<value name="MEMORY_TO_MEMORY_FORMAT" value="0x0039" variants=":NV50" />
 	<value name="MEMORY_TO_MEMORY_FORMAT" value="0x5039" variants="NV50-" />
 	<value name="2D" value="0x502d" variants="NV50-" />
-	<value name="TCL" value="0x5097" variants="NV50<NVA0" />
+	<value name="TCL" value="0x5097" variants="NV50:NVA0" />
 	<value name="TCL" value="0x8297" variants="NV84" />
 	<value name="COMPUTE" value="0x50c0" variants="NV50-" />
 </enum>
@@ -599,7 +599,7 @@ wherever <reg*> can, including inside a <group>.
 	<!-- ... -->
 </group>
 
-<array offset="0x408000" name="PGRAPH_TP" stride="0x1000" length="8" variants="NV50<NVA0">
+<array offset="0x408000" name="PGRAPH_TP" stride="0x1000" length="8" variants="NV50:NVA0">
 	<array offset="0x200" name="MP" stride="0x80" length="2">
 		<use-group name="nv50_mp" />
 	</array>
