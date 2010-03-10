@@ -160,6 +160,7 @@ int gsize5off[] = { 16, 4, 0, 0 };
 int immoff[] = { 0, 20, 0, 0 };
 int dis0off[] = { 0, 16, 0, 0 };
 int dis1off[] = { 0, 16, 16, 0 };
+int seekpoff[] = { 8, 11, 0, 0 };
 #define UNIT atomnum, unitoff
 #define FLAG atomnum, flagoff
 #define GSIZE4 atomnum, gsize4off
@@ -167,6 +168,7 @@ int dis1off[] = { 0, 16, 16, 0 };
 #define IMM atomnum, immoff
 #define DIS0 atomnum, dis0off
 #define DIS1 atomnum, dis1off
+#define SEEKP atomnum, seekpoff
 
 /*
  * Memory fields
@@ -256,8 +258,8 @@ struct insn tabm[] = {
 	{ NV5x, 0x900000, 0x9f0000, N("disable"), DIS0 },		// ors 0x40 with given immediate.
 	{ NV5x, 0x910000, 0x9f0000, N("disable"), DIS1 },
 	{ NV5x, 0xa00000, 0xf00000, N("fl3"), PGRAPH5 },		// movs given PGRAPH register to 0x400830.
-	{ NV5x, 0xc00000, 0xf80000, N("seek1"), T(area) },
-	{ NV5x, 0xc80000, 0xf80000, N("seek2"), T(area) },
+	{ NV5x, 0xc00000, 0xf80000, N("seek1"), T(area), SEEKP },
+	{ NV5x, 0xc80000, 0xf80000, N("seek2"), T(area), SEEKP },
 	{ NVxx, 0, 0, OOPS },
 };
 
