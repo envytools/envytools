@@ -439,14 +439,15 @@ relative to start of an element of the array. The <array> attributes include:
  - variants [optional]: As in <reg*>
 
 The definitions emitted for an array include:
- - name(i) defined to be the starting offset of element i
+ - name(i) defined to be the starting offset of element i, if length > 1
+ - name defined to be the starting offset of arrayi, if length == 1
  - name__LEN defined to be the length of array
  - name__ESIZE defined to be the stride of array
 
-Also, definitions for all items inside the array that involve offsets become
-parameter-taking C macros that calculate the offset based on array index. For
-nested arrays, this macro takes as many arguments as there are indices
-involved.
+Also, if length is not 1, definitions for all items inside the array that
+involve offsets become parameter-taking C macros that calculate the offset
+based on array index. For nested arrays, this macro takes as many arguments
+as there are indices involved.
 
 It's an error if an item inside an array doesn't fit inside the array element.
 
@@ -489,8 +490,6 @@ or a prefix to a bigger set of elements. Attributes:
 
 Definitions are emitted like for arrays, but:
  - if no name is given, the definitions for stripe itself won't be emitted
- - if length is 1, the defines for the <stripe> and its children don't include
-   the index parameter and __LEN is not emitted
  - if length is 0, the length is assumed to be unknown or undefined. No __LEN
    is emitted in this case.
  - if stride is 0, __ESIZE is not emitted
