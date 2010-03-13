@@ -286,16 +286,35 @@ void nv50dis (FILE *out, uint32_t *code, int num, int ptype) {
 	}
 }
 
+/*
+ * Options:
+ *
+ *  -4		Disassembles NV40 ctxprogs
+ *  -5		Disassembles NV50 ctxprogs
+ *  -n		Disable color escape sequences in output
+ */
+
 int main(int argc, char **argv) {
 	int ptype = NV5x;
 	char c;
-	while ((c = getopt (argc, argv, "45")) != -1)
+	while ((c = getopt (argc, argv, "45n")) != -1)
 		switch (c) {
 			case '4':
 				ptype = NV4x;
 				break;
 			case '5':
 				ptype = NV5x;
+				break;
+			case 'n':
+				cnorm = "";
+				cgray = "";
+				cgr = "";
+				cbl= "";
+				ccy = "";
+				cyel = "";
+				cred = "";
+				cbr = "";
+				cmag = "";
 				break;
 		}
 	int num = 0;

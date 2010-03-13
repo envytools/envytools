@@ -748,12 +748,13 @@ void nv50dis (FILE *out, uint32_t *code, int num, int ptype) {
  *  -c		Disassembles CP code
  *  -s		Disassembles VP, GP, and FP code [currently conflictless]
  *  -a		Disassembles any code, assumes CP in case of conflict [default]
+ *  -n		Disable color escape sequences in output
  */
 
 int main(int argc, char **argv) {
 	int ptype = AP;
 	int c;
-	while ((c = getopt (argc, argv, "vgfpcas")) != -1)
+	while ((c = getopt (argc, argv, "vgfpcasn")) != -1)
 		switch (c) {
 			case 'v':
 				ptype = VP;
@@ -773,6 +774,17 @@ int main(int argc, char **argv) {
 				break;
 			case 'a':
 				ptype = AP;
+				break;
+			case 'n':
+				cnorm = "";
+				cgray = "";
+				cgr = "";
+				cbl= "";
+				ccy = "";
+				cyel = "";
+				cred = "";
+				cbr = "";
+				cmag = "";
 				break;
 		}
 	int num = 0;
