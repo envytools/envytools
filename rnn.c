@@ -201,17 +201,14 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 	int width;
 	if (!strcmp(node->name, "reg8"))
 		width = 8;
+	else if (!strcmp(node->name, "reg16"))
+		width = 16;
+	else if (!strcmp(node->name, "reg32"))
+		width = 32;
+	else if (!strcmp(node->name, "reg64"))
+		width = 64;
 	else
-		if (!strcmp(node->name, "reg16"))
-			width = 16;
-		else
-			if (!strcmp(node->name, "reg32"))
-				width = 32;
-			else
-				if (!strcmp(node->name, "reg64"))
-					width = 64;
-				else
-					return 0;
+		return 0;
 	struct rnndelem *res = calloc(sizeof *res, 1);
 	res->type = RNN_ETYPE_REG;
 	res->width = width;
