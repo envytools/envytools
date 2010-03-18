@@ -3,8 +3,110 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
-<import file="nvchipsets.xml"/>
-<import file="nvclasses.xml"/>
+<enum name="obj-class" prefix="none"> <!-- XXX: change to chipset and add proper variants. -->
+	<value value="0x0001" name="NV01_ROOT"/>
+	<value value="0x0002" name="NV01_CONTEXT_DMA"/>
+	<value value="0x0003" name="NV01_DEVICE"/>
+	<value value="0x0004" name="NV01_TIMER"/>
+	<value value="0x0012" name="NV01_CONTEXT_BETA1"/>
+	<value value="0x0017" name="NV01_CONTEXT_COLOR_KEY"/>
+	<value value="0x0057" name="NV04_CONTEXT_COLOR_KEY"/>
+	<value value="0x0018" name="NV01_CONTEXT_PATTERN"/>
+	<value value="0x0019" name="NV01_CONTEXT_CLIP_RECTANGLE"/>
+	<value value="0x001c" name="NV01_RENDER_SOLID_LINE"/>
+	<value value="0x005c" name="NV04_RENDER_SOLID_LINE"/>
+	<value value="0x001d" name="NV01_RENDER_SOLID_TRIANGLE"/>
+	<value value="0x005d" name="NV04_RENDER_SOLID_TRIANGLE"/>
+	<value value="0x001e" name="NV01_RENDER_SOLID_RECTANGLE"/>
+	<value value="0x005e" name="NV04_RENDER_SOLID_RECTANGLE"/>
+	<value value="0x001f" name="NV01_IMAGE_BLIT"/>
+	<value value="0x005f" name="NV04_IMAGE_BLIT"/>
+	<value value="0x009f" name="NV11_IMAGE_BLIT"/>
+	<value value="0x0021" name="NV01_IMAGE_FROM_CPU"/>
+	<value value="0x0061" name="NV04_IMAGE_FROM_CPU"/>
+	<value value="0x0065" name="NV05_IMAGE_FROM_CPU"/>
+	<value value="0x008a" name="NV10_IMAGE_FROM_CPU"/>
+	<value value="0x038a" name="NV30_IMAGE_FROM_CPU"/>
+	<value value="0x308a" name="NV40_IMAGE_FROM_CPU"/>
+	<value value="0x0030" name="NV01_NULL"/>
+	<value value="0x0036" name="NV03_STRETCHED_IMAGE_FROM_CPU"/>
+	<value value="0x0076" name="NV04_STRETCHED_IMAGE_FROM_CPU"/>
+	<value value="0x0066" name="NV05_STRETCHED_IMAGE_FROM_CPU"/>
+	<value value="0x0366" name="NV30_STRETCHED_IMAGE_FROM_CPU"/>
+	<value value="0x3066" name="NV40_STRETCHED_IMAGE_FROM_CPU"/>
+	<value value="0x0037" name="NV03_SCALED_IMAGE_FROM_MEMORY"/>
+	<value value="0x0077" name="NV04_SCALED_IMAGE_FROM_MEMORY"/>
+	<value value="0x0063" name="NV05_SCALED_IMAGE_FROM_MEMORY"/>
+	<value value="0x0089" name="NV10_SCALED_IMAGE_FROM_MEMORY"/>
+	<value value="0x0389" name="NV30_SCALED_IMAGE_FROM_MEMORY"/>
+	<value value="0x3089" name="NV40_SCALED_IMAGE_FROM_MEMORY"/>
+	<value value="0x0038" name="NV04_DVD_SUBPICTURE"/>
+	<value value="0x0088" name="NV10_DVD_SUBPICTURE"/>
+	<value value="0x003d" name="NV01_MEMORY_LOCAL_BANKED"/>
+	<value value="0x003e" name="NV01_MAPPING_SYSTEM"/>
+	<value value="0x003f" name="NV03_MEMORY_LOCAL_CURSOR"/>
+	<value value="0x0040" name="NV01_MEMORY_LOCAL_LINEAR"/>
+	<value value="0x0041" name="NV01_MAPPING_LOCAL"/>
+	<value value="0x0042" name="NV04_CONTEXT_SURFACES_2D"/>
+	<value value="0x0062" name="NV10_CONTEXT_SURFACES_2D"/>
+	<value value="0x0362" name="NV30_CONTEXT_SURFACES_2D"/>
+	<value value="0x3062" name="NV40_CONTEXT_SURFACES_2D"/>
+	<value value="0x0043" name="NV03_CONTEXT_ROP"/>
+	<value value="0x0044" name="NV04_IMAGE_PATTERN"/>
+	<value value="0x0046" name="NV03_VIDEO_LUT_CURSOR_DAC"/>
+	<value value="0x0048" name="NV03_TEXTURED_TRIANGLE"/>
+	<value value="0x004a" name="NV04_GDI_RECTANGLE_TEXT"/>
+	<value value="0x004b" name="NV03_GDI_RECTANGLE_TEXT"/>
+	<value value="0x0052" name="NV04_SWIZZLED_SURFACE"/>
+	<value value="0x009e" name="NV20_SWIZZLED_SURFACE"/>
+	<value value="0x039e" name="NV30_SWIZZLED_SURFACE"/>
+	<value value="0x309e" name="NV40_SWIZZLED_SURFACE"/>
+	<value value="0x0053" name="NV04_CONTEXT_SURFACES_3D"/>
+	<value value="0x0093" name="NV10_CONTEXT_SURFACES_3D"/>
+	<value value="0x0054" name="NV04_TEXTURED_TRIANGLE"/>
+	<value value="0x0094" name="NV10_TEXTURED_TRIANGLE"/>
+	<value value="0x0055" name="NV04_MULTITEX_TRIANGLE"/>
+	<value value="0x0095" name="NV10_MULTITEX_TRIANGLE"/>
+	<value value="0x0056" name="NV10TCL"/>
+	<value value="0x0096" name="NV11TCL"/>
+	<value value="0x0099" name="NV17TCL"/>
+	<value value="0x0058" name="NV03_CONTEXT_SURFACES_2D"/>
+	<value value="0x005a" name="NV03_CONTEXT_SURFACES_3D"/>
+	<value value="0x0060" name="NV04_INDEXED_IMAGE_FROM_CPU"/>
+	<value value="0x0064" name="NV05_INDEXED_IMAGE_FROM_CPU"/>
+	<value value="0x006a" name="NV03_CHANNEL_PIO"/>
+	<value value="0x006b" name="NV03_CHANNEL_DMA"/>
+	<value value="0x0072" name="NV04_BETA_SOLID"/>
+	<value value="0x007b" name="NV10_TEXTURE_FROM_CPU"/>
+	<value value="0x037b" name="NV30_TEXTURE_FROM_CPU"/>
+	<value value="0x307b" name="NV40_TEXTURE_FROM_CPU"/>
+	<value value="0x007c" name="NV10_VIDEO_DISPLAY"/>
+	<value value="0x0097" name="NV20TCL"/>
+	<value value="0x0597" name="NV25TCL"/>
+	<value value="0x0397" name="NV30TCL"/>
+	<value value="0x0497" name="NV35TCL"/>
+	<value value="0x0697" name="NV34TCL"/>
+	<value value="0x4097" name="NV40TCL"/>
+	<value value="0x4497" name="NV44TCL"/>
+	<value value="0x502d" name="NV50_2D"/>
+	<value value="0x5097" name="NV50TCL"/>
+	<value value="0x8297" name="NV84TCL"/>
+	<value value="0x8397" name="NVA0TCL"/>
+	<value value="0x8597" name="NVA8TCL"/>
+	<value value="0x50c0" name="NV50_COMPUTE"/>
+	<!-- IMAGE objects. Keep them commented out, they conflict with serious objects. -->
+	<!--
+	<value value="0x0010" name="NV_IMAGE_STENCIL"/>
+	<value value="0x0011" name="NV_IMAGE_BLEND_AND"/>
+	<value value="0x0013" name="NV_IMAGE_ROP_AND"/>
+	<value value="0x0015" name="NV_IMAGE_COLOR_KEY"/>
+	<value value="0x0064" name="NV01_IMAGE_SRCCOPY_AND"/>
+	<value value="0x0065" name="NV03_IMAGE_SRCCOPY"/>
+	<value value="0x0066" name="NV04_IMAGE_SRCCOPY_PREMULT"/>
+	<!- parent should be NV_IMAGE_BLEND_AND (0x0011) ->
+	<value value="0x0067" name="NV04_IMAGE_BLEND_PREMULT"/>
+	 -->
+</enum>
 
 <domain name="NV01_SUBCHAN" prefix="none" size="0x2000">
 	<stripe name="SUBCHAN" prefix="chipset">
@@ -23,12 +125,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x6c" name="SEMAPHORE_RELEASE" />
 		</stripe>
 	</stripe>
-	<stripe prefix="obj-class">
-		<import file="nv_m2mf.xml" />
-		<stripe variants="NV04_MEMORY_TO_MEMORY_FORMAT-NV50_MEMORY_TO_MEMORY_FORMAT">
-			<use-group name="m2mf"/>
-		</stripe>
-	</stripe>
 </domain>
+
+<import file="nv_m2mf.xml" />
 
 </database>
