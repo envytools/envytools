@@ -385,7 +385,7 @@ static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix) {
 			elem->fullname = elem->name;
 	int i;
 	for (i = 0; i < elem->subelemsnum; i++)
-		prepdelem(db,  elem->subelems[i], elem->fullname);
+		prepdelem(db,  elem->subelems[i], elem->name?elem->fullname:prefix);
 }
 
 static void prepdomain(struct rnndb *db, struct rnndomain *dom) {
