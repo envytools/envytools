@@ -178,7 +178,7 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 			} else if (!strcmp(attr->name, "variants")) {
 				res->variantsstr = strdup(getattrib(db, file, node->line, attr));
 			} else {
-				fprintf (stderr, "%s:%d: wrong attribute \"%s\" for value\n", file, node->line, attr->name);
+				fprintf (stderr, "%s:%d: wrong attribute \"%s\" for %s\n", file, node->line, attr->name, node->name);
 				db->estatus = 1;
 			}
 			attr = attr->next;
@@ -190,7 +190,7 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 			} else if (delem = trydelem(db, file, chain)) {
 				RNN_ADDARRAY(res->subelems, delem);
 			} else if (!trytop(db, file, chain)) {
-				fprintf (stderr, "%s:%d: wrong tag in domain: <%s>\n", file, chain->line, chain->name);
+				fprintf (stderr, "%s:%d: wrong tag in %s: <%s>\n", file, chain->line, node->name, chain->name);
 				db->estatus = 1;
 			}
 			chain = chain->next;
@@ -231,13 +231,13 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 		} else if (!strcmp(attr->name, "variants")) {
 			res->variantsstr = strdup(getattrib(db, file, node->line, attr));
 		} else {
-			fprintf (stderr, "%s:%d: wrong attribute \"%s\" for value\n", file, node->line, attr->name);
+			fprintf (stderr, "%s:%d: wrong attribute \"%s\" for register\n", file, node->line, attr->name);
 			db->estatus = 1;
 		}
 		attr = attr->next;
 	}
 	if (!res->name) {
-		fprintf (stderr, "%s:%d: nameless value\n", file, node->line);
+		fprintf (stderr, "%s:%d: nameless register\n", file, node->line);
 		db->estatus = 1;
 		return 0;
 	} else {
