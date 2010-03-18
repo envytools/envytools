@@ -160,89 +160,89 @@ static void parsegroup(struct rnndb *db, char *file, xmlNode *node) {
 }
 static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 	if (!strcmp(node->name, "stripe") || !strcmp(node->name, "array")) {
-			struct rnndelem *res = calloc(sizeof *res, 1);
-			res->type = (strcmp(node->name, "stripe")?RNN_ETYPE_ARRAY:RNN_ETYPE_STRIPE);
-			res->length = 1;
-			xmlAttr *attr = node->properties;
-			while (attr) {
-				if (!strcmp(attr->name, "name")) {
-					res->name = strdup(getattrib(db, file, node->line, attr));
-				} else if (!strcmp(attr->name, "offset")) {
-					res->offset = getnumattrib(db, file, node->line, attr);
-				} else if (!strcmp(attr->name, "length")) {
-					res->length = getnumattrib(db, file, node->line, attr);
-				} else if (!strcmp(attr->name, "stride")) {
-					res->stride = getnumattrib(db, file, node->line, attr);
-				} else if (!strcmp(attr->name, "varset")) {
-					res->varsetstr = strdup(getattrib(db, file, node->line, attr));
-				} else if (!strcmp(attr->name, "variants")) {
-					res->variantsstr = strdup(getattrib(db, file, node->line, attr));
-				} else {
-					fprintf (stderr, "%s:%d: wrong attribute \"%s\" for value\n", file, node->line, attr->name);
-					db->estatus = 1;
-				}
-				attr = attr->next;
+		struct rnndelem *res = calloc(sizeof *res, 1);
+		res->type = (strcmp(node->name, "stripe")?RNN_ETYPE_ARRAY:RNN_ETYPE_STRIPE);
+		res->length = 1;
+		xmlAttr *attr = node->properties;
+		while (attr) {
+			if (!strcmp(attr->name, "name")) {
+				res->name = strdup(getattrib(db, file, node->line, attr));
+			} else if (!strcmp(attr->name, "offset")) {
+				res->offset = getnumattrib(db, file, node->line, attr);
+			} else if (!strcmp(attr->name, "length")) {
+				res->length = getnumattrib(db, file, node->line, attr);
+			} else if (!strcmp(attr->name, "stride")) {
+				res->stride = getnumattrib(db, file, node->line, attr);
+			} else if (!strcmp(attr->name, "varset")) {
+				res->varsetstr = strdup(getattrib(db, file, node->line, attr));
+			} else if (!strcmp(attr->name, "variants")) {
+				res->variantsstr = strdup(getattrib(db, file, node->line, attr));
+			} else {
+				fprintf (stderr, "%s:%d: wrong attribute \"%s\" for value\n", file, node->line, attr->name);
+				db->estatus = 1;
 			}
-	xmlNode *chain = node->children;
-	while (chain) {
-		struct rnndelem *delem;
-		if (chain->type != XML_ELEMENT_NODE) {
-		} else if (delem = trydelem(db, file, chain)) {
-			RNN_ADDARRAY(res->subelems, delem);
-		} else if (!trytop(db, file, chain)) {
-			fprintf (stderr, "%s:%d: wrong tag in domain: <%s>\n", file, chain->line, chain->name);
-			db->estatus = 1;
+			attr = attr->next;
 		}
-		chain = chain->next;
-	}
-			return res;
+		xmlNode *chain = node->children;
+		while (chain) {
+			struct rnndelem *delem;
+			if (chain->type != XML_ELEMENT_NODE) {
+			} else if (delem = trydelem(db, file, chain)) {
+				RNN_ADDARRAY(res->subelems, delem);
+			} else if (!trytop(db, file, chain)) {
+				fprintf (stderr, "%s:%d: wrong tag in domain: <%s>\n", file, chain->line, chain->name);
+				db->estatus = 1;
+			}
+			chain = chain->next;
+		}
+		return res;
 
 	}
 	int width;
 	if (!strcmp(node->name, "reg8"))
 		width = 8;
 	else
-	if (!strcmp(node->name, "reg16"))
-		width = 16;
-	else
-	if (!strcmp(node->name, "reg32"))
-		width = 32;
-	else
-	if (!strcmp(node->name, "reg64"))
-		width = 64;
-	else
+		if (!strcmp(node->name, "reg16"))
+			width = 16;
+		else
+			if (!strcmp(node->name, "reg32"))
+				width = 32;
+			else
+				if (!strcmp(node->name, "reg64"))
+					width = 64;
+				else
+					return 0;
+	struct rnndelem *res = calloc(sizeof *res, 1);
+	res->type = RNN_ETYPE_REG;
+	res->width = width;
+	res->length = 1;
+	xmlAttr *attr = node->properties;
+	while (attr) {
+		if (!strcmp(attr->name, "name")) {
+			res->name = strdup(getattrib(db, file, node->line, attr));
+		} else if (!strcmp(attr->name, "offset")) {
+			res->offset = getnumattrib(db, file, node->line, attr);
+		} else if (!strcmp(attr->name, "length")) {
+			res->length = getnumattrib(db, file, node->line, attr);
+		} else if (!strcmp(attr->name, "stride")) {
+			res->stride = getnumattrib(db, file, node->line, attr);
+		} else if (!strcmp(attr->name, "varset")) {
+			res->varsetstr = strdup(getattrib(db, file, node->line, attr));
+		} else if (!strcmp(attr->name, "variants")) {
+			res->variantsstr = strdup(getattrib(db, file, node->line, attr));
+		} else {
+			fprintf (stderr, "%s:%d: wrong attribute \"%s\" for value\n", file, node->line, attr->name);
+			db->estatus = 1;
+		}
+		attr = attr->next;
+	}
+	if (!res->name) {
+		fprintf (stderr, "%s:%d: nameless value\n", file, node->line);
+		db->estatus = 1;
 		return 0;
-			struct rnndelem *res = calloc(sizeof *res, 1);
-			res->type = RNN_ETYPE_REG;
-			res->width = width;
-			res->length = 1;
-			xmlAttr *attr = node->properties;
-			while (attr) {
-				if (!strcmp(attr->name, "name")) {
-					res->name = strdup(getattrib(db, file, node->line, attr));
-				} else if (!strcmp(attr->name, "offset")) {
-					res->offset = getnumattrib(db, file, node->line, attr);
-				} else if (!strcmp(attr->name, "length")) {
-					res->length = getnumattrib(db, file, node->line, attr);
-				} else if (!strcmp(attr->name, "stride")) {
-					res->stride = getnumattrib(db, file, node->line, attr);
-				} else if (!strcmp(attr->name, "varset")) {
-					res->varsetstr = strdup(getattrib(db, file, node->line, attr));
-				} else if (!strcmp(attr->name, "variants")) {
-					res->variantsstr = strdup(getattrib(db, file, node->line, attr));
-				} else {
-					fprintf (stderr, "%s:%d: wrong attribute \"%s\" for value\n", file, node->line, attr->name);
-					db->estatus = 1;
-				}
-				attr = attr->next;
-			}
-			if (!res->name) {
-				fprintf (stderr, "%s:%d: nameless value\n", file, node->line);
-				db->estatus = 1;
-				return 0;
-			} else {
-			}
-			return res;
+	} else {
+	}
+	return res;
 }
 
 static void parsedomain(struct rnndb *db, char *file, xmlNode *node) {
