@@ -1,0 +1,396 @@
+#!/usr/bin/python
+import sys
+from lxml import etree as ET
+
+root = ET.Element("database")
+
+filename = sys.argv[1]
+rnn = open(filename)
+s = "\n" + rnn.read()
+
+default_reg = "reg32"
+
+comments = {}
+
+token = ""
+i = 0
+tokens = []
+attrvalues = []
+comment = ""
+linenum = 0
+errors = 0
+linestart = 0
+brief = None
+indent = 0
+
+def str_width(s):
+	w = 0
+	for i in s:
+		if i == '\t':
+			w = (w + 8) & ~7
+		else:
+			w = w + 1
+
+	return w
+
+def hexa(v):
+	if v <= 9:
+		return str(v)
+	else:
+		return hex(v)
+
+def indent_str(indent):
+	return ("\t" * (indent >> 3) + " " * (indent & 7)) if indent > 0 else ""
+
+def error(msg):
+	global errors
+	print >> sys.stderr, filename + ":" + str(linenum) + ":" + str(str_width(s[linestart:i]) + 1) + ": " + msg
+	errors += 1
+
+def isident(c):
+	return c.isalnum() or c == "_" or c == "-" or c == "#" or c == ","
+
+def reduce_stack(target):
+	global stack
+	while len(stack) > target:
+		stack[-1][1].tail = "\n" + indent_str(stack[-2][0])
+		stack = stack[:-1]
+
+special_chars = ":=[]{}"
+
+stack = [(-1, root)]
+last_attachment = None
+empty_line = False
+while True:
+	c = s[i:i+1]
+	if s[i:i + 2] == "//":
+		i += 2
+		begin = i
+		while s[i] and s[i] != "\n":
+			i += 1
+		comment = s[begin:i]
+		c = "\n"
+
+	if not c or c == "\n":
+		if len(tokens) == 0:
+			empty_line = True
+		else:
+			last_closed_elem = None
+			if last_attachment is not None:
+				last_closed_elem = last_attachment
+				last_attachment = None
+			for j in xrange(len(stack)):
+				if indent <= stack[j][0]:
+					if indent < stack[j][0]:
+						error("line indentation does not match any previous indentation")
+					last_closed_elem = stack[j][1]
+					reduce_stack(j)
+					stack = stack[0:j]
+					break
+			elem = None
+			parent = stack[-1][1]
+			ptag = parent.tag
+			parent_is_reg = ptag in ("reg8", "reg16", "reg32")
+			reglike_tag = None
+
+			while tokens:
+				if tokens[0] == "inline":
+					attrvalues.append(("inline", "yes"))
+					tokens = tokens[1:]
+				else:
+					break
+
+			for j in xrange(len(tokens)):
+				if not tokens[j]:
+					continue
+				if tokens[j][0] == "!":
+					attrvalues.append(("access", tokens[j][1:]))
+					tokens[j] = None
+				if j >= 2 and tokens[j] == ":" and (j + 1) < len(tokens) and tokens[j + 1].isdigit():
+					reglike_tag = "reg" + tokens[j + 1]
+					tokens[j] = tokens[j + 1] = None
+				if (j + 2) < len(tokens):
+					if tokens[j] == "{" and tokens[j + 2] == "}":
+						attrvalues.append(("stride", tokens[j + 1]))
+						tokens[j] = tokens[j + 1] = tokens[j + 2] = None
+					if tokens[j] == "[" and tokens[j + 2] == "]":
+						attrvalues.append(("length", tokens[j + 1]))
+						tokens[j] = tokens[j + 1] = tokens[j + 2] = None
+
+			tokens = [token for token in tokens if token]
+
+			if tokens and tokens[-1] == "=":
+				if len(tokens) >= 2 and tokens[-2] == ":":
+					reglike_tag = "stripe"
+					tokens = tokens[:-2]
+				else:
+					reglike_tag = "array"
+					tokens = tokens[:-1]
+
+			if not tokens:
+				error("line with no tokens")
+			elif tokens[0] == "#import":
+				elem = ET.Element("import")
+				if brief:
+					elem.attrib["file"] = brief
+					brief = None
+				else:
+					error("#include without file argument")
+				if len(tokens) > 1:
+					error("too many tokens in #include line")
+			elif tokens[0] == "#pragma":
+				if len(tokens) == 1:
+					error("pragma with no arguments")
+				elif tokens[1][:3] == "reg":
+					default_reg = tokens[1]
+				else:
+					error("unrecognized pragma")
+				elem = None
+			elif tokens[0] == "@":
+				elem = ET.Element(tokens[0][1:])
+				if len(tokens) >= 2:
+					elem.attrib["name"] = tokens[1]
+				elif len(tokens) >= 3:
+					error("too many tokens in generic tag line")
+			elif tokens[0] == ":":
+				doc = parent.find("doc")
+				if doc is not None:
+					prev = doc.getprevious()
+					if prev is not None:
+						docindent = prev.tail
+					else:
+						prev = doc.getparent()
+						if prev is not None:
+							docindent = prev.text
+						else:
+							docindent = ""
+					if "\n" not in doc.text:
+						doc.text = docindent + "\t" + doc.text + docindent
+					nl = doc.text.rfind("\n")
+					doc.text = doc.text[:nl] + docindent + "\t" + (tokens[1] if len(tokens) >= 2 else "") + docindent
+					elem = None
+				else:
+					elem = ET.Element("doc")
+					if len(tokens) >= 2:
+						elem.text = tokens[1]
+			elif tokens[-1] == ":":
+				elem = ET.Element(tokens[0])
+				if len(tokens) >= 3:
+					elem.attrib["name"] = tokens[1]
+				elif len(tokens) >= 4:
+					error("too many tokens in generic tag line")
+			elif len(tokens) == 1 and (parent_is_reg or ptag == "enum"):
+				elem = ET.Element("value")
+				if tokens[0][0].isdigit():
+					elem.attrib["value"] = tokens[0]
+				else:
+					elem.attrib["name"] = tokens[0]
+			elif len(tokens) == 2 and (parent_is_reg or ptag == "bitset"):
+				elem = ET.Element("bitfield")
+				elem.attrib["low"] = str(int(tokens[0], 0))
+				elem.attrib["high"] = str(int(tokens[0], 0))
+				elem.attrib["name"] = tokens[1]
+			elif len(tokens) >= 3 and tokens[1] == ":":
+				elem = ET.Element("bitfield")
+				elem.attrib["low"] = str(int(tokens[0], 0))
+				elem.attrib["high"] = str(int(tokens[2], 0))
+				if len(tokens) >= 4:
+					elem.attrib["name"] = tokens[3]
+				if len(tokens) >= 5:
+					elem.attrib["type"] = tokens[4]
+				if len(tokens) >= 6:
+					error("too many tokens in bitfield line")
+			elif len(tokens) >= 3 and tokens[1] == "=":
+				elem = ET.Element("value")
+				elem.attrib["value"] = tokens[0]
+				elem.attrib["name"] = tokens[2]
+				if len(tokens) >= 4:
+					error("too many tokens in value line")
+			elif len(tokens) >= 3 and tokens[0] == "use":
+				elem = ET.Element("use-" + tokens[1])
+				elem.attrib["name"] = tokens[2]
+				if len(tokens) >= 4:
+					error("too many tokens in use line")
+			else:
+				elem = ET.Element(reglike_tag if reglike_tag else default_reg)
+				elem.attrib["offset"] = hexa(int(tokens[0], 16))
+				if len(tokens) >= 2:
+					elem.attrib["name"] = tokens[1]
+				if len(tokens) >= 3:
+					elem.attrib["type"] = tokens[2].replace(",", " ")
+				if len(tokens) >= 4:
+					error("too many tokens in reg line")
+				reglike_tag = None
+
+			if elem is not None:
+				for attr, value in attrvalues:
+					elem.attrib[attr] = value
+				if elem.attrib.get("type") == "reg":
+					del elem.attrib["type"]
+#				if elem.tag == "bitfield":
+#					if parent.tag.startswith("reg"):
+#						parent.attrib["type"] = "bitfield"
+#				if elem.tag == "value":
+#					if parent.tag.startswith("reg"):
+#						parent.attrib["type"] = "enum"
+				if brief:
+					briefelem = ET.Element("brief")
+					briefelem.tag = "brief"
+					briefelem.text = brief
+					elem.append(briefelem)
+					last_attachment = briefelem
+
+				parent.append(elem)
+				xmlindent = "\n" +indent_str(indent)
+				if last_closed_elem is not None:
+					last_closed_elem.tail = ("\n" if empty_line else "") + xmlindent
+				else:
+					parent.text = xmlindent
+				stack.append((indent, elem))
+			empty_line = False
+
+			if reglike_tag:
+				error("line specified to be a " + reglike_tag + " but the line format does not match it")
+		if comment:
+			commentelem = ET.Comment(comment)
+			comments.setdefault(stack[-1][1], []).append(commentelem)
+		tokens = []
+		attrvalues = []
+		comment = None
+		brief = None
+		linenum += 1
+		linestart = i
+		indent = 0
+		if not c:
+			break
+		i += 1
+		while s[i:i + 1]:
+			if s[i:i+1] == " ":
+				indent += 1
+			if s[i:i+1] == "\t":
+				indent = (indent + 8) & ~7
+			else:
+				break
+			i += 1
+		indent &= ~7
+		if s[i:i + 1] == ":":
+			begin = i + 1
+			while s[i:i+1] and s[i] != "\n" and s[i:i+2] != "//":
+				i += 1
+			tokens.append(":")
+			tokens.append(s[begin:i].strip())
+	elif c.isspace():
+		i += 1
+		pass
+	elif c in special_chars:
+		tokens.append(c)
+		i += 1
+	elif c == "\"":
+		i += 1
+		begin = i
+		while True:
+			if not s[i:i+1] or s[i] == "\"":
+				break
+			if s[i:i+1] == "\\":
+				i += 2
+			else:
+				i += 1
+		if brief:
+			error("brief specified multiple times")
+		else:
+			if not tokens:
+				error("brief cannot be the start of a line")
+			else:
+				brief = s[begin:i]
+		i += 1
+	else:
+		begin = i
+		paren = -1
+		while True:
+			d = s[i:i+1]
+			if d == "(":
+				paren = i
+				i += 1
+				while True:
+					if not s[i:i+1]:
+						error("unterminated parenthesis")
+						break
+					elif s[i] == ')':
+						break
+					else:
+						i += 1
+				break
+			elif d.isspace() or d in special_chars:
+				break
+			else:
+				i += 1
+
+		if paren >= 0:
+			if paren == begin:
+				variants = s[paren + 1:i]
+				equals = variants.rfind("=")
+				if equals >= 0:
+					attrvalues.append(("varset", variants[:equals]))
+					variants = variants[equals + 1:]
+				attrvalues.append(("variants", variants))
+			else:
+				attrvalues.append((s[begin:paren], s[paren + 1:i]))
+			if s[i] == ")":
+					i += 1
+		else:
+			token = s[begin:i]
+			tokens.append(token)
+
+reduce_stack(1)
+
+# TODO: this takes in ordinate amount of code... can it be shortened?
+for elem, commentelems in comments.items():
+	for action, subelem in ET.iterwalk(elem, events = ("start", "end")):
+		if action == "start":
+			if subelem.text and "\n" in subelem.text:
+				if len(commentelems) == 1:
+					subelem.insert(0, commentelems[0])
+					commentelems[0].tail = subelem.text
+					subelem.text = ""
+				else:
+					for i in xrange(len(commentelems)):
+						subelem.insert(i, commentelems[i])
+						commentelems[i].tail = subelem.text
+				break
+		elif action == "end":
+			if "\n" in subelem.tail:
+				parent = subelem.getparent()
+				i = parent.index(subelem)
+				i += 1
+				if len(commentelems) == 1:
+					parent.insert(i, commentelems[0])
+					commentelems[0].tail = subelem.tail
+					subelem.tail = ""
+				else:
+					prev = elem.getprevious()
+					if prev is not None:
+						indent = prev.tail
+					else:
+						prev = elem.getparent()
+						if prev is not None:
+							indent = prev.text
+						else:
+							indent = "\n"
+					indent += "\t"
+					for j in xrange(len(commentelems)):
+						parent.insert(i + j, commentelems[j])
+						commentelems[j].tail = indent
+					commentelems[-1].tail = subelem.tail
+					subelem.tail = indent
+				break
+
+# lxml etree refuses attributes with colons, and using namespaces "properly" is harder and has no advantages
+# this is a sequence from /dev/urandom
+colon = "39584ac56e6d0976692778b80915f94b61767814a8704982"
+root.attrib["xmlns"] = "http://nouveau.freedesktop.org/"
+root.attrib["xmlns" + colon + "xsi"] = "http://www.w3.org/2001/XMLSchema-instance"
+root.attrib["xsi" + colon + "schemaLocation"] = "http://nouveau.freedesktop.org/ rules-ng.xsd"
+print ET.tostring(root).replace(colon, ":")
+
+sys.exit(0 if errors == 0 else 1)
+

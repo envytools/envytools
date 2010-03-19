@@ -1,0 +1,210 @@
+#!/usr/bin/python
+import sys
+from lxml import etree as ET
+
+xml = sys.argv[1]
+tree = ET.parse(xml)
+root = tree.getroot();
+
+# TODO: make this configurable and autoselect the most frequent
+reg_default = "reg32"
+type_defaults = set(("enum", "bitfield", "hexa"))
+attr_defaults = {"prefix" : "name"}
+
+ns = "{http://nouveau.freedesktop.org/}"
+
+out = sys.stdout
+
+indent = ""
+
+comments = {}
+empty_line = False
+
+def process(container):
+	global indent
+	indent += "\t"
+	_process(container)
+	indent = indent[:-1]
+
+def _process(container):
+	global empty_line
+	maxvalue = max([-1] + [max(int(elem.attrib.get("offset", "-1"), 0), int(elem.attrib.get("value", "-1"), 0)) for elem in container.iterchildren(tag=ET.Element)])
+	maxlow = max([-1] + [int(elem.attrib.get("low", "-1"), 0) for elem in container.iterchildren(tag=ET.Element)])
+	maxhigh = max([-1] + [int(elem.attrib.get("high", "-1"), 0) for elem in container.iterchildren(tag=ET.Element)])
+
+	any_multibit = False
+	for elem in container.iterchildren(tag=ET.Element):
+		if "low" in elem.attrib and "high" in elem.attrib and elem.attrib["low"] != elem.attrib["high"]:
+			any_multibit = True
+			break
+	value_hexdigits = len(hex(maxvalue)) - 2 if maxvalue >= 0 else -1
+
+	offset_format = "%0" + str(value_hexdigits - 2) + "x" if maxvalue >= 0 else None
+	if maxvalue >= 16:
+		value_len = value_hexdigits + 2
+		# TODO: smart pretty print value instead of this
+		value_format = "0x%0" + str(value_hexdigits) + "x"
+	elif maxvalue >= 0:
+		value_len = len(str(maxvalue))
+		# TODO: smart pretty print value instead of this
+		value_format = "%" + str(value_len) + "d"
+	else:
+		value_len = -1
+		value_format = None
+
+	low_format = "%0" + str(len(str(maxlow))) + "d" if maxlow >= 0 else None
+	high_format = "%0" + str(len(str(maxhigh))) + "d" if maxhigh >= 0 else None
+
+	for elem in container.iterchildren(tag=ET.Element):
+		tag = elem.tag
+		assert tag.startswith(ns)
+		tag = tag[len(ns):]
+		if tag == "brief" or tag == "doc":
+			continue
+
+		is_reglike = False
+		line = ""
+		if ((tag[:3] == "reg" and tag[3:].isdigit()) or tag == "array" or tag == "stripe") and "offset" in elem.attrib:
+			line = offset_format % (int(elem.attrib.get("offset", -1), 0),)
+			del elem.attrib["offset"]
+			if "stride" in elem.attrib:
+				line += " {" + elem.attrib["stride"] + "}"
+				del elem.attrib["stride"]
+			if "length" in elem.attrib:
+				line += " [" + elem.attrib["length"] + "]"
+				del elem.attrib["length"]
+			if "name" in elem.attrib:
+				line += " " + elem.attrib["name"]
+				del elem.attrib["name"]
+			is_reglike = True
+		elif tag == "bitfield":
+			if "low" not in elem.attrib:
+				print >> sys.stderr, "Bitfield " + elem.attrib.get("name", "<unnamed>") + " has no low bit!"
+			low = int(elem.attrib.get("low", 0), 0)
+			high = int(elem.attrib.get("high", str(low)), 0)
+			if low != high:
+				line = low_format % (low,) + ":" + high_format % (high,)
+			elif any_multibit:
+#				line = (" " * (len(str(maxlow)))) + low_format % (low,) + (" " * (len(str(maxhigh)) - len(str(maxlow)) + 1))
+				line = low_format % (low,) + (" " * (len(str(maxhigh)) + 1))
+			else:
+				line = low_format % (low,)
+			if "low" in elem.attrib:
+				del elem.attrib["low"]
+			if "high" in elem.attrib:
+				del elem.attrib["high"]
+		elif tag == "value":
+			if "value" in elem.attrib:
+				line = (value_format % (int(elem.attrib["value"], 0),))
+				if "name" in elem.attrib:
+					line += " = "
+				del elem.attrib["value"]
+			else:
+				if "name" not in elem.attrib:
+					print >> sys.stderr, "Value has no value and no name attributes!"
+				if value_len >= 0:
+					print >> sys.stderr, "Value has no value while others at the same level have one!"
+					line += " " * (value_len + 3)
+
+			if "name" in elem.attrib:
+				line += elem.attrib["name"]
+				del elem.attrib["name"]
+		elif tag == "import":
+			line = "#import"
+			if "file" in elem.attrib:
+				file = elem.attrib["file"]
+				line += " \"" + file + "\""
+			else:
+				print >> sys.stderr, "Import with no file attribute!"
+			del elem.attrib["file"]
+		elif tag[:4] == "use-":
+			line = "use " + tag[4:]
+		else:
+			line = tag
+		if "name" in elem.attrib:
+			line += " " + elem.attrib["name"]
+			del elem.attrib["name"]
+		if is_reglike or tag == "bitfield":
+			need_regwidth = tag[:3] == "reg" and tag != reg_default
+			if ("type" in elem.attrib and elem.attrib["type"] not in type_defaults) or need_regwidth:
+				line += " " + elem.attrib.get("type", "reg").replace(" ", ",") + (":" + tag[3:] if need_regwidth else "")
+			if "type" in elem.attrib:
+				del elem.attrib["type"]
+		brief = "\n".join([elem2.text for elem2 in elem.iterchildren(tag=ET.Element) if elem2.tag == ns + "brief"])
+		if brief:
+			line += " \"" + brief + "\""
+
+		if "varset" in elem.attrib and "variants" in elem.attrib:
+			elem.attrib["variants"] = elem.attrib["varset"] + "=" + elem.attrib["variants"]
+			del elem.attrib["varset"]
+
+		if "inline" in elem.attrib:
+			if elem.attrib["inline"].lower() in ("0", "yes", "true", "inline"):
+				line = "inline " + line
+			del elem.attrib["inline"]
+
+		for attr in elem.attrib.keys():
+			value = elem.attrib[attr]
+			if value != attr_defaults.get(attr):
+				line += " " + (attr if attr != "variants" else "") + "(" + value + ")"
+		if is_reglike:
+			if tag == "array":
+				line += " ="
+			elif tag == "stripe":
+				line += " :="
+		elif tag == "bitfield" or tag == "value" or tag == "import" or tag[:4] == "use-":
+			pass
+		else:
+			line += ":"
+		our_comments = comments.get(elem, [])
+		if our_comments:
+			line += " // " + our_comments[0]
+		if empty_line:
+			print
+			empty_line = False
+		print indent + line
+		if len(our_comments) > 1:
+			for comment in our_comments[1:]:
+				print indent + "\t// " + comment
+
+		doc = "\n".join([elem2.text for elem2 in elem.iterchildren(tag=ET.Element) if elem2.tag == ns + "doc"])
+		if doc:
+			lines = [line.strip() for line in doc.split("\n")]
+			while lines and not lines[0]:
+				lines = lines[1:]
+			while lines and not lines[-1]:
+				lines = lines[:-1]
+			for line in lines:
+				print indent + "\t: " + line
+		process(elem)
+		if elem.tail and elem.tail.count("\n") > 1:
+			empty_line = True
+
+last_non_comment = None
+for node in root.iter():
+	if isinstance(node, ET._Comment) and last_non_comment is not None:
+# reattach whitespace following comment to previous node
+		prev = node.getprevious()
+		if prev is not None:
+			prev.tail = (prev.tail if prev.tail else "") + node.tail
+		else:
+			prev = node.getparent()
+			if prev is not None:
+				prev.text = (prev.text if prev.text else "") + node.tail
+
+		node.getparent().remove(node)
+		lines = node.text.split("\n")
+		queue = []
+		got_anything = comments.get(last_non_comment) is not None
+		for line in lines:
+			line = line.strip()
+			if line or got_anything:
+				queue.append(line)
+			if line:
+				comments.setdefault(last_non_comment, []).extend(queue)
+				queue = []
+				got_anything = True
+	else:
+		last_non_comment = node
+_process(root)
+
