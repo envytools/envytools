@@ -103,7 +103,6 @@ def _process(container):
 				if "name" not in elem.attrib:
 					print >> sys.stderr, "Value has no value and no name attributes!"
 				if value_len >= 0:
-					print >> sys.stderr, "Value has no value while others at the same level have one!"
 					line += " " * (value_len + 3)
 
 			if "name" in elem.attrib:
