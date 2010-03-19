@@ -351,7 +351,7 @@ for elem, commentelems in comments.items():
 				if len(commentelems) == 1:
 					subelem.insert(0, commentelems[0])
 					commentelems[0].tail = subelem.text
-					subelem.text = ""
+					subelem.text = " "
 				else:
 					for i in xrange(len(commentelems)):
 						subelem.insert(i, commentelems[i])
@@ -365,7 +365,7 @@ for elem, commentelems in comments.items():
 				if len(commentelems) == 1:
 					parent.insert(i, commentelems[0])
 					commentelems[0].tail = subelem.tail
-					subelem.tail = ""
+					subelem.tail = " "
 				else:
 					prev = elem.getprevious()
 					if prev is not None:
