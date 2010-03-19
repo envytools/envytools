@@ -81,6 +81,9 @@
 	</value>
 	<value value="0xaa" name="NVAA" />
 	<value value="0xac" name="NVAC" />
+	<value value="0xa3" name="NVA3">
+		<brief>GT215: GeForce GT 240</brief>
+	</value>
 	<value value="0xa5" name="NVA5">
 		<brief>GT216: GeForce GT 220</brief>
 	</value>
