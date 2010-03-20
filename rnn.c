@@ -65,11 +65,14 @@ static void parseenum(struct rnndb *db, char *file, xmlNode *node) {
 	xmlAttr *attr = node->properties;
 	char *name = 0;
 	int isinline = 0;
+	int bare = 0;
 	char *prefix = "name";
 	int i;
 	while (attr) {
 		if (!strcmp(attr->name, "name")) {
 			name = getattrib(db, file, node->line, attr);
+		} else if (!strcmp(attr->name, "bare")) {
+			bare = getboolattrib(db, file, node->line, attr);
 		} else if (!strcmp(attr->name, "prefix")) {
 			prefix = getattrib(db, file, node->line, attr);
 		} else if (!strcmp(attr->name, "inline")) {
@@ -92,7 +95,7 @@ static void parseenum(struct rnndb *db, char *file, xmlNode *node) {
 			break;
 		}
 	if (cur) {
-		if (strcmp(cur->prefix, prefix) || cur->isinline != isinline) {
+		if (strcmp(cur->prefix, prefix) || cur->isinline != isinline || cur->bare != bare) {
 			fprintf (stderr, "%s:%d: merge fail for enum %s\n", file, node->line, node->name);
 			db->estatus = 1;
 		}
@@ -101,6 +104,7 @@ static void parseenum(struct rnndb *db, char *file, xmlNode *node) {
 		cur->name = strdup(name);
 		cur->prefix = strdup(prefix);
 		cur->isinline = isinline;
+		cur->bare = bare;
 		RNN_ADDARRAY(db->enums, cur);
 	}
 	xmlNode *chain = node->children;
@@ -248,10 +252,13 @@ static void parsedomain(struct rnndb *db, char *file, xmlNode *node) {
 	char *name = 0;
 	uint64_t size = 0; int width = 8;
 	char *prefix = "name";
+	int bare = 0;
 	int i;
 	while (attr) {
 		if (!strcmp(attr->name, "name")) {
 			name = getattrib(db, file, node->line, attr);
+		} else if (!strcmp(attr->name, "bare")) {
+			bare = getboolattrib(db, file, node->line, attr);
 		} else if (!strcmp(attr->name, "prefix")) {
 			prefix = getattrib(db, file, node->line, attr);
 		} else if (!strcmp(attr->name, "size")) {
@@ -276,7 +283,8 @@ static void parsedomain(struct rnndb *db, char *file, xmlNode *node) {
 			break;
 		}
 	if (cur) {
-		if (strcmp(cur->prefix, prefix) || cur->width != width || (size && cur->size && size != cur->size)) {
+		if (strcmp(cur->prefix, prefix) || cur->width != width || 
+				cur->bare != bare || (size && cur->size && size != cur->size)) {
 			fprintf (stderr, "%s:%d: merge fail for domain %s\n", file, node->line, node->name);
 			db->estatus = 1;
 		} else {
@@ -286,6 +294,7 @@ static void parsedomain(struct rnndb *db, char *file, xmlNode *node) {
 	} else {
 		cur = calloc(sizeof *cur, 1);
 		cur->name = strdup(name);
+		cur->bare = bare;
 		cur->prefix = strdup(prefix);
 		cur->width = width;
 		cur->size = size;
@@ -389,11 +398,22 @@ static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix) {
 static void prepdomain(struct rnndb *db, struct rnndomain *dom) {
 	int i;
 	for (i = 0; i < dom->subelemsnum; i++)
-		prepdelem(db, dom->subelems[i], 0);
+		prepdelem(db, dom->subelems[i], dom->bare?0:dom->name);
+}
+
+static void prepenum(struct rnndb *db, struct rnnenum *en) {
+	int i;
+	for (i = 0; i < en->valsnum; i++)
+		if (en->bare)
+			en->vals[i]->fullname = en->vals[i]->name;
+		else
+			en->vals[i]->fullname = catstr(en->name, en->vals[i]->name);
 }
 
 void rnn_prepdb (struct rnndb *db) {
 	int i;
 	for (i = 0; i < db->domainsnum; i++)
 		prepdomain(db, db->domains[i]);
+	for (i = 0; i < db->enumsnum; i++)
+		prepenum(db, db->enums[i]);
 }

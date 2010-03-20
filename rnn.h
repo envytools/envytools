@@ -18,6 +18,7 @@ struct rnndb {
 
 struct rnnenum {
 	char *name;
+	int bare;
 	int isinline;
 	char *prefix;
 	struct rnnvalue **vals;
@@ -34,6 +35,7 @@ struct rnnvalue {
 
 struct rnndomain {
 	char *name;
+	int bare;
 	int width;
 	uint64_t size;
 	int sizevalid;

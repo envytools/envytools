@@ -53,7 +53,7 @@ int main(int argc, char **argv) {
 		int j;
 		for (j = 0; j < db->enums[i]->valsnum; j++)
 			if (db->enums[i]->vals[j]->valvalid)
-				printf ("#define %s\t%#"PRIx64"\n", db->enums[i]->vals[j]->name, db->enums[i]->vals[j]->value);
+				printf ("#define %s\t%#"PRIx64"\n", db->enums[i]->vals[j]->fullname, db->enums[i]->vals[j]->value);
 		printf ("\n");
 	}
 	for (i = 0; i < db->domainsnum; i++) {
