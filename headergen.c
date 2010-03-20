@@ -7,6 +7,11 @@ uint64_t *strides = 0;
 int stridesnum = 0;
 int stridesmax = 0;
 
+void printvalue (struct rnnvalue *val) {
+	if (val->valvalid)
+		printf ("#define %s\t%#"PRIx64"\n", val->fullname, val->value);
+}
+
 void printbitfield (struct rnnbitfield *bf) {
 	uint64_t mask = (1ULL<<(bf->high+1)) - (1ULL<<bf->low);
 	printf ("#define %s\t%#"PRIx64"\n", bf->fullname, mask);
@@ -62,8 +67,7 @@ int main(int argc, char **argv) {
 		printf ("/* enum %s */\n", db->enums[i]->name);
 		int j;
 		for (j = 0; j < db->enums[i]->valsnum; j++)
-			if (db->enums[i]->vals[j]->valvalid)
-				printf ("#define %s\t%#"PRIx64"\n", db->enums[i]->vals[j]->fullname, db->enums[i]->vals[j]->value);
+			printvalue (db->enums[i]->vals[j]);
 		printf ("\n");
 	}
 	for (i = 0; i < db->domainsnum; i++) {
