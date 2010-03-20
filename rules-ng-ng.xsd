@@ -80,6 +80,7 @@
 			<group ref="rng:regarrayGroup" />
 		</choice>
 		<attribute name="name" type="NMTOKEN" use="required" />
+		<attribute name="bare" type="boolean" use="optional" />
 		<attribute name="prefix" type="NMTOKENS" use="optional" />
 		<attribute name="width" type="rng:DomainWidth" use="optional" />
 		<attribute name="size" type="rng:Hexadecimal" use="optional" />
@@ -166,6 +167,7 @@
 		</choice>
 		<attribute name="name" type="NMTOKEN" use="required" />
 		<attribute name="inline" type="boolean" use="optional" />
+		<attribute name="bare" type="boolean" use="optional" />
 		<attribute name="prefix" type="NMTOKENS" use="optional" />
 	</complexType>
 
@@ -198,6 +200,7 @@
 		</choice>
 		<attribute name="name" type="NMTOKEN" use="required" />
 		<attribute name="inline" type="boolean" use="optional" />
+		<attribute name="bare" type="boolean" use="optional" />
 		<attribute name="prefix" type="NMTOKENS" use="optional" />
 	</complexType>
 
