@@ -14,6 +14,8 @@
 	<value value="2" name="UNORM" />
 	<value value="3" name="SINT" />
 	<value value="4" name="UINT" />
+	<value value="5" name="SSCALED" />
+	<value value="6" name="USCALED" />
 	<value value="7" name="FLOAT" />
 </enum>
 
@@ -24,10 +26,10 @@
 			<bitfield high="26" low="24" name="MAPB" type="nv50_tic_map" />
 			<bitfield high="23" low="21" name="MAPG" type="nv50_tic_map" />
 			<bitfield high="20" low="18" name="MAPR" type="nv50_tic_map" />
-			<bitfield high="17" low="15" name="TYPEA" type="nv50_tic_type" />
-			<bitfield high="14" low="12" name="TYPEA" type="nv50_tic_type" />
-			<bitfield high="11" low="9" name="TYPEA" type="nv50_tic_type" />
-			<bitfield high="8" low="6" name="TYPEA" type="nv50_tic_type" />
+			<bitfield high="17" low="15" name="TYPE3" type="nv50_tic_type" />
+			<bitfield high="14" low="12" name="TYPE2" type="nv50_tic_type" />
+			<bitfield high="11" low="9" name="TYPE1" type="nv50_tic_type" />
+			<bitfield high="8" low="6" name="TYPE0" type="nv50_tic_type" />
 			<bitfield high="5" low="0" name="FMT">
 				<value value="0x01" name="32_32_32_32" />
 				<value value="0x03" name="16_16_16_16" />
@@ -52,7 +54,7 @@
 				<value value="0x28" name="RGTC2" />
 				<value value="0x29" name="24_8" />
 				<value value="0x2a" name="8_24" />
-				<value value="0x2f" name="32_DEPTH" />
+				<value value="0x2f" name="32_ZETA" />
 				<value value="0x30" name="32_8" />
 			</bitfield>
 		</reg32>
