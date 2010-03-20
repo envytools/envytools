@@ -557,6 +557,26 @@ static struct rnnvalue *copyvalue (struct rnnvalue *val) {
 	return res;
 }
 
+static struct rnntype *copytype (struct rnntype *t) {
+	struct rnntype *res = calloc (sizeof *res, 1);
+	res->name = t->name;
+	return res;
+}
+
+static struct rnnbitfield *copybitfield (struct rnnbitfield *bf) {
+	struct rnnbitfield *res = calloc (sizeof *res, 1);
+	res->name = bf->name;
+	res->low = bf->low;
+	res->high = bf->high;
+	res->shr = bf->shr;
+	int i;
+	for (i = 0; i < bf->valsnum; i++)
+		RNN_ADDARRAY(res->vals, copyvalue(bf->vals[i]));
+	for (i = 0; i < bf->typesnum; i++)
+		RNN_ADDARRAY(res->types, copytype(bf->types[i]));
+	return res;
+}
+
 static void prepvalue(struct rnndb *db, struct rnnvalue *val, char *prefix) {
 	val->fullname = catstr(prefix, val->name);
 }
@@ -608,6 +628,18 @@ static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix, int
 			} else {
 				elem->types[i]->type = RNN_TTYPE_ENUM;
 				elem->types[i]->eenum = en;
+			}
+		}
+		struct rnnbitset *bs = rnn_findbitset (db, elem->types[i]->name);
+		if (bs) {
+			if (bs->isinline) {
+				elem->types[i]->type = RNN_TTYPE_INLINE_BITSET;
+				int j;
+				for (j = 0; j < bs->bitfieldsnum; j++)
+					RNN_ADDARRAY(elem->bitfields, copybitfield(bs->bitfields[j]));
+			} else {
+				elem->types[i]->type = RNN_TTYPE_BITSET;
+				elem->types[i]->ebitset = bs;
 			}
 		}
 	}

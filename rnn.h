@@ -40,10 +40,13 @@ struct rnntype {
 	char *name;
 	enum rnnttype {
 		RNN_TTYPE_INLINE_ENUM,
+		RNN_TTYPE_INLINE_BITSET,
 		RNN_TTYPE_ENUM,
+		RNN_TTYPE_BITSET,
 		RNN_TTYPE_OTHER,
 	} type;
 	struct rnnenum *eenum;
+	struct rnnbitset *ebitset;
 };
 
 struct rnnbitset {
