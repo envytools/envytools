@@ -19,19 +19,18 @@ void printdelem (struct rnndelem *elem, uint64_t offset) {
 				if (i) printf(", ");
 				printf ("i%d", i);
 			}
-		printf (")\t(%#"PRIx64"", offset + elem->offset);
+			printf (")\t(%#"PRIx64"", offset + elem->offset);
 			for (i = 0; i < stridesnum; i++)
 				printf (" + %#" PRIx64 "*(i%d)", strides[i], i);
-
-		printf (")\n");
+			printf (")\n");
 		} else
-		printf ("\t%#"PRIx64"\n", offset + elem->offset);
+			printf ("\t%#"PRIx64"\n", offset + elem->offset);
 		if (elem->stride)
-		printf ("#define %s__ESIZE\t%#"PRIx64"\n", elem->fullname, elem->stride);
+			printf ("#define %s__ESIZE\t%#"PRIx64"\n", elem->fullname, elem->stride);
 		if (elem->length != 1)
-		printf ("#define %s__LEN\t%#"PRIx64"\n", elem->fullname, elem->length);
+			printf ("#define %s__LEN\t%#"PRIx64"\n", elem->fullname, elem->length);
 		if (elem->shr)
-		printf ("#define %s__SHR\t%d\n", elem->fullname, elem->shr);
+			printf ("#define %s__SHR\t%d\n", elem->fullname, elem->shr);
 	}
 	int j;
 	for (j = 0; j < elem->subelemsnum; j++) {
