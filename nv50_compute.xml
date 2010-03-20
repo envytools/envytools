@@ -5,6 +5,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <import file="nvclasses.xml"/>
 
+<enum name="nv50_cond_mode" inline="yes">
+	<value value="0" name="NEVER"/>
+	<value value="1" name="ALWAYS"/>
+	<value value="2" name="RES"/>
+	<value value="3" name="NOT_RES_AND_NOT_ID"/>
+	<value value="4" name="RES_OR_ID"/>
+</enum>
+
 <enum name="obj-class" bare="yes">
 	<value value="0x50c0" name="NV50_COMPUTE"/>
 </enum>
