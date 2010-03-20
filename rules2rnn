@@ -355,13 +355,6 @@ for device in devices_by_name.values():
 	device.members.sort()
 	stripe = ET.Element("stripe")
 	objclasses = {}
-	for offset, member in device.members:
-		if offset == 0 and member.attrib["name"].startswith("NV"):
-			device.rnn_name = member.attrib["name"]
-			if "value" in member.attrib:
-				objclasses[int(member.attrib["value"], 0)] = member.attrib["name"]
-		else:
-			stripe.append(member)
 
 	for field_value in device.field_values:
 		if "name" in field_value.attrib and "value" in field_value.attrib:
@@ -385,6 +378,13 @@ for device in devices_by_name.values():
 	database.attrib["xmlns"] = "http://nouveau.freedesktop.org/"
 	database.attrib["xmlns" + colon + "xsi"] = "http://www.w3.org/2001/XMLSchema-instance"
 	database.attrib["xsi" + colon + "schemaLocation"] = "http://nouveau.freedesktop.org/ rules-ng.xsd"
+
+	for offset, member in device.members:
+		if objclasses and offset == 0:
+			if "value" in member.attrib:
+				objclasses[int(member.attrib["value"], 0)] = member.attrib["name"]
+		else:
+			stripe.append(member)
 
 	if objclasses:
 		objenum = ET.Element("enum")
