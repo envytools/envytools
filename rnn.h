@@ -23,7 +23,9 @@ struct rnnenum {
 	char *name;
 	int bare;
 	int isinline;
-	char *prefix;
+	char *prefixstr;
+	char *varsetstr;
+	char *variantsstr;
 	struct rnnvalue **vals;
 	int valsnum;
 	int valsmax;
@@ -33,6 +35,9 @@ struct rnnvalue {
 	char *name;
 	int valvalid;
 	uint64_t value;
+	char *prefixstr;
+	char *varsetstr;
+	char *variantsstr;
 	char *fullname;
 };
 
@@ -53,7 +58,9 @@ struct rnnbitset {
 	char *name;
 	int bare;
 	int isinline;
-	char *prefix;
+	char *prefixstr;
+	char *varsetstr;
+	char *variantsstr;
 	struct rnnbitfield **bitfields;
 	int bitfieldsnum;
 	int bitfieldsmax;
@@ -64,6 +71,9 @@ struct rnnbitfield {
 	int low, high;
 	int shr;
 	uint64_t mask;
+	char *prefixstr;
+	char *varsetstr;
+	char *variantsstr;
 	struct rnnvalue **vals;
 	int valsnum;
 	int valsmax;
@@ -79,7 +89,9 @@ struct rnndomain {
 	int width;
 	uint64_t size;
 	int sizevalid;
-	char *prefix;
+	char *prefixstr;
+	char *varsetstr;
+	char *variantsstr;
 	struct rnndelem **subelems;
 	int subelemsnum;
 	int subelemsmax;
@@ -106,6 +118,7 @@ struct rnndelem {
 	struct rnnvalue **vals;
 	int valsnum;
 	int valsmax;
+	char *prefixstr;
 	char *varsetstr;
 	char *variantsstr;
 	struct rnntype **types;

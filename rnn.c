@@ -16,6 +16,14 @@ static char *catstr (char *a, char *b) {
 	return res;
 }
 
+static int strdiff (const char *a, const char *b) {
+	if (!a && !b)
+		return 0;
+	if (!a || !b)
+		return 1;
+	return strcmp (a, b);
+}
+
 void rnn_init() {
 	LIBXML_TEST_VERSION
 	xmlInitParser();
@@ -76,6 +84,10 @@ static struct rnnvalue *parsevalue(struct rnndb *db, char *file, xmlNode *node) 
 		} else if (!strcmp(attr->name, "value")) {
 			val->value = getnumattrib(db, file, node->line, attr);
 			val->valvalid = 1;
+		} else if (!strcmp(attr->name, "varset")) {
+			val->varsetstr = strdup(getattrib(db, file, node->line, attr));
+		} else if (!strcmp(attr->name, "variants")) {
+			val->variantsstr = strdup(getattrib(db, file, node->line, attr));
 		} else {
 			fprintf (stderr, "%s:%d: wrong attribute \"%s\" for value\n", file, node->line, attr->name);
 			db->estatus = 1;
@@ -106,17 +118,23 @@ static void parseenum(struct rnndb *db, char *file, xmlNode *node) {
 	char *name = 0;
 	int isinline = 0;
 	int bare = 0;
-	char *prefix = "name";
+	char *prefixstr = 0;
+	char *varsetstr = 0;
+	char *variantsstr = 0;
 	int i;
 	while (attr) {
 		if (!strcmp(attr->name, "name")) {
 			name = getattrib(db, file, node->line, attr);
 		} else if (!strcmp(attr->name, "bare")) {
 			bare = getboolattrib(db, file, node->line, attr);
-		} else if (!strcmp(attr->name, "prefix")) {
-			prefix = getattrib(db, file, node->line, attr);
 		} else if (!strcmp(attr->name, "inline")) {
 			isinline = getboolattrib(db, file, node->line, attr);
+		} else if (!strcmp(attr->name, "prefix")) {
+			prefixstr = strdup(getattrib(db, file, node->line, attr));
+		} else if (!strcmp(attr->name, "varset")) {
+			varsetstr = strdup(getattrib(db, file, node->line, attr));
+		} else if (!strcmp(attr->name, "variants")) {
+			variantsstr = strdup(getattrib(db, file, node->line, attr));
 		} else {
 			fprintf (stderr, "%s:%d: wrong attribute \"%s\" for enum\n", file, node->line, attr->name);
 			db->estatus = 1;
@@ -135,16 +153,21 @@ static void parseenum(struct rnndb *db, char *file, xmlNode *node) {
 			break;
 		}
 	if (cur) {
-		if (strcmp(cur->prefix, prefix) || cur->isinline != isinline || cur->bare != bare) {
+		if (strdiff(cur->prefixstr, prefixstr) || 
+				strdiff(cur->varsetstr, varsetstr) ||
+				strdiff(cur->variantsstr, variantsstr) ||
+				cur->isinline != isinline || cur->bare != bare) {
 			fprintf (stderr, "%s:%d: merge fail for enum %s\n", file, node->line, node->name);
 			db->estatus = 1;
 		}
 	} else {
 		cur = calloc(sizeof *cur, 1);
 		cur->name = strdup(name);
-		cur->prefix = strdup(prefix);
 		cur->isinline = isinline;
 		cur->bare = bare;
+		cur->prefixstr = prefixstr;
+		cur->varsetstr = varsetstr;
+		cur->variantsstr = variantsstr;
 		RNN_ADDARRAY(db->enums, cur);
 	}
 	xmlNode *chain = node->children;
@@ -190,6 +213,10 @@ static struct rnnbitfield *parsebitfield(struct rnndb *db, char *file, xmlNode *
 				RNN_ADDARRAY(bf->types,tp);
 				str = newstr;
 			}
+		} else if (!strcmp(attr->name, "varset")) {
+			bf->varsetstr = strdup(getattrib(db, file, node->line, attr));
+		} else if (!strcmp(attr->name, "variants")) {
+			bf->variantsstr = strdup(getattrib(db, file, node->line, attr));
 		} else {
 			fprintf (stderr, "%s:%d: wrong attribute \"%s\" for bitfield\n", file, node->line, attr->name);
 			db->estatus = 1;
@@ -228,17 +255,23 @@ static void parsebitset(struct rnndb *db, char *file, xmlNode *node) {
 	char *name = 0;
 	int isinline = 0;
 	int bare = 0;
-	char *prefix = "name";
+	char *prefixstr = 0;
+	char *varsetstr = 0;
+	char *variantsstr = 0;
 	int i;
 	while (attr) {
 		if (!strcmp(attr->name, "name")) {
 			name = getattrib(db, file, node->line, attr);
 		} else if (!strcmp(attr->name, "bare")) {
 			bare = getboolattrib(db, file, node->line, attr);
-		} else if (!strcmp(attr->name, "prefix")) {
-			prefix = getattrib(db, file, node->line, attr);
 		} else if (!strcmp(attr->name, "inline")) {
 			isinline = getboolattrib(db, file, node->line, attr);
+		} else if (!strcmp(attr->name, "prefix")) {
+			prefixstr = strdup(getattrib(db, file, node->line, attr));
+		} else if (!strcmp(attr->name, "varset")) {
+			varsetstr = strdup(getattrib(db, file, node->line, attr));
+		} else if (!strcmp(attr->name, "variants")) {
+			variantsstr = strdup(getattrib(db, file, node->line, attr));
 		} else {
 			fprintf (stderr, "%s:%d: wrong attribute \"%s\" for bitset\n", file, node->line, attr->name);
 			db->estatus = 1;
@@ -257,16 +290,21 @@ static void parsebitset(struct rnndb *db, char *file, xmlNode *node) {
 			break;
 		}
 	if (cur) {
-		if (strcmp(cur->prefix, prefix) || cur->isinline != isinline || cur->bare != bare) {
+		if (strdiff(cur->prefixstr, prefixstr) || 
+				strdiff(cur->varsetstr, varsetstr) ||
+				strdiff(cur->variantsstr, variantsstr) ||
+				cur->isinline != isinline || cur->bare != bare) {
 			fprintf (stderr, "%s:%d: merge fail for bitset %s\n", file, node->line, node->name);
 			db->estatus = 1;
 		}
 	} else {
 		cur = calloc(sizeof *cur, 1);
 		cur->name = strdup(name);
-		cur->prefix = strdup(prefix);
 		cur->isinline = isinline;
 		cur->bare = bare;
+		cur->prefixstr = prefixstr;
+		cur->varsetstr = varsetstr;
+		cur->variantsstr = variantsstr;
 		RNN_ADDARRAY(db->bitsets, cur);
 	}
 	xmlNode *chain = node->children;
@@ -311,6 +349,8 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 				res->length = getnumattrib(db, file, node->line, attr);
 			} else if (!strcmp(attr->name, "stride")) {
 				res->stride = getnumattrib(db, file, node->line, attr);
+			} else if (!strcmp(attr->name, "prefix")) {
+				res->prefixstr = strdup(getattrib(db, file, node->line, attr));
 			} else if (!strcmp(attr->name, "varset")) {
 				res->varsetstr = strdup(getattrib(db, file, node->line, attr));
 			} else if (!strcmp(attr->name, "variants")) {
@@ -416,20 +456,26 @@ static void parsedomain(struct rnndb *db, char *file, xmlNode *node) {
 	xmlAttr *attr = node->properties;
 	char *name = 0;
 	uint64_t size = 0; int width = 8;
-	char *prefix = "name";
 	int bare = 0;
+	char *prefixstr = 0;
+	char *varsetstr = 0;
+	char *variantsstr = 0;
 	int i;
 	while (attr) {
 		if (!strcmp(attr->name, "name")) {
 			name = getattrib(db, file, node->line, attr);
 		} else if (!strcmp(attr->name, "bare")) {
 			bare = getboolattrib(db, file, node->line, attr);
-		} else if (!strcmp(attr->name, "prefix")) {
-			prefix = getattrib(db, file, node->line, attr);
 		} else if (!strcmp(attr->name, "size")) {
 			size = getnumattrib(db, file, node->line, attr);
 		} else if (!strcmp(attr->name, "width")) {
 			width = getnumattrib(db, file, node->line, attr);
+		} else if (!strcmp(attr->name, "prefix")) {
+			prefixstr = strdup(getattrib(db, file, node->line, attr));
+		} else if (!strcmp(attr->name, "varset")) {
+			varsetstr = strdup(getattrib(db, file, node->line, attr));
+		} else if (!strcmp(attr->name, "variants")) {
+			variantsstr = strdup(getattrib(db, file, node->line, attr));
 		} else {
 			fprintf (stderr, "%s:%d: wrong attribute \"%s\" for domain\n", file, node->line, attr->name);
 			db->estatus = 1;
@@ -448,8 +494,12 @@ static void parsedomain(struct rnndb *db, char *file, xmlNode *node) {
 			break;
 		}
 	if (cur) {
-		if (strcmp(cur->prefix, prefix) || cur->width != width || 
-				cur->bare != bare || (size && cur->size && size != cur->size)) {
+		if (strdiff(cur->prefixstr, prefixstr) || 
+				strdiff(cur->varsetstr, varsetstr) ||
+				strdiff(cur->variantsstr, variantsstr) ||
+				cur->width != width || 
+				cur->bare != bare ||
+				(size && cur->size && size != cur->size)) {
 			fprintf (stderr, "%s:%d: merge fail for domain %s\n", file, node->line, node->name);
 			db->estatus = 1;
 		} else {
@@ -460,9 +510,11 @@ static void parsedomain(struct rnndb *db, char *file, xmlNode *node) {
 		cur = calloc(sizeof *cur, 1);
 		cur->name = strdup(name);
 		cur->bare = bare;
-		cur->prefix = strdup(prefix);
 		cur->width = width;
 		cur->size = size;
+		cur->prefixstr = prefixstr;
+		cur->varsetstr = varsetstr;
+		cur->variantsstr = variantsstr;
 		RNN_ADDARRAY(db->domains, cur);
 	}
 	xmlNode *chain = node->children;
