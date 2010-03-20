@@ -40,7 +40,7 @@ def _process(container):
 			break
 	value_hexdigits = len(hex(maxvalue)) - 2 if maxvalue >= 0 else -1
 
-	offset_format = "%0" + str(value_hexdigits - 2) + "x" if maxvalue >= 0 else None
+	offset_format = "%0" + str(value_hexdigits) + "x" if maxvalue >= 0 else None
 	if maxvalue >= 16:
 		value_len = value_hexdigits + 2
 		# TODO: smart pretty print value instead of this
