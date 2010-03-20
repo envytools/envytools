@@ -83,30 +83,29 @@ All register definitions ultimately belong to a <domain>. <domain> is
 basically just a single address space. So we'll have a domain for the MMIO
 BAR, one for each type of memory structure we need to describe, a domain for
 the grobj/FIFO methods, and a domain for each indirect index-data pair used to
-access something useful.
+access something useful. <domain> can have the following attributes:
 
-A "width" of a domain refers to the size, in bits, of a single addressable
-unit. This is 8 by default for usual byte-addressable memory, but 32 can be
-useful occasionally for indexed spaces of 32-bit cells. Values sane enough to
-support for now include 8, 16, 32, 64.
+ - name [required]: The name of the domain.
+ - width [optional]: the size, in bits, of a single addressable unit. This is
+   8 by default for usual byte-addressable memory, but 32 can be useful
+   occasionally for indexed spaces of 32-bit cells. Values sane enough to
+   support for now include 8, 16, 32, 64.
+ - size [optional]: total number of addressable units it spans. Can be
+   undefined if you don't know it or it doesn't make sense. As a special
+   exception to the merging rules, size attribute need not be specified on all
+   tags that will result in a merged domain: tags with size can be merged with
+   tags without size, resulting in merged domain that has size. Error only
+   happens when the merged domains both have sizes, and the sizes differ.
+ - bare [optional]: if set to "no", all children items will have the domain
+   name prepended to their names. If set to "yes", such prefixing doesn't
+   happen. Default is "no".
+ - prefix [optional]: selects the string that should be prepended to name
+   of every child item. The special value "none" means no prefix, and is the
+   default. All other values are looked up as <enum> names and, for each child
+   item, its name is prefixed with name of the earliest variant in the given
+   enum that supports given item.
 
-A "size" of a domain is total number of addressable units it spans. Can be
-undefined if you don't know it or it doesn't make sense. As a special
-exception to the merging rules, size attribute need not be specified on all
-tags that will result in a merged domain: tags with size can be merged with
-tags without size, resulting in merged domain that has size. Error only
-happens when the merged domains both have sizes, and the sizes differ.
-
-The "prefix" of a domain selects the string that should be prepended to name
-of every child item. The special value "none" means no prefix. The special
-value "name" means prefixing with the domain name, and is the default. All
-other values are looked up as <enum> names and, for each child item, its name
-is prefixed with name of the earliest variant in the given enum that supports
-given item. Also, multiple prefixes can be appended by separating the values
-with spaces: prefix="chipset name" will get you names like
-NV04_NV_MMIO_PMC_BOOT_0.
-
-<domain name="NV_MMIO" size="0x1000000" prefix="chipset">
+<domain name="NV_MMIO" size="0x1000000" prefix="chipset" bare="yes">
 	<reg32 offset="0" name="PMC_BOOT_0" />
 	<reg32 offset="4" name="PMC_BOOT_1" varset="chipset" variants="NV10-" />
 	<reg32 offset="0x100" name="PMC_INTR" />
@@ -230,6 +229,8 @@ following attributes:
  - inline [optional]: "yes" or "no", with "no" being the default. Selects if
    this enum should emit its own definitions in .h file, or be inlined into
    any <reg*> / <bitfield> definitions that reference it.
+ - bare [optional]: only for no-inline enums, behaves like bare attribute
+   to <domain>
  - prefix [optional]: only for no-inline enums, behaves like prefix attribute
    to <domain>.
 
@@ -657,14 +658,6 @@ decode them. The splitting to method,data pair will be done by nv-specific
 code, then the pair will be handed over to generic rules-ng lookup.
 
 4. Issues
-
- - Prefixes: hmm. what about allowing arbitrary constants as prefixes? In the
-   example in 2.4, we're restricted to using only the domain name as prefix.
-   So we either call domain "OBJECT" and end up with "OBJECT__SIZE" if we want
-   to specify it, or call it "NV_OBJECT" and end up with better sounding
-   "NV_OBJECT__SIZE", but screw up all the prefixed names to
-   "NV04_NV_OBJECT_NAME" etc. Or we could just use <stripe name="..."> for
-   cases when prefix="name" is unwieldy.
 
  - Random typing-saving feature for bitfields: make high default to same value
    as low, to have one less attribute for single-bit bitfields?
