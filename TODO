@@ -10,7 +10,6 @@ rnn:
  - Make a lib
 
 headergen:
- - Make values inside bitfields auto-shifted.
  - Make stripe/array emit correct stuff.
  - Make values appear in the same column.
  - Use 64-bit suffices where applicable

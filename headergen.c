@@ -7,9 +7,9 @@ uint64_t *strides = 0;
 int stridesnum = 0;
 int stridesmax = 0;
 
-void printvalue (struct rnnvalue *val) {
+void printvalue (struct rnnvalue *val, int shift) {
 	if (val->valvalid)
-		printf ("#define %s\t%#"PRIx64"\n", val->fullname, val->value);
+		printf ("#define %s\t%#"PRIx64"\n", val->fullname, val->value<<shift);
 }
 
 void printbitfield (struct rnnbitfield *bf) {
@@ -19,7 +19,7 @@ void printbitfield (struct rnnbitfield *bf) {
 		printf ("#define %s__SHR\t%d\n", bf->fullname, bf->shr);
 	int i;
 	for (i = 0; i < bf->valsnum; i++)
-		printvalue(bf->vals[i]);
+		printvalue(bf->vals[i], bf->low);
 }
 
 void printdelem (struct rnndelem *elem, uint64_t offset) {
@@ -50,7 +50,7 @@ void printdelem (struct rnndelem *elem, uint64_t offset) {
 		for (i = 0; i < elem->bitfieldsnum; i++)
 			printbitfield(elem->bitfields[i]);
 		for (i = 0; i < elem->valsnum; i++)
-			printvalue(elem->vals[i]);
+			printvalue(elem->vals[i], 0);
 	}
 	int j;
 	for (j = 0; j < elem->subelemsnum; j++) {
@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
 		printf ("/* enum %s */\n", db->enums[i]->name);
 		int j;
 		for (j = 0; j < db->enums[i]->valsnum; j++)
-			printvalue (db->enums[i]->vals[j]);
+			printvalue (db->enums[i]->vals[j], 0);
 		printf ("\n");
 	}
 	for (i = 0; i < db->bitsetsnum; i++) {
