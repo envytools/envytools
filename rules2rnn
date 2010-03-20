@@ -1,0 +1,324 @@
+#!/usr/bin/python
+import subprocess
+import sys
+import os
+import bisect
+from lxml import etree as ET
+
+colon = "39584ac56e6d0976692778b80915f94b61767814a8704982"
+
+def hexa(v):
+	if v <= 9:
+		return str(v)
+	else:
+		return hex(v)
+
+tree = ET.parse("rules.xml")
+root = tree.getroot();
+outdir = "rules"
+try:
+	os.mkdir(outdir)
+except:
+	pass
+try:
+	os.mkdir(outdir + "/mmio")
+except:
+	pass
+try:
+	os.mkdir(outdir + "/objects")
+except:
+	pass
+
+devices_by_name = {}
+devices_by_offset = []
+device_offsets = []
+devices = []
+
+class Device(object):
+	pass
+
+def create_device(device):
+	assert device.tag == "device"
+	name = device.attrib["name"]
+	if name in devices_by_name:
+		into = devices_by_name[name]
+		for elem in device.iterchildren(tag=ET.Element):
+			device.remove(elem)
+			into.device.append(elem)
+		if int(device.attrib["start"], 0) != into.offset and not into.baddup:
+			print "Unknown bad duplicate device: " + name
+	else:
+		dev = Device()
+		dev.device = device
+		dev.offset = int(device.attrib["start"], 0)
+		dev.end = int(device.attrib["end"], 0) + 1
+		dev.stride = dev.end - dev.offset
+		dev.rnn_name = dev.name = name
+		dev.members = []
+		devices_by_name[dev.name] = dev
+		devices_by_offset.append((dev.offset, dev))
+		dev.field_value = None
+		dev.objclass = None
+		dev.baddup = False
+		# these are duplicated with different values: manually set the right ones
+		if dev.name == "NV_PVIDEO":
+			dev.offset = 0x8000
+			dev.end = 0x9000
+			dev.baddup = True
+		elif dev.name in ("NV_064", "NV_065", "NV_066"):
+			size = dev.end - dev.offset
+			dev.offset = int(dev.name[3:], 16) << 16
+			dev.end = dev.offset + size
+			dev.baddup = True
+
+for device in root.iterchildren(tag=ET.Element):
+	create_device(device)
+
+addendum = '<rule-database><device name="NV_PRMIO" start="0x00007100" end="0x0000710f" /></rule-database>'
+for device in ET.fromstring(addendum).iterchildren(tag=ET.Element):
+	create_device(device)
+
+devices_by_offset.sort()
+device_offsets = [offset for offset, device in devices_by_offset]
+devices = [device for offset, device in devices_by_offset]
+
+def common_prefix_len(a, b):
+	i = 0
+	while a[i:i+1] == b[i:i+1]:
+		i += 1
+	return i
+
+def lookup_address(address, name):
+	cand_devices = [(-common_prefix_len(device.name, name), device) for device in devices if address >= device.offset and address < device.end]
+	cand_devices.sort()
+
+	device = cand_devices[0][1]
+	assert address >= device.offset
+	assert address < device.offset + device.stride
+
+	return (device, address - device.offset)
+
+# these seem to be broken: ignore for now
+ignored = set(("NV_VIO", "NV_CIO", "NV_UREMAP", "NV_PREMAP"))
+
+field_name_to_type_map = {"HANDLE" : "object", "STYLE" : "notify_style"}
+uninteresting_field_names = ["VAL", "VALUE", "PARAMETER", "ADDRESS", "RESERVED", "DATA", "BLAH", "COUNT", "CNT", "ARGUMENT", "BITMAP", "OFFSET", "FIELD", "MODE", "LE"]
+uninteresting_field_names += field_name_to_type_map.keys()
+uninteresting_field_names = frozenset(uninteresting_field_names)
+
+# SET_NOTIFY is duplicated by NOTIFY
+# TODO: put *all* the standard ones there, including NOTIFY, probably
+uninteresting_reglike_names = frozenset(["NOP", "NOTIFY", "SET_NOTIFY", "CTX_SWITCH"])
+
+def process_values(field, rnn_field):
+	true_value = None
+	false_value = None
+	common_prefix = None
+
+	rnn_values = []
+	strong_bool = False
+
+	for field_value in field.iterchildren(tag=ET.Element):
+		if field_value.tag == "field-value":
+			field_value_name = field_value.attrib["name"]
+			rnn_value_name = field_value_name
+			if rnn_value_name.startswith(field_name + "_"):
+				rnn_value_name = field_value_name[len(field_name)+1:]
+			rnn_value = ET.Element("value")
+			rnn_value.attrib["name"] = rnn_value_name
+			rnn_value.attrib["value"] = hexa(int(field_value.attrib["value"], 0))
+			rnn_values.append(rnn_value)
+			rnn_field.append(rnn_value)
+			if rnn_value_name in ("FALSE", "OFF", "DISABLE", "DISABLED", "NO", "0"):
+				false_value = rnn_value
+				if rnn_value_name != "0":
+					strong_bool = True
+			if rnn_value_name in ("TRUE", "ON", "ENABLE", "ENABLED", "YES", "1"):
+				true_value = rnn_value
+				if rnn_value_name != "0":
+					strong_bool = True
+
+	# avoid reglikes with just "0 = 0"
+	if len(rnn_values) == 1 and rnn_values[0].attrib["name"] == "0" and rnn_values[0].attrib["value"] == "0":
+		rnn_field.remove(rnn_values[0])
+		rnn_values = []
+	elif len(rnn_values) and len(rnn_values) == ((1 if true_value is not None else 0) + (1 if false_value is not None else 0)):
+		if false_value is not None:
+			rnn_field.remove(false_value)
+		if true_value is not None:
+			rnn_field.remove(true_value)
+		rnn_field.attrib["type"] = "boolean"
+
+	if len(rnn_values) > 1 and rnn_field.attrib["name"] not in ("NOTIFY",):
+		for rnn_value in rnn_values:
+			rnn_value_name = rnn_value.attrib["name"]
+			if rnn_value_name == "INVALID" or rnn_value_name[0:1].isdigit():
+				pass
+			elif common_prefix is None:
+				common_prefix = rnn_value_name
+			else:
+				common_prefix = common_prefix[:common_prefix_len(common_prefix, rnn_value_name)]
+
+	if common_prefix:
+		us = common_prefix.rfind("_")
+		if us >= 0:
+			common_prefix = common_prefix[:us + 1]
+			if common_prefix:
+				for rnn_value in rnn_values:
+					if rnn_value.attrib["name"].startswith(common_prefix):
+						rnn_value.attrib["name"] = rnn_value.attrib["name"][len(common_prefix):]
+				rnn_field.attrib["name"] += "_" + common_prefix.rstrip("_")
+
+#print ET.tostring(tree)
+for orig_device in devices_by_name.values():
+	for reglike in orig_device.device.iterchildren(tag=ET.Element):
+		if reglike.tag == "register" or reglike.tag == "array":
+			ok = True
+			for i in ignored:
+				if reglike.attrib["name"].startswith(i):
+					ok = False
+					break
+			if not ok:
+				continue
+			(device, offset) = lookup_address(int(reglike.attrib["address"], 0), reglike.attrib.get("name", ""))
+			reglike_name = reglike.attrib["name"]
+			rnn_reglike_name = reglike_name
+			if rnn_reglike_name.startswith(device.name + "_"):
+				rnn_reglike_name = rnn_reglike_name[len(device.name) + 1:]
+			else:
+				pass # TODO
+
+			if rnn_reglike_name in uninteresting_reglike_names:
+				continue
+
+			rnn_reglike = ET.Element("reg32")
+			device.members.append((offset, rnn_reglike))
+
+			rnn_reglike.attrib["offset"] = hex(offset)
+
+			if reglike.tag == "array":
+				max_size = 0
+				for field in reglike.iterchildren(tag=ET.Element):
+					if field.tag == "array-size":
+						size = int(field.attrib["size"], 0)
+						if size > max_size:
+							max_size = size
+				rnn_reglike.attrib["length"] = str(max_size)
+				rnn_reglike.attrib["stride"] = str(int(reglike.attrib["width"], 0))
+
+			num_bitfields = 0
+			full_field_name = None
+			for field in reglike.iterchildren(tag=ET.Element):
+				if field.tag == "field":
+					i = 0 # for "i" variables in the low-bit and high-bit attributes
+					low = eval(field.attrib["low-bit"])
+					high = eval(field.attrib["high-bit"])
+					field_name = field.attrib["name"]
+					rnn_field_name = field_name
+					if rnn_field_name.startswith(reglike_name + "_"):
+						rnn_field_name = rnn_field_name[len(reglike_name)+1:]
+					# yes, rules.xml does actually have "BLAH" fields
+					# TODO: these should set the type
+					if low == 0 and high == 31:
+						if rnn_field_name not in uninteresting_field_names and not rnn_field_name.startswith("NV_"):
+							full_field_name = rnn_field_name
+						if rnn_field_name in field_name_to_type_map:
+							rnn_reglike.attrib["type"] = field_name_to_type_map[rnn_field_name]
+						bitfield = rnn_reglike
+						for elem in field.iterchildren(tag=ET.Element):
+							field.remove(elem)
+							reglike.append(elem)
+					else:
+						bitfield = ET.Element("bitfield")
+						rnn_reglike.append(bitfield)
+						bitfield.attrib["low"] = str(low)
+						bitfield.attrib["high"] = str(high)
+						bitfield.attrib["name"] = rnn_field_name
+						num_bitfields += 1
+						process_values(field, bitfield)
+
+			if full_field_name is not None and num_bitfields == 0:
+				rnn_reglike_name += "_" + full_field_name
+			rnn_reglike.attrib["name"] = rnn_reglike_name
+			process_values(reglike, rnn_reglike)
+
+		elif reglike.tag == "field-value":
+			orig_device.field_value = reglike
+
+for device in devices_by_name.values():
+	if not device.members:
+		continue
+	device.members.sort()
+	if False and device.rnn_name.startswith("NV_0"):
+		objclass = device.rnn_name[3:]
+		i = 0
+		while objclass[i:i+1] and objclass[i] in "0123456789abcdefABCDEF":
+			i += 1
+		if i > 0:
+			device.objclass = int(objclass[:i], 16)
+
+	stripe = ET.Element("stripe")
+	for offset, member in device.members:
+		if offset == 0 and member.attrib["name"].startswith("NV"):
+			device.rnn_name = member.attrib["name"]
+			if "value" in member.attrib:
+				device.objclass = int(member.attrib["value"], 0)
+		else:
+			stripe.append(member)
+
+	if device.field_value is not None and "name" in device.field_value.attrib:
+		device.rnn_name = device.field_value.attrib["name"]
+		device.objclass = int(device.field_value.attrib["value"], 0)
+
+
+	database = ET.Element("database")
+	database.attrib["xmlns"] = "http://nouveau.freedesktop.org/"
+	database.attrib["xmlns" + colon + "xsi"] = "http://www.w3.org/2001/XMLSchema-instance"
+	database.attrib["xsi" + colon + "schemaLocation"] = "http://nouveau.freedesktop.org/ rules-ng.xsd"
+
+	if device.objclass:
+		objenum = ET.Element("enum")
+		objenum.attrib["bare"] = "yes"
+		objenum.attrib["name"] = "obj-class"
+		objvalue = ET.Element("value")
+		objvalue.attrib["value"] = hex(device.objclass)
+		objvalue.attrib["name"] = device.rnn_name
+		objenum.append(objvalue)
+
+		database.append(objenum)
+
+		subchan = ET.Element("domain")
+		subchan.attrib["name"] = "NV01_SUBCHAN"
+		subchan.attrib["bare"] = "yes"
+		subchan.attrib["size"] = "0x2000"
+		assert device.stride == 0x2000
+
+		stripe.attrib["prefix"] = "obj-class"
+		#stripe.attrib["varset"] = "obj-class"
+		stripe.attrib["variants"] = device.rnn_name
+		subchan.append(stripe)
+		database.append(subchan)
+	else:
+		mmio = ET.Element("domain")
+		mmio.attrib["name"] = "NV_MMIO"
+		mmio.attrib["bare"] = "yes"
+		mmio.attrib["prefix"] = "chipset"
+
+		stripe.attrib["name"] = device.rnn_name
+		stripe.attrib["offset"] = hex(device.offset)
+		stripe.attrib["stride"] = hex(device.stride)
+		mmio.append(stripe)
+		database.append(mmio)
+
+	basename = device.rnn_name
+	if basename.startswith("NV_"):
+		basename = basename[3:]
+	basename = basename.lower()
+	filename = outdir + "/" + ("objects" if device.objclass else "mmio") + "/" + basename
+
+	outfile = open(filename, "w")
+	xml2text = subprocess.Popen("./xml2text", stdin = subprocess.PIPE, stdout = outfile)
+	xml2text.communicate(ET.tostring(database).replace(colon, ":"))
+	xml2text.wait()
+	outfile.close()
+
