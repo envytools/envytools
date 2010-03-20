@@ -7,6 +7,8 @@
 #include "rnn.h"
 
 static char *catstr (char *a, char *b) {
+	if (!a)
+		return b;
 	char *res = malloc (strlen(a) + strlen(b) + 2);
 	strcpy(res, a);
 	strcat(res, "_");
@@ -496,10 +498,7 @@ static void prepbitfield(struct rnndb *db, struct rnnbitfield *bf, char *prefix)
 
 static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix) {
 	if (elem->name)
-		if (prefix)
-			elem->fullname = catstr(prefix, elem->name);
-		else
-			elem->fullname = elem->name;
+		elem->fullname = catstr(prefix, elem->name);
 	int i;
 	for (i = 0; i < elem->subelemsnum; i++)
 		prepdelem(db,  elem->subelems[i], elem->name?elem->fullname:prefix);
