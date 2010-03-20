@@ -1,0 +1,163 @@
+<database>
+
+<enum name="nv50_tic_map" inline="yes">
+	<value value="0" name="ZERO" />
+	<value value="2" name="C0" />
+	<value value="3" name="C1" />
+	<value value="4" name="C2" />
+	<value value="5" name="C3" />
+	<value value="7" name="ONE" />
+</enum>
+
+<enum name="nv50_tic_type" inline="yes">
+#define NV50TIC_0_0_TYPEA_UNORM                                   0x00010000
+#define NV50TIC_0_0_TYPEA_SNORM                                   0x00008000
+#define NV50TIC_0_0_TYPEA_SINT                                    0x00018000
+#define NV50TIC_0_0_TYPEA_UINT                                    0x00020000
+#define NV50TIC_0_0_TYPEA_FLOAT                                   0x00038000
+</enum>
+
+<domain name="NV50_TIC">
+	<brief>Texture image control block</brief>
+		<reg32 name="0">
+			<bitfield high="29" low="27" name="MAPA" type="nv50_tic_map" />
+			<bitfield high="26" low="24" name="MAPB" type="nv50_tic_map" />
+			<bitfield high="23" low="21" name="MAPG" type="nv50_tic_map" />
+			<bitfield high="20" low="18" name="MAPR" type="nv50_tic_map" />
+			<bitfield high="17" low="15" name="TYPEA" type="nv50_tic_type" />
+			<bitfield high="14" low="12" name="TYPEA" type="nv50_tic_type" />
+			<bitfield high="11" low="9" name="TYPEA" type="nv50_tic_type" />
+			<bitfield high="8" low="6" name="TYPEA" type="nv50_tic_type" />
+			<bitfield high="5" low="0" name="FMT">
+				<value value="0x01" name="32_32_32_32" />
+				<value value="0x03" name="16_16_16_16" />
+				<value value="0x04" name="32_32" />
+				<value value="0x08" name="8_8_8_8" />
+				<value value="0x09" name="2_10_10_10" />
+				<value value="0x0c" name="16_16" />
+				<value value="0x0f" name="32" />
+				<value value="0x12" name="4_4_4_4" />
+				<!-- <value value="0x13" name="1_5_5_5" /> -->
+				<value value="0x14" name="1_5_5_5" />
+				<value value="0x15" name="5_6_5" />
+				<value value="0x18" name="8_8" />
+				<value value="0x1b" name="16" />
+				<value value="0x1d" name="8" />
+				<value value="0x20" name="5_9_9_9" />
+				<value value="0x21" name="10_11_11" />
+				<value value="0x24" name="DXT1" />
+				<value value="0x25" name="DXT3" />
+				<value value="0x26" name="DXT5" />
+				<value value="0x27" name="RGTC1" />
+				<value value="0x28" name="RGTC2" />
+				<value value="0x29" name="24_8" />
+				<value value="0x2a" name="8_24" />
+				<value value="0x2f" name="32_DEPTH" />
+				<value value="0x30" name="32_8" />
+			</bitfield>
+		</reg32>
+
+		<reg32 offset="0x4" name="1">
+			<bitfield high="31" low="0" name="OFFSET_LOW" />
+		</reg32>
+
+		<reg32 offset="0x8" name="2">
+			<bitfield high="7" low="0" name="OFFSET_HIGH" />
+			<bitfield high="10" low="10" name="COLORSPACE_SRGB" />
+			<bitfield high="16" low="14" name="TARGET">
+				<value value="0" name="1D" />
+				<value value="1" name="2D" />
+				<value value="2" name="3D" />
+				<value value="3" name="CUBE" />
+				<value value="4" name="1D_ARRAY" />
+				<value value="5" name="2D_ARRAY" />
+				<value value="6" name="BUFFER" />
+				<value value="7" name="RECT" />
+			</bitfield>
+ 			<!-- <bitfield high="18" low="18" name="TILE_MODE_LINEAR" /> -->
+			<bitfield high="24" low="22" name="TILE_MODE_Y" />
+			<bitfield high="27" low="25" name="TILE_MODE_Z" />
+			<bitfield high="31" low="31" name="NORMALIZED_COORDS" />
+		</reg32>
+
+		<reg32 offset="0x10" name="4">
+			<bitfield high="15" low="0" name="WIDTH" />
+		</reg32>
+
+		<reg32 offset="0x14" name="5">
+			<bitfield high="31" low="28" name="LAST_LEVEL" />
+			<bitfield high="27" low="16" name="DEPTH" />
+			<bitfield high="15" low="0" name="HEIGHT" />
+		</reg32>
+
+		<reg32 offset="0x1c" name="7">
+			<bitfield high="3" low="0" name="BASE_LEVEL" />
+			<bitfield high="7" low="4" name="MAX_LEVEL" />
+		</reg32>
+
+</domain>
+
+<enum name="nv50_tsc_wrap" inline="yes">
+	<value value="0" name="REPEAT" />
+	<value value="1" name="MIRROR_REPEAT" />
+	<value value="2" name="CLAMP_TO_EDGE" />
+	<value value="3" name="CLAMP_TO_BORDER" />
+	<value value="4" name="CLAMP" />
+	<value value="5" name="MIRROR_CLAMP_TO_EDGE" />
+	<value value="6" name="MIRROR_CLAMP_TO_BORDER" />
+	<value value="7" name="MIRROR_CLAMP" />
+</enum>
+
+<enum name="nv50_tsc_filter" inline="yes">
+	<value value="1" name="NEAREST" />
+	<value value="2" name="LINEAR" />
+</enum>
+
+<enum name="nv50_tsc_mipfilter" inline="yes">
+	<value value="1" name="NONE" />
+	<value value="2" name="NEAREST" />
+	<value value="3" name="LINEAR" />
+</enum>
+
+<domain name="NV50_TSC">
+
+	<brief>Texture sampler control block</brief>
+		<reg32 offset="0" name="0">
+			<bitfield high="2" low="0" name="WRAPS" type="nv50_tsc_wrap" />
+			<bitfield high="5" low="3" name="WRAPT" type="nv50_tsc_wrap" />
+			<bitfield high="8" low="6" name="WRAPR" type="nv50_tsc_wrap" />
+			<bitfield high="22" low="20" name="ANISOTROPY_MASK" />
+		</reg32>
+
+		<reg32 offset="0x4" name="1">
+			<bitfield high="1" low="0" name="MAGF" type="nv50_tsc_filter" />
+			<bitfield high="5" low="4" name="MINF" type="nv50_tsc_filter" />
+			<bitfield high="7" low="6" name="MIPF" type="nv50_tsc_mipfilter" />
+			<bitfield high="24" low="12" name="LOD_BIAS" />
+			<value value="0x10000000" name="UNKN_ANISO_15" />
+			<value value="0x18000000" name="UNKN_ANISO_35" />
+		</reg32>
+
+		<reg32 offset="0x8" name="2">
+			<bitfield high="11" low="8" name="MIN_LOD" />
+			<bitfield high="23" low="20" name="MAX_LOD" />
+		</reg32>
+
+		<reg32 offset="0x10" name="4">
+			<bitfield high="31" low="0" name="BORDER_COLOR_RED" />
+		</reg32>
+
+		<reg32 offset="0x14" name="5">
+			<bitfield high="31" low="0" name="BORDER_COLOR_GREEN" />
+		</reg32>
+
+		<reg32 offset="0x18" name="6">
+			<bitfield high="31" low="0" name="BORDER_COLOR_BLUE" />
+		</reg32>
+
+		<reg32 offset="0x1c" name="7">
+			<bitfield high="31" low="0" name="BORDER_COLOR_ALPHA" />
+		</reg32>
+
+	</domain>
+</database>
