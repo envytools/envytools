@@ -57,8 +57,7 @@ def create_device(device):
 		dev.members = []
 		devices_by_name[dev.name] = dev
 		devices_by_offset.append((dev.offset, dev))
-		dev.field_value = None
-		dev.objclass = None
+		dev.field_values = []
 		dev.baddup = False
 		# these are duplicated with different values: manually set the right ones
 		if dev.name == "NV_PVIDEO":
@@ -109,6 +108,111 @@ uninteresting_field_names = frozenset(uninteresting_field_names)
 # SET_NOTIFY is duplicated by NOTIFY
 # TODO: put *all* the standard ones there, including NOTIFY, probably
 uninteresting_reglike_names = frozenset(["NOP", "NOTIFY", "SET_NOTIFY", "CTX_SWITCH"])
+
+# from renouveau.xml
+# the rules.xml names suck
+known_objclasses = {
+	0x0001 : "NV01_ROOT",
+	0x0002 : "NV01_CONTEXT_DMA",
+	0x0003 : "NV01_DEVICE",
+	0x0004 : "NV01_TIMER",
+	0x0012 : "NV01_CONTEXT_BETA1",
+	0x0017 : "NV01_CONTEXT_COLOR_KEY",
+	0x0057 : "NV04_CONTEXT_COLOR_KEY",
+	0x0018 : "NV01_CONTEXT_PATTERN",
+	0x0019 : "NV01_CONTEXT_CLIP_RECTANGLE",
+	0x001c : "NV01_RENDER_SOLID_LINE",
+	0x005c : "NV04_RENDER_SOLID_LINE",
+	0x001d : "NV01_RENDER_SOLID_TRIANGLE",
+	0x005d : "NV04_RENDER_SOLID_TRIANGLE",
+	0x001e : "NV01_RENDER_SOLID_RECTANGLE",
+	0x005e : "NV04_RENDER_SOLID_RECTANGLE",
+	0x001f : "NV01_IMAGE_BLIT",
+	0x005f : "NV04_IMAGE_BLIT",
+	0x009f : "NV12_IMAGE_BLIT",
+	0x0021 : "NV01_IMAGE_FROM_CPU",
+	0x0061 : "NV04_IMAGE_FROM_CPU",
+	0x0065 : "NV05_IMAGE_FROM_CPU",
+	0x008a : "NV10_IMAGE_FROM_CPU",
+	0x038a : "NV30_IMAGE_FROM_CPU",
+	0x308a : "NV40_IMAGE_FROM_CPU",
+	0x0030 : "NV01_NULL",
+	0x0036 : "NV03_STRETCHED_IMAGE_FROM_CPU",
+	0x0076 : "NV04_STRETCHED_IMAGE_FROM_CPU",
+	0x0066 : "NV05_STRETCHED_IMAGE_FROM_CPU",
+	0x0366 : "NV30_STRETCHED_IMAGE_FROM_CPU",
+	0x3066 : "NV40_STRETCHED_IMAGE_FROM_CPU",
+	0x0037 : "NV03_SCALED_IMAGE_FROM_MEMORY",
+	0x0077 : "NV04_SCALED_IMAGE_FROM_MEMORY",
+	0x0063 : "NV05_SCALED_IMAGE_FROM_MEMORY",
+	0x0089 : "NV10_SCALED_IMAGE_FROM_MEMORY",
+	0x0389 : "NV30_SCALED_IMAGE_FROM_MEMORY",
+	0x3089 : "NV40_SCALED_IMAGE_FROM_MEMORY",
+	0x0038 : "NV04_DVD_SUBPICTURE",
+	0x0088 : "NV10_DVD_SUBPICTURE",
+	0x0039 : "NV04_MEMORY_TO_MEMORY_FORMAT",
+	0x5039 : "NV50_MEMORY_TO_MEMORY_FORMAT",
+	0x003d : "NV01_MEMORY_LOCAL_BANKED",
+#	0x003e : "NV01_MAPPING_SYSTEM",
+	0x003f : "NV03_MEMORY_LOCAL_CURSOR",
+	0x0040 : "NV01_MEMORY_LOCAL_LINEAR",
+	0x0041 : "NV01_MAPPING_LOCAL",
+	0x0042 : "NV04_CONTEXT_SURFACES_2D",
+	0x0062 : "NV10_CONTEXT_SURFACES_2D",
+	0x0362 : "NV30_CONTEXT_SURFACES_2D",
+	0x3062 : "NV40_CONTEXT_SURFACES_2D",
+	0x0043 : "NV03_CONTEXT_ROP",
+	0x0044 : "NV04_IMAGE_PATTERN",
+	0x0046 : "NV03_VIDEO_LUT_CURSOR_DAC",
+	0x0048 : "NV03_TEXTURED_TRIANGLE",
+	0x004a : "NV04_GDI_RECTANGLE_TEXT",
+	0x004b : "NV03_GDI_RECTANGLE_TEXT",
+	0x0052 : "NV04_SWIZZLED_SURFACE",
+	0x009e : "NV20_SWIZZLED_SURFACE",
+	0x039e : "NV30_SWIZZLED_SURFACE",
+	0x309e : "NV40_SWIZZLED_SURFACE",
+	0x0053 : "NV04_CONTEXT_SURFACES_3D",
+	0x0093 : "NV10_CONTEXT_SURFACES_3D",
+	0x0054 : "NV04_TEXTURED_TRIANGLE",
+	0x0094 : "NV10_TEXTURED_TRIANGLE",
+	0x0055 : "NV04_MULTITEX_TRIANGLE",
+	0x0095 : "NV10_MULTITEX_TRIANGLE",
+	0x0056 : "NV10TCL",
+	0x0096 : "NV11TCL",
+	0x0099 : "NV17TCL",
+	0x0058 : "NV03_CONTEXT_SURFACES_2D",
+	0x005a : "NV03_CONTEXT_SURFACES_3D",
+	0x0060 : "NV04_INDEXED_IMAGE_FROM_CPU",
+	0x0064 : "NV05_INDEXED_IMAGE_FROM_CPU",
+	0x006a : "NV03_CHANNEL_PIO",
+	0x006b : "NV03_CHANNEL_DMA",
+	0x0072 : "NV04_BETA_SOLID",
+	0x007b : "NV10_TEXTURE_FROM_CPU",
+	0x037b : "NV30_TEXTURE_FROM_CPU",
+	0x307b : "NV40_TEXTURE_FROM_CPU",
+	0x007c : "NV10_VIDEO_DISPLAY",
+	0x0097 : "NV20TCL",
+	0x0597 : "NV25TCL",
+	0x0397 : "NV30TCL",
+	0x0497 : "NV35TCL",
+	0x0697 : "NV34TCL",
+	0x4097 : "NV40TCL",
+	0x4497 : "NV44TCL",
+	0x502d : "NV50_2D",
+	0x5097 : "NV50TCL",
+	0x8297 : "NV84TCL",
+	0x8397 : "NVA0TCL",
+	0x8597 : "NVA8TCL",
+	0x50c0 : "NV50_COMPUTE",
+	0x0010 : "NV_IMAGE_STENCIL",
+	0x0011 : "NV_IMAGE_BLEND_AND",
+	0x0013 : "NV_IMAGE_ROP_AND",
+	0x0015 : "NV_IMAGE_COLOR_KEY",
+	0x0064 : "NV01_IMAGE_SRCCOPY_AND",
+	0x0065 : "NV03_IMAGE_SRCCOPY",
+	0x0066 : "NV04_IMAGE_SRCCOPY_PREMULT",
+	0x0067 : "NV04_IMAGE_BLEND_PREMULT",
+}
 
 def process_values(field, rnn_field):
 	true_value = None
@@ -243,47 +347,56 @@ for orig_device in devices_by_name.values():
 			process_values(reglike, rnn_reglike)
 
 		elif reglike.tag == "field-value":
-			orig_device.field_value = reglike
+			orig_device.field_values.append(reglike)
 
 for device in devices_by_name.values():
 	if not device.members:
 		continue
 	device.members.sort()
-	if False and device.rnn_name.startswith("NV_0"):
-		objclass = device.rnn_name[3:]
-		i = 0
-		while objclass[i:i+1] and objclass[i] in "0123456789abcdefABCDEF":
-			i += 1
-		if i > 0:
-			device.objclass = int(objclass[:i], 16)
-
 	stripe = ET.Element("stripe")
+	objclasses = {}
 	for offset, member in device.members:
 		if offset == 0 and member.attrib["name"].startswith("NV"):
 			device.rnn_name = member.attrib["name"]
 			if "value" in member.attrib:
-				device.objclass = int(member.attrib["value"], 0)
+				objclasses[int(member.attrib["value"], 0)] = member.attrib["name"]
 		else:
 			stripe.append(member)
 
-	if device.field_value is not None and "name" in device.field_value.attrib:
-		device.rnn_name = device.field_value.attrib["name"]
-		device.objclass = int(device.field_value.attrib["value"], 0)
+	for field_value in device.field_values:
+		if "name" in field_value.attrib and "value" in field_value.attrib:
+			if not objclasses:
+				device.rnn_name = field_value.attrib["name"]
+				device.objclass = int(field_value.attrib["value"], 0)
+			objclasses[int(field_value.attrib["value"], 0)] = field_value.attrib["name"]
 
+	for objclass in objclasses:
+		if objclass in known_objclasses:
+			objclasses[objclass] = known_objclasses[objclass]
+
+	objclasses = objclasses.items()
+	objclasses.sort()
+
+	if device.rnn_name == "NV_UTOMEM":
+		device.rnn_name = "NV_IMAGE_TO_MEMORY"
+		objclasses = [("", device.rnn_name)]
 
 	database = ET.Element("database")
 	database.attrib["xmlns"] = "http://nouveau.freedesktop.org/"
 	database.attrib["xmlns" + colon + "xsi"] = "http://www.w3.org/2001/XMLSchema-instance"
 	database.attrib["xsi" + colon + "schemaLocation"] = "http://nouveau.freedesktop.org/ rules-ng.xsd"
 
-	if device.objclass:
+	if objclasses:
 		objenum = ET.Element("enum")
 		objenum.attrib["bare"] = "yes"
 		objenum.attrib["name"] = "obj-class"
-		objvalue = ET.Element("value")
-		objvalue.attrib["value"] = hex(device.objclass)
-		objvalue.attrib["name"] = device.rnn_name
-		objenum.append(objvalue)
+
+		for objclass, objname in objclasses:
+			objvalue = ET.Element("value")
+			if objclass is not "":
+				objvalue.attrib["value"] = hex(objclass)
+			objvalue.attrib["name"] = objname
+			objenum.append(objvalue)
 
 		database.append(objenum)
 
@@ -295,7 +408,10 @@ for device in devices_by_name.values():
 
 		stripe.attrib["prefix"] = "obj-class"
 		#stripe.attrib["varset"] = "obj-class"
-		stripe.attrib["variants"] = device.rnn_name
+		if len(objclasses) == 1:
+			stripe.attrib["variants"] = objclasses[0][1]
+		else:
+			stripe.attrib["variants"] = objclasses[0][1] + "-" + objclasses[-1][1]
 		subchan.append(stripe)
 		database.append(subchan)
 	else:
@@ -314,7 +430,7 @@ for device in devices_by_name.values():
 	if basename.startswith("NV_"):
 		basename = basename[3:]
 	basename = basename.lower()
-	filename = outdir + "/" + ("objects" if device.objclass else "mmio") + "/" + basename
+	filename = outdir + "/" + ("objects" if objclasses else "mmio") + "/" + basename
 
 	outfile = open(filename, "w")
 	xml2text = subprocess.Popen("./xml2text", stdin = subprocess.PIPE, stdout = outfile)
