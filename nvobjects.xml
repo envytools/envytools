@@ -93,7 +93,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x8297" name="NV84TCL"/>
 	<value value="0x8397" name="NVA0TCL"/>
 	<value value="0x8597" name="NVA8TCL"/>
-	<value value="0x50c0" name="NV50_COMPUTE"/>
 	<!-- IMAGE objects. Keep them commented out, they conflict with serious objects. -->
 	<!--
 	<value value="0x0010" name="NV_IMAGE_STENCIL"/>
