@@ -524,10 +524,20 @@ static void prepenum(struct rnndb *db, struct rnnenum *en) {
 		prepvalue(db, en->vals[i], en->bare?0:en->name);
 }
 
+static void prepbitset(struct rnndb *db, struct rnnbitset *bs) {
+	int i;
+	if (bs->isinline)
+		return;
+	for (i = 0; i < bs->bitfieldsnum; i++)
+		prepbitfield(db, bs->bitfields[i], bs->bare?0:bs->name);
+}
+
 void rnn_prepdb (struct rnndb *db) {
 	int i;
 	for (i = 0; i < db->domainsnum; i++)
 		prepdomain(db, db->domains[i]);
 	for (i = 0; i < db->enumsnum; i++)
 		prepenum(db, db->enums[i]);
+	for (i = 0; i < db->bitsetsnum; i++)
+		prepbitset(db, db->bitsets[i]);
 }
