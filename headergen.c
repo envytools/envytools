@@ -13,8 +13,7 @@ void printvalue (struct rnnvalue *val) {
 }
 
 void printbitfield (struct rnnbitfield *bf) {
-	uint64_t mask = (1ULL<<(bf->high+1)) - (1ULL<<bf->low);
-	printf ("#define %s\t%#"PRIx64"\n", bf->fullname, mask);
+	printf ("#define %s\t%#"PRIx64"\n", bf->fullname, bf->mask);
 	printf ("#define %s__SHIFT\t%d\n", bf->fullname, bf->low);
 	if (bf->shr)
 		printf ("#define %s__SHR\t%d\n", bf->fullname, bf->shr);

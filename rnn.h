@@ -50,6 +50,7 @@ struct rnnbitfield {
 	char *name;
 	int low, high;
 	int shr;
+	uint64_t mask;
 	char *fullname;
 };
 

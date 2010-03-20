@@ -491,6 +491,7 @@ void rnn_parsefile (struct rnndb *db, char *file) {
 
 static void prepbitfield(struct rnndb *db, struct rnnbitfield *bf, char *prefix) {
 	bf->fullname = catstr(prefix, bf->name);
+	bf->mask = (1ULL<<(bf->high+1)) - (1ULL<<bf->low);
 }
 
 static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix) {
