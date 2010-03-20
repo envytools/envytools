@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
-<enum name="chipset" prefix="none">
+<enum name="chipset" bare="yes">
 	<brief>The chipset of the card</brief>
 
 	<value name="NV01">

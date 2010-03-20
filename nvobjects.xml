@@ -3,7 +3,7 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
-<enum name="obj-class" prefix="none"> <!-- XXX: change to chipset and add proper variants. -->
+<enum name="obj-class" bare="yes"> <!-- XXX: change to chipset and add proper variants. -->
 	<value value="0x0001" name="NV01_ROOT"/>
 	<value value="0x0002" name="NV01_CONTEXT_DMA"/>
 	<value value="0x0003" name="NV01_DEVICE"/>
@@ -108,7 +108,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	 -->
 </enum>
 
-<domain name="NV01_SUBCHAN" prefix="none" size="0x2000">
+<domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
 	<stripe name="SUBCHAN" prefix="chipset">
 		<reg32 offset="0x00" name="OBJECT" type="object" />
 		<stripe variants="NV50-">

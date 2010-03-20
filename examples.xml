@@ -3,7 +3,7 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
-<domain name="NV_MMIO" size="0x1000000" prefix="chipset">
+<domain name="NV_MMIO" size="0x1000000" bare="yes" prefix="chipset">
 	<reg32 offset="0" name="PMC_BOOT_0" />
 	<reg32 offset="4" name="PMC_BOOT_1" varset="chipset" variants="NV10-" />
 	<reg32 offset="0x100" name="PMC_INTR" />
@@ -66,7 +66,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</value>
 </enum>
 
-<enum name="grobj-class" prefix="chipset">
+<enum name="grobj-class" bare="yes" prefix="chipset">
 	<value name="MEMORY_TO_MEMORY_FORMAT" value="0x0039" variants=":NV50" />
 	<value name="MEMORY_TO_MEMORY_FORMAT" value="0x5039" variants="NV50-" />
 	<value name="2D" value="0x502d" variants="NV50-" />
@@ -143,7 +143,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 </stripe>
 
 
-<domain name="NV_OBJECT" prefix="none">
+<domain name="NV_OBJECT" bare="yes">
 	<stripe name="OBJECT" prefix="chipset">
 		<reg32 offset="0x00" name="NAME" />
 		<reg32 offset="0x10" name="FENCE_ADDRESS_HIGH" variants="NV50-" />
