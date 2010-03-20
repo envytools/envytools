@@ -15,7 +15,7 @@ void seekcol (int src, int dst) {
 	else {
 		int n = dst/8 - src/8;
 		if (n) {
-			while (n--) 
+			while (n--)
 				printf ("\t");
 			n = dst&7;
 		} else
@@ -134,7 +134,7 @@ int main(int argc, char **argv) {
 	}
 	for (i = 0; i < db->domainsnum; i++) {
 		printf ("/* domain %s of width %d */\n", db->domains[i]->name, db->domains[i]->width);
-		if (db->domains[i]->size) 
+		if (db->domains[i]->size)
 			printdef (db->domains[i]->name, "SIZE", 0, db->domains[i]->size);
 		int j;
 		for (j = 0; j < db->domains[i]->subelemsnum; j++) {

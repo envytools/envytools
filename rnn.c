@@ -153,7 +153,7 @@ static void parseenum(struct rnndb *db, char *file, xmlNode *node) {
 			break;
 		}
 	if (cur) {
-		if (strdiff(cur->prefixstr, prefixstr) || 
+		if (strdiff(cur->prefixstr, prefixstr) ||
 				strdiff(cur->varsetstr, varsetstr) ||
 				strdiff(cur->variantsstr, variantsstr) ||
 				cur->isinline != isinline || cur->bare != bare) {
@@ -209,7 +209,7 @@ static struct rnnbitfield *parsebitfield(struct rnndb *db, char *file, xmlNode *
 				char *newstr = strchr (str, ' ');
 				if (!newstr) newstr = str + strlen(str);
 				struct rnntype *tp = calloc(sizeof *tp, 1);
-				tp->name = strndup(str, newstr-str); 
+				tp->name = strndup(str, newstr-str);
 				RNN_ADDARRAY(bf->types,tp);
 				str = newstr;
 			}
@@ -290,7 +290,7 @@ static void parsebitset(struct rnndb *db, char *file, xmlNode *node) {
 			break;
 		}
 	if (cur) {
-		if (strdiff(cur->prefixstr, prefixstr) || 
+		if (strdiff(cur->prefixstr, prefixstr) ||
 				strdiff(cur->varsetstr, varsetstr) ||
 				strdiff(cur->variantsstr, variantsstr) ||
 				cur->isinline != isinline || cur->bare != bare) {
@@ -415,7 +415,7 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 				char *newstr = strchr (str, ' ');
 				if (!newstr) newstr = str + strlen(str);
 				struct rnntype *tp = calloc(sizeof *tp, 1);
-				tp->name = strndup(str, newstr-str); 
+				tp->name = strndup(str, newstr-str);
 				RNN_ADDARRAY(res->types,tp);
 				str = newstr;
 			}
@@ -494,10 +494,10 @@ static void parsedomain(struct rnndb *db, char *file, xmlNode *node) {
 			break;
 		}
 	if (cur) {
-		if (strdiff(cur->prefixstr, prefixstr) || 
+		if (strdiff(cur->prefixstr, prefixstr) ||
 				strdiff(cur->varsetstr, varsetstr) ||
 				strdiff(cur->variantsstr, variantsstr) ||
-				cur->width != width || 
+				cur->width != width ||
 				cur->bare != bare ||
 				(size && cur->size && size != cur->size)) {
 			fprintf (stderr, "%s:%d: merge fail for domain %s\n", file, node->line, node->name);
@@ -575,7 +575,7 @@ void rnn_parsefile (struct rnndb *db, char *file) {
 	RNN_ADDARRAY(db->files, strdup(file));
 	xmlDocPtr doc = xmlParseFile(file);
 	if (!doc) {
-		fprintf (stderr, "%s: couldn't open database file\n", file); 
+		fprintf (stderr, "%s: couldn't open database file\n", file);
 		db->estatus = 1;
 		return;
 	}
