@@ -100,6 +100,7 @@ void printdelem (struct rnndelem *elem, uint64_t offset) {
 		for (i = 0; i < elem->valsnum; i++)
 			printvalue(elem->vals[i], 0);
 	}
+	printf ("\n");
 	int j;
 	for (j = 0; j < elem->subelemsnum; j++) {
 		printdelem(elem->subelems[j], offset + elem->offset);
