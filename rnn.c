@@ -518,6 +518,8 @@ static void prepdomain(struct rnndb *db, struct rnndomain *dom) {
 
 static void prepenum(struct rnndb *db, struct rnnenum *en) {
 	int i;
+	if (en->isinline)
+		return;
 	for (i = 0; i < en->valsnum; i++)
 		prepvalue(db, en->vals[i], en->bare?0:en->name);
 }
