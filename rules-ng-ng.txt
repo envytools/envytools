@@ -117,7 +117,7 @@ to NV04_PMC_BOOT_0 register, 4-7 belong to NV10_PMC_BOOT_1 register,
 0x100-0x103 belong to NV04_PMC_INTR register, and remaining cells are either
 unused or unknown. The generated .h definitions are:
 
-#define NV_MMIO__SIZE		0x10000000
+#define NV_MMIO__SIZE		0x1000000
 #define NV04_PMC_BOOT_0		0
 #define NV10_PMC_BOOT_1		4
 #define NV04_PMC_INTR		0x100
