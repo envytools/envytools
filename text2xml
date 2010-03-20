@@ -94,8 +94,8 @@ while True:
 			reglike_tag = None
 
 			while tokens:
-				if tokens[0] == "inline":
-					attrvalues.append(("inline", "yes"))
+				if tokens[0] in ("bare", "inline"):
+					attrvalues.append((tokens[0], "yes"))
 					tokens = tokens[1:]
 				else:
 					break

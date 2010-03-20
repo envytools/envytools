@@ -9,7 +9,8 @@ root = tree.getroot();
 # TODO: make this configurable and autoselect the most frequent
 reg_default = "reg32"
 type_defaults = set(("enum", "bitfield", "hexa"))
-attr_defaults = {"prefix" : "name"}
+attr_defaults = {"prefix" : "none"}
+true_strings = ("0", "yes", "true")
 
 ns = "{http://nouveau.freedesktop.org/}"
 
@@ -137,10 +138,11 @@ def _process(container):
 			elem.attrib["variants"] = elem.attrib["varset"] + "=" + elem.attrib["variants"]
 			del elem.attrib["varset"]
 
-		if "inline" in elem.attrib:
-			if elem.attrib["inline"].lower() in ("0", "yes", "true", "inline"):
-				line = "inline " + line
-			del elem.attrib["inline"]
+		for keyword in ("inline", "bare"):
+			if keyword in elem.attrib:
+				if elem.attrib[keyword].lower() in true_strings:
+					line = keyword + " " + line
+				del elem.attrib[keyword]
 
 		for attr in elem.attrib.keys():
 			value = elem.attrib[attr]
