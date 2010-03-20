@@ -17,6 +17,9 @@ void printbitfield (struct rnnbitfield *bf) {
 	printf ("#define %s__SHIFT\t%d\n", bf->fullname, bf->low);
 	if (bf->shr)
 		printf ("#define %s__SHR\t%d\n", bf->fullname, bf->shr);
+	int i;
+	for (i = 0; i < bf->valsnum; i++)
+		printvalue(bf->vals[i]);
 }
 
 void printdelem (struct rnndelem *elem, uint64_t offset) {
@@ -46,6 +49,8 @@ void printdelem (struct rnndelem *elem, uint64_t offset) {
 		int i;
 		for (i = 0; i < elem->bitfieldsnum; i++)
 			printbitfield(elem->bitfields[i]);
+		for (i = 0; i < elem->valsnum; i++)
+			printvalue(elem->vals[i]);
 	}
 	int j;
 	for (j = 0; j < elem->subelemsnum; j++) {

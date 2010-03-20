@@ -78,6 +78,16 @@ static struct rnnvalue *parsevalue(struct rnndb *db, char *file, xmlNode *node) 
 		}
 		attr = attr->next;
 	}
+	xmlNode *chain = node->children;
+	while (chain) {
+		struct rnndelem *delem;
+		if (chain->type != XML_ELEMENT_NODE) {
+		} else if (!trytop(db, file, chain)) {
+			fprintf (stderr, "%s:%d: wrong tag in %s: <%s>\n", file, chain->line, node->name, chain->name);
+			db->estatus = 1;
+		}
+		chain = chain->next;
+	}
 	if (!val->name) {
 		fprintf (stderr, "%s:%d: nameless value\n", file, node->line);
 		db->estatus = 1;
@@ -169,6 +179,20 @@ static struct rnnbitfield *parsebitfield(struct rnndb *db, char *file, xmlNode *
 			db->estatus = 1;
 		}
 		attr = attr->next;
+	}
+	xmlNode *chain = node->children;
+	while (chain) {
+		struct rnndelem *delem;
+		if (chain->type != XML_ELEMENT_NODE) {
+		} else if (!strcmp(chain->name, "value")) {
+			struct rnnvalue *val = parsevalue(db, file, chain);
+			if (bf)
+				RNN_ADDARRAY(bf->vals, val);
+		} else if (!trytop(db, file, chain)) {
+			fprintf (stderr, "%s:%d: wrong tag in %s: <%s>\n", file, chain->line, node->name, chain->name);
+			db->estatus = 1;
+		}
+		chain = chain->next;
 	}
 	if (!bf->name) {
 		fprintf (stderr, "%s:%d: nameless bitfield\n", file, node->line);
@@ -339,6 +363,10 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 			struct rnnbitfield *bf = parsebitfield(db, file, chain);
 			if (bf)
 				RNN_ADDARRAY(res->bitfields, bf);
+		} else if (!strcmp(chain->name, "value")) {
+			struct rnnvalue *val = parsevalue(db, file, chain);
+			if (val)
+				RNN_ADDARRAY(res->vals, val);
 		} else if (!trytop(db, file, chain)) {
 			fprintf (stderr, "%s:%d: wrong tag in %s: <%s>\n", file, chain->line, node->name, chain->name);
 			db->estatus = 1;
@@ -498,6 +526,9 @@ static void prepvalue(struct rnndb *db, struct rnnvalue *val, char *prefix) {
 static void prepbitfield(struct rnndb *db, struct rnnbitfield *bf, char *prefix) {
 	bf->fullname = catstr(prefix, bf->name);
 	bf->mask = (1ULL<<(bf->high+1)) - (1ULL<<bf->low);
+	int i;
+	for (i = 0; i < bf->valsnum; i++)
+		prepvalue(db, bf->vals[i], bf->fullname);
 }
 
 static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix) {
@@ -508,6 +539,8 @@ static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix) {
 		prepdelem(db,  elem->subelems[i], elem->name?elem->fullname:prefix);
 	for (i = 0; i < elem->bitfieldsnum; i++)
 		prepbitfield(db,  elem->bitfields[i], elem->name?elem->fullname:prefix);
+	for (i = 0; i < elem->valsnum; i++)
+		prepvalue(db, elem->vals[i], elem->name?elem->fullname:prefix);
 }
 
 static void prepdomain(struct rnndb *db, struct rnndomain *dom) {

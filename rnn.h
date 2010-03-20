@@ -51,6 +51,9 @@ struct rnnbitfield {
 	int low, high;
 	int shr;
 	uint64_t mask;
+	struct rnnvalue **vals;
+	int valsnum;
+	int valsmax;
 	char *fullname;
 };
 
@@ -84,6 +87,9 @@ struct rnndelem {
 	struct rnnbitfield **bitfields;
 	int bitfieldsnum;
 	int bitfieldsmax;
+	struct rnnvalue **vals;
+	int valsnum;
+	int valsmax;
 	char *varsetstr;
 	char *variantsstr;
 	char *fullname;
