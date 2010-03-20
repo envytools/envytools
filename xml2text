@@ -10,7 +10,7 @@ root = tree.getroot();
 reg_default = "reg32"
 type_defaults = set(("enum", "bitfield", "hexa"))
 attr_defaults = {"prefix" : "none"}
-true_strings = ("0", "yes", "true")
+true_strings = ("1", "yes", "true")
 
 ns = "{http://nouveau.freedesktop.org/}"
 
