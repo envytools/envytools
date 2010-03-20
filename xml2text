@@ -2,8 +2,12 @@
 import sys
 from lxml import etree as ET
 
-xml = sys.argv[1]
-tree = ET.parse(xml)
+if sys.argv[1:2]:
+	xml = sys.argv[1]
+	tree = ET.parse(xml)
+else:
+	tree = ET.parse(sys.stdin)
+
 root = tree.getroot();
 
 # TODO: make this configurable and autoselect the most frequent

@@ -4,8 +4,12 @@ from lxml import etree as ET
 
 root = ET.Element("database")
 
-filename = sys.argv[1]
-rnn = open(filename)
+if sys.argv[1:2]:
+	filename = sys.argv[1]
+	rnn = open(filename)
+else:
+	rnn = sys.stdin
+
 s = "\n" + rnn.read()
 
 default_reg = "reg32"
