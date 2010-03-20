@@ -68,6 +68,9 @@ parts of database. As a convenience, and to allow related stuff to be kept
 together, the top-level entities are allowed to occur pretty much anywhere
 inside the XML file except inside <doc> tags. This implies no scoping,
 however: the effect is the same as putting the entity right below <database>.
+If two top-level elements of the same type and name are defined, they'll be
+merged into a single one, as if contents of one were written right after
+contents of the other. All attributes of the merged tags need to match.
 
 Another top-level tag that can be used anywhere is the <import> tag. It's used
 like <import file="foo.xml"/> and makes all of foo.xml's definitions available
@@ -88,7 +91,11 @@ useful occasionally for indexed spaces of 32-bit cells. Values sane enough to
 support for now include 8, 16, 32, 64.
 
 A "size" of a domain is total number of addressable units it spans. Can be
-undefined if you don't know it or it doesn't make sense.
+undefined if you don't know it or it doesn't make sense. As a special
+exception to the merging rules, size attribute need not be specified on all
+tags that will result in a merged domain: tags with size can be merged with
+tags without size, resulting in merged domain that has size. Error only
+happens when the merged domains both have sizes, and the sizes differ.
 
 The "prefix" of a domain selects the string that should be prepended to name
 of every child item. The special value "none" means no prefix. The special
