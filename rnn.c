@@ -361,6 +361,8 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 			res->varsetstr = strdup(getattrib(db, file, node->line, attr));
 		} else if (!strcmp(attr->name, "variants")) {
 			res->variantsstr = strdup(getattrib(db, file, node->line, attr));
+		} else if (!strcmp(attr->name, "shr")) {
+			res->shr = getnumattrib(db, file, node->line, attr);
 		} else if (!strcmp(attr->name, "type")) {
 			char *str = getattrib(db, file, node->line, attr);
 			while (1) {
