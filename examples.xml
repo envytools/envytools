@@ -102,7 +102,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<bitfield high="31" low="16" name="Y" />
 </bitset>
 
-<domain name="EXAMPLE1" bare="yes">
+<domain name="EXAMPLE3" bare="yes" prefix="chipset">
 	<reg32 offset="0x40014c" name="PGRAPH_CTX_SWITCH_1" type="NV04_GROBJ_1" />
 
 	<reg32 offset="0x0404" name="FORMAT">
@@ -192,7 +192,7 @@ Really!
 	<!-- ... -->
 </group>
 
-<domain name="EXAMPLE1" bare="yes">
+<domain name="EXAMPLE4" bare="yes" prefix="chipset">
 <array offset="0x408000" name="PGRAPH_TP" stride="0x1000" length="8" variants="NV50:NVA0">
 	<array offset="0x200" name="MP" stride="0x80" length="2">
 		<use-group name="nv50_mp" />
