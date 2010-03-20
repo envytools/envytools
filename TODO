@@ -4,6 +4,7 @@ spec:
  - min/align/max
 
 rnn:
+ - Implement <brief> and <doc>
  - Implement <group>s
  - Implement <reg*> access types
  - Make a lib
