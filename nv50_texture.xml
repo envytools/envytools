@@ -1,6 +1,6 @@
 <database>
 
-<enum name="nv50_tic_map" inline="yes">
+<enum name="NV50_TIC_MAP">
 	<value value="0" name="ZERO" />
 	<value value="2" name="C0" />
 	<value value="3" name="C1" />
@@ -9,7 +9,7 @@
 	<value value="7" name="ONE" />
 </enum>
 
-<enum name="nv50_tic_type" inline="yes">
+<enum name="NV50_TIC_TYPE">
 	<value value="1" name="SNORM" />
 	<value value="2" name="UNORM" />
 	<value value="3" name="SINT" />
@@ -22,14 +22,14 @@
 <domain name="NV50_TIC">
 	<brief>Texture image control block</brief>
 		<reg32 name="0">
-			<bitfield high="29" low="27" name="MAPA" type="nv50_tic_map" />
-			<bitfield high="26" low="24" name="MAPB" type="nv50_tic_map" />
-			<bitfield high="23" low="21" name="MAPG" type="nv50_tic_map" />
-			<bitfield high="20" low="18" name="MAPR" type="nv50_tic_map" />
-			<bitfield high="17" low="15" name="TYPE3" type="nv50_tic_type" />
-			<bitfield high="14" low="12" name="TYPE2" type="nv50_tic_type" />
-			<bitfield high="11" low="9" name="TYPE1" type="nv50_tic_type" />
-			<bitfield high="8" low="6" name="TYPE0" type="nv50_tic_type" />
+			<bitfield high="29" low="27" name="MAPA" type="NV50_TIC_MAP" />
+			<bitfield high="26" low="24" name="MAPB" type="NV50_TIC_MAP" />
+			<bitfield high="23" low="21" name="MAPG" type="NV50_TIC_MAP" />
+			<bitfield high="20" low="18" name="MAPR" type="NV50_TIC_MAP" />
+			<bitfield high="17" low="15" name="TYPE3" type="NV50_TIC_TYPE" />
+			<bitfield high="14" low="12" name="TYPE2" type="NV50_TIC_TYPE" />
+			<bitfield high="11" low="9" name="TYPE1" type="NV50_TIC_TYPE" />
+			<bitfield high="8" low="6" name="TYPE0" type="NV50_TIC_TYPE" />
 			<bitfield high="5" low="0" name="FMT">
 				<value value="0x01" name="32_32_32_32" />
 				<value value="0x03" name="16_16_16_16" />
@@ -99,7 +99,7 @@
 
 </domain>
 
-<enum name="nv50_tsc_wrap" inline="yes">
+<enum name="NV50_TSC_WRAP">
 	<value value="0" name="REPEAT" />
 	<value value="1" name="MIRROR_REPEAT" />
 	<value value="2" name="CLAMP_TO_EDGE" />
@@ -125,9 +125,9 @@
 
 	<brief>Texture sampler control block</brief>
 		<reg32 offset="0" name="0">
-			<bitfield high="2" low="0" name="WRAPS" type="nv50_tsc_wrap" />
-			<bitfield high="5" low="3" name="WRAPT" type="nv50_tsc_wrap" />
-			<bitfield high="8" low="6" name="WRAPR" type="nv50_tsc_wrap" />
+			<bitfield high="2" low="0" name="WRAPS" type="NV50_TSC_WRAP" />
+			<bitfield high="5" low="3" name="WRAPT" type="NV50_TSC_WRAP" />
+			<bitfield high="8" low="6" name="WRAPR" type="NV50_TSC_WRAP" />
 			<bitfield high="22" low="20" name="ANISOTROPY_MASK" />
 		</reg32>
 
