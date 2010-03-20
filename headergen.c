@@ -69,6 +69,15 @@ int main(int argc, char **argv) {
 			printvalue (db->enums[i]->vals[j]);
 		printf ("\n");
 	}
+	for (i = 0; i < db->bitsetsnum; i++) {
+		if (db->bitsets[i]->isinline)
+			continue;
+		printf ("/* bitset %s */\n", db->bitsets[i]->name);
+		int j;
+		for (j = 0; j < db->bitsets[i]->bitfieldsnum; j++)
+			printbitfield (db->bitsets[i]->bitfields[j]);
+		printf ("\n");
+	}
 	for (i = 0; i < db->domainsnum; i++) {
 		printf ("/* domain %s of width %d */\n", db->domains[i]->name, db->domains[i]->width);
 		if (db->domains[i]->size) 
