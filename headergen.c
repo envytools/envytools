@@ -49,11 +49,15 @@ void printdef (char *name, char *suf, int type, uint64_t val) {
 }
 
 void printvalue (struct rnnvalue *val, int shift) {
+	if (val->varinfo.dead)
+		return;
 	if (val->valvalid)
 		printdef (val->fullname, 0, 0, val->value << shift);
 }
 
 void printbitfield (struct rnnbitfield *bf) {
+	if (bf->varinfo.dead)
+		return;
 	printdef (bf->fullname, 0, 0, bf->mask);
 	printdef (bf->fullname, "SHIFT", 1, bf->low);
 	if (bf->shr)
@@ -64,6 +68,8 @@ void printbitfield (struct rnnbitfield *bf) {
 }
 
 void printdelem (struct rnndelem *elem, uint64_t offset) {
+	if (elem->varinfo.dead)
+		return;
 	if (elem->length != 1)
 		RNN_ADDARRAY(strides, elem->stride);
 	if (elem->name) {
@@ -117,7 +123,7 @@ int main(int argc, char **argv) {
 	for (i = 0; i < db->enumsnum; i++) {
 		if (db->enums[i]->isinline)
 			continue;
-		printf ("/* enum %s */\n", db->enums[i]->name);
+		printf ("/* enum %s */\n", db->enums[i]->fullname);
 		int j;
 		for (j = 0; j < db->enums[i]->valsnum; j++)
 			printvalue (db->enums[i]->vals[j], 0);
@@ -126,16 +132,16 @@ int main(int argc, char **argv) {
 	for (i = 0; i < db->bitsetsnum; i++) {
 		if (db->bitsets[i]->isinline)
 			continue;
-		printf ("/* bitset %s */\n", db->bitsets[i]->name);
+		printf ("/* bitset %s */\n", db->bitsets[i]->fullname);
 		int j;
 		for (j = 0; j < db->bitsets[i]->bitfieldsnum; j++)
 			printbitfield (db->bitsets[i]->bitfields[j]);
 		printf ("\n");
 	}
 	for (i = 0; i < db->domainsnum; i++) {
-		printf ("/* domain %s of width %d */\n", db->domains[i]->name, db->domains[i]->width);
+		printf ("/* domain %s of width %d */\n", db->domains[i]->fullname, db->domains[i]->width);
 		if (db->domains[i]->size)
-			printdef (db->domains[i]->name, "SIZE", 0, db->domains[i]->size);
+			printdef (db->domains[i]->fullname, "SIZE", 0, db->domains[i]->size);
 		int j;
 		for (j = 0; j < db->domains[i]->subelemsnum; j++) {
 			printdelem(db->domains[i]->subelems[j], 0);

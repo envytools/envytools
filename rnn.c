@@ -629,12 +629,143 @@ static struct rnnbitfield *copybitfield (struct rnnbitfield *bf) {
 	return res;
 }
 
-static void prepvalue(struct rnndb *db, struct rnnvalue *val, char *prefix) {
-	val->fullname = catstr(prefix, val->name);
+static struct rnnvarset *copyvarset (struct rnnvarset *varset) {
+	struct rnnvarset *res = calloc(sizeof *res, 1);
+	res->venum = varset->venum;
+	res->variants = calloc(sizeof *res->variants, res->venum->valsnum);
+	int i;
+	for (i = 0; i < res->venum->valsnum; i++)
+		res->variants[i] = varset->variants[i];
+	return res;
 }
 
-static void prepbitfield(struct rnndb *db, struct rnnbitfield *bf, char *prefix) {
+static void prepenum(struct rnndb *db, struct rnnenum *en);
+
+static int findvidx (struct rnnenum *en, char *name) {
+	int i;
+	for (i = 0; i < en->valsnum; i++)
+		if (!strcmp(en->vals[i]->name, name))
+			return i;
+	return -1;
+}
+
+static void prepvarinfo (struct rnndb *db, char *what, struct rnnvarinfo *vi, struct rnnvarinfo *parent, char *prefixstr, char *varsetstr, char *variantsstr) {
+	if (parent)
+		vi->prefenum = parent->prefenum;
+	if (prefixstr)
+		if (!strcmp(prefixstr, "none"))
+			vi->prefenum = 0;
+		else
+			vi->prefenum = rnn_findenum(db, prefixstr); // XXX
+	int i;
+	if (parent)
+		for (i = 0; i < parent->varsetsnum; i++)
+			RNN_ADDARRAY(vi->varsets, copyvarset(parent->varsets[i]));
+	struct rnnenum *varset = vi->prefenum;
+	if (varsetstr)
+		varset = rnn_findenum(db, varsetstr);
+	if (variantsstr) {
+		if (!varset) {
+			fprintf (stderr, "%s: tried to use variants without active varset!\n", what);
+			db->estatus = 1;
+			return;
+		}
+		struct rnnvarset *vs = 0;
+		int nvars = varset->valsnum;
+		for (i = 0; i < vi->varsetsnum; i++)
+			if (vi->varsets[i]->venum == varset) {
+				vs = vi->varsets[i];
+				break;
+			}
+		if (!vs) {
+			vs = calloc (sizeof *vs, 1);
+			vs->venum = varset;
+			vs->variants = calloc(sizeof *vs->variants, nvars);
+			for (i = 0; i < nvars; i++)
+				vs->variants[i] = 1;
+			RNN_ADDARRAY(vi->varsets, vs);
+		}
+		while (1) {
+			while (*variantsstr == ' ') variantsstr++;
+			if (*variantsstr == 0)
+				break;
+			char *split = variantsstr;
+			while (*split != ':' && *split != '-' && *split != ' '  && *split != 0)
+				split++;
+			char *first = 0;
+			if (split != variantsstr)
+				first = strndup(variantsstr, split-variantsstr);
+			if (*split == ' ' || *split == 0) {
+				int idx = findvidx(varset, first);
+				if (idx != -1)
+					vs->variants[idx] |= 2;
+				variantsstr = split;
+			} else {
+				char *end = split+1;
+				while (*end != ' '  && *end != 0)
+					end++;
+				char *second = 0;
+				if (end != split+1)
+					second = strndup(split+1, end-split-1);
+				int idx1 = 0;
+				if (first)
+					idx1 = findvidx(varset, first);
+				int idx2 = nvars;
+				if (second) {
+					idx2 = findvidx(varset, second);
+					if (*split == '-')
+						idx2++;
+				}
+				if (idx1 != -1 && idx2 != -1)
+					for (i = idx1; i < idx2; i++)
+						vs->variants[i] |= 2;
+				variantsstr = end;
+				free(second);
+			}
+			free(first);
+		}
+		vi->dead = 1;
+		for (i = 0; i < nvars; i++) {
+			vs->variants[i] = (vs->variants[i] == 3);
+			if (vs->variants[i])
+				vi->dead = 0;
+		}
+	}
+	if (vi->dead)
+		return;
+	if (vi->prefenum) {
+		struct rnnvarset *vs = 0;
+		for (i = 0; i < vi->varsetsnum; i++)
+			if (vi->varsets[i]->venum == vi->prefenum) {
+				vs = vi->varsets[i];
+				break;
+			}
+		if (vs) {
+			for (i = 0; i < vi->prefenum->valsnum; i++)
+				if (vs->variants[i]) {
+					vi->prefix = vi->prefenum->vals[i]->name;
+					return;
+				}
+		} else {
+			vi->prefix = vi->prefenum->vals[0]->name;
+		}
+	}
+}
+
+static void prepvalue(struct rnndb *db, struct rnnvalue *val, char *prefix, struct rnnvarinfo *parvi) {
+	val->fullname = catstr(prefix, val->name);
+	prepvarinfo (db, val->fullname, &val->varinfo, parvi, val->prefixstr, val->varsetstr, val->variantsstr);
+	if (val->varinfo.dead)
+		return;
+	if (val->varinfo.prefix)
+		val->fullname = catstr(val->varinfo.prefix, val->fullname);
+}
+
+static void prepbitfield(struct rnndb *db, struct rnnbitfield *bf, char *prefix, struct rnnvarinfo *parvi) {
 	bf->fullname = catstr(prefix, bf->name);
+	prepvarinfo (db, bf->fullname, &bf->varinfo, parvi, bf->prefixstr, bf->varsetstr, bf->variantsstr);
+	if (bf->varinfo.dead)
+		return;
 	bf->mask = (1ULL<<(bf->high+1)) - (1ULL<<bf->low);
 	int i;
 	for (i = 0; i < bf->typesnum; i++) {
@@ -653,12 +784,17 @@ static void prepbitfield(struct rnndb *db, struct rnnbitfield *bf, char *prefix)
 		}
 	}
 	for (i = 0; i < bf->valsnum; i++)
-		prepvalue(db, bf->vals[i], bf->fullname);
+		prepvalue(db, bf->vals[i], bf->fullname, &bf->varinfo);
+	if (bf->varinfo.prefix)
+		bf->fullname = catstr(bf->varinfo.prefix, bf->fullname);
 }
 
-static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix, int width) {
+static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix, struct rnnvarinfo *parvi, int width) {
 	if (elem->name)
 		elem->fullname = catstr(prefix, elem->name);
+	prepvarinfo (db, elem->fullname?elem->fullname:prefix, &elem->varinfo, parvi, elem->prefixstr, elem->varsetstr, elem->variantsstr);
+	if (elem->varinfo.dead)
+		return;
 	if (elem->length != 1 && !elem->stride) {
 		if (elem->type != RNN_ETYPE_REG) {
 			fprintf (stderr, "%s has non-1 length, but no stride!\n", elem->fullname);
@@ -696,33 +832,44 @@ static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix, int
 		}
 	}
 	for (i = 0; i < elem->subelemsnum; i++)
-		prepdelem(db,  elem->subelems[i], elem->name?elem->fullname:prefix, width);
+		prepdelem(db,  elem->subelems[i], elem->name?elem->fullname:prefix, &elem->varinfo, width);
 	for (i = 0; i < elem->bitfieldsnum; i++)
-		prepbitfield(db,  elem->bitfields[i], elem->name?elem->fullname:prefix);
+		prepbitfield(db,  elem->bitfields[i], elem->name?elem->fullname:prefix, &elem->varinfo);
 	for (i = 0; i < elem->valsnum; i++)
-		prepvalue(db, elem->vals[i], elem->name?elem->fullname:prefix);
+		prepvalue(db, elem->vals[i], elem->name?elem->fullname:prefix, &elem->varinfo);
+	if (elem->varinfo.prefix && elem->name)
+		elem->fullname = catstr(elem->varinfo.prefix, elem->fullname);
 }
 
 static void prepdomain(struct rnndb *db, struct rnndomain *dom) {
+	prepvarinfo (db, dom->name, &dom->varinfo, 0, dom->prefixstr, dom->varsetstr, dom->variantsstr);
 	int i;
 	for (i = 0; i < dom->subelemsnum; i++)
-		prepdelem(db, dom->subelems[i], dom->bare?0:dom->name, dom->width);
+		prepdelem(db, dom->subelems[i], dom->bare?0:dom->name, &dom->varinfo, dom->width);
+	dom->fullname = catstr(dom->varinfo.prefix, dom->name);
 }
 
 static void prepenum(struct rnndb *db, struct rnnenum *en) {
+	if (en->prepared)
+		return;
+	prepvarinfo (db, en->name, &en->varinfo, 0, en->prefixstr, en->varsetstr, en->variantsstr);
 	int i;
 	if (en->isinline)
 		return;
 	for (i = 0; i < en->valsnum; i++)
-		prepvalue(db, en->vals[i], en->bare?0:en->name);
+		prepvalue(db, en->vals[i], en->bare?0:en->name, &en->varinfo);
+	en->fullname = catstr(en->varinfo.prefix, en->name);
+	en->prepared = 1;
 }
 
 static void prepbitset(struct rnndb *db, struct rnnbitset *bs) {
+	prepvarinfo (db, bs->name, &bs->varinfo, 0, bs->prefixstr, bs->varsetstr, bs->variantsstr);
 	int i;
 	if (bs->isinline)
 		return;
 	for (i = 0; i < bs->bitfieldsnum; i++)
-		prepbitfield(db, bs->bitfields[i], bs->bare?0:bs->name);
+		prepbitfield(db, bs->bitfields[i], bs->bare?0:bs->name, &bs->varinfo);
+	bs->fullname = catstr(bs->varinfo.prefix, bs->name);
 }
 
 void rnn_prepdb (struct rnndb *db) {

@@ -4,7 +4,6 @@ spec:
  - min/align/max
 
 rnn:
- - Implement variants and prefixing with them
  - Implement <group>s
  - Implement <reg*> access types
  - Make a lib
