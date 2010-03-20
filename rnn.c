@@ -53,7 +53,11 @@ static int getboolattrib (struct rnndb *db, char *file, int line, xmlAttr *attr)
 static uint64_t getnumattrib (struct rnndb *db, char *file, int line, xmlAttr *attr) {
 	char *c = getattrib(db, file, line, attr);
 	char *cc;
-	uint64_t res = strtoull(c, &cc, 0);
+	uint64_t res;
+	if (strchr(c, 'x') || strchr(c, 'X'))
+		res = strtoull(c, &cc, 16);
+	else
+		res = strtoull(c, &cc, 10);
 	if (*cc)  {
 		fprintf (stderr, "%s:%d: invalid numeric value \"%s\" in attribute \"%s\"\n", file, line, c, attr->name);
 		db->estatus = 1;
