@@ -1,0 +1,20 @@
+spec:
+ - Add varset/variants to top-level items too?
+ - min/align/max
+
+rnn:
+ - Implement default register stride
+ - Implement inline enums/bitsets
+ - Implement variants and prefixing with them
+ - Implement <group>s
+ - Implement <reg*> access types
+ - Make a lib
+
+headergen:
+ - Make values inside bitfields auto-shifted.
+ - Make stripe/array emit correct stuff.
+ - Make values appear in the same column.
+ - Use 64-bit suffices where applicable
+
+lookup:
+ - well, ummm, write it
