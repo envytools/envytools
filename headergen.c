@@ -7,6 +7,14 @@ uint64_t *strides = 0;
 int stridesnum = 0;
 int stridesmax = 0;
 
+void printbitfield (struct rnnbitfield *bf) {
+	uint64_t mask = (1ULL<<(bf->high+1)) - (1ULL<<bf->low);
+	printf ("#define %s\t%#"PRIx64"\n", bf->fullname, mask);
+	printf ("#define %s__SHIFT\t%d\n", bf->fullname, bf->low);
+	if (bf->shr)
+		printf ("#define %s__SHR\t%d\n", bf->fullname, bf->shr);
+}
+
 void printdelem (struct rnndelem *elem, uint64_t offset) {
 	if (elem->length != 1)
 		RNN_ADDARRAY(strides, elem->stride);
@@ -31,6 +39,9 @@ void printdelem (struct rnndelem *elem, uint64_t offset) {
 			printf ("#define %s__LEN\t%#"PRIx64"\n", elem->fullname, elem->length);
 		if (elem->shr)
 			printf ("#define %s__SHR\t%d\n", elem->fullname, elem->shr);
+		int i;
+		for (i = 0; i < elem->bitfieldsnum; i++)
+			printbitfield(elem->bitfields[i]);
 	}
 	int j;
 	for (j = 0; j < elem->subelemsnum; j++) {
