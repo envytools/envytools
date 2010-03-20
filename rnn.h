@@ -99,6 +99,9 @@ void rnn_init();
 struct rnndb *rnn_newdb();
 void rnn_parsefile (struct rnndb *db, char *file);
 void rnn_prepdb (struct rnndb *db);
+struct rnnenum *rnn_findenum (struct rnndb *db, const char *name);
+struct rnnbitset *rnn_findbitset (struct rnndb *db, const char *name);
+struct rnndomain *rnn_finddomain (struct rnndb *db, const char *name);
 
 #define RNN_ADDARRAY(a, e) \
 	do { \

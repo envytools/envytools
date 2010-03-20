@@ -582,3 +582,27 @@ void rnn_prepdb (struct rnndb *db) {
 	for (i = 0; i < db->domainsnum; i++)
 		prepdomain(db, db->domains[i]);
 }
+
+struct rnnenum *rnn_findenum (struct rnndb *db, const char *name) {
+	int i;
+	for (i = 0; i < db->enumsnum; i++)
+		if (!strcmp(db->enums[i]->name, name))
+			return db->enums[i];
+	return 0;
+}
+
+struct rnnbitset *rnn_findbitset (struct rnndb *db, const char *name) {
+	int i;
+	for (i = 0; i < db->bitsetsnum; i++)
+		if (!strcmp(db->bitsets[i]->name, name))
+			return db->bitsets[i];
+	return 0;
+}
+
+struct rnndomain *rnn_finddomain (struct rnndb *db, const char *name) {
+	int i;
+	for (i = 0; i < db->domainsnum; i++)
+		if (!strcmp(db->domains[i]->name, name))
+			return db->domains[i];
+	return 0;
+}
