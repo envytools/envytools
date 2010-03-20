@@ -2,6 +2,13 @@
 import sys
 from lxml import etree as ET
 
+# this does not recognize octal unlike int(s, 0)
+def intdh(s):
+	if s.startswith("0x"):
+		return int(s[2:], 16)
+	else:
+		return int(s)
+
 if sys.argv[1:2]:
 	xml = sys.argv[1]
 	tree = ET.parse(xml)
@@ -33,9 +40,9 @@ def process(container):
 
 def _process(container):
 	global empty_line
-	maxvalue = max([-1] + [max(int(elem.attrib.get("offset", "-1"), 0), int(elem.attrib.get("value", "-1"), 0)) for elem in container.iterchildren(tag=ET.Element)])
-	maxlow = max([-1] + [int(elem.attrib.get("low", "-1"), 0) for elem in container.iterchildren(tag=ET.Element)])
-	maxhigh = max([-1] + [int(elem.attrib.get("high", "-1"), 0) for elem in container.iterchildren(tag=ET.Element)])
+	maxvalue = max([-1] + [max(intdh(elem.attrib.get("offset", "-1")), intdh(elem.attrib.get("value", "-1"))) for elem in container.iterchildren(tag=ET.Element)])
+	maxlow = max([-1] + [intdh(elem.attrib.get("low", "-1")) for elem in container.iterchildren(tag=ET.Element)])
+	maxhigh = max([-1] + [intdh(elem.attrib.get("high", "-1")) for elem in container.iterchildren(tag=ET.Element)])
 
 	any_multibit = False
 	for elem in container.iterchildren(tag=ET.Element):
@@ -70,7 +77,7 @@ def _process(container):
 		is_reglike = False
 		line = ""
 		if ((tag[:3] == "reg" and tag[3:].isdigit()) or tag == "array" or tag == "stripe") and "offset" in elem.attrib:
-			line = offset_format % (int(elem.attrib.get("offset", -1), 0),)
+			line = offset_format % (intdh(elem.attrib.get("offset", -1)),)
 			del elem.attrib["offset"]
 			if "stride" in elem.attrib:
 				line += " {" + elem.attrib["stride"] + "}"
@@ -85,8 +92,8 @@ def _process(container):
 		elif tag == "bitfield":
 			if "low" not in elem.attrib:
 				print >> sys.stderr, "Bitfield " + elem.attrib.get("name", "<unnamed>") + " has no low bit!"
-			low = int(elem.attrib.get("low", 0), 0)
-			high = int(elem.attrib.get("high", str(low)), 0)
+			low = intdh(elem.attrib.get("low", 0))
+			high = intdh(elem.attrib.get("high", str(low)))
 			if low != high:
 				line = low_format % (low,) + ":" + high_format % (high,)
 			elif any_multibit:
@@ -100,7 +107,7 @@ def _process(container):
 				del elem.attrib["high"]
 		elif tag == "value":
 			if "value" in elem.attrib:
-				line = (value_format % (int(elem.attrib["value"], 0),))
+				line = (value_format % (intdh(elem.attrib["value"]),))
 				if "name" in elem.attrib:
 					line += " = "
 				del elem.attrib["value"]

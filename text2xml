@@ -2,6 +2,13 @@
 import sys
 from lxml import etree as ET
 
+# this does not recognize octal unlike int(s, 0)
+def intdh(s):
+	if s.startswith("0x"):
+		return int(s[2:], 16)
+	else:
+		return int(s)
+
 root = ET.Element("database")
 
 if sys.argv[1:2]:
@@ -191,13 +198,13 @@ while True:
 					elem.attrib["name"] = tokens[0]
 			elif len(tokens) == 2 and (parent_is_reg or ptag == "bitset"):
 				elem = ET.Element("bitfield")
-				elem.attrib["low"] = str(int(tokens[0], 0))
-				elem.attrib["high"] = str(int(tokens[0], 0))
+				elem.attrib["low"] = str(intdh(tokens[0]))
+				elem.attrib["high"] = str(intdh(tokens[0]))
 				elem.attrib["name"] = tokens[1]
 			elif len(tokens) >= 3 and tokens[1] == ":":
 				elem = ET.Element("bitfield")
-				elem.attrib["low"] = str(int(tokens[0], 0))
-				elem.attrib["high"] = str(int(tokens[2], 0))
+				elem.attrib["low"] = str(intdh(tokens[0]))
+				elem.attrib["high"] = str(intdh(tokens[2]))
 				if len(tokens) >= 4:
 					elem.attrib["name"] = tokens[3]
 				if len(tokens) >= 5:
