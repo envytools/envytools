@@ -147,12 +147,96 @@ static void parseenum(struct rnndb *db, char *file, xmlNode *node) {
 	}
 }
 
+static struct rnnbitfield *parsebitfield(struct rnndb *db, char *file, xmlNode *node) {
+	struct rnnbitfield *bf = calloc(sizeof *bf, 1);
+	xmlAttr *attr = node->properties;
+	int highok = 0, lowok = 0;
+	while (attr) {
+		if (!strcmp(attr->name, "name")) {
+			bf->name = strdup(getattrib(db, file, node->line, attr));
+		} else if (!strcmp(attr->name, "high")) {
+			bf->high = getnumattrib(db, file, node->line, attr);
+			highok = 1;
+		} else if (!strcmp(attr->name, "low")) {
+			bf->low = getnumattrib(db, file, node->line, attr);
+			lowok = 1;
+		} else if (!strcmp(attr->name, "shr")) {
+			bf->shr = getnumattrib(db, file, node->line, attr);
+		} else {
+			fprintf (stderr, "%s:%d: wrong attribute \"%s\" for bitfield\n", file, node->line, attr->name);
+			db->estatus = 1;
+		}
+		attr = attr->next;
+	}
+	if (!bf->name) {
+		fprintf (stderr, "%s:%d: nameless bitfield\n", file, node->line);
+		db->estatus = 1;
+		return 0;
+	} else if (!highok || !lowok || bf->high < bf->low) {
+		fprintf (stderr, "%s:%d: bitfield has wrong placement\n", file, node->line);
+		db->estatus = 1;
+		return 0;
+	} else {
+		return bf;
+	}
+}
+
 static void parsebitset(struct rnndb *db, char *file, xmlNode *node) {
+	xmlAttr *attr = node->properties;
+	char *name = 0;
+	int isinline = 0;
+	int bare = 0;
+	char *prefix = "name";
+	int i;
+	while (attr) {
+		if (!strcmp(attr->name, "name")) {
+			name = getattrib(db, file, node->line, attr);
+		} else if (!strcmp(attr->name, "bare")) {
+			bare = getboolattrib(db, file, node->line, attr);
+		} else if (!strcmp(attr->name, "prefix")) {
+			prefix = getattrib(db, file, node->line, attr);
+		} else if (!strcmp(attr->name, "inline")) {
+			isinline = getboolattrib(db, file, node->line, attr);
+		} else {
+			fprintf (stderr, "%s:%d: wrong attribute \"%s\" for bitset\n", file, node->line, attr->name);
+			db->estatus = 1;
+		}
+		attr = attr->next;
+	}
+	if (!name) {
+		fprintf (stderr, "%s:%d: nameless bitset\n", file, node->line);
+		db->estatus = 1;
+		return;
+	}
+	struct rnnbitset *cur = 0;
+	for (i = 0; i < db->bitsetsnum; i++)
+		if (!strcmp(db->bitsets[i]->name, name)) {
+			cur = db->bitsets[i];
+			break;
+		}
+	if (cur) {
+		if (strcmp(cur->prefix, prefix) || cur->isinline != isinline || cur->bare != bare) {
+			fprintf (stderr, "%s:%d: merge fail for bitset %s\n", file, node->line, node->name);
+			db->estatus = 1;
+		}
+	} else {
+		cur = calloc(sizeof *cur, 1);
+		cur->name = strdup(name);
+		cur->prefix = strdup(prefix);
+		cur->isinline = isinline;
+		cur->bare = bare;
+		RNN_ADDARRAY(db->bitsets, cur);
+	}
 	xmlNode *chain = node->children;
 	while (chain) {
 		if (chain->type != XML_ELEMENT_NODE) {
-		} else if (!trytop(db, file, chain)) {
-			fprintf (stderr, "%s:%d: wrong tag in bitset: <%s>\n", file, chain->line, chain->name);
+		} else if (trytop(db, file, chain)) {
+		} else if (!strcmp(chain->name, "bitfield")) {
+			struct rnnbitfield *bf = parsebitfield(db, file, chain);
+			if (bf)
+				RNN_ADDARRAY(cur->bitfields, bf);
+		} else {
+			fprintf (stderr, "%s:%d: wrong tag in enum: <%s>\n", file, chain->line, chain->name);
 			db->estatus = 1;
 		}
 		chain = chain->next;

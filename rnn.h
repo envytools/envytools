@@ -7,6 +7,9 @@ struct rnndb {
 	struct rnnenum **enums;
 	int enumsnum;
 	int enumsmax;
+	struct rnnbitset **bitsets;
+	int bitsetsnum;
+	int bitsetsmax;
 	struct rnndomain **domains;
 	int domainsnum;
 	int domainsmax;
@@ -30,6 +33,23 @@ struct rnnvalue {
 	char *name;
 	int valvalid;
 	uint64_t value;
+	char *fullname;
+};
+
+struct rnnbitset {
+	char *name;
+	int bare;
+	int isinline;
+	char *prefix;
+	struct rnnbitfield **bitfields;
+	int bitfieldsnum;
+	int bitfieldsmax;
+};
+
+struct rnnbitfield {
+	char *name;
+	int low, high;
+	int shr;
 	char *fullname;
 };
 
