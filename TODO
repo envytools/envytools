@@ -13,8 +13,6 @@ rnn:
 headergen:
  - use __MASK or whatever
  - Make stripe/array emit correct stuff.
- - Make values appear in the same column.
- - Use 64-bit suffices where applicable
 
 lookup:
  - well, ummm, write it

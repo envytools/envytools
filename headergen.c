@@ -7,16 +7,57 @@ uint64_t *strides = 0;
 int stridesnum = 0;
 int stridesmax = 0;
 
+int startcol = 64;
+
+void seekcol (int src, int dst) {
+	if (dst <= src)
+		printf ("\t");
+	else {
+		int n = dst/8 - src/8;
+		if (n) {
+			while (n--) 
+				printf ("\t");
+			n = dst&7;
+		} else
+			n = dst-src;
+		while (n--)
+			printf (" ");
+	}
+}
+
+void printdef (char *name, char *suf, int type, uint64_t val) {
+	int len;
+	if (suf)
+		printf ("#define %s__%s%n", name, suf, &len);
+	else
+		printf ("#define %s%n", name, &len);
+	if (type == 0 && val > 0xffffffffull)
+		seekcol (len, startcol-8);
+	else
+		seekcol (len, startcol);
+	switch (type) {
+		case 0:
+			if (val > 0xffffffffull)
+				printf ("0x%016"PRIx64"ULL\n", val);
+			else
+				printf ("0x%08"PRIx64"\n", val);
+			break;
+		case 1:
+			printf ("%"PRIu64"\n", val);
+			break;
+	}
+}
+
 void printvalue (struct rnnvalue *val, int shift) {
 	if (val->valvalid)
-		printf ("#define %s\t%#"PRIx64"\n", val->fullname, val->value<<shift);
+		printdef (val->fullname, 0, 0, val->value << shift);
 }
 
 void printbitfield (struct rnnbitfield *bf) {
-	printf ("#define %s\t%#"PRIx64"\n", bf->fullname, bf->mask);
-	printf ("#define %s__SHIFT\t%d\n", bf->fullname, bf->low);
+	printdef (bf->fullname, 0, 0, bf->mask);
+	printdef (bf->fullname, "SHIFT", 1, bf->low);
 	if (bf->shr)
-		printf ("#define %s__SHR\t%d\n", bf->fullname, bf->shr);
+		printdef (bf->fullname, "SHR", 1, bf->shr);
 	int i;
 	for (i = 0; i < bf->valsnum; i++)
 		printvalue(bf->vals[i], bf->low);
@@ -26,26 +67,33 @@ void printdelem (struct rnndelem *elem, uint64_t offset) {
 	if (elem->length != 1)
 		RNN_ADDARRAY(strides, elem->stride);
 	if (elem->name) {
-		printf ("#define %s", elem->fullname, offset + elem->offset);
 		if (stridesnum) {
+			int len, total;
+			printf ("#define %s(%n", elem->fullname, &total);
 			int i;
-			printf ("(");
 			for (i = 0; i < stridesnum; i++) {
-				if (i) printf(", ");
-				printf ("i%d", i);
+				if (i) {
+					printf(", ");
+					total += 2;
+				}
+				printf ("i%d%n", i, &len);
+				total += len;
 			}
-			printf (")\t(%#"PRIx64"", offset + elem->offset);
+			printf (")");
+			total++;
+			seekcol (total, startcol-1);
+			printf ("(0x%08"PRIx64"", offset + elem->offset);
 			for (i = 0; i < stridesnum; i++)
 				printf (" + %#" PRIx64 "*(i%d)", strides[i], i);
 			printf (")\n");
 		} else
-			printf ("\t%#"PRIx64"\n", offset + elem->offset);
+			printdef (elem->fullname, 0, 0, offset + elem->offset);
 		if (elem->stride)
-			printf ("#define %s__ESIZE\t%#"PRIx64"\n", elem->fullname, elem->stride);
+			printdef (elem->fullname, "ESIZE", 0, elem->stride);
 		if (elem->length != 1)
-			printf ("#define %s__LEN\t%#"PRIx64"\n", elem->fullname, elem->length);
+			printdef (elem->fullname, "LEN", 0, elem->length);
 		if (elem->shr)
-			printf ("#define %s__SHR\t%d\n", elem->fullname, elem->shr);
+			printdef (elem->fullname, "SHR", 1, elem->shr);
 		int i;
 		for (i = 0; i < elem->bitfieldsnum; i++)
 			printbitfield(elem->bitfields[i]);
@@ -86,7 +134,7 @@ int main(int argc, char **argv) {
 	for (i = 0; i < db->domainsnum; i++) {
 		printf ("/* domain %s of width %d */\n", db->domains[i]->name, db->domains[i]->width);
 		if (db->domains[i]->size) 
-			printf ("#define %s__SIZE\t%#"PRIx64"\n", db->domains[i]->name, db->domains[i]->size);
+			printdef (db->domains[i]->name, "SIZE", 0, db->domains[i]->size);
 		int j;
 		for (j = 0; j < db->domains[i]->subelemsnum; j++) {
 			printdelem(db->domains[i]->subelems[j], 0);
