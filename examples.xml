@@ -19,10 +19,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<reg32 offset="5" name="ADDRHIGH" />
 </domain>
 
-<reg32 offset="0x400784" name="PGRAPH_CTXCTL_SWAP" shr="12" />
+<domain name="EXAMPLE1" bare="yes">
+	<reg32 offset="0x400784" name="PGRAPH_CTXCTL_SWAP" shr="12" />
 
-<!-- in a 8-bit domain -->
-<reg32 offset="0x0600" name="NV50_COMPUTE_USER_PARAM" length="64" />
+	<reg32 offset="0x0600" name="NV50_COMPUTE_USER_PARAM" length="64" />
+</domain>
 
 <enum name="SURFACE_FORMAT" prefix="chipset">
 	<value value="6" name="A8R8G8B8" />
@@ -34,12 +35,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x1d01" name="SMOOTH" />
 </enum>
 
-<reg32 offset="0x1234" name="TEXTURE_FORMAT" type="SURFACE_FORMAT" />
-<reg32 offset="0x1238" name="SHADE_MODEL" type="gl_shade_model" />
-<reg32 offset="0x123c" name="PATTERN_SELECT">
-	<value value="1" name="MONO" />
-	<value value="2" name="COLOR" />
-</reg32>
+<domain name="EXAMPLE2">
+	<reg32 offset="0x1234" name="TEXTURE_FORMAT" type="SURFACE_FORMAT" />
+	<reg32 offset="0x1238" name="SHADE_MODEL" type="gl_shade_model" />
+	<reg32 offset="0x123c" name="PATTERN_SELECT">
+		<value value="1" name="MONO" />
+		<value value="2" name="COLOR" />
+	</reg32>
+</domain>
 
 <enum name="chipset">
 	<brief>The chipset of the card</brief>
@@ -99,48 +102,50 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<bitfield high="31" low="16" name="Y" />
 </bitset>
 
-<reg32 offset="0x40014c" name="PGRAPH_CTX_SWITCH_1" type="NV04_GROBJ_1" />
+<domain name="EXAMPLE1" bare="yes">
+	<reg32 offset="0x40014c" name="PGRAPH_CTX_SWITCH_1" type="NV04_GROBJ_1" />
 
-<reg32 offset="0x0404" name="FORMAT">
-	<bitfield high="15" low="0" name="PITCH" />
-	<bitfield high="23" low="16" name="ORIGIN" />
-	<bitfield high="31" low="24" name="FILTER" />
-</reg32>
+	<reg32 offset="0x0404" name="FORMAT">
+		<bitfield high="15" low="0" name="PITCH" />
+		<bitfield high="23" low="16" name="ORIGIN" />
+		<bitfield high="31" low="24" name="FILTER" />
+	</reg32>
 
-<reg32 offset="0x040c" name="POINT" type="xy16" />
+	<reg32 offset="0x040c" name="POINT" type="xy16" />
 
 
-<array offset="0x408000" name="PGRAPH_TP" stride="0x1000" length="8">
-	<array offset="0x200" name="MP" stride="0x80" length="2">
-		<!-- ... -->
-		<reg64 offset="0x70" name="TRAPPED_OPCODE" />
+	<array offset="0x408000" name="PGRAPH_TP" stride="0x1000" length="8">
+		<array offset="0x200" name="MP" stride="0x80" length="2">
+			<!-- ... -->
+			<reg64 offset="0x70" name="TRAPPED_OPCODE" />
+			<!-- ... -->
+		</array>
+		<reg32 offset="0x314" name="MP_TRAP" />
 		<!-- ... -->
 	</array>
-	<reg32 offset="0x314" name="MP_TRAP" />
-	<!-- ... -->
-</array>
 
-<stripe name="PGRAPH" offset="0x400000" variants="NV04-NV05">
-	<reg32 offset="0x100" name="INTR" />
-	<reg32 offset="0x140" name="INTR_EN" />
-</stripe>
-
-<stripe name="PGRAPH" offset="0x400000" variants="NV50-">
-	<reg32 offset="0x100" name="INTR" />
-	<reg32 offset="0x108" name="TRAP" />
-	<reg32 offset="0x138" name="TRAP_EN" />
-	<reg32 offset="0x13c" name="INTR_EN" />
-</stripe>
-
-<stripe name="PVIDEO" offset="0x8000">
-	<stripe offset="0x900" stride="4" length="2">
-		<reg32 offset="0" name="BASE" />
-		<reg32 offset="8" name="LIMIT" />
-		<reg32 offset="0x10" name="LUMINANCE" />
-		<reg32 offset="0x18" name="CHROMINANCE" />
-		<!-- ... -->
+	<stripe name="PGRAPH" offset="0x400000" variants="NV04-NV05">
+		<reg32 offset="0x100" name="INTR" />
+		<reg32 offset="0x140" name="INTR_EN" />
 	</stripe>
-</stripe>
+
+	<stripe name="PGRAPH" offset="0x400000" variants="NV50-">
+		<reg32 offset="0x100" name="INTR" />
+		<reg32 offset="0x108" name="TRAP" />
+		<reg32 offset="0x138" name="TRAP_EN" />
+		<reg32 offset="0x13c" name="INTR_EN" />
+	</stripe>
+
+	<stripe name="PVIDEO" offset="0x8000">
+		<stripe offset="0x900" stride="4" length="2">
+			<reg32 offset="0" name="BASE" />
+			<reg32 offset="8" name="LIMIT" />
+			<reg32 offset="0x10" name="LUMINANCE" />
+			<reg32 offset="0x18" name="CHROMINANCE" />
+			<!-- ... -->
+		</stripe>
+	</stripe>
+</domain>
 
 
 <domain name="NV_OBJECT" bare="yes">
@@ -187,6 +192,7 @@ Really!
 	<!-- ... -->
 </group>
 
+<domain name="EXAMPLE1" bare="yes">
 <array offset="0x408000" name="PGRAPH_TP" stride="0x1000" length="8" variants="NV50:NVA0">
 	<array offset="0x200" name="MP" stride="0x80" length="2">
 		<use-group name="nv50_mp" />
@@ -199,6 +205,7 @@ Really!
 	</array>
 	<!-- ... -->
 </array>
+</domain>
 
 </database>
 
