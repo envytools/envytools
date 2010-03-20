@@ -531,12 +531,20 @@ static void prepbitfield(struct rnndb *db, struct rnnbitfield *bf, char *prefix)
 		prepvalue(db, bf->vals[i], bf->fullname);
 }
 
-static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix) {
+static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix, int width) {
 	if (elem->name)
 		elem->fullname = catstr(prefix, elem->name);
+	if (elem->length != 1 && !elem->stride) {
+		if (elem->type != RNN_ETYPE_REG) {
+			fprintf (stderr, "%s has non-1 length, but no stride!\n", elem->fullname);
+			db->estatus = 1;
+		} else {
+			elem->stride = elem->width/width;
+		}
+	}
 	int i;
 	for (i = 0; i < elem->subelemsnum; i++)
-		prepdelem(db,  elem->subelems[i], elem->name?elem->fullname:prefix);
+		prepdelem(db,  elem->subelems[i], elem->name?elem->fullname:prefix, width);
 	for (i = 0; i < elem->bitfieldsnum; i++)
 		prepbitfield(db,  elem->bitfields[i], elem->name?elem->fullname:prefix);
 	for (i = 0; i < elem->valsnum; i++)
@@ -546,7 +554,7 @@ static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix) {
 static void prepdomain(struct rnndb *db, struct rnndomain *dom) {
 	int i;
 	for (i = 0; i < dom->subelemsnum; i++)
-		prepdelem(db, dom->subelems[i], dom->bare?0:dom->name);
+		prepdelem(db, dom->subelems[i], dom->bare?0:dom->name, dom->width);
 }
 
 static void prepenum(struct rnndb *db, struct rnnenum *en) {

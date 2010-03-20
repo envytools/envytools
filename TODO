@@ -3,7 +3,6 @@ spec:
  - min/align/max
 
 rnn:
- - Implement default register stride
  - Implement inline enums/bitsets
  - Implement variants and prefixing with them
  - Implement <group>s
