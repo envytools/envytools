@@ -80,6 +80,9 @@ struct rnndelem {
 	struct rnndelem **subelems;
 	int subelemsnum;
 	int subelemsmax;
+	struct rnnbitfield **bitfields;
+	int bitfieldsnum;
+	int bitfieldsmax;
 	char *varsetstr;
 	char *variantsstr;
 	char *fullname;

@@ -329,6 +329,20 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 		}
 		attr = attr->next;
 	}
+	xmlNode *chain = node->children;
+	while (chain) {
+		struct rnndelem *delem;
+		if (chain->type != XML_ELEMENT_NODE) {
+		} else if (!strcmp(chain->name, "bitfield")) {
+			struct rnnbitfield *bf = parsebitfield(db, file, chain);
+			if (bf)
+				RNN_ADDARRAY(res->bitfields, bf);
+		} else if (!trytop(db, file, chain)) {
+			fprintf (stderr, "%s:%d: wrong tag in %s: <%s>\n", file, chain->line, node->name, chain->name);
+			db->estatus = 1;
+		}
+		chain = chain->next;
+	}
 	if (!res->name) {
 		fprintf (stderr, "%s:%d: nameless register\n", file, node->line);
 		db->estatus = 1;
@@ -475,6 +489,10 @@ void rnn_parsefile (struct rnndb *db, char *file) {
 	xmlFreeDoc(doc);
 }
 
+static void prepbitfield(struct rnndb *db, struct rnnbitfield *bf, char *prefix) {
+	bf->fullname = catstr(prefix, bf->name);
+}
+
 static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix) {
 	if (elem->name)
 		if (prefix)
@@ -484,6 +502,8 @@ static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix) {
 	int i;
 	for (i = 0; i < elem->subelemsnum; i++)
 		prepdelem(db,  elem->subelems[i], elem->name?elem->fullname:prefix);
+	for (i = 0; i < elem->bitfieldsnum; i++)
+		prepbitfield(db,  elem->bitfields[i], elem->name?elem->fullname:prefix);
 }
 
 static void prepdomain(struct rnndb *db, struct rnndomain *dom) {
