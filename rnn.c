@@ -174,6 +174,18 @@ static struct rnnbitfield *parsebitfield(struct rnndb *db, char *file, xmlNode *
 			lowok = 1;
 		} else if (!strcmp(attr->name, "shr")) {
 			bf->shr = getnumattrib(db, file, node->line, attr);
+		} else if (!strcmp(attr->name, "type")) {
+			char *str = getattrib(db, file, node->line, attr);
+			while (1) {
+				while (*str == ' ') str++;
+				if (!*str) break;
+				char *newstr = strchr (str, ' ');
+				if (!newstr) newstr = str + strlen(str);
+				struct rnntype *tp = calloc(sizeof *tp, 1);
+				tp->name = strndup(str, newstr-str); 
+				RNN_ADDARRAY(bf->types,tp);
+				str = newstr;
+			}
 		} else {
 			fprintf (stderr, "%s:%d: wrong attribute \"%s\" for bitfield\n", file, node->line, attr->name);
 			db->estatus = 1;
@@ -349,6 +361,18 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 			res->varsetstr = strdup(getattrib(db, file, node->line, attr));
 		} else if (!strcmp(attr->name, "variants")) {
 			res->variantsstr = strdup(getattrib(db, file, node->line, attr));
+		} else if (!strcmp(attr->name, "type")) {
+			char *str = getattrib(db, file, node->line, attr);
+			while (1) {
+				while (*str == ' ') str++;
+				if (!*str) break;
+				char *newstr = strchr (str, ' ');
+				if (!newstr) newstr = str + strlen(str);
+				struct rnntype *tp = calloc(sizeof *tp, 1);
+				tp->name = strndup(str, newstr-str); 
+				RNN_ADDARRAY(res->types,tp);
+				str = newstr;
+			}
 		} else {
 			fprintf (stderr, "%s:%d: wrong attribute \"%s\" for register\n", file, node->line, attr->name);
 			db->estatus = 1;
@@ -519,6 +543,14 @@ void rnn_parsefile (struct rnndb *db, char *file) {
 	xmlFreeDoc(doc);
 }
 
+static struct rnnvalue *copyvalue (struct rnnvalue *val) {
+	struct rnnvalue *res = calloc (sizeof *res, 1);
+	res->name = val->name;
+	res->valvalid = val->valvalid;
+	res->value = val->value;
+	return res;
+}
+
 static void prepvalue(struct rnndb *db, struct rnnvalue *val, char *prefix) {
 	val->fullname = catstr(prefix, val->name);
 }
@@ -527,6 +559,21 @@ static void prepbitfield(struct rnndb *db, struct rnnbitfield *bf, char *prefix)
 	bf->fullname = catstr(prefix, bf->name);
 	bf->mask = (1ULL<<(bf->high+1)) - (1ULL<<bf->low);
 	int i;
+	for (i = 0; i < bf->typesnum; i++) {
+		bf->types[i]->type = RNN_TTYPE_OTHER;
+		struct rnnenum *en = rnn_findenum (db, bf->types[i]->name);
+		if (en) {
+			if (en->isinline) {
+				bf->types[i]->type = RNN_TTYPE_INLINE_ENUM;
+				int j;
+				for (j = 0; j < en->valsnum; j++)
+					RNN_ADDARRAY(bf->vals, copyvalue(en->vals[j]));
+			} else {
+				bf->types[i]->type = RNN_TTYPE_ENUM;
+				bf->types[i]->eenum = en;
+			}
+		}
+	}
 	for (i = 0; i < bf->valsnum; i++)
 		prepvalue(db, bf->vals[i], bf->fullname);
 }
@@ -543,6 +590,21 @@ static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix, int
 		}
 	}
 	int i;
+	for (i = 0; i < elem->typesnum; i++) {
+		elem->types[i]->type = RNN_TTYPE_OTHER;
+		struct rnnenum *en = rnn_findenum (db, elem->types[i]->name);
+		if (en) {
+			if (en->isinline) {
+				elem->types[i]->type = RNN_TTYPE_INLINE_ENUM;
+				int j;
+				for (j = 0; j < en->valsnum; j++)
+					RNN_ADDARRAY(elem->vals, copyvalue(en->vals[j]));
+			} else {
+				elem->types[i]->type = RNN_TTYPE_ENUM;
+				elem->types[i]->eenum = en;
+			}
+		}
+	}
 	for (i = 0; i < elem->subelemsnum; i++)
 		prepdelem(db,  elem->subelems[i], elem->name?elem->fullname:prefix, width);
 	for (i = 0; i < elem->bitfieldsnum; i++)

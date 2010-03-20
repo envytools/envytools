@@ -36,6 +36,16 @@ struct rnnvalue {
 	char *fullname;
 };
 
+struct rnntype {
+	char *name;
+	enum rnnttype {
+		RNN_TTYPE_INLINE_ENUM,
+		RNN_TTYPE_ENUM,
+		RNN_TTYPE_OTHER,
+	} type;
+	struct rnnenum *eenum;
+};
+
 struct rnnbitset {
 	char *name;
 	int bare;
@@ -54,6 +64,9 @@ struct rnnbitfield {
 	struct rnnvalue **vals;
 	int valsnum;
 	int valsmax;
+	struct rnntype **types;
+	int typesnum;
+	int typesmax;
 	char *fullname;
 };
 
@@ -92,6 +105,9 @@ struct rnndelem {
 	int valsmax;
 	char *varsetstr;
 	char *variantsstr;
+	struct rnntype **types;
+	int typesnum;
+	int typesmax;
 	char *fullname;
 };
 

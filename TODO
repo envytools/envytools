@@ -3,7 +3,7 @@ spec:
  - min/align/max
 
 rnn:
- - Implement inline enums/bitsets
+ - Implement inline bitsets
  - Implement variants and prefixing with them
  - Implement <group>s
  - Implement <reg*> access types
