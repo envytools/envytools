@@ -575,10 +575,10 @@ static void prepbitset(struct rnndb *db, struct rnnbitset *bs) {
 
 void rnn_prepdb (struct rnndb *db) {
 	int i;
-	for (i = 0; i < db->domainsnum; i++)
-		prepdomain(db, db->domains[i]);
 	for (i = 0; i < db->enumsnum; i++)
 		prepenum(db, db->enums[i]);
 	for (i = 0; i < db->bitsetsnum; i++)
 		prepbitset(db, db->bitsets[i]);
+	for (i = 0; i < db->domainsnum; i++)
+		prepdomain(db, db->domains[i]);
 }
