@@ -491,6 +491,10 @@ void rnn_parsefile (struct rnndb *db, char *file) {
 	xmlFreeDoc(doc);
 }
 
+static void prepvalue(struct rnndb *db, struct rnnvalue *val, char *prefix) {
+	val->fullname = catstr(prefix, val->name);
+}
+
 static void prepbitfield(struct rnndb *db, struct rnnbitfield *bf, char *prefix) {
 	bf->fullname = catstr(prefix, bf->name);
 	bf->mask = (1ULL<<(bf->high+1)) - (1ULL<<bf->low);
@@ -515,10 +519,7 @@ static void prepdomain(struct rnndb *db, struct rnndomain *dom) {
 static void prepenum(struct rnndb *db, struct rnnenum *en) {
 	int i;
 	for (i = 0; i < en->valsnum; i++)
-		if (en->bare)
-			en->vals[i]->fullname = en->vals[i]->name;
-		else
-			en->vals[i]->fullname = catstr(en->name, en->vals[i]->name);
+		prepvalue(db, en->vals[i], en->bare?0:en->name);
 }
 
 void rnn_prepdb (struct rnndb *db) {
