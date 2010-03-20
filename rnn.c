@@ -61,6 +61,30 @@ static uint64_t getnumattrib (struct rnndb *db, char *file, int line, xmlAttr *a
 
 static int trytop (struct rnndb *db, char *file, xmlNode *node);
 
+static struct rnnvalue *parsevalue(struct rnndb *db, char *file, xmlNode *node) {
+	struct rnnvalue *val = calloc(sizeof *val, 1);
+	xmlAttr *attr = node->properties;
+	while (attr) {
+		if (!strcmp(attr->name, "name")) {
+			val->name = strdup(getattrib(db, file, node->line, attr));
+		} else if (!strcmp(attr->name, "value")) {
+			val->value = getnumattrib(db, file, node->line, attr);
+			val->valvalid = 1;
+		} else {
+			fprintf (stderr, "%s:%d: wrong attribute \"%s\" for value\n", file, node->line, attr->name);
+			db->estatus = 1;
+		}
+		attr = attr->next;
+	}
+	if (!val->name) {
+		fprintf (stderr, "%s:%d: nameless value\n", file, node->line);
+		db->estatus = 1;
+		return 0;
+	} else {
+		return val;
+	}
+}
+
 static void parseenum(struct rnndb *db, char *file, xmlNode *node) {
 	xmlAttr *attr = node->properties;
 	char *name = 0;
@@ -112,26 +136,9 @@ static void parseenum(struct rnndb *db, char *file, xmlNode *node) {
 		if (chain->type != XML_ELEMENT_NODE) {
 		} else if (trytop(db, file, chain)) {
 		} else if (!strcmp(chain->name, "value")) {
-			struct rnnvalue *val = calloc(sizeof *val, 1);
-			attr = chain->properties;
-			while (attr) {
-				if (!strcmp(attr->name, "name")) {
-					val->name = strdup(getattrib(db, file, chain->line, attr));
-				} else if (!strcmp(attr->name, "value")) {
-					val->value = getnumattrib(db, file, node->line, attr);
-					val->valvalid = 1;
-				} else {
-					fprintf (stderr, "%s:%d: wrong attribute \"%s\" for value\n", file, chain->line, attr->name);
-					db->estatus = 1;
-				}
-				attr = attr->next;
-			}
-			if (!val->name) {
-				fprintf (stderr, "%s:%d: nameless value\n", file, chain->line);
-				db->estatus = 1;
-			} else {
+			struct rnnvalue *val = parsevalue(db, file, chain);
+			if (val)
 				RNN_ADDARRAY(cur->vals, val);
-			}
 		} else {
 			fprintf (stderr, "%s:%d: wrong tag in enum: <%s>\n", file, chain->line, chain->name);
 			db->estatus = 1;
