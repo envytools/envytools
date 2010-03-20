@@ -10,11 +10,11 @@
 </enum>
 
 <enum name="nv50_tic_type" inline="yes">
-#define NV50TIC_0_0_TYPEA_UNORM                                   0x00010000
-#define NV50TIC_0_0_TYPEA_SNORM                                   0x00008000
-#define NV50TIC_0_0_TYPEA_SINT                                    0x00018000
-#define NV50TIC_0_0_TYPEA_UINT                                    0x00020000
-#define NV50TIC_0_0_TYPEA_FLOAT                                   0x00038000
+	<value value="1" name="SNORM" />
+	<value value="2" name="UNORM" />
+	<value value="3" name="SINT" />
+	<value value="4" name="UINT" />
+	<value value="7" name="FLOAT" />
 </enum>
 
 <domain name="NV50_TIC">
