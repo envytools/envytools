@@ -39,7 +39,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0697" name="NV34TCL"/>
 	<value value="0x4097" name="NV40TCL"/>
 	<value value="0x4497" name="NV44TCL"/>
-	<value value="0x502d" name="NV50_2D"/>
 	<value value="0x5097" name="NV50TCL"/>
 	<value value="0x8297" name="NV84TCL"/>
 	<value value="0x8397" name="NVA0TCL"/>
@@ -80,6 +79,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nv_m2mf.xml" />
 <import file="nv01_2d.xml" />
 <import file="nv04_dvd.xml" />
+<import file="nv50_2d.xml" />
 <import file="nv50_compute.xml" />
 
 </database>
