@@ -42,8 +42,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0089" name="NV10_SCALED_IMAGE_FROM_MEMORY"/>
 	<value value="0x0389" name="NV30_SCALED_IMAGE_FROM_MEMORY"/>
 	<value value="0x3089" name="NV40_SCALED_IMAGE_FROM_MEMORY"/>
-	<value value="0x0038" name="NV04_DVD_SUBPICTURE"/>
-	<value value="0x0088" name="NV10_DVD_SUBPICTURE"/>
 	<value value="0x003d" name="NV01_MEMORY_LOCAL_BANKED"/>
 	<value value="0x003e" name="NV01_MAPPING_SYSTEM"/>
 	<value value="0x003f" name="NV03_MEMORY_LOCAL_CURSOR"/>
@@ -129,6 +127,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 </domain>
 
 <import file="nv_m2mf.xml" />
+<import file="nv04_dvd.xml" />
 <import file="nv50_compute.xml" />
 
 </database>
