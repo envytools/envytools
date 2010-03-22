@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="nvchipsets.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+	<stripe offset="0x2000" name="PFIFO" stride="0x2000" length="1" variants="NV01">
+		<reg32 offset="0x100" name="INTR_0">
+			<bitfield high="0" low="0" name="CACHE_ERROR"/>
+			<bitfield high="4" low="4" name="RUNOUT"/>
+			<bitfield high="8" low="8" name="RUNOUT_OVERFLOW"/>
+		</reg32>
+		<reg32 offset="0x140" name="INTR_EN_0">
+			<bitfield high="0" low="0" name="CACHE_ERROR"/>
+			<bitfield high="4" low="4" name="RUNOUT"/>
+			<bitfield high="8" low="8" name="RUNOUT_OVERFLOW"/>
+		</reg32>
+		<reg32 offset="0x200" name="CONFIG_0" variants="NV01">
+			<bitfield high="1" low="0" name="FREE_LIE">
+				<value value="0" name="DISABLED"/>
+				<value value="1" name="252_BYTES"/>
+				<value value="2" name="508_BYTES"/>
+				<value value="3" name="1020_BYTES"/>
+			</bitfield>
+		</reg32>
+
+		<reg32 offset="0x400" name="RUNOUT_STATUS">
+			<bitfield high="0" low="0" name="RANOUT" />
+			<bitfield high="4" low="4" name="EMPTY" />
+			<bitfield high="8" low="8" name="FULL" />
+		</reg32>
+		<reg32 offset="0x410" name="RUNOUT_PUT"/>
+		<reg32 offset="0x420" name="RUNOUT_GET"/>
+
+		<reg32 offset="0x500" name="CACHES">
+			<bitfield high="0" low="0" name="REASSIGN"/>
+		</reg32>
+
+		<reg32 offset="0x1000" name="CACHE0_PUSH0">
+			<bitfield high="0" low="0" name="ACCESS"/>
+		</reg32>
+		<reg32 offset="0x1010" name="CACHE0_PUSH1">
+			<bitfield high="6" low="0" name="CHID"/>
+		</reg32>
+		<reg32 offset="0x1030" name="CACHE0_PUT"/>
+		<reg32 offset="0x1040" name="CACHE0_PULL0">
+			<bitfield high="0" low="0" name="ACCESS"/>
+		</reg32>
+		<reg32 offset="0x1050" name="CACHE0_PULL1">
+			<bitfield high="8" low="8" name="OBJECT">
+				<value value="0" name="UNCHANGED"/>
+				<value value="1" name="CHANGED"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x1070" name="CACHE0_GET"/>
+		<array offset="0x1080" name="CACHE0_CTX" stride="0x10" length="1"/>
+
+		<reg32 offset="0x1200" name="CACHE1_PUSH0">
+			<bitfield high="0" low="0" name="ACCESS"/>
+		</reg32>
+		<reg32 offset="0x1210" name="CACHE1_PUSH1">
+			<bitfield high="6" low="0" name="CHID"/>
+		</reg32>
+		<reg32 offset="0x1230" name="CACHE1_PUT"/>
+		<reg32 offset="0x1240" name="CACHE1_PULL0">
+			<bitfield high="0" low="0" name="ACCESS"/>
+			<bitfield high="4" low="4" name="HASH">
+				<value value="0" name="SUCCEEDED"/>
+				<value value="1" name="FAILED"/>
+			</bitfield>
+			<bitfield high="8" low="8" name="DEVICE">
+				<value value="0" name="SOFTWARE"/>
+				<value value="1" name="HARDWARE"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x1250" name="CACHE1_PULL1">
+			<bitfield high="2" low="0" name="SUBCHANNEL"/>
+			<bitfield high="4" low="4" name="CTX">
+				<value value="0" name="CLEAN"/>
+				<value value="1" name="DIRTY"/>
+			</bitfield>
+			<bitfield high="8" low="8" name="OBJECT">
+				<value value="0" name="UNCHANGED"/>
+				<value value="1" name="CHANGED"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x1270" name="CACHE1_GET"/>
+		<array offset="0x1280" name="CACHE1_CTX" stride="0x10" length="8"/>
+	</stripe>
+</domain>
+
+</database>
