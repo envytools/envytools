@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<bitset name="xy16" inline="yes">
+	<bitfield low="0" high="15" name="X" type="uint" />
+	<bitfield low="16" high="31" name="Y" type="uint" />
+</bitset>
+
+<bitset name="wh16" inline="yes">
+	<bitfield low="0" high="15" name="W" type="uint" />
+	<bitfield low="16" high="31" name="H" type="uint" />
+</bitset>
+
+</database>
