@@ -606,6 +606,9 @@ static struct rnnvalue *copyvalue (struct rnnvalue *val) {
 	res->name = val->name;
 	res->valvalid = val->valvalid;
 	res->value = val->value;
+	res->prefixstr = val->prefixstr;
+	res->varsetstr = val->varsetstr;
+	res->variantsstr = val->variantsstr;
 	return res;
 }
 
@@ -621,6 +624,9 @@ static struct rnnbitfield *copybitfield (struct rnnbitfield *bf) {
 	res->low = bf->low;
 	res->high = bf->high;
 	res->shr = bf->shr;
+	res->prefixstr = bf->prefixstr;
+	res->varsetstr = bf->varsetstr;
+	res->variantsstr = bf->variantsstr;
 	int i;
 	for (i = 0; i < bf->valsnum; i++)
 		RNN_ADDARRAY(res->vals, copyvalue(bf->vals[i]));
