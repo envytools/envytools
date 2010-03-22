@@ -3,8 +3,6 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
-<import file="nvclasses.xml"/>
-
 <enum name="nv50_cond_mode" inline="yes">
 	<value value="0" name="NEVER"/>
 	<value value="1" name="ALWAYS"/>

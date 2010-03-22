@@ -129,5 +129,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 </domain>
 
 <import file="nv_m2mf.xml" />
+<import file="nv50_compute.xml" />
 
 </database>
