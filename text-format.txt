@@ -20,7 +20,7 @@ The content of multiple lines starting with ":" is merged in a single <doc> tag.
 
 The line is then tokenized.
 Token are generally continuous strings on non-whitespace characters, with some exceptions
-Some characters (such as ":" and "=") form a single-character token.
+Some characters (such as ":", "=" and "-") form a single-character token.
 Text within double quotes generates a <brief> tag.
 Any token formatted as ATTR(VALUE) generates an ATTR="VALUE" attribute. No whitespace allowed between ATTR and the '(' character.
 Any token formatted as (VALUE) generates a variants="VALUE" attribute.
@@ -87,7 +87,7 @@ POS NAME
 	<bitfield low="POS" high="POS" name="NAME"/> if inside a reg or bitset
 	<REGLIKE offset="POS" name="NAME"> otherwise
 
-LOW : HIGH NAME [TYPE]
+LOW - HIGH NAME [TYPE]
 	<bitfield low="LOW" high="HIGH" name="NAME" type="TYPE"/>
 
 VALUE = NAME

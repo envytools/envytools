@@ -95,7 +95,7 @@ def _process(container):
 			low = intdh(elem.attrib.get("low", 0))
 			high = intdh(elem.attrib.get("high", str(low)))
 			if low != high:
-				line = low_format % (low,) + ":" + high_format % (high,)
+				line = low_format % (low,) + "-" + high_format % (high,)
 			elif any_multibit:
 #				line = (" " * (len(str(maxlow)))) + low_format % (low,) + (" " * (len(str(maxhigh)) - len(str(maxlow)) + 1))
 				line = low_format % (low,) + (" " * (len(str(maxhigh)) + 1))

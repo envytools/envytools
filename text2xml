@@ -67,7 +67,7 @@ def reduce_stack(target):
 		stack[-1][1].tail = "\n" + indent_str(stack[-2][0])
 		stack = stack[:-1]
 
-special_chars = ":=[]{}"
+special_chars = ":=[]{}-"
 
 stack = [(-1, root)]
 last_attachment = None
@@ -201,7 +201,7 @@ while True:
 				elem.attrib["low"] = str(intdh(tokens[0]))
 				elem.attrib["high"] = str(intdh(tokens[0]))
 				elem.attrib["name"] = tokens[1]
-			elif len(tokens) >= 3 and tokens[1] == ":":
+			elif len(tokens) >= 3 and tokens[1] == "-":
 				elem = ET.Element("bitfield")
 				elem.attrib["low"] = str(intdh(tokens[0]))
 				elem.attrib["high"] = str(intdh(tokens[2]))
