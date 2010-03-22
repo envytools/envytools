@@ -772,7 +772,10 @@ static void prepbitfield(struct rnndb *db, struct rnnbitfield *bf, char *prefix,
 	prepvarinfo (db, bf->fullname, &bf->varinfo, parvi, bf->prefixstr, bf->varsetstr, bf->variantsstr);
 	if (bf->varinfo.dead)
 		return;
-	bf->mask = (1ULL<<(bf->high+1)) - (1ULL<<bf->low);
+	if (bf->high == 63)
+		bf->mask = - (1ULL<<bf->low);
+	else
+		bf->mask = (1ULL<<(bf->high+1)) - (1ULL<<bf->low);
 	int i;
 	for (i = 0; i < bf->typesnum; i++) {
 		bf->types[i]->type = RNN_TTYPE_OTHER;
