@@ -10,15 +10,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0002" name="NV01_CONTEXT_DMA"/>
 	<value value="0x0003" name="NV01_DEVICE"/>
 	<value value="0x0004" name="NV01_TIMER"/>
-	<value value="0x001f" name="NV01_IMAGE_BLIT"/>
-	<value value="0x005f" name="NV04_IMAGE_BLIT"/>
-	<value value="0x009f" name="NV11_IMAGE_BLIT"/>
-	<value value="0x0021" name="NV01_IMAGE_FROM_CPU"/>
-	<value value="0x0061" name="NV04_IMAGE_FROM_CPU"/>
-	<value value="0x0065" name="NV05_IMAGE_FROM_CPU"/>
-	<value value="0x008a" name="NV10_IMAGE_FROM_CPU"/>
-	<value value="0x038a" name="NV30_IMAGE_FROM_CPU"/>
-	<value value="0x308a" name="NV40_IMAGE_FROM_CPU"/>
 	<value value="0x0030" name="NV01_NULL"/>
 	<value value="0x0036" name="NV03_STRETCHED_IMAGE_FROM_CPU"/>
 	<value value="0x0076" name="NV04_STRETCHED_IMAGE_FROM_CPU"/>
@@ -51,8 +42,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0099" name="NV17TCL"/>
 	<value value="0x0058" name="NV03_CONTEXT_SURFACES_2D"/>
 	<value value="0x005a" name="NV03_CONTEXT_SURFACES_3D"/>
-	<value value="0x0060" name="NV04_INDEXED_IMAGE_FROM_CPU"/>
-	<value value="0x0064" name="NV05_INDEXED_IMAGE_FROM_CPU"/>
 	<value value="0x006a" name="NV03_CHANNEL_PIO"/>
 	<value value="0x006b" name="NV03_CHANNEL_DMA"/>
 	<value value="0x007b" name="NV10_TEXTURE_FROM_CPU"/>
