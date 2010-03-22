@@ -12,12 +12,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<stripe prefix="obj-class" variants="NV04_MEMORY_TO_MEMORY_FORMAT-NV50_MEMORY_TO_MEMORY_FORMAT">
 		<reg32 offset="0x0100" name="NOP"/>
 		<reg32 offset="0x0104" name="NOTIFY"/>
+		<stripe variants="NV50_MEMORY_TO_MEMORY_FORMAT">
+			<reg32 offset="0x0110" name="SERIALIZE"/>
+			<reg32 offset="0x0140" name="UNK140"/>
+		</stripe>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_BUFFER_IN" type="object"/>
 		<reg32 offset="0x0188" name="DMA_BUFFER_OUT" type="object"/>
 		<stripe variants="NV50_MEMORY_TO_MEMORY_FORMAT">
-			<reg32 offset="0x0110" name="SERIALIZE"/>
-			<reg32 offset="0x0140" name="UNK140"/>
 			<reg32 offset="0x0200" name="LINEAR_IN" type="boolean"/>
 			<reg32 offset="0x0204" name="TILING_MODE_IN" type="hexa"/>
 			<reg32 offset="0x0208" name="TILING_PITCH_IN" type="int"/>
@@ -38,18 +40,25 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<bitfield name="X" high="15" low="0" type="int"/>
 				<bitfield name="Y" high="31" low="16" type="int"/>
 			</reg32>
-			<reg32 offset="0x0238" name="OFFSET_IN_HIGH" type="hexa"/>
-			<reg32 offset="0x023c" name="OFFSET_OUT_HIGH" type="hexa"/>
+			<reg32 offset="0x0238" name="OFFSET_IN_HIGH"/>
+			<reg32 offset="0x023c" name="OFFSET_OUT_HIGH"/>
 		</stripe>
-		<reg32 offset="0x030c" name="OFFSET_IN" type="hexa"/>
-		<reg32 offset="0x0310" name="OFFSET_OUT" type="hexa"/>
+		<reg32 offset="0x030c" name="OFFSET_IN"/>
+		<reg32 offset="0x0310" name="OFFSET_OUT"/>
 		<reg32 offset="0x0314" name="PITCH_IN" type="int"/>
 		<reg32 offset="0x0318" name="PITCH_OUT" type="int"/>
-		<reg32 offset="0x031c" name="LINE_LENGTH_IN" type="int"/>
-		<reg32 offset="0x0320" name="LINE_COUNT" type="int"/>
+		<reg32 offset="0x031c" name="LINE_LENGTH_IN" type="uint"/>
+		<reg32 offset="0x0320" name="LINE_COUNT" type="uint"/>
+		<enum name="nv_m2mf_inc" inline="yes">
+			<value value="1" name="1" />
+			<value value="2" name="2" />
+			<value value="4" name="4" />
+			<value value="8" name="8" variants="NV50_MEMORY_TO_MEMORY_FORMAT" /> <!-- XXX: do these work only for tiled or what? -->
+			<value value="0x10" name="16" variants="NV50_MEMORY_TO_MEMORY_FORMAT" />
+		</enum>
 		<reg32 offset="0x0324" name="FORMAT" type="bitfield">
-			<bitfield name="INPUT_INC" high="7" low="0" type="int"/> <!-- 1, 2, 4, 8, 0x10 -->
-			<bitfield name="OUTPUT_INC" high="15" low="8" type="int"/> <!-- 1, 2, 4, 8, 0x10 -->
+			<bitfield name="INPUT_INC" high="7" low="0" type="nv_m2mf_inc"/>
+			<bitfield name="OUTPUT_INC" high="15" low="8" type="nv_m2mf_inc"/>
 		</reg32>
 		<reg32 offset="0x0328" name="BUF_NOTIFY"/>
 	</stripe>
