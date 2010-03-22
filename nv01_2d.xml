@@ -104,6 +104,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0089" name="NV10_SCALED_IMAGE_FROM_MEMORY"/>
 	<value value="0x0389" name="NV30_SCALED_IMAGE_FROM_MEMORY"/>
 	<value value="0x3089" name="NV40_SCALED_IMAGE_FROM_MEMORY"/>
+	<value value="0x004b" name="NV03_GDI_RECTANGLE_TEXT"/>
+	<value value="0x004a" name="NV04_GDI_RECTANGLE_TEXT"/>
 </enum>
 
 <domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
@@ -504,6 +506,119 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 	</stripe>
 
+	<stripe prefix="obj-class" variants="NV03_GDI_RECTANGLE_TEXT">
+		<reg32 offset="0x0100" name="NOP"/>
+		<reg32 offset="0x0104" name="NOTIFY"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="PATTERN" type="object"/>
+		<reg32 offset="0x0188" name="ROP" type="object"/>
+		<reg32 offset="0x018c" name="BETA1" type="object"/>
+		<reg32 offset="0x0190" name="SURFACE" type="object"/>
+		<reg32 offset="0x02fc" name="OPERATION"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT"/>
+		<reg32 offset="0x0304" name="MONOCHROME_FORMAT"/>
+		<reg32 offset="0x03fc" name="COLOR1_A"/>
+		<reg32 offset="0x0400" name="UNCLIPPED_RECTANGLE_POINT">
+			<bitfield name="Y" high="15" low="0" type="int"/>
+			<bitfield name="X" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0404" name="UNCLIPPED_RECTANGLE_SIZE">
+			<bitfield name="H" high="15" low="0" type="int"/>
+			<bitfield name="W" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x07f4" name="CLIP_POINT0_B" type="lt16"/>
+		<reg32 offset="0x07f8" name="CLIP_POINT1_B" type="rb16"/>
+		<reg32 offset="0x07fc" name="COLOR1_B"/>
+		<reg32 offset="0x0800" name="CLIPPED_RECTANGLE_POINT_0" type="lt16"/>
+		<reg32 offset="0x0804" name="CLIPPED_RECTANGLE_POINT_1" type="rb16"/>
+		<reg32 offset="0x0bec" name="CLIP_C_POINT0" type="lt16"/>
+		<reg32 offset="0x0bf0" name="CLIP_C_POINT1" type="rb16"/>
+		<reg32 offset="0x0bf4" name="COLOR1_C"/>
+		<reg32 offset="0x0bf8" name="SIZE_C" type="wh16"/>
+		<reg32 offset="0x0bfc" name="POINT_C" type="xy16"/>
+		<reg32 offset="0x0c00" name="MONOCHROME_COLOR1_C" length="32"/>
+		<reg32 offset="0x0fe8" name="CLIP_D_POINT0" type="lt16"/>
+		<reg32 offset="0x0fec" name="CLIP_D_POINT1" type="rb16"/>
+		<reg32 offset="0x0ff0" name="COLOR1_D"/>
+		<reg32 offset="0x0ff4" name="SIZE_IN_D" type="wh16"/>
+		<reg32 offset="0x0ff8" name="SIZE_OUT_D" type="wh16"/>
+		<reg32 offset="0x0ffc" name="POINT_D" type="xy16"/>
+		<reg32 offset="0x1000" name="MONOCHROME_COLOR1_D" length="32"/>
+		<reg32 offset="0x13e4" name="CLIP_E_POINT0" type="lt16"/>
+		<reg32 offset="0x13e8" name="CLIP_E_POINT1" type="rb16"/>
+		<reg32 offset="0x13ec" name="COLOR0_E"/>
+		<reg32 offset="0x13f0" name="COLOR1_E"/>
+		<reg32 offset="0x13f4" name="SIZE_IN_E" type="wh16"/>
+		<reg32 offset="0x13f8" name="SIZE_OUT_E" type="wh16"/>
+		<reg32 offset="0x13fc" name="POINT_E" type="xy16"/>
+		<reg32 offset="0x1400" name="MONOCHROME_COLOR01_E" length="32"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV04_GDI_RECTANGLE_TEXT">
+		<reg32 offset="0x0100" name="NOP"/>
+		<reg32 offset="0x0104" name="NOTIFY"/>
+		<reg32 offset="0x010c" name="PATCH"/>
+		<reg32 offset="0x0140" name="PM_TRIGGER"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="DMA_FONTS" type="object"/>
+		<reg32 offset="0x0188" name="PATTERN" type="object"/>
+		<reg32 offset="0x018c" name="ROP" type="object"/>
+		<reg32 offset="0x0190" name="BETA1" type="object"/>
+		<reg32 offset="0x0194" name="BETA4" type="object"/>
+		<reg32 offset="0x0198" name="SURFACE" type="object"/>
+		<reg32 offset="0x02fc" name="OPERATION" type="nv03_operation"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv04_color_format"/>
+		<reg32 offset="0x0304" name="MONOCHROME_FORMAT" type="nv04_mono_format"/>
+		<reg32 offset="0x03fc" name="COLOR1_A"/>
+		<reg32 offset="0x0400" name="UNCLIPPED_RECTANGLE_POINT" length="32" stride="8">
+			<bitfield name="Y" high="15" low="0" type="int"/>
+			<bitfield name="X" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0404" name="UNCLIPPED_RECTANGLE_SIZE" length="32" stride="8">
+			<bitfield name="H" high="15" low="0" type="int"/>
+			<bitfield name="W" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x05f4" name="CLIP_B_POINT0" type="lt16"/>
+		<reg32 offset="0x05f8" name="CLIP_B_POINT1" type="rb16"/>
+		<reg32 offset="0x05fc" name="COLOR1_B"/>
+		<reg32 offset="0x0600" name="CLIPPED_RECTANGLE_POINT_0" length="32" stride="8" type="lt16"/>
+		<reg32 offset="0x0604" name="CLIPPED_RECTANGLE_POINT_1" length="32" stride="8" type="rb16"/>
+		<reg32 offset="0x07ec" name="CLIP_C_POINT0" type="lt16"/>
+		<reg32 offset="0x07f0" name="CLIP_C_POINT1" type="rb16"/>
+		<reg32 offset="0x07f4" name="COLOR1_C"/>
+		<reg32 offset="0x07f8" name="SIZE_C" type="wh16"/>
+		<reg32 offset="0x07fc" name="POINT_C" type="xy16"/>
+		<reg32 offset="0x0800" name="MONOCHROME_COLOR1_C" length="128"/>
+		<reg32 offset="0x0be4" name="CLIP_E_POINT0" type="lt16"/>
+		<reg32 offset="0x0be8" name="CLIP_E_POINT1" type="rb16"/>
+		<reg32 offset="0x0bec" name="COLOR0_E"/>
+		<reg32 offset="0x0bf0" name="COLOR1_E"/>
+		<reg32 offset="0x0bf4" name="SIZE_IN_E" type="wh16"/>
+		<reg32 offset="0x0bf8" name="SIZE_OUT_E" type="wh16"/>
+		<reg32 offset="0x0bfc" name="POINT_E" type="xy16"/>
+		<reg32 offset="0x0c00" name="MONOCHROME_COLOR01_E" length="128"/>
+		<reg32 offset="0x0ff0" name="FONT_F">
+			<bitfield name="OFFSET" high="27" low="0"/>
+			<bitfield name="PITCH" high="31" low="28" type="int"/>
+		</reg32>
+		<reg32 offset="0x0ff4" name="CLIP_F_POINT0" type="lt16"/>
+		<reg32 offset="0x0ff8" name="CLIP_F_POINT1" type="rb16"/>
+		<reg32 offset="0x0ffc" name="COLOR1_F"/>
+		<reg32 offset="0x1000" name="CHARACTER_COLOR1_F" length="256">
+			<bitfield name="INDEX" high="7" low="0" type="int"/>
+			<bitfield name="X" high="19" low="8" type="int"/>
+			<bitfield name="Y" high="31" low="20" type="int"/>
+		</reg32>
+		<reg32 offset="0x17f0" name="FONT_G">
+			<bitfield name="OFFSET" high="27" low="0"/>
+			<bitfield name="PITCH" high="31" low="28" type="int"/>
+		</reg32>
+		<reg32 offset="0x17f4" name="CLIP_G_POINT0" type="lt16"/>
+		<reg32 offset="0x17f8" name="CLIP_G_POINT1" type="rb16"/>
+		<reg32 offset="0x17fc" name="COLOR1_G"/>
+		<reg32 offset="0x1800" name="CHARACTER_COLOR1_G_POINT" length="256" stride="8" type="xy16"/>
+		<reg32 offset="0x1804" name="CHARACTER_COLOR1_G_INDEX" length="256" type="int" stride="8"/>
+	</stripe>
 </domain>
 
 </database>

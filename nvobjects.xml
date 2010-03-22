@@ -18,8 +18,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0041" name="NV01_MAPPING_LOCAL"/>
 	<value value="0x0046" name="NV03_VIDEO_LUT_CURSOR_DAC"/>
 	<value value="0x0048" name="NV03_TEXTURED_TRIANGLE"/>
-	<value value="0x004a" name="NV04_GDI_RECTANGLE_TEXT"/>
-	<value value="0x004b" name="NV03_GDI_RECTANGLE_TEXT"/>
 	<value value="0x0053" name="NV04_CONTEXT_SURFACES_3D"/>
 	<value value="0x0093" name="NV10_CONTEXT_SURFACES_3D"/>
 	<value value="0x0054" name="NV04_TEXTURED_TRIANGLE"/>
