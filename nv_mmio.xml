@@ -14,5 +14,6 @@
 </domain>
 
 <import file="nv_ptimer.xml" />
+<import file="nv01_misc.xml" />
 
 </database>
