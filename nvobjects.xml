@@ -11,17 +11,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0003" name="NV01_DEVICE"/>
 	<value value="0x0004" name="NV01_TIMER"/>
 	<value value="0x0030" name="NV01_NULL"/>
-	<value value="0x0036" name="NV03_STRETCHED_IMAGE_FROM_CPU"/>
-	<value value="0x0076" name="NV04_STRETCHED_IMAGE_FROM_CPU"/>
-	<value value="0x0066" name="NV05_STRETCHED_IMAGE_FROM_CPU"/>
-	<value value="0x0366" name="NV30_STRETCHED_IMAGE_FROM_CPU"/>
-	<value value="0x3066" name="NV40_STRETCHED_IMAGE_FROM_CPU"/>
-	<value value="0x0037" name="NV03_SCALED_IMAGE_FROM_MEMORY"/>
-	<value value="0x0077" name="NV04_SCALED_IMAGE_FROM_MEMORY"/>
-	<value value="0x0063" name="NV05_SCALED_IMAGE_FROM_MEMORY"/>
-	<value value="0x0089" name="NV10_SCALED_IMAGE_FROM_MEMORY"/>
-	<value value="0x0389" name="NV30_SCALED_IMAGE_FROM_MEMORY"/>
-	<value value="0x3089" name="NV40_SCALED_IMAGE_FROM_MEMORY"/>
 	<value value="0x003d" name="NV01_MEMORY_LOCAL_BANKED"/>
 	<value value="0x003e" name="NV01_MAPPING_SYSTEM"/>
 	<value value="0x003f" name="NV03_MEMORY_LOCAL_CURSOR"/>

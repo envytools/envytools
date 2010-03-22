@@ -51,6 +51,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0005" name="BLEND_PREMULT"/>
 </enum>
 
+<enum name="nv05_color_conversion" inline="yes">
+	<value value="0x0000" name="DITHER"/>
+	<value value="0x0001" name="TRUNCATE"/>
+	<value value="0x0002" name="SUBTR_TRUNCATE"/>
+</enum>
+
 <enum name="obj-class" bare="yes">
 	<value value="0x0012" name="NV01_CONTEXT_BETA1"/>
 	<value value="0x0072" name="NV04_BETA_SOLID"/>
@@ -85,6 +91,17 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x008a" name="NV10_IMAGE_FROM_CPU"/>
 	<value value="0x038a" name="NV30_IMAGE_FROM_CPU"/>
 	<value value="0x308a" name="NV40_IMAGE_FROM_CPU"/>
+	<value value="0x0036" name="NV03_STRETCHED_IMAGE_FROM_CPU"/>
+	<value value="0x0076" name="NV04_STRETCHED_IMAGE_FROM_CPU"/>
+	<value value="0x0066" name="NV05_STRETCHED_IMAGE_FROM_CPU"/>
+	<value value="0x0366" name="NV30_STRETCHED_IMAGE_FROM_CPU"/>
+	<value value="0x3066" name="NV40_STRETCHED_IMAGE_FROM_CPU"/>
+	<value value="0x0037" name="NV03_SCALED_IMAGE_FROM_MEMORY"/>
+	<value value="0x0077" name="NV04_SCALED_IMAGE_FROM_MEMORY"/>
+	<value value="0x0063" name="NV05_SCALED_IMAGE_FROM_MEMORY"/>
+	<value value="0x0089" name="NV10_SCALED_IMAGE_FROM_MEMORY"/>
+	<value value="0x0389" name="NV30_SCALED_IMAGE_FROM_MEMORY"/>
+	<value value="0x3089" name="NV40_SCALED_IMAGE_FROM_MEMORY"/>
 </enum>
 
 <domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
@@ -466,6 +483,116 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="H" high="31" low="16" type="int"/>
 		</reg32>
 		<reg32 offset="0x0400" name="COLOR" length="32"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV03_STRETCHED_IMAGE_FROM_CPU-NV40_STRETCHED_IMAGE_FROM_CPU">
+		<reg32 offset="0x0100" name="NOP"/>
+		<reg32 offset="0x0104" name="NOTIFY"/>
+		<reg32 offset="0x010c" name="PATCH"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="COLOR_KEY" type="object"/>
+		<reg32 offset="0x0188" name="PATTERN" type="object"/>
+		<reg32 offset="0x018c" name="ROP" type="object"/>
+		<reg32 offset="0x0190" name="BETA1" type="object"/>
+		<stripe variants="NV03_STRETCHED_IMAGE_FROM_CPU">
+			<reg32 offset="0x0194" name="SURFACE" type="object"/>
+		</stripe>
+		<stripe variants="NV04_STRETCHED_IMAGE_FROM_CPU-">
+			<reg32 offset="0x0194" name="BETA4" type="object"/>
+			<reg32 offset="0x0198" name="SURFACE" type="object"/>
+		</stripe>
+		<reg32 offset="0x02f8" name="COLOR_CONVERSION" variants="NV05_STRETCHED_IMAGE_FROM_CPU-"/>
+		<reg32 offset="0x02fc" name="OPERATION"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT"/>
+		<reg32 offset="0x0304" name="SIZE_IN">
+			<bitfield name="W" high="15" low="0" type="int"/>
+			<bitfield name="H" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0308" name="DX_DU"/>
+		<reg32 offset="0x030c" name="DY_DV"/>
+		<reg32 offset="0x0310" name="CLIP_POINT">
+			<bitfield name="X" high="15" low="0" type="int"/>
+			<bitfield name="Y" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0314" name="CLIP_SIZE">
+			<bitfield name="W" high="15" low="0" type="int"/>
+			<bitfield name="H" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0318" name="POINT12D4">
+			<bitfield name="X" high="15" low="0" type="int"/>
+			<bitfield name="Y" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0400" name="COLOR" length="32"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV03_SCALED_IMAGE_FROM_MEMORY-NV40_SCALED_IMAGE_FROM_MEMORY">
+		<reg32 offset="0x0100" name="NOP"/>
+		<reg32 offset="0x0104" name="NOTIFY"/>
+		<reg32 offset="0x0108" name="WAIT_FOR_IDLE" variants="NV10_SCALED_IMAGE_FROM_MEMORY-"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="DMA_IMAGE" type="object"/>
+		<reg32 offset="0x0188" name="PATTERN" type="object"/>
+		<reg32 offset="0x018c" name="ROP" type="object"/>
+		<reg32 offset="0x0190" name="BETA1" type="object"/>
+		<stripe variants="NV03_SCALED_IMAGE_FROM_MEMORY">
+			<reg32 offset="0x0194" name="SURFACE" type="object"/>
+		</stripe>
+		<stripe variants="NV04_SCALED_IMAGE_FROM_MEMORY-">
+			<reg32 offset="0x0194" name="BETA4" type="object"/>
+			<reg32 offset="0x0198" name="SURFACE" type="object"/>
+		</stripe>
+		<reg32 offset="0x02fc" name="COLOR_CONVERSION" type="nv05_color_conversion"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT">
+			<value value="0x0001" name="A1R5G5B5"/>
+			<value value="0x0002" name="X1R5G5B5"/>
+			<value value="0x0003" name="A8R8G8B8"/>
+			<value value="0x0004" name="X8R8G8B8"/>
+			<value value="0x0005" name="V8YB8U8YA8"/>
+			<value value="0x0006" name="YB8V8YA8U8"/>
+			<value value="0x0007" name="R5G6B5"/>
+			<!-- nv10+ scaled image formats -->
+			<value value="0x0008" name="Y8"/>
+			<value value="0x0009" name="AY8"/>
+		</reg32>
+		<reg32 offset="0x0304" name="OPERATION" type="nv03_operation"/>
+		<reg32 offset="0x0308" name="CLIP_POINT">
+			<bitfield name="X" high="15" low="0" type="int"/>
+			<bitfield name="Y" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x030c" name="CLIP_SIZE">
+			<bitfield name="W" high="15" low="0" type="int"/>
+			<bitfield name="H" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0310" name="OUT_POINT">
+			<bitfield name="X" high="15" low="0" type="int"/>
+			<bitfield name="Y" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0314" name="OUT_SIZE">
+			<bitfield name="W" high="15" low="0" type="int"/>
+			<bitfield name="H" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0318" name="DU_DX" type="int"/><!-- Fixed point 12:20 value -->
+		<reg32 offset="0x031c" name="DV_DY" type="int"/><!-- Fixed point 12:20 value -->
+		<reg32 offset="0x0400" name="SIZE">
+			<bitfield name="W" high="15" low="0" type="int"/>
+			<bitfield name="H" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0404" name="FORMAT">
+			<bitfield name="PITCH" high="15" low="0" type="int"/>
+			<bitfield name="ORIGIN" high="23" low="16">
+				<value value="1" name="CENTER"/>
+				<value value="2" name="CORNER"/>
+			</bitfield>
+			<bitfield name="FILTER" high="31" low="24">
+				<value value="0" name="POINT_SAMPLE"/>
+				<value value="1" name="BILINEAR"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x0408" name="OFFSET"/>
+		<reg32 offset="0x040c" name="POINT">
+			<bitfield name="U" high="15" low="0" type="int"/><!-- Fixed point 12:4 value -->
+			<bitfield name="V" high="31" low="16" type="int"/><!-- Fixed point 12:4 value -->
+		</reg32>
 	</stripe>
 
 </domain>
