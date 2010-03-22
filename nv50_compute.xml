@@ -13,10 +13,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <enum name="obj-class" bare="yes">
 	<value value="0x50c0" name="NV50_COMPUTE"/>
+	<value value="0x85c0" name="NVA3_COMPUTE"/>
 </enum>
 
 <domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
-	<stripe prefix="obj-class" variants="NV50_COMPUTE">
+	<stripe prefix="obj-class" variants="NV50_COMPUTE-NVA3_COMPUTE">
 		<reg32 offset="0x0100" name="NOP"/>
 		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x0110" name="SERIALIZE"/>
