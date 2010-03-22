@@ -31,9 +31,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x005a" name="NV03_CONTEXT_SURFACES_3D"/>
 	<value value="0x006a" name="NV03_CHANNEL_PIO"/>
 	<value value="0x006b" name="NV03_CHANNEL_DMA"/>
-	<value value="0x007b" name="NV10_TEXTURE_FROM_CPU"/>
-	<value value="0x037b" name="NV30_TEXTURE_FROM_CPU"/>
-	<value value="0x307b" name="NV40_TEXTURE_FROM_CPU"/>
 	<value value="0x007c" name="NV10_VIDEO_DISPLAY"/>
 	<value value="0x0097" name="NV20TCL"/>
 	<value value="0x0597" name="NV25TCL"/>

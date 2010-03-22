@@ -106,6 +106,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x3089" name="NV40_SCALED_IMAGE_FROM_MEMORY"/>
 	<value value="0x004b" name="NV03_GDI_RECTANGLE_TEXT"/>
 	<value value="0x004a" name="NV04_GDI_RECTANGLE_TEXT"/>
+	<value value="0x007b" name="NV10_TEXTURE_FROM_CPU"/>
+	<value value="0x037b" name="NV30_TEXTURE_FROM_CPU"/>
+	<value value="0x307b" name="NV40_TEXTURE_FROM_CPU"/>
 </enum>
 
 <domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
@@ -619,6 +622,29 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1800" name="CHARACTER_COLOR1_G_POINT" length="256" stride="8" type="xy16"/>
 		<reg32 offset="0x1804" name="CHARACTER_COLOR1_G_INDEX" length="256" type="int" stride="8"/>
 	</stripe>
+
+
+	<stripe prefix="obj-class" variants="NV10_TEXTURE_FROM_CPU-NV40_TEXTURE_FROM_CPU">
+		<reg32 offset="0x0100" name="NOP"/>
+		<reg32 offset="0x0104" name="NOTIFY"/>
+		<reg32 offset="0x0108" name="WAIT_FOR_IDLE"/>
+		<reg32 offset="0x0140" name="PM_TRIGGER"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="SURFACE" type="object"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT"/>
+		<reg32 offset="0x0304" name="POINT" type="xy16"/>
+		<reg32 offset="0x0308" name="SIZE" type="wh16"/>
+		<reg32 offset="0x030c" name="CLIP_HORIZONTAL">
+			<bitfield name="X" high="15" low="0" type="int"/>
+			<bitfield name="W" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0310" name="CLIP_VERTICAL">
+			<bitfield name="Y" high="15" low="0" type="int"/>
+			<bitfield name="H" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0400" name="COLOR" length="1792"/>
+	</stripe>
+
 </domain>
 
 </database>
