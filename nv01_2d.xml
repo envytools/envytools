@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<enum name="nv01_color_format" inline="yes">
+	<brief>For color keys and shape drawing?</brief>
+	<value value="0x0001" name="X16A8Y8"/>
+	<value value="0x0002" name="X24Y8"/>
+	<value value="0x0003" name="X16A1R5G5B5"/>
+	<value value="0x0004" name="X17R5G5B5"/>
+	<value value="0x0005" name="A8R8G8B8"/>
+	<value value="0x0006" name="X8R8G8B8"/>
+	<value value="0x0007" name="A16Y16"/>
+	<value value="0x0008" name="X16Y16"/>
+</enum>
+
+<enum name="nv04_surface2d_format" inline="yes">
+	<brief>For surf2d and swzsurf</brief>
+	<value value="0x0001" name="Y8"/>
+	<value value="0x0002" name="X1R5G5B5_Z1R5G5B5"/>
+	<value value="0x0003" name="X1R5G5B5_X1R5G5B5"/>
+	<value value="0x0004" name="R5G6B5"/>
+	<value value="0x0005" name="Y16"/>
+	<value value="0x0006" name="X8R8G8B8_Z8R8G8B8"/>
+	<value value="0x0007" name="X8R8G8B8_X8R8G8B8"/>
+	<value value="0x0008" name="X1A7R8G8B8_Z1A7R8G8B8"/>
+	<value value="0x0009" name="X1A7R8G8B8_X1A7R8G8B8"/>
+	<value value="0x000a" name="A8R8G8B8"/>
+	<value value="0x000b" name="Y32"/>
+</enum>
+
+<enum name="nv04_color_format" inline="yes">
+	<value value="0x0001" name="A16R5G6B5"/>
+	<value value="0x0002" name="X16A1R5G5B5"/>
+	<value value="0x0003" name="A8R8G8B8"/>
+</enum>
+
+<enum name="nv04_mono_format" inline="yes">
+	<value value="0x0001" name="CGA6"/>
+	<value value="0x0002" name="LE"/>
+</enum>
+
+<enum name="obj-class" bare="yes">
+	<value value="0x0012" name="NV01_CONTEXT_BETA1"/>
+	<value value="0x0072" name="NV04_BETA_SOLID"/>
+	<value value="0x0017" name="NV01_CONTEXT_COLOR_KEY"/>
+	<value value="0x0057" name="NV04_CONTEXT_COLOR_KEY"/>
+	<value value="0x0018" name="NV01_CONTEXT_PATTERN"/>
+	<value value="0x0019" name="NV01_CONTEXT_CLIP_RECTANGLE"/>
+	<value value="0x0042" name="NV04_CONTEXT_SURFACES_2D"/>
+	<value value="0x0062" name="NV10_CONTEXT_SURFACES_2D"/>
+	<value value="0x0362" name="NV30_CONTEXT_SURFACES_2D"/>
+	<value value="0x3062" name="NV40_CONTEXT_SURFACES_2D"/>
+	<value value="0x0052" name="NV04_SWIZZLED_SURFACE"/>
+	<value value="0x009e" name="NV20_SWIZZLED_SURFACE"/>
+	<value value="0x039e" name="NV30_SWIZZLED_SURFACE"/>
+	<value value="0x309e" name="NV40_SWIZZLED_SURFACE"/>
+	<value value="0x0043" name="NV03_CONTEXT_ROP"/>
+	<value value="0x0044" name="NV04_IMAGE_PATTERN"/>
+</enum>
+
+<domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
+	<stripe prefix="obj-class" variants="NV01_CONTEXT_BETA1">
+		<reg32 offset="0x0100" name="NOP"/>
+		<reg32 offset="0x0104" name="NOTIFY"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0300" name="BETA_1D31"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV04_BETA_SOLID">
+		<reg32 offset="0x0100" name="NOP"/>
+		<reg32 offset="0x0104" name="NOTIFY"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0200" name="BETA_OUTPUT"/>
+		<reg32 offset="0x0300" name="BETA_FACTOR"/>
+  	</stripe>
+
+	<stripe prefix="obj-class" variants="NV01_CONTEXT_COLOR_KEY">
+		<reg32 offset="0x0100" name="NOP"/>
+		<reg32 offset="0x0104" name="NOTIFY"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv01_color_format"/>
+		<reg32 offset="0x0304" name="COLOR"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV01_CONTEXT_PATTERN">
+		<reg32 offset="0x0100" name="NOP"/>
+		<reg32 offset="0x0104" name="NOTIFY"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT"/>
+		<reg32 offset="0x0304" name="MONOCHROME_FORMAT"/>
+		<reg32 offset="0x0308" name="SHAPE"/>
+		<reg32 offset="0x0310" name="COLOR" length="2"/>
+		<reg32 offset="0x0318" name="PATTERN" length="2"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV01_CONTEXT_CLIP_RECTANGLE">
+		<reg32 offset="0x0100" name="NOP"/>
+		<reg32 offset="0x0104" name="NOTIFY"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0300" name="POINT">
+			<bitfield name="X" high="15" low="0" type="int"/>
+			<bitfield name="Y" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0304" name="SIZE">
+			<bitfield name="W" high="15" low="0" type="int"/>
+			<bitfield name="H" high="31" low="16" type="int"/>
+		</reg32>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV04_CONTEXT_SURFACES_2D-NV40_CONTEXT_SURFACES_2D">
+		<reg32 offset="0x0100" name="NOP"/>
+		<reg32 offset="0x0104" name="NOTIFY"/>
+		<reg32 offset="0x0140" name="PM_TRIGGER"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="DMA_IMAGE_SOURCE" type="object"/>
+		<reg32 offset="0x0188" name="DMA_IMAGE_DESTIN" type="object"/>
+		<reg32 offset="0x0300" name="FORMAT" type="nv04_surface2d_format"/>
+		<reg32 offset="0x0304" name="PITCH">
+			<bitfield name="SOURCE" high="15" low="0" type="int"/>
+			<bitfield name="DESTIN" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0308" name="OFFSET_SOURCE"/>
+		<reg32 offset="0x030c" name="OFFSET_DESTIN"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV04_SWIZZLED_SURFACE-NV40_SWIZZLED_SURFACE">
+		<reg32 offset="0x0100" name="NOP"/>
+		<reg32 offset="0x0104" name="NOTIFY"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="DMA_IMAGE" type="object"/>
+		<reg32 offset="0x0300" name="FORMAT">
+			<bitfield name="COLOR" high="7" low="0" type="nv04_surface2d_format"/>
+			<bitfield name="BASE_SIZE_U" high="23" low="16" type="int"/>
+			<bitfield name="BASE_SIZE_V" high="31" low="24" type="int"/>
+		</reg32>
+		<reg32 offset="0x0304" name="OFFSET"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV03_CONTEXT_ROP">
+		<reg32 offset="0x0100" name="NOP"/>
+		<reg32 offset="0x0104" name="NOTIFY"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0300" name="ROP"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV04_IMAGE_PATTERN">
+		<reg32 offset="0x0100" name="NOP"/>
+		<reg32 offset="0x0104" name="NOTIFY"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv04_color_format"/>
+		<reg32 offset="0x0304" name="MONOCHROME_FORMAT" type="nv04_mono_format"/>
+		<reg32 offset="0x0308" name="MONOCHROME_SHAPE">
+			<value value="0" name="8X8"/>
+			<value value="1" name="64X1"/>
+			<value value="2" name="1X64"/>
+		</reg32>
+		<reg32 offset="0x030c" name="PATTERN_SELECT">
+			<value value="1" name="MONO"/>
+			<value value="2" name="COLOR"/>
+		</reg32>
+		<reg32 offset="0x0310" name="MONOCHROME_COLOR0"/>
+		<reg32 offset="0x0314" name="MONOCHROME_COLOR1"/>
+		<reg32 offset="0x0318" name="MONOCHROME_PATTERN0"/>
+		<reg32 offset="0x031c" name="MONOCHROME_PATTERN1"/>
+		<reg32 offset="0x0400" name="PATTERN_Y8" length="16">
+			<bitfield name="Y0" high="7" low="0" type="int"/>
+			<bitfield name="Y1" high="15" low="8" type="int"/>
+			<bitfield name="Y2" high="23" low="16" type="int"/>
+			<bitfield name="Y3" high="31" low="24" type="int"/>
+		</reg32>
+		<reg32 offset="0x0500" name="PATTERN_R5G6B5" length="32">
+			<bitfield name="B0" high="4" low="0" type="int"/>
+			<bitfield name="G0" high="10" low="5" type="int"/>
+			<bitfield name="R0" high="15" low="11" type="int"/>
+			<bitfield name="B1" high="20" low="16" type="int"/>
+			<bitfield name="G1" high="26" low="21" type="int"/>
+			<bitfield name="R1" high="31" low="27" type="int"/>
+		</reg32>
+		<reg32 offset="0x0600" name="PATTERN_X1R5G5B5" length="32">
+			<bitfield name="B0" high="4" low="0" type="int"/>
+			<bitfield name="G0" high="9" low="5" type="int"/>
+			<bitfield name="R0" high="14" low="10" type="int"/>
+			<bitfield name="B1" high="20" low="16" type="int"/>
+			<bitfield name="G1" high="25" low="21" type="int"/>
+			<bitfield name="R1" high="30" low="26" type="int"/>
+		</reg32>
+		<reg32 offset="0x0700" name="PATTERN_X8R8G8B8" length="64">
+			<bitfield name="B" high="7" low="0" type="int"/>
+			<bitfield name="G" high="15" low="8" type="int"/>
+			<bitfield name="R" high="23" low="16" type="int"/>
+		</reg32>
+	</stripe>
+
+
+</domain>
+
+</database>
