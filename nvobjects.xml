@@ -10,12 +10,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0002" name="NV01_CONTEXT_DMA"/>
 	<value value="0x0003" name="NV01_DEVICE"/>
 	<value value="0x0004" name="NV01_TIMER"/>
-	<value value="0x001c" name="NV01_RENDER_SOLID_LINE"/>
-	<value value="0x005c" name="NV04_RENDER_SOLID_LINE"/>
-	<value value="0x001d" name="NV01_RENDER_SOLID_TRIANGLE"/>
-	<value value="0x005d" name="NV04_RENDER_SOLID_TRIANGLE"/>
-	<value value="0x001e" name="NV01_RENDER_SOLID_RECTANGLE"/>
-	<value value="0x005e" name="NV04_RENDER_SOLID_RECTANGLE"/>
 	<value value="0x001f" name="NV01_IMAGE_BLIT"/>
 	<value value="0x005f" name="NV04_IMAGE_BLIT"/>
 	<value value="0x009f" name="NV11_IMAGE_BLIT"/>

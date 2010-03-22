@@ -41,6 +41,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0002" name="LE"/>
 </enum>
 
+<enum name="nv03_operation" inline="yes">
+	<value value="0x0000" name="SRCCOPY_AND"/>
+	<value value="0x0001" name="ROP_AND"/>
+	<value value="0x0002" name="BLEND_AND"/>
+	<value value="0x0003" name="SRCCOPY"/>
+	<!-- nv04+ operations -->
+	<value value="0x0004" name="SRCCOPY_PREMULT"/>
+	<value value="0x0005" name="BLEND_PREMULT"/>
+</enum>
+
 <enum name="obj-class" bare="yes">
 	<value value="0x0012" name="NV01_CONTEXT_BETA1"/>
 	<value value="0x0072" name="NV04_BETA_SOLID"/>
@@ -58,6 +68,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x309e" name="NV40_SWIZZLED_SURFACE"/>
 	<value value="0x0043" name="NV03_CONTEXT_ROP"/>
 	<value value="0x0044" name="NV04_IMAGE_PATTERN"/>
+	<value value="0x001c" name="NV01_RENDER_SOLID_LINE"/>
+	<value value="0x005c" name="NV04_RENDER_SOLID_LINE"/>
+	<value value="0x001d" name="NV01_RENDER_SOLID_TRIANGLE"/>
+	<value value="0x005d" name="NV04_RENDER_SOLID_TRIANGLE"/>
+	<value value="0x001e" name="NV01_RENDER_SOLID_RECTANGLE"/>
+	<value value="0x005e" name="NV04_RENDER_SOLID_RECTANGLE"/>
 </enum>
 
 <domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
@@ -193,6 +209,142 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 	</stripe>
 
+
+	<stripe prefix="obj-class" variants="NV01_RENDER_SOLID_LINE-NV04_RENDER_SOLID_LINE">
+		<reg32 offset="0x0100" name="NOP"/>
+		<reg32 offset="0x0104" name="NOTIFY"/>
+		<reg32 offset="0x010c" name="PATCH"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="CLIP_RECTANGLE" type="object"/>
+		<reg32 offset="0x0188" name="PATTERN" type="object"/>
+		<reg32 offset="0x018c" name="ROP" type="object"/>
+		<reg32 offset="0x0190" name="BETA1" type="object"/>
+		<stripe variants="NV01_RENDER_SOLID_LINE">
+			<reg32 offset="0x0194" name="SURFACE" type="object"/>
+		</stripe>
+		<stripe variants="NV04_RENDER_SOLID_LINE">
+			<reg32 offset="0x0194" name="BETA4" type="object"/>
+			<reg32 offset="0x0198" name="SURFACE" type="object"/>
+		</stripe>
+		<reg32 offset="0x02fc" name="OPERATION" type="nv03_operation"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv01_color_format"/>
+		<reg32 offset="0x0304" name="COLOR"/>
+		<reg32 offset="0x0400" name="LINE_POINT0" length="16" stride="8">
+			<bitfield name="X" high="15" low="0" type="int"/>
+			<bitfield name="Y" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0404" name="LINE_POINT1" length="16" stride="8">
+			<bitfield name="X" high="15" low="0" type="int"/>
+			<bitfield name="Y" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0480" name="LINE32_POINT0_X" length="16" stride="16" type="int"/>
+		<reg32 offset="0x0484" name="LINE32_POINT0_Y" length="16" stride="16" type="int"/>
+		<reg32 offset="0x0488" name="LINE32_POINT1_X" length="16" stride="16" type="int"/>
+		<reg32 offset="0x048c" name="LINE32_POINT1_Y" length="16" stride="16" type="int"/>
+		<reg32 offset="0x0500" name="POLYLINE" length="32">
+			<bitfield name="X" high="15" low="0" type="int"/>
+			<bitfield name="Y" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0580" name="POLYLINE32_POINT_X" length="16" stride="8" type="int"/>
+		<reg32 offset="0x0584" name="POLYLINE32_POINT_Y" length="16" stride="8" type="int"/>
+		<reg32 offset="0x0600" name="CPOLYLINE_COLOR" length="16" stride="8"/>
+		<reg32 offset="0x0604" name="CPOLYLINE_POINT" length="16" stride="8">
+			<bitfield name="X" high="15" low="0" type="int"/>
+			<bitfield name="Y" high="31" low="16" type="int"/>
+		</reg32>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV01_RENDER_SOLID_TRIANGLE-NV04_RENDER_SOLID_TRIANGLE">
+		<reg32 offset="0x0100" name="NOP"/>
+		<reg32 offset="0x0104" name="NOTIFY"/>
+		<reg32 offset="0x010c" name="PATCH"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="CLIP_RECTANGLE" type="object"/>
+		<reg32 offset="0x0188" name="PATTERN" type="object"/>
+		<reg32 offset="0x018c" name="ROP" type="object"/>
+		<reg32 offset="0x0190" name="BETA1" type="object"/>
+		<stripe variants="NV01_RENDER_SOLID_TRIANGLE">
+			<reg32 offset="0x0194" name="SURFACE" type="object"/>
+		</stripe>
+		<stripe variants="NV04_RENDER_SOLID_TRIANGLE">
+			<reg32 offset="0x0194" name="BETA4" type="object"/>
+			<reg32 offset="0x0198" name="SURFACE" type="object"/>
+		</stripe>
+		<reg32 offset="0x02fc" name="OPERATION" type="nv03_operation"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv01_color_format"/>
+		<reg32 offset="0x0304" name="COLOR"/>
+		<reg32 offset="0x0310" name="TRIANGLE_POINT0">
+			<bitfield name="X" high="15" low="0" type="int"/>
+			<bitfield name="Y" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0314" name="TRIANGLE_POINT1">
+			<bitfield name="X" high="15" low="0" type="int"/>
+			<bitfield name="Y" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0318" name="TRIANGLE_POINT2">
+			<bitfield name="X" high="15" low="0" type="int"/>
+			<bitfield name="Y" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0320" name="TRIANGLE32_POINT0_X" type="int"/>
+		<reg32 offset="0x0324" name="TRIANGLE32_POINT0_Y" type="int"/>
+		<reg32 offset="0x0328" name="TRIANGLE32_POINT1_X" type="int"/>
+		<reg32 offset="0x032c" name="TRIANGLE32_POINT1_Y" type="int"/>
+		<reg32 offset="0x0330" name="TRIANGLE32_POINT2_X" type="int"/>
+		<reg32 offset="0x0334" name="TRIANGLE32_POINT2_Y" type="int"/>
+		<reg32 offset="0x0400" name="TRIMESH" length="32">
+			<bitfield name="X" high="15" low="0" type="int"/>
+			<bitfield name="Y" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0480" name="TRIMESH32_POINT_X" length="16" stride="8" type="int"/>
+		<reg32 offset="0x0484" name="TRIMESH32_POINT_Y" length="16" stride="8" type="int"/>
+		<reg32 offset="0x0500" name="CTRIANGLE_COLOR" length="8" stride="16"/>
+		<reg32 offset="0x0504" name="CTRIANGLE_POINT0" length="8" stride="16">
+			<bitfield name="X" high="15" low="0" type="int"/>
+			<bitfield name="Y" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0508" name="CTRIANGLE_POINT1" length="8" stride="16">
+			<bitfield name="X" high="15" low="0" type="int"/>
+			<bitfield name="Y" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x050c" name="CTRIANGLE_POINT2" length="8" stride="16">
+			<bitfield name="X" high="15" low="0" type="int"/>
+			<bitfield name="Y" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0580" name="CTRIMESH_COLOR" length="16" stride="8"/>
+		<reg32 offset="0x0584" name="CTRIMESH_POINT" length="16" stride="8">
+			<bitfield name="X" high="15" low="0" type="int"/>
+			<bitfield name="Y" high="31" low="16" type="int"/>
+		</reg32>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV01_RENDER_SOLID_RECTANGLE-NV04_RENDER_SOLID_RECTANGLE">
+		<reg32 offset="0x0100" name="NOP"/>
+		<reg32 offset="0x0104" name="NOTIFY"/>
+		<reg32 offset="0x010c" name="PATCH"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="CLIP_RECTANGLE" type="object"/>
+		<reg32 offset="0x0188" name="PATTERN" type="object"/>
+		<reg32 offset="0x018c" name="ROP" type="object"/>
+		<reg32 offset="0x0190" name="BETA1" type="object"/>
+		<stripe variants="NV01_RENDER_SOLID_RECTANGLE">
+			<reg32 offset="0x0194" name="SURFACE" type="object"/>
+		</stripe>
+		<stripe variants="NV04_RENDER_SOLID_RECTANGLE">
+			<reg32 offset="0x0194" name="BETA4" type="object"/>
+			<reg32 offset="0x0198" name="SURFACE" type="object"/>
+		</stripe>
+		<reg32 offset="0x02fc" name="OPERATION" type="nv03_operation"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv01_color_format"/>
+		<reg32 offset="0x0304" name="COLOR"/>
+		<reg32 offset="0x0400" name="RECTANGLE_POINT" length="16" stride="8">
+			<bitfield name="X" high="15" low="0" type="int"/>
+			<bitfield name="Y" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0404" name="RECTANGLE_SIZE" length="16" stride="8">
+			<bitfield name="W" high="15" low="0" type="int"/>
+			<bitfield name="H" high="31" low="16" type="int"/>
+		</reg32>
+	</stripe>
 
 </domain>
 
