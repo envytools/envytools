@@ -158,7 +158,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0d90" name="CLEAR_DEPTH" type="float"/>
 		<reg32 offset="0x0d94" name="STACK_ADDRESS_HIGH"/>
 		<reg32 offset="0x0d98" name="STACK_ADDRESS_LOW"/>
-		<reg32 offset="0x0d9c" name="STACK_SIZE_LOG" type="int"/> <!-- log2(number_of_entries)+1. 1-0xd, or 0 to disable stack. note that stack is always at least 4 entries, vals 1 and 2 are equivalent to 3. -->
+		<reg32 offset="0x0d9c" name="STACK_SIZE_LOG" type="uint">
+			<doc>log2(number_of_entries)+1. 1-0xd, or 0 to disable stack.
+			note that stack is always at least 4 entries, vals 1 and 2
+			are equivalent to 3.</doc>
+		</reg32>
 		<reg32 offset="0x0da0" name="CLEAR_STENCIL"/>
 		<reg32 offset="0x0da4" name="UNK0DA4"/> <!-- some enable related to STRMOUT -->
 		<reg32 offset="0x0da8" name="STRMOUT_PRIMITIVE_COUNT" type="int"/>
@@ -168,7 +172,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0dc0" name="POLYGON_OFFSET_POINT_ENABLE" type="boolean"/>
 		<reg32 offset="0x0dc4" name="POLYGON_OFFSET_LINE_ENABLE" type="boolean"/>
 		<reg32 offset="0x0dc8" name="POLYGON_OFFSET_FILL_ENABLE" type="boolean"/>
-		<reg32 offset="0x0de4" name="WATCHDOG_TIMER" type="int"/>
+		<reg32 offset="0x0de4" name="WATCHDOG_TIMER" type="uint">
+			<doc>Writing 0 disables watchdog, writing 1-31 causes
+			program to be killed after 7*2^(x-1) clocks [?].</doc>
+		</reg32>
 		<reg32 offset="0x0df4" name="UNK0DF4"/>
 		<reg32 offset="0x0df8" name="WINDOW_OFFSET_X" type="int"/><!-- 16 bit, signed !-->
 		<reg32 offset="0x0dfc" name="WINDOW_OFFSET_Y" type="int"/><!-- default 0, or height if 13ac = 1 !-->
@@ -182,14 +189,28 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="MAX" high="31" low="16" type="int"/>
 		</reg32>
 		<reg32 offset="0x0f00" name="CB_ADDR">
-			<bitfield name="ID" high="21" low="8" type="int"/>
-			<bitfield name="BUFFER" high="6" low="0" type="int"/>
+			<bitfield name="ID" high="21" low="8" type="uint"/>
+			<bitfield name="BUFFER" high="6" low="0" type="uint"/>
 		</reg32>
 		<reg32 offset="0x0f04" name="CB_DATA" length="16"/>
-		<reg32 offset="0x0f44" name="LOCAL_WARPS_LOG_ALLOC" type="int"/> <!-- number of bits in l[] addressing used for warp number. as a twist, 5 is invalid. use 7 if you want 5. valid vals 0-4 and 7 -->
-		<reg32 offset="0x0f48" name="LOCAL_WARPS_NO_CLAMP" type="boolean"/> <!-- if not set, clamp number of executed warps to allocated above. if set, ignore it, the extra warps will alias. -->
-		<reg32 offset="0x0f4c" name="STACK_WARPS_LOG_ALLOC" type="int"/> <!-- number of bits in stack addressing used for warp number. as a twist, 5 is invalid. use 7 if you want 5. valid vals 0-4 and 7 -->
-		<reg32 offset="0x0f50" name="STACK_WARPS_NO_CLAMP" type="boolean"/> <!-- if not set, clamp number of executed warps to allocated above. if set, ignore it, the extra warps will alias. -->
+		<reg32 offset="0x0f44" name="LOCAL_WARPS_LOG_ALLOC" type="uint">
+			<doc>number of bits in l[] addressing used for warp
+			number. as a twist, 5 is invalid. use 7 if you want 5.
+			valid vals 0-4 and 7</doc>
+		</reg32>
+		<reg32 offset="0x0f48" name="LOCAL_WARPS_NO_CLAMP" type="boolean">
+			<doc>if not set, clamp number of executed warps to allocated
+			above. if set, ignore it, the extra warps will alias.</doc>
+		</reg32>
+		<reg32 offset="0x0f4c" name="STACK_WARPS_LOG_ALLOC" type="uint">
+			<doc>number of bits in stack addressing used for warp
+			number. as a twist, 5 is invalid. use 7 if you want 5.
+			valid vals 0-4 and 7</doc>
+		</reg32>
+		<reg32 offset="0x0f50" name="STACK_WARPS_NO_CLAMP" type="boolean">
+			<doc>if not set, clamp number of executed warps to allocated
+			above. if set, ignore it, the extra warps will alias.</doc>
+		</reg32>
 		<reg32 offset="0x0f54" name="STENCIL_BACK_FUNC_REF"/>
 		<reg32 offset="0x0f58" name="STENCIL_BACK_MASK"/>
 		<reg32 offset="0x0f5c" name="STENCIL_BACK_FUNC_MASK"/>
@@ -262,10 +283,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x12d4" name="SHADE_MODEL" type="gl_shade_model"/>
 		<reg32 offset="0x12d8" name="LOCAL_ADDRESS_HIGH"/>
 		<reg32 offset="0x12dc" name="LOCAL_ADDRESS_LOW"/>
-		<reg32 offset="0x12e0" name="LOCAL_SIZE_LOG" type="int"/> <!-- log2(size_in_bytes/8). 1-0xd, or 0 to disable local. -->
+		<reg32 offset="0x12e0" name="LOCAL_SIZE_LOG" type="uint">
+			<doc>log2(size_in_bytes/8). 1-0xd, or 0 to disable local.</doc>
+		</reg32>
 		<reg32 offset="0x12e8" name="DEPTH_WRITE_ENABLE" type="boolean"/>
 		<reg32 offset="0x12ec" name="ALPHA_TEST_ENABLE" type="boolean"/>
-		<reg32 offset="0x12f0" name="PM_SET" length="4"/>
+		<reg32 offset="0x12f0" name="PM_SET" length="4">
+			<doc>just sets corresponding pm register.</doc>
+		</reg32>
 		<reg32 offset="0x1300" name="VB_ELEMENT_U8_SETUP">
 			<bitfield name="OFFSET" high="31" low="30"/>
 			<bitfield name="COUNT" high="29" low="0" type="int"/> <!-- probably smaller range -->
@@ -280,9 +305,20 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1310" name="ALPHA_TEST_REF" type="float"/>
 		<reg32 offset="0x1314" name="ALPHA_TEST_FUNC" type="gl_comparison_op"/>
 		<reg32 offset="0x131c" name="BLEND_COLOR" length="4" type="float"/>
-		<reg32 offset="0x1330" name="TIC_FLUSH"/>
-		<reg32 offset="0x1334" name="TSC_FLUSH"/>
-		<reg32 offset="0x1338" name="TEX_CACHE_CTL"/>
+		<reg32 offset="0x1330" name="TIC_FLUSH">
+			<bitfield low="0" high="0" name="UNK0"/>
+			<bitfield low="4" high="25" name="UNK1"/>
+		</reg32>
+		<reg32 offset="0x1334" name="TSC_FLUSH">
+			<bitfield low="0" high="0" name="UNK0"/>
+			<bitfield low="4" high="25" name="UNK1"/>
+		</reg32>
+		<reg32 offset="0x1338" name="TEX_CACHE_CTL">
+			<bitfield low="4" high="5" name="UNK1">
+				<doc>Accepts 0-2. 2 is used for flushing texture
+				caches.</doc>
+			</bitfield>
+		</reg32>
 		<reg32 offset="0x1340" name="BLEND_EQUATION_RGB" type="gl_blend_equation"/>
 		<reg32 offset="0x1344" name="BLEND_FUNC_SRC_RGB" type="gl_blend_factor"/><!-- Add 0x4000 to gl_blend_factor value -->
 		<reg32 offset="0x1348" name="BLEND_FUNC_DST_RGB" type="gl_blend_factor"/><!-- Add 0x4000 to gl_blend_factor value -->
@@ -302,8 +338,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x13ac" name="Y_ORIGIN_BOTTOM" type="boolean"/><!-- XXX: bit 4 does something else -->
 		<reg32 offset="0x13b0" name="LINE_WIDTH" type="float"/>
 		<reg32 offset="0x13b4" name="TEX_LIMITS" length="3">
-			<bitfield name="SAMPLERS_LOG2" high="3" low="0" type="int"/>
-			<bitfield name="TEXTURES_LOG2" high="7" low="4" type="int"/>
+			<bitfield name="SAMPLERS_LOG2" high="3" low="0" type="uint" min="0" max="4"/>
+			<bitfield name="TEXTURES_LOG2" high="7" low="4" type="uint" min="0" max="7"/>
 		</reg32>
 		<reg32 offset="0x13c0" name="POINT_COORD_REPLACE_MAP" length="8"/>
 		<reg32 offset="0x1400" name="UNK1400_LANES"/> <!-- 0 == 4 lanes, 1 == 8 lanes, 2 or more == 16 or 32 lanes depending on 0x19a0 -->
@@ -313,7 +349,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1414" name="FP_START_ID"/>
 		<reg32 offset="0x1420" name="GP_VERTEX_OUTPUT_COUNT" type="int"/>
 		<reg32 offset="0x1434" name="VB_ELEMENT_BASE" type="int"/>
-		<reg32 offset="0x1440" name="CODE_CB_FLUSH"/> <!-- works with writing 0, but appears to accept values 0-3... what do they do, if anything? -->
+		<reg32 offset="0x1440" name="CODE_CB_FLUSH">
+			<doc>Works with writing 0, but appears to accept values
+			0-3... what do they do, if anything?</doc>
+		</reg32>
 		<reg32 offset="0x1444" name="BIND_TSC" length="3" stride="8">
 			<bitfield name="VALID" high="0" low="0" type="boolean"/>
 			<bitfield name="SAMPLER" high="7" low="4" type="int"/>
@@ -350,17 +389,27 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1554" name="COND_ADDRESS_LOW"/>
 		<reg32 offset="0x1558" name="COND_MODE" type="nv50_cond_mode"/>
 		<reg32 offset="0x155c" name="TSC_ADDRESS_HIGH"/>
-		<reg32 offset="0x1560" name="TSC_ADDRESS_LOW"/> <!-- align: 0x20 -->
-		<reg32 offset="0x1564" name="TSC_LIMIT" type="int"/> <!-- number of entries - 1 -->
+		<reg32 offset="0x1560" name="TSC_ADDRESS_LOW" align="0x20"/>
+		<reg32 offset="0x1564" name="TSC_LIMIT" type="uint" max="0x1fff">
+			<doc>number of TSC entries - 1</doc>
+		</reg32>
 		<reg32 offset="0x156c" name="POLYGON_OFFSET_FACTOR" type="float"/>
 		<reg32 offset="0x1570" name="LINE_SMOOTH_ENABLE" type="boolean"/>
 		<reg32 offset="0x1574" name="TIC_ADDRESS_HIGH"/>
 		<reg32 offset="0x1578" name="TIC_ADDRESS_LOW"/>
-		<reg32 offset="0x157c" name="TIC_LIMIT" type="int"/> <!-- number of entries - 1 -->
+		<reg32 offset="0x157c" name="TIC_LIMIT" type="uint">
+			<doc>number of entries - 1</doc>
+		</reg32>
 		<reg32 offset="0x1580" name="PM_CONTROL" length="4">
-			<bitfield name="UNK0" high="0" low="0" type="int"/>
-			<bitfield name="UNK1" high="6" low="4" type="int"/>
-			<bitfield name="UNK2" high="31" low="8"/>
+			<doc>*very* weird.</doc>
+			<bitfield name="UNK0" high="0" low="0">
+				<doc>disable bit?</doc>
+			</bitfield>
+			<bitfield name="UNK1" high="6" low="4">
+				<doc>valid values are 0-5</doc>
+			</bitfield>
+			<bitfield name="UNK2" high="23" low="8"/>
+			<bitfield name="UNK3" high="31" low="24"/>
 		</reg32>
 		<reg32 offset="0x1590" name="UNK1590"/>
 		<reg32 offset="0x1594" name="STENCIL_BACK_ENABLE" type="boolean"/>
@@ -516,7 +565,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="COUNT" high="7" low="0" type="int"/>
 		</reg32>
 		<reg32 offset="0x198c" name="FP_REG_ALLOC_TEMP" type="int"/>
-		<reg32 offset="0x19a0" name="WARP_HALVES" type="int"/> <!-- 1 or 2 -->
+		<reg32 offset="0x19a0" name="REG_MODE" type="nv50_reg_mode"/>
 		<reg32 offset="0x19a8" name="FP_CONTROL">
 			<bitfield name="MULTIPLE_RESULTS" high="0" low="0" type="boolean"/>
 			<bitfield name="EXPORTS_Z" high="8" low="8" type="boolean"/>

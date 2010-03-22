@@ -59,7 +59,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield low="4" high="19" name="UNK2"/>
 		</reg32>
 		<reg32 offset="0x022c" name="TSC_ADDRESS_HIGH"/>
-		<reg32 offset="0x0230" name="TSC_ADDRESS_LOW"/>
+		<reg32 offset="0x0230" name="TSC_ADDRESS_LOW" align="0x20"/>
 		<reg32 offset="0x0234" name="TSC_LIMIT" type="uint" max="0x1fff">
 			<doc>number of TSC entries - 1</doc>
 		</reg32>
@@ -251,12 +251,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x03b4" name="CP_START_ID"/>
 		<reg32 offset="0x03b8" name="REG_MODE" type="nv50_reg_mode"/>
 		<reg32 offset="0x03bc" name="TEX_LIMITS">
-			<bitfield name="SAMPLERS_LOG2" high="3" low="0" type="uint">
-				<doc>0-4</doc>
-			</bitfield>
-			<bitfield name="TEXTURES_LOG2" high="7" low="4" type="uint">
-				<doc>0-7</doc>
-			</bitfield>
+			<bitfield name="SAMPLERS_LOG2" high="3" low="0" type="uint" min="0" max="4"/>
+			<bitfield name="TEXTURES_LOG2" high="7" low="4" type="uint" min="0" max="7"/>
 		</reg32>
 		<reg32 offset="0x03c0" name="BIND_TSC">
 			<bitfield name="VALID" high="0" low="0" type="boolean"/>
