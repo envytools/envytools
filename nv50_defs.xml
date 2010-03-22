@@ -11,6 +11,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="4" name="RES_OR_ID"/>
 </enum>
 
+<enum name="nv50_reg_mode" inline="yes">
+	<brief>selects how $r regs are layed out inside the MP.</brief>
+	<value value="0x01" name="PACKED">
+		<doc>limits lanes/warp to 16 as a side effect.</doc>
+	</value>
+	<value value="0x02" name="STRIPED"/>
+</enum>
+
 <!--XXX: figure this out someday-->
 <enum name="NV50_SURFACE_FORMAT">
 	<value value="0x00c0" name="R32G32B32A32_FLOAT"/><!-- tile flags 0x7400-->
