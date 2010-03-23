@@ -5,7 +5,7 @@ List of stuff to import to rules-ng-ng as a starting point:
   - pre-nv50 2d			done
   - DVD_SUBPICTURE		done
   - nv03 3d			done
-  - nv04 3d			TODO [mwk]
+  - nv04 3d			done
   - nv10 3d			TODO
   - nv20 3d			TODO
   - nv30/nv40 3d		TODO

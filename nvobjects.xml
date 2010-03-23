@@ -17,12 +17,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0040" name="NV01_MEMORY_LOCAL_LINEAR"/>
 	<value value="0x0041" name="NV01_MAPPING_LOCAL"/>
 	<value value="0x0046" name="NV03_VIDEO_LUT_CURSOR_DAC"/>
-	<value value="0x0053" name="NV04_CONTEXT_SURFACES_3D"/>
-	<value value="0x0093" name="NV10_CONTEXT_SURFACES_3D"/>
-	<value value="0x0054" name="NV04_TEXTURED_TRIANGLE"/>
-	<value value="0x0094" name="NV10_TEXTURED_TRIANGLE"/>
-	<value value="0x0055" name="NV04_MULTITEX_TRIANGLE"/>
-	<value value="0x0095" name="NV10_MULTITEX_TRIANGLE"/>
 	<value value="0x0056" name="NV10TCL"/>
 	<value value="0x0096" name="NV11TCL"/>
 	<value value="0x0099" name="NV17TCL"/>
@@ -75,6 +69,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nv01_2d.xml" />
 <import file="nv04_dvd.xml" />
 <import file="nv03_3d.xml" />
+<import file="nv04_3d.xml" />
 <import file="nv50_2d.xml" />
 <import file="nv50_3d.xml" />
 <import file="nv50_compute.xml" />
