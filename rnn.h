@@ -135,6 +135,7 @@ struct rnndelem {
 		RNN_ETYPE_REG,
 		RNN_ETYPE_ARRAY,
 		RNN_ETYPE_STRIPE,
+		RNN_ETYPE_USE_GROUP,
 	} type;
 	char *name;
 	int width;

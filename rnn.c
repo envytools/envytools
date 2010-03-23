@@ -331,7 +331,26 @@ static void parsebitset(struct rnndb *db, char *file, xmlNode *node) {
 }
 
 static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
-	if (!strcmp(node->name, "stripe") || !strcmp(node->name, "array")) {
+	if (!strcmp(node->name, "use-group")) {
+		struct rnndelem *res = calloc(sizeof *res, 1);
+		res->type = RNN_ETYPE_USE_GROUP;
+		xmlAttr *attr = node->properties;
+		while (attr) {
+			if (!strcmp(attr->name, "name")) {
+				res->name = strdup(getattrib(db, file, node->line, attr));
+			} else {
+				fprintf (stderr, "%s:%d: wrong attribute \"%s\" for %s\n", file, node->line, attr->name, node->name);
+				db->estatus = 1;
+			}
+			attr = attr->next;
+		}
+		if (!res->name) {
+			fprintf (stderr, "%s:%d: nameless use-group\n", file, node->line);
+			db->estatus = 1;
+			return 0;
+		}
+		return res;
+	} else if (!strcmp(node->name, "stripe") || !strcmp(node->name, "array")) {
 		struct rnndelem *res = calloc(sizeof *res, 1);
 		res->type = (strcmp(node->name, "stripe")?RNN_ETYPE_ARRAY:RNN_ETYPE_STRIPE);
 		res->length = 1;
@@ -674,6 +693,29 @@ static struct rnnbitfield *copybitfield (struct rnnbitfield *bf) {
 	return res;
 }
 
+static struct rnndelem *copydelem (struct rnndelem *elem) {
+	struct rnndelem *res = calloc (sizeof *res, 1);
+	res->name = elem->name;
+	res->width = elem->width;
+	res->offset = elem->offset;
+	res->length = elem->length;
+	res->stride = elem->stride;
+	res->shr = elem->shr;
+	res->prefixstr = elem->prefixstr;
+	res->varsetstr = elem->varsetstr;
+	res->variantsstr = elem->variantsstr;
+	int i;
+	for (i = 0; i < elem->valsnum; i++)
+		RNN_ADDARRAY(res->vals, copyvalue(elem->vals[i]));
+	for (i = 0; i < elem->bitfieldsnum; i++)
+		RNN_ADDARRAY(res->bitfields, copybitfield(elem->bitfields[i]));
+	for (i = 0; i < elem->subelemsnum; i++)
+		RNN_ADDARRAY(res->subelems, copydelem(elem->subelems[i]));
+	for (i = 0; i < elem->typesnum; i++)
+		RNN_ADDARRAY(res->types, copytype(elem->types[i]));
+	return res;
+}
+
 static struct rnnvarset *copyvarset (struct rnnvarset *varset) {
 	struct rnnvarset *res = calloc(sizeof *res, 1);
 	res->venum = varset->venum;
@@ -838,6 +880,25 @@ static void prepbitfield(struct rnndb *db, struct rnnbitfield *bf, char *prefix,
 }
 
 static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix, struct rnnvarinfo *parvi, int width) {
+	if (elem->type == RNN_ETYPE_USE_GROUP) {
+		int i;
+		struct rnngroup *gr = 0;
+		for (i = 0; i < db->groupsnum; i++)
+			if (!strcmp(db->groups[i]->name, elem->name)) {
+				gr = db->groups[i];
+				break;
+			}
+		if (gr) {
+			for (i = 0; i < gr->subelemsnum; i++)
+				RNN_ADDARRAY(elem->subelems, copydelem(gr->subelems[i]));
+		} else {
+			fprintf (stderr, "group %s not found!\n", elem->name);
+			db->estatus = 1;
+		}
+		elem->type = RNN_ETYPE_STRIPE;
+		elem->length = 1;
+		elem->name = 0;
+	}
 	if (elem->name)
 		elem->fullname = catstr(prefix, elem->name);
 	prepvarinfo (db, elem->fullname?elem->fullname:prefix, &elem->varinfo, parvi, elem->prefixstr, elem->varsetstr, elem->variantsstr);
