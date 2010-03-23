@@ -728,11 +728,13 @@ static struct rnnvarset *copyvarset (struct rnnvarset *varset) {
 
 static void prepenum(struct rnndb *db, struct rnnenum *en);
 
-static int findvidx (struct rnnenum *en, char *name) {
+static int findvidx (struct rnndb *db, struct rnnenum *en, char *name) {
 	int i;
 	for (i = 0; i < en->valsnum; i++)
 		if (!strcmp(en->vals[i]->name, name))
 			return i;
+	fprintf (stderr, "Cannot find variant %s in enum %s!\n", name, en->name);
+	db->estatus = 1;
 	return -1;
 }
 
@@ -783,7 +785,7 @@ static void prepvarinfo (struct rnndb *db, char *what, struct rnnvarinfo *vi, st
 			if (split != variantsstr)
 				first = strndup(variantsstr, split-variantsstr);
 			if (*split == ' ' || *split == 0) {
-				int idx = findvidx(varset, first);
+				int idx = findvidx(db, varset, first);
 				if (idx != -1)
 					vs->variants[idx] |= 2;
 				variantsstr = split;
@@ -796,10 +798,10 @@ static void prepvarinfo (struct rnndb *db, char *what, struct rnnvarinfo *vi, st
 					second = strndup(split+1, end-split-1);
 				int idx1 = 0;
 				if (first)
-					idx1 = findvidx(varset, first);
+					idx1 = findvidx(db, varset, first);
 				int idx2 = nvars;
 				if (second) {
-					idx2 = findvidx(varset, second);
+					idx2 = findvidx(db, varset, second);
 					if (*split == '-')
 						idx2++;
 				}
