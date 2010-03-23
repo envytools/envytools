@@ -330,17 +330,6 @@ static void parsebitset(struct rnndb *db, char *file, xmlNode *node) {
 	}
 }
 
-static void parsegroup(struct rnndb *db, char *file, xmlNode *node) {
-	xmlNode *chain = node->children;
-	while (chain) {
-		if (chain->type != XML_ELEMENT_NODE) {
-		} else if (!trytop(db, file, chain) && !trydoc(db, file, chain)) {
-			fprintf (stderr, "%s:%d: wrong tag in group: <%s>\n", file, chain->line, chain->name);
-			db->estatus = 1;
-		}
-		chain = chain->next;
-	}
-}
 static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 	if (!strcmp(node->name, "stripe") || !strcmp(node->name, "array")) {
 		struct rnndelem *res = calloc(sizeof *res, 1);
@@ -457,6 +446,49 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 	} else {
 	}
 	return res;
+}
+
+static void parsegroup(struct rnndb *db, char *file, xmlNode *node) {
+	xmlAttr *attr = node->properties;
+	char *name = 0;
+	int i;
+	while (attr) {
+		if (!strcmp(attr->name, "name")) {
+			name = getattrib(db, file, node->line, attr);
+		} else {
+			fprintf (stderr, "%s:%d: wrong attribute \"%s\" for group\n", file, node->line, attr->name);
+			db->estatus = 1;
+		}
+		attr = attr->next;
+	}
+	if (!name) {
+		fprintf (stderr, "%s:%d: nameless group\n", file, node->line);
+		db->estatus = 1;
+		return;
+	}
+	struct rnngroup *cur = 0;
+	for (i = 0; i < db->groupsnum; i++)
+		if (!strcmp(db->groups[i]->name, name)) {
+			cur = db->groups[i];
+			break;
+		}
+	if (!cur) {
+		cur = calloc(sizeof *cur, 1);
+		cur->name = strdup(name);
+		RNN_ADDARRAY(db->groups, cur);
+	}
+	xmlNode *chain = node->children;
+	while (chain) {
+		struct rnndelem *delem;
+		if (chain->type != XML_ELEMENT_NODE) {
+		} else if (delem = trydelem(db, file, chain)) {
+			RNN_ADDARRAY(cur->subelems, delem);
+		} else if (!trytop(db, file, chain) && !trydoc(db, file, chain)) {
+			fprintf (stderr, "%s:%d: wrong tag in group: <%s>\n", file, chain->line, chain->name);
+			db->estatus = 1;
+		}
+		chain = chain->next;
+	}
 }
 
 static void parsedomain(struct rnndb *db, char *file, xmlNode *node) {

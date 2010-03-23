@@ -13,6 +13,9 @@ struct rnndb {
 	struct rnndomain **domains;
 	int domainsnum;
 	int domainsmax;
+	struct rnngroup **groups;
+	int groupsnum;
+	int groupsmax;
 	char **files;
 	int filesnum;
 	int filesmax;
@@ -118,6 +121,13 @@ struct rnndomain {
 	int subelemsnum;
 	int subelemsmax;
 	char *fullname;
+};
+
+struct rnngroup {
+	char *name;
+	struct rnndelem **subelems;
+	int subelemsnum;
+	int subelemsmax;
 };
 
 struct rnndelem {
