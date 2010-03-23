@@ -477,14 +477,16 @@ for stripeobj in stripeobjs:
 			name = list(stripeobj.names)[0]
 
 		mmio = ET.Element("domain")
-		if stripeobj.offset != 0:
+		if stripeobj.offset != 0 or name == "NV_PMC":
 			mmio.attrib["name"] = "NV_MMIO"
 			mmio.attrib["bare"] = "yes"
+			is_mmio = True
 		elif name:
 			mmio.attrib["name"] = name
+			is_mmio = False
 		mmio.attrib["prefix"] = "chipset"
 
-		if stripeobj.offset != 0 and name:
+		if is_mmio and name:
 			stripe.attrib["name"] = name
 		stripe.attrib["offset"] = hex(stripeobj.offset)
 		stripe.attrib["stride"] = hex(stripeobj.end - stripeobj.offset)
@@ -506,7 +508,7 @@ for stripeobj in stripeobjs:
 		subdir = "objects"
 	elif stripeobj.strange_name:
 		subdir = "strange"
-	elif stripeobj.offset > 0 or basename == "pmc":
+	elif is_mmio:
 		subdir = "mmio"
 	else:
 		subdir = "misc"
