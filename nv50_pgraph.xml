@@ -600,7 +600,7 @@
 
 	<array offset="0x8000" variants="NV50:NVA0" name="TP" stride="0x1000" length="8">
 		<array offset="0x200" name="MP" stride="0x80" length="2">
-			<use-group ref="nv50_pgraph_mp" />
+			<use-group name="nv50_pgraph_mp" />
 		</array>
 		<reg32 offset="0x314" name="MP_TRAP">
 			<bitfield name="EXEC" high="16" low="16" />
@@ -624,7 +624,7 @@
 	<array offset="0x8000" variants="NVA0-" name="TP" stride="0x800" length="16">
 
 		<array offset="0x100" name="MP" stride="0x80" length="4">
-			<use-group ref="nv50_pgraph_mp" />
+			<use-group name="nv50_pgraph_mp" />
 		</array>
 		<reg32 offset="0x31c" name="MP_TRAP">
 			<bitfield name="EXEC" high="16" low="16" />
