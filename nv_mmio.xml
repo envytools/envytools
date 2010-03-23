@@ -6,6 +6,111 @@
 <import file="nvchipsets.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
+	<stripe offset="0x000000" name="PMC" stride="0x2000" length="1">
+		<doc>Master Control. Contains various registers not tied to
+		any specific engine.</doc>
+		<reg32 offset="0x000" name="BOOT_0">
+			<doc>Tells you what card this is. Note that this reg has
+			a different format on NV01/NV03, on NV04/NV05, and on NV10+.
+			So first you need to figure out the format... if bits 24-27
+			are non-0, you have NV10+. Otherwise, if bits 12-15 are 4,
+			you have NV04/NV05. In other cases, you have pre-NV04.</doc>
+			<bitfield low="24" high="27" name="ALWAYS0_1" variants="NV01:NV10"/>
+
+			<bitfield low="12" high="15" name="ALWAYS0_2" variants="NV01:NV04"/>
+			<bitfield low="16" high="19" name="CHIPSET" variants="NV01:NV04">
+				<value value="1" name="NV01"/>
+				<value value="2" name="NV02"/>
+				<value value="3" name="NV03"/>
+			</bitfield>
+
+			<bitfield low="12" high="15" name="ALWAYS4" variants="NV04:NV10"/>
+			<bitfield low="20" high="23" name="MAJOR" variants="NV04:NV10">
+				<doc>0 is NV04, non-0 are NV05+</doc>
+			</bitfield>
+
+			<bitfield low="0" high="7" name="STEPPING" variants="NV10-"/>
+			<bitfield low="20" high="27" name="CHIPSET" type="chipset" variants="NV10-">
+				<doc>The card chipset. This is THE two-digit hex
+				number that goes after "NV".
+				</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x004" name="BOOT_1" variants="NV10-">
+			<doc>Endian switch. Write 0x00000001 in your favorite
+			endianness to switch the card to this endianness. This
+			switch, if set to big-endian mode, causes all accesses
+			to MMIO BAR to be byte-swapped [xor all byte addresses
+			with 3], except for areas containing 8-bit legacy VGA
+			registers. This includes PRAMIN accesses. Accesses to
+			framebuffer BAR aren't affected.
+
+			When read, returns 0 if in little-endian mode,
+			0x01000001 if in big-endian mode.
+
+			TODO: Check NV40 PRAMIN BAR and NV50. Check how to
+			byte-swap PFIFO pushbuffers.</doc>
+		</reg32>
+		<reg32 offset="0x100" name="INTR">
+			<doc>Shows currently pending interrupts. Write 1 to a
+			bit to reset it, and ACK the interrupt.</doc>
+			<bitfield high="0" low="0" name="PAUDIO" variants="NV01"/>
+			<bitfield high="4" low="4" name="PDMA" variants="NV01"/>
+			<bitfield high="4" low="4" name="PMEDIA" variants="NV03-"/>
+			<bitfield high="8" low="8" name="PFIFO" />
+			<bitfield high="12" low="12" name="PGRAPH" />
+			<bitfield high="16" low="16" name="PRM" variants="NV01"/>
+			<bitfield high="16" low="16" name="PVIDEO" variants="NV03-NV40"/>
+			<bitfield high="20" low="20" name="PTIMER" />
+			<bitfield high="24" low="24" name="PFB" variants="NV01"/>
+			<bitfield high="24" low="24" name="PCRTC" variants="NV03-"/>
+			<bitfield high="28" low="28" name="SOFTWARE" variants="NV01"/>
+			<bitfield high="28" low="28" name="PBUS" variants="NV03-"/>
+			<bitfield high="31" low="31" name="SOFTWARE" variants="NV03-"/>
+		</reg32>
+		<reg32 offset="0x140" name="INTR_EN" />
+		<reg32 offset="0x200" name="ENABLE">
+			<doc>Selects which card units are enabled.</doc>
+			<bitfield high="0" low="0" name="PAUDIO" variants="NV01"/>
+			<bitfield high="0" low="0" name="MD" variants="NV04:NV50"/>
+			<bitfield high="4" low="4" name="PDMA" variants="NV01"/>
+			<bitfield high="4" low="4" name="PMEDIA" variants="NV03-"/>
+			<bitfield high="8" low="8" name="PFIFO" />
+			<bitfield high="12" low="12" name="PGRAPH" />
+			<bitfield high="16" low="16" name="PRM" variants="NV01"/>
+			<bitfield high="16" low="16" name="PPMI" variants="NV03"/>
+			<bitfield high="20" low="20" name="PFB" variants="NV03-"/>
+			<bitfield high="24" low="24" name="PFB" variants="NV01"/>
+			<bitfield high="24" low="24" name="PCRTC" variants="NV03-"/>
+			<bitfield high="28" low="28" name="PVIDEO" variants="NV03"/>
+		</reg32>
+		<reg32 offset="0x1540" name="PGRAPH_UNITS" variants="NV50-">
+			<doc>Enables PGRAPH engines that come in multiple copies.
+			</doc>
+			<bitfield high="15" low="0" name="TP_MASK">
+				<doc>Selects which TPs are enabled</doc>
+			</bitfield>
+			<bitfield high="23" low="16" name="ROPC_MASK">
+				<doc>Selects which ROP clusters are enabled</doc>
+			</bitfield>
+			<bitfield high="27" low="24" name="MP_MASK">
+				<doc>Selects which MPs inside each TP are enabled</doc>
+			</bitfield>
+			<bitfield high="31" low="28" name="UNK_MASK">
+				<doc>Unknown, always starts as 0b1111. Not setting
+				bit 28 causes the card to die. Not setting bits
+				29-31 has no obvious effects.
+				</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x1700" name="PRAMIN_OFFSET" shr="16" variants="NV50-">
+			<doc>Selects the starting offset of the VRAM area that is
+			accessible by the 1MB PRAMIN window at 0x700000. This is
+			always unpaged and goes directly to VRAM [or to the stolen
+			system RAM on IGPs].
+			</doc>
+		</reg32>
+	</stripe>
 
 	<reg8 offset="0x300000" name="PROM" length="0x10000" variants="NV04-" />
 
