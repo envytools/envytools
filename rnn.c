@@ -75,6 +75,15 @@ static uint64_t getnumattrib (struct rnndb *db, char *file, int line, xmlAttr *a
 
 static int trytop (struct rnndb *db, char *file, xmlNode *node);
 
+static int trydoc (struct rnndb *db, char *file, xmlNode *node) {
+	if (!strcmp(node->name, "brief")) {
+		return 1;
+	} else if (!strcmp(node->name, "doc")) {
+		return 1;
+	}
+	return 0;
+}
+
 static struct rnnvalue *parsevalue(struct rnndb *db, char *file, xmlNode *node) {
 	struct rnnvalue *val = calloc(sizeof *val, 1);
 	xmlAttr *attr = node->properties;
@@ -98,7 +107,7 @@ static struct rnnvalue *parsevalue(struct rnndb *db, char *file, xmlNode *node) 
 	while (chain) {
 		struct rnndelem *delem;
 		if (chain->type != XML_ELEMENT_NODE) {
-		} else if (!trytop(db, file, chain)) {
+		} else if (!trytop(db, file, chain) && !trydoc(db, file, chain)) {
 			fprintf (stderr, "%s:%d: wrong tag in %s: <%s>\n", file, chain->line, node->name, chain->name);
 			db->estatus = 1;
 		}
@@ -173,12 +182,11 @@ static void parseenum(struct rnndb *db, char *file, xmlNode *node) {
 	xmlNode *chain = node->children;
 	while (chain) {
 		if (chain->type != XML_ELEMENT_NODE) {
-		} else if (trytop(db, file, chain)) {
 		} else if (!strcmp(chain->name, "value")) {
 			struct rnnvalue *val = parsevalue(db, file, chain);
 			if (val)
 				RNN_ADDARRAY(cur->vals, val);
-		} else {
+		} else if (!trytop(db, file, chain) && !trydoc(db, file, chain)) {
 			fprintf (stderr, "%s:%d: wrong tag in enum: <%s>\n", file, chain->line, chain->name);
 			db->estatus = 1;
 		}
@@ -231,7 +239,7 @@ static struct rnnbitfield *parsebitfield(struct rnndb *db, char *file, xmlNode *
 			struct rnnvalue *val = parsevalue(db, file, chain);
 			if (bf)
 				RNN_ADDARRAY(bf->vals, val);
-		} else if (!trytop(db, file, chain)) {
+		} else if (!trytop(db, file, chain) && !trydoc(db, file, chain)) {
 			fprintf (stderr, "%s:%d: wrong tag in %s: <%s>\n", file, chain->line, node->name, chain->name);
 			db->estatus = 1;
 		}
@@ -310,12 +318,11 @@ static void parsebitset(struct rnndb *db, char *file, xmlNode *node) {
 	xmlNode *chain = node->children;
 	while (chain) {
 		if (chain->type != XML_ELEMENT_NODE) {
-		} else if (trytop(db, file, chain)) {
 		} else if (!strcmp(chain->name, "bitfield")) {
 			struct rnnbitfield *bf = parsebitfield(db, file, chain);
 			if (bf)
 				RNN_ADDARRAY(cur->bitfields, bf);
-		} else {
+		} else if (!trytop(db, file, chain) && !trydoc(db, file, chain)) {
 			fprintf (stderr, "%s:%d: wrong tag in enum: <%s>\n", file, chain->line, chain->name);
 			db->estatus = 1;
 		}
@@ -327,7 +334,7 @@ static void parsegroup(struct rnndb *db, char *file, xmlNode *node) {
 	xmlNode *chain = node->children;
 	while (chain) {
 		if (chain->type != XML_ELEMENT_NODE) {
-		} else if (!trytop(db, file, chain)) {
+		} else if (!trytop(db, file, chain) && !trydoc(db, file, chain)) {
 			fprintf (stderr, "%s:%d: wrong tag in group: <%s>\n", file, chain->line, chain->name);
 			db->estatus = 1;
 		}
@@ -367,7 +374,7 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 			if (chain->type != XML_ELEMENT_NODE) {
 			} else if (delem = trydelem(db, file, chain)) {
 				RNN_ADDARRAY(res->subelems, delem);
-			} else if (!trytop(db, file, chain)) {
+			} else if (!trytop(db, file, chain) && !trydoc(db, file, chain)) {
 				fprintf (stderr, "%s:%d: wrong tag in %s: <%s>\n", file, chain->line, node->name, chain->name);
 				db->estatus = 1;
 			}
@@ -437,7 +444,7 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 			struct rnnvalue *val = parsevalue(db, file, chain);
 			if (val)
 				RNN_ADDARRAY(res->vals, val);
-		} else if (!trytop(db, file, chain)) {
+		} else if (!trytop(db, file, chain) && !trydoc(db, file, chain)) {
 			fprintf (stderr, "%s:%d: wrong tag in %s: <%s>\n", file, chain->line, node->name, chain->name);
 			db->estatus = 1;
 		}
@@ -523,7 +530,7 @@ static void parsedomain(struct rnndb *db, char *file, xmlNode *node) {
 		if (chain->type != XML_ELEMENT_NODE) {
 		} else if (delem = trydelem(db, file, chain)) {
 			RNN_ADDARRAY(cur->subelems, delem);
-		} else if (!trytop(db, file, chain)) {
+		} else if (!trytop(db, file, chain) && !trydoc(db, file, chain)) {
 			fprintf (stderr, "%s:%d: wrong tag in domain: <%s>\n", file, chain->line, chain->name);
 			db->estatus = 1;
 		}
@@ -589,7 +596,7 @@ void rnn_parsefile (struct rnndb *db, char *file) {
 			xmlNode *chain = root->children;
 			while (chain) {
 				if (chain->type != XML_ELEMENT_NODE) {
-				} else if (!trytop(db, file, chain)) {
+				} else if (!trytop(db, file, chain) && !trydoc(db, file, chain)) {
 					fprintf (stderr, "%s:%d: wrong tag in database: <%s>\n", file, chain->line, chain->name);
 					db->estatus = 1;
 				}
