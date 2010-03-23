@@ -406,6 +406,7 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 	res->type = RNN_ETYPE_REG;
 	res->width = width;
 	res->length = 1;
+	res->access = RNN_ACCESS_RW;
 	xmlAttr *attr = node->properties;
 	while (attr) {
 		if (!strcmp(attr->name, "name")) {
@@ -434,6 +435,16 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 				RNN_ADDARRAY(res->types,tp);
 				str = newstr;
 			}
+		} else if (!strcmp(attr->name, "access")) {
+			char *str = getattrib(db, file, node->line, attr);
+			if (!strcmp(str, "r"))
+				res->access = RNN_ACCESS_R;
+			else if (!strcmp(str, "w"))
+				res->access = RNN_ACCESS_W;
+			else if (!strcmp(str, "rw"))
+				res->access = RNN_ACCESS_RW;
+			else
+				fprintf (stderr, "%s:%d: wrong access type \"%s\" for register\n", file, node->line, str);
 		} else {
 			fprintf (stderr, "%s:%d: wrong attribute \"%s\" for register\n", file, node->line, attr->name);
 			db->estatus = 1;
@@ -697,6 +708,7 @@ static struct rnndelem *copydelem (struct rnndelem *elem) {
 	struct rnndelem *res = calloc (sizeof *res, 1);
 	res->name = elem->name;
 	res->width = elem->width;
+	res->access = elem->access;
 	res->offset = elem->offset;
 	res->length = elem->length;
 	res->stride = elem->stride;

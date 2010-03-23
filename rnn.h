@@ -139,6 +139,11 @@ struct rnndelem {
 	} type;
 	char *name;
 	int width;
+	enum rnnaccess {
+		RNN_ACCESS_R,
+		RNN_ACCESS_W,
+		RNN_ACCESS_RW,
+	} access;
 	uint64_t offset;
 	uint64_t length;
 	uint64_t stride;
