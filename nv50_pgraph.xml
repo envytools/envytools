@@ -1,0 +1,650 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="nvchipsets.xml" />
+
+<enum name="NV50_PGRAPH_DATA_ERROR">
+	<value value="3" name="INVALID_QUERY_OR_TEXTURE">
+		<brief>You used invalid param to QUERY_GET method. Or you
+		used a TIC/TSC entry over TIC/TSC limit. Weird.</brief>
+	</value>
+	<value value="4" name="INVALID_VALUE">
+		<brief>You used too big / too small / unaligned value.</brief>
+	</value>
+	<value value="5" name="INVALID_ENUM">
+		<brief>Invalid value for an enum bitfield/register.</brief>
+	</value>
+	<value value="8" name="INVALID_OBJECT">
+		<brief>You used object of invalid class as param to one of 0x180-0x1fc methods.</brief>
+	</value>
+	<value value="0xb" name="INVALID_ADDRESS_ALIGNMENT">
+		<brief>One of your addresses is unaligned.</brief>
+		<doc>Usually, unaligned addresses trigger INVALID_VALUE
+		immediately on the address method. However, sometimes
+		[m2mf for example] the required alignment depends on other
+		state, and cannot be checked immediately. In this case, you
+		instead get this error when you actually try to launch
+		something.</doc>
+	</value>
+	<value value="0xc" name="INVALID_BITFIELD">
+		<brief>You had non-0 value in bits not corresponding to any bitfield.</brief>
+	</value>
+	<value value="0x10" name="RT_DOUBLE_BIND">
+		<brief>You bound more than one set of FP outputs to given RT index.</brief>
+	</value>
+	<value value="0x1b" name="SAMPLER_OVER_LIMIT">
+		<brief>You to BIND_TSC a sampler not defined by TEX_LIMITS.</brief>
+	</value>
+	<value value="0x1c" name="TEXTURE_OVER_LIMIT">
+		<brief>You to BIND_TIC a texture not defined by TEX_LIMITS.</brief>
+	</value>
+	<value value="0x21" name="Z_OUT_OF_BOUNDS"> <!-- m2mf at least. 2d too? -->
+		<brief>Your z coord exceeds the depth of your surface.</brief>
+	</value>
+	<value value="0x23" name="XY_OUT_OF_BOUNDS"> <!-- m2mf at least. 2d too? -->
+		<brief>Your x/y coords exceed the size of your surface.</brief>
+	</value>
+	<value value="0x27" name="MP_MORE_PARAMS_THAN_SHARED">
+		<brief>You tried to launch block with more params than allocated s[] space.</brief>
+	</value>
+	<value value="0x28" name="MP_NO_REG_SPACE_STRIPED">
+		<brief>You tried to use too much registers per block, and it didn't fit, with striped reg mode.</brief>
+	</value>
+	<value value="0x29" name="MP_NO_REG_SPACE_PACKED">
+		<brief>You tried to use too much registers per block, and it didn't fit, with packed reg mode.</brief>
+	</value>
+	<value value="0x2a" name="MP_NOT_ENOUGH_WARPS">
+		<brief>Your block requires more warps than MP can handle.</brief>
+	</value>
+	<value value="0x2b" name="MP_BLOCK_SIZE_MISMATCH">
+		<brief>The XYZ dimensions of block you specified indicate a smaller block than BLOCK_ALLOC implies.</brief>
+	</value>
+	<value value="0x2c" name="MP_NOT_ENOUGH_LOCAL_WARPS">
+		<brief>Your block requires more warps than LOCAL_WARPS allows..</brief>
+	</value>
+	<value value="0x2d" name="MP_NOT_ENOUGH_STACK_WARPS">
+		<brief>Your block requires more warps than STACK_WARPS allows.</brief>
+	</value>
+	<value value="0x31" name="ENG2D_FORMAT_MISMATCH"> <!-- sifc at least. -->
+		<brief>The dst/src format combination you chose doesn't make sense.</brief>
+	</value>
+</enum>
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+<stripe name="PGRAPH" offset="0x400000" stride="0x10000" length="1" variants="NV50-">
+	<reg32 offset="0x0040" name="DISABLE">
+		<brief>Disable / reset subunits</brief>
+		<doc>Writing 1 to a bit disables given subunit, causes it to disappear from MMIO,
+		and [at least sometimes] resets its state.
+		
+		ctxprog opcode 90XXXX ors low 16 bits of this register with XXXX, 91XXXX ors high
+		16 bits of this register with XXXX. CMD 9 resets this register to 0.
+
+		Trying to launch a ctxprog xfer touching a disabled subunit is a bad idea.
+		</doc>
+		<bitfield name="DISPATCH" high="0" low="0" /> <!-- 8XX, 54XX+ [or 48XX+], 6FFX, force STATUS 1. NV50 strand 0. NVA0 strand 0. -->
+		<bitfield name="M2MF" high="1" low="1" /> <!-- 68XX. NV50 strand 0. NVA0 strand 0. -->
+		<bitfield name="VFETCH" high="2" low="2" /> <!-- CXX, NV50 strand 1. NVA0 strand 3. -->
+		<bitfield name="CCACHE" high="3" low="3" /> <!-- 50XX, NV50 strand 2. NVA0 strand 4. -->
+		<bitfield name="UNK10XX" high="6" low="6" /> <!-- NV50 strand 2. NVA0 strand 1. -->
+		<bitfield name="STRMOUT" high="7" low="7" /> <!-- 18XX, NV50 strand 2. NVA0 strand 0. -->
+		<bitfield name="UNK14XX" high="8" low="8" /> <!-- and 15XX, NV50 strand 2. NVA0 strand 7 / 2. -->
+		<bitfield name="UNK8CXX" high="9" low="9" /> <!-- 8CXX / 80XX, NV50 strand 4. NVA0 strand 6 -->
+		<bitfield name="TPDMA" high="10" low="10" /> <!-- 8EXX / 87XX, NV50 strand 4. NVA0 strand 6 -->
+		<bitfield name="TEXTURE" high="11" low="11" /> <!-- 88XX, 89XX, 8AXX / 85XX, 86XX, NV50 strand 4. NVA0 strand 6 -->
+		<bitfield name="UNK84XX" high="12" low="12" /> <!-- NV50 strand 4. NVA0 strand 6. -->
+		<bitfield name="MP" high="13" low="13" /> <!-- 82XX, 83XX / 81XX, 82XX, 83XX, NV50 xfer2. NVA0 xfer2 -->
+		<bitfield name="UNK24XX" high="14" low="14" /> <!-- NV50 strand 0. NVA0 strand 2. huge. -->
+		<bitfield name="CSCHED" high="15" low="15" /> <!-- force STATUS 2001 and some other stuff, NV50 strand 1 and xfer2. NVA0 strand 0 and xfer2. -->
+		<bitfield name="UNK1CXX" high="16" low="16" /> <!-- NV50 strand 2. NVA0 strand 0. -->
+		<bitfield name="UNK20XX" high="17" low="17" /> <!-- NV50 strand 0. NVA0 strand 6 -->
+		<bitfield name="UNK2CXX" high="18" low="18" /> <!-- NV50 strand 0. NVA0 strand 6 -->
+		<bitfield name="ENG2D" high="19" low="19" /> <!-- NV50 strand 1. NVA0 strand 6 -->
+		<bitfield name="UNK34XX" high="20" low="20" /> <!-- NV50 strand 2. NVA0 strand 0. -->
+		<bitfield name="ROP" high="21" low="21" /> <!-- 7xxx, NV50 strands 1 and 3. NVA0 strand 5. -->
+	</reg32>
+	<reg32 offset="0x0080" name="DEBUG_0"/>
+	<reg32 offset="0x0088" name="DEBUG_2"/>
+	<reg32 offset="0x008c" name="DEBUG_3">
+		<bitfield name="HW_CONTEXT_SWITCH" high="2" low="2" />
+		<bitfield name="SINGLE_STEP" high="8" low="8" />
+	</reg32>
+	<reg32 offset="0x0100" name="INTR">
+		<brief>Interrupt status</brief>
+		<doc>Shows currently pending interrupts. Write 1 to a bit to reset it, and ACK the interrupt.</doc>
+		<bitfield name="NOTIFY" high="0" low="0">
+			<doc>You asked for a NOTIFY with interrupt and got it.</doc>
+		</bitfield>
+		<bitfield name="QUERY" high="1" low="1">
+			<doc>You asked for a QUERY with interrupt and got it.</doc>
+		</bitfield>
+		<bitfield name="UNK02" high="2" low="2" />
+		<bitfield name="ILLEGAL_MTHD" high="4" low="4">
+			<doc>You tried to use a method that doesn't exist on this class.</doc>
+		</bitfield>
+		<bitfield name="ILLEGAL_CLASS" high="5" low="5">
+			<doc>You tried to use a class not supported by this GPU.</doc>
+		</bitfield>
+		<bitfield name="DOUBLE_NOTIFY" high="6" low="6">
+			<doc>You tried to use NOTIFY command on another NOTIFY command.</doc>
+		</bitfield>
+		<bitfield name="CONTEXT_SWITCH" high="12" low="12">
+			<doc>PGRAPH needs a context switch, and automatic context switches are disabled.</doc>
+		</bitfield>
+		<bitfield name="BUFFER_NOTIFY" high="16" low="16">
+			<doc>You asked for m2mf transfer with interrupt after finish and got it.</doc>
+		</bitfield>
+		<bitfield name="DATA_ERROR" high="20" low="20">
+			<doc>You used an invalid parameter for this method. Or maybe you tried
+			to launch some operation, but the relevant state is inconsistent.
+			Relevant state is in DATA_ERROR</doc>
+		</bitfield>
+		<bitfield name="TRAP" high="21" low="21">
+			<doc>A PGRAPH command failed in the middle of execution. TRAP register will
+			tell you which subunit reports the trap.</doc>
+		</bitfield>
+		<bitfield name="UNK22" high="22" low="22" />
+		<bitfield name="SINGLE_STEP" high="24" low="24" />
+		<bitfield name="CTXPROG_PAUSED" high="25" low="25">
+			<doc>Can be triggered by pausing ctxprog via CTXCTL_CONTROL... but that's
+			useless, there should be another way to trigger it.</doc>
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x0108" name="TRAP">
+		<brief>Trap status</brief>
+		<doc>Like INTR, but applies to TRAP sub-types. Shows which subunits report trap.
+		Each subunit has its own TRAP status register, which you have to check in turn
+		to know the exact TRAP sub-subtype, and reset it. Write 1 to a bit to reset it
+		and ACK the trap.
+		
+		If a bit applies to a per-TP subunit, you need to check all TPs to see which one
+		is reporting the trap.</doc>
+		<bitfield name="DISPATCH" high="0" low="0">
+			<brief>Check 400804</brief>
+		</bitfield>
+		<bitfield name="M2MF" high="1" low="1">
+			<brief>Check 406800</brief>
+		</bitfield>
+		<bitfield name="VFETCH" high="2" low="2">
+			<brief>Check 400c04</brief>
+		</bitfield>
+		<bitfield name="STRMOUT" high="3" low="3">
+			<brief>Check 401800</brief>
+		</bitfield>
+		<bitfield name="CCACHE" high="4" low="4">
+			<brief>Check 405018</brief>
+		</bitfield>
+		<bitfield name="UNK2000" high="5" low="5">
+			<brief>Check 402000</brief>
+		</bitfield>
+		<bitfield name="TEXTURE" high="6" low="6">
+			<brief>Check TP+0x900 / TP+0x500</brief>
+		</bitfield>
+		<bitfield name="MP" high="7" low="7">
+			<brief>Check TP+0x314 / TP+0x31c</brief>
+		</bitfield>
+		<bitfield name="TPDMA" high="8" low="8">
+			<brief>Check TP+0xe08 / TP+0x708</brief>
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x0110" name="DATA_ERROR" type="NV50_PGRAPH_DATA_ERROR">
+		<doc>Stores type of the pending DATA_ERROR.</doc>
+	</reg32>
+	<reg32 offset="0x0138" name="TRAP_EN">
+		<brief>Trap enable</brief>
+		<doc>A bitmask of events that will cause traps, same bit assignments as in TRAP reg.</doc>
+		<bitfield name="DISPATCH" high="0" low="0" />
+		<bitfield name="M2MF" high="1" low="1" />
+		<bitfield name="VFETCH" high="2" low="2" />
+		<bitfield name="STRMOUT" high="3" low="3" />
+		<bitfield name="CCACHE" high="4" low="4" />
+		<bitfield name="UNK2000" high="5" low="5" />
+		<bitfield name="TEXTURE" high="6" low="6" />
+		<bitfield name="MP" high="7" low="7" />
+		<bitfield name="TPDMA" high="8" low="8" />
+	</reg32>
+	<reg32 offset="0x013c" name="INTR_EN">
+		<brief>Interrupt enable</brief>
+		<doc>A bitmask of events that will cause interrupts, same bit assignments as in INTR reg.</doc>
+		<bitfield name="NOTIFY" high="0" low="0" />
+		<bitfield name="COMPUTE_QUERY" high="1" low="1" />
+		<bitfield name="UNK02" high="2" low="2" />
+		<bitfield name="ILLEGAL_MTHD" high="4" low="4" />
+		<bitfield name="ILLEGAL_CLASS" high="5" low="5" />
+		<bitfield name="DOUBLE_NOTIFY" high="6" low="6" />
+		<bitfield name="CONTEXT_SWITCH" high="12" low="12" />
+		<bitfield name="BUFFER_NOTIFY" high="16" low="16" />
+		<bitfield name="DATA_ERROR" high="20" low="20" />
+		<bitfield name="TRAP" high="21" low="21" />
+		<bitfield name="UNK22" high="22" low="22" />
+		<bitfield name="SINGLE_STEP" high="24" low="24" />
+		<bitfield name="CTXPROG_PAUSED" high="25" low="25" />
+	</reg32>
+	<reg32 offset="0x0300" name="CTXCTL_STATUS">
+		<brief>ctxprog status</brief>
+		<!-- TODO: Figure this out.-->
+		<bitfield name="RUNNING" high="0" low="0" />
+		<bitfield name="DISPATCH_FREE" high="1" low="1" />
+		<!-- bits 2 and 3 light up when PC == 0... wtf? -->
+		<bitfield name="PAUSED" high="4" low="4" />
+		<bitfield name="NEXTDIFFERS" high="8" low="8" /> <!-- CUR != NEXT -->
+	</reg32>
+	<reg32 offset="0x0304" name="CTXCTL_CONTROL">
+		<bitfield name="RUN" high="0" low="0" />
+		<bitfield name="CONT" high="1" low="1" />
+		<bitfield name="PAUSE" high="4" low="4" />
+	</reg32>
+	<reg32 offset="0x0308" name="CTXCTL_OPCODE">
+ 		<doc>Next opcode to execute, or the exit opcode if program exitted.</doc>
+	</reg32>
+	<reg32 offset="0x030c" name="CTXCTL_PC_RD" access="r">
+ 		<doc>RO alias of PC for some reason</doc>
+	</reg32>
+	<reg32 offset="0x0310" name="CTXCTL_PC">
+ 		<doc>Program Counter. Readable and writable. In units of single insns.</doc>
+	</reg32>
+	<reg32 offset="0x031c" name="CTXCTL_SCRATCH">
+ 		<doc>ctxprog scratch register, holding params to various opcodes/CMDs. Written by opcode 2XXXXX.</doc>
+	</reg32>
+	<reg32 offset="0x0320" name="CTXCTL_CMD" access="w">
+		<doc>CMD register. Writing here launches a given CMD.</doc>
+		<value value="0x4" name="NEWCTXDMA" />
+		<value value="0x5" name="NEXT_TO_SWAP" />
+		<value value="0x6" name="SET_REG_POINTER" />
+		<value value="0x7" name="SET_XFER_POINTER" />
+		<value value="0x8" name="UNK08" /> <!-- takes param in SCRATCH -->
+		<value value="0x9" name="ENABLE" />
+		<value value="0xa" name="UNK0A" />
+		<value value="0xb" name="UNK0B" />
+		<value value="0xc" name="END" />
+		<value value="0xd" name="NEXT_TO_CURRENT" />
+		<value value="0xf" name="UNK0F" /> <!-- causes 101 in STATUS, 200 in FLAGS_2 -->
+		<value value="0x11" name="UNK11" />
+		<value value="0x12" name="UNK12" /> <!-- causes some new registers to appear / light up. fun. -->
+		<value value="0x16" name="UNK16" />
+	</reg32>
+	<reg32 offset="0x0324" name="CTXCTL_INDEX" access="w">
+		<doc>Code upload index. Selects address to write in ctxprog code, counted in insns.</doc>
+	</reg32>
+	<reg32 offset="0x0328" name="CTXCTL_DATA" access="w">
+		<doc>Code upload. Writes given insn to code storage and autoincrements upload index.</doc>
+	</reg32>
+	<reg32 offset="0x032c" name="CTXCTL_CUR">
+		<doc>Current channel.</doc>
+		<bitfield name="INSTANCE" high="29" low="0" shr="12">
+			<doc>RAMIN address of channel.</doc>
+		</bitfield>
+		<bitfield name="VALID" high="31" low="31">
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x0330" name="CTXCTL_NEXT">
+		<doc>Next channel: the one that PFIFO wants us to switch to.</doc>
+		<bitfield name="INSTANCE" high="29" low="0" shr="12">
+			<doc>RAMIN address of channel.</doc>
+		</bitfield>
+		<bitfield name="VALID" high="31" low="31">
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x0334" name="CTXCTL_PTR_REG">
+		<doc>Offset in grctx to read/write with opcode 1XXXXX. In units of 32-bit words.</doc>
+	</reg32>
+	<reg32 offset="0x0338" name="CTXCTL_SCRATCH2">
+		<doc>Some register, set with opcode 3XXXXX. No known use on NV50, on NVA0 selects
+		which TP to read/write via 1XXXXX opcode. Maybe generic MMIO offset? Or really offsets
+		all TPs even on non-ctxprog accesses?</doc> <!-- TODO -->
+	</reg32>
+	<reg32 offset="0x033c" name="CTXCTL_PTR_XFER">
+		<doc>Offset in grctx to read/write with opcode 8XXXXX. In units of 32-bit words.</doc>
+	</reg32>
+
+	<!-- blob checks these on 100c80... -->
+	<reg32 offset="0x0380" name="UNK380"/>
+	<reg32 offset="0x0384" name="UNK384"/>
+	<reg32 offset="0x0388" name="UNK388"/>
+	
+	<stripe offset="0x0500" name="FIFO">
+		<brief>pre-DISPATCH FIFO control</brief>
+		<doc>This pair of registers deals with PGRAPH's method FIFO.
+		PFIFO pushes methods here, DISPATCH pulls them out and
+		executes. The FIFO itself is buried inside DISPATCH's context
+		strand, and contains 8 [NV50] or 0x100 [NV84+] repetitions of
+		method + subchannel + inc/noninc + single/double + data1
+		+ data2 + 1 unknown bit. DISPATCH_CMD will pull the last
+		method from the FIFO whenever it's free and FIFO contains
+		stuff.
+		</doc>
+		<reg32 offset="0x00" name="CONTROL">
+			<bitfield high="0" low="0" name="PULL">
+				<doc>Enables executing commands incoming through DISPATCH_CMD.</doc>
+			</bitfield>
+			<bitfield high="8" low="8" name="UNK8"/>
+			<bitfield high="16" low="16" name="UNK16"/> <!-- usually set, but doesn't seem needed for operation... -->
+			<bitfield high="28" low="20" name="LIMIT" variants="NV84-">
+				<doc>Max number of slots allowed to be occupied in FIFO. 0 and > 0x100 are treated as 0x100.</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x04" name="STATUS" access="r">
+			<bitfield high="0" low="0" name="EMPTY" />
+			<bitfield high="1" low="1" name="FULL" />
+			<bitfield high="7" low="4" name="OCCUPIED" variants="NV50">
+				<doc>How many slots contain valid data atm.</doc>
+			</bitfield>
+			<bitfield high="11" low="8" name="GET" variants="NV50" />
+			<bitfield high="19" low="16" name="PUT" variants="NV50" />
+			<bitfield high="15" low="4" name="OCCUPIED" variants="NV84-">
+				<doc>How many slots contain valid data atm.</doc>
+			</bitfield>
+			<bitfield high="23" low="16" name="GET" variants="NV84-" />
+			<bitfield high="31" low="24" name="PUT" variants="NV84-" />
+		</reg32>
+	</stripe>
+
+	<reg32 offset="0x0700" name="STATUS" access="r">
+		<doc>Shows which parts of PGRAPH are currently busy with doing some stuff. 1 means busy, 0 means idle.</doc>
+		<bitfield name="ALL" high="0" low="0">
+			<doc>Is 1 if anything at all is busy.</doc>
+		</bitfield>
+		<bitfield name="DISPATCH" high="1" low="1"/>
+		<bitfield name="M2MF" high="6" low="6"/>
+		<bitfield name="CTXPROG" high="8" low="8"/>
+		<bitfield name="VFETCH" high="9" low="9"/>
+		<bitfield name="CCACHE" high="10" low="10"/>
+		<bitfield name="STRMOUT" high="11" low="11"/>
+		<bitfield name="CSCHED" high="13" low="13"/>
+		<bitfield name="MP" high="23" low="23"/>
+	</reg32>
+	<reg32 offset="0x0704" name="TRAPPED_ADDR">
+		<doc>Offending subchan + method, for [most types of] PGRAPH interrupts.</doc>
+		<bitfield name="MTHD" high="12" low="0" />
+		<bitfield name="SUBCH" high="18" low="16" />
+	</reg32>
+	<reg32 offset="0x0708" name="TRAPPED_DATA_LOW">
+		<doc>Offending method data, for [most types of] PGRAPH interrupts.</doc>
+	</reg32>
+	<reg32 offset="0x070c" name="TRAPPED_DATA_HIGH" /> <!-- I have no idea what this is for. But it's been around since NV10. -->
+	<reg32 offset="0x0784" name="CTXCTL_SWAP" shr="12">
+		<doc>RAMIN address of channel whose grctx is read/written by ctxprog opcodes 1XXXXX, 8XXXXX.</doc>
+	</reg32>
+
+	<reg32 offset="0x0804" name="DISPATCH_TRAP">
+		<bitfield name="FAULT" high="0" low="0" /> <!-- COND/NOTIFIER faults at least. check 800848? -->
+		<bitfield name="QUERY" high="1" low="1" /> <!-- hmm... -->
+		<bitfield name="CLEAR" high="30" low="30" />
+		<bitfield name="ENABLE" high="31" low="31" />
+	</reg32>
+	<reg32 offset="0x0808" name="DISPATCH_CMD_ADDR">
+		<bitfield name="MTHD" high="12" low="0" />
+		<bitfield name="SUBCH" high="18" low="16" />
+		<bitfield name="NONINCR" high="20" low="20" />
+		<bitfield name="UNK1" high="21" low="21" /> <!-- sometimes set by DISPATCH itself during exec... related to NOTIFY? -->
+		<bitfield name="SINGLE_STEP_DONE" high="22" low="22" />
+		<bitfield name="DOUBLE" high="25" low="25" />
+		<bitfield name="CURRENT_SUBCH" high="29" low="29" />
+		<bitfield name="VALID" high="31" low="31" />
+	</reg32>
+	<reg32 offset="0x080c" name="DISPATCH_CMD_DATA_LOW" />
+	<reg32 offset="0x0810" name="DISPATCH_CMD_DATA_HIGH" />
+	<reg32 offset="0x0814" name="CTX_SWITCH_1">
+		<bitfield name="CLASS" high="15" low="0"/>
+	</reg32>
+	<reg32 offset="0x0818" name="CTX_SWITCH_2">
+		<bitfield name="NOTIFY_INSTANCE" high="15" low="0"/>
+	</reg32>
+	<reg32 offset="0x081c" name="CTX_SWITCH_3">
+		<bitfield name="ENDIAN" high="24" low="24">
+			<value value="0" name="LITTLE" />
+			<value value="1" name="BIG" />
+		</bitfield>
+		<bitfield name="SINGLE_STEP" high="26" low="26" />
+	</reg32>
+	<reg32 offset="0x0820" name="CTX_SWITCH_4">
+		<bitfield name="MY_INSTANCE" high="31" low="16"/>
+		<bitfield name="COND_INSTANCE" high="15" low="0"/>
+	</reg32>
+	<reg32 offset="0x0824" name="CTXCTL_FLAGS_0">
+		<bitfield name="SWAP_DIRECTION" high="0" low="0">
+			<value value="0" name="LOAD" />
+			<value value="1" name="SAVE" />
+		</bitfield>
+		<bitfield name="UNK1" high="1" low="1"/> <!-- set while loading/saving context... -->
+		<bitfield name="DISPATCH_DROP" high="3" low="3"/> <!-- causes incoming methods to get ignored, haven't dug deeper yet. -->
+		<bitfield name="XFER_ENABLE" high="14" low="14"/> <!-- xfer just hangs when attempted without this bit set. -->
+		<bitfield name="UNK1D" high="29" low="29"/> <!-- set while saving context... -->
+	</reg32>
+	<reg32 offset="0x0828" name="CTXCTL_FLAGS_1"> <!-- saved to context -->
+		<bitfield name="UNK0" high="0" low="0"/> <!-- weird stuff happens when not set -->
+	</reg32>
+	<reg32 offset="0x082c" name="CTXCTL_FLAGS_2">
+		<bitfield name="IDLE" high="0" low="0" />
+		<bitfield name="UNK1" high="1" low="1" /> <!-- usually 1, but seen 0 on NVA5.. -->
+		<bitfield name="AUTO_SAVE" high="4" low="4" />
+		<bitfield name="AUTO_LOAD" high="5" low="5" />
+		<bitfield name="UNK9" high="9" low="9" /> <!-- seems to indicate some sort of ctxprog error. or maybe busy condition. you're in deep shit if this is 1 for you. -->
+		<bitfield name="NEWCTX_DONE" high="10" low="10" /> <!-- extraordinarly weird. seems to blink "1" only for a very short amount of time. you need the wait right after the cmd. -->
+		<bitfield name="XFER_BUSY" high="11" low="11" />
+		<bitfield name="UNKCMD8_DONE" high="12" low="12" />
+		<bitfield name="ALWAYS_TRUE" high="13" low="13" />
+		<bitfield name="INTR_PENDING" high="15" low="15" />
+	</reg32>
+	<reg32 offset="0x0830" name="CTXCTL_FLAGS_3">
+	</reg32>
+
+	<reg32 offset="0x0844" name="DISPATCH_UNK844">
+		<bitfield name="SUBCH" high="15" low="13" />
+	</reg32>
+	<reg32 offset="0x0848" name="DISPATCH_MISC">
+		<bitfield name="NOTIFY_FAULT" high="0" low="0" />
+		<bitfield name="COND_FAULT" high="3" low="3" />
+		<bitfield name="NOTIFY_PENDING" high="8" low="8" />
+		<bitfield name="NOTIFY_AWAKEN" high="16" low="16" />
+	</reg32>
+	<reg32 offset="0x084c" name="DISPATCH_ST2_ADDR">
+		<doc>Second stage of dispatch... if QUERY blows up on you,
+		it can get stuck here. At least sometimes.</doc>
+		<bitfield name="MTHD" high="12" low="0" />
+		<bitfield name="ILLEGAL_CLASS" high="29" low="29" />
+		<bitfield name="ILLEGAL_MTHD" high="30" low="30" />
+		<bitfield name="VALID" high="31" low="31" />
+	</reg32>
+
+	<reg32 offset="0x085c" name="DISPATCH_ST2_DATA_LOW" />
+	<reg32 offset="0x0860" name="DISPATCH_ST2_DATA_HIGH" />
+
+	<reg32 offset="0x0868" name="DISPATCH_ST2_DATA_ERROR">
+		<bitfield high="15" low="0" name="TYPE" type="NV50_PGRAPH_DATA_ERROR" />
+		<bitfield high="16" low="16" name="VALID" />
+	</reg32>
+	<reg32 offset="0x086c" name="DISPATCH_ST3_ADDR">
+		<bitfield name="MTHD" high="12" low="0" />
+		<bitfield name="VALID" high="31" low="31" />
+	</reg32>
+	<reg32 offset="0x0874" name="DISPATCH_ST3_DATA_LOW" />
+	<reg32 offset="0x0878" name="DISPATCH_ST3_DATA_HIGH" />
+	<reg32 offset="0x087c" name="DISPATCH_ST4_DATA_ERROR">
+		<bitfield high="15" low="0" name="TYPE" type="NV50_PGRAPH_DATA_ERROR" />
+		<bitfield high="31" low="31" name="VALID" />
+	</reg32>
+
+	<reg32 offset="0x0884" name="DISPATCH_ST5_ADDR">
+		<bitfield high="17" low="0" name="INDEX" />
+		<bitfield high="21" low="20" name="UNK1" />
+		<bitfield high="31" low="31" name="VALID" />
+
+	</reg32>
+	<reg32 offset="0x0888" name="DISPATCH_ST5_DATA" />
+
+	<reg32 offset="0x0898" name="DISPATCH_ST6_DATA" />
+	<reg32 offset="0x089c" name="DISPATCH_ST6_ADDR" />
+
+	<reg32 offset="0x08dc" name="COND_ADDRESS_HIGH">
+		<bitfield name="3D" high="7" low="0" />
+		<bitfield name="2D" high="15" low="8" />
+	</reg32>
+	<reg32 offset="0x08e0" name="COND_ADDRESS_LOW_3D" />
+	<reg32 offset="0x08e4" name="COND_ADDRESS_LOW_2D" />
+	<reg32 offset="0x08e8" name="COND">
+		<bitfield name="3D" high="0" low="0" />
+		<bitfield name="2D" high="1" low="1" />
+		<bitfield name="UNK6" high="6" low="6" /> <!-- COND traps cause this to be set. being set seems to prevent context switching and generally wreak havoc... -->
+	</reg32>
+
+	<reg32 offset="0x08f8" name="CLOCK" />
+	<reg32 offset="0x08fc" name="UNITS">
+		<bitfield name="TP_MASK" high="15" low="0" />
+		<bitfield name="ROPC_MASK" high="21" low="16" variants="NV50:NVA0" />
+		<bitfield name="MP_MASK" high="23" low="22" variants="NV50:NVA0" />
+		<bitfield name="ROPC_MASK" high="23" low="16" variants="NVA0-" />
+		<bitfield name="MP_MASK" high="31" low="28" variants="NVA0-" />
+	</reg32>
+	
+	<array offset="0x0c00" name="VFETCH" stride="0x400" length="1">
+		<reg32 offset="0x04" name="TRAP">
+			<bitfield name="FAULT" high="0" low="0" />
+			<bitfield name="CLEAR" high="30" low="30" />
+			<bitfield name="ENABLE" high="31" low="31" />
+		</reg32>
+	</array>
+
+	<array offset="0x1800" name="STRMOUT" stride="0x400" length="1">
+		<reg32 offset="0x00" name="TRAP">
+			<bitfield name="FAULT" high="0" low="0" />
+			<bitfield name="CLEAR" high="30" low="30" />
+			<bitfield name="ENABLE" high="31" low="31" />
+		</reg32>
+		<reg32 offset="0x04" name="TRAPPED_STATUS" /> <!-- probably. -->
+		<reg32 offset="0x08" name="TRAPPED_ADDRESS_LOW" />
+		<reg32 offset="0x0c" name="TRAPPED_ADDRESS_HIGH" />
+		<reg32 offset="0x10" name="TRAPPED_DMA" />
+	</array>
+
+	<reg32 offset="0x2000" name="UNK2000_TRAP">
+		<bitfield name="CLEAR" high="30" low="30" />
+		<bitfield name="ENABLE" high="31" low="31" />
+	</reg32>
+
+	<array offset="0x5800" name="CCACHE" stride="0x400" length="1">
+		<reg32 offset="0x18" name="TRAP">
+			<bitfield name="FAULT" high="0" low="0" />
+			<bitfield name="CLEAR" high="30" low="30" />
+			<bitfield name="ENABLE" high="31" low="31" />
+		</reg32>
+	</array>
+
+	<stripe offset="0x6800" name="M2MF">
+		<reg32 offset="0x00" name="TRAP">
+			<bitfield name="NOTIFY" high="0" low="0" />
+			<bitfield name="IN" high="1" low="1" />
+			<bitfield name="OUT" high="2" low="2" />
+			<bitfield name="CLEAR" high="30" low="30" />
+			<bitfield name="ENABLE" high="31" low="31" />
+		</reg32>
+	</stripe>
+
+	<reg32 offset="0x6ff0" name="UNK_CHANINST" length="3">
+		<doc>Blob ctxprogs sometimes write current channel's
+		instance address >> 12 in here, as well as the following
+		two registers. No idea what this is for, our progs don't
+		do it and seems like nothing bad happens. Note that NV40
+		also has such registers... they're 408000, 408004, 408008
+		and store GRCTX instance instead.
+		</doc>
+	</reg32>
+
+	<array offset="0x7000" name="ROPC" stride="0x100" length="8">
+	</array>
+
+	<group name="nv50_pgraph_mp">
+		<reg32 offset="0x10" name="PM_CONTROL_3">
+			<bitfield name="0" high="7" low="0" />
+			<bitfield name="1" high="15" low="8" />
+			<bitfield name="2" high="23" low="16" />
+			<bitfield name="3" high="31" low="24" />
+		</reg32>
+		<reg32 offset="0x14" name="ERROR_CODE">
+			<bitfield high="1" low="0" name="STACK_UNDERFLOW" /> <!-- suspicious. probably just 2 different errors that happen at the same time on underflow. -->
+			<bitfield high="2" low="2" name="QUADON_ACTIVE" />
+			<bitfield high="3" low="3" name="TIMEOUT" />
+			<bitfield high="4" low="4" name="INVALID_OPCODE" />
+			<bitfield high="6" low="6" name="BREAKPOINT" />
+		</reg32>
+		<reg32 offset="0x24" name="PC_CURRENT">
+			<bitfield name="ADDR" high="23" low="0" />
+			<bitfield name="WARP" high="31" low="24" />
+		</reg32>
+		<stripe offset="0x38" stride="0x4" length="0x2">
+			<reg32 offset="0x0" name="PM_CONTROL_2">
+				<bitfield name="0" high="15" low="0" />
+				<bitfield name="1" high="31" low="16" />
+			</reg32>
+		</stripe>
+		<!-- 44: Same as 10 or what? -->
+		<reg32 offset="0x58" name="CONTROL_0">
+			<bitfield name="WATCHDOG" high="20" low="16" />
+			<bitfield name="KILL" high="21" low="21" />
+			<bitfield name="PM_CONTROL_1_0" high="28" low="26" />
+			<bitfield name="PM_CONTROL_1_1" high="31" low="29" />
+		</reg32>
+		<reg32 offset="0x5c" name="CONTROL_1">
+			<bitfield name="PM_CONTROL_1_2" high="2" low="0" />
+			<bitfield name="PM_CONTROL_1_3" high="5" low="3" />
+			<bitfield name="PM_CONTROL_0_0" high="14" low="14" />
+			<bitfield name="PM_CONTROL_0_1" high="15" low="15" />
+			<bitfield name="PM_CONTROL_0_2" high="16" low="16" />
+			<bitfield name="PM_CONTROL_0_3" high="17" low="17" />
+		</reg32>
+		<reg32 offset="0x70" name="OPCODE_LOW"/>
+		<reg32 offset="0x74" name="OPCODE_HIGH"/>
+	</group>
+
+	<array offset="0x8000" variants="NV50:NVA0" name="TP" stride="0x1000" length="8">
+		<array offset="0x200" name="MP" stride="0x80" length="2">
+			<use-group ref="nv50_pgraph_mp" />
+		</array>
+		<reg32 offset="0x314" name="MP_TRAP">
+			<bitfield name="EXEC" high="16" low="16" />
+			<bitfield name="STACK_OVERFLOW" high="17" low="17" />
+			<bitfield name="CLEAR" high="30" low="30" />
+			<bitfield name="ENABLE" high="31" low="31" />
+		</reg32>
+		<reg32 offset="0x900" name="TEXTURE_TRAP">
+			<bitfield name="CLEAR" high="30" low="30" />
+			<bitfield name="ENABLE" high="31" low="31" />
+		</reg32>
+		<reg32 offset="0xe08" name="TPDMA_TRAP">
+			<bitfield name="2D_FAULT" high="4" low="4" />
+			<bitfield name="COLOR_FAULT" high="6" low="6" />
+			<bitfield name="CUDA_FAULT" high="7" low="7" />
+			<bitfield name="CLEAR" high="30" low="30" />
+			<bitfield name="ENABLE" high="31" low="31" />
+		</reg32>
+	</array>
+
+	<array offset="0x8000" variants="NVA0-" name="TP" stride="0x800" length="16">
+
+		<array offset="0x100" name="MP" stride="0x80" length="4">
+			<use-group ref="nv50_pgraph_mp" />
+		</array>
+		<reg32 offset="0x31c" name="MP_TRAP">
+			<bitfield name="EXEC" high="16" low="16" />
+			<bitfield name="STACK_OVERFLOW" high="17" low="17" />
+			<bitfield name="CLEAR" high="30" low="30" />
+			<bitfield name="ENABLE" high="31" low="31" />
+		</reg32>
+		<reg32 offset="0x600" name="TEXTURE_TRAP">
+			<bitfield name="CLEAR" high="30" low="30" />
+			<bitfield name="ENABLE" high="31" low="31" />
+		</reg32>
+		<reg32 offset="0x708" name="TPDMA_TRAP">
+			<bitfield name="2D_FAULT" high="4" low="4" />
+			<bitfield name="COLOR_FAULT" high="6" low="6" />
+			<bitfield name="CUDA_FAULT" high="7" low="7" />
+			<bitfield name="CLEAR" high="30" low="30" />
+			<bitfield name="ENABLE" high="31" low="31" />
+		</reg32>
+	</array>
+</stripe>
+</domain>
+
+</database>

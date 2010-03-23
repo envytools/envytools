@@ -16,5 +16,6 @@
 <import file="nv_pfifo.xml" />
 <import file="nv_ptimer.xml" />
 <import file="nv01_misc.xml" />
+<import file="nv50_pgraph.xml" />
 
 </database>
