@@ -524,7 +524,7 @@
 		<bitfield name="ENABLE" high="31" low="31" />
 	</reg32>
 
-	<array offset="0x5800" name="CCACHE" stride="0x400" length="1">
+	<array offset="0x5000" name="CCACHE" stride="0x400" length="1">
 		<reg32 offset="0x18" name="TRAP">
 			<bitfield name="FAULT" high="0" low="0" />
 			<bitfield name="CLEAR" high="30" low="30" />
