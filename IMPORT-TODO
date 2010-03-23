@@ -1,0 +1,27 @@
+List of stuff to import to rules-ng-ng as a starting point:
+
+1. renouveau.xml
+  - m2mf			done
+  - pre-nv50 2d			done
+  - DVD_SUBPICTURE		done
+  - nv03 3d			TODO [mwk]
+  - nv04 3d			TODO [mwk]
+  - nv10 3d			TODO
+  - nv20 3d			TODO
+  - nv30/nv40 3d		TODO
+  - nv50 2d			done
+  - nv50 3d			done
+  - nv50 compute		done
+  - misc stuff			TODO. do we need them at all? AFAIK they're all software objects anyway...
+2. Ancient nv headers
+  - nv1ref.h			MOSTLY, lacks NV_U*
+  - nv3ref.h			WIP [mwk]
+  - nv4ref.h			TODO [mwk]
+3. rules.xml			WIP. lb1 made a converter, but this stuff shouldn't be merged without double-checking.
+4. old rules-ng			TODO
+5. kernel
+  - nouveau_reg.h		TODO
+  - nvreg.h			TODO
+  - hex numbers in random code	TODO
+6. nvosdk			TODO
+7. nvsdk's nvhw32.h		TODO

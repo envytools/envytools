@@ -2,6 +2,7 @@ spec:
  - figure out the emitted stuff for bitfields... __MASK for multi-bit?
  - Add varset/variants to top-level items too?
  - min/align/max
+ - make enum/bitset/domain prefix name and ref name separate?
 
 rnn:
  - Implement <brief> and <doc>
@@ -14,4 +15,5 @@ headergen:
  - Make stripe/array emit correct stuff.
 
 lookup:
+ - pick a nice color scheme
  - well, ummm, write it
