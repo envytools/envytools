@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="nvchipsets.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+	<array name="PCONNECTOR" offset="0x0000E000" stride="0x1000" length="1" variants="NV50-">
+		<doc>
+		Anything here that concerns i2c port > 1 is based on extrapolation.
+		</doc>
+		<reg32 name="HOTPLUG_INTR" offset="0x50">
+			<bitfield name="PLUG_I2C0" high="0" low="0" />
+			<bitfield name="PLUG_I2C1" high="1" low="1" />
+			<bitfield name="PLUG_I2C2" high="2" low="2" />
+			<bitfield name="PLUG_I2C3" high="3" low="3" />
+			<bitfield name="UNPLUG_I2C0" high="16" low="16" />
+			<bitfield name="UNPLUG_I2C1" high="17" low="17" />
+			<bitfield name="UNPLUG_I2C2" high="18" low="18" />
+			<bitfield name="UNPLUG_I2C3" high="19" low="19" />
+		</reg32>
+		<reg32 name="HOTPLUG_CTRL" offset="0x54">
+			<doc>
+			Write 0x7FFF7FFF to acknowledge hotplug interrupts.
+			</doc>
+			<bitfield name="PLUG_I2C0" high="0" low="0" />
+			<bitfield name="PLUG_I2C1" high="1" low="1" />
+			<bitfield name="PLUG_I2C2" high="2" low="2" />
+			<bitfield name="PLUG_I2C3" high="3" low="3" />
+			<bitfield name="UNPLUG_I2C0" high="16" low="16" />
+			<bitfield name="UNPLUG_I2C1" high="17" low="17" />
+			<bitfield name="UNPLUG_I2C2" high="18" low="18" />
+			<bitfield name="UNPLUG_I2C3" high="19" low="19" />
+		</reg32>
+		<reg32 name="HOTPLUG_STATE" offset="0x104">
+			<bitfield name="PIN_CONNECTED_I2C0" high="2" low="2" />
+			<bitfield name="PIN_CONNECTED_I2C1" high="6" low="6" />
+			<bitfield name="PIN_CONNECTED_I2C2" high="10" low="10" />
+			<bitfield name="PIN_CONNECTED_I2C3" high="14" low="14" />
+		</reg32>
+		<reg32 name="I2C_PORT_0" offset="0x138"/>
+		<reg32 name="I2C_PORT_1" offset="0x150"/>
+		<reg32 name="I2C_PORT_2" offset="0x168"/>
+		<reg32 name="I2C_PORT_3" offset="0x180"/>
+		<reg32 name="I2C_PORT_4" offset="0x254"/>
+		<reg32 name="I2C_PORT_5" offset="0x274"/>
+
+	</array>
+</domain>
+
+</database>
