@@ -2,6 +2,7 @@
 #define RNN_H
 
 #include <stdint.h>
+#include <stdlib.h>
 
 struct rnndb {
 	struct rnnenum **enums;
