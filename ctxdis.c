@@ -23,6 +23,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <byteswap.h>
 #include "coredis.h"
 
 /*
@@ -286,9 +287,16 @@ void nv50dis (FILE *out, uint32_t *code, int num, int ptype) {
 	}
 }
 
+struct nouveau_ctxprog {
+	uint32_t signature;
+	uint8_t  version;
+	uint16_t length;
+} __attribute__ ((packed));
+
 /*
  * Options:
  *
+ *  -b  	Read input as binary ctxprog
  *  -4		Disassembles NV40 ctxprogs
  *  -5		Disassembles NV50 ctxprogs
  *  -n		Disable color escape sequences in output
@@ -296,9 +304,13 @@ void nv50dis (FILE *out, uint32_t *code, int num, int ptype) {
 
 int main(int argc, char **argv) {
 	int ptype = NV5x;
+	int binary = 0;
 	char c;
-	while ((c = getopt (argc, argv, "45n")) != -1)
+	while ((c = getopt (argc, argv, "b45n")) != -1)
 		switch (c) {
+			case 'b':
+				binary = 1;
+				break;
 			case '4':
 				ptype = NV4x;
 				break;
@@ -321,11 +333,36 @@ int main(int argc, char **argv) {
 	int maxnum = 16;
 	uint32_t *code = malloc (maxnum * 4);
 	uint32_t t;
-	while (!feof(stdin) && scanf ("%x", &t) == 1) {
-		if (num == maxnum) maxnum *= 2, code = realloc (code, maxnum*4);
-		code[num++] = t;
-		scanf (" ,");
-	}
+	if(binary) {
+		struct nouveau_ctxprog hdr;
+
+		if(fread(&hdr, 7, 1, stdin) != 1) {
+			fprintf(stderr, "unable to read the ctxprog header\n");
+			return 1;
+		}
+#ifdef WORDS_BIGENDIAN
+		hdr.signature = bswap_32(hdr.signature);
+		hdr.length = bswap_16(hdr.length);
+#endif
+		if(hdr.signature != 0x5043564e || hdr.version != 0) {
+			fprintf(stderr, "invalid ctxprog header\n");
+			return 1;
+		}
+
+		while (num < hdr.length && !feof(stdin) && fread(&t, 4, 1, stdin) == 1) {
+			if (num == maxnum) maxnum *= 2, code = realloc (code, maxnum*4);
+			code[num++] = t;
+		}
+
+		if(num < hdr.length)
+			fprintf(stderr, "input ctxprog was truncated\n");
+	} else
+		while (!feof(stdin) && scanf ("%x", &t) == 1) {
+			if (num == maxnum) maxnum *= 2, code = realloc (code, maxnum*4);
+			code[num++] = t;
+			scanf (" ,");
+		}
+
 	nv50dis (stdout, code, num, ptype);
 	return 0;
 }
