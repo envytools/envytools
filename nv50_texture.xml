@@ -31,22 +31,39 @@
 		<bitfield high="11" low="9" name="TYPE1" type="NV50_TIC_TYPE" />
 		<bitfield high="8" low="6" name="TYPE0" type="NV50_TIC_TYPE" />
 		<bitfield high="5" low="0" name="FMT">
+			<!-- could we change it to LE? format 5 doesn't exactly make sense now.... -->
 			<value value="0x01" name="32_32_32_32" />
 			<value value="0x03" name="16_16_16_16" />
 			<value value="0x04" name="32_32" />
+			<value value="0x05" name="32_X24_8">
+				<doc>32-bit word C0 followed by byte C1 followed by 3 ignored bytes.</doc>
+			</value>
 			<value value="0x08" name="8_8_8_8" />
 			<value value="0x09" name="2_10_10_10" />
 			<value value="0x0c" name="16_16" />
+			<value value="0x0d" name="8_24" />
+			<value value="0x0e" name="24_8" />
 			<value value="0x0f" name="32" />
 			<value value="0x12" name="4_4_4_4" />
-			<!-- <value value="0x13" name="1_5_5_5" /> -->
+			<value value="0x13" name="5_5_5_1" />
 			<value value="0x14" name="1_5_5_5" />
 			<value value="0x15" name="5_6_5" />
+			<value value="0x16" name="6_5_5" />
 			<value value="0x18" name="8_8" />
 			<value value="0x1b" name="16" />
 			<value value="0x1d" name="8" />
-			<value value="0x20" name="5_9_9_9" />
+			<value value="0x1e" name="4_4" />
+			<value value="0x1f" name="UNK1F" />
+			<value value="0x20" name="X5_9_9_9" />
 			<value value="0x21" name="10_11_11" />
+			<value value="0x22" name="C1_C2_C1_C0">
+				<doc>Format is 8_8_8_8. C0, C2 are shared between two neighboring texels,
+				C1 are separate. Single 32-bit word covers two such texels. Meant to be
+				used as YUV formats.</doc>
+			</value>
+			<value value="0x23" name="C2_C1_C0_C1">
+				<doc>Like above.</doc>
+			</value>
 			<value value="0x24" name="DXT1" />
 			<value value="0x25" name="DXT3" />
 			<value value="0x26" name="DXT5" />
