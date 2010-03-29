@@ -112,6 +112,8 @@
 		</reg32>
 	</stripe>
 
+	<reg8 offset="0x110000" name="PROM" length="0x10000" variants="NV03" />
+
 	<reg8 offset="0x300000" name="PROM" length="0x10000" variants="NV04-" />
 
 	<reg8 offset="0x700000" name="PRAMIN" length="0x100000" variants="NV04-" />
