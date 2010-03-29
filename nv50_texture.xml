@@ -103,6 +103,12 @@
 		<bitfield high="31" low="31" name="NORMALIZED_COORDS" />
 	</reg32>
 
+	<reg32 offset="0xc" name="4">
+		<bitfield high="31" low="0" name="PITCH">
+			<brief>for linear textures</brief>
+		</bitfield>
+	</reg32>
+
 	<reg32 offset="0x10" name="4">
 		<bitfield high="15" low="0" name="WIDTH" />
 	</reg32>
@@ -110,7 +116,9 @@
 	<reg32 offset="0x14" name="5">
 		<bitfield high="31" low="28" name="LAST_LEVEL" />
 		<bitfield high="27" low="16" name="DEPTH" />
-		<bitfield high="15" low="0" name="HEIGHT" />
+		<bitfield high="15" low="0" name="HEIGHT">
+			<doc>Set to 0 for height of 65536.</doc>
+		</bitfield>
 	</reg32>
 
 	<reg32 offset="0x1c" name="7">
