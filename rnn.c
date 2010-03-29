@@ -31,6 +31,7 @@ void rnn_init() {
 
 struct rnndb *rnn_newdb() {
 	struct rnndb *db = calloc(sizeof *db, 1);
+	return db;
 }
 
 static char *getattrib (struct rnndb *db, char *file, int line, xmlAttr *attr) {
@@ -105,7 +106,6 @@ static struct rnnvalue *parsevalue(struct rnndb *db, char *file, xmlNode *node) 
 	}
 	xmlNode *chain = node->children;
 	while (chain) {
-		struct rnndelem *delem;
 		if (chain->type != XML_ELEMENT_NODE) {
 		} else if (!trytop(db, file, chain) && !trydoc(db, file, chain)) {
 			fprintf (stderr, "%s:%d: wrong tag in %s: <%s>\n", file, chain->line, node->name, chain->name);
@@ -233,7 +233,6 @@ static struct rnnbitfield *parsebitfield(struct rnndb *db, char *file, xmlNode *
 	}
 	xmlNode *chain = node->children;
 	while (chain) {
-		struct rnndelem *delem;
 		if (chain->type != XML_ELEMENT_NODE) {
 		} else if (!strcmp(chain->name, "value")) {
 			struct rnnvalue *val = parsevalue(db, file, chain);
@@ -453,7 +452,6 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 	}
 	xmlNode *chain = node->children;
 	while (chain) {
-		struct rnndelem *delem;
 		if (chain->type != XML_ELEMENT_NODE) {
 		} else if (!strcmp(chain->name, "bitfield")) {
 			struct rnnbitfield *bf = parsebitfield(db, file, chain);
