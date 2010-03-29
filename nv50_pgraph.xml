@@ -357,7 +357,7 @@
 	</reg32>
 	<reg32 offset="0x0704" name="TRAPPED_ADDR">
 		<doc>Offending subchan + method, for [most types of] PGRAPH interrupts.</doc>
-		<bitfield name="MTHD" high="12" low="0" />
+		<bitfield name="MTHD" high="12" low="2" shr="2" />
 		<bitfield name="SUBCH" high="18" low="16" />
 	</reg32>
 	<reg32 offset="0x0708" name="TRAPPED_DATA_LOW">
@@ -375,7 +375,7 @@
 		<bitfield name="ENABLE" high="31" low="31" />
 	</reg32>
 	<reg32 offset="0x0808" name="DISPATCH_CMD_ADDR">
-		<bitfield name="MTHD" high="12" low="0" />
+		<bitfield name="MTHD" high="12" low="2" shr="2" />
 		<bitfield name="SUBCH" high="18" low="16" />
 		<bitfield name="NONINCR" high="20" low="20" />
 		<bitfield name="UNK1" high="21" low="21" /> <!-- sometimes set by DISPATCH itself during exec... related to NOTIFY? -->
@@ -443,7 +443,7 @@
 	<reg32 offset="0x084c" name="DISPATCH_ST2_ADDR">
 		<doc>Second stage of dispatch... if QUERY blows up on you,
 		it can get stuck here. At least sometimes.</doc>
-		<bitfield name="MTHD" high="12" low="0" />
+		<bitfield name="MTHD" high="12" low="2" shr="2" />
 		<bitfield name="ILLEGAL_CLASS" high="29" low="29" />
 		<bitfield name="ILLEGAL_MTHD" high="30" low="30" />
 		<bitfield name="VALID" high="31" low="31" />
@@ -457,7 +457,7 @@
 		<bitfield high="16" low="16" name="VALID" />
 	</reg32>
 	<reg32 offset="0x086c" name="DISPATCH_ST3_ADDR">
-		<bitfield name="MTHD" high="12" low="0" />
+		<bitfield name="MTHD" high="12" low="2" shr="2" />
 		<bitfield name="VALID" high="31" low="31" />
 	</reg32>
 	<reg32 offset="0x0874" name="DISPATCH_ST3_DATA_LOW" />
