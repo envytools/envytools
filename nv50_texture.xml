@@ -110,7 +110,7 @@
 	</reg32>
 
 	<reg32 offset="0x10" name="4">
-		<bitfield high="15" low="0" name="WIDTH" />
+		<bitfield high="31" low="0" name="WIDTH" />
 	</reg32>
 
 	<reg32 offset="0x14" name="5">
