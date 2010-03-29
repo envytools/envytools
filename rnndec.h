@@ -3,19 +3,20 @@
 
 #include "rnn.h"
 
-struct rnnvarcitem {
+struct rnndecvariant {
 	struct rnnenum *en;
 	int variant;
 };
 
-struct rnnvarcontext {
-	struct rnnvarcitem **citems;
-	int citemsnum;
-	int citemsmax;
+struct rnndeccontext {
+	struct rnndb *db;
+	struct rnndecvariant **vars;
+	int varsnum;
+	int varsmax;
 };
 
-struct rnnvarcontext *rnndec_newvc();
-int rnndec_vcadd(struct rnndb *db, struct rnnvarcontext *vc, char *varset, char *variant);
-int rnndec_vcmatch(struct rnnvarinfo *vi, struct rnnvarcontext *cv);
+struct rnndeccontext *rnndec_newcontext(struct rnndb *db);
+int rnndec_varadd(struct rnndeccontext *ctx, char *varset, char *variant);
+int rnndec_varmatch(struct rnndeccontext *ctx, struct rnnvarinfo *vi);
 
 #endif
