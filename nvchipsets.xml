@@ -48,7 +48,6 @@
 	<value value="0x34" name="NV34" />
 	<value value="0x35" name="NV35" />
 	<value value="0x36" name="NV36" />
-	<value value="0x38" name="NV38" />
 
 	<value value="0x40" name="NV40" />
 	<value value="0x41" name="NV41" />
