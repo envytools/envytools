@@ -76,6 +76,20 @@ struct rnntype {
 	struct rnnbitset *ebitset;
 };
 
+struct rnntypeinfo {
+	struct rnntype **types;
+	int typesnum;
+	int typesmax;
+	struct rnnbitfield **bitfields;
+	int bitfieldsnum;
+	int bitfieldsmax;
+	struct rnnvalue **vals;
+	int valsnum;
+	int valsmax;
+	int shr;
+	uint64_t min, max, align;
+};
+
 struct rnnbitset {
 	char *name;
 	int bare;
@@ -93,18 +107,12 @@ struct rnnbitset {
 struct rnnbitfield {
 	char *name;
 	int low, high;
-	int shr;
 	uint64_t mask;
 	char *prefixstr;
 	char *varsetstr;
 	char *variantsstr;
 	struct rnnvarinfo varinfo;
-	struct rnnvalue **vals;
-	int valsnum;
-	int valsmax;
-	struct rnntype **types;
-	int typesnum;
-	int typesmax;
+	struct rnntypeinfo typeinfo;
 	char *fullname;
 };
 
@@ -148,23 +156,14 @@ struct rnndelem {
 	uint64_t offset;
 	uint64_t length;
 	uint64_t stride;
-	int shr;
 	struct rnndelem **subelems;
 	int subelemsnum;
 	int subelemsmax;
-	struct rnnbitfield **bitfields;
-	int bitfieldsnum;
-	int bitfieldsmax;
-	struct rnnvalue **vals;
-	int valsnum;
-	int valsmax;
 	char *prefixstr;
 	char *varsetstr;
 	char *variantsstr;
 	struct rnnvarinfo varinfo;
-	struct rnntype **types;
-	int typesnum;
-	int typesmax;
+	struct rnntypeinfo typeinfo;
 	char *fullname;
 };
 

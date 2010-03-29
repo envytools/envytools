@@ -16,8 +16,8 @@ void expand (const char* prefix, struct rnndelem *elem, uint64_t base, int width
 					else
 						printf("d %s %08"PRIx64" %s", prefix, base + elem->offset, elem->fullname);
 
-				for(j = 0; j < elem->typesnum; ++j)
-					printf("%c%s", j ? ',' : ' ', elem->types[j]->name);
+				for(j = 0; j < elem->typeinfo.typesnum; ++j)
+					printf("%c%s", j ? ',' : ' ', elem->typeinfo.types[j]->name);
 				printf("\n");
 			}
 			break;

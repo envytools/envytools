@@ -55,16 +55,24 @@ void printvalue (struct rnnvalue *val, int shift) {
 		printdef (val->fullname, 0, 0, val->value << shift);
 }
 
-void printbitfield (struct rnnbitfield *bf) {
+void printbitfield (struct rnnbitfield *bf, int shift);
+
+void printtypeinfo (struct rnntypeinfo *ti, char *prefix, int shift) {
+	if (ti->shr)
+		printdef (prefix, "SHR", 1, ti->shr);
+	int i;
+	for (i = 0; i < ti->valsnum; i++)
+		printvalue(ti->vals[i], shift);
+	for (i = 0; i < ti->bitfieldsnum; i++)
+		printbitfield(ti->bitfields[i], shift);
+}
+
+void printbitfield (struct rnnbitfield *bf, int shift) {
 	if (bf->varinfo.dead)
 		return;
-	printdef (bf->fullname, 0, 0, bf->mask);
-	printdef (bf->fullname, "SHIFT", 1, bf->low);
-	if (bf->shr)
-		printdef (bf->fullname, "SHR", 1, bf->shr);
-	int i;
-	for (i = 0; i < bf->valsnum; i++)
-		printvalue(bf->vals[i], bf->low);
+	printdef (bf->fullname, 0, 0, bf->mask << shift);
+	printdef (bf->fullname, "SHIFT", 1, bf->low + shift);
+	printtypeinfo (&bf->typeinfo, bf->fullname, bf->low + shift);
 }
 
 void printdelem (struct rnndelem *elem, uint64_t offset) {
@@ -98,13 +106,7 @@ void printdelem (struct rnndelem *elem, uint64_t offset) {
 			printdef (elem->fullname, "ESIZE", 0, elem->stride);
 		if (elem->length != 1)
 			printdef (elem->fullname, "LEN", 0, elem->length);
-		if (elem->shr)
-			printdef (elem->fullname, "SHR", 1, elem->shr);
-		int i;
-		for (i = 0; i < elem->bitfieldsnum; i++)
-			printbitfield(elem->bitfields[i]);
-		for (i = 0; i < elem->valsnum; i++)
-			printvalue(elem->vals[i], 0);
+		printtypeinfo (&elem->typeinfo, elem->fullname, 0);
 	}
 	printf ("\n");
 	int j;
@@ -135,7 +137,7 @@ int main(int argc, char **argv) {
 		printf ("/* bitset %s */\n", db->bitsets[i]->fullname);
 		int j;
 		for (j = 0; j < db->bitsets[i]->bitfieldsnum; j++)
-			printbitfield (db->bitsets[i]->bitfields[j]);
+			printbitfield (db->bitsets[i]->bitfields[j], 0);
 		printf ("\n");
 	}
 	for (i = 0; i < db->domainsnum; i++) {
