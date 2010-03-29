@@ -1,5 +1,6 @@
 #include "rnndec.h"
 #include <stdio.h>
+#include <string.h>
 
 struct rnnvarcontext *rnndec_newvc() {
 	struct rnnvarcontext *res = calloc (sizeof *res, 1);
