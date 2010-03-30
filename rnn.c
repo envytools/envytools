@@ -399,7 +399,7 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 		while (chain) {
 			struct rnndelem *delem;
 			if (chain->type != XML_ELEMENT_NODE) {
-			} else if (delem = trydelem(db, file, chain)) {
+			} else if ((delem = trydelem(db, file, chain))) {
 				RNN_ADDARRAY(res->subelems, delem);
 			} else if (!trytop(db, file, chain) && !trydoc(db, file, chain)) {
 				fprintf (stderr, "%s:%d: wrong tag in %s: <%s>\n", file, chain->line, node->name, chain->name);
@@ -507,7 +507,7 @@ static void parsegroup(struct rnndb *db, char *file, xmlNode *node) {
 	while (chain) {
 		struct rnndelem *delem;
 		if (chain->type != XML_ELEMENT_NODE) {
-		} else if (delem = trydelem(db, file, chain)) {
+		} else if ((delem = trydelem(db, file, chain))) {
 			RNN_ADDARRAY(cur->subelems, delem);
 		} else if (!trytop(db, file, chain) && !trydoc(db, file, chain)) {
 			fprintf (stderr, "%s:%d: wrong tag in group: <%s>\n", file, chain->line, chain->name);
@@ -586,7 +586,7 @@ static void parsedomain(struct rnndb *db, char *file, xmlNode *node) {
 	while (chain) {
 		struct rnndelem *delem;
 		if (chain->type != XML_ELEMENT_NODE) {
-		} else if (delem = trydelem(db, file, chain)) {
+		} else if ((delem = trydelem(db, file, chain))) {
 			RNN_ADDARRAY(cur->subelems, delem);
 		} else if (!trytop(db, file, chain) && !trydoc(db, file, chain)) {
 			fprintf (stderr, "%s:%d: wrong tag in domain: <%s>\n", file, chain->line, chain->name);
@@ -748,11 +748,12 @@ static int findvidx (struct rnndb *db, struct rnnenum *en, char *name) {
 static void prepvarinfo (struct rnndb *db, char *what, struct rnnvarinfo *vi, struct rnnvarinfo *parent) {
 	if (parent)
 		vi->prefenum = parent->prefenum;
-	if (vi->prefixstr)
+	if (vi->prefixstr) {
 		if (!strcmp(vi->prefixstr, "none"))
 			vi->prefenum = 0;
 		else
 			vi->prefenum = rnn_findenum(db, vi->prefixstr); // XXX
+	}
 	int i;
 	if (parent)
 		for (i = 0; i < parent->varsetsnum; i++)

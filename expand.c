@@ -27,6 +27,8 @@ void expand (const char* prefix, struct rnndelem *elem, uint64_t base, int width
 				for (j = 0; j < elem->subelemsnum; j++)
 					expand(prefix, elem->subelems[j], base + elem->offset + i * elem->stride, width);
 			break;
+		default:
+			break;
 	}
 }
 
