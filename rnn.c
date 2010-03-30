@@ -107,17 +107,7 @@ static int trytypeattr (struct rnndb *db, char *file, xmlNode *node, xmlAttr *at
 		ti->shr = getnumattrib(db, file, node->line, attr);
 		return 1;
 	} else if (!strcmp(attr->name, "type")) {
-		char *str = getattrib(db, file, node->line, attr);
-		while (1) {
-			while (*str == ' ') str++;
-			if (!*str) break;
-			char *newstr = strchr (str, ' ');
-			if (!newstr) newstr = str + strlen(str);
-			struct rnntype *tp = calloc(sizeof *tp, 1);
-			tp->name = strndup(str, newstr-str);
-			RNN_ADDARRAY(ti->types,tp);
-			str = newstr;
-		}
+		ti->name = strdup(getattrib(db, file, node->line, attr));;
 		return 1;
 	}
 	return 0;
@@ -677,22 +667,16 @@ static struct rnnvalue *copyvalue (struct rnnvalue *val) {
 
 static struct rnnbitfield *copybitfield (struct rnnbitfield *bf);
 
-static struct rnntype *copytype (struct rnntype *t) {
-	struct rnntype *res = calloc (sizeof *res, 1);
-	res->name = t->name;
-	return res;
-}
 
 static void copytypeinfo (struct rnntypeinfo *dst, struct rnntypeinfo *src) {
 	int i;
+	dst->name = src->name;
 	dst->shr = src->shr;
 	dst->min = src->min;
 	dst->max = src->max;
 	dst->align = src->align;
 	for (i = 0; i < src->valsnum; i++)
 		RNN_ADDARRAY(dst->vals, copyvalue(src->vals[i]));
-	for (i = 0; i < src->typesnum; i++)
-		RNN_ADDARRAY(dst->types, copytype(src->types[i]));
 	for (i = 0; i < src->bitfieldsnum; i++)
 		RNN_ADDARRAY(dst->bitfields, copybitfield(src->bitfields[i]));
 }
@@ -861,34 +845,62 @@ static void prepvalue(struct rnndb *db, struct rnnvalue *val, char *prefix, stru
 
 static void prepbitfield(struct rnndb *db, struct rnnbitfield *bf, char *prefix, struct rnnvarinfo *parvi);
 
-static void preptypeinfo(struct rnndb *db, struct rnntypeinfo *ti, char *prefix, struct rnnvarinfo *vi) {
+static void preptypeinfo(struct rnndb *db, struct rnntypeinfo *ti, char *prefix, struct rnnvarinfo *vi, int width) {
 	int i;
-	for (i = 0; i < ti->typesnum; i++) {
-		ti->types[i]->type = RNN_TTYPE_OTHER;
-		struct rnnenum *en = rnn_findenum (db, ti->types[i]->name);
+	if (ti->name) {
+		struct rnnenum *en = rnn_findenum (db, ti->name);
+		struct rnnbitset *bs = rnn_findbitset (db, ti->name);
 		if (en) {
 			if (en->isinline) {
-				ti->types[i]->type = RNN_TTYPE_INLINE_ENUM;
+				ti->type = RNN_TTYPE_INLINE_ENUM;
 				int j;
 				for (j = 0; j < en->valsnum; j++)
 					RNN_ADDARRAY(ti->vals, copyvalue(en->vals[j]));
 			} else {
-				ti->types[i]->type = RNN_TTYPE_ENUM;
-				ti->types[i]->eenum = en;
+				ti->type = RNN_TTYPE_ENUM;
+				ti->eenum = en;
 			}
-		}
-		struct rnnbitset *bs = rnn_findbitset (db, ti->types[i]->name);
-		if (bs) {
+		} else if (bs) {
 			if (bs->isinline) {
-				ti->types[i]->type = RNN_TTYPE_INLINE_BITSET;
+				ti->type = RNN_TTYPE_INLINE_BITSET;
 				int j;
 				for (j = 0; j < bs->bitfieldsnum; j++)
 					RNN_ADDARRAY(ti->bitfields, copybitfield(bs->bitfields[j]));
 			} else {
-				ti->types[i]->type = RNN_TTYPE_BITSET;
-				ti->types[i]->ebitset = bs;
+				ti->type = RNN_TTYPE_BITSET;
+				ti->ebitset = bs;
 			}
+		} else if (!strcmp(ti->name, "hex")) {
+			ti->type = RNN_TTYPE_HEX;
+		} else if (!strcmp(ti->name, "float")) {
+			ti->type = RNN_TTYPE_FLOAT;
+		} else if (!strcmp(ti->name, "uint")) {
+			ti->type = RNN_TTYPE_UINT;
+		} else if (!strcmp(ti->name, "int")) {
+			ti->type = RNN_TTYPE_INT;
+		} else if (!strcmp(ti->name, "boolean")) {
+			ti->type = RNN_TTYPE_BOOLEAN;
+		} else if (!strcmp(ti->name, "bitfield")) {
+			ti->type = RNN_TTYPE_INLINE_BITSET;
+		} else if (!strcmp(ti->name, "enum")) {
+			ti->type = RNN_TTYPE_INLINE_ENUM;
+		} else {
+			ti->type = RNN_TTYPE_HEX;
+//			fprintf (stderr, "%s: unknown type %s\n", prefix, ti->name);
+//			db->estatus = 1;
 		}
+	} else if (ti->bitfieldsnum) {
+		ti->name = "bitfield";
+		ti->type = RNN_TTYPE_INLINE_BITSET;
+	} else if (ti->valsnum) {
+		ti->name = "enum";
+		ti->type = RNN_TTYPE_INLINE_ENUM;
+	} else if (width == 1) {
+		ti->name = "boolean";
+		ti->type = RNN_TTYPE_BOOLEAN;
+	} else {
+		ti->name = "hex";
+		ti->type = RNN_TTYPE_HEX;
 	}
 	for (i = 0; i < ti->bitfieldsnum; i++)
 		prepbitfield(db,  ti->bitfields[i], prefix, vi);
@@ -905,7 +917,7 @@ static void prepbitfield(struct rnndb *db, struct rnnbitfield *bf, char *prefix,
 		bf->mask = - (1ULL<<bf->low);
 	else
 		bf->mask = (1ULL<<(bf->high+1)) - (1ULL<<bf->low);
-	preptypeinfo(db, &bf->typeinfo, bf->fullname, &bf->varinfo);
+	preptypeinfo(db, &bf->typeinfo, bf->fullname, &bf->varinfo, bf->high - bf->low + 1);
 	if (bf->varinfo.prefix)
 		bf->fullname = catstr(bf->varinfo.prefix, bf->fullname);
 }
@@ -943,7 +955,7 @@ static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix, str
 			elem->stride = elem->width/width;
 		}
 	}
-	preptypeinfo(db, &elem->typeinfo, elem->name?elem->fullname:prefix, &elem->varinfo);
+	preptypeinfo(db, &elem->typeinfo, elem->name?elem->fullname:prefix, &elem->varinfo, elem->width);
 
 	int i;
 	for (i = 0; i < elem->subelemsnum; i++)

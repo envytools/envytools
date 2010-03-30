@@ -60,23 +60,21 @@ struct rnnvalue {
 	char *fullname;
 };
 
-struct rnntype {
+struct rnntypeinfo {
 	char *name;
 	enum rnnttype {
 		RNN_TTYPE_INLINE_ENUM,
 		RNN_TTYPE_INLINE_BITSET,
 		RNN_TTYPE_ENUM,
 		RNN_TTYPE_BITSET,
-		RNN_TTYPE_OTHER,
+		RNN_TTYPE_HEX,
+		RNN_TTYPE_INT,
+		RNN_TTYPE_UINT,
+		RNN_TTYPE_FLOAT,
+		RNN_TTYPE_BOOLEAN,
 	} type;
 	struct rnnenum *eenum;
 	struct rnnbitset *ebitset;
-};
-
-struct rnntypeinfo {
-	struct rnntype **types;
-	int typesnum;
-	int typesmax;
 	struct rnnbitfield **bitfields;
 	int bitfieldsnum;
 	int bitfieldsmax;

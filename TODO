@@ -8,7 +8,6 @@ rnn:
  - Make a lib
 
 headergen:
- - use __MASK or whatever
  - Make stripe/array emit correct stuff.
 
 lookup:

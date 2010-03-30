@@ -70,8 +70,12 @@ void printtypeinfo (struct rnntypeinfo *ti, char *prefix, int shift) {
 void printbitfield (struct rnnbitfield *bf, int shift) {
 	if (bf->varinfo.dead)
 		return;
-	printdef (bf->fullname, 0, 0, bf->mask << shift);
-	printdef (bf->fullname, "SHIFT", 1, bf->low + shift);
+	if (bf->typeinfo.type == RNN_TTYPE_BOOLEAN) {
+		printdef (bf->fullname, 0, 0, bf->mask << shift);
+	} else {
+		printdef (bf->fullname, "MASK", 0, bf->mask << shift);
+		printdef (bf->fullname, "SHIFT", 1, bf->low + shift);
+	}
 	printtypeinfo (&bf->typeinfo, bf->fullname, bf->low + shift);
 }
 
