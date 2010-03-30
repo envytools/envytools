@@ -133,9 +133,9 @@ static struct rnnvalue *parsevalue(struct rnndb *db, char *file, xmlNode *node) 
 			val->value = getnumattrib(db, file, node->line, attr);
 			val->valvalid = 1;
 		} else if (!strcmp(attr->name, "varset")) {
-			val->varsetstr = strdup(getattrib(db, file, node->line, attr));
+			val->varinfo.varsetstr = strdup(getattrib(db, file, node->line, attr));
 		} else if (!strcmp(attr->name, "variants")) {
-			val->variantsstr = strdup(getattrib(db, file, node->line, attr));
+			val->varinfo.variantsstr = strdup(getattrib(db, file, node->line, attr));
 		} else {
 			fprintf (stderr, "%s:%d: wrong attribute \"%s\" for value\n", file, node->line, attr->name);
 			db->estatus = 1;
@@ -200,9 +200,9 @@ static void parseenum(struct rnndb *db, char *file, xmlNode *node) {
 			break;
 		}
 	if (cur) {
-		if (strdiff(cur->prefixstr, prefixstr) ||
-				strdiff(cur->varsetstr, varsetstr) ||
-				strdiff(cur->variantsstr, variantsstr) ||
+		if (strdiff(cur->varinfo.prefixstr, prefixstr) ||
+				strdiff(cur->varinfo.varsetstr, varsetstr) ||
+				strdiff(cur->varinfo.variantsstr, variantsstr) ||
 				cur->isinline != isinline || cur->bare != bare) {
 			fprintf (stderr, "%s:%d: merge fail for enum %s\n", file, node->line, node->name);
 			db->estatus = 1;
@@ -212,9 +212,9 @@ static void parseenum(struct rnndb *db, char *file, xmlNode *node) {
 		cur->name = strdup(name);
 		cur->isinline = isinline;
 		cur->bare = bare;
-		cur->prefixstr = prefixstr;
-		cur->varsetstr = varsetstr;
-		cur->variantsstr = variantsstr;
+		cur->varinfo.prefixstr = prefixstr;
+		cur->varinfo.varsetstr = varsetstr;
+		cur->varinfo.variantsstr = variantsstr;
 		RNN_ADDARRAY(db->enums, cur);
 	}
 	xmlNode *chain = node->children;
@@ -246,9 +246,9 @@ static struct rnnbitfield *parsebitfield(struct rnndb *db, char *file, xmlNode *
 			bf->low = getnumattrib(db, file, node->line, attr);
 			lowok = 1;
 		} else if (!strcmp(attr->name, "varset")) {
-			bf->varsetstr = strdup(getattrib(db, file, node->line, attr));
+			bf->varinfo.varsetstr = strdup(getattrib(db, file, node->line, attr));
 		} else if (!strcmp(attr->name, "variants")) {
-			bf->variantsstr = strdup(getattrib(db, file, node->line, attr));
+			bf->varinfo.variantsstr = strdup(getattrib(db, file, node->line, attr));
 		} else if (!trytypeattr(db, file, node, attr, &bf->typeinfo)) {
 			fprintf (stderr, "%s:%d: wrong attribute \"%s\" for bitfield\n", file, node->line, attr->name);
 			db->estatus = 1;
@@ -317,9 +317,9 @@ static void parsebitset(struct rnndb *db, char *file, xmlNode *node) {
 			break;
 		}
 	if (cur) {
-		if (strdiff(cur->prefixstr, prefixstr) ||
-				strdiff(cur->varsetstr, varsetstr) ||
-				strdiff(cur->variantsstr, variantsstr) ||
+		if (strdiff(cur->varinfo.prefixstr, prefixstr) ||
+				strdiff(cur->varinfo.varsetstr, varsetstr) ||
+				strdiff(cur->varinfo.variantsstr, variantsstr) ||
 				cur->isinline != isinline || cur->bare != bare) {
 			fprintf (stderr, "%s:%d: merge fail for bitset %s\n", file, node->line, node->name);
 			db->estatus = 1;
@@ -329,9 +329,9 @@ static void parsebitset(struct rnndb *db, char *file, xmlNode *node) {
 		cur->name = strdup(name);
 		cur->isinline = isinline;
 		cur->bare = bare;
-		cur->prefixstr = prefixstr;
-		cur->varsetstr = varsetstr;
-		cur->variantsstr = variantsstr;
+		cur->varinfo.prefixstr = prefixstr;
+		cur->varinfo.varsetstr = varsetstr;
+		cur->varinfo.variantsstr = variantsstr;
 		RNN_ADDARRAY(db->bitsets, cur);
 	}
 	xmlNode *chain = node->children;
@@ -384,11 +384,11 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 			} else if (!strcmp(attr->name, "stride")) {
 				res->stride = getnumattrib(db, file, node->line, attr);
 			} else if (!strcmp(attr->name, "prefix")) {
-				res->prefixstr = strdup(getattrib(db, file, node->line, attr));
+				res->varinfo.prefixstr = strdup(getattrib(db, file, node->line, attr));
 			} else if (!strcmp(attr->name, "varset")) {
-				res->varsetstr = strdup(getattrib(db, file, node->line, attr));
+				res->varinfo.varsetstr = strdup(getattrib(db, file, node->line, attr));
 			} else if (!strcmp(attr->name, "variants")) {
-				res->variantsstr = strdup(getattrib(db, file, node->line, attr));
+				res->varinfo.variantsstr = strdup(getattrib(db, file, node->line, attr));
 			} else {
 				fprintf (stderr, "%s:%d: wrong attribute \"%s\" for %s\n", file, node->line, attr->name, node->name);
 				db->estatus = 1;
@@ -437,9 +437,9 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 		} else if (!strcmp(attr->name, "stride")) {
 			res->stride = getnumattrib(db, file, node->line, attr);
 		} else if (!strcmp(attr->name, "varset")) {
-			res->varsetstr = strdup(getattrib(db, file, node->line, attr));
+			res->varinfo.varsetstr = strdup(getattrib(db, file, node->line, attr));
 		} else if (!strcmp(attr->name, "variants")) {
-			res->variantsstr = strdup(getattrib(db, file, node->line, attr));
+			res->varinfo.variantsstr = strdup(getattrib(db, file, node->line, attr));
 		} else if (!strcmp(attr->name, "access")) {
 			char *str = getattrib(db, file, node->line, attr);
 			if (!strcmp(str, "r"))
@@ -559,9 +559,9 @@ static void parsedomain(struct rnndb *db, char *file, xmlNode *node) {
 			break;
 		}
 	if (cur) {
-		if (strdiff(cur->prefixstr, prefixstr) ||
-				strdiff(cur->varsetstr, varsetstr) ||
-				strdiff(cur->variantsstr, variantsstr) ||
+		if (strdiff(cur->varinfo.prefixstr, prefixstr) ||
+				strdiff(cur->varinfo.varsetstr, varsetstr) ||
+				strdiff(cur->varinfo.variantsstr, variantsstr) ||
 				cur->width != width ||
 				cur->bare != bare ||
 				(size && cur->size && size != cur->size)) {
@@ -577,9 +577,9 @@ static void parsedomain(struct rnndb *db, char *file, xmlNode *node) {
 		cur->bare = bare;
 		cur->width = width;
 		cur->size = size;
-		cur->prefixstr = prefixstr;
-		cur->varsetstr = varsetstr;
-		cur->variantsstr = variantsstr;
+		cur->varinfo.prefixstr = prefixstr;
+		cur->varinfo.varsetstr = varsetstr;
+		cur->varinfo.variantsstr = variantsstr;
 		RNN_ADDARRAY(db->domains, cur);
 	}
 	xmlNode *chain = node->children;
@@ -671,9 +671,7 @@ static struct rnnvalue *copyvalue (struct rnnvalue *val) {
 	res->name = val->name;
 	res->valvalid = val->valvalid;
 	res->value = val->value;
-	res->prefixstr = val->prefixstr;
-	res->varsetstr = val->varsetstr;
-	res->variantsstr = val->variantsstr;
+	res->varinfo = val->varinfo;
 	return res;
 }
 
@@ -704,9 +702,7 @@ static struct rnnbitfield *copybitfield (struct rnnbitfield *bf) {
 	res->name = bf->name;
 	res->low = bf->low;
 	res->high = bf->high;
-	res->prefixstr = bf->prefixstr;
-	res->varsetstr = bf->varsetstr;
-	res->variantsstr = bf->variantsstr;
+	res->varinfo = bf->varinfo;
 	copytypeinfo(&res->typeinfo, &bf->typeinfo);
 	return res;
 }
@@ -719,9 +715,7 @@ static struct rnndelem *copydelem (struct rnndelem *elem) {
 	res->offset = elem->offset;
 	res->length = elem->length;
 	res->stride = elem->stride;
-	res->prefixstr = elem->prefixstr;
-	res->varsetstr = elem->varsetstr;
-	res->variantsstr = elem->variantsstr;
+	res->varinfo = elem->varinfo;
 	copytypeinfo(&res->typeinfo, &elem->typeinfo);
 	int i;
 	for (i = 0; i < elem->subelemsnum; i++)
@@ -751,22 +745,23 @@ static int findvidx (struct rnndb *db, struct rnnenum *en, char *name) {
 	return -1;
 }
 
-static void prepvarinfo (struct rnndb *db, char *what, struct rnnvarinfo *vi, struct rnnvarinfo *parent, char *prefixstr, char *varsetstr, char *variantsstr) {
+static void prepvarinfo (struct rnndb *db, char *what, struct rnnvarinfo *vi, struct rnnvarinfo *parent) {
 	if (parent)
 		vi->prefenum = parent->prefenum;
-	if (prefixstr)
-		if (!strcmp(prefixstr, "none"))
+	if (vi->prefixstr)
+		if (!strcmp(vi->prefixstr, "none"))
 			vi->prefenum = 0;
 		else
-			vi->prefenum = rnn_findenum(db, prefixstr); // XXX
+			vi->prefenum = rnn_findenum(db, vi->prefixstr); // XXX
 	int i;
 	if (parent)
 		for (i = 0; i < parent->varsetsnum; i++)
 			RNN_ADDARRAY(vi->varsets, copyvarset(parent->varsets[i]));
 	struct rnnenum *varset = vi->prefenum;
-	if (varsetstr)
-		varset = rnn_findenum(db, varsetstr);
-	if (variantsstr) {
+	if (vi->varsetstr)
+		varset = rnn_findenum(db, vi->varsetstr);
+	if (vi->variantsstr) {
+		char *vars = vi->variantsstr;
 		if (!varset) {
 			fprintf (stderr, "%s: tried to use variants without active varset!\n", what);
 			db->estatus = 1;
@@ -788,20 +783,20 @@ static void prepvarinfo (struct rnndb *db, char *what, struct rnnvarinfo *vi, st
 			RNN_ADDARRAY(vi->varsets, vs);
 		}
 		while (1) {
-			while (*variantsstr == ' ') variantsstr++;
-			if (*variantsstr == 0)
+			while (*vars == ' ') vars++;
+			if (*vars == 0)
 				break;
-			char *split = variantsstr;
+			char *split = vars;
 			while (*split != ':' && *split != '-' && *split != ' '  && *split != 0)
 				split++;
 			char *first = 0;
-			if (split != variantsstr)
-				first = strndup(variantsstr, split-variantsstr);
+			if (split != vars)
+				first = strndup(vars, split-vars);
 			if (*split == ' ' || *split == 0) {
 				int idx = findvidx(db, varset, first);
 				if (idx != -1)
 					vs->variants[idx] |= 2;
-				variantsstr = split;
+				vars = split;
 			} else {
 				char *end = split+1;
 				while (*end != ' '  && *end != 0)
@@ -821,7 +816,7 @@ static void prepvarinfo (struct rnndb *db, char *what, struct rnnvarinfo *vi, st
 				if (idx1 != -1 && idx2 != -1)
 					for (i = idx1; i < idx2; i++)
 						vs->variants[i] |= 2;
-				variantsstr = end;
+				vars = end;
 				free(second);
 			}
 			free(first);
@@ -856,7 +851,7 @@ static void prepvarinfo (struct rnndb *db, char *what, struct rnnvarinfo *vi, st
 
 static void prepvalue(struct rnndb *db, struct rnnvalue *val, char *prefix, struct rnnvarinfo *parvi) {
 	val->fullname = catstr(prefix, val->name);
-	prepvarinfo (db, val->fullname, &val->varinfo, parvi, val->prefixstr, val->varsetstr, val->variantsstr);
+	prepvarinfo (db, val->fullname, &val->varinfo, parvi);
 	if (val->varinfo.dead)
 		return;
 	if (val->varinfo.prefix)
@@ -902,7 +897,7 @@ static void preptypeinfo(struct rnndb *db, struct rnntypeinfo *ti, char *prefix,
 
 static void prepbitfield(struct rnndb *db, struct rnnbitfield *bf, char *prefix, struct rnnvarinfo *parvi) {
 	bf->fullname = catstr(prefix, bf->name);
-	prepvarinfo (db, bf->fullname, &bf->varinfo, parvi, bf->prefixstr, bf->varsetstr, bf->variantsstr);
+	prepvarinfo (db, bf->fullname, &bf->varinfo, parvi);
 	if (bf->varinfo.dead)
 		return;
 	if (bf->high == 63)
@@ -936,7 +931,7 @@ static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix, str
 	}
 	if (elem->name)
 		elem->fullname = catstr(prefix, elem->name);
-	prepvarinfo (db, elem->fullname?elem->fullname:prefix, &elem->varinfo, parvi, elem->prefixstr, elem->varsetstr, elem->variantsstr);
+	prepvarinfo (db, elem->fullname?elem->fullname:prefix, &elem->varinfo, parvi);
 	if (elem->varinfo.dead)
 		return;
 	if (elem->length != 1 && !elem->stride) {
@@ -957,7 +952,7 @@ static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix, str
 }
 
 static void prepdomain(struct rnndb *db, struct rnndomain *dom) {
-	prepvarinfo (db, dom->name, &dom->varinfo, 0, dom->prefixstr, dom->varsetstr, dom->variantsstr);
+	prepvarinfo (db, dom->name, &dom->varinfo, 0);
 	int i;
 	for (i = 0; i < dom->subelemsnum; i++)
 		prepdelem(db, dom->subelems[i], dom->bare?0:dom->name, &dom->varinfo, dom->width);
@@ -967,7 +962,7 @@ static void prepdomain(struct rnndb *db, struct rnndomain *dom) {
 static void prepenum(struct rnndb *db, struct rnnenum *en) {
 	if (en->prepared)
 		return;
-	prepvarinfo (db, en->name, &en->varinfo, 0, en->prefixstr, en->varsetstr, en->variantsstr);
+	prepvarinfo (db, en->name, &en->varinfo, 0);
 	int i;
 	if (en->isinline)
 		return;
@@ -978,7 +973,7 @@ static void prepenum(struct rnndb *db, struct rnnenum *en) {
 }
 
 static void prepbitset(struct rnndb *db, struct rnnbitset *bs) {
-	prepvarinfo (db, bs->name, &bs->varinfo, 0, bs->prefixstr, bs->varsetstr, bs->variantsstr);
+	prepvarinfo (db, bs->name, &bs->varinfo, 0);
 	int i;
 	if (bs->isinline)
 		return;
