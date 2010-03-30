@@ -6,7 +6,6 @@ spec:
 
 rnn:
  - Implement <brief> and <doc>
- - Implement <reg*> access types
  - Make a lib
 
 headergen:
