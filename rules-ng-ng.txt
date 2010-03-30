@@ -165,24 +165,21 @@ are:
     - -var1: all variants up to and including var1
     - var1-: all variants starting from var1
  - type [optional]: How to interpret the contents of this register.
-   Space-separated list of types in decreasing order of preference. Types
-   include:
     - "uint": unsigned decimal integer
     - "int": signed decimal integer
     - "hex": unsigned hexadecimal integer
     - "float" IEEE 16-bit, 32-bit or 64-bit floating point format, depending
       on register/bitfield size
+    - "boolean": a boolean value: 0 is false, 1 is true
     - any defined enum name: value from that anum
     - "enum": value from the inline <value> tags in this <reg*>
     - any defined bitset name: value decoded further according to that bitset
-    - "bitfield": value decoded further according to the inline <bitfield>
+    - "bitset": value decoded further according to the inline <bitfield>
       tags
     - any defined domain name: value decoded as an offset in that domain
-   Unrecognised type is not an error: it could be a database-specific type
-   that is only understood by special tools. The specified type list always
-   gets "enum bitfield hex" appended to the end, as a default/fallback.
-   Applications that want to decode the value of a register should try each
-   type in the list, and use the first one that successfully decodes.
+   The default is "bitset" if there are inline <bitfield> tags present,
+   otherwise "enum" if there are inline <value> tags present, otherwise
+   "boolean" if this is a bitfield with width 1, otherwise "hex".
  - shr [optional]: the value in this register is the real value shifted right
    by this many bits. Ie. for register with shr="12", register value 0x1234
    should be interpreted as 0x1234000. May sound too specific, but happens
@@ -353,11 +350,13 @@ Like <value>s, <bitfield>s are also allowed to be written directly inside
 <reg*> tags.
 
 <bitfield>s themselves can contain <value>s. The defines generated for
-<bitfield>s include "name" equal to the bitmask corresponding to given
+<bitfield>s include "name__MASK" equal to the bitmask corresponding to given
 bitfield, "name__SHIFT" equal to the low attribute, "name__SHR" equal to
-the shr attribute [if defined]. If the bitfield contains any <value>s,
-<bitfield>s, or references an inlined enum/bitset, defines for them are also
-generated, pre-shifted to the correct position. Example:
+the shr attribute [if defined]. Single-bit bitfields with type "boolean" are
+treated specially, and get "name" defined to the bitmask instead. If the
+bitfield contains any <value>s, <bitfield>s, or references an inlined
+enum/bitset, defines for them are also generated, pre-shifted to the correct
+position. Example:
 
 <enum name="nv03_operation" inline="yes">
 	<value value="0" name="SRCCOPY_AND" />	
@@ -408,15 +407,12 @@ generated, pre-shifted to the correct position. Example:
 
 Result:
 
-#define NV04_GROBJ_1_GRCLASS			0x000000ff
+#define NV04_GROBJ_1_GRCLASS__MASK		0x000000ff
 #define NV04_GROBJ_1_GRCLASS__SHIFT		0
 #define NV04_GROBJ_1_CHROMA_KEY			0x00001000
-#define NV04_GROBJ_1_CHROMA_KEY__SHIFT		12
 #define NV04_GROBJ_1_USER_CLIP			0x00002000
-#define NV04_GROBJ_1_USER_CLIP__SHIFT		13
 #define NV04_GROBJ_1_SWIZZLE			0x00004000
-#define NV04_GROBJ_1_SWIZZLE__SHIFT		14
-#define NV04_GROBJ_1_PATCH_CONFIG		0x00038000
+#define NV04_GROBJ_1_PATCH_CONFIG__MASK		0x00038000
 #define NV04_GROBJ_1_PATCH_CONFIG__SHIFT	15
 #define NV04_GROBJ_1_PATCH_CONFIG_SRCCOPY_AND	0x00000000
 #define NV04_GROBJ_1_PATCH_CONFIG_ROP_AND	0x00008000
@@ -428,11 +424,11 @@ Result:
 #define PGRAPH_CTX_SWITCH_1			0x40014c
 
 #define FORMAT			0x0404
-#define FORMAT_PITCH		0x0000ffff
+#define FORMAT_PITCH__MASK	0x0000ffff
 #define FORMAT_PITCH__SHIFT	0
-#define FORMAT_ORIGIN		0x00ff0000
+#define FORMAT_ORIGIN__MASM	0x00ff0000
 #define FORMAT_ORIGIN__SHIFT	16
-#define FORMAT_FILTER		0xff000000
+#define FORMAT_FILTER__MASK	0xff000000
 #define FORMAT_FILTER__SHIFT	24
 
 #define POINT		0x040c
@@ -442,21 +438,17 @@ Result:
 #define POINT_Y__SHIFT		16
 
 #define FP_INTERPOLANT_CTRL				0x00001988
-#define FP_INTERPOLANT_CTRL_UMASK			0xff000000
+#define FP_INTERPOLANT_CTRL_UMASK__MASK			0xff000000
 #define FP_INTERPOLANT_CTRL_UMASK__SHIFT		24
 #define FP_INTERPOLANT_CTRL_UMASK_X			0x01000000
-#define FP_INTERPOLANT_CTRL_UMASK_X__SHIFT		24
 #define FP_INTERPOLANT_CTRL_UMASK_Y			0x02000000
-#define FP_INTERPOLANT_CTRL_UMASK_Y__SHIFT		25
 #define FP_INTERPOLANT_CTRL_UMASK_Z			0x04000000
-#define FP_INTERPOLANT_CTRL_UMASK_Z__SHIFT		26
 #define FP_INTERPOLANT_CTRL_UMASK_W			0x08000000
-#define FP_INTERPOLANT_CTRL_UMASK_W__SHIFT		27
-#define FP_INTERPOLANT_CTRL_COUNT_NONFLAT		0x00ff0000
+#define FP_INTERPOLANT_CTRL_COUNT_NONFLAT__MASK		0x00ff0000
 #define FP_INTERPOLANT_CTRL_COUNT_NONFLAT__SHIFT	16
-#define FP_INTERPOLANT_CTRL_OFFSET			0x0000ff00
+#define FP_INTERPOLANT_CTRL_OFFSET__MASK		0x0000ff00
 #define FP_INTERPOLANT_CTRL_OFFSET__SHIFT		8
-#define FP_INTERPOLANT_CTRL_COUNT			0x000000ff
+#define FP_INTERPOLANT_CTRL_COUNT__MASK			0x000000ff
 #define FP_INTERPOLANT_CTRL_COUNT__SHIFT		0
 
 2.6. Arrays and stripes.
