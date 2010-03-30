@@ -142,8 +142,11 @@ char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64
 					res = tmp;
 				}
 			}
-			if (res)
-				return res;
+			if (!res)
+				asprintf (&res, "%s0%s", ctx->colors->cimm, ctx->colors->cend);
+			asprintf (&tmp, "{ %s }", res);
+			free(res);
+			return tmp;
 		case RNN_TTYPE_HEX:
 			asprintf (&res, "%s%#"PRIx64"%s", ctx->colors->cimm, value, ctx->colors->cend);
 			return res;
