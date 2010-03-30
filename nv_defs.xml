@@ -23,4 +23,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<bitfield low="16" high="31" name="B" type="uint" />
 </bitset>
 
+<spectype name="object" type="hex"/>
+
 </database>

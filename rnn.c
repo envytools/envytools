@@ -150,6 +150,42 @@ static struct rnnvalue *parsevalue(struct rnndb *db, char *file, xmlNode *node) 
 	}
 }
 
+static void parsespectype(struct rnndb *db, char *file, xmlNode *node) {
+	struct rnnspectype *res = calloc (sizeof *res, 1);
+	xmlAttr *attr = node->properties;
+	int i;
+	while (attr) {
+		if (!strcmp(attr->name, "name")) {
+			res->name = strdup(getattrib(db, file, node->line, attr));
+		} else if (!trytypeattr(db, file, node, attr, &res->typeinfo)) {
+			fprintf (stderr, "%s:%d: wrong attribute \"%s\" for spectype\n", file, node->line, attr->name);
+			db->estatus = 1;
+		}
+		attr = attr->next;
+	}
+	if (!res->name) {
+		fprintf (stderr, "%s:%d: nameless spectype\n", file, node->line);
+		db->estatus = 1;
+		return;
+	}
+	for (i = 0; i < db->spectypesnum; i++)
+		if (!strcmp(db->spectypes[i]->name, res->name)) {
+			fprintf (stderr, "%s:%d: duplicated spectype name %s\n", file, node->line, res->name);
+			db->estatus = 1;
+			return;
+		}
+	RNN_ADDARRAY(db->spectypes, res);
+	xmlNode *chain = node->children;
+	while (chain) {
+		if (chain->type != XML_ELEMENT_NODE) {
+		} else if (!trytypetag(db, file, chain, &res->typeinfo) && !trytop(db, file, chain) && !trydoc(db, file, chain)) {
+			fprintf (stderr, "%s:%d: wrong tag in spectype: <%s>\n", file, chain->line, chain->name);
+			db->estatus = 1;
+		}
+		chain = chain->next;
+	}
+}
+
 static void parseenum(struct rnndb *db, char *file, xmlNode *node) {
 	xmlAttr *attr = node->properties;
 	char *name = 0;
@@ -599,6 +635,9 @@ static int trytop (struct rnndb *db, char *file, xmlNode *node) {
 	} else if (!strcmp(node->name, "domain")) {
 		parsedomain(db, file, node);
 		return 1;
+	} else if (!strcmp(node->name, "spectype")) {
+		parsespectype(db, file, node);
+		return 1;
 	} else if (!strcmp(node->name, "import")) {
 		xmlAttr *attr = node->properties;
 		char *subfile = 0;
@@ -850,6 +889,7 @@ static void preptypeinfo(struct rnndb *db, struct rnntypeinfo *ti, char *prefix,
 	if (ti->name) {
 		struct rnnenum *en = rnn_findenum (db, ti->name);
 		struct rnnbitset *bs = rnn_findbitset (db, ti->name);
+		struct rnnspectype *st = rnn_findspectype (db, ti->name);
 		if (en) {
 			if (en->isinline) {
 				ti->type = RNN_TTYPE_INLINE_ENUM;
@@ -870,6 +910,9 @@ static void preptypeinfo(struct rnndb *db, struct rnntypeinfo *ti, char *prefix,
 				ti->type = RNN_TTYPE_BITSET;
 				ti->ebitset = bs;
 			}
+		} else if (st) {
+			ti->type = RNN_TTYPE_SPECTYPE;
+			ti->spectype = st;
 		} else if (!strcmp(ti->name, "hex")) {
 			ti->type = RNN_TTYPE_HEX;
 		} else if (!strcmp(ti->name, "float")) {
@@ -886,8 +929,8 @@ static void preptypeinfo(struct rnndb *db, struct rnntypeinfo *ti, char *prefix,
 			ti->type = RNN_TTYPE_INLINE_ENUM;
 		} else {
 			ti->type = RNN_TTYPE_HEX;
-//			fprintf (stderr, "%s: unknown type %s\n", prefix, ti->name);
-//			db->estatus = 1;
+			fprintf (stderr, "%s: unknown type %s\n", prefix, ti->name);
+			db->estatus = 1;
 		}
 	} else if (ti->bitfieldsnum) {
 		ti->name = "bitfield";
@@ -995,6 +1038,10 @@ static void prepbitset(struct rnndb *db, struct rnnbitset *bs) {
 	bs->fullname = catstr(bs->varinfo.prefix, bs->name);
 }
 
+static void prepspectype(struct rnndb *db, struct rnnspectype *st) {
+	preptypeinfo(db, &st->typeinfo, st->name, 0, 32); // XXX doesn't exactly make sense...
+}
+
 void rnn_prepdb (struct rnndb *db) {
 	int i;
 	for (i = 0; i < db->enumsnum; i++)
@@ -1003,6 +1050,8 @@ void rnn_prepdb (struct rnndb *db) {
 		prepbitset(db, db->bitsets[i]);
 	for (i = 0; i < db->domainsnum; i++)
 		prepdomain(db, db->domains[i]);
+	for (i = 0; i < db->spectypesnum; i++)
+		prepspectype(db, db->spectypes[i]);
 }
 
 struct rnnenum *rnn_findenum (struct rnndb *db, const char *name) {
@@ -1026,5 +1075,13 @@ struct rnndomain *rnn_finddomain (struct rnndb *db, const char *name) {
 	for (i = 0; i < db->domainsnum; i++)
 		if (!strcmp(db->domains[i]->name, name))
 			return db->domains[i];
+	return 0;
+}
+
+struct rnnspectype *rnn_findspectype (struct rnndb *db, const char *name) {
+	int i;
+	for (i = 0; i < db->spectypesnum; i++)
+		if (!strcmp(db->spectypes[i]->name, name))
+			return db->spectypes[i];
 	return 0;
 }

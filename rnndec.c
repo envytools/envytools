@@ -147,6 +147,8 @@ char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64
 			asprintf (&tmp, "{ %s }", res);
 			free(res);
 			return tmp;
+		case RNN_TTYPE_SPECTYPE:
+			return rnndec_decodeval(ctx, &ti->spectype->typeinfo, value, width);
 		case RNN_TTYPE_HEX:
 			asprintf (&res, "%s%#"PRIx64"%s", ctx->colors->cimm, value, ctx->colors->cend);
 			return res;

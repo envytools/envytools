@@ -17,6 +17,9 @@ struct rnndb {
 	struct rnngroup **groups;
 	int groupsnum;
 	int groupsmax;
+	struct rnnspectype **spectypes;
+	int spectypesnum;
+	int spectypesmax;
 	char **files;
 	int filesnum;
 	int filesmax;
@@ -67,6 +70,7 @@ struct rnntypeinfo {
 		RNN_TTYPE_INLINE_BITSET,
 		RNN_TTYPE_ENUM,
 		RNN_TTYPE_BITSET,
+		RNN_TTYPE_SPECTYPE,
 		RNN_TTYPE_HEX,
 		RNN_TTYPE_INT,
 		RNN_TTYPE_UINT,
@@ -75,6 +79,7 @@ struct rnntypeinfo {
 	} type;
 	struct rnnenum *eenum;
 	struct rnnbitset *ebitset;
+	struct rnnspectype *spectype;
 	struct rnnbitfield **bitfields;
 	int bitfieldsnum;
 	int bitfieldsmax;
@@ -150,6 +155,11 @@ struct rnndelem {
 	char *fullname;
 };
 
+struct rnnspectype {
+	char *name;
+	struct rnntypeinfo typeinfo;
+};
+
 void rnn_init();
 struct rnndb *rnn_newdb();
 void rnn_parsefile (struct rnndb *db, char *file);
@@ -157,6 +167,7 @@ void rnn_prepdb (struct rnndb *db);
 struct rnnenum *rnn_findenum (struct rnndb *db, const char *name);
 struct rnnbitset *rnn_findbitset (struct rnndb *db, const char *name);
 struct rnndomain *rnn_finddomain (struct rnndb *db, const char *name);
+struct rnnspectype *rnn_findspectype (struct rnndb *db, const char *name);
 
 #define RNN_ADDARRAY(a, e) \
 	do { \
