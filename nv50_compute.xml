@@ -308,7 +308,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				in case of 2D surface</doc>
 			</reg32>
 			<reg32 offset="0x10" name="MODE">
-				<bitfield name="LINEAR" high="0" low="0" type="bool"/>
+				<bitfield name="LINEAR" high="0" low="0" type="boolean"/>
 				<bitfield name="UNK1" high="7" low="4">
 					<doc>Only accepts 0?</doc>
 				</bitfield>
