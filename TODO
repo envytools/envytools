@@ -2,6 +2,7 @@ spec:
  - Add varset/variants to top-level items too?
  - min/align/max
  - make enum/bitset/domain prefix name and ref name separate?
+ - figure out interactions between shr and other stuff
 
 rnn:
  - Implement <brief> and <doc>
