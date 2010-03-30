@@ -346,8 +346,7 @@ contains <bitfield> tags with the following attributes:
  - high [required]: index of the highest bit belonging to this bitfield.
  - varset [optional]: like in <reg*>
  - variants [optional]: like in <reg*>
- - type [optional]: like in <reg*>, but "bitfield" and bitset names are not
-   allowed.
+ - type [optional]: like in <reg*>
  - shr [optional]: like in <reg*>
 
 Like <value>s, <bitfield>s are also allowed to be written directly inside
@@ -356,9 +355,9 @@ Like <value>s, <bitfield>s are also allowed to be written directly inside
 <bitfield>s themselves can contain <value>s. The defines generated for
 <bitfield>s include "name" equal to the bitmask corresponding to given
 bitfield, "name__SHIFT" equal to the low attribute, "name__SHR" equal to
-the shr attribute [if defined]. If the bitfield contains any <value>s or
-references an inlined enum, defines for its values are also generated,
-pre-shifted to the correct position. Example:
+the shr attribute [if defined]. If the bitfield contains any <value>s,
+<bitfield>s, or references an inlined enum/bitset, defines for them are also
+generated, pre-shifted to the correct position. Example:
 
 <enum name="nv03_operation" inline="yes">
 	<value value="0" name="SRCCOPY_AND" />	
@@ -383,6 +382,13 @@ pre-shifted to the correct position. Example:
 	<bitfield high="31" low="16" name="Y" />
 </bitset>
 
+<bitset name="nv50_vic" inline="yes">
+	<bitfield high="0" low="0" name="X"/>
+	<bitfield high="1" low="1" name="Y"/>
+	<bitfield high="2" low="2" name="Z"/>
+	<bitfield high="3" low="3" name="W"/>
+</bitset>
+
 <reg32 offset="0x40014c" name="PGRAPH_CTX_SWITCH_1" type="NV04_GROBJ_1" />
 
 <reg32 offset="0x0404" name="FORMAT">
@@ -392,6 +398,13 @@ pre-shifted to the correct position. Example:
 </reg32>
 
 <reg32 offset="0x040c" name="POINT" type="xy16" />
+
+<reg32 offset="0x1988" name="FP_INTERPOLANT_CTRL">
+	<bitfield name="UMASK" high="31" low="24" type="nv50_vic"/>
+	<bitfield name="COUNT_NONFLAT" high="23" low="16" type="int"/>
+	<bitfield name="OFFSET" high="15" low="8" type="int"/>
+	<bitfield name="COUNT" high="7" low="0" type="int"/>
+</reg32>
 
 Result:
 
@@ -427,6 +440,24 @@ Result:
 #define POINT_X__SHIFT		0
 #define POINT_Y		0xffff0000
 #define POINT_Y__SHIFT		16
+
+#define FP_INTERPOLANT_CTRL				0x00001988
+#define FP_INTERPOLANT_CTRL_UMASK			0xff000000
+#define FP_INTERPOLANT_CTRL_UMASK__SHIFT		24
+#define FP_INTERPOLANT_CTRL_UMASK_X			0x01000000
+#define FP_INTERPOLANT_CTRL_UMASK_X__SHIFT		24
+#define FP_INTERPOLANT_CTRL_UMASK_Y			0x02000000
+#define FP_INTERPOLANT_CTRL_UMASK_Y__SHIFT		25
+#define FP_INTERPOLANT_CTRL_UMASK_Z			0x04000000
+#define FP_INTERPOLANT_CTRL_UMASK_Z__SHIFT		26
+#define FP_INTERPOLANT_CTRL_UMASK_W			0x08000000
+#define FP_INTERPOLANT_CTRL_UMASK_W__SHIFT		27
+#define FP_INTERPOLANT_CTRL_COUNT_NONFLAT		0x00ff0000
+#define FP_INTERPOLANT_CTRL_COUNT_NONFLAT__SHIFT	16
+#define FP_INTERPOLANT_CTRL_OFFSET			0x0000ff00
+#define FP_INTERPOLANT_CTRL_OFFSET__SHIFT		8
+#define FP_INTERPOLANT_CTRL_COUNT			0x000000ff
+#define FP_INTERPOLANT_CTRL_COUNT__SHIFT		0
 
 2.6. Arrays and stripes.
 

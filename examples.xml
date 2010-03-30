@@ -102,6 +102,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<bitfield high="31" low="16" name="Y" />
 </bitset>
 
+<bitset name="nv50_vic" inline="yes">
+	<bitfield high="0" low="0" name="X"/>
+	<bitfield high="1" low="1" name="Y"/>
+	<bitfield high="2" low="2" name="Z"/>
+	<bitfield high="3" low="3" name="W"/>
+</bitset>
+
 <domain name="EXAMPLE3" bare="yes" prefix="chipset">
 	<reg32 offset="0x40014c" name="PGRAPH_CTX_SWITCH_1" type="NV04_GROBJ_1" />
 
@@ -112,6 +119,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</reg32>
 
 	<reg32 offset="0x040c" name="POINT" type="xy16" />
+
+	<reg32 offset="0x1988" name="FP_INTERPOLANT_CTRL">
+		<bitfield name="UMASK" high="31" low="24" type="nv50_vic"/>
+		<bitfield name="COUNT_NONFLAT" high="23" low="16" type="int"/>
+		<bitfield name="OFFSET" high="15" low="8" type="int"/>
+		<bitfield name="COUNT" high="7" low="0" type="int"/>
+	</reg32>
 
 
 	<array offset="0x408000" name="PGRAPH_TP" stride="0x1000" length="8">

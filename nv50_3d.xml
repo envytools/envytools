@@ -14,24 +14,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x8597" name="NVA3_3D"/>
 </enum>
 
-<enum name="nv50_vic" inline="yes">
-	<value value="0x0" name="NONE"/>
-	<value value="0x1" name="XNNN"/>
-	<value value="0x2" name="NYNN"/>
-	<value value="0x3" name="XYNN"/>
-	<value value="0x4" name="NNZN"/>
-	<value value="0x5" name="XNZN"/>
-	<value value="0x6" name="NYZN"/>
-	<value value="0x7" name="XYZN"/>
-	<value value="0x8" name="NNNW"/>
-	<value value="0x9" name="XNNW"/>
-	<value value="0xa" name="NYNW"/>
-	<value value="0xb" name="XYNW"/>
-	<value value="0xc" name="NNZW"/>
-	<value value="0xd" name="XNZW"/>
-	<value value="0xe" name="NYZW"/>
-	<value value="0xf" name="XYZW"/>
-</enum>
+<bitset name="nv50_vic" inline="yes">
+	<bitfield high="0" low="0" name="X"/>
+	<bitfield high="1" low="1" name="Y"/>
+	<bitfield high="2" low="2" name="Z"/>
+	<bitfield high="3" low="3" name="W"/>
+</bitset>
 
 <domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
 	<stripe prefix="obj-class" variants="NV50_3D-NVA3_3D">
