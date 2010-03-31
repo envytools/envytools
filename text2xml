@@ -370,7 +370,7 @@ for elem, commentelems in comments.items():
 						commentelems[i].tail = subelem.text
 				break
 		elif action == "end":
-			if "\n" in subelem.tail:
+			if subelem.tail and "\n" in subelem.tail:
 				parent = subelem.getparent()
 				i = parent.index(subelem)
 				i += 1
