@@ -23,6 +23,107 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<bitfield low="16" high="31" name="B" type="uint" />
 </bitset>
 
+<bitset name="st16" inline="yes">
+	<bitfield high="15" low="0" name="S" type="int"/>
+	<bitfield high="31" low="16" name="T" type="int"/>
+</bitset>
+
+<bitset name="xrgb8" inline="yes">
+	<bitfield name="B" high="7" low="0" type="uint"/>
+	<bitfield name="G" high="15" low="8" type="uint"/>
+	<bitfield name="R" high="23" low="16" type="uint"/>
+</bitset>
+
+<bitset name="argb8" inline="yes">
+	<bitfield name="B" high="7" low="0" type="uint"/>
+	<bitfield name="G" high="15" low="8" type="uint"/>
+	<bitfield name="R" high="23" low="16" type="uint"/>
+	<bitfield name="A" high="31" low="24" type="uint"/>
+</bitset>
+
+<bitset name="xbgr8" inline="yes">
+	<bitfield name="R" high="7" low="0" type="uint"/>
+	<bitfield name="G" high="15" low="8" type="uint"/>
+	<bitfield name="B" high="23" low="16" type="uint"/>
+</bitset>
+
+<bitset name="abgr8" inline="yes">
+	<bitfield name="R" high="7" low="0" type="uint"/>
+	<bitfield name="G" high="15" low="8" type="uint"/>
+	<bitfield name="B" high="23" low="16" type="uint"/>
+	<bitfield name="A" high="31" low="24" type="uint"/>
+</bitset>
+
+<group name="rgb-float">
+	<reg32 offset="0x0" name="R" type="float"/>
+	<reg32 offset="0x4" name="G" type="float"/>
+	<reg32 offset="0x8" name="B" type="float"/>
+</group>
+
+<group name="rgba-float">
+	<reg32 offset="0x0" name="R" type="float"/>
+	<reg32 offset="0x4" name="G" type="float"/>
+	<reg32 offset="0x8" name="B" type="float"/>
+	<reg32 offset="0xc" name="A" type="float"/>
+</group>
+
+<group name="xyz-float">
+	<reg32 offset="0x0" name="X" type="float"/>
+	<reg32 offset="0x4" name="Y" type="float"/>
+	<reg32 offset="0x8" name="Z" type="float"/>
+</group>
+
+<group name="xyz-short">
+	<reg32 offset="0x0" name="XY">
+		<bitfield name="X" high="15" low="0" type="int"/>
+		<bitfield name="Y" high="31" low="16" type="int"/>
+	</reg32>
+	<reg32 offset="0x4" name="Z">
+		<bitfield name="Z" high="15" low="0" type="int"/>
+	</reg32>
+</group>
+
+<group name="xyzw-float">
+	<reg32 offset="0x0" name="X" type="float"/>
+	<reg32 offset="0x4" name="Y" type="float"/>
+	<reg32 offset="0x8" name="Z" type="float"/>
+	<reg32 offset="0xc" name="W" type="float"/>
+</group>
+
+<group name="xyzw-short">
+	<reg32 offset="0x0" name="XY">
+		<bitfield name="X" high="15" low="0" type="int"/>
+		<bitfield name="Y" high="31" low="16" type="int"/>
+	</reg32>
+	<reg32 offset="0x4" name="ZW">
+		<bitfield name="Z" high="15" low="0" type="int"/>
+		<bitfield name="W" high="31" low="16" type="int"/>
+	</reg32>
+</group>
+
+<group name="st-float">
+	<reg32 offset="0x0" name="S" type="float"/>
+	<reg32 offset="0x4" name="T" type="float"/>
+</group>
+
+<group name="strq-float">
+	<reg32 offset="0x0" name="S" type="float"/>
+	<reg32 offset="0x4" name="T" type="float"/>
+	<reg32 offset="0x8" name="R" type="float"/>
+	<reg32 offset="0xc" name="Q" type="float"/>
+</group>
+
+<group name="strq-short">
+	<reg32 offset="0x0" name="ST">
+		<bitfield name="S" high="15" low="0" type="int"/>
+		<bitfield name="T" high="31" low="16" type="int"/>
+	</reg32>
+	<reg32 offset="0x4" name="RQ">
+		<bitfield name="R" high="15" low="0" type="int"/>
+		<bitfield name="Q" high="31" low="16" type="int"/>
+	</reg32>
+</group>
+
 <spectype name="object" type="hex"/>
 
 </database>

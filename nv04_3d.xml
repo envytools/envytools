@@ -24,8 +24,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0002" name="MIRRORED_REPEAT"/>
 	<value value="0x0003" name="CLAMP_TO_EDGE"/>
 	<value value="0x0004" name="CLAMP_TO_BORDER"/>
-	<!-- nv10+ texture wrap modes -->
-	<value value="0x0005" name="CLAMP"/>
 </enum>
 
 <enum name="nv04_cull_mode" inline="yes">

@@ -92,4 +92,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x150f" name="SET"/>
 </enum>
 
+<enum name="gl_texgen_mode" inline="yes">
+	<value value="0x0000" name="FALSE"/>
+	<value value="0x2400" name="EYE_LINEAR"/>
+	<value value="0x2401" name="OBJECT_LINEAR"/>
+	<value value="0x2402" name="SPHERE_MAP"/>
+	<value value="0x8511" name="NORMAL_MAP"/>
+	<value value="0x8512" name="REFLECTION_MAP"/>
+</enum>
+
 </database>
