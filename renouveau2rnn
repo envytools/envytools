@@ -12,6 +12,16 @@ for obj in root:
 		continue
 	if "name" in obj.attrib:
 		obj.attrib["name"] = obj.attrib["name"].replace("TCL", "_3D")
+		if obj.attrib["name"] == "NV34_3D":
+			obj.attrib["name"] = "NV30_3D"
+			obj.attrib["id"] = "0x0397"
+		elif obj.attrib["name"] == "NV30_3D":
+			obj.attrib["name"] = "NV34_3D"
+			obj.attrib["id"] = "0x0697"
+			obj.attrib["parent"] = "0x0497"
+		elif obj.attrib["name"] == "NV35_3D":
+			obj.attrib["parent"] = "0x0397"
+
 	if "id" in obj.attrib and "parent" in obj.attrib:
 		children.setdefault(int(obj.attrib["parent"], 0), []).append(obj)
 
@@ -28,7 +38,7 @@ def get_all_children(obj):
 	cn.sort()
 	return [cd[n] for n in cn]
 
-for filename, tclnames in [("nv10-20_3d", ("NV10_3D", "NV20_3D")), ("nv30-40_3d", ("NV34_3D", "NV40_3D")), ("nv50_3d_orig", ("NV50_3D",))]:
+for filename, tclnames in [("nv10-20_3d", ("NV10_3D", "NV20_3D")), ("nv30-40_3d", ("NV30_3D", "NV40_3D")), ("nv50_3d_orig", ("NV50_3D",))]:
 	tcls = [None for i in tclnames]
 	for obj in root:
 		if obj.tag != "object":
