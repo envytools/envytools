@@ -114,6 +114,9 @@ for filename, tclnames in [("nv10-20_3d", ("NV10_3D", "NV20_3D")), ("nv30-40_3d"
 			del r.attrib["type"]
 
 	for offset in all_offsets:
+		if offset == 0x50: # REF_CNT
+			continue
+
 		regs = [d.get(offset) for d in dicts]
 		if any([r is not None for r in regs]):
 			candnames = [r.get("name") for r in regs if r is not None and "name" in r.attrib]
