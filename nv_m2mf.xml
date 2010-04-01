@@ -14,7 +14,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0104" name="NOTIFY"/>
 		<stripe variants="NV50_MEMORY_TO_MEMORY_FORMAT">
 			<reg32 offset="0x0110" name="SERIALIZE"/>
-			<reg32 offset="0x0140" name="UNK140"/>
+			<reg32 offset="0x0140" name="PM_TRIGGER"/>
 		</stripe>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_BUFFER_IN" type="object"/>
