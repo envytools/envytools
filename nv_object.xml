@@ -22,11 +22,22 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x006a" name="NV03_CHANNEL_PIO"/>
 	<value value="0x006b" name="NV03_CHANNEL_DMA"/>
 	<value value="0x007c" name="NV10_VIDEO_DISPLAY"/>
-	<value value="0x0397" name="NV30TCL"/>
-	<value value="0x0497" name="NV35TCL"/>
-	<value value="0x0697" name="NV34TCL"/>
-	<value value="0x4097" name="NV40TCL"/>
-	<value value="0x4497" name="NV44TCL"/>
+
+	<!-- TODO: let's name these in a consistent way, please -->
+	<value value="0x0056" name="NV10TCL"/>
+	<value value="0x0096" name="NV11TCL"/>
+	<value value="0x0099" name="NV17TCL"/>
+	<value value="0x0097" name="NV20TCL"/>
+	<value value="0x0597" name="NV25TCL"/>
+	<value value="0x0397" name="NV30_3D"/>
+	<value value="0x0697" name="NV34_3D"/>
+	<value value="0x0497" name="NV35_3D"/>
+	<value value="0x4097" name="NV40_3D"/>
+	<value value="0x4497" name="NV44_3D"/>
+	<value value="0x5097" name="NV50_3D"/>
+	<value value="0x8297" name="NV84_3D"/>
+	<value value="0x8397" name="NVA0_3D"/>
+	<value value="0x8597" name="NVA3_3D"/>
 	<!-- IMAGE objects. Keep them commented out, they conflict with serious objects. -->
 	<!--
 	<value value="0x0010" name="NV_IMAGE_STENCIL"/>
@@ -59,17 +70,5 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</stripe>
 	</stripe>
 </domain>
-
-<import file="nv_m2mf.xml" />
-<import file="nv01_2d.xml" />
-<import file="nv04_dvd.xml" />
-<import file="nv03_3d.xml" />
-<import file="nv04_3d.xml" />
-<import file="nv10_3d.xml" />
-<import file="nv20_3d.xml" />
-<import file="nv30_3d.xml" />
-<import file="nv50_2d.xml" />
-<import file="nv50_3d.xml" />
-<import file="nv50_compute.xml" />
 
 </database>

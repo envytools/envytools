@@ -5,11 +5,6 @@
 
 <import file="nv10_3d.xml"/>
 
-<enum name="obj-class" bare="yes">
-	<value value="0x0097" name="NV20TCL"/>
-	<value value="0x0597" name="NV25TCL"/>
-</enum>
-
 <enum name="nv20_fog_coord" inline="yes">
 	<value value="0x0001" name="DIST_RADIAL"/>
 	<value value="0x0002" name="DIST_ORTHOGONAL"/>
@@ -37,10 +32,6 @@
 	<value value="0x2" name="COL2"/>
 </enum>
 
-<enum name="nv10_rt_depth_format" inline="yes">
-	<value value="0x0002" name="Z24S8" variants="NV20TCL-"/>
-</enum>
-
 <enum name="nv20_tx_anisotropy" inline="yes">
 	<value value="0x0" name="NONE"/>
 	<value value="0x1" name="2X"/>
@@ -52,23 +43,6 @@
 	<value value="0x0001" name="1D"/>
 	<value value="0x0002" name="2D"/>
 	<value value="0x0003" name="3D"/>
-</enum>
-
-<enum name="nv10_tx_format" inline="yes">
-	<value value="0x0013" name="L8_RECT" variants="NV20TCL-"/>
-	<value value="0x0017" name="DSDT8_RECT" variants="NV20TCL-"/>
-	<value value="0x001a" name="A8L8" variants="NV20TCL-"/>
-	<value value="0x001b" name="I8_RECT" variants="NV20TCL-"/>
-	<value value="0x001d" name="A4R4G4B4_RECT" variants="NV20TCL-"/>
-	<value value="0x001e" name="R8G8B8_RECT" variants="NV20TCL-"/>
-	<value value="0x0020" name="A8L8_RECT" variants="NV20TCL-"/>
-	<value value="0x0028" name="DSDT8" variants="NV20TCL-"/>
-	<value value="0x0033" name="HILO16" variants="NV20TCL-"/>
-	<value value="0x0036" name="HILO16_RECT" variants="NV20TCL-"/>
-	<value value="0x0044" name="HILO8" variants="NV20TCL-"/>
-	<value value="0x0045" name="SIGNED_HILO8" variants="NV20TCL-"/>
-	<value value="0x0046" name="HILO8_RECT" variants="NV20TCL-"/>
-	<value value="0x0047" name="SIGNED_HILO8_RECT" variants="NV20TCL-"/>
 </enum>
 
 <enum name="nv20_tx_shader_cull_mode" inline="yes">

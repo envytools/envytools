@@ -67,6 +67,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<reg32 offset="0xc" name="A" type="float"/>
 </group>
 
+<group name="xy-float">
+	<reg32 offset="0x0" name="X" type="float"/>
+	<reg32 offset="0x4" name="Y" type="float"/>
+</group>
+
 <group name="xyz-float">
 	<reg32 offset="0x0" name="X" type="float"/>
 	<reg32 offset="0x4" name="Y" type="float"/>

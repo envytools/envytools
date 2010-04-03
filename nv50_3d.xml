@@ -7,13 +7,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nv50_defs.xml"/>
 <import file="nv_3ddefs.xml"/>
 
-<enum name="obj-class" bare="yes">
-	<value value="0x5097" name="NV50_3D"/>
-	<value value="0x8297" name="NV84_3D"/>
-	<value value="0x8397" name="NVA0_3D"/>
-	<value value="0x8597" name="NVA3_3D"/>
-</enum>
-
 <bitset name="nv50_vic" inline="yes">
 	<bitfield high="0" low="0" name="X"/>
 	<bitfield high="1" low="1" name="Y"/>

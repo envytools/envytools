@@ -3,6 +3,7 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
+<import file="nv_object.xml" />
 
 <enum name="nv04_tx_format" inline="yes">
 	<value value="0x0001" name="Y8"/>
@@ -24,6 +25,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0002" name="MIRRORED_REPEAT"/>
 	<value value="0x0003" name="CLAMP_TO_EDGE"/>
 	<value value="0x0004" name="CLAMP_TO_BORDER"/>
+	<value value="0x0005" name="CLAMP" variants="NV10TCL-"/>
+	<value value="0x0006" name="MIRROR_CLAMP_TO_EDGE" variants="NV40_3D-"/>
+	<value value="0x0007" name="MIRROR_CLAMP_TO_BORDER" variants="NV40_3D-"/>
+	<value value="0x0008" name="MIRROR_CLAMP" variants="NV40_3D-"/>
 </enum>
 
 <enum name="nv04_cull_mode" inline="yes">

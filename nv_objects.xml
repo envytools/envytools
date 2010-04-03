@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<import file="nv_m2mf.xml" />
+<import file="nv01_2d.xml" />
+<import file="nv04_dvd.xml" />
+<import file="nv03_3d.xml" />
+<import file="nv04_3d.xml" />
+<import file="nv10_3d.xml" />
+<import file="nv20_3d.xml" />
+<import file="nv30-40_3d.xml" />
+<import file="nv50_2d.xml" />
+<import file="nv50_3d.xml" />
+<import file="nv50_compute.xml" />
+
+</database>
