@@ -1,4 +1,5 @@
 <database>
+<import file="copyright.xml"/>
 
 <enum name="NV50_TIC_MAP">
 	<value value="0" name="ZERO" />

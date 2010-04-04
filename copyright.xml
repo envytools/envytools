@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+
+<copyright year="2006">
+<author name="Artur Huillet" email="arthur.huillet@free.fr"><nick name="ahuillet"/>
+Author mentioned in old renouveau nouveau_class.h
+</author>
+
+<author name="Ben Skeggs"><nick name="darktama"/><nick name="darktama_"/>
+Author mentioned in old renouveau nouveau_class.h
+</author>
+
+<author name="B. R." email="koala_br@users.sourceforge.net"><nick name="koala_br"/>
+Author mentioned in old renouveau nouveau_class.h
+</author>
+
+<author name="Carlos Martin" email="carlosmn@users.sf.net"><nick name="carlosmn"/>
+Author present in renouveau CVS history
+</author>
+
+<author name="Christoph Bumiller" email="e0425955@student.tuwien.ac.at"><nick name="calim"/><nick name="chrisbmr"/>
+Work on the nv50 object definitons
+</author>
+
+<author name="Dmitry Eremin-Solenikov" email="lumag@users.sf.net"><nick name="lumag"/>
+Author present in renouveau CVS history
+</author>
+
+<author name="Dawid Gajownik" email="gajownik@users.sf.net"><nick name="gajownik"/>
+Author mentioned in old renouveau nouveau_class.h
+</author>
+
+<author name="Dmitry Baryshkov">
+Author mentioned in old renouveau nouveau_class.h
+</author>
+
+<author name="EdB" email="edb_@users.sf.net"><nick name="edb_"/>
+Author present in renouveau CVS history
+</author>
+
+<author name="Erik Waling" email="erikwailing@users.sf.net"><nick name="erikwaling"/>
+Author mentioned in old renouveau nouveau_class.h
+</author>
+
+<author name="Francisco Jerez" email="currojerez@riseup.net"><nick name="curro"/><nick name="curro_"/><nick name="currojerez"/>
+Creator of the initial rules-ng-ng version of NV10/NV20 3D objects
+</author>
+
+<author name="imirkin" email="imirkin@users.sf.net"><nick name="imirkin"/>
+Author present in renouveau CVS history
+</author>
+
+<author name="jb17bsome" email="jb17bsome@bellsouth.net"><nick name="jb17bsome"/>
+Author present in renouveau CVS history
+</author>
+
+<author name="Jeremy Kolb" email="kjeremy@users.sf.net"><nick name="kjeremy"/>
+Author mentioned in old renouveau nouveau_class.h
+</author>
+
+<author name="Laurent Carlier" email="lordheavym@gmail.com"><nick name="lordheavy"/>
+Author mentioned in old renouveau nouveau_class.h
+</author>
+
+<author name="Luca Barbieri" email="luca@luca-barbieri.com"><nick name="lb"/><nick name="lb1"/>
+Author of the rules-ng-ng text format
+Contributed tools to rules-ng-ng
+Creator of the initial rules-ng-ng version of NV30/NV40 3D objects
+</author>
+
+<author name="Maarten Maathuis" email="madman2003@gmail.com"><nick name="stillunknown"/>
+Author present in renouveau CVS history
+</author>
+
+<author name="Marcin Kościelnicki" email="koriakin@0x04.net"><nick name="mwk"/><nick name="koriakin"/>
+Author of rules-ng-ng
+Creator of the initial rules-ng-ng database
+Creator of the initial rules-ng-ng version of NV50 3D objects
+Performed extensive reverse engineering of all nVidia cards and added results to rules-ng-ng
+</author>
+
+<author name="Mark Carey" email="mark.carey@gmail.com"><nick name="careym"/>
+Author present in renouveau CVS history
+</author>
+
+<author name="Matthieu Castet" email="matthieu.castet@parrot.com"><nick name="mat-c"/>
+Author mentioned in old renouveau nouveau_class.h
+</author>
+
+<author name="nvidiaman" email="nvidiaman@users.sf.net"><nick name="nvidiaman"/>
+Author present in renouveau CVS history
+</author>
+
+<author name="Patrice Mandin" email="mandin.patrice@orange.fr"><nick name="pmandin"/><nick name="pmdata"/>
+Creator of renouveau.xml from previous arrays in C source files
+Main contributor to renouveau.xml
+</author>
+
+<author name="Pekka Paalanen" email="pq@iki.fi"><nick name="pq"/><nick name="ppaalanen"/>
+Author present in renouveau CVS history
+</author>
+
+<author name="Peter Popov" email="ironpeter@users.sf.net"><nick name="ironpeter"/>
+Author present in renouveau CVS history
+</author>
+
+<author name="Richard Hughes" email="hughsient@users.sf.net"><nick name="hughsient"/>
+Author mentioned in old renouveau nouveau_class.h
+</author>
+
+<author name="Rudi Cilibrasi" email="cilibrar@users.sf.net"><nick name="cilibrar"/>
+Author mentioned in old renouveau nouveau_class.h
+</author>
+
+<author name="Serge Martin">
+Author mentioned in old renouveau nouveau_class.h
+</author>
+
+<author name="Simon Raffeiner">
+Author mentioned in old renouveau nouveau_class.h
+</author>
+
+<author name="Stephane Loeuillet" email="leroutier@users.sf.net"><nick name="leroutier"/>
+Author mentioned in old renouveau nouveau_class.h
+</author>
+
+<author name="Stephane Marchesin" email="stephane.marchesin@gmail.com"><nick name="marcheu"/>
+Founder of the nouveau project
+Author mentioned in old renouveau nouveau_class.h
+</author>
+
+<author name="sturmflut" email="sturmflut@users.sf.net"><nick name="sturmflut"/>
+Author present in renouveau CVS history
+</author>
+
+<author name="Sylvain Munaut" email="tnt@246tNt.com">
+Author mentioned in old renouveau nouveau_class.h
+</author>
+
+<author name="Victor Stinner" email="victor.stinner@haypocalc.com"><nick name="haypo"/>
+Author present in renouveau CVS history
+</author>
+
+<author name="Wladmir van der Laan" email="laanwj@gmail.com"><nick name="miathan6"/>
+Author present in renouveau CVS history
+</author>
+
+<author name="Younes Manton" email="younes.m@gmail.com"><nick name="ymanton"/>
+</author>
+
+<license>
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+"Software"), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice (including the
+next paragraph) shall be included in all copies or substantial
+portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE COPYRIGHT OWNER(S) AND/OR ITS SUPPLIERS BE
+LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+</license>
+</copyright>
+</database>
+
