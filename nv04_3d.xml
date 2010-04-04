@@ -4,6 +4,8 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <import file="nv_object.xml" />
+<import file="nv_defs.xml" />
+<import file="nv_3ddefs.xml" />
 
 <enum name="nv04_tx_format" inline="yes">
 	<value value="0x0001" name="Y8"/>
@@ -20,17 +22,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0002" name="CORNER"/>
 </enum>
 
-<enum name="nv04_tx_wrap" inline="yes">
-	<value value="0x0001" name="REPEAT"/>
-	<value value="0x0002" name="MIRRORED_REPEAT"/>
-	<value value="0x0003" name="CLAMP_TO_EDGE"/>
-	<value value="0x0004" name="CLAMP_TO_BORDER"/>
-	<value value="0x0005" name="CLAMP" variants="NV10TCL-"/>
-	<value value="0x0006" name="MIRROR_CLAMP_TO_EDGE" variants="NV40_3D-"/>
-	<value value="0x0007" name="MIRROR_CLAMP_TO_BORDER" variants="NV40_3D-"/>
-	<value value="0x0008" name="MIRROR_CLAMP" variants="NV40_3D-"/>
-</enum>
-
 <enum name="nv04_cull_mode" inline="yes">
 	<value value="0x0" name="BOTH"/>
 	<value value="0x1" name="NONE"/>
@@ -42,20 +33,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0001" name="FLAT"/>
 	<value value="0x0002" name="GOURAUD"/>
 	<value value="0x0003" name="PHONG"/>
-</enum>
-
-<enum name="nv04_tx_min_filter" inline="yes">
-	<value value="0x0001" name="NEAREST"/>
-	<value value="0x0002" name="LINEAR"/>
-	<value value="0x0003" name="NEAREST_MIPMAP_NEAREST"/>
-	<value value="0x0004" name="LINEAR_MIPMAP_NEAREST"/>
-	<value value="0x0005" name="NEAREST_MIPMAP_LINEAR"/>
-	<value value="0x0006" name="LINEAR_MIPMAP_LINEAR"/>
-</enum>
-
-<enum name="nv04_tx_mag_filter" inline="yes">
-	<value value="0x0001" name="NEAREST"/>
-	<value value="0x0002" name="LINEAR"/>
 </enum>
 
 <enum name="nv04_combine_input" inline="yes">
