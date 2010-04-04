@@ -6,6 +6,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nv_defs.xml"/>
 <import file="nv50_defs.xml"/>
 <import file="nv_3ddefs.xml"/>
+<import file="nv_object.xml"/>
 
 <bitset name="nv50_vic" inline="yes">
 	<bitfield high="0" low="0" name="X"/>
