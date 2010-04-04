@@ -109,8 +109,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x038a" name="NV30_IMAGE_FROM_CPU" variants="NV30:NV40"/>
 
 	<!-- M2MF -->
-	<value value="0x0039" name="NV04_MEMORY_TO_MEMORY_FORMAT" variants="NV04:NV50"/>
-	<value value="0x5039" name="NV50_MEMORY_TO_MEMORY_FORMAT" variants="NV50-"/>
+	<value value="0x0039" name="NV04_M2MF" variants="NV04:NV50"/>
+	<value value="0x5039" name="NV50_M2MF" variants="NV50-"/>
 
 	<!-- old-style pre-nv20 3D objects -->
 	<value value="0x0048" name="NV03_TEXTURED_TRIANGLE" variants="NV03:NV11"/>

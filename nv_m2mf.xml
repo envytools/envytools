@@ -5,17 +5,17 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="copyright.xml"/>
 
 <domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
-	<stripe prefix="obj-class" variants="NV04_MEMORY_TO_MEMORY_FORMAT-NV50_MEMORY_TO_MEMORY_FORMAT">
+	<stripe prefix="obj-class" variants="NV04_M2MF-NV50_M2MF">
 		<reg32 offset="0x0100" name="NOP"/>
 		<reg32 offset="0x0104" name="NOTIFY"/>
-		<stripe variants="NV50_MEMORY_TO_MEMORY_FORMAT">
+		<stripe variants="NV50_M2MF">
 			<reg32 offset="0x0110" name="SERIALIZE"/>
 			<reg32 offset="0x0140" name="PM_TRIGGER"/>
 		</stripe>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_BUFFER_IN" type="object"/>
 		<reg32 offset="0x0188" name="DMA_BUFFER_OUT" type="object"/>
-		<stripe variants="NV50_MEMORY_TO_MEMORY_FORMAT">
+		<stripe variants="NV50_M2MF">
 			<reg32 offset="0x0200" name="LINEAR_IN" type="boolean"/>
 			<reg32 offset="0x0204" name="TILING_MODE_IN"/>
 			<reg32 offset="0x0208" name="TILING_PITCH_IN" type="int"/>
@@ -49,8 +49,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="1" name="1" />
 			<value value="2" name="2" />
 			<value value="4" name="4" />
-			<value value="8" name="8" variants="NV50_MEMORY_TO_MEMORY_FORMAT" /> <!-- XXX: do these work only for tiled or what? -->
-			<value value="0x10" name="16" variants="NV50_MEMORY_TO_MEMORY_FORMAT" />
+			<value value="8" name="8" variants="NV50_M2MF" /> <!-- XXX: do these work only for tiled or what? -->
+			<value value="0x10" name="16" variants="NV50_M2MF" />
 		</enum>
 		<reg32 offset="0x0324" name="FORMAT">
 			<bitfield name="INPUT_INC" high="7" low="0" type="nv_m2mf_inc"/>

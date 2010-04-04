@@ -71,8 +71,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 </enum>
 
 <enum name="grobj-class" bare="yes" prefix="chipset">
-	<value name="MEMORY_TO_MEMORY_FORMAT" value="0x0039" variants=":NV50" />
-	<value name="MEMORY_TO_MEMORY_FORMAT" value="0x5039" variants="NV50-" />
+	<value name="M2MF" value="0x0039" variants=":NV50" />
+	<value name="M2MF" value="0x5039" variants="NV50-" />
 	<value name="2D" value="0x502d" variants="NV50-" />
 	<value name="3D" value="0x5097" variants="NV50:NVA0" />
 	<value name="3D" value="0x8297" variants="NV84" />
@@ -170,8 +170,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<!-- more PFIFO methods -->
 	</stripe>
 	<stripe prefix="grobj-class">
-		<stripe variants="NV04_MEMORY_TO_MEMORY_FORMAT-NV05_MEMORY_TO_MEMORY_FORMAT">
-			<reg32 offset="0x200" name="LINEAR_IN" variants="NV50_MEMORY_TO_MEMORY_FORMAT" />
+		<stripe variants="NV04_M2MF-NV05_M2MF">
+			<reg32 offset="0x200" name="LINEAR_IN" variants="NV50_M2MF" />
 			<reg32 offset="0x328" name="BUFFER_NOTIFY" />
 			<!-- more m2mf methods -->
 		</stripe>
