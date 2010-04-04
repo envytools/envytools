@@ -626,13 +626,14 @@ struct insn tabaddop[] = {
 
 F1(sm1sat, 8, N("sat"))
 F(sm1us16, 8, N("u16"), N("s16"))
+F(sm1us32, 8, N("u32"), N("s32"))
 F1(sm1high, 8, N("high"))
 F(sm1tex, 8, N("all"), N("live"))
 
 F1(sm2neg, 0xf, N("neg"))
+F1(sm2abs, 0xf, N("abs"))
 F(sm2us16, 0xf, N("u16"), N("s16"))
 F(sm2us24, 0xf, N("u24"), N("s24"))
-F(sslus2, 0xf, N("u32"), N("s32"))
 
 F1(sm3neg, 0x16, N("neg"))
 F1(sm3not, 0x16, N("not"))
@@ -683,7 +684,7 @@ struct insn tabs[] = {
 	{ AP, 0x40400000, 0xf0400002, N("mul"), SDST, T(sm1high), T(sm2us24), T(ssw), T(scw) },
 
 	{ AP, 0x50000000, 0xf0008002, N("sad"), SDST, T(sm1us16), SHSRC, SHSRC2, SDST },
-	{ AP, 0x50008000, 0xf0008002, N("sad"), SDST, T(sslus2), SSRC, SSRC2, SDST },
+	{ AP, 0x50008000, 0xf0008002, N("sad"), SDST, T(sm1us32), SSRC, SSRC2, SDST },
 
 	{ AP, 0x60000000, 0xe0008102, T(addop), SDST, N("mul"), N("u16"), T(ssh), T(sch), SDST, T(addc0) },
 	{ AP, 0x60000100, 0xe0008102, T(addop), SDST, N("mul"), N("s16"), T(ssh), T(sch), SDST, T(addc0) },
@@ -697,13 +698,13 @@ struct insn tabs[] = {
 	{ FP, 0x83000000, 0xf3000102, N("interp"), SDST, N("cent"), SVAR, SSRC },
 	{ FP, 0x80000100, 0xf3000102, N("interp"), SDST, N("flat"), SVAR },
 
-	{ AP, 0x90000000, 0xf0000002, N("rcp f32"), SDST, SSRC },
+	{ AP, 0x90000000, 0xf0000002, N("rcp f32"), SDST, T(sm3neg), T(sm2abs), SSRC },
 
 	{ AP, 0xb0000000, 0xf0000002, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), T(scw) },
 
 	{ AP, 0xc0000000, 0xf0000002, N("mul f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), T(scw) },
 
-	{ AP, 0xe0000000, 0xf0000002, N("add f32"), SDST, N("mul"), SSRC, SSRC2, SDST },	// XXX: flags like tabi?
+	{ AP, 0xe0000000, 0xf0000002, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), N("mul"), T(ssw), T(scw), T(sm3neg), SDST },
 
 	{ AP, 0xf0000000, 0xf1000002, N("texauto"), T(sm1tex), STDST, TEX, SAMP, STSRC },
 	{ AP, 0xf1000000, 0xf1000002, N("texfetch"), T(sm1tex), STDST, TEX, SAMP, STSRC},
@@ -744,7 +745,7 @@ struct insn tabi[] = {
 	{ AP, 0xd0008100, 0xf0008100, N("mov2"), N("b32"), SDST, T(sm3not), T(ssw), IMM },
 
 	// desc VVV
-	{ AP, 0xe0000000, 0xf0000000, N("mad"), T(sm1sat), N("f32"), SDST, T(sm2neg), T(ssw), IMM, T(sm3neg), SDST },
+	{ AP, 0xe0000000, 0xf0000000, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), N("mul"), T(ssw), IMM, T(sm3neg), SDST },
 	// desc ^^^
 
 	{ AP, 0, 0, OOPS, SDST, T(ssw), IMM },
