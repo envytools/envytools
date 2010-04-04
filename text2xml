@@ -220,7 +220,7 @@ while True:
 				if len(tokens) >= 2:
 					elem.attrib["name"] = tokens[1]
 				if len(tokens) >= 3:
-					elem.attrib["type"] = tokens[1]
+					elem.attrib["type"] = tokens[2]
 				if len(tokens) >= 4:
 					error("too many tokens in bitfield line")
 			else:
