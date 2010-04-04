@@ -53,15 +53,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x7" name="BIAS_SCALE2"/>
 </enum>
 
-<enum name="obj-class" bare="yes">
-	<value value="0x0053" name="NV04_CONTEXT_SURFACES_3D"/>
-	<value value="0x0093" name="NV10_CONTEXT_SURFACES_3D"/>
-	<value value="0x0054" name="NV04_TEXTURED_TRIANGLE"/>
-	<value value="0x0094" name="NV10_TEXTURED_TRIANGLE"/>
-	<value value="0x0055" name="NV04_MULTITEX_TRIANGLE"/>
-	<value value="0x0095" name="NV10_MULTITEX_TRIANGLE"/>
-</enum>
-
 <domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
 	<stripe prefix="obj-class" variants="NV04_CONTEXT_SURFACES_3D-NV10_CONTEXT_SURFACES_3D">
 		<reg32 offset="0x0100" name="NOP"/>

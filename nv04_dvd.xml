@@ -16,11 +16,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0003" name="TRANSPARENT"/>
 </enum>
 
-<enum name="obj-class" bare="yes">
-	<value value="0x0038" name="NV04_DVD_SUBPICTURE"/>
-	<value value="0x0088" name="NV10_DVD_SUBPICTURE"/>
-</enum>
-
 <domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
 	<stripe prefix="obj-class" variants="NV04_DVD_SUBPICTURE-NV10_DVD_SUBPICTURE">
 		<reg32 offset="0x0100" name="NOP"/>

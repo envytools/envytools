@@ -5,7 +5,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <import file="nvchipsets.xml" />
 
-<enum name="obj-class" bare="yes"> <!-- XXX: change to chipset and add proper variants. -->
+<enum name="obj-class" bare="yes">
+	<!-- non-PGRAPH object classes; TODO: check/reorganize these -->
 	<value value="0x0001" name="NV01_ROOT"/>
 	<value value="0x0002" name="NV01_CONTEXT_DMA"/>
 	<value value="0x0003" name="NV01_DEVICE"/>
@@ -17,38 +18,132 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0040" name="NV01_MEMORY_LOCAL_LINEAR"/>
 	<value value="0x0041" name="NV01_MAPPING_LOCAL"/>
 	<value value="0x0046" name="NV03_VIDEO_LUT_CURSOR_DAC"/>
-	<value value="0x0058" name="NV03_CONTEXT_SURFACES_2D"/>
-	<value value="0x005a" name="NV03_CONTEXT_SURFACES_3D"/>
 	<value value="0x006a" name="NV03_CHANNEL_PIO"/>
 	<value value="0x006b" name="NV03_CHANNEL_DMA"/>
 	<value value="0x007c" name="NV10_VIDEO_DISPLAY"/>
 
-	<value value="0x0056" name="NV10_3D"/>
-	<value value="0x0096" name="NV11_3D"/>
-	<value value="0x0099" name="NV17_3D"/>
-	<value value="0x0097" name="NV20_3D"/>
-	<value value="0x0597" name="NV25_3D"/>
-	<value value="0x0397" name="NV30_3D"/>
-	<value value="0x0697" name="NV34_3D"/>
-	<value value="0x0497" name="NV35_3D"/>
-	<value value="0x4097" name="NV40_3D"/>
-	<value value="0x4497" name="NV44_3D"/>
-	<value value="0x5097" name="NV50_3D"/>
-	<value value="0x8297" name="NV84_3D"/>
-	<value value="0x8397" name="NVA0_3D"/>
-	<value value="0x8597" name="NVA3_3D"/>
-	<!-- IMAGE objects. Keep them commented out, they conflict with serious objects. -->
+	<!-- nv01-nv04-only image objects: note that they conflict with nv05+ objects -->
+	<!-- TODO: commented out to avoid possible issues due to the conflicts, but the variant support should be able to handle this anyway -->
 	<!--
-	<value value="0x0010" name="NV_IMAGE_STENCIL"/>
-	<value value="0x0011" name="NV_IMAGE_BLEND_AND"/>
-	<value value="0x0013" name="NV_IMAGE_ROP_AND"/>
-	<value value="0x0015" name="NV_IMAGE_COLOR_KEY"/>
-	<value value="0x0064" name="NV01_IMAGE_SRCCOPY_AND"/>
-	<value value="0x0065" name="NV03_IMAGE_SRCCOPY"/>
-	<value value="0x0066" name="NV04_IMAGE_SRCCOPY_PREMULT"/>
-	<!- parent should be NV_IMAGE_BLEND_AND (0x0011) ->
-	<value value="0x0067" name="NV04_IMAGE_BLEND_PREMULT"/>
-	 -->
+	<value value="0x0010" name="NV01_IMAGE_STENCIL" variants="NV01-NV04"/>
+	<value value="0x0011" name="NV01_IMAGE_BLEND_AND" variants="NV01-NV04"/>
+	<value value="0x0013" name="NV01_IMAGE_ROP_AND" variants="NV01-NV04"/>
+	<value value="0x0015" name="NV01_IMAGE_COLOR_KEY" variants="NV01-NV04"/>
+	<value value="0x0064" name="NV01_IMAGE_SRCCOPY_AND" variants="NV01-NV04"/>
+	<value value="0x0065" name="NV03_IMAGE_SRCCOPY" variants="NV03-NV04"/>
+	<value value="0x0066" name="NV04_IMAGE_SRCCOPY_PREMULT" variants="NV04"/>
+	<value value="0x0067" name="NV04_IMAGE_BLEND_PREMULT" variants="NV04"/>
+	-->
+
+	<!-- pre-nv50 2D objects -->
+	<value value="0x0012" name="NV01_CONTEXT_BETA1" variants="NV01:NV50"/>
+	<value value="0x0072" name="NV04_BETA_SOLID" variants="NV04:NV50"/>
+
+	<value value="0x0017" name="NV01_CONTEXT_COLOR_KEY" variants="NV01:NV50"/>
+	<value value="0x0057" name="NV04_CONTEXT_COLOR_KEY" variants="NV04:NV50"/>
+
+	<value value="0x0018" name="NV01_CONTEXT_PATTERN" variants="NV01:NV50"/>
+
+	<value value="0x0019" name="NV01_CONTEXT_CLIP_RECTANGLE" variants="NV01:NV50"/>
+
+	<value value="0x0043" name="NV03_CONTEXT_ROP" variants="NV03:NV50"/>
+
+	<value value="0x0044" name="NV04_IMAGE_PATTERN" variants="NV04:NV50"/>
+
+	<value value="0x001c" name="NV01_RENDER_SOLID_LINE" variants="NV01:NV40"/>
+	<value value="0x005c" name="NV04_RENDER_SOLID_LINE" variants="NV04:NV50"/>
+	<value value="0x001d" name="NV01_RENDER_SOLID_TRIANGLE" variants="NV01:NV40"/>
+	<value value="0x005d" name="NV04_RENDER_SOLID_TRIANGLE" variants="NV04:NV50"/>
+	<value value="0x001e" name="NV01_RENDER_SOLID_RECTANGLE" variants="NV01:NV40"/>
+	<value value="0x005e" name="NV04_RENDER_SOLID_RECTANGLE" variants="NV04:NV40"/>
+
+	<value value="0x001f" name="NV01_IMAGE_BLIT" variants="NV01:NV50"/>
+	<value value="0x005f" name="NV04_IMAGE_BLIT" variants="NV04:NV50"/>
+	<value value="0x009f" name="NV11_IMAGE_BLIT" variants="NV11:NV50"/>
+
+	<value value="0x0021" name="NV01_IMAGE_FROM_CPU" variants="NV01:NV40"/>
+	<value value="0x0061" name="NV04_IMAGE_FROM_CPU" variants="NV04:NV50"/>
+	<value value="0x0065" name="NV05_IMAGE_FROM_CPU" variants="NV05:NV50"/>
+	<value value="0x308a" name="NV40_IMAGE_FROM_CPU" variants="NV40:NV50"/>
+
+	<value value="0x0036" name="NV03_STRETCHED_IMAGE_FROM_CPU" variants="NV03:NV40"/>
+	<value value="0x0066" name="NV05_STRETCHED_IMAGE_FROM_CPU" variants="NV05:NV50"/>
+	<value value="0x0366" name="NV30_STRETCHED_IMAGE_FROM_CPU" variants="NV30:NV40"/>
+	<value value="0x3066" name="NV40_STRETCHED_IMAGE_FROM_CPU" variants="NV40:NV50"/>
+
+	<value value="0x0037" name="NV03_SCALED_IMAGE_FROM_MEMORY" variants="NV03:NV50"/>
+	<value value="0x0077" name="NV04_SCALED_IMAGE_FROM_MEMORY" variants="NV04:NV50"/>
+	<value value="0x0063" name="NV05_SCALED_IMAGE_FROM_MEMORY" variants="NV10:NV50"/> <!-- TODO: rules.xml has this, but real nv05s don't have it?!? -->
+	<value value="0x0089" name="NV10_SCALED_IMAGE_FROM_MEMORY" variants="NV10:NV50"/>
+	<value value="0x0389" name="NV30_SCALED_IMAGE_FROM_MEMORY" variants="NV30:NV40"/>
+	<value value="0x3089" name="NV40_SCALED_IMAGE_FROM_MEMORY" variants="NV40:NV50"/>
+
+	<value value="0x0038" name="NV04_DVD_SUBPICTURE" variants="NV04:NV50"/>
+	<value vsalue="0x0088" name="NV10_DVD_SUBPICTURE" variants="NV10:NV50"/>
+
+	<value value="0x004b" name="NV03_GDI_RECTANGLE_TEXT" variants="NV03:NV40"/>
+	<value value="0x004a" name="NV04_GDI_RECTANGLE_TEXT" variants="NV04:NV50"/>
+
+	<value value="0x0052" name="NV04_SWIZZLED_SURFACE" variants="NV04:NV50"/>
+	<value value="0x009e" name="NV11_SWIZZLED_SURFACE" variants="NV11:NV50"/>
+	<value value="0x039e" name="NV30_SWIZZLED_SURFACE" variants="NV30:NV40"/>
+	<value value="0x309e" name="NV40_SWIZZLED_SURFACE" variants="NV40:NV50"/>
+
+	<value value="0x0058" name="NV03_CONTEXT_SURFACES_2D" variants="NV03:NV50"/>
+	<value value="0x0042" name="NV04_CONTEXT_SURFACES_2D" variants="NV04:NV50"/>
+	<value value="0x0062" name="NV10_CONTEXT_SURFACES_2D" variants="NV10:NV50"/>
+	<value value="0x0362" name="NV30_CONTEXT_SURFACES_2D" variants="NV30:NV40"/>
+	<value value="0x3062" name="NV40_CONTEXT_SURFACES_2D" variants="NV40:NV50"/>
+
+	<value value="0x0060" name="NV04_INDEXED_IMAGE_FROM_CPU" variants="NV04:NV50"/>
+	<value value="0x0064" name="NV05_INDEXED_IMAGE_FROM_CPU" variants="NV05:NV50"/>
+
+	<value value="0x0076" name="NV04_STRETCHED_IMAGE_FROM_CPU" variants="NV04:NV50"/>
+
+	<value value="0x007b" name="NV10_TEXTURE_FROM_CPU" variants="NV10:NV50"/>
+	<value value="0x037b" name="NV30_TEXTURE_FROM_CPU" variants="NV30:NV40"/>
+	<value value="0x307b" name="NV40_TEXTURE_FROM_CPU" variants="NV40:NV50"/>
+
+	<value value="0x008a" name="NV10_IMAGE_FROM_CPU" variants="NV10:NV50"/>
+	<value value="0x038a" name="NV30_IMAGE_FROM_CPU" variants="NV30:NV40"/>
+
+	<!-- M2MF -->
+	<value value="0x0039" name="NV04_MEMORY_TO_MEMORY_FORMAT" variants="NV04:NV50"/>
+	<value value="0x5039" name="NV50_MEMORY_TO_MEMORY_FORMAT" variants="NV50-"/>
+
+	<!-- old-style pre-nv20 3D objects -->
+	<value value="0x0048" name="NV03_TEXTURED_TRIANGLE" variants="NV03:NV11"/>
+	<value value="0x0054" name="NV04_TEXTURED_TRIANGLE" variants="NV04:NV20"/>
+	<value value="0x0094" name="NV10_TEXTURED_TRIANGLE" variants="NV10:NV20"/>
+
+	<value value="0x0055" name="NV04_MULTITEX_TRIANGLE" variants="NV04:NV20"/>
+	<value value="0x0095" name="NV10_MULTITEX_TRIANGLE" variants="NV10:NV20"/>
+
+	<value value="0x005a" name="NV03_CONTEXT_SURFACES_3D" variants="NV03:NV20"/>
+	<value value="0x0053" name="NV04_CONTEXT_SURFACES_3D" variants="NV04:NV20"/>
+	<value value="0x0093" name="NV10_CONTEXT_SURFACES_3D" variants="NV10:NV20"/>
+
+	<!-- new-style 3D objects -->
+	<value value="0x0056" name="NV10_3D" variants="NV10:NV30"/>
+	<value value="0x0096" name="NV11_3D" variants="NV11:NV30"/>
+	<value value="0x0099" name="NV17_3D" variants="NV17-NV1F"/>
+	<value value="0x0097" name="NV20_3D" variants="NV20:NV30 NV30-NV31 NV35-NV36"/>
+	<value value="0x0597" name="NV25_3D" variants="NV25:NV30 NV30-NV31 NV35-NV36"/>
+	<value value="0x0397" name="NV30_3D" variants="NV30:NV40"/>
+	<value value="0x0697" name="NV34_3D" variants="NV34"/>
+	<value value="0x0497" name="NV35_3D" variants="NV35-NV36"/>
+	<value value="0x4097" name="NV40_3D" variants="NV40-NV43 NV45 NV47-NV49 NV4B"/>
+	<value value="0x4497" name="NV44_3D" variants="NV44 NV46 NV4A NV4C NV4E NV67"/>
+	<value value="0x5097" name="NV50_3D" variants="NV50:NVA0"/>
+	<value value="0x8297" name="NV84_3D" variants="NV84:NVA0"/>
+	<value value="0x8397" name="NVA0_3D" variants="NVA0 NVAA NVAC"/>
+	<value value="0x8597" name="NVA3_3D" variants="NVA3 NVA5 NVA8"/>
+
+	<!-- nv50+ non-3D objects -->
+	<value value="0x502d" name="NV50_2D" variants="NV50-"/>
+
+	<value value="0x50c0" name="NV50_COMPUTE" variants="NV50-"/>
+	<value value="0x85c0" name="NVA3_COMPUTE" variants="NVA3 NVA5 NVA8"/>
 </enum>
 
 <domain name="NV01_SUBCHAN" bare="yes" size="0x2000">

@@ -3,10 +3,6 @@
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
-<enum name="obj-class" bare="yes">
-	<value value="0x0048" name="NV03_TEXTURED_TRIANGLE"/>
-</enum>
-
 <domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
 	<stripe prefix="obj-class" variants="NV03_TEXTURED_TRIANGLE">
 		<reg32 offset="0x0100" name="NOP"/>

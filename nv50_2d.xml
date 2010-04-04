@@ -6,10 +6,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nv_defs.xml"/>
 <import file="nv50_defs.xml"/>
 
-<enum name="obj-class" bare="yes">
-	<value value="0x502d" name="NV50_2D"/>
-</enum>
-
 <domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
 	<stripe prefix="obj-class" variants="NV50_2D">
 		<reg32 offset="0x0100" name="NOP" type="int"/>
