@@ -73,8 +73,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value name="MEMORY_TO_MEMORY_FORMAT" value="0x0039" variants=":NV50" />
 	<value name="MEMORY_TO_MEMORY_FORMAT" value="0x5039" variants="NV50-" />
 	<value name="2D" value="0x502d" variants="NV50-" />
-	<value name="TCL" value="0x5097" variants="NV50:NVA0" />
-	<value name="TCL" value="0x8297" variants="NV84" />
+	<value name="3D" value="0x5097" variants="NV50:NVA0" />
+	<value name="3D" value="0x8297" variants="NV84" />
 	<value name="COMPUTE" value="0x50c0" variants="NV50-" />
 </enum>
 

@@ -49,7 +49,7 @@
 	<reg32 offset="0x0100" name="NOP"/>
 	<reg32 offset="0x0104" name="NOTIFY"/>
 
-	<stripe variants="NV11TCL-">
+	<stripe variants="NV11_3D-">
 		<!-- Sync to vblank stuff -->
 		<reg32 offset="0x0120" name="UNK0120"/>
 		<reg32 offset="0x0124" name="UNK0124"/>
@@ -90,18 +90,18 @@
 	<reg32 offset="0x02c0" name="VIEWPORT_CLIP_HORIZ" length="8">
 		<bitfield name="CLIP_L" high="10" low="0" type="int"/>
 		<bitfield name="CLIP_LEFT_ENABLE" high="11" low="11"
-			  type="boolean" variants="-NV17TCL"/>
+			  type="boolean" variants="-NV17_3D"/>
 		<bitfield name="CLIP_R" high="26" low="16" type="int"/>
 		<bitfield name="CLIP_RIGHT_ENABLE" high="27" low="27"
-			  type="boolean" variants="-NV17TCL"/>
+			  type="boolean" variants="-NV17_3D"/>
 	</reg32>
 	<reg32 offset="0x02e0" name="VIEWPORT_CLIP_VERT" length="8">
 		<bitfield name="CLIP_T" high="10" low="0" type="int"/>
 		<bitfield name="CLIP_TOP_ENABLE" high="11" low="11"
-			  type="boolean" variants="-NV17TCL"/>
+			  type="boolean" variants="-NV17_3D"/>
 		<bitfield name="CLIP_B" high="26" low="16" type="int"/>
 		<bitfield name="CLIP_BOTTOM_ENABLE" high="27" low="27"
-			  type="boolean" variants="-NV17TCL"/>
+			  type="boolean" variants="-NV17_3D"/>
 	</reg32>
 
 	<reg32 offset="0x0300" name="ALPHA_FUNC_ENABLE" type="boolean"/>
@@ -152,7 +152,7 @@
 </group>
 
 <domain name="NV01_SUBCHAN" bare="yes">
-	<stripe prefix="obj-class" variants="NV10TCL-NV17TCL">
+	<stripe prefix="obj-class" variants="NV10_3D-NV17_3D">
 		<use-group name="nv10tcl-base"/>
 
 		<stripe>
@@ -426,7 +426,7 @@
 			<reg32 offset="0x028c" name="RC_FINAL1" type="nv10_rc_final1"/>
 		</stripe>
 
-		<stripe variants="NV17TCL">
+		<stripe variants="NV17_3D">
 			<doc> Hierarchical depth buffer stuff. </doc>
 
 			<reg32 offset="0x01b0" name="DMA_LMA_DEPTH" type="object"/>
@@ -452,23 +452,23 @@
 		<stripe>
 			<doc> Misc state. </doc>
 
-			<reg32 offset="0x01ac" name="UNK01AC" type="object" variants="NV17TCL"/>
+			<reg32 offset="0x01ac" name="UNK01AC" type="object" variants="NV17_3D"/>
 
-			<reg32 offset="0x0258" name="UNK0258" variants="NV17TCL"/>
-			<reg32 offset="0x025c" name="UNK025C" variants="NV17TCL"/>
+			<reg32 offset="0x0258" name="UNK0258" variants="NV17_3D"/>
+			<reg32 offset="0x025c" name="UNK025C" variants="NV17_3D"/>
 			<reg32 offset="0x0290" name="UNK0290"/>
 
-			<reg32 offset="0x02bc" name="COLOR_MASK_ENABLE" type="boolean" variants="NV17TCL"/>
+			<reg32 offset="0x02bc" name="COLOR_MASK_ENABLE" type="boolean" variants="NV17_3D"/>
 
 			<reg32 offset="0x03f0" name="UNK03F0"/>
 			<reg32 offset="0x03f4" name="UNK03F4"/>
-			<reg32 offset="0x03f8" name="UNK03F8" variants="NV17TCL"/>
-			<reg32 offset="0x03fc" name="UNK03FC" variants="NV17TCL"/>
+			<reg32 offset="0x03f8" name="UNK03F8" variants="NV17_3D"/>
+			<reg32 offset="0x03fc" name="UNK03FC" variants="NV17_3D"/>
 
 			<reg32 offset="0x03ec" name="POINT_SIZE" type="int"/>
 			<reg32 offset="0x06f8" name="POINT_PARAMETER" length="8" type="float"/>
 
-			<stripe offset="0x0d40" name="COLOR_LOGIC_OP" variants="NV11TCL-">
+			<stripe offset="0x0d40" name="COLOR_LOGIC_OP" variants="NV11_3D-">
 				<reg32 offset="0x0" name="ENABLE" type="boolean"/>
 				<reg32 offset="0x4" name="OP" type="gl_logic_op"/>
 			</stripe>

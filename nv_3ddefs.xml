@@ -144,7 +144,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0002" name="MIRRORED_REPEAT"/>
 	<value value="0x0003" name="CLAMP_TO_EDGE"/>
 	<value value="0x0004" name="CLAMP_TO_BORDER"/>
-	<value value="0x0005" name="CLAMP" variants="NV10TCL-"/>
+	<value value="0x0005" name="CLAMP" variants="NV10_3D-"/>
 	<value value="0x0006" name="MIRROR_CLAMP_TO_EDGE" variants="NV40_3D-"/>
 	<value value="0x0007" name="MIRROR_CLAMP_TO_BORDER" variants="NV40_3D-"/>
 	<value value="0x0008" name="MIRROR_CLAMP" variants="NV40_3D-"/>
@@ -165,21 +165,21 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0010" name="A1R5G5B5_RECT"/>
 	<value value="0x0011" name="R5G6B5_RECT"/>
 	<value value="0x0012" name="A8R8G8B8_RECT"/>
-	<value value="0x0013" name="I8_RECT" variants="NV10TCL-NV17TCL"/>
-	<value value="0x0013" name="L8_RECT" variants="NV20TCL-"/>
-	<value value="0x0017" name="DSDT8_RECT" variants="NV20TCL-"/>
-	<value value="0x001a" name="A8L8" variants="NV20TCL-"/>
-	<value value="0x001b" name="I8_RECT" variants="NV20TCL-"/>
-	<value value="0x001d" name="A4R4G4B4_RECT" variants="NV20TCL-"/>
-	<value value="0x001e" name="R8G8B8_RECT" variants="NV20TCL-"/>
-	<value value="0x0020" name="A8L8_RECT" variants="NV20TCL-"/>
-	<value value="0x0028" name="DSDT8" variants="NV20TCL-"/>
-	<value value="0x0033" name="HILO16" variants="NV20TCL-"/>
-	<value value="0x0036" name="HILO16_RECT" variants="NV20TCL-"/>
-	<value value="0x0044" name="HILO8" variants="NV20TCL-"/>
-	<value value="0x0045" name="SIGNED_HILO8" variants="NV20TCL-"/>
-	<value value="0x0046" name="HILO8_RECT" variants="NV20TCL-"/>
-	<value value="0x0047" name="SIGNED_HILO8_RECT" variants="NV20TCL-"/>
+	<value value="0x0013" name="I8_RECT" variants="NV10_3D-NV17_3D"/>
+	<value value="0x0013" name="L8_RECT" variants="NV20_3D-"/>
+	<value value="0x0017" name="DSDT8_RECT" variants="NV20_3D-"/>
+	<value value="0x001a" name="A8L8" variants="NV20_3D-"/>
+	<value value="0x001b" name="I8_RECT" variants="NV20_3D-"/>
+	<value value="0x001d" name="A4R4G4B4_RECT" variants="NV20_3D-"/>
+	<value value="0x001e" name="R8G8B8_RECT" variants="NV20_3D-"/>
+	<value value="0x0020" name="A8L8_RECT" variants="NV20_3D-"/>
+	<value value="0x0028" name="DSDT8" variants="NV20_3D-"/>
+	<value value="0x0033" name="HILO16" variants="NV20_3D-"/>
+	<value value="0x0036" name="HILO16_RECT" variants="NV20_3D-"/>
+	<value value="0x0044" name="HILO8" variants="NV20_3D-"/>
+	<value value="0x0045" name="SIGNED_HILO8" variants="NV20_3D-"/>
+	<value value="0x0046" name="HILO8_RECT" variants="NV20_3D-"/>
+	<value value="0x0047" name="SIGNED_HILO8_RECT" variants="NV20_3D-"/>
 	<value value="0x32" name="A16" variants="NV30_3D-"/> <!-- also L16/I16-->
 	<value value="0x35" name="A16_RECT" variants="NV30_3D-"/> <!-- also L16_RECT/I16_RECT-->
 	<value value="0x3f" name="UNK3F" variants="NV30_3D-"/> <!-- nv30: seen in test_logic_op, used for glDrawPixels GL_RGBA, GL_UNSIGNED_BYTE-->
@@ -199,9 +199,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 </enum>
 
 <enum name="nv10_rt_depth_format" inline="yes">
-	<value value="0x0000" name="Z24S8" variants="NV10TCL-NV17TCL"/>
+	<value value="0x0000" name="Z24S8" variants="NV10_3D-NV17_3D"/>
 	<value value="0x0001" name="Z16"/>
-	<value value="0x0002" name="Z24S8" variants="NV20TCL-"/>
+	<value value="0x0002" name="Z24S8" variants="NV20_3D-"/>
 </enum>
 
 <enum name="nv10_rt_type" inline="yes">

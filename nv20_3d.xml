@@ -82,7 +82,7 @@
 </enum>
 
 <domain name="NV01_SUBCHAN" bare="yes">
-	<stripe prefix="obj-class" variants="NV20TCL-NV25TCL">
+	<stripe prefix="obj-class" variants="NV20_3D-NV25_3D">
 		<use-group name="nv10tcl-base"/>
 
 		<reg32 offset="0x01a4" name="DMA_FENCE" type="object"/>
@@ -513,7 +513,7 @@
 			</reg32>
 		</stripe>
 
-		<stripe variants="NV25TCL">
+		<stripe variants="NV25_3D">
 			<doc> Hierarchical depth buffer stuff. </doc>
 
 			<reg32 offset="0x01b0" name="DMA_LMA_DEPTH" type="object"/>
@@ -545,7 +545,7 @@
 		<reg32 offset="0x1e68" name="UNK1E68" type="float"/>
 		<reg32 offset="0x1e98" name="UNK1E98"/>
 
-		<stripe variants="NV25TCL">
+		<stripe variants="NV25_3D">
 			<reg32 offset="0x01ac" name="UNK01AC" type="object"/>
 			<reg32 offset="0x0a1c" name="UNK0A1C"/>
 			<reg32 offset="0x1d88" name="UNK1D88"/>

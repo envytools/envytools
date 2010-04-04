@@ -23,12 +23,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x006b" name="NV03_CHANNEL_DMA"/>
 	<value value="0x007c" name="NV10_VIDEO_DISPLAY"/>
 
-	<!-- TODO: let's name these in a consistent way, please -->
-	<value value="0x0056" name="NV10TCL"/>
-	<value value="0x0096" name="NV11TCL"/>
-	<value value="0x0099" name="NV17TCL"/>
-	<value value="0x0097" name="NV20TCL"/>
-	<value value="0x0597" name="NV25TCL"/>
+	<value value="0x0056" name="NV10_3D"/>
+	<value value="0x0096" name="NV11_3D"/>
+	<value value="0x0099" name="NV17_3D"/>
+	<value value="0x0097" name="NV20_3D"/>
+	<value value="0x0597" name="NV25_3D"/>
 	<value value="0x0397" name="NV30_3D"/>
 	<value value="0x0697" name="NV34_3D"/>
 	<value value="0x0497" name="NV35_3D"/>
