@@ -1,9 +1,15 @@
 #!/usr/bin/python
 import sys
+import os
 import subprocess
 from lxml import etree as ET
 tree = ET.parse("renouveau.xml")
 root = tree.getroot();
+
+try:
+	os.mkdir("renouveau")
+except:
+	pass
 
 children = {}
 
@@ -38,7 +44,7 @@ def get_all_children(obj):
 	cn.sort()
 	return [cd[n] for n in cn]
 
-for filename, tclnames in [("nv10-20_3d", ("NV10_3D", "NV20_3D")), ("nv30-40_3d", ("NV30_3D", "NV40_3D")), ("nv50_3d_orig", ("NV50_3D",))]:
+for filename, tclnames in [("nv10-20_3d", ("NV10_3D", "NV20_3D")), ("nv30-40_3d", ("NV30_3D", "NV40_3D")), ("nv50_3d", ("NV50_3D",))]:
 	tcls = [None for i in tclnames]
 	for obj in root:
 		if obj.tag != "object":
@@ -277,7 +283,7 @@ for filename, tclnames in [("nv10-20_3d", ("NV10_3D", "NV20_3D")), ("nv30-40_3d"
 	domain.append(common)
 	database.append(domain)
 
-	outfile = open(filename, "w")
+	outfile = open("renouveau/" + filename, "w")
 	xml2text = subprocess.Popen("./xml2text", stdin = subprocess.PIPE, stdout = outfile)
 	xml2text.communicate(ET.tostring(database).replace(colon, ":"))
 	xml2text.wait()
