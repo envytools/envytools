@@ -32,25 +32,25 @@
 	<value value="0x2" name="COL2"/>
 </enum>
 
-<enum name="nv20_tx_anisotropy" inline="yes">
+<enum name="nv20_tex_anisotropy" inline="yes">
 	<value value="0x0" name="NONE"/>
 	<value value="0x1" name="2X"/>
 	<value value="0x2" name="4X"/>
 	<value value="0x3" name="8X"/>
 </enum>
 
-<enum name="nv20_tx_dims" inline="yes">
+<enum name="nv20_tex_dims" inline="yes">
 	<value value="0x0001" name="1D"/>
 	<value value="0x0002" name="2D"/>
 	<value value="0x0003" name="3D"/>
 </enum>
 
-<enum name="nv20_tx_shader_cull_mode" inline="yes">
+<enum name="nv20_tex_shader_cull_mode" inline="yes">
 	<value value="0x0000" name="GEQUAL"/>
 	<value value="0x0001" name="LESS"/>
 </enum>
 
-<enum name="nv20_tx_shader_op" inline="yes">
+<enum name="nv20_tex_shader_op" inline="yes">
 	<value value="0x0000" name="NONE"/>
 	<value value="0x0001" name="TEXTURE_2D"/>
 	<value value="0x0004" name="PASS_THROUGH"/>
@@ -354,12 +354,12 @@
 			<doc> Texture coordinate units. </doc>
 
 			<stripe length="4" stride="16">
-				<reg32 offset="0x03c0" name="TX_GEN_MODE" length="4" type="gl_texgen_mode">
+				<reg32 offset="0x03c0" name="TEX_GEN_MODE" length="4" type="gl_texgen_mode">
 					<doc> TexGen mode array, indexed by tex coord. </doc>
 				</reg32>
 			</stripe>
 			<stripe length="4" stride="64">
-				<stripe offset="0x0840" name="TX_GEN_COEFF" length="4" stride="16">
+				<stripe offset="0x0840" name="TEX_GEN_COEFF" length="4" stride="16">
 					<doc> TexGen coeff array, indexed by tex coord. </doc>
 					<reg32 offset="0x0" name="A" type="float"/>
 					<reg32 offset="0x4" name="B" type="float"/>
@@ -368,49 +368,49 @@
 				</stripe>
 			</stripe>
 
-			<reg32 offset="0x0420" name="TX_MATRIX_ENABLE" length="4" type="boolean"/>
+			<reg32 offset="0x0420" name="TEX_MATRIX_ENABLE" length="4" type="boolean"/>
 			<stripe length="4" stride="64">
-				<reg32 offset="0x06c0" name="TX_MATRIX" length="16" type="float"/>
+				<reg32 offset="0x06c0" name="TEX_MATRIX" length="16" type="float"/>
 			</stripe>
 
-			<reg32 offset="0x17f8" name="TX_SHADER_CULL_MODE">
-				<bitfield name="TX0_S" high="0" low="0" type="nv20_tx_shader_cull_mode"/>
-				<bitfield name="TX0_T" high="1" low="1" type="nv20_tx_shader_cull_mode"/>
-				<bitfield name="TX0_R" high="2" low="2" type="nv20_tx_shader_cull_mode"/>
-				<bitfield name="TX0_Q" high="3" low="3" type="nv20_tx_shader_cull_mode"/>
-				<bitfield name="TX1_S" high="4" low="4" type="nv20_tx_shader_cull_mode"/>
-				<bitfield name="TX1_T" high="5" low="5" type="nv20_tx_shader_cull_mode"/>
-				<bitfield name="TX1_R" high="6" low="6" type="nv20_tx_shader_cull_mode"/>
-				<bitfield name="TX1_Q" high="7" low="7" type="nv20_tx_shader_cull_mode"/>
-				<bitfield name="TX2_S" high="8" low="8" type="nv20_tx_shader_cull_mode"/>
-				<bitfield name="TX2_T" high="9" low="9" type="nv20_tx_shader_cull_mode"/>
-				<bitfield name="TX2_R" high="10" low="10" type="nv20_tx_shader_cull_mode"/>
-				<bitfield name="TX2_Q" high="11" low="11" type="nv20_tx_shader_cull_mode"/>
-				<bitfield name="TX3_S" high="12" low="12" type="nv20_tx_shader_cull_mode"/>
-				<bitfield name="TX3_T" high="13" low="13" type="nv20_tx_shader_cull_mode"/>
-				<bitfield name="TX3_R" high="14" low="14" type="nv20_tx_shader_cull_mode"/>
-				<bitfield name="TX3_Q" high="15" low="15" type="nv20_tx_shader_cull_mode"/>
+			<reg32 offset="0x17f8" name="TEX_SHADER_CULL_MODE">
+				<bitfield name="TX0_S" high="0" low="0" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX0_T" high="1" low="1" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX0_R" high="2" low="2" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX0_Q" high="3" low="3" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX1_S" high="4" low="4" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX1_T" high="5" low="5" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX1_R" high="6" low="6" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX1_Q" high="7" low="7" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX2_S" high="8" low="8" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX2_T" high="9" low="9" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX2_R" high="10" low="10" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX2_Q" high="11" low="11" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX3_S" high="12" low="12" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX3_T" high="13" low="13" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX3_R" high="14" low="14" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX3_Q" high="15" low="15" type="nv20_tex_shader_cull_mode"/>
 			</reg32>
-			<stripe offset="0x181c" name="TX_SHADER_CONST_EYE">
+			<stripe offset="0x181c" name="TEX_SHADER_CONST_EYE">
 				<use-group name="xyz-float"/>
 			</stripe>
 			<stripe length="4" stride="64">
-				<reg32 offset="0x1b28" name="TX_SHADER_OFFSET_MATRIX" length="4" type="float"/>
+				<reg32 offset="0x1b28" name="TEX_SHADER_OFFSET_MATRIX" length="4" type="float"/>
 			</stripe>
-			<reg32 offset="0x1e6c" name="TX_RCOMP"/>
-			<reg32 offset="0x1e70" name="TX_SHADER_OP">
-				<bitfield name="TX0" high="4" low="0" type="nv20_tx_shader_op"/>
-				<bitfield name="TX1" high="9" low="5" type="nv20_tx_shader_op"/>
-				<bitfield name="TX2" high="14" low="10" type="nv20_tx_shader_op"/>
-				<bitfield name="TX3" high="19" low="15" type="nv20_tx_shader_op"/>
+			<reg32 offset="0x1e6c" name="TEX_RCOMP"/>
+			<reg32 offset="0x1e70" name="TEX_SHADER_OP">
+				<bitfield name="TX0" high="4" low="0" type="nv20_tex_shader_op"/>
+				<bitfield name="TX1" high="9" low="5" type="nv20_tex_shader_op"/>
+				<bitfield name="TX2" high="14" low="10" type="nv20_tex_shader_op"/>
+				<bitfield name="TX3" high="19" low="15" type="nv20_tex_shader_op"/>
 			</reg32>
-			<reg32 offset="0x1e74" name="TX_SHADER_DOTMAPPING">
+			<reg32 offset="0x1e74" name="TEX_SHADER_DOTMAPPING">
 				<bitfield name="TX0" high="3" low="0"/>
 				<bitfield name="TX1" high="7" low="4"/>
 				<bitfield name="TX2" high="11" low="8"/>
 				<bitfield name="TX3" high="15" low="12"/>
 			</reg32>
-			<reg32 offset="0x1e78" name="TX_SHADER_PREVIOUS">
+			<reg32 offset="0x1e78" name="TEX_SHADER_PREVIOUS">
 				<bitfield name="TX0" high="11" low="8" type="int"/>
 				<bitfield name="TX1" high="15" low="12" type="int"/>
 				<bitfield name="TX2" high="17" low="16" type="int"/>
@@ -421,44 +421,44 @@
 		<stripe length="4" stride="64">
 			<doc> Texture units. </doc>
 
-			<reg32 offset="0x1b00" name="TX_OFFSET"/>
-			<reg32 offset="0x1b04" name="TX_FORMAT">
+			<reg32 offset="0x1b00" name="TEX_OFFSET"/>
+			<reg32 offset="0x1b04" name="TEX_FORMAT">
 				<bitfield name="DMA0" high="0" low="0" type="boolean"/>
 				<bitfield name="DMA1" high="1" low="1" type="boolean"/>
 				<bitfield name="CUBIC" high="2" low="2" type="boolean"/>
 				<bitfield name="NO_BORDER" high="3" low="3" type="boolean"/>
-				<bitfield name="DIMS" high="7" low="4" type="nv20_tx_dims"/>
-				<bitfield name="FORMAT" high="15" low="8" type="nv10_tx_format"/>
+				<bitfield name="DIMS" high="7" low="4" type="nv20_tex_dims"/>
+				<bitfield name="FORMAT" high="15" low="8" type="nv10_tex_format"/>
 				<bitfield name="MIPMAP" high="19" low="19" type="boolean"/>
 				<bitfield name="BASE_SIZE_U" high="23" low="20" type="int"/>
 				<bitfield name="BASE_SIZE_V" high="27" low="24" type="int"/>
 				<bitfield name="BASE_SIZE_W" high="31" low="28" type="int"/>
 			</reg32>
-			<reg32 offset="0x1b08" name="TX_WRAP">
-				<bitfield name="S" high="7" low="0" type="nv04_tx_wrap"/>
-				<bitfield name="T" high="11" low="8" type="nv04_tx_wrap"/>
-				<bitfield name="R" high="19" low="16" type="nv04_tx_wrap"/>
+			<reg32 offset="0x1b08" name="TEX_WRAP">
+				<bitfield name="S" high="7" low="0" type="nv04_tex_wrap"/>
+				<bitfield name="T" high="11" low="8" type="nv04_tex_wrap"/>
+				<bitfield name="R" high="19" low="16" type="nv04_tex_wrap"/>
 			</reg32>
-			<reg32 offset="0x1b0c" name="TX_ENABLE">
-				<bitfield name="ANISO" high="5" low="4" type="nv20_tx_anisotropy"/>
+			<reg32 offset="0x1b0c" name="TEX_ENABLE">
+				<bitfield name="ANISO" high="5" low="4" type="nv20_tex_anisotropy"/>
 				<bitfield name="MIPMAP_MAX_LOD" high="17" low="14" type="int"/>
 				<bitfield name="MIPMAP_MIN_LOD" high="29" low="26" type="int"/>
 				<bitfield name="ENABLE" high="30" low="30" type="boolean"/>
 			</reg32>
-			<reg32 offset="0x1b10" name="TX_NPOT_PITCH">
+			<reg32 offset="0x1b10" name="TEX_NPOT_PITCH">
 				<bitfield name="PITCH" high="31" low="16" type="int"/>
 			</reg32>
-			<reg32 offset="0x1b14" name="TX_FILTER">
+			<reg32 offset="0x1b14" name="TEX_FILTER">
 				<bitfield name="LOD_BIAS" high="11" low="8" type="int"/>
-				<bitfield name="MINIFY" high="19" low="16" type="nv04_tx_min_filter"/>
-				<bitfield name="MAGNIFY" high="27" low="24" type="nv04_tx_mag_filter"/>
+				<bitfield name="MINIFY" high="19" low="16" type="nv04_tex_min_filter"/>
+				<bitfield name="MAGNIFY" high="27" low="24" type="nv04_tex_mag_filter"/>
 			</reg32>
-			<reg32 offset="0x1b1c" name="TX_NPOT_SIZE">
+			<reg32 offset="0x1b1c" name="TEX_NPOT_SIZE">
 				<bitfield name="H" high="15" low="0" type="int"/>
 				<bitfield name="W" high="31" low="16" type="int"/>
 			</reg32>
-			<reg32 offset="0x1b20" name="TX_PALETTE_OFFSET"/>
-			<reg32 offset="0x1b24" name="TX_BORDER_COLOR" type="argb8"/>
+			<reg32 offset="0x1b20" name="TEX_PALETTE_OFFSET"/>
+			<reg32 offset="0x1b24" name="TEX_BORDER_COLOR" type="argb8"/>
 		</stripe>
 
 		<stripe>

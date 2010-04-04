@@ -28,7 +28,7 @@
 	<value value="0x3" name="DIRECTIONAL"/>
 </enum>
 
-<enum name="nv10_tx_cull_mode" inline="yes">
+<enum name="nv10_tex_cull_mode" inline="yes">
 	<value value="0x0000" name="DISABLED"/>
 	<value value="0x0003" name="TEST_ALL"/>
 	<value value="0x0004" name="TEST_ALPHA"/>
@@ -354,12 +354,12 @@
 			<doc> Texture coordinate units. </doc>
 
 			<stripe length="2" stride="16">
-				<reg32 offset="0x03c0" name="TX_GEN_MODE" length="4" type="gl_texgen_mode">
+				<reg32 offset="0x03c0" name="TEX_GEN_MODE" length="4" type="gl_texgen_mode">
 					<doc> TexGen mode array, indexed by tex coord. </doc>
 				</reg32>
 			</stripe>
 			<stripe length="2" stride="64">
-				<stripe offset="0x0600" name="TX_GEN_COEFF" length="4" stride="16">
+				<stripe offset="0x0600" name="TEX_GEN_COEFF" length="4" stride="16">
 					<doc> TexGen coeff array, indexed by tex coord. </doc>
 					<reg32 offset="0x0" name="A" type="float"/>
 					<reg32 offset="0x4" name="B" type="float"/>
@@ -368,47 +368,47 @@
 				</stripe>
 			</stripe>
 
-			<reg32 offset="0x03e0" name="TX_MATRIX_ENABLE" length="2" type="boolean"/>
+			<reg32 offset="0x03e0" name="TEX_MATRIX_ENABLE" length="2" type="boolean"/>
 			<stripe length="2" stride="64">
-				<reg32 offset="0x0540" name="TX_MATRIX" length="16" type="float"/>
+				<reg32 offset="0x0540" name="TEX_MATRIX" length="16" type="float"/>
 			</stripe>
 		</stripe>
 
 		<stripe length="2" stride="4">
 			<doc> Texture units. </doc>
 
-			<reg32 offset="0x0218" name="TX_OFFSET"/>
-			<reg32 offset="0x0220" name="TX_FORMAT">
+			<reg32 offset="0x0218" name="TEX_OFFSET"/>
+			<reg32 offset="0x0220" name="TEX_FORMAT">
 				<bitfield name="DMA0" high="0" low="0" type="boolean"/>
 				<bitfield name="DMA1" high="1" low="1" type="boolean"/>
 				<bitfield name="CUBE_MAP" high="2" low="2" type="boolean"/>
-				<bitfield name="FORMAT" high="11" low="7" type="nv10_tx_format"/>
+				<bitfield name="FORMAT" high="11" low="7" type="nv10_tex_format"/>
 				<bitfield name="MIPMAP" high="15" low="15" type="boolean"/>
 				<bitfield name="BASE_SIZE_U" high="19" low="16" type="int"/>
 				<bitfield name="BASE_SIZE_V" high="23" low="20" type="int"/>
-				<bitfield name="WRAP_S" high="27" low="24" type="nv04_tx_wrap"/>
-				<bitfield name="WRAP_T" high="31" low="28" type="nv04_tx_wrap"/>
+				<bitfield name="WRAP_S" high="27" low="24" type="nv04_tex_wrap"/>
+				<bitfield name="WRAP_T" high="31" low="28" type="nv04_tex_wrap"/>
 			</reg32>
-			<reg32 offset="0x0228" name="TX_ENABLE">
-				<bitfield name="CULL" high="3" low="0" type="nv10_tx_cull_mode"/>
+			<reg32 offset="0x0228" name="TEX_ENABLE">
+				<bitfield name="CULL" high="3" low="0" type="nv10_tex_cull_mode"/>
 				<bitfield name="ANISOTROPY" high="5" low="4" type="int"/>
 				<bitfield name="MIPMAP_MAX_LOD" high="17" low="14" type="int"/>
 				<bitfield name="MIPMAP_MIN_LOD" high="29" low="26" type="int"/>
 				<bitfield name="ENABLE" high="30" low="30" type="boolean"/>
 			</reg32>
-			<reg32 offset="0x0230" name="TX_NPOT_PITCH">
+			<reg32 offset="0x0230" name="TEX_NPOT_PITCH">
 				<bitfield name="PITCH" high="31" low="16" type="int"/>
 			</reg32>
-			<reg32 offset="0x0240" name="TX_NPOT_SIZE">
+			<reg32 offset="0x0240" name="TEX_NPOT_SIZE">
 				<bitfield name="H" high="15" low="0" type="int"/>
 				<bitfield name="W" high="31" low="16" type="int"/>
 			</reg32>
-			<reg32 offset="0x0248" name="TX_FILTER">
+			<reg32 offset="0x0248" name="TEX_FILTER">
 				<bitfield name="LOD_BIAS" high="11" low="8" type="int"/>
-				<bitfield name="MINIFY" high="27" low="24" type="nv04_tx_min_filter"/>
-				<bitfield name="MAGNIFY" high="31" low="28" type="nv04_tx_mag_filter"/>
+				<bitfield name="MINIFY" high="27" low="24" type="nv04_tex_min_filter"/>
+				<bitfield name="MAGNIFY" high="31" low="28" type="nv04_tex_mag_filter"/>
 			</reg32>
-			<reg32 offset="0x0250" name="TX_PALETTE_OFFSET"/>
+			<reg32 offset="0x0250" name="TEX_PALETTE_OFFSET"/>
 		</stripe>
 
 		<stripe>

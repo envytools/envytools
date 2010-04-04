@@ -7,7 +7,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nv_defs.xml" />
 <import file="nv_3ddefs.xml" />
 
-<enum name="nv04_tx_format" inline="yes">
+<enum name="nv04_tex_format" inline="yes">
 	<value value="0x0001" name="Y8"/>
 	<value value="0x0002" name="A1R5G5B5"/>
 	<value value="0x0003" name="X1R5G5B5"/>
@@ -17,7 +17,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0007" name="X8R8G8B8"/>
 </enum>
 
-<enum name="nv04_tx_origin" inline="yes">
+<enum name="nv04_tex_origin" inline="yes">
 	<value value="0x0001" name="CENTER"/>
 	<value value="0x0002" name="CORNER"/>
 </enum>
@@ -120,15 +120,15 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="DMA_A" high="0" low="0" type="boolean"/>
 			<bitfield name="DMA_B" high="1" low="1" type="boolean"/>
 			<bitfield name="COLOR_KEY_MATCH" high="3" low="2" type="int"/>
-			<bitfield name="ORIGIN_ZOH" high="5" low="4" type="nv04_tx_origin"/>
-			<bitfield name="ORIGIN_FOH" high="7" low="6" type="nv04_tx_origin"/>
-			<bitfield name="COLOR" high="11" low="8" type="nv04_tx_format"/>
+			<bitfield name="ORIGIN_ZOH" high="5" low="4" type="nv04_tex_origin"/>
+			<bitfield name="ORIGIN_FOH" high="7" low="6" type="nv04_tex_origin"/>
+			<bitfield name="COLOR" high="11" low="8" type="nv04_tex_format"/>
 			<bitfield name="MIPMAP_LEVELS" high="15" low="12" type="int"/>
 			<bitfield name="BASE_SIZE_U" high="19" low="16" type="int"/>
 			<bitfield name="BASE_SIZE_V" high="23" low="20" type="int"/>
-			<bitfield name="ADDRESSU" high="26" low="24" type="nv04_tx_wrap"/>
+			<bitfield name="ADDRESSU" high="26" low="24" type="nv04_tex_wrap"/>
 			<bitfield name="WRAPU" high="27" low="27" type="boolean"/>
-			<bitfield name="ADDRESSV" high="30" low="28" type="nv04_tx_wrap"/>
+			<bitfield name="ADDRESSV" high="30" low="28" type="nv04_tex_wrap"/>
 			<bitfield name="WRAPV" high="31" low="31" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x030c" name="FILTER">
@@ -136,9 +136,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="KERNEL_SIZE_Y" high="14" low="8" type="int"/>
 			<bitfield name="MIPMAP_DITHER_ENABLE" high="15" low="15" type="boolean"/>
 			<bitfield name="MIPMAP_LODBIAS" high="23" low="16" type="int"/>
-			<bitfield name="MINIFY" high="26" low="24" type="nv04_tx_min_filter"/>
+			<bitfield name="MINIFY" high="26" low="24" type="nv04_tex_min_filter"/>
 			<bitfield name="ANISOTROPIC_MINIFY_ENABLE" high="27" low="27" type="boolean"/>
-			<bitfield name="MAGNIFY" high="30" low="28" type="nv04_tx_mag_filter"/>
+			<bitfield name="MAGNIFY" high="30" low="28" type="nv04_tex_mag_filter"/>
 			<bitfield name="ANISOTROPIC_MAGNIFY_ENABLE" high="31" low="31" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x0310" name="BLEND">

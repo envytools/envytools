@@ -3,20 +3,20 @@
 <import file="nv_defs.xml"/>
 <import file="nv_object.xml"/>
 
-<enum name="nv30_tx_swz_src" inline="yes">
+<enum name="nv30_tex_swz_src" inline="yes">
 	<value value="0" name="ZERO"/>
 	<value value="1" name="ONE"/>
 	<value value="2" name="S1"/>
 </enum>
 
-<enum name="nv30_tx_swz_comp" inline="yes">
+<enum name="nv30_tex_swz_comp" inline="yes">
 	<value value="0" name="W"/>
 	<value value="1" name="Z"/>
 	<value value="2" name="Y"/>
 	<value value="3" name="X"/>
 </enum>
 
-<enum name="nv30_tx_comp" inline="yes">
+<enum name="nv30_tex_comp" inline="yes">
 	<value value="0" name="NEVER"/>
 	<value value="1" name="GREATER"/>
 	<value value="2" name="EQUAL"/>
@@ -27,14 +27,14 @@
 	<value value="7" name="ALWAYS"/>
 </enum>
 
-<enum name="nv30_tx_aniso" inline="yes">
+<enum name="nv30_tex_aniso" inline="yes">
 	<value value="0" name="NONE"/>
 	<value value="1" name="2X"/>
 	<value value="2" name="4X"/>
 	<value value="3" name="8X"/>
 </enum>
 
-<enum name="nv30_tx_dims" inline="yes">
+<enum name="nv30_tex_dims" inline="yes">
 	<value value="1" name="1D"/>
 	<value value="2" name="2D"/>
 	<value value="3" name="3D"/>
@@ -45,7 +45,7 @@
 	<value value="1" name="U16"/>
 </enum>
 
-<enum name="nv40_tx_format" inline="yes">
+<enum name="nv40_tex_format" inline="yes">
 	<value value="0x01" name="L8"/>
 	<value value="0x02" name="A1R5G5B5"/>
 	<value value="0x03" name="A4R4G4B4"/>
@@ -64,14 +64,14 @@
 	<value value="0x1b" name="RGBA32F"/>
 </enum>
 
-<enum name="nv40_tx_aniso_mip_filter_optimization" inline="yes">
+<enum name="nv40_tex_aniso_mip_filter_optimization" inline="yes">
 	<value value="0" name="OFF"/>
 	<value value="2" name="QUALITY"/>
 	<value value="3" name="PERFORMANCE"/>
 	<value value="7" name="HIGH_PERFORMANCE"/>
 </enum>
 
-<enum name="nv40_tx_gamma_decrease_filter" inline="yes">
+<enum name="nv40_tex_gamma_decrease_filter" inline="yes">
 	<value value="0" name="NONE"/>
 	<value value="1" name="RED"/>
 	<value value="2" name="GREEN"/>
@@ -100,7 +100,7 @@
 	<value value="0x1f" name="FULL"/>
 </enum>
 
-<enum name="nv40_tx_aniso" inline="yes">
+<enum name="nv40_tex_aniso" inline="yes">
 	<value value="0" name="NONE"/>
 	<value value="1" name="2X"/>
 	<value value="2" name="4X"/>
@@ -164,7 +164,7 @@
 		<reg32 offset="0x22c" name="ZETA_PITCH" type="int" variants="NV40_3D-NV44_3D"/>
 		<reg32 offset="0x22c" name="LMA_DEPTH_PITCH" type="int" variants="NV30_3D-NV35_3D"/>
 		<reg32 offset="0x230" name="LMA_DEPTH_OFFSET" variants="NV30_3D-NV35_3D"/>
-		<reg32 offset="0x23c" name="TX_UNITS_ENABLE" variants="NV30_3D-NV35_3D">
+		<reg32 offset="0x23c" name="TEX_UNITS_ENABLE" variants="NV30_3D-NV35_3D">
 			<bitfield low="0" high="0" name="TX0"/>
 			<bitfield low="1" high="1" name="TX1"/>
 			<bitfield low="2" high="2" name="TX2"/>
@@ -174,7 +174,7 @@
 			<bitfield low="6" high="6" name="TX6"/>
 			<bitfield low="7" high="7" name="TX7"/>
 		</reg32>
-		<reg32 offset="0x240" name="TX_MATRIX_ENABLE" type="boolean" variants="NV30_3D-NV35_3D" length="8"/>
+		<reg32 offset="0x240" name="TEX_MATRIX_ENABLE" type="boolean" variants="NV30_3D-NV35_3D" length="8"/>
 		<reg32 offset="0x280" name="COLOR2_PITCH" type="int" variants="NV40_3D-NV44_3D"/>
 		<reg32 offset="0x284" name="COLOR3_PITCH" type="int" variants="NV40_3D-NV44_3D"/>
 		<reg32 offset="0x288" name="COLOR2_OFFSET" variants="NV40_3D-NV44_3D"/>
@@ -276,13 +276,13 @@
 		<reg32 offset="0x3bc" name="LINE_SMOOTH_ENABLE" type="boolean"/>
 		<stripe variants="NV30_3D-NV35_3D"><brief>Fixed function matrices</brief>
 			<array offset="0x400" stride="16" length="8">
-				<reg32 offset="0" name="TX_GEN_MODE" type="gl_texgen_mode" length="4"/>
+				<reg32 offset="0" name="TEX_GEN_MODE" type="gl_texgen_mode" length="4"/>
 			</array>
 			<reg32 offset="0x480" name="MODELVIEW_MATRIX" type="float" length="16"/>
 			<reg32 offset="0x580" name="INVERSE_MODELVIEW_MATRIX" type="float" length="12"/>
 			<reg32 offset="0x680" name="PROJECTION_MATRIX" type="float" length="16"/>
 			<array offset="0x6c0" stride="64" length="8">
-				<reg32 offset="0" name="TX_MATRIX" type="float" length="16"/>
+				<reg32 offset="0" name="TEX_MATRIX" type="float" length="16"/>
 			</array>
 		</stripe>
 		<reg32 offset="0x8c0" name="SCISSOR_HORIZ">
@@ -362,7 +362,7 @@
 		<reg32 offset="0xb40" name="UNK0B40" variants="NV40_3D-NV44_3D" length="8"/>
 		<reg32 offset="0xb80" name="VP_UPLOAD_INST" length="4"/>
 		<array offset="0xe00" variants="NV30_3D-NV35_3D" stride="16" length="8">
-			<stripe offset="0" name="TX_CLIP_PLANE">
+			<stripe offset="0" name="TEX_CLIP_PLANE">
 				<use-group name="xyzw-float"/>
 			</stripe>
 		</array>
@@ -472,7 +472,7 @@
 		<reg32 offset="0x1834" name="FRONT_FACE" type="gl_front_face"/>
 		<reg32 offset="0x1838" name="POLYGON_SMOOTH_ENABLE" type="boolean"/>
 		<reg32 offset="0x183c" name="CULL_FACE_ENABLE" type="boolean"/>
-		<reg32 offset="0x1840" name="TX_PALETTE_OFFSET" variants="NV30_3D-NV35_3D" length="8"/>
+		<reg32 offset="0x1840" name="TEX_PALETTE_OFFSET" variants="NV30_3D-NV35_3D" length="8"/>
 		<reg32 offset="0x1840" name="TEX_SIZE1" variants="NV40_3D-NV44_3D" stride="4" length="8">
 			<bitfield low="20" high="31" name="DEPTH" type="int"/>
 			<bitfield low="0" high="15" name="PITCH" type="int"/>
@@ -500,15 +500,15 @@
 				<bitfield low="16" high="31" name="W" type="int"/>
 			</reg32>
 		</stripe>
-		<reg32 offset="0x1a00" name="TX_OFFSET" stride="32" length="8"/>
-		<reg32 offset="0x1a04" name="TX_FORMAT" stride="32" length="8">
+		<reg32 offset="0x1a00" name="TEX_OFFSET" stride="32" length="8"/>
+		<reg32 offset="0x1a04" name="TEX_FORMAT" stride="32" length="8">
 			<bitfield low="0" high="0" name="DMA0"/>
 			<bitfield low="1" high="1" name="DMA1"/>
 			<bitfield low="2" high="2" name="CUBIC"/>
 			<bitfield low="3" high="3" name="NO_BORDER"/>
-			<bitfield low="4" high="7" name="DIMS" type="nv30_tx_dims"/>
-			<bitfield low="8" high="15" name="FORMAT" type="nv10_tx_format" variants="NV30_3D-NV35_3D"/>
-			<bitfield low="8" high="12" name="FORMAT" type="nv40_tx_format" variants="NV40_3D-NV44_3D"/>
+			<bitfield low="4" high="7" name="DIMS" type="nv30_tex_dims"/>
+			<bitfield low="8" high="15" name="FORMAT" type="nv10_tex_format" variants="NV30_3D-NV35_3D"/>
+			<bitfield low="8" high="12" name="FORMAT" type="nv40_tex_format" variants="NV40_3D-NV44_3D"/>
 			<bitfield low="13" high="13" name="LINEAR" variants="NV40_3D-NV44_3D"/>
 			<bitfield low="14" high="14" name="RECT" variants="NV40_3D-NV44_3D"/>
 			<bitfield low="16" high="19" name="MIPMAP_COUNT" type="int" variants="NV40_3D-NV44_3D"/>
@@ -517,18 +517,18 @@
 			<bitfield low="24" high="27" name="BASE_SIZE_V" type="int" variants="NV30_3D-NV35_3D"/>
 			<bitfield low="28" high="31" name="BASE_SIZE_W" type="int" variants="NV30_3D-NV35_3D"/>
 		</reg32>
-		<reg32 offset="0x1a08" name="TX_WRAP" stride="32" length="8">
-			<bitfield low="0" high="7" name="S" type="nv04_tx_wrap"/>
-			<bitfield low="4" high="6" name="ANISO_MIP_FILTER_OPTIMIZATION" type="nv40_tx_aniso_mip_filter_optimization" variants="NV40_3D-NV44_3D"/>
-			<bitfield low="8" high="11" name="T" type="nv04_tx_wrap"/>
+		<reg32 offset="0x1a08" name="TEX_WRAP" stride="32" length="8">
+			<bitfield low="0" high="7" name="S" type="nv04_tex_wrap"/>
+			<bitfield low="4" high="6" name="ANISO_MIP_FILTER_OPTIMIZATION" type="nv40_tex_aniso_mip_filter_optimization" variants="NV40_3D-NV44_3D"/>
+			<bitfield low="8" high="11" name="T" type="nv04_tex_wrap"/>
 			<bitfield low="12" high="15" name="EXPAND_NORMAL" type="boolean"/>
-			<bitfield low="16" high="19" name="R" type="nv04_tx_wrap"/>
-			<bitfield low="20" high="23" name="GAMMA_DECREASE_FILTER" type="nv40_tx_gamma_decrease_filter" variants="NV40_3D-NV44_3D"/>
-			<bitfield low="28" high="31" name="RCOMP" type="nv30_tx_comp"/>
+			<bitfield low="16" high="19" name="R" type="nv04_tex_wrap"/>
+			<bitfield low="20" high="23" name="GAMMA_DECREASE_FILTER" type="nv40_tex_gamma_decrease_filter" variants="NV40_3D-NV44_3D"/>
+			<bitfield low="28" high="31" name="RCOMP" type="nv30_tex_comp"/>
 		</reg32>
-		<reg32 offset="0x1a0c" name="TX_ENABLE" stride="32" length="8">
-			<bitfield low="4" high="5" name="ANISO" type="nv30_tx_aniso" variants="NV30_3D-NV35_3D"/>
-			<bitfield low="4" high="7" name="ANISO" type="nv40_tx_aniso" variants="NV40_3D-NV44_3D"/>
+		<reg32 offset="0x1a0c" name="TEX_ENABLE" stride="32" length="8">
+			<bitfield low="4" high="5" name="ANISO" type="nv30_tex_aniso" variants="NV30_3D-NV35_3D"/>
+			<bitfield low="4" high="7" name="ANISO" type="nv40_tex_aniso" variants="NV40_3D-NV44_3D"/>
 			<bitfield low="14" high="17" name="MIPMAP_MAX_LOD" type="int" variants="NV30_3D-NV35_3D"/>
 			<bitfield low="15" high="17" name="MIPMAP_MAX_LOD" type="int" variants="NV40_3D-NV44_3D"/>
 			<bitfield low="26" high="29" name="MIPMAP_MIN_LOD" type="int" variants="NV30_3D-NV35_3D"/>
@@ -536,31 +536,31 @@
 			<bitfield low="30" high="30" name="ENABLE" variants="NV30_3D-NV35_3D"/>
 			<bitfield low="31" high="31" name="ENABLE" variants="NV40_3D-NV44_3D"/>
 		</reg32>
-		<reg32 offset="0x1a10" name="TX_SWIZZLE" stride="32" length="8">
-			<bitfield low="0" high="1" name="S1_W" type="nv30_tx_swz_comp"/>
-			<bitfield low="2" high="3" name="S1_Z" type="nv30_tx_swz_comp"/>
-			<bitfield low="4" high="5" name="S1_Y" type="nv30_tx_swz_comp"/>
-			<bitfield low="6" high="7" name="S1_X" type="nv30_tx_swz_comp"/>
-			<bitfield low="8" high="9" name="S0_W" type="nv30_tx_swz_src"/>
-			<bitfield low="10" high="11" name="S0_Z" type="nv30_tx_swz_src"/>
-			<bitfield low="12" high="13" name="S0_Y" type="nv30_tx_swz_src"/>
-			<bitfield low="14" high="15" name="S0_X" type="nv30_tx_swz_src"/>
+		<reg32 offset="0x1a10" name="TEX_SWIZZLE" stride="32" length="8">
+			<bitfield low="0" high="1" name="S1_W" type="nv30_tex_swz_comp"/>
+			<bitfield low="2" high="3" name="S1_Z" type="nv30_tex_swz_comp"/>
+			<bitfield low="4" high="5" name="S1_Y" type="nv30_tex_swz_comp"/>
+			<bitfield low="6" high="7" name="S1_X" type="nv30_tex_swz_comp"/>
+			<bitfield low="8" high="9" name="S0_W" type="nv30_tex_swz_src"/>
+			<bitfield low="10" high="11" name="S0_Z" type="nv30_tex_swz_src"/>
+			<bitfield low="12" high="13" name="S0_Y" type="nv30_tex_swz_src"/>
+			<bitfield low="14" high="15" name="S0_X" type="nv30_tex_swz_src"/>
 			<bitfield low="16" high="31" name="RECT_PITCH" type="int" variants="NV30_3D-NV35_3D"/>
 		</reg32>
-		<reg32 offset="0x1a14" name="TX_FILTER" stride="32" length="8">
+		<reg32 offset="0x1a14" name="TEX_FILTER" stride="32" length="8">
 			<bitfield low="8" high="11" name="LOD_BIAS" type="int" variants="NV30_3D-NV35_3D"/>
-			<bitfield low="16" high="19" name="MIN" type="nv04_tx_min_filter"/>
-			<bitfield low="24" high="27" name="MAG" type="nv04_tx_mag_filter"/>
+			<bitfield low="16" high="19" name="MIN" type="nv04_tex_min_filter"/>
+			<bitfield low="24" high="27" name="MAG" type="nv04_tex_mag_filter"/>
 			<bitfield low="28" high="28" name="SIGNED_BLUE"/>
 			<bitfield low="29" high="29" name="SIGNED_GREEN"/>
 			<bitfield low="30" high="30" name="SIGNED_RED"/>
 			<bitfield low="31" high="31" name="SIGNED_ALPHA"/>
 		</reg32>
-		<reg32 offset="0x1a18" name="TX_NPOT_SIZE" stride="32" length="8">
+		<reg32 offset="0x1a18" name="TEX_NPOT_SIZE" stride="32" length="8">
 			<bitfield low="0" high="15" name="H" type="int"/>
 			<bitfield low="16" high="31" name="W" type="int"/>
 		</reg32>
-		<reg32 offset="0x1a1c" name="TX_BORDER_COLOR" stride="32" length="8">
+		<reg32 offset="0x1a1c" name="TEX_BORDER_COLOR" stride="32" length="8">
 			<bitfield low="0" high="7" name="B" type="int"/>
 			<bitfield low="8" high="15" name="G" type="int"/>
 			<bitfield low="16" high="23" name="R" type="int"/>
