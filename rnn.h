@@ -4,7 +4,26 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+struct rnnauthor {
+	char* name;
+	char* email;
+	char* contributions;
+	char* license;
+	char** nicknames;
+	int nicknamesnum;
+	int nicknamesmax;
+};
+
+struct rnncopyright {
+	unsigned firstyear;
+	char* license;
+	struct rnnauthor **authors;
+	int authorsnum;
+	int authorsmax;
+};
+
 struct rnndb {
+	struct rnncopyright copyright;
 	struct rnnenum **enums;
 	int enumsnum;
 	int enumsmax;

@@ -4,6 +4,7 @@
 #include <libxml/xmlreader.h>
 #include <stdint.h>
 #include <string.h>
+#include <ctype.h>
 #include "rnn.h"
 
 static char *catstr (char *a, char *b) {
@@ -32,6 +33,36 @@ void rnn_init() {
 struct rnndb *rnn_newdb() {
 	struct rnndb *db = calloc(sizeof *db, 1);
 	return db;
+}
+
+static char *getcontent (xmlNode *attr) {
+	xmlNode *chain = attr->children;
+	size_t size = 0;
+	char *content, *p;
+	while (chain) {
+		if (chain->type == XML_TEXT_NODE)
+			size += strlen(chain->content);
+		chain = chain->next;
+	}
+	p = content = malloc(size + 1);
+	chain = attr->children;
+	while (chain) {
+		if (chain->type == XML_TEXT_NODE) {
+			char* sp = chain->content;
+			if(p == content) {
+				while(isspace(*sp))
+					++sp;
+			}
+			size_t len = strlen(sp);
+			memcpy(p, sp, len);
+			p += len;
+		}
+		chain = chain->next;
+	}
+	while(p != content && isspace(p[-1]))
+		--p;
+	*p = 0;
+	return content;
 }
 
 static char *getattrib (struct rnndb *db, char *file, int line, xmlAttr *attr) {
@@ -622,6 +653,81 @@ static void parsedomain(struct rnndb *db, char *file, xmlNode *node) {
 	}
 }
 
+static void parsecopyright(struct rnndb *db, char *file, xmlNode *node) {
+	struct rnncopyright* copyright = &db->copyright;
+	xmlAttr *attr = node->properties;
+	while (attr) {
+		if (!strcmp(attr->name, "year")) {
+			unsigned firstyear = getnumattrib(db, file, node->line, attr);
+			if(!copyright->firstyear || firstyear < copyright->firstyear)
+				copyright->firstyear = firstyear;
+		} else {
+			fprintf (stderr, "%s:%d: wrong attribute \"%s\" for copyright\n", file, node->line, attr->name);
+			db->estatus = 1;
+		}
+		attr = attr->next;
+	}
+	xmlNode *chain = node->children;
+	while (chain) {
+		if (chain->type != XML_ELEMENT_NODE) {
+		} else if (!strcmp(chain->name, "license"))
+			if(copyright->license) {
+				if(strcmp(copyright->license, node->content)) {
+					fprintf(stderr, "fatal error: multiple different licenses specified!\n");
+					abort(); /* TODO: do something better here, but headergen, xml2html, etc. should not produce anything in this case */
+				}
+			} else
+				copyright->license = getcontent(chain);
+		else if (!strcmp(chain->name, "author")) {
+			struct rnnauthor* author = calloc(sizeof *author, 1);
+			xmlAttr* authorattr = chain->properties;
+			xmlNode *authorchild = chain->children;
+			author->contributions = getcontent(chain);
+			while (authorattr) {
+				if (!strcmp(authorattr->name, "name"))
+					author->name = strdup(getattrib(db, file, chain->line, authorattr));
+				else if (!strcmp(authorattr->name, "email"))
+					author->email = strdup(getattrib(db, file, chain->line, authorattr));
+				else {
+					fprintf (stderr, "%s:%d: wrong attribute \"%s\" for author\n", file, chain->line, authorattr->name);
+					db->estatus = 1;
+				}
+				authorattr = authorattr->next;
+			}
+			while(authorchild)  {
+				if (authorchild->type != XML_ELEMENT_NODE) {
+				} else if (!strcmp(authorchild->name, "nick")) {
+					xmlAttr* nickattr = authorchild->properties;
+					char* nickname = 0;
+					while(nickattr) {
+						if (!strcmp(nickattr->name, "name"))
+							nickname = strdup(getattrib(db, file, authorchild->line, nickattr));
+						else {
+							fprintf (stderr, "%s:%d: wrong attribute \"%s\" for nick\n", file, authorchild->line, nickattr->name);
+							db->estatus = 1;
+						}
+						nickattr = nickattr->next;
+					}
+					if(!nickname) {
+						fprintf (stderr, "%s:%d: missing \"name\" attribute for nick\n", file, authorchild->line);
+						db->estatus = 1;
+					} else
+						RNN_ADDARRAY(author->nicknames, nickname);
+				} else {
+					fprintf (stderr, "%s:%d: wrong tag in author: <%s>\n", file, authorchild->line, authorchild->name);
+					db->estatus = 1;
+				}
+				authorchild = authorchild->next;
+			}
+			RNN_ADDARRAY(copyright->authors, author);
+		} else {
+			fprintf (stderr, "%s:%d: wrong tag in copyright: <%s>\n", file, chain->line, chain->name);
+			db->estatus = 1;
+		}
+		chain = chain->next;
+	}
+}
+
 static int trytop (struct rnndb *db, char *file, xmlNode *node) {
 	if (!strcmp(node->name, "enum")) {
 		parseenum(db, file, node);
@@ -656,6 +762,9 @@ static int trytop (struct rnndb *db, char *file, xmlNode *node) {
 		} else {
 			rnn_parsefile(db, subfile);
 		}
+		return 1;
+	} else if (!strcmp(node->name, "copyright")) {
+		parsecopyright(db, file, node);
 		return 1;
 	}
 	return 0;
