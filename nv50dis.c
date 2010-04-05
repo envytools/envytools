@@ -365,7 +365,6 @@ int sampoff[] = { 0x11, 4, 's' };
 #define SHDST atomhreg, sdstoff
 #define LHDST atomhreg, ldstoff
 #define LDDST atomdreg, ldstoff
-#define SQDST atomqreg, sdstoff
 #define LQDST atomqreg, ldstoff
 #define SSRC atomreg, ssrcoff
 #define LSRC atomreg, lsrcoff
