@@ -21,24 +21,6 @@
 	I can't seem to find the damn thing... -->
 </enum>
 
-<domain name="NV03_DMA">
-	<reg32 offset="0" name="FLAGS">
-		<bitfield high="11" low="0" name="ADJUST"/>
-		<bitfield high="16" low="16" name="PRESENT"/>
-		<bitfield high="25" low="24" name="TARGET">
-			<value value="0" name="VRAM"/>
-			<value value="2" name="PCI" />
-			<value value="3" name="AGP" /> <!-- guess... -->
-		</bitfield>
-	</reg32>
-	<reg32 offset="4" name="LIMIT"/>
-	<reg32 offset="8" name="PTE" length="0">
-		<bitfield high="0" low="0" name="PRESENT"/>
-		<bitfield high="1" low="1" name="W"/>
-		<bitfield high="31" low="12" name="FRAME" shr="12"/>
-	</reg32>
-</domain>
-
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 	<stripe offset="0x2000" name="PFIFO" stride="0x2000" length="1" variants="NV01:NV10">
 		<reg32 offset="0x040" name="DELAY" variants="NV03-">
