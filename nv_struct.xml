@@ -39,8 +39,8 @@
 			<bitfield high="15" low="13" name="SUBCH"/>
 			<bitfield high="22" low="16" name="CHID"/>
 			<bitfield high="23" low="23" name="TYPE">
-				<value="0" name="WRITE"/>
-				<value="l" name="READ"/>
+				<value value="0" name="WRITE"/>
+				<value value="l" name="READ"/>
 			</bitfield>
 			<bitfield high="27" low="24" name="BYTE_ENABLE">
 				<doc>The <b>inverted</b> mask of active
