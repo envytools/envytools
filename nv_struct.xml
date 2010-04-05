@@ -24,4 +24,69 @@
 	</reg32>
 </domain>
 
+<domain name="NV01_RAMRO">
+	<doc>The FIFO runout area. If the PIO pusher receives a MMIO
+	access that for some reason cannot be transformed to valid command
+	and written to PFIFO caches, it ends up here and interrupt is raised.
+	The RAMRO can be 512 bytes [64 entries] or 8kB [1024 entries] in size,
+	depending on NV01_PFIFO_RAMRO_SIZE setting.</doc>
+	<stripe stride="8" length="0">
+		<reg32 offset="0" name="ADDR">
+			<doc>The address and some info about the faulting
+			access. MTHD, SUBCH, CHID correspond directly to
+			bits 2-22 of offset inside the USER area.</doc>
+			<bitfield high="12" low="2" name="MTHD" shr="2"/>
+			<bitfield high="15" low="13" name="SUBCH"/>
+			<bitfield high="22" low="16" name="CHID"/>
+			<bitfield high="23" low="23" name="TYPE">
+				<value="0" name="WRITE"/>
+				<value="l" name="READ"/>
+			</bitfield>
+			<bitfield high="27" low="24" name="BYTE_ENABLE">
+				<doc>The <b>inverted</b> mask of active
+				bytes in the faulting access.</doc>
+			</bitfield>
+			<bitfield high="31" low="28" name="REASON">
+				<value value="0" name="ILLEGAL_ACCESS">
+					<doc>You tried to read a normal method,
+					or write the FREE "method".</doc>
+				</value>
+				<value value="1" name="NO_CACHE_AVAILABLE">
+					<doc>The access was otherwise ok, but
+					the PFIFO caches were for some reason
+					unavailable to store the command. This
+					includes: disabled push access, caches
+					occupied by another channel's data,
+					caches set to another channel and
+					REASSIGN disabled.</doc>
+				</value>
+				<value value="2" name="CACHE_RAN_OUT">
+					<doc>The access was otherwise ok, but
+					there was already some data in RAMRO
+					for the current channel, and it was
+					dropped anyway to avoid reordering
+					commands.</doc>
+				</value>
+				<value value="3" name="FREE_COUNT_OVERRUN">
+					<doc>The access was otherwise ok, but
+					PFIFO caches were full already, and
+					the user forgot to check the FREE
+					"method" before pushing.</doc>
+				</value>
+				<value value="4" name="CAUGHT_LYING">
+					<doc>The card lied about free space in
+					PFIFO caches and got more than it was
+					able to take.</doc>
+				</value>
+				<value value="5" name="RESERVED_ACCESS">
+					<doc>You tried to write into
+					a nonexistent address in 0-0xfc area.
+					</doc>
+				</value>
+			</bitfield>
+		</reg32>
+		<reg32 offset="4" name="DATA"/>
+	</stripe>
+</domain>
+
 </database>
