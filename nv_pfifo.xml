@@ -6,6 +6,24 @@
 
 <import file="nvchipsets.xml" />
 
+<domain name="NV03_DMA">
+	<reg32 offset="0" name="FLAGS">
+		<bitfield high="11" low="0" name="ADJUST"/>
+		<bitfield high="16" low="16" name="PRESENT"/>
+		<bitfield high="25" low="24" name="TARGET">
+			<value value="0" name="VRAM"/>
+			<value value="2" name="PCI" />
+			<value value="3" name="AGP" /> <!-- guess... -->
+		</bitfield>
+	</reg32>
+	<reg32 offset="4" name="LIMIT"/>
+	<reg32 offset="8" name="PTE" length="0">
+		<bitfield high="0" low="0" name="PRESENT"/>
+		<bitfield high="1" low="1" name="W"/>
+		<bitfield high="31" low="12" name="FRAME" shr="12"/>
+	</reg32>
+</domain>
+
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 	<stripe offset="0x2000" name="PFIFO" stride="0x2000" length="1" variants="NV01:NV04">
 		<reg32 offset="0x040" name="DELAY" variants="NV03-">
@@ -78,6 +96,7 @@
 			<bitfield high="6" low="0" name="CHID"/>
 		</reg32>
 		<reg32 offset="0x1014" name="CACHE0_STATUS" variants="NV03-">
+			<bitfield high="0" low="0" name="RANOUT"/>
 			<bitfield high="4" low="4" name="EMPTY"/>
 			<bitfield high="8" low="8" name="FULL"/>
 		</reg32>
@@ -115,6 +134,7 @@
 			<bitfield high="6" low="0" name="CHID"/>
 		</reg32>
 		<reg32 offset="0x1214" name="CACHE1_STATUS" variants="NV03-">
+			<bitfield high="0" low="0" name="RANOUT"/>
 			<bitfield high="4" low="4" name="EMPTY"/>
 			<bitfield high="8" low="8" name="FULL"/>
 		</reg32>
@@ -129,13 +149,13 @@
 		<reg32 offset="0x1220" name="CACHE1_DMA_PUSH" variants="NV03-"/>
 		<reg32 offset="0x1224" name="CACHE1_DMA_COUNT" variants="NV03-"/>
 		<reg32 offset="0x1228" name="CACHE1_DMA_GET" variants="NV03-"/>
-		<reg32 offset="0x122c" name="CACHE1_DMA_TARGET" variants="NV03-"/> <!-- check me -->
+		<reg32 offset="0x122c" name="CACHE1_DMA_TARGET" variants="NV03-">
+			<value value="2" name="PCI" />
+			<value value="3" name="AGP" /> <!-- guess... -->
+		</reg32>
 		<reg32 offset="0x1230" name="CACHE1_DMA_TLB_TAG" variants="NV03-"/>
 		<reg32 offset="0x1234" name="CACHE1_DMA_TLB_PTE" variants="NV03-"/>
-		<reg32 offset="0x1238" name="CACHE1_DMA_CTXDMA" variants="NV03-">
-			<bitfield high="3" low="2" name="TARGET"/> <!-- check me -->
-			<bitfield high="19" low="4" name="INST" shr="4"/>
-		</reg32>
+		<reg32 offset="0x1238" name="CACHE1_DMA_PT_INST" variants="NV03-"/>
 		<reg32 offset="0x1230" name="CACHE1_PUT" variants="NV01"/>
 		<reg32 offset="0x1240" name="CACHE1_PULL0">
 			<bitfield high="0" low="0" name="ACCESS"/>
