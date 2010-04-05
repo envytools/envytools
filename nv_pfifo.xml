@@ -7,23 +7,51 @@
 <import file="nvchipsets.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
-	<stripe offset="0x2000" name="PFIFO" stride="0x2000" length="1" variants="NV01">
-		<reg32 offset="0x100" name="INTR_0">
+	<stripe offset="0x2000" name="PFIFO" stride="0x2000" length="1" variants="NV01:NV04">
+		<reg32 offset="0x040" name="DELAY" variants="NV03-">
+			<bitfield high="7" low="0" name="WAIT_RETRY"/>
+		</reg32>
+		<reg32 offset="0x100" name="INTR">
 			<bitfield high="0" low="0" name="CACHE_ERROR"/>
 			<bitfield high="4" low="4" name="RUNOUT"/>
 			<bitfield high="8" low="8" name="RUNOUT_OVERFLOW"/>
+			<bitfield high="12" low="12" name="DMA_PUSHER" variants="NV03-" />
+			<bitfield high="16" low="16" name="DMA_PTE" variants="NV03-" />
 		</reg32>
-		<reg32 offset="0x140" name="INTR_EN_0">
+		<reg32 offset="0x140" name="INTR_EN">
 			<bitfield high="0" low="0" name="CACHE_ERROR"/>
 			<bitfield high="4" low="4" name="RUNOUT"/>
 			<bitfield high="8" low="8" name="RUNOUT_OVERFLOW"/>
+			<bitfield high="12" low="12" name="DMA_PUSHER" variants="NV03-" />
+			<bitfield high="16" low="16" name="DMA_PTE" variants="NV03-" />
 		</reg32>
-		<reg32 offset="0x200" name="CONFIG_0" variants="NV01">
-			<bitfield high="1" low="0" name="FREE_LIE">
+		<reg32 offset="0x200" name="CONFIG">
+			<bitfield high="1" low="0" name="FREE_LIE" variants="NV01">
 				<value value="0" name="DISABLED"/>
 				<value value="1" name="252_BYTES"/>
 				<value value="2" name="508_BYTES"/>
 				<value value="3" name="1020_BYTES"/>
+			</bitfield>
+			<bitfield high="10" low="8" name="FETCH_SIZE" variants="NV03-"/>
+			<bitfield high="22" low="18" name="FETCH_TRIG" variants="NV03-"/>
+		</reg32>
+		<reg32 offset="0x210" name="RAMHT" variants="NV03-">
+			<bitfield high="15" low="12" name="ADDRESS" shr="12"/>
+			<bitfield high="17" low="16" name="SIZE">
+				<value value="0" name="4K"/>
+				<value value="1" name="8K"/>
+				<value value="2" name="16K"/>
+				<value value="3" name="32K"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x214" name="RAMFC" variants="NV03-">
+			<bitfield high="15" low="9" name="ADDRESS" shr="9"/>
+		</reg32>
+		<reg32 offset="0x218" name="RAMRO" variants="NV03-">
+			<bitfield high="15" low="9" name="ADDRESS" shr="9"/>
+			<bitfield hgih="16" low="16" name="SIZE">
+				<value value="0" name="512"/>
+				<value value="1" name="8K"/>
 			</bitfield>
 		</reg32>
 
@@ -42,12 +70,28 @@
 		<reg32 offset="0x1000" name="CACHE0_PUSH0">
 			<bitfield high="0" low="0" name="ACCESS"/>
 		</reg32>
-		<reg32 offset="0x1010" name="CACHE0_PUSH1">
+		<reg32 offset="0x1004" name="CACHE0_PUSH1" variants="NV03-">
 			<bitfield high="6" low="0" name="CHID"/>
 		</reg32>
-		<reg32 offset="0x1030" name="CACHE0_PUT"/>
+		<reg32 offset="0x1010" name="CACHE0_PUT" variants="NV03-"/>
+		<reg32 offset="0x1010" name="CACHE0_PUSH1" variants="NV01">
+			<bitfield high="6" low="0" name="CHID"/>
+		</reg32>
+		<reg32 offset="0x1014" name="CACHE0_STATUS" variants="NV03-">
+			<bitfield high="4" low="4" name="EMPTY"/>
+			<bitfield high="8" low="8" name="FULL"/>
+		</reg32>
+		<reg32 offset="0x1030" name="CACHE0_PUT" variants="NV01"/>
 		<reg32 offset="0x1040" name="CACHE0_PULL0">
 			<bitfield high="0" low="0" name="ACCESS"/>
+			<bitfield high="4" low="4" name="HASH">
+				<value value="0" name="SUCCEEDED"/>
+				<value value="1" name="FAILED"/>
+			</bitfield>
+			<bitfield high="8" low="8" name="DEVICE">
+				<value value="0" name="HARDWARE"/>
+				<value value="1" name="SOFTWARE"/>
+			</bitfield>
 		</reg32>
 		<reg32 offset="0x1050" name="CACHE0_PULL1">
 			<bitfield high="8" low="8" name="OBJECT">
@@ -56,15 +100,43 @@
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x1070" name="CACHE0_GET"/>
-		<array offset="0x1080" name="CACHE0_CTX" stride="0x10" length="1"/>
+		<reg32 offset="0x1080" name="CACHE0_CTX"/>
+		<reg32 offset="0x1100" name="CACHE0_MTHD"/>
+		<reg32 offset="0x1104" name="CACHE0_DATA"/>
 
 		<reg32 offset="0x1200" name="CACHE1_PUSH0">
 			<bitfield high="0" low="0" name="ACCESS"/>
 		</reg32>
-		<reg32 offset="0x1210" name="CACHE1_PUSH1">
+		<reg32 offset="0x1204" name="CACHE1_PUSH1" variants="NV03-">
 			<bitfield high="6" low="0" name="CHID"/>
 		</reg32>
-		<reg32 offset="0x1230" name="CACHE1_PUT"/>
+		<reg32 offset="0x1210" name="CACHE1_PUT" variants="NV03-"/>
+		<reg32 offset="0x1210" name="CACHE1_PUSH1" variants="NV01">
+			<bitfield high="6" low="0" name="CHID"/>
+		</reg32>
+		<reg32 offset="0x1214" name="CACHE1_STATUS" variants="NV03-">
+			<bitfield high="4" low="4" name="EMPTY"/>
+			<bitfield high="8" low="8" name="FULL"/>
+		</reg32>
+		<reg32 offset="0x1218" name="CACHE1_DMA_STATE" variants="NV03-">
+			<bitfield high="12" low="2" name="METHOD" shr="2"/>
+			<bitfield high="15" low="13" name="SUBCHANNEL"/>
+			<bitfield high="28" low="18" name="METHOD_COUNT"/>
+			<bitfield high="30" low="30" name="REASON">
+				<!-- XXX: what are NV03 values? -->
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x1220" name="CACHE1_DMA_PUSH" variants="NV03-"/>
+		<reg32 offset="0x1224" name="CACHE1_DMA_COUNT" variants="NV03-"/>
+		<reg32 offset="0x1228" name="CACHE1_DMA_GET" variants="NV03-"/>
+		<reg32 offset="0x122c" name="CACHE1_DMA_TARGET" variants="NV03-"/> <!-- check me -->
+		<reg32 offset="0x1230" name="CACHE1_DMA_TLB_TAG" variants="NV03-"/>
+		<reg32 offset="0x1234" name="CACHE1_DMA_TLB_PTE" variants="NV03-"/>
+		<reg32 offset="0x1238" name="CACHE1_DMA_CTXDMA" variants="NV03-">
+			<bitfield high="3" low="2" name="TARGET"/> <!-- check me -->
+			<bitfield high="19" low="4" name="INST" shr="4"/>
+		</reg32>
+		<reg32 offset="0x1230" name="CACHE1_PUT" variants="NV01"/>
 		<reg32 offset="0x1240" name="CACHE1_PULL0">
 			<bitfield high="0" low="0" name="ACCESS"/>
 			<bitfield high="4" low="4" name="HASH">
@@ -72,8 +144,8 @@
 				<value value="1" name="FAILED"/>
 			</bitfield>
 			<bitfield high="8" low="8" name="DEVICE">
-				<value value="0" name="SOFTWARE"/>
-				<value value="1" name="HARDWARE"/>
+				<value value="0" name="HARDWARE"/>
+				<value value="1" name="SOFTWARE"/>
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x1250" name="CACHE1_PULL1">
@@ -88,7 +160,11 @@
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x1270" name="CACHE1_GET"/>
-		<array offset="0x1280" name="CACHE1_CTX" stride="0x10" length="8"/>
+		<reg32 offset="0x1280" name="CACHE1_CTX" stride="0x10" length="8"/>
+		<reg32 offset="0x1300" name="CACHE1_MTHD" stride="0x8" length="32" variants="NV01:NV03P"/>
+		<reg32 offset="0x1304" name="CACHE1_DATA" stride="0x8" length="32" variants="NV01:NV03P"/>
+		<reg32 offset="0x1400" name="CACHE1_MTHD" stride="0x8" length="64" variants="NV03P:NV04"/>
+		<reg32 offset="0x1404" name="CACHE1_DATA" stride="0x8" length="64" variants="NV03P:NV04"/>
 	</stripe>
 
 	<array offset="0x800000" name="USER" stride="0x10000" length="128" variants="NV01:NV04">
