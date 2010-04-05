@@ -1117,7 +1117,7 @@ struct insn tabl[] = {
 	// 0
 	// desc VVV
 	{ VP|GP, 0x0420000000000000ull, 0xe4200000f0000000ull,
-		T(lane), N("mov"), N("b32"), LLDST, FATTR },
+		T(lane), N("ld"), N("b32"), LLDST, FATTR },
 	// desc ^^^
 	{ AP, 0x2000000000000000ull, 0xe0000000f0000000ull,
 		N("mov"), LDST, COND },
@@ -1133,11 +1133,11 @@ struct insn tabl[] = {
 	
 	// desc VVV
 	{ CP, 0xe040000000000000ull, 0xe0400000f0000000ull,
-		N("mov"), N("b8"), FBSHARED, T(sstreg) },
+		N("st"), N("b8"), FBSHARED, T(sstreg) },
 	{ CP, 0xe000000000000000ull, 0xe4400000f0000000ull,
-		N("mov"), N("b16"), FHSHARED, T(sstreg) },
+		N("st"), N("b16"), FHSHARED, T(sstreg) },
 	{ CP, 0xe400000000000000ull, 0xe4400000f0000000ull,
-		N("mov"), T(unlock), N("b32"), FSHARED, T(sstreg) },
+		N("st"), T(unlock), N("b32"), FSHARED, T(sstreg) },
 	// desc ^^^
 
 	// 1
@@ -1148,18 +1148,18 @@ struct insn tabl[] = {
 
 	// desc VVV
 	{ AP, 0x2000000010000000ull, 0xe0000000f0000000ull,
-		N("mov"), T(csldreg), T(fcon) },
+		N("ld"), T(csldreg), T(fcon) },
 
 	{ CP, 0x4000000010000000ull, 0xe000c000f0000000ull,	// sm_11. ptxas inexplicably starts using
-		N("mov"), T(csldreg), N("u8"), FBSHARED },	// these forms instead of the other one
+		N("ld"), T(csldreg), N("u8"), FBSHARED },	// these forms instead of the other one
 	{ CP, 0x4000400010000000ull, 0xe000c000f0000000ull,	// on >=sm_11.
-		N("mov"), T(csldreg), N("u16"), FHSHARED },
+		N("ld"), T(csldreg), N("u16"), FHSHARED },
 	{ CP, 0x4000800010000000ull, 0xe000c000f0000000ull,
-		N("mov"), T(csldreg), N("s16"), FHSHARED },
+		N("ld"), T(csldreg), N("s16"), FHSHARED },
 	{ CP, 0x4000c00010000000ull, 0xe080c000f0000000ull,
-		N("mov"), T(csldreg), N("b32"), FSHARED },
+		N("ld"), T(csldreg), N("b32"), FSHARED },
 	{ CP, 0x4080c04010000000ull, 0xe080c040f0000000ull,
-		N("mov"), N("lock"), CDST, T(csldreg), N("b32"), FSHARED },
+		N("ld"), N("lock"), CDST, T(csldreg), N("b32"), FSHARED },
 
 	{ AP, 0x6000000010000200ull, 0xe0000000f0000600ull,
 		N("vote any"), CDST, IGNCE },	// sm_12
@@ -1391,14 +1391,14 @@ struct insn tabl[] = {
 
 	// desc VVV
 	{ AP, 0x40000000d0000000ull, 0xe0000000f0000000ull,
-		N("mov"), T(ldstm), T(ldsto), LOCAL },
+		N("ld"), T(ldstm), T(ldsto), LOCAL },
 	{ AP, 0x60000000d0000000ull, 0xe0000000f0000000ull,
-		N("mov"), T(ldstm), LOCAL, T(ldsto) },
+		N("st"), T(ldstm), LOCAL, T(ldsto) },
 
 	{ CP, 0x80000000d0000000ull, 0xe0000000f0000000ull,
-		N("mov"), T(ldstm), T(ldsto), GLOBAL },
+		N("ld"), T(ldstm), T(ldsto), GLOBAL },
 	{ CP, 0xa0000000d0000000ull, 0xe0000000f0000000ull,
-		N("mov"), T(ldstm), GLOBAL, T(ldsto) },
+		N("st"), T(ldstm), GLOBAL, T(ldsto) },
 	{ CP, 0xc0000000d0000000ull, 0xe0000000f0000000ull,
 		T(redm), GLOBAL, T(ldsto) },
 	{ CP, 0xe0000000d0000000ull, 0xe0000000f0000000ull,
