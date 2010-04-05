@@ -24,6 +24,10 @@
 				<value value="2" name="NV02"/>
 				<value value="3" name="NV03"/>
 			</bitfield>
+			<bitfield low="0" high="7" name="REVISION" variants="NV01:NV04">
+				<doc>Less than 0x20 is original NV03, 0x20
+				and up is NV03P.</doc>
+			</bitfield>
 
 			<bitfield low="12" high="15" name="ALWAYS4" variants="NV04:NV10"/>
 			<bitfield low="20" high="23" name="MAJOR" variants="NV04:NV10">
@@ -79,11 +83,11 @@
 			<bitfield high="8" low="8" name="PFIFO" />
 			<bitfield high="12" low="12" name="PGRAPH" />
 			<bitfield high="16" low="16" name="PRM" variants="NV01"/>
-			<bitfield high="16" low="16" name="PPMI" variants="NV03"/>
+			<bitfield high="16" low="16" name="PPMI" variants="NV03:NV04"/>
 			<bitfield high="20" low="20" name="PFB" variants="NV03-"/>
 			<bitfield high="24" low="24" name="PFB" variants="NV01"/>
 			<bitfield high="24" low="24" name="PCRTC" variants="NV03-"/>
-			<bitfield high="28" low="28" name="PVIDEO" variants="NV03"/>
+			<bitfield high="28" low="28" name="PVIDEO" variants="NV03:NV04"/>
 		</reg32>
 		<reg32 offset="0x1540" name="PGRAPH_UNITS" variants="NV50-">
 			<doc>Enables PGRAPH engines that come in multiple copies.
@@ -113,7 +117,7 @@
 		</reg32>
 	</stripe>
 
-	<reg8 offset="0x110000" name="PROM" length="0x10000" variants="NV03" />
+	<reg8 offset="0x110000" name="PROM" length="0x10000" variants="NV03:NV04" />
 
 	<reg8 offset="0x300000" name="PROM" length="0x10000" variants="NV04-" />
 

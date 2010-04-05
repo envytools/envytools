@@ -14,6 +14,9 @@
 	<value name="NV03">
 		<brief>RIVA 128</brief>
 	</value>
+	<value name="NV03P">
+		<brief>RIVA 128 ZX?</brief>
+	</value>
 
 	<value name="NV04">
 		<brief>RIVA TNT</brief>
