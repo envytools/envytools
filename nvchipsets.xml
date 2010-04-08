@@ -37,9 +37,9 @@
 	<value value="0x16" name="NV16">
 		<brief>GeForce2 Ultra</brief>
 	</value>
+	<value value="0x1a" name="NV1A" />
 	<value value="0x17" name="NV17" />
 	<value value="0x18" name="NV18" />
-	<value value="0x1a" name="NV1A" />
 	<value value="0x1f" name="NV1F" />
 
 	<value value="0x20" name="NV20" />
