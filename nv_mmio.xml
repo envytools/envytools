@@ -41,7 +41,7 @@
 				</doc>
 			</bitfield>
 		</reg32>
-		<reg32 offset="0x004" name="BOOT_1" variants="NV10-">
+		<reg32 offset="0x004" name="BOOT_1" variants="NV11 NV17-">
 			<doc>Endian switch. Write 0x00000001 in your favorite
 			endianness to switch the card to this endianness. This
 			switch, if set to big-endian mode, causes all accesses
