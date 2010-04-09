@@ -11,8 +11,15 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x010c" name="PATCH"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_TEXTURE" type="object"/>
-		<reg32 offset="0x0188" name="CLIP_RECTANGLE" type="object"/>
-		<reg32 offset="0x018c" name="SURFACE" type="object"/>
+		<reg32 offset="0x0188" name="CLIP_RECTANGLE" type="object">
+			<doc>Accepts NV01_CONTEXT_CLIP_RECTANGLE</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="SURFACE_COLOR" type="object">
+			<doc>Accepts NV03_CONTEXT_SURFACE_COLOR</doc>
+		</reg32>
+		<reg32 offset="0x0190" name="SURFACE_ZETA" type="object">
+			<doc>Accepts NV03_CONTEXT_SURFACE_ZETA</doc>
+		</reg32>
 		<reg32 offset="0x0304" name="TEXTURE_OFFSET"/>
 		<reg32 offset="0x0308" name="TEXTURE_FORMAT">
 			<bitfield name="COLOR_KEY_MASK" high="15" low="0" type="int"/>

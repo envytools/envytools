@@ -53,8 +53,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 	<value value="0x001c" name="NV01_RENDER_SOLID_LINE" variants="NV01:NV40"/>
 	<value value="0x005c" name="NV04_RENDER_SOLID_LINE" variants="NV04:NV50"/>
+	<value value="0x035c" name="NV30_RENDER_SOLID_LINE" variants="NV30:NV40"/>
+	<value value="0x305c" name="NV40_RENDER_SOLID_LINE" variants="NV40:NV50"/>
+
 	<value value="0x001d" name="NV01_RENDER_SOLID_TRIANGLE" variants="NV01:NV40"/>
 	<value value="0x005d" name="NV04_RENDER_SOLID_TRIANGLE" variants="NV04:NV50"/>
+
 	<value value="0x001e" name="NV01_RENDER_SOLID_RECTANGLE" variants="NV01:NV40"/>
 	<value value="0x005e" name="NV04_RENDER_SOLID_RECTANGLE" variants="NV04:NV40"/>
 
@@ -65,9 +69,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0021" name="NV01_IMAGE_FROM_CPU" variants="NV01:NV40"/>
 	<value value="0x0061" name="NV04_IMAGE_FROM_CPU" variants="NV04:NV50"/>
 	<value value="0x0065" name="NV05_IMAGE_FROM_CPU" variants="NV05:NV50"/>
+	<value value="0x008a" name="NV10_IMAGE_FROM_CPU" variants="NV10:NV50"/>
+	<value value="0x038a" name="NV30_IMAGE_FROM_CPU" variants="NV30:NV40"/>
 	<value value="0x308a" name="NV40_IMAGE_FROM_CPU" variants="NV40:NV50"/>
 
 	<value value="0x0036" name="NV03_STRETCHED_IMAGE_FROM_CPU" variants="NV03:NV40"/>
+	<value value="0x0076" name="NV04_STRETCHED_IMAGE_FROM_CPU" variants="NV04:NV50"/>
 	<value value="0x0066" name="NV05_STRETCHED_IMAGE_FROM_CPU" variants="NV05:NV50"/>
 	<value value="0x0366" name="NV30_STRETCHED_IMAGE_FROM_CPU" variants="NV30:NV40"/>
 	<value value="0x3066" name="NV40_STRETCHED_IMAGE_FROM_CPU" variants="NV40:NV50"/>
@@ -90,7 +97,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x039e" name="NV30_SWIZZLED_SURFACE" variants="NV30:NV40"/>
 	<value value="0x309e" name="NV40_SWIZZLED_SURFACE" variants="NV40:NV50"/>
 
-	<value value="0x0058" name="NV03_CONTEXT_SURFACES_2D" variants="NV03:NV50"/>
+	<value value="0x0058" name="NV03_CONTEXT_SURFACE_DST" variants="NV03:NV50"/>
+	<value value="0x0059" name="NV03_CONTEXT_SURFACE_SRC" variants="NV03:NV50"/>
+
 	<value value="0x0042" name="NV04_CONTEXT_SURFACES_2D" variants="NV04:NV50"/>
 	<value value="0x0062" name="NV10_CONTEXT_SURFACES_2D" variants="NV10:NV50"/>
 	<value value="0x0362" name="NV30_CONTEXT_SURFACES_2D" variants="NV30:NV40"/>
@@ -98,15 +107,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 	<value value="0x0060" name="NV04_INDEXED_IMAGE_FROM_CPU" variants="NV04:NV50"/>
 	<value value="0x0064" name="NV05_INDEXED_IMAGE_FROM_CPU" variants="NV05:NV50"/>
-
-	<value value="0x0076" name="NV04_STRETCHED_IMAGE_FROM_CPU" variants="NV04:NV50"/>
+	<value value="0x0364" name="NV30_INDEXED_IMAGE_FROM_CPU" variants="NV30:NV40"/>
+	<value value="0x3064" name="NV40_INDEXED_IMAGE_FROM_CPU" variants="NV40:NV50"/>
 
 	<value value="0x007b" name="NV10_TEXTURE_FROM_CPU" variants="NV10:NV50"/>
 	<value value="0x037b" name="NV30_TEXTURE_FROM_CPU" variants="NV30:NV40"/>
 	<value value="0x307b" name="NV40_TEXTURE_FROM_CPU" variants="NV40:NV50"/>
-
-	<value value="0x008a" name="NV10_IMAGE_FROM_CPU" variants="NV10:NV50"/>
-	<value value="0x038a" name="NV30_IMAGE_FROM_CPU" variants="NV30:NV40"/>
 
 	<!-- M2MF -->
 	<value value="0x0039" name="NV04_M2MF" variants="NV04:NV50"/>
@@ -114,13 +120,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 	<!-- old-style pre-nv20 3D objects -->
 	<value value="0x0048" name="NV03_TEXTURED_TRIANGLE" variants="NV03:NV11"/>
+
 	<value value="0x0054" name="NV04_TEXTURED_TRIANGLE" variants="NV04:NV20"/>
 	<value value="0x0094" name="NV10_TEXTURED_TRIANGLE" variants="NV10:NV20"/>
 
 	<value value="0x0055" name="NV04_MULTITEX_TRIANGLE" variants="NV04:NV20"/>
 	<value value="0x0095" name="NV10_MULTITEX_TRIANGLE" variants="NV10:NV20"/>
 
-	<value value="0x005a" name="NV03_CONTEXT_SURFACES_3D" variants="NV03:NV20"/>
+	<value value="0x005a" name="NV03_CONTEXT_SURFACE_COLOR" variants="NV03:NV50"/>
+	<value value="0x005b" name="NV03_CONTEXT_SURFACE_ZETA" variants="NV03:NV50"/>
+
 	<value value="0x0053" name="NV04_CONTEXT_SURFACES_3D" variants="NV04:NV20"/>
 	<value value="0x0093" name="NV10_CONTEXT_SURFACES_3D" variants="NV10:NV20"/>
 

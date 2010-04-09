@@ -76,7 +76,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0300" name="BETA_FACTOR"/>
   	</stripe>
 
-	<stripe prefix="obj-class" variants="NV01_CONTEXT_COLOR_KEY">
+	<stripe prefix="obj-class" variants="NV01_CONTEXT_COLOR_KEY-NV04_CONTEXT_COLOR_KEY">
 		<reg32 offset="0x0100" name="NOP"/>
 		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
@@ -188,21 +188,36 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</stripe>
 
 
-	<stripe prefix="obj-class" variants="NV01_RENDER_SOLID_LINE-NV04_RENDER_SOLID_LINE">
+	<stripe prefix="obj-class" variants="NV01_RENDER_SOLID_LINE-NV40_RENDER_SOLID_LINE">
 		<reg32 offset="0x0100" name="NOP"/>
 		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x010c" name="PATCH"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
-		<reg32 offset="0x0184" name="CLIP_RECTANGLE" type="object"/>
-		<reg32 offset="0x0188" name="PATTERN" type="object"/>
-		<reg32 offset="0x018c" name="ROP" type="object"/>
-		<reg32 offset="0x0190" name="BETA1" type="object"/>
-		<stripe variants="NV01_RENDER_SOLID_LINE">
-			<reg32 offset="0x0194" name="SURFACE" type="object"/>
-		</stripe>
-		<stripe variants="NV04_RENDER_SOLID_LINE">
-			<reg32 offset="0x0194" name="BETA4" type="object"/>
-			<reg32 offset="0x0198" name="SURFACE" type="object"/>
+		<reg32 offset="0x0184" name="CLIP_RECTANGLE" type="object">
+			<doc>Accepts NV01_CONTEXT_CLIP_RECTANGLE</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV01_RENDER_SOLID_LINE">
+			<doc>Accepts NV01_CONTEXT_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV04_RENDER_SOLID_LINE-">
+			<doc>Accepts NV04_IMAGE_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="ROP" type="object">
+			<doc>Accepts NV03_CONTEXT_ROP</doc>
+		</reg32>
+		<reg32 offset="0x0190" name="BETA1" type="object">
+			<doc>Accepts NV01_CONTEXT_BETA1</doc>
+		</reg32>
+		<reg32 offset="0x0194" name="SURFACE_DST" type="object" variants="NV01_RENDER_SOLID_LINE">
+			<doc>Accepts NV03_CONTEXT_SURFACE_DST</doc>
+		</reg32>
+		<stripe variants="NV04_RENDER_SOLID_LINE-">
+			<reg32 offset="0x0194" name="BETA4" type="object">
+				<doc>Accepts NV04_BETA_SOLID</doc>
+			</reg32>
+			<reg32 offset="0x0198" name="SURFACE" type="object">
+				<doc>Accepts NV04_CONTEXT_SURFACES_2D and up.</doc>
+			</reg32>
 		</stripe>
 		<reg32 offset="0x02fc" name="OPERATION" type="nv03_operation"/>
 		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv01_color_format"/>
@@ -225,16 +240,31 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x010c" name="PATCH"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
-		<reg32 offset="0x0184" name="CLIP_RECTANGLE" type="object"/>
-		<reg32 offset="0x0188" name="PATTERN" type="object"/>
-		<reg32 offset="0x018c" name="ROP" type="object"/>
-		<reg32 offset="0x0190" name="BETA1" type="object"/>
-		<stripe variants="NV01_RENDER_SOLID_TRIANGLE">
-			<reg32 offset="0x0194" name="SURFACE" type="object"/>
-		</stripe>
-		<stripe variants="NV04_RENDER_SOLID_TRIANGLE">
-			<reg32 offset="0x0194" name="BETA4" type="object"/>
-			<reg32 offset="0x0198" name="SURFACE" type="object"/>
+		<reg32 offset="0x0184" name="CLIP_RECTANGLE" type="object">
+			<doc>Accepts NV01_CONTEXT_CLIP_RECTANGLE</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV01_RENDER_SOLID_TRIANGLE">
+			<doc>Accepts NV01_CONTEXT_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV04_RENDER_SOLID_TRIANGLE-">
+			<doc>Accepts NV04_IMAGE_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="ROP" type="object">
+			<doc>Accepts NV03_CONTEXT_ROP</doc>
+		</reg32>
+		<reg32 offset="0x0190" name="BETA1" type="object">
+			<doc>Accepts NV01_CONTEXT_BETA1</doc>
+		</reg32>
+		<reg32 offset="0x0194" name="SURFACE_DST" type="object" variants="NV01_RENDER_SOLID_TRIANGLE">
+			<doc>Accepts NV03_CONTEXT_SURFACE_DST</doc>
+		</reg32>
+		<stripe variants="NV04_RENDER_SOLID_TRIANGLE-">
+			<reg32 offset="0x0194" name="BETA4" type="object">
+				<doc>Accepts NV04_BETA_SOLID</doc>
+			</reg32>
+			<reg32 offset="0x0198" name="SURFACE" type="object">
+				<doc>Accepts NV04_CONTEXT_SURFACES_2D and up.</doc>
+			</reg32>
 		</stripe>
 		<reg32 offset="0x02fc" name="OPERATION" type="nv03_operation"/>
 		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv01_color_format"/>
@@ -264,16 +294,31 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x010c" name="PATCH"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
-		<reg32 offset="0x0184" name="CLIP_RECTANGLE" type="object"/>
-		<reg32 offset="0x0188" name="PATTERN" type="object"/>
-		<reg32 offset="0x018c" name="ROP" type="object"/>
-		<reg32 offset="0x0190" name="BETA1" type="object"/>
-		<stripe variants="NV01_RENDER_SOLID_RECTANGLE">
-			<reg32 offset="0x0194" name="SURFACE" type="object"/>
-		</stripe>
-		<stripe variants="NV04_RENDER_SOLID_RECTANGLE">
-			<reg32 offset="0x0194" name="BETA4" type="object"/>
-			<reg32 offset="0x0198" name="SURFACE" type="object"/>
+		<reg32 offset="0x0184" name="CLIP_RECTANGLE" type="object">
+			<doc>Accepts NV01_CONTEXT_CLIP_RECTANGLE</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV01_RENDER_SOLID_RECTANGLE">
+			<doc>Accepts NV01_CONTEXT_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV04_RENDER_SOLID_RECTANGLE-">
+			<doc>Accepts NV04_IMAGE_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="ROP" type="object">
+			<doc>Accepts NV03_CONTEXT_ROP</doc>
+		</reg32>
+		<reg32 offset="0x0190" name="BETA1" type="object">
+			<doc>Accepts NV01_CONTEXT_BETA1</doc>
+		</reg32>
+		<reg32 offset="0x0194" name="SURFACE_DST" type="object" variants="NV01_RENDER_SOLID_RECTANGLE">
+			<doc>Accepts NV03_CONTEXT_SURFACE_DST</doc>
+		</reg32>
+		<stripe variants="NV04_RENDER_SOLID_RECTANGLE-">
+			<reg32 offset="0x0194" name="BETA4" type="object">
+				<doc>Accepts NV04_BETA_SOLID</doc>
+			</reg32>
+			<reg32 offset="0x0198" name="SURFACE" type="object">
+				<doc>Accepts NV04_CONTEXT_SURFACES_2D and up.</doc>
+			</reg32>
 		</stripe>
 		<reg32 offset="0x02fc" name="OPERATION" type="nv03_operation"/>
 		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv01_color_format"/>
@@ -282,11 +327,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0404" name="RECTANGLE_SIZE" length="16" stride="8" type="wh16"/>
 	</stripe>
 
-	<stripe prefix="obj-class" variants="NV01_IMAGE_BLIT-NV12_IMAGE_BLIT">
+	<stripe prefix="obj-class" variants="NV01_IMAGE_BLIT-NV11_IMAGE_BLIT">
 		<reg32 offset="0x0100" name="NOP"/>
 		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x010c" name="PATCH"/>
-		<stripe variants="NV12_IMAGE_BLIT">
+		<stripe variants="NV11_IMAGE_BLIT">
 			<reg32 offset="0x0108" name="WAIT_FOR_IDLE"/>
 			<reg32 offset="0x0120" name="UNK120"/>
 			<reg32 offset="0x0124" name="UNK124"/>
@@ -297,20 +342,43 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x0134" name="UNK134"/>
 		</stripe>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
-		<reg32 offset="0x0184" name="COLOR_KEY" type="object"/>
-		<reg32 offset="0x0188" name="CLIP_RECTANGLE" type="object"/>
-		<reg32 offset="0x018c" name="PATTERN" type="object"/>
-		<!-- XXX: figure out which object is really which -->
+		<reg32 offset="0x0184" name="COLOR_KEY" type="object" variants="NV01_IMAGE_BLIT">
+			<doc>Accepts NV01_CONTEXT_COLOR_KEY</doc>
+		</reg32>
+		<reg32 offset="0x0184" name="COLOR_KEY" type="object" variants="NV04_IMAGE_BLIT-">
+			<doc>Accepts NV04_CONTEXT_COLOR_KEY</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="CLIP_RECTANGLE" type="object">
+			<doc>Accepts NV01_CONTEXT_CLIP_RECTANGLE</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="PATTERN" type="object" variants="NV01_IMAGE_BLIT">
+			<doc>Accepts NV01_CONTEXT_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="PATTERN" type="object" variants="NV04_IMAGE_BLIT-">
+			<doc>Accepts NV04_IMAGE_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x0190" name="ROP" type="object">
+			<doc>Accepts NV03_CONTEXT_ROP</doc>
+		</reg32>
+		<reg32 offset="0x0194" name="BETA1" type="object">
+			<doc>Accepts NV01_CONTEXT_BETA1</doc>
+		</reg32>
 		<stripe variants="NV01_IMAGE_BLIT">
-			<reg32 offset="0x0190" name="ROP" type="object"/>
-			<reg32 offset="0x0194" name="BETA1" type="object"/>
+			<reg32 offset="0x0198" name="SURFACE_SRC" type="object">
+				<doc>Accepts NV03_CONTEXT_SURFACE_SRC</doc>
+			</reg32>
+			<reg32 offset="0x019c" name="SURFACE_DST" type="object">
+				<doc>Accepts NV03_CONTEXT_SURFACE_DST</doc>
+			</reg32>
 		</stripe>
 		<stripe variants="NV04_IMAGE_BLIT-">
-			<reg32 offset="0x0190" name="ROP" type="object"/>
-			<reg32 offset="0x0198" name="BETA4" type="object"/>
-			<reg32 offset="0x019c" name="SURFACE" type="object"/>
+			<reg32 offset="0x0198" name="BETA4" type="object">
+				<doc>Accepts NV04_BETA_SOLID</doc>
+			</reg32>
+			<reg32 offset="0x019c" name="SURFACES" type="object">
+				<doc>Accepts NV04_CONTEXT_SURFACES_2D and up.</doc>
+			</reg32>
 		</stripe>
-		<reg32 offset="0x019c" name="SURFACE" type="object"/>
 		<reg32 offset="0x02fc" name="OPERATION" type="nv03_operation"/>
 		<reg32 offset="0x0204" name="IMAGE_INPUT"/>
 		<reg32 offset="0x0300" name="POINT_IN" type="xy16"/>
@@ -318,20 +386,37 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0308" name="SIZE" type="wh16"/>
 	</stripe>
 
-	<stripe prefix="obj-class" variants="NV04_INDEXED_IMAGE_FROM_CPU-NV05_INDEXED_IMAGE_FROM_CPU">
+	<stripe prefix="obj-class" variants="NV04_INDEXED_IMAGE_FROM_CPU-NV40_INDEXED_IMAGE_FROM_CPU">
 		<reg32 offset="0x0100" name="NOP"/>
 		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x010c" name="PATCH"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_LUT" type="object"/>
-		<reg32 offset="0x0188" name="COLOR_KEY" type="object"/>
-		<reg32 offset="0x018c" name="CLIP_RECTANGLE" type="object"/>
-		<reg32 offset="0x0190" name="PATTERN" type="object"/>
-		<reg32 offset="0x0194" name="ROP" type="object"/>
-		<reg32 offset="0x0198" name="BETA1" type="object"/>
-		<reg32 offset="0x019c" name="BETA4" type="object"/>
-		<reg32 offset="0x01a0" name="SURFACE" type="object"/>
-		<reg32 offset="0x03e0" name="COLOR_CONVERSION" variants="NV05_INDEXED_IMAGE_FROM_CPU"/>
+		<reg32 offset="0x0188" name="COLOR_KEY" type="object">
+			<doc>Accepts NV04_CONTEXT_COLOR_KEY</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="CLIP_RECTANGLE" type="object">
+			<doc>Accepts NV01_CONTEXT_CLIP_RECTANGLE</doc>
+		</reg32>
+		<reg32 offset="0x0190" name="PATTERN" type="object">
+			<doc>Accepts NV04_IMAGE_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x0194" name="ROP" type="object">
+			<doc>Accepts NV03_CONTEXT_ROP</doc>
+		</reg32>
+		<reg32 offset="0x0198" name="BETA1" type="object">
+			<doc>Accepts NV01_CONTEXT_BETA1</doc>
+		</reg32>
+		<reg32 offset="0x019c" name="BETA4" type="object">
+			<doc>Accepts NV04_BETA_SOLID</doc>
+		</reg32>
+		<reg32 offset="0x01a0" name="SURFACE" type="object" variants="NV04_INDEXED_IMAGE_FROM_CPU">
+			<doc>Accepts NV04_CONTEXT_SURFACES_2D, NV04_SWIZZLED_SURFACE</doc>
+		</reg32>
+		<reg32 offset="0x01a0" name="SURFACE" type="object" variants="NV05_INDEXED_IMAGE_FROM_CPU-">
+			<doc>Accepts NV04_CONTEXT_SURFACES_2D and up, NV04_SWIZZLED_SURFACE and up</doc>
+		</reg32>
+		<reg32 offset="0x03e0" name="COLOR_CONVERSION" variants="NV05_INDEXED_IMAGE_FROM_CPU-"/>
 		<reg32 offset="0x03e4" name="OPERATION"/>
 		<reg32 offset="0x03e8" name="COLOR_FORMAT"/>
 		<reg32 offset="0x03ec" name="INDEX_FORMAT"/>
@@ -348,17 +433,39 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0108" name="WAIT_FOR_IDLE" variants="NV10_IMAGE_FROM_CPU-"/>
 		<reg32 offset="0x010c" name="PATCH"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
-		<reg32 offset="0x0184" name="COLOR_KEY" type="object"/>
-		<reg32 offset="0x0188" name="CLIP_RECTANGLE" type="object"/>
-		<reg32 offset="0x018c" name="PATTERN" type="object"/>
-		<reg32 offset="0x0190" name="ROP" type="object"/>
-		<reg32 offset="0x0194" name="BETA1" type="object"/>
+		<reg32 offset="0x0184" name="COLOR_KEY" type="object" variants="NV01_IMAGE_FROM_CPU">
+			<doc>Accepts NV01_CONTEXT_COLOR_KEY</doc>
+		</reg32>
+		<reg32 offset="0x0184" name="COLOR_KEY" type="object" variants="NV04_IMAGE_FROM_CPU-">
+			<doc>Accepts NV04_CONTEXT_COLOR_KEY</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="CLIP_RECTANGLE" type="object">
+			<doc>Accepts NV01_CONTEXT_CLIP_RECTANGLE</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="PATTERN" type="object" variants="NV01_IMAGE_FROM_CPU">
+			<doc>Accepts NV01_CONTEXT_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="PATTERN" type="object" variants="NV04_IMAGE_FROM_CPU-">
+			<doc>Accepts NV04_IMAGE_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x0190" name="ROP" type="object">
+			<doc>Accepts NV03_CONTEXT_ROP</doc>
+		</reg32>
+		<reg32 offset="0x0194" name="BETA1" type="object">
+			<doc>Accepts NV01_CONTEXT_BETA1</doc>
+		</reg32>
 		<stripe variants="NV01_IMAGE_FROM_CPU">
-			<reg32 offset="0x0198" name="SURFACE" type="object"/>
+			<reg32 offset="0x0198" name="SURFACE_DST" type="object">
+				<doc>Accepts NV03_CONTEXT_SURFACE_DST</doc>
+			</reg32>
 		</stripe>
 		<stripe variants="NV04_IMAGE_FROM_CPU-">
-			<reg32 offset="0x0198" name="BETA4" type="object"/>
-			<reg32 offset="0x019c" name="SURFACE" type="object"/>
+			<reg32 offset="0x0198" name="BETA4" type="object">
+				<doc>Accepts NV04_BETA_SOLID</doc>
+			</reg32>
+			<reg32 offset="0x019c" name="SURFACE" type="object">
+				<doc>Accepts NV04_CONTEXT_SURFACES_2D and up.</doc>
+			</reg32>
 		</stripe>
 		<reg32 offset="0x02f8" name="COLOR_CONVERSION" variants="NV05_IMAGE_FROM_CPU-"/>
 		<reg32 offset="0x02fc" name="OPERATION" type="nv03_operation"/>
@@ -372,7 +479,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0304" name="POINT" type="xy16"/>
 		<reg32 offset="0x0308" name="SIZE_OUT" type="wh16"/>
 		<reg32 offset="0x030c" name="SIZE_IN" type="wh16"/>
-		<reg32 offset="0x0400" name="COLOR" length="32"/>
+		<reg32 offset="0x0400" name="COLOR" length="32" variants="NV01_IMAGE_FROM_CPU"/>
+		<reg32 offset="0x0400" name="COLOR" length="1792" variants="NV04_IMAGE_FROM_CPU-"/>
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV03_STRETCHED_IMAGE_FROM_CPU-NV40_STRETCHED_IMAGE_FROM_CPU">
@@ -380,16 +488,36 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x010c" name="PATCH"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
-		<reg32 offset="0x0184" name="COLOR_KEY" type="object"/>
-		<reg32 offset="0x0188" name="PATTERN" type="object"/>
-		<reg32 offset="0x018c" name="ROP" type="object"/>
-		<reg32 offset="0x0190" name="BETA1" type="object"/>
+		<reg32 offset="0x0184" name="COLOR_KEY" type="object" variants="NV03_STRETCHED_IMAGE_FROM_CPU">
+			<doc>Accepts NV01_CONTEXT_COLOR_KEY</doc>
+		</reg32>
+		<reg32 offset="0x0184" name="COLOR_KEY" type="object" variants="NV04_STRETCHED_IMAGE_FROM_CPU-">
+			<doc>Accepts NV04_CONTEXT_COLOR_KEY</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV03_STRETCHED_IMAGE_FROM_CPU">
+			<doc>Accepts NV01_CONTEXT_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV04_STRETCHED_IMAGE_FROM_CPU-">
+			<doc>Accepts NV04_IMAGE_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="ROP" type="object">
+			<doc>Accepts NV03_CONTEXT_ROP</doc>
+		</reg32>
+		<reg32 offset="0x0190" name="BETA1" type="object">
+			<doc>Accepts NV01_CONTEXT_BETA1</doc>
+		</reg32>
 		<stripe variants="NV03_STRETCHED_IMAGE_FROM_CPU">
-			<reg32 offset="0x0194" name="SURFACE" type="object"/>
+			<reg32 offset="0x0194" name="SURFACE_DST" type="object">
+				<doc>Accepts NV03_CONTEXT_SURFACE_DST</doc>
+			</reg32>
 		</stripe>
 		<stripe variants="NV04_STRETCHED_IMAGE_FROM_CPU-">
-			<reg32 offset="0x0194" name="BETA4" type="object"/>
-			<reg32 offset="0x0198" name="SURFACE" type="object"/>
+			<reg32 offset="0x0194" name="BETA4" type="object">
+				<doc>Accepts NV04_BETA_SOLID</doc>
+			</reg32>
+			<reg32 offset="0x0198" name="SURFACE" type="object">
+				<doc>Accepts NV04_CONTEXT_SURFACES_2D and up.</doc>
+			</reg32>
 		</stripe>
 		<reg32 offset="0x02f8" name="COLOR_CONVERSION" variants="NV05_STRETCHED_IMAGE_FROM_CPU-"/>
 		<reg32 offset="0x02fc" name="OPERATION"/>
@@ -400,7 +528,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0310" name="CLIP_POINT" type="xy16"/>
 		<reg32 offset="0x0314" name="CLIP_SIZE" type="wh16"/>
 		<reg32 offset="0x0318" name="POINT12D4" type="xy16"/>
-		<reg32 offset="0x0400" name="COLOR" length="32"/>
+		<reg32 offset="0x0400" name="COLOR" length="1792"/>
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV03_SCALED_IMAGE_FROM_MEMORY-NV40_SCALED_IMAGE_FROM_MEMORY">
@@ -409,15 +537,33 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0108" name="WAIT_FOR_IDLE" variants="NV10_SCALED_IMAGE_FROM_MEMORY-"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_IMAGE" type="object"/>
-		<reg32 offset="0x0188" name="PATTERN" type="object"/>
-		<reg32 offset="0x018c" name="ROP" type="object"/>
-		<reg32 offset="0x0190" name="BETA1" type="object"/>
+		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV03_SCALED_IMAGE_FROM_MEMORY">
+			<doc>Accepts NV01_CONTEXT_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV04_SCALED_IMAGE_FROM_MEMORY-">
+			<doc>Accepts NV04_IMAGE_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="ROP" type="object">
+			<doc>Accepts NV03_CONTEXT_ROP</doc>
+		</reg32>
+		<reg32 offset="0x0190" name="BETA1" type="object">
+			<doc>Accepts NV01_CONTEXT_BETA1</doc>
+		</reg32>
 		<stripe variants="NV03_SCALED_IMAGE_FROM_MEMORY">
-			<reg32 offset="0x0194" name="SURFACE" type="object"/>
+			<reg32 offset="0x0194" name="SURFACE_DST" type="object">
+				<doc>Accepts NV03_CONTEXT_SURFACE_DST</doc>
+			</reg32>
 		</stripe>
 		<stripe variants="NV04_SCALED_IMAGE_FROM_MEMORY-">
-			<reg32 offset="0x0194" name="BETA4" type="object"/>
-			<reg32 offset="0x0198" name="SURFACE" type="object"/>
+			<reg32 offset="0x0194" name="BETA4" type="object">
+				<doc>Accepts NV04_BETA_SOLID</doc>
+			</reg32>
+			<reg32 offset="0x0198" name="SURFACE" type="object" variants="NV04_SCALED_IMAGE_FROM_MEMORY">
+				<doc>Accepts NV04_CONTEXT_SURFACES_2D, NV04_SWIZZLED_SURFACE</doc>
+			</reg32>
+			<reg32 offset="0x0198" name="SURFACE" type="object" variants="NV05_SCALED_IMAGE_FROM_MEMORY-">
+				<doc>Accepts NV04_CONTEXT_SURFACES_2D and up, NV04_SWIZZLED_SURFACE and up</doc>
+			</reg32>
 		</stripe>
 		<reg32 offset="0x02fc" name="COLOR_CONVERSION" type="nv05_color_conversion"/>
 		<reg32 offset="0x0300" name="COLOR_FORMAT">
@@ -466,6 +612,18 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0188" name="ROP" type="object"/>
 		<reg32 offset="0x018c" name="BETA1" type="object"/>
 		<reg32 offset="0x0190" name="SURFACE" type="object"/>
+		<reg32 offset="0x0184" name="PATTERN" type="object">
+			<doc>Accepts NV01_CONTEXT_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="ROP" type="object">
+			<doc>Accepts NV03_CONTEXT_ROP</doc>
+		</reg32>
+		<reg32 offset="0x019c" name="BETA1" type="object">
+			<doc>Accepts NV01_CONTEXT_BETA1</doc>
+		</reg32>
+		<reg32 offset="0x0190" name="SURFACE_DST" type="object">
+			<doc>Accepts NV03_CONTEXT_SURFACE_DST</doc>
+		</reg32>
 		<reg32 offset="0x02fc" name="OPERATION"/>
 		<reg32 offset="0x0300" name="COLOR_FORMAT"/>
 		<reg32 offset="0x0304" name="MONOCHROME_FORMAT"/>
@@ -513,11 +671,21 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0140" name="PM_TRIGGER"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_FONTS" type="object"/>
-		<reg32 offset="0x0188" name="PATTERN" type="object"/>
-		<reg32 offset="0x018c" name="ROP" type="object"/>
-		<reg32 offset="0x0190" name="BETA1" type="object"/>
-		<reg32 offset="0x0194" name="BETA4" type="object"/>
-		<reg32 offset="0x0198" name="SURFACE" type="object"/>
+		<reg32 offset="0x0188" name="PATTERN" type="object">
+			<doc>Accepts NV04_IMAGE_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="ROP" type="object">
+			<doc>Accepts NV03_CONTEXT_ROP</doc>
+		</reg32>
+		<reg32 offset="0x0190" name="BETA1" type="object">
+			<doc>Accepts NV01_CONTEXT_BETA1</doc>
+		</reg32>
+		<reg32 offset="0x0194" name="BETA4" type="object">
+			<doc>Accepts NV04_BETA_SOLID</doc>
+		</reg32>
+		<reg32 offset="0x0198" name="SURFACE" type="object">
+			<doc>Accepts NV04_CONTEXT_SURFACES_2D and up</doc>
+		</reg32>
 		<reg32 offset="0x02fc" name="OPERATION" type="nv03_operation"/>
 		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv04_color_format"/>
 		<reg32 offset="0x0304" name="MONOCHROME_FORMAT" type="nv04_mono_format"/>
@@ -579,7 +747,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0108" name="WAIT_FOR_IDLE"/>
 		<reg32 offset="0x0140" name="PM_TRIGGER"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
-		<reg32 offset="0x0184" name="SURFACE" type="object"/>
+		<reg32 offset="0x0184" name="SURFACE" type="object">
+			<doc>Accepts NV04_CONTEXT_SURFACES_2D and up, NV04_SWIZZLED_SURFACE and up</doc>
+		</reg32>
 		<reg32 offset="0x0300" name="COLOR_FORMAT"/>
 		<reg32 offset="0x0304" name="POINT" type="xy16"/>
 		<reg32 offset="0x0308" name="SIZE" type="wh16"/>
