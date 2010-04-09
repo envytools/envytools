@@ -891,6 +891,8 @@ static void prepvarinfo (struct rnndb *db, char *what, struct rnnvarinfo *vi, st
 		for (i = 0; i < parent->varsetsnum; i++)
 			RNN_ADDARRAY(vi->varsets, copyvarset(parent->varsets[i]));
 	struct rnnenum *varset = vi->prefenum;
+	if (!varset && !vi->varsetstr && parent)
+		vi->varsetstr = parent->varsetstr;
 	if (vi->varsetstr)
 		varset = rnn_findenum(db, vi->varsetstr);
 	if (vi->variantsstr) {
