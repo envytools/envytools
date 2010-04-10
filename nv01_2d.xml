@@ -608,10 +608,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0100" name="NOP"/>
 		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
-		<reg32 offset="0x0184" name="PATTERN" type="object"/>
-		<reg32 offset="0x0188" name="ROP" type="object"/>
-		<reg32 offset="0x018c" name="BETA1" type="object"/>
-		<reg32 offset="0x0190" name="SURFACE" type="object"/>
 		<reg32 offset="0x0184" name="PATTERN" type="object">
 			<doc>Accepts NV01_CONTEXT_PATTERN</doc>
 		</reg32>
