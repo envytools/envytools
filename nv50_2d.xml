@@ -27,6 +27,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x021c" name="DST_HEIGHT" type="int"/>
 		<reg32 offset="0x0220" name="DST_ADDRESS_HIGH"/>
 		<reg32 offset="0x0224" name="DST_ADDRESS_LOW"/>
+		<reg32 offset="0x0228" name="UNK228">
+			<doc>Accepts 0 and 1</doc>
+		</reg32>
 		<reg32 offset="0x0230" name="SRC_FORMAT" type="NV50_SURFACE_FORMAT"/>
 		<reg32 offset="0x0234" name="SRC_LINEAR" type="boolean"/>
 		<reg32 offset="0x0238" name="SRC_TILE_MODE"/>
@@ -37,6 +40,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x024c" name="SRC_HEIGHT" type="uint" max="0x10000"/>
 		<reg32 offset="0x0250" name="SRC_ADDRESS_HIGH"/>
 		<reg32 offset="0x0254" name="SRC_ADDRESS_LOW"/>
+		<reg32 offset="0x0258" name="UNK258">
+			<doc>Accepts 0-3 and um... doesn't exist?</doc>
+		</reg32>
+		<reg32 offset="0x0260" name="UNK260">
+			<doc>Accepts 0 and 1</doc>
+		</reg32>
 		<reg32 offset="0x0264" name="COND_ADDRESS_HIGH"/>
 		<reg32 offset="0x0268" name="COND_ADDRESS_LOW"/>
 		<reg32 offset="0x026c" name="COND_MODE" type="nv50_cond_mode"/>
@@ -57,6 +66,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0298" name="COLOR_KEY"/>
 		<reg32 offset="0x029c" name="COLOR_KEY_ENABLE" type="boolean"/>
 		<reg32 offset="0x02a0" name="ROP"/>
+		<reg32 offset="0x02a4" name="UNK2A4">
+			<doc>Accepts anything</doc>
+		</reg32>
+		<reg32 offset="0x02a8" name="UNK2A8">
+			<doc>Accepts anything</doc>
+		</reg32>
 		<reg32 offset="0x02ac" name="OPERATION">
 			<value value="0x0000" name="SRCCOPY_AND"/>
 			<value value="0x0001" name="ROP_AND"/>
@@ -65,14 +80,31 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="0x0004" name="SRCCOPY_PREMULT"/>
 			<value value="0x0005" name="BLEND_PREMULT"/>
 		</reg32>
+		<reg32 offset="0x02b0" name="UNK2B0">
+			<bitfield high="5" low="0" name="UNK0">
+				<doc>Accepts anything</doc>
+			</bitfield>
+			<bitfield high="13" low="8" name="UNK1">
+				<doc>Accepts anything</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x02b4" name="UNK2B4">
+			<doc>Accepts 0-3</doc>
+		</reg32>
 		<reg32 offset="0x02e8" name="PATTERN_FORMAT">
 			<value value="0x0000" name="16BPP"/>
 			<value value="0x0001" name="15BPP"/>
 			<value value="0x0002" name="32BPP"/>
 			<value value="0x0003" name="8BPP"/>
 		</reg32>
+		<reg32 offset="0x02ec" name="UNK2EC">
+			<doc>Accepts 0 and 1</doc>
+		</reg32>
 		<reg32 offset="0x02f0" name="PATTERN_COLOR" length="2" type="int"/>
 		<reg32 offset="0x02f8" name="PATTERN_BITMAP" length="2" type="int"/>
+		<reg32 offset="0x0300" name="UNK300" length="144"> <!-- probably patterns. -->
+			<doc>Accepts anything</doc>
+		</reg32>
 		<reg32 offset="0x0580" name="DRAW_SHAPE">
 			<value value="0x0000" name="POINTS"/>
 			<value value="0x0001" name="LINES"/>
@@ -82,6 +114,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x0584" name="DRAW_COLOR_FORMAT" type="NV50_SURFACE_FORMAT"/>
 		<reg32 offset="0x0588" name="DRAW_COLOR"/>
+		<reg32 offset="0x058c" name="UNK58C">
+			<bitfield high="0" low="0" name="0" />
+			<bitfield high="4" low="4" name="1" />
+			<bitfield high="8" low="8" name="2" />
+			<bitfield high="12" low="12" name="3" />
+		</reg32>
 		<reg32 offset="0x05e0" name="DRAW_POINT16" type="xy16"/>
 		<reg32 offset="0x0600" name="DRAW_POINT32_X" length="64" stride="8" type="int"/>
 		<reg32 offset="0x0604" name="DRAW_POINT32_Y" length="64" stride="8" type="int"/>
@@ -108,7 +146,22 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0858" name="SIFC_DST_Y_FRACT"/>
 		<reg32 offset="0x085c" name="SIFC_DST_Y_INT" type="int"/>
 		<reg32 offset="0x0860" name="SIFC_DATA"/>
-		<reg32 offset="0x0888" name="UNK0888"/>
+		<reg32 offset="0x0870" name="UNK0870">
+			<doc>Accepts 0-0x1fffffff</doc>
+		</reg32>
+		<reg32 offset="0x0880" name="UNK0880">
+			<doc>Accepts 0-2</doc>
+		</reg32>
+		<reg32 offset="0x0884" name="UNK0884">
+			<doc>Accepts 0-0x3f</doc>
+		</reg32>
+		<reg32 offset="0x0888" name="UNK0888">
+			<doc>Accepts 0,1</doc>
+		</reg32>
+		<reg32 offset="0x088c" name="UNK88C">
+			<bitfield high="0" low="0" name="0" />
+			<bitfield high="4" low="4" name="1" />
+		</reg32>
 		<reg32 offset="0x08b0" name="BLIT_DST_X" type="int"/>
 		<reg32 offset="0x08b4" name="BLIT_DST_Y" type="int"/>
 		<reg32 offset="0x08b8" name="BLIT_DST_W" type="int"/>
