@@ -23,6 +23,188 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 	<stripe offset="0x2000" name="PFIFO" stride="0x2000" length="1" variants="NV01:NV10">
+		<brief>Command submission engine</brief>
+		<doc>PFIFO is the unit that gathers up commands sent by user and delivers them
+		to execution units in an orderly fashion.
+
+		The PFIFO is roughly split into three main pieces:
+		<ul>
+		<li>The PFIFO cache - the FIFO itself, holds commands in flight to execution unit.</li>
+		<li>The PFIFO pusher - takes commands from user and inserts them into the cache.
+		The pusher can be in PIO or DMA mode. In PIO mode, user pokes the commands directly
+		through the USER MMIO area. In DMA mode, PFIFO fetches the commands from a buffer
+		in memory, called the pushbuffer, and the USER MMIO area is only used to control pushbuffer
+		fetching.</li>
+		<li>The PFIFO puller - takes commands from cache, delivers them to execution unit.</li>
+		</ul>
+
+		On pre-NV50 cards, there are actually two sets of cache+pusher+puller, but the second
+		set is somewhat crippled. It only has a single cache slot, its pusher only supports
+		the PIO mode and doesn't seem to work anyway, and puller only has a single ctx slot
+		on pre-NV04 cards. It can be used for quick manual injection of single commands, for
+		example for software method emulation. The crippled set is called CACHE0, the proper
+		set is called CACHE1.
+
+		Central to the PFIFO is the concept of a "channel". Channel is basically an individual
+		stream of commands. The channels are context-switched, and are fully independent. For
+		saving PFIFO's own per-channel context, a memory structure called RAMFC is used. The
+		execution units are context-switched in their own way. The PFIFO cache can only be set
+		to a single channel at a time. Pre-NV50, it needs to be empty before the pusher can
+		switch channels. Starting with NV50, it's instead saved to memory like other parts of
+		PFIFO context on channel switch.
+
+		PFIFO channels are switched by the pusher when it wants to insert commands for a new
+		channel. Channel switch on execution units is requested by the puller when it actually
+		delivers the commands. This means that PFIFO and execution units can be on different
+		channels. The number of channels is 128 on NV01-NV03, 16 on NV04-NV05, 32 on NV10-NV3X,
+		??? on NV4X, 128 on NV50+.
+
+		The commands, as stored in cache, are basically tuples of subchannel, method, data.
+		There are 8 subchannels on each channel, and they conceptually have so-called "objects"
+		bound to them. The method is a number between 0 and 0x1ffc divisible by 4, and selects
+		the command to execute. Set of available methods depends on the object bound to given
+		subchannel. Method numbers are conceptually treated as if they were addresses of internal
+		hardware registers which you write the data to, and hence are aligned to 4 bytes, but
+		that's just a leftover from the olden days. Most methods are passed on raw to the execution
+		engine, but some are special and are handled directly by PFIFO:
+
+		<ul>
+		<li>0x0000: Binds object to the subchannel</li>
+		<li>0x0004-0x00fc: Methods reserved for use by PFIFO, never passed to execution engines.
+		Documented in nv_objects.xml</li>
+		<li>0x0180-0x01fc: Methods passed to execution engines, but with hash -> instance
+		translation done on them [see puller doc].</li>
+		</ul>
+
+		The data values submitted to methods are 32-bit words, interpreted depending on the method.
+
+		<b>The pusher</b>
+
+		The pusher's task is to get values from user into the cache. It can be in PIO mode or DMA
+		mode. PIO is supported on NV01-NV3X [maybe NV4X?], DMA is supported in a crippled form on
+		NV03 and in serious form on NV04+.
+
+		In both modes, user submits the methods through so-called USER MMIO area, starting at
+		0x800000 on NV01-NV4X, at 0xc00000 on NV50+. This area is a big array of per-channel
+		subareas. A single channel has size 0x10000 on NV01-NV3X, size 0x1000 on NV4X, size 0x2000
+		on NV50+. The per-channel area is supposed to be mapped directly by the user program to
+		submit commands.
+
+		In PIO mode, commands are submitted by writing the data to address channel_base + subchannel
+		* 0x2000 + method. Address channel+base + subchannel * 0x2000 + 0x10 is a special "free count"
+		register, telling you the number of free bytes in the cache. Somewhat confusingly, free count
+		and the cache get/put registers are counted in bytes, and only take into account the data bytes.
+		Ie. a single method+data cache slot counts as 4 bytes.
+
+		If, for any reason, the PIO pusher cannot write the command to the cache upon USER access,
+		the failing access is instead stored to so-called RAMRO area. This includes pilot errors
+		like writing to reserved method, writing something else than aligned 32-bit word, or writing
+		over the free count, but also some conditions that happen naturally, like cache being taken
+		by another channel atm. When RAMRO is written, the RUNOUT interupt is triggered. When RAMRO
+		overflows, the RUNOUT_OVERFLOW interrupt is triggered, and you're basically screwed.
+
+		It should be noted that the PIO mode is inherently broken, due to race conditions. If you
+		have several applications wanting to submit stuff simultanously, and cache is empty at the
+		moment, the following can happen: 1. All apps read free count register and get, say, 0x7c.
+		2. All apps figure that they can safely send 0x7c/4 commands, and do so. 3. The first app
+		to submit a command causes the cache to be switched to its channel, and the remaining apps'
+		commands land in RAMRO. If there are sufficiently many applications, this can overflow
+		RAMRO before you have a chance to handle the RUNOUT interrupt. You lost.
+
+		NV03 introduced DMA "mode", where the PFIFO fetches commands from memory by itself, instead
+		of poking them manually. NV03 and NV04 only supported fetching commands from PCI/AGP
+		memory, NV05 and later also support fetching them from VRAM. On NV03, there's no actual DMA
+		"mode". Instead, you have to manually switch the PFIFO to the correct channel, set the 
+		DMA registers to point to the command buffer, poke tha launch register, and wait for completion.
+		The NV03 command buffers consist of "packets", consisting of 32-bit packet header, and series
+		of 32-bit data values. The header consists of starting method address, subchannel, and data
+		count. Subsequent data count words will be poked into sequential methods starting from the
+		one given in packet header. Multiple packets can be submitted by a single launch.
+
+		On NV04, the old DMA was scrapped, and a new sane DMA mode was introduced. The DMA/PIO mode
+		can now be selected per-channel. When in DMA mode, there are per-channel DMA_PUT and DMA_GET
+		registers. DMA_GET represents GPU's current position in the command buffer, DMA_PUT
+		represents its end. Whenever DMA_PUT != DMA_GET, and PFIFO has some time, it'll
+		automatically switch to the given channel and read commands from DMA_GET address,
+		incrementing it until it hits DMA_PUT. Command buffers can store packets like on NV03,
+		as well as the all-new jump command, moving DMA_GET to another place. The DMA_PUT and DMA_GET
+		registers are accessible through the USER area, and the usual way to submit commands is by
+		having a ring buffer with commands, writing new commands after the current end position, and
+		incrementing DMA_PUT to make GPU read them. When nearing the end of the ring buffer, a jump
+		command back to its beginning is inserted.
+
+		Subsequent cards added more capabilities to the pusher. On NV10+, a new non-increasing packet
+		type was introduced, behaving like the original NV03 packet, but instead of writing to sequential
+		methods, it pokes all data values into a single method. On NV11+, call + return commands
+		were added. NV40+ have a conditional command that disables method submission if a mask given
+		in the command AND mask stored in a PFIFO register evaluates to 0, used for selecting a single
+		card for a portion of the command buffer in SLI config. NV50+ Has a new non-increasing packet 
+		format that allows much more data values to be submitted in a single piece.
+
+		NV50 also introduced all-new indirect DMA mode. In this mode, instead of being controlled
+		through DMA_GET/DMA_PUT and the jump/call/return commands, the command buffers are instead
+		specified by a special indirect buffer. This IB buffer is a ring buffer of (address, word count)
+		tuples, controlled by IB_GET/IB_PUT registers like the old DMA_GET/DMA_PUT ones, but wrapping
+		back to beginning implicitely without need for a jump command. This new mode, in conjuction
+		with the new non-increasing packet type, allows submitting large raw blocks of data directly
+		through the PFIFO, by putting the packet header in one area of memory referenced by first IB
+		slot, and setting the next IB slot to point directly to the submitted data.
+
+		<b>The puller</b>
+
+		The puller's task is to take the subchannel, method, data tuples from cache and get them
+		to execute. For most methods, specifically 0x0100-0x017c and 0x0200-0x1ffc ranges, this
+		involves submitting the tuple directly to the relevant execution engine, but others need
+		more attention.
+
+		First, there's a concept of "FIFO objects". The FIFO objects are small chunks of memory
+		residing in RAMIN on NV03-NV4X cards, and in the channel area on NV50+. FIFO objects
+		are specified by so-called handles, which are arbitrary 32-bit identifiers. The handles
+		are mapped to so-called contexts by a big hash table known as RAMHT. The context resides
+		in the RAMHT and is a 32-bit word. The objects are per-channel: on pre-NV50, object's 
+		channel id is part of the context. On NV50+, channels have separate RAMHTs.
+
+		On NV01, the only types of objects are graph objects. These are the things bound to PFIFO
+		subchannels. The context consists of engine type [software or PGRAPH], object type [for
+		use by PGRAPH], plus some simple settings like color format to use for rendering. The
+		contexts for currently bound subchannels are stored in PFIFO or RAMFC, and are also passed
+		on to PGRAPH on subchannel bind.
+
+		NV03 works similarly, except the rendering settings are moved to the all-new instance
+		memory aka RAMIN, and the context instead contains the object's address in RAMIN, aka
+		instance address.
+
+		NV04 introduced a new subtype of FIFO objects, the DMA objects. They aren't meant to be
+		bound to subchannels, and represent areas of memory that PGRAPH or other engines can
+		access on user's command. Method range 0x0180-0x01fc got reserved for methods taking
+		an object handle as data, whether DMA objects or graph objects. Since PGRAPH and other
+		execution engines don't know about RAMHT and object handles, PFIFO puller performs the
+		handle -&gt; instance translation before submitting the command further. Also the object
+		type is now part of instance memory, is called the object class, and the RAMHT context
+		only consists of the object's instance address and the engine selector. The PFIFO doesn't
+		care about object type anymore, and it's up to execution engines to read it and act on it.
+
+		So how puller works... on NV01 and NV03, upon meeting method 0, the puller will look up
+		the data in RAMHT as object handle, store the context in the per-subchannel CTX register,
+		and tell the execution engine the new context. Upon meeting any other method, the
+		puller will just send it down to whatever engine is selected by the relevant CTX register.
+		Available engines are SOFTWARE and PGRAPH. When engine is SOFTWARE, the "submission"
+		involves raising the CACHE_ERROR interrupt and waiting for the CPU to handle the situation.
+
+		On NV01 and NV03, the CTX registers are gone, and the only information the PFIFO stores
+		is what engine each subchannel is bound to. The actual object is expected to be remembered
+		by the engine itself instead. When method 0 is encountered, the param is looked up in RAMHT,
+		the engine is changed appropriately, and the instance address is sent to relevant execution
+		engine as method 0. When method in range 0x180-0x1fc is encountered, param is also looked up
+		and data is substituted with the instance address before submission to execution engine.
+		Other 0x100-0x1ffc methods are just submitted. The 0x4-0xfc methods are special and are
+		handled by puller itself. Note that the pusher will refuse to push 0x4-0xfc methods that
+		the puller doesn't know about.
+
+		On NV01-NV05 the commands from puller to engine are submitted one by one. On NV10+, as an
+		optimisation, they can be submitted in pairs if both go to the same method, or if they go
+		to sequential two methods.
+		</doc>
 		<reg32 offset="0x040" name="DELAY" variants="NV03-">
 			<bitfield high="7" low="0" name="WAIT_RETRY" variants="NV03:NV04"/>
 			<bitfield high="9" low="0" name="WAIT_RETRY" variants="NV04-"/>
@@ -42,7 +224,7 @@
 		</reg32>
 		<reg32 offset="0x050" name="NEXT_CHANNEL" variants="NV04-">
 			<bitfield high="3" low="0" name="CHID"/>
-			<bitfield high="8" low="8" name="MODE"/>
+			<bitfield high="8" low="8" name="MODE" type="nv04_pfifo_channel_mode"/>
 			<bitfield high="12" low="12" name="SWITCH"/>
 		</reg32>
 		<reg32 offset="0x080" name="DEBUG_0" variants="NV03-" access="r">
