@@ -129,6 +129,7 @@
 <import file="nv_ptimer.xml" />
 <import file="nv50_pconnector.xml" />
 <import file="nv01_misc.xml" />
+<import file="nv04_pgraph.xml" />
 <import file="nv50_pgraph.xml" />
 <import file="nv50_pdisplay.xml" />
 
