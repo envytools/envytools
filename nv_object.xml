@@ -37,33 +37,33 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	-->
 
 	<!-- pre-nv50 2D objects -->
-	<value value="0x0012" name="NV01_CONTEXT_BETA1" variants="NV01:NV50"/>
-	<value value="0x0072" name="NV04_BETA_SOLID" variants="NV04:NV50"/>
+	<value value="0x0012" name="NV01_CONTEXT_BETA1" variants="NV01-NV50"/>
+	<value value="0x0072" name="NV04_BETA_SOLID" variants="NV04-NV50"/>
 
 	<value value="0x0017" name="NV01_CONTEXT_COLOR_KEY" variants="NV01:NV50"/>
-	<value value="0x0057" name="NV04_CONTEXT_COLOR_KEY" variants="NV04:NV50"/>
+	<value value="0x0057" name="NV04_CONTEXT_COLOR_KEY" variants="NV04-NV50"/>
 
 	<value value="0x0018" name="NV01_CONTEXT_PATTERN" variants="NV01:NV50"/>
 
-	<value value="0x0019" name="NV01_CONTEXT_CLIP_RECTANGLE" variants="NV01:NV50"/>
+	<value value="0x0019" name="NV01_CONTEXT_CLIP_RECTANGLE" variants="NV01-NV50"/>
 
-	<value value="0x0043" name="NV03_CONTEXT_ROP" variants="NV03:NV50"/>
+	<value value="0x0043" name="NV03_CONTEXT_ROP" variants="NV03-NV50"/>
 
-	<value value="0x0044" name="NV04_IMAGE_PATTERN" variants="NV04:NV50"/>
+	<value value="0x0044" name="NV04_IMAGE_PATTERN" variants="NV04-NV50"/>
 
 	<value value="0x001c" name="NV01_RENDER_SOLID_LINE" variants="NV01:NV40"/>
 	<value value="0x005c" name="NV04_RENDER_SOLID_LINE" variants="NV04:NV50"/>
 	<value value="0x035c" name="NV30_RENDER_SOLID_LINE" variants="NV30:NV40"/>
-	<value value="0x305c" name="NV40_RENDER_SOLID_LINE" variants="NV40:NV50"/>
+	<value value="0x305c" name="NV40_RENDER_SOLID_LINE" variants="NV40-NV50"/>
 
 	<value value="0x001d" name="NV01_RENDER_SOLID_TRIANGLE" variants="NV01:NV40"/>
-	<value value="0x005d" name="NV04_RENDER_SOLID_TRIANGLE" variants="NV04:NV50"/>
+	<value value="0x005d" name="NV04_RENDER_SOLID_TRIANGLE" variants="NV04-NV50"/>
 
 	<value value="0x001e" name="NV01_RENDER_SOLID_RECTANGLE" variants="NV01:NV40"/>
 	<value value="0x005e" name="NV04_RENDER_SOLID_RECTANGLE" variants="NV04:NV40"/>
 
 	<value value="0x001f" name="NV01_IMAGE_BLIT" variants="NV01:NV50"/>
-	<value value="0x005f" name="NV04_IMAGE_BLIT" variants="NV04:NV50"/>
+	<value value="0x005f" name="NV04_IMAGE_BLIT" variants="NV04-NV50"/>
 	<value value="0x009f" name="NV11_IMAGE_BLIT" variants="NV11:NV50"/>
 
 	<value value="0x0021" name="NV01_IMAGE_FROM_CPU" variants="NV01:NV40"/>
@@ -71,13 +71,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0065" name="NV05_IMAGE_FROM_CPU" variants="NV05:NV50"/>
 	<value value="0x008a" name="NV10_IMAGE_FROM_CPU" variants="NV10:NV50"/>
 	<value value="0x038a" name="NV30_IMAGE_FROM_CPU" variants="NV30:NV40"/>
-	<value value="0x308a" name="NV40_IMAGE_FROM_CPU" variants="NV40:NV50"/>
+	<value value="0x308a" name="NV40_IMAGE_FROM_CPU" variants="NV40-NV50"/>
 
 	<value value="0x0036" name="NV03_STRETCHED_IMAGE_FROM_CPU" variants="NV03:NV40"/>
 	<value value="0x0076" name="NV04_STRETCHED_IMAGE_FROM_CPU" variants="NV04:NV50"/>
 	<value value="0x0066" name="NV05_STRETCHED_IMAGE_FROM_CPU" variants="NV05:NV50"/>
 	<value value="0x0366" name="NV30_STRETCHED_IMAGE_FROM_CPU" variants="NV30:NV40"/>
-	<value value="0x3066" name="NV40_STRETCHED_IMAGE_FROM_CPU" variants="NV40:NV50"/>
+	<value value="0x3066" name="NV40_STRETCHED_IMAGE_FROM_CPU" variants="NV40-NV50"/>
 
 	<value value="0x0037" name="NV03_SCALED_IMAGE_FROM_MEMORY" variants="NV03:NV50"/>
 	<value value="0x0077" name="NV04_SCALED_IMAGE_FROM_MEMORY" variants="NV04:NV50"/>
@@ -85,12 +85,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0089" name="NV10_SCALED_IMAGE_FROM_MEMORY" variants="NV10:NV50"/>
 	<value value="0x0389" name="NV30_SCALED_IMAGE_FROM_MEMORY" variants="NV30:NV40"/>
 	<value value="0x3089" name="NV40_SCALED_IMAGE_FROM_MEMORY" variants="NV40:NV50"/>
+	<value value="0x5089" name="NV50_SCALED_IMAGE_FROM_MEMORY" variants="NV50"/>
 
 	<value value="0x0038" name="NV04_DVD_SUBPICTURE" variants="NV04:NV50"/>
 	<value value="0x0088" name="NV10_DVD_SUBPICTURE" variants="NV10:NV50"/>
 
 	<value value="0x004b" name="NV03_GDI_RECTANGLE_TEXT" variants="NV03:NV40"/>
-	<value value="0x004a" name="NV04_GDI_RECTANGLE_TEXT" variants="NV04:NV50"/>
+	<value value="0x004a" name="NV04_GDI_RECTANGLE_TEXT" variants="NV04-NV50"/>
 
 	<value value="0x0052" name="NV04_SWIZZLED_SURFACE" variants="NV04:NV50"/>
 	<value value="0x009e" name="NV11_SWIZZLED_SURFACE" variants="NV11:NV50"/>
@@ -104,15 +105,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0062" name="NV10_CONTEXT_SURFACES_2D" variants="NV10:NV50"/>
 	<value value="0x0362" name="NV30_CONTEXT_SURFACES_2D" variants="NV30:NV40"/>
 	<value value="0x3062" name="NV40_CONTEXT_SURFACES_2D" variants="NV40:NV50"/>
+	<value value="0x5062" name="NV50_CONTEXT_SURFACES_2D" variants="NV50"/>
 
 	<value value="0x0060" name="NV04_INDEXED_IMAGE_FROM_CPU" variants="NV04:NV50"/>
 	<value value="0x0064" name="NV05_INDEXED_IMAGE_FROM_CPU" variants="NV05:NV50"/>
 	<value value="0x0364" name="NV30_INDEXED_IMAGE_FROM_CPU" variants="NV30:NV40"/>
-	<value value="0x3064" name="NV40_INDEXED_IMAGE_FROM_CPU" variants="NV40:NV50"/>
+	<value value="0x3064" name="NV40_INDEXED_IMAGE_FROM_CPU" variants="NV40-NV50"/>
 
 	<value value="0x007b" name="NV10_TEXTURE_FROM_CPU" variants="NV10:NV50"/>
 	<value value="0x037b" name="NV30_TEXTURE_FROM_CPU" variants="NV30:NV40"/>
-	<value value="0x307b" name="NV40_TEXTURE_FROM_CPU" variants="NV40:NV50"/>
+	<value value="0x307b" name="NV40_TEXTURE_FROM_CPU" variants="NV40-NV50"/>
 
 	<!-- M2MF -->
 	<value value="0x0039" name="NV04_M2MF" variants="NV04:NV50"/>
