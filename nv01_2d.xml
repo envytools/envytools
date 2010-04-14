@@ -62,31 +62,23 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
 	<stripe prefix="obj-class" variants="NV01_CONTEXT_BETA1">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0300" name="BETA_1D31"/>
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV04_BETA_SOLID">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0200" name="BETA_OUTPUT"/>
 		<reg32 offset="0x0300" name="BETA_FACTOR"/>
   	</stripe>
 
 	<stripe prefix="obj-class" variants="NV01_CONTEXT_COLOR_KEY-NV04_CONTEXT_COLOR_KEY">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv01_color_format"/>
 		<reg32 offset="0x0304" name="COLOR"/>
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV01_CONTEXT_PATTERN">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0300" name="COLOR_FORMAT"/>
 		<reg32 offset="0x0304" name="MONOCHROME_FORMAT"/>
@@ -96,17 +88,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV01_CONTEXT_CLIP_RECTANGLE">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0300" name="POINT" type="xy16"/>
 		<reg32 offset="0x0304" name="SIZE" type="wh16"/>
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV04_CONTEXT_SURFACES_2D-NV50_CONTEXT_SURFACES_2D">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
-		<reg32 offset="0x0140" name="PM_TRIGGER"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_IMAGE_SOURCE" type="object"/>
 		<reg32 offset="0x0188" name="DMA_IMAGE_DESTIN" type="object"/>
@@ -120,8 +107,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV04_SWIZZLED_SURFACE-NV40_SWIZZLED_SURFACE">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_IMAGE" type="object"/>
 		<reg32 offset="0x0300" name="FORMAT">
@@ -133,15 +118,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV03_CONTEXT_ROP">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0300" name="ROP"/>
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV04_IMAGE_PATTERN">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv04_color_format"/>
 		<reg32 offset="0x0304" name="MONOCHROME_FORMAT" type="nv04_mono_format"/>
@@ -189,8 +170,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 
 	<stripe prefix="obj-class" variants="NV01_RENDER_SOLID_LINE-NV40_RENDER_SOLID_LINE">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x010c" name="PATCH"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="CLIP_RECTANGLE" type="object">
@@ -236,8 +215,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV01_RENDER_SOLID_TRIANGLE-NV04_RENDER_SOLID_TRIANGLE">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x010c" name="PATCH"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="CLIP_RECTANGLE" type="object">
@@ -290,8 +267,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV01_RENDER_SOLID_RECTANGLE-NV04_RENDER_SOLID_RECTANGLE">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x010c" name="PATCH"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="CLIP_RECTANGLE" type="object">
@@ -328,8 +303,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV01_IMAGE_BLIT-NV11_IMAGE_BLIT">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x010c" name="PATCH"/>
 		<stripe variants="NV11_IMAGE_BLIT">
 			<reg32 offset="0x0108" name="WAIT_FOR_IDLE"/>
@@ -387,8 +360,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV04_INDEXED_IMAGE_FROM_CPU-NV40_INDEXED_IMAGE_FROM_CPU">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x010c" name="PATCH"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_LUT" type="object"/>
@@ -428,8 +399,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV01_IMAGE_FROM_CPU-NV40_IMAGE_FROM_CPU">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x0108" name="WAIT_FOR_IDLE" variants="NV10_IMAGE_FROM_CPU-"/>
 		<reg32 offset="0x010c" name="PATCH"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
@@ -484,8 +453,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV03_STRETCHED_IMAGE_FROM_CPU-NV40_STRETCHED_IMAGE_FROM_CPU">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x010c" name="PATCH"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="COLOR_KEY" type="object" variants="NV03_STRETCHED_IMAGE_FROM_CPU">
@@ -532,8 +499,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV03_SCALED_IMAGE_FROM_MEMORY-NV50_SCALED_IMAGE_FROM_MEMORY">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x0108" name="WAIT_FOR_IDLE" variants="NV10_SCALED_IMAGE_FROM_MEMORY-"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_IMAGE" type="object"/>
@@ -605,8 +570,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV03_GDI_RECTANGLE_TEXT">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="PATTERN" type="object">
 			<doc>Accepts NV01_CONTEXT_PATTERN</doc>
@@ -661,10 +624,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV04_GDI_RECTANGLE_TEXT">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x010c" name="PATCH"/>
-		<reg32 offset="0x0140" name="PM_TRIGGER"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_FONTS" type="object"/>
 		<reg32 offset="0x0188" name="PATTERN" type="object">
@@ -738,10 +698,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 
 	<stripe prefix="obj-class" variants="NV10_TEXTURE_FROM_CPU-NV40_TEXTURE_FROM_CPU">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x0108" name="WAIT_FOR_IDLE"/>
-		<reg32 offset="0x0140" name="PM_TRIGGER"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="SURFACE" type="object">
 			<doc>Accepts NV04_CONTEXT_SURFACES_2D and up, NV04_SWIZZLED_SURFACE and up</doc>

@@ -115,8 +115,6 @@
 
 <domain name="NV01_SUBCHAN" size="0x2000" bare="yes">
 	<stripe prefix="obj-class" variants="NV30_3D-NV44_3D">
-		<reg32 offset="0x100" name="NOP"/>
-		<reg32 offset="0x104" name="NOTIFY"/>
 		<reg32 offset="0x180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x184" name="DMA_TEXTURE0" type="object"/>
 		<reg32 offset="0x188" name="DMA_TEXTURE1" type="object"/>

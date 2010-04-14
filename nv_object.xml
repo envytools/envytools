@@ -175,6 +175,18 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x6c" name="SEMAPHORE_RELEASE" />
 		</stripe>
 	</stripe>
+	<stripe name="GRAPH" prefix="chipset">
+		<doc>Methods available on all PGRAPH objects.</doc>
+		<reg32 offset="0x100" name="NOP" variants="NV04-" />
+		<reg32 offset="0x104" name="NOTIFY" >
+			<value value="0" name="WRITE"/>
+			<value value="1" name="WRITE_AND_AWAKEN"/>
+		</reg32>
+		<reg32 offset="0x0110" name="WAIT_FOR_IDLE" variants="NV50-"/>
+		<reg32 offset="0x0120" name="UNK0120" variants="NVA3-"/>
+		<reg32 offset="0x0124" name="UNK0124" variants="NVA3-"/>
+		<reg32 offset="0x0140" name="PM_TRIGGER" variants="NV40-"/> <!-- XXX: likely controlled by a PGRAPH_DEBUG bit. -->
+	</stripe>
 </domain>
 
 </database>

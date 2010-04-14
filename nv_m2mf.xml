@@ -6,12 +6,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
 	<stripe prefix="obj-class" variants="NV04_M2MF-NV50_M2MF">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
-		<stripe variants="NV50_M2MF">
-			<reg32 offset="0x0110" name="SERIALIZE"/>
-			<reg32 offset="0x0140" name="PM_TRIGGER"/>
-		</stripe>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_BUFFER_IN" type="object"/>
 		<reg32 offset="0x0188" name="DMA_BUFFER_OUT" type="object"/>

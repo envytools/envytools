@@ -47,9 +47,6 @@
 </enum>
 
 <group name="nv10tcl-base">
-	<reg32 offset="0x0100" name="NOP"/>
-	<reg32 offset="0x0104" name="NOTIFY"/>
-
 	<stripe variants="NV11_3D-">
 		<!-- Sync to vblank stuff -->
 		<reg32 offset="0x0120" name="UNK0120"/>

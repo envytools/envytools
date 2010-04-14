@@ -56,8 +56,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
 	<stripe prefix="obj-class" variants="NV04_CONTEXT_SURFACES_3D-NV10_CONTEXT_SURFACES_3D">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_COLOR" type="object"/>
 		<reg32 offset="0x0188" name="DMA_ZETA" type="object"/>
@@ -100,8 +98,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV04_TEXTURED_TRIANGLE-NV10_TEXTURED_TRIANGLE">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_A" type="object"/>
 		<reg32 offset="0x0188" name="DMA_B" type="object"/>
@@ -197,8 +193,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV04_MULTITEX_TRIANGLE-NV10_MULTITEX_TRIANGLE">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_A" type="object"/>
 		<reg32 offset="0x0188" name="DMA_B" type="object"/>
