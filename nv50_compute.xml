@@ -60,12 +60,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="BUFFER" high="6" low="0" type="uint"/>
 		</reg32>
 		<reg32 offset="0x023c" name="CB_DATA" length="16"/>
-		<!-- these two are TIC_FLUSH and TSC_FLUSH, but noone checked which is which. -->
-		<reg32 offset="0x027c" name="UNK027C_FLUSH">
+		<reg32 offset="0x027c" name="TSC_FLUSH">
 			<bitfield low="0" high="0" name="UNK0"/>
 			<bitfield low="4" high="25" name="UNK1"/>
 		</reg32>
-		<reg32 offset="0x0280" name="UNK0280_FLUSH">
+		<reg32 offset="0x0280" name="TIC_FLUSH">
 			<bitfield low="0" high="0" name="UNK0"/>
 			<bitfield low="4" high="25" name="UNK1"/>
 		</reg32>
