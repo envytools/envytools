@@ -5,48 +5,6 @@
 #include <inttypes.h>
 #include <string.h>
 
-void trymatch (uint64_t a, uint64_t b, struct rnndelem *elem, int width, struct rnndeccontext *vc) {
-	if (!rnndec_varmatch(vc, &elem->varinfo))
-		return;
-	int i;
-	switch (elem->type) {
-		case RNN_ETYPE_REG:
-			if (a >= elem->offset && (a < elem->offset + elem->stride * elem->length || elem->length == 1)) {
-				uint32_t res;
-				if (elem->stride) {
-					i = (a-elem->offset)/elem->stride;
-					res = (a-elem->offset)%elem->stride;
-				} else {
-					i = 0;
-					res = a-elem->offset;
-				}
-				if (res < elem->width/width) {
-					printf ("%s[%d]+%x %s\n", elem->fullname, i, res, rnndec_decodeval(vc, &elem->typeinfo, b, elem->width));
-				}
-			}
-			break;
-		case RNN_ETYPE_STRIPE:
-			for (i = 0; (i < elem->length || !elem->length) && a >= elem->offset + elem->stride * i; i++) {
-				int j;
-				for (j = 0; j < elem->subelemsnum; j++)
-					trymatch(a-(elem->offset + elem->stride * i), b, elem->subelems[j], width, vc);
-			}
-			break;
-		case RNN_ETYPE_ARRAY:
-			if (a >= elem->offset && a < elem->offset + elem->stride * elem->length) {
-				i = (a-elem->offset)/elem->stride;
-				uint32_t res = (a-elem->offset)%elem->stride;
-				printf ("%s[%d]+%x\n", elem->fullname, i, res);
-				int j;
-				for (j = 0; j < elem->subelemsnum; j++)
-					trymatch(res, b, elem->subelems[j], width, vc);
-			}
-			break;
-		default:
-			break;
-	}
-}
-
 int main(int argc, char **argv) {
 	rnn_init();
 	if (argc < 4) {
@@ -76,9 +34,11 @@ int main(int argc, char **argv) {
 	if (argc > 4)
 		b = strtoull(argv[4], 0, 0);
 	if (dom) {
-		int i;
-		for (i = 0; i < dom->subelemsnum; i++)
-			trymatch (a, b, dom->subelems[i], dom->width, vc);
+		struct rnndecaddrinfo *info = rnndec_decodeaddr(vc, dom, a, 0);
+		if (info)
+			printf ("%s\n", info->name);
+		if (info && info->typeinfo)
+			printf ("%s\n", rnndec_decodeval(vc, info->typeinfo, b, info->width));
 	} else if (bs) {
 	} else if (en) {
 		int i;
