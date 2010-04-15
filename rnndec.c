@@ -77,6 +77,8 @@ char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64
 	int bitfieldsnum;
 	char *tmp;
 	uint64_t mask;
+	if (!ti)
+		goto failhex;
 	if (ti->shr) value <<= ti->shr;
 	switch (ti->type) {
 		case RNN_TTYPE_ENUM:
@@ -175,4 +177,114 @@ char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64
 			return res;
 			break;
 	}
+}
+
+static char *appendidx (struct rnndeccontext *ctx, char *name, uint64_t idx) {
+	char *res;
+	asprintf (&res, "%s[%s%#"PRIx64"%s]", name, ctx->colors->cimm, idx, ctx->colors->cend);
+	free (name);
+	return res;
+}
+
+static struct rnndecaddrinfo *trymatch (struct rnndeccontext *ctx, struct rnndelem **elems, int elemsnum, uint64_t addr, int write, int dwidth, uint64_t *indices, int indicesnum) {
+	struct rnndecaddrinfo *res;
+	int i, j;
+	for (i = 0; i < elemsnum; i++) {
+		if (!rnndec_varmatch(ctx, &elems[i]->varinfo))
+			continue;
+		uint64_t offset, idx;
+		char *tmp, *name;
+		switch (elems[i]->type) {
+			case RNN_ETYPE_REG:
+				if (addr < elems[i]->offset)
+					break;
+				if (elems[i]->stride) {
+					idx = (addr-elems[i]->offset)/elems[i]->stride;
+					offset = (addr-elems[i]->offset)%elems[i]->stride;
+				} else {
+					idx = 0;
+					offset = addr-elems[i]->offset;
+				}
+				if (offset >= elems[i]->width/dwidth)
+					break;
+				if (elems[i]->length && idx >= elems[i]->length)
+					break;
+				res = calloc (sizeof *res, 1);
+				res->typeinfo = &elems[i]->typeinfo;
+				res->width = elems[i]->width;
+				asprintf (&res->name, "%s%s%s", ctx->colors->cname, elems[i]->name, ctx->colors->cend);
+				for (j = 0; j < indicesnum; j++)
+					res->name = appendidx(ctx, res->name, indices[j]);
+				if (elems[i]->length != 1)
+					res->name = appendidx(ctx, res->name, idx);
+				if (offset) {
+					asprintf (&tmp, "%s+%s%#"PRIx64"%s", res->name, ctx->colors->cerr, offset, ctx->colors->cend);
+					free(res->name);
+					res->name = tmp;
+				}
+				return res;
+			case RNN_ETYPE_STRIPE:
+				for (idx = 0; idx < elems[i]->length || !elems[i]->length; idx++) {
+					if (addr < elems[i]->offset + elems[i]->stride * idx)
+						break;
+					offset = addr - (elems[i]->offset + elems[i]->stride * idx);
+					int extraidx = (elems[i]->length != 1);
+					int nindnum = (elems[i]->name ? 0 : indicesnum + extraidx);
+					uint64_t nind[nindnum];
+					if (!elems[i]->name) {
+						for (j = 0; j < indicesnum; j++)
+							nind[j] = indices[j];
+						if (extraidx)
+							nind[indicesnum] = idx;
+					}
+					res = trymatch (ctx, elems[i]->subelems, elems[i]->subelemsnum, offset, write, dwidth, nind, nindnum);
+					if (!res)
+						continue;
+					if (!elems[i]->name)
+						return res;
+					asprintf (&name, "%s%s%s", ctx->colors->cname, elems[i]->name, ctx->colors->cend);
+					for (j = 0; j < indicesnum; j++)
+						name = appendidx(ctx, name, indices[j]);
+					if (elems[i]->length != 1)
+						name = appendidx(ctx, name, idx);
+					asprintf (&tmp, "%s.%s", name, res->name);
+					free(name);
+					free(res->name);
+					res->name = tmp;
+					return res;
+				}
+				break;
+			case RNN_ETYPE_ARRAY:
+				if (addr < elems[i]->offset)
+					break;
+				idx = (addr-elems[i]->offset)/elems[i]->stride;
+				offset = (addr-elems[i]->offset)%elems[i]->stride;
+				if (elems[i]->length && idx >= elems[i]->length)
+					break;
+				asprintf (&name, "%s%s%s", ctx->colors->cname, elems[i]->name, ctx->colors->cend);
+				for (j = 0; j < indicesnum; j++)
+					name = appendidx(ctx, name, indices[j]);
+				if (elems[i]->length != 1)
+					name = appendidx(ctx, name, idx);
+				if ((res = trymatch (ctx, elems[i]->subelems, elems[i]->subelemsnum, offset, write, dwidth, 0, 0))) {
+					asprintf (&tmp, "%s.%s", name, res->name);
+					free(name);
+					free(res->name);
+					res->name = tmp;
+					return res;
+				}
+				res = calloc (sizeof *res, 1);
+				asprintf (&tmp, "%s+%s%#"PRIx64"%s", name, ctx->colors->cerr, offset, ctx->colors->cend);
+				free(name);
+				res->name = tmp;
+				return res;
+			default:
+				break;
+		}
+	}
+	return 0;
+}
+
+struct rnndecaddrinfo *rnndec_decodeaddr(struct rnndeccontext *ctx, struct rnndomain *domain, uint64_t addr, int write) {
+	return trymatch(ctx, domain->subelems, domain->subelemsnum, addr, write, domain->width, 0, 0);
 }
