@@ -278,7 +278,7 @@
 		<reg32 offset="0x218" name="RAMRO" variants="NV03-">
 			<bitfield high="15" low="9" name="ADDRESS" variants="NV03:NV04" shr="9"/>
 			<bitfield high="8" low="1" name="ADDRESS" variants="NV04-" shr="9"/>
-			<bitfield hgih="16" low="16" name="SIZE">
+			<bitfield high="16" low="16" name="SIZE">
 				<value value="0" name="512"/>
 				<value value="1" name="8K"/>
 			</bitfield>
