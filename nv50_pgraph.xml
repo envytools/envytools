@@ -106,7 +106,12 @@
 		<bitfield name="UNK34XX" high="20" low="20" /> <!-- NV50 strand 2. NVA0 strand 0. -->
 		<bitfield name="ROP" high="21" low="21" /> <!-- 7xxx, NV50 strands 1 and 3. NVA0 strand 5. -->
 	</reg32>
-	<reg32 offset="0x0080" name="DEBUG_0"/>
+	<reg32 offset="0x0080" name="DEBUG_0">
+		<bitfield high="4" low="4" name="INVALID_OBJECT_CHECK"/>
+		<bitfield high="7" low="7" name="INVALID_VALUE_CHECK"/> <!-- also INVALID_ENUM, INVALID_QUERY_OR_TEXTURE -->
+		<bitfield high="8" low="8" name="INVALID_BITFIELD_CHECK"/>
+		<bitfield high="9" low="9" name="UNK9"/> <!-- makes COMPUTE not work for some reason. -->
+	</reg32>
 	<reg32 offset="0x0088" name="DEBUG_2"/>
 	<reg32 offset="0x008c" name="DEBUG_3">
 		<bitfield name="HW_CONTEXT_SWITCH" high="2" low="2" />
