@@ -176,7 +176,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x032c" name="UNK032C">
 			<doc>Accepts 0-1?</doc>
 		</reg32>
-		<reg32 offset="0x0330" name="UNK0330" length="10">
+		<reg32 offset="0x0330" name="UNK0330">
+			<doc>Accepts anything.</doc>
+		</reg32>
+		<reg32 offset="0x0334" name="UNK0334" length="3" varset="chipset" variants="NV84-">
+			<doc>Accepts anything.</doc>
+		</reg32>
+		<reg32 offset="0x0340" name="UNK0340" length="4">
+			<doc>Accepts anything.</doc>
+		</reg32>
+		<reg32 offset="0x0350" name="UNK0350" length="2" varset="chipset" variants="NV84-">
 			<doc>Accepts anything.</doc>
 		</reg32>
 		<reg32 offset="0x0358" name="UNK0358">
@@ -225,7 +234,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			pending.</doc>
 		</reg32>
 		<reg32 offset="0x0388" name="GRIDID"/> <!-- 16 bits -->
-		<reg32 offset="0x038c" name="UNK038C" length="6">
+		<reg32 offset="0x038c" name="UNK038C" length="6" varset="chipset" variants="NV84-">
 			<doc>Accepts anything.</doc>
 		</reg32>
 		<reg32 offset="0x03a4" name="GRIDDIM">
@@ -272,19 +281,19 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				caches.</doc>
 			</bitfield>
 		</reg32>
-		<reg32 offset="0x03d4" name="UNK03D4">
+		<reg32 offset="0x03d4" name="UNK03D4" varset="chipset" variants="NV84-">
 			<doc>Accepts anything.</doc>
 		</reg32>
-		<reg32 offset="0x03d8" name="UNK03D8">
+		<reg32 offset="0x03d8" name="UNK03D8" varset="chipset" variants="NV84-">
 			<doc>Accepts anything.</doc>
 		</reg32>
-		<reg32 offset="0x03dc" name="UNK03DC">
+		<reg32 offset="0x03dc" name="UNK03DC" varset="chipset" variants="NV84-">
 			<doc>Accepts anything.</doc>
 		</reg32>
-		<reg32 offset="0x03e0" name="UNK03E0">
+		<reg32 offset="0x03e0" name="UNK03E0" varset="chipset" variants="NV84-">
 			<doc>Accepts anything.</doc>
 		</reg32>
-		<reg32 offset="0x03e4" name="UNK03E4">
+		<reg32 offset="0x03e4" name="UNK03E4" varset="chipset" variants="NV84-">
 			<doc>Accepts anything.</doc>
 		</reg32>
 		<reg32 offset="0x03e8" name="UNK03E8" variants="NVA3_COMPUTE">
@@ -307,6 +316,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</reg32>
 		</stripe>
 		<reg32 offset="0x0600" name="USER_PARAM" length="64"/>
+		<reg32 offset="0x0700" name="UNK0700" length="16" varset="chipset" variants="NV50"/>
 	</stripe>
 </domain>
 
