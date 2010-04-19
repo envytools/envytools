@@ -235,6 +235,7 @@ struct insn tabcmd5[] = {
 struct insn tabcmd4[] = {
 	{ NV4x, 0x07, 0x1f, C("NEXT_TO_SWAP") },	// copies 330 [new channel] to 784 [channel used for ctx RAM access]
 	{ NV4x, 0x09, 0x1f, C("NEXT_TO_CURRENT") },	// movs new channel RAMIN address to current channel RAMIN address, basically where the real switch happens
+	{ NV4x, 0x0a, 0x1f, C("SET_CONTEXT_POINTER") },	// copies scratch to 334
 	{ NV4x, 0x0e, 0x1f, C("END") },
 	{ NVxx, 0, 0, OOPS },
 };
