@@ -118,7 +118,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 	<!-- M2MF -->
 	<value value="0x0039" name="NV04_M2MF" variants="NV04:NV50"/>
-	<value value="0x5039" name="NV50_M2MF" variants="NV50-"/>
+	<value value="0x5039" name="NV50_M2MF" variants="NV50:NVC0"/>
 
 	<!-- old-style pre-nv20 3D objects -->
 	<value value="0x0048" name="NV03_TEXTURED_TRIANGLE" variants="NV03:NV11"/>
@@ -152,9 +152,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x8597" name="NVA3_3D" variants="NVA3 NVA5 NVA8"/>
 
 	<!-- nv50+ non-3D objects -->
-	<value value="0x502d" name="NV50_2D" variants="NV50-"/>
+	<value value="0x502d" name="NV50_2D" variants="NV50:NVC0"/>
 
-	<value value="0x50c0" name="NV50_COMPUTE" variants="NV50-"/>
+	<value value="0x50c0" name="NV50_COMPUTE" variants="NV50:NVC0"/>
 	<value value="0x85c0" name="NVA3_COMPUTE" variants="NVA3 NVA5 NVA8"/>
 </enum>
 

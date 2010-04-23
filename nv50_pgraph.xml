@@ -74,7 +74,7 @@
 </enum>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
-<stripe name="PGRAPH" offset="0x400000" stride="0x10000" length="1" variants="NV50-">
+<stripe name="PGRAPH" offset="0x400000" stride="0x10000" length="1" variants="NV50:NVC0">
 	<reg32 offset="0x0040" name="DISABLE">
 		<brief>Disable / reset subunits</brief>
 		<doc>Writing 1 to a bit disables given subunit, causes it to disappear from MMIO,
