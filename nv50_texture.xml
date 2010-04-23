@@ -104,7 +104,7 @@
 		<bitfield high="31" low="31" name="NORMALIZED_COORDS" />
 	</reg32>
 
-	<reg32 offset="0xc" name="4">
+	<reg32 offset="0xc" name="3">
 		<bitfield high="31" low="0" name="PITCH">
 			<brief>for linear textures</brief>
 		</bitfield>
