@@ -191,7 +191,7 @@
 		Available engines are SOFTWARE and PGRAPH. When engine is SOFTWARE, the "submission"
 		involves raising the CACHE_ERROR interrupt and waiting for the CPU to handle the situation.
 
-		On NV01 and NV03, the CTX registers are gone, and the only information the PFIFO stores
+		On NV04+, the CTX registers are gone, and the only information the PFIFO stores
 		is what engine each subchannel is bound to. The actual object is expected to be remembered
 		by the engine itself instead. When method 0 is encountered, the param is looked up in RAMHT,
 		the engine is changed appropriately, and the instance address is sent to relevant execution
