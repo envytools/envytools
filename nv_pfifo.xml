@@ -569,7 +569,7 @@
 		</reg32>
 		<reg32 offset="0x1404" name="CACHE1_DATA" stride="0x8" length="64" variants="NV03P:NV04"/>
 		<reg32 offset="0x1800" name="CACHE1_ADDR" stride="0x8" length="256" variants="NV04-">
-			<doc>Note that the cache acutally only has 128 entries,
+			<doc>Note that the cache actually only has 128 entries,
 			the higher 128 are aliases. This is done so that GET/PUT
 			pointers can be unambigously set to X, X [CACHE empty],
 			or X, X+400 [CACHE full].</doc>
