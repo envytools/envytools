@@ -91,7 +91,7 @@
 		submit commands.
 
 		In PIO mode, commands are submitted by writing the data to address channel_base + subchannel
-		* 0x2000 + method. Address channel+base + subchannel * 0x2000 + 0x10 is a special "free count"
+		* 0x2000 + method. Address channel_base + subchannel * 0x2000 + 0x10 is a special "free count"
 		register, telling you the number of free bytes in the cache. Somewhat confusingly, free count
 		and the cache get/put registers are counted in bytes, and only take into account the data bytes.
 		Ie. a single method+data cache slot counts as 4 bytes.
@@ -100,7 +100,7 @@
 		the failing access is instead stored to so-called RAMRO area. This includes pilot errors
 		like writing to reserved method, writing something else than aligned 32-bit word, or writing
 		over the free count, but also some conditions that happen naturally, like cache being taken
-		by another channel atm. When RAMRO is written, the RUNOUT interupt is triggered. When RAMRO
+		by another channel atm. When RAMRO is written, the RUNOUT interrupt is triggered. When RAMRO
 		overflows, the RUNOUT_OVERFLOW interrupt is triggered, and you're basically screwed.
 
 		It should be noted that the PIO mode is inherently broken, due to race conditions. If you
