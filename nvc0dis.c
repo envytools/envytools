@@ -424,7 +424,70 @@ F1(pnot1, 0x17, N("not"))
 F1(pnot2, 0x1d, N("not"))
 F1(pnot3, 0x34, N("not"))
 
+F1(dtex, 0x2d, N("deriv"))
 F(ltex, 9, N("all"), N("live"))
+
+struct insn tabtexf[] = {
+	{ AP, 0, 0, T(ltex), T(dtex) },
+};
+
+struct insn tablane[] = {
+	{ AP, 0x0000000000000000ull, 0x00000000000001e0ull, N("lnone") },
+	{ AP, 0x0000000000000020ull, 0x00000000000001e0ull, N("l0") },
+	{ AP, 0x0000000000000040ull, 0x00000000000001e0ull, N("l1") },
+	{ AP, 0x0000000000000060ull, 0x00000000000001e0ull, N("l01") },
+	{ AP, 0x0000000000000080ull, 0x00000000000001e0ull, N("l2") },
+	{ AP, 0x00000000000000a0ull, 0x00000000000001e0ull, N("l02") },
+	{ AP, 0x00000000000000c0ull, 0x00000000000001e0ull, N("l12") },
+	{ AP, 0x00000000000000e0ull, 0x00000000000001e0ull, N("l012") },
+	{ AP, 0x0000000000000100ull, 0x00000000000001e0ull, N("l3") },
+	{ AP, 0x0000000000000120ull, 0x00000000000001e0ull, N("l03") },
+	{ AP, 0x0000000000000140ull, 0x00000000000001e0ull, N("l13") },
+	{ AP, 0x0000000000000160ull, 0x00000000000001e0ull, N("l013") },
+	{ AP, 0x0000000000000180ull, 0x00000000000001e0ull, N("l23") },
+	{ AP, 0x00000000000001a0ull, 0x00000000000001e0ull, N("l023") },
+	{ AP, 0x00000000000001c0ull, 0x00000000000001e0ull, N("l123") },
+	{ AP, 0x00000000000001e0ull, 0x00000000000001e0ull },
+};
+
+// for quadop
+struct insn tabqs1[] = {
+	{ AP, 0x0000000000000000ull, 0x00000000000001c0ull, N("l0") },
+	{ AP, 0x0000000000000040ull, 0x00000000000001c0ull, N("l1") },
+	{ AP, 0x0000000000000080ull, 0x00000000000001c0ull, N("l2") },
+	{ AP, 0x00000000000000c0ull, 0x00000000000001c0ull, N("l3") },
+	{ AP, 0x0000000000000100ull, 0x00000000000001c0ull, N("dx") },
+	{ AP, 0x0000000000000140ull, 0x00000000000001c0ull, N("dy") },
+	{ AP, 0, 0 },
+};
+
+struct insn tabqop0[] = {
+	{ AP, 0x0000000000000000ull, 0x0000000300000000ull, N("add") },
+	{ AP, 0x0000000100000000ull, 0x0000000300000000ull, N("subr") },
+	{ AP, 0x0000000200000000ull, 0x0000000300000000ull, N("sub") },
+	{ AP, 0x0000000300000000ull, 0x0000000300000000ull, N("mov2") },
+};
+
+struct insn tabqop1[] = {
+	{ AP, 0x0000000000000000ull, 0x0000000c00000000ull, N("add") },
+	{ AP, 0x0000000400000000ull, 0x0000000c00000000ull, N("subr") },
+	{ AP, 0x0000000800000000ull, 0x0000000c00000000ull, N("sub") },
+	{ AP, 0x0000000c00000000ull, 0x0000000c00000000ull, N("mov2") },
+};
+
+struct insn tabqop2[] = {
+	{ AP, 0x0000000000000000ull, 0x0000003000000000ull, N("add") },
+	{ AP, 0x0000001000000000ull, 0x0000003000000000ull, N("subr") },
+	{ AP, 0x0000002000000000ull, 0x0000003000000000ull, N("sub") },
+	{ AP, 0x0000003000000000ull, 0x0000003000000000ull, N("mov2") },
+};
+
+struct insn tabqop3[] = {
+	{ AP, 0x0000000000000000ull, 0x000000c000000000ull, N("add") },
+	{ AP, 0x0000004000000000ull, 0x000000c000000000ull, N("subr") },
+	{ AP, 0x0000008000000000ull, 0x000000c000000000ull, N("sub") },
+	{ AP, 0x000000c000000000ull, 0x000000c000000000ull, N("mov2") },
+};
 
 struct insn tabsetlop[] = {
 	{ AP, 0x000e000000000000ull, 0x006e000000000000ull },	// noop, really "and $p7"
@@ -586,7 +649,7 @@ struct insn tabm[] = {
 	{ AP, 0x3000000000000000ull, 0xf800000000000007ull, N("add"), T(fmf), T(ias), T(farm), N("f32"), DST, T(neg1), N("mul"), SRC1, T(fs2), T(neg2), SRC3 },
 	{ AP, 0x3800000000000000ull, 0xf800000000000007ull, N("slct"), N("b32"), DST, SRC1, T(fs2), T(setit), N("f32"), SRC3 },
 	// 40?
-	// 48?
+	{ AP, 0x4800000000000000ull, 0xf800000000000007ull, N("quadop"), N("f32"), T(qop0), T(qop1), T(qop2), T(qop3), DST, T(qs1), SRC1, T(fs2) },
 	{ AP, 0x5000000000000000ull, 0xf800000000000007ull, N("add"), T(faf), T(fas), T(farm), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
 	{ AP, 0x5800000000000000ull, 0xf800000000000007ull, N("mul"), T(fmf), T(ias), T(farm), T(fmneg), N("f32"), DST, SRC1, T(fs2) },
 	{ AP, 0x6000000000000000ull, 0xf800000000000027ull, N("presin"), N("f32"), DST, T(fs2) },
@@ -665,7 +728,7 @@ struct insn tabm[] = {
 	{ AP, 0x1c00000000000004ull, 0xfc00000000000007ull, N("cvt"), T(ias), T(cvtidst), T(cvtisrc) },
 	{ AP, 0x2000000000000004ull, 0xfc00000000000007ull, N("selp"), N("b32"), DST, SRC1, T(is2), T(pnot3), PSRC3 },
 	{ AP, 0x2400000000000004ull, 0xfc00000000000007ull, N("prmt"), T(prmtmod), N("b32"), DST, SRC1, SRC3, T(is2) }, // NFI what this does. and sources 2 and 3 are swapped for some reason.
-	{ AP, 0x28000000000001e4ull, 0xfc000000000001e7ull, N("mov"), N("b32"), DST, T(is2) },
+	{ AP, 0x2800000000000004ull, 0xfc00000000000007ull, T(lane), N("mov"), N("b32"), DST, T(is2) },
 	{ AP, 0x2c00000000000004ull, 0xfc00000000000007ull, N("mov"), N("b32"), DST, T(sreg) },
 	{ AP, 0x3000c3c003f00004ull, 0xfc00c3c003f00004ull, N("mov"), DST, CC },
 	{ AP, 0x3400c3c000000004ull, 0xfc00c3c000000004ull, N("mov"), CC, SRC1 },
@@ -714,9 +777,9 @@ struct insn tabm[] = {
 	{ AP, 0x06000000fff00006ull, 0xfe000000fff00007ull, N("vfetch"), VDST, T(ldvf), ATTR },
 	{ AP, 0x0a7e000003f00006ull, 0xfe7e000003f00007ull, N("export"), VAR, ESRC },
 	{ AP, 0x1400000000000006ull, 0xfc00000000000007ull, N("ld"), T(ldstt), T(ldstd), FCONST },
-	{ AP, 0x80000000fc000086ull, 0xfc000000fc000087ull, N("texauto"), T(ltex), TDST, TEX, SAMP, TSRC }, // mad as a hatter.
-	{ AP, 0x90000000fc000086ull, 0xfc000000fc000087ull, N("texfetch"), T(ltex), TDST, TEX, SAMP, TSRC },
-	{ AP, 0x0000000000000006ull, 0x0000000000000007ull, OOPS, T(ltex), TDST, TEX, SAMP, TSRC }, // is assuming a tex instruction a good idea here? probably. there are loads of unknown tex insns after all.
+	{ AP, 0x80000000fc000086ull, 0xfc000000fc000087ull, N("texauto"), T(texf), TDST, TEX, SAMP, TSRC }, // mad as a hatter.
+	{ AP, 0x90000000fc000086ull, 0xfc000000fc000087ull, N("texfetch"), T(texf), TDST, TEX, SAMP, TSRC },
+	{ AP, 0x0000000000000006ull, 0x0000000000000007ull, OOPS, T(texf), TDST, TEX, SAMP, TSRC }, // is assuming a tex instruction a good idea here? probably. there are loads of unknown tex insns after all.
 
 
 
@@ -738,6 +801,8 @@ struct insn tabc[] = {
 	{ AP, 0x6000000000000007ull, 0xf000000000000007ull, N("joinat"), CTARG },
 	{ AP, 0x80000000000001e7ull, 0xf0000000000001e7ull, T(p), N("exit") },
 	{ AP, 0x90000000000001e7ull, 0xf0000000000001e7ull, T(p), N("ret") },
+	{ AP, 0xc000000000000007ull, 0xf800000000000007ull, N("quadon") },
+	{ AP, 0xc800000000000007ull, 0xf800000000000007ull, N("quadpop") },
 	{ AP, 0xd000000000000007ull, 0xf00000000000c007ull, N("membar"), N("cta") },
 	{ AP, 0xd00000000000c007ull, 0xf00000000000c007ull, N("trap") },
 	{ AP, 0x0000000000000007ull, 0x0000000000000007ull, T(p), OOPS, CTARG },
