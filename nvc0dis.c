@@ -230,6 +230,34 @@ void atomtsrc APROTO {
 	fprintf (out, " %s}", cnorm);
 }
 
+#define ESRC atomesrc, 0
+void atomesrc APROTO {
+	int base = BF(26, 6);
+	int cnt = BF(5, 2);
+	int i;
+	fprintf (out, " %s{", cnorm);
+	for (i = 0; i <= cnt; i++)
+		fprintf (out, " %s$r%d", cbl, base+i);
+	fprintf (out, " %s}", cnorm);
+}
+
+#define VDST atomvdst, 0
+void atomvdst APROTO {
+	int base = BF(14, 6);
+	int cnt = BF(5, 2);
+	int i;
+	fprintf (out, " %s{", cnorm);
+	for (i = 0; i <= cnt; i++)
+		fprintf (out, " %s$r%d", cbl, base+i);
+	fprintf (out, " %s}", cnorm);
+}
+
+#define VSRC atomvsrc, 0
+void atomvsrc APROTO {
+	uint32_t delta = BF(32, 16);
+	fprintf (out, " %sa[%s%#x%s]", ccy, cyel, delta, ccy);
+}
+
 /*
  * Memory fields
  */
@@ -255,6 +283,12 @@ void atommem APROTO {
 		fprintf (out, "%s-%s%#x%s]", ccy, cyel, -delta, ccy);
 	else
 		fprintf (out, "%s+%s%#x%s]", ccy, cyel, delta, ccy);
+}
+
+#define SVAR atomvar, 0
+void atomvar APROTO {
+	uint32_t delta =  BF(32, 16);
+	fprintf (out, " %sv[%s%#x%s]", ccy, cyel, delta, ccy);
 }
 
 #define CONST atomconst, 0
@@ -302,6 +336,13 @@ struct insn tabldstd[] = {
 	{ AP, 0xa0, 0xe0, DSTD },
 	{ AP, 0xc0, 0xe0, DSTQ },
 	{ AP, 0, 0, OOPS, DST },
+};
+
+struct insn tabldvf[] = {
+	{ AP, 0x60, 0xe0, N("b128") },
+	{ AP, 0x40, 0xe0, N("b96") },
+	{ AP, 0x20, 0xe0, N("b64") },
+	{ AP, 0x00, 0xe0, N("b32") },
 };
 
 struct insn tabfarm[] = {
@@ -550,7 +591,9 @@ struct insn tabm[] = {
 	{ AP, 0x5800000000000000ull, 0xf800000000000007ull, N("mul"), T(fmf), T(ias), T(farm), T(fmneg), N("f32"), DST, SRC1, T(fs2) },
 	{ AP, 0x6000000000000000ull, 0xf800000000000027ull, N("presin"), N("f32"), DST, T(fs2) },
 	{ AP, 0x6000000000000020ull, 0xf800000000000027ull, N("preex2"), N("f32"), DST, T(fs2) },
-	// 68-c0?
+	// 68?
+	{ AP, 0xc07e0000fff00000ull, 0xf87e0000fff00047ull, N("linterp"), N("f32"), DST, SVAR },
+	{ AP, 0xc07e000003f00040ull, 0xf87e000003f00047ull, N("pinterp"), N("f32"), DST, SRC2, SVAR },
 	{ AP, 0xc800000000000000ull, 0xf80000001c000007ull, N("cos"), N("f32"), DST, SRC1 },
 	{ AP, 0xc800000004000000ull, 0xf80000001c000007ull, N("sin"), N("f32"), DST, SRC1 },
 	{ AP, 0xc800000008000000ull, 0xf80000001c000007ull, N("ex2"), N("f32"), DST, SRC1 },
@@ -610,6 +653,8 @@ struct insn tabm[] = {
 	{ AP, 0x7800000000000003ull, 0xf800000000000007ull, N("bfind"), T(us32), DST, T(not2), T(is2) }, // index of highest bit set, counted from 0, -1 for 0 src. or highest bit different from sign for signed version. check me.
 	{ AP, 0x0000000000000003ull, 0x0000000000000007ull, OOPS, N("b32"), DST, SRC1, T(is2), SRC3 },
 
+	{ AP, 0x0a7e000003f00006ull, 0xfe7e000003f00007ull, N("export"), SVAR, ESRC },
+	{ AP, 0x06000000fff00006ull, 0xf7000000fff00007ull, N("vfetch"), VDST, T(ldvf), VSRC },
 
 	// 08?
 	{ AP, 0x0c0e00000001c004ull, 0xfc0e0000c001c007ull, N("and"), PDST, T(pnot1), PSRC1, T(pnot2), PSRC2 },
@@ -671,7 +716,6 @@ struct insn tabm[] = {
 	{ AP, 0x80000000fc000086ull, 0xfc000000fc000087ull, N("texauto"), T(ltex), TDST, TEX, SAMP, TSRC }, // mad as a hatter.
 	{ AP, 0x90000000fc000086ull, 0xfc000000fc000087ull, N("texfetch"), T(ltex), TDST, TEX, SAMP, TSRC },
 	{ AP, 0x0000000000000006ull, 0x0000000000000007ull, OOPS, T(ltex), TDST, TEX, SAMP, TSRC }, // is assuming a tex instruction a good idea here? probably. there are loads of unknown tex insns after all.
-
 
 
 
