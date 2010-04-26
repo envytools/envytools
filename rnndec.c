@@ -286,5 +286,10 @@ static struct rnndecaddrinfo *trymatch (struct rnndeccontext *ctx, struct rnndel
 }
 
 struct rnndecaddrinfo *rnndec_decodeaddr(struct rnndeccontext *ctx, struct rnndomain *domain, uint64_t addr, int write) {
-	return trymatch(ctx, domain->subelems, domain->subelemsnum, addr, write, domain->width, 0, 0);
+	struct rnndecaddrinfo *res = trymatch(ctx, domain->subelems, domain->subelemsnum, addr, write, domain->width, 0, 0);
+	if (res)
+		return res;
+	res = calloc (sizeof *res, 1);
+	asprintf (&res->name, "%s%#"PRIx64"%s", ctx->colors->cerr, addr, ctx->colors->cend);
+	return res;
 }
