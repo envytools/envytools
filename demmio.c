@@ -61,7 +61,7 @@ int main(int argc, char **argv) {
 				}
 				struct rnndecaddrinfo *ai = rnndec_decodeaddr(ctx, mmiodom, addr, line[0] == 'W');
 				char *decoded_val = rnndec_decodeval(ctx, ai->typeinfo, value, ai->width);
-				printf ("MMIO%d %s %s %s\n", width, ai->name, line[0]=='W'?"<=":"=>", decoded_val);
+				printf ("MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %s %s %s\n", width, line[0], addr, value, ai->name, line[0]=='W'?"<=":"=>", decoded_val);
 				free(ai->name);
 				free(ai);
 				free(decoded_val);
