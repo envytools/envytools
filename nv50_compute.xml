@@ -82,7 +82,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x0290" name="UNK0290" type="boolean"/>
 		<reg32 offset="0x0294" name="LOCAL_ADDRESS_HIGH"/>
-		<reg32 offset="0x0298" name="LOCAL_ADDRESS_LOW"/>
+		<reg32 offset="0x0298" name="LOCAL_ADDRESS_LOW" align="0x100"/>
 		<reg32 offset="0x029c" name="LOCAL_SIZE_LOG" type="uint">
 			<doc>log2(size_in_bytes/8). 1-0xd, or 0 to disable local.</doc>
 		</reg32>
@@ -164,6 +164,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>if not set, clamp number of executed warps to allocated
 			above. if set, ignore it, the extra warps will alias.</doc>
 		</reg32>
+		<reg32 offset="0x030c" name="UNK030C" type="boolean"/>
 		<reg32 offset="0x0310" name="QUERY_ADDRESS_HIGH"/>
 		<reg32 offset="0x0314" name="QUERY_ADDRESS_LOW"/>
 		<reg32 offset="0x0318" name="QUERY_COUNTER"/>
@@ -182,13 +183,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Accepts anything.</doc>
 		</reg32>
 		<reg32 offset="0x0334" name="UNK0334" length="3" varset="chipset" variants="NV84-">
-			<doc>Accepts anything.</doc>
+			<doc>Accepts anything. In DISPATCH!</doc>
 		</reg32>
-		<reg32 offset="0x0340" name="UNK0340" length="4">
+		<reg32 offset="0x0340" name="UNK0340" length="2">
+			<doc>Accepts anything. In DISPATCH!</doc>
+		</reg32>
+		<reg32 offset="0x0348" name="UNK0348" length="2">
 			<doc>Accepts anything.</doc>
 		</reg32>
 		<reg32 offset="0x0350" name="UNK0350" length="2" varset="chipset" variants="NV84-">
-			<doc>Accepts anything.</doc>
+			<doc>Accepts anything. In DISPATCH!</doc>
 		</reg32>
 		<reg32 offset="0x0358" name="UNK0358">
 			<doc>Accepts 0-1?</doc>
@@ -237,7 +241,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x0388" name="GRIDID"/> <!-- 16 bits -->
 		<reg32 offset="0x038c" name="UNK038C" length="6" varset="chipset" variants="NV84-">
-			<doc>Accepts anything.</doc>
+			<doc>Accepts anything. Scan fail.</doc>
 		</reg32>
 		<reg32 offset="0x03a4" name="GRIDDIM">
 			<bitfield name="X" high="15" low="0" type="int"/>
@@ -284,19 +288,19 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x03d4" name="UNK03D4" varset="chipset" variants="NV84-">
-			<doc>Accepts anything.</doc>
+			<doc>Accepts anything. No DISPATCH</doc>
 		</reg32>
 		<reg32 offset="0x03d8" name="UNK03D8" varset="chipset" variants="NV84-">
-			<doc>Accepts anything.</doc>
+			<doc>Accepts anything. No DISPATCH</doc>
 		</reg32>
 		<reg32 offset="0x03dc" name="UNK03DC" varset="chipset" variants="NV84-">
-			<doc>Accepts anything.</doc>
+			<doc>Accepts anything. No DISPATCH</doc>
 		</reg32>
 		<reg32 offset="0x03e0" name="UNK03E0" varset="chipset" variants="NV84-">
-			<doc>Accepts anything.</doc>
+			<doc>Accepts anything. No DISPATCH</doc>
 		</reg32>
 		<reg32 offset="0x03e4" name="UNK03E4" varset="chipset" variants="NV84-">
-			<doc>Accepts anything.</doc>
+			<doc>Accepts anything. No DISPATCH</doc>
 		</reg32>
 		<reg32 offset="0x03e8" name="UNK03E8" variants="NVA3_COMPUTE">
 			<doc>Bits 3. Pending scan.</doc>
