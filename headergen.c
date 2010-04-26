@@ -65,6 +65,12 @@ void printbitfield (struct rnnbitfield *bf, int shift);
 void printtypeinfo (struct rnntypeinfo *ti, char *prefix, int shift) {
 	if (ti->shr)
 		printdef (prefix, "SHR", 1, ti->shr);
+	if (ti->minvalid)
+		printdef (prefix, "MIN", 0, ti->min);
+	if (ti->maxvalid)
+		printdef (prefix, "MAX", 0, ti->max);
+	if (ti->alignvalid)
+		printdef (prefix, "ALIGN", 0, ti->align);
 	int i;
 	for (i = 0; i < ti->valsnum; i++)
 		printvalue(ti->vals[i], shift);
