@@ -9,6 +9,17 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 <array name="PGRAPH" offset="0x400000" stride="0x200000" length="1" variants="NVC0-">
 
+	<array name="ROPC" offset="0x10000" stride="0x400" length="5">
+
+	</array>
+
+	<array name="TP" offset="0x100000" stride="0x8000" length="4">
+		
+		<array name="MP" offset="0x4000" stride="0x800" length="4">
+
+		</array>
+
+	</array>
 </array>
 </domain>
 
