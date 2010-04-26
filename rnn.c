@@ -137,6 +137,18 @@ static int trytypeattr (struct rnndb *db, char *file, xmlNode *node, xmlAttr *at
 	if (!strcmp(attr->name, "shr")) {
 		ti->shr = getnumattrib(db, file, node->line, attr);
 		return 1;
+	} else if (!strcmp(attr->name, "min")) {
+		ti->min = getnumattrib(db, file, node->line, attr);
+		ti->minvalid = 1;
+		return 1;
+	} else if (!strcmp(attr->name, "max")) {
+		ti->max = getnumattrib(db, file, node->line, attr);
+		ti->maxvalid = 1;
+		return 1;
+	} else if (!strcmp(attr->name, "align")) {
+		ti->align = getnumattrib(db, file, node->line, attr);
+		ti->alignvalid = 1;
+		return 1;
 	} else if (!strcmp(attr->name, "type")) {
 		ti->name = strdup(getattrib(db, file, node->line, attr));;
 		return 1;

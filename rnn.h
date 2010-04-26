@@ -107,6 +107,7 @@ struct rnntypeinfo {
 	int valsmax;
 	int shr;
 	uint64_t min, max, align;
+	int minvalid, maxvalid, alignvalid;
 };
 
 struct rnnbitset {
