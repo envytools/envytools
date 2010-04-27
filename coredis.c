@@ -96,3 +96,11 @@ void atomhreg APROTO {
 	if (r == 127 && n[2] == 'o') fprintf (out, " %s#", cbl);
 	else fprintf (out, " %s$%c%d%c", (n[2]=='r')?cbl:cmag, n[2], r>>1, "lh"[r&1]);
 }
+
+uint32_t readle32 (uint8_t *p) {
+	return p[0] | p[1] << 8 | p[2] << 16 | p[3] << 24;
+}
+
+uint16_t readle16 (uint8_t *p) {
+	return p[0] | p[1] << 8;
+}

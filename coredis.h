@@ -151,4 +151,7 @@ void atomdreg APROTO;
 void atomqreg APROTO;
 void atomhreg APROTO;
 
+uint32_t readle32 (uint8_t *);
+uint16_t readle16 (uint8_t *);
+
 #endif

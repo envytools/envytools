@@ -23,7 +23,6 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <byteswap.h>
 #include "coredis.h"
 
 /*
@@ -288,12 +287,6 @@ void nv50dis (FILE *out, uint32_t *code, int num, int ptype) {
 	}
 }
 
-struct nouveau_ctxprog {
-	uint32_t signature;
-	uint8_t  version;
-	uint16_t length;
-} __attribute__ ((packed));
-
 /*
  * Options:
  *
@@ -335,27 +328,32 @@ int main(int argc, char **argv) {
 	uint32_t *code = malloc (maxnum * 4);
 	uint32_t t;
 	if(binary) {
-		struct nouveau_ctxprog hdr;
+		uint8_t hdr[7];
+		uint32_t signature;
+		uint8_t version;
+		uint16_t length;
+		uint8_t b[4];
 
 		if(fread(&hdr, 7, 1, stdin) != 1) {
 			fprintf(stderr, "unable to read the ctxprog header\n");
 			return 1;
 		}
-#ifdef WORDS_BIGENDIAN
-		hdr.signature = bswap_32(hdr.signature);
-		hdr.length = bswap_16(hdr.length);
-#endif
-		if(hdr.signature != 0x5043564e || hdr.version != 0) {
+		
+		signature = readle32(hdr);
+		version = hdr[4];
+		length = readle16(hdr+5);
+
+		if(signature != 0x5043564e || version != 0) {
 			fprintf(stderr, "invalid ctxprog header\n");
 			return 1;
 		}
 
-		while (num < hdr.length && !feof(stdin) && fread(&t, 4, 1, stdin) == 1) {
+		while (num < length && !feof(stdin) && fread(&b, 4, 1, stdin) == 1) {
 			if (num == maxnum) maxnum *= 2, code = realloc (code, maxnum*4);
-			code[num++] = t;
+			code[num++] = readle32(b);
 		}
 
-		if(num < hdr.length)
+		if(num < length)
 			fprintf(stderr, "input ctxprog was truncated\n");
 	} else
 		while (!feof(stdin) && scanf ("%x", &t) == 1) {
