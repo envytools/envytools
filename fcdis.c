@@ -87,6 +87,27 @@ void fcdis (FILE *out, uint8_t *code, int num) {
 		} else {
 			for (i = cur; i < cur + length; i++)
 				fprintf (out, " %02x", code[i]);
+			for (i = 0; i < 4 - length; i++)
+				fprintf (out, "   ");
+			fprintf (out, " ");
+			if ((op == 0xf0 || op == 0xf1) && (code[cur+1] & 0xb) == 3) {
+				int reg = code[cur+1]>>4;
+				int imm = code[cur+2];
+				/* hmmm... maybe 0xf0 does sign-extension? */
+				if (op == 0xf1)
+					imm += code[cur+3] << 8;
+				if (!(code[cur+1]&4))
+					imm <<= 16;
+				fprintf(out, " %s%s%s", cgr, code[cur+1]&4?"limm":"lhigh", cnorm);
+				fprintf(out, " %s$r%d%s", cbl, reg, cnorm);
+				fprintf(out, " %s%#x%s", cyel, imm, cnorm);
+			} else if (op == 0xf5 && code[cur+1] == 0x21) {
+				fprintf(out, " %s%s %s%#x%s", cgr, "call", cbr, code[cur+3]<<8 | code[cur+2], cnorm);
+			} else if (op == 0xf8 && code[cur+1] == 0) {
+				fprintf(out, " %s%s%s", cgr, "ret", cnorm);
+			} else {
+				fprintf(out, " %s???%s", cred, cnorm);
+			}
 			cur += length;
 		}
 		printf ("\n");
