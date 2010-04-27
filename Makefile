@@ -1,4 +1,4 @@
-all: ctxdis nv50dis nvc0dis
+all: ctxdis nv50dis nvc0dis fcdis
 
 nv50dis: nv50dis.c coredis.h coredis.c
 	cc -o nv50dis nv50dis.c coredis.c
@@ -8,6 +8,9 @@ nvc0dis: nvc0dis.c coredis.h coredis.c
 
 ctxdis: ctxdis.c coredis.h coredis.c
 	cc -o ctxdis ctxdis.c coredis.c
+
+fcdis: fcdis.c coredis.h coredis.c
+	cc -o fcdis fcdis.c coredis.c
 
 clean:
 	rm -f ctxdis nv50dis nvc0dis
