@@ -5,6 +5,32 @@
 #include <inttypes.h>
 #include <string.h>
 
+int chdone = 0;
+int arch = 0;
+uint64_t praminbase = 0;
+uint64_t ramins = 0;
+
+struct mpage {
+	uint64_t tag;
+	uint32_t contents[0x1000/4];
+};
+
+struct mpage **pages = 0;
+int pagesnum = 0, pagesmax = 0;
+
+uint32_t *findmem (uint64_t addr) {
+	int i;
+	uint64_t tag = addr & ~0xfffull;
+	for (i = 0; i < pagesnum; i++) {
+		if (tag == pages[i]->tag)
+			return &pages[i]->contents[(addr&0xfff)/4];
+	}
+	struct mpage *pg = calloc (sizeof *pg, 1);
+	pg->tag = tag;
+	RNN_ADDARRAY(pages, pg);
+	return &pg->contents[(addr&0xfff)/4];
+}
+
 int main(int argc, char **argv) {
 	rnn_init();
 	if (argc < 3) {
@@ -22,7 +48,6 @@ int main(int argc, char **argv) {
 	FILE *fin = fopen(argv[2], "r");
 	char line[1024];
 	uint64_t bar0 = 0, bar0l, bar1, bar1l, bar2, bar2l;
-	int chdone = 0;
 	while (1) {
 		/* yes, static buffer. but mmiotrace lines are bound to have sane length anyway. */
 		if (!fgets(line, sizeof(line), fin))
@@ -58,19 +83,71 @@ int main(int argc, char **argv) {
 					else
 						snprintf(chname, 5, "NV%02"PRIX64, ((value >> 16) & 0xf));
 					rnndec_varadd(ctx, "chipset", chname);
+					switch ((value >> 20) & 0xf0) {
+						case 0:
+							arch = 0;
+							break;
+						case 0x10:
+							arch = 1;
+							break;
+						case 0x20:
+							arch = 2;
+							break;
+						case 0x30:
+							arch = 3;
+							break;
+						case 0x40:
+						case 0x60:
+							arch = 4;
+							break;
+						case 0x50:
+						case 0x80:
+						case 0x90:
+						case 0xa0:
+							arch = 5;
+							break;
+						case 0xc0:
+							arch = 6;
+							break;
+					}
+				} else if (arch >= 5 && addr == 0x1700) {
+					praminbase = value << 16;
+				} else if (arch >= 6 && addr == 0x1714) {
+					ramins = (value & 0xfffffff) << 12;
 				}
-				struct rnndecaddrinfo *ai = rnndec_decodeaddr(ctx, mmiodom, addr, line[0] == 'W');
-				char *decoded_val = rnndec_decodeval(ctx, ai->typeinfo, value, ai->width);
-				printf ("MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %s %s %s\n", width, line[0], addr, value, ai->name, line[0]=='W'?"<=":"=>", decoded_val);
-				free(ai->name);
-				free(ai);
-				free(decoded_val);
+				if (arch >= 5 && addr >= 0x700000 && addr < 0x800000) {
+					addr -= 0x700000;
+					addr += praminbase;
+					printf ("MEM%d %"PRIx64" %s %"PRIx64"\n", width, addr, line[0]=='W'?"<=":"=>", value);
+					*findmem(addr) = value;
+				} else {
+					struct rnndecaddrinfo *ai = rnndec_decodeaddr(ctx, mmiodom, addr, line[0] == 'W');
+					char *decoded_val = rnndec_decodeval(ctx, ai->typeinfo, value, ai->width);
+					printf ("MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %s %s %s\n", width, line[0], addr, value, ai->name, line[0]=='W'?"<=":"=>", decoded_val);
+					free(ai->name);
+					free(ai);
+					free(decoded_val);
+				}
 			} else if (bar1 && addr >= bar1 && addr < bar1+bar1l) {
 				addr -= bar1;
 				printf ("FB%d %"PRIx64" %s %"PRIx64"\n", width, addr, line[0]=='W'?"<=":"=>", value);
 			} else if (bar2 && addr >= bar2 && addr < bar2+bar2l) {
 				addr -= bar2;
-				printf ("RAMIN%d %"PRIx64" %s %"PRIx64"\n", width, addr, line[0]=='W'?"<=":"=>", value);
+				if (arch >= 6) {
+					uint64_t pd = *findmem(ramins + 0x200);
+					uint64_t pt = *findmem(pd + 4);
+					pt &= 0xfffffff0;
+					pt <<= 8;
+					uint64_t pg = *findmem(pt + (addr/0x1000) * 8);
+					pg &= 0xfffffff0;
+					pg <<= 8;
+					pg += (addr&0xfff);
+					*findmem(pg) = value;
+//					printf ("%"PRIx64" %"PRIx64" %"PRIx64" %"PRIx64"\n", ramins, pd, pt, pg);
+					printf ("RAMIN%d %"PRIx64" %"PRIx64" %s %"PRIx64"\n", width, addr, pg, line[0]=='W'?"<=":"=>", value);
+				} else {
+					printf ("RAMIN%d %"PRIx64" %s %"PRIx64"\n", width, addr, line[0]=='W'?"<=":"=>", value);
+				}
 			}
 		} else {
 			printf ("%s", line);
