@@ -65,7 +65,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 	<value value="0x001f" name="NV01_IMAGE_BLIT" variants="NV01:NV50"/>
 	<value value="0x005f" name="NV04_IMAGE_BLIT" variants="NV04-NV50"/>
-	<value value="0x009f" name="NV11_IMAGE_BLIT" variants="NV11:NV50"/>
+	<value value="0x009f" name="NV11_IMAGE_BLIT" variants="NV15:NV50"/>
 
 	<value value="0x0021" name="NV01_IMAGE_FROM_CPU" variants="NV01:NV40"/>
 	<value value="0x0061" name="NV04_IMAGE_FROM_CPU" variants="NV04:NV50"/>
@@ -95,7 +95,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x004a" name="NV04_GDI_RECTANGLE_TEXT" variants="NV04-NV50"/>
 
 	<value value="0x0052" name="NV04_SWIZZLED_SURFACE" variants="NV04:NV50"/>
-	<value value="0x009e" name="NV11_SWIZZLED_SURFACE" variants="NV11:NV50"/>
+	<value value="0x009e" name="NV11_SWIZZLED_SURFACE" variants="NV15:NV50"/>
 	<value value="0x039e" name="NV30_SWIZZLED_SURFACE" variants="NV30:NV40"/>
 	<value value="0x309e" name="NV40_SWIZZLED_SURFACE" variants="NV40:NV50"/>
 
@@ -123,7 +123,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x9039" name="NVC0_M2MF" variants="NVC0-"/>
 
 	<!-- old-style pre-nv20 3D objects -->
-	<value value="0x0048" name="NV03_TEXTURED_TRIANGLE" variants="NV03:NV11"/>
+	<value value="0x0048" name="NV03_TEXTURED_TRIANGLE" variants="NV03:NV15"/>
 
 	<value value="0x0054" name="NV04_TEXTURED_TRIANGLE" variants="NV04:NV20"/>
 	<value value="0x0094" name="NV10_TEXTURED_TRIANGLE" variants="NV10:NV20"/>
@@ -139,7 +139,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 	<!-- new-style 3D objects -->
 	<value value="0x0056" name="NV10_3D" variants="NV10:NV30"/>
-	<value value="0x0096" name="NV11_3D" variants="NV11:NV30"/>
+	<value value="0x0096" name="NV11_3D" variants="NV15:NV30"/>
 	<value value="0x0099" name="NV17_3D" variants="NV17-NV1F"/>
 	<value value="0x0097" name="NV20_3D" variants="NV20:NV30 NV30-NV31 NV35-NV36"/>
 	<value value="0x0597" name="NV25_3D" variants="NV25:NV40"/>

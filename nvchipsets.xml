@@ -28,14 +28,14 @@
 	<value value="0x10" name="NV10">
 		<brief>GeForce 256</brief>
 	</value>
-	<value value="0x11" name="NV11">
-		<brief>GeForce2 MX</brief>
-	</value>
 	<value value="0x15" name="NV15">
 		<brief>GeForce2 Ti, Pro, GTS</brief>
 	</value>
 	<value value="0x16" name="NV16">
 		<brief>GeForce2 Ultra</brief>
+	</value>
+	<value value="0x11" name="NV11">
+		<brief>GeForce2 MX</brief>
 	</value>
 	<value value="0x1a" name="NV1A" />
 	<value value="0x17" name="NV17" />
