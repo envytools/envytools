@@ -7,7 +7,7 @@
 <import file="nvchipsets.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
-	<stripe offset="0x000000" name="PMC" stride="0x2000" length="1">
+	<array offset="0x000000" name="PMC" stride="0x1000" length="1">
 		<doc>Master Control. Contains various registers not tied to
 		any specific engine.</doc>
 		<reg32 offset="0x000" name="BOOT_0">
@@ -89,7 +89,9 @@
 			<bitfield high="24" low="24" name="PCRTC" variants="NV03-"/>
 			<bitfield high="28" low="28" name="PVIDEO" variants="NV03:NV04"/>
 		</reg32>
-		<reg32 offset="0x1540" name="PGRAPH_UNITS" variants="NV50-">
+	</array>
+	<array offset="0x1000" name="PBUS" stride="0x1000" length="1">
+		<reg32 offset="0x540" name="PGRAPH_UNITS" variants="NV50:NVC0">
 			<doc>Enables PGRAPH engines that come in multiple copies.
 			</doc>
 			<bitfield high="15" low="0" name="TP_MASK">
@@ -108,14 +110,14 @@
 				</doc>
 			</bitfield>
 		</reg32>
-		<reg32 offset="0x1700" name="PRAMIN_OFFSET" shr="16" variants="NV50-">
+		<reg32 offset="0x700" name="PRAMIN_OFFSET" shr="16" variants="NV50-">
 			<doc>Selects the starting offset of the VRAM area that is
 			accessible by the 1MB PRAMIN window at 0x700000. This is
 			always unpaged and goes directly to VRAM [or to the stolen
 			system RAM on IGPs].
 			</doc>
 		</reg32>
-	</stripe>
+	</array>
 
 	<array offset="0x60000" name="PVRAM" variants="NV50-">
 		<doc>A small area that allows single peeks/pokes into the VRAM.</doc>
