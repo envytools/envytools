@@ -86,8 +86,12 @@
 			<bitfield high="16" low="16" name="PTIMER" variants="NV03-"/>
 			<bitfield high="20" low="20" name="PFB" variants="NV03-"/>
 			<bitfield high="24" low="24" name="PFB" variants="NV01"/>
-			<bitfield high="24" low="24" name="PCRTC" variants="NV03-"/>
-			<bitfield high="28" low="28" name="PVIDEO" variants="NV03:NV04"/>
+			<bitfield high="24" low="24" name="PCRTC" variants="NV03:NV50"/>
+			<bitfield high="25" low="25" name="PCRTC2" variants="NV11:NV50"/>
+			<bitfield high="26" low="26" name="PTV" variants="NV17:NV20 NV30:NV50"/>
+			<bitfield high="28" low="28" name="PVIDEO" variants="NV03:NV50"/>
+			<bitfield high="30" low="30" name="PDISPLAY" variants="NV50-"/>
+			<bitfield high="31" low="31" name="UNK31" variants="NV50-"/>
 		</reg32>
 	</array>
 	<array offset="0x1000" name="PBUS" stride="0x1000" length="1">
