@@ -135,6 +135,12 @@
 
 	<reg32 offset="0x70000" name="PRAMIN_FLUSH" variants="NV50-"/>
 
+	<array offset="0x88000" name="PBUS_PCI" stride="0x1000" length="1" variants="NV40-">
+	</array>
+
+	<array offset="0x101000" name="PEXTDEV" stride="0x1000" length="1">
+	</array>
+
 	<reg8 offset="0x110000" name="PROM" length="0x10000" variants="NV03:NV04" />
 
 	<reg8 offset="0x300000" name="PROM" length="0x10000" variants="NV04-" />
