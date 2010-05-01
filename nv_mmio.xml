@@ -121,6 +121,18 @@
 			system RAM on IGPs].
 			</doc>
 		</reg32>
+		<reg32 offset="0x704" name="BAR1_CHAN" variants="NVC0-">
+			<bitfield low="0" high="27" name="INST"/>
+			<bitfield low="31" high="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x714" name="BAR3_CHAN" variants="NVC0-">
+			<bitfield low="0" high="27" name="INST"/>
+			<bitfield low="31" high="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x718" name="UNK18_CHAN" variants="NVC0-">
+			<bitfield low="0" high="27" name="INST"/>
+			<bitfield low="31" high="31" name="ENABLE"/>
+		</reg32>
 	</array>
 
 	<array offset="0x60000" name="PVRAM" stride="0x10000" length="1" variants="NV50-">
