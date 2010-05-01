@@ -150,7 +150,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0604" name="DRAW_POINT32_Y" length="64" stride="8" type="int"/>
 		<reg32 offset="0x0800" name="SIFC_BITMAP_ENABLE" type="boolean"/>
 		<reg32 offset="0x0804" name="SIFC_FORMAT" type="NV50_SURFACE_FORMAT"/>
-		<reg32 offset="0x0808" name="SIFC_BITMAP_UNK808"/> <!-- SCANNED, vals 0-2 -->
+		<reg32 offset="0x0808" name="SIFC_BITMAP_FORMAT">
+			<doc>I1 uses SIFC_BITMAP_COLOR_* and others, I4 and I8
+			instead use SRC as a lookup table.</doc>
+			<value value="0" name="I1"/>
+			<value value="1" name="I4"/>
+			<value value="2" name="I8"/>
+		</reg32>
 		<reg32 offset="0x080c" name="SIFC_BITMAP_LSB_FIRST" type="boolean"/>
 		<reg32 offset="0x0810" name="SIFC_BITMAP_LINE_PACK_MODE">
 			<value value="0x0000" name="PACKED"/>

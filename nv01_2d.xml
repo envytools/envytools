@@ -69,13 +69,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 	<stripe prefix="obj-class" variants="NV04_BETA_SOLID">
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
-		<reg32 offset="0x0200" name="BETA_OUTPUT"/>
 		<reg32 offset="0x0300" name="BETA_FACTOR"/>
   	</stripe>
 
 	<stripe prefix="obj-class" variants="NV01_CONTEXT_COLOR_KEY-NV04_CONTEXT_COLOR_KEY">
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
-		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv01_color_format"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv04_color_format"/>
 		<reg32 offset="0x0304" name="COLOR"/>
 	</stripe>
 
@@ -98,6 +97,30 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_IMAGE_SOURCE" type="object"/>
 		<reg32 offset="0x0188" name="DMA_IMAGE_DESTIN" type="object"/>
+		<stripe variants="NV50_CONTEXT_SURFACES_2D">
+			<reg32 offset="0x0200" name="SRC_LINEAR" type="boolean"/>
+			<reg32 offset="0x0204" name="SRC_TILE_MODE"/>
+			<reg32 offset="0x0208" name="SRC_WIDTH"/>
+			<reg32 offset="0x020c" name="SRC_HEIGHT"/>
+			<reg32 offset="0x0210" name="UNK0210">
+				<doc>Seems ignored?!?</doc>
+			</reg32>
+			<reg32 offset="0x0214" name="UNK0214">
+				<doc>Seems ignored?!?</doc>
+			</reg32>
+			<reg32 offset="0x0218" name="DST_LINEAR" type="boolean"/>
+			<reg32 offset="0x021c" name="DST_TILE_MODE"/>
+			<reg32 offset="0x0220" name="DST_WIDTH"/>
+			<reg32 offset="0x0224" name="DST_HEIGHT"/>
+			<reg32 offset="0x0228" name="UNK0228">
+				<doc>Seems ignored?!?</doc>
+			</reg32>
+			<reg32 offset="0x022c" name="UNK022C">
+				<doc>Seems ignored?!?</doc>
+			</reg32>
+			<reg32 offset="0x0230" name="OFFSET_SOURCE_HIGH"/>
+			<reg32 offset="0x0234" name="OFFSET_DESTIN_HIGH"/>
+		</stripe>
 		<reg32 offset="0x0300" name="FORMAT" type="nv04_surface2d_format"/>
 		<reg32 offset="0x0304" name="PITCH">
 			<bitfield name="SOURCE" high="15" low="0" type="int"/>
@@ -141,31 +164,31 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0318" name="MONOCHROME_PATTERN0"/>
 		<reg32 offset="0x031c" name="MONOCHROME_PATTERN1"/>
 		<reg32 offset="0x0400" name="PATTERN_Y8" length="16">
-			<bitfield name="Y0" high="7" low="0" type="int"/>
-			<bitfield name="Y1" high="15" low="8" type="int"/>
-			<bitfield name="Y2" high="23" low="16" type="int"/>
-			<bitfield name="Y3" high="31" low="24" type="int"/>
+			<bitfield name="Y0" high="7" low="0" type="uint"/>
+			<bitfield name="Y1" high="15" low="8" type="uint"/>
+			<bitfield name="Y2" high="23" low="16" type="uint"/>
+			<bitfield name="Y3" high="31" low="24" type="uint"/>
 		</reg32>
 		<reg32 offset="0x0500" name="PATTERN_R5G6B5" length="32">
-			<bitfield name="B0" high="4" low="0" type="int"/>
-			<bitfield name="G0" high="10" low="5" type="int"/>
-			<bitfield name="R0" high="15" low="11" type="int"/>
-			<bitfield name="B1" high="20" low="16" type="int"/>
-			<bitfield name="G1" high="26" low="21" type="int"/>
-			<bitfield name="R1" high="31" low="27" type="int"/>
+			<bitfield name="B0" high="4" low="0" type="uint"/>
+			<bitfield name="G0" high="10" low="5" type="uint"/>
+			<bitfield name="R0" high="15" low="11" type="uint"/>
+			<bitfield name="B1" high="20" low="16" type="uint"/>
+			<bitfield name="G1" high="26" low="21" type="uint"/>
+			<bitfield name="R1" high="31" low="27" type="uint"/>
 		</reg32>
 		<reg32 offset="0x0600" name="PATTERN_X1R5G5B5" length="32">
-			<bitfield name="B0" high="4" low="0" type="int"/>
-			<bitfield name="G0" high="9" low="5" type="int"/>
-			<bitfield name="R0" high="14" low="10" type="int"/>
-			<bitfield name="B1" high="20" low="16" type="int"/>
-			<bitfield name="G1" high="25" low="21" type="int"/>
-			<bitfield name="R1" high="30" low="26" type="int"/>
+			<bitfield name="B0" high="4" low="0" type="uint"/>
+			<bitfield name="G0" high="9" low="5" type="uint"/>
+			<bitfield name="R0" high="14" low="10" type="uint"/>
+			<bitfield name="B1" high="20" low="16" type="uint"/>
+			<bitfield name="G1" high="25" low="21" type="uint"/>
+			<bitfield name="R1" high="30" low="26" type="uint"/>
 		</reg32>
 		<reg32 offset="0x0700" name="PATTERN_X8R8G8B8" length="64">
-			<bitfield name="B" high="7" low="0" type="int"/>
-			<bitfield name="G" high="15" low="8" type="int"/>
-			<bitfield name="R" high="23" low="16" type="int"/>
+			<bitfield name="B" high="7" low="0" type="uint"/>
+			<bitfield name="G" high="15" low="8" type="uint"/>
+			<bitfield name="R" high="23" low="16" type="uint"/>
 		</reg32>
 	</stripe>
 
@@ -200,7 +223,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</reg32>
 		</stripe>
 		<reg32 offset="0x02fc" name="OPERATION" type="nv03_operation"/>
-		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv01_color_format"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv04_color_format"/>
 		<reg32 offset="0x0304" name="COLOR"/>
 		<reg32 offset="0x0400" name="LINE_POINT0" length="16" stride="8" type="xy16"/>
 		<reg32 offset="0x0404" name="LINE_POINT1" length="16" stride="8" type="xy16"/>
@@ -245,7 +268,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</reg32>
 		</stripe>
 		<reg32 offset="0x02fc" name="OPERATION" type="nv03_operation"/>
-		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv01_color_format"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv04_color_format"/>
 		<reg32 offset="0x0304" name="COLOR"/>
 		<reg32 offset="0x0310" name="TRIANGLE_POINT0" type="xy16"/>
 		<reg32 offset="0x0314" name="TRIANGLE_POINT1" type="xy16"/>
@@ -297,7 +320,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</reg32>
 		</stripe>
 		<reg32 offset="0x02fc" name="OPERATION" type="nv03_operation"/>
-		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv01_color_format"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv04_color_format"/>
 		<reg32 offset="0x0304" name="COLOR"/>
 		<reg32 offset="0x0400" name="RECTANGLE_POINT" length="16" stride="8" type="xy16"/>
 		<reg32 offset="0x0404" name="RECTANGLE_SIZE" length="16" stride="8" type="wh16"/>
@@ -354,7 +377,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</reg32>
 		</stripe>
 		<reg32 offset="0x02fc" name="OPERATION" type="nv03_operation"/>
-		<reg32 offset="0x0204" name="IMAGE_INPUT"/>
 		<reg32 offset="0x0300" name="POINT_IN" type="xy16"/>
 		<reg32 offset="0x0304" name="POINT_OUT" type="xy16"/>
 		<reg32 offset="0x0308" name="SIZE" type="wh16"/>
@@ -440,7 +462,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x02f8" name="COLOR_CONVERSION" variants="NV05_IMAGE_FROM_CPU-"/>
 		<reg32 offset="0x02fc" name="OPERATION" type="nv03_operation"/>
 		<reg32 offset="0x0300" name="COLOR_FORMAT">
-			<value value="0x0001" name="Y8"/>
+			<value value="0x0001" name="R5G6G5"/>
 			<value value="0x0002" name="A1R5G5B5"/>
 			<value value="0x0003" name="X1R5G5B5"/>
 			<value value="0x0004" name="A8R8G8B8"/>
@@ -568,6 +590,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="U" high="15" low="0" type="int"/><!-- Fixed point 12:4 value -->
 			<bitfield name="V" high="31" low="16" type="int"/><!-- Fixed point 12:4 value -->
 		</reg32>
+		<stripe variants="NV50_SCALED_IMAGE_FROM_MEMORY-">
+			<reg32 offset="0x0410" name="OFFSET_HIGH"/>
+			<reg32 offset="0x0414" name="SRC_LINEAR"/>
+			<reg32 offset="0x0418" name="SRC_TILE_MODE"/>
+		</stripe>
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV03_GDI_RECTANGLE_TEXT">
