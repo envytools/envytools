@@ -121,31 +121,48 @@
 			system RAM on IGPs].
 			</doc>
 		</reg32>
+		<reg32 offset="0x704" name="MEM_CHAN" variants="NV50:NVC0">
+			<bitfield low="0" high="27" name="INST" shr="12"/>
+			<bitfield low="30" high="30" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x708" name="BAR1_CTXDMA" variants="NV50:NVC0">
+			<bitfield low="0" high="15" name="INST" shr="4"/>
+			<bitfield low="31" high="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x70c" name="BAR3_CTXDMA" variants="NV50:NVC0">
+			<bitfield low="0" high="15" name="INST" shr="4"/>
+			<bitfield low="31" high="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x710" name="PEEPHOLE_CTXDMA" variants="NV50:NVC0">
+			<bitfield low="0" high="15" name="INST" shr="4"/>
+			<bitfield low="31" high="31" name="ENABLE"/>
+		</reg32>
 		<reg32 offset="0x704" name="BAR1_CHAN" variants="NVC0-">
-			<bitfield low="0" high="27" name="INST"/>
+			<bitfield low="0" high="27" name="INST" shr="12"/>
 			<bitfield low="31" high="31" name="ENABLE"/>
 		</reg32>
 		<reg32 offset="0x714" name="BAR3_CHAN" variants="NVC0-">
-			<bitfield low="0" high="27" name="INST"/>
+			<bitfield low="0" high="27" name="INST" shr="12"/>
 			<bitfield low="31" high="31" name="ENABLE"/>
 		</reg32>
-		<reg32 offset="0x718" name="UNK18_CHAN" variants="NVC0-">
-			<bitfield low="0" high="27" name="INST"/>
+		<reg32 offset="0x718" name="PEEPHOLE_CHAN" variants="NVC0-">
+			<bitfield low="0" high="27" name="INST" shr="12"/>
 			<bitfield low="31" high="31" name="ENABLE"/>
 		</reg32>
 	</array>
 
-	<array offset="0x60000" name="PVRAM" stride="0x10000" length="1" variants="NV50-">
-		<doc>A small area that allows single peeks/pokes into the VRAM.</doc>
+	<array offset="0x60000" name="PPEEPHOLE" stride="0x10000" length="1" variants="NV50-">
+		<doc>A small area that allows single peeks/pokes into the VRAM.
+		The address is paged.</doc>
 		<reg32 offset="0" name="UNK0000" variants="NV50:NVC0"/>
 		<reg32 offset="4" name="UNK0004" variants="NV50:NVC0"/>
-		<reg32 offset="0xc" name="UNK000C" variants="NVC0-"/>
-		<reg32 offset="0x10" name="ADDR">
-			<doc>Physical VRAM address to poke.</doc>
+		<reg32 offset="0xc" name="ADDR_HIGH" variants="NVC0-"/>
+		<reg32 offset="0x10" name="ADDR_LOW">
+			<doc>Virtual address to poke.</doc>
 		</reg32>
 		<reg32 offset="0x14" name="DATA">
-			<doc>Goes to the VRAM at address pointed to by ADDR. Auto-increments
-			ADDR on each access.</doc>
+			<doc>Goes to the memory at address pointed to by ADDR.
+			Auto-increments ADDR on each access.</doc>
 		</reg32>
 	</array>
 
