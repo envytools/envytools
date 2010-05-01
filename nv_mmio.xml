@@ -83,7 +83,7 @@
 			<bitfield high="8" low="8" name="PFIFO" />
 			<bitfield high="12" low="12" name="PGRAPH" />
 			<bitfield high="16" low="16" name="PRM" variants="NV01"/>
-			<bitfield high="16" low="16" name="PPMI" variants="NV03:NV04"/>
+			<bitfield high="16" low="16" name="PTIMER" variants="NV03-"/>
 			<bitfield high="20" low="20" name="PFB" variants="NV03-"/>
 			<bitfield high="24" low="24" name="PFB" variants="NV01"/>
 			<bitfield high="24" low="24" name="PCRTC" variants="NV03-"/>
