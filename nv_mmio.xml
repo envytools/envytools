@@ -117,6 +117,20 @@
 		</reg32>
 	</stripe>
 
+	<array offset="0x60000" name="PVRAM" variants="NV50-">
+		<doc>A small area that allows single peeks/pokes into the VRAM.</doc>
+		<reg32 offset="0" name="UNK0000" variants="NV50:NVC0"/>
+		<reg32 offset="4" name="UNK0004" variants="NV50:NVC0"/>
+		<reg32 offset="0xc" name="UNK000C" variants="NVC0-"/>
+		<reg32 offset="0x10" name="ADDR">
+			<doc>Physical VRAM address to poke.</doc>
+		</reg32>
+		<reg32 offset="0x14" name="DATA">
+			<doc>Goes to the VRAM at address pointed to by ADDR. Auto-increments
+			ADDR on each access.</doc>
+		</reg32>
+	</array>
+
 	<reg32 offset="0x70000" name="PRAMIN_FLUSH" variants="NV50-"/>
 
 	<reg8 offset="0x110000" name="PROM" length="0x10000" variants="NV03:NV04" />
