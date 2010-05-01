@@ -123,7 +123,7 @@
 		</reg32>
 	</array>
 
-	<array offset="0x60000" name="PVRAM" variants="NV50-">
+	<array offset="0x60000" name="PVRAM" stride="0x10000" length="1" variants="NV50-">
 		<doc>A small area that allows single peeks/pokes into the VRAM.</doc>
 		<reg32 offset="0" name="UNK0000" variants="NV50:NVC0"/>
 		<reg32 offset="4" name="UNK0004" variants="NV50:NVC0"/>
