@@ -216,6 +216,11 @@
 	<reg32 offset="0x01c0" name="CTX_CACHE3" length="8" type="nv04_grobj_2"/>
 	<reg32 offset="0x01e0" name="CTX_CACHE4" length="8" shr="4"/>
 
+	<reg32 offset="0x0608" name="BETA1">
+		<bitfield high="30" low="23" name="VALUE" shr="23"/>
+	</reg32>
+	<reg32 offset="0x060c" name="BETA4"/>
+
 	<reg32 offset="0x0700" name="STATUS"/>
 	<reg32 offset="0x0704" name="TRAPPED_ADDR">
 		<bitfield name="MTHD" high="12" low="2" shr="2"/>
@@ -223,6 +228,10 @@
 		<bitfield name="CHID" high="27" low="24"/>
 	</reg32>
 	<reg32 offset="0x0708" name="TRAPPED_DATA"/>
+	<reg32 offset="0x0714" name="NOTIFY">
+		<bitfield high="16" low="16" name="PENDING"/>
+		<bitfield high="20" low="20" name="AWAKEN"/>
+	</reg32>
 	<reg32 offset="0x0720" name="FIFO_ACCESS" type="boolean"/>
 	<reg32 offset="0x0730" name="FIFO_ADDR" length="4">
 		<bitfield high="0" low="0" name="TAG">
@@ -245,6 +254,7 @@
 		<bitfield high="19" low="19" name="CHID_VALID"/>
 	</reg32>
 	<reg32 offset="0x0758" name="ST2_DATA"/>
+	<reg32 offset="0x0814" name="COLOR_KEY_COLOR"/>
 </stripe>
 </domain>
 
