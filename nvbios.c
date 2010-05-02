@@ -151,6 +151,30 @@ void printscript (uint16_t soff) {
 				printf ("NOT\n");
 				soff++;
 				break;
+			case 0x4a:
+				printcmd (soff, 11);
+				printf ("IO_RESTRICT_PLL2\tR[0x%06x] =PLL= (0x%04x[0x%02x] & 0x%02x) >> %d) [{\n", le32(soff+7), le16(soff+1), bios[soff+3], bios[soff+4], bios[soff+5]);
+				cnt = bios[soff+6];
+				soff += 11;
+				while (cnt--) {
+					printcmd (soff, 4);
+					printf ("\t%08x\n", le32(soff));
+					soff += 4;
+				}
+				printcmd (soff, 0);
+				printf ("}]\n");
+				break;
+			case 0x4d:
+				printcmd (soff, 4);
+				printf ("ZM_I2C_BYTE\tI2C[0x%02x][0x%02x]\n", bios[soff+1], bios[soff+2]);
+				cnt = bios[soff+3];
+				soff += 4;
+				while (cnt--) {
+					printcmd (soff, 2);
+					printf ("\t[0x%02x] = 0x%02x\n", bios[soff], bios[soff+1]);
+					soff += 2;
+				}
+				break;
 			case 0x51:
 				printcmd (soff, 5);
 				cnt = bios[soff+4];
