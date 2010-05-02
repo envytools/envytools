@@ -1,11 +1,24 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 uint8_t bios[0x10000];
 uint32_t len;
 const uint8_t bit_signature[] = { 0xff, 0xb8, 'B', 'I', 'T' };
 const uint8_t bmp_signature[] = { 0xff, 0x7f, 'N', 'V', 0x0 };
+
+#define RNN_ADDARRAY(a, e) \
+	do { \
+	if ((a ## num) >= (a ## max)) { \
+		if (!(a ## max)) \
+			(a ## max) = 16; \
+		else \
+			(a ## max) *= 2; \
+		(a) = realloc((a), (a ## max)*sizeof(*(a))); \
+	} \
+	(a)[(a ## num)++] = (e); \
+	} while(0)
 
 uint32_t bmpoffset = 0;
 uint32_t bitoffset = 0;
@@ -24,6 +37,12 @@ uint16_t init96_tbl_ptr;
 
 uint8_t ram_restrict_group_count;
 uint16_t ram_restrict_tbl_ptr;
+
+uint16_t *subs = 0;
+int subsnum = 0, subsmax = 0;
+
+uint16_t *calls = 0;
+int callsnum = 0, callsmax = 0;
 
 static bool nv_cksum(const uint8_t *data, unsigned int length)
 {
@@ -94,6 +113,8 @@ void printscript (uint16_t soff) {
 		uint32_t dst;
 		uint8_t incr;
 		uint8_t cnt;
+		int i;
+		uint32_t x;
 		switch (op) {
 			case 0x32:
 				printcmd (soff, 11);
@@ -173,8 +194,14 @@ void printscript (uint16_t soff) {
 				break;
 			case 0x5b:
 				printcmd (soff, 3);
+				x = le16(soff+1);
 				printf ("CALL\t0x%04x\n", le16(soff+1));
 				soff += 3;
+				for (i = 0; i < callsnum; i++)
+					if (calls[i] == x)
+						break;
+				if (i == callsnum)
+					RNN_ADDARRAY(calls, x);
 				break;
 			case 0x5f:
 				printcmd (soff, 16);
@@ -198,7 +225,13 @@ void printscript (uint16_t soff) {
 			case 0x6b:
 				printcmd (soff, 2);
 				printf ("SUB\t0x%02x\n", bios[soff+1]);
+				x = bios[soff+1];
 				soff += 2;
+				for (i = 0; i < subsnum; i++)
+					if (subs[i] == x)
+						break;
+				if (i == subsnum)
+					RNN_ADDARRAY(subs, x);
 				break;
 			case 0x6e:
 				printcmd (soff, 13);
@@ -259,7 +292,6 @@ void printscript (uint16_t soff) {
 				while (cnt--) {
 					printcmd (soff, 0);
 					printf ("\tR[0x%06x] = {\n", dst);
-					int i;
 					for (i = 0; i < ram_restrict_group_count; i++) {
 						printcmd (soff, 4);
 						printf ("\t\t%08x\n", le32(soff));
@@ -376,15 +408,29 @@ int main(int argc, char **argv) {
 	
 	if (init_script_tbl_ptr) {
 		int i = 0;
-		printf ("Init script table at %x:\n", init_script_tbl_ptr);
 		uint16_t off = init_script_tbl_ptr;
 		uint16_t soff;
 		while ((soff = le16(off))) {
 			off += 2;
+			RNN_ADDARRAY(subs, i);
+			i++;
+		}
+		printf ("Init script table at %x: %d main scripts\n\n", init_script_tbl_ptr, i);
+	}
+	
+	int subspos = 0, callspos = 0;
+	while (subspos < subsnum || callspos < callsnum) {
+		if (callspos < callsnum) {
+			uint16_t soff = calls[callspos++];
+			printf ("Subroutine at %x:\n", soff);
+			printscript(soff);
+			printf("\n");
+		} else if (subspos < subsnum) {
+			int i = subs[subspos++];
+			uint16_t soff = le32(init_script_tbl_ptr + 2*i);
 			printf ("Init script %d at %x:\n", i, soff);
 			printscript(soff);
 			printf("\n");
-			i++;
 		}
 	}
 	
