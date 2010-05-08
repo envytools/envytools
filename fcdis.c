@@ -33,7 +33,7 @@
 
 #define CTARG atomctarg, 0
 void atomctarg APROTO {
-	fprintf (out, " %s%#llx", cbr, BF(16, 16)<<2);
+	fprintf (out, " %s%#llx", cbr, BF(16, 16));
 }
 
 /*
