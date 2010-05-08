@@ -252,6 +252,14 @@ void atomvdst APROTO {
 	fprintf (out, " %s}", cnorm);
 }
 
+// vertex base address (for tessellation and geometry programs)
+#define VBASRC atomvbasrc, 0
+void atomvbasrc APROTO {
+	int s1 = BF(20, 6);
+	int s2 = BF(26, 6);
+	fprintf (out, " %sp<%s$r%d%s+%s%i%s>", ccy, cbl, s1, ccy, cyel, s2, ccy);
+}
+
 /*
  * Memory fields
  */
@@ -289,7 +297,10 @@ void atomvar APROTO {
 #define ATTR atomattr, 0
 void atomattr APROTO {
 	int s1 = BF(20, 6);
+	int s2 = BF(26, 6);
 	uint32_t delta = BF(32, 16);
+	if (s2 < 63)
+		s1 = s2;
 	fprintf (out, " %sa[%s$r%d%s+%s%#x%s]", ccy, cbl, s1, ccy, cyel, delta, ccy);
 }
 
@@ -552,6 +563,8 @@ struct insn tabsreg[] = {
 	{ AP, 0x0000000014000000ull, 0x00000000fc000000ull, N("pm1") },
 	{ AP, 0x0000000018000000ull, 0x00000000fc000000ull, N("pm2") },
 	{ AP, 0x000000001c000000ull, 0x00000000fc000000ull, N("pm3") },
+	{ AP, 0x0000000040000000ull, 0x00000000fc000000ull, N("vtxcnt") }, // gl_PatchVerticesIn
+	{ AP, 0x0000000044000000ull, 0x00000000fc000000ull, N("invoc") }, // gl_InvocationID
 	{ AP, 0x0000000140000000ull, 0x00000001fc000000ull, N("clock") }, // XXX some weird shift happening here.
 	{ AP, 0x0000000144000000ull, 0x00000001fc000000ull, N("clockhi") },
 	{ AP, 0x0000000084000000ull, 0x00000000fc000000ull, N("tidx") },
@@ -781,10 +794,16 @@ struct insn tabm[] = {
 	{ AP, 0xe000000000000045ull, 0xf800000000000067ull, N("membar"), N("sys") },
 	{ AP, 0x0000000000000005ull, 0x0000000000000007ull, OOPS, T(ldstt), T(ldstd), T(gmem), SRC3 },
 
-
-	{ AP, 0x06000000fc000006ull, 0xfe000000fc000007ull, N("vfetch"), VDST, T(ldvf), ATTR },
-	{ AP, 0x0a7e000003f00006ull, 0xfe7e000003f00007ull, N("export"), VAR, ESRC },
+	{ AP, 0x0000000000000006ull, 0xfe00000000000067ull, N("pfetch"), DST, VBASRC },
+	{ AP, 0x06000000fc000006ull, 0xfe000000fc000107ull, N("vfetch"), VDST, T(ldvf), ATTR }, // VP
+	{ AP, 0x0600000003f00006ull, 0xfe00000003f00107ull, N("vfetch"), VDST, T(ldvf), ATTR }, // GP
+	{ AP, 0x0600000003f00106ull, 0xfe00000003f00107ull, N("vfetch patch"), VDST, T(ldvf), ATTR }, // per patch input
+	{ AP, 0x0a00000003f00006ull, 0xfe7e000003f00107ull, N("export"), VAR, ESRC }, // GP
+	{ AP, 0x0a7e000003f00006ull, 0xfe7e000003f00107ull, N("export"), VAR, ESRC }, // VP
+	{ AP, 0x0a7e000003f00106ull, 0xfe7e000003f00107ull, N("export patch"), VAR, ESRC }, // per patch output
 	{ AP, 0x1400000000000006ull, 0xfc00000000000007ull, N("ld"), T(ldstt), T(ldstd), FCONST },
+	{ AP, 0x1c000000fc000026ull, 0xfe000000fc000067ull, N("emit") },
+	{ AP, 0x1c000000fc000046ull, 0xfe000000fc000067ull, N("restart") },
 	{ AP, 0x80000000fc000086ull, 0xfc000000fc000087ull, N("texauto"), T(texf), TDST, TEX, SAMP, TSRC }, // mad as a hatter.
 	{ AP, 0x90000000fc000086ull, 0xfc000000fc000087ull, N("texfetch"), T(texf), TDST, TEX, SAMP, TSRC },
 	{ AP, 0x0000000000000006ull, 0x0000000000000007ull, OOPS, T(texf), TDST, TEX, SAMP, TSRC }, // is assuming a tex instruction a good idea here? probably. there are loads of unknown tex insns after all.
