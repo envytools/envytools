@@ -556,37 +556,37 @@ struct insn tabcvtisrc[] = {
 };
 
 struct insn tabsreg[] = {
-	{ AP, 0x0000000000000000ull, 0x00000000fc000000ull, N("laneid") },
-	{ AP, 0x0000000008000000ull, 0x00000000fc000000ull, N("nphysid") }, // bits 8-14: nwarpid, bits 20-28: nsmid
-	{ AP, 0x000000000c000000ull, 0x00000000fc000000ull, N("physid") }, // bits 8-12: warpid, bits 20-28: smid
-	{ AP, 0x0000000010000000ull, 0x00000000fc000000ull, N("pm0") },
-	{ AP, 0x0000000014000000ull, 0x00000000fc000000ull, N("pm1") },
-	{ AP, 0x0000000018000000ull, 0x00000000fc000000ull, N("pm2") },
-	{ AP, 0x000000001c000000ull, 0x00000000fc000000ull, N("pm3") },
-	{ AP, 0x0000000040000000ull, 0x00000000fc000000ull, N("vtxcnt") }, // gl_PatchVerticesIn
-	{ AP, 0x0000000044000000ull, 0x00000000fc000000ull, N("invoc") }, // gl_InvocationID
+	{ AP, 0x0000000000000000ull, 0x00000001fc000000ull, N("laneid") },
+	{ AP, 0x0000000008000000ull, 0x00000001fc000000ull, N("nphysid") }, // bits 8-14: nwarpid, bits 20-28: nsmid
+	{ AP, 0x000000000c000000ull, 0x00000001fc000000ull, N("physid") }, // bits 8-12: warpid, bits 20-28: smid
+	{ AP, 0x0000000010000000ull, 0x00000001fc000000ull, N("pm0") },
+	{ AP, 0x0000000014000000ull, 0x00000001fc000000ull, N("pm1") },
+	{ AP, 0x0000000018000000ull, 0x00000001fc000000ull, N("pm2") },
+	{ AP, 0x000000001c000000ull, 0x00000001fc000000ull, N("pm3") },
+	{ AP, 0x0000000040000000ull, 0x00000001fc000000ull, N("vtxcnt") }, // gl_PatchVerticesIn
+	{ AP, 0x0000000044000000ull, 0x00000001fc000000ull, N("invoc") }, // gl_InvocationID
+	{ AP, 0x0000000084000000ull, 0x00000001fc000000ull, N("tidx") },
+	{ AP, 0x0000000088000000ull, 0x00000001fc000000ull, N("tidy") },
+	{ AP, 0x000000008c000000ull, 0x00000001fc000000ull, N("tidz") },
+	{ AP, 0x0000000094000000ull, 0x00000001fc000000ull, N("ctaidx") },
+	{ AP, 0x0000000098000000ull, 0x00000001fc000000ull, N("ctaidy") },
+	{ AP, 0x000000009c000000ull, 0x00000001fc000000ull, N("ctaidz") },
+	{ AP, 0x00000000a4000000ull, 0x00000001fc000000ull, N("ntidx") },
+	{ AP, 0x00000000a8000000ull, 0x00000001fc000000ull, N("ntidy") },
+	{ AP, 0x00000000ac000000ull, 0x00000001fc000000ull, N("ntidz") },
+	{ AP, 0x00000000b0000000ull, 0x00000001fc000000ull, N("gridid") },
+	{ AP, 0x00000000b4000000ull, 0x00000001fc000000ull, N("nctaidx") },
+	{ AP, 0x00000000b8000000ull, 0x00000001fc000000ull, N("nctaidy") },
+	{ AP, 0x00000000bc000000ull, 0x00000001fc000000ull, N("nctaidz") },
+	{ AP, 0x00000000c0000000ull, 0x00000001fc000000ull, N("sbase") },	// the address in g[] space where s[] is.
+	{ AP, 0x00000000d0000000ull, 0x00000001fc000000ull, N("lbase") },	// the address in g[] space where l[] is.
+	{ AP, 0x00000000e0000000ull, 0x00000001fc000000ull, N("lanemask_eq") }, // I have no idea what these do, but ptxas eats them just fine.
+	{ AP, 0x00000000e4000000ull, 0x00000001fc000000ull, N("lanemask_lt") },
+	{ AP, 0x00000000e8000000ull, 0x00000001fc000000ull, N("lanemask_le") },
+	{ AP, 0x00000000ec000000ull, 0x00000001fc000000ull, N("lanemask_gt") },
+	{ AP, 0x00000000f0000000ull, 0x00000001fc000000ull, N("lanemask_ge") },
 	{ AP, 0x0000000140000000ull, 0x00000001fc000000ull, N("clock") }, // XXX some weird shift happening here.
 	{ AP, 0x0000000144000000ull, 0x00000001fc000000ull, N("clockhi") },
-	{ AP, 0x0000000084000000ull, 0x00000000fc000000ull, N("tidx") },
-	{ AP, 0x0000000088000000ull, 0x00000000fc000000ull, N("tidy") },
-	{ AP, 0x000000008c000000ull, 0x00000000fc000000ull, N("tidz") },
-	{ AP, 0x0000000094000000ull, 0x00000000fc000000ull, N("ctaidx") },
-	{ AP, 0x0000000098000000ull, 0x00000000fc000000ull, N("ctaidy") },
-	{ AP, 0x000000009c000000ull, 0x00000000fc000000ull, N("ctaidz") },
-	{ AP, 0x00000000a4000000ull, 0x00000000fc000000ull, N("ntidx") },
-	{ AP, 0x00000000a8000000ull, 0x00000000fc000000ull, N("ntidy") },
-	{ AP, 0x00000000ac000000ull, 0x00000000fc000000ull, N("ntidz") },
-	{ AP, 0x00000000b0000000ull, 0x00000000fc000000ull, N("gridid") },
-	{ AP, 0x00000000b4000000ull, 0x00000000fc000000ull, N("nctaidx") },
-	{ AP, 0x00000000b8000000ull, 0x00000000fc000000ull, N("nctaidy") },
-	{ AP, 0x00000000bc000000ull, 0x00000000fc000000ull, N("nctaidz") },
-	{ AP, 0x00000000c0000000ull, 0x00000000fc000000ull, N("sbase") },	// the address in g[] space where s[] is.
-	{ AP, 0x00000000d0000000ull, 0x00000000fc000000ull, N("lbase") },	// the address in g[] space where l[] is.
-	{ AP, 0x00000000e0000000ull, 0x00000000fc000000ull, N("lanemask_eq") }, // I have no idea what these do, but ptxas eats them just fine.
-	{ AP, 0x00000000e4000000ull, 0x00000000fc000000ull, N("lanemask_lt") },
-	{ AP, 0x00000000e8000000ull, 0x00000000fc000000ull, N("lanemask_le") },
-	{ AP, 0x00000000ec000000ull, 0x00000000fc000000ull, N("lanemask_gt") },
-	{ AP, 0x00000000f0000000ull, 0x00000000fc000000ull, N("lanemask_ge") },
 	{ AP, 0, 0, OOPS },
 };
 
