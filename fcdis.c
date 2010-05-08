@@ -28,8 +28,15 @@
 #define AP -1
 
 /*
- * Code target field
+ * Code target fields
  */
+
+#define BTARG atombtarg, 0
+void atombtarg APROTO {
+	uint32_t delta = BF(16, 8);
+	if (delta & 0x80) delta += 0xffffff00;
+	fprintf (out, " %s%#x", cbr, pos + delta);
+}
 
 #define CTARG atomctarg, 0
 void atomctarg APROTO {
@@ -58,7 +65,13 @@ int simmhoff[] = { 16, 8, 16, 1 };
 #define LIMMH atomnum, limmhoff
 #define SIMMH atomnum, simmhoff
 
+struct insn tabp[] = {
+	{ AP, 0x00000e00, 0x00001f00 }, /* always true */
+	{ AP, 0, 0, OOPS },
+};
+
 struct insn tabm[] = {
+	{ AP, 0x000000f4, 0x0000e0ff, N("bra"), T(p), BTARG },
 	{ AP, 0x000021f5, 0x0000ffff, N("call"), CTARG },
 	{ AP, 0x000000f8, 0x0000ffff, N("ret") },
 	{ AP, 0x000003f0, 0x00000fff, N("lhigh"), REG2, SIMMH },
