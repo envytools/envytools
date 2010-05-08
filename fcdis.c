@@ -31,10 +31,17 @@
  * Code target fields
  */
 
-#define BTARG atombtarg, 0
-void atombtarg APROTO {
+#define SBTARG atomsbtarg, 0
+void atomsbtarg APROTO {
 	uint32_t delta = BF(16, 8);
 	if (delta & 0x80) delta += 0xffffff00;
+	fprintf (out, " %s%#x", cbr, pos + delta);
+}
+
+#define LBTARG atomlbtarg, 0
+void atomlbtarg APROTO {
+	uint32_t delta = BF(16, 16);
+	if (delta & 0x8000) delta += 0xffff0000;
 	fprintf (out, " %s%#x", cbr, pos + delta);
 }
 
@@ -71,7 +78,8 @@ struct insn tabp[] = {
 };
 
 struct insn tabm[] = {
-	{ AP, 0x000000f4, 0x0000e0ff, N("bra"), T(p), BTARG },
+	{ AP, 0x000000f4, 0x0000e0ff, N("bra"), T(p), SBTARG },
+	{ AP, 0x000000f5, 0x0000e0ff, N("bra"), T(p), LBTARG },
 	{ AP, 0x000021f5, 0x0000ffff, N("call"), CTARG },
 	{ AP, 0x000000f8, 0x0000ffff, N("ret") },
 	{ AP, 0x000003f0, 0x00000fff, N("lhigh"), REG2, SIMMH },
