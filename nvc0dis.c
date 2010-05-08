@@ -281,14 +281,16 @@ void atommem APROTO {
 
 #define VAR atomvar, 0
 void atomvar APROTO {
+	int s1 = BF(20, 6);
 	uint32_t delta =  BF(32, 16);
-	fprintf (out, " %sv[%s%#x%s]", ccy, cyel, delta, ccy);
+	fprintf (out, " %sv[%s$r%d%s+%s%#x%s]", ccy, cbl, s1, ccy, cyel, delta, ccy);
 }
 
 #define ATTR atomattr, 0
 void atomattr APROTO {
+	int s1 = BF(20, 6);
 	uint32_t delta = BF(32, 16);
-	fprintf (out, " %sa[%s%#x%s]", ccy, cyel, delta, ccy);
+	fprintf (out, " %sa[%s$r%d%s+%s%#x%s]", ccy, cbl, s1, ccy, cyel, delta, ccy);
 }
 
 #define CONST atomconst, 0
@@ -655,8 +657,8 @@ struct insn tabm[] = {
 	{ AP, 0x6000000000000000ull, 0xf800000000000027ull, N("presin"), N("f32"), DST, T(fs2) },
 	{ AP, 0x6000000000000020ull, 0xf800000000000027ull, N("preex2"), N("f32"), DST, T(fs2) },
 	// 68-b8?
-	{ AP, 0xc07e0000fff00000ull, 0xf87e0000fff00047ull, N("linterp"), N("f32"), DST, VAR },
-	{ AP, 0xc07e000003f00040ull, 0xf87e000003f00047ull, N("pinterp"), N("f32"), DST, SRC2, VAR },
+	{ AP, 0xc07e0000fc000000ull, 0xf87e0000fc000047ull, N("linterp"), N("f32"), DST, VAR },
+	{ AP, 0xc07e000000000040ull, 0xf87e000000000047ull, N("pinterp"), N("f32"), DST, SRC2, VAR },
 	{ AP, 0xc800000000000000ull, 0xf80000001c000007ull, N("cos"), N("f32"), DST, SRC1 },
 	{ AP, 0xc800000004000000ull, 0xf80000001c000007ull, N("sin"), N("f32"), DST, SRC1 },
 	{ AP, 0xc800000008000000ull, 0xf80000001c000007ull, N("ex2"), N("f32"), DST, SRC1 },
@@ -774,7 +776,7 @@ struct insn tabm[] = {
 	{ AP, 0x0000000000000005ull, 0x0000000000000007ull, OOPS, T(ldstt), T(ldstd), T(gmem), SRC3 },
 
 
-	{ AP, 0x06000000fff00006ull, 0xfe000000fff00007ull, N("vfetch"), VDST, T(ldvf), ATTR },
+	{ AP, 0x06000000fc000006ull, 0xfe000000fc000007ull, N("vfetch"), VDST, T(ldvf), ATTR },
 	{ AP, 0x0a7e000003f00006ull, 0xfe7e000003f00007ull, N("export"), VAR, ESRC },
 	{ AP, 0x1400000000000006ull, 0xfc00000000000007ull, N("ld"), T(ldstt), T(ldstd), FCONST },
 	{ AP, 0x80000000fc000086ull, 0xfc000000fc000087ull, N("texauto"), T(texf), TDST, TEX, SAMP, TSRC }, // mad as a hatter.
