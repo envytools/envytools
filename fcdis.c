@@ -25,6 +25,49 @@
 
 #include "coredis.h"
 
+#define AP -1
+
+/*
+ * Code target field
+ */
+
+#define CTARG atomctarg, 0
+void atomctarg APROTO {
+	fprintf (out, " %s%#llx", cbr, BF(16, 16)<<2);
+}
+
+/*
+ * Register fields
+ */
+
+int reg1off[] = { 8, 4, 'r' };
+int reg2off[] = { 12, 4, 'r' };
+#define REG1 atomreg, reg1off
+#define REG2 atomreg, reg2off
+
+/*
+ * Immediate fields
+ */
+
+int limmoff[] = { 16, 16, 0, 0 };
+int simmoff[] = { 16, 8, 0, 1 };
+int limmhoff[] = { 16, 16, 16, 0 };
+int simmhoff[] = { 16, 8, 16, 1 };
+#define LIMM atomnum, limmoff
+#define SIMM atomnum, simmoff
+#define LIMMH atomnum, limmhoff
+#define SIMMH atomnum, simmhoff
+
+struct insn tabm[] = {
+	{ AP, 0x000021f5, 0x0000ffff, N("call"), CTARG },
+	{ AP, 0x000000f8, 0x0000ffff, N("ret") },
+	{ AP, 0x000003f0, 0x00000fff, N("lhigh"), REG2, SIMMH },
+	{ AP, 0x000003f1, 0x00000fff, N("lhigh"), REG2, LIMMH },
+	{ AP, 0x000007f0, 0x00000fff, N("limm"), REG2, SIMM },
+	{ AP, 0x000007f1, 0x00000fff, N("limm"), REG2, LIMM },
+	{ AP, 0, 0, OOPS },
+};
+
 /*
  * Disassembler driver
  *
@@ -82,35 +125,24 @@ void fcdis (FILE *out, uint8_t *code, int num) {
 				break;
 		}
 		if (!length || cur + length > num) {
-			fprintf (out, " %s%02x          ???%s", cred, op, cnorm);
+			fprintf (out, " %s%02x           ???%s\n", cred, op, cnorm);
 			cur++;
 		} else {
-			for (i = cur; i < cur + length; i++)
+			ull a = 0, m = 0;
+			for (i = cur; i < cur + length; i++) {
 				fprintf (out, " %02x", code[i]);
+				a |= (ull)code[i] << (i-cur)*8;
+			}
 			for (i = 0; i < 4 - length; i++)
 				fprintf (out, "   ");
-			fprintf (out, " ");
-			if ((op == 0xf0 || op == 0xf1) && (code[cur+1] & 0xb) == 3) {
-				int reg = code[cur+1]>>4;
-				int imm = code[cur+2];
-				/* hmmm... maybe 0xf0 does sign-extension? */
-				if (op == 0xf1)
-					imm += code[cur+3] << 8;
-				if (!(code[cur+1]&4))
-					imm <<= 16;
-				fprintf(out, " %s%s%s", cgr, code[cur+1]&4?"limm":"lhigh", cnorm);
-				fprintf(out, " %s$r%d%s", cbl, reg, cnorm);
-				fprintf(out, " %s%#x%s", cyel, imm, cnorm);
-			} else if (op == 0xf5 && code[cur+1] == 0x21) {
-				fprintf(out, " %s%s %s%#x%s", cgr, "call", cbr, code[cur+3]<<8 | code[cur+2], cnorm);
-			} else if (op == 0xf8 && code[cur+1] == 0) {
-				fprintf(out, " %s%s%s", cgr, "ret", cnorm);
-			} else {
-				fprintf(out, " %s???%s", cred, cnorm);
+			atomtab (out, &a, &m, tabm, -1, cur);
+			a &= ~m;
+			if (a) {
+				fprintf (out, " %s[unknown: %08llx]%s", cred, a, cnorm);
 			}
+			printf ("%s\n", cnorm);
 			cur += length;
 		}
-		printf ("\n");
 	}
 }
 
