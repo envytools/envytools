@@ -100,7 +100,7 @@
 		<bitfield name="UNK24XX" high="14" low="14" /> <!-- NV50 strand 0. NVA0 strand 2. huge. -->
 		<bitfield name="CSCHED" high="15" low="15" /> <!-- force STATUS 2001 and some other stuff, NV50 strand 1 and xfer2. NVA0 strand 0 and xfer2. -->
 		<bitfield name="UNK1CXX" high="16" low="16" /> <!-- NV50 strand 2. NVA0 strand 0. -->
-		<bitfield name="UNK20XX" high="17" low="17" /> <!-- NV50 strand 0. NVA0 strand 6 -->
+		<bitfield name="CLIPID" high="17" low="17" /> <!-- NV50 strand 0. NVA0 strand 6 -->
 		<bitfield name="UNK2CXX" high="18" low="18" /> <!-- NV50 strand 0. NVA0 strand 6 -->
 		<bitfield name="ENG2D" high="19" low="19" /> <!-- NV50 strand 1. NVA0 strand 6 -->
 		<bitfield name="UNK34XX" high="20" low="20" /> <!-- NV50 strand 2. NVA0 strand 0. -->
@@ -183,7 +183,7 @@
 		<bitfield name="CCACHE" high="4" low="4">
 			<brief>Check 405018</brief>
 		</bitfield>
-		<bitfield name="UNK2000" high="5" low="5">
+		<bitfield name="CLIPID" high="5" low="5">
 			<brief>Check 402000</brief>
 		</bitfield>
 		<bitfield name="TEXTURE" high="6" low="6">
@@ -207,7 +207,7 @@
 		<bitfield name="VFETCH" high="2" low="2" />
 		<bitfield name="STRMOUT" high="3" low="3" />
 		<bitfield name="CCACHE" high="4" low="4" />
-		<bitfield name="UNK2000" high="5" low="5" />
+		<bitfield name="CLIPID" high="5" low="5" />
 		<bitfield name="TEXTURE" high="6" low="6" />
 		<bitfield name="MP" high="7" low="7" />
 		<bitfield name="TPDMA" high="8" low="8" />
@@ -533,10 +533,13 @@
 		<reg32 offset="0x10" name="TRAPPED_DMA" />
 	</array>
 
-	<reg32 offset="0x2000" name="UNK2000_TRAP">
-		<bitfield name="CLEAR" high="30" low="30" />
-		<bitfield name="ENABLE" high="31" low="31" />
-	</reg32>
+	<array offset="0x2000" name="CLIPID" stride="0x400" length="1">
+		<reg32 offset="0x00" name="TRAP">
+			<bitfield name="FAULT" high="0" low="0" />
+			<bitfield name="CLEAR" high="30" low="30" />
+			<bitfield name="ENABLE" high="31" low="31" />
+		</reg32>
+	</array>
 
 	<array offset="0x5000" name="CCACHE" stride="0x400" length="1">
 		<reg32 offset="0x18" name="TRAP">

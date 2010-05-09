@@ -29,7 +29,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x01a0" name="DMA_TIC" type="object"/>
 		<reg32 offset="0x01a4" name="DMA_TEXTURE" type="object"/>
 		<reg32 offset="0x01a8" name="DMA_STRMOUT" type="object"/>
-		<reg32 offset="0x01ac" name="DMA_UNK01AC" type="object"/>
+		<reg32 offset="0x01ac" name="DMA_CLIPID" type="object"/>
 		<reg32 offset="0x01c0" name="DMA_COLOR" length="8" type="object"/>
 		<reg32 offset="0x0200" name="RT_ADDRESS_HIGH" length="8" stride="32"/>
 		<reg32 offset="0x0204" name="RT_ADDRESS_LOW" length="8" stride="32"/>
@@ -130,6 +130,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0c0c" name="DEPTH_RANGE_FAR" length="16" stride="16" type="float"/>
 		<reg32 offset="0x0d00" name="VIEWPORT_CLIP_HORIZ" length="8" stride="8"/>
 		<reg32 offset="0x0d04" name="VIEWPORT_CLIP_VERT" length="8" stride="8"/>
+		<reg32 offset="0x0d40" name="CLIPID_REGION_HORIZ" type="xw16" length="4" stride="8"/>
+		<reg32 offset="0x0d44" name="CLIPID_REGION_VERT" type="yh16" length="4" stride="8"/>
 		<reg32 offset="0x0d64" name="UNK0D64"/>
 		<reg32 offset="0x0d74" name="VERTEX_BUFFER_FIRST"/>
 		<reg32 offset="0x0d78" name="VERTEX_BUFFER_COUNT"/>
@@ -204,8 +206,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0fa4" name="FP_ADDRESS_HIGH"/>
 		<reg32 offset="0x0fa8" name="FP_ADDRESS_LOW"/>
 		<reg32 offset="0x0fac" name="UNK0FAC"/>
+		<reg32 offset="0x0fb4" name="UNK0FB4">
+			<doc>Accepts 0-2, goes to 1cxx, clipid.</doc>
+		</reg32>
 		<reg32 offset="0x0fb8" name="UNK0FB8"/>
 		<reg32 offset="0x0fbc" name="MSAA_MASK" length="4"/>
+		<reg32 offset="0x0fcc" name="CLIPID_ADDRESS_HIGH"/>
+		<reg32 offset="0x0fd0" name="CLIPID_ADDRESS_LOW"/>
 		<reg32 offset="0x0fe0" name="ZETA_ADDRESS_HIGH"/>
 		<reg32 offset="0x0fe4" name="ZETA_ADDRESS_LOW"/>
 		<reg32 offset="0x0fe8" name="ZETA_FORMAT" type="NV50_ZETA_FORMAT"/>
@@ -343,6 +350,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="TIC" high="30" low="9" type="int"/>
 		</reg32>
 		<reg32 offset="0x1480" name="STRMOUT_MAP" length="32"/>
+		<reg32 offset="0x1504" name="CLIPID_HEIGHT" type="uint" max="0x2000"/>
+		<reg32 offset="0x1508" name="UNK1508" type="xy16" length="2">
+			<doc>Goes to clipid.</doc>
+		</reg32>
 		<reg32 offset="0x1510" name="VP_CLIP_DISTANCE_ENABLE">
 			<bitfield name="0" high="0" low="0" type="boolean"/>
 			<bitfield name="1" high="1" low="1" type="boolean"/>
@@ -536,7 +547,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x194c" name="VIEWPORT_CLIP_RECTS_EN" type="boolean"/>
 		<reg32 offset="0x1958" name="UNK1958"/>
 		<reg32 offset="0x196c" name="FP_CTRL_UNK196C"/><!-- 0x11 if DEPR written -->
-		<reg32 offset="0x197c" name="UNK197C"/>
+		<reg32 offset="0x197c" name="CLIPID_ENABLE" type="boolean"/>
+		<reg32 offset="0x1980" name="CLIPID_WIDTH" type="uint" align="0x40" max="0x2000"/>
+		<reg32 offset="0x1984" name="CLIPID_ID"/>
 		<reg32 offset="0x1988" name="FP_INTERPOLANT_CTRL">
 			<bitfield name="UMASK" high="31" low="24" type="nv50_vic"/>
 			<bitfield name="COUNT_NONFLAT" high="23" low="16" type="int"/>

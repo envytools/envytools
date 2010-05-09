@@ -14,6 +14,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<bitfield low="16" high="31" name="H" type="uint" />
 </bitset>
 
+<bitset name="xw16" inline="yes">
+	<bitfield low="0" high="15" name="X" type="uint" />
+	<bitfield low="16" high="31" name="W" type="uint" />
+</bitset>
+
+<bitset name="yh16" inline="yes">
+	<bitfield low="0" high="15" name="Y" type="uint" />
+	<bitfield low="16" high="31" name="H" type="uint" />
+</bitset>
+
 <bitset name="lt16" inline="yes">
 	<bitfield low="0" high="15" name="L" type="uint" />
 	<bitfield low="16" high="31" name="T" type="uint" />
