@@ -330,6 +330,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1298" name="FP_RESULT_COUNT" type="int"/>
 		<reg32 offset="0x12cc" name="DEPTH_TEST_ENABLE" type="boolean"/>
+		<reg32 offset="0x12d0" name="D3D_FILL_MODE">
+			<value value="1" name="POINT"/>
+			<value value="2" name="WIREFRAME"/>
+			<value value="3" name="SOLID"/>
+		</reg32>
 		<reg32 offset="0x12d4" name="SHADE_MODEL" type="gl_shade_model"/>
 		<reg32 offset="0x12d8" name="LOCAL_ADDRESS_HIGH"/>
 		<reg32 offset="0x12dc" name="LOCAL_ADDRESS_LOW"/>
@@ -350,6 +355,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="I1" high="15" low="8" type="int"/>
 			<bitfield name="I2" high="23" low="16" type="int"/>
 			<bitfield name="I3" high="31" low="24" type="int"/>
+		</reg32>
+		<reg32 offset="0x1308" name="D3D_CULL_MODE">
+			<value value="1" name="NONE"/>
+			<value value="2" name="FRONT"/>
+			<value value="3" name="BACK"/>
 		</reg32>
 		<reg32 offset="0x130c" name="DEPTH_TEST_FUNC" type="gl_comparison_op"/>
 		<reg32 offset="0x1310" name="ALPHA_TEST_REF" type="float"/>
@@ -479,7 +489,28 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="LAYER_IDX" high="16" low="16" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x15d0" name="MULTISAMPLE_SAMPLES_LOG2"/>
-		<reg32 offset="0x15dc" name="VERTEX_BEGIN">
+		<reg32 offset="0x15d4" name="VERTEX_BEGIN_D3D">
+			<bitfield name="PRIMITIVE" high="27" low="0">
+				<value value="0x0001" name="POINTS"/>
+				<value value="0x0002" name="LINES"/>
+				<value value="0x0003" name="LINE_STRIP"/>
+				<value value="0x0004" name="TRIANGLES"/>
+				<value value="0x0005" name="TRIANGLE_STRIP"/>
+				<value value="0x000a" name="LINES_ADJACENCY"/>
+				<value value="0x000b" name="LINE_STRIP_ADJACENCY"/>
+				<value value="0x000c" name="TRIANGLES_ADJACENCY"/>
+				<value value="0x000d" name="TRIANGLE_STRIP_ADJACENCY"/>
+				<!-- XXX: there are also 1001-1003, 100f-1018, 101a-101b. They all alias one of the normal types. wtf? -->
+			</bitfield>
+			<bitfield name="INSTANCE_NEXT" high="28" low="28" /> <!-- set bit for 2nd and higher instances -->
+			<!-- XXX: NV84+ have bit 29... -->
+			<!-- XXX: NVA0+ have bit 30... -->
+		</reg32>
+		<reg32 offset="0x15d8" name="VERTEX_END_D3D">
+			<bitfield low="0" high="0" name="UNK0"/>
+			<bitfield low="1" high="1" name="UNK1" variants="NVA0_3D-"/>
+		</reg32>
+		<reg32 offset="0x15dc" name="VERTEX_BEGIN_GL">
 			<bitfield name="PRIMITIVE" high="27" low="0">
 				<value value="0x0000" name="POINTS"/>
 				<value value="0x0001" name="LINES"/>
@@ -497,8 +528,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="0x000d" name="TRIANGLE_STRIP_ADJACENCY"/>
 			</bitfield>
 			<bitfield name="INSTANCE_NEXT" high="28" low="28" /> <!-- set bit for 2nd and higher instances -->
+			<!-- XXX: NV84+ have bit 29... -->
+			<!-- XXX: NVA0+ have bit 30... -->
 		</reg32>
-		<reg32 offset="0x15e0" name="VERTEX_END"/>
+		<reg32 offset="0x15e0" name="VERTEX_END_GL">
+			<bitfield low="0" high="0" name="UNK0"/>
+			<bitfield low="1" high="1" name="UNK1" variants="NVA0_3D-"/>
+		</reg32>
 		<reg32 offset="0x15e4" name="EDGEFLAG_ENABLE" type="boolean"/>
 		<reg32 offset="0x15e8" name="VB_ELEMENT_U32" type="int"/>
 		<reg32 offset="0x15ec" name="VB_ELEMENT_U16_SETUP">
