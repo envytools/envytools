@@ -9,12 +9,39 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 <array name="PGRAPH" offset="0x400000" stride="0x200000" length="1" variants="NVC0-">
 
+	<group name="nvc0_ctxctl">
+		<reg32 offset="0x180" name="CODE_INDEX">
+			<bitfield high="15" low="2" name="ADDR" shr="2"/>
+			<bitfield high="24" low="24" name="WRITE_AUTOINCR"/>
+			<bitfield high="25" low="25" name="READ_AUTOINCR"/>
+		</reg32>
+		<reg32 offset="0x184" name="CODE_DATA"/>
+		<reg32 offset="0x1c0" name="DATA_INDEX">
+			<bitfield high="15" low="2" name="ADDR" shr="2"/>
+			<bitfield high="24" low="24" name="WRITE_AUTOINCR"/>
+			<bitfield high="25" low="25" name="READ_AUTOINCR"/>
+		</reg32>
+		<reg32 offset="0x1c4" name="DATA_DATA"/>
+	</group>
+
+	<array name="CTXCTL_9" offset="0x9000" stride="0x1000" length="1">
+		<use-group name="nvc0_ctxctl"/>
+	</array>
+
+	<array name="CTXCTL_1A" offset="0x1a000" stride="0x1000" length="1">
+		<use-group name="nvc0_ctxctl"/>
+	</array>
+
 	<array name="ROPC" offset="0x10000" stride="0x400" length="5">
 
 	</array>
 
 	<array name="TP" offset="0x100000" stride="0x8000" length="4">
 		
+		<array name="CTXCTL" offset="0x2000" stride="0x1000" length="1">
+			<use-group name="nvc0_ctxctl"/>
+		</array>
+
 		<array name="MP" offset="0x4000" stride="0x800" length="4">
 
 		</array>
