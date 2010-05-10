@@ -16,6 +16,33 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<bitfield high="3" low="3" name="W"/>
 </bitset>
 
+<enum name="nv50_vtxelt_type" inline="yes">
+	<!-- converted to float -->
+	<value value="1" name="SNORM"/>
+	<value value="2" name="UNORM"/>
+	<!-- no conversion (as in glVertexAttribIPointer) -->
+	<value value="3" name="SINT"/>
+	<value value="4" name="UINT"/>
+	<value value="5" name="USCALED"/>
+	<value value="6" name="SSCALED"/>
+	<value value="7" name="FLOAT"/>
+</enum>
+
+<enum name="nv50_vtxelt_format" inline="yes">
+	<value value="0x01" name="32_32_32_32"/>
+	<value value="0x02" name="32_32_32"/>
+	<value value="0x03" name="16_16_16_16"/>
+	<value value="0x04" name="32_32"/>
+	<value value="0x05" name="16_16_16"/>
+	<value value="0x0a" name="8_8_8_8"/>
+	<value value="0x0f" name="16_16"/>
+	<value value="0x12" name="32"/>
+	<value value="0x13" name="8_8_8"/>
+	<value value="0x18" name="8_8"/>
+	<value value="0x1b" name="16"/>
+	<value value="0x1d" name="8"/>
+</enum>
+
 <domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
 	<stripe prefix="obj-class" variants="NV50_3D-NVA3_3D">
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
@@ -106,12 +133,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="Z" high="23" low="16" type="int"/>
 			<bitfield name="W" high="31" low="24" type="int"/>
 		</reg32>
-		<reg32 offset="0x0900" name="VERTEX_ARRAY_FORMAT" length="16" stride="16">
+		<reg32 offset="0x0900" name="VERTEX_ARRAY_FETCH" length="16" stride="16">
 			<bitfield name="STRIDE" high="11" low="0" type="int"/>
 			<bitfield name="ENABLE" high="29" low="29" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x0904" name="VERTEX_ARRAY_START_HIGH" length="16" stride="16"/>
 		<reg32 offset="0x0908" name="VERTEX_ARRAY_START_LOW" length="16" stride="16"/>
+		<reg32 offset="0x090c" name="VERTEX_ARRAY_UNK90C" length="16" stride="16"/>
 		<reg32 offset="0x0a00" name="VIEWPORT_SCALE_X" length="16" stride="32" type="float"/>
 		<reg32 offset="0x0a04" name="VIEWPORT_SCALE_Y" length="16" stride="32" type="float"/>
 		<reg32 offset="0x0a08" name="VIEWPORT_SCALE_Z" length="16" stride="32" type="float"/>
@@ -153,6 +181,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0dc0" name="POLYGON_OFFSET_POINT_ENABLE" type="boolean"/>
 		<reg32 offset="0x0dc4" name="POLYGON_OFFSET_LINE_ENABLE" type="boolean"/>
 		<reg32 offset="0x0dc8" name="POLYGON_OFFSET_FILL_ENABLE" type="boolean"/>
+		<reg32 offset="0x0dd0" name="VTX_ATTR_MASK_UNK0DD0" length="2">
+			<doc>A mask of something for vertex attrs. Most likely.</doc>
+		</reg32>
 		<reg32 offset="0x0de4" name="WATCHDOG_TIMER" type="uint">
 			<doc>Writing 0 disables watchdog, writing 1-31 causes
 			program to be killed after 7*2^(x-1) clocks [?].</doc>
@@ -226,9 +257,42 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="H" high="31" low="16" type="int"/>
 			<bitfield name="Y" high="15" low="0" type="int"/>
 		</reg32>
+		<reg32 offset="0x1000" name="VTX_UNK1000" length="16" type="boolean"/>
 		<reg32 offset="0x1080" name="VERTEX_ARRAY_LIMIT_HIGH" length="16" stride="8"/>
 		<reg32 offset="0x1084" name="VERTEX_ARRAY_LIMIT_LOW" length="16" stride="8"/>
 		<reg32 offset="0x1100" name="UNK1100"/>
+		<reg32 offset="0x1120" name="VTX_ATTR_MASK_UNK0DD0_ALT" length="4" variants="NVA3_3D-">
+			<doc>A mask of something for vertex attrs. Most likely.</doc>
+		</reg32>
+		<reg32 offset="0x1130" name="VP_ATTR_EN_ALT" length="4" variants="NVA3_3D">
+			<bitfield name="7" high="31" low="28" type="nv50_vic"/>
+			<bitfield name="6" high="27" low="24" type="nv50_vic"/>
+			<bitfield name="5" high="23" low="20" type="nv50_vic"/>
+			<bitfield name="4" high="19" low="16" type="nv50_vic"/>
+			<bitfield name="3" high="15" low="12" type="nv50_vic"/>
+			<bitfield name="2" high="11" low="8" type="nv50_vic"/>
+			<bitfield name="1" high="7" low="4" type="nv50_vic"/>
+			<bitfield name="0" high="3" low="0" type="nv50_vic"/>
+		</reg32>
+		<reg32 offset="0x114c" name="VTX_ATTR_DEFINE" variants="NVA0_3D-">
+			<bitfield low="0" high="7" name="ATTR"/>
+			<bitfield low="8" high="10" name="COMP" type="uint" min="1" max="4"/>
+			<bitfield low="12" high="14" name="SIZE">
+				<value value="1" name="8"/>
+				<value value="2" name="16"/>
+				<value value="4" name="32"/>
+			</bitfield>
+			<bitfield low="16" high="18" name="TYPE" type="nv50_vtxelt_type"/>
+		</reg32>
+		<reg32 offset="0x1150" name="VTX_ATTR_DATA" variants="NVA0_3D-" length="4"/>
+		<reg32 offset="0x1160" name="VERTEX_ARRAY_ATTRIB_ALT" length="32" variants="NVA3_3D-">
+			<bitfield name="BUFFER" high="4" low="0" type="int"/>
+			<bitfield name="CONST" high="6" low="6" type="boolean"/><!-- use latest VTX_ATTR_* -->
+			<bitfield name="OFFSET" high="20" low="7" type="int"/>
+			<bitfield name="FORMAT" high="26" low="21" type="nv50_vtxelt_format"/>
+			<bitfield name="TYPE" high="29" low="27" type="nv50_vtxelt_type"/>
+			<bitfield name="BGRA" high="31" low="31" type="boolean"/><!-- swizzle VP input -->
+		</reg32>
 		<reg32 offset="0x121c" name="RT_CONTROL">
 			<bitfield name="COUNT" high="3" low="0" type="int"/>
 			<bitfield name="MAP0" high="6" low="4" type="int"/> <!-- MAP0 doesn't seem to work for some reason -->
@@ -454,7 +518,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="PRIMITIVE_ID" high="8" low="8" type="boolean"/>
 			<bitfield name="UNK12" high="12" low="12" type="boolean"/><!-- set together with bit 0 -->
 		</reg32>
-		<reg32 offset="0x1650" name="VP_ATTR_EN_0">
+		<reg32 offset="0x1650" name="VP_ATTR_EN" length="2">
 			<bitfield name="7" high="31" low="28" type="nv50_vic"/>
 			<bitfield name="6" high="27" low="24" type="nv50_vic"/>
 			<bitfield name="5" high="23" low="20" type="nv50_vic"/>
@@ -464,17 +528,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="1" high="7" low="4" type="nv50_vic"/>
 			<bitfield name="0" high="3" low="0" type="nv50_vic"/>
 		</reg32>
-		<reg32 offset="0x1654" name="VP_ATTR_EN_1">
-			<bitfield name="15" high="31" low="28" type="nv50_vic"/>
-			<bitfield name="14" high="27" low="24" type="nv50_vic"/>
-			<bitfield name="13" high="23" low="20" type="nv50_vic"/>
-			<bitfield name="12" high="19" low="16" type="nv50_vic"/>
-			<bitfield name="11" high="15" low="12" type="nv50_vic"/>
-			<bitfield name="10" high="11" low="8" type="nv50_vic"/>
-			<bitfield name="9" high="7" low="4" type="nv50_vic"/>
-			<bitfield name="8" high="3" low="0" type="nv50_vic"/>
+		<reg32 offset="0x1658" name="UNK1658" type="boolean">
+			<doc>Goes to 8cxx, 1cxx.</doc>
 		</reg32>
-		<reg32 offset="0x1658" name="UNK1658"/>
 		<reg32 offset="0x1660" name="POINT_SPRITE_CTRL"/>
 		<reg32 offset="0x166c" name="LINE_STIPPLE_ENABLE" type="boolean"/>
 		<reg32 offset="0x1680" name="LINE_STIPPLE_PATTERN"/>
@@ -494,7 +550,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x16ac" name="VP_RESULT_MAP_SIZE" type="int"/>
 		<reg32 offset="0x16b0" name="VP_REG_ALLOC_TEMP" type="int"/>
 		<reg32 offset="0x16b8" name="VP_REG_ALLOC_RESULT" type="int"/>
-		<reg32 offset="0x16bc" name="VP_RESULT_MAP" length="16">
+		<reg32 offset="0x16bc" name="VP_RESULT_MAP" length="17">
 			<bitfield name="0" high="7" low="0" type="int"/>
 			<bitfield name="1" high="15" low="8" type="int"/>
 			<bitfield name="2" high="23" low="16" type="int"/>
@@ -518,6 +574,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="2" high="23" low="16" type="int"/>
 			<bitfield name="3" high="31" low="24" type="int"/>
 		</reg32>
+		<reg32 offset="0x1880" name="VTX_UNK1000_ALT" length="32" type="boolean" variants="NVA3_3D-"/>
 		<reg32 offset="0x1904" name="MAP_SEMANTIC_0">
 			<bitfield name="FFC0_ID" high="7" low="0" type="int"/>
 			<bitfield name="BFC0_ID" high="15" low="8" type="int"/>
@@ -590,20 +647,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="BUFFER" high="3" low="0" type="int"/>
 			<bitfield name="CONST" high="4" low="4" type="boolean"/><!-- use latest VTX_ATTR_* -->
 			<bitfield name="OFFSET" high="18" low="5" type="int"/>
-			<bitfield name="FORMAT" high="24" low="19">
-				<value value="0x01" name="32_32_32_32"/>
-				<value value="0x02" name="32_32_32"/>
-				<value value="0x03" name="16_16_16_16"/>
-				<value value="0x04" name="32_32"/>
-				<value value="0x05" name="16_16_16"/>
-				<value value="0x0a" name="8_8_8_8"/>
-				<value value="0x0f" name="16_16"/>
-				<value value="0x12" name="32"/>
-				<value value="0x13" name="8_8_8"/>
-				<value value="0x18" name="8_8"/>
-				<value value="0x1b" name="16"/>
-				<value value="0x1d" name="8"/>
-			</bitfield>
+			<bitfield name="FORMAT" high="24" low="19" type="nv50_vtxelt_format"/>
 			<bitfield name="TYPE" high="30" low="25"><!-- might actually be 2 3-bit types -->
 				<value value="0x3f" name="FLOAT"/>
 				<!-- converted to float -->
@@ -621,6 +665,32 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1b04" name="QUERY_ADDRESS_LOW"/>
 		<reg32 offset="0x1b08" name="QUERY_COUNTER"/>
 		<reg32 offset="0x1b0c" name="QUERY_GET"/> <!-- 0x1000f010: usual fence, 0x0100f002: sample count query, 0x05805002: transform feedback query, 0x06805002: generated primitives query, 0x00005002: unknown -->
+		<reg32 offset="0x1b3c" name="VP_RESULT_MAP_ALT" length="32" variants="NVA3_3D">
+			<bitfield name="0" high="7" low="0" type="int"/>
+			<bitfield name="1" high="15" low="8" type="int"/>
+			<bitfield name="2" high="23" low="16" type="int"/>
+			<bitfield name="3" high="31" low="24" type="int"/>
+		</reg32>
+		<reg32 offset="0x1c00" name="VERTEX_ARRAY_FETCH_ALT" length="32" stride="16" variants="NVA3_3D-">
+			<bitfield name="STRIDE" high="11" low="0" type="int"/>
+			<bitfield name="ENABLE" high="29" low="29" type="boolean"/>
+		</reg32>
+		<reg32 offset="0x1c04" name="VERTEX_ARRAY_START_HIGH_ALT" length="32" stride="16" variants="NVA3_3D-"/>
+		<reg32 offset="0x1c08" name="VERTEX_ARRAY_START_LOW_ALT" length="32" stride="16" variants="NVA3_3D-"/>
+		<reg32 offset="0x1c0c" name="VERTEX_ARRAY_UNK90C_ALT" length="32" stride="16" variants="NVA3_3D-"/>
+		<array offset="0x1e00" name="IBLEND" stride="0x20" length="8" variants="NVA3_3D-">
+			<reg32 offset="0x00" name="UNK00" type="boolean">
+				<doc>Goes to ROP, TP, MP. 1 by default.</doc>
+			</reg32>
+			<reg32 offset="0x04" name="EQUATION_RGB" type="gl_blend_equation"/>
+			<reg32 offset="0x08" name="FUNC_SRC_RGB" type="gl_blend_factor"/>
+			<reg32 offset="0x0c" name="FUNC_DST_RGB" type="gl_blend_factor"/>
+			<reg32 offset="0x10" name="EQUATION_ALPHA" type="gl_blend_equation"/>
+			<reg32 offset="0x14" name="FUNC_SRC_ALPHA" type="gl_blend_factor"/>
+			<reg32 offset="0x18" name="FUNC_DST_ALPHA" type="gl_blend_factor"/>
+		</array>
+		<reg32 offset="0x1f00" name="VERTEX_ARRAY_LIMIT_HIGH_ALT" length="32" stride="8" variants="NVA3_3D-"/>
+		<reg32 offset="0x1f04" name="VERTEX_ARRAY_LIMIT_LOW_ALT" length="32" stride="8" variants="NVA3_3D-"/>
 	</stripe>
 </domain>
 
