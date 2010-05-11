@@ -9,6 +9,7 @@ int chdone = 0;
 int arch = 0;
 uint64_t praminbase = 0;
 uint64_t ramins = 0;
+uint64_t fakechan = 0;
 
 struct mpage {
 	uint64_t tag;
@@ -112,6 +113,10 @@ int main(int argc, char **argv) {
 					}
 				} else if (arch >= 5 && addr == 0x1700) {
 					praminbase = value << 16;
+				} else if (arch == 5 && addr == 0x1704) {
+					fakechan = (value & 0xfffffff) << 12;
+				} else if (arch == 5 && addr == 0x170c) {
+					ramins = (value & 0xffff) << 4;
 				} else if (arch >= 6 && addr == 0x1714) {
 					ramins = (value & 0xfffffff) << 12;
 				}
@@ -142,6 +147,23 @@ int main(int argc, char **argv) {
 					pg &= 0xfffffff0;
 					pg <<= 8;
 					pg += (addr&0xfff);
+					*findmem(pg) = value;
+//					printf ("%"PRIx64" %"PRIx64" %"PRIx64" %"PRIx64"\n", ramins, pd, pt, pg);
+					printf ("RAMIN%d %"PRIx64" %"PRIx64" %s %"PRIx64"\n", width, addr, pg, line[0]=='W'?"<=":"=>", value);
+				} else if (arch == 5) {
+					uint64_t paddr = addr;
+					paddr += *findmem(fakechan + ramins + 8);
+					paddr += (uint64_t)(*findmem(fakechan + ramins + 12) >> 24) << 32;
+					uint64_t pt = *findmem(fakechan + 0x200 + ((paddr >> 29) << 3));
+//					printf ("%#"PRIx64" PT: %#"PRIx64" %#"PRIx64" ", paddr, fakechan + 0x200 + ((paddr >> 29) << 3), pt);
+					uint32_t div = (pt & 2 ? 0x1000 : 0x10000);
+					pt &= 0xfffff000;
+					uint64_t pg = *findmem(pt + ((paddr&0x1ffff000)/div) * 8);
+					uint64_t pgh = *findmem(pt + ((paddr&0x1ffff000)/div) * 8 + 4);
+//					printf ("PG: %#"PRIx64" %#"PRIx64"\n", pt + ((paddr&0x1ffff000)/div) * 8, pgh << 32 | pg);
+					pg &= 0xfffff000;
+					pg |= (pgh & 0xff) << 32;
+					pg += (paddr & (div-1));
 					*findmem(pg) = value;
 //					printf ("%"PRIx64" %"PRIx64" %"PRIx64" %"PRIx64"\n", ramins, pd, pt, pg);
 					printf ("RAMIN%d %"PRIx64" %"PRIx64" %s %"PRIx64"\n", width, addr, pg, line[0]=='W'?"<=":"=>", value);
