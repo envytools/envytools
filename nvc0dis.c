@@ -580,6 +580,7 @@ struct insn tabsreg[] = {
 	{ AP, 0x00000000bc000000ull, 0x00000001fc000000ull, N("nctaidz") },
 	{ AP, 0x00000000c0000000ull, 0x00000001fc000000ull, N("sbase") },	// the address in g[] space where s[] is.
 	{ AP, 0x00000000d0000000ull, 0x00000001fc000000ull, N("lbase") },	// the address in g[] space where l[] is.
+	{ AP, 0x00000000dc000000ull, 0x00000001fc000000ull, N("stackbase") },
 	{ AP, 0x00000000e0000000ull, 0x00000001fc000000ull, N("lanemask_eq") }, // I have no idea what these do, but ptxas eats them just fine.
 	{ AP, 0x00000000e4000000ull, 0x00000001fc000000ull, N("lanemask_lt") },
 	{ AP, 0x00000000e8000000ull, 0x00000001fc000000ull, N("lanemask_le") },
