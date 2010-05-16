@@ -181,7 +181,7 @@ int pdst2off[] = { 0x36, 3, 'p' };
 int pdst3off[] = { 0x35, 3, 'p' }; // ...the hell?
 int pdst4off[] = { 0x32, 3, 'p' }; // yay.
 int texoff[] = { 0x20, 7, 't' };
-int sampoff[] = { 0x28, 5, 's' };
+int sampoff[] = { 0x28, 4, 's' };
 int ccoff[] = { 0, 0, 'c' };
 #define DST atomreg, dstoff
 #define DSTD atomdreg, dstoff
@@ -203,7 +203,7 @@ int ccoff[] = { 0, 0, 'c' };
 #define PDST3 atomreg, pdst3off
 #define PDST4 atomreg, pdst4off
 #define TEX atomreg, texoff
-#define SAMP atomreg, sampoff // big guesswork.
+#define SAMP atomreg, sampoff
 #define CC atomreg, ccoff
 
 #define TDST atomtdst, 0
