@@ -620,6 +620,7 @@ struct insn tabprmtmod[] = {
 struct insn tabminmax[] = {
 	{ AP, 0x000e000000000000ull, 0x001e000000000000ull, N("min") }, // looks like min/max is selected by a normal predicate. fun. needs to be checked
 	{ AP, 0x001e000000000000ull, 0x001e000000000000ull, N("max") },
+	{ AP, 0, 0, OOPS },
 };
 
 // XXX: orthogonalise it. if possible.
@@ -638,6 +639,7 @@ struct insn tabredops[] = {
 	{ AP, 0x00, 0xe0, N("add") },
 	{ AP, 0x20, 0xe0, N("min") },
 	{ AP, 0x40, 0xe0, N("max") },
+	{ AP, 0, 0, OOPS },
 };
 
 /*
