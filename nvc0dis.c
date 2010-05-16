@@ -281,8 +281,8 @@ void atommem APROTO {
 	if (n[0] == 'c')
 		fprintf (out, "%lld", BF(0x2a, 4));
 	fprintf (out, "[%s$r%lld%s", cbl, BF(20, 6), n[1]?"d":"");
-	if (delta & 0x80000000U)
-		fprintf (out, "%s-%s%#x%s]", ccy, cyel, -delta, ccy);
+	if (delta & 1ull<<(n[2]-1))
+		fprintf (out, "%s-%s%#x%s]", ccy, cyel, (1u<<n[2])-delta, ccy);
 	else
 		fprintf (out, "%s+%s%#x%s]", ccy, cyel, delta, ccy);
 }
