@@ -764,10 +764,10 @@ struct insn tabm[] = {
 	{ AP, 0x48000000000fc024ull, 0xf8000000000fc067ull, N("vote"), N("any"), PDST2, T(pnot1), PSRC1 },
 	{ AP, 0x48000000000fc044ull, 0xf8000000000fc067ull, N("vote"), N("uni"), PDST2, T(pnot1), PSRC1 },
 	{ AP, 0x49c0000000000024ull, 0xf9c0000000000027ull, N("vote"), N("ballot"), DST, T(pnot1), PSRC1 }, // same insn as vote any, really... but need to check what happens for vote all and vote uni with non bit-bucked destination before unifying.
-	{ AP, 0x5000000000000004ull, 0xf8000000000000e7ull, N("bar popc"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 }, // and yes, sync is just a special case of this.
-	{ AP, 0x5000000000000024ull, 0xf8000000000000e7ull, N("bar and"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
-	{ AP, 0x5000000000000044ull, 0xf8000000000000e7ull, N("bar or"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
-	{ AP, 0x5000000000000084ull, 0xf8000000000000e7ull, N("bar arrive"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
+	{ AP, 0x5000000000000004ull, 0xfc000000000000e7ull, N("bar popc"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 }, // and yes, sync is just a special case of this.
+	{ AP, 0x5000000000000024ull, 0xfc000000000000e7ull, N("bar and"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
+	{ AP, 0x5000000000000044ull, 0xfc000000000000e7ull, N("bar or"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
+	{ AP, 0x5000000000000084ull, 0xfc000000000000e7ull, N("bar arrive"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
 	{ AP, 0x5400000000000004ull, 0xfc00000000000007ull, N("popc"), DST, T(not1), SRC1, T(not2), T(is2) }, // XXX: popc(SRC1 & SRC2)? insane idea, but I don't have any better
 
 
