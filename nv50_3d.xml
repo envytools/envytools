@@ -156,8 +156,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x0c08" name="DEPTH_RANGE_NEAR" length="16" stride="16" type="float"/>
 		<reg32 offset="0x0c0c" name="DEPTH_RANGE_FAR" length="16" stride="16" type="float"/>
-		<reg32 offset="0x0d00" name="VIEWPORT_CLIP_HORIZ" length="8" stride="8"/>
-		<reg32 offset="0x0d04" name="VIEWPORT_CLIP_VERT" length="8" stride="8"/>
+		<reg32 offset="0x0d00" name="VIEWPORT_CLIP_HORIZ" length="8" stride="8">
+			<bitfield name="MIN" high="15" low="0" type="uint"/>
+			<bitfield name="MAX" high="31" low="16" type="uint"/>
+		</reg32>
+		<reg32 offset="0x0d04" name="VIEWPORT_CLIP_VERT" length="8" stride="8">
+			<bitfield name="MIN" high="15" low="0" type="uint"/>
+			<bitfield name="MAX" high="31" low="16" type="uint"/>
+		</reg32>
 		<reg32 offset="0x0d40" name="CLIPID_REGION_HORIZ" type="xw16" length="4" stride="8"/>
 		<reg32 offset="0x0d44" name="CLIPID_REGION_VERT" type="yh16" length="4" stride="8"/>
 		<reg32 offset="0x0d64" name="UNK0D64"/>
@@ -638,6 +644,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<!-- 193c: previously thought to be somehow related to logic op -->
 		<reg32 offset="0x193c" name="VIEW_VOLUME_CLIP_CTRL"/><!-- bits 0x1819 -->
 		<reg32 offset="0x194c" name="VIEWPORT_CLIP_RECTS_EN" type="boolean"/>
+		<reg32 offset="0x1950" name="VIEWPORT_CLIP_MODE">
+			<value value="0" name="INSIDE_ANY"/>
+			<value value="1" name="OUTSIDE_ALL"/>
+			<value value="2" name="NEVER"/> <!-- sounds useless... and doesn't make sense. -->
+		</reg32>
 		<reg32 offset="0x1958" name="UNK1958"/>
 		<reg32 offset="0x196c" name="FP_CTRL_UNK196C"/><!-- 0x11 if DEPR written -->
 		<reg32 offset="0x197c" name="CLIPID_ENABLE" type="boolean"/>
