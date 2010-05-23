@@ -430,6 +430,8 @@ F1(rev, 8, N("rev"))
 F1(not1, 9, N("not"))
 F1(not2, 8, N("not"))
 
+F1(shiftamt, 6, N("shiftamt"))
+
 F1(acout, 0x30, CC)
 F1(acout2, 0x3a, CC)
 F1(acin, 6, CC)
@@ -753,7 +755,7 @@ struct insn tabm[] = {
 	{ AP, 0x6800000000000083ull, 0xf8000000000000c7ull, N("xor"), N("b32"), DST, SRC1, T(is2) },
 	{ AP, 0x68000000000001c3ull, 0xf8000000000001c7ull, N("not2"), N("b32"), DST, SRC1, T(is2) }, // yes, this is probably just a mov2 with a not bit set.
 	{ AP, 0x7000000000000003ull, 0xf800000000000007ull, N("ext"), T(rev), T(us32), DST, SRC1, T(is2) }, // yes. this can reverse bits in a bitfield. really.
-	{ AP, 0x7800000000000003ull, 0xf800000000000007ull, N("bfind"), T(us32), DST, T(not2), T(is2) }, // index of highest bit set, counted from 0, -1 for 0 src. or highest bit different from sign for signed version. check me.
+	{ AP, 0x7800000000000003ull, 0xf800000000000007ull, N("bfind"), T(shiftamt), T(us32), DST, T(not2), T(is2) }, // index of highest bit set, counted from 0, -1 for 0 src. or highest bit different from sign for signed version. check me.
 	{ AP, 0x0000000000000003ull, 0x0000000000000007ull, OOPS, N("b32"), DST, SRC1, T(is2), SRC3 },
 
 
