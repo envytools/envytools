@@ -327,7 +327,6 @@ void atomgatom APROTO {
  */
 
 F(gmem, 0x3a, GLOBAL, GLOBALD)
-F(slmem, 0x38, LOCAL, SHARED)
 
 struct insn tabldstt[] = {
 	{ AP, 0x00, 0xe0, N("u8") },
@@ -644,6 +643,22 @@ struct insn tabredops[] = {
 	{ AP, 0, 0, OOPS },
 };
 
+struct insn tablcop[] = {
+	{ AP, 0x000, 0x300, N("ca") },
+	{ AP, 0x100, 0x300, N("cg") },
+	{ AP, 0x200, 0x300, N("cs") },
+	{ AP, 0x300, 0x300, N("cv") },
+	{ AP, 0, 0, OOPS },
+};
+
+struct insn tabscop[] = {
+	{ AP, 0x000, 0x300, N("wb") },
+	{ AP, 0x100, 0x300, N("cg") },
+	{ AP, 0x200, 0x300, N("cs") },
+	{ AP, 0x300, 0x300, N("wt") },
+	{ AP, 0, 0, OOPS },
+};
+
 /*
  * Opcode format
  *
@@ -783,13 +798,13 @@ struct insn tabm[] = {
 	{ AP, 0x5000000000000325ull, 0xf8000000000003e7ull, N("cas"), N("b64"), DST2D, GATOM, DSTD, SRC3D },
 	{ AP, 0x587e000000000205ull, 0xf87e000000000307ull, N("ld"), T(redops), N("s32"), DST2, GATOM, DST },
 	{ AP, 0x687e000000000205ull, 0xf87e0000000003e7ull, N("ld"), N("add"), N("f32"), DST2, GATOM, DST },
-	{ AP, 0x8000000000000105ull, 0xf800000000000307ull, N("ld"), T(ldstt), T(ldstd), T(gmem) }, // XXX wtf is this flag?
-	{ AP, 0x8000000000000305ull, 0xf800000000000307ull, N("ld"), T(ldstt), T(ldstd), N("volatile"), T(gmem) },
-	{ AP, 0x9000000000000005ull, 0xf800000000000307ull, N("st"), T(ldstt), T(gmem), T(ldstd) },
-	{ AP, 0x9000000000000305ull, 0xf800000000000307ull, N("st"), T(ldstt), N("volatile"), T(gmem), T(ldstd) },
-	{ AP, 0xc000000000000005ull, 0xfc00000000000007ull, N("ld"), T(ldstt), T(ldstd), T(slmem) },
+	{ AP, 0x8000000000000005ull, 0xf800000000000007ull, N("ld"), T(ldstt), T(ldstd), T(lcop), T(gmem) },
+	{ AP, 0x9000000000000005ull, 0xf800000000000007ull, N("st"), T(ldstt), T(scop), T(gmem), T(ldstd) },
+	{ AP, 0xc000000000000005ull, 0xfd00000000000007ull, N("ld"), T(ldstt), T(ldstd), T(lcop), LOCAL },
+	{ AP, 0xc100000000000005ull, 0xfd00000000000007ull, N("ld"), T(ldstt), T(ldstd), SHARED },
 	{ AP, 0xc400000000000005ull, 0xfc00000000000007ull, N("ld"), N("lock"), T(ldstt), PDST4, T(ldstd), SHARED },
-	{ AP, 0xc800000000000005ull, 0xfc00000000000007ull, N("st"), T(ldstt), T(slmem), T(ldstd) },
+	{ AP, 0xc800000000000005ull, 0xfd00000000000007ull, N("st"), T(ldstt), T(scop), LOCAL, T(ldstd) },
+	{ AP, 0xc900000000000005ull, 0xfd00000000000007ull, N("st"), T(ldstt), SHARED, T(ldstd) },
 	{ AP, 0xcc00000000000005ull, 0xfc00000000000007ull, N("st"), N("unlock"), T(ldstt), SHARED, T(ldstd) },
 	{ AP, 0xe000000000000005ull, 0xf800000000000067ull, N("membar"), N("prep") }, // always used before all 3 other membars.
 	{ AP, 0xe000000000000025ull, 0xf800000000000067ull, N("membar"), N("gl") },
