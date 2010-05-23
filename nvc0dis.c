@@ -429,6 +429,7 @@ struct insn tabds2[] = {
 };
 
 F1(ias, 5, N("sat"))
+F1(vas, 9, N("sat"))
 F1(fas, 0x31, N("sat"))
 F1(faf, 5, N("ftz"))
 F1(fmf, 6, N("ftz"))
@@ -452,6 +453,8 @@ F1(acin2, 0x37, CC)
 
 F(us32, 5, N("u32"), N("s32"))
 F1(high, 6, N("high"))
+F(us32v, 6, N("u32"), N("s32"))
+F(us32d, 0x2a, N("u32"), N("s32"))
 
 F1(pnot1, 0x17, N("not"))
 F1(pnot2, 0x1d, N("not"))
@@ -681,6 +684,67 @@ struct insn tabsclamp[] = {
 	{ AP, 0, 0, OOPS },
 };
 
+struct insn tabvdst[] = {
+	{ AP, 0x0000000000000000ull, 0x0380000000000000ull, N("h1") },
+	{ AP, 0x0080000000000000ull, 0x0380000000000000ull, N("h0") },
+	{ AP, 0x0100000000000000ull, 0x0380000000000000ull, N("b0") },
+	{ AP, 0x0180000000000000ull, 0x0380000000000000ull, N("b2") },
+	{ AP, 0x0200000000000000ull, 0x0380000000000000ull, N("add") },
+	{ AP, 0x0280000000000000ull, 0x0380000000000000ull, N("min") },
+	{ AP, 0x0300000000000000ull, 0x0380000000000000ull, N("max") },
+	{ AP, 0x0380000000000000ull, 0x0380000000000000ull },
+	{ AP, 0, 0, OOPS },
+};
+
+struct insn tabvsrc1[] = {
+	{ AP, 0x0000000000000000ull, 0x0000700000000000ull, N("b0") },
+	{ AP, 0x0000100000000000ull, 0x0000700000000000ull, N("b1") },
+	{ AP, 0x0000200000000000ull, 0x0000700000000000ull, N("b2") },
+	{ AP, 0x0000300000000000ull, 0x0000700000000000ull, N("b3") },
+	{ AP, 0x0000400000000000ull, 0x0000700000000000ull, N("h0") },
+	{ AP, 0x0000500000000000ull, 0x0000700000000000ull, N("h1") },
+	{ AP, 0x0000600000000000ull, 0x0000700000000000ull },
+	{ AP, 0, 0, OOPS },
+};
+
+struct insn tabvsrc2[] = {
+	{ AP, 0x0000000000000000ull, 0x0000000700000000ull, N("b0") },
+	{ AP, 0x0000000100000000ull, 0x0000000700000000ull, N("b1") },
+	{ AP, 0x0000000200000000ull, 0x0000000700000000ull, N("b2") },
+	{ AP, 0x0000000300000000ull, 0x0000000700000000ull, N("b3") },
+	{ AP, 0x0000000400000000ull, 0x0000000700000000ull, N("h0") },
+	{ AP, 0x0000000500000000ull, 0x0000000700000000ull, N("h1") },
+	{ AP, 0x0000000600000000ull, 0x0000000700000000ull },
+	{ AP, 0, 0, OOPS },
+};
+
+F(vsclamp, 0x7, N("clamp"), N("wrap"))
+
+struct insn tabvmop[] = {
+	{ AP, 0x000, 0x180, N("add") },
+	{ AP, 0x080, 0x180, N("sub") },
+	{ AP, 0x100, 0x180, N("subr") },
+	{ AP, 0x180, 0x180, N("addpo") },
+	{ AP, 0, 0, OOPS },
+};
+
+struct insn tabvmshr[] = {
+	{ AP, 0x0000000000000000ull, 0x0380000000000000ull, },
+	{ AP, 0x0080000000000000ull, 0x0380000000000000ull, N("shr7") },
+	{ AP, 0x0100000000000000ull, 0x0380000000000000ull, N("shr15") },
+	{ AP, 0, 0, OOPS },
+};
+
+struct insn tabvsetop[] = {
+	{ AP, 0x080, 0x380, N("lt") },
+	{ AP, 0x100, 0x380, N("eq") },
+	{ AP, 0x180, 0x380, N("le") },
+	{ AP, 0x200, 0x380, N("gt") },
+	{ AP, 0x280, 0x380, N("ne") },
+	{ AP, 0x300, 0x380, N("ge") },
+	{ AP, 0, 0, OOPS },
+};
+
 /*
  * Opcode format
  *
@@ -806,6 +870,16 @@ struct insn tabm[] = {
 	{ AP, 0x5000000000000044ull, 0xfc000000000000e7ull, N("bar or"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
 	{ AP, 0x5000000000000084ull, 0xfc000000000000e7ull, N("bar arrive"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
 	{ AP, 0x5400000000000004ull, 0xfc00000000000007ull, N("popc"), DST, T(not1), SRC1, T(not2), T(is2) }, // XXX: popc(SRC1 & SRC2)? insane idea, but I don't have any better
+	// ???
+	{ AP, 0xc000800000000004ull, 0xfc00800000000087ull, N("vadd"), T(vas), T(vdst), T(us32d), DST, T(vsrc1), T(us32v), SRC1, T(vsrc2), T(us32), SRC2, SRC3  },
+	{ AP, 0xc000800000000084ull, 0xfc00800000000087ull, N("vsub"), T(vas), T(vdst), T(us32d), DST, T(vsrc1), T(us32v), SRC1, T(vsrc2), T(us32), SRC2, SRC3  },
+	{ AP, 0xc800800000000004ull, 0xfc00800000000087ull, N("vmin"), T(vas), T(vdst), T(us32d), DST, T(vsrc1), T(us32v), SRC1, T(vsrc2), T(us32), SRC2, SRC3  },
+	{ AP, 0xc800800000000084ull, 0xfc00800000000087ull, N("vmax"), T(vas), T(vdst), T(us32d), DST, T(vsrc1), T(us32v), SRC1, T(vsrc2), T(us32), SRC2, SRC3  },
+	{ AP, 0xd000800000000004ull, 0xfc00800000000007ull, N("vabsdiff"), T(vas), T(vdst), T(us32d), DST, T(vsrc1), T(us32v), SRC1, T(vsrc2), T(us32), SRC2, SRC3  },
+	{ AP, 0xd800800000000004ull, 0xfc00800000000007ull, N("vset"), T(vdst), DST, T(vsetop), T(vsrc1), T(us32v), SRC1, T(vsrc2), T(us32), SRC2, SRC3  },
+	{ AP, 0xe000800000000004ull, 0xfc00800000000007ull, N("vshr"), T(vsclamp), T(vas), T(vdst), T(us32d), DST, T(vsrc1), T(us32v), SRC1, T(vsrc2), SRC2, SRC3  },
+	{ AP, 0xe800800000000004ull, 0xfc00800000000007ull, N("vshl"), T(vsclamp), T(vas), T(vdst), T(us32d), DST, T(vsrc1), T(us32v), SRC1, T(vsrc2), SRC2, SRC3  },
+	{ AP, 0xf000800000000004ull, 0xfc00800000000007ull, N("vmad"), T(vmop), T(vas), T(vmshr), DST, T(vsrc1), T(us32v), SRC1, T(vsrc2), T(us32), SRC2, SRC3  },
 
 
 	{ AP, 0x1000000000000005ull, 0xf800000000000207ull, T(redop), N("u32"), T(gmem), DST },
