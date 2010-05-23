@@ -182,6 +182,7 @@ int pdst3off[] = { 0x35, 3, 'p' }; // ...the hell?
 int pdst4off[] = { 0x32, 3, 'p' }; // yay.
 int texoff[] = { 0x20, 7, 't' };
 int sampoff[] = { 0x28, 4, 's' };
+int surfoff[] = { 0x1a, 3, 'g' }; // speculative
 int ccoff[] = { 0, 0, 'c' };
 #define DST atomreg, dstoff
 #define DSTD atomdreg, dstoff
@@ -204,6 +205,7 @@ int ccoff[] = { 0, 0, 'c' };
 #define PDST4 atomreg, pdst4off
 #define TEX atomreg, texoff
 #define SAMP atomreg, sampoff
+#define SURF atomreg, surfoff
 #define CC atomreg, ccoff
 
 #define TDST atomtdst, 0
@@ -223,6 +225,17 @@ void atomtdst APROTO {
 void atomtsrc APROTO {
 	int base = BF(0x14, 6);
 	int cnt = BF(0x34, 2);
+	int i;
+	fprintf (out, " %s{", cnorm);
+	for (i = 0; i <= cnt; i++)
+		fprintf (out, " %s$r%d", cbl, base+i);
+	fprintf (out, " %s}", cnorm);
+}
+
+#define SADDR atomsaddr, 0
+void atomsaddr APROTO {
+	int base = BF(0x14, 6);
+	int cnt = BF(0x2c, 2);
 	int i;
 	fprintf (out, " %s{", cnorm);
 	for (i = 0; i <= cnt; i++)
@@ -661,6 +674,13 @@ struct insn tabscop[] = {
 	{ AP, 0, 0, OOPS },
 };
 
+struct insn tabsclamp[] = {
+	{ AP, 0x0000000000000000ull, 0x0001800000000000ull, N("zero") },
+	{ AP, 0x0000800000000000ull, 0x0001800000000000ull, N("clamp") },
+	{ AP, 0x0001000000000000ull, 0x0001800000000000ull, N("trap") },
+	{ AP, 0, 0, OOPS },
+};
+
 /*
  * Opcode format
  *
@@ -810,10 +830,15 @@ struct insn tabm[] = {
 	{ AP, 0xc800000000000005ull, 0xfd00000000000007ull, N("st"), T(ldstt), T(scop), LOCAL, T(ldstd) },
 	{ AP, 0xc900000000000005ull, 0xfd00000000000007ull, N("st"), T(ldstt), SHARED, T(ldstd) },
 	{ AP, 0xcc00000000000005ull, 0xfc00000000000007ull, N("st"), N("unlock"), T(ldstt), SHARED, T(ldstd) },
+	{ AP, 0xd400400000000005ull, 0xfc00400000000007ull, N("suldb"), T(ldstt), T(ldstd), T(lcop), T(sclamp), SURF, SADDR },
+	{ AP, 0xd800400100000005ull, 0xfc00400100000007ull, N("suredp"), T(redop), T(sclamp), SURF, SADDR, DST },
+	{ AP, 0xdc00400000000005ull, 0xfc02400000000007ull, N("sustb"), T(ldstt), T(scop), T(sclamp), SURF, SADDR, T(ldstd) },
+	{ AP, 0xdc02400000000005ull, 0xfc02400000000007ull, N("sustp"), T(scop), T(sclamp), SURF, SADDR, DST },
 	{ AP, 0xe000000000000005ull, 0xf800000000000067ull, N("membar"), N("prep") }, // always used before all 3 other membars.
 	{ AP, 0xe000000000000025ull, 0xf800000000000067ull, N("membar"), N("gl") },
+	{ AP, 0xf000400000000085ull, 0xfc00400000000087ull, N("suleab"), PDST2, DSTD, T(ldstt), T(sclamp), SURF, SADDR },
 	{ AP, 0xe000000000000045ull, 0xf800000000000067ull, N("membar"), N("sys") },
-	{ AP, 0x0000000000000005ull, 0x0000000000000007ull, OOPS, T(ldstt), T(ldstd), T(gmem), SRC3 },
+	{ AP, 0x0000000000000005ull, 0x0000000000000007ull, OOPS },
 
 	{ AP, 0x0000000000000006ull, 0xfe00000000000067ull, N("pfetch"), DST, VBASRC },
 	{ AP, 0x06000000fc000006ull, 0xfe000000fc000107ull, N("vfetch"), VDST, T(ldvf), ATTR }, // VP
