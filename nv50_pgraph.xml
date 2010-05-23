@@ -35,6 +35,12 @@
 	<value value="0x10" name="RT_DOUBLE_BIND">
 		<brief>You bound more than one set of FP outputs to given RT index.</brief>
 	</value>
+	<value value="0x11" name="RT_TYPES_MISMATCH">
+		<brief>You tried to use tiled and linear RTs simultanously.</brief>
+	</value>
+	<value value="0x12" name="RT_LINEAR_WITH_ZETA">
+		<brief>You tried to use linear RTs with ZETA enabled.</brief>
+	</value>
 	<value value="0x1b" name="SAMPLER_OVER_LIMIT">
 		<brief>You to BIND_TSC a sampler not defined by TEX_LIMITS.</brief>
 	</value>

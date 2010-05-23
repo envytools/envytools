@@ -321,7 +321,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="UNK" high="16" low="16" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x1234" name="LINKED_TSC" type="boolean"/>
-		<reg32 offset="0x1240" name="RT_HORIZ" length="8" stride="8"/>
+		<reg32 offset="0x1240" name="RT_HORIZ" length="8" stride="8">
+			<bitfield low="0" high="27" name="WIDTH"/>
+			<bitfield low="31" high="31" name="LINEAR">
+				<doc>If set, WIDTH is byte pitch instead of pixel width.</doc>
+			</bitfield>
+		</reg32>
 		<reg32 offset="0x1244" name="RT_VERT" length="8" stride="8"/>
 		<reg32 offset="0x1280" name="CB_DEF_ADDRESS_HIGH"/>
 		<reg32 offset="0x1284" name="CB_DEF_ADDRESS_LOW"/>
