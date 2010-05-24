@@ -139,7 +139,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x0904" name="VERTEX_ARRAY_START_HIGH" length="16" stride="16"/>
 		<reg32 offset="0x0908" name="VERTEX_ARRAY_START_LOW" length="16" stride="16"/>
-		<reg32 offset="0x090c" name="VERTEX_ARRAY_UNK90C" length="16" stride="16"/>
+		<reg32 offset="0x090c" name="VERTEX_ARRAY_DIVISOR" length="16" stride="16"/>
 		<reg32 offset="0x0a00" name="VIEWPORT_SCALE_X" length="16" stride="32" type="float"/>
 		<reg32 offset="0x0a04" name="VIEWPORT_SCALE_Y" length="16" stride="32" type="float"/>
 		<reg32 offset="0x0a08" name="VIEWPORT_SCALE_Z" length="16" stride="32" type="float"/>
@@ -263,7 +263,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="H" high="31" low="16" type="int"/>
 			<bitfield name="Y" high="15" low="0" type="int"/>
 		</reg32>
-		<reg32 offset="0x1000" name="VTX_UNK1000" length="16" type="boolean"/>
+		<reg32 offset="0x1000" name="VERTEX_ARRAY_PER_INSTANCE" length="16" type="boolean"/>
 		<reg32 offset="0x1080" name="VERTEX_ARRAY_LIMIT_HIGH" length="16" stride="8"/>
 		<reg32 offset="0x1084" name="VERTEX_ARRAY_LIMIT_LOW" length="16" stride="8"/>
 		<reg32 offset="0x1100" name="UNK1100"/>
@@ -420,6 +420,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1414" name="FP_START_ID"/>
 		<reg32 offset="0x1420" name="GP_VERTEX_OUTPUT_COUNT" type="int"/>
 		<reg32 offset="0x1434" name="VB_ELEMENT_BASE" type="int"/>
+		<reg32 offset="0x1438" name="VB_INSTANCE_BASE" type="int"/>
 		<reg32 offset="0x1440" name="CODE_CB_FLUSH">
 			<doc>Works with writing 0, but appears to accept values
 			0-3... what do they do, if anything?</doc>
@@ -621,7 +622,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="2" high="23" low="16" type="int"/>
 			<bitfield name="3" high="31" low="24" type="int"/>
 		</reg32>
-		<reg32 offset="0x1880" name="VTX_UNK1000_ALT" length="32" type="boolean" variants="NVA3_3D-"/>
+		<reg32 offset="0x1880" name="VERTEX_ARRAY_PER_INSTANCE_ALT" length="32" type="boolean" variants="NVA3_3D-"/>
 		<reg32 offset="0x1904" name="MAP_SEMANTIC_0">
 			<bitfield name="FFC0_ID" high="7" low="0" type="int"/>
 			<bitfield name="BFC0_ID" high="15" low="8" type="int"/>
@@ -729,7 +730,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1c04" name="VERTEX_ARRAY_START_HIGH_ALT" length="32" stride="16" variants="NVA3_3D-"/>
 		<reg32 offset="0x1c08" name="VERTEX_ARRAY_START_LOW_ALT" length="32" stride="16" variants="NVA3_3D-"/>
-		<reg32 offset="0x1c0c" name="VERTEX_ARRAY_UNK90C_ALT" length="32" stride="16" variants="NVA3_3D-"/>
+		<reg32 offset="0x1c0c" name="VERTEX_ARRAY_DIVISOR_ALT" length="32" stride="16" variants="NVA3_3D-"/>
 		<array offset="0x1e00" name="IBLEND" stride="0x20" length="8" variants="NVA3_3D-">
 			<reg32 offset="0x00" name="UNK00" type="boolean">
 				<doc>Goes to ROP, TP, MP. 1 by default.</doc>
