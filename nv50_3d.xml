@@ -237,8 +237,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0f78" name="UNK0F78"/>
 		<reg32 offset="0x0f7c" name="VP_ADDRESS_HIGH"/>
 		<reg32 offset="0x0f80" name="VP_ADDRESS_LOW"/>
-		<reg32 offset="0x0f84" name="UNK0F84_ADDRESS_HIGH"/>
-		<reg32 offset="0x0f88" name="UNK0F84_ADDRESS_LOW"/>
+		<reg32 offset="0x0f84" name="VERTEX_RUNOUT_ADDRESS_HIGH"/>
+		<reg32 offset="0x0f88" name="VERTEX_RUNOUT_ADDRESS_LOW"/>
 		<reg32 offset="0x0f9c" name="DEPTH_BOUNDS" length="2" type="float"/>
 		<reg32 offset="0x0fa4" name="FP_ADDRESS_HIGH"/>
 		<reg32 offset="0x0fa8" name="FP_ADDRESS_LOW"/>
@@ -557,6 +557,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="I0" high="15" low="0" type="int"/>
 			<bitfield name="I1" high="31" low="16" type="int"/>
 		</reg32>
+		<reg32 offset="0x15f4" name="VERTEX_BASE_HIGH"/>
+		<reg32 offset="0x15f8" name="VERTEX_BASE_LOW"/>
 		<reg32 offset="0x1640" name="VERTEX_DATA"/>
 		<reg32 offset="0x1644" name="PRIM_RESTART_ENABLE" type="boolean"/>
 		<reg32 offset="0x1648" name="PRIM_RESTART_INDEX" type="int"/>
