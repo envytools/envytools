@@ -630,8 +630,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="CLMP_EN" high="31" low="24" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x1908" name="MAP_SEMANTIC_1">
-			<bitfield name="CLIP_LO" high="7" low="0" type="int"/>
-			<bitfield name="CLIP_HI" high="15" low="8" type="int"/>
+			<bitfield name="CLIP_START" high="7" low="0" type="int"/>
+			<bitfield name="CLIP_NUM" high="11" low="8" type="int"/>
 		</reg32>
 		<reg32 offset="0x190c" name="MAP_SEMANTIC_2">
 			<bitfield name="LAYER_ID" high="7" low="0" type="int"/>
