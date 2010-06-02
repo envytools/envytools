@@ -114,6 +114,13 @@
 				</doc>
 			</bitfield>
 		</reg32>
+		<reg32 offset="0x570" name="PEEPHOLE_ADDR" variants="NV50">
+			<doc>Virtual address to poke.</doc>
+		</reg32>
+		<reg32 offset="0x574" name="PEEPHOLE_DATA" variants="NV50">
+			<doc>Goes to the memory at address pointed to by ADDR.
+			Auto-increments ADDR on each access.</doc>
+		</reg32>
 		<reg32 offset="0x700" name="PRAMIN_OFFSET" shr="16" variants="NV50-">
 			<doc>Selects the starting offset of the VRAM area that is
 			accessible by the 1MB PRAMIN window at 0x700000. This is
@@ -151,7 +158,7 @@
 		</reg32>
 	</array>
 
-	<array offset="0x60000" name="PPEEPHOLE" stride="0x10000" length="1" variants="NV50-">
+	<array offset="0x60000" name="PPEEPHOLE" stride="0x10000" length="1" variants="NV84-">
 		<doc>A small area that allows single peeks/pokes into the VRAM.
 		The address is paged.</doc>
 		<reg32 offset="0" name="UNK0000" variants="NV50:NVC0"/>
