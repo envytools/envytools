@@ -114,10 +114,10 @@
 				</doc>
 			</bitfield>
 		</reg32>
-		<reg32 offset="0x570" name="PEEPHOLE_ADDR" variants="NV50">
+		<reg32 offset="0x570" name="PEEPHOLE_ADDR" variants="NV30-NV50">
 			<doc>Virtual address to poke.</doc>
 		</reg32>
-		<reg32 offset="0x574" name="PEEPHOLE_DATA" variants="NV50">
+		<reg32 offset="0x574" name="PEEPHOLE_DATA" variants="NV30-NV50">
 			<doc>Goes to the memory at address pointed to by ADDR.
 			Auto-increments ADDR on each access.</doc>
 		</reg32>
