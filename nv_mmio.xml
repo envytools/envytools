@@ -57,8 +57,9 @@
 			byte-swap PFIFO pushbuffers.</doc>
 		</reg32>
 		<reg32 offset="0x100" name="INTR">
-			<doc>Shows currently pending interrupts. Write 1 to a
-			bit to reset it, and ACK the interrupt.</doc>
+			<doc>Shows currently pending interrupts. Read-only, except
+			for SOFTWARE bit. No need to ack these, they disappear by
+			acking in upstream unit.</doc>
 			<bitfield high="0" low="0" name="PAUDIO" variants="NV01"/>
 			<bitfield high="4" low="4" name="PDMA" variants="NV01"/>
 			<bitfield high="4" low="4" name="PMEDIA" variants="NV03-"/>
@@ -71,9 +72,21 @@
 			<bitfield high="24" low="24" name="PCRTC" variants="NV03-"/>
 			<bitfield high="28" low="28" name="SOFTWARE" variants="NV01"/>
 			<bitfield high="28" low="28" name="PBUS" variants="NV03-"/>
-			<bitfield high="31" low="31" name="SOFTWARE" variants="NV03-"/>
+			<bitfield high="31" low="31" name="SOFTWARE" variants="NV03-">
+				<doc>Software interrupt: write 1 to this bit to trigger
+				interrupt, write 0 to stop.</doc>
+			</bitfield>
 		</reg32>
-		<reg32 offset="0x140" name="INTR_EN" />
+		<reg32 offset="0x140" name="INTR_EN">
+			<doc>Enables reporting interrupts via IRQ lines. Doesn't affect
+			status shown in PMC_INTR, only sending actual bus interrupts.</doc>
+			<bitfield high="0" low="0" name="HARDWARE">
+				<doc>Enable reporting hardware interrupts, ie. all but SOFTWARE.</doc>
+			</bitfield>
+			<bitfield high="1" low="1" name="SOFTWARE">
+				<doc>Enable reporting software interrupts.</doc>
+			</bitfield>
+		</reg32>
 		<reg32 offset="0x200" name="ENABLE">
 			<doc>Selects which card units are enabled.</doc>
 			<bitfield high="0" low="0" name="PAUDIO" variants="NV01"/>
