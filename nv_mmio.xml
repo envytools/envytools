@@ -143,7 +143,13 @@
 		</reg32>
 		<reg32 offset="0x704" name="MEM_CHAN" variants="NV50:NVC0">
 			<bitfield low="0" high="27" name="INST" shr="12"/>
-			<bitfield low="30" high="30" name="ENABLE"/>
+			<bitfield low="28" high="29" name="TARGET">
+				<value value="0" name="VRAM"/>
+			</bitfield>
+			<bitfield low="30" high="30" name="WHICH">
+				<value value="0" name="PEEPHOLE"/>
+				<value value="1" name="BAR"/>
+			</bitfield>
 		</reg32>
 		<reg32 offset="0x708" name="BAR1_CTXDMA" variants="NV50:NVC0">
 			<bitfield low="0" high="15" name="INST" shr="4"/>
