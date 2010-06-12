@@ -581,38 +581,40 @@
 
 	<array offset="0x800000" name="USER" stride="0x10000" length="128" variants="NV01:NV04">
 		<array offset="0x0" name="SUBCHAN" stride="0x2000" length="8">
-			<reg32 offset="0x10" name="FREE"/>
+			<reg32 offset="0x10" name="FREE" access="r"/>
 		</array>
 	</array>
 
 	<array offset="0x800000" name="USER" stride="0x10000" length="16" variants="NV04:NV10">
 		<array offset="0x0" name="SUBCHAN" stride="0x2000" length="8">
-			<reg32 offset="0x10" name="FREE"/>
-			<reg32 offset="0x40" name="DMA_PUT"/>
-			<reg32 offset="0x44" name="DMA_GET"/>
+			<reg32 offset="0x10" name="FREE" access="r"/>
+			<reg32 offset="0x40" name="DMA_PUT" access="w"/>
+			<reg32 offset="0x44" name="DMA_GET" access="r"/>
 		</array>
 	</array>
 
-	<array offset="0x800000" name="USER" stride="0x10000" length="32" variants="NV10:NV40">
+	<array offset="0x800000" name="USER" stride="0x10000" length="32" variants="NV10:NV50">
 		<array offset="0x0" name="SUBCHAN" stride="0x2000" length="8">
-			<reg32 offset="0x10" name="FREE"/>
-			<reg32 offset="0x40" name="DMA_PUT"/>
-			<reg32 offset="0x44" name="DMA_GET"/>
-			<reg32 offset="0x48" name="REF"/>
+			<reg32 offset="0x10" name="FREE" access="r"/>
+			<reg32 offset="0x40" name="DMA_PUT" access="w"/>
+			<reg32 offset="0x44" name="DMA_GET" access="r"/>
+			<reg32 offset="0x48" name="REF" access="r"/>
 		</array>
 	</array>
 
-	<array offset="0x800000" name="USER" stride="0x1000" length="32" variants="NV40:NV50">
+	<array offset="0xc00000" name="USER_NEW" stride="0x1000" length="32" variants="NV40:NV50">
 		<reg32 offset="0x40" name="DMA_PUT"/>
-		<reg32 offset="0x44" name="DMA_GET"/>
-		<reg32 offset="0x48" name="REF"/>
+		<reg32 offset="0x44" name="DMA_GET" access="r"/>
+		<reg32 offset="0x48" name="REF" access="r"/>
+		<reg32 offset="0x54" name="SUBROUTINE" access="r"/>
 	</array>
 
-	<array offset="0xc00000" name="USER" stride="0x2000" length="128" variants="NV50-">
+	<array offset="0xc00000" name="USER_NEW" stride="0x2000" length="128" variants="NV50-">
 		<reg32 offset="0x40" name="DMA_PUT"/>
-		<reg32 offset="0x44" name="DMA_GET"/>
-		<reg32 offset="0x48" name="REF"/>
-		<reg32 offset="0x88" name="IB_GET"/>
+		<reg32 offset="0x44" name="DMA_GET" access="r"/>
+		<reg32 offset="0x48" name="REF" access="r"/>
+		<reg32 offset="0x54" name="SUBROUTINE" access="r"/>
+		<reg32 offset="0x88" name="IB_GET" access="r"/>
 		<reg32 offset="0x8c" name="IB_PUT"/>
 	</array>
 
