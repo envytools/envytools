@@ -22,7 +22,7 @@
 </enum>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
-	<stripe offset="0x2000" name="PFIFO" stride="0x2000" length="1" variants="NV01:NV11">
+	<stripe offset="0x2000" name="PFIFO" stride="0x2000" length="1" variants="NV01:NV17">
 		<brief>Command submission engine</brief>
 		<doc>PFIFO is the unit that gathers up commands sent by user and delivers them
 		to execution units in an orderly fashion.
@@ -228,6 +228,9 @@
 			<bitfield high="8" low="8" name="MODE" type="nv04_pfifo_channel_mode"/>
 			<bitfield high="12" low="12" name="SWITCH"/>
 		</reg32>
+		<reg32 offset="0x054" name="UNK54" variants="NV11-">
+			<doc>Bits 0x3ff, reads as 2 on channel init.</doc>
+		</reg32>
 		<reg32 offset="0x080" name="DEBUG_0" variants="NV03-" access="r">
 			<bitfield high="0" low="0" name="CACHE_ERROR0"/>
 			<bitfield high="4" low="4" name="CACHE_ERROR1"/>
@@ -238,6 +241,8 @@
 			<bitfield high="8" low="8" name="RUNOUT_OVERFLOW"/>
 			<bitfield high="12" low="12" name="DMA_PUSHER" variants="NV03-" />
 			<bitfield high="16" low="16" name="DMA_PTE" variants="NV03-" />
+			<bitfield high="20" low="20" name="SEMAPHORE" variants="NV11-" />
+			<bitfield high="24" low="24" name="ACQUIRE_TIMEOUT" variants="NV11-" />
 		</reg32>
 		<reg32 offset="0x140" name="INTR_EN">
 			<bitfield high="0" low="0" name="CACHE_ERROR"/>
@@ -245,6 +250,8 @@
 			<bitfield high="8" low="8" name="RUNOUT_OVERFLOW"/>
 			<bitfield high="12" low="12" name="DMA_PUSHER" variants="NV03-" />
 			<bitfield high="16" low="16" name="DMA_PT" variants="NV03-" />
+			<bitfield high="20" low="20" name="SEMAPHORE" variants="NV11-" />
+			<bitfield high="24" low="24" name="ACQUIRE_TIMEOUT" variants="NV11-" />
 		</reg32>
 		<reg32 offset="0x200" name="CONFIG" variants="NV01:NV04">
 			<bitfield high="1" low="0" name="FREE_LIE" variants="NV01">
@@ -276,6 +283,7 @@
 			<bitfield high="15" low="9" name="ADDRESS" variants="NV03:NV04" shr="9"/>
 			<bitfield high="8" low="1" name="ADDRESS" variants="NV04:NV10" shr="9"/>
 			<bitfield high="8" low="2" name="ADDRESS" variants="NV10-" shr="10"/>
+			<bitfield high="16" low="16" name="LARGE" variants="NV11-"/>
 		</reg32>
 		<reg32 offset="0x218" name="RAMRO" variants="NV03-">
 			<bitfield high="15" low="9" name="ADDRESS" variants="NV03:NV04" shr="9"/>
@@ -534,12 +542,17 @@
 			<bitfield high="4" low="4" name="BUSY"/>
 			<bitfield high="8" low="8" name="EMPTY"/>
 			<bitfield high="12" low="12" name="SUSPENDED"/>
+			<bitfield high="16" low="16" name="UNK16" variants="NV11-"/>
 		</reg32>
 		<reg32 offset="0x1224" name="CACHE1_DMA_FETCH" variants="NV04-">
 			<bitfield high="7" low="3" name="TRIG"/>
 			<bitfield high="15" low="13" name="SIZE"/>
 			<bitfield high="19" low="16" name="MAX_REQS" variants="NV04:NV05"/>
 			<bitfield high="20" low="16" name="MAX_REQS" variants="NV05-"/>
+			<bitfield high="31" low="31" name="ENDIAN" variants="NV11-">
+				<value value="0" name="LITTLE" />
+				<value value="1" name="BIG" />
+			</bitfield>
 		</reg32>
 		<reg32 offset="0x1228" name="CACHE1_DMA_STATE" variants="NV04-">
 			<bitfield high="0" low="0" name="NONINC" variants="NV10-"/>
@@ -548,7 +561,9 @@
 			<bitfield high="28" low="18" name="METHOD_COUNT"/>
 			<bitfield high="31" low="29" name="ERROR">
 				<value value="0" name="NONE"/>
+				<value value="1" name="CALL" variants="NV11-"/>
 				<value value="2" name="NON_CACHE"/>
+				<value value="3" name="RETURN" variants="NV11-"/>
 				<value value="4" name="RESERVED_CMD"/>
 				<value value="6" name="PROTECTION"/>
 			</bitfield>
@@ -571,6 +586,10 @@
 		<reg32 offset="0x1240" name="CACHE1_DMA_PUT" variants="NV04-"/>
 		<reg32 offset="0x1244" name="CACHE1_DMA_GET" variants="NV04-"/>
 		<reg32 offset="0x1248" name="CACHE1_REF" variants="NV10-"/>
+		<reg32 offset="0x124c" name="CACHE1_SUBROUTINE" variants="NV11-">
+			<bitfield high="0" low="0" name="ACTIVE"/>
+			<bitfield high="31" low="2" name="RETURN" shr="2"/>
+		</reg32>
 		<reg32 offset="0x1250" name="CACHE1_PULL0" variants="NV04-">
 			<bitfield high="0" low="0" name="ACCESS"/>
 			<bitfield high="4" low="4" name="HASH">
@@ -596,10 +615,24 @@
 		</reg32>
 		<reg32 offset="0x1254" name="CACHE1_PULL1" variants="NV04-">
 			<bitfield high="3" low="0" name="ENGINE" type="nv04_pfifo_engine"/>
+			<bitfield high="4" low="4" name="ACQUIRE_ACTIVE" variants="NV11-"/>
+			<bitfield high="17" low="16" name="SEMAPHORE_TARGET" variants="NV11-">
+				<value value="0" name="NVM"/>
+				<value value="2" name="PCI"/>
+				<value value="3" name="AGP"/>
+			</bitfield>
 		</reg32>
 		<reg32 offset="0x1258" name="CACHE1_HASH" variants="NV04-">
 			<bitfield high="15" low="0" name="INSTANCE"/>
 			<bitfield high="16" low="16" name="VALID"/>
+		</reg32>
+		<reg32 offset="0x1260" name="ACQUIRE_TIMEOUT" variants="NV11-"/>
+		<reg32 offset="0x1264" name="ACQUIRE_TIMESTAMP" variants="NV11-"/>
+		<reg32 offset="0x1268" name="ACQUIRE_VALUE" variants="NV11-"/>
+		<reg32 offset="0x126c" name="SEMAPHORE" variants="NV11-">
+			<bitfield high="0" low="0" name="CTXDMA_VALID"/>
+			<bitfield high="11" low="2" name="OFFSET" shr="2"/>
+			<bitfield high="31" low="12" name="PAGE" shr="12"/>
 		</reg32>
 		<reg32 offset="0x1270" name="CACHE1_GET"/>
 		<reg32 offset="0x1280" name="CACHE1_CTX" stride="0x10" length="8" variants="NV01:NV04"/>
