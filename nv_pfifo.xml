@@ -601,6 +601,12 @@
 				<value value="1" name="SOFTWARE"/>
 			</bitfield>
 			<bitfield high="12" low="12" name="HASH_BUSY"/>
+			<bitfield high="16" low="16" name="ACQUIRE_BUSY" variants="NV11-"/>
+			<bitfield high="20" low="20" name="SEMAPHORE_ERROR" variants="NV11-">
+				<value value="0" name="NONE"/>
+				<value value="1" name="BAD_ARGUMENT"/>
+				<value value="2" name="INVALID_STATE"/>
+			</bitfield>
 		</reg32>
 		<reg32 offset="0x1250" name="CACHE1_PULL1" variants="NV01:NV04">
 			<bitfield high="2" low="0" name="SUBCHANNEL"/>
