@@ -352,7 +352,8 @@
 		</reg32>
 
 		<reg32 offset="0x800" name="DEVICE">
-			<bitfield high="6" low="0" name="CHID"/>
+			<bitfield high="6" low="0" name="CHID" variants="NV01:NV04"/>
+			<bitfield high="3" low="0" name="CHID" variants="NV04-"/>
 			<bitfield high="24" low="24" name="SWITCH_AVAILABLE"/>
 		</reg32>
 
@@ -360,7 +361,8 @@
 			<bitfield high="0" low="0" name="ACCESS"/>
 		</reg32>
 		<reg32 offset="0x1004" name="CACHE0_PUSH1" variants="NV03-">
-			<bitfield high="6" low="0" name="CHID"/>
+			<bitfield high="6" low="0" name="CHID" variants="NV01:NV04"/>
+			<bitfield high="3" low="0" name="CHID" variants="NV04-"/>
 		</reg32>
 		<reg32 offset="0x1010" name="CACHE0_PUT" variants="NV03-"/>
 		<reg32 offset="0x1010" name="CACHE0_PUSH1" variants="NV01">
@@ -430,12 +432,14 @@
 			<bitfield high="0" low="0" name="ACCESS"/>
 		</reg32>
 		<reg32 offset="0x1204" name="CACHE1_PUSH1" variants="NV03-">
-			<bitfield high="6" low="0" name="CHID"/>
+			<bitfield high="6" low="0" name="CHID" variants="NV01:NV04"/>
+			<bitfield high="3" low="0" name="CHID" variants="NV04-"/>
 			<bitfield high="8" low="8" name="MODE" variants="NV04-" type="nv04_pfifo_channel_mode"/>
 		</reg32>
 		<reg32 offset="0x1210" name="CACHE1_PUT" variants="NV03-"/>
 		<reg32 offset="0x1210" name="CACHE1_PUSH1" variants="NV01">
-			<bitfield high="6" low="0" name="CHID"/>
+			<bitfield high="6" low="0" name="CHID" variants="NV01:NV04"/>
+			<bitfield high="3" low="0" name="CHID" variants="NV04-"/>
 		</reg32>
 		<reg32 offset="0x1214" name="CACHE1_STATUS" variants="NV03-">
 			<bitfield high="0" low="0" name="RANOUT"/>
