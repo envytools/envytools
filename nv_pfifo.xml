@@ -272,12 +272,13 @@
 				<value value="2" name="16K"/>
 				<value value="3" name="32K"/>
 			</bitfield>
-			<bitfield high="27" low="24" name="SEARCH" variants="NV04-">
+			<bitfield high="25" low="24" name="SEARCH" variants="NV04-">
 				<value value="0" name="16"/>
 				<value value="1" name="32"/>
 				<value value="2" name="64"/>
 				<value value="3" name="128"/>
 			</bitfield>
+			<bitfield high="26" low="26" name="UNK26" variants="NV34"/> <!-- XXX: maybe NV30 and/or NV36 too? -->
 		</reg32>
 		<reg32 offset="0x214" name="RAMFC" variants="NV03-">
 			<bitfield high="15" low="9" name="ADDRESS" variants="NV03:NV04" shr="9"/>
