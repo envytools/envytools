@@ -22,7 +22,7 @@
 </enum>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
-	<stripe offset="0x2000" name="PFIFO" stride="0x2000" length="1" variants="NV01:NV17">
+	<stripe offset="0x2000" name="PFIFO" stride="0x2000" length="1" variants="NV01:NV40">
 		<brief>Command submission engine</brief>
 		<doc>PFIFO is the unit that gathers up commands sent by user and delivers them
 		to execution units in an orderly fashion.
@@ -229,7 +229,7 @@
 			<bitfield high="12" low="12" name="SWITCH"/>
 		</reg32>
 		<reg32 offset="0x054" name="UNK54" variants="NV11-">
-			<doc>Bits 0x3ff, reads as 2 on channel init.</doc>
+			<doc>Bits 0x3ff, reads as 2 on init.</doc>
 		</reg32>
 		<reg32 offset="0x080" name="DEBUG_0" variants="NV03-" access="r">
 			<bitfield high="0" low="0" name="CACHE_ERROR0"/>
@@ -284,6 +284,10 @@
 			<bitfield high="8" low="1" name="ADDRESS" variants="NV04:NV10" shr="9"/>
 			<bitfield high="8" low="2" name="ADDRESS" variants="NV10-" shr="10"/>
 			<bitfield high="16" low="16" name="LARGE" variants="NV11-"/>
+			<bitfield high="23" low="17" name="UNK17" variants="NV17-">
+				<doc>Init to 0x45.</doc>
+			</bitfield>
+			<bitfield high="24" low="24" name="UNK24" variants="NV17:NV20 NV25-"/>
 		</reg32>
 		<reg32 offset="0x218" name="RAMRO" variants="NV03-">
 			<bitfield high="15" low="9" name="ADDRESS" variants="NV03:NV04" shr="9"/>
@@ -656,6 +660,10 @@
 		<reg32 offset="0x12a4" name="CACHE1_DMA_GET_JMP_SHADOW" variants="NV05-"/>
 		<reg32 offset="0x12a8" name="CACHE1_DMA_RSVD_SHADOW" variants="NV05-"/>
 		<reg32 offset="0x12ac" name="CACHE1_DMA_DATA_SHADOW" variants="NV05-"/>
+		<reg32 offset="0x12b0" length="4" name="UNK12B0" variants="NV17-"/>
+		<reg32 offset="0x12c0" name="UNK12C0" variants="NV17:NV20 NV25-">
+			<doc>Bits 0xffff.</doc>
+		</reg32>
 		<reg32 offset="0x1300" name="CACHE1_ADDR" stride="0x8" length="32" variants="NV01:NV03P">
 			<bitfield high="12" low="2" name="MTHD" shr="2"/>
 			<bitfield high="15" low="13" name="SUBCH"/>
