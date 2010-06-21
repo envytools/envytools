@@ -140,18 +140,18 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<!-- new-style 3D objects -->
 	<value value="0x0056" name="NV10_3D" variants="NV10:NV30"/>
 	<value value="0x0096" name="NV11_3D" variants="NV15:NV30"/>
-	<value value="0x0099" name="NV17_3D" variants="NV17-NV1F"/>
-	<value value="0x0097" name="NV20_3D" variants="NV20:NV30 NV30-NV31 NV35-NV36"/>
+	<value value="0x0099" name="NV17_3D" variants="NV17:NV20"/>
+	<value value="0x0097" name="NV20_3D" variants="NV20:NV34"/>
 	<value value="0x0597" name="NV25_3D" variants="NV25:NV40"/>
 	<value value="0x0397" name="NV30_3D" variants="NV30:NV40"/>
+	<value value="0x0497" name="NV35_3D" variants="NV35:NV34"/>
 	<value value="0x0697" name="NV34_3D" variants="NV34"/>
-	<value value="0x0497" name="NV35_3D" variants="NV35-NV36"/>
-	<value value="0x4097" name="NV40_3D" variants="NV40-NV43 NV45 NV47-NV49 NV4B"/>
-	<value value="0x4497" name="NV44_3D" variants="NV44 NV46 NV4A NV4C NV4E NV67"/>
+	<value value="0x4097" name="NV40_3D" variants="NV40:NV44"/>
+	<value value="0x4497" name="NV44_3D" variants="NV44:NV50"/>
 	<value value="0x5097" name="NV50_3D" variants="NV50:NVA0"/>
 	<value value="0x8297" name="NV84_3D" variants="NV84:NVA0"/>
-	<value value="0x8397" name="NVA0_3D" variants="NVA0 NVAA NVAC"/>
-	<value value="0x8597" name="NVA3_3D" variants="NVA3 NVA5 NVA8"/>
+	<value value="0x8397" name="NVA0_3D" variants="NVA0:NVA3"/>
+	<value value="0x8597" name="NVA3_3D" variants="NVA3:NVC0"/>
 	<value value="0x9097" name="NVC0_3D" variants="NVC0-"/>
 
 	<!-- nv50+ non-3D objects -->
@@ -159,26 +159,29 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x902d" name="NVC0_2D" variants="NVC0-"/>
 
 	<value value="0x50c0" name="NV50_COMPUTE" variants="NV50:NVC0"/>
-	<value value="0x85c0" name="NVA3_COMPUTE" variants="NVA3 NVA5 NVA8"/>
+	<value value="0x85c0" name="NVA3_COMPUTE" variants="NVA3:NVC0"/>
 	<value value="0x90c0" name="NVC0_COMPUTE" variants="NVC0-"/>
 </enum>
 
 <domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
 	<stripe name="SUBCHAN" prefix="chipset">
 		<reg32 offset="0x00" name="OBJECT" type="object" />
-		<stripe variants="NV50-">
-			<reg32 offset="0x10" name="FENCE_ADDRESS_HIGH" />
-			<reg32 offset="0x14" name="FENCE_ADDRESS_LOW" />
-			<reg32 offset="0x18" name="FENCE_COUNTER" />
-			<reg32 offset="0x1c" name="FENCE_GET" />
+		<stripe variants="NV84-">
+			<reg32 offset="0x10" name="QUERY_ADDRESS_HIGH" />
+			<reg32 offset="0x14" name="QUERY_ADDRESS_LOW" />
+			<reg32 offset="0x18" name="QUERY_COUNTER" />
+			<reg32 offset="0x1c" name="QUERY_GET" />
+			<reg32 offset="0x20" name="UNK20"/> <!-- causes PFIFO interrupt 30 -->
+			<reg32 offset="0x24" name="UNK24"/>
 		</stripe>
-		<stripe variants="NV10-">
-			<reg32 offset="0x50" name="REF_CNT" />
+		<reg32 offset="0x50" name="REF_CNT" variants="NV10-"/>
+		<stripe variants="NV11-">
 			<reg32 offset="0x60" name="DMA_SEMAPHORE" type="object" />
 			<reg32 offset="0x64" name="SEMAPHORE_OFFSET" />
 			<reg32 offset="0x68" name="SEMAPHORE_ACQUIRE" />
 			<reg32 offset="0x6c" name="SEMAPHORE_RELEASE" />
 		</stripe>
+		<reg32 offset="0x80" name="UNK80" variants="NV50-"/> <!-- XXX: maybe NV40 too? -->
 	</stripe>
 	<stripe name="GRAPH" prefix="chipset">
 		<doc>Methods available on all PGRAPH objects.</doc>
