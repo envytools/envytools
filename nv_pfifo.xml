@@ -971,7 +971,11 @@
 		<reg32 offset="0x40" name="DMA_PUT"/>
 		<reg32 offset="0x44" name="DMA_GET" access="r"/>
 		<reg32 offset="0x48" name="REF" access="r"/>
+		<reg32 offset="0x4c" name="DMA_PUT_HIGH"/>
 		<reg32 offset="0x54" name="SUBROUTINE" access="r"/>
+		<reg32 offset="0x58" name="DMA_SHGET" access="r"/>
+		<reg32 offset="0x5c" name="DMA_SHGET_HIGH" access="r"/>
+		<reg32 offset="0x60" name="DMA_GET_HIGH" access="r"/>
 		<reg32 offset="0x88" name="IB_GET" access="r"/>
 		<reg32 offset="0x8c" name="IB_PUT"/>
 	</array>
