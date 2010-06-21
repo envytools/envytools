@@ -381,7 +381,7 @@
 			<bitfield high="23" low="16" name="UNK16"/>
 		</reg32>
 
-		<reg32 offset="0x230" name="UNK230" variants="NV44-">
+		<reg32 offset="0x230" name="UNK230" variants="NV44:NV50">
 			<bitfield high="1" low="0" name="UNK0"/>
 		</reg32>
 
