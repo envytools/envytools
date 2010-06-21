@@ -23,7 +23,7 @@
 </enum>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
-	<array offset="0x2000" name="PFIFO" stride="0x2000" length="1" variants="NV01:NV84">
+	<array offset="0x2000" name="PFIFO" stride="0x2000" length="1" variants="NV01:NVC0">
 		<brief>Command submission engine</brief>
 		<doc>PFIFO is the unit that gathers up commands sent by user and delivers them
 		to execution units in an orderly fashion.
@@ -247,6 +247,9 @@
 			<bitfield high="28" low="28" name="ACTIVE"/>
 			<bitfield high="29" low="29" name="UNK29"/>
 		</reg32>
+		<reg32 offset="0x070" name="UNK70" variants="NV84-">
+			<doc>Bits 0xffffffff</doc>
+		</reg32>
 		<reg32 offset="0x080" name="DEBUG_0" variants="NV03-" access="r">
 			<!-- XXX: this is getting more suspicious with each hw gen. -->
 			<bitfield high="0" low="0" name="CACHE_ERROR0"/>
@@ -262,7 +265,13 @@
 			<doc>Bits 0xffffffff</doc>
 		</reg32>
 		<reg32 offset="0x090" name="UNK90" variants="NV50-">
-			<doc>Bits 0xffffffff. Comes up as 443333 on NV50.</doc>
+			<doc>Bits 0xffffffff. Comes up as 443333 on NV50. 33c43333 on NV86.</doc>
+		</reg32>
+		<reg32 offset="0x094" name="UNK94" variants="NV84-">
+			<doc>Bits 0x1f</doc>
+		</reg32>
+		<reg32 offset="0x098" name="UNK98" variants="NV84-">
+			<doc>Bits 0xffffffff</doc>
 		</reg32>
 		<reg32 offset="0x100" name="INTR">
 			<bitfield high="0" low="0" name="CACHE_ERROR"/>
@@ -287,6 +296,7 @@
 			<bitfield high="27" low="27" name="UNK27" variants="NV50-"/>
 			<bitfield high="28" low="28" name="UNK28" variants="NV50-"/>
 			<bitfield high="29" low="29" name="UNK29" variants="NV50-"/>
+			<bitfield high="30" low="30" name="UNK30" variants="NV84-"/> <!-- triggered by method 0x20. -->
 		</reg32>
 		<reg32 offset="0x140" name="INTR_EN">
 			<bitfield high="0" low="0" name="CACHE_ERROR"/>
@@ -311,6 +321,7 @@
 			<bitfield high="27" low="27" name="UNK27" variants="NV50-"/>
 			<bitfield high="28" low="28" name="UNK28" variants="NV50-"/>
 			<bitfield high="29" low="29" name="UNK29" variants="NV50-"/>
+			<bitfield high="30" low="30" name="UNK30" variants="NV84-"/> <!-- triggered by method 0x20. -->
 		</reg32>
 		<reg32 offset="0x200" name="CONFIG" variants="NV01:NV04">
 			<bitfield high="1" low="0" name="FREE_LIE" variants="NV01">
@@ -499,7 +510,7 @@
 		</reg32>
 		<reg32 offset="0x508" name="UNK508" variants="NV50-">
 		</reg32>
-		<reg32 offset="0x50c" name="UNK50c" variants="NV50-">
+		<reg32 offset="0x50c" name="UNK50C" variants="NV50-">
 			<doc>Bits 0xffffffff. nv sets to 6f3cfc34.</doc>
 		</reg32>
 		<reg32 offset="0x510" name="UNK510_CHAN" variants="NV50-" type="nv50_channel"/>
@@ -511,10 +522,22 @@
 			<bitfield high="1" low="1" name="UNK1"/>
 			<bitfield high="2" low="2" name="UNK2"/>
 			<bitfield high="3" low="3" name="UNK3"/>
+			<bitfield high="4" low="4" name="UNK4" variants="NV84-"/>
+			<bitfield high="5" low="5" name="UNK5" variants="NV84-"/>
+		</reg32>
+		<reg32 offset="0x520" name="UNK520" variants="NV84-">
+			<doc>Bits 0xffffffff, up as 3b003b.</doc>
 		</reg32>
 
 		<reg32 offset="0x600" name="CHAN_TABLE" length="128" variants="NV50">
 			<bitfield high="29" low="0" name="CHAN" type="nv50_channel"/>
+			<bitfield high="30" low="30" name="PENDING"/>
+			<bitfield high="31" low="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x600" name="CHAN_TABLE" length="128" variants="NV84-">
+			<bitfield high="23" low="0" name="RAMFC_ADDR" shr="8"/>
+			<bitfield high="25" low="24" name="RAMFC_TARGET" type="nv50_mem_target"/>
+			<bitfield high="28" low="26" name="UNK26"/>
 			<bitfield high="30" low="30" name="PENDING"/>
 			<bitfield high="31" low="31" name="ENABLE"/>
 		</reg32>
@@ -788,6 +811,7 @@
 			<reg32 offset="0x054" name="PULL1" variants="NV04-">
 				<bitfield high="3" low="0" name="ENGINE" type="nv04_pfifo_engine"/>
 				<bitfield high="4" low="4" name="ACQUIRE_ACTIVE" variants="NV11-"/>
+				<bitfield high="6" low="5" name="UNK5_QUERY" variants="NV84-"/>
 				<bitfield high="17" low="16" name="SEMAPHORE_TARGET" variants="NV11:NV50">
 					<value value="0" name="NVM"/>
 					<value value="2" name="PCI"/>
@@ -848,8 +872,10 @@
 			</reg32>
 			<reg32 offset="0x0ec" name="PLAYLIST_LEN" variants="NV50-">
 				<doc>Writes are queued... somehow.</doc>
-				<bitfield high="7" low="0" name="LEN"/>
-				<bitfield high="8" low="8" name="UNK8"/>
+				<bitfield high="7" low="0" name="LEN" variants="NV50"/>
+				<bitfield high="8" low="8" name="UNK8" variants="NV50"/>
+				<bitfield high="11" low="0" name="LEN" variants="NV84-"/>
+				<bitfield high="12" low="12" name="UNK8" variants="NV84-"/>
 			</reg32>
 			<reg32 offset="0x0f0" name="UNK0F0" variants="NV50-">
 				<doc>RO. Seems to be the current channel id...</doc>
@@ -868,6 +894,10 @@
 			<reg32 offset="0x100" name="UNK100" variants="NV40:NV50">
 				<doc>Bits 1. Goes to RAMFC.</doc>
 			</reg32>
+			<reg32 offset="0x100" name="UNK100" variants="NV84-">
+				<doc>Bits 0xffffffff, up as 4004f.</doc>
+			</reg32>
+
 			<reg32 offset="0x104" name="UNK104" variants="NV40-">
 				<doc>RO, reads as 3.</doc>
 			</reg32>
@@ -877,7 +907,7 @@
 			<reg32 offset="0x10c" name="UNK10C" length="3" variants="NV40:NV50">
 				<doc>Bits ffffff.</doc>
 			</reg32>
-			<reg32 offset="0x10c" name="UNK10C" variants="NV50-">
+			<reg32 offset="0x10c" name="UNK10C" variants="NV50:NV84">
 				<doc>RO, reads as 0 or 2.</doc>
 			</reg32>
 			<reg32 offset="0x110" name="UNK110" variants="NV50-">
@@ -910,6 +940,15 @@
 			<reg32 offset="0x174" name="DMA_PUT_HIGH_RDSHADOW" variants="NV50-"/>
 			<reg32 offset="0x178" name="DMA_PUT_HIGH_WRSHADOW" variants="NV50-"/>
 			<reg32 offset="0x17c" name="DMA_SHGET_HIGH_RDSHADOW" variants="NV50-"/>
+
+			<reg32 offset="0x200" name="QUERY_ADDRESS_HIGH" variants="NV84-"/>
+			<reg32 offset="0x204" name="QUERY_ADDRESS_LOW" variants="NV84-"/>
+			<reg32 offset="0x208" name="QUERY_COUNTER" variants="NV84-"/>
+			<reg32 offset="0x20c" name="CACHE_INST" variants="NV84-">
+				<bitfield high="29" low="0" name="ADDRESS" shr="10"/>
+				<bitfield high="31" low="30" name="TARGET" type="nv50_mem_target"/> <!-- XXX: guess -->
+			</reg32>
+			<reg32 offset="0x210" name="CHAN_INST" variants="NV84-" type="nv50_channel"/>
 			
 			<reg32 offset="0x100" name="ADDR" stride="0x8" length="32" variants="NV01:NV03P">
 				<bitfield high="12" low="2" name="MTHD" shr="2"/>
