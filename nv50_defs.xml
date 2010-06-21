@@ -4,6 +4,18 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="copyright.xml"/>
 
+<enum name="nv50_mem_target" inline="yes">
+	<value value="0" name="VRAM"/>
+	<!-- 1 is some other sysram. -->
+	<value value="2" name="SYSRAM"/>
+	<value value="3" name="SYSRAM_NO_SNOOP"/> <!-- XXX: check -->
+</enum>
+
+<bitset name="nv50_channel" inline="yes">
+	<bitfield high="27" low="0" name="ADDRESS" shr="12"/>
+	<bitfield high="29" low="28" name="TARGET" type="nv50_mem_target"/>
+</bitset>
+
 <enum name="nv50_cond_mode" inline="yes">
 	<value value="0" name="NEVER"/>
 	<value value="1" name="ALWAYS"/>

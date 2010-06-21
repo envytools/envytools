@@ -5,6 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
+<import file="nv50_defs.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 	<array offset="0x000000" name="PMC" stride="0x1000" length="1">
@@ -142,10 +143,7 @@
 			</doc>
 		</reg32>
 		<reg32 offset="0x704" name="MEM_CHAN" variants="NV50:NVC0">
-			<bitfield low="0" high="27" name="INST" shr="12"/>
-			<bitfield low="28" high="29" name="TARGET">
-				<value value="0" name="VRAM"/>
-			</bitfield>
+			<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
 			<bitfield low="30" high="30" name="WHICH">
 				<value value="0" name="PEEPHOLE"/>
 				<value value="1" name="BAR"/>
