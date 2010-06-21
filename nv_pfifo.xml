@@ -846,17 +846,21 @@
 			<reg32 offset="0x0e8" name="UNK0E8" variants="NV40:NV50">
 				<doc>Bits ffffffff. Goes to RAMFC.</doc>
 			</reg32>
-			<reg32 offset="0x0ec" name="UNK0EC" variants="NV50-">
-				<doc>RO. 0x102 or 0x2</doc>
+			<reg32 offset="0x0ec" name="PLAYLIST_LEN" variants="NV50-">
+				<doc>Writes are queued... somehow.</doc>
+				<bitfield high="7" low="0" name="LEN"/>
+				<bitfield high="8" low="8" name="UNK8"/>
 			</reg32>
 			<reg32 offset="0x0f0" name="UNK0F0" variants="NV50-">
-				<doc>RO. 0x2.</doc>
+				<doc>RO. Seems to be the current channel id...</doc>
 			</reg32>
 			<reg32 offset="0x0f4" name="UNK0F4" variants="NV40:NV50">
 				<doc>Bits 1, set to 1.</doc>
 			</reg32>
-			<reg32 offset="0x0f4" name="UNK0F4" variants="NV50-">
-				<doc>RO. 0x140.</doc>
+			<reg32 offset="0x0f4" name="PLAYLIST" variants="NV50-">
+				<doc>Writes are queued... somehow</doc>
+				<bitfield high="27" low="0" name="ADDRESS" shr="12"/>
+				<bitfield high="29" low="28" name="TARGET" type="nv50_mem_target"/>
 			</reg32>
 			<reg32 offset="0x0fc" name="UNK0FC" variants="NV50-">
 				<doc>RO. Sort of.</doc>
