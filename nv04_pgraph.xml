@@ -41,7 +41,7 @@
 </domain>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
-<stripe name="PGRAPH" offset="0x400000" stride="0x2000" length="1" variants="NV04:NV10">
+<array name="PGRAPH" offset="0x400000" stride="0x2000" length="1" variants="NV04:NV10">
 	<reg32 offset="0x0080" name="DEBUG_0">
 		<bitfield high="0" low="0" name="RESET"/>
 		<bitfield high="18" low="12" name="UNK12"/>
@@ -255,7 +255,7 @@
 	</reg32>
 	<reg32 offset="0x0758" name="ST2_DATA"/>
 	<reg32 offset="0x0814" name="COLOR_KEY_COLOR"/>
-</stripe>
+</array>
 </domain>
 
 </database>
