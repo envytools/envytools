@@ -124,6 +124,11 @@ struct insn tabih[] = {
 	{ AP, 0x00000001, 0x00000001, IMM16H },
 };
 
+struct insn tabbt[] = {
+	{ AP, 0x00000000, 0x00000001, SBTARG },
+	{ AP, 0x00000001, 0x00000001, LBTARG },
+};
+
 struct insn tabm[] = {
 	{ AP, 0x00000080, 0x000000ff, N("st"), DATA, REG1 },
 	{ AP, 0x00000098, 0x000000ff, N("ld"), REG1, DATA },
@@ -142,10 +147,9 @@ struct insn tabm[] = {
 	{ AP, 0x00000af0, 0x00000ffe, N("bclr"), REG2, T(i) },
 	{ AP, 0x00000bf0, 0x00000ffe, N("btgl"), REG2, T(i) },
 	/* XXX: 00000cf0 */
-	{ AP, 0x000000f4, 0x0000e0ff, N("bra"), T(p), SBTARG },
-	{ AP, 0x000030f4, 0x0000ffff, N("add"), N("sp"), IMM8S },
-	{ AP, 0x000000f5, 0x0000e0ff, N("bra"), T(p), LBTARG },
+	{ AP, 0x000000f4, 0x0000e0fe, N("bra"), T(p), T(bt) },
 	{ AP, 0x000021f5, 0x0000ffff, N("call"), CTARG },
+	{ AP, 0x000030f4, 0x0000fffe, N("add"), N("sp"), T(is) },
 	{ AP, 0x000000f8, 0x0000ffff, N("ret") },
 	{ AP, 0x000002f8, 0x0000ffff, N("exit") },
 	{ AP, 0x000000f9, 0x00000fff, N("push"), REG2 },
