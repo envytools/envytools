@@ -87,7 +87,13 @@ void atomdata APROTO {
 }
 
 struct insn tabp[] = {
+	{ AP, 0x00000800, 0x00001f00, N("lt") },
+	{ AP, 0x00000b00, 0x00001f00, N("eq") },
+	{ AP, 0x00000c00, 0x00001f00, N("gt") },
+	{ AP, 0x00000d00, 0x00001f00, N("le") },
 	{ AP, 0x00000e00, 0x00001f00 }, /* always true */
+	{ AP, 0x00001800, 0x00001f00, N("ge") },
+	{ AP, 0x00001b00, 0x00001f00, N("ne") },
 	{ AP, 0, 0, OOPS },
 };
 
@@ -122,6 +128,8 @@ struct insn tabm[] = {
 	{ AP, 0x00000080, 0x000000ff, N("st"), DATA, REG1 },
 	{ AP, 0x00000098, 0x000000ff, N("ld"), REG1, DATA },
 	{ AP, 0x000000b6, 0x000000fe, T(aop), REG2, T(i) },
+	{ AP, 0x000400b8, 0x000f00ff, N("cmpu"), REG2, REG1 },
+	{ AP, 0x000500b8, 0x000f00ff, N("cmps"), REG2, REG1 },
 	{ AP, 0x000000f0, 0x00000ffe, N("mulu"), REG2, T(i) },
 	{ AP, 0x000001f0, 0x00000ffe, N("muls"), REG2, T(is) },
 	{ AP, 0x000002f0, 0x00000ffe, N("sex"), REG2, T(i) }, /* funky instruction. bits ARG2+1 through 31 of ARG1 are replaced with copy of bit ARG2. */
