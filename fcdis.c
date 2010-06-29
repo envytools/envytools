@@ -121,6 +121,9 @@ struct insn tabm[] = {
 };
 
 uint32_t optab[] = {
+	0x18, 6,
+	0x58, 3,
+	0x78, 3,
 	0x80, 3,
 	0x90, 3,
 	0x92, 3,
@@ -142,6 +145,7 @@ uint32_t optab[] = {
 	0xc4, 3,
 	0xc5, 3,
 	0xc7, 3,
+	0xcf, 3,
 	0xe3, 4,
 	0xe4, 4,
 	0xe7, 4,
@@ -175,7 +179,7 @@ void fcdis (FILE *out, uint8_t *code, int num) {
 			if (op == optab[2*i])
 				length = optab[2*i+1];
 		if (!length || cur + length > num) {
-			fprintf (out, " %s%02x           ???%s\n", cred, op, cnorm);
+			fprintf (out, " %s%02x                ???%s\n", cred, op, cnorm);
 			cur++;
 		} else {
 			ull a = 0, m = 0;
@@ -183,7 +187,7 @@ void fcdis (FILE *out, uint8_t *code, int num) {
 				fprintf (out, " %02x", code[i]);
 				a |= (ull)code[i] << (i-cur)*8;
 			}
-			for (i = 0; i < 4 - length; i++)
+			for (i = 0; i < 6 - length; i++)
 				fprintf (out, "   ");
 			atomtab (out, &a, &m, tabm, -1, cur);
 			a &= ~m;
