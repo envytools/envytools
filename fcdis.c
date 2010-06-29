@@ -72,12 +72,24 @@ int simmhoff[] = { 16, 8, 16, 1 };
 #define LIMMH atomnum, limmhoff
 #define SIMMH atomnum, simmhoff
 
+/*
+ * Memory fields
+ */
+
+#define DATA atomdata, 0
+void atomdata APROTO {
+	const int *n = v;
+	fprintf (out, " %sD[%s$r%lld%s+%s%#llx%s]", ccy, cbl, BF(12, 4), ccy, cyel, BF(16,8) << 2, ccy);
+}
+
 struct insn tabp[] = {
 	{ AP, 0x00000e00, 0x00001f00 }, /* always true */
 	{ AP, 0, 0, OOPS },
 };
 
 struct insn tabm[] = {
+	{ AP, 0x00000080, 0x000000ff, N("st"), DATA, REG1 },
+	{ AP, 0x00000098, 0x000000ff, N("ld"), REG1, DATA },
 	{ AP, 0x000000f4, 0x0000e0ff, N("bra"), T(p), SBTARG },
 	{ AP, 0x000000f5, 0x0000e0ff, N("bra"), T(p), LBTARG },
 	{ AP, 0x000021f5, 0x0000ffff, N("call"), CTARG },
