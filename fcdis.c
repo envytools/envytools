@@ -120,6 +120,44 @@ struct insn tabm[] = {
 	{ AP, 0, 0, OOPS },
 };
 
+uint32_t optab[] = {
+	0x80, 3,
+	0x90, 3,
+	0x92, 3,
+	0x94, 3,
+	0x95, 3,
+	0x97, 3,
+	0x98, 3,
+	0xa0, 4,
+	0xb0, 3,
+	0xb1, 4,
+	0xb4, 3,
+	0xb6, 3,
+	0xb7, 4,
+	0xb8, 3,
+	0xb9, 3,
+	0xbb, 3,
+	0xbc, 3,
+	0xbd, 2,
+	0xc4, 3,
+	0xc5, 3,
+	0xc7, 3,
+	0xe3, 4,
+	0xe4, 4,
+	0xe7, 4,
+	0xf0, 3,
+	0xf1, 4,
+	0xf4, 3,
+	0xf5, 4,
+	0xf8, 2,
+	0xf9, 2,
+	0xfa, 3,
+	0xfc, 2,
+	0xfd, 3,
+	0xfe, 3,
+	0xff, 3,
+};
+
 /*
  * Disassembler driver
  *
@@ -133,49 +171,9 @@ void fcdis (FILE *out, uint8_t *code, int num) {
 		fprintf (out, "%s%08x:%s", cgray, cur, cnorm);
 		uint8_t op = code[cur];
 		int length = 0;
-		switch (op) {
-			case 0xa0:
-			case 0xb1:
-			case 0xb7:
-			case 0xe3:
-			case 0xe4:
-			case 0xe7:
-			case 0xf1:
-			case 0xf5:
-				length = 4;
-				break;
-			case 0x80:
-			case 0x90:
-			case 0x92:
-			case 0x94:
-			case 0x95:
-			case 0x97:
-			case 0x98:
-			case 0xb0:
-			case 0xb4:
-			case 0xb6:
-			case 0xb8:
-			case 0xb9:
-			case 0xbb:
-			case 0xbc:
-			case 0xc4:
-			case 0xc5:
-			case 0xc7:
-			case 0xf0:
-			case 0xfa:
-			case 0xf4:
-			case 0xfd:
-			case 0xfe:
-			case 0xff:
-				length = 3;
-				break;
-			case 0xbd:
-			case 0xf8:
-			case 0xf9:
-			case 0xfc:
-				length = 2;
-				break;
-		}
+		for (i = 0; i < sizeof optab / sizeof *optab / 2; i++)
+			if (op == optab[2*i])
+				length = optab[2*i+1];
 		if (!length || cur + length > num) {
 			fprintf (out, " %s%02x           ???%s\n", cred, op, cnorm);
 			cur++;
