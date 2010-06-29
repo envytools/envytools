@@ -87,9 +87,23 @@ struct insn tabp[] = {
 	{ AP, 0, 0, OOPS },
 };
 
+struct insn tabaop[] = {
+	{ AP, 0x00000000, 0x00000f00, N("add") },
+	{ AP, 0x00000100, 0x00000f00, N("adc") },
+	{ AP, 0x00000200, 0x00000f00, N("sub") },
+	{ AP, 0x00000300, 0x00000f00, N("sbb") },
+	{ AP, 0x00000400, 0x00000f00, N("shl") },
+	{ AP, 0x00000500, 0x00000f00, N("shr") },
+	{ AP, 0x00000700, 0x00000f00, N("sar") },
+	{ AP, 0x00000c00, 0x00000f00, N("shlc") },
+	{ AP, 0x00000d00, 0x00000f00, N("shrc") },
+};
+
 struct insn tabm[] = {
 	{ AP, 0x00000080, 0x000000ff, N("st"), DATA, REG1 },
 	{ AP, 0x00000098, 0x000000ff, N("ld"), REG1, DATA },
+	{ AP, 0x000000b6, 0x000000ff, T(aop), REG2, SIMM },
+	{ AP, 0x000000b7, 0x000000ff, T(aop), REG2, LIMM },
 	{ AP, 0x000000f4, 0x0000e0ff, N("bra"), T(p), SBTARG },
 	{ AP, 0x000000f5, 0x0000e0ff, N("bra"), T(p), LBTARG },
 	{ AP, 0x000021f5, 0x0000ffff, N("call"), CTARG },
@@ -98,10 +112,6 @@ struct insn tabm[] = {
 	{ AP, 0x000003f1, 0x00000fff, N("lhigh"), REG2, LIMMH },
 	{ AP, 0x000007f0, 0x00000fff, N("limm"), REG2, SIMM },
 	{ AP, 0x000007f1, 0x00000fff, N("limm"), REG2, LIMM },
-	{ AP, 0x000000b6, 0x00000fff, N("add"), REG2, SIMM },
-	{ AP, 0x000000b7, 0x00000fff, N("add"), REG2, LIMM },
-	{ AP, 0x000002b6, 0x00000fff, N("sub"), REG2, SIMM },
-	{ AP, 0x000002b7, 0x00000fff, N("sub"), REG2, LIMM },
 	{ AP, 0, 0, OOPS },
 };
 
