@@ -63,14 +63,18 @@ int reg2off[] = { 12, 4, 'r' };
  * Immediate fields
  */
 
-int limmoff[] = { 16, 16, 0, 0 };
-int simmoff[] = { 16, 8, 0, 1 };
-int limmhoff[] = { 16, 16, 16, 0 };
-int simmhoff[] = { 16, 8, 16, 1 };
-#define LIMM atomnum, limmoff
-#define SIMM atomnum, simmoff
-#define LIMMH atomnum, limmhoff
-#define SIMMH atomnum, simmhoff
+int imm16off[] = { 16, 16, 0, 0 };
+int imm8off[] = { 16, 8, 0, 0 };
+int imm16soff[] = { 16, 16, 0, 1 };
+int imm8soff[] = { 16, 8, 0, 1 };
+int imm16hoff[] = { 16, 16, 16, 0 };
+int imm8hoff[] = { 16, 8, 16, 0 };
+#define IMM16 atomnum, imm16off
+#define IMM8 atomnum, imm8off
+#define IMM16S atomnum, imm16soff
+#define IMM8S atomnum, imm8soff
+#define IMM16H atomnum, imm16hoff
+#define IMM8H atomnum, imm8hoff
 
 /*
  * Memory fields
@@ -99,23 +103,45 @@ struct insn tabaop[] = {
 	{ AP, 0x00000d00, 0x00000f00, N("shrc") },
 };
 
+struct insn tabi[] = {
+	{ AP, 0x00000000, 0x00000001, IMM8 },
+	{ AP, 0x00000001, 0x00000001, IMM16 },
+};
+
+struct insn tabis[] = {
+	{ AP, 0x00000000, 0x00000001, IMM8S },
+	{ AP, 0x00000001, 0x00000001, IMM16S },
+};
+
+struct insn tabih[] = {
+	{ AP, 0x00000000, 0x00000001, IMM8H },
+	{ AP, 0x00000001, 0x00000001, IMM16H },
+};
+
 struct insn tabm[] = {
 	{ AP, 0x00000080, 0x000000ff, N("st"), DATA, REG1 },
 	{ AP, 0x00000098, 0x000000ff, N("ld"), REG1, DATA },
-	{ AP, 0x000000b6, 0x000000ff, T(aop), REG2, SIMM },
-	{ AP, 0x000000b7, 0x000000ff, T(aop), REG2, LIMM },
+	{ AP, 0x000000b6, 0x000000fe, T(aop), REG2, T(i) },
+	{ AP, 0x000000f0, 0x00000ffe, N("mulu"), REG2, T(i) },
+	{ AP, 0x000001f0, 0x00000ffe, N("muls"), REG2, T(is) },
+	{ AP, 0x000002f0, 0x00000ffe, N("sex"), REG2, T(i) }, /* funky instruction. bits ARG2+1 through 31 of ARG1 are replaced with copy of bit ARG2. */
+	{ AP, 0x000003f0, 0x00000ffe, N("sethi"), REG2, T(ih) },
+	{ AP, 0x000004f0, 0x00000ffe, N("and"), REG2, T(i) },
+	{ AP, 0x000005f0, 0x00000ffe, N("or"), REG2, T(i) },
+	{ AP, 0x000006f0, 0x00000ffe, N("xor"), REG2, T(i) },
+	{ AP, 0x000007f0, 0x00000ffe, N("mov"), REG2, T(is) },
+	{ AP, 0x000009f0, 0x00000ffe, N("bset"), REG2, T(i) },
+	{ AP, 0x00000af0, 0x00000ffe, N("bclr"), REG2, T(i) },
+	{ AP, 0x00000bf0, 0x00000ffe, N("btgl"), REG2, T(i) },
+	/* XXX: 00000cf0 */
 	{ AP, 0x000000f4, 0x0000e0ff, N("bra"), T(p), SBTARG },
-	{ AP, 0x000030f4, 0x0000ffff, N("add"), N("sp"), SIMM },
+	{ AP, 0x000030f4, 0x0000ffff, N("add"), N("sp"), IMM8S },
 	{ AP, 0x000000f5, 0x0000e0ff, N("bra"), T(p), LBTARG },
 	{ AP, 0x000021f5, 0x0000ffff, N("call"), CTARG },
 	{ AP, 0x000000f8, 0x0000ffff, N("ret") },
 	{ AP, 0x000002f8, 0x0000ffff, N("exit") },
 	{ AP, 0x000000f9, 0x00000fff, N("push"), REG2 },
 	{ AP, 0x000005f9, 0x00000fff, N("call"), REG2 },
-	{ AP, 0x000003f0, 0x00000fff, N("lhigh"), REG2, SIMMH },
-	{ AP, 0x000003f1, 0x00000fff, N("lhigh"), REG2, LIMMH },
-	{ AP, 0x000007f0, 0x00000fff, N("limm"), REG2, SIMM },
-	{ AP, 0x000007f1, 0x00000fff, N("limm"), REG2, LIMM },
 	{ AP, 0x000000fc, 0x00000fff, N("pop"), REG2 },
 	{ AP, 0, 0, OOPS },
 };
