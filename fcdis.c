@@ -110,10 +110,13 @@ struct insn tabm[] = {
 	{ AP, 0x000021f5, 0x0000ffff, N("call"), CTARG },
 	{ AP, 0x000000f8, 0x0000ffff, N("ret") },
 	{ AP, 0x000002f8, 0x0000ffff, N("exit") },
+	{ AP, 0x000000f9, 0x00000fff, N("push"), REG2 },
+	{ AP, 0x000005f9, 0x00000fff, N("call"), REG2 },
 	{ AP, 0x000003f0, 0x00000fff, N("lhigh"), REG2, SIMMH },
 	{ AP, 0x000003f1, 0x00000fff, N("lhigh"), REG2, LIMMH },
 	{ AP, 0x000007f0, 0x00000fff, N("limm"), REG2, SIMM },
 	{ AP, 0x000007f1, 0x00000fff, N("limm"), REG2, LIMM },
+	{ AP, 0x000000fc, 0x00000fff, N("pop"), REG2 },
 	{ AP, 0, 0, OOPS },
 };
 
