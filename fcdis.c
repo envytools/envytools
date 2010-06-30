@@ -226,6 +226,21 @@ struct insn tabsi[] = {
 	{ AP, 0x000c003b, 0x000f003f, N("shlc"), T(sz), REG2, REG1 },
 	{ AP, 0x000d003b, 0x000f003f, N("shrc"), T(sz), REG2, REG1 },
 
+	{ AP, 0x0000003c, 0x00ef003f, N("add"), T(sz), T(rr) },
+	{ AP, 0x0001003c, 0x00ef003f, N("adc"), T(sz), T(rr) },
+	{ AP, 0x0002003c, 0x00ef003f, N("sub"), T(sz), T(rr) },
+	{ AP, 0x0003003c, 0x00ef003f, N("sbb"), T(sz), T(rr) },
+	{ AP, 0x0004003c, 0x00ef003f, N("shl"), T(sz), T(rr) },
+	{ AP, 0x0005003c, 0x00ef003f, N("shr"), T(sz), T(rr) },
+	{ AP, 0x0007003c, 0x00ef003f, N("sar"), T(sz), T(rr) },
+	{ AP, 0x000c003c, 0x00ef003f, N("shlc"), T(sz), T(rr) },
+	{ AP, 0x000d003c, 0x00ef003f, N("shrc"), T(sz), T(rr) },
+	
+	{ AP, 0x0000003d, 0x00000f3f, N("not"), REG2 },
+	{ AP, 0x0000013d, 0x00000f3f, N("neg"), REG2 },
+	{ AP, 0x0000023d, 0x00000f3f, N("movf"), REG2 },
+	{ AP, 0x0000033d, 0x00000f3f, N("hswap"), REG2 },
+
 	{ AP, 0, 0, OOPS },
 };
 
