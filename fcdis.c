@@ -112,6 +112,7 @@ struct insn tabaop[] = {
 	{ AP, 0x00000700, 0x00000f00, N("sar") },
 	{ AP, 0x00000c00, 0x00000f00, N("shlc") },
 	{ AP, 0x00000d00, 0x00000f00, N("shrc") },
+	{ AP, 0, 0, OOPS },
 };
 
 struct insn tabi[] = {
@@ -139,26 +140,48 @@ struct insn tabrr[] = {
 	{ AP, 0x00100000, 0x00100000, REG1, REG2 },
 };
 
+struct insn tabsz[] = {
+	{ AP, 0x00000000, 0x000000c0, N("b8") },
+	{ AP, 0x00000040, 0x000000c0, N("b16") },
+	{ AP, 0x00000080, 0x000000c0, N("b32") },
+	{ AP, 0, 0, OOPS },
+};
+
+struct insn tabdata[] = {
+	{ AP, 0x00000000, 0x000000c0, DATA8 },
+	{ AP, 0x00000040, 0x000000c0, DATA16 },
+	{ AP, 0x00000080, 0x000000c0, DATA32 },
+	{ AP, 0, 0, OOPS },
+};
+
+struct insn tabsi[] = {
+	{ AP, 0x00000000, 0x0000003f, N("st"), T(sz), T(data), REG1 },
+
+	{ AP, 0x00000010, 0x0000003f, N("add"), T(sz), REG1, REG2, IMM8 },
+	{ AP, 0x00000011, 0x0000003f, N("adc"), T(sz), REG1, REG2, IMM8 },
+	{ AP, 0x00000012, 0x0000003f, N("sub"), T(sz), REG1, REG2, IMM8 },
+	{ AP, 0x00000013, 0x0000003f, N("sbb"), T(sz), REG1, REG2, IMM8 },
+	{ AP, 0x00000014, 0x0000003f, N("shl"), T(sz), REG1, REG2, IMM8 },
+	{ AP, 0x00000015, 0x0000003f, N("shr"), T(sz), REG1, REG2, IMM8 },
+	{ AP, 0x00000017, 0x0000003f, N("sar"), T(sz), REG1, REG2, IMM8 },
+
+	{ AP, 0x00000018, 0x0000003f, N("ld"), T(sz), REG1, T(data) },
+
+	{ AP, 0x00000430, 0x00000f3e, N("cmpu"), T(sz), REG2, T(i) },
+	{ AP, 0x00000530, 0x00000f3e, N("cmps"), T(sz), REG2, T(is) },
+
+	{ AP, 0x00000036, 0x0000003e, T(aop), T(sz), REG2, T(i) },
+
+	{ AP, 0x00040038, 0x000f003f, N("cmpu"), T(sz), REG2, REG1 },
+	{ AP, 0x00050038, 0x000f003f, N("cmps"), T(sz), REG2, REG1 },
+
+	{ AP, 0, 0, OOPS },
+};
+
 struct insn tabm[] = {
-	{ AP, 0x00000000, 0x000000ff, N("stb"), DATA8, REG1 },
-
-	{ AP, 0x00000018, 0x000000ff, N("ldb"), REG1, DATA16 },
-
-	{ AP, 0x00000040, 0x000000ff, N("sth"), DATA16, REG1 },
-
-	{ AP, 0x00000058, 0x000000ff, N("ldh"), REG1, DATA16 },
-
-	{ AP, 0x00000080, 0x000000ff, N("st"), DATA32, REG1 },
-
-	{ AP, 0x00000098, 0x000000ff, N("ld"), REG1, DATA32 },
-
-	{ AP, 0x000004b0, 0x00000ffe, N("cmpu"), REG2, T(i) },
-	{ AP, 0x000005b0, 0x00000ffe, N("cmps"), REG2, T(is) },
-
-	{ AP, 0x000000b6, 0x000000fe, T(aop), REG2, T(i) },
-
-	{ AP, 0x000400b8, 0x000f00ff, N("cmpu"), REG2, REG1 },
-	{ AP, 0x000500b8, 0x000f00ff, N("cmps"), REG2, REG1 },
+	{ AP, 0x00000000, 0x000000c0, T(si) },
+	{ AP, 0x00000040, 0x000000c0, T(si) },
+	{ AP, 0x00000080, 0x000000c0, T(si) },
 
 	{ AP, 0x000000f0, 0x00000ffe, N("mulu"), REG2, T(i) },
 	{ AP, 0x000001f0, 0x00000ffe, N("muls"), REG2, T(is) },
@@ -199,28 +222,24 @@ struct insn tabm[] = {
 
 uint32_t optab[] = {
 	0x00, 3,
+	0x10, 3,
+	0x12, 3,
+	0x14, 3,
+	0x15, 3,
+	0x17, 3,
 	0x18, 3,
-	0x40, 3,
-	0x58, 3,
-	0x78, 3,
-	0x80, 3,
-	0x90, 3,
-	0x92, 3,
-	0x94, 3,
-	0x95, 3,
-	0x97, 3,
-	0x98, 3,
-	0xa0, 4,
-	0xb0, 3,
-	0xb1, 4,
-	0xb4, 3,
-	0xb6, 3,
-	0xb7, 4,
-	0xb8, 3,
-	0xb9, 3,
-	0xbb, 3,
-	0xbc, 3,
-	0xbd, 2,
+	0x20, 4,
+	0x30, 3,
+	0x31, 4,
+	0x34, 3,
+	0x36, 3,
+	0x37, 4,
+	0x38, 3,
+	0x39, 3,
+	0x3b, 3,
+	0x3c, 3,
+	0x3d, 2,
+
 	0xc4, 3,
 	0xc5, 3,
 	0xc7, 3,
@@ -254,6 +273,8 @@ void fcdis (FILE *out, uint8_t *code, int num) {
 		fprintf (out, "%s%08x:%s", cgray, cur, cnorm);
 		uint8_t op = code[cur];
 		int length = 0;
+		if (op < 0xc0)
+			op &= 0x3f;
 		for (i = 0; i < sizeof optab / sizeof *optab / 2; i++)
 			if (op == optab[2*i])
 				length = optab[2*i+1];
