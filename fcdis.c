@@ -216,6 +216,16 @@ struct insn tabsi[] = {
 	{ AP, 0x00020039, 0x000f003f, N("movf"), T(sz), REG1, REG2 }, /* mov and set ZF+SF according to val */
 	{ AP, 0x00030039, 0x000f003f, N("hswap"), T(sz), REG1, REG2 }, /* swap halves - ie. rotate by half the size in bits. */
 
+	{ AP, 0x0000003b, 0x000f003f, N("add"), T(sz), REG2, REG1 },
+	{ AP, 0x0001003b, 0x000f003f, N("adc"), T(sz), REG2, REG1 },
+	{ AP, 0x0002003b, 0x000f003f, N("sub"), T(sz), REG2, REG1 },
+	{ AP, 0x0003003b, 0x000f003f, N("sbb"), T(sz), REG2, REG1 },
+	{ AP, 0x0004003b, 0x000f003f, N("shl"), T(sz), REG2, REG1 },
+	{ AP, 0x0005003b, 0x000f003f, N("shr"), T(sz), REG2, REG1 },
+	{ AP, 0x0007003b, 0x000f003f, N("sar"), T(sz), REG2, REG1 },
+	{ AP, 0x000c003b, 0x000f003f, N("shlc"), T(sz), REG2, REG1 },
+	{ AP, 0x000d003b, 0x000f003f, N("shrc"), T(sz), REG2, REG1 },
+
 	{ AP, 0, 0, OOPS },
 };
 
