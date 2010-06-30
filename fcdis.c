@@ -164,8 +164,9 @@ struct insn tabsi[] = {
 	{ AP, 0x00000014, 0x0000003f, N("shl"), T(sz), REG1, REG2, IMM8 },
 	{ AP, 0x00000015, 0x0000003f, N("shr"), T(sz), REG1, REG2, IMM8 },
 	{ AP, 0x00000017, 0x0000003f, N("sar"), T(sz), REG1, REG2, IMM8 },
-
 	{ AP, 0x00000018, 0x0000003f, N("ld"), T(sz), REG1, T(data) },
+	{ AP, 0x0000001c, 0x0000003f, N("shlc"), T(sz), REG1, REG2, IMM8 },
+	{ AP, 0x0000001d, 0x0000003f, N("shrc"), T(sz), REG1, REG2, IMM8 },
 
 	{ AP, 0x00000430, 0x00000f3e, N("cmpu"), T(sz), REG2, T(i) },
 	{ AP, 0x00000530, 0x00000f3e, N("cmps"), T(sz), REG2, T(is) },
