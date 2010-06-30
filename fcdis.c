@@ -152,6 +152,9 @@ struct insn tabm[] = {
 
 	{ AP, 0x00000098, 0x000000ff, N("ld"), REG1, DATA32 },
 
+	{ AP, 0x000004b0, 0x00000ffe, N("cmpu"), REG2, T(i) },
+	{ AP, 0x000005b0, 0x00000ffe, N("cmps"), REG2, T(is) },
+
 	{ AP, 0x000000b6, 0x000000fe, T(aop), REG2, T(i) },
 
 	{ AP, 0x000400b8, 0x000f00ff, N("cmpu"), REG2, REG1 },
