@@ -45,8 +45,13 @@ void atomlbtarg APROTO {
 	fprintf (out, " %s%#x", cbr, pos + delta);
 }
 
-#define CTARG atomctarg, 0
-void atomctarg APROTO {
+#define LCTARG atomlctarg, 0
+void atomlctarg APROTO {
+	fprintf (out, " %s%#llx", cbr, BF(16, 16));
+}
+
+#define SCTARG atomsctarg, 0
+void atomsctarg APROTO {
 	fprintf (out, " %s%#llx", cbr, BF(16, 16));
 }
 
@@ -140,6 +145,11 @@ struct insn tabbt[] = {
 	{ AP, 0x00000001, 0x00000001, LBTARG },
 };
 
+struct insn tabct[] = {
+	{ AP, 0x00000000, 0x00000001, SCTARG },
+	{ AP, 0x00000001, 0x00000001, LCTARG },
+};
+
 struct insn tabrr[] = {
 	{ AP, 0x00000000, 0x00100000, REG2, REG1 },
 	{ AP, 0x00100000, 0x00100000, REG1, REG2 },
@@ -215,7 +225,8 @@ struct insn tabm[] = {
 	/* XXX: 00000cf0 */
 
 	{ AP, 0x000000f4, 0x0000e0fe, N("bra"), T(p), T(bt) },
-	{ AP, 0x000021f5, 0x0000ffff, N("call"), CTARG },
+	{ AP, 0x000020f4, 0x0000fffe, N("bra"), T(ct) },
+	{ AP, 0x000021f4, 0x0000fffe, N("call"), T(ct) },
 	{ AP, 0x000030f4, 0x0000fffe, N("add"), N("sp"), T(is) },
 
 	{ AP, 0x000000f8, 0x0000ffff, N("ret") },
