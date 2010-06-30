@@ -80,15 +80,20 @@ int imm8hoff[] = { 16, 8, 16, 0 };
  * Memory fields
  */
 
+int datanoff[] = { -1 };
 int data8off[] = { 0 };
 int data16off[] = { 1 };
 int data32off[] = { 2 };
+#define DATAN atomdata, datanoff
 #define DATA8 atomdata, data8off
 #define DATA16 atomdata, data16off
 #define DATA32 atomdata, data32off
 void atomdata APROTO {
 	const int *n = v;
-	fprintf (out, " %sD[%s$r%lld%s+%s%#llx%s]", ccy, cbl, BF(12, 4), ccy, cyel, BF(16,8) << n[0], ccy);
+	if (n[0] != -1)
+		fprintf (out, " %sD[%s$r%lld%s+%s%#llx%s]", ccy, cbl, BF(12, 4), ccy, cyel, BF(16,8) << n[0], ccy);
+	else
+		fprintf (out, " %sD[%s$r%lld%s]", ccy, cbl, BF(12, 4), ccy);
 }
 
 struct insn tabp[] = {
@@ -184,6 +189,7 @@ struct insn tabsi[] = {
 
 	{ AP, 0x00000036, 0x0000003e, T(aop), T(sz), REG2, T(i) },
 
+	{ AP, 0x00000038, 0x000f003f, N("st"), T(sz), DATAN, REG1 },
 	{ AP, 0x00040038, 0x000f003f, N("cmpu"), T(sz), REG2, REG1 },
 	{ AP, 0x00050038, 0x000f003f, N("cmps"), T(sz), REG2, REG1 },
 
