@@ -156,6 +156,7 @@ struct insn tabdata[] = {
 
 struct insn tabsrs[] = {
 	{ AP, 0x00004000, 0x0000f000, N("sp") },
+	{ AP, 0x00005000, 0x0000f000, N("pc") },
 	{ AP, 0, 0, OOPS },
 };
 
