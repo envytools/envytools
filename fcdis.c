@@ -154,6 +154,16 @@ struct insn tabdata[] = {
 	{ AP, 0, 0, OOPS },
 };
 
+struct insn tabsrs[] = {
+	{ AP, 0x00004000, 0x0000f000, N("sp") },
+	{ AP, 0, 0, OOPS },
+};
+
+struct insn tabsrd[] = {
+	{ AP, 0x00000400, 0x00000f00, N("sp") },
+	{ AP, 0, 0, OOPS },
+};
+
 struct insn tabsi[] = {
 	{ AP, 0x00000000, 0x0000003f, N("st"), T(sz), T(data), REG1 },
 
@@ -208,6 +218,9 @@ struct insn tabm[] = {
 	{ AP, 0x000005f9, 0x00000fff, N("call"), REG2 },
 
 	{ AP, 0x000000fc, 0x00000fff, N("pop"), REG2 },
+
+	{ AP, 0x000000fe, 0x00ff00ff, N("mov"), T(srd), REG2 },
+	{ AP, 0x000100fe, 0x00ff00ff, N("mov"), REG1, T(srs) },
 
 	{ AP, 0x000000ff, 0x00ef00ff, N("mulu"), T(rr) },
 	{ AP, 0x000100ff, 0x00ef00ff, N("muls"), T(rr) },
