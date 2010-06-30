@@ -80,10 +80,15 @@ int imm8hoff[] = { 16, 8, 16, 0 };
  * Memory fields
  */
 
-#define DATA atomdata, 0
+int data8off[] = { 0 };
+int data16off[] = { 1 };
+int data32off[] = { 2 };
+#define DATA8 atomdata, data8off
+#define DATA16 atomdata, data16off
+#define DATA32 atomdata, data32off
 void atomdata APROTO {
 	const int *n = v;
-	fprintf (out, " %sD[%s$r%lld%s+%s%#llx%s]", ccy, cbl, BF(12, 4), ccy, cyel, BF(16,8) << 2, ccy);
+	fprintf (out, " %sD[%s$r%lld%s+%s%#llx%s]", ccy, cbl, BF(12, 4), ccy, cyel, BF(16,8) << n[0], ccy);
 }
 
 struct insn tabp[] = {
@@ -130,11 +135,23 @@ struct insn tabbt[] = {
 };
 
 struct insn tabm[] = {
-	{ AP, 0x00000080, 0x000000ff, N("st"), DATA, REG1 },
-	{ AP, 0x00000098, 0x000000ff, N("ld"), REG1, DATA },
+	{ AP, 0x00000000, 0x000000ff, N("stb"), DATA8, REG1 },
+
+	{ AP, 0x00000018, 0x000000ff, N("ldb"), REG1, DATA16 },
+
+	{ AP, 0x00000040, 0x000000ff, N("sth"), DATA16, REG1 },
+
+	{ AP, 0x00000058, 0x000000ff, N("ldh"), REG1, DATA16 },
+
+	{ AP, 0x00000080, 0x000000ff, N("st"), DATA32, REG1 },
+
+	{ AP, 0x00000098, 0x000000ff, N("ld"), REG1, DATA32 },
+
 	{ AP, 0x000000b6, 0x000000fe, T(aop), REG2, T(i) },
+
 	{ AP, 0x000400b8, 0x000f00ff, N("cmpu"), REG2, REG1 },
 	{ AP, 0x000500b8, 0x000f00ff, N("cmps"), REG2, REG1 },
+
 	{ AP, 0x000000f0, 0x00000ffe, N("mulu"), REG2, T(i) },
 	{ AP, 0x000001f0, 0x00000ffe, N("muls"), REG2, T(is) },
 	{ AP, 0x000002f0, 0x00000ffe, N("sex"), REG2, T(i) }, /* funky instruction. bits ARG2+1 through 31 of ARG1 are replaced with copy of bit ARG2. */
@@ -147,19 +164,25 @@ struct insn tabm[] = {
 	{ AP, 0x00000af0, 0x00000ffe, N("bclr"), REG2, T(i) },
 	{ AP, 0x00000bf0, 0x00000ffe, N("btgl"), REG2, T(i) },
 	/* XXX: 00000cf0 */
+
 	{ AP, 0x000000f4, 0x0000e0fe, N("bra"), T(p), T(bt) },
 	{ AP, 0x000021f5, 0x0000ffff, N("call"), CTARG },
 	{ AP, 0x000030f4, 0x0000fffe, N("add"), N("sp"), T(is) },
+
 	{ AP, 0x000000f8, 0x0000ffff, N("ret") },
 	{ AP, 0x000002f8, 0x0000ffff, N("exit") },
+
 	{ AP, 0x000000f9, 0x00000fff, N("push"), REG2 },
 	{ AP, 0x000005f9, 0x00000fff, N("call"), REG2 },
+
 	{ AP, 0x000000fc, 0x00000fff, N("pop"), REG2 },
 	{ AP, 0, 0, OOPS },
 };
 
 uint32_t optab[] = {
-	0x18, 6,
+	0x00, 3,
+	0x18, 3,
+	0x40, 3,
 	0x58, 3,
 	0x78, 3,
 	0x80, 3,
