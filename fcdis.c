@@ -134,6 +134,11 @@ struct insn tabbt[] = {
 	{ AP, 0x00000001, 0x00000001, LBTARG },
 };
 
+struct insn tabrr[] = {
+	{ AP, 0x00000000, 0x00100000, REG2, REG1 },
+	{ AP, 0x00100000, 0x00100000, REG1, REG2 },
+};
+
 struct insn tabm[] = {
 	{ AP, 0x00000000, 0x000000ff, N("stb"), DATA8, REG1 },
 
@@ -176,6 +181,16 @@ struct insn tabm[] = {
 	{ AP, 0x000005f9, 0x00000fff, N("call"), REG2 },
 
 	{ AP, 0x000000fc, 0x00000fff, N("pop"), REG2 },
+
+	{ AP, 0x000000ff, 0x00ef00ff, N("mulu"), T(rr) },
+	{ AP, 0x000100ff, 0x00ef00ff, N("muls"), T(rr) },
+	{ AP, 0x000200ff, 0x00ff00ff, N("sex"), T(rr) },
+	{ AP, 0x001200ff, 0x00ff00ff, N("sexr"), T(rr) }, /* SRC args reversed */
+	{ AP, 0x000400ff, 0x00ef00ff, N("and"), T(rr) },
+	{ AP, 0x000500ff, 0x00ef00ff, N("or"), T(rr) },
+	{ AP, 0x000600ff, 0x00ef00ff, N("xor"), T(rr) },
+	{ AP, 0x000800ff, 0x00ff00ff, N("xbit"), REG2, REG1 }, /* ARG1 = (ARG1 & 0xfffffffe) | (ARG1 >> ARG2 & 1) */
+	{ AP, 0x001800ff, 0x00ff00ff, N("xbitr"), REG1, REG2 }, /* ARG1 = (ARG1 & 0xfffffffe) | (ARG2 >> ARG1 & 1) */
 	{ AP, 0, 0, OOPS },
 };
 
