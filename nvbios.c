@@ -336,6 +336,21 @@ void printscript (uint16_t soff) {
 				printf ("ZM_MASK_ADD\tR[0x%06x] & ~0x%08x += 0x%08x\n", le32(soff+1), le32(soff+5), le32(soff+9));
 				soff += 13;
 				break;
+			case 0x5e:
+				printcmd (soff, 3);
+				printf ("???\n");
+				soff += 3;
+				break;
+			case 0x9a:
+				printcmd (soff, 7);
+				printf ("???\n");
+				soff += 7;
+				break;
+			case 0x57:
+				printcmd (soff, 3);
+				printf ("???\n");
+				soff += 3;
+				break;
 			default:
 				printcmd (soff, 1);
 				printf ("???\n");
