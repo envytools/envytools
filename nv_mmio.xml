@@ -196,7 +196,7 @@
 		</reg32>
 	</array>
 
-	<reg32 offset="0x70000" name="PRAMIN_FLUSH" variants="NV50-"/>
+	<reg32 offset="0x70000" name="PFIFO_MAGIC_FLUSH" variants="NV84-"/>
 
 	<array offset="0x88000" name="PBUS_PCI" stride="0x1000" length="1" variants="NV40-">
 	</array>

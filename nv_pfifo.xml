@@ -907,8 +907,7 @@
 			<reg32 offset="0x10c" name="UNK10C" length="3" variants="NV40:NV50">
 				<doc>Bits ffffff.</doc>
 			</reg32>
-			<reg32 offset="0x10c" name="UNK10C" variants="NV50:NV84">
-				<doc>RO, reads as 0 or 2.</doc>
+			<reg32 offset="0x10c" name="MAGIC_FLUSH" variants="NV50:NV84">
 			</reg32>
 			<reg32 offset="0x110" name="UNK110" variants="NV50-">
 				<doc>Bits 0xffffffff.</doc>
