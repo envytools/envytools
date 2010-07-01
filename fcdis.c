@@ -339,7 +339,7 @@ uint32_t optab[] = {
  * FILE*.
  */
 
-void fcdis (FILE *out, uint8_t *code, int num) {
+void fcdis (FILE *out, uint8_t *code, int num, int ptype) {
 	int cur = 0, i;
 	while (cur < num) {
 		fprintf (out, "%s%08x:%s", cgray, cur, cnorm);
@@ -361,7 +361,7 @@ void fcdis (FILE *out, uint8_t *code, int num) {
 			}
 			for (i = 0; i < 6 - length; i++)
 				fprintf (out, "   ");
-			atomtab (out, &a, &m, tabm, -1, cur);
+			atomtab (out, &a, &m, tabm, ptype, cur);
 			a &= ~m;
 			if (a) {
 				fprintf (out, " %s[unknown: %08llx]%s", cred, a, cnorm);
@@ -382,15 +382,44 @@ void fcdis (FILE *out, uint8_t *code, int num) {
  */
 
 int main(int argc, char **argv) {
+	int ptype = AP;
+	int w = 0;
+	int c;
+	while ((c = getopt (argc, argv, "wn")) != -1)
+		switch (c) {
+			case 'w':
+				w = 1;
+				break;
+			case 'n':
+				cnorm = "";
+				cgray = "";
+				cgr = "";
+				cbl= "";
+				ccy = "";
+				cyel = "";
+				cred = "";
+				cbr = "";
+				cmag = "";
+				break;
+		}
 	int num = 0;
 	int maxnum = 16;
 	uint8_t *code = malloc (maxnum * 4);
 	uint32_t t;
 	while (!feof(stdin) && scanf ("%x", &t) == 1) {
-		if (num == maxnum) maxnum *= 2, code = realloc (code, maxnum*4);
-		code[num++] = t;
+		if (num + 3 >= maxnum) maxnum *= 2, code = realloc (code, maxnum*4);
+		if (w) {
+			code[num++] = t & 0xff;
+			t >>= 8;
+			code[num++] = t & 0xff;
+			t >>= 8;
+			code[num++] = t & 0xff;
+			t >>= 8;
+			code[num++] = t & 0xff;
+		} else
+			code[num++] = t;
 		scanf (" ,");
 	}
-	fcdis (stdout, code, num);
+	fcdis (stdout, code, num, ptype);
 	return 0;
 }
