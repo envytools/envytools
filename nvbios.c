@@ -328,7 +328,7 @@ void printscript (uint16_t soff) {
 				break;
 			case 0x90:
 				printcmd (soff, 9);
-				printf ("COPY_ZM_REG\tR[0x%06x] = R[0x%06x]\n", le32(soff+1), le32(soff+5));
+				printf ("COPY_ZM_REG\tR[0x%06x] = R[0x%06x]\n", le32(soff+5), le32(soff+1));
 				soff += 9;
 				break;
 			case 0x97:
