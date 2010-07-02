@@ -853,6 +853,7 @@ static struct rnnbitfield *copybitfield (struct rnnbitfield *bf) {
 
 static struct rnndelem *copydelem (struct rnndelem *elem) {
 	struct rnndelem *res = calloc (sizeof *res, 1);
+	res->type = elem->type;
 	res->name = elem->name;
 	res->width = elem->width;
 	res->access = elem->access;
