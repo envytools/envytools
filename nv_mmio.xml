@@ -91,13 +91,20 @@
 		<reg32 offset="0x200" name="ENABLE">
 			<doc>Selects which card units are enabled.</doc>
 			<bitfield high="0" low="0" name="PAUDIO" variants="NV01"/>
-			<bitfield high="0" low="0" name="MD" variants="NV04:NV50"/>
+			<!-- might be HDVP video decoding -->
+			<bitfield high="0" low="0" name="UNK0" variants="NV03:NV04 NV10-"/>
+			<!-- I wonder how much modern 84XXX VPE has in common with the original NV17 thing. oh meh. we'll find out some day.-->
+			<bitfield high="1" low="1" name="PVPE" variants="NV17-"/>
 			<bitfield high="4" low="4" name="PDMA" variants="NV01"/>
 			<bitfield high="4" low="4" name="PMEDIA" variants="NV03-"/>
 			<bitfield high="8" low="8" name="PFIFO" />
 			<bitfield high="12" low="12" name="PGRAPH" />
+			<bitfield high="13" low="13" name="PVUNK104" variants="NVA3:NVC0"/>
+			<bitfield high="14" low="14" name="PCRYPTO" variants="NV84-"/>
+			<bitfield high="15" low="15" name="PBSP" variants="NV84-"/>
 			<bitfield high="16" low="16" name="PRM" variants="NV01"/>
 			<bitfield high="16" low="16" name="PTIMER" variants="NV03-"/>
+			<bitfield high="17" low="17" name="PVUNK85" variants="NV98 NVAA-"/>
 			<bitfield high="20" low="20" name="PFB" variants="NV03-"/>
 			<bitfield high="24" low="24" name="PFB" variants="NV01"/>
 			<bitfield high="24" low="24" name="PCRTC" variants="NV03:NV50"/>
@@ -106,6 +113,7 @@
 			<bitfield high="28" low="28" name="PVIDEO" variants="NV03:NV50"/>
 			<bitfield high="30" low="30" name="PDISPLAY" variants="NV50-"/>
 			<bitfield high="31" low="31" name="UNK31" variants="NV50-"/>
+			<!-- XXX: NV84:NVC0 have lots of other bits that apparently don't affect anything, but not really. -->
 		</reg32>
 	</array>
 	<array offset="0x1000" name="PBUS" stride="0x1000" length="1">
