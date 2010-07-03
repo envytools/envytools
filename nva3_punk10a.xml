@@ -8,11 +8,7 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array name="PFIFO" offset="0x2000" stride="0x2000" length="1" variants="NVC0-">
-
-</array>
-
-<array name="PFIFO_CHAN" offset="0x40000" stride="0x6000" length="1" variants="NVC0-">
+<array name="PUNK10A" offset="0x10a000" stride="0x1000" length="1" variants="NVA3-">
 
 </array>
 

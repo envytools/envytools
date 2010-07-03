@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+<group name="nv98_pvpbase">
+
+</group>
+
+<array name="PBSP" offset="0x84000" stride="0x1000" length="1" variants="NV98 NVAA-">
+	<use-group name="nv98_pvpbase"/>
+</array>
+
+<array name="PVUNK85" offset="0x85000" stride="0x1000" length="1" variants="NV98 NVAA-">
+	<use-group name="nv98_pvpbase"/>
+</array>
+
+<array name="PVUNK86" offset="0x86000" stride="0x1000" length="1" variants="NV98 NVAA-">
+	<use-group name="nv98_pvpbase"/>
+</array>
+
+<array name="PCRYPT" offset="0x87000" stride="0x1000" length="1" variants="NV98 NVAA:NVA3">
+	<use-group name="nv98_pvpbase"/>
+</array>
+
+<array name="PVUNK104" offset="0x104000" stride="0x1000" length="1" variants="NVA3-">
+	<use-group name="nv98_pvpbase"/>
+</array>
+
+<array name="PVUNK105" offset="0x105000" stride="0x1000" length="1" variants="NVC0-">
+	<use-group name="nv98_pvpbase"/>
+</array>
+
+</domain>
+
+</database>

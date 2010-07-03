@@ -972,6 +972,8 @@
 		</array>
 	</array>
 
+	<reg32 offset="0x70000" name="PFIFO_MAGIC_FLUSH" variants="NV84-"/>
+
 	<reg32 offset="0x90000" name="PFIFO_CACHE1_ADDR" stride="0x8" length="512" variants="NV40:NVC0">
 		<bitfield high="0" low="0" name="NONINC" variants="NV10-"/>
 		<bitfield high="12" low="2" name="MTHD" shr="2"/>

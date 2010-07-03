@@ -214,10 +214,10 @@
 		</reg32>
 	</array>
 
-	<reg32 offset="0x70000" name="PFIFO_MAGIC_FLUSH" variants="NV84-"/>
-
 	<array offset="0x88000" name="PBUS_PCI" stride="0x1000" length="1" variants="NV40-">
 	</array>
+
+	<reg8 offset="0xa0000" name="PRM" length="0x20000" variants="NV03-" />
 
 	<array offset="0x101000" name="PEXTDEV" stride="0x1000" length="1">
 	</array>
@@ -230,14 +230,125 @@
 
 </domain>
 
+<!-- 000000 - 000fff PMC covered above -->
+
+<!-- 001000 - 001fff PBUS covered above -->
+
+<!-- 002000 - 003fff PFIFO -->
 <import file="nv_pfifo.xml" />
 <import file="nvc0_pfifo.xml" />
+
+<!-- 004000 - 004fff ??? -->
+
+<!-- 005000 - 005fff ??? -->
+
+<!-- 008000 - 008fff PVIDEO -->
+<import file="nv10_pvideo.xml" />
+
+<!-- 009000 - 009fff PTIMER -->
 <import file="nv_ptimer.xml" />
+
+<!-- 00a000 - 00afff PCOUNTER -->
+<import file="nv10_pcounter.xml" />
+<import file="nv40_pcounter.xml" />
+
+<!-- 00b000 - 00bfff PVPE -->
+<import file="nv17_pvpe.xml" />
+
+<!-- 00c000 - 00cfff ??? -->
+
+<!-- 00d000 - 00dfff PTV -->
+<import file="nv17_ptv.xml" />
+
+<!-- 00e000 - 00efff PCONNECTOR -->
 <import file="nv50_pconnector.xml" />
-<import file="nv01_misc.xml" />
+
+<!-- 00f000 - 00ffff PVPUNK00F covered in nv17_pvpe.xml -->
+
+<!-- 020000 - 020fff ??? -->
+
+<!-- 021000 - 021fff ??? -->
+
+<!-- 022000 - 022fff ??? -->
+
+<!-- 040000 - 045fff PFIFO_CHAN covered in nvc0_pfifo.xml -->
+
+<!-- 060000 - 060fff PEEPHOLE covered above -->
+
+<!-- 070000 - 070fff PFIFO_MAGIC_FLUSH covered in nv_pfifo.xml -->
+
+<!-- 082000 - 082fff ??? -->
+
+<!-- 084000 - 084fff PBSP -->
+<import file="nv98_pvp.xml" />
+
+<!-- 085000 - 085fff PVUNK85 covered in nv98_pvp.xml -->
+
+<!-- 086000 - 086fff PVUNK86 covered in nv98_pvp.xml -->
+
+<!-- 087000 - 087fff PCRYPT covered in nv98_pvp.xml -->
+
+<!-- 088000 - 088fff PBUS_PCI covered above -->
+
+<!-- 089000 - 089fff ??? -->
+
+<!-- 08a000 - 08afff ??? -->
+
+<!-- 090000 - 090fff PFIFO_CACHE1 covered in nv_pfifo.xml -->
+
+<!-- 0a0000 - 0bffff PRM covered above -->
+
+<!-- 100000 - 100fff PFB or PFFB -->
+<import file="nv03_pfb.xml" />
+
+<!-- 101000 - 101fff PEXTDEV covered above -->
+
+<!-- 102000 - 102fff PCRYPT -->
+<import file="nv84_pcrypt.xml" />
+
+<!-- 103000 - 103fff PBSP -->
+<import file="nv84_pbsp.xml" />
+
+<!-- 104000 - 104fff PVUNK104 covered in nv98_pvp.xml -->
+
+<!-- 105000 - 105fff PVUNK105 covered in nv98_pvp.xml -->
+
+<!-- 108000 - 109fff ??? -->
+
+<!-- 10a000 - 10afff PUNK10A -->
+<import file="nva3_punk10a.xml" />
+
+<!-- 10c000 - 10efff ??? -->
+
+<!-- 10f000 - 112fff ??? [NVA5] -->
+
+<!-- 10f000 - 11ffff PBFB covered in nv03_fb.xml -->
+
+<!-- 120000 - 13ffff ??? -->
+
+<!-- 140000 - 17ffff PRUNK140 -->
+<import file="nvc0_prunk140.xml" />
+
+<!-- 180000 - 1bffff PGUNK180 covered in nvc0_pgraph.xml -->
+
+<!-- 200000 - 200fff PMEDIA -->
+<import file="nv_pmedia.xml" />
+
+<!-- 300000 - 3fffff PROM covered above -->
+
+<!-- 400000 - 5fffff PGRAPH -->
 <import file="nv04_pgraph.xml" />
 <import file="nv50_pgraph.xml" />
 <import file="nvc0_pgraph.xml" />
+
+<!-- 600000 - 6fffff PDISPLAY -->
 <import file="nv50_pdisplay.xml" />
+
+<!-- 700000 - 7fffff PRAMIN / PMEM covered above -->
+
+<!-- 800000 - ffffff USER covered in nv_pfifo.xml -->
+
+<!-- and NV01 crap, which doesn't fit in the above ordering... -->
+<import file="nv01_misc.xml" />
 
 </database>
