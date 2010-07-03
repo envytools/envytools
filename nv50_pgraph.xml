@@ -5,6 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
+<import file="nv50_defs.xml" />
 
 <enum name="NV50_PGRAPH_DATA_ERROR">
 	<value value="3" name="INVALID_QUERY_OR_TEXTURE">
@@ -289,19 +290,13 @@
 	</reg32>
 	<reg32 offset="0x032c" name="CTXCTL_CUR">
 		<doc>Current channel.</doc>
-		<bitfield name="INSTANCE" high="29" low="0" shr="12">
-			<doc>RAMIN address of channel.</doc>
-		</bitfield>
-		<bitfield name="VALID" high="31" low="31">
-		</bitfield>
+		<bitfield name="CHAN" high="29" low="0" type="nv50_channel"/>
+		<bitfield name="VALID" high="31" low="31"/>
 	</reg32>
 	<reg32 offset="0x0330" name="CTXCTL_NEXT">
 		<doc>Next channel: the one that PFIFO wants us to switch to.</doc>
-		<bitfield name="INSTANCE" high="29" low="0" shr="12">
-			<doc>RAMIN address of channel.</doc>
-		</bitfield>
-		<bitfield name="VALID" high="31" low="31">
-		</bitfield>
+		<bitfield name="CHAN" high="29" low="0" type="nv50_channel"/>
+		<bitfield name="VALID" high="31" low="31"/>
 	</reg32>
 	<reg32 offset="0x0334" name="CTXCTL_PTR_REG">
 		<doc>Offset in grctx to read/write with opcode 1XXXXX. In units of 32-bit words.</doc>
@@ -380,8 +375,8 @@
 		<doc>Offending method data, for [most types of] PGRAPH interrupts.</doc>
 	</reg32>
 	<reg32 offset="0x070c" name="TRAPPED_DATA_HIGH" /> <!-- I have no idea what this is for. But it's been around since NV10. -->
-	<reg32 offset="0x0784" name="CTXCTL_SWAP" shr="12">
-		<doc>RAMIN address of channel whose grctx is read/written by ctxprog opcodes 1XXXXX, 8XXXXX.</doc>
+	<reg32 offset="0x0784" name="CTXCTL_SWAP" type="nv50_channel">
+		<doc>Channel whose grctx is read/written by ctxprog opcodes 1XXXXX, 8XXXXX.</doc>
 	</reg32>
 
 	<reg32 offset="0x0804" name="DISPATCH_TRAP">
