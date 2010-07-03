@@ -96,7 +96,7 @@
 			<!-- I wonder how much modern 84XXX VPE has in common with the original NV17 thing. oh meh. we'll find out some day.-->
 			<bitfield high="1" low="1" name="PVPE" variants="NV17-"/>
 			<bitfield high="2" low="2" name="UNK2" variants="NVC0-"/>
-			<bitfield high="3" low="3" name="UNK2" variants="NVC0-"/>
+			<bitfield high="3" low="3" name="UNK3" variants="NVC0-"/>
 			<bitfield high="4" low="4" name="PDMA" variants="NV01"/>
 			<bitfield high="4" low="4" name="PMEDIA" variants="NV03-"/>
 			<bitfield high="5" low="5" name="MASTER" variants="NVC0-"/> <!-- disable that and most of MMIO disappears -->
@@ -106,7 +106,7 @@
 			<bitfield high="12" low="12" name="PGRAPH" />
 			<bitfield high="13" low="13" name="PVUNK104" variants="NVA3:NVC0"/>
 			<bitfield high="13" low="13" name="PUNK10A" variants="NVC0-"/>
-			<bitfield high="14" low="14" name="PCRYPTO" variants="NV84:NVA3"/>
+			<bitfield high="14" low="14" name="PCRYPT" variants="NV84:NVA3"/>
 			<bitfield high="15" low="15" name="PBSP" variants="NV84-"/>
 			<bitfield high="16" low="16" name="PRM" variants="NV01"/>
 			<bitfield high="16" low="16" name="PTIMER" variants="NV03-"/>
