@@ -10,6 +10,7 @@ int arch = 0;
 uint64_t praminbase = 0;
 uint64_t ramins = 0;
 uint64_t fakechan = 0;
+int i2cip = -1;
 
 struct mpage {
 	uint64_t tag;
@@ -32,6 +33,126 @@ uint32_t *findmem (uint64_t addr) {
 	return &pg->contents[(addr&0xfff)/4];
 }
 
+struct i2c_ctx {
+	int last;
+	int aok;
+	int wr;
+	int bits;
+	int b;
+	int pend;
+} i2cb[10] = { { 0 } };
+
+int i2c_bus_num (uint64_t addr) {
+	switch (addr) {
+		case 0xe138:
+			return 0;
+		case 0xe150:
+			return 1;
+		case 0xe168:
+			return 2;
+		case 0xe180:
+			return 3;
+		case 0xe254:
+			return 4;
+		case 0xe174:
+			return 5;
+		case 0xe764:
+			return 6;
+		case 0xe780:
+			return 7;
+		case 0xe79c:
+			return 8;
+		case 0xe7b8:
+			return 9;
+		default:
+			return -1;
+	}
+}
+
+void doi2cr (struct i2c_ctx *ctx, int byte) {
+	if (ctx->pend) {
+		if (ctx->bits == 8) {
+			if (byte & 2)
+				printf ("- ");
+			else
+				printf ("+ ");
+			if (!ctx->aok) {
+				ctx->aok = 1;
+				ctx->wr = !(ctx->b&1);
+			}
+			ctx->bits = 0;
+			ctx->b = 0;
+		} else {
+			ctx->b <<= 1;
+			ctx->b |= (byte & 2) >> 1;
+			ctx->bits++;
+			if (ctx->bits == 8) {
+				printf (">%02x", ctx->b);
+			}
+		}
+		ctx->pend = 0;
+	}
+}
+
+void doi2cw (struct i2c_ctx *ctx, int byte) {
+	if (!ctx->last)
+		ctx->last = 7;
+	if (!(byte & 1) && (ctx->last & 1)) {
+		/* clock went low */
+	}
+	if ((byte & 1) && !(ctx->last & 1)) {
+		if (ctx->pend) {
+			printf ("\nI2C LOST!\n");
+			doi2cr(ctx, 0);
+			ctx->pend = 0;
+		}
+		/* clock went high */
+		if (ctx->bits == 8) {
+			if (ctx->wr || !ctx->aok) {
+				ctx->pend = 1;
+			} else {
+				if (byte & 2)
+					printf ("- ");
+				else
+					printf ("+ ");
+				ctx->bits = 0;
+				ctx->b = 0;
+			}
+		} else {
+			if (ctx->wr || !ctx->aok) {
+				ctx->b <<= 1;
+				ctx->b |= (byte & 2) >> 1;
+				ctx->bits++;
+				if (ctx->bits == 8) {
+					printf ("<%02x", ctx->b);
+				}
+			} else {
+				ctx->pend = 1;
+			}
+		}
+	}
+	if ((byte & 1) && !(byte & 2) && (ctx->last & 2)) {
+		/* data went low with high clock - start bit */
+		printf ("START ");
+		ctx->bits = 0;
+		ctx->b = 0;
+		ctx->aok = 0;
+		ctx->wr = 0;
+		ctx->pend = 0;
+	}
+	if ((byte & 1) && (byte & 2) && !(ctx->last & 2)) {
+		/* data went high with high clock - stop bit */
+		printf ("STOP\n");
+		i2cip = -1;
+		ctx->bits = 0;
+		ctx->b = 0;
+		ctx->aok = 0;
+		ctx->wr = 0;
+		ctx->pend = 0;
+	}
+	ctx->last = byte;
+}
+
 int main(int argc, char **argv) {
 	rnn_init();
 	if (argc < 3) {
@@ -49,6 +170,9 @@ int main(int argc, char **argv) {
 	FILE *fin = fopen(argv[2], "r");
 	char line[1024];
 	uint64_t bar0 = 0, bar0l, bar1, bar1l, bar2, bar2l;
+	int i;
+	for (i = 0; i < 10; i++)
+		i2cb[i].last = 7;
 	while (1) {
 		/* yes, static buffer. but mmiotrace lines are bound to have sane length anyway. */
 		if (!fgets(line, sizeof(line), fin))
@@ -69,6 +193,7 @@ int main(int argc, char **argv) {
 			}
 			printf ("%s", line);
 		} else if (!strncmp(line, "W ", 2) || !strncmp(line, "R ", 2)) {
+			int skip = 0;
 			uint64_t addr, value;
 			int width;
 			sscanf (line, "%*s %d %*s %*d %"SCNx64" %"SCNx64, &width, &addr, &value);
@@ -119,13 +244,39 @@ int main(int argc, char **argv) {
 					ramins = (value & 0xffff) << 4;
 				} else if (arch >= 6 && addr == 0x1714) {
 					ramins = (value & 0xfffffff) << 12;
+				} else if (arch >= 5 && (addr & 0xfff000) == 0xe000) {
+					int bus = i2c_bus_num(addr);
+					if (bus != -1) {
+						if (i2cip != bus) {
+							if (i2cip != -1)
+								printf ("\n");
+							struct rnndecaddrinfo *ai = rnndec_decodeaddr(ctx, mmiodom, addr, line[0] == 'W');
+							printf ("I2C      0x%06"PRIx64"            %s ", addr, ai->name);
+							free(ai->name);
+							free(ai);
+							i2cip = bus;
+						}
+						if (line[0] == 'R') {
+							doi2cr(&i2cb[bus], value);
+						} else {
+							doi2cw(&i2cb[bus], value);
+						}
+						skip = 1;
+					}
+				} else if ((addr & 0xfff000) == 0x9000 && (i2cip != -1)) {
+					/* ignore PTIMER meddling during I2C */
+					skip = 1;
+				}
+				if (!skip && (i2cip != -1)) {
+					printf ("\n");
+					i2cip = -1;
 				}
 				if (arch >= 5 && addr >= 0x700000 && addr < 0x800000) {
 					addr -= 0x700000;
 					addr += praminbase;
 					printf ("MEM%d %"PRIx64" %s %"PRIx64"\n", width, addr, line[0]=='W'?"<=":"=>", value);
 					*findmem(addr) = value;
-				} else {
+				} else if (!skip) {
 					struct rnndecaddrinfo *ai = rnndec_decodeaddr(ctx, mmiodom, addr, line[0] == 'W');
 					char *decoded_val = rnndec_decodeval(ctx, ai->typeinfo, value, ai->width);
 					printf ("MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %s %s %s\n", width, line[0], addr, value, ai->name, line[0]=='W'?"<=":"=>", decoded_val);
