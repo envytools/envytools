@@ -385,6 +385,9 @@
 	<reg32 offset="0x0804" name="DISPATCH_TRAP">
 		<bitfield name="FAULT" high="0" low="0" /> <!-- COND/NOTIFIER faults at least. check 800848? -->
 		<bitfield name="QUERY" high="1" low="1" /> <!-- hmm... -->
+		<bitfield name="GRCTX_FAULT_MMIO" high="2" low="2" />
+		<bitfield name="GRCTX_FAULT_XFER1" high="3" low="3" />
+		<bitfield name="GRCTX_FAULT_XFER2" high="4" low="4" />
 		<bitfield name="CLEAR" high="30" low="30" />
 		<bitfield name="ENABLE" high="31" low="31" />
 	</reg32>
@@ -661,6 +664,7 @@
 			<use-group name="nv50_pgraph_mp" />
 		</array>
 		<reg32 offset="0x31c" name="MP_TRAP">
+			<bitfield name="GLOBAL_LIMIT" high="12" low="12" />
 			<bitfield name="EXEC" high="16" low="16" />
 			<bitfield name="STACK_OVERFLOW" high="17" low="17" />
 			<bitfield name="CLEAR" high="30" low="30" />
@@ -672,6 +676,7 @@
 		</reg32>
 		<reg32 offset="0x708" name="TPDMA_TRAP">
 			<bitfield name="2D_FAULT" high="4" low="4" />
+			<bitfield name="ZETA_FAULT" high="5" low="5" />
 			<bitfield name="COLOR_FAULT" high="6" low="6" />
 			<bitfield name="CUDA_FAULT" high="7" low="7" />
 			<bitfield name="CLEAR" high="30" low="30" />
