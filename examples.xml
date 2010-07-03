@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<domain name="NV_MMIO" size="0x1000000" bare="yes" prefix="chipset">
+	<reg32 offset="0" name="PMC_BOOT_0" />
+	<reg32 offset="4" name="PMC_BOOT_1" varset="chipset" variants="NV10-" />
+	<reg32 offset="0x100" name="PMC_INTR" />
+</domain>
+
+
+<domain name="NV50_PFB_VM_TRAP" width="32" size="6">
+	<reg32 offset="0" name="STATUS" />
+	<reg32 offset="1" name="CHANNEL" />
+	<reg32 offset="2" name="UNK2" />
+	<reg32 offset="3" name="ADDRLOW" />
+	<reg32 offset="4" name="ADDRMID" />
+	<reg32 offset="5" name="ADDRHIGH" />
+</domain>
+
+<domain name="EXAMPLE1" bare="yes">
+	<reg32 offset="0x400784" name="PGRAPH_CTXCTL_SWAP" shr="12" />
+
+	<reg32 offset="0x0600" name="NV50_COMPUTE_USER_PARAM" length="64" />
+</domain>
+
+<enum name="SURFACE_FORMAT" prefix="chipset">
+	<value value="6" name="A8R8G8B8" />
+	<value value="0x12" name="A8R8G8B8_RECT" variants="NV10-" />
+</enum>
+
+<enum name="gl_shade_model" inline="yes">
+	<value value="0x1d00" name="FLAT" />
+	<value value="0x1d01" name="SMOOTH" />
+</enum>
+
+<domain name="EXAMPLE2">
+	<reg32 offset="0x1234" name="TEXTURE_FORMAT" type="SURFACE_FORMAT" />
+	<reg32 offset="0x1238" name="SHADE_MODEL" type="gl_shade_model" />
+	<reg32 offset="0x123c" name="PATTERN_SELECT">
+		<value value="1" name="MONO" />
+		<value value="2" name="COLOR" />
+	</reg32>
+</domain>
+
+<enum name="chipset">
+	<brief>The chipset of the card</brief>
+	<value name="NV04">
+		<brief>RIVA TNT</brief>
+	</value>
+	<value name="NV05">
+		<brief>RIVA TNT2</brief>
+	</value>
+	<value name="NV10">
+		<brief>GeForce 256</brief>
+	</value>
+	<value name="NV50">
+		<brief>G80: GeForce 8800 GTX, Tesla *870, ...</brief>
+	</value>
+	<value name="NV84">
+		<brief>G84: GeForce 8600 GT, ...</brief>
+	</value>
+	<value name="NVA0">
+		<brief>G200: GeForce 260 GTX, Tesla C1060, ...</brief>
+	</value>
+	<value name="NVA5">
+		<brief>GT216: GeForce GT 220</brief>
+	</value>
+</enum>
+
+<enum name="grobj-class" bare="yes" prefix="chipset">
+	<value name="M2MF" value="0x0039" variants=":NV50" />
+	<value name="M2MF" value="0x5039" variants="NV50-" />
+	<value name="2D" value="0x502d" variants="NV50-" />
+	<value name="3D" value="0x5097" variants="NV50:NVA0" />
+	<value name="3D" value="0x8297" variants="NV84" />
+	<value name="COMPUTE" value="0x50c0" variants="NV50-" />
+</enum>
+
+
+<enum name="nv03_operation" inline="yes">
+	<value value="0" name="SRCCOPY_AND" />
+	<value value="1" name="ROP_AND" />
+	<value value="2" name="BLEND_AND" />
+	<value value="3" name="SRCCOPY" />
+	<value value="4" name="SRCCOPY_PRE" />
+	<value value="5" name="BLEND_PRE" />
+</enum>
+
+<bitset name="NV04_GROBJ_1">
+	<bitfield high="7" low="0" name="GRCLASS" />
+	<bitfield high="12" low="12" name="CHROMA_KEY" />
+	<bitfield high="13" low="13" name="USER_CLIP" />
+	<bitfield high="14" low="14" name="SWIZZLE" />
+	<bitfield high="17" low="15" name="PATCH_CONFIG" type="nv03_operation" />
+	<!-- ... -->
+</bitset>
+
+<bitset name="xy16" inline="yes">
+	<bitfield high="15" low="0" name="X" />
+	<bitfield high="31" low="16" name="Y" />
+</bitset>
+
+<bitset name="nv50_vic" inline="yes">
+	<bitfield high="0" low="0" name="X"/>
+	<bitfield high="1" low="1" name="Y"/>
+	<bitfield high="2" low="2" name="Z"/>
+	<bitfield high="3" low="3" name="W"/>
+</bitset>
+
+<domain name="EXAMPLE3" bare="yes" prefix="chipset">
+	<reg32 offset="0x40014c" name="PGRAPH_CTX_SWITCH_1" type="NV04_GROBJ_1" />
+
+	<reg32 offset="0x0404" name="FORMAT">
+		<bitfield high="15" low="0" name="PITCH" />
+		<bitfield high="23" low="16" name="ORIGIN" />
+		<bitfield high="31" low="24" name="FILTER" />
+	</reg32>
+
+	<reg32 offset="0x040c" name="POINT" type="xy16" />
+
+	<reg32 offset="0x1988" name="FP_INTERPOLANT_CTRL">
+		<bitfield name="UMASK" high="31" low="24" type="nv50_vic"/>
+		<bitfield name="COUNT_NONFLAT" high="23" low="16" type="int"/>
+		<bitfield name="OFFSET" high="15" low="8" type="int"/>
+		<bitfield name="COUNT" high="7" low="0" type="int"/>
+	</reg32>
+
+
+	<array offset="0x408000" name="PGRAPH_TP" stride="0x1000" length="8">
+		<array offset="0x200" name="MP" stride="0x80" length="2">
+			<!-- ... -->
+			<reg64 offset="0x70" name="TRAPPED_OPCODE" />
+			<!-- ... -->
+		</array>
+		<reg32 offset="0x314" name="MP_TRAP" />
+		<!-- ... -->
+	</array>
+
+	<stripe name="PGRAPH" offset="0x400000" variants="NV04-NV05">
+		<reg32 offset="0x100" name="INTR" />
+		<reg32 offset="0x140" name="INTR_EN" />
+	</stripe>
+
+	<stripe name="PGRAPH" offset="0x400000" variants="NV50-">
+		<reg32 offset="0x100" name="INTR" />
+		<reg32 offset="0x108" name="TRAP" />
+		<reg32 offset="0x138" name="TRAP_EN" />
+		<reg32 offset="0x13c" name="INTR_EN" />
+	</stripe>
+
+	<stripe name="PVIDEO" offset="0x8000">
+		<stripe offset="0x900" stride="4" length="2">
+			<reg32 offset="0" name="BASE" />
+			<reg32 offset="8" name="LIMIT" />
+			<reg32 offset="0x10" name="LUMINANCE" />
+			<reg32 offset="0x18" name="CHROMINANCE" />
+			<!-- ... -->
+		</stripe>
+	</stripe>
+</domain>
+
+
+<domain name="NV_OBJECT" bare="yes">
+	<stripe name="OBJECT" prefix="chipset">
+		<reg32 offset="0x00" name="NAME" />
+		<reg32 offset="0x10" name="FENCE_ADDRESS_HIGH" variants="NV50-" />
+		<!-- more PFIFO methods -->
+	</stripe>
+	<stripe prefix="grobj-class">
+		<stripe variants="NV04_M2MF-NV05_M2MF">
+			<reg32 offset="0x200" name="LINEAR_IN" variants="NV50_M2MF" />
+			<reg32 offset="0x328" name="BUFFER_NOTIFY" />
+			<!-- more m2mf methods -->
+		</stripe>
+		<stripe variants="NV50_COMPUTE">
+			<reg32 offset="0x368" name="LAUNCH" />
+			<stripe name="GLOBAL" offset="0x400" stride="0x20" length="16">
+				<reg32 offset="0" name="ADDRESS_HIGH" />
+				<reg32 offset="4" name="ADDRESS_LOW" />
+				<reg32 offset="8" name="PITCH" />
+				<reg32 offset="0xc" name="LIMIT" />
+				<reg32 offset="0x10" name="MODE" />
+			</stripe>
+			<!-- more NV50_COMPUTE methods -->
+			<reg32 offset="0x0600" name="USER_PARAM" length="64" />
+		</stripe>
+	</stripe>
+</domain>
+
+
+<group name="nv50_mp">
+	<!-- ... -->
+	<reg64 offset="0x70" name="TRAPPED_OPCODE">
+<doc>
+
+When foo, this becomes bar.
+
+Note that it is never baz.
+Really!
+          hehe, spaces at the beginning!
+
+</doc>
+</reg64>
+	<!-- ... -->
+</group>
+
+<domain name="EXAMPLE4" bare="yes" prefix="chipset">
+<array offset="0x408000" name="PGRAPH_TP" stride="0x1000" length="8" variants="NV50:NVA0">
+	<array offset="0x200" name="MP" stride="0x80" length="2">
+		<use-group name="nv50_mp" />
+	</array>
+	<!-- ... -->
+</array>
+<array offset="0x408000" name="PGRAPH_TP" stride="0x800" length="10" variants="NVA0-">
+	<array offset="0x100" name="MP" stride="0x80" length="4">
+		<use-group name="nv50_mp" />
+	</array>
+	<!-- ... -->
+</array>
+</domain>
+
+</database>
+

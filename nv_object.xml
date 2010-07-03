@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+<import file="nv_defs.xml" />
+
+<enum name="obj-class" varset="chipset" bare="yes">
+	<!-- non-PGRAPH object classes; TODO: check/reorganize these -->
+	<value value="0x0001" name="NV01_ROOT"/>
+	<value value="0x0002" name="NV01_CONTEXT_DMA"/>
+	<value value="0x0003" name="NV01_DEVICE"/>
+	<value value="0x0004" name="NV01_TIMER"/>
+	<value value="0x0030" name="NV01_NULL"/>
+	<value value="0x003d" name="NV01_MEMORY_LOCAL_BANKED"/>
+	<value value="0x003e" name="NV01_MAPPING_SYSTEM"/>
+	<value value="0x003f" name="NV03_MEMORY_LOCAL_CURSOR"/>
+	<value value="0x0040" name="NV01_MEMORY_LOCAL_LINEAR"/>
+	<value value="0x0041" name="NV01_MAPPING_LOCAL"/>
+	<value value="0x0046" name="NV03_VIDEO_LUT_CURSOR_DAC"/>
+	<value value="0x006a" name="NV03_CHANNEL_PIO"/>
+	<value value="0x006b" name="NV03_CHANNEL_DMA"/>
+	<value value="0x007c" name="NV10_VIDEO_DISPLAY"/>
+
+	<!-- nv01-nv04-only image objects: note that they conflict with nv05+ objects -->
+	<!-- TODO: commented out to avoid possible issues due to the conflicts, but the variant support should be able to handle this anyway -->
+	<!--
+	<value value="0x0010" name="NV01_IMAGE_STENCIL" variants="NV01-NV04"/>
+	<value value="0x0011" name="NV01_IMAGE_BLEND_AND" variants="NV01-NV04"/>
+	<value value="0x0013" name="NV01_IMAGE_ROP_AND" variants="NV01-NV04"/>
+	<value value="0x0015" name="NV01_IMAGE_COLOR_KEY" variants="NV01-NV04"/>
+	<value value="0x0064" name="NV01_IMAGE_SRCCOPY_AND" variants="NV01-NV04"/>
+	<value value="0x0065" name="NV03_IMAGE_SRCCOPY" variants="NV03-NV04"/>
+	<value value="0x0066" name="NV04_IMAGE_SRCCOPY_PREMULT" variants="NV04"/>
+	<value value="0x0067" name="NV04_IMAGE_BLEND_PREMULT" variants="NV04"/>
+	-->
+
+	<!-- pre-nv50 2D objects -->
+	<value value="0x0012" name="NV01_CONTEXT_BETA1" variants="NV01-NV50"/>
+	<value value="0x0072" name="NV04_BETA_SOLID" variants="NV04-NV50"/>
+
+	<value value="0x0017" name="NV01_CONTEXT_COLOR_KEY" variants="NV01:NV50"/>
+	<value value="0x0057" name="NV04_CONTEXT_COLOR_KEY" variants="NV04-NV50"/>
+
+	<value value="0x0018" name="NV01_CONTEXT_PATTERN" variants="NV01:NV50"/>
+
+	<value value="0x0019" name="NV01_CONTEXT_CLIP_RECTANGLE" variants="NV01-NV50"/>
+
+	<value value="0x0043" name="NV03_CONTEXT_ROP" variants="NV03-NV50"/>
+
+	<value value="0x0044" name="NV04_IMAGE_PATTERN" variants="NV04-NV50"/>
+
+	<value value="0x001c" name="NV01_RENDER_SOLID_LINE" variants="NV01:NV40"/>
+	<value value="0x005c" name="NV04_RENDER_SOLID_LINE" variants="NV04:NV50"/>
+	<value value="0x035c" name="NV30_RENDER_SOLID_LINE" variants="NV30:NV40"/>
+	<value value="0x305c" name="NV40_RENDER_SOLID_LINE" variants="NV40-NV50"/>
+
+	<value value="0x001d" name="NV01_RENDER_SOLID_TRIANGLE" variants="NV01:NV40"/>
+	<value value="0x005d" name="NV04_RENDER_SOLID_TRIANGLE" variants="NV04-NV50"/>
+
+	<value value="0x001e" name="NV01_RENDER_SOLID_RECTANGLE" variants="NV01:NV40"/>
+	<value value="0x005e" name="NV04_RENDER_SOLID_RECTANGLE" variants="NV04:NV40"/>
+
+	<value value="0x001f" name="NV01_IMAGE_BLIT" variants="NV01:NV50"/>
+	<value value="0x005f" name="NV04_IMAGE_BLIT" variants="NV04-NV50"/>
+	<value value="0x009f" name="NV11_IMAGE_BLIT" variants="NV15:NV50"/>
+
+	<value value="0x0021" name="NV01_IMAGE_FROM_CPU" variants="NV01:NV40"/>
+	<value value="0x0061" name="NV04_IMAGE_FROM_CPU" variants="NV04:NV50"/>
+	<value value="0x0065" name="NV05_IMAGE_FROM_CPU" variants="NV05:NV50"/>
+	<value value="0x008a" name="NV10_IMAGE_FROM_CPU" variants="NV10:NV50"/>
+	<value value="0x038a" name="NV30_IMAGE_FROM_CPU" variants="NV30:NV40"/>
+	<value value="0x308a" name="NV40_IMAGE_FROM_CPU" variants="NV40-NV50"/>
+
+	<value value="0x0036" name="NV03_STRETCHED_IMAGE_FROM_CPU" variants="NV03:NV40"/>
+	<value value="0x0076" name="NV04_STRETCHED_IMAGE_FROM_CPU" variants="NV04:NV50"/>
+	<value value="0x0066" name="NV05_STRETCHED_IMAGE_FROM_CPU" variants="NV05:NV50"/>
+	<value value="0x0366" name="NV30_STRETCHED_IMAGE_FROM_CPU" variants="NV30:NV40"/>
+	<value value="0x3066" name="NV40_STRETCHED_IMAGE_FROM_CPU" variants="NV40-NV50"/>
+
+	<value value="0x0037" name="NV03_SCALED_IMAGE_FROM_MEMORY" variants="NV03:NV50"/>
+	<value value="0x0077" name="NV04_SCALED_IMAGE_FROM_MEMORY" variants="NV04:NV50"/>
+	<value value="0x0063" name="NV05_SCALED_IMAGE_FROM_MEMORY" variants="NV10:NV50"/> <!-- TODO: rules.xml has this, but real nv05s don't have it?!? -->
+	<value value="0x0089" name="NV10_SCALED_IMAGE_FROM_MEMORY" variants="NV10:NV50"/>
+	<value value="0x0389" name="NV30_SCALED_IMAGE_FROM_MEMORY" variants="NV30:NV40"/>
+	<value value="0x3089" name="NV40_SCALED_IMAGE_FROM_MEMORY" variants="NV40:NV50"/>
+	<value value="0x5089" name="NV50_SCALED_IMAGE_FROM_MEMORY" variants="NV50"/>
+
+	<value value="0x0038" name="NV04_DVD_SUBPICTURE" variants="NV04:NV50"/>
+	<value value="0x0088" name="NV10_DVD_SUBPICTURE" variants="NV10:NV50"/>
+
+	<value value="0x004b" name="NV03_GDI_RECTANGLE_TEXT" variants="NV03:NV40"/>
+	<value value="0x004a" name="NV04_GDI_RECTANGLE_TEXT" variants="NV04-NV50"/>
+
+	<value value="0x0052" name="NV04_SWIZZLED_SURFACE" variants="NV04:NV50"/>
+	<value value="0x009e" name="NV11_SWIZZLED_SURFACE" variants="NV15:NV50"/>
+	<value value="0x039e" name="NV30_SWIZZLED_SURFACE" variants="NV30:NV40"/>
+	<value value="0x309e" name="NV40_SWIZZLED_SURFACE" variants="NV40:NV50"/>
+
+	<value value="0x0058" name="NV03_CONTEXT_SURFACE_DST" variants="NV03:NV50"/>
+	<value value="0x0059" name="NV03_CONTEXT_SURFACE_SRC" variants="NV03:NV50"/>
+
+	<value value="0x0042" name="NV04_CONTEXT_SURFACES_2D" variants="NV04:NV50"/>
+	<value value="0x0062" name="NV10_CONTEXT_SURFACES_2D" variants="NV10:NV50"/>
+	<value value="0x0362" name="NV30_CONTEXT_SURFACES_2D" variants="NV30:NV40"/>
+	<value value="0x3062" name="NV40_CONTEXT_SURFACES_2D" variants="NV40:NV50"/>
+	<value value="0x5062" name="NV50_CONTEXT_SURFACES_2D" variants="NV50"/>
+
+	<value value="0x0060" name="NV04_INDEXED_IMAGE_FROM_CPU" variants="NV04:NV50"/>
+	<value value="0x0064" name="NV05_INDEXED_IMAGE_FROM_CPU" variants="NV05:NV50"/>
+	<value value="0x0364" name="NV30_INDEXED_IMAGE_FROM_CPU" variants="NV30:NV40"/>
+	<value value="0x3064" name="NV40_INDEXED_IMAGE_FROM_CPU" variants="NV40-NV50"/>
+
+	<value value="0x007b" name="NV10_TEXTURE_FROM_CPU" variants="NV10:NV50"/>
+	<value value="0x037b" name="NV30_TEXTURE_FROM_CPU" variants="NV30:NV40"/>
+	<value value="0x307b" name="NV40_TEXTURE_FROM_CPU" variants="NV40-NV50"/>
+
+	<!-- M2MF -->
+	<value value="0x0039" name="NV04_M2MF" variants="NV04:NV50"/>
+	<value value="0x5039" name="NV50_M2MF" variants="NV50:NVC0"/>
+	<value value="0x9039" name="NVC0_M2MF" variants="NVC0-"/>
+
+	<!-- old-style pre-nv20 3D objects -->
+	<value value="0x0048" name="NV03_TEXTURED_TRIANGLE" variants="NV03:NV15"/>
+
+	<value value="0x0054" name="NV04_TEXTURED_TRIANGLE" variants="NV04:NV20"/>
+	<value value="0x0094" name="NV10_TEXTURED_TRIANGLE" variants="NV10:NV20"/>
+
+	<value value="0x0055" name="NV04_MULTITEX_TRIANGLE" variants="NV04:NV20"/>
+	<value value="0x0095" name="NV10_MULTITEX_TRIANGLE" variants="NV10:NV20"/>
+
+	<value value="0x005a" name="NV03_CONTEXT_SURFACE_COLOR" variants="NV03:NV50"/>
+	<value value="0x005b" name="NV03_CONTEXT_SURFACE_ZETA" variants="NV03:NV50"/>
+
+	<value value="0x0053" name="NV04_CONTEXT_SURFACES_3D" variants="NV04:NV20"/>
+	<value value="0x0093" name="NV10_CONTEXT_SURFACES_3D" variants="NV10:NV20"/>
+
+	<!-- new-style 3D objects -->
+	<value value="0x0056" name="NV10_3D" variants="NV10:NV30"/>
+	<value value="0x0096" name="NV11_3D" variants="NV15:NV30"/>
+	<value value="0x0099" name="NV17_3D" variants="NV17:NV20"/>
+	<value value="0x0097" name="NV20_3D" variants="NV20:NV34"/>
+	<value value="0x0597" name="NV25_3D" variants="NV25:NV40"/>
+	<value value="0x0397" name="NV30_3D" variants="NV30:NV40"/>
+	<value value="0x0497" name="NV35_3D" variants="NV35:NV34"/>
+	<value value="0x0697" name="NV34_3D" variants="NV34"/>
+	<value value="0x4097" name="NV40_3D" variants="NV40:NV44"/>
+	<value value="0x4497" name="NV44_3D" variants="NV44:NV50"/>
+	<value value="0x5097" name="NV50_3D" variants="NV50:NVA0"/>
+	<value value="0x8297" name="NV84_3D" variants="NV84:NVA0"/>
+	<value value="0x8397" name="NVA0_3D" variants="NVA0:NVA3"/>
+	<value value="0x8597" name="NVA3_3D" variants="NVA3:NVC0"/>
+	<value value="0x9097" name="NVC0_3D" variants="NVC0-"/>
+
+	<!-- nv50+ non-3D objects -->
+	<value value="0x502d" name="NV50_2D" variants="NV50:NVC0"/>
+	<value value="0x902d" name="NVC0_2D" variants="NVC0-"/>
+
+	<value value="0x50c0" name="NV50_COMPUTE" variants="NV50:NVC0"/>
+	<value value="0x85c0" name="NVA3_COMPUTE" variants="NVA3:NVC0"/>
+	<value value="0x90c0" name="NVC0_COMPUTE" variants="NVC0-"/>
+</enum>
+
+<domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
+	<stripe name="SUBCHAN" prefix="chipset">
+		<reg32 offset="0x00" name="OBJECT" type="object" />
+		<stripe variants="NV84-">
+			<reg32 offset="0x10" name="QUERY_ADDRESS_HIGH" />
+			<reg32 offset="0x14" name="QUERY_ADDRESS_LOW" />
+			<reg32 offset="0x18" name="QUERY_COUNTER" />
+			<reg32 offset="0x1c" name="QUERY_GET" />
+			<reg32 offset="0x20" name="UNK20"/> <!-- causes PFIFO interrupt 30 -->
+			<reg32 offset="0x24" name="UNK24"/>
+		</stripe>
+		<reg32 offset="0x50" name="REF_CNT" variants="NV10-"/>
+		<stripe variants="NV11-">
+			<reg32 offset="0x60" name="DMA_SEMAPHORE" type="object" />
+			<reg32 offset="0x64" name="SEMAPHORE_OFFSET" />
+			<reg32 offset="0x68" name="SEMAPHORE_ACQUIRE" />
+			<reg32 offset="0x6c" name="SEMAPHORE_RELEASE" />
+		</stripe>
+		<reg32 offset="0x80" name="UNK80" variants="NV50-"/> <!-- XXX: maybe NV40 too? -->
+	</stripe>
+	<stripe name="GRAPH" prefix="chipset">
+		<doc>Methods available on all PGRAPH objects.</doc>
+		<reg32 offset="0x100" name="NOP" variants="NV04-" />
+		<reg32 offset="0x104" name="NOTIFY" >
+			<value value="0" name="WRITE"/>
+			<value value="1" name="WRITE_AND_AWAKEN"/>
+		</reg32>
+		<reg32 offset="0x0110" name="WAIT_FOR_IDLE" variants="NV50-"/>
+		<reg32 offset="0x0120" name="UNK0120" variants="NVA3-"/>
+		<reg32 offset="0x0124" name="UNK0124" variants="NVA3-"/>
+		<reg32 offset="0x0140" name="PM_TRIGGER" variants="NV40-"/> <!-- XXX: likely controlled by a PGRAPH_DEBUG bit. -->
+	</stripe>
+</domain>
+
+</database>

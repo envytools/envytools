@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+	<array name="PDISPLAY" offset="0x00610000" stride="0x10000" length="1" variants="NV50-">
+		<doc>
+		This is the home of a lot of registers. The good old days of 0x2000 offset everywhere are gone.
+		</doc>
+
+		<reg32 name="SUPERVISOR" offset="0x24">
+			<doc>
+			Write the bit that is active to acknowledge the interrupt.
+			Typically vblank is done before any clock related bits.
+			</doc>
+			<bitfield name="CRTCn" high="3" low="2" />
+			<bitfield name="CRTC0" high="2" low="2" />
+			<bitfield name="CRTC1" high="3" low="3" />
+			<bitfield name="CLK_MASK" high="6" low="4">
+				<doc>
+				There are 3 possible states, which represent the kernel side of setting a mode. The 2nd one is setting the clock.
+				The rest seem to be mostly reading back some state and i don't fully understand what is needed there.
+				</doc>
+			</bitfield>
+			<bitfield name="CLK_UPDATE" high="5" low="5" />
+		</reg32>
+
+		<reg32 name="SUPERVISOR_INTR" offset="0x2C">
+			<doc>
+			This matches SUPERVISOR quite well, i'm not a 100% sure it's a 1:1 translation.
+			</doc>
+			<bitfield name="VBLANK_CRTC0" high="2" low="2" />
+			<bitfield name="VBLANK_CRTC1" high="3" low="3" />
+			<bitfield name="UNK1" high="4" low="4" />
+			<bitfield name="CLK_UPDATE" high="5" low="5" />
+			<bitfield name="UNK4" high="6" low="6" />
+		</reg32>
+
+		<reg32 name="UNK30_CTRL" offset="0x30">
+			<doc>
+			Please remember that it's essential to always ack a request for clock change, even when no clock change is needed.
+			Otherwise you get a nice lockup.
+			</doc>
+			<bitfield name="UPDATE_VCLK0" high="9" low="9"/>
+			<bitfield name="UPDATE_VCLK1" high="10" low="10"/>
+			<bitfield name="PENDING" high="31" low="31"/>
+		</reg32>
+
+		<reg32 name="UNK50_CTRL" offset="0x50">
+			<doc>
+			One of the many ways to see if a crtc is active, maybe this still holds it's value during modesetting. I'm unsure.
+			</doc>
+			<bitfield name="CRTC0_ACTIVE" high="1" low="1"/>
+			<bitfield name="CRTC0_ACTIVE_MASK" high="1" low="0"/>
+			<bitfield name="CRTC1_ACTIVE" high="9" low="9"/>
+			<bitfield name="CRTC1_ACTIVE_MASK" high="9" low="8"/>
+		</reg32>
+
+		<reg32 name="UNK200_CTRL" offset="0x200">
+			<doc>
+			This register is a big mistery, but it's somehow linked to the 0x00640000 range. Details will be given there.
+			</doc>
+		</reg32>
+
+		<array name="CURSOR" offset="0x270" stride="0x10" length="2">
+			<reg32 name="CURSOR_CTRL2" offset="0x0">
+				<bitfield name="ON" high="0" low="0"/>
+				<bitfield name="STATUS_MASK" high="17" low="16"/>
+				<bitfield name="STATUS_ACTIVE" high="16" low="16"/>
+			</reg32>
+		</array>
+
+		<reg32 name="CTRL_STATE" offset="0x300">
+			<bitfield name="METHOD" high="11" low="0"/>
+			<bitfield name="PENDING" high="31" low="31"/>
+		</reg32>
+
+		<reg32 name="CTRL_VAL" offset="0x304"/>
+
+		<reg32 name="UNK_380" offset="0x380"/>
+		<reg32 name="RAM_AMOUNT" offset="0x384">
+			<doc>
+			Amount in bytes - 1. Clamped to the maximum size of a bar, eg 256 MiB.
+			</doc>
+		</reg32>
+		<reg32 name="UNK_388" offset="0x388"/>
+		<reg32 name="UNK_38C" offset="0x38C"/>
+
+		<stripe name="CRTC_VAL" offset="0xA00" stride="0x540" length="2">
+			<doc>
+			The starting point is an educated guess, but nevertheless reasonable.
+			These values are only for reading purposes, setting them is another matter.
+			They do map to display commands, but not 1:1.
+			These registers seem duplicated at offset + 4. Maybe something to do with dac sharing?
+			</doc>
+
+			<stripe offset="0x0" stride="0x4" length="2">
+				<reg32 name="UNK_900" offset="0x18"/>
+				<reg32 name="CLUT_MODE" offset="0x24"/>
+				<reg32 name="INTERLACE" offset="0x48"/>
+				<reg32 name="SCALE_CTRL" offset="0x50"/>
+				<reg32 name="CURSOR_CTRL" offset="0x58"/>
+				<reg32 name="UNK_904" offset="0xB8"/>
+				<reg32 name="DEPTH" offset="0xC8"/>
+				<reg32 name="CLOCK" offset="0xD0"/>
+				<reg32 name="COLOR_CTRL" offset="0xE0"/>
+				<reg32 name="SYNC_START_TO_BLANK_END" offset="0xE8"/>
+				<reg32 name="MODE_UNK1" offset="0xF0"/>
+				<reg32 name="DISPLAY_TOTAL" offset="0xF8"/>
+				<reg32 name="SYNC_DURATION" offset="0x100"/>
+				<reg32 name="MODE_UNK2" offset="0x108"/>
+				<reg32 name="UNK_828" offset="0x110"/>
+				<reg32 name="FB_SIZE" offset="0x118"/>
+				<reg32 name="FB_PITCH" offset="0x120">
+					<doc>
+					This linear fb bit is a guess, not a 100% sure.
+					</doc>
+					<bitfield name="LINEAR_FB" high="20" low="20"/>
+				</reg32>
+				<reg32 name="FB_POS" offset="0x128"/>
+				<reg32 name="SCALE_CENTER_OFFSET" offset="0x138"/>
+				<reg32 name="REAL_RES" offset="0x140"/>
+				<reg32 name="SCALE_RES1" offset="0x148"/>
+				<reg32 name="SCALE_RES2" offset="0x150"/>
+			</stripe>
+		</stripe>
+
+		<!-- This is purely for consistent appearance, there are no real groups. -->
+		<stripe offset="0xB58" stride="0x8" length="3">
+			<stripe offset="0x0" stride="0x4" length="2">
+				<reg32 name="DAC_VAL_MODE_CTRL" offset="0x0"/>
+			</stripe>
+		</stripe>
+
+		<stripe offset="0xB70" stride="0x8" length="3">
+			<stripe offset="0x0" stride="0x4" length="2">
+				<reg32 name="SOR_VAL_MODE_CTRL" offset="0x0"/>
+			</stripe>
+		</stripe>
+
+		<stripe offset="0xBDC" stride="0x8" length="3">
+			<stripe offset="0x0" stride="0x4" length="2">
+				<reg32 name="DAC_VAL_MODE_CTRL2" offset="0x0"/>
+			</stripe>
+		</stripe>
+
+		<stripe name="CRTC_CLK" offset="0x4000" stride="0x800" length="2">
+			<reg32 name="CLK_CTRL1" offset="0x100">
+				<bitfield name="CONNECTED" high="10" low="9"/>
+			</reg32>
+			<reg32 name="VPLL_A" offset="0x104"/>
+			<reg32 name="VPLL_B" offset="0x108"/>
+			<reg32 name="CLK_CTRL2" offset="0x200"/>
+		</stripe>
+
+		<stripe name="DAC_CLK" offset="0x4000" stride="0x800" length="3">
+			<reg32 name="CLK_CTRL2" offset="0x280"/>
+		</stripe>
+
+		<stripe name="SOR_CLK" offset="0x4000" stride="0x800" length="3">
+			<reg32 name="CLK_CTRL2" offset="0x300"/>
+		</stripe>
+
+		<array name="DAC_REGS" offset="0xA000" stride="0x800" length="3">
+			<reg32 name="DPMS_CTRL" offset="0x4">
+				<bitfield name="HSYNC_OFF" high="0" low="0"/>
+				<bitfield name="VSYNC_OFF" high="2" low="2"/>
+				<bitfield name="BLANKED" high="4" low="4"/>
+				<bitfield name="OFF" high="6" low="6"/>
+				<bitfield name="PENDING" high="31" low="31"/>
+			</reg32>
+			<reg32 name="LOAD_CTRL" offset="0xC">
+				<bitfield name="ACTIVE" high="20" low="20"/>
+				<bitfield name="PRESENT" high="29" low="27"/>
+				<bitfield name="DONE" high="31" low="31">
+					<doc>
+					You have to wait for this before proceeding.
+					Load detect is very fast though, so i'm not entirely sure.
+					</doc>
+				</bitfield>
+			</reg32>
+			<reg32 name="CLK_CTRL1" offset="0x10">
+				<bitfield name="CONNECTED" high="10" low="9"/>
+			</reg32>
+		</array>
+
+		<array name="SOR_REGS" offset="0xC000" stride="0x800" length="3">
+			<reg32 name="DPMS_CTRL" offset="0x4">
+				<bitfield name="ON" high="0" low="0"/>
+				<bitfield name="PENDING" high="31" low="31"/>
+			</reg32>
+			<reg32 name="CLK_CTRL1" offset="0x8">
+				<bitfield name="CONNECTED" high="10" low="9"/>
+			</reg32>
+			<reg32 name="UNK_00C" offset="0xC"/>
+			<reg32 name="UNK_010" offset="0x10"/>
+			<reg32 name="UNK_014" offset="0x14"/>
+			<reg32 name="UNK_018" offset="0x18"/>
+			<reg32 name="DPMS_STATE" offset="0x30">
+				<doc>
+				These values only relate to the SOR's and are not meant for writing.
+				</doc>
+				<bitfield name="ACTIVE" high="17" low="16"/>
+				<bitfield name="BLANKED" high="19" low="19"/>
+				<bitfield name="WAIT" high="28" low="28"/>
+			</reg32>
+		</array>
+
+	</array>
+
+	<array name="UNK640000" offset="0x00640000" stride="0x1000" length="6" variants="NV50-">
+		<reg32 name="UNK_000" offset="0x0"/>
+	</array>
+
+	<array name="HW_CURSOR" offset="0x00647000" stride="0x1000" length="2" variants="NV50-">
+		<reg32 name="POS_CTRL" offset="0x80"/>
+		<reg32 name="POS" offset="0x84">
+			<doc>
+			You must write 0 to POS_CTRL, otherwise position is not processed.
+			</doc>
+		</reg32>
+	</array>
+</domain>
+
+</database>

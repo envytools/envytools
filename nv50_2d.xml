@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nv_object.xml"/>
+<import file="nv_defs.xml"/>
+<import file="nv50_defs.xml"/>
+
+<domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
+	<stripe prefix="obj-class" variants="NV50_2D">
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="DMA_DST" type="object"/>
+		<reg32 offset="0x0188" name="DMA_SRC" type="object"/>
+		<reg32 offset="0x018c" name="DMA_COND" type="object"/>
+		<reg32 offset="0x0200" name="DST_FORMAT" type="NV50_SURFACE_FORMAT"/>
+		<reg32 offset="0x0204" name="DST_LINEAR" type="boolean"/>
+		<reg32 offset="0x0208" name="DST_TILE_MODE"/>
+		<reg32 offset="0x020c" name="DST_DEPTH" type="int"/>
+		<reg32 offset="0x0210" name="DST_LAYER" type="int"/>
+		<reg32 offset="0x0214" name="DST_PITCH" type="int"/>
+		<reg32 offset="0x0218" name="DST_WIDTH" type="int"/>
+		<reg32 offset="0x021c" name="DST_HEIGHT" type="int"/>
+		<reg32 offset="0x0220" name="DST_ADDRESS_HIGH"/>
+		<reg32 offset="0x0224" name="DST_ADDRESS_LOW"/>
+		<reg32 offset="0x0228" name="UNK228">
+			<doc>Accepts 0 and 1</doc>
+		</reg32>
+		<reg32 offset="0x0230" name="SRC_FORMAT" type="NV50_SURFACE_FORMAT"/>
+		<reg32 offset="0x0234" name="SRC_LINEAR" type="boolean"/>
+		<reg32 offset="0x0238" name="SRC_TILE_MODE"/>
+		<reg32 offset="0x023c" name="SRC_DEPTH" type="int"/>
+		<reg32 offset="0x0240" name="SRC_LAYER" type="int"/>
+		<reg32 offset="0x0244" name="SRC_PITCH" type="uint" max="0x40000"/>
+		<reg32 offset="0x0248" name="SRC_WIDTH" type="uint" max="0x10000"/>
+		<reg32 offset="0x024c" name="SRC_HEIGHT" type="uint" max="0x10000"/>
+		<reg32 offset="0x0250" name="SRC_ADDRESS_HIGH"/>
+		<reg32 offset="0x0254" name="SRC_ADDRESS_LOW"/>
+		<reg32 offset="0x0258" name="UNK258" varset="chipset" variants="NV94-">
+			<doc>Accepts 0-3</doc>
+		</reg32>
+		<reg32 offset="0x0260" name="UNK260">
+			<doc>Accepts 0 and 1</doc>
+		</reg32>
+		<reg32 offset="0x0264" name="COND_ADDRESS_HIGH"/>
+		<reg32 offset="0x0268" name="COND_ADDRESS_LOW"/>
+		<reg32 offset="0x026c" name="COND_MODE" type="nv50_cond_mode"/>
+		<reg32 offset="0x0280" name="CLIP_X" type="int"/>
+		<reg32 offset="0x0284" name="CLIP_Y" type="int"/>
+		<reg32 offset="0x0288" name="CLIP_W" type="int"/>
+		<reg32 offset="0x028c" name="CLIP_H" type="int"/>
+		<reg32 offset="0x0290" name="CLIP_ENABLE" type="boolean"/>
+		<reg32 offset="0x0294" name="COLOR_KEY_FORMAT">
+			<value value="0x0000" name="16BPP"/>
+			<value value="0x0001" name="15BPP"/>
+			<value value="0x0002" name="24BPP"/>
+			<value value="0x0003" name="30BPP"/>
+			<value value="0x0004" name="8BPP"/>
+			<value value="0x0005" name="16BPP2"/> <!-- 5-6-5-0 vs. 8-8-0-0? -->
+			<value value="0x0006" name="32BPP"/>
+		</reg32>
+		<reg32 offset="0x0298" name="COLOR_KEY"/>
+		<reg32 offset="0x029c" name="COLOR_KEY_ENABLE" type="boolean"/>
+		<reg32 offset="0x02a0" name="ROP"/>
+		<reg32 offset="0x02a4" name="BETA1"/>
+		<reg32 offset="0x02a8" name="BETA4"/>
+		<reg32 offset="0x02ac" name="OPERATION">
+			<value value="0x0000" name="SRCCOPY_AND"/>
+			<value value="0x0001" name="ROP_AND"/>
+			<value value="0x0002" name="BLEND_AND"/>
+			<value value="0x0003" name="SRCCOPY"/>
+			<value value="0x0004" name="UNK4"/>
+			<value value="0x0005" name="SRCCOPY_PREMULT"/>
+			<value value="0x0006" name="BLEND_PREMULT"/>
+		</reg32>
+		<reg32 offset="0x02b0" name="UNK2B0">
+			<bitfield high="5" low="0" name="UNK0">
+				<doc>Accepts anything</doc>
+			</bitfield>
+			<bitfield high="13" low="8" name="UNK1">
+				<doc>Accepts anything</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x02b4" name="PATTERN_SELECT">
+			<value value="0" name="MONO_8X8"/>
+			<value value="1" name="MONO_64X1"/>
+			<value value="2" name="MONO_1X64"/>
+			<value value="3" name="COLOR"/>
+		</reg32>
+		<reg32 offset="0x02e8" name="PATTERN_COLOR_FORMAT">
+			<!-- XXX: maybe same as COLOR_KEY_FORMAT and someone just messed up? -->
+			<value value="0x0000" name="16BPP"/>
+			<value value="0x0001" name="15BPP"/>
+			<value value="0x0002" name="32BPP"/>
+			<value value="0x0003" name="8BPP"/>
+			<value value="0x0004" name="UNK4"/>
+			<value value="0x0005" name="UNK5"/>
+		</reg32>
+		<reg32 offset="0x02ec" name="PATTERN_MONO_FORMAT">
+			<value value="0" name="CGA6"/>
+			<value value="1" name="LE"/>
+		</reg32>
+		<reg32 offset="0x02f0" name="PATTERN_COLOR" length="2" type="int"/>
+		<reg32 offset="0x02f8" name="PATTERN_BITMAP" length="2" type="int"/>
+		<reg32 offset="0x0300" name="PATTERN_X8R8G8B8" length="64">
+			<bitfield name="B" high="7" low="0" type="uint"/>
+			<bitfield name="G" high="15" low="8" type="uint"/>
+			<bitfield name="R" high="23" low="16" type="uint"/>
+		</reg32>
+		<reg32 offset="0x0400" name="PATTERN_R5G6B5" length="32">
+			<bitfield name="B0" high="4" low="0" type="uint"/>
+			<bitfield name="G0" high="10" low="5" type="uint"/>
+			<bitfield name="R0" high="15" low="11" type="uint"/>
+			<bitfield name="B1" high="20" low="16" type="uint"/>
+			<bitfield name="G1" high="26" low="21" type="uint"/>
+			<bitfield name="R1" high="31" low="27" type="uint"/>
+		</reg32>
+		<reg32 offset="0x0480" name="PATTERN_X1R5G5B5" length="32">
+			<bitfield name="B0" high="4" low="0" type="uint"/>
+			<bitfield name="G0" high="9" low="5" type="uint"/>
+			<bitfield name="R0" high="14" low="10" type="uint"/>
+			<bitfield name="B1" high="20" low="16" type="uint"/>
+			<bitfield name="G1" high="25" low="21" type="uint"/>
+			<bitfield name="R1" high="30" low="26" type="uint"/>
+		</reg32>
+		<reg32 offset="0x0500" name="PATTERN_Y8" length="16">
+			<bitfield name="Y0" high="7" low="0" type="uint"/>
+			<bitfield name="Y1" high="15" low="8" type="uint"/>
+			<bitfield name="Y2" high="23" low="16" type="uint"/>
+			<bitfield name="Y3" high="31" low="24" type="uint"/>
+		</reg32>
+		<reg32 offset="0x0580" name="DRAW_SHAPE">
+			<value value="0x0000" name="POINTS"/>
+			<value value="0x0001" name="LINES"/>
+			<value value="0x0002" name="LINE_STRIP"/>
+			<value value="0x0003" name="TRIANGLES"/>
+			<value value="0x0004" name="RECTANGLES"/>
+		</reg32>
+		<reg32 offset="0x0584" name="DRAW_COLOR_FORMAT" type="NV50_SURFACE_FORMAT"/>
+		<reg32 offset="0x0588" name="DRAW_COLOR"/>
+		<reg32 offset="0x058c" name="UNK58C">
+			<bitfield high="0" low="0" name="0" />
+			<bitfield high="4" low="4" name="1" />
+			<bitfield high="8" low="8" name="2" />
+			<bitfield high="12" low="12" name="3" />
+		</reg32>
+		<reg32 offset="0x05e0" name="DRAW_POINT16" type="xy16"/>
+		<reg32 offset="0x0600" name="DRAW_POINT32_X" length="64" stride="8" type="int"/>
+		<reg32 offset="0x0604" name="DRAW_POINT32_Y" length="64" stride="8" type="int"/>
+		<reg32 offset="0x0800" name="SIFC_BITMAP_ENABLE" type="boolean"/>
+		<reg32 offset="0x0804" name="SIFC_FORMAT" type="NV50_SURFACE_FORMAT"/>
+		<reg32 offset="0x0808" name="SIFC_BITMAP_FORMAT">
+			<doc>I1 uses SIFC_BITMAP_COLOR_* and others, I4 and I8
+			instead use SRC as a lookup table.</doc>
+			<value value="0" name="I1"/>
+			<value value="1" name="I4"/>
+			<value value="2" name="I8"/>
+		</reg32>
+		<reg32 offset="0x080c" name="SIFC_BITMAP_LSB_FIRST" type="boolean"/>
+		<reg32 offset="0x0810" name="SIFC_BITMAP_LINE_PACK_MODE">
+			<value value="0x0000" name="PACKED"/>
+			<value value="0x0001" name="ALIGN_BYTE"/>
+			<value value="0x0002" name="ALIGN_WORD"/>
+		</reg32>
+		<reg32 offset="0x0814" name="SIFC_BITMAP_COLOR_BIT0"/>
+		<reg32 offset="0x0818" name="SIFC_BITMAP_COLOR_BIT1"/>
+		<reg32 offset="0x081c" name="SIFC_BITMAP_WRITE_BIT0_ENABLE" type="boolean"/>
+		<reg32 offset="0x0838" name="SIFC_WIDTH" type="int"/>
+		<reg32 offset="0x083c" name="SIFC_HEIGHT" type="int"/>
+		<reg32 offset="0x0840" name="SIFC_DX_DU_FRACT"/> <!-- fractional part of dx/du, only bits 12-31 are actually used -->
+		<reg32 offset="0x0844" name="SIFC_DX_DU_INT" type="int"/> <!-- integer part -->
+		<reg32 offset="0x0848" name="SIFC_DY_DV_FRACT"/>
+		<reg32 offset="0x084c" name="SIFC_DY_DV_INT" type="int"/>
+		<reg32 offset="0x0850" name="SIFC_DST_X_FRACT"/>
+		<reg32 offset="0x0854" name="SIFC_DST_X_INT" type="int"/>
+		<reg32 offset="0x0858" name="SIFC_DST_Y_FRACT"/>
+		<reg32 offset="0x085c" name="SIFC_DST_Y_INT" type="int"/>
+		<reg32 offset="0x0860" name="SIFC_DATA"/>
+		<reg32 offset="0x0870" name="UNK0870">
+			<doc>Accepts 0-0x1fffffff, initialised to 4444480</doc>
+		</reg32>
+		<reg32 offset="0x0880" name="UNK0880">
+			<doc>Accepts 0-2</doc>
+		</reg32>
+		<reg32 offset="0x0884" name="UNK0884">
+			<doc>Accepts 0-0x3f, initialised to 4</doc>
+		</reg32>
+		<reg32 offset="0x0888" name="UNK0888">
+			<doc>Accepts 0,1</doc>
+		</reg32>
+		<reg32 offset="0x088c" name="BLIT_CONTROL">
+			<bitfield high="0" low="0" name="ORIGIN">
+				<value value="0" name="CENTER"/>
+				<value value="1" name="CORNER"/>
+			</bitfield>
+			<bitfield high="4" low="4" name="FILTER">
+				<value value="0" name="POINT_SAMPLE"/>
+				<value value="1" name="BILINEAR"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x08b0" name="BLIT_DST_X" type="int"/>
+		<reg32 offset="0x08b4" name="BLIT_DST_Y" type="int"/>
+		<reg32 offset="0x08b8" name="BLIT_DST_W" type="int"/>
+		<reg32 offset="0x08bc" name="BLIT_DST_H" type="int"/>
+		<reg32 offset="0x08c0" name="BLIT_DU_DX_FRACT"/> <!-- guess -->
+		<reg32 offset="0x08c4" name="BLIT_DU_DX_INT" type="int"/>
+		<reg32 offset="0x08c8" name="BLIT_DV_DY_FRACT"/>
+		<reg32 offset="0x08cc" name="BLIT_DV_DY_INT" type="int"/>
+		<reg32 offset="0x08d0" name="BLIT_SRC_X_FRACT"/>
+		<reg32 offset="0x08d4" name="BLIT_SRC_X_INT" type="int"/>
+		<reg32 offset="0x08d8" name="BLIT_SRC_Y_FRACT"/>
+		<reg32 offset="0x08dc" name="BLIT_SRC_Y_INT" type="int"/>
+	</stripe>
+</domain>
+
+</database>

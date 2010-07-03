@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+	<stripe offset="0x9000" name="PTIMER" stride="0x1000" length="1">
+		<reg32 offset="0x100" name="INTR">
+			<bitfield high="0" low="0" name="ALARM" />
+		</reg32>
+		<reg32 offset="0x140" name="INTR_EN">
+			<bitfield high="0" low="0" name="ALARM" />
+		</reg32>
+		<reg32 offset="0x200" name="NUMERATOR" />
+		<reg32 offset="0x210" name="DENOMINATOR" />
+		<reg32 offset="0x400" name="TIME_0" />
+		<reg32 offset="0x410" name="TIME_1" />
+		<reg32 offset="0x420" name="ALARM_0" />
+	</stripe>
+</domain>
+
+</database>

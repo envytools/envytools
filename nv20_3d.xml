@@ -1,0 +1,558 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nv10_3d.xml"/>
+
+<enum name="nv20_fog_coord" inline="yes">
+	<value value="0x0001" name="DIST_RADIAL"/>
+	<value value="0x0002" name="DIST_ORTHOGONAL"/>
+	<value value="0x0003" name="DIST_ORTHOGONAL_ABS"/>
+	<value value="0x0006" name="FOG"/>
+</enum>
+
+<enum name="nv20_fog_mode" inline="yes">
+	<value value="0x0804" name="LINEAR_UNSIGNED"/>
+	<value value="0x2601" name="LINEAR_SIGNED"/>
+	<value value="0x0802" name="EXP_UNSIGNED"/>
+	<value value="0x0800" name="EXP_SIGNED"/>
+	<value value="0x0803" name="EXP2_UNSIGNED"/>
+	<value value="0x0801" name="EXP2_SIGNED"/>
+</enum>
+
+<enum name="nv20_light_viewer" inline="yes">
+	<value value="0x2" name="NONLOCAL"/>
+	<value value="0x3" name="LOCAL"/>
+</enum>
+
+<enum name="nv20_material_binding" inline="yes">
+	<value value="0x0" name="OFF"/>
+	<value value="0x1" name="COL1"/>
+	<value value="0x2" name="COL2"/>
+</enum>
+
+<enum name="nv20_tex_anisotropy" inline="yes">
+	<value value="0x0" name="NONE"/>
+	<value value="0x1" name="2X"/>
+	<value value="0x2" name="4X"/>
+	<value value="0x3" name="8X"/>
+</enum>
+
+<enum name="nv20_tex_dims" inline="yes">
+	<value value="0x0001" name="1D"/>
+	<value value="0x0002" name="2D"/>
+	<value value="0x0003" name="3D"/>
+</enum>
+
+<enum name="nv20_tex_shader_cull_mode" inline="yes">
+	<value value="0x0000" name="GEQUAL"/>
+	<value value="0x0001" name="LESS"/>
+</enum>
+
+<enum name="nv20_tex_shader_op" inline="yes">
+	<value value="0x0000" name="NONE"/>
+	<value value="0x0001" name="TEXTURE_2D"/>
+	<value value="0x0004" name="PASS_THROUGH"/>
+	<value value="0x0005" name="CULL_FRAGMENT"/>
+	<value value="0x0006" name="OFFSET_TEXTURE_2D"/>
+	<value value="0x0009" name="DOT_PRODUCT_TEXTURE_2D"/>
+	<value value="0x000a" name="DOT_PRODUCT_DEPTH_REPLACE"/>
+	<value value="0x000f" name="DEPENDANT_AR_TEXTURE_2D"/>
+	<value value="0x0010" name="DEPENDANT_GB_TEXTURE_2D"/>
+	<value value="0x0011" name="DOT_PRODUCT"/>
+</enum>
+
+<enum name="nv20_vtxbuf_type" inline="yes">
+	<value value="0x0002" name="FLOAT"/>
+	<value value="0x0004" name="UBYTE"/>
+	<value value="0x0005" name="USHORT"/>
+</enum>
+
+<enum name="NV20_VERTEX_ATTR">
+	<value value="0" name="POS"/>
+	<value value="2" name="NORMAL"/>
+	<value value="3" name="COLOR0"/>
+	<value value="4" name="COLOR1"/>
+	<value value="5" name="FOG"/>
+	<value value="9" name="TEX0"/>
+	<value value="10" name="TEX1"/>
+	<value value="11" name="TEX2"/>
+	<value value="12" name="TEX3"/>
+</enum>
+
+<domain name="NV01_SUBCHAN" bare="yes">
+	<stripe prefix="obj-class" variants="NV20_3D-NV25_3D">
+		<use-group name="nv10tcl-base"/>
+
+		<reg32 offset="0x01a4" name="DMA_FENCE" type="object"/>
+		<reg32 offset="0x01a8" name="DMA_QUERY" type="object"/>
+
+		<stripe>
+			<doc> Constant vertex attributes. </doc>
+
+			<stripe offset="0x1500" name="VERTEX_POS_3F">
+				<use-group name="xyz-float"/>
+			</stripe>
+			<stripe offset="0x1518" name="VERTEX_POS_4F">
+				<use-group name="xyzw-float"/>
+			</stripe>
+			<stripe offset="0x1528" name="VERTEX_POS_3I">
+				<use-group name="xyz-short"/>
+			</stripe>
+
+			<stripe offset="0x1530" name="VERTEX_NOR_3F">
+				<use-group name="xyz-float"/>
+			</stripe>
+			<stripe offset="0x1540" name="VERTEX_NOR_3I">
+				<use-group name="xyz-short"/>
+			</stripe>
+
+			<stripe offset="0x1550" name="VERTEX_COL_4F">
+				<use-group name="rgba-float"/>
+			</stripe>
+			<stripe offset="0x1560" name="VERTEX_COL_3F">
+				<use-group name="rgb-float"/>
+			</stripe>
+			<reg32 offset="0x156c" name="VERTEX_COL_4I" type="abgr8"/>
+
+			<stripe offset="0x1580" name="VERTEX_COL2_3F">
+				<use-group name="rgb-float"/>
+			</stripe>
+			<reg32 offset="0x158c" name="VERTEX_COL2_3I" type="xbgr8"/>
+
+			<stripe offset="0x1590" name="VERTEX_TX0_2F">
+				<use-group name="st-float"/>
+			</stripe>
+			<reg32 offset="0x1598" name="VERTEX_TX0_2I" type="st16"/>
+			<stripe offset="0x15a0" name="VERTEX_TX0_4F">
+				<use-group name="strq-float"/>
+			</stripe>
+			<stripe offset="0x15b0" name="VERTEX_TX0_4I">
+				<use-group name="strq-short"/>
+			</stripe>
+
+			<stripe offset="0x15b8" name="VERTEX_TX1_2F">
+				<use-group name="st-float"/>
+			</stripe>
+			<reg32 offset="0x15c0" name="VERTEX_TX1_2I" type="st16"/>
+			<stripe offset="0x15c8" name="VERTEX_TX1_4F">
+				<use-group name="strq-float"/>
+			</stripe>
+			<stripe offset="0x15d8" name="VERTEX_TX1_4I">
+				<use-group name="strq-short"/>
+			</stripe>
+
+			<stripe offset="0x15e0" name="VERTEX_TX2_2F">
+				<use-group name="st-float"/>
+			</stripe>
+			<reg32 offset="0x15e8" name="VERTEX_TX2_2I" type="st16"/>
+			<stripe offset="0x15f0" name="VERTEX_TX2_4F">
+				<use-group name="strq-float"/>
+			</stripe>
+			<stripe offset="0x1600" name="VERTEX_TX2_4I">
+				<use-group name="strq-short"/>
+			</stripe>
+
+			<stripe offset="0x1608" name="VERTEX_TX3_2F">
+				<use-group name="st-float"/>
+			</stripe>
+			<reg32 offset="0x1610" name="VERTEX_TX3_2I" type="st16"/>
+			<stripe offset="0x1620" name="VERTEX_TX3_4F">
+				<use-group name="strq-float"/>
+			</stripe>
+			<stripe offset="0x1630" name="VERTEX_TX3_4I">
+				<use-group name="strq-short"/>
+			</stripe>
+
+			<reg32 offset="0x1698" name="VERTEX_FOG_1F" type="float"/>
+			<reg32 offset="0x16bc" name="EDGEFLAG_ENABLE" type="boolean"/>
+
+			<stripe offset="0x1a00" name="VERTEX_ATTR_4F" length="16" stride="16">
+				<use-group name="xyzw-float"/>
+			</stripe>
+		</stripe>
+
+		<stripe>
+			<doc> Vertex submission. </doc>
+
+			<reg32 offset="0x019c" name="DMA_VTXBUF0" type="object"/>
+			<reg32 offset="0x01a0" name="DMA_VTXBUF1" type="object"/>
+
+			<reg32 offset="0x1710" name="VTXBUF_VALIDATE"/>
+
+			<stripe length="16" stride="4">
+				<doc> Array of VBOs, indexed by NV20_VERTEX_ATTR. </doc>
+
+				<reg32 offset="0x1720" name="VTXBUF_OFFSET">
+					<bitfield name="DMA1" high="31" low="31" type="boolean"/>
+					<bitfield name="OFFSET" high="27" low="0"/>
+				</reg32>
+				<reg32 offset="0x1760" name="VTXBUF_FMT">
+					<bitfield name="TYPE" high="3" low="0" type="nv20_vtxbuf_type"/>
+					<bitfield name="SIZE" high="7" low="4" type="int"/>
+					<bitfield name="STRIDE" high="15" low="8" type="int"/>
+				</reg32>
+			</stripe>
+
+			<reg32 offset="0x17fc" name="VERTEX_BEGIN_END" type="nv10_begin_end"/>
+			<reg32 offset="0x1800" name="VTXBUF_ELEMENT_U16">
+				<bitfield name="I0" high="15" low="0" type="int"/>
+				<bitfield name="I1" high="31" low="16" type="int"/>
+			</reg32>
+			<reg32 offset="0x1808" name="VTXBUF_ELEMENT_U32" type="int"/>
+			<reg32 offset="0x1810" name="VTXBUF_BATCH">
+				<bitfield name="OFFSET" high="23" low="0" type="int"/>
+				<bitfield name="COUNT" high="31" low="24" type="int"/>
+			</reg32>
+			<reg32 offset="0x1818" name="VTXBUF_DATA" type="float"/>
+		</stripe>
+
+		<stripe>
+			<doc> Programmable vertex pipeline controls. </doc>
+
+			<reg32 offset="0x1e94" name="ENGINE">
+				<bitfield name="VP" high="1" low="1" type="boolean"/>
+				<bitfield name="FIXED" high="2" low="2" type="boolean"/>
+			</reg32>
+
+			<reg32 offset="0x0b00" name="VP_UPLOAD_INST" length="4"/>
+			<reg32 offset="0x0b80" name="VP_UPLOAD_CONST" length="4" type="float"/>
+			<reg32 offset="0x1e9c" name="VP_UPLOAD_FROM_ID"/>
+			<reg32 offset="0x1ea0" name="VP_START_FROM_ID"/>
+			<reg32 offset="0x1ea4" name="VP_UPLOAD_CONST_ID"/>
+		</stripe>
+
+		<stripe>
+			<doc> Vertex transformation. </doc>
+
+			<stripe length="4" stride="64">
+				<reg32 offset="0x0480" name="MODELVIEW_MATRIX"
+				       length="16" type="float"/>
+				<reg32 offset="0x0580" name="INVERSE_MODELVIEW_MATRIX"
+				       length="16" type="float"/>
+			</stripe>
+			<reg32 offset="0x0680" name="PROJECTION_MATRIX" length="16" type="float"/>
+
+			<stripe offset="0x0a20" name="VIEWPORT_TRANSLATE">
+				<use-group name="xyzw-float"/>
+			</stripe>
+			<stripe offset="0x0af0" name="VIEWPORT_SCALE">
+				<use-group name="xyzw-float"/>
+			</stripe>
+		</stripe>
+
+		<stripe>
+			<doc> Lighting global controls. </doc>
+
+			<reg32 offset="0x03a4" name="NORMALIZE_ENABLE" type="boolean"/>
+			<reg32 offset="0x03b8" name="SEPARATE_SPECULAR_ENABLE" type="boolean"/>
+			<reg32 offset="0x17c4" name="LIGHT_MODEL_TWO_SIDE_ENABLE" type="boolean"/>
+
+			<reg32 offset="0x0294" name="LIGHT_MODEL">
+				<bitfield name="VIEWER" high="17" low="16" type="nv20_light_viewer"/>
+				<bitfield name="SEPARATE_SPECULAR" high="0" low="0" type="boolean"/>
+			</reg32>
+			<reg32 offset="0x03bc" name="ENABLED_LIGHTS">
+				<bitfield name="0" high="1" low="0" type="nv10_light_source_mode"/>
+				<bitfield name="1" high="3" low="2" type="nv10_light_source_mode"/>
+				<bitfield name="2" high="5" low="4" type="nv10_light_source_mode"/>
+				<bitfield name="3" high="7" low="6" type="nv10_light_source_mode"/>
+				<bitfield name="4" high="9" low="8" type="nv10_light_source_mode"/>
+				<bitfield name="5" high="11" low="10" type="nv10_light_source_mode"/>
+				<bitfield name="6" high="13" low="12" type="nv10_light_source_mode"/>
+				<bitfield name="7" high="15" low="14" type="nv10_light_source_mode"/>
+			</reg32>
+
+			<reg32 offset="0x0298" name="COLOR_MATERIAL">
+				<bitfield name="FRONT_EMISSION" high="1" low="0" type="nv20_material_binding"/>
+				<bitfield name="FRONT_AMBIENT" high="3" low="2" type="nv20_material_binding"/>
+				<bitfield name="FRONT_DIFFUSE" high="5" low="4" type="nv20_material_binding"/>
+				<bitfield name="FRONT_SPECULAR" high="7" low="6" type="nv20_material_binding"/>
+				<bitfield name="BACK_EMISSION" high="9" low="8" type="nv20_material_binding"/>
+				<bitfield name="BACK_AMBIENT" high="11" low="10" type="nv20_material_binding"/>
+				<bitfield name="BACK_DIFFUSE" high="13" low="12" type="nv20_material_binding"/>
+				<bitfield name="BACK_SPECULAR" high="15" low="14" type="nv20_material_binding"/>
+			</reg32>
+			<stripe offset="0x03a8" name="MATERIAL_FACTOR_FRONT">
+				<use-group name="rgb-float"/>
+			</stripe>
+			<stripe offset="0x17b0" name="MATERIAL_FACTOR_BACK">
+				<use-group name="rgb-float"/>
+			</stripe>
+			<reg32 offset="0x03b4" name="MATERIAL_FACTOR_FRONT_A" type="float"/>
+			<reg32 offset="0x17ac" name="MATERIAL_FACTOR_BACK_A" type="float"/>
+
+			<stripe offset="0x0a10" name="LIGHT_MODEL_FRONT_AMBIENT">
+				<use-group name="rgb-float"/>
+			</stripe>
+			<stripe offset="0x17a0" name="LIGHT_MODEL_BACK_AMBIENT">
+				<use-group name="rgb-float"/>
+			</stripe>
+
+			<reg32 offset="0x09e0" name="FRONT_MATERIAL_SHININESS" length="6" type="float"/>
+			<reg32 offset="0x1e28" name="BACK_MATERIAL_SHININESS" length="6" type="float"/>
+		</stripe>
+
+		<stripe>
+			<doc> Lights. </doc>
+
+			<stripe length="8" stride="128">
+				<stripe offset="0x1000" name="LIGHT_FRONT_AMBIENT">
+					<use-group name="rgb-float"/>
+				</stripe>
+				<stripe offset="0x100c" name="LIGHT_FRONT_DIFFUSE">
+					<use-group name="rgb-float"/>
+				</stripe>
+				<stripe offset="0x1018" name="LIGHT_FRONT_SPECULAR">
+					<use-group name="rgb-float"/>
+				</stripe>
+			</stripe>
+
+			<stripe length="8" stride="64">
+				<stripe offset="0x0c00" name="LIGHT_BACK_AMBIENT">
+					<use-group name="rgb-float"/>
+				</stripe>
+				<stripe offset="0x0c0c" name="LIGHT_BACK_DIFFUSE">
+					<use-group name="rgb-float"/>
+				</stripe>
+				<stripe offset="0x0c18" name="LIGHT_BACK_SPECULAR">
+					<use-group name="rgb-float"/>
+				</stripe>
+			</stripe>
+
+			<stripe length="8" stride="128">
+				<stripe offset="0x1028" name="LIGHT_HALF_VECTOR">
+					<use-group name="xyz-float"/>
+				</stripe>
+				<stripe offset="0x1034" name="LIGHT_DIRECTION">
+					<use-group name="xyz-float"/>
+				</stripe>
+				<reg32 offset="0x1040" name="LIGHT_SPOT_CUTOFF" length="7" type="float"/>
+				<stripe offset="0x105c" name="LIGHT_POSITION">
+					<use-group name="xyz-float"/>
+				</stripe>
+				<stripe offset="0x1068" name="LIGHT_ATTENUATION">
+					<reg32 offset="0" name="CONSTANT" type="float"/>
+					<reg32 offset="4" name="LINEAR" type="float"/>
+					<reg32 offset="8" name="QUADRATIC" type="float"/>
+				</stripe>
+			</stripe>
+		</stripe>
+
+		<stripe>
+			<doc> Fog. </doc>
+
+			<reg32 offset="0x029c" name="FOG_MODE" type="nv20_fog_mode"/>
+			<reg32 offset="0x02a0" name="FOG_COORD" type="nv20_fog_coord"/>
+			<reg32 offset="0x02a4" name="FOG_ENABLE" type="boolean"/>
+			<reg32 offset="0x02a8" name="FOG_COLOR" type="abgr8"/>
+			<reg32 offset="0x09c0" name="FOG_COEFF" length="3"/>
+		</stripe>
+
+		<stripe>
+			<doc> Texture coordinate units. </doc>
+
+			<stripe length="4" stride="16">
+				<reg32 offset="0x03c0" name="TEX_GEN_MODE" length="4" type="gl_texgen_mode">
+					<doc> TexGen mode array, indexed by tex coord. </doc>
+				</reg32>
+			</stripe>
+			<stripe length="4" stride="64">
+				<stripe offset="0x0840" name="TEX_GEN_COEFF" length="4" stride="16">
+					<doc> TexGen coeff array, indexed by tex coord. </doc>
+					<reg32 offset="0x0" name="A" type="float"/>
+					<reg32 offset="0x4" name="B" type="float"/>
+					<reg32 offset="0x8" name="C" type="float"/>
+					<reg32 offset="0xc" name="D" type="float"/>
+				</stripe>
+			</stripe>
+
+			<reg32 offset="0x0420" name="TEX_MATRIX_ENABLE" length="4" type="boolean"/>
+			<stripe length="4" stride="64">
+				<reg32 offset="0x06c0" name="TEX_MATRIX" length="16" type="float"/>
+			</stripe>
+
+			<reg32 offset="0x17f8" name="TEX_SHADER_CULL_MODE">
+				<bitfield name="TX0_S" high="0" low="0" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX0_T" high="1" low="1" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX0_R" high="2" low="2" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX0_Q" high="3" low="3" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX1_S" high="4" low="4" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX1_T" high="5" low="5" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX1_R" high="6" low="6" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX1_Q" high="7" low="7" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX2_S" high="8" low="8" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX2_T" high="9" low="9" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX2_R" high="10" low="10" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX2_Q" high="11" low="11" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX3_S" high="12" low="12" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX3_T" high="13" low="13" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX3_R" high="14" low="14" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX3_Q" high="15" low="15" type="nv20_tex_shader_cull_mode"/>
+			</reg32>
+			<stripe offset="0x181c" name="TEX_SHADER_CONST_EYE">
+				<use-group name="xyz-float"/>
+			</stripe>
+			<stripe length="4" stride="64">
+				<reg32 offset="0x1b28" name="TEX_SHADER_OFFSET_MATRIX" length="4" type="float"/>
+			</stripe>
+			<reg32 offset="0x1e6c" name="TEX_RCOMP"/>
+			<reg32 offset="0x1e70" name="TEX_SHADER_OP">
+				<bitfield name="TX0" high="4" low="0" type="nv20_tex_shader_op"/>
+				<bitfield name="TX1" high="9" low="5" type="nv20_tex_shader_op"/>
+				<bitfield name="TX2" high="14" low="10" type="nv20_tex_shader_op"/>
+				<bitfield name="TX3" high="19" low="15" type="nv20_tex_shader_op"/>
+			</reg32>
+			<reg32 offset="0x1e74" name="TEX_SHADER_DOTMAPPING">
+				<bitfield name="TX0" high="3" low="0"/>
+				<bitfield name="TX1" high="7" low="4"/>
+				<bitfield name="TX2" high="11" low="8"/>
+				<bitfield name="TX3" high="15" low="12"/>
+			</reg32>
+			<reg32 offset="0x1e78" name="TEX_SHADER_PREVIOUS">
+				<bitfield name="TX0" high="11" low="8" type="int"/>
+				<bitfield name="TX1" high="15" low="12" type="int"/>
+				<bitfield name="TX2" high="17" low="16" type="int"/>
+				<bitfield name="TX3" high="21" low="20" type="int"/>
+			</reg32>
+		</stripe>
+
+		<stripe length="4" stride="64">
+			<doc> Texture units. </doc>
+
+			<reg32 offset="0x1b00" name="TEX_OFFSET"/>
+			<reg32 offset="0x1b04" name="TEX_FORMAT">
+				<bitfield name="DMA0" high="0" low="0" type="boolean"/>
+				<bitfield name="DMA1" high="1" low="1" type="boolean"/>
+				<bitfield name="CUBIC" high="2" low="2" type="boolean"/>
+				<bitfield name="NO_BORDER" high="3" low="3" type="boolean"/>
+				<bitfield name="DIMS" high="7" low="4" type="nv20_tex_dims"/>
+				<bitfield name="FORMAT" high="15" low="8" type="nv10_tex_format"/>
+				<bitfield name="MIPMAP" high="19" low="19" type="boolean"/>
+				<bitfield name="BASE_SIZE_U" high="23" low="20" type="int"/>
+				<bitfield name="BASE_SIZE_V" high="27" low="24" type="int"/>
+				<bitfield name="BASE_SIZE_W" high="31" low="28" type="int"/>
+			</reg32>
+			<reg32 offset="0x1b08" name="TEX_WRAP">
+				<bitfield name="S" high="7" low="0" type="nv04_tex_wrap"/>
+				<bitfield name="T" high="11" low="8" type="nv04_tex_wrap"/>
+				<bitfield name="R" high="19" low="16" type="nv04_tex_wrap"/>
+			</reg32>
+			<reg32 offset="0x1b0c" name="TEX_ENABLE">
+				<bitfield name="ANISO" high="5" low="4" type="nv20_tex_anisotropy"/>
+				<bitfield name="MIPMAP_MAX_LOD" high="17" low="14" type="int"/>
+				<bitfield name="MIPMAP_MIN_LOD" high="29" low="26" type="int"/>
+				<bitfield name="ENABLE" high="30" low="30" type="boolean"/>
+			</reg32>
+			<reg32 offset="0x1b10" name="TEX_NPOT_PITCH">
+				<bitfield name="PITCH" high="31" low="16" type="int"/>
+			</reg32>
+			<reg32 offset="0x1b14" name="TEX_FILTER">
+				<bitfield name="LOD_BIAS" high="11" low="8" type="int"/>
+				<bitfield name="MINIFY" high="19" low="16" type="nv04_tex_min_filter"/>
+				<bitfield name="MAGNIFY" high="27" low="24" type="nv04_tex_mag_filter"/>
+			</reg32>
+			<reg32 offset="0x1b1c" name="TEX_NPOT_SIZE">
+				<bitfield name="H" high="15" low="0" type="int"/>
+				<bitfield name="W" high="31" low="16" type="int"/>
+			</reg32>
+			<reg32 offset="0x1b20" name="TEX_PALETTE_OFFSET"/>
+			<reg32 offset="0x1b24" name="TEX_BORDER_COLOR" type="argb8"/>
+		</stripe>
+
+		<stripe>
+			<doc> Register combiners. </doc>
+
+			<stripe length="8" stride="4">
+				<reg32 offset="0x0260" name="RC_IN_ALPHA" type="nv10_rc_in_alpha"/>
+				<reg32 offset="0x0ac0" name="RC_IN_RGB" type="nv10_rc_in_rgb"/>
+				<reg32 offset="0x0a60" name="RC_CONSTANT_COLOR0" type="argb8"/>
+				<reg32 offset="0x0a80" name="RC_CONSTANT_COLOR1" type="argb8"/>
+				<reg32 offset="0x0aa0" name="RC_OUT_ALPHA" type="nv10_rc_out"/>
+				<reg32 offset="0x1e40" name="RC_OUT_RGB" type="nv10_rc_out"/>
+			</stripe>
+
+			<reg32 offset="0x0288" name="RC_FINAL0" type="nv10_rc_final0"/>
+			<reg32 offset="0x028c" name="RC_FINAL1" type="nv10_rc_final1"/>
+			<reg32 offset="0x1e20" name="RC_COLOR0" type="argb8"/>
+			<reg32 offset="0x1e24" name="RC_COLOR1" type="argb8"/>
+			<reg32 offset="0x1e60" name="RC_ENABLE">
+				<bitfield name="NUM_COMBINERS" high="3" low="0" type="int"/>
+			</reg32>
+		</stripe>
+
+		<stripe>
+			<doc> NV2x-specific rasterization state. </doc>
+
+			<reg32 offset="0x043c" name="POINT_SIZE" type="int"/>
+			<reg32 offset="0x0a30" name="POINT_PARAMETER" length="8" type="float"/>
+
+			<reg32 offset="0x147c" name="POLYGON_STIPPLE_ENABLE" type="boolean"/>
+			<reg32 offset="0x1480" name="POLYGON_STIPPLE_PATTERN" length="32"/>
+
+			<reg32 offset="0x17bc" name="COLOR_LOGIC_OP_ENABLE" type="boolean"/>
+			<reg32 offset="0x17c0" name="COLOR_LOGIC_OP_OP" type="gl_logic_op"/>
+
+			<reg32 offset="0x1d78" name="DEPTH_CLAMP"/>
+			<reg32 offset="0x1d7c" name="MULTISAMPLE_CONTROL"/>
+		</stripe>
+
+		<stripe>
+			<doc> Render target clearing. </doc>
+
+			<reg32 offset="0x1d8c" name="CLEAR_DEPTH_VALUE"/>
+			<reg32 offset="0x1d90" name="CLEAR_VALUE"/>
+			<reg32 offset="0x1d94" name="CLEAR_BUFFERS">
+				<bitfield name="COLOR_A" high="7" low="7" type="boolean"/>
+				<bitfield name="COLOR_B" high="6" low="6" type="boolean"/>
+				<bitfield name="COLOR_G" high="5" low="5" type="boolean"/>
+				<bitfield name="COLOR_R" high="4" low="4" type="boolean"/>
+				<bitfield name="STENCIL" high="1" low="1" type="boolean"/>
+				<bitfield name="DEPTH" high="0" low="0" type="boolean"/>
+			</reg32>
+		</stripe>
+
+		<stripe variants="NV25_3D">
+			<doc> Hierarchical depth buffer stuff. </doc>
+
+			<reg32 offset="0x01b0" name="DMA_LMA_DEPTH" type="object"/>
+			<reg32 offset="0x022c" name="LMA_DEPTH_BUFFER_PITCH" type="uint"/>
+			<reg32 offset="0x0230" name="LMA_DEPTH_BUFFER_OFFSET"/>
+
+			<stripe>
+				<doc> Software methods. </doc>
+
+				<stripe offset="0x1f00" name="LMA_DEPTH_WINDOW">
+					<use-group name="xyzw-float"/>
+				</stripe>
+			</stripe>
+		</stripe>
+
+		<reg32 offset="0x09f8" name="UNK09F8"/>
+		<reg32 offset="0x09fc" name="UNK09FC"/>
+		<reg32 offset="0x17cc" name="UNK17CC"/>
+		<reg32 offset="0x17e0" name="UNK17E0" type="float"/>
+		<reg32 offset="0x17e4" name="UNK17E4" type="float"/>
+		<reg32 offset="0x17e8" name="UNK17E8" type="float"/>
+		<reg32 offset="0x17ec" name="UNK17EC" type="float"/>
+		<reg32 offset="0x17f0" name="UNK17F0" type="float"/>
+		<reg32 offset="0x17f4" name="UNK17F4" type="float"/>
+
+		<reg32 offset="0x1d80" name="UNK1D80"/>
+		<reg32 offset="0x1d84" name="UNK1D84"/>
+
+		<reg32 offset="0x1e68" name="UNK1E68" type="float"/>
+		<reg32 offset="0x1e98" name="UNK1E98"/>
+
+		<stripe variants="NV25_3D">
+			<reg32 offset="0x01ac" name="UNK01AC" type="object"/>
+			<reg32 offset="0x0a1c" name="UNK0A1C"/>
+			<reg32 offset="0x1d88" name="UNK1D88"/>
+			<reg32 offset="0x1da4" name="UNK1DA4"/>
+		</stripe>
+	</stripe>
+</domain>
+
+</database>

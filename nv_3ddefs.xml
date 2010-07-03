@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<enum name="gl_polygon_mode" inline="yes">
+	<value value="0x1b00" name="POINT"/>
+	<value value="0x1b01" name="LINE"/>
+	<value value="0x1b02" name="FILL"/>
+</enum>
+
+<enum name="gl_shade_model" inline="yes">
+	<value value="0x1d00" name="FLAT"/>
+	<value value="0x1d01" name="SMOOTH"/>
+</enum>
+
+<enum name="gl_comparison_op" inline="yes">
+	<value value="0x0200" name="NEVER"/>
+	<value value="0x0201" name="LESS"/>
+	<value value="0x0202" name="EQUAL"/>
+	<value value="0x0203" name="LEQUAL"/>
+	<value value="0x0204" name="GREATER"/>
+	<value value="0x0205" name="NOTEQUAL"/>
+	<value value="0x0206" name="GEQUAL"/>
+	<value value="0x0207" name="ALWAYS"/>
+</enum>
+
+<enum name="gl_blend_factor" inline="yes">
+	<value value="0x0000" name="ZERO"/>
+	<value value="0x0001" name="ONE"/>
+	<value value="0x0300" name="SRC_COLOR"/>
+	<value value="0x0301" name="ONE_MINUS_SRC_COLOR"/>
+	<value value="0x0302" name="SRC_ALPHA"/>
+	<value value="0x0303" name="ONE_MINUS_SRC_ALPHA"/>
+	<value value="0x0304" name="DST_ALPHA"/>
+	<value value="0x0305" name="ONE_MINUS_DST_ALPHA"/>
+	<value value="0x0306" name="DST_COLOR"/>
+	<value value="0x0307" name="ONE_MINUS_DST_COLOR"/>
+	<value value="0x0308" name="SRC_ALPHA_SATURATE"/>
+	<value value="0x8001" name="CONSTANT_COLOR"/>
+	<value value="0x8002" name="ONE_MINUS_CONSTANT_COLOR"/>
+	<value value="0x8003" name="CONSTANT_ALPHA"/>
+	<value value="0x8004" name="ONE_MINUS_CONSTANT_ALPHA"/>
+</enum>
+
+<enum name="gl_blend_equation" inline="yes">
+	<value value="0x8006" name="FUNC_ADD"/>
+	<value value="0x8007" name="MIN"/>
+	<value value="0x8008" name="MAX"/>
+	<value value="0x800a" name="FUNC_SUBTRACT"/>
+	<value value="0x800b" name="FUNC_REVERSE_SUBTRACT"/>
+</enum>
+
+<enum name="gl_stencil_op" inline="yes">
+	<value value="0x0000" name="ZERO"/>
+	<value value="0x150a" name="INVERT"/>
+	<value value="0x1e00" name="KEEP"/>
+	<value value="0x1e01" name="REPLACE"/>
+	<value value="0x1e02" name="INCR"/>
+	<value value="0x1e03" name="DECR"/>
+	<value value="0x8507" name="INCR_WRAP"/>
+	<value value="0x8508" name="DECR_WRAP"/>
+</enum>
+
+<enum name="gl_front_face" inline="yes">
+	<value value="0x0900" name="CW"/>
+	<value value="0x0901" name="CCW"/>
+</enum>
+
+<enum name="gl_cull_face" inline="yes">
+	<value value="0x0404" name="FRONT"/>
+	<value value="0x0405" name="BACK"/>
+	<value value="0x0408" name="FRONT_AND_BACK"/>
+</enum>
+
+<enum name="gl_logic_op" inline="yes">
+	<value value="0x1500" name="CLEAR"/>
+	<value value="0x1501" name="AND"/>
+	<value value="0x1502" name="AND_REVERSE"/>
+	<value value="0x1503" name="COPY"/>
+	<value value="0x1504" name="AND_INVERTED"/>
+	<value value="0x1505" name="NOOP"/>
+	<value value="0x1506" name="XOR"/>
+	<value value="0x1507" name="OR"/>
+	<value value="0x1508" name="NOR"/>
+	<value value="0x1509" name="EQUIV"/>
+	<value value="0x150a" name="INVERT"/>
+	<value value="0x150b" name="OR_REVERSE"/>
+	<value value="0x150c" name="COPY_INVERTED"/>
+	<value value="0x150d" name="OR_INVERTED"/>
+	<value value="0x150e" name="NAND"/>
+	<value value="0x150f" name="SET"/>
+</enum>
+
+<enum name="gl_texgen_mode" inline="yes">
+	<value value="0x0000" name="FALSE"/>
+	<value value="0x2400" name="EYE_LINEAR"/>
+	<value value="0x2401" name="OBJECT_LINEAR"/>
+	<value value="0x2402" name="SPHERE_MAP"/>
+	<value value="0x8511" name="NORMAL_MAP"/>
+	<value value="0x8512" name="REFLECTION_MAP"/>
+</enum>
+
+<enum name="nv10_begin_end" inline="yes">
+	<value value="0x0000" name="STOP"/>
+	<value value="0x0001" name="POINTS"/>
+	<value value="0x0002" name="LINES"/>
+	<value value="0x0003" name="LINE_LOOP"/>
+	<value value="0x0004" name="LINE_STRIP"/>
+	<value value="0x0005" name="TRIANGLES"/>
+	<value value="0x0006" name="TRIANGLE_STRIP"/>
+	<value value="0x0007" name="TRIANGLE_FAN"/>
+	<value value="0x0008" name="QUADS"/>
+	<value value="0x0009" name="QUAD_STRIP"/>
+	<value value="0x000a" name="POLYGON"/>
+</enum>
+
+<enum name="nv10_vtxbuf_type" inline="yes"> <!-- TODO: variants are a wild guess -->
+	<value value="0x0000" name="B8G8R8A8_UNORM"/>
+	<value value="0x0001" name="V16_SNORM"/>
+	<value value="0x0002" name="V32_FLOAT"/>
+	<value value="0x0003" name="V16_FLOAT" variants="NV30_3D-"/>
+	<value value="0x0004" name="U8_UNORM"/>
+	<value value="0x0005" name="V16_SSCALED" variants="NV30_3D-"/>
+	<value value="0x0007" name="U8_USCALED" variants="NV30_3D-"/>
+</enum>
+
+<enum name="nv04_tex_min_filter" inline="yes">
+	<value value="0x0001" name="NEAREST"/>
+	<value value="0x0002" name="LINEAR"/>
+	<value value="0x0003" name="NEAREST_MIPMAP_NEAREST"/>
+	<value value="0x0004" name="LINEAR_MIPMAP_NEAREST"/>
+	<value value="0x0005" name="NEAREST_MIPMAP_LINEAR"/>
+	<value value="0x0006" name="LINEAR_MIPMAP_LINEAR"/>
+</enum>
+
+<enum name="nv04_tex_mag_filter" inline="yes">
+	<value value="0x0001" name="NEAREST"/>
+	<value value="0x0002" name="LINEAR"/>
+</enum>
+
+<enum name="nv04_tex_wrap" inline="yes">
+	<value value="0x0001" name="REPEAT"/>
+	<value value="0x0002" name="MIRRORED_REPEAT"/>
+	<value value="0x0003" name="CLAMP_TO_EDGE"/>
+	<value value="0x0004" name="CLAMP_TO_BORDER"/>
+	<value value="0x0005" name="CLAMP" variants="NV10_3D-"/>
+	<value value="0x0006" name="MIRROR_CLAMP_TO_EDGE" variants="NV40_3D-"/>
+	<value value="0x0007" name="MIRROR_CLAMP_TO_BORDER" variants="NV40_3D-"/>
+	<value value="0x0008" name="MIRROR_CLAMP" variants="NV40_3D-"/>
+</enum>
+
+<enum name="nv10_tex_format" inline="yes">
+	<value value="0x0000" name="L8"/>
+	<value value="0x0001" name="I8"/>
+	<value value="0x0002" name="A1R5G5B5"/>
+	<value value="0x0004" name="A4R4G4B4"/>
+	<value value="0x0005" name="R5G6B5"/>
+	<value value="0x0006" name="A8R8G8B8"/>
+	<value value="0x0007" name="X8R8G8B8"/>
+	<value value="0x000b" name="INDEX8"/>
+	<value value="0x000c" name="DXT1"/>
+	<value value="0x000e" name="DXT3"/>
+	<value value="0x000f" name="DXT5"/>
+	<value value="0x0010" name="A1R5G5B5_RECT"/>
+	<value value="0x0011" name="R5G6B5_RECT"/>
+	<value value="0x0012" name="A8R8G8B8_RECT"/>
+	<value value="0x0013" name="I8_RECT" variants="NV10_3D-NV17_3D"/>
+	<value value="0x0013" name="L8_RECT" variants="NV20_3D-"/>
+	<value value="0x0017" name="DSDT8_RECT" variants="NV20_3D-"/>
+	<value value="0x001a" name="A8L8" variants="NV20_3D-"/>
+	<value value="0x001b" name="I8_RECT" variants="NV20_3D-"/>
+	<value value="0x001d" name="A4R4G4B4_RECT" variants="NV20_3D-"/>
+	<value value="0x001e" name="R8G8B8_RECT" variants="NV20_3D-"/>
+	<value value="0x0020" name="A8L8_RECT" variants="NV20_3D-"/>
+	<value value="0x0028" name="DSDT8" variants="NV20_3D-"/>
+	<value value="0x0033" name="HILO16" variants="NV20_3D-"/>
+	<value value="0x0036" name="HILO16_RECT" variants="NV20_3D-"/>
+	<value value="0x0044" name="HILO8" variants="NV20_3D-"/>
+	<value value="0x0045" name="SIGNED_HILO8" variants="NV20_3D-"/>
+	<value value="0x0046" name="HILO8_RECT" variants="NV20_3D-"/>
+	<value value="0x0047" name="SIGNED_HILO8_RECT" variants="NV20_3D-"/>
+	<value value="0x32" name="A16" variants="NV30_3D-"/> <!-- also L16/I16-->
+	<value value="0x35" name="A16_RECT" variants="NV30_3D-"/> <!-- also L16_RECT/I16_RECT-->
+	<value value="0x3f" name="UNK3F" variants="NV30_3D-"/> <!-- nv30: seen in test_logic_op, used for glDrawPixels GL_RGBA, GL_UNSIGNED_BYTE-->
+	<value value="0x4a" name="FLOAT_RGBA16_NV" variants="NV30_3D-"/> <!-- also FLOAT_RG16_NV-->
+	<value value="0x4b" name="FLOAT_RGBA32_NV" variants="NV30_3D-"/> <!-- also FLOAT_RG32_NV-->
+	<value value="0x4c" name="FLOAT_R32_NV" variants="NV30_3D-"/>
+</enum>
+
+<enum name="nv10_rt_color_format" inline="yes">
+	<value value="0x0003" name="R5G6B5"/>
+	<value value="0x0005" name="X8R8G8B8"/>
+	<value value="0x0008" name="A8R8G8B8"/>
+	<value value="0x0009" name="B8"/>
+	<value value="0x0d" name="UNK0D" variants="NV30_3D-"/> <!-- Visible with GL_MULTISAMPLESAMPLES=16 on NV30-->
+	<value value="0x0f" name="X8B8G8R8" variants="NV30_3D-"/>
+	<value value="0x10" name="A8B8G8R8" variants="NV30_3D-"/>
+</enum>
+
+<enum name="nv10_rt_depth_format" inline="yes">
+	<value value="0x0000" name="Z24S8" variants="NV10_3D-NV17_3D"/>
+	<value value="0x0001" name="Z16"/>
+	<value value="0x0002" name="Z24S8" variants="NV20_3D-"/>
+</enum>
+
+<enum name="nv10_rt_type" inline="yes">
+	<value value="0x0001" name="LINEAR"/>
+	<value value="0x0002" name="SWIZZLED"/>
+</enum>
+
+<enum name="nv10_rc_bias" inline="yes">
+	<value value="0x0000" name="NONE"/>
+	<value value="0x0001" name="BIAS_BY_NEGATIVE_ONE_HALF"/>
+</enum>
+
+<enum name="nv10_rc_usage_alpha" inline="yes">
+	<value value="0x0000" name="BLUE"/>
+	<value value="0x0001" name="ALPHA"/>
+</enum>
+
+<enum name="nv10_rc_usage_rgb" inline="yes">
+	<value value="0x0000" name="RGB"/>
+	<value value="0x0001" name="ALPHA"/>
+</enum>
+
+<enum name="nv10_rc_variable" inline="yes">
+	<value value="0x0000" name="ZERO"/>
+	<value value="0x0001" name="CONSTANT_COLOR0"/>
+	<value value="0x0002" name="CONSTANT_COLOR1"/>
+	<value value="0x0003" name="FOG"/>
+	<value value="0x0004" name="PRIMARY_COLOR"/>
+	<value value="0x0005" name="SECONDARY_COLOR"/>
+	<value value="0x0008" name="TEXTURE0"/>
+	<value value="0x0009" name="TEXTURE1"/>
+	<value value="0x000a" name="TEXTURE2"/>
+	<value value="0x000b" name="TEXTURE3"/>
+	<value value="0x000c" name="SPARE0"/>
+	<value value="0x000d" name="SPARE1"/>
+	<value value="0x000e" name="SPARE0_PLUS_SECONDARY_COLOR"/>
+	<value value="0x000f" name="E_TIMES_F"/>
+</enum>
+
+<enum name="nv10_rc_mapping" inline="yes">
+	<value value="0x0000" name="UNSIGNED_IDENTITY"/>
+	<value value="0x0001" name="UNSIGNED_INVERT"/>
+	<value value="0x0002" name="EXPAND_NORMAL"/>
+	<value value="0x0003" name="EXPAND_NEGATE"/>
+	<value value="0x0004" name="HALF_BIAS_NORMAL"/>
+	<value value="0x0005" name="HALF_BIAS_NEGATE"/>
+	<value value="0x0006" name="SIGNED_IDENTITY"/>
+	<value value="0x0007" name="SIGNED_NEGATE"/>
+</enum>
+
+<enum name="nv10_rc_scale" inline="yes">
+	<value value="0x0000" name="NONE"/>
+	<value value="0x0001" name="SCALE_BY_TWO"/>
+	<value value="0x0002" name="SCALE_BY_FOUR"/>
+	<value value="0x0003" name="SCALE_BY_ONE_HALF"/>
+</enum>
+
+<bitset name="nv10_rc_in_alpha" inline="yes">
+	<bitfield name="D_INPUT" high="3" low="0" type="nv10_rc_variable"/>
+	<bitfield name="D_COMPONENT_USAGE" high="4" low="4" type="nv10_rc_usage_alpha"/>
+	<bitfield name="D_MAPPING" high="7" low="5" type="nv10_rc_mapping"/>
+	<bitfield name="C_INPUT" high="11" low="8" type="nv10_rc_variable"/>
+	<bitfield name="C_COMPONENT_USAGE" high="12" low="12" type="nv10_rc_usage_alpha"/>
+	<bitfield name="C_MAPPING" high="15" low="13" type="nv10_rc_mapping"/>
+	<bitfield name="B_INPUT" high="19" low="16" type="nv10_rc_variable"/>
+	<bitfield name="B_COMPONENT_USAGE" high="20" low="20" type="nv10_rc_usage_alpha"/>
+	<bitfield name="B_MAPPING" high="23" low="21" type="nv10_rc_mapping"/>
+	<bitfield name="A_INPUT" high="27" low="24" type="nv10_rc_variable"/>
+	<bitfield name="A_COMPONENT_USAGE" high="28" low="28" type="nv10_rc_usage_alpha"/>
+	<bitfield name="A_MAPPING" high="31" low="29" type="nv10_rc_mapping"/>
+</bitset>
+
+<bitset name="nv10_rc_in_rgb" inline="yes">
+	<bitfield name="D_INPUT" high="3" low="0" type="nv10_rc_variable"/>
+	<bitfield name="D_COMPONENT_USAGE" high="4" low="4" type="nv10_rc_usage_rgb"/>
+	<bitfield name="D_MAPPING" high="7" low="5" type="nv10_rc_mapping"/>
+	<bitfield name="C_INPUT" high="11" low="8" type="nv10_rc_variable"/>
+	<bitfield name="C_COMPONENT_USAGE" high="12" low="12" type="nv10_rc_usage_rgb"/>
+	<bitfield name="C_MAPPING" high="15" low="13" type="nv10_rc_mapping"/>
+	<bitfield name="B_INPUT" high="19" low="16" type="nv10_rc_variable"/>
+	<bitfield name="B_COMPONENT_USAGE" high="20" low="20" type="nv10_rc_usage_rgb"/>
+	<bitfield name="B_MAPPING" high="23" low="21" type="nv10_rc_mapping"/>
+	<bitfield name="A_INPUT" high="27" low="24" type="nv10_rc_variable"/>
+	<bitfield name="A_COMPONENT_USAGE" high="28" low="28" type="nv10_rc_usage_rgb"/>
+	<bitfield name="A_MAPPING" high="31" low="29" type="nv10_rc_mapping"/>
+</bitset>
+
+<bitset name="nv10_rc_out" inline="yes">
+	<bitfield name="CD_OUTPUT" high="3" low="0" type="nv10_rc_variable"/>
+	<bitfield name="AB_OUTPUT" high="7" low="4" type="nv10_rc_variable"/>
+	<bitfield name="SUM_OUTPUT" high="11" low="8" type="nv10_rc_variable"/>
+	<bitfield name="CD_DOT_PRODUCT" high="12" low="12" type="boolean"/>
+	<bitfield name="AB_DOT_PRODUCT" high="13" low="13" type="boolean"/>
+	<bitfield name="MUX_SUM" high="14" low="14" type="boolean"/>
+	<bitfield name="BIAS" high="15" low="15" type="nv10_rc_bias"/>
+	<bitfield name="SCALE" high="17" low="16" type="nv10_rc_scale"/>
+</bitset>
+
+<bitset name="nv10_rc_out_op" inline="yes">
+	<bitfield name="CD_OUTPUT" high="3" low="0" type="nv10_rc_variable"/>
+	<bitfield name="AB_OUTPUT" high="7" low="4" type="nv10_rc_variable"/>
+	<bitfield name="SUM_OUTPUT" high="11" low="8" type="nv10_rc_variable"/>
+	<bitfield name="CD_DOT_PRODUCT" high="12" low="12" type="boolean"/>
+	<bitfield name="AB_DOT_PRODUCT" high="13" low="13" type="boolean"/>
+	<bitfield name="MUX_SUM" high="14" low="14" type="boolean"/>
+	<bitfield name="BIAS" high="15" low="15" type="nv10_rc_bias"/>
+	<bitfield name="SCALE" high="17" low="16" type="nv10_rc_scale"/>
+	<bitfield name="OPERATION" high="29" low="27" type="int"/>
+</bitset>
+
+<bitset name="nv10_rc_final0" inline="yes">
+	<bitfield name="D_INPUT" high="3" low="0" type="nv10_rc_variable"/>
+	<bitfield name="D_COMPONENT_USAGE" high="4" low="4" type="nv10_rc_usage_rgb"/>
+	<bitfield name="D_MAPPING" high="7" low="5" type="nv10_rc_mapping"/>
+	<bitfield name="C_INPUT" high="11" low="8" type="nv10_rc_variable"/>
+	<bitfield name="C_COMPONENT_USAGE" high="12" low="12" type="nv10_rc_usage_rgb"/>
+	<bitfield name="C_MAPPING" high="15" low="13" type="nv10_rc_mapping"/>
+	<bitfield name="B_INPUT" high="19" low="16" type="nv10_rc_variable"/>
+	<bitfield name="B_COMPONENT_USAGE" high="20" low="20" type="nv10_rc_usage_rgb"/>
+	<bitfield name="B_MAPPING" high="23" low="21" type="nv10_rc_mapping"/>
+	<bitfield name="A_INPUT" high="27" low="24" type="nv10_rc_variable"/>
+	<bitfield name="A_COMPONENT_USAGE" high="28" low="28" type="nv10_rc_usage_rgb"/>
+	<bitfield name="A_MAPPING" high="31" low="29" type="nv10_rc_mapping"/>
+</bitset>
+
+<bitset name="nv10_rc_final1" inline="yes">
+	<bitfield name="COLOR_SUM_CLAMP" high="7" low="7" type="boolean"/>
+	<bitfield name="G_INPUT" high="11" low="8" type="nv10_rc_variable"/>
+	<bitfield name="G_COMPONENT_USAGE" high="12" low="12" type="nv10_rc_usage_rgb"/>
+	<bitfield name="G_MAPPING" high="15" low="13" type="nv10_rc_mapping"/>
+	<bitfield name="F_INPUT" high="19" low="16" type="nv10_rc_variable"/>
+	<bitfield name="F_COMPONENT_USAGE" high="20" low="20" type="nv10_rc_usage_rgb"/>
+	<bitfield name="F_MAPPING" high="23" low="21" type="nv10_rc_mapping"/>
+	<bitfield name="E_INPUT" high="27" low="24" type="nv10_rc_variable"/>
+	<bitfield name="E_COMPONENT_USAGE" high="28" low="28" type="nv10_rc_usage_rgb"/>
+	<bitfield name="E_MAPPING" high="31" low="29" type="nv10_rc_mapping"/>
+</bitset>
+
+<enum name="nv20_point_sprite_r_mode" inline="yes">
+	<value value="0" name="ZERO"/>
+	<value value="1" name="R"/>
+	<value value="2" name="S"/>
+</enum>
+
+</database>

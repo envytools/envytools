@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<enum name="nv50_mem_target" inline="yes">
+	<value value="0" name="VRAM"/>
+	<!-- 1 is some other sysram. -->
+	<value value="2" name="SYSRAM"/>
+	<value value="3" name="SYSRAM_NO_SNOOP"/> <!-- XXX: check -->
+</enum>
+
+<bitset name="nv50_channel" inline="yes">
+	<bitfield high="27" low="0" name="ADDRESS" shr="12"/>
+	<bitfield high="29" low="28" name="TARGET" type="nv50_mem_target"/>
+</bitset>
+
+<enum name="nv50_cond_mode" inline="yes">
+	<value value="0" name="NEVER"/>
+	<value value="1" name="ALWAYS"/>
+	<value value="2" name="RES"/>
+	<value value="3" name="NOT_RES_AND_NOT_ID"/>
+	<value value="4" name="RES_OR_ID"/>
+</enum>
+
+<enum name="nv50_reg_mode" inline="yes">
+	<brief>selects how $r regs are layed out inside the MP.</brief>
+	<value value="0x01" name="PACKED">
+		<doc>limits lanes/warp to 16 as a side effect.</doc>
+	</value>
+	<value value="0x02" name="STRIPED"/>
+</enum>
+
+<!--XXX: figure this out someday-->
+<enum name="NV50_SURFACE_FORMAT">
+	<value value="0x00c0" name="R32G32B32A32_FLOAT"/><!-- tile flags 0x7400-->
+	<value value="0x00c1" name="R32G32B32A32_SINT"/>
+	<value value="0x00c2" name="R32G32B32A32_UINT"/>
+	<value value="0x00c3" name="R32G32B32X32_FLOAT"/>
+	<value value="0x00c6" name="R16G16B16A16_UNORM"/><!-- tile flags 0x7000-->
+	<value value="0x00c7" name="R16G16B16A16_SNORM"/>
+	<value value="0x00c8" name="R16G16B16A16_SINT"/>
+	<value value="0x00c9" name="R16G16B16A16_UINT"/>
+	<value value="0x00ca" name="R16G16B16A16_FLOAT"/>
+	<value value="0x00cb" name="R32G32_FLOAT"/>
+	<value value="0x00cc" name="R32G32_SINT"/>
+	<value value="0x00cd" name="R32G32_UINT"/>
+	<value value="0x00ce" name="R16G16B16X16_FLOAT"/>
+	<value value="0x00cf" name="A8R8G8B8_UNORM"/>
+	<value value="0x00d0" name="A8R8G8B8_SRGB"/>
+	<value value="0x00d1" name="A2B10G10R10_UNORM"/>
+	<value value="0x00d2" name="A2B10G10R10_UINT"/>
+	<value value="0x00d5" name="A8B8G8R8_UNORM"/>
+	<value value="0x00d6" name="A8B8G8R8_SRGB"/>
+	<value value="0x00d7" name="A8B8G8R8_SNORM"/>
+	<value value="0x00d8" name="A8B8G8R8_SINT"/>
+	<value value="0x00d9" name="A8B8G8R8_UINT"/>
+	<value value="0x00da" name="R16G16_UNORM"/>
+	<value value="0x00db" name="R16G16_SNORM"/>
+	<value value="0x00dc" name="R16G16_SINT"/>
+	<value value="0x00dd" name="R16G16_UINT"/>
+	<value value="0x00de" name="R16G16_FLOAT"/>
+	<value value="0x00df" name="A2R10G10B10_UNORM"/>
+	<value value="0x00e0" name="B10G11R11_FLOAT"/>
+	<value value="0x00e5" name="R32_FLOAT"/>
+	<value value="0x00e6" name="X8R8G8B8_UNORM"/>
+	<value value="0x00e7" name="X8R8G8B8_SRGB"/>
+	<value value="0x00e8" name="R5G6B5_UNORM"/>
+	<value value="0x00e9" name="A1R5G5B5_UNORM"/>
+	<value value="0x00ea" name="R8G8_UNORM"/>
+	<value value="0x00eb" name="R8G8_SNORM"/>
+	<value value="0x00ec" name="R8G8_SINT"/>
+	<value value="0x00ed" name="R8G8_UINT"/>
+	<value value="0x00ee" name="R16_UNORM"/>
+	<value value="0x00ef" name="R16_SNORM"/>
+	<value value="0x00f0" name="R16_SINT"/>
+	<value value="0x00f1" name="R16_UINT"/>
+	<value value="0x00f2" name="R16_FLOAT"/>
+	<value value="0x00f3" name="R8_UNORM"/>
+	<value value="0x00f4" name="R8_SNORM"/>
+	<value value="0x00f5" name="R8_SINT"/>
+	<value value="0x00f6" name="R8_UINT"/>
+	<value value="0x00f7" name="A8_UNORM"/>
+	<value value="0x00f8" name="X1R5G5B5_UNORM"/>
+	<value value="0x00f9" name="X8B8G8R8_UNORM"/>
+	<value value="0x00fa" name="X8B8G8R8_SRGB"/>
+</enum>
+
+<enum name="NV50_ZETA_FORMAT">
+	<value value="0x000a" name="Z32_FLOAT"/><!--tile flags 0x4800-->
+	<value value="0x0013" name="Z16_UNORM"/><!--NVAX only, tile flags 0x6c00-->
+	<value value="0x0014" name="Z24S8_UNORM"/><!--tile flags 0x1800-->
+	<value value="0x0015" name="X8Z24_UNORM"/><!--tile flags 0x2800-->
+	<value value="0x0016" name="S8Z24_UNORM"/>
+	<value value="0x0019" name="Z32_FLOAT_X24S8_UNORM"/><!--tile flags 0xe000-->
+</enum>
+
+</database>

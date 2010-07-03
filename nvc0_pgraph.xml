@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+<array name="PGRAPH" offset="0x400000" stride="0x200000" length="1" variants="NVC0-">
+
+	<reg32 offset="0x0100" name="INTR">
+		<brief>Interrupt status</brief>
+		<doc>Shows currently pending interrupts. Write 1 to a bit to reset it, and ACK the interrupt.</doc>
+		<bitfield name="NOTIFY" high="0" low="0">
+			<doc>You asked for a NOTIFY with interrupt and got it.</doc>
+		</bitfield>
+		<bitfield name="QUERY" high="1" low="1">
+			<doc>You asked for a QUERY with interrupt and got it.</doc>
+		</bitfield>
+		<bitfield name="UNK02" high="2" low="2" />
+		<bitfield name="ILLEGAL_MTHD" high="4" low="4">
+			<doc>You tried to use a method that doesn't exist on this class.</doc>
+		</bitfield>
+		<bitfield name="ILLEGAL_CLASS" high="5" low="5">
+			<doc>You tried to use a class not supported by this GPU.</doc>
+		</bitfield>
+		<bitfield name="DOUBLE_NOTIFY" high="6" low="6">
+			<doc>You tried to use NOTIFY command on another NOTIFY command.</doc>
+		</bitfield>
+		<bitfield name="UNK7" high="7" low="7" />
+		<bitfield name="UNK8" high="8" low="8" />
+		<bitfield name="BUFFER_NOTIFY" high="16" low="16">
+			<doc>You asked for m2mf transfer with interrupt after finish and got it.</doc>
+		</bitfield>
+		<bitfield name="UNK19" high="19" low="19" />
+		<bitfield name="DATA_ERROR" high="20" low="20">
+			<doc>You used an invalid parameter for this method. Or maybe you tried
+			to launch some operation, but the relevant state is inconsistent.
+			Relevant state is in DATA_ERROR</doc>
+		</bitfield>
+		<bitfield name="TRAP" high="21" low="21">
+			<doc>A PGRAPH command failed in the middle of execution. TRAP register will
+			tell you which subunit reports the trap.</doc>
+		</bitfield>
+		<bitfield name="SINGLE_STEP" high="24" low="24" />
+	</reg32>
+	<reg32 offset="0x0108" name="TRAP">
+		<brief>Trap status</brief>
+		<doc>Like INTR, but applies to TRAP sub-types. Shows which subunits report trap.
+		Each subunit has its own TRAP status register, which you have to check in turn
+		to know the exact TRAP sub-subtype, and reset it. Write 1 to a bit to reset it
+		and ACK the trap.
+		
+		If a bit applies to a per-TP subunit, you need to check all TPs to see which one
+		is reporting the trap.</doc>
+		<bitfield name="DISPATCH" high="0" low="0">
+			<brief>Check 404000</brief>
+		</bitfield>
+		<bitfield name="M2MF" high="1" low="1">
+			<brief>Check 404600</brief>
+		</bitfield>
+		<bitfield name="UNK2" high="2" low="2"/>
+		<bitfield name="UNK3" high="3" low="3"/>
+		<bitfield name="UNK4" high="4" low="4"/>
+		<bitfield name="UNK5" high="5" low="5"/>
+		<bitfield name="UNK6" high="6" low="6"/>
+		<bitfield name="UNK7" high="7" low="7"/>
+		<bitfield name="UNK24" high="24" low="24"/>
+		<bitfield name="UNK25" high="25" low="25"/>
+	</reg32>
+	<reg32 offset="0x0110" name="DATA_ERROR" type="NV50_PGRAPH_DATA_ERROR">
+		<doc>Stores type of the pending DATA_ERROR.</doc>
+	</reg32>
+	<reg32 offset="0x0138" name="TRAP_EN">
+		<brief>Trap enable</brief>
+		<doc>A bitmask of events that will cause traps, same bit assignments as in TRAP reg.</doc>
+		<bitfield name="DISPATCH" high="0" low="0" />
+		<bitfield name="M2MF" high="1" low="1" />
+		<bitfield name="UNK2" high="2" low="2"/>
+		<bitfield name="UNK3" high="3" low="3"/>
+		<bitfield name="UNK4" high="4" low="4"/>
+		<bitfield name="UNK5" high="5" low="5"/>
+		<bitfield name="UNK6" high="6" low="6"/>
+		<bitfield name="UNK7" high="7" low="7"/>
+		<bitfield name="UNK24" high="24" low="24"/>
+		<bitfield name="UNK25" high="25" low="25"/>
+	</reg32>
+	<reg32 offset="0x013c" name="INTR_EN">
+		<brief>Interrupt enable</brief>
+		<doc>A bitmask of events that will cause interrupts, same bit assignments as in INTR reg.</doc>
+		<bitfield name="NOTIFY" high="0" low="0" />
+		<bitfield name="COMPUTE_QUERY" high="1" low="1" />
+		<bitfield name="UNK02" high="2" low="2" />
+		<bitfield name="ILLEGAL_MTHD" high="4" low="4" />
+		<bitfield name="ILLEGAL_CLASS" high="5" low="5" />
+		<bitfield name="DOUBLE_NOTIFY" high="6" low="6" />
+		<bitfield name="UNK7" high="7" low="7" />
+		<bitfield name="UNK8" high="8" low="8" />
+		<bitfield name="BUFFER_NOTIFY" high="16" low="16" />
+		<bitfield name="UNK19" high="19" low="19" />
+		<bitfield name="DATA_ERROR" high="20" low="20" />
+		<bitfield name="TRAP" high="21" low="21" />
+		<bitfield name="SINGLE_STEP" high="24" low="24" />
+	</reg32>
+
+	<stripe offset="0x0500" name="FIFO">
+		<reg32 offset="0x00" name="CONTROL">
+			<bitfield high="0" low="0" name="PULL">
+				<doc>Enables executing commands incoming through DISPATCH_CMD.</doc>
+			</bitfield>
+			<bitfield high="8" low="8" name="UNK8"/>
+			<bitfield high="16" low="16" name="UNK16"/> <!-- usually set, but doesn't seem needed for operation... -->
+			<bitfield high="28" low="20" name="LIMIT" variants="NV84-">
+				<doc>Max number of slots allowed to be occupied in FIFO. 0 and > 0x100 are treated as 0x100.</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x04" name="STATUS" access="r">
+			<bitfield high="0" low="0" name="EMPTY" />
+			<bitfield high="1" low="1" name="FULL" />
+			<bitfield high="15" low="4" name="OCCUPIED">
+				<doc>How many slots contain valid data atm.</doc>
+			</bitfield>
+			<bitfield high="23" low="16" name="GET"/>
+			<bitfield high="31" low="24" name="PUT"/>
+		</reg32>
+	</stripe>
+
+	<reg32 offset="0x0700" name="STATUS" access="r">
+	</reg32>
+
+	<reg32 offset="0x0704" name="TRAPPED_ADDR">
+		<doc>Offending subchan + method, for [most types of] PGRAPH interrupts.</doc>
+		<bitfield name="MTHD" high="13" low="2" shr="2" />
+		<bitfield name="SUBCH" high="18" low="16" />
+	</reg32>
+	<reg32 offset="0x0708" name="TRAPPED_DATA_LOW">
+		<doc>Offending method data, for [most types of] PGRAPH interrupts.</doc>
+	</reg32>
+	<reg32 offset="0x070c" name="TRAPPED_DATA_HIGH" /> <!-- I have no idea what this is for. But it's been around since NV10. -->
+
+	<array offset="0x4000" name="DISPATCH" stride="0x400" length="1">
+		<reg32 offset="0x00" name="TRAP">
+			<bitfield name="CLEAR" high="30" low="30" />
+			<bitfield name="ENABLE" high="31" low="31" />
+		</reg32>
+		<reg32 offset="0x04" name="CMD_ADDR">
+			<bitfield name="MTHD" high="12" low="2" shr="2" />
+			<bitfield name="SUBCH" high="18" low="16" />
+			<bitfield name="NONINCR" high="20" low="20" />
+			<bitfield name="UNK1" high="21" low="21" /> <!-- sometimes set by DISPATCH itself during exec... related to NOTIFY? -->
+			<bitfield name="SINGLE_STEP_DONE" high="22" low="22" />
+			<bitfield name="DOUBLE" high="25" low="25" />
+			<bitfield name="CURRENT_SUBCH" high="29" low="29" />
+			<bitfield name="VALID" high="31" low="31" />
+		</reg32>
+		<reg32 offset="0x08" name="CMD_DATA_LOW" />
+		<reg32 offset="0x0c" name="CMD_DATA_HIGH" />
+		<reg32 offset="0x10" name="CTX_SWITCH" />
+		<reg32 offset="0x24" name="SUBCH">
+			<bitfield name="SUBCH" high="15" low="13" />
+		</reg32>
+		<reg32 offset="0x28" name="MISC">
+			<bitfield name="NOTIFY_PENDING" high="8" low="8" />
+			<bitfield name="NOTIFY_AWAKEN" high="16" low="16" />
+		</reg32>
+		<reg32 offset="0x2c" name="ST2_ADDR">
+			<doc>Second stage of dispatch... if QUERY blows up on you,
+			it can get stuck here. At least sometimes.</doc>
+			<bitfield name="MTHD" high="12" low="2" shr="2" />
+			<bitfield name="ILLEGAL_CLASS" high="29" low="29" />
+			<bitfield name="ILLEGAL_MTHD" high="30" low="30" />
+			<bitfield name="VALID" high="31" low="31" />
+		</reg32>
+
+		<reg32 offset="0x3c" name="ST2_DATA_LOW" />
+		<reg32 offset="0x40" name="ST2_DATA_HIGH" />
+
+		<reg32 offset="0x48" name="ST3_ADDR">
+			<bitfield name="MTHD" high="12" low="2" shr="2" />
+			<bitfield name="VALID" high="31" low="31" />
+		</reg32>
+		<reg32 offset="0x50" name="ST3_DATA_LOW" />
+		<reg32 offset="0x54" name="ST3_DATA_HIGH" />
+
+		<reg32 offset="0xc0" name="COND_ADDRESS_HIGH" />
+		<reg32 offset="0xc4" name="COND_ADDRESS_LOW" />
+
+		<reg32 offset="0xd0" name="NOTIFY_3D_ADDRESS_HIGH" /> <!-- also compute -->
+		<reg32 offset="0xd4" name="NOTIFY_3D_ADDRESS_LOW" />
+		<reg32 offset="0xd8" name="NOTIFY_2D_ADDRESS_HIGH" />
+		<reg32 offset="0xdc" name="NOTIFY_2D_ADDRESS_LOW" />
+		<reg32 offset="0xe0" name="NOTIFY_M2MF_ADDRESS_HIGH" />
+		<reg32 offset="0xe4" name="NOTIFY_M2MF_ADDRESS_LOW" />
+
+		<reg32 offset="0x200" name="CTX_CACHE" length="8" />
+	</array>
+
+	<group name="nvc0_ctxctl">
+		<reg32 offset="0x180" name="CODE_INDEX">
+			<bitfield high="15" low="2" name="ADDR" shr="2"/>
+			<bitfield high="24" low="24" name="WRITE_AUTOINCR"/>
+			<bitfield high="25" low="25" name="READ_AUTOINCR"/>
+		</reg32>
+		<reg32 offset="0x184" name="CODE_DATA"/>
+		<reg32 offset="0x1c0" name="DATA_INDEX">
+			<bitfield high="15" low="2" name="ADDR" shr="2"/>
+			<bitfield high="24" low="24" name="WRITE_AUTOINCR"/>
+			<bitfield high="25" low="25" name="READ_AUTOINCR"/>
+		</reg32>
+		<reg32 offset="0x1c4" name="DATA_DATA"/>
+	</group>
+
+	<array name="CTXCTL_9" offset="0x9000" stride="0x1000" length="1">
+		<use-group name="nvc0_ctxctl"/>
+	</array>
+
+	<array name="CTXCTL_1A" offset="0x1a000" stride="0x1000" length="1">
+		<use-group name="nvc0_ctxctl"/>
+	</array>
+
+	<array name="ROPC" offset="0x10000" stride="0x400" length="5">
+
+	</array>
+
+	<array name="TP" offset="0x100000" stride="0x8000" length="4">
+		
+		<array name="CTXCTL" offset="0x2000" stride="0x1000" length="1">
+			<use-group name="nvc0_ctxctl"/>
+		</array>
+
+		<array name="MP" offset="0x4000" stride="0x800" length="4">
+
+		</array>
+
+	</array>
+</array>
+</domain>
+
+</database>

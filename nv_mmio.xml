@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+<import file="nv50_defs.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+	<array offset="0x000000" name="PMC" stride="0x1000" length="1">
+		<doc>Master Control. Contains various registers not tied to
+		any specific engine.</doc>
+		<reg32 offset="0x000" name="BOOT_0">
+			<doc>Tells you what card this is. Note that this reg has
+			a different format on NV01/NV03, on NV04/NV05, and on NV10+.
+			So first you need to figure out the format... if bits 24-27
+			are non-0, you have NV10+. Otherwise, if bits 12-15 are 4,
+			you have NV04/NV05. In other cases, you have pre-NV04.</doc>
+			<bitfield low="24" high="27" name="ALWAYS0_1" variants="NV01:NV10"/>
+
+			<bitfield low="12" high="15" name="ALWAYS0_2" variants="NV01:NV04"/>
+			<bitfield low="16" high="19" name="CHIPSET" variants="NV01:NV04">
+				<value value="1" name="NV01"/>
+				<value value="2" name="NV02"/>
+				<value value="3" name="NV03"/>
+			</bitfield>
+			<bitfield low="0" high="7" name="REVISION" variants="NV01:NV04">
+				<doc>Less than 0x20 is original NV03, 0x20
+				and up is NV03P.</doc>
+			</bitfield>
+
+			<bitfield low="12" high="15" name="ALWAYS4" variants="NV04:NV10"/>
+			<bitfield low="20" high="23" name="MAJOR" variants="NV04:NV10">
+				<doc>0 is NV04, non-0 are NV05+</doc>
+			</bitfield>
+
+			<bitfield low="0" high="7" name="STEPPING" variants="NV10-"/>
+			<bitfield low="20" high="27" name="CHIPSET" type="chipset" variants="NV10-">
+				<doc>The card chipset. This is THE two-digit hex
+				number that goes after "NV".
+				</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x004" name="BOOT_1" variants="NV11-">
+			<doc>Endian switch. Write 0x00000001 in your favorite
+			endianness to switch the card to this endianness. This
+			switch, if set to big-endian mode, causes all accesses
+			to MMIO BAR to be byte-swapped [xor all byte addresses
+			with 3], except for areas containing 8-bit legacy VGA
+			registers. This includes PRAMIN accesses. Accesses to
+			framebuffer BAR aren't affected.
+
+			When read, returns 0 if in little-endian mode,
+			0x01000001 if in big-endian mode.
+
+			TODO: Check NV40 PRAMIN BAR and NV50. Check how to
+			byte-swap PFIFO pushbuffers.</doc>
+		</reg32>
+		<reg32 offset="0x100" name="INTR">
+			<doc>Shows currently pending interrupts. Read-only, except
+			for SOFTWARE bit. No need to ack these, they disappear by
+			acking in upstream unit.</doc>
+			<bitfield high="0" low="0" name="PAUDIO" variants="NV01"/>
+			<bitfield high="4" low="4" name="PDMA" variants="NV01"/>
+			<bitfield high="4" low="4" name="PMEDIA" variants="NV03-"/>
+			<bitfield high="8" low="8" name="PFIFO" />
+			<bitfield high="12" low="12" name="PGRAPH" />
+			<bitfield high="16" low="16" name="PRM" variants="NV01"/>
+			<bitfield high="16" low="16" name="PVIDEO" variants="NV03-NV40"/>
+			<bitfield high="20" low="20" name="PTIMER" />
+			<bitfield high="24" low="24" name="PFB" variants="NV01"/>
+			<bitfield high="24" low="24" name="PCRTC" variants="NV03-"/>
+			<bitfield high="28" low="28" name="SOFTWARE" variants="NV01"/>
+			<bitfield high="28" low="28" name="PBUS" variants="NV03-"/>
+			<bitfield high="31" low="31" name="SOFTWARE" variants="NV03-">
+				<doc>Software interrupt: write 1 to this bit to trigger
+				interrupt, write 0 to stop.</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x140" name="INTR_EN">
+			<doc>Enables reporting interrupts via IRQ lines. Doesn't affect
+			status shown in PMC_INTR, only sending actual bus interrupts.</doc>
+			<bitfield high="0" low="0" name="HARDWARE">
+				<doc>Enable reporting hardware interrupts, ie. all but SOFTWARE.</doc>
+			</bitfield>
+			<bitfield high="1" low="1" name="SOFTWARE">
+				<doc>Enable reporting software interrupts.</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x200" name="ENABLE">
+			<doc>Selects which card units are enabled.</doc>
+			<bitfield high="0" low="0" name="PAUDIO" variants="NV01"/>
+			<bitfield high="0" low="0" name="MD" variants="NV04:NV50"/>
+			<bitfield high="4" low="4" name="PDMA" variants="NV01"/>
+			<bitfield high="4" low="4" name="PMEDIA" variants="NV03-"/>
+			<bitfield high="8" low="8" name="PFIFO" />
+			<bitfield high="12" low="12" name="PGRAPH" />
+			<bitfield high="16" low="16" name="PRM" variants="NV01"/>
+			<bitfield high="16" low="16" name="PTIMER" variants="NV03-"/>
+			<bitfield high="20" low="20" name="PFB" variants="NV03-"/>
+			<bitfield high="24" low="24" name="PFB" variants="NV01"/>
+			<bitfield high="24" low="24" name="PCRTC" variants="NV03:NV50"/>
+			<bitfield high="25" low="25" name="PCRTC2" variants="NV11:NV50"/>
+			<bitfield high="26" low="26" name="PTV" variants="NV17:NV20 NV30:NV50"/>
+			<bitfield high="28" low="28" name="PVIDEO" variants="NV03:NV50"/>
+			<bitfield high="30" low="30" name="PDISPLAY" variants="NV50-"/>
+			<bitfield high="31" low="31" name="UNK31" variants="NV50-"/>
+		</reg32>
+	</array>
+	<array offset="0x1000" name="PBUS" stride="0x1000" length="1">
+		<reg32 offset="0x100" name="INTR">
+			<bitfield high="3" low="3" name="MMIO_FAULT"/>
+		</reg32>
+		<reg32 offset="0x140" name="INTR_EN">
+			<bitfield high="3" low="3" name="MMIO_FAULT"/>
+		</reg32>
+		<reg32 offset="0x540" name="PGRAPH_UNITS" variants="NV50:NVC0">
+			<doc>Enables PGRAPH engines that come in multiple copies.
+			</doc>
+			<bitfield high="15" low="0" name="TP_MASK">
+				<doc>Selects which TPs are enabled</doc>
+			</bitfield>
+			<bitfield high="23" low="16" name="ROPC_MASK">
+				<doc>Selects which ROP clusters are enabled</doc>
+			</bitfield>
+			<bitfield high="27" low="24" name="MP_MASK">
+				<doc>Selects which MPs inside each TP are enabled</doc>
+			</bitfield>
+			<bitfield high="31" low="28" name="UNK_MASK">
+				<doc>Unknown, always starts as 0b1111. Not setting
+				bit 28 causes the card to die. Not setting bits
+				29-31 has no obvious effects.
+				</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x570" name="PEEPHOLE_ADDR" variants="NV30-NV50">
+			<doc>Virtual address to poke.</doc>
+		</reg32>
+		<reg32 offset="0x574" name="PEEPHOLE_DATA" variants="NV30-NV50">
+			<doc>Goes to the memory at address pointed to by ADDR.
+			Auto-increments ADDR on each access.</doc>
+		</reg32>
+		<reg32 offset="0x700" name="PRAMIN_OFFSET" shr="16" variants="NV50-">
+			<doc>Selects the starting offset of the VRAM area that is
+			accessible by the 1MB PRAMIN window at 0x700000. This is
+			always unpaged and goes directly to VRAM [or to the stolen
+			system RAM on IGPs].
+			</doc>
+		</reg32>
+		<reg32 offset="0x704" name="MEM_CHAN" variants="NV50:NVC0">
+			<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
+			<bitfield low="30" high="30" name="WHICH">
+				<value value="0" name="PEEPHOLE"/>
+				<value value="1" name="BAR"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x708" name="BAR1_CTXDMA" variants="NV50:NVC0">
+			<bitfield low="0" high="15" name="INST" shr="4"/>
+			<bitfield low="31" high="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x70c" name="BAR3_CTXDMA" variants="NV50:NVC0">
+			<bitfield low="0" high="15" name="INST" shr="4"/>
+			<bitfield low="31" high="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x710" name="PEEPHOLE_CTXDMA" variants="NV50:NVC0">
+			<bitfield low="0" high="15" name="INST" shr="4"/>
+			<bitfield low="31" high="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x704" name="BAR1_CHAN" variants="NVC0-">
+			<bitfield low="0" high="27" name="INST" shr="12"/>
+			<bitfield low="31" high="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x714" name="BAR3_CHAN" variants="NVC0-">
+			<bitfield low="0" high="27" name="INST" shr="12"/>
+			<bitfield low="31" high="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x718" name="PEEPHOLE_CHAN" variants="NVC0-">
+			<bitfield low="0" high="27" name="INST" shr="12"/>
+			<bitfield low="31" high="31" name="ENABLE"/>
+		</reg32>
+	</array>
+
+	<array offset="0x60000" name="PPEEPHOLE" stride="0x10000" length="1" variants="NV84-">
+		<doc>A small area that allows single peeks/pokes into the VRAM.
+		The address is paged.</doc>
+		<reg32 offset="0" name="UNK0000" variants="NV50:NVC0"/>
+		<reg32 offset="4" name="UNK0004" variants="NV50:NVC0"/>
+		<reg32 offset="0xc" name="ADDR_HIGH" variants="NVC0-"/>
+		<reg32 offset="0x10" name="ADDR_LOW">
+			<doc>Virtual address to poke.</doc>
+		</reg32>
+		<reg32 offset="0x14" name="DATA">
+			<doc>Goes to the memory at address pointed to by ADDR.
+			Auto-increments ADDR on each access.</doc>
+		</reg32>
+	</array>
+
+	<reg32 offset="0x70000" name="PFIFO_MAGIC_FLUSH" variants="NV84-"/>
+
+	<array offset="0x88000" name="PBUS_PCI" stride="0x1000" length="1" variants="NV40-">
+	</array>
+
+	<array offset="0x101000" name="PEXTDEV" stride="0x1000" length="1">
+	</array>
+
+	<reg8 offset="0x110000" name="PROM" length="0x10000" variants="NV03:NV04" />
+
+	<reg8 offset="0x300000" name="PROM" length="0x10000" variants="NV04-" />
+
+	<reg8 offset="0x700000" name="PRAMIN" length="0x100000" variants="NV04-" />
+
+</domain>
+
+<import file="nv_pfifo.xml" />
+<import file="nvc0_pfifo.xml" />
+<import file="nv_ptimer.xml" />
+<import file="nv50_pconnector.xml" />
+<import file="nv01_misc.xml" />
+<import file="nv04_pgraph.xml" />
+<import file="nv50_pgraph.xml" />
+<import file="nvc0_pgraph.xml" />
+<import file="nv50_pdisplay.xml" />
+
+</database>

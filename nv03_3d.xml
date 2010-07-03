@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nv_object.xml"/>
+
+<domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
+	<stripe prefix="obj-class" variants="NV03_TEXTURED_TRIANGLE">
+		<reg32 offset="0x010c" name="PATCH"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="DMA_TEXTURE" type="object"/>
+		<reg32 offset="0x0188" name="CLIP_RECTANGLE" type="object">
+			<doc>Accepts NV01_CONTEXT_CLIP_RECTANGLE</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="SURFACE_COLOR" type="object">
+			<doc>Accepts NV03_CONTEXT_SURFACE_COLOR</doc>
+		</reg32>
+		<reg32 offset="0x0190" name="SURFACE_ZETA" type="object">
+			<doc>Accepts NV03_CONTEXT_SURFACE_ZETA</doc>
+		</reg32>
+		<reg32 offset="0x0304" name="TEXTURE_OFFSET"/>
+		<reg32 offset="0x0308" name="TEXTURE_FORMAT">
+			<bitfield name="COLOR_KEY_MASK" high="15" low="0" type="int"/>
+			<bitfield name="COLOR_KEY_ENABLE" high="19" low="16" type="boolean"/>
+			<bitfield name="COLOR" high="23" low="20" type="int"/>
+			<bitfield name="SIZE_MIN" high="27" low="24" type="int"/>
+			<bitfield name="SIZE_MAX" high="31" low="28" type="int"/>
+		</reg32>
+		<reg32 offset="0x030c" name="FILTER">
+			<bitfield name="SPREAD_X" high="4" low="0" type="int"/>
+			<bitfield name="SPREAD_Y" high="12" low="8" type="int"/>
+			<bitfield name="SIZE_ADJUST" high="23" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0310" name="FOG_COLOR">
+			<bitfield name="B" high="7" low="0" type="int"/>
+			<bitfield name="G" high="15" low="8" type="int"/>
+			<bitfield name="R" high="23" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0314" name="CONTROL_OUT">
+			<bitfield name="INTERPOLATOR" high="3" low="0" type="int"/>
+			<bitfield name="WRAP_U" high="5" low="4" type="int"/>
+			<bitfield name="WRAP_V" high="7" low="6" type="int"/>
+			<bitfield name="SOURCE_COLOR" high="11" low="8" type="int"/>
+			<bitfield name="CULLING" high="14" low="12" type="int"/>
+			<bitfield name="Z_PERSPECTIVE_ENABLE" high="15" low="15" type="boolean"/>
+			<bitfield name="Z_FUNC" high="19" low="16" type="int"/>
+			<bitfield name="Z_WRITE_ENABLE" high="23" low="20" type="int"/>
+			<bitfield name="COLOR_WRITE_ENABLE" high="26" low="24" type="int"/>
+			<bitfield name="ROP" high="28" low="27" type="int"/>
+			<bitfield name="BETA" high="29" low="29" type="int"/>
+			<bitfield name="DST_BLEND" high="30" low="30" type="int"/>
+			<bitfield name="SRC_BLEND" high="31" low="31" type="int"/>
+		</reg32>
+		<reg32 offset="0x0318" name="ALPHA_CONTROL">
+			<bitfield name="ALPHA_REF" high="7" low="0" type="int"/>
+			<bitfield name="ALPHA_FUNC" high="31" low="8" type="int"/>
+		</reg32>
+		<reg32 offset="0x1000" name="TLVERTEX_SPECULAR" length="128" stride="32">
+			<bitfield name="I0" high="3" low="0" type="int"/>
+			<bitfield name="I1" high="7" low="4" type="int"/>
+			<bitfield name="I2" high="11" low="8" type="int"/>
+			<bitfield name="I3" high="15" low="12" type="int"/>
+			<bitfield name="I4" high="19" low="16" type="int"/>
+			<bitfield name="I5" high="23" low="20" type="int"/>
+			<bitfield name="FOG" high="31" low="24" type="int"/>
+		</reg32>
+		<reg32 offset="0x1004" name="TLVERTEX_COLOR" length="128" stride="32"/>
+		<reg32 offset="0x1008" name="TLVERTEX_SX" length="128" stride="32"/>
+		<reg32 offset="0x100c" name="TLVERTEX_SY" length="128" stride="32"/>
+		<reg32 offset="0x1010" name="TLVERTEX_SZ" length="128" stride="32"/>
+		<reg32 offset="0x1014" name="TLVERTEX_RHW" length="128" stride="32"/>
+		<reg32 offset="0x1018" name="TLVERTEX_TU" length="128" stride="32"/>
+		<reg32 offset="0x101c" name="TLVERTEX_TV" length="128" stride="32"/>
+	</stripe>
+</domain>
+
+</database>
