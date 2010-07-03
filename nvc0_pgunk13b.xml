@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+<array name="PGUNK13B" offset="0x13b000" stride="0x4000" length="1" variants="NVC0-">
+	<array name="TP_UNK1" offset="0x0000" stride="0x80" length="32">
+
+	</array>
+
+	<array name="ROPC_UNK1" offset="0x1000" stride="0x80" length="16">
+
+	</array>
+
+	<array name="UNK1800" offset="0x1800" stride="0x80" length="1">
+
+	</array>
+	
+	<array name="TP_UNK2" offset="0x1c00" stride="0x20" length="32">
+
+	</array>
+
+	<array name="TP_UNK3" offset="0x2000" stride="0x40" length="32">
+
+	</array>
+	
+	<array name="ROPC_UNK2" offset="0x2800" stride="0x40" length="16">
+
+	</array>
+
+	<array name="UNK2C00" offset="0x2c00" stride="0x40" length="1">
+
+	</array>
+
+	<array name="TP_UNK4" offset="0x3000" stride="0x40" length="32">
+
+	</array>
+	
+	<array name="UNK3C00" offset="0x3c00" stride="0x40" length="1">
+
+	</array>
+</array>
+
+</domain>
+
+</database>
