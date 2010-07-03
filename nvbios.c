@@ -23,7 +23,9 @@ const uint8_t bmp_signature[] = { 0xff, 0x7f, 'N', 'V', 0x0 };
 uint32_t bmpoffset = 0;
 uint32_t bitoffset = 0;
 uint32_t dcboffset = 0;
+uint32_t i2coffset = 0;
 uint8_t dcbver, dcbhlen, dcbrlen, dcbentries;
+uint8_t i2cver, i2chlen, i2crlen, i2centries, i2cd0, i2cd1;
 
 uint16_t init_script_tbl_ptr;
 uint16_t macro_index_tbl_ptr;
@@ -429,19 +431,78 @@ int main(int argc, char **argv) {
 			dcbhlen = bios[dcboffset+1];
 			dcbentries = bios[dcboffset+2];
 			dcbrlen = bios[dcboffset+3];
+			i2coffset = le16(dcboffset+4);
 		} else if (dcbver >= 0x20) {
 			dcbhlen = 8;
 			dcbentries = 16;
 			dcbrlen = 8;
+			i2coffset = le16(dcboffset+2);
 		} else {
 			dcbhlen = 4;
 			dcbentries = 16;
 			dcbrlen = 10;
+			i2coffset = le16(dcboffset+2);
 		}
 		printhex(dcboffset, dcbhlen);
 		int i;
 		for (i = 0; i < dcbentries; i++)
 			printhex (dcboffset + dcbhlen + dcbrlen * i, dcbrlen);
+		printf ("\n");
+	}
+	if (i2coffset) {
+		i2chlen = 0;
+		i2centries = 16;
+		i2crlen = 4;
+		if (dcbver >= 0x30) {
+			i2cver = bios[i2coffset];
+			i2chlen = bios[i2coffset+1];
+			i2centries = bios[i2coffset+2];
+			i2crlen = bios[i2coffset+3];
+			i2cd0 = bios[i2coffset+4] & 0xf;
+			i2cd1 = bios[i2coffset+4] >> 4;
+			printf ("I2C table %d.%d at %x, default entries %x %x\n", i2cver >> 4, i2cver&0xf, i2coffset, i2cd0, i2cd1);
+			printhex(i2coffset, i2chlen);
+		} else {
+			i2cver = dcbver;
+			printf ("I2C table at %x:\n", i2coffset);
+		}
+		printf ("\n");
+		int i;
+		for (i = 0; i < i2centries; i++) {
+			uint16_t off = i2coffset + i2chlen + i2crlen * i;
+			printf ("Entry %x: ", i);
+			if (bios[off+3] == 0xff)
+				printf ("invalid\n");
+			else {
+				uint8_t pt = 0;
+				uint8_t rd, wr;
+				if (i2cver >= 0x30)
+					pt = bios[off+3];
+				if (i2cver >= 0x14) {
+					wr = bios[off];
+					rd = bios[off+1];
+				} else {
+					wr = bios[off+3];
+					rd = bios[off+2];
+				}
+				switch (pt) {
+					case 0:
+						printf ("NV04-style wr %x rd %x\n", wr, rd);
+						break;
+					case 4:
+						printf ("NV4E-style %x\n", rd);
+						break;
+					case 5:
+						printf ("NV50-style %x\n", wr);
+						break;
+					default:
+						printf ("unknown type %x\n", pt);
+						break;
+				}
+			}
+			printhex (off, i2crlen);
+			printf ("\n");
+		}
 		printf ("\n");
 	}
 	
