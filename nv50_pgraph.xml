@@ -364,7 +364,10 @@
 		<bitfield name="CCACHE" high="10" low="10"/>
 		<bitfield name="STRMOUT" high="11" low="11"/>
 		<bitfield name="CSCHED" high="13" low="13"/>
+		<bitfield name="TPDMA" high="20" low="20"/>
+		<bitfield name="TEX" high="21" low="21"/> <!-- not entirely sure. -->
 		<bitfield name="MP" high="23" low="23"/>
+		<bitfield name="ROP" high="24" low="24"/> <!-- or maybe 1cxx? -->
 	</reg32>
 	<reg32 offset="0x0704" name="TRAPPED_ADDR">
 		<doc>Offending subchan + method, for [most types of] PGRAPH interrupts.</doc>
