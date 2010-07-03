@@ -95,22 +95,32 @@
 			<bitfield high="0" low="0" name="UNK0" variants="NV03:NV04 NV10-"/>
 			<!-- I wonder how much modern 84XXX VPE has in common with the original NV17 thing. oh meh. we'll find out some day.-->
 			<bitfield high="1" low="1" name="PVPE" variants="NV17-"/>
+			<bitfield high="2" low="2" name="UNK2" variants="NVC0-"/>
+			<bitfield high="3" low="3" name="UNK2" variants="NVC0-"/>
 			<bitfield high="4" low="4" name="PDMA" variants="NV01"/>
 			<bitfield high="4" low="4" name="PMEDIA" variants="NV03-"/>
+			<bitfield high="5" low="5" name="MASTER" variants="NVC0-"/> <!-- disable that and most of MMIO disappears -->
+			<bitfield high="6" low="6" name="PVUNK104" variants="NVC0-"/>
+			<bitfield high="7" low="7" name="PVUNK105" variants="NVC0-"/>
 			<bitfield high="8" low="8" name="PFIFO" />
 			<bitfield high="12" low="12" name="PGRAPH" />
 			<bitfield high="13" low="13" name="PVUNK104" variants="NVA3:NVC0"/>
-			<bitfield high="14" low="14" name="PCRYPTO" variants="NV84-"/>
+			<bitfield high="13" low="13" name="PUNK10A" variants="NVC0-"/>
+			<bitfield high="14" low="14" name="PCRYPTO" variants="NV84:NVA3"/>
 			<bitfield high="15" low="15" name="PBSP" variants="NV84-"/>
 			<bitfield high="16" low="16" name="PRM" variants="NV01"/>
 			<bitfield high="16" low="16" name="PTIMER" variants="NV03-"/>
 			<bitfield high="17" low="17" name="PVUNK85" variants="NV98 NVAA-"/>
-			<bitfield high="20" low="20" name="PFB" variants="NV03-"/>
+			<bitfield high="20" low="20" name="PFB" variants="NV03:NVC0"/>
+			<bitfield high="20" low="20" name="PBFB" variants="NVC0-"/>
 			<bitfield high="24" low="24" name="PFB" variants="NV01"/>
 			<bitfield high="24" low="24" name="PCRTC" variants="NV03:NV50"/>
 			<bitfield high="25" low="25" name="PCRTC2" variants="NV11:NV50"/>
 			<bitfield high="26" low="26" name="PTV" variants="NV17:NV20 NV30:NV50"/>
+			<bitfield high="27" low="27" name="UNK27" variants="NVC0-"/>
 			<bitfield high="28" low="28" name="PVIDEO" variants="NV03:NV50"/>
+			<bitfield high="28" low="28" name="PGUNK180" variants="NVC0-"/>
+			<bitfield high="29" low="29" name="PFFB" variants="NVC0-"/>
 			<bitfield high="30" low="30" name="PDISPLAY" variants="NV50-"/>
 			<bitfield high="31" low="31" name="UNK31" variants="NV50-"/>
 			<!-- XXX: NV84:NVC0 have lots of other bits that apparently don't affect anything, but not really. -->
