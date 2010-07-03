@@ -110,7 +110,7 @@
 		<bitfield name="CSCHED" high="15" low="15" /> <!-- force STATUS 2001 and some other stuff, NV50 strand 1 and xfer2. NVA0 strand 0 and xfer2. -->
 		<bitfield name="UNK1CXX" high="16" low="16" /> <!-- NV50 strand 2. NVA0 strand 0. -->
 		<bitfield name="CLIPID" high="17" low="17" /> <!-- NV50 strand 0. NVA0 strand 6 -->
-		<bitfield name="UNK2CXX" high="18" low="18" /> <!-- NV50 strand 0. NVA0 strand 6 -->
+		<bitfield name="ZCULL" high="18" low="18" /> <!-- NV50 strand 0. NVA0 strand 6 -->
 		<bitfield name="ENG2D" high="19" low="19" /> <!-- NV50 strand 1. NVA0 strand 6 -->
 		<bitfield name="UNK34XX" high="20" low="20" /> <!-- NV50 strand 2. NVA0 strand 0. -->
 		<bitfield name="ROP" high="21" low="21" /> <!-- 7xxx, NV50 strands 1 and 3. NVA0 strand 5. -->
@@ -548,6 +548,16 @@
 			<bitfield name="CLEAR" high="30" low="30" />
 			<bitfield name="ENABLE" high="31" low="31" />
 		</reg32>
+	</array>
+
+	<array offset="0x2c00" name="ZCULL" stride="0x400" length="1">
+		<reg32 offset="0x18" name="UNK18"/> <!-- mask... -->
+		<array offset="0x20" name="REGION" stride="0x10" length="8">
+			<reg32 offset="0" name="UNK0" />
+			<reg32 offset="4" name="UNK1" />
+			<reg32 offset="8" name="UNK2" />
+			<reg32 offset="0xc" name="UNK3" />
+		</array>
 	</array>
 
 	<array offset="0x5000" name="CCACHE" stride="0x400" length="1">
