@@ -101,6 +101,7 @@
 		<bitfield high="18" low="18" name="TILE_MODE_LINEAR" />
 		<bitfield high="24" low="22" name="TILE_MODE_Y" />
 		<bitfield high="27" low="25" name="TILE_MODE_Z" />
+		<bitfield high="29" low="28" name="2D_UNK0258" />
 		<bitfield high="31" low="31" name="NORMALIZED_COORDS" />
 	</reg32>
 

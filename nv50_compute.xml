@@ -46,7 +46,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			are equivalent to 3.</doc>
 		</reg32>
 		<reg32 offset="0x0224" name="UNK0224">
-			<doc>Accepts 0-8 and f.</doc>
+			<doc>Same as tesla UNK12A8</doc>
+			<doc>Accepts 0-8 and f. Same as tesla UNK1290</doc>
 		</reg32>
 		<reg32 offset="0x0228" name="UNK0228">
 			<bitfield low="0" high="0" name="UNK1"/>
@@ -81,7 +82,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x028c" name="DELAY2">
 			<doc>looks same as DELAY1</doc>
 		</reg32>
-		<reg32 offset="0x0290" name="UNK0290" type="boolean"/>
+		<reg32 offset="0x0290" name="UNK0290" type="boolean">
+			<doc>Same as tesla UNK12AC</doc>
+		</reg32>
 		<reg32 offset="0x0294" name="LOCAL_ADDRESS_HIGH"/>
 		<reg32 offset="0x0298" name="LOCAL_ADDRESS_LOW" align="0x100"/>
 		<reg32 offset="0x029c" name="LOCAL_SIZE_LOG" type="uint">
@@ -97,7 +100,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="BUFFER" high="22" low="16" type="uint"/>
 		</reg32>
 		<reg32 offset="0x02b0" name="UNK02B0">
-			<doc>Accepts anything.</doc>
+			<doc>Accepts anything. Same as tesla UNK1568.</doc>
 		</reg32>
 		<reg32 offset="0x02b4" name="BLOCK_ALLOC">
 			<bitfield name="THREADS" high="15" low="0" type="uint">
@@ -110,6 +113,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>max 32 lanes/warp if set, max 16 otherwise.</doc>
 		</reg32>
 		<reg32 offset="0x02bc" name="UNK02BC">
+			<doc>Same as tesla UNK15A8</doc>
 			<bitfield low="0" high="2" name="UNK1">
 				<doc>Accepts 0-3</doc>
 			</bitfield>
@@ -138,7 +142,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="UNK3" high="31" low="24"/>
 		</reg32>
 		<reg32 offset="0x02f0" name="UNK02F0">
-			<doc>Accepts 0-f.</doc>
+			<doc>Accepts 0-f. Same as tesla UNK132C</doc>
 		</reg32>
 		<reg32 offset="0x02f4" name="UNK02F4">
 			<doc>Accepts anything.</doc>
@@ -165,7 +169,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>if not set, clamp number of executed warps to allocated
 			above. if set, ignore it, the extra warps will alias.</doc>
 		</reg32>
-		<reg32 offset="0x030c" name="UNK030C" type="boolean"/>
+		<reg32 offset="0x030c" name="UNK030C" type="boolean">
+			<doc>Same as tesla UNK15B0.</doc>
+		</reg32>
 		<reg32 offset="0x0310" name="QUERY_ADDRESS_HIGH"/>
 		<reg32 offset="0x0314" name="QUERY_ADDRESS_LOW"/>
 		<reg32 offset="0x0318" name="QUERY_COUNTER"/>
@@ -178,10 +184,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0324" name="COND_ADDRESS_LOW"/>
 		<reg32 offset="0x0328" name="COND_MODE" type="nv50_cond_mode"/>
 		<reg32 offset="0x032c" name="UNK032C">
-			<doc>Accepts 0-1, related to texturing</doc>
+			<doc>Accepts 0-1, related to texturing, same as tesla UNK0F94</doc>
 		</reg32>
 		<reg32 offset="0x0330" name="UNK0330">
-			<doc>Accepts anything.</doc>
+			<doc>Accepts anything. Same as tesla UNK1A2C</doc>
 		</reg32>
 		<reg32 offset="0x0334" name="UNK0334" length="3" varset="chipset" variants="NV84-">
 			<doc>Accepts anything. In DISPATCH!</doc>
@@ -196,7 +202,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Accepts anything. In DISPATCH!</doc>
 		</reg32>
 		<reg32 offset="0x0358" name="UNK0358">
-			<doc>Accepts 0-1, texturing</doc>
+			<doc>Accepts 0-1, texturing, same as tesla UNK1354</doc>
 		</reg32>
 		<reg32 offset="0x035c" name="UNK035C">
 			<doc>Accepts 0-3</doc>
@@ -228,6 +234,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x0378" name="LINKED_TSC" type="boolean"/>
 		<reg32 offset="0x037c" name="UNK037C">
+			<doc>Texturing, same as tesla UNK1690.</doc>
 			<bitfield low="0" high="0" name="UNK0"/>
 			<bitfield low="16" high="16" name="UNK16"/>
 		</reg32>
@@ -280,7 +287,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x03cc" name="UNK03CC">
-			<doc>Accepts 0-0x3fffff, causes CCACHE_TRAP.</doc>
+			<doc>Accepts 0-0x3fffff, causes CCACHE_TRAP. Same as tesla UNK1238.</doc>
 		</reg32>
 		<reg32 offset="0x03d0" name="TEX_CACHE_CTL">
 			<bitfield low="4" high="5" name="UNK1">
@@ -304,7 +311,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Accepts anything. No DISPATCH</doc>
 		</reg32>
 		<reg32 offset="0x03e8" name="UNK03E8" variants="NVA3_COMPUTE">
-			<doc>Bits 3. Pending scan.</doc>
+			<doc>0-3, goes to tex.</doc>
 		</reg32>
 		<stripe offset="0x0400" name="GLOBAL" length="16" stride="0x20">
 			<reg32 offset="0x00" name="ADDRESS_HIGH"/>
