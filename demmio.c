@@ -54,7 +54,7 @@ int i2c_bus_num (uint64_t addr) {
 			return 3;
 		case 0xe254:
 			return 4;
-		case 0xe174:
+		case 0xe274:
 			return 5;
 		case 0xe764:
 			return 6;
@@ -87,7 +87,7 @@ void doi2cr (struct i2c_ctx *ctx, int byte) {
 			ctx->b |= (byte & 2) >> 1;
 			ctx->bits++;
 			if (ctx->bits == 8) {
-				printf (">%02x", ctx->b);
+				printf ("<%02x", ctx->b);
 			}
 		}
 		ctx->pend = 0;
@@ -124,7 +124,7 @@ void doi2cw (struct i2c_ctx *ctx, int byte) {
 				ctx->b |= (byte & 2) >> 1;
 				ctx->bits++;
 				if (ctx->bits == 8) {
-					printf ("<%02x", ctx->b);
+					printf (">%02x", ctx->b);
 				}
 			} else {
 				ctx->pend = 1;

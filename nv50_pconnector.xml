@@ -46,6 +46,10 @@
 		<reg32 name="I2C_PORT_3" offset="0x180"/>
 		<reg32 name="I2C_PORT_4" offset="0x254"/>
 		<reg32 name="I2C_PORT_5" offset="0x274"/>
+		<reg32 name="I2C_PORT_6" offset="0x764"/>
+		<reg32 name="I2C_PORT_7" offset="0x780"/>
+		<reg32 name="I2C_PORT_8" offset="0x79c"/>
+		<reg32 name="I2C_PORT_9" offset="0x7b8"/>
 
 	</array>
 </domain>
