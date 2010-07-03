@@ -158,6 +158,8 @@
 		<bitfield high="2" low="0" name="WRAPS" type="NV50_TSC_WRAP" />
 		<bitfield high="5" low="3" name="WRAPT" type="NV50_TSC_WRAP" />
 		<bitfield high="8" low="6" name="WRAPR" type="NV50_TSC_WRAP" />
+		<bitfield high="9" low="9" name="SHADOW_COMPARE_ENABLE"/>
+		<bitfield high="12" low="10" name="SHADOW_COMPARE_FUNC"/>
 		<bitfield high="22" low="20" name="ANISOTROPY_MASK" />
 	</reg32>
 
