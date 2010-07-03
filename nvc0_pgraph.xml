@@ -211,28 +211,44 @@
 		<reg32 offset="0x1c4" name="DATA_DATA"/>
 	</group>
 
-	<array name="CTXCTL_9" offset="0x9000" stride="0x1000" length="1">
-		<use-group name="nvc0_ctxctl"/>
-	</array>
+	<group name="nvc0_ropc">
+	</group>
 
-	<array name="CTXCTL_1A" offset="0x1a000" stride="0x1000" length="1">
-		<use-group name="nvc0_ctxctl"/>
-	</array>
+	<group name="nvc0_mp">
+	</group>
 
-	<array name="ROPC" offset="0x10000" stride="0x400" length="5">
+	<group name="nvc0_tp">
+		<array name="MP_BROADCAST" offset="0x1800" stride="0x800" length="1">
+			<use-group name="nvc0_mp"/>
+		</array>
 
-	</array>
-
-	<array name="TP" offset="0x100000" stride="0x8000" length="4">
-		
 		<array name="CTXCTL" offset="0x2000" stride="0x1000" length="1">
 			<use-group name="nvc0_ctxctl"/>
 		</array>
 
 		<array name="MP" offset="0x4000" stride="0x800" length="4">
-
+			<use-group name="nvc0_mp"/>
 		</array>
+	</group>
 
+	<array name="CTXCTL" offset="0x9000" stride="0x1000" length="1">
+		<use-group name="nvc0_ctxctl"/>
+	</array>
+
+	<array name="ROPC_BROADCAST" offset="0x8800" stride="0x400" length="1">
+		<use-group name="nvc0_ropc"/>
+	</array>
+
+	<array name="ROPC" offset="0x10000" stride="0x400" length="8">
+		<use-group name="nvc0_ropc"/>
+	</array>
+
+	<array name="TP_BROADCAST" offset="0x18000" stride="0x8000" length="1">
+		<use-group name="nvc0_tp"/>
+	</array>
+
+	<array name="TP" offset="0x100000" stride="0x8000" length="4">
+		<use-group name="nvc0_tp"/>
 	</array>
 </array>
 </domain>
