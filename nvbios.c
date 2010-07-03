@@ -203,6 +203,11 @@ void printscript (uint16_t soff) {
 				printf ("CONDITION_TIME\t0x%02x 0x%02x\n", bios[soff+1], bios[soff+2]);
 				soff += 3;
 				break;
+			case 0x57:
+				printcmd (soff, 3);
+				printf ("LTIME\t0x%04x\n", le16(soff+1));
+				soff += 3;
+				break;
 			case 0x58:
 				printcmd (soff, 6);
 				dst = le32(soff+1);
@@ -226,6 +231,11 @@ void printscript (uint16_t soff) {
 						break;
 				if (i == callsnum)
 					RNN_ADDARRAY(calls, x);
+				break;
+			case 0x5e:
+				printcmd (soff, 6);
+				printf ("I2C_IF\tI2C[0x%02x][0x%02x][0x%02x] & 0x%02x == 0x%02x\n", bios[soff+1], bios[soff+2], bios[soff+3], bios[soff+4], bios[soff+5]);
+				soff += 6;
 				break;
 			case 0x5f:
 				printcmd (soff, 16);
@@ -336,20 +346,10 @@ void printscript (uint16_t soff) {
 				printf ("ZM_MASK_ADD\tR[0x%06x] & ~0x%08x += 0x%08x\n", le32(soff+1), le32(soff+5), le32(soff+9));
 				soff += 13;
 				break;
-			case 0x5e:
-				printcmd (soff, 3);
-				printf ("???\n");
-				soff += 3;
-				break;
 			case 0x9a:
 				printcmd (soff, 7);
-				printf ("???\n");
+				printf ("I2C_IF_LONG\tI2C[0x%02x][0x%02x][0x%02x:0x%02x] & 0x%02x == 0x%02x\n", bios[soff+1], bios[soff+2], bios[soff+4], bios[soff+3], bios[soff+5], bios[soff+6]);
 				soff += 7;
-				break;
-			case 0x57:
-				printcmd (soff, 3);
-				printf ("???\n");
-				soff += 3;
 				break;
 			default:
 				printcmd (soff, 1);
