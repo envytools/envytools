@@ -46,16 +46,15 @@
 			<doc>Endian switch. Write 0x00000001 in your favorite
 			endianness to switch the card to this endianness. This
 			switch, if set to big-endian mode, causes all accesses
-			to MMIO BAR to be byte-swapped [xor all byte addresses
-			with 3], except for areas containing 8-bit legacy VGA
-			registers. This includes PRAMIN accesses. Accesses to
-			framebuffer BAR aren't affected.
+			to MMIO and RAMIN BARs to be byte-swapped [xor all byte
+			addresses with 3], except for areas containing 8-bit
+			legacy VGA registers. Accesses to framebuffer BAR
+			aren't affected.
 
 			When read, returns 0 if in little-endian mode,
 			0x01000001 if in big-endian mode.
 
-			TODO: Check NV40 PRAMIN BAR and NV50. Check how to
-			byte-swap PFIFO pushbuffers.</doc>
+			TODO: Check how to byte-swap PFIFO pushbuffers.</doc>
 		</reg32>
 		<reg32 offset="0x100" name="INTR">
 			<doc>Shows currently pending interrupts. Read-only, except
@@ -159,12 +158,13 @@
 			<doc>Goes to the memory at address pointed to by ADDR.
 			Auto-increments ADDR on each access.</doc>
 		</reg32>
-		<reg32 offset="0x700" name="PRAMIN_OFFSET" shr="16" variants="NV50-">
-			<doc>Selects the starting offset of the VRAM area that is
-			accessible by the 1MB PRAMIN window at 0x700000. This is
-			always unpaged and goes directly to VRAM [or to the stolen
-			system RAM on IGPs].
+		<reg32 offset="0x700" name="PMEM_START" variants="NV50-">
+			<doc>Selects the starting offset and target memory area
+			that is accessible by the 1MB PMEM window at 0x700000.
+			This is always unpaged and goes directly to VRAM / sysRAM.
 			</doc>
+			<bitfield high="23" low="0" shr="16" name="OFFSET"/>
+			<bitfield high="25" low="24" name="TARGET" type="nv50_mem_target"/>
 		</reg32>
 		<reg32 offset="0x704" name="MEM_CHAN" variants="NV50:NVC0">
 			<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
@@ -226,7 +226,9 @@
 
 	<reg8 offset="0x300000" name="PROM" length="0x10000" variants="NV04-" />
 
-	<reg8 offset="0x700000" name="PRAMIN" length="0x100000" variants="NV04-" />
+	<reg8 offset="0x700000" name="PRAMIN" length="0x100000" variants="NV04:NV50" />
+
+	<reg8 offset="0x700000" name="PMEM" length="0x100000" variants="NV50-" />
 
 </domain>
 
