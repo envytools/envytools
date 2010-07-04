@@ -26,6 +26,7 @@ uint32_t dcboffset = 0;
 uint32_t i2coffset = 0;
 uint8_t dcbver, dcbhlen, dcbrlen, dcbentries;
 uint8_t i2cver, i2chlen, i2crlen, i2centries, i2cd0, i2cd1;
+int maxcond = -1;
 
 uint16_t init_script_tbl_ptr;
 uint16_t macro_index_tbl_ptr;
@@ -203,6 +204,8 @@ void printscript (uint16_t soff) {
 			case 0x56:
 				printcmd (soff, 3);
 				printf ("CONDITION_TIME\t0x%02x 0x%02x\n", bios[soff+1], bios[soff+2]);
+				if (bios[soff+1] > maxcond)
+					maxcond = bios[soff+1];
 				soff += 3;
 				break;
 			case 0x57:
@@ -296,6 +299,8 @@ void printscript (uint16_t soff) {
 			case 0x75:
 				printcmd (soff, 2);
 				printf ("CONDITION\t0x%02x\n", bios[soff+1]);
+				if (bios[soff+1] > maxcond)
+					maxcond = bios[soff+1];
 				soff += 2;
 				break;
 			case 0x7a:
@@ -531,6 +536,18 @@ int main(int argc, char **argv) {
 			printf ("Init script %d at %x:\n", i, soff);
 			printscript(soff);
 			printf("\n");
+		}
+	}
+
+	if (condition_tbl_ptr) {
+		printf ("Condition table at %x: %d conditions:\n", condition_tbl_ptr, maxcond+1);
+		int i;
+		for (i = 0; i <= maxcond; i++) {
+			printcmd(condition_tbl_ptr + 12 * i, 12);
+			printf ("[0x%02x] R[0x%06x] & 0x%08x == 0x%08x\n", i,
+					le32(condition_tbl_ptr + 12 * i),
+					le32(condition_tbl_ptr + 12 * i + 4),
+					le32(condition_tbl_ptr + 12 * i + 8));
 		}
 	}
 	
