@@ -524,7 +524,8 @@ int main(int argc, char **argv) {
 	}
 	
 	int subspos = 0, callspos = 0;
-	while (subspos < subsnum || callspos < callsnum) {
+	int ssdone = 0;
+	while (!ssdone || subspos < subsnum || callspos < callsnum) {
 		if (callspos < callsnum) {
 			uint16_t soff = calls[callspos++];
 			printf ("Subroutine at %x:\n", soff);
@@ -536,6 +537,13 @@ int main(int argc, char **argv) {
 			printf ("Init script %d at %x:\n", i, soff);
 			printscript(soff);
 			printf("\n");
+		} else if (!ssdone) {
+			if (some_script_ptr) {
+				printf ("Some script at %x:\n", some_script_ptr);
+				printscript(some_script_ptr);
+				printf("\n");
+			}
+			ssdone = 1;
 		}
 	}
 
