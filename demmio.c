@@ -7,6 +7,7 @@
 
 int chdone = 0;
 int arch = 0;
+int chipset = 0;
 uint64_t praminbase = 0;
 uint64_t ramins = 0;
 uint64_t fakechan = 0;
@@ -236,6 +237,7 @@ int main(int argc, char **argv) {
 							arch = 6;
 							break;
 					}
+					chipset = (value >> 20) & 0xff;
 				} else if (arch >= 5 && addr == 0x1700) {
 					praminbase = value << 16;
 				} else if (arch == 5 && addr == 0x1704) {
@@ -305,7 +307,7 @@ int main(int argc, char **argv) {
 					uint64_t paddr = addr;
 					paddr += *findmem(fakechan + ramins + 8);
 					paddr += (uint64_t)(*findmem(fakechan + ramins + 12) >> 24) << 32;
-					uint64_t pt = *findmem(fakechan + 0x200 + ((paddr >> 29) << 3));
+					uint64_t pt = *findmem(fakechan + (chipset == 0x50 ? 0x1400 : 0x200) + ((paddr >> 29) << 3));
 //					printf ("%#"PRIx64" PT: %#"PRIx64" %#"PRIx64" ", paddr, fakechan + 0x200 + ((paddr >> 29) << 3), pt);
 					uint32_t div = (pt & 2 ? 0x1000 : 0x10000);
 					pt &= 0xfffff000;
