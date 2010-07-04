@@ -16,11 +16,11 @@
 	<use-group name="nv98_pvpbase"/>
 </array>
 
-<array name="PVUNK85" offset="0x85000" stride="0x1000" length="1" variants="NV98 NVAA-">
+<array name="PVP" offset="0x85000" stride="0x1000" length="1" variants="NV98 NVAA-">
 	<use-group name="nv98_pvpbase"/>
 </array>
 
-<array name="PVUNK86" offset="0x86000" stride="0x1000" length="1" variants="NV98 NVAA-">
+<array name="PPPP" offset="0x86000" stride="0x1000" length="1" variants="NV98 NVAA-">
 	<use-group name="nv98_pvpbase"/>
 </array>
 

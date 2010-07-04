@@ -18,8 +18,14 @@
 <enum name="nv04_pfifo_engine" inline="yes">
 	<value value="0" name="SOFTWARE"/>
 	<value value="1" name="PGRAPH"/>
-	<!-- multiple sources claim here that 2 == DVD, but
+	<!-- multiple sources claim here that 2 == DVD on early cards [NV04? NV10?], but
 	I can't seem to find the damn thing... -->
+	<!-- 2 is likely VPE on NV50:NV98, NVA0. -->
+	<value value="2" name="PPPP" variants="NV98 NVAA-"/>
+	<value value="3" name="PVUNK104" variants="NVA3-"/>
+	<value value="4" name="PVP" variants="NV50"/> <!-- NV40+? -->
+	<value value="5" name="PCRYPT" variants="NV84:NVA3"/>
+	<value value="6" name="PBSP" variants="NV84-"/>
 </enum>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
@@ -519,11 +525,14 @@
 		</reg32>
 		<reg32 offset="0x51c" name="ENGINE_IDLE" variants="NV50-">
 			<bitfield high="0" low="0" name="PGRAPH"/>
-			<bitfield high="1" low="1" name="UNK1"/>
-			<bitfield high="2" low="2" name="UNK2"/>
-			<bitfield high="3" low="3" name="UNK3"/>
-			<bitfield high="4" low="4" name="UNK4" variants="NV84-"/>
-			<bitfield high="5" low="5" name="UNK5" variants="NV84-"/>
+			<bitfield high="1" low="1" name="UNK1" variants="NV50:NV98 NVA0"/> <!-- VPE? -->
+			<bitfield high="1" low="1" name="PPPP" variants="NV98 NVAA-"/>
+			<bitfield high="2" low="2" name="UNK2" variants="NV50:NVA3"/>
+			<bitfield high="2" low="2" name="PVUNK104" variants="NVA3-"/>
+			<bitfield high="3" low="3" name="PVP"/>
+			<bitfield high="4" low="4" name="PCRYPT" variants="NV84:NVA3"/>
+			<bitfield high="4" low="4" name="UNUSED4" variants="NVA3-"/>
+			<bitfield high="5" low="5" name="PBSP" variants="NV84-"/>
 		</reg32>
 		<reg32 offset="0x520" name="UNK520" variants="NV84-">
 			<doc>Bits 0xffffffff, up as 3b003b.</doc>

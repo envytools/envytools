@@ -61,13 +61,19 @@
 			for SOFTWARE bit. No need to ack these, they disappear by
 			acking in upstream unit.</doc>
 			<bitfield high="0" low="0" name="PAUDIO" variants="NV01"/>
+			<bitfield high="0" low="0" name="PVPE" variants="NV17:NV98 NVA0"/>
+			<bitfield high="0" low="0" name="PPPP" variants="NV98 NVAA-"/>
 			<bitfield high="4" low="4" name="PDMA" variants="NV01"/>
 			<bitfield high="4" low="4" name="PMEDIA" variants="NV03-"/>
 			<bitfield high="8" low="8" name="PFIFO" />
 			<bitfield high="12" low="12" name="PGRAPH" />
+			<bitfield high="14" low="14" name="PCRYPT" variants="NV84:NVA3"/>
+			<bitfield high="15" low="15" name="PBSP" variants="NV84-"/>
 			<bitfield high="16" low="16" name="PRM" variants="NV01"/>
 			<bitfield high="16" low="16" name="PVIDEO" variants="NV03-NV40"/>
+			<bitfield high="17" low="17" name="PVP" variants="NV40-"/>
 			<bitfield high="20" low="20" name="PTIMER" />
+			<bitfield high="22" low="22" name="PVUNK104" variants="NVA3:NVC0"/>
 			<bitfield high="24" low="24" name="PFB" variants="NV01"/>
 			<bitfield high="24" low="24" name="PCRTC" variants="NV03-"/>
 			<bitfield high="28" low="28" name="SOFTWARE" variants="NV01"/>
@@ -92,8 +98,9 @@
 			<bitfield high="0" low="0" name="PAUDIO" variants="NV01"/>
 			<!-- might be HDVP video decoding -->
 			<bitfield high="0" low="0" name="UNK0" variants="NV03:NV04 NV10-"/>
-			<!-- I wonder how much modern 84XXX VPE has in common with the original NV17 thing. oh meh. we'll find out some day.-->
-			<bitfield high="1" low="1" name="PVPE" variants="NV17-"/>
+			<!-- I wonder how much modern NVA0 VPE has in common with the original NV17 thing. oh meh. we'll find out some day.-->
+			<bitfield high="1" low="1" name="PVPE" variants="NV17:NV98 NVA0"/> <!-- also controls NV50:NV98, NVA0 PVP -->
+			<bitfield high="1" low="1" name="PPPP" variants="NV98 NVAA-"/>
 			<bitfield high="2" low="2" name="PGUNK13B" variants="NVC0-"/>
 			<bitfield high="3" low="3" name="PRUNK140" variants="NVC0-"/>
 			<bitfield high="4" low="4" name="PDMA" variants="NV01"/>
@@ -109,7 +116,7 @@
 			<bitfield high="15" low="15" name="PBSP" variants="NV84-"/>
 			<bitfield high="16" low="16" name="PRM" variants="NV01"/>
 			<bitfield high="16" low="16" name="PTIMER" variants="NV03-"/>
-			<bitfield high="17" low="17" name="PVUNK85" variants="NV98 NVAA-"/>
+			<bitfield high="17" low="17" name="PVP" variants="NV98 NVAA-"/>
 			<bitfield high="20" low="20" name="PFB" variants="NV03:NVC0"/>
 			<bitfield high="20" low="20" name="PBFB" variants="NVC0-"/>
 			<bitfield high="24" low="24" name="PFB" variants="NV01"/>
@@ -265,7 +272,7 @@
 <!-- 00e000 - 00efff PCONNECTOR -->
 <import file="nv50_pconnector.xml" />
 
-<!-- 00f000 - 00ffff PVPUNK00F covered in nv17_pvpe.xml -->
+<!-- 00f000 - 00ffff PVP covered in nv17_pvpe.xml -->
 
 <!-- 020000 - 020fff ??? -->
 
@@ -284,9 +291,9 @@
 <!-- 084000 - 084fff PBSP -->
 <import file="nv98_pvp.xml" />
 
-<!-- 085000 - 085fff PVUNK85 covered in nv98_pvp.xml -->
+<!-- 085000 - 085fff PVP covered in nv98_pvp.xml -->
 
-<!-- 086000 - 086fff PVUNK86 covered in nv98_pvp.xml -->
+<!-- 086000 - 086fff PPPP covered in nv98_pvp.xml -->
 
 <!-- 087000 - 087fff PCRYPT covered in nv98_pvp.xml -->
 

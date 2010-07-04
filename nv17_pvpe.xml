@@ -12,7 +12,7 @@
 
 </array>
 
-<array name="PVPUNK00F" offset="0xf000" stride="0x1000" length="1" variants="NV40:NV98 NVA0">
+<array name="PVP" offset="0xf000" stride="0x1000" length="1" variants="NV40:NV98 NVA0">
 
 </array>
 
