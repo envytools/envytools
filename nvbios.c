@@ -27,6 +27,8 @@ uint32_t i2coffset = 0;
 uint8_t dcbver, dcbhlen, dcbrlen, dcbentries;
 uint8_t i2cver, i2chlen, i2crlen, i2centries, i2cd0, i2cd1;
 int maxcond = -1;
+int maxmi = -1;
+int maxmac = -1;
 
 uint16_t init_script_tbl_ptr;
 uint16_t macro_index_tbl_ptr;
@@ -280,6 +282,8 @@ void printscript (uint16_t soff) {
 			case 0x6f:
 				printcmd (soff, 2);
 				printf ("MACRO\t0x%02x\n", bios[soff+1]);
+				if (bios[soff+1] > maxmi)
+					maxmi = bios[soff+1];
 				soff += 2;
 				break;
 			case 0x71:
@@ -557,7 +561,34 @@ int main(int argc, char **argv) {
 					le32(condition_tbl_ptr + 12 * i + 4),
 					le32(condition_tbl_ptr + 12 * i + 8));
 		}
+		printf("\n");
+	}
+
+	if (macro_index_tbl_ptr) {
+		printf ("Macro index table at %x: %d macro indices:\n", macro_index_tbl_ptr, maxmi+1);
+		int i;
+		for (i = 0; i <= maxmi; i++) {
+			printcmd(macro_index_tbl_ptr + 2 * i, 2);
+			printf ("[0x%02x] 0x%02x *%d\n", i,
+					bios[macro_index_tbl_ptr + 2 * i],
+					bios[macro_index_tbl_ptr + 2 * i + 1]);
+			if (bios[macro_index_tbl_ptr + 2 * i] > maxmac)
+				maxmac = bios[macro_index_tbl_ptr + 2 * i];
+		}
+		printf("\n");
 	}
 	
+	if (macro_tbl_ptr) {
+		printf ("Macro table at %x: %d macros:\n", macro_tbl_ptr, maxmac+1);
+		int i;
+		for (i = 0; i <= maxmac; i++) {
+			printcmd(macro_tbl_ptr + 8 * i, 8);
+			printf ("[0x%02x] R[0x%06x] = 0x%08x\n", i,
+					le32(macro_tbl_ptr + 8 * i),
+					le32(macro_tbl_ptr + 8 * i + 4));
+		}
+		printf("\n");
+	}
+
 	return 0;
 }
