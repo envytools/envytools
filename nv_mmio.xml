@@ -224,8 +224,6 @@
 	<array offset="0x88000" name="PBUS_PCI" stride="0x1000" length="1" variants="NV40-">
 	</array>
 
-	<reg8 offset="0xa0000" name="PRM" length="0x20000" variants="NV03-" />
-
 	<array offset="0x101000" name="PEXTDEV" stride="0x1000" length="1">
 	</array>
 
@@ -306,7 +304,8 @@
 
 <!-- 090000 - 090fff PFIFO_CACHE1 covered in nv_pfifo.xml -->
 
-<!-- 0a0000 - 0bffff PRM covered above -->
+<!-- 0a0000 - 0bffff PRM -->
+<import file="nv_vga.xml" />
 
 <!-- 100000 - 100fff PFB or PFFB -->
 <import file="nv03_pfb.xml" />
@@ -356,7 +355,9 @@
 <import file="nv50_pgraph.xml" />
 <import file="nvc0_pgraph.xml" />
 
-<!-- 600000 - 6fffff PDISPLAY -->
+<!-- 601000 - 601fff PRMCIO covered in nv_vga.xml -->
+
+<!-- 610000 - 6bffff PDISPLAY -->
 <import file="nv50_pdisplay.xml" />
 
 <!-- 700000 - 7fffff PRAMIN / PMEM covered above -->

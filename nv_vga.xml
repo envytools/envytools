@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+	<reg8 offset="0xa0000" name="PRM" length="0x20000" variants="NV03-" />
+
+	<array offset="0x601000" name="PRMCIO" length="0x1000" variants="NV03-">
+		<reg8 offset="0x3c0" name="VGA_3C0"/>
+		<reg8 offset="0x3c1" name="VGA_3C1"/>
+		<reg8 offset="0x3c2" name="VGA_3C2"/>
+		<reg8 offset="0x3d4" name="VGA_3D4"/>
+		<reg8 offset="0x3d5" name="VGA_3D5"/>
+		<reg8 offset="0x3da" name="VGA_3DA"/>
+	</array>
+
+</domain>
+
+</database>
