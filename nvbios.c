@@ -40,8 +40,12 @@ uint16_t init_function_tbl_ptr;
 uint16_t some_script_ptr;
 uint16_t init96_tbl_ptr;
 
+uint16_t disp_script_tbl_ptr;
+
 uint8_t ram_restrict_group_count;
 uint16_t ram_restrict_tbl_ptr;
+
+uint16_t pll_limit_tbl_ptr;
 
 uint16_t *subs = 0;
 int subsnum = 0, subsmax = 0;
@@ -429,6 +433,12 @@ int main(int argc, char **argv) {
 						ram_restrict_tbl_ptr = le16(eoff+1);
 					}
 					break;
+				case 'C':
+					pll_limit_tbl_ptr = le16(eoff + 8);
+					break;
+				case 'U':
+					disp_script_tbl_ptr = le16(eoff);
+					break;
 			}
 			printf ("\n");
 		}
@@ -514,6 +524,36 @@ int main(int argc, char **argv) {
 		}
 		printf ("\n");
 	}
+
+	if (pll_limit_tbl_ptr) {
+		uint8_t ver = bios[pll_limit_tbl_ptr];
+		uint8_t hlen = 0, rlen = 0, entries = 0;
+		printf ("PLL limits table at %x, version %x\n", pll_limit_tbl_ptr, ver);
+		switch (ver) {
+			case 0:
+				break;
+			case 0x10:
+			case 0x11:
+				hlen = 1;
+				rlen = 0x18;
+				entries = 1;
+				break;
+			case 0x20:
+			case 0x21:
+			case 0x30:
+			case 0x40:
+				hlen = bios[pll_limit_tbl_ptr+1];
+				rlen = bios[pll_limit_tbl_ptr+2];
+				entries = bios[pll_limit_tbl_ptr+3];
+		}
+		printhex(pll_limit_tbl_ptr, hlen);
+		int i;
+		for (i = 0; i < entries; i++) {
+			uint16_t soff = pll_limit_tbl_ptr + hlen + rlen * i;
+			printhex(soff, rlen);
+		}
+		printf("\n");
+	}
 	
 	if (init_script_tbl_ptr) {
 		int i = 0;
@@ -549,6 +589,29 @@ int main(int argc, char **argv) {
 			}
 			ssdone = 1;
 		}
+	}
+
+	if (disp_script_tbl_ptr) {
+		uint8_t ver = bios[disp_script_tbl_ptr];
+		uint8_t hlen = bios[disp_script_tbl_ptr+1];
+		uint8_t rlen = bios[disp_script_tbl_ptr+2];
+		uint8_t entries = bios[disp_script_tbl_ptr+3];
+		printf ("Display script table at %x, version %x:\n", disp_script_tbl_ptr, ver);
+		printhex(disp_script_tbl_ptr, hlen + rlen * entries);
+		printf ("\n");
+		int i = 0;
+		for (i = 0; i < entries; i++) {
+			uint16_t table = le16(disp_script_tbl_ptr + hlen + i * rlen);
+			if (!table)
+				continue;
+			uint32_t entry = le32(table);
+			uint8_t thlen = bios[table+4];
+			uint8_t configs = bios[table+5];
+			printf ("Subtable %d at %x for %08x:\n", i, table, entry);
+			printhex(table, thlen + configs * 6);
+			printf("\n");
+		}
+		printf("\n");
 	}
 
 	if (condition_tbl_ptr) {
