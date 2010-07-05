@@ -8,8 +8,24 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV03:NVC0">
+<enum name="nv50_mmu_engine" inline="yes">
+	<value value="0" name="PGRAPH"/>
+	<value value="1" name="PVP"/>
+	<value value="4" name="PEEPHOLE"/>
+	<value value="5" name="PFIFO"/>
+	<value value="6" name="BAR"/>
+	<value value="8" name="PPPP"/>
+	<value value="9" name="PBSP"/>
+	<value value="0xa" name="PCRYPT"/>
+	<value value="0xd" name="PVUNK104"/>
+	<value value="0xe" name="UNKE"/>
+</enum>
 
+<array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV03:NVC0">
+	<reg32 offset="0xc80" name="TLB_FLUSH" variants="NV50-">
+		<bitfield high="19" low="16" name="ENGINE" type="nv50_mmu_engine"/>
+		<bitfield high="0" low="0" name="TRIGGER"/>
+	</reg32>
 </array>
 
 <array name="PFFB" offset="0x100000" stride="0x1000" length="1" variants="NVC0-">
