@@ -445,6 +445,7 @@ int main(int argc, char **argv) {
 	}
 	if (dcboffset) {
 		dcbver = bios[dcboffset];
+		uint16_t coff = 4;
 		printf ("DCB %d.%d at %x\n", dcbver >> 4, dcbver&0xf, dcboffset);
 		if (dcbver >= 0x30) {
 			dcbhlen = bios[dcboffset+1];
@@ -460,12 +461,31 @@ int main(int argc, char **argv) {
 			dcbhlen = 4;
 			dcbentries = 16;
 			dcbrlen = 10;
+			coff = 6;
 			i2coffset = le16(dcboffset+2);
 		}
 		printhex(dcboffset, dcbhlen);
+		printf("\n");
 		int i;
-		for (i = 0; i < dcbentries; i++)
-			printhex (dcboffset + dcbhlen + dcbrlen * i, dcbrlen);
+		for (i = 0; i < dcbentries; i++) {
+			uint16_t soff = dcboffset + dcbhlen + dcbrlen * i;
+			uint32_t conn = le32(soff);
+			uint32_t conf = le32(soff + coff);
+			if (dcbver >= 0x20) {
+				int type = conn & 0xf;
+				int i2c = conn >> 4 & 0xf;
+				int heads = conn >> 8 & 0xf;
+				int connector = conn >> 12 & 0xf;
+				int bus = conn >> 16 & 0xf;
+				int loc = conn >> 20 & 3;
+				int or = conn >> 24 & 0xf;
+				char *types[] = { "ANALOG", "TV", "TMDS", "LVDS", "???", "???", "DP", "???",
+							"???", "???", "???", "???", "???", "???", "???", "???" };
+				printf ("Type %x [%s] I2C %d heads %x connector %d bus %d loc %d or %x conf %x\n", type, types[type], i2c, heads, connector, bus, loc, or, conf);
+			}
+			printhex (soff, dcbrlen);
+			printf("\n");
+		}
 		printf ("\n");
 	}
 	if (i2coffset) {
@@ -596,6 +616,7 @@ int main(int argc, char **argv) {
 		uint8_t hlen = bios[disp_script_tbl_ptr+1];
 		uint8_t rlen = bios[disp_script_tbl_ptr+2];
 		uint8_t entries = bios[disp_script_tbl_ptr+3];
+		uint8_t rhlen = bios[disp_script_tbl_ptr+4];
 		printf ("Display script table at %x, version %x:\n", disp_script_tbl_ptr, ver);
 		printhex(disp_script_tbl_ptr, hlen + rlen * entries);
 		printf ("\n");
@@ -605,10 +626,9 @@ int main(int argc, char **argv) {
 			if (!table)
 				continue;
 			uint32_t entry = le32(table);
-			uint8_t thlen = bios[table+4];
 			uint8_t configs = bios[table+5];
 			printf ("Subtable %d at %x for %08x:\n", i, table, entry);
-			printhex(table, thlen + configs * 6);
+			printhex(table, rhlen + configs * 6);
 			printf("\n");
 		}
 		printf("\n");
