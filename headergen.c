@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <time.h>
+#include <ctype.h>
 #include <unistd.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -14,41 +15,64 @@ int stridesmax = 0;
 
 int startcol = 64;
 
-void seekcol (int src, int dst) {
+struct fout {
+	char *name;
+	FILE *file;
+	char *guard;
+};
+
+struct fout *fouts = 0;
+int foutsnum = 0;
+int foutsmax = 0;
+
+void seekcol (FILE *f, int src, int dst) {
 	if (dst <= src)
-		printf ("\t");
+		fprintf (f, "\t");
 	else {
 		int n = dst/8 - src/8;
 		if (n) {
 			while (n--)
-				printf ("\t");
+				fprintf (f, "\t");
 			n = dst&7;
 		} else
 			n = dst-src;
 		while (n--)
-			printf (" ");
+			fprintf (f, " ");
 	}
 }
 
-void printdef (char *name, char *suf, int type, uint64_t val) {
+FILE *findfout (char *file) {
+	int i;
+	for (i = 0; i < foutsnum; i++)
+		if (!strcmp(fouts[i].name, file))
+			break;
+	if (i == foutsnum) {
+		fprintf (stderr, "AIII, didn't open file %s.\n", file);
+		exit(1);
+	}
+	return fouts[i].file;
+}
+
+void printdef (char *name, char *suf, int type, uint64_t val, char *file) {
+	FILE *dst = findfout(file);
 	int len;
 	if (suf)
-		printf ("#define %s__%s%n", name, suf, &len);
+		fprintf (dst, "#define %s__%s%n", name, suf, &len);
 	else
-		printf ("#define %s%n", name, &len);
+		fprintf (dst, "#define %s%n", name, &len);
 	if (type == 0 && val > 0xffffffffull)
-		seekcol (len, startcol-8);
+		seekcol (dst, len, startcol-8);
 	else
-		seekcol (len, startcol);
+		seekcol (dst, len, startcol);
 	switch (type) {
 		case 0:
 			if (val > 0xffffffffull)
-				printf ("0x%016"PRIx64"ULL\n", val);
+				fprintf (dst, "0x%016"PRIx64"ULL\n", val);
 			else
-				printf ("0x%08"PRIx64"\n", val);
+				fprintf (dst, "0x%08"PRIx64"\n", val);
 			break;
 		case 1:
-			printf ("%"PRIu64"\n", val);
+			fprintf (dst, "%"PRIu64"\n", val);
 			break;
 	}
 }
@@ -57,20 +81,20 @@ void printvalue (struct rnnvalue *val, int shift) {
 	if (val->varinfo.dead)
 		return;
 	if (val->valvalid)
-		printdef (val->fullname, 0, 0, val->value << shift);
+		printdef (val->fullname, 0, 0, val->value << shift, val->file);
 }
 
 void printbitfield (struct rnnbitfield *bf, int shift);
 
-void printtypeinfo (struct rnntypeinfo *ti, char *prefix, int shift) {
+void printtypeinfo (struct rnntypeinfo *ti, char *prefix, int shift, char *file) {
 	if (ti->shr)
-		printdef (prefix, "SHR", 1, ti->shr);
+		printdef (prefix, "SHR", 1, ti->shr, file);
 	if (ti->minvalid)
-		printdef (prefix, "MIN", 0, ti->min);
+		printdef (prefix, "MIN", 0, ti->min, file);
 	if (ti->maxvalid)
-		printdef (prefix, "MAX", 0, ti->max);
+		printdef (prefix, "MAX", 0, ti->max, file);
 	if (ti->alignvalid)
-		printdef (prefix, "ALIGN", 0, ti->align);
+		printdef (prefix, "ALIGN", 0, ti->align, file);
 	int i;
 	for (i = 0; i < ti->valsnum; i++)
 		printvalue(ti->vals[i], shift);
@@ -82,12 +106,12 @@ void printbitfield (struct rnnbitfield *bf, int shift) {
 	if (bf->varinfo.dead)
 		return;
 	if (bf->typeinfo.type == RNN_TTYPE_BOOLEAN) {
-		printdef (bf->fullname, 0, 0, bf->mask << shift);
+		printdef (bf->fullname, 0, 0, bf->mask << shift, bf->file);
 	} else {
-		printdef (bf->fullname, "MASK", 0, bf->mask << shift);
-		printdef (bf->fullname, "SHIFT", 1, bf->low + shift);
+		printdef (bf->fullname, "MASK", 0, bf->mask << shift, bf->file);
+		printdef (bf->fullname, "SHIFT", 1, bf->low + shift, bf->file);
 	}
-	printtypeinfo (&bf->typeinfo, bf->fullname, bf->low + shift);
+	printtypeinfo (&bf->typeinfo, bf->fullname, bf->low + shift, bf->file);
 }
 
 void printdelem (struct rnndelem *elem, uint64_t offset) {
@@ -98,32 +122,33 @@ void printdelem (struct rnndelem *elem, uint64_t offset) {
 	if (elem->name) {
 		if (stridesnum) {
 			int len, total;
-			printf ("#define %s(%n", elem->fullname, &total);
+			FILE *dst = findfout(elem->file);
+			fprintf (dst, "#define %s(%n", elem->fullname, &total);
 			int i;
 			for (i = 0; i < stridesnum; i++) {
 				if (i) {
-					printf(", ");
+					fprintf(dst, ", ");
 					total += 2;
 				}
-				printf ("i%d%n", i, &len);
+				fprintf (dst, "i%d%n", i, &len);
 				total += len;
 			}
-			printf (")");
+			fprintf (dst, ")");
 			total++;
-			seekcol (total, startcol-1);
-			printf ("(0x%08"PRIx64"", offset + elem->offset);
+			seekcol (dst, total, startcol-1);
+			fprintf (dst, "(0x%08"PRIx64"", offset + elem->offset);
 			for (i = 0; i < stridesnum; i++)
-				printf (" + %#" PRIx64 "*(i%d)", strides[i], i);
-			printf (")\n");
+				fprintf (dst, " + %#" PRIx64 "*(i%d)", strides[i], i);
+			fprintf (dst, ")\n");
 		} else
-			printdef (elem->fullname, 0, 0, offset + elem->offset);
+			printdef (elem->fullname, 0, 0, offset + elem->offset, elem->file);
 		if (elem->stride)
-			printdef (elem->fullname, "ESIZE", 0, elem->stride);
+			printdef (elem->fullname, "ESIZE", 0, elem->stride, elem->file);
 		if (elem->length != 1)
-			printdef (elem->fullname, "LEN", 0, elem->length);
-		printtypeinfo (&elem->typeinfo, elem->fullname, 0);
+			printdef (elem->fullname, "LEN", 0, elem->length, elem->file);
+		printtypeinfo (&elem->typeinfo, elem->fullname, 0, elem->file);
 	}
-	printf ("\n");
+	fprintf (findfout(elem->file), "\n");
 	int j;
 	for (j = 0; j < elem->subelemsnum; j++) {
 		printdelem(elem->subelems[j], offset + elem->offset);
@@ -131,33 +156,32 @@ void printdelem (struct rnndelem *elem, uint64_t offset) {
 	if (elem->length != 1) stridesnum--;
 }
 
-void print_file_info_(struct stat* sb, struct tm* tm)
+void print_file_info_(FILE *dst, struct stat* sb, struct tm* tm)
 {
 	char timestr[64];
 	strftime(timestr, sizeof(timestr), "%Y-%m-%d %H:%M:%S", tm);
-	printf("(%7Lu bytes, from %s)\n", (unsigned long long)sb->st_size, timestr);
+	fprintf(dst, "(%7Lu bytes, from %s)\n", (unsigned long long)sb->st_size, timestr);
 }
 
-void print_file_info(const char* file)
+void print_file_info(FILE *dst, const char* file)
 {
 	struct stat sb;
 	struct tm tm;
 	stat(file, &sb);
 	gmtime_r(&sb.st_mtime, &tm);
-	print_file_info_(&sb, &tm);
+	print_file_info_(dst, &sb, &tm);
 }
 
-int main(int argc, char **argv) {
-	rnn_init();
-	struct rnndb *db = rnn_newdb();
+void printhead(struct fout f, struct rnndb *db) {
+	int i, j;
 	struct stat sb;
 	struct tm tm;
-	rnn_parsefile (db, argv[1]);
-	rnn_prepdb (db);
-	int i, j;
-	stat(argv[1], &sb);
+	stat(f.name, &sb);
 	gmtime_r(&sb.st_mtime, &tm);
-	printf(
+	fprintf (f.file, "#ifndef %s\n", f.guard);
+	fprintf (f.file, "#define %s\n", f.guard);
+	fprintf (f.file, "\n");
+	fprintf(f.file,
 		"/* Autogenerated file, DO NOT EDIT manually!\n"
 		"\n"
 		"This file was generated by the rules-ng-ng headergen tool in this git repository:\n"
@@ -173,63 +197,87 @@ int main(int argc, char **argv) {
 	}
 	for(i = 0; i < db->filesnum; ++i) {
 		unsigned len = strlen(db->files[i]);
-		printf("- %s%*s ", db->files[i], maxlen - len, "");
-		print_file_info(db->files[i]);
+		fprintf(f.file, "- %s%*s ", db->files[i], maxlen - len, "");
+		print_file_info(f.file, db->files[i]);
 	}
-	printf(
+	fprintf(f.file,
 		"\n"
 		"Copyright (C) ");
 	if(db->copyright.firstyear && db->copyright.firstyear < (1900 + tm.tm_year))
-		printf("%u-", db->copyright.firstyear);
-	printf("%u", 1900 + tm.tm_year);
+		fprintf(f.file, "%u-", db->copyright.firstyear);
+	fprintf(f.file, "%u", 1900 + tm.tm_year);
 	if(db->copyright.authorsnum) {
-		printf(" by the following authors:");
+		fprintf(f.file, " by the following authors:");
 		for(i = 0; i < db->copyright.authorsnum; ++i) {
-			printf("\n- ");
+			fprintf(f.file, "\n- ");
 			if(db->copyright.authors[i]->name)
-				printf("%s", db->copyright.authors[i]->name);
+				fprintf(f.file, "%s", db->copyright.authors[i]->name);
 			if(db->copyright.authors[i]->email)
-				printf(" <%s>", db->copyright.authors[i]->email);
+				fprintf(f.file, " <%s>", db->copyright.authors[i]->email);
 			if(db->copyright.authors[i]->nicknamesnum) {
 				for(j = 0; j < db->copyright.authors[i]->nicknamesnum; ++j) {
-					printf("%s%s", (j ? ", " : " ("), db->copyright.authors[i]->nicknames[j]);
+					fprintf(f.file, "%s%s", (j ? ", " : " ("), db->copyright.authors[i]->nicknames[j]);
 				}
-				printf(")");
+				fprintf(f.file, ")");
 			}
 		}
 	}
-	printf("\n");
+	fprintf(f.file, "\n");
 	if(db->copyright.license)
-		printf("\n%s\n", db->copyright.license);
-	printf("*/\n\n\n");
+		fprintf(f.file, "\n%s\n", db->copyright.license);
+	fprintf(f.file, "*/\n\n\n");
+}
+
+int main(int argc, char **argv) {
+	rnn_init();
+	struct rnndb *db = rnn_newdb();
+	int i, j;
+	rnn_parsefile (db, argv[1]);
+	rnn_prepdb (db);
+	for(i = 0; i < db->filesnum; ++i) {
+		char *dstname = malloc(strlen(db->files[i]) + 2);
+		strcpy(dstname, db->files[i]);
+		strcat(dstname, ".h");
+		struct fout f = { db->files[i], fopen(dstname, "w") };
+		if (!f.file) {
+			perror(dstname);
+			exit(1);
+		}
+		free(dstname);
+		f.guard = strdup(f.name);
+		for (j = 0; j < strlen(f.guard); j++)
+			if (isalnum(f.guard[j]))
+				f.guard[j] = toupper(f.guard[j]);
+			else
+				f.guard[j] = '_';
+		RNN_ADDARRAY(fouts, f);
+		printhead(f, db);
+	}
 
 	for (i = 0; i < db->enumsnum; i++) {
 		if (db->enums[i]->isinline)
 			continue;
-		printf ("/* enum %s */\n", db->enums[i]->fullname);
 		int j;
 		for (j = 0; j < db->enums[i]->valsnum; j++)
 			printvalue (db->enums[i]->vals[j], 0);
-		printf ("\n");
 	}
 	for (i = 0; i < db->bitsetsnum; i++) {
 		if (db->bitsets[i]->isinline)
 			continue;
-		printf ("/* bitset %s */\n", db->bitsets[i]->fullname);
 		int j;
 		for (j = 0; j < db->bitsets[i]->bitfieldsnum; j++)
 			printbitfield (db->bitsets[i]->bitfields[j], 0);
-		printf ("\n");
 	}
 	for (i = 0; i < db->domainsnum; i++) {
-		printf ("/* domain %s of width %d */\n", db->domains[i]->fullname, db->domains[i]->width);
 		if (db->domains[i]->size)
-			printdef (db->domains[i]->fullname, "SIZE", 0, db->domains[i]->size);
+			printdef (db->domains[i]->fullname, "SIZE", 0, db->domains[i]->size, db->domains[i]->file);
 		int j;
 		for (j = 0; j < db->domains[i]->subelemsnum; j++) {
 			printdelem(db->domains[i]->subelems[j], 0);
 		}
-		printf ("\n");
+	}
+	for(i = 0; i < foutsnum; ++i) {
+		fprintf (fouts[i].file, "\n#endif /* %s */\n", fouts[i].guard);
 	}
 	return db->estatus;
 }

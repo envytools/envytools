@@ -72,6 +72,7 @@ struct rnnenum {
 	int valsmax;
 	char *fullname;
 	int prepared;
+	char *file;
 };
 
 struct rnnvalue {
@@ -80,6 +81,7 @@ struct rnnvalue {
 	uint64_t value;
 	struct rnnvarinfo varinfo;
 	char *fullname;
+	char *file;
 };
 
 struct rnntypeinfo {
@@ -119,6 +121,7 @@ struct rnnbitset {
 	int bitfieldsnum;
 	int bitfieldsmax;
 	char *fullname;
+	char *file;
 };
 
 struct rnnbitfield {
@@ -128,6 +131,7 @@ struct rnnbitfield {
 	struct rnnvarinfo varinfo;
 	struct rnntypeinfo typeinfo;
 	char *fullname;
+	char *file;
 };
 
 struct rnndomain {
@@ -141,6 +145,7 @@ struct rnndomain {
 	int subelemsnum;
 	int subelemsmax;
 	char *fullname;
+	char *file;
 };
 
 struct rnngroup {
@@ -173,11 +178,13 @@ struct rnndelem {
 	struct rnnvarinfo varinfo;
 	struct rnntypeinfo typeinfo;
 	char *fullname;
+	char *file;
 };
 
 struct rnnspectype {
 	char *name;
 	struct rnntypeinfo typeinfo;
+	char *file;
 };
 
 void rnn_init();

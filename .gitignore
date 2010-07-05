@@ -6,3 +6,4 @@ lookup
 expand
 demmio
 nvbios
+*.xml.h

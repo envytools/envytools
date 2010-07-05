@@ -12,8 +12,8 @@ lookup: lookup.c rnn.c rnn.h rnndec.c rnndec.h
 demmio: demmio.c rnn.c rnn.h rnndec.c rnndec.h
 	gcc -o demmio demmio.c rnn.c rnndec.c -lxml2 -I/usr/include/libxml2 -g -Wall -Wno-pointer-sign
 
-nv50_texture.h: nv50_texture.xml headergen
-	./headergen nv50_texture.xml > nv50_texture.h
+nv50_texture.xml.h: nv50_texture.xml headergen
+	./headergen nv50_texture.xml
 
 nvbios: nvbios.c
 	gcc nvbios.c -o nvbios -Wall

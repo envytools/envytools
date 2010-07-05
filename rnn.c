@@ -158,6 +158,7 @@ static int trytypeattr (struct rnndb *db, char *file, xmlNode *node, xmlAttr *at
 
 static struct rnnvalue *parsevalue(struct rnndb *db, char *file, xmlNode *node) {
 	struct rnnvalue *val = calloc(sizeof *val, 1);
+	val->file = file;
 	xmlAttr *attr = node->properties;
 	while (attr) {
 		if (!strcmp(attr->name, "name")) {
@@ -195,6 +196,7 @@ static struct rnnvalue *parsevalue(struct rnndb *db, char *file, xmlNode *node) 
 
 static void parsespectype(struct rnndb *db, char *file, xmlNode *node) {
 	struct rnnspectype *res = calloc (sizeof *res, 1);
+	res->file = file;
 	xmlAttr *attr = node->properties;
 	int i;
 	while (attr) {
@@ -284,6 +286,7 @@ static void parseenum(struct rnndb *db, char *file, xmlNode *node) {
 		cur->varinfo.prefixstr = prefixstr;
 		cur->varinfo.varsetstr = varsetstr;
 		cur->varinfo.variantsstr = variantsstr;
+		cur->file = file;
 		RNN_ADDARRAY(db->enums, cur);
 	}
 	xmlNode *chain = node->children;
@@ -303,6 +306,7 @@ static void parseenum(struct rnndb *db, char *file, xmlNode *node) {
 
 static struct rnnbitfield *parsebitfield(struct rnndb *db, char *file, xmlNode *node) {
 	struct rnnbitfield *bf = calloc(sizeof *bf, 1);
+	bf->file = file;
 	xmlAttr *attr = node->properties;
 	int highok = 0, lowok = 0;
 	while (attr) {
@@ -401,6 +405,7 @@ static void parsebitset(struct rnndb *db, char *file, xmlNode *node) {
 		cur->varinfo.prefixstr = prefixstr;
 		cur->varinfo.varsetstr = varsetstr;
 		cur->varinfo.variantsstr = variantsstr;
+		cur->file = file;
 		RNN_ADDARRAY(db->bitsets, cur);
 	}
 	xmlNode *chain = node->children;
@@ -421,6 +426,7 @@ static void parsebitset(struct rnndb *db, char *file, xmlNode *node) {
 static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 	if (!strcmp(node->name, "use-group")) {
 		struct rnndelem *res = calloc(sizeof *res, 1);
+		res->file = file;
 		res->type = RNN_ETYPE_USE_GROUP;
 		xmlAttr *attr = node->properties;
 		while (attr) {
@@ -442,6 +448,7 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 		struct rnndelem *res = calloc(sizeof *res, 1);
 		res->type = (strcmp(node->name, "stripe")?RNN_ETYPE_ARRAY:RNN_ETYPE_STRIPE);
 		res->length = 1;
+		res->file = file;
 		xmlAttr *attr = node->properties;
 		while (attr) {
 			if (!strcmp(attr->name, "name")) {
@@ -491,6 +498,7 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 	else
 		return 0;
 	struct rnndelem *res = calloc(sizeof *res, 1);
+	res->file = file;
 	res->type = RNN_ETYPE_REG;
 	res->width = width;
 	res->length = 1;
@@ -649,6 +657,7 @@ static void parsedomain(struct rnndb *db, char *file, xmlNode *node) {
 		cur->varinfo.prefixstr = prefixstr;
 		cur->varinfo.varsetstr = varsetstr;
 		cur->varinfo.variantsstr = variantsstr;
+		cur->file = file;
 		RNN_ADDARRAY(db->domains, cur);
 	}
 	xmlNode *chain = node->children;
@@ -787,7 +796,8 @@ void rnn_parsefile (struct rnndb *db, char *file) {
 	for (i = 0; i < db->filesnum; i++)
 		if (!strcmp(db->files[i], file))
 			return;
-	RNN_ADDARRAY(db->files, strdup(file));
+	file = strdup(file);
+	RNN_ADDARRAY(db->files, file);
 	xmlDocPtr doc = xmlParseFile(file);
 	if (!doc) {
 		fprintf (stderr, "%s: couldn't open database file\n", file);
@@ -816,19 +826,20 @@ void rnn_parsefile (struct rnndb *db, char *file) {
 	xmlFreeDoc(doc);
 }
 
-static struct rnnvalue *copyvalue (struct rnnvalue *val) {
+static struct rnnvalue *copyvalue (struct rnnvalue *val, char *file) {
 	struct rnnvalue *res = calloc (sizeof *res, 1);
 	res->name = val->name;
 	res->valvalid = val->valvalid;
 	res->value = val->value;
 	res->varinfo = val->varinfo;
+	res->file = file;
 	return res;
 }
 
-static struct rnnbitfield *copybitfield (struct rnnbitfield *bf);
+static struct rnnbitfield *copybitfield (struct rnnbitfield *bf, char *file);
 
 
-static void copytypeinfo (struct rnntypeinfo *dst, struct rnntypeinfo *src) {
+static void copytypeinfo (struct rnntypeinfo *dst, struct rnntypeinfo *src, char *file) {
 	int i;
 	dst->name = src->name;
 	dst->shr = src->shr;
@@ -836,22 +847,23 @@ static void copytypeinfo (struct rnntypeinfo *dst, struct rnntypeinfo *src) {
 	dst->max = src->max;
 	dst->align = src->align;
 	for (i = 0; i < src->valsnum; i++)
-		RNN_ADDARRAY(dst->vals, copyvalue(src->vals[i]));
+		RNN_ADDARRAY(dst->vals, copyvalue(src->vals[i], file));
 	for (i = 0; i < src->bitfieldsnum; i++)
-		RNN_ADDARRAY(dst->bitfields, copybitfield(src->bitfields[i]));
+		RNN_ADDARRAY(dst->bitfields, copybitfield(src->bitfields[i], file));
 }
 
-static struct rnnbitfield *copybitfield (struct rnnbitfield *bf) {
+static struct rnnbitfield *copybitfield (struct rnnbitfield *bf, char *file) {
 	struct rnnbitfield *res = calloc (sizeof *res, 1);
 	res->name = bf->name;
 	res->low = bf->low;
 	res->high = bf->high;
 	res->varinfo = bf->varinfo;
-	copytypeinfo(&res->typeinfo, &bf->typeinfo);
+	res->file = file;
+	copytypeinfo(&res->typeinfo, &bf->typeinfo, file);
 	return res;
 }
 
-static struct rnndelem *copydelem (struct rnndelem *elem) {
+static struct rnndelem *copydelem (struct rnndelem *elem, char *file) {
 	struct rnndelem *res = calloc (sizeof *res, 1);
 	res->type = elem->type;
 	res->name = elem->name;
@@ -861,10 +873,11 @@ static struct rnndelem *copydelem (struct rnndelem *elem) {
 	res->length = elem->length;
 	res->stride = elem->stride;
 	res->varinfo = elem->varinfo;
-	copytypeinfo(&res->typeinfo, &elem->typeinfo);
+	res->file = file;
+	copytypeinfo(&res->typeinfo, &elem->typeinfo, file);
 	int i;
 	for (i = 0; i < elem->subelemsnum; i++)
-		RNN_ADDARRAY(res->subelems, copydelem(elem->subelems[i]));
+		RNN_ADDARRAY(res->subelems, copydelem(elem->subelems[i], file));
 	return res;
 }
 
@@ -1008,7 +1021,7 @@ static void prepvalue(struct rnndb *db, struct rnnvalue *val, char *prefix, stru
 
 static void prepbitfield(struct rnndb *db, struct rnnbitfield *bf, char *prefix, struct rnnvarinfo *parvi);
 
-static void preptypeinfo(struct rnndb *db, struct rnntypeinfo *ti, char *prefix, struct rnnvarinfo *vi, int width) {
+static void preptypeinfo(struct rnndb *db, struct rnntypeinfo *ti, char *prefix, struct rnnvarinfo *vi, int width, char *file) {
 	int i;
 	if (ti->name) {
 		struct rnnenum *en = rnn_findenum (db, ti->name);
@@ -1019,7 +1032,7 @@ static void preptypeinfo(struct rnndb *db, struct rnntypeinfo *ti, char *prefix,
 				ti->type = RNN_TTYPE_INLINE_ENUM;
 				int j;
 				for (j = 0; j < en->valsnum; j++)
-					RNN_ADDARRAY(ti->vals, copyvalue(en->vals[j]));
+					RNN_ADDARRAY(ti->vals, copyvalue(en->vals[j], file));
 			} else {
 				ti->type = RNN_TTYPE_ENUM;
 				ti->eenum = en;
@@ -1029,7 +1042,7 @@ static void preptypeinfo(struct rnndb *db, struct rnntypeinfo *ti, char *prefix,
 				ti->type = RNN_TTYPE_INLINE_BITSET;
 				int j;
 				for (j = 0; j < bs->bitfieldsnum; j++)
-					RNN_ADDARRAY(ti->bitfields, copybitfield(bs->bitfields[j]));
+					RNN_ADDARRAY(ti->bitfields, copybitfield(bs->bitfields[j], file));
 			} else {
 				ti->type = RNN_TTYPE_BITSET;
 				ti->ebitset = bs;
@@ -1084,7 +1097,7 @@ static void prepbitfield(struct rnndb *db, struct rnnbitfield *bf, char *prefix,
 		bf->mask = - (1ULL<<bf->low);
 	else
 		bf->mask = (1ULL<<(bf->high+1)) - (1ULL<<bf->low);
-	preptypeinfo(db, &bf->typeinfo, bf->fullname, &bf->varinfo, bf->high - bf->low + 1);
+	preptypeinfo(db, &bf->typeinfo, bf->fullname, &bf->varinfo, bf->high - bf->low + 1, bf->file);
 	if (bf->varinfo.prefix)
 		bf->fullname = catstr(bf->varinfo.prefix, bf->fullname);
 }
@@ -1100,7 +1113,7 @@ static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix, str
 			}
 		if (gr) {
 			for (i = 0; i < gr->subelemsnum; i++)
-				RNN_ADDARRAY(elem->subelems, copydelem(gr->subelems[i]));
+				RNN_ADDARRAY(elem->subelems, copydelem(gr->subelems[i], elem->file));
 		} else {
 			fprintf (stderr, "group %s not found!\n", elem->name);
 			db->estatus = 1;
@@ -1122,7 +1135,7 @@ static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix, str
 			elem->stride = elem->width/width;
 		}
 	}
-	preptypeinfo(db, &elem->typeinfo, elem->name?elem->fullname:prefix, &elem->varinfo, elem->width);
+	preptypeinfo(db, &elem->typeinfo, elem->name?elem->fullname:prefix, &elem->varinfo, elem->width, elem->file);
 
 	int i;
 	for (i = 0; i < elem->subelemsnum; i++)
@@ -1163,7 +1176,7 @@ static void prepbitset(struct rnndb *db, struct rnnbitset *bs) {
 }
 
 static void prepspectype(struct rnndb *db, struct rnnspectype *st) {
-	preptypeinfo(db, &st->typeinfo, st->name, 0, 32); // XXX doesn't exactly make sense...
+	preptypeinfo(db, &st->typeinfo, st->name, 0, 32, st->file); // XXX doesn't exactly make sense...
 }
 
 void rnn_prepdb (struct rnndb *db) {
