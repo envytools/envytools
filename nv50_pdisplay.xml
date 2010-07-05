@@ -5,8 +5,15 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
+<import file="nv_vga.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
+	<array name="PRMIO" offset="0x00601000" stride="0x1000" length="1" variants="NV50-">
+		<!-- as opposed to earlier cards, NV50+ keep all the legacy regs in one place. -->
+		<use-group name="nv_vga_vio"/>
+		<use-group name="nv_vga_cio"/>
+		<use-group name="nv_vga_dio"/>
+	</array>
 	<array name="PDISPLAY" offset="0x00610000" stride="0x10000" length="1" variants="NV50-">
 		
 		<reg32 offset="0x0010" name="OBJECTS"/>
