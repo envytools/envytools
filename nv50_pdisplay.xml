@@ -189,7 +189,7 @@
 			<reg32 name="CLK_CTRL2" offset="0x300"/>
 		</stripe>
 
-		<array offset="0x9000" name="VGA" stride="1" length="0x1000">
+		<array offset="0x9000" name="VGA" stride="0x1000" length="1">
 			<reg8 offset="0x000" name="MISC"/>
 			<reg8 offset="0x004" name="INP0"/>
 			<reg8 offset="0x008" name="INP1"/>
