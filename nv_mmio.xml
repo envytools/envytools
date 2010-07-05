@@ -274,8 +274,8 @@
 
 <!-- 00f000 - 00ffff PVP covered in nv17_pvpe.xml -->
 
-<!-- 020000 - 020fff PTEMP -->
-<import file="nv50_ptemp.xml" />
+<!-- 020000 - 020fff PTHERM -->
+<import file="nv50_ptherm.xml" />
 
 <!-- 021000 - 021fff ??? -->
 
