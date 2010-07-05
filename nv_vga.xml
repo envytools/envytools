@@ -10,14 +10,39 @@
 
 	<reg8 offset="0xa0000" name="PRM" length="0x20000" variants="NV03-" />
 
-	<array offset="0x601000" name="PRMCIO" stride="0x1000" length="0x1" variants="NV03-">
-		<reg8 offset="0x3c0" name="VGA_3C0"/>
-		<reg8 offset="0x3c1" name="VGA_3C1"/>
-		<reg8 offset="0x3c2" name="VGA_3C2"/>
-		<reg8 offset="0x3d4" name="VGA_3D4"/>
-		<reg8 offset="0x3d5" name="VGA_3D5"/>
-		<reg8 offset="0x3da" name="VGA_3DA"/>
-	</array>
+	<group name="nv_vga_vio">
+		<reg8 offset="0x3c2" name="MISC_W" access="w"/>
+		<reg8 offset="0x3c3" name="VSE2"/>
+		<reg8 offset="0x3c4" name="SRX"/>
+		<reg8 offset="0x3c5" name="SR"/>
+		<reg8 offset="0x3cc" name="MISC_R" access="r"/>
+		<reg8 offset="0x3ce" name="GRX"/>
+		<reg8 offset="0x3cf" name="GX"/>
+	</group>
+
+	<group name="nv_vga_cio">
+		<reg8 offset="0x3b4" name="CRX_MONO"/>
+		<reg8 offset="0x3b5" name="CR_MONO"/>
+		<reg8 offset="0x3ba" name="FC_MONO" access="w"/>
+		<reg8 offset="0x3ba" name="INP1_MONO" access="r"/>
+		<reg8 offset="0x3c0" name="ARX"/>
+		<reg8 offset="0x3c1" name="AR_R"/>
+		<reg8 offset="0x3c2" name="INP0" access="r"/>
+		<reg8 offset="0x3ca" name="FC" access="r"/>
+		<reg8 offset="0x3d4" name="CRX"/>
+		<reg8 offset="0x3d5" name="CR"/>
+		<reg8 offset="0x3da" name="FC" access="w"/>
+		<reg8 offset="0x3da" name="INP1" access="r"/>
+	</group>
+
+	<group name="nv_vga_dio">
+		<reg8 offset="0x3c6" name="PAL_MASK"/>
+		<reg8 offset="0x3c7" name="PAL_MODE" access="r"/>
+		<reg8 offset="0x3c7" name="PAL_RD_INDEX" access="w"/>
+		<reg8 offset="0x3c8" name="PAL_INDEX" access="r"/>
+		<reg8 offset="0x3c8" name="PAL_WR_INDEX" access="w"/>
+		<reg8 offset="0x3c9" name="PAL_DATA"/>
+	</group>
 
 </domain>
 
