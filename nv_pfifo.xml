@@ -785,10 +785,11 @@
 				<bitfield pos="20" name="SEMAPHORE_ERROR" variants="NV11-">
 					<value value="0" name="NONE"/>
 					<!-- XXX: figure out wtf they mean. Doesn't seem to be consistent. -->
-					<value value="1" name="BAD_ARGUMENT"/>
+					<value value="1" name="INVALID_OPERAND" variants="NV11:NV50"/>
+					<value value="1" name="OFFSET_UNALIGNED" variants="NV50-"/>
 					<value value="2" name="INVALID_STATE"/>
-					<value value="3" name="UNK3" variants="NV50"/>
-					<value value="4" name="PROTECTION" variants="NV50"/>
+					<value value="3" name="OFFSET_TOO_LARGE" variants="NV50-"/>
+					<value value="4" name="PROTECTION" variants="NV50-"/>
 				</bitfield>
 				<bitfield high="31" low="28" name="STATUS" variants="NV50-">
 					<!-- XXX: figure this out -->
