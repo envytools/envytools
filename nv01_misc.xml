@@ -10,7 +10,7 @@
 
 	<stripe offset="0x100000" name="PDMA" stride="0x1000" length="1" variants="NV01">
 		<reg32 offset="0x810" name="GR_CHANNEL">
-			<bitfield high="0" low="0" name="ACCESS">
+			<bitfield pos="0" name="ACCESS">
 				<value value="0" name="DISABLED"/>
 				<value value="1" name="ENABLED"/>
 			</bitfield>
@@ -43,18 +43,18 @@
 				<value value="2" name="POSITIVE"/>
 				<value value="3" name="NEGATIVE"/>
 			</bitfield>
-			<bitfield high="24" low="24" name="POLAR_CSYNC">
+			<bitfield pos="24" name="POLAR_CSYNC">
 				<value value="0" name="DISABLED"/>
 				<value value="1" name="ENABLED"/>
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x200" name="CONFIG_0">
-			<bitfield high="0" low="0" name="VERTICAL">
+			<bitfield pos="0" name="VERTICAL">
 				<brief>1 during blank</brief>
 			</bitfield>
 			<bitfield high="6" low="4" name="RESOLUTION"/>
 			<bitfield high="9" low="8" name="PIXEL_DEPTH"/>
-			<bitfield high="20" low="20" name="SCANLINE"/>
+			<bitfield pos="20" name="SCANLINE"/>
 			<bitfield high="26" low="24" name="PCLK_VCLK_RATIO"/>
 		</reg32>
 		<reg32 offset="0x400" name="START"/>
@@ -81,7 +81,7 @@
 		<reg32 offset="0x600" name="PHYSICAL">
 			<bitfield high="15" low="0" name="INSTANCE"/>
 			<bitfield high="22" low="16" name="DEVICE"/>
-			<bitfield high="24" low="24" name="FREE_LIE"/>
+			<bitfield pos="24" name="FREE_LIE"/>
 		</reg32>
 	</stripe>
 
@@ -109,15 +109,15 @@
 			<reg8 offset="0x4" name="CONF_0">
 				<bitfield high="1" low="0" name="VISUAL_DEPTH"/>
 				<bitfield high="3" low="2" name="PORT_WIDTH"/>
-				<bitfield high="4" low="4" name="VGA_STATE"/>
-				<bitfield high="5" low="5" name="IDC_MODE"/>
+				<bitfield pos="4" name="VGA_STATE"/>
+				<bitfield pos="5" name="IDC_MODE"/>
 			</reg8>
 			<reg8 offset="0x5" name="CONF_1">
 				<bitfield high="2" low="0" name="PCLK_VCLK_RATIO"/>
-				<bitfield high="3" low="3" name="VCLK_IMPEDANCE"/>
+				<bitfield pos="3" name="VCLK_IMPEDANCE"/>
 			</reg8>
 			<reg8 offset="0x9" name="RGB_PAL_CTRL">
-				<bitfield high="7" low="7" name="DAC_WIDTH">
+				<bitfield pos="7" name="DAC_WIDTH">
 					<value value="0" name="BITS_8"/>
 					<value value="1" name="BITS_6"/>
 				</bitfield>
@@ -164,8 +164,8 @@
 
 	<stripe offset="0x6c0000" name="PRM" stride="0x8000" length="1" variants="NV01">
 		<reg32 offset="0x200" name="CONFIG_0">
-			<bitfield high="0" low="0" name="TEXT"/>
-			<bitfield high="4" low="4" name="DAC_WIDTH">
+			<bitfield pos="0" name="TEXT"/>
+			<bitfield pos="4" name="DAC_WIDTH">
 				<value value="0" name="BITS_8"/>
 				<value value="1" name="BITS_6"/>
 			</bitfield>

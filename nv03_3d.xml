@@ -44,14 +44,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="WRAP_V" high="7" low="6" type="int"/>
 			<bitfield name="SOURCE_COLOR" high="11" low="8" type="int"/>
 			<bitfield name="CULLING" high="14" low="12" type="int"/>
-			<bitfield name="Z_PERSPECTIVE_ENABLE" high="15" low="15" type="boolean"/>
+			<bitfield name="Z_PERSPECTIVE_ENABLE" pos="15" type="boolean"/>
 			<bitfield name="Z_FUNC" high="19" low="16" type="int"/>
 			<bitfield name="Z_WRITE_ENABLE" high="23" low="20" type="int"/>
 			<bitfield name="COLOR_WRITE_ENABLE" high="26" low="24" type="int"/>
 			<bitfield name="ROP" high="28" low="27" type="int"/>
-			<bitfield name="BETA" high="29" low="29" type="int"/>
-			<bitfield name="DST_BLEND" high="30" low="30" type="int"/>
-			<bitfield name="SRC_BLEND" high="31" low="31" type="int"/>
+			<bitfield name="BETA" pos="29" type="int"/>
+			<bitfield name="DST_BLEND" pos="30" type="int"/>
+			<bitfield name="SRC_BLEND" pos="31" type="int"/>
 		</reg32>
 		<reg32 offset="0x0318" name="ALPHA_CONTROL">
 			<bitfield name="ALPHA_REF" high="7" low="0" type="int"/>

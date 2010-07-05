@@ -24,7 +24,7 @@
 <array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV03:NVC0">
 	<reg32 offset="0xc80" name="TLB_FLUSH" variants="NV50-">
 		<bitfield high="19" low="16" name="ENGINE" type="nv50_mmu_engine"/>
-		<bitfield high="0" low="0" name="TRIGGER"/>
+		<bitfield pos="0" name="TRIGGER"/>
 	</reg32>
 </array>
 

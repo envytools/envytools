@@ -91,9 +91,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <bitset name="NV04_GROBJ_1">
 	<bitfield high="7" low="0" name="GRCLASS" />
-	<bitfield high="12" low="12" name="CHROMA_KEY" />
-	<bitfield high="13" low="13" name="USER_CLIP" />
-	<bitfield high="14" low="14" name="SWIZZLE" />
+	<bitfield pos="12" name="CHROMA_KEY" />
+	<bitfield pos="13" name="USER_CLIP" />
+	<bitfield pos="14" name="SWIZZLE" />
 	<bitfield high="17" low="15" name="PATCH_CONFIG" type="nv03_operation" />
 	<!-- ... -->
 </bitset>
@@ -104,10 +104,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 </bitset>
 
 <bitset name="nv50_vic" inline="yes">
-	<bitfield high="0" low="0" name="X"/>
-	<bitfield high="1" low="1" name="Y"/>
-	<bitfield high="2" low="2" name="Z"/>
-	<bitfield high="3" low="3" name="W"/>
+	<bitfield pos="0" name="X"/>
+	<bitfield pos="1" name="Y"/>
+	<bitfield pos="2" name="Z"/>
+	<bitfield pos="3" name="W"/>
 </bitset>
 
 <domain name="EXAMPLE3" bare="yes" prefix="chipset">

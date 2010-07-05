@@ -18,26 +18,26 @@
 			Typically vblank is done before any clock related bits.
 			</doc>
 			<bitfield name="CRTCn" high="3" low="2" />
-			<bitfield name="CRTC0" high="2" low="2" />
-			<bitfield name="CRTC1" high="3" low="3" />
+			<bitfield name="CRTC0" pos="2" />
+			<bitfield name="CRTC1" pos="3" />
 			<bitfield name="CLK_MASK" high="6" low="4">
 				<doc>
 				There are 3 possible states, which represent the kernel side of setting a mode. The 2nd one is setting the clock.
 				The rest seem to be mostly reading back some state and i don't fully understand what is needed there.
 				</doc>
 			</bitfield>
-			<bitfield name="CLK_UPDATE" high="5" low="5" />
+			<bitfield name="CLK_UPDATE" pos="5" />
 		</reg32>
 
 		<reg32 name="SUPERVISOR_INTR" offset="0x2C">
 			<doc>
 			This matches SUPERVISOR quite well, i'm not a 100% sure it's a 1:1 translation.
 			</doc>
-			<bitfield name="VBLANK_CRTC0" high="2" low="2" />
-			<bitfield name="VBLANK_CRTC1" high="3" low="3" />
-			<bitfield name="UNK1" high="4" low="4" />
-			<bitfield name="CLK_UPDATE" high="5" low="5" />
-			<bitfield name="UNK4" high="6" low="6" />
+			<bitfield name="VBLANK_CRTC0" pos="2" />
+			<bitfield name="VBLANK_CRTC1" pos="3" />
+			<bitfield name="UNK1" pos="4" />
+			<bitfield name="CLK_UPDATE" pos="5" />
+			<bitfield name="UNK4" pos="6" />
 		</reg32>
 
 		<reg32 name="UNK30_CTRL" offset="0x30">
@@ -45,18 +45,18 @@
 			Please remember that it's essential to always ack a request for clock change, even when no clock change is needed.
 			Otherwise you get a nice lockup.
 			</doc>
-			<bitfield name="UPDATE_VCLK0" high="9" low="9"/>
-			<bitfield name="UPDATE_VCLK1" high="10" low="10"/>
-			<bitfield name="PENDING" high="31" low="31"/>
+			<bitfield name="UPDATE_VCLK0" pos="9"/>
+			<bitfield name="UPDATE_VCLK1" pos="10"/>
+			<bitfield name="PENDING" pos="31"/>
 		</reg32>
 
 		<reg32 name="UNK50_CTRL" offset="0x50">
 			<doc>
 			One of the many ways to see if a crtc is active, maybe this still holds it's value during modesetting. I'm unsure.
 			</doc>
-			<bitfield name="CRTC0_ACTIVE" high="1" low="1"/>
+			<bitfield name="CRTC0_ACTIVE" pos="1"/>
 			<bitfield name="CRTC0_ACTIVE_MASK" high="1" low="0"/>
-			<bitfield name="CRTC1_ACTIVE" high="9" low="9"/>
+			<bitfield name="CRTC1_ACTIVE" pos="9"/>
 			<bitfield name="CRTC1_ACTIVE_MASK" high="9" low="8"/>
 		</reg32>
 
@@ -68,15 +68,15 @@
 
 		<array name="CURSOR" offset="0x270" stride="0x10" length="2">
 			<reg32 name="CURSOR_CTRL2" offset="0x0">
-				<bitfield name="ON" high="0" low="0"/>
+				<bitfield name="ON" pos="0"/>
 				<bitfield name="STATUS_MASK" high="17" low="16"/>
-				<bitfield name="STATUS_ACTIVE" high="16" low="16"/>
+				<bitfield name="STATUS_ACTIVE" pos="16"/>
 			</reg32>
 		</array>
 
 		<reg32 name="CTRL_STATE" offset="0x300">
 			<bitfield name="METHOD" high="11" low="0"/>
-			<bitfield name="PENDING" high="31" low="31"/>
+			<bitfield name="PENDING" pos="31"/>
 		</reg32>
 
 		<reg32 name="CTRL_VAL" offset="0x304"/>
@@ -119,7 +119,7 @@
 					<doc>
 					This linear fb bit is a guess, not a 100% sure.
 					</doc>
-					<bitfield name="LINEAR_FB" high="20" low="20"/>
+					<bitfield name="LINEAR_FB" pos="20"/>
 				</reg32>
 				<reg32 name="FB_POS" offset="0x128"/>
 				<reg32 name="SCALE_CENTER_OFFSET" offset="0x138"/>
@@ -167,16 +167,16 @@
 
 		<array name="DAC_REGS" offset="0xA000" stride="0x800" length="3">
 			<reg32 name="DPMS_CTRL" offset="0x4">
-				<bitfield name="HSYNC_OFF" high="0" low="0"/>
-				<bitfield name="VSYNC_OFF" high="2" low="2"/>
-				<bitfield name="BLANKED" high="4" low="4"/>
-				<bitfield name="OFF" high="6" low="6"/>
-				<bitfield name="PENDING" high="31" low="31"/>
+				<bitfield name="HSYNC_OFF" pos="0"/>
+				<bitfield name="VSYNC_OFF" pos="2"/>
+				<bitfield name="BLANKED" pos="4"/>
+				<bitfield name="OFF" pos="6"/>
+				<bitfield name="PENDING" pos="31"/>
 			</reg32>
 			<reg32 name="LOAD_CTRL" offset="0xC">
-				<bitfield name="ACTIVE" high="20" low="20"/>
+				<bitfield name="ACTIVE" pos="20"/>
 				<bitfield name="PRESENT" high="29" low="27"/>
-				<bitfield name="DONE" high="31" low="31">
+				<bitfield name="DONE" pos="31">
 					<doc>
 					You have to wait for this before proceeding.
 					Load detect is very fast though, so i'm not entirely sure.
@@ -190,8 +190,8 @@
 
 		<array name="SOR_REGS" offset="0xC000" stride="0x800" length="3">
 			<reg32 name="DPMS_CTRL" offset="0x4">
-				<bitfield name="ON" high="0" low="0"/>
-				<bitfield name="PENDING" high="31" low="31"/>
+				<bitfield name="ON" pos="0"/>
+				<bitfield name="PENDING" pos="31"/>
 			</reg32>
 			<reg32 name="CLK_CTRL1" offset="0x8">
 				<bitfield name="CONNECTED" high="10" low="9"/>
@@ -205,8 +205,8 @@
 				These values only relate to the SOR's and are not meant for writing.
 				</doc>
 				<bitfield name="ACTIVE" high="17" low="16"/>
-				<bitfield name="BLANKED" high="19" low="19"/>
-				<bitfield name="WAIT" high="28" low="28"/>
+				<bitfield name="BLANKED" pos="19"/>
+				<bitfield name="WAIT" pos="28"/>
 			</reg32>
 		</array>
 

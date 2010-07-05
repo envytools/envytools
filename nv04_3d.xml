@@ -108,8 +108,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0300" name="COLORKEY"/>
 		<reg32 offset="0x0304" name="OFFSET"/>
 		<reg32 offset="0x0308" name="FORMAT">
-			<bitfield name="DMA_A" high="0" low="0" type="boolean"/>
-			<bitfield name="DMA_B" high="1" low="1" type="boolean"/>
+			<bitfield name="DMA_A" pos="0" type="boolean"/>
+			<bitfield name="DMA_B" pos="1" type="boolean"/>
 			<bitfield name="COLOR_KEY_MATCH" high="3" low="2" type="int"/>
 			<bitfield name="ORIGIN_ZOH" high="5" low="4" type="nv04_tex_origin"/>
 			<bitfield name="ORIGIN_FOH" high="7" low="6" type="nv04_tex_origin"/>
@@ -118,42 +118,42 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="BASE_SIZE_U" high="19" low="16" type="int"/>
 			<bitfield name="BASE_SIZE_V" high="23" low="20" type="int"/>
 			<bitfield name="ADDRESSU" high="26" low="24" type="nv04_tex_wrap"/>
-			<bitfield name="WRAPU" high="27" low="27" type="boolean"/>
+			<bitfield name="WRAPU" pos="27" type="boolean"/>
 			<bitfield name="ADDRESSV" high="30" low="28" type="nv04_tex_wrap"/>
-			<bitfield name="WRAPV" high="31" low="31" type="boolean"/>
+			<bitfield name="WRAPV" pos="31" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x030c" name="FILTER">
 			<bitfield name="KERNEL_SIZE_X" high="7" low="0" type="int"/>
 			<bitfield name="KERNEL_SIZE_Y" high="14" low="8" type="int"/>
-			<bitfield name="MIPMAP_DITHER_ENABLE" high="15" low="15" type="boolean"/>
+			<bitfield name="MIPMAP_DITHER_ENABLE" pos="15" type="boolean"/>
 			<bitfield name="MIPMAP_LODBIAS" high="23" low="16" type="int"/>
 			<bitfield name="MINIFY" high="26" low="24" type="nv04_tex_min_filter"/>
-			<bitfield name="ANISOTROPIC_MINIFY_ENABLE" high="27" low="27" type="boolean"/>
+			<bitfield name="ANISOTROPIC_MINIFY_ENABLE" pos="27" type="boolean"/>
 			<bitfield name="MAGNIFY" high="30" low="28" type="nv04_tex_mag_filter"/>
-			<bitfield name="ANISOTROPIC_MAGNIFY_ENABLE" high="31" low="31" type="boolean"/>
+			<bitfield name="ANISOTROPIC_MAGNIFY_ENABLE" pos="31" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x0310" name="BLEND">
 			<bitfield name="TEXTURE_MAP" high="3" low="0" type="int"/>
 			<bitfield name="MASK_BIT" high="5" low="4" type="int"/>
 			<bitfield name="SHADE_MODE" high="7" low="6" type="nv04_shade_mode"/>
-			<bitfield name="TEXTURE_PERSPECTIVE_ENABLE" high="8" low="8" type="boolean"/>
-			<bitfield name="SPECULAR_ENABLE" high="12" low="12" type="boolean"/>
-			<bitfield name="FOG_ENABLE" high="16" low="16" type="boolean"/>
-			<bitfield name="BLEND_ENABLE" high="20" low="20" type="boolean"/>
+			<bitfield name="TEXTURE_PERSPECTIVE_ENABLE" pos="8" type="boolean"/>
+			<bitfield name="SPECULAR_ENABLE" pos="12" type="boolean"/>
+			<bitfield name="FOG_ENABLE" pos="16" type="boolean"/>
+			<bitfield name="BLEND_ENABLE" pos="20" type="boolean"/>
 			<bitfield name="SRC" high="27" low="24" type="int"/>
 			<bitfield name="DST" high="31" low="28" type="int"/>
 		</reg32>
 		<reg32 offset="0x0314" name="CONTROL">
 			<bitfield name="ALPHA_REF" high="7" low="0" type="int"/>
 			<bitfield name="ALPHA_FUNC" high="11" low="8" type="int"/>
-			<bitfield name="ALPHA_ENABLE" high="12" low="12" type="boolean"/>
-			<bitfield name="ORIGIN" high="13" low="13" type="int"/>
-			<bitfield name="Z_ENABLE" high="14" low="14" type="boolean"/>
+			<bitfield name="ALPHA_ENABLE" pos="12" type="boolean"/>
+			<bitfield name="ORIGIN" pos="13" type="int"/>
+			<bitfield name="Z_ENABLE" pos="14" type="boolean"/>
 			<bitfield name="Z_FUNC" high="19" low="16" type="int"/>
 			<bitfield name="CULL_MODE" high="21" low="20" type="nv04_cull_mode"/>
-			<bitfield name="DITHER_ENABLE" high="22" low="22" type="boolean"/>
-			<bitfield name="Z_PERSPECTIVE_ENABLE" high="23" low="23" type="boolean"/>
-			<bitfield name="Z_WRITE" high="24" low="24" type="boolean"/>
+			<bitfield name="DITHER_ENABLE" pos="22" type="boolean"/>
+			<bitfield name="Z_PERSPECTIVE_ENABLE" pos="23" type="boolean"/>
+			<bitfield name="Z_WRITE" pos="24" type="boolean"/>
 			<bitfield name="Z_FORMAT" high="31" low="30" type="int"/>
 		</reg32>
 		<reg32 offset="0x0318" name="FOGCOLOR">
@@ -202,8 +202,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x0308" name="OFFSET" length="2"/>
 		<reg32 offset="0x0310" name="FORMAT" length="2">
-			<bitfield name="DMA_A" high="0" low="0" type="boolean"/>
-			<bitfield name="DMA_B" high="1" low="1" type="boolean"/>
+			<bitfield name="DMA_A" pos="0" type="boolean"/>
+			<bitfield name="DMA_B" pos="1" type="boolean"/>
 			<bitfield name="ORIGIN_ZOH" high="5" low="4" type="int"/>
 			<bitfield name="ORIGIN_FOH" high="7" low="6" type="int"/>
 			<bitfield name="COLOR" high="11" low="8" type="int"/>
@@ -211,43 +211,43 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="BASE_SIZE_U" high="19" low="16" type="int"/>
 			<bitfield name="BASE_SIZE_V" high="23" low="20" type="int"/>
 			<bitfield name="ADDRESSU" high="26" low="24" type="int"/>
-			<bitfield name="WRAPU" high="27" low="27" type="boolean"/>
+			<bitfield name="WRAPU" pos="27" type="boolean"/>
 			<bitfield name="ADDRESSV" high="30" low="28" type="int"/>
-			<bitfield name="WRAPV" high="31" low="31" type="boolean"/>
+			<bitfield name="WRAPV" pos="31" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x0318" name="FILTER" length="2">
 			<bitfield name="KERNEL_SIZE_X" high="7" low="0" type="int"/>
 			<bitfield name="KERNEL_SIZE_Y" high="14" low="8" type="int"/>
-			<bitfield name="MIPMAP_DITHER_ENABLE" high="15" low="15" type="boolean"/>
+			<bitfield name="MIPMAP_DITHER_ENABLE" pos="15" type="boolean"/>
 			<bitfield name="MIPMAP_LODBIAS" high="23" low="16" type="int"/>
 			<bitfield name="MINIFY" high="26" low="24" type="int"/>
-			<bitfield name="ANISOTROPIC_MINIFY_ENABLE" high="27" low="27" type="boolean"/>
+			<bitfield name="ANISOTROPIC_MINIFY_ENABLE" pos="27" type="boolean"/>
 			<bitfield name="MAGNIFY" high="30" low="28" type="int"/>
-			<bitfield name="ANISOTROPIC_MAGNIFY_ENABLE" high="31" low="31" type="boolean"/>
+			<bitfield name="ANISOTROPIC_MAGNIFY_ENABLE" pos="31" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x0320" name="COMBINE_ALPHA" length="2" stride="12">
-			<bitfield name="INVERSE0" high="0" low="0" type="int"/>
+			<bitfield name="INVERSE0" pos="0" type="int"/>
 			<bitfield name="ARGUMENT0" high="7" low="2" type="nv04_combine_input"/>
-			<bitfield name="INVERSE1" high="8" low="8" type="int"/>
+			<bitfield name="INVERSE1" pos="8" type="int"/>
 			<bitfield name="ARGUMENT1" high="15" low="10" type="nv04_combine_input"/>
-			<bitfield name="INVERSE2" high="16" low="16" type="int"/>
+			<bitfield name="INVERSE2" pos="16" type="int"/>
 			<bitfield name="ARGUMENT2" high="23" low="18" type="nv04_combine_input"/>
-			<bitfield name="INVERSE3" high="24" low="24" type="int"/>
+			<bitfield name="INVERSE3" pos="24" type="int"/>
 			<bitfield name="ARGUMENT3" high="28" low="26" type="nv04_combine_input"/>
 			<bitfield name="MAP" high="31" low="29" type="nv04_combine_map"/>
 		</reg32>
 		<reg32 offset="0x0324" name="COMBINE_COLOR" length="2" stride="12">
-			<bitfield name="INVERSE0" high="0" low="0" type="int"/>
-			<bitfield name="ALPHA0" high="1" low="1" type="int"/>
+			<bitfield name="INVERSE0" pos="0" type="int"/>
+			<bitfield name="ALPHA0" pos="1" type="int"/>
 			<bitfield name="ARGUMENT0" high="7" low="2" type="nv04_combine_input"/>
-			<bitfield name="INVERSE1" high="8" low="8" type="int"/>
-			<bitfield name="ALPHA1" high="9" low="9" type="int"/>
+			<bitfield name="INVERSE1" pos="8" type="int"/>
+			<bitfield name="ALPHA1" pos="9" type="int"/>
 			<bitfield name="ARGUMENT1" high="15" low="10" type="nv04_combine_input"/>
-			<bitfield name="INVERSE2" high="16" low="16" type="int"/>
-			<bitfield name="ALPHA2" high="17" low="17" type="int"/>
+			<bitfield name="INVERSE2" pos="16" type="int"/>
+			<bitfield name="ALPHA2" pos="17" type="int"/>
 			<bitfield name="ARGUMENT2" high="23" low="18" type="nv04_combine_input"/>
-			<bitfield name="INVERSE3" high="24" low="24" type="int"/>
-			<bitfield name="ALPHA3" high="25" low="25" type="int"/>
+			<bitfield name="INVERSE3" pos="24" type="int"/>
+			<bitfield name="ALPHA3" pos="25" type="int"/>
 			<bitfield name="ARGUMENT3" high="28" low="26" type="nv04_combine_input"/>
 			<bitfield name="MAP" high="31" low="29" type="nv04_combine_map"/>
 		</reg32>
@@ -260,33 +260,33 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0338" name="BLEND">
 			<bitfield name="MASK_BIT" high="5" low="4" type="int"/>
 			<bitfield name="SHADE_MODE" high="7" low="6" type="nv04_shade_mode"/>
-			<bitfield name="TEXTURE_PERSPECTIVE_ENABLE" high="8" low="8" type="boolean"/>
-			<bitfield name="SPECULAR_ENABLE" high="12" low="12" type="boolean"/>
-			<bitfield name="FOG_ENABLE" high="16" low="16" type="boolean"/>
-			<bitfield name="BLEND_ENABLE" high="20" low="20" type="boolean"/>
+			<bitfield name="TEXTURE_PERSPECTIVE_ENABLE" pos="8" type="boolean"/>
+			<bitfield name="SPECULAR_ENABLE" pos="12" type="boolean"/>
+			<bitfield name="FOG_ENABLE" pos="16" type="boolean"/>
+			<bitfield name="BLEND_ENABLE" pos="20" type="boolean"/>
 			<bitfield name="SRC" high="27" low="24" type="int"/>
 			<bitfield name="DST" high="31" low="28" type="int"/>
 		</reg32>
 		<reg32 offset="0x033c" name="CONTROL0">
 			<bitfield name="ALPHA_REF" high="7" low="0" type="int"/>
 			<bitfield name="ALPHA_FUNC" high="11" low="8" type="int"/>
-			<bitfield name="ALPHA_ENABLE" high="12" low="12" type="boolean"/>
-			<bitfield name="ORIGIN" high="13" low="13" type="int"/>
-			<bitfield name="Z_ENABLE" high="14" low="14" type="boolean"/>
+			<bitfield name="ALPHA_ENABLE" pos="12" type="boolean"/>
+			<bitfield name="ORIGIN" pos="13" type="int"/>
+			<bitfield name="Z_ENABLE" pos="14" type="boolean"/>
 			<bitfield name="Z_FUNC" high="19" low="16" type="int"/>
 			<bitfield name="CULL_MODE" high="21" low="20" type="nv04_cull_mode"/>
-			<bitfield name="DITHER_ENABLE" high="22" low="22" type="boolean"/>
-			<bitfield name="Z_PERSPECTIVE_ENABLE" high="23" low="23" type="boolean"/>
-			<bitfield name="Z_WRITE" high="24" low="24" type="boolean"/>
-			<bitfield name="STENCIL_WRITE" high="25" low="25" type="boolean"/>
-			<bitfield name="ALPHA_WRITE" high="26" low="26" type="boolean"/>
-			<bitfield name="RED_WRITE" high="27" low="27" type="boolean"/>
-			<bitfield name="GREEN_WRITE" high="28" low="28" type="boolean"/>
-			<bitfield name="BLUE_WRITE" high="29" low="29" type="boolean"/>
+			<bitfield name="DITHER_ENABLE" pos="22" type="boolean"/>
+			<bitfield name="Z_PERSPECTIVE_ENABLE" pos="23" type="boolean"/>
+			<bitfield name="Z_WRITE" pos="24" type="boolean"/>
+			<bitfield name="STENCIL_WRITE" pos="25" type="boolean"/>
+			<bitfield name="ALPHA_WRITE" pos="26" type="boolean"/>
+			<bitfield name="RED_WRITE" pos="27" type="boolean"/>
+			<bitfield name="GREEN_WRITE" pos="28" type="boolean"/>
+			<bitfield name="BLUE_WRITE" pos="29" type="boolean"/>
 			<bitfield name="Z_FORMAT" high="31" low="30" type="int"/>
 		</reg32>
 		<reg32 offset="0x0340" name="CONTROL1">
-			<bitfield name="STENCIL_ENABLE" high="0" low="0" type="boolean"/>
+			<bitfield name="STENCIL_ENABLE" pos="0" type="boolean"/>
 			<bitfield name="STENCIL_FUNC" high="7" low="4" type="int"/>
 			<bitfield name="STENCIL_REF" high="15" low="8" type="int"/>
 			<bitfield name="STENCIL_MASK_READ" high="23" low="16" type="int"/>

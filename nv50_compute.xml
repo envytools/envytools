@@ -50,7 +50,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Accepts 0-8 and f. Same as tesla UNK1290</doc>
 		</reg32>
 		<reg32 offset="0x0228" name="UNK0228">
-			<bitfield low="0" high="0" name="UNK1"/>
+			<bitfield pos="0" name="UNK1"/>
 			<bitfield low="4" high="11" name="UNK2"/>
 			<bitfield low="18" high="19" name="UNK3"/>
 		</reg32>
@@ -65,11 +65,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x023c" name="CB_DATA" length="16"/>
 		<reg32 offset="0x027c" name="TSC_FLUSH">
-			<bitfield low="0" high="0" name="UNK0"/>
+			<bitfield pos="0" name="UNK0"/>
 			<bitfield low="4" high="25" name="UNK1"/>
 		</reg32>
 		<reg32 offset="0x0280" name="TIC_FLUSH">
-			<bitfield low="0" high="0" name="UNK0"/>
+			<bitfield pos="0" name="UNK0"/>
 			<bitfield low="4" high="25" name="UNK1"/>
 		</reg32>
 		<reg32 offset="0x0284" name="DELAY1">
@@ -132,7 +132,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x02e0" name="PM_CONTROL" length="4">
 			<doc>*very* weird.</doc>
-			<bitfield name="UNK0" high="0" low="0">
+			<bitfield name="UNK0" pos="0">
 				<doc>disable bit?</doc>
 			</bitfield>
 			<bitfield name="UNK1" high="6" low="4">
@@ -177,7 +177,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0318" name="QUERY_COUNTER"/>
 		<reg32 offset="0x031c" name="QUERY_GET">
 			<bitfield name="UNK1" high="8" low="0" />
-			<bitfield name="INTR" high="9" low="9" type="boolean" />
+			<bitfield name="INTR" pos="9" type="boolean" />
 			<bitfield name="UNK2" high="15" low="10" />
 		</reg32>
 		<reg32 offset="0x0320" name="COND_ADDRESS_HIGH"/>
@@ -235,8 +235,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0378" name="LINKED_TSC" type="boolean"/>
 		<reg32 offset="0x037c" name="UNK037C">
 			<doc>Texturing, same as tesla UNK1690.</doc>
-			<bitfield low="0" high="0" name="UNK0"/>
-			<bitfield low="16" high="16" name="UNK16"/>
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="16" name="UNK16"/>
 		</reg32>
 		<reg32 offset="0x0380" name="CODE_CB_FLUSH">
 			<doc>Works with writing 0, but appears to accept values
@@ -269,12 +269,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="TEXTURES_LOG2" high="7" low="4" type="uint" min="0" max="7"/>
 		</reg32>
 		<reg32 offset="0x03c0" name="BIND_TSC">
-			<bitfield name="VALID" high="0" low="0" type="boolean"/>
+			<bitfield name="VALID" pos="0" type="boolean"/>
 			<bitfield name="SAMPLER" high="7" low="4" type="uint"/>
 			<bitfield name="TSC" high="20" low="12" type="uint"/>
 		</reg32>
 		<reg32 offset="0x03c4" name="BIND_TIC">
-			<bitfield name="VALID" high="0" low="0" type="boolean"/>
+			<bitfield name="VALID" pos="0" type="boolean"/>
 			<bitfield name="TEXTURE" high="8" low="1" type="uint"/>
 			<bitfield name="TIC" high="30" low="9" type="uint"/>
 		</reg32>
@@ -322,7 +322,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				in case of 2D surface</doc>
 			</reg32>
 			<reg32 offset="0x10" name="MODE">
-				<bitfield name="LINEAR" high="0" low="0" type="boolean"/>
+				<bitfield name="LINEAR" pos="0" type="boolean"/>
 				<bitfield name="UNK1" high="7" low="4">
 					<doc>Only accepts 0?</doc>
 				</bitfield>

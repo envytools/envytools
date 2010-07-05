@@ -60,25 +60,25 @@
 			<doc>Shows currently pending interrupts. Read-only, except
 			for SOFTWARE bit. No need to ack these, they disappear by
 			acking in upstream unit.</doc>
-			<bitfield high="0" low="0" name="PAUDIO" variants="NV01"/>
-			<bitfield high="0" low="0" name="PVPE" variants="NV17:NV98 NVA0"/>
-			<bitfield high="0" low="0" name="PPPP" variants="NV98 NVAA-"/>
-			<bitfield high="4" low="4" name="PDMA" variants="NV01"/>
-			<bitfield high="4" low="4" name="PMEDIA" variants="NV03-"/>
-			<bitfield high="8" low="8" name="PFIFO" />
-			<bitfield high="12" low="12" name="PGRAPH" />
-			<bitfield high="14" low="14" name="PCRYPT" variants="NV84:NVA3"/>
-			<bitfield high="15" low="15" name="PBSP" variants="NV84-"/>
-			<bitfield high="16" low="16" name="PRM" variants="NV01"/>
-			<bitfield high="16" low="16" name="PVIDEO" variants="NV03-NV40"/>
-			<bitfield high="17" low="17" name="PVP" variants="NV40-"/>
-			<bitfield high="20" low="20" name="PTIMER" />
-			<bitfield high="22" low="22" name="PVUNK104" variants="NVA3:NVC0"/>
-			<bitfield high="24" low="24" name="PFB" variants="NV01"/>
-			<bitfield high="24" low="24" name="PCRTC" variants="NV03-"/>
-			<bitfield high="28" low="28" name="SOFTWARE" variants="NV01"/>
-			<bitfield high="28" low="28" name="PBUS" variants="NV03-"/>
-			<bitfield high="31" low="31" name="SOFTWARE" variants="NV03-">
+			<bitfield pos="0" name="PAUDIO" variants="NV01"/>
+			<bitfield pos="0" name="PVPE" variants="NV17:NV98 NVA0"/>
+			<bitfield pos="0" name="PPPP" variants="NV98 NVAA-"/>
+			<bitfield pos="4" name="PDMA" variants="NV01"/>
+			<bitfield pos="4" name="PMEDIA" variants="NV03-"/>
+			<bitfield pos="8" name="PFIFO" />
+			<bitfield pos="12" name="PGRAPH" />
+			<bitfield pos="14" name="PCRYPT" variants="NV84:NVA3"/>
+			<bitfield pos="15" name="PBSP" variants="NV84-"/>
+			<bitfield pos="16" name="PRM" variants="NV01"/>
+			<bitfield pos="16" name="PVIDEO" variants="NV03-NV40"/>
+			<bitfield pos="17" name="PVP" variants="NV40-"/>
+			<bitfield pos="20" name="PTIMER" />
+			<bitfield pos="22" name="PVUNK104" variants="NVA3:NVC0"/>
+			<bitfield pos="24" name="PFB" variants="NV01"/>
+			<bitfield pos="24" name="PCRTC" variants="NV03-"/>
+			<bitfield pos="28" name="SOFTWARE" variants="NV01"/>
+			<bitfield pos="28" name="PBUS" variants="NV03-"/>
+			<bitfield pos="31" name="SOFTWARE" variants="NV03-">
 				<doc>Software interrupt: write 1 to this bit to trigger
 				interrupt, write 0 to stop.</doc>
 			</bitfield>
@@ -86,58 +86,58 @@
 		<reg32 offset="0x140" name="INTR_EN">
 			<doc>Enables reporting interrupts via IRQ lines. Doesn't affect
 			status shown in PMC_INTR, only sending actual bus interrupts.</doc>
-			<bitfield high="0" low="0" name="HARDWARE">
+			<bitfield pos="0" name="HARDWARE">
 				<doc>Enable reporting hardware interrupts, ie. all but SOFTWARE.</doc>
 			</bitfield>
-			<bitfield high="1" low="1" name="SOFTWARE">
+			<bitfield pos="1" name="SOFTWARE">
 				<doc>Enable reporting software interrupts.</doc>
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x200" name="ENABLE">
 			<doc>Selects which card units are enabled.</doc>
-			<bitfield high="0" low="0" name="PAUDIO" variants="NV01"/>
+			<bitfield pos="0" name="PAUDIO" variants="NV01"/>
 			<!-- might be HDVP video decoding -->
-			<bitfield high="0" low="0" name="UNK0" variants="NV03:NV04 NV10-"/>
+			<bitfield pos="0" name="UNK0" variants="NV03:NV04 NV10-"/>
 			<!-- I wonder how much modern NVA0 VPE has in common with the original NV17 thing. oh meh. we'll find out some day.-->
-			<bitfield high="1" low="1" name="PVPE" variants="NV17:NV98 NVA0"/> <!-- also controls NV50:NV98, NVA0 PVP -->
-			<bitfield high="1" low="1" name="PPPP" variants="NV98 NVAA-"/>
-			<bitfield high="2" low="2" name="PGUNK13B" variants="NVC0-"/>
-			<bitfield high="3" low="3" name="PRUNK140" variants="NVC0-"/>
-			<bitfield high="4" low="4" name="PDMA" variants="NV01"/>
-			<bitfield high="4" low="4" name="PMEDIA" variants="NV03-"/>
-			<bitfield high="5" low="5" name="MASTER" variants="NVC0-"/> <!-- disable that and most of MMIO disappears -->
-			<bitfield high="6" low="6" name="PVUNK104" variants="NVC0-"/>
-			<bitfield high="7" low="7" name="PVUNK105" variants="NVC0-"/>
-			<bitfield high="8" low="8" name="PFIFO" />
-			<bitfield high="12" low="12" name="PGRAPH" />
-			<bitfield high="13" low="13" name="PVUNK104" variants="NVA3:NVC0"/>
-			<bitfield high="13" low="13" name="PUNK10A" variants="NVC0-"/>
-			<bitfield high="14" low="14" name="PCRYPT" variants="NV84:NVA3"/>
-			<bitfield high="15" low="15" name="PBSP" variants="NV84-"/>
-			<bitfield high="16" low="16" name="PRM" variants="NV01"/>
-			<bitfield high="16" low="16" name="PTIMER" variants="NV03-"/>
-			<bitfield high="17" low="17" name="PVP" variants="NV98 NVAA-"/>
-			<bitfield high="20" low="20" name="PFB" variants="NV03:NVC0"/>
-			<bitfield high="20" low="20" name="PBFB" variants="NVC0-"/>
-			<bitfield high="24" low="24" name="PFB" variants="NV01"/>
-			<bitfield high="24" low="24" name="PCRTC" variants="NV03:NV50"/>
-			<bitfield high="25" low="25" name="PCRTC2" variants="NV11:NV50"/>
-			<bitfield high="26" low="26" name="PTV" variants="NV17:NV20 NV30:NV50"/>
-			<bitfield high="27" low="27" name="UNK27" variants="NVC0-"/>
-			<bitfield high="28" low="28" name="PVIDEO" variants="NV03:NV50"/>
-			<bitfield high="28" low="28" name="PGUNK180" variants="NVC0-"/>
-			<bitfield high="29" low="29" name="PFFB" variants="NVC0-"/>
-			<bitfield high="30" low="30" name="PDISPLAY" variants="NV50-"/>
-			<bitfield high="31" low="31" name="UNK31" variants="NV50-"/>
+			<bitfield pos="1" name="PVPE" variants="NV17:NV98 NVA0"/> <!-- also controls NV50:NV98, NVA0 PVP -->
+			<bitfield pos="1" name="PPPP" variants="NV98 NVAA-"/>
+			<bitfield pos="2" name="PGUNK13B" variants="NVC0-"/>
+			<bitfield pos="3" name="PRUNK140" variants="NVC0-"/>
+			<bitfield pos="4" name="PDMA" variants="NV01"/>
+			<bitfield pos="4" name="PMEDIA" variants="NV03-"/>
+			<bitfield pos="5" name="MASTER" variants="NVC0-"/> <!-- disable that and most of MMIO disappears -->
+			<bitfield pos="6" name="PVUNK104" variants="NVC0-"/>
+			<bitfield pos="7" name="PVUNK105" variants="NVC0-"/>
+			<bitfield pos="8" name="PFIFO" />
+			<bitfield pos="12" name="PGRAPH" />
+			<bitfield pos="13" name="PVUNK104" variants="NVA3:NVC0"/>
+			<bitfield pos="13" name="PUNK10A" variants="NVC0-"/>
+			<bitfield pos="14" name="PCRYPT" variants="NV84:NVA3"/>
+			<bitfield pos="15" name="PBSP" variants="NV84-"/>
+			<bitfield pos="16" name="PRM" variants="NV01"/>
+			<bitfield pos="16" name="PTIMER" variants="NV03-"/>
+			<bitfield pos="17" name="PVP" variants="NV98 NVAA-"/>
+			<bitfield pos="20" name="PFB" variants="NV03:NVC0"/>
+			<bitfield pos="20" name="PBFB" variants="NVC0-"/>
+			<bitfield pos="24" name="PFB" variants="NV01"/>
+			<bitfield pos="24" name="PCRTC" variants="NV03:NV50"/>
+			<bitfield pos="25" name="PCRTC2" variants="NV11:NV50"/>
+			<bitfield pos="26" name="PTV" variants="NV17:NV20 NV30:NV50"/>
+			<bitfield pos="27" name="UNK27" variants="NVC0-"/>
+			<bitfield pos="28" name="PVIDEO" variants="NV03:NV50"/>
+			<bitfield pos="28" name="PGUNK180" variants="NVC0-"/>
+			<bitfield pos="29" name="PFFB" variants="NVC0-"/>
+			<bitfield pos="30" name="PDISPLAY" variants="NV50-"/>
+			<bitfield pos="31" name="UNK31" variants="NV50-"/>
 			<!-- XXX: NV84:NVC0 have lots of other bits that apparently don't affect anything, but not really. -->
 		</reg32>
 	</array>
 	<array offset="0x1000" name="PBUS" stride="0x1000" length="1">
 		<reg32 offset="0x100" name="INTR">
-			<bitfield high="3" low="3" name="MMIO_FAULT"/>
+			<bitfield pos="3" name="MMIO_FAULT"/>
 		</reg32>
 		<reg32 offset="0x140" name="INTR_EN">
-			<bitfield high="3" low="3" name="MMIO_FAULT"/>
+			<bitfield pos="3" name="MMIO_FAULT"/>
 		</reg32>
 		<reg32 offset="0x540" name="PGRAPH_UNITS" variants="NV50:NVC0">
 			<doc>Enables PGRAPH engines that come in multiple copies.
@@ -175,34 +175,34 @@
 		</reg32>
 		<reg32 offset="0x704" name="MEM_CHAN" variants="NV50:NVC0">
 			<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
-			<bitfield low="30" high="30" name="WHICH">
+			<bitfield pos="30" name="WHICH">
 				<value value="0" name="PEEPHOLE"/>
 				<value value="1" name="BAR"/>
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x708" name="BAR1_CTXDMA" variants="NV50:NVC0">
 			<bitfield low="0" high="15" name="INST" shr="4"/>
-			<bitfield low="31" high="31" name="ENABLE"/>
+			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
 		<reg32 offset="0x70c" name="BAR3_CTXDMA" variants="NV50:NVC0">
 			<bitfield low="0" high="15" name="INST" shr="4"/>
-			<bitfield low="31" high="31" name="ENABLE"/>
+			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
 		<reg32 offset="0x710" name="PEEPHOLE_CTXDMA" variants="NV50:NVC0">
 			<bitfield low="0" high="15" name="INST" shr="4"/>
-			<bitfield low="31" high="31" name="ENABLE"/>
+			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
 		<reg32 offset="0x704" name="BAR1_CHAN" variants="NVC0-">
 			<bitfield low="0" high="27" name="INST" shr="12"/>
-			<bitfield low="31" high="31" name="ENABLE"/>
+			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
 		<reg32 offset="0x714" name="BAR3_CHAN" variants="NVC0-">
 			<bitfield low="0" high="27" name="INST" shr="12"/>
-			<bitfield low="31" high="31" name="ENABLE"/>
+			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
 		<reg32 offset="0x718" name="PEEPHOLE_CHAN" variants="NVC0-">
 			<bitfield low="0" high="27" name="INST" shr="12"/>
-			<bitfield low="31" high="31" name="ENABLE"/>
+			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
 	</array>
 

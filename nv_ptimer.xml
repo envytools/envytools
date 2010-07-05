@@ -10,10 +10,10 @@
 
 <array offset="0x9000" name="PTIMER" stride="0x1000" length="1">
 	<reg32 offset="0x100" name="INTR">
-		<bitfield high="0" low="0" name="ALARM" />
+		<bitfield pos="0" name="ALARM" />
 	</reg32>
 	<reg32 offset="0x140" name="INTR_EN">
-		<bitfield high="0" low="0" name="ALARM" />
+		<bitfield pos="0" name="ALARM" />
 	</reg32>
 	<reg32 offset="0x200" name="NUMERATOR" />
 	<reg32 offset="0x210" name="DENOMINATOR" />

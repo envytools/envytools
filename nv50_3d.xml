@@ -10,10 +10,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nv_object.xml"/>
 
 <bitset name="nv50_vic" inline="yes">
-	<bitfield high="0" low="0" name="X"/>
-	<bitfield high="1" low="1" name="Y"/>
-	<bitfield high="2" low="2" name="Z"/>
-	<bitfield high="3" low="3" name="W"/>
+	<bitfield pos="0" name="X"/>
+	<bitfield pos="1" name="Y"/>
+	<bitfield pos="2" name="Z"/>
+	<bitfield pos="3" name="W"/>
 </bitset>
 
 <enum name="nv50_vtxelt_type" inline="yes">
@@ -63,7 +63,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x04" name="ADDRESS_LOW"/>
 			<reg32 offset="0x08" name="FORMAT" type="NV50_SURFACE_FORMAT"/>
 			<reg32 offset="0x0c" name="TILE_MODE">
-				<bitfield low="0" high="0" name="UNK0" />
+				<bitfield pos="0" name="UNK0" />
 				<bitfield low="4" high="6" name="Y" />
 				<bitfield low="8" high="10" name="Z" />
 			</reg32>
@@ -142,7 +142,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x0900" name="VERTEX_ARRAY_FETCH" length="16" stride="16">
 			<bitfield name="STRIDE" high="11" low="0" type="int"/>
-			<bitfield name="ENABLE" high="29" low="29" type="boolean"/>
+			<bitfield name="ENABLE" pos="29" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x0904" name="VERTEX_ARRAY_START_HIGH" length="16" stride="16"/>
 		<reg32 offset="0x0908" name="VERTEX_ARRAY_START_LOW" length="16" stride="16"/>
@@ -227,7 +227,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Doesn't seem to do anything. More bitfields?</doc>
 			<bitfield low="0" high="2" name="UNK0"/>
 			<bitfield low="8" high="9" name="UNK1"/>
-			<bitfield low="16" high="16" name="UNK2"/>
+			<bitfield pos="16" name="UNK2"/>
 		</reg32>
 		<reg32 offset="0x0ddc" name="UNK0DDC">
 			<doc>0-2, causes something to happen in vfetch.</doc>
@@ -247,7 +247,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x0df0" name="UNK0DF0">
 			<doc>Goes to vfetch. 0x40 by default.</doc>
-			<bitfield low="0" high="0" name="UNK0"/>
+			<bitfield pos="0" name="UNK0"/>
 			<bitfield low="4" high="11" name="UNK1"/>
 		</reg32>
 		<reg32 offset="0x0df4" name="UNK0DF4">
@@ -320,8 +320,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0fa8" name="FP_ADDRESS_LOW"/>
 		<reg32 offset="0x0fac" name="UNK0FAC">
 			<doc>Goes to MP, 34xx. Default is 0xff101.</doc>
-			<bitfield low="0" high="0" name="UNK0"/>
-			<bitfield low="1" high="1" name="UNK2" variants="NVA0_3D-"/>
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="1" name="UNK2" variants="NVA0_3D-"/>
 			<bitfield low="4" high="19" name="UNK1"/>
 		</reg32>
 		<reg32 offset="0x0fb0" name="UNK0FB0" type="boolean">
@@ -339,8 +339,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x0fd8" name="UNK0FD8">
 			<doc>Goes to vfetch</doc>
-			<bitfield low="0" high="0" name="UNK0"/>
-			<bitfield low="4" high="4" name="UNK1"/>
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="4" name="UNK1"/>
 		</reg32>
 		<reg32 offset="0x0fdc" name="UNK0FDC" type="boolean">
 			<doc>Goes to TPDMA.</doc>
@@ -377,8 +377,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1108" name="UNK1108" variants="NV84_3D-">
 			<doc>Goes to 2cxx.</doc>
-			<bitfield low="0" high="0" name="0"/>
-			<bitfield low="4" high="4" name="1"/>
+			<bitfield pos="0" name="0"/>
+			<bitfield pos="4" name="1"/>
 		</reg32>
 		<reg32 offset="0x110c" name="UNK110C" variants="NV84_3D-">
 			<doc>Doesn't seem to do anything.</doc>
@@ -427,11 +427,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1150" name="VTX_ATTR_DATA" variants="NVA0_3D-" length="4"/>
 		<reg32 offset="0x1160" name="VERTEX_ARRAY_ATTRIB_ALT" length="32" variants="NVA3_3D-">
 			<bitfield name="BUFFER" high="4" low="0" type="int"/>
-			<bitfield name="CONST" high="6" low="6" type="boolean"/><!-- use latest VTX_ATTR_* -->
+			<bitfield name="CONST" pos="6" type="boolean"/><!-- use latest VTX_ATTR_* -->
 			<bitfield name="OFFSET" high="20" low="7" type="int"/>
 			<bitfield name="FORMAT" high="26" low="21" type="nv50_vtxelt_format"/>
 			<bitfield name="TYPE" high="29" low="27" type="nv50_vtxelt_type"/>
-			<bitfield name="BGRA" high="31" low="31" type="boolean"/><!-- swizzle VP input -->
+			<bitfield name="BGRA" pos="31" type="boolean"/><!-- swizzle VP input -->
 		</reg32>
 		<reg32 offset="0x121c" name="RT_CONTROL">
 			<bitfield name="COUNT" high="3" low="0" type="int"/>
@@ -449,13 +449,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1224" name="RT_ARRAY_MODE">
 			<bitfield name="LAYERS" high="15" low="0" type="int"/>
-			<bitfield name="VOLUME" high="16" low="16" type="boolean"/>
+			<bitfield name="VOLUME" pos="16" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x1228" name="ZETA_HORIZ" type="int"/>
 		<reg32 offset="0x122c" name="ZETA_VERT" type="int"/>
 		<reg32 offset="0x1230" name="ZETA_ARRAY_MODE">
 			<bitfield name="LAYERS" high="15" low="0" type="int"/>
-			<bitfield name="UNK" high="16" low="16" type="boolean"/>
+			<bitfield name="UNK" pos="16" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x1234" name="LINKED_TSC" type="boolean"/>
 		<reg32 offset="0x1238" name="UNK1238">
@@ -464,7 +464,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x123c" name="DELAY3" variants="NVA0_3D-"/>
 		<reg32 offset="0x1240" name="RT_HORIZ" length="8" stride="8">
 			<bitfield low="0" high="27" name="WIDTH"/>
-			<bitfield low="31" high="31" name="LINEAR">
+			<bitfield pos="31" name="LINEAR">
 				<doc>If set, WIDTH is byte pitch instead of pixel width.</doc>
 			</bitfield>
 		</reg32>
@@ -489,8 +489,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield low="8" high="11" name="FP"/>
 		</reg32>
 		<reg32 offset="0x1294" name="STRMOUT_BUFFERS_CTRL">
-			<bitfield name="INTERLEAVED" high="0" low="0" type="boolean"/>
-			<bitfield name="UNK1" high="1" low="1" type="boolean" variants="NVA0_3D-"/>
+			<bitfield name="INTERLEAVED" pos="0" type="boolean"/>
+			<bitfield name="UNK1" pos="1" type="boolean" variants="NVA0_3D-"/>
 			<bitfield name="SEPARATE" high="7" low="4" type="uint"/>
 			<bitfield name="STRIDE" high="19" low="8" type="uint" max="0x800"/>
 		</reg32>
@@ -503,7 +503,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x12a8" name="UNK12A8">
 			<doc>Same as turing UNK0228</doc>
-			<bitfield low="0" high="0" name="UNK1"/>
+			<bitfield pos="0" name="UNK1"/>
 			<bitfield low="4" high="19" name="UNK2"/>
 		</reg32>
 		<reg32 offset="0x12ac" name="UNK12AC" type="boolean">
@@ -572,11 +572,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Accepts 0-f. Same as turing UNK02F0</doc>
 		</reg32>
 		<reg32 offset="0x1330" name="TSC_FLUSH">
-			<bitfield low="0" high="0" name="UNK0"/>
+			<bitfield pos="0" name="UNK0"/>
 			<bitfield low="4" high="25" name="UNK1"/>
 		</reg32>
 		<reg32 offset="0x1334" name="TIC_FLUSH">
-			<bitfield low="0" high="0" name="UNK0"/>
+			<bitfield pos="0" name="UNK0"/>
 			<bitfield low="4" high="25" name="UNK1"/>
 		</reg32>
 		<reg32 offset="0x1338" name="TEX_CACHE_CTL">
@@ -616,14 +616,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Goes to vfetch.</doc>
 		</reg32>
 		<reg32 offset="0x13a8" name="FRAG_COLOR_CLAMP_EN">
-			<bitfield low="0" high="0" name="0"/>
-			<bitfield low="4" high="4" name="1"/>
-			<bitfield low="8" high="8" name="2"/>
-			<bitfield low="12" high="12" name="3"/>
-			<bitfield low="16" high="16" name="4"/>
-			<bitfield low="20" high="20" name="5"/>
-			<bitfield low="24" high="24" name="6"/>
-			<bitfield low="28" high="28" name="7"/>
+			<bitfield pos="0" name="0"/>
+			<bitfield pos="4" name="1"/>
+			<bitfield pos="8" name="2"/>
+			<bitfield pos="12" name="3"/>
+			<bitfield pos="16" name="4"/>
+			<bitfield pos="20" name="5"/>
+			<bitfield pos="24" name="6"/>
+			<bitfield pos="28" name="7"/>
 		</reg32>
 		<reg32 offset="0x13ac" name="Y_ORIGIN_BOTTOM" type="boolean"/><!-- XXX: bit 4 does something else -->
 		<reg32 offset="0x13b0" name="LINE_WIDTH" type="float"/>
@@ -656,15 +656,15 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1430" name="UNK1430">
 			<doc>Goes to ROP.</doc>
-			<bitfield low="4" high="4" name="UNK0"/>
-			<bitfield low="8" high="8" name="UNK1"/>
+			<bitfield pos="4" name="UNK0"/>
+			<bitfield pos="8" name="UNK1"/>
 		</reg32>
 		<reg32 offset="0x1434" name="VB_ELEMENT_BASE" type="int"/>
 		<reg32 offset="0x1438" name="VB_INSTANCE_BASE" type="int"/>
 		<reg32 offset="0x143c" name="UNK143C">
 			<doc>Goes to TP, ROP, 2cxx, 1cxx. 0x10 by default.</doc>
-			<bitfield low="0" high="0" name="UNK0"/>
-			<bitfield low="4" high="4" name="UNK1"/>
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="4" name="UNK1"/>
 		</reg32>
 		<reg32 offset="0x1440" name="CODE_CB_FLUSH">
 			<doc>Works with writing 0, but appears to accept values
@@ -672,22 +672,22 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<!-- FUCK ALERT: there are two of each method for each shader type. Yes, 12 in total. -->
 		<reg32 offset="0x1444" name="BIND_TSC" length="3" stride="8">
-			<bitfield name="VALID" high="0" low="0" type="boolean"/>
+			<bitfield name="VALID" pos="0" type="boolean"/>
 			<bitfield name="SAMPLER" high="7" low="4" type="int"/>
 			<bitfield name="TSC" high="20" low="12" type="int"/>
 		</reg32>
 		<reg32 offset="0x1448" name="BIND_TIC" length="3" stride="8"><!-- VP, GP, FP -->
-			<bitfield name="VALID" high="0" low="0" type="boolean"/>
+			<bitfield name="VALID" pos="0" type="boolean"/>
 			<bitfield name="TEXTURE" high="8" low="1" type="int"/>
 			<bitfield name="TIC" high="30" low="9" type="int"/>
 		</reg32>
 		<reg32 offset="0x1468" name="BIND_TSC2" length="3" stride="8">
-			<bitfield name="VALID" high="0" low="0" type="boolean"/>
+			<bitfield name="VALID" pos="0" type="boolean"/>
 			<bitfield name="SAMPLER" high="7" low="4" type="int"/>
 			<bitfield name="TSC" high="20" low="12" type="int"/>
 		</reg32>
 		<reg32 offset="0x146c" name="BIND_TIC2" length="3" stride="8">
-			<bitfield name="VALID" high="0" low="0" type="boolean"/>
+			<bitfield name="VALID" pos="0" type="boolean"/>
 			<bitfield name="TEXTURE" high="8" low="1" type="int"/>
 			<bitfield name="TIC" high="30" low="9" type="int"/>
 		</reg32>
@@ -697,14 +697,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Goes to clipid.</doc>
 		</reg32>
 		<reg32 offset="0x1510" name="VP_CLIP_DISTANCE_ENABLE">
-			<bitfield name="0" high="0" low="0" type="boolean"/>
-			<bitfield name="1" high="1" low="1" type="boolean"/>
-			<bitfield name="2" high="2" low="2" type="boolean"/>
-			<bitfield name="3" high="3" low="3" type="boolean"/>
-			<bitfield name="4" high="4" low="4" type="boolean"/>
-			<bitfield name="5" high="5" low="5" type="boolean"/>
-			<bitfield name="6" high="6" low="6" type="boolean"/>
-			<bitfield name="7" high="7" low="7" type="boolean"/>
+			<bitfield name="0" pos="0" type="boolean"/>
+			<bitfield name="1" pos="1" type="boolean"/>
+			<bitfield name="2" pos="2" type="boolean"/>
+			<bitfield name="3" pos="3" type="boolean"/>
+			<bitfield name="4" pos="4" type="boolean"/>
+			<bitfield name="5" pos="5" type="boolean"/>
+			<bitfield name="6" pos="6" type="boolean"/>
+			<bitfield name="7" pos="7" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x1514" name="SAMPLECNT_ENABLE"/>
 		<reg32 offset="0x1518" name="POINT_SIZE" type="float"/>
@@ -715,9 +715,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<!-- XXX: 1528??? -->
 		<reg32 offset="0x152c" name="UNK152C" variants="NVA0_3D-">
 			<doc>Goes to MP. 0x18000 by default.</doc>
-			<bitfield low="0" high="0" name="UNK0"/>
-			<bitfield low="4" high="4" name="UNK1"/>
-			<bitfield low="8" high="8" name="UNK2"/>
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="4" name="UNK1"/>
+			<bitfield pos="8" name="UNK2"/>
 			<bitfield low="12" high="19" name="UNK3" max="0x28"/>
 		</reg32>
 		<reg32 offset="0x1530" name="SAMPLECNT_RESET">
@@ -730,8 +730,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1538" name="ZETA_ENABLE" type="boolean"/>
 		<reg32 offset="0x153c" name="MULTISAMPLE_CTRL">
-			<bitfield name="ALPHA_TO_COVERAGE" high="0" low="0" type="boolean"/>
-			<bitfield name="ALPHA_TO_ONE" high="4" low="4" type="boolean"/>
+			<bitfield name="ALPHA_TO_COVERAGE" pos="0" type="boolean"/>
+			<bitfield name="ALPHA_TO_ONE" pos="4" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x1540" name="NOPERSPECTIVE_BITMAP" length="4"/>
 		<reg32 offset="0x1550" name="COND_ADDRESS_HIGH"/>
@@ -754,7 +754,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1580" name="PM_CONTROL" length="4">
 			<doc>*very* weird.</doc>
-			<bitfield name="UNK0" high="0" low="0">
+			<bitfield name="UNK0" pos="0">
 				<doc>disable bit?</doc>
 			</bitfield>
 			<bitfield name="UNK1" high="6" low="4">
@@ -785,9 +785,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x15b0" name="UNK15B0">
 			<doc>Same as turing UNK30C. Per-shader type?</doc>
-			<bitfield low="0" high="0" name="0"/>
-			<bitfield low="4" high="4" name="1"/>
-			<bitfield low="8" high="8" name="2"/>
+			<bitfield pos="0" name="0"/>
+			<bitfield pos="4" name="1"/>
+			<bitfield pos="8" name="2"/>
 		</reg32>
 		<reg32 offset="0x15b4" name="UNK15B4" type="boolean">
 			<doc>1 by default, goes to ROP, TPDMA, 8cxx.</doc>
@@ -805,7 +805,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="UNK0" high="15" low="0">
 				<doc>Accepts anything. viewport index?</doc>
 			</bitfield>
-			<bitfield name="LAYER_IDX" high="16" low="16" type="boolean"/>
+			<bitfield name="LAYER_IDX" pos="16" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x15d0" name="MULTISAMPLE_SAMPLES_LOG2">
 			<doc>0-3, 8-a. More values on 8597?</doc>
@@ -823,13 +823,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="0x000d" name="TRIANGLE_STRIP_ADJACENCY"/>
 				<!-- XXX: there are also 1001-1003, 100f-1018, 101a-101b. They all alias one of the normal types. wtf? -->
 			</bitfield>
-			<bitfield name="INSTANCE_NEXT" high="28" low="28" /> <!-- set bit for 2nd and higher instances -->
+			<bitfield name="INSTANCE_NEXT" pos="28" /> <!-- set bit for 2nd and higher instances -->
 			<!-- XXX: NV84+ have bit 29... -->
 			<!-- XXX: NVA0+ have bit 30... -->
 		</reg32>
 		<reg32 offset="0x15d8" name="VERTEX_END_D3D">
-			<bitfield low="0" high="0" name="UNK0"/>
-			<bitfield low="1" high="1" name="UNK1" variants="NVA0_3D-"/>
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="1" name="UNK1" variants="NVA0_3D-"/>
 		</reg32>
 		<reg32 offset="0x15dc" name="VERTEX_BEGIN_GL">
 			<bitfield name="PRIMITIVE" high="27" low="0">
@@ -848,13 +848,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="0x000c" name="TRIANGLES_ADJACENCY"/>
 				<value value="0x000d" name="TRIANGLE_STRIP_ADJACENCY"/>
 			</bitfield>
-			<bitfield name="INSTANCE_NEXT" high="28" low="28" /> <!-- set bit for 2nd and higher instances -->
+			<bitfield name="INSTANCE_NEXT" pos="28" /> <!-- set bit for 2nd and higher instances -->
 			<!-- XXX: NV84+ have bit 29... -->
 			<!-- XXX: NVA0+ have bit 30... -->
 		</reg32>
 		<reg32 offset="0x15e0" name="VERTEX_END_GL">
-			<bitfield low="0" high="0" name="UNK0"/>
-			<bitfield low="1" high="1" name="UNK1" variants="NVA0_3D-"/>
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="1" name="UNK1" variants="NVA0_3D-"/>
 		</reg32>
 		<reg32 offset="0x15e4" name="EDGEFLAG_ENABLE" type="boolean"/>
 		<reg32 offset="0x15e8" name="VB_ELEMENT_U32" type="int"/>
@@ -872,10 +872,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1644" name="PRIM_RESTART_ENABLE" type="boolean"/>
 		<reg32 offset="0x1648" name="PRIM_RESTART_INDEX" type="int"/>
 		<reg32 offset="0x164c" name="VP_GP_BUILTIN_ATTR_EN">
-			<bitfield name="VERTEX_ID" high="0" low="0" type="boolean"/><!-- works without bit 12 -->
-			<bitfield name="INSTANCE_ID" high="4" low="4" type="boolean"/>
-			<bitfield name="PRIMITIVE_ID" high="8" low="8" type="boolean"/>
-			<bitfield name="UNK12" high="12" low="12" type="boolean"/><!-- set together with bit 0 -->
+			<bitfield name="VERTEX_ID" pos="0" type="boolean"/><!-- works without bit 12 -->
+			<bitfield name="INSTANCE_ID" pos="4" type="boolean"/>
+			<bitfield name="PRIMITIVE_ID" pos="8" type="boolean"/>
+			<bitfield name="UNK12" pos="12" type="boolean"/><!-- set together with bit 0 -->
 		</reg32>
 		<reg32 offset="0x1650" name="VP_ATTR_EN" length="2">
 			<bitfield name="7" high="31" low="28" type="nv50_vic"/>
@@ -910,8 +910,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x168c" name="POLYGON_STIPPLE_ENABLE" type="boolean"/>
 		<reg32 offset="0x1690" name="UNK1690">
 			<doc>Texturing, same as turing UNK037C.</doc>
-			<bitfield low="0" high="0" name="UNK0"/>
-			<bitfield low="16" high="16" name="UNK16"/>
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="16" name="UNK16"/>
 		</reg32>
 		<reg32 offset="0x1694" name="SET_PROGRAM_CB">
 			<bitfield name="PROGRAM" high="7" low="4">
@@ -921,20 +921,20 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</bitfield>
 			<bitfield name="INDEX" high="11" low="8" type="int"/>
 			<bitfield name="BUFFER" high="18" low="12" type="int"/>
-			<bitfield name="VALID" high="0" low="0" type="boolean"/>
+			<bitfield name="VALID" pos="0" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x1698" name="UNK1698">
 			<doc>Goes to MP.</doc>
-			<bitfield high="0" low="0" name="0"/>
-			<bitfield high="4" low="4" name="1"/>
-			<bitfield high="8" low="8" name="2"/>
+			<bitfield pos="0" name="0"/>
+			<bitfield pos="4" name="1"/>
+			<bitfield pos="8" name="2"/>
 		</reg32>
 		<reg32 offset="0x169c" name="UNK169C" variants="NVA3_3D-">
 			<doc>Goes to ROP, TPDMA, 8cxx, 34xx, MP.</doc>
 			<bitfield low="0" high="3" name="0">
 				<doc>1, 2, 4, 8.</doc>
 			</bitfield>
-			<bitfield low="4" high="4" name="1"/>
+			<bitfield pos="4" name="1"/>
 		</reg32>
 		<reg32 offset="0x16a0" name="UNK16A0" variants="NVA3_3D-" type="boolean">
 			<doc>Goes to tpdma. 1 by default.</doc>
@@ -943,8 +943,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x16b0" name="VP_REG_ALLOC_TEMP" type="int"/>
 		<reg32 offset="0x16b4" name="UNK16B4" variants="NVA0_3D-">
 			<doc>Goes to tpdma, MP, 1cxx.</doc>
-			<bitfield low="0" high="0" name="UNK0"/>
-			<bitfield low="1" high="1" name="UNK1" variants="NVA3_3D-"/>
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="1" name="UNK1" variants="NVA3_3D-"/>
 		</reg32>
 		<reg32 offset="0x16b8" name="VP_REG_ALLOC_RESULT" type="int"/>
 		<reg32 offset="0x16bc" name="VP_RESULT_MAP" length="17">
@@ -993,7 +993,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="LAYER_ID" high="7" low="0" type="int"/>
 		</reg32>
 		<reg32 offset="0x1910" name="MAP_SEMANTIC_3">
-			<bitfield name="PTSZ_EN" high="0" low="0" type="int"/>
+			<bitfield name="PTSZ_EN" pos="0" type="int"/>
 			<bitfield name="PTSZ_ID" high="11" low="4" type="int"/>
 		</reg32>
 		<reg32 offset="0x1914" name="MAP_SEMANTIC_4">
@@ -1011,27 +1011,27 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x192c" name="VIEWPORT_TRANSFORM_EN" type="boolean"/>
 		<!-- 193c: previously thought to be somehow related to logic op -->
 		<reg32 offset="0x193c" name="VIEW_VOLUME_CLIP_CTRL">
-			<bitfield high="0" low="0" name="UNK0"/>
-			<bitfield high="1" low="1" name="UNK1" variants="NVA0_3D-"/>
-			<bitfield high="2" low="2" name="UNK2" variants="NVA0_3D-"/>
-			<bitfield high="3" low="3" name="UNK3"/>
-			<bitfield high="4" low="4" name="UNK4"/>
-			<bitfield high="7" low="7" name="UNK7"/>
-			<bitfield high="10" low="10" name="UNK10"/> <!-- 1 by default -->
-			<bitfield high="11" low="11" name="UNK11"/>
-			<bitfield high="12" low="12" name="UNK12"/>
-			<bitfield high="13" low="13" name="UNK13" variants="NV84_3D-"/>
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="1" name="UNK1" variants="NVA0_3D-"/>
+			<bitfield pos="2" name="UNK2" variants="NVA0_3D-"/>
+			<bitfield pos="3" name="UNK3"/>
+			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="7" name="UNK7"/>
+			<bitfield pos="10" name="UNK10"/> <!-- 1 by default -->
+			<bitfield pos="11" name="UNK11"/>
+			<bitfield pos="12" name="UNK12"/>
+			<bitfield pos="13" name="UNK13" variants="NV84_3D-"/>
 		</reg32>
 		<reg32 offset="0x1940" name="UNK1940">
 			<doc>Goes to 14xx.</doc>
-			<bitfield high="0" low="0" name="0"/>
-			<bitfield high="4" low="4" name="1"/>
-			<bitfield high="8" low="8" name="2"/>
-			<bitfield high="12" low="12" name="3"/>
-			<bitfield high="16" low="16" name="4"/>
-			<bitfield high="20" low="20" name="5"/>
-			<bitfield high="24" low="24" name="6"/>
-			<bitfield high="28" low="28" name="7"/>
+			<bitfield pos="0" name="0"/>
+			<bitfield pos="4" name="1"/>
+			<bitfield pos="8" name="2"/>
+			<bitfield pos="12" name="3"/>
+			<bitfield pos="16" name="4"/>
+			<bitfield pos="20" name="5"/>
+			<bitfield pos="24" name="6"/>
+			<bitfield pos="28" name="7"/>
 		</reg32>
 		<reg32 offset="0x1944" name="DELAY4" variants="NVA3_3D-"/>
 		<reg32 offset="0x194c" name="VIEWPORT_CLIP_RECTS_EN" type="boolean"/>
@@ -1042,26 +1042,26 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1954" name="UNK1954">
 			<doc>Doesn't seem to do anything...</doc>
-			<bitfield high="0" low="0" name="0"/>
-			<bitfield high="4" low="4" name="1"/>
+			<bitfield pos="0" name="0"/>
+			<bitfield pos="4" name="1"/>
 		</reg32>
 		<reg32 offset="0x1958" name="UNK1958">
 			<doc>Accepts only 0. wtf?</doc>
 		</reg32>
 		<reg32 offset="0x1960" name="UNK1960" variants="NVA3_3D-">
 			<doc>Goes to ropm. 0x11 by default.</doc>
-			<bitfield high="0" low="0" name="0"/>
-			<bitfield high="4" low="4" name="1"/>
+			<bitfield pos="0" name="0"/>
+			<bitfield pos="4" name="1"/>
 		</reg32>
 		<reg32 offset="0x1968" name="UNK1968">
 			<doc>Goes to 2cxx.</doc>
-			<bitfield high="0" low="0" name="0"/>
-			<bitfield high="4" low="4" name="1"/>
+			<bitfield pos="0" name="0"/>
+			<bitfield pos="4" name="1"/>
 		</reg32>
 		<reg32 offset="0x196c" name="FP_CTRL_UNK196C"><!-- 0x11 if DEPR written -->
 			<doc>0x11 if DEPR written. Goes to 2cxx.</doc>
-			<bitfield high="0" low="0" name="0"/>
-			<bitfield high="4" low="4" name="1"/>
+			<bitfield pos="0" name="0"/>
+			<bitfield pos="4" name="1"/>
 		</reg32>
 		<reg32 offset="0x1978" name="UNK1978">
 			<doc>Nothing seems to happen...</doc>
@@ -1078,9 +1078,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x198c" name="FP_REG_ALLOC_TEMP" type="int"/>
 		<reg32 offset="0x19a0" name="REG_MODE" type="nv50_reg_mode"/>
 		<reg32 offset="0x19a8" name="FP_CONTROL">
-			<bitfield name="MULTIPLE_RESULTS" high="0" low="0" type="boolean"/>
-			<bitfield name="EXPORTS_Z" high="8" low="8" type="boolean"/>
-			<bitfield name="USES_KIL" high="20" low="20" type="boolean"/>
+			<bitfield name="MULTIPLE_RESULTS" pos="0" type="boolean"/>
+			<bitfield name="EXPORTS_Z" pos="8" type="boolean"/>
+			<bitfield name="USES_KIL" pos="20" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x19bc" name="DEPTH_BOUNDS_EN" type="boolean"/>
 		<reg32 offset="0x19c0" name="UNK19C0" type="boolean">
@@ -1092,12 +1092,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Goes to tpdma, ROP. 1 by default.</doc>
 		</reg32>
 		<reg32 offset="0x19d0" name="CLEAR_BUFFERS">
-			<bitfield name="Z" high="0" low="0" type="boolean"/>
-			<bitfield name="S" high="1" low="1" type="boolean"/>
-			<bitfield name="R" high="2" low="2" type="boolean"/>
-			<bitfield name="G" high="3" low="3" type="boolean"/>
-			<bitfield name="B" high="4" low="4" type="boolean"/>
-			<bitfield name="A" high="5" low="5" type="boolean"/>
+			<bitfield name="Z" pos="0" type="boolean"/>
+			<bitfield name="S" pos="1" type="boolean"/>
+			<bitfield name="R" pos="2" type="boolean"/>
+			<bitfield name="G" pos="3" type="boolean"/>
+			<bitfield name="B" pos="4" type="boolean"/>
+			<bitfield name="A" pos="5" type="boolean"/>
 			<bitfield name="RT" high="9" low="6" type="int"/>
 			<bitfield name="LAYER" high="20" low="10" type="int"/>
 		</reg32>
@@ -1127,7 +1127,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield low="0" high="7" name="0">
 				<doc>Anything non-0.</doc>
 			</bitfield>
-			<bitfield low="8" high="8" name="1"/>
+			<bitfield pos="8" name="1"/>
 		</reg32>
 		<reg32 offset="0x1a2c" name="UNK1A2C">
 			<doc>Accepts anything. Same as turing UNK0330. Value seems ignored.</doc>
@@ -1161,7 +1161,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1a8c" name="STRMOUT_UNK1A8C" length="4" stride="16" variants="NVA0_3D-"/>
 		<reg32 offset="0x1ac0" name="VERTEX_ARRAY_ATTRIB" length="16">
 			<bitfield name="BUFFER" high="3" low="0" type="int"/>
-			<bitfield name="CONST" high="4" low="4" type="boolean"/><!-- use latest VTX_ATTR_* -->
+			<bitfield name="CONST" pos="4" type="boolean"/><!-- use latest VTX_ATTR_* -->
 			<bitfield name="OFFSET" high="18" low="5" type="int"/>
 			<bitfield name="FORMAT" high="24" low="19" type="nv50_vtxelt_format"/>
 			<bitfield name="TYPE" high="30" low="25"><!-- might actually be 2 3-bit types -->
@@ -1175,7 +1175,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="0x24" name="UINT"/>
 				<value value="0x1b" name="SINT"/>
 			</bitfield>
-			<bitfield name="BGRA" high="31" low="31" type="boolean"/><!-- swizzle VP input -->
+			<bitfield name="BGRA" pos="31" type="boolean"/><!-- swizzle VP input -->
 		</reg32>
 		<reg32 offset="0x1b00" name="QUERY_ADDRESS_HIGH"/>
 		<reg32 offset="0x1b04" name="QUERY_ADDRESS_LOW"/>
@@ -1189,7 +1189,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1c00" name="VERTEX_ARRAY_FETCH_ALT" length="32" stride="16" variants="NVA3_3D-">
 			<bitfield name="STRIDE" high="11" low="0" type="int"/>
-			<bitfield name="ENABLE" high="29" low="29" type="boolean"/>
+			<bitfield name="ENABLE" pos="29" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x1c04" name="VERTEX_ARRAY_START_HIGH_ALT" length="32" stride="16" variants="NVA3_3D-"/>
 		<reg32 offset="0x1c08" name="VERTEX_ARRAY_START_LOW_ALT" length="32" stride="16" variants="NVA3_3D-"/>

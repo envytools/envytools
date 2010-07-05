@@ -140,10 +140,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0584" name="DRAW_COLOR_FORMAT" type="NV50_SURFACE_FORMAT"/>
 		<reg32 offset="0x0588" name="DRAW_COLOR"/>
 		<reg32 offset="0x058c" name="UNK58C">
-			<bitfield high="0" low="0" name="0" />
-			<bitfield high="4" low="4" name="1" />
-			<bitfield high="8" low="8" name="2" />
-			<bitfield high="12" low="12" name="3" />
+			<bitfield pos="0" name="0" />
+			<bitfield pos="4" name="1" />
+			<bitfield pos="8" name="2" />
+			<bitfield pos="12" name="3" />
 		</reg32>
 		<reg32 offset="0x05e0" name="DRAW_POINT16" type="xy16"/>
 		<reg32 offset="0x0600" name="DRAW_POINT32_X" length="64" stride="8" type="int"/>
@@ -190,11 +190,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Accepts 0,1</doc>
 		</reg32>
 		<reg32 offset="0x088c" name="BLIT_CONTROL">
-			<bitfield high="0" low="0" name="ORIGIN">
+			<bitfield pos="0" name="ORIGIN">
 				<value value="0" name="CENTER"/>
 				<value value="1" name="CORNER"/>
 			</bitfield>
-			<bitfield high="4" low="4" name="FILTER">
+			<bitfield pos="4" name="FILTER">
 				<value value="0" name="POINT_SAMPLE"/>
 				<value value="1" name="BILINEAR"/>
 			</bitfield>

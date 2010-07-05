@@ -262,31 +262,31 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <bitset name="nv10_rc_in_alpha" inline="yes">
 	<bitfield name="D_INPUT" high="3" low="0" type="nv10_rc_variable"/>
-	<bitfield name="D_COMPONENT_USAGE" high="4" low="4" type="nv10_rc_usage_alpha"/>
+	<bitfield name="D_COMPONENT_USAGE" pos="4" type="nv10_rc_usage_alpha"/>
 	<bitfield name="D_MAPPING" high="7" low="5" type="nv10_rc_mapping"/>
 	<bitfield name="C_INPUT" high="11" low="8" type="nv10_rc_variable"/>
-	<bitfield name="C_COMPONENT_USAGE" high="12" low="12" type="nv10_rc_usage_alpha"/>
+	<bitfield name="C_COMPONENT_USAGE" pos="12" type="nv10_rc_usage_alpha"/>
 	<bitfield name="C_MAPPING" high="15" low="13" type="nv10_rc_mapping"/>
 	<bitfield name="B_INPUT" high="19" low="16" type="nv10_rc_variable"/>
-	<bitfield name="B_COMPONENT_USAGE" high="20" low="20" type="nv10_rc_usage_alpha"/>
+	<bitfield name="B_COMPONENT_USAGE" pos="20" type="nv10_rc_usage_alpha"/>
 	<bitfield name="B_MAPPING" high="23" low="21" type="nv10_rc_mapping"/>
 	<bitfield name="A_INPUT" high="27" low="24" type="nv10_rc_variable"/>
-	<bitfield name="A_COMPONENT_USAGE" high="28" low="28" type="nv10_rc_usage_alpha"/>
+	<bitfield name="A_COMPONENT_USAGE" pos="28" type="nv10_rc_usage_alpha"/>
 	<bitfield name="A_MAPPING" high="31" low="29" type="nv10_rc_mapping"/>
 </bitset>
 
 <bitset name="nv10_rc_in_rgb" inline="yes">
 	<bitfield name="D_INPUT" high="3" low="0" type="nv10_rc_variable"/>
-	<bitfield name="D_COMPONENT_USAGE" high="4" low="4" type="nv10_rc_usage_rgb"/>
+	<bitfield name="D_COMPONENT_USAGE" pos="4" type="nv10_rc_usage_rgb"/>
 	<bitfield name="D_MAPPING" high="7" low="5" type="nv10_rc_mapping"/>
 	<bitfield name="C_INPUT" high="11" low="8" type="nv10_rc_variable"/>
-	<bitfield name="C_COMPONENT_USAGE" high="12" low="12" type="nv10_rc_usage_rgb"/>
+	<bitfield name="C_COMPONENT_USAGE" pos="12" type="nv10_rc_usage_rgb"/>
 	<bitfield name="C_MAPPING" high="15" low="13" type="nv10_rc_mapping"/>
 	<bitfield name="B_INPUT" high="19" low="16" type="nv10_rc_variable"/>
-	<bitfield name="B_COMPONENT_USAGE" high="20" low="20" type="nv10_rc_usage_rgb"/>
+	<bitfield name="B_COMPONENT_USAGE" pos="20" type="nv10_rc_usage_rgb"/>
 	<bitfield name="B_MAPPING" high="23" low="21" type="nv10_rc_mapping"/>
 	<bitfield name="A_INPUT" high="27" low="24" type="nv10_rc_variable"/>
-	<bitfield name="A_COMPONENT_USAGE" high="28" low="28" type="nv10_rc_usage_rgb"/>
+	<bitfield name="A_COMPONENT_USAGE" pos="28" type="nv10_rc_usage_rgb"/>
 	<bitfield name="A_MAPPING" high="31" low="29" type="nv10_rc_mapping"/>
 </bitset>
 
@@ -294,10 +294,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<bitfield name="CD_OUTPUT" high="3" low="0" type="nv10_rc_variable"/>
 	<bitfield name="AB_OUTPUT" high="7" low="4" type="nv10_rc_variable"/>
 	<bitfield name="SUM_OUTPUT" high="11" low="8" type="nv10_rc_variable"/>
-	<bitfield name="CD_DOT_PRODUCT" high="12" low="12" type="boolean"/>
-	<bitfield name="AB_DOT_PRODUCT" high="13" low="13" type="boolean"/>
-	<bitfield name="MUX_SUM" high="14" low="14" type="boolean"/>
-	<bitfield name="BIAS" high="15" low="15" type="nv10_rc_bias"/>
+	<bitfield name="CD_DOT_PRODUCT" pos="12" type="boolean"/>
+	<bitfield name="AB_DOT_PRODUCT" pos="13" type="boolean"/>
+	<bitfield name="MUX_SUM" pos="14" type="boolean"/>
+	<bitfield name="BIAS" pos="15" type="nv10_rc_bias"/>
 	<bitfield name="SCALE" high="17" low="16" type="nv10_rc_scale"/>
 </bitset>
 
@@ -305,39 +305,39 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<bitfield name="CD_OUTPUT" high="3" low="0" type="nv10_rc_variable"/>
 	<bitfield name="AB_OUTPUT" high="7" low="4" type="nv10_rc_variable"/>
 	<bitfield name="SUM_OUTPUT" high="11" low="8" type="nv10_rc_variable"/>
-	<bitfield name="CD_DOT_PRODUCT" high="12" low="12" type="boolean"/>
-	<bitfield name="AB_DOT_PRODUCT" high="13" low="13" type="boolean"/>
-	<bitfield name="MUX_SUM" high="14" low="14" type="boolean"/>
-	<bitfield name="BIAS" high="15" low="15" type="nv10_rc_bias"/>
+	<bitfield name="CD_DOT_PRODUCT" pos="12" type="boolean"/>
+	<bitfield name="AB_DOT_PRODUCT" pos="13" type="boolean"/>
+	<bitfield name="MUX_SUM" pos="14" type="boolean"/>
+	<bitfield name="BIAS" pos="15" type="nv10_rc_bias"/>
 	<bitfield name="SCALE" high="17" low="16" type="nv10_rc_scale"/>
 	<bitfield name="OPERATION" high="29" low="27" type="int"/>
 </bitset>
 
 <bitset name="nv10_rc_final0" inline="yes">
 	<bitfield name="D_INPUT" high="3" low="0" type="nv10_rc_variable"/>
-	<bitfield name="D_COMPONENT_USAGE" high="4" low="4" type="nv10_rc_usage_rgb"/>
+	<bitfield name="D_COMPONENT_USAGE" pos="4" type="nv10_rc_usage_rgb"/>
 	<bitfield name="D_MAPPING" high="7" low="5" type="nv10_rc_mapping"/>
 	<bitfield name="C_INPUT" high="11" low="8" type="nv10_rc_variable"/>
-	<bitfield name="C_COMPONENT_USAGE" high="12" low="12" type="nv10_rc_usage_rgb"/>
+	<bitfield name="C_COMPONENT_USAGE" pos="12" type="nv10_rc_usage_rgb"/>
 	<bitfield name="C_MAPPING" high="15" low="13" type="nv10_rc_mapping"/>
 	<bitfield name="B_INPUT" high="19" low="16" type="nv10_rc_variable"/>
-	<bitfield name="B_COMPONENT_USAGE" high="20" low="20" type="nv10_rc_usage_rgb"/>
+	<bitfield name="B_COMPONENT_USAGE" pos="20" type="nv10_rc_usage_rgb"/>
 	<bitfield name="B_MAPPING" high="23" low="21" type="nv10_rc_mapping"/>
 	<bitfield name="A_INPUT" high="27" low="24" type="nv10_rc_variable"/>
-	<bitfield name="A_COMPONENT_USAGE" high="28" low="28" type="nv10_rc_usage_rgb"/>
+	<bitfield name="A_COMPONENT_USAGE" pos="28" type="nv10_rc_usage_rgb"/>
 	<bitfield name="A_MAPPING" high="31" low="29" type="nv10_rc_mapping"/>
 </bitset>
 
 <bitset name="nv10_rc_final1" inline="yes">
-	<bitfield name="COLOR_SUM_CLAMP" high="7" low="7" type="boolean"/>
+	<bitfield name="COLOR_SUM_CLAMP" pos="7" type="boolean"/>
 	<bitfield name="G_INPUT" high="11" low="8" type="nv10_rc_variable"/>
-	<bitfield name="G_COMPONENT_USAGE" high="12" low="12" type="nv10_rc_usage_rgb"/>
+	<bitfield name="G_COMPONENT_USAGE" pos="12" type="nv10_rc_usage_rgb"/>
 	<bitfield name="G_MAPPING" high="15" low="13" type="nv10_rc_mapping"/>
 	<bitfield name="F_INPUT" high="19" low="16" type="nv10_rc_variable"/>
-	<bitfield name="F_COMPONENT_USAGE" high="20" low="20" type="nv10_rc_usage_rgb"/>
+	<bitfield name="F_COMPONENT_USAGE" pos="20" type="nv10_rc_usage_rgb"/>
 	<bitfield name="F_MAPPING" high="23" low="21" type="nv10_rc_mapping"/>
 	<bitfield name="E_INPUT" high="27" low="24" type="nv10_rc_variable"/>
-	<bitfield name="E_COMPONENT_USAGE" high="28" low="28" type="nv10_rc_usage_rgb"/>
+	<bitfield name="E_COMPONENT_USAGE" pos="28" type="nv10_rc_usage_rgb"/>
 	<bitfield name="E_MAPPING" high="31" low="29" type="nv10_rc_mapping"/>
 </bitset>
 

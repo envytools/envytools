@@ -186,7 +186,7 @@
 				<doc> Array of VBOs, indexed by NV20_VERTEX_ATTR. </doc>
 
 				<reg32 offset="0x1720" name="VTXBUF_OFFSET">
-					<bitfield name="DMA1" high="31" low="31" type="boolean"/>
+					<bitfield name="DMA1" pos="31" type="boolean"/>
 					<bitfield name="OFFSET" high="27" low="0"/>
 				</reg32>
 				<reg32 offset="0x1760" name="VTXBUF_FMT">
@@ -213,8 +213,8 @@
 			<doc> Programmable vertex pipeline controls. </doc>
 
 			<reg32 offset="0x1e94" name="ENGINE">
-				<bitfield name="VP" high="1" low="1" type="boolean"/>
-				<bitfield name="FIXED" high="2" low="2" type="boolean"/>
+				<bitfield name="VP" pos="1" type="boolean"/>
+				<bitfield name="FIXED" pos="2" type="boolean"/>
 			</reg32>
 
 			<reg32 offset="0x0b00" name="VP_UPLOAD_INST" length="4"/>
@@ -252,7 +252,7 @@
 
 			<reg32 offset="0x0294" name="LIGHT_MODEL">
 				<bitfield name="VIEWER" high="17" low="16" type="nv20_light_viewer"/>
-				<bitfield name="SEPARATE_SPECULAR" high="0" low="0" type="boolean"/>
+				<bitfield name="SEPARATE_SPECULAR" pos="0" type="boolean"/>
 			</reg32>
 			<reg32 offset="0x03bc" name="ENABLED_LIGHTS">
 				<bitfield name="0" high="1" low="0" type="nv10_light_source_mode"/>
@@ -375,22 +375,22 @@
 			</stripe>
 
 			<reg32 offset="0x17f8" name="TEX_SHADER_CULL_MODE">
-				<bitfield name="TX0_S" high="0" low="0" type="nv20_tex_shader_cull_mode"/>
-				<bitfield name="TX0_T" high="1" low="1" type="nv20_tex_shader_cull_mode"/>
-				<bitfield name="TX0_R" high="2" low="2" type="nv20_tex_shader_cull_mode"/>
-				<bitfield name="TX0_Q" high="3" low="3" type="nv20_tex_shader_cull_mode"/>
-				<bitfield name="TX1_S" high="4" low="4" type="nv20_tex_shader_cull_mode"/>
-				<bitfield name="TX1_T" high="5" low="5" type="nv20_tex_shader_cull_mode"/>
-				<bitfield name="TX1_R" high="6" low="6" type="nv20_tex_shader_cull_mode"/>
-				<bitfield name="TX1_Q" high="7" low="7" type="nv20_tex_shader_cull_mode"/>
-				<bitfield name="TX2_S" high="8" low="8" type="nv20_tex_shader_cull_mode"/>
-				<bitfield name="TX2_T" high="9" low="9" type="nv20_tex_shader_cull_mode"/>
-				<bitfield name="TX2_R" high="10" low="10" type="nv20_tex_shader_cull_mode"/>
-				<bitfield name="TX2_Q" high="11" low="11" type="nv20_tex_shader_cull_mode"/>
-				<bitfield name="TX3_S" high="12" low="12" type="nv20_tex_shader_cull_mode"/>
-				<bitfield name="TX3_T" high="13" low="13" type="nv20_tex_shader_cull_mode"/>
-				<bitfield name="TX3_R" high="14" low="14" type="nv20_tex_shader_cull_mode"/>
-				<bitfield name="TX3_Q" high="15" low="15" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX0_S" pos="0" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX0_T" pos="1" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX0_R" pos="2" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX0_Q" pos="3" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX1_S" pos="4" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX1_T" pos="5" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX1_R" pos="6" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX1_Q" pos="7" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX2_S" pos="8" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX2_T" pos="9" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX2_R" pos="10" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX2_Q" pos="11" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX3_S" pos="12" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX3_T" pos="13" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX3_R" pos="14" type="nv20_tex_shader_cull_mode"/>
+				<bitfield name="TX3_Q" pos="15" type="nv20_tex_shader_cull_mode"/>
 			</reg32>
 			<stripe offset="0x181c" name="TEX_SHADER_CONST_EYE">
 				<use-group name="xyz-float"/>
@@ -424,13 +424,13 @@
 
 			<reg32 offset="0x1b00" name="TEX_OFFSET"/>
 			<reg32 offset="0x1b04" name="TEX_FORMAT">
-				<bitfield name="DMA0" high="0" low="0" type="boolean"/>
-				<bitfield name="DMA1" high="1" low="1" type="boolean"/>
-				<bitfield name="CUBIC" high="2" low="2" type="boolean"/>
-				<bitfield name="NO_BORDER" high="3" low="3" type="boolean"/>
+				<bitfield name="DMA0" pos="0" type="boolean"/>
+				<bitfield name="DMA1" pos="1" type="boolean"/>
+				<bitfield name="CUBIC" pos="2" type="boolean"/>
+				<bitfield name="NO_BORDER" pos="3" type="boolean"/>
 				<bitfield name="DIMS" high="7" low="4" type="nv20_tex_dims"/>
 				<bitfield name="FORMAT" high="15" low="8" type="nv10_tex_format"/>
-				<bitfield name="MIPMAP" high="19" low="19" type="boolean"/>
+				<bitfield name="MIPMAP" pos="19" type="boolean"/>
 				<bitfield name="BASE_SIZE_U" high="23" low="20" type="int"/>
 				<bitfield name="BASE_SIZE_V" high="27" low="24" type="int"/>
 				<bitfield name="BASE_SIZE_W" high="31" low="28" type="int"/>
@@ -444,7 +444,7 @@
 				<bitfield name="ANISO" high="5" low="4" type="nv20_tex_anisotropy"/>
 				<bitfield name="MIPMAP_MAX_LOD" high="17" low="14" type="int"/>
 				<bitfield name="MIPMAP_MIN_LOD" high="29" low="26" type="int"/>
-				<bitfield name="ENABLE" high="30" low="30" type="boolean"/>
+				<bitfield name="ENABLE" pos="30" type="boolean"/>
 			</reg32>
 			<reg32 offset="0x1b10" name="TEX_NPOT_PITCH">
 				<bitfield name="PITCH" high="31" low="16" type="int"/>
@@ -505,12 +505,12 @@
 			<reg32 offset="0x1d8c" name="CLEAR_DEPTH_VALUE"/>
 			<reg32 offset="0x1d90" name="CLEAR_VALUE"/>
 			<reg32 offset="0x1d94" name="CLEAR_BUFFERS">
-				<bitfield name="COLOR_A" high="7" low="7" type="boolean"/>
-				<bitfield name="COLOR_B" high="6" low="6" type="boolean"/>
-				<bitfield name="COLOR_G" high="5" low="5" type="boolean"/>
-				<bitfield name="COLOR_R" high="4" low="4" type="boolean"/>
-				<bitfield name="STENCIL" high="1" low="1" type="boolean"/>
-				<bitfield name="DEPTH" high="0" low="0" type="boolean"/>
+				<bitfield name="COLOR_A" pos="7" type="boolean"/>
+				<bitfield name="COLOR_B" pos="6" type="boolean"/>
+				<bitfield name="COLOR_G" pos="5" type="boolean"/>
+				<bitfield name="COLOR_R" pos="4" type="boolean"/>
+				<bitfield name="STENCIL" pos="1" type="boolean"/>
+				<bitfield name="DEPTH" pos="0" type="boolean"/>
 			</reg32>
 		</stripe>
 

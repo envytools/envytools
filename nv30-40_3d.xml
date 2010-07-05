@@ -155,24 +155,24 @@
 		<reg32 offset="0x218" name="COLOR1_OFFSET"/>
 		<reg32 offset="0x21c" name="COLOR1_PITCH" type="int"/>
 		<reg32 offset="0x220" name="RT_ENABLE">
-			<bitfield low="0" high="0" name="COLOR0"/>
-			<bitfield low="1" high="1" name="COLOR1"/>
-			<bitfield low="2" high="2" name="COLOR2" variants="NV40_3D-NV44_3D"/>
-			<bitfield low="3" high="3" name="COLOR3" variants="NV40_3D-NV44_3D"/>
-			<bitfield low="4" high="4" name="MRT"/>
+			<bitfield pos="0" name="COLOR0"/>
+			<bitfield pos="1" name="COLOR1"/>
+			<bitfield pos="2" name="COLOR2" variants="NV40_3D-NV44_3D"/>
+			<bitfield pos="3" name="COLOR3" variants="NV40_3D-NV44_3D"/>
+			<bitfield pos="4" name="MRT"/>
 		</reg32>
 		<reg32 offset="0x22c" name="ZETA_PITCH" type="int" variants="NV40_3D-NV44_3D"/>
 		<reg32 offset="0x22c" name="LMA_DEPTH_PITCH" type="int" variants="NV30_3D-NV35_3D"/>
 		<reg32 offset="0x230" name="LMA_DEPTH_OFFSET" variants="NV30_3D-NV35_3D"/>
 		<reg32 offset="0x23c" name="TEX_UNITS_ENABLE" variants="NV30_3D-NV35_3D">
-			<bitfield low="0" high="0" name="TX0"/>
-			<bitfield low="1" high="1" name="TX1"/>
-			<bitfield low="2" high="2" name="TX2"/>
-			<bitfield low="3" high="3" name="TX3"/>
-			<bitfield low="4" high="4" name="TX4"/>
-			<bitfield low="5" high="5" name="TX5"/>
-			<bitfield low="6" high="6" name="TX6"/>
-			<bitfield low="7" high="7" name="TX7"/>
+			<bitfield pos="0" name="TX0"/>
+			<bitfield pos="1" name="TX1"/>
+			<bitfield pos="2" name="TX2"/>
+			<bitfield pos="3" name="TX3"/>
+			<bitfield pos="4" name="TX4"/>
+			<bitfield pos="5" name="TX5"/>
+			<bitfield pos="6" name="TX6"/>
+			<bitfield pos="7" name="TX7"/>
 		</reg32>
 		<reg32 offset="0x240" name="TEX_MATRIX_ENABLE" type="boolean" variants="NV30_3D-NV35_3D" length="8"/>
 		<reg32 offset="0x280" name="COLOR2_PITCH" type="int" variants="NV40_3D-NV44_3D"/>
@@ -241,31 +241,31 @@
 			<bitfield low="24" high="31" name="A" type="int"/>
 		</reg32>
 		<reg32 offset="0x370" name="MRT_COLOR_MASK" variants="NV40_3D-NV44_3D">
-			<bitfield low="4" high="4" name="BUFFER1_A"/>
-			<bitfield low="5" high="5" name="BUFFER1_R"/>
-			<bitfield low="6" high="6" name="BUFFER1_G"/>
-			<bitfield low="7" high="7" name="BUFFER1_B"/>
-			<bitfield low="8" high="8" name="BUFFER2_A"/>
-			<bitfield low="9" high="9" name="BUFFER2_R"/>
-			<bitfield low="10" high="10" name="BUFFER2_G"/>
-			<bitfield low="11" high="11" name="BUFFER2_B"/>
-			<bitfield low="12" high="12" name="BUFFER3_A"/>
-			<bitfield low="13" high="13" name="BUFFER3_R"/>
-			<bitfield low="14" high="14" name="BUFFER3_G"/>
-			<bitfield low="15" high="15" name="BUFFER3_B"/>
+			<bitfield pos="4" name="BUFFER1_A"/>
+			<bitfield pos="5" name="BUFFER1_R"/>
+			<bitfield pos="6" name="BUFFER1_G"/>
+			<bitfield pos="7" name="BUFFER1_B"/>
+			<bitfield pos="8" name="BUFFER2_A"/>
+			<bitfield pos="9" name="BUFFER2_R"/>
+			<bitfield pos="10" name="BUFFER2_G"/>
+			<bitfield pos="11" name="BUFFER2_B"/>
+			<bitfield pos="12" name="BUFFER3_A"/>
+			<bitfield pos="13" name="BUFFER3_R"/>
+			<bitfield pos="14" name="BUFFER3_G"/>
+			<bitfield pos="15" name="BUFFER3_B"/>
 		</reg32>
 		<reg32 offset="0x374" name="COLOR_LOGIC_OP_ENABLE" type="boolean"/>
 		<reg32 offset="0x378" name="COLOR_LOGIC_OP_OP" type="gl_logic_op"/>
 		<reg32 offset="0x37c" name="NORMALIZE_ENABLE" type="boolean" variants="NV30_3D-NV35_3D"/>
 		<reg32 offset="0x390" name="COLOR_MATERIAL" variants="NV30_3D-NV35_3D">
-			<bitfield low="0" high="0" name="FRONT_EMISSION_ENABLE"/>
-			<bitfield low="2" high="2" name="FRONT_AMBIENT_ENABLE"/>
-			<bitfield low="4" high="4" name="FRONT_DIFFUSE_ENABLE"/>
-			<bitfield low="6" high="6" name="FRONT_SPECULAR_ENABLE"/>
-			<bitfield low="8" high="8" name="BACK_EMISSION_ENABLE"/>
-			<bitfield low="10" high="10" name="BACK_AMBIENT_ENABLE"/>
-			<bitfield low="12" high="12" name="BACK_DIFFUSE_ENABLE"/>
-			<bitfield low="14" high="14" name="BACK_SPECULAR_ENABLE"/>
+			<bitfield pos="0" name="FRONT_EMISSION_ENABLE"/>
+			<bitfield pos="2" name="FRONT_AMBIENT_ENABLE"/>
+			<bitfield pos="4" name="FRONT_DIFFUSE_ENABLE"/>
+			<bitfield pos="6" name="FRONT_SPECULAR_ENABLE"/>
+			<bitfield pos="8" name="BACK_EMISSION_ENABLE"/>
+			<bitfield pos="10" name="BACK_AMBIENT_ENABLE"/>
+			<bitfield pos="12" name="BACK_DIFFUSE_ENABLE"/>
+			<bitfield pos="14" name="BACK_SPECULAR_ENABLE"/>
 		</reg32>
 		<reg32 offset="0x394" name="DEPTH_RANGE_NEAR" type="float"/>
 		<reg32 offset="0x398" name="DEPTH_RANGE_FAR" type="float"/>
@@ -299,8 +299,8 @@
 		<reg32 offset="0x8d4" name="FOG_EQUATION_LINEAR" type="float"/>
 		<reg32 offset="0x8d8" name="FOG_EQUATION_QUADRATIC" type="float"/>
 		<reg32 offset="0x8e4" name="FP_ACTIVE_PROGRAM">
-			<bitfield low="0" high="0" name="DMA0"/>
-			<bitfield low="1" high="1" name="DMA1"/>
+			<bitfield pos="0" name="DMA0"/>
+			<bitfield pos="1" name="DMA1"/>
 			<bitfield low="2" high="31" name="OFFSET" variants="NV30_3D-NV35_3D"/>
 		</reg32>
 		<stripe variants="NV30_3D-NV35_3D"><brief>Register combiners</brief>
@@ -409,12 +409,12 @@
 			<bitfield low="16" high="31" name="UNK1" type="int" variants="NV30_3D-NV35_3D"/>
 		</reg32>
 		<reg32 offset="0x1478" name="VP_CLIP_PLANES_ENABLE">
-			<bitfield low="1" high="1" name="PLANE0"/>
-			<bitfield low="5" high="5" name="PLANE1"/>
-			<bitfield low="9" high="9" name="PLANE2"/>
-			<bitfield low="13" high="13" name="PLANE3"/>
-			<bitfield low="17" high="17" name="PLANE4"/>
-			<bitfield low="21" high="21" name="PLANE5"/>
+			<bitfield pos="1" name="PLANE0"/>
+			<bitfield pos="5" name="PLANE1"/>
+			<bitfield pos="9" name="PLANE2"/>
+			<bitfield pos="13" name="PLANE3"/>
+			<bitfield pos="17" name="PLANE4"/>
+			<bitfield pos="21" name="PLANE5"/>
 		</reg32>
 		<reg32 offset="0x147c" name="POLYGON_STIPPLE_ENABLE" type="boolean"/>
 		<reg32 offset="0x1480" name="POLYGON_STIPPLE_PATTERN" length="32"/>
@@ -426,7 +426,7 @@
 		</array>
 		<reg32 offset="0x1680" name="VTXBUF" stride="4" length="16">
 			<bitfield low="0" high="27" name="OFFSET"/>
-			<bitfield low="31" high="31" name="DMA1"/>
+			<bitfield pos="31" name="DMA1"/>
 		</reg32>
 		<reg32 offset="0x1714" name="VTX_CACHE_INVALIDATE" variants="NV40_3D-NV44_3D"/>
 		<reg32 offset="0x1740" name="VTXFMT" length="16">
@@ -459,7 +459,7 @@
 		<reg32 offset="0x1818" name="VERTEX_DATA" type="float"/>
 		<reg32 offset="0x181c" name="IDXBUF_OFFSET"/>
 		<reg32 offset="0x1820" name="IDXBUF_FORMAT">
-			<bitfield low="0" high="0" name="DMA1"/>
+			<bitfield pos="0" name="DMA1"/>
 			<bitfield low="4" high="7" name="TYPE" type="nv30_idxbuf_type"/>
 		</reg32>
 		<reg32 offset="0x1824" name="VB_INDEX_BATCH">
@@ -502,17 +502,17 @@
 		</stripe>
 		<reg32 offset="0x1a00" name="TEX_OFFSET" stride="32" length="8"/>
 		<reg32 offset="0x1a04" name="TEX_FORMAT" stride="32" length="8">
-			<bitfield low="0" high="0" name="DMA0"/>
-			<bitfield low="1" high="1" name="DMA1"/>
-			<bitfield low="2" high="2" name="CUBIC"/>
-			<bitfield low="3" high="3" name="NO_BORDER"/>
+			<bitfield pos="0" name="DMA0"/>
+			<bitfield pos="1" name="DMA1"/>
+			<bitfield pos="2" name="CUBIC"/>
+			<bitfield pos="3" name="NO_BORDER"/>
 			<bitfield low="4" high="7" name="DIMS" type="nv30_tex_dims"/>
 			<bitfield low="8" high="15" name="FORMAT" type="nv10_tex_format" variants="NV30_3D-NV35_3D"/>
 			<bitfield low="8" high="12" name="FORMAT" type="nv40_tex_format" variants="NV40_3D-NV44_3D"/>
-			<bitfield low="13" high="13" name="LINEAR" variants="NV40_3D-NV44_3D"/>
-			<bitfield low="14" high="14" name="RECT" variants="NV40_3D-NV44_3D"/>
+			<bitfield pos="13" name="LINEAR" variants="NV40_3D-NV44_3D"/>
+			<bitfield pos="14" name="RECT" variants="NV40_3D-NV44_3D"/>
 			<bitfield low="16" high="19" name="MIPMAP_COUNT" type="int" variants="NV40_3D-NV44_3D"/>
-			<bitfield low="19" high="19" name="MIPMAP" variants="NV30_3D-NV35_3D"/>
+			<bitfield pos="19" name="MIPMAP" variants="NV30_3D-NV35_3D"/>
 			<bitfield low="20" high="23" name="BASE_SIZE_U" type="int" variants="NV30_3D-NV35_3D"/>
 			<bitfield low="24" high="27" name="BASE_SIZE_V" type="int" variants="NV30_3D-NV35_3D"/>
 			<bitfield low="28" high="31" name="BASE_SIZE_W" type="int" variants="NV30_3D-NV35_3D"/>
@@ -533,8 +533,8 @@
 			<bitfield low="15" high="17" name="MIPMAP_MAX_LOD" type="int" variants="NV40_3D-NV44_3D"/>
 			<bitfield low="26" high="29" name="MIPMAP_MIN_LOD" type="int" variants="NV30_3D-NV35_3D"/>
 			<bitfield low="27" high="29" name="MIPMAP_MIN_LOD" type="int" variants="NV40_3D-NV44_3D"/>
-			<bitfield low="30" high="30" name="ENABLE" variants="NV30_3D-NV35_3D"/>
-			<bitfield low="31" high="31" name="ENABLE" variants="NV40_3D-NV44_3D"/>
+			<bitfield pos="30" name="ENABLE" variants="NV30_3D-NV35_3D"/>
+			<bitfield pos="31" name="ENABLE" variants="NV40_3D-NV44_3D"/>
 		</reg32>
 		<reg32 offset="0x1a10" name="TEX_SWIZZLE" stride="32" length="8">
 			<bitfield low="0" high="1" name="S1_W" type="nv30_tex_swz_comp"/>
@@ -551,10 +551,10 @@
 			<bitfield low="8" high="11" name="LOD_BIAS" type="int" variants="NV30_3D-NV35_3D"/>
 			<bitfield low="16" high="19" name="MIN" type="nv04_tex_min_filter"/>
 			<bitfield low="24" high="27" name="MAG" type="nv04_tex_mag_filter"/>
-			<bitfield low="28" high="28" name="SIGNED_BLUE"/>
-			<bitfield low="29" high="29" name="SIGNED_GREEN"/>
-			<bitfield low="30" high="30" name="SIGNED_RED"/>
-			<bitfield low="31" high="31" name="SIGNED_ALPHA"/>
+			<bitfield pos="28" name="SIGNED_BLUE"/>
+			<bitfield pos="29" name="SIGNED_GREEN"/>
+			<bitfield pos="30" name="SIGNED_RED"/>
+			<bitfield pos="31" name="SIGNED_ALPHA"/>
 		</reg32>
 		<reg32 offset="0x1a18" name="TEX_NPOT_SIZE" stride="32" length="8">
 			<bitfield low="0" high="15" name="H" type="int"/>
@@ -571,17 +571,17 @@
 		</stripe>
 		<reg32 offset="0x1d60" name="FP_CONTROL">
 			<bitfield low="0" high="3" name="USED_REGS_MINUS1_DIV2" type="int" variants="NV30_3D-NV35_3D"/>
-			<bitfield low="7" high="7" name="USES_KIL" variants="NV30_3D-NV35_3D"/>
-			<bitfield low="7" high="7" name="KIL" variants="NV40_3D-NV44_3D"/>
+			<bitfield pos="7" name="USES_KIL" variants="NV30_3D-NV35_3D"/>
+			<bitfield pos="7" name="KIL" variants="NV40_3D-NV44_3D"/>
 			<bitfield low="24" high="31" name="TEMP_COUNT" type="int" variants="NV40_3D-NV44_3D"/>
 		</reg32>
 		<reg32 offset="0x1d78" name="DEPTH_CONTROL">
 			<bitfield low="4" high="7" name="CLAMP" type="boolean" variants="NV30_3D-NV35_3D"/>
 		</reg32>
 		<reg32 offset="0x1d7c" name="MULTISAMPLE_CONTROL">
-			<bitfield low="0" high="0" name="ENABLE" variants="NV30_3D-NV35_3D"/>
-			<bitfield low="4" high="4" name="SAMPLE_ALPHA_TO_COVERAGE" variants="NV30_3D-NV35_3D"/>
-			<bitfield low="8" high="8" name="SAMPLE_ALPHA_TO_ONE" variants="NV30_3D-NV35_3D"/>
+			<bitfield pos="0" name="ENABLE" variants="NV30_3D-NV35_3D"/>
+			<bitfield pos="4" name="SAMPLE_ALPHA_TO_COVERAGE" variants="NV30_3D-NV35_3D"/>
+			<bitfield pos="8" name="SAMPLE_ALPHA_TO_ONE" variants="NV30_3D-NV35_3D"/>
 			<bitfield low="16" high="31" name="SAMPLE_COVERAGE" variants="NV30_3D-NV35_3D"/>
 		</reg32>
 		<reg32 offset="0x1d8c" name="CLEAR_DEPTH_VALUE"/>
@@ -592,12 +592,12 @@
 			<bitfield low="24" high="31" name="A" type="int"/>
 		</reg32>
 		<reg32 offset="0x1d94" name="CLEAR_BUFFERS">
-			<bitfield low="0" high="0" name="DEPTH"/>
-			<bitfield low="1" high="1" name="STENCIL"/>
-			<bitfield low="4" high="4" name="COLOR_R"/>
-			<bitfield low="5" high="5" name="COLOR_G"/>
-			<bitfield low="6" high="6" name="COLOR_B"/>
-			<bitfield low="7" high="7" name="COLOR_A"/>
+			<bitfield pos="0" name="DEPTH"/>
+			<bitfield pos="1" name="STENCIL"/>
+			<bitfield pos="4" name="COLOR_R"/>
+			<bitfield pos="5" name="COLOR_G"/>
+			<bitfield pos="6" name="COLOR_B"/>
+			<bitfield pos="7" name="COLOR_A"/>
 		</reg32>
 		<reg32 offset="0x1dac" name="DO_VERTICES" variants="NV30_3D-NV35_3D"/>
 		<reg32 offset="0x1db4" name="LINE_STIPPLE_ENABLE" type="boolean"/>
@@ -610,9 +610,9 @@
 		<reg32 offset="0x1e94" name="ENGINE">
 			<!-- bit 4: ???, or FP if not bit 0-->
 			<!-- bit 8: ???, used with multisample enabled, draw pixels, logic op-->
-			<bitfield low="0" high="0" name="FP" variants="NV30_3D-NV35_3D"/>
-			<bitfield low="1" high="1" name="VP" variants="NV30_3D-NV35_3D"/>
-			<bitfield low="2" high="2" name="FIXED" variants="NV30_3D-NV35_3D"/>
+			<bitfield pos="0" name="FP" variants="NV30_3D-NV35_3D"/>
+			<bitfield pos="1" name="VP" variants="NV30_3D-NV35_3D"/>
+			<bitfield pos="2" name="FIXED" variants="NV30_3D-NV35_3D"/>
 		</reg32>
 		<reg32 offset="0x1e9c" name="VP_UPLOAD_FROM_ID"/>
 		<reg32 offset="0x1ea0" name="VP_START_FROM_ID"/>
@@ -620,16 +620,16 @@
 		<reg32 offset="0x1ee0" name="POINT_SIZE" type="float"/>
 		<reg32 offset="0x1ee4" name="POINT_PARAMETERS_ENABLE" type="boolean" variants="NV30_3D-NV35_3D"/>
 		<reg32 offset="0x1ee8" name="POINT_SPRITE">
-			<bitfield low="0" high="0" name="ENABLE"/>
+			<bitfield pos="0" name="ENABLE"/>
 			<bitfield low="1" high="2" name="R_MODE" type="nv20_point_sprite_r_mode"/>
-			<bitfield low="8" high="8" name="COORD_REPLACE_0"/>
-			<bitfield low="9" high="9" name="COORD_REPLACE_1"/>
-			<bitfield low="10" high="10" name="COORD_REPLACE_2"/>
-			<bitfield low="11" high="11" name="COORD_REPLACE_3"/>
-			<bitfield low="12" high="12" name="COORD_REPLACE_4"/>
-			<bitfield low="13" high="13" name="COORD_REPLACE_5"/>
-			<bitfield low="14" high="14" name="COORD_REPLACE_6"/>
-			<bitfield low="15" high="15" name="COORD_REPLACE_7"/>
+			<bitfield pos="8" name="COORD_REPLACE_0"/>
+			<bitfield pos="9" name="COORD_REPLACE_1"/>
+			<bitfield pos="10" name="COORD_REPLACE_2"/>
+			<bitfield pos="11" name="COORD_REPLACE_3"/>
+			<bitfield pos="12" name="COORD_REPLACE_4"/>
+			<bitfield pos="13" name="COORD_REPLACE_5"/>
+			<bitfield pos="14" name="COORD_REPLACE_6"/>
+			<bitfield pos="15" name="COORD_REPLACE_7"/>
 		</reg32>
 		<reg32 offset="0x1efc" name="VP_UPLOAD_CONST_ID"/>
 		<array offset="0x1f00" name="VP_UPLOAD_CONST" stride="16" length="4">

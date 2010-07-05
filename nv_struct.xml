@@ -9,7 +9,7 @@
 <domain name="NV03_DMA">
 	<reg32 offset="0" name="FLAGS">
 		<bitfield high="11" low="0" name="ADJUST"/>
-		<bitfield high="16" low="16" name="PRESENT"/>
+		<bitfield pos="16" name="PRESENT"/>
 		<bitfield high="25" low="24" name="TARGET">
 			<value value="0" name="VRAM"/>
 			<value value="2" name="PCI" />
@@ -18,8 +18,8 @@
 	</reg32>
 	<reg32 offset="4" name="LIMIT"/>
 	<reg32 offset="8" name="PTE" length="0">
-		<bitfield high="0" low="0" name="PRESENT"/>
-		<bitfield high="1" low="1" name="W"/>
+		<bitfield pos="0" name="PRESENT"/>
+		<bitfield pos="1" name="W"/>
 		<bitfield high="31" low="12" name="FRAME" shr="12"/>
 	</reg32>
 </domain>
@@ -38,7 +38,7 @@
 			<bitfield high="12" low="2" name="MTHD" shr="2"/>
 			<bitfield high="15" low="13" name="SUBCH"/>
 			<bitfield high="22" low="16" name="CHID"/>
-			<bitfield high="23" low="23" name="TYPE">
+			<bitfield pos="23" name="TYPE">
 				<value value="0" name="WRITE"/>
 				<value value="1" name="READ"/>
 			</bitfield>

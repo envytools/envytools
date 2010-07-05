@@ -87,18 +87,18 @@
 	<reg32 offset="0x02b4" name="VIEWPORT_CLIP_MODE"/>
 	<reg32 offset="0x02c0" name="VIEWPORT_CLIP_HORIZ" length="8">
 		<bitfield name="CLIP_L" high="10" low="0" type="int"/>
-		<bitfield name="CLIP_LEFT_ENABLE" high="11" low="11"
+		<bitfield name="CLIP_LEFT_ENABLE" pos="11"
 			  type="boolean" variants="-NV17_3D"/>
 		<bitfield name="CLIP_R" high="26" low="16" type="int"/>
-		<bitfield name="CLIP_RIGHT_ENABLE" high="27" low="27"
+		<bitfield name="CLIP_RIGHT_ENABLE" pos="27"
 			  type="boolean" variants="-NV17_3D"/>
 	</reg32>
 	<reg32 offset="0x02e0" name="VIEWPORT_CLIP_VERT" length="8">
 		<bitfield name="CLIP_T" high="10" low="0" type="int"/>
-		<bitfield name="CLIP_TOP_ENABLE" high="11" low="11"
+		<bitfield name="CLIP_TOP_ENABLE" pos="11"
 			  type="boolean" variants="-NV17_3D"/>
 		<bitfield name="CLIP_B" high="26" low="16" type="int"/>
-		<bitfield name="CLIP_BOTTOM_ENABLE" high="27" low="27"
+		<bitfield name="CLIP_BOTTOM_ENABLE" pos="27"
 			  type="boolean" variants="-NV17_3D"/>
 	</reg32>
 
@@ -124,10 +124,10 @@
 	<reg32 offset="0x0350" name="BLEND_EQUATION" type="gl_blend_equation"/>
 	<reg32 offset="0x0354" name="DEPTH_FUNC" type="gl_comparison_op"/>
 	<reg32 offset="0x0358" name="COLOR_MASK">
-		<bitfield name="B" high="0" low="0" type="boolean"/>
-		<bitfield name="G" high="8" low="8" type="boolean"/>
-		<bitfield name="R" high="16" low="16" type="boolean"/>
-		<bitfield name="A" high="24" low="24" type="boolean"/>
+		<bitfield name="B" pos="0" type="boolean"/>
+		<bitfield name="G" pos="8" type="boolean"/>
+		<bitfield name="R" pos="16" type="boolean"/>
+		<bitfield name="A" pos="24" type="boolean"/>
 	</reg32>
 	<reg32 offset="0x035c" name="DEPTH_WRITE_ENABLE" type="boolean"/>
 	<reg32 offset="0x0360" name="STENCIL_MASK"/>
@@ -226,7 +226,7 @@
 						  type="nv10_vtxbuf_type"/>
 					<bitfield name="FIELDS" high="7" low="4" type="int"/>
 					<bitfield name="STRIDE" high="15" low="8" type="int"/>
-					<bitfield name="POS_HOMOGENEOUS" high="24" low="24"
+					<bitfield name="POS_HOMOGENEOUS" pos="24"
 						  type="boolean"/>
 				</reg32>
 			</stripe>
@@ -252,9 +252,9 @@
 
 			<reg32 offset="0x0328" name="VERTEX_WEIGHT_ENABLE" type="boolean"/>
 			<reg32 offset="0x03e8" name="VIEW_MATRIX_ENABLE">
-				<bitfield name="MODELVIEW1" high="0" low="0" type="boolean"/>
-				<bitfield name="MODELVIEW0" high="1" low="1" type="boolean"/>
-				<bitfield name="PROJECTION" high="2" low="2" type="boolean"/>
+				<bitfield name="MODELVIEW1" pos="0" type="boolean"/>
+				<bitfield name="MODELVIEW0" pos="1" type="boolean"/>
+				<bitfield name="PROJECTION" pos="2" type="boolean"/>
 			</reg32>
 
 			<stripe length="2" stride="64">
@@ -274,16 +274,16 @@
 			<doc> Lighting global controls. </doc>
 
 			<reg32 offset="0x0294" name="LIGHT_MODEL">
-				<bitfield name="VERTEX_SPECULAR" high="0" low="0" type="boolean"/>
-				<bitfield name="SEPARATE_SPECULAR" high="1" low="1" type="boolean"/>
-				<bitfield name="LOCAL_VIEWER" high="16" low="16" type="boolean"/>
+				<bitfield name="VERTEX_SPECULAR" pos="0" type="boolean"/>
+				<bitfield name="SEPARATE_SPECULAR" pos="1" type="boolean"/>
+				<bitfield name="LOCAL_VIEWER" pos="16" type="boolean"/>
 			</reg32>
 
 			<reg32 offset="0x0298" name="COLOR_MATERIAL">
-				<bitfield name="EMISSION" high="0" low="0" type="boolean"/>
-				<bitfield name="AMBIENT" high="1" low="1" type="boolean"/>
-				<bitfield name="DIFFUSE" high="2" low="2" type="boolean"/>
-				<bitfield name="SPECULAR" high="3" low="3" type="boolean"/>
+				<bitfield name="EMISSION" pos="0" type="boolean"/>
+				<bitfield name="AMBIENT" pos="1" type="boolean"/>
+				<bitfield name="DIFFUSE" pos="2" type="boolean"/>
+				<bitfield name="SPECULAR" pos="3" type="boolean"/>
 			</reg32>
 			<stripe offset="0x03a8" name="MATERIAL_FACTOR">
 				<use-group name="rgba-float"/>
@@ -377,11 +377,11 @@
 
 			<reg32 offset="0x0218" name="TEX_OFFSET"/>
 			<reg32 offset="0x0220" name="TEX_FORMAT">
-				<bitfield name="DMA0" high="0" low="0" type="boolean"/>
-				<bitfield name="DMA1" high="1" low="1" type="boolean"/>
-				<bitfield name="CUBE_MAP" high="2" low="2" type="boolean"/>
+				<bitfield name="DMA0" pos="0" type="boolean"/>
+				<bitfield name="DMA1" pos="1" type="boolean"/>
+				<bitfield name="CUBE_MAP" pos="2" type="boolean"/>
 				<bitfield name="FORMAT" high="11" low="7" type="nv10_tex_format"/>
-				<bitfield name="MIPMAP" high="15" low="15" type="boolean"/>
+				<bitfield name="MIPMAP" pos="15" type="boolean"/>
 				<bitfield name="BASE_SIZE_U" high="19" low="16" type="int"/>
 				<bitfield name="BASE_SIZE_V" high="23" low="20" type="int"/>
 				<bitfield name="WRAP_S" high="27" low="24" type="nv04_tex_wrap"/>
@@ -392,7 +392,7 @@
 				<bitfield name="ANISOTROPY" high="5" low="4" type="int"/>
 				<bitfield name="MIPMAP_MAX_LOD" high="17" low="14" type="int"/>
 				<bitfield name="MIPMAP_MIN_LOD" high="29" low="26" type="int"/>
-				<bitfield name="ENABLE" high="30" low="30" type="boolean"/>
+				<bitfield name="ENABLE" pos="30" type="boolean"/>
 			</reg32>
 			<reg32 offset="0x0230" name="TEX_NPOT_PITCH">
 				<bitfield name="PITCH" high="31" low="16" type="int"/>

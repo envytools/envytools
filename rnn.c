@@ -318,6 +318,9 @@ static struct rnnbitfield *parsebitfield(struct rnndb *db, char *file, xmlNode *
 		} else if (!strcmp(attr->name, "low")) {
 			bf->low = getnumattrib(db, file, node->line, attr);
 			lowok = 1;
+		} else if (!strcmp(attr->name, "pos")) {
+			bf->high = bf->low = getnumattrib(db, file, node->line, attr);
+			lowok = highok = 1;
 		} else if (!strcmp(attr->name, "varset")) {
 			bf->varinfo.varsetstr = strdup(getattrib(db, file, node->line, attr));
 		} else if (!strcmp(attr->name, "variants")) {
