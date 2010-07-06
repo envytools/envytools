@@ -316,6 +316,16 @@ void printscript (uint16_t soff) {
 				printf ("ZM_REG\tR[0x%06x] = 0x%08x\n", le32(soff+1), le32(soff+5));
 				soff += 9;
 				break;
+			case 0x87:
+				printcmd (soff, 2);
+				printf ("RAM_RESTRICT_PLL 0x%02x\n", bios[soff+1]);
+				soff += 2;
+				for (i = 0; i < ram_restrict_group_count; i++) {
+					printcmd(soff, 4);
+					printf("\t[0x%02x] 0x%08x\n", i, le32(soff));
+				}
+				soff += 2 + ram_restrict_group_count * 4;
+				break;
 			case 0x8c:
 				printcmd (soff, 1);
 				printf ("UNK8C\n");
