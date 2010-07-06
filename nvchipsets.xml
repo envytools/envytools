@@ -93,6 +93,7 @@
 		<brief>GT216: GeForce GT 220</brief>
 	</value>
 	<value value="0xa8" name="NVA8" />
+	<value value="0xaf" name="NVAF" />
 	<value value="0xc0" name="NVC0">
 		<brief>GF100: GeForce 470/480 GTX</brief>
 	</value>
