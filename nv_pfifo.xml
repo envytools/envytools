@@ -782,7 +782,7 @@
 				</bitfield>
 				<bitfield pos="12" name="HASH_BUSY"/>
 				<bitfield pos="16" name="ACQUIRE_BUSY" variants="NV11-"/>
-				<bitfield pos="20" name="SEMAPHORE_ERROR" variants="NV11-">
+				<bitfield high="23" low="20" name="SEMAPHORE_ERROR" variants="NV11-">
 					<value value="0" name="NONE"/>
 					<!-- XXX: figure out wtf they mean. Doesn't seem to be consistent. -->
 					<value value="1" name="INVALID_OPERAND" variants="NV11:NV50"/>
