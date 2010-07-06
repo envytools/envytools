@@ -233,6 +233,24 @@
 			<array offset="0xc04" name="PAL_WR_SHADOW" stride="4" length="1">
 				<use-group name="nv50_pdisplay_vga_pal_color"/>
 			</array>
+			<reg32 offset="0xf00" name="RAM_WINDOW">
+				<bitfield high="31" low="10" shr="18" name="BASE"/>
+				<bitfield pos="3" name="ENABLE"/>
+				<bitfield high="1" low="0" name="TARGET">
+					<value value="1" name="VRAM"/>
+					<value value="2" name="SYSRAM"/>
+					<value value="3" name="SYSRAM_NO_SNOOP"/> <!-- guess -->
+				</bitfield>
+			</reg32>
+			<reg32 offset="0xf04" name="ROM_WINDOW">
+				<bitfield high="31" low="8" shr="16" name="BASE"/>
+				<bitfield pos="3" name="ENABLE"/>
+				<bitfield high="1" low="0" name="TARGET">
+					<value value="1" name="VRAM"/>
+					<value value="2" name="SYSRAM"/>
+					<value value="3" name="SYSRAM_NO_SNOOP"/> <!-- guess -->
+				</bitfield>
+			</reg32>
 			<reg32 offset="0xffc" name="DEAD_CAFE"/>
 		</array>
 
