@@ -1,4 +1,4 @@
-all: headergen expand lookup demmio nvbios nv50_texture.h ctxdis nv50dis nvc0dis fcdis pmdis
+all: headergen expand lookup demmio nvbios ctxdis nv50dis nvc0dis fcdis pmdis
 
 headergen: headergen.c rnn.c rnn.h
 	gcc -o headergen headergen.c rnn.c -lxml2 -I/usr/include/libxml2 -g -Wall -Wno-pointer-sign
@@ -11,9 +11,6 @@ lookup: lookup.c rnn.c rnn.h rnndec.c rnndec.h
 
 demmio: demmio.c rnn.c rnn.h rnndec.c rnndec.h dis.h pmd-back.c coredis.c
 	gcc -o demmio demmio.c rnn.c rnndec.c pmd-back.c coredis.c -lxml2 -I/usr/include/libxml2 -g -Wall -Wno-pointer-sign
-
-nv50_texture.xml.h: nv50_texture.xml headergen
-	./headergen nv50_texture.xml
 
 nvbios: nvbios.c
 	gcc nvbios.c -o nvbios -Wall
