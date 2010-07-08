@@ -323,8 +323,8 @@ void printscript (uint16_t soff) {
 				for (i = 0; i < ram_restrict_group_count; i++) {
 					printcmd(soff, 4);
 					printf("\t[0x%02x] 0x%08x\n", i, le32(soff));
+					soff += 4;
 				}
-				soff += 2 + ram_restrict_group_count * 4;
 				break;
 			case 0x8c:
 				printcmd (soff, 1);
