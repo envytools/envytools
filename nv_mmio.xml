@@ -139,10 +139,25 @@
 	<array offset="0x1000" name="PBUS" stride="0x1000" length="1">
 		<reg32 offset="0x100" name="INTR">
 			<bitfield pos="3" name="MMIO_FAULT"/>
+			<bitfield pos="26" name="PMS"/>
 		</reg32>
 		<reg32 offset="0x140" name="INTR_EN">
 			<bitfield pos="3" name="MMIO_FAULT"/>
+			<bitfield pos="26" name="PMS"/>
 		</reg32>
+		<reg32 offset="0x150" name="INTR_PMS_TRIGGER"/>
+		<stripe variants="NV17-">
+			<reg32 offset="0x304" name="PMS_CONTROL">
+			</reg32>
+			<reg32 offset="0x308" name="PMS_STATE">
+				<bitfield low="0" high="7" name="IP"/>
+				<bitfield pos="8" name="ACTIVE"/>
+			</reg32>
+			<reg32 offset="0x30c" name="PMS_TRIGGER">
+				<bitfield pos="0" name="START"/>
+			</reg32>
+			<reg8 offset="0x400" name="PMS_CODE" length="0x100"/>
+		</stripe>
 		<reg32 offset="0x540" name="PGRAPH_UNITS" variants="NV50:NVC0">
 			<doc>Enables PGRAPH engines that come in multiple copies.
 			</doc>
@@ -225,6 +240,8 @@
 		</reg32>
 	</array>
 
+	<reg8 offset="0x80000" name="PBUS_PMS_NEW_CODE" length="0x200" variants="NV92-"/>
+
 	<array offset="0x88000" name="PBUS_PCI" stride="0x1000" length="1" variants="NV40-">
 	</array>
 
@@ -288,6 +305,8 @@
 <!-- 060000 - 060fff PEEPHOLE covered above -->
 
 <!-- 070000 - 070fff PFIFO_MAGIC_FLUSH covered in nv_pfifo.xml -->
+
+<!-- 080000 - 080fff PBUS_PMS_NEW_CODE covered above -->
 
 <!-- 082000 - 082fff ??? -->
 
