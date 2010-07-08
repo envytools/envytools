@@ -27,6 +27,8 @@ uint32_t i2coffset = 0;
 uint8_t dcbver, dcbhlen, dcbrlen, dcbentries;
 uint8_t i2cver, i2chlen, i2crlen, i2centries, i2cd0, i2cd1;
 int maxcond = -1;
+int maxiocond = -1;
+int maxiofcond = -1;
 int maxmi = -1;
 int maxmac = -1;
 
@@ -159,6 +161,13 @@ void printscript (uint16_t soff) {
 				printcmd (soff, 1);
 				printf ("NOT\n");
 				soff++;
+				break;
+			case 0x39:
+				printcmd (soff, 2);
+				printf ("IO_FLAG_CONDITION\t0x%02x\n", bios[soff+1]);
+				if (bios[soff+1] > maxiofcond)
+					maxiofcond = bios[soff+1];
+				soff += 2;
 				break;
 			case 0x4a:
 				printcmd (soff, 11);
@@ -309,6 +318,13 @@ void printscript (uint16_t soff) {
 				printf ("CONDITION\t0x%02x\n", bios[soff+1]);
 				if (bios[soff+1] > maxcond)
 					maxcond = bios[soff+1];
+				soff += 2;
+				break;
+			case 0x76:
+				printcmd (soff, 2);
+				printf ("IO_CONDITION\t0x%02x\n", bios[soff+1]);
+				if (bios[soff+1] > maxiocond)
+					maxiocond = bios[soff+1];
 				soff += 2;
 				break;
 			case 0x7a:
