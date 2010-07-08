@@ -77,7 +77,7 @@ uint32_t optab[] = {
  * FILE*.
  */
 
-void fcdis (FILE *out, uint8_t *code, int num, int ptype) {
+void pmdis (FILE *out, uint8_t *code, int num, int ptype) {
 	int cur = 0, i;
 	while (cur < num) {
 		fprintf (out, "%s%08x:%s", cgray, cur, cnorm);

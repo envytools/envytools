@@ -9,8 +9,8 @@ expand: expand.c rnn.c rnn.h rnndec.c rnndec.h
 lookup: lookup.c rnn.c rnn.h rnndec.c rnndec.h
 	gcc -o lookup lookup.c rnn.c rnndec.c -lxml2 -I/usr/include/libxml2 -g -Wall -Wno-pointer-sign
 
-demmio: demmio.c rnn.c rnn.h rnndec.c rnndec.h
-	gcc -o demmio demmio.c rnn.c rnndec.c -lxml2 -I/usr/include/libxml2 -g -Wall -Wno-pointer-sign
+demmio: demmio.c rnn.c rnn.h rnndec.c rnndec.h dis.h pmd-back.c coredis.c
+	gcc -o demmio demmio.c rnn.c rnndec.c pmd-back.c coredis.c -lxml2 -I/usr/include/libxml2 -g -Wall -Wno-pointer-sign
 
 nv50_texture.xml.h: nv50_texture.xml headergen
 	./headergen nv50_texture.xml

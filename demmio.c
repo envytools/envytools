@@ -1,5 +1,6 @@
 #include "rnn.h"
 #include "rnndec.h"
+#include "dis.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
@@ -12,6 +13,9 @@ uint64_t praminbase = 0;
 uint64_t ramins = 0;
 uint64_t fakechan = 0;
 int i2cip = -1;
+int pmsip = 0;
+uint32_t pmsnext;
+uint8_t pms[0x200];
 
 struct mpage {
 	uint64_t tag;
@@ -201,6 +205,10 @@ int main(int argc, char **argv) {
 			width *= 8;
 			if (bar0 && addr >= bar0 && addr < bar0+bar0l) {
 				addr -= bar0;
+				if (pmsip && addr != pmsnext) {
+					pmdis(stdout, pms, pmsnext & 0x3fc, -1);
+					pmsip = 0;
+				}
 				if (addr == 0 && !chdone) {
 					char chname[5];
 					if (value & 0x0f000000)
@@ -267,6 +275,20 @@ int main(int argc, char **argv) {
 					}
 				} else if ((addr & 0xfff000) == 0x9000 && (i2cip != -1)) {
 					/* ignore PTIMER meddling during I2C */
+					skip = 1;
+				} else if (addr == 0x1400 || addr == 0x80000 || addr == pmsnext) {
+					if (!pmsip) {
+						struct rnndecaddrinfo *ai = rnndec_decodeaddr(ctx, mmiodom, addr, line[0] == 'W');
+						printf ("PMS      0x%06"PRIx64"            %s\n", addr, ai->name);
+						free(ai->name);
+						free(ai);
+					}
+					pms[(addr & 0x1fc) + 0] = value;
+					pms[(addr & 0x1fc) + 1] = value >> 8;
+					pms[(addr & 0x1fc) + 2] = value >> 16;
+					pms[(addr & 0x1fc) + 3] = value >> 24;
+					pmsip = 1;
+					pmsnext = addr + 4;
 					skip = 1;
 				}
 				if (!skip && (i2cip != -1)) {
