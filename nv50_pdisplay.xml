@@ -58,7 +58,7 @@
 		<reg32 offset="0x0080" name="TRAPPED_ADDR"/>
 		<reg32 offset="0x0084" name="TRAPPED_DATA"/>
 
-		<array offset="0x0200" name="CHANNEL" stride="0x10" length="5"> <!-- maybe 7? last 2 seem different, though. -->
+		<array offset="0x0200" name="CHANNEL" stride="0x10" length="5">
 			<reg32 offset="0x0" name="STAT">
 				<bitfield pos="4" name="DMA_ENABLED"/>
 			</reg32>
