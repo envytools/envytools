@@ -337,10 +337,10 @@ static uint32_t optab[] = {
  * FILE*.
  */
 
-void fcdis (FILE *out, uint8_t *code, int num, int ptype) {
+void fcdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype) {
 	int cur = 0, i;
 	while (cur < num) {
-		fprintf (out, "%s%08x:%s", cgray, cur, cnorm);
+		fprintf (out, "%s%08x:%s", cgray, cur + start, cnorm);
 		uint8_t op = code[cur];
 		int length = 0;
 		if (op < 0xc0)
@@ -359,7 +359,7 @@ void fcdis (FILE *out, uint8_t *code, int num, int ptype) {
 			}
 			for (i = 0; i < 6 - length; i++)
 				fprintf (out, "   ");
-			atomtab (out, &a, &m, tabm, ptype, cur);
+			atomtab (out, &a, &m, tabm, ptype, cur + start);
 			a &= ~m;
 			if (a) {
 				fprintf (out, " %s[unknown: %08llx]%s", cred, a, cnorm);

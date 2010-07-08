@@ -100,6 +100,6 @@ int main(int argc, char **argv) {
 			scanf (" ,");
 		}
 
-	ctxdis (stdout, code, num, ptype);
+	ctxdis (stdout, code, 0, num, ptype);
 	return 0;
 }

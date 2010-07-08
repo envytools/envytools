@@ -73,6 +73,6 @@ int main(int argc, char **argv) {
 			code[num++] = t;
 		scanf (" ,");
 	}
-	pmdis (stdout, code, num, ptype);
+	pmdis (stdout, code, 0, num, ptype);
 	return 0;
 }

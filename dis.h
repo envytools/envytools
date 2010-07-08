@@ -160,17 +160,17 @@ uint16_t readle16 (uint8_t *);
 #define CP 8
 #define AP (VP|GP|FP|CP)
 
-void nv50dis (FILE *out, uint32_t *code, int num, int ptype);
-void nvc0dis (FILE *out, uint32_t *code, int num, int ptype);
+void nv50dis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype);
+void nvc0dis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype);
 
 #define NV4x 1
 #define NV5x 2 /* and 8x and 9x and Ax */
 #define NVxx 3
 
-void ctxdis (FILE *out, uint32_t *code, int num, int ptype);
+void ctxdis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype);
 
-void fcdis (FILE *out, uint8_t *code, int num, int ptype);
+void fcdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype);
 
-void pmdis (FILE *out, uint8_t *code, int num, int ptype);
+void pmdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype);
 
 #endif

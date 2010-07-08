@@ -82,6 +82,6 @@ int main(int argc, char **argv) {
 		code[num++] = t;
 		scanf (" ,");
 	}
-	nvc0dis (stdout, code, num, ptype);
+	nvc0dis (stdout, code, 0, num, ptype);
 	return 0;
 }

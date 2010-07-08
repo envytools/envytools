@@ -82,6 +82,6 @@ int main(int argc, char **argv) {
 		code[num++] = t;
 		scanf (" ,");
 	}
-	nv50dis (stdout, code, num, ptype);
+	nv50dis (stdout, code, 0, num, ptype);
 	return 0;
 }

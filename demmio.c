@@ -206,7 +206,7 @@ int main(int argc, char **argv) {
 			if (bar0 && addr >= bar0 && addr < bar0+bar0l) {
 				addr -= bar0;
 				if (pmsip && addr != pmsnext) {
-					pmdis(stdout, pms, pmsnext & 0x3fc, -1);
+					pmdis(stdout, pms, 0, pmsnext & 0x3fc, -1);
 					pmsip = 0;
 				}
 				if (addr == 0 && !chdone) {
