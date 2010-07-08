@@ -82,7 +82,7 @@
 				<bitfield low="0" high="23" name="DUTY"/>
 				<bitfield pos="31" name="WR_TRIGGER"/>
 			</reg32>
-		</rarray>
+		</array>
 
 		<reg32 name="I2C_PORT_0" offset="0x138" type="nv50_i2c"/>
 		<reg32 name="I2C_PORT_1" offset="0x150" type="nv50_i2c"/>
