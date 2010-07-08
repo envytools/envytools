@@ -54,6 +54,7 @@ struct insn tabm[] = {
 	{ AP, 0x42, 0xff, N("data"), DATA16 },
 	{ AP, 0xe0, 0xff, N("addr"), ADDR32 },
 	{ AP, 0xe2, 0xff, N("data"), DATA32 },
+	{ AP, 0x7f, 0xff, N("exit") },
 	{ AP, 0, 0, OOPS },
 };
 
