@@ -6,4 +6,9 @@ lookup
 expand
 demmio
 nvbios
+nv50dis
+nvc0dis
+ctxdis
+fcdis
+pmdis
 *.xml.h
