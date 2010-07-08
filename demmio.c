@@ -161,19 +161,19 @@ void doi2cw (struct i2c_ctx *ctx, int byte) {
 
 int main(int argc, char **argv) {
 	rnn_init();
-	if (argc < 3) {
+	if (argc < 2) {
 		printf ("Usage:\n"
-				"\tdemmio file.xml trace.txt\n"
+				"\tdemmio trace.txt\n"
 			);
 		return 0;
 	}
 	struct rnndb *db = rnn_newdb();
-	rnn_parsefile (db, argv[1]);
+	rnn_parsefile (db, "nv_mmio.xml");
 	rnn_prepdb (db);
 	struct rnndeccontext *ctx = rnndec_newcontext(db);
 	ctx->colors = &rnndec_colorsterm;
 	struct rnndomain *mmiodom = rnn_finddomain(db, "NV_MMIO");
-	FILE *fin = fopen(argv[2], "r");
+	FILE *fin = fopen(argv[1], "r");
 	char line[1024];
 	uint64_t bar0 = 0, bar0l, bar1, bar1l, bar2, bar2l;
 	int i;
