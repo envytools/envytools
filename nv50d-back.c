@@ -257,14 +257,14 @@ void atomimm APROTO {
  *  - HSHCNT: used in $a shift-by-immediate insn for shift amount
  */
 
-int pmoff[] = { 0xa, 4, 0, 0 };
-int baroff[] = { 0x15, 4, 0, 0 };
-int offoff[] = { 9, 16, 0, 0 };
-int shcntoff[] = { 0x10, 7, 0, 0 };
-int hshcntoff[] = { 0x10, 4, 0, 0 };
-int toffxoff[] = { 0x38, 4, 0, 1 };
-int toffyoff[] = { 0x34, 4, 0, 1 };
-int toffzoff[] = { 0x30, 4, 0, 1 };
+static int pmoff[] = { 0xa, 4, 0, 0 };
+static int baroff[] = { 0x15, 4, 0, 0 };
+static int offoff[] = { 9, 16, 0, 0 };
+static int shcntoff[] = { 0x10, 7, 0, 0 };
+static int hshcntoff[] = { 0x10, 4, 0, 0 };
+static int toffxoff[] = { 0x38, 4, 0, 1 };
+static int toffyoff[] = { 0x34, 4, 0, 1 };
+static int toffzoff[] = { 0x30, 4, 0, 1 };
 #define PM atomnum, pmoff
 #define BAR atomnum, baroff
 #define OFFS atomnum, offoff
@@ -286,8 +286,8 @@ int toffzoff[] = { 0x30, 4, 0, 1 };
  * ptxas output and blob shaders. Don't include all random unused fields here.
  */
 
-int ignce[] = { 0x26, 1 };
-int ignpred[] = { 0x27, 7 };
+static int ignce[] = { 0x26, 1 };
+static int ignpred[] = { 0x27, 7 };
 #define IGNCE atomign, ignce
 #define IGNPRED atomign, ignpred
 
@@ -339,20 +339,20 @@ int ignpred[] = { 0x27, 7 };
  *
  */
 
-int sdstoff[] = { 2, 6, 'r' };
-int ldstoff[] = { 2, 7, 'r' };
-int ssrcoff[] = { 9, 6, 'r' };
-int lsrcoff[] = { 9, 7, 'r' };
-int ssrc2off[] = { 0x10, 6, 'r' };
-int lsrc2off[] = { 0x10, 7, 'r' };
-int lsrc3off[] = { 0x2e, 7, 'r' };
-int odstoff[] = { 2, 7, 'o' };
-int adstoff[] = { 2, 3, 'a' };
-int condoff[] = { 0x2c, 2, 'c' };
-int c0off[] = { 0, 0, 'c' };
-int cdstoff[] = { 0x24, 2, 'c' };
-int texoff[] = { 9, 7, 't' };
-int sampoff[] = { 0x11, 4, 's' };
+static int sdstoff[] = { 2, 6, 'r' };
+static int ldstoff[] = { 2, 7, 'r' };
+static int ssrcoff[] = { 9, 6, 'r' };
+static int lsrcoff[] = { 9, 7, 'r' };
+static int ssrc2off[] = { 0x10, 6, 'r' };
+static int lsrc2off[] = { 0x10, 7, 'r' };
+static int lsrc3off[] = { 0x2e, 7, 'r' };
+static int odstoff[] = { 2, 7, 'o' };
+static int adstoff[] = { 2, 3, 'a' };
+static int condoff[] = { 0x2c, 2, 'c' };
+static int c0off[] = { 0, 0, 'c' };
+static int cdstoff[] = { 0x24, 2, 'c' };
+static int texoff[] = { 9, 7, 't' };
+static int sampoff[] = { 0x11, 4, 's' };
 #define SDST atomreg, sdstoff
 #define LDST atomreg, ldstoff
 #define SHDST atomhreg, sdstoff
@@ -381,7 +381,7 @@ int sampoff[] = { 0x11, 4, 's' };
 #define TEX atomreg, texoff
 #define SAMP atomreg, sampoff
 
-int getareg (ull *a, ull *m, int l) {
+static int getareg (ull *a, ull *m, int l) {
 	int r = BF(0x1a, 2);
 	RCL(0x1a, 2);
 	if (l) {
@@ -498,37 +498,37 @@ F1(mcdst, 0x26, CDST)
 // BF, offset shift, 'l', flags, const space num BF. flags: 1 supports $a, 2 supports full 3-bit $a, 4 supports autoincrement
 
 // shared
-int ssmem[] = { 9, 4, 2, 's', 5, 0, 0 };		// done
-int shsmem[] = { 9, 4, 1, 's', 5, 0, 0 };		// done
-int sbsmem[] = { 9, 4, 0, 's', 5, 0, 0 };		// done
-int lsmem[] = { 9, 5, 2, 's', 7, 0, 0 };		// done
-int lhsmem[] = { 9, 5, 1, 's', 7, 0, 0 };		// done
-int lbsmem[] = { 9, 5, 0, 's', 7, 0, 0 };		// done
-int fsmem[] = { 9, 14, 2, 's', 7, 0, 0 };		// done
-int fhsmem[] = { 9, 15, 1, 's', 7, 0, 0 };		// done
-int fbsmem[] = { 9, 16, 0, 's', 7, 0, 0 };		// done
+static int ssmem[] = { 9, 4, 2, 's', 5, 0, 0 };		// done
+static int shsmem[] = { 9, 4, 1, 's', 5, 0, 0 };		// done
+static int sbsmem[] = { 9, 4, 0, 's', 5, 0, 0 };		// done
+static int lsmem[] = { 9, 5, 2, 's', 7, 0, 0 };		// done
+static int lhsmem[] = { 9, 5, 1, 's', 7, 0, 0 };		// done
+static int lbsmem[] = { 9, 5, 0, 's', 7, 0, 0 };		// done
+static int fsmem[] = { 9, 14, 2, 's', 7, 0, 0 };		// done
+static int fhsmem[] = { 9, 15, 1, 's', 7, 0, 0 };		// done
+static int fbsmem[] = { 9, 16, 0, 's', 7, 0, 0 };		// done
 // attr
-int samem[] = { 9, 6, 2, 'a', 0, 0, 0 };		// TODO
-int lamem[] = { 9, 7, 2, 'a', 0, 0, 0 };		// TODO
-int famem[] = { 9, 7, 2, 'a', 3, 0, 0 };		// TODO
+static int samem[] = { 9, 6, 2, 'a', 0, 0, 0 };		// TODO
+static int lamem[] = { 9, 7, 2, 'a', 0, 0, 0 };		// TODO
+static int famem[] = { 9, 7, 2, 'a', 3, 0, 0 };		// TODO
 // prim
-int spmem[] = { 9, 6, 2, 'p', 1, 0, 0 };		// TODO
-int lpmem[] = { 9, 7, 2, 'p', 3, 0, 0 };		// TODO
+static int spmem[] = { 9, 6, 2, 'p', 1, 0, 0 };		// TODO
+static int lpmem[] = { 9, 7, 2, 'p', 3, 0, 0 };		// TODO
 // const
-int scmem[] = { 0x10, 5, 2, 'c', 1, 0x15, 1 };		// TODO
-int shcmem[] = { 0x10, 5, 1, 'c', 1, 0x15, 1 };		// TODO
-int lcmem2[] = { 0x10, 7, 2, 'c', 3, 0x36, 4 };		// TODO
-int lhcmem2[] = { 0x10, 7, 1, 'c', 3, 0x36, 4 };	// TODO
-int lcmem3[] = { 0x2e, 7, 2, 'c', 3, 0x36, 4 };		// TODO
-int lhcmem3[] = { 0x2e, 7, 1, 'c', 3, 0x36, 4 };	// TODO
-int fcmem[] = { 9, 14, 2, 'c', 7, 0x36, 4 };		// done
-int fhcmem[] = { 9, 15, 1, 'c', 7, 0x36, 4 };		// done
-int fbcmem[] = { 9, 16, 0, 'c', 7, 0x36, 4 };		// done
+static int scmem[] = { 0x10, 5, 2, 'c', 1, 0x15, 1 };		// TODO
+static int shcmem[] = { 0x10, 5, 1, 'c', 1, 0x15, 1 };		// TODO
+static int lcmem2[] = { 0x10, 7, 2, 'c', 3, 0x36, 4 };		// TODO
+static int lhcmem2[] = { 0x10, 7, 1, 'c', 3, 0x36, 4 };	// TODO
+static int lcmem3[] = { 0x2e, 7, 2, 'c', 3, 0x36, 4 };		// TODO
+static int lhcmem3[] = { 0x2e, 7, 1, 'c', 3, 0x36, 4 };	// TODO
+static int fcmem[] = { 9, 14, 2, 'c', 7, 0x36, 4 };		// done
+static int fhcmem[] = { 9, 15, 1, 'c', 7, 0x36, 4 };		// done
+static int fbcmem[] = { 9, 16, 0, 'c', 7, 0x36, 4 };		// done
 // local
-int lmem[] = { 9, 16, 0, 'l', 7, 0, 0 };		// done
+static int lmem[] = { 9, 16, 0, 'l', 7, 0, 0 };		// done
 // varying
-int svmem[] = { 0x10, 8, 2, 'v', 1, 0, 0 };		// TODO
-int lvmem[] = { 0x10, 8, 2, 'v', 3, 0, 0 };		// TODO
+static int svmem[] = { 0x10, 8, 2, 'v', 1, 0, 0 };		// TODO
+static int lvmem[] = { 0x10, 8, 2, 'v', 3, 0, 0 };		// TODO
 
 #define SSHARED atommem, ssmem
 #define SHSHARED atommem, shsmem
@@ -574,8 +574,8 @@ void atommem APROTO {
 	}
 }
 
-int g1mem[] = { 0x10, 4 };
-int g2mem[] = { 0x17, 4 };
+static int g1mem[] = { 0x10, 4 };
+static int g2mem[] = { 0x17, 4 };
 #define GLOBAL atomglobal, g1mem
 #define GLOBAL2 atomglobal, g2mem
 void atomglobal APROTO {
@@ -583,7 +583,7 @@ void atomglobal APROTO {
 	fprintf (out, " %sg%lld[%s$r%lld%s]", ccy, BF(n[0], n[1]), cbl, BF(9, 7), ccy);
 }
 
-struct insn tabss[] = {
+static struct insn tabss[] = {
 	{ GP, 0x01800000, 0x01800000, SPRIM },	// XXX check
 	{ CP, 0x00000000, 0x00006000, N("u8"), SBSHARED },
 	{ CP, 0x00002000, 0x00006000, N("u16"), SHSHARED },
@@ -593,7 +593,7 @@ struct insn tabss[] = {
 	{ AP, 0, 0, OOPS },
 };
 
-struct insn tabls[] = {
+static struct insn tabls[] = {
 	{ GP, 0x01800000, 0x01800000, LPRIM },	// XXX check
 	{ CP, 0x00000000, 0x0000c000, N("u8"), LBSHARED },
 	{ CP, 0x00004000, 0x0000c000, N("u16"), LHSHARED },
@@ -603,7 +603,7 @@ struct insn tabls[] = {
 	{ AP, 0, 0, OOPS },
 };
 
-struct insn tabaddop[] = {
+static struct insn tabaddop[] = {
 	{ AP, 0x00000000, 0x10400000, N("add") },
 	{ AP, 0x00400000, 0x10400000, N("sub") },
 	{ AP, 0x10000000, 0x10400000, N("subr") },
@@ -632,42 +632,42 @@ F1(sm3not, 0x16, N("not"))
 
 F1(splease, 0x11, N("please"))
 
-struct insn tabssh[] = {
+static struct insn tabssh[] = {
 	{ AP, 0x00000000, 0x01000000, SHSRC },
 	{ AP, 0x01000000, 0x01000000, T(ss) },
 	{ AP, 0, 0, OOPS }
 };
 
-struct insn tabssw[] = {
+static struct insn tabssw[] = {
 	{ AP, 0x00000000, 0x01000000, SSRC },
 	{ AP, 0x01000000, 0x01000000, T(ss) },
 	{ AP, 0, 0, OOPS }
 };
 
-struct insn tabsch[] = {
+static struct insn tabsch[] = {
 	{ AP, 0x00800000, 0x01800000, SHCONST },
 	{ AP, 0x00000000, 0x00000000, SHSRC2 },
 	{ AP, 0, 0, OOPS }
 };
 
-struct insn tabscw[] = {
+static struct insn tabscw[] = {
 	{ AP, 0x00800000, 0x01800000, SCONST },
 	{ AP, 0x00000000, 0x00000000, SSRC2 },
 	{ AP, 0, 0, OOPS }
 };
 
-struct insn tabaddc0[] = {
+static struct insn tabaddc0[] = {
 	{ AP, 0x10400000, 0x10400000, C0 },
 	{ AP, 0, 0 }
 };
 
-struct insn tabas[] = {
+static struct insn tabas[] = {
 	{ AP, 0x00000000, 0x00008000, T(sm1sat), N("b16"), SHDST, T(ssh), T(sch) },
 	{ AP, 0x00008000, 0x00008000, T(sm1sat), N("b32"), SDST, T(ssw), T(scw) },
 	{ AP, 0, 0, OOPS }
 };
 
-struct insn tabs[] = {
+static struct insn tabs[] = {
 	{ AP, 0x10000000, 0xf0008002, T(splease), N("mov"), N("b16"), SHDST, T(ssh) },
 	{ AP, 0x10008000, 0xf0008002, T(splease), N("mov"), N("b32"), SDST, T(ssw) },
 
@@ -712,7 +712,7 @@ struct insn tabs[] = {
  * Immediate instructions
  */
 
-struct insn tabi[] = {
+static struct insn tabi[] = {
 	{ AP, 0x10000000, 0xf0008000, N("mov"), N("b16"), LHDST, IMM },
 	{ AP, 0x10008000, 0xf0008000, N("mov"), N("b32"), LDST, IMM },	// yes. LDST. special case.
 
@@ -754,23 +754,23 @@ struct insn tabi[] = {
 F(lsh, 0x35, LHSRC, T(ls))
 F(lsw, 0x35, LSRC, T(ls))
 
-struct insn tablc2h[] = {
+static struct insn tablc2h[] = {
 	{ AP, 0x00800000, 0x01800000, LHCONST2 },
 	{ AP, 0x00000000, 0x00000000, LHSRC2 },
 	{ AP, 0, 0, OOPS }
 };
 
-struct insn tablc2w[] = {
+static struct insn tablc2w[] = {
 	{ AP, 0x00800000, 0x01800000, LCONST2 },
 	{ AP, 0x00000000, 0x00000000, LSRC2 },
 };
 
-struct insn tablc3h[] = {
+static struct insn tablc3h[] = {
 	{ AP, 0x01000000, 0x01800000, LHCONST3 },
 	{ AP, 0x00000000, 0x00000000, LHSRC3 },
 };
 
-struct insn tablc3w[] = {
+static struct insn tablc3w[] = {
 	{ AP, 0x01000000, 0x01800000, LCONST3 },
 	{ AP, 0x00000000, 0x00000000, LSRC3 },
 };
@@ -801,20 +801,20 @@ F1(o0neg, 0x3d, N("neg"))
 F1(o0sat, 0x3d, N("sat"))
 F1(lplease, 0x39, N("please"))
 
-struct insn tablfm1[] = {
+static struct insn tablfm1[] = {
 	{ AP, 0, 0, T(m1neg), T(s36abs) }
 };
 
-struct insn tablfm2[] = {
+static struct insn tablfm2[] = {
 	{ AP, 0, 0, T(m2neg), T(s35abs) }
 };
 
-struct insn tabcvtmod[] = {
+static struct insn tabcvtmod[] = {
 	{ AP, 0, 0, T(o0neg), T(s36abs) },
 };
 
 // for g[] and l[] insns.
-struct insn tabldstm[] = { // we seriously need to unify these, if possible. I wonder if atomics will work with smaller sizes.
+static struct insn tabldstm[] = { // we seriously need to unify these, if possible. I wonder if atomics will work with smaller sizes.
 	{ AP, 0x0000000000000000ull, 0x00e0000000000000ull, N("u8") },
 	{ AP, 0x0020000000000000ull, 0x00e0000000000000ull, N("s8") },
 	{ AP, 0x0040000000000000ull, 0x00e0000000000000ull, N("u16") },
@@ -825,36 +825,36 @@ struct insn tabldstm[] = { // we seriously need to unify these, if possible. I w
 	{ AP, 0, 0, OOPS }
 };
 
-struct insn tabraadd[] = {
+static struct insn tabraadd[] = {
 	{ AP, 0x0080000000000000ull, 0x00e0000000000000ull, N("u64") },
 	{ AP, 0x00c0000000000000ull, 0x00e0000000000000ull, N("u32") },
 	{ AP, 0x00e0000000000000ull, 0x00e0000000000000ull, N("s32") },
 	{ AP, 0, 0, OOPS }
 };
 
-struct insn tabrab[] = {
+static struct insn tabrab[] = {
 	{ AP, 0x0080000000000000ull, 0x00e0000000000000ull, N("b64") },
 	{ AP, 0x00c0000000000000ull, 0x00e0000000000000ull, N("b32") },
 	{ AP, 0, 0, OOPS }
 };
 
-struct insn tabramm[] = {
+static struct insn tabramm[] = {
 	{ AP, 0x00c0000000000000ull, 0x00e0000000000000ull, N("u32") },
 	{ AP, 0x00e0000000000000ull, 0x00e0000000000000ull, N("s32") },
 	{ AP, 0, 0, OOPS }
 };
 
-struct insn tabrab32[] = {
+static struct insn tabrab32[] = {
 	{ AP, 0x00c0000000000000ull, 0x00e0000000000000ull, N("b32") },
 	{ AP, 0, 0, OOPS }
 };
 
-struct insn tabrau32[] = {
+static struct insn tabrau32[] = {
 	{ AP, 0x00c0000000000000ull, 0x00e0000000000000ull, N("u32") },
 	{ AP, 0, 0, OOPS }
 };
 
-struct insn tabldsto[] = {	// hack alert: reads the bitfield second time.
+static struct insn tabldsto[] = {	// hack alert: reads the bitfield second time.
 	{ AP, 0x0000000000000000ull, 0x00e0000000000000ull, LDST },
 	{ AP, 0x0020000000000000ull, 0x00e0000000000000ull, LDST },
 	{ AP, 0x0040000000000000ull, 0x00e0000000000000ull, LDST },
@@ -865,26 +865,26 @@ struct insn tabldsto[] = {	// hack alert: reads the bitfield second time.
 	{ AP, 0, 0, LDST },
 };
 
-struct insn tabldsts2[] = {
+static struct insn tabldsts2[] = {
 	{ AP, 0x0080000000000000ull, 0x00e0000000000000ull, LDSRC2 },
 	{ AP, 0x00c0000000000000ull, 0x00e0000000000000ull, LSRC2 },
 	{ AP, 0x00e0000000000000ull, 0x00e0000000000000ull, LSRC2 },
 	{ AP, 0, 0, OOPS },
 };
 
-struct insn tabldsts3[] = {
+static struct insn tabldsts3[] = {
 	{ AP, 0x0080000000000000ull, 0x00e0000000000000ull, LDSRC3 },
 	{ AP, 0x00c0000000000000ull, 0x00e0000000000000ull, LSRC3 },
 	{ AP, 0x00e0000000000000ull, 0x00e0000000000000ull, LSRC3 },
 	{ AP, 0, 0, OOPS },
 };
 
-struct insn tabmldsts3[] = {
+static struct insn tabmldsts3[] = {
 	{ AP, 0x0000000800000000ull, 0x0000000800000000ull, T(ldsts3) },
 	{ AP, 0, 0 },
 };
 
-struct insn tabredm[] = {
+static struct insn tabredm[] = {
 	{ AP, 0x0000000000000000ull, 0x0000003c00000000ull, N("add"), T(raadd), },
 	{ AP, 0x0000001000000000ull, 0x0000003c00000000ull, N("inc"), T(rau32), },
 	{ AP, 0x0000001400000000ull, 0x0000003c00000000ull, N("dec"), T(rau32), },
@@ -896,14 +896,14 @@ struct insn tabredm[] = {
 	{ AP, 0, 0, OOPS },
 };
 
-struct insn tabatomm[] = {
+static struct insn tabatomm[] = {
 	{ AP, 0x0000000400000000ull, 0x0000003c00000000ull, N("exch"), T(rab), },
 	{ AP, 0x0000000800000000ull, 0x0000003c00000000ull, N("cas"), T(rab), },
 	{ AP, 0, 0, N("ld"), T(redm) },
 };
 
 // rounding modes
-struct insn tabcvtrnd[] = {
+static struct insn tabcvtrnd[] = {
 	{ AP, 0x0000000000000000ull, 0x0006000000000000ull, N("rn") },
 	{ AP, 0x0002000000000000ull, 0x0006000000000000ull, N("rm") },
 	{ AP, 0x0004000000000000ull, 0x0006000000000000ull, N("rp") },
@@ -911,7 +911,7 @@ struct insn tabcvtrnd[] = {
 	{ AP, 0, 0, OOPS }
 };
 
-struct insn tabcvtrint[] = {
+static struct insn tabcvtrint[] = {
 	{ AP, 0x0000000000000000ull, 0x0006000000000000ull, N("rni") },
 	{ AP, 0x0002000000000000ull, 0x0006000000000000ull, N("rmi") },
 	{ AP, 0x0004000000000000ull, 0x0006000000000000ull, N("rpi") },
@@ -919,26 +919,26 @@ struct insn tabcvtrint[] = {
 	{ AP, 0, 0, OOPS }
 };
 
-struct insn tabaf64r[] = {
+static struct insn tabaf64r[] = {
 	{ AP, 0x00000000, 0x00030000, N("rn") },
 	{ AP, 0x00010000, 0x00030000, N("rm") },
 	{ AP, 0x00020000, 0x00030000, N("rp") },
 	{ AP, 0x00030000, 0x00030000, N("rz") },
 };
 
-struct insn tabaf32r[] = {
+static struct insn tabaf32r[] = {
 	{ AP, 0x00000000, 0x00030000, N("rn") },
 	{ AP, 0x00030000, 0x00030000, N("rz") },
 	{ AP, 0, 0, OOPS }
 };
 
-struct insn tabmf32r[] = {
+static struct insn tabmf32r[] = {
 	{ AP, 0x0000000000000000ull, 0x0000c00000000000ull, N("rn") },
 	{ AP, 0x0000c00000000000ull, 0x0000c00000000000ull, N("rz") },
 	{ AP, 0, 0, OOPS }
 };
 
-struct insn tabmad64r[] = {
+static struct insn tabmad64r[] = {
 	{ AP, 0x0000000000000000ull, 0x00c0000000000000ull, N("rn") },
 	{ AP, 0x0040000000000000ull, 0x00c0000000000000ull, N("rm") },
 	{ AP, 0x0080000000000000ull, 0x00c0000000000000ull, N("rp") },
@@ -947,7 +947,7 @@ struct insn tabmad64r[] = {
 };
 
 // ops for set
-struct insn tabseti[] = {
+static struct insn tabseti[] = {
 	{ AP, 0x0000000000000000ull, 0x0001c00000000000ull, N("never") },
 	{ AP, 0x0000400000000000ull, 0x0001c00000000000ull, N("l") },
 	{ AP, 0x0000800000000000ull, 0x0001c00000000000ull, N("e") },
@@ -959,7 +959,7 @@ struct insn tabseti[] = {
 	{ AP, 0, 0, OOPS }
 };
 
-struct insn tabsetf[] = {
+static struct insn tabsetf[] = {
 	{ AP, 0x0000000000000000ull, 0x0003c00000000000ull, N("never") },
 	{ AP, 0x0000400000000000ull, 0x0003c00000000000ull, N("l") },
 	{ AP, 0x0000800000000000ull, 0x0003c00000000000ull, N("e") },
@@ -980,7 +980,7 @@ struct insn tabsetf[] = {
 };
 
 // for cvt
-struct insn tabcvtiisrc[] ={
+static struct insn tabcvtiisrc[] ={
 	{ AP, 0x0000000000000000ull, 0x0001c00000000000ull, N("u16"), T(lsh) },
 	{ AP, 0x0000400000000000ull, 0x0001c00000000000ull, N("u32"), T(lsw) },
 	{ AP, 0x0000800000000000ull, 0x0001c00000000000ull, N("u8"), T(lsh) },
@@ -997,12 +997,12 @@ struct insn tabcvtiisrc[] ={
 F1(dtex, 0x23, N("deriv")) // suspected to enable implicit derivatives on non-FPs.
 F(ltex, 0x22, N("all"), N("live"))
 
-struct insn tabtexf[] = {
+static struct insn tabtexf[] = {
 	{ AP, 0, 0, T(ltex), T(dtex) },
 };
 
 // for mov
-struct insn tablane[] = {
+static struct insn tablane[] = {
 	{ AP, 0x0000000000000000ull, 0x0003c00000000000ull, N("lnone") },
 	{ AP, 0x0000400000000000ull, 0x0003c00000000000ull, N("l0") },
 	{ AP, 0x0000800000000000ull, 0x0003c00000000000ull, N("l1") },
@@ -1022,7 +1022,7 @@ struct insn tablane[] = {
 };
 
 // for mov from c[]
-struct insn tabfcon[] = {
+static struct insn tabfcon[] = {
 	{ AP, 0x0000000000000000ull, 0x0000c00000000000ull, N("u8"), FBCONST },
 	{ AP, 0x0000400000000000ull, 0x0000c00000000000ull, N("u16"), FHCONST },
 	{ AP, 0x0000800000000000ull, 0x0000c00000000000ull, N("s16"), FHCONST },
@@ -1031,7 +1031,7 @@ struct insn tabfcon[] = {
 };
 
 // for quadop
-struct insn tabqs1[] = {
+static struct insn tabqs1[] = {
 	{ AP, 0x00000000, 0x00070000, N("l0") },
 	{ AP, 0x00010000, 0x00070000, N("l1") },
 	{ AP, 0x00020000, 0x00070000, N("l2") },
@@ -1041,28 +1041,28 @@ struct insn tabqs1[] = {
 	{ AP, 0, 0 },
 };
 
-struct insn tabqop0[] = {
+static struct insn tabqop0[] = {
 	{ AP, 0x0000000000000000ull, 0x0c00000000000000ull, N("add") },
 	{ AP, 0x0400000000000000ull, 0x0c00000000000000ull, N("subr") },
 	{ AP, 0x0800000000000000ull, 0x0c00000000000000ull, N("sub") },
 	{ AP, 0x0c00000000000000ull, 0x0c00000000000000ull, N("mov2") },
 };
 
-struct insn tabqop1[] = {
+static struct insn tabqop1[] = {
 	{ AP, 0x0000000000000000ull, 0x0300000000000000ull, N("add") },
 	{ AP, 0x0100000000000000ull, 0x0300000000000000ull, N("subr") },
 	{ AP, 0x0200000000000000ull, 0x0300000000000000ull, N("sub") },
 	{ AP, 0x0300000000000000ull, 0x0300000000000000ull, N("mov2") },
 };
 
-struct insn tabqop2[] = {
+static struct insn tabqop2[] = {
 	{ AP, 0x0000000000000000ull, 0x00c0000000000000ull, N("add") },
 	{ AP, 0x0040000000000000ull, 0x00c0000000000000ull, N("subr") },
 	{ AP, 0x0080000000000000ull, 0x00c0000000000000ull, N("sub") },
 	{ AP, 0x00c0000000000000ull, 0x00c0000000000000ull, N("mov2") },
 };
 
-struct insn tabqop3[] = {
+static struct insn tabqop3[] = {
 	{ AP, 0x00000000, 0x00300000, N("add") },
 	{ AP, 0x00100000, 0x00300000, N("subr") },
 	{ AP, 0x00200000, 0x00300000, N("sub") },
@@ -1070,7 +1070,7 @@ struct insn tabqop3[] = {
 };
 
 // for mov from sreg
-struct insn tabsreg[] = {
+static struct insn tabsreg[] = {
 	{ AP, 0x0000000000000000ull, 0x0001c00000000000ull, N("physid") },
 	{ AP, 0x0000400000000000ull, 0x0001c00000000000ull, N("clock") },
 	{ AP, 0x0000800000000000ull, 0x0001c00000000000ull, N("sreg2") },
@@ -1081,26 +1081,26 @@ struct insn tabsreg[] = {
 	{ AP, 0x0001c00000000000ull, 0x0001c00000000000ull, N("pm3") },
 };
 
-struct insn tablogop[] = {
+static struct insn tablogop[] = {
 	{ AP, 0x0000000000000000ull, 0x0000c00000000000ull, N("and") },
 	{ AP, 0x0000400000000000ull, 0x0000c00000000000ull, N("or") },
 	{ AP, 0x0000800000000000ull, 0x0000c00000000000ull, N("xor") },
 	{ AP, 0x0000c00000000000ull, 0x0000c00000000000ull, N("mov2") },
 };
 
-struct insn tabaddcond[] = {
+static struct insn tabaddcond[] = {
 	{ AP, 0x10400000, 0x10400000, COND },
 	{ AP, 0, 0 }
 };
 
-struct insn tabaddop2[] = {
+static struct insn tabaddop2[] = {
 	{ AP, 0x0000000000000000ull, 0x0c00000000000000ull, N("add") },
 	{ AP, 0x0400000000000000ull, 0x0c00000000000000ull, N("sub") },
 	{ AP, 0x0800000000000000ull, 0x0c00000000000000ull, N("subr") },
 	{ AP, 0x0c00000000000000ull, 0x0c00000000000000ull, N("addc") },
 };
 
-struct insn tabaddcond2[] = {
+static struct insn tabaddcond2[] = {
 	{ AP, 0x0c00000000000000ull, 0x0c00000000000000ull, COND },
 	{ AP, 0, 0 }
 };
@@ -1109,7 +1109,7 @@ F(sstreg, 0x35, LHSRC3, LSRC3)
 F1(unlock, 0x37, N("unlock"))
 F(csldreg, 0x3a, LLHDST, LLDST)
 
-struct insn tabl[] = {
+static struct insn tabl[] = {
 	// 0
 	// desc VVV
 	{ VP|GP, 0x0420000000000000ull, 0xe4200000f0000000ull,
@@ -1458,7 +1458,7 @@ struct insn tabl[] = {
 /*
  * Predicates
  */
-struct insn tabp[] = {
+static struct insn tabp[] = {
 	{ AP, 0x0000000000000000ull, 0x00000f8000000000ull, N("never") },
 	{ AP, 0x0000008000000000ull, 0x00000f8000000000ull, N("l"), COND },
 	{ AP, 0x0000010000000000ull, 0x00000f8000000000ull, N("e"), COND },
@@ -1486,7 +1486,7 @@ struct insn tabp[] = {
 	{ AP, 0, 0, OOPS },
 };
 
-struct insn tabc[] = {
+static struct insn tabc[] = {
 	{ FP, 0x00000000, 0xf0000000, T(p), N("discard") },
 	{ AP, 0x10000000, 0xf0000000, T(p), N("bra"), CTARG },
 	{ AP, 0x20000000, 0xf0000000, IGNPRED, N("call"), CTARG },
@@ -1502,7 +1502,7 @@ struct insn tabc[] = {
 	{ AP, 0, 0, T(p), OOPS, CTARG },
 };
 
-struct insn tab2w[] = {
+static struct insn tab2w[] = {
 	{ AP, 0x0000000000000002ull, 0x0000000000000002ull, T(c) },
 	{ AP, 0x0000000000000000ull, 0x0000000300000000ull, T(p), T(l) },
 	{ AP, 0x0000000100000000ull, 0x0000000300000000ull, T(p), T(l), NL, N("exit") },

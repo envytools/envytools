@@ -131,7 +131,7 @@
  */
 
 #define CTARG atomctarg, 0
-void atomctarg APROTO {
+static void atomctarg APROTO {
 	fprintf (out, " %s%#llx", cbr, BF(8, 9)<<2);
 }
 
@@ -139,7 +139,7 @@ void atomctarg APROTO {
  * CMDs
  */
 #define C(x) atomcmd, x
-void atomcmd APROTO {
+static void atomcmd APROTO {
 	fprintf (out, " %s%s", cmag, (char *)v);
 }
 
@@ -149,14 +149,14 @@ void atomcmd APROTO {
  * Used for plain numerical arguments.
  */
 
-int unitoff[] = { 0, 5, 0, 0 };
-int flagoff[] = { 0, 7, 0, 0 };
-int gsize4off[] = { 14, 6, 0, 0 };
-int gsize5off[] = { 16, 4, 0, 0 };
-int immoff[] = { 0, 20, 0, 0 };
-int dis0off[] = { 0, 16, 0, 0 };
-int dis1off[] = { 0, 16, 16, 0 };
-int seekpoff[] = { 8, 11, 0, 0 };
+static int unitoff[] = { 0, 5, 0, 0 };
+static int flagoff[] = { 0, 7, 0, 0 };
+static int gsize4off[] = { 14, 6, 0, 0 };
+static int gsize5off[] = { 16, 4, 0, 0 };
+static int immoff[] = { 0, 20, 0, 0 };
+static int dis0off[] = { 0, 16, 0, 0 };
+static int dis1off[] = { 0, 16, 16, 0 };
+static int seekpoff[] = { 8, 11, 0, 0 };
 #define UNIT atomnum, unitoff
 #define FLAG atomnum, flagoff
 #define GSIZE4 atomnum, gsize4off
@@ -172,12 +172,12 @@ int seekpoff[] = { 8, 11, 0, 0 };
 
 // BF, offset shift, 'l'
 
-int pgmem4[] = { 0, 14, 2, 'G' };
-int pgmem5[] = { 0, 16, 2, 'G' };
+static int pgmem4[] = { 0, 14, 2, 'G' };
+static int pgmem5[] = { 0, 16, 2, 'G' };
 
 #define PGRAPH4 atommem, pgmem4
 #define PGRAPH5 atommem, pgmem5
-void atommem APROTO {
+static void atommem APROTO {
 	const int *n = v;
 	fprintf (out, " %s%c[", ccy, n[3]);
 //	if (n[3] == 'G') printf("%s$g%s+", cbl, ccy);
@@ -194,12 +194,12 @@ F1(p5, 5, N("a5"))
 F1(p6, 6, N("a6"))
 F1(p7, 7, N("a7"))
 
-struct insn tabarea[] = {
+static struct insn tabarea[] = {
 	{ NVxx, 0, 0, T(p0), T(p1), T(p2), T(p3), T(p4), T(p5), T(p6), T(p7) },
 };
 
 
-struct insn tabrpred[] = {
+static struct insn tabrpred[] = {
 	{ NVxx, 0x00, 0x7f, N("dir") }, // the direction flag
 	{ NV5x, 0x4a, 0x7f, N("newctxdone") },	// newctx CMD finished with loading new address... or something like that, it seems to be turned back off *very shortly* after the newctx CMD. only check it with a wait right after newctx. weird.
 	{ NV5x, 0x4b, 0x7f, N("xferbusy") },	// RAMIN xfer in progress
@@ -210,12 +210,12 @@ struct insn tabrpred[] = {
 	{ NVxx, 0x00, 0x00, N("flag"), FLAG },
 };
 
-struct insn tabpred[] = {
+static struct insn tabpred[] = {
 	{ NVxx, 0x80, 0x80, N("not"), T(rpred) },
 	{ NVxx, 0x00, 0x80, T(rpred) },
 };
 
-struct insn tabcmd5[] = {
+static struct insn tabcmd5[] = {
 	{ NV5x, 0x04, 0x1f, C("NEWCTX") },		// fetches grctx DMA object from channel object in 784
 	{ NV5x, 0x05, 0x1f, C("NEXT_TO_SWAP") },	// copies 330 [new channel] to 784 [channel used for ctx RAM access]
 	{ NV5x, 0x06, 0x1f, C("SET_CONTEXT_POINTER") },	// copies scratch to 334
@@ -227,7 +227,7 @@ struct insn tabcmd5[] = {
 	{ NVxx, 0, 0, OOPS },
 };
 
-struct insn tabcmd4[] = {
+static struct insn tabcmd4[] = {
 	{ NV4x, 0x07, 0x1f, C("NEXT_TO_SWAP") },	// copies 330 [new channel] to 784 [channel used for ctx RAM access]
 	{ NV4x, 0x09, 0x1f, C("NEXT_TO_CURRENT") },	// movs new channel RAMIN address to current channel RAMIN address, basically where the real switch happens
 	{ NV4x, 0x0a, 0x1f, C("SET_CONTEXT_POINTER") },	// copies scratch to 334
@@ -235,7 +235,7 @@ struct insn tabcmd4[] = {
 	{ NVxx, 0, 0, OOPS },
 };
 
-struct insn tabm[] = {
+static struct insn tabm[] = {
 	{ NV5x, 0x100000, 0xff0000, N("ctx"), PGRAPH5, N("sr") },
 	{ NV5x, 0x100000, 0xf00000, N("ctx"), PGRAPH5, GSIZE5 },
 	{ NV4x, 0x100000, 0xffc000, N("ctx"), PGRAPH4, N("sr") },

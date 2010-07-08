@@ -29,27 +29,27 @@
  * Immediate fields
  */
 
-int stdoff[] = { 0xdeaddead };
-int staoff[] = { 0xdeaddead };
+static int stdoff[] = { 0xdeaddead };
+static int staoff[] = { 0xdeaddead };
 #define ADDR16 atomst16, staoff
 #define ADDR32 atomst32, staoff
 #define DATA16 atomst16, stdoff
 #define DATA32 atomst32, stdoff
-void atomst16 APROTO {
+static void atomst16 APROTO {
 	int *n = (int*)v;
 	ull num = BF(8, 16);
 	n[0] &= 0xffff0000;
 	n[0] |= num;
 	fprintf (out, " %s%#x", cyel, n[0]);
 }
-void atomst32 APROTO {
+static void atomst32 APROTO {
 	int *n = (int*)v;
 	ull num = BF(8, 32);
 	n[0] = num;
 	fprintf (out, " %s%#x", cyel, n[0]);
 }
 
-struct insn tabm[] = {
+static struct insn tabm[] = {
 	{ AP, 0x40, 0xff, N("addr"), ADDR16 },
 	{ AP, 0x42, 0xff, N("data"), DATA16 },
 	{ AP, 0xe0, 0xff, N("addr"), ADDR32 },
@@ -58,7 +58,7 @@ struct insn tabm[] = {
 	{ AP, 0, 0, OOPS },
 };
 
-uint32_t optab[] = {
+static uint32_t optab[] = {
 	0x07, 1,
 	0x0b, 1,
 	0x40, 3,

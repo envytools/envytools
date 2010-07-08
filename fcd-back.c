@@ -57,8 +57,8 @@ void atomsctarg APROTO {
  * Register fields
  */
 
-int reg1off[] = { 8, 4, 'r' };
-int reg2off[] = { 12, 4, 'r' };
+static int reg1off[] = { 8, 4, 'r' };
+static int reg2off[] = { 12, 4, 'r' };
 #define REG1 atomreg, reg1off
 #define REG2 atomreg, reg2off
 
@@ -66,12 +66,12 @@ int reg2off[] = { 12, 4, 'r' };
  * Immediate fields
  */
 
-int imm16off[] = { 16, 16, 0, 0 };
-int imm8off[] = { 16, 8, 0, 0 };
-int imm16soff[] = { 16, 16, 0, 1 };
-int imm8soff[] = { 16, 8, 0, 1 };
-int imm16hoff[] = { 16, 16, 16, 0 };
-int imm8hoff[] = { 16, 8, 16, 0 };
+static int imm16off[] = { 16, 16, 0, 0 };
+static int imm8off[] = { 16, 8, 0, 0 };
+static int imm16soff[] = { 16, 16, 0, 1 };
+static int imm8soff[] = { 16, 8, 0, 1 };
+static int imm16hoff[] = { 16, 16, 16, 0 };
+static int imm8hoff[] = { 16, 8, 16, 0 };
 #define IMM16 atomnum, imm16off
 #define IMM8 atomnum, imm8off
 #define IMM16S atomnum, imm16soff
@@ -83,10 +83,10 @@ int imm8hoff[] = { 16, 8, 16, 0 };
  * Memory fields
  */
 
-int datanoff[] = { -1 };
-int data8off[] = { 0 };
-int data16off[] = { 1 };
-int data32off[] = { 2 };
+static int datanoff[] = { -1 };
+static int data8off[] = { 0 };
+static int data16off[] = { 1 };
+static int data32off[] = { 2 };
 #define DATAN atomdata, datanoff
 #define DATA8 atomdata, data8off
 #define DATA16 atomdata, data16off
@@ -99,7 +99,7 @@ void atomdata APROTO {
 		fprintf (out, " %sD[%s$r%lld%s]", ccy, cbl, BF(12, 4), ccy);
 }
 
-struct insn tabp[] = {
+static struct insn tabp[] = {
 	{ AP, 0x00000800, 0x00001f00, N("lt") }, /* or c */
 	{ AP, 0x00000900, 0x00001f00, N("o") },
 	{ AP, 0x00000a00, 0x00001f00, N("s") },
@@ -114,7 +114,7 @@ struct insn tabp[] = {
 	{ AP, 0, 0, OOPS },
 };
 
-struct insn tabaop[] = {
+static struct insn tabaop[] = {
 	{ AP, 0x00000000, 0x00000f00, N("add") },
 	{ AP, 0x00000100, 0x00000f00, N("adc") },
 	{ AP, 0x00000200, 0x00000f00, N("sub") },
@@ -127,51 +127,51 @@ struct insn tabaop[] = {
 	{ AP, 0, 0, OOPS },
 };
 
-struct insn tabi[] = {
+static struct insn tabi[] = {
 	{ AP, 0x00000000, 0x00000001, IMM8 },
 	{ AP, 0x00000001, 0x00000001, IMM16 },
 };
 
-struct insn tabis[] = {
+static struct insn tabis[] = {
 	{ AP, 0x00000000, 0x00000001, IMM8S },
 	{ AP, 0x00000001, 0x00000001, IMM16S },
 };
 
-struct insn tabih[] = {
+static struct insn tabih[] = {
 	{ AP, 0x00000000, 0x00000001, IMM8H },
 	{ AP, 0x00000001, 0x00000001, IMM16H },
 };
 
-struct insn tabbt[] = {
+static struct insn tabbt[] = {
 	{ AP, 0x00000000, 0x00000001, SBTARG },
 	{ AP, 0x00000001, 0x00000001, LBTARG },
 };
 
-struct insn tabct[] = {
+static struct insn tabct[] = {
 	{ AP, 0x00000000, 0x00000001, SCTARG },
 	{ AP, 0x00000001, 0x00000001, LCTARG },
 };
 
-struct insn tabrr[] = {
+static struct insn tabrr[] = {
 	{ AP, 0x00000000, 0x00100000, REG2, REG1, REG2 },
 	{ AP, 0x00100000, 0x00100000, REG1, REG1, REG2 },
 };
 
-struct insn tabsz[] = {
+static struct insn tabsz[] = {
 	{ AP, 0x00000000, 0x000000c0, N("b8") },
 	{ AP, 0x00000040, 0x000000c0, N("b16") },
 	{ AP, 0x00000080, 0x000000c0, N("b32") },
 	{ AP, 0, 0, OOPS },
 };
 
-struct insn tabdata[] = {
+static struct insn tabdata[] = {
 	{ AP, 0x00000000, 0x000000c0, DATA8 },
 	{ AP, 0x00000040, 0x000000c0, DATA16 },
 	{ AP, 0x00000080, 0x000000c0, DATA32 },
 	{ AP, 0, 0, OOPS },
 };
 
-struct insn tabsrs[] = {
+static struct insn tabsrs[] = {
 	{ AP, 0x00003000, 0x0000f000, N("ehandler") },
 	{ AP, 0x00004000, 0x0000f000, N("sp") },
 	{ AP, 0x00005000, 0x0000f000, N("pc") },
@@ -179,14 +179,14 @@ struct insn tabsrs[] = {
 	{ AP, 0, 0, OOPS },
 };
 
-struct insn tabsrd[] = {
+static struct insn tabsrd[] = {
 	{ AP, 0x00000300, 0x00000f00, N("ehandler") },
 	{ AP, 0x00000400, 0x00000f00, N("sp") },
 	{ AP, 0x00000800, 0x00000f00, N("flags") },
 	{ AP, 0, 0, OOPS },
 };
 
-struct insn tabsi[] = {
+static struct insn tabsi[] = {
 	{ AP, 0x00000000, 0x0000003f, N("st"), T(sz), T(data), REG1 },
 
 	{ AP, 0x00000010, 0x0000003f, N("add"), T(sz), REG1, REG2, IMM8 },
@@ -242,7 +242,7 @@ struct insn tabsi[] = {
 	{ AP, 0, 0, OOPS },
 };
 
-struct insn tabm[] = {
+static struct insn tabm[] = {
 	{ AP, 0x00000000, 0x000000c0, T(si) },
 	{ AP, 0x00000040, 0x000000c0, T(si) },
 	{ AP, 0x00000080, 0x000000c0, T(si) },
@@ -286,7 +286,7 @@ struct insn tabm[] = {
 	{ AP, 0, 0, OOPS },
 };
 
-uint32_t optab[] = {
+static uint32_t optab[] = {
 	0x00, 3,
 	0x10, 3,
 	0x11, 3,

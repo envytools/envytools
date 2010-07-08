@@ -121,11 +121,11 @@ struct insn {
  * Arguments: table name, flag position, ops for 0, ops for 1.
  */
 
-#define F(n, f, a, b) struct insn tab ## n[] = {\
+#define F(n, f, a, b) static struct insn tab ## n[] = {\
 	{ ~0, 0,		1ull<<(f), a },\
 	{ ~0, 1ull<<(f),	1ull<<(f), b },\
 };
-#define F1(n, f, b) struct insn tab ## n[] = {\
+#define F1(n, f, b) static struct insn tab ## n[] = {\
 	{ ~0, 0,		1ull<<(f) },\
 	{ ~0, 1ull<<(f),	1ull<<(f), b },\
 };
