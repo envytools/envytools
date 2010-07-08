@@ -15,6 +15,10 @@
 	</enum>
 
 	<bitset name="nv50_gpio" inline="yes">
+		<bitfield pos="0" name="WR_VAL"/>
+		<bitfield pos="1" name="WR_EN"/>
+		<bitfield pos="2" name="RD_VAL"/>
+		<bitfield pos="3" name="UNK3"/>
 	</bitset>
 
 	<bitset name="nv50_i2c" inline="yes">
