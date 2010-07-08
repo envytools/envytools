@@ -61,6 +61,7 @@ static struct insn tabm[] = {
 static uint32_t optab[] = {
 	0x07, 1,
 	0x0b, 1,
+	0x0d, 1,
 	0x40, 3,
 	0x42, 3,
 	0x5f, 3,
