@@ -15,6 +15,7 @@ uint64_t fakechan = 0;
 int i2cip = -1;
 int pmsip = 0;
 uint32_t pmsnext;
+uint32_t ctxpos = 0;
 uint8_t pms[0x200];
 
 struct mpage {
@@ -289,6 +290,17 @@ int main(int argc, char **argv) {
 					pms[(addr & 0x1fc) + 3] = value >> 24;
 					pmsip = 1;
 					pmsnext = addr + 4;
+					skip = 1;
+				} else if (addr == 0x400324 && arch >= 4 && arch <= 5) {
+					ctxpos = value;
+				} else if (addr == 0x400328 && arch >= 4 && arch <= 5) {
+					uint32_t param = value;
+					struct rnndecaddrinfo *ai = rnndec_decodeaddr(ctx, mmiodom, addr, line[0] == 'W');
+					printf ("MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %s %s ", width, line[0], addr, value, ai->name, line[0]=='W'?"<=":"=>");
+					ctxdis(stdout, &param, ctxpos * 4, 1, arch == 5 ? NV5x : NV4x);
+					ctxpos++;
+					free(ai->name);
+					free(ai);
 					skip = 1;
 				}
 				if (!skip && (i2cip != -1)) {
