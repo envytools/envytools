@@ -23,7 +23,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "coredis.h"
+#include "dis.h"
 
 /*
  * Color scheme
