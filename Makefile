@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 all: headergen expand lookup demmio nvbios nv50_texture.h ctxdis nv50dis nvc0dis fcdis pmdis
 
 headergen: headergen.c rnn.c rnn.h
