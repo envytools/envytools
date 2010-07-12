@@ -73,6 +73,6 @@ int main(int argc, char **argv) {
 			code[num++] = t;
 		scanf (" ,");
 	}
-	fcdis (stdout, code, 0, num, ptype);
+	fucdis (stdout, code, 0, num, ptype);
 	return 0;
 }

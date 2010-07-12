@@ -169,7 +169,7 @@ void nvc0dis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype);
 
 void ctxdis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype);
 
-void fcdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype);
+void fucdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype);
 
 void pmdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype);
 

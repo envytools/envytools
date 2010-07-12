@@ -351,7 +351,7 @@ static uint32_t optab[] = {
  * FILE*.
  */
 
-void fcdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype) {
+void fucdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype) {
 	int cur = 0, i;
 	while (cur < num) {
 		fprintf (out, "%s%08x:%s", cgray, cur + start, cnorm);

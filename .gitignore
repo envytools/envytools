@@ -9,6 +9,6 @@ nvbios
 nv50dis
 nvc0dis
 ctxdis
-fcdis
+fucdis
 pmdis
 *.xml.h
