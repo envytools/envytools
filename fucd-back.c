@@ -239,7 +239,7 @@ static struct insn tabsi[] = {
 	{ AP, 0x0000023d, 0x00000f3f, N("movf"), T(sz), REG2 },
 	{ AP, 0x0000033d, 0x00000f3f, N("hswap"), T(sz), REG2 },
 
-	{ AP, 0, 0, OOPS },
+	{ AP, 0, 0, OOPS, T(sz) },
 };
 
 static struct insn tabm[] = {
