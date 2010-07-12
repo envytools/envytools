@@ -265,11 +265,25 @@ static struct insn tabm[] = {
 	{ AP, 0x000021f4, 0x0000fffe, N("call"), T(ct) },
 	{ AP, 0x000030f4, 0x0000fffe, N("add"), N("sp"), T(is) },
 
+	{ AP, 0x00003cf4, 0x0000fffe, N("cmd"), T(i) },
+
 	{ AP, 0x000000f8, 0x0000ffff, N("ret") },
 	{ AP, 0x000002f8, 0x0000ffff, N("exit") },
 
 	{ AP, 0x000000f9, 0x00000fff, N("push"), REG2 },
 	{ AP, 0x000005f9, 0x00000fff, N("call"), REG2 },
+
+	/* iowr: write ARG2 to MMIO register given by fuc_base + ((ARG2 >> 6) & 0xffc)
+	 *
+	 * unknown if bits 0-7 and 18+ have any use.
+	 */
+	{ AP, 0x000000fa, 0x000f00ff, N("iowr"), REG2, REG1 },
+	/* recv: read 16 bytes from cell (ARG1 >> 16) & 7 into memory at address ARG1 & 0xffff
+	 * this and send have to be preceded by some cmd, or you lose
+	 */
+	{ AP, 0x000500fa, 0x000f00ff, N("recv"), REG1 },
+	/* send: send 16 bytes to cell (ARG1 >> 16) & 7 from memory at address ARG1 & 0xffff */
+	{ AP, 0x000600fa, 0x000f00ff, N("send"), REG1 },
 
 	{ AP, 0x000000fc, 0x00000fff, N("pop"), REG2 },
 
