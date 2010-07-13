@@ -254,6 +254,13 @@ static struct insn tabm[] = {
 	{ AP, 0x00000040, 0x000000c0, T(si) },
 	{ AP, 0x00000080, 0x000000c0, T(si) },
 
+	/* iowr: read to ARG1 from MMIO register given by fuc_base + ((ARG1 >> 6) & 0xffc)
+	 *
+	 * unknown if bits 0-7 and 18+ have any use.
+	 */
+	{ AP, 0x000000cf, 0x000f00ff, N("iord"), REG1, REG2 },
+	{ AP, 0x000000cf, 0x000000ff, OOPS, REG1, REG2 },
+
 	{ AP, 0x000000f0, 0x00000ffe, N("mulu"), REG2, T(i) },
 	{ AP, 0x000001f0, 0x00000ffe, N("muls"), REG2, T(is) },
 	{ AP, 0x000002f0, 0x00000ffe, N("sex"), REG2, T(i) }, /* funky instruction. bits ARG2+1 through 31 of ARG1 are replaced with copy of bit ARG2. */
