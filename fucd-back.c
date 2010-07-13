@@ -202,17 +202,20 @@ static struct insn tabsi[] = {
 
 	{ AP, 0x00000430, 0x00000f3e, N("cmpu"), T(sz), REG2, T(i) },
 	{ AP, 0x00000530, 0x00000f3e, N("cmps"), T(sz), REG2, T(is) },
+	{ AP, 0x00000030, 0x0000003e, OOPS, T(sz), REG2, T(i) },
 
 	{ AP, 0x00000036, 0x0000003e, T(aop), T(sz), REG2, T(i) },
 
 	{ AP, 0x00000038, 0x000f003f, N("st"), T(sz), DATAN, REG1 },
 	{ AP, 0x00040038, 0x000f003f, N("cmpu"), T(sz), REG2, REG1 },
 	{ AP, 0x00050038, 0x000f003f, N("cmps"), T(sz), REG2, REG1 },
+	{ AP, 0x00000038, 0x0000003f, OOPS, T(sz), REG2, REG1 },
 
 	{ AP, 0x00000039, 0x000f003f, N("not"), T(sz), REG1, REG2 },
 	{ AP, 0x00010039, 0x000f003f, N("neg"), T(sz), REG1, REG2 },
 	{ AP, 0x00020039, 0x000f003f, N("movf"), T(sz), REG1, REG2 }, /* mov and set ZF+SF according to val */
 	{ AP, 0x00030039, 0x000f003f, N("hswap"), T(sz), REG1, REG2 }, /* swap halves - ie. rotate by half the size in bits. */
+	{ AP, 0x00000039, 0x0000003f, OOPS, T(sz), REG1, REG2 },
 
 	{ AP, 0x0000003b, 0x000f003f, N("add"), T(sz), REG2, REG1 },
 	{ AP, 0x0001003b, 0x000f003f, N("adc"), T(sz), REG2, REG1 },
@@ -223,6 +226,7 @@ static struct insn tabsi[] = {
 	{ AP, 0x0007003b, 0x000f003f, N("sar"), T(sz), REG2, REG1 },
 	{ AP, 0x000c003b, 0x000f003f, N("shlc"), T(sz), REG2, REG1 },
 	{ AP, 0x000d003b, 0x000f003f, N("shrc"), T(sz), REG2, REG1 },
+	{ AP, 0x0000003b, 0x0000003f, OOPS, T(sz), REG2, REG1 },
 
 	{ AP, 0x0000003c, 0x00ef003f, N("add"), T(sz), T(rr) },
 	{ AP, 0x0001003c, 0x00ef003f, N("adc"), T(sz), T(rr) },
@@ -233,12 +237,14 @@ static struct insn tabsi[] = {
 	{ AP, 0x0007003c, 0x00ef003f, N("sar"), T(sz), T(rr) },
 	{ AP, 0x000c003c, 0x00ef003f, N("shlc"), T(sz), T(rr) },
 	{ AP, 0x000d003c, 0x00ef003f, N("shrc"), T(sz), T(rr) },
+	{ AP, 0x0000003c, 0x00e0003f, OOPS, T(sz), T(rr) },
 	
 	{ AP, 0x0000003d, 0x00000f3f, N("not"), T(sz), REG2 },
 	{ AP, 0x0000013d, 0x00000f3f, N("neg"), T(sz), REG2 },
 	{ AP, 0x0000023d, 0x00000f3f, N("movf"), T(sz), REG2 },
 	{ AP, 0x0000033d, 0x00000f3f, N("hswap"), T(sz), REG2 },
 	{ AP, 0x0000043d, 0x00000f3f, N("clear"), T(sz), REG2 }, /* set to 0. */
+	{ AP, 0x0000003d, 0x0000003f, OOPS, T(sz), REG2 },
 
 	{ AP, 0, 0, OOPS, T(sz) },
 };
@@ -259,20 +265,22 @@ static struct insn tabm[] = {
 	{ AP, 0x000009f0, 0x00000ffe, N("bset"), REG2, T(i) },
 	{ AP, 0x00000af0, 0x00000ffe, N("bclr"), REG2, T(i) },
 	{ AP, 0x00000bf0, 0x00000ffe, N("btgl"), REG2, T(i) },
+	{ AP, 0x000000f0, 0x000000fe, OOPS, REG2, T(i) },
 	/* XXX: 00000cf0 */
 
 	{ AP, 0x000000f4, 0x0000e0fe, N("bra"), T(p), T(bt) },
 	{ AP, 0x000020f4, 0x0000fffe, N("bra"), T(ct) },
 	{ AP, 0x000021f4, 0x0000fffe, N("call"), T(ct) },
 	{ AP, 0x000030f4, 0x0000fffe, N("add"), N("sp"), T(is) },
-
 	{ AP, 0x00003cf4, 0x0000fffe, N("cmd"), T(i) },
+	{ AP, 0x000000f4, 0x000000fe, OOPS, T(i) },
 
 	{ AP, 0x000000f8, 0x0000ffff, N("ret") },
 	{ AP, 0x000002f8, 0x0000ffff, N("exit") },
 
 	{ AP, 0x000000f9, 0x00000fff, N("push"), REG2 },
 	{ AP, 0x000005f9, 0x00000fff, N("call"), REG2 },
+	{ AP, 0x000000f9, 0x000000ff, OOPS, REG2 },
 
 	/* iowr: write ARG2 to MMIO register given by fuc_base + ((ARG2 >> 6) & 0xffc)
 	 *
@@ -285,8 +293,11 @@ static struct insn tabm[] = {
 	{ AP, 0x000500fa, 0x000f00ff, N("recv"), REG1 },
 	/* send: send 16 bytes to cell (ARG1 >> 16) & 7 from memory at address ARG1 & 0xffff */
 	{ AP, 0x000600fa, 0x000f00ff, N("send"), REG1 },
+	/* what the hell. how many ops do these insns have anyway. I've seen recv/send using REG2 too, but... for what? */
+	{ AP, 0x000000fa, 0x000000ff, OOPS, REG2, REG1 },
 
 	{ AP, 0x000000fc, 0x00000fff, N("pop"), REG2 },
+	{ AP, 0x000000fc, 0x000000ff, OOPS, REG2 },
 
 	{ AP, 0x000000fe, 0x00ff00ff, N("mov"), T(srd), REG2 },
 	{ AP, 0x000100fe, 0x00ff00ff, N("mov"), REG1, T(srs) },
@@ -298,6 +309,7 @@ static struct insn tabm[] = {
 	{ AP, 0x000500ff, 0x00ef00ff, N("or"), T(rr) },
 	{ AP, 0x000600ff, 0x00ef00ff, N("xor"), T(rr) },
 	{ AP, 0x000800ff, 0x00ef00ff, N("xbit"), T(rr) }, /* ARG1 = (ARG1 & 0xfffffffe) | (ARG2 >> ARG3 & 1) */
+	{ AP, 0x000000ff, 0x00e000ff, OOPS, T(rr) },
 	{ AP, 0, 0, OOPS },
 };
 
