@@ -332,10 +332,13 @@ static uint32_t optab[] = {
 	0xc7, 3,
 	0xc8, 3,
 	0xcf, 3,
+	0xd0, 3,
+	0xe0, 4,
 	0xe3, 4,
 	0xe4, 4,
 	0xe5, 4,
 	0xe7, 4,
+	0xec, 4,
 	0xf0, 3,
 	0xf1, 4,
 	0xf2, 3,
@@ -369,7 +372,7 @@ void fucdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype) {
 			if (op == optab[2*i])
 				length = optab[2*i+1];
 		if (!length || cur + length > num) {
-			fprintf (out, " %s%02x                ???%s\n", cred, op, cnorm);
+			fprintf (out, " %s%02x                ??? [unknown op length]%s\n", cred, op, cnorm);
 			cur++;
 		} else {
 			ull a = 0, m = 0;
