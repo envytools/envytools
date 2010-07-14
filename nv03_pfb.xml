@@ -22,6 +22,38 @@
 </enum>
 
 <array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV03:NVC0">
+
+	<reg32 offset="0x200" name="CFG0" variants="NV50-">
+		<bitfield pos="2" name="CTRLB_ENABLED">
+			<doc>1 if second controller is enabled, 0 if only first.</doc>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x204" name="CFG1" variants="NV50-">
+		<bitfield low="12" high="15" name="COLBITS"/>
+		<bitfield low="16" high="19" name="ROWBITSA">
+			<doc>Number of row bits used by first controller - 8.</doc>
+		</bitfield>
+		<bitfield low="20" high="23" name="ROWBITSB">
+			<doc>Number of row bits used by second controller - 8.</doc>
+		</bitfield>
+		<bitfield pos="24" name="BANKS">
+			<value value="0" name="4"/>
+			<value value="1" name="8"/>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x20c" name="MEM_AMOUNT" variants="NV50-">
+		<bitfield high="7" low="0" name="HIGH" shr="32"/>
+		<bitfield high="31" low="12" name="LOW" shr="12"/>
+	</reg32>
+
+	<reg32 offset="0x250" name="BANKCFG">
+		<doc>Determines which bank is which, and how the banks are reordered for LSR tile_flags.</doc>
+		<value value="0" name="REORDER_SIMPLE"/>
+		<value value="1" name="REORDER_TIMES3"/>
+	</reg32>
+
 	<reg32 offset="0xc80" name="TLB_FLUSH" variants="NV50-">
 		<bitfield high="19" low="16" name="ENGINE" type="nv50_mmu_engine"/>
 		<bitfield pos="0" name="TRIGGER"/>
