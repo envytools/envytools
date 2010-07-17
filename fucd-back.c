@@ -309,6 +309,8 @@ static struct insn tabm[] = {
 	{ AP, 0x000000c6, 0x000000ff, N("xor"), REG1, REG2, IMM8 },
 	{ AP, 0x000000c7, 0x000000ff, N("bext"), REG1, REG2, IMM8 },
 	{ AP, 0x000000c8, 0x000000ff, N("xbit"), REG1, REG2, IMM8 },
+	{ AP, 0x000000cc, 0x000000ff, N("div"), REG1, REG2, IMM8 },
+	{ AP, 0x000000cd, 0x000000ff, N("mod"), REG1, REG2, IMM8 },
 	{ AP, 0x000000cf, 0x000000ff, N("iord"), REG1, IORI },
 	{ AP, 0x000000c0, 0x000000f0, OOPS, REG1, REG2 },
 
@@ -323,6 +325,8 @@ static struct insn tabm[] = {
 	{ AP, 0x000009f0, 0x00000ffe, N("bset"), REG2, T(i) },
 	{ AP, 0x00000af0, 0x00000ffe, N("bclr"), REG2, T(i) },
 	{ AP, 0x00000bf0, 0x00000ffe, N("btgl"), REG2, T(i) },
+	{ AP, 0x00000cf0, 0x00000ffe, N("div"), REG2, T(i) },
+	{ AP, 0x00000df0, 0x00000ffe, N("mod"), REG2, T(i) },
 	{ AP, 0x000000f0, 0x000000fe, OOPS, REG2, T(i) },
 	/* XXX: 00000cf0 */
 
@@ -365,6 +369,8 @@ static struct insn tabm[] = {
 	{ AP, 0x000600ff, 0x000f00ff, N("xor"), T(rrr) },
 	{ AP, 0x000700f0, 0x000f00ff, N("bext"), T(rrr) }, /* ARG1 = ARG2 >> ARG3 & 1, NVA3+ */
 	{ AP, 0x000800ff, 0x000f00ff, N("xbit"), T(rrr) }, /* NV98: ARG1 = (ARG1 & 0xfffffffe) | (ARG2 >> ARG3 & 1) ; NVA3+: same as bext */
+	{ AP, 0x000c00ff, 0x000f00ff, N("div"), T(rrr) },
+	{ AP, 0x000d00ff, 0x000f00ff, N("mod"), T(rrr) },
 	{ AP, 0x000f00ff, 0x000f00ff, N("iord"), REG3, IORR },
 	{ AP, 0x000000ff, 0x000000ff, OOPS, T(rrr) },
 	{ AP, 0, 0, OOPS },
