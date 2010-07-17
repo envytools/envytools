@@ -60,9 +60,13 @@ void atomsctarg APROTO {
 static int reg1off[] = { 8, 4, 'r' };
 static int reg2off[] = { 12, 4, 'r' };
 static int reg3off[] = { 20, 4, 'r' };
+static int pred1off[] = { 8, 3, 'p' };
+static int pred2off[] = { 16, 3, 'p' };
 #define REG1 atomreg, reg1off
 #define REG2 atomreg, reg2off
 #define REG3 atomreg, reg3off
+#define PRED1 atomreg, pred1off
+#define PRED2 atomreg, pred2off
 
 /*
  * Immediate fields
@@ -134,6 +138,7 @@ void atomiori APROTO {
 }
 
 static struct insn tabp[] = {
+	{ AP, 0x00000000, 0x00001800, PRED1 },
 	{ AP, 0x00000800, 0x00001f00, N("lt") }, /* or c */
 	{ AP, 0x00000900, 0x00001f00, N("o") },
 	{ AP, 0x00000a00, 0x00001f00, N("s") },
@@ -141,11 +146,21 @@ static struct insn tabp[] = {
 	{ AP, 0x00000c00, 0x00001f00, N("gt") },
 	{ AP, 0x00000d00, 0x00001f00, N("le") },
 	{ AP, 0x00000e00, 0x00001f00 }, /* always true */
+	{ AP, 0x00001000, 0x00001800, N("not"), PRED1 },
 	{ AP, 0x00001800, 0x00001f00, N("ge") }, /* or nc */
 	{ AP, 0x00001900, 0x00001f00, N("no") },
 	{ AP, 0x00001a00, 0x00001f00, N("ns") },
 	{ AP, 0x00001b00, 0x00001f00, N("ne") }, /* or nz */
 	{ AP, 0, 0, OOPS },
+};
+
+static struct insn tabfl[] = {
+	{ AP, 0x00000000, 0x00180000, PRED2 },
+	{ AP, 0x00080000, 0x001f0000, N("c") },
+	{ AP, 0x00090000, 0x001f0000, N("o") },
+	{ AP, 0x000a0000, 0x001f0000, N("s") },
+	{ AP, 0x000b0000, 0x001f0000, N("z") },
+	{ AP, 0x00180000, 0x001f0000, N("ex") },
 };
 
 static struct insn tabaop[] = {
@@ -328,7 +343,8 @@ static struct insn tabm[] = {
 	{ AP, 0x00000cf0, 0x00000ffe, N("div"), REG2, T(i) },
 	{ AP, 0x00000df0, 0x00000ffe, N("mod"), REG2, T(i) },
 	{ AP, 0x000000f0, 0x000000fe, OOPS, REG2, T(i) },
-	/* XXX: 00000cf0 */
+
+	{ AP, 0x000008f2, 0x00000fff, N("setp"), T(fl), REG2 }, /* set given flag if bit0 of ARG2 set */
 
 	{ AP, 0x000000f4, 0x0000e0fe, N("bra"), T(p), T(bt) },
 	{ AP, 0x000020f4, 0x0000fffe, N("bra"), T(ct) },
