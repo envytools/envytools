@@ -93,8 +93,9 @@ static int data32off[] = { 2 };
 #define DATA8 atomdata, data8off
 #define DATA16 atomdata, data16off
 #define DATA32 atomdata, data32off
-#define DATASP atomdatasp, data32off
-#define DATAIMM atomdataimm, data32off
+#define DATA8SP atomdatasp, data8off
+#define DATA16SP atomdatasp, data16off
+#define DATA32SP atomdatasp, data32off
 void atomdata APROTO {
 	const int *n = v;
 	if (n[0] != -1)
@@ -106,11 +107,6 @@ void atomdata APROTO {
 void atomdatasp APROTO {
 	const int *n = v;
 	fprintf (out, " %sD[%ssp%s+%s%#llx%s]", ccy, cgr, ccy, cyel, BF(16,8) << n[0], ccy);
-}
-
-void atomdataimm APROTO {
-	const int *n = v;
-	fprintf (out, " %sD[%s%#llx%s]", ccy, cyel, BF(16,8) << n[0], ccy);
 }
 
 static struct insn tabp[] = {
@@ -185,12 +181,9 @@ static struct insn tabdata[] = {
 };
 
 static struct insn tabdatasp[] = {
-	{ AP, 0x00000080, 0x000000c0, DATASP },
-	{ AP, 0, 0, OOPS },
-};
-
-static struct insn tabdataimm[] = {
-	{ AP, 0x00000080, 0x000000c0, DATAIMM },
+	{ AP, 0x00000000, 0x000000c0, DATA8SP },
+	{ AP, 0x00000040, 0x000000c0, DATA16SP },
+	{ AP, 0x00000080, 0x000000c0, DATA32SP },
 	{ AP, 0, 0, OOPS },
 };
 
@@ -223,7 +216,7 @@ static struct insn tabsi[] = {
 	{ AP, 0x0000001c, 0x0000003f, N("shlc"), T(sz), REG1, REG2, IMM8 },
 	{ AP, 0x0000001d, 0x0000003f, N("shrc"), T(sz), REG1, REG2, IMM8 },
 
-	{ AP, 0x00000130, 0x0000013f, N("st"), T(sz), T(dataimm), REG2 },
+	{ AP, 0x00000130, 0x00000f3f, N("st"), T(sz), T(datasp), REG2 },
 	{ AP, 0x00000430, 0x00000f3e, N("cmpu"), T(sz), REG2, T(i) },
 	{ AP, 0x00000530, 0x00000f3e, N("cmps"), T(sz), REG2, T(is) },
 	{ AP, 0x00000630, 0x00000f3e, N("cmp"), T(sz), REG2, T(is) },
