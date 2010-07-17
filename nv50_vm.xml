@@ -1,0 +1,160 @@
+<database>
+<import file="copyright.xml"/>
+<import file="nv50_defs.xml"/>
+
+<enum name="NV50_STORAGE_TYPE">
+	<value value="0x00" name="LINEAR"/>
+
+	<value value="0x10" name="Z24S8_UNK10"/>
+	<value value="0x11" name="Z24S8_UNK11"/>
+	<value value="0x12" name="Z24S8_UNK12"/>
+	<value value="0x13" name="Z24S8_UNK13"/>
+
+	<value value="0x18" name="Z24S8_LSR_UNK18"/>
+	<value value="0x19" name="Z24S8_LSR_UNK19"/>
+	<value value="0x1a" name="Z24S8_LSR_UNK1A"/>
+	<value value="0x1b" name="Z24S8_LSR_UNK1B"/>
+
+	<value value="0x20" name="S8Z24_UNK20"/>
+	<value value="0x21" name="S8Z24_UNK21"/>
+	<value value="0x22" name="S8Z24_UNK22"/>
+	<value value="0x23" name="S8Z24_UNK23"/>
+	<value value="0x24" name="C8Z24_X8Z24_UNK24"/>
+	<value value="0x25" name="C8Z24_UNK25"/>
+	<value value="0x26" name="C8Z24_X8Z24_UNK26"/>
+
+	<value value="0x28" name="S8Z24_LSR_UNK28"/>
+	<value value="0x29" name="S8Z24_LSR_UNK29"/>
+	<value value="0x2a" name="S8Z24_LSR_UNK2A"/>
+	<value value="0x2b" name="S8Z24_LSR_UNK2B"/>
+	<value value="0x2c" name="C8Z24_X8Z24_LSR_UNK2C"/>
+	<value value="0x2d" name="C8Z24_LSR_UNK2D"/>
+	<value value="0x2e" name="C8Z24_X8Z24_LSR_UNK2E"/>
+
+	<!-- in no way certain. -->
+	<value value="0x40" name="Z32_UNK40"/>
+	<value value="0x41" name="Z32_UNK41"/>
+	<value value="0x42" name="Z32_UNK42"/>
+	<value value="0x43" name="Z32_UNK43"/>
+
+	<value value="0x44" name="Z24_UNK44"/>
+	<value value="0x45" name="Z24_UNK45"/>
+	<value value="0x46" name="Z24_UNK46"/>
+
+	<value value="0x47" name="Z32_LSR_UNK47"/>
+	<value value="0x48" name="Z32_LSR_UNK48"/>
+	<value value="0x49" name="Z32_LSR_UNK49"/>
+	<value value="0x4a" name="Z32_LSR_UNK4A"/>
+
+	<!-- I hope you don't need to read that one aloud. -->
+	<!-- think 64-bit big endian ordering. -->
+	<value value="0x54" name="X16C8S8X8Z24_X24S8X8Z24_UNK54"/>
+	<value value="0x55" name="X16C8S8X8Z24_UNK55"/>
+	<value value="0x56" name="X16C8S8X8Z24_X24S8X8Z24_UNK56"/>
+
+	<value value="0x60" name="X24S8Z32_UNK60"/>
+	<value value="0x61" name="X24S8Z32_UNK61"/>
+	<value value="0x62" name="X24S8Z32_UNK62"/>
+	<value value="0x63" name="X24S8Z32_UNK63"/>
+	<value value="0x64" name="X16C8S8Z32_X24S8Z32_UNK64"/>
+	<value value="0x65" name="X16C8S8Z32_UNK65"/>
+	<value value="0x66" name="X16C8S8Z32_X24S8Z32_UNK66"/>
+
+	<!-- even less certain -->
+	<value value="0x68" name="Z16_UNK68"/>
+	<value value="0x69" name="Z16_UNK69"/>
+	<value value="0x6a" name="Z16_UNK6A"/>
+	<value value="0x6b" name="Z16_UNK6B"/>
+
+	<value value="0x6c" name="Z16_LSR_UNK6C"/>
+	<value value="0x6d" name="Z16_LSR_UNK6D"/>
+	<value value="0x6e" name="Z16_LSR_UNK6E"/>
+	<value value="0x6f" name="Z16_LSR_UNK6F"/>
+
+	<value value="0x70" name="TILED_UNK70"/>
+
+	<value value="0x72" name="TILED_LSR_UNK72"/>
+
+	<value value="0x74" name="TILED_128"/>
+
+	<value value="0x76" name="TILED_LSR_UNK76"/>
+
+	<value value="0x78" name="TILED_UNK78"/>
+	<value value="0x79" name="TILED_UNK79"/>
+
+	<value value="0x7a" name="TILED_LSR_UNK7A"/>
+	<value value="0x7b" name="TILED_LSR_UNK7B"/>
+
+	<value value="0x7c" name="TILED_UNK7C"/>
+	<value value="0x7d" name="TILED_UNK7D"/>
+
+	<!-- valid only in DMAobj -->
+	<value value="0x7f" name="USEVM"/>
+</enum>
+
+<enum name="NV50_COMPRESSION">
+	<value value="0" name="NONE"/>
+	<value value="1" name="UNK1"/>
+	<value value="2" name="UNK2"/>
+	<!-- valid only in DMAobj -->
+	<value value="3" name="USEVM"/>
+</enum>
+
+<domain name="NV50_DMAOBJ" size="0x10">
+	<reg32 offset="0x0" name="FLAGS">
+		<bitfield low="0" high="15" name="CLASS"/>
+		<bitfield low="16" high="17" name="TARGET">
+			<!-- don't you love how every target field has sorta the same, but really different set of allowed values... -->
+			<value value="0" name="VM"/>
+			<value value="1" name="VRAM"/>
+			<value value="2" name="SYSRAM"/>
+			<value value="3" name="SYSRAM_NO_SNOOP"/>
+		</bitfield>
+		<bitfield low="18" high="19" name="UNK18">
+		</bitfield>
+		<bitfield low="20" high="21" name="UNK20">
+		</bitfield>
+		<bitfield low="22" high="28" name="STORAGE_TYPE" type="NV50_STORAGE_TYPE"/>
+		<bitfield low="29" high="30" name="COMPRESSION" type="NV50_COMPRESSION"/>
+		<bitfield pos="31" name="SUPERVISOR"/>
+	</reg32>
+	<reg32 offset="0x4" name="LIMIT"/>
+	<reg32 offset="0x8" name="START"/>
+	<reg32 offset="0xc" name="EXTRA">
+		<bitfield low="0" high="7" name="START_HIGH"/>
+		<bitfield low="24" high="31" name="LIMIT_HIGH"/>
+	</reg32>
+</domain>
+
+<bitset name="NV50_PDE">
+	<bitfield pos="0" name="PRESENT"/>
+	<bitfield pos="1" name="PAGE_SIZE">
+		<value value="0" name="64K"/>
+		<value value="1" name="4K"/>
+	</bitfield>
+	<bitfield low="2" high="3" name="TARGET" type="nv50_mem_target"/>
+	<!-- 4? -->
+	<bitfield low="5" high="6" name="PT_SIZE">
+		<value value="0" name="FULL"/>
+		<value value="1" name="128M"/>
+		<value value="2" name="64M"/>
+		<value value="3" name="32M"/>
+	</bitfield>
+	<bitfield low="12" high="39" name="ADDRESS" shr="12"/>
+</bitset>
+
+<bitset name="NV50_PTE">
+	<bitfield pos="0" name="PRESENT"/>
+	<!-- 1? -->
+	<!-- 2? -->
+	<bitfield pos="3" name="READ_ONLY"/>
+	<bitfield low="4" high="5" name="TARGET" type="nv50_mem_target"/>
+	<bitfield pos="6" name="SUPERVISOR"/>
+	<bitfield low="7" high="9" name="CONTIG_BLOCK_LOG2"/>
+	<bitfield low="12" high="39" name="ADDRESS" shr="12"/>
+	<bitfield low="40" high="46" name="STORAGE_TYPE" type="NV50_STORAGE_TYPE"/>
+	<bitfield low="47" high="48" name="COMPRESSION" type="NV50_COMPRESSION"/>
+</bitset>
+
+</database>
+
