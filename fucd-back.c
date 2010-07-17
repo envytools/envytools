@@ -109,6 +109,25 @@ void atomdatasp APROTO {
 	fprintf (out, " %sD[%ssp%s+%s%#llx%s]", ccy, cgr, ccy, cyel, BF(16,8) << n[0], ccy);
 }
 
+/*
+ * MMIO space
+ *
+ * bits 8-17 specify register. It corresponds to MMIO reg fuc_base + ((addr >> 6) & 0xffc).
+ * bits 2-7, for indexed registers, specify reg index. for host MMIO accesses, the index comes
+ * from fuc_base + 0xffc instead.
+ *
+ * fuc_base + 0xff0 and up are host-only
+ */
+#define IO1 atomio1, 0
+void atomio1 APROTO {
+	fprintf (out, " %sI[%s%r%lld%s]", ccy, cbl, BF(12, 4), ccy);
+}
+
+#define IO2 atomio2, 0
+void atomio2 APROTO {
+	fprintf (out, " %sI[%s%r%lld%s+%s$r%lld%s*%s4%s]", ccy, cbl, BF(12, 4), ccy, cbl, BF(8, 4), ccy, cyel, ccy);
+}
+
 static struct insn tabp[] = {
 	{ AP, 0x00000800, 0x00001f00, N("lt") }, /* or c */
 	{ AP, 0x00000900, 0x00001f00, N("o") },
@@ -275,11 +294,7 @@ static struct insn tabm[] = {
 	{ AP, 0x00000040, 0x000000c0, T(si) },
 	{ AP, 0x00000080, 0x000000c0, T(si) },
 
-	/* iowr: read to ARG1 from MMIO register given by fuc_base + ((ARG1 >> 6) & 0xffc)
-	 *
-	 * unknown if bits 0-7 and 18+ have any use.
-	 */
-	{ AP, 0x000000cf, 0x000f00ff, N("iord"), REG1, REG2 },
+	{ AP, 0x000000cf, 0x000f00ff, N("iord"), REG1, IO1 },
 	{ AP, 0x000000cf, 0x000000ff, OOPS, REG1, REG2 },
 
 	{ AP, 0x000000f0, 0x00000ffe, N("mulu"), REG2, T(i) },
@@ -310,11 +325,7 @@ static struct insn tabm[] = {
 	{ AP, 0x000005f9, 0x00000fff, N("call"), REG2 },
 	{ AP, 0x000000f9, 0x000000ff, OOPS, REG2 },
 
-	/* iowr: write ARG2 to MMIO register given by fuc_base + ((ARG2 >> 6) & 0xffc)
-	 *
-	 * unknown if bits 0-7 and 18+ have any use.
-	 */
-	{ AP, 0x000000fa, 0x000f00ff, N("iowr"), REG2, REG1 },
+	{ AP, 0x000000fa, 0x000f00ff, N("iowr"), IO1, REG1 },
 	/* recv: read 16 bytes from cell (ARG1 >> 16) & 7 into memory at address ARG1 & 0xffff
 	 * this and send have to be preceded by some cmd, or you lose
 	 */
@@ -337,6 +348,7 @@ static struct insn tabm[] = {
 	{ AP, 0x000500ff, 0x000f00ff, N("or"), T(rrr) },
 	{ AP, 0x000600ff, 0x000f00ff, N("xor"), T(rrr) },
 	{ AP, 0x000800ff, 0x000f00ff, N("xbit"), T(rrr) }, /* ARG1 = (ARG1 & 0xfffffffe) | (ARG2 >> ARG3 & 1) */
+	{ AP, 0x000f00ff, 0x000f00ff, N("iord"), REG3, IO2 },
 	{ AP, 0x000000ff, 0x000000ff, OOPS, T(rrr) },
 	{ AP, 0, 0, OOPS },
 };
