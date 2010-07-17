@@ -89,28 +89,36 @@ static int imm8hoff[] = { 16, 8, 16, 0 };
  * Memory fields
  */
 
-static int datanoff[] = { -1 };
 static int data8off[] = { 0 };
 static int data16off[] = { 1 };
 static int data32off[] = { 2 };
-#define DATAN atomdata, datanoff
-#define DATA8 atomdata, data8off
-#define DATA16 atomdata, data16off
-#define DATA32 atomdata, data32off
+#define DATAR atomdatar, 0
+#define DATARI8 atomdatari, data8off
+#define DATARI16 atomdatari, data16off
+#define DATARI32 atomdatari, data32off
+#define DATARR8 atomdatarr, data8off
+#define DATARR16 atomdatarr, data16off
+#define DATARR32 atomdatarr, data32off
 #define DATA8SP atomdatasp, data8off
 #define DATA16SP atomdatasp, data16off
 #define DATA32SP atomdatasp, data32off
-void atomdata APROTO {
+void atomdatar APROTO {
+	fprintf (out, " %sD[%s$r%lld%s]", ccy, cbl, BF(12, 4), ccy);
+}
+
+void atomdatari APROTO {
 	const int *n = v;
-	if (n[0] != -1)
-		fprintf (out, " %sD[%s$r%lld%s+%s%#llx%s]", ccy, cbl, BF(12, 4), ccy, cyel, BF(16,8) << n[0], ccy);
-	else
-		fprintf (out, " %sD[%s$r%lld%s]", ccy, cbl, BF(12, 4), ccy);
+	fprintf (out, " %sD[%s$r%lld%s+%s%#llx%s]", ccy, cbl, BF(12, 4), ccy, cyel, BF(16,8) << n[0], ccy);
 }
 
 void atomdatasp APROTO {
 	const int *n = v;
 	fprintf (out, " %sD[%ssp%s+%s%#llx%s]", ccy, cgr, ccy, cyel, BF(16,8) << n[0], ccy);
+}
+
+void atomdatarr APROTO {
+	const int *n = v;
+	fprintf (out, " %sD[%s$r%lld%s+%s$r%lld%s*%s%d%s]", ccy, cbl, BF(12, 4), ccy, cbl, BF(8, 4), ccy, cyel, 1 << n[0], ccy);
 }
 
 /*
@@ -212,10 +220,10 @@ static struct insn tabsz[] = {
 	{ AP, 0, 0, OOPS },
 };
 
-static struct insn tabdata[] = {
-	{ AP, 0x00000000, 0x000000c0, DATA8 },
-	{ AP, 0x00000040, 0x000000c0, DATA16 },
-	{ AP, 0x00000080, 0x000000c0, DATA32 },
+static struct insn tabdatari[] = {
+	{ AP, 0x00000000, 0x000000c0, DATARI8 },
+	{ AP, 0x00000040, 0x000000c0, DATARI16 },
+	{ AP, 0x00000080, 0x000000c0, DATARI32 },
 	{ AP, 0, 0, OOPS },
 };
 
@@ -223,6 +231,13 @@ static struct insn tabdatasp[] = {
 	{ AP, 0x00000000, 0x000000c0, DATA8SP },
 	{ AP, 0x00000040, 0x000000c0, DATA16SP },
 	{ AP, 0x00000080, 0x000000c0, DATA32SP },
+	{ AP, 0, 0, OOPS },
+};
+
+static struct insn tabdatarr[] = {
+	{ AP, 0x00000000, 0x000000c0, DATARR8 },
+	{ AP, 0x00000040, 0x000000c0, DATARR16 },
+	{ AP, 0x00000080, 0x000000c0, DATARR32 },
 	{ AP, 0, 0, OOPS },
 };
 
@@ -242,7 +257,7 @@ static struct insn tabsrd[] = {
 };
 
 static struct insn tabsi[] = {
-	{ AP, 0x00000000, 0x0000003f, N("st"), T(sz), T(data), REG1 },
+	{ AP, 0x00000000, 0x0000003f, N("st"), T(sz), T(datari), REG1 },
 
 	{ AP, 0x00000010, 0x0000003f, N("add"), T(sz), REG1, REG2, IMM8 },
 	{ AP, 0x00000011, 0x0000003f, N("adc"), T(sz), REG1, REG2, IMM8 },
@@ -251,7 +266,7 @@ static struct insn tabsi[] = {
 	{ AP, 0x00000014, 0x0000003f, N("shl"), T(sz), REG1, REG2, IMM8 },
 	{ AP, 0x00000015, 0x0000003f, N("shr"), T(sz), REG1, REG2, IMM8 },
 	{ AP, 0x00000017, 0x0000003f, N("sar"), T(sz), REG1, REG2, IMM8 },
-	{ AP, 0x00000018, 0x0000003f, N("ld"), T(sz), REG1, T(data) },
+	{ AP, 0x00000018, 0x0000003f, N("ld"), T(sz), REG1, T(datari) },
 	{ AP, 0x0000001c, 0x0000003f, N("shlc"), T(sz), REG1, REG2, IMM8 },
 	{ AP, 0x0000001d, 0x0000003f, N("shrc"), T(sz), REG1, REG2, IMM8 },
 	{ AP, 0x00000010, 0x000000f0, OOPS, REG1, REG2 },
@@ -266,7 +281,7 @@ static struct insn tabsi[] = {
 
 	{ AP, 0x00000036, 0x0000003e, T(aop), T(sz), REG2, T(i) },
 
-	{ AP, 0x00000038, 0x000f003f, N("st"), T(sz), DATAN, REG1 },
+	{ AP, 0x00000038, 0x000f003f, N("st"), T(sz), DATAR, REG1 },
 	{ AP, 0x00040038, 0x000f003f, N("cmpu"), T(sz), REG2, REG1 },
 	{ AP, 0x00050038, 0x000f003f, N("cmps"), T(sz), REG2, REG1 },
 	{ AP, 0x00060038, 0x000f003f, N("cmp"), T(sz), REG2, REG1 }, /* NVA3+ */
@@ -296,6 +311,7 @@ static struct insn tabsi[] = {
 	{ AP, 0x0004003c, 0x000f003f, N("shl"), T(sz), T(rrr) },
 	{ AP, 0x0005003c, 0x000f003f, N("shr"), T(sz), T(rrr) },
 	{ AP, 0x0007003c, 0x000f003f, N("sar"), T(sz), T(rrr) },
+	{ AP, 0x0008003c, 0x000f003f, N("ld"), T(sz), REG3, T(datarr) },
 	{ AP, 0x000c003c, 0x000f003f, N("shlc"), T(sz), T(rrr) },
 	{ AP, 0x000d003c, 0x000f003f, N("shrc"), T(sz), T(rrr) },
 	{ AP, 0x0000003c, 0x0000003f, OOPS, T(sz), T(rrr) },
