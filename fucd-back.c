@@ -59,8 +59,10 @@ void atomsctarg APROTO {
 
 static int reg1off[] = { 8, 4, 'r' };
 static int reg2off[] = { 12, 4, 'r' };
+static int reg3off[] = { 20, 4, 'r' };
 #define REG1 atomreg, reg1off
 #define REG2 atomreg, reg2off
+#define REG3 atomreg, reg3off
 
 /*
  * Immediate fields
@@ -91,12 +93,24 @@ static int data32off[] = { 2 };
 #define DATA8 atomdata, data8off
 #define DATA16 atomdata, data16off
 #define DATA32 atomdata, data32off
+#define DATASP atomdatasp, data32off
+#define DATAIMM atomdataimm, data32off
 void atomdata APROTO {
 	const int *n = v;
 	if (n[0] != -1)
 		fprintf (out, " %sD[%s$r%lld%s+%s%#llx%s]", ccy, cbl, BF(12, 4), ccy, cyel, BF(16,8) << n[0], ccy);
 	else
 		fprintf (out, " %sD[%s$r%lld%s]", ccy, cbl, BF(12, 4), ccy);
+}
+
+void atomdatasp APROTO {
+	const int *n = v;
+	fprintf (out, " %sD[%ssp%s+%s%#llx%s]", ccy, cgr, ccy, cyel, BF(16,8) << n[0], ccy);
+}
+
+void atomdataimm APROTO {
+	const int *n = v;
+	fprintf (out, " %sD[%s%#llx%s]", ccy, cyel, BF(16,8) << n[0], ccy);
 }
 
 static struct insn tabp[] = {
@@ -157,6 +171,10 @@ static struct insn tabrr[] = {
 	{ AP, 0x00100000, 0x00100000, REG1, REG1, REG2 },
 };
 
+static struct insn tabrrr[] = {
+	{ AP, 0x00000000, 0x00000000, REG3, REG1, REG2 },
+};
+
 static struct insn tabsz[] = {
 	{ AP, 0x00000000, 0x000000c0, N("b8") },
 	{ AP, 0x00000040, 0x000000c0, N("b16") },
@@ -168,6 +186,16 @@ static struct insn tabdata[] = {
 	{ AP, 0x00000000, 0x000000c0, DATA8 },
 	{ AP, 0x00000040, 0x000000c0, DATA16 },
 	{ AP, 0x00000080, 0x000000c0, DATA32 },
+	{ AP, 0, 0, OOPS },
+};
+
+static struct insn tabdatasp[] = {
+	{ AP, 0x00000080, 0x000000c0, DATASP },
+	{ AP, 0, 0, OOPS },
+};
+
+static struct insn tabdataimm[] = {
+	{ AP, 0x00000080, 0x000000c0, DATAIMM },
 	{ AP, 0, 0, OOPS },
 };
 
@@ -200,15 +228,20 @@ static struct insn tabsi[] = {
 	{ AP, 0x0000001c, 0x0000003f, N("shlc"), T(sz), REG1, REG2, IMM8 },
 	{ AP, 0x0000001d, 0x0000003f, N("shrc"), T(sz), REG1, REG2, IMM8 },
 
+	{ AP, 0x00000130, 0x0000013f, N("st"), T(sz), T(dataimm), REG2 },
 	{ AP, 0x00000430, 0x00000f3e, N("cmpu"), T(sz), REG2, T(i) },
 	{ AP, 0x00000530, 0x00000f3e, N("cmps"), T(sz), REG2, T(is) },
+	{ AP, 0x00000630, 0x00000f3e, N("cmp"), T(sz), REG2, T(is) },
 	{ AP, 0x00000030, 0x0000003e, OOPS, T(sz), REG2, T(i) },
+
+	{ AP, 0x00000034, 0x00000f3f, N("ld"), T(sz), REG2, T(datasp) },
 
 	{ AP, 0x00000036, 0x0000003e, T(aop), T(sz), REG2, T(i) },
 
 	{ AP, 0x00000038, 0x000f003f, N("st"), T(sz), DATAN, REG1 },
 	{ AP, 0x00040038, 0x000f003f, N("cmpu"), T(sz), REG2, REG1 },
 	{ AP, 0x00050038, 0x000f003f, N("cmps"), T(sz), REG2, REG1 },
+	{ AP, 0x00060038, 0x000f003f, N("cmp"), T(sz), REG2, REG1 },
 	{ AP, 0x00000038, 0x0000003f, OOPS, T(sz), REG2, REG1 },
 
 	{ AP, 0x00000039, 0x000f003f, N("not"), T(sz), REG1, REG2 },
@@ -238,6 +271,9 @@ static struct insn tabsi[] = {
 	{ AP, 0x000c003c, 0x00ef003f, N("shlc"), T(sz), T(rr) },
 	{ AP, 0x000d003c, 0x00ef003f, N("shrc"), T(sz), T(rr) },
 	{ AP, 0x0000003c, 0x00e0003f, OOPS, T(sz), T(rr) },
+
+	{ AP, 0x0000003c, 0x000f003f, N("add"), T(sz), T(rrr) },
+	{ AP, 0x0000003c, 0x0000003f, OOPS, T(sz), T(rrr) },
 	
 	{ AP, 0x0000003d, 0x00000f3f, N("not"), T(sz), REG2 },
 	{ AP, 0x0000013d, 0x00000f3f, N("neg"), T(sz), REG2 },
