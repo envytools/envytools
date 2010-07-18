@@ -186,6 +186,7 @@ static struct insn tabfl[] = {
 	{ AP, 0x000a0000, 0x001f0000, N("s") },
 	{ AP, 0x000b0000, 0x001f0000, N("z") },
 	{ AP, 0x00180000, 0x001f0000, N("ex") },
+	{ AP, 0x00000000, 0x00000000, OOPS },
 };
 
 static struct insn tabaop[] = {
