@@ -85,9 +85,16 @@ static int imm8hoff[] = { 16, 8, 16, 0 };
 #define IMM16H atomnum, imm16hoff
 #define IMM8H atomnum, imm8hoff
 
-#define BITF atombf, 0
+#define BITF8 atombf, imm8off
+#define BITF16 atombf, imm16off
 void atombf APROTO {
-	fprintf (out, " %s%lld:%lld", cyel, BF(16,5), BF(21,5)+BF(16,5));
+	const int *n = v;
+	uint32_t i = BF(n[0], n[1]);
+	if (n[3] && i&1ull<<(n[1]-1))
+		i -= 1ull<<(n[1]);
+	uint32_t j = i >> 5 & 0x1f;
+	i &= 0x1f;
+	fprintf (out, " %s%d:%d", cyel, i, i+j);
 }
 
 /*
@@ -279,7 +286,7 @@ static struct insn tabsi[] = {
 	{ AP, 0x00000018, 0x0000003f, N("ld"), T(sz), REG1, T(datari) },
 	{ AP, 0x0000001c, 0x0000003f, N("shlc"), T(sz), REG1, REG2, IMM8 },
 	{ AP, 0x0000001d, 0x0000003f, N("shrc"), T(sz), REG1, REG2, IMM8 },
-	{ AP, 0x00000010, 0x000000f0, OOPS, REG1, REG2 },
+	{ AP, 0x00000010, 0x00000030, OOPS, T(sz), REG1, REG2 },
 
 	{ AP, 0x00000130, 0x00000f3f, N("st"), T(sz), T(datasp), REG2 },
 	{ AP, 0x00000430, 0x00000f3e, N("cmpu"), T(sz), REG2, T(i) },
@@ -344,18 +351,27 @@ static struct insn tabm[] = {
 	{ AP, 0x000000c0, 0x000000ff, N("mulu"), REG1, REG2, IMM8 },
 	{ AP, 0x000000c1, 0x000000ff, N("muls"), REG1, REG2, IMM8S },
 	{ AP, 0x000000c2, 0x000000ff, N("sex"), REG1, REG2, IMM8 },
-	{ AP, 0x000000c3, 0x000000ff, N("sbext"), REG1, REG2, IMM8 },
+	{ AP, 0x000000c3, 0x000000ff, N("extrs"), REG1, REG2, BITF8 },
 	{ AP, 0x000000c4, 0x000000ff, N("and"), REG1, REG2, IMM8 },
 	{ AP, 0x000000c5, 0x000000ff, N("or"), REG1, REG2, IMM8 },
 	{ AP, 0x000000c6, 0x000000ff, N("xor"), REG1, REG2, IMM8 },
-	{ AP, 0x000000c7, 0x000000ff, N("bext"), REG1, REG2, IMM8 },
+	{ AP, 0x000000c7, 0x000000ff, N("extr"), REG1, REG2, BITF8 },
 	{ AP, 0x000000c8, 0x000000ff, N("xbit"), REG1, REG2, IMM8 },
 	{ AP, 0x000000cc, 0x000000ff, N("div"), REG1, REG2, IMM8 },
 	{ AP, 0x000000cd, 0x000000ff, N("mod"), REG1, REG2, IMM8 },
 	{ AP, 0x000000cf, 0x000000ff, N("iord"), REG1, IORI },
-	{ AP, 0x000000c0, 0x000000f0, OOPS, REG1, REG2 },
+	{ AP, 0x000000c0, 0x000000f0, OOPS, REG1, REG2, IMM8 },
 
-	{ AP, 0x000000e7, 0x000000ff, N("extr"), REG1, REG2, BITF },
+	{ AP, 0x000000e0, 0x000000ff, N("mulu"), REG1, REG2, IMM16 },
+	{ AP, 0x000000e1, 0x000000ff, N("muls"), REG1, REG2, IMM16S },
+	{ AP, 0x000000e3, 0x000000ff, N("extrs"), REG1, REG2, BITF16 },
+	{ AP, 0x000000e4, 0x000000ff, N("and"), REG1, REG2, IMM16 },
+	{ AP, 0x000000e5, 0x000000ff, N("or"), REG1, REG2, IMM16 },
+	{ AP, 0x000000e6, 0x000000ff, N("xor"), REG1, REG2, IMM16 },
+	{ AP, 0x000000e7, 0x000000ff, N("extr"), REG1, REG2, BITF16 },
+	{ AP, 0x000000ec, 0x000000ff, N("div"), REG1, REG2, IMM16 },
+	{ AP, 0x000000ed, 0x000000ff, N("mod"), REG1, REG2, IMM16 },
+	{ AP, 0x000000e0, 0x000000f0, OOPS, REG1, REG2, IMM16 },
 
 	{ AP, 0x000000f0, 0x00000ffe, N("mulu"), REG2, T(i) },
 	{ AP, 0x000001f0, 0x00000ffe, N("muls"), REG2, T(is) },
