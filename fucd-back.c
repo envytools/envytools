@@ -185,6 +185,8 @@ static struct insn tabfl[] = {
 	{ AP, 0x00090000, 0x001f0000, N("o") },
 	{ AP, 0x000a0000, 0x001f0000, N("s") },
 	{ AP, 0x000b0000, 0x001f0000, N("z") },
+	{ AP, 0x00100000, 0x001f0000, N("ie") },
+	{ AP, 0x00140000, 0x001f0000, N("ia") },
 	{ AP, 0x00180000, 0x001f0000, N("ex") },
 	{ AP, 0x00000000, 0x00000000, OOPS },
 };
@@ -260,6 +262,7 @@ static struct insn tabdatarr[] = {
 };
 
 static struct insn tabsrs[] = {
+	{ AP, 0x00000000, 0x0000f000, N("ihandler") },
 	{ AP, 0x00003000, 0x0000f000, N("ehandler") },
 	{ AP, 0x00004000, 0x0000f000, N("sp") },
 	{ AP, 0x00005000, 0x0000f000, N("pc") },
@@ -268,6 +271,7 @@ static struct insn tabsrs[] = {
 };
 
 static struct insn tabsrd[] = {
+	{ AP, 0x00000000, 0x00000f00, N("ihandler") },
 	{ AP, 0x00000300, 0x00000f00, N("ehandler") },
 	{ AP, 0x00000400, 0x00000f00, N("sp") },
 	{ AP, 0x00000800, 0x00000f00, N("flags") },
@@ -407,6 +411,7 @@ static struct insn tabm[] = {
 	{ AP, 0x000000f4, 0x000000fe, OOPS, T(i) },
 
 	{ AP, 0x000000f8, 0x0000ffff, N("ret") },
+	{ AP, 0x000001f8, 0x0000ffff, N("iret") },
 	{ AP, 0x000002f8, 0x0000ffff, N("exit") },
 
 	{ AP, 0x000000f9, 0x00000fff, N("push"), REG2 },
