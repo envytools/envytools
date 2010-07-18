@@ -356,8 +356,7 @@ static struct insn tabm[] = {
 	{ AP, 0x000009f0, 0x00000ffe, N("bset"), REG2, T(i) },
 	{ AP, 0x00000af0, 0x00000ffe, N("bclr"), REG2, T(i) },
 	{ AP, 0x00000bf0, 0x00000ffe, N("btgl"), REG2, T(i) },
-	{ AP, 0x00000cf0, 0x00000ffe, N("div"), REG2, T(i) },
-	{ AP, 0x00000df0, 0x00000ffe, N("mod"), REG2, T(i) },
+	{ AP, 0x00000cf0, 0x00000ffe, N("set"), REG2, T(fl) },
 	{ AP, 0x000000f0, 0x000000fe, OOPS, REG2, T(i) },
 
 	{ AP, 0x000008f2, 0x00000fff, N("setp"), T(fl), REG2 }, /* set given flag if bit0 of ARG2 set */
@@ -394,12 +393,14 @@ static struct insn tabm[] = {
 
 	{ AP, 0x000000fd, 0x000f00ff, N("mulu"), REG2, REG1 },
 	{ AP, 0x000100fd, 0x000f00ff, N("muls"), REG2, REG1 },
-	{ AP, 0x000200fd, 0x000f00ff, N("sex"), REG2, REG1 }, /* this exists, but not sure how it works... */
+	{ AP, 0x000200fd, 0x000f00ff, N("sex"), REG2, REG1 },
 	{ AP, 0x000400fd, 0x000f00ff, N("and"), REG2, REG1 },
 	{ AP, 0x000500fd, 0x000f00ff, N("or"), REG2, REG1 },
 	{ AP, 0x000600fd, 0x000f00ff, N("xor"), REG2, REG1 },
-	{ AP, 0x000a00fd, 0x00000ffe, N("bclr"), REG2, REG1 },
-	{ AP, 0x000b00fd, 0x00000ffe, N("btgl"), REG2, REG1 },
+	{ AP, 0x000900fd, 0x000f00ff, N("bset"), REG2, REG1 },
+	{ AP, 0x000a00fd, 0x000f00ff, N("bclr"), REG2, REG1 },
+	{ AP, 0x000b00fd, 0x000f00ff, N("btgl"), REG2, REG1 },
+	{ AP, 0x000000fd, 0x000000ff, OOPS, REG2, REG1 },
 
 	{ AP, 0x000000ff, 0x000f00ff, N("mulu"), T(rrr) },
 	{ AP, 0x000100ff, 0x000f00ff, N("muls"), T(rrr) },
