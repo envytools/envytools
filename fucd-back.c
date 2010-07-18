@@ -85,6 +85,11 @@ static int imm8hoff[] = { 16, 8, 16, 0 };
 #define IMM16H atomnum, imm16hoff
 #define IMM8H atomnum, imm8hoff
 
+#define BITF atombf, 0
+void atombf APROTO {
+	fprintf (out, " %s%lld:%lld", cyel, BF(16,5), BF(21,5)+BF(16,5));
+}
+
 /*
  * Memory fields
  */
@@ -344,6 +349,8 @@ static struct insn tabm[] = {
 	{ AP, 0x000000cd, 0x000000ff, N("mod"), REG1, REG2, IMM8 },
 	{ AP, 0x000000cf, 0x000000ff, N("iord"), REG1, IORI },
 	{ AP, 0x000000c0, 0x000000f0, OOPS, REG1, REG2 },
+
+	{ AP, 0x000000e7, 0x000000ff, N("extr"), REG1, REG2, BITF },
 
 	{ AP, 0x000000f0, 0x00000ffe, N("mulu"), REG2, T(i) },
 	{ AP, 0x000001f0, 0x00000ffe, N("muls"), REG2, T(is) },
