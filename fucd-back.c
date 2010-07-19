@@ -392,6 +392,15 @@ static struct insn tabm[] = {
 	{ AP, 0x000000fe, 0x00ff00ff, N("mov"), T(srd), REG2 },
 	{ AP, 0x000100fe, 0x00ff00ff, N("mov"), REG1, T(srs) },
 
+	{ AP, 0x000000fd, 0x000f00ff, N("mulu"), REG2, REG1 },
+	{ AP, 0x000100fd, 0x000f00ff, N("muls"), REG2, REG1 },
+	{ AP, 0x000200fd, 0x000f00ff, N("sex"), REG2, REG1 }, /* this exists, but not sure how it works... */
+	{ AP, 0x000400fd, 0x000f00ff, N("and"), REG2, REG1 },
+	{ AP, 0x000500fd, 0x000f00ff, N("or"), REG2, REG1 },
+	{ AP, 0x000600fd, 0x000f00ff, N("xor"), REG2, REG1 },
+	{ AP, 0x000a00fd, 0x00000ffe, N("bclr"), REG2, REG1 },
+	{ AP, 0x000b00fd, 0x00000ffe, N("btgl"), REG2, REG1 },
+
 	{ AP, 0x000000ff, 0x000f00ff, N("mulu"), T(rrr) },
 	{ AP, 0x000100ff, 0x000f00ff, N("muls"), T(rrr) },
 	{ AP, 0x000200ff, 0x000f00ff, N("sex"), T(rrr) },
