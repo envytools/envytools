@@ -281,6 +281,11 @@ static struct insn tabsi[] = {
 	{ AP, 0x0000001d, 0x0000003f, N("shrc"), T(sz), REG1, REG2, IMM8 },
 	{ AP, 0x00000010, 0x000000f0, OOPS, REG1, REG2 },
 
+	{ AP, 0x00000020, 0x0000003f, N("add"), T(sz), REG1, REG2, IMM16 },
+	{ AP, 0x00000021, 0x0000003f, N("adc"), T(sz), REG1, REG2, IMM16 },
+	{ AP, 0x00000022, 0x0000003f, N("sub"), T(sz), REG1, REG2, IMM16 },
+	{ AP, 0x00000023, 0x0000003f, N("sbb"), T(sz), REG1, REG2, IMM16 },
+
 	{ AP, 0x00000130, 0x00000f3f, N("st"), T(sz), T(datasp), REG2 },
 	{ AP, 0x00000430, 0x00000f3e, N("cmpu"), T(sz), REG2, T(i) },
 	{ AP, 0x00000530, 0x00000f3e, N("cmps"), T(sz), REG2, T(is) },
