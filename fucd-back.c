@@ -425,6 +425,7 @@ static struct insn tabm[] = {
 	{ AP, 0x000000f9, 0x000000ff, OOPS, REG2 },
 
 	{ AP, 0x000000fa, 0x000f00ff, N("iowr"), IOR, REG1 },
+#if 0
 	/* recv: read 16 bytes from cell (ARG1 >> 16) & 7 into memory at address ARG1 & 0xffff
 	 * this and send have to be preceded by some cmd, or you lose
 	 */
@@ -432,6 +433,7 @@ static struct insn tabm[] = {
 	/* send: send 16 bytes to cell (ARG1 >> 16) & 7 from memory at address ARG1 & 0xffff */
 	{ AP, 0x000600fa, 0x000f00ff, N("send"), REG1 },
 	/* what the hell. how many ops do these insns have anyway. I've seen recv/send using REG2 too, but... for what? */
+#endif
 	{ AP, 0x000000fa, 0x000000ff, OOPS, REG2, REG1 },
 
 	{ AP, 0x000000fc, 0x00000fff, N("pop"), REG2 },
