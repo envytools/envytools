@@ -267,6 +267,7 @@ static struct insn tabsrs[] = {
 	{ AP, 0x00004000, 0x0000f000, N("sp") },
 	{ AP, 0x00005000, 0x0000f000, N("pc") },
 	{ AP, 0x00008000, 0x0000f000, N("flags") },
+	{ AP, 0x0000c000, 0x0000f000, N("estatus") },
 	{ AP, 0, 0, OOPS },
 };
 
@@ -275,6 +276,7 @@ static struct insn tabsrd[] = {
 	{ AP, 0x00000300, 0x00000f00, N("ehandler") },
 	{ AP, 0x00000400, 0x00000f00, N("sp") },
 	{ AP, 0x00000800, 0x00000f00, N("flags") },
+	{ AP, 0x00000c00, 0x00000f00, N("estatus") },
 	{ AP, 0, 0, OOPS },
 };
 
