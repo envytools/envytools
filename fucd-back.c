@@ -186,7 +186,9 @@ static struct insn tabfl[] = {
 	{ AP, 0x000a0000, 0x001f0000, N("s") },
 	{ AP, 0x000b0000, 0x001f0000, N("z") },
 	{ AP, 0x00100000, 0x001f0000, N("ie") },
+	{ AP, 0x00110000, 0x001f0000, U("11") },
 	{ AP, 0x00140000, 0x001f0000, N("ia") },
+	{ AP, 0x00150000, 0x001f0000, U("15") },
 	{ AP, 0x00180000, 0x001f0000, N("ex") },
 	{ AP, 0x00000000, 0x00000000, OOPS },
 };
@@ -263,19 +265,29 @@ static struct insn tabdatarr[] = {
 
 static struct insn tabsrs[] = {
 	{ AP, 0x00000000, 0x0000f000, N("ihandler") },
+	{ AP, 0x00001000, 0x0000f000, U("1") },
 	{ AP, 0x00003000, 0x0000f000, N("ehandler") },
 	{ AP, 0x00004000, 0x0000f000, N("sp") },
 	{ AP, 0x00005000, 0x0000f000, N("pc") },
+	{ AP, 0x00006000, 0x0000f000, U("6") },
+	{ AP, 0x00007000, 0x0000f000, U("7") },
 	{ AP, 0x00008000, 0x0000f000, N("flags") },
+	{ AP, 0x0000a000, 0x0000f000, U("a") },
+	{ AP, 0x0000b000, 0x0000f000, U("b") },
 	{ AP, 0x0000c000, 0x0000f000, N("estatus") },
 	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabsrd[] = {
 	{ AP, 0x00000000, 0x00000f00, N("ihandler") },
+	{ AP, 0x00000100, 0x00000f00, U("1") },
 	{ AP, 0x00000300, 0x00000f00, N("ehandler") },
 	{ AP, 0x00000400, 0x00000f00, N("sp") },
+	{ AP, 0x00000600, 0x00000f00, U("6") },
+	{ AP, 0x00000700, 0x00000f00, U("7") },
 	{ AP, 0x00000800, 0x00000f00, N("flags") },
+	{ AP, 0x00000a00, 0x00000f00, U("a") },
+	{ AP, 0x00000b00, 0x00000f00, U("b") },
 	{ AP, 0x00000c00, 0x00000f00, N("estatus") },
 	{ AP, 0, 0, OOPS },
 };
@@ -412,19 +424,28 @@ static struct insn tabm[] = {
 	{ AP, 0x000031f4, 0x0000fffe, N("set"), T(fl) },
 	{ AP, 0x000032f4, 0x0000fffe, N("clear"), T(fl) },
 	{ AP, 0x000033f4, 0x0000fffe, N("flip"), T(fl) },
-	{ AP, 0x00003cf4, 0x0000fffe, N("cmd"), T(i) },
+	{ AP, 0x00003cf4, 0x0000fffe, U("f4/3c"), T(i) },
 	{ AP, 0x000000f4, 0x000000fe, OOPS, T(i) },
 
 	{ AP, 0x000000f8, 0x0000ffff, N("ret") },
 	{ AP, 0x000001f8, 0x0000ffff, N("iret") },
 	{ AP, 0x000002f8, 0x0000ffff, N("exit") },
+	{ AP, 0x000003f8, 0x0000ffff, U("f8/3") },
+	{ AP, 0x000006f8, 0x0000ffff, U("f8/6") },
+	{ AP, 0x000007f8, 0x0000ffff, U("f8/7") },
+	{ AP, 0x000008f8, 0x0000ffff, U("f8/8") },
 
 	{ AP, 0x000000f9, 0x00000fff, N("push"), REG2 },
 	{ AP, 0x000004f9, 0x00000fff, N("bra"), REG2 },
 	{ AP, 0x000005f9, 0x00000fff, N("call"), REG2 },
+	{ AP, 0x000008f9, 0x00000fff, U("f9/8"), REG2 },
+	{ AP, 0x00000af9, 0x00000fff, U("f9/a"), REG2 },
 	{ AP, 0x000000f9, 0x000000ff, OOPS, REG2 },
 
 	{ AP, 0x000000fa, 0x000f00ff, N("iowr"), IOR, REG1 },
+	{ AP, 0x000400fa, 0x000f00ff, U("fa/4"), REG2, REG1 },
+	{ AP, 0x000500fa, 0x000f00ff, U("fa/5"), REG2, REG1 },
+	{ AP, 0x000600fa, 0x000f00ff, U("fa/6"), REG2, REG1 },
 #if 0
 	/* recv: read 16 bytes from cell (ARG1 >> 16) & 7 into memory at address ARG1 & 0xffff
 	 * this and send have to be preceded by some cmd, or you lose

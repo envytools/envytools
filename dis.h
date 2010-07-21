@@ -139,8 +139,11 @@ void atomname APROTO;
 #define NL atomnl, 0
 void atomnl APROTO;
 
-#define OOPS atomoops, 0
-void atomoops APROTO;
+#define U(x) atomunk, "unk" x
+void atomunk APROTO;
+
+#define OOPS atomunk, "???"
+void atomunk APROTO;
 
 void atomnum APROTO;
 

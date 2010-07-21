@@ -58,8 +58,8 @@ void atomnl APROTO {
 	fprintf (out, "\n                          ");
 }
 
-void atomoops APROTO {
-	fprintf (out, " %s???", cred);
+void atomunk APROTO {
+	fprintf (out, " %s%s", cred, (char *)v);
 }
 
 void atomnum APROTO {
