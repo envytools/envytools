@@ -200,6 +200,28 @@
 
 	<group name="nvc0_ctxctl">
 		<use-group name="nv98_fucbase"/>
+		<reg32 offset="0x064" name="RDCMD_DATA"/>
+		<reg32 offset="0x068" name="RDCMD_CMD"/>
+
+		<reg32 offset="0x500" name="WRCMD_DATA"/>
+		<reg32 offset="0x504" name="WRCMD_CMD"/>
+
+		<reg32 offset="0x728" name="MMIO_CTRL">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield low="2" high="25" name="ADDR" shr="2"/>
+			<bitfield pos="29" name="UNK29"/> <!-- only for writes? -->
+			<bitfield pos="30" name="ACCESS">
+				<value value="0" name="READ"/>
+				<value value="1" name="WRITE"/>
+			</bitfield>
+			<bitfield pos="31" name="TRIGGER"/>
+		</reg32>
+		<reg32 offset="0x72c" name="MMIO_RDVAL"/>
+		<reg32 offset="0x730" name="MMIO_WRVAL"/>
+
+		<reg32 offset="0x800" name="NEWSCRATCH" length="8"/>
+		<reg32 offset="0x820" name="NEWSCRATCH_SET" length="8"/>
+		<reg32 offset="0x840" name="NEWSCRATCH_CLEAR" length="8"/>
 	</group>
 
 	<group name="nvc0_ropc">
@@ -224,6 +246,10 @@
 
 	<array name="CTXCTL" offset="0x9000" stride="0x1000" length="1">
 		<use-group name="nvc0_ctxctl"/>
+		<reg32 offset="0x604" name="UNITS">
+			<bitfield low="0" high="4" name="TPCOUNT"/>
+			<bitfield low="16" high="20" name="ROPCOUNT"/>
+		</reg32>
 	</array>
 
 	<array name="ROPC_BROADCAST" offset="0x8800" stride="0x400" length="1">
