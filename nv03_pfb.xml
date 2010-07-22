@@ -25,7 +25,7 @@
 	<value value="9" name="PBSP"/>
 	<value value="0xa" name="PCRYPT"/>
 	<value value="0xd" name="PVUNK104"/>
-	<value value="0xe" name="UNKE"/>
+	<value value="0xe" name="PFUCPM"/>
 </enum>
 
 <array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV03:NVC0">
