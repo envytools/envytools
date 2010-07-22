@@ -24,18 +24,19 @@
 <array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV03:NVC0">
 
 	<reg32 offset="0x200" name="CFG0" variants="NV50-">
-		<bitfield pos="2" name="CTRLB_ENABLED">
-			<doc>1 if second controller is enabled, 0 if only first.</doc>
+		<bitfield pos="2" name="RANKS">
+			<value value="0" name="1"/>
+			<value value="1" name="2"/>
 		</bitfield>
 	</reg32>
 
 	<reg32 offset="0x204" name="CFG1" variants="NV50-">
 		<bitfield low="12" high="15" name="COLBITS"/>
 		<bitfield low="16" high="19" name="ROWBITSA">
-			<doc>Number of row bits used by first controller - 8.</doc>
+			<doc> Number of row bits used on rank A - 8. </doc>
 		</bitfield>
 		<bitfield low="20" high="23" name="ROWBITSB">
-			<doc>Number of row bits used by second controller - 8.</doc>
+			<doc> Number of row bits used on rank B - 8. </doc>
 		</bitfield>
 		<bitfield pos="24" name="BANKS">
 			<value value="0" name="4"/>
