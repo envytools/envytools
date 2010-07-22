@@ -5,23 +5,12 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
+<import file="nv98_fuc.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <array name="PFUCPM" offset="0x10a000" stride="0x1000" length="1" variants="NVA3-">
-	<reg32 offset="0x004" name="INTR_ACK" access="w"/>
-	<reg32 offset="0x008" name="INTR" access="r"/>
-	<reg32 offset="0x010" name="INTR_EN_CLR" access="w"/>
-	<reg32 offset="0x014" name="INTR_EN_SET" access="w"/>
-	<reg32 offset="0x018" name="INTR_EN" access="r"/>
-
-	<reg32 offset="0x1c0" name="DATA_INDEX">
-		<bitfield high="15" low="2" name="ADDR" shr="2"/>
-		<bitfield pos="24" name="WRITE_AUTOINCR"/>
-		<bitfield pos="25" name="READ_AUTOINCR"/>
-	</reg32>
-	<reg32 offset="0x1c4" name="DATA_DATA"/>
-
+	<use-group name="nv98_fucbase"/>
 	<reg32 offset="0x4a0" name="H2G_PUT"/>
 	<reg32 offset="0x4b0" name="H2G_GET"/>
 

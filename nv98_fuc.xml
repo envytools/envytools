@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<group name="nv98_fucbase">
+	<reg32 offset="0x004" name="INTR_TRIGGER" access="w"/>
+	<reg32 offset="0x004" name="INTR_ACK" access="w"/>
+	<reg32 offset="0x008" name="INTR" access="r"/>
+	<reg32 offset="0x010" name="INTR_EN_CLR" access="w"/>
+	<reg32 offset="0x014" name="INTR_EN_SET" access="w"/>
+	<reg32 offset="0x018" name="INTR_EN" access="r"/>
+
+	<reg32 offset="0x040" name="SCRATCH" length="2"/>
+
+	<reg32 offset="0x100" name="CTRL">
+		<bitfield pos="1" name="START_TRIGGER"/>
+	</reg32>
+
+	<reg32 offset="0x104" name="ENTRY"/>
+
+	<reg32 offset="0x108" name="CAPS">
+		<bitfield low="0" high="8" name="CODE_SIZE" shr="8"/>
+		<bitfield low="9" high="16" name="DATA_SIZE" shr="8"/>
+	</reg32>
+
+	<reg32 offset="0x180" name="CODE_INDEX" variants="NVA3-">
+		<bitfield high="15" low="2" name="PHYS_ADDR" shr="2"/>
+		<bitfield pos="24" name="WRITE_AUTOINCR"/>
+		<bitfield pos="25" name="READ_AUTOINCR"/>
+		<bitfield pos="28" name="UNK28"/>
+	</reg32>
+	<reg32 offset="0x184" name="CODE" variants="NVA3-"/>
+	<reg32 offset="0x188" name="CODE_VIRT_ADDR" shr="8" variants="NVA3-"/>
+	<reg32 offset="0x1c0" name="DATA_INDEX" variants="NVA3-">
+		<bitfield high="15" low="2" name="ADDR" shr="2"/>
+		<bitfield pos="24" name="WRITE_AUTOINCR"/>
+		<bitfield pos="25" name="READ_AUTOINCR"/>
+	</reg32>
+	<reg32 offset="0x1c4" name="DATA" variants="NVA3-"/>
+
+	<reg32 offset="0xff0" name="PC"/>
+	<reg32 offset="0xff4" name="UPLOAD"/>
+	<reg32 offset="0xff8" name="UPLOAD_ADDR">
+		<bitfield high="15" low="2" name="ADDR" shr="2"/>
+		<bitfield pos="20" name="TARGET">
+			<value value="0" name="DATA"/>
+			<value value="1" name="CODE"/> <!-- pre-NVA3 only? -->
+		</bitfield>
+		<bitfield pos="21" name="READBACK"/>
+		<bitfield pos="28" name="UNK28"/>
+	</reg32>
+	<reg32 offset="0xffc" name="HOST_MMIO_INDEX"/>
+</group>
+
+</database>

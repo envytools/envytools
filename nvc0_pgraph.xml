@@ -5,6 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
+<import file="nv98_fuc.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
@@ -198,18 +199,7 @@
 	</array>
 
 	<group name="nvc0_ctxctl">
-		<reg32 offset="0x180" name="CODE_INDEX">
-			<bitfield high="15" low="2" name="ADDR" shr="2"/>
-			<bitfield pos="24" name="WRITE_AUTOINCR"/>
-			<bitfield pos="25" name="READ_AUTOINCR"/>
-		</reg32>
-		<reg32 offset="0x184" name="CODE_DATA"/>
-		<reg32 offset="0x1c0" name="DATA_INDEX">
-			<bitfield high="15" low="2" name="ADDR" shr="2"/>
-			<bitfield pos="24" name="WRITE_AUTOINCR"/>
-			<bitfield pos="25" name="READ_AUTOINCR"/>
-		</reg32>
-		<reg32 offset="0x1c4" name="DATA_DATA"/>
+		<use-group name="nv98_fucbase"/>
 	</group>
 
 	<group name="nvc0_ropc">
