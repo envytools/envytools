@@ -8,6 +8,13 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
+<enum name="nv20_bank_count" inline="yes">
+	<value value="0" name="2" variants="NV20:NV34"/>
+	<value value="1" name="4" variants="NV20:NV34"/>
+	<value value="0" name="4" variants="NV50-"/>
+	<value value="1" name="8" variants="NV50-"/>
+</enum>
+
 <enum name="nv50_mmu_engine" inline="yes">
 	<value value="0" name="PGRAPH"/>
 	<value value="1" name="PVP"/>
@@ -22,6 +29,34 @@
 </enum>
 
 <array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV03:NVC0">
+	<reg32 offset="0x200" name="CFG0" variants="NV10:NV20 NV34">
+		<bitfield pos="0" name="TYPE_DDR"/>
+		<bitfield low="4" high="5" name="WIDTH">
+			<value value="2" name="32"/>
+			<value value="0" name="64"/>
+			<value value="1" name="128"/>
+		</bitfield>
+		<bitfield pos="12" name="RANKS">
+			<value value="0" name="1"/>
+			<value value="1" name="2"/>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x200" name="CFG0" variants="NV20:NV34">
+		<bitfield pos="0" name="TYPE_DDR"/>
+		<bitfield low="1" high="2" name="WIDTH">
+			<doc> Bitmask of enabled bus lines:
+				width = 128 * popcnt(value) </doc>
+		</bitfield>
+		<bitfield pos="8" name="RANKS">
+			<value value="0" name="1"/>
+			<value value="1" name="2"/>
+		</bitfield>
+		<bitfield pos="9" name="RANK_INTERLEAVE">
+			<doc> Rank select bits before row select bits
+				instead of after row select bits. </doc>
+		</bitfield>
+	</reg32>
 
 	<reg32 offset="0x200" name="CFG0" variants="NV50-">
 		<bitfield pos="2" name="RANKS">
@@ -30,26 +65,30 @@
 		</bitfield>
 	</reg32>
 
-	<reg32 offset="0x204" name="CFG1" variants="NV50-">
-		<bitfield low="12" high="15" name="COLBITS"/>
+	<reg32 offset="0x204" name="CFG1" variants="NV20:NV34 NV50-">
+		<bitfield low="12" high="15" name="COLBITS">
+			<doc> Number of column bits. </doc>
+		</bitfield>
 		<bitfield low="16" high="19" name="ROWBITSA">
 			<doc> Number of row bits used on rank A - 8. </doc>
 		</bitfield>
 		<bitfield low="20" high="23" name="ROWBITSB">
 			<doc> Number of row bits used on rank B - 8. </doc>
 		</bitfield>
-		<bitfield pos="24" name="BANKS">
-			<value value="0" name="4"/>
-			<value value="1" name="8"/>
+		<bitfield pos="24" name="BANKSA" type="nv20_bank_count">
+			<doc> Controls how many bank bits are used on rank A. </doc>
+		</bitfield>
+		<bitfield pos="28" name="BANKSB" type="nv20_bank_count">
+			<doc> Controls how many bank bits are used on rank B. </doc>
 		</bitfield>
 	</reg32>
 
-	<reg32 offset="0x20c" name="MEM_AMOUNT" variants="NV50-">
-		<bitfield high="7" low="0" name="HIGH" shr="32"/>
+	<reg32 offset="0x20c" name="MEM_AMOUNT" variants="NV10-">
+		<bitfield high="7" low="0" name="HIGH" shr="32" variants="NV50-"/>
 		<bitfield high="31" low="12" name="LOW" shr="12"/>
 	</reg32>
 
-	<reg32 offset="0x250" name="BANKCFG">
+	<reg32 offset="0x250" name="BANKCFG" variants="NV50-">
 		<doc>Determines which bank is which, and how the banks are reordered for LSR tile_flags.</doc>
 		<value value="0" name="REORDER_SIMPLE"/>
 		<value value="1" name="REORDER_TIMES3"/>
