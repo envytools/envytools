@@ -7,11 +7,11 @@
 <import file="nvchipsets.xml" />
 
 <group name="nv98_fucbase">
-	<reg32 offset="0x004" name="INTR_TRIGGER" access="w"/>
+	<reg32 offset="0x000" name="INTR_TRIGGER" access="w"/>
 	<reg32 offset="0x004" name="INTR_ACK" access="w"/>
 	<reg32 offset="0x008" name="INTR" access="r"/>
-	<reg32 offset="0x010" name="INTR_EN_CLR" access="w"/>
-	<reg32 offset="0x014" name="INTR_EN_SET" access="w"/>
+	<reg32 offset="0x010" name="INTR_EN_SET" access="w"/>
+	<reg32 offset="0x014" name="INTR_EN_CLR" access="w"/>
 	<reg32 offset="0x018" name="INTR_EN" access="r"/>
 
 	<reg32 offset="0x040" name="SCRATCH" length="2"/>
