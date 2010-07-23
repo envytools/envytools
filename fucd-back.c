@@ -457,7 +457,8 @@ static struct insn tabm[] = {
 	 *
 	 * external base is taken from xdbase for data, xcbase for code.
 	 * target is taken from xtarget bits ???.
-	 *
+	 * 
+	 * Use xdwait/xcwait to wait for transfers to complete.
 	 */
 	{ AP, 0x000400fa, 0x000f00ff, N("xcld"), REG2, REG1 },
 	{ AP, 0x000500fa, 0x000f00ff, N("xdld"), REG2, REG1 },
