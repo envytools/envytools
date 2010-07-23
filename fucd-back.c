@@ -443,18 +443,25 @@ static struct insn tabm[] = {
 	{ AP, 0x000000f9, 0x000000ff, OOPS, REG2 },
 
 	{ AP, 0x000000fa, 0x000f00ff, N("iowr"), IOR, REG1 },
+	/* the transfer ops
+	 *
+	 * operand 1 is external offset and virtual address for code,
+	 * operand 2 is size << 16 | fuc physical address for data,
+	 * fuc physical address for code.
+	 *
+	 * These three ops xfer 4 << size bytes between external storage
+	 * at address (external base << 8) + external offset and fuc code/data
+	 * at address (fuc physical address). For xcld, the newly-loaded
+	 * page is also bound to virtual address (external offset). size is
+	 * forced to 6 for code. For data, it has to be in range 2-6.
+	 *
+	 * external base is taken from xdbase for data, xcbase for code.
+	 * target is taken from xtarget bits ???.
+	 *
+	 */
 	{ AP, 0x000400fa, 0x000f00ff, N("xcld"), REG2, REG1 },
 	{ AP, 0x000500fa, 0x000f00ff, N("xdld"), REG2, REG1 },
 	{ AP, 0x000600fa, 0x000f00ff, N("xdst"), REG2, REG1 },
-#if 0
-	/* recv: read 16 bytes from cell (ARG1 >> 16) & 7 into memory at address ARG1 & 0xffff
-	 * this and send have to be preceded by some cmd, or you lose
-	 */
-	{ AP, 0x000500fa, 0x000f00ff, N("recv"), REG1 },
-	/* send: send 16 bytes to cell (ARG1 >> 16) & 7 from memory at address ARG1 & 0xffff */
-	{ AP, 0x000600fa, 0x000f00ff, N("send"), REG1 },
-	/* what the hell. how many ops do these insns have anyway. I've seen recv/send using REG2 too, but... for what? */
-#endif
 	{ AP, 0x000000fa, 0x000000ff, OOPS, REG2, REG1 },
 
 	{ AP, 0x000000fc, 0x00000fff, N("pop"), REG2 },
