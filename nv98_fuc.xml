@@ -27,6 +27,30 @@
 		<bitfield low="9" high="16" name="DATA_SIZE" shr="8"/>
 	</reg32>
 
+	<reg32 offset="0x110" name="XFER_EXT_BASE" shr="8"/>
+	<reg32 offset="0x114" name="XFER_FUC_ADDR"/>
+	<reg32 offset="0x118" name="XFER_CTRL">
+		<bitfield pos="4" name="SEG">
+			<value value="0" name="DATA"/>
+			<value value="1" name="CODE"/>
+		</bitfield>
+		<bitfield pos="5" name="DIR">
+			<value value="0" name="LOAD"/>
+			<value value="1" name="STORE"/>
+		</bitfield>
+		<bitfield low="8" high="10" name="SIZE">
+			<value value="2" name="16"/>
+			<value value="3" name="32"/>
+			<value value="4" name="64"/>
+			<value value="5" name="128"/>
+			<value value="6" name="256"/>
+		</bitfield>
+		<bitfield low="12" high="14" name="TARGET"/>
+	</reg32>
+	<reg32 offset="0x11c" name="XFER_EXT_ADDR">
+		<doc>Also virtual address for code.</doc>
+	</reg32>
+
 	<reg32 offset="0x180" name="CODE_INDEX" variants="NVA3-">
 		<bitfield high="15" low="2" name="PHYS_ADDR" shr="2"/>
 		<bitfield pos="24" name="WRITE_AUTOINCR"/>
@@ -46,7 +70,7 @@
 	<reg32 offset="0xff4" name="UPLOAD"/>
 	<reg32 offset="0xff8" name="UPLOAD_ADDR">
 		<bitfield high="15" low="2" name="ADDR" shr="2"/>
-		<bitfield pos="20" name="TARGET">
+		<bitfield pos="20" name="SEG">
 			<value value="0" name="DATA"/>
 			<value value="1" name="CODE"/> <!-- pre-NVA3 only? -->
 		</bitfield>

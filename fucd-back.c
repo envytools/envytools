@@ -269,11 +269,11 @@ static struct insn tabsrs[] = {
 	{ AP, 0x00003000, 0x0000f000, N("ehandler") },
 	{ AP, 0x00004000, 0x0000f000, N("sp") },
 	{ AP, 0x00005000, 0x0000f000, N("pc") },
-	{ AP, 0x00006000, 0x0000f000, U("6") },
-	{ AP, 0x00007000, 0x0000f000, U("7") },
+	{ AP, 0x00006000, 0x0000f000, N("xcbase") },
+	{ AP, 0x00007000, 0x0000f000, N("xdbase") },
 	{ AP, 0x00008000, 0x0000f000, N("flags") },
 	{ AP, 0x0000a000, 0x0000f000, U("a") },
-	{ AP, 0x0000b000, 0x0000f000, U("b") },
+	{ AP, 0x0000b000, 0x0000f000, N("xtarget") },
 	{ AP, 0x0000c000, 0x0000f000, N("estatus") },
 	{ AP, 0, 0, OOPS },
 };
@@ -283,11 +283,11 @@ static struct insn tabsrd[] = {
 	{ AP, 0x00000100, 0x00000f00, U("1") },
 	{ AP, 0x00000300, 0x00000f00, N("ehandler") },
 	{ AP, 0x00000400, 0x00000f00, N("sp") },
-	{ AP, 0x00000600, 0x00000f00, U("6") },
-	{ AP, 0x00000700, 0x00000f00, U("7") },
+	{ AP, 0x00000600, 0x00000f00, N("xcbase") },
+	{ AP, 0x00000700, 0x00000f00, N("xdbase") },
 	{ AP, 0x00000800, 0x00000f00, N("flags") },
 	{ AP, 0x00000a00, 0x00000f00, U("a") },
-	{ AP, 0x00000b00, 0x00000f00, U("b") },
+	{ AP, 0x00000b00, 0x00000f00, N("xtarget") },
 	{ AP, 0x00000c00, 0x00000f00, N("estatus") },
 	{ AP, 0, 0, OOPS },
 };
@@ -430,9 +430,9 @@ static struct insn tabm[] = {
 	{ AP, 0x000000f8, 0x0000ffff, N("ret") },
 	{ AP, 0x000001f8, 0x0000ffff, N("iret") },
 	{ AP, 0x000002f8, 0x0000ffff, N("exit") },
-	{ AP, 0x000003f8, 0x0000ffff, U("f8/3") },
+	{ AP, 0x000003f8, 0x0000ffff, N("xdwait") },
 	{ AP, 0x000006f8, 0x0000ffff, U("f8/6") },
-	{ AP, 0x000007f8, 0x0000ffff, U("f8/7") },
+	{ AP, 0x000007f8, 0x0000ffff, N("xcwait") },
 	{ AP, 0x000008f8, 0x0000ffff, U("f8/8") },
 
 	{ AP, 0x000000f9, 0x00000fff, N("push"), REG2 },
@@ -443,9 +443,9 @@ static struct insn tabm[] = {
 	{ AP, 0x000000f9, 0x000000ff, OOPS, REG2 },
 
 	{ AP, 0x000000fa, 0x000f00ff, N("iowr"), IOR, REG1 },
-	{ AP, 0x000400fa, 0x000f00ff, U("fa/4"), REG2, REG1 },
-	{ AP, 0x000500fa, 0x000f00ff, U("fa/5"), REG2, REG1 },
-	{ AP, 0x000600fa, 0x000f00ff, U("fa/6"), REG2, REG1 },
+	{ AP, 0x000400fa, 0x000f00ff, N("xcld"), REG2, REG1 },
+	{ AP, 0x000500fa, 0x000f00ff, N("xdld"), REG2, REG1 },
+	{ AP, 0x000600fa, 0x000f00ff, N("xdst"), REG2, REG1 },
 #if 0
 	/* recv: read 16 bytes from cell (ARG1 >> 16) & 7 into memory at address ARG1 & 0xffff
 	 * this and send have to be preceded by some cmd, or you lose
