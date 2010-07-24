@@ -232,7 +232,7 @@ static struct insn tabct[] = {
 };
 
 static struct insn tabrrr[] = {
-	{ AP, 0x00000000, 0x00000000, REG3, REG1, REG2 },
+	{ AP, 0x00000000, 0x00000000, REG3, REG2, REG1 },
 };
 
 static struct insn tabsz[] = {
