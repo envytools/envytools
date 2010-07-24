@@ -213,6 +213,30 @@
 		<reg32 offset="0x500" name="WRCMD_DATA"/>
 		<reg32 offset="0x504" name="WRCMD_CMD"/>
 
+		<reg32 offset="0x700" name="MMCTX_SAVE_SWBASE" shr="8"/>
+		<reg32 offset="0x704" name="MMCTX_LOAD_SWBASE" shr="8"/>
+		<reg32 offset="0x710" name="MMCTX_BASE"/>
+		<reg32 offset="0x714" name="MMCTX_CTRL">
+			<bitfield low="0" high="4" name="QFREE"/>
+			<bitfield low="8" high="12" name="QLIMIT"/>
+			<bitfield pos="16" name="DIR">
+				<value value="0" name="SAVE"/>
+				<value value="1" name="LOAD"/>
+			</bitfield>
+			<!-- what do these two do, exactly? -->
+			<bitfield pos="17" name="START_TRIGGER"/>
+			<bitfield pos="18" name="STOP_TRIGGER"/>
+		</reg32>
+		<reg32 offset="0x718" name="MMCTX_MULTI_STRIDE"/>
+		<reg32 offset="0x71c" name="MMCTX_MULTI_MASK"/>
+		<reg32 offset="0x720" name="MMCTX_QUEUE">
+			<bitfield pos="0" name="BASE_EN"/>
+			<bitfield pos="1" name="MULTI_EN"/>
+			<bitfield low="2" high="25" name="ADDR" shr="2"/>
+			<bitfield low="26" high="31" name="CNTM1">
+				<brief>count - 1</brief>
+			</bitfield>
+		</reg32>
 		<reg32 offset="0x728" name="MMIO_CTRL">
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield low="2" high="25" name="ADDR" shr="2"/>
@@ -225,6 +249,7 @@
 		</reg32>
 		<reg32 offset="0x72c" name="MMIO_RDVAL"/>
 		<reg32 offset="0x730" name="MMIO_WRVAL"/>
+		<reg32 offset="0x74c" name="MMCTX_LOAD_COUNT"/> <!-- WTF? -->
 
 		<reg32 offset="0x800" name="NEWSCRATCH" length="8"/>
 		<reg32 offset="0x820" name="NEWSCRATCH_SET" length="8"/>
