@@ -106,6 +106,9 @@
 		<bitfield name="SINGLE_STEP" pos="24" />
 	</reg32>
 
+	<reg32 offset="0x0200" name="ICMD_CMD" />
+	<reg32 offset="0x0204" name="ICMD_DATA" />
+
 	<stripe offset="0x0500" name="FIFO">
 		<reg32 offset="0x00" name="CONTROL">
 			<bitfield pos="0" name="PULL">
