@@ -421,9 +421,9 @@ static struct insn tabm[] = {
 	{ AP, 0x000021f4, 0x0000fffe, N("call"), T(ct) },
 	{ AP, 0x000028f4, 0x0000fffe, N("sleep"), T(fl) }, /* sleeps while given flag is true */
 	{ AP, 0x000030f4, 0x0000fffe, N("add"), N("sp"), T(is) },
-	{ AP, 0x000031f4, 0x0000fffe, N("set"), T(fl) },
-	{ AP, 0x000032f4, 0x0000fffe, N("clear"), T(fl) },
-	{ AP, 0x000033f4, 0x0000fffe, N("flip"), T(fl) },
+	{ AP, 0x000031f4, 0x0000fffe, N("bset"), N("flags"), T(fl) },
+	{ AP, 0x000032f4, 0x0000fffe, N("bclr"), N("flags"), T(fl) },
+	{ AP, 0x000033f4, 0x0000fffe, N("btgl"), N("flags"), T(fl) },
 	{ AP, 0x00003cf4, 0x0000fffe, U("f4/3c"), T(i) },
 	{ AP, 0x000000f4, 0x000000fe, OOPS, T(i) },
 
@@ -439,7 +439,9 @@ static struct insn tabm[] = {
 	{ AP, 0x000004f9, 0x00000fff, N("bra"), REG2 },
 	{ AP, 0x000005f9, 0x00000fff, N("call"), REG2 },
 	{ AP, 0x000008f9, 0x00000fff, U("f9/8"), REG2 },
-	{ AP, 0x00000af9, 0x00000fff, U("f9/a"), REG2 },
+	{ AP, 0x000009f9, 0x00000fff, N("bset"), N("flags"), REG2 },
+	{ AP, 0x00000af9, 0x00000fff, N("bclr"), N("flags"), REG2 },
+	{ AP, 0x00000bf9, 0x00000fff, N("btgl"), N("flags"), REG2 },
 	{ AP, 0x000000f9, 0x000000ff, OOPS, REG2 },
 
 	{ AP, 0x000000fa, 0x000f00ff, N("iowr"), IOR, REG1 },
