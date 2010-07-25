@@ -210,8 +210,33 @@
 			<doc>Up to 0x10</doc>
 		</reg32>
 
+		<reg32 offset="0x400" name="DONE">
+			<doc>Reg saying when misc things are done.</doc>
+			<bitfield pos="2" name="STRAND"/>
+			<bitfield pos="5" name="MMCTX"/>
+			<bitfield pos="6" name="MMIO_RD"/>
+			<bitfield pos="7" name="UNK7">
+				<doc>Related to MMIO write with UNK29</doc>
+			</bitfield>
+			<bitfield pos="8" name="BAR">
+				<doc>When BAR_STATUS has all bits from BAR_REQMASK set.</doc>
+			</bitfield>
+			<bitfield pos="12" name="UNK12">
+				<doc>Related to fuc+0xaxx and 404160.</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x40c" name="BAR_REQMASK"/>
+		<reg32 offset="0x414" name="BAR_STATUS" access="r"/>
+		<reg32 offset="0x414" name="BAR_AND" access="w"/>
+		<reg32 offset="0x418" name="BAR_OR" access="w"/>
+
 		<reg32 offset="0x500" name="WRCMD_DATA"/>
 		<reg32 offset="0x504" name="WRCMD_CMD"/>
+
+		<reg32 offset="0x620" name="NEW_CAPS">
+			<bitfield low="0" high="7" name="CODE_SIZE" shr="8"/>
+			<bitfield low="8" high="15" name="DATA_SIZE" shr="8"/>
+		</reg32>
 
 		<reg32 offset="0x700" name="MMCTX_SAVE_SWBASE" shr="8"/>
 		<reg32 offset="0x704" name="MMCTX_LOAD_SWBASE" shr="8"/>
@@ -254,6 +279,15 @@
 		<reg32 offset="0x800" name="NEWSCRATCH" length="8"/>
 		<reg32 offset="0x820" name="NEWSCRATCH_SET" length="8"/>
 		<reg32 offset="0x840" name="NEWSCRATCH_CLEAR" length="8"/>
+		<reg32 offset="0x880" name="STRANDS"/>
+
+		<reg32 offset="0x908" name="STRAND_SAVE_SWBASE" shr="8"/>
+		<reg32 offset="0x90c" name="STRAND_LOAD_SWBASE" shr="8"/>
+		<reg32 offset="0x910" name="STRAND_SIZE">
+			<doc>In words.</doc>
+		</reg32>
+
+		<reg32 offset="0xa04" name="XFER_BASE" shr="8"/>
 	</group>
 
 	<group name="nvc0_ropc">
@@ -269,6 +303,11 @@
 
 		<array name="CTXCTL" offset="0x2000" stride="0x1000" length="1">
 			<use-group name="nvc0_ctxctl"/>
+			<reg32 offset="0x608" name="UNITS">
+				<bitfield low="0" high="4" name="MPCOUNT"/>
+				<bitfield low="16" high="20" name="UNK16"/>
+			</reg32>
+			<reg32 offset="0x618" name="MYINDEX"/>
 		</array>
 
 		<array name="MP" offset="0x4000" stride="0x800" length="4">
