@@ -92,7 +92,7 @@
 		<brief>Interrupt enable</brief>
 		<doc>A bitmask of events that will cause interrupts, same bit assignments as in INTR reg.</doc>
 		<bitfield name="NOTIFY" pos="0" />
-		<bitfield name="COMPUTE_QUERY" pos="1" />
+		<bitfield name="QUERY" pos="1" />
 		<bitfield name="UNK02" pos="2" />
 		<bitfield name="ILLEGAL_MTHD" pos="4" />
 		<bitfield name="ILLEGAL_CLASS" pos="5" />
