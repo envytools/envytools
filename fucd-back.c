@@ -376,12 +376,13 @@ static struct insn tabm[] = {
 	{ AP, 0x000000c0, 0x000000ff, N("mulu"), REG1, REG2, IMM8 },
 	{ AP, 0x000000c1, 0x000000ff, N("muls"), REG1, REG2, IMM8S },
 	{ AP, 0x000000c2, 0x000000ff, N("sex"), REG1, REG2, IMM8 },
-	{ AP, 0x000000c3, 0x000000ff, N("extrs"), REG1, REG2, BITF8 },
+	{ AP, 0x000000c3, 0x000000ff, N("extrs"), REG1, REG2, BITF8 }, /* extracts a signed bitfield */
 	{ AP, 0x000000c4, 0x000000ff, N("and"), REG1, REG2, IMM8 },
 	{ AP, 0x000000c5, 0x000000ff, N("or"), REG1, REG2, IMM8 },
 	{ AP, 0x000000c6, 0x000000ff, N("xor"), REG1, REG2, IMM8 },
 	{ AP, 0x000000c7, 0x000000ff, N("extr"), REG1, REG2, BITF8 },
 	{ AP, 0x000000c8, 0x000000ff, N("xbit"), REG1, REG2, IMM8 },
+	{ AP, 0x000000cb, 0x000000ff, N("ins"), REG1, REG2, BITF8 }, /* inserts [overwrites] a bitfield */
 	{ AP, 0x000000cc, 0x000000ff, N("div"), REG1, REG2, IMM8 },
 	{ AP, 0x000000cd, 0x000000ff, N("mod"), REG1, REG2, IMM8 },
 	{ AP, 0x000000cf, 0x000000ff, N("iord"), REG1, IORI },
@@ -396,6 +397,7 @@ static struct insn tabm[] = {
 	{ AP, 0x000000e5, 0x000000ff, N("or"), REG1, REG2, IMM16 },
 	{ AP, 0x000000e6, 0x000000ff, N("xor"), REG1, REG2, IMM16 },
 	{ AP, 0x000000e7, 0x000000ff, N("extr"), REG1, REG2, BITF16 },
+	{ AP, 0x000000eb, 0x000000ff, N("ins"), REG1, REG2, BITF16 },
 	{ AP, 0x000000ec, 0x000000ff, N("div"), REG1, REG2, IMM16 }, /* NVA3+ */
 	{ AP, 0x000000ed, 0x000000ff, N("mod"), REG1, REG2, IMM16 }, /* NVA3+ */
 	{ AP, 0x000000e0, 0x000000f0, OOPS, REG1, REG2, IMM16 },
@@ -488,11 +490,11 @@ static struct insn tabm[] = {
 	{ AP, 0x000000ff, 0x000f00ff, N("mulu"), T(rrr) },
 	{ AP, 0x000100ff, 0x000f00ff, N("muls"), T(rrr) },
 	{ AP, 0x000200ff, 0x000f00ff, N("sex"), T(rrr) },
-	{ AP, 0x000300f0, 0x000f00ff, N("extrs"), T(rrr) }, /* ARG1 = (ARG2 >> ARG3 & 1)?0xffffffff:0, NVA3+ */
+	{ AP, 0x000300f0, 0x000f00ff, N("extrs"), T(rrr) },
 	{ AP, 0x000400ff, 0x000f00ff, N("and"), T(rrr) },
 	{ AP, 0x000500ff, 0x000f00ff, N("or"), T(rrr) },
 	{ AP, 0x000600ff, 0x000f00ff, N("xor"), T(rrr) },
-	{ AP, 0x000700f0, 0x000f00ff, N("extr"), T(rrr) }, /* ARG1 = ARG2 >> ARG3 & 1, NVA3+ */
+	{ AP, 0x000700f0, 0x000f00ff, N("extr"), T(rrr) },
 	{ AP, 0x000800ff, 0x000f00ff, N("xbit"), T(rrr) }, /* NV98: ARG1 = (ARG1 & 0xfffffffe) | (ARG2 >> ARG3 & 1) ; NVA3+: ARG1 = ARG2 >> ARG3 & 1 */
 	{ AP, 0x000c00ff, 0x000f00ff, N("div"), T(rrr) },
 	{ AP, 0x000d00ff, 0x000f00ff, N("mod"), T(rrr) },
