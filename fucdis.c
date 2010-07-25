@@ -28,9 +28,9 @@
 /*
  * Options:
  *
- *  -b  	Read input as binary ctxprog
- *  -4		Disassembles NV40 ctxprogs
- *  -5		Disassembles NV50 ctxprogs
+ *  -b <base>	Use a fake base address
+ *  -s <num>	Skip this many initial bytes of the input
+ *  -w		Treat input as a sequence of 32-bit words instead of bytes
  *  -n		Disable color escape sequences in output
  */
 
@@ -38,8 +38,15 @@ int main(int argc, char **argv) {
 	int ptype = AP;
 	int w = 0;
 	int c;
-	while ((c = getopt (argc, argv, "wn")) != -1)
+	unsigned base = 0, skip = 0;
+	while ((c = getopt (argc, argv, "b:s:wn")) != -1)
 		switch (c) {
+			case 'b':
+				sscanf(optarg, "%x", &base);
+				break;
+			case 's':
+				sscanf(optarg, "%x", &skip);
+				break;
 			case 'w':
 				w = 1;
 				break;
@@ -73,6 +80,8 @@ int main(int argc, char **argv) {
 			code[num++] = t;
 		scanf (" ,");
 	}
-	fucdis (stdout, code, 0, num, ptype);
+	if (num <= skip)
+		return 0;
+	fucdis (stdout, code+skip, base, num - skip, ptype);
 	return 0;
 }
