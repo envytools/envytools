@@ -439,7 +439,7 @@ static struct insn tabm[] = {
 	{ AP, 0x000001f9, 0x00000fff, N("add"), N("sp"), REG2 },
 	{ AP, 0x000004f9, 0x00000fff, N("bra"), REG2 },
 	{ AP, 0x000005f9, 0x00000fff, N("call"), REG2 },
-	{ AP, 0x000008f9, 0x00000fff, U("f9/8"), REG2 },
+	{ AP, 0x000008f9, 0x00000fff, N("unbind"), REG2 }, // drops given physical page's VM tag. page specified as index, not as address.
 	{ AP, 0x000009f9, 0x00000fff, N("bset"), N("flags"), REG2 },
 	{ AP, 0x00000af9, 0x00000fff, N("bclr"), N("flags"), REG2 },
 	{ AP, 0x00000bf9, 0x00000fff, N("btgl"), N("flags"), REG2 },
