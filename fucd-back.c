@@ -436,6 +436,7 @@ static struct insn tabm[] = {
 	{ AP, 0x000008f8, 0x0000ffff, U("f8/8") },
 
 	{ AP, 0x000000f9, 0x00000fff, N("push"), REG2 },
+	{ AP, 0x000001f9, 0x00000fff, N("add"), N("sp"), REG2 },
 	{ AP, 0x000004f9, 0x00000fff, N("bra"), REG2 },
 	{ AP, 0x000005f9, 0x00000fff, N("call"), REG2 },
 	{ AP, 0x000008f9, 0x00000fff, U("f9/8"), REG2 },
