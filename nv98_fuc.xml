@@ -6,15 +6,70 @@
 
 <import file="nvchipsets.xml" />
 
+<bitset name="nv98_fuc_intr" inline="yes">
+	<bitfield pos="2" name="FIFO_DATA"/>
+	<bitfield pos="3" name="CHANNEL_SWITCH"/>
+	<bitfield pos="4" name="EXIT"/>
+	<bitfield pos="6" name="USER1"/> <!-- there are more... -->
+</bitset>
+
 <group name="nv98_fucbase">
-	<reg32 offset="0x000" name="INTR_TRIGGER" access="w"/>
-	<reg32 offset="0x004" name="INTR_ACK" access="w"/>
-	<reg32 offset="0x008" name="INTR" access="r"/>
-	<reg32 offset="0x010" name="INTR_EN_SET" access="w"/>
-	<reg32 offset="0x014" name="INTR_EN_CLR" access="w"/>
-	<reg32 offset="0x018" name="INTR_EN" access="r"/>
+	<reg32 offset="0x000" name="INTR_TRIGGER" access="w" type="nv98_fuc_intr"/>
+	<reg32 offset="0x004" name="INTR_ACK" access="w" type="nv98_fuc_intr"/>
+	<reg32 offset="0x008" name="INTR" access="r" type="nv98_fuc_intr"/>
+	<reg32 offset="0x010" name="INTR_EN_SET" access="w" type="nv98_fuc_intr"/>
+	<reg32 offset="0x014" name="INTR_EN_CLR" access="w" type="nv98_fuc_intr"/>
+	<reg32 offset="0x018" name="INTR_EN" access="r" type="nv98_fuc_intr"/>
+	<reg32 offset="0x01c" name="INTR_DISPATCH">
+		<doc>
+			Each interrupt has 2 bits in here, and its handling
+			is determined by their combination:
+			<ul>
+			<li>M1 = 0, M2 = 0: fuc interrupt 0</li>
+			<li>M1 = 0, M2 = 1: fuc interrupt 1</li>
+			<li>M1 = 1, M2 = 0: host interrupt</li>
+			<li>M1 = 1, M2 = 1: ignored</li>
+			</ul>
+		</doc>
+		<bitfield low="0" high="15" name="M1" type="nv98_fuc_intr"/>
+		<bitfield low="16" high="31" name="M2" type="nv98_fuc_intr"/>
+	</reg32>
+
+	<!-- the following two are conspiciously absent from PGRAPH. -->
+	<reg32 offset="0x02c" name="TIME_LOW"/>
+	<reg32 offset="0x030" name="TIME_HIGH"/>
 
 	<reg32 offset="0x040" name="SCRATCH" length="2"/>
+
+	<reg32 offset="0x048" name="ACCESS_EN">
+		<bitfield pos="0" name="CHANNEL_SWITCH"/>
+		<bitfield pos="1" name="FIFO"/>
+	</reg32>
+	<!-- 4c also related to FIFO/switching -->
+
+	<!-- the following two are also conspiciously absent from PGRAPH. -->
+	<reg32 offset="0x050" name="CHANNEL_CUR">
+		<bitfield name="CHAN" high="29" low="0" type="nv50_channel"/>
+		<bitfield name="VALID" pos="30"/>
+	</reg32>
+	<reg32 offset="0x054" name="CHANNEL_NEXT">
+		<bitfield name="CHAN" high="29" low="0" type="nv50_channel"/>
+		<bitfield name="VALID" pos="30"/>
+	</reg32>
+
+	<reg32 offset="0x064" name="FIFO_DATA"/>
+	<reg32 offset="0x068" name="FIFO_CMD">
+		<bitfield low="0" high="10" name="MTHD" shr="2"/>
+		<bitfield low="11" high="13" name="SUBC"/> <!-- guess... -->
+		<bitfield pos="14" name="NONINCR"/> <!-- even bigger guess... -->
+	</reg32>
+	<reg32 offset="0x070" name="FIFO_OCCUPIED"/>
+	<reg32 offset="0x074" name="FIFO_HEAD_ADVANCE">
+		<doc>Write 1 to go to next command.</doc>
+	</reg32>
+	<reg32 offset="0x078" name="FIFO_LIMIT">
+		<doc>Up to 0x10</doc>
+	</reg32>
 
 	<reg32 offset="0x100" name="CTRL">
 		<bitfield pos="1" name="START_TRIGGER"/>

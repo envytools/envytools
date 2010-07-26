@@ -203,16 +203,6 @@
 
 	<group name="nvc0_ctxctl">
 		<use-group name="nv98_fucbase"/>
-		<reg32 offset="0x064" name="CMDQ_HEAD_DATA"/>
-		<reg32 offset="0x068" name="CMDQ_HEAD_CMD"/>
-		<reg32 offset="0x070" name="CMDQ_OCCUPIED"/>
-		<reg32 offset="0x074" name="CMDQ_HEAD_ADVANCE">
-			<doc>Write 1 to go to next command.</doc>
-		</reg32>
-		<reg32 offset="0x078" name="CMDQ_LIMIT">
-			<doc>Up to 0x10</doc>
-		</reg32>
-
 		<reg32 offset="0x400" name="DONE">
 			<doc>Reg saying when misc things are done.</doc>
 			<bitfield pos="2" name="STRAND"/>
