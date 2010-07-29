@@ -1439,8 +1439,11 @@ static struct insn tabl[] = {
 	{ AP, 0x60000000f0000000ull, 0xf0000000f0000000ull, // integer input and output.
 		N("texsize"), T(texf), LTDST, TEX, SAMP, LDST }, // in: LOD, out: size.x, size.y, size.z
 
-	{ AP, 0x80000000f0000000ull, 0xf0000000f0000000ull, // no idea what this is. but it *is* texturing.
-		OOPS, T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
+	{ AP, 0x80000000f0000000ull, 0xf0000000f1000000ull, // no idea what this is. but it *is* texturing.
+		U("f/8/0"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
+
+	{ AP, 0x80000000f1000000ull, 0xf0000000f1000000ull, // no idea what this is. but it *is* texturing.
+		U("f/8/1"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
 
 	{ GP, 0xc0000000f0000200ull, 0xe0000000f0000600ull, N("emit") },
 	{ GP, 0xc0000000f0000400ull, 0xe0000000f0000600ull, N("restart") },
