@@ -22,7 +22,7 @@
 	I can't seem to find the damn thing... -->
 	<!-- 2 is likely VPE on NV50:NV98, NVA0. -->
 	<value value="2" name="PPPP" variants="NV98 NVAA-"/>
-	<value value="3" name="PVUNK104" variants="NVA3-"/>
+	<value value="3" name="PCOPY" variants="NVA3-"/>
 	<value value="4" name="PVP" variants="NV50"/> <!-- NV40+? -->
 	<value value="5" name="PCRYPT" variants="NV84:NVA3"/>
 	<value value="6" name="PBSP" variants="NV84-"/>
@@ -533,7 +533,7 @@
 			<bitfield pos="1" name="UNK1" variants="NV50:NV98 NVA0"/> <!-- VPE? -->
 			<bitfield pos="1" name="PPPP" variants="NV98 NVAA-"/>
 			<bitfield pos="2" name="UNK2" variants="NV50:NVA3"/>
-			<bitfield pos="2" name="PVUNK104" variants="NVA3-"/>
+			<bitfield pos="2" name="PCOPY" variants="NVA3-"/>
 			<bitfield pos="3" name="PVP"/>
 			<bitfield pos="4" name="PCRYPT" variants="NV84:NVA3"/>
 			<bitfield pos="4" name="UNUSED4" variants="NVA3-"/>

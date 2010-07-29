@@ -9,28 +9,159 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array name="PBSP" offset="0x84000" stride="0x1000" length="1" variants="NV98 NVAA-">
+<group name="nv98_vpbase">
 	<use-group name="nv98_fucbase"/>
+	<reg32 offset="0x600" length="8" name="TARGET"/>
+</group>
+
+<array name="PBSP" offset="0x84000" stride="0x1000" length="1" variants="NV98 NVAA-">
+	<use-group name="nv98_vpbase"/>
 </array>
 
 <array name="PVP" offset="0x85000" stride="0x1000" length="1" variants="NV98 NVAA-">
-	<use-group name="nv98_fucbase"/>
+	<use-group name="nv98_vpbase"/>
 </array>
 
 <array name="PPPP" offset="0x86000" stride="0x1000" length="1" variants="NV98 NVAA-">
-	<use-group name="nv98_fucbase"/>
+	<use-group name="nv98_vpbase"/>
 </array>
 
 <array name="PCRYPT" offset="0x87000" stride="0x1000" length="1" variants="NV98 NVAA:NVA3">
-	<use-group name="nv98_fucbase"/>
+	<use-group name="nv98_vpbase"/>
 </array>
 
-<array name="PVUNK104" offset="0x104000" stride="0x1000" length="1" variants="NVA3-">
-	<use-group name="nv98_fucbase"/>
+<group name="nva3_pcopy">
+	<use-group name="nv98_vpbase"/>
+	<array offset="0x800" name="COPY" stride="0x100" length="1">
+		<reg32 offset="0x00" name="CTRL">
+			<bitfield pos="0" name="TRIGGER"/>
+			<bitfield low="1" high="5" name="UNK1"/>
+			<bitfield pos="6" name="MULTILINE"/>
+			<bitfield pos="7" name="SRC_TILED"/>
+			<bitfield pos="8" name="DST_TILED"/>
+			<bitfield pos="9" name="SWIZZLE"/>
+			<bitfield pos="10" name="UNK10">
+				<doc>Always set</doc>
+			</bitfield>
+			<bitfield low="11" high="13" name="UNK11">
+				<doc>Have something to do with swizzles?</doc>
+			</bitfield>
+			<bitfield low="14" high="15" name="UNK14"/>
+			<bitfield pos="16" name="UNK16">
+				<doc>Always set</doc>
+			</bitfield>
+			<bitfield pos="17" name="SRC_TILE_WIDTH">
+				<value value="0" name="16"/>
+				<value value="1" name="64"/>
+			</bitfield>
+			<bitfield pos="18" name="DST_TILE_WIDTH">
+				<value value="0" name="16"/>
+				<value value="1" name="64"/>
+			</bitfield>
+			<bitfield pos="19" name="UNK19"/>
+			<bitfield low="26" high="28" name="SRC_TARGET"/>
+			<bitfield low="29" high="31" name="DST_TARGET"/>
+		</reg32>
+		<reg32 offset="0x04" name="YCNT"/>
+		<reg32 offset="0x08" name="SRC_ADDRESS_LOW"/>
+		<reg32 offset="0x0c" name="DST_ADDRESS_LOW"/>
+		<reg32 offset="0x10" name="SRC_XCNT"/>
+		<reg32 offset="0x14" name="DST_XCNT"/>
+		<reg32 offset="0x18" name="SRC_CFG">
+			<bitfield low="0" high="15" name="YZ_TILE_SIZE">
+				<doc>number of lines / 4 * number of layers</doc>
+			</bitfield>
+			<bitfield low="16" high="23" name="ADDRESS_HIGH"/>
+		</reg32>
+		<reg32 offset="0x1c" name="DST_CFG">
+			<bitfield low="0" high="15" name="YZ_TILE_SIZE">
+				<doc>number of lines / 4 * number of layers</doc>
+			</bitfield>
+			<bitfield low="16" high="23" name="ADDRESS_HIGH"/>
+		</reg32>
+		<reg32 offset="0x20" name="SRC_YTILE">
+			<bitfield low="0" high="11" name="REM">
+				<doc>Lines initially remaining to the end of tile.
+				Ie. if you start copying from line 3 with 8-line tiles,
+				you write 5 here.</doc>
+			</bitfield>
+			<bitfield low="12" high="23" name="SIZE">
+				<doc>Numer of lines in a tile.</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x24" name="DST_YTILE">
+			<bitfield low="0" high="11" name="REM">
+				<doc>Lines initially remaining to the end of tile.
+				Ie. if you start copying from line 3 with 8-line tiles,
+				you write 5 here.</doc>
+			</bitfield>
+			<bitfield low="12" high="23" name="SIZE">
+				<doc>Numer of lines in a tile.</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x28" name="SRC_PITCH">
+			<doc>For linear surface, pitch. For tiled, tile pitch - single tile size.
+			Or, distance between first and last tile in a line.</doc>
+			<!-- XXX: check with Z -->
+		</reg32>
+		<reg32 offset="0x2c" name="DST_PITCH">
+			<doc>For linear surface, pitch. For tiled, tile pitch - single tile size.
+			Or, distance between first and last tile in a line.</doc>
+			<!-- XXX: check with Z -->
+		</reg32>
+		<reg32 offset="0x30" name="SWIZZLE_CONTROL">
+			<bitfield low="0" high="3" name="STEP_SRC_M1">
+				<doc>Bytes in source step, minus 1.</doc>
+			</bitfield>
+			<bitfield low="8" high="11" name="STEP_DST_M1">
+				<doc>Bytes in destination step, minus 1.</doc>
+			</bitfield>
+			<bitfield pos="16" name="UNK16"/>
+		</reg32>
+		<enum name="nva3_pcopy_swizzle" inline="yes">
+			<value value="0x0" name="SRC_0"/>
+			<value value="0x1" name="SRC_1"/>
+			<value value="0x2" name="SRC_2"/>
+			<value value="0x3" name="SRC_3"/>
+			<value value="0x4" name="SRC_4"/>
+			<value value="0x5" name="SRC_5"/>
+			<value value="0x6" name="SRC_6"/>
+			<value value="0x7" name="SRC_7"/>
+			<value value="0x8" name="SRC_8"/>
+			<value value="0x9" name="SRC_9"/>
+			<value value="0xa" name="SRC_A"/>
+			<value value="0xb" name="SRC_B"/>
+			<value value="0xc" name="SRC_C"/>
+			<value value="0xd" name="SRC_D"/>
+			<value value="0xe" name="SRC_E"/>
+			<value value="0xf" name="SRC_F"/>
+			<value value="0x10" name="CONST_0"/>
+			<value value="0x11" name="CONST_1"/>
+			<value value="0x12" name="CONST_2"/>
+			<value value="0x13" name="CONST_3"/>
+			<value value="0x14" name="CONST_4"/>
+			<value value="0x15" name="CONST_5"/>
+			<value value="0x16" name="CONST_6"/>
+			<value value="0x17" name="CONST_7"/>
+			<value value="0x80" name="ZERO"/>
+		</enum>
+		<reg32 offset="0x34" name="SWIZZLE_MAP" length="4">
+			<bitfield low="0" high="7" name="0"/>
+			<bitfield low="8" high="15" name="1"/>
+			<bitfield low="16" high="23" name="2"/>
+			<bitfield low="24" high="31" name="3"/>
+		</reg32>
+		<reg32 offset="0x44" name="SWIZZLE_COPY" length="2"/>
+		<reg32 offset="0x4c" name="UNK4C"/>
+	</array>
+</group>
+
+<array name="PCOPY" offset="0x104000" stride="0x1000" length="1" variants="NVA3:NVC0">
+	<use-group name="nva3_pcopy"/>
 </array>
 
-<array name="PVUNK105" offset="0x105000" stride="0x1000" length="1" variants="NVC0-">
-	<use-group name="nv98_fucbase"/>
+<array name="PCOPY" offset="0x104000" stride="0x1000" length="2" variants="NVC0-">
+	<use-group name="nva3_pcopy"/>
 </array>
 
 </domain>
