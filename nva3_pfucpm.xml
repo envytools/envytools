@@ -16,6 +16,7 @@
 
 	<reg32 offset="0x4c8" name="G2H_PUT"/>
 	<reg32 offset="0x4cc" name="G2H_GET"/>
+	<use-group name="nv98_fuc_targets"/>
 </array>
 
 </domain>

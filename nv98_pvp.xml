@@ -11,7 +11,7 @@
 
 <group name="nv98_vpbase">
 	<use-group name="nv98_fucbase"/>
-	<reg32 offset="0x600" length="8" name="TARGET"/>
+	<use-group name="nv98_fuc_targets"/>
 </group>
 
 <array name="PBSP" offset="0x84000" stride="0x1000" length="1" variants="NV98 NVAA-">

@@ -135,4 +135,32 @@
 	<reg32 offset="0xffc" name="HOST_MMIO_INDEX"/>
 </group>
 
+<group name="nv98_fuc_targets">
+	<reg32 offset="0x600" length="8" name="TARGET" variants="NV50:NVC0">
+		<doc>Note that target 7 is hardwired to point to context DMAobj.</doc>
+		<bitfield low="0" high="15" name="INST" shr="4"/>
+		<bitfield low="24" high="26" name="TYPE">
+			<value value="0" name="DMAOBJ"/>
+			<value value="4" name="VRAM"/>
+			<value value="5" name="SYSRAM"/>
+			<value value="6" name="SYSRAM_NO_SNOOP"/>
+		</bitfield>
+		<bitfield pos="30" name="VALID"/>
+		<bitfield pos="31" name="UNK31"/>
+	</reg32>
+	<reg32 offset="0x600" length="8" name="TARGET" variants="NVC0-">
+		<bitfield low="0" high="2" name="TYPE">
+			<value value="0" name="VM"/>
+			<value value="1" name="UNK1"/>
+			<value value="2" name="UNK2"/>
+			<value value="4" name="VRAM"/>
+			<value value="5" name="SYSRAM"/>
+			<value value="6" name="SYSRAM_NO_SNOOP"/>
+		</bitfield>
+		<bitfield low="4" high="5" name="UNK4"/>
+		<bitfield low="8" high="9" name="UNK8"/>
+		<bitfield low="12" high="15" name="UNK12"/>
+	</reg32>
+</group>
+
 </database>
