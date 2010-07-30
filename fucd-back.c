@@ -447,8 +447,9 @@ static struct insn tabm[] = {
 	{ AP, 0x00000bf9, 0x00000fff, N("btgl"), N("flags"), REG2 },
 	{ AP, 0x000000f9, 0x000000ff, OOPS, REG2 },
 
+	/* iowr is asynchronous, iowrs waits for completion. */
 	{ AP, 0x000000fa, 0x000f00ff, N("iowr"), IOR, REG1 },
-	{ AP, 0x000100fa, 0x000f00ff, U("fa/1"), IOR, REG1 },
+	{ AP, 0x000100fa, 0x000f00ff, N("iowrs"), IOR, REG1 },
 	/* the transfer ops
 	 *
 	 * operand 1 is external offset and virtual address for code,
