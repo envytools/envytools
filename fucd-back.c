@@ -478,6 +478,8 @@ static struct insn tabm[] = {
 
 	{ AP, 0x000000fe, 0x00ff00ff, N("mov"), T(srd), REG2 },
 	{ AP, 0x000100fe, 0x00ff00ff, N("mov"), REG1, T(srs) },
+	{ AP, 0x000200fe, 0x00ff00ff, N("ptlb"), REG1, REG2 }, /* REG1 = info about physical page in REG2, REG2 in bytes */
+	{ AP, 0x000300fe, 0x00ff00ff, N("vtlb"), REG1, REG2 }, /* REG1 = info about virtual page in REG2, REG2 in pages */
 
 	{ AP, 0x000000fd, 0x000f00ff, N("mulu"), REG2, REG1 },
 	{ AP, 0x000100fd, 0x000f00ff, N("muls"), REG2, REG1 },
