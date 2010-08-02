@@ -78,12 +78,14 @@ static int imm16soff[] = { 16, 16, 0, 1 };
 static int imm8soff[] = { 16, 8, 0, 1 };
 static int imm16hoff[] = { 16, 16, 16, 0 };
 static int imm8hoff[] = { 16, 8, 16, 0 };
+static int strapoff[] = { 8, 2, 0, 0 };
 #define IMM16 atomnum, imm16off
 #define IMM8 atomnum, imm8off
 #define IMM16S atomnum, imm16soff
 #define IMM8S atomnum, imm8soff
 #define IMM16H atomnum, imm16hoff
 #define IMM8H atomnum, imm8hoff
+#define STRAP atomnum, strapoff
 
 #define BITF8 atombf, imm8off
 #define BITF16 atombf, imm16off
@@ -436,7 +438,7 @@ static struct insn tabm[] = {
 	{ AP, 0x000003f8, 0x0000ffff, N("xdwait") },
 	{ AP, 0x000006f8, 0x0000ffff, U("f8/6") },
 	{ AP, 0x000007f8, 0x0000ffff, N("xcwait") },
-	{ AP, 0x000008f8, 0x0000ffff, U("f8/8") },
+	{ AP, 0x000008f8, 0x0000fcff, N("trap"), STRAP },
 
 	{ AP, 0x000000f9, 0x00000fff, N("push"), REG2 },
 	{ AP, 0x000001f9, 0x00000fff, N("add"), N("sp"), REG2 },
