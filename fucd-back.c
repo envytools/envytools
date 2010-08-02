@@ -189,7 +189,7 @@ static struct insn tabfl[] = {
 	{ AP, 0x00110000, 0x001f0000, N("ie1") },
 	{ AP, 0x00140000, 0x001f0000, N("ia0") },
 	{ AP, 0x00150000, 0x001f0000, N("ia1") },
-	{ AP, 0x00180000, 0x001f0000, N("ex") },
+	{ AP, 0x00180000, 0x001f0000, N("ta") },
 	{ AP, 0x00000000, 0x00000000, OOPS },
 };
 
@@ -266,7 +266,7 @@ static struct insn tabdatarr[] = {
 static struct insn tabsrs[] = {
 	{ AP, 0x00000000, 0x0000f000, N("iv0") },
 	{ AP, 0x00001000, 0x0000f000, N("iv1") },
-	{ AP, 0x00003000, 0x0000f000, N("ev") },
+	{ AP, 0x00003000, 0x0000f000, N("tv") },
 	{ AP, 0x00004000, 0x0000f000, N("sp") },
 	{ AP, 0x00005000, 0x0000f000, N("pc") },
 	{ AP, 0x00006000, 0x0000f000, N("xcbase") },
@@ -274,21 +274,21 @@ static struct insn tabsrs[] = {
 	{ AP, 0x00008000, 0x0000f000, N("flags") },
 	{ AP, 0x0000a000, 0x0000f000, U("a") },
 	{ AP, 0x0000b000, 0x0000f000, N("xtargets") },
-	{ AP, 0x0000c000, 0x0000f000, N("estatus") },
+	{ AP, 0x0000c000, 0x0000f000, N("tstatus") },
 	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabsrd[] = {
 	{ AP, 0x00000000, 0x00000f00, N("iv0") },
 	{ AP, 0x00000100, 0x00000f00, N("iv1") },
-	{ AP, 0x00000300, 0x00000f00, N("ev") },
+	{ AP, 0x00000300, 0x00000f00, N("tv") },
 	{ AP, 0x00000400, 0x00000f00, N("sp") },
 	{ AP, 0x00000600, 0x00000f00, N("xcbase") },
 	{ AP, 0x00000700, 0x00000f00, N("xdbase") },
 	{ AP, 0x00000800, 0x00000f00, N("flags") },
 	{ AP, 0x00000a00, 0x00000f00, U("a") },
 	{ AP, 0x00000b00, 0x00000f00, N("xtargets") },
-	{ AP, 0x00000c00, 0x00000f00, N("estatus") },
+	{ AP, 0x00000c00, 0x00000f00, N("tstatus") },
 	{ AP, 0, 0, OOPS },
 };
 
