@@ -478,8 +478,30 @@ static struct insn tabm[] = {
 
 	{ AP, 0x000000fe, 0x00ff00ff, N("mov"), T(srd), REG2 },
 	{ AP, 0x000100fe, 0x00ff00ff, N("mov"), REG1, T(srs) },
-	{ AP, 0x000200fe, 0x00ff00ff, N("ptlb"), REG1, REG2 }, /* REG1 = info about physical page in REG2, REG2 in bytes */
-	{ AP, 0x000300fe, 0x00ff00ff, N("vtlb"), REG1, REG2 }, /* REG1 = info about virtual page in REG2, REG2 in pages */
+	/*
+	 * REG1 = info about physical page in REG2, REG2 in pages
+	 *
+	 * info is:
+	 *  bits 8:15 virtual page contained
+	 *  bits 24:25 status
+	 *  	0: empty: not mapped to any virtual address
+	 *  	1: present: mapped to virtual address and usable
+	 *  	2: busy: mapped to virtual address, but in the process of uploading stuff. will hang if used.
+	 */
+	{ AP, 0x000200fe, 0x00ff00ff, N("ptlb"), REG1, REG2 },
+	/*
+	 * REG1 = info about virtual address in REG2, REG2 in bytes
+	 *
+	 * info is:
+	 *  bits 0:7 physical page containing it [if there is one]
+	 *  bits 24:25 status
+	 *  	ORed across all pages mapped to this virtual address
+	 *  bit 30: multiple match
+	 *  	found more than one physical page
+	 *  bit 31: no match
+	 *  	didn't find any physical page
+	 */
+	{ AP, 0x000300fe, 0x00ff00ff, N("vtlb"), REG1, REG2 },
 
 	{ AP, 0x000000fd, 0x000f00ff, N("mulu"), REG2, REG1 },
 	{ AP, 0x000100fd, 0x000f00ff, N("muls"), REG2, REG1 },
