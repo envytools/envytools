@@ -195,19 +195,6 @@ static struct insn tabfl[] = {
 	{ AP, 0x00000000, 0x00000000, OOPS },
 };
 
-static struct insn tabaop[] = {
-	{ AP, 0x00000000, 0x00000f00, N("add") },
-	{ AP, 0x00000100, 0x00000f00, N("adc") },
-	{ AP, 0x00000200, 0x00000f00, N("sub") },
-	{ AP, 0x00000300, 0x00000f00, N("sbb") },
-	{ AP, 0x00000400, 0x00000f00, N("shl") },
-	{ AP, 0x00000500, 0x00000f00, N("shr") },
-	{ AP, 0x00000700, 0x00000f00, N("sar") },
-	{ AP, 0x00000c00, 0x00000f00, N("shlc") },
-	{ AP, 0x00000d00, 0x00000f00, N("shrc") },
-	{ AP, 0, 0, OOPS },
-};
-
 static struct insn tabi[] = {
 	{ AP, 0x00000000, 0x00000001, IMM8 },
 	{ AP, 0x00000001, 0x00000001, IMM16 },
@@ -231,10 +218,6 @@ static struct insn tabbt[] = {
 static struct insn tabct[] = {
 	{ AP, 0x00000000, 0x00000001, SCTARG },
 	{ AP, 0x00000001, 0x00000001, LCTARG },
-};
-
-static struct insn tabrrr[] = {
-	{ AP, 0x00000000, 0x00000000, REG3, REG2, REG1 },
 };
 
 static struct insn tabsz[] = {
@@ -323,7 +306,16 @@ static struct insn tabsi[] = {
 
 	{ AP, 0x00000034, 0x00000f3f, N("ld"), T(sz), REG2, T(datasp) },
 
-	{ AP, 0x00000036, 0x0000003e, T(aop), T(sz), REG2, T(i) },
+	{ AP, 0x00000036, 0x00000f3e, N("add"), T(sz), REG2, T(i) },
+	{ AP, 0x00000136, 0x00000f3e, N("adc"), T(sz), REG2, T(i) },
+	{ AP, 0x00000236, 0x00000f3e, N("sub"), T(sz), REG2, T(i) },
+	{ AP, 0x00000336, 0x00000f3e, N("sbb"), T(sz), REG2, T(i) },
+	{ AP, 0x00000436, 0x00000f3e, N("shl"), T(sz), REG2, T(i) },
+	{ AP, 0x00000536, 0x00000f3e, N("shr"), T(sz), REG2, T(i) },
+	{ AP, 0x00000736, 0x00000f3e, N("sar"), T(sz), REG2, T(i) },
+	{ AP, 0x00000c36, 0x00000f3e, N("shlc"), T(sz), REG2, T(i) },
+	{ AP, 0x00000d36, 0x00000f3e, N("shrc"), T(sz), REG2, T(i) },
+	{ AP, 0x00000036, 0x0000003e, OOPS, T(sz), REG2, T(i) },
 
 	{ AP, 0x00000038, 0x000f003f, N("st"), T(sz), DATAR, REG1 },
 	{ AP, 0x00040038, 0x000f003f, N("cmpu"), T(sz), REG2, REG1 },
@@ -348,17 +340,17 @@ static struct insn tabsi[] = {
 	{ AP, 0x000d003b, 0x000f003f, N("shrc"), T(sz), REG2, REG1 },
 	{ AP, 0x0000003b, 0x0000003f, OOPS, T(sz), REG2, REG1 },
 
-	{ AP, 0x0000003c, 0x000f003f, N("add"), T(sz), T(rrr) },
-	{ AP, 0x0001003c, 0x000f003f, N("adc"), T(sz), T(rrr) },
-	{ AP, 0x0002003c, 0x000f003f, N("sub"), T(sz), T(rrr) },
-	{ AP, 0x0003003c, 0x000f003f, N("sbb"), T(sz), T(rrr) },
-	{ AP, 0x0004003c, 0x000f003f, N("shl"), T(sz), T(rrr) },
-	{ AP, 0x0005003c, 0x000f003f, N("shr"), T(sz), T(rrr) },
-	{ AP, 0x0007003c, 0x000f003f, N("sar"), T(sz), T(rrr) },
+	{ AP, 0x0000003c, 0x000f003f, N("add"), T(sz), REG3, REG2, REG1 },
+	{ AP, 0x0001003c, 0x000f003f, N("adc"), T(sz), REG3, REG2, REG1 },
+	{ AP, 0x0002003c, 0x000f003f, N("sub"), T(sz), REG3, REG2, REG1 },
+	{ AP, 0x0003003c, 0x000f003f, N("sbb"), T(sz), REG3, REG2, REG1 },
+	{ AP, 0x0004003c, 0x000f003f, N("shl"), T(sz), REG3, REG2, REG1 },
+	{ AP, 0x0005003c, 0x000f003f, N("shr"), T(sz), REG3, REG2, REG1 },
+	{ AP, 0x0007003c, 0x000f003f, N("sar"), T(sz), REG3, REG2, REG1 },
 	{ AP, 0x0008003c, 0x000f003f, N("ld"), T(sz), REG3, T(datarr) },
-	{ AP, 0x000c003c, 0x000f003f, N("shlc"), T(sz), T(rrr) },
-	{ AP, 0x000d003c, 0x000f003f, N("shrc"), T(sz), T(rrr) },
-	{ AP, 0x0000003c, 0x0000003f, OOPS, T(sz), T(rrr) },
+	{ AP, 0x000c003c, 0x000f003f, N("shlc"), T(sz), REG3, REG2, REG1 },
+	{ AP, 0x000d003c, 0x000f003f, N("shrc"), T(sz), REG3, REG2, REG1 },
+	{ AP, 0x0000003c, 0x0000003f, OOPS, T(sz), REG3, REG2, REG1 },
 	
 	{ AP, 0x0000003d, 0x00000f3f, N("not"), T(sz), REG2 },
 	{ AP, 0x0000013d, 0x00000f3f, N("neg"), T(sz), REG2 },
@@ -516,19 +508,19 @@ static struct insn tabm[] = {
 	{ AP, 0x000b00fd, 0x000f00ff, N("btgl"), REG2, REG1 },
 	{ AP, 0x000000fd, 0x000000ff, OOPS, REG2, REG1 },
 
-	{ AP, 0x000000ff, 0x000f00ff, N("mulu"), T(rrr) },
-	{ AP, 0x000100ff, 0x000f00ff, N("muls"), T(rrr) },
-	{ AP, 0x000200ff, 0x000f00ff, N("sex"), T(rrr) },
-	{ AP, 0x000300ff, 0x000f00ff, N("extrs"), T(rrr) },
-	{ AP, 0x000400ff, 0x000f00ff, N("and"), T(rrr) },
-	{ AP, 0x000500ff, 0x000f00ff, N("or"), T(rrr) },
-	{ AP, 0x000600ff, 0x000f00ff, N("xor"), T(rrr) },
-	{ AP, 0x000700ff, 0x000f00ff, N("extr"), T(rrr) },
-	{ AP, 0x000800ff, 0x000f00ff, N("xbit"), T(rrr) }, /* NV98: ARG1 = (ARG1 & 0xfffffffe) | (ARG2 >> ARG3 & 1) ; NVA3+: ARG1 = ARG2 >> ARG3 & 1 */
-	{ AP, 0x000c00ff, 0x000f00ff, N("div"), T(rrr) },
-	{ AP, 0x000d00ff, 0x000f00ff, N("mod"), T(rrr) },
+	{ AP, 0x000000ff, 0x000f00ff, N("mulu"), REG3, REG2, REG1 },
+	{ AP, 0x000100ff, 0x000f00ff, N("muls"), REG3, REG2, REG1 },
+	{ AP, 0x000200ff, 0x000f00ff, N("sex"), REG3, REG2, REG1 },
+	{ AP, 0x000300ff, 0x000f00ff, N("extrs"), REG3, REG2, REG1 },
+	{ AP, 0x000400ff, 0x000f00ff, N("and"), REG3, REG2, REG1 },
+	{ AP, 0x000500ff, 0x000f00ff, N("or"), REG3, REG2, REG1 },
+	{ AP, 0x000600ff, 0x000f00ff, N("xor"), REG3, REG2, REG1 },
+	{ AP, 0x000700ff, 0x000f00ff, N("extr"), REG3, REG2, REG1 },
+	{ AP, 0x000800ff, 0x000f00ff, N("xbit"), REG3, REG2, REG1 }, /* NV98: ARG1 = (ARG1 & 0xfffffffe) | (ARG2 >> ARG3 & 1) ; NVA3+: ARG1 = ARG2 >> ARG3 & 1 */
+	{ AP, 0x000c00ff, 0x000f00ff, N("div"), REG3, REG2, REG1 },
+	{ AP, 0x000d00ff, 0x000f00ff, N("mod"), REG3, REG2, REG1 },
 	{ AP, 0x000f00ff, 0x000f00ff, N("iord"), REG3, IORR },
-	{ AP, 0x000000ff, 0x000000ff, OOPS, T(rrr) },
+	{ AP, 0x000000ff, 0x000000ff, OOPS, REG3, REG2, REG1 },
 	{ AP, 0, 0, OOPS },
 };
 
