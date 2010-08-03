@@ -519,11 +519,11 @@ static struct insn tabm[] = {
 	{ AP, 0x000000ff, 0x000f00ff, N("mulu"), T(rrr) },
 	{ AP, 0x000100ff, 0x000f00ff, N("muls"), T(rrr) },
 	{ AP, 0x000200ff, 0x000f00ff, N("sex"), T(rrr) },
-	{ AP, 0x000300f0, 0x000f00ff, N("extrs"), T(rrr) },
+	{ AP, 0x000300ff, 0x000f00ff, N("extrs"), T(rrr) },
 	{ AP, 0x000400ff, 0x000f00ff, N("and"), T(rrr) },
 	{ AP, 0x000500ff, 0x000f00ff, N("or"), T(rrr) },
 	{ AP, 0x000600ff, 0x000f00ff, N("xor"), T(rrr) },
-	{ AP, 0x000700f0, 0x000f00ff, N("extr"), T(rrr) },
+	{ AP, 0x000700ff, 0x000f00ff, N("extr"), T(rrr) },
 	{ AP, 0x000800ff, 0x000f00ff, N("xbit"), T(rrr) }, /* NV98: ARG1 = (ARG1 & 0xfffffffe) | (ARG2 >> ARG3 & 1) ; NVA3+: ARG1 = ARG2 >> ARG3 & 1 */
 	{ AP, 0x000c00ff, 0x000f00ff, N("div"), T(rrr) },
 	{ AP, 0x000d00ff, 0x000f00ff, N("mod"), T(rrr) },
