@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+<import file="nv98_fuc.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+<array name="PDAEMON" offset="0x10a000" stride="0x1000" length="1" variants="NVA3-">
+	<use-group name="nv98_fucbase"/>
+	<reg32 offset="0x4a0" name="FIFO_PUT" length="4"/>
+	<reg32 offset="0x4b0" name="FIFO_GET" length="4"/>
+	<reg32 offset="0x4c0" name="FIFO_PENDING">
+		<bitfield pos="0" name="0"/>
+		<bitfield pos="1" name="1"/>
+		<bitfield pos="2" name="2"/>
+		<bitfield pos="3" name="3"/>
+	</reg32>
+	<reg32 offset="0x4c4" name="FIFO_UNK4C4">
+		<bitfield pos="0" name="0"/>
+		<bitfield pos="1" name="1"/>
+		<bitfield pos="2" name="2"/>
+		<bitfield pos="3" name="3"/>
+	</reg32>
+	<reg32 offset="0x4c8" name="RFIFO_PUT"/>
+	<reg32 offset="0x4cc" name="RFIFO_GET"/>
+	<use-group name="nv98_fuc_targets"/>
+</array>
+
+</domain>
+
+</database>
