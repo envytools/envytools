@@ -318,6 +318,28 @@
 	<reg32 offset="0x0380" name="UNK380"/>
 	<reg32 offset="0x0384" name="UNK384"/>
 	<reg32 offset="0x0388" name="UNK388"/>
+
+	<stripe offset="0x0400" name="STRAND">
+		<reg32 offset="0x00" name="BUSY" access="r"/>
+		<reg32 offset="0x04" name="CTRL">
+			<bitfield low="0" high="4" name="CNT"/>
+			<bitfield low="8" high="10" name="STRAND_IDX"/>
+			<bitfield pos="12" name="AREA_SELECT"/>
+			<bitfield pos="14" name="UNK14"/>
+			<bitfield pos="15" name="UNK15"/>
+			<bitfield pos="16" name="DIR">
+				<value value="0" name="READ"/>
+				<value value="1" name="WRITE"/>
+			</bitfield>
+			<bitfield pos="17" name="TRIGGER"/>
+		</reg32>
+		<reg32 offset="0x08" name="ADDR">
+			<bitfield low="0" high="11" name="SUBIDX"/>
+			<bitfield low="12" high="15" name="UNK12"/>
+			<bitfield low="16" high="29" name="SEEKPOINT"/>
+		</reg32>
+		<reg32 offset="0x20" name="DATA" length="20"/>
+	</stripe>
 	
 	<stripe offset="0x0500" name="FIFO">
 		<brief>pre-DISPATCH FIFO control</brief>
