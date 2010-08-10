@@ -250,6 +250,9 @@
 
 	<reg8 offset="0x110000" name="PROM" length="0x10000" variants="NV03:NV04" />
 
+	<array offset="0x2ff000" name="PBRIDGE_PCI" stride="0x1000" length="1" variants="NVAA NVAC NVAF">
+	</array>
+
 	<reg8 offset="0x300000" name="PROM" length="0x10000" variants="NV04-" />
 
 	<reg8 offset="0x700000" name="PRAMIN" length="0x100000" variants="NV04:NV50" />
@@ -370,6 +373,8 @@
 
 <!-- 200000 - 200fff PMEDIA -->
 <import file="nv_pmedia.xml" />
+
+<!-- 2ff000 - 2fffff PBRIDGE_PCI covered above -->
 
 <!-- 300000 - 3fffff PROM covered above -->
 
