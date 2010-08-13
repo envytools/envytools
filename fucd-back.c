@@ -583,8 +583,10 @@ static uint32_t optab[] = {
  * Immediate fields
  */
 
-static int cimm8off[] = { 0, 8, 0, 0 };
-#define CIMM8 atomnum, cimm8off
+static int cimmcxoff[] = { 0, 8, 0, 0 };
+static int cimm2off[] = { 4, 6, 0, 0 };
+#define CIMMCX atomnum, cimmcxoff
+#define CIMM2 atomnum, cimm2off
 
 /*
  * Register fields
@@ -596,9 +598,10 @@ static int creg2off[] = { 4, 3, 'c' };
 #define CREG2 atomreg, creg2off
 
 static struct insn tabcm[] = {
-	{ AP, 0x0000, 0x8000, N("cxset"), CIMM8 },
+	{ AP, 0x0000, 0x8000, N("cxset"), CIMMCX },
 	{ AP, 0x8400, 0xfc00, N("cmov"), CREG1, CREG2 },
 	{ AP, 0xac00, 0xfc00, N("cxor"), CREG1, CREG2 },
+	{ AP, 0xb000, 0xfc00, N("cadd"), CREG1, CIMM2 }, /* add immediate to register, modulo 2^64 */
 	{ AP, 0xb400, 0xfc00, N("cand"), CREG1, CREG2 },
 	{ AP, 0xb800, 0xfc00, N("crev"), CREG1, CREG2 }, /* reverse bytes */
 	{ AP, 0xbc00, 0xfc00, N("clfsr"), CREG1, CREG2 }, /* shift left by 1. if bit shifted out the left side was set, xor with 0x87. */
