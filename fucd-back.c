@@ -87,6 +87,21 @@ static int strapoff[] = { 8, 2, 0, 0 };
 #define IMM8H atomnum, imm8hoff
 #define STRAP atomnum, strapoff
 
+static struct insn tabcm[];
+
+#define COCMD8 atomcocmd, imm8off
+#define COCMD16 atomcocmd, imm16off
+void atomcocmd APROTO {
+	const int *n = v;
+	ull na = BF(n[0], n[1]), nm = 0;
+	fprintf (out, " %s%04llx", cgray, na);
+	atomtab (out, &na, &nm, tabcm, ptype, pos);
+	na &= ~nm;
+	if (na) {
+		fprintf (out, " %s[unknown: %04llx]%s", cred, na, cnorm);
+	}
+}
+
 #define BITF8 atombf, imm8off
 #define BITF16 atombf, imm16off
 void atombf APROTO {
@@ -220,6 +235,11 @@ static struct insn tabct[] = {
 	{ AP, 0x00000001, 0x00000001, LCTARG },
 };
 
+static struct insn tabcocmd[] = {
+	{ AP, 0x00000000, 0x00000001, COCMD8 },
+	{ AP, 0x00000001, 0x00000001, COCMD16 },
+};
+
 static struct insn tabsz[] = {
 	{ AP, 0x00000000, 0x000000c0, N("b8") },
 	{ AP, 0x00000040, 0x000000c0, N("b16") },
@@ -257,6 +277,7 @@ static struct insn tabsrs[] = {
 	{ AP, 0x00006000, 0x0000f000, N("xcbase") },
 	{ AP, 0x00007000, 0x0000f000, N("xdbase") },
 	{ AP, 0x00008000, 0x0000f000, N("flags") },
+	{ AP, 0x00009000, 0x0000f000, U("cx") }, /* coprocessor xfer */
 	{ AP, 0x0000a000, 0x0000f000, U("a") },
 	{ AP, 0x0000b000, 0x0000f000, N("xtargets") },
 	{ AP, 0x0000c000, 0x0000f000, N("tstatus") },
@@ -421,7 +442,7 @@ static struct insn tabm[] = {
 	{ AP, 0x000031f4, 0x0000fffe, N("bset"), N("flags"), T(fl) },
 	{ AP, 0x000032f4, 0x0000fffe, N("bclr"), N("flags"), T(fl) },
 	{ AP, 0x000033f4, 0x0000fffe, N("btgl"), N("flags"), T(fl) },
-	{ AP, 0x00003cf4, 0x0000fffe, U("f4/3c"), T(i) },
+	{ AP, 0x00003cf4, 0x0000fffe, T(cocmd) },
 	{ AP, 0x000000f4, 0x000000fe, OOPS, T(i) },
 
 	{ AP, 0x000000f8, 0x0000ffff, N("ret") },
@@ -554,6 +575,34 @@ static uint32_t optab[] = {
 	0xfd, 0xff, 3,
 	0xfe, 0xff, 3,
 	0xff, 0xff, 3,
+};
+
+/* The coprocessor stuff */
+
+/*
+ * Immediate fields
+ */
+
+static int cimm8off[] = { 0, 8, 0, 0 };
+#define CIMM8 atomnum, cimm8off
+
+/*
+ * Register fields
+ */
+
+static int creg1off[] = { 0, 3, 'c' };
+static int creg2off[] = { 4, 3, 'c' };
+#define CREG1 atomreg, creg1off
+#define CREG2 atomreg, creg2off
+
+static struct insn tabcm[] = {
+	{ AP, 0x0000, 0x8000, N("cxset"), CIMM8 },
+	{ AP, 0x8400, 0xfc00, N("cmov"), CREG1, CREG2 },
+	{ AP, 0xac00, 0xfc00, N("cxor"), CREG1, CREG2 },
+	{ AP, 0xb400, 0xfc00, N("cand"), CREG1, CREG2 },
+	{ AP, 0xb800, 0xfc00, N("crev"), CREG1, CREG2 }, /* reverse bytes */
+	{ AP, 0xbc00, 0xfc00, N("clfsr"), CREG1, CREG2 }, /* shift left by 1. if bit shifted out the left side was set, xor with 0x87. */
+	{ AP, 0, 0, OOPS },
 };
 
 /*
