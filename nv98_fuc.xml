@@ -131,6 +131,7 @@
 		</bitfield>
 		<bitfield pos="21" name="READBACK"/>
 		<bitfield pos="28" name="UNK28"/>
+		<bitfield pos="29" name="CODE_BUSY"/>
 	</reg32>
 	<reg32 offset="0xffc" name="HOST_MMIO_INDEX"/>
 </group>
