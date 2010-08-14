@@ -7,6 +7,7 @@
 <import file="nvchipsets.xml" />
 
 <bitset name="nv98_fuc_intr" inline="yes">
+	<bitfield pos="0" name="PERIODIC"/>
 	<bitfield pos="1" name="WATCHDOG"/>
 	<bitfield pos="2" name="FIFO_DATA"/>
 	<bitfield pos="3" name="CHANNEL_SWITCH"/>
@@ -35,8 +36,10 @@
 		<bitfield low="0" high="15" name="M1" type="nv98_fuc_intr"/>
 		<bitfield low="16" high="31" name="M2" type="nv98_fuc_intr"/>
 	</reg32>
-
-	<!-- the following two are conspiciously absent from PGRAPH. -->
+	<!-- the following are conspiciously absent from PGRAPH. -->
+	<reg32 offset="0x020" name="PERIODIC_PERIOD"/>
+	<reg32 offset="0x024" name="PERIODIC_TIME"/>
+	<reg32 offset="0x028" name="PERIODIC_ENABLE"/>
 	<reg32 offset="0x02c" name="TIME_LOW"/>
 	<reg32 offset="0x030" name="TIME_HIGH"/>
 	<reg32 offset="0x034" name="WATCHDOG_TIME"/>
