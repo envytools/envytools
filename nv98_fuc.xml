@@ -136,6 +136,7 @@
 			<value value="1" name="CODE"/> <!-- pre-NVA3 only? -->
 		</bitfield>
 		<bitfield pos="21" name="READBACK"/>
+		<bitfield pos="24" name="XFER_BUSY"/>
 		<bitfield pos="28" name="UNK28"/>
 		<bitfield pos="29" name="CODE_BUSY"/>
 	</reg32>
