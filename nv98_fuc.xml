@@ -13,6 +13,7 @@
 	<bitfield pos="3" name="CHANNEL_SWITCH"/>
 	<bitfield pos="4" name="EXIT"/>
 	<bitfield pos="6" name="USER1"/> <!-- there are more... -->
+	<bitfield pos="9" name="XFER_FAULT"/>
 </bitset>
 
 <group name="nv98_fucbase">
