@@ -605,6 +605,25 @@ static struct insn tabcm[] = {
 	{ AP, 0xb400, 0xfc00, N("cand"), CREG1, CREG2 },
 	{ AP, 0xb800, 0xfc00, N("crev"), CREG1, CREG2 }, /* reverse bytes */
 	{ AP, 0xbc00, 0xfc00, N("clfsr"), CREG1, CREG2 }, /* shift left by 1. if bit shifted out the left side was set, xor with 0x87. */
+	/* Binds a register as the key for enc/dec operations. A *register*,
+	 * not its contents. So if you bind $c3, then change its value,
+	 * it'll use the new value.
+	 */
+	{ AP, 0xc400, 0xfc00, N("ckeyreg"), CREG1 },
+	/* key expansion - go through AES key schedule given the key [aka
+	 * first 16 bytes of 176-byte expanded key], return last 16 bytes
+	 * of the expended key. Used to get decryption keys.
+	 */
+	{ AP, 0xc800, 0xfc00, N("ckexp"), CREG1, CREG2 },
+	/* reverse operation to the above - get the original key given
+	 * last 16 bytes of the expanded key*/
+	{ AP, 0xcc00, 0xfc00, N("ckrexp"), CREG1, CREG2 },
+	/* encrypts a block using "key" register value as key */
+	{ AP, 0xd000, 0xfc00, N("cenc"), CREG1, CREG2 },
+	/* decrypts a block using "key" register value as last 16 bytes of
+	 * expanded key - ie. you need to stuff the key through ckexp before
+	 * use for decryption. */
+	{ AP, 0xd400, 0xfc00, N("cdec"), CREG1, CREG2 },
 	{ AP, 0, 0, OOPS },
 };
 
