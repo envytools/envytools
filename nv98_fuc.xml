@@ -113,6 +113,16 @@
 		<doc>Also virtual address for code.</doc>
 	</reg32>
 
+	<reg32 offset="0x140" name="CODE_CMD" variants="NVA3-">
+		<bitfield low="0" high="23" name="PARAM"/>
+		<bitfield low="24" high="25" name="CMD">
+			<value value="1" name="UNBIND"/>
+			<value value="2" name="PTLB"/>
+			<value value="3" name="VTLB"/>
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x144" name="CODE_CMD_RES" variants="NVA3-"/>
+
 	<reg32 offset="0x180" name="CODE_INDEX" variants="NVA3-">
 		<bitfield high="15" low="2" name="PHYS_ADDR" shr="2"/>
 		<bitfield pos="24" name="WRITE_AUTOINCR"/>
