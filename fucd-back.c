@@ -605,9 +605,12 @@ static struct insn tabcm[] = {
 	/* send 16 bytes to crypt xfer stream */
 	{ AP, 0x8c00, 0xfc00, N("cxsout"), CREG1 },
 	/* next ARG coprocessor instructions are stored as a "script" to be executed later. */
-	{ AP, 0x9400, 0xfc00, N("csbegin"), CIMM2 },
+	{ AP, 0x9400, 0xfc00, N("cs0begin"), CIMM2 },
 	/* the script stored by previous insn is executed ARG times. */
-	{ AP, 0x9800, 0xfc00, N("csexec"), CIMM2 },
+	{ AP, 0x9800, 0xfc00, N("cs0exec"), CIMM2 },
+	/* like above, but operates on another script slot */
+	{ AP, 0x9c00, 0xfc00, N("cs1begin"), CIMM2 },
+	{ AP, 0xa000, 0xfc00, N("cs1exec"), CIMM2 },
 	{ AP, 0xac00, 0xfc00, N("cxor"), CREG1, CREG2 },
 	{ AP, 0xb000, 0xfc00, N("cadd"), CREG1, CIMM2 }, /* add immediate to register, modulo 2^64 */
 	{ AP, 0xb400, 0xfc00, N("cand"), CREG1, CREG2 },
