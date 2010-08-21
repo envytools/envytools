@@ -146,12 +146,12 @@
 			<value value="0x80" name="ZERO"/>
 		</enum>
 		<reg32 offset="0x34" name="SWIZZLE_MAP" length="4">
-			<bitfield low="0" high="7" name="0"/>
-			<bitfield low="8" high="15" name="1"/>
-			<bitfield low="16" high="23" name="2"/>
-			<bitfield low="24" high="31" name="3"/>
+			<bitfield low="0" high="7" name="0" type="nva3_pcopy_swizzle"/>
+			<bitfield low="8" high="15" name="1" type="nva3_pcopy_swizzle"/>
+			<bitfield low="16" high="23" name="2" type="nva3_pcopy_swizzle"/>
+			<bitfield low="24" high="31" name="3" type="nva3_pcopy_swizzle"/>
 		</reg32>
-		<reg32 offset="0x44" name="SWIZZLE_COPY" length="2"/>
+		<reg32 offset="0x44" name="SWIZZLE_CONST" length="2"/>
 		<reg32 offset="0x4c" name="UNK4C"/>
 	</array>
 </group>
