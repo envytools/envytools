@@ -5,6 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
+<import file="nv50_defs.xml" />
 
 <bitset name="nv98_fuc_intr" inline="yes">
 	<bitfield pos="0" name="PERIODIC"/>
