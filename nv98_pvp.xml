@@ -116,7 +116,10 @@
 			<bitfield low="8" high="11" name="STEP_DST_M1">
 				<doc>Bytes in destination step, minus 1.</doc>
 			</bitfield>
-			<bitfield pos="16" name="UNK16"/>
+			<bitfield pos="16" name="CONST_SRC">
+				<value value="0" name="REG"/>
+				<value value="1" name="TIMER"/>
+			</bitfield>
 		</reg32>
 		<enum name="nva3_pcopy_swizzle" inline="yes">
 			<value value="0x0" name="SRC_0"/>
