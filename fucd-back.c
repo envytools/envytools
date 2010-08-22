@@ -433,6 +433,39 @@ static struct insn tabm[] = {
 	{ AP, 0x000000f0, 0x000000fe, OOPS, REG2, T(i) },
 
 	{ AP, 0x000008f2, 0x00000fff, N("setp"), T(fl), REG2 }, /* set given flag if bit0 of ARG2 set */
+	/* The indirect crypt opcodes.
+	 *
+	 * For one-reg opcodes, the crypt register to use is selected by
+	 * bits 8-10 of the operand. For two-reg opcodes, destination is in
+	 * bits 8-10, source in 0-2. For reg, imm opcodes, reg is in
+	 * bits 8-10, immediate in 0-5. For imm-only opcodes, immediate is in
+	 * bits 0-5.
+	 *
+	 * Or, in other words, the insn is converted into f5/3c op as follows:
+	 *
+	 *  bits 0-3: bits 8-11 of reg operand
+	 *  bits 4-9: bits 0-5 of reg operand
+	 *  bits 10-14: bits 0-4 of immediate byte
+	 *  bit 15: always set.
+	 */
+	{ AP, 0x00010cf2, 0x001f0fff, N("cimov"), REG2 },
+	{ AP, 0x00020cf2, 0x001f0fff, N("cixsin"), REG2 },
+	{ AP, 0x00030cf2, 0x001f0fff, N("cixsout"), REG2 },
+	{ AP, 0x00050cf2, 0x001f0fff, N("cis0begin"), REG2 },
+	{ AP, 0x00060cf2, 0x001f0fff, N("cis0exec"), REG2 },
+	{ AP, 0x00070cf2, 0x001f0fff, N("cis1begin"), REG2 },
+	{ AP, 0x00080cf2, 0x001f0fff, N("cis1exec"), REG2 },
+	{ AP, 0x000b0cf2, 0x001f0fff, N("cixor"), REG2 },
+	{ AP, 0x000c0cf2, 0x001f0fff, N("ciadd"), REG2 },
+	{ AP, 0x000d0cf2, 0x001f0fff, N("ciand"), REG2 },
+	{ AP, 0x000e0cf2, 0x001f0fff, N("cirev"), REG2 },
+	{ AP, 0x000f0cf2, 0x001f0fff, N("cilfsr"), REG2 },
+	{ AP, 0x00110cf2, 0x001f0fff, N("cikeyreg"), REG2 },
+	{ AP, 0x00120cf2, 0x001f0fff, N("cikexp"), REG2 },
+	{ AP, 0x00130cf2, 0x001f0fff, N("cikrexp"), REG2 },
+	{ AP, 0x00140cf2, 0x001f0fff, N("cienc"), REG2 },
+	{ AP, 0x00150cf2, 0x001f0fff, N("cidec"), REG2 },
+	{ AP, 0x00000cf2, 0x00000fff, OOPS, REG2 },
 
 	{ AP, 0x000000f4, 0x0000e0fe, N("bra"), T(p), T(bt) },
 	{ AP, 0x000020f4, 0x0000fffe, N("bra"), T(ct) },
