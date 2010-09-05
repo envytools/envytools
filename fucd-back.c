@@ -277,7 +277,7 @@ static struct insn tabsrs[] = {
 	{ AP, 0x00006000, 0x0000f000, N("xcbase") },
 	{ AP, 0x00007000, 0x0000f000, N("xdbase") },
 	{ AP, 0x00008000, 0x0000f000, N("flags") },
-	{ AP, 0x00009000, 0x0000f000, U("cx") }, /* coprocessor xfer */
+	{ AP, 0x00009000, 0x0000f000, N("cx") }, /* coprocessor xfer */
 	{ AP, 0x0000a000, 0x0000f000, U("a") },
 	{ AP, 0x0000b000, 0x0000f000, N("xtargets") },
 	{ AP, 0x0000c000, 0x0000f000, N("tstatus") },
