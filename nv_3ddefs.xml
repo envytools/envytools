@@ -174,6 +174,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x001d" name="A4R4G4B4_RECT" variants="NV20_3D-"/>
 	<value value="0x001e" name="R8G8B8_RECT" variants="NV20_3D-"/>
 	<value value="0x0020" name="A8L8_RECT" variants="NV20_3D-"/>
+	<value value="0x002a" name="Z24" variants="NV20_3D-"/>
+	<value value="0x002b" name="Z24_RECT" variants="NV20_3D-"/> <!-- possibly just a guess -->
+	<value value="0x002c" name="Z16" variants="NV20_3D-"/>
+	<value value="0x002d" name="Z16_RECT" variants="NV20_3D-"/> <!-- possibly just a guess -->
 	<value value="0x0028" name="DSDT8" variants="NV20_3D-"/>
 	<value value="0x0033" name="HILO16" variants="NV20_3D-"/>
 	<value value="0x0036" name="HILO16_RECT" variants="NV20_3D-"/>
@@ -194,6 +198,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0005" name="X8R8G8B8"/>
 	<value value="0x0008" name="A8R8G8B8"/>
 	<value value="0x0009" name="B8"/>
+	<value value="0x0b" name="A16B16G16R16_FLOAT" variants="NV30_3D-"/>
+	<value value="0x0c" name="A32B32G32R32_FLOAT" variants="NV30_3D-"/>
+	<value value="0x0d" name="R32_FLOAT" variants="NV30_3D-"/>
 	<value value="0x0d" name="UNK0D" variants="NV30_3D-"/> <!-- Visible with GL_MULTISAMPLESAMPLES=16 on NV30-->
 	<value value="0x0f" name="X8B8G8R8" variants="NV30_3D-"/>
 	<value value="0x10" name="A8B8G8R8" variants="NV30_3D-"/>

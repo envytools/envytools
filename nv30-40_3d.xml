@@ -272,6 +272,12 @@
 		<stripe offset="0x3a0" name="COLOR_MATERIAL_FRONT" variants="NV30_3D-NV35_3D">
 			<use-group name="rgba-float"/>
 		</stripe>
+		<reg32 offset="0x3b0" name="MIPMAP_ROUNDING" variants="NV40_3D-">
+			<bitfield pos="20" name="MODE">
+				<value value="0" name="UP"/>
+				<value value="1" name="DOWN"/>
+			</bitfield>
+		</reg32>
 		<reg32 offset="0x3b8" name="LINE_WIDTH" type="int"/>
 		<reg32 offset="0x3bc" name="LINE_SMOOTH_ENABLE" type="boolean"/>
 		<stripe variants="NV30_3D-NV35_3D"><brief>Fixed function matrices</brief>
@@ -410,6 +416,10 @@
 			<bitfield low="0" high="15" name="UNK0" type="int" variants="NV30_3D-NV35_3D"/>
 			<bitfield low="16" high="31" name="UNK1" type="int" variants="NV30_3D-NV35_3D"/>
 		</reg32>
+		<reg32 offset="0x1454" name="FLATSHADE_FIRST" type="boolean"/>
+		<reg32 offset="0x145c" name="EDGEFLAG">
+			<bitfield pos="0" name="ENABLE" type="boolean"/>
+		</reg32>
 		<reg32 offset="0x1478" name="VP_CLIP_PLANES_ENABLE">
 			<bitfield pos="1" name="PLANE0"/>
 			<bitfield pos="5" name="PLANE1"/>
@@ -443,7 +453,7 @@
 			<use-group name="rgba-float"/>
 		</stripe>
 		<reg32 offset="0x17c8" name="QUERY_RESET"/>
-		<reg32 offset="0x17cc" name="QUERY_UNK17CC"/>
+		<reg32 offset="0x17cc" name="QUERY_ENABLE" type="boolean"/>
 		<reg32 offset="0x1800" name="QUERY_GET">
 			<bitfield low="0" high="23" name="OFFSET"/>
 			<bitfield low="24" high="31" name="UNK24" type="int"/>
@@ -585,6 +595,17 @@
 			<bitfield pos="4" name="SAMPLE_ALPHA_TO_COVERAGE" variants="NV30_3D-NV35_3D"/>
 			<bitfield pos="8" name="SAMPLE_ALPHA_TO_ONE" variants="NV30_3D-NV35_3D"/>
 			<bitfield low="16" high="31" name="SAMPLE_COVERAGE" variants="NV30_3D-NV35_3D"/>
+		</reg32>
+		<reg32 offset="0x1d88" name="COORD_CONVENTIONS">
+			<bitfield low="0" high="11" name="HEIGHT"/>
+			<bitfield pos="12" name="ORIGIN">
+				<value value="0" name="NORMAL"/>
+				<value value="1" name="INVERTED"/>
+			</bitfield>
+			<bitfield pos="16" name="CENTER">
+				<value value="0" name="HALF_INTEGER"/>
+				<value value="1" name="INTEGER"/>
+			</bitfield>
 		</reg32>
 		<reg32 offset="0x1d8c" name="CLEAR_DEPTH_VALUE"/>
 		<reg32 offset="0x1d90" name="CLEAR_COLOR_VALUE">
