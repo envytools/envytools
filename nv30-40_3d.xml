@@ -366,41 +366,43 @@
 				<use-group name="xyzw-float"/>
 			</stripe>
 		</array>
-		<array offset="0x1000" name="LIGHT" variants="NV30_3D-NV35_3D" stride="64" length="8">
-			<stripe offset="0" name="FRONT_SIDE_PRODUCT_AMBIENT">
-				<use-group name="rgb-float"/>
-			</stripe>
-			<stripe offset="0xc" name="FRONT_SIDE_PRODUCT_DIFFUSE">
-				<use-group name="rgb-float"/>
-			</stripe>
-			<stripe offset="0x18" name="FRONT_SIDE_PRODUCT_SPECULAR">
-				<use-group name="rgb-float"/>
-			</stripe>
-			<reg32 offset="0x24" name="UNK24"/>
-			<stripe offset="0x28" name="HALF_VECTOR">
-				<use-group name="xyz-float"/>
-			</stripe>
-			<stripe offset="0x34" name="DIRECTION">
-				<use-group name="xyz-float"/>
-			</stripe>
-		</array>
-		<array offset="0x1200" name="LIGHT" variants="NV30_3D-NV35_3D" stride="64" length="8">
-			<reg32 offset="0" name="SPOT_CUTOFF_A" type="float"/>
-			<reg32 offset="4" name="SPOT_CUTOFF_B" type="float"/>
-			<reg32 offset="8" name="SPOT_CUTOFF_C" type="float"/>
-			<stripe offset="0xc" name="SPOT_DIR">
-				<use-group name="xyz-float"/>
-			</stripe>
-			<reg32 offset="0x18" name="SPOT_CUTOFF_D" type="float"/>
-			<stripe offset="0x1c" name="POSITION">
-				<use-group name="xyz-float"/>
-			</stripe>
-			<stripe offset="0x28" name="ATTENUATION">
-				<reg32 offset="0" name="CONSTANT" type="float"/>
-				<reg32 offset="4" name="LINEAR" type="float"/>
-				<reg32 offset="8" name="QUADRATIC" type="float"/>
-			</stripe>
-		</array>
+		<stripe offset="0x1000" name="LIGHT" variants="NV30_3D-NV35_3D">
+			<array offset="0" stride="64" length="8">
+				<stripe offset="0" name="FRONT_SIDE_PRODUCT_AMBIENT">
+					<use-group name="rgb-float"/>
+				</stripe>
+				<stripe offset="0xc" name="FRONT_SIDE_PRODUCT_DIFFUSE">
+					<use-group name="rgb-float"/>
+				</stripe>
+				<stripe offset="0x18" name="FRONT_SIDE_PRODUCT_SPECULAR">
+					<use-group name="rgb-float"/>
+				</stripe>
+				<reg32 offset="0x24" name="UNK24"/>
+				<stripe offset="0x28" name="HALF_VECTOR">
+					<use-group name="xyz-float"/>
+				</stripe>
+				<stripe offset="0x34" name="DIRECTION">
+					<use-group name="xyz-float"/>
+				</stripe>
+			</array>
+			<array offset="0x200" stride="64" length="8">
+				<reg32 offset="0" name="SPOT_CUTOFF_A" type="float"/>
+				<reg32 offset="4" name="SPOT_CUTOFF_B" type="float"/>
+				<reg32 offset="8" name="SPOT_CUTOFF_C" type="float"/>
+				<stripe offset="0xc" name="SPOT_DIR">
+					<use-group name="xyz-float"/>
+				</stripe>
+				<reg32 offset="0x18" name="SPOT_CUTOFF_D" type="float"/>
+				<stripe offset="0x1c" name="POSITION">
+					<use-group name="xyz-float"/>
+				</stripe>
+				<stripe offset="0x28" name="ATTENUATION">
+					<reg32 offset="0" name="CONSTANT" type="float"/>
+					<reg32 offset="4" name="LINEAR" type="float"/>
+					<reg32 offset="8" name="QUADRATIC" type="float"/>
+				</stripe>
+			</array>
+		</stripe>
 		<reg32 offset="0x1400" name="FRONT_MATERIAL_SHININESS" type="float" variants="NV30_3D-NV35_3D" length="6"/>
 		<reg32 offset="0x1420" name="ENABLED_LIGHTS" variants="NV30_3D-NV35_3D"/>
 		<reg32 offset="0x142c" name="VERTEX_TWO_SIDE_ENABLE" type="boolean"/>
