@@ -38,11 +38,18 @@ def process(container):
 	_process(container)
 	indent = indent[:-1]
 
+def get_pos(elem, which):
+	pos = elem.attrib.get(which, None)
+	if pos is not None:
+		return intdh(pos)
+	else:
+		return intdh(elem.attrib.get("pos", "-1"))
+
 def _process(container):
 	global empty_line
 	maxvalue = max([-1] + [max(intdh(elem.attrib.get("offset", "-1")), intdh(elem.attrib.get("value", "-1"))) for elem in container.iterchildren(tag=ET.Element)])
-	maxlow = max([-1] + [intdh(elem.attrib.get("low", "-1")) for elem in container.iterchildren(tag=ET.Element)])
-	maxhigh = max([-1] + [intdh(elem.attrib.get("high", "-1")) for elem in container.iterchildren(tag=ET.Element)])
+	maxlow = max([-1] + [get_pos(elem, "low") for elem in container.iterchildren(tag=ET.Element)])
+	maxhigh = max([-1] + [get_pos(elem, "high") for elem in container.iterchildren(tag=ET.Element)])
 
 	any_multibit = False
 	for elem in container.iterchildren(tag=ET.Element):
@@ -90,10 +97,12 @@ def _process(container):
 				del elem.attrib["name"]
 			is_reglike = True
 		elif tag == "bitfield":
-			if "low" not in elem.attrib:
+			if "low" not in elem.attrib and "pos" not in elem.attrib:
 				print >> sys.stderr, "Bitfield " + elem.attrib.get("name", "<unnamed>") + " has no low bit!"
-			low = intdh(elem.attrib.get("low", 0))
-			high = intdh(elem.attrib.get("high", str(low)))
+			low = get_pos(elem, "low")
+			high = get_pos(elem, "high")
+			if high < 0:
+				high = low
 			if low != high:
 				line = low_format % (low,) + "-" + high_format % (high,)
 			elif any_multibit:
@@ -101,6 +110,8 @@ def _process(container):
 				line = low_format % (low,) + (" " * (len(str(maxhigh)) + 1))
 			else:
 				line = low_format % (low,)
+                        if "pos" in elem.attrib:
+                                del elem.attrib["pos"]
 			if "low" in elem.attrib:
 				del elem.attrib["low"]
 			if "high" in elem.attrib:

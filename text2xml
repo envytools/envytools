@@ -215,8 +215,11 @@ while True:
 					high = tokens[0][sl + 1:]
 				else:
 					low = high = tokens[0]
-				elem.attrib["low"] = str(intdh(low))
-				elem.attrib["high"] = str(intdh(high))
+				if low == high:
+					elem.attrib["pos"] = str(intdh(low))
+				else:
+					elem.attrib["low"] = str(intdh(low))
+					elem.attrib["high"] = str(intdh(high))
 				if len(tokens) >= 2:
 					elem.attrib["name"] = tokens[1]
 				if len(tokens) >= 3:
