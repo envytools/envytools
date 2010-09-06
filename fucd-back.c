@@ -459,7 +459,7 @@ static struct insn tabm[] = {
 	{ AP, 0x000c0cf2, 0x001f0fff, N("ciadd"), REG2 },
 	{ AP, 0x000d0cf2, 0x001f0fff, N("ciand"), REG2 },
 	{ AP, 0x000e0cf2, 0x001f0fff, N("cirev"), REG2 },
-	{ AP, 0x000f0cf2, 0x001f0fff, N("cilfsr"), REG2 },
+	{ AP, 0x000f0cf2, 0x001f0fff, N("ciprecmac"), REG2 },
 	{ AP, 0x00110cf2, 0x001f0fff, N("cikeyreg"), REG2 },
 	{ AP, 0x00120cf2, 0x001f0fff, N("cikexp"), REG2 },
 	{ AP, 0x00130cf2, 0x001f0fff, N("cikrexp"), REG2 },
@@ -648,7 +648,7 @@ static struct insn tabcm[] = {
 	{ AP, 0xb000, 0xfc00, N("cadd"), CREG1, CIMM2 }, /* add immediate to register, modulo 2^64 */
 	{ AP, 0xb400, 0xfc00, N("cand"), CREG1, CREG2 },
 	{ AP, 0xb800, 0xfc00, N("crev"), CREG1, CREG2 }, /* reverse bytes */
-	{ AP, 0xbc00, 0xfc00, N("clfsr"), CREG1, CREG2 }, /* shift left by 1. if bit shifted out the left side was set, xor with 0x87. */
+	{ AP, 0xbc00, 0xfc00, N("cprecmac"), CREG1, CREG2 }, /* shift left by 1. if bit shifted out the left side was set, xor with 0x87. */
 	/* Binds a register as the key for enc/dec operations. A *register*,
 	 * not its contents. So if you bind $c3, then change its value,
 	 * it'll use the new value.
