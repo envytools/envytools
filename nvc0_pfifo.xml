@@ -9,7 +9,11 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <array name="PFIFO" offset="0x2000" stride="0x2000" length="1" variants="NVC0-">
-
+	<bitset name="nvc0_pfifo_intr" inline="yes">
+		<bitfield pos="28" name="VM_FAULT"/>
+	</bitset>
+	<reg32 offset="0x100" name="INTR" type="nvc0_pfifo_intr"/>
+	<reg32 offset="0x140" name="INTR_EN" type="nvc0_pfifo_intr"/>
 </array>
 
 <array name="PFIFO_CHAN" offset="0x40000" stride="0x6000" length="1" variants="NVC0-">
