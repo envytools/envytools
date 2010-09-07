@@ -14,6 +14,32 @@
 	</bitset>
 	<reg32 offset="0x100" name="INTR" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x140" name="INTR_EN" type="nvc0_pfifo_intr"/>
+	<reg32 offset="0x59c" name="VM_FAULT_SOURCE">
+		<bitfield pos="0" name="PGRAPH"/>
+		<bitfield pos="3" name="PEEPHOLE"/>
+		<bitfield pos="4" name="BAR1"/>
+		<bitfield pos="5" name="BAR3"/>
+		<bitfield pos="7" name="PFIFO"/>
+	</reg32>
+	<array offset="0x800" name="VM_FAULT" length="32" stride="0x10"> <!-- length is guess. -->
+		<reg32 offset="0" name="CHAN" type="nv50_channel"/>
+		<reg32 offset="4" name="ADDR_LOW"/>
+		<reg32 offset="8" name="ADDR_HIGH"/>
+		<reg32 offset="0xc" name="FLAGS">
+			<bitfield low="0" high="3" name="REASON">
+				<value value="0" name="PT_NOT_PRESENT"/>
+				<value value="1" name="PT_TOO_SHORT"/>
+				<value value="2" name="PAGE_NOT_PRESENT"/>
+				<value value="3" name="VSPACE_LIMIT"/>
+				<!-- ... -->
+			</bitfield>
+			<bitfield low="4" high="6" name="UNK4"/>
+			<bitfield pos="7" name="WRITE"/>
+			<bitfield low="8" high="12" name="SUBUNIT">
+				<!-- need more variant power! -->
+			</bitfield>
+		</reg32>
+	</array>
 </array>
 
 <array name="PFIFO_CHAN" offset="0x40000" stride="0x6000" length="1" variants="NVC0-">
