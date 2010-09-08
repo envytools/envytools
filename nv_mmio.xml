@@ -135,6 +135,11 @@
 			<bitfield pos="31" name="UNK31" variants="NV50-"/>
 			<!-- XXX: NV84:NVC0 have lots of other bits that apparently don't affect anything, but not really. -->
 		</reg32>
+		<reg32 offset="0x204" name="SUBFIFO_ENABLE" variants="NVC0-">
+			<bitfield pos="0" name="0"/>
+			<bitfield pos="1" name="1"/>
+			<bitfield pos="2" name="2"/>
+		</reg32>
 	</array>
 	<array offset="0x1000" name="PBUS" stride="0x1000" length="1">
 		<reg32 offset="0x100" name="INTR">
