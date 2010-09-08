@@ -9,12 +9,33 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
+<enum name="nvc0_pfifo_engine" inline="yes">
+	<value value="0" name="PGRAPH"/>
+	<value value="1" name="PVP"/>
+	<value value="2" name="PPPP"/>
+	<value value="3" name="PBSP"/>
+	<value value="4" name="PCOPY0"/>
+	<value value="5" name="PCOPY1"/>
+	<value value="0x1f" name="NONE"/>
+</enum>
+
 <array name="PFIFO" offset="0x2000" stride="0x2000" length="1" variants="NVC0-">
 	<bitset name="nvc0_pfifo_intr" inline="yes">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="8" name="UNK8"/>
+		<bitfield pos="16" name="UNK16"/>
+		<bitfield pos="23" name="UNK23"/>
+		<bitfield pos="24" name="UNK24"/>
+		<bitfield pos="27" name="UNK27"/>
 		<bitfield pos="28" name="VM_FAULT"/>
+		<bitfield pos="29" name="SUBFIFO_INTR"/>
+		<bitfield pos="30" name="UNK30"/>
+		<bitfield pos="31" name="UNK31"/>
 	</bitset>
 	<reg32 offset="0x100" name="INTR" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x140" name="INTR_EN" type="nvc0_pfifo_intr"/>
+	<reg32 offset="0x200" name="ENABLE"/>
 	<reg32 offset="0x204" name="SUBFIFO_ENABLE">
 		<bitfield pos="0" name="0"/>
 		<bitfield pos="1" name="1"/>
@@ -29,9 +50,21 @@
 		<bitfield pos="28" name="UNK28"/>
 		<bitfield pos="31" name="UNK31"/>
 	</reg32>
-	<reg32 offset="0x270" name="PLAYLIST">
+	<reg32 offset="0x270" name="PLAYLIST_WR">
 		<bitfield high="27" low="0" name="ADDRESS" shr="12"/>
 		<bitfield high="29" low="28" name="TARGET" type="nv50_mem_target"/>
+	</reg32>
+	<reg32 offset="0x274" name="PLAYLIST_WR_LEN">
+		<bitfield low="0" high="11" name="LEN"/>
+		<bitfield low="20" high="24" name="UNK20"/>
+	</reg32>
+	<reg32 offset="0x278" name="PLAYLIST_RD">
+		<bitfield high="27" low="0" name="ADDRESS" shr="12"/>
+		<bitfield high="29" low="28" name="TARGET" type="nv50_mem_target"/>
+	</reg32>
+	<reg32 offset="0x27c" name="PLAYLIST_RD_LEN">
+		<bitfield low="0" high="11" name="LEN"/>
+		<bitfield pos="20" name="UNK20"/> <!-- busy? -->
 	</reg32>
 	<reg32 offset="0x59c" name="VM_FAULT_SOURCE">
 		<bitfield pos="0" name="PGRAPH"/>
@@ -40,14 +73,23 @@
 		<bitfield pos="5" name="BAR3"/>
 		<bitfield pos="7" name="PFIFO"/>
 	</reg32>
+	<reg32 offset="0x5a0" name="SUBFIFO_INTR_SOURCE">
+		<bitfield pos="0" name="0"/>
+		<bitfield pos="1" name="1"/>
+		<bitfield pos="2" name="2"/>
+	</reg32>
 	<reg32 offset="0x630" name="ENG_FREEZE">
 		<bitfield pos="0" name="PGRAPH"/>
-		<!-- speculation... -->
 		<bitfield pos="1" name="PVP"/>
 		<bitfield pos="2" name="PPPP"/>
 		<bitfield pos="3" name="PBSP"/>
 		<bitfield pos="4" name="PCOPY0"/>
 		<bitfield pos="5" name="PCOPY1"/>
+	</reg32>
+	<reg32 offset="0x634" name="KICK_CHID"/> <!-- wtf is thisexactly? -->
+	<reg32 offset="0x7d0" name="ENG_CH" length="6">
+		<bitfield low="0" high="6" name="CHID"/>
+		<bitfield pos="8" name="ACTIVE"/>
 	</reg32>
 	<array offset="0x800" name="VM_FAULT" length="32" stride="0x10"> <!-- length is guess. -->
 		<reg32 offset="0" name="CHAN" type="nv50_channel"/>
@@ -78,14 +120,42 @@
 			<bitfield pos="0" name="ENABLE"/>
 			<bitfield pos="8" name="UNK8"/>
 			<bitfield pos="12" name="UNK12"/>
-			<bitfield low="16" high="20" name="UNK16"/>
+			<bitfield low="16" high="20" name="ENGINE" type="nvc0_pfifo_engine"/>
 			<bitfield pos="28" name="UNK28"/>
 		</reg32>
 	</array>
 </array>
 
 <array name="PSUBFIFO" offset="0x40000" stride="0x2000" length="3" variants="NVC0-">
+	<reg32 offset="0xa4" name="ENGINE" length="2">
+		<bitfield low="0" high="4" name="0" type="nvc0_pfifo_engine"/>
+		<bitfield low="8" high="12" name="1" type="nvc0_pfifo_engine"/>
+		<bitfield low="16" high="20" name="2" type="nvc0_pfifo_engine"/>
+		<bitfield low="24" high="28" name="3" type="nvc0_pfifo_engine"/>
+	</reg32>
+	<reg32 offset="0xac" name="CUR_ENGINE" type="nvc0_pfifo_engine"/>
 
+	<array offset="0xc0" name="CACHE" length="4" stride="8">
+		<reg32 offset="0" name="ADDR">
+			<bitfield pos="0" name="VALID"/>
+			<bitfield low="2" high="13" name="MTHD" shr="2"/>
+			<bitfield low="16" high="18" name="SUBCH"/>
+			<bitfield low="21" high="23" name="UNK21"/> <!-- type of submission command, perhaps? -->
+			<bitfield pos="31" name="UNK31"/>
+		</reg32>
+		<reg32 offset="4" name="DATA"/>
+	</array>
+
+	<bitset name="nvc0_psubfifo_intr" inline="yes">
+		<bitfield pos="23" name="SW_MTHD"/>
+	</bitset>
+	<reg32 offset="0x108" name="INTR" type="nvc0_psubfifo_intr"/>
+	<!-- 10c could be intr_en... -->
+
+	<reg32 offset="0x120" name="CH">
+		<bitfield low="0" high="6" name="CHID"/>
+		<bitfield pos="8" name="ACTIVE"/>
+	</reg32>
 </array>
 
 </domain>
