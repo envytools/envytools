@@ -118,10 +118,11 @@
 		</reg32>
 		<reg32 offset="4" name="STATE">
 			<bitfield pos="0" name="ENABLE"/>
+			<bitfield pos="4" name="UNK4"/>
 			<bitfield pos="8" name="UNK8"/>
-			<bitfield pos="12" name="UNK12"/>
+			<bitfield pos="12" name="LOADED"/> <!-- on one of the SUBFIFOs -->
 			<bitfield low="16" high="20" name="ENGINE" type="nvc0_pfifo_engine"/>
-			<bitfield pos="28" name="UNK28"/>
+			<bitfield pos="28" name="PENDING"/>
 		</reg32>
 	</array>
 </array>
