@@ -82,7 +82,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_ZETA" type="object"/>
 		<reg32 offset="0x0188" name="DMA_QUERY" type="object"/> <!-- also used for COND -->
-		<reg32 offset="0x018c" name="DMA_VTXBUF0" type="object"/>
+		<reg32 offset="0x018c" name="DMA_VTXBUF" type="object"/>
 		<reg32 offset="0x0190" name="DMA_LOCAL" type="object"/>
 		<reg32 offset="0x0194" name="DMA_STACK" type="object"/>
 		<reg32 offset="0x0198" name="DMA_CODE_CB" type="object"/>
