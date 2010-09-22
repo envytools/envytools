@@ -6,39 +6,6 @@
 #include <inttypes.h>
 #include <string.h>
 
-int chdone = 0;
-int arch = 0;
-int chipset = 0;
-uint64_t praminbase = 0;
-uint64_t ramins = 0;
-uint64_t fakechan = 0;
-int i2cip = -1;
-int pmsip = 0;
-uint32_t pmsnext;
-uint32_t ctxpos = 0;
-uint8_t pms[0x200];
-
-struct mpage {
-	uint64_t tag;
-	uint32_t contents[0x1000/4];
-};
-
-struct mpage **pages = 0;
-int pagesnum = 0, pagesmax = 0;
-
-uint32_t *findmem (uint64_t addr) {
-	int i;
-	uint64_t tag = addr & ~0xfffull;
-	for (i = 0; i < pagesnum; i++) {
-		if (tag == pages[i]->tag)
-			return &pages[i]->contents[(addr&0xfff)/4];
-	}
-	struct mpage *pg = calloc (sizeof *pg, 1);
-	pg->tag = tag;
-	RNN_ADDARRAY(pages, pg);
-	return &pg->contents[(addr&0xfff)/4];
-}
-
 struct i2c_ctx {
 	int last;
 	int aok;
@@ -46,7 +13,47 @@ struct i2c_ctx {
 	int bits;
 	int b;
 	int pend;
-} i2cb[10] = { { 0 } };
+};
+
+struct cctx { 
+	struct rnndeccontext *ctx;
+	int chdone;
+	int arch;
+	int chipset;
+	uint64_t praminbase;
+	uint64_t ramins;
+	uint64_t fakechan;
+	int i2cip;
+	int pmsip;
+	uint32_t pmsnext;
+	uint32_t ctxpos;
+	uint8_t pms[0x200];
+	struct mpage **pages;
+	int pagesnum, pagesmax;
+	uint64_t bar0, bar0l, bar1, bar1l, bar2, bar2l;
+	struct i2c_ctx i2cb[10];
+};
+
+struct cctx *cctx = 0;
+int cctxnum = 0, cctxmax = 0;
+
+struct mpage {
+	uint64_t tag;
+	uint32_t contents[0x1000/4];
+};
+
+uint32_t *findmem (struct cctx *ctx, uint64_t addr) {
+	int i;
+	uint64_t tag = addr & ~0xfffull;
+	for (i = 0; i < ctx->pagesnum; i++) {
+		if (tag == ctx->pages[i]->tag)
+			return &ctx->pages[i]->contents[(addr&0xfff)/4];
+	}
+	struct mpage *pg = calloc (sizeof *pg, 1);
+	pg->tag = tag;
+	RNN_ADDARRAY(ctx->pages, pg);
+	return &pg->contents[(addr&0xfff)/4];
+}
 
 int i2c_bus_num (uint64_t addr) {
 	switch (addr) {
@@ -75,7 +82,7 @@ int i2c_bus_num (uint64_t addr) {
 	}
 }
 
-void doi2cr (struct i2c_ctx *ctx, int byte) {
+void doi2cr (struct cctx *cc, struct i2c_ctx *ctx, int byte) {
 	if (ctx->pend) {
 		if (ctx->bits == 8) {
 			if (byte & 2)
@@ -100,7 +107,7 @@ void doi2cr (struct i2c_ctx *ctx, int byte) {
 	}
 }
 
-void doi2cw (struct i2c_ctx *ctx, int byte) {
+void doi2cw (struct cctx *cc, struct i2c_ctx *ctx, int byte) {
 	if (!ctx->last)
 		ctx->last = 7;
 	if (!(byte & 1) && (ctx->last & 1)) {
@@ -109,7 +116,7 @@ void doi2cw (struct i2c_ctx *ctx, int byte) {
 	if ((byte & 1) && !(ctx->last & 1)) {
 		if (ctx->pend) {
 			printf ("\nI2C LOST!\n");
-			doi2cr(ctx, 0);
+			doi2cr(cc, ctx, 0);
 			ctx->pend = 0;
 		}
 		/* clock went high */
@@ -149,7 +156,7 @@ void doi2cw (struct i2c_ctx *ctx, int byte) {
 	if ((byte & 1) && (byte & 2) && !(ctx->last & 2)) {
 		/* data went high with high clock - stop bit */
 		printf ("STOP\n");
-		i2cip = -1;
+		cc->i2cip = -1;
 		ctx->bits = 0;
 		ctx->b = 0;
 		ctx->aok = 0;
@@ -170,15 +177,10 @@ int main(int argc, char **argv) {
 	struct rnndb *db = rnn_newdb();
 	rnn_parsefile (db, "nv_mmio.xml");
 	rnn_prepdb (db);
-	struct rnndeccontext *ctx = rnndec_newcontext(db);
-	ctx->colors = &rnndec_colorsterm;
 	struct rnndomain *mmiodom = rnn_finddomain(db, "NV_MMIO");
 	FILE *fin = fopen(argv[1], "r");
 	char line[1024];
-	uint64_t bar0 = 0, bar0l, bar1, bar1l, bar2, bar2l;
 	int i;
-	for (i = 0; i < 10; i++)
-		i2cb[i].last = 7;
 	while (1) {
 		/* yes, static buffer. but mmiotrace lines are bound to have sane length anyway. */
 		if (!fgets(line, sizeof(line), fin))
@@ -187,175 +189,186 @@ int main(int argc, char **argv) {
 			uint64_t bar[4], len[4], pciid;
 			sscanf (line, "%*s %*s %"SCNx64" %*s %"SCNx64" %"SCNx64" %"SCNx64" %"SCNx64" %*s %*s %*s %"SCNx64" %"SCNx64" %"SCNx64" %"SCNx64"", &pciid, &bar[0], &bar[1], &bar[2], &bar[3], &len[0], &len[1], &len[2], &len[3]);
 			if ((pciid >> 16) == 0x10de && bar[0] && (bar[0] & 0xf) == 0 && bar[1] && (bar[1] & 0xf) == 0xc) {
-				bar0 = bar[0], bar0l = len[0];
-				bar1 = bar[1], bar1l = len[1];
+				struct cctx nc = { 0 };
+				nc.bar0 = bar[0], nc.bar0l = len[0];
+				nc.bar1 = bar[1], nc.bar1l = len[1];
 				if (bar[2])
-					bar2 = bar[2], bar2l = len[2];
+					nc.bar2 = bar[2], nc.bar2l = len[2];
 				else
-					bar2 = bar[3], bar2l = len[3];
-				bar0 &= ~0xf;
-				bar1 &= ~0xf;
-				bar2 &= ~0xf;
+					nc.bar2 = bar[3], nc.bar2l = len[3];
+				nc.bar0 &= ~0xf;
+				nc.bar1 &= ~0xf;
+				nc.bar2 &= ~0xf;
+				nc.i2cip = -1;
+				nc.ctx = rnndec_newcontext(db);
+				nc.ctx->colors = &rnndec_colorsterm;
+				for (i = 0; i < 10; i++)
+					nc.i2cb[i].last = 7;
+				RNN_ADDARRAY(cctx, nc);
 			}
 			printf ("%s", line);
 		} else if (!strncmp(line, "W ", 2) || !strncmp(line, "R ", 2)) {
 			int skip = 0;
 			uint64_t addr, value;
 			int width;
+			int cci;
 			sscanf (line, "%*s %d %*s %*d %"SCNx64" %"SCNx64, &width, &addr, &value);
 			width *= 8;
-			if (bar0 && addr >= bar0 && addr < bar0+bar0l) {
-				addr -= bar0;
-				if (pmsip && addr != pmsnext) {
-					pmdis(stdout, pms, 0, pmsnext & 0x3fc, -1);
-					pmsip = 0;
-				}
-				if (addr == 0 && !chdone) {
-					char chname[5];
-					if (value & 0x0f000000)
-						snprintf(chname, 5, "NV%02"PRIX64, (value >> 20) & 0xff);
-					else if (value & 0x0000f000)
-						snprintf(chname, 5, "NV%02"PRIX64, ((value >> 20) & 0xf) + 4);
-					else
-						snprintf(chname, 5, "NV%02"PRIX64, ((value >> 16) & 0xf));
-					rnndec_varadd(ctx, "chipset", chname);
-					switch ((value >> 20) & 0xf0) {
-						case 0:
-							arch = 0;
-							break;
-						case 0x10:
-							arch = 1;
-							break;
-						case 0x20:
-							arch = 2;
-							break;
-						case 0x30:
-							arch = 3;
-							break;
-						case 0x40:
-						case 0x60:
-							arch = 4;
-							break;
-						case 0x50:
-						case 0x80:
-						case 0x90:
-						case 0xa0:
-							arch = 5;
-							break;
-						case 0xc0:
-							arch = 6;
-							break;
+			for (cci = 0; cci < cctxnum; cci++) {
+				struct cctx *cc = &cctx[cci];
+				if (cc->bar0 && addr >= cc->bar0 && addr < cc->bar0+cc->bar0l) {
+					addr -= cc->bar0;
+					if (cc->pmsip && addr != cc->pmsnext) {
+						pmdis(stdout, cc->pms, 0, cc->pmsnext & 0x3fc, -1);
+						cc->pmsip = 0;
 					}
-					chipset = (value >> 20) & 0xff;
-				} else if (arch >= 5 && addr == 0x1700) {
-					praminbase = value << 16;
-				} else if (arch == 5 && addr == 0x1704) {
-					fakechan = (value & 0xfffffff) << 12;
-				} else if (arch == 5 && addr == 0x170c) {
-					ramins = (value & 0xffff) << 4;
-				} else if (arch >= 6 && addr == 0x1714) {
-					ramins = (value & 0xfffffff) << 12;
-				} else if (arch >= 5 && (addr & 0xfff000) == 0xe000) {
-					int bus = i2c_bus_num(addr);
-					if (bus != -1) {
-						if (i2cip != bus) {
-							if (i2cip != -1)
-								printf ("\n");
-							struct rnndecaddrinfo *ai = rnndec_decodeaddr(ctx, mmiodom, addr, line[0] == 'W');
-							printf ("I2C      0x%06"PRIx64"            %s ", addr, ai->name);
+					if (addr == 0 && !cc->chdone) {
+						char chname[5];
+						if (value & 0x0f000000)
+							snprintf(chname, 5, "NV%02"PRIX64, (value >> 20) & 0xff);
+						else if (value & 0x0000f000)
+							snprintf(chname, 5, "NV%02"PRIX64, ((value >> 20) & 0xf) + 4);
+						else
+							snprintf(chname, 5, "NV%02"PRIX64, ((value >> 16) & 0xf));
+						rnndec_varadd(cc->ctx, "chipset", chname);
+						switch ((value >> 20) & 0xf0) {
+							case 0:
+								cc->arch = 0;
+								break;
+							case 0x10:
+								cc->arch = 1;
+								break;
+							case 0x20:
+								cc->arch = 2;
+								break;
+							case 0x30:
+								cc->arch = 3;
+								break;
+							case 0x40:
+							case 0x60:
+								cc->arch = 4;
+								break;
+							case 0x50:
+							case 0x80:
+							case 0x90:
+							case 0xa0:
+								cc->arch = 5;
+								break;
+							case 0xc0:
+								cc->arch = 6;
+								break;
+						}
+						cc->chipset = (value >> 20) & 0xff;
+					} else if (cc->arch >= 5 && addr == 0x1700) {
+						cc->praminbase = value << 16;
+					} else if (cc->arch == 5 && addr == 0x1704) {
+						cc->fakechan = (value & 0xfffffff) << 12;
+					} else if (cc->arch == 5 && addr == 0x170c) {
+						cc->ramins = (value & 0xffff) << 4;
+					} else if (cc->arch >= 6 && addr == 0x1714) {
+						cc->ramins = (value & 0xfffffff) << 12;
+					} else if (cc->arch >= 5 && (addr & 0xfff000) == 0xe000) {
+						int bus = i2c_bus_num(addr);
+						if (bus != -1) {
+							if (cc->i2cip != bus) {
+								if (cc->i2cip != -1)
+									printf ("\n");
+								struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, mmiodom, addr, line[0] == 'W');
+								printf ("[%d] I2C      0x%06"PRIx64"            %s ", cci, addr, ai->name);
+								free(ai->name);
+								free(ai);
+								cc->i2cip = bus;
+							}
+							if (line[0] == 'R') {
+								doi2cr(cc, &cc->i2cb[bus], value);
+							} else {
+								doi2cw(cc, &cc->i2cb[bus], value);
+							}
+							skip = 1;
+						}
+					} else if ((addr & 0xfff000) == 0x9000 && (cc->i2cip != -1)) {
+						/* ignore PTIMER meddling during I2C */
+						skip = 1;
+					} else if (addr == 0x1400 || addr == 0x80000 || addr == cc->pmsnext) {
+						if (!cc->pmsip) {
+							struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, mmiodom, addr, line[0] == 'W');
+							printf ("[%d] PMS      0x%06"PRIx64"            %s\n", cci, addr, ai->name);
 							free(ai->name);
 							free(ai);
-							i2cip = bus;
 						}
-						if (line[0] == 'R') {
-							doi2cr(&i2cb[bus], value);
-						} else {
-							doi2cw(&i2cb[bus], value);
-						}
+						cc->pms[(addr & 0x1fc) + 0] = value;
+						cc->pms[(addr & 0x1fc) + 1] = value >> 8;
+						cc->pms[(addr & 0x1fc) + 2] = value >> 16;
+						cc->pms[(addr & 0x1fc) + 3] = value >> 24;
+						cc->pmsip = 1;
+						cc->pmsnext = addr + 4;
 						skip = 1;
-					}
-				} else if ((addr & 0xfff000) == 0x9000 && (i2cip != -1)) {
-					/* ignore PTIMER meddling during I2C */
-					skip = 1;
-				} else if (addr == 0x1400 || addr == 0x80000 || addr == pmsnext) {
-					if (!pmsip) {
-						struct rnndecaddrinfo *ai = rnndec_decodeaddr(ctx, mmiodom, addr, line[0] == 'W');
-						printf ("PMS      0x%06"PRIx64"            %s\n", addr, ai->name);
+					} else if (addr == 0x400324 && cc->arch >= 4 && cc->arch <= 5) {
+						cc->ctxpos = value;
+					} else if (addr == 0x400328 && cc->arch >= 4 && cc->arch <= 5) {
+						uint32_t param = value;
+						struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, mmiodom, addr, line[0] == 'W');
+						printf ("[%d] MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %s %s ", cci, width, line[0], addr, value, ai->name, line[0]=='W'?"<=":"=>");
+						ctxdis(stdout, &param, cc->ctxpos * 4, 1, cc->arch == 5 ? NV5x : NV4x);
+						cc->ctxpos++;
 						free(ai->name);
 						free(ai);
+						skip = 1;
 					}
-					pms[(addr & 0x1fc) + 0] = value;
-					pms[(addr & 0x1fc) + 1] = value >> 8;
-					pms[(addr & 0x1fc) + 2] = value >> 16;
-					pms[(addr & 0x1fc) + 3] = value >> 24;
-					pmsip = 1;
-					pmsnext = addr + 4;
-					skip = 1;
-				} else if (addr == 0x400324 && arch >= 4 && arch <= 5) {
-					ctxpos = value;
-				} else if (addr == 0x400328 && arch >= 4 && arch <= 5) {
-					uint32_t param = value;
-					struct rnndecaddrinfo *ai = rnndec_decodeaddr(ctx, mmiodom, addr, line[0] == 'W');
-					printf ("MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %s %s ", width, line[0], addr, value, ai->name, line[0]=='W'?"<=":"=>");
-					ctxdis(stdout, &param, ctxpos * 4, 1, arch == 5 ? NV5x : NV4x);
-					ctxpos++;
-					free(ai->name);
-					free(ai);
-					skip = 1;
-				}
-				if (!skip && (i2cip != -1)) {
-					printf ("\n");
-					i2cip = -1;
-				}
-				if (arch >= 5 && addr >= 0x700000 && addr < 0x800000) {
-					addr -= 0x700000;
-					addr += praminbase;
-					printf ("MEM%d %"PRIx64" %s %"PRIx64"\n", width, addr, line[0]=='W'?"<=":"=>", value);
-					*findmem(addr) = value;
-				} else if (!skip) {
-					struct rnndecaddrinfo *ai = rnndec_decodeaddr(ctx, mmiodom, addr, line[0] == 'W');
-					char *decoded_val = rnndec_decodeval(ctx, ai->typeinfo, value, ai->width);
-					printf ("MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %s %s %s\n", width, line[0], addr, value, ai->name, line[0]=='W'?"<=":"=>", decoded_val);
-					free(ai->name);
-					free(ai);
-					free(decoded_val);
-				}
-			} else if (bar1 && addr >= bar1 && addr < bar1+bar1l) {
-				addr -= bar1;
-				printf ("FB%d %"PRIx64" %s %"PRIx64"\n", width, addr, line[0]=='W'?"<=":"=>", value);
-			} else if (bar2 && addr >= bar2 && addr < bar2+bar2l) {
-				addr -= bar2;
-				if (arch >= 6) {
-					uint64_t pd = *findmem(ramins + 0x200);
-					uint64_t pt = *findmem(pd + 4);
-					pt &= 0xfffffff0;
-					pt <<= 8;
-					uint64_t pg = *findmem(pt + (addr/0x1000) * 8);
-					pg &= 0xfffffff0;
-					pg <<= 8;
-					pg += (addr&0xfff);
-					*findmem(pg) = value;
-//					printf ("%"PRIx64" %"PRIx64" %"PRIx64" %"PRIx64"\n", ramins, pd, pt, pg);
-					printf ("RAMIN%d %"PRIx64" %"PRIx64" %s %"PRIx64"\n", width, addr, pg, line[0]=='W'?"<=":"=>", value);
-				} else if (arch == 5) {
-					uint64_t paddr = addr;
-					paddr += *findmem(fakechan + ramins + 8);
-					paddr += (uint64_t)(*findmem(fakechan + ramins + 12) >> 24) << 32;
-					uint64_t pt = *findmem(fakechan + (chipset == 0x50 ? 0x1400 : 0x200) + ((paddr >> 29) << 3));
-//					printf ("%#"PRIx64" PT: %#"PRIx64" %#"PRIx64" ", paddr, fakechan + 0x200 + ((paddr >> 29) << 3), pt);
-					uint32_t div = (pt & 2 ? 0x1000 : 0x10000);
-					pt &= 0xfffff000;
-					uint64_t pg = *findmem(pt + ((paddr&0x1ffff000)/div) * 8);
-					uint64_t pgh = *findmem(pt + ((paddr&0x1ffff000)/div) * 8 + 4);
-//					printf ("PG: %#"PRIx64" %#"PRIx64"\n", pt + ((paddr&0x1ffff000)/div) * 8, pgh << 32 | pg);
-					pg &= 0xfffff000;
-					pg |= (pgh & 0xff) << 32;
-					pg += (paddr & (div-1));
-					*findmem(pg) = value;
-//					printf ("%"PRIx64" %"PRIx64" %"PRIx64" %"PRIx64"\n", ramins, pd, pt, pg);
-					printf ("RAMIN%d %"PRIx64" %"PRIx64" %s %"PRIx64"\n", width, addr, pg, line[0]=='W'?"<=":"=>", value);
-				} else {
-					printf ("RAMIN%d %"PRIx64" %s %"PRIx64"\n", width, addr, line[0]=='W'?"<=":"=>", value);
+					if (!skip && (cc->i2cip != -1)) {
+						printf ("\n");
+						cc->i2cip = -1;
+					}
+					if (cc->arch >= 5 && addr >= 0x700000 && addr < 0x800000) {
+						addr -= 0x700000;
+						addr += cc->praminbase;
+						printf ("[%d] MEM%d %"PRIx64" %s %"PRIx64"\n", cci, width, addr, line[0]=='W'?"<=":"=>", value);
+						*findmem(cc, addr) = value;
+					} else if (!skip) {
+						struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, mmiodom, addr, line[0] == 'W');
+						char *decoded_val = rnndec_decodeval(cc->ctx, ai->typeinfo, value, ai->width);
+						printf ("[%d] MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %s %s %s\n", cci, width, line[0], addr, value, ai->name, line[0]=='W'?"<=":"=>", decoded_val);
+						free(ai->name);
+						free(ai);
+						free(decoded_val);
+					}
+				} else if (cc->bar1 && addr >= cc->bar1 && addr < cc->bar1+cc->bar1l) {
+					addr -= cc->bar1;
+					printf ("[%d] FB%d %"PRIx64" %s %"PRIx64"\n", cci, width, addr, line[0]=='W'?"<=":"=>", value);
+				} else if (cc->bar2 && addr >= cc->bar2 && addr < cc->bar2+cc->bar2l) {
+					addr -= cc->bar2;
+					if (cc->arch >= 6) {
+						uint64_t pd = *findmem(cc, cc->ramins + 0x200);
+						uint64_t pt = *findmem(cc, pd + 4);
+						pt &= 0xfffffff0;
+						pt <<= 8;
+						uint64_t pg = *findmem(cc, pt + (addr/0x1000) * 8);
+						pg &= 0xfffffff0;
+						pg <<= 8;
+						pg += (addr&0xfff);
+						*findmem(cc, pg) = value;
+	//					printf ("%"PRIx64" %"PRIx64" %"PRIx64" %"PRIx64"\n", ramins, pd, pt, pg);
+						printf ("[%d] RAMIN%d %"PRIx64" %"PRIx64" %s %"PRIx64"\n", cci, width, addr, pg, line[0]=='W'?"<=":"=>", value);
+					} else if (cc->arch == 5) {
+						uint64_t paddr = addr;
+						paddr += *findmem(cc, cc->fakechan + cc->ramins + 8);
+						paddr += (uint64_t)(*findmem(cc, cc->fakechan + cc->ramins + 12) >> 24) << 32;
+						uint64_t pt = *findmem(cc, cc->fakechan + (cc->chipset == 0x50 ? 0x1400 : 0x200) + ((paddr >> 29) << 3));
+	//					printf ("%#"PRIx64" PT: %#"PRIx64" %#"PRIx64" ", paddr, fakechan + 0x200 + ((paddr >> 29) << 3), pt);
+						uint32_t div = (pt & 2 ? 0x1000 : 0x10000);
+						pt &= 0xfffff000;
+						uint64_t pg = *findmem(cc, pt + ((paddr&0x1ffff000)/div) * 8);
+						uint64_t pgh = *findmem(cc, pt + ((paddr&0x1ffff000)/div) * 8 + 4);
+	//					printf ("PG: %#"PRIx64" %#"PRIx64"\n", pt + ((paddr&0x1ffff000)/div) * 8, pgh << 32 | pg);
+						pg &= 0xfffff000;
+						pg |= (pgh & 0xff) << 32;
+						pg += (paddr & (div-1));
+						*findmem(cc, pg) = value;
+	//					printf ("%"PRIx64" %"PRIx64" %"PRIx64" %"PRIx64"\n", ramins, pd, pt, pg);
+						printf ("[%d] RAMIN%d %"PRIx64" %"PRIx64" %s %"PRIx64"\n", cci, width, addr, pg, line[0]=='W'?"<=":"=>", value);
+					} else {
+						printf ("[%d] RAMIN%d %"PRIx64" %s %"PRIx64"\n", cci, width, addr, line[0]=='W'?"<=":"=>", value);
+					}
 				}
 			}
 		} else {
