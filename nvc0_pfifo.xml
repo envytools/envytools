@@ -128,6 +128,38 @@
 </array>
 
 <array name="PSUBFIFO" offset="0x40000" stride="0x2000" length="3" variants="NVC0-">
+	<reg32 offset="0x08" name="CTRL_ADDR_LOW"/>
+	<reg32 offset="0x0c" name="CTRL_ADDR_HIGH"/>
+
+	<reg32 offset="0x20" name="DMA_MGET"/>
+	<reg32 offset="0x24" name="DMA_MGET_HIGH">
+		<bitfield high="7" low="0" name="ADDR_HIGH"/>
+		<bitfield pos="31" name="VALID"/>
+	</reg32>
+
+	<reg32 offset="0x48" name="IB_ADDRESS_LOW"/>
+	<reg32 offset="0x4c" name="IB_CONFIG">
+		<bitfield high="7" low="0" name="ADDRESS_HIGH"/>
+		<bitfield high="15" low="8" name="UNK8"/>
+		<bitfield high="31" low="16" name="ORDER"/> <!-- XXX: check exact vals and bfs -->
+	</reg32>
+
+	<reg32 offset="0x84" name="DMA_STATE_0">
+		<bitfield pos="1" name="UNK1"/>
+		<bitfield low="2" high="13" name="MTHD" shr="2"/>
+		<bitfield low="14" high="15" name="UNK14"/>
+		<bitfield low="16" high="18" name="SUBCH"/>
+		<bitfield low="20" high="24" name="UNK20"/>
+		<bitfield low="29" high="31" name="MODE">
+			<value value="1" name="INCR"/>
+			<value value="3" name="NONINCR"/>
+			<value value="5" name="ONCEINCR"/>
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x88" name="DMA_STATE_1">
+		<bitfield low="0" high="12" name="METHOD_COUNT"/>
+	</reg32>
+
 	<reg32 offset="0xa4" name="ENGINE" length="2">
 		<bitfield low="0" high="4" name="0" type="nvc0_pfifo_engine"/>
 		<bitfield low="8" high="12" name="1" type="nvc0_pfifo_engine"/>
@@ -138,7 +170,7 @@
 
 	<array offset="0xc0" name="CACHE" length="4" stride="8">
 		<reg32 offset="0" name="ADDR">
-			<bitfield pos="0" name="VALID"/>
+			<bitfield pos="0" name="INCR"/>
 			<bitfield low="2" high="13" name="MTHD" shr="2"/>
 			<bitfield low="16" high="18" name="SUBCH"/>
 			<bitfield low="21" high="23" name="UNK21"/> <!-- type of submission command, perhaps? -->
@@ -149,9 +181,14 @@
 
 	<bitset name="nvc0_psubfifo_intr" inline="yes">
 		<bitfield pos="23" name="SW_MTHD"/>
+		<bitfield pos="21" name="ILLEGAL_MTHD"/>
 	</bitset>
 	<reg32 offset="0x108" name="INTR" type="nvc0_psubfifo_intr"/>
-	<!-- 10c could be intr_en... -->
+	<reg32 offset="0x10c" name="INTR_EN" type="nvc0_psubfifo_intr"/>
+
+	<reg32 offset="0x110" name="IB_SHADOW_LOW"/>
+	<reg32 offset="0x114" name="IB_SHADOW_HIGH"/>
+	<reg32 offset="0x118" name="CMD_SHADOW"/>
 
 	<reg32 offset="0x120" name="CH">
 		<bitfield low="0" high="6" name="CHID"/>

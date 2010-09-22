@@ -41,6 +41,40 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x18" name="8_8"/>
 	<value value="0x1b" name="16"/>
 	<value value="0x1d" name="8"/>
+	<value value="0x30" name="2_10_10_10"/>
+</enum>
+
+<!--these probably aren't all-->
+<enum name="nv50_msaa_mode" inline="yes">
+	<value value="0x00" name="1X"/>
+	<value value="0x01" name="2XMS"/>
+	<value value="0x02" name="4XMS"/>
+	<value value="0x04" name="8XMS"/>
+	<value value="0x08" name="4XMS_4XCS"/>
+	<value value="0x09" name="4XMS_12XCS"/>
+	<value value="0x0a" name="8XMS_8XCS"/>
+</enum>
+
+<enum name="nv50_blend_factor">
+	<value value="0x4000" name="ZERO"/>
+	<value value="0x4001" name="ONE"/>
+	<value value="0x4300" name="SRC_COLOR"/>
+	<value value="0x4301" name="ONE_MINUS_SRC_COLOR"/>
+	<value value="0x4302" name="SRC_ALPHA"/>
+	<value value="0x4303" name="ONE_MINUS_SRC_ALPHA"/>
+	<value value="0x4304" name="DST_ALPHA"/>
+	<value value="0x4305" name="ONE_MINUS_DST_ALPHA"/>
+	<value value="0x4306" name="DST_COLOR"/>
+	<value value="0x4307" name="ONE_MINUS_DST_COLOR"/>
+	<value value="0x4308" name="SRC_ALPHA_SATURATE"/>
+	<value value="0xc001" name="CONSTANT_COLOR"/>
+	<value value="0xc002" name="ONE_MINUS_CONSTANT_COLOR"/>
+	<value value="0xc003" name="CONSTANT_ALPHA"/>
+	<value value="0xc004" name="ONE_MINUS_CONSTANT_ALPHA"/>
+	<value value="0xc900" name="SRC1_COLOR"/>
+	<value value="0xc901" name="ONE_MINUS_SRC1_COLOR"/>
+	<value value="0xc902" name="SRC1_ALPHA"/>
+	<value value="0xc903" name="ONE_MINUS_SRC1_ALPHA"/>
 </enum>
 
 <domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
@@ -48,7 +82,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_ZETA" type="object"/>
 		<reg32 offset="0x0188" name="DMA_QUERY" type="object"/> <!-- also used for COND -->
-		<reg32 offset="0x018c" name="DMA_VTXBUF0" type="object"/>
+		<reg32 offset="0x018c" name="DMA_VTXBUF" type="object"/>
 		<reg32 offset="0x0190" name="DMA_LOCAL" type="object"/>
 		<reg32 offset="0x0194" name="DMA_STACK" type="object"/>
 		<reg32 offset="0x0198" name="DMA_CODE_CB" type="object"/>
@@ -589,14 +623,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Goes to ROP, TP, MP. Related to blending. 1 by default.</doc>
 		</reg32>
 		<reg32 offset="0x1340" name="BLEND_EQUATION_RGB" type="gl_blend_equation"/>
-		<reg32 offset="0x1344" name="BLEND_FUNC_SRC_RGB" type="gl_blend_factor"/><!-- Add 0x4000 to gl_blend_factor value -->
-		<reg32 offset="0x1348" name="BLEND_FUNC_DST_RGB" type="gl_blend_factor"/><!-- Add 0x4000 to gl_blend_factor value -->
+		<reg32 offset="0x1344" name="BLEND_FUNC_SRC_RGB" type="nv50_blend_factor"/>
+		<reg32 offset="0x1348" name="BLEND_FUNC_DST_RGB" type="nv50_blend_factor"/>
 		<reg32 offset="0x134c" name="BLEND_EQUATION_ALPHA" type="gl_blend_equation"/>
-		<reg32 offset="0x1350" name="BLEND_FUNC_SRC_ALPHA" type="gl_blend_factor"/><!-- Add 0x4000 to gl_blend_factor value -->
+		<reg32 offset="0x1350" name="BLEND_FUNC_SRC_ALPHA" type="nv50_blend_factor"/>
 		<reg32 offset="0x1354" name="UNK1354">
 			<doc>Accepts 0-1? Same as turing UNK0358</doc>
 		</reg32>
-		<reg32 offset="0x1358" name="BLEND_FUNC_DST_ALPHA" type="gl_blend_factor"/><!-- Add 0x4000 to gl_blend_factor value -->
+		<reg32 offset="0x1358" name="BLEND_FUNC_DST_ALPHA" type="nv50_blend_factor"/>
 		<reg32 offset="0x135c" name="UNK135C" type="boolean">
 			<doc>Goes to ROP, 1cxx, TPDMA, MP. Related to UNK0F90.</doc>
 		</reg32>
@@ -661,10 +695,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1434" name="VB_ELEMENT_BASE" type="int"/>
 		<reg32 offset="0x1438" name="VB_INSTANCE_BASE" type="int"/>
-		<reg32 offset="0x143c" name="UNK143C">
+		<reg32 offset="0x143c" name="CLEAR_FLAGS">
 			<doc>Goes to TP, ROP, 2cxx, 1cxx. 0x10 by default.</doc>
-			<bitfield pos="0" name="UNK0"/>
-			<bitfield pos="4" name="UNK1"/>
+			<bitfield pos="0" name="OGL"/><!-- set for OpenGL, don't know what it does -->
+			<bitfield pos="4" name="D3D"/><!-- if set, only VIEWPORT settings apply to clears -->
 		</reg32>
 		<reg32 offset="0x1440" name="CODE_CB_FLUSH">
 			<doc>Works with writing 0, but appears to accept values
@@ -807,9 +841,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</bitfield>
 			<bitfield name="LAYER_IDX" pos="16" type="boolean"/>
 		</reg32>
-		<reg32 offset="0x15d0" name="MULTISAMPLE_SAMPLES_LOG2">
-			<doc>0-3, 8-a. More values on 8597?</doc>
-		</reg32>
+		<reg32 offset="0x15d0" name="MULTISAMPLE_MODE" type="nv50_msaa_mode"/>
 		<reg32 offset="0x15d4" name="VERTEX_BEGIN_D3D">
 			<bitfield name="PRIMITIVE" high="27" low="0">
 				<value value="0x0001" name="POINTS"/>
@@ -1199,11 +1231,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<doc>Goes to ROP, TP, MP. 1 by default.</doc>
 			</reg32>
 			<reg32 offset="0x04" name="EQUATION_RGB" type="gl_blend_equation"/>
-			<reg32 offset="0x08" name="FUNC_SRC_RGB" type="gl_blend_factor"/>
-			<reg32 offset="0x0c" name="FUNC_DST_RGB" type="gl_blend_factor"/>
+			<reg32 offset="0x08" name="FUNC_SRC_RGB" type="nv50_blend_factor"/>
+			<reg32 offset="0x0c" name="FUNC_DST_RGB" type="nv50_blend_factor"/>
 			<reg32 offset="0x10" name="EQUATION_ALPHA" type="gl_blend_equation"/>
-			<reg32 offset="0x14" name="FUNC_SRC_ALPHA" type="gl_blend_factor"/>
-			<reg32 offset="0x18" name="FUNC_DST_ALPHA" type="gl_blend_factor"/>
+			<reg32 offset="0x14" name="FUNC_SRC_ALPHA" type="nv50_blend_factor"/>
+			<reg32 offset="0x18" name="FUNC_DST_ALPHA" type="nv50_blend_factor"/>
 		</array>
 		<reg32 offset="0x1f00" name="VERTEX_ARRAY_LIMIT_HIGH_ALT" length="32" stride="8" variants="NVA3_3D-"/>
 		<reg32 offset="0x1f04" name="VERTEX_ARRAY_LIMIT_LOW_ALT" length="32" stride="8" variants="NVA3_3D-"/>
