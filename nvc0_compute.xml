@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml"/>
+<import file="nv_object.xml"/>
+<import file="nv50_defs.xml"/>
+
+<domain name="NV01_SUBCHAN" bare="yes" size="0x8000">
+	<stripe prefix="obj-class" variants="NVC0_COMPUTE">
+		<reg32 offset="0x0204" name="LOCAL_SIZE">
+			<doc>Probably wrong.</doc>
+		</reg32>
+		<reg32 offset="0x0208" name="UNK0208"/>
+		<reg32 offset="0x020c" name="UNK020C"/>
+		<reg32 offset="0x0210" name="UNK0210"/><!-- default 0x33 -->
+		<reg32 offset="0x0214" name="SHARED_BASE">
+			<doc>32 bit address, not shifted. Contents of $sbase register.</doc>
+		</reg32>
+		<reg32 offset="0x0238" name="GRIDDIM_YX">
+			<bitfield name="X" high="15" low="0" type="uint"/>
+			<bitfield name="Y" high="31" low="16" type="uint"/>
+			<doc></doc>
+		</reg32>
+		<reg32 offset="0x023c" name="GRIDDIM_Z" type="uint"/>
+		<reg32 offset="0x024c" name="SHARED_SIZE" type="uint"/><!-- default 0 -->
+		<reg32 offset="0x0250" name="BLOCK_ALLOC">
+			<bitfield name="THREADS" high="15" low="0" type="uint"/>
+			<bitfield name="BARRIERS" high="31" low="16" type="uint"/>
+			<doc></doc>
+		</reg32>
+		<reg32 offset="0x0254" name="UNK0254"/>
+		<reg32 offset="0x029c" name="UNK029C"/>
+		<reg32 offset="0x02a0" name="UNK02A0"/><!-- default 0x8000 -->
+		<reg32 offset="0x02c0" name="CP_GPR_ALLOC"/>
+		<reg32 offset="0x02c4" name="UNK02C4"/><!-- 0 and 1 seen -->
+		<reg32 offset="0x02c8" name="GLOBAL_BASE">
+			<bitfield name="HIGH" high="7" low="0"/>
+			<bitfield name="INDEX" high="23" low="16"/>
+			<bitfield name="FLAGS" high="31" low="28"/><!-- default 0xc -->
+			<doc>Remaps high byte of g[] address used in CP (INDEX -> HIGH).</doc>
+		</reg32>
+		<reg32 offset="0x0308" name="UNK0308"/>
+		<reg32 offset="0x0368" name="LAUNCH"/>
+		<reg32 offset="0x03ac" name="BLOCKDIM_YX">
+			<bitfield name="X" high="15" low="0" type="uint"/>
+			<bitfield name="Y" high="31" low="16" type="uint"/>
+		</reg32>
+		<reg32 offset="0x03b0" name="BLOCKDIM_Z" type="uint"/>
+		<reg32 offset="0x03b4" name="CP_START_ID"/>
+		<reg32 offset="0x0758" name="UNK0758"/>
+		<reg32 offset="0x077c" name="LOCAL_BASE"/><!-- 32 bit address, not shifted -->
+		<reg32 offset="0x0780" name="UNK0780"/>
+		<reg32 offset="0x0790" name="UNK0790_ADDRESS_HIGH"/>
+		<reg32 offset="0x0794" name="UNK0790_ADDRESS_LOW"/>
+		<reg32 offset="0x0798" name="UNK0798"/>
+		<reg32 offset="0x079c" name="UNK079C"/>
+		<reg32 offset="0x07a0" name="UNK07A0"/>
+		<reg32 offset="0x0a04" name="UNK0A04"/>
+		<reg32 offset="0x0a08" name="UNK0A08"/>
+		<reg32 offset="0x1234" name="LINKED_TSC"/>
+		<reg32 offset="0x155c" name="TSC_ADDRESS_HIGH"/>
+		<reg32 offset="0x1560" name="TSC_ADDRESS_LOW"/>
+		<reg32 offset="0x1564" name="TSC_LIMIT"/>
+		<reg32 offset="0x1574" name="TIC_ADDRESS_HIGH"/>
+		<reg32 offset="0x1578" name="TIC_ADDRESS_LOW"/>
+		<reg32 offset="0x157c" name="TIC_LIMIT"/>
+		<reg32 offset="0x1608" name="CODE_ADDRESS_HIGH"/>
+		<reg32 offset="0x160c" name="CODE_ADDRESS_LOW"/>
+		<reg32 offset="0x1694" name="CB_BIND">
+			<bitfield name="INDEX" high="31" low="1" type="uint"/>
+			<bitfield name="VALID" pos="0" type="boolean"/>
+		</reg32>
+		<reg32 offset="0x1698" name="UNK1698"/><!-- default 1 -->
+		<reg32 offset="0x1b00" name="QUERY_ADDRESS_HIGH"/>
+		<reg32 offset="0x1b04" name="QUERY_ADDRESS_LOW"/>
+		<reg32 offset="0x1b08" name="QUERY_SEQUENCE"/>
+		<reg32 offset="0x1b0c" name="QUERY_GET">
+			<bitfield name="UNK0" high="8" low="0"/>
+			<bitfield name="INTR" pos="9" type="boolean"/>
+			<bitfield name="UNK1" high="15" low="10"/>
+		</reg32>
+		<reg32 offset="0x2380" name="UNK2380"/>
+		<reg32 offest="0x2384" name="CB_ADDRESS_HIGH"/>
+		<reg32 offest="0x2388" name="CB_ADDRESS_LOW"/>
+		<reg32 offset="0x238c" name="CB_POS"/>
+		<reg32 offset="0x2390" name="CB_DATA"/>
+		<doc>USER_PARAM doesn't exist anymore, use a constant buffer for parameters.</doc>
+	</stripe>
+</domain>
+
+</database>
