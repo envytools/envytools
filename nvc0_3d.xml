@@ -1,0 +1,487 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nv_defs.xml"/>
+<import file="nv_3ddefs.xml"/>
+<import file="nv_object.xml"/>
+<import file="nv50_defs.xml"/>
+
+<domain name="NV01_SUBCHAN" bare="yes" size="0x8000">
+	<stripe prefix="obj-class" variants="NVC0_3D">
+		<reg32 offset="0x0210" name="EARLY_FRAGMENT_TESTS" type="boolean"/>
+		<reg32 offset="0x0320" name="TESS_MODE">
+			<bitfield name="PRIM" high="3" low="0" type="nvc0_tess_prim"/>
+			<bitfield name="SPACING" high="7" low="4" type="nvc0_tess_spacing"/>
+			<bitfield name="CW" high="8" low="8" type="boolean"/>
+			<bitfield name="CONNECTED" high="9" low="9" type="boolean"/>
+		</reg32>
+		<reg32 offset="0x0324" name="TESS_LEVEL_OUTER" length="4" type="float"/>
+		<reg32 offset="0x0334" name="TESS_LEVEL_INNER" length="2" type="float"/>
+		<reg32 offset="0x037c" name="RASTERIZE_ENABLE" type="boolean"/>
+		<stripe offset="0x0380" name="TFB" length="4" stride="32">
+			<reg32 offset="0x00" name="BUFFER_ENABLE" type="boolean"/>
+			<reg32 offset="0x04" name="ADDRESS_HIGH"/>
+			<reg32 offset="0x08" name="ADDRESS_LOW"/>
+			<reg32 offset="0x0c" name="BUFFER_SIZE" type="int"/>
+			<reg32 offset="0x10" name="PRIMITIVE_ID" type="int"/>
+		</stripe>
+		<stripe offset="0x0700" name="TFB" length="4" stride="16">
+			<reg32 offset="0x0" name="UNK0700" type="int"/>
+			<reg32 offset="0x4" name="VARYING_COUNT" type="int"/>
+			<reg32 offset="0x8" name="BUFFER_STRIDE" type="int"/>
+		</stripe>
+		<reg32 offset="0x0744" name="TFB_ENABLE" type="boolean"/>
+		<reg32 offset="0x077c" name="LOCAL_BASE"/>
+		<reg32 offset="0x0790" name="UNK0790_ADDRESS_HIGH"/>
+		<reg32 offset="0x0794" name="UNK0790_ADDRESS_LOW"/>
+		<stripe offset="0x0800" name="RT" length="8" stride="32">
+			<reg32 offset="0x00" name="ADDRESS_HIGH"/>
+			<reg32 offset="0x04" name="ADDRESS_LOW"/>
+			<reg32 offset="0x08" name="HORIZ" type="uint"/>
+			<reg32 offset="0x0c" name="VERT" type="uint"/>
+			<reg32 offset="0x10" name="FORMAT" type="NV50_SURFACE_FORMAT"/>
+			<reg32 offset="0x14" name="TILE_MODE">
+				<bitfield pos="0" name="UNK0" />
+				<bitfield low="4" high="6" name="Y" />
+				<bitfield low="8" high="10" name="Z" />
+			</reg32>
+			<reg32 offset="0x18" name="ARRAY_MODE"><!-- ??? -->
+			  <bitfield name="LAYERS" high="15" low="0" type="uint"/>
+			  <bitfield name="VOLUME" high="16" low="16" type="boolean"/>
+			</reg32>
+			<reg32 offset="0x1c" name="LAYER_STRIDE" type="uint"/><!-- in dwords -->
+		</stripe>
+		<reg32 offset="0x0a00" name="VIEWPORT_SCALE_X" length="16" stride="32" type="float"/>
+		<reg32 offset="0x0a04" name="VIEWPORT_SCALE_Y" length="16" stride="32" type="float"/>
+		<reg32 offset="0x0a08" name="VIEWPORT_SCALE_Z" length="16" stride="32" type="float"/>
+		<reg32 offset="0x0a0c" name="VIEWPORT_TRANSLATE_X" length="16" stride="32" type="float"/>
+		<reg32 offset="0x0a10" name="VIEWPORT_TRANSLATE_Y" length="16" stride="32" type="float"/>
+		<reg32 offset="0x0a14" name="VIEWPORT_TRANSLATE_Z" length="16" stride="32" type="float"/>
+		<reg32 offset="0x0c00" name="VIEWPORT_HORIZ" length="16" stride="16">
+			<bitfield name="X" high="15" low="0" type="int"/>
+			<bitfield name="W" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0c04" name="VIEWPORT_VERT" length="16" stride="16">
+			<bitfield name="Y" high="15" low="0" type="int"/>
+			<bitfield name="H" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x0c08" name="DEPTH_RANGE_NEAR" length="16" stride="16" type="float"/>
+		<reg32 offset="0x0c0c" name="DEPTH_RANGE_FAR" length="16" stride="16" type="float"/>
+		<reg32 offset="0x0d00" name="VIEWPORT_CLIP_HORIZ" length="8" stride="8">
+			<bitfield name="MIN" high="15" low="0" type="uint"/>
+			<bitfield name="MAX" high="31" low="16" type="uint"/>
+		</reg32>
+		<reg32 offset="0x0d04" name="VIEWPORT_CLIP_VERT" length="8" stride="8">
+			<bitfield name="MIN" high="15" low="0" type="uint"/>
+			<bitfield name="MAX" high="31" low="16" type="uint"/>
+		</reg32>
+		<reg32 offset="0x0d40" name="CLIPID_REGION_HORIZ" type="xw16" length="4" stride="8"/>
+		<reg32 offset="0x0d44" name="CLIPID_REGION_VERT" type="yh16" length="4" stride="8"/>
+		<reg32 offset="0x0d74" name="VERTEX_BUFFER_FIRST"/>
+		<reg32 offset="0x0d78" name="VERTEX_BUFFER_COUNT"/>
+		<reg32 offset="0x0d80" name="CLEAR_COLOR" length="4" type="float"/>
+		<reg32 offset="0x0d90" name="CLEAR_DEPTH" type="float"/>
+		<reg32 offset="0x0da0" name="CLEAR_STENCIL"/>
+		<reg32 offset="0x0db4" name="POLYGON_SMOOTH_ENABLE" type="boolean"/>
+		<reg32 offset="0x0dc0" name="POLYGON_OFFSET_POINT_ENABLE" type="boolean"/>
+		<reg32 offset="0x0dc4" name="POLYGON_OFFSET_LINE_ENABLE" type="boolean"/>
+		<reg32 offset="0x0dc8" name="POLYGON_OFFSET_FILL_ENABLE" type="boolean"/>
+		<reg32 offset="0x0dcc" name="PATCH_VERTICES" type="uint"/>
+		<reg32 offset="0x0df8" name="WINDOW_OFFSET_X" type="int"/><!-- 16 bit, signed !-->
+		<reg32 offset="0x0dfc" name="WINDOW_OFFSET_Y" type="int"/><!-- default 0, or height if 13ac = 1 !-->
+		<reg32 offset="0x0e00" name="SCISSOR_ENABLE" length="16" stride="16" type="boolean"/>
+		<reg32 offset="0x0e04" name="SCISSOR_HORIZ" length="16" stride="16">
+			<bitfield name="MIN" high="15" low="0" type="uint"/>
+			<bitfield name="MAX" high="31" low="16" type="uint"/>
+		</reg32>
+		<reg32 offset="0x0e08" name="SCISSOR_VERT" length="16" stride="16"><!-- affected by 13ac !-->
+			<bitfield name="MIN" high="15" low="0" type="uint"/>
+			<bitfield name="MAX" high="31" low="16" type="uint"/>
+		</reg32>
+		<reg32 offset="0x0f54" name="STENCIL_BACK_FUNC_REF"/>
+		<reg32 offset="0x0f58" name="STENCIL_BACK_MASK"/>
+		<reg32 offset="0x0f5c" name="STENCIL_BACK_FUNC_MASK"/>
+		<reg32 offset="0x0f84" name="VERTEX_RUNOUT_ADDRESS_HIGH"/>
+		<reg32 offset="0x0f88" name="VERTEX_RUNOUT_ADDRESS_LOW"/>
+		<reg32 offset="0x0f9c" name="DEPTH_BOUNDS" length="2" type="float"/>
+		<reg32 offset="0x0fbc" name="MSAA_MASK" length="4"/>
+		<reg32 offset="0x0fcc" name="CLIPID_ADDRESS_HIGH"/>
+		<reg32 offset="0x0fd0" name="CLIPID_ADDRESS_LOW"/>
+		<reg32 offset="0x0fe0" name="ZETA_ADDRESS_HIGH"/>
+		<reg32 offset="0x0fe4" name="ZETA_ADDRESS_LOW"/>
+		<reg32 offset="0x0fe8" name="ZETA_FORMAT" type="NV50_ZETA_FORMAT"/>
+		<reg32 offset="0x0fec" name="ZETA_TILE_MODE"/>
+		<reg32 offset="0x0ff0" name="ZETA_LAYER_STRIDE" type="int"/><!-- in dwords -->
+		<reg32 offset="0x0ff4" name="SCREEN_SCISSOR_HORIZ">
+			<bitfield name="W" high="31" low="16" type="int"/>
+			<bitfield name="X" high="15" low="0" type="int"/>
+		</reg32>
+		<reg32 offset="0x0ff8" name="SCREEN_SCISSOR_VERT">
+			<bitfield name="H" high="31" low="16" type="int"/>
+			<bitfield name="Y" high="15" low="0" type="int"/>
+		</reg32>
+		<reg32 offset="0x1000" name="VERTEX_ARRAY_PER_INSTANCE" length="16" type="boolean"/>
+		<reg32 offset="0x114c" name="VTX_ATTR_DEFINE" variants="NVA0_3D-">
+			<bitfield name="ATTR" low="0" high="7" />
+			<bitfield name="COMP" low="8" high="10" type="uint" min="1" max="4"/>
+			<bitfield name="SIZE" low="12" high="14">
+				<value value="1" name="8"/>
+				<value value="2" name="16"/>
+				<value value="4" name="32"/>
+			</bitfield>
+			<bitfield name="TYPE" low="16" high="18" type="nv50_vtxelt_type"/>
+		</reg32>
+		<reg32 offset="0x1150" name="VTX_ATTR_DATA" variants="NVA0_3D-" length="4"/>
+		<reg32 offset="0x1160" name="VERTEX_ATTRIB_FORMAT" length="32">
+			<bitfield name="BUFFER" high="5" low="0" type="int"/>
+			<bitfield name="CONST" pos="6" type="boolean"/>
+			<bitfield name="OFFSET" high="20" low="7" type="int"/>
+			<bitfield name="FORMAT" high="26" low="21" type="nv50_vtxelt_format"/>
+			<bitfield name="TYPE" high="30" low="27" type="nv50_vtxelt_type"/>
+			<bitfield name="BGRA" pos="31" type="boolean"/>
+		</reg32>
+		<reg32 offset="0x121c" name="RT_CONTROL">
+			<bitfield name="COUNT" high="3" low="0" type="int"/>
+			<bitfield name="MAP0" high="6" low="4" type="int"/>
+			<bitfield name="MAP1" high="9" low="7" type="int"/>
+			<bitfield name="MAP2" high="12" low="10" type="int"/>
+			<bitfield name="MAP3" high="15" low="13" type="int"/>
+			<bitfield name="MAP4" high="18" low="16" type="int"/>
+			<bitfield name="MAP5" high="21" low="19" type="int"/>
+			<bitfield name="MAP6" high="24" low="22" type="int"/>
+			<bitfield name="MAP7" high="27" low="25" type="int"/>
+		</reg32>
+		<reg32 offset="0x1228" name="ZETA_HORIZ" type="int"/>
+		<reg32 offset="0x122c" name="ZETA_VERT" type="int"/>
+		<reg32 offset="0x1230" name="ZETA_ARRAY_MODE">
+			<bitfield name="LAYERS" high="15" low="0" type="int"/>
+			<bitfield name="UNK" pos="16" type="boolean"/>
+		</reg32>
+		<reg32 offset="0x1234" name="LINKED_TSC" type="boolean"/>
+		<reg32 offset="0x1298" name="FP_RESULT_COUNT" type="int"/>
+		<reg32 offset="0x12cc" name="DEPTH_TEST_ENABLE" type="boolean"/>
+		<reg32 offset="0x12d0" name="D3D_FILL_MODE">
+			<value value="1" name="POINT"/>
+			<value value="2" name="WIREFRAME"/>
+			<value value="3" name="SOLID"/>
+		</reg32>
+		<reg32 offset="0x12d4" name="SHADE_MODEL" type="gl_shade_model"/>
+		<reg32 offset="0x12e4" name="BLEND_INDEPENDENT" type="boolean"/>
+		<reg32 offset="0x12e8" name="DEPTH_WRITE_ENABLE" type="boolean"/>
+		<reg32 offset="0x12ec" name="ALPHA_TEST_ENABLE" type="boolean"/>
+		<reg32 offset="0x1300" name="VB_ELEMENT_U8_SETUP">
+			<bitfield name="OFFSET" high="31" low="30"/>
+			<bitfield name="COUNT" high="29" low="0" type="int"/> <!-- probably smaller range -->
+		</reg32>
+		<reg32 offset="0x1304" name="VB_ELEMENT_U8">
+			<bitfield name="I0" high="7" low="0" type="int"/>
+			<bitfield name="I1" high="15" low="8" type="int"/>
+			<bitfield name="I2" high="23" low="16" type="int"/>
+			<bitfield name="I3" high="31" low="24" type="int"/>
+		</reg32>
+		<reg32 offset="0x1308" name="D3D_CULL_MODE">
+			<value value="1" name="NONE"/>
+			<value value="2" name="FRONT"/>
+			<value value="3" name="BACK"/>
+		</reg32>
+		<reg32 offset="0x130c" name="DEPTH_TEST_FUNC" type="gl_comparison_op"/>
+		<reg32 offset="0x1310" name="ALPHA_TEST_REF" type="float"/>
+		<reg32 offset="0x1314" name="ALPHA_TEST_FUNC" type="gl_comparison_op"/>
+		<reg32 offset="0x131c" name="BLEND_COLOR" length="4" type="float"/>
+		<reg32 offset="0x1330" name="TSC_FLUSH">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield low="4" high="25" name="UNK1"/>
+		</reg32>
+		<reg32 offset="0x1334" name="TIC_FLUSH">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield low="4" high="25" name="UNK1"/>
+		</reg32>
+		<reg32 offset="0x1338" name="TEX_CACHE_CTL">
+			<bitfield low="4" high="5" name="UNK1">
+				<doc>Accepts 0-2. 2 is used for flushing texture
+				caches.</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x1340" name="BLEND_EQUATION_RGB" type="gl_blend_equation"/>
+		<reg32 offset="0x1344" name="BLEND_FUNC_SRC_RGB" type="nv50_blend_factor"/>
+		<reg32 offset="0x1348" name="BLEND_FUNC_DST_RGB" type="nv50_blend_factor"/>
+		<reg32 offset="0x134c" name="BLEND_EQUATION_ALPHA" type="gl_blend_equation"/>
+		<reg32 offset="0x1350" name="BLEND_FUNC_SRC_ALPHA" type="nv50_blend_factor"/>
+		<reg32 offset="0x1358" name="BLEND_FUNC_DST_ALPHA" type="nv50_blend_factor"/>
+		<reg32 offset="0x1360" name="BLEND_ENABLE" length="8" type="boolean"/>
+		<reg32 offset="0x1380" name="STENCIL_FRONT_ENABLE" type="boolean"/>
+		<reg32 offset="0x1384" name="STENCIL_FRONT_OP_FAIL" type="gl_stencil_op"/>
+		<reg32 offset="0x1388" name="STENCIL_FRONT_OP_ZFAIL" type="gl_stencil_op"/>
+		<reg32 offset="0x138c" name="STENCIL_FRONT_OP_ZPASS" type="gl_stencil_op"/>
+		<reg32 offset="0x1390" name="STENCIL_FRONT_FUNC_FUNC" type="gl_comparison_op"/>
+		<reg32 offset="0x1394" name="STENCIL_FRONT_FUNC_REF"/>
+		<reg32 offset="0x1398" name="STENCIL_FRONT_MASK"/>
+		<reg32 offset="0x139c" name="STENCIL_FRONT_FUNC_MASK"/>
+		<reg32 offset="0x13a8" name="FRAG_COLOR_CLAMP_EN">
+			<bitfield pos="0" name="0"/>
+			<bitfield pos="4" name="1"/>
+			<bitfield pos="8" name="2"/>
+			<bitfield pos="12" name="3"/>
+			<bitfield pos="16" name="4"/>
+			<bitfield pos="20" name="5"/>
+			<bitfield pos="24" name="6"/>
+			<bitfield pos="28" name="7"/>
+		</reg32>
+		<reg32 offset="0x13ac" name="Y_ORIGIN_BOTTOM" type="boolean"/><!-- XXX: bit 4 does something else -->
+		<reg32 offset="0x13b0" name="LINE_WIDTH" type="float"/>
+		<reg32 offset="0x1420" name="GP_VERTEX_OUTPUT_COUNT" type="uint" min="1" max="0x400"/><!-- ? -->
+		<reg32 offset="0x142c" name="FENCE_UNK"/>
+		<reg32 offset="0x1434" name="VB_ELEMENT_BASE" type="int"/>
+		<reg32 offset="0x1438" name="VB_INSTANCE_BASE" type="int"/>
+		<reg32 offset="0x1440" name="CODE_CB_FLUSH">
+			<doc>Works with writing 0, but appears to accept values
+			0-3... what do they do, if anything?</doc>
+		</reg32>
+		<reg32 offset="0x1504" name="CLIPID_HEIGHT" type="uint" max="0x2000"/>
+		<reg32 offset="0x1510" name="VP_CLIP_DISTANCE_ENABLE">
+			<bitfield name="0" pos="0" type="boolean"/>
+			<bitfield name="1" pos="1" type="boolean"/>
+			<bitfield name="2" pos="2" type="boolean"/>
+			<bitfield name="3" pos="3" type="boolean"/>
+			<bitfield name="4" pos="4" type="boolean"/>
+			<bitfield name="5" pos="5" type="boolean"/>
+			<bitfield name="6" pos="6" type="boolean"/>
+			<bitfield name="7" pos="7" type="boolean"/>
+		</reg32>
+		<reg32 offset="0x1514" name="SAMPLECNT_ENABLE"/>
+		<reg32 offset="0x1518" name="POINT_SIZE" type="float"/>
+		<reg32 offset="0x1520" name="POINT_SPRITE_ENABLE" type="boolean"/>
+		<reg32 offset="0x1530" name="SAMPLECNT_RESET">
+			<doc>Poke 1 to reset. appears to also accept 2, 0x10, 0x11,
+			0x12, 0x13, 0x15, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, but doesn't
+			work then. resets other things too?</doc>
+		</reg32>
+		<reg32 offset="0x1538" name="ZETA_ENABLE" type="boolean"/>
+		<reg32 offset="0x153c" name="MULTISAMPLE_CTRL">
+			<bitfield name="ALPHA_TO_COVERAGE" pos="0" type="boolean"/>
+			<bitfield name="ALPHA_TO_ONE" pos="4" type="boolean"/>
+		</reg32>
+		<reg32 offset="0x1550" name="COND_ADDRESS_HIGH"/>
+		<reg32 offset="0x1554" name="COND_ADDRESS_LOW"/>
+		<reg32 offset="0x1558" name="COND_MODE" type="nv50_cond_mode"/>
+		<reg32 offset="0x155c" name="TSC_ADDRESS_HIGH"/>
+		<reg32 offset="0x1560" name="TSC_ADDRESS_LOW" align="0x20"/>
+		<reg32 offset="0x1564" name="TSC_LIMIT" type="uint" max="0x1fff">
+			<doc>number of TSC entries - 1</doc>
+		</reg32>
+		<reg32 offset="0x156c" name="POLYGON_OFFSET_FACTOR" type="float"/>
+		<reg32 offset="0x1570" name="LINE_SMOOTH_ENABLE" type="boolean"/>
+		<reg32 offset="0x1574" name="TIC_ADDRESS_HIGH"/>
+		<reg32 offset="0x1578" name="TIC_ADDRESS_LOW"/>
+		<reg32 offset="0x157c" name="TIC_LIMIT" type="uint">
+			<doc>number of entries - 1</doc>
+		</reg32>
+		<reg32 offset="0x1594" name="STENCIL_TWO_SIDE_ENABLE" type="boolean"/>
+		<reg32 offset="0x1598" name="STENCIL_BACK_OP_FAIL" type="gl_stencil_op"/>
+		<reg32 offset="0x159c" name="STENCIL_BACK_OP_ZFAIL" type="gl_stencil_op"/>
+		<reg32 offset="0x15a0" name="STENCIL_BACK_OP_ZPASS" type="gl_stencil_op"/>
+		<reg32 offset="0x15a4" name="STENCIL_BACK_FUNC_FUNC" type="gl_comparison_op"/>
+		<reg32 offset="0x15b4" name="MULTISAMPLE_COLOR_ENABLE" type="boolean"/>
+		<reg32 offset="0x15b8" name="FRAMEBUFFER_SRGB" type="boolean"/>
+		<reg32 offset="0x15bc" name="POLYGON_OFFSET_UNITS" type="float"/>
+		<reg32 offset="0x15d0" name="MULTISAMPLE_MODE" type="nv50_msaa_mode"/>
+		<reg32 offset="0x15d4" name="VERTEX_BEGIN_D3D">
+			<bitfield name="PRIMITIVE" high="27" low="0">
+				<value value="0x0001" name="POINTS"/>
+				<value value="0x0002" name="LINES"/>
+				<value value="0x0003" name="LINE_STRIP"/>
+				<value value="0x0004" name="TRIANGLES"/>
+				<value value="0x0005" name="TRIANGLE_STRIP"/>
+				<value value="0x000a" name="LINES_ADJACENCY"/>
+				<value value="0x000b" name="LINE_STRIP_ADJACENCY"/>
+				<value value="0x000c" name="TRIANGLES_ADJACENCY"/>
+				<value value="0x000d" name="TRIANGLE_STRIP_ADJACENCY"/>
+				<!-- XXX: there are also 1001-1003, 100f-1018, 101a-101b. They all alias one of the normal types. wtf? -->
+			</bitfield>
+			<bitfield name="INSTANCE_NEXT" pos="28" /> <!-- set bit for 2nd and higher instances -->
+			<!-- XXX: NV84+ have bit 29... -->
+			<!-- XXX: NVA0+ have bit 30... -->
+		</reg32>
+		<reg32 offset="0x15d8" name="VERTEX_END_D3D">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="1" name="UNK1" variants="NVA0_3D-"/>
+		</reg32>
+		<reg32 offset="0x15e4" name="EDGEFLAG_ENABLE" type="boolean"/>
+		<reg32 offset="0x15e8" name="VB_ELEMENT_U32" type="int"/>
+		<reg32 offset="0x15ec" name="VB_ELEMENT_U16_SETUP">
+			<bitfield name="OFFSET" high="31" low="30"/>
+			<bitfield name="COUNT" high="29" low="0" type="int"/> <!-- probably smaller range -->
+		</reg32>
+		<reg32 offset="0x15f0" name="VB_ELEMENT_U16">
+			<bitfield name="I0" high="15" low="0" type="int"/>
+			<bitfield name="I1" high="31" low="16" type="int"/>
+		</reg32>
+		<reg32 offset="0x15f4" name="VERTEX_BASE_HIGH"/>
+		<reg32 offset="0x15f8" name="VERTEX_BASE_LOW"/>
+		<reg32 offset="0x1608" name="CODE_ADDRESS_HIGH"/>
+		<reg32 offset="0x160c" name="CODE_ADDRESS_LOW"/>
+		<reg32 offset="0x1614" name="VERTEX_END_GL">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="1" name="UNK1"/>
+		</reg32>
+		<reg32 offset="0x1618" name="VERTEX_BEGIN_GL">
+			<bitfield name="PRIMITIVE" high="27" low="0">
+				<value value="0x0000" name="POINTS"/>
+				<value value="0x0001" name="LINES"/>
+				<value value="0x0002" name="LINE_LOOP"/>
+				<value value="0x0003" name="LINE_STRIP"/>
+				<value value="0x0004" name="TRIANGLES"/>
+				<value value="0x0005" name="TRIANGLE_STRIP"/>
+				<value value="0x0006" name="TRIANGLE_FAN"/>
+				<value value="0x0007" name="QUADS"/>
+				<value value="0x0008" name="QUAD_STRIP"/>
+				<value value="0x0009" name="POLYGON"/>
+				<value value="0x000a" name="LINES_ADJACENCY"/>
+				<value value="0x000b" name="LINE_STRIP_ADJACENCY"/>
+				<value value="0x000c" name="TRIANGLES_ADJACENCY"/>
+				<value value="0x000d" name="TRIANGLE_STRIP_ADJACENCY"/>
+				<value value="0x000e" name="PATCHES"/>
+			</bitfield>
+			<bitfield name="INSTANCE_NEXT" pos="28" /> <!-- set bit for 2nd and higher instances -->
+		</reg32>
+		<reg32 offset="0x1640" name="VERTEX_DATA"/>
+		<reg32 offset="0x1644" name="PRIM_RESTART_ENABLE" type="boolean"/>
+		<reg32 offset="0x1648" name="PRIM_RESTART_INDEX" type="int"/>
+		<reg32 offset="0x164c" name="VP_GP_BUILTIN_ATTR_EN">
+			<bitfield name="VERTEX_ID" pos="0" type="boolean"/><!-- works without bit 12 -->
+			<bitfield name="INSTANCE_ID" pos="4" type="boolean"/>
+			<bitfield name="PRIMITIVE_ID" pos="8" type="boolean"/>
+			<bitfield name="UNK12" pos="12" type="boolean"/><!-- set together with bit 0 -->
+		</reg32>
+		<reg32 offset="0x1658" name="POINT_SMOOTH_ENABLE" type="boolean"/>
+		<reg32 offset="0x1660" name="POINT_SPRITE_CTRL"/>
+		<reg32 offset="0x166c" name="LINE_STIPPLE_ENABLE" type="boolean"/>
+		<reg32 offset="0x1680" name="LINE_STIPPLE_PATTERN"/>
+		<reg32 offset="0x1684" name="PROVOKING_VERTEX_LAST" type="boolean"/>
+		<reg32 offset="0x1688" name="VERTEX_TWO_SIDE_ENABLE" type="boolean"/>
+		<reg32 offset="0x168c" name="POLYGON_STIPPLE_ENABLE" type="boolean"/>
+		<reg32 offset="0x1700" name="POLYGON_STIPPLE_PATTERN" length="32"/>
+		<reg32 offset="0x1780" name="STRMOUT_UNK1780" length="4" variants="NVA0_3D-"/>
+		<reg32 offset="0x17bc" name="UNK17BC_ADDRESS_HIGH"/>
+		<reg32 offset="0x17c0" name="UNK17BC_ADDRESS_LOW"/>
+		<reg32 offset="0x17c4" name="UNK17BC_LIMIT"/>
+		<reg32 offset="0x1880" name="VERTEX_ARRAY_PER_INSTANCE_ALT" length="32" type="boolean" variants="NVA3_3D-"/>
+		<reg32 offset="0x1910" name="VP_POINT_SIZE_EN" type="boolean"/>
+		<reg32 offset="0x1918" name="CULL_FACE_ENABLE" type="boolean"/>
+		<reg32 offset="0x191c" name="FRONT_FACE" type="gl_front_face"/>
+		<reg32 offset="0x1920" name="CULL_FACE" type="gl_cull_face"/>
+		<reg32 offset="0x192c" name="VIEWPORT_TRANSFORM_EN" type="boolean"/>
+		<reg32 offset="0x193c" name="VIEW_VOLUME_CLIP_CTRL">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="1" name="UNK1"/>
+			<bitfield pos="2" name="UNK2"/>
+			<bitfield pos="3" name="UNK3"/>
+			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="7" name="UNK7"/>
+			<bitfield pos="10" name="UNK10"/> <!-- 1 by default -->
+			<bitfield pos="11" name="UNK11"/>
+			<bitfield pos="12" name="UNK12"/>
+			<bitfield pos="13" name="UNK13"/>
+		</reg32>
+		<reg32 offset="0x194c" name="VIEWPORT_CLIP_RECTS_EN" type="boolean"/>
+		<reg32 offset="0x1950" name="VIEWPORT_CLIP_MODE">
+			<value value="0" name="INSIDE_ANY"/>
+			<value value="1" name="OUTSIDE_ALL"/>
+			<value value="2" name="NEVER"/> <!-- sounds useless... and doesn't make sense. -->
+		</reg32>
+		<reg32 offset="0x196c" name="FP_ZORDER_CTRL"><!-- 0x11 if DEPR written -->
+			<doc>0x11 if DEPR written. Goes to 2cxx.</doc>
+			<bitfield pos="0" name="0"/>
+			<bitfield pos="4" name="1"/>
+		</reg32>
+		<reg32 offset="0x197c" name="CLIPID_ENABLE" type="boolean"/>
+		<reg32 offset="0x1980" name="CLIPID_WIDTH" type="uint" align="0x40" max="0x2000"/>
+		<reg32 offset="0x1984" name="CLIPID_ID"/>
+		<reg32 offset="0x19a8" name="FP_CONTROL">
+			<bitfield name="MULTIPLE_RESULTS" pos="0" type="boolean"/>
+			<bitfield name="EXPORTS_Z" pos="8" type="boolean"/>
+			<bitfield name="USES_KIL" pos="20" type="boolean"/>
+		</reg32>
+		<reg32 offset="0x19bc" name="DEPTH_BOUNDS_EN" type="boolean"/>
+		<reg32 offset="0x19c4" name="LOGIC_OP_ENABLE" type="boolean"/>
+		<reg32 offset="0x19c8" name="LOGIC_OP" type="gl_logic_op"/>
+		<reg32 offset="0x19d0" name="CLEAR_BUFFERS">
+			<bitfield name="Z" pos="0" type="boolean"/>
+			<bitfield name="S" pos="1" type="boolean"/>
+			<bitfield name="R" pos="2" type="boolean"/>
+			<bitfield name="G" pos="3" type="boolean"/>
+			<bitfield name="B" pos="4" type="boolean"/>
+			<bitfield name="A" pos="5" type="boolean"/>
+			<bitfield name="RT" high="9" low="6" type="int"/>
+			<bitfield name="LAYER" high="20" low="10" type="int"/>
+		</reg32>
+		<reg32 offset="0x1a00" name="COLOR_MASK" length="8">
+			<bitfield name="R" high="3" low="0" type="boolean" />
+			<bitfield name="G" high="7" low="4" type="boolean" />
+			<bitfield name="B" high="11" low="8" type="boolean" />
+			<bitfield name="A" high="15" low="12" type="boolean" />
+		</reg32>
+		<reg32 offset="0x1b00" name="QUERY_ADDRESS_HIGH"/>
+		<reg32 offset="0x1b04" name="QUERY_ADDRESS_LOW"/>
+		<reg32 offset="0x1b08" name="QUERY_SEQUENCE"/>
+		<reg32 offset="0x1b0c" name="QUERY_GET">
+			<value value="0x1000f010" name="FENCE"/>
+			<value value="0x0100f002" name="SAMPLE_COUNT"/>
+			<value value="0x05805002" name="TFB"/>
+			<value value="0x06805002" name="GENERATED_PRIMS"/>
+			<value value="0x00005002" name="UNK00005002"/>
+		</reg32>
+		<reg32 offset="0x1c00" name="VERTEX_ARRAY_FETCH" length="32" stride="16" variants="NVA3_3D-">
+			<bitfield name="STRIDE" high="11" low="0" type="int"/>
+			<bitfield name="ENABLE" pos="12" type="boolean"/>
+		</reg32>
+		<array offset="0x1e00" name="IBLEND" stride="0x20" length="8">
+			<reg32 offset="0x04" name="EQUATION_RGB" type="gl_blend_equation"/>
+			<reg32 offset="0x08" name="FUNC_SRC_RGB" type="nv50_blend_factor"/>
+			<reg32 offset="0x0c" name="FUNC_DST_RGB" type="nv50_blend_factor"/>
+			<reg32 offset="0x10" name="EQUATION_ALPHA" type="gl_blend_equation"/>
+			<reg32 offset="0x14" name="FUNC_SRC_ALPHA" type="nv50_blend_factor"/>
+			<reg32 offset="0x18" name="FUNC_DST_ALPHA" type="nv50_blend_factor"/>
+		</array>
+		<stripe offset="0x2000" name="SP" stride="64" length="6">
+			<reg32 offset="0x00" name="SELECT" type="bitfield">
+				<bitfield name="ENABLE" pos="0" type="boolean"/>
+				<bitfield name="PROGRAM" high="6" low="4">
+					<value value="0" name="VP_A"/>
+					<value value="1" name="VP_B"/>
+					<value value="2" name="TCP"/>
+					<value value="3" name="TEP"/>
+					<value value="4" name="GP"/>
+					<value value="5" name="FP"/>
+				</bitfield>
+			</reg32>
+			<reg32 offset="0x04" name="START_ID" type="uint"/>
+			<reg32 offset="0x0c" name="GPR_ALLOC" type="uint"/>
+		</stripe>
+		<reg32 offset="0x2200" name="TEX_LIMITS" length="5" stride="16">
+		</reg32>
+		<reg32 offset="0x2380" name="CB_SIZE" type="uint"/>
+		<reg32 offset="0x2384" name="CB_ADDRESS_HIGH"/>
+		<reg32 offset="0x2388" name="CB_ADDRESS_LOW"/>
+		<reg32 offset="0x238c" name="CB_POS" type="uint"/>
+		<reg32 offset="0x2390" name="CB_DATA" length="16"/>
+		<reg32 offset="0x2404" name="BIND_TIC" length="5" stride="32" type="bitfield">
+		</reg32>
+		<reg32 offset="0x2410" name="CB_BIND" length="5" stride="32" type="bitfield">
+		</reg32>
+		<reg32 offset="0x2800" name="TFB_VARYING_LOCS" length="128"/>
+		<reg32 offset="0x3858" name="BLEND_ENABLEI"/>
+		<reg32 offset="0x3868" name="POLYGON_MODE_FRONT" type="gl_polygon_mode"/>
+		<reg32 offset="0x3870" name="POLYGON_MODE_BACK" type="gl_polygon_mode"/>
+		<reg32 offset="0x3878" name="GP_SELECT">
+		</reg32>
+		<reg32 offset="0x3880" name="TEP_SELECT">
+		</reg32>
+	</stripe>
+</domain>
+
+</database>
+
