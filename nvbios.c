@@ -462,7 +462,6 @@ int main(int argc, char **argv) {
 	}
 	if (bitoffset) {
 		int maxentry = bios[bitoffset+10];
-		parse_bios_version(bitoffset);
 		printf ("BIT at %x, %x entries\n", bitoffset, maxentry);
 		printf ("\n");
 		int i;
@@ -514,6 +513,9 @@ int main(int argc, char **argv) {
 						temperature_tbl_ptr = le16(eoff + 16);
 						timings_tbl_ptr = le16(eoff + 8);
 					}
+					break;
+				case 'i':
+					parse_bios_version(eoff);
 					break;
 			}
 			printf ("\n");
