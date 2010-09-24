@@ -851,8 +851,8 @@ int main(int argc, char **argv) {
 		printf ("%i entries\n", entry_count);
 		int i;
 		for (i=0; i < entry_count; i++) {
-			uint8_t id = bios[(start+i*entry_length)+1];
-			uint8_t label = bios[(start+i*entry_length)+0];
+			uint8_t id = bios[start+1];
+			uint8_t label = bios[start+0];
 
 			printf ("-- ID = %x, voltage = %u[*10mV] --\n", id, label);
 			if (entry_length > 20) {
