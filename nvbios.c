@@ -805,11 +805,17 @@ int main(int argc, char **argv) {
 				fan = bios[start+6];
 				voltage = bios[start+7];
 			}
-			
-			printcmd(start, entry_length);
-			printf (" - ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Voltage %d[*10mV] Fan %d\n",
+
+			printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Voltage %d[*10mV] Fan %d --\n",
 				id, core, memclk, shader, voltage, fan
 			);
+			if (entry_length > 20) {
+				printcmd(start, 20); printf("\n");
+				printcmd(start + 20, entry_length - 20);
+			} else {
+				printcmd(start, entry_length);
+			}
+			printf("\n\n");
 
 			start += entry_length;
 		}
@@ -847,9 +853,17 @@ int main(int argc, char **argv) {
 		for (i=0; i < entry_count; i++) {
 			uint8_t id = bios[(start+i*entry_length)+1];
 			uint8_t label = bios[(start+i*entry_length)+0];
-			
-			printcmd(start+i*entry_length, entry_length);
-			printf ("id = %x, voltage = %u[*10mV]\n", id, label);
+
+			printf ("-- ID = %x, voltage = %u[*10mV] --\n", id, label);
+			if (entry_length > 20) {
+				printcmd(start, 20); printf("\n");
+				printcmd(start + 20, entry_length - 20);
+			} else {
+				printcmd(start, entry_length);
+			}
+			printf("\n\n");
+
+			start += entry_length;
 		}
 		printf("\n");
 	}
