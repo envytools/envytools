@@ -750,18 +750,21 @@ int main(int argc, char **argv) {
 	}
 
 	if (pm_mode_tbl_ptr) {
-		uint8_t version = 0, entry_count = 0, entry_length = 0, header_length = 0;
+		uint8_t version = 0, entry_count = 0, entry_length = 0;
+		uint8_t mode_info_length = 0, header_length = 0;
 		uint16_t start = pm_mode_tbl_ptr;
 
 		if (major_version == 0x5) {
 			version = bios[start+1];
 			entry_count = bios[start+3];
 			entry_length = bios[start+2];
+			mode_info_length = entry_length;
 			header_length = 4;
 		} else if (major_version < 0x70) {
 			version = bios[start+0];
 			entry_count = bios[start+2];
-			entry_length = bios[start+3] + bios[start+4] * bios[start+5];
+			mode_info_length = bios[start+3];
+			entry_length = mode_info_length + bios[start+4] * bios[start+5];
 			header_length = bios[start+1];
 		}
 
@@ -809,11 +812,11 @@ int main(int argc, char **argv) {
 			printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Voltage %d[*10mV] Fan %d --\n",
 				id, core, memclk, shader, voltage, fan
 			);
-			if (entry_length > 20) {
+			if (mode_info_length > 20) {
 				printcmd(start, 20); printf("\n");
-				printcmd(start + 20, entry_length - 20);
+				printcmd(start + 20, mode_info_length - 20);
 			} else {
-				printcmd(start, entry_length);
+				printcmd(start, mode_info_length);
 			}
 			printf("\n\n");
 
