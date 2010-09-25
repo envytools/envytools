@@ -10,9 +10,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <domain name="NVC0_SUBCHAN" bare="yes" size="0x8000">
 	<stripe prefix="obj-class" variants="NVC0_COMPUTE">
-		<reg32 offset="0x0204" name="LOCAL_SIZE">
-			<doc>Probably wrong.</doc>
-		</reg32>
+		<reg32 offset="0x0204" name="UNK0204"/>
 		<reg32 offset="0x0208" name="UNK0208"/>
 		<reg32 offset="0x020c" name="UNK020C"/>
 		<reg32 offset="0x0210" name="UNK0210"/><!-- default 0x33 -->
@@ -51,12 +49,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x03b0" name="BLOCKDIM_Z" type="uint"/>
 		<reg32 offset="0x03b4" name="CP_START_ID"/>
 		<reg32 offset="0x0758" name="UNK0758"/>
-		<reg32 offset="0x077c" name="LOCAL_BASE"/><!-- 32 bit address, not shifted -->
+		<reg32 offset="0x077c" name="LOCAL_BASE"/><!-- 32 bit address, not shifted, appears in $lbase -->
 		<reg32 offset="0x0780" name="UNK0780"/>
-		<reg32 offset="0x0790" name="UNK0790_ADDRESS_HIGH"/>
-		<reg32 offset="0x0794" name="UNK0790_ADDRESS_LOW"/>
-		<reg32 offset="0x0798" name="UNK0798"/>
-		<reg32 offset="0x079c" name="UNK079C"/>
+		<reg32 offset="0x0790" name="LOCAL_ADDRESS_HIGH"/>
+		<reg32 offset="0x0794" name="LOCAL_ADDRESS_LOW"/>
+		<reg32 offset="0x0798" name="LOCAL_SIZE_HIGH"/>
+		<reg32 offset="0x079c" name="LOCAL_SIZE_LOW"/>
 		<reg32 offset="0x07a0" name="UNK07A0"/>
 		<reg32 offset="0x0a04" name="UNK0A04"/>
 		<reg32 offset="0x0a08" name="UNK0A08"/>

@@ -35,8 +35,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</stripe>
 		<reg32 offset="0x0744" name="TFB_ENABLE" type="boolean"/>
 		<reg32 offset="0x077c" name="LOCAL_BASE"/>
-		<reg32 offset="0x0790" name="UNK0790_ADDRESS_HIGH"/>
-		<reg32 offset="0x0794" name="UNK0790_ADDRESS_LOW"/>
+		<reg32 offset="0x0790" name="LOCAL_ADDRESS_HIGH"/>
+		<reg32 offset="0x0794" name="LOCAL_ADDRESS_LOW"/>
+		<reg32 offset="0x0798" name="LOCAL_SIZE_HIGH"/>
+		<reg32 offset="0x079c" name="LOCAL_SIZE_LOW"/>
 		<stripe offset="0x0800" name="RT" length="8" stride="32">
 			<reg32 offset="0x00" name="ADDRESS_HIGH"/>
 			<reg32 offset="0x04" name="ADDRESS_LOW"/>
