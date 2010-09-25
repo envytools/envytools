@@ -8,7 +8,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nv_object.xml"/>
 <import file="nv50_defs.xml"/>
 
-<domain name="NV01_SUBCHAN" bare="yes" size="0x8000">
+<domain name="NVC0_SUBCHAN" bare="yes" size="0x8000">
 	<stripe prefix="obj-class" variants="NVC0_COMPUTE">
 		<reg32 offset="0x0204" name="LOCAL_SIZE">
 			<doc>Probably wrong.</doc>

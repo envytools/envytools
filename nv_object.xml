@@ -198,4 +198,27 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</stripe>
 </domain>
 
+<domain name="NVC0_SUBCHAN" bare="yes" size="0x8000">
+	<stripe name="SUBCHAN" prefix="chipset" variants="NVC0-">
+		<reg32 offset="0x00" name="OBJECT" type="object"/>
+		<stripe>
+			<reg32 offset="0x10" name="QUERY_ADDRESS_HIGH"/>
+			<reg32 offset="0x14" name="QUERY_ADDRESS_LOW"/>
+			<reg32 offset="0x18" name="QUERY_SEQUENCE"/>
+			<reg32 offset="0x1c" name="QUERY_GET"/>
+		</stripe>
+		<reg32 offset="0x50" name="REF_CNT"/>
+	</stripe>
+	<stripe name="GRAPH" prefix="chipset" variants="NVC0-">
+		<reg32 offset="0x0100" name="NOP"/>
+		<reg32 offset="0x0104" name="NOTIFY_ADDRESS_HIGH"/>
+		<reg32 offset="0x0108" name="NOTIFY_ADDRESS_LOW"/>
+		<reg32 offset="0x010c" name="NOTIFY">
+			<value value="0" name="WRITE"/><!-- not verified -->
+			<value value="1" name="WRITE_AND_AWAKEN"/>
+		</reg32>
+		<reg32 offset="0x0110" name="SERIALIZE"/>
+	</stripe>
+</domain>
+
 </database>
