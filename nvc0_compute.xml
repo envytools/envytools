@@ -82,9 +82,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="INTR" pos="9" type="boolean"/>
 			<bitfield name="UNK1" high="15" low="10"/>
 		</reg32>
-		<reg32 offset="0x2380" name="UNK2380"/>
-		<reg32 offest="0x2384" name="CB_ADDRESS_HIGH"/>
-		<reg32 offest="0x2388" name="CB_ADDRESS_LOW"/>
+		<reg32 offset="0x2380" name="CB_SIZE"/>
+		<reg32 offset="0x2384" name="CB_ADDRESS_HIGH"/>
+		<reg32 offset="0x2388" name="CB_ADDRESS_LOW"/>
 		<reg32 offset="0x238c" name="CB_POS"/>
 		<reg32 offset="0x2390" name="CB_DATA"/>
 		<doc>USER_PARAM doesn't exist anymore, use a constant buffer for parameters.</doc>
