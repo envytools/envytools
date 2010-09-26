@@ -16,6 +16,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<bitfield high="29" low="28" name="TARGET" type="nv50_mem_target"/>
 </bitset>
 
+<domain name="NV50_QUERY" size="0x10">
+	<reg32 offset="0x0" name="COUNTER"/>
+	<reg32 offset="0x4" name="RES"/>
+	<reg64 offset="0x8" name="TIME"/>
+</domain>
+
 <enum name="nv50_cond_mode" inline="yes">
 	<value value="0" name="NEVER"/>
 	<value value="1" name="ALWAYS"/>
