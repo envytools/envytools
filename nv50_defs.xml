@@ -19,9 +19,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <enum name="nv50_cond_mode" inline="yes">
 	<value value="0" name="NEVER"/>
 	<value value="1" name="ALWAYS"/>
-	<value value="2" name="RES"/>
-	<value value="3" name="NOT_RES_AND_NOT_ID"/>
-	<value value="4" name="RES_OR_ID"/>
+	<value value="2" name="RES_NON_ZERO"/>
+	<!-- the following two use *two* query objects and check for equality of their COUNTER and RES fields -->
+	<value value="3" name="EQUAL"/>
+	<value value="4" name="NOT_EQUAL"/>
 </enum>
 
 <enum name="nv50_reg_mode" inline="yes">
