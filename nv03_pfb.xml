@@ -28,6 +28,17 @@
 	<value value="0xe" name="PDAEMON"/>
 </enum>
 
+<enum name="nv50_vm_fault_reason" inline="yes">
+	<value value="0" name="PT_NOT_PRESENT"/>
+	<value value="1" name="PT_TOO_SHORT"/>
+	<value value="2" name="PAGE_NOT_PRESENT"/>
+	<value value="3" name="PAGE_SYSTEM_ONLY"/>
+	<value value="4" name="PAGE_READ_ONLY"/>
+	<value value="6" name="NULL_DMAOBJ"/>
+	<value value="0xb" name="VRAM_LIMIT"/>
+	<value value="0xf" name="DMAOBJ_LIMIT"/>
+</enum>
+
 <array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV03:NVC0">
 	<reg32 offset="0x200" name="CFG0" variants="NV10:NV20 NV34">
 		<bitfield pos="0" name="TYPE_DDR"/>
