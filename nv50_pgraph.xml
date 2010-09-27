@@ -103,7 +103,7 @@
 		<bitfield name="STRMOUT" pos="7" /> <!-- 18XX, NV50 strand 2. NVA0 strand 0. -->
 		<bitfield name="UNK14XX" pos="8" /> <!-- and 15XX, NV50 strand 2. NVA0 strand 7 / 2. -->
 		<bitfield name="UNK8CXX" pos="9" /> <!-- 8CXX / 80XX, NV50 strand 4. NVA0 strand 6 -->
-		<bitfield name="TPDMA" pos="10" /> <!-- 8EXX / 87XX, NV50 strand 4. NVA0 strand 6 -->
+		<bitfield name="TPROP" pos="10" /> <!-- 8EXX / 87XX, NV50 strand 4. NVA0 strand 6 -->
 		<bitfield name="TEXTURE" pos="11" /> <!-- 88XX, 89XX, 8AXX / 85XX, 86XX, NV50 strand 4. NVA0 strand 6 -->
 		<bitfield name="UNK84XX" pos="12" /> <!-- NV50 strand 4. NVA0 strand 6. -->
 		<bitfield name="MP" pos="13" /> <!-- 82XX, 83XX / 81XX, 82XX, 83XX, NV50 xfer2. NVA0 xfer2 -->
@@ -202,7 +202,7 @@
 		<bitfield name="MP" pos="7">
 			<brief>Check TP+0x314 / TP+0x31c</brief>
 		</bitfield>
-		<bitfield name="TPDMA" pos="8">
+		<bitfield name="TPROP" pos="8">
 			<brief>Check TP+0xe08 / TP+0x708</brief>
 		</bitfield>
 	</reg32>
@@ -220,7 +220,7 @@
 		<bitfield name="CLIPID" pos="5" />
 		<bitfield name="TEXTURE" pos="6" />
 		<bitfield name="MP" pos="7" />
-		<bitfield name="TPDMA" pos="8" />
+		<bitfield name="TPROP" pos="8" />
 	</reg32>
 	<reg32 offset="0x013c" name="INTR_EN">
 		<brief>Interrupt enable</brief>
@@ -390,7 +390,7 @@
 		<bitfield name="CCACHE" pos="10"/>
 		<bitfield name="STRMOUT" pos="11"/>
 		<bitfield name="CSCHED" pos="13"/>
-		<bitfield name="TPDMA" pos="20"/>
+		<bitfield name="TPROP" pos="20"/>
 		<bitfield name="TEX" pos="21"/> <!-- not entirely sure. -->
 		<bitfield name="MP" pos="23"/>
 		<bitfield name="ROP" pos="24"/> <!-- or maybe 1cxx? -->
@@ -661,6 +661,17 @@
 		<reg32 offset="0x74" name="OPCODE_HIGH"/>
 	</group>
 
+	<group name="nv50_pgraph_tprop">
+		<reg32 offset="0x08" name="TPROP_TRAP">
+			<bitfield name="2D_FAULT" pos="4" />
+			<bitfield name="COLOR_FAULT" pos="6" />
+			<bitfield name="CUDA_FAULT" pos="7" />
+			<bitfield name="STORAGE_TYPE_MISMATCH" pos="11" />
+			<bitfield name="CLEAR" pos="30" />
+			<bitfield name="ENABLE" pos="31" />
+		</reg32>
+	</group>
+
 	<array offset="0x8000" variants="NV50:NVA0" name="TP" stride="0x1000" length="8">
 		<array offset="0x200" name="MP" stride="0x80" length="2">
 			<use-group name="nv50_pgraph_mp" />
@@ -675,13 +686,9 @@
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
-		<reg32 offset="0xe08" name="TPDMA_TRAP">
-			<bitfield name="2D_FAULT" pos="4" />
-			<bitfield name="COLOR_FAULT" pos="6" />
-			<bitfield name="CUDA_FAULT" pos="7" />
-			<bitfield name="CLEAR" pos="30" />
-			<bitfield name="ENABLE" pos="31" />
-		</reg32>
+		<stripe offset="0xe00" stride="0x100" length="1">
+			<use-group name="nv50_pgraph_tprop" />
+		</stripe>
 	</array>
 
 	<array offset="0x8000" variants="NVA0-" name="TP" stride="0x800" length="16">
@@ -700,14 +707,9 @@
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
-		<reg32 offset="0x708" name="TPDMA_TRAP">
-			<bitfield name="2D_FAULT" pos="4" />
-			<bitfield name="ZETA_FAULT" pos="5" />
-			<bitfield name="COLOR_FAULT" pos="6" />
-			<bitfield name="CUDA_FAULT" pos="7" />
-			<bitfield name="CLEAR" pos="30" />
-			<bitfield name="ENABLE" pos="31" />
-		</reg32>
+		<stripe offset="0x700" stride="0x100" length="1">
+			<use-group name="nv50_pgraph_tprop" />
+		</stripe>
 	</array>
 </array>
 </domain>
