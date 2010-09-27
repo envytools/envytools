@@ -30,6 +30,7 @@
  *
  *  -b <base>	Use a fake base address
  *  -s <num>	Skip this many initial bytes of the input
+ *  -l <num>	Limit disassembling to <num> bytes of input
  *  -w		Treat input as a sequence of 32-bit words instead of bytes
  *  -n		Disable color escape sequences in output
  */
@@ -38,14 +39,17 @@ int main(int argc, char **argv) {
 	int ptype = AP;
 	int w = 0;
 	int c;
-	unsigned base = 0, skip = 0;
-	while ((c = getopt (argc, argv, "b:s:wn")) != -1)
+	unsigned base = 0, skip = 0, limit = 0;
+	while ((c = getopt (argc, argv, "b:s:l:wn")) != -1)
 		switch (c) {
 			case 'b':
 				sscanf(optarg, "%x", &base);
 				break;
 			case 's':
 				sscanf(optarg, "%x", &skip);
+				break;
+			case 'l':
+				sscanf(optarg, "%x", &limit);
 				break;
 			case 'w':
 				w = 1;
@@ -82,6 +86,9 @@ int main(int argc, char **argv) {
 	}
 	if (num <= skip)
 		return 0;
-	fucdis (stdout, code+skip, base, num - skip, ptype);
+	int cnt = num - skip;
+	if (limit && limit < cnt)
+		cnt = limit;
+	fucdis (stdout, code+skip, base, cnt, ptype);
 	return 0;
 }
