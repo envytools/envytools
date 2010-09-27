@@ -197,7 +197,7 @@
 			<brief>Check 402000</brief>
 		</bitfield>
 		<bitfield name="TEXTURE" pos="6">
-			<brief>Check TP+0x900 / TP+0x500</brief>
+			<brief>Check TP+0x900 / TP+0x600</brief>
 		</bitfield>
 		<bitfield name="MP" pos="7">
 			<brief>Check TP+0x314 / TP+0x31c</brief>
