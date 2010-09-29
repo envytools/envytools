@@ -272,6 +272,7 @@
 
 <!-- 002000 - 003fff PFIFO -->
 <import file="nv_pfifo.xml" />
+<import file="nv50_pfifo.xml" />
 <import file="nvc0_pfifo.xml" />
 
 <!-- 004000 - 004fff ??? -->

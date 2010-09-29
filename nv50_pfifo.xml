@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+<import file="nv50_defs.xml" />
+
+<enum name="nv50_pfifo_engine" inline="yes">
+	<value value="0" name="SOFTWARE"/>
+	<value value="1" name="PGRAPH"/>
+	<value value="2" name="PPPP" variants="NV98 NVAA-"/>
+	<value value="3" name="PCOPY" variants="NVA3-"/>
+	<value value="4" name="PVP" variants="NV50"/> <!-- NV40+? -->
+	<value value="5" name="PCRYPT" variants="NV84:NVA3"/>
+	<value value="6" name="PBSP" variants="NV84-"/>
+</enum>
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+	<array offset="0x2000" name="PFIFO" stride="0x2000" length="1" variants="NV50:NVC0">
+		<reg32 offset="0x040" name="DELAY">
+			<bitfield high="9" low="0" name="WAIT_RETRY"/>
+			<bitfield high="31" low="28" name="UNK28"/>
+		</reg32>
+		<reg32 offset="0x044" name="DMA_TIMESLICE">
+			<bitfield high="16" low="0" name="SELECT"/>
+			<bitfield pos="24" name="TIMEOUT"/>
+			<bitfield high="31" low="28" name="UNK28"/>
+		</reg32>
+		<reg32 offset="0x048" name="UNK48">
+			<doc>Bits fffff, bit 19 seems forced to 0, Comes up as 90100. Blob sets 902000.</doc>
+		</reg32>
+		<reg32 offset="0x04c" name="TIMESLICE">
+			<bitfield high="17" low="0" name="TIMER">
+				<value value="0x3ffff" name="EXPIRED"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x054" name="UNK54">
+			<bitfield high="9" low="0" name="UNK0">
+				<doc>Reads as 2 on init.</doc>
+			</bitfield>
+			<bitfield high="31" low="28" name="UNK28"/>
+		</reg32>
+		<reg32 offset="0x058" name="SLI">
+			<bitfield high="11" low="0" name="MASK"/>
+			<bitfield pos="28" name="ACTIVE"/>
+			<bitfield pos="29" name="UNK29"/>
+		</reg32>
+		<reg32 offset="0x070" name="UNK70" variants="NV84-">
+			<doc>Bits 0xffffffff</doc>
+		</reg32>
+		<reg32 offset="0x080" name="DEBUG_0" access="r">
+			<!-- XXX: this is getting more suspicious with each hw gen. -->
+			<bitfield pos="0" name="CACHE_ERROR0"/>
+			<bitfield pos="4" name="CACHE_ERROR1"/>
+		</reg32>
+		<reg32 offset="0x084" name="UNK84">
+			<doc>Bits 0xffffffff. Comes up as 72f200 on NV50.</doc>
+		</reg32>
+		<reg32 offset="0x088" name="UNK88">
+			<doc>Bits 0xffffffff. Goes to RAMFC.</doc>
+		</reg32>
+		<reg32 offset="0x08c" name="UNK8C">
+			<doc>Bits 0xffffffff</doc>
+		</reg32>
+		<reg32 offset="0x090" name="UNK90">
+			<doc>Bits 0xffffffff. Comes up as 443333 on NV50. 33c43333 on NV86.</doc>
+		</reg32>
+		<reg32 offset="0x094" name="UNK94" variants="NV84-">
+			<doc>Bits 0x1f</doc>
+		</reg32>
+		<reg32 offset="0x098" name="UNK98" variants="NV84-">
+			<doc>Bits 0xffffffff</doc>
+		</reg32>
+		<reg32 offset="0x100" name="INTR">
+			<bitfield pos="0" name="CACHE_ERROR"/>
+			<bitfield pos="4" name="BAR_FAULT"/>
+			<bitfield pos="6" name="PEEPHOLE_FAULT"/>
+			<bitfield pos="8" name="UNK8"/>
+			<bitfield pos="12" name="DMA_PUSHER" />
+			<bitfield pos="16" name="UNK16"/>
+			<bitfield pos="18" name="UNK18"/>
+			<bitfield pos="19" name="UNK19"/>
+			<bitfield pos="20" name="SEMAPHORE" />
+			<bitfield pos="21" name="UNK21"/>
+			<bitfield pos="22" name="UNK22"/>
+			<bitfield pos="23" name="UNK23"/>
+			<bitfield pos="24" name="UNK24"/>
+			<bitfield pos="25" name="UNK25"/>
+			<bitfield pos="26" name="UNK26"/>
+			<bitfield pos="27" name="UNK27"/>
+			<bitfield pos="28" name="UNK28"/>
+			<bitfield pos="29" name="UNK29"/>
+			<bitfield pos="30" name="UNK30" variants="NV84-"/> <!-- triggered by method 0x20. -->
+		</reg32>
+		<reg32 offset="0x140" name="INTR_EN">
+			<bitfield pos="0" name="CACHE_ERROR"/>
+			<bitfield pos="4" name="BAR_FAULT"/>
+			<bitfield pos="6" name="PEEPHOLE_FAULT"/>
+			<bitfield pos="8" name="UNK8"/>
+			<bitfield pos="12" name="DMA_PUSHER" />
+			<bitfield pos="16" name="UNK16"/>
+			<bitfield pos="18" name="UNK18"/>
+			<bitfield pos="19" name="UNK19"/>
+			<bitfield pos="20" name="SEMAPHORE" />
+			<bitfield pos="21" name="UNK21"/>
+			<bitfield pos="22" name="UNK22"/>
+			<bitfield pos="23" name="UNK23"/>
+			<bitfield pos="24" name="UNK24"/>
+			<bitfield pos="25" name="UNK25"/>
+			<bitfield pos="26" name="UNK26"/>
+			<bitfield pos="27" name="UNK27"/>
+			<bitfield pos="28" name="UNK28"/>
+			<bitfield pos="29" name="UNK29"/>
+			<bitfield pos="30" name="UNK30" variants="NV84-"/> <!-- triggered by method 0x20. -->
+		</reg32>
+		<reg32 offset="0x210" name="RAMHT">
+			<bitfield high="15" low="0" name="INSTANCE" shr="4"/>
+			<bitfield high="23" low="16" name="UNK16"/> <!-- longer instance??? -->
+			<bitfield high="25" low="24" name="SEARCH">
+				<value value="0" name="16"/>
+				<value value="1" name="32"/>
+				<value value="2" name="64"/>
+				<value value="3" name="128"/>
+			</bitfield>
+			<bitfield pos="26" name="SEARCH_FULL"/>
+			<bitfield high="28" low="27" name="SIZE">
+				<value value="0" name="4K"/>
+				<value value="1" name="8K"/>
+				<value value="2" name="16K"/>
+				<value value="3" name="32K"/>
+			</bitfield>
+		</reg32>
+
+		<reg32 offset="0x500" name="CACHES">
+			<bitfield pos="0" name="REASSIGN"/>
+			<bitfield pos="1" name="UNK1"/>
+			<bitfield pos="4" name="DMA_SUSPEND_BUSY"/> <!-- umm... sure? -->
+			<bitfield pos="8" name="UNK8"/>
+		</reg32>
+		<reg32 offset="0x504" name="FREEZE">
+			<bitfield pos="0" name="ENABLE"/>
+			<bitfield pos="4" name="FROZEN"/>
+		</reg32>
+		<reg32 offset="0x508" name="UNK508">
+		</reg32>
+		<reg32 offset="0x50c" name="UNK50C">
+			<doc>Bits 0xffffffff. nv sets to 6f3cfc34.</doc>
+		</reg32>
+		<reg32 offset="0x510" name="UNK510_CHAN" type="nv50_channel"/>
+		<reg32 offset="0x514" name="UNK514_CHAN" type="nv50_channel"/>
+		<reg32 offset="0x518" name="UNK518">
+		</reg32>
+		<reg32 offset="0x51c" name="ENGINE_IDLE">
+			<bitfield pos="0" name="PGRAPH"/>
+			<bitfield pos="1" name="UNK1" variants="NV50:NV98 NVA0"/> <!-- VPE? -->
+			<bitfield pos="1" name="PPPP" variants="NV98 NVAA-"/>
+			<bitfield pos="2" name="UNK2" variants="NV50:NVA3"/>
+			<bitfield pos="2" name="PCOPY" variants="NVA3-"/>
+			<bitfield pos="3" name="PVP"/>
+			<bitfield pos="4" name="PCRYPT" variants="NV84:NVA3"/>
+			<bitfield pos="4" name="UNUSED4" variants="NVA3-"/>
+			<bitfield pos="5" name="PBSP" variants="NV84-"/>
+		</reg32>
+		<reg32 offset="0x520" name="UNK520" variants="NV84-">
+			<doc>Bits 0xffffffff, up as 3b003b.</doc>
+		</reg32>
+
+		<reg32 offset="0x600" name="CHAN_TABLE" length="128" variants="NV50">
+			<bitfield high="29" low="0" name="CHAN" type="nv50_channel"/>
+			<bitfield pos="30" name="PENDING"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x600" name="CHAN_TABLE" length="128" variants="NV84-">
+			<bitfield high="23" low="0" name="RAMFC_ADDR" shr="8"/>
+			<bitfield high="25" low="24" name="RAMFC_TARGET" type="nv50_mem_target"/>
+			<bitfield high="28" low="26" name="UNK26"/>
+			<bitfield pos="30" name="PENDING"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+
+		<reg32 offset="0x800" name="UNK800">
+			<bitfield high="6" low="0" name="UNK0"/>
+			<bitfield pos="16" name="UNK16"/>
+			<bitfield pos="31" name="UNK31"/>
+		</reg32>
+		<reg32 offset="0x804" name="UNK804" length="2"/>
+
+		<reg32 offset="0x900" name="UNK900" length="2"/>
+		<reg32 offset="0x908" name="UNK908">
+			<bitfield high="31" low="4" name="UNK4"/>
+		</reg32>
+		<reg32 offset="0x90c" name="UNK90C">
+			<bitfield high="7" low="0" name="UNK0"/>
+			<bitfield high="20" low="16" name="UNK16"/>
+			<bitfield high="25" low="24" name="UNK24"/>
+		</reg32>
+		<reg32 offset="0x910" name="UNK910">
+			<bitfield high="4" low="0" name="UNK0"/>
+			<bitfield high="20" low="16" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x914" name="UNK914">
+			<bitfield high="1" low="0" name="UNK0"/>
+			<bitfield high="9" low="4" name="UNK4"/>
+			<bitfield high="14" low="12" name="UNK12"/>
+			<bitfield high="17" low="16" name="UNK16"/>
+			<bitfield high="22" low="19" name="UNK19"/>
+			<bitfield high="25" low="24" name="UNK24"/>
+		</reg32>
+
+		<array offset="0x1200" length="1" stride="0xe00" name="CACHE1">
+			<reg32 offset="0x000" name="PUSH0">
+				<bitfield pos="0" name="ACCESS"/>
+			</reg32>
+			<reg32 offset="0x004" name="PUSH1">
+				<bitfield high="6" low="0" name="CHID"/>
+				<bitfield pos="16" name="UNK16"/>
+			</reg32>
+			<reg32 offset="0x010" name="PUT"/>
+			<reg32 offset="0x014" name="STATUS">
+				<bitfield pos="0" name="RANOUT"/>
+				<bitfield pos="4" name="EMPTY"/>
+				<bitfield pos="8" name="FULL"/>
+			</reg32>
+			<reg32 offset="0x020" name="DMA_PUSH">
+				<bitfield pos="0" name="ACCESS"/>
+				<bitfield pos="4" name="BUSY"/>
+				<bitfield pos="8" name="EMPTY"/>
+				<bitfield pos="12" name="SUSPENDED"/>
+				<bitfield pos="16" name="UNK16"/>
+				<!-- XXX: NV50 has many funky status bitfields here which someone should figure out some day. -->
+				<bitfield high="31" low="24" name="UNK24"/>
+			</reg32>
+			<reg32 offset="0x024" name="DMA_FETCH">
+				<bitfield high="7" low="3" name="TRIG"/>
+				<bitfield high="15" low="13" name="SIZE"/>
+				<bitfield high="22" low="16" name="MAX_REQS"/>
+				<bitfield pos="30" name="IB_ENABLE"/>
+			</reg32>
+			<reg32 offset="0x028" name="DMA_STATE">
+				<bitfield pos="0" name="NONINC"/>
+				<bitfield pos="1" name="UNK1"/> <!-- corresponds to ib entry bit 40 -->
+				<bitfield high="12" low="2" name="METHOD" shr="2"/>
+				<bitfield high="15" low="13" name="SUBCHANNEL"/>
+				<bitfield pos="16" name="LARGE_NONINCR_LEN_PENDING"/>
+				<bitfield pos="17" name="SUBROUTINE_ACTIVE"/>
+				<bitfield pos="18" name="NON_MAIN"/>
+				<bitfield high="31" low="29" name="ERROR">
+					<value value="0" name="NONE"/>
+					<value value="1" name="CALL"/>
+					<value value="2" name="NON_CACHE"/>
+					<value value="3" name="RETURN"/>
+					<value value="4" name="RESERVED_CMD"/>
+					<value value="5" name="IB"/>
+					<value value="6" name="PROTECTION"/>
+				</bitfield>
+			</reg32>
+			<reg32 offset="0x02c" name="DMA_INSTANCE" shr="4"/>
+			<reg32 offset="0x034" name="DMA_LIMIT"/>
+			<reg32 offset="0x040" name="DMA_PUT"/> <!-- XXX: NV50 has bits 0-1. do they do anything? -->
+			<reg32 offset="0x044" name="DMA_GET"/>
+			<reg32 offset="0x048" name="REF"/>
+			<reg32 offset="0x04c" name="SUBROUTINE">
+				<bitfield high="31" low="2" name="RETURN" shr="2"/>
+			</reg32>
+			<reg32 offset="0x050" name="PULL0">
+				<bitfield pos="0" name="ACCESS"/>
+				<bitfield pos="4" name="HASH">
+					<value value="0" name="SUCCEEDED"/>
+					<value value="1" name="FAILED"/>
+				</bitfield>
+				<bitfield pos="8" name="DEVICE">
+					<value value="0" name="HARDWARE"/>
+					<value value="1" name="SOFTWARE"/>
+				</bitfield>
+				<bitfield pos="12" name="HASH_BUSY"/>
+				<bitfield pos="16" name="ACQUIRE_BUSY"/>
+				<bitfield high="23" low="20" name="SEMAPHORE_ERROR">
+					<value value="0" name="NONE"/>
+					<!-- XXX: figure out wtf they mean. Doesn't seem to be consistent. -->
+					<value value="1" name="OFFSET_UNALIGNED"/>
+					<value value="2" name="INVALID_STATE"/>
+					<value value="3" name="OFFSET_TOO_LARGE"/>
+					<value value="4" name="PROTECTION"/>
+				</bitfield>
+				<bitfield high="31" low="28" name="STATUS">
+					<!-- XXX: figure this out -->
+				</bitfield>
+			</reg32>
+			<reg32 offset="0x054" name="PULL1">
+				<bitfield high="3" low="0" name="ENGINE" type="nv50_pfifo_engine"/>
+				<bitfield pos="4" name="ACQUIRE_ACTIVE"/>
+				<bitfield high="6" low="5" name="UNK5_QUERY" variants="NV84-"/>
+			</reg32>
+			<reg32 offset="0x058" name="HASH">
+				<bitfield high="15" low="0" name="INSTANCE"/>
+			</reg32>
+			<reg32 offset="0x060" name="ACQUIRE_TIMEOUT">
+				<bitfield high="30" low="0" name="TIMEOUT"/>
+				<bitfield pos="31" name="UNK31"/>
+			</reg32>
+			<reg32 offset="0x064" name="ACQUIRE_TIMESTAMP"/>
+			<reg32 offset="0x068" name="ACQUIRE_VALUE"/>
+			<reg32 offset="0x06c" name="SEMAPHORE">
+				<bitfield high="13" low="0" name="OFFSET" shr="2"/>
+				<bitfield pos="14" name="OFFSET_VALID"/>
+				<bitfield high="31" low="16" name="DMA_INST" shr="4"/>
+			</reg32>
+			<reg32 offset="0x070" name="GET"/>
+			<reg32 offset="0x080" name="ENGINE">
+				<bitfield high="3" low="0" name="0" type="nv50_pfifo_engine"/>
+				<bitfield high="7" low="4" name="0" type="nv50_pfifo_engine"/>
+				<bitfield high="11" low="8" name="0" type="nv50_pfifo_engine"/>
+				<bitfield high="15" low="12" name="0" type="nv50_pfifo_engine"/>
+				<bitfield high="19" low="16" name="0" type="nv50_pfifo_engine"/>
+				<bitfield high="23" low="20" name="0" type="nv50_pfifo_engine"/>
+				<bitfield high="27" low="24" name="0" type="nv50_pfifo_engine"/>
+				<bitfield high="31" low="28" name="0" type="nv50_pfifo_engine"/>
+			</reg32>
+			<reg32 offset="0x0a0" name="DMA_DCOUNT_SHADOW"/>
+			<reg32 offset="0x0a4" name="DMA_GET_JMP_SHADOW"/>
+			<reg32 offset="0x0a8" name="DMA_RSVD_SHADOW"/>
+			<reg32 offset="0x0ac" name="DMA_DATA_SHADOW"/>
+			<reg32 offset="0x0e4" name="UNK0E4">
+				<doc>Some sort of counter. Goes to RAMFC.</doc>
+			</reg32>
+			<reg32 offset="0x0ec" name="PLAYLIST_LEN">
+				<doc>Writes are queued... somehow.</doc>
+				<bitfield high="7" low="0" name="LEN" variants="NV50"/>
+				<bitfield pos="8" name="UNK8" variants="NV50"/>
+				<bitfield high="11" low="0" name="LEN" variants="NV84-"/>
+				<bitfield pos="12" name="UNK8" variants="NV84-"/>
+			</reg32>
+			<reg32 offset="0x0f0" name="UNK0F0">
+				<doc>RO. Seems to be the current channel id...</doc>
+			</reg32>
+			<reg32 offset="0x0f4" name="PLAYLIST">
+				<doc>Writes are queued... somehow</doc>
+				<bitfield high="27" low="0" name="ADDRESS" shr="12"/>
+				<bitfield high="29" low="28" name="TARGET" type="nv50_mem_target"/>
+			</reg32>
+			<reg32 offset="0x0fc" name="UNK0FC">
+				<doc>RO. Sort of.</doc>
+			</reg32>
+			<reg32 offset="0x100" name="UNK100" variants="NV84-">
+				<doc>Bits 0xffffffff, up as 4004f.</doc>
+			</reg32>
+
+			<reg32 offset="0x104" name="UNK104">
+				<doc>RO, reads as 3.</doc>
+			</reg32>
+			<reg32 offset="0x108" name="UNK108">
+				<doc>RO, reads as 0.</doc>
+			</reg32>
+			<reg32 offset="0x10c" name="MAGIC_FLUSH" variants="NV50:NV84">
+			</reg32>
+			<reg32 offset="0x110" name="UNK110">
+				<doc>Bits 0xffffffff.</doc>
+			</reg32>
+			<reg32 offset="0x114" name="UNK114">
+				<doc>Bits 3.</doc>
+			</reg32>
+			<reg32 offset="0x118" name="UNK118">
+				<doc>Bits 7. Reads as 2.</doc>
+			</reg32>
+
+			<reg32 offset="0x120" name="DMA_PUT_HIGH"/>
+			<reg32 offset="0x128" name="DMA_GET_HIGH"/>
+			<reg32 offset="0x130" name="IB_PUT"/>
+			<reg32 offset="0x134" name="IB_GET"/>
+			<reg32 offset="0x140" name="IB_ADDRESS_LOW"/>
+			<reg32 offset="0x144" name="IB_CONFIG">
+				<bitfield high="7" low="0" name="ADDRESS_HIGH"/>
+				<bitfield high="15" low="8" name="UNK8"/>
+				<bitfield high="31" low="16" name="ORDER"/> <!-- XXX: check exact vals and bfs -->
+			</reg32>
+			<reg32 offset="0x164" name="METHOD_COUNT"/>
+			<reg32 offset="0x168" name="DMA_MGET"/>
+			<reg32 offset="0x16c" name="DMA_MGET_HIGH">
+				<bitfield high="7" low="0" name="ADDR_HIGH"/>
+				<bitfield pos="31" name="VALID"/>
+			</reg32>
+			<reg32 offset="0x170" name="DMA_GET_HIGH_RDSHADOW"/>
+			<reg32 offset="0x174" name="DMA_PUT_HIGH_RDSHADOW"/>
+			<reg32 offset="0x178" name="DMA_PUT_HIGH_WRSHADOW"/>
+			<reg32 offset="0x17c" name="DMA_MGET_HIGH_RDSHADOW">
+				<bitfield high="7" low="0" name="ADDR_HIGH"/>
+				<bitfield pos="31" name="VALID"/>
+			</reg32>
+
+			<reg32 offset="0x200" name="QUERY_ADDRESS_HIGH" variants="NV84-"/>
+			<reg32 offset="0x204" name="QUERY_ADDRESS_LOW" variants="NV84-"/>
+			<reg32 offset="0x208" name="QUERY_COUNTER" variants="NV84-"/>
+			<reg32 offset="0x20c" name="CACHE_INST" variants="NV84-">
+				<bitfield high="29" low="0" name="ADDRESS" shr="10"/>
+				<bitfield high="31" low="30" name="TARGET" type="nv50_mem_target"/> <!-- XXX: guess -->
+			</reg32>
+			<reg32 offset="0x210" name="CHAN_INST" variants="NV84-" type="nv50_channel"/>
+		</array>
+	</array>
+
+	<reg32 offset="0x70000" name="PFIFO_MAGIC_FLUSH" variants="NV84-"/>
+
+	<array offset="0xc00000" name="USER_NEW" stride="0x2000" length="128" variants="NV50:NVC0">
+		<reg32 offset="0x40" name="DMA_PUT"/>
+		<reg32 offset="0x44" name="DMA_GET" access="r"/>
+		<reg32 offset="0x48" name="REF" access="r"/>
+		<reg32 offset="0x4c" name="DMA_PUT_HIGH"/>
+		<reg32 offset="0x54" name="SUBROUTINE" access="r"/>
+		<reg32 offset="0x58" name="DMA_MGET" access="r"/>
+		<reg32 offset="0x5c" name="DMA_MGET_HIGH" access="r">
+			<bitfield high="7" low="0" name="ADDR_HIGH"/>
+			<bitfield pos="31" name="VALID"/>
+		</reg32>
+		<reg32 offset="0x60" name="DMA_GET_HIGH" access="r"/>
+		<reg32 offset="0x88" name="IB_GET" access="r"/>
+		<reg32 offset="0x8c" name="IB_PUT"/>
+	</array>
+
+	<bitset name="IB_ENTRY" prefix="chipset" variants="NV50-">
+		<bitfield high="39" low="2" shr="2" name="ADDRESS"/>
+		<bitfield pos="40" name="UNK40"/>
+		<bitfield pos="41" name="NON_MAIN"/>
+		<bitfield high="63" low="42" shr="2" name="SIZE"/>
+	</bitset>
+
+</domain>
+
+</database>
