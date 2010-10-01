@@ -1436,14 +1436,21 @@ static struct insn tabl[] = {
 	{ AP, 0x40000000f8000000ull, 0xf0000000f8000000ull,
 		N("texlod cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
 
-	{ AP, 0x60000000f0000000ull, 0xf0000000f0000000ull, // integer input and output.
+	{ AP, 0x60000000f0000000ull, 0xf00f0000f0000000ull, // integer input and output.
 		N("texsize"), T(texf), LTDST, TEX, SAMP, LDST }, // in: LOD, out: size.x, size.y, size.z
+
+	{ AP, 0x60020000f0000000ull, 0xf00f0000f8000000ull, // NVA3+, returned values are FIXED-point with 6 fractional bits
+		N("texquerylod"), T(texf), LTDST, TEX, SAMP, LTSRC },
+	{ AP, 0x60020000f8000000ull, 0xf00f0000f8000000ull,
+		N("texquerylod cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
 
 	{ AP, 0x80000000f0000000ull, 0xf0000000f1000000ull, // no idea what this is. but it *is* texturing.
 		U("f/8/0"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
 
-	{ AP, 0x80000000f1000000ull, 0xf0000000f1000000ull, // no idea what this is. but it *is* texturing.
-		U("f/8/1"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
+	{ AP, 0x80000000f1000000ull, 0xf0000000f9000000ull, // NVA3+
+		N("texgather"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
+	{ AP, 0x80000000f9000000ull, 0xf0000000f9000000ull, // NVA3+
+		N("texgather cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
 
 	{ GP, 0xc0000000f0000200ull, 0xe0000000f0000600ull, N("emit") },
 	{ GP, 0xc0000000f0000400ull, 0xe0000000f0000600ull, N("restart") },
