@@ -88,7 +88,7 @@
 	<reg32 offset="0x8" name="2">
 		<bitfield high="7" low="0" name="OFFSET_HIGH" />
 		<bitfield pos="10" name="COLORSPACE_SRGB" />
-		<bitfield high="16" low="14" name="TARGET">
+		<bitfield high="17" low="14" name="TARGET">
 			<value value="0" name="1D" />
 			<value value="1" name="2D" />
 			<value value="2" name="3D" />
@@ -97,6 +97,7 @@
 			<value value="5" name="2D_ARRAY" />
 			<value value="6" name="BUFFER" />
 			<value value="7" name="RECT" />
+			<value value="8" name="CUBE_ARRAY" />
 		</bitfield>
 		<bitfield pos="18" name="TILE_MODE_LINEAR" />
 		<bitfield high="24" low="22" name="TILE_MODE_Y" />
