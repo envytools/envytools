@@ -1071,14 +1071,15 @@ static struct insn tabqop3[] = {
 
 // for mov from sreg
 static struct insn tabsreg[] = {
-	{ AP, 0x0000000000000000ull, 0x0001c00000000000ull, N("physid") },
-	{ AP, 0x0000400000000000ull, 0x0001c00000000000ull, N("clock") },
-	{ AP, 0x0000800000000000ull, 0x0001c00000000000ull, N("sreg2") },
-	{ AP, 0x0000c00000000000ull, 0x0001c00000000000ull, N("sreg3") },
-	{ AP, 0x0001000000000000ull, 0x0001c00000000000ull, N("pm0") },
-	{ AP, 0x0001400000000000ull, 0x0001c00000000000ull, N("pm1") },
-	{ AP, 0x0001800000000000ull, 0x0001c00000000000ull, N("pm2") },
-	{ AP, 0x0001c00000000000ull, 0x0001c00000000000ull, N("pm3") },
+	{ AP, 0x0000000000000000ull, 0x0003c00000000000ull, N("physid") },
+	{ AP, 0x0000400000000000ull, 0x0003c00000000000ull, N("clock") },
+	{ AP, 0x0000800000000000ull, 0x0003c00000000000ull, U("2") },
+	{ AP, 0x0000c00000000000ull, 0x0003c00000000000ull, U("3") },
+	{ AP, 0x0001000000000000ull, 0x0003c00000000000ull, N("pm0") },
+	{ AP, 0x0001400000000000ull, 0x0003c00000000000ull, N("pm1") },
+	{ AP, 0x0001800000000000ull, 0x0003c00000000000ull, N("pm2") },
+	{ AP, 0x0001c00000000000ull, 0x0003c00000000000ull, N("pm3") },
+	{ AP, 0x0002000000000000ull, 0x0003c00000000000ull, N("sampleid") }, // NVA3+
 };
 
 static struct insn tablogop[] = {

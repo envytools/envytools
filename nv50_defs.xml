@@ -100,7 +100,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0014" name="Z24S8_UNORM"/><!--tile flags 0x1800-->
 	<value value="0x0015" name="X8Z24_UNORM"/><!--tile flags 0x2800-->
 	<value value="0x0016" name="S8Z24_UNORM"/>
-	<value value="0x0018" name="UNK18"/>
+	<value value="0x0018" name="UNK18"/> <!-- 8xMS 8xCS, 4xMS 12xCS, ... -->
 	<value value="0x0019" name="Z32_FLOAT_X24S8_UNORM"/><!--tile flags 0xe000-->
 	<value value="0x001d" name="UNK1D"/>
 	<value value="0x001e" name="UNK1E"/>

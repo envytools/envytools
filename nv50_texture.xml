@@ -76,6 +76,9 @@
 			<value value="0x28" name="RGTC2" />
 			<value value="0x29" name="24_8_ZETA" />
 			<value value="0x2a" name="8_24_ZETA" />
+			<value value="0x2c" name="UNK2C_ZETA" /> <!-- 4 MS 4 CS -->
+			<value value="0x2d" name="UNK2D_ZETA" /> <!-- 8 MS 8 CS -->
+			<value value="0x2e" name="UNK2E_ZETA" /> <!-- 4 MS 12 CS -->
 			<value value="0x2f" name="32_ZETA" />
 			<value value="0x30" name="32_8_ZETA" />
 		</bitfield>
