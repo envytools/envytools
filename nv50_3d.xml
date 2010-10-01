@@ -926,8 +926,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Goes to 8cxx, 1cxx. 1 by default.</doc>
 		</reg32>
 		<reg32 offset="0x1660" name="POINT_SPRITE_CTRL"/>
-		<reg32 offset="0x1664" name="UNK1664" variants="NVA0_3D-">
-			<doc>Goes to tex. Valid vals 0, 2, 4, 6.</doc>
+		<reg32 offset="0x1664" name="TEX_MISC" variants="NVA0_3D-">
+			<bitfield pos="1" name="UNK1"/>
+			<bitfield pos="2" name="SEAMLESS_CUBE_MAP"/>
 		</reg32>
 		<reg32 offset="0x1668" name="UNK1668">
 			<doc>Goes to 8cxx, 1cxx. 0-2.</doc>

@@ -310,8 +310,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x03e4" name="UNK03E4" varset="chipset" variants="NV84-">
 			<doc>Accepts anything. No DISPATCH</doc>
 		</reg32>
-		<reg32 offset="0x03e8" name="UNK03E8" variants="NVA3_COMPUTE">
-			<doc>0-3, goes to tex.</doc>
+		<reg32 offset="0x03e8" name="TEX_MISC" variants="NVA3_COMPUTE">
+			<!-- yup. shifted by one bit wrt tesla. -->
+			<bitfield pos="0" name="UNK1"/>
+			<bitfield pos="1" name="SEAMLESS_CUBE_MAP"/>
 		</reg32>
 		<stripe offset="0x0400" name="GLOBAL" length="16" stride="0x20">
 			<reg32 offset="0x00" name="ADDRESS_HIGH"/>
