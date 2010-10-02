@@ -759,7 +759,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			0x12, 0x13, 0x15, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, but doesn't
 			work then. resets other things too?</doc>
 		</reg32>
-		<reg32 offset="0x1534" name="UNK1534" type="boolean">
+		<reg32 offset="0x1534" name="UNK1534" type="boolean"> <!-- MS/CS related? -->
 			<doc></doc>
 		</reg32>
 		<reg32 offset="0x1538" name="ZETA_ENABLE" type="boolean"/>
@@ -823,7 +823,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="4" name="1"/>
 			<bitfield pos="8" name="2"/>
 		</reg32>
-		<reg32 offset="0x15b4" name="UNK15B4" type="boolean">
+		<reg32 offset="0x15b4" name="UNK15B4" type="boolean"> <!-- MS/CS related? -->
 			<doc>1 by default, goes to ROP, TPDMA, 8cxx.</doc>
 		</reg32>
 		<reg32 offset="0x15b8" name="FRAMEBUFFER_SRGB" type="boolean"/>
