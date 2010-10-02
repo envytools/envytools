@@ -182,7 +182,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x68" name="SEMAPHORE_ACQUIRE" />
 			<reg32 offset="0x6c" name="SEMAPHORE_RELEASE" />
 		</stripe>
-		<reg32 offset="0x80" name="UNK80" variants="NV50-"/> <!-- XXX: maybe NV40 too? -->
+		<reg32 offset="0x80" name="FORCE_SWITCH" variants="NV40-"/>
 	</stripe>
 	<stripe name="GRAPH" prefix="chipset">
 		<doc>Methods available on all PGRAPH objects.</doc>
