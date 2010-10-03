@@ -90,6 +90,10 @@ void atomqreg APROTO {
 	const int *n = v;
 	fprintf (out, " %s$%c%lldq", (n[2]=='r')?cbl:cmag, n[2], BF(n[0], n[1]));
 }
+void atomoreg APROTO {
+	const int *n = v;
+	fprintf (out, " %s$%c%lldo", (n[2]=='r')?cbl:cmag, n[2], BF(n[0], n[1]));
+}
 void atomhreg APROTO {
 	const int *n = v;
 	int r = BF(n[0], n[1]);

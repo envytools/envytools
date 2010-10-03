@@ -152,6 +152,7 @@ void atomign APROTO;
 void atomreg APROTO;
 void atomdreg APROTO;
 void atomqreg APROTO;
+void atomoreg APROTO;
 void atomhreg APROTO;
 
 uint32_t readle32 (uint8_t *);
