@@ -176,4 +176,6 @@ void fucdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype);
 
 void pmdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype);
 
+void vp2dis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype);
+
 #endif

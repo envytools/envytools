@@ -11,4 +11,5 @@ nvc0dis
 ctxdis
 fucdis
 pmdis
+vp2dis
 *.xml.h

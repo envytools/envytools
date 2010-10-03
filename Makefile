@@ -1,4 +1,4 @@
-all: headergen expand lookup demmio nvbios ctxdis nv50dis nvc0dis fucdis pmdis
+all: headergen expand lookup demmio nvbios ctxdis nv50dis nvc0dis fucdis pmdis vp2dis
 
 headergen: headergen.c rnn.c rnn.h
 	gcc -o headergen headergen.c rnn.c -lxml2 -I/usr/include/libxml2 -g -Wall -Wno-pointer-sign
@@ -33,3 +33,6 @@ fucdis: fucdis.c fucd-back.c dis.h coredis.c
 
 pmdis: pmdis.c pmd-back.c dis.h coredis.c
 	cc -o pmdis pmdis.c pmd-back.c coredis.c
+
+vp2dis: vp2dis.c vp2d-back.c dis.h coredis.c
+	cc -o vp2dis vp2dis.c vp2d-back.c coredis.c
