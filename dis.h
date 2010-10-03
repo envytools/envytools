@@ -38,8 +38,9 @@ extern char *cbl;	// $r registers
 extern char *ccy;	// memory accesses
 extern char *cyel;	// numbers
 extern char *cred;	// unknown stuff
-extern char *cbr;	// code labels
-extern char *cmag;	// funny registers
+extern char *cmag;	// funny registers, jump labels
+extern char *cbr;	// call labels
+extern char *cbrmag;	// call and jump labels
 
 /*
  * Table format

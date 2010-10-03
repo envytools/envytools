@@ -30,14 +30,15 @@
  */
 
 char *cnorm = "\x1b[0m";	// lighgray: instruction code and misc stuff
-char *cgray = "\x1b[37m";	// darkgray: instruction address
-char *cgr = "\x1b[32m";		// green: instruction name and mods
-char *cbl = "\x1b[34m";		// blue: $r registers
-char *ccy = "\x1b[36m";		// cyan: memory accesses
-char *cyel = "\x1b[33m";	// yellow: numbers
-char *cred = "\x1b[31m";	// red: unknown stuff
-char *cbr = "\x1b[37m";		// white: code labels
-char *cmag = "\x1b[35m";	// pink: funny registers
+char *cgray = "\x1b[0;37m";	// darkgray: instruction address
+char *cgr = "\x1b[0;32m";	// green: instruction name and mods
+char *cbl = "\x1b[0;34m";	// blue: $r registers
+char *ccy = "\x1b[0;36m";	// cyan: memory accesses
+char *cyel = "\x1b[0;33m";	// yellow: numbers
+char *cred = "\x1b[0;31m";	// red: unknown stuff
+char *cmag = "\x1b[0;35m";	// pink: funny registers, jump labels
+char *cbr = "\x1b[1;37m";	// white: call labels
+char *cbrmag = "\x1b[1;35m";	// white: call and jump labels
 
 void atomtab APROTO {
 	const struct insn *tab = v;

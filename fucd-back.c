@@ -31,34 +31,46 @@
 
 #define SBTARG atomsbtarg, 0
 void atomsbtarg APROTO {
-	if (!out)
-		return;
 	uint32_t delta = BF(16, 8);
 	if (delta & 0x80) delta += 0xffffff00;
-	fprintf (out, " %s%#x", cbr, pos + delta);
+	uint32_t target = pos + delta;
+	if (target < lnum)
+		labels[target] |= 1;
+	if (!out)
+		return;
+	fprintf (out, " %s%#x", cmag, target);
 }
 
 #define LBTARG atomlbtarg, 0
 void atomlbtarg APROTO {
-	if (!out)
-		return;
 	uint32_t delta = BF(16, 16);
 	if (delta & 0x8000) delta += 0xffff0000;
-	fprintf (out, " %s%#x", cbr, pos + delta);
+	uint32_t target = pos + delta;
+	if (target < lnum)
+		labels[target] |= 1;
+	if (!out)
+		return;
+	fprintf (out, " %s%#x", cmag, target);
 }
 
 #define LCTARG atomlctarg, 0
 void atomlctarg APROTO {
+	uint32_t target = BF(16, 16);
+	if (target < lnum)
+		labels[target] |= 2;
 	if (!out)
 		return;
-	fprintf (out, " %s%#llx", cbr, BF(16, 16));
+	fprintf (out, " %s%#llx", cbr, target);
 }
 
 #define SCTARG atomsctarg, 0
 void atomsctarg APROTO {
+	uint32_t target = BF(16, 8);
+	if (target < lnum)
+		labels[target] |= 2;
 	if (!out)
 		return;
-	fprintf (out, " %s%#llx", cbr, BF(16, 8));
+	fprintf (out, " %s%#llx", cbr, target);
 }
 
 /*
@@ -708,7 +720,42 @@ void fucdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype) {
 	int cur = 0, i;
 	int *labels = calloc(num, sizeof *labels);
 	while (cur < num) {
-		fprintf (out, "%s%08x:%s", cgray, cur + start, cnorm);
+		uint8_t op = code[cur];
+		int length = 0;
+		if (op < 0xc0)
+			op &= 0x3f;
+		for (i = 0; i < sizeof optab / sizeof *optab / 3; i++)
+			if ((op & optab[3*i+1]) == optab[3*i])
+				length = optab[3*i+2];
+		if (!length || cur + length > num) {
+			cur++;
+		} else {
+			ull a = 0, m = 0;
+			for (i = cur; i < cur + length; i++) {
+				a |= (ull)code[i] << (i-cur)*8;
+			}
+			atomtab (0, &a, &m, tabm, ptype, cur + start, labels, num);
+			cur += length;
+		}
+	}
+	cur = 0;
+	while (cur < num) {
+		if (labels[cur] & 2)
+			fprintf (out, "\n");
+		switch (labels[cur] & 3) {
+			case 0:
+				fprintf (out, "%s%08x:%s", cgray, cur + start, cnorm);
+				break;
+			case 1:
+				fprintf (out, "%s%08x:%s", cmag, cur + start, cnorm);
+				break;
+			case 2:
+				fprintf (out, "%s%08x:%s", cbr, cur + start, cnorm);
+				break;
+			case 3:
+				fprintf (out, "%s%08x:%s", cbrmag, cur + start, cnorm);
+				break;
+		}
 		uint8_t op = code[cur];
 		int length = 0;
 		if (op < 0xc0)
@@ -727,6 +774,14 @@ void fucdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype) {
 			}
 			for (i = 0; i < 6 - length; i++)
 				fprintf (out, "   ");
+			if (labels[cur] & 2)
+				fprintf (out, "%sC", cbr);
+			else
+				fprintf (out, " ");
+			if (labels[cur] & 1)
+				fprintf (out, "%sB", cmag);
+			else
+			fprintf (out, " ");
 			atomtab (out, &a, &m, tabm, ptype, cur + start, labels, num);
 			a &= ~m;
 			if (a) {
