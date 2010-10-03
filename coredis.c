@@ -51,18 +51,23 @@ void atomtab APROTO {
 }
 
 void atomname APROTO {
-	fprintf (out, " %s%s", cgr, (char *)v);
+	if (out)
+		fprintf (out, " %s%s", cgr, (char *)v);
 }
 
 void atomnl APROTO {
-	fprintf (out, "\n                          ");
+	if (out)
+		fprintf (out, "\n                          ");
 }
 
 void atomunk APROTO {
-	fprintf (out, " %s%s", cred, (char *)v);
+	if (out)
+		fprintf (out, " %s%s", cred, (char *)v);
 }
 
 void atomnum APROTO {
+	if (!out)
+		return;
 	const int *n = v;
 	ull num = BF(n[0], n[1])<<n[2];
 	if (n[3] && num&1ull<<(n[1]+n[2]-1))
@@ -77,24 +82,34 @@ void atomign APROTO {
 }
 
 void atomreg APROTO {
+	if (!out)
+		return;
 	const int *n = v;
 	int r = BF(n[0], n[1]);
 	if (r == 127 && n[2] == 'o') fprintf (out, " %s#", cbl);
 	else fprintf (out, " %s$%c%d", (n[2]=='r')?cbl:cmag, n[2], r);
 }
 void atomdreg APROTO {
+	if (!out)
+		return;
 	const int *n = v;
 	fprintf (out, " %s$%c%lldd", (n[2]=='r')?cbl:cmag, n[2], BF(n[0], n[1]));
 }
 void atomqreg APROTO {
+	if (!out)
+		return;
 	const int *n = v;
 	fprintf (out, " %s$%c%lldq", (n[2]=='r')?cbl:cmag, n[2], BF(n[0], n[1]));
 }
 void atomoreg APROTO {
+	if (!out)
+		return;
 	const int *n = v;
 	fprintf (out, " %s$%c%lldo", (n[2]=='r')?cbl:cmag, n[2], BF(n[0], n[1]));
 }
 void atomhreg APROTO {
+	if (!out)
+		return;
 	const int *n = v;
 	int r = BF(n[0], n[1]);
 	if (r == 127 && n[2] == 'o') fprintf (out, " %s#", cbl);

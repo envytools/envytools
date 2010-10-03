@@ -31,6 +31,8 @@
 
 #define SBTARG atomsbtarg, 0
 void atomsbtarg APROTO {
+	if (!out)
+		return;
 	uint32_t delta = BF(16, 8);
 	if (delta & 0x80) delta += 0xffffff00;
 	fprintf (out, " %s%#x", cbr, pos + delta);
@@ -38,6 +40,8 @@ void atomsbtarg APROTO {
 
 #define LBTARG atomlbtarg, 0
 void atomlbtarg APROTO {
+	if (!out)
+		return;
 	uint32_t delta = BF(16, 16);
 	if (delta & 0x8000) delta += 0xffff0000;
 	fprintf (out, " %s%#x", cbr, pos + delta);
@@ -45,11 +49,15 @@ void atomlbtarg APROTO {
 
 #define LCTARG atomlctarg, 0
 void atomlctarg APROTO {
+	if (!out)
+		return;
 	fprintf (out, " %s%#llx", cbr, BF(16, 16));
 }
 
 #define SCTARG atomsctarg, 0
 void atomsctarg APROTO {
+	if (!out)
+		return;
 	fprintf (out, " %s%#llx", cbr, BF(16, 16));
 }
 
@@ -92,6 +100,8 @@ static struct insn tabcm[];
 #define COCMD8 atomcocmd, imm8off
 #define COCMD16 atomcocmd, imm16off
 void atomcocmd APROTO {
+	if (!out)
+		return;
 	const int *n = v;
 	ull na = BF(n[0], n[1]), nm = 0;
 	fprintf (out, " %s%04llx", cgray, na);
@@ -105,6 +115,8 @@ void atomcocmd APROTO {
 #define BITF8 atombf, imm8off
 #define BITF16 atombf, imm16off
 void atombf APROTO {
+	if (!out)
+		return;
 	const int *n = v;
 	uint32_t i = BF(n[0], n[1]);
 	if (n[3] && i&1ull<<(n[1]-1))
@@ -132,20 +144,28 @@ static int data32off[] = { 2 };
 #define DATA16SP atomdatasp, data16off
 #define DATA32SP atomdatasp, data32off
 void atomdatar APROTO {
+	if (!out)
+		return;
 	fprintf (out, " %sD[%s$r%lld%s]", ccy, cbl, BF(12, 4), ccy);
 }
 
 void atomdatari APROTO {
+	if (!out)
+		return;
 	const int *n = v;
 	fprintf (out, " %sD[%s$r%lld%s+%s%#llx%s]", ccy, cbl, BF(12, 4), ccy, cyel, BF(16,8) << n[0], ccy);
 }
 
 void atomdatasp APROTO {
+	if (!out)
+		return;
 	const int *n = v;
 	fprintf (out, " %sD[%ssp%s+%s%#llx%s]", ccy, cgr, ccy, cyel, BF(16,8) << n[0], ccy);
 }
 
 void atomdatarr APROTO {
+	if (!out)
+		return;
 	const int *n = v;
 	fprintf (out, " %sD[%s$r%lld%s+%s$r%lld%s*%s%d%s]", ccy, cbl, BF(12, 4), ccy, cbl, BF(8, 4), ccy, cyel, 1 << n[0], ccy);
 }
@@ -161,16 +181,22 @@ void atomdatarr APROTO {
  */
 #define IOR atomior, 0
 void atomior APROTO {
+	if (!out)
+		return;
 	fprintf (out, " %sI[%s$r%lld%s]", ccy, cbl, BF(12, 4), ccy);
 }
 
 #define IORR atomiorr, 0
 void atomiorr APROTO {
+	if (!out)
+		return;
 	fprintf (out, " %sI[%s$r%lld%s+%s$r%lld%s*%s4%s]", ccy, cbl, BF(12, 4), ccy, cbl, BF(8, 4), ccy, cyel, ccy);
 }
 
 #define IORI atomiori, 0
 void atomiori APROTO {
+	if (!out)
+		return;
 	fprintf (out, " %sI[%s$r%lld%s+%s%#llx%s]", ccy, cbl, BF(12, 4), ccy, cyel, BF(16, 8) << 2, ccy);
 }
 

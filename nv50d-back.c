@@ -232,6 +232,8 @@
 
 #define CTARG atomctarg, 0
 void atomctarg APROTO {
+	if (!out)
+		return;
 	fprintf (out, " %s%#llx", cbr, BF(0xb, 16)<<2 | BF(0x2e, 6) << 18);
 }
 
@@ -243,6 +245,8 @@ void atomctarg APROTO {
 
 #define IMM atomimm, 0
 void atomimm APROTO {
+	if (!out)
+		return;
 	fprintf (out, " %s%#llx", cyel, (BF(0x10, 6)) | (BF(0x22, 26)<<6));
 }
 
@@ -392,11 +396,15 @@ static int getareg (ull *a, ull *m, int l) {
 }
 #define AREG atomareg, 0
 void atomareg APROTO {
+	if (!out)
+		return;
 	fprintf (out, " %s$a%d", cmag, getareg(a, m, 1));
 }
 
 #define LTDST atomltdst, 0
 void atomltdst APROTO {
+	if (!out)
+		return;
 	int base = BF(2, 7);
 	int mask = BF(0x2e, 2)<<2 | BF(0x19, 2);
 	int k = 0, i;
@@ -410,6 +418,8 @@ void atomltdst APROTO {
 }
 #define STDST atomstdst, 0
 void atomstdst APROTO {
+	if (!out)
+		return;
 	int base = BF(2, 6);
 	int i;
 	fprintf (out, " %s{", cnorm);
@@ -419,6 +429,8 @@ void atomstdst APROTO {
 }
 #define LTSRC atomltsrc, 0
 void atomltsrc APROTO {
+	if (!out)
+		return;
 	int base = BF(2, 7);
 	int cnt = BF(0x16, 2);
 	int i;
@@ -429,6 +441,8 @@ void atomltsrc APROTO {
 }
 #define STSRC atomstsrc, 0
 void atomstsrc APROTO {
+	if (!out)
+		return;
 	int base = BF(2, 6);
 	int cnt = BF(0x16, 2);
 	int i;
@@ -557,6 +571,8 @@ static int lvmem[] = { 0x10, 8, 2, 'v', 3, 0, 0 };		// TODO
 #define SVAR atommem, svmem
 #define LVAR atommem, lvmem
 void atommem APROTO {
+	if (!out)
+		return;
 	const int *n = v;
 	fprintf (out, " %s%c", ccy, n[3]);
 	if (n[6]) fprintf (out, "%lld", BF(n[5], n[6]));
@@ -579,6 +595,8 @@ static int g2mem[] = { 0x17, 4 };
 #define GLOBAL atomglobal, g1mem
 #define GLOBAL2 atomglobal, g2mem
 void atomglobal APROTO {
+	if (!out)
+		return;
 	const int *n = v;
 	fprintf (out, " %sg%lld[%s$r%lld%s]", ccy, BF(n[0], n[1]), cbl, BF(9, 7), ccy);
 }

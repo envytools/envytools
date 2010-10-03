@@ -36,6 +36,8 @@ static int staoff[] = { 0xdeaddead };
 #define DATA16 atomst16, stdoff
 #define DATA32 atomst32, stdoff
 static void atomst16 APROTO {
+	if (!out)
+		return;
 	int *n = (int*)v;
 	ull num = BF(8, 16);
 	n[0] &= 0xffff0000;
@@ -43,6 +45,8 @@ static void atomst16 APROTO {
 	fprintf (out, " %s%#x", cyel, n[0]);
 }
 static void atomst32 APROTO {
+	if (!out)
+		return;
 	int *n = (int*)v;
 	ull num = BF(8, 32);
 	n[0] = num;

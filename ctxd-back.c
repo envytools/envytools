@@ -132,6 +132,8 @@
 
 #define CTARG atomctarg, 0
 static void atomctarg APROTO {
+	if (!out)
+		return;
 	fprintf (out, " %s%#llx", cbr, BF(8, 9)<<2);
 }
 
@@ -140,6 +142,8 @@ static void atomctarg APROTO {
  */
 #define C(x) atomcmd, x
 static void atomcmd APROTO {
+	if (!out)
+		return;
 	fprintf (out, " %s%s", cmag, (char *)v);
 }
 
@@ -178,6 +182,8 @@ static int pgmem5[] = { 0, 16, 2, 'G' };
 #define PGRAPH4 atommem, pgmem4
 #define PGRAPH5 atommem, pgmem5
 static void atommem APROTO {
+	if (!out)
+		return;
 	const int *n = v;
 	fprintf (out, " %s%c[", ccy, n[3]);
 //	if (n[3] == 'G') printf("%s$g%s+", cbl, ccy);

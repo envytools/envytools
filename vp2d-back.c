@@ -50,6 +50,8 @@ static int btarg12off[] = { 12, 12 };
 #define BTARG8 atomjtarg, btarg8off
 #define BTARG12 atomjtarg, btarg12off
 void atomjtarg APROTO {
+	if (!out)
+		return;
 	const int *n = v;
 	uint32_t delta = BF(n[0], n[1]);
 	if (delta & 1 << (n[1] - 1)) delta -= 1 << n[1];
@@ -58,18 +60,24 @@ void atomjtarg APROTO {
 
 #define LTARG atomltarg, 0
 void atomltarg APROTO {
+	if (!out)
+		return;
 	uint32_t delta = BF(16, 8);
 	fprintf (out, " %s%#x", cbr, pos + 4 + delta);
 }
 
 #define BTARG6 atombtarg6, 0
 void atombtarg6 APROTO {
+	if (!out)
+		return;
 	uint32_t delta = BF(12, 4) | BF(4, 2) << 4;
 	fprintf (out, " %s%#x", cbr, pos + 4 + delta);
 }
 
 #define CTARG atomctarg, 0
 void atomctarg APROTO {
+	if (!out)
+		return;
 	uint32_t delta = BF(6, 18);
 	if (delta & 0x20000) delta += 0xfffc0000;
 	fprintf (out, " %s%#x", cbr, (pos & ~3) + 4 + delta * 4);
@@ -118,6 +126,8 @@ static int break4off[] = { 4, 4, 0, 0, };
 #define BREAK4 atomnum, break4off
 
 void atomlutnum APROTO {
+	if (!out)
+		return;
 	const int *n = v;
 	fprintf (out, " %s%#x", cyel, n[BF(n[0], n[1]) + 2]);
 }
@@ -144,11 +154,15 @@ static int addinlut[] = { 4, 4,
 #define ADDIN atomlutnum, addinlut
 
 void atombbi APROTO {
+	if (!out)
+		return;
 	fprintf (out, " %s%#x", cyel, BF(4, 4) | BF(12, 1) << 4);
 }
 #define BBI atombbi, 0
 
 void atommi12 APROTO {
+	if (!out)
+		return;
 	uint32_t num = BF(16,8) | BF(8,4) << 8;
 	if (num & 0x800)
 		fprintf (out, " %s-%#x", cyel, 0x1000-num);
@@ -158,6 +172,8 @@ void atommi12 APROTO {
 #define MI12 atommi12, 0
 
 void atommi7 APROTO {
+	if (!out)
+		return;
 	uint32_t num = BF(12,4) | BF(4,3) << 4;
 	if (num >= 0x60)
 		fprintf (out, " %s-%#x", cyel, 0x80-num);
@@ -167,28 +183,38 @@ void atommi7 APROTO {
 #define MI7 atommi7, 0
 
 void atomshiftimm APROTO {
+	if (!out)
+		return;
 	fprintf (out, " %s%#x", cyel, BF(8, 4) | BF(16, 1) << 4);
 }
 #define SHIFTIMM atomshiftimm, 0
 
 void atommaskimm APROTO {
+	if (!out)
+		return;
 	fprintf (out, " %s%#x", cyel, BF(20, 4) + 1);
 }
 #define MASKIMM atommaskimm, 0
 
 void atomslli APROTO {
+	if (!out)
+		return;
 	uint32_t num = BF(4, 4) | BF(20, 1) << 4;
 	fprintf (out, " %s%#x", cyel, 32 - num);
 }
 #define SLLI atomslli, 0
 
 void atomsrai APROTO {
+	if (!out)
+		return;
 	uint32_t num = BF(8, 4) | BF(20, 1) << 4;
 	fprintf (out, " %s%#x", cyel, num);
 }
 #define SRAI atomsrai, 0
 
 void atomssai APROTO {
+	if (!out)
+		return;
 	uint32_t num = BF(8, 4) | BF(4, 1) << 4;
 	fprintf (out, " %s%#x", cyel, num);
 }
@@ -200,6 +226,8 @@ void atomssai APROTO {
 
 #define L32R atoml32r, 0
 void atoml32r APROTO {
+	if (!out)
+		return;
 	uint32_t delta = BF(8, 16) | 0xffff0000;
 	uint32_t addr = ((pos + 3) & ~3) + (delta << 2);
 	fprintf (out, " %sD[%s%#x%s]", ccy, cyel, addr, ccy);
@@ -207,6 +235,8 @@ void atoml32r APROTO {
 
 #define DATA32E atomdata32e, 0
 void atomdata32e APROTO {
+	if (!out)
+		return;
 	fprintf (out, " %sD[%s$r%lld%s-%s%#llx%s]", ccy, cbl, BF(8, 4), ccy, cyel, (16 - BF(12, 4)) << 2, ccy);
 }
 
@@ -223,6 +253,8 @@ static int data8off[] = { 8, 4, 16, 8, 0 };
 #define DATA16 atommem, data16off
 #define DATA8 atommem, data8off
 void atommem APROTO {
+	if (!out)
+		return;
 	const int *n = v;
 	ull delta = BF(n[2], n[3]) << n[4];
 	fprintf (out, " %sD[%s$r%lld%s+%s%#llx%s]", ccy, cbl, BF(n[0], n[1]), ccy, cyel, delta, ccy);

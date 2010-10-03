@@ -127,6 +127,8 @@
 
 #define CTARG atomctarg, 0
 void atomctarg APROTO {
+	if (!out)
+		return;
 	uint32_t delta = BF(26, 24);
 	if (delta & 0x800000) delta += 0xff000000;
 	fprintf (out, " %s%#x", cbr, pos + delta);
@@ -204,6 +206,8 @@ static int ccoff[] = { 0, 0, 'c' };
 
 #define TDST atomtdst, 0
 void atomtdst APROTO {
+	if (!out)
+		return;
 	int base = BF(0xe, 6);
 	int mask = BF(0x2e, 4);
 	int k = 0, i;
@@ -217,6 +221,8 @@ void atomtdst APROTO {
 }
 #define TSRC atomtsrc, 0
 void atomtsrc APROTO {
+	if (!out)
+		return;
 	int base = BF(0x14, 6);
 	int cnt = BF(0x34, 2);
 	int i;
@@ -228,6 +234,8 @@ void atomtsrc APROTO {
 
 #define SADDR atomsaddr, 0
 void atomsaddr APROTO {
+	if (!out)
+		return;
 	int base = BF(0x14, 6);
 	int cnt = BF(0x2c, 2);
 	int i;
@@ -239,6 +247,8 @@ void atomsaddr APROTO {
 
 #define ESRC atomesrc, 0
 void atomesrc APROTO {
+	if (!out)
+		return;
 	int base = BF(26, 6);
 	int cnt = BF(5, 2);
 	int i;
@@ -250,6 +260,8 @@ void atomesrc APROTO {
 
 #define VDST atomvdst, 0
 void atomvdst APROTO {
+	if (!out)
+		return;
 	int base = BF(14, 6);
 	int cnt = BF(5, 2);
 	int i;
@@ -262,6 +274,8 @@ void atomvdst APROTO {
 // vertex base address (for tessellation and geometry programs)
 #define VBASRC atomvbasrc, 0
 void atomvbasrc APROTO {
+	if (!out)
+		return;
 	int s1 = BF(20, 6);
 	int s2 = BF(26, 6);
 	fprintf (out, " %sp<%s$r%d%s+%s%i%s>", ccy, cbl, s1, ccy, cyel, s2, ccy);
@@ -282,6 +296,8 @@ static int fcmem[] = { 'c', 0, 16 };
 #define LOCAL atommem, lmem
 #define FCONST atommem, fcmem
 void atommem APROTO {
+	if (!out)
+		return;
 	const int *n = v;
 	uint32_t delta = BF(26, n[2]);
 	fprintf (out, " %s%c", ccy, n[0]);
@@ -296,6 +312,8 @@ void atommem APROTO {
 
 #define VAR atomvar, 0
 void atomvar APROTO {
+	if (!out)
+		return;
 	int s1 = BF(20, 6);
 	uint32_t delta =  BF(32, 16);
 	fprintf (out, " %sv[%s$r%d%s+%s%#x%s]", ccy, cbl, s1, ccy, cyel, delta, ccy);
@@ -303,6 +321,8 @@ void atomvar APROTO {
 
 #define ATTR atomattr, 0
 void atomattr APROTO {
+	if (!out)
+		return;
 	int s1 = BF(20, 6);
 	int s2 = BF(26, 6);
 	uint32_t delta = BF(32, 16);
@@ -313,6 +333,8 @@ void atomattr APROTO {
 
 #define CONST atomconst, 0
 void atomconst APROTO {
+	if (!out)
+		return;
 	int delta = BF(0x1a, 16);
 	int space = BF(0x2a, 4);
 	fprintf (out, " %sc%d[%s%#x%s]", ccy, space, cyel, delta, ccy);
@@ -320,6 +342,8 @@ void atomconst APROTO {
 
 #define GATOM atomgatom, 0
 void atomgatom APROTO {
+	if (!out)
+		return;
 	const int *n = v;
 	uint32_t delta = BF(0x1a, 17) | BF(0x37, 3)<<17;
 	fprintf (out, " %sg[%s$r%lld%s", ccy, cbl, BF(20, 6), BF(0x3a, 1)?"d":"");
