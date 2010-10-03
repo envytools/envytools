@@ -105,7 +105,7 @@ void atomcocmd APROTO {
 	const int *n = v;
 	ull na = BF(n[0], n[1]), nm = 0;
 	fprintf (out, " %s%04llx", cgray, na);
-	atomtab (out, &na, &nm, tabcm, ptype, pos);
+	atomtab (out, &na, &nm, tabcm, ptype, pos, 0, 0);
 	na &= ~nm;
 	if (na) {
 		fprintf (out, " %s[unknown: %04llx]%s", cred, na, cnorm);
@@ -706,6 +706,7 @@ static struct insn tabcm[] = {
 
 void fucdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype) {
 	int cur = 0, i;
+	int *labels = calloc(num, sizeof *labels);
 	while (cur < num) {
 		fprintf (out, "%s%08x:%s", cgray, cur + start, cnorm);
 		uint8_t op = code[cur];
@@ -726,7 +727,7 @@ void fucdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype) {
 			}
 			for (i = 0; i < 6 - length; i++)
 				fprintf (out, "   ");
-			atomtab (out, &a, &m, tabm, ptype, cur + start);
+			atomtab (out, &a, &m, tabm, ptype, cur + start, labels, num);
 			a &= ~m;
 			if (a) {
 				fprintf (out, " %s[unknown: %08llx]%s", cred, a, cnorm);
@@ -735,4 +736,5 @@ void fucdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype) {
 			cur += length;
 		}
 	}
+	free(labels);
 }

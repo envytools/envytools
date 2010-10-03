@@ -1549,6 +1549,7 @@ static struct insn tab2w[] = {
 
 void nv50dis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype) {
 	int cur = 0;
+	int *labels = calloc(num, sizeof *labels);
 	while (cur < num) {
 		ull a = code[cur], m = 0;
 		fprintf (out, "%s%08x: %s", cgray, cur*4 + start, cnorm);
@@ -1569,11 +1570,12 @@ void nv50dis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype) {
 			fprintf (out, "        %08llx", a);
 		}
 		struct insn *tab = ((a&1)?tab2w:tabs);
-		atomtab (out, &a, &m, tab, ptype, cur*4 + start); // fix it one day.
+		atomtab (out, &a, &m, tab, ptype, cur*4 + start, labels, num); // fix it one day.
 		a &= ~m;
 		if (a & ~1ull) {
 			fprintf (out, (a&1?" %s[unknown: %016llx]%s":" %s[unknown: %08llx]%s"), cred, a&~1ull, cnorm);
 		}
 		printf ("%s\n", cnorm);
 	}
+	free(labels);
 }

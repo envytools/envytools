@@ -47,7 +47,7 @@ void atomtab APROTO {
 	m[0] |= tab->mask;
 	for (i = 0; i < 16; i++)
 		if (tab->atoms[i].fun)
-			tab->atoms[i].fun (out, a, m, tab->atoms[i].arg, ptype, pos);
+			tab->atoms[i].fun (out, a, m, tab->atoms[i].arg, ptype, pos, labels, lnum);
 }
 
 void atomname APROTO {

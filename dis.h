@@ -99,7 +99,7 @@ typedef unsigned long long ull;
 #define BF(s, l) (*m |= (((1ull<<l)-1)<<s), *a>>s&((1ull<<l)-1))
 #define RCL(s, l) (*a &= ~(((1ull<<l)-1)<<s))
 
-#define APROTO (FILE *out, ull *a, ull *m, const void *v, int ptype, uint32_t pos)
+#define APROTO (FILE *out, ull *a, ull *m, const void *v, int ptype, uint32_t pos, int *labels, int lnum)
 
 typedef void (*afun) APROTO;
 

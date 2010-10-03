@@ -275,11 +275,12 @@ static struct insn tabm[] = {
 
 void ctxdis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype) {
 	int cur = 0;
+	int *labels = calloc(num, sizeof *labels);
 	while (cur < num) {
 		ull a = code[cur], m = 0;
 		fprintf (out, "%s%08x: %s", cgray, cur*4 + start, cnorm);
 		fprintf (out, "%08llx", a);
-		atomtab (out, &a, &m, tabm, ptype, cur*4 + start);
+		atomtab (out, &a, &m, tabm, ptype, cur*4 + start, labels, num);
 		a &= ~m;
 		if (a) {
 			fprintf (out, " %s[unknown: %08llx]%s", cred, a, cnorm);
@@ -287,4 +288,5 @@ void ctxdis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype) {
 		printf ("%s\n", cnorm);
 		cur++;
 	}
+	free(labels);
 }

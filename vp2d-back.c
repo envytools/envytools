@@ -486,6 +486,7 @@ static uint32_t optab[] = {
 
 void vp2dis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype) {
 	int cur = 0, i;
+	int *labels = calloc(num, sizeof *labels);
 	while (cur < num) {
 		fprintf (out, "%s%08x:%s", cgray, cur + start, cnorm);
 		uint8_t op = code[cur];
@@ -504,7 +505,7 @@ void vp2dis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype) {
 			}
 			for (i = 0; i < 6 - length; i++)
 				fprintf (out, "   ");
-			atomtab (out, &a, &m, tabm, ptype, cur + start);
+			atomtab (out, &a, &m, tabm, ptype, cur + start, labels, num);
 			a &= ~m;
 			if (a) {
 				fprintf (out, " %s[unknown: %08llx]%s", cred, a, cnorm);
@@ -513,4 +514,5 @@ void vp2dis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype) {
 			cur += length;
 		}
 	}
+	free(labels);
 }

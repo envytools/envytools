@@ -989,6 +989,7 @@ static struct insn tabs[] = {
 
 void nvc0dis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype) {
 	int cur = 0;
+	int *labels = calloc(num, sizeof *labels);
 	while (cur < num) {
 		ull a = code[cur], m = 0;
 		fprintf (out, "%s%08x: %s", cgray, cur*4 + start, cnorm);
@@ -1005,11 +1006,12 @@ void nvc0dis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype) {
 			}*/
 			a |= (ull)code[cur++] << 32;
 			fprintf (out, "%016llx", a);
-		atomtab (out, &a, &m, tabs, ptype, cur*4 + start);
+		atomtab (out, &a, &m, tabs, ptype, cur*4 + start, labels, num);
 		a &= ~m;
 		if (a) {
 			fprintf (out, (" %s[unknown: %016llx]%s"), cred, a, cnorm);
 		}
 		printf ("%s\n", cnorm);
 	}
+	free(labels);
 }
