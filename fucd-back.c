@@ -58,7 +58,7 @@ void atomlctarg APROTO {
 void atomsctarg APROTO {
 	if (!out)
 		return;
-	fprintf (out, " %s%#llx", cbr, BF(16, 16));
+	fprintf (out, " %s%#llx", cbr, BF(16, 8));
 }
 
 /*
