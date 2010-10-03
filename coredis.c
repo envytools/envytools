@@ -66,7 +66,7 @@ void atomnum APROTO {
 	const int *n = v;
 	ull num = BF(n[0], n[1])<<n[2];
 	if (n[3] && num&1ull<<(n[1]+n[2]-1))
-		fprintf (out, " %s-%#llx", cyel, (1ull<<n[1]) - num);
+		fprintf (out, " %s-%#llx", cyel, (1ull<<(n[1]+n[2])) - num);
 	else
 		fprintf (out, " %s%#llx", cyel, num);
 }
