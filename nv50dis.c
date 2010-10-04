@@ -71,6 +71,7 @@ int main(int argc, char **argv) {
 				cred = "";
 				cbr = "";
 				cmag = "";
+				cbrmag = "";
 				break;
 		}
 	int num = 0;
