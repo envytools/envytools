@@ -764,7 +764,7 @@ void fucdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype) {
 			if ((op & optab[3*i+1]) == optab[3*i])
 				length = optab[3*i+2];
 		if (!length || cur + length > num) {
-			fprintf (out, " %s%02x                ??? [unknown op length]%s\n", cred, op, cnorm);
+			fprintf (out, " %s%02x              ??? [unknown op length]%s\n", cred, op, cnorm);
 			cur++;
 		} else {
 			ull a = 0, m = 0;
@@ -772,8 +772,9 @@ void fucdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype) {
 				fprintf (out, " %02x", code[i]);
 				a |= (ull)code[i] << (i-cur)*8;
 			}
-			for (i = 0; i < 6 - length; i++)
+			for (i = 0; i < 4 - length; i++)
 				fprintf (out, "   ");
+			fprintf (out, "  ");
 			if (labels[cur] & 2)
 				fprintf (out, "%sC", cbr);
 			else
@@ -781,7 +782,7 @@ void fucdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype) {
 			if (labels[cur] & 1)
 				fprintf (out, "%sB", cmag);
 			else
-			fprintf (out, " ");
+				fprintf (out, " ");
 			atomtab (out, &a, &m, tabm, ptype, cur + start, labels, num);
 			a &= ~m;
 			if (a) {
