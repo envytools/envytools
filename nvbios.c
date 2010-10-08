@@ -503,6 +503,8 @@ int main(int argc, char **argv) {
 					disp_script_tbl_ptr = le16(eoff);
 					break;
 				case 'P':
+					printf("Bit P table version %x\n", version);
+			
 					pm_mode_tbl_ptr = le16(eoff + 0);
 					if (version == 1) {
 						voltage_tbl_ptr = le16(eoff + 16);
@@ -513,6 +515,7 @@ int main(int argc, char **argv) {
 						temperature_tbl_ptr = le16(eoff + 16);
 						timings_tbl_ptr = le16(eoff + 8);
 					}
+
 					break;
 				case 'i':
 					parse_bios_version(eoff);
@@ -754,20 +757,30 @@ int main(int argc, char **argv) {
 	if (pm_mode_tbl_ptr) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t mode_info_length = 0, header_length = 0;
+		uint8_t subentry_offset = 0, subentry_size = 0, subentry_count = 0;
 		uint16_t start = pm_mode_tbl_ptr;
 
 		if (major_version == 0x5) {
 			version = bios[start+1];
-			entry_count = bios[start+3];
 			entry_length = bios[start+2];
+			entry_count = bios[start+3];
 			mode_info_length = entry_length;
 			header_length = 4;
 		} else if (major_version < 0x70) {
 			version = bios[start+0];
+			header_length = bios[start+1];
 			entry_count = bios[start+2];
 			mode_info_length = bios[start+3];
 			entry_length = mode_info_length + bios[start+4] * bios[start+5];
+		} else if (major_version == 0x70) {
+			version = bios[start+0];
 			header_length = bios[start+1];
+			subentry_offset = bios[start+2];
+			subentry_size = bios[start+3];
+			subentry_count = bios[start+4];
+			entry_length = subentry_offset + subentry_size * subentry_count;
+			mode_info_length = entry_length;
+			entry_count = bios[start+5];
 		}
 
 		start += header_length;
@@ -776,11 +789,11 @@ int main(int argc, char **argv) {
 				pm_mode_tbl_ptr, version);
 		printcmd(pm_mode_tbl_ptr, header_length>0?header_length:10);
 		printf ("\n");
-
+		
 		printf("%i performance levels\n", entry_count);
 		int i;
 		for (i=0; i < entry_count; i++) {
-			uint8_t id, fan, voltage;
+			uint16_t id, fan, voltage;
 			uint16_t core, shader = 0, memclk;
 
 			if (version == 0x12 || version == 0x13 || version == 0x15) {
@@ -804,19 +817,32 @@ int main(int argc, char **argv) {
 				voltage = bios[start+5];
 			} else if (version == 0x30 || version == 0x35) {
 				id = bios[start+0];
+				fan = bios[start+6];
+				voltage = bios[start+7];
 				core = le16(start+8);
 				shader = le16(start+10);
 				memclk = le16(start+12);
-				fan = bios[start+6];
-				voltage = bios[start+7];
+			} else if (version == 0x40) {
+#define subent(n) (subentry_offset + ((n) * subentry_size))
+				id = bios[start+0];
+				fan = 0;
+				voltage = bios[start+2];
+				core = (le16(start+subent(0)) & 0xfff);
+				shader = (le16(start+subent(1)) & 0xfff);
+				memclk = (le16(start+subent(2)) & 0xfff);
 			}
 
 			printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Voltage %d[*10mV] Fan %d --\n",
 				id, core, memclk, shader, voltage, fan
 			);
 			if (mode_info_length > 20) {
-				printcmd(start, 20); printf("\n");
-				printcmd(start + 20, mode_info_length - 20);
+				int i=0;
+			printf("modeinfo_length=%u\n", mode_info_length);
+				while (mode_info_length - i*20 > 20) {
+					printcmd(start+i*20, 20); printf("\n");
+					i++;
+				}
+				printcmd(start + i*20, mode_info_length%20);
 			} else {
 				printcmd(start, mode_info_length);
 			}
@@ -838,11 +864,19 @@ int main(int argc, char **argv) {
 			entry_length = bios[start+1];
 			header_length = 5;
 			mask = bios[start+4];
-		} else if (version == 0x20 || version == 0x30) {
+		} else if (version == 0x20) {
 			entry_count = bios[start+2];
-			entry_length = bios[start+3] + bios[start+4] * bios[start+5];
+			entry_length = bios[start+3];
 			header_length = bios[start+1];
 			mask = bios[start+5];
+		} else if (version == 0x30) {
+			entry_count = bios[start+3];
+			entry_length = bios[start+2];
+			header_length = bios[start+1];
+			mask = bios[start+4];
+		} else if (version == 0x40) {
+			header_length = bios[start+1];
+			entry_count = 0;
 		}
 
 		start += header_length;
@@ -856,8 +890,15 @@ int main(int argc, char **argv) {
 		printf ("%i entries\n", entry_count);
 		int i;
 		for (i=0; i < entry_count; i++) {
-			uint8_t id = bios[start+1];
-			uint8_t label = bios[start+0];
+			uint8_t id, label;
+
+			if (version < 0x40) {
+				id = bios[start+1];
+				label = bios[start+0];
+			} else if (version == 0x40) {
+				id = 0;
+				label = 0;
+			}
 
 			printf ("-- ID = %x, voltage = %u[*10mV] --\n", id, label);
 			if (entry_length > 20) {
