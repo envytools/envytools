@@ -44,6 +44,28 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x8004" name="ONE_MINUS_CONSTANT_ALPHA"/>
 </enum>
 
+<enum name="nv50_blend_factor">
+	<value value="0x4000" name="ZERO"/>
+	<value value="0x4001" name="ONE"/>
+	<value value="0x4300" name="SRC_COLOR"/>
+	<value value="0x4301" name="ONE_MINUS_SRC_COLOR"/>
+	<value value="0x4302" name="SRC_ALPHA"/>
+	<value value="0x4303" name="ONE_MINUS_SRC_ALPHA"/>
+	<value value="0x4304" name="DST_ALPHA"/>
+	<value value="0x4305" name="ONE_MINUS_DST_ALPHA"/>
+	<value value="0x4306" name="DST_COLOR"/>
+	<value value="0x4307" name="ONE_MINUS_DST_COLOR"/>
+	<value value="0x4308" name="SRC_ALPHA_SATURATE"/>
+	<value value="0xc001" name="CONSTANT_COLOR"/>
+	<value value="0xc002" name="ONE_MINUS_CONSTANT_COLOR"/>
+	<value value="0xc003" name="CONSTANT_ALPHA"/>
+	<value value="0xc004" name="ONE_MINUS_CONSTANT_ALPHA"/>
+	<value value="0xc900" name="SRC1_COLOR"/>
+	<value value="0xc901" name="ONE_MINUS_SRC1_COLOR"/>
+	<value value="0xc902" name="SRC1_ALPHA"/>
+	<value value="0xc903" name="ONE_MINUS_SRC1_ALPHA"/>
+</enum>
+
 <enum name="gl_blend_equation" inline="yes">
 	<value value="0x8006" name="FUNC_ADD"/>
 	<value value="0x8007" name="MIN"/>

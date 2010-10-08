@@ -9,12 +9,57 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nv_object.xml"/>
 <import file="nv50_defs.xml"/>
 
+<enum name="nvc0_vtxelt_type" inline="yes">
+	<value value="1" name="SNORM"/>
+	<value value="2" name="UNORM"/>
+	<value value="3" name="SINT"/><!-- no conversion (as in glVertexAttribIPointer) -->
+	<value value="4" name="UINT"/>
+	<value value="5" name="USCALED"/><!-- converted to float -->
+	<value value="6" name="SSCALED"/>
+	<value value="7" name="FLOAT"/>
+</enum>
+
+<!-- 64 bit sizes use 2 attribute slots -->
+<enum name="nvc0_vtxelt_size" inline="yes">
+	<value value="0x01" name="32_32_32_32"/>
+	<value value="0x02" name="32_32_32"/>
+	<value value="0x03" name="16_16_16_16"/>
+	<value value="0x04" name="32_32"/>
+	<value value="0x05" name="16_16_16"/>
+	<value value="0x0a" name="8_8_8_8"/>
+	<value value="0x0f" name="16_16"/>
+	<value value="0x12" name="32"/>
+	<value value="0x13" name="8_8_8"/>
+	<value value="0x18" name="8_8"/>
+	<value value="0x1b" name="16"/>
+	<value value="0x1d" name="8"/>
+	<value value="0x30" name="2_10_10_10"/>
+</enum>
+
+<enum name="nvc0_msaa_mode" inline="yes">
+	<value value="0x00" name="1X"/>
+	<value value="0x01" name="2XMS"/>
+	<value value="0x02" name="4XMS"/>
+	<value value="0x03" name="8XMS"/>
+	<value value="0x08" name="4XMS_4XCS"/>
+	<value value="0x09" name="4XMS_12XCS"/>
+	<value value="0x0a" name="8XMS_8XCS"/>
+</enum>
+
 <domain name="NVC0_SUBCHAN" bare="yes" size="0x8000">
 	<stripe prefix="obj-class" variants="NVC0_3D">
 		<reg32 offset="0x0210" name="EARLY_FRAGMENT_TESTS" type="boolean"/>
 		<reg32 offset="0x0320" name="TESS_MODE">
-			<bitfield name="PRIM" high="3" low="0" type="nvc0_tess_prim"/>
-			<bitfield name="SPACING" high="7" low="4" type="nvc0_tess_spacing"/>
+			<bitfield name="PRIM" high="3" low="0">
+				<value value="0" name="ISOLINES"/>
+				<value value="1" name="TRIANGLES"/>
+				<value value="2" name="QUADS"/>
+			</bitfield>
+			<bitfield name="SPACING" high="7" low="4">
+				<value value="0" name="EQUAL"/>
+				<value value="1" name="FRACTIONAL_ODD"/>
+				<value value="2" name="FRACTIONAL_EVEN"/>
+			</bitfield>
 			<bitfield name="CW" high="8" low="8" type="boolean"/>
 			<bitfield name="CONNECTED" high="9" low="9" type="boolean"/>
 		</reg32>
@@ -134,15 +179,15 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="2" name="16"/>
 				<value value="4" name="32"/>
 			</bitfield>
-			<bitfield name="TYPE" low="16" high="18" type="nv50_vtxelt_type"/>
+			<bitfield name="TYPE" low="16" high="18" type="nvc0_vtxelt_type"/>
 		</reg32>
 		<reg32 offset="0x1150" name="VTX_ATTR_DATA" variants="NVA0_3D-" length="4"/>
 		<reg32 offset="0x1160" name="VERTEX_ATTRIB_FORMAT" length="32">
 			<bitfield name="BUFFER" high="5" low="0" type="int"/>
 			<bitfield name="CONST" pos="6" type="boolean"/>
 			<bitfield name="OFFSET" high="20" low="7" type="int"/>
-			<bitfield name="FORMAT" high="26" low="21" type="nv50_vtxelt_format"/>
-			<bitfield name="TYPE" high="30" low="27" type="nv50_vtxelt_type"/>
+			<bitfield name="SIZE" high="26" low="21" type="nvc0_vtxelt_size"/>
+			<bitfield name="TYPE" high="30" low="27" type="nvc0_vtxelt_type"/>
 			<bitfield name="BGRA" pos="31" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x121c" name="RT_CONTROL">
@@ -289,7 +334,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x15b4" name="MULTISAMPLE_COLOR_ENABLE" type="boolean"/>
 		<reg32 offset="0x15b8" name="FRAMEBUFFER_SRGB" type="boolean"/>
 		<reg32 offset="0x15bc" name="POLYGON_OFFSET_UNITS" type="float"/>
-		<reg32 offset="0x15d0" name="MULTISAMPLE_MODE" type="nv50_msaa_mode"/>
+		<reg32 offset="0x15d0" name="MULTISAMPLE_MODE" type="nvc0_msaa_mode"/>
 		<reg32 offset="0x15d4" name="VERTEX_BEGIN_D3D">
 			<bitfield name="PRIMITIVE" high="27" low="0">
 				<value value="0x0001" name="POINTS"/>
