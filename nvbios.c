@@ -983,9 +983,6 @@ int main(int argc, char **argv) {
 
 		printf ("%i entries\n", entry_count);
 		for (i = 0; i < entry_count; i++) {
-			if (bios[start+0] == 0)
-				continue;
-
 			tUNK_18 = 1;
 			tUNK_19 = 1;
 			tUNK_20 = 0;
@@ -1015,46 +1012,49 @@ int main(int argc, char **argv) {
 				break;
 			}
 
-			printf("Entry %d: RP(%d), RAS(%d), RFC(%d), RC(%d)\n",
-				   i, tRP, tRAS, tRFC, tRC);
+			printcmd(start, entry_length); printf("\n");
+			if (bios[start+0] != 0) {
+				printf("Entry %d: RP(%d), RAS(%d), RFC(%d), RC(%d)\n",
+					i, tRP, tRAS, tRFC, tRC);
 
-			reg_100220 = (tRC << 24 | tRFC << 16 | tRAS << 8 | tRP);
+				reg_100220 = (tRC << 24 | tRFC << 16 | tRAS << 8 | tRP);
 
-			/* XXX: I don't trust the -1's and +1's... they must come
-			*      from somewhere! */
-			reg_100224 = ((tUNK_0 + tUNK_19 + 1) << 24 |
-						tUNK_18 << 16 |
-						(tUNK_1 + tUNK_19 + 1) << 8 |
-						(tUNK_2 - 1));
+				/* XXX: I don't trust the -1's and +1's... they must come
+				*      from somewhere! */
+				reg_100224 = ((tUNK_0 + tUNK_19 + 1) << 24 |
+							tUNK_18 << 16 |
+							(tUNK_1 + tUNK_19 + 1) << 8 |
+							(tUNK_2 - 1));
 
-			reg_100228 = (tUNK_12 << 16 | tUNK_11 << 8 | tUNK_10);
-			if(header_length > 19) {
-				reg_100228 += (tUNK_19 - 1) << 24;
-			} else {
-				reg_100228 += tUNK_12 << 24;
+				reg_100228 = (tUNK_12 << 16 | tUNK_11 << 8 | tUNK_10);
+				if(header_length > 19) {
+					reg_100228 += (tUNK_19 - 1) << 24;
+				} else {
+					reg_100228 += tUNK_12 << 24;
+				}
+
+				/* XXX: reg_10022c */
+
+				reg_100230 = (tUNK_20 << 24 | tUNK_21 << 16 |
+							tUNK_13 << 8  | tUNK_13);
+
+				/* XXX: +6? */
+				reg_100234 = (tRAS << 24 | (tUNK_19 + 6) << 8 | tRC);
+				if(tUNK_10 > tUNK_11) {
+					reg_100234 += tUNK_10 << 16;
+				} else {
+					reg_100234 += tUNK_11 << 16;
+				}
+
+				/* XXX; reg_100238, reg_10023c */
+				printf("Registers: 220: %08x %08x %08x %08x\n",
+					reg_100220, reg_100224,
+					reg_100228, reg_10022c);
+				printf("           230: %08x %08x %08x %08x\n",
+					reg_100230, reg_100234,
+					reg_100238, reg_10023c);
 			}
-
-			/* XXX: reg_10022c */
-
-			reg_100230 = (tUNK_20 << 24 | tUNK_21 << 16 |
-						tUNK_13 << 8  | tUNK_13);
-
-			/* XXX: +6? */
-			reg_100234 = (tRAS << 24 | (tUNK_19 + 6) << 8 | tRC);
-			if(tUNK_10 > tUNK_11) {
-				reg_100234 += tUNK_10 << 16;
-			} else {
-				reg_100234 += tUNK_11 << 16;
-			}
-
-			/* XXX; reg_100238, reg_10023c */
-			printf("Registers: 220: %08x %08x %08x %08x\n",
-				reg_100220, reg_100224,
-				reg_100228, reg_10022c);
-			printf("           230: %08x %08x %08x %08x\n",
-				reg_100230, reg_100234,
-				reg_100238, reg_10023c);
-			printcmd(start, 20); printf("\n\n");
+			printf("\n");
 			
 			start += entry_length;
 		}
