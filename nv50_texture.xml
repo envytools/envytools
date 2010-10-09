@@ -106,6 +106,7 @@
 		<bitfield high="24" low="22" name="TILE_MODE_Y" />
 		<bitfield high="27" low="25" name="TILE_MODE_Z" />
 		<bitfield high="29" low="28" name="2D_UNK0258" />
+		<bitfield pos="30" name="NO_BORDER"/> <!-- if 0, texture includes one-texel border that isn't counted in its dimensions. -->
 		<bitfield pos="31" name="NORMALIZED_COORDS" />
 	</reg32>
 
