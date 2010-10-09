@@ -1015,6 +1015,9 @@ int main(int argc, char **argv) {
 				break;
 			}
 
+			printf("Entry %d: RP(%d), RAS(%d), RFC(%d), RC(%d)\n",
+				   i, tRP, tRAS, tRFC, tRC);
+
 			reg_100220 = (tRC << 24 | tRFC << 16 | tRAS << 8 | tRP);
 
 			/* XXX: I don't trust the -1's and +1's... they must come
@@ -1045,12 +1048,13 @@ int main(int argc, char **argv) {
 			}
 
 			/* XXX; reg_100238, reg_10023c */
-			printf("Entry %d: 220: %08x %08x %08x %08x\n", i,
+			printf("Registers: 220: %08x %08x %08x %08x\n",
 				reg_100220, reg_100224,
 				reg_100228, reg_10022c);
-			printf("         230: %08x %08x %08x %08x\n",
+			printf("           230: %08x %08x %08x %08x\n",
 				reg_100230, reg_100234,
 				reg_100238, reg_10023c);
+			printcmd(start, 20); printf("\n\n");
 			
 			start += entry_length;
 		}
