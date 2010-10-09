@@ -915,7 +915,7 @@ int main(int argc, char **argv) {
 	}
 	if (temperature_tbl_ptr) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
-		uint8_t header_length = 0, mask = 0;
+		uint8_t header_length = 0;
 		uint16_t start = temperature_tbl_ptr;
 
 		version = bios[start+0];
@@ -950,6 +950,110 @@ int main(int argc, char **argv) {
 						id, data, temp, type);
 		}
 		printf("\n");
+	}
+	if (timings_tbl_ptr) {
+		uint8_t version = 0, entry_count = 0, entry_length = 0;
+		uint8_t header_length = 0;
+		uint16_t start = timings_tbl_ptr;
+		uint8_t tUNK_0, tUNK_1, tUNK_2;
+		uint8_t tRP;		/* Byte 3 */
+		uint8_t tRAS;	/* Byte 5 */
+		uint8_t tRFC;	/* Byte 7 */
+		uint8_t tRC;		/* Byte 9 */
+		uint8_t tUNK_10, tUNK_11, tUNK_12, tUNK_13, tUNK_14;
+		uint8_t tUNK_18, tUNK_19, tUNK_20, tUNK_21;
+		uint32_t reg_100220 = 0, reg_100224 = 0, reg_100228 = 0, reg_10022c = 0;
+		uint32_t reg_100230 = 0, reg_100234 = 0, reg_100238 = 0, reg_10023c = 0;
+		int i;
+
+		version = bios[start+0];
+		if (version == 0x10) {
+			header_length = bios[start+1];
+			entry_count = bios[start+2];
+			entry_length = bios[start+3];
+		}
+
+		printf ("Timing table at %x. Version %x.\n", timings_tbl_ptr, version);
+
+		printf("Header:\n");
+		printcmd(timings_tbl_ptr, header_length>0?header_length:10);
+		printf ("\n\n");
+
+		start += header_length;
+
+		printf ("%i entries\n", entry_count);
+		for (i = 0; i < entry_count; i++) {
+			if (bios[start+0] == 0)
+				continue;
+
+			tUNK_18 = 1;
+			tUNK_19 = 1;
+			tUNK_20 = 0;
+			tUNK_21 = 0;
+			switch (entry_length<21?entry_length:21) {
+			case 21:
+				tUNK_21 = bios[start+21];
+			case 20:
+				tUNK_20 = bios[start+20];
+			case 19:
+				tUNK_19 = bios[start+19];
+			case 18:
+				tUNK_18 = bios[start+18];
+			default:
+				tUNK_0  = bios[start+0];
+				tUNK_1  = bios[start+1];
+				tUNK_2  = bios[start+2];
+				tRP     = bios[start+3];
+				tRAS    = bios[start+5];
+				tRFC    = bios[start+7];
+				tRC     = bios[start+9];
+				tUNK_10 = bios[start+10];
+				tUNK_11 = bios[start+11];
+				tUNK_12 = bios[start+12];
+				tUNK_13 = bios[start+13];
+				tUNK_14 = bios[start+14];
+				break;
+			}
+
+			reg_100220 = (tRC << 24 | tRFC << 16 | tRAS << 8 | tRP);
+
+			/* XXX: I don't trust the -1's and +1's... they must come
+			*      from somewhere! */
+			reg_100224 = ((tUNK_0 + tUNK_19 + 1) << 24 |
+						tUNK_18 << 16 |
+						(tUNK_1 + tUNK_19 + 1) << 8 |
+						(tUNK_2 - 1));
+
+			reg_100228 = (tUNK_12 << 16 | tUNK_11 << 8 | tUNK_10);
+			if(header_length > 19) {
+				reg_100228 += (tUNK_19 - 1) << 24;
+			} else {
+				reg_100228 += tUNK_12 << 24;
+			}
+
+			/* XXX: reg_10022c */
+
+			reg_100230 = (tUNK_20 << 24 | tUNK_21 << 16 |
+						tUNK_13 << 8  | tUNK_13);
+
+			/* XXX: +6? */
+			reg_100234 = (tRAS << 24 | (tUNK_19 + 6) << 8 | tRC);
+			if(tUNK_10 > tUNK_11) {
+				reg_100234 += tUNK_10 << 16;
+			} else {
+				reg_100234 += tUNK_11 << 16;
+			}
+
+			/* XXX; reg_100238, reg_10023c */
+			printf("Entry %d: 220: %08x %08x %08x %08x\n", i,
+				reg_100220, reg_100224,
+				reg_100228, reg_10022c);
+			printf("         230: %08x %08x %08x %08x\n",
+				reg_100230, reg_100234,
+				reg_100238, reg_10023c);
+			
+			start += entry_length;
+		}
 	}
 
 	return 0;
