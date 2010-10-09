@@ -667,7 +667,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Vertex flush? 0-1</doc>
 		</reg32>
 		<reg32 offset="0x1430" name="UNK1430">
-			<doc>Goes to ROP. Related to MS/CS?</doc>
+			<doc>Goes to ROP. Both set when NOT MS/CS.</doc>
 			<bitfield pos="4" name="UNK0"/>
 			<bitfield pos="8" name="UNK1"/>
 		</reg32>
@@ -737,7 +737,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			0x12, 0x13, 0x15, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, but doesn't
 			work then. resets other things too?</doc>
 		</reg32>
-		<reg32 offset="0x1534" name="UNK1534" type="boolean"> <!-- MS/CS related? -->
+		<reg32 offset="0x1534" name="UNK1534" type="boolean"> <!-- 1 when MS/CS. -->
 			<doc></doc>
 		</reg32>
 		<reg32 offset="0x1538" name="ZETA_ENABLE" type="boolean"/>
@@ -801,7 +801,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="4" name="1"/>
 			<bitfield pos="8" name="2"/>
 		</reg32>
-		<reg32 offset="0x15b4" name="UNK15B4" type="boolean"> <!-- MS/CS related? -->
+		<reg32 offset="0x15b4" name="UNK15B4" type="boolean"> <!-- 1 when MS/CS. -->
 			<doc>1 by default, goes to ROP, TPDMA, 8cxx.</doc>
 		</reg32>
 		<reg32 offset="0x15b8" name="FRAMEBUFFER_SRGB" type="boolean"/>
@@ -897,13 +897,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="1" high="7" low="4" type="nv50_vic"/>
 			<bitfield name="0" high="3" low="0" type="nv50_vic"/>
 		</reg32>
-		<reg32 offset="0x1658" name="UNK1658" type="boolean">
-			<doc>Goes to 8cxx, 1cxx.</doc>
-		</reg32>
+		<reg32 offset="0x1658" name="POINT_SMOOTH_ENABLE" type="boolean"/>
 		<reg32 offset="0x165c" name="UNK165C" type="boolean">
 			<doc>Goes to 8cxx, 1cxx. 1 by default.</doc>
 		</reg32>
-		<reg32 offset="0x1660" name="POINT_SPRITE_CTRL"/>
+		<reg32 offset="0x1660" name="POINT_SPRITE_CTRL">
+			<bitfield pos="4" name="COORD_ORIGIN">
+				<value value="0" name="LOWER_LEFT"/>
+				<value value="1" name="UPPER_LEFT"/>
+			</bitfield>
+		</reg32>
 		<reg32 offset="0x1664" name="TEX_MISC" variants="NVA0_3D-">
 			<bitfield pos="1" name="UNK1"/>
 			<bitfield pos="2" name="SEAMLESS_CUBE_MAP"/>
