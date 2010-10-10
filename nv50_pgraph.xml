@@ -33,6 +33,9 @@
 	<value value="0xc" name="INVALID_BITFIELD">
 		<brief>You had non-0 value in bits not corresponding to any bitfield.</brief>
 	</value>
+	<value value="0xd" name="BEGIN_END_ACTIVE">
+		<brief>You tried changing stuff while begin/end was active.</brief>
+	</value>
 	<value value="0x10" name="RT_DOUBLE_BIND">
 		<brief>You bound more than one set of FP outputs to given RT index.</brief>
 	</value>
