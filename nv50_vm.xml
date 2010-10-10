@@ -110,9 +110,15 @@
 			<value value="2" name="SYSRAM"/>
 			<value value="3" name="SYSRAM_NO_SNOOP"/>
 		</bitfield>
-		<bitfield low="18" high="19" name="UNK18">
+		<bitfield low="18" high="19" name="ACCESSRW">
+			<value value="0" name="USEVM"/>
+			<value value="1" name="READ_ONLY"/>
+			<value value="2" name="READ_WRITE"/>
 		</bitfield>
-		<bitfield low="20" high="21" name="UNK20">
+		<bitfield low="20" high="21" name="ACCESSUS">
+			<value value="0" name="USEVM"/>
+			<value value="1" name="USER_SYSTEM"/>
+			<value value="2" name="SYSTEM_ONLY"/>
 		</bitfield>
 		<bitfield low="22" high="28" name="STORAGE_TYPE" type="NV50_STORAGE_TYPE"/>
 		<bitfield low="29" high="30" name="COMPRESSION" type="NV50_COMPRESSION"/>
@@ -149,7 +155,7 @@
 	<!-- 2? -->
 	<bitfield pos="3" name="READ_ONLY"/>
 	<bitfield low="4" high="5" name="TARGET" type="nv50_mem_target"/>
-	<bitfield pos="6" name="SUPERVISOR"/>
+	<bitfield pos="6" name="SYSTEM_ONLY"/>
 	<bitfield low="7" high="9" name="CONTIG_BLOCK_LOG2"/>
 	<bitfield low="12" high="39" name="ADDRESS" shr="12"/>
 	<bitfield low="40" high="46" name="STORAGE_TYPE" type="NV50_STORAGE_TYPE"/>
