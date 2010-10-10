@@ -760,12 +760,12 @@ int main(int argc, char **argv) {
 		uint8_t subentry_offset = 0, subentry_size = 0, subentry_count = 0;
 		uint16_t start = pm_mode_tbl_ptr;
 
-		if (major_version == 0x5) {
+		if (major_version == 0x4) {
+			header_length = bios[start+0];
 			version = bios[start+1];
 			entry_length = bios[start+2];
 			entry_count = bios[start+3];
 			mode_info_length = entry_length;
-			header_length = 4;
 		} else if (major_version < 0x70) {
 			version = bios[start+0];
 			header_length = bios[start+1];
@@ -831,6 +831,8 @@ int main(int argc, char **argv) {
 				shader = (le16(start+subent(1)) & 0xfff);
 				memclk = (le16(start+subent(2)) & 0xfff);
 			}
+
+			/*uint32_t strap = (bios_rd32(bios, NV_PEXTDEV_BOOT_0) & 0x0000003c) >> 2;*/
 
 			printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Voltage %d[*10mV] Fan %d --\n",
 				id, core, memclk, shader, voltage, fan
@@ -1022,14 +1024,19 @@ int main(int argc, char **argv) {
 				/* XXX: I don't trust the -1's and +1's... they must come
 				*      from somewhere! */
 				if (chip_version < 0xc0) {
-				reg_100224 = ((tUNK_0 + tUNK_19 + 1) << 24 |
-							(tUNK_1 + tUNK_19 + 1) << 8 |
-							(tUNK_2 - 1));
+					reg_100224 = ((tUNK_0 + tUNK_19 + 1) << 24 |
+							(tUNK_1 + tUNK_19 + 1) << 8);
+				
+					if (chip_version == 0xa8) {
+							reg_100224 |= (tUNK_2 - 1);
+					} else {
+						reg_100224 |= tUNK_2;
+					}
 				}
 				reg_100224 += tUNK_18 << 16;
 
-				reg_100228 = (tUNK_12 << 16 | tUNK_11 << 8 | tUNK_10);
-				if(header_length > 19) {
+				reg_100228 = ((tUNK_12 << 16) | tUNK_11 << 8 | tUNK_10);
+				if(header_length > 19 && chip_version > 0xa5) {
 					reg_100228 += (tUNK_19 - 1) << 24;
 				} /* I can't back up this else clause in all cases
 				else {
