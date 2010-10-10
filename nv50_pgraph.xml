@@ -21,6 +21,9 @@
 	<value value="8" name="INVALID_OBJECT">
 		<brief>You used object of invalid class as param to one of 0x180-0x1fc methods.</brief>
 	</value>
+	<value value="9" name="READ_ONLY_OBJECT">
+		<brief>You used read-only DMA object for a write-only DMA slot.</brief>
+	</value>
 	<value value="0xa" name="SUPERVISOR_OBJECT">
 		<brief>You tried to bind a DMA object with the SUPERVISOR flag set.</brief>
 	</value>
