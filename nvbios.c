@@ -1023,7 +1023,6 @@ int main(int argc, char **argv) {
 				*      from somewhere! */
 				if (chip_version < 0xc0) {
 				reg_100224 = ((tUNK_0 + tUNK_19 + 1) << 24 |
-							tUNK_18 << 16 |
 							(tUNK_1 + tUNK_19 + 1) << 8 |
 							(tUNK_2 - 1));
 				}
