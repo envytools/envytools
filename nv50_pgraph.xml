@@ -635,7 +635,8 @@
 			<bitfield name="3" high="31" low="24" />
 		</reg32>
 		<reg32 offset="0x14" name="ERROR_CODE">
-			<bitfield high="1" low="0" name="STACK_UNDERFLOW" /> <!-- suspicious. probably just 2 different errors that happen at the same time on underflow. -->
+			<bitfield pos="0" name="STACK_UNDERFLOW" />
+			<bitfield pos="1" name="STACK_MISMATCH" />
 			<bitfield pos="2" name="QUADON_ACTIVE" />
 			<bitfield pos="3" name="TIMEOUT" />
 			<bitfield pos="4" name="INVALID_OPCODE" />
@@ -672,8 +673,8 @@
 
 	<group name="nv50_pgraph_tprop">
 		<reg32 offset="0x08" name="TPROP_TRAP">
-			<bitfield name="2D_FAULT" pos="4" />
-			<bitfield name="COLOR_FAULT" pos="6" />
+			<bitfield name="DST2D_FAULT" pos="4" />
+			<bitfield name="RT_FAULT" pos="6" />
 			<bitfield name="CUDA_FAULT" pos="7" />
 			<bitfield name="STORAGE_TYPE_MISMATCH" pos="11" />
 			<bitfield name="CLEAR" pos="30" />
@@ -686,12 +687,16 @@
 			<use-group name="nv50_pgraph_mp" />
 		</array>
 		<reg32 offset="0x314" name="MP_TRAP">
-			<bitfield name="EXEC" pos="16" />
-			<bitfield name="STACK_OVERFLOW" pos="17" />
+			<bitfield name="STACK_OVERFLOW" pos="6" />
+			<bitfield name="GLOBAL_LIMIT" pos="12" />
+			<bitfield name="MP0" pos="16" />
+			<bitfield name="MP1" pos="17" />
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
 		<reg32 offset="0x900" name="TEXTURE_TRAP">
+			<bitfield name="FAULT" pos="1" />
+			<bitfield name="STORAGE_TYPE_MISMATCH" pos="3" />
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
@@ -706,13 +711,17 @@
 			<use-group name="nv50_pgraph_mp" />
 		</array>
 		<reg32 offset="0x31c" name="MP_TRAP">
+			<bitfield name="STACK_OVERFLOW" pos="6" />
 			<bitfield name="GLOBAL_LIMIT" pos="12" />
-			<bitfield name="EXEC" pos="16" />
-			<bitfield name="STACK_OVERFLOW" pos="17" />
+			<bitfield name="MP0" pos="16" />
+			<bitfield name="MP1" pos="17" />
+			<bitfield name="MP2" pos="26" />
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
 		<reg32 offset="0x600" name="TEXTURE_TRAP">
+			<bitfield name="FAULT" pos="1" />
+			<bitfield name="STORAGE_TYPE_MISMATCH" pos="3" />
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
