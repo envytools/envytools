@@ -172,14 +172,20 @@
 		<bitfield high="1" low="0" name="MAGF" type="nv50_tsc_filter" />
 		<bitfield high="5" low="4" name="MINF" type="nv50_tsc_filter" />
 		<bitfield high="7" low="6" name="MIPF" type="nv50_tsc_mipfilter" />
-		<bitfield high="24" low="12" name="LOD_BIAS" />
+		<bitfield high="24" low="12" name="LOD_BIAS">
+			<doc>Fixed-point signed 1.4.8</doc>
+		</bitfield>
 		<value value="0x10000000" name="UNKN_ANISO_15" />
 		<value value="0x18000000" name="UNKN_ANISO_35" />
 	</reg32>
 
 	<reg32 offset="0x8" name="2">
-		<bitfield high="11" low="8" name="MIN_LOD" />
-		<bitfield high="23" low="20" name="MAX_LOD" />
+		<bitfield high="11" low="0" name="MIN_LOD">
+			<doc>Fixed-point unsigned 4.8</doc>
+		</bitfield>
+		<bitfield high="23" low="12" name="MAX_LOD">
+			<doc>Fixed-point unsigned 4.8</doc>
+		</bitfield>
 	</reg32>
 
 	<reg32 offset="0x10" name="4">
