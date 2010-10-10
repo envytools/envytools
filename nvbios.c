@@ -1021,17 +1021,22 @@ int main(int argc, char **argv) {
 
 				/* XXX: I don't trust the -1's and +1's... they must come
 				*      from somewhere! */
+				if (chip_version < 0xc0) {
 				reg_100224 = ((tUNK_0 + tUNK_19 + 1) << 24 |
 							tUNK_18 << 16 |
 							(tUNK_1 + tUNK_19 + 1) << 8 |
 							(tUNK_2 - 1));
+				}
+				reg_100224 += tUNK_18 << 16;
 
 				reg_100228 = (tUNK_12 << 16 | tUNK_11 << 8 | tUNK_10);
 				if(header_length > 19) {
 					reg_100228 += (tUNK_19 - 1) << 24;
-				} else {
-					reg_100228 += tUNK_12 << 24;
-				}
+				} /* I can't back up this else clause in all cases
+				else {
+					timing->reg_100228 += tUNK_12 << 24;
+				}*/
+
 
 				/* XXX: reg_10022c */
 
@@ -1047,6 +1052,15 @@ int main(int argc, char **argv) {
 				}
 
 				/* XXX; reg_100238, reg_10023c */
+				/* XXX; reg_100238, reg_10023c
+				 * reg: 0x00??????
+				 * reg_10023c:
+				 * 	0 for pre-NV50 cards
+				 * 	0x????0202 for NV50+ cards (empirical evidence) */
+				if(chip_version >= 0x50) {
+					reg_10023c = 0x202;
+				}
+
 				printf("Registers: 220: %08x %08x %08x %08x\n",
 					reg_100220, reg_100224,
 					reg_100228, reg_10022c);
