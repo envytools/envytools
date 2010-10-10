@@ -494,8 +494,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield low="8" high="9" name="2"/>
 			<bitfield low="12" high="13" name="3"/>
 		</reg32>
-		<reg32 offset="0x1290" name="UNK1290">
-			<doc>Related to shaders. 0-8 and f. Same as turing UNK0224.</doc>
+		<reg32 offset="0x1290" name="CALL_LIMIT_LOG">
+			<doc>Determines how many "limitted" calls are allowed. Value 0 means none.
+		        Values 1-8 are interpretted as log2(limit)+1. Value 0xf means unlimitted.</doc>
 			<bitfield low="0" high="3" name="VP"/>
 			<bitfield low="4" high="7" name="GP"/>
 			<bitfield low="8" high="11" name="FP"/>

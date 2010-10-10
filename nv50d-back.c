@@ -1516,7 +1516,7 @@ static struct insn tabp[] = {
 	{ AP, 0, 0, OOPS },
 };
 
-F1(lim, 0x26, N("lim")) // if set, call is limitted, and will be ignored if 32 limitted calls already active on the stack.
+F1(lim, 0x26, N("lim")) // if set, call is limitted, and will be ignored if X limitted calls already active on the stack. X is settable by CALL_LIMIT_LOG method.
 
 static struct insn tabc[] = {
 	{ FP, 0x00000000, 0xf0000000, T(p), N("discard") },
