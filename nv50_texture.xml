@@ -7,7 +7,8 @@
 	<value value="3" name="C1" />
 	<value value="4" name="C2" />
 	<value value="5" name="C3" />
-	<value value="7" name="ONE" />
+	<value value="6" name="ONE_INT" /> <!-- 0x00000001 -->
+	<value value="7" name="ONE_FLOAT" /> <!-- 0x3f800000 -->
 </enum>
 
 <enum name="NV50_TIC_TYPE">
