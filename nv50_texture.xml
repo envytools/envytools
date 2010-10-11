@@ -103,7 +103,8 @@
 			<value value="7" name="RECT" />
 			<value value="8" name="CUBE_ARRAY" />
 		</bitfield>
-		<bitfield pos="18" name="TILE_MODE_LINEAR" />
+		<bitfield pos="18" name="LINEAR" />
+		<bitfield high="21" low="19" name="TILE_MODE_X" />
 		<bitfield high="24" low="22" name="TILE_MODE_Y" />
 		<bitfield high="27" low="25" name="TILE_MODE_Z" />
 		<bitfield high="29" low="28" name="2D_UNK0258" />
