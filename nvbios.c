@@ -989,14 +989,14 @@ int main(int argc, char **argv) {
 			tUNK_19 = 1;
 			tUNK_20 = 0;
 			tUNK_21 = 0;
-			switch (entry_length<21?entry_length:21) {
-			case 21:
+			switch (entry_length<22?entry_length:22) {
+			case 22:
 				tUNK_21 = bios[start+21];
-			case 20:
+			case 21:
 				tUNK_20 = bios[start+20];
-			case 19:
+			case 20:
 				tUNK_19 = bios[start+19];
-			case 18:
+			case 19:
 				tUNK_18 = bios[start+18];
 			default:
 				tUNK_0  = bios[start+0];
