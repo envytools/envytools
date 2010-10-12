@@ -55,8 +55,10 @@
 			<value value="0x1b" name="16" />
 			<value value="0x1d" name="8" />
 			<value value="0x1e" name="4_4" />
-			<value value="0x1f" name="UNK1F">
-				<doc>Related to CSAA?</doc>
+			<value value="0x1f" name="BITMAP_8X8">
+				<doc>Each element is 64-bit LE word specifying 8x8 block of 1-bit texels.
+				This format forces using a special "box" filter: result of sampling is
+				a percentage of "lit" area in WxH rectangle centered on the sampled location.</doc>
 			</value>
 			<value value="0x20" name="E5_9_9_9">
 				<doc>Shared-exponent type.</doc>
@@ -167,6 +169,12 @@
 		<bitfield high="8" low="6" name="WRAPR" type="NV50_TSC_WRAP" />
 		<bitfield pos="9" name="SHADOW_COMPARE_ENABLE"/>
 		<bitfield high="12" low="10" name="SHADOW_COMPARE_FUNC"/>
+		<bitfield high="16" low="14" name="BOX_S">
+			<doc>For BITMAP_8X8 format. Width of the box filter in texels - 1.</doc>
+		</bitfield>
+		<bitfield high="19" low="17" name="BOX_T">
+			<doc>For BITMAP_8X8 format. Height of the box filter in texels - 1.</doc>
+		</bitfield>
 		<bitfield high="22" low="20" name="ANISOTROPY_MASK" />
 	</reg32>
 
