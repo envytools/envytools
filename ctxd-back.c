@@ -134,7 +134,7 @@
 static void atomctarg APROTO {
 	if (!out)
 		return;
-	fprintf (out, " %s%#llx", cbr, BF(8, 9)<<2);
+	fprintf (out, " %s%#llx", cbr, BF(8, 9));
 }
 
 /*
@@ -278,9 +278,9 @@ void ctxdis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype) {
 	int *labels = calloc(num, sizeof *labels);
 	while (cur < num) {
 		ull a = code[cur], m = 0;
-		fprintf (out, "%s%08x: %s", cgray, cur*4 + start, cnorm);
+		fprintf (out, "%s%08x: %s", cgray, cur + start, cnorm);
 		fprintf (out, "%08llx", a);
-		atomtab (out, &a, &m, tabm, ptype, cur*4 + start, labels, num);
+		atomtab (out, &a, &m, tabm, ptype, cur + start, labels, num);
 		a &= ~m;
 		if (a) {
 			fprintf (out, " %s[unknown: %08llx]%s", cred, a, cnorm);
