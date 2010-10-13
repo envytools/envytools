@@ -36,21 +36,21 @@ static int staoff[] = { 0xdeaddead };
 #define DATA16 atomst16, stdoff
 #define DATA32 atomst32, stdoff
 static void atomst16 APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	int *n = (int*)v;
 	ull num = BF(8, 16);
 	n[0] &= 0xffff0000;
 	n[0] |= num;
-	fprintf (out, " %s%#x", cyel, n[0]);
+	fprintf (ctx->out, " %s%#x", cyel, n[0]);
 }
 static void atomst32 APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	int *n = (int*)v;
 	ull num = BF(8, 32);
 	n[0] = num;
-	fprintf (out, " %s%#x", cyel, n[0]);
+	fprintf (ctx->out, " %s%#x", cyel, n[0]);
 }
 
 static struct insn tabm[] = {
@@ -90,35 +90,43 @@ static uint32_t optab[] = {
  * FILE*.
  */
 
-void pmdis (FILE *out, uint8_t *code, uint32_t pos, int num, int ptype) {
+void pmdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype) {
+	struct disctx c = { 0 };
+	struct disctx *ctx = &c;
 	int cur = 0, i;
-	int *labels = calloc(num, sizeof *labels);
+	ctx->code8 = code;
+	ctx->labels = calloc(num, sizeof *ctx->labels);
+	ctx->codebase = start;
+	ctx->codesz = num;
+	ctx->ptype = ptype;
+	ctx->out = out;
 	while (cur < num) {
-		fprintf (out, "%s%08x:%s", cgray, cur + pos, cnorm);
+		fprintf (ctx->out, "%s%08x:%s", cgray, cur + start, cnorm);
 		uint8_t op = code[cur];
 		int length = 0;
 		for (i = 0; i < sizeof optab / sizeof *optab / 2; i++)
 			if (op == optab[2*i])
 				length = optab[2*i+1];
 		if (!length || cur + length > num) {
-			fprintf (out, " %s%02x                ???%s\n", cred, op, cnorm);
+			fprintf (ctx->out, " %s%02x            ??? [unknown op length]%s\n", cred, op, cnorm);
 			cur++;
 		} else {
 			ull a = 0, m = 0;
 			for (i = cur; i < cur + length; i++) {
-				fprintf (out, " %02x", code[i]);
+				fprintf (ctx->out, " %02x", code[i]);
 				a |= (ull)code[i] << (i-cur)*8;
 			}
-			for (i = 0; i < 6 - length; i++)
-				fprintf (out, "   ");
-			atomtab (out, &a, &m, tabm, ptype, cur + pos, labels, num);
+			for (i = 0; i < 4 - length; i++)
+				fprintf (ctx->out, "   ");
+			fprintf (ctx->out, "  ");
+			atomtab (ctx, &a, &m, tabm, cur + start);
 			a &= ~m;
 			if (a) {
-				fprintf (out, " %s[unknown: %08llx]%s", cred, a, cnorm);
+				fprintf (ctx->out, " %s[unknown: %08llx]%s", cred, a, cnorm);
 			}
-			printf ("%s\n", cnorm);
+			fprintf (ctx->out, "%s\n", cnorm);
 			cur += length;
 		}
 	}
-	free(labels);
+	free(ctx->labels);
 }

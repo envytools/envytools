@@ -43,38 +43,38 @@ char *cbrmag = "\x1b[1;35m";	// white: call and jump labels
 void atomtab APROTO {
 	const struct insn *tab = v;
 	int i;
-	while ((a[0]&tab->mask) != tab->val || !(tab->ptype&ptype))
+	while ((a[0]&tab->mask) != tab->val || !(tab->ptype & ctx->ptype))
 		tab++;
 	m[0] |= tab->mask;
 	for (i = 0; i < 16; i++)
 		if (tab->atoms[i].fun)
-			tab->atoms[i].fun (out, a, m, tab->atoms[i].arg, ptype, pos, labels, lnum);
+			tab->atoms[i].fun (ctx, a, m, tab->atoms[i].arg, pos);
 }
 
 void atomname APROTO {
-	if (out)
-		fprintf (out, " %s%s", cgr, (char *)v);
+	if (ctx->out)
+		fprintf (ctx->out, " %s%s", cgr, (char *)v);
 }
 
 void atomnl APROTO {
-	if (out)
-		fprintf (out, "\n                          ");
+	if (ctx->out)
+		fprintf (ctx->out, "\n                             ");
 }
 
 void atomunk APROTO {
-	if (out)
-		fprintf (out, " %s%s", cred, (char *)v);
+	if (ctx->out)
+		fprintf (ctx->out, " %s%s", cred, (char *)v);
 }
 
 void atomnum APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	const int *n = v;
 	ull num = BF(n[0], n[1])<<n[2];
 	if (n[3] && num&1ull<<(n[1]+n[2]-1))
-		fprintf (out, " %s-%#llx", cyel, (1ull<<(n[1]+n[2])) - num);
+		fprintf (ctx->out, " %s-%#llx", cyel, (1ull<<(n[1]+n[2])) - num);
 	else
-		fprintf (out, " %s%#llx", cyel, num);
+		fprintf (ctx->out, " %s%#llx", cyel, num);
 }
 
 void atomign APROTO {
@@ -83,38 +83,38 @@ void atomign APROTO {
 }
 
 void atomreg APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	const int *n = v;
 	int r = BF(n[0], n[1]);
-	if (r == 127 && n[2] == 'o') fprintf (out, " %s#", cbl);
-	else fprintf (out, " %s$%c%d", (n[2]=='r')?cbl:cmag, n[2], r);
+	if (r == 127 && n[2] == 'o') fprintf (ctx->out, " %s#", cbl);
+	else fprintf (ctx->out, " %s$%c%d", (n[2]=='r')?cbl:cmag, n[2], r);
 }
 void atomdreg APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	const int *n = v;
-	fprintf (out, " %s$%c%lldd", (n[2]=='r')?cbl:cmag, n[2], BF(n[0], n[1]));
+	fprintf (ctx->out, " %s$%c%lldd", (n[2]=='r')?cbl:cmag, n[2], BF(n[0], n[1]));
 }
 void atomqreg APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	const int *n = v;
-	fprintf (out, " %s$%c%lldq", (n[2]=='r')?cbl:cmag, n[2], BF(n[0], n[1]));
+	fprintf (ctx->out, " %s$%c%lldq", (n[2]=='r')?cbl:cmag, n[2], BF(n[0], n[1]));
 }
 void atomoreg APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	const int *n = v;
-	fprintf (out, " %s$%c%lldo", (n[2]=='r')?cbl:cmag, n[2], BF(n[0], n[1]));
+	fprintf (ctx->out, " %s$%c%lldo", (n[2]=='r')?cbl:cmag, n[2], BF(n[0], n[1]));
 }
 void atomhreg APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	const int *n = v;
 	int r = BF(n[0], n[1]);
-	if (r == 127 && n[2] == 'o') fprintf (out, " %s#", cbl);
-	else fprintf (out, " %s$%c%d%c", (n[2]=='r')?cbl:cmag, n[2], r>>1, "lh"[r&1]);
+	if (r == 127 && n[2] == 'o') fprintf (ctx->out, " %s#", cbl);
+	else fprintf (ctx->out, " %s$%c%d%c", (n[2]=='r')?cbl:cmag, n[2], r>>1, "lh"[r&1]);
 }
 
 uint32_t readle32 (uint8_t *p) {
@@ -123,4 +123,16 @@ uint32_t readle32 (uint8_t *p) {
 
 uint16_t readle16 (uint8_t *p) {
 	return p[0] | p[1] << 8;
+}
+
+void markct8(struct disctx *ctx, uint32_t ptr) {
+	if (ptr < ctx->codebase || ptr > ctx->codebase + ctx->codesz)
+		return;
+	ctx->labels[ptr - ctx->codebase] |= 2;
+}
+
+void markbt8(struct disctx *ctx, uint32_t ptr) {
+	if (ptr < ctx->codebase || ptr > ctx->codebase + ctx->codesz)
+		return;
+	ctx->labels[ptr - ctx->codebase] |= 1;
 }

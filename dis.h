@@ -100,7 +100,9 @@ typedef unsigned long long ull;
 #define BF(s, l) (*m |= (((1ull<<l)-1)<<s), *a>>s&((1ull<<l)-1))
 #define RCL(s, l) (*a &= ~(((1ull<<l)-1)<<s))
 
-#define APROTO (FILE *out, ull *a, ull *m, const void *v, int ptype, uint32_t pos, int *labels, int lnum)
+struct disctx;
+
+#define APROTO (struct disctx *ctx, ull *a, ull *m, const void *v, uint32_t pos)
 
 typedef void (*afun) APROTO;
 
@@ -114,6 +116,17 @@ struct insn {
 	ull val;
 	ull mask;
 	struct atom atoms[16];
+};
+
+struct disctx {
+	FILE *out;
+	uint8_t *code8;
+	uint32_t *code32;
+	uint64_t *code64;
+	int *labels;
+	uint32_t codebase;
+	uint32_t codesz;
+	int ptype;
 };
 
 /*
@@ -158,6 +171,9 @@ void atomhreg APROTO;
 
 uint32_t readle32 (uint8_t *);
 uint16_t readle16 (uint8_t *);
+
+void markct8(struct disctx *ctx, uint32_t ptr);
+void markbt8(struct disctx *ctx, uint32_t ptr);
 
 #define VP 1
 #define GP 2

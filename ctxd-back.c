@@ -130,11 +130,20 @@
  * likes. Target is counted in 32-bit words from the start of microcode.
  */
 
+#define BTARG atombtarg, 0
+static void atombtarg APROTO {
+	markbt8(ctx, BF(8, 9));
+	if (!ctx->out)
+		return;
+	fprintf (ctx->out, " %s%#llx", cmag, BF(8, 9));
+}
+
 #define CTARG atomctarg, 0
 static void atomctarg APROTO {
-	if (!out)
+	markct8(ctx, BF(8, 9));
+	if (!ctx->out)
 		return;
-	fprintf (out, " %s%#llx", cbr, BF(8, 9));
+	fprintf (ctx->out, " %s%#llx", cbr, BF(8, 9));
 }
 
 /*
@@ -142,9 +151,9 @@ static void atomctarg APROTO {
  */
 #define C(x) atomcmd, x
 static void atomcmd APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
-	fprintf (out, " %s%s", cmag, (char *)v);
+	fprintf (ctx->out, " %s%s", cmag, (char *)v);
 }
 
 /*
@@ -182,13 +191,13 @@ static int pgmem5[] = { 0, 16, 2, 'G' };
 #define PGRAPH4 atommem, pgmem4
 #define PGRAPH5 atommem, pgmem5
 static void atommem APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	const int *n = v;
-	fprintf (out, " %s%c[", ccy, n[3]);
+	fprintf (ctx->out, " %s%c[", ccy, n[3]);
 //	if (n[3] == 'G') printf("%s$g%s+", cbl, ccy);
 	int mo = BF(n[0], n[1])<<n[2];
-	fprintf (out, "%s%#x%s]", cyel, mo, ccy);
+	fprintf (ctx->out, "%s%#x%s]", cyel, mo, ccy);
 }
 
 F1(p0, 0, N("a0"))
@@ -248,7 +257,7 @@ static struct insn tabm[] = {
 	{ NV4x, 0x100000, 0xf00000, N("ctx"), PGRAPH4, GSIZE4 },
 	{ NVxx, 0x200000, 0xf00000, N("lsr"), IMM },			// moves 20-bit immediate to scratch reg
 	{ NVxx, 0x300000, 0xf00000, N("lsr2"), IMM },			// moves 20-bit immediate to 338
-	{ NVxx, 0x400000, 0xfc0000, N("jmp"), T(pred), CTARG },		// jumps if condition true
+	{ NVxx, 0x400000, 0xfc0000, N("jmp"), T(pred), BTARG },		// jumps if condition true
 	{ NV5x, 0x440000, 0xfc0000, N("call"), T(pred), CTARG },	// calls if condition true, NVAx only
 	{ NV5x, 0x480000, 0xfc0000, N("ret"), T(pred) },		// rets if condition true, NVAx only
 	{ NVxx, 0x500000, 0xf00000, N("waitfor"), T(pred) },		// waits until condition true.
@@ -274,19 +283,56 @@ static struct insn tabm[] = {
  */
 
 void ctxdis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype) {
-	int cur = 0;
-	int *labels = calloc(num, sizeof *labels);
+	struct disctx c = { 0 };
+	struct disctx *ctx = &c;
+	int cur = 0, i;
+	ctx->code32 = code;
+	ctx->labels = calloc(num, sizeof *ctx->labels);
+	ctx->codebase = start;
+	ctx->codesz = num;
+	ctx->ptype = ptype;
 	while (cur < num) {
 		ull a = code[cur], m = 0;
-		fprintf (out, "%s%08x: %s", cgray, cur + start, cnorm);
-		fprintf (out, "%08llx", a);
-		atomtab (out, &a, &m, tabm, ptype, cur + start, labels, num);
-		a &= ~m;
-		if (a) {
-			fprintf (out, " %s[unknown: %08llx]%s", cred, a, cnorm);
-		}
-		printf ("%s\n", cnorm);
+		atomtab (ctx, &a, &m, tabm, cur + start);
 		cur++;
 	}
-	free(labels);
+	cur = 0;
+	ctx->out = out;
+	while (cur < num) {
+		ull a = code[cur], m = 0;
+		if (ctx->labels[cur] & 2)
+			fprintf (ctx->out, "\n");
+		switch (ctx->labels[cur] & 3) {
+			case 0:
+				fprintf (ctx->out, "%s%08x:%s ", cgray, cur + start, cnorm);
+				break;
+			case 1:
+				fprintf (ctx->out, "%s%08x:%s ", cmag, cur + start, cnorm);
+				break;
+			case 2:
+				fprintf (ctx->out, "%s%08x:%s ", cbr, cur + start, cnorm);
+				break;
+			case 3:
+				fprintf (ctx->out, "%s%08x:%s ", cbrmag, cur + start, cnorm);
+				break;
+		}
+		fprintf (ctx->out, "%08llx", a);
+		fprintf (ctx->out, " ");
+		if (ctx->labels[cur] & 2)
+			fprintf (ctx->out, "%sC", cbr);
+		else
+			fprintf (ctx->out, " ");
+		if (ctx->labels[cur] & 1)
+			fprintf (ctx->out, "%sB", cmag);
+		else
+			fprintf (ctx->out, " ");
+		atomtab (ctx, &a, &m, tabm, cur + start);
+		a &= ~m;
+		if (a) {
+			fprintf (ctx->out, " %s[unknown: %08llx]%s", cred, a, cnorm);
+		}
+		fprintf (ctx->out, "%s\n", cnorm);
+		cur++;
+	}
+	free(ctx->labels);
 }

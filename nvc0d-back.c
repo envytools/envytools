@@ -127,11 +127,11 @@
 
 #define CTARG atomctarg, 0
 void atomctarg APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	uint32_t delta = BF(26, 24);
 	if (delta & 0x800000) delta += 0xff000000;
-	fprintf (out, " %s%#x", cbr, pos + delta);
+	fprintf (ctx->out, " %s%#x", cbr, pos + delta);
 }
 
 /*
@@ -206,79 +206,79 @@ static int ccoff[] = { 0, 0, 'c' };
 
 #define TDST atomtdst, 0
 void atomtdst APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	int base = BF(0xe, 6);
 	int mask = BF(0x2e, 4);
 	int k = 0, i;
-	fprintf (out, " %s{", cnorm);
+	fprintf (ctx->out, " %s{", cnorm);
 	for (i = 0; i < 4; i++)
 		if (mask & 1<<i)
-			fprintf (out, " %s$r%d", cbl, base+k++);
+			fprintf (ctx->out, " %s$r%d", cbl, base+k++);
 		else
-			fprintf (out, " %s_", cbl);
-	fprintf (out, " %s}", cnorm);
+			fprintf (ctx->out, " %s_", cbl);
+	fprintf (ctx->out, " %s}", cnorm);
 }
 #define TSRC atomtsrc, 0
 void atomtsrc APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	int base = BF(0x14, 6);
 	int cnt = BF(0x34, 2);
 	int i;
-	fprintf (out, " %s{", cnorm);
+	fprintf (ctx->out, " %s{", cnorm);
 	for (i = 0; i <= cnt; i++)
-		fprintf (out, " %s$r%d", cbl, base+i);
-	fprintf (out, " %s}", cnorm);
+		fprintf (ctx->out, " %s$r%d", cbl, base+i);
+	fprintf (ctx->out, " %s}", cnorm);
 }
 
 #define SADDR atomsaddr, 0
 void atomsaddr APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	int base = BF(0x14, 6);
 	int cnt = BF(0x2c, 2);
 	int i;
-	fprintf (out, " %s{", cnorm);
+	fprintf (ctx->out, " %s{", cnorm);
 	for (i = 0; i <= cnt; i++)
-		fprintf (out, " %s$r%d", cbl, base+i);
-	fprintf (out, " %s}", cnorm);
+		fprintf (ctx->out, " %s$r%d", cbl, base+i);
+	fprintf (ctx->out, " %s}", cnorm);
 }
 
 #define ESRC atomesrc, 0
 void atomesrc APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	int base = BF(26, 6);
 	int cnt = BF(5, 2);
 	int i;
-	fprintf (out, " %s{", cnorm);
+	fprintf (ctx->out, " %s{", cnorm);
 	for (i = 0; i <= cnt; i++)
-		fprintf (out, " %s$r%d", cbl, base+i);
-	fprintf (out, " %s}", cnorm);
+		fprintf (ctx->out, " %s$r%d", cbl, base+i);
+	fprintf (ctx->out, " %s}", cnorm);
 }
 
 #define VDST atomvdst, 0
 void atomvdst APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	int base = BF(14, 6);
 	int cnt = BF(5, 2);
 	int i;
-	fprintf (out, " %s{", cnorm);
+	fprintf (ctx->out, " %s{", cnorm);
 	for (i = 0; i <= cnt; i++)
-		fprintf (out, " %s$r%d", cbl, base+i);
-	fprintf (out, " %s}", cnorm);
+		fprintf (ctx->out, " %s$r%d", cbl, base+i);
+	fprintf (ctx->out, " %s}", cnorm);
 }
 
 // vertex base address (for tessellation and geometry programs)
 #define VBASRC atomvbasrc, 0
 void atomvbasrc APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	int s1 = BF(20, 6);
 	int s2 = BF(26, 6);
-	fprintf (out, " %sp<%s$r%d%s+%s%i%s>", ccy, cbl, s1, ccy, cyel, s2, ccy);
+	fprintf (ctx->out, " %sp<%s$r%d%s+%s%i%s>", ccy, cbl, s1, ccy, cyel, s2, ccy);
 }
 
 /*
@@ -296,61 +296,61 @@ static int fcmem[] = { 'c', 0, 16 };
 #define LOCAL atommem, lmem
 #define FCONST atommem, fcmem
 void atommem APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	const int *n = v;
 	uint32_t delta = BF(26, n[2]);
-	fprintf (out, " %s%c", ccy, n[0]);
+	fprintf (ctx->out, " %s%c", ccy, n[0]);
 	if (n[0] == 'c')
-		fprintf (out, "%lld", BF(0x2a, 4));
-	fprintf (out, "[%s$r%lld%s", cbl, BF(20, 6), n[1]?"d":"");
+		fprintf (ctx->out, "%lld", BF(0x2a, 4));
+	fprintf (ctx->out, "[%s$r%lld%s", cbl, BF(20, 6), n[1]?"d":"");
 	if (delta & 1ull<<(n[2]-1))
-		fprintf (out, "%s-%s%#x%s]", ccy, cyel, (1u<<n[2])-delta, ccy);
+		fprintf (ctx->out, "%s-%s%#x%s]", ccy, cyel, (1u<<n[2])-delta, ccy);
 	else
-		fprintf (out, "%s+%s%#x%s]", ccy, cyel, delta, ccy);
+		fprintf (ctx->out, "%s+%s%#x%s]", ccy, cyel, delta, ccy);
 }
 
 #define VAR atomvar, 0
 void atomvar APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	int s1 = BF(20, 6);
 	uint32_t delta =  BF(32, 16);
-	fprintf (out, " %sv[%s$r%d%s+%s%#x%s]", ccy, cbl, s1, ccy, cyel, delta, ccy);
+	fprintf (ctx->out, " %sv[%s$r%d%s+%s%#x%s]", ccy, cbl, s1, ccy, cyel, delta, ccy);
 }
 
 #define ATTR atomattr, 0
 void atomattr APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	int s1 = BF(20, 6);
 	int s2 = BF(26, 6);
 	uint32_t delta = BF(32, 16);
 	if (s2 < 63)
 		s1 = s2;
-	fprintf (out, " %sa[%s$r%d%s+%s%#x%s]", ccy, cbl, s1, ccy, cyel, delta, ccy);
+	fprintf (ctx->out, " %sa[%s$r%d%s+%s%#x%s]", ccy, cbl, s1, ccy, cyel, delta, ccy);
 }
 
 #define CONST atomconst, 0
 void atomconst APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	int delta = BF(0x1a, 16);
 	int space = BF(0x2a, 4);
-	fprintf (out, " %sc%d[%s%#x%s]", ccy, space, cyel, delta, ccy);
+	fprintf (ctx->out, " %sc%d[%s%#x%s]", ccy, space, cyel, delta, ccy);
 }
 
 #define GATOM atomgatom, 0
 void atomgatom APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	const int *n = v;
 	uint32_t delta = BF(0x1a, 17) | BF(0x37, 3)<<17;
-	fprintf (out, " %sg[%s$r%lld%s", ccy, cbl, BF(20, 6), BF(0x3a, 1)?"d":"");
+	fprintf (ctx->out, " %sg[%s$r%lld%s", ccy, cbl, BF(20, 6), BF(0x3a, 1)?"d":"");
 	if (delta & 0x80000)
-		fprintf (out, "%s-%s%#x%s]", ccy, cyel, 0x100000-delta, ccy);
+		fprintf (ctx->out, "%s-%s%#x%s]", ccy, cyel, 0x100000-delta, ccy);
 	else
-		fprintf (out, "%s+%s%#x%s]", ccy, cyel, delta, ccy);
+		fprintf (ctx->out, "%s+%s%#x%s]", ccy, cyel, delta, ccy);
 }
 
 /*
@@ -988,30 +988,63 @@ static struct insn tabs[] = {
  */
 
 void nvc0dis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype) {
-	int cur = 0;
-	int *labels = calloc(num, sizeof *labels);
+	struct disctx c = { 0 };
+	struct disctx *ctx = &c;
+	int cur = 0, i;
+	ctx->code32 = code;
+	ctx->labels = calloc(num, sizeof *ctx->labels);
+	ctx->codebase = start;
+	ctx->codesz = num * 4;
+	ctx->ptype = ptype;
 	while (cur < num) {
 		ull a = code[cur], m = 0;
-		fprintf (out, "%s%08x: %s", cgray, cur*4 + start, cnorm);
+			if (cur >= num) {
+				break;
+			}
+			a |= (ull)code[cur++] << 32;
+		atomtab (ctx, &a, &m, tabs, cur*4 + start);
+	}
+	cur = 0;
+	ctx->out = out;
+	while (cur < num) {
+		ull a = code[cur], m = 0;
+		switch (ctx->labels[cur] & 3) {
+			case 0:
+				fprintf (ctx->out, "%s%08x:%s ", cgray, cur * 4 + start, cnorm);
+				break;
+			case 1:
+				fprintf (ctx->out, "%s%08x:%s ", cmag, cur * 4 + start, cnorm);
+				break;
+			case 2:
+				fprintf (ctx->out, "%s%08x:%s ", cbr, cur * 4 + start, cnorm);
+				break;
+			case 3:
+				fprintf (ctx->out, "%s%08x:%s ", cbrmag, cur * 4 + start, cnorm);
+				break;
+		}
 		cur++;
 			if (cur >= num) {
 				fprintf (out, "        %08llx ", a);
 				fprintf (out, "%sincomplete%s\n", cred, cnorm);
 				return;
 			}
-/*			if (!(cur&1)) {
-				fprintf (out, "        %08x ", a);
-				fprintf (out, "%smisaligned%s\n", cred, cnorm);
-				continue;
-			}*/
 			a |= (ull)code[cur++] << 32;
-			fprintf (out, "%016llx", a);
-		atomtab (out, &a, &m, tabs, ptype, cur*4 + start, labels, num);
+			fprintf (ctx->out, "%016llx", a);
+		fprintf (ctx->out, " ");
+		if (ctx->labels[cur] & 2)
+			fprintf (ctx->out, "%sC", cbr);
+		else
+			fprintf (ctx->out, " ");
+		if (ctx->labels[cur] & 1)
+			fprintf (ctx->out, "%sB", cmag);
+		else
+			fprintf (ctx->out, " ");
+		atomtab (ctx, &a, &m, tabs, cur*4 + start);
 		a &= ~m;
 		if (a) {
-			fprintf (out, (" %s[unknown: %016llx]%s"), cred, a, cnorm);
+			fprintf (ctx->out, (" %s[unknown: %016llx]%s"), cred, a, cnorm);
 		}
-		printf ("%s\n", cnorm);
+		fprintf (ctx->out, "%s\n", cnorm);
 	}
-	free(labels);
+	free(ctx->labels);
 }

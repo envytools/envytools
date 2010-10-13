@@ -50,37 +50,42 @@ static int btarg12off[] = { 12, 12 };
 #define BTARG8 atomjtarg, btarg8off
 #define BTARG12 atomjtarg, btarg12off
 void atomjtarg APROTO {
-	if (!out)
-		return;
 	const int *n = v;
 	uint32_t delta = BF(n[0], n[1]);
 	if (delta & 1 << (n[1] - 1)) delta -= 1 << n[1];
-	fprintf (out, " %s%#x", cbr, pos + 4 + delta);
+	markbt8(ctx, pos + 4 + delta);
+	if (!ctx->out)
+		return;
+	fprintf (ctx->out, " %s%#x", cmag, pos + 4 + delta);
 }
 
 #define LTARG atomltarg, 0
 void atomltarg APROTO {
-	if (!out)
-		return;
 	uint32_t delta = BF(16, 8);
-	fprintf (out, " %s%#x", cbr, pos + 4 + delta);
+	markbt8(ctx, pos + 4 + delta);
+	if (!ctx->out)
+		return;
+	fprintf (ctx->out, " %s%#x", cmag, pos + 4 + delta);
 }
 
 #define BTARG6 atombtarg6, 0
 void atombtarg6 APROTO {
-	if (!out)
-		return;
 	uint32_t delta = BF(12, 4) | BF(4, 2) << 4;
-	fprintf (out, " %s%#x", cbr, pos + 4 + delta);
+	markbt8(ctx, pos + 4 + delta);
+	if (!ctx->out)
+		return;
+	fprintf (ctx->out, " %s%#x", cmag, pos + 4 + delta);
 }
 
 #define CTARG atomctarg, 0
 void atomctarg APROTO {
-	if (!out)
-		return;
 	uint32_t delta = BF(6, 18);
 	if (delta & 0x20000) delta += 0xfffc0000;
-	fprintf (out, " %s%#x", cbr, (pos & ~3) + 4 + delta * 4);
+	uint32_t target = (pos & ~3) + 4 + delta * 4;
+	markct8(ctx, target);
+	if (!ctx->out)
+		return;
+	fprintf (ctx->out, " %s%#x", cbr, target);
 }
 
 /*
@@ -126,10 +131,10 @@ static int break4off[] = { 4, 4, 0, 0, };
 #define BREAK4 atomnum, break4off
 
 void atomlutnum APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	const int *n = v;
-	fprintf (out, " %s%#x", cyel, n[BF(n[0], n[1]) + 2]);
+	fprintf (ctx->out, " %s%#x", cyel, n[BF(n[0], n[1]) + 2]);
 }
 static int b4constlut[] = { 12, 4,
 	-1, 1, 2, 3,
@@ -154,69 +159,69 @@ static int addinlut[] = { 4, 4,
 #define ADDIN atomlutnum, addinlut
 
 void atombbi APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
-	fprintf (out, " %s%#x", cyel, BF(4, 4) | BF(12, 1) << 4);
+	fprintf (ctx->out, " %s%#x", cyel, BF(4, 4) | BF(12, 1) << 4);
 }
 #define BBI atombbi, 0
 
 void atommi12 APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	uint32_t num = BF(16,8) | BF(8,4) << 8;
 	if (num & 0x800)
-		fprintf (out, " %s-%#x", cyel, 0x1000-num);
+		fprintf (ctx->out, " %s-%#x", cyel, 0x1000-num);
 	else
-		fprintf (out, " %s%#x", cyel, num);
+		fprintf (ctx->out, " %s%#x", cyel, num);
 }
 #define MI12 atommi12, 0
 
 void atommi7 APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	uint32_t num = BF(12,4) | BF(4,3) << 4;
 	if (num >= 0x60)
-		fprintf (out, " %s-%#x", cyel, 0x80-num);
+		fprintf (ctx->out, " %s-%#x", cyel, 0x80-num);
 	else
-		fprintf (out, " %s%#x", cyel, num);
+		fprintf (ctx->out, " %s%#x", cyel, num);
 }
 #define MI7 atommi7, 0
 
 void atomshiftimm APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
-	fprintf (out, " %s%#x", cyel, BF(8, 4) | BF(16, 1) << 4);
+	fprintf (ctx->out, " %s%#x", cyel, BF(8, 4) | BF(16, 1) << 4);
 }
 #define SHIFTIMM atomshiftimm, 0
 
 void atommaskimm APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
-	fprintf (out, " %s%#x", cyel, BF(20, 4) + 1);
+	fprintf (ctx->out, " %s%#x", cyel, BF(20, 4) + 1);
 }
 #define MASKIMM atommaskimm, 0
 
 void atomslli APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	uint32_t num = BF(4, 4) | BF(20, 1) << 4;
-	fprintf (out, " %s%#x", cyel, 32 - num);
+	fprintf (ctx->out, " %s%#x", cyel, 32 - num);
 }
 #define SLLI atomslli, 0
 
 void atomsrai APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	uint32_t num = BF(8, 4) | BF(20, 1) << 4;
-	fprintf (out, " %s%#x", cyel, num);
+	fprintf (ctx->out, " %s%#x", cyel, num);
 }
 #define SRAI atomsrai, 0
 
 void atomssai APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	uint32_t num = BF(8, 4) | BF(4, 1) << 4;
-	fprintf (out, " %s%#x", cyel, num);
+	fprintf (ctx->out, " %s%#x", cyel, num);
 }
 #define SSAI atomssai, 0
 
@@ -226,18 +231,18 @@ void atomssai APROTO {
 
 #define L32R atoml32r, 0
 void atoml32r APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	uint32_t delta = BF(8, 16) | 0xffff0000;
 	uint32_t addr = ((pos + 3) & ~3) + (delta << 2);
-	fprintf (out, " %sD[%s%#x%s]", ccy, cyel, addr, ccy);
+	fprintf (ctx->out, " %sD[%s%#x%s]", ccy, cyel, addr, ccy);
 }
 
 #define DATA32E atomdata32e, 0
 void atomdata32e APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
-	fprintf (out, " %sD[%s$r%lld%s-%s%#llx%s]", ccy, cbl, BF(8, 4), ccy, cyel, (16 - BF(12, 4)) << 2, ccy);
+	fprintf (ctx->out, " %sD[%s$r%lld%s-%s%#llx%s]", ccy, cbl, BF(8, 4), ccy, cyel, (16 - BF(12, 4)) << 2, ccy);
 }
 
 static int data32noff[] = { 8, 4, 12, 4, 2 };
@@ -253,11 +258,11 @@ static int data8off[] = { 8, 4, 16, 8, 0 };
 #define DATA16 atommem, data16off
 #define DATA8 atommem, data8off
 void atommem APROTO {
-	if (!out)
+	if (!ctx->out)
 		return;
 	const int *n = v;
 	ull delta = BF(n[2], n[3]) << n[4];
-	fprintf (out, " %sD[%s$r%lld%s+%s%#llx%s]", ccy, cbl, BF(n[0], n[1]), ccy, cyel, delta, ccy);
+	fprintf (ctx->out, " %sD[%s$r%lld%s+%s%#llx%s]", ccy, cbl, BF(n[0], n[1]), ccy, cyel, delta, ccy);
 }
 
 static struct insn tabsr[] = {
@@ -485,34 +490,83 @@ static uint32_t optab[] = {
  */
 
 void vp2dis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype) {
+	struct disctx c = { 0 };
+	struct disctx *ctx = &c;
 	int cur = 0, i;
-	int *labels = calloc(num, sizeof *labels);
+	ctx->code8 = code;
+	ctx->labels = calloc(num, sizeof *ctx->labels);
+	ctx->codebase = start;
+	ctx->codesz = num;
+	ctx->ptype = ptype;
 	while (cur < num) {
-		fprintf (out, "%s%08x:%s", cgray, cur + start, cnorm);
 		uint8_t op = code[cur];
 		int length = 0;
 		for (i = 0; i < sizeof optab / sizeof *optab / 3; i++)
 			if ((op & optab[3*i+1]) == optab[3*i])
 				length = optab[3*i+2];
 		if (!length || cur + length > num) {
-			fprintf (out, " %s%02x                ??? [unknown op length]%s\n", cred, op, cnorm);
 			cur++;
 		} else {
 			ull a = 0, m = 0;
 			for (i = cur; i < cur + length; i++) {
-				fprintf (out, " %02x", code[i]);
 				a |= (ull)code[i] << (i-cur)*8;
 			}
-			for (i = 0; i < 6 - length; i++)
-				fprintf (out, "   ");
-			atomtab (out, &a, &m, tabm, ptype, cur + start, labels, num);
-			a &= ~m;
-			if (a) {
-				fprintf (out, " %s[unknown: %08llx]%s", cred, a, cnorm);
-			}
-			printf ("%s\n", cnorm);
+			atomtab (ctx, &a, &m, tabm, cur + start);
 			cur += length;
 		}
 	}
-	free(labels);
+	cur = 0;
+	ctx->out = out;
+	while (cur < num) {
+		if (ctx->labels[cur] & 2)
+			fprintf (ctx->out, "\n");
+		switch (ctx->labels[cur] & 3) {
+			case 0:
+				fprintf (ctx->out, "%s%08x:%s", cgray, cur + start, cnorm);
+				break;
+			case 1:
+				fprintf (ctx->out, "%s%08x:%s", cmag, cur + start, cnorm);
+				break;
+			case 2:
+				fprintf (ctx->out, "%s%08x:%s", cbr, cur + start, cnorm);
+				break;
+			case 3:
+				fprintf (ctx->out, "%s%08x:%s", cbrmag, cur + start, cnorm);
+				break;
+		}
+		uint8_t op = code[cur];
+		int length = 0;
+		for (i = 0; i < sizeof optab / sizeof *optab / 3; i++)
+			if ((op & optab[3*i+1]) == optab[3*i])
+				length = optab[3*i+2];
+		if (!length || cur + length > num) {
+			fprintf (ctx->out, " %s%02x              ??? [unknown op length]%s\n", cred, op, cnorm);
+			cur++;
+		} else {
+			ull a = 0, m = 0;
+			for (i = cur; i < cur + length; i++) {
+				fprintf (ctx->out, " %02x", code[i]);
+				a |= (ull)code[i] << (i-cur)*8;
+			}
+			for (i = 0; i < 4 - length; i++)
+				fprintf (ctx->out, "   ");
+			fprintf (ctx->out, "  ");
+			if (ctx->labels[cur] & 2)
+				fprintf (ctx->out, "%sC", cbr);
+			else
+				fprintf (ctx->out, " ");
+			if (ctx->labels[cur] & 1)
+				fprintf (ctx->out, "%sB", cmag);
+			else
+				fprintf (ctx->out, " ");
+			atomtab (ctx, &a, &m, tabm, cur + start);
+			a &= ~m;
+			if (a) {
+				fprintf (ctx->out, " %s[unknown: %08llx]%s", cred, a, cnorm);
+			}
+			fprintf (ctx->out, "%s\n", cnorm);
+			cur += length;
+		}
+	}
+	free(ctx->labels);
 }
