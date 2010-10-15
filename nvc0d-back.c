@@ -805,8 +805,11 @@ static struct insn tabm[] = {
 	{ AP, 0x6000000000000000ull, 0xf800000000000027ull, N("presin"), N("f32"), DST, T(fs2) },
 	{ AP, 0x6000000000000020ull, 0xf800000000000027ull, N("preex2"), N("f32"), DST, T(fs2) },
 	// 68-b8?
-	{ AP, 0xc07e0000fc000000ull, 0xf87e0000fc000047ull, N("linterp"), N("f32"), DST, VAR },
-	{ AP, 0xc07e000000000040ull, 0xf87e000000000047ull, N("pinterp"), N("f32"), DST, SRC2, VAR },
+	{ AP, 0xc07e0000fc000000ull, 0xf87e0000fc0001c7ull, N("interp"), N("f32"), DST, VAR },
+	{ AP, 0xc07e000000000040ull, 0xf87e0000000001c7ull, N("interp"), N("f32"), DST, SRC2, VAR },
+	{ AP, 0xc07e0000fc000080ull, 0xf87e0000fc0001c7ull, N("interp"), N("f32"), DST, N("flat"), VAR },
+	{ AP, 0xc07e0000fc000100ull, 0xf87e0000fc0001c7ull, N("interp"), N("f32"), DST, N("cent"), VAR },
+	{ AP, 0xc07e000000000140ull, 0xf87e0000000001c7ull, N("interp"), N("f32"), DST, N("cent"), SRC2, VAR },
 	{ AP, 0xc800000000000000ull, 0xf80000001c000007ull, N("cos"), N("f32"), DST, SRC1 },
 	{ AP, 0xc800000004000000ull, 0xf80000001c000007ull, N("sin"), N("f32"), DST, SRC1 },
 	{ AP, 0xc800000008000000ull, 0xf80000001c000007ull, N("ex2"), N("f32"), DST, SRC1 },
