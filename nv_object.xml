@@ -162,6 +162,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x50c0" name="NV50_COMPUTE" variants="NV50:NVC0"/>
 	<value value="0x85c0" name="NVA3_COMPUTE" variants="NVA3:NVC0"/>
 	<value value="0x90c0" name="NVC0_COMPUTE" variants="NVC0-"/>
+
+	<value value="0x74c1" name="NV84_CRYPT" variants="NV84:NV98 NVA0"/>
 </enum>
 
 <domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
@@ -184,7 +186,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</stripe>
 		<reg32 offset="0x80" name="YIELD" variants="NV40-"/>
 	</stripe>
-	<stripe name="GRAPH" prefix="chipset">
+	<stripe name="GRAPH" prefix="chipset" varset="obj-class" variants="NV01_CONTEXT_BETA1:NV84_CRYPT">
 		<doc>Methods available on all PGRAPH objects.</doc>
 		<reg32 offset="0x100" name="NOP" variants="NV04-" />
 		<reg32 offset="0x104" name="NOTIFY" >

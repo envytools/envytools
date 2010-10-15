@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml"/>
+<import file="nv_object.xml"/>
+
+<domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
+	<stripe prefix="obj-class" variants="NV84_CRYPT">
+		<reg32 offset="0x0100" name="NOP"/>
+		<reg32 offset="0x0140" name="PM_TRIGGER"/>
+		<reg32 offset="0x0180" name="DMA_UNK180" type="object"/>
+		<reg32 offset="0x0184" name="DMA_UNK184" type="object"/>
+		<reg32 offset="0x0188" name="DMA_UNK188" type="object"/>
+		<reg32 offset="0x0200" name="UNK200" length="4"/>
+		<reg32 offset="0x0210" name="UNK210" length="4"/>
+		<reg32 offset="0x0300" name="UNK300"/>
+		<reg32 offset="0x0304" name="UNK304"/>
+		<reg32 offset="0x0308" name="UNK308"/>
+		<reg32 offset="0x030c" name="UNK30C"/>
+		<reg32 offset="0x0310" name="UNK310"/>
+		<reg32 offset="0x0314" name="UNK314"/>
+		<reg32 offset="0x0318" name="UNK318"/>
+		<reg32 offset="0x031c" name="UNK31C"/>
+	</stripe>
+</domain>
+
+</database>
