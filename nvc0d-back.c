@@ -871,7 +871,7 @@ static struct insn tabm[] = {
 
 
 	// 08?
-	{ AP, 0x080e00001c000004ull, 0xfc0e00001c000004ull, N("mov"), DST, PSRC1 }, // likely pnot1. and likely some ops too.
+	{ AP, 0x080e00001c000004ull, 0xfc0e00001c000007ull, N("mov"), DST, PSRC1 }, // likely pnot1. and likely some ops too.
 	{ AP, 0x0c0e00000001c004ull, 0xfc0e0000c001c007ull, N("and"), PDST, T(pnot1), PSRC1, T(pnot2), PSRC2 },
 	{ AP, 0x0c0e00004001c004ull, 0xfc0e0000c001c007ull, N("or"), PDST, T(pnot1), PSRC1, T(pnot2), PSRC2 },
 	{ AP, 0x0c0e00008001c004ull, 0xfc0e0000c001c007ull, N("xor"), PDST, T(pnot1), PSRC1, T(pnot2), PSRC2 },
