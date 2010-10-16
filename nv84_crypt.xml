@@ -11,22 +11,40 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<stripe prefix="obj-class" variants="NV84_CRYPT">
 		<reg32 offset="0x0100" name="NOP"/>
 		<reg32 offset="0x0140" name="PM_TRIGGER"/>
-		<reg32 offset="0x0180" name="DMA_UNK180" type="object"/>
-		<reg32 offset="0x0184" name="DMA_UNK184" type="object"/>
-		<reg32 offset="0x0188" name="DMA_UNK188" type="object"/>
+		<reg32 offset="0x0180" name="DMA_QUERY" type="object"/>
+		<reg32 offset="0x0184" name="DMA_SRC" type="object"/>
+		<reg32 offset="0x0188" name="DMA_DST" type="object"/>
 		<reg32 offset="0x0200" name="UNK200" length="4"/>
 		<reg32 offset="0x0210" name="UNK210" length="4"/>
-		<reg32 offset="0x0300" name="UNK300"/>
-		<reg32 offset="0x0304" name="UNK304"/>
-		<reg32 offset="0x0308" name="UNK308"/>
-		<reg32 offset="0x030c" name="UNK30C"/>
-		<reg32 offset="0x0310" name="UNK310"/>
-		<reg32 offset="0x0314" name="UNK314"/>
-		<reg32 offset="0x0318" name="UNK318"/>
-		<reg32 offset="0x031c" name="UNK31C"/>
-		<reg32 offset="0x0320" name="UNK320"/>
-		<reg32 offset="0x0324" name="UNK324"/>
-		<reg32 offset="0x0328" name="UNK328"/>
+		<reg32 offset="0x0300" name="CRYPT_MODE">
+		<!-- recheck this later... -->
+			<value value="1" name="ECB"/>
+			<value value="3" name="CTR"/>
+			<value value="4" name="CBC"/>
+		</reg32>
+		<reg32 offset="0x0304" name="LENGTH"/>
+		<reg32 offset="0x0308" name="SRC_ADDRESS_HIGH"/>
+		<reg32 offset="0x030c" name="SRC_ADDRESS_LOW"/>
+		<reg32 offset="0x0310" name="DST_ADDRESS_HIGH"/>
+		<reg32 offset="0x0314" name="DST_ADDRESS_LOW"/>
+		<reg32 offset="0x0318" name="LAUNCH">
+			<bitfield low="0" high="1" name="MODE">
+				<value value="0" name="COPY"/>
+				<value value="1" name="ENCRYPT"/>
+				<value value="2" name="DECRYPT"/>
+			</bitfield>
+			<bitfield low="4" high="5" name="QUERY">
+				<value value="0" name="NONE"/>
+				<value value="1" name="WRITE"/>
+				<value value="2" name="WRITE_AND_INTR"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x031c" name="QUERY_ADDRESS_HIGH"/>
+		<reg32 offset="0x0320" name="QUERY_ADDRESS_LOW"/>
+		<reg32 offset="0x0324" name="QUERY_COUNTER"/>
+		<reg32 offset="0x0328" name="QUERY_GET">
+			<bitfield pos="0" name="INTR"/>
+		</reg32>
 	</stripe>
 </domain>
 
