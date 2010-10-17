@@ -809,7 +809,8 @@ int main(int argc, char **argv) {
 		uint8_t extra_data_length = 8, extra_data_count = 0;
 		uint8_t subentry_offset = 0, subentry_size = 0, subentry_count = 0;
 		uint16_t start = pm_mode_tbl_ptr;
-		uint32_t timing_entry = (strap & 0x3c) >> 2;
+		uint32_t timing_entry;
+		int e;
 
 		if (major_version == 0x4) {
 			header_length = bios[start+0];
@@ -837,6 +838,11 @@ int main(int argc, char **argv) {
 		}
 
 		start += header_length;
+
+		if (version == 0x35)
+			timing_entry = (strap & 0x3800) >> 11;
+		else
+			timing_entry = (strap & 0x3c) >> 2;
 		
 		printf ("PM_Mode table at %x. Version %x. Timing entry %x.\n"
 				"Info_length %i. Extra_length %i. Extra_count %i.\n"
@@ -900,17 +906,24 @@ int main(int argc, char **argv) {
 			printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Voltage %d[*10mV] Timing %d Fan %d --\n",
 				id, core, memclk, shader, voltage, timing_id, fan
 			);
-			if (entry_length > 20) {
+			if (mode_info_length > 20) {
 				int i=0;
-				while (entry_length - i*20 > 20) {
+				while (mode_info_length - i*20 > 20) {
 					printcmd(start+i*20, 20); printf("\n");
 					i++;
 				}
-				printcmd(start + i*20, entry_length%20);
+				printcmd(start + i*20, mode_info_length%20);
 			} else {
 				printcmd(start, mode_info_length);
 			}
-			printf("\n\n");
+			printf("\n");
+
+			for(e=0; e < extra_data_count; e++) {
+				printf("	%i:", e);
+				printcmd(start + mode_info_length + (e*extra_data_length), extra_data_length);
+				printf("\n");
+			}
+			printf("\n");
 
 			start += entry_length;
 		}
@@ -977,7 +990,7 @@ int main(int argc, char **argv) {
 		}
 		printf("\n");
 	}
-	if (!temperature_tbl_ptr) {
+	if (temperature_tbl_ptr) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0;
 		uint16_t start = temperature_tbl_ptr;
@@ -1015,7 +1028,7 @@ int main(int argc, char **argv) {
 		}
 		printf("\n");
 	}
-	if (!timings_tbl_ptr) {
+	if (timings_tbl_ptr) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0;
 		uint16_t start = timings_tbl_ptr;
