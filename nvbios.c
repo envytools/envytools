@@ -2,12 +2,15 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
+#include <limits.h>
 
 uint8_t bios[0x10000];
 uint32_t len;
 const uint8_t bit_signature[] = { 0xff, 0xb8, 'B', 'I', 'T' };
 const uint8_t bmp_signature[] = { 0xff, 0x7f, 'N', 'V', 0x0 };
 uint8_t major_version, minor_version, micro_version, chip_version;
+uint32_t strap;
 
 #define RNN_ADDARRAY(a, e) \
 	do { \
@@ -425,11 +428,60 @@ static void parse_bios_version(uint16_t offset)
 		 bios[offset + 1], bios[offset]);
 }
 
+void find_strap(int argc, char **argv) {
+	char* strap_s;
+	char tmp[21];
+	char* end_ptr;
+
+	if (argc > 2 && strncmp(argv[2], "0x", 2)==0) {
+		strap_s = argv[2];
+	} else {
+		FILE *strapfile;
+
+		if (argc > 2) {
+			strapfile = fopen(argv[2], "r");
+		} else {
+			char *path;
+			const char * strap_filename = "strap_peek";
+			const char *pos = strrchr(argv[1], '/');
+			if (pos == NULL)
+				pos = argv[1];
+			else
+				pos++;
+			int base_length = pos-argv[1];
+
+			path = (char*) malloc(base_length + strlen(strap_filename));
+			strncpy(path, argv[1], base_length);
+			strncpy(path+base_length, strap_filename, strlen(strap_filename));
+
+			strapfile = fopen(path, "r");
+			printf("path = '%s'\n", path);
+
+			free(path);
+		}
+		
+		if (strapfile) {
+			uint32_t len = fread(tmp, 1, 21, strapfile);
+			strap_s = tmp;
+		}
+	}
+
+	strap = strtoul(strap_s, &end_ptr, 16);
+	if (strap == ULONG_MAX)
+		fprintf(stderr, "Invalid strap value!\n");
+	else
+		printf("Strap set to 0x%x\n", strap);
+
+	exit(1);
+}
+
 int main(int argc, char **argv) {
 	if (argc < 2) {
-		printf("Usage: %s mybios.rom\n", argv[0]);
+		printf("Usage: %s mybios.rom [strap]\n", argv[0]);
 		return 1;
 	}
+
+	find_strap(argc, argv);
 	
 	FILE *biosfile = fopen(argv[1], "r");
 	if (!biosfile) {
@@ -757,8 +809,10 @@ int main(int argc, char **argv) {
 	if (pm_mode_tbl_ptr) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t mode_info_length = 0, header_length = 0;
+		uint8_t extra_data_length = 8, extra_data_count = 0;
 		uint8_t subentry_offset = 0, subentry_size = 0, subentry_count = 0;
 		uint16_t start = pm_mode_tbl_ptr;
+		uint32_t timing_entry = (strap & 0x3c) >> 2;
 
 		if (major_version == 0x4) {
 			header_length = bios[start+0];
@@ -771,7 +825,9 @@ int main(int argc, char **argv) {
 			header_length = bios[start+1];
 			entry_count = bios[start+2];
 			mode_info_length = bios[start+3];
-			entry_length = mode_info_length + bios[start+4] * bios[start+5];
+			extra_data_count = bios[start+4];
+			extra_data_length = bios[start+5];
+			entry_length = mode_info_length + extra_data_count * extra_data_length;
 		} else if (major_version == 0x70) {
 			version = bios[start+0];
 			header_length = bios[start+1];
@@ -785,8 +841,11 @@ int main(int argc, char **argv) {
 
 		start += header_length;
 		
-		printf ("PM_Mode table at %x. Version %x.\nHeader:\n",
-				pm_mode_tbl_ptr, version);
+		printf ("PM_Mode table at %x. Version %x. Timing entry %x.\n"
+				"Info_length %i. Extra_length %i. Extra_count %i.\n"
+				"Header:\n",
+				pm_mode_tbl_ptr, version, timing_entry,
+				mode_info_length, extra_data_length, extra_data_count);
 		printcmd(pm_mode_tbl_ptr, header_length>0?header_length:10);
 		printf ("\n");
 		
@@ -795,6 +854,7 @@ int main(int argc, char **argv) {
 		for (i=0; i < entry_count; i++) {
 			uint16_t id, fan, voltage;
 			uint16_t core, shader = 0, memclk;
+			uint8_t timing_id = 0xff;
 
 			if (version == 0x12 || version == 0x13 || version == 0x15) {
 				id = bios[start+0];
@@ -832,19 +892,24 @@ int main(int argc, char **argv) {
 				memclk = (le16(start+subent(2)) & 0xfff);
 			}
 
-			/*uint32_t strap = (bios_rd32(bios, NV_PEXTDEV_BOOT_0) & 0x0000003c) >> 2;*/
+			if (version > 0x15 && version < 0x40) {
+				uint16_t extra_start = start + mode_info_length;
+				uint16_t timing_extra_data = extra_start+(timing_entry*extra_data_length);
+				
+				if (timing_entry < extra_data_count)
+					timing_id = bios[timing_extra_data+1];
+			}
 
-			printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Voltage %d[*10mV] Fan %d --\n",
-				id, core, memclk, shader, voltage, fan
+			printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Voltage %d[*10mV] Timing %d Fan %d --\n",
+				id, core, memclk, shader, voltage, timing_id, fan
 			);
-			if (mode_info_length > 20) {
+			if (entry_length > 20) {
 				int i=0;
-			printf("modeinfo_length=%u\n", mode_info_length);
-				while (mode_info_length - i*20 > 20) {
+				while (entry_length - i*20 > 20) {
 					printcmd(start+i*20, 20); printf("\n");
 					i++;
 				}
-				printcmd(start + i*20, mode_info_length%20);
+				printcmd(start + i*20, entry_length%20);
 			} else {
 				printcmd(start, mode_info_length);
 			}
@@ -915,7 +980,7 @@ int main(int argc, char **argv) {
 		}
 		printf("\n");
 	}
-	if (temperature_tbl_ptr) {
+	if (!temperature_tbl_ptr) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0;
 		uint16_t start = temperature_tbl_ptr;
@@ -953,7 +1018,7 @@ int main(int argc, char **argv) {
 		}
 		printf("\n");
 	}
-	if (timings_tbl_ptr) {
+	if (!timings_tbl_ptr) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0;
 		uint16_t start = timings_tbl_ptr;
