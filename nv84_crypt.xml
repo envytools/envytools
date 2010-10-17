@@ -38,6 +38,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="1" name="WRITE"/>
 				<value value="2" name="WRITE_AND_INTR"/>
 			</bitfield>
+			<bitfield pos="8" name="UNK8"/>
+			<bitfield pos="12" name="UNK12"/>
 		</reg32>
 		<reg32 offset="0x031c" name="QUERY_ADDRESS_HIGH"/>
 		<reg32 offset="0x0320" name="QUERY_ADDRESS_LOW"/>
