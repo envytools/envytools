@@ -387,10 +387,8 @@ static int sampoff[] = { 0x11, 4, 's' };
 
 static int getareg (ull *a, ull *m, int l) {
 	int r = BF(0x1a, 2);
-	RCL(0x1a, 2);
 	if (l) {
 		r |= BF(0x22, 1)<<2;
-		RCL(0x22, 1);
 	}
 	return r;
 }
@@ -532,9 +530,13 @@ static int lpmem[] = { 9, 7, 2, 'p', 3, 0, 0 };		// TODO
 static int scmem[] = { 0x10, 5, 2, 'c', 1, 0x15, 1 };		// TODO
 static int shcmem[] = { 0x10, 5, 1, 'c', 1, 0x15, 1 };		// TODO
 static int lcmem2[] = { 0x10, 7, 2, 'c', 3, 0x36, 4 };		// TODO
-static int lhcmem2[] = { 0x10, 7, 1, 'c', 3, 0x36, 4 };	// TODO
+static int lhcmem2[] = { 0x10, 7, 1, 'c', 3, 0x36, 4 };		// TODO
 static int lcmem3[] = { 0x2e, 7, 2, 'c', 3, 0x36, 4 };		// TODO
-static int lhcmem3[] = { 0x2e, 7, 1, 'c', 3, 0x36, 4 };	// TODO
+static int lhcmem3[] = { 0x2e, 7, 1, 'c', 3, 0x36, 4 };		// TODO
+static int lcmem2na[] = { 0x10, 7, 2, 'c', 0, 0x36, 4 };	// TODO
+static int lhcmem2na[] = { 0x10, 7, 1, 'c', 0, 0x36, 4 };	// TODO
+static int lcmem3na[] = { 0x2e, 7, 2, 'c', 0, 0x36, 4 };	// TODO
+static int lhcmem3na[] = { 0x2e, 7, 1, 'c', 0, 0x36, 4 };	// TODO
 static int fcmem[] = { 9, 14, 2, 'c', 7, 0x36, 4 };		// done
 static int fhcmem[] = { 9, 15, 1, 'c', 7, 0x36, 4 };		// done
 static int fbcmem[] = { 9, 16, 0, 'c', 7, 0x36, 4 };		// done
@@ -561,6 +563,10 @@ static int lvmem[] = { 0x10, 8, 2, 'v', 3, 0, 0 };		// TODO
 #define LHCONST2 atommem, lhcmem2
 #define LCONST3 atommem, lcmem3
 #define LHCONST3 atommem, lhcmem3
+#define LCONST2NA atommem, lcmem2na
+#define LHCONST2NA atommem, lhcmem2na
+#define LCONST3NA atommem, lcmem3na
+#define LHCONST3NA atommem, lhcmem3na
 #define LOCAL atommem, lmem
 #define FSHARED atommem, fsmem
 #define FHSHARED atommem, fhsmem
@@ -773,24 +779,28 @@ F(lsh, 0x35, LHSRC, T(ls))
 F(lsw, 0x35, LSRC, T(ls))
 
 static struct insn tablc2h[] = {
-	{ AP, 0x00800000, 0x01800000, LHCONST2 },
-	{ AP, 0x00000000, 0x00000000, LHSRC2 },
+	{ AP, 0x0000000000800000ull, 0x0020000001800000ull, LHCONST2 },
+	{ AP, 0x0020000000800000ull, 0x0020000001800000ull, LHCONST2NA },
+	{ AP, 0x0000000000000000ull, 0x0000000000000000ull, LHSRC2 },
 	{ AP, 0, 0, OOPS }
 };
 
 static struct insn tablc2w[] = {
-	{ AP, 0x00800000, 0x01800000, LCONST2 },
-	{ AP, 0x00000000, 0x00000000, LSRC2 },
+	{ AP, 0x0000000000800000ull, 0x0020000001800000ull, LCONST2 },
+	{ AP, 0x0020000000800000ull, 0x0020000001800000ull, LCONST2NA },
+	{ AP, 0x0000000000000000ull, 0x0000000000000000ull, LSRC2 },
 };
 
 static struct insn tablc3h[] = {
-	{ AP, 0x01000000, 0x01800000, LHCONST3 },
-	{ AP, 0x00000000, 0x00000000, LHSRC3 },
+	{ AP, 0x0000000001000000ull, 0x0020000001800000ull, LHCONST3 },
+	{ AP, 0x0020000001000000ull, 0x0020000001800000ull, LHCONST3NA },
+	{ AP, 0x0000000000000000ull, 0x0000000000000000ull, LHSRC3 },
 };
 
 static struct insn tablc3w[] = {
-	{ AP, 0x01000000, 0x01800000, LCONST3 },
-	{ AP, 0x00000000, 0x00000000, LSRC3 },
+	{ AP, 0x0000000001000000ull, 0x0020000001800000ull, LCONST3 },
+	{ AP, 0x0020000001000000ull, 0x0020000001800000ull, LCONST3NA },
+	{ AP, 0x0000000000000000ull, 0x0000000000000000ull, LSRC3 },
 };
 
 F(shcnt, 0x34, T(lc2w), SHCNT)

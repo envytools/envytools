@@ -85,8 +85,7 @@ extern char *cbrmag;	// call and jump labels
  * s[$a1+0x4], c0[0x10].
  *
  * Macros provided for quickly getting the bitfields: BF(...) gets value of
- * given bitfield and marks it as used in the mask, RCL(...) wipes it
- * from the opcode field directly, allowing for the $a special case. Args are
+ * given bitfield and marks it as used in the mask. Args are
  * given as start bit, size in bits.
  *
  * Also, three simple ops are provided: N("string") prints a literal to output
@@ -98,7 +97,6 @@ extern char *cbrmag;	// call and jump labels
 typedef unsigned long long ull;
 
 #define BF(s, l) (*m |= (((1ull<<l)-1)<<s), *a>>s&((1ull<<l)-1))
-#define RCL(s, l) (*a &= ~(((1ull<<l)-1)<<s))
 
 struct disctx;
 
