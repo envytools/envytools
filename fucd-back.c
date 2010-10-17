@@ -96,11 +96,15 @@ static int reg2off[] = { 12, 4, 'r' };
 static int reg3off[] = { 20, 4, 'r' };
 static int pred1off[] = { 8, 3, 'p' };
 static int pred2off[] = { 16, 3, 'p' };
+static int creg1off[] = { 16, 3, 'c' };
+static int creg2off[] = { 20, 3, 'c' };
 #define REG1 atomreg, reg1off
 #define REG2 atomreg, reg2off
 #define REG3 atomreg, reg3off
 #define PRED1 atomreg, pred1off
 #define PRED2 atomreg, pred2off
+#define CREG1 atomreg, creg1off
+#define CREG2 atomreg, creg2off
 
 /*
  * Immediate fields
@@ -113,6 +117,7 @@ static int imm8soff[] = { 16, 8, 0, 1 };
 static int imm16hoff[] = { 16, 16, 16, 0 };
 static int imm8hoff[] = { 16, 8, 16, 0 };
 static int strapoff[] = { 8, 2, 0, 0 };
+static int cimm2off[] = { 20, 6, 0, 0 };
 #define IMM16 atomnum, imm16off
 #define IMM8 atomnum, imm8off
 #define IMM16S atomnum, imm16soff
@@ -120,23 +125,8 @@ static int strapoff[] = { 8, 2, 0, 0 };
 #define IMM16H atomnum, imm16hoff
 #define IMM8H atomnum, imm8hoff
 #define STRAP atomnum, strapoff
+#define CIMM2 atomnum, cimm2off
 
-static struct insn tabcm[];
-
-#define COCMD8 atomcocmd, imm8off
-#define COCMD16 atomcocmd, imm16off
-void atomcocmd APROTO {
-	if (!ctx->out)
-		return;
-	const int *n = v;
-	ull na = BF(n[0], n[1]), nm = 0;
-	fprintf (ctx->out, " %s%04llx", cgray, na);
-	atomtab (ctx, &na, &nm, tabcm, pos);
-	na &= ~nm;
-	if (na) {
-		fprintf (ctx->out, " %s[unknown: %04llx]%s", cred, na, cnorm);
-	}
-}
 
 #define BITF8 atombf, imm8off
 #define BITF16 atombf, imm16off
@@ -293,8 +283,53 @@ static struct insn tabct[] = {
 };
 
 static struct insn tabcocmd[] = {
-	{ AP, 0x00000000, 0x00000001, COCMD8 },
-	{ AP, 0x00000001, 0x00000001, COCMD16 },
+	{ AP, 0x00000000, 0x80000000, N("cxset"), IMM8 },
+	{ AP, 0x84000000, 0xfc000000, N("cmov"), CREG1, CREG2 },
+	/* pull 16 bytes from crypt xfer stream */
+	{ AP, 0x88000000, 0xfc000000, N("cxsin"), CREG1 },
+	/* send 16 bytes to crypt xfer stream */
+	{ AP, 0x8c000000, 0xfc000000, N("cxsout"), CREG1 },
+	/* next ARG coprocessor instructions are stored as a "script" to be executed later. */
+	{ AP, 0x94000000, 0xfc000000, N("cs0begin"), CIMM2 },
+	/* the script stored by previous insn is executed ARG times. */
+	{ AP, 0x98000000, 0xfc000000, N("cs0exec"), CIMM2 },
+	/* like above, but operates on another script slot */
+	{ AP, 0x9c000000, 0xfc000000, N("cs1begin"), CIMM2 },
+	{ AP, 0xa0000000, 0xfc000000, N("cs1exec"), CIMM2 },
+	{ AP, 0xac000000, 0xfc000000, N("cxor"), CREG1, CREG2 },
+	{ AP, 0xb0000000, 0xfc000000, N("cadd"), CREG1, CIMM2 }, /* add immediate to register, modulo 2^64 */
+	{ AP, 0xb4000000, 0xfc000000, N("cand"), CREG1, CREG2 },
+	{ AP, 0xb8000000, 0xfc000000, N("crev"), CREG1, CREG2 }, /* reverse bytes */
+	{ AP, 0xbc000000, 0xfc000000, N("cprecmac"), CREG1, CREG2 }, /* shift left by 1. if bit shifted out the left side was set, xor with 0x87. */
+	/* Load selected secret to register. The register is subsequently
+	 * marked "hidden", and all attempts to xfer stuff from it by
+	 * non-authed code will result in just getting 0s. The hidden flag
+	 * also propagates through all normal crypto ops to destination reg,
+	 * so there's basically no way to get information out of hidden
+	 * registers, other than via authed code. */
+	{ AP, 0xc0000000, 0xfc000000, N("csecret"), CREG1, CIMM2 },
+	/* Binds a register as the key for enc/dec operations. A *register*,
+	 * not its contents. So if you bind $c3, then change its value,
+	 * it'll use the new value.
+	 */
+	{ AP, 0xc4000000, 0xfc000000, N("ckeyreg"), CREG1 },
+	/* key expansion - go through AES key schedule given the key [aka
+	 * first 16 bytes of 176-byte expanded key], return last 16 bytes
+	 * of the expended key. Used to get decryption keys.
+	 */
+	{ AP, 0xc8000000, 0xfc000000, N("ckexp"), CREG1, CREG2 },
+	/* reverse operation to the above - get the original key given
+	 * last 16 bytes of the expanded key*/
+	{ AP, 0xcc000000, 0xfc000000, N("ckrexp"), CREG1, CREG2 },
+	/* encrypts a block using "key" register value as key */
+	{ AP, 0xd0000000, 0xfc000000, N("cenc"), CREG1, CREG2 },
+	/* decrypts a block using "key" register value as last 16 bytes of
+	 * expanded key - ie. you need to stuff the key through ckexp before
+	 * use for decryption. */
+	{ AP, 0xd4000000, 0xfc000000, N("cdec"), CREG1, CREG2 },
+	/* auth only: encrypt code sig with ARG2 as key */
+	{ AP, 0xdc000000, 0xfc000000, N("csigenc"), CREG1, CREG2 },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabsz[] = {
@@ -335,7 +370,7 @@ static struct insn tabsrs[] = {
 	{ AP, 0x00007000, 0x0000f000, N("xdbase") },
 	{ AP, 0x00008000, 0x0000f000, N("flags") },
 	{ AP, 0x00009000, 0x0000f000, N("cx") }, /* coprocessor xfer */
-	{ AP, 0x0000a000, 0x0000f000, U("a") },
+	{ AP, 0x0000a000, 0x0000f000, N("cauth") },
 	{ AP, 0x0000b000, 0x0000f000, N("xtargets") },
 	{ AP, 0x0000c000, 0x0000f000, N("tstatus") },
 	{ AP, 0, 0, OOPS },
@@ -349,7 +384,7 @@ static struct insn tabsrd[] = {
 	{ AP, 0x00000600, 0x00000f00, N("xcbase") },
 	{ AP, 0x00000700, 0x00000f00, N("xdbase") },
 	{ AP, 0x00000800, 0x00000f00, N("flags") },
-	{ AP, 0x00000a00, 0x00000f00, U("a") },
+	{ AP, 0x00000a00, 0x00000f00, N("cauth") },
 	{ AP, 0x00000b00, 0x00000f00, N("xtargets") },
 	{ AP, 0x00000c00, 0x00000f00, N("tstatus") },
 	{ AP, 0, 0, OOPS },
@@ -517,11 +552,13 @@ static struct insn tabm[] = {
 	{ AP, 0x000d0cf2, 0x001f0fff, N("ciand"), REG2 },
 	{ AP, 0x000e0cf2, 0x001f0fff, N("cirev"), REG2 },
 	{ AP, 0x000f0cf2, 0x001f0fff, N("ciprecmac"), REG2 },
+	{ AP, 0x00100cf2, 0x001f0fff, N("cisecret"), REG2 },
 	{ AP, 0x00110cf2, 0x001f0fff, N("cikeyreg"), REG2 },
 	{ AP, 0x00120cf2, 0x001f0fff, N("cikexp"), REG2 },
 	{ AP, 0x00130cf2, 0x001f0fff, N("cikrexp"), REG2 },
 	{ AP, 0x00140cf2, 0x001f0fff, N("cienc"), REG2 },
 	{ AP, 0x00150cf2, 0x001f0fff, N("cidec"), REG2 },
+	{ AP, 0x00170cf2, 0x001f0fff, N("cisigenc"), REG2 },
 	{ AP, 0x00000cf2, 0x00000fff, OOPS, REG2 },
 
 	{ AP, 0x000000f4, 0x0000e0fe, N("bra"), T(p), T(bt) },
@@ -532,7 +569,8 @@ static struct insn tabm[] = {
 	{ AP, 0x000031f4, 0x0000fffe, N("bset"), N("flags"), T(fl) },
 	{ AP, 0x000032f4, 0x0000fffe, N("bclr"), N("flags"), T(fl) },
 	{ AP, 0x000033f4, 0x0000fffe, N("btgl"), N("flags"), T(fl) },
-	{ AP, 0x00003cf4, 0x0000fffe, T(cocmd) },
+	{ AP, 0x00003cf4, 0x0000ffff, N("cxset"), IMM8 },
+	{ AP, 0x00003cf5, 0x0000ffff, T(cocmd) },
 	{ AP, 0x000000f4, 0x000000fe, OOPS, T(i) },
 
 	{ AP, 0x000000f8, 0x0000ffff, N("ret") },
@@ -665,67 +703,6 @@ static uint32_t optab[] = {
 	0xfd, 0xff, 3,
 	0xfe, 0xff, 3,
 	0xff, 0xff, 3,
-};
-
-/* The coprocessor stuff */
-
-/*
- * Immediate fields
- */
-
-static int cimmcxoff[] = { 0, 8, 0, 0 };
-static int cimm2off[] = { 4, 6, 0, 0 };
-#define CIMMCX atomnum, cimmcxoff
-#define CIMM2 atomnum, cimm2off
-
-/*
- * Register fields
- */
-
-static int creg1off[] = { 0, 3, 'c' };
-static int creg2off[] = { 4, 3, 'c' };
-#define CREG1 atomreg, creg1off
-#define CREG2 atomreg, creg2off
-
-static struct insn tabcm[] = {
-	{ AP, 0x0000, 0x8000, N("cxset"), CIMMCX },
-	{ AP, 0x8400, 0xfc00, N("cmov"), CREG1, CREG2 },
-	/* pull 16 bytes from crypt xfer stream */
-	{ AP, 0x8800, 0xfc00, N("cxsin"), CREG1 },
-	/* send 16 bytes to crypt xfer stream */
-	{ AP, 0x8c00, 0xfc00, N("cxsout"), CREG1 },
-	/* next ARG coprocessor instructions are stored as a "script" to be executed later. */
-	{ AP, 0x9400, 0xfc00, N("cs0begin"), CIMM2 },
-	/* the script stored by previous insn is executed ARG times. */
-	{ AP, 0x9800, 0xfc00, N("cs0exec"), CIMM2 },
-	/* like above, but operates on another script slot */
-	{ AP, 0x9c00, 0xfc00, N("cs1begin"), CIMM2 },
-	{ AP, 0xa000, 0xfc00, N("cs1exec"), CIMM2 },
-	{ AP, 0xac00, 0xfc00, N("cxor"), CREG1, CREG2 },
-	{ AP, 0xb000, 0xfc00, N("cadd"), CREG1, CIMM2 }, /* add immediate to register, modulo 2^64 */
-	{ AP, 0xb400, 0xfc00, N("cand"), CREG1, CREG2 },
-	{ AP, 0xb800, 0xfc00, N("crev"), CREG1, CREG2 }, /* reverse bytes */
-	{ AP, 0xbc00, 0xfc00, N("cprecmac"), CREG1, CREG2 }, /* shift left by 1. if bit shifted out the left side was set, xor with 0x87. */
-	/* Binds a register as the key for enc/dec operations. A *register*,
-	 * not its contents. So if you bind $c3, then change its value,
-	 * it'll use the new value.
-	 */
-	{ AP, 0xc400, 0xfc00, N("ckeyreg"), CREG1 },
-	/* key expansion - go through AES key schedule given the key [aka
-	 * first 16 bytes of 176-byte expanded key], return last 16 bytes
-	 * of the expended key. Used to get decryption keys.
-	 */
-	{ AP, 0xc800, 0xfc00, N("ckexp"), CREG1, CREG2 },
-	/* reverse operation to the above - get the original key given
-	 * last 16 bytes of the expanded key*/
-	{ AP, 0xcc00, 0xfc00, N("ckrexp"), CREG1, CREG2 },
-	/* encrypts a block using "key" register value as key */
-	{ AP, 0xd000, 0xfc00, N("cenc"), CREG1, CREG2 },
-	/* decrypts a block using "key" register value as last 16 bytes of
-	 * expanded key - ie. you need to stuff the key through ckexp before
-	 * use for decryption. */
-	{ AP, 0xd400, 0xfc00, N("cdec"), CREG1, CREG2 },
-	{ AP, 0, 0, OOPS },
 };
 
 /*
