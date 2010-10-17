@@ -465,11 +465,17 @@ void find_strap(int argc, char **argv) {
 		}
 	}
 
-	strap = strtoul(strap_s, &end_ptr, 16);
-	if (strap == ULONG_MAX)
+	if (strap_s != NULL) {
+		strap = strtoul(strap_s, &end_ptr, 16);
+		if (strap != ULONG_MAX) {
+			printf("Strap set to 0x%x\n", strap);
+			return;
+		}
+
 		fprintf(stderr, "Invalid strap value!\n");
-	else
-		printf("Strap set to 0x%x\n", strap);
+	}
+
+	fprintf(stderr, "No strap specified!\n");
 }
 
 int main(int argc, char **argv) {
