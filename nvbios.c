@@ -429,14 +429,14 @@ static void parse_bios_version(uint16_t offset)
 }
 
 void find_strap(int argc, char **argv) {
-	char* strap_s;
+	char* strap_s = NULL;
 	char tmp[21];
 	char* end_ptr;
 
 	if (argc > 2 && strncmp(argv[2], "0x", 2)==0) {
 		strap_s = argv[2];
 	} else {
-		FILE *strapfile;
+		FILE *strapfile = NULL;
 
 		if (argc > 2) {
 			strapfile = fopen(argv[2], "r");
@@ -809,7 +809,7 @@ int main(int argc, char **argv) {
 		uint8_t extra_data_length = 8, extra_data_count = 0;
 		uint8_t subentry_offset = 0, subentry_size = 0, subentry_count = 0;
 		uint16_t start = pm_mode_tbl_ptr;
-		uint32_t timing_entry;
+		uint32_t timing_entry = (strap & 0x1c) >> 2;
 		int e;
 
 		if (major_version == 0x4) {
@@ -833,22 +833,22 @@ int main(int argc, char **argv) {
 			subentry_size = bios[start+3];
 			subentry_count = bios[start+4];
 			entry_length = subentry_offset + subentry_size * subentry_count;
-			mode_info_length = entry_length;
+			mode_info_length = subentry_offset;
 			entry_count = bios[start+5];
 		}
 
 		start += header_length;
-
-		if (version == 0x35)
-			timing_entry = (strap & 0x3800) >> 11;
-		else
-			timing_entry = (strap & 0x3c) >> 2;
 		
-		printf ("PM_Mode table at %x. Version %x. Timing entry %x.\n"
-				"Info_length %i. Extra_length %i. Extra_count %i.\n"
-				"Header:\n",
-				pm_mode_tbl_ptr, version, timing_entry,
-				mode_info_length, extra_data_length, extra_data_count);
+		printf ("PM_Mode table at %x. Version %x. Timing entry %x. Info_length %i.\n",
+			pm_mode_tbl_ptr, version, timing_entry, mode_info_length
+		);
+
+		if (version > 0x15 && version < 0x40)
+			printf("Extra_length %i. Extra_count %i.\n", extra_data_length, extra_data_count);
+		else if (version == 0x40)
+			printf("Subentry length %i. Subentry count %i.\n", subentry_size, subentry_count);
+
+		printf("Header:\n");
 		printcmd(pm_mode_tbl_ptr, header_length>0?header_length:10);
 		printf ("\n");
 		
@@ -901,6 +901,9 @@ int main(int argc, char **argv) {
 				
 				if (timing_entry < extra_data_count)
 					timing_id = bios[timing_extra_data+1];
+			} else if (version == 0x40) {
+				if (timing_entry < subentry_count)
+					timing_id = bios[start+subent(timing_entry)+1];
 			}
 
 			printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Voltage %d[*10mV] Timing %d Fan %d --\n",
@@ -918,10 +921,18 @@ int main(int argc, char **argv) {
 			}
 			printf("\n");
 
-			for(e=0; e < extra_data_count; e++) {
-				printf("	%i:", e);
-				printcmd(start + mode_info_length + (e*extra_data_length), extra_data_length);
-				printf("\n");
+			if (version > 0x15 && version < 0x40) {
+				for(e=0; e < extra_data_count; e++) {
+					printf("	%i:", e);
+					printcmd(start + mode_info_length + (e*extra_data_length), extra_data_length);
+					printf("\n");
+				}
+			} else if (version == 0x40) {
+				for(e=0; e < subentry_count; e++) {
+					printf("	%i:", e);
+					printcmd(start + mode_info_length + (e*subentry_size), subentry_count);
+					printf("\n");
+				}
 			}
 			printf("\n");
 
