@@ -455,7 +455,6 @@ void find_strap(int argc, char **argv) {
 			strncpy(path+base_length, strap_filename, strlen(strap_filename));
 
 			strapfile = fopen(path, "r");
-			printf("path = '%s'\n", path);
 
 			free(path);
 		}
@@ -471,8 +470,6 @@ void find_strap(int argc, char **argv) {
 		fprintf(stderr, "Invalid strap value!\n");
 	else
 		printf("Strap set to 0x%x\n", strap);
-
-	exit(1);
 }
 
 int main(int argc, char **argv) {
