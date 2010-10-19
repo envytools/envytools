@@ -309,7 +309,7 @@ int main(int argc, char **argv) {
 						uint32_t param = value;
 						struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, mmiodom, addr, line[0] == 'W');
 						printf ("[%d] MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %s %s ", cci, width, line[0], addr, value, ai->name, line[0]=='W'?"<=":"=>");
-						ctxdis(stdout, &param, cc->ctxpos * 4, 1, cc->arch == 5 ? NV5x : NV4x);
+						envydis(ctx_isa, stdout, &param, cc->ctxpos, 4, cc->arch == 5 ? NV5x : NV4x);
 						cc->ctxpos++;
 						free(ai->name);
 						free(ai);

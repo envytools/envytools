@@ -486,6 +486,7 @@ static struct disisa vp2_isa_s = {
 	tabroot,
 	3,
 	1,
+	1,
 };
 
 struct disisa *vp2_isa = &vp2_isa_s;

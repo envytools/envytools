@@ -994,6 +994,7 @@ static struct disisa nvc0_isa_s = {
 	tabroot,
 	8,
 	8,
+	1,
 };
 
 struct disisa *nvc0_isa = &nvc0_isa_s;

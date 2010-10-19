@@ -46,6 +46,10 @@ int main(int argc, char **argv) {
 		isa = nvc0_isa;
 		w = 1;
 	}
+	if (!strcmp(argv[0], "ctxdis")) {
+		isa = ctx_isa;
+		w = 1;
+	}
 	if (!strcmp(argv[0], "fucdis"))
 		isa = fuc_isa;
 	if (!strcmp(argv[0], "pmsdis"))
@@ -55,8 +59,14 @@ int main(int argc, char **argv) {
 	int ptype = -1;
 	int c;
 	unsigned base = 0, skip = 0, limit = 0;
-	while ((c = getopt (argc, argv, "vgfpcsb:d:l:m:wn")) != -1)
+	while ((c = getopt (argc, argv, "45vgfpcsb:d:l:m:wn")) != -1)
 		switch (c) {
+			case '4':
+				ptype = NV4x;
+				break;
+			case '5':
+				ptype = NV5x;
+				break;
 			case 'v':
 				ptype = VP;
 				break;
@@ -102,6 +112,8 @@ int main(int argc, char **argv) {
 					isa = nv50_isa;
 				else if (!strcmp(optarg, "nvc0"))
 					isa = nvc0_isa;
+				else if (!strcmp(optarg, "ctx"))
+					isa = ctx_isa;
 				else if (!strcmp(optarg, "fuc"))
 					isa = fuc_isa;
 				else if (!strcmp(optarg, "pms"))

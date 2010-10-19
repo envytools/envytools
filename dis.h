@@ -99,6 +99,7 @@ typedef unsigned long long ull;
 #define BF(s, l) (*m |= (((1ull<<l)-1)<<s), *a>>s&((1ull<<l)-1))
 
 struct disctx;
+struct disisa;
 
 #define APROTO (struct disctx *ctx, ull *a, ull *m, const void *v, uint32_t pos)
 
@@ -117,6 +118,7 @@ struct insn {
 };
 
 struct disctx {
+	struct disisa *isa;
 	FILE *out;
 	uint8_t *code8;
 	uint32_t *code32;
@@ -132,6 +134,7 @@ struct disisa {
 	struct insn *troot;
 	int maxoplen;
 	int opunit;
+	int posunit;
 };
 
 /*
@@ -200,17 +203,13 @@ void markbt8(struct disctx *ctx, uint32_t ptr);
 #define CP 8
 #define AP (VP|GP|FP|CP)
 
-void nv50dis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype);
-void nvc0dis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype);
-
 #define NV4x 1
 #define NV5x 2 /* and 8x and 9x and Ax */
 #define NVxx 3
 
-void ctxdis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype);
-
 extern struct disisa *nv50_isa;
 extern struct disisa *nvc0_isa;
+extern struct disisa *ctx_isa;
 extern struct disisa *fuc_isa;
 extern struct disisa *pms_isa;
 extern struct disisa *vp2_isa;

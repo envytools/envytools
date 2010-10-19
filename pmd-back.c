@@ -67,6 +67,7 @@ static struct disisa pms_isa_s = {
 	tabm,
 	5,
 	1,
+	1,
 };
 
 struct disisa *pms_isa = &pms_isa_s;

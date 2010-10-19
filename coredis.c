@@ -136,12 +136,14 @@ uint16_t readle16 (uint8_t *p) {
 }
 
 void markct8(struct disctx *ctx, uint32_t ptr) {
+	ptr *= ctx->isa->posunit;
 	if (ptr < ctx->codebase || ptr > ctx->codebase + ctx->codesz)
 		return;
 	ctx->labels[ptr - ctx->codebase] |= 2;
 }
 
 void markbt8(struct disctx *ctx, uint32_t ptr) {
+	ptr *= ctx->isa->posunit;
 	if (ptr < ctx->codebase || ptr > ctx->codebase + ctx->codesz)
 		return;
 	ctx->labels[ptr - ctx->codebase] |= 1;
@@ -164,6 +166,7 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 	ctx->codebase = start;
 	ctx->codesz = num;
 	ctx->ptype = ptype;
+	ctx->isa = isa;
 	while (cur < num) {
 		ull a = 0, m = 0;
 		for (i = 0; i < 8 && cur + i < num; i++) {
@@ -190,16 +193,16 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 			fprintf (ctx->out, "\n");
 		switch (ctx->labels[cur] & 3) {
 			case 0:
-				fprintf (ctx->out, "%s%08x:%s", cgray, cur + start, cnorm);
+				fprintf (ctx->out, "%s%08x:%s", cgray, (cur + start) / isa->posunit, cnorm);
 				break;
 			case 1:
-				fprintf (ctx->out, "%s%08x:%s", cmag, cur + start, cnorm);
+				fprintf (ctx->out, "%s%08x:%s", cmag, (cur + start) / isa->posunit, cnorm);
 				break;
 			case 2:
-				fprintf (ctx->out, "%s%08x:%s", cbr, cur + start, cnorm);
+				fprintf (ctx->out, "%s%08x:%s", cbr, (cur + start) / isa->posunit, cnorm);
 				break;
 			case 3:
-				fprintf (ctx->out, "%s%08x:%s", cbrmag, cur + start, cnorm);
+				fprintf (ctx->out, "%s%08x:%s", cbrmag, (cur + start) / isa->posunit, cnorm);
 				break;
 		}
 

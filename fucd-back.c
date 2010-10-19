@@ -682,6 +682,7 @@ static struct disisa fuc_isa_s = {
 	tabm,
 	4,
 	1,
+	1,
 };
 
 struct disisa *fuc_isa = &fuc_isa_s;

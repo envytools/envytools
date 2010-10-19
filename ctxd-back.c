@@ -275,64 +275,15 @@ static struct insn tabm[] = {
 	{ NVxx, 0, 0, OOPS },
 };
 
-/*
- * Disassembler driver
- *
- * You pass a block of memory to this function, disassembly goes out to given
- * FILE*.
- */
+static struct insn tabroot[] = {
+	{ NVxx, 0, 0, OP32, T(m) },
+};
 
-void ctxdis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype) {
-	struct disctx c = { 0 };
-	struct disctx *ctx = &c;
-	int cur = 0, i;
-	ctx->code32 = code;
-	ctx->labels = calloc(num, sizeof *ctx->labels);
-	ctx->codebase = start;
-	ctx->codesz = num;
-	ctx->ptype = ptype;
-	while (cur < num) {
-		ull a = code[cur], m = 0;
-		atomtab (ctx, &a, &m, tabm, cur + start);
-		cur++;
-	}
-	cur = 0;
-	ctx->out = out;
-	while (cur < num) {
-		ull a = code[cur], m = 0;
-		if (ctx->labels[cur] & 2)
-			fprintf (ctx->out, "\n");
-		switch (ctx->labels[cur] & 3) {
-			case 0:
-				fprintf (ctx->out, "%s%08x:%s ", cgray, cur + start, cnorm);
-				break;
-			case 1:
-				fprintf (ctx->out, "%s%08x:%s ", cmag, cur + start, cnorm);
-				break;
-			case 2:
-				fprintf (ctx->out, "%s%08x:%s ", cbr, cur + start, cnorm);
-				break;
-			case 3:
-				fprintf (ctx->out, "%s%08x:%s ", cbrmag, cur + start, cnorm);
-				break;
-		}
-		fprintf (ctx->out, "%08llx", a);
-		fprintf (ctx->out, " ");
-		if (ctx->labels[cur] & 2)
-			fprintf (ctx->out, "%sC", cbr);
-		else
-			fprintf (ctx->out, " ");
-		if (ctx->labels[cur] & 1)
-			fprintf (ctx->out, "%sB", cmag);
-		else
-			fprintf (ctx->out, " ");
-		atomtab (ctx, &a, &m, tabm, cur + start);
-		a &= ~m;
-		if (a) {
-			fprintf (ctx->out, " %s[unknown: %08llx]%s", cred, a, cnorm);
-		}
-		fprintf (ctx->out, "%s\n", cnorm);
-		cur++;
-	}
-	free(ctx->labels);
-}
+static struct disisa ctx_isa_s = {
+	tabroot,
+	4,
+	4,
+	4,
+};
+
+struct disisa *ctx_isa = &ctx_isa_s;

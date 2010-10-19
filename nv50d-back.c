@@ -1557,6 +1557,7 @@ static struct disisa nv50_isa_s = {
 	tabroot,
 	8,
 	4,
+	1,
 };
 
 struct disisa *nv50_isa = &nv50_isa_s;
