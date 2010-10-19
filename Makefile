@@ -16,8 +16,7 @@ nvbios: nvbios.c
 	gcc nvbios.c -o nvbios -Wall
 
 clean:
-	rm -f headergen nv50_texture.h
-	rm -f envydis
+	rm -f headergen demmio lookup expand nvbios envydis
 
 envydis: envydis.c nv50dis.c nvc0dis.c ctxdis.c vp2dis.c fucdis.c pmsdis.c dis.h coredis.c
 	cc -o envydis envydis.c nv50dis.c nvc0dis.c ctxdis.c vp2dis.c fucdis.c pmsdis.c coredis.c
