@@ -51,9 +51,11 @@ void atomtab APROTO {
 			tab->atoms[i].fun (ctx, a, m, tab->atoms[i].arg, pos);
 }
 
+int op8len[] = { 1 };
 int op16len[] = { 2 };
 int op24len[] = { 3 };
 int op32len[] = { 4 };
+int op40len[] = { 5 };
 void atomopl APROTO {
 	ctx->oplen = *(int*)v;
 }

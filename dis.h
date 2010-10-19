@@ -146,12 +146,16 @@ struct disctx {
 #define T(x) atomtab, tab ## x
 void atomtab APROTO;
 
+#define OP8 atomopl, op8len
 #define OP16 atomopl, op16len
 #define OP24 atomopl, op24len
 #define OP32 atomopl, op32len
+#define OP40 atomopl, op40len
+extern int op8len[];
 extern int op16len[];
 extern int op24len[];
 extern int op32len[];
+extern int op40len[];
 void atomopl APROTO;
 
 #define N(x) atomname, x

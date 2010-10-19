@@ -54,33 +54,13 @@ static void atomst32 APROTO {
 }
 
 static struct insn tabm[] = {
-	{ AP, 0x40, 0xff, N("addr"), ADDR16 },
-	{ AP, 0x42, 0xff, N("data"), DATA16 },
-	{ AP, 0xe0, 0xff, N("addr"), ADDR32 },
-	{ AP, 0xe2, 0xff, N("data"), DATA32 },
-	{ AP, 0x7f, 0xff, N("exit") },
-	{ AP, 0, 0, OOPS },
-};
-
-static uint32_t optab[] = {
-	0x00, 1,
-	0x01, 1,
-	0x05, 1,
-	0x06, 1,
-	0x07, 1,
-	0x09, 1,
-	0x0a, 1,
-	0x0b, 1,
-	0x0d, 1,
-	0x0e, 1,
-	0x40, 3,
-	0x42, 3,
-	0x5f, 3,
-	0x7f, 1,
-	0xb0, 1,
-	0xd0, 1,
-	0xe0, 5,
-	0xe2, 5,
+	{ AP, 0x40, 0xff, OP24, N("addr"), ADDR16 },
+	{ AP, 0x42, 0xff, OP24, N("data"), DATA16 },
+	{ AP, 0x5f, 0xff, OP24, U("5f") },
+	{ AP, 0xe0, 0xff, OP40, N("addr"), ADDR32 },
+	{ AP, 0xe2, 0xff, OP40, N("data"), DATA32 },
+	{ AP, 0x7f, 0xff, OP8, N("exit") },
+	{ AP, 0, 0, OP8, OOPS },
 };
 
 /*
@@ -99,34 +79,82 @@ void pmdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype) {
 	ctx->codebase = start;
 	ctx->codesz = num;
 	ctx->ptype = ptype;
-	ctx->out = out;
 	while (cur < num) {
-		fprintf (ctx->out, "%s%08x:%s", cgray, cur + start, cnorm);
-		uint8_t op = code[cur];
-		int length = 0;
-		for (i = 0; i < sizeof optab / sizeof *optab / 2; i++)
-			if (op == optab[2*i])
-				length = optab[2*i+1];
-		if (!length || cur + length > num) {
-			fprintf (ctx->out, " %s%02x            ??? [unknown op length]%s\n", cred, op, cnorm);
+		ull a = 0, m = 0;
+		for (i = 0; i < 8 && cur + i < num; i++) {
+			a |= (ull)code[cur + i] << i*8;
+		}
+		atomtab (ctx, &a, &m, tabm, cur + start);
+		if (ctx->oplen)
+			cur += ctx->oplen;
+		else
 			cur++;
-		} else {
-			ull a = 0, m = 0;
-			for (i = cur; i < cur + length; i++) {
-				fprintf (ctx->out, " %02x", code[i]);
-				a |= (ull)code[i] << (i-cur)*8;
-			}
-			for (i = 0; i < 4 - length; i++)
-				fprintf (ctx->out, "   ");
-			fprintf (ctx->out, "  ");
-			atomtab (ctx, &a, &m, tabm, cur + start);
+	}
+	cur = 0;
+	while (cur < num) {
+		ull a = 0, m = 0;
+		ctx->out = 0;
+		for (i = 0; i < 8 && cur + i < num; i++) {
+			a |= (ull)code[cur + i] << i*8;
+		}
+		ctx->oplen = 0;
+		atomtab (ctx, &a, &m, tabm, cur + start);
+		ctx->out = out;
+
+		if (ctx->labels[cur] & 2)
+			fprintf (ctx->out, "\n");
+		switch (ctx->labels[cur] & 3) {
+			case 0:
+				fprintf (ctx->out, "%s%08x:%s", cgray, cur + start, cnorm);
+				break;
+			case 1:
+				fprintf (ctx->out, "%s%08x:%s", cmag, cur + start, cnorm);
+				break;
+			case 2:
+				fprintf (ctx->out, "%s%08x:%s", cbr, cur + start, cnorm);
+				break;
+			case 3:
+				fprintf (ctx->out, "%s%08x:%s", cbrmag, cur + start, cnorm);
+				break;
+		}
+
+		for (i = cur; (i < cur + ctx->oplen || i == cur) && i < num; i++) {
+			fprintf (ctx->out, " %02x", code[i]);
+		}
+		for (; i < cur + ctx->oplen; i++) {
+			fprintf (ctx->out, " %s??", cred);
+		}
+		for (; i < cur + 5; i++)
+			fprintf (ctx->out, "   ");
+		fprintf (ctx->out, "  ");
+
+		if (ctx->labels[cur] & 2)
+			fprintf (ctx->out, "%sC", cbr);
+		else
+			fprintf (ctx->out, " ");
+		if (ctx->labels[cur] & 1)
+			fprintf (ctx->out, "%sB", cmag);
+		else
+			fprintf (ctx->out, " ");
+
+		atomtab (ctx, &a, &m, tabm, cur + start);
+
+		if (ctx->oplen) {
 			a &= ~m;
+			if (ctx->oplen < 8)
+				a &= (1ull << ctx->oplen * 8) - 1;
 			if (a) {
 				fprintf (ctx->out, " %s[unknown: %08llx]%s", cred, a, cnorm);
 			}
-			fprintf (ctx->out, "%s\n", cnorm);
-			cur += length;
+			if (cur + ctx->oplen > num) {
+				fprintf (ctx->out, " %s[incomplete]%s", cred, cnorm);
+			}
+			cur += ctx->oplen;
+		} else {
+			fprintf (ctx->out, " %s[unknown op length]%s", cred, cnorm);
+			cur++;
 		}
+		fprintf (ctx->out, "%s\n", cnorm);
 	}
 	free(ctx->labels);
 }
