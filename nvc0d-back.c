@@ -126,7 +126,7 @@
  */
 
 #define CTARG atomctarg, 0
-void atomctarg APROTO {
+static void atomctarg APROTO {
 	if (!ctx->out)
 		return;
 	uint32_t delta = BF(26, 24);
@@ -205,7 +205,7 @@ static int ccoff[] = { 0, 0, 'c' };
 #define CC atomreg, ccoff
 
 #define TDST atomtdst, 0
-void atomtdst APROTO {
+static void atomtdst APROTO {
 	if (!ctx->out)
 		return;
 	int base = BF(0xe, 6);
@@ -220,7 +220,7 @@ void atomtdst APROTO {
 	fprintf (ctx->out, " %s}", cnorm);
 }
 #define TSRC atomtsrc, 0
-void atomtsrc APROTO {
+static void atomtsrc APROTO {
 	if (!ctx->out)
 		return;
 	int base = BF(0x14, 6);
@@ -233,7 +233,7 @@ void atomtsrc APROTO {
 }
 
 #define SADDR atomsaddr, 0
-void atomsaddr APROTO {
+static void atomsaddr APROTO {
 	if (!ctx->out)
 		return;
 	int base = BF(0x14, 6);
@@ -246,7 +246,7 @@ void atomsaddr APROTO {
 }
 
 #define ESRC atomesrc, 0
-void atomesrc APROTO {
+static void atomesrc APROTO {
 	if (!ctx->out)
 		return;
 	int base = BF(26, 6);
@@ -259,7 +259,7 @@ void atomesrc APROTO {
 }
 
 #define VDST atomvdst, 0
-void atomvdst APROTO {
+static void atomvdst APROTO {
 	if (!ctx->out)
 		return;
 	int base = BF(14, 6);
@@ -273,7 +273,7 @@ void atomvdst APROTO {
 
 // vertex base address (for tessellation and geometry programs)
 #define VBASRC atomvbasrc, 0
-void atomvbasrc APROTO {
+static void atomvbasrc APROTO {
 	if (!ctx->out)
 		return;
 	int s1 = BF(20, 6);
@@ -295,7 +295,7 @@ static int fcmem[] = { 'c', 0, 16 };
 #define SHARED atommem, smem
 #define LOCAL atommem, lmem
 #define FCONST atommem, fcmem
-void atommem APROTO {
+static void atommem APROTO {
 	if (!ctx->out)
 		return;
 	const int *n = v;
@@ -311,7 +311,7 @@ void atommem APROTO {
 }
 
 #define VAR atomvar, 0
-void atomvar APROTO {
+static void atomvar APROTO {
 	if (!ctx->out)
 		return;
 	int s1 = BF(20, 6);
@@ -320,7 +320,7 @@ void atomvar APROTO {
 }
 
 #define ATTR atomattr, 0
-void atomattr APROTO {
+static void atomattr APROTO {
 	if (!ctx->out)
 		return;
 	int s1 = BF(20, 6);
@@ -332,7 +332,7 @@ void atomattr APROTO {
 }
 
 #define CONST atomconst, 0
-void atomconst APROTO {
+static void atomconst APROTO {
 	if (!ctx->out)
 		return;
 	int delta = BF(0x1a, 16);
@@ -341,7 +341,7 @@ void atomconst APROTO {
 }
 
 #define GATOM atomgatom, 0
-void atomgatom APROTO {
+static void atomgatom APROTO {
 	if (!ctx->out)
 		return;
 	const int *n = v;

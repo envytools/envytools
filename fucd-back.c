@@ -30,7 +30,7 @@
  */
 
 #define SBTARG atomsbtarg, 0
-void atomsbtarg APROTO {
+static void atomsbtarg APROTO {
 	uint32_t delta = BF(16, 8);
 	if (delta & 0x80) delta += 0xffffff00;
 	uint32_t target = pos + delta;
@@ -41,7 +41,7 @@ void atomsbtarg APROTO {
 }
 
 #define LBTARG atomlbtarg, 0
-void atomlbtarg APROTO {
+static void atomlbtarg APROTO {
 	uint32_t delta = BF(16, 16);
 	if (delta & 0x8000) delta += 0xffff0000;
 	uint32_t target = pos + delta;
@@ -52,7 +52,7 @@ void atomlbtarg APROTO {
 }
 
 #define LABTARG atomlabtarg, 0
-void atomlabtarg APROTO {
+static void atomlabtarg APROTO {
 	uint32_t target = BF(16, 16);
 	markbt8(ctx, target);
 	if (!ctx->out)
@@ -61,7 +61,7 @@ void atomlabtarg APROTO {
 }
 
 #define SABTARG atomsabtarg, 0
-void atomsabtarg APROTO {
+static void atomsabtarg APROTO {
 	uint32_t target = BF(16, 8);
 	markbt8(ctx, target);
 	if (!ctx->out)
@@ -70,7 +70,7 @@ void atomsabtarg APROTO {
 }
 
 #define LCTARG atomlctarg, 0
-void atomlctarg APROTO {
+static void atomlctarg APROTO {
 	uint32_t target = BF(16, 16);
 	markct8(ctx, target);
 	if (!ctx->out)
@@ -79,7 +79,7 @@ void atomlctarg APROTO {
 }
 
 #define SCTARG atomsctarg, 0
-void atomsctarg APROTO {
+static void atomsctarg APROTO {
 	uint32_t target = BF(16, 8);
 	markct8(ctx, target);
 	if (!ctx->out)
@@ -130,7 +130,7 @@ static int cimm2off[] = { 20, 6, 0, 0 };
 
 #define BITF8 atombf, imm8off
 #define BITF16 atombf, imm16off
-void atombf APROTO {
+static void atombf APROTO {
 	if (!ctx->out)
 		return;
 	const int *n = v;
@@ -159,27 +159,27 @@ static int data32off[] = { 2 };
 #define DATA8SP atomdatasp, data8off
 #define DATA16SP atomdatasp, data16off
 #define DATA32SP atomdatasp, data32off
-void atomdatar APROTO {
+static void atomdatar APROTO {
 	if (!ctx->out)
 		return;
 	fprintf (ctx->out, " %sD[%s$r%lld%s]", ccy, cbl, BF(12, 4), ccy);
 }
 
-void atomdatari APROTO {
+static void atomdatari APROTO {
 	if (!ctx->out)
 		return;
 	const int *n = v;
 	fprintf (ctx->out, " %sD[%s$r%lld%s+%s%#llx%s]", ccy, cbl, BF(12, 4), ccy, cyel, BF(16,8) << n[0], ccy);
 }
 
-void atomdatasp APROTO {
+static void atomdatasp APROTO {
 	if (!ctx->out)
 		return;
 	const int *n = v;
 	fprintf (ctx->out, " %sD[%ssp%s+%s%#llx%s]", ccy, cgr, ccy, cyel, BF(16,8) << n[0], ccy);
 }
 
-void atomdatarr APROTO {
+static void atomdatarr APROTO {
 	if (!ctx->out)
 		return;
 	const int *n = v;
@@ -196,21 +196,21 @@ void atomdatarr APROTO {
  * fuc_base + 0xff0 and up are host-only
  */
 #define IOR atomior, 0
-void atomior APROTO {
+static void atomior APROTO {
 	if (!ctx->out)
 		return;
 	fprintf (ctx->out, " %sI[%s$r%lld%s]", ccy, cbl, BF(12, 4), ccy);
 }
 
 #define IORR atomiorr, 0
-void atomiorr APROTO {
+static void atomiorr APROTO {
 	if (!ctx->out)
 		return;
 	fprintf (ctx->out, " %sI[%s$r%lld%s+%s$r%lld%s*%s4%s]", ccy, cbl, BF(12, 4), ccy, cbl, BF(8, 4), ccy, cyel, ccy);
 }
 
 #define IORI atomiori, 0
-void atomiori APROTO {
+static void atomiori APROTO {
 	if (!ctx->out)
 		return;
 	fprintf (ctx->out, " %sI[%s$r%lld%s+%s%#llx%s]", ccy, cbl, BF(12, 4), ccy, cyel, BF(16, 8) << 2, ccy);

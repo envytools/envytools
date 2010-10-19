@@ -49,7 +49,7 @@ static int btarg12off[] = { 12, 12 };
 #define JTARG atomjtarg, jtargoff
 #define BTARG8 atomjtarg, btarg8off
 #define BTARG12 atomjtarg, btarg12off
-void atomjtarg APROTO {
+static void atomjtarg APROTO {
 	const int *n = v;
 	uint32_t delta = BF(n[0], n[1]);
 	if (delta & 1 << (n[1] - 1)) delta -= 1 << n[1];
@@ -60,7 +60,7 @@ void atomjtarg APROTO {
 }
 
 #define LTARG atomltarg, 0
-void atomltarg APROTO {
+static void atomltarg APROTO {
 	uint32_t delta = BF(16, 8);
 	markbt8(ctx, pos + 4 + delta);
 	if (!ctx->out)
@@ -69,7 +69,7 @@ void atomltarg APROTO {
 }
 
 #define BTARG6 atombtarg6, 0
-void atombtarg6 APROTO {
+static void atombtarg6 APROTO {
 	uint32_t delta = BF(12, 4) | BF(4, 2) << 4;
 	markbt8(ctx, pos + 4 + delta);
 	if (!ctx->out)
@@ -78,7 +78,7 @@ void atombtarg6 APROTO {
 }
 
 #define CTARG atomctarg, 0
-void atomctarg APROTO {
+static void atomctarg APROTO {
 	uint32_t delta = BF(6, 18);
 	if (delta & 0x20000) delta += 0xfffc0000;
 	uint32_t target = (pos & ~3) + 4 + delta * 4;
@@ -130,7 +130,7 @@ static int break4off[] = { 4, 4, 0, 0, };
 #define BREAK8 atomnum, break8off
 #define BREAK4 atomnum, break4off
 
-void atomlutnum APROTO {
+static void atomlutnum APROTO {
 	if (!ctx->out)
 		return;
 	const int *n = v;
@@ -158,14 +158,14 @@ static int addinlut[] = { 4, 4,
 #define B4CONSTU atomlutnum, b4constulut
 #define ADDIN atomlutnum, addinlut
 
-void atombbi APROTO {
+static void atombbi APROTO {
 	if (!ctx->out)
 		return;
 	fprintf (ctx->out, " %s%#x", cyel, BF(4, 4) | BF(12, 1) << 4);
 }
 #define BBI atombbi, 0
 
-void atommi12 APROTO {
+static void atommi12 APROTO {
 	if (!ctx->out)
 		return;
 	uint32_t num = BF(16,8) | BF(8,4) << 8;
@@ -176,7 +176,7 @@ void atommi12 APROTO {
 }
 #define MI12 atommi12, 0
 
-void atommi7 APROTO {
+static void atommi7 APROTO {
 	if (!ctx->out)
 		return;
 	uint32_t num = BF(12,4) | BF(4,3) << 4;
@@ -187,21 +187,21 @@ void atommi7 APROTO {
 }
 #define MI7 atommi7, 0
 
-void atomshiftimm APROTO {
+static void atomshiftimm APROTO {
 	if (!ctx->out)
 		return;
 	fprintf (ctx->out, " %s%#x", cyel, BF(8, 4) | BF(16, 1) << 4);
 }
 #define SHIFTIMM atomshiftimm, 0
 
-void atommaskimm APROTO {
+static void atommaskimm APROTO {
 	if (!ctx->out)
 		return;
 	fprintf (ctx->out, " %s%#x", cyel, BF(20, 4) + 1);
 }
 #define MASKIMM atommaskimm, 0
 
-void atomslli APROTO {
+static void atomslli APROTO {
 	if (!ctx->out)
 		return;
 	uint32_t num = BF(4, 4) | BF(20, 1) << 4;
@@ -209,7 +209,7 @@ void atomslli APROTO {
 }
 #define SLLI atomslli, 0
 
-void atomsrai APROTO {
+static void atomsrai APROTO {
 	if (!ctx->out)
 		return;
 	uint32_t num = BF(8, 4) | BF(20, 1) << 4;
@@ -217,7 +217,7 @@ void atomsrai APROTO {
 }
 #define SRAI atomsrai, 0
 
-void atomssai APROTO {
+static void atomssai APROTO {
 	if (!ctx->out)
 		return;
 	uint32_t num = BF(8, 4) | BF(4, 1) << 4;
@@ -230,7 +230,7 @@ void atomssai APROTO {
  */
 
 #define L32R atoml32r, 0
-void atoml32r APROTO {
+static void atoml32r APROTO {
 	if (!ctx->out)
 		return;
 	uint32_t delta = BF(8, 16) | 0xffff0000;
@@ -239,7 +239,7 @@ void atoml32r APROTO {
 }
 
 #define DATA32E atomdata32e, 0
-void atomdata32e APROTO {
+static void atomdata32e APROTO {
 	if (!ctx->out)
 		return;
 	fprintf (ctx->out, " %sD[%s$r%lld%s-%s%#llx%s]", ccy, cbl, BF(8, 4), ccy, cyel, (16 - BF(12, 4)) << 2, ccy);
@@ -257,7 +257,7 @@ static int data8off[] = { 8, 4, 16, 8, 0 };
 #define DATA32 atommem, data32off
 #define DATA16 atommem, data16off
 #define DATA8 atommem, data8off
-void atommem APROTO {
+static void atommem APROTO {
 	if (!ctx->out)
 		return;
 	const int *n = v;
