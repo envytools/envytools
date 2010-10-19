@@ -92,7 +92,7 @@
 			<bitfield pos="27" name="UNK27"/>
 			<bitfield pos="28" name="UNK28"/>
 			<bitfield pos="29" name="UNK29"/>
-			<bitfield pos="30" name="UNK30" variants="NV84-"/> <!-- triggered by method 0x20. -->
+			<bitfield pos="30" name="QUERY" variants="NV84-"/>
 		</reg32>
 		<reg32 offset="0x140" name="INTR_EN">
 			<bitfield pos="0" name="CACHE_ERROR"/>
@@ -113,7 +113,7 @@
 			<bitfield pos="27" name="UNK27"/>
 			<bitfield pos="28" name="UNK28"/>
 			<bitfield pos="29" name="UNK29"/>
-			<bitfield pos="30" name="UNK30" variants="NV84-"/> <!-- triggered by method 0x20. -->
+			<bitfield pos="30" name="QUERY" variants="NV84-"/>
 		</reg32>
 		<reg32 offset="0x210" name="RAMHT">
 			<bitfield high="15" low="0" name="INSTANCE" shr="4"/>

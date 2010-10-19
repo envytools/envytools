@@ -174,7 +174,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x14" name="QUERY_ADDRESS_LOW" />
 			<reg32 offset="0x18" name="QUERY_COUNTER" />
 			<reg32 offset="0x1c" name="QUERY_GET" />
-			<reg32 offset="0x20" name="UNK20"/> <!-- causes PFIFO interrupt 30 -->
+			<reg32 offset="0x20" name="QUERY_INTR"/>
 			<reg32 offset="0x24" name="WRCACHE_FLUSH"/>
 		</stripe>
 		<reg32 offset="0x50" name="REF_CNT" variants="NV10-"/>
