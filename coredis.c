@@ -161,6 +161,7 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 	struct disctx c = { 0 };
 	struct disctx *ctx = &c;
 	int cur = 0, i, j;
+	start *= isa->posunit;
 	ctx->code8 = code;
 	ctx->labels = calloc(num, sizeof *ctx->labels);
 	ctx->codebase = start;
