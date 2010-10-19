@@ -37,7 +37,7 @@
 
 int main(int argc, char **argv) {
 	struct disisa *isa = 0;
-	int w = 0;
+	int w = 0, bin = 0;
 	if (!strcmp(argv[0], "nv50dis")) {
 		isa = nv50_isa;
 		w = 1;
@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
 	int ptype = -1;
 	int c;
 	unsigned base = 0, skip = 0, limit = 0;
-	while ((c = getopt (argc, argv, "45vgfpcsb:d:l:m:wn")) != -1)
+	while ((c = getopt (argc, argv, "45vgfpcsb:d:l:m:win")) != -1)
 		switch (c) {
 			case '4':
 				ptype = NV4x;
@@ -94,6 +94,9 @@ int main(int argc, char **argv) {
 				break;
 			case 'w':
 				w = 1;
+				break;
+			case 'i':
+				bin = 1;
 				break;
 			case 'n':
 				cnorm = "";
@@ -134,19 +137,27 @@ int main(int argc, char **argv) {
 	int maxnum = 16;
 	uint8_t *code = malloc (maxnum * 4);
 	uint32_t t;
-	while (!feof(stdin) && scanf ("%x", &t) == 1) {
-		if (num + 3 >= maxnum) maxnum *= 2, code = realloc (code, maxnum*4);
-		if (w) {
-			code[num++] = t & 0xff;
-			t >>= 8;
-			code[num++] = t & 0xff;
-			t >>= 8;
-			code[num++] = t & 0xff;
-			t >>= 8;
-			code[num++] = t & 0xff;
-		} else
-			code[num++] = t;
-		scanf (" ,");
+	if (bin) {
+		int c;
+		while ((c = getchar()) != EOF) {
+			if (num + 3 >= maxnum) maxnum *= 2, code = realloc (code, maxnum*4);
+			code[num++] = c;
+		}
+	} else {
+		while (!feof(stdin) && scanf ("%x", &t) == 1) {
+			if (num + 3 >= maxnum) maxnum *= 2, code = realloc (code, maxnum*4);
+			if (w) {
+				code[num++] = t & 0xff;
+				t >>= 8;
+				code[num++] = t & 0xff;
+				t >>= 8;
+				code[num++] = t & 0xff;
+				t >>= 8;
+				code[num++] = t & 0xff;
+			} else
+				code[num++] = t;
+			scanf (" ,");
+		}
 	}
 	if (num <= skip)
 		return 0;
