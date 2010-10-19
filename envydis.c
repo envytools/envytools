@@ -24,6 +24,7 @@
  */
 
 #include "dis.h"
+#include <libgen.h>
 
 /*
  * Options:
@@ -38,6 +39,7 @@
 int main(int argc, char **argv) {
 	struct disisa *isa = 0;
 	int w = 0, bin = 0;
+	argv[0] = basename(argv[0]);
 	if (!strcmp(argv[0], "nv50dis")) {
 		isa = nv50_isa;
 		w = 1;
