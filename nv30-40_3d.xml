@@ -115,6 +115,12 @@
 
 <domain name="NV01_SUBCHAN" size="0x2000" bare="yes">
 	<stripe prefix="obj-class" variants="NV30_3D-NV44_3D">
+		<reg32 offset="0x120" name="FLIP_SET_READ"/>
+		<reg32 offset="0x124" name="FLIP_SET_WRITE"/>
+		<reg32 offset="0x128" name="FLIP_MAX"/>
+		<reg32 offset="0x12c" name="FLIP_INCR_WRITE"/>
+		<reg32 offset="0x130" name="FLIP_WAIT"/>
+
 		<reg32 offset="0x180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x184" name="DMA_TEXTURE0" type="object"/>
 		<reg32 offset="0x188" name="DMA_TEXTURE1" type="object"/>

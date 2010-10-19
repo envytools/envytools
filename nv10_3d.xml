@@ -48,12 +48,11 @@
 
 <group name="nv10tcl-base">
 	<stripe variants="NV11_3D-">
-		<!-- Sync to vblank stuff -->
-		<reg32 offset="0x0120" name="UNK0120"/>
-		<reg32 offset="0x0124" name="UNK0124"/>
-		<reg32 offset="0x0128" name="UNK0128"/>
-		<reg32 offset="0x012c" name="UNK012C"/>
-		<reg32 offset="0x0130" name="UNK0130"/>
+		<reg32 offset="0x0120" name="FLIP_SET_READ"/>
+		<reg32 offset="0x0124" name="FLIP_SET_WRITE"/>
+		<reg32 offset="0x0128" name="FLIP_MAX"/>
+		<reg32 offset="0x012c" name="FLIP_INCR_WRITE"/>
+		<reg32 offset="0x0130" name="FLIP_WAIT"/>
 	</stripe>
 
 	<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
