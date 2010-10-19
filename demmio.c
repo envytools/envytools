@@ -306,10 +306,14 @@ int main(int argc, char **argv) {
 					} else if (addr == 0x400324 && cc->arch >= 4 && cc->arch <= 5) {
 						cc->ctxpos = value;
 					} else if (addr == 0x400328 && cc->arch >= 4 && cc->arch <= 5) {
-						uint32_t param = value;
+						uint8_t param[4];
+						param[0] = value;
+						param[1] = value >> 8;
+						param[2] = value >> 16;
+						param[3] = value >> 24;
 						struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, mmiodom, addr, line[0] == 'W');
 						printf ("[%d] MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %s %s ", cci, width, line[0], addr, value, ai->name, line[0]=='W'?"<=":"=>");
-						envydis(ctx_isa, stdout, &param, cc->ctxpos, 4, cc->arch == 5 ? NV5x : NV4x);
+						envydis(ctx_isa, stdout, param, cc->ctxpos, 4, cc->arch == 5 ? NV5x : NV4x);
 						cc->ctxpos++;
 						free(ai->name);
 						free(ai);
