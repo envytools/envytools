@@ -984,77 +984,16 @@ static struct insn tabc[] = {
 	{ AP, 0x0000000000000007ull, 0x0000000000000007ull, T(p), OOPS, CTARG },
 };
 
-static struct insn tabs[] = {
-	{ AP, 7, 7, T(c) }, // control instructions, special-cased.
-	{ AP, 0x0, 0x10, T(p), T(m) },
-	{ AP, 0x10, 0x10, T(p), T(m), NL, N("join") },
+static struct insn tabroot[] = {
+	{ AP, 7, 7, OP64, T(c) }, // control instructions, special-cased.
+	{ AP, 0x0, 0x10, OP64, T(p), T(m) },
+	{ AP, 0x10, 0x10, OP64, T(p), T(m), NL, N("join") },
 };
 
-/*
- * Disassembler driver
- *
- * You pass a block of memory to this function, disassembly goes out to given
- * FILE*.
- */
+static struct disisa nvc0_isa_s = {
+	tabroot,
+	8,
+	8,
+};
 
-void nvc0dis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype) {
-	struct disctx c = { 0 };
-	struct disctx *ctx = &c;
-	int cur = 0, i;
-	ctx->code32 = code;
-	ctx->labels = calloc(num, sizeof *ctx->labels);
-	ctx->codebase = start;
-	ctx->codesz = num * 4;
-	ctx->ptype = ptype;
-	while (cur < num) {
-		ull a = code[cur], m = 0;
-			if (cur >= num) {
-				break;
-			}
-			a |= (ull)code[cur++] << 32;
-		atomtab (ctx, &a, &m, tabs, cur*4 + start);
-	}
-	cur = 0;
-	ctx->out = out;
-	while (cur < num) {
-		ull a = code[cur], m = 0;
-		switch (ctx->labels[cur] & 3) {
-			case 0:
-				fprintf (ctx->out, "%s%08x:%s ", cgray, cur * 4 + start, cnorm);
-				break;
-			case 1:
-				fprintf (ctx->out, "%s%08x:%s ", cmag, cur * 4 + start, cnorm);
-				break;
-			case 2:
-				fprintf (ctx->out, "%s%08x:%s ", cbr, cur * 4 + start, cnorm);
-				break;
-			case 3:
-				fprintf (ctx->out, "%s%08x:%s ", cbrmag, cur * 4 + start, cnorm);
-				break;
-		}
-		cur++;
-			if (cur >= num) {
-				fprintf (out, "        %08llx ", a);
-				fprintf (out, "%sincomplete%s\n", cred, cnorm);
-				return;
-			}
-			a |= (ull)code[cur++] << 32;
-			fprintf (ctx->out, "%016llx", a);
-		fprintf (ctx->out, " ");
-		if (ctx->labels[cur] & 2)
-			fprintf (ctx->out, "%sC", cbr);
-		else
-			fprintf (ctx->out, " ");
-		if (ctx->labels[cur] & 1)
-			fprintf (ctx->out, "%sB", cmag);
-		else
-			fprintf (ctx->out, " ");
-		atomtab (ctx, &a, &m, tabs, cur*4 + start);
-		a &= ~m;
-		if (a) {
-			fprintf (ctx->out, (" %s[unknown: %016llx]%s"), cred, a, cnorm);
-		}
-		fprintf (ctx->out, "%s\n", cnorm);
-	}
-	free(ctx->labels);
-}
+struct disisa *nvc0_isa = &nvc0_isa_s;

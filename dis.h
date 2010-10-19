@@ -131,6 +131,7 @@ struct disctx {
 struct disisa {
 	struct insn *troot;
 	int maxoplen;
+	int opunit;
 };
 
 /*
@@ -156,11 +157,13 @@ void atomtab APROTO;
 #define OP24 atomopl, op24len
 #define OP32 atomopl, op32len
 #define OP40 atomopl, op40len
+#define OP64 atomopl, op64len
 extern int op8len[];
 extern int op16len[];
 extern int op24len[];
 extern int op32len[];
 extern int op40len[];
+extern int op64len[];
 void atomopl APROTO;
 
 #define N(x) atomname, x
@@ -206,6 +209,8 @@ void nvc0dis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype);
 
 void ctxdis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype);
 
+extern struct disisa *nv50_isa;
+extern struct disisa *nvc0_isa;
 extern struct disisa *fuc_isa;
 extern struct disisa *pms_isa;
 extern struct disisa *vp2_isa;

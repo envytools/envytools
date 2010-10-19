@@ -37,6 +37,15 @@
 
 int main(int argc, char **argv) {
 	struct disisa *isa = 0;
+	int w = 0;
+	if (!strcmp(argv[0], "nv50dis")) {
+		isa = nv50_isa;
+		w = 1;
+	}
+	if (!strcmp(argv[0], "nvc0dis")) {
+		isa = nvc0_isa;
+		w = 1;
+	}
 	if (!strcmp(argv[0], "fucdis"))
 		isa = fuc_isa;
 	if (!strcmp(argv[0], "pmsdis"))
@@ -44,15 +53,30 @@ int main(int argc, char **argv) {
 	if (!strcmp(argv[0], "vp2dis"))
 		isa = vp2_isa;
 	int ptype = -1;
-	int w = 0;
 	int c;
 	unsigned base = 0, skip = 0, limit = 0;
-	while ((c = getopt (argc, argv, "b:s:l:m:wn")) != -1)
+	while ((c = getopt (argc, argv, "vgfpcsb:d:l:m:wn")) != -1)
 		switch (c) {
+			case 'v':
+				ptype = VP;
+				break;
+			case 'g':
+				ptype = GP;
+				break;
+			case 'f':
+			case 'p':
+				ptype = FP;
+				break;
+			case 'c':
+				ptype = CP;
+				break;
+			case 's':
+				ptype = VP|GP|FP;
+				break;
 			case 'b':
 				sscanf(optarg, "%x", &base);
 				break;
-			case 's':
+			case 'd':
 				sscanf(optarg, "%x", &skip);
 				break;
 			case 'l':
@@ -74,7 +98,11 @@ int main(int argc, char **argv) {
 				cbrmag = "";
 				break;
 			case 'm':
-				if (!strcmp(optarg, "fuc"))
+				if (!strcmp(optarg, "nv50"))
+					isa = nv50_isa;
+				else if (!strcmp(optarg, "nvc0"))
+					isa = nvc0_isa;
+				else if (!strcmp(optarg, "fuc"))
 					isa = fuc_isa;
 				else if (!strcmp(optarg, "pms"))
 					isa = pms_isa;

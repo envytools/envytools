@@ -6,8 +6,6 @@ lookup
 expand
 demmio
 nvbios
-nv50dis
-nvc0dis
 ctxdis
 envydis
 *.xml.h

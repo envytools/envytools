@@ -681,6 +681,7 @@ static struct insn tabm[] = {
 static struct disisa fuc_isa_s = {
 	tabm,
 	4,
+	1,
 };
 
 struct disisa *fuc_isa = &fuc_isa_s;

@@ -56,6 +56,7 @@ int op16len[] = { 2 };
 int op24len[] = { 3 };
 int op32len[] = { 4 };
 int op40len[] = { 5 };
+int op64len[] = { 8 };
 void atomopl APROTO {
 	ctx->oplen = *(int*)v;
 }
@@ -157,7 +158,7 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 {
 	struct disctx c = { 0 };
 	struct disctx *ctx = &c;
-	int cur = 0, i;
+	int cur = 0, i, j;
 	ctx->code8 = code;
 	ctx->labels = calloc(num, sizeof *ctx->labels);
 	ctx->codebase = start;
@@ -202,14 +203,16 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 				break;
 		}
 
-		for (i = cur; (i < cur + ctx->oplen || i == cur) && i < num; i++) {
-			fprintf (ctx->out, " %02x", code[i]);
+		for (i = 0; i < isa->maxoplen; i += isa->opunit) {
+			fprintf (ctx->out, " ");
+			for (j = isa->opunit - 1; j >= 0; j--)
+				if (i+j && i+j >= ctx->oplen)
+					fprintf (ctx->out, "  ");
+				else if (cur+i+j >= num)
+					fprintf (ctx->out, "%s??", cred);
+				else
+					fprintf (ctx->out, "%s%02x", cnorm, code[cur + i + j]);
 		}
-		for (; i < cur + ctx->oplen; i++) {
-			fprintf (ctx->out, " %s??", cred);
-		}
-		for (; i < cur + isa->maxoplen; i++)
-			fprintf (ctx->out, "   ");
 		fprintf (ctx->out, "  ");
 
 		if (ctx->labels[cur] & 2)
@@ -228,7 +231,16 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 			if (ctx->oplen < 8)
 				a &= (1ull << ctx->oplen * 8) - 1;
 			if (a) {
-				fprintf (ctx->out, " %s[unknown: %08llx]%s", cred, a, cnorm);
+				fprintf (ctx->out, " %s[unknown:", cred);
+				for (i = 0; i < ctx->oplen || i == 0; i += isa->opunit) {
+					fprintf (ctx->out, " ");
+					for (j = isa->opunit - 1; j >= 0; j--)
+						if (cur+i+j >= num)
+							fprintf (ctx->out, "??");
+						else
+							fprintf (ctx->out, "%02llx", (a >> (i + j) * 8) & 0xff);
+				}
+				fprintf (ctx->out, "]");
 			}
 			if (cur + ctx->oplen > num) {
 				fprintf (ctx->out, " %s[incomplete]%s", cred, cnorm);

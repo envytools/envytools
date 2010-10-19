@@ -66,6 +66,7 @@ static struct insn tabm[] = {
 static struct disisa pms_isa_s = {
 	tabm,
 	5,
+	1,
 };
 
 struct disisa *pms_isa = &pms_isa_s;

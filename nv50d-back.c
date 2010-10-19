@@ -1544,88 +1544,19 @@ static struct insn tabc[] = {
 	{ AP, 0, 0, T(p), OOPS, CTARG },
 };
 
-static struct insn tab2w[] = {
-	{ AP, 0x0000000000000002ull, 0x0000000000000002ull, T(c) },
-	{ AP, 0x0000000000000000ull, 0x0000000300000000ull, T(p), T(l) },
-	{ AP, 0x0000000100000000ull, 0x0000000300000000ull, T(p), T(l), NL, N("exit") },
-	{ AP, 0x0000000200000000ull, 0x0000000300000000ull, N("join"), NL, T(p), T(l) },
-	{ AP, 0x0000000300000000ull, 0x0000000300000000ull, T(i) },
+static struct insn tabroot[] = {
+	{ AP,         0x00000000ull,         0x00000001ull, OP32, T(s) },
+	{ AP, 0x0000000000000003ull, 0x0000000000000003ull, OP64, T(c) },
+	{ AP, 0x0000000000000001ull, 0x0000000300000003ull, OP64, T(p), T(l) },
+	{ AP, 0x0000000100000001ull, 0x0000000300000003ull, OP64, T(p), T(l), NL, N("exit") },
+	{ AP, 0x0000000200000001ull, 0x0000000300000003ull, OP64, N("join"), NL, T(p), T(l) },
+	{ AP, 0x0000000300000001ull, 0x0000000300000003ull, OP64, T(i) },
 };
 
-/*
- * Disassembler driver
- *
- * You pass a block of memory to this function, disassembly goes out to given
- * FILE*.
- */
+static struct disisa nv50_isa_s = {
+	tabroot,
+	8,
+	4,
+};
 
-void nv50dis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype) {
-	struct disctx c = { 0 };
-	struct disctx *ctx = &c;
-	int cur = 0, i;
-	ctx->code32 = code;
-	ctx->labels = calloc(num, sizeof *ctx->labels);
-	ctx->codebase = start;
-	ctx->codesz = num * 4;
-	ctx->ptype = ptype;
-	while (cur < num) {
-		ull a = code[cur], m = 0;
-		if (code[cur++]&1) {
-			if (cur >= num) {
-				break;
-			}
-			a |= (ull)code[cur++] << 32;
-		}
-		struct insn *tab = ((a&1)?tab2w:tabs);
-		atomtab (ctx, &a, &m, tab, cur*4 + start);
-	}
-	cur = 0;
-	ctx->out = out;
-	while (cur < num) {
-		ull a = code[cur], m = 0;
-		if (ctx->labels[cur] & 2)
-			fprintf (ctx->out, "\n");
-		switch (ctx->labels[cur] & 3) {
-			case 0:
-				fprintf (ctx->out, "%s%08x:%s ", cgray, cur * 4 + start, cnorm);
-				break;
-			case 1:
-				fprintf (ctx->out, "%s%08x:%s ", cmag, cur * 4 + start, cnorm);
-				break;
-			case 2:
-				fprintf (ctx->out, "%s%08x:%s ", cbr, cur * 4 + start, cnorm);
-				break;
-			case 3:
-				fprintf (ctx->out, "%s%08x:%s ", cbrmag, cur * 4 + start, cnorm);
-				break;
-		}
-		if (code[cur++]&1) {
-			if (cur >= num) {
-				fprintf (out, "        %08llx ", a);
-				fprintf (out, "%sincomplete%s\n", cred, cnorm);
-				return;
-			}
-			a |= (ull)code[cur++] << 32;
-			fprintf (ctx->out, "%016llx", a);
-		} else {
-			fprintf (ctx->out, "        %08llx", a);
-		}
-		fprintf (ctx->out, " ");
-		if (ctx->labels[cur] & 2)
-			fprintf (ctx->out, "%sC", cbr);
-		else
-			fprintf (ctx->out, " ");
-		if (ctx->labels[cur] & 1)
-			fprintf (ctx->out, "%sB", cmag);
-		else
-			fprintf (ctx->out, " ");
-		struct insn *tab = ((a&1)?tab2w:tabs);
-		atomtab (ctx, &a, &m, tab, cur*4 + start);
-		a &= ~m;
-		if (a & ~1ull) {
-			fprintf (ctx->out, (a&1?" %s[unknown: %016llx]%s":" %s[unknown: %08llx]%s"), cred, a&~1ull, cnorm);
-		}
-		fprintf (ctx->out, "%s\n", cnorm);
-	}
-	free(ctx->labels);
-}
+struct disisa *nv50_isa = &nv50_isa_s;
