@@ -9,7 +9,5 @@ nvbios
 nv50dis
 nvc0dis
 ctxdis
-fucdis
-pmdis
-vp2dis
+envydis
 *.xml.h

@@ -36,11 +36,18 @@
  */
 
 int main(int argc, char **argv) {
-	int ptype = AP;
+	struct disisa *isa = 0;
+	if (!strcmp(argv[0], "fucdis"))
+		isa = fuc_isa;
+	if (!strcmp(argv[0], "pmsdis"))
+		isa = pms_isa;
+	if (!strcmp(argv[0], "vp2dis"))
+		isa = vp2_isa;
+	int ptype = -1;
 	int w = 0;
 	int c;
 	unsigned base = 0, skip = 0, limit = 0;
-	while ((c = getopt (argc, argv, "b:s:l:wn")) != -1)
+	while ((c = getopt (argc, argv, "b:s:l:m:wn")) != -1)
 		switch (c) {
 			case 'b':
 				sscanf(optarg, "%x", &base);
@@ -66,7 +73,23 @@ int main(int argc, char **argv) {
 				cmag = "";
 				cbrmag = "";
 				break;
+			case 'm':
+				if (!strcmp(optarg, "fuc"))
+					isa = fuc_isa;
+				else if (!strcmp(optarg, "pms"))
+					isa = pms_isa;
+				else if (!strcmp(optarg, "vp2"))
+					isa = vp2_isa;
+				else {
+					fprintf (stderr, "Unknown architecure \"%s\"!\n", optarg);
+					return 1;
+				}
+				break;
 		}
+	if (!isa) {
+		fprintf (stderr, "No architecture specified!\n");
+		return 1;
+	}
 	int num = 0;
 	int maxnum = 16;
 	uint8_t *code = malloc (maxnum * 4);
@@ -90,6 +113,6 @@ int main(int argc, char **argv) {
 	int cnt = num - skip;
 	if (limit && limit < cnt)
 		cnt = limit;
-	envydis (vp2_isa, stdout, code+skip, base, cnt, ptype);
+	envydis (isa, stdout, code+skip, base, cnt, ptype);
 	return 0;
 }
