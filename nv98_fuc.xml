@@ -79,6 +79,11 @@
 		<doc>Up to 0x10</doc>
 	</reg32>
 
+	<reg32 offset="0x088" name="MISC_TRIGGER">
+		<bitfield pos="16" name="WRCACHE_FLUSH"/>
+		<bitfield pos="17" name="PM_TRIGGER"/>
+	</reg32>
+
 	<reg32 offset="0x100" name="CTRL">
 		<bitfield pos="1" name="START_TRIGGER"/>
 	</reg32>
