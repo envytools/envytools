@@ -125,6 +125,7 @@ struct disctx {
 	uint32_t codebase;
 	uint32_t codesz;
 	int ptype;
+	int oplen;
 };
 
 /*
@@ -144,6 +145,14 @@ struct disctx {
 
 #define T(x) atomtab, tab ## x
 void atomtab APROTO;
+
+#define OP16 atomopl, op16len
+#define OP24 atomopl, op24len
+#define OP32 atomopl, op32len
+extern int op16len[];
+extern int op24len[];
+extern int op32len[];
+void atomopl APROTO;
 
 #define N(x) atomname, x
 void atomname APROTO;

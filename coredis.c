@@ -51,6 +51,13 @@ void atomtab APROTO {
 			tab->atoms[i].fun (ctx, a, m, tab->atoms[i].arg, pos);
 }
 
+int op16len[] = { 2 };
+int op24len[] = { 3 };
+int op32len[] = { 4 };
+void atomopl APROTO {
+	ctx->oplen = *(int*)v;
+}
+
 void atomname APROTO {
 	if (ctx->out)
 		fprintf (ctx->out, " %s%s", cgr, (char *)v);

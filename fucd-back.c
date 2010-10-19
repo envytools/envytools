@@ -282,6 +282,11 @@ static struct insn tabct[] = {
 	{ AP, 0x00000001, 0x00000001, LCTARG },
 };
 
+static struct insn tabol0[] = {
+	{ AP, 0x00000000, 0x00000001, OP24 },
+	{ AP, 0x00000001, 0x00000001, OP32 },
+};
+
 static struct insn tabcocmd[] = {
 	{ AP, 0x00000000, 0x80000000, N("cxset"), IMM8 },
 	{ AP, 0x84000000, 0xfc000000, N("cmov"), CREG1, CREG2 },
@@ -391,86 +396,86 @@ static struct insn tabsrd[] = {
 };
 
 static struct insn tabsi[] = {
-	{ AP, 0x00000000, 0x0000003f, N("st"), T(sz), T(datari), REG1 },
+	{ AP, 0x00000000, 0x0000003f, OP24, N("st"), T(sz), T(datari), REG1 },
 
-	{ AP, 0x00000010, 0x0000003f, N("add"), T(sz), REG1, REG2, IMM8 },
-	{ AP, 0x00000011, 0x0000003f, N("adc"), T(sz), REG1, REG2, IMM8 },
-	{ AP, 0x00000012, 0x0000003f, N("sub"), T(sz), REG1, REG2, IMM8 },
-	{ AP, 0x00000013, 0x0000003f, N("sbb"), T(sz), REG1, REG2, IMM8 },
-	{ AP, 0x00000014, 0x0000003f, N("shl"), T(sz), REG1, REG2, IMM8 },
-	{ AP, 0x00000015, 0x0000003f, N("shr"), T(sz), REG1, REG2, IMM8 },
-	{ AP, 0x00000017, 0x0000003f, N("sar"), T(sz), REG1, REG2, IMM8 },
-	{ AP, 0x00000018, 0x0000003f, N("ld"), T(sz), REG1, T(datari) },
-	{ AP, 0x0000001c, 0x0000003f, N("shlc"), T(sz), REG1, REG2, IMM8 },
-	{ AP, 0x0000001d, 0x0000003f, N("shrc"), T(sz), REG1, REG2, IMM8 },
-	{ AP, 0x00000010, 0x00000030, OOPS, T(sz), REG1, REG2 },
+	{ AP, 0x00000010, 0x0000003f, OP24, N("add"), T(sz), REG1, REG2, IMM8 },
+	{ AP, 0x00000011, 0x0000003f, OP24, N("adc"), T(sz), REG1, REG2, IMM8 },
+	{ AP, 0x00000012, 0x0000003f, OP24, N("sub"), T(sz), REG1, REG2, IMM8 },
+	{ AP, 0x00000013, 0x0000003f, OP24, N("sbb"), T(sz), REG1, REG2, IMM8 },
+	{ AP, 0x00000014, 0x0000003f, OP24, N("shl"), T(sz), REG1, REG2, IMM8 },
+	{ AP, 0x00000015, 0x0000003f, OP24, N("shr"), T(sz), REG1, REG2, IMM8 },
+	{ AP, 0x00000017, 0x0000003f, OP24, N("sar"), T(sz), REG1, REG2, IMM8 },
+	{ AP, 0x00000018, 0x0000003f, OP24, N("ld"), T(sz), REG1, T(datari) },
+	{ AP, 0x0000001c, 0x0000003f, OP24, N("shlc"), T(sz), REG1, REG2, IMM8 },
+	{ AP, 0x0000001d, 0x0000003f, OP24, N("shrc"), T(sz), REG1, REG2, IMM8 },
+	{ AP, 0x00000010, 0x00000030, OP24, OOPS, T(sz), REG1, REG2 },
 
-	{ AP, 0x00000020, 0x0000003f, N("add"), T(sz), REG1, REG2, IMM16 },
-	{ AP, 0x00000021, 0x0000003f, N("adc"), T(sz), REG1, REG2, IMM16 },
-	{ AP, 0x00000022, 0x0000003f, N("sub"), T(sz), REG1, REG2, IMM16 },
-	{ AP, 0x00000023, 0x0000003f, N("sbb"), T(sz), REG1, REG2, IMM16 },
-	{ AP, 0x00000020, 0x00000030, OOPS, T(sz), REG1, REG2, IMM16 },
+	{ AP, 0x00000020, 0x0000003f, OP32, N("add"), T(sz), REG1, REG2, IMM16 },
+	{ AP, 0x00000021, 0x0000003f, OP32, N("adc"), T(sz), REG1, REG2, IMM16 },
+	{ AP, 0x00000022, 0x0000003f, OP32, N("sub"), T(sz), REG1, REG2, IMM16 },
+	{ AP, 0x00000023, 0x0000003f, OP32, N("sbb"), T(sz), REG1, REG2, IMM16 },
+	{ AP, 0x00000020, 0x00000030, OP32, OOPS, T(sz), REG1, REG2, IMM16 },
 
-	{ AP, 0x00000130, 0x00000f3f, N("st"), T(sz), T(datasp), REG2 },
-	{ AP, 0x00000430, 0x00000f3e, N("cmpu"), T(sz), REG2, T(i) },
-	{ AP, 0x00000530, 0x00000f3e, N("cmps"), T(sz), REG2, T(is) },
-	{ AP, 0x00000630, 0x00000f3e, N("cmp"), T(sz), REG2, T(is) },
-	{ AP, 0x00000030, 0x0000003e, OOPS, T(sz), REG2, T(i) },
+	{ AP, 0x00000130, 0x00000f3f, T(ol0), N("st"), T(sz), T(datasp), REG2 },
+	{ AP, 0x00000430, 0x00000f3e, T(ol0), N("cmpu"), T(sz), REG2, T(i) },
+	{ AP, 0x00000530, 0x00000f3e, T(ol0), N("cmps"), T(sz), REG2, T(is) },
+	{ AP, 0x00000630, 0x00000f3e, T(ol0), N("cmp"), T(sz), REG2, T(is) },
+	{ AP, 0x00000030, 0x0000003e, T(ol0), OOPS, T(sz), REG2, T(i) },
 
-	{ AP, 0x00000034, 0x00000f3f, N("ld"), T(sz), REG2, T(datasp) },
+	{ AP, 0x00000034, 0x00000f3f, OP24, N("ld"), T(sz), REG2, T(datasp) },
 
-	{ AP, 0x00000036, 0x00000f3e, N("add"), T(sz), REG2, T(i) },
-	{ AP, 0x00000136, 0x00000f3e, N("adc"), T(sz), REG2, T(i) },
-	{ AP, 0x00000236, 0x00000f3e, N("sub"), T(sz), REG2, T(i) },
-	{ AP, 0x00000336, 0x00000f3e, N("sbb"), T(sz), REG2, T(i) },
-	{ AP, 0x00000436, 0x00000f3e, N("shl"), T(sz), REG2, T(i) },
-	{ AP, 0x00000536, 0x00000f3e, N("shr"), T(sz), REG2, T(i) },
-	{ AP, 0x00000736, 0x00000f3e, N("sar"), T(sz), REG2, T(i) },
-	{ AP, 0x00000c36, 0x00000f3e, N("shlc"), T(sz), REG2, T(i) },
-	{ AP, 0x00000d36, 0x00000f3e, N("shrc"), T(sz), REG2, T(i) },
-	{ AP, 0x00000036, 0x0000003e, OOPS, T(sz), REG2, T(i) },
+	{ AP, 0x00000036, 0x00000f3e, T(ol0), N("add"), T(sz), REG2, T(i) },
+	{ AP, 0x00000136, 0x00000f3e, T(ol0), N("adc"), T(sz), REG2, T(i) },
+	{ AP, 0x00000236, 0x00000f3e, T(ol0), N("sub"), T(sz), REG2, T(i) },
+	{ AP, 0x00000336, 0x00000f3e, T(ol0), N("sbb"), T(sz), REG2, T(i) },
+	{ AP, 0x00000436, 0x00000f3e, T(ol0), N("shl"), T(sz), REG2, T(i) },
+	{ AP, 0x00000536, 0x00000f3e, T(ol0), N("shr"), T(sz), REG2, T(i) },
+	{ AP, 0x00000736, 0x00000f3e, T(ol0), N("sar"), T(sz), REG2, T(i) },
+	{ AP, 0x00000c36, 0x00000f3e, T(ol0), N("shlc"), T(sz), REG2, T(i) },
+	{ AP, 0x00000d36, 0x00000f3e, T(ol0), N("shrc"), T(sz), REG2, T(i) },
+	{ AP, 0x00000036, 0x0000003e, T(ol0), OOPS, T(sz), REG2, T(i) },
 
-	{ AP, 0x00000038, 0x000f003f, N("st"), T(sz), DATAR, REG1 },
-	{ AP, 0x00040038, 0x000f003f, N("cmpu"), T(sz), REG2, REG1 },
-	{ AP, 0x00050038, 0x000f003f, N("cmps"), T(sz), REG2, REG1 },
-	{ AP, 0x00060038, 0x000f003f, N("cmp"), T(sz), REG2, REG1 }, /* NVA3+ */
-	{ AP, 0x00000038, 0x0000003f, OOPS, T(sz), REG2, REG1 },
+	{ AP, 0x00000038, 0x000f003f, OP24, N("st"), T(sz), DATAR, REG1 },
+	{ AP, 0x00040038, 0x000f003f, OP24, N("cmpu"), T(sz), REG2, REG1 },
+	{ AP, 0x00050038, 0x000f003f, OP24, N("cmps"), T(sz), REG2, REG1 },
+	{ AP, 0x00060038, 0x000f003f, OP24, N("cmp"), T(sz), REG2, REG1 }, /* NVA3+ */
+	{ AP, 0x00000038, 0x0000003f, OP24, OOPS, T(sz), REG2, REG1 },
 
-	{ AP, 0x00000039, 0x000f003f, N("not"), T(sz), REG1, REG2 },
-	{ AP, 0x00010039, 0x000f003f, N("neg"), T(sz), REG1, REG2 },
-	{ AP, 0x00020039, 0x000f003f, N("movf"), T(sz), REG1, REG2 }, /* mov and set ZF+SF according to val */
-	{ AP, 0x00030039, 0x000f003f, N("hswap"), T(sz), REG1, REG2 }, /* swap halves - ie. rotate by half the size in bits. */
-	{ AP, 0x00000039, 0x0000003f, OOPS, T(sz), REG1, REG2 },
+	{ AP, 0x00000039, 0x000f003f, OP24, N("not"), T(sz), REG1, REG2 },
+	{ AP, 0x00010039, 0x000f003f, OP24, N("neg"), T(sz), REG1, REG2 },
+	{ AP, 0x00020039, 0x000f003f, OP24, N("movf"), T(sz), REG1, REG2 }, /* mov and set ZF+SF according to val */
+	{ AP, 0x00030039, 0x000f003f, OP24, N("hswap"), T(sz), REG1, REG2 }, /* swap halves - ie. rotate by half the size in bits. */
+	{ AP, 0x00000039, 0x0000003f, OP24, OOPS, T(sz), REG1, REG2 },
 
-	{ AP, 0x0000003b, 0x000f003f, N("add"), T(sz), REG2, REG1 },
-	{ AP, 0x0001003b, 0x000f003f, N("adc"), T(sz), REG2, REG1 },
-	{ AP, 0x0002003b, 0x000f003f, N("sub"), T(sz), REG2, REG1 },
-	{ AP, 0x0003003b, 0x000f003f, N("sbb"), T(sz), REG2, REG1 },
-	{ AP, 0x0004003b, 0x000f003f, N("shl"), T(sz), REG2, REG1 },
-	{ AP, 0x0005003b, 0x000f003f, N("shr"), T(sz), REG2, REG1 },
-	{ AP, 0x0007003b, 0x000f003f, N("sar"), T(sz), REG2, REG1 },
-	{ AP, 0x000c003b, 0x000f003f, N("shlc"), T(sz), REG2, REG1 },
-	{ AP, 0x000d003b, 0x000f003f, N("shrc"), T(sz), REG2, REG1 },
-	{ AP, 0x0000003b, 0x0000003f, OOPS, T(sz), REG2, REG1 },
+	{ AP, 0x0000003b, 0x000f003f, OP24, N("add"), T(sz), REG2, REG1 },
+	{ AP, 0x0001003b, 0x000f003f, OP24, N("adc"), T(sz), REG2, REG1 },
+	{ AP, 0x0002003b, 0x000f003f, OP24, N("sub"), T(sz), REG2, REG1 },
+	{ AP, 0x0003003b, 0x000f003f, OP24, N("sbb"), T(sz), REG2, REG1 },
+	{ AP, 0x0004003b, 0x000f003f, OP24, N("shl"), T(sz), REG2, REG1 },
+	{ AP, 0x0005003b, 0x000f003f, OP24, N("shr"), T(sz), REG2, REG1 },
+	{ AP, 0x0007003b, 0x000f003f, OP24, N("sar"), T(sz), REG2, REG1 },
+	{ AP, 0x000c003b, 0x000f003f, OP24, N("shlc"), T(sz), REG2, REG1 },
+	{ AP, 0x000d003b, 0x000f003f, OP24, N("shrc"), T(sz), REG2, REG1 },
+	{ AP, 0x0000003b, 0x0000003f, OP24, OOPS, T(sz), REG2, REG1 },
 
-	{ AP, 0x0000003c, 0x000f003f, N("add"), T(sz), REG3, REG2, REG1 },
-	{ AP, 0x0001003c, 0x000f003f, N("adc"), T(sz), REG3, REG2, REG1 },
-	{ AP, 0x0002003c, 0x000f003f, N("sub"), T(sz), REG3, REG2, REG1 },
-	{ AP, 0x0003003c, 0x000f003f, N("sbb"), T(sz), REG3, REG2, REG1 },
-	{ AP, 0x0004003c, 0x000f003f, N("shl"), T(sz), REG3, REG2, REG1 },
-	{ AP, 0x0005003c, 0x000f003f, N("shr"), T(sz), REG3, REG2, REG1 },
-	{ AP, 0x0007003c, 0x000f003f, N("sar"), T(sz), REG3, REG2, REG1 },
-	{ AP, 0x0008003c, 0x000f003f, N("ld"), T(sz), REG3, T(datarr) },
-	{ AP, 0x000c003c, 0x000f003f, N("shlc"), T(sz), REG3, REG2, REG1 },
-	{ AP, 0x000d003c, 0x000f003f, N("shrc"), T(sz), REG3, REG2, REG1 },
-	{ AP, 0x0000003c, 0x0000003f, OOPS, T(sz), REG3, REG2, REG1 },
+	{ AP, 0x0000003c, 0x000f003f, OP24, N("add"), T(sz), REG3, REG2, REG1 },
+	{ AP, 0x0001003c, 0x000f003f, OP24, N("adc"), T(sz), REG3, REG2, REG1 },
+	{ AP, 0x0002003c, 0x000f003f, OP24, N("sub"), T(sz), REG3, REG2, REG1 },
+	{ AP, 0x0003003c, 0x000f003f, OP24, N("sbb"), T(sz), REG3, REG2, REG1 },
+	{ AP, 0x0004003c, 0x000f003f, OP24, N("shl"), T(sz), REG3, REG2, REG1 },
+	{ AP, 0x0005003c, 0x000f003f, OP24, N("shr"), T(sz), REG3, REG2, REG1 },
+	{ AP, 0x0007003c, 0x000f003f, OP24, N("sar"), T(sz), REG3, REG2, REG1 },
+	{ AP, 0x0008003c, 0x000f003f, OP24, N("ld"), T(sz), REG3, T(datarr) },
+	{ AP, 0x000c003c, 0x000f003f, OP24, N("shlc"), T(sz), REG3, REG2, REG1 },
+	{ AP, 0x000d003c, 0x000f003f, OP24, N("shrc"), T(sz), REG3, REG2, REG1 },
+	{ AP, 0x0000003c, 0x0000003f, OP24, OOPS, T(sz), REG3, REG2, REG1 },
 	
-	{ AP, 0x0000003d, 0x00000f3f, N("not"), T(sz), REG2 },
-	{ AP, 0x0000013d, 0x00000f3f, N("neg"), T(sz), REG2 },
-	{ AP, 0x0000023d, 0x00000f3f, N("movf"), T(sz), REG2 },
-	{ AP, 0x0000033d, 0x00000f3f, N("hswap"), T(sz), REG2 },
-	{ AP, 0x0000043d, 0x00000f3f, N("clear"), T(sz), REG2 }, /* set to 0. */
-	{ AP, 0x0000003d, 0x0000003f, OOPS, T(sz), REG2 },
+	{ AP, 0x0000003d, 0x00000f3f, OP16, N("not"), T(sz), REG2 },
+	{ AP, 0x0000013d, 0x00000f3f, OP16, N("neg"), T(sz), REG2 },
+	{ AP, 0x0000023d, 0x00000f3f, OP16, N("movf"), T(sz), REG2 },
+	{ AP, 0x0000033d, 0x00000f3f, OP16, N("hswap"), T(sz), REG2 },
+	{ AP, 0x0000043d, 0x00000f3f, OP16, N("clear"), T(sz), REG2 }, /* set to 0. */
+	{ AP, 0x0000003d, 0x0000003f, OP16, OOPS, T(sz), REG2 },
 
 	{ AP, 0, 0, OOPS, T(sz) },
 };
@@ -480,51 +485,51 @@ static struct insn tabm[] = {
 	{ AP, 0x00000040, 0x000000c0, T(si) },
 	{ AP, 0x00000080, 0x000000c0, T(si) },
 
-	{ AP, 0x000000c0, 0x000000ff, N("mulu"), REG1, REG2, IMM8 },
-	{ AP, 0x000000c1, 0x000000ff, N("muls"), REG1, REG2, IMM8S },
-	{ AP, 0x000000c2, 0x000000ff, N("sex"), REG1, REG2, IMM8 },
-	{ AP, 0x000000c3, 0x000000ff, N("extrs"), REG1, REG2, BITF8 }, /* extracts a signed bitfield */
-	{ AP, 0x000000c4, 0x000000ff, N("and"), REG1, REG2, IMM8 },
-	{ AP, 0x000000c5, 0x000000ff, N("or"), REG1, REG2, IMM8 },
-	{ AP, 0x000000c6, 0x000000ff, N("xor"), REG1, REG2, IMM8 },
-	{ AP, 0x000000c7, 0x000000ff, N("extr"), REG1, REG2, BITF8 },
-	{ AP, 0x000000c8, 0x000000ff, N("xbit"), REG1, REG2, IMM8 },
-	{ AP, 0x000000cb, 0x000000ff, N("ins"), REG1, REG2, BITF8 }, /* inserts [overwrites] a bitfield */
-	{ AP, 0x000000cc, 0x000000ff, N("div"), REG1, REG2, IMM8 },
-	{ AP, 0x000000cd, 0x000000ff, N("mod"), REG1, REG2, IMM8 },
-	{ AP, 0x000000cf, 0x000000ff, N("iord"), REG1, IORI },
-	{ AP, 0x000000c0, 0x000000f0, OOPS, REG1, REG2, IMM8 },
+	{ AP, 0x000000c0, 0x000000ff, OP24, N("mulu"), REG1, REG2, IMM8 },
+	{ AP, 0x000000c1, 0x000000ff, OP24, N("muls"), REG1, REG2, IMM8S },
+	{ AP, 0x000000c2, 0x000000ff, OP24, N("sex"), REG1, REG2, IMM8 },
+	{ AP, 0x000000c3, 0x000000ff, OP24, N("extrs"), REG1, REG2, BITF8 }, /* extracts a signed bitfield */
+	{ AP, 0x000000c4, 0x000000ff, OP24, N("and"), REG1, REG2, IMM8 },
+	{ AP, 0x000000c5, 0x000000ff, OP24, N("or"), REG1, REG2, IMM8 },
+	{ AP, 0x000000c6, 0x000000ff, OP24, N("xor"), REG1, REG2, IMM8 },
+	{ AP, 0x000000c7, 0x000000ff, OP24, N("extr"), REG1, REG2, BITF8 },
+	{ AP, 0x000000c8, 0x000000ff, OP24, N("xbit"), REG1, REG2, IMM8 },
+	{ AP, 0x000000cb, 0x000000ff, OP24, N("ins"), REG1, REG2, BITF8 }, /* inserts [overwrites] a bitfield */
+	{ AP, 0x000000cc, 0x000000ff, OP24, N("div"), REG1, REG2, IMM8 },
+	{ AP, 0x000000cd, 0x000000ff, OP24, N("mod"), REG1, REG2, IMM8 },
+	{ AP, 0x000000cf, 0x000000ff, OP24, N("iord"), REG1, IORI },
+	{ AP, 0x000000c0, 0x000000f0, OP24, OOPS, REG1, REG2, IMM8 },
 
-	{ AP, 0x000000d0, 0x000000ff, N("iowr"), IORI, REG1 },
-	{ AP, 0x000000d1, 0x000000ff, N("iowrs"), IORI, REG1 },
+	{ AP, 0x000000d0, 0x000000ff, OP24, N("iowr"), IORI, REG1 },
+	{ AP, 0x000000d1, 0x000000ff, OP24, N("iowrs"), IORI, REG1 },
 
-	{ AP, 0x000000e0, 0x000000ff, N("mulu"), REG1, REG2, IMM16 },
-	{ AP, 0x000000e1, 0x000000ff, N("muls"), REG1, REG2, IMM16S },
-	{ AP, 0x000000e3, 0x000000ff, N("extrs"), REG1, REG2, BITF16 },
-	{ AP, 0x000000e4, 0x000000ff, N("and"), REG1, REG2, IMM16 },
-	{ AP, 0x000000e5, 0x000000ff, N("or"), REG1, REG2, IMM16 },
-	{ AP, 0x000000e6, 0x000000ff, N("xor"), REG1, REG2, IMM16 },
-	{ AP, 0x000000e7, 0x000000ff, N("extr"), REG1, REG2, BITF16 },
-	{ AP, 0x000000eb, 0x000000ff, N("ins"), REG1, REG2, BITF16 },
-	{ AP, 0x000000ec, 0x000000ff, N("div"), REG1, REG2, IMM16 }, /* NVA3+ */
-	{ AP, 0x000000ed, 0x000000ff, N("mod"), REG1, REG2, IMM16 }, /* NVA3+ */
-	{ AP, 0x000000e0, 0x000000f0, OOPS, REG1, REG2, IMM16 },
+	{ AP, 0x000000e0, 0x000000ff, OP32, N("mulu"), REG1, REG2, IMM16 },
+	{ AP, 0x000000e1, 0x000000ff, OP32, N("muls"), REG1, REG2, IMM16S },
+	{ AP, 0x000000e3, 0x000000ff, OP32, N("extrs"), REG1, REG2, BITF16 },
+	{ AP, 0x000000e4, 0x000000ff, OP32, N("and"), REG1, REG2, IMM16 },
+	{ AP, 0x000000e5, 0x000000ff, OP32, N("or"), REG1, REG2, IMM16 },
+	{ AP, 0x000000e6, 0x000000ff, OP32, N("xor"), REG1, REG2, IMM16 },
+	{ AP, 0x000000e7, 0x000000ff, OP32, N("extr"), REG1, REG2, BITF16 },
+	{ AP, 0x000000eb, 0x000000ff, OP32, N("ins"), REG1, REG2, BITF16 },
+	{ AP, 0x000000ec, 0x000000ff, OP32, N("div"), REG1, REG2, IMM16 }, /* NVA3+ */
+	{ AP, 0x000000ed, 0x000000ff, OP32, N("mod"), REG1, REG2, IMM16 }, /* NVA3+ */
+	{ AP, 0x000000e0, 0x000000f0, OP32, OOPS, REG1, REG2, IMM16 },
 
-	{ AP, 0x000000f0, 0x00000ffe, N("mulu"), REG2, T(i) },
-	{ AP, 0x000001f0, 0x00000ffe, N("muls"), REG2, T(is) },
-	{ AP, 0x000002f0, 0x00000ffe, N("sex"), REG2, T(i) }, /* funky instruction. bits ARG2+1 through 31 of ARG1 are replaced with copy of bit ARG2. */
-	{ AP, 0x000003f0, 0x00000ffe, N("sethi"), REG2, T(ih) },
-	{ AP, 0x000004f0, 0x00000ffe, N("and"), REG2, T(i) },
-	{ AP, 0x000005f0, 0x00000ffe, N("or"), REG2, T(i) },
-	{ AP, 0x000006f0, 0x00000ffe, N("xor"), REG2, T(i) },
-	{ AP, 0x000007f0, 0x00000ffe, N("mov"), REG2, T(is) },
-	{ AP, 0x000009f0, 0x00000ffe, N("bset"), REG2, T(i) },
-	{ AP, 0x00000af0, 0x00000ffe, N("bclr"), REG2, T(i) },
-	{ AP, 0x00000bf0, 0x00000ffe, N("btgl"), REG2, T(i) },
-	{ AP, 0x00000cf0, 0x00000ffe, N("set"), REG2, T(fl) },
-	{ AP, 0x000000f0, 0x000000fe, OOPS, REG2, T(i) },
+	{ AP, 0x000000f0, 0x00000ffe, T(ol0), N("mulu"), REG2, T(i) },
+	{ AP, 0x000001f0, 0x00000ffe, T(ol0), N("muls"), REG2, T(is) },
+	{ AP, 0x000002f0, 0x00000ffe, T(ol0), N("sex"), REG2, T(i) }, /* funky instruction. bits ARG2+1 through 31 of ARG1 are replaced with copy of bit ARG2. */
+	{ AP, 0x000003f0, 0x00000ffe, T(ol0), N("sethi"), REG2, T(ih) },
+	{ AP, 0x000004f0, 0x00000ffe, T(ol0), N("and"), REG2, T(i) },
+	{ AP, 0x000005f0, 0x00000ffe, T(ol0), N("or"), REG2, T(i) },
+	{ AP, 0x000006f0, 0x00000ffe, T(ol0), N("xor"), REG2, T(i) },
+	{ AP, 0x000007f0, 0x00000ffe, T(ol0), N("mov"), REG2, T(is) },
+	{ AP, 0x000009f0, 0x00000ffe, T(ol0), N("bset"), REG2, T(i) },
+	{ AP, 0x00000af0, 0x00000ffe, T(ol0), N("bclr"), REG2, T(i) },
+	{ AP, 0x00000bf0, 0x00000ffe, T(ol0), N("btgl"), REG2, T(i) },
+	{ AP, 0x00000cf0, 0x00000ffe, T(ol0), N("set"), REG2, T(fl) },
+	{ AP, 0x000000f0, 0x000000fe, T(ol0), OOPS, REG2, T(i) },
 
-	{ AP, 0x000008f2, 0x00000fff, N("setp"), T(fl), REG2 }, /* set given flag if bit0 of ARG2 set */
+	{ AP, 0x000008f2, 0x00000fff, OP24, N("setp"), T(fl), REG2 }, /* set given flag if bit0 of ARG2 set */
 	/* The indirect crypt opcodes.
 	 *
 	 * For one-reg opcodes, the crypt register to use is selected by
@@ -540,60 +545,60 @@ static struct insn tabm[] = {
 	 *  bits 10-14: bits 0-4 of immediate byte
 	 *  bit 15: always set.
 	 */
-	{ AP, 0x00010cf2, 0x001f0fff, N("cimov"), REG2 },
-	{ AP, 0x00020cf2, 0x001f0fff, N("cixsin"), REG2 },
-	{ AP, 0x00030cf2, 0x001f0fff, N("cixsout"), REG2 },
-	{ AP, 0x00050cf2, 0x001f0fff, N("cis0begin"), REG2 },
-	{ AP, 0x00060cf2, 0x001f0fff, N("cis0exec"), REG2 },
-	{ AP, 0x00070cf2, 0x001f0fff, N("cis1begin"), REG2 },
-	{ AP, 0x00080cf2, 0x001f0fff, N("cis1exec"), REG2 },
-	{ AP, 0x000b0cf2, 0x001f0fff, N("cixor"), REG2 },
-	{ AP, 0x000c0cf2, 0x001f0fff, N("ciadd"), REG2 },
-	{ AP, 0x000d0cf2, 0x001f0fff, N("ciand"), REG2 },
-	{ AP, 0x000e0cf2, 0x001f0fff, N("cirev"), REG2 },
-	{ AP, 0x000f0cf2, 0x001f0fff, N("ciprecmac"), REG2 },
-	{ AP, 0x00100cf2, 0x001f0fff, N("cisecret"), REG2 },
-	{ AP, 0x00110cf2, 0x001f0fff, N("cikeyreg"), REG2 },
-	{ AP, 0x00120cf2, 0x001f0fff, N("cikexp"), REG2 },
-	{ AP, 0x00130cf2, 0x001f0fff, N("cikrexp"), REG2 },
-	{ AP, 0x00140cf2, 0x001f0fff, N("cienc"), REG2 },
-	{ AP, 0x00150cf2, 0x001f0fff, N("cidec"), REG2 },
-	{ AP, 0x00170cf2, 0x001f0fff, N("cisigenc"), REG2 },
-	{ AP, 0x00000cf2, 0x00000fff, OOPS, REG2 },
+	{ AP, 0x00010cf2, 0x001f0fff, OP24, N("cimov"), REG2 },
+	{ AP, 0x00020cf2, 0x001f0fff, OP24, N("cixsin"), REG2 },
+	{ AP, 0x00030cf2, 0x001f0fff, OP24, N("cixsout"), REG2 },
+	{ AP, 0x00050cf2, 0x001f0fff, OP24, N("cis0begin"), REG2 },
+	{ AP, 0x00060cf2, 0x001f0fff, OP24, N("cis0exec"), REG2 },
+	{ AP, 0x00070cf2, 0x001f0fff, OP24, N("cis1begin"), REG2 },
+	{ AP, 0x00080cf2, 0x001f0fff, OP24, N("cis1exec"), REG2 },
+	{ AP, 0x000b0cf2, 0x001f0fff, OP24, N("cixor"), REG2 },
+	{ AP, 0x000c0cf2, 0x001f0fff, OP24, N("ciadd"), REG2 },
+	{ AP, 0x000d0cf2, 0x001f0fff, OP24, N("ciand"), REG2 },
+	{ AP, 0x000e0cf2, 0x001f0fff, OP24, N("cirev"), REG2 },
+	{ AP, 0x000f0cf2, 0x001f0fff, OP24, N("ciprecmac"), REG2 },
+	{ AP, 0x00100cf2, 0x001f0fff, OP24, N("cisecret"), REG2 },
+	{ AP, 0x00110cf2, 0x001f0fff, OP24, N("cikeyreg"), REG2 },
+	{ AP, 0x00120cf2, 0x001f0fff, OP24, N("cikexp"), REG2 },
+	{ AP, 0x00130cf2, 0x001f0fff, OP24, N("cikrexp"), REG2 },
+	{ AP, 0x00140cf2, 0x001f0fff, OP24, N("cienc"), REG2 },
+	{ AP, 0x00150cf2, 0x001f0fff, OP24, N("cidec"), REG2 },
+	{ AP, 0x00170cf2, 0x001f0fff, OP24, N("cisigenc"), REG2 },
+	{ AP, 0x00000cf2, 0x00000fff, OP24, OOPS, REG2 },
 
-	{ AP, 0x000000f4, 0x0000e0fe, N("bra"), T(p), T(bt) },
-	{ AP, 0x000020f4, 0x0000fffe, N("bra"), T(abt) },
-	{ AP, 0x000021f4, 0x0000fffe, N("call"), T(ct) },
-	{ AP, 0x000028f4, 0x0000fffe, N("sleep"), T(fl) }, /* sleeps while given flag is true */
-	{ AP, 0x000030f4, 0x0000fffe, N("add"), N("sp"), T(is) },
-	{ AP, 0x000031f4, 0x0000fffe, N("bset"), N("flags"), T(fl) },
-	{ AP, 0x000032f4, 0x0000fffe, N("bclr"), N("flags"), T(fl) },
-	{ AP, 0x000033f4, 0x0000fffe, N("btgl"), N("flags"), T(fl) },
-	{ AP, 0x00003cf4, 0x0000ffff, N("cxset"), IMM8 },
-	{ AP, 0x00003cf5, 0x0000ffff, T(cocmd) },
-	{ AP, 0x000000f4, 0x000000fe, OOPS, T(i) },
+	{ AP, 0x000000f4, 0x0000e0fe, T(ol0), N("bra"), T(p), T(bt) },
+	{ AP, 0x000020f4, 0x0000fffe, T(ol0), N("bra"), T(abt) },
+	{ AP, 0x000021f4, 0x0000fffe, T(ol0), N("call"), T(ct) },
+	{ AP, 0x000028f4, 0x0000fffe, T(ol0), N("sleep"), T(fl) }, /* sleeps while given flag is true */
+	{ AP, 0x000030f4, 0x0000fffe, T(ol0), N("add"), N("sp"), T(is) },
+	{ AP, 0x000031f4, 0x0000fffe, T(ol0), N("bset"), N("flags"), T(fl) },
+	{ AP, 0x000032f4, 0x0000fffe, T(ol0), N("bclr"), N("flags"), T(fl) },
+	{ AP, 0x000033f4, 0x0000fffe, T(ol0), N("btgl"), N("flags"), T(fl) },
+	{ AP, 0x00003cf4, 0x0000ffff, T(ol0), N("cxset"), IMM8 },
+	{ AP, 0x00003cf5, 0x0000ffff, T(ol0), T(cocmd) },
+	{ AP, 0x000000f4, 0x000000fe, T(ol0), OOPS, T(i) },
 
-	{ AP, 0x000000f8, 0x0000ffff, N("ret") },
-	{ AP, 0x000001f8, 0x0000ffff, N("iret") },
-	{ AP, 0x000002f8, 0x0000ffff, N("exit") },
-	{ AP, 0x000003f8, 0x0000ffff, N("xdwait") },
+	{ AP, 0x000000f8, 0x0000ffff, OP16, N("ret") },
+	{ AP, 0x000001f8, 0x0000ffff, OP16, N("iret") },
+	{ AP, 0x000002f8, 0x0000ffff, OP16, N("exit") },
+	{ AP, 0x000003f8, 0x0000ffff, OP16, N("xdwait") },
 	{ AP, 0x000006f8, 0x0000ffff, U("f8/6") },
-	{ AP, 0x000007f8, 0x0000ffff, N("xcwait") },
-	{ AP, 0x000008f8, 0x0000fcff, N("trap"), STRAP },
+	{ AP, 0x000007f8, 0x0000ffff, OP16, N("xcwait") },
+	{ AP, 0x000008f8, 0x0000fcff, OP16, N("trap"), STRAP },
 
-	{ AP, 0x000000f9, 0x00000fff, N("push"), REG2 },
-	{ AP, 0x000001f9, 0x00000fff, N("add"), N("sp"), REG2 },
-	{ AP, 0x000004f9, 0x00000fff, N("bra"), REG2 },
-	{ AP, 0x000005f9, 0x00000fff, N("call"), REG2 },
-	{ AP, 0x000008f9, 0x00000fff, N("unbind"), REG2 }, // drops given physical page's VM tag. page specified as index, not as address.
-	{ AP, 0x000009f9, 0x00000fff, N("bset"), N("flags"), REG2 },
-	{ AP, 0x00000af9, 0x00000fff, N("bclr"), N("flags"), REG2 },
-	{ AP, 0x00000bf9, 0x00000fff, N("btgl"), N("flags"), REG2 },
-	{ AP, 0x000000f9, 0x000000ff, OOPS, REG2 },
+	{ AP, 0x000000f9, 0x00000fff, OP16, N("push"), REG2 },
+	{ AP, 0x000001f9, 0x00000fff, OP16, N("add"), N("sp"), REG2 },
+	{ AP, 0x000004f9, 0x00000fff, OP16, N("bra"), REG2 },
+	{ AP, 0x000005f9, 0x00000fff, OP16, N("call"), REG2 },
+	{ AP, 0x000008f9, 0x00000fff, OP16, N("unbind"), REG2 }, // drops given physical page's VM tag. page specified as index, not as address.
+	{ AP, 0x000009f9, 0x00000fff, OP16, N("bset"), N("flags"), REG2 },
+	{ AP, 0x00000af9, 0x00000fff, OP16, N("bclr"), N("flags"), REG2 },
+	{ AP, 0x00000bf9, 0x00000fff, OP16, N("btgl"), N("flags"), REG2 },
+	{ AP, 0x000000f9, 0x000000ff, OP16, OOPS, REG2 },
 
 	/* iowr is asynchronous, iowrs waits for completion. */
-	{ AP, 0x000000fa, 0x000f00ff, N("iowr"), IOR, REG1 },
-	{ AP, 0x000100fa, 0x000f00ff, N("iowrs"), IOR, REG1 },
+	{ AP, 0x000000fa, 0x000f00ff, OP24, N("iowr"), IOR, REG1 },
+	{ AP, 0x000100fa, 0x000f00ff, OP24, N("iowrs"), IOR, REG1 },
 	/* the transfer ops
 	 *
 	 * operand 1 is external offset and virtual address for code,
@@ -611,16 +616,16 @@ static struct insn tabm[] = {
 	 * 
 	 * Use xdwait/xcwait to wait for transfers to complete.
 	 */
-	{ AP, 0x000400fa, 0x000f00ff, N("xcld"), REG2, REG1 },
-	{ AP, 0x000500fa, 0x000f00ff, N("xdld"), REG2, REG1 },
-	{ AP, 0x000600fa, 0x000f00ff, N("xdst"), REG2, REG1 },
-	{ AP, 0x000000fa, 0x000000ff, OOPS, REG2, REG1 },
+	{ AP, 0x000400fa, 0x000f00ff, OP24, N("xcld"), REG2, REG1 },
+	{ AP, 0x000500fa, 0x000f00ff, OP24, N("xdld"), REG2, REG1 },
+	{ AP, 0x000600fa, 0x000f00ff, OP24, N("xdst"), REG2, REG1 },
+	{ AP, 0x000000fa, 0x000000ff, OP24, OOPS, REG2, REG1 },
 
-	{ AP, 0x000000fc, 0x00000fff, N("pop"), REG2 },
-	{ AP, 0x000000fc, 0x000000ff, OOPS, REG2 },
+	{ AP, 0x000000fc, 0x00000fff, OP16, N("pop"), REG2 },
+	{ AP, 0x000000fc, 0x000000ff, OP16, OOPS, REG2 },
 
-	{ AP, 0x000000fe, 0x00ff00ff, N("mov"), T(srd), REG2 },
-	{ AP, 0x000100fe, 0x00ff00ff, N("mov"), REG1, T(srs) },
+	{ AP, 0x000000fe, 0x00ff00ff, OP24, N("mov"), T(srd), REG2 },
+	{ AP, 0x000100fe, 0x00ff00ff, OP24, N("mov"), REG1, T(srs) },
 	/*
 	 * REG1 = info about physical page in REG2, REG2 in pages
 	 *
@@ -631,7 +636,7 @@ static struct insn tabm[] = {
 	 *  	1: present: mapped to virtual address and usable
 	 *  	2: busy: mapped to virtual address, but in the process of uploading stuff. will hang if used.
 	 */
-	{ AP, 0x000200fe, 0x00ff00ff, N("ptlb"), REG1, REG2 },
+	{ AP, 0x000200fe, 0x00ff00ff, OP24, N("ptlb"), REG1, REG2 },
 	/*
 	 * REG1 = info about virtual address in REG2, REG2 in bytes
 	 *
@@ -644,65 +649,33 @@ static struct insn tabm[] = {
 	 *  bit 31: no match
 	 *  	didn't find any physical page
 	 */
-	{ AP, 0x000300fe, 0x00ff00ff, N("vtlb"), REG1, REG2 },
+	{ AP, 0x000300fe, 0x00ff00ff, OP24, N("vtlb"), REG1, REG2 },
 
-	{ AP, 0x000000fd, 0x000f00ff, N("mulu"), REG2, REG1 },
-	{ AP, 0x000100fd, 0x000f00ff, N("muls"), REG2, REG1 },
-	{ AP, 0x000200fd, 0x000f00ff, N("sex"), REG2, REG1 },
-	{ AP, 0x000400fd, 0x000f00ff, N("and"), REG2, REG1 },
-	{ AP, 0x000500fd, 0x000f00ff, N("or"), REG2, REG1 },
-	{ AP, 0x000600fd, 0x000f00ff, N("xor"), REG2, REG1 },
-	{ AP, 0x000900fd, 0x000f00ff, N("bset"), REG2, REG1 },
-	{ AP, 0x000a00fd, 0x000f00ff, N("bclr"), REG2, REG1 },
-	{ AP, 0x000b00fd, 0x000f00ff, N("btgl"), REG2, REG1 },
-	{ AP, 0x000000fd, 0x000000ff, OOPS, REG2, REG1 },
+	{ AP, 0x000000fd, 0x000f00ff, OP24, N("mulu"), REG2, REG1 },
+	{ AP, 0x000100fd, 0x000f00ff, OP24, N("muls"), REG2, REG1 },
+	{ AP, 0x000200fd, 0x000f00ff, OP24, N("sex"), REG2, REG1 },
+	{ AP, 0x000400fd, 0x000f00ff, OP24, N("and"), REG2, REG1 },
+	{ AP, 0x000500fd, 0x000f00ff, OP24, N("or"), REG2, REG1 },
+	{ AP, 0x000600fd, 0x000f00ff, OP24, N("xor"), REG2, REG1 },
+	{ AP, 0x000900fd, 0x000f00ff, OP24, N("bset"), REG2, REG1 },
+	{ AP, 0x000a00fd, 0x000f00ff, OP24, N("bclr"), REG2, REG1 },
+	{ AP, 0x000b00fd, 0x000f00ff, OP24, N("btgl"), REG2, REG1 },
+	{ AP, 0x000000fd, 0x000000ff, OP24, OOPS, REG2, REG1 },
 
-	{ AP, 0x000000ff, 0x000f00ff, N("mulu"), REG3, REG2, REG1 },
-	{ AP, 0x000100ff, 0x000f00ff, N("muls"), REG3, REG2, REG1 },
-	{ AP, 0x000200ff, 0x000f00ff, N("sex"), REG3, REG2, REG1 },
-	{ AP, 0x000300ff, 0x000f00ff, N("extrs"), REG3, REG2, REG1 },
-	{ AP, 0x000400ff, 0x000f00ff, N("and"), REG3, REG2, REG1 },
-	{ AP, 0x000500ff, 0x000f00ff, N("or"), REG3, REG2, REG1 },
-	{ AP, 0x000600ff, 0x000f00ff, N("xor"), REG3, REG2, REG1 },
-	{ AP, 0x000700ff, 0x000f00ff, N("extr"), REG3, REG2, REG1 },
-	{ AP, 0x000800ff, 0x000f00ff, N("xbit"), REG3, REG2, REG1 }, /* NV98: ARG1 = (ARG1 & 0xfffffffe) | (ARG2 >> ARG3 & 1) ; NVA3+: ARG1 = ARG2 >> ARG3 & 1 */
-	{ AP, 0x000c00ff, 0x000f00ff, N("div"), REG3, REG2, REG1 },
-	{ AP, 0x000d00ff, 0x000f00ff, N("mod"), REG3, REG2, REG1 },
-	{ AP, 0x000f00ff, 0x000f00ff, N("iord"), REG3, IORR },
-	{ AP, 0x000000ff, 0x000000ff, OOPS, REG3, REG2, REG1 },
+	{ AP, 0x000000ff, 0x000f00ff, OP24, N("mulu"), REG3, REG2, REG1 },
+	{ AP, 0x000100ff, 0x000f00ff, OP24, N("muls"), REG3, REG2, REG1 },
+	{ AP, 0x000200ff, 0x000f00ff, OP24, N("sex"), REG3, REG2, REG1 },
+	{ AP, 0x000300ff, 0x000f00ff, OP24, N("extrs"), REG3, REG2, REG1 },
+	{ AP, 0x000400ff, 0x000f00ff, OP24, N("and"), REG3, REG2, REG1 },
+	{ AP, 0x000500ff, 0x000f00ff, OP24, N("or"), REG3, REG2, REG1 },
+	{ AP, 0x000600ff, 0x000f00ff, OP24, N("xor"), REG3, REG2, REG1 },
+	{ AP, 0x000700ff, 0x000f00ff, OP24, N("extr"), REG3, REG2, REG1 },
+	{ AP, 0x000800ff, 0x000f00ff, OP24, N("xbit"), REG3, REG2, REG1 }, /* NV98: ARG1 = (ARG1 & 0xfffffffe) | (ARG2 >> ARG3 & 1) ; NVA3+: ARG1 = ARG2 >> ARG3 & 1 */
+	{ AP, 0x000c00ff, 0x000f00ff, OP24, N("div"), REG3, REG2, REG1 },
+	{ AP, 0x000d00ff, 0x000f00ff, OP24, N("mod"), REG3, REG2, REG1 },
+	{ AP, 0x000f00ff, 0x000f00ff, OP24, N("iord"), REG3, IORR },
+	{ AP, 0x000000ff, 0x000000ff, OP24, OOPS, REG3, REG2, REG1 },
 	{ AP, 0, 0, OOPS },
-};
-
-static uint32_t optab[] = {
-	0x00, 0xff, 3,
-	0x10, 0xf0, 3,
-	0x20, 0xf0, 4,
-	0x30, 0xff, 3,
-	0x31, 0xff, 4,
-	0x34, 0xff, 3,
-	0x36, 0xff, 3,
-	0x37, 0xff, 4,
-	0x38, 0xff, 3,
-	0x39, 0xff, 3,
-	0x3b, 0xff, 3,
-	0x3c, 0xff, 3,
-	0x3d, 0xff, 2,
-
-	0xc0, 0xf0, 3,
-	0xd0, 0xf0, 3,
-	0xe0, 0xf0, 4,
-	0xf0, 0xff, 3,
-	0xf1, 0xff, 4,
-	0xf2, 0xff, 3,
-	0xf4, 0xff, 3,
-	0xf5, 0xff, 4,
-	0xf8, 0xff, 2,
-	0xf9, 0xff, 2,
-	0xfa, 0xff, 3,
-	0xfc, 0xff, 2,
-	0xfd, 0xff, 3,
-	0xfe, 0xff, 3,
-	0xff, 0xff, 3,
 };
 
 /*
@@ -722,27 +695,27 @@ void fucdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype) {
 	ctx->codesz = num;
 	ctx->ptype = ptype;
 	while (cur < num) {
-		uint8_t op = code[cur];
-		int length = 0;
-		if (op < 0xc0)
-			op &= 0x3f;
-		for (i = 0; i < sizeof optab / sizeof *optab / 3; i++)
-			if ((op & optab[3*i+1]) == optab[3*i])
-				length = optab[3*i+2];
-		if (!length || cur + length > num) {
-			cur++;
-		} else {
-			ull a = 0, m = 0;
-			for (i = cur; i < cur + length; i++) {
-				a |= (ull)code[i] << (i-cur)*8;
-			}
-			atomtab (ctx, &a, &m, tabm, cur + start);
-			cur += length;
+		ull a = 0, m = 0;
+		for (i = 0; i < 8 && cur + i < num; i++) {
+			a |= (ull)code[cur + i] << i*8;
 		}
+		atomtab (ctx, &a, &m, tabm, cur + start);
+		if (ctx->oplen)
+			cur += ctx->oplen;
+		else
+			cur++;
 	}
 	cur = 0;
-	ctx->out = out;
 	while (cur < num) {
+		ull a = 0, m = 0;
+		ctx->out = 0;
+		for (i = 0; i < 8 && cur + i < num; i++) {
+			a |= (ull)code[cur + i] << i*8;
+		}
+		ctx->oplen = 0;
+		atomtab (ctx, &a, &m, tabm, cur + start);
+		ctx->out = out;
+
 		if (ctx->labels[cur] & 2)
 			fprintf (ctx->out, "\n");
 		switch (ctx->labels[cur] & 3) {
@@ -759,41 +732,44 @@ void fucdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype) {
 				fprintf (ctx->out, "%s%08x:%s", cbrmag, cur + start, cnorm);
 				break;
 		}
-		uint8_t op = code[cur];
-		int length = 0;
-		if (op < 0xc0)
-			op &= 0x3f;
-		for (i = 0; i < sizeof optab / sizeof *optab / 3; i++)
-			if ((op & optab[3*i+1]) == optab[3*i])
-				length = optab[3*i+2];
-		if (!length || cur + length > num) {
-			fprintf (ctx->out, " %s%02x              ??? [unknown op length]%s\n", cred, op, cnorm);
-			cur++;
-		} else {
-			ull a = 0, m = 0;
-			for (i = cur; i < cur + length; i++) {
-				fprintf (ctx->out, " %02x", code[i]);
-				a |= (ull)code[i] << (i-cur)*8;
-			}
-			for (i = 0; i < 4 - length; i++)
-				fprintf (ctx->out, "   ");
-			fprintf (ctx->out, "  ");
-			if (ctx->labels[cur] & 2)
-				fprintf (ctx->out, "%sC", cbr);
-			else
-				fprintf (ctx->out, " ");
-			if (ctx->labels[cur] & 1)
-				fprintf (ctx->out, "%sB", cmag);
-			else
-				fprintf (ctx->out, " ");
-			atomtab (ctx, &a, &m, tabm, cur + start);
+
+		for (i = cur; (i < cur + ctx->oplen || i == cur) && i < num; i++) {
+			fprintf (ctx->out, " %02x", code[i]);
+		}
+		for (; i < cur + ctx->oplen; i++) {
+			fprintf (ctx->out, " %s??", cred);
+		}
+		for (; i < cur + 4; i++)
+			fprintf (ctx->out, "   ");
+		fprintf (ctx->out, "  ");
+
+		if (ctx->labels[cur] & 2)
+			fprintf (ctx->out, "%sC", cbr);
+		else
+			fprintf (ctx->out, " ");
+		if (ctx->labels[cur] & 1)
+			fprintf (ctx->out, "%sB", cmag);
+		else
+			fprintf (ctx->out, " ");
+
+		atomtab (ctx, &a, &m, tabm, cur + start);
+
+		if (ctx->oplen) {
 			a &= ~m;
+			if (ctx->oplen < 8)
+				a &= (1ull << ctx->oplen * 8) - 1;
 			if (a) {
 				fprintf (ctx->out, " %s[unknown: %08llx]%s", cred, a, cnorm);
 			}
-			fprintf (ctx->out, "%s\n", cnorm);
-			cur += length;
+			if (cur + ctx->oplen > num) {
+				fprintf (ctx->out, " %s[incomplete]%s", cred, cnorm);
+			}
+			cur += ctx->oplen;
+		} else {
+			fprintf (ctx->out, " %s[unknown op length]%s", cred, cnorm);
+			cur++;
 		}
+		fprintf (ctx->out, "%s\n", cnorm);
 	}
 	free(ctx->labels);
 }
