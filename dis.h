@@ -128,6 +128,11 @@ struct disctx {
 	int oplen;
 };
 
+struct disisa {
+	struct insn *troot;
+	int maxoplen;
+};
+
 /*
  * Makes a simple table for checking a single flag.
  *
@@ -201,10 +206,10 @@ void nvc0dis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype);
 
 void ctxdis (FILE *out, uint32_t *code, uint32_t start, int num, int ptype);
 
-void fucdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype);
+extern struct disisa *fuc_isa;
+extern struct disisa *pms_isa;
+extern struct disisa *vp2_isa;
 
-void pmdis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype);
-
-void vp2dis (FILE *out, uint8_t *code, uint32_t start, int num, int ptype);
+void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int ptype);
 
 #endif

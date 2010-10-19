@@ -83,6 +83,6 @@ int main(int argc, char **argv) {
 	}
 	if (num <= skip)
 		return 0;
-	pmdis (stdout, code+skip, base, num - skip, ptype);
+	envydis (pms_isa, stdout, code+skip, base, num - skip, ptype);
 	return 0;
 }

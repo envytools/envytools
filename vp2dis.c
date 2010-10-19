@@ -90,6 +90,6 @@ int main(int argc, char **argv) {
 	int cnt = num - skip;
 	if (limit && limit < cnt)
 		cnt = limit;
-	vp2dis (stdout, code+skip, base, cnt, ptype);
+	envydis (vp2_isa, stdout, code+skip, base, cnt, ptype);
 	return 0;
 }
