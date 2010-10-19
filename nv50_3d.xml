@@ -398,9 +398,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1110" name="UNK1110" type="boolean" variants="NV84_3D-">
 			<doc>Goes to 1cxx, 1 by default.</doc>
 		</reg32>
-		<reg32 offset="0x1114" name="UNK1114" variants="NV84_3D-">
-			<doc>Doesn't seem to do anything.</doc>
-		</reg32>
+		<reg32 offset="0x1114" name="WRCACHE_FLUSH" variants="NV84_3D-"/>
 		<reg32 offset="0x1118" name="UNK1118" variants="NV84_3D-">
 			<doc>Goes to vfetch on >= NVA0?</doc>
 		</reg32>
