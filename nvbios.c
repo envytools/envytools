@@ -10,7 +10,7 @@ uint32_t len;
 const uint8_t bit_signature[] = { 0xff, 0xb8, 'B', 'I', 'T' };
 const uint8_t bmp_signature[] = { 0xff, 0x7f, 'N', 'V', 0x0 };
 uint8_t major_version, minor_version, micro_version, chip_version;
-uint32_t strap;
+uint32_t strap = 0;
 
 #define RNN_ADDARRAY(a, e) \
 	do { \
@@ -815,7 +815,7 @@ int main(int argc, char **argv) {
 		uint8_t extra_data_length = 8, extra_data_count = 0;
 		uint8_t subentry_offset = 0, subentry_size = 0, subentry_count = 0;
 		uint16_t start = pm_mode_tbl_ptr;
-		uint32_t timing_entry = (strap & 0x1c) >> 2;
+		uint8_t timing_entry = strap?(strap & 0x1c) >> 2:0xff;
 		int e;
 
 		if (major_version == 0x4) {
@@ -901,6 +901,7 @@ int main(int argc, char **argv) {
 				memclk = (le16(start+subent(2)) & 0xfff);
 			}
 
+			timing_id = 0xff;
 			if (version > 0x15 && version < 0x40) {
 				uint16_t extra_start = start + mode_info_length;
 				uint16_t timing_extra_data = extra_start+(timing_entry*extra_data_length);
