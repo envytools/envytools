@@ -66,11 +66,6 @@ void atomname APROTO {
 		fprintf (ctx->out, " %s%s", cgr, (char *)v);
 }
 
-void atomnl APROTO {
-	if (ctx->out)
-		fprintf (ctx->out, "\n                             ");
-}
-
 void atomunk APROTO {
 	if (ctx->out)
 		fprintf (ctx->out, " %s%s", cred, (char *)v);

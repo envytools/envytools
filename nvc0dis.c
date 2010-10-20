@@ -987,7 +987,7 @@ static struct insn tabc[] = {
 static struct insn tabroot[] = {
 	{ AP, 7, 7, OP64, T(c) }, // control instructions, special-cased.
 	{ AP, 0x0, 0x10, OP64, T(p), T(m) },
-	{ AP, 0x10, 0x10, OP64, T(p), T(m), NL, N("join") },
+	{ AP, 0x10, 0x10, OP64, N("join"), T(p), T(m), },
 };
 
 static struct disisa nvc0_isa_s = {

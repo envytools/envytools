@@ -88,10 +88,9 @@ extern char *cbrmag;	// call and jump labels
  * given bitfield and marks it as used in the mask. Args are
  * given as start bit, size in bits.
  *
- * Also, three simple ops are provided: N("string") prints a literal to output
+ * Also, two simple ops are provided: N("string") prints a literal to output
  * and is supposed to be used for instruction names and various modifiers.
- * OOPS is for unknown encodings, NL is for separating instructions in case
- * a single opcode represents two [only possible with join and exit].
+ * OOPS is for unknown encodings,
  */
 
 typedef unsigned long long ull;
@@ -171,9 +170,6 @@ void atomopl APROTO;
 
 #define N(x) atomname, x
 void atomname APROTO;
-
-#define NL atomnl, 0
-void atomnl APROTO;
 
 #define U(x) atomunk, "unk" x
 void atomunk APROTO;
