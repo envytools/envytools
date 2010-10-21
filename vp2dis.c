@@ -129,6 +129,22 @@ static ull addinlut[] = {
 	8, 9, 10, 11,
 	12, 13, 14, 15,
 };
+static ull maskimmlut[] = {
+	1, 2, 3, 4,
+	5, 6, 7, 8,
+	9, 10, 11, 12,
+	13, 14, 15, 16,
+};
+static ull sllilut[] = {
+	32, 31, 30, 29,
+	28, 27, 26, 25,
+	24, 23, 22, 21,
+	20, 19, 18, 17,
+	16, 15, 14, 13,
+	12, 11, 10, 9,
+	8, 7, 6, 5,
+	4, 3, 2, 1,
+};
 
 static struct bitfield imm8soff = { { 16, 8 }, BF_SIGNED };
 static struct bitfield imm8s8off = { { 16, 8 }, BF_SIGNED, 8 };
@@ -146,8 +162,10 @@ static struct bitfield bbioff = { { 4, 4, 12, 1 } };
 static struct bitfield mi12off = { { 16, 8, 8, 4 }, BF_SIGNED };
 static struct bitfield i7off = { { 12, 4, 4, 3 }, BF_SLIGHTLY_SIGNED };
 static struct bitfield shiftimmoff = { { 8, 4, 16, 1 } };
+static struct bitfield maskimmoff = { { 20, 4 }, BF_LUT, .lut = maskimmlut };
 static struct bitfield sraioff = { { 8, 4, 20, 1 } };
 static struct bitfield ssaioff = { { 8, 4, 4, 1 } };
+static struct bitfield sllioff = { { 4, 4, 20, 1 }, BF_LUT, .lut = sllilut };
 #define IMM8S atomimm, &imm8soff
 #define IMM8S8 atomimm, &imm8s8off
 #define IMM12M8 atomimm, &imm12m8off
@@ -164,24 +182,10 @@ static struct bitfield ssaioff = { { 8, 4, 4, 1 } };
 #define MI12 atomimm, &mi12off
 #define MI7 atomimm, &i7off
 #define SHIFTIMM atomimm, &shiftimmoff
+#define MASKIMM atomimm, &maskimmoff
 #define SRAI atomimm, &sraioff
 #define SSAI atomimm, &ssaioff
-
-static void atommaskimm APROTO {
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %s%#x", cyel, BF(20, 4) + 1);
-}
-#define MASKIMM atommaskimm, 0
-
-static void atomslli APROTO {
-	if (!ctx->out)
-		return;
-	uint32_t num = BF(4, 4) | BF(20, 1) << 4;
-	fprintf (ctx->out, " %s%#x", cyel, 32 - num);
-}
-#define SLLI atomslli, 0
-
+#define SLLI atomimm, &sllioff
 
 /*
  * Memory fields
