@@ -111,88 +111,61 @@ static int brroff[] = { 12, 4, 'b' };
  * Immediate fields
  */
 
-static int imm8soff[] = { 16, 8, 0, 1 };
-static int imm8s8off[] = { 16, 8, 8, 1 };
-static int imm12m8off[] = { 12, 12, 3, 0 };
-static int rotoff[] = { 4, 2, 2, 0 };
-static int rotwoff[] = { 4, 4, 0, 1 };
-static int srlioff[] = { 8, 4, 0, 0, };
-static int waitioff[] = { 8, 4, 0, 0, };
-static int break8off[] = { 8, 4, 0, 0, };
-static int break4off[] = { 4, 4, 0, 0, };
-#define IMM8S atomnum, imm8soff
-#define IMM8S8 atomnum, imm8s8off
-#define IMM12M8 atomnum, imm12m8off
-#define ROT atomnum, rotoff
-#define ROTW atomnum, rotwoff
-#define SRLI atomnum, srlioff
-#define WAITI atomnum, waitioff
-#define BREAK8 atomnum, break8off
-#define BREAK4 atomnum, break4off
-
-static void atomlutnum APROTO {
-	if (!ctx->out)
-		return;
-	const int *n = v;
-	fprintf (ctx->out, " %s%#x", cyel, n[BF(n[0], n[1]) + 2]);
-}
-static int b4constlut[] = { 12, 4,
+static ull b4constlut[] = {
 	-1, 1, 2, 3,
 	4, 5, 6, 7,
 	8, 10, 12, 16,
 	32, 64, 128, 256,
 };
-static int b4constulut[] = { 12, 4,
+static ull b4constulut[] = {
 	0x8000, 0x10000, 2, 3,
 	4, 5, 6, 7,
 	8, 10, 12, 16,
-	32, 64, 128, 256,
+	32, 64, 128, 256, 
 };
-static int addinlut[] = { 4, 4,
+static ull addinlut[] = {
 	-1, 1, 2, 3,
 	4, 5, 6, 7,
 	8, 9, 10, 11,
 	12, 13, 14, 15,
 };
-#define B4CONST atomlutnum, b4constlut
-#define B4CONSTU atomlutnum, b4constulut
-#define ADDIN atomlutnum, addinlut
 
-static void atombbi APROTO {
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %s%#x", cyel, BF(4, 4) | BF(12, 1) << 4);
-}
-#define BBI atombbi, 0
-
-static void atommi12 APROTO {
-	if (!ctx->out)
-		return;
-	uint32_t num = BF(16,8) | BF(8,4) << 8;
-	if (num & 0x800)
-		fprintf (ctx->out, " %s-%#x", cyel, 0x1000-num);
-	else
-		fprintf (ctx->out, " %s%#x", cyel, num);
-}
-#define MI12 atommi12, 0
-
-static void atommi7 APROTO {
-	if (!ctx->out)
-		return;
-	uint32_t num = BF(12,4) | BF(4,3) << 4;
-	if (num >= 0x60)
-		fprintf (ctx->out, " %s-%#x", cyel, 0x80-num);
-	else
-		fprintf (ctx->out, " %s%#x", cyel, num);
-}
-#define MI7 atommi7, 0
-
-static void atomshiftimm APROTO {
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %s%#x", cyel, BF(8, 4) | BF(16, 1) << 4);
-}
-#define SHIFTIMM atomshiftimm, 0
+static struct bitfield imm8soff = { { 16, 8 }, BF_SIGNED };
+static struct bitfield imm8s8off = { { 16, 8 }, BF_SIGNED, 8 };
+static struct bitfield imm12m8off = { { 12, 12 }, BF_UNSIGNED, 3 };
+static struct bitfield rotoff = { { 4, 2 }, BF_UNSIGNED, 2 };
+static struct bitfield rotwoff = { { 4, 4 }, BF_SIGNED };
+static struct bitfield srlioff = { 8, 4 };
+static struct bitfield waitioff = { 8, 4 };
+static struct bitfield break8off = { 8, 4 };
+static struct bitfield break4off = { 4, 4 };
+static struct bitfield b4constoff = { { 12, 4 }, BF_LUT, .lut = b4constlut };
+static struct bitfield b4constuoff = { { 12, 4 }, BF_LUT, .lut = b4constulut };
+static struct bitfield addinoff = { { 4, 4 }, BF_LUT, .lut = addinlut };
+static struct bitfield bbioff = { { 4, 4, 12, 1 } };
+static struct bitfield mi12off = { { 16, 8, 8, 4 }, BF_SIGNED };
+static struct bitfield i7off = { { 12, 4, 4, 3 }, BF_SLIGHTLY_SIGNED };
+static struct bitfield shiftimmoff = { { 8, 4, 16, 1 } };
+static struct bitfield sraioff = { { 8, 4, 20, 1 } };
+static struct bitfield ssaioff = { { 8, 4, 4, 1 } };
+#define IMM8S atomimm, &imm8soff
+#define IMM8S8 atomimm, &imm8s8off
+#define IMM12M8 atomimm, &imm12m8off
+#define ROT atomimm, &rotoff
+#define ROTW atomimm, &rotwoff
+#define SRLI atomimm, &srlioff
+#define WAITI atomimm, &waitioff
+#define BREAK8 atomimm, &break8off
+#define BREAK4 atomimm, &break4off
+#define B4CONST atomimm, &b4constoff
+#define B4CONSTU atomimm, &b4constuoff
+#define ADDIN atomimm, &addinoff
+#define BBI atomimm, &bbioff
+#define MI12 atomimm, &mi12off
+#define MI7 atomimm, &i7off
+#define SHIFTIMM atomimm, &shiftimmoff
+#define SRAI atomimm, &sraioff
+#define SSAI atomimm, &ssaioff
 
 static void atommaskimm APROTO {
 	if (!ctx->out)
@@ -209,21 +182,6 @@ static void atomslli APROTO {
 }
 #define SLLI atomslli, 0
 
-static void atomsrai APROTO {
-	if (!ctx->out)
-		return;
-	uint32_t num = BF(8, 4) | BF(20, 1) << 4;
-	fprintf (ctx->out, " %s%#x", cyel, num);
-}
-#define SRAI atomsrai, 0
-
-static void atomssai APROTO {
-	if (!ctx->out)
-		return;
-	uint32_t num = BF(8, 4) | BF(4, 1) << 4;
-	fprintf (ctx->out, " %s%#x", cyel, num);
-}
-#define SSAI atomssai, 0
 
 /*
  * Memory fields

@@ -138,26 +138,26 @@ static void atomctarg APROTO {
  * Misc number fields
  */
 
-static int baroff[] = { 0x14, 4, 0, 0 };
-static int pmoff[] = { 0x1a, 16, 0, 0 };
-static int tcntoff[] = { 0x1a, 12, 0, 0 };
-static int immoff[] = { 0x1a, 20, 0, 1 };
-static int fimmoff[] = { 0x1a, 20, 12, 0 };
-static int dimmoff[] = { 0x1a, 20, 44, 0 };
-static int limmoff[] = { 0x1a, 32, 0, 0 };
-static int shcntoff[] = { 5, 5, 0, 0 };
-static int bnumoff[] = { 0x37, 2, 0, 0 };
-static int hnumoff[] = { 0x38, 1, 0, 0 };
-#define BAR atomnum, baroff
-#define PM atomnum, pmoff
-#define TCNT atomnum, tcntoff
-#define IMM atomnum, immoff
-#define FIMM atomnum, fimmoff
-#define DIMM atomnum, dimmoff
-#define LIMM atomnum, limmoff
-#define SHCNT atomnum, shcntoff
-#define BNUM atomnum, bnumoff
-#define HNUM atomnum, hnumoff
+static struct bitfield baroff = { 0x14, 4 };
+static struct bitfield pmoff = { 0x1a, 16 };
+static struct bitfield tcntoff = { 0x1a, 12 };
+static struct bitfield immoff = { { 0x1a, 20 }, BF_SIGNED };
+static struct bitfield fimmoff = { { 0x1a, 20 }, BF_UNSIGNED, 12 };
+static struct bitfield dimmoff = { { 0x1a, 20 }, BF_UNSIGNED, 44 };
+static struct bitfield limmoff = { 0x1a, 32 };
+static struct bitfield shcntoff = { 5, 5 };
+static struct bitfield bnumoff = { 0x37, 2 };
+static struct bitfield hnumoff = { 0x38, 1 };
+#define BAR atomimm, &baroff
+#define PM atomimm, &pmoff
+#define TCNT atomimm, &tcntoff
+#define IMM atomimm, &immoff
+#define FIMM atomimm, &fimmoff
+#define DIMM atomimm, &dimmoff
+#define LIMM atomimm, &limmoff
+#define SHCNT atomimm, &shcntoff
+#define BNUM atomimm, &bnumoff
+#define HNUM atomimm, &hnumoff
 
 /*
  * Register fields

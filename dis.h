@@ -104,6 +104,24 @@ struct disisa;
 
 typedef void (*afun) APROTO;
 
+struct sbf {
+	int pos;
+	int len;
+};
+
+struct bitfield {
+	struct sbf sbf[2];
+	enum {
+		BF_UNSIGNED,
+		BF_SIGNED,
+		BF_SLIGHTLY_SIGNED,
+		BF_ULTRASIGNED,
+		BF_LUT,
+	} mode;
+	int shr;
+	ull *lut;
+};
+
 struct atom {
 	afun fun;
 	const void *arg;
@@ -177,7 +195,7 @@ void atomunk APROTO;
 #define OOPS atomunk, "???"
 void atomunk APROTO;
 
-void atomnum APROTO;
+void atomimm APROTO;
 
 void atomign APROTO;
 
@@ -186,6 +204,9 @@ void atomdreg APROTO;
 void atomqreg APROTO;
 void atomoreg APROTO;
 void atomhreg APROTO;
+
+ull getbf(const struct bitfield *bf, ull *a, ull *m);
+#define GETBF(bf) getbf(bf, a, m)
 
 uint32_t readle32 (uint8_t *);
 uint16_t readle16 (uint8_t *);

@@ -71,13 +71,13 @@ void atomunk APROTO {
 		fprintf (ctx->out, " %s%s", cred, (char *)v);
 }
 
-void atomnum APROTO {
+void atomimm APROTO {
 	if (!ctx->out)
 		return;
-	const int *n = v;
-	ull num = BF(n[0], n[1])<<n[2];
-	if (n[3] && num&1ull<<(n[1]+n[2]-1))
-		fprintf (ctx->out, " %s-%#llx", cyel, (1ull<<(n[1]+n[2])) - num);
+	const struct bitfield *bf = v;
+	ull num = GETBF(bf);
+	if (num & 1ull << 63)
+		fprintf (ctx->out, " %s-%#llx", cyel, -num);
 	else
 		fprintf (ctx->out, " %s%#llx", cyel, num);
 }
@@ -120,6 +120,35 @@ void atomhreg APROTO {
 	int r = BF(n[0], n[1]);
 	if (r == 127 && n[2] == 'o') fprintf (ctx->out, " %s#", cbl);
 	else fprintf (ctx->out, " %s$%c%d%c", (n[2]=='r')?cbl:cmag, n[2], r>>1, "lh"[r&1]);
+}
+
+ull getbf(const struct bitfield *bf, ull *a, ull *m) {
+	ull res = 0;
+	int pos = bf->shr;
+	int i;
+	for (i = 0; i < sizeof(bf->sbf) / sizeof(bf->sbf[0]); i++) {
+		res |= BF(bf->sbf[i].pos, bf->sbf[i].len) << pos;
+		pos += bf->sbf[i].len;
+	}
+	switch (bf->mode) {
+		case BF_UNSIGNED:
+			break;
+		case BF_SIGNED:
+			if (res & 1ull << (pos - 1))
+				res -= 1ull << pos;
+			break;
+		case BF_SLIGHTLY_SIGNED:
+			if (res & 1ull << (pos - 1) && res & 1ull << (pos - 2))
+				res -= 1ull << pos;
+			break;
+		case BF_ULTRASIGNED:
+			res -= 1ull << pos;
+			break;
+		case BF_LUT:
+			res = bf->lut[res];
+			break;
+	}
+	return res;
 }
 
 uint32_t readle32 (uint8_t *p) {

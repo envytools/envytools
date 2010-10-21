@@ -238,22 +238,9 @@ static void atomctarg APROTO {
 }
 
 /*
- * Immediate field
+ * Immediate fields
  *
- * Used by all immediate insns [tabi table] for last argument. Full 32-bit.
- */
-
-#define IMM atomimm, 0
-static void atomimm APROTO {
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %s%#llx", cyel, (BF(0x10, 6)) | (BF(0x22, 26)<<6));
-}
-
-/*
- * Misc number fields
- *
- * Used for plain numerical arguments. These include:
+ *  - IMM: Used by all immediate insns [tabi table] for last argument. Full 32-bit.
  *  - PM: PM event id for pmevent
  *  - BAR: barrier id for bar.sync
  *  - OFFS: an offset to add in add $a, num, $a, which is basically a LEA
@@ -261,22 +248,24 @@ static void atomimm APROTO {
  *  - HSHCNT: used in $a shift-by-immediate insn for shift amount
  */
 
-static int pmoff[] = { 0xa, 4, 0, 0 };
-static int baroff[] = { 0x15, 4, 0, 0 };
-static int offoff[] = { 9, 16, 0, 0 };
-static int shcntoff[] = { 0x10, 7, 0, 0 };
-static int hshcntoff[] = { 0x10, 4, 0, 0 };
-static int toffxoff[] = { 0x38, 4, 0, 1 };
-static int toffyoff[] = { 0x34, 4, 0, 1 };
-static int toffzoff[] = { 0x30, 4, 0, 1 };
-#define PM atomnum, pmoff
-#define BAR atomnum, baroff
-#define OFFS atomnum, offoff
-#define SHCNT atomnum, shcntoff
-#define HSHCNT atomnum, hshcntoff
-#define TOFFX atomnum, toffxoff
-#define TOFFY atomnum, toffyoff
-#define TOFFZ atomnum, toffzoff
+static struct bitfield immbf = { { 0x10, 6, 0x22, 26 } };
+static struct bitfield pmoff = { 0xa, 4 };
+static struct bitfield baroff = { 0x15, 4 };
+static struct bitfield offoff = { 9, 16 };
+static struct bitfield shcntoff = { 0x10, 7 };
+static struct bitfield hshcntoff = { 0x10, 4 };
+static struct bitfield toffxoff = { { 0x38, 4 }, BF_SIGNED };
+static struct bitfield toffyoff = { { 0x34, 4 }, BF_SIGNED };
+static struct bitfield toffzoff = { { 0x30, 4 }, BF_SIGNED };
+#define IMM atomimm, &immbf
+#define PM atomimm, &pmoff
+#define BAR atomimm, &baroff
+#define OFFS atomimm, &offoff
+#define SHCNT atomimm, &shcntoff
+#define HSHCNT atomimm, &hshcntoff
+#define TOFFX atomimm, &toffxoff
+#define TOFFY atomimm, &toffyoff
+#define TOFFZ atomimm, &toffzoff
 
 /*
  * Ignored fields

@@ -162,22 +162,22 @@ static void atomcmd APROTO {
  * Used for plain numerical arguments.
  */
 
-static int unitoff[] = { 0, 5, 0, 0 };
-static int flagoff[] = { 0, 7, 0, 0 };
-static int gsize4off[] = { 14, 6, 0, 0 };
-static int gsize5off[] = { 16, 4, 0, 0 };
-static int immoff[] = { 0, 20, 0, 0 };
-static int dis0off[] = { 0, 16, 0, 0 };
-static int dis1off[] = { 0, 16, 16, 0 };
-static int seekpoff[] = { 8, 11, 0, 0 };
-#define UNIT atomnum, unitoff
-#define FLAG atomnum, flagoff
-#define GSIZE4 atomnum, gsize4off
-#define GSIZE5 atomnum, gsize5off
-#define IMM atomnum, immoff
-#define DIS0 atomnum, dis0off
-#define DIS1 atomnum, dis1off
-#define SEEKP atomnum, seekpoff
+static struct bitfield unitoff = { 0, 5 };
+static struct bitfield flagoff = { 0, 7 };
+static struct bitfield gsize4off = { 14, 6 };
+static struct bitfield gsize5off = { 16, 4 };
+static struct bitfield immoff = { 0, 20 };
+static struct bitfield dis0off = { 0, 16 };
+static struct bitfield dis1off = { { 0, 16 }, BF_UNSIGNED, 16 };
+static struct bitfield seekpoff = { 8, 11 };
+#define UNIT atomimm, &unitoff
+#define FLAG atomimm, &flagoff
+#define GSIZE4 atomimm, &gsize4off
+#define GSIZE5 atomimm, &gsize5off
+#define IMM atomimm, &immoff
+#define DIS0 atomimm, &dis0off
+#define DIS1 atomimm, &dis1off
+#define SEEKP atomimm, &seekpoff
 
 /*
  * Memory fields

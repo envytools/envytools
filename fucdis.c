@@ -110,33 +110,29 @@ static int creg2off[] = { 20, 3, 'c' };
  * Immediate fields
  */
 
-static int imm16off[] = { 16, 16, 0, 0 };
-static int imm8off[] = { 16, 8, 0, 0 };
-static int imm16soff[] = { 16, 16, 0, 1 };
-static int imm8soff[] = { 16, 8, 0, 1 };
-static int imm16hoff[] = { 16, 16, 16, 0 };
-static int imm8hoff[] = { 16, 8, 16, 0 };
-static int strapoff[] = { 8, 2, 0, 0 };
-static int cimm2off[] = { 20, 6, 0, 0 };
-#define IMM16 atomnum, imm16off
-#define IMM8 atomnum, imm8off
-#define IMM16S atomnum, imm16soff
-#define IMM8S atomnum, imm8soff
-#define IMM16H atomnum, imm16hoff
-#define IMM8H atomnum, imm8hoff
-#define STRAP atomnum, strapoff
-#define CIMM2 atomnum, cimm2off
+static struct bitfield imm16off = { 16, 16 };
+static struct bitfield imm8off = { 16, 8 };
+static struct bitfield imm16soff = { { 16, 16 }, BF_SIGNED };
+static struct bitfield imm8soff = { { 16, 8 }, BF_SIGNED };
+static struct bitfield imm16hoff = { { 16, 16 }, BF_UNSIGNED, 16 };
+static struct bitfield imm8hoff = { { 16, 8 }, BF_UNSIGNED, 16 };
+static struct bitfield strapoff = { 8, 2 };
+static struct bitfield cimm2off = { 20, 6 };
+#define IMM16 atomimm, &imm16off
+#define IMM8 atomimm, &imm8off
+#define IMM16S atomimm, &imm16soff
+#define IMM8S atomimm, &imm8soff
+#define IMM16H atomimm, &imm16hoff
+#define IMM8H atomimm, &imm8hoff
+#define STRAP atomimm, &strapoff
+#define CIMM2 atomimm, &cimm2off
 
-
-#define BITF8 atombf, imm8off
-#define BITF16 atombf, imm16off
+#define BITF8 atombf, &imm8off
+#define BITF16 atombf, &imm16off
 static void atombf APROTO {
 	if (!ctx->out)
 		return;
-	const int *n = v;
-	uint32_t i = BF(n[0], n[1]);
-	if (n[3] && i&1ull<<(n[1]-1))
-		i -= 1ull<<(n[1]);
+	uint32_t i = GETBF(v);
 	uint32_t j = i >> 5 & 0x1f;
 	i &= 0x1f;
 	fprintf (ctx->out, " %s%d:%d", cyel, i, i+j);
