@@ -57,7 +57,7 @@ static void atomlabtarg APROTO {
 	markbt8(ctx, target);
 	if (!ctx->out)
 		return;
-	fprintf (ctx->out, " %s%#llx", cmag, target);
+	fprintf (ctx->out, " %s%#x", cmag, target);
 }
 
 #define SABTARG atomsabtarg, 0
@@ -66,7 +66,7 @@ static void atomsabtarg APROTO {
 	markbt8(ctx, target);
 	if (!ctx->out)
 		return;
-	fprintf (ctx->out, " %s%#llx", cmag, target);
+	fprintf (ctx->out, " %s%#x", cmag, target);
 }
 
 #define LCTARG atomlctarg, 0
@@ -75,7 +75,7 @@ static void atomlctarg APROTO {
 	markct8(ctx, target);
 	if (!ctx->out)
 		return;
-	fprintf (ctx->out, " %s%#llx", cbr, target);
+	fprintf (ctx->out, " %s%#x", cbr, target);
 }
 
 #define SCTARG atomsctarg, 0
@@ -84,7 +84,7 @@ static void atomsctarg APROTO {
 	markct8(ctx, target);
 	if (!ctx->out)
 		return;
-	fprintf (ctx->out, " %s%#llx", cbr, target);
+	fprintf (ctx->out, " %s%#x", cbr, target);
 }
 
 /*
