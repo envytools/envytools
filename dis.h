@@ -119,6 +119,8 @@ struct bitfield {
 		BF_LUT,
 	} mode;
 	int shr;
+	int pcrel;
+	ull addend;
 	ull *lut;
 };
 
@@ -197,6 +199,8 @@ void atomunk APROTO;
 void atomunk APROTO;
 
 void atomimm APROTO;
+void atomctarg APROTO;
+void atombtarg APROTO;
 
 void atomign APROTO;
 
@@ -206,8 +210,8 @@ void atomqreg APROTO;
 void atomoreg APROTO;
 void atomhreg APROTO;
 
-ull getbf(const struct bitfield *bf, ull *a, ull *m);
-#define GETBF(bf) getbf(bf, a, m)
+ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx);
+#define GETBF(bf) getbf(bf, a, m, ctx)
 
 uint32_t readle32 (uint8_t *);
 uint16_t readle16 (uint8_t *);

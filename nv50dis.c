@@ -230,12 +230,9 @@
  * addresses max out at 0xfffffc.
  */
 
-#define CTARG atomctarg, 0
-static void atomctarg APROTO {
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %s%#llx", cbr, BF(0xb, 16)<<2 | BF(0x2e, 6) << 18);
-}
+static struct bitfield ctargoff = { { 0xb, 16, 0x2e, 6 }, BF_UNSIGNED, 2 };
+#define BTARG atombtarg, &ctargoff
+#define CTARG atomctarg, &ctargoff
 
 /*
  * Immediate fields
@@ -1519,18 +1516,18 @@ F1(lim, 0x26, N("lim")) // if set, call is limitted, and will be ignored if X li
 
 static struct insn tabc[] = {
 	{ FP, 0x00000000, 0xf0000000, T(p), N("discard") },
-	{ AP, 0x10000000, 0xf0000000, T(p), N("bra"), CTARG },
+	{ AP, 0x10000000, 0xf0000000, T(p), N("bra"), BTARG },
 	{ AP, 0x20000000, 0xf0000000, IGNPRED, N("call"), T(lim), CTARG },
 	{ AP, 0x30000000, 0xf0000000, T(p), N("ret") },
-	{ AP, 0x40000000, 0xf0000000, IGNPRED, N("breakaddr"), CTARG },
+	{ AP, 0x40000000, 0xf0000000, IGNPRED, N("breakaddr"), BTARG },
 	{ AP, 0x50000000, 0xf0000000, T(p), N("break") },
 	{ AP, 0x60000000, 0xf0000000, IGNPRED, N("quadon") },
 	{ AP, 0x70000000, 0xf0000000, IGNPRED, N("quadpop") },
 	{ AP, 0x861ffe00, 0xf61ffe00, IGNPRED, N("bar sync"), BAR },
 	{ AP, 0x90000000, 0xf0000000, IGNPRED, N("trap") },
-	{ AP, 0xa0000000, 0xf0000000, IGNPRED, N("joinat"), CTARG },
+	{ AP, 0xa0000000, 0xf0000000, IGNPRED, N("joinat"), BTARG },
 	{ AP, 0xb0000000, 0xf0000000, T(p), N("brkpt") }, // sm_11. check predicates.
-	{ AP, 0, 0, T(p), OOPS, CTARG },
+	{ AP, 0, 0, T(p), OOPS, BTARG },
 };
 
 static struct insn tabroot[] = {

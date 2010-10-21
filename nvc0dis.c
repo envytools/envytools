@@ -125,14 +125,10 @@
  * Code target field
  */
 
-#define CTARG atomctarg, 0
-static void atomctarg APROTO {
-	if (!ctx->out)
-		return;
-	uint32_t delta = BF(26, 24);
-	if (delta & 0x800000) delta += 0xff000000;
-	fprintf (ctx->out, " %s%#x", cbr, ctx->pos + delta);
-}
+
+static struct bitfield ctargoff = { { 26, 24 }, BF_SIGNED, .pcrel = 1 };
+#define BTARG atombtarg, &ctargoff
+#define CTARG atomctarg, &ctargoff
 
 /*
  * Misc number fields
@@ -971,9 +967,9 @@ static struct insn tabp[] = {
 F1(brawarp, 0xf, N("allwarp")) // probably jumps if the whole warp has the predicate evaluate to true.
 
 static struct insn tabc[] = {
-	{ AP, 0x40000000000001e7ull, 0xf0000000000001e7ull, T(brawarp), T(p), N("bra"), CTARG },
+	{ AP, 0x40000000000001e7ull, 0xf0000000000001e7ull, T(brawarp), T(p), N("bra"), BTARG },
 	{ AP, 0x5000000000010007ull, 0xf000000000010007ull, N("call"), CTARG },
-	{ AP, 0x6000000000000007ull, 0xf000000000000007ull, N("joinat"), CTARG },
+	{ AP, 0x6000000000000007ull, 0xf000000000000007ull, N("joinat"), BTARG },
 	{ AP, 0x80000000000001e7ull, 0xf0000000000001e7ull, T(p), N("exit") },
 	{ AP, 0x90000000000001e7ull, 0xf8000000000001e7ull, T(p), N("ret") },
 	{ AP, 0x98000000000001e7ull, 0xf8000000000001e7ull, T(p), N("discard") },
@@ -981,7 +977,7 @@ static struct insn tabc[] = {
 	{ AP, 0xc800000000000007ull, 0xf800000000000007ull, N("quadpop") },
 	{ AP, 0xd000000000000007ull, 0xf00000000000c007ull, N("membar"), N("cta") },
 	{ AP, 0xd00000000000c007ull, 0xf00000000000c007ull, N("trap") },
-	{ AP, 0x0000000000000007ull, 0x0000000000000007ull, T(p), OOPS, CTARG },
+	{ AP, 0x0000000000000007ull, 0x0000000000000007ull, T(p), OOPS, BTARG },
 };
 
 static struct insn tabroot[] = {

@@ -32,11 +32,9 @@
  * likes. Target is counted in 32-bit words from the start of microcode.
  */
 
-#define CTARG atomctarg, 0
-static void atomctarg APROTO {
-	if (ctx->out)
-		fprintf (ctx->out, " %s%#llx", cbr, BF(8, 11)<<2);
-}
+static struct bitfield ctargoff = { { 8, 11 }, BF_UNSIGNED, 2 };
+#define BTARG atombtarg, &ctargoff
+#define CTARG atomctarg, &ctargoff
 
 /*
  * Register fields
@@ -60,7 +58,7 @@ static struct insn tabm[] = {
 	{ AP, 0x34000003, 0xfc0000ff, T(p), N("ret") },
 	{ AP, 0x34000043, 0xfc0000ff, N("nop") },
 
-	{ AP, 0x3c000000, 0xfc0000ff, T(p), N("bra"), CTARG },
+	{ AP, 0x3c000000, 0xfc0000ff, T(p), N("bra"), BTARG },
 	{ AP, 0x3c000002, 0xfc0000ff, T(p), N("call"), CTARG },
 	{ AP, 0, 0, OOPS },
 };

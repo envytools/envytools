@@ -43,50 +43,18 @@
  * Code target fields
  */
 
-static int jtargoff[] = { 6, 18 };
-static int btarg8off[] = { 16, 8 };
-static int btarg12off[] = { 12, 12 };
-#define JTARG atomjtarg, jtargoff
-#define BTARG8 atomjtarg, btarg8off
-#define BTARG12 atomjtarg, btarg12off
-static void atomjtarg APROTO {
-	const int *n = v;
-	uint32_t delta = BF(n[0], n[1]);
-	if (delta & 1 << (n[1] - 1)) delta -= 1 << n[1];
-	markbt8(ctx, ctx->pos + 4 + delta);
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %s%#x", cmag, ctx->pos + 4 + delta);
-}
-
-#define LTARG atomltarg, 0
-static void atomltarg APROTO {
-	uint32_t delta = BF(16, 8);
-	markbt8(ctx, ctx->pos + 4 + delta);
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %s%#x", cmag, ctx->pos + 4 + delta);
-}
-
-#define BTARG6 atombtarg6, 0
-static void atombtarg6 APROTO {
-	uint32_t delta = BF(12, 4) | BF(4, 2) << 4;
-	markbt8(ctx, ctx->pos + 4 + delta);
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %s%#x", cmag, ctx->pos + 4 + delta);
-}
-
-#define CTARG atomctarg, 0
-static void atomctarg APROTO {
-	uint32_t delta = BF(6, 18);
-	if (delta & 0x20000) delta += 0xfffc0000;
-	uint32_t target = (ctx->pos & ~3) + 4 + delta * 4;
-	markct8(ctx, target);
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %s%#x", cbr, target);
-}
+static struct bitfield jtargoff = { { 6, 18 }, BF_SIGNED, 0, 1, 4 };
+static struct bitfield btarg8off = { { 16, 8 }, BF_SIGNED, 0, 1, 4 };
+static struct bitfield btarg12off = { { 12, 12 }, BF_SIGNED, 0, 1, 4 };
+static struct bitfield ltargoff = { { 16, 8 }, BF_UNSIGNED, 0, 1, 4 };
+static struct bitfield btarg6off = { { 12, 4, 4, 2 }, BF_UNSIGNED, 0, 1, 4 };
+static struct bitfield ctargoff = { { 6, 18 }, BF_SIGNED, 2, 1, 4 };
+#define JTARG atombtarg, &jtargoff
+#define BTARG8 atombtarg, &btarg8off
+#define BTARG12 atombtarg, &btarg12off
+#define LTARG atombtarg, &ltargoff
+#define BTARG6 atombtarg, &btarg6off
+#define CTARG atomctarg, &ctargoff
 
 /*
  * Register fields

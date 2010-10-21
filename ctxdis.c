@@ -130,21 +130,9 @@
  * likes. Target is counted in 32-bit words from the start of microcode.
  */
 
-#define BTARG atombtarg, 0
-static void atombtarg APROTO {
-	markbt8(ctx, BF(8, 9));
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %s%#llx", cmag, BF(8, 9));
-}
-
-#define CTARG atomctarg, 0
-static void atomctarg APROTO {
-	markct8(ctx, BF(8, 9));
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %s%#llx", cbr, BF(8, 9));
-}
+static struct bitfield ctargoff = { 8, 9 };
+#define BTARG atombtarg, &ctargoff
+#define CTARG atomctarg, &ctargoff
 
 /*
  * CMDs

@@ -82,6 +82,24 @@ void atomimm APROTO {
 		fprintf (ctx->out, " %s%#llx", cyel, num);
 }
 
+void atomctarg APROTO {
+	const struct bitfield *bf = v;
+	ull num = GETBF(bf);
+	markct8(ctx, num);
+	if (!ctx->out)
+		return;
+	fprintf (ctx->out, " %s%#llx", cbr, num);
+}
+
+void atombtarg APROTO {
+	const struct bitfield *bf = v;
+	ull num = GETBF(bf);
+	markbt8(ctx, num);
+	if (!ctx->out)
+		return;
+	fprintf (ctx->out, " %s%#llx", cmag, num);
+}
+
 void atomign APROTO {
 	const int *n = v;
 	(void)BF(n[0], n[1]);
@@ -122,7 +140,7 @@ void atomhreg APROTO {
 	else fprintf (ctx->out, " %s$%c%d%c", (n[2]=='r')?cbl:cmag, n[2], r>>1, "lh"[r&1]);
 }
 
-ull getbf(const struct bitfield *bf, ull *a, ull *m) {
+ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx) {
 	ull res = 0;
 	int pos = bf->shr;
 	int i;
@@ -148,6 +166,11 @@ ull getbf(const struct bitfield *bf, ull *a, ull *m) {
 			res = bf->lut[res];
 			break;
 	}
+	if (bf->pcrel) {
+		// <3 xtensa.
+		res += ctx->pos & -(1ull << bf->shr);
+	}
+	res += bf->addend;
 	return res;
 }
 

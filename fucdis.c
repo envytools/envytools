@@ -29,63 +29,14 @@
  * Code target fields
  */
 
-#define SBTARG atomsbtarg, 0
-static void atomsbtarg APROTO {
-	uint32_t delta = BF(16, 8);
-	if (delta & 0x80) delta += 0xffffff00;
-	uint32_t target = ctx->pos + delta;
-	markbt8(ctx, target);
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %s%#x", cmag, target);
-}
-
-#define LBTARG atomlbtarg, 0
-static void atomlbtarg APROTO {
-	uint32_t delta = BF(16, 16);
-	if (delta & 0x8000) delta += 0xffff0000;
-	uint32_t target = ctx->pos + delta;
-	markbt8(ctx, target);
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %s%#x", cmag, target);
-}
-
-#define LABTARG atomlabtarg, 0
-static void atomlabtarg APROTO {
-	uint32_t target = BF(16, 16);
-	markbt8(ctx, target);
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %s%#x", cmag, target);
-}
-
-#define SABTARG atomsabtarg, 0
-static void atomsabtarg APROTO {
-	uint32_t target = BF(16, 8);
-	markbt8(ctx, target);
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %s%#x", cmag, target);
-}
-
-#define LCTARG atomlctarg, 0
-static void atomlctarg APROTO {
-	uint32_t target = BF(16, 16);
-	markct8(ctx, target);
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %s%#x", cbr, target);
-}
-
-#define SCTARG atomsctarg, 0
-static void atomsctarg APROTO {
-	uint32_t target = BF(16, 8);
-	markct8(ctx, target);
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %s%#x", cbr, target);
-}
+static struct bitfield pcrel16off = { { 16, 16 }, BF_SIGNED, .pcrel = 1 };
+static struct bitfield pcrel8off = { { 16, 8 }, BF_SIGNED, .pcrel = 1 };
+#define SBTARG atombtarg, &pcrel8off
+#define LBTARG atombtarg, &pcrel16off
+#define LABTARG atombtarg, &imm16off
+#define SABTARG atombtarg, &imm8off
+#define LCTARG atomctarg, &imm16off
+#define SCTARG atomctarg, &imm8off
 
 /*
  * Register fields
