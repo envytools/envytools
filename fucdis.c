@@ -33,7 +33,7 @@
 static void atomsbtarg APROTO {
 	uint32_t delta = BF(16, 8);
 	if (delta & 0x80) delta += 0xffffff00;
-	uint32_t target = pos + delta;
+	uint32_t target = ctx->pos + delta;
 	markbt8(ctx, target);
 	if (!ctx->out)
 		return;
@@ -44,7 +44,7 @@ static void atomsbtarg APROTO {
 static void atomlbtarg APROTO {
 	uint32_t delta = BF(16, 16);
 	if (delta & 0x8000) delta += 0xffff0000;
-	uint32_t target = pos + delta;
+	uint32_t target = ctx->pos + delta;
 	markbt8(ctx, target);
 	if (!ctx->out)
 		return;

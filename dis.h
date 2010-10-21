@@ -100,7 +100,7 @@ typedef unsigned long long ull;
 struct disctx;
 struct disisa;
 
-#define APROTO (struct disctx *ctx, ull *a, ull *m, const void *v, uint32_t pos)
+#define APROTO (struct disctx *ctx, ull *a, ull *m, const void *v)
 
 typedef void (*afun) APROTO;
 
@@ -145,6 +145,7 @@ struct disctx {
 	uint32_t codesz;
 	int ptype;
 	int oplen;
+	uint32_t pos;
 };
 
 struct disisa {

@@ -53,35 +53,35 @@ static void atomjtarg APROTO {
 	const int *n = v;
 	uint32_t delta = BF(n[0], n[1]);
 	if (delta & 1 << (n[1] - 1)) delta -= 1 << n[1];
-	markbt8(ctx, pos + 4 + delta);
+	markbt8(ctx, ctx->pos + 4 + delta);
 	if (!ctx->out)
 		return;
-	fprintf (ctx->out, " %s%#x", cmag, pos + 4 + delta);
+	fprintf (ctx->out, " %s%#x", cmag, ctx->pos + 4 + delta);
 }
 
 #define LTARG atomltarg, 0
 static void atomltarg APROTO {
 	uint32_t delta = BF(16, 8);
-	markbt8(ctx, pos + 4 + delta);
+	markbt8(ctx, ctx->pos + 4 + delta);
 	if (!ctx->out)
 		return;
-	fprintf (ctx->out, " %s%#x", cmag, pos + 4 + delta);
+	fprintf (ctx->out, " %s%#x", cmag, ctx->pos + 4 + delta);
 }
 
 #define BTARG6 atombtarg6, 0
 static void atombtarg6 APROTO {
 	uint32_t delta = BF(12, 4) | BF(4, 2) << 4;
-	markbt8(ctx, pos + 4 + delta);
+	markbt8(ctx, ctx->pos + 4 + delta);
 	if (!ctx->out)
 		return;
-	fprintf (ctx->out, " %s%#x", cmag, pos + 4 + delta);
+	fprintf (ctx->out, " %s%#x", cmag, ctx->pos + 4 + delta);
 }
 
 #define CTARG atomctarg, 0
 static void atomctarg APROTO {
 	uint32_t delta = BF(6, 18);
 	if (delta & 0x20000) delta += 0xfffc0000;
-	uint32_t target = (pos & ~3) + 4 + delta * 4;
+	uint32_t target = (ctx->pos & ~3) + 4 + delta * 4;
 	markct8(ctx, target);
 	if (!ctx->out)
 		return;
@@ -196,7 +196,7 @@ static void atoml32r APROTO {
 	if (!ctx->out)
 		return;
 	uint32_t delta = BF(8, 16) | 0xffff0000;
-	uint32_t addr = ((pos + 3) & ~3) + (delta << 2);
+	uint32_t addr = ((ctx->pos + 3) & ~3) + (delta << 2);
 	fprintf (ctx->out, " %sD[%s%#x%s]", ccy, cyel, addr, ccy);
 }
 

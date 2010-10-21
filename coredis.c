@@ -48,7 +48,7 @@ void atomtab APROTO {
 	m[0] |= tab->mask;
 	for (i = 0; i < 16; i++)
 		if (tab->atoms[i].fun)
-			tab->atoms[i].fun (ctx, a, m, tab->atoms[i].arg, pos);
+			tab->atoms[i].fun (ctx, a, m, tab->atoms[i].arg);
 }
 
 int op8len[] = { 1 };
@@ -197,7 +197,8 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 		for (i = 0; i < 8 && cur + i < num; i++) {
 			a |= (ull)code[cur + i] << i*8;
 		}
-		atomtab (ctx, &a, &m, isa->troot, cur + start);
+		ctx->pos = cur + start;
+		atomtab (ctx, &a, &m, isa->troot);
 		if (ctx->oplen)
 			cur += ctx->oplen;
 		else
@@ -211,7 +212,8 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 			a |= (ull)code[cur + i] << i*8;
 		}
 		ctx->oplen = 0;
-		atomtab (ctx, &a, &m, isa->troot, cur + start);
+		ctx->pos = cur + start;
+		atomtab (ctx, &a, &m, isa->troot);
 		ctx->out = out;
 
 		if (ctx->labels[cur] & 2)
@@ -252,7 +254,7 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 		else
 			fprintf (ctx->out, " ");
 
-		atomtab (ctx, &a, &m, isa->troot, cur + start);
+		atomtab (ctx, &a, &m, isa->troot);
 
 		if (ctx->oplen) {
 			a &= ~m;

@@ -131,7 +131,7 @@ static void atomctarg APROTO {
 		return;
 	uint32_t delta = BF(26, 24);
 	if (delta & 0x800000) delta += 0xff000000;
-	fprintf (ctx->out, " %s%#x", cbr, pos + delta);
+	fprintf (ctx->out, " %s%#x", cbr, ctx->pos + delta);
 }
 
 /*
