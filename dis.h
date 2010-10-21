@@ -209,6 +209,8 @@ extern struct disisa *ctx_isa;
 extern struct disisa *fuc_isa;
 extern struct disisa *pms_isa;
 extern struct disisa *vp2_isa;
+extern struct disisa *vp3m_isa;
+extern struct disisa *vp3t_isa;
 
 void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int ptype);
 

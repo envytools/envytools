@@ -58,6 +58,10 @@ int main(int argc, char **argv) {
 		isa = pms_isa;
 	if (!strcmp(argv[0], "vp2dis"))
 		isa = vp2_isa;
+	if (!strcmp(argv[0], "vp3mdis"))
+		isa = vp3m_isa;
+	if (!strcmp(argv[0], "vp3tdis"))
+		isa = vp3t_isa;
 	int ptype = -1;
 	int c;
 	unsigned base = 0, skip = 0, limit = 0;
@@ -125,6 +129,10 @@ int main(int argc, char **argv) {
 					isa = pms_isa;
 				else if (!strcmp(optarg, "vp2"))
 					isa = vp2_isa;
+				else if (!strcmp(optarg, "vp3m"))
+					isa = vp3m_isa;
+				else if (!strcmp(optarg, "vp3t"))
+					isa = vp3t_isa;
 				else {
 					fprintf (stderr, "Unknown architecure \"%s\"!\n", optarg);
 					return 1;
