@@ -305,6 +305,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			0x12, 0x13, 0x15, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, but doesn't
 			work then. resets other things too?</doc>
 		</reg32>
+		<reg32 offset="0x1534" name="MULTISAMPLE_ZETA_ENABLE" type="boolean"/>
 		<reg32 offset="0x1538" name="ZETA_ENABLE" type="boolean"/>
 		<reg32 offset="0x153c" name="MULTISAMPLE_CTRL">
 			<bitfield name="ALPHA_TO_COVERAGE" pos="0" type="boolean"/>
@@ -404,6 +405,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1658" name="POINT_SMOOTH_ENABLE" type="boolean"/>
 		<reg32 offset="0x1660" name="POINT_SPRITE_CTRL"/>
+		<reg32 offset="0x1664" name="TEX_MISC">
+		  <bitfield pos="2" name="SEAMLESS_CUBE_MAP" type="boolean"/>
+		</reg32>
 		<reg32 offset="0x166c" name="LINE_STIPPLE_ENABLE" type="boolean"/>
 		<reg32 offset="0x1680" name="LINE_STIPPLE_PATTERN"/>
 		<reg32 offset="0x1684" name="PROVOKING_VERTEX_LAST" type="boolean"/>
@@ -516,11 +520,26 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x238c" name="CB_POS" type="uint"/>
 		<reg32 offset="0x2390" name="CB_DATA" length="16"/>
 		<reg32 offset="0x2404" name="BIND_TIC" length="5" stride="32" type="bitfield">
+		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
+		  <bitfield name="TEXTURE" high="8" low="1" type="uint"/>
+		  <bitfield name="TIC" high="30" low="9" type="uint"/>
+		</reg32>
+		<reg32 offset="0x240c" name="BIND_TSC" length="5" stride="32" type="bitfield">
+		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
+		  <bitfield name="SAMPLER" high="8" low="1" type="uint"/>
+		  <bitfield name="TSC" high="30" low="9" type="uint"/>
 		</reg32>
 		<reg32 offset="0x2410" name="CB_BIND" length="5" stride="32" type="bitfield">
+		  <bitfield name="VALID" pos="0" type="boolean"/>
+		  <bitfield name="INDEX" high="7" low="4" type="uint"/>
 		</reg32>
 		<reg32 offset="0x2800" name="TFB_VARYING_LOCS" length="128"/>
-		<reg32 offset="0x3858" name="BLEND_ENABLEI"/>
+		<reg32 offset="0x3820" name="VERTEX_ARRAY_SELECT" type="uint"/>
+		<reg32 offset="0x3824" name="VERTEX_ARRAY_LIMIT_HIGH"/>
+		<reg32 offset="0x3828" name="VERTEX_ARRAY_LIMIT_LOW"/>
+		<reg32 offset="0x382c" name="VERTEX_ARRAY_START_HIGH"/>
+		<reg32 offset="0x3830" name="VERTEX_ARRAY_START_LOW"/>
+		<reg32 offset="0x3858" name="IBLEND_ENABLE"/>
 		<reg32 offset="0x3868" name="POLYGON_MODE_FRONT" type="gl_polygon_mode"/>
 		<reg32 offset="0x3870" name="POLYGON_MODE_BACK" type="gl_polygon_mode"/>
 		<reg32 offset="0x3878" name="GP_SELECT">
