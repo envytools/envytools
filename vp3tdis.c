@@ -25,8 +25,27 @@
 
 #include "dis.h"
 
+static int reg1off[] = { 0, 5, 'r' };
+static int reg2off[] = { 5, 5, 'r' };
+static int reg3off[] = { 29, 5, 'r' };
+#define REG1 atomreg, reg1off
+#define REG2 atomreg, reg2off
+#define REG3 atomreg, reg3off
+
 static struct insn tabm[] = {
-	{ AP, 0, 0, OOPS },
+	{ AP, 0x0000000000ull, 0x001f000000ull, U("00"), REG1, REG2, REG3 },
+	{ AP, 0x0001000000ull, 0x001f000000ull, U("01"), REG1, REG2, REG3 },
+	{ AP, 0x0003000000ull, 0x001f000000ull, U("03"), REG1, REG2, REG3 },
+	{ AP, 0x0006000000ull, 0x001f000000ull, U("06"), REG1, REG2, REG3 },
+	{ AP, 0x0007000000ull, 0x001f000000ull, U("07"), REG1, REG2, REG3 },
+	{ AP, 0x000c000000ull, 0x001f000000ull, U("0c"), REG1, REG2, REG3 },
+	{ AP, 0x000d000000ull, 0x001f000000ull, U("0d"), REG1, REG2, REG3 },
+	{ AP, 0x000e000000ull, 0x001f000000ull, U("0e"), REG1, REG2, REG3 },
+	{ AP, 0x000f000000ull, 0x001f000000ull, U("0f"), REG1, REG2, REG3 },
+	{ AP, 0x0010000000ull, 0x001f000000ull, U("10"), REG1, REG2, REG3 },
+	{ AP, 0x0011000000ull, 0x001f000000ull, U("11"), REG1, REG2, REG3 },
+	{ AP, 0x0013000000ull, 0x001f000000ull, U("13"), REG1, REG2, REG3 },
+	{ AP, 0x0000000000ull, 0x0000000000ull, OOPS, REG1, REG2, REG3 },
 };
 
 static struct insn tabroot[] = {
