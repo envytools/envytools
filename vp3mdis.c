@@ -43,10 +43,16 @@ static struct bitfield ctargoff = { { 8, 11 }, BF_UNSIGNED, 2 };
 static int src1off[] = { 8, 4, 'r' };
 static int src2off[] = { 12, 4, 'r' };
 static int dstoff[] = { 16, 4, 'r' };
-static int predoff[] = { 20, 4, 'r' };
+static int psrc1off[] = { 8, 4, 'p' };
+static int psrc2off[] = { 12, 4, 'p' };
+static int pdstoff[] = { 16, 4, 'p' };
+static int predoff[] = { 20, 4, 'p' };
 #define SRC1 atomreg, src1off
 #define SRC2 atomreg, src2off
 #define DST atomreg, dstoff
+#define PSRC1 atomreg, psrc1off
+#define PSRC2 atomreg, psrc2off
+#define PDST atomreg, pdstoff
 #define PRED atomreg, predoff
 
 static struct insn tabp[] = {
@@ -55,11 +61,91 @@ static struct insn tabp[] = {
 };
 
 static struct insn tabm[] = {
-	{ AP, 0x34000003, 0xfc0000ff, T(p), N("ret") },
-	{ AP, 0x34000043, 0xfc0000ff, N("nop") },
-
 	{ AP, 0x3c000000, 0xfc0000ff, T(p), N("bra"), BTARG },
 	{ AP, 0x3c000002, 0xfc0000ff, T(p), N("call"), CTARG },
+	{ AP, 0x34000003, 0xfc0000ff, T(p), N("ret") },
+	{ AP, 0x00000004, 0x000000ff, U("04") },
+	{ AP, 0x00000005, 0x000000ff, U("05") },
+	{ AP, 0x00000006, 0x000000ff, U("06") },
+	{ AP, 0x00000008, 0x000000ff, U("08") },
+	{ AP, 0x00000009, 0x000000ff, U("09") },
+	{ AP, 0x0000000a, 0x000000ff, U("0a") },
+	{ AP, 0x0000000b, 0x000000ff, U("0b") },
+	{ AP, 0x0000000e, 0x000000ff, U("0e") },
+
+	{ AP, 0x00000020, 0x000000ff, U("20") },
+	{ AP, 0x00000021, 0x000000ff, U("21") },
+	{ AP, 0x00000022, 0x000000ff, U("22") },
+	{ AP, 0x00000024, 0x000000ff, U("24") },
+	{ AP, 0x00000025, 0x000000ff, U("25") },
+	{ AP, 0x00000026, 0x000000ff, U("26") },
+	{ AP, 0x00000028, 0x000000ff, U("28") },
+	{ AP, 0x00000029, 0x000000ff, U("29") },
+	{ AP, 0x0000002a, 0x000000ff, U("2a") },
+	{ AP, 0x0000002b, 0x000000ff, U("2b") },
+	{ AP, 0x0000002c, 0x000000ff, U("2c") },
+	{ AP, 0x00000032, 0x000000ff, U("32") },
+
+	{ AP, 0x34000040, 0xfc0000ff, T(p), N("and"), PDST, PSRC1, PSRC2 },
+	{ AP, 0x34000041, 0xfc0000ff, T(p), N("or"), PDST, PSRC1, PSRC2 },
+	{ AP, 0x34000042, 0xfc0000ff, T(p), N("xor"), PDST, PSRC1, PSRC2 },
+	{ AP, 0x34000043, 0xfc0000ff, N("nop") },
+	{ AP, 0x34000044, 0xfc0000ff, U("44") },
+	{ AP, 0x34000045, 0xfc0000ff, U("45") },
+	{ AP, 0x00000048, 0x000000ff, U("48"), PDST },
+	{ AP, 0x00000049, 0x000000ff, U("49"), PDST },
+	{ AP, 0x0000004a, 0x000000ff, U("4a"), PDST },
+	{ AP, 0x0000004d, 0x000000ff, U("4d") },
+	{ AP, 0x0000004e, 0x000000ff, U("4e") },
+	{ AP, 0x00000052, 0x000000ff, U("52"), PDST },
+	{ AP, 0x00000058, 0x000000ff, U("58"), PRED }, // PRED used as destination, apparently...
+	{ AP, 0x0000005c, 0x000000ff, U("5c") },
+
+	{ AP, 0x00000060, 0x000000ff, T(p), U("60") },
+	{ AP, 0x00000061, 0x000000ff, U("61") },
+	{ AP, 0x00000064, 0x000000ff, T(p), U("64") },
+	{ AP, 0x00000065, 0x000000ff, T(p), U("65") },
+	{ AP, 0x00000066, 0x000000ff, U("66") },
+	{ AP, 0x0000006c, 0x000000ff, U("6c") },
+	{ AP, 0x0000006e, 0x000000ff, U("6e") },
+	{ AP, 0x0000006f, 0x000000ff, U("6f") },
+	{ AP, 0x00000070, 0x000000ff, T(p), U("70") },
+	{ AP, 0x00000071, 0x000000ff, U("71") },
+	{ AP, 0x00000074, 0x000000ff, U("74") },
+	{ AP, 0x00000075, 0x000000ff, U("75") },
+	{ AP, 0x00000076, 0x000000ff, U("76") },
+	{ AP, 0x00000077, 0x000000ff, U("77") },
+	{ AP, 0x00000078, 0x000000ff, U("78") },
+	{ AP, 0x00000079, 0x000000ff, U("79") },
+	{ AP, 0x0000007a, 0x000000ff, U("7a") },
+	{ AP, 0x0000007b, 0x000000ff, U("7b") },
+	{ AP, 0x0000007c, 0x000000ff, U("7c") },
+	{ AP, 0x0000007d, 0x000000ff, U("7d") },
+	{ AP, 0x0000007e, 0x000000ff, U("7e") },
+
+	{ AP, 0x00000080, 0x000000ff, U("80") },
+	{ AP, 0x00000081, 0x000000ff, U("81") },
+	{ AP, 0x00000083, 0x000000ff, U("83") },
+	{ AP, 0x00000084, 0x000000ff, U("84") },
+	{ AP, 0x00000089, 0x000000ff, U("89") },
+	{ AP, 0x0000008a, 0x000000ff, U("8a") },
+	{ AP, 0x0000008c, 0x000000ff, U("8c") },
+	{ AP, 0x0000008d, 0x000000ff, U("8d") },
+	{ AP, 0x0000008e, 0x000000ff, U("8e") },
+	{ AP, 0x0000008f, 0x000000ff, U("8f") },
+
+	{ AP, 0x000000a0, 0x000000ff, U("a0") },
+	{ AP, 0x000000a1, 0x000000ff, U("a1") },
+	{ AP, 0x000000a2, 0x000000ff, U("a2") },
+	{ AP, 0x000000a4, 0x000000ff, U("a4") },
+	{ AP, 0x000000a8, 0x000000ff, U("a8") },
+	{ AP, 0x000000ac, 0x000000ff, U("ac") },
+
+	{ AP, 0x000000c9, 0x000000ff, U("c9"), PDST },
+	{ AP, 0x000000ca, 0x000000ff, T(p), U("ca"), PDST },
+	{ AP, 0x000000d2, 0x000000ff, U("d2") },
+	{ AP, 0x000000d8, 0x000000ff, U("d8") },
+
 	{ AP, 0, 0, OOPS },
 };
 
