@@ -35,7 +35,9 @@
 		<bitfield name="BUFFER_NOTIFY" pos="16">
 			<doc>You asked for m2mf transfer with interrupt after finish and got it.</doc>
 		</bitfield>
-		<bitfield name="UNK19" pos="19" />
+		<bitfield name="CTXCTL" pos="19">
+			<doc>Triggered by poking CTXCTL INTR_UP_SET.</doc>
+		</bitfield>
 		<bitfield name="DATA_ERROR" pos="20">
 			<doc>You used an invalid parameter for this method. Or maybe you tried
 			to launch some operation, but the relevant state is inconsistent.
@@ -100,7 +102,7 @@
 		<bitfield name="UNK7" pos="7" />
 		<bitfield name="UNK8" pos="8" />
 		<bitfield name="BUFFER_NOTIFY" pos="16" />
-		<bitfield name="UNK19" pos="19" />
+		<bitfield name="CTXCTL" pos="19" />
 		<bitfield name="DATA_ERROR" pos="20" />
 		<bitfield name="TRAP" pos="21" />
 		<bitfield name="SINGLE_STEP" pos="24" />
@@ -314,6 +316,10 @@
 			<bitfield low="0" high="4" name="TPCOUNT"/>
 			<bitfield low="16" high="20" name="ROPCOUNT"/>
 		</reg32>
+		<reg32 offset="0xc18" name="INTR_UP_STATUS"/>
+		<reg32 offset="0xc1c" name="INTR_UP_SET"/>
+		<reg32 offset="0xc20" name="INTR_UP_CLEAR"/>
+		<reg32 offset="0xc24" name="INTR_UP_ENABLE"/>
 	</array>
 
 	<array name="ROPC_BROADCAST" offset="0x8800" stride="0x400" length="1">
