@@ -30,12 +30,10 @@
  */
 
 static struct bitfield mthdoff = { { 14, 12 }, BF_UNSIGNED, 2 };
-static struct bitfield incroff = { { 26, 6 }, BF_UNSIGNED, 2 };
 static struct bitfield bfposoff = { 17, 5 };
 static struct bitfield bfszoff = { 22, 5 };
 static struct bitfield mimmoff = { { 14, 18 }, BF_SIGNED };
 #define MTHD atomimm, &mthdoff
-#define INCR atomimm, &incroff
 #define BFPOS atomimm, &bfposoff
 #define BFSZ atomimm, &bfszoff
 #define MIMM atomimm, &mimmoff
@@ -49,17 +47,22 @@ static int reg3off[] = { 14, 3, 'r' };
 
 F1(exit, 7, N("exit"));
 
+static struct insn tabsdst[] = {
+	{ AP, 0x00000010, 0x00000070 },
+	{ AP, 0x00000020, 0x00000070, N("maddr") },
+	{ AP, 0x00000040, 0x00000070, N("send") },
+	{ AP, 0x00000000, 0x00000000, OOPS },
+};
+
 static struct insn tabm[] = {
-	{ AP, 0x00000011, 0x0000007f, N("add"), REG1, REG2, MIMM },
-	{ AP, 0x00000015, 0x0000007f, N("read"), REG1, MTHD },
-	{ AP, 0x00000021, 0x0000007f, N("prep"), MTHD, INCR },
-	{ AP, 0x00000041, 0x0000007f, N("send"), REG2 },
-	{ AP, 0x00000042, 0x0000007f, N("sendbf"), REG3, BFPOS, BFSZ },
+	{ AP, 0x00000001, 0x0000000f, N("add"), REG1, REG2, MIMM },
+	{ AP, 0x00000002, 0x0000000f, N("extr"), REG1, REG3, BFPOS, BFSZ },
+	{ AP, 0x00000005, 0x0000000f, N("read"), REG1, MTHD },
 	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabroot[] = {
-	{ AP, 0, 0, OP32, T(exit), T(m) },
+	{ AP, 0, 0, OP32, T(exit), T(sdst), T(m) },
 };
 
 static struct disisa macro_isa_s = {
