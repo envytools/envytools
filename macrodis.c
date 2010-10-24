@@ -33,10 +33,12 @@ static struct bitfield mthdoff = { { 14, 12 }, BF_UNSIGNED, 2 };
 static struct bitfield incroff = { { 26, 6 }, BF_UNSIGNED, 2 };
 static struct bitfield bfposoff = { 17, 5 };
 static struct bitfield bfszoff = { 22, 5 };
+static struct bitfield mimmoff = { { 14, 18 }, BF_SIGNED };
 #define MTHD atomimm, &mthdoff
 #define INCR atomimm, &incroff
 #define BFPOS atomimm, &bfposoff
 #define BFSZ atomimm, &bfszoff
+#define MIMM atomimm, &mimmoff
 
 static int reg1off[] = { 8, 3, 'r' };
 static int reg2off[] = { 11, 3, 'r' };
@@ -48,6 +50,7 @@ static int reg3off[] = { 14, 3, 'r' };
 F1(exit, 7, N("exit"));
 
 static struct insn tabm[] = {
+	{ AP, 0x00000011, 0x0000007f, N("mov"), REG1, MIMM },
 	{ AP, 0x00000015, 0x0000007f, N("read"), REG1, MTHD },
 	{ AP, 0x00000021, 0x0000007f, N("prep"), MTHD, INCR },
 	{ AP, 0x00000041, 0x0000007f, N("send"), REG2 },
