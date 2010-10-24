@@ -51,19 +51,23 @@ static int reg3off[] = { 14, 3, 'r' };
 
 F1(exit, 7, N("exit"));
 
-static struct insn tabsdst[] = {
-	{ AP, 0x00000010, 0x00000070 },
-	{ AP, 0x00000020, 0x00000070, N("maddr") },
-	{ AP, 0x00000040, 0x00000070, N("send") },
-	{ AP, 0x00000000, 0x00000000, OOPS },
+static struct insn tabsrc[] = {
+	{ AP, 0x00000001, 0x0000000f, N("add"), REG2, MIMM },
+	// take REG2, replace BFSZ bits starting at BFDSTPOS with BFSZ bits starting at BFSRCPOS in REG3.
+	{ AP, 0x00000002, 0x0000000f, N("extr"), REG2, REG3, BFSRCPOS, BFSZ, BFDSTPOS },
+	{ AP, 0, 0, OOPS, REG2 },
 };
 
 static struct insn tabm[] = {
-	{ AP, 0x00000001, 0x0000000f, N("add"), T(sdst), REG1, REG2, MIMM },
-	{ AP, 0x00000002, 0x0000000f, N("extr"), T(sdst), REG1, REG2, REG3, BFSRCPOS, BFSZ, BFDSTPOS }, // take REG2, replace BFSZ bits starting at BFDSTPOS with BFSZ bits starting at BFSRCPOS in REG3.
-	{ AP, 0x00000005, 0x0000000f, N("read"), T(sdst), REG1, MTHD },
-	{ AP, 0x00000007, 0x0000000f, N("bra"), BTARG },
-	{ AP, 0, 0, OOPS },
+	{ AP, 0x00000001, 0x0000007f, N("parm"), REG1 },
+	{ AP, 0x00000007, 0x0000007f, N("braz"), REG2, BTARG },
+	{ AP, 0x00000017, 0x0000007f, N("branz"), REG2, BTARG },
+	{ AP, 0x00000015, 0x0000007f, N("read"), REG1, MTHD },
+	{ AP, 0x00000010, 0x00000070, N("mov"), REG1, T(src) },
+	{ AP, 0x00000020, 0x00000070, N("maddr"), REG1, T(src) },
+	{ AP, 0x00000030, 0x00000070, N("parm"), REG1, N("send"), T(src) },
+	{ AP, 0x00000040, 0x00000070, N("send"), REG1, T(src) },
+	{ AP, 0, 0, OOPS, REG1, T(src) },
 };
 
 static struct insn tabroot[] = {
