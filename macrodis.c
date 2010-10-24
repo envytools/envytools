@@ -67,10 +67,12 @@ static struct insn tabsrc[] = {
 	{ AP, 0, 0, OOPS, REG2 },
 };
 
+F1(annul, 5, N("annul")); // if set, delay slot insn is annuled if branch taken [ie. branch behaves as if delay slots didn't exist]
+
 static struct insn tabm[] = {
 	{ AP, 0x00000001, 0x0000007f, N("parm"), REG1 },
-	{ AP, 0x00000007, 0x0000007f, N("braz"), REG2, BTARG },
-	{ AP, 0x00000017, 0x0000007f, N("branz"), REG2, BTARG },
+	{ AP, 0x00000007, 0x0000005f, N("braz"), T(annul), REG2, BTARG },
+	{ AP, 0x00000017, 0x0000005f, N("branz"), T(annul), REG2, BTARG },
 	{ AP, 0x00000015, 0x0000007f, N("read"), REG1, MTHD },
 	{ AP, 0x00000010, 0x00000070, N("mov"), REG1, T(src) },
 	{ AP, 0x00000020, 0x00000070, N("maddr"), REG1, T(src) },
