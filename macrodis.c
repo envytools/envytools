@@ -50,7 +50,7 @@ static int reg3off[] = { 14, 3, 'r' };
 F1(exit, 7, N("exit"));
 
 static struct insn tabm[] = {
-	{ AP, 0x00000011, 0x0000007f, N("mov"), REG1, MIMM },
+	{ AP, 0x00000011, 0x0000007f, N("add"), REG1, REG2, MIMM },
 	{ AP, 0x00000015, 0x0000007f, N("read"), REG1, MTHD },
 	{ AP, 0x00000021, 0x0000007f, N("prep"), MTHD, INCR },
 	{ AP, 0x00000041, 0x0000007f, N("send"), REG2 },
