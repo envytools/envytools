@@ -34,11 +34,13 @@ static struct bitfield bfsrcposoff = { 17, 5 };
 static struct bitfield bfszoff = { 22, 5 };
 static struct bitfield bfdstposoff = { 27, 5 };
 static struct bitfield mimmoff = { { 14, 18 }, BF_SIGNED };
+static struct bitfield btargoff = { { 14, 18 }, BF_SIGNED, .pcrel = 1 };
 #define MTHD atomimm, &mthdoff
 #define BFSRCPOS atomimm, &bfsrcposoff
 #define BFDSTPOS atomimm, &bfdstposoff
 #define BFSZ atomimm, &bfszoff
 #define MIMM atomimm, &mimmoff
+#define BTARG atombtarg, &btargoff
 
 static int reg1off[] = { 8, 3, 'r' };
 static int reg2off[] = { 11, 3, 'r' };
@@ -57,14 +59,15 @@ static struct insn tabsdst[] = {
 };
 
 static struct insn tabm[] = {
-	{ AP, 0x00000001, 0x0000000f, N("add"), REG1, REG2, MIMM },
-	{ AP, 0x00000002, 0x0000000f, N("extr"), REG1, REG2, REG3, BFSRCPOS, BFSZ, BFDSTPOS }, // take REG2, replace BFSZ bits starting at BFDSTPOS with BFSZ bits starting at BFSRCPOS in REG3.
-	{ AP, 0x00000005, 0x0000000f, N("read"), REG1, MTHD },
+	{ AP, 0x00000001, 0x0000000f, N("add"), T(sdst), REG1, REG2, MIMM },
+	{ AP, 0x00000002, 0x0000000f, N("extr"), T(sdst), REG1, REG2, REG3, BFSRCPOS, BFSZ, BFDSTPOS }, // take REG2, replace BFSZ bits starting at BFDSTPOS with BFSZ bits starting at BFSRCPOS in REG3.
+	{ AP, 0x00000005, 0x0000000f, N("read"), T(sdst), REG1, MTHD },
+	{ AP, 0x00000007, 0x0000000f, N("bra"), BTARG },
 	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabroot[] = {
-	{ AP, 0, 0, OP32, T(exit), T(sdst), T(m) },
+	{ AP, 0, 0, OP32, T(exit), T(m) },
 };
 
 static struct disisa macro_isa_s = {
