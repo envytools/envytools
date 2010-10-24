@@ -4,8 +4,60 @@
 #include <libxml/xmlreader.h>
 #include <stdint.h>
 #include <string.h>
+#include <limits.h>
 #include <ctype.h>
+#include <stdio.h>
 #include "rnn.h"
+
+#define min(a,b) \
+       ({ typeof (a) _a = (a); \
+           typeof (b) _b = (b); \
+         _a < _b ? _a : _b; })
+
+static int file_exists(const char * filename)
+{
+	FILE *file;
+
+    if ((file = fopen(filename, "r")) != 0)
+    {
+        fclose(file);
+        return 1;
+    }
+    return 0;
+}
+
+static const char *
+resolve_using_path(const char *filename, char *buf, unsigned buf_len)
+{
+	const char *rnn_path = getenv("RNN_PATH");
+
+	if (!rnn_path)
+		return filename;
+
+	do {
+		int tmp_len;
+
+		/* Find the base path */
+		const char *end_path = strchr(rnn_path, ':');
+		if (!end_path)
+			end_path = strchr(rnn_path, '\0');
+		tmp_len = min(end_path-rnn_path, buf_len-1);
+		strncpy(buf, rnn_path, tmp_len);
+
+		/* Check if the file exists in the current base path */
+		snprintf(buf+tmp_len, buf_len-tmp_len-1, "/%s", filename);
+		if (file_exists(buf))
+			return buf;
+
+		/* Go to the next basepath */
+		if (*end_path == ':')
+			end_path++;
+		rnn_path = end_path;
+
+	} while (*rnn_path);
+
+	return filename;
+}
 
 static char *catstr (char *a, char *b) {
 	if (!a)
@@ -794,16 +846,19 @@ static int trytop (struct rnndb *db, char *file, xmlNode *node) {
 	return 0;
 }
 
-void rnn_parsefile (struct rnndb *db, char *file) {
+void rnn_parsefile (struct rnndb *db, char *file_orig) {
+	char *file;
 	int i;
 	for (i = 0; i < db->filesnum; i++)
 		if (!strcmp(db->files[i], file))
 			return;
-	file = strdup(file);
+		
+	file = (char *) malloc(512);
+	file = resolve_using_path(file_orig, file, 512);
 	RNN_ADDARRAY(db->files, file);
 	xmlDocPtr doc = xmlParseFile(file);
 	if (!doc) {
-		fprintf (stderr, "%s: couldn't open database file\n", file);
+		fprintf (stderr, "%s: couldn't open database file. Please set the env var RNN_PATH.\n", file);
 		db->estatus = 1;
 		return;
 	}
