@@ -168,7 +168,7 @@ ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx) {
 	}
 	if (bf->pcrel) {
 		// <3 xtensa.
-		res += ctx->pos & -(1ull << bf->shr);
+		res += (ctx->pos / ctx->isa->posunit) & -(1ull << bf->shr);
 	}
 	res += bf->addend;
 	return res;
