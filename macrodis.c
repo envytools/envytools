@@ -29,13 +29,11 @@
  * Immediate fields
  */
 
-static struct bitfield mthdoff = { { 14, 12 }, BF_UNSIGNED, 2 };
 static struct bitfield bfsrcposoff = { 17, 5 };
 static struct bitfield bfszoff = { 22, 5 };
 static struct bitfield bfdstposoff = { 27, 5 };
 static struct bitfield mimmoff = { { 14, 18 }, BF_SIGNED };
 static struct bitfield btargoff = { { 14, 18 }, BF_SIGNED, .pcrel = 1 };
-#define MTHD atomimm, &mthdoff
 #define BFSRCPOS atomimm, &bfsrcposoff
 #define BFDSTPOS atomimm, &bfdstposoff
 #define BFSZ atomimm, &bfszoff
@@ -73,7 +71,7 @@ static struct insn tabm[] = {
 	{ AP, 0x00000001, 0x0000007f, N("parm"), REG1 },
 	{ AP, 0x00000007, 0x0000005f, N("braz"), T(annul), REG2, BTARG },
 	{ AP, 0x00000017, 0x0000005f, N("branz"), T(annul), REG2, BTARG },
-	{ AP, 0x00000015, 0x0000007f, N("read"), REG1, MTHD },
+	{ AP, 0x00000015, 0x0000007f, N("read"), REG1, N("add"), REG2, MIMM },
 	{ AP, 0x00000010, 0x00000070, N("mov"), REG1, T(src) },
 	{ AP, 0x00000020, 0x00000070, N("maddr"), REG1, T(src) },
 	{ AP, 0x00000030, 0x00000070, N("parm"), REG1, N("send"), T(src) },
