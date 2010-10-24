@@ -52,6 +52,15 @@ static int reg3off[] = { 14, 3, 'r' };
 F1(exit, 7, N("exit"));
 
 static struct insn tabsrc[] = {
+	{ AP, 0x00000000, 0x003e000f, N("add"), REG2, REG3 },
+	{ AP, 0x00020000, 0x003e000f, N("adc"), REG2, REG3 },
+	{ AP, 0x00040000, 0x003e000f, N("sub"), REG2, REG3 },
+	{ AP, 0x00060000, 0x003e000f, N("sbb"), REG2, REG3 },
+	{ AP, 0x00100000, 0x003e000f, N("xor"), REG2, REG3 },
+	{ AP, 0x00120000, 0x003e000f, N("or"), REG2, REG3 },
+	{ AP, 0x00140000, 0x003e000f, N("and"), REG2, REG3 },
+	{ AP, 0x00160000, 0x003e000f, N("andn"), REG2, REG3 }, // REG2 & ~REG3
+	{ AP, 0x00180000, 0x003e000f, N("nand"), REG2, REG3 }, // ~(REG2 & REG3)
 	{ AP, 0x00000001, 0x0000000f, N("add"), REG2, MIMM },
 	// take REG2, replace BFSZ bits starting at BFDSTPOS with BFSZ bits starting at BFSRCPOS in REG3.
 	{ AP, 0x00000002, 0x0000000f, N("extr"), REG2, REG3, BFSRCPOS, BFSZ, BFDSTPOS },
