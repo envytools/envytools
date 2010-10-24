@@ -45,6 +45,8 @@ static int reg3off[] = { 14, 3, 'r' };
 #define REG2 atomreg, reg2off
 #define REG3 atomreg, reg3off
 
+F1(exit, 7, N("exit"));
+
 static struct insn tabm[] = {
 	{ AP, 0x00000015, 0x0000007f, N("read"), REG1, MTHD },
 	{ AP, 0x00000021, 0x0000007f, N("prep"), MTHD, INCR },
@@ -54,7 +56,7 @@ static struct insn tabm[] = {
 };
 
 static struct insn tabroot[] = {
-	{ AP, 0, 0, OP32, T(m) },
+	{ AP, 0, 0, OP32, T(exit), T(m) },
 };
 
 static struct disisa macro_isa_s = {
