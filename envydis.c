@@ -62,6 +62,10 @@ int main(int argc, char **argv) {
 		isa = vp3m_isa;
 	if (!strcmp(argv[0], "vp3tdis"))
 		isa = vp3t_isa;
+	if (!strcmp(argv[0], "macrodis")) {
+		isa = macro_isa;
+		w = 1;
+	}
 	int ptype = -1;
 	int c;
 	unsigned base = 0, skip = 0, limit = 0;
@@ -133,6 +137,8 @@ int main(int argc, char **argv) {
 					isa = vp3m_isa;
 				else if (!strcmp(optarg, "vp3t"))
 					isa = vp3t_isa;
+				else if (!strcmp(optarg, "macro"))
+					isa = macro_isa;
 				else {
 					fprintf (stderr, "Unknown architecure \"%s\"!\n", optarg);
 					return 1;

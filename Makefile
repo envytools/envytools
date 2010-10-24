@@ -18,5 +18,5 @@ nvbios: nvbios.c
 clean:
 	rm -f headergen demmio lookup expand nvbios envydis
 
-envydis: envydis.c nv50dis.c nvc0dis.c ctxdis.c vp2dis.c fucdis.c pmsdis.c vp3mdis.c vp3tdis.c dis.h coredis.c
-	cc -o envydis envydis.c nv50dis.c nvc0dis.c ctxdis.c vp2dis.c fucdis.c pmsdis.c vp3mdis.c vp3tdis.c coredis.c
+envydis: envydis.c nv50dis.c nvc0dis.c ctxdis.c vp2dis.c fucdis.c pmsdis.c vp3mdis.c vp3tdis.c macrodis.c dis.h coredis.c
+	cc -o envydis envydis.c nv50dis.c nvc0dis.c ctxdis.c vp2dis.c fucdis.c pmsdis.c vp3mdis.c macrodis.c vp3tdis.c coredis.c
