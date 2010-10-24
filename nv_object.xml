@@ -220,6 +220,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="1" name="WRITE_AND_AWAKEN"/>
 		</reg32>
 		<reg32 offset="0x0110" name="SERIALIZE"/>
+		<reg32 offset="0x0114" name="MACRO_UPLOAD_POS"/>
+		<reg32 offset="0x0118" name="MACRO_UPLOAD_DATA"/>
+		<reg32 offset="0x011c" name="MACRO_ID"/>
+		<reg32 offset="0x0120" name="MACRO_POS"/>
 	</stripe>
 </domain>
 
