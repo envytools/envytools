@@ -847,14 +847,15 @@ static int trytop (struct rnndb *db, char *file, xmlNode *node) {
 }
 
 void rnn_parsefile (struct rnndb *db, char *file_orig) {
-	char *file;
 	int i;
+	char *file = (char *) malloc(512);
+
+	file = resolve_using_path(file_orig, file, 512);
+
 	for (i = 0; i < db->filesnum; i++)
 		if (!strcmp(db->files[i], file))
 			return;
 		
-	file = (char *) malloc(512);
-	file = resolve_using_path(file_orig, file, 512);
 	RNN_ADDARRAY(db->files, file);
 	xmlDocPtr doc = xmlParseFile(file);
 	if (!doc) {
