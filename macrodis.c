@@ -76,6 +76,7 @@ static struct insn tabm[] = {
 	{ AP, 0x00000020, 0x00000070, N("maddr"), REG1, T(src) },
 	{ AP, 0x00000030, 0x00000070, N("parm"), REG1, N("send"), T(src) },
 	{ AP, 0x00000040, 0x00000070, N("send"), REG1, T(src) },
+	{ AP, 0x00000050, 0x00000070, N("parm"), REG1, N("maddr"), T(src) },
 	{ AP, 0, 0, OOPS, REG1, T(src) },
 };
 
