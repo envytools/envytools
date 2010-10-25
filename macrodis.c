@@ -75,7 +75,7 @@ static struct insn tabm[] = {
 	{ AP, 0x00180000, 0x003e0007, T(dst), N("nand"), REG2, REG3 }, // ~(REG2 & REG3)
 	{ AP, 0x00000001, 0x00000007, T(dst), N("add"), REG2, MIMM },
 	// take REG2, replace BFSZ bits starting at BFDSTPOS with BFSZ bits starting at BFSRCPOS in REG3.
-	{ AP, 0x00000002, 0x00000007, T(dst), N("extr"), REG2, REG3, BFSRCPOS, BFSZ, BFDSTPOS },
+	{ AP, 0x00000002, 0x00000007, T(dst), N("extrinsrt"), REG2, REG3, BFSRCPOS, BFSZ, BFDSTPOS },
 
 	{ AP, 0x00000015, 0x0000007f, N("read"), REG1, N("add"), REG2, MIMM },
 	{ AP, 0x00000007, 0x0000005f, N("braz"), T(annul), REG2, BTARG },
