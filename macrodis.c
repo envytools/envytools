@@ -49,35 +49,36 @@ static int reg3off[] = { 14, 3, 'r' };
 
 F1(exit, 7, N("exit"));
 
-static struct insn tabsrc[] = {
-	{ AP, 0x00000000, 0x003e000f, N("add"), REG2, REG3 },
-	{ AP, 0x00020000, 0x003e000f, N("adc"), REG2, REG3 },
-	{ AP, 0x00040000, 0x003e000f, N("sub"), REG2, REG3 },
-	{ AP, 0x00060000, 0x003e000f, N("sbb"), REG2, REG3 },
-	{ AP, 0x00100000, 0x003e000f, N("xor"), REG2, REG3 },
-	{ AP, 0x00120000, 0x003e000f, N("or"), REG2, REG3 },
-	{ AP, 0x00140000, 0x003e000f, N("and"), REG2, REG3 },
-	{ AP, 0x00160000, 0x003e000f, N("andn"), REG2, REG3 }, // REG2 & ~REG3
-	{ AP, 0x00180000, 0x003e000f, N("nand"), REG2, REG3 }, // ~(REG2 & REG3)
-	{ AP, 0x00000001, 0x0000000f, N("add"), REG2, MIMM },
-	// take REG2, replace BFSZ bits starting at BFDSTPOS with BFSZ bits starting at BFSRCPOS in REG3.
-	{ AP, 0x00000002, 0x0000000f, N("extr"), REG2, REG3, BFSRCPOS, BFSZ, BFDSTPOS },
-	{ AP, 0, 0, OOPS, REG2 },
+/* various stuff that can be done to result of arith/logic operations */
+static struct insn tabdst[] = {
+	{ AP, 0x00000000, 0x00000070, N("parm"), REG1, N("ign") },	// ignore result, fetch param to REG1
+	{ AP, 0x00000010, 0x00000070, N("mov"), REG1 },			// store result to REG1
+	{ AP, 0x00000020, 0x00000070, N("maddr"), REG1 },		// use result as maddr and store it to REG1
+	{ AP, 0x00000030, 0x00000070, N("parm"), REG1, N("send") },	// send result, then fetch param to REG1
+	{ AP, 0x00000040, 0x00000070, N("send"), REG1 },		// send result and store it to REG1
+	{ AP, 0x00000050, 0x00000070, N("parm"), REG1, N("maddr") },	// use result as maddr, then fetch param to REG1
 };
 
 F1(annul, 5, N("annul")); // if set, delay slot insn is annuled if branch taken [ie. branch behaves as if delay slots didn't exist]
 
 static struct insn tabm[] = {
-	{ AP, 0x00000001, 0x0000007f, N("parm"), REG1 },
+	{ AP, 0x00000000, 0x003e0007, T(dst), N("add"), REG2, REG3 },
+	{ AP, 0x00020000, 0x003e0007, T(dst), N("adc"), REG2, REG3 },
+	{ AP, 0x00040000, 0x003e0007, T(dst), N("sub"), REG2, REG3 },
+	{ AP, 0x00060000, 0x003e0007, T(dst), N("sbb"), REG2, REG3 },
+	{ AP, 0x00100000, 0x003e0007, T(dst), N("xor"), REG2, REG3 },
+	{ AP, 0x00120000, 0x003e0007, T(dst), N("or"), REG2, REG3 },
+	{ AP, 0x00140000, 0x003e0007, T(dst), N("and"), REG2, REG3 },
+	{ AP, 0x00160000, 0x003e0007, T(dst), N("andn"), REG2, REG3 }, // REG2 & ~REG3
+	{ AP, 0x00180000, 0x003e0007, T(dst), N("nand"), REG2, REG3 }, // ~(REG2 & REG3)
+	{ AP, 0x00000001, 0x00000007, T(dst), N("add"), REG2, MIMM },
+	// take REG2, replace BFSZ bits starting at BFDSTPOS with BFSZ bits starting at BFSRCPOS in REG3.
+	{ AP, 0x00000002, 0x00000007, T(dst), N("extr"), REG2, REG3, BFSRCPOS, BFSZ, BFDSTPOS },
+
+	{ AP, 0x00000015, 0x0000007f, N("read"), REG1, N("add"), REG2, MIMM },
 	{ AP, 0x00000007, 0x0000005f, N("braz"), T(annul), REG2, BTARG },
 	{ AP, 0x00000017, 0x0000005f, N("branz"), T(annul), REG2, BTARG },
-	{ AP, 0x00000015, 0x0000007f, N("read"), REG1, N("add"), REG2, MIMM },
-	{ AP, 0x00000010, 0x00000070, N("mov"), REG1, T(src) },
-	{ AP, 0x00000020, 0x00000070, N("maddr"), REG1, T(src) },
-	{ AP, 0x00000030, 0x00000070, N("parm"), REG1, N("send"), T(src) },
-	{ AP, 0x00000040, 0x00000070, N("send"), REG1, T(src) },
-	{ AP, 0x00000050, 0x00000070, N("parm"), REG1, N("maddr"), T(src) },
-	{ AP, 0, 0, OOPS, REG1, T(src) },
+	{ AP, 0, 0, T(dst), OOPS, REG2 },
 };
 
 static struct insn tabroot[] = {
