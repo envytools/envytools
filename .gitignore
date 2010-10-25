@@ -8,3 +8,7 @@ demmio
 nvbios
 envydis
 *.xml.h
+Makefile
+CMakeCache.txt
+CMakeFiles
+cmake_install.cmake
