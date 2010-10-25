@@ -80,10 +80,9 @@ static struct insn tabm[] = {
 	{ AP, 0x00000003, 0x00000007, T(dst), N("extrshl"), REG3, REG2, BFSZ, BFDSTPOS },
 	// take BFSZ bits starting at BFSRCPOS in REG3, shift left by REG2
 	{ AP, 0x00000004, 0x00000007, T(dst), N("extrshl"), REG3, BFSRCPOS, BFSZ, REG2 },
-
-	{ AP, 0x00000015, 0x0000007f, N("read"), REG1, N("add"), REG2, MIMM },
-	{ AP, 0x00000007, 0x0000005f, N("braz"), T(annul), REG2, BTARG },
-	{ AP, 0x00000017, 0x0000005f, N("branz"), T(annul), REG2, BTARG },
+	{ AP, 0x00000015, 0x00000077, N("read"), REG1, N("add"), REG2, MIMM },
+	{ AP, 0x00000007, 0x00000017, N("braz"), T(annul), REG2, BTARG },
+	{ AP, 0x00000017, 0x00000017, N("branz"), T(annul), REG2, BTARG },
 	{ AP, 0, 0, T(dst), OOPS, REG2 },
 };
 
