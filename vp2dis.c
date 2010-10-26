@@ -241,7 +241,6 @@ static int data32off[] = { 8, 4, 16, 8, 2 };
 static int data16off[] = { 8, 4, 16, 8, 1 };
 static int data8off[] = { 8, 4, 16, 8, 0 };
 #define DATA32N atomoldmem, data32noff
-#define DATAC atomoldmem, datacoff
 #define DATACL atomoldmem, datacloff
 #define DATA32 atomoldmem, data32off
 #define DATA16 atomoldmem, data16off
@@ -344,25 +343,25 @@ static struct insn tabm[] = {
 	{ AP, 0x004002, 0x00f00f, N("s8i"), REGT, DATA8 },
 	{ AP, 0x005002, 0x00f00f, N("s16i"), REGT, DATA16 },
 	{ AP, 0x006002, 0x00f00f, N("s16i"), REGT, DATA32 },
-	{ AP, 0x007002, 0x00f0ff, N("dpfr"), DATAC },
-	{ AP, 0x007012, 0x00f0ff, N("dpfw"), DATAC },
-	{ AP, 0x007022, 0x00f0ff, N("dpfro"), DATAC },
-	{ AP, 0x007032, 0x00f0ff, N("dpfwo"), DATAC },
-	{ AP, 0x007042, 0x00f0ff, N("dhwb"), DATAC },
-	{ AP, 0x007052, 0x00f0ff, N("dhwbi"), DATAC },
-	{ AP, 0x007062, 0x00f0ff, N("dhi"), DATAC },
-	{ AP, 0x007072, 0x00f0ff, N("dii"), DATAC },
+	{ AP, 0x007002, 0x00f0ff, N("dpfr"), DATA32 },
+	{ AP, 0x007012, 0x00f0ff, N("dpfw"), DATA32 },
+	{ AP, 0x007022, 0x00f0ff, N("dpfro"), DATA32 },
+	{ AP, 0x007032, 0x00f0ff, N("dpfwo"), DATA32 },
+	{ AP, 0x007042, 0x00f0ff, N("dhwb"), DATA32 },
+	{ AP, 0x007052, 0x00f0ff, N("dhwbi"), DATA32 },
+	{ AP, 0x007062, 0x00f0ff, N("dhi"), DATA32 },
+	{ AP, 0x007072, 0x00f0ff, N("dii"), DATA32 },
 	{ AP, 0x007082, 0x0ff0ff, N("dpfl"), DATACL },
 	{ AP, 0x027082, 0x0ff0ff, N("dhu"), DATACL },
 	{ AP, 0x037082, 0x0ff0ff, N("diu"), DATACL },
 	{ AP, 0x047082, 0x0ff0ff, N("diwb"), DATACL },
 	{ AP, 0x057082, 0x0ff0ff, N("diwbi"), DATACL },
-	{ AP, 0x0070c2, 0x00f0ff, N("ipf"), DATAC },
+	{ AP, 0x0070c2, 0x00f0ff, N("ipf"), DATA32 },
 	{ AP, 0x0070d2, 0x0ff0ff, N("ipfl"), DATACL },
 	{ AP, 0x0270d2, 0x0ff0ff, N("ihu"), DATACL },
 	{ AP, 0x0370d2, 0x0ff0ff, N("iiu"), DATACL },
-	{ AP, 0x0070e2, 0x00f0ff, N("ihi"), DATAC },
-	{ AP, 0x0070f2, 0x00f0ff, N("iii"), DATAC },
+	{ AP, 0x0070e2, 0x00f0ff, N("ihi"), DATA32 },
+	{ AP, 0x0070f2, 0x00f0ff, N("iii"), DATA32 },
 	{ AP, 0x009002, 0x00f00f, N("l16si"), REGT, DATA16 },
 	{ AP, 0x00a002, 0x00f00f, N("movi"), REGT, MI12 },
 	{ AP, 0x00c002, 0x00f00f, N("addi"), REGT, REGS, IMM8S },
