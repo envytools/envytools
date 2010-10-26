@@ -73,6 +73,8 @@ static struct reg creg1_r = { &creg1_bf, "c" };
 static struct reg creg2_r = { &creg2_bf, "c" };
 static struct reg sreg1_r = { &reg1_bf, "s", .specials = sreg_sr, .always_special = 1 };
 static struct reg sreg2_r = { &reg2_bf, "s", .specials = sreg_sr, .always_special = 1 };
+static struct reg sp_r = { 0, "sp" };
+static struct reg flags_r = { 0, "flags" };
 #define REG1 atomreg, &reg1_r
 #define REG2 atomreg, &reg2_r
 #define REG3 atomreg, &reg3_r
@@ -82,6 +84,8 @@ static struct reg sreg2_r = { &reg2_bf, "s", .specials = sreg_sr, .always_specia
 #define CREG2 atomreg, &creg2_r
 #define SREG1 atomreg, &sreg1_r
 #define SREG2 atomreg, &sreg2_r
+#define SP atomreg, &sp_r
+#define FLAGS atomreg, &flags_r
 
 /*
  * Immediate fields
@@ -513,10 +517,10 @@ static struct insn tabm[] = {
 	{ AP, 0x000020f4, 0x0000fffe, T(ol0), N("bra"), T(abt) },
 	{ AP, 0x000021f4, 0x0000fffe, T(ol0), N("call"), T(ct) },
 	{ AP, 0x000028f4, 0x0000fffe, T(ol0), N("sleep"), T(fl) }, /* sleeps while given flag is true */
-	{ AP, 0x000030f4, 0x0000fffe, T(ol0), N("add"), N("sp"), T(is) },
-	{ AP, 0x000031f4, 0x0000fffe, T(ol0), N("bset"), N("flags"), T(fl) },
-	{ AP, 0x000032f4, 0x0000fffe, T(ol0), N("bclr"), N("flags"), T(fl) },
-	{ AP, 0x000033f4, 0x0000fffe, T(ol0), N("btgl"), N("flags"), T(fl) },
+	{ AP, 0x000030f4, 0x0000fffe, T(ol0), N("add"), SP, T(is) },
+	{ AP, 0x000031f4, 0x0000fffe, T(ol0), N("bset"), FLAGS, T(fl) },
+	{ AP, 0x000032f4, 0x0000fffe, T(ol0), N("bclr"), FLAGS, T(fl) },
+	{ AP, 0x000033f4, 0x0000fffe, T(ol0), N("btgl"), FLAGS, T(fl) },
 	{ AP, 0x00003cf4, 0x0000ffff, T(ol0), N("cxset"), IMM8 },
 	{ AP, 0x00003cf5, 0x0000ffff, T(ol0), T(cocmd) },
 	{ AP, 0x000000f4, 0x000000fe, T(ol0), OOPS, T(i) },
@@ -530,13 +534,13 @@ static struct insn tabm[] = {
 	{ AP, 0x000008f8, 0x0000fcff, OP16, N("trap"), STRAP },
 
 	{ AP, 0x000000f9, 0x00000fff, OP16, N("push"), REG2 },
-	{ AP, 0x000001f9, 0x00000fff, OP16, N("add"), N("sp"), REG2 },
+	{ AP, 0x000001f9, 0x00000fff, OP16, N("add"), SP, REG2 },
 	{ AP, 0x000004f9, 0x00000fff, OP16, N("bra"), REG2 },
 	{ AP, 0x000005f9, 0x00000fff, OP16, N("call"), REG2 },
 	{ AP, 0x000008f9, 0x00000fff, OP16, N("unbind"), REG2 }, // drops given physical page's VM tag. page specified as index, not as address.
-	{ AP, 0x000009f9, 0x00000fff, OP16, N("bset"), N("flags"), REG2 },
-	{ AP, 0x00000af9, 0x00000fff, OP16, N("bclr"), N("flags"), REG2 },
-	{ AP, 0x00000bf9, 0x00000fff, OP16, N("btgl"), N("flags"), REG2 },
+	{ AP, 0x000009f9, 0x00000fff, OP16, N("bset"), FLAGS, REG2 },
+	{ AP, 0x00000af9, 0x00000fff, OP16, N("bclr"), FLAGS, REG2 },
+	{ AP, 0x00000bf9, 0x00000fff, OP16, N("btgl"), FLAGS, REG2 },
 	{ AP, 0x000000f9, 0x000000ff, OP16, OOPS, REG2 },
 
 	/* iowr is asynchronous, iowrs waits for completion. */

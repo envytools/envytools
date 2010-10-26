@@ -144,6 +144,11 @@ static void atomcmd APROTO {
 	fprintf (ctx->out, " %s%s", cmag, (char *)v);
 }
 
+/* Register fields */
+
+static struct reg sr_r = { 0, "sr" };
+#define SR atomreg, &sr_r
+
 /*
  * Misc number fields
  *
@@ -239,9 +244,9 @@ static struct insn tabcmd4[] = {
 };
 
 static struct insn tabm[] = {
-	{ NV5x, 0x100000, 0xff0000, N("ctx"), PGRAPH5, N("sr") },
+	{ NV5x, 0x100000, 0xff0000, N("ctx"), PGRAPH5, SR },
 	{ NV5x, 0x100000, 0xf00000, N("ctx"), PGRAPH5, GSIZE5 },
-	{ NV4x, 0x100000, 0xffc000, N("ctx"), PGRAPH4, N("sr") },
+	{ NV4x, 0x100000, 0xffc000, N("ctx"), PGRAPH4, SR },
 	{ NV4x, 0x100000, 0xf00000, N("ctx"), PGRAPH4, GSIZE4 },
 	{ NVxx, 0x200000, 0xf00000, N("lsr"), IMM },			// moves 20-bit immediate to scratch reg
 	{ NVxx, 0x300000, 0xf00000, N("lsr2"), IMM },			// moves 20-bit immediate to 338
