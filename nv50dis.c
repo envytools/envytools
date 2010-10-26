@@ -431,57 +431,17 @@ static int getareg (ull *a, ull *m, int l) {
 	return r;
 }
 
-#define LTDST atomltdst, 0
-static void atomltdst APROTO {
-	if (!ctx->out)
-		return;
-	int base = BF(2, 7);
-	int mask = BF(0x2e, 2)<<2 | BF(0x19, 2);
-	int k = 0, i;
-	fprintf (ctx->out, " %s{", cnorm);
-	for (i = 0; i < 4; i++)
-		if (mask & 1<<i)
-			fprintf (ctx->out, " %s$r%d", cbl, base+k++);
-		else
-			fprintf (ctx->out, " %s#", cbl);
-	fprintf (ctx->out, " %s}", cnorm);
-}
-#define STDST atomstdst, 0
-static void atomstdst APROTO {
-	if (!ctx->out)
-		return;
-	int base = BF(2, 6);
-	int i;
-	fprintf (ctx->out, " %s{", cnorm);
-	for (i = 0; i < 4; i++)
-		fprintf (ctx->out, " %s$r%d", cbl, base+i);
-	fprintf (ctx->out, " %s}", cnorm);
-}
-#define LTSRC atomltsrc, 0
-static void atomltsrc APROTO {
-	if (!ctx->out)
-		return;
-	int base = BF(2, 7);
-	int cnt = BF(0x16, 2);
-	int i;
-	fprintf (ctx->out, " %s{", cnorm);
-	for (i = 0; i <= cnt; i++)
-		fprintf (ctx->out, " %s$r%d", cbl, base+i);
-	fprintf (ctx->out, " %s}", cnorm);
-}
-#define STSRC atomstsrc, 0
-static void atomstsrc APROTO {
-	if (!ctx->out)
-		return;
-	int base = BF(2, 6);
-	int cnt = BF(0x16, 2);
-	int i;
-	fprintf (ctx->out, " %s{", cnorm);
-	for (i = 0; i <= cnt; i++)
-		fprintf (ctx->out, " %s$r%d", cbl, base+i);
-	fprintf (ctx->out, " %s}", cnorm);
-}
-
+static struct bitfield tdst_cnt = { .addend = 4 };
+static struct bitfield ltdst_mask = { { 0x19, 2, 0x2e, 2 } };
+static struct bitfield tsrc_cnt = { { 0x16, 2 }, .addend = 1 };
+static struct vec ltdst_v = { "r", &ldst_bf, &tdst_cnt, &ltdst_mask };
+static struct vec stdst_v = { "r", &sdst_bf, &tdst_cnt, 0 };
+static struct vec ltsrc_v = { "r", &ldst_bf, &tsrc_cnt, 0 };
+static struct vec stsrc_v = { "r", &sdst_bf, &tsrc_cnt, 0 };
+#define LTDST atomvec, &ltdst_v
+#define STDST atomvec, &stdst_v
+#define LTSRC atomvec, &ltsrc_v
+#define STSRC atomvec, &stsrc_v
 
 #define LLDST T(lldst)
 F(lldst, 0x23, LDST, ODST)

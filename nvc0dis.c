@@ -263,72 +263,21 @@ static struct reg sreg_r = { &sreg_bf, "sr", .specials = sreg_sr, .always_specia
 #define CC atomreg, &cc_r
 #define SREG atomreg, &sreg_r
 
-#define TDST atomtdst, 0
-static void atomtdst APROTO {
-	if (!ctx->out)
-		return;
-	int base = BF(0xe, 6);
-	int mask = BF(0x2e, 4);
-	int k = 0, i;
-	fprintf (ctx->out, " %s{", cnorm);
-	for (i = 0; i < 4; i++)
-		if (mask & 1<<i)
-			fprintf (ctx->out, " %s$r%d", cbl, base+k++);
-		else
-			fprintf (ctx->out, " %s_", cbl);
-	fprintf (ctx->out, " %s}", cnorm);
-}
-#define TSRC atomtsrc, 0
-static void atomtsrc APROTO {
-	if (!ctx->out)
-		return;
-	int base = BF(0x14, 6);
-	int cnt = BF(0x34, 2);
-	int i;
-	fprintf (ctx->out, " %s{", cnorm);
-	for (i = 0; i <= cnt; i++)
-		fprintf (ctx->out, " %s$r%d", cbl, base+i);
-	fprintf (ctx->out, " %s}", cnorm);
-}
-
-#define SADDR atomsaddr, 0
-static void atomsaddr APROTO {
-	if (!ctx->out)
-		return;
-	int base = BF(0x14, 6);
-	int cnt = BF(0x2c, 2);
-	int i;
-	fprintf (ctx->out, " %s{", cnorm);
-	for (i = 0; i <= cnt; i++)
-		fprintf (ctx->out, " %s$r%d", cbl, base+i);
-	fprintf (ctx->out, " %s}", cnorm);
-}
-
-#define ESRC atomesrc, 0
-static void atomesrc APROTO {
-	if (!ctx->out)
-		return;
-	int base = BF(26, 6);
-	int cnt = BF(5, 2);
-	int i;
-	fprintf (ctx->out, " %s{", cnorm);
-	for (i = 0; i <= cnt; i++)
-		fprintf (ctx->out, " %s$r%d", cbl, base+i);
-	fprintf (ctx->out, " %s}", cnorm);
-}
-
-#define VDST atomvdst, 0
-static void atomvdst APROTO {
-	if (!ctx->out)
-		return;
-	int base = BF(14, 6);
-	int cnt = BF(5, 2);
-	int i;
-	fprintf (ctx->out, " %s{", cnorm);
-	for (i = 0; i <= cnt; i++)
-		fprintf (ctx->out, " %s$r%d", cbl, base+i);
-	fprintf (ctx->out, " %s}", cnorm);
-}
+static struct bitfield tdst_cnt = { .addend = 4 };
+static struct bitfield tdst_mask = { 0x2e, 4 };
+static struct bitfield tsrc_cnt = { { 0x34, 2 }, .addend = 1 };
+static struct bitfield saddr_cnt = { { 0x2c, 2 }, .addend = 1 };
+static struct bitfield esrc_cnt = { { 5, 2 }, .addend = 1 };
+static struct vec tdst_v = { "r", &dst_bf, &tdst_cnt, &tdst_mask };
+static struct vec tsrc_v = { "r", &src1_bf, &tsrc_cnt, 0 };
+static struct vec saddr_v = { "r", &src1_bf, &saddr_cnt, 0 };
+static struct vec esrc_v = { "r", &src2_bf, &esrc_cnt, 0 };
+static struct vec vdst_v = { "r", &dst_bf, &esrc_cnt, 0 };
+#define TDST atomvec, &tdst_v
+#define TSRC atomvec, &tsrc_v
+#define SADDR atomvec, &saddr_v
+#define ESRC atomvec, &esrc_v
+#define VDST atomvec, &vdst_v
 
 /*
  * Memory fields

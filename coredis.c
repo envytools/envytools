@@ -200,6 +200,25 @@ void atommem APROTO {
 		fprintf (ctx->out, "%s]", ccy);
 }
 
+void atomvec APROTO {
+	if (!ctx->out)
+		return;
+	const struct vec *vec = v;
+	ull base = GETBF(vec->bf);
+	ull cnt = GETBF(vec->cnt);
+	ull mask = -1ull;
+	if (vec->mask)
+		mask = GETBF(vec->mask);
+	int k = 0, i;
+	fprintf (ctx->out, " %s{", cnorm);
+	for (i = 0; i < cnt; i++)
+		if (mask & 1ull<<i)
+			fprintf (ctx->out, " %s$%s%d", cbl, vec->name, base+k++);
+		else
+			fprintf (ctx->out, " %s#", cbl);
+	fprintf (ctx->out, " %s}", cnorm);
+}
+
 ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx) {
 	ull res = 0;
 	int pos = bf->shr;
