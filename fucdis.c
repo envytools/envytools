@@ -123,45 +123,29 @@ static void atombf APROTO {
  * Memory fields
  */
 
-static int data8off[] = { 0 };
-static int data16off[] = { 1 };
-static int data32off[] = { 2 };
-#define DATAR atomdatar, 0
-#define DATARI8 atomdatari, data8off
-#define DATARI16 atomdatari, data16off
-#define DATARI32 atomdatari, data32off
-#define DATARR8 atomdatarr, data8off
-#define DATARR16 atomdatarr, data16off
-#define DATARR32 atomdatarr, data32off
-#define DATA8SP atomdatasp, data8off
-#define DATA16SP atomdatasp, data16off
-#define DATA32SP atomdatasp, data32off
-static void atomdatar APROTO {
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %sD[%s$r%lld%s]", ccy, cbl, BF(12, 4), ccy);
-}
-
-static void atomdatari APROTO {
-	if (!ctx->out)
-		return;
-	const int *n = v;
-	fprintf (ctx->out, " %sD[%s$r%lld%s+%s%#llx%s]", ccy, cbl, BF(12, 4), ccy, cyel, BF(16,8) << n[0], ccy);
-}
-
-static void atomdatasp APROTO {
-	if (!ctx->out)
-		return;
-	const int *n = v;
-	fprintf (ctx->out, " %sD[%ssp%s+%s%#llx%s]", ccy, cgr, ccy, cyel, BF(16,8) << n[0], ccy);
-}
-
-static void atomdatarr APROTO {
-	if (!ctx->out)
-		return;
-	const int *n = v;
-	fprintf (ctx->out, " %sD[%s$r%lld%s+%s$r%lld%s*%s%d%s]", ccy, cbl, BF(12, 4), ccy, cbl, BF(8, 4), ccy, cyel, 1 << n[0], ccy);
-}
+static struct bitfield off8_bf = { { 16, 8 }, BF_UNSIGNED, 0 };
+static struct bitfield off16_bf = { { 16, 8 }, BF_UNSIGNED, 1 };
+static struct bitfield off32_bf = { { 16, 8 }, BF_UNSIGNED, 2 };
+static struct mem datar_m = { "D", 0, &reg2_r };
+static struct mem datari8_m = { "D", 0, &reg2_r, &off8_bf };
+static struct mem datari16_m = { "D", 0, &reg2_r, &off16_bf };
+static struct mem datari32_m = { "D", 0, &reg2_r, &off32_bf };
+static struct mem datarr8_m = { "D", 0, &reg2_r, 0, &reg1_r, 0 };
+static struct mem datarr16_m = { "D", 0, &reg2_r, 0, &reg1_r, 1 };
+static struct mem datarr32_m = { "D", 0, &reg2_r, 0, &reg1_r, 2 };
+static struct mem datasp8_m = { "D", 0, &sp_r, &off8_bf };
+static struct mem datasp16_m = { "D", 0, &sp_r, &off16_bf };
+static struct mem datasp32_m = { "D", 0, &sp_r, &off32_bf };
+#define DATAR atommem, &datar_m
+#define DATARI8 atommem, &datari8_m
+#define DATARI16 atommem, &datari16_m
+#define DATARI32 atommem, &datari32_m
+#define DATARR8 atommem, &datarr8_m
+#define DATARR16 atommem, &datarr16_m
+#define DATARR32 atommem, &datarr32_m
+#define DATA8SP atommem, &datasp8_m
+#define DATA16SP atommem, &datasp16_m
+#define DATA32SP atommem, &datasp32_m
 
 /*
  * MMIO space
@@ -172,26 +156,13 @@ static void atomdatarr APROTO {
  *
  * fuc_base + 0xff0 and up are host-only
  */
-#define IOR atomior, 0
-static void atomior APROTO {
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %sI[%s$r%lld%s]", ccy, cbl, BF(12, 4), ccy);
-}
 
-#define IORR atomiorr, 0
-static void atomiorr APROTO {
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %sI[%s$r%lld%s+%s$r%lld%s*%s4%s]", ccy, cbl, BF(12, 4), ccy, cbl, BF(8, 4), ccy, cyel, ccy);
-}
-
-#define IORI atomiori, 0
-static void atomiori APROTO {
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %sI[%s$r%lld%s+%s%#llx%s]", ccy, cbl, BF(12, 4), ccy, cyel, BF(16, 8) << 2, ccy);
-}
+static struct mem ior_m = { "I", 0, &reg2_r };
+static struct mem iorr_m = { "I", 0, &reg2_r, 0, &reg1_r, 2 };
+static struct mem iori_m = { "I", 0, &reg2_r, &off32_bf };
+#define IOR atommem, &ior_m
+#define IORR atommem, &iorr_m
+#define IORI atommem, &iori_m
 
 static struct insn tabp[] = {
 	{ AP, 0x00000000, 0x00001800, PRED1 },
