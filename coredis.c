@@ -168,7 +168,7 @@ void atommem APROTO {
 	if (mem->name) {
 		fprintf (ctx->out, "%s%s", ccy, mem->name);
 		if (mem->idx)
-			fprintf (ctx->out, "%d", GETBF(mem->idx));
+			fprintf (ctx->out, "%lld", GETBF(mem->idx));
 		fprintf (ctx->out, "[");
 	}
 	if (mem->reg)
@@ -176,9 +176,12 @@ void atommem APROTO {
 	if (mem->imm) {
 		ull imm = GETBF(mem->imm);
 		if (imm) {
-			if (anything)
-				fprintf (ctx->out, "%s+", ccy);
-			fprintf(ctx->out, "%s%#llx", cyel, imm);
+			if (imm & 1ull << 63)
+				fprintf (ctx->out, "%s-%s%#llx", ccy, cyel, -imm);
+			else if (anything)
+				fprintf (ctx->out, "%s+%s%#llx", ccy, cyel, imm);
+			else
+				fprintf (ctx->out, "%s%#llx", cyel, imm);
 			anything = 1;
 		}
 	}
