@@ -559,57 +559,68 @@ F(fs8, 0x19, FSHARED8, FSHARED8PI);
 F(fs16, 0x19, FSHARED16, FSHARED16PI);
 F(fs32, 0x19, FSHARED32, FSHARED32PI);
 
-// const
-static int scmem[] = { 0x10, 5, 2, 'c', 1, 0x15, 1 };		// TODO
-static int shcmem[] = { 0x10, 5, 1, 'c', 1, 0x15, 1 };		// TODO
-static int lcmem2[] = { 0x10, 7, 2, 'c', 3, 0x36, 4 };		// TODO
-static int lhcmem2[] = { 0x10, 7, 1, 'c', 3, 0x36, 4 };		// TODO
-static int lcmem3[] = { 0x2e, 7, 2, 'c', 3, 0x36, 4 };		// TODO
-static int lhcmem3[] = { 0x2e, 7, 1, 'c', 3, 0x36, 4 };		// TODO
-static int lcmem2na[] = { 0x10, 7, 2, 'c', 0, 0x36, 4 };	// TODO
-static int lhcmem2na[] = { 0x10, 7, 1, 'c', 0, 0x36, 4 };	// TODO
-static int lcmem3na[] = { 0x2e, 7, 2, 'c', 0, 0x36, 4 };	// TODO
-static int lhcmem3na[] = { 0x2e, 7, 1, 'c', 0, 0x36, 4 };	// TODO
-static int fcmem[] = { 9, 14, 2, 'c', 7, 0x36, 4 };		// done
-static int fhcmem[] = { 9, 15, 1, 'c', 7, 0x36, 4 };		// done
-static int fbcmem[] = { 9, 16, 0, 'c', 7, 0x36, 4 };		// done
+// XXX: try postincr on remaining types
+static struct bitfield scmem_idx = { 0x15, 1 };
+static struct bitfield lcmem_idx = { 0x36, 4 };
+static struct bitfield scmem16_imm = { { 0x10, 5 }, BF_UNSIGNED, 1 };
+static struct bitfield scmem32_imm = { { 0x10, 5 }, BF_UNSIGNED, 2 };
+static struct bitfield scmem16pi_imm = { { 0x10, 5 }, BF_SIGNED, 1 };
+static struct bitfield scmem32pi_imm = { { 0x10, 5 }, BF_SIGNED, 2 };
+static struct bitfield l2cmem16_imm = { { 0x10, 7 }, BF_UNSIGNED, 1 };
+static struct bitfield l2cmem32_imm = { { 0x10, 7 }, BF_UNSIGNED, 2 };
+static struct bitfield l3cmem16_imm = { { 0x2e, 7 }, BF_UNSIGNED, 1 };
+static struct bitfield l3cmem32_imm = { { 0x2e, 7 }, BF_UNSIGNED, 2 };
+static struct bitfield l2cmem16pi_imm = { { 0x10, 7 }, BF_SIGNED, 1 };
+static struct bitfield l2cmem32pi_imm = { { 0x10, 7 }, BF_SIGNED, 2 };
+static struct bitfield l3cmem16pi_imm = { { 0x2e, 7 }, BF_SIGNED, 1 };
+static struct bitfield l3cmem32pi_imm = { { 0x2e, 7 }, BF_SIGNED, 2 };
+static struct mem scmem16_m = { "c", &scmem_idx, &sareg_r, &scmem16_imm };
+static struct mem scmem32_m = { "c", &scmem_idx, &sareg_r, &scmem32_imm };
+static struct mem scmem16pi_m = { "c", &scmem_idx, &sareg_r, &scmem16pi_imm, .postincr = 1 };
+static struct mem scmem32pi_m = { "c", &scmem_idx, &sareg_r, &scmem32pi_imm, .postincr = 1 };
+static struct mem l2cmem16_m = { "c", &lcmem_idx, &lareg_r, &l2cmem16_imm };
+static struct mem l2cmem32_m = { "c", &lcmem_idx, &lareg_r, &l2cmem32_imm };
+static struct mem l3cmem16_m = { "c", &lcmem_idx, &lareg_r, &l3cmem16_imm };
+static struct mem l3cmem32_m = { "c", &lcmem_idx, &lareg_r, &l3cmem32_imm };
+static struct mem l2cmem16pi_m = { "c", &lcmem_idx, &lareg_r, &l2cmem16pi_imm, .postincr = 1 };
+static struct mem l2cmem32pi_m = { "c", &lcmem_idx, &lareg_r, &l2cmem32pi_imm, .postincr = 1 };
+static struct mem l3cmem16pi_m = { "c", &lcmem_idx, &lareg_r, &l3cmem16pi_imm, .postincr = 1 };
+static struct mem l3cmem32pi_m = { "c", &lcmem_idx, &lareg_r, &l3cmem32pi_imm, .postincr = 1 };
+static struct mem l2cmem16na_m = { "c", &lcmem_idx, 0, &l2cmem16_imm };
+static struct mem l2cmem32na_m = { "c", &lcmem_idx, 0, &l2cmem32_imm };
+static struct mem l3cmem16na_m = { "c", &lcmem_idx, 0, &l3cmem16_imm };
+static struct mem l3cmem32na_m = { "c", &lcmem_idx, 0, &l3cmem32_imm };
+static struct mem fcmem8_m = { "c", &lcmem_idx, &lareg_r, &fmem8_imm };
+static struct mem fcmem16_m = { "c", &lcmem_idx, &lareg_r, &fmem16_imm };
+static struct mem fcmem32_m = { "c", &lcmem_idx, &lareg_r, &fmem32_imm };
+static struct mem fcmem8pi_m = { "c", &lcmem_idx, &lareg_r, &fmem8_imm, .postincr = 1 };
+static struct mem fcmem16pi_m = { "c", &lcmem_idx, &lareg_r, &fmem16_imm, .postincr = 1 };
+static struct mem fcmem32pi_m = { "c", &lcmem_idx, &lareg_r, &fmem32_imm, .postincr = 1 };
+#define SCONST16 atommem, &scmem16_m
+#define SCONST32 atommem, &scmem32_m
+#define SCONST16PI atommem, &scmem16pi_m
+#define SCONST32PI atommem, &scmem32pi_m
+#define L2CONST16 atommem, &l2cmem16_m
+#define L2CONST32 atommem, &l2cmem32_m
+#define L3CONST16 atommem, &l3cmem16_m
+#define L3CONST32 atommem, &l3cmem32_m
+#define L2CONST16PI atommem, &l2cmem16pi_m
+#define L2CONST32PI atommem, &l2cmem32pi_m
+#define L3CONST16PI atommem, &l3cmem16pi_m
+#define L3CONST32PI atommem, &l3cmem32pi_m
+#define L2CONST16NA atommem, &l2cmem16na_m
+#define L2CONST32NA atommem, &l2cmem32na_m
+#define L3CONST16NA atommem, &l3cmem16na_m
+#define L3CONST32NA atommem, &l3cmem32na_m
+#define FCONST8 atommem, &fcmem8_m
+#define FCONST16 atommem, &fcmem16_m
+#define FCONST32 atommem, &fcmem32_m
+#define FCONST8PI atommem, &fcmem8pi_m
+#define FCONST16PI atommem, &fcmem16pi_m
+#define FCONST32PI atommem, &fcmem32pi_m
 
-#define SCONST atomoldmem, scmem
-#define SHCONST atomoldmem, shcmem
-#define LCONST2 atomoldmem, lcmem2
-#define LHCONST2 atomoldmem, lhcmem2
-#define LCONST3 atomoldmem, lcmem3
-#define LHCONST3 atomoldmem, lhcmem3
-#define LCONST2NA atomoldmem, lcmem2na
-#define LHCONST2NA atomoldmem, lhcmem2na
-#define LCONST3NA atomoldmem, lcmem3na
-#define LHCONST3NA atomoldmem, lhcmem3na
-#define FCONST atomoldmem, fcmem
-#define FHCONST atomoldmem, fhcmem
-#define FBCONST atomoldmem, fbcmem
-static void atomoldmem APROTO {
-	if (!ctx->out)
-		return;
-	const int *n = v;
-	fprintf (ctx->out, " %s%c", ccy, n[3]);
-	if (n[6]) fprintf (ctx->out, "%lld", BF(n[5], n[6]));
-	fprintf (ctx->out, "[", ccy);
-	int mo = BF(n[0], n[1])<<n[2];
-	int r = (n[4]&1?getareg(a, m, n[4]&2):0);
-	if (n[4]&4 && BF(0x19, 1))  {
-		fprintf (ctx->out, "%s$a%d%s++", cmag, r, ccy);
-		if (mo&(1<<(n[1]+n[2]-1)))
-			mo += (1<<16)-(1<<(n[1]+n[2]));
-		fprintf (ctx->out, "%s%#x%s]", cyel, mo, ccy);
-	} else {
-		if (r) fprintf (ctx->out, "%s$a%d%s+", cmag, r, ccy);
-		fprintf (ctx->out, "%s%#x%s]", cyel, mo, ccy);
-	}
-}
-
-static struct bitfield lmem_imm = { 9, 16 };
-static struct mem lmem_m = { "l", 0, &lareg_r, &lmem_imm };
-static struct mem lmempi_m = { "l", 0, &lareg_r, &lmem_imm, .postincr = 1 };
+static struct mem lmem_m = { "l", 0, &lareg_r, &fmem8_imm };
+static struct mem lmempi_m = { "l", 0, &lareg_r, &fmem8_imm, .postincr = 1 };
 #define LOCAL atommem, &lmem_m
 #define LOCALPI atommem, &lmempi_m
 F(local, 0x19, LOCAL, LOCALPI);
@@ -712,13 +723,15 @@ static struct insn tabssw[] = {
 };
 
 static struct insn tabsch[] = {
-	{ AP, 0x00800000, 0x01800000, SHCONST },
+	{ AP, 0x00800000, 0x03800000, SCONST16 },
+	{ AP, 0x02800000, 0x03800000, SCONST16PI },
 	{ AP, 0x00000000, 0x00000000, SHSRC2 },
 	{ AP, 0, 0, OOPS }
 };
 
 static struct insn tabscw[] = {
-	{ AP, 0x00800000, 0x01800000, SCONST },
+	{ AP, 0x00800000, 0x03800000, SCONST32 },
+	{ AP, 0x02800000, 0x03800000, SCONST32PI },
 	{ AP, 0x00000000, 0x00000000, SSRC2 },
 	{ AP, 0, 0, OOPS }
 };
@@ -822,27 +835,31 @@ F(lsh, 0x35, LHSRC, T(ls))
 F(lsw, 0x35, LSRC, T(ls))
 
 static struct insn tablc2h[] = {
-	{ AP, 0x0000000000800000ull, 0x0020000001800000ull, LHCONST2 },
-	{ AP, 0x0020000000800000ull, 0x0020000001800000ull, LHCONST2NA },
+	{ AP, 0x0000000000800000ull, 0x0020000003800000ull, L2CONST16 },
+	{ AP, 0x0000000002800000ull, 0x0020000003800000ull, L2CONST16PI },
+	{ AP, 0x0020000000800000ull, 0x0020000001800000ull, L2CONST16NA },
 	{ AP, 0x0000000000000000ull, 0x0000000000000000ull, LHSRC2 },
 	{ AP, 0, 0, OOPS }
 };
 
 static struct insn tablc2w[] = {
-	{ AP, 0x0000000000800000ull, 0x0020000001800000ull, LCONST2 },
-	{ AP, 0x0020000000800000ull, 0x0020000001800000ull, LCONST2NA },
+	{ AP, 0x0000000000800000ull, 0x0020000003800000ull, L2CONST32 },
+	{ AP, 0x0000000002800000ull, 0x0020000003800000ull, L2CONST32 },
+	{ AP, 0x0020000000800000ull, 0x0020000001800000ull, L2CONST32NA },
 	{ AP, 0x0000000000000000ull, 0x0000000000000000ull, LSRC2 },
 };
 
 static struct insn tablc3h[] = {
-	{ AP, 0x0000000001000000ull, 0x0020000001800000ull, LHCONST3 },
-	{ AP, 0x0020000001000000ull, 0x0020000001800000ull, LHCONST3NA },
+	{ AP, 0x0000000001000000ull, 0x0020000003800000ull, L3CONST16 },
+	{ AP, 0x0000000003000000ull, 0x0020000003800000ull, L3CONST16PI },
+	{ AP, 0x0020000001000000ull, 0x0020000001800000ull, L3CONST16NA },
 	{ AP, 0x0000000000000000ull, 0x0000000000000000ull, LHSRC3 },
 };
 
 static struct insn tablc3w[] = {
-	{ AP, 0x0000000001000000ull, 0x0020000001800000ull, LCONST3 },
-	{ AP, 0x0020000001000000ull, 0x0020000001800000ull, LCONST3NA },
+	{ AP, 0x0000000001000000ull, 0x0020000003800000ull, L3CONST32 },
+	{ AP, 0x0000000003000000ull, 0x0020000003800000ull, L3CONST32PI },
+	{ AP, 0x0020000001000000ull, 0x0020000001800000ull, L3CONST32NA },
 	{ AP, 0x0000000000000000ull, 0x0000000000000000ull, LSRC3 },
 };
 
@@ -1094,10 +1111,14 @@ static struct insn tablane[] = {
 
 // for mov from c[]
 static struct insn tabfcon[] = {
-	{ AP, 0x0000000000000000ull, 0x0000c00000000000ull, N("u8"), FBCONST },
-	{ AP, 0x0000400000000000ull, 0x0000c00000000000ull, N("u16"), FHCONST },
-	{ AP, 0x0000800000000000ull, 0x0000c00000000000ull, N("s16"), FHCONST },
-	{ AP, 0x0000c00000000000ull, 0x0000c00000000000ull, N("b32"), FCONST },
+	{ AP, 0x0000000000000000ull, 0x0000c00002000000ull, N("u8"), FCONST8 },
+	{ AP, 0x0000400000000000ull, 0x0000c00002000000ull, N("u16"), FCONST16 },
+	{ AP, 0x0000800000000000ull, 0x0000c00002000000ull, N("s16"), FCONST16 },
+	{ AP, 0x0000c00000000000ull, 0x0000c00002000000ull, N("b32"), FCONST32 },
+	{ AP, 0x0000000002000000ull, 0x0000c00002000000ull, N("u8"), FCONST8PI },
+	{ AP, 0x0000400002000000ull, 0x0000c00002000000ull, N("u16"), FCONST16PI },
+	{ AP, 0x0000800002000000ull, 0x0000c00002000000ull, N("s16"), FCONST16PI },
+	{ AP, 0x0000c00002000000ull, 0x0000c00002000000ull, N("b32"), FCONST32PI },
 	{ AP, 0, 0, OOPS }
 };
 
