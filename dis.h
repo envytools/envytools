@@ -152,6 +152,7 @@ struct mem {
 	const struct bitfield *imm;
 	const struct reg *reg2;
 	int reg2shr;
+	int postincr; // nv50dis hack.
 };
 
 struct vec {

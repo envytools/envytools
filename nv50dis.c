@@ -355,7 +355,8 @@ static struct bitfield ssrc2_bf = { 0x10, 6 };
 static struct bitfield lsrc2_bf = { 0x10, 7 };
 static struct bitfield lsrc3_bf = { 0x2e, 7 };
 static struct bitfield odst_bf = { 2, 7 };
-static struct bitfield areg_bf = { { 0x1a, 2, 0x22, 1 } };
+static struct bitfield sareg_bf = { 0x1a, 2 };
+static struct bitfield lareg_bf = { { 0x1a, 2, 0x22, 1 } };
 static struct bitfield adst_bf = { 2, 3 };
 static struct bitfield cond_bf = { 0x2c, 2 };
 static struct bitfield c0_bf = { 0, 0 };
@@ -385,7 +386,8 @@ static struct reg lhsrc3_r = { &lsrc3_bf, "r", .hilo = 1 };
 static struct reg ldsrc3_r = { &lsrc3_bf, "r", "d" };
 static struct reg odst_r = { &odst_bf, "o", .specials = oreg_sr };
 static struct reg ohdst_r = { &odst_bf, "o", .specials = oreg_sr, .hilo = 1 };
-static struct reg areg_r = { &areg_bf, "a", .specials = areg_sr };
+static struct reg sareg_r = { &sareg_bf, "a", .specials = areg_sr }; // for mem operands only
+static struct reg lareg_r = { &lareg_bf, "a", .specials = areg_sr };
 static struct reg adst_r = { &adst_bf, "a", .specials = areg_sr };
 static struct reg cond_r = { &cond_bf, "c" };
 static struct reg c0_r = { &c0_bf, "c" };
@@ -412,7 +414,7 @@ static struct reg sreg_r = { &sreg_bf, "sr", .specials = sreg_sr, .always_specia
 #define LSRC3 atomreg, &lsrc3_r
 #define LHSRC3 atomreg, &lhsrc3_r
 #define LDSRC3 atomreg, &ldsrc3_r
-#define AREG atomreg, &areg_r
+#define LAREG atomreg, &lareg_r
 #define ODST atomreg, &odst_r
 #define OHDST atomreg, &ohdst_r
 #define ADST atomreg, &adst_r
@@ -532,8 +534,6 @@ static int lhcmem3na[] = { 0x2e, 7, 1, 'c', 0, 0x36, 4 };	// TODO
 static int fcmem[] = { 9, 14, 2, 'c', 7, 0x36, 4 };		// done
 static int fhcmem[] = { 9, 15, 1, 'c', 7, 0x36, 4 };		// done
 static int fbcmem[] = { 9, 16, 0, 'c', 7, 0x36, 4 };		// done
-// local
-static int lmem[] = { 9, 16, 0, 'l', 7, 0, 0 };		// done
 // varying
 static int svmem[] = { 0x10, 8, 2, 'v', 1, 0, 0 };		// TODO
 static int lvmem[] = { 0x10, 8, 2, 'v', 3, 0, 0 };		// TODO
@@ -559,7 +559,6 @@ static int lvmem[] = { 0x10, 8, 2, 'v', 3, 0, 0 };		// TODO
 #define LHCONST2NA atomoldmem, lhcmem2na
 #define LCONST3NA atomoldmem, lcmem3na
 #define LHCONST3NA atomoldmem, lhcmem3na
-#define LOCAL atomoldmem, lmem
 #define FSHARED atomoldmem, fsmem
 #define FHSHARED atomoldmem, fhsmem
 #define FBSHARED atomoldmem, fbsmem
@@ -587,6 +586,13 @@ static void atomoldmem APROTO {
 		fprintf (ctx->out, "%s%#x%s]", cyel, mo, ccy);
 	}
 }
+
+static struct bitfield lmem_imm = { 9, 16 };
+static struct mem lmem_m = { "l", 0, &lareg_r, &lmem_imm };
+static struct mem lmempi_m = { "l", 0, &lareg_r, &lmem_imm, .postincr = 1 };
+#define LOCAL atommem, &lmem_m
+#define LOCALPI atommem, &lmempi_m
+F(local, 0x19, LOCAL, LOCALPI);
 
 static struct bitfield global_idx = { 0x10, 4 };
 static struct bitfield global2_idx = { 0x17, 4 };
@@ -1122,7 +1128,7 @@ static struct insn tabl[] = {
 	{ AP, 0x2000000000000000ull, 0xe0000000f0000000ull,
 		N("mov"), LDST, COND },
 	{ AP, 0x4000000000000000ull, 0xe0000000f0000000ull,
-		N("mov"), LDST, AREG },
+		N("mov"), LDST, LAREG },
 	{ AP, 0x6000000000000000ull, 0xe0000000f0000000ull,
 		N("mov"), LDST, SREG },
 
@@ -1387,13 +1393,13 @@ static struct insn tabl[] = {
 		T(logop), N("b32"), MCDST, LLDST, T(s32not), T(lsw), T(s33not), T(lc2w) },
 
 	{ AP, 0x20000000d0000000ull, 0xe0000000f0000000ull,
-		N("add"), ADST, AREG, OFFS },
+		N("add"), ADST, LAREG, OFFS },
 
 	// desc VVV
 	{ AP, 0x40000000d0000000ull, 0xe0000000f0000000ull,
-		N("ld"), T(ldstm), T(ldsto), LOCAL },
+		N("ld"), T(ldstm), T(ldsto), T(local) },
 	{ AP, 0x60000000d0000000ull, 0xe0000000f0000000ull,
-		N("st"), T(ldstm), LOCAL, T(ldsto) },
+		N("st"), T(ldstm), T(local), T(ldsto) },
 
 	{ CP, 0x80000000d0000000ull, 0xe0000000f0000000ull,
 		N("ld"), T(ldstm), T(ldsto), GLOBAL },

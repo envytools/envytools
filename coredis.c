@@ -175,7 +175,13 @@ void atommem APROTO {
 		anything = printreg(ctx, a, m, mem->reg);
 	if (mem->imm) {
 		ull imm = GETBF(mem->imm);
-		if (imm) {
+		if (mem->postincr) {
+			if (imm & 1ull << 63)
+				fprintf (ctx->out, "%s--%s%#llx", ccy, cyel, -imm);
+			else if (anything)
+				fprintf (ctx->out, "%s++%s%#llx", ccy, cyel, imm);
+			anything = 1;
+		} else if (imm) {
 			if (imm & 1ull << 63)
 				fprintf (ctx->out, "%s-%s%#llx", ccy, cyel, -imm);
 			else if (anything)
