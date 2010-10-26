@@ -534,9 +534,6 @@ static int lhcmem3na[] = { 0x2e, 7, 1, 'c', 0, 0x36, 4 };	// TODO
 static int fcmem[] = { 9, 14, 2, 'c', 7, 0x36, 4 };		// done
 static int fhcmem[] = { 9, 15, 1, 'c', 7, 0x36, 4 };		// done
 static int fbcmem[] = { 9, 16, 0, 'c', 7, 0x36, 4 };		// done
-// varying
-static int svmem[] = { 0x10, 8, 2, 'v', 1, 0, 0 };		// TODO
-static int lvmem[] = { 0x10, 8, 2, 'v', 3, 0, 0 };		// TODO
 
 #define SSHARED atomoldmem, ssmem
 #define SHSHARED atomoldmem, shsmem
@@ -565,8 +562,6 @@ static int lvmem[] = { 0x10, 8, 2, 'v', 3, 0, 0 };		// TODO
 #define FCONST atomoldmem, fcmem
 #define FHCONST atomoldmem, fhcmem
 #define FBCONST atomoldmem, fbcmem
-#define SVAR atomoldmem, svmem
-#define LVAR atomoldmem, lvmem
 static void atomoldmem APROTO {
 	if (!ctx->out)
 		return;
@@ -593,6 +588,13 @@ static struct mem lmempi_m = { "l", 0, &lareg_r, &lmem_imm, .postincr = 1 };
 #define LOCAL atommem, &lmem_m
 #define LOCALPI atommem, &lmempi_m
 F(local, 0x19, LOCAL, LOCALPI);
+
+// XXX: try for postincr
+static struct bitfield vmem_imm = { { 0x10, 8 }, BF_UNSIGNED, 2 };
+static struct mem svmem_m = { "v", 0, &sareg_r, &vmem_imm };
+static struct mem lvmem_m = { "v", 0, &lareg_r, &vmem_imm };
+#define SVAR atommem, &svmem_m
+#define LVAR atommem, &lvmem_m
 
 static struct bitfield global_idx = { 0x10, 4 };
 static struct bitfield global2_idx = { 0x17, 4 };
