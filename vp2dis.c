@@ -218,40 +218,27 @@ static struct bitfield sllioff = { { 4, 4, 20, 1 }, BF_LUT, .lut = sllilut };
  * Memory fields
  */
 
-#define L32R atoml32r, 0
-static void atoml32r APROTO {
-	if (!ctx->out)
-		return;
-	uint32_t delta = BF(8, 16) | 0xffff0000;
-	uint32_t addr = ((ctx->pos + 3) & ~3) + (delta << 2);
-	fprintf (ctx->out, " %sD[%s%#x%s]", ccy, cyel, addr, ccy);
-}
-
-#define DATA32E atomdata32e, 0
-static void atomdata32e APROTO {
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %sD[%s$r%lld%s-%s%#llx%s]", ccy, cbl, BF(8, 4), ccy, cyel, (16 - BF(12, 4)) << 2, ccy);
-}
-
-static int data32noff[] = { 8, 4, 12, 4, 2 };
-static int datacoff[] = { 8, 4, 16, 8, 2 };
-static int datacloff[] = { 8, 4, 20, 4, 4 };
-static int data32off[] = { 8, 4, 16, 8, 2 };
-static int data16off[] = { 8, 4, 16, 8, 1 };
-static int data8off[] = { 8, 4, 16, 8, 0 };
-#define DATA32N atomoldmem, data32noff
-#define DATACL atomoldmem, datacloff
-#define DATA32 atomoldmem, data32off
-#define DATA16 atomoldmem, data16off
-#define DATA8 atomoldmem, data8off
-static void atomoldmem APROTO {
-	if (!ctx->out)
-		return;
-	const int *n = v;
-	ull delta = BF(n[2], n[3]) << n[4];
-	fprintf (ctx->out, " %sD[%s$r%lld%s+%s%#llx%s]", ccy, cbl, BF(n[0], n[1]), ccy, cyel, delta, ccy);
-}
+static struct bitfield l32r_imm = { { 8, 16 }, BF_ULTRASIGNED, 2, .pcrel = 1, .pospreadd = 3 };
+static struct bitfield data32e_imm = { { 12, 4 }, BF_ULTRASIGNED, 2 };
+static struct bitfield data32n_imm = { { 12, 4 }, BF_UNSIGNED, 2 };
+static struct bitfield datacl_imm = { { 20, 4 }, BF_UNSIGNED, 4 };
+static struct bitfield data32_imm = { { 16, 8 }, BF_UNSIGNED, 2 };
+static struct bitfield data16_imm = { { 16, 8 }, BF_UNSIGNED, 1 };
+static struct bitfield data8_imm = { { 16, 8 }, BF_UNSIGNED, 0 };
+static struct mem l32r_m = { "", 0, 0, &l32r_imm };
+static struct mem data32e_m = { "", 0, &as_r, &data32e_imm };
+static struct mem data32n_m = { "", 0, &as_r, &data32n_imm };
+static struct mem datacl_m = { "", 0, &as_r, &datacl_imm };
+static struct mem data32_m = { "", 0, &as_r, &data32_imm };
+static struct mem data16_m = { "", 0, &as_r, &data16_imm };
+static struct mem data8_m = { "", 0, &as_r, &data8_imm };
+#define L32R atommem, &l32r_m
+#define DATA32E atommem, &data32e_m
+#define DATA32N atommem, &data32n_m
+#define DATACL atommem, &datacl_m
+#define DATA32 atommem, &data32_m
+#define DATA16 atommem, &data16_m
+#define DATA8 atommem, &data8_m
 
 static struct insn tabm[] = {
 	{ AP, 0x000000, 0xffffff, N("ill") },
