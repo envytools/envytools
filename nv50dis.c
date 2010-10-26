@@ -513,13 +513,6 @@ static int lbsmem[] = { 9, 5, 0, 's', 7, 0, 0 };		// done
 static int fsmem[] = { 9, 14, 2, 's', 7, 0, 0 };		// done
 static int fhsmem[] = { 9, 15, 1, 's', 7, 0, 0 };		// done
 static int fbsmem[] = { 9, 16, 0, 's', 7, 0, 0 };		// done
-// attr
-static int samem[] = { 9, 6, 2, 'a', 0, 0, 0 };		// TODO
-static int lamem[] = { 9, 7, 2, 'a', 0, 0, 0 };		// TODO
-static int famem[] = { 9, 7, 2, 'a', 3, 0, 0 };		// TODO
-// prim
-static int spmem[] = { 9, 6, 2, 'p', 1, 0, 0 };		// TODO
-static int lpmem[] = { 9, 7, 2, 'p', 3, 0, 0 };		// TODO
 // const
 static int scmem[] = { 0x10, 5, 2, 'c', 1, 0x15, 1 };		// TODO
 static int shcmem[] = { 0x10, 5, 1, 'c', 1, 0x15, 1 };		// TODO
@@ -541,11 +534,6 @@ static int fbcmem[] = { 9, 16, 0, 'c', 7, 0x36, 4 };		// done
 #define LSHARED atomoldmem, lsmem
 #define LHSHARED atomoldmem, lhsmem
 #define LBSHARED atomoldmem, lbsmem
-#define SATTR atomoldmem, samem
-#define LATTR atomoldmem, lamem
-#define FATTR atomoldmem, famem
-#define SPRIM atomoldmem, spmem
-#define LPRIM atomoldmem, lpmem
 #define SCONST atomoldmem, scmem
 #define SHCONST atomoldmem, shcmem
 #define LCONST2 atomoldmem, lcmem2
@@ -588,6 +576,20 @@ static struct mem lmempi_m = { "l", 0, &lareg_r, &lmem_imm, .postincr = 1 };
 #define LOCAL atommem, &lmem_m
 #define LOCALPI atommem, &lmempi_m
 F(local, 0x19, LOCAL, LOCALPI);
+
+// XXX: try for postincr
+static struct bitfield samem_imm = { { 9, 6 }, BF_UNSIGNED, 2 };
+static struct bitfield lamem_imm = { { 9, 7 }, BF_UNSIGNED, 2 };
+static struct mem samem_m = { "a", 0, 0, &samem_imm };
+static struct mem lamem_m = { "a", 0, 0, &lamem_imm };
+static struct mem famem_m = { "a", 0, &lareg_r, &lamem_imm };
+static struct mem spmem_m = { "p", 0, &sareg_r, &samem_imm };
+static struct mem lpmem_m = { "p", 0, &lareg_r, &lamem_imm };
+#define SATTR atommem, &samem_m
+#define LATTR atommem, &lamem_m
+#define FATTR atommem, &famem_m
+#define SPRIM atommem, &spmem_m
+#define LPRIM atommem, &lpmem_m
 
 // XXX: try for postincr
 static struct bitfield vmem_imm = { { 0x10, 8 }, BF_UNSIGNED, 2 };
