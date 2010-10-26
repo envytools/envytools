@@ -588,16 +588,12 @@ static void atomoldmem APROTO {
 	}
 }
 
-static int g1mem[] = { 0x10, 4 };
-static int g2mem[] = { 0x17, 4 };
-#define GLOBAL atomglobal, g1mem
-#define GLOBAL2 atomglobal, g2mem
-static void atomglobal APROTO {
-	if (!ctx->out)
-		return;
-	const int *n = v;
-	fprintf (ctx->out, " %sg%lld[%s$r%lld%s]", ccy, BF(n[0], n[1]), cbl, BF(9, 7), ccy);
-}
+static struct bitfield global_idx = { 0x10, 4 };
+static struct bitfield global2_idx = { 0x17, 4 };
+static struct mem global_m = { "g", &global_idx, &lsrc_r };
+static struct mem global2_m = { "g", &global2_idx, &lsrc_r };
+#define GLOBAL atommem, &global_m
+#define GLOBAL2 atommem, &global2_m
 
 static struct insn tabss[] = {
 	{ GP, 0x01800000, 0x01800000, SPRIM },	// XXX check
