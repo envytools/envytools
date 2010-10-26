@@ -503,16 +503,62 @@ F1(mcdst, 0x26, CDST)
 
 // BF, offset shift, 'l', flags, const space num BF. flags: 1 supports $a, 2 supports full 3-bit $a, 4 supports autoincrement
 
-// shared
-static int ssmem[] = { 9, 4, 2, 's', 5, 0, 0 };		// done
-static int shsmem[] = { 9, 4, 1, 's', 5, 0, 0 };		// done
-static int sbsmem[] = { 9, 4, 0, 's', 5, 0, 0 };		// done
-static int lsmem[] = { 9, 5, 2, 's', 7, 0, 0 };		// done
-static int lhsmem[] = { 9, 5, 1, 's', 7, 0, 0 };		// done
-static int lbsmem[] = { 9, 5, 0, 's', 7, 0, 0 };		// done
-static int fsmem[] = { 9, 14, 2, 's', 7, 0, 0 };		// done
-static int fhsmem[] = { 9, 15, 1, 's', 7, 0, 0 };		// done
-static int fbsmem[] = { 9, 16, 0, 's', 7, 0, 0 };		// done
+static struct bitfield fmem8_imm = { { 9, 16 }, BF_UNSIGNED, 0 };
+static struct bitfield fmem16_imm = { { 9, 15 }, BF_UNSIGNED, 1 };
+static struct bitfield fmem32_imm = { { 9, 14 }, BF_UNSIGNED, 2 };
+
+static struct bitfield ssmem8_imm = { { 9, 4 }, BF_UNSIGNED, 0 };
+static struct bitfield ssmem16_imm = { { 9, 4 }, BF_UNSIGNED, 1 };
+static struct bitfield ssmem32_imm = { { 9, 4 }, BF_UNSIGNED, 2 };
+static struct bitfield lsmem8_imm = { { 9, 5 }, BF_UNSIGNED, 0 };
+static struct bitfield lsmem16_imm = { { 9, 5 }, BF_UNSIGNED, 1 };
+static struct bitfield lsmem32_imm = { { 9, 5 }, BF_UNSIGNED, 2 };
+static struct bitfield ssmem8pi_imm = { { 9, 4 }, BF_SIGNED, 0 };
+static struct bitfield ssmem16pi_imm = { { 9, 4 }, BF_SIGNED, 1 };
+static struct bitfield ssmem32pi_imm = { { 9, 4 }, BF_SIGNED, 2 };
+static struct bitfield lsmem8pi_imm = { { 9, 5 }, BF_SIGNED, 0 };
+static struct bitfield lsmem16pi_imm = { { 9, 5 }, BF_SIGNED, 1 };
+static struct bitfield lsmem32pi_imm = { { 9, 5 }, BF_SIGNED, 2 };
+static struct mem ssmem8_m = { "s", 0, &sareg_r, &ssmem8_imm };
+static struct mem ssmem16_m = { "s", 0, &sareg_r, &ssmem16_imm };
+static struct mem ssmem32_m = { "s", 0, &sareg_r, &ssmem32_imm };
+static struct mem lsmem8_m = { "s", 0, &lareg_r, &lsmem8_imm };
+static struct mem lsmem16_m = { "s", 0, &lareg_r, &lsmem16_imm };
+static struct mem lsmem32_m = { "s", 0, &lareg_r, &lsmem32_imm };
+static struct mem ssmem8pi_m = { "s", 0, &sareg_r, &ssmem8pi_imm, .postincr = 1 };
+static struct mem ssmem16pi_m = { "s", 0, &sareg_r, &ssmem16pi_imm, .postincr = 1 };
+static struct mem ssmem32pi_m = { "s", 0, &sareg_r, &ssmem32pi_imm, .postincr = 1 };
+static struct mem lsmem8pi_m = { "s", 0, &lareg_r, &lsmem8pi_imm, .postincr = 1 };
+static struct mem lsmem16pi_m = { "s", 0, &lareg_r, &lsmem16pi_imm, .postincr = 1 };
+static struct mem lsmem32pi_m = { "s", 0, &lareg_r, &lsmem32pi_imm, .postincr = 1 };
+static struct mem fsmem8_m = { "s", 0, &lareg_r, &fmem8_imm };
+static struct mem fsmem16_m = { "s", 0, &lareg_r, &fmem16_imm };
+static struct mem fsmem32_m = { "s", 0, &lareg_r, &fmem32_imm };
+static struct mem fsmem8pi_m = { "s", 0, &lareg_r, &fmem8_imm, .postincr = 1 };
+static struct mem fsmem16pi_m = { "s", 0, &lareg_r, &fmem16_imm, .postincr = 1 };
+static struct mem fsmem32pi_m = { "s", 0, &lareg_r, &fmem32_imm, .postincr = 1 };
+#define SSHARED8 atommem, &ssmem8_m
+#define SSHARED16 atommem, &ssmem16_m
+#define SSHARED32 atommem, &ssmem32_m
+#define LSHARED8 atommem, &lsmem8_m
+#define LSHARED16 atommem, &lsmem16_m
+#define LSHARED32 atommem, &lsmem32_m
+#define SSHARED8PI atommem, &ssmem8pi_m
+#define SSHARED16PI atommem, &ssmem16pi_m
+#define SSHARED32PI atommem, &ssmem32pi_m
+#define LSHARED8PI atommem, &lsmem8pi_m
+#define LSHARED16PI atommem, &lsmem16pi_m
+#define LSHARED32PI atommem, &lsmem32pi_m
+#define FSHARED8 atommem, &fsmem8_m
+#define FSHARED16 atommem, &fsmem16_m
+#define FSHARED32 atommem, &fsmem32_m
+#define FSHARED8PI atommem, &fsmem8pi_m
+#define FSHARED16PI atommem, &fsmem16pi_m
+#define FSHARED32PI atommem, &fsmem32pi_m
+F(fs8, 0x19, FSHARED8, FSHARED8PI);
+F(fs16, 0x19, FSHARED16, FSHARED16PI);
+F(fs32, 0x19, FSHARED32, FSHARED32PI);
+
 // const
 static int scmem[] = { 0x10, 5, 2, 'c', 1, 0x15, 1 };		// TODO
 static int shcmem[] = { 0x10, 5, 1, 'c', 1, 0x15, 1 };		// TODO
@@ -528,12 +574,6 @@ static int fcmem[] = { 9, 14, 2, 'c', 7, 0x36, 4 };		// done
 static int fhcmem[] = { 9, 15, 1, 'c', 7, 0x36, 4 };		// done
 static int fbcmem[] = { 9, 16, 0, 'c', 7, 0x36, 4 };		// done
 
-#define SSHARED atomoldmem, ssmem
-#define SHSHARED atomoldmem, shsmem
-#define SBSHARED atomoldmem, sbsmem
-#define LSHARED atomoldmem, lsmem
-#define LHSHARED atomoldmem, lhsmem
-#define LBSHARED atomoldmem, lbsmem
 #define SCONST atomoldmem, scmem
 #define SHCONST atomoldmem, shcmem
 #define LCONST2 atomoldmem, lcmem2
@@ -544,9 +584,6 @@ static int fbcmem[] = { 9, 16, 0, 'c', 7, 0x36, 4 };		// done
 #define LHCONST2NA atomoldmem, lhcmem2na
 #define LCONST3NA atomoldmem, lcmem3na
 #define LHCONST3NA atomoldmem, lhcmem3na
-#define FSHARED atomoldmem, fsmem
-#define FHSHARED atomoldmem, fhsmem
-#define FBSHARED atomoldmem, fbsmem
 #define FCONST atomoldmem, fcmem
 #define FHCONST atomoldmem, fhcmem
 #define FBCONST atomoldmem, fbcmem
@@ -607,20 +644,28 @@ static struct mem global2_m = { "g", &global2_idx, &lsrc_r };
 
 static struct insn tabss[] = {
 	{ GP, 0x01800000, 0x01800000, SPRIM },	// XXX check
-	{ CP, 0x00000000, 0x00006000, N("u8"), SBSHARED },
-	{ CP, 0x00002000, 0x00006000, N("u16"), SHSHARED },
-	{ CP, 0x00004000, 0x00006000, N("s16"), SHSHARED },
-	{ CP, 0x00006000, 0x00006000, N("b32"), SSHARED },
+	{ CP, 0x00000000, 0x02006000, N("u8"), SSHARED8 },
+	{ CP, 0x00002000, 0x02006000, N("u16"), SSHARED16 },
+	{ CP, 0x00004000, 0x02006000, N("s16"), SSHARED16 },
+	{ CP, 0x00006000, 0x02006000, N("b32"), SSHARED32 },
+	{ CP, 0x02000000, 0x02006000, N("u8"), SSHARED8PI },
+	{ CP, 0x02002000, 0x02006000, N("u16"), SSHARED16PI },
+	{ CP, 0x02004000, 0x02006000, N("s16"), SSHARED16PI },
+	{ CP, 0x02006000, 0x02006000, N("b32"), SSHARED32PI },
 	{ VP|GP, 0, 0, SATTR },
 	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabls[] = {
 	{ GP, 0x01800000, 0x01800000, LPRIM },	// XXX check
-	{ CP, 0x00000000, 0x0000c000, N("u8"), LBSHARED },
-	{ CP, 0x00004000, 0x0000c000, N("u16"), LHSHARED },
-	{ CP, 0x00008000, 0x0000c000, N("s16"), LHSHARED },
-	{ CP, 0x0000c000, 0x0000c000, N("b32"), LSHARED },
+	{ CP, 0x00000000, 0x02006000, N("u8"), LSHARED8 },
+	{ CP, 0x00002000, 0x02006000, N("u16"), LSHARED16 },
+	{ CP, 0x00004000, 0x02006000, N("s16"), LSHARED16 },
+	{ CP, 0x00006000, 0x02006000, N("b32"), LSHARED32 },
+	{ CP, 0x02000000, 0x02006000, N("u8"), LSHARED8PI },
+	{ CP, 0x02002000, 0x02006000, N("u16"), LSHARED16PI },
+	{ CP, 0x02004000, 0x02006000, N("s16"), LSHARED16PI },
+	{ CP, 0x02006000, 0x02006000, N("b32"), LSHARED32PI },
 	{ VP|GP, 0, 0, LATTR },
 	{ AP, 0, 0, OOPS },
 };
@@ -1143,11 +1188,11 @@ static struct insn tabl[] = {
 	
 	// desc VVV
 	{ CP, 0xe040000000000000ull, 0xe0400000f0000000ull,
-		N("st"), N("b8"), FBSHARED, T(sstreg) },
+		N("st"), N("b8"), T(fs8), T(sstreg) },
 	{ CP, 0xe000000000000000ull, 0xe4400000f0000000ull,
-		N("st"), N("b16"), FHSHARED, T(sstreg) },
+		N("st"), N("b16"), T(fs16), T(sstreg) },
 	{ CP, 0xe400000000000000ull, 0xe4400000f0000000ull,
-		N("st"), T(unlock), N("b32"), FSHARED, T(sstreg) },
+		N("st"), T(unlock), N("b32"), T(fs32), T(sstreg) },
 	// desc ^^^
 
 	// 1
@@ -1161,15 +1206,15 @@ static struct insn tabl[] = {
 		N("ld"), T(csldreg), T(fcon) },
 
 	{ CP, 0x4000000010000000ull, 0xe000c000f0000000ull,	// sm_11. ptxas inexplicably starts using
-		N("ld"), T(csldreg), N("u8"), FBSHARED },	// these forms instead of the other one
+		N("ld"), T(csldreg), N("u8"), T(fs8) },	// these forms instead of the other one
 	{ CP, 0x4000400010000000ull, 0xe000c000f0000000ull,	// on >=sm_11.
-		N("ld"), T(csldreg), N("u16"), FHSHARED },
+		N("ld"), T(csldreg), N("u16"), T(fs16) },
 	{ CP, 0x4000800010000000ull, 0xe000c000f0000000ull,
-		N("ld"), T(csldreg), N("s16"), FHSHARED },
+		N("ld"), T(csldreg), N("s16"), T(fs16) },
 	{ CP, 0x4000c00010000000ull, 0xe080c000f0000000ull,
-		N("ld"), T(csldreg), N("b32"), FSHARED },
+		N("ld"), T(csldreg), N("b32"), T(fs32) },
 	{ CP, 0x4080c04010000000ull, 0xe080c040f0000000ull,
-		N("ld"), N("lock"), CDST, T(csldreg), N("b32"), FSHARED },
+		N("ld"), N("lock"), CDST, T(csldreg), N("b32"), T(fs32) },
 
 	{ AP, 0x6000000010000200ull, 0xe0000000f0000600ull,
 		N("vote any"), CDST, IGNCE },	// sm_12
