@@ -42,20 +42,46 @@ static struct bitfield pcrel8off = { { 16, 8 }, BF_SIGNED, .pcrel = 1 };
  * Register fields
  */
 
-static int reg1off[] = { 8, 4, 'r' };
-static int reg2off[] = { 12, 4, 'r' };
-static int reg3off[] = { 20, 4, 'r' };
-static int pred1off[] = { 8, 3, 'p' };
-static int pred2off[] = { 16, 3, 'p' };
-static int creg1off[] = { 16, 3, 'c' };
-static int creg2off[] = { 20, 3, 'c' };
-#define REG1 atomreg, reg1off
-#define REG2 atomreg, reg2off
-#define REG3 atomreg, reg3off
-#define PRED1 atomreg, pred1off
-#define PRED2 atomreg, pred2off
-#define CREG1 atomreg, creg1off
-#define CREG2 atomreg, creg2off
+static struct sreg sreg_sr[] = {
+	{ 0, "iv0" },
+	{ 1, "iv1" },
+	{ 3, "tv" },
+	{ 4, "sp" },
+	{ 5, "pc" },
+	{ 6, "xcbase" },
+	{ 7, "xdbase" },
+	{ 8, "flags" },
+	{ 9, "cx" },
+	{ 0xa, "cauth" },
+	{ 0xb, "xtargets" },
+	{ 0xc, "tstatus" },
+	{ -1 },
+};
+static struct bitfield reg1_bf = { 8, 4 };
+static struct bitfield reg2_bf = { 12, 4 };
+static struct bitfield reg3_bf = { 20, 4 };
+static struct bitfield pred1_bf = { 8, 3 };
+static struct bitfield pred2_bf = { 16, 3 };
+static struct bitfield creg1_bf = { 16, 3 };
+static struct bitfield creg2_bf = { 20, 3 };
+static struct reg reg1_r = { &reg1_bf, "r" };
+static struct reg reg2_r = { &reg2_bf, "r" };
+static struct reg reg3_r = { &reg3_bf, "r" };
+static struct reg pred1_r = { &pred1_bf, "p" };
+static struct reg pred2_r = { &pred2_bf, "p" };
+static struct reg creg1_r = { &creg1_bf, "c" };
+static struct reg creg2_r = { &creg2_bf, "c" };
+static struct reg sreg1_r = { &reg1_bf, "s", .specials = sreg_sr, .always_special = 1 };
+static struct reg sreg2_r = { &reg2_bf, "s", .specials = sreg_sr, .always_special = 1 };
+#define REG1 atomreg, &reg1_r
+#define REG2 atomreg, &reg2_r
+#define REG3 atomreg, &reg3_r
+#define PRED1 atomreg, &pred1_r
+#define PRED2 atomreg, &pred2_r
+#define CREG1 atomreg, &creg1_r
+#define CREG2 atomreg, &creg2_r
+#define SREG1 atomreg, &sreg1_r
+#define SREG2 atomreg, &sreg2_r
 
 /*
  * Immediate fields
@@ -312,36 +338,6 @@ static struct insn tabdatarr[] = {
 	{ AP, 0, 0, OOPS },
 };
 
-static struct insn tabsrs[] = {
-	{ AP, 0x00000000, 0x0000f000, N("iv0") },
-	{ AP, 0x00001000, 0x0000f000, N("iv1") },
-	{ AP, 0x00003000, 0x0000f000, N("tv") },
-	{ AP, 0x00004000, 0x0000f000, N("sp") },
-	{ AP, 0x00005000, 0x0000f000, N("pc") },
-	{ AP, 0x00006000, 0x0000f000, N("xcbase") },
-	{ AP, 0x00007000, 0x0000f000, N("xdbase") },
-	{ AP, 0x00008000, 0x0000f000, N("flags") },
-	{ AP, 0x00009000, 0x0000f000, N("cx") }, /* coprocessor xfer */
-	{ AP, 0x0000a000, 0x0000f000, N("cauth") },
-	{ AP, 0x0000b000, 0x0000f000, N("xtargets") },
-	{ AP, 0x0000c000, 0x0000f000, N("tstatus") },
-	{ AP, 0, 0, OOPS },
-};
-
-static struct insn tabsrd[] = {
-	{ AP, 0x00000000, 0x00000f00, N("iv0") },
-	{ AP, 0x00000100, 0x00000f00, N("iv1") },
-	{ AP, 0x00000300, 0x00000f00, N("tv") },
-	{ AP, 0x00000400, 0x00000f00, N("sp") },
-	{ AP, 0x00000600, 0x00000f00, N("xcbase") },
-	{ AP, 0x00000700, 0x00000f00, N("xdbase") },
-	{ AP, 0x00000800, 0x00000f00, N("flags") },
-	{ AP, 0x00000a00, 0x00000f00, N("cauth") },
-	{ AP, 0x00000b00, 0x00000f00, N("xtargets") },
-	{ AP, 0x00000c00, 0x00000f00, N("tstatus") },
-	{ AP, 0, 0, OOPS },
-};
-
 static struct insn tabsi[] = {
 	{ AP, 0x00000000, 0x0000003f, OP24, N("st"), T(sz), T(datari), REG1 },
 
@@ -571,8 +567,8 @@ static struct insn tabm[] = {
 	{ AP, 0x000000fc, 0x00000fff, OP16, N("pop"), REG2 },
 	{ AP, 0x000000fc, 0x000000ff, OP16, OOPS, REG2 },
 
-	{ AP, 0x000000fe, 0x00ff00ff, OP24, N("mov"), T(srd), REG2 },
-	{ AP, 0x000100fe, 0x00ff00ff, OP24, N("mov"), REG1, T(srs) },
+	{ AP, 0x000000fe, 0x00ff00ff, OP24, N("mov"), SREG1, REG2 },
+	{ AP, 0x000100fe, 0x00ff00ff, OP24, N("mov"), REG1, SREG2 },
 	/*
 	 * REG1 = info about physical page in REG2, REG2 in pages
 	 *

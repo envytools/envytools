@@ -159,46 +159,109 @@ static struct bitfield hnumoff = { 0x38, 1 };
  * Register fields
  */
 
-static int dstoff[] = { 0xe, 6, 'r' };
-static int src1off[] = { 0x14, 6, 'r' };
-static int psrc1off[] = { 0x14, 3, 'p' };
-static int src2off[] = { 0x1a, 6, 'r' };
-static int psrc2off[] = { 0x1a, 3, 'p' };
-static int src3off[] = { 0x31, 6, 'r' };
-static int psrc3off[] = { 0x31, 3, 'p' };
-static int dst2off[] = { 0x2b, 6, 'r' }; // for atom
-static int predoff[] = { 0xa, 3, 'p' };
-static int pdstoff[] = { 0x11, 3, 'p' };
-static int pdst2off[] = { 0x36, 3, 'p' };
-static int pdst3off[] = { 0x35, 3, 'p' }; // ...the hell?
-static int pdst4off[] = { 0x32, 3, 'p' }; // yay.
-static int texoff[] = { 0x20, 7, 't' };
-static int sampoff[] = { 0x28, 4, 's' };
-static int surfoff[] = { 0x1a, 3, 'g' }; // speculative
-static int ccoff[] = { 0, 0, 'c' };
-#define DST atomreg, dstoff
-#define DSTD atomdreg, dstoff
-#define DSTQ atomqreg, dstoff
-#define SRC1 atomreg, src1off
-#define SRC1D atomdreg, src1off
-#define PSRC1 atomreg, psrc1off
-#define SRC2 atomreg, src2off
-#define SRC2D atomdreg, src2off
-#define PSRC2 atomreg, psrc2off
-#define SRC3 atomreg, src3off
-#define SRC3D atomdreg, src3off
-#define PSRC3 atomreg, psrc3off
-#define DST2 atomreg, dst2off
-#define DST2D atomdreg, dst2off
-#define PRED atomreg, predoff
-#define PDST atomreg, pdstoff
-#define PDST2 atomreg, pdst2off
-#define PDST3 atomreg, pdst3off
-#define PDST4 atomreg, pdst4off
-#define TEX atomreg, texoff
-#define SAMP atomreg, sampoff
-#define SURF atomreg, surfoff
-#define CC atomreg, ccoff
+static struct sreg sreg_sr[] = {
+	{ 0, "laneid" },
+	{ 2, "nphysid" }, // bits 8-14: nwarpid, bits 20-28: nsmid
+	{ 3, "physid" }, // bits 8-12: warpid, bits 20-28: smid
+	{ 4, "pm0" },
+	{ 5, "pm1" },
+	{ 6, "pm2" },
+	{ 7, "pm3" },
+	{ 0x10, "vtxcnt" }, // gl_PatchVerticesIn
+	{ 0x11, "invoc" }, // gl_InvocationID
+	{ 0x21, "tidx" },
+	{ 0x22, "tidy" },
+	{ 0x23, "tidz" },
+	{ 0x25, "ctaidx" },
+	{ 0x26, "ctaidy" },
+	{ 0x27, "ctaidz" },
+	{ 0x29, "ntidx" },
+	{ 0x2a, "ntidy" },
+	{ 0x2b, "ntidz" },
+	{ 0x2c, "gridid" },
+	{ 0x2d, "nctaidx" },
+	{ 0x2e, "nctaidy" },
+	{ 0x2f, "nctaidz" },
+	{ 0x30, "sbase" },	// the address in g[] space where s[] is.
+	{ 0x34, "lbase" },	// the address in g[] space where l[] is.
+	{ 0x37, "stackbase" },
+	{ 0x38, "lanemask_eq" }, // I have no idea what these do, but ptxas eats them just fine.
+	{ 0x39, "lanemask_lt" },
+	{ 0x3a, "lanemask_le" },
+	{ 0x3b, "lanemask_gt" },
+	{ 0x3c, "lanemask_ge" },
+	{ 0x50, "clock" }, // XXX some weird shift happening here.
+	{ 0x51, "clockhi" },
+	{ -1 },
+};
+
+static struct bitfield dst_bf = { 0xe, 6 };
+static struct bitfield src1_bf = { 0x14, 6 };
+static struct bitfield src2_bf = { 0x1a, 6 };
+static struct bitfield src3_bf = { 0x31, 6 };
+static struct bitfield dst2_bf = { 0x2b, 6 };
+static struct bitfield psrc1_bf = { 0x14, 3 };
+static struct bitfield psrc2_bf = { 0x1a, 3 };
+static struct bitfield psrc3_bf = { 0x31, 3 };
+static struct bitfield pred_bf = { 0xa, 3 };
+static struct bitfield pdst_bf = { 0x11, 3 };
+static struct bitfield pdst2_bf = { 0x36, 3 };
+static struct bitfield pdst3_bf = { 0x35, 3 }; // ...the hell?
+static struct bitfield pdst4_bf = { 0x32, 3 }; // yay.
+static struct bitfield tex_bf = { 0x20, 7 };
+static struct bitfield samp_bf = { 0x28, 4 };
+static struct bitfield surf_bf = { 0x1a, 3 };
+static struct bitfield sreg_bf = { 0x1a, 7 };
+
+static struct reg dst_r = { &dst_bf, "r" };
+static struct reg dstd_r = { &dst_bf, "r", "d" };
+static struct reg dstq_r = { &dst_bf, "r", "q" };
+static struct reg src1_r = { &src1_bf, "r" };
+static struct reg src1d_r = { &src1_bf, "r", "d" };
+static struct reg src2_r = { &src2_bf, "r" };
+static struct reg src2d_r = { &src2_bf, "r", "d" };
+static struct reg src3_r = { &src3_bf, "r" };
+static struct reg src3d_r = { &src3_bf, "r", "d" };
+static struct reg dst2_r = { &dst2_bf, "r" };
+static struct reg dst2d_r = { &dst2_bf, "r", "d" };
+static struct reg psrc1_r = { &psrc1_bf, "p" };
+static struct reg psrc2_r = { &psrc2_bf, "p" };
+static struct reg psrc3_r = { &psrc3_bf, "p" };
+static struct reg pred_r = { &pred_bf, "p" };
+static struct reg pdst_r = { &pdst_bf, "p" };
+static struct reg pdst2_r = { &pdst2_bf, "p" };
+static struct reg pdst3_r = { &pdst3_bf, "p" };
+static struct reg pdst4_r = { &pdst4_bf, "p" };
+static struct reg tex_r = { &tex_bf, "t" };
+static struct reg samp_r = { &samp_bf, "s" };
+static struct reg surf_r = { &surf_bf, "g" };
+static struct reg cc_r = { 0, "c" };
+static struct reg sreg_r = { &sreg_bf, "sr", .specials = sreg_sr, .always_special = 1 };
+
+#define DST atomreg, &dst_r
+#define DSTD atomreg, &dstd_r
+#define DSTQ atomreg, &dstq_r
+#define SRC1 atomreg, &src1_r
+#define SRC1D atomreg, &src1d_r
+#define PSRC1 atomreg, &psrc1_r
+#define SRC2 atomreg, &src2_r
+#define SRC2D atomreg, &src2d_r
+#define PSRC2 atomreg, &psrc2_r
+#define SRC3 atomreg, &src3_r
+#define SRC3D atomreg, &src3d_r
+#define PSRC3 atomreg, &psrc3_r
+#define DST2 atomreg, &dst2_r
+#define DST2D atomreg, &dst2d_r
+#define PRED atomreg, &pred_r
+#define PDST atomreg, &pdst_r
+#define PDST2 atomreg, &pdst2_r
+#define PDST3 atomreg, &pdst3_r
+#define PDST4 atomreg, &pdst4_r
+#define TEX atomreg, &tex_r
+#define SAMP atomreg, &samp_r
+#define SURF atomreg, &surf_r
+#define CC atomreg, &cc_r
+#define SREG atomreg, &sreg_r
 
 #define TDST atomtdst, 0
 static void atomtdst APROTO {
@@ -592,42 +655,6 @@ static struct insn tabcvtisrc[] = {
 	{ AP, 0, 0, OOPS, T(neg2), T(abs2), SRC2 },
 };
 
-static struct insn tabsreg[] = {
-	{ AP, 0x0000000000000000ull, 0x00000001fc000000ull, N("laneid") },
-	{ AP, 0x0000000008000000ull, 0x00000001fc000000ull, N("nphysid") }, // bits 8-14: nwarpid, bits 20-28: nsmid
-	{ AP, 0x000000000c000000ull, 0x00000001fc000000ull, N("physid") }, // bits 8-12: warpid, bits 20-28: smid
-	{ AP, 0x0000000010000000ull, 0x00000001fc000000ull, N("pm0") },
-	{ AP, 0x0000000014000000ull, 0x00000001fc000000ull, N("pm1") },
-	{ AP, 0x0000000018000000ull, 0x00000001fc000000ull, N("pm2") },
-	{ AP, 0x000000001c000000ull, 0x00000001fc000000ull, N("pm3") },
-	{ AP, 0x0000000040000000ull, 0x00000001fc000000ull, N("vtxcnt") }, // gl_PatchVerticesIn
-	{ AP, 0x0000000044000000ull, 0x00000001fc000000ull, N("invoc") }, // gl_InvocationID
-	{ AP, 0x0000000084000000ull, 0x00000001fc000000ull, N("tidx") },
-	{ AP, 0x0000000088000000ull, 0x00000001fc000000ull, N("tidy") },
-	{ AP, 0x000000008c000000ull, 0x00000001fc000000ull, N("tidz") },
-	{ AP, 0x0000000094000000ull, 0x00000001fc000000ull, N("ctaidx") },
-	{ AP, 0x0000000098000000ull, 0x00000001fc000000ull, N("ctaidy") },
-	{ AP, 0x000000009c000000ull, 0x00000001fc000000ull, N("ctaidz") },
-	{ AP, 0x00000000a4000000ull, 0x00000001fc000000ull, N("ntidx") },
-	{ AP, 0x00000000a8000000ull, 0x00000001fc000000ull, N("ntidy") },
-	{ AP, 0x00000000ac000000ull, 0x00000001fc000000ull, N("ntidz") },
-	{ AP, 0x00000000b0000000ull, 0x00000001fc000000ull, N("gridid") },
-	{ AP, 0x00000000b4000000ull, 0x00000001fc000000ull, N("nctaidx") },
-	{ AP, 0x00000000b8000000ull, 0x00000001fc000000ull, N("nctaidy") },
-	{ AP, 0x00000000bc000000ull, 0x00000001fc000000ull, N("nctaidz") },
-	{ AP, 0x00000000c0000000ull, 0x00000001fc000000ull, N("sbase") },	// the address in g[] space where s[] is.
-	{ AP, 0x00000000d0000000ull, 0x00000001fc000000ull, N("lbase") },	// the address in g[] space where l[] is.
-	{ AP, 0x00000000dc000000ull, 0x00000001fc000000ull, N("stackbase") },
-	{ AP, 0x00000000e0000000ull, 0x00000001fc000000ull, N("lanemask_eq") }, // I have no idea what these do, but ptxas eats them just fine.
-	{ AP, 0x00000000e4000000ull, 0x00000001fc000000ull, N("lanemask_lt") },
-	{ AP, 0x00000000e8000000ull, 0x00000001fc000000ull, N("lanemask_le") },
-	{ AP, 0x00000000ec000000ull, 0x00000001fc000000ull, N("lanemask_gt") },
-	{ AP, 0x00000000f0000000ull, 0x00000001fc000000ull, N("lanemask_ge") },
-	{ AP, 0x0000000140000000ull, 0x00000001fc000000ull, N("clock") }, // XXX some weird shift happening here.
-	{ AP, 0x0000000144000000ull, 0x00000001fc000000ull, N("clockhi") },
-	{ AP, 0, 0, OOPS },
-};
-
 static struct insn tabaddop[] = {
 	{ AP, 0x0000000000000000ull, 0x0000000000000300ull, N("add") },
 	{ AP, 0x0000000000000100ull, 0x0000000000000300ull, N("sub") },
@@ -878,7 +905,7 @@ static struct insn tabm[] = {
 	{ AP, 0x2000000000000004ull, 0xfc00000000000007ull, N("selp"), N("b32"), DST, SRC1, T(is2), T(pnot3), PSRC3 },
 	{ AP, 0x2400000000000004ull, 0xfc00000000000007ull, N("prmt"), T(prmtmod), N("b32"), DST, SRC1, SRC3, T(is2) }, // NFI what this does. and sources 2 and 3 are swapped for some reason.
 	{ AP, 0x2800000000000004ull, 0xfc00000000000007ull, T(lane), N("mov"), N("b32"), DST, T(is2) },
-	{ AP, 0x2c00000000000004ull, 0xfc00000000000007ull, N("mov"), N("b32"), DST, T(sreg) },
+	{ AP, 0x2c00000000000004ull, 0xfc00000000000007ull, N("mov"), N("b32"), DST, SREG },
 	{ AP, 0x3000c3c003f00004ull, 0xfc00c3c003f00004ull, N("mov"), DST, CC },
 	{ AP, 0x3400c3c000000004ull, 0xfc00c3c000000004ull, N("mov"), CC, SRC1 },
 	// 38?

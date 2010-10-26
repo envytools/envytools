@@ -329,47 +329,99 @@ static int ignpred[] = { 0x27, 7 };
  *
  */
 
-static int sdstoff[] = { 2, 6, 'r' };
-static int ldstoff[] = { 2, 7, 'r' };
-static int ssrcoff[] = { 9, 6, 'r' };
-static int lsrcoff[] = { 9, 7, 'r' };
-static int ssrc2off[] = { 0x10, 6, 'r' };
-static int lsrc2off[] = { 0x10, 7, 'r' };
-static int lsrc3off[] = { 0x2e, 7, 'r' };
-static int odstoff[] = { 2, 7, 'o' };
-static int adstoff[] = { 2, 3, 'a' };
-static int condoff[] = { 0x2c, 2, 'c' };
-static int c0off[] = { 0, 0, 'c' };
-static int cdstoff[] = { 0x24, 2, 'c' };
-static int texoff[] = { 9, 7, 't' };
-static int sampoff[] = { 0x11, 4, 's' };
-#define SDST atomreg, sdstoff
-#define LDST atomreg, ldstoff
-#define SHDST atomhreg, sdstoff
-#define LHDST atomhreg, ldstoff
-#define LDDST atomdreg, ldstoff
-#define LQDST atomqreg, ldstoff
-#define SSRC atomreg, ssrcoff
-#define LSRC atomreg, lsrcoff
-#define SHSRC atomhreg, ssrcoff
-#define LHSRC atomhreg, lsrcoff
-#define LDSRC atomdreg, lsrcoff
-#define SSRC2 atomreg, ssrc2off
-#define LSRC2 atomreg, lsrc2off
-#define SHSRC2 atomhreg, ssrc2off
-#define LHSRC2 atomhreg, lsrc2off
-#define LDSRC2 atomdreg, lsrc2off
-#define LSRC3 atomreg, lsrc3off
-#define LHSRC3 atomhreg, lsrc3off
-#define LDSRC3 atomdreg, lsrc3off
-#define ODST atomreg, odstoff
-#define OHDST atomhreg, odstoff
-#define ADST atomreg, adstoff
-#define COND atomreg, condoff
-#define C0 atomreg, c0off
-#define CDST atomreg, cdstoff
-#define TEX atomreg, texoff
-#define SAMP atomreg, sampoff
+static struct sreg areg_sr[] = {
+	{ 0, 0, SR_ZERO },
+	{ -1 },
+};
+static struct sreg oreg_sr[] = {
+	{ 127, 0, SR_DISCARD },
+	{ -1 },
+};
+static struct sreg sreg_sr[] = {
+	{ 0, "physid" },
+	{ 1, "clock" },
+	{ 4, "pm0" },
+	{ 5, "pm1" },
+	{ 6, "pm2" },
+	{ 7, "pm3" },
+	{ 8, "sampleid" }, // NVA3+
+	{ -1 },
+};
+static struct bitfield sdst_bf = { 2, 6 };
+static struct bitfield ldst_bf = { 2, 7 };
+static struct bitfield ssrc_bf = { 9, 6 };
+static struct bitfield lsrc_bf = { 9, 7 };
+static struct bitfield ssrc2_bf = { 0x10, 6 };
+static struct bitfield lsrc2_bf = { 0x10, 7 };
+static struct bitfield lsrc3_bf = { 0x2e, 7 };
+static struct bitfield odst_bf = { 2, 7 };
+static struct bitfield areg_bf = { { 0x1a, 2, 0x22, 1 } };
+static struct bitfield adst_bf = { 2, 3 };
+static struct bitfield cond_bf = { 0x2c, 2 };
+static struct bitfield c0_bf = { 0, 0 };
+static struct bitfield cdst_bf = { 0x24, 2 };
+static struct bitfield tex_bf = { 9, 7 };
+static struct bitfield samp_bf = { 0x11, 4 };
+static struct bitfield sreg_bf = { 0x2e, 4 };
+
+static struct reg sdst_r = { &sdst_bf, "r" };
+static struct reg ldst_r = { &ldst_bf, "r" };
+static struct reg shdst_r = { &sdst_bf, "r", .hilo = 1 };
+static struct reg lhdst_r = { &ldst_bf, "r", .hilo = 1 };
+static struct reg lddst_r = { &ldst_bf, "r", "d" };
+static struct reg lqdst_r = { &ldst_bf, "r", "q" };
+static struct reg ssrc_r = { &ssrc_bf, "r" };
+static struct reg lsrc_r = { &lsrc_bf, "r" };
+static struct reg shsrc_r = { &ssrc_bf, "r", .hilo = 1 };
+static struct reg lhsrc_r = { &lsrc_bf, "r", .hilo = 1 };
+static struct reg ldsrc_r = { &lsrc_bf, "r", "d" };
+static struct reg ssrc2_r = { &ssrc2_bf, "r" };
+static struct reg lsrc2_r = { &lsrc2_bf, "r" };
+static struct reg shsrc2_r = { &ssrc2_bf, "r", .hilo = 1 };
+static struct reg lhsrc2_r = { &lsrc2_bf, "r", .hilo = 1 };
+static struct reg ldsrc2_r = { &lsrc2_bf, "r", "d" };
+static struct reg lsrc3_r = { &lsrc3_bf, "r" };
+static struct reg lhsrc3_r = { &lsrc3_bf, "r", .hilo = 1 };
+static struct reg ldsrc3_r = { &lsrc3_bf, "r", "d" };
+static struct reg odst_r = { &odst_bf, "o", .specials = oreg_sr };
+static struct reg ohdst_r = { &odst_bf, "o", .specials = oreg_sr, .hilo = 1 };
+static struct reg areg_r = { &areg_bf, "a", .specials = areg_sr };
+static struct reg adst_r = { &adst_bf, "a", .specials = areg_sr };
+static struct reg cond_r = { &cond_bf, "c" };
+static struct reg c0_r = { &c0_bf, "c" };
+static struct reg cdst_r = { &cdst_bf, "c" };
+static struct reg tex_r = { &tex_bf, "t" };
+static struct reg samp_r = { &samp_bf, "s" };
+static struct reg sreg_r = { &sreg_bf, "sr", .specials = sreg_sr, .always_special = 1 };
+#define SDST atomreg, &sdst_r
+#define LDST atomreg, &ldst_r
+#define SHDST atomreg, &shdst_r
+#define LHDST atomreg, &lhdst_r
+#define LDDST atomreg, &lddst_r
+#define LQDST atomreg, &lqdst_r
+#define SSRC atomreg, &ssrc_r
+#define LSRC atomreg, &lsrc_r
+#define SHSRC atomreg, &shsrc_r
+#define LHSRC atomreg, &lhsrc_r
+#define LDSRC atomreg, &ldsrc_r
+#define SSRC2 atomreg, &ssrc2_r
+#define LSRC2 atomreg, &lsrc2_r
+#define SHSRC2 atomreg, &shsrc2_r
+#define LHSRC2 atomreg, &lhsrc2_r
+#define LDSRC2 atomreg, &ldsrc2_r
+#define LSRC3 atomreg, &lsrc3_r
+#define LHSRC3 atomreg, &lhsrc3_r
+#define LDSRC3 atomreg, &ldsrc3_r
+#define AREG atomreg, &areg_r
+#define ODST atomreg, &odst_r
+#define OHDST atomreg, &ohdst_r
+#define ADST atomreg, &adst_r
+#define COND atomreg, &cond_r
+#define C0 atomreg, &c0_r
+#define CDST atomreg, &cdst_r
+#define TEX atomreg, &tex_r
+#define SAMP atomreg, &samp_r
+#define SREG atomreg, &sreg_r
 
 static int getareg (ull *a, ull *m, int l) {
 	int r = BF(0x1a, 2);
@@ -377,12 +429,6 @@ static int getareg (ull *a, ull *m, int l) {
 		r |= BF(0x22, 1)<<2;
 	}
 	return r;
-}
-#define AREG atomareg, 0
-static void atomareg APROTO {
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %s$a%d", cmag, getareg(a, m, 1));
 }
 
 #define LTDST atomltdst, 0
@@ -1083,19 +1129,6 @@ static struct insn tabqop3[] = {
 	{ AP, 0x00300000, 0x00300000, N("mov2") },
 };
 
-// for mov from sreg
-static struct insn tabsreg[] = {
-	{ AP, 0x0000000000000000ull, 0x0003c00000000000ull, N("physid") },
-	{ AP, 0x0000400000000000ull, 0x0003c00000000000ull, N("clock") },
-	{ AP, 0x0000800000000000ull, 0x0003c00000000000ull, U("2") },
-	{ AP, 0x0000c00000000000ull, 0x0003c00000000000ull, U("3") },
-	{ AP, 0x0001000000000000ull, 0x0003c00000000000ull, N("pm0") },
-	{ AP, 0x0001400000000000ull, 0x0003c00000000000ull, N("pm1") },
-	{ AP, 0x0001800000000000ull, 0x0003c00000000000ull, N("pm2") },
-	{ AP, 0x0001c00000000000ull, 0x0003c00000000000ull, N("pm3") },
-	{ AP, 0x0002000000000000ull, 0x0003c00000000000ull, N("sampleid") }, // NVA3+
-};
-
 static struct insn tablogop[] = {
 	{ AP, 0x0000000000000000ull, 0x0000c00000000000ull, N("and") },
 	{ AP, 0x0000400000000000ull, 0x0000c00000000000ull, N("or") },
@@ -1135,7 +1168,7 @@ static struct insn tabl[] = {
 	{ AP, 0x4000000000000000ull, 0xe0000000f0000000ull,
 		N("mov"), LDST, AREG },
 	{ AP, 0x6000000000000000ull, 0xe0000000f0000000ull,
-		N("mov"), LDST, T(sreg) },
+		N("mov"), LDST, SREG },
 
 	{ AP, 0xa000000000000000ull, 0xe0000000f0000000ull,
 		N("mov"), CDST, LSRC, IGNCE },

@@ -40,20 +40,31 @@ static struct bitfield ctargoff = { { 8, 11 }, BF_UNSIGNED, 2 };
  * Register fields
  */
 
-static int src1off[] = { 8, 4, 'r' };
-static int src2off[] = { 12, 4, 'r' };
-static int dstoff[] = { 16, 4, 'r' };
-static int psrc1off[] = { 8, 4, 'p' };
-static int psrc2off[] = { 12, 4, 'p' };
-static int pdstoff[] = { 16, 4, 'p' };
-static int predoff[] = { 20, 4, 'p' };
-#define SRC1 atomreg, src1off
-#define SRC2 atomreg, src2off
-#define DST atomreg, dstoff
-#define PSRC1 atomreg, psrc1off
-#define PSRC2 atomreg, psrc2off
-#define PDST atomreg, pdstoff
-#define PRED atomreg, predoff
+static struct sreg pred_sr[] = {
+	{ 15, 0, SR_ONE },
+	{ -1 },
+};
+static struct bitfield src1_bf = { 8, 4 };
+static struct bitfield src2_bf = { 12, 4 };
+static struct bitfield dst_bf = { 16, 4 };
+static struct bitfield psrc1_bf = { 8, 4 };
+static struct bitfield psrc2_bf = { 12, 4 };
+static struct bitfield pdst_bf = { 16, 4 };
+static struct bitfield pred_bf = { 20, 4 };
+static struct reg src1_r = { &src1_bf, "r" };
+static struct reg src2_r = { &src2_bf, "r" };
+static struct reg dst_r = { &dst_bf, "r" };
+static struct reg psrc1_r = { &psrc1_bf, "p", .specials = pred_sr };
+static struct reg psrc2_r = { &psrc2_bf, "p", .specials = pred_sr };
+static struct reg pdst_r = { &pdst_bf, "p", .specials = pred_sr };
+static struct reg pred_r = { &pred_bf, "p", .specials = pred_sr };
+#define SRC1 atomreg, &src1_r
+#define SRC2 atomreg, &src2_r
+#define DST atomreg, &dst_r
+#define PSRC1 atomreg, &psrc1_r
+#define PSRC2 atomreg, &psrc2_r
+#define PDST atomreg, &pdst_r
+#define PRED atomreg, &pred_r
 
 static struct insn tabp[] = {
 	{ AP, 0x00f00000, 0x00f00000 },
@@ -92,6 +103,7 @@ static struct insn tabm[] = {
 	{ AP, 0x34000043, 0xfc0000ff, N("nop") },
 	{ AP, 0x34000044, 0xfc0000ff, U("44") },
 	{ AP, 0x34000045, 0xfc0000ff, U("45") },
+	// XXX: these three seem to actually set two predicates, at least when p0 is the dst.
 	{ AP, 0x00000048, 0x000000ff, U("48"), PDST },
 	{ AP, 0x00000049, 0x000000ff, U("49"), PDST },
 	{ AP, 0x0000004a, 0x000000ff, U("4a"), PDST },

@@ -40,12 +40,19 @@ static struct bitfield btargoff = { { 14, 18 }, BF_SIGNED, .pcrel = 1 };
 #define MIMM atomimm, &mimmoff
 #define BTARG atombtarg, &btargoff
 
-static int reg1off[] = { 8, 3, 'r' };
-static int reg2off[] = { 11, 3, 'r' };
-static int reg3off[] = { 14, 3, 'r' };
-#define REG1 atomreg, reg1off
-#define REG2 atomreg, reg2off
-#define REG3 atomreg, reg3off
+static struct sreg reg_sr[] = {
+	{ 0, 0, SR_ZERO },
+	{ -1 },
+};
+static struct bitfield reg1_bf = { 8, 3 };
+static struct bitfield reg2_bf = { 11, 3 };
+static struct bitfield reg3_bf = { 14, 3 };
+static struct reg reg1_r = { &reg1_bf, "r", .specials = reg_sr };
+static struct reg reg2_r = { &reg2_bf, "r", .specials = reg_sr };
+static struct reg reg3_r = { &reg3_bf, "r", .specials = reg_sr };
+#define REG1 atomreg, &reg1_r
+#define REG2 atomreg, &reg2_r
+#define REG3 atomreg, &reg3_r
 
 F1(exit, 7, N("exit"));
 

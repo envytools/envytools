@@ -60,20 +60,79 @@ static struct bitfield ctargoff = { { 6, 18 }, BF_SIGNED, 2, 1, 4 };
  * Register fields
  */
 
-static int regtoff[] = { 4, 4, 'r' };
-static int regsoff[] = { 8, 4, 'r' };
-static int regroff[] = { 12, 4, 'r' };
-static int brtoff[] = { 4, 4, 'b' };
-static int brsoff[] = { 8, 4, 'b' };
-static int brroff[] = { 12, 4, 'b' };
-#define REGT atomreg, regtoff
-#define REGS atomreg, regsoff
-#define REGR atomreg, regroff
-#define BRT atomreg, brtoff
-#define BRS atomreg, brsoff
-#define BRR atomreg, brroff
-#define BRSQ atomqreg, brsoff
-#define BRSO atomoreg, brsoff
+static struct sreg sreg_sr[] = {
+	{ 0x00, "lbeg" },
+	{ 0x01, "lend" },
+	{ 0x02, "lcount" },
+	{ 0x03, "sar" },
+	{ 0x04, "br" },
+	{ 0x48, "windowbase" },
+	{ 0x49, "windowstart" },
+	{ 0x60, "ibreakenable" },
+	{ 0x68, "ddr" },
+	{ 0x80, "ibreaka0" },
+	{ 0x81, "ibreaka1" },
+	{ 0x90, "dbreaka0" },
+	{ 0x91, "dbreaka1" },
+	{ 0xa0, "dbreakc0" },
+	{ 0xa1, "dbreakc1" },
+	{ 0xb1, "epc1" },
+	{ 0xb2, "epc2" },
+	{ 0xb3, "epc3" },
+	{ 0xb4, "epc4" },
+	{ 0xb5, "epc5" },
+	{ 0xb6, "epc6" },
+	{ 0xc0, "depc" },
+	{ 0xc2, "eps2" },
+	{ 0xc3, "eps3" },
+	{ 0xc4, "eps4" },
+	{ 0xc5, "eps5" },
+	{ 0xc6, "eps6" },
+	{ 0xd1, "excsave1" },
+	{ 0xd2, "excsave2" },
+	{ 0xd3, "excsave3" },
+	{ 0xd4, "excsave4" },
+	{ 0xd5, "excsave5" },
+	{ 0xd6, "excsave6" },
+	{ 0xe2, "interrupt" }, /* and intset */
+	{ 0xe3, "intclear" },
+	{ 0xe4, "intenable" },
+	{ 0xe6, "ps" },
+	{ 0xe8, "exccause" },
+	{ 0xe9, "debugcause" },
+	{ 0xea, "ccount" },
+	{ 0xec, "icount" },
+	{ 0xed, "icountlevel" },
+	{ 0xee, "excvaddr" },
+	{ 0xf0, "ccompare0" },
+	{ 0xf1, "ccompare1" },
+	{ -1 },
+};
+
+static struct bitfield t_bf = { 4, 4 };
+static struct bitfield s_bf = { 8, 4 };
+static struct bitfield r_bf = { 12, 4 };
+static struct bitfield sreg_bf = { 8, 8 };
+
+static struct reg at_r = { &t_bf, "a" };
+static struct reg as_r = { &s_bf, "a" };
+static struct reg ar_r = { &r_bf, "a" };
+static struct reg bt_r = { &t_bf, "b" };
+static struct reg bs_r = { &s_bf, "b" };
+static struct reg br_r = { &r_bf, "b" };
+static struct reg bsq_r = { &s_bf, "b", "q" };
+static struct reg bso_r = { &s_bf, "b", "o" };
+static struct reg sreg_r = { &sreg_bf, "s", .specials = sreg_sr, .always_special = 1 };
+
+#define REGT atomreg, &at_r
+#define REGS atomreg, &as_r
+#define REGR atomreg, &ar_r
+#define BRT atomreg, &bt_r
+#define BRS atomreg, &bs_r
+#define BRR atomreg, &br_r
+#define BRSQ atomreg, &bsq_r
+#define BRSO atomreg, &bso_r
+#define SREG atomreg, &sreg_r
 
 /*
  * Immediate fields
@@ -195,55 +254,6 @@ static void atommem APROTO {
 	fprintf (ctx->out, " %sD[%s$r%lld%s+%s%#llx%s]", ccy, cbl, BF(n[0], n[1]), ccy, cyel, delta, ccy);
 }
 
-static struct insn tabsr[] = {
-	{ AP, 0x000000, 0x00ff00, N("lbeg") },
-	{ AP, 0x000100, 0x00ff00, N("lend") },
-	{ AP, 0x000200, 0x00ff00, N("lcount") },
-	{ AP, 0x000300, 0x00ff00, N("sar") },
-	{ AP, 0x000400, 0x00ff00, N("br") },
-	{ AP, 0x004800, 0x00ff00, N("windowbase") },
-	{ AP, 0x004900, 0x00ff00, N("windowstart") },
-	{ AP, 0x006000, 0x00ff00, N("ibreakenable") },
-	{ AP, 0x006800, 0x00ff00, N("ddr") },
-	{ AP, 0x008000, 0x00ff00, N("ibreaka0") },
-	{ AP, 0x008100, 0x00ff00, N("ibreaka1") },
-	{ AP, 0x009000, 0x00ff00, N("dbreaka0") },
-	{ AP, 0x009100, 0x00ff00, N("dbreaka1") },
-	{ AP, 0x00a000, 0x00ff00, N("dbreakc0") },
-	{ AP, 0x00a100, 0x00ff00, N("dbreakc1") },
-	{ AP, 0x00b100, 0x00ff00, N("epc1") },
-	{ AP, 0x00b200, 0x00ff00, N("epc2") },
-	{ AP, 0x00b300, 0x00ff00, N("epc3") },
-	{ AP, 0x00b400, 0x00ff00, N("epc4") },
-	{ AP, 0x00b500, 0x00ff00, N("epc5") },
-	{ AP, 0x00b600, 0x00ff00, N("epc6") },
-	{ AP, 0x00c000, 0x00ff00, N("depc") },
-	{ AP, 0x00c200, 0x00ff00, N("eps2") },
-	{ AP, 0x00c300, 0x00ff00, N("eps3") },
-	{ AP, 0x00c400, 0x00ff00, N("eps4") },
-	{ AP, 0x00c500, 0x00ff00, N("eps5") },
-	{ AP, 0x00c600, 0x00ff00, N("eps6") },
-	{ AP, 0x00d100, 0x00ff00, N("excsave1") },
-	{ AP, 0x00d200, 0x00ff00, N("excsave2") },
-	{ AP, 0x00d300, 0x00ff00, N("excsave3") },
-	{ AP, 0x00d400, 0x00ff00, N("excsave4") },
-	{ AP, 0x00d500, 0x00ff00, N("excsave5") },
-	{ AP, 0x00d600, 0x00ff00, N("excsave6") },
-	{ AP, 0x00e200, 0x00ff00, N("interrupt") }, /* and intset */
-	{ AP, 0x00e300, 0x00ff00, N("intclear") },
-	{ AP, 0x00e400, 0x00ff00, N("intenable") },
-	{ AP, 0x00e600, 0x00ff00, N("ps") },
-	{ AP, 0x00e800, 0x00ff00, N("exccause") },
-	{ AP, 0x00e900, 0x00ff00, N("debugcause") },
-	{ AP, 0x00ea00, 0x00ff00, N("ccount") },
-	{ AP, 0x00ec00, 0x00ff00, N("icount") },
-	{ AP, 0x00ed00, 0x00ff00, N("icountlevel") },
-	{ AP, 0x00ee00, 0x00ff00, N("excvaddr") },
-	{ AP, 0x00f000, 0x00ff00, N("ccompare0") },
-	{ AP, 0x00f100, 0x00ff00, N("ccompare1") },
-	{ AP, 0x000000, 0x000000, OOPS },
-};
-
 static struct insn tabm[] = {
 	{ AP, 0x000000, 0xffffff, N("ill") },
 	{ AP, 0x000080, 0xffffff, N("ret") },
@@ -304,7 +314,7 @@ static struct insn tabm[] = {
 	{ AP, 0x010000, 0xef000f, N("slli"), REGR, REGS, SLLI },
 	{ AP, 0x210000, 0xef000f, N("srai"), REGR, REGT, SRAI },
 	{ AP, 0x410000, 0xff000f, N("srli"), REGR, REGT, SRLI },
-	{ AP, 0x610000, 0xff000f, N("xsr"), REGT, T(sr) },
+	{ AP, 0x610000, 0xff000f, N("xsr"), REGT, SREG },
 	{ AP, 0x810000, 0xff000f, N("src"), REGR, REGS, REGT },
 	{ AP, 0x910000, 0xff0f0f, N("srl"), REGR, REGT },
 	{ AP, 0xa10000, 0xff00ff, N("sll"), REGR, REGS },
@@ -316,8 +326,8 @@ static struct insn tabm[] = {
 	{ AP, 0x220000, 0xff000f, N("orb"), BRR, BRS, BRT },
 	{ AP, 0x320000, 0xff000f, N("orbc"), BRR, BRS, BRT },
 	{ AP, 0x420000, 0xff000f, N("xorb"), BRR, BRS, BRT },
-	{ AP, 0x030000, 0xff000f, N("rsr"), REGT, T(sr) },
-	{ AP, 0x130000, 0xff000f, N("wsr"), REGT, T(sr) },
+	{ AP, 0x030000, 0xff000f, N("rsr"), REGT, SREG },
+	{ AP, 0x130000, 0xff000f, N("wsr"), REGT, SREG },
 	{ AP, 0x830000, 0xff000f, N("moveqz"), REGR, REGS, REGT },
 	{ AP, 0x930000, 0xff000f, N("movnez"), REGR, REGS, REGT },
 	{ AP, 0xa30000, 0xff000f, N("movltz"), REGR, REGS, REGT },

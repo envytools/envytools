@@ -108,36 +108,48 @@ void atomign APROTO {
 void atomreg APROTO {
 	if (!ctx->out)
 		return;
-	const int *n = v;
-	int r = BF(n[0], n[1]);
-	if (r == 127 && n[2] == 'o') fprintf (ctx->out, " %s#", cbl);
-	else fprintf (ctx->out, " %s$%c%d", (n[2]=='r')?cbl:cmag, n[2], r);
-}
-void atomdreg APROTO {
-	if (!ctx->out)
-		return;
-	const int *n = v;
-	fprintf (ctx->out, " %s$%c%lldd", (n[2]=='r')?cbl:cmag, n[2], BF(n[0], n[1]));
-}
-void atomqreg APROTO {
-	if (!ctx->out)
-		return;
-	const int *n = v;
-	fprintf (ctx->out, " %s$%c%lldq", (n[2]=='r')?cbl:cmag, n[2], BF(n[0], n[1]));
-}
-void atomoreg APROTO {
-	if (!ctx->out)
-		return;
-	const int *n = v;
-	fprintf (ctx->out, " %s$%c%lldo", (n[2]=='r')?cbl:cmag, n[2], BF(n[0], n[1]));
-}
-void atomhreg APROTO {
-	if (!ctx->out)
-		return;
-	const int *n = v;
-	int r = BF(n[0], n[1]);
-	if (r == 127 && n[2] == 'o') fprintf (ctx->out, " %s#", cbl);
-	else fprintf (ctx->out, " %s$%c%d%c", (n[2]=='r')?cbl:cmag, n[2], r>>1, "lh"[r&1]);
+	const struct reg *reg = v;
+	ull num = 0;
+	if (reg->bf)
+		num = GETBF(reg->bf);
+	if (reg->specials) {
+		int i;
+		for (i = 0; reg->specials[i].num != -1; i++) {
+			if (num == reg->specials[i].num) {
+				switch (reg->specials[i].mode) {
+					case SR_NAMED:
+						fprintf (ctx->out, " %s$%s", cbl, reg->specials[i].name);
+						return;
+					case SR_ZERO:
+						fprintf (ctx->out, " %s0", cyel);
+						return;
+					case SR_ONE:
+						fprintf (ctx->out, " %s1", cyel);
+						return;
+					case SR_DISCARD:
+						fprintf (ctx->out, " %s#", cbl);
+						return;
+				}
+			}
+		}
+	}
+	const char *suf = "";
+	if (reg->suffix)
+		suf = reg->suffix;
+	if (reg->hilo) {
+		if (num & 1)
+			suf = "h";
+		else
+			suf = "l";
+		num >>= 1;
+	}
+	const char *color = cbl;
+	if (reg->always_special)
+		color = cred;
+	if (reg->bf)
+		fprintf (ctx->out, " %s$%s%d%s", color, reg->name, num, suf);
+	else
+		fprintf (ctx->out, " %s$%s%s", color, reg->name, suf);
 }
 
 ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx) {

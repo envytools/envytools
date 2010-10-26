@@ -25,12 +25,15 @@
 
 #include "dis.h"
 
-static int reg1off[] = { 0, 5, 'r' };
-static int reg2off[] = { 5, 5, 'r' };
-static int reg3off[] = { 29, 5, 'r' };
-#define REG1 atomreg, reg1off
-#define REG2 atomreg, reg2off
-#define REG3 atomreg, reg3off
+static struct bitfield reg1_bf = { 0, 5 };
+static struct bitfield reg2_bf = { 5, 5 };
+static struct bitfield reg3_bf = { 29, 5 };
+static struct reg reg1_r = { &reg1_bf, "r" };
+static struct reg reg2_r = { &reg2_bf, "r" };
+static struct reg reg3_r = { &reg3_bf, "r" };
+#define REG1 atomreg, &reg1_r
+#define REG2 atomreg, &reg2_r
+#define REG3 atomreg, &reg3_r
 
 static struct insn tabm[] = {
 	{ AP, 0x0000000000ull, 0x001f000000ull, U("00"), REG1, REG2, REG3 },

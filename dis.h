@@ -124,6 +124,26 @@ struct bitfield {
 	ull *lut;
 };
 
+struct sreg {
+	int num;
+	const char *name;
+	enum {
+		SR_NAMED,
+		SR_ZERO,
+		SR_ONE,
+		SR_DISCARD,
+	} mode;
+};
+
+struct reg {
+	const struct bitfield *bf;
+	const char *name;
+	const char *suffix;
+	const struct sreg *specials;
+	int always_special;
+	int hilo;
+};
+
 struct atom {
 	afun fun;
 	const void *arg;
@@ -205,10 +225,6 @@ void atombtarg APROTO;
 void atomign APROTO;
 
 void atomreg APROTO;
-void atomdreg APROTO;
-void atomqreg APROTO;
-void atomoreg APROTO;
-void atomhreg APROTO;
 
 ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx);
 #define GETBF(bf) getbf(bf, a, m, ctx)
