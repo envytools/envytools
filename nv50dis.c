@@ -578,37 +578,37 @@ static int lmem[] = { 9, 16, 0, 'l', 7, 0, 0 };		// done
 static int svmem[] = { 0x10, 8, 2, 'v', 1, 0, 0 };		// TODO
 static int lvmem[] = { 0x10, 8, 2, 'v', 3, 0, 0 };		// TODO
 
-#define SSHARED atommem, ssmem
-#define SHSHARED atommem, shsmem
-#define SBSHARED atommem, sbsmem
-#define LSHARED atommem, lsmem
-#define LHSHARED atommem, lhsmem
-#define LBSHARED atommem, lbsmem
-#define SATTR atommem, samem
-#define LATTR atommem, lamem
-#define FATTR atommem, famem
-#define SPRIM atommem, spmem
-#define LPRIM atommem, lpmem
-#define SCONST atommem, scmem
-#define SHCONST atommem, shcmem
-#define LCONST2 atommem, lcmem2
-#define LHCONST2 atommem, lhcmem2
-#define LCONST3 atommem, lcmem3
-#define LHCONST3 atommem, lhcmem3
-#define LCONST2NA atommem, lcmem2na
-#define LHCONST2NA atommem, lhcmem2na
-#define LCONST3NA atommem, lcmem3na
-#define LHCONST3NA atommem, lhcmem3na
-#define LOCAL atommem, lmem
-#define FSHARED atommem, fsmem
-#define FHSHARED atommem, fhsmem
-#define FBSHARED atommem, fbsmem
-#define FCONST atommem, fcmem
-#define FHCONST atommem, fhcmem
-#define FBCONST atommem, fbcmem
-#define SVAR atommem, svmem
-#define LVAR atommem, lvmem
-static void atommem APROTO {
+#define SSHARED atomoldmem, ssmem
+#define SHSHARED atomoldmem, shsmem
+#define SBSHARED atomoldmem, sbsmem
+#define LSHARED atomoldmem, lsmem
+#define LHSHARED atomoldmem, lhsmem
+#define LBSHARED atomoldmem, lbsmem
+#define SATTR atomoldmem, samem
+#define LATTR atomoldmem, lamem
+#define FATTR atomoldmem, famem
+#define SPRIM atomoldmem, spmem
+#define LPRIM atomoldmem, lpmem
+#define SCONST atomoldmem, scmem
+#define SHCONST atomoldmem, shcmem
+#define LCONST2 atomoldmem, lcmem2
+#define LHCONST2 atomoldmem, lhcmem2
+#define LCONST3 atomoldmem, lcmem3
+#define LHCONST3 atomoldmem, lhcmem3
+#define LCONST2NA atomoldmem, lcmem2na
+#define LHCONST2NA atomoldmem, lhcmem2na
+#define LCONST3NA atomoldmem, lcmem3na
+#define LHCONST3NA atomoldmem, lhcmem3na
+#define LOCAL atomoldmem, lmem
+#define FSHARED atomoldmem, fsmem
+#define FHSHARED atomoldmem, fhsmem
+#define FBSHARED atomoldmem, fbsmem
+#define FCONST atomoldmem, fcmem
+#define FHCONST atomoldmem, fhcmem
+#define FBCONST atomoldmem, fbcmem
+#define SVAR atomoldmem, svmem
+#define LVAR atomoldmem, lvmem
+static void atomoldmem APROTO {
 	if (!ctx->out)
 		return;
 	const int *n = v;

@@ -240,13 +240,13 @@ static int datacloff[] = { 8, 4, 20, 4, 4 };
 static int data32off[] = { 8, 4, 16, 8, 2 };
 static int data16off[] = { 8, 4, 16, 8, 1 };
 static int data8off[] = { 8, 4, 16, 8, 0 };
-#define DATA32N atommem, data32noff
-#define DATAC atommem, datacoff
-#define DATACL atommem, datacloff
-#define DATA32 atommem, data32off
-#define DATA16 atommem, data16off
-#define DATA8 atommem, data8off
-static void atommem APROTO {
+#define DATA32N atomoldmem, data32noff
+#define DATAC atomoldmem, datacoff
+#define DATACL atomoldmem, datacloff
+#define DATA32 atomoldmem, data32off
+#define DATA16 atomoldmem, data16off
+#define DATA8 atomoldmem, data8off
+static void atomoldmem APROTO {
 	if (!ctx->out)
 		return;
 	const int *n = v;

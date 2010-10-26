@@ -144,6 +144,15 @@ struct reg {
 	int hilo;
 };
 
+struct mem {
+	const char *name;
+	const struct bitfield *idx;
+	const struct reg *reg;
+	const struct bitfield *imm;
+	const struct reg *reg2;
+	int reg2shr;
+};
+
 struct atom {
 	afun fun;
 	const void *arg;
@@ -225,6 +234,8 @@ void atombtarg APROTO;
 void atomign APROTO;
 
 void atomreg APROTO;
+
+void atommem APROTO;
 
 ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx);
 #define GETBF(bf) getbf(bf, a, m, ctx)

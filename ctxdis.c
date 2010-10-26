@@ -178,20 +178,12 @@ static struct bitfield seekpoff = { 8, 11 };
 
 // BF, offset shift, 'l'
 
-static int pgmem4[] = { 0, 14, 2, 'G' };
-static int pgmem5[] = { 0, 16, 2, 'G' };
-
-#define PGRAPH4 atommem, pgmem4
-#define PGRAPH5 atommem, pgmem5
-static void atommem APROTO {
-	if (!ctx->out)
-		return;
-	const int *n = v;
-	fprintf (ctx->out, " %s%c[", ccy, n[3]);
-//	if (n[3] == 'G') printf("%s$g%s+", cbl, ccy);
-	int mo = BF(n[0], n[1])<<n[2];
-	fprintf (ctx->out, "%s%#x%s]", cyel, mo, ccy);
-}
+static struct bitfield pgmem4_imm = { { 0, 14 }, BF_UNSIGNED, 2 };
+static struct bitfield pgmem5_imm = { { 0, 16 }, BF_UNSIGNED, 2 };
+static struct mem pgmem4_m = { "G", 0, 0, &pgmem4_imm };
+static struct mem pgmem5_m = { "G", 0, 0, &pgmem5_imm };
+#define PGRAPH4 atommem, &pgmem4_m
+#define PGRAPH5 atommem, &pgmem5_m
 
 F1(p0, 0, N("a0"))
 F1(p1, 1, N("a1"))

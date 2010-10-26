@@ -349,12 +349,12 @@ static int gdmem[] = { 'g', 1, 32 };
 static int smem[] = { 's', 0, 24 };
 static int lmem[] = { 'l', 0, 24 };
 static int fcmem[] = { 'c', 0, 16 };
-#define GLOBAL atommem, gmem
-#define GLOBALD atommem, gdmem
-#define SHARED atommem, smem
-#define LOCAL atommem, lmem
-#define FCONST atommem, fcmem
-static void atommem APROTO {
+#define GLOBAL atomoldmem, gmem
+#define GLOBALD atomoldmem, gdmem
+#define SHARED atomoldmem, smem
+#define LOCAL atomoldmem, lmem
+#define FCONST atomoldmem, fcmem
+static void atomoldmem APROTO {
 	if (!ctx->out)
 		return;
 	const int *n = v;

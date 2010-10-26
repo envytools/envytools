@@ -105,10 +105,8 @@ void atomign APROTO {
 	(void)BF(n[0], n[1]);
 }
 
-void atomreg APROTO {
-	if (!ctx->out)
-		return;
-	const struct reg *reg = v;
+// print reg if non-0, ignore otherwise. return 1 if printed anything.
+static int printreg (struct disctx *ctx, ull *a, ull *m, const struct reg *reg) {
 	ull num = 0;
 	if (reg->bf)
 		num = GETBF(reg->bf);
@@ -118,17 +116,16 @@ void atomreg APROTO {
 			if (num == reg->specials[i].num) {
 				switch (reg->specials[i].mode) {
 					case SR_NAMED:
-						fprintf (ctx->out, " %s$%s", cbl, reg->specials[i].name);
-						return;
+						fprintf (ctx->out, "%s$%s", cbl, reg->specials[i].name);
+						return 1;
 					case SR_ZERO:
-						fprintf (ctx->out, " %s0", cyel);
-						return;
+						return 0;
 					case SR_ONE:
-						fprintf (ctx->out, " %s1", cyel);
-						return;
+						fprintf (ctx->out, "%s1", cyel);
+						return 1;
 					case SR_DISCARD:
-						fprintf (ctx->out, " %s#", cbl);
-						return;
+						fprintf (ctx->out, "%s#", cbl);
+						return 1;
 				}
 			}
 		}
@@ -147,9 +144,57 @@ void atomreg APROTO {
 	if (reg->always_special)
 		color = cred;
 	if (reg->bf)
-		fprintf (ctx->out, " %s$%s%d%s", color, reg->name, num, suf);
+		fprintf (ctx->out, "%s$%s%d%s", color, reg->name, num, suf);
 	else
-		fprintf (ctx->out, " %s$%s%s", color, reg->name, suf);
+		fprintf (ctx->out, "%s$%s%s", color, reg->name, suf);
+	return 1;
+}
+
+void atomreg APROTO {
+	if (!ctx->out)
+		return;
+	const struct reg *reg = v;
+	fprintf (ctx->out, " ");
+	if (!printreg(ctx, a, m, reg))
+		fprintf (ctx->out, "%s0", cyel);
+}
+
+void atommem APROTO {
+	if (!ctx->out)
+		return;
+	const struct mem *mem = v;
+	int anything = 0;
+	fprintf (ctx->out, " ");
+	if (mem->name) {
+		fprintf (ctx->out, "%s%s", ccy, mem->name);
+		if (mem->idx)
+			fprintf (ctx->out, "%d", GETBF(mem->idx));
+		fprintf (ctx->out, "[");
+	}
+	if (mem->reg)
+		anything = printreg(ctx, a, m, mem->reg);
+	if (mem->imm) {
+		ull imm = GETBF(mem->imm);
+		if (imm) {
+			if (anything)
+				fprintf (ctx->out, "%s+", ccy);
+			fprintf(ctx->out, "%s%#llx", cyel, imm);
+			anything = 1;
+		}
+	}
+	if (mem->reg2) {
+		if (anything)
+			fprintf (ctx->out, "%s+", ccy);
+		if (!printreg(ctx, a, m, mem->reg2))
+			fprintf (ctx->out, "%s0", cyel);
+		if (mem->reg2shr)
+			fprintf (ctx->out, "%s*%s%#llx", ccy, cyel, 1ull << mem->reg2shr);
+		anything = 1;
+	}
+	if (!anything)
+		fprintf (ctx->out, "%s0", cyel);
+	if (mem->name)
+		fprintf (ctx->out, "%s]", ccy);
 }
 
 ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx) {
