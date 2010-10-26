@@ -330,93 +330,47 @@ static void atomvdst APROTO {
 	fprintf (ctx->out, " %s}", cnorm);
 }
 
-// vertex base address (for tessellation and geometry programs)
-#define VBASRC atomvbasrc, 0
-static void atomvbasrc APROTO {
-	if (!ctx->out)
-		return;
-	int s1 = BF(20, 6);
-	int s2 = BF(26, 6);
-	fprintf (ctx->out, " %sp<%s$r%d%s+%s%i%s>", ccy, cbl, s1, ccy, cyel, s2, ccy);
-}
-
 /*
  * Memory fields
  */
 
-static int gmem[] = { 'g', 0, 32 };
-static int gdmem[] = { 'g', 1, 32 };
-static int smem[] = { 's', 0, 24 };
-static int lmem[] = { 'l', 0, 24 };
-static int fcmem[] = { 'c', 0, 16 };
-#define GLOBAL atomoldmem, gmem
-#define GLOBALD atomoldmem, gdmem
-#define SHARED atomoldmem, smem
-#define LOCAL atomoldmem, lmem
-#define FCONST atomoldmem, fcmem
-static void atomoldmem APROTO {
-	if (!ctx->out)
-		return;
-	const int *n = v;
-	uint32_t delta = BF(26, n[2]);
-	fprintf (ctx->out, " %s%c", ccy, n[0]);
-	if (n[0] == 'c')
-		fprintf (ctx->out, "%lld", BF(0x2a, 4));
-	fprintf (ctx->out, "[%s$r%lld%s", cbl, BF(20, 6), n[1]?"d":"");
-	if (delta & 1ull<<(n[2]-1))
-		fprintf (ctx->out, "%s-%s%#x%s]", ccy, cyel, (1u<<n[2])-delta, ccy);
-	else
-		fprintf (ctx->out, "%s+%s%#x%s]", ccy, cyel, delta, ccy);
-}
-
-#define VAR atomvar, 0
-static void atomvar APROTO {
-	if (!ctx->out)
-		return;
-	int s1 = BF(20, 6);
-	uint32_t delta =  BF(32, 16);
-	fprintf (ctx->out, " %sv[%s$r%d%s+%s%#x%s]", ccy, cbl, s1, ccy, cyel, delta, ccy);
-}
-
-#define ATTR atomattr, 0
-static void atomattr APROTO {
-	if (!ctx->out)
-		return;
-	int s1 = BF(20, 6);
-	int s2 = BF(26, 6);
-	uint32_t delta = BF(32, 16);
-	if (s2 < 63)
-		s1 = s2;
-	fprintf (ctx->out, " %sa[%s$r%d%s+%s%#x%s]", ccy, cbl, s1, ccy, cyel, delta, ccy);
-}
-
-#define CONST atomconst, 0
-static void atomconst APROTO {
-	if (!ctx->out)
-		return;
-	int delta = BF(0x1a, 16);
-	int space = BF(0x2a, 4);
-	fprintf (ctx->out, " %sc%d[%s%#x%s]", ccy, space, cyel, delta, ccy);
-}
-
-#define GATOM atomgatom, 0
-static void atomgatom APROTO {
-	if (!ctx->out)
-		return;
-	const int *n = v;
-	uint32_t delta = BF(0x1a, 17) | BF(0x37, 3)<<17;
-	fprintf (ctx->out, " %sg[%s$r%lld%s", ccy, cbl, BF(20, 6), BF(0x3a, 1)?"d":"");
-	if (delta & 0x80000)
-		fprintf (ctx->out, "%s-%s%#x%s]", ccy, cyel, 0x100000-delta, ccy);
-	else
-		fprintf (ctx->out, "%s+%s%#x%s]", ccy, cyel, delta, ccy);
-}
+static struct bitfield gmem_imm = { { 0x1a, 32 }, BF_SIGNED };
+static struct bitfield gamem_imm = { { 0x1a, 17, 0x37, 3 }, BF_SIGNED };
+static struct bitfield slmem_imm = { { 0x1a, 24 }, BF_SIGNED };
+static struct bitfield cmem_imm = { 0x1a, 16 };
+static struct bitfield vmem_imm = { 0x20, 16 };
+static struct bitfield cmem_idx = { 0x2a, 4 };
+static struct bitfield vba_imm = { 0x1a, 6 };
+static struct mem gmem_m = { "g", 0, &src1_r, &gmem_imm };
+static struct mem gdmem_m = { "g", 0, &src1d_r, &gmem_imm };
+static struct mem gamem_m = { "g", 0, &src1_r, &gamem_imm };
+static struct mem gadmem_m = { "g", 0, &src1d_r, &gamem_imm };
+static struct mem smem_m = { "s", 0, &src1_r, &slmem_imm };
+static struct mem lmem_m = { "l", 0, &src1_r, &slmem_imm };
+static struct mem fcmem_m = { "c", &cmem_idx, &src1_r, &cmem_imm };
+static struct mem vmem_m = { "v", 0, &src1_r, &vmem_imm };
+static struct mem amem_m = { "a", 0, &src1_r, &vmem_imm, &src2_r }; // XXX: wtf?
+static struct mem cmem_m = { "c", &cmem_idx, 0, &cmem_imm };
+// vertex base address (for tessellation and geometry programs)
+static struct mem vba_m = { 0, 0, &src1_r, &vba_imm };
+#define GLOBAL atommem, &gmem_m
+#define GLOBALD atommem, &gdmem_m
+#define GATOM atommem, &gamem_m
+#define GATOMD atommem, &gadmem_m
+#define SHARED atommem, &smem_m
+#define LOCAL atommem, &lmem_m
+#define FCONST atommem, &fcmem_m
+#define VAR atommem, &vmem_m
+#define ATTR atommem, &amem_m
+#define CONST atommem, &cmem_m
+#define VBASRC atommem, &vba_m
 
 /*
  * The instructions
  */
 
 F(gmem, 0x3a, GLOBAL, GLOBALD)
+F(gamem, 0x3a, GATOM, GATOMD)
 
 static struct insn tabldstt[] = {
 	{ AP, 0x00, 0xe0, N("u8") },
@@ -936,14 +890,14 @@ static struct insn tabm[] = {
 	{ AP, 0x1000000000000205ull, 0xf800000000000207ull, N("add"), N("u64"), T(gmem), DSTD },
 	{ AP, 0x1800000000000205ull, 0xf800000000000207ull, T(redops), N("s32"), T(gmem), DST },
 	{ AP, 0x2800000000000205ull, 0xf800000000000207ull, N("add"), N("f32"), T(gmem), DST },
-	{ AP, 0x507e000000000005ull, 0xf87e000000000307ull, N("ld"), T(redop), N("u32"), DST2, GATOM, DST }, // yet another big ugly mess. but seems to work.
-	{ AP, 0x507e000000000205ull, 0xf87e0000000003e7ull, N("ld"), N("add"), N("u64"), DST2, GATOM, DST },
-	{ AP, 0x507e000000000105ull, 0xf87e0000000003e7ull, N("exch"), N("b32"), DST2, GATOM, DST },
-	{ AP, 0x507e000000000305ull, 0xf87e0000000003e7ull, N("exch"), N("b64"), DST2D, GATOM, DSTD },
-	{ AP, 0x5000000000000125ull, 0xf8000000000003e7ull, N("cas"), N("b32"), DST2, GATOM, DST, SRC3 },
-	{ AP, 0x5000000000000325ull, 0xf8000000000003e7ull, N("cas"), N("b64"), DST2D, GATOM, DSTD, SRC3D },
-	{ AP, 0x587e000000000205ull, 0xf87e000000000307ull, N("ld"), T(redops), N("s32"), DST2, GATOM, DST },
-	{ AP, 0x687e000000000205ull, 0xf87e0000000003e7ull, N("ld"), N("add"), N("f32"), DST2, GATOM, DST },
+	{ AP, 0x507e000000000005ull, 0xf87e000000000307ull, N("ld"), T(redop), N("u32"), DST2, T(gamem), DST }, // yet another big ugly mess. but seems to work.
+	{ AP, 0x507e000000000205ull, 0xf87e0000000003e7ull, N("ld"), N("add"), N("u64"), DST2, T(gamem), DST },
+	{ AP, 0x507e000000000105ull, 0xf87e0000000003e7ull, N("exch"), N("b32"), DST2, T(gamem), DST },
+	{ AP, 0x507e000000000305ull, 0xf87e0000000003e7ull, N("exch"), N("b64"), DST2D, T(gamem), DSTD },
+	{ AP, 0x5000000000000125ull, 0xf8000000000003e7ull, N("cas"), N("b32"), DST2, T(gamem), DST, SRC3 },
+	{ AP, 0x5000000000000325ull, 0xf8000000000003e7ull, N("cas"), N("b64"), DST2D, T(gamem), DSTD, SRC3D },
+	{ AP, 0x587e000000000205ull, 0xf87e000000000307ull, N("ld"), T(redops), N("s32"), DST2, T(gamem), DST },
+	{ AP, 0x687e000000000205ull, 0xf87e0000000003e7ull, N("ld"), N("add"), N("f32"), DST2, T(gamem), DST },
 	{ AP, 0x8000000000000005ull, 0xf800000000000007ull, N("ld"), T(ldstt), T(ldstd), T(lcop), T(gmem) },
 	{ AP, 0x8800000000000005ull, 0xf800000000000007ull, N("ldu"), T(ldstt), T(ldstd), T(gmem) },
 	{ AP, 0x9000000000000005ull, 0xf800000000000007ull, N("st"), T(ldstt), T(scop), T(gmem), T(ldstd) },
