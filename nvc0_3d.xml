@@ -170,6 +170,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="H" high="31" low="16" type="int"/>
 			<bitfield name="Y" high="15" low="0" type="int"/>
 		</reg32>
+		<reg32 offset="0x1118" name="VERTEX_ID" type="uint"/>
 		<reg32 offset="0x114c" name="VTX_ATTR_DEFINE" variants="NVA0_3D-">
 			<bitfield name="ATTR" low="0" high="7" />
 			<bitfield name="COMP" low="8" high="10" type="uint" min="1" max="4"/>
