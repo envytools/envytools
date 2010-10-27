@@ -40,6 +40,10 @@ static struct bitfield btargoff = { { 14, 18 }, BF_SIGNED, .pcrel = 1 };
 #define MIMM atomimm, &mimmoff
 #define BTARG atombtarg, &btargoff
 
+/*
+ * Register fields
+ */
+
 static struct sreg reg_sr[] = {
 	{ 0, 0, SR_ZERO },
 	{ -1 },
@@ -54,14 +58,66 @@ static struct reg reg3_r = { &reg3_bf, "r", .specials = reg_sr };
 #define REG2 atomreg, &reg2_r
 #define REG3 atomreg, &reg3_r
 
+/*
+ * The NVC0 PGRAPH MACRO ISA.
+ *
+ * Code space is 0x800 32-bit words long and part of PGRAPH context. Code
+ * addresses are counted in 32-bit words.  The MACRO unit sits between PFIFO
+ * and PGRAPH_DISPATCH. It processes the following methods:
+ *
+ *  - 0x114: set upload address [in words]
+ *  - 0x118: upload a single word of code to current upload index, increment
+ *           the index
+ *  - 0x11c: set binding macro index
+ *  - 0x120: bind macro specified by 0x11c to code starting at given address
+ *  - 0x3800+i*8: launch macro #i [XXX: check range]
+ *  - 0x3804+i*8: send an extra param
+ *  - any other: pass through to DISPATCH unchanged
+ *
+ * There are 8 GPRs, $r0-$r7, $r0 is hardwired to 0. $r1 is set on launch to
+ * the data sent to the 0x3800+i*8 method that caused the launch. There's
+ * a carry flag for adc and sbb opcodes.
+ *
+ * The state also includes "current method address" and "current method
+ * increment". They're both set using various "maddr" ops as listed below -
+ * bits 0-11 of operand are shifted left by 2 and become the method address,
+ * bits 12-17 are shifted left by 2 and become the increment. Other bits
+ * are ignored. A "send" op sends a method specified by the current address
+ * with the param used as data, then increments current address by current
+ * increment.
+ *
+ * A macro is also allowed to submit method reads. This is done by using
+ * the read op. The operand's bits 0-11 are shifted left by 2 and used as
+ * method address to read.
+ *
+ * A macro can also pull extra parameters by the "parm" op and its variations.
+ * "parm" will wait until a 0x3804+i*8 method is submitted from PFIFO and load
+ * its data to the destination. If an unconsumed parameter remains after macro
+ * exits, or if a non-3804 method is submitted while macro is waiting for
+ * a parameter, a trap occurs.
+ *
+ * As for flow control, there are branch on zero / non-zero instructions, and
+ * every instruction can be marked with the "exit" modifier which causes the
+ * macro to end. Normal branches and "exit" have delay slots - they don't
+ * actually take effect until the next instruction finishes. Branches also
+ * have "annul" variants which don't have delay slots. Combining "exit" with
+ * a branch is a special case: the exit happens if and only if the branch
+ * is not taken.
+ *
+ * Stuff marked SC below is not actually a separate instruction, just
+ * a special case of a more generic insn.
+ */
+
 F1(exit, 7, N("exit"));
 
 /* various stuff that can be done to result of arith/logic operations */
 static struct insn tabdst[] = {
 	{ AP, 0x00000000, 0x00000070, N("parm"), REG1, N("ign") },	// ignore result, fetch param to REG1
 	{ AP, 0x00000010, 0x00000070, N("mov"), REG1 },			// store result to REG1
+	{ AP, 0x00000020, 0x00000770, N("maddr") }, // SC
 	{ AP, 0x00000020, 0x00000070, N("maddr"), REG1 },		// use result as maddr and store it to REG1
 	{ AP, 0x00000030, 0x00000070, N("parm"), REG1, N("send") },	// send result, then fetch param to REG1
+	{ AP, 0x00000040, 0x00000770, N("send") }, // SC
 	{ AP, 0x00000040, 0x00000070, N("send"), REG1 },		// send result and store it to REG1
 	{ AP, 0x00000050, 0x00000070, N("parm"), REG1, N("maddr") },	// use result as maddr, then fetch param to REG1
 	{ AP, 0x00000060, 0x00000070, N("parmsend"), N("maddr"), REG1 },// use result as maddr and store it to REG1, then fetch param and send it. 
@@ -80,6 +136,11 @@ static struct insn tabm[] = {
 	{ AP, 0x00140000, 0x003e0007, T(dst), N("and"), REG2, REG3 },
 	{ AP, 0x00160000, 0x003e0007, T(dst), N("andn"), REG2, REG3 }, // REG2 & ~REG3
 	{ AP, 0x00180000, 0x003e0007, T(dst), N("nand"), REG2, REG3 }, // ~(REG2 & REG3)
+	{ AP, 0x00000011, 0xffffffff, N("nop") }, // SC
+	{ AP, 0x00000091, 0xffffffff }, // SC [just exit]
+	{ AP, 0x00000001, 0xfffff87f, N("parm"), REG1 }, // SC
+	{ AP, 0x00000001, 0x00003807, T(dst), MIMM }, // SC
+	{ AP, 0x00000001, 0xffffc007, T(dst), REG2 }, // SC
 	{ AP, 0x00000001, 0x00000007, T(dst), N("add"), REG2, MIMM },
 	// take REG2, replace BFSZ bits starting at BFDSTPOS with BFSZ bits starting at BFSRCPOS in REG3.
 	{ AP, 0x00000002, 0x00000007, T(dst), N("extrinsrt"), REG2, REG3, BFSRCPOS, BFSZ, BFDSTPOS },
@@ -87,6 +148,7 @@ static struct insn tabm[] = {
 	{ AP, 0x00000003, 0x00000007, T(dst), N("extrshl"), REG3, REG2, BFSZ, BFDSTPOS },
 	// take BFSZ bits starting at BFSRCPOS in REG3, shift left by REG2
 	{ AP, 0x00000004, 0x00000007, T(dst), N("extrshl"), REG3, BFSRCPOS, BFSZ, REG2 },
+	{ AP, 0x00000015, 0x00003877, N("read"), REG1, MIMM },
 	{ AP, 0x00000015, 0x00000077, N("read"), REG1, N("add"), REG2, MIMM },
 	{ AP, 0x00000007, 0x00000017, N("braz"), T(annul), REG2, BTARG },
 	{ AP, 0x00000017, 0x00000017, N("branz"), T(annul), REG2, BTARG },
