@@ -1600,7 +1600,7 @@ static struct insn tabc[] = {
 	{ AP, 0x50000000, 0xf0000000, T(p), N("break") },
 	{ AP, 0x60000000, 0xf0000000, IGNPRED, N("quadon") },
 	{ AP, 0x70000000, 0xf0000000, IGNPRED, N("quadpop") },
-	{ AP, 0x861ffe00, 0xf61ffe00, IGNPRED, N("bar sync"), BAR },
+	{ AP, 0x861ffe00, 0xf61ffe00, IGNPRED, N("bar"), N("sync"), BAR },
 	{ AP, 0x90000000, 0xf0000000, IGNPRED, N("trap") },
 	{ AP, 0xa0000000, 0xf0000000, IGNPRED, N("joinat"), BTARG },
 	{ AP, 0xb0000000, 0xf0000000, T(p), N("brkpt") }, // sm_11. check predicates.
