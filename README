@@ -1,0 +1,82 @@
+envytools - Tools for people envious of nvidia's blob driver.
+
+The canonical repo is at: http://github.com/pathscale/envytools/
+
+
+= Contents =
+
+ * rules-ng-ng.txt, rules-ng-ng.xsd, example.xml: Description of the
+   rules-ng-ng [rnn] XML register database format.
+ * nv*.xml: rnn database of nvidia MMIO registers, FIFO methods, and memory
+   structures.
+ * rnn*.c/librnn: Library for accessing and using the rnn database
+ * headergen: Generates .h files from rnn
+ * lookup: Looks up address/value in rnn
+ * demmio: Decodes mmiotraces using rnn
+ * *dis.c/envydis/libenvy: Disassembler for various ISAs found on nv cards
+ * nvbios: Decodes various stuff in nvidia VBIOS binaries 
+
+= Building, installing =
+
+You'll need: cmake, libxml2.
+
+To build, use
+
+ $ cmake -D CMAKE_INSTALL_PREFIX:PATH=/usr/local .
+ $ make
+
+To install, use
+
+ $ make install
+
+= Using envydis =
+
+envydis reads from standard input and prints the disassembly to standard
+output. By default, input is parsed as sequence space- or comma-separated
+hexadecimal numbers representing the bytes to disassemble. The options are:
+
+ input format
+  -w Instead of sequence of hexadecimal bytes, treat input as sequence of
+     hexadecimal 32-bit words
+  -i Treat input as pure binary
+ input subranging
+  -b <base> Assume the start of input to be at address <base> in code segment
+  -d <skip> Skip/discard that many bytes of input before starting to read code
+  -l <limit> Don't disassemble more than <limit> bytes.
+ variant selection
+  -m <machine> Select the ISA to disassemble. One of: 
+     nv50: nv50 [tesla] CUDA/shader ISA [****]
+     nvc0: nvc0 [fermi] CUDA/shader ISA [**  ]
+     ctx: nv40 and nv50 PGRAPH context-switching microcode [**  ]
+     fuc: fifo microcode, used to power various engines on nv98+ cards [*** ]
+     pms: PBUS power management scripts [*   ]
+     vp2: video processor 2 [nv84-gen] code, an xtensa variant [*** ]
+     vp3m: video processor 3 [nv98-gen] master/mocomp microcode [*   ]
+     vp3t: video processor 3 [nv98-gen] transform microcode [    ]
+     macro: nvc0 PGRAPH macro method ISA [****]
+     [    ]: Bare beginnings
+     [*   ]: Knows a few instructions
+     [**  ]: Knows enough instructions to write some simple code
+     [*** ]: Knows most instructions, enough to write advanced code
+     [****]: Knows all instructions, or very close to.
+  -4 [ctx only] Disassemble NV4x ctxprog ISA
+  -5 [ctx only] Disassemble NV5x ctxprog ISA
+  -v [nv50/nvc0 only] Disassemble vertex program ISA
+  -g [nv50/nvc0 only] Disassemble geometry program ISA
+  -f/-p [nv50/nvc0 only] Disassemble fragment program ISA
+  -c [nv50/nvc0 only] Disassemble compute program ISA
+  -s [nv50/nvc0 only] Disassemble vertex, geometry, or fragment program ISA
+ output format
+  -n Disable output coloring
+
+envydis can also be invoked under one of the alternative names, which imply
+-m and sometimes -w options:
+  - nv50dis: -m nv50 -w
+  - nvc0dis: -m nvc0 -w
+  - ctxdis: -m ctx -w
+  - fucdis: -m fuc
+  - pmsdis: -m pms
+  - vp2dis: -m vp2
+  - vp3mdis: -m vp3m
+  - vp3tdis: -m vp3t
+  - macrodis: -m macro -w
