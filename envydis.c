@@ -151,17 +151,17 @@ int main(int argc, char **argv) {
 	}
 	int num = 0;
 	int maxnum = 16;
-	uint8_t *code = malloc (maxnum * 4);
+	uint8_t *code = malloc (maxnum);
 	uint32_t t;
 	if (bin) {
 		int c;
 		while ((c = getchar()) != EOF) {
-			if (num + 3 >= maxnum) maxnum *= 2, code = realloc (code, maxnum*4);
+			if (num + 3 >= maxnum) maxnum *= 2, code = realloc (code, maxnum);
 			code[num++] = c;
 		}
 	} else {
 		while (!feof(stdin) && scanf ("%x", &t) == 1) {
-			if (num + 3 >= maxnum) maxnum *= 2, code = realloc (code, maxnum*4);
+			if (num + 3 >= maxnum) maxnum *= 2, code = realloc (code, maxnum);
 			if (w) {
 				code[num++] = t & 0xff;
 				t >>= 8;
