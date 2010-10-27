@@ -180,7 +180,7 @@ struct disctx {
 	uint8_t *code8;
 	uint32_t *code32;
 	uint64_t *code64;
-	int *labels;
+	int *marks;
 	uint32_t codebase;
 	uint32_t codesz;
 	int ptype;

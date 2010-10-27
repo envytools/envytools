@@ -271,14 +271,14 @@ void markct8(struct disctx *ctx, uint32_t ptr) {
 	ptr *= ctx->isa->posunit;
 	if (ptr < ctx->codebase || ptr > ctx->codebase + ctx->codesz)
 		return;
-	ctx->labels[ptr - ctx->codebase] |= 2;
+	ctx->marks[ptr - ctx->codebase] |= 2;
 }
 
 void markbt8(struct disctx *ctx, uint32_t ptr) {
 	ptr *= ctx->isa->posunit;
 	if (ptr < ctx->codebase || ptr > ctx->codebase + ctx->codesz)
 		return;
-	ctx->labels[ptr - ctx->codebase] |= 1;
+	ctx->marks[ptr - ctx->codebase] |= 1;
 }
 
 /*
@@ -295,7 +295,7 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 	int cur = 0, i, j;
 	start *= isa->posunit;
 	ctx->code8 = code;
-	ctx->labels = calloc(num, sizeof *ctx->labels);
+	ctx->marks = calloc(num, sizeof *ctx->marks);
 	ctx->codebase = start;
 	ctx->codesz = num;
 	ctx->ptype = ptype;
@@ -324,9 +324,9 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 		atomtab (ctx, &a, &m, isa->troot);
 		ctx->out = out;
 
-		if (ctx->labels[cur] & 2)
+		if (ctx->marks[cur] & 2)
 			fprintf (ctx->out, "\n");
-		switch (ctx->labels[cur] & 3) {
+		switch (ctx->marks[cur] & 3) {
 			case 0:
 				fprintf (ctx->out, "%s%08x:%s", cgray, (cur + start) / isa->posunit, cnorm);
 				break;
@@ -353,11 +353,11 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 		}
 		fprintf (ctx->out, "  ");
 
-		if (ctx->labels[cur] & 2)
+		if (ctx->marks[cur] & 2)
 			fprintf (ctx->out, "%sC", cbr);
 		else
 			fprintf (ctx->out, " ");
-		if (ctx->labels[cur] & 1)
+		if (ctx->marks[cur] & 1)
 			fprintf (ctx->out, "%sB", cmag);
 		else
 			fprintf (ctx->out, " ");
@@ -390,5 +390,5 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 		}
 		fprintf (ctx->out, "%s\n", cnorm);
 	}
-	free(ctx->labels);
+	free(ctx->marks);
 }
