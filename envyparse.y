@@ -87,7 +87,7 @@ aexpr:	T_MEM expr ']' { $$ = makeex(EXPR_MEM); $$->str = $1; $$->expr1 = $2; }
 |	T_REG { $$ = makeex(EXPR_REG); $$->str = $1; }
 |	T_NUM { $$ = makeex(EXPR_NUM); $$->num1 = $1; $$->isimm = 1; }
 |	T_ID { $$ = makeex(EXPR_ID); $$->str = $1; $$->isimm = 1; }
-|	T_UMINUS aexpr { $$ = makeunex(EXPR_NOT, $2); }
+|	T_UMINUS aexpr { $$ = makeunex(EXPR_NEG, $2); }
 |	'~' aexpr { $$ = makeunex(EXPR_NOT, $2); }
 |	'#' { $$ = makeex(EXPR_DISCARD); }
 |	T_NUM ':' T_NUM { $$ = makeex(EXPR_BITFIELD); $$->num1 = $1; $$->num2 = $3; }
