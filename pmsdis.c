@@ -35,7 +35,9 @@ static int staoff[] = { 0xdeaddead };
 #define ADDR32 atomst32, staoff
 #define DATA16 atomst16, stdoff
 #define DATA32 atomst32, stdoff
-static void atomst16 APROTO {
+static struct matches *atomst16 APROTO {
+	if (ctx->reverse)
+		return 0;
 	if (!ctx->out)
 		return;
 	int *n = (int*)v;
@@ -44,7 +46,9 @@ static void atomst16 APROTO {
 	n[0] |= num;
 	fprintf (ctx->out, " %s%#x", cyel, n[0]);
 }
-static void atomst32 APROTO {
+static struct matches *atomst32 APROTO {
+	if (ctx->reverse)
+		return 0;
 	if (!ctx->out)
 		return;
 	int *n = (int*)v;

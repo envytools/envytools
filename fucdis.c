@@ -110,7 +110,9 @@ static struct bitfield cimm2off = { 20, 6 };
 
 #define BITF8 atombf, &imm8off
 #define BITF16 atombf, &imm16off
-static void atombf APROTO {
+static struct matches *atombf APROTO {
+	if (ctx->reverse)
+		return 0;
 	if (!ctx->out)
 		return;
 	uint32_t i = GETBF(v);

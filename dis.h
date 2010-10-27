@@ -26,9 +26,11 @@
 #ifndef COREDIS_H
 #define COREDIS_H
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 #include <unistd.h>
 
 extern char *cnorm;	// instruction code and misc stuff
@@ -100,9 +102,11 @@ typedef unsigned long long ull;
 struct disctx;
 struct disisa;
 
-#define APROTO (struct disctx *ctx, ull *a, ull *m, const void *v)
+#define APROTO (struct disctx *ctx, ull *a, ull *m, const void *v, int spos)
 
-typedef void (*afun) APROTO;
+struct matches;
+
+typedef struct matches *(*afun) APROTO;
 
 struct sbf {
 	int pos;
@@ -174,6 +178,30 @@ struct insn {
 	struct atom atoms[16];
 };
 
+struct matches {
+	struct match *m;
+	int mnum;
+	int mmax;
+};
+
+struct reloc {
+	const struct bitfield *bf;
+	const struct expr *expr;
+};
+
+struct match {
+	int oplen;
+	ull a, m;
+	int lpos;
+	struct reloc relocs[8];
+	int nrelocs;
+};
+
+struct label {
+	const char *name;
+	ull val;
+};
+
 struct disctx {
 	struct disisa *isa;
 	FILE *out;
@@ -186,6 +214,11 @@ struct disctx {
 	int ptype;
 	int oplen;
 	uint32_t pos;
+	int reverse;
+	struct line *line;
+	struct label *labels;
+	int labelsnum;
+	int labelsmax;
 };
 
 struct disisa {
@@ -213,7 +246,7 @@ struct disisa {
 };
 
 #define T(x) atomtab, tab ## x
-void atomtab APROTO;
+struct matches *atomtab APROTO;
 
 #define OP8 atomopl, op8len
 #define OP16 atomopl, op16len
@@ -227,28 +260,28 @@ extern int op24len[];
 extern int op32len[];
 extern int op40len[];
 extern int op64len[];
-void atomopl APROTO;
+struct matches *atomopl APROTO;
 
 #define N(x) atomname, x
-void atomname APROTO;
+struct matches *atomname APROTO;
 
 #define U(x) atomunk, "unk" x
-void atomunk APROTO;
+struct matches *atomunk APROTO;
 
 #define OOPS atomunk, "???"
-void atomunk APROTO;
+struct matches *atomunk APROTO;
 
-void atomimm APROTO;
-void atomctarg APROTO;
-void atombtarg APROTO;
+struct matches *atomimm APROTO;
+struct matches *atomctarg APROTO;
+struct matches *atombtarg APROTO;
 
-void atomign APROTO;
+struct matches *atomign APROTO;
 
-void atomreg APROTO;
+struct matches *atomreg APROTO;
 
-void atommem APROTO;
+struct matches *atommem APROTO;
 
-void atomvec APROTO;
+struct matches *atomvec APROTO;
 
 ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx);
 #define GETBF(bf) getbf(bf, a, m, ctx)

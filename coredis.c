@@ -24,6 +24,7 @@
  */
 
 #include "dis.h"
+#include "envyas.h"
 
 /*
  * Color scheme
@@ -40,15 +41,98 @@ char *cmag = "\x1b[0;35m";	// pink: funny registers, jump labels
 char *cbr = "\x1b[1;37m";	// white: call labels
 char *cbrmag = "\x1b[1;35m";	// white: call and jump labels
 
-void atomtab APROTO {
-	const struct insn *tab = v;
+struct matches *emptymatches() {
+	struct matches *res = calloc(sizeof *res, 1);
+	return res;
+}
+
+struct matches *alwaysmatches(int lpos) {
+	struct matches *res = calloc(sizeof *res, 1);
+	struct match m = { 0, 0, 0, lpos };
+	RNN_ADDARRAY(res->m, m);
+	return res;
+}
+
+struct matches *catmatches(struct matches *a, struct matches *b) {
 	int i;
-	while ((a[0]&tab->mask) != tab->val || !(tab->ptype & ctx->ptype))
-		tab++;
-	m[0] |= tab->mask;
-	for (i = 0; i < 16; i++)
-		if (tab->atoms[i].fun)
-			tab->atoms[i].fun (ctx, a, m, tab->atoms[i].arg);
+	for (i = 0; i < b->mnum; i++)
+		RNN_ADDARRAY(a->m, b->m[i]);
+	free(b->m);
+	free(b);
+	return a;
+}
+
+struct matches *mergematches(struct match a, struct matches *b) {
+	struct matches *res = emptymatches();
+	int i;
+	for (i = 0; i < b->mnum; i++) {
+		ull cmask = a.m & b->m[i].m;
+		if ((a.a & cmask) == (b->m[i].a & cmask)) {
+			struct match nm = b->m[i];
+			if (!nm.oplen)
+				nm.oplen = a.oplen;
+			nm.a |= a.a;
+			nm.m |= a.m;
+			int j;
+			assert (a.nrelocs + nm.nrelocs <= 8);
+			for (j = 0; j < a.nrelocs; j++)
+				nm.relocs[nm.nrelocs + j] = a.relocs[j];
+			nm.nrelocs += a.nrelocs;
+			RNN_ADDARRAY(res->m, nm);
+		}
+	}
+	free(b->m);
+	free(b);
+	return res;
+}
+
+struct matches *tabdesc (struct disctx *ctx, struct match m, const struct atom *atoms) {
+	if (!atoms->fun) {
+		struct matches *res = emptymatches();
+		RNN_ADDARRAY(res->m, m);
+		return res;
+	}
+	struct matches *ms = atoms->fun(ctx, 0, 0, atoms->arg, m.lpos);
+	if (!ms)
+		return 0;
+	ms = mergematches(m, ms);
+	atoms++;
+	if (!atoms->fun)
+		return ms;
+	struct matches *res = emptymatches();
+	int i;
+	for (i = 0; i < ms->mnum; i++) {
+		struct matches *tmp = tabdesc(ctx, ms->m[i], atoms);
+		if (tmp)
+			res = catmatches(res, tmp);
+	}
+	return res;
+}
+
+struct matches *atomtab APROTO {
+	const struct insn *tab = v;
+	if (!ctx->reverse) {
+		int i;
+		while ((a[0]&tab->mask) != tab->val || !(tab->ptype & ctx->ptype))
+			tab++;
+		m[0] |= tab->mask;
+		for (i = 0; i < 16; i++)
+			if (tab->atoms[i].fun)
+				tab->atoms[i].fun (ctx, a, m, tab->atoms[i].arg, 0);
+	} else {
+		struct matches *res = emptymatches();
+		int i;
+		for (i = 0; ; i++) {
+			if (tab[i].ptype & ctx->ptype) {
+				struct match sm = { 0, tab[i].val, tab[i].mask, spos };
+				struct matches *subm = tabdesc(ctx, sm, tab[i].atoms); 
+				if (subm)
+					res = catmatches(res, subm);
+			}
+			if (!tab[i].mask) break;
+		}
+		return res;
+	}
 }
 
 int op8len[] = { 1 };
@@ -57,24 +141,115 @@ int op24len[] = { 3 };
 int op32len[] = { 4 };
 int op40len[] = { 5 };
 int op64len[] = { 8 };
-void atomopl APROTO {
-	ctx->oplen = *(int*)v;
+struct matches *atomopl APROTO {
+	if (!ctx->reverse) {
+		ctx->oplen = *(int*)v;
+	} else {
+		struct matches *res = alwaysmatches(spos);
+		res->m[0].oplen = *(int*)v;
+		return res;
+	}
 }
 
-void atomname APROTO {
+struct matches *matchid(struct disctx *ctx, int spos, const char *v) {
+	if (spos == ctx->line->atomsnum)
+		return 0;
+	struct expr *e = ctx->line->atoms[spos];
+	if (e->type == EXPR_ID && !strcmp(e->str, v))
+		return alwaysmatches(spos+1);
+	else
+		return 0;
+}
+
+struct matches *atomname APROTO {
+	if (!ctx->reverse) {
+		if (ctx->out)
+			fprintf (ctx->out, " %s%s", cgr, (const char *)v);
+	} else {
+		return matchid(ctx, spos, v);
+	}
+}
+
+struct matches *atomunk APROTO {
+	if (ctx->reverse)
+		return 0;
 	if (ctx->out)
-		fprintf (ctx->out, " %s%s", cgr, (char *)v);
+		fprintf (ctx->out, " %s%s", cred, (const char *)v);
 }
 
-void atomunk APROTO {
-	if (ctx->out)
-		fprintf (ctx->out, " %s%s", cred, (char *)v);
+int setsbf (struct match *res, int pos, int len, ull num) {
+	if (!len)
+		return 1;
+	ull m = ((1ull << len) - 1) << pos;
+	ull a = (num << pos) & m;
+	if ((a & m & res->m) == (res->a & m & res->m)) {
+		res->a |= a;
+		res->m |= m;
+		return 1;
+	} else {
+		return 0;
+	}
 }
 
-void atomimm APROTO {
+int setbfe (struct match *res, const struct bitfield *bf, struct expr *expr) {
+	if (!expr->isimm)
+		return 0;
+	if (expr->type != EXPR_NUM || bf->pcrel) {
+		assert (res->nrelocs != 8);
+		res->relocs[res->nrelocs].bf = bf;
+		res->relocs[res->nrelocs].expr = expr;
+		res->nrelocs++;
+		return 1;
+	}
+	ull num = expr->num1 - bf->addend;
+	if (bf->lut) {
+		int max = 1 << (bf->sbf[0].len + bf->sbf[1].len);
+		int j = 0;
+		for (j = 0; j < max; j++)
+			if (bf->lut[j] == num)
+				break;
+		if (j == max)
+			return 0;
+		num = j;
+	}
+	num >>= bf->shr;
+	setsbf(res, bf->sbf[0].pos, bf->sbf[0].len, num);
+	num >>= bf->sbf[0].len;
+	setsbf(res, bf->sbf[1].pos, bf->sbf[1].len, num);
+	return getbf(bf, &res->a, &res->m, 0) == expr->num1;
+}
+
+int setbf (struct match *res, const struct bitfield *bf, ull num) {
+	if (bf->pcrel) {
+		struct expr *e = makeex(EXPR_NUM);
+		e->num1 = num;
+		e->isimm = 1;
+		setbfe(res, bf, e);
+	} else {
+		struct expr e = { .type = EXPR_NUM, .num1 = num, .isimm = 1 };
+		setbfe(res, bf, &e);
+	}
+}
+
+struct matches *matchimm (struct disctx *ctx, const struct bitfield *bf, int spos) {
+	if (spos == ctx->line->atomsnum)
+		return 0;
+	struct matches *res = alwaysmatches(spos+1);
+	if (setbfe(res->m, bf, ctx->line->atoms[spos]))
+		return res;
+	else {
+		free(res->m);
+		free(res);
+		return 0;
+	}
+}
+
+struct matches *atomimm APROTO {
+	const struct bitfield *bf = v;
+	if (ctx->reverse)
+		return matchimm(ctx, bf, spos);
 	if (!ctx->out)
 		return;
-	const struct bitfield *bf = v;
 	ull num = GETBF(bf);
 	if (num & 1ull << 63)
 		fprintf (ctx->out, " %s-%#llx", cyel, -num);
@@ -82,8 +257,10 @@ void atomimm APROTO {
 		fprintf (ctx->out, " %s%#llx", cyel, num);
 }
 
-void atomctarg APROTO {
+struct matches *atomctarg APROTO {
 	const struct bitfield *bf = v;
+	if (ctx->reverse)
+		return matchimm(ctx, bf, spos);
 	ull num = GETBF(bf);
 	markct8(ctx, num);
 	if (!ctx->out)
@@ -91,8 +268,10 @@ void atomctarg APROTO {
 	fprintf (ctx->out, " %s%#llx", cbr, num);
 }
 
-void atombtarg APROTO {
+struct matches *atombtarg APROTO {
 	const struct bitfield *bf = v;
+	if (ctx->reverse)
+		return matchimm(ctx, bf, spos);
 	ull num = GETBF(bf);
 	markbt8(ctx, num);
 	if (!ctx->out)
@@ -100,9 +279,57 @@ void atombtarg APROTO {
 	fprintf (ctx->out, " %s%#llx", cmag, num);
 }
 
-void atomign APROTO {
+struct matches *atomign APROTO {
+	if (ctx->reverse)
+		return alwaysmatches(spos);
 	const int *n = v;
 	(void)BF(n[0], n[1]);
+}
+
+int matchreg (struct match *res, const struct reg *reg, struct expr *expr) {
+	if (reg->specials) {
+		int i = 0;
+		for (i = 0; reg->specials[i].num != -1; i++) {
+			switch (reg->specials[i].mode) {
+				case SR_NAMED:
+					if (expr->type == EXPR_REG && !strcmp(expr->str, reg->specials[i].name))
+						return setbf(res, reg->bf, reg->specials[i].num);
+					break;
+				case SR_ZERO:
+					if (expr->type == EXPR_NUM && expr->num1 == 0)
+						return setbf(res, reg->bf, reg->specials[i].num);
+					break;
+				case SR_ONE:
+					if (expr->type == EXPR_NUM && expr->num1 == 1)
+						return setbf(res, reg->bf, reg->specials[i].num);
+					break;
+				case SR_DISCARD:
+					if (expr->type == EXPR_DISCARD)
+						return setbf(res, reg->bf, reg->specials[i].num);
+					break;
+			}
+		}
+	}
+	if (expr->type != EXPR_REG)
+		return 0;
+	if (strncmp(expr->str, reg->name, strlen(reg->name)))
+		return 0;
+	const char *str = expr->str + strlen(reg->name);
+	char *end;
+	ull num = strtoull(str, &end, 10);
+	if (!reg->hilo) {
+		if (strcmp(end, (reg->suffix?reg->suffix:"")))
+			return 0;
+	} else {
+		if (strlen(end) != 1)
+			return 0;
+		if (*end != 'h' && *end != 'l')
+			return 0;
+		num <<= 1;
+		if (*end == 'h')
+			num |= 1;
+	}
+	return setbf(res, reg->bf, num);
 }
 
 // print reg if non-0, ignore otherwise. return 1 if printed anything.
@@ -150,16 +377,30 @@ static int printreg (struct disctx *ctx, ull *a, ull *m, const struct reg *reg) 
 	return 1;
 }
 
-void atomreg APROTO {
+struct matches *atomreg APROTO {
+	const struct reg *reg = v;
+	if (ctx->reverse) {
+		if (spos == ctx->line->atomsnum)
+			return 0;
+		struct matches *res = alwaysmatches(spos+1);
+		if (matchreg(res->m, reg, ctx->line->atoms[spos]))
+			return res;
+		else {
+			free(res->m);
+			free(res);
+			return 0;
+		}
+	}
 	if (!ctx->out)
 		return;
-	const struct reg *reg = v;
 	fprintf (ctx->out, " ");
 	if (!printreg(ctx, a, m, reg))
 		fprintf (ctx->out, "%s0", cyel);
 }
 
-void atommem APROTO {
+struct matches *atommem APROTO {
+	if (ctx->reverse)
+		return 0;
 	if (!ctx->out)
 		return;
 	const struct mem *mem = v;
@@ -206,7 +447,9 @@ void atommem APROTO {
 		fprintf (ctx->out, "%s]", ccy);
 }
 
-void atomvec APROTO {
+struct matches *atomvec APROTO {
+	if (ctx->reverse)
+		return 0;
 	if (!ctx->out)
 		return;
 	const struct vec *vec = v;
@@ -306,7 +549,7 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 			a |= (ull)code[cur + i] << i*8;
 		}
 		ctx->pos = cur + start;
-		atomtab (ctx, &a, &m, isa->troot);
+		atomtab (ctx, &a, &m, isa->troot, 0);
 		if (ctx->oplen)
 			cur += ctx->oplen;
 		else
@@ -321,7 +564,7 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 		}
 		ctx->oplen = 0;
 		ctx->pos = cur + start;
-		atomtab (ctx, &a, &m, isa->troot);
+		atomtab (ctx, &a, &m, isa->troot, 0);
 		ctx->out = out;
 
 		if (ctx->marks[cur] & 2)
@@ -362,7 +605,7 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 		else
 			fprintf (ctx->out, " ");
 
-		atomtab (ctx, &a, &m, isa->troot);
+		atomtab (ctx, &a, &m, isa->troot, 0);
 
 		if (ctx->oplen) {
 			a &= ~m;

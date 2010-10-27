@@ -7,6 +7,10 @@ expand
 demmio
 nvbios
 envydis
+envyas
+envylex.c
+envyparse.c
+envyparse.h
 libenvy.a
 librnn.a
 *.xml.h
@@ -14,3 +18,4 @@ Makefile
 CMakeCache.txt
 CMakeFiles
 cmake_install.cmake
+install_manifest.txt
