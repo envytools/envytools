@@ -200,40 +200,13 @@ static struct insn tabfl[] = {
 	{ AP, 0x00000000, 0x00000000, OOPS },
 };
 
-static struct insn tabi[] = {
-	{ AP, 0x00000000, 0x00000001, IMM8 },
-	{ AP, 0x00000001, 0x00000001, IMM16 },
-};
-
-static struct insn tabis[] = {
-	{ AP, 0x00000000, 0x00000001, IMM8S },
-	{ AP, 0x00000001, 0x00000001, IMM16S },
-};
-
-static struct insn tabih[] = {
-	{ AP, 0x00000000, 0x00000001, IMM8H },
-	{ AP, 0x00000001, 0x00000001, IMM16H },
-};
-
-static struct insn tabbt[] = {
-	{ AP, 0x00000000, 0x00000001, SBTARG },
-	{ AP, 0x00000001, 0x00000001, LBTARG },
-};
-
-static struct insn tababt[] = {
-	{ AP, 0x00000000, 0x00000001, SABTARG },
-	{ AP, 0x00000001, 0x00000001, LABTARG },
-};
-
-static struct insn tabct[] = {
-	{ AP, 0x00000000, 0x00000001, SCTARG },
-	{ AP, 0x00000001, 0x00000001, LCTARG },
-};
-
-static struct insn tabol0[] = {
-	{ AP, 0x00000000, 0x00000001, OP24 },
-	{ AP, 0x00000001, 0x00000001, OP32 },
-};
+F(i, 0, IMM8, IMM16);
+F(is, 0, IMM8S, IMM16S);
+F(ih, 0, IMM8H, IMM16H);
+F(bt, 0, SBTARG, LBTARG);
+F(abt, 0, SABTARG, LABTARG);
+F(ct, 0, SCTARG, LCTARG);
+F(ol0, 0, OP24, OP32);
 
 static struct insn tabcocmd[] = {
 	{ AP, 0x00000000, 0x80000000, N("cxset"), IMM8 },
