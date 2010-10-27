@@ -102,7 +102,7 @@ static struct reg reg3_r = { &reg3_bf, "r", .specials = reg_sr };
  * actually take effect until the next instruction finishes. Branches also
  * have "annul" variants which don't have delay slots. Combining "exit" with
  * a branch is a special case: the exit happens if and only if the branch
- * is not taken.
+ * is not taken. It's an error to use a branch in a delay slot.
  *
  * Stuff marked SC below is not actually a separate instruction, just
  * a special case of a more generic insn.
@@ -120,7 +120,9 @@ static struct insn tabdst[] = {
 	{ AP, 0x00000040, 0x00000770, N("send") }, // SC
 	{ AP, 0x00000040, 0x00000070, N("send"), REG1 },		// send result and store it to REG1
 	{ AP, 0x00000050, 0x00000070, N("parm"), REG1, N("maddr") },	// use result as maddr, then fetch param to REG1
+	{ AP, 0x00000060, 0x00000770, N("parmsend"), N("maddr") }, // SC
 	{ AP, 0x00000060, 0x00000070, N("parmsend"), N("maddr"), REG1 },// use result as maddr and store it to REG1, then fetch param and send it. 
+	{ AP, 0x00000070, 0x00000770, N("maddrsend") }, // SC
 	{ AP, 0x00000070, 0x00000070, N("maddrsend"), REG1 },		// use result as maddr, then send bits 12-17 of result, then store result to REG1
 };
 
@@ -148,7 +150,7 @@ static struct insn tabm[] = {
 	{ AP, 0x00000003, 0x00000007, T(dst), N("extrshl"), REG3, REG2, BFSZ, BFDSTPOS },
 	// take BFSZ bits starting at BFSRCPOS in REG3, shift left by REG2
 	{ AP, 0x00000004, 0x00000007, T(dst), N("extrshl"), REG3, BFSRCPOS, BFSZ, REG2 },
-	{ AP, 0x00000015, 0x00003877, N("read"), REG1, MIMM },
+	{ AP, 0x00000015, 0x00003877, N("read"), REG1, MIMM }, // SC
 	{ AP, 0x00000015, 0x00000077, N("read"), REG1, N("add"), REG2, MIMM },
 	{ AP, 0x00000007, 0x00000017, N("braz"), T(annul), REG2, BTARG },
 	{ AP, 0x00000017, 0x00000017, N("branz"), T(annul), REG2, BTARG },
