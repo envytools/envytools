@@ -26,8 +26,8 @@ static int file_exists(const char * filename)
     return 0;
 }
 
-static const char *
-resolve_using_path(const char *filename, char *buf, unsigned buf_len)
+static char *
+resolve_using_path(char *filename, char *buf, unsigned buf_len)
 {
 	const char *rnn_path = getenv("RNN_PATH");
 
@@ -848,9 +848,9 @@ static int trytop (struct rnndb *db, char *file, xmlNode *node) {
 
 void rnn_parsefile (struct rnndb *db, char *file_orig) {
 	int i;
-	char *file = (char *) malloc(512);
+	char *buf = (char *) malloc(512);
 
-	file = resolve_using_path(file_orig, file, 512);
+	char* file = resolve_using_path(file_orig, buf, 512);
 
 	for (i = 0; i < db->filesnum; i++)
 		if (!strcmp(db->files[i], file))
