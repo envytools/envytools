@@ -16,3 +16,8 @@ add_executable(nvbios nvbios.c)
 target_link_libraries(envydis envy)
 target_link_libraries(demmio envy rnn ${LIBXML2_LIBRARIES})
 target_link_libraries(headergen rnn ${LIBXML2_LIBRARIES})
+
+install(TARGETS envydis demmio headergen nvbios envy rnn
+	RUNTIME DESTINATION bin
+	LIBRARY DESTINATION lib
+	ARCHIVE DESTINATION lib)
