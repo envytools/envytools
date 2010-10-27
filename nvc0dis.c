@@ -194,6 +194,14 @@ static struct sreg sreg_sr[] = {
 	{ 0x51, "clockhi" },
 	{ -1 },
 };
+static struct sreg reg_sr[] = {
+	{ 63, 0, SR_ZERO },
+	{ -1 },
+};
+static struct sreg pred_sr[] = {
+	{ 7, 0, SR_ONE },
+	{ -1 },
+};
 
 static struct bitfield dst_bf = { 0xe, 6 };
 static struct bitfield src1_bf = { 0x14, 6 };
@@ -213,25 +221,25 @@ static struct bitfield samp_bf = { 0x28, 4 };
 static struct bitfield surf_bf = { 0x1a, 3 };
 static struct bitfield sreg_bf = { 0x1a, 7 };
 
-static struct reg dst_r = { &dst_bf, "r" };
+static struct reg dst_r = { &dst_bf, "r", .specials = reg_sr };
 static struct reg dstd_r = { &dst_bf, "r", "d" };
 static struct reg dstq_r = { &dst_bf, "r", "q" };
-static struct reg src1_r = { &src1_bf, "r" };
+static struct reg src1_r = { &src1_bf, "r", .specials = reg_sr };
 static struct reg src1d_r = { &src1_bf, "r", "d" };
-static struct reg src2_r = { &src2_bf, "r" };
+static struct reg src2_r = { &src2_bf, "r", .specials = reg_sr };
 static struct reg src2d_r = { &src2_bf, "r", "d" };
-static struct reg src3_r = { &src3_bf, "r" };
+static struct reg src3_r = { &src3_bf, "r", .specials = reg_sr };
 static struct reg src3d_r = { &src3_bf, "r", "d" };
-static struct reg dst2_r = { &dst2_bf, "r" };
+static struct reg dst2_r = { &dst2_bf, "r", .specials = reg_sr };
 static struct reg dst2d_r = { &dst2_bf, "r", "d" };
-static struct reg psrc1_r = { &psrc1_bf, "p" };
-static struct reg psrc2_r = { &psrc2_bf, "p" };
-static struct reg psrc3_r = { &psrc3_bf, "p" };
-static struct reg pred_r = { &pred_bf, "p" };
-static struct reg pdst_r = { &pdst_bf, "p" };
-static struct reg pdst2_r = { &pdst2_bf, "p" };
-static struct reg pdst3_r = { &pdst3_bf, "p" };
-static struct reg pdst4_r = { &pdst4_bf, "p" };
+static struct reg psrc1_r = { &psrc1_bf, "p", .specials = pred_sr };
+static struct reg psrc2_r = { &psrc2_bf, "p", .specials = pred_sr };
+static struct reg psrc3_r = { &psrc3_bf, "p", .specials = pred_sr };
+static struct reg pred_r = { &pred_bf, "p", .specials = pred_sr };
+static struct reg pdst_r = { &pdst_bf, "p", .specials = pred_sr };
+static struct reg pdst2_r = { &pdst2_bf, "p", .specials = pred_sr };
+static struct reg pdst3_r = { &pdst3_bf, "p", .specials = pred_sr };
+static struct reg pdst4_r = { &pdst4_bf, "p", .specials = pred_sr };
 static struct reg tex_r = { &tex_bf, "t" };
 static struct reg samp_r = { &samp_bf, "s" };
 static struct reg surf_r = { &surf_bf, "g" };
