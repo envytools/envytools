@@ -124,6 +124,7 @@ static struct insn tabdst[] = {
 	{ AP, 0x00000060, 0x00000070, N("parmsend"), N("maddr"), REG1 },// use result as maddr and store it to REG1, then fetch param and send it. 
 	{ AP, 0x00000070, 0x00000770, N("maddrsend") }, // SC
 	{ AP, 0x00000070, 0x00000070, N("maddrsend"), REG1 },		// use result as maddr, then send bits 12-17 of result, then store result to REG1
+	{ AP, 0, 0, OOPS },
 };
 
 F1(annul, 5, N("annul")); // if set, delay slot insn is annuled if branch taken [ie. branch behaves as if delay slots didn't exist]

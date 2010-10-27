@@ -686,6 +686,7 @@ static struct insn tabaddop[] = {
 	{ AP, 0x00400000, 0x10400000, N("sub") },
 	{ AP, 0x10000000, 0x10400000, N("subr") },
 	{ AP, 0x10400000, 0x10400000, N("addc") },
+	{ AP, 0, 0, OOPS },
 };
 
 /*
@@ -847,6 +848,7 @@ static struct insn tablc2w[] = {
 	{ AP, 0x0000000002800000ull, 0x0020000003800000ull, L2CONST32 },
 	{ AP, 0x0020000000800000ull, 0x0020000001800000ull, L2CONST32NA },
 	{ AP, 0x0000000000000000ull, 0x0000000000000000ull, LSRC2 },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tablc3h[] = {
@@ -854,6 +856,7 @@ static struct insn tablc3h[] = {
 	{ AP, 0x0000000003000000ull, 0x0020000003800000ull, L3CONST16PI },
 	{ AP, 0x0020000001000000ull, 0x0020000001800000ull, L3CONST16NA },
 	{ AP, 0x0000000000000000ull, 0x0000000000000000ull, LHSRC3 },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tablc3w[] = {
@@ -861,6 +864,7 @@ static struct insn tablc3w[] = {
 	{ AP, 0x0000000003000000ull, 0x0020000003800000ull, L3CONST32PI },
 	{ AP, 0x0020000001000000ull, 0x0020000001800000ull, L3CONST32NA },
 	{ AP, 0x0000000000000000ull, 0x0000000000000000ull, LSRC3 },
+	{ AP, 0, 0, OOPS },
 };
 
 F(shcnt, 0x34, T(lc2w), SHCNT)
@@ -1012,6 +1016,7 @@ static struct insn tabaf64r[] = {
 	{ AP, 0x00010000, 0x00030000, N("rm") },
 	{ AP, 0x00020000, 0x00030000, N("rp") },
 	{ AP, 0x00030000, 0x00030000, N("rz") },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabaf32r[] = {
@@ -1107,6 +1112,7 @@ static struct insn tablane[] = {
 	{ AP, 0x0003400000000000ull, 0x0003c00000000000ull, N("l023") },
 	{ AP, 0x0003800000000000ull, 0x0003c00000000000ull, N("l123") },
 	{ AP, 0x0003c00000000000ull, 0x0003c00000000000ull },
+	{ AP, 0, 0, OOPS },
 };
 
 // for mov from c[]
@@ -1130,7 +1136,7 @@ static struct insn tabqs1[] = {
 	{ AP, 0x00030000, 0x00070000, N("l3") },
 	{ AP, 0x00040000, 0x00050000, N("dx") },
 	{ AP, 0x00050000, 0x00050000, N("dy") },
-	{ AP, 0, 0 },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabqop0[] = {
@@ -1138,6 +1144,7 @@ static struct insn tabqop0[] = {
 	{ AP, 0x0400000000000000ull, 0x0c00000000000000ull, N("subr") },
 	{ AP, 0x0800000000000000ull, 0x0c00000000000000ull, N("sub") },
 	{ AP, 0x0c00000000000000ull, 0x0c00000000000000ull, N("mov2") },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabqop1[] = {
@@ -1145,6 +1152,7 @@ static struct insn tabqop1[] = {
 	{ AP, 0x0100000000000000ull, 0x0300000000000000ull, N("subr") },
 	{ AP, 0x0200000000000000ull, 0x0300000000000000ull, N("sub") },
 	{ AP, 0x0300000000000000ull, 0x0300000000000000ull, N("mov2") },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabqop2[] = {
@@ -1152,6 +1160,7 @@ static struct insn tabqop2[] = {
 	{ AP, 0x0040000000000000ull, 0x00c0000000000000ull, N("subr") },
 	{ AP, 0x0080000000000000ull, 0x00c0000000000000ull, N("sub") },
 	{ AP, 0x00c0000000000000ull, 0x00c0000000000000ull, N("mov2") },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabqop3[] = {
@@ -1159,6 +1168,7 @@ static struct insn tabqop3[] = {
 	{ AP, 0x00100000, 0x00300000, N("subr") },
 	{ AP, 0x00200000, 0x00300000, N("sub") },
 	{ AP, 0x00300000, 0x00300000, N("mov2") },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tablogop[] = {
@@ -1166,6 +1176,7 @@ static struct insn tablogop[] = {
 	{ AP, 0x0000400000000000ull, 0x0000c00000000000ull, N("or") },
 	{ AP, 0x0000800000000000ull, 0x0000c00000000000ull, N("xor") },
 	{ AP, 0x0000c00000000000ull, 0x0000c00000000000ull, N("mov2") },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabaddcond[] = {
@@ -1178,6 +1189,7 @@ static struct insn tabaddop2[] = {
 	{ AP, 0x0400000000000000ull, 0x0c00000000000000ull, N("sub") },
 	{ AP, 0x0800000000000000ull, 0x0c00000000000000ull, N("subr") },
 	{ AP, 0x0c00000000000000ull, 0x0c00000000000000ull, N("addc") },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabaddcond2[] = {
@@ -1602,6 +1614,7 @@ static struct insn tabroot[] = {
 	{ AP, 0x0000000100000001ull, 0x0000000300000003ull, OP64, N("exit"), T(p), T(l) },
 	{ AP, 0x0000000200000001ull, 0x0000000300000003ull, OP64, N("join"), T(p), T(l) },
 	{ AP, 0x0000000300000001ull, 0x0000000300000003ull, OP64, T(i) },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct disisa nv50_isa_s = {

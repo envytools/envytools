@@ -204,10 +204,12 @@ struct disisa {
 #define F(n, f, a, b) static struct insn tab ## n[] = {\
 	{ ~0, 0,		1ull<<(f), a },\
 	{ ~0, 1ull<<(f),	1ull<<(f), b },\
+	{ ~0, 0, 0, OOPS },\
 };
 #define F1(n, f, b) static struct insn tab ## n[] = {\
 	{ ~0, 0,		1ull<<(f) },\
 	{ ~0, 1ull<<(f),	1ull<<(f), b },\
+	{ ~0, 0, 0, OOPS },\
 };
 
 #define T(x) atomtab, tab ## x

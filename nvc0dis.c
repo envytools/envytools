@@ -348,6 +348,7 @@ static struct insn tabldvf[] = {
 	{ AP, 0x40, 0xe0, N("b96") },
 	{ AP, 0x20, 0xe0, N("b64") },
 	{ AP, 0x00, 0xe0, N("b32") },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabfarm[] = {
@@ -355,6 +356,7 @@ static struct insn tabfarm[] = {
 	{ AP, 0x0080000000000000ull, 0x0180000000000000ull, N("rm") },
 	{ AP, 0x0100000000000000ull, 0x0180000000000000ull, N("rp") },
 	{ AP, 0x0180000000000000ull, 0x0180000000000000ull, N("rz") },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabfcrm[] = {
@@ -362,6 +364,7 @@ static struct insn tabfcrm[] = {
 	{ AP, 0x0002000000000000ull, 0x0006000000000000ull, N("rm") },
 	{ AP, 0x0004000000000000ull, 0x0006000000000000ull, N("rp") },
 	{ AP, 0x0006000000000000ull, 0x0006000000000000ull, N("rz") },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabsetit[] = {
@@ -470,6 +473,7 @@ static struct insn tablane[] = {
 	{ AP, 0x00000000000001a0ull, 0x00000000000001e0ull, N("l023") },
 	{ AP, 0x00000000000001c0ull, 0x00000000000001e0ull, N("l123") },
 	{ AP, 0x00000000000001e0ull, 0x00000000000001e0ull },
+	{ AP, 0, 0, OOPS },
 };
 
 // for quadop
@@ -488,6 +492,7 @@ static struct insn tabqop0[] = {
 	{ AP, 0x0000004000000000ull, 0x000000c000000000ull, N("subr") },
 	{ AP, 0x0000008000000000ull, 0x000000c000000000ull, N("sub") },
 	{ AP, 0x000000c000000000ull, 0x000000c000000000ull, N("mov2") },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabqop1[] = {
@@ -495,6 +500,7 @@ static struct insn tabqop1[] = {
 	{ AP, 0x0000001000000000ull, 0x0000003000000000ull, N("subr") },
 	{ AP, 0x0000002000000000ull, 0x0000003000000000ull, N("sub") },
 	{ AP, 0x0000003000000000ull, 0x0000003000000000ull, N("mov2") },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabqop2[] = {
@@ -502,6 +508,7 @@ static struct insn tabqop2[] = {
 	{ AP, 0x0000000400000000ull, 0x0000000c00000000ull, N("subr") },
 	{ AP, 0x0000000800000000ull, 0x0000000c00000000ull, N("sub") },
 	{ AP, 0x0000000c00000000ull, 0x0000000c00000000ull, N("mov2") },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabqop3[] = {
@@ -509,6 +516,7 @@ static struct insn tabqop3[] = {
 	{ AP, 0x0000000100000000ull, 0x0000000300000000ull, N("subr") },
 	{ AP, 0x0000000200000000ull, 0x0000000300000000ull, N("sub") },
 	{ AP, 0x0000000300000000ull, 0x0000000300000000ull, N("mov2") },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabsetlop[] = {
@@ -602,6 +610,7 @@ static struct insn tabredop[] = {
 	{ AP, 0xa0, 0xe0, N("and") },
 	{ AP, 0xc0, 0xe0, N("or") },
 	{ AP, 0xe0, 0xe0, N("xor") },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabredops[] = {
@@ -892,6 +901,7 @@ static struct insn tabp[] = {
 	{ AP, 0x3c00, 0x3c00, N("never") },	// probably.
 	{ AP, 0x0000, 0x2000, PRED },
 	{ AP, 0x2000, 0x2000, N("not"), PRED },
+	{ AP, 0, 0, OOPS },
 };
 
 F1(brawarp, 0xf, N("allwarp")) // probably jumps if the whole warp has the predicate evaluate to true.
@@ -914,6 +924,7 @@ static struct insn tabroot[] = {
 	{ AP, 7, 7, OP64, T(c) }, // control instructions, special-cased.
 	{ AP, 0x0, 0x10, OP64, T(p), T(m) },
 	{ AP, 0x10, 0x10, OP64, N("join"), T(p), T(m), },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct disisa nvc0_isa_s = {

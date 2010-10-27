@@ -406,6 +406,7 @@ static struct insn tabm[] = {
 static struct insn tabroot[] = {
 	{ AP, 0x00, 0x08, OP24, T(m) },
 	{ AP, 0x08, 0x08, OP16, T(m) },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct disisa vp2_isa_s = {

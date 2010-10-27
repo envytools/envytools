@@ -213,6 +213,7 @@ static struct insn tabrpred[] = {
 static struct insn tabpred[] = {
 	{ NVxx, 0x80, 0x80, N("not"), T(rpred) },
 	{ NVxx, 0x00, 0x80, T(rpred) },
+	{ NVxx, 0, 0, OOPS },
 };
 
 static struct insn tabcmd5[] = {
