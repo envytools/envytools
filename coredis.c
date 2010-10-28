@@ -612,24 +612,70 @@ struct matches *atommem APROTO {
 }
 
 struct matches *atomvec APROTO {
-	if (ctx->reverse)
-		return 0;
-	if (!ctx->out)
-		return;
 	const struct vec *vec = v;
-	ull base = GETBF(vec->bf);
-	ull cnt = GETBF(vec->cnt);
-	ull mask = -1ull;
-	if (vec->mask)
-		mask = GETBF(vec->mask);
-	int k = 0, i;
-	fprintf (ctx->out, " %s{", cnorm);
-	for (i = 0; i < cnt; i++)
-		if (mask & 1ull<<i)
-			fprintf (ctx->out, " %s$%s%d", cbl, vec->name, base+k++);
-		else
-			fprintf (ctx->out, " %s#", cbl);
-	fprintf (ctx->out, " %s}", cnorm);
+	if (!ctx->reverse) {
+		if (!ctx->out)
+			return;
+		ull base = GETBF(vec->bf);
+		ull cnt = GETBF(vec->cnt);
+		ull mask = -1ull;
+		if (vec->mask)
+			mask = GETBF(vec->mask);
+		int k = 0, i;
+		fprintf (ctx->out, " %s{", cnorm);
+		for (i = 0; i < cnt; i++)
+			if (mask & 1ull<<i)
+				fprintf (ctx->out, " %s$%s%d", cbl, vec->name, base+k++);
+			else
+				fprintf (ctx->out, " %s#", cbl);
+		fprintf (ctx->out, " %s}", cnorm);
+	} else {
+		if (spos == ctx->line->atomsnum)
+			return 0;
+		struct match res = { 0, .lpos = spos+1 };
+		const struct expr *expr = ctx->line->atoms[spos];
+		if (expr->type != EXPR_VEC)
+			return 0;
+		ull start = 0, cnt = expr->vexprsnum, mask = 0, cur = 0;
+		int i;
+		for (i = 0; i < cnt; i++) {
+			const struct expr *e = expr->vexprs[i];
+			if (e->type == EXPR_DISCARD) {
+			} else if (e->type == EXPR_REG) {
+				if (strncmp(e->str, vec->name, strlen(vec->name)))
+					return 0;
+				char *end;
+				ull num = strtoull(e->str + strlen(vec->name), &end, 10);
+				if (*end)
+					return 0;
+				if (mask) {
+					if (num != cur)
+						return 0;
+					cur++;
+				} else {
+					start = num;
+					cur = num + 1;
+				}
+				mask |= 1ull << i;
+			} else {
+				return 0;
+			}
+		}
+		if (!setbf(&res, vec->bf, start))
+			return 0;
+		if (!setbf(&res, vec->cnt, cnt))
+			return 0;
+		if (vec->mask) {
+			if (!setbf(&res, vec->mask, mask))
+				return 0;
+		} else {
+			if (mask != (1ull << cnt) - 1)
+			       return 0;	
+		}
+		struct matches *rres = emptymatches();
+		RNN_ADDARRAY(rres->m, res);
+		return rres;
+	}
 }
 
 ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx) {
