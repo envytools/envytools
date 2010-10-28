@@ -246,7 +246,7 @@ int main(int argc, char **argv) {
 	int ptype = -1;
 	int c;
 	unsigned base = 0, skip = 0, limit = 0;
-	while ((c = getopt (argc, argv, "45vgfpcsbm:wi")) != -1)
+	while ((c = getopt (argc, argv, "45vgfpcsam:wi")) != -1)
 		switch (c) {
 			case '4':
 				ptype = NV4x;
@@ -270,7 +270,7 @@ int main(int argc, char **argv) {
 			case 's':
 				ptype = VP|GP|FP;
 				break;
-			case 'b':
+			case 'a':
 				if (envyas_ofmt == OFMT_HEX32)
 					envyas_ofmt = OFMT_CHEX32;
 				else
