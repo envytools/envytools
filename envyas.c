@@ -200,6 +200,10 @@ int envyas_process(struct file *file) {
 
 int main(int argc, char **argv) {
 	argv[0] = basename(argv[0]);
+	if (!strcmp(argv[0], "ctxas")) {
+		envyas_isa = ctx_isa;
+		envyas_ofmt = OFMT_HEX32;
+	}
 	if (!strcmp(argv[0], "macroas")) {
 		envyas_isa = macro_isa;
 		envyas_ofmt = OFMT_HEX32;
@@ -247,7 +251,9 @@ int main(int argc, char **argv) {
 				envyas_ofmt = OFMT_RAW;
 				break;
 			case 'm':
-				if (!strcmp(optarg, "macro"))
+				if (!strcmp(optarg, "ctx"))
+					envyas_isa = ctx_isa;
+				else if (!strcmp(optarg, "macro"))
 					envyas_isa = macro_isa;
 				else {
 					fprintf (stderr, "Unknown architecure \"%s\"!\n", optarg);
