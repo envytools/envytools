@@ -65,6 +65,8 @@ struct expr {
 		EXPR_AND,
 		EXPR_XOR,
 		EXPR_OR,
+		EXPR_PIADD,
+		EXPR_PISUB,
 	} type;
 	char *str;
 	ull num1, num2;
@@ -93,7 +95,8 @@ static inline struct expr *makebinex(enum etype type, const struct expr *expr1, 
 	struct expr *res = makeex(type);
 	res->expr1 = expr1;
 	res->expr2 = expr2;
-	res->isimm = expr1->isimm && expr2->isimm;
+	if (type != EXPR_PIADD && type != EXPR_PISUB)
+		res->isimm = expr1->isimm && expr2->isimm;
 	return res;
 }
 

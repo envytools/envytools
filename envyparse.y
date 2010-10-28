@@ -28,6 +28,7 @@ void yyerror (char const *err) {
 %type <line> line
 %type <line> insn
 %type <expr> expr
+%type <expr> expr0
 %type <expr> expr1
 %type <expr> expr2
 %type <expr> expr3
@@ -54,7 +55,12 @@ insn:	insn expr { $$ = $1; RNN_ADDARRAY($$->atoms, $2); }
 |	expr { $$ = calloc(sizeof *$$, 1); $$->type = LINE_INSN; RNN_ADDARRAY($$->atoms, $1); }
 ;
 
-expr:	expr '|' expr1 { $$ = makebinex(EXPR_OR, $1, $3); }
+expr:	expr T_PLUSPLUS expr0 { $$ = makebinex(EXPR_PIADD, $1, $3); }
+|	expr T_MINUSMINUS expr0 { $$ = makebinex(EXPR_PISUB, $1, $3); }
+|	expr0
+;
+
+expr0:	expr0 '|' expr1 { $$ = makebinex(EXPR_OR, $1, $3); }
 |	expr1
 ;
 
