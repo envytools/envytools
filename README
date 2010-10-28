@@ -68,6 +68,7 @@ hexadecimal numbers representing the bytes to disassemble. The options are:
   -s [nv50/nvc0 only] Disassemble vertex, geometry, or fragment program ISA
  output format
   -n Disable output coloring
+  -q Disable printing address + opcodes.
 
 envydis can also be invoked under one of the alternative names, which imply
 -m and sometimes -w options:

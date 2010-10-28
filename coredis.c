@@ -531,7 +531,7 @@ void markbt8(struct disctx *ctx, uint32_t ptr) {
  * FILE*.
  */
 
-void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int ptype)
+void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int ptype, int quiet)
 {
 	struct disctx c = { 0 };
 	struct disctx *ctx = &c;
@@ -571,7 +571,8 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 			fprintf (ctx->out, "\n");
 		switch (ctx->marks[cur] & 3) {
 			case 0:
-				fprintf (ctx->out, "%s%08x:%s", cgray, (cur + start) / isa->posunit, cnorm);
+				if (!quiet)
+					fprintf (ctx->out, "%s%08x:%s", cgray, (cur + start) / isa->posunit, cnorm);
 				break;
 			case 1:
 				fprintf (ctx->out, "%s%08x:%s", cmag, (cur + start) / isa->posunit, cnorm);
@@ -584,26 +585,32 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 				break;
 		}
 
-		for (i = 0; i < isa->maxoplen; i += isa->opunit) {
-			fprintf (ctx->out, " ");
-			for (j = isa->opunit - 1; j >= 0; j--)
-				if (i+j && i+j >= ctx->oplen)
-					fprintf (ctx->out, "  ");
-				else if (cur+i+j >= num)
-					fprintf (ctx->out, "%s??", cred);
-				else
-					fprintf (ctx->out, "%s%02x", cnorm, code[cur + i + j]);
-		}
-		fprintf (ctx->out, "  ");
+		if (!quiet) {
+			for (i = 0; i < isa->maxoplen; i += isa->opunit) {
+				fprintf (ctx->out, " ");
+				for (j = isa->opunit - 1; j >= 0; j--)
+					if (i+j && i+j >= ctx->oplen)
+						fprintf (ctx->out, "  ");
+					else if (cur+i+j >= num)
+						fprintf (ctx->out, "%s??", cred);
+					else
+						fprintf (ctx->out, "%s%02x", cnorm, code[cur + i + j]);
+			}
+			fprintf (ctx->out, "  ");
 
-		if (ctx->marks[cur] & 2)
-			fprintf (ctx->out, "%sC", cbr);
-		else
-			fprintf (ctx->out, " ");
-		if (ctx->marks[cur] & 1)
-			fprintf (ctx->out, "%sB", cmag);
-		else
-			fprintf (ctx->out, " ");
+			if (ctx->marks[cur] & 2)
+				fprintf (ctx->out, "%sC", cbr);
+			else
+				fprintf (ctx->out, " ");
+			if (ctx->marks[cur] & 1)
+				fprintf (ctx->out, "%sB", cmag);
+			else
+				fprintf (ctx->out, " ");
+		} else if (quiet == 1) {
+			if (ctx->marks[cur])
+				fprintf (ctx->out, "\n");
+			fprintf(ctx->out, "\t");
+		}
 
 		atomtab (ctx, &a, &m, isa->troot, 0);
 
