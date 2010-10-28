@@ -1,4 +1,17 @@
 #include "envyas.h"
+#include <libgen.h>
+
+static struct disisa *envyas_isa = 0;
+
+enum {
+	OFMT_RAW,
+	OFMT_HEX8,
+	OFMT_HEX32,
+	OFMT_CHEX8,
+	OFMT_CHEX32,
+} envyas_ofmt = OFMT_CHEX8;
+
+int envyas_ptype = -1;
 
 ull calc (const struct expr *expr, struct disctx *ctx) {
 	int i;
@@ -80,8 +93,8 @@ int envyas_process(struct file *file) {
 	struct disctx ctx_s = { 0 };
 	struct disctx *ctx = &ctx_s;
 	ctx->reverse = 1;
-	ctx->isa = macro_isa;
-	ctx->ptype = -1;
+	ctx->isa = envyas_isa;
+	ctx->ptype = envyas_ptype;
 	struct matches *im = calloc(sizeof *im, file->linesnum);
 	for (i = 0; i < file->linesnum; i++) {
 		if (file->lines[i]->type == LINE_INSN) {
@@ -155,13 +168,96 @@ int envyas_process(struct file *file) {
 		}
 
 	} while (!allok);
-	for (i = 0; i < pos; i+=4) {
-		uint32_t val;
-		val = code[i] | code[i+1] << 8 | code[i+2] << 16 | code[i+3] << 24;
-		printf ("0x%08x,\n", val);
+	if (envyas_ofmt == OFMT_RAW)
+		fwrite (code, 1, pos, stdout);
+	else {
+		if (envyas_ofmt == OFMT_CHEX8) {
+			printf ("uint8_t envyas_code[] = {\n");
+		}
+		if (envyas_ofmt == OFMT_CHEX32) {
+			printf ("uint32_t envyas_code[] = {\n");
+		}
+		if (envyas_ofmt == OFMT_CHEX32 || envyas_ofmt == OFMT_HEX32) {
+			for (i = 0; i < pos; i+=4) {
+				uint32_t val;
+				val = code[i] | code[i+1] << 8 | code[i+2] << 16 | code[i+3] << 24;
+				if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32)
+					printf ("\t");
+				printf ("0x%08x,\n", val);
+			}
+		} else {
+			for (i = 0; i < pos; i++) {
+				if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32)
+					printf ("\t");
+				printf ("0x%02x,\n", code[i]);
+			}
+		}
+		if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32) {
+			printf ("};\n");
+		}
 	}
 }
 
-int main() {
+int main(int argc, char **argv) {
+	argv[0] = basename(argv[0]);
+	if (!strcmp(argv[0], "macrodis")) {
+		envyas_isa = macro_isa;
+		envyas_ofmt = OFMT_HEX32;
+	}
+	int ptype = -1;
+	int c;
+	unsigned base = 0, skip = 0, limit = 0;
+	while ((c = getopt (argc, argv, "45vgfpcsbm:wi")) != -1)
+		switch (c) {
+			case '4':
+				ptype = NV4x;
+				break;
+			case '5':
+				ptype = NV5x;
+				break;
+			case 'v':
+				ptype = VP;
+				break;
+			case 'g':
+				ptype = GP;
+				break;
+			case 'f':
+			case 'p':
+				ptype = FP;
+				break;
+			case 'c':
+				ptype = CP;
+				break;
+			case 's':
+				ptype = VP|GP|FP;
+				break;
+			case 'b':
+				if (envyas_ofmt == OFMT_HEX32)
+					envyas_ofmt = OFMT_CHEX32;
+				else
+					envyas_ofmt = OFMT_CHEX8;
+				break;
+			case 'w':
+				if (envyas_ofmt == OFMT_CHEX8)
+					envyas_ofmt = OFMT_CHEX32;
+				else
+					envyas_ofmt = OFMT_HEX32;
+				break;
+			case 'i':
+				envyas_ofmt = OFMT_RAW;
+				break;
+			case 'm':
+				if (!strcmp(optarg, "macro"))
+					envyas_isa = macro_isa;
+				else {
+					fprintf (stderr, "Unknown architecure \"%s\"!\n", optarg);
+					return 1;
+				}
+				break;
+		}
+	if (!envyas_isa) {
+		fprintf (stderr, "No architecture specified!\n");
+		return 1;
+	}
 	return yyparse();
 }
