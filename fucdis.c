@@ -108,16 +108,18 @@ static struct bitfield cimm2off = { 20, 6 };
 #define STRAP atomimm, &strapoff
 #define CIMM2 atomimm, &cimm2off
 
-#define BITF8 atombf, &imm8off
-#define BITF16 atombf, &imm16off
+static struct bitfield bitf8bf[] = { { 16, 5 }, { 21, 3 } };
+static struct bitfield bitf16bf[] = { { 16, 5 }, { 21, 5 }, };
+#define BITF8 atombf, bitf8bf
+#define BITF16 atombf, bitf16bf
 static struct matches *atombf APROTO {
 	if (ctx->reverse)
 		return 0;
 	if (!ctx->out)
 		return;
-	uint32_t i = GETBF(v);
-	uint32_t j = i >> 5 & 0x1f;
-	i &= 0x1f;
+	const struct bitfield *bf = v;
+	uint32_t i = GETBF(&bf[0]);
+	uint32_t j = GETBF(&bf[1]);
 	fprintf (ctx->out, " %s%d:%d", cyel, i, i+j);
 }
 
