@@ -200,6 +200,10 @@ int envyas_process(struct file *file) {
 
 int main(int argc, char **argv) {
 	argv[0] = basename(argv[0]);
+	if (!strcmp(argv[0], "nvc0as")) {
+		envyas_isa = nvc0_isa;
+		envyas_ofmt = OFMT_HEX32;
+	}
 	if (!strcmp(argv[0], "ctxas")) {
 		envyas_isa = ctx_isa;
 		envyas_ofmt = OFMT_HEX32;
@@ -254,7 +258,9 @@ int main(int argc, char **argv) {
 				envyas_ofmt = OFMT_RAW;
 				break;
 			case 'm':
-				if (!strcmp(optarg, "ctx"))
+				if (!strcmp(optarg, "nvc0"))
+					envyas_isa = nvc0_isa;
+				else if (!strcmp(optarg, "ctx"))
 					envyas_isa = ctx_isa;
 				else if (!strcmp(optarg, "fuc"))
 					envyas_isa = fuc_isa;
