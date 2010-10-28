@@ -191,7 +191,7 @@ int setsbf (struct match *res, int pos, int len, ull num) {
 	}
 }
 
-int setbfe (struct match *res, const struct bitfield *bf, struct expr *expr) {
+int setbfe (struct match *res, const struct bitfield *bf, const struct expr *expr) {
 	if (!expr->isimm)
 		return 0;
 	if (expr->type != EXPR_NUM || bf->pcrel) {
@@ -286,7 +286,7 @@ struct matches *atomign APROTO {
 	(void)BF(n[0], n[1]);
 }
 
-int matchreg (struct match *res, const struct reg *reg, struct expr *expr) {
+int matchreg (struct match *res, const struct reg *reg, const struct expr *expr) {
 	if (reg->specials) {
 		int i = 0;
 		for (i = 0; reg->specials[i].num != -1; i++) {
@@ -329,7 +329,39 @@ int matchreg (struct match *res, const struct reg *reg, struct expr *expr) {
 		if (*end == 'h')
 			num |= 1;
 	}
-	return setbf(res, reg->bf, num);
+	if (reg->bf)
+		return setbf(res, reg->bf, num);
+	else
+		return !num;
+}
+
+int matchshreg (struct match *res, const struct reg *reg, const struct expr *expr, int shl) {
+	ull sh = 0;
+	while (1) {
+		if (expr->type == EXPR_SHL && expr->expr2->type == EXPR_NUM) {
+			sh += expr->expr2->num1;
+			expr = expr->expr1;
+		} else if (expr->type == EXPR_MUL && expr->expr2->type == EXPR_NUM) {
+			ull num = expr->expr2->num1;
+			if (!num || (num & num-1))
+				return 0;
+			while (num != 1)
+				num >>= 1, sh++;
+			expr = expr->expr1;
+		} else if (expr->type == EXPR_MUL && expr->expr1->type == EXPR_NUM) {
+			ull num = expr->expr1->num1;
+			if (!num || (num & num-1))
+				return 0;
+			while (num != 1)
+				num >>= 1, sh++;
+			expr = expr->expr2;
+		} else {
+			break;
+		}
+	}
+	if (sh != shl)
+		return 0;
+	return matchreg(res, reg, expr);
 }
 
 // print reg if non-0, ignore otherwise. return 1 if printed anything.
@@ -398,53 +430,176 @@ struct matches *atomreg APROTO {
 		fprintf (ctx->out, "%s0", cyel);
 }
 
-struct matches *atommem APROTO {
-	if (ctx->reverse)
-		return 0;
-	if (!ctx->out)
-		return;
-	const struct mem *mem = v;
-	int anything = 0;
-	fprintf (ctx->out, " ");
-	if (mem->name) {
-		fprintf (ctx->out, "%s%s", ccy, mem->name);
-		if (mem->idx)
-			fprintf (ctx->out, "%lld", GETBF(mem->idx));
-		fprintf (ctx->out, "[");
+int addexpr (const struct expr **iex, const struct expr *expr, int flip) {
+	if (flip) {
+		if (!*iex)
+			*iex = makeunex(EXPR_NEG, expr);
+		else
+			*iex = makebinex(EXPR_SUB, *iex, expr);
+	} else {
+		if (!*iex)
+			*iex = expr;
+		else
+			*iex = makebinex(EXPR_ADD, *iex, expr);
 	}
-	if (mem->reg)
-		anything = printreg(ctx, a, m, mem->reg);
-	if (mem->imm) {
-		ull imm = GETBF(mem->imm);
-		if (mem->postincr) {
-			if (imm & 1ull << 63)
-				fprintf (ctx->out, "%s--%s%#llx", ccy, cyel, -imm);
-			else if (anything)
-				fprintf (ctx->out, "%s++%s%#llx", ccy, cyel, imm);
-			anything = 1;
-		} else if (imm) {
-			if (imm & 1ull << 63)
-				fprintf (ctx->out, "%s-%s%#llx", ccy, cyel, -imm);
-			else if (anything)
-				fprintf (ctx->out, "%s+%s%#llx", ccy, cyel, imm);
-			else
-				fprintf (ctx->out, "%s%#llx", cyel, imm);
+	return 1;
+}
+
+int matchmemaddr(const struct expr **iex, const struct expr **niex1, const struct expr **niex2, const struct expr **piex, const struct expr *expr, int flip) {
+	/* XXX: postincr */
+	if (expr->isimm)
+		return addexpr(iex, expr, flip);
+	if (expr->type == EXPR_ADD)
+		return matchmemaddr(iex, niex1, niex2, piex, expr->expr1, flip) && matchmemaddr(iex, niex1, niex2, piex, expr->expr2, flip);
+	if (expr->type == EXPR_SUB)
+		return matchmemaddr(iex, niex1, niex2, piex, expr->expr1, flip) && matchmemaddr(iex, niex1, niex2, piex, expr->expr2, !flip);
+	if (expr->type == EXPR_NEG)
+		return matchmemaddr(iex, niex1, niex2, piex, expr->expr1, !flip);
+	if (flip)
+		return 0;
+	if (!*niex1)
+		*niex1 = expr;
+	else if (!*niex2)
+		*niex2 = expr;
+	else
+		return 0;
+
+}
+
+struct matches *atommem APROTO {
+	const struct mem *mem = v;
+	if (!ctx->reverse) {
+		if (!ctx->out)
+			return;
+		int anything = 0;
+		fprintf (ctx->out, " ");
+		if (mem->name) {
+			fprintf (ctx->out, "%s%s", ccy, mem->name);
+			if (mem->idx)
+				fprintf (ctx->out, "%lld", GETBF(mem->idx));
+			fprintf (ctx->out, "[");
+		}
+		if (mem->reg)
+			anything = printreg(ctx, a, m, mem->reg);
+		if (mem->imm) {
+			ull imm = GETBF(mem->imm);
+			if (mem->postincr) {
+				if (imm & 1ull << 63)
+					fprintf (ctx->out, "%s--%s%#llx", ccy, cyel, -imm);
+				else if (anything)
+					fprintf (ctx->out, "%s++%s%#llx", ccy, cyel, imm);
+				anything = 1;
+			} else if (imm) {
+				if (imm & 1ull << 63)
+					fprintf (ctx->out, "%s-%s%#llx", ccy, cyel, -imm);
+				else if (anything)
+					fprintf (ctx->out, "%s+%s%#llx", ccy, cyel, imm);
+				else
+					fprintf (ctx->out, "%s%#llx", cyel, imm);
+				anything = 1;
+			}
+		}
+		if (mem->reg2) {
+			if (anything)
+				fprintf (ctx->out, "%s+", ccy);
+			if (!printreg(ctx, a, m, mem->reg2))
+				fprintf (ctx->out, "%s0", cyel);
+			if (mem->reg2shr)
+				fprintf (ctx->out, "%s*%s%#llx", ccy, cyel, 1ull << mem->reg2shr);
 			anything = 1;
 		}
-	}
-	if (mem->reg2) {
-		if (anything)
-			fprintf (ctx->out, "%s+", ccy);
-		if (!printreg(ctx, a, m, mem->reg2))
+		if (!anything)
 			fprintf (ctx->out, "%s0", cyel);
-		if (mem->reg2shr)
-			fprintf (ctx->out, "%s*%s%#llx", ccy, cyel, 1ull << mem->reg2shr);
-		anything = 1;
+		if (mem->name)
+			fprintf (ctx->out, "%s]", ccy);
+	} else {
+		if (spos == ctx->line->atomsnum)
+			return 0;
+		struct match res = { 0, .lpos = spos+1 };
+		const struct expr *expr = ctx->line->atoms[spos];
+		if (expr->type == EXPR_MEM && !mem->name)
+			return 0;
+		if (expr->type != EXPR_MEM && mem->name)
+			return 0;
+		if (expr->type == EXPR_MEM) {
+			if (strncmp(expr->str, mem->name, strlen(mem->name)))
+				return 0;
+			if (mem->idx) {
+				const char *str = expr->str + strlen(mem->name);
+				if (!*str)
+					return 0;
+				char *end;
+				ull num = strtoull(str, &end, 10);
+				if (*end)
+					return 0;
+				if (!setbf(&res, mem->idx, num))
+					return 0;
+			} else {
+				if (strlen(expr->str) != strlen(mem->name))
+					return 0;
+			}
+			expr = expr->expr1;
+		}
+		const struct expr *iex = 0;
+		const struct expr *niex1 = 0;
+		const struct expr *niex2 = 0;
+		const struct expr *piex = 0;
+		matchmemaddr(&iex, &niex1, &niex2, &piex, expr, 0);
+		if (mem->imm) {
+			if (mem->postincr) {
+				if (!piex || iex)
+					return 0;
+				if (!setbfe(&res, mem->imm, piex))
+					return 0;
+			} else {
+				if (piex)
+					return 0;
+				if (iex) {
+					if (!setbfe(&res, mem->imm, iex))
+						return 0;
+				} else {
+					if (!setbf(&res, mem->imm, 0))
+						return 0;
+				}
+			}
+		} else {
+			if (iex)
+				return 0;
+		}
+		const static struct expr e0 = { .type = EXPR_NUM, .isimm = 1 };
+		if (mem->reg && mem->reg2) {
+			if (!niex1)
+				niex1 = &e0;
+			if (!niex2)
+				niex2 = &e0;
+			struct match sres = res;
+			if (!matchreg(&res, mem->reg, niex1) || !matchshreg(&res, mem->reg2, niex2, mem->reg2shr)) {
+				res = sres;
+				if (!matchreg(&res, mem->reg, niex2) || !matchshreg(&res, mem->reg2, niex1, mem->reg2shr))
+					return 0;
+			}
+		} else if (mem->reg) {
+			if (niex2)
+				return 0;
+			if (!niex1)
+				niex1 = &e0;
+			if (!matchreg(&res, mem->reg, niex1))
+				return 0;
+		} else if (mem->reg2) {
+			if (niex2)
+				return 0;
+			if (!niex1)
+				niex1 = &e0;
+			if (!matchshreg(&res, mem->reg2, niex1, mem->reg2shr))
+				return 0;
+		} else {
+			if (niex1 || niex2)
+				return 0;
+		}
+		struct matches *rres = emptymatches();
+		RNN_ADDARRAY(rres->m, res);
+		return rres;
 	}
-	if (!anything)
-		fprintf (ctx->out, "%s0", cyel);
-	if (mem->name)
-		fprintf (ctx->out, "%s]", ccy);
 }
 
 struct matches *atomvec APROTO {

@@ -68,8 +68,8 @@ struct expr {
 	} type;
 	char *str;
 	ull num1, num2;
-	struct expr *expr1;
-	struct expr *expr2;
+	const struct expr *expr1;
+	const struct expr *expr2;
 	struct expr **vexprs;
 	int vexprsnum;
 	int vexprsmax;
@@ -82,14 +82,14 @@ static inline struct expr *makeex(enum etype type) {
 	return res;
 }
 
-static inline struct expr *makeunex(enum etype type, struct expr *expr) {
+static inline struct expr *makeunex(enum etype type, const struct expr *expr) {
 	struct expr *res = makeex(type);
 	res->expr1 = expr;
 	res->isimm = expr->isimm;
 	return res;
 }
 
-static inline struct expr *makebinex(enum etype type, struct expr *expr1, struct expr *expr2) {
+static inline struct expr *makebinex(enum etype type, const struct expr *expr1, const struct expr *expr2) {
 	struct expr *res = makeex(type);
 	res->expr1 = expr1;
 	res->expr2 = expr2;
