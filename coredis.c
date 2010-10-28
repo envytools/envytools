@@ -24,7 +24,6 @@
  */
 
 #include "dis.h"
-#include "envyas.h"
 
 /*
  * Color scheme
