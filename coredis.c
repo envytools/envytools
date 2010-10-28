@@ -454,7 +454,11 @@ int addexpr (const struct expr **iex, const struct expr *expr, int flip) {
 }
 
 int matchmemaddr(const struct expr **iex, const struct expr **niex1, const struct expr **niex2, const struct expr **piex, const struct expr *expr, int flip) {
-	/* XXX: postincr */
+	if (expr->type == EXPR_PIADD || expr->type == EXPR_PISUB) {
+		if (flip || !expr->expr2->isimm)
+			return 0;
+		return matchmemaddr(iex, niex1, niex2, piex, expr->expr1, 0) && addexpr(piex, expr->expr2, expr->type == EXPR_PISUB);
+	}
 	if (expr->isimm)
 		return addexpr(iex, expr, flip);
 	if (expr->type == EXPR_ADD)
@@ -465,9 +469,9 @@ int matchmemaddr(const struct expr **iex, const struct expr **niex1, const struc
 		return matchmemaddr(iex, niex1, niex2, piex, expr->expr1, !flip);
 	if (flip)
 		return 0;
-	if (!*niex1)
+	if (niex1 && !*niex1)
 		*niex1 = expr;
-	else if (!*niex2)
+	else if (niex2 && !*niex2)
 		*niex2 = expr;
 	else
 		return 0;
