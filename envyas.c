@@ -236,6 +236,9 @@ int main(int argc, char **argv) {
 	if (!strcmp(argv[0], "fucas")) {
 		envyas_isa = fuc_isa;
 	}
+	if (!strcmp(argv[0], "vp2as")) {
+		envyas_isa = vp2_isa;
+	}
 	if (!strcmp(argv[0], "macroas")) {
 		envyas_isa = macro_isa;
 		envyas_ofmt = OFMT_HEX32;
@@ -291,6 +294,8 @@ int main(int argc, char **argv) {
 					envyas_isa = ctx_isa;
 				else if (!strcmp(optarg, "fuc"))
 					envyas_isa = fuc_isa;
+				else if (!strcmp(optarg, "vp2"))
+					envyas_isa = vp2_isa;
 				else if (!strcmp(optarg, "macro"))
 					envyas_isa = macro_isa;
 				else {
