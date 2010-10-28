@@ -9,7 +9,7 @@ enum {
 	OFMT_HEX32,
 	OFMT_CHEX8,
 	OFMT_CHEX32,
-} envyas_ofmt = OFMT_CHEX8;
+} envyas_ofmt = OFMT_HEX8;
 
 int envyas_ptype = -1;
 
