@@ -200,7 +200,7 @@ int envyas_process(struct file *file) {
 
 int main(int argc, char **argv) {
 	argv[0] = basename(argv[0]);
-	if (!strcmp(argv[0], "macrodis")) {
+	if (!strcmp(argv[0], "macroas")) {
 		envyas_isa = macro_isa;
 		envyas_ofmt = OFMT_HEX32;
 	}
