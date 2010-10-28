@@ -226,6 +226,7 @@ struct disisa {
 	int maxoplen;
 	int opunit;
 	int posunit;
+	int i_need_nv50as_hack;
 };
 
 /*

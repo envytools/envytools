@@ -122,11 +122,16 @@ int envyas_process(struct file *file) {
 	uint8_t *code = malloc (maxpos);
 	int allok = 1;
 	do {
+		allok = 1;
 		ctx->labelsnum = 0;
 		pos = 0;
 		for (i = 0; i < file->linesnum; i++) {
 			switch (file->lines[i]->type) {
 				case LINE_INSN:
+					if (ctx->isa->i_need_nv50as_hack) {
+						if (im[i].m[0].oplen == 8 && (pos & 7))
+							pos &= ~7ull, pos += 8;
+					}
 					pos += im[i].m[0].oplen;
 					break;
 				case LINE_LABEL:
@@ -156,6 +161,23 @@ int envyas_process(struct file *file) {
 						}
 						allok = 0;
 					} else {
+						if (ctx->isa->i_need_nv50as_hack) {
+							if (im[i].m[0].oplen == 8 && (pos & 7)) {
+								fprintf (stderr, "FOOO!\n");
+								j = i - 1;
+								while (j != -1ull && file->lines[j]->type == LINE_LABEL)
+									j--;
+								assert (j != -1ull && file->lines[j]->type == LINE_INSN);
+								if (im[j].m[0].oplen == 4) {
+									im[j].m++;
+									im[j].mnum--;
+								} else {
+								fprintf (stderr, "FNORD!\n");
+								}
+								allok = 0;
+								pos &= ~7ull, pos += 8;
+							}
+						}
 						if (pos + im[i].m[0].oplen >= maxpos) maxpos *= 2, code = realloc (code, maxpos);
 						for (j = 0; j < im[i].m[0].oplen; j++)
 							code[pos+j] = val >> (8*j);
@@ -166,7 +188,6 @@ int envyas_process(struct file *file) {
 					break;
 			}
 		}
-
 	} while (!allok);
 	if (envyas_ofmt == OFMT_RAW)
 		fwrite (code, 1, pos, stdout);
@@ -200,6 +221,10 @@ int envyas_process(struct file *file) {
 
 int main(int argc, char **argv) {
 	argv[0] = basename(argv[0]);
+	if (!strcmp(argv[0], "nv50as")) {
+		envyas_isa = nv50_isa;
+		envyas_ofmt = OFMT_HEX32;
+	}
 	if (!strcmp(argv[0], "nvc0as")) {
 		envyas_isa = nvc0_isa;
 		envyas_ofmt = OFMT_HEX32;
@@ -258,7 +283,9 @@ int main(int argc, char **argv) {
 				envyas_ofmt = OFMT_RAW;
 				break;
 			case 'm':
-				if (!strcmp(optarg, "nvc0"))
+				if (!strcmp(optarg, "nv50"))
+					envyas_isa = nv50_isa;
+				else if (!strcmp(optarg, "nvc0"))
 					envyas_isa = nvc0_isa;
 				else if (!strcmp(optarg, "ctx"))
 					envyas_isa = ctx_isa;
