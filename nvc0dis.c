@@ -402,8 +402,11 @@ static struct insn tabis2[] = {
 };
 
 static struct insn tabis3[] = {
+	{ AP, 0x0000000000000000ull, 0x0000c00000000000ull, SRC3 },
+	{ AP, 0x0000400000000000ull, 0x0000c00000000000ull, SRC3 },
 	{ AP, 0x0000800000000000ull, 0x0000c00000000000ull, CONST },
-	{ AP, 0, 0, SRC3 },
+	{ AP, 0x0000c00000000000ull, 0x0000c00000000000ull, SRC3 },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabcs2[] = {
@@ -492,7 +495,7 @@ static struct insn tabqs1[] = {
 	{ AP, 0x00000000000000c0ull, 0x00000000000001c0ull, N("l3") },
 	{ AP, 0x0000000000000100ull, 0x00000000000001c0ull, N("dx") },
 	{ AP, 0x0000000000000140ull, 0x00000000000001c0ull, N("dy") },
-	{ AP, 0, 0 },
+	{ AP, 0, 0, OOPS },
 };
 
 static struct insn tabqop0[] = {
