@@ -460,7 +460,7 @@ void find_strap(int argc, char **argv) {
 		}
 		
 		if (strapfile) {
-			uint32_t len = fread(tmp, 1, 21, strapfile);
+			fread(tmp, 1, 21, strapfile);
 			strap_s = tmp;
 		}
 	}
