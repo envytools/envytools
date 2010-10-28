@@ -264,6 +264,8 @@ struct matches *atomopl APROTO;
 
 #define N(x) atomname, x
 struct matches *atomname APROTO;
+#define C(x) atomcmd, x
+struct matches *atomcmd APROTO;
 
 #define U(x) atomunk, "unk" x
 struct matches *atomunk APROTO;

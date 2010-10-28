@@ -170,6 +170,15 @@ struct matches *atomname APROTO {
 	}
 }
 
+struct matches *atomcmd APROTO {
+	if (!ctx->reverse) {
+		if (ctx->out)
+			fprintf (ctx->out, " %s%s", cmag, (const char *)v);
+	} else {
+		return matchid(ctx, spos, v);
+	}
+}
+
 struct matches *atomunk APROTO {
 	if (ctx->reverse)
 		return 0;

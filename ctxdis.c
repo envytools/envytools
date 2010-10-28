@@ -134,18 +134,6 @@ static struct bitfield ctargoff = { 8, 9 };
 #define BTARG atombtarg, &ctargoff
 #define CTARG atomctarg, &ctargoff
 
-/*
- * CMDs
- */
-#define C(x) atomcmd, x
-static struct matches *atomcmd APROTO {
-	if (ctx->reverse)
-		return 0;
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %s%s", cmag, (char *)v);
-}
-
 /* Register fields */
 
 static struct reg sr_r = { 0, "sr" };
