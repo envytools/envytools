@@ -153,6 +153,7 @@ static struct bitfield immoff = { 0, 20 };
 static struct bitfield dis0off = { 0, 16 };
 static struct bitfield dis1off = { { 0, 16 }, BF_UNSIGNED, 16 };
 static struct bitfield seekpoff = { 8, 11 };
+static struct bitfield cmdoff = { 0, 5 };
 #define UNIT atomimm, &unitoff
 #define FLAG atomimm, &flagoff
 #define GSIZE4 atomimm, &gsize4off
@@ -161,6 +162,7 @@ static struct bitfield seekpoff = { 8, 11 };
 #define DIS0 atomimm, &dis0off
 #define DIS1 atomimm, &dis1off
 #define SEEKP atomimm, &seekpoff
+#define CMD atomimm, &cmdoff
 
 /*
  * Memory fields
@@ -215,7 +217,7 @@ static struct insn tabcmd5[] = {
 	{ NV5x, 0x09, 0x1f, C("ENABLE") },		// resets 0x40 to 0
 	{ NV5x, 0x0c, 0x1f, C("END") },			// halts program execution, resets PC to 0
 	{ NV5x, 0x0d, 0x1f, C("NEXT_TO_CURRENT") },	// movs new channel RAMIN address to current channel RAMIN address, basically where the real switch happens
-	{ NVxx, 0, 0, OOPS },
+	{ NVxx, 0, 0, CMD },
 };
 
 static struct insn tabcmd4[] = {
@@ -223,7 +225,7 @@ static struct insn tabcmd4[] = {
 	{ NV4x, 0x09, 0x1f, C("NEXT_TO_CURRENT") },	// movs new channel RAMIN address to current channel RAMIN address, basically where the real switch happens
 	{ NV4x, 0x0a, 0x1f, C("SET_CONTEXT_POINTER") },	// copies scratch to 334
 	{ NV4x, 0x0e, 0x1f, C("END") },
-	{ NVxx, 0, 0, OOPS },
+	{ NVxx, 0, 0, CMD },
 };
 
 static struct insn tabm[] = {
