@@ -682,14 +682,30 @@ struct matches *atomvec APROTO {
 }
 
 struct matches *atombf APROTO {
-	if (ctx->reverse)
-		return 0;
-	if (!ctx->out)
-		return;
 	const struct bitfield *bf = v;
-	uint32_t i = GETBF(&bf[0]);
-	uint32_t j = GETBF(&bf[1]);
-	fprintf (ctx->out, " %s%d:%d", cyel, i, i+j);
+	if (!ctx->reverse) {
+		if (!ctx->out)
+			return;
+		uint32_t i = GETBF(&bf[0]);
+		uint32_t j = GETBF(&bf[1]);
+		fprintf (ctx->out, " %s%d:%d", cyel, i, i+j);
+	} else {
+		if (spos == ctx->line->atomsnum)
+			return 0;
+		struct match res = { 0, .lpos = spos+1 };
+		const struct expr *expr = ctx->line->atoms[spos];
+		if (expr->type != EXPR_BITFIELD)
+			return 0;
+		ull a = expr->num1;
+		ull b = expr->num2 - a;
+		if (!setbf(&res, &bf[0], a))
+			return 0;
+		if (!setbf(&res, &bf[1], b))
+			return 0;
+		struct matches *rres = emptymatches();
+		RNN_ADDARRAY(rres->m, res);
+		return rres;
+	}
 }
 
 ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx) {
