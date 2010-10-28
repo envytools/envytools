@@ -361,6 +361,8 @@ struct matches *atommem APROTO;
 
 struct matches *atomvec APROTO;
 
+struct matches *atombf APROTO;
+
 ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx);
 #define GETBF(bf) getbf(bf, a, m, ctx)
 

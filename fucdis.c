@@ -112,16 +112,6 @@ static struct bitfield bitf8bf[] = { { 16, 5 }, { 21, 3 } };
 static struct bitfield bitf16bf[] = { { 16, 5 }, { 21, 5 }, };
 #define BITF8 atombf, bitf8bf
 #define BITF16 atombf, bitf16bf
-static struct matches *atombf APROTO {
-	if (ctx->reverse)
-		return 0;
-	if (!ctx->out)
-		return;
-	const struct bitfield *bf = v;
-	uint32_t i = GETBF(&bf[0]);
-	uint32_t j = GETBF(&bf[1]);
-	fprintf (ctx->out, " %s%d:%d", cyel, i, i+j);
-}
 
 /*
  * Memory fields

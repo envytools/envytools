@@ -681,6 +681,17 @@ struct matches *atomvec APROTO {
 	}
 }
 
+struct matches *atombf APROTO {
+	if (ctx->reverse)
+		return 0;
+	if (!ctx->out)
+		return;
+	const struct bitfield *bf = v;
+	uint32_t i = GETBF(&bf[0]);
+	uint32_t j = GETBF(&bf[1]);
+	fprintf (ctx->out, " %s%d:%d", cyel, i, i+j);
+}
+
 ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx) {
 	ull res = 0;
 	int pos = bf->shr;
