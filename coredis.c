@@ -105,6 +105,8 @@ struct matches *tabdesc (struct disctx *ctx, struct match m, const struct atom *
 		if (tmp)
 			res = catmatches(res, tmp);
 	}
+	free(ms->m);
+	free(ms);
 	return res;
 }
 
