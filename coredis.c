@@ -224,7 +224,11 @@ int setbfe (struct match *res, const struct bitfield *bf, const struct expr *exp
 	setsbf(res, bf->sbf[0].pos, bf->sbf[0].len, num);
 	num >>= bf->sbf[0].len;
 	setsbf(res, bf->sbf[1].pos, bf->sbf[1].len, num);
-	return getbf(bf, &res->a, &res->m, 0) == expr->num1;
+	ull mask = ~0ull;
+	ull totalsz = bf->shr + bf->sbf[0].len + bf->sbf[1].len;
+	if (totalsz < 64)
+		mask = (1ull << totalsz) - 1;
+	return (getbf(bf, &res->a, &res->m, 0) & mask) == (expr->num1 & mask);
 }
 
 int setbf (struct match *res, const struct bitfield *bf, ull num) {

@@ -245,10 +245,10 @@ static struct bitfield ctargoff = { { 0xb, 16, 0x2e, 6 }, BF_UNSIGNED, 2 };
  *  - HSHCNT: used in $a shift-by-immediate insn for shift amount
  */
 
-static struct bitfield immbf = { { 0x10, 6, 0x22, 26 } };
+static struct bitfield immbf = { { 0x10, 6, 0x22, 26 }, .wrapok = 1 };
 static struct bitfield pmoff = { 0xa, 4 };
 static struct bitfield baroff = { 0x15, 4 };
-static struct bitfield offoff = { 9, 16 };
+static struct bitfield offoff = { { 9, 16 }, .wrapok = 1 };
 static struct bitfield shcntoff = { 0x10, 7 };
 static struct bitfield hshcntoff = { 0x10, 4 };
 static struct bitfield toffxoff = { { 0x38, 4 }, BF_SIGNED };
@@ -503,9 +503,9 @@ F1(mcdst, 0x26, CDST)
 
 // BF, offset shift, 'l', flags, const space num BF. flags: 1 supports $a, 2 supports full 3-bit $a, 4 supports autoincrement
 
-static struct bitfield fmem8_imm = { { 9, 16 }, BF_UNSIGNED, 0 };
-static struct bitfield fmem16_imm = { { 9, 15 }, BF_UNSIGNED, 1 };
-static struct bitfield fmem32_imm = { { 9, 14 }, BF_UNSIGNED, 2 };
+static struct bitfield fmem8_imm = { { 9, 16 }, BF_UNSIGNED, 0, .wrapok = 1 };
+static struct bitfield fmem16_imm = { { 9, 15 }, BF_UNSIGNED, 1, .wrapok = 1 };
+static struct bitfield fmem32_imm = { { 9, 14 }, BF_UNSIGNED, 2, .wrapok = 1 };
 
 static struct bitfield ssmem8_imm = { { 9, 4 }, BF_UNSIGNED, 0 };
 static struct bitfield ssmem16_imm = { { 9, 4 }, BF_UNSIGNED, 1 };

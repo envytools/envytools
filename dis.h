@@ -128,6 +128,7 @@ struct bitfield {
 	ull addend;
 	ull pospreadd; // <3 xtensa...
 	ull *lut;
+	int wrapok;
 };
 
 struct sreg {

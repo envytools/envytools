@@ -29,13 +29,13 @@
  * Code target fields
  */
 
-static struct bitfield pcrel16off = { { 16, 16 }, BF_SIGNED, .pcrel = 1 };
+static struct bitfield pcrel16off = { { 16, 16 }, BF_SIGNED, .pcrel = 1, .wrapok = 1 };
 static struct bitfield pcrel8off = { { 16, 8 }, BF_SIGNED, .pcrel = 1 };
 #define SBTARG atombtarg, &pcrel8off
 #define LBTARG atombtarg, &pcrel16off
-#define LABTARG atombtarg, &imm16off
+#define LABTARG atombtarg, &imm16woff
 #define SABTARG atombtarg, &imm8off
-#define LCTARG atomctarg, &imm16off
+#define LCTARG atomctarg, &imm16woff
 #define SCTARG atomctarg, &imm8off
 
 /*
@@ -95,6 +95,7 @@ static struct bitfield imm16off = { 16, 16 };
 static struct bitfield imm8off = { 16, 8 };
 static struct bitfield imm16soff = { { 16, 16 }, BF_SIGNED };
 static struct bitfield imm8soff = { { 16, 8 }, BF_SIGNED };
+static struct bitfield imm16woff = { { 16, 16 }, .wrapok = 1 };
 static struct bitfield imm16hoff = { { 16, 16 }, BF_UNSIGNED, 16 };
 static struct bitfield imm8hoff = { { 16, 8 }, BF_UNSIGNED, 16 };
 static struct bitfield strapoff = { 8, 2 };

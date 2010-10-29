@@ -126,7 +126,7 @@
  */
 
 
-static struct bitfield ctargoff = { { 26, 24 }, BF_SIGNED, .pcrel = 1 };
+static struct bitfield ctargoff = { { 26, 24 }, BF_SIGNED, .pcrel = 1, .wrapok = 1 }; // XXX: check if wrapping really works.
 #define BTARG atombtarg, &ctargoff
 #define CTARG atomctarg, &ctargoff
 
@@ -140,7 +140,7 @@ static struct bitfield tcntoff = { 0x1a, 12 };
 static struct bitfield immoff = { { 0x1a, 20 }, BF_SIGNED };
 static struct bitfield fimmoff = { { 0x1a, 20 }, BF_UNSIGNED, 12 };
 static struct bitfield dimmoff = { { 0x1a, 20 }, BF_UNSIGNED, 44 };
-static struct bitfield limmoff = { 0x1a, 32 };
+static struct bitfield limmoff = { { 0x1a, 32 }, .wrapok = 1 };
 static struct bitfield shcntoff = { 5, 5 };
 static struct bitfield bnumoff = { 0x37, 2 };
 static struct bitfield hnumoff = { 0x38, 1 };
