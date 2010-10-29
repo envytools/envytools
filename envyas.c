@@ -106,6 +106,40 @@ void extend(struct section *s, int add) {
 	}
 }
 
+int donum (struct section *s, struct line *line, struct disctx *ctx, int wren) {
+	if (line->str[1] != 'b' && line->str[1] != 's' && line->str[1] != 'u')
+		return 0;
+	char *end;
+	ull bits = strtoull(line->str+2, &end, 0);
+	if (*end)
+		return 0;
+	if (bits > 64 || bits & 7 || !bits)
+		return 0;
+	int i;
+	for (i = 0; i < line->atomsnum; i++)
+		if (!line->atoms[i]->isimm) {
+			fprintf (stderr, "Wrong arguments for %s\n", line->str);
+			exit(1);
+		}
+	if (wren) {
+		extend(s, bits/8 * line->atomsnum);
+		for (i = 0; i < line->atomsnum; i++) {
+			ull num = calc(line->atoms[i], ctx);
+			if ((line->str[1] == 'u' && bits != 64 && num >= (1ull << bits))
+				|| (line->str[1] == 's' && bits != 64 && num >= (1ull << bits - 1) && num < (-1ull << bits - 1))) {
+				fprintf (stderr, "Argument %d too large for %s\n", i, line->str);
+				exit(1);
+			}
+			int j;
+			for (j = 0; j < bits/8; j++)
+				s->code[s->pos+j] = num >> (8*j);
+			
+		}
+	}
+	s->pos += bits/8 * line->atomsnum;
+	return 1;
+}
+
 int envyas_process(struct file *file) {
 	int i, j;
 	struct disctx ctx_s = { 0 };
@@ -211,7 +245,7 @@ int envyas_process(struct file *file) {
 						}
 						ull num = file->lines[i]->atoms[0]->num1;
 						sections[cursect].pos += num;
-					} else {
+					} else if (!donum(&sections[cursect], file->lines[i], ctx, 0)) {
 						fprintf (stderr, "Unknown directive %s\n", file->lines[i]->str);
 						return 1;
 					}
@@ -278,7 +312,7 @@ int envyas_process(struct file *file) {
 						extend(&sections[cursect], 0);
 						for (j = oldpos; j < sections[cursect].pos; j++)
 							sections[cursect].code[j] = 0;
-					} else {
+					} else if (!donum(&sections[cursect], file->lines[i], ctx, 1)) {
 						fprintf (stderr, "Unknown directive %s\n", file->lines[i]->str);
 						return 1;
 					}
