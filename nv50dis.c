@@ -667,17 +667,24 @@ static struct insn tabss[] = {
 	{ AP, 0, 0, OOPS },
 };
 
+static struct insn tabrealls[] = {
+	{ CP, 0x00000000, 0x0200c000, N("u8"), LSHARED8 },
+	{ CP, 0x00004000, 0x0200c000, N("u16"), LSHARED16 },
+	{ CP, 0x00008000, 0x0200c000, N("s16"), LSHARED16 },
+	{ CP, 0x0000c000, 0x0200c000, N("b32"), LSHARED32 },
+	{ CP, 0x02000000, 0x0200c000, N("u8"), LSHARED8PI },
+	{ CP, 0x02004000, 0x0200c000, N("u16"), LSHARED16PI },
+	{ CP, 0x02008000, 0x0200c000, N("s16"), LSHARED16PI },
+	{ CP, 0x0200c000, 0x0200c000, N("b32"), LSHARED32PI },
+	{ VP|GP, 0x00000000, 0x00000000, LATTR },
+	{ AP, 0, 0, OOPS },
+};
+
 static struct insn tabls[] = {
+	{ AP, 0x00000000, 0x01800000, T(realls) },
+	{ AP, 0x00800000, 0x01800000, T(realls) },
+	{ AP, 0x01000000, 0x01800000, T(realls) },
 	{ GP, 0x01800000, 0x01800000, LPRIM },	// XXX check
-	{ CP, 0x01000000, 0x0380c000, N("u8"), LSHARED8 },
-	{ CP, 0x01004000, 0x0380c000, N("u16"), LSHARED16 },
-	{ CP, 0x01008000, 0x0380c000, N("s16"), LSHARED16 },
-	{ CP, 0x0100c000, 0x0380c000, N("b32"), LSHARED32 },
-	{ CP, 0x03000000, 0x0380c000, N("u8"), LSHARED8PI },
-	{ CP, 0x03004000, 0x0380c000, N("u16"), LSHARED16PI },
-	{ CP, 0x03008000, 0x0380c000, N("s16"), LSHARED16PI },
-	{ CP, 0x0300c000, 0x0380c000, N("b32"), LSHARED32PI },
-	{ VP|GP, 0x01000000, 0x01800000, LATTR },
 	{ AP, 0, 0, OOPS },
 };
 
