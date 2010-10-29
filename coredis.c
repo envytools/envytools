@@ -417,7 +417,7 @@ static int printreg (struct disctx *ctx, ull *a, ull *m, const struct reg *reg) 
 	if (reg->always_special)
 		color = cunk;
 	if (reg->bf)
-		fprintf (ctx->out, "%s$%s%d%s", color, reg->name, num, suf);
+		fprintf (ctx->out, "%s$%s%lld%s", color, reg->name, num, suf);
 	else
 		fprintf (ctx->out, "%s$%s%s", color, reg->name, suf);
 	return 1;
@@ -634,7 +634,7 @@ struct matches *atomvec APROTO {
 		fprintf (ctx->out, " %s{", cnorm);
 		for (i = 0; i < cnt; i++)
 			if (mask & 1ull<<i)
-				fprintf (ctx->out, " %s$%s%d", (vec->cool?creg1:creg0), vec->name, base+k++);
+				fprintf (ctx->out, " %s$%s%lld", (vec->cool?creg1:creg0), vec->name, base+k++);
 			else
 				fprintf (ctx->out, " %s#", creg0);
 		fprintf (ctx->out, " %s}", cnorm);

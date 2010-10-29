@@ -36,7 +36,7 @@ ull calc (const struct expr *expr, struct disctx *ctx) {
 			if (x)
 				return calc(expr->expr1, ctx) / x;
 			else {
-				fprintf (stderr, "Division by 0\n", expr->str);
+				fprintf (stderr, "Division by 0\n");
 				exit(1);
 			}
 		case EXPR_ADD:
