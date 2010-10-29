@@ -238,10 +238,10 @@ int setbf (struct match *res, const struct bitfield *bf, ull num) {
 		struct expr *e = makeex(EXPR_NUM);
 		e->num1 = num;
 		e->isimm = 1;
-		setbfe(res, bf, e);
+		return setbfe(res, bf, e);
 	} else {
 		struct expr e = { .type = EXPR_NUM, .num1 = num, .isimm = 1 };
-		setbfe(res, bf, &e);
+		return setbfe(res, bf, &e);
 	}
 }
 
