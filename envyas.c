@@ -371,6 +371,7 @@ int envyas_process(struct file *file) {
 			}
 		}
 	}
+	return 0;
 }
 
 int main(int argc, char **argv) {
