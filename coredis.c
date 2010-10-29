@@ -740,7 +740,7 @@ ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx) {
 	}
 	if (bf->pcrel) {
 		// <3 xtensa.
-		res += (ctx->pos / ctx->isa->posunit + bf->pospreadd) & -(1ull << bf->shr);
+		res += (ctx->pos + bf->pospreadd) & -(1ull << bf->shr);
 	}
 	res += bf->addend;
 	return res;
@@ -755,14 +755,12 @@ uint16_t readle16 (uint8_t *p) {
 }
 
 void markct8(struct disctx *ctx, uint32_t ptr) {
-	ptr *= ctx->isa->posunit;
 	if (ptr < ctx->codebase || ptr > ctx->codebase + ctx->codesz)
 		return;
 	ctx->marks[ptr - ctx->codebase] |= 2;
 }
 
 void markbt8(struct disctx *ctx, uint32_t ptr) {
-	ptr *= ctx->isa->posunit;
 	if (ptr < ctx->codebase || ptr > ctx->codebase + ctx->codesz)
 		return;
 	ctx->marks[ptr - ctx->codebase] |= 1;
@@ -780,9 +778,8 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 	struct disctx c = { 0 };
 	struct disctx *ctx = &c;
 	int cur = 0, i, j;
-	start *= isa->posunit;
 	ctx->code8 = code;
-	ctx->marks = calloc(num, sizeof *ctx->marks);
+	ctx->marks = calloc((num + isa->posunit - 1) / isa->posunit, sizeof *ctx->marks);
 	ctx->codebase = start;
 	ctx->codesz = num;
 	ctx->ptype = ptype;
@@ -792,7 +789,7 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 		for (i = 0; i < 8 && cur + i < num; i++) {
 			a |= (ull)code[cur + i] << i*8;
 		}
-		ctx->pos = cur + start;
+		ctx->pos = cur / isa->posunit + start;
 		atomtab (ctx, &a, &m, isa->troot, 0);
 		if (ctx->oplen)
 			cur += ctx->oplen;
@@ -807,25 +804,25 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 			a |= (ull)code[cur + i] << i*8;
 		}
 		ctx->oplen = 0;
-		ctx->pos = cur + start;
+		ctx->pos = cur / isa->posunit + start;
 		atomtab (ctx, &a, &m, isa->troot, 0);
 		ctx->out = out;
 
-		if (ctx->marks[cur] & 2)
+		if (ctx->marks[cur / isa->posunit] & 2)
 			fprintf (ctx->out, "\n");
-		switch (ctx->marks[cur] & 3) {
+		switch (ctx->marks[cur / isa->posunit] & 3) {
 			case 0:
 				if (!quiet)
-					fprintf (ctx->out, "%s%08x:%s", cnorm, (cur + start) / isa->posunit, cnorm);
+					fprintf (ctx->out, "%s%08x:%s", cnorm, cur / isa->posunit + start, cnorm);
 				break;
 			case 1:
-				fprintf (ctx->out, "%s%08x:%s", cbtarg, (cur + start) / isa->posunit, cnorm);
+				fprintf (ctx->out, "%s%08x:%s", cbtarg, cur / isa->posunit + start, cnorm);
 				break;
 			case 2:
-				fprintf (ctx->out, "%s%08x:%s", cctarg, (cur + start) / isa->posunit, cnorm);
+				fprintf (ctx->out, "%s%08x:%s", cctarg, cur / isa->posunit + start, cnorm);
 				break;
 			case 3:
-				fprintf (ctx->out, "%s%08x:%s", cbctarg, (cur + start) / isa->posunit, cnorm);
+				fprintf (ctx->out, "%s%08x:%s", cbctarg, cur / isa->posunit + start, cnorm);
 				break;
 		}
 
@@ -842,16 +839,16 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 			}
 			fprintf (ctx->out, "  ");
 
-			if (ctx->marks[cur] & 2)
+			if (ctx->marks[cur / isa->posunit] & 2)
 				fprintf (ctx->out, "%sC", cctarg);
 			else
 				fprintf (ctx->out, " ");
-			if (ctx->marks[cur] & 1)
+			if (ctx->marks[cur / isa->posunit] & 1)
 				fprintf (ctx->out, "%sB", cbtarg);
 			else
 				fprintf (ctx->out, " ");
 		} else if (quiet == 1) {
-			if (ctx->marks[cur])
+			if (ctx->marks[cur / isa->posunit])
 				fprintf (ctx->out, "\n");
 			fprintf(ctx->out, "\t");
 		}

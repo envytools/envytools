@@ -65,7 +65,7 @@ int resolve (struct disctx *ctx, ull *val, struct match m, int pos) {
 		const struct bitfield *bf = m.relocs[i].bf;
 		ull num = val - bf->addend;
 		if (bf->pcrel)
-			num -= (pos / ctx->isa->posunit + bf->pospreadd) & -(1ull << bf->shr);
+			num -= (pos + bf->pospreadd) & -(1ull << bf->shr);
 		if (bf->lut) {
 			int max = 1 << (bf->sbf[0].len + bf->sbf[1].len);
 			int j = 0;
@@ -151,7 +151,7 @@ int envyas_process(struct file *file) {
 		for (i = 0; i < file->linesnum; i++) {
 			switch (file->lines[i]->type) {
 				case LINE_INSN:
-					if (!resolve(ctx, &val, im[i].m[0], pos)) {
+					if (!resolve(ctx, &val, im[i].m[0], pos / ctx->isa->posunit)) {
 						pos += im[i].m[0].oplen;
 						im[i].m++;
 						im[i].mnum--;
