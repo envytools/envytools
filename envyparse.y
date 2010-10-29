@@ -47,8 +47,8 @@ file:	file line { $$ = $1; if ($2) RNN_ADDARRAY($$->lines, $2); }
 ;
 
 line:	T_ID ':' { $$ = calloc(sizeof *$$, 1); $$->type = LINE_LABEL; $$->str = $1; }
-|	insn '\n'
-|	'\n' { $$ = 0; }
+|	insn ';'
+|	';' { $$ = 0; }
 ;
 
 insn:	insn expr { $$ = $1; RNN_ADDARRAY($$->atoms, $2); }

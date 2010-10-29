@@ -13,8 +13,8 @@ static int yywrap(void) {
 
 "/*"([^*]|"*"+[^/])*"*"+"/"	{ }
 [ \t]				{ ws = 1; }
-\n				{ ws = 1; return '\n'; }
-"//".*\n			{ ws = 1; return '\n'; }
+\n				{ ws = 1; return ';'; }
+"//".*\n			{ ws = 1; return ';'; }
 [a-zA-Z_][a-zA-Z_0-9]*		{ ws = 0; yylval.str = strdup(yytext); return T_ID; }
 \$[a-zA-Z_0-9]*			{ ws = 0; yylval.str = strdup(yytext+1); return T_REG; }
 0[0-7]*|[1-9][0-9]*|0[xX][0-9a-fA-F]+		{ ws = 0; yylval.num = strtoull(yytext, 0, 0); return T_NUM; }
@@ -38,5 +38,6 @@ static int yywrap(void) {
 [a-zA-Z_0-9]*"["		{ ws = 0; yytext[strlen(yytext)-1] = 0; yylval.str = strdup(yytext); return T_MEM; }
 "]"				{ ws = 0; return ']'; }
 ":"				{ ws = 0; return ':'; }
+";"				{ ws = 0; return ';'; }
 "#"				{ ws = 0; return '#'; }
 .				{ return T_ERR; }
