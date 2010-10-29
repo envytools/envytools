@@ -35,15 +35,15 @@
 #include "rnn.h"
 
 extern char *cnorm;	// instruction code and misc stuff
-extern char *cgray;	// instruction address
-extern char *cgr;	// instruction name and mods
-extern char *cbl;	// $r registers
-extern char *ccy;	// memory accesses
-extern char *cyel;	// numbers
-extern char *cred;	// unknown stuff
-extern char *cmag;	// funny registers, jump labels
-extern char *cbr;	// call labels
-extern char *cbrmag;	// call and jump labels
+extern char *cname;	// instruction name and mods
+extern char *creg0;	// $r registers
+extern char *creg1;	// other registers
+extern char *cmem;	// memory accesses
+extern char *cnum;	// numbers
+extern char *cunk;	// unknown stuff
+extern char *cbtarg;	// jump labels
+extern char *cctarg;	// call labels
+extern char *cbctarg;	// call and jump labels
 
 /*
  * Table format

@@ -30,15 +30,15 @@
  */
 
 char *cnorm = "\x1b[0m";	// lighgray: instruction code and misc stuff
-char *cgray = "\x1b[0;37m";	// darkgray: instruction address
-char *cgr = "\x1b[0;32m";	// green: instruction name and mods
-char *cbl = "\x1b[0;34m";	// blue: $r registers
-char *ccy = "\x1b[0;36m";	// cyan: memory accesses
-char *cyel = "\x1b[0;33m";	// yellow: numbers
-char *cred = "\x1b[0;31m";	// red: unknown stuff
-char *cmag = "\x1b[0;35m";	// pink: funny registers, jump labels
-char *cbr = "\x1b[1;37m";	// white: call labels
-char *cbrmag = "\x1b[1;35m";	// white: call and jump labels
+char *cname = "\x1b[0;32m";	// green: instruction name and mods
+char *creg0 = "\x1b[0;34m";	// blue: $r registers
+char *creg1 = "\x1b[0;35m";	// pink: funny registers
+char *cmem = "\x1b[0;36m";	// cyan: memory accesses
+char *cnum = "\x1b[0;33m";	// yellow: numbers
+char *cunk = "\x1b[0;31m";	// red: unknown stuff
+char *cbtarg = "\x1b[0;35m";	// pink: jump labels
+char *cctarg = "\x1b[1;37m";	// white: call labels
+char *cbctarg = "\x1b[1;35m";	// white: call and jump labels
 
 struct matches *emptymatches() {
 	struct matches *res = calloc(sizeof *res, 1);
@@ -163,7 +163,7 @@ struct matches *matchid(struct disctx *ctx, int spos, const char *v) {
 struct matches *atomname APROTO {
 	if (!ctx->reverse) {
 		if (ctx->out)
-			fprintf (ctx->out, " %s%s", cgr, (const char *)v);
+			fprintf (ctx->out, " %s%s", cname, (const char *)v);
 	} else {
 		return matchid(ctx, spos, v);
 	}
@@ -172,7 +172,7 @@ struct matches *atomname APROTO {
 struct matches *atomcmd APROTO {
 	if (!ctx->reverse) {
 		if (ctx->out)
-			fprintf (ctx->out, " %s%s", cmag, (const char *)v);
+			fprintf (ctx->out, " %s%s", cnum, (const char *)v);
 	} else {
 		return matchid(ctx, spos, v);
 	}
@@ -182,7 +182,7 @@ struct matches *atomunk APROTO {
 	if (ctx->reverse)
 		return 0;
 	if (ctx->out)
-		fprintf (ctx->out, " %s%s", cred, (const char *)v);
+		fprintf (ctx->out, " %s%s", cunk, (const char *)v);
 }
 
 int setsbf (struct match *res, int pos, int len, ull num) {
@@ -264,9 +264,9 @@ struct matches *atomimm APROTO {
 		return;
 	ull num = GETBF(bf);
 	if (num & 1ull << 63)
-		fprintf (ctx->out, " %s-%#llx", cyel, -num);
+		fprintf (ctx->out, " %s-%#llx", cnum, -num);
 	else
-		fprintf (ctx->out, " %s%#llx", cyel, num);
+		fprintf (ctx->out, " %s%#llx", cnum, num);
 }
 
 struct matches *atomctarg APROTO {
@@ -277,7 +277,7 @@ struct matches *atomctarg APROTO {
 	markct8(ctx, num);
 	if (!ctx->out)
 		return;
-	fprintf (ctx->out, " %s%#llx", cbr, num);
+	fprintf (ctx->out, " %s%#llx", cctarg, num);
 }
 
 struct matches *atombtarg APROTO {
@@ -288,7 +288,7 @@ struct matches *atombtarg APROTO {
 	markbt8(ctx, num);
 	if (!ctx->out)
 		return;
-	fprintf (ctx->out, " %s%#llx", cmag, num);
+	fprintf (ctx->out, " %s%#llx", cbtarg, num);
 }
 
 struct matches *atomign APROTO {
@@ -387,15 +387,15 @@ static int printreg (struct disctx *ctx, ull *a, ull *m, const struct reg *reg) 
 			if (num == reg->specials[i].num) {
 				switch (reg->specials[i].mode) {
 					case SR_NAMED:
-						fprintf (ctx->out, "%s$%s", cbl, reg->specials[i].name);
+						fprintf (ctx->out, "%s$%s", creg1, reg->specials[i].name);
 						return 1;
 					case SR_ZERO:
 						return 0;
 					case SR_ONE:
-						fprintf (ctx->out, "%s1", cyel);
+						fprintf (ctx->out, "%s1", cnum);
 						return 1;
 					case SR_DISCARD:
-						fprintf (ctx->out, "%s#", cbl);
+						fprintf (ctx->out, "%s#", creg0);
 						return 1;
 				}
 			}
@@ -411,9 +411,9 @@ static int printreg (struct disctx *ctx, ull *a, ull *m, const struct reg *reg) 
 			suf = "l";
 		num >>= 1;
 	}
-	const char *color = cbl;
+	const char *color = creg0;
 	if (reg->always_special)
-		color = cred;
+		color = cunk;
 	if (reg->bf)
 		fprintf (ctx->out, "%s$%s%d%s", color, reg->name, num, suf);
 	else
@@ -439,7 +439,7 @@ struct matches *atomreg APROTO {
 		return;
 	fprintf (ctx->out, " ");
 	if (!printreg(ctx, a, m, reg))
-		fprintf (ctx->out, "%s0", cyel);
+		fprintf (ctx->out, "%s0", cnum);
 }
 
 int addexpr (const struct expr **iex, const struct expr *expr, int flip) {
@@ -490,7 +490,7 @@ struct matches *atommem APROTO {
 		int anything = 0;
 		fprintf (ctx->out, " ");
 		if (mem->name) {
-			fprintf (ctx->out, "%s%s", ccy, mem->name);
+			fprintf (ctx->out, "%s%s", cmem, mem->name);
 			if (mem->idx)
 				fprintf (ctx->out, "%lld", GETBF(mem->idx));
 			fprintf (ctx->out, "[");
@@ -501,33 +501,33 @@ struct matches *atommem APROTO {
 			ull imm = GETBF(mem->imm);
 			if (mem->postincr) {
 				if (imm & 1ull << 63)
-					fprintf (ctx->out, "%s--%s%#llx", ccy, cyel, -imm);
+					fprintf (ctx->out, "%s--%s%#llx", cmem, cnum, -imm);
 				else if (anything)
-					fprintf (ctx->out, "%s++%s%#llx", ccy, cyel, imm);
+					fprintf (ctx->out, "%s++%s%#llx", cmem, cnum, imm);
 				anything = 1;
 			} else if (imm) {
 				if (imm & 1ull << 63)
-					fprintf (ctx->out, "%s-%s%#llx", ccy, cyel, -imm);
+					fprintf (ctx->out, "%s-%s%#llx", cmem, cnum, -imm);
 				else if (anything)
-					fprintf (ctx->out, "%s+%s%#llx", ccy, cyel, imm);
+					fprintf (ctx->out, "%s+%s%#llx", cmem, cnum, imm);
 				else
-					fprintf (ctx->out, "%s%#llx", cyel, imm);
+					fprintf (ctx->out, "%s%#llx", cnum, imm);
 				anything = 1;
 			}
 		}
 		if (mem->reg2) {
 			if (anything)
-				fprintf (ctx->out, "%s+", ccy);
+				fprintf (ctx->out, "%s+", cmem);
 			if (!printreg(ctx, a, m, mem->reg2))
-				fprintf (ctx->out, "%s0", cyel);
+				fprintf (ctx->out, "%s0", cnum);
 			if (mem->reg2shr)
-				fprintf (ctx->out, "%s*%s%#llx", ccy, cyel, 1ull << mem->reg2shr);
+				fprintf (ctx->out, "%s*%s%#llx", cmem, cnum, 1ull << mem->reg2shr);
 			anything = 1;
 		}
 		if (!anything)
-			fprintf (ctx->out, "%s0", cyel);
+			fprintf (ctx->out, "%s0", cnum);
 		if (mem->name)
-			fprintf (ctx->out, "%s]", ccy);
+			fprintf (ctx->out, "%s]", cmem);
 	} else {
 		if (spos == ctx->line->atomsnum)
 			return 0;
@@ -632,9 +632,9 @@ struct matches *atomvec APROTO {
 		fprintf (ctx->out, " %s{", cnorm);
 		for (i = 0; i < cnt; i++)
 			if (mask & 1ull<<i)
-				fprintf (ctx->out, " %s$%s%d", cbl, vec->name, base+k++);
+				fprintf (ctx->out, " %s$%s%d", creg0, vec->name, base+k++);
 			else
-				fprintf (ctx->out, " %s#", cbl);
+				fprintf (ctx->out, " %s#", creg0);
 		fprintf (ctx->out, " %s}", cnorm);
 	} else {
 		if (spos == ctx->line->atomsnum)
@@ -692,7 +692,7 @@ struct matches *atombf APROTO {
 			return;
 		uint32_t i = GETBF(&bf[0]);
 		uint32_t j = GETBF(&bf[1]);
-		fprintf (ctx->out, " %s%d:%d", cyel, i, i+j);
+		fprintf (ctx->out, " %s%d:%d", cnum, i, i+j);
 	} else {
 		if (spos == ctx->line->atomsnum)
 			return 0;
@@ -816,16 +816,16 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 		switch (ctx->marks[cur] & 3) {
 			case 0:
 				if (!quiet)
-					fprintf (ctx->out, "%s%08x:%s", cgray, (cur + start) / isa->posunit, cnorm);
+					fprintf (ctx->out, "%s%08x:%s", cnorm, (cur + start) / isa->posunit, cnorm);
 				break;
 			case 1:
-				fprintf (ctx->out, "%s%08x:%s", cmag, (cur + start) / isa->posunit, cnorm);
+				fprintf (ctx->out, "%s%08x:%s", cbtarg, (cur + start) / isa->posunit, cnorm);
 				break;
 			case 2:
-				fprintf (ctx->out, "%s%08x:%s", cbr, (cur + start) / isa->posunit, cnorm);
+				fprintf (ctx->out, "%s%08x:%s", cctarg, (cur + start) / isa->posunit, cnorm);
 				break;
 			case 3:
-				fprintf (ctx->out, "%s%08x:%s", cbrmag, (cur + start) / isa->posunit, cnorm);
+				fprintf (ctx->out, "%s%08x:%s", cbctarg, (cur + start) / isa->posunit, cnorm);
 				break;
 		}
 
@@ -836,18 +836,18 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 					if (i+j && i+j >= ctx->oplen)
 						fprintf (ctx->out, "  ");
 					else if (cur+i+j >= num)
-						fprintf (ctx->out, "%s??", cred);
+						fprintf (ctx->out, "%s??", cunk);
 					else
 						fprintf (ctx->out, "%s%02x", cnorm, code[cur + i + j]);
 			}
 			fprintf (ctx->out, "  ");
 
 			if (ctx->marks[cur] & 2)
-				fprintf (ctx->out, "%sC", cbr);
+				fprintf (ctx->out, "%sC", cctarg);
 			else
 				fprintf (ctx->out, " ");
 			if (ctx->marks[cur] & 1)
-				fprintf (ctx->out, "%sB", cmag);
+				fprintf (ctx->out, "%sB", cbtarg);
 			else
 				fprintf (ctx->out, " ");
 		} else if (quiet == 1) {
@@ -863,7 +863,7 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 			if (ctx->oplen < 8)
 				a &= (1ull << ctx->oplen * 8) - 1;
 			if (a) {
-				fprintf (ctx->out, " %s[unknown:", cred);
+				fprintf (ctx->out, " %s[unknown:", cunk);
 				for (i = 0; i < ctx->oplen || i == 0; i += isa->opunit) {
 					fprintf (ctx->out, " ");
 					for (j = isa->opunit - 1; j >= 0; j--)
@@ -875,11 +875,11 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 				fprintf (ctx->out, "]");
 			}
 			if (cur + ctx->oplen > num) {
-				fprintf (ctx->out, " %s[incomplete]%s", cred, cnorm);
+				fprintf (ctx->out, " %s[incomplete]%s", cunk, cnorm);
 			}
 			cur += ctx->oplen;
 		} else {
-			fprintf (ctx->out, " %s[unknown op length]%s", cred, cnorm);
+			fprintf (ctx->out, " %s[unknown op length]%s", cunk, cnorm);
 			cur++;
 		}
 		fprintf (ctx->out, "%s\n", cnorm);

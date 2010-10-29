@@ -44,7 +44,7 @@ static struct matches *atomst16 APROTO {
 	ull num = BF(8, 16);
 	n[0] &= 0xffff0000;
 	n[0] |= num;
-	fprintf (ctx->out, " %s%#x", cyel, n[0]);
+	fprintf (ctx->out, " %s%#x", cnum, n[0]);
 }
 static struct matches *atomst32 APROTO {
 	if (ctx->reverse)
@@ -54,7 +54,7 @@ static struct matches *atomst32 APROTO {
 	int *n = (int*)v;
 	ull num = BF(8, 32);
 	n[0] = num;
-	fprintf (ctx->out, " %s%#x", cyel, n[0]);
+	fprintf (ctx->out, " %s%#x", cnum, n[0]);
 }
 
 static struct insn tabm[] = {

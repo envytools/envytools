@@ -113,15 +113,15 @@ int main(int argc, char **argv) {
 				break;
 			case 'n':
 				cnorm = "";
-				cgray = "";
-				cgr = "";
-				cbl= "";
-				ccy = "";
-				cyel = "";
-				cred = "";
-				cbr = "";
-				cmag = "";
-				cbrmag = "";
+				cname = "";
+				creg0 = "";
+				creg1 = "";
+				cmem = "";
+				cnum = "";
+				cunk = "";
+				cbtarg = "";
+				cctarg = "";
+				cbctarg = "";
 				break;
 			case 'm':
 				if (!strcmp(optarg, "nv50"))
