@@ -96,6 +96,16 @@ struct section {
 	int maxpos;
 };
 
+void extend(struct section *s, int add) {
+	while (s->pos + add >= s->maxpos) {
+		if (!s->maxpos)
+			s->maxpos = 256;
+		else
+			s->maxpos *= 2;
+		s->code = realloc (s->code, s->maxpos);
+	}
+}
+
 int envyas_process(struct file *file) {
 	int i, j;
 	struct disctx ctx_s = { 0 };
@@ -177,6 +187,30 @@ int envyas_process(struct file *file) {
 							RNN_ADDARRAY(sections, s);
 						}
 						cursect = j;
+					} else if (!strcmp(file->lines[i]->str, ".align")) {
+						if (file->lines[i]->atomsnum > 1) {
+							fprintf (stderr, "Too many arguments for .align\n");
+							return 1;
+						}
+						if (file->lines[i]->atoms[0]->type != EXPR_NUM) {
+							fprintf (stderr, "Wrong arguments for .align\n");
+							return 1;
+						}
+						ull num = file->lines[i]->atoms[0]->num1;
+						sections[cursect].pos += num - 1;
+						sections[cursect].pos /= num;
+						sections[cursect].pos *= num;
+					} else if (!strcmp(file->lines[i]->str, ".skip")) {
+						if (file->lines[i]->atomsnum > 1) {
+							fprintf (stderr, "Too many arguments for .skip\n");
+							return 1;
+						}
+						if (file->lines[i]->atoms[0]->type != EXPR_NUM) {
+							fprintf (stderr, "Wrong arguments for .skip\n");
+							return 1;
+						}
+						ull num = file->lines[i]->atoms[0]->num1;
+						sections[cursect].pos += num;
 					} else {
 						fprintf (stderr, "Unknown directive %s\n", file->lines[i]->str);
 						return 1;
@@ -215,13 +249,7 @@ int envyas_process(struct file *file) {
 								sections[cursect].pos &= ~7ull, sections[cursect].pos += 8;
 							}
 						}
-						if (sections[cursect].pos + im[i].m[0].oplen >= sections[cursect].maxpos) {
-							if (!sections[cursect].maxpos)
-								sections[cursect].maxpos = 256;
-							else
-								sections[cursect].maxpos *= 2;
-							sections[cursect].code = realloc (sections[cursect].code, sections[cursect].maxpos);
-						}
+						extend(&sections[cursect], im[i].m[0].oplen);
 						for (j = 0; j < im[i].m[0].oplen; j++)
 							sections[cursect].code[sections[cursect].pos++] = val >> (8*j);
 					}
@@ -234,6 +262,22 @@ int envyas_process(struct file *file) {
 							if (!strcmp(sections[j].name, file->lines[i]->atoms[0]->str))
 								break;
 						cursect = j;
+					} else if (!strcmp(file->lines[i]->str, ".align")) {
+						ull num = file->lines[i]->atoms[0]->num1;
+						ull oldpos = sections[cursect].pos;
+						sections[cursect].pos += num - 1;
+						sections[cursect].pos /= num;
+						sections[cursect].pos *= num;
+						extend(&sections[cursect], 0);
+						for (j = oldpos; j < sections[cursect].pos; j++)
+							sections[cursect].code[j] = 0;
+					} else if (!strcmp(file->lines[i]->str, ".skip")) {
+						ull num = file->lines[i]->atoms[0]->num1;
+						ull oldpos = sections[cursect].pos;
+						sections[cursect].pos += num;
+						extend(&sections[cursect], 0);
+						for (j = oldpos; j < sections[cursect].pos; j++)
+							sections[cursect].code[j] = 0;
 					} else {
 						fprintf (stderr, "Unknown directive %s\n", file->lines[i]->str);
 						return 1;
