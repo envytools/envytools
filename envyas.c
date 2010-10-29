@@ -163,7 +163,6 @@ int envyas_process(struct file *file) {
 					} else {
 						if (ctx->isa->i_need_nv50as_hack) {
 							if (im[i].m[0].oplen == 8 && (pos & 7)) {
-								fprintf (stderr, "FOOO!\n");
 								j = i - 1;
 								while (j != -1ull && file->lines[j]->type == LINE_LABEL)
 									j--;
@@ -171,8 +170,6 @@ int envyas_process(struct file *file) {
 								if (im[j].m[0].oplen == 4) {
 									im[j].m++;
 									im[j].mnum--;
-								} else {
-								fprintf (stderr, "FNORD!\n");
 								}
 								allok = 0;
 								pos &= ~7ull, pos += 8;
