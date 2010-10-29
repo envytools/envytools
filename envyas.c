@@ -245,6 +245,22 @@ int envyas_process(struct file *file) {
 						}
 						ull num = file->lines[i]->atoms[0]->num1;
 						sections[cursect].pos += num;
+					} else if (!strcmp(file->lines[i]->str, ".equ")) {
+						if (file->lines[i]->atomsnum != 2
+							|| file->lines[i]->atoms[0]->type != EXPR_ID
+							|| !file->lines[i]->atoms[1]->isimm) {
+							fprintf (stderr, "Wrong arguments for .equ\n");
+							return 1;
+						}
+						ull num = calc(file->lines[i]->atoms[1], ctx);
+						for (j = 0; j < ctx->labelsnum; j++) {
+							if (!strcmp(ctx->labels[j].name, file->lines[i]->atoms[0]->str)) {
+								fprintf (stderr, "Label %s redeclared!\n", file->lines[i]->atoms[0]->str);
+								return 1;
+							}
+						}
+						struct label l = { file->lines[i]->atoms[0]->str, num };
+						RNN_ADDARRAY(ctx->labels, l);
 					} else if (!donum(&sections[cursect], file->lines[i], ctx, 0)) {
 						fprintf (stderr, "Unknown directive %s\n", file->lines[i]->str);
 						return 1;
@@ -312,6 +328,8 @@ int envyas_process(struct file *file) {
 						extend(&sections[cursect], 0);
 						for (j = oldpos; j < sections[cursect].pos; j++)
 							sections[cursect].code[j] = 0;
+					} else if (!strcmp(file->lines[i]->str, ".equ")) {
+						/* nothing to be done */
 					} else if (!donum(&sections[cursect], file->lines[i], ctx, 1)) {
 						fprintf (stderr, "Unknown directive %s\n", file->lines[i]->str);
 						return 1;
