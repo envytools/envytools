@@ -243,6 +243,7 @@ struct line {
 	enum ltype {
 		LINE_INSN,
 		LINE_LABEL,
+		LINE_DIR,
 	} type;
 	char *str;
 	struct expr **atoms;

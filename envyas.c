@@ -58,7 +58,7 @@ ull calc (const struct expr *expr, struct disctx *ctx) {
 	}
 }
 
-int resolve (struct disctx *ctx, ull *val, struct match m, int pos) {
+int resolve (struct disctx *ctx, ull *val, struct match m, ull pos) {
 	int i;
 	for (i = 0; i < m.nrelocs; i++) {
 		ull val = calc(m.relocs[i].expr, ctx);
@@ -87,6 +87,14 @@ int resolve (struct disctx *ctx, ull *val, struct match m, int pos) {
 	*val = m.a;
 	return 1;
 }
+
+struct section {
+	const char *name;
+	ull base;
+	uint8_t *code;
+	int pos;
+	int maxpos;
+};
 
 int envyas_process(struct file *file) {
 	int i, j;
@@ -117,22 +125,27 @@ int envyas_process(struct file *file) {
 #endif
 		}
 	}
-	int pos;
-	int maxpos = 256;
-	uint8_t *code = malloc (maxpos);
 	int allok = 1;
+	struct section *sections = 0;
+	int sectionsnum = 0;
+	int sectionsmax = 0;
 	do {
 		allok = 1;
 		ctx->labelsnum = 0;
-		pos = 0;
+		for (i = 0; i < sectionsnum; i++)
+			free(sections[i].code);
+		sectionsnum = 0;
+		int cursect = 0;
+		struct section def = { "default" };
+		RNN_ADDARRAY(sections, def);
 		for (i = 0; i < file->linesnum; i++) {
 			switch (file->lines[i]->type) {
 				case LINE_INSN:
 					if (ctx->isa->i_need_nv50as_hack) {
-						if (im[i].m[0].oplen == 8 && (pos & 7))
-							pos &= ~7ull, pos += 8;
+						if (im[i].m[0].oplen == 8 && (sections[cursect].pos & 7))
+							sections[cursect].pos &= ~7ull, sections[cursect].pos += 8;
 					}
-					pos += im[i].m[0].oplen;
+					sections[cursect].pos += im[i].m[0].oplen;
 					break;
 				case LINE_LABEL:
 					for (j = 0; j < ctx->labelsnum; j++) {
@@ -141,18 +154,45 @@ int envyas_process(struct file *file) {
 							return 1;
 						}
 					}
-					struct label l = { file->lines[i]->str, pos / ctx->isa->posunit };
+					struct label l = { file->lines[i]->str, sections[cursect].pos / ctx->isa->posunit + sections[cursect].base };
 					RNN_ADDARRAY(ctx->labels, l);
+					break;
+				case LINE_DIR:
+					if (!strcmp(file->lines[i]->str, ".section")) {
+						if (file->lines[i]->atomsnum > 2) {
+							fprintf (stderr, "Too many arguments for .section\n");
+							return 1;
+						}
+						if (file->lines[i]->atoms[0]->type != EXPR_ID || (file->lines[i]->atomsnum == 2 && file->lines[i]->atoms[1]->type != EXPR_NUM)) {
+							fprintf (stderr, "Wrong arguments for .section\n");
+							return 1;
+						}
+						for (j = 0; j < sectionsnum; j++)
+							if (!strcmp(sections[j].name, file->lines[i]->atoms[0]->str))
+								break;
+						if (j == sectionsnum) {
+							struct section s = { file->lines[i]->atoms[0]->str };
+							if (file->lines[i]->atomsnum == 2)
+								s.base = file->lines[i]->atoms[1]->num1;
+							RNN_ADDARRAY(sections, s);
+						}
+						cursect = j;
+					} else {
+						fprintf (stderr, "Unknown directive %s\n", file->lines[i]->str);
+						return 1;
+					}
 					break;
 			}
 		}
-		pos = 0;
+		cursect = 0;
+		for (j = 0; j < sectionsnum; j++)
+			sections[j].pos = 0;
 		ull val;
 		for (i = 0; i < file->linesnum; i++) {
 			switch (file->lines[i]->type) {
 				case LINE_INSN:
-					if (!resolve(ctx, &val, im[i].m[0], pos / ctx->isa->posunit)) {
-						pos += im[i].m[0].oplen;
+					if (!resolve(ctx, &val, im[i].m[0], sections[cursect].pos / ctx->isa->posunit + sections[cursect].base)) {
+						sections[cursect].pos += im[i].m[0].oplen;
 						im[i].m++;
 						im[i].mnum--;
 						if (!im[i].mnum) {
@@ -162,7 +202,7 @@ int envyas_process(struct file *file) {
 						allok = 0;
 					} else {
 						if (ctx->isa->i_need_nv50as_hack) {
-							if (im[i].m[0].oplen == 8 && (pos & 7)) {
+							if (im[i].m[0].oplen == 8 && (sections[cursect].pos & 7)) {
 								j = i - 1;
 								while (j != -1ull && file->lines[j]->type == LINE_LABEL)
 									j--;
@@ -172,46 +212,67 @@ int envyas_process(struct file *file) {
 									im[j].mnum--;
 								}
 								allok = 0;
-								pos &= ~7ull, pos += 8;
+								sections[cursect].pos &= ~7ull, sections[cursect].pos += 8;
 							}
 						}
-						if (pos + im[i].m[0].oplen >= maxpos) maxpos *= 2, code = realloc (code, maxpos);
+						if (sections[cursect].pos + im[i].m[0].oplen >= sections[cursect].maxpos) {
+							if (!sections[cursect].maxpos)
+								sections[cursect].maxpos = 256;
+							else
+								sections[cursect].maxpos *= 2;
+							sections[cursect].code = realloc (sections[cursect].code, sections[cursect].maxpos);
+						}
 						for (j = 0; j < im[i].m[0].oplen; j++)
-							code[pos+j] = val >> (8*j);
-						pos += im[i].m[0].oplen;
+							sections[cursect].code[sections[cursect].pos++] = val >> (8*j);
 					}
 					break;
 				case LINE_LABEL:
 					break;
+				case LINE_DIR:
+					if (!strcmp(file->lines[i]->str, ".section")) {
+						for (j = 0; j < sectionsnum; j++)
+							if (!strcmp(sections[j].name, file->lines[i]->atoms[0]->str))
+								break;
+						cursect = j;
+					} else {
+						fprintf (stderr, "Unknown directive %s\n", file->lines[i]->str);
+						return 1;
+					}
 			}
 		}
 	} while (!allok);
-	if (envyas_ofmt == OFMT_RAW)
-		fwrite (code, 1, pos, stdout);
-	else {
-		if (envyas_ofmt == OFMT_CHEX8) {
-			printf ("uint8_t envyas_code[] = {\n");
-		}
-		if (envyas_ofmt == OFMT_CHEX32) {
-			printf ("uint32_t envyas_code[] = {\n");
-		}
-		if (envyas_ofmt == OFMT_CHEX32 || envyas_ofmt == OFMT_HEX32) {
-			for (i = 0; i < pos; i+=4) {
-				uint32_t val;
-				val = code[i] | code[i+1] << 8 | code[i+2] << 16 | code[i+3] << 24;
-				if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32)
-					printf ("\t");
-				printf ("0x%08x,\n", val);
+	for (i = 0; i < sectionsnum; i++) {
+		if (!strcmp(sections[i].name, "default") && !sections[i].pos)
+			continue;
+		if (envyas_ofmt == OFMT_RAW)
+			fwrite (sections[i].code, 1, sections[i].pos, stdout);
+		else {
+			if (envyas_ofmt == OFMT_CHEX8) {
+				printf ("uint8_t %s[] = {\n", sections[i].name);
 			}
-		} else {
-			for (i = 0; i < pos; i++) {
-				if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32)
-					printf ("\t");
-				printf ("0x%02x,\n", code[i]);
+			if (envyas_ofmt == OFMT_CHEX32) {
+				printf ("uint32_t %s[] = {\n", sections[i].name);
 			}
-		}
-		if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32) {
-			printf ("};\n");
+			if (envyas_ofmt == OFMT_CHEX32 || envyas_ofmt == OFMT_HEX32) {
+				for (j = 0; j < sections[i].pos; j+=4) {
+					uint32_t val;
+					val = sections[i].code[j] | sections[i].code[j+1] << 8 | sections[i].code[j+2] << 16 | sections[i].code[j+3] << 24;
+					if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32)
+						printf ("\t");
+					printf ("0x%08x,\n", val);
+				}
+			} else {
+				for (j = 0; j < sections[i].pos; j++) {
+					if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32)
+						printf ("\t");
+					printf ("0x%02x,\n", sections[i].code[j]);
+				}
+			}
+			if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32) {
+				printf ("};\n");
+				if (i != sectionsnum - 1)
+					printf("\n");
+			}
 		}
 	}
 }

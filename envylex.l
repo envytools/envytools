@@ -16,6 +16,7 @@ static int yywrap(void) {
 \n				{ ws = 1; return ';'; }
 "//".*\n			{ ws = 1; return ';'; }
 [a-zA-Z_][a-zA-Z_0-9]*		{ ws = 0; yylval.str = strdup(yytext); return T_ID; }
+"."[a-zA-Z_][a-zA-Z_0-9]*	{ ws = 0; yylval.str = strdup(yytext); return T_DIR; }
 \$[a-zA-Z_0-9]*			{ ws = 0; yylval.str = strdup(yytext+1); return T_REG; }
 0[0-7]*|[1-9][0-9]*|0[xX][0-9a-fA-F]+		{ ws = 0; yylval.num = strtoull(yytext, 0, 0); return T_NUM; }
 "~"				{ ws = 0; return '~'; }

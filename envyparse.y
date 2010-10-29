@@ -15,6 +15,7 @@ void yyerror (char const *err) {
 }
 
 %token <str> T_ID
+%token <str> T_DIR
 %token <str> T_MEM
 %token <str> T_REG
 %token <num> T_NUM
@@ -48,6 +49,7 @@ file:	file line { $$ = $1; if ($2) RNN_ADDARRAY($$->lines, $2); }
 
 line:	T_ID ':' { $$ = calloc(sizeof *$$, 1); $$->type = LINE_LABEL; $$->str = $1; }
 |	insn ';'
+|	T_DIR insn ';' { $$ = $2; $$->str = $1; $$->type = LINE_DIR; }
 |	';' { $$ = 0; }
 ;
 
