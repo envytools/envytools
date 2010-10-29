@@ -410,7 +410,7 @@ static struct insn tabm[] = {
 	{ AP, 0x000005f0, 0x00000ffe, T(ol0), N("or"), REG2, T(i) },
 	{ AP, 0x000006f0, 0x00000ffe, T(ol0), N("xor"), REG2, T(i) },
 	{ AP, 0x000007f0, 0x00000ffe, T(ol0), N("mov"), REG2, T(is) },
-	{ AP, 0x000007f0, 0x00000fff, T(ol0), N("movw"), REG2, IMM16W },
+	{ AP, 0x000007f1, 0x00000fff, T(ol0), N("movw"), REG2, IMM16W },
 	{ AP, 0x000009f0, 0x00000ffe, T(ol0), N("bset"), REG2, T(i) },
 	{ AP, 0x00000af0, 0x00000ffe, T(ol0), N("bclr"), REG2, T(i) },
 	{ AP, 0x00000bf0, 0x00000ffe, T(ol0), N("btgl"), REG2, T(i) },
