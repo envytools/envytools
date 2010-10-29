@@ -97,6 +97,9 @@
 	<value value="0xc0" name="NVC0">
 		<brief>GF100: GeForce 470/480 GTX</brief>
 	</value>
+	<value value="0xc3" name="NVC3">
+		<brief>GF106: GeForce 450 GTS</brief>
+	</value>
 	<value value="0xc4" name="NVC4">
 		<brief>GF104: GeForce 460 GT</brief>
 	</value>
