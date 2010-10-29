@@ -149,6 +149,7 @@ struct reg {
 	const struct sreg *specials;
 	int always_special;
 	int hilo;
+	int cool;
 };
 
 struct mem {
@@ -166,6 +167,7 @@ struct vec {
 	struct bitfield *bf;
 	struct bitfield *cnt;
 	struct bitfield *mask;
+	int cool;
 };
 
 struct atom {

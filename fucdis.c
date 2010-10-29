@@ -67,14 +67,14 @@ static struct bitfield creg2_bf = { 20, 3 };
 static struct reg reg1_r = { &reg1_bf, "r" };
 static struct reg reg2_r = { &reg2_bf, "r" };
 static struct reg reg3_r = { &reg3_bf, "r" };
-static struct reg pred1_r = { &pred1_bf, "p" };
-static struct reg pred2_r = { &pred2_bf, "p" };
+static struct reg pred1_r = { &pred1_bf, "p", .cool = 1 };
+static struct reg pred2_r = { &pred2_bf, "p", .cool = 1 };
 static struct reg creg1_r = { &creg1_bf, "c" };
 static struct reg creg2_r = { &creg2_bf, "c" };
 static struct reg sreg1_r = { &reg1_bf, "s", .specials = sreg_sr, .always_special = 1 };
 static struct reg sreg2_r = { &reg2_bf, "s", .specials = sreg_sr, .always_special = 1 };
-static struct reg sp_r = { 0, "sp" };
-static struct reg flags_r = { 0, "flags" };
+static struct reg sp_r = { 0, "sp", .cool = 1 };
+static struct reg flags_r = { 0, "flags", .cool = 1 };
 #define REG1 atomreg, &reg1_r
 #define REG2 atomreg, &reg2_r
 #define REG3 atomreg, &reg3_r

@@ -384,16 +384,16 @@ static struct reg ldsrc2_r = { &lsrc2_bf, "r", "d" };
 static struct reg lsrc3_r = { &lsrc3_bf, "r" };
 static struct reg lhsrc3_r = { &lsrc3_bf, "r", .hilo = 1 };
 static struct reg ldsrc3_r = { &lsrc3_bf, "r", "d" };
-static struct reg odst_r = { &odst_bf, "o", .specials = oreg_sr };
-static struct reg ohdst_r = { &odst_bf, "o", .specials = oreg_sr, .hilo = 1 };
-static struct reg sareg_r = { &sareg_bf, "a", .specials = areg_sr }; // for mem operands only
-static struct reg lareg_r = { &lareg_bf, "a", .specials = areg_sr };
-static struct reg adst_r = { &adst_bf, "a", .specials = areg_sr };
-static struct reg cond_r = { &cond_bf, "c" };
-static struct reg c0_r = { &c0_bf, "c" };
-static struct reg cdst_r = { &cdst_bf, "c" };
-static struct reg tex_r = { &tex_bf, "t" };
-static struct reg samp_r = { &samp_bf, "s" };
+static struct reg odst_r = { &odst_bf, "o", .specials = oreg_sr, .cool = 1 };
+static struct reg ohdst_r = { &odst_bf, "o", .specials = oreg_sr, .hilo = 1, .cool = 1 };
+static struct reg sareg_r = { &sareg_bf, "a", .specials = areg_sr, .cool = 1 }; // for mem operands only
+static struct reg lareg_r = { &lareg_bf, "a", .specials = areg_sr, .cool = 1 };
+static struct reg adst_r = { &adst_bf, "a", .specials = areg_sr, .cool = 1 };
+static struct reg cond_r = { &cond_bf, "c", .cool = 1 };
+static struct reg c0_r = { &c0_bf, "c", .cool = 1 };
+static struct reg cdst_r = { &cdst_bf, "c", .cool = 1 };
+static struct reg tex_r = { &tex_bf, "t", .cool = 1 };
+static struct reg samp_r = { &samp_bf, "s", .cool = 1 };
 static struct reg sreg_r = { &sreg_bf, "sr", .specials = sreg_sr, .always_special = 1 };
 #define SDST atomreg, &sdst_r
 #define LDST atomreg, &ldst_r
