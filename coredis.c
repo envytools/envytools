@@ -31,11 +31,11 @@
 
 char *cnorm = "\x1b[0m";	// lighgray: instruction code and misc stuff
 char *cname = "\x1b[0;32m";	// green: instruction name and mods
-char *creg0 = "\x1b[0;34m";	// blue: $r registers
+char *creg0 = "\x1b[0;31m";	// blue: $r registers
 char *creg1 = "\x1b[0;35m";	// pink: funny registers
 char *cmem = "\x1b[0;36m";	// cyan: memory accesses
 char *cnum = "\x1b[0;33m";	// yellow: numbers
-char *cunk = "\x1b[0;31m";	// red: unknown stuff
+char *cunk = "\x1b[1;31m";	// red: unknown stuff
 char *cbtarg = "\x1b[0;35m";	// pink: jump labels
 char *cctarg = "\x1b[1;37m";	// white: call labels
 char *cbctarg = "\x1b[1;35m";	// white: call and jump labels
