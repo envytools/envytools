@@ -28,5 +28,5 @@ target_link_libraries(headergen rnn ${LIBXML2_LIBRARIES})
 
 install(TARGETS envydis demmio headergen nvbios envy rnn envyas
 	RUNTIME DESTINATION bin
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib)
+	LIBRARY DESTINATION lib${LIB_SUFFIX}
+	ARCHIVE DESTINATION lib${LIB_SUFFIX})
