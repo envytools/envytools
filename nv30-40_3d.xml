@@ -628,7 +628,8 @@
 			<bitfield pos="6" name="COLOR_B"/>
 			<bitfield pos="7" name="COLOR_A"/>
 		</reg32>
-		<reg32 offset="0x1dac" name="DO_VERTICES" variants="NV30_3D-NV35_3D"/>
+		<reg32 offset="0x1dac" name="PRIMITIVE_RESTART_ENABLE" type="boolean"/>
+		<reg32 offset="0x1db0" name="PRIMITIVE_RESTART_INDEX" type="int"/>
 		<reg32 offset="0x1db4" name="LINE_STIPPLE_ENABLE" type="boolean"/>
 		<reg32 offset="0x1db8" name="LINE_STIPPLE_PATTERN">
 			<bitfield low="0" high="15" name="FACTOR" type="int"/>
