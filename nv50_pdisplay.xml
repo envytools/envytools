@@ -331,6 +331,8 @@
 			<doc>
 			You must write 0 to POS_CTRL, otherwise position is not processed.
 			</doc>
+			<bitfield low="0" high="15" name="X" type="int"/>
+			<bitfield low="16" high="31" name="Y" type="int"/>
 		</reg32>
 	</array>
 </domain>
