@@ -38,6 +38,8 @@ hexadecimal numbers representing the bytes to disassemble. The options are:
  input format
   -w Instead of sequence of hexadecimal bytes, treat input as sequence of
      hexadecimal 32-bit words
+  -W Instead of sequence of hexadecimal bytes, treat input as sequence of
+     hexadecimal 64-bit words
   -i Treat input as pure binary
  input subranging
   -b <base> Assume the start of input to be at address <base> in code segment

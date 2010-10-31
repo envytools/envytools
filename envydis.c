@@ -69,7 +69,7 @@ int main(int argc, char **argv) {
 	int ptype = -1;
 	int c;
 	unsigned base = 0, skip = 0, limit = 0;
-	while ((c = getopt (argc, argv, "45vgfpcsb:d:l:m:winq")) != -1)
+	while ((c = getopt (argc, argv, "45vgfpcsb:d:l:m:wWinq")) != -1)
 		switch (c) {
 			case '4':
 				ptype = NV4x;
@@ -104,6 +104,9 @@ int main(int argc, char **argv) {
 				break;
 			case 'w':
 				w = 1;
+				break;
+			case 'W':
+				w = 2;
 				break;
 			case 'i':
 				bin = 1;
@@ -155,7 +158,7 @@ int main(int argc, char **argv) {
 	int num = 0;
 	int maxnum = 16;
 	uint8_t *code = malloc (maxnum);
-	uint32_t t;
+	ull t;
 	if (bin) {
 		int c;
 		while ((c = getchar()) != EOF) {
@@ -163,9 +166,25 @@ int main(int argc, char **argv) {
 			code[num++] = c;
 		}
 	} else {
-		while (!feof(stdin) && scanf ("%x", &t) == 1) {
+		while (!feof(stdin) && scanf ("%llx", &t) == 1) {
 			if (num + 3 >= maxnum) maxnum *= 2, code = realloc (code, maxnum);
-			if (w) {
+			if (w == 2) {
+				code[num++] = t & 0xff;
+				t >>= 8;
+				code[num++] = t & 0xff;
+				t >>= 8;
+				code[num++] = t & 0xff;
+				t >>= 8;
+				code[num++] = t & 0xff;
+				t >>= 8;
+				code[num++] = t & 0xff;
+				t >>= 8;
+				code[num++] = t & 0xff;
+				t >>= 8;
+				code[num++] = t & 0xff;
+				t >>= 8;
+				code[num++] = t & 0xff;
+			} else if (w) {
 				code[num++] = t & 0xff;
 				t >>= 8;
 				code[num++] = t & 0xff;
