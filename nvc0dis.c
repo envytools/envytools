@@ -394,6 +394,8 @@ static struct insn tabsetit[] = {
 	{ AP, 0, 0, OOPS },
 };
 
+F(setdt, 5, N("b32"), N("f32"))
+
 static struct insn tabis2[] = {
 	{ AP, 0x0000000000000000ull, 0x0000c00000000000ull, SRC2 },
 	{ AP, 0x0000400000000000ull, 0x0000c00000000000ull, CONST },
@@ -740,7 +742,7 @@ static struct insn tabvsetop[] = {
 static struct insn tabm[] = {
 	{ AP, 0x0800000000000000ull, 0xf800000000000007ull, T(minmax), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
 	// 10?
-	{ AP, 0x1800000000000000ull, 0xf800000000000007ull, N("set"), DST, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) },
+	{ AP, 0x1800000000000000ull, 0xf800000000000007ull, N("set"), T(setdt), DST, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) },
 	{ AP, 0x200000000001c000ull, 0xf80000000001c007ull, N("set"), PDST, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) }, // and these unknown bits are what? another predicate?
 	// 28?
 	{ AP, 0x3000000000000000ull, 0xf800000000000007ull, N("add"), T(fmf), T(ias), T(farm), N("f32"), DST, T(neg1), N("mul"), SRC1, T(fs2), T(neg2), SRC3 },
