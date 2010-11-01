@@ -95,7 +95,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x004a" name="NV04_GDI_RECTANGLE_TEXT" variants="NV04-NV50"/>
 
 	<value value="0x0052" name="NV04_SWIZZLED_SURFACE" variants="NV04:NV50"/>
-	<value value="0x009e" name="NV11_SWIZZLED_SURFACE" variants="NV15:NV50"/>
+	<value value="0x009e" name="NV20_SWIZZLED_SURFACE" variants="NV20:NV50"/>
 	<value value="0x039e" name="NV30_SWIZZLED_SURFACE" variants="NV30:NV40"/>
 	<value value="0x309e" name="NV40_SWIZZLED_SURFACE" variants="NV40:NV50"/>
 
