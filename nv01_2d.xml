@@ -552,7 +552,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<doc>Accepts NV04_CONTEXT_SURFACES_2D and up, NV04_SWIZZLED_SURFACE and up</doc>
 			</reg32>
 		</stripe>
-		<reg32 offset="0x02fc" name="COLOR_CONVERSION" type="nv05_color_conversion"/>
+		<reg32 offset="0x02fc" name="COLOR_CONVERSION" type="nv05_color_conversion" variants="NV05_SCALED_IMAGE_FROM_MEMORY-"/>
 		<reg32 offset="0x0300" name="COLOR_FORMAT">
 			<value value="0x0001" name="A1R5G5B5"/>
 			<value value="0x0002" name="X1R5G5B5"/>
