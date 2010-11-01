@@ -459,8 +459,11 @@
 
 			<reg32 offset="0x03f0" name="UNK03F0"/>
 			<reg32 offset="0x03f4" name="UNK03F4"/>
-			<reg32 offset="0x03f8" name="UNK03F8" variants="NV17_3D"/>
-			<reg32 offset="0x03fc" name="UNK03FC" variants="NV17_3D"/>
+			<reg32 offset="0x03f8" name="ZCLEAR_ENABLE" type="boolean" variants="NV17_3D"/>
+			<reg32 offset="0x03fc" name="ZCLEAR_VALUE" type="bitfield" variants="NV17_3D">
+				<bitfield name="DEPTH" high="31" low="8" type="int"/>
+				<bitfield name="SEQUENCE" high="7" low="0" type="int"/>
+			</reg32>
 
 			<reg32 offset="0x03ec" name="POINT_SIZE" type="int"/>
 			<reg32 offset="0x06f8" name="POINT_PARAMETER" length="8" type="float"/>
