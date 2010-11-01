@@ -6,6 +6,17 @@
 
 <import file="nv10_3d.xml"/>
 
+<enum name="nv20_tex_comp" inline="yes">
+	<value value="0" name="NEVER"/>
+	<value value="1" name="GREATER"/>
+	<value value="2" name="EQUAL"/>
+	<value value="3" name="GEQUAL"/>
+	<value value="4" name="LESS"/>
+	<value value="5" name="NOTEQUAL"/>
+	<value value="6" name="LEQUAL"/>
+	<value value="7" name="ALWAYS"/>
+</enum>
+
 <enum name="nv20_fog_coord" inline="yes">
 	<value value="0x0001" name="DIST_RADIAL"/>
 	<value value="0x0002" name="DIST_ORTHOGONAL"/>
@@ -398,7 +409,7 @@
 			<stripe length="4" stride="64">
 				<reg32 offset="0x1b28" name="TEX_SHADER_OFFSET_MATRIX" length="4" type="float"/>
 			</stripe>
-			<reg32 offset="0x1e6c" name="TEX_RCOMP"/>
+			<reg32 offset="0x1e6c" name="TEX_RCOMP" type="nv20_tex_comp"/>
 			<reg32 offset="0x1e70" name="TEX_SHADER_OP">
 				<bitfield name="TX0" high="4" low="0" type="nv20_tex_shader_op"/>
 				<bitfield name="TX1" high="9" low="5" type="nv20_tex_shader_op"/>
