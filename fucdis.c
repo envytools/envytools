@@ -284,6 +284,7 @@ static struct insn tabdatarr[] = {
 
 static struct insn tabsi[] = {
 	{ AP, 0x00000000, 0x0000003f, OP24, N("st"), T(sz), T(datari), REG1 },
+	{ AP, 0x00000000, 0x00000030, OP24, OOPS, T(sz), REG1, REG2, IMM8 },
 
 	{ AP, 0x00000010, 0x0000003f, OP24, N("add"), T(sz), REG1, REG2, IMM8 },
 	{ AP, 0x00000011, 0x0000003f, OP24, N("adc"), T(sz), REG1, REG2, IMM8 },
@@ -310,6 +311,7 @@ static struct insn tabsi[] = {
 	{ AP, 0x00000030, 0x0000003e, T(ol0), OOPS, T(sz), REG2, T(i) },
 
 	{ AP, 0x00000034, 0x00000f3f, OP24, N("ld"), T(sz), REG2, T(datasp) },
+	{ AP, 0x00000034, 0x0000003f, OP24, OOPS, T(sz), REG2, IMM8 },
 
 	{ AP, 0x00000036, 0x00000f3e, T(ol0), N("add"), T(sz), REG2, T(i) },
 	{ AP, 0x00000136, 0x00000f3e, T(ol0), N("adc"), T(sz), REG2, T(i) },
@@ -333,6 +335,8 @@ static struct insn tabsi[] = {
 	{ AP, 0x00020039, 0x000f003f, OP24, N("movf"), T(sz), REG1, REG2 }, /* mov and set ZF+SF according to val */
 	{ AP, 0x00030039, 0x000f003f, OP24, N("hswap"), T(sz), REG1, REG2 }, /* swap halves - ie. rotate by half the size in bits. */
 	{ AP, 0x00000039, 0x0000003f, OP24, OOPS, T(sz), REG1, REG2 },
+
+	{ AP, 0x0000003a, 0x0000003f, OP24, OOPS, T(sz) },
 
 	{ AP, 0x0000003b, 0x000f003f, OP24, N("add"), T(sz), REG2, REG1 },
 	{ AP, 0x0001003b, 0x000f003f, OP24, N("adc"), T(sz), REG2, REG1 },
@@ -389,6 +393,7 @@ static struct insn tabm[] = {
 
 	{ AP, 0x000000d0, 0x000000ff, OP24, N("iowr"), IORI, REG1 },
 	{ AP, 0x000000d1, 0x000000ff, OP24, N("iowrs"), IORI, REG1 },
+	{ AP, 0x000000d0, 0x000000f0, OP24, OOPS, REG1, REG2, IMM8 },
 
 	{ AP, 0x000000e0, 0x000000ff, OP32, N("mulu"), REG1, REG2, IMM16 },
 	{ AP, 0x000000e1, 0x000000ff, OP32, N("muls"), REG1, REG2, IMM16S },
@@ -453,6 +458,7 @@ static struct insn tabm[] = {
 	{ AP, 0x00150cf2, 0x001f0fff, OP24, N("cidec"), REG2 },
 	{ AP, 0x00170cf2, 0x001f0fff, OP24, N("cisigenc"), REG2 },
 	{ AP, 0x00000cf2, 0x00000fff, OP24, OOPS, REG2 },
+	{ AP, 0x000000f2, 0x000000ff, OP24, OOPS, REG2, IMM8 },
 
 	{ AP, 0x000000f4, 0x0000e0fe, T(ol0), N("bra"), T(p), T(bt) },
 	{ AP, 0x000020f4, 0x0000fffe, T(ol0), N("bra"), T(abt) },
@@ -470,9 +476,10 @@ static struct insn tabm[] = {
 	{ AP, 0x000001f8, 0x0000ffff, OP16, N("iret") },
 	{ AP, 0x000002f8, 0x0000ffff, OP16, N("exit") },
 	{ AP, 0x000003f8, 0x0000ffff, OP16, N("xdwait") },
-	{ AP, 0x000006f8, 0x0000ffff, U("f8/6") },
+	{ AP, 0x000006f8, 0x0000ffff, OP16, U("f8/6") },
 	{ AP, 0x000007f8, 0x0000ffff, OP16, N("xcwait") },
 	{ AP, 0x000008f8, 0x0000fcff, OP16, N("trap"), STRAP },
+	{ AP, 0x000000f8, 0x000000ff, OP16, OOPS },
 
 	{ AP, 0x000000f9, 0x00000fff, OP16, N("push"), REG2 },
 	{ AP, 0x000001f9, 0x00000fff, OP16, N("add"), SP, REG2 },
@@ -512,6 +519,17 @@ static struct insn tabm[] = {
 	{ AP, 0x000000fc, 0x00000fff, OP16, N("pop"), REG2 },
 	{ AP, 0x000000fc, 0x000000ff, OP16, OOPS, REG2 },
 
+	{ AP, 0x000000fd, 0x000f00ff, OP24, N("mulu"), REG2, REG1 },
+	{ AP, 0x000100fd, 0x000f00ff, OP24, N("muls"), REG2, REG1 },
+	{ AP, 0x000200fd, 0x000f00ff, OP24, N("sex"), REG2, REG1 },
+	{ AP, 0x000400fd, 0x000f00ff, OP24, N("and"), REG2, REG1 },
+	{ AP, 0x000500fd, 0x000f00ff, OP24, N("or"), REG2, REG1 },
+	{ AP, 0x000600fd, 0x000f00ff, OP24, N("xor"), REG2, REG1 },
+	{ AP, 0x000900fd, 0x000f00ff, OP24, N("bset"), REG2, REG1 },
+	{ AP, 0x000a00fd, 0x000f00ff, OP24, N("bclr"), REG2, REG1 },
+	{ AP, 0x000b00fd, 0x000f00ff, OP24, N("btgl"), REG2, REG1 },
+	{ AP, 0x000000fd, 0x000000ff, OP24, OOPS, REG2, REG1 },
+
 	{ AP, 0x000000fe, 0x00ff00ff, OP24, N("mov"), SREG1, REG2 },
 	{ AP, 0x000100fe, 0x00ff00ff, OP24, N("mov"), REG1, SREG2 },
 	/*
@@ -538,17 +556,7 @@ static struct insn tabm[] = {
 	 *  	didn't find any physical page
 	 */
 	{ AP, 0x000300fe, 0x00ff00ff, OP24, N("vtlb"), REG1, REG2 },
-
-	{ AP, 0x000000fd, 0x000f00ff, OP24, N("mulu"), REG2, REG1 },
-	{ AP, 0x000100fd, 0x000f00ff, OP24, N("muls"), REG2, REG1 },
-	{ AP, 0x000200fd, 0x000f00ff, OP24, N("sex"), REG2, REG1 },
-	{ AP, 0x000400fd, 0x000f00ff, OP24, N("and"), REG2, REG1 },
-	{ AP, 0x000500fd, 0x000f00ff, OP24, N("or"), REG2, REG1 },
-	{ AP, 0x000600fd, 0x000f00ff, OP24, N("xor"), REG2, REG1 },
-	{ AP, 0x000900fd, 0x000f00ff, OP24, N("bset"), REG2, REG1 },
-	{ AP, 0x000a00fd, 0x000f00ff, OP24, N("bclr"), REG2, REG1 },
-	{ AP, 0x000b00fd, 0x000f00ff, OP24, N("btgl"), REG2, REG1 },
-	{ AP, 0x000000fd, 0x000000ff, OP24, OOPS, REG2, REG1 },
+	{ AP, 0x000000fe, 0x000000ff, OP24, OOPS, REG1, REG2 },
 
 	{ AP, 0x000000ff, 0x000f00ff, OP24, N("mulu"), REG3, REG2, REG1 },
 	{ AP, 0x000100ff, 0x000f00ff, OP24, N("muls"), REG3, REG2, REG1 },
@@ -563,6 +571,7 @@ static struct insn tabm[] = {
 	{ AP, 0x000d00ff, 0x000f00ff, OP24, N("mod"), REG3, REG2, REG1 },
 	{ AP, 0x000f00ff, 0x000f00ff, OP24, N("iord"), REG3, IORR },
 	{ AP, 0x000000ff, 0x000000ff, OP24, OOPS, REG3, REG2, REG1 },
+
 	{ AP, 0, 0, OOPS },
 };
 
