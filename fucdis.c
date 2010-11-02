@@ -132,6 +132,9 @@ static struct mem datarr32_m = { "D", 0, &reg2_r, 0, &reg1_r, 2 };
 static struct mem datasp8_m = { "D", 0, &sp_r, &off8_bf };
 static struct mem datasp16_m = { "D", 0, &sp_r, &off16_bf };
 static struct mem datasp32_m = { "D", 0, &sp_r, &off32_bf };
+static struct mem dataspr8_m = { "D", 0, &sp_r, 0, &reg1_r, 0 };
+static struct mem dataspr16_m = { "D", 0, &sp_r, 0, &reg1_r, 1 };
+static struct mem dataspr32_m = { "D", 0, &sp_r, 0, &reg1_r, 2 };
 #define DATAR atommem, &datar_m
 #define DATARI8 atommem, &datari8_m
 #define DATARI16 atommem, &datari16_m
@@ -142,6 +145,9 @@ static struct mem datasp32_m = { "D", 0, &sp_r, &off32_bf };
 #define DATA8SP atommem, &datasp8_m
 #define DATA16SP atommem, &datasp16_m
 #define DATA32SP atommem, &datasp32_m
+#define DATA8SPR atommem, &dataspr8_m
+#define DATA16SPR atommem, &dataspr16_m
+#define DATA32SPR atommem, &dataspr32_m
 
 /*
  * MMIO space
@@ -282,6 +288,13 @@ static struct insn tabdatarr[] = {
 	{ AP, 0, 0, OOPS },
 };
 
+static struct insn tabdataspr[] = {
+	{ AP, 0x00000000, 0x000000c0, DATA8SPR },
+	{ AP, 0x00000040, 0x000000c0, DATA16SPR },
+	{ AP, 0x00000080, 0x000000c0, DATA32SPR },
+	{ AP, 0, 0, OOPS },
+};
+
 static struct insn tabsi[] = {
 	{ AP, 0x00000000, 0x0000003f, OP24, N("st"), T(sz), T(datari), REG1 },
 	{ AP, 0x00000000, 0x00000030, OP24, OOPS, T(sz), REG1, REG2, IMM8 },
@@ -336,7 +349,8 @@ static struct insn tabsi[] = {
 	{ AP, 0x00030039, 0x000f003f, OP24, N("hswap"), T(sz), REG1, REG2 }, /* swap halves - ie. rotate by half the size in bits. */
 	{ AP, 0x00000039, 0x0000003f, OP24, OOPS, T(sz), REG1, REG2 },
 
-	{ AP, 0x0000003a, 0x0000003f, OP24, OOPS, T(sz) },
+	{ AP, 0x0000003a, 0x000f003f, OP24, N("ld"), T(sz), REG2, T(dataspr) },
+	{ AP, 0x0000003a, 0x0000003f, OP24, OOPS, T(sz), REG2, REG1 },
 
 	{ AP, 0x0000003b, 0x000f003f, OP24, N("add"), T(sz), REG2, REG1 },
 	{ AP, 0x0001003b, 0x000f003f, OP24, N("adc"), T(sz), REG2, REG1 },
