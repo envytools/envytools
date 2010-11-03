@@ -377,9 +377,6 @@ ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx);
 uint32_t readle32 (uint8_t *);
 uint16_t readle16 (uint8_t *);
 
-void markct8(struct disctx *ctx, uint32_t ptr);
-void markbt8(struct disctx *ctx, uint32_t ptr);
-
 #define VP 1
 #define GP 2
 #define FP 4

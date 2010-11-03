@@ -40,6 +40,12 @@ char *cbtarg = "\x1b[0;35m";	// pink: jump labels
 char *cctarg = "\x1b[1;37m";	// white: call labels
 char *cbctarg = "\x1b[1;35m";	// white: call and jump labels
 
+void mark(struct disctx *ctx, uint32_t ptr, int m) {
+	if (ptr < ctx->codebase || ptr > ctx->codebase + ctx->codesz)
+		return;
+	ctx->marks[ptr - ctx->codebase] |= m;
+}
+
 struct matches *emptymatches() {
 	struct matches *res = calloc(sizeof *res, 1);
 	return res;
@@ -285,7 +291,7 @@ struct matches *atomctarg APROTO {
 	if (ctx->reverse)
 		return matchimm(ctx, bf, spos);
 	ull num = GETBF(bf);
-	markct8(ctx, num);
+	mark(ctx, num, 2);
 	if (!ctx->out)
 		return;
 	fprintf (ctx->out, " %s%#llx", cctarg, num);
@@ -296,7 +302,7 @@ struct matches *atombtarg APROTO {
 	if (ctx->reverse)
 		return matchimm(ctx, bf, spos);
 	ull num = GETBF(bf);
-	markbt8(ctx, num);
+	mark(ctx, num, 1);
 	if (!ctx->out)
 		return;
 	fprintf (ctx->out, " %s%#llx", cbtarg, num);
@@ -763,18 +769,6 @@ uint32_t readle32 (uint8_t *p) {
 
 uint16_t readle16 (uint8_t *p) {
 	return p[0] | p[1] << 8;
-}
-
-void markct8(struct disctx *ctx, uint32_t ptr) {
-	if (ptr < ctx->codebase || ptr > ctx->codebase + ctx->codesz)
-		return;
-	ctx->marks[ptr - ctx->codebase] |= 2;
-}
-
-void markbt8(struct disctx *ctx, uint32_t ptr) {
-	if (ptr < ctx->codebase || ptr > ctx->codebase + ctx->codesz)
-		return;
-	ctx->marks[ptr - ctx->codebase] |= 1;
 }
 
 /*
