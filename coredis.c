@@ -837,6 +837,7 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 					for (i = 0; i < 8 && cur + i < num; i++) {
 						a |= (ull)code[cur + i] << i*8;
 					}
+					ctx->oplen = 0;
 					ctx->pos = cur / isa->posunit + start;
 					ctx->endmark = 0;
 					atomtab (ctx, &a, &m, isa->troot, 0);
@@ -855,6 +856,7 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 			for (i = 0; i < 8 && cur + i < num; i++) {
 				a |= (ull)code[cur + i] << i*8;
 			}
+			ctx->oplen = 0;
 			ctx->pos = cur / isa->posunit + start;
 			atomtab (ctx, &a, &m, isa->troot, 0);
 			if (ctx->oplen)
@@ -884,7 +886,12 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 		}
 		ctx->oplen = 0;
 		ctx->pos = cur / isa->posunit + start;
+		ctx->atomsnum = 0;
+		ctx->endmark = 0;
 		atomtab (ctx, &a, &m, isa->troot, 0);
+
+		if (ctx->endmark)
+			active = 0;
 
 		if (ctx->marks[cur / isa->posunit] & 2)
 			fprintf (out, "\n");
@@ -928,18 +935,11 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 		} else if (quiet == 1) {
 			if (ctx->marks[cur / isa->posunit])
 				fprintf (out, "\n");
-			fprintf(out, "\t");
 		}
 
-		ctx->atomsnum = 0;
-
-		ctx->endmark = 0;
-		atomtab (ctx, &a, &m, isa->troot, 0);
-		if (ctx->endmark)
-			active = 0;
-
 		for (i = 0; i < ctx->atomsnum; i++) {
-			fprintf (out, " ");
+			if (i || !quiet)
+				fprintf (out, " ");
 			printexpr(out, ctx->atoms[i], 0);
 		}
 
