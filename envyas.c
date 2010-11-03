@@ -83,7 +83,11 @@ int resolve (struct disctx *ctx, ull *val, struct match m, ull pos) {
 		num >>= bf->sbf[0].len;
 		setsbf(&m, bf->sbf[1].pos, bf->sbf[1].len, num);
 		ctx->pos = pos;
-		if (getbf(bf, &m.a, &m.m, ctx) != val)
+		ull mask = ~0ull;
+		ull totalsz = bf->shr + bf->sbf[0].len + bf->sbf[1].len;
+		if (bf->wrapok && totalsz < 64)
+			mask = (1ull << totalsz) - 1;
+		if ((getbf(bf, &m.a, &m.m, ctx) & mask) != (val & mask))
 			return 0;
 	}
 	*val = m.a;
