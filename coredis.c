@@ -24,6 +24,7 @@
  */
 
 #include "dis.h"
+#include <stdarg.h>
 
 /*
  * Color scheme
@@ -39,6 +40,18 @@ char *cunk = "\x1b[1;31m";	// red: unknown stuff
 char *cbtarg = "\x1b[0;35m";	// pink: jump labels
 char *cctarg = "\x1b[1;37m";	// white: call labels
 char *cbctarg = "\x1b[1;35m";	// white: call and jump labels
+
+char *aprint(const char *format, ...) {
+	va_list va;
+	va_start(va, format);
+	size_t sz = vsnprintf(0, 0, format, va);
+	va_end(va);
+	char *res = malloc(sz + 1);
+	va_start(va, format);
+	vsnprintf(res, sz + 1, format, va);
+	va_end(va);
+	return res;
+}
 
 void mark(struct disctx *ctx, uint32_t ptr, int m) {
 	if (ptr < ctx->codebase || ptr > ctx->codebase + ctx->codesz)
@@ -179,8 +192,9 @@ struct matches *matchid(struct disctx *ctx, int spos, const char *v) {
 
 struct matches *atomname APROTO {
 	if (!ctx->reverse) {
-		if (ctx->out)
-			fprintf (ctx->out, " %s%s", cname, (const char *)v);
+		struct expr *expr = makeex(EXPR_ID);
+		expr->str = v;
+		RNN_ADDARRAY(ctx->atoms, expr);
 	} else {
 		return matchid(ctx, spos, v);
 	}
@@ -188,8 +202,10 @@ struct matches *atomname APROTO {
 
 struct matches *atomcmd APROTO {
 	if (!ctx->reverse) {
-		if (ctx->out)
-			fprintf (ctx->out, " %s%s", cnum, (const char *)v);
+		struct expr *expr = makeex(EXPR_ID);
+		expr->str = v;
+		expr->special = 1;
+		RNN_ADDARRAY(ctx->atoms, expr);
 	} else {
 		return matchid(ctx, spos, v);
 	}
@@ -198,8 +214,10 @@ struct matches *atomcmd APROTO {
 struct matches *atomunk APROTO {
 	if (ctx->reverse)
 		return 0;
-	if (ctx->out)
-		fprintf (ctx->out, " %s%s", cunk, (const char *)v);
+	struct expr *expr = makeex(EXPR_ID);
+	expr->str = v;
+	expr->special = 2;
+	RNN_ADDARRAY(ctx->atoms, expr);
 }
 
 int setsbf (struct match *res, int pos, int len, ull num) {
@@ -277,35 +295,31 @@ struct matches *atomimm APROTO {
 	const struct bitfield *bf = v;
 	if (ctx->reverse)
 		return matchimm(ctx, bf, spos);
-	if (!ctx->out)
-		return;
-	ull num = GETBF(bf);
-	if (num & 1ull << 63)
-		fprintf (ctx->out, " %s-%#llx", cnum, -num);
-	else
-		fprintf (ctx->out, " %s%#llx", cnum, num);
+	struct expr *expr = makeex(EXPR_NUM);
+	expr->num1 = GETBF(bf);
+	RNN_ADDARRAY(ctx->atoms, expr);
 }
 
 struct matches *atomctarg APROTO {
 	const struct bitfield *bf = v;
 	if (ctx->reverse)
 		return matchimm(ctx, bf, spos);
-	ull num = GETBF(bf);
-	mark(ctx, num, 2);
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %s%#llx", cctarg, num);
+	struct expr *expr = makeex(EXPR_NUM);
+	expr->num1 = GETBF(bf);
+	mark(ctx, expr->num1, 2);
+	expr->special = 2;
+	RNN_ADDARRAY(ctx->atoms, expr);
 }
 
 struct matches *atombtarg APROTO {
 	const struct bitfield *bf = v;
 	if (ctx->reverse)
 		return matchimm(ctx, bf, spos);
-	ull num = GETBF(bf);
-	mark(ctx, num, 1);
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " %s%#llx", cbtarg, num);
+	struct expr *expr = makeex(EXPR_NUM);
+	expr->num1 = GETBF(bf);
+	mark(ctx, expr->num1, 1);
+	expr->special = 1;
+	RNN_ADDARRAY(ctx->atoms, expr);
 }
 
 struct matches *atomign APROTO {
@@ -394,7 +408,8 @@ int matchshreg (struct match *res, const struct reg *reg, const struct expr *exp
 }
 
 // print reg if non-0, ignore otherwise. return 1 if printed anything.
-static int printreg (struct disctx *ctx, ull *a, ull *m, const struct reg *reg) {
+static struct expr *printreg (struct disctx *ctx, ull *a, ull *m, const struct reg *reg) {
+	struct expr *expr;
 	ull num = 0;
 	if (reg->bf)
 		num = GETBF(reg->bf);
@@ -404,20 +419,24 @@ static int printreg (struct disctx *ctx, ull *a, ull *m, const struct reg *reg) 
 			if (num == reg->specials[i].num) {
 				switch (reg->specials[i].mode) {
 					case SR_NAMED:
-						fprintf (ctx->out, "%s$%s", creg1, reg->specials[i].name);
-						return 1;
+						expr = makeex(EXPR_REG);
+						expr->str = reg->specials[i].name;
+						expr->special = 1;
+						return expr;
 					case SR_ZERO:
 						return 0;
 					case SR_ONE:
-						fprintf (ctx->out, "%s1", cnum);
-						return 1;
+						expr = makeex(EXPR_NUM);
+						expr->num1 = 1;
+						return expr;
 					case SR_DISCARD:
-						fprintf (ctx->out, "%s#", creg0);
-						return 1;
+						expr = makeex(EXPR_DISCARD);
+						return expr;
 				}
 			}
 		}
 	}
+	expr = makeex(EXPR_REG);
 	const char *suf = "";
 	if (reg->suffix)
 		suf = reg->suffix;
@@ -428,14 +447,14 @@ static int printreg (struct disctx *ctx, ull *a, ull *m, const struct reg *reg) 
 			suf = "l";
 		num >>= 1;
 	}
-	const char *color = (reg->cool?creg1:creg0);
+	expr->special = reg->cool;
 	if (reg->always_special)
-		color = cunk;
+		expr->special = 2;
 	if (reg->bf)
-		fprintf (ctx->out, "%s$%s%lld%s", color, reg->name, num, suf);
+		expr->str = aprint("%s%lld%s", reg->name, num, suf);
 	else
-		fprintf (ctx->out, "%s$%s%s", color, reg->name, suf);
-	return 1;
+		expr->str = aprint("%s%s", reg->name, suf);
+	return expr;
 }
 
 struct matches *atomreg APROTO {
@@ -452,11 +471,9 @@ struct matches *atomreg APROTO {
 			return 0;
 		}
 	}
-	if (!ctx->out)
-		return;
-	fprintf (ctx->out, " ");
-	if (!printreg(ctx, a, m, reg))
-		fprintf (ctx->out, "%s0", cnum);
+	struct expr *expr = printreg(ctx, a, m, reg);
+	if (!expr) expr = makeex(EXPR_NUM);
+	RNN_ADDARRAY(ctx->atoms, expr);
 }
 
 int addexpr (const struct expr **iex, const struct expr *expr, int flip) {
@@ -502,49 +519,58 @@ int matchmemaddr(const struct expr **iex, const struct expr **niex1, const struc
 struct matches *atommem APROTO {
 	const struct mem *mem = v;
 	if (!ctx->reverse) {
-		if (!ctx->out)
-			return;
-		int anything = 0;
-		fprintf (ctx->out, " ");
-		if (mem->name) {
-			fprintf (ctx->out, "%s%s", cmem, mem->name);
-			if (mem->idx)
-				fprintf (ctx->out, "%lld", GETBF(mem->idx));
-			fprintf (ctx->out, "[");
-		}
+		struct expr *expr = 0;
 		if (mem->reg)
-			anything = printreg(ctx, a, m, mem->reg);
+			expr = printreg(ctx, a, m, mem->reg);
 		if (mem->imm) {
 			ull imm = GETBF(mem->imm);
 			if (mem->postincr) {
-				if (imm & 1ull << 63)
-					fprintf (ctx->out, "%s--%s%#llx", cmem, cnum, -imm);
-				else if (anything)
-					fprintf (ctx->out, "%s++%s%#llx", cmem, cnum, imm);
-				anything = 1;
+				struct expr *sexpr = makeex(EXPR_NUM);
+				if (imm & 1ull << 63) {
+					sexpr->num1 = -imm;
+					expr = makebinex(EXPR_PISUB, expr, sexpr);
+				} else {
+					sexpr->num1 = imm;
+					expr = makebinex(EXPR_PIADD, expr, sexpr);
+				}
 			} else if (imm) {
-				if (imm & 1ull << 63)
-					fprintf (ctx->out, "%s-%s%#llx", cmem, cnum, -imm);
-				else if (anything)
-					fprintf (ctx->out, "%s+%s%#llx", cmem, cnum, imm);
-				else
-					fprintf (ctx->out, "%s%#llx", cnum, imm);
-				anything = 1;
+				struct expr *sexpr = makeex(EXPR_NUM);
+				if (expr) {
+					if (imm & 1ull << 63) {
+						sexpr->num1 = -imm;
+						expr = makebinex(EXPR_SUB, expr, sexpr);
+					} else {
+						sexpr->num1 = imm;
+						expr = makebinex(EXPR_ADD, expr, sexpr);
+					}
+				} else {
+					sexpr->num1 = imm;
+					expr = sexpr;
+				}
 			}
 		}
 		if (mem->reg2) {
-			if (anything)
-				fprintf (ctx->out, "%s+", cmem);
-			if (!printreg(ctx, a, m, mem->reg2))
-				fprintf (ctx->out, "%s0", cnum);
-			if (mem->reg2shr)
-				fprintf (ctx->out, "%s*%s%#llx", cmem, cnum, 1ull << mem->reg2shr);
-			anything = 1;
+			struct expr *sexpr = printreg(ctx, a, m, mem->reg2);
+			if (mem->reg2shr) {
+				struct expr *ssexpr = makeex(EXPR_NUM);
+				ssexpr->num1 = 1ull << mem->reg2shr;
+				sexpr = makebinex(EXPR_MUL, sexpr, ssexpr);
+			}
+			if (expr)
+				expr = makebinex(EXPR_ADD, expr, sexpr);
+			else
+				expr = sexpr;
 		}
-		if (!anything)
-			fprintf (ctx->out, "%s0", cnum);
-		if (mem->name)
-			fprintf (ctx->out, "%s]", cmem);
+		if (!expr) expr = makeex(EXPR_NUM);
+		if (mem->name) {
+			struct expr *nex = makeex(EXPR_MEM);
+			nex->expr1 = expr;
+			nex->str = mem->name;
+			if (mem->idx)
+				nex->str = aprint("%s%lld", nex->str, GETBF(mem->idx));
+			expr = nex;
+		}
+		RNN_ADDARRAY(ctx->atoms, expr);
 	} else {
 		if (spos == ctx->line->atomsnum)
 			return 0;
@@ -638,21 +664,25 @@ struct matches *atommem APROTO {
 struct matches *atomvec APROTO {
 	const struct vec *vec = v;
 	if (!ctx->reverse) {
-		if (!ctx->out)
-			return;
+		struct expr *expr = makeex(EXPR_VEC);
 		ull base = GETBF(vec->bf);
 		ull cnt = GETBF(vec->cnt);
 		ull mask = -1ull;
 		if (vec->mask)
 			mask = GETBF(vec->mask);
 		int k = 0, i;
-		fprintf (ctx->out, " %s{", cnorm);
-		for (i = 0; i < cnt; i++)
-			if (mask & 1ull<<i)
-				fprintf (ctx->out, " %s$%s%lld", (vec->cool?creg1:creg0), vec->name, base+k++);
-			else
-				fprintf (ctx->out, " %s#", creg0);
-		fprintf (ctx->out, " %s}", cnorm);
+		for (i = 0; i < cnt; i++) {
+			if (mask & 1ull<<i) {
+				struct expr *sexpr = makeex(EXPR_REG);
+				sexpr->special = vec->cool;
+				sexpr->str = aprint("%s%lld", vec->name,  base + k++);
+				RNN_ADDARRAY(expr->vexprs, sexpr);
+			} else {
+				struct expr *sexpr = makeex(EXPR_DISCARD);
+				RNN_ADDARRAY(expr->vexprs, sexpr);
+			}
+		}
+		RNN_ADDARRAY(ctx->atoms, expr);
 	} else {
 		if (spos == ctx->line->atomsnum)
 			return 0;
@@ -705,11 +735,10 @@ struct matches *atomvec APROTO {
 struct matches *atombf APROTO {
 	const struct bitfield *bf = v;
 	if (!ctx->reverse) {
-		if (!ctx->out)
-			return;
-		uint32_t i = GETBF(&bf[0]);
-		uint32_t j = GETBF(&bf[1]);
-		fprintf (ctx->out, " %s%d:%d", cnum, i, i+j);
+		struct expr *expr = makeex(EXPR_BITFIELD);
+		expr->num1 = GETBF(&bf[0]);
+		expr->num2 = GETBF(&bf[1]);
+		RNN_ADDARRAY(ctx->atoms, expr);
 	} else {
 		if (spos == ctx->line->atomsnum)
 			return 0;
@@ -850,90 +879,95 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 			skip = 0;
 		}
 		ull a = 0, m = 0;
-		ctx->out = 0;
 		for (i = 0; i < 8 && cur + i < num; i++) {
 			a |= (ull)code[cur + i] << i*8;
 		}
 		ctx->oplen = 0;
 		ctx->pos = cur / isa->posunit + start;
 		atomtab (ctx, &a, &m, isa->troot, 0);
-		ctx->out = out;
 
 		if (ctx->marks[cur / isa->posunit] & 2)
-			fprintf (ctx->out, "\n");
+			fprintf (out, "\n");
 		switch (ctx->marks[cur / isa->posunit] & 3) {
 			case 0:
 				if (!quiet)
-					fprintf (ctx->out, "%s%08x:%s", cnorm, cur / isa->posunit + start, cnorm);
+					fprintf (out, "%s%08x:%s", cnorm, cur / isa->posunit + start, cnorm);
 				break;
 			case 1:
-				fprintf (ctx->out, "%s%08x:%s", cbtarg, cur / isa->posunit + start, cnorm);
+				fprintf (out, "%s%08x:%s", cbtarg, cur / isa->posunit + start, cnorm);
 				break;
 			case 2:
-				fprintf (ctx->out, "%s%08x:%s", cctarg, cur / isa->posunit + start, cnorm);
+				fprintf (out, "%s%08x:%s", cctarg, cur / isa->posunit + start, cnorm);
 				break;
 			case 3:
-				fprintf (ctx->out, "%s%08x:%s", cbctarg, cur / isa->posunit + start, cnorm);
+				fprintf (out, "%s%08x:%s", cbctarg, cur / isa->posunit + start, cnorm);
 				break;
 		}
 
 		if (!quiet) {
 			for (i = 0; i < isa->maxoplen; i += isa->opunit) {
-				fprintf (ctx->out, " ");
+				fprintf (out, " ");
 				for (j = isa->opunit - 1; j >= 0; j--)
 					if (i+j && i+j >= ctx->oplen)
-						fprintf (ctx->out, "  ");
+						fprintf (out, "  ");
 					else if (cur+i+j >= num)
-						fprintf (ctx->out, "%s??", cunk);
+						fprintf (out, "%s??", cunk);
 					else
-						fprintf (ctx->out, "%s%02x", cnorm, code[cur + i + j]);
+						fprintf (out, "%s%02x", cnorm, code[cur + i + j]);
 			}
-			fprintf (ctx->out, "  ");
+			fprintf (out, "  ");
 
 			if (ctx->marks[cur / isa->posunit] & 2)
-				fprintf (ctx->out, "%sC", cctarg);
+				fprintf (out, "%sC", cctarg);
 			else
-				fprintf (ctx->out, " ");
+				fprintf (out, " ");
 			if (ctx->marks[cur / isa->posunit] & 1)
-				fprintf (ctx->out, "%sB", cbtarg);
+				fprintf (out, "%sB", cbtarg);
 			else
-				fprintf (ctx->out, " ");
+				fprintf (out, " ");
 		} else if (quiet == 1) {
 			if (ctx->marks[cur / isa->posunit])
-				fprintf (ctx->out, "\n");
-			fprintf(ctx->out, "\t");
+				fprintf (out, "\n");
+			fprintf(out, "\t");
 		}
+
+		ctx->atomsnum = 0;
 
 		ctx->endmark = 0;
 		atomtab (ctx, &a, &m, isa->troot, 0);
 		if (ctx->endmark)
 			active = 0;
 
+		for (i = 0; i < ctx->atomsnum; i++) {
+			fprintf (out, " ");
+			printexpr(out, ctx->atoms[i], 0);
+		}
+
 		if (ctx->oplen) {
 			a &= ~m;
 			if (ctx->oplen < 8)
 				a &= (1ull << ctx->oplen * 8) - 1;
 			if (a) {
-				fprintf (ctx->out, " %s[unknown:", cunk);
+				fprintf (out, " %s[unknown:", cunk);
 				for (i = 0; i < ctx->oplen || i == 0; i += isa->opunit) {
-					fprintf (ctx->out, " ");
+					fprintf (out, " ");
 					for (j = isa->opunit - 1; j >= 0; j--)
 						if (cur+i+j >= num)
-							fprintf (ctx->out, "??");
+							fprintf (out, "??");
 						else
-							fprintf (ctx->out, "%02llx", (a >> (i + j) * 8) & 0xff);
+							fprintf (out, "%02llx", (a >> (i + j) * 8) & 0xff);
 				}
-				fprintf (ctx->out, "]");
+				fprintf (out, "]");
 			}
 			if (cur + ctx->oplen > num) {
-				fprintf (ctx->out, " %s[incomplete]%s", cunk, cnorm);
+				fprintf (out, " %s[incomplete]%s", cunk, cnorm);
 			}
 			cur += ctx->oplen;
 		} else {
-			fprintf (ctx->out, " %s[unknown op length]%s", cunk, cnorm);
+			fprintf (out, " %s[unknown op length]%s", cunk, cnorm);
 			cur++;
 		}
-		fprintf (ctx->out, "%s\n", cnorm);
+		fprintf (out, "%s\n", cnorm);
 	}
 	free(ctx->marks);
 }

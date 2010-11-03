@@ -208,7 +208,6 @@ struct label {
 
 struct disctx {
 	struct disisa *isa;
-	FILE *out;
 	uint8_t *code8;
 	uint32_t *code32;
 	uint64_t *code64;
@@ -223,6 +222,9 @@ struct disctx {
 	struct label *labels;
 	int labelsnum;
 	int labelsmax;
+	struct expr **atoms;
+	int atomsnum;
+	int atomsmax;
 	int endmark;
 };
 
@@ -275,7 +277,7 @@ struct expr {
 		EXPR_PIADD,
 		EXPR_PISUB,
 	} type;
-	char *str;
+	const char *str;
 	ull num1, num2;
 	const struct expr *expr1;
 	const struct expr *expr2;
@@ -283,6 +285,7 @@ struct expr {
 	int vexprsnum;
 	int vexprsmax;
 	int isimm;
+	int special;
 };
 
 static inline struct expr *makeex(enum etype type) {
@@ -398,5 +401,6 @@ extern struct disisa *vp3t_isa;
 extern struct disisa *macro_isa;
 
 void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int ptype, int quiet, struct label *labels, int labelsnum);
+void printexpr(FILE *out, const struct expr *expr, int lvl);
 
 #endif

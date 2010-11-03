@@ -24,6 +24,7 @@
  */
 
 #include "dis.h"
+#include "rnn.h"
 
 /*
  * Immediate fields
@@ -38,23 +39,23 @@ static int staoff[] = { 0xdeaddead };
 static struct matches *atomst16 APROTO {
 	if (ctx->reverse)
 		return 0;
-	if (!ctx->out)
-		return;
 	int *n = (int*)v;
 	ull num = BF(8, 16);
 	n[0] &= 0xffff0000;
 	n[0] |= num;
-	fprintf (ctx->out, " %s%#x", cnum, n[0]);
+	struct expr *expr = makeex(EXPR_NUM);
+	expr->num1 = num;
+	RNN_ADDARRAY(ctx->atoms, expr);
 }
 static struct matches *atomst32 APROTO {
 	if (ctx->reverse)
 		return 0;
-	if (!ctx->out)
-		return;
 	int *n = (int*)v;
 	ull num = BF(8, 32);
 	n[0] = num;
-	fprintf (ctx->out, " %s%#x", cnum, n[0]);
+	struct expr *expr = makeex(EXPR_NUM);
+	expr->num1 = num;
+	RNN_ADDARRAY(ctx->atoms, expr);
 }
 
 static struct insn tabm[] = {

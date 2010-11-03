@@ -13,7 +13,7 @@ add_flex_bison_dependency(envylex envyparse)
 include_directories(.)
 
 add_library(rnn rnn.c rnndec.c)
-add_library(envy coredis.c nv50dis.c nvc0dis.c ctxdis.c fucdis.c pmsdis.c vp2dis.c vp3mdis.c vp3tdis.c macrodis.c)
+add_library(envy coredis.c nv50dis.c nvc0dis.c ctxdis.c fucdis.c pmsdis.c vp2dis.c vp3mdis.c vp3tdis.c macrodis.c envyprint.c)
 
 add_executable(envydis envydis.c)
 add_executable(demmio demmio.c)
