@@ -877,7 +877,7 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 			continue;
 		}
 		if (skip) {
-			printf("%s[%x bytes skipped]\n", cnorm, skip);
+			fprintf(out, "%s[%x bytes skipped]\n", cnorm, skip);
 			skip = 0;
 		}
 		ull a = 0, m = 0;
