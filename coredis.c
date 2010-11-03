@@ -152,6 +152,15 @@ struct matches *atomopl APROTO {
 	}
 }
 
+struct matches *atomendmark APROTO {
+	if (!ctx->reverse) {
+		ctx->endmark = 1;
+	} else {
+		struct matches *res = alwaysmatches(spos);
+		return res;
+	}
+}
+
 struct matches *matchid(struct disctx *ctx, int spos, const char *v) {
 	if (spos == ctx->line->atomsnum)
 		return 0;

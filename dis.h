@@ -223,6 +223,7 @@ struct disctx {
 	struct label *labels;
 	int labelsnum;
 	int labelsmax;
+	int endmark;
 };
 
 struct disisa {
@@ -341,6 +342,9 @@ extern int op32len[];
 extern int op40len[];
 extern int op64len[];
 struct matches *atomopl APROTO;
+
+struct matches *atomendmark APROTO;
+#define ENDMARK atomendmark, 0
 
 #define N(x) atomname, x
 struct matches *atomname APROTO;
