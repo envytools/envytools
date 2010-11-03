@@ -37,6 +37,7 @@
  */
 
 int main(int argc, char **argv) {
+	FILE *infile = stdin;
 	struct disisa *isa = 0;
 	struct label *labels = 0;
 	int labelsnum = 0;
@@ -161,6 +162,17 @@ int main(int argc, char **argv) {
 					break;
 				}
 		}
+	if (optind < argc) {
+		if (!(infile = fopen(argv[optind], "r"))) {
+			perror(argv[optind]);
+			return 1;
+		}
+		optind++;
+		if (optind < argc) {
+			fprintf (stderr, "Too many parameters!\n");
+			return 1;
+		}
+	}
 	if (!isa) {
 		fprintf (stderr, "No architecture specified!\n");
 		return 1;
@@ -171,12 +183,12 @@ int main(int argc, char **argv) {
 	ull t;
 	if (bin) {
 		int c;
-		while ((c = getchar()) != EOF) {
+		while ((c = getc(infile)) != EOF) {
 			if (num + 3 >= maxnum) maxnum *= 2, code = realloc (code, maxnum);
 			code[num++] = c;
 		}
 	} else {
-		while (!feof(stdin) && scanf ("%llx", &t) == 1) {
+		while (!feof(infile) && fscanf (infile, "%llx", &t) == 1) {
 			if (num + 3 >= maxnum) maxnum *= 2, code = realloc (code, maxnum);
 			if (w == 2) {
 				code[num++] = t & 0xff;
@@ -204,7 +216,7 @@ int main(int argc, char **argv) {
 				code[num++] = t & 0xff;
 			} else
 				code[num++] = t;
-			scanf (" ,");
+			fscanf (infile, " ,");
 		}
 	}
 	if (num <= skip)

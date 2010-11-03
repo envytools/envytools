@@ -13,6 +13,8 @@ enum {
 
 int envyas_ptype = -1;
 
+char *envyas_outname = 0;
+
 ull calc (const struct expr *expr, struct disctx *ctx) {
 	int i;
 	ull x;
@@ -337,37 +339,45 @@ int envyas_process(struct file *file) {
 			}
 		}
 	} while (!allok);
+	FILE *outfile = stdout;
+	if (envyas_outname) {
+		if (!(outfile = fopen(envyas_outname, "w"))) {
+			perror(envyas_outname);
+			return 1;
+		}
+	}
+
 	for (i = 0; i < sectionsnum; i++) {
 		if (!strcmp(sections[i].name, "default") && !sections[i].pos)
 			continue;
 		if (envyas_ofmt == OFMT_RAW)
-			fwrite (sections[i].code, 1, sections[i].pos, stdout);
+			fwrite (sections[i].code, 1, sections[i].pos, outfile);
 		else {
 			if (envyas_ofmt == OFMT_CHEX8) {
-				printf ("uint8_t %s[] = {\n", sections[i].name);
+				fprintf (outfile, "uint8_t %s[] = {\n", sections[i].name);
 			}
 			if (envyas_ofmt == OFMT_CHEX32) {
-				printf ("uint32_t %s[] = {\n", sections[i].name);
+				fprintf (outfile, "uint32_t %s[] = {\n", sections[i].name);
 			}
 			if (envyas_ofmt == OFMT_CHEX32 || envyas_ofmt == OFMT_HEX32) {
 				for (j = 0; j < sections[i].pos; j+=4) {
 					uint32_t val;
 					val = sections[i].code[j] | sections[i].code[j+1] << 8 | sections[i].code[j+2] << 16 | sections[i].code[j+3] << 24;
 					if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32)
-						printf ("\t");
-					printf ("0x%08x,\n", val);
+						fprintf (outfile, "\t");
+					fprintf (outfile, "0x%08x,\n", val);
 				}
 			} else {
 				for (j = 0; j < sections[i].pos; j++) {
 					if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32)
-						printf ("\t");
-					printf ("0x%02x,\n", sections[i].code[j]);
+						fprintf (outfile, "\t");
+					fprintf (outfile, "0x%02x,\n", sections[i].code[j]);
 				}
 			}
 			if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32) {
-				printf ("};\n");
+				fprintf (outfile, "};\n");
 				if (i != sectionsnum - 1)
-					printf("\n");
+					fprintf(outfile, "\n");
 			}
 		}
 	}
@@ -401,7 +411,7 @@ int main(int argc, char **argv) {
 	int ptype = -1;
 	int c;
 	unsigned base = 0, skip = 0, limit = 0;
-	while ((c = getopt (argc, argv, "45vgfpcsam:wi")) != -1)
+	while ((c = getopt (argc, argv, "45vgfpcsam:o:wi")) != -1)
 		switch (c) {
 			case '4':
 				ptype = NV4x;
@@ -458,7 +468,21 @@ int main(int argc, char **argv) {
 					return 1;
 				}
 				break;
+			case 'o':
+				envyas_outname = optarg;
+				break;
 		}
+	if (optind < argc) {
+		if (!freopen(argv[optind], "r", stdin)) {
+			perror(argv[optind]);
+			return 1;
+		}
+		optind++;
+		if (optind < argc) {
+			fprintf (stderr, "Too many parameters!\n");
+			return 1;
+		}
+	}
 	if (!envyas_isa) {
 		fprintf (stderr, "No architecture specified!\n");
 		return 1;
