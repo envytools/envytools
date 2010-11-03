@@ -36,7 +36,7 @@ static int yywrap(void) {
 ")"				{ ws = 0; return ')'; }
 "{"				{ ws = 1; return '{'; }
 "}"				{ ws = 0; return '}'; }
-[a-zA-Z_0-9]*"["		{ ws = 0; yytext[strlen(yytext)-1] = 0; yylval.str = strdup(yytext); return T_MEM; }
+[a-zA-Z_0-9]*"["		{ ws = 1; yytext[strlen(yytext)-1] = 0; yylval.str = strdup(yytext); return T_MEM; }
 "]"				{ ws = 0; return ']'; }
 ":"				{ ws = 0; return ':'; }
 ";"				{ ws = 0; return ';'; }
