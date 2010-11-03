@@ -433,7 +433,7 @@ static struct insn tabm[] = {
 	{ AP, 0x000009f0, 0x00000ffe, T(ol0), N("bset"), REG2, T(i) },
 	{ AP, 0x00000af0, 0x00000ffe, T(ol0), N("bclr"), REG2, T(i) },
 	{ AP, 0x00000bf0, 0x00000ffe, T(ol0), N("btgl"), REG2, T(i) },
-	{ AP, 0x00000cf0, 0x00000ffe, T(ol0), N("set"), REG2, T(fl) },
+	{ AP, 0x00000cf0, 0x00000ffe, T(ol0), N("set"), REG2, FLAGS, T(fl) },
 	{ AP, 0x000000f0, 0x000000fe, T(ol0), OOPS, REG2, T(i) },
 
 	{ AP, 0x000008f2, 0x00000fff, OP24, N("setp"), T(fl), REG2 }, /* set given flag if bit0 of ARG2 set */
@@ -474,25 +474,25 @@ static struct insn tabm[] = {
 	{ AP, 0x00000cf2, 0x00000fff, OP24, OOPS, REG2 },
 	{ AP, 0x000000f2, 0x000000ff, OP24, OOPS, REG2, IMM8 },
 
-	{ AP, 0x000000f4, 0x0000e0fe, T(ol0), N("bra"), T(p), T(bt) },
-	{ AP, 0x000020f4, 0x0000fffe, T(ol0), N("bra"), T(abt) },
-	{ AP, 0x000021f4, 0x0000fffe, T(ol0), N("call"), T(ct) },
-	{ AP, 0x000028f4, 0x0000fffe, T(ol0), N("sleep"), T(fl) }, /* sleeps while given flag is true */
-	{ AP, 0x000030f4, 0x0000fffe, T(ol0), N("add"), SP, T(is) },
-	{ AP, 0x000031f4, 0x0000fffe, T(ol0), N("bset"), FLAGS, T(fl) },
-	{ AP, 0x000032f4, 0x0000fffe, T(ol0), N("bclr"), FLAGS, T(fl) },
-	{ AP, 0x000033f4, 0x0000fffe, T(ol0), N("btgl"), FLAGS, T(fl) },
-	{ AP, 0x00003cf4, 0x0000ffff, T(ol0), N("cxset"), IMM8 },
-	{ AP, 0x00003cf5, 0x0000ffff, T(ol0), T(cocmd) },
+	{ AP, 0x000000f4, 0x000020fe, T(ol0), N("bra"), T(p), T(bt) },
+	{ AP, 0x000020f4, 0x00003ffe, T(ol0), N("bra"), T(abt) },
+	{ AP, 0x000021f4, 0x00003ffe, T(ol0), N("call"), T(ct) },
+	{ AP, 0x000028f4, 0x00003ffe, T(ol0), N("sleep"), T(fl) }, /* sleeps while given flag is true */
+	{ AP, 0x000030f4, 0x00003ffe, T(ol0), N("add"), SP, T(is) },
+	{ AP, 0x000031f4, 0x00003ffe, T(ol0), N("bset"), FLAGS, T(fl) },
+	{ AP, 0x000032f4, 0x00003ffe, T(ol0), N("bclr"), FLAGS, T(fl) },
+	{ AP, 0x000033f4, 0x00003ffe, T(ol0), N("btgl"), FLAGS, T(fl) },
+	{ AP, 0x00003cf4, 0x00003fff, T(ol0), N("cxset"), IMM8 },
+	{ AP, 0x00003cf5, 0x00003fff, T(ol0), T(cocmd) },
 	{ AP, 0x000000f4, 0x000000fe, T(ol0), OOPS, T(i) },
 
-	{ AP, 0x000000f8, 0x0000ffff, OP16, N("ret") },
-	{ AP, 0x000001f8, 0x0000ffff, OP16, N("iret") },
-	{ AP, 0x000002f8, 0x0000ffff, OP16, N("exit") },
-	{ AP, 0x000003f8, 0x0000ffff, OP16, N("xdwait") },
-	{ AP, 0x000006f8, 0x0000ffff, OP16, U("f8/6") },
-	{ AP, 0x000007f8, 0x0000ffff, OP16, N("xcwait") },
-	{ AP, 0x000008f8, 0x0000fcff, OP16, N("trap"), STRAP },
+	{ AP, 0x000000f8, 0x00000fff, OP16, N("ret") },
+	{ AP, 0x000001f8, 0x00000fff, OP16, N("iret") },
+	{ AP, 0x000002f8, 0x00000fff, OP16, N("exit") },
+	{ AP, 0x000003f8, 0x00000fff, OP16, N("xdwait") },
+	{ AP, 0x000006f8, 0x00000fff, OP16, U("f8/6") },
+	{ AP, 0x000007f8, 0x00000fff, OP16, N("xcwait") },
+	{ AP, 0x000008f8, 0x00000cff, OP16, N("trap"), STRAP },
 	{ AP, 0x000000f8, 0x000000ff, OP16, OOPS },
 
 	{ AP, 0x000000f9, 0x00000fff, OP16, N("push"), REG2 },
@@ -528,24 +528,25 @@ static struct insn tabm[] = {
 	{ AP, 0x000400fa, 0x000f00ff, OP24, N("xcld"), REG2, REG1 },
 	{ AP, 0x000500fa, 0x000f00ff, OP24, N("xdld"), REG2, REG1 },
 	{ AP, 0x000600fa, 0x000f00ff, OP24, N("xdst"), REG2, REG1 },
+	{ AP, 0x000800fa, 0x000f00ff, OP24, N("setp"), REG1, REG2 }, /* set given flag if bit0 of ARG2 set */
 	{ AP, 0x000000fa, 0x000000ff, OP24, OOPS, REG2, REG1 },
 
 	{ AP, 0x000000fc, 0x00000fff, OP16, N("pop"), REG2 },
 	{ AP, 0x000000fc, 0x000000ff, OP16, OOPS, REG2 },
 
-	{ AP, 0x000000fd, 0x000f00ff, OP24, N("mulu"), REG2, REG1 },
-	{ AP, 0x000100fd, 0x000f00ff, OP24, N("muls"), REG2, REG1 },
-	{ AP, 0x000200fd, 0x000f00ff, OP24, N("sex"), REG2, REG1 },
-	{ AP, 0x000400fd, 0x000f00ff, OP24, N("and"), REG2, REG1 },
-	{ AP, 0x000500fd, 0x000f00ff, OP24, N("or"), REG2, REG1 },
-	{ AP, 0x000600fd, 0x000f00ff, OP24, N("xor"), REG2, REG1 },
-	{ AP, 0x000900fd, 0x000f00ff, OP24, N("bset"), REG2, REG1 },
-	{ AP, 0x000a00fd, 0x000f00ff, OP24, N("bclr"), REG2, REG1 },
-	{ AP, 0x000b00fd, 0x000f00ff, OP24, N("btgl"), REG2, REG1 },
+	{ AP, 0x000000fd, 0x000f00ff, OP24, N("mulu"), REG2, REG1 }, /* no flags */
+	{ AP, 0x000100fd, 0x000f00ff, OP24, N("muls"), REG2, REG1 }, /* no flags */
+	{ AP, 0x000200fd, 0x000f00ff, OP24, N("sex"), REG2, REG1 }, /* flags: SZ */
+	{ AP, 0x000400fd, 0x000f00ff, OP24, N("and"), REG2, REG1 }, /* flags: COSZ [CO: 0] */
+	{ AP, 0x000500fd, 0x000f00ff, OP24, N("or"), REG2, REG1 }, /* flags: COSZ [CO: 0] */
+	{ AP, 0x000600fd, 0x000f00ff, OP24, N("xor"), REG2, REG1 }, /* flags: COSZ [CO: 0] */
+	{ AP, 0x000900fd, 0x000f00ff, OP24, N("bset"), REG2, REG1 }, /* no flags */
+	{ AP, 0x000a00fd, 0x000f00ff, OP24, N("bclr"), REG2, REG1 }, /* no flags */
+	{ AP, 0x000b00fd, 0x000f00ff, OP24, N("btgl"), REG2, REG1 }, /* no flags */
 	{ AP, 0x000000fd, 0x000000ff, OP24, OOPS, REG2, REG1 },
 
-	{ AP, 0x000000fe, 0x00ff00ff, OP24, N("mov"), SREG1, REG2 },
-	{ AP, 0x000100fe, 0x00ff00ff, OP24, N("mov"), REG1, SREG2 },
+	{ AP, 0x000000fe, 0x000f00ff, OP24, N("mov"), SREG1, REG2 },
+	{ AP, 0x000100fe, 0x000f00ff, OP24, N("mov"), REG1, SREG2 },
 	/*
 	 * REG1 = info about physical page in REG2, REG2 in pages
 	 *
@@ -556,7 +557,7 @@ static struct insn tabm[] = {
 	 *  	1: present: mapped to virtual address and usable
 	 *  	2: busy: mapped to virtual address, but in the process of uploading stuff. will hang if used.
 	 */
-	{ AP, 0x000200fe, 0x00ff00ff, OP24, N("ptlb"), REG1, REG2 },
+	{ AP, 0x000200fe, 0x000f00ff, OP24, N("ptlb"), REG1, REG2 }, /* no flags */
 	/*
 	 * REG1 = info about virtual address in REG2, REG2 in bytes
 	 *
@@ -569,21 +570,22 @@ static struct insn tabm[] = {
 	 *  bit 31: no match
 	 *  	didn't find any physical page
 	 */
-	{ AP, 0x000300fe, 0x00ff00ff, OP24, N("vtlb"), REG1, REG2 },
+	{ AP, 0x000300fe, 0x000f00ff, OP24, N("vtlb"), REG1, REG2 }, /* no flags */
+	{ AP, 0x000c00fe, 0x000f00ff, OP24, N("set"), REG1, FLAGS, REG2 }, /* flags: SZ, sets dst to 1 if given bit set in $flags. XXX: check nv98 */
 	{ AP, 0x000000fe, 0x000000ff, OP24, OOPS, REG1, REG2 },
 
-	{ AP, 0x000000ff, 0x000f00ff, OP24, N("mulu"), REG3, REG2, REG1 },
-	{ AP, 0x000100ff, 0x000f00ff, OP24, N("muls"), REG3, REG2, REG1 },
-	{ AP, 0x000200ff, 0x000f00ff, OP24, N("sex"), REG3, REG2, REG1 },
-	{ AP, 0x000300ff, 0x000f00ff, OP24, N("extrs"), REG3, REG2, REG1 },
-	{ AP, 0x000400ff, 0x000f00ff, OP24, N("and"), REG3, REG2, REG1 },
-	{ AP, 0x000500ff, 0x000f00ff, OP24, N("or"), REG3, REG2, REG1 },
-	{ AP, 0x000600ff, 0x000f00ff, OP24, N("xor"), REG3, REG2, REG1 },
-	{ AP, 0x000700ff, 0x000f00ff, OP24, N("extr"), REG3, REG2, REG1 },
-	{ AP, 0x000800ff, 0x000f00ff, OP24, N("xbit"), REG3, REG2, REG1 }, /* NV98: ARG1 = (ARG1 & 0xfffffffe) | (ARG2 >> ARG3 & 1) ; NVA3+: ARG1 = ARG2 >> ARG3 & 1 */
-	{ AP, 0x000c00ff, 0x000f00ff, OP24, N("div"), REG3, REG2, REG1 },
-	{ AP, 0x000d00ff, 0x000f00ff, OP24, N("mod"), REG3, REG2, REG1 },
-	{ AP, 0x000f00ff, 0x000f00ff, OP24, N("iord"), REG3, IORR },
+	{ AP, 0x000000ff, 0x000f00ff, OP24, N("mulu"), REG3, REG2, REG1 }, /* no flags */
+	{ AP, 0x000100ff, 0x000f00ff, OP24, N("muls"), REG3, REG2, REG1 }, /* no flags */
+	{ AP, 0x000200ff, 0x000f00ff, OP24, N("sex"), REG3, REG2, REG1 }, /* flags: SZ */
+	{ AP, 0x000300ff, 0x000f00ff, OP24, N("extrs"), REG3, REG2, REG1 }, /* flags: SZ */
+	{ AP, 0x000400ff, 0x000f00ff, OP24, N("and"), REG3, REG2, REG1 }, /* flags: COSZ [CO: 0] */
+	{ AP, 0x000500ff, 0x000f00ff, OP24, N("or"), REG3, REG2, REG1 }, /* flags: COSZ [CO: 0] */
+	{ AP, 0x000600ff, 0x000f00ff, OP24, N("xor"), REG3, REG2, REG1 }, /* flags: COSZ [CO: 0] */
+	{ AP, 0x000700ff, 0x000f00ff, OP24, N("extr"), REG3, REG2, REG1 }, /* flags: SZ */
+	{ AP, 0x000800ff, 0x000f00ff, OP24, N("xbit"), REG3, REG2, REG1 }, /* flags: SZ, NV98: ARG1 = (ARG1 & 0xfffffffe) | (ARG2 >> ARG3 & 1) ; NVA3+: ARG1 = ARG2 >> ARG3 & 1 */
+	{ AP, 0x000c00ff, 0x000f00ff, OP24, N("div"), REG3, REG2, REG1 }, /* no flags */
+	{ AP, 0x000d00ff, 0x000f00ff, OP24, N("mod"), REG3, REG2, REG1 }, /* no flags */
+	{ AP, 0x000f00ff, 0x000f00ff, OP24, N("iord"), REG3, IORR }, /* no flags */
 	{ AP, 0x000000ff, 0x000000ff, OP24, OOPS, REG3, REG2, REG1 },
 
 	{ AP, 0, 0, OOPS },
