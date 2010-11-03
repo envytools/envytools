@@ -32,6 +32,7 @@
  * - code density [complete]
  * - loop [complete]
  * - 16-bit integer multiply [complete]
+ * - misc operations [minmax] [complete]
  * - boolean [complete]
  * - exception [complete]
  * - interrupt [complete]
@@ -314,6 +315,10 @@ static struct insn tabm[] = {
 	{ AP, 0x420000, 0xff000f, N("xorb"), BRR, BRS, BRT },
 	{ AP, 0x030000, 0xff000f, N("rsr"), REGT, SREG },
 	{ AP, 0x130000, 0xff000f, N("wsr"), REGT, SREG },
+	{ AP, 0x430000, 0xff000f, N("min"), REGR, REGS, REGT },
+	{ AP, 0x530000, 0xff000f, N("max"), REGR, REGS, REGT },
+	{ AP, 0x630000, 0xff000f, N("minu"), REGR, REGS, REGT },
+	{ AP, 0x730000, 0xff000f, N("maxu"), REGR, REGS, REGT },
 	{ AP, 0x830000, 0xff000f, N("moveqz"), REGR, REGS, REGT },
 	{ AP, 0x930000, 0xff000f, N("movnez"), REGR, REGS, REGT },
 	{ AP, 0xa30000, 0xff000f, N("movltz"), REGR, REGS, REGT },
