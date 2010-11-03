@@ -38,6 +38,9 @@
 
 int main(int argc, char **argv) {
 	struct disisa *isa = 0;
+	struct label *labels = 0;
+	int labelsnum = 0;
+	int labelsmax = 0;
 	int w = 0, bin = 0, quiet = 0;
 	argv[0] = basename(argv[0]);
 	if (!strcmp(argv[0], "nv50dis")) {
@@ -69,7 +72,7 @@ int main(int argc, char **argv) {
 	int ptype = -1;
 	int c;
 	unsigned base = 0, skip = 0, limit = 0;
-	while ((c = getopt (argc, argv, "45vgfpcsb:d:l:m:wWinq")) != -1)
+	while ((c = getopt (argc, argv, "45vgfpcsb:d:l:m:wWinqu:")) != -1)
 		switch (c) {
 			case '4':
 				ptype = NV4x;
@@ -150,6 +153,13 @@ int main(int argc, char **argv) {
 					return 1;
 				}
 				break;
+			case 'u':
+				{
+					struct label nl;
+					sscanf(optarg, "%llx", &nl.val);
+					RNN_ADDARRAY(labels, nl);
+					break;
+				}
 		}
 	if (!isa) {
 		fprintf (stderr, "No architecture specified!\n");
@@ -202,6 +212,6 @@ int main(int argc, char **argv) {
 	int cnt = num - skip;
 	if (limit && limit < cnt)
 		cnt = limit;
-	envydis (isa, stdout, code+skip, base, cnt, ptype, quiet);
+	envydis (isa, stdout, code+skip, base, cnt, ptype, quiet, labels, labelsnum);
 	return 0;
 }

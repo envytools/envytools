@@ -778,7 +778,7 @@ uint16_t readle16 (uint8_t *p) {
  * FILE*.
  */
 
-void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int ptype, int quiet)
+void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int ptype, int quiet, struct label *labels, int labelsnum)
 {
 	struct disctx c = { 0 };
 	struct disctx *ctx = &c;
@@ -789,20 +789,66 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 	ctx->codesz = num;
 	ctx->ptype = ptype;
 	ctx->isa = isa;
-	while (cur < num) {
-		ull a = 0, m = 0;
-		for (i = 0; i < 8 && cur + i < num; i++) {
-			a |= (ull)code[cur + i] << i*8;
+	if (labels) {
+		for (i = 0; i < labelsnum; i++)
+			mark(ctx, labels[i].val, 4);
+		int done;
+		do {
+			done = 1;
+			cur = 0;
+			int active = 0;
+			while (cur < num) {
+				if (!active && (ctx->marks[cur / isa->posunit] & 7) && !(ctx->marks[cur / isa->posunit] & 8)) {
+					done = 0;
+					active = 1;
+					ctx->marks[cur / isa->posunit] |= 8;
+				}
+				if (active) {
+					ull a = 0, m = 0;
+					for (i = 0; i < 8 && cur + i < num; i++) {
+						a |= (ull)code[cur + i] << i*8;
+					}
+					ctx->pos = cur / isa->posunit + start;
+					ctx->endmark = 0;
+					atomtab (ctx, &a, &m, isa->troot, 0);
+					if (ctx->oplen && !ctx->endmark)
+						cur += ctx->oplen;
+					else
+						active = 0;
+				} else {
+					cur++;
+				}
+			}
+		} while (!done);
+	} else {
+		while (cur < num) {
+			ull a = 0, m = 0;
+			for (i = 0; i < 8 && cur + i < num; i++) {
+				a |= (ull)code[cur + i] << i*8;
+			}
+			ctx->pos = cur / isa->posunit + start;
+			atomtab (ctx, &a, &m, isa->troot, 0);
+			if (ctx->oplen)
+				cur += ctx->oplen;
+			else
+				cur++;
 		}
-		ctx->pos = cur / isa->posunit + start;
-		atomtab (ctx, &a, &m, isa->troot, 0);
-		if (ctx->oplen)
-			cur += ctx->oplen;
-		else
-			cur++;
 	}
 	cur = 0;
+	int active = 0;
+	int skip = 0;
 	while (cur < num) {
+		if (!active && ctx->marks[cur / isa->posunit])
+			active = 1;
+		if (!active && labels) {
+			cur++;
+			skip++;
+			continue;
+		}
+		if (skip) {
+			printf("%s[%x bytes skipped]\n", cnorm, skip);
+			skip = 0;
+		}
 		ull a = 0, m = 0;
 		ctx->out = 0;
 		for (i = 0; i < 8 && cur + i < num; i++) {
@@ -858,7 +904,10 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 			fprintf(ctx->out, "\t");
 		}
 
+		ctx->endmark = 0;
 		atomtab (ctx, &a, &m, isa->troot, 0);
+		if (ctx->endmark)
+			active = 0;
 
 		if (ctx->oplen) {
 			a &= ~m;

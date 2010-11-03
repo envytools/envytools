@@ -397,6 +397,6 @@ extern struct disisa *vp3m_isa;
 extern struct disisa *vp3t_isa;
 extern struct disisa *macro_isa;
 
-void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int ptype, int quiet);
+void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int ptype, int quiet, struct label *labels, int labelsnum);
 
 #endif
