@@ -525,6 +525,7 @@ struct matches *atommem APROTO {
 		if (mem->imm) {
 			ull imm = GETBF(mem->imm);
 			if (mem->postincr) {
+				if (!expr) expr = makeex(EXPR_NUM);
 				struct expr *sexpr = makeex(EXPR_NUM);
 				if (imm & 1ull << 63) {
 					sexpr->num1 = -imm;
