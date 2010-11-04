@@ -430,11 +430,11 @@
 			</reg32>
 		</stripe>
 
-		<stripe length="4" stride="64">
+		<stripe name="TEX" length="4" stride="64">
 			<doc> Texture units. </doc>
 
-			<reg32 offset="0x1b00" name="TEX_OFFSET"/>
-			<reg32 offset="0x1b04" name="TEX_FORMAT">
+			<reg32 offset="0x1b00" name="OFFSET"/>
+			<reg32 offset="0x1b04" name="FORMAT">
 				<bitfield name="DMA0" pos="0" type="boolean"/>
 				<bitfield name="DMA1" pos="1" type="boolean"/>
 				<bitfield name="CUBIC" pos="2" type="boolean"/>
@@ -446,31 +446,31 @@
 				<bitfield name="BASE_SIZE_V" high="27" low="24" type="int"/>
 				<bitfield name="BASE_SIZE_W" high="31" low="28" type="int"/>
 			</reg32>
-			<reg32 offset="0x1b08" name="TEX_WRAP">
+			<reg32 offset="0x1b08" name="WRAP">
 				<bitfield name="S" high="7" low="0" type="nv04_tex_wrap"/>
 				<bitfield name="T" high="11" low="8" type="nv04_tex_wrap"/>
 				<bitfield name="R" high="19" low="16" type="nv04_tex_wrap"/>
 			</reg32>
-			<reg32 offset="0x1b0c" name="TEX_ENABLE">
+			<reg32 offset="0x1b0c" name="ENABLE">
 				<bitfield name="ANISO" high="5" low="4" type="nv20_tex_anisotropy"/>
 				<bitfield name="MIPMAP_MAX_LOD" high="17" low="14" type="int"/>
 				<bitfield name="MIPMAP_MIN_LOD" high="29" low="26" type="int"/>
 				<bitfield name="ENABLE" pos="30" type="boolean"/>
 			</reg32>
-			<reg32 offset="0x1b10" name="TEX_NPOT_PITCH">
+			<reg32 offset="0x1b10" name="NPOT_PITCH">
 				<bitfield name="PITCH" high="31" low="16" type="int"/>
 			</reg32>
-			<reg32 offset="0x1b14" name="TEX_FILTER">
+			<reg32 offset="0x1b14" name="FILTER">
 				<bitfield name="LOD_BIAS" high="11" low="8" type="int"/>
 				<bitfield name="MINIFY" high="19" low="16" type="nv04_tex_min_filter"/>
 				<bitfield name="MAGNIFY" high="27" low="24" type="nv04_tex_mag_filter"/>
 			</reg32>
-			<reg32 offset="0x1b1c" name="TEX_NPOT_SIZE">
+			<reg32 offset="0x1b1c" name="NPOT_SIZE">
 				<bitfield name="H" high="15" low="0" type="int"/>
 				<bitfield name="W" high="31" low="16" type="int"/>
 			</reg32>
-			<reg32 offset="0x1b20" name="TEX_PALETTE_OFFSET"/>
-			<reg32 offset="0x1b24" name="TEX_BORDER_COLOR" type="argb8"/>
+			<reg32 offset="0x1b20" name="PALETTE_OFFSET"/>
+			<reg32 offset="0x1b24" name="BORDER_COLOR" type="argb8"/>
 		</stripe>
 
 		<stripe>

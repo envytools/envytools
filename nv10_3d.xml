@@ -371,11 +371,11 @@
 			</stripe>
 		</stripe>
 
-		<stripe length="2" stride="4">
+		<stripe name="TEX" length="2" stride="4">
 			<doc> Texture units. </doc>
 
-			<reg32 offset="0x0218" name="TEX_OFFSET"/>
-			<reg32 offset="0x0220" name="TEX_FORMAT">
+			<reg32 offset="0x0218" name="OFFSET"/>
+			<reg32 offset="0x0220" name="FORMAT">
 				<bitfield name="DMA0" pos="0" type="boolean"/>
 				<bitfield name="DMA1" pos="1" type="boolean"/>
 				<bitfield name="CUBE_MAP" pos="2" type="boolean"/>
@@ -386,26 +386,26 @@
 				<bitfield name="WRAP_S" high="27" low="24" type="nv04_tex_wrap"/>
 				<bitfield name="WRAP_T" high="31" low="28" type="nv04_tex_wrap"/>
 			</reg32>
-			<reg32 offset="0x0228" name="TEX_ENABLE">
+			<reg32 offset="0x0228" name="ENABLE">
 				<bitfield name="CULL" high="3" low="0" type="nv10_tex_cull_mode"/>
 				<bitfield name="ANISOTROPY" high="5" low="4" type="int"/>
 				<bitfield name="MIPMAP_MAX_LOD" high="17" low="14" type="int"/>
 				<bitfield name="MIPMAP_MIN_LOD" high="29" low="26" type="int"/>
 				<bitfield name="ENABLE" pos="30" type="boolean"/>
 			</reg32>
-			<reg32 offset="0x0230" name="TEX_NPOT_PITCH">
+			<reg32 offset="0x0230" name="NPOT_PITCH">
 				<bitfield name="PITCH" high="31" low="16" type="int"/>
 			</reg32>
-			<reg32 offset="0x0240" name="TEX_NPOT_SIZE">
+			<reg32 offset="0x0240" name="NPOT_SIZE">
 				<bitfield name="H" high="15" low="0" type="int"/>
 				<bitfield name="W" high="31" low="16" type="int"/>
 			</reg32>
-			<reg32 offset="0x0248" name="TEX_FILTER">
+			<reg32 offset="0x0248" name="FILTER">
 				<bitfield name="LOD_BIAS" high="11" low="8" type="int"/>
 				<bitfield name="MINIFY" high="27" low="24" type="nv04_tex_min_filter"/>
 				<bitfield name="MAGNIFY" high="31" low="28" type="nv04_tex_mag_filter"/>
 			</reg32>
-			<reg32 offset="0x0250" name="TEX_PALETTE_OFFSET"/>
+			<reg32 offset="0x0250" name="PALETTE_OFFSET"/>
 		</stripe>
 
 		<stripe>
