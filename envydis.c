@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
 	int ptype = -1;
 	int c;
 	unsigned base = 0, skip = 0, limit = 0;
-	while ((c = getopt (argc, argv, "45vgfpcsb:d:l:m:wWinqu:")) != -1)
+	while ((c = getopt (argc, argv, "45vgfpcsb:d:l:m:wWinqu:M:")) != -1)
 		switch (c) {
 			case '4':
 				ptype = NV4x;
@@ -154,10 +154,39 @@ int main(int argc, char **argv) {
 					return 1;
 				}
 				break;
+			case 'M':
+				{
+					FILE *mapfile = fopen(optarg, "r");
+					if (!mapfile) {
+						perror(optarg);
+						return 1;
+					}
+					struct label nl;
+					char type;
+					while (fscanf(mapfile, " %c%llx", &type, &nl.val) == 2) {
+						switch (type) {
+							case 'B':
+								nl.type = 1;
+								break;
+							case 'C':
+								nl.type = 2;
+								break;
+							case 'E':
+								nl.type = 4;
+								break;
+							default:
+								fprintf (stderr, "Unknown label type %c\n", type);
+								return 1;
+						}
+						RNN_ADDARRAY(labels, nl);
+					}
+					break;
+				}
 			case 'u':
 				{
 					struct label nl;
 					sscanf(optarg, "%llx", &nl.val);
+					nl.type = 1;
 					RNN_ADDARRAY(labels, nl);
 					break;
 				}

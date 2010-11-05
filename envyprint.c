@@ -36,6 +36,9 @@ void printexpr(FILE *out, const struct expr *expr, int lvl) {
 				case 2:
 					fprintf(out, "%s", cctarg);
 					break;
+				case 3:
+					fprintf(out, "%s", cmem);
+					break;
 				default:
 					fprintf(out, "%s", cnum);
 					break;

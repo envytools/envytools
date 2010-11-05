@@ -572,6 +572,20 @@ struct matches *atommem APROTO {
 			expr = nex;
 		}
 		RNN_ADDARRAY(ctx->atoms, expr);
+		if (mem->literal && expr->expr1->type == EXPR_NUM) {
+			ull ptr = expr->expr1->num1;
+			mark(ctx, ptr, 0x10);
+			if (ptr < ctx->codebase || ptr > ctx->codebase + ctx->codesz)
+				return;
+			uint32_t num = 0;
+			int j;
+			for (j = 0; j < 4; j++)
+				num |= ctx->code8[(ptr - ctx->codebase) * ctx->isa->posunit + j] << j*8;
+			expr = makeex(EXPR_NUM);
+			expr->num1 = num;
+			expr->special = 3;
+			RNN_ADDARRAY(ctx->atoms, expr);
+		}
 	} else {
 		if (spos == ctx->line->atomsnum)
 			return 0;
@@ -821,14 +835,14 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 	ctx->isa = isa;
 	if (labels) {
 		for (i = 0; i < labelsnum; i++)
-			mark(ctx, labels[i].val, 4);
+			mark(ctx, labels[i].val, labels[i].type);
 		int done;
 		do {
 			done = 1;
 			cur = 0;
 			int active = 0;
 			while (cur < num) {
-				if (!active && (ctx->marks[cur / isa->posunit] & 7) && !(ctx->marks[cur / isa->posunit] & 8)) {
+				if (!active && (ctx->marks[cur / isa->posunit] & 3) && !(ctx->marks[cur / isa->posunit] & 8)) {
 					done = 0;
 					active = 1;
 					ctx->marks[cur / isa->posunit] |= 8;
@@ -842,7 +856,7 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 					ctx->pos = cur / isa->posunit + start;
 					ctx->endmark = 0;
 					atomtab (ctx, &a, &m, isa->troot, 0);
-					if (ctx->oplen && !ctx->endmark)
+					if (ctx->oplen && !ctx->endmark && !(ctx->marks[cur / isa->posunit] & 4))
 						cur += ctx->oplen;
 					else
 						active = 0;
@@ -868,18 +882,42 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 	}
 	cur = 0;
 	int active = 0;
-	int skip = 0;
+	int skip = 0, nonzero = 0;
 	while (cur < num) {
-		if (!active && ctx->marks[cur / isa->posunit])
+		if (ctx->marks[cur / isa->posunit] & 0x10) {
+			if (skip) {
+				if (nonzero)
+					fprintf(out, "%s[%x bytes skipped]\n", cunk, skip);
+				else
+					fprintf(out, "%s[%x zero bytes skipped]\n", cnorm, skip);
+				skip = 0;
+				nonzero = 0;
+			}
+			fprintf (out, "%s%08x:%s", cnum, cur / isa->posunit + start, cnorm);
+			uint32_t val = 0;
+			for (i = 0; i < 4 && cur + i < num; i++) {
+				val |= code[cur + i] << i*8;
+			}
+			fprintf (out, " %s%08x\n", cmem, val);
+			cur += 4 / isa->posunit;
+			continue;
+		}
+		if (!active && ctx->marks[cur / isa->posunit] & 7)
 			active = 1;
 		if (!active && labels) {
+			if (code[cur])
+				nonzero = 1;
 			cur++;
 			skip++;
 			continue;
 		}
 		if (skip) {
-			fprintf(out, "%s[%x bytes skipped]\n", cnorm, skip);
+			if (nonzero)
+				fprintf(out, "%s[%x bytes skipped]\n", cunk, skip);
+			else
+				fprintf(out, "%s[%x zero bytes skipped]\n", cnorm, skip);
 			skip = 0;
+			nonzero = 0;
 		}
 		ull a = 0, m = 0;
 		for (i = 0; i < 8 && cur + i < num; i++) {
@@ -891,7 +929,7 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 		ctx->endmark = 0;
 		atomtab (ctx, &a, &m, isa->troot, 0);
 
-		if (ctx->endmark)
+		if (ctx->endmark || ctx->marks[cur / isa->posunit] & 4)
 			active = 0;
 
 		if (ctx->marks[cur / isa->posunit] & 2)

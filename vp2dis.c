@@ -226,7 +226,7 @@ static struct bitfield datacl_imm = { { 20, 4 }, BF_UNSIGNED, 4 };
 static struct bitfield data32_imm = { { 16, 8 }, BF_UNSIGNED, 2 };
 static struct bitfield data16_imm = { { 16, 8 }, BF_UNSIGNED, 1 };
 static struct bitfield data8_imm = { { 16, 8 }, BF_UNSIGNED, 0 };
-static struct mem l32r_m = { "", 0, 0, &l32r_imm };
+static struct mem l32r_m = { "", 0, 0, &l32r_imm, .literal = 1 };
 static struct mem data32e_m = { "", 0, &as_r, &data32e_imm };
 static struct mem data32n_m = { "", 0, &as_r, &data32n_imm };
 static struct mem datacl_m = { "", 0, &as_r, &datacl_imm };

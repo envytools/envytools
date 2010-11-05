@@ -160,6 +160,7 @@ struct mem {
 	const struct reg *reg2;
 	int reg2shr;
 	int postincr; // nv50dis hack.
+	int literal;
 };
 
 struct vec {
@@ -204,6 +205,7 @@ struct match {
 struct label {
 	const char *name;
 	ull val;
+	int type;
 };
 
 struct disctx {
