@@ -248,6 +248,54 @@
 	<reg8 offset="0x80000" name="PBUS_PMS_NEW_CODE" length="0x200" variants="NV92-"/>
 
 	<array offset="0x88000" name="PBUS_PCI" stride="0x1000" length="1" variants="NV40-">
+		<reg32 offset="0" name="PCIID">
+			<bitfield low="0" high="15" name="VENDOR"/>
+			<bitfield low="16" high="31" name="DEVICE"/>
+		</reg32>
+		<reg32 offset="4" name="CMD_STA"><!-- see PCI docs for other bits -->
+			<bitfield low="0" high="15" name="COMMAND">
+				<bitfield pos="0" name="IO"/>
+				<bitfield pos="1" name="MEMORY"/>
+				<bitfield pos="2" name="MASTER"/>
+				<bitfield pos="6" name="PARITY"/>
+			</bitfield>
+			<bitfield low="16" high="31" name="STATUS">
+				<bitfield pos="4" name="CAP_LIST"/>
+				<bitfield pos="8" name="PARITY"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x2c" name="SUBSYSTEM_ID">
+			<bitfield low="0" high="15" name="VENDOR"/>
+			<bitfield low="16" high="31" name="SUBSYSTEM"/>
+		</reg32>
+		<reg32 offset="0x10" name="BAR" length="6"/>
+		<reg32 offset="0x88" name="LINK">
+			<bitfield high="15" low="0" name="CTL">
+				<bitfield high="1" low="0" name="ASPM"/>
+				<bitfield pos="3" name="RCB"/><!-- Read Completion Boundary -->
+				<bitfield pos="4" name="DISABLE"/>
+				<bitfield pos="5" name="RETRAIN"/>
+				<bitfield pos="6" name="CLOCK"/><!-- Common Clock Configuration -->
+				<bitfield pos="7" name="XSYNCH"/><!-- Extended Synch -->
+				<bitfield pos="8" name="CLOCKPM"/>
+				<bitfield pos="9" name="HWAUTWD"/><!-- Hardware Autonomous Width Disable -->
+				<bitfield pos="10" name="BWMIE"/><!-- Bandwidth Mgmt Interrupt Enable -->
+				<bitfield pos="11" name="AUTBWIE"/><!-- Autonomous Bandwidth Mgmt IntrEn -->
+			</bitfield>
+			<bitfield high="31" low="16" name="STA">
+				<bitfield high="3" low="0" name="SPEED">
+					<value value="1" name="2.5GT/s"/>
+					<value value="2" name="5.0GT/s"/>
+				</bitfield>
+				<bitfield high="9" low="4" name="WIDTH" type="int"/>
+				<bitfield pos="10" name="TERR"/><!-- Training Error -->
+				<bitfield pos="11" name="TRAIN"/>
+				<bitfield pos="12" name="SL_CLK"/><!-- Slot Clock Configuration -->
+				<bitfield pos="13" name="DL_ACT"/><!-- Data Link Layer State -->
+				<bitfield pos="14" name="BWMGMT"/><!-- Bandwidth Mgmt Status -->
+				<bitfield pos="15" name="AUTBW"/><!-- Autonomous Bandwidth Mgmt -->
+			</bitfield>
+		</reg32>
 	</array>
 
 	<array offset="0x101000" name="PEXTDEV" stride="0x1000" length="1">

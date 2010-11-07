@@ -513,7 +513,7 @@ int matchmemaddr(const struct expr **iex, const struct expr **niex1, const struc
 		*niex2 = expr;
 	else
 		return 0;
-
+	return 1;
 }
 
 struct matches *atommem APROTO {

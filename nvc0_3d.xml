@@ -369,6 +369,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x15f4" name="VERTEX_BASE_HIGH"/>
 		<reg32 offset="0x15f8" name="VERTEX_BASE_LOW"/>
+		<reg32 offset="0x1604" name="POINT_COORD_REPLACE"><!-- applies to v[0x2c0] and up -->
+			<bitfield name="BITS" high="12" low="0"/>
+		</reg32>
 		<reg32 offset="0x1608" name="CODE_ADDRESS_HIGH"/>
 		<reg32 offset="0x160c" name="CODE_ADDRESS_LOW"/>
 		<reg32 offset="0x1614" name="VERTEX_END_GL">
