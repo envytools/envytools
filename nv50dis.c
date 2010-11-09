@@ -348,7 +348,7 @@ static struct sreg sreg_sr[] = {
 	{ 5, "pm1" },
 	{ 6, "pm2" },
 	{ 7, "pm3" },
-	{ 8, "sampleid" }, // NVA3+
+	{ 8, "sampleid", .vartype = NVA3P },
 	{ -1 },
 };
 static struct bitfield sdst_bf = { 2, 6 };

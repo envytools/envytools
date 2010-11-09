@@ -140,6 +140,7 @@ struct sreg {
 		SR_ONE,
 		SR_DISCARD,
 	} mode;
+	int vartype;
 };
 
 struct reg {

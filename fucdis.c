@@ -56,7 +56,7 @@ static struct sreg sreg_sr[] = {
 	{ 9, "cx" },
 	{ 0xa, "cauth" },
 	{ 0xb, "xtargets" },
-	{ 0xc, "tstatus" }, // NVA3+
+	{ 0xc, "tstatus", .vartype = NVA3P },
 	{ -1 },
 };
 static struct bitfield reg1_bf = { 8, 4 };

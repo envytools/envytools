@@ -329,10 +329,12 @@ struct matches *atomign APROTO {
 	(void)BF(n[0], n[1]);
 }
 
-int matchreg (struct match *res, const struct reg *reg, const struct expr *expr) {
+int matchreg (struct match *res, const struct reg *reg, const struct expr *expr, struct disctx *ctx) {
 	if (reg->specials) {
 		int i = 0;
 		for (i = 0; reg->specials[i].num != -1; i++) {
+			if (reg->specials[i].vartype && !(reg->specials[i].vartype & ctx->vartype))
+				continue;
 			switch (reg->specials[i].mode) {
 				case SR_NAMED:
 					if (expr->type == EXPR_REG && !strcmp(expr->str, reg->specials[i].name))
@@ -378,7 +380,7 @@ int matchreg (struct match *res, const struct reg *reg, const struct expr *expr)
 		return !num;
 }
 
-int matchshreg (struct match *res, const struct reg *reg, const struct expr *expr, int shl) {
+int matchshreg (struct match *res, const struct reg *reg, const struct expr *expr, int shl, struct disctx *ctx) {
 	ull sh = 0;
 	while (1) {
 		if (expr->type == EXPR_SHL && expr->expr2->type == EXPR_NUM) {
@@ -404,7 +406,7 @@ int matchshreg (struct match *res, const struct reg *reg, const struct expr *exp
 	}
 	if (sh != shl)
 		return 0;
-	return matchreg(res, reg, expr);
+	return matchreg(res, reg, expr, ctx);
 }
 
 // print reg if non-0, ignore otherwise. return 1 if printed anything.
@@ -416,6 +418,8 @@ static struct expr *printreg (struct disctx *ctx, ull *a, ull *m, const struct r
 	if (reg->specials) {
 		int i;
 		for (i = 0; reg->specials[i].num != -1; i++) {
+			if (reg->specials[i].vartype && !(reg->specials[i].vartype & ctx->vartype))
+				continue;
 			if (num == reg->specials[i].num) {
 				switch (reg->specials[i].mode) {
 					case SR_NAMED:
@@ -463,7 +467,7 @@ struct matches *atomreg APROTO {
 		if (spos == ctx->line->atomsnum)
 			return 0;
 		struct matches *res = alwaysmatches(spos+1);
-		if (matchreg(res->m, reg, ctx->line->atoms[spos]))
+		if (matchreg(res->m, reg, ctx->line->atoms[spos], ctx))
 			return res;
 		else {
 			free(res->m);
@@ -647,9 +651,9 @@ struct matches *atommem APROTO {
 			if (!niex2)
 				niex2 = &e0;
 			struct match sres = res;
-			if (!matchreg(&res, mem->reg, niex1) || !matchshreg(&res, mem->reg2, niex2, mem->reg2shr)) {
+			if (!matchreg(&res, mem->reg, niex1, ctx) || !matchshreg(&res, mem->reg2, niex2, mem->reg2shr, ctx)) {
 				res = sres;
-				if (!matchreg(&res, mem->reg, niex2) || !matchshreg(&res, mem->reg2, niex1, mem->reg2shr))
+				if (!matchreg(&res, mem->reg, niex2, ctx) || !matchshreg(&res, mem->reg2, niex1, mem->reg2shr, ctx))
 					return 0;
 			}
 		} else if (mem->reg) {
@@ -657,14 +661,14 @@ struct matches *atommem APROTO {
 				return 0;
 			if (!niex1)
 				niex1 = &e0;
-			if (!matchreg(&res, mem->reg, niex1))
+			if (!matchreg(&res, mem->reg, niex1, ctx))
 				return 0;
 		} else if (mem->reg2) {
 			if (niex2)
 				return 0;
 			if (!niex1)
 				niex1 = &e0;
-			if (!matchshreg(&res, mem->reg2, niex1, mem->reg2shr))
+			if (!matchshreg(&res, mem->reg2, niex1, mem->reg2shr, ctx))
 				return 0;
 		} else {
 			if (niex1 || niex2)
