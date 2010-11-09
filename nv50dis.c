@@ -425,14 +425,6 @@ static struct reg sreg_r = { &sreg_bf, "sr", .specials = sreg_sr, .always_specia
 #define SAMP atomreg, &samp_r
 #define SREG atomreg, &sreg_r
 
-static int getareg (ull *a, ull *m, int l) {
-	int r = BF(0x1a, 2);
-	if (l) {
-		r |= BF(0x22, 1)<<2;
-	}
-	return r;
-}
-
 static struct bitfield tdst_cnt = { .addend = 4 };
 static struct bitfield ltdst_mask = { { 0x19, 2, 0x2e, 2 } };
 static struct bitfield tsrc_cnt = { { 0x16, 2 }, .addend = 1 };
