@@ -112,55 +112,55 @@ F1(exit, 7, N("exit"));
 
 /* various stuff that can be done to result of arith/logic operations */
 static struct insn tabdst[] = {
-	{ AP, 0x00000000, 0x00000070, N("parm"), REG1, N("ign") },	// ignore result, fetch param to REG1
-	{ AP, 0x00000010, 0x00000070, N("mov"), REG1 },			// store result to REG1
-	{ AP, 0x00000020, 0x00000770, N("maddr") }, // SC
-	{ AP, 0x00000020, 0x00000070, N("maddr"), REG1 },		// use result as maddr and store it to REG1
-	{ AP, 0x00000030, 0x00000070, N("parm"), REG1, N("send") },	// send result, then fetch param to REG1
-	{ AP, 0x00000040, 0x00000770, N("send") }, // SC
-	{ AP, 0x00000040, 0x00000070, N("send"), REG1 },		// send result and store it to REG1
-	{ AP, 0x00000050, 0x00000070, N("parm"), REG1, N("maddr") },	// use result as maddr, then fetch param to REG1
-	{ AP, 0x00000060, 0x00000770, N("parmsend"), N("maddr") }, // SC
-	{ AP, 0x00000060, 0x00000070, N("parmsend"), N("maddr"), REG1 },// use result as maddr and store it to REG1, then fetch param and send it. 
-	{ AP, 0x00000070, 0x00000770, N("maddrsend") }, // SC
-	{ AP, 0x00000070, 0x00000070, N("maddrsend"), REG1 },		// use result as maddr, then send bits 12-17 of result, then store result to REG1
-	{ AP, 0, 0, OOPS },
+	{ -1, -1, 0x00000000, 0x00000070, N("parm"), REG1, N("ign") },	// ignore result, fetch param to REG1
+	{ -1, -1, 0x00000010, 0x00000070, N("mov"), REG1 },			// store result to REG1
+	{ -1, -1, 0x00000020, 0x00000770, N("maddr") }, // SC
+	{ -1, -1, 0x00000020, 0x00000070, N("maddr"), REG1 },		// use result as maddr and store it to REG1
+	{ -1, -1, 0x00000030, 0x00000070, N("parm"), REG1, N("send") },	// send result, then fetch param to REG1
+	{ -1, -1, 0x00000040, 0x00000770, N("send") }, // SC
+	{ -1, -1, 0x00000040, 0x00000070, N("send"), REG1 },		// send result and store it to REG1
+	{ -1, -1, 0x00000050, 0x00000070, N("parm"), REG1, N("maddr") },	// use result as maddr, then fetch param to REG1
+	{ -1, -1, 0x00000060, 0x00000770, N("parmsend"), N("maddr") }, // SC
+	{ -1, -1, 0x00000060, 0x00000070, N("parmsend"), N("maddr"), REG1 },// use result as maddr and store it to REG1, then fetch param and send it. 
+	{ -1, -1, 0x00000070, 0x00000770, N("maddrsend") }, // SC
+	{ -1, -1, 0x00000070, 0x00000070, N("maddrsend"), REG1 },		// use result as maddr, then send bits 12-17 of result, then store result to REG1
+	{ -1, -1, 0, 0, OOPS },
 };
 
 F1(annul, 5, N("annul")); // if set, delay slot insn is annuled if branch taken [ie. branch behaves as if delay slots didn't exist]
 
 static struct insn tabm[] = {
-	{ AP, 0x00000000, 0x003e0007, T(dst), N("add"), REG2, REG3 },
-	{ AP, 0x00020000, 0x003e0007, T(dst), N("adc"), REG2, REG3 },
-	{ AP, 0x00040000, 0x003e0007, T(dst), N("sub"), REG2, REG3 },
-	{ AP, 0x00060000, 0x003e0007, T(dst), N("sbb"), REG2, REG3 },
-	{ AP, 0x00100000, 0x003e0007, T(dst), N("xor"), REG2, REG3 },
-	{ AP, 0x00120000, 0x003e0007, T(dst), N("or"), REG2, REG3 },
-	{ AP, 0x00140000, 0x003e0007, T(dst), N("and"), REG2, REG3 },
-	{ AP, 0x00160000, 0x003e0007, T(dst), N("andn"), REG2, REG3 }, // REG2 & ~REG3
-	{ AP, 0x00180000, 0x003e0007, T(dst), N("nand"), REG2, REG3 }, // ~(REG2 & REG3)
-	{ AP, 0x00000011, 0xffffffff, N("nop") }, // SC
-	{ AP, 0x00000091, 0xffffffff }, // SC [just exit]
-	{ AP, 0x00000001, 0xfffff87f, N("parm"), REG1 }, // SC
-	{ AP, 0x00000001, 0x00003807, T(dst), MIMM }, // SC
-	{ AP, 0x00000001, 0xffffc007, T(dst), REG2 }, // SC
-	{ AP, 0x00000001, 0x00000007, T(dst), N("add"), REG2, MIMM },
+	{ -1, -1, 0x00000000, 0x003e0007, T(dst), N("add"), REG2, REG3 },
+	{ -1, -1, 0x00020000, 0x003e0007, T(dst), N("adc"), REG2, REG3 },
+	{ -1, -1, 0x00040000, 0x003e0007, T(dst), N("sub"), REG2, REG3 },
+	{ -1, -1, 0x00060000, 0x003e0007, T(dst), N("sbb"), REG2, REG3 },
+	{ -1, -1, 0x00100000, 0x003e0007, T(dst), N("xor"), REG2, REG3 },
+	{ -1, -1, 0x00120000, 0x003e0007, T(dst), N("or"), REG2, REG3 },
+	{ -1, -1, 0x00140000, 0x003e0007, T(dst), N("and"), REG2, REG3 },
+	{ -1, -1, 0x00160000, 0x003e0007, T(dst), N("andn"), REG2, REG3 }, // REG2 & ~REG3
+	{ -1, -1, 0x00180000, 0x003e0007, T(dst), N("nand"), REG2, REG3 }, // ~(REG2 & REG3)
+	{ -1, -1, 0x00000011, 0xffffffff, N("nop") }, // SC
+	{ -1, -1, 0x00000091, 0xffffffff }, // SC [just exit]
+	{ -1, -1, 0x00000001, 0xfffff87f, N("parm"), REG1 }, // SC
+	{ -1, -1, 0x00000001, 0x00003807, T(dst), MIMM }, // SC
+	{ -1, -1, 0x00000001, 0xffffc007, T(dst), REG2 }, // SC
+	{ -1, -1, 0x00000001, 0x00000007, T(dst), N("add"), REG2, MIMM },
 	// take REG2, replace BFSZ bits starting at BFDSTPOS with BFSZ bits starting at BFSRCPOS in REG3.
-	{ AP, 0x00000002, 0x00000007, T(dst), N("extrinsrt"), REG2, REG3, BFSRCPOS, BFSZ, BFDSTPOS },
+	{ -1, -1, 0x00000002, 0x00000007, T(dst), N("extrinsrt"), REG2, REG3, BFSRCPOS, BFSZ, BFDSTPOS },
 	// take BFSZ bits starting at REG2 in REG3, shift left by BFDSTPOS
-	{ AP, 0x00000003, 0x00000007, T(dst), N("extrshl"), REG3, REG2, BFSZ, BFDSTPOS },
+	{ -1, -1, 0x00000003, 0x00000007, T(dst), N("extrshl"), REG3, REG2, BFSZ, BFDSTPOS },
 	// take BFSZ bits starting at BFSRCPOS in REG3, shift left by REG2
-	{ AP, 0x00000004, 0x00000007, T(dst), N("extrshl"), REG3, BFSRCPOS, BFSZ, REG2 },
-	{ AP, 0x00000015, 0x00003877, N("read"), REG1, MIMM }, // SC
-	{ AP, 0x00000015, 0x00000077, N("read"), REG1, N("add"), REG2, MIMM },
-	{ AP, 0x00000007, 0x00003817, N("bra"), T(annul), BTARG },
-	{ AP, 0x00000007, 0x00000017, N("braz"), T(annul), REG2, BTARG },
-	{ AP, 0x00000017, 0x00000017, N("branz"), T(annul), REG2, BTARG },
-	{ AP, 0, 0, T(dst), OOPS, REG2 },
+	{ -1, -1, 0x00000004, 0x00000007, T(dst), N("extrshl"), REG3, BFSRCPOS, BFSZ, REG2 },
+	{ -1, -1, 0x00000015, 0x00003877, N("read"), REG1, MIMM }, // SC
+	{ -1, -1, 0x00000015, 0x00000077, N("read"), REG1, N("add"), REG2, MIMM },
+	{ -1, -1, 0x00000007, 0x00003817, N("bra"), T(annul), BTARG },
+	{ -1, -1, 0x00000007, 0x00000017, N("braz"), T(annul), REG2, BTARG },
+	{ -1, -1, 0x00000017, 0x00000017, N("branz"), T(annul), REG2, BTARG },
+	{ -1, -1, 0, 0, T(dst), OOPS, REG2 },
 };
 
 static struct insn tabroot[] = {
-	{ AP, 0, 0, OP32, T(exit), T(m) },
+	{ -1, -1, 0, 0, OP32, T(exit), T(m) },
 };
 
 static struct disisa macro_isa_s = {

@@ -36,23 +36,23 @@ static struct reg reg3_r = { &reg3_bf, "r" };
 #define REG3 atomreg, &reg3_r
 
 static struct insn tabm[] = {
-	{ AP, 0x0000000000ull, 0x001f000000ull, U("00"), REG1, REG2, REG3 },
-	{ AP, 0x0001000000ull, 0x001f000000ull, U("01"), REG1, REG2, REG3 },
-	{ AP, 0x0003000000ull, 0x001f000000ull, U("03"), REG1, REG2, REG3 },
-	{ AP, 0x0006000000ull, 0x001f000000ull, U("06"), REG1, REG2, REG3 },
-	{ AP, 0x0007000000ull, 0x001f000000ull, U("07"), REG1, REG2, REG3 },
-	{ AP, 0x000c000000ull, 0x001f000000ull, U("0c"), REG1, REG2, REG3 },
-	{ AP, 0x000d000000ull, 0x001f000000ull, U("0d"), REG1, REG2, REG3 },
-	{ AP, 0x000e000000ull, 0x001f000000ull, U("0e"), REG1, REG2, REG3 },
-	{ AP, 0x000f000000ull, 0x001f000000ull, U("0f"), REG1, REG2, REG3 },
-	{ AP, 0x0010000000ull, 0x001f000000ull, U("10"), REG1, REG2, REG3 },
-	{ AP, 0x0011000000ull, 0x001f000000ull, U("11"), REG1, REG2, REG3 },
-	{ AP, 0x0013000000ull, 0x001f000000ull, U("13"), REG1, REG2, REG3 },
-	{ AP, 0x0000000000ull, 0x0000000000ull, OOPS, REG1, REG2, REG3 },
+	{ -1, -1, 0x0000000000ull, 0x001f000000ull, U("00"), REG1, REG2, REG3 },
+	{ -1, -1, 0x0001000000ull, 0x001f000000ull, U("01"), REG1, REG2, REG3 },
+	{ -1, -1, 0x0003000000ull, 0x001f000000ull, U("03"), REG1, REG2, REG3 },
+	{ -1, -1, 0x0006000000ull, 0x001f000000ull, U("06"), REG1, REG2, REG3 },
+	{ -1, -1, 0x0007000000ull, 0x001f000000ull, U("07"), REG1, REG2, REG3 },
+	{ -1, -1, 0x000c000000ull, 0x001f000000ull, U("0c"), REG1, REG2, REG3 },
+	{ -1, -1, 0x000d000000ull, 0x001f000000ull, U("0d"), REG1, REG2, REG3 },
+	{ -1, -1, 0x000e000000ull, 0x001f000000ull, U("0e"), REG1, REG2, REG3 },
+	{ -1, -1, 0x000f000000ull, 0x001f000000ull, U("0f"), REG1, REG2, REG3 },
+	{ -1, -1, 0x0010000000ull, 0x001f000000ull, U("10"), REG1, REG2, REG3 },
+	{ -1, -1, 0x0011000000ull, 0x001f000000ull, U("11"), REG1, REG2, REG3 },
+	{ -1, -1, 0x0013000000ull, 0x001f000000ull, U("13"), REG1, REG2, REG3 },
+	{ -1, -1, 0x0000000000ull, 0x0000000000ull, OOPS, REG1, REG2, REG3 },
 };
 
 static struct insn tabroot[] = {
-	{ -1, 0, 0, OP40, T(m) },
+	{ -1, -1, 0, 0, OP40, T(m) },
 };
 
 static struct disisa vp3t_isa_s = {

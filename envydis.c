@@ -43,6 +43,7 @@ int main(int argc, char **argv) {
 	int labelsnum = 0;
 	int labelsmax = 0;
 	int w = 0, bin = 0, quiet = 0;
+	const char *varname = 0;
 	argv[0] = basename(argv[0]);
 	if (!strcmp(argv[0], "nv50dis")) {
 		isa = nv50_isa;
@@ -71,16 +72,11 @@ int main(int argc, char **argv) {
 		w = 1;
 	}
 	int ptype = -1;
+	int vartype = -1;
 	int c;
 	unsigned base = 0, skip = 0, limit = 0;
-	while ((c = getopt (argc, argv, "45vgfpcsb:d:l:m:wWinqu:M:")) != -1)
+	while ((c = getopt (argc, argv, "vgfpcsb:d:l:m:V:wWinqu:M:")) != -1)
 		switch (c) {
-			case '4':
-				ptype = NV4x;
-				break;
-			case '5':
-				ptype = NV5x;
-				break;
 			case 'v':
 				ptype = VP;
 				break;
@@ -154,6 +150,9 @@ int main(int argc, char **argv) {
 					return 1;
 				}
 				break;
+			case 'V':
+				varname = optarg;
+				break;
 			case 'M':
 				{
 					FILE *mapfile = fopen(optarg, "r");
@@ -206,6 +205,45 @@ int main(int argc, char **argv) {
 		fprintf (stderr, "No architecture specified!\n");
 		return 1;
 	}
+	if (varname) {
+		if (isa == nv50_isa) {
+			if (!strcmp(varname, "nv50"))
+				vartype = NV50;
+			else if (!strcmp(varname, "nv84"))
+				vartype = NV84;
+			else if (!strcmp(varname, "nva0"))
+				vartype = NVA0;
+			else if (!strcmp(varname, "nvaa"))
+				vartype = NVAA;
+			else if (!strcmp(varname, "nva3"))
+				vartype = NVA3;
+			else {
+				fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
+				return 1;
+			}
+		} else if (isa == ctx_isa) {
+			if (!strcmp(varname, "nv40"))
+				vartype = CTX_NV40;
+			else if (!strcmp(varname, "nv50"))
+				vartype = CTX_NV50;
+			else {
+				fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
+				return 1;
+			}
+		} else if (isa == fuc_isa) {
+			if (!strcmp(varname, "nv98"))
+				vartype = FUC_NV98;
+			else if (!strcmp(varname, "nva3"))
+				vartype = FUC_NVA3;
+			else {
+				fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
+				return 1;
+			}
+		} else {
+			fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
+			return 1;
+		}
+	}
 	int num = 0;
 	int maxnum = 16;
 	uint8_t *code = malloc (maxnum);
@@ -253,6 +291,6 @@ int main(int argc, char **argv) {
 	int cnt = num - skip;
 	if (limit && limit < cnt)
 		cnt = limit;
-	envydis (isa, stdout, code+skip, base, cnt, ptype, quiet, labels, labelsnum);
+	envydis (isa, stdout, code+skip, base, cnt, vartype, ptype, quiet, labels, labelsnum);
 	return 0;
 }

@@ -133,7 +133,7 @@ struct matches *atomtab APROTO {
 	const struct insn *tab = v;
 	if (!ctx->reverse) {
 		int i;
-		while ((a[0]&tab->mask) != tab->val || !(tab->ptype & ctx->ptype))
+		while ((a[0]&tab->mask) != tab->val || !(tab->vartype & ctx->vartype) || !(tab->ptype & ctx->ptype))
 			tab++;
 		m[0] |= tab->mask;
 		for (i = 0; i < 16; i++)
@@ -143,7 +143,7 @@ struct matches *atomtab APROTO {
 		struct matches *res = emptymatches();
 		int i;
 		for (i = 0; ; i++) {
-			if (tab[i].ptype & ctx->ptype) {
+			if (tab[i].vartype & ctx->vartype && tab[i].ptype & ctx->ptype) {
 				struct match sm = { 0, tab[i].val, tab[i].mask, spos };
 				struct matches *subm = tabdesc(ctx, sm, tab[i].atoms); 
 				if (subm)
@@ -822,7 +822,7 @@ uint16_t readle16 (uint8_t *p) {
  * FILE*.
  */
 
-void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int ptype, int quiet, struct label *labels, int labelsnum)
+void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int vartype, int ptype, int quiet, struct label *labels, int labelsnum)
 {
 	struct disctx c = { 0 };
 	struct disctx *ctx = &c;
@@ -831,6 +831,7 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 	ctx->marks = calloc((num + isa->posunit - 1) / isa->posunit, sizeof *ctx->marks);
 	ctx->codebase = start;
 	ctx->codesz = num;
+	ctx->vartype = vartype;
 	ctx->ptype = ptype;
 	ctx->isa = isa;
 	if (labels) {

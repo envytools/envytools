@@ -12,6 +12,7 @@ enum {
 } envyas_ofmt = OFMT_HEX8;
 
 int envyas_ptype = -1;
+int envyas_vartype = -1;
 
 char *envyas_outname = 0;
 
@@ -153,6 +154,7 @@ int envyas_process(struct file *file) {
 	ctx->reverse = 1;
 	ctx->isa = envyas_isa;
 	ctx->ptype = envyas_ptype;
+	ctx->vartype = envyas_vartype;
 	struct matches *im = calloc(sizeof *im, file->linesnum);
 	for (i = 0; i < file->linesnum; i++) {
 		if (file->lines[i]->type == LINE_INSN) {
@@ -412,32 +414,26 @@ int main(int argc, char **argv) {
 		envyas_isa = macro_isa;
 		envyas_ofmt = OFMT_HEX32;
 	}
-	int ptype = -1;
 	int c;
 	unsigned base = 0, skip = 0, limit = 0;
-	while ((c = getopt (argc, argv, "45vgfpcsam:o:wi")) != -1)
+	const char *varname = 0;
+	while ((c = getopt (argc, argv, "vgfpcsam:V:o:wi")) != -1)
 		switch (c) {
-			case '4':
-				ptype = NV4x;
-				break;
-			case '5':
-				ptype = NV5x;
-				break;
 			case 'v':
-				ptype = VP;
+				envyas_ptype = VP;
 				break;
 			case 'g':
-				ptype = GP;
+				envyas_ptype = GP;
 				break;
 			case 'f':
 			case 'p':
-				ptype = FP;
+				envyas_ptype = FP;
 				break;
 			case 'c':
-				ptype = CP;
+				envyas_ptype = CP;
 				break;
 			case 's':
-				ptype = VP|GP|FP;
+				envyas_ptype = VP|GP|FP;
 				break;
 			case 'a':
 				if (envyas_ofmt == OFMT_HEX32)
@@ -472,6 +468,9 @@ int main(int argc, char **argv) {
 					return 1;
 				}
 				break;
+			case 'V':
+				varname = optarg;
+				break;
 			case 'o':
 				envyas_outname = optarg;
 				break;
@@ -490,6 +489,45 @@ int main(int argc, char **argv) {
 	if (!envyas_isa) {
 		fprintf (stderr, "No architecture specified!\n");
 		return 1;
+	}
+	if (varname) {
+		if (envyas_isa == nv50_isa) {
+			if (!strcmp(varname, "nv50"))
+				envyas_vartype = NV50;
+			else if (!strcmp(varname, "nv84"))
+				envyas_vartype = NV84;
+			else if (!strcmp(varname, "nva0"))
+				envyas_vartype = NVA0;
+			else if (!strcmp(varname, "nvaa"))
+				envyas_vartype = NVAA;
+			else if (!strcmp(varname, "nva3"))
+				envyas_vartype = NVA3;
+			else {
+				fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
+				return 1;
+			}
+		} else if (envyas_isa == ctx_isa) {
+			if (!strcmp(varname, "nv40"))
+				envyas_vartype = CTX_NV40;
+			else if (!strcmp(varname, "nv50"))
+				envyas_vartype = CTX_NV50;
+			else {
+				fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
+				return 1;
+			}
+		} else if (envyas_isa == fuc_isa) {
+			if (!strcmp(varname, "nv98"))
+				envyas_vartype = FUC_NV98;
+			else if (!strcmp(varname, "nva3"))
+				envyas_vartype = FUC_NVA3;
+			else {
+				fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
+				return 1;
+			}
+		} else {
+			fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
+			return 1;
+		}
 	}
 	return yyparse();
 }

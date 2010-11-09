@@ -177,6 +177,7 @@ struct atom {
 };
 
 struct insn {
+	int vartype;
 	int ptype;
 	ull val;
 	ull mask;
@@ -216,6 +217,7 @@ struct disctx {
 	int *marks;
 	uint32_t codebase;
 	uint32_t codesz;
+	int vartype;
 	int ptype;
 	int oplen;
 	uint32_t pos;
@@ -321,14 +323,19 @@ int setsbf (struct match *res, int pos, int len, ull num);
  */
 
 #define F(n, f, a, b) static struct insn tab ## n[] = {\
-	{ ~0, 0,		1ull<<(f), a },\
-	{ ~0, 1ull<<(f),	1ull<<(f), b },\
-	{ ~0, 0, 0, OOPS },\
+	{ -1, -1, 0,		1ull<<(f), a },\
+	{ -1, -1, 1ull<<(f),	1ull<<(f), b },\
+	{ -1, -1, 0, 0, OOPS },\
 };
 #define F1(n, f, b) static struct insn tab ## n[] = {\
-	{ ~0, 0,		1ull<<(f) },\
-	{ ~0, 1ull<<(f),	1ull<<(f), b },\
-	{ ~0, 0, 0, OOPS },\
+	{ -1, -1, 0,		1ull<<(f) },\
+	{ -1, -1, 1ull<<(f),	1ull<<(f), b },\
+	{ -1, -1, 0, 0, OOPS },\
+};
+#define F1V(n, v, f, b) static struct insn tab ## n[] = {\
+	{ v, -1, 0,		1ull<<(f) },\
+	{ v, -1, 1ull<<(f),	1ull<<(f), b },\
+	{ -1, -1, 0, 0 },\
 };
 
 #define T(x) atomtab, tab ## x
@@ -386,11 +393,18 @@ uint16_t readle16 (uint8_t *);
 #define GP 2
 #define FP 4
 #define CP 8
-#define AP (VP|GP|FP|CP)
 
-#define NV4x 1
-#define NV5x 2 /* and 8x and 9x and Ax */
-#define NVxx 3
+#define NV50  0x01
+#define NV84  0x02
+#define NVA0  0x04
+#define NVAA  0x08
+#define NVA3  0x10
+
+#define CTX_NV40 1
+#define CTX_NV50 2
+
+#define FUC_NV98 1
+#define FUC_NVA3 2
 
 extern struct disisa *nv50_isa;
 extern struct disisa *nvc0_isa;
@@ -402,7 +416,7 @@ extern struct disisa *vp3m_isa;
 extern struct disisa *vp3t_isa;
 extern struct disisa *macro_isa;
 
-void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int ptype, int quiet, struct label *labels, int labelsnum);
+void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int vartype, int ptype, int quiet, struct label *labels, int labelsnum);
 void printexpr(FILE *out, const struct expr *expr, int lvl);
 
 #endif
