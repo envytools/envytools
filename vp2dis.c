@@ -263,6 +263,7 @@ static struct insn tabm[] = {
 	{ -1, -1, 0x003010, 0xfff0ff, N("rfi"), WAITI, ENDMARK },
 	{ -1, -1, 0x004000, 0xfff00f, N("break"), BREAK8, BREAK4 },
 	{ -1, -1, 0x005000, 0xffffff, N("syscall") },
+	{ -1, -1, 0x005100, 0xffffff, N("simcall") },
 	{ -1, -1, 0x006000, 0xfff00f, N("rsil"), REGT, WAITI },
 	{ -1, -1, 0x007000, 0xfff0ff, N("waiti"), WAITI },
 	{ -1, -1, 0x008000, 0xfff00f, N("any4"), BRT, BRSQ },
