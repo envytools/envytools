@@ -54,7 +54,7 @@ char *aprint(const char *format, ...) {
 }
 
 void mark(struct disctx *ctx, uint32_t ptr, int m) {
-	if (ptr < ctx->codebase || ptr > ctx->codebase + ctx->codesz)
+	if (ptr < ctx->codebase || ptr >= ctx->codebase + ctx->codesz)
 		return;
 	ctx->marks[ptr - ctx->codebase] |= m;
 }
