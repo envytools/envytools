@@ -229,9 +229,16 @@ void printhead(struct fout f, struct rnndb *db) {
 }
 
 int main(int argc, char **argv) {
-	rnn_init();
-	struct rnndb *db = rnn_newdb();
+	struct rnndb *db;
 	int i, j;
+
+	if (argc < 2) {
+		fprintf(stderr, "Usage:\n\theadergen database-file\n");
+		exit(1);
+	}
+
+	rnn_init();
+	db = rnn_newdb();
 	rnn_parsefile (db, argv[1]);
 	rnn_prepdb (db);
 	for(i = 0; i < db->filesnum; ++i) {
