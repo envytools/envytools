@@ -26,13 +26,13 @@ static int file_exists(const char * filename)
     return 0;
 }
 
-static char *
+static void
 resolve_using_path(char *filename, char *buf, unsigned buf_len)
 {
 	const char *rnn_path = getenv("RNN_PATH");
 
 	if (!rnn_path)
-		return filename;
+		goto out;
 
 	do {
 		int tmp_len;
@@ -47,7 +47,7 @@ resolve_using_path(char *filename, char *buf, unsigned buf_len)
 		/* Check if the file exists in the current base path */
 		snprintf(buf+tmp_len, buf_len-tmp_len-1, "/%s", filename);
 		if (file_exists(buf))
-			return buf;
+			return;
 
 		/* Go to the next basepath */
 		if (*end_path == ':')
@@ -56,7 +56,9 @@ resolve_using_path(char *filename, char *buf, unsigned buf_len)
 
 	} while (*rnn_path);
 
-	return filename;
+out:
+	strncpy(buf, filename, buf_len - 1);
+	buf[buf_len - 1] = 0;
 }
 
 static char *catstr (char *a, char *b) {
@@ -848,9 +850,9 @@ static int trytop (struct rnndb *db, char *file, xmlNode *node) {
 
 void rnn_parsefile (struct rnndb *db, char *file_orig) {
 	int i;
-	char *buf = (char *) malloc(512);
+	char *file = (char *) malloc(512);
 
-	char* file = resolve_using_path(file_orig, buf, 512);
+	resolve_using_path(file_orig, file, 512);
 
 	for (i = 0; i < db->filesnum; i++)
 		if (!strcmp(db->files[i], file))
