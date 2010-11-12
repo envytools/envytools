@@ -833,14 +833,20 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 	int cur = 0, i, j;
 	ctx->code8 = code;
 	ctx->marks = calloc((num + isa->posunit - 1) / isa->posunit, sizeof *ctx->marks);
+	ctx->names = calloc((num + isa->posunit - 1) / isa->posunit, sizeof *ctx->names);
 	ctx->codebase = start;
 	ctx->codesz = num;
 	ctx->vartype = vartype;
 	ctx->ptype = ptype;
 	ctx->isa = isa;
 	if (labels) {
-		for (i = 0; i < labelsnum; i++)
+		for (i = 0; i < labelsnum; i++) {
 			mark(ctx, labels[i].val, labels[i].type);
+			if (labels[i].val >= ctx->codebase && labels[i].val < ctx->codebase + ctx->codesz) {
+				if (labels[i].name)
+					ctx->names[labels[i].val - ctx->codebase] = labels[i].name;
+			}
+		}
 		int done;
 		do {
 			done = 1;
@@ -889,7 +895,25 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 	int active = 0;
 	int skip = 0, nonzero = 0;
 	while (cur < num) {
-		if (ctx->marks[cur / isa->posunit] & 0x10) {
+		if (ctx->names[cur / isa->posunit]) {
+			if (skip) {
+				if (nonzero)
+					fprintf(out, "%s[%x bytes skipped]\n", cunk, skip);
+				else
+					fprintf(out, "%s[%x zero bytes skipped]\n", cnorm, skip);
+				skip = 0;
+				nonzero = 0;
+			}
+			if (ctx->marks[cur / isa->posunit] & 0x30)
+				fprintf (out, "%s%s:\n", cnorm, ctx->names[cur / isa->posunit]);
+			else if (ctx->marks[cur / isa->posunit] & 2)
+				fprintf (out, "\n%s%s:\n", cctarg, ctx->names[cur / isa->posunit]);
+			else if (ctx->marks[cur / isa->posunit] & 1)
+				fprintf (out, "%s%s:\n", cbtarg, ctx->names[cur / isa->posunit]);
+			else
+				fprintf (out, "%s%s:\n", cnorm, ctx->names[cur / isa->posunit]);
+		}
+		if (ctx->marks[cur / isa->posunit] & 0x30) {
 			if (skip) {
 				if (nonzero)
 					fprintf(out, "%s[%x bytes skipped]\n", cunk, skip);
@@ -899,12 +923,35 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 				nonzero = 0;
 			}
 			fprintf (out, "%s%08x:%s", cnum, cur / isa->posunit + start, cnorm);
-			uint32_t val = 0;
-			for (i = 0; i < 4 && cur + i < num; i++) {
-				val |= code[cur + i] << i*8;
+			if (ctx->marks[cur / isa->posunit] & 0x10) {
+				uint32_t val = 0;
+				for (i = 0; i < 4 && cur + i < num; i++) {
+					val |= code[cur + i] << i*8;
+				}
+				fprintf (out, " %s%08x\n", cmem, val);
+				cur += 4 / isa->posunit;
+			} else {
+				fprintf (out, " %s\"", cmem);
+				while (code[cur]) {
+					switch (code[cur]) {
+						case '\n':
+							fprintf (out, "\\n");
+							break;
+						case '\\':
+							fprintf (out, "\\\\");
+							break;
+						case '\"':
+							fprintf (out, "\\\"");
+							break;
+						default:
+							fprintf (out, "%c", code[cur]);
+							break;
+					}
+					cur++;
+				}
+				cur++;
+				fprintf (out, "\"\n");
 			}
-			fprintf (out, " %s%08x\n", cmem, val);
-			cur += 4 / isa->posunit;
 			continue;
 		}
 		if (!active && ctx->marks[cur / isa->posunit] & 7)
@@ -937,7 +984,7 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 		if (ctx->endmark || ctx->marks[cur / isa->posunit] & 4)
 			active = 0;
 
-		if (ctx->marks[cur / isa->posunit] & 2)
+		if (ctx->marks[cur / isa->posunit] & 2 && !ctx->names[cur / isa->posunit])
 			fprintf (out, "\n");
 		switch (ctx->marks[cur / isa->posunit] & 3) {
 			case 0:

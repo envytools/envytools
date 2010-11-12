@@ -216,6 +216,7 @@ struct disctx {
 	uint32_t *code32;
 	uint64_t *code64;
 	int *marks;
+	const char **names;
 	uint32_t codebase;
 	uint32_t codesz;
 	int vartype;

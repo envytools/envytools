@@ -162,7 +162,8 @@ int main(int argc, char **argv) {
 					}
 					struct label nl;
 					char type;
-					while (fscanf(mapfile, " %c%llx", &type, &nl.val) == 2) {
+					char buf[1000] = "";
+					while (fscanf(mapfile, " %c%llx%s", &type, &nl.val, buf) >= 2) {
 						switch (type) {
 							case 'B':
 								nl.type = 1;
@@ -173,10 +174,17 @@ int main(int argc, char **argv) {
 							case 'E':
 								nl.type = 4;
 								break;
+							case 'S':
+								nl.type = 0x20;
+								break;
 							default:
 								fprintf (stderr, "Unknown label type %c\n", type);
 								return 1;
 						}
+						if (*buf)
+							nl.name = strdup(buf);
+						else
+							nl.name = 0;
 						RNN_ADDARRAY(labels, nl);
 					}
 					break;
@@ -186,6 +194,7 @@ int main(int argc, char **argv) {
 					struct label nl;
 					sscanf(optarg, "%llx", &nl.val);
 					nl.type = 1;
+					nl.name = 0;
 					RNN_ADDARRAY(labels, nl);
 					break;
 				}
