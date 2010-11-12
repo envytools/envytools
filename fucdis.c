@@ -176,7 +176,7 @@ static struct insn tabp[] = {
 	{ -1,    -1, 0x00000b00, 0x00001f00, N("e") }, /* or z */
 	{ -1,    -1, 0x00000c00, 0x00001f00, N("a") }, /* !c && !z */
 	{ -1,    -1, 0x00000d00, 0x00001f00, N("na") }, /* c || z */
-	{ -1,    -1, 0x00000e00, 0x00001f00 }, /* always true */
+	{ -1,    -1, 0x00000e00, 0x00001f00, ENDMARK }, /* always true */
 	{ -1,    -1, 0x00001000, 0x00001800, N("not"), PRED1 },
 	{ -1,    -1, 0x00001800, 0x00001f00, N("nc") }, /* or nc */
 	{ -1,    -1, 0x00001900, 0x00001f00, N("no") },
@@ -476,7 +476,7 @@ static struct insn tabm[] = {
 	{ -1,    -1, 0x000000f2, 0x000000ff, OP24, OOPS, REG2, IMM8 },
 
 	{ -1,    -1, 0x000000f4, 0x000020fe, T(ol0), N("bra"), T(p), T(bt) },
-	{ -1,    -1, 0x000020f4, 0x00003ffe, T(ol0), N("bra"), T(abt) },
+	{ -1,    -1, 0x000020f4, 0x00003ffe, T(ol0), N("bra"), T(abt), ENDMARK },
 	{ -1,    -1, 0x000021f4, 0x00003ffe, T(ol0), N("call"), T(ct) },
 	{ -1,    -1, 0x000028f4, 0x00003ffe, T(ol0), N("sleep"), T(fl) }, /* sleeps while given flag is true */
 	{ -1,    -1, 0x000030f4, 0x00003ffe, T(ol0), N("add"), SP, T(is) },
@@ -487,9 +487,9 @@ static struct insn tabm[] = {
 	{ -1,    -1, 0x00003cf5, 0x00003fff, T(ol0), T(cocmd) },
 	{ -1,    -1, 0x000000f4, 0x000000fe, T(ol0), OOPS, T(i) },
 
-	{ -1,    -1, 0x000000f8, 0x00000fff, OP16, N("ret") },
-	{ -1,    -1, 0x000001f8, 0x00000fff, OP16, N("iret") },
-	{ -1,    -1, 0x000002f8, 0x00000fff, OP16, N("exit") },
+	{ -1,    -1, 0x000000f8, 0x00000fff, OP16, N("ret"), ENDMARK },
+	{ -1,    -1, 0x000001f8, 0x00000fff, OP16, N("iret"), ENDMARK },
+	{ -1,    -1, 0x000002f8, 0x00000fff, OP16, N("exit"), ENDMARK },
 	{ -1,    -1, 0x000003f8, 0x00000fff, OP16, N("xdwait") },
 	{ -1,    -1, 0x000006f8, 0x00000fff, OP16, U("f8/6") },
 	{ -1,    -1, 0x000007f8, 0x00000fff, OP16, N("xcwait") },
