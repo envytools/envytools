@@ -756,7 +756,7 @@ struct matches *atombf APROTO {
 	if (!ctx->reverse) {
 		struct expr *expr = makeex(EXPR_BITFIELD);
 		expr->num1 = GETBF(&bf[0]);
-		expr->num2 = GETBF(&bf[1]);
+		expr->num2 = expr->num1 + GETBF(&bf[1]);
 		RNN_ADDARRAY(ctx->atoms, expr);
 	} else {
 		if (spos == ctx->line->atomsnum)
