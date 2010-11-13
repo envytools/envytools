@@ -796,6 +796,9 @@ static struct insn tabs[] = {
 	// desc ^^^
 
 	{ -1, -1, 0, 2, OOPS, SDST, T(ssw), T(scw) },
+
+	{ NV84P, -1, 0xb0000002, 0xf0000002, N("brkpt") },
+
 	{ -1, -1, 0, 0, OOPS }
 };
 
