@@ -425,17 +425,17 @@ static struct insn tabm[] = {
 
 	{ -1,    -1, 0x000000f0, 0x00000ffe, T(ol0), N("mulu"), REG2, T(i) },
 	{ -1,    -1, 0x000001f0, 0x00000ffe, T(ol0), N("muls"), REG2, T(is) },
-	{ -1,    -1, 0x000002f0, 0x00000ffe, T(ol0), N("sex"), REG2, T(i) }, /* funky instruction. bits ARG2+1 through 31 of ARG1 are replaced with copy of bit ARG2. */
+	{ -1,    -1, 0x000002f0, 0x00000fff, T(ol0), N("sex"), REG2, T(i) }, /* funky instruction. bits ARG2+1 through 31 of ARG1 are replaced with copy of bit ARG2. */
 	{ -1,    -1, 0x000003f0, 0x00000ffe, T(ol0), N("sethi"), REG2, T(ih) },
 	{ -1,    -1, 0x000004f0, 0x00000ffe, T(ol0), N("and"), REG2, T(i) },
 	{ -1,    -1, 0x000005f0, 0x00000ffe, T(ol0), N("or"), REG2, T(i) },
 	{ -1,    -1, 0x000006f0, 0x00000ffe, T(ol0), N("xor"), REG2, T(i) },
 	{ -1,    -1, 0x000007f0, 0x00000ffe, T(ol0), N("mov"), REG2, T(is) },
 	{ -1,    -1, 0x000007f1, 0x00000fff, T(ol0), N("movw"), REG2, IMM16W },
-	{ -1,    -1, 0x000009f0, 0x00000ffe, T(ol0), N("bset"), REG2, T(i) },
-	{ -1,    -1, 0x00000af0, 0x00000ffe, T(ol0), N("bclr"), REG2, T(i) },
-	{ -1,    -1, 0x00000bf0, 0x00000ffe, T(ol0), N("btgl"), REG2, T(i) },
-	{ -1,    -1, 0x00000cf0, 0x00000ffe, T(ol0), N("set"), REG2, FLAGS, T(fl) },
+	{ -1,    -1, 0x000009f0, 0x00000fff, T(ol0), N("bset"), REG2, T(i) },
+	{ -1,    -1, 0x00000af0, 0x00000fff, T(ol0), N("bclr"), REG2, T(i) },
+	{ -1,    -1, 0x00000bf0, 0x00000fff, T(ol0), N("btgl"), REG2, T(i) },
+	{ -1,    -1, 0x00000cf0, 0x00000fff, T(ol0), N("set"), REG2, FLAGS, T(fl) },
 	{ -1,    -1, 0x000000f0, 0x000000fe, T(ol0), OOPS, REG2, T(i) },
 
 	{ -1,    -1, 0x000008f2, 0x00000fff, OP24, N("setp"), T(fl), REG2 }, /* set given flag if bit0 of ARG2 set */
