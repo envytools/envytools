@@ -404,6 +404,7 @@ static struct insn tabm[] = {
 	{ NVA3P, -1, 0x000000cb, 0x000000ff, OP24, N("ins"), REG1, REG2, BITF8 }, /* inserts [overwrites] a bitfield */
 	{ NVA3P, -1, 0x000000cc, 0x000000ff, OP24, N("div"), REG1, REG2, IMM8 },
 	{ NVA3P, -1, 0x000000cd, 0x000000ff, OP24, N("mod"), REG1, REG2, IMM8 },
+	{ -1,    -1, 0x000000ce, 0x000000ff, OP24, U("ce"), REG1, IORI },
 	{ -1,    -1, 0x000000cf, 0x000000ff, OP24, N("iord"), REG1, IORI },
 	{ -1,    -1, 0x000000c0, 0x000000f0, OP24, OOPS, REG1, REG2, IMM8 },
 
@@ -587,6 +588,7 @@ static struct insn tabm[] = {
 	{ -1,    -1, 0x000800ff, 0x000f00ff, OP24, N("xbit"), REG3, REG2, REG1 }, /* flags: SZ, NV98: ARG1 = (ARG1 & 0xfffffffe) | (ARG2 >> ARG3 & 1) ; NVA3+: ARG1 = ARG2 >> ARG3 & 1 */
 	{ NVA3P, -1, 0x000c00ff, 0x000f00ff, OP24, N("div"), REG3, REG2, REG1 }, /* no flags */
 	{ NVA3P, -1, 0x000d00ff, 0x000f00ff, OP24, N("mod"), REG3, REG2, REG1 }, /* no flags */
+	{ -1,    -1, 0x000e00ff, 0x000f00ff, OP24, U("ff/e"), REG3, IORR }, /* no flags */
 	{ -1,    -1, 0x000f00ff, 0x000f00ff, OP24, N("iord"), REG3, IORR }, /* no flags */
 	{ -1,    -1, 0x000000ff, 0x000000ff, OP24, OOPS, REG3, REG2, REG1 },
 
