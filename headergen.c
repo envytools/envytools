@@ -242,7 +242,7 @@ int main(int argc, char **argv) {
 	rnn_parsefile (db, argv[1]);
 	rnn_prepdb (db);
 	for(i = 0; i < db->filesnum; ++i) {
-		char *dstname = malloc(strlen(db->files[i]) + 2);
+		char *dstname = malloc(strlen(db->files[i]) + 3);
 		strcpy(dstname, db->files[i]);
 		strcat(dstname, ".h");
 		struct fout f = { db->files[i], fopen(dstname, "w") };
