@@ -440,7 +440,7 @@ static struct insn tabm[] = {
 	{ -1,    -1, 0x000009f0, 0x00000fff, T(ol0), N("bset"), REG2, T(i) },
 	{ -1,    -1, 0x00000af0, 0x00000fff, T(ol0), N("bclr"), REG2, T(i) },
 	{ -1,    -1, 0x00000bf0, 0x00000fff, T(ol0), N("btgl"), REG2, T(i) },
-	{ -1,    -1, 0x00000cf0, 0x00000fff, T(ol0), N("set"), REG2, FLAGS, T(fl) },
+	{ -1,    -1, 0x00000cf0, 0x00000fff, T(ol0), N("xbit"), REG2, FLAGS, T(fl) },
 	{ -1,    -1, 0x000000f0, 0x000000fe, T(ol0), OOPS, REG2, T(i) },
 
 	{ -1,    -1, 0x000008f2, 0x00000fff, OP24, N("setp"), T(fl), REG2 },
@@ -578,7 +578,7 @@ static struct insn tabm[] = {
 	 *  	didn't find any physical page
 	 */
 	{ NVA3P, -1, 0x000300fe, 0x000f00ff, OP24, N("vtlb"), REG1, REG2 }, /* no flags */
-	{ -1,    -1, 0x000c00fe, 0x000f00ff, OP24, N("set"), REG1, FLAGS, REG2 },
+	{ -1,    -1, 0x000c00fe, 0x000f00ff, OP24, N("xbit"), REG1, FLAGS, REG2 },
 	{ -1,    -1, 0x000000fe, 0x000000ff, OP24, OOPS, REG1, REG2 },
 
 	{ -1,    -1, 0x000000ff, 0x000f00ff, OP24, N("mulu"), REG3, REG2, REG1 },
