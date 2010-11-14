@@ -345,7 +345,7 @@ Operation:
 	$flags.z = (DST == 0);
 
 
-Bitfield extraction: extr, extrs XXX
+Bitfield extraction: extr, extrs
 
 Extracts a bitfield.
 
@@ -372,7 +372,7 @@ Operation:
 	DST = bf;
 
 
-Bitfield insertion: ins XXX
+Bitfield insertion: ins
 
 Inserts a bitfield.
 
