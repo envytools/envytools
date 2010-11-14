@@ -484,11 +484,11 @@ static struct insn tabm[] = {
 	{ -1,    -1, 0x000000f4, 0x000020fe, T(ol0), N("bra"), T(p), T(bt) },
 	{ -1,    -1, 0x000020f4, 0x00003ffe, T(ol0), N("bra"), T(abt), ENDMARK },
 	{ -1,    -1, 0x000021f4, 0x00003ffe, T(ol0), N("call"), T(ct) },
-	{ -1,    -1, 0x000028f4, 0x00003ffe, T(ol0), N("sleep"), T(fl) }, /* sleeps while given flag is true */
+	{ -1,    -1, 0x000028f4, 0x00003fff, T(ol0), N("sleep"), T(fl) }, /* sleeps while given flag is true */
 	{ -1,    -1, 0x000030f4, 0x00003ffe, T(ol0), N("add"), SP, T(is) },
-	{ -1,    -1, 0x000031f4, 0x00003ffe, T(ol0), N("bset"), FLAGS, T(fl) },
-	{ -1,    -1, 0x000032f4, 0x00003ffe, T(ol0), N("bclr"), FLAGS, T(fl) },
-	{ -1,    -1, 0x000033f4, 0x00003ffe, T(ol0), N("btgl"), FLAGS, T(fl) },
+	{ -1,    -1, 0x000031f4, 0x00003fff, T(ol0), N("bset"), FLAGS, T(fl) },
+	{ -1,    -1, 0x000032f4, 0x00003fff, T(ol0), N("bclr"), FLAGS, T(fl) },
+	{ -1,    -1, 0x000033f4, 0x00003fff, T(ol0), N("btgl"), FLAGS, T(fl) },
 	{ -1,    -1, 0x00003cf4, 0x00003fff, T(ol0), N("cxset"), IMM8 },
 	{ -1,    -1, 0x00003cf5, 0x00003fff, T(ol0), T(cocmd) },
 	{ -1,    -1, 0x000000f4, 0x000000fe, T(ol0), OOPS, T(i) },
