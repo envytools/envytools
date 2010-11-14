@@ -25,6 +25,7 @@
 
 #include "dis.h"
 
+#define NV98 FUC_NV98
 #define NVA3P FUC_NVA3
 
 /*
@@ -348,7 +349,7 @@ static struct insn tabsi[] = {
 	{ -1,    -1, 0x00000039, 0x000f003f, OP24, N("not"), T(sz), REG1, REG2 },
 	{ -1,    -1, 0x00010039, 0x000f003f, OP24, N("neg"), T(sz), REG1, REG2 },
 	{ NV98,  -1, 0x00020039, 0x000f003f, OP24, N("movf"), T(sz), REG1, REG2 }, /* mov and set ZF+SF according to val */
-	{ NVA5P, -1, 0x00020039, 0x000f003f, OP24, N("mov"), T(sz), REG1, REG2 },
+	{ NVA3P, -1, 0x00020039, 0x000f003f, OP24, N("mov"), T(sz), REG1, REG2 },
 	{ -1,    -1, 0x00030039, 0x000f003f, OP24, N("hswap"), T(sz), REG1, REG2 }, /* swap halves - ie. rotate by half the size in bits. */
 	{ -1,    -1, 0x00000039, 0x0000003f, OP24, OOPS, T(sz), REG1, REG2 },
 
@@ -381,10 +382,10 @@ static struct insn tabsi[] = {
 	{ -1,    -1, 0x0000003d, 0x00000f3f, OP16, N("not"), T(sz), REG2 },
 	{ -1,    -1, 0x0000013d, 0x00000f3f, OP16, N("neg"), T(sz), REG2 },
 	{ NV98,  -1, 0x0000023d, 0x00000f3f, OP16, N("movf"), T(sz), REG2 },
-	{ NVA5P, -1, 0x0000023d, 0x00000f3f, OP16, N("mov"), T(sz), REG2 }, /* about as useless as you'd expect */
+	{ NVA3P, -1, 0x0000023d, 0x00000f3f, OP16, N("mov"), T(sz), REG2 }, /* about as useless as you'd expect */
 	{ -1,    -1, 0x0000033d, 0x00000f3f, OP16, N("hswap"), T(sz), REG2 },
 	{ -1,    -1, 0x0000043d, 0x00000f3f, OP16, N("clear"), T(sz), REG2 }, /* set to 0. */
-	{ NVA5P, -1, 0x0000053d, 0x00000f3f, OP16, N("setf"), T(sz), REG2 }, /* set flags according to val */
+	{ NVA3P, -1, 0x0000053d, 0x00000f3f, OP16, N("setf"), T(sz), REG2 }, /* set flags according to val */
 	{ -1,    -1, 0x0000003d, 0x0000003f, OP16, OOPS, T(sz), REG2 },
 
 	{ -1,    -1, 0, 0, OOPS, T(sz) },
