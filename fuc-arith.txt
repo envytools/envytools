@@ -1,0 +1,522 @@
+Introduction
+
+The arithmetic/logical instructions do operations on $r0-$r15 GPRs, sometimes
+setting bits in $flags register according to the result. The instructions
+can be "sized" or "unsized". Sized instructions have 8-bit, 16-bit, and 32-bit
+variants. Unsized instructions don't have variants, and always operate on
+full 32-bit registers. For 8-bit and 16-bit sized instructions, high 24 or 16
+bits of destination registers are unmodified.
+
+The flags potentially affected by ALU instructions are:
+
+ - bit 8: c, carry flag
+ - bit 9: o, signed overflow flag
+ - bit a: s, sign flag
+ - bit b: z, zero flag
+
+Also, a few ALU instruction operate on $flags register as a whole.
+
+
+Pseudocode conventions
+
+All operations are done in infinite-precision arithmetic, all temporaries
+are infinite-precision too.
+
+sz, for sized instructions, is the selected size of operation: 8, 16, or 32.
+
+S(x) evaluates to (x >> (sz - 1) & 1), ie. the sign bit of x. If insn
+is unsized, assume sz = 32.
+
+
+Comparison: cmpu, cmps, cmp
+
+Compare two values, setting flags according to results of comparison. cmp
+sets the usual set of 4 flags. cmpu sets only c and z. cmps sets z normally,
+and sets c if SRC1 is less then SRC2 when treated as signed number.
+
+Insns [sized]:
+  [4] cmpu - compare unsigned
+  [5] cmps - compare signed
+  [6] cmp - compare [NVA3+]
+
+Operands [SRC1, SRC2]:
+  [30] R2, I8
+  [31] R2, I16
+  [38] R2, R1
+
+Immediates are zero-extended for cmpu, sign-extended for cmps and cmp.
+
+Operation:
+	diff = SRC1 - SRC2; // infinite precision
+	S = S(diff);
+	O = S(SRC1) != S(SRC2) && S(SRC1) != S(diff);
+	$flags.z = (diff == 0);
+	if (op == cmps)
+		$flags.c = S ^ O;
+	else if (op == cmpu)
+		$flags.c = diff >> sz & 1;
+	else if (op == cmp) {
+		$flags.c = diff >> sz & 1;
+		$flags.o = O;
+		$flags.s = S;
+	}
+
+
+Addition/substraction: add, adc, sub, sbb
+
+Add or substract two values, possibly with carry/borrow.
+
+Insns [sized]:
+  [0] add - add
+  [1] adc - add with carry
+  [2] sub - substract
+  [3] sbb - substrace with borrow
+
+Operands [DST, SRC1, SRC2]:
+  [10] R1, R2, I8
+  [20] R1, R2, I16
+  [36] R2, R2, I8
+  [37] R2, R2, I16
+  [3b] R2, R2, R1
+  [3c] R3, R2, R1
+
+Immediates are zero-extended.
+
+Operation:
+	s2 = SRC2;
+	if (op == adc || op == sbb)
+		s2 += $flags.c;
+	if (op == sub || op == sbb)
+		s2 = -s2;
+	res = SRC1 + s2;
+	DST = res;
+	$flags.c = (res >> sz) & 1;
+	if (op == add || op == adc) {
+		$flags.o = S(SRC1) == S(SRC2) && S(SRC1) != S(res);
+	} else {
+		$flags.o = S(SRC1) != S(SRC2) && S(SRC1) != S(res);
+	}
+	$flags.s = S(DST);
+	$flags.z = (DST == 0);
+
+
+Shifts: shl, shr, sar, shlc, shrc
+
+Shift a value. For shl/shr, the extra bits "shifted in" are 0. For sar,
+they're equal to sign bit of source. For shlc/shrc, the first such bit
+is taken from carry flag, the rest are 0.
+
+Insns [sized]:
+  [4] shl - shift left
+  [5] shr - shift right
+  [6] sar - shift right with sign bit
+  [c] shlc - shift left with carry in
+  [d] shrc - shift right with carry in
+
+Operands [DST, SRC1, SRC2]:
+  [10] R1, R2, I8
+  [36] R2, R2, I8
+  [3b] R2, R2, R1
+  [3c] R3, R2, R1
+
+Operation:
+	if (sz == 8)
+		shcnt = SRC2 & 7;
+	else if (sz == 16)
+		shcnt = SRC2 & 0xf;
+	else // sz == 32
+		shcnt = SRC2 & 0x1f;
+	if (op == shl || op == shlc) {
+		res = SRC1 << shcnt;
+		if (op == shlc && shcnt != 0)
+			res |= $flags.c << (shcnt - 1);
+		$flags.c = res >> sz & 1;
+		DST = res;
+	} else { // shr, sar, shrc
+		res = SRC1 >> shcnt;
+		if (op == shrc && shcnt != 0)
+			res |= $flags.c << (sz - shcnt);
+		if (op == sar && S(SRC1))
+			res |= ~0 << (sz - shcnt);
+		if (shcnt == 0)
+			$flags.c = 0;
+		else
+			$flags.c = SRC1 >> (shcnt - 1) & 1;
+		DST = res;
+	}
+	if (NVA3+) {
+		$flags.o = 0;
+		$flags.s = S(DST);
+		$flags.z = (DST == 0);
+	}
+
+
+Logical not: not
+
+Flips all bits in a value.
+
+Insns [sized]:
+  [0] not
+
+Operands [DST, SRC]
+  [39] R1, R2
+  [3d] R2, R2
+
+Operation:
+	DST = ~SRC;
+	$flags.o = 0;
+	$flags.s = S(DST);
+	$flags.z = (DST == 0);
+
+
+Negation: neg
+
+Negates a value
+
+Insns [sized]:
+  [1] neg - negate a value
+
+Operands [DST, SRC]
+  [39] R1, R2
+  [3d] R2, R2
+
+Operation:
+	DST = -SRC;
+	$flags.o = (DST == 1 << (sz - 1));
+	$flags.s = S(DST);
+	$flags.z = (DST == 0);
+
+
+Moving data: mov, movf
+
+Moves a value from one register to another. On NV98, also sets flags
+according to the value.
+
+Insns [sized]:
+  [2] movf - move a value and set flags [NV98]
+  [2] mov - move a value [NVA3+]
+
+Operands [DST, SRC]
+  [39] R1, R2
+  [3d] R2, R2
+
+Operation:
+	DST = SRC;
+	if (NV98) {
+		$flags.o = 0;
+		$flags.s = S(DST);
+		$flags.z = (DST == 0);
+	}
+
+
+Loading immediates: mov
+
+Sets a register to an immediate.
+
+Insns [unsized]:
+  [7] mov - Load an immediate
+
+Operands [DST, SRC]:
+  [f0] R2, I8
+  [f1] R2, I16
+
+Immediates are sign-extended.
+
+Operation:
+	DST = SRC;
+
+
+Setting high bits: sethi
+
+Sets high 16 bits of a register to an immediate.
+
+Insns [unsized]:
+  [3] sethi - Set high bits
+
+Operands [DST, SRC]:
+  [f0] R2, I8
+  [f1] R2, I16
+
+Immediates are zero-extended.
+
+Operation:
+	DST = DST & 0xffff | SRC << 16;
+
+
+Clearing registers: clear
+
+Sets a register to 0.
+
+Insns [sized]:
+  [4] clear - Clear a register
+
+Operands [DST]:
+  [3d] R2
+
+Operation:
+	DST = 0;
+
+
+Swapping reg halves: hswap
+
+Rotates a value by half its size.
+
+Insns [sized]:
+  [3] hswap - Swap halves
+
+Operands [DST, SRC]
+  [39] R1, R2
+  [3d] R2, R2
+
+Operation:
+	DST = SRC >> (sz / 2) | SRC << (sz / 2);
+	$flags.o = 0;
+	$flags.s = S(DST);
+	$flags.z = (DST == 0);
+
+
+Setting flags: setf
+
+Sets flags according to a value.
+
+Insns [sized]:
+  [5] setf - Set flags according to a value [NVA3+]
+
+Operands [SRC]:
+  [3d] R2
+
+Operation:
+	$flags.o = 0;
+	$flags.s = S(SRC);
+	$flags.z = (SRC == 0);
+
+
+Multiplication: mulu, muls
+
+Does a 16x16 -> 32 multiplication.
+
+Insns [unsized]:
+  [0] mulu - Multiply unsigned
+  [1] muls - Multiply signed
+
+Operands [DST, SRC1, SRC2]:
+  [c0] R1, R2, I8
+  [e0] R1, R2, I16
+  [f0] R2, R2, I8
+  [f1] R2, R2, I16
+  [fd] R2, R2, R1
+  [ff] R3, R2, R1
+
+Immediates are zero-extended for mulu, sign-extended for muls.
+
+Operation:
+	s1 = SRC1 & 0xffff;
+	s2 = SRC2 & 0xffff;
+	if (op == muls) {
+		if (s1 & 0x8000)
+			s1 |= 0xffff0000;
+		if (s2 & 0x8000)
+			s2 |= 0xffff0000;
+	}
+	DST = s1 * s2;
+
+
+Sign extension: sex
+
+Does a sign-extension of low X bits of a value.
+
+Insns [unsized]:
+  [2] sex - Sign-extend
+
+Operands [DST, SRC1, SRC2]:
+  [c0] R1, R2, I8
+  [f0] R2, R2, I8
+  [fd] R2, R2, R1
+  [ff] R3, R2, R1
+
+Operation:
+	bit = SRC2 & 0x1f;
+	if (SRC1 & 1 << bit) {
+		DST = SRC1 & ((1 << bit) - 1) | -(1 << bit);
+	} else {
+		DST = SRC1 & ((1 << bit) - 1);
+	}
+	$flags.s = S(DST);
+	$flags.z = (DST == 0);
+
+
+Bitfield extraction: extr, extrs XXX
+
+Extracts a bitfield.
+
+Insns [unsized]:
+  [3] extrs - Extract signed bitfield [NVA3+]
+  [7] extr - Extract unsigned bitfield [NVA3+]
+
+Operands [DST, SRC1, SRC2]:
+  [c0] R1, R2, I8
+  [e0] R1, R2, I16
+  [ff] R3, R2, R1
+
+Immediates are zero-extended.
+
+Operation:
+	low = SRC2 & 0x1f;
+	size = (SRC2 >> 5 & 0x1f) + 1;
+	bf = (SRC1 >> low) & ((1 << size) - 1);
+	if (op == extrs) {
+		signbit = (low + size - 1) & 0x1f; // depending on the mask is probably a bad idea.
+		if (SRC1 & 1 << signbit)
+			bf |= -(1 << size);
+	}
+	DST = bf;
+
+
+Bitfield insertion: ins XXX
+
+Inserts a bitfield.
+
+Insns [unsized]:
+  [b] ins - Insert a bitfield [NVA3+]
+
+Operands [DST, SRC1, SRC2]:
+  [c0] R1, R2, I8
+  [e0] R1, R2, I16
+
+Immediates are zero-extended.
+
+Operation:
+	low = SRC2 & 0x1f;
+	size = (SRC2 >> 5 & 0x1f) + 1;
+	if (low + size <= 32) { // nop if bitfield out of bounds - I wouldn't depend on it, though...
+		DST &= ~(((1 << size) - 1) << low); // clear the current contents of the bitfield
+		bf = SRC1 & ((1 << size) - 1);
+		DST |= bf << low;
+	}
+
+
+Bitwise operations: and, or, xor
+
+Ands, ors, or xors two operands.
+
+Insns [unsized]:
+  [4] and
+  [5] or
+  [6] xor
+
+Operands [DST, SRC1, SRC2]:
+  [c0] R1, R2, I8
+  [e0] R1, R2, I16
+  [f0] R2, R2, I8
+  [f1] R2, R2, I16
+  [fd] R2, R2, R1
+  [ff] R3, R2, R1
+
+Immediates are zero-extended.
+
+Operation:
+	if (op == and)
+		DST = SRC1 & SRC2;
+	if (op == or)
+		DST = SRC1 | SRC2;
+	if (op == xor)
+		DST = SRC1 ^ SRC2;
+	if (NVA3+) {
+		$flags.c = 0;
+		$flags.o = 0;
+		$flags.s = S(DST);
+		$flags.z = (DST == 0);
+	}
+
+
+Bit extraction: xbit
+
+Extracts a single bit of a specified register. On NV98, the bit is stored
+to bit 0 of DST, other bits are unmodified. On NVA3+, the bit is stored to
+bit 0 of DST, and all other bits of DST are set to 0.
+
+Insns [unsized]:
+  xbit - Extract a bit
+
+Operands [DST, SRC1, SRC2]:
+  [c0/8] R1, R2, I8
+  [ff/8] R3, R2, R1
+  [f0/c] R2, $flags, I8
+  [fe/c] R1, $flags, R2
+
+Operation [NV98]:
+	bit = SRC2 & 0x1f;
+	DST = DST & ~1 | (SRC1 >> bit & 1);
+Operation [NVA3+]:
+	bit = SRC2 & 0x1f;
+	DST = SRC1 >> bit & 1;
+	$flags.s = S(DST); // always works out to 0.
+	$flags.z = (DST == 0);
+
+
+Bit manipulation: bset, bclr, btgl
+
+Set, clear, or flip a specified bit of a register.
+
+Insns [unsized]:
+  [1] bset - Set a bit
+  [2] bclr - Clear a bit
+  [3] btgl - Flip a bit
+
+Operands [DST, SRC]:
+  [f0/subop+8] R2, I8
+  [fd/subop+8] R2, R1
+  [f4/subop+30] $flags, I8
+  [f9/subop+8] $flags, R2
+
+Operation:
+	bit = SRC & 0x1f;
+	if (op == bset)
+		DST |= 1 << bit;
+	else if (op == bclr)
+		DST &= ~(1 << bit);
+	else // op == btgl
+		DST ^= 1 << bit;
+
+
+Division and remainder: div, mod
+
+Does unsigned 32-bit division / modulus.
+
+Insns [unsized]:
+  [c] div - Divide [NVA3+]
+  [d] mod - Take modulus [NVA3+]
+
+Operands [DST, SRC1, SRC2]:
+  [c0] R1, R2, I8
+  [e0] R1, R2, I16
+  [ff] R3, R2, R1
+
+Immediates are zero-extended.
+
+Operation:
+	if (SRC2 == 0) {
+		dres = 0xffffffff;
+	} else {
+		dres = SRC1 / SRC2;
+	}
+	if (op == div)
+		DST = dres;
+	else // op == mod
+		DST = SRC1 - dres * SRC2;
+
+
+Setting predicates: setp
+
+Sets bit #SRC2 in $flags to bit 0 of SRC1.
+
+Insns [unsized]:
+  [8] setp - Set predicate
+
+Operands [SRC1, SRC2]:
+  [f2] R2, I8
+  [fa] R2, R1
+
+Operation:
+	bit = SRC2 & 0x1f;
+	$flags = ($flags & ~(1 << bit)) | (SRC1 & 1) << bit;

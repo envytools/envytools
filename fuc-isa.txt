@@ -1,0 +1,190 @@
+Instruction / register types
+
+A - arithmetic, logic, and moving data around	[fuc-arith.txt]
+B - branching and flow control			[fuc-branch.txt]
+C - uc control					[fuc-ctrl.txt]
+D - access to data space			[fuc-data.txt]
+I - access to MMIO space			[fuc-mmio.txt]
+S - secret stuff				[fuc-crypt.txt]
+T - traps and interrupts			[fuc-intr.txt]
+V - virtual memory				[fuc-vm.txt]
+X - external xfers				[fuc-xfer.txt]
++ - NVA3+ only insn
+
+Registers
+
+There are 16 32-bit GPRs, $r0-$r15. There are also a dozen or so special
+registers:
+
+num | type | name
+-----------------
+ 0  |  T   | $iv0
+ 1  |  T   | $iv1
+ 3  |  T   | $tv
+ 4  |  D   | $sp
+ 5  |  B   | $pc
+ 6  |  X   | $xcbase
+ 7  |  X   | $xdbase
+ 8  |  AT  | $flags
+ 9  |  S   | $cx
+ a  |  S   | $cauth
+ b  |  X   | $xtargets
+ c  |  T+  | $tstatus
+
+$flags is split into the following bitfields:
+
+num | type | name
+-----------------
+0-7 |  A   | $p0-$p7
+ 8  |  A   | c
+ 9  |  A   | o
+ a  |  A   | s
+ b  |  A   | z
+10  |  T   | ie0
+11  |  T   | ie1
+14  |  T   | is0
+15  |  T   | is1
+18  |  T   | ta
+
+
+Instruction formats
+
+Instructions have 2, 3, or 4 bytes. First byte of instruction determines its
+length and format. High 2 bits of the first byte determine the instruction's
+operand size; 00 means 8-bit, 01 means 16-bit, 10 means 32-bit, and 11 means
+an instruction that doesn't use operand sizing. The set of available opcodes
+varies greatly with the instruction format.
+
+O1: opcode goes to low 4 bits of byte 0
+O2: opcode goes to low 4 bits of byte 1
+OL: opcode goes to low 6 bits of byte 1
+O3: opcode goes to low 4 bits of byte 2
+
+R1x: register encoded in low 4 bits of byte 1
+R2x: register encoded in high 4 bits of byte 1
+R3x: register encoded in high 4 bits of byte 2
+RxS: register used as source
+RxD: register used as destination
+RxSD: register used as both source and destination
+I8: 8-bit immediate encoded in byte 2
+I16: 16-bit immediate encoded in bytes 2 and 3
+
+Sized
+
+ - 0x: O1 R2S R1S I8
+ - 1x: O1 R1D R2S I8
+ - 2x: O1 R1D R2S I16
+ - 30: O2 R2S I8
+ - 31: O2 R2S I16
+ - 34: O2 R2D I8
+ - 36: O2 R2SD I8
+ - 37: O2 R2SD I16
+ - 38: O3 R2S R1S
+ - 39: O3 R1D R2S
+ - 3a: O3 R2D R1S
+ - 3b: O3 R2SD R1S
+ - 3c: O3 R3D R2S R1S
+ - 3d: O2 R2SD
+
+Unsized
+
+ - cx: O1 R1D R2S I8
+ - dx: O1 R2S R1S I8
+ - ex: O1 R1D R2S I16
+ - f0: O2 R2SD I8
+ - f1: O2 R2SD I16
+ - f2: O2 R2S I8
+ - f4: OL I8
+ - f5: OL I16
+ - f8: O2
+ - f9: O2 R2S
+ - fa: O3 R2S R1S
+ - fc: O2 R2D
+ - fd: O3 R2SD R1S
+ - fe: O3 R1D R2S
+ - ff: O3 R3D R2S R1S
+
+Instructions
+
+Sized
+
+ insn    |type|0x|1x|2x|30|31|34|36|37|38|39|3a|3b|3c|3d|imm|flg98|flgA3|
+-------------------------------------------------------------------------
+ st      |D   | 0|  |  |  |  |  |  |  | 0|  |  |  |  |  | U |-    |-    |
+ st [sp] |D   |  |  |  | 1|  |  |  |  | 1|  |  |  |  |  | U |-    |-    |
+ cmpu    |A   |  |  |  | 4| 4|  |  |  | 4|  |  |  |  |  | U |CZ   |CZ   |
+ cmps    |A   |  |  |  | 5| 5|  |  |  | 5|  |  |  |  |  | S |CZ   |CZ   |
+ cmp     |A+  |  |  |  | 6| 6|  |  |  | 6|  |  |  |  |  | S |N/A  |COSZ |
+ add     |A   |  | 0| 0|  |  |  | 0| 0|  |  |  | 0| 0|  | U |COSZ |COSZ |
+ adc     |A   |  | 1| 1|  |  |  | 1| 1|  |  |  | 1| 1|  | U |COSZ |COSZ |
+ sub     |A   |  | 2| 2|  |  |  | 2| 2|  |  |  | 2| 2|  | U |COSZ |COSZ |
+ sbb     |A   |  | 3| 3|  |  |  | 3| 3|  |  |  | 3| 3|  | U |COSZ |COSZ |
+ shl     |A   |  | 4|  |  |  |  | 4|  |  |  |  | 4| 4|  | U |C    |COSZ |
+ shr     |A   |  | 5|  |  |  |  | 5|  |  |  |  | 5| 5|  | U |C    |COSZ |
+ sar     |A   |  | 7|  |  |  |  | 7|  |  |  |  | 7| 7|  | U |C    |COSZ |
+ ld      |D   |  | 8|  |  |  |  |  |  |  |  |  |  | 8|  | U |-    |-    |
+ shlc    |A   |  | c|  |  |  |  | c|  |  |  |  | c| c|  | U |C    |COSZ |
+ shrc    |A   |  | d|  |  |  |  | d|  |  |  |  | d| d|  | U |C    |COSZ |
+ ld [sp] |D   |  |  |  |  |  | 0|  |  |  |  | 0|  |  |  | U |-    |-    |
+ not     |A   |  |  |  |  |  |  |  |  |  | 0|  |  |  | 0|   |OSZ  |OSZ  |
+ neg     |A   |  |  |  |  |  |  |  |  |  | 1|  |  |  | 1|   |OSZ  |OSZ  |
+ mov     |A   |  |  |  |  |  |  |  |  |  | 2|  |  |  | 2|   |OSZ  |-    |
+ hswap   |A   |  |  |  |  |  |  |  |  |  | 3|  |  |  | 3|   |OSZ  |OSZ  |
+ clear   |A   |  |  |  |  |  |  |  |  |  |  |  |  |  | 4|   |-    |-    |
+ setf    |A+  |  |  |  |  |  |  |  |  |  |  |  |  |  | 5|   |N/A  |OSZ  |
+
+Unsized
+
+ insn    |type|cx|dx|ex|f0|f1|f2|f4|f5|f8|f9|fa|fc|fd|fe|ff|imm|flg98|flgA3|
+----------------------------------------------------------------------------
+ mulu    |A   | 0|  | 0| 0| 0|  |  |  |  |  |  |  | 0|  | 0| U |-    |-    |
+ muls    |A   | 1|  | 1| 1| 1|  |  |  |  |  |  |  | 1|  | 1| S |-    |-    |
+ sex     |A   | 2|  |  | 2|  |  |  |  |  |  |  |  | 2|  | 2| U |SZ   |SZ   |
+ extrs   |A+  | 3|  | 3|  |  |  |  |  |  |  |  |  |  |  | 3| U | N/A |SZ   |
+ sethi   |A   |  |  |  | 3| 3|  |  |  |  |  |  |  |  |  |  | H |-    |-    |
+ and     |A   | 4|  | 4| 4| 4|  |  |  |  |  |  |  | 4|  | 4| U |-    |COSZ |
+ or      |A   | 5|  | 5| 5| 5|  |  |  |  |  |  |  | 5|  | 5| U |-    |COSZ |
+ xor     |A   | 6|  | 6| 6| 6|  |  |  |  |  |  |  | 6|  | 6| U |-    |COSZ |
+ extr    |A+  | 7|  | 7|  |  |  |  |  |  |  |  |  |  |  | 7| U | N/A |SZ   |
+ mov     |A   |  |  |  | 7| 7|  |  |  |  |  |  |  |  |  |  | S |-    |-    |
+ xbit    |A   | 8|  |  |  |  |  |  |  |  |  |  |  |  |  | 8| U |-    |SZ   |
+ bset    |A   |  |  |  | 9|  |  |  |  |  |  |  |  | 9|  |  | U |-    |-    |
+ bclr    |A   |  |  |  | a|  |  |  |  |  |  |  |  | a|  |  | U |-    |-    |
+ btgl    |A   |  |  |  | b|  |  |  |  |  |  |  |  | b|  |  | U |-    |-    |
+ ins     |A+  | b|  | b|  |  |  |  |  |  |  |  |  |  |  |  | U | N/A |-    |
+ xbit[fl]|A   |  |  |  | c|  |  |  |  |  |  |  |  |  | c|  | U |-    |SZ   |
+ div     |A+  | c|  | c|  |  |  |  |  |  |  |  |  |  |  | c| U | N/A |-    |
+ mod     |A+  | d|  | d|  |  |  |  |  |  |  |  |  |  |  | d| U | N/A |-    |
+ iord    |I   | f|  |  |  |  |  |  |  |  |  |  |  |  |  | f| U |-    |-    |
+ iowr    |I   |  | 0|  |  |  |  |  |  |  |  | 0|  |  |  |  | U |-    |-    |
+ iowrs   |I+  |  | 1|  |  |  |  |  |  |  |  | 1|  |  |  |  | U | N/A |-    |
+ xcld    |X   |  |  |  |  |  |  |  |  |  |  | 4|  |  |  |  |   |-    |-    |
+ xdld    |X   |  |  |  |  |  |  |  |  |  |  | 5|  |  |  |  |   |-    |-    |
+ xdst    |X   |  |  |  |  |  |  |  |  |  |  | 6|  |  |  |  |   |-    |-    |
+ setp    |A   |  |  |  |  |  | 8|  |  |  |  | 8|  |  |  |  |   |-    |-    |
+ ccmd    |S   |  |  |  |  |  | c|3c|3c|  |  |  |  |  |  |  |   |-    |-    |
+ bra [r] |B   |  |  |  |  |  |  |0x|0x|  |  |  |  |  |  |  | S |-    |-    |
+ bra [r] |B   |  |  |  |  |  |  |1x|1x|  |  |  |  |  |  |  | S |-    |-    |
+ bra     |B   |  |  |  |  |  |  |20|20|  | 4|  |  |  |  |  | U |-    |-    |
+ call    |B   |  |  |  |  |  |  |21|21|  | 5|  |  |  |  |  | U |-    |-    |
+ sleep   |C   |  |  |  |  |  |  |28|  |  |  |  |  |  |  |  | U |-    |-    |
+ add [sp]|D   |  |  |  |  |  |  |30|  |  | 1|  |  |  |  |  | S |-    |-    |
+ bset[fl]|A   |  |  |  |  |  |  |31|  |  | 9|  |  |  |  |  | U |-    |-    |
+ bclr[fl]|A   |  |  |  |  |  |  |32|  |  | a|  |  |  |  |  | U |-    |-    |
+ btgl[fl]|A   |  |  |  |  |  |  |33|  |  | b|  |  |  |  |  | U |-    |-    |
+ ret     |B   |  |  |  |  |  |  |  |  | 0|  |  |  |  |  |  |   |-    |-    |
+ iret    |T   |  |  |  |  |  |  |  |  | 1|  |  |  |  |  |  |   |-    |-    |
+ exit    |C   |  |  |  |  |  |  |  |  | 2|  |  |  |  |  |  |   |-    |-    |
+ xdwait  |X   |  |  |  |  |  |  |  |  | 3|  |  |  |  |  |  |   |-    |-    |
+ xcwait  |X   |  |  |  |  |  |  |  |  | 7|  |  |  |  |  |  |   |-    |-    |
+ trap 0  |T+  |  |  |  |  |  |  |  |  | 8|  |  |  |  |  |  |   | N/A |-    |
+ trap 1  |T+  |  |  |  |  |  |  |  |  | 9|  |  |  |  |  |  |   | N/A |-    |
+ trap 2  |T+  |  |  |  |  |  |  |  |  | a|  |  |  |  |  |  |   | N/A |-    |
+ trap 3  |T+  |  |  |  |  |  |  |  |  | b|  |  |  |  |  |  |   | N/A |-    |
+ push    |D   |  |  |  |  |  |  |  |  |  | 0|  |  |  |  |  |   |-    |-    |
+ unbind  |V+  |  |  |  |  |  |  |  |  |  | 8|  |  |  |  |  |   | N/A |-    |
+ pop     |D   |  |  |  |  |  |  |  |  |  |  |  | 0|  |  |  |   |-    |-    |
+ mov[>sr]|C   |  |  |  |  |  |  |  |  |  |  |  |  |  | 0|  |   |-    |-    |
+ mov[<sr]|C   |  |  |  |  |  |  |  |  |  |  |  |  |  | 1|  |   |-    |-    |
+ ptlb    |V+  |  |  |  |  |  |  |  |  |  |  |  |  |  | 2|  |   | N/A |-    |
+ vtlb    |V+  |  |  |  |  |  |  |  |  |  |  |  |  |  | 3|  |   | N/A |-    |

@@ -348,9 +348,9 @@ static struct insn tabsi[] = {
 
 	{ -1,    -1, 0x00000039, 0x000f003f, OP24, N("not"), T(sz), REG1, REG2 },
 	{ -1,    -1, 0x00010039, 0x000f003f, OP24, N("neg"), T(sz), REG1, REG2 },
-	{ NV98,  -1, 0x00020039, 0x000f003f, OP24, N("movf"), T(sz), REG1, REG2 }, /* mov and set ZF+SF according to val */
+	{ NV98,  -1, 0x00020039, 0x000f003f, OP24, N("movf"), T(sz), REG1, REG2 },
 	{ NVA3P, -1, 0x00020039, 0x000f003f, OP24, N("mov"), T(sz), REG1, REG2 },
-	{ -1,    -1, 0x00030039, 0x000f003f, OP24, N("hswap"), T(sz), REG1, REG2 }, /* swap halves - ie. rotate by half the size in bits. */
+	{ -1,    -1, 0x00030039, 0x000f003f, OP24, N("hswap"), T(sz), REG1, REG2 },
 	{ -1,    -1, 0x00000039, 0x0000003f, OP24, OOPS, T(sz), REG1, REG2 },
 
 	{ -1,    -1, 0x0000003a, 0x000f003f, OP24, N("ld"), T(sz), REG2, T(dataspr) },
@@ -382,10 +382,10 @@ static struct insn tabsi[] = {
 	{ -1,    -1, 0x0000003d, 0x00000f3f, OP16, N("not"), T(sz), REG2 },
 	{ -1,    -1, 0x0000013d, 0x00000f3f, OP16, N("neg"), T(sz), REG2 },
 	{ NV98,  -1, 0x0000023d, 0x00000f3f, OP16, N("movf"), T(sz), REG2 },
-	{ NVA3P, -1, 0x0000023d, 0x00000f3f, OP16, N("mov"), T(sz), REG2 }, /* about as useless as you'd expect */
+	{ NVA3P, -1, 0x0000023d, 0x00000f3f, OP16, N("mov"), T(sz), REG2 },
 	{ -1,    -1, 0x0000033d, 0x00000f3f, OP16, N("hswap"), T(sz), REG2 },
-	{ -1,    -1, 0x0000043d, 0x00000f3f, OP16, N("clear"), T(sz), REG2 }, /* set to 0. */
-	{ NVA3P, -1, 0x0000053d, 0x00000f3f, OP16, N("setf"), T(sz), REG2 }, /* set flags according to val */
+	{ -1,    -1, 0x0000043d, 0x00000f3f, OP16, N("clear"), T(sz), REG2 },
+	{ NVA3P, -1, 0x0000053d, 0x00000f3f, OP16, N("setf"), T(sz), REG2 },
 	{ -1,    -1, 0x0000003d, 0x0000003f, OP16, OOPS, T(sz), REG2 },
 
 	{ -1,    -1, 0, 0, OOPS, T(sz) },
@@ -399,13 +399,13 @@ static struct insn tabm[] = {
 	{ -1,    -1, 0x000000c0, 0x000000ff, OP24, N("mulu"), REG1, REG2, IMM8 },
 	{ -1,    -1, 0x000000c1, 0x000000ff, OP24, N("muls"), REG1, REG2, IMM8S },
 	{ -1,    -1, 0x000000c2, 0x000000ff, OP24, N("sex"), REG1, REG2, IMM8 },
-	{ NVA3P, -1, 0x000000c3, 0x000000ff, OP24, N("extrs"), REG1, REG2, BITF8 }, /* extracts a signed bitfield */
+	{ NVA3P, -1, 0x000000c3, 0x000000ff, OP24, N("extrs"), REG1, REG2, BITF8 },
 	{ -1,    -1, 0x000000c4, 0x000000ff, OP24, N("and"), REG1, REG2, IMM8 },
 	{ -1,    -1, 0x000000c5, 0x000000ff, OP24, N("or"), REG1, REG2, IMM8 },
 	{ -1,    -1, 0x000000c6, 0x000000ff, OP24, N("xor"), REG1, REG2, IMM8 },
 	{ NVA3P, -1, 0x000000c7, 0x000000ff, OP24, N("extr"), REG1, REG2, BITF8 },
 	{ -1,    -1, 0x000000c8, 0x000000ff, OP24, N("xbit"), REG1, REG2, IMM8 },
-	{ NVA3P, -1, 0x000000cb, 0x000000ff, OP24, N("ins"), REG1, REG2, BITF8 }, /* inserts [overwrites] a bitfield */
+	{ NVA3P, -1, 0x000000cb, 0x000000ff, OP24, N("ins"), REG1, REG2, BITF8 },
 	{ NVA3P, -1, 0x000000cc, 0x000000ff, OP24, N("div"), REG1, REG2, IMM8 },
 	{ NVA3P, -1, 0x000000cd, 0x000000ff, OP24, N("mod"), REG1, REG2, IMM8 },
 	{ -1,    -1, 0x000000ce, 0x000000ff, OP24, U("ce"), REG1, IORI },
@@ -430,7 +430,7 @@ static struct insn tabm[] = {
 
 	{ -1,    -1, 0x000000f0, 0x00000ffe, T(ol0), N("mulu"), REG2, T(i) },
 	{ -1,    -1, 0x000001f0, 0x00000ffe, T(ol0), N("muls"), REG2, T(is) },
-	{ -1,    -1, 0x000002f0, 0x00000fff, T(ol0), N("sex"), REG2, T(i) }, /* funky instruction. bits ARG2+1 through 31 of ARG1 are replaced with copy of bit ARG2. */
+	{ -1,    -1, 0x000002f0, 0x00000fff, T(ol0), N("sex"), REG2, T(i) },
 	{ -1,    -1, 0x000003f0, 0x00000ffe, T(ol0), N("sethi"), REG2, T(ih) },
 	{ -1,    -1, 0x000004f0, 0x00000ffe, T(ol0), N("and"), REG2, T(i) },
 	{ -1,    -1, 0x000005f0, 0x00000ffe, T(ol0), N("or"), REG2, T(i) },
@@ -443,7 +443,7 @@ static struct insn tabm[] = {
 	{ -1,    -1, 0x00000cf0, 0x00000fff, T(ol0), N("set"), REG2, FLAGS, T(fl) },
 	{ -1,    -1, 0x000000f0, 0x000000fe, T(ol0), OOPS, REG2, T(i) },
 
-	{ -1,    -1, 0x000008f2, 0x00000fff, OP24, N("setp"), T(fl), REG2 }, /* set given flag if bit0 of ARG2 set */
+	{ -1,    -1, 0x000008f2, 0x00000fff, OP24, N("setp"), T(fl), REG2 },
 	/* The indirect crypt opcodes.
 	 *
 	 * For one-reg opcodes, the crypt register to use is selected by
@@ -535,21 +535,21 @@ static struct insn tabm[] = {
 	{ -1,    -1, 0x000400fa, 0x000f00ff, OP24, N("xcld"), REG2, REG1 },
 	{ -1,    -1, 0x000500fa, 0x000f00ff, OP24, N("xdld"), REG2, REG1 },
 	{ -1,    -1, 0x000600fa, 0x000f00ff, OP24, N("xdst"), REG2, REG1 },
-	{ -1,    -1, 0x000800fa, 0x000f00ff, OP24, N("setp"), REG1, REG2 }, /* set given flag if bit0 of ARG2 set */
+	{ -1,    -1, 0x000800fa, 0x000f00ff, OP24, N("setp"), REG1, REG2 },
 	{ -1,    -1, 0x000000fa, 0x000000ff, OP24, OOPS, REG2, REG1 },
 
 	{ -1,    -1, 0x000000fc, 0x00000fff, OP16, N("pop"), REG2 },
 	{ -1,    -1, 0x000000fc, 0x000000ff, OP16, OOPS, REG2 },
 
-	{ -1,    -1, 0x000000fd, 0x000f00ff, OP24, N("mulu"), REG2, REG1 }, /* no flags */
-	{ -1,    -1, 0x000100fd, 0x000f00ff, OP24, N("muls"), REG2, REG1 }, /* no flags */
-	{ -1,    -1, 0x000200fd, 0x000f00ff, OP24, N("sex"), REG2, REG1 }, /* flags: SZ */
-	{ -1,    -1, 0x000400fd, 0x000f00ff, OP24, N("and"), REG2, REG1 }, /* flags: COSZ [CO: 0] */
-	{ -1,    -1, 0x000500fd, 0x000f00ff, OP24, N("or"), REG2, REG1 }, /* flags: COSZ [CO: 0] */
-	{ -1,    -1, 0x000600fd, 0x000f00ff, OP24, N("xor"), REG2, REG1 }, /* flags: COSZ [CO: 0] */
-	{ -1,    -1, 0x000900fd, 0x000f00ff, OP24, N("bset"), REG2, REG1 }, /* no flags */
-	{ -1,    -1, 0x000a00fd, 0x000f00ff, OP24, N("bclr"), REG2, REG1 }, /* no flags */
-	{ -1,    -1, 0x000b00fd, 0x000f00ff, OP24, N("btgl"), REG2, REG1 }, /* no flags */
+	{ -1,    -1, 0x000000fd, 0x000f00ff, OP24, N("mulu"), REG2, REG1 },
+	{ -1,    -1, 0x000100fd, 0x000f00ff, OP24, N("muls"), REG2, REG1 },
+	{ -1,    -1, 0x000200fd, 0x000f00ff, OP24, N("sex"), REG2, REG1 },
+	{ -1,    -1, 0x000400fd, 0x000f00ff, OP24, N("and"), REG2, REG1 },
+	{ -1,    -1, 0x000500fd, 0x000f00ff, OP24, N("or"), REG2, REG1 },
+	{ -1,    -1, 0x000600fd, 0x000f00ff, OP24, N("xor"), REG2, REG1 },
+	{ -1,    -1, 0x000900fd, 0x000f00ff, OP24, N("bset"), REG2, REG1 },
+	{ -1,    -1, 0x000a00fd, 0x000f00ff, OP24, N("bclr"), REG2, REG1 },
+	{ -1,    -1, 0x000b00fd, 0x000f00ff, OP24, N("btgl"), REG2, REG1 },
 	{ -1,    -1, 0x000000fd, 0x000000ff, OP24, OOPS, REG2, REG1 },
 
 	{ -1,    -1, 0x000000fe, 0x000f00ff, OP24, N("mov"), SREG1, REG2 },
@@ -578,20 +578,20 @@ static struct insn tabm[] = {
 	 *  	didn't find any physical page
 	 */
 	{ NVA3P, -1, 0x000300fe, 0x000f00ff, OP24, N("vtlb"), REG1, REG2 }, /* no flags */
-	{ -1,    -1, 0x000c00fe, 0x000f00ff, OP24, N("set"), REG1, FLAGS, REG2 }, /* flags: SZ, sets dst to 1 if given bit set in $flags. XXX: check nv98 */
+	{ -1,    -1, 0x000c00fe, 0x000f00ff, OP24, N("set"), REG1, FLAGS, REG2 },
 	{ -1,    -1, 0x000000fe, 0x000000ff, OP24, OOPS, REG1, REG2 },
 
-	{ -1,    -1, 0x000000ff, 0x000f00ff, OP24, N("mulu"), REG3, REG2, REG1 }, /* no flags */
-	{ -1,    -1, 0x000100ff, 0x000f00ff, OP24, N("muls"), REG3, REG2, REG1 }, /* no flags */
-	{ -1,    -1, 0x000200ff, 0x000f00ff, OP24, N("sex"), REG3, REG2, REG1 }, /* flags: SZ */
-	{ NVA3P, -1, 0x000300ff, 0x000f00ff, OP24, N("extrs"), REG3, REG2, REG1 }, /* flags: SZ */
-	{ -1,    -1, 0x000400ff, 0x000f00ff, OP24, N("and"), REG3, REG2, REG1 }, /* flags: COSZ [CO: 0] */
-	{ -1,    -1, 0x000500ff, 0x000f00ff, OP24, N("or"), REG3, REG2, REG1 }, /* flags: COSZ [CO: 0] */
-	{ -1,    -1, 0x000600ff, 0x000f00ff, OP24, N("xor"), REG3, REG2, REG1 }, /* flags: COSZ [CO: 0] */
-	{ NVA3P, -1, 0x000700ff, 0x000f00ff, OP24, N("extr"), REG3, REG2, REG1 }, /* flags: SZ */
-	{ -1,    -1, 0x000800ff, 0x000f00ff, OP24, N("xbit"), REG3, REG2, REG1 }, /* flags: SZ, NV98: ARG1 = (ARG1 & 0xfffffffe) | (ARG2 >> ARG3 & 1) ; NVA3+: ARG1 = ARG2 >> ARG3 & 1 */
-	{ NVA3P, -1, 0x000c00ff, 0x000f00ff, OP24, N("div"), REG3, REG2, REG1 }, /* no flags */
-	{ NVA3P, -1, 0x000d00ff, 0x000f00ff, OP24, N("mod"), REG3, REG2, REG1 }, /* no flags */
+	{ -1,    -1, 0x000000ff, 0x000f00ff, OP24, N("mulu"), REG3, REG2, REG1 },
+	{ -1,    -1, 0x000100ff, 0x000f00ff, OP24, N("muls"), REG3, REG2, REG1 },
+	{ -1,    -1, 0x000200ff, 0x000f00ff, OP24, N("sex"), REG3, REG2, REG1 },
+	{ NVA3P, -1, 0x000300ff, 0x000f00ff, OP24, N("extrs"), REG3, REG2, REG1 },
+	{ -1,    -1, 0x000400ff, 0x000f00ff, OP24, N("and"), REG3, REG2, REG1 },
+	{ -1,    -1, 0x000500ff, 0x000f00ff, OP24, N("or"), REG3, REG2, REG1 },
+	{ -1,    -1, 0x000600ff, 0x000f00ff, OP24, N("xor"), REG3, REG2, REG1 },
+	{ NVA3P, -1, 0x000700ff, 0x000f00ff, OP24, N("extr"), REG3, REG2, REG1 },
+	{ -1,    -1, 0x000800ff, 0x000f00ff, OP24, N("xbit"), REG3, REG2, REG1 },
+	{ NVA3P, -1, 0x000c00ff, 0x000f00ff, OP24, N("div"), REG3, REG2, REG1 },
+	{ NVA3P, -1, 0x000d00ff, 0x000f00ff, OP24, N("mod"), REG3, REG2, REG1 },
 	{ -1,    -1, 0x000e00ff, 0x000f00ff, OP24, U("ff/e"), REG3, IORR }, /* no flags */
 	{ -1,    -1, 0x000f00ff, 0x000f00ff, OP24, N("iord"), REG3, IORR }, /* no flags */
 	{ -1,    -1, 0x000000ff, 0x000000ff, OP24, OOPS, REG3, REG2, REG1 },
