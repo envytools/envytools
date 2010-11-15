@@ -213,8 +213,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			are equivalent to 3.</doc>
 		</reg32>
 		<reg32 offset="0x0da0" name="CLEAR_STENCIL"/>
-		<reg32 offset="0x0da4" name="UNK0DA4">
-			<doc>Accepts 0 and 1. A flush?</doc>
+		<reg32 offset="0x0da4" name="STRMOUT_PARAMS_LATCH">
+			<doc>Needed after changing strmout params. Probably resets some state too.</doc>
 		</reg32>
 		<reg32 offset="0x0da8" name="STRMOUT_PRIMITIVE_COUNT" type="int"/>
 		<reg32 offset="0x0dac" name="POLYGON_MODE_FRONT" type="gl_polygon_mode"/>
@@ -662,8 +662,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Bits 0x07fff000. Goes to 84xx, MP. 0x01000000 by default. Scan pending. This is one of the magic3 motherfuckers. GP-related?</doc>
 		</reg32>
 		<reg32 offset="0x1420" name="GP_VERTEX_OUTPUT_COUNT" type="uint" min="1" max="0x400"/>
-		<reg32 offset="0x142c" name="UNK142C">
-			<doc>Vertex flush? 0-1</doc>
+		<reg32 offset="0x142c" name="VERTEX_ARRAY_FLUSH">
+			<doc>Flushes VBO caches. Accepts 0 and 1, both seem to work.</doc>
 		</reg32>
 		<reg32 offset="0x1430" name="UNK1430">
 			<doc>Goes to ROP. Both set when NOT MS/CS.</doc>
