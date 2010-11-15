@@ -39,7 +39,7 @@ Insns [unsized]:
   [08] bra c - Branch if carry
   [09] bra o - Branch if overflow
   [0a] bra s - Branch if signed
-  [0b] bra z - Branch if zero
+  [0b] bra z / bra e - Branch if zero / equal
   [0c] bra a - Branch if above
   [0d] bra na - Branch if not above
   [0e] bra - Branch always
@@ -47,7 +47,7 @@ Insns [unsized]:
   [18] bra nc - Branch if not carry
   [19] bra no - Branch if not overflow
   [1a] bra ns - Branch if not signed
-  [1b] bra nz - Branch if not zero
+  [1b] bra nz / bra ne - Branch if not zero / not equal
   [1c] bra g - Branch if greater [NVA3+]
   [1d] bra le - Branch if less or equal [NVA3+]
   [1e] bra l - Branch if less [NVA3+]
