@@ -225,8 +225,7 @@
 						  type="nv10_vtxbuf_type"/>
 					<bitfield name="FIELDS" high="7" low="4" type="int"/>
 					<bitfield name="STRIDE" high="15" low="8" type="int"/>
-					<bitfield name="POS_HOMOGENEOUS" pos="24"
-						  type="boolean"/>
+					<bitfield name="HOMOGENEOUS" pos="24" type="boolean"/>
 				</reg32>
 			</stripe>
 
