@@ -426,23 +426,23 @@
 		<stripe variants="NV17_3D">
 			<doc> Hierarchical depth buffer stuff. </doc>
 
-			<reg32 offset="0x01b0" name="DMA_LMA_DEPTH" type="object"/>
+			<reg32 offset="0x01b0" name="DMA_HIERZ" type="object"/>
 
-			<reg32 offset="0x0d5c" name="LMA_DEPTH_BUFFER_PITCH" type="uint"/>
-			<reg32 offset="0x0d60" name="LMA_DEPTH_BUFFER_OFFSET"/>
-			<reg32 offset="0x0d68" name="LMA_DEPTH_FILL_VALUE"/>
-			<reg32 offset="0x0d6c" name="LMA_DEPTH_BUFFER_CLEAR" type="boolean"/>
+			<reg32 offset="0x0d5c" name="HIERZ_PITCH" type="uint"/>
+			<reg32 offset="0x0d60" name="HIERZ_OFFSET"/>
+			<reg32 offset="0x0d68" name="HIERZ_FILL_VALUE"/>
+			<reg32 offset="0x0d6c" name="HIERZ_BUFFER_CLEAR" type="boolean"/>
 			<reg32 offset="0x0d74" name="UNK0D74"/>
 			<reg32 offset="0x0d84" name="UNK0D84"/>
 
 			<stripe>
 				<doc> These are software methods. </doc>
 
-				<stripe offset="0x1638" name="LMA_DEPTH_WINDOW">
+				<stripe offset="0x1638" name="HIERZ_WINDOW">
 					<use-group name="xyzw-float"/>
 				</stripe>
 
-				<reg32 offset="0x1658" name="LMA_DEPTH_ENABLE" type="boolean"/>
+				<reg32 offset="0x1658" name="HIERZ_ENABLE" type="boolean"/>
 			</stripe>
 		</stripe>
 

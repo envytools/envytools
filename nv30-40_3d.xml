@@ -168,8 +168,8 @@
 			<bitfield pos="4" name="MRT"/>
 		</reg32>
 		<reg32 offset="0x22c" name="ZETA_PITCH" type="int" variants="NV40_3D-NV44_3D"/>
-		<reg32 offset="0x22c" name="LMA_DEPTH_PITCH" type="int" variants="NV30_3D-NV35_3D"/>
-		<reg32 offset="0x230" name="LMA_DEPTH_OFFSET" variants="NV30_3D-NV35_3D"/>
+		<reg32 offset="0x22c" name="HIERZ_PITCH" type="int" variants="NV30_3D-NV35_3D"/>
+		<reg32 offset="0x230" name="HIERZ_OFFSET" variants="NV30_3D-NV35_3D"/>
 		<reg32 offset="0x23c" name="TEX_UNITS_ENABLE" variants="NV30_3D-NV35_3D">
 			<bitfield pos="0" name="TX0"/>
 			<bitfield pos="1" name="TX1"/>

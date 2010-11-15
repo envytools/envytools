@@ -528,17 +528,9 @@
 		<stripe variants="NV25_3D">
 			<doc> Hierarchical depth buffer stuff. </doc>
 
-			<reg32 offset="0x01b0" name="DMA_LMA_DEPTH" type="object"/>
-			<reg32 offset="0x022c" name="LMA_DEPTH_BUFFER_PITCH" type="uint"/>
-			<reg32 offset="0x0230" name="LMA_DEPTH_BUFFER_OFFSET"/>
-
-			<stripe>
-				<doc> Software methods. </doc>
-
-				<stripe offset="0x1f00" name="LMA_DEPTH_WINDOW">
-					<use-group name="xyzw-float"/>
-				</stripe>
-			</stripe>
+			<reg32 offset="0x01b0" name="DMA_HIERZ" type="object"/>
+			<reg32 offset="0x022c" name="HIERZ_PITCH" type="uint"/>
+			<reg32 offset="0x0230" name="HIERZ_OFFSET"/>
 		</stripe>
 
 		<reg32 offset="0x09f8" name="UNK09F8"/>
