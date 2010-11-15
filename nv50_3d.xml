@@ -399,8 +399,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Goes to 1cxx, 1 by default.</doc>
 		</reg32>
 		<reg32 offset="0x1114" name="WRCACHE_FLUSH" variants="NV84_3D-"/>
-		<reg32 offset="0x1118" name="UNK1118" variants="NV84_3D-">
-			<doc>Goes to vfetch on >= NVA0?</doc>
+		<reg32 offset="0x1118" name="VERTEX_ID_BASE" variants="NV84_3D-">
+			<doc>VERTEX_ID starts counting from this value on every VERTEX_BEGIN.</doc>
 		</reg32>
 		<reg32 offset="0x111c" name="UNK111C" variants="NV84_3D-">
 			<doc>Goes to vfetch</doc>
