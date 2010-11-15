@@ -1,0 +1,174 @@
+Introduction
+
+The flow control instructions on fuc include conditional relative branches,
+unconditional absolute branches, absolute calls, and returns. Calls use the
+stack in data segment for storage fo return addresses [see fuc-data.txt].
+The conditions available for branching are based on the low 12 bits of $flags
+register:
+
+ - bits 0-7: $p0-$p7, general-purpose predicates
+ - bit 8: c, carry flag
+ - bit 9: o, signed overflow flag
+ - bit a: s, sign flag
+ - bit b: z, zero flag
+
+c, o, s, z flags are automatically set by many ALU instructions, $p0-$p7 have
+to be explicitely manipulated. See fuc-arith.txt for more details.
+
+Address of the current instruction is always available through the read-only
+$pc special register.
+
+
+Pseudocode conventions
+
+$pc is usually automatically incremented by opcode length after each
+instruction - documentation for other kinds of instructions doesn't mention
+it explicitely for each insn. However, due to the nature of this category
+of instructions, all effects on $pc are mentioned explicitely in this file.
+
+oplen is the length of the currently executed instruction in bytes.
+
+
+Conditional branch: bra
+
+Branches to a given location if the condition evaluates to true. Target is
+$pc-relative.
+
+Insns [unsized]:
+  [00+X] bra $pX - Branch if predicate true
+  [08] bra c - Branch if carry
+  [09] bra o - Branch if overflow
+  [0a] bra s - Branch if signed
+  [0b] bra z - Branch if zero
+  [0c] bra a - Branch if above
+  [0d] bra na - Branch if not above
+  [0e] bra - Branch always
+  [10+X] bra not $pX - Branch if predicate false
+  [18] bra nc - Branch if not carry
+  [19] bra no - Branch if not overflow
+  [1a] bra ns - Branch if not signed
+  [1b] bra nz - Branch if not zero
+  [1c] bra g - Branch if greater [NVA3+]
+  [1d] bra le - Branch if less or equal [NVA3+]
+  [1e] bra l - Branch if less [NVA3+]
+  [1f] bra ge - Branch if greater or equal [NVA3+]
+
+Operands [DIFF]:
+  [f4] I8
+  [f5] I16
+
+Immediates are sign-extended.
+
+Operation:
+	switch (cc) {
+		case $pX: // $p0..$p7
+			cond = $flags.$pX;
+			break;
+		case c:
+			cond = $flags.c;
+			break;
+		case o:
+			cond = $flags.o;
+			break;
+		case s:
+			cond = $flags.s;
+			break;
+		case z:
+			cond = $flags.z;
+			break;
+		case a:
+			cond = !$flags.c && !$flags.z;
+			break;
+		case na:
+			cond = $flags.c || $flags.z;
+			break;
+		case (none):
+			cond = 1;
+			break;
+		case not $pX: // $p0..$p7
+			cond = !$flags.$pX;
+			break;
+		case nc:
+			cond = !$flags.c;
+			break;
+		case no:
+			cond = !$flags.o;
+			break;
+		case ns:
+			cond = !$flags.s;
+			break;
+		case nz:
+			cond = !$flags.z;
+			break;
+		case g:
+			cond = !($flags.o ^ $flags.s) && !$flags.z;
+			break;
+		case le:
+			cond = ($flags.o ^ $flags.s) || $flags.z;
+			break;
+		case l:
+			cond = $flags.o ^ $flags.s;
+			break;
+		case ge:
+			cond = !($flags.o ^ $flags.s);
+			break;
+	}
+	if (cond)
+		$pc = $pc + DIFF;
+	else
+		$pc = $pc + oplen;
+
+
+Unconditional branch: bra
+
+Branches to the target. Target is specified as absolute address. Yes, the
+immediate forms are pretty much redundant with the relative branch form.
+
+Insns [unsized]:
+  bra - Branch
+
+Operands [TRG]:
+  [f4/20] I8
+  [f5/20] I16
+  [f9/4] R2
+
+Immediates are zero-extended.
+
+Operation:
+	$pc = TRG;
+
+
+Subroutine call: call
+
+Pushes return address onto stack and branches to the target. Target is
+specified as absolute address.
+
+Insns [unsized]:
+  call - Call a subroutine
+
+Operands [TRG]:
+  [f4/21] I8
+  [f5/21] I16
+  [f9/5] R2
+
+Immediates are zero-extended.
+
+Operation:
+	$sp -= 4;
+	ST(32, $sp, $pc + oplen);
+	$pc = TRG;
+
+
+Subroutine return: ret
+
+Returns from a previous call.
+
+Insns [unsized]:
+  ret - Return from a subroutine
+
+Operands [-]:
+  [f8/0]
+
+Operation:
+	$pc = LD(32, $sp);
+	$sp += 4;

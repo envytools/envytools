@@ -1,0 +1,172 @@
+Introduction
+
+Data segment of the fuc is inside the microcontroller itself. Its size can
+be determined by looking at MMIO address fuc+0x108, bits 9-16 shifted left
+by 8.
+
+The segment has byte-oriented addressing and can be accessed in units of 8,
+16, or 32 bits. Unaligned accesses are not supported and cause botched reads
+or writes.
+
+The stack is also stored in data segment. Stack pointer is stored in $sp
+special register and is always aligned to 4 bytes. Stack grows downwards,
+with $sp pointing at the last pushed value. The low 2 bits of $sp and bits
+higher than what's needed to span the data space are forced to 0.
+
+Multi-byte quantities are stored as little-endian.
+
+
+Pseudocode conventions
+
+sz, for sized instructions, is the selected size of operation: 8, 16, or 32.
+
+LD(size, address) returns the contents of size-bit quantity in data segment
+at specified address:
+
+int LD(size, addr) {
+	if (size == 32) {
+		addr &= ~3;
+		return D[addr] | D[addr + 1] << 8 | D[addr + 2] << 16 | D[addr + 3] << 24;
+	} else if (size == 16) {
+		addr &= ~1;
+		return D[addr] | D[addr + 1] << 8;
+	} else { // size == 8
+		return D[addr];
+	}
+}
+
+ST(size, address, value) stores the given size-bit value to data segment.
+
+void ST(size, addr, val) {
+	if (size == 32) {
+		if (addr & 1) { // fuck up the written datum as penalty for unaligned access.
+			val = (val & 0xff) << (addr & 3) * 8;
+		} else if (addr & 2) {
+			val = (val & 0xffff) << (addr & 3) * 8;
+		}
+		addr &= ~3;
+		D[addr] = val;
+		D[addr + 1] = val >> 8;
+		D[addr + 2] = val >> 16;
+		D[addr + 3] = val >> 24;
+	} else if (size == 16) {
+		if (addr & 1) {
+			val = (val & 0xff) << (addr & 1) * 8;
+		}
+		addr &= ~1;
+		D[addr] = val;
+		D[addr + 1] = val >> 8;
+	} else { // size == 8
+		D[addr] = val;
+	}
+}
+
+
+Load: ld
+
+Loads 8-bit, 16-bit or 32-bit quantity from data segment to register.
+
+Insns [sized]:
+  ld - Load a value from data segment.
+
+Operands [DST, BASE, IDX]:
+  [10/8] R1, R2, I8
+  [34/0] R2, $sp, I8
+  [3a/0] R2, $sp, R1
+  [3c/8] R3, R2, R1
+
+Immediates are zero-extended.
+
+Operation:
+	DST = LD(sz, BASE + IDX * (sz/8));
+
+
+Stores: st
+
+Stores 8-bit, 16-bit or 32-bit quantity from register to data segment.
+
+Insns [sized]:
+  st - Store a value to data segment.
+
+Operands [BASE, IDX, SRC]:
+  [00/0] R2, I8, R1
+  [30/1] $sp, I8, R2
+  [38/1] R2, 0, R1
+  [38/1] $sp, R1, R2
+
+Immediates are zero-extended.
+
+Operation:
+	ST(sz, BASE + IDX * (sz/8), SRC);
+
+
+Push to stack: push
+
+Decrements $sp by 4, then stores a 32-bit value at top of the stack.
+
+Insns [unsized]:
+  [0] push - Push a value onto stack
+
+Operands [SRC]:
+  [f9] R2
+
+Operation:
+	$sp -= 4;
+	ST(32, $sp, SRC);
+
+
+Pop from stack: pop
+
+Loads 32-bit value from top of the stack, then incrments $sp by 4.
+
+Insns [unsized]:
+  [0] pop - Pops a value from the stack
+
+Operands [DST]:
+  [fc] R2
+
+Operation:
+	DST = LD(32, $sp);
+	$sp += 4;
+
+
+Adjust stack pointer: add
+
+Adds a value to the stack pointer
+
+Insns [unsized]:
+  add - Add a value to the stack pointer.
+
+Operands [DST, SRC]:
+  [f4/30] $sp, I8
+  [f5/30] $sp, I16
+  [f9/1] $sp, R2
+
+Immediates are sign-extended.
+
+Operation:
+	$sp += SRC;
+
+
+Accessing data segment through IO
+
+On NVA3+, the data segment is accessible through normal IO space through
+index/data reg pairs. There are 4 independent pairs on PDAEMON engine, 1 pair
+on other engines:
+
+MMIO 0x1c0 + i * 8 / I[0x7000 + i * 0x200]: DATA_INDEX
+  Selects the place in D[] accessed by DATA reg.
+  bits 2-15: bits 2-15 of the data address to poke
+  bit 24: write autoincrement flag: if set, every write to corresponding DATA
+          register increments the address by 4
+  bit 25: read autoincrement flag: like 34, but for reads
+
+MMIO 0x1c4 + i * 8 / I[0x7100 + i * 0x200]: DATA
+  Writes execute ST(32, DATA_INDEX & 0xfffc, value); and increment the address
+  if write autoincrement is enabled. Reads return the result of LD(32,
+  DATA_INDEX & 0xfffc); and increment if read autoincrement is enabled.
+
+i has to be 0 on non-PDAEMON engines, and can be 0..3 on PDAEMON.
+
+On pre-NVA3, the data segment is instead accessible through the high fuc MMIO
+range, see fuc-mmio.txt for details.
