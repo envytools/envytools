@@ -149,7 +149,9 @@
 		<bitfield name="QUERY" pos="1">
 			<doc>You asked for a QUERY with interrupt and got it.</doc>
 		</bitfield>
-		<bitfield name="UNK02" pos="2" />
+		<bitfield name="SYNC" pos="2">
+			<doc>You sent a sync QUERY command and it triggered.</doc>
+		</bitfield>
 		<bitfield name="ILLEGAL_MTHD" pos="4">
 			<doc>You tried to use a method that doesn't exist on this class.</doc>
 		</bitfield>
@@ -239,7 +241,7 @@
 		<doc>A bitmask of events that will cause interrupts, same bit assignments as in INTR reg.</doc>
 		<bitfield name="NOTIFY" pos="0" />
 		<bitfield name="QUERY" pos="1" />
-		<bitfield name="UNK02" pos="2" />
+		<bitfield name="SYNC" pos="2" />
 		<bitfield name="ILLEGAL_MTHD" pos="4" />
 		<bitfield name="ILLEGAL_CLASS" pos="5" />
 		<bitfield name="DOUBLE_NOTIFY" pos="6" />
