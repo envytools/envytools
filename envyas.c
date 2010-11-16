@@ -139,7 +139,7 @@ int donum (struct section *s, struct line *line, struct disctx *ctx, int wren) {
 			}
 			int j;
 			for (j = 0; j < bits/8; j++)
-				s->code[s->pos+j] = num >> (8*j);
+				s->code[s->pos+j + i * bits/8] = num >> (8*j);
 			
 		}
 	}
