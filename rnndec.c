@@ -171,6 +171,17 @@ char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64
 				asprintf (&res, "%sTRUE%s", ctx->colors->cbool, ctx->colors->cend);
 				return res;
 			}
+		case RNN_TTYPE_FLOAT:
+			if (width == 64)
+				asprintf(&res, "%s%f%s", ctx->colors->cimm,
+					 *(double *)&value, ctx->colors->cend);
+			else if (width == 32)
+				asprintf(&res, "%s%f%s", ctx->colors->cimm,
+					 *(float *)&value, ctx->colors->cend);
+			else
+				goto failhex;
+
+			return res;
 		failhex:
 		default:
 			asprintf (&res, "%s%#"PRIx64"%s", ctx->colors->cerr, value, ctx->colors->cend);
