@@ -59,7 +59,7 @@ static struct disisa vp3t_isa_s = {
 	tabroot,
 	5,
 	5,
-	1,
+	5,
 };
 
 struct disisa *vp3t_isa = &vp3t_isa_s;

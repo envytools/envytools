@@ -32,7 +32,7 @@
  * likes. Target is counted in 32-bit words from the start of microcode.
  */
 
-static struct bitfield ctargoff = { { 8, 11 }, BF_UNSIGNED, 2 };
+static struct bitfield ctargoff = { 8, 11 };
 #define BTARG atombtarg, &ctargoff
 #define CTARG atomctarg, &ctargoff
 
@@ -225,7 +225,7 @@ static struct disisa vp3m_isa_s = {
 	tabroot,
 	4,
 	4,
-	1,
+	4,
 };
 
 struct disisa *vp3m_isa = &vp3m_isa_s;
