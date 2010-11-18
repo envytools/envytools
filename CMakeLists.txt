@@ -19,14 +19,16 @@ add_executable(envydis envydis.c)
 add_executable(demmio demmio.c)
 add_executable(headergen headergen.c)
 add_executable(nvbios nvbios.c)
+add_executable(dedma dedma.c dedma_cache.c dedma_back.c)
 add_executable(envyas envyas.c ${FLEX_envylex_OUTPUTS} ${BISON_envyparse_OUTPUTS})
 
 target_link_libraries(envydis envy)
 target_link_libraries(envyas envy)
 target_link_libraries(demmio envy rnn ${LIBXML2_LIBRARIES})
 target_link_libraries(headergen rnn ${LIBXML2_LIBRARIES})
+target_link_libraries(dedma rnn ${LIBXML2_LIBRARIES})
 
-install(TARGETS envydis demmio headergen nvbios envy rnn envyas
+install(TARGETS envydis demmio headergen nvbios envy rnn envyas dedma
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
 	ARCHIVE DESTINATION lib${LIB_SUFFIX})

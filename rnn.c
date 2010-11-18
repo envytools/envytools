@@ -8,11 +8,7 @@
 #include <ctype.h>
 #include <stdio.h>
 #include "rnn.h"
-
-#define min(a,b) \
-       ({ typeof (a) _a = (a); \
-           typeof (b) _b = (b); \
-         _a < _b ? _a : _b; })
+#include "util.h"
 
 static int file_exists(const char * filename)
 {
