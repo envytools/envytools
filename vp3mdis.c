@@ -36,13 +36,13 @@ static struct bitfield ctargoff = { 8, 11 };
 #define BTARG atombtarg, &ctargoff
 #define CTARG atomctarg, &ctargoff
 
-static struct bitfield imm4off = { 12, 4 };
-static struct bitfield imm8off = { 8, 8 };
+static struct bitfield imm6off = { { 12, 4, 24, 2 } };
+static struct bitfield imm14off = { { 8, 8, 20, 6 } };
 static struct bitfield bimm8off = { { 12, 4, 20, 4 } };
 static struct bitfield bimmstoff = { 16, 8 };
 static struct bitfield bimmstsoff = { 16, 4 };
-#define IMM4 atomimm, &imm4off
-#define IMM8 atomimm, &imm8off
+#define IMM6 atomimm, &imm6off
+#define IMM14 atomimm, &imm14off
 
 /*
  * Register fields
@@ -53,6 +53,7 @@ static struct sreg reg_sr[] = {
 	{ -1 },
 };
 static struct sreg pred_sr[] = {
+	{ 1, "np0" },
 	{ 15, 0, SR_ONE },
 	{ -1 },
 };
@@ -71,7 +72,6 @@ static struct reg idst_r = { &dst_bf, "i", .cool = 1 };
 static struct reg psrc1_r = { &psrc1_bf, "p", .cool = 1, .specials = pred_sr };
 static struct reg psrc2_r = { &psrc2_bf, "p", .cool = 1, .specials = pred_sr };
 static struct reg pdst_r = { &pdst_bf, "p", .cool = 1, .specials = pred_sr };
-static struct reg pdstd_r = { &pdst_bf, "p", "d", .cool = 1, .specials = pred_sr };
 static struct reg pred_r = { &pred_bf, "p", .cool = 1, .specials = pred_sr };
 #define SRC1 atomreg, &src1_r
 #define SRC2 atomreg, &src2_r
@@ -81,7 +81,6 @@ static struct reg pred_r = { &pred_bf, "p", .cool = 1, .specials = pred_sr };
 #define PSRC1 atomreg, &psrc1_r
 #define PSRC2 atomreg, &psrc2_r
 #define PDST atomreg, &pdst_r
-#define PDSTD atomreg, &pdstd_r
 #define PRED atomreg, &pred_r
 
 struct mem mem1c_m = { "D", 0, &src1_r, &bimm8off };
@@ -116,7 +115,7 @@ static struct insn tabsrc1[] = {
 
 static struct insn tabsrc2[] = {
 	{ -1, -1, 0x00000000, 0x08000000, SRC2 },
-	{ -1, -1, 0x08000000, 0x08000000, IMM4 },
+	{ -1, -1, 0x08000000, 0x08000000, IMM6 },
 	{ -1, -1, 0, 0, OOPS },
 };
 
@@ -151,20 +150,22 @@ static struct insn tabm[] = {
 	{ -1, -1, 0x34000041, 0x3c0000ff, N("or"), PDST, PSRC1, PSRC2 },
 	{ -1, -1, 0x34000042, 0x3c0000ff, N("xor"), PDST, PSRC1, PSRC2 },
 	{ -1, -1, 0x34000043, 0x3c0000ff, N("nop") },
-	{ -1, -1, 0x34000044, 0x3c0000ff, U("44") },
-	{ -1, -1, 0x34000045, 0x3c0000ff, U("45") },
-	// XXX: these three seem to actually set two predicates, at least when p0 is the dst.
-	{ -1, -1, 0x00000048, 0x000000ff, U("setsg"), PDSTD, T(src1), T(src2) },
-	{ -1, -1, 0x00000049, 0x000000ff, N("setsl"), PDSTD, T(src1), T(src2) }, /* signed */
-	{ -1, -1, 0x0000004a, 0x000000ff, N("setse"), PDSTD, T(src1), T(src2) },
+	{ -1, -1, 0x34000044, 0x3c0000ff, N("andn"), PDST, PSRC1, PSRC2 },
+	{ -1, -1, 0x34000045, 0x3c0000ff, N("orn"), PDST, PSRC1, PSRC2 },
+	{ -1, -1, 0x34000046, 0x3c0000ff, N("xorn"), PDST, PSRC1, PSRC2 },
+	{ -1, -1, 0x00000048, 0x000000ff, N("setsg"), PDST, T(src1), T(src2) },
+	{ -1, -1, 0x00000049, 0x000000ff, N("setsl"), PDST, T(src1), T(src2) }, /* signed */
+	{ -1, -1, 0x0000004a, 0x000000ff, N("setse"), PDST, T(src1), T(src2) },
 	{ -1, -1, 0x0000004d, 0x000000ff, U("4d") },
 	{ -1, -1, 0x0000004e, 0x000000ff, U("4e") },
-	{ -1, -1, 0x00000052, 0x000000ff, U("52"), PDSTD, T(src1), T(src2) },
-	{ -1, -1, 0x00000058, 0x000000ff, U("58"), PRED }, // PRED used as destination, apparently...
+	{ -1, -1, 0x00000052, 0x000000ff, N("btest"), PDST, T(src1), T(src2) },
+	{ -1, -1, 0x00000058, 0x000000ff, N("andsz"), PRED, T(dst), T(src1), T(src2) }, /* normal and, then set pred if result == 0 */
+	{ -1, -1, 0x00000059, 0x000000ff, N("orsz"), PRED, T(dst), T(src1), T(src2) },
 	{ -1, -1, 0x0000005c, 0x000000ff, U("5c") },
 
 	{ -1, -1, 0x00000060, 0x000000ff, U("60"), T(dst) },
-	{ -1, -1, 0x08000061, 0x080000ff, N("li"), T(dst), IMM8 },
+	{ -1, -1, 0x00000061, 0x080000ff, N("mov"), T(dst), T(src2) },
+	{ -1, -1, 0x08000061, 0x080000ff, N("mov"), T(dst), IMM14 },
 	{ -1, -1, 0x00000064, 0x000000ff, N("add"), T(dst), T(src1), T(src2) },
 	{ -1, -1, 0x00000065, 0x000000ff, N("sub"), T(dst), T(src1), T(src2) },
 	{ -1, -1, 0x00000066, 0x000000ff, N("avgs"), T(dst), T(src1), T(src2) }, // (a+b)/2, rounding UP, signed
@@ -183,7 +184,7 @@ static struct insn tabm[] = {
 	{ -1, -1, 0x00000079, 0x000000ff, N("or"), T(dst), T(src1), T(src2) },
 	{ -1, -1, 0x0000007a, 0x000000ff, N("xor"), T(dst), T(src1), T(src2) },
 	{ -1, -1, 0x0000007b, 0x000000ff, N("not"), T(dst), T(src1) },
-	{ -1, -1, 0x0000007c, 0x000000ff, U("7c"), T(dst) },
+	{ -1, -1, 0x0000007c, 0x000000ff, U("7c"), T(dst), T(src1), T(src2) },
 	{ -1, -1, 0x0000007d, 0x000000ff, N("min"), T(dst), T(src1), T(src2) },
 	{ -1, -1, 0x0000007e, 0x000000ff, N("max"), T(dst), T(src1), T(src2) },
 
@@ -207,10 +208,12 @@ static struct insn tabm[] = {
 	{ -1, -1, 0x000000a8, 0x000000ff, U("a8") },
 	{ -1, -1, 0x000000ac, 0x000000ff, U("ac") },
 
-	{ -1, -1, 0x000000c9, 0x000000ff, N("setul"), PDSTD, T(src1), T(src2) }, /* signed */
-	{ -1, -1, 0x000000ca, 0x000000ff, N("setue"), PDSTD, T(src1), T(src2) },
-	{ -1, -1, 0x000000d2, 0x000000ff, U("d2"), PDST },
-	{ -1, -1, 0x000000d8, 0x000000ff, U("d8"), PRED },
+	{ -1, -1, 0x000000c8, 0x000000ff, N("setsle"), PDST, T(src1), T(src2) },
+	{ -1, -1, 0x000000c9, 0x000000ff, N("setsge"), PDST, T(src1), T(src2) },
+	{ -1, -1, 0x000000ca, 0x000000ff, N("setsne"), PDST, T(src1), T(src2) },
+	{ -1, -1, 0x000000d2, 0x000000ff, N("btestn"), PDST, T(src1), T(src2) },
+	{ -1, -1, 0x000000d8, 0x000000ff, N("andsnz"), PRED, T(dst), T(src1), T(src2) }, /* normal and, then set pred if result != 0 */
+	{ -1, -1, 0x000000d9, 0x000000ff, N("orsnz"), PRED, T(dst), T(src1), T(src2) },
 
 	{ -1, -1, 0, 0, OOPS },
 };
