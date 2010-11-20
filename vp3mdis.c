@@ -163,7 +163,7 @@ static struct insn tabm[] = {
 	{ -1, -1, 0x00000059, 0x000000ff, N("orsz"), PRED, T(dst), T(src1), T(src2) },
 	{ -1, -1, 0x0000005c, 0x000000ff, U("5c") },
 
-	{ -1, -1, 0x00000060, 0x000000ff, U("60"), T(dst) },
+	{ -1, -1, 0x00000060, 0x200000ff, U("slct"), T(dst), PRED, T(src1), T(src2) }, // dst = PRED ? src1 : src2
 	{ -1, -1, 0x00000061, 0x080000ff, N("mov"), T(dst), T(src2) },
 	{ -1, -1, 0x08000061, 0x080000ff, N("mov"), T(dst), IMM14 },
 	{ -1, -1, 0x00000064, 0x000000ff, N("add"), T(dst), T(src1), T(src2) },
