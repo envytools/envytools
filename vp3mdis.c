@@ -171,7 +171,7 @@ static struct insn tabm[] = {
 	{ -1, -1, 0x00000066, 0x000000ff, N("avgs"), T(dst), T(src1), T(src2) }, // (a+b)/2, rounding UP, signed
 	{ -1, -1, 0x00000067, 0x000000ff, N("avgu"), T(dst), T(src1), T(src2) }, // (a+b)/2, rounding UP, unsigned
 	{ -1, -1, 0x0000006c, 0x000000ff, N("minsz"), T(dst), T(src1), T(src2) }, // (a > b) ? b : max(a, 0)
-	{ -1, -1, 0x0000006b, 0x000000ff, N("clampsex"), T(dst), T(src1), T(src2) }, // clamp to -2^b..2^b-1
+	{ -1, -1, 0x0000006d, 0x000000ff, N("clampsex"), T(dst), T(src1), T(src2) }, // clamp to -2^b..2^b-1
 	{ -1, -1, 0x0000006e, 0x000000ff, N("sex"), T(dst), T(src1), T(src2) }, // like fuc insn of the same name
 	{ -1, -1, 0x0000006f, 0x000000ff, N("div2s"), T(dst), T(src1) }, // signed div by 2, round to 0
 	{ -1, -1, 0x00000070, 0x000000ff, N("bset"), T(dst), T(src1), T(src2) },
