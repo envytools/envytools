@@ -530,15 +530,15 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x2388" name="CB_ADDRESS_LOW"/>
 		<reg32 offset="0x238c" name="CB_POS" type="uint"/>
 		<reg32 offset="0x2390" name="CB_DATA" length="16"/>
+		<reg32 offset="0x2400" name="BIND_TSC" length="5" stride="32" type="bitfield">
+		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
+		  <bitfield name="SAMPLER" high="11" low="4" type="uint"/>
+		  <bitfield name="TSC" high="24" low="12" type="uint"/>
+		</reg32>
 		<reg32 offset="0x2404" name="BIND_TIC" length="5" stride="32" type="bitfield">
 		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
 		  <bitfield name="TEXTURE" high="8" low="1" type="uint"/>
 		  <bitfield name="TIC" high="30" low="9" type="uint"/>
-		</reg32>
-		<reg32 offset="0x240c" name="BIND_TSC" length="5" stride="32" type="bitfield">
-		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
-		  <bitfield name="SAMPLER" high="8" low="1" type="uint"/>
-		  <bitfield name="TSC" high="30" low="9" type="uint"/>
 		</reg32>
 		<reg32 offset="0x2410" name="CB_BIND" length="5" stride="32" type="bitfield">
 		  <bitfield name="VALID" pos="0" type="boolean"/>
