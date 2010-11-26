@@ -556,15 +556,17 @@ struct matches *atommem APROTO {
 		}
 		if (mem->reg2) {
 			struct expr *sexpr = printreg(ctx, a, m, mem->reg2);
-			if (mem->reg2shr) {
-				struct expr *ssexpr = makeex(EXPR_NUM);
-				ssexpr->num1 = 1ull << mem->reg2shr;
-				sexpr = makebinex(EXPR_MUL, sexpr, ssexpr);
+			if (sexpr) {
+				if (mem->reg2shr) {
+					struct expr *ssexpr = makeex(EXPR_NUM);
+					ssexpr->num1 = 1ull << mem->reg2shr;
+					sexpr = makebinex(EXPR_MUL, sexpr, ssexpr);
+				}
+				if (expr)
+					expr = makebinex(EXPR_ADD, expr, sexpr);
+				else
+					expr = sexpr;
 			}
-			if (expr)
-				expr = makebinex(EXPR_ADD, expr, sexpr);
-			else
-				expr = sexpr;
 		}
 		if (!expr) expr = makeex(EXPR_NUM);
 		if (mem->name) {
