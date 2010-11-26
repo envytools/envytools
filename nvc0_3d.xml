@@ -335,6 +335,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x15b4" name="MULTISAMPLE_COLOR_ENABLE" type="boolean"/>
 		<reg32 offset="0x15b8" name="FRAMEBUFFER_SRGB" type="boolean"/>
 		<reg32 offset="0x15bc" name="POLYGON_OFFSET_UNITS" type="float"/>
+		<reg32 offset="0x15cc" name="GP_BUILTIN_RESULT_EN">
+			<bitfield name="LAYER" high="16" low="16" type="boolean"/>
+		</reg32>
 		<reg32 offset="0x15d0" name="MULTISAMPLE_MODE" type="nvc0_msaa_mode"/>
 		<reg32 offset="0x15d4" name="VERTEX_BEGIN_D3D">
 			<bitfield name="PRIMITIVE" high="27" low="0">
