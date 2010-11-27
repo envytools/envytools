@@ -36,11 +36,13 @@ static struct bitfield ctargoff = { 8, 11 };
 #define BTARG atombtarg, &ctargoff
 #define CTARG atomctarg, &ctargoff
 
+static struct bitfield imm4off = { 12, 4 };
 static struct bitfield imm6off = { { 12, 4, 24, 2 } };
 static struct bitfield imm14off = { { 8, 8, 20, 6 } };
 static struct bitfield bimm8off = { { 12, 4, 20, 4 } };
 static struct bitfield bimmstoff = { 16, 8 };
 static struct bitfield bimmstsoff = { 16, 4 };
+#define IMM4 atomimm, &imm4off
 #define IMM6 atomimm, &imm6off
 #define IMM14 atomimm, &imm14off
 
@@ -58,8 +60,10 @@ static struct sreg pred_sr[] = {
 	{ -1 },
 };
 static struct bitfield src1_bf = { 8, 4 };
+static struct bitfield isrc_bf = { 8, 4, 24, 1 };
 static struct bitfield src2_bf = { 12, 4 };
 static struct bitfield dst_bf = { 16, 4 };
+static struct bitfield ldst_bf = { 16, 4, 24, 1 };
 static struct bitfield psrc1_bf = { 8, 4 };
 static struct bitfield psrc2_bf = { 12, 4 };
 static struct bitfield pdst_bf = { 16, 4 };
@@ -67,8 +71,8 @@ static struct bitfield pred_bf = { 20, 4 };
 static struct reg src1_r = { &src1_bf, "r", .specials = reg_sr };
 static struct reg src2_r = { &src2_bf, "r", .specials = reg_sr };
 static struct reg dst_r = { &dst_bf, "r", .specials = reg_sr };
-static struct reg adst_r = { &dst_bf, "a", .cool = 1 };
-static struct reg idst_r = { &dst_bf, "i", .cool = 1 };
+static struct reg odst_r = { &ldst_bf, "o", .cool = 1 };
+static struct reg isrc_r = { &isrc_bf, "i", .cool = 1 };
 static struct reg psrc1_r = { &psrc1_bf, "p", .cool = 1, .specials = pred_sr };
 static struct reg psrc2_r = { &psrc2_bf, "p", .cool = 1, .specials = pred_sr };
 static struct reg pdst_r = { &pdst_bf, "p", .cool = 1, .specials = pred_sr };
@@ -76,8 +80,8 @@ static struct reg pred_r = { &pred_bf, "p", .cool = 1, .specials = pred_sr };
 #define SRC1 atomreg, &src1_r
 #define SRC2 atomreg, &src2_r
 #define DST atomreg, &dst_r
-#define ADST atomreg, &adst_r
-#define IDST atomreg, &idst_r
+#define ISRC atomreg, &isrc_r
+#define ODST atomreg, &odst_r
 #define PSRC1 atomreg, &psrc1_r
 #define PSRC2 atomreg, &psrc2_r
 #define PDST atomreg, &pdst_r
@@ -87,12 +91,10 @@ struct mem mem1c_m = { "D", 0, &src1_r, &bimm8off };
 struct mem mem34_m = { "D", 0, &src1_r, 0, &src2_r };
 struct mem memst_m = { "D", 0, &src1_r, &bimmstoff };
 struct mem memsts_m = { "D", 0, &src1_r, &bimmstsoff };
-struct mem ext_m = { "E", 0, 0, &src1_bf };
 #define MEM1C atommem, &mem1c_m
 #define MEMST atommem, &memst_m
 #define MEMSTS atommem, &memsts_m
 #define MEM34 atommem, &mem34_m
-#define EXT atommem, &ext_m
 
 static struct insn tabp[] = {
 	{ -1, -1, 0x00f00000, 0x00f00000 },
@@ -101,21 +103,21 @@ static struct insn tabp[] = {
 
 static struct insn tabdst[] = {
 	{ -1, -1, 0x00000000, 0x10000000, DST },
-	{ -1, -1, 0x10000000, 0x11000000, ADST },
-	{ -1, -1, 0x11000000, 0x11000000, IDST },
+	{ -1, -1, 0x10000000, 0x10000000, ODST },
 	{ -1, -1, 0, 0, OOPS },
 };
 
 static struct insn tabsrc1[] = {
 	{ -1, -1, 0x00000000, 0x04000000, SRC1 },
-	{ -1, -1, 0x04000000, 0x05000000, OOPS },
-	{ -1, -1, 0x05000000, 0x05000000, EXT },
+	{ -1, -1, 0x04000000, 0x04000000, ISRC },
 	{ -1, -1, 0, 0, OOPS },
 };
 
 static struct insn tabsrc2[] = {
 	{ -1, -1, 0x00000000, 0x08000000, SRC2 },
-	{ -1, -1, 0x08000000, 0x08000000, IMM6 },
+	{ -1, -1, 0x08000000, 0x1c000000, IMM6 },
+	{ -1, -1, 0x18000000, 0x1c000000, IMM4 },
+	{ -1, -1, 0x0c000000, 0x0c000000, IMM4 },
 	{ -1, -1, 0, 0, OOPS },
 };
 
