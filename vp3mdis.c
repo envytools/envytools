@@ -141,9 +141,9 @@ static struct insn tabm[] = {
 	{ -1, -1, 0x00000024, 0x000000ff, U("24") },
 	{ -1, -1, 0x00000025, 0x000000ff, U("25") },
 	{ -1, -1, 0x00000026, 0x000000ff, U("26") },
-	{ -1, -1, 0x00000028, 0x000000ff, U("28") },
-	{ -1, -1, 0x00000029, 0x000000ff, U("29") },
-	{ -1, -1, 0x0000002a, 0x000000ff, U("2a") },
+	{ -1, -1, 0x00000028, 0x000000ff, N("orsetsg"), PDST, T(src1), T(src2) }, /* PDST |= (src1 > src2) */
+	{ -1, -1, 0x00000029, 0x000000ff, N("orsetsl"), PDST, T(src1), T(src2) }, /* PDST |= (src1 < src2) */
+	{ -1, -1, 0x0000002a, 0x000000ff, N("orsetse"), PDST, T(src1), T(src2) }, /* PDST |= (src1 == src2) */
 	{ -1, -1, 0x0000002b, 0x000000ff, U("2b") },
 	{ -1, -1, 0x0000002c, 0x000000ff, U("2c") },
 	{ -1, -1, 0x00000032, 0x000000ff, U("32") },
@@ -165,7 +165,7 @@ static struct insn tabm[] = {
 	{ -1, -1, 0x00000059, 0x000000ff, N("orsz"), PRED, T(dst), T(src1), T(src2) },
 	{ -1, -1, 0x0000005c, 0x000000ff, U("5c") },
 
-	{ -1, -1, 0x00000060, 0x200000ff, U("slct"), T(dst), PRED, T(src1), T(src2) }, // dst = PRED ? src1 : src2
+	{ -1, -1, 0x00000060, 0x200000ff, N("slct"), T(dst), PRED, T(src1), T(src2) }, // dst = PRED ? src1 : src2
 	{ -1, -1, 0x00000061, 0x080000ff, N("mov"), T(dst), T(src2) },
 	{ -1, -1, 0x08000061, 0x080000ff, N("mov"), T(dst), IMM14 },
 	{ -1, -1, 0x00000064, 0x000000ff, N("add"), T(dst), T(src1), T(src2) },
@@ -207,7 +207,9 @@ static struct insn tabm[] = {
 	{ -1, -1, 0x000000a1, 0x000000ff, U("a1") },
 	{ -1, -1, 0x000000a2, 0x000000ff, U("a2") },
 	{ -1, -1, 0x000000a4, 0x000000ff, U("a4") },
-	{ -1, -1, 0x000000a8, 0x000000ff, U("a8") },
+	{ -1, -1, 0x000000a8, 0x000000ff, N("orsetsng"), PDST, T(src1), T(src2) },
+	{ -1, -1, 0x000000a9, 0x000000ff, N("orsetsnl"), PDST, T(src1), T(src2) },
+	{ -1, -1, 0x000000aa, 0x000000ff, N("orsetsne"), PDST, T(src1), T(src2) },
 	{ -1, -1, 0x000000ac, 0x000000ff, U("ac") },
 
 	{ -1, -1, 0x000000c8, 0x000000ff, N("setsle"), PDST, T(src1), T(src2) },
