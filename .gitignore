@@ -9,11 +9,15 @@ dedma
 nvbios
 envydis
 envyas
+nvalist
+nvapeek
+nvapoke
 envylex.c
 envyparse.c
 envyparse.h
 libenvy.a
 librnn.a
+libnva.a
 *.xml.h
 Makefile
 CMakeCache.txt
