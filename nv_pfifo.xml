@@ -241,7 +241,7 @@
 		<reg32 offset="0x058" name="SLI" variants="NV40-">
 			<bitfield high="11" low="0" name="MASK"/>
 			<bitfield pos="28" name="ACTIVE"/>
-			<bitfield pos="29" name="UNK29"/>
+			<bitfield pos="29" name="ENABLE"/>
 		</reg32>
 		<reg32 offset="0x080" name="DEBUG_0" variants="NV03-" access="r">
 			<!-- XXX: this is getting more suspicious with each hw gen. -->
