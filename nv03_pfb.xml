@@ -35,6 +35,7 @@
 	<value value="3" name="PAGE_SYSTEM_ONLY"/>
 	<value value="4" name="PAGE_READ_ONLY"/>
 	<value value="6" name="NULL_DMAOBJ"/>
+	<value value="7" name="WRONG_MEMTYPE"/>
 	<value value="0xb" name="VRAM_LIMIT"/>
 	<value value="0xf" name="DMAOBJ_LIMIT"/>
 </enum>
