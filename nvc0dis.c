@@ -220,6 +220,7 @@ static struct bitfield tex_bf = { 0x20, 7 };
 static struct bitfield samp_bf = { 0x28, 4 };
 static struct bitfield surf_bf = { 0x1a, 3 };
 static struct bitfield sreg_bf = { 0x1a, 7 };
+static struct bitfield lduld_dst2_bf = { 0x20, 6 };
 
 static struct reg dst_r = { &dst_bf, "r", .specials = reg_sr };
 static struct reg dstd_r = { &dst_bf, "r", "d" };
@@ -245,6 +246,8 @@ static struct reg samp_r = { &samp_bf, "s", .cool = 1 };
 static struct reg surf_r = { &surf_bf, "g", .cool = 1 };
 static struct reg cc_r = { 0, "c", .cool = 1 };
 static struct reg sreg_r = { &sreg_bf, "sr", .specials = sreg_sr, .always_special = 1 };
+static struct reg lduld_dst2_r = { &lduld_dst2_bf, "r" };
+static struct reg lduld_dst2d_r = { &lduld_dst2_bf, "r", "d" };
 
 #define DST atomreg, &dst_r
 #define DSTD atomreg, &dstd_r
@@ -270,6 +273,8 @@ static struct reg sreg_r = { &sreg_bf, "sr", .specials = sreg_sr, .always_specia
 #define SURF atomreg, &surf_r
 #define CC atomreg, &cc_r
 #define SREG atomreg, &sreg_r
+#define LDULD_DST2 atomreg, &lduld_dst2_r
+#define LDULD_DST2D atomreg, &lduld_dst2d_r
 
 static struct bitfield tdst_cnt = { .addend = 4 };
 static struct bitfield tdst_mask = { 0x2e, 4 };
@@ -299,6 +304,7 @@ static struct bitfield fcmem_imm = { { 0x1a, 16 }, BF_SIGNED };
 static struct bitfield vmem_imm = { 0x20, 16 };
 static struct bitfield cmem_idx = { 0x2a, 4 };
 static struct bitfield vba_imm = { 0x1a, 6 };
+static struct bitfield lduld_imm = { 0x29, 11 };
 static struct mem gmem_m = { "g", 0, &src1_r, &gmem_imm };
 static struct mem gdmem_m = { "g", 0, &src1d_r, &gmem_imm };
 static struct mem gamem_m = { "g", 0, &src1_r, &gamem_imm };
@@ -312,6 +318,11 @@ static struct mem cmem_m = { "c", &cmem_idx, 0, &cmem_imm };
 static struct mem lpmem_m = { "l", 0, &src1_r };
 static struct mem gpmem_m = { "g", 0, &src1_r };
 static struct mem gdpmem_m = { "g", 0, &src1d_r };
+static struct mem lduld_gmem1_m = { "g", 0, &src1_r, &lduld_imm };
+static struct mem lduld_gdmem1_m = { "g", 0, &src1d_r, &lduld_imm };
+static struct mem lduld_gmem2_m = { "g", 0, &src2_r };
+static struct mem lduld_gdmem2_m = { "g", 0, &src2d_r };
+static struct mem lduld_smem_m = { "s", 0, &src1_r , &lduld_imm };
 // vertex base address (for tessellation and geometry programs)
 static struct mem vba_m = { 0, 0, &src1_r, &vba_imm };
 #define GLOBAL atommem, &gmem_m
@@ -328,6 +339,11 @@ static struct mem vba_m = { 0, 0, &src1_r, &vba_imm };
 #define LPMEM atommem, &lpmem_m
 #define GPMEM atommem, &gpmem_m
 #define GDPMEM atommem, &gdpmem_m
+#define LDULD_GLOBAL1 atommem, &lduld_gmem1_m
+#define LDULD_GLOBALD1 atommem, &lduld_gdmem1_m
+#define LDULD_GLOBAL2 atommem, &lduld_gmem2_m
+#define LDULD_GLOBALD2 atommem, &lduld_gdmem2_m
+#define LDULD_SHARED atommem, &lduld_smem_m
 
 /*
  * The instructions
@@ -335,6 +351,8 @@ static struct mem vba_m = { 0, 0, &src1_r, &vba_imm };
 
 F(gmem, 0x3a, GLOBAL, GLOBALD)
 F(gamem, 0x3a, GATOM, GATOMD)
+F(lduld_gmem1, 0x3b, LDULD_GLOBAL1, LDULD_GLOBALD1)
+F(lduld_gmem2, 0x3a, LDULD_GLOBAL2, LDULD_GLOBALD2)
 
 static struct insn tabldstt[] = {
 	{ -1, -1, 0x00, 0xe0, N("u8") },
@@ -884,6 +902,14 @@ static struct insn tabm[] = {
 	{ -1, -1, 0x9800000000000025ull, 0xfc00000000000027ull, N("prefetch"), T(prefetchl), GPMEM },
 	{ -1, -1, 0x9c00000000000025ull, 0xfc00000000000027ull, N("prefetch"), T(prefetchl), GDPMEM },
 	{ -1, -1, 0xb320003f00000005ull, 0xfb20003f00000007ull, N("prefetch"), DST, SRC1, SRC2 },
+	{ -1, -1, 0xb300000000000005ull, 0xf3e0000000000007ull, N("ldu"), N("b32"), DST, T(lduld_gmem2), N("ld"), N("b32"), LDULD_DST2, T(lduld_gmem1) },
+	{ -1, -1, 0xb320000000000005ull, 0xf3e0000000000007ull, N("ldu"), N("b64"), DSTD, T(lduld_gmem2), N("ld"), N("b32"), LDULD_DST2, T(lduld_gmem1) },
+	{ -1, -1, 0xb360000000000005ull, 0xf3e0000000000007ull, N("ldu"), N("b32"), DST, T(lduld_gmem2), N("ld"), N("b64"), LDULD_DST2D, T(lduld_gmem1) },
+	{ -1, -1, 0xb380000000000005ull, 0xf3e0000000000007ull, N("ldu"), N("b64"), DSTD, T(lduld_gmem2), N("ld"), N("b64"), LDULD_DST2D, T(lduld_gmem1) },
+	{ -1, -1, 0xab00000000000005ull, 0xfbe0000000000007ull, N("ldu"), N("b32"), DST, T(lduld_gmem2), N("ld"), N("b32"), LDULD_DST2, LDULD_SHARED },
+	{ -1, -1, 0xab20000000000005ull, 0xfbe0000000000007ull, N("ldu"), N("b64"), DSTD, T(lduld_gmem2), N("ld"), N("b32"), LDULD_DST2, LDULD_SHARED },
+	{ -1, -1, 0xab60000000000005ull, 0xfbe0000000000007ull, N("ldu"), N("b32"), DST, T(lduld_gmem2), N("ld"), N("b64"), LDULD_DST2D, LDULD_SHARED },
+	{ -1, -1, 0xab80000000000005ull, 0xfbe0000000000007ull, N("ldu"), N("b64"), DSTD, T(lduld_gmem2), N("ld"), N("b64"), LDULD_DST2D, LDULD_SHARED },
 	{ -1, -1, 0xc000000000000005ull, 0xfd00000000000007ull, N("ld"), T(ldstt), T(ldstd), T(lcop), LOCAL },
 	{ -1, -1, 0xc100000000000005ull, 0xfd00000000000007ull, N("ld"), T(ldstt), T(ldstd), SHARED },
 	{ -1, -1, 0xc400000000000005ull, 0xfc00000000000007ull, N("ld"), N("lock"), T(ldstt), PDST4, T(ldstd), SHARED },
