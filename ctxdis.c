@@ -195,7 +195,7 @@ static struct insn tabrpred[] = {
 	{ -1,       -1, 0x00, 0x7f, N("dir") }, // the direction flag
 	{ CTX_NV50, -1, 0x4a, 0x7f, N("newctxdone") },	// newctx CMD finished with loading new address... or something like that, it seems to be turned back off *very shortly* after the newctx CMD. only check it with a wait right after newctx. weird.
 	{ CTX_NV50, -1, 0x4b, 0x7f, N("xferbusy") },	// RAMIN xfer in progress
-//	{ CTX_NV50, -1, 0x4c, 0x7f, OOPS },	// CMD 8 done.
+	{ CTX_NV50, -1, 0x4c, 0x7f, N("delaydone") },
 	{ CTX_NV50, -1, 0x4d, 0x7f },	// always
 	{ CTX_NV50, -1, 0x60, 0x60, N("unit"), UNIT }, // if given unit present
 	{ CTX_NV40, -1, 0x68, 0x7f },	// always
@@ -213,7 +213,7 @@ static struct insn tabcmd5[] = {
 	{ CTX_NV50, -1, 0x05, 0x1f, C("NEXT_TO_SWAP") },	// copies 330 [new channel] to 784 [channel used for ctx RAM access]
 	{ CTX_NV50, -1, 0x06, 0x1f, C("SET_CONTEXT_POINTER") },	// copies scratch to 334
 	{ CTX_NV50, -1, 0x07, 0x1f, C("SET_XFER_POINTER") },	// copies scratch to 33c, anding it with 0xffff8
-//	{ CTX_NV50, -1, 0x08, 0x1f, OOPS },			// does something with scratch contents...
+	{ CTX_NV50, -1, 0x08, 0x1f, C("DELAY") },		// sleeps scratch cycles, then briefly lights up delaydone
 	{ CTX_NV50, -1, 0x09, 0x1f, C("ENABLE") },		// resets 0x40 to 0
 	{ CTX_NV50, -1, 0x0c, 0x1f, C("END") },			// halts program execution, resets PC to 0
 	{ CTX_NV50, -1, 0x0d, 0x1f, C("NEXT_TO_CURRENT") },	// movs new channel RAMIN address to current channel RAMIN address, basically where the real switch happens

@@ -289,7 +289,7 @@
 		<value value="0x5" name="NEXT_TO_SWAP" />
 		<value value="0x6" name="SET_REG_POINTER" />
 		<value value="0x7" name="SET_XFER_POINTER" />
-		<value value="0x8" name="UNK08" /> <!-- takes param in SCRATCH -->
+		<value value="0x8" name="DELAY" /> <!-- light up flag 0x4c after SCRATCH cycles [for a single cycle only!] -->
 		<value value="0x9" name="ENABLE" />
 		<value value="0xa" name="UNK0A" />
 		<value value="0xb" name="UNK0B" />
@@ -488,7 +488,7 @@
 		<bitfield name="UNK9" pos="9" /> <!-- seems to indicate some sort of ctxprog error. or maybe busy condition. you're in deep shit if this is 1 for you. -->
 		<bitfield name="NEWCTX_DONE" pos="10" /> <!-- extraordinarly weird. seems to blink "1" only for a very short amount of time. you need the wait right after the cmd. -->
 		<bitfield name="XFER_BUSY" pos="11" />
-		<bitfield name="UNKCMD8_DONE" pos="12" />
+		<bitfield name="DELAY_DONE" pos="12" />
 		<bitfield name="ALWAYS_TRUE" pos="13" />
 		<bitfield name="INTR_PENDING" pos="15" />
 	</reg32>
