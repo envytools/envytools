@@ -309,6 +309,9 @@ static struct mem fcmem_m = { "c", &cmem_idx, &src1_r, &fcmem_imm };
 static struct mem vmem_m = { "v", 0, &src1_r, &vmem_imm };
 static struct mem amem_m = { "a", 0, &src1_r, &vmem_imm, &src2_r }; // XXX: wtf?
 static struct mem cmem_m = { "c", &cmem_idx, 0, &cmem_imm };
+static struct mem lpmem_m = { "l", 0, &src1_r };
+static struct mem gpmem_m = { "g", 0, &src1_r };
+static struct mem gdpmem_m = { "g", 0, &src1d_r };
 // vertex base address (for tessellation and geometry programs)
 static struct mem vba_m = { 0, 0, &src1_r, &vba_imm };
 #define GLOBAL atommem, &gmem_m
@@ -322,6 +325,9 @@ static struct mem vba_m = { 0, 0, &src1_r, &vba_imm };
 #define ATTR atommem, &amem_m
 #define CONST atommem, &cmem_m
 #define VBASRC atommem, &vba_m
+#define LPMEM atommem, &lpmem_m
+#define GPMEM atommem, &gpmem_m
+#define GDPMEM atommem, &gdpmem_m
 
 /*
  * The instructions
@@ -465,6 +471,8 @@ F1(pnot3, 0x34, N("not"))
 
 F1(dtex, 0x2d, N("deriv"))
 F(ltex, 9, N("all"), N("live"))
+
+F(prefetchl, 6, N("l1"), N("l2"))
 
 static struct insn tabtexf[] = {
 	{ -1, -1, 0, 0, T(ltex), T(dtex) },
@@ -873,6 +881,8 @@ static struct insn tabm[] = {
 	{ -1, -1, 0x8000000000000005ull, 0xf800000000000007ull, N("ld"), T(ldstt), T(ldstd), T(lcop), T(gmem) },
 	{ -1, -1, 0x8800000000000005ull, 0xf800000000000007ull, N("ldu"), T(ldstt), T(ldstd), T(gmem) },
 	{ -1, -1, 0x9000000000000005ull, 0xf800000000000007ull, N("st"), T(ldstt), T(scop), T(gmem), T(ldstd) },
+	{ -1, -1, 0x9800000000000025ull, 0xfc00000000000027ull, N("prefetch"), T(prefetchl), GPMEM },
+	{ -1, -1, 0x9c00000000000025ull, 0xfc00000000000027ull, N("prefetch"), T(prefetchl), GDPMEM },
 	{ -1, -1, 0xb320003f00000005ull, 0xfb20003f00000007ull, N("prefetch"), DST, SRC1, SRC2 },
 	{ -1, -1, 0xc000000000000005ull, 0xfd00000000000007ull, N("ld"), T(ldstt), T(ldstd), T(lcop), LOCAL },
 	{ -1, -1, 0xc100000000000005ull, 0xfd00000000000007ull, N("ld"), T(ldstt), T(ldstd), SHARED },
@@ -880,6 +890,7 @@ static struct insn tabm[] = {
 	{ -1, -1, 0xc800000000000005ull, 0xfd00000000000007ull, N("st"), T(ldstt), T(scop), LOCAL, T(ldstd) },
 	{ -1, -1, 0xc900000000000005ull, 0xfd00000000000007ull, N("st"), T(ldstt), SHARED, T(ldstd) },
 	{ -1, -1, 0xcc00000000000005ull, 0xfc00000000000007ull, N("st"), N("unlock"), T(ldstt), SHARED, T(ldstd) },
+	{ -1, -1, 0xd000000000000025ull, 0xfc00000000000027ull, N("prefetch"), T(prefetchl), LPMEM },
 	{ -1, -1, 0xd400400000000005ull, 0xfc00400000000007ull, N("suldb"), T(ldstt), T(ldstd), T(lcop), T(sclamp), SURF, SADDR },
 	{ -1, -1, 0xd800400100000005ull, 0xfc00400100000007ull, N("suredp"), T(redop), T(sclamp), SURF, SADDR, DST },
 	{ -1, -1, 0xdc00400000000005ull, 0xfc02400000000007ull, N("sustb"), T(ldstt), T(scop), T(sclamp), SURF, SADDR, T(ldstd) },
