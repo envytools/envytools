@@ -404,10 +404,17 @@
 		<bitfield name="CCACHE" pos="10"/>
 		<bitfield name="STRMOUT" pos="11"/>
 		<bitfield name="CSCHED" pos="13"/>
+		<bitfield name="UNK1CXX" pos="14"/>
+		<bitfield name="CLIPID" pos="15"/>
+		<bitfield name="ZCULL" pos="16"/>
+		<bitfield name="ENG2D" pos="17"/>
+		<bitfield name="UNK34XX" pos="18"/>
+		<bitfield name="UNK8CXX" pos="19"/>
 		<bitfield name="TPROP" pos="20"/>
-		<bitfield name="TEX" pos="21"/> <!-- not entirely sure. -->
+		<bitfield name="TEX" pos="21"/>
+		<bitfield name="UNK84XX" pos="22"/>
 		<bitfield name="MP" pos="23"/>
-		<bitfield name="ROP" pos="24"/> <!-- or maybe 1cxx? -->
+		<bitfield name="ROP" pos="24"/>
 	</reg32>
 	<reg32 offset="0x0704" name="TRAPPED_ADDR">
 		<doc>Offending subchan + method, for [most types of] PGRAPH interrupts.</doc>
