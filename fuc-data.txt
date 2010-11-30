@@ -154,14 +154,14 @@ On NVA3+, the data segment is accessible through normal IO space through
 index/data reg pairs. There are 4 independent pairs on PDAEMON engine, 1 pair
 on other engines:
 
-MMIO 0x1c0 + i * 8 / I[0x7000 + i * 0x200]: DATA_INDEX
+MMIO 0x1c0 + i * 8 / I[0x07000 + i * 0x200]: DATA_INDEX
   Selects the place in D[] accessed by DATA reg.
   bits 2-15: bits 2-15 of the data address to poke
   bit 24: write autoincrement flag: if set, every write to corresponding DATA
           register increments the address by 4
   bit 25: read autoincrement flag: like 34, but for reads
 
-MMIO 0x1c4 + i * 8 / I[0x7100 + i * 0x200]: DATA
+MMIO 0x1c4 + i * 8 / I[0x07100 + i * 0x200]: DATA
   Writes execute ST(32, DATA_INDEX & 0xfffc, value); and increment the address
   if write autoincrement is enabled. Reads return the result of LD(32,
   DATA_INDEX & 0xfffc); and increment if read autoincrement is enabled.
@@ -169,4 +169,4 @@ MMIO 0x1c4 + i * 8 / I[0x7100 + i * 0x200]: DATA
 i has to be 0 on non-PDAEMON engines, and can be 0..3 on PDAEMON.
 
 On pre-NVA3, the data segment is instead accessible through the high fuc MMIO
-range, see fuc-mmio.txt for details.
+range, see fuc-io.txt for details.

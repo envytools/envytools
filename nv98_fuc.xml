@@ -72,7 +72,7 @@
 		<bitfield pos="14" name="NONINCR"/> <!-- even bigger guess... -->
 	</reg32>
 	<reg32 offset="0x070" name="FIFO_OCCUPIED"/>
-	<reg32 offset="0x074" name="FIFO_HEAD_ADVANCE">
+	<reg32 offset="0x074" name="FIFO_ACK">
 		<doc>Write 1 to go to next command.</doc>
 	</reg32>
 	<reg32 offset="0x078" name="FIFO_LIMIT">
@@ -157,7 +157,7 @@
 		<bitfield pos="28" name="UNK28"/>
 		<bitfield pos="29" name="CODE_BUSY"/>
 	</reg32>
-	<reg32 offset="0xffc" name="HOST_MMIO_INDEX"/>
+	<reg32 offset="0xffc" name="HOST_IO_INDEX"/>
 </group>
 
 <group name="nv98_fuc_targets">

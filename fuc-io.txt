@@ -1,0 +1,226 @@
+Introduction
+
+Every fuc engine has an associated IO space. The space consists of 32-bit IO
+registers, and is accessible in two ways:
+
+ - host access by MMIO areas in BAR0
+ - fuc access by io* instructions
+
+The IO space contains control registers for the microprocessor itself,
+interrupt and timer setup, code/data space access ports, PFIFO communication
+registers, as well as registers for the engine-specific hardware that fuc
+is meant to control.
+
+The addresses are different between fuc and host. From fuc POV, the IO space
+is word-addressable 0x40000-byte space. However, most registers are duplicated
+64 times: bits 2-7 of the address are ignored. The few registers that don't
+ignore these bits are called "indexed" registers. From host POV, the fuc IO
+space is a 0x1000-byte window in BAR0. Its base address is engine-dependent.
+First 0xfe0 bytes of this window are tied to the fuc IO space, while last 0x20
+bytes contain several host-only registers. Host mmio address fuc_base + X is
+directed to fuc IO space address X << 6 | HOST_IO_INDEX << 2. HOST_IO_INDEX
+is specified in the host-only MMIO register fuc_base + 0xffc:
+
+MMIO 0xffc: HOST_IO_INDEX
+  bits 0-5: selects bits 2-7 of the fuc IO space when accessed from host.
+
+Unaligned accesses to the IO space are unsupported, both from host and fuc.
+Low 2 bits of addresses should be 0 at all times.
+
+The host MMIO base addresses for various engines are:
+
+PBSP			084000
+PVP			085000
+PPPP			086000
+PCRYPT			087000
+PCOPY[0]		104000
+PCOPY[1]		105000
+PDAEMON			10a000
+???			1c1000
+PGRAPH.CTXCTL		409000
+PGRAPH.TP[i].CTXCTL	502000 + i * 0x8000
+
+
+A reference list of addresses
+
++ means NVA3+ only register.
+S means secret register. [see fuc-crypt.txt]
+D means PDAEMON-only register.
+
+host/I[] address / name / file
+
+Common registers:
+000/00000  INTR_SET		trigger interrupt	[fuc-intr.txt]
+004/00100  INTR_CLEAR		clear interrupt		[fuc-intr.txt]
+008/00200  INTR			interrupt status	[fuc-intr.txt]
+00c/00300+ INTR_MODE		interrupt edge/level	[fuc-intr.txt]
+010/00400  INTR_EN_SET		interrupt enable set	[fuc-intr.txt]
+014/00500  INTR_EN_CLR		interrupt enable clear	[fuc-intr.txt]
+018/00600  INTR_EN		interrupt enable status	[fuc-intr.txt]
+01c/00700  INTR_DISPATCH	interrupt routing	[fuc-intr.txt]
+020/00800  PERIODIC_PERIOD	periodic timer period	[fuc-timer.txt]
+024/00900  PERIODIC_TIME	periodic timer counter	[fuc-timer.txt]
+028/00a00  PERIODIC_ENABLE	periodic interrupt en	[fuc-timer.txt]
+02c/00b00  TIME_LOW		PTIMER time low		[fuc-timer.txt]
+030/00c00  TIME_HIGH		PTIMER time high	[fuc-timer.txt]
+034/00d00  WATCHDOG_TIME	watchdog timer counter	[fuc-timer.txt]
+038/00e00  WATCHDOG_ENABLE	watchdog interrupt en	[fuc-timer.txt]
+040/01000  SCRATCH0		scratch register	[fuc-io.txt]
+044/01100  SCRATCH1		scratch register	[fuc-io.txt]
+048/01200  FIFO_ENABLE		PFIFO access enable	[fuc-fifo.txt]
+04c/01300  STATUS		busy/idle status	[fuc-io.txt]
+050/01400  CHANNEL_CUR		current PFIFO channel	[fuc-fifo.txt]
+054/01500  CHANNEL_NEXT		next PFIFO channel	[fuc-fifo.txt]
+058/01600  CHANNEL_CMD		PFIFO channel control	[fuc-fifo.txt]
+05c/01700  STATUS_MASK		busy/idle status mask?	[fuc-io.txt]
+060/01800  ???			???
+064/01900  FIFO_DATA		FIFO command data	[fuc-fifo.txt]
+068/01a00  FIFO_CMD		FIFO command		[fuc-fifo.txt]
+070/01c00  FIFO_OCCUPIED	FIFO commands available	[fuc-fifo.txt]
+074/01d00  FIFO_ACK		FIFO command ack	[fuc-fifo.txt]
+078/01e00  FIFO_LIMIT		FIFO size		[fuc-fifo.txt]
+080/02000  SCRATCH2		scratch register	[fuc-io.txt]
+084/02100  SCRATCH3		scratch register	[fuc-io.txt]
+088/02200  MISC_TRIGGER		various commands	[fuc-io.txt]
+08c/02300  ???			???
+090/02400+ ???			???
+094/02500+ ???			???
+098/02600+ ???			???
+09c/02700+ ???			???
+0a0/02800+ ???			???
+0a4/02900+ ???			???
+100/04000  UC_CTRL		microprocessor control	[fuc-ctrl.txt]
+104/04100  UC_ENTRY		microcode entry point	[fuc-ctrl.txt]
+108/04200  UC_CAPS		microprocessor caps	[fuc-ctrl.txt]
+10c/04300  ???			???
+110/04400  XFER_EXT_BASE	xfer external base	[fuc-xfer.txt]
+114/04500  XFER_FUC_ADDR	xfer fuc address	[fuc-xfer.txt]
+118/04600  XFER_CTRL		xfer control		[fuc-xfer.txt]
+11c/04700  XFER_EXT_ADDR	xfer external offset	[fuc-xfer.txt]
+120/04800  XFER_STATUS		xfer status		[fuc-xfer.txt]
+124/04900S CX_STATUS		crypt xfer status	[fuc-crypt.txt]
+128/04a00+ ???			???
+12c/04b00+ ???			???
+140/05000+ CODE_CMD		code VM command		[fuc-vm.txt]
+144/05100+ CODE_CMD_RES		code VM command result	[fuc-vm.txt]
+180/06000+ CODE_INDEX		code access window addr	[fuc-vm.txt]
+184/06100+ CODE			code access window	[fuc-vm.txt]
+188/06200+ CODE_VIRT_ADDR	code access virt addr	[fuc-vm.txt]
+1c0/07000+ DATA_INDEX[0]	data access window addr	[fuc-data.txt]
+1c4/07100+ DATA[0]		data access window	[fuc-data.txt]
+1c8/07200D DATA_INDEX[1]	data access window addr	[fuc-data.txt]
+1cc/07300D DATA[1]		data access window	[fuc-data.txt]
+1d0/07400D DATA_INDEX[2]	data access window addr	[fuc-data.txt]
+1d4/07500D DATA[2]		data access window	[fuc-data.txt]
+1d8/07600D DATA_INDEX[3]	data access window addr	[fuc-data.txt]
+1dc/07700D DATA[3]		data access window	[fuc-data.txt]
+fec/-      UC_SP		microprocessor $sp reg	[fuc-ctrl.txt]
+ff0/-      UC_PC		microprocessor $pc reg	[fuc-ctrl.txt]
+ff4/-      UPLOAD		old code/data upload	[fuc-io.txt]
+ff8/-      UPLOAD_ADDR		old code/data up addr	[fuc-io.txt]
+ffc/-      HOST_IO_INDEX	IO space index for host	[fuc-io.txt]
+
+
+Misc registers
+
+A few registers that don't fit in any other file are described here.
+
+MMIO 0x040 / I[0x01000]: SCRATCH0
+MMIO 0x044 / I[0x01100]: SCRATCH1
+MMIO 0x080 / I[0x02000]: SCRATCH2
+MMIO 0x084 / I[0x02100]: SCRATCH3
+  Scratch 32-bit registers, meant for host <-> fuc communication.
+
+MMIO 0x04c / I[0x01300]: STATUS
+  Status of various parts of the engine. For each bit, 1 means busy, 0 means
+  idle.
+  bit 0: UC. Microcode. 1 if microcode is running and not on a sleep insn.
+  bit 1: ???
+  Further bits are engine-specific.
+
+MMIO 0x05c / I[0x01700]: STATUS_MASK
+  A bitmask of nonexistent status bits. Each of bits 0-15 is set to 0 if
+  corresponding STATUS line is tied to anything in this particular engine, 1
+  if it's unused. [?]
+
+MMIO 0x088 / I[0x02200]: MISC_TRIGGER
+  A WO "trigger" register for various things. write 1 to a bit to trigger
+  the relevant event, 0 to do nothing.
+  bits 0-15: ??? [perf counters?]
+  bit 16: WRCACHE_FLUSH
+  bit 17: ??? [PM_TRIGGER?]
+
+MMIO 0xff4: UPLOAD
+  The data to upload, see below
+MMIO 0xff8: UPLOAD_ADDR
+  bits 2-15: bits 2-15 of the code/data address being uploaded.
+  bit 20: target segment. 0 means data, 1 means code.
+  bit 21: readback.
+  bit 24: xfer busy [RO]
+  bit 28: secret flag - secret engines only [see fuc-crypt.txt]
+  bit 29: code busy [RO]
+
+This pair of registers can be used on NV98 to read/write code and data
+segments. It's quite fragile and should only be used when no xfers are active.
+bit 24 of UPLOAD_ADDR is set when this is the case. On NVA3+, this pair
+should be avoided in favor of the new-style access via CODE and DATA ports.
+
+To write data, poke address to UPLOAD_ADDR, then poke the data words to
+UPLOAD. The address will auto-increment as words are uploaded.
+
+To read data or code, poke address + readback flag to UPLOAD_ADDR, then read
+the word from UPLOAD. This only works for a single word, and you need to poke
+UPLOAD_ADDR again for each subsequent word.
+
+On NV98, code segment is organised in 0x100-byte pages. On secretful engines,
+each page can be secret or not. Reading from secret pages doesn't work and
+you just get 0. Writing code segment can only be done in aligned page units.
+
+To write a code page, write start address of the page + secret flag [if
+needed] to UPLOAD_ADDR, then poke multiple of 0x40 words to UPLOAD. The
+address will autoincrement. The process cannot be interrupted except between
+pages. The "code busy" flag in UPLOAD_ADDR will be lit when this is the case.
+
+
+IO space writes: iowr, iowrs
+
+Writes a word to IO space. iowr does asynchronous writes [queues the write,
+but doesn't wait for completion], iowrs does synchrnous write [write is
+guaranteed to complete before executing next instruction]. On pre-NVA3 cards,
+iowrs doesn't exist and synchronisation can instead be done by re-reading
+the relevant register.
+
+Insns [unsized]:
+  [0] iowr - Async IO space write
+  [1] iowrs - Sync IO space write [NVA3+]
+
+Operands [BASE, IDX, SRC]:
+  [d0] R2, I8, R1
+  [fa] R2, 0, R1
+
+Operation:
+	if (op == iowr)
+		IOWR(BASE + IDX * 4, SRC);
+	else
+		IOWRS(BASE + IDX * 4, SRC);
+
+
+IO space reads: iord
+
+Reads a word from IO space.
+
+Insns [unsized]:
+  [e] ??? [NVA3+]
+  [f] iord - IO space read
+
+Operands [DST, BASE, IDX]:
+  [c0] R1, R2, I8
+  [ff] R3, R2, R1
+
+Operation:
+	if (op == iord)
+		DST = IORD(BASE + IDX * 4);
+	else
+		???;
+
+XXX: subop e
