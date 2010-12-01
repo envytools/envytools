@@ -190,3 +190,25 @@ Unsized
  mov[<sr]|C   |  |  |  |  |  |  |  |  |  |  |  |  |  | 1|  |   |-    |-    |
  ptlb    |V+  |  |  |  |  |  |  |  |  |  |  |  |  |  | 2|  |   | N/A |-    |
  vtlb    |V+  |  |  |  |  |  |  |  |  |  |  |  |  |  | 3|  |   | N/A |-    |
+
+Code segment
+
+fuc has separate code and data spaces. Code segment, like data segment, is
+located in small piece of SRAM in the microcontroller. Its size can be
+determined by looking at MMIO address fuc+0x108, bits 0-8 shifted left by 8.
+
+Code is byte-oriented, but can only be accessed by 32-bit words from outside,
+and can only be modified in 0x100-byte [page] units.
+
+On pre-NVA3, code segment is just a flat piece of RAM, except for the per-page
+secret flag. See fuc-io.txt for information on uploading code and data.
+
+On NVA3+, code segment is paged with virtual -> physical translation and needs
+special handling. See fuc-vm.txt for details.
+
+Code execution is started by host via MMIO from arbitrary entry point, and is
+stopped either by host or by the microcode itself, see fuc-ctrl.txt
+
+When an invalid opcode is hit, $pc is unmodified and a trap is generated. On
+NVA3+, $tstatus reason field is set to 8. Pre-NVA3 cards don't have $tstatus
+register, but this is the only trap type they support anyway.

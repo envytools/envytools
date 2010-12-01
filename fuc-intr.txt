@@ -1,0 +1,157 @@
+Introduction
+
+fuc has interrupt support. There are 16 interrupt lines on each engine, and
+two interrupt vectors on the microprocessor. Each of the interrupt lines can
+be independently routed to uc vector 0, uc vector 1, host irq, or ignored.
+The lines can be triggered by hw events, or by user.
+
+The lines are:
+
+  0 [E]: periodic timer		[fuc-timer.txt]
+  1 [E]: watchdog timer		[fuc-timer.txt]
+  2 [L]: FIFO data available	[fuc-fifo.txt]
+  3 [E]: PFIFO channel switch	[fuc-fifo.txt]
+  4 [E]: uc halted		[fuc-ctrl.txt]
+  5-7 [E]: scratch [unused by hw, user-defined]
+  8-9 [E]: engine-specific edge[?]
+  10-15 [L]: engine-specific level[?]
+
+E means edge-triggered interrupt, L means level-triggered.
+
+The interrupt and interrupt enable registers are actually visible as
+set/clear/status register triples: writing to the set register sets all bits
+that are 1 in the written value to 1. Writing to clear register sets them
+to 0. The status register shows the current value when read, but cannot be
+written.
+
+MMIO 0x000 / I[0x00000]: INTR_SET
+MMIO 0x004 / I[0x00100]: INTR_CLEAR
+MMIO 0x008 / I[0x00200]: INTR [status]
+  A mask of currently pending interrupts. Write to SET to manually trigger
+  an interrupt. Write to CLEAR to ack an interrupt, if it's edge-triggered.
+
+MMIO 0x010 / I[0x00400]: INTR_EN_SET
+MMIO 0x014 / I[0x00500]: INTR_EN_CLEAR
+MMIO 0x018 / I[0x00600]: INTR_EN [status]
+  A mask of enabled interrupts. If a bit is set to 0 here, the interrupt
+  handler isn't run if a given interrupt happens [but the INTR bit is still
+  set and it'll run once INTR_EN bit is set again].
+
+MMIO 0x00c / I[0x00300]: INTR_MODE [NVA3+] [XXX: verify this]
+  Bits 0-15 are modes for the corresponding interrupt lines. 0 is edge
+  trigered, 1 is level triggered. Level-triggered interrupts don't require
+  acks.
+
+  Setting a sw interrupt to level-triggered, or a hw interrupt to mode it
+  wasn't meant to be set is likely a bad idea.
+
+MMIO 0x01c / I[0x00700]: INTR_DISPATCH
+  Bits 0-15: mask of interrupts that go to host
+  Bits 16-31: mask of interrupts that go to fuc vector 1.
+  If an interrupt is set in one of these masks, it goes to the respective
+  handler. If an interrupt is set in neither, it goes to fuc vector 0.
+  Setting an interrupt in both is a bad idea, and just results in the
+  interrupt being ignored.
+
+If an interrupt set for host irq delivery is active and unmasked, the fuc
+host interrupt line is active. For engines other than PGRAPH CTXCTLs, this
+line is wired straight to one of PMC.INTR bits:
+
+  PBSP			15
+  PVP			17
+  PPPP			0
+  PCRYPT		14
+  PUNK1C1		14
+  PCOPY	pre-NVC0	22
+  PCOPY[0] NVC0+	??? [XXX: check this]
+  PCOPY[1] NVC0+	??? [XXX: check this]
+  PDAEMON pre-NVC0	18
+  PDAEMON NVC0+		??? [XXX: check this]
+
+fuc interrupt and trap delivery is controlled by $iv0, $iv1, $tv, $tstatus
+registers and ie0, ie1, is0, is1, ta $flags bits. Traps behave like
+interrupts, but are triggered by events inside the UC.
+
+$iv0 is address of interrupt vector 0. $iv1 is address of interrupt vector 1.
+$tv is address of trap vector. ieX are interrupt enable bits for corresponding
+vectors. isX are interrupt enable save bits. ta is trap active flag. $tstatus
+is NVA3+ and contains information about last trap. The bitfields of $tstatus
+are:
+
+  bits 0-15: faulting $pc
+  bits 20-23: trap reason
+
+The known trap reasons are:
+
+  0-3	software trap		[fuc-intr.txt]
+  8	invalid opcode		[fuc-isa.txt]
+  0xa	page fault - no hit	[fuc-vm.txt]
+  0xb	page fault - multi hit	[fuc-vm.txt]
+
+Whenever there's an active and enabled interrupt set for vector X delivery,
+and ieX flag is set, vector X is called:
+
+Operation:
+	$sp -= 4;
+	ST(32, $sp, $pc);
+	$flags.is0 = $flags.ie0;
+	$flags.is1 = $flags.ie1;
+	if (vector 0)
+		$pc = $iv0;
+	else
+		$pc = $iv1;
+
+Whenever a trapworthy event happens on the uc, a trap is delivered:
+
+Operation:
+	if ($flags.ta) { // double trap?
+		EXIT; // see fuc-ctrl.txt
+	}
+	$flags.ta = 1;
+	if (NVA3+) // on pre-NVA3, there's only one possible trap reason anyway [8]
+		$tstatus = $pc | reason << 20; // XXX: check page faults on page bounduaries
+	$sp -= 4;
+	ST(32, $sp, $pc);
+	$pc = $tv;
+
+
+Returning form an interrupt: iret
+
+Returns from an interrupt handler.
+
+Insns [unsized]:
+  iret - Return from an interrupt
+
+Operands [-]:
+  [f8/1]
+
+Operation:
+	$pc = LD(32, $sp);
+	$sp += 4;
+	$flags.ie0 = $flags.is0;
+	$flags.ie1 = $flags.is1;
+
+
+Software trap trigger: trap
+
+Triggers a software trap.
+
+Insns [unsized]:
+  [8] trap 0 - software trap #0 [NVA3+]
+  [9] trap 1 - software trap #1 [NVA3+]
+  [a] trap 2 - software trap #2 [NVA3+]
+  [b] trap 3 - software trap #3 [NVA3+]
+
+Operands [-]:
+  [f8]
+
+Operation:
+	if ($flags.ta) { // double trap?
+		EXIT; // see fuc-ctrl.txt
+	}
+	$flags.ta = 1;
+	$tstatus = $pc | arg << 20;
+	$pc += oplen; // return will be to the insn after this one
+	$sp -= 4;
+	ST(32, $sp, $pc);
+	$pc = $tv;
