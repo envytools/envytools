@@ -65,8 +65,6 @@ int main(int argc, char **argv) {
 		isa = vp2_isa;
 	if (!strcmp(argv[0], "vp3mdis"))
 		isa = vp3m_isa;
-	if (!strcmp(argv[0], "vp3tdis"))
-		isa = vp3t_isa;
 	if (!strcmp(argv[0], "macrodis")) {
 		isa = macro_isa;
 		w = 1;
@@ -141,8 +139,6 @@ int main(int argc, char **argv) {
 					isa = vp2_isa;
 				else if (!strcmp(optarg, "vp3m"))
 					isa = vp3m_isa;
-				else if (!strcmp(optarg, "vp3t"))
-					isa = vp3t_isa;
 				else if (!strcmp(optarg, "macro"))
 					isa = macro_isa;
 				else {

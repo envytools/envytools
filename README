@@ -54,7 +54,6 @@ hexadecimal numbers representing the bytes to disassemble. The options are:
      pms: PBUS power management scripts [*   ]
      vp2: video processor 2 [nv84-gen] code, an xtensa variant [*** ]
      vp3m: video processor 3 [nv98-gen] master/mocomp microcode [*   ]
-     vp3t: video processor 3 [nv98-gen] transform microcode [    ]
      macro: nvc0 PGRAPH macro method ISA [****]
      [    ]: Bare beginnings
      [*   ]: Knows a few instructions
@@ -92,5 +91,4 @@ envydis can also be invoked under one of the alternative names, which imply
   - pmsdis: -m pms
   - vp2dis: -m vp2
   - vp3mdis: -m vp3m
-  - vp3tdis: -m vp3t
   - macrodis: -m macro -w
