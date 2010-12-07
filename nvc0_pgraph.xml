@@ -20,7 +20,7 @@
 		<bitfield name="QUERY" pos="1">
 			<doc>You asked for a QUERY with interrupt and got it.</doc>
 		</bitfield>
-		<bitfield name="UNK02" pos="2" />
+		<bitfield name="SYNC" pos="2" />
 		<bitfield name="ILLEGAL_MTHD" pos="4">
 			<doc>You tried to use a method that doesn't exist on this class.</doc>
 		</bitfield>
@@ -69,7 +69,9 @@
 		<bitfield name="UNK4" pos="4"/>
 		<bitfield name="UNK5" pos="5"/>
 		<bitfield name="UNK6" pos="6"/>
-		<bitfield name="UNK7" pos="7"/>
+		<bitfield name="MACRO" pos="7">
+			<brief>Check 404490</brief>
+		</bitfield>
 		<bitfield name="UNK24" pos="24"/>
 		<bitfield name="UNK25" pos="25"/>
 	</reg32>
@@ -86,7 +88,7 @@
 		<bitfield name="UNK4" pos="4"/>
 		<bitfield name="UNK5" pos="5"/>
 		<bitfield name="UNK6" pos="6"/>
-		<bitfield name="UNK7" pos="7"/>
+		<bitfield name="MACRO" pos="7"/>
 		<bitfield name="UNK24" pos="24"/>
 		<bitfield name="UNK25" pos="25"/>
 	</reg32>
@@ -95,7 +97,7 @@
 		<doc>A bitmask of events that will cause interrupts, same bit assignments as in INTR reg.</doc>
 		<bitfield name="NOTIFY" pos="0" />
 		<bitfield name="QUERY" pos="1" />
-		<bitfield name="UNK02" pos="2" />
+		<bitfield name="SYNC" pos="2" />
 		<bitfield name="ILLEGAL_MTHD" pos="4" />
 		<bitfield name="ILLEGAL_CLASS" pos="5" />
 		<bitfield name="DOUBLE_NOTIFY" pos="6" />
@@ -201,6 +203,22 @@
 		<reg32 offset="0xe4" name="NOTIFY_M2MF_ADDRESS_LOW" />
 
 		<reg32 offset="0x200" name="CTX_CACHE" length="8" />
+	</array>
+	<array offset="0x4400" name="MACRO" stride="0x100" length="1">
+		<reg32 offset="0x90" name="TRAP">
+			<bitfield name="TOO_FEW_PARAMS" pos="0" />
+			<bitfield name="TOO_MANY_PARAMS" pos="1" />
+			<bitfield name="ILLEGAL_OPCODE" pos="2" />
+			<bitfield name="DOUBLE_BRANCH" pos="3" />
+			<bitfield name="CLEAR" pos="30" />
+			<bitfield name="ENABLE" pos="31" />
+		</reg32>
+	</array>
+	<array offset="0x4600" name="M2MF" stride="0x100" length="1">
+		<reg32 offset="0x00" name="TRAP">
+			<bitfield name="CLEAR" pos="30" />
+			<bitfield name="ENABLE" pos="31" />
+		</reg32>
 	</array>
 
 	<group name="nvc0_ctxctl">
