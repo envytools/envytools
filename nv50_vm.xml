@@ -5,88 +5,88 @@
 <enum name="NV50_STORAGE_TYPE">
 	<value value="0x00" name="LINEAR"/>
 
-	<value value="0x10" name="Z24S8_UNK10"/>
-	<value value="0x11" name="Z24S8_UNK11"/>
-	<value value="0x12" name="Z24S8_UNK12"/>
-	<value value="0x13" name="Z24S8_UNK13"/>
+	<value value="0x10" name="Z24S8_MS1"/>
+	<value value="0x11" name="Z24S8_MS2"/>
+	<value value="0x12" name="Z24S8_MS4"/>
+	<value value="0x13" name="Z24S8_MS8"/>
 
-	<value value="0x18" name="Z24S8_LSR_UNK18"/>
-	<value value="0x19" name="Z24S8_LSR_UNK19"/>
-	<value value="0x1a" name="Z24S8_LSR_UNK1A"/>
-	<value value="0x1b" name="Z24S8_LSR_UNK1B"/>
+	<value value="0x18" name="Z24S8_LSR_MS1"/>
+	<value value="0x19" name="Z24S8_LSR_MS2"/>
+	<value value="0x1a" name="Z24S8_LSR_MS4"/>
+	<value value="0x1b" name="Z24S8_LSR_MS8"/>
 
-	<value value="0x20" name="S8Z24_UNK20"/>
-	<value value="0x21" name="S8Z24_UNK21"/>
-	<value value="0x22" name="S8Z24_UNK22"/>
-	<value value="0x23" name="S8Z24_UNK23"/>
-	<value value="0x24" name="C8Z24_X8Z24_UNK24"/>
-	<value value="0x25" name="C8Z24_UNK25"/>
-	<value value="0x26" name="C8Z24_X8Z24_UNK26"/>
+	<value value="0x20" name="S8Z24_MS1"/>
+	<value value="0x21" name="S8Z24_MS2"/>
+	<value value="0x22" name="S8Z24_MS4"/>
+	<value value="0x23" name="S8Z24_MS8"/>
+	<value value="0x24" name="C8Z24_MS4_CS4"/>
+	<value value="0x25" name="C8Z24_MS4_CS12"/>
+	<value value="0x26" name="C8Z24_MS8_CS8"/>
 
-	<value value="0x28" name="S8Z24_LSR_UNK28"/>
-	<value value="0x29" name="S8Z24_LSR_UNK29"/>
-	<value value="0x2a" name="S8Z24_LSR_UNK2A"/>
-	<value value="0x2b" name="S8Z24_LSR_UNK2B"/>
-	<value value="0x2c" name="C8Z24_X8Z24_LSR_UNK2C"/>
-	<value value="0x2d" name="C8Z24_LSR_UNK2D"/>
-	<value value="0x2e" name="C8Z24_X8Z24_LSR_UNK2E"/>
+	<value value="0x28" name="S8Z24_MS1_LSR"/>
+	<value value="0x29" name="S8Z24_MS2_LSR"/>
+	<value value="0x2a" name="S8Z24_MS4_LSR"/>
+	<value value="0x2b" name="S8Z24_MS8_LSR"/>
+	<value value="0x2c" name="C8Z24_MS4_CS4_LSR"/>
+	<value value="0x2d" name="C8Z24_MS4_CS12_LSR"/>
+	<value value="0x2e" name="C8Z24_MS8_CS8_LSR"/>
 
 	<!-- in no way certain. -->
-	<value value="0x40" name="Z32_UNK40"/>
-	<value value="0x41" name="Z32_UNK41"/>
-	<value value="0x42" name="Z32_UNK42"/>
-	<value value="0x43" name="Z32_UNK43"/>
+	<value value="0x40" name="Z32_MS1"/>
+	<value value="0x41" name="Z32_MS2"/>
+	<value value="0x42" name="Z32_MS4"/>
+	<value value="0x43" name="Z32_MS8"/>
 
-	<value value="0x44" name="Z24_UNK44"/>
-	<value value="0x45" name="Z24_UNK45"/>
-	<value value="0x46" name="Z24_UNK46"/>
+	<value value="0x44" name="TILED_24"/>
+	<value value="0x45" name="TILED_24_MS4"/>
+	<value value="0x46" name="TILED_24_MS8"/>
 
-	<value value="0x47" name="Z32_LSR_UNK47"/>
-	<value value="0x48" name="Z32_LSR_UNK48"/>
-	<value value="0x49" name="Z32_LSR_UNK49"/>
-	<value value="0x4a" name="Z32_LSR_UNK4A"/>
+	<value value="0x47" name="Z32_MS1_LSR"/>
+	<value value="0x48" name="Z32_MS2_LSR"/>
+	<value value="0x49" name="Z32_MS4_LSR"/>
+	<value value="0x4a" name="Z32_MS8_LSR"/>
 
 	<!-- I hope you don't need to read that one aloud. -->
 	<!-- think 64-bit big endian ordering. -->
-	<value value="0x54" name="X16C8S8X8Z24_X24S8X8Z24_UNK54"/>
-	<value value="0x55" name="X16C8S8X8Z24_UNK55"/>
-	<value value="0x56" name="X16C8S8X8Z24_X24S8X8Z24_UNK56"/>
+	<value value="0x54" name="X16C8S8X8Z24_MS4_CS4"/>
+	<value value="0x55" name="X16C8S8X8Z24_MS4_CS12"/>
+	<value value="0x56" name="X16C8S8X8Z24_MS8_CS8"/>
 
-	<value value="0x60" name="X24S8Z32_UNK60"/>
-	<value value="0x61" name="X24S8Z32_UNK61"/>
-	<value value="0x62" name="X24S8Z32_UNK62"/>
-	<value value="0x63" name="X24S8Z32_UNK63"/>
-	<value value="0x64" name="X16C8S8Z32_X24S8Z32_UNK64"/>
-	<value value="0x65" name="X16C8S8Z32_UNK65"/>
-	<value value="0x66" name="X16C8S8Z32_X24S8Z32_UNK66"/>
+	<value value="0x60" name="X24S8Z32_MS1"/>
+	<value value="0x61" name="X24S8Z32_MS2"/>
+	<value value="0x62" name="X24S8Z32_MS4"/>
+	<value value="0x63" name="X24S8Z32_MS8"/>
+	<value value="0x64" name="X16C8S8Z32_MS4_CS4"/>
+	<value value="0x65" name="X16C8S8Z32_MS4_CS12"/>
+	<value value="0x66" name="X16C8S8Z32_MS8_CS8"/>
 
 	<!-- even less certain -->
-	<value value="0x68" name="Z16_UNK68"/>
-	<value value="0x69" name="Z16_UNK69"/>
-	<value value="0x6a" name="Z16_UNK6A"/>
-	<value value="0x6b" name="Z16_UNK6B"/>
+	<value value="0x68" name="Z16_MS1"/>
+	<value value="0x69" name="Z16_MS2"/>
+	<value value="0x6a" name="Z16_MS4"/>
+	<value value="0x6b" name="Z16_MS8"/>
 
-	<value value="0x6c" name="Z16_LSR_UNK6C"/>
-	<value value="0x6d" name="Z16_LSR_UNK6D"/>
-	<value value="0x6e" name="Z16_LSR_UNK6E"/>
-	<value value="0x6f" name="Z16_LSR_UNK6F"/>
+	<value value="0x6c" name="Z16_MS1_LSR"/>
+	<value value="0x6d" name="Z16_MS2_LSR"/>
+	<value value="0x6e" name="Z16_MS4_LSR"/>
+	<value value="0x6f" name="Z16_MS8_LSR"/>
 
-	<value value="0x70" name="TILED_UNK70"/>
+	<value value="0x70" name="TILED"/> <!-- any uncompressed < 128bpp -->
 
-	<value value="0x72" name="TILED_LSR_UNK72"/>
+	<value value="0x72" name="TILED_LSR"/>
 
 	<value value="0x74" name="TILED_128"/>
 
-	<value value="0x76" name="TILED_LSR_UNK76"/>
+	<value value="0x76" name="TILED_128_LSR"/>
 
-	<value value="0x78" name="TILED_UNK78"/>
-	<value value="0x79" name="TILED_UNK79"/>
+	<value value="0x78" name="TILED_32_MS4"/>
+	<value value="0x79" name="TILED_32_MS8"/>
 
-	<value value="0x7a" name="TILED_LSR_UNK7A"/>
-	<value value="0x7b" name="TILED_LSR_UNK7B"/>
+	<value value="0x7a" name="TILED_32_MS4_LSR"/>
+	<value value="0x7b" name="TILED_32_MS8_LSR"/>
 
-	<value value="0x7c" name="TILED_UNK7C"/>
-	<value value="0x7d" name="TILED_UNK7D"/>
+	<value value="0x7c" name="TILED_64_MS4"/>
+	<value value="0x7d" name="TILED_64_MS8"/>
 
 	<!-- valid only in DMAobj -->
 	<value value="0x7f" name="USEVM"/>
