@@ -51,11 +51,23 @@
 	<value value="0x12" name="RT_LINEAR_WITH_ZETA">
 		<brief>You tried to use linear RTs with ZETA enabled.</brief>
 	</value>
+	<value value="0x16" name="ZETA_FORMAT_CSAA_MISMATCH">
+		<brief>You tried to use CSAA with non-CSAA ZETA format, or the other way around.</brief>
+	</value>
+	<value value="0x17" name="RT_LINEAR_WITH_MSAA">
+		<brief>You tried to use linear RTs with MSAA/CSAA enabled.</brief>
+	</value>
+	<value value="0x1a" name="RT_INVALID_ALIGNMENT">
+		<brief>You tried to use tiled RT without 0x100-byte alignment.</brief>
+	</value>
 	<value value="0x1b" name="SAMPLER_OVER_LIMIT">
 		<brief>You to BIND_TSC a sampler not defined by TEX_LIMITS.</brief>
 	</value>
 	<value value="0x1c" name="TEXTURE_OVER_LIMIT">
 		<brief>You to BIND_TIC a texture not defined by TEX_LIMITS.</brief>
+	</value>
+	<value value="0x1f" name="RT_BPP128_WITH_MS8">
+		<brief>You tried to use 8xMSAA with 128bpp RT.</brief>
 	</value>
 	<value value="0x21" name="Z_OUT_OF_BOUNDS"> <!-- m2mf at least. 2d too? -->
 		<brief>Your z coord exceeds the depth of your surface.</brief>
@@ -685,10 +697,17 @@
 
 	<group name="nv50_pgraph_tprop">
 		<reg32 offset="0x08" name="TPROP_TRAP">
+			<bitfield name="SURF_WIDTH_OVERRUN" pos="2" />
+			<bitfield name="SURF_HEIGHT_OVERRUN" pos="3" />
 			<bitfield name="DST2D_FAULT" pos="4" />
+			<bitfield name="ZETA_FAULT" pos="5" />
 			<bitfield name="RT_FAULT" pos="6" />
 			<bitfield name="CUDA_FAULT" pos="7" />
-			<bitfield name="STORAGE_TYPE_MISMATCH" pos="11" />
+			<bitfield name="DST2D_STORAGE_TYPE_MISMATCH" pos="8" />
+			<bitfield name="ZETA_STORAGE_TYPE_MISMATCH" pos="9" />
+			<bitfield name="RT_STORAGE_TYPE_MISMATCH" pos="10" />
+			<bitfield name="DST2D_LINEAR_MISMATCH" pos="11" />
+			<bitfield name="RT_LINEAR_MISMATCH" pos="12" />
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
