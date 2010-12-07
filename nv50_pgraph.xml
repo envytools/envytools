@@ -75,26 +75,29 @@
 	<value value="0x23" name="XY_OUT_OF_BOUNDS"> <!-- m2mf at least. 2d too? -->
 		<brief>Your x/y coords exceed the size of your surface.</brief>
 	</value>
-	<value value="0x27" name="MP_MORE_PARAMS_THAN_SHARED">
+	<value value="0x27" name="CP_MORE_PARAMS_THAN_SHARED">
 		<brief>You tried to launch block with more params than allocated s[] space.</brief>
 	</value>
-	<value value="0x28" name="MP_NO_REG_SPACE_STRIPED">
+	<value value="0x28" name="CP_NO_REG_SPACE_STRIPED">
 		<brief>You tried to use too much registers per block, and it didn't fit, with striped reg mode.</brief>
 	</value>
-	<value value="0x29" name="MP_NO_REG_SPACE_PACKED">
+	<value value="0x29" name="CP_NO_REG_SPACE_PACKED">
 		<brief>You tried to use too much registers per block, and it didn't fit, with packed reg mode.</brief>
 	</value>
-	<value value="0x2a" name="MP_NOT_ENOUGH_WARPS">
+	<value value="0x2a" name="CP_NOT_ENOUGH_WARPS">
 		<brief>Your block requires more warps than MP can handle.</brief>
 	</value>
-	<value value="0x2b" name="MP_BLOCK_SIZE_MISMATCH">
+	<value value="0x2b" name="CP_BLOCK_SIZE_MISMATCH">
 		<brief>The XYZ dimensions of block you specified indicate a smaller block than BLOCK_ALLOC implies.</brief>
 	</value>
-	<value value="0x2c" name="MP_NOT_ENOUGH_LOCAL_WARPS">
+	<value value="0x2c" name="CP_NOT_ENOUGH_LOCAL_WARPS">
 		<brief>Your block requires more warps than LOCAL_WARPS allows..</brief>
 	</value>
-	<value value="0x2d" name="MP_NOT_ENOUGH_STACK_WARPS">
+	<value value="0x2d" name="CP_NOT_ENOUGH_STACK_WARPS">
 		<brief>Your block requires more warps than STACK_WARPS allows.</brief>
+	</value>
+	<value value="0x2e" name="CP_NO_BLOCKDIM_LATCH">
+		<brief>Your didn't use BLOCKDIM_LATCH between block dimension setup and kernel launch.</brief>
 	</value>
 	<value value="0x31" name="ENG2D_FORMAT_MISMATCH"> <!-- sifc at least. -->
 		<brief>The dst/src format combination you chose doesn't make sense.</brief>
@@ -693,6 +696,10 @@
 		</reg32>
 		<reg32 offset="0x70" name="OPCODE_LOW"/>
 		<reg32 offset="0x74" name="OPCODE_HIGH"/>
+		<reg32 offset="0x78" name="PC_PREVIOUS">
+			<bitfield name="ADDR" high="23" low="0" />
+			<bitfield name="WARP" high="31" low="24" />
+		</reg32>
 	</group>
 
 	<group name="nv50_pgraph_tprop">
@@ -717,17 +724,25 @@
 		<array offset="0x200" name="MP" stride="0x80" length="2">
 			<use-group name="nv50_pgraph_mp" />
 		</array>
-		<reg32 offset="0x314" name="MP_TRAP">
-			<bitfield name="STACK_OVERFLOW" pos="6" />
-			<bitfield name="GLOBAL_LIMIT" pos="12" />
+		<reg32 offset="0x314" name="MPC_TRAP">
+			<bitfield name="LOCAL_LIMIT_READ" pos="0" />
+			<bitfield name="LOCAL_LIMIT_WRITE" pos="4" />
+			<bitfield name="STACK_LIMIT" pos="6" />
+			<bitfield name="GLOBAL_LIMIT_READ" pos="8" />
+			<bitfield name="GLOBAL_LIMIT_WRITE" pos="12" />
 			<bitfield name="MP0" pos="16" />
 			<bitfield name="MP1" pos="17" />
+			<bitfield name="GLOBAL_LIMIT_RED" pos="18" />
+			<bitfield name="GLOBAL_LIMIT_ATOM" pos="22" />
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
 		<reg32 offset="0x900" name="TEXTURE_TRAP">
+			<bitfield name="ANY" pos="0" />
 			<bitfield name="FAULT" pos="1" />
-			<bitfield name="STORAGE_TYPE_MISMATCH" pos="3" />
+			<bitfield name="STORAGE_TYPE_MISMATCH" pos="2" />
+			<bitfield name="LINEAR_MISMATCH" pos="3" />
+			<bitfield name="WRONG_MEMTYPE" pos="5" />
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
@@ -741,18 +756,26 @@
 		<array offset="0x100" name="MP" stride="0x80" length="4">
 			<use-group name="nv50_pgraph_mp" />
 		</array>
-		<reg32 offset="0x31c" name="MP_TRAP">
-			<bitfield name="STACK_OVERFLOW" pos="6" />
-			<bitfield name="GLOBAL_LIMIT" pos="12" />
+		<reg32 offset="0x31c" name="MPC_TRAP">
+			<bitfield name="LOCAL_LIMIT_READ" pos="0" />
+			<bitfield name="LOCAL_LIMIT_WRITE" pos="4" />
+			<bitfield name="STACK_LIMIT" pos="6" />
+			<bitfield name="GLOBAL_LIMIT_READ" pos="8" />
+			<bitfield name="GLOBAL_LIMIT_WRITE" pos="12" />
 			<bitfield name="MP0" pos="16" />
 			<bitfield name="MP1" pos="17" />
+			<bitfield name="GLOBAL_LIMIT_RED" pos="18" />
+			<bitfield name="GLOBAL_LIMIT_ATOM" pos="22" />
 			<bitfield name="MP2" pos="26" />
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
 		<reg32 offset="0x600" name="TEXTURE_TRAP">
+			<bitfield name="ANY" pos="0" />
 			<bitfield name="FAULT" pos="1" />
-			<bitfield name="STORAGE_TYPE_MISMATCH" pos="3" />
+			<bitfield name="STORAGE_TYPE_MISMATCH" pos="2" />
+			<bitfield name="LINEAR_MISMATCH" pos="3" />
+			<bitfield name="WRONG_MEMTYPE" pos="5" />
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>

@@ -148,8 +148,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x02f4" name="UNK02F4">
 			<doc>Accepts anything.</doc>
 		</reg32>
-		<reg32 offset="0x02f8" name="UNK02F8_INIT" type="boolean">
-			<doc>set to 1 after setting up grid/block dimensions,
+		<reg32 offset="0x02f8" name="BLOCKDIM_LATCH" type="boolean">
+			<doc>set to 1 after setting up block dimensions,
 			otherwise error.</doc>
 		</reg32>
 		<reg32 offset="0x02fc" name="LOCAL_WARPS_LOG_ALLOC" type="uint">
