@@ -1569,8 +1569,8 @@ static struct insn tabl[] = {
 	{ NVA3P, -1, 0x60020000f8000000ull, 0xf00f0000f8000000ull,
 		N("texquerylod cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
 
-	{ -1, -1, 0x80000000f0000000ull, 0xf0000000f1000000ull, // no idea what this is. but it *is* texturing.
-		U("f/8/0"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
+	{ -1, -1, 0x80000000f0000000ull, 0xf0000000f1000000ull, // in: float coords + CSAA mask from ZETA
+		N("texcsaa"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
 
 	{ NVA3P, -1, 0x80000000f1000000ull, 0xf0000000f9000000ull,
 		N("texgather"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
