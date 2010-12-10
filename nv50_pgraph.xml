@@ -51,6 +51,9 @@
 	<value value="0x12" name="RT_LINEAR_WITH_ZETA">
 		<brief>You tried to use linear RTs with ZETA enabled.</brief>
 	</value>
+	<value value="0x15" name="FP_TOO_FEW_REGS">
+		<brief>You allocated too few registers in FP to cover all outputs.</brief>
+	</value>
 	<value value="0x16" name="ZETA_FORMAT_CSAA_MISMATCH">
 		<brief>You tried to use CSAA with non-CSAA ZETA format, or the other way around.</brief>
 	</value>
