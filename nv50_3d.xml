@@ -1035,8 +1035,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield pos="1" name="UNK1" variants="NVA0_3D-"/>
 			<bitfield pos="2" name="UNK2" variants="NVA0_3D-"/>
-			<bitfield pos="3" name="UNK3"/>
-			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="3" name="DEPTH_CLAMP_NEAR"/>
+			<bitfield pos="4" name="DEPTH_CLAMP_FAR"/>
 			<bitfield pos="7" name="UNK7"/>
 			<bitfield pos="10" name="UNK10"/> <!-- 1 by default -->
 			<bitfield pos="11" name="UNK11"/>
