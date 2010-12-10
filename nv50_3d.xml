@@ -914,8 +914,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Goes to 8cxx, 1cxx. 0-2.</doc>
 		</reg32>
 		<reg32 offset="0x166c" name="LINE_STIPPLE_ENABLE" type="boolean"/>
-		<reg32 offset="0x1670" name="UNK1670" length="4">
-			<doc>Goes to 8cxx. Default values: 30201000 70605040 b8a89888 f8e8d8c8.</doc>
+		<reg32 offset="0x1670" name="COVERAGE_LUT" length="4">
+			<bitfield low="0" high="7" name="0"/>
+			<bitfield low="8" high="15" name="1"/>
+			<bitfield low="16" high="23" name="2"/>
+			<bitfield low="24" high="31" name="3"/>
 		</reg32>
 		<reg32 offset="0x1680" name="LINE_STIPPLE">
 			<bitfield low="0" high="7" name="FACTOR_M1">
