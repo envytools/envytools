@@ -126,7 +126,7 @@
  */
 
 
-static struct bitfield ctargoff = { { 26, 24 }, BF_SIGNED, .pcrel = 1, .wrapok = 1, .addend = 8}; // XXX: check if wrapping really works.
+static struct bitfield ctargoff = { { 26, 24 }, BF_SIGNED, .pcrel = 1, .addend = 8}; // PC is 32-bit. NFI how to reach further than 2^23 bytes.
 #define BTARG atombtarg, &ctargoff
 #define CTARG atomctarg, &ctargoff
 
