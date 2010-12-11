@@ -547,6 +547,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		  <bitfield name="VALID" pos="0" type="boolean"/>
 		  <bitfield name="INDEX" high="7" low="4" type="uint"/>
 		</reg32>
+		<reg32 offset="0x2600" name="VERT_COLOR_CLAMP_EN" type="boolean"/>
 		<reg32 offset="0x2800" name="TFB_VARYING_LOCS" length="128"/>
 		<reg32 offset="0x3820" name="VERTEX_ARRAY_SELECT" type="uint"/>
 		<reg32 offset="0x3824" name="VERTEX_ARRAY_LIMIT_HIGH"/>
