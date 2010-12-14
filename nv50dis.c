@@ -783,11 +783,11 @@ static struct insn tabs[] = {
 	{ -1, FP, 0x83000000, 0xf3000102, N("interp"), SDST, N("cent"), SVAR, SSRC },
 	{ -1, FP, 0x80000100, 0xf3000102, N("interp"), SDST, N("flat"), SVAR },
 
-	{ -1, -1, 0x90000000, 0xf0000002, N("rcp f32"), SDST, T(sm3neg), T(sm2abs), SSRC },
+	{ -1, -1, 0x90000000, 0xf0000002, N("rcp"), N("f32"), SDST, T(sm3neg), T(sm2abs), SSRC },
 
 	{ -1, -1, 0xb0000000, 0xf0000002, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), T(scw) },
 
-	{ -1, -1, 0xc0000000, 0xf0000002, N("mul f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), T(scw) },
+	{ -1, -1, 0xc0000000, 0xf0000002, N("mul"), N("f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), T(scw) },
 
 	{ -1, -1, 0xe0000000, 0xf0000002, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), N("mul"), T(ssw), T(scw), T(sm3neg), SDST },
 
@@ -824,7 +824,7 @@ static struct insn tabi[] = {
 	// desc VVV
 	{ -1, -1, 0xb0000000, 0xf0000000, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), IMM },
 
-	{ -1, -1, 0xc0000000, 0xf0000000, N("mul f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), IMM },
+	{ -1, -1, 0xc0000000, 0xf0000000, N("mul"), N("f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), IMM },
 	// desc ^^^
 
 	{ -1, -1, 0xd0000000, 0xf0008100, N("and"), N("b32"), SDST, T(sm3not), T(ssw), IMM },
@@ -1282,9 +1282,9 @@ static struct insn tabl[] = {
 		N("ld"), N("lock"), CDST, T(csldreg), N("b32"), T(fs32) },
 
 	{ NVA0P, -1, 0x6000000010000200ull, 0xe0000000f0000600ull,
-		N("vote any"), CDST, IGNCE },
+		N("vote"), N("any"), CDST, IGNCE },
 	{ NVA0P, -1, 0x6000000010000400ull, 0xe0000000f0000600ull,
-		N("vote all"), CDST, IGNCE },
+		N("vote"), N("all"), CDST, IGNCE },
 	// desc ^^^
 
 	// 2 and 3
@@ -1363,17 +1363,17 @@ static struct insn tabl[] = {
 
 	// 9
 	{ -1, -1, 0x0000000090000000ull, 0xe0000000f0000000ull,
-		N("rcp f32"), LLDST, T(lfm1), LSRC },
+		N("rcp"), N("f32"), LLDST, T(lfm1), LSRC },
 	{ -1, -1, 0x4000000090000000ull, 0xe0000000f0000000ull,
-		N("rsqrt f32"), LLDST, T(lfm1), LSRC },
+		N("rsqrt"), N("f32"), LLDST, T(lfm1), LSRC },
 	{ -1, -1, 0x6000000090000000ull, 0xe0000000f0000000ull,
-		N("lg2 f32"), LLDST, T(lfm1), LSRC },
+		N("lg2"), N("f32"), LLDST, T(lfm1), LSRC },
 	{ -1, -1, 0x8000000090000000ull, 0xe0000000f0000000ull,
-		N("sin f32"), LLDST, LSRC },
+		N("sin"), N("f32"), LLDST, LSRC },
 	{ -1, -1, 0xa000000090000000ull, 0xe0000000f0000000ull,
-		N("cos f32"), LLDST, LSRC },
+		N("cos"), N("f32"), LLDST, LSRC },
 	{ -1, -1, 0xc000000090000000ull, 0xe0000000f0000000ull,
-		N("ex2 f32"), LLDST, LSRC },
+		N("ex2"), N("f32"), LLDST, LSRC },
 
 	// a
 	{ -1, -1, 0xc0000000a0000000ull, 0xcc404000f0000000ull,
@@ -1478,9 +1478,9 @@ static struct insn tabl[] = {
 		N("min"), N("f32"), MCDST, LLDST, T(lfm1), T(lsw), T(lfm2), T(lc2w) },
 
 	{ -1, -1, 0xc0000000b0000000ull, 0xe0004000f0000000ull,
-		N("presin f32"), LLDST, T(lfm1), T(lsw) },
+		N("presin"), N("f32"), LLDST, T(lfm1), T(lsw) },
 	{ -1, -1, 0xc0004000b0000000ull, 0xe0004000f0000000ull,
-		N("preex2 f32"), LLDST, T(lfm1), T(lsw) },
+		N("preex2"), N("f32"), LLDST, T(lfm1), T(lsw) },
 	/* preex2 converts float to fixed point, results:
 	 * 0-0x3fffffff: 7.23 fixed-point number
 	 * 0x40000000: +nan
@@ -1497,7 +1497,7 @@ static struct insn tabl[] = {
 		N("slct"), N("b32"), MCDST, LLDST, T(lsw), T(lc2w), N("f32"), T(o0neg), T(lc3w) },
 
 	{ -1, -1, 0x80000000c0000000ull, 0xf0000000f0000000ull,
-		N("quadop f32"), T(qop0), T(qop1), T(qop2), T(qop3), MCDST, LLDST, T(qs1), LSRC, LSRC3 },
+		N("quadop"), N("f32"), T(qop0), T(qop1), T(qop2), T(qop3), MCDST, LLDST, T(qs1), LSRC, LSRC3 },
 	// desc ^^^
 
 	// d
@@ -1545,7 +1545,7 @@ static struct insn tabl[] = {
 	{ -1, -1, 0x00000000f0000000ull, 0xf0000000f9000000ull, // order of inputs: x, y, z, index, dref, bias/lod. index is integer, others float.
 		N("texauto"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
 	{ -1, -1, 0x00000000f8000000ull, 0xf0000000f9000000ull,
-		N("texauto cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
+		N("texauto"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
 
 	{ -1, -1, 0x00000000f1000000ull, 0xf0000000f1000000ull, // takes integer inputs.
 		N("texfetch"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
@@ -1553,21 +1553,21 @@ static struct insn tabl[] = {
 	{ -1, -1, 0x20000000f0000000ull, 0xf0000000f8000000ull, // bias needs to be same for everything, or else.
 		N("texbias"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
 	{ -1, -1, 0x20000000f8000000ull, 0xf0000000f8000000ull,
-		N("texbias cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
+		N("texbias"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
 
 	{ -1, -1, 0x40000000f0000000ull, 0xf0000000f8000000ull, // lod needs to be same for everything, or else.
 		N("texlod"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
 	{ -1, -1, 0x40000000f8000000ull, 0xf0000000f8000000ull,
-		N("texlod cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
+		N("texlod"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
 
 	{ -1, -1, 0x60000000f0000000ull, 0xf00f0000f0000000ull, // integer input and output.
 		N("texsize"), T(texf), LTDST, TEX, SAMP, LDST }, // in: LOD, out: size.x, size.y, size.z
 	{ NVA3P, -1, 0x60010000f8000000ull, 0xf00f0000f8000000ull, // input: 3 normalized cube coords [float], layer [int]; output: equivalent x, y, combined layer coords to pass to non-cube tex variants.
-		N("texprep cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
+		N("texprep"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
 	{ NVA3P, -1, 0x60020000f0000000ull, 0xf00f0000f8000000ull, // returned values are FIXED-point with 6 fractional bits
 		N("texquerylod"), T(texf), LTDST, TEX, SAMP, LTSRC },
 	{ NVA3P, -1, 0x60020000f8000000ull, 0xf00f0000f8000000ull,
-		N("texquerylod cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
+		N("texquerylod"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
 
 	{ -1, -1, 0x80000000f0000000ull, 0xf0000000f1000000ull, // in: float coords + CSAA mask from ZETA
 		N("texcsaa"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
@@ -1575,7 +1575,7 @@ static struct insn tabl[] = {
 	{ NVA3P, -1, 0x80000000f1000000ull, 0xf0000000f9000000ull,
 		N("texgather"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
 	{ NVA3P, -1, 0x80000000f9000000ull, 0xf0000000f9000000ull,
-		N("texgather cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
+		N("texgather"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
 
 	{ -1, GP, 0xc0000000f0000200ull, 0xe0000000f0000600ull, N("emit") },
 	{ -1, GP, 0xc0000000f0000400ull, 0xe0000000f0000600ull, N("restart") },
