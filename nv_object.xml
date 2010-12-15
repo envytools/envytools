@@ -166,13 +166,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x74c1" name="NV84_CRYPT" variants="NV84:NV98 NVA0"/>
 </enum>
 
-<domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
+<domain name="NV01_SUBCHAN" bare="yes" size="0x8000">
 	<stripe name="SUBCHAN" prefix="chipset">
 		<reg32 offset="0x00" name="OBJECT" type="object" />
 		<stripe variants="NV84-">
 			<reg32 offset="0x10" name="QUERY_ADDRESS_HIGH" />
 			<reg32 offset="0x14" name="QUERY_ADDRESS_LOW" />
-			<reg32 offset="0x18" name="QUERY_COUNTER" />
+			<reg32 offset="0x18" name="QUERY_SEQUENCE" />
 			<reg32 offset="0x1c" name="QUERY_GET" />
 			<reg32 offset="0x20" name="QUERY_INTR"/>
 			<reg32 offset="0x24" name="WRCACHE_FLUSH"/>
@@ -189,41 +189,24 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<stripe name="GRAPH" prefix="chipset" varset="obj-class" variants="NV01_CONTEXT_BETA1:NV84_CRYPT">
 		<doc>Methods available on all PGRAPH objects.</doc>
 		<reg32 offset="0x100" name="NOP" variants="NV04-" />
-		<reg32 offset="0x104" name="NOTIFY" >
+		<reg32 offset="0x104" name="NOTIFY" variants="NV04-NVC0">
 			<value value="0" name="WRITE"/>
 			<value value="1" name="WRITE_AND_AWAKEN"/>
 		</reg32>
+		<reg32 offset="0x0104" name="NOTIFY_ADDRESS_HIGH" variants="NVC0-"/>
+		<reg32 offset="0x0108" name="NOTIFY_ADDRESS_LOW" variants="NVC0-"/>
+		<reg32 offset="0x010c" name="NOTIFY" variants="NVC0-">
+			<value value="0" name="WRITE"/>
+			<value value="1" name="WRITE_AND_AWAKEN"/><!-- not verified -->
+		</reg32>
 		<reg32 offset="0x0110" name="WAIT_FOR_IDLE" variants="NV50-"/>
+		<reg32 offset="0x0114" name="MACRO_UPLOAD_POS" variants="NVC0-"/>
+		<reg32 offset="0x0118" name="MACRO_UPLOAD_DATA" variants="NVC0-"/>
+		<reg32 offset="0x011c" name="MACRO_ID" variants="NVC0-"/>
+		<reg32 offset="0x0120" name="MACRO_POS" variants="NVC0-"/>
 		<reg32 offset="0x0120" name="UNK0120" variants="NVA3-"/>
 		<reg32 offset="0x0124" name="UNK0124" variants="NVA3-"/>
 		<reg32 offset="0x0140" name="PM_TRIGGER" variants="NV40-"/> <!-- XXX: likely controlled by a PGRAPH_DEBUG bit. -->
-	</stripe>
-</domain>
-
-<domain name="NVC0_SUBCHAN" bare="yes" size="0x8000">
-	<stripe name="SUBCHAN" prefix="chipset" variants="NVC0-">
-		<reg32 offset="0x00" name="OBJECT" type="object"/>
-		<stripe>
-			<reg32 offset="0x10" name="QUERY_ADDRESS_HIGH"/>
-			<reg32 offset="0x14" name="QUERY_ADDRESS_LOW"/>
-			<reg32 offset="0x18" name="QUERY_SEQUENCE"/>
-			<reg32 offset="0x1c" name="QUERY_GET"/>
-		</stripe>
-		<reg32 offset="0x50" name="REF_CNT"/>
-	</stripe>
-	<stripe name="GRAPH" prefix="chipset" variants="NVC0-">
-		<reg32 offset="0x0100" name="NOP"/>
-		<reg32 offset="0x0104" name="NOTIFY_ADDRESS_HIGH"/>
-		<reg32 offset="0x0108" name="NOTIFY_ADDRESS_LOW"/>
-		<reg32 offset="0x010c" name="NOTIFY">
-			<value value="0" name="WRITE"/><!-- not verified -->
-			<value value="1" name="WRITE_AND_AWAKEN"/>
-		</reg32>
-		<reg32 offset="0x0110" name="SERIALIZE"/>
-		<reg32 offset="0x0114" name="MACRO_UPLOAD_POS"/>
-		<reg32 offset="0x0118" name="MACRO_UPLOAD_DATA"/>
-		<reg32 offset="0x011c" name="MACRO_ID"/>
-		<reg32 offset="0x0120" name="MACRO_POS"/>
 	</stripe>
 </domain>
 
