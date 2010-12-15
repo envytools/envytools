@@ -253,11 +253,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x1340" name="BLEND_EQUATION_RGB" type="gl_blend_equation"/>
-		<reg32 offset="0x1344" name="BLEND_FUNC_SRC_RGB" type="nv50_blend_factor"/>
-		<reg32 offset="0x1348" name="BLEND_FUNC_DST_RGB" type="nv50_blend_factor"/>
+		<reg32 offset="0x1344" name="BLEND_FUNC_SRC_RGB" type="NV50_BLEND_FACTOR"/>
+		<reg32 offset="0x1348" name="BLEND_FUNC_DST_RGB" type="NV50_BLEND_FACTOR"/>
 		<reg32 offset="0x134c" name="BLEND_EQUATION_ALPHA" type="gl_blend_equation"/>
-		<reg32 offset="0x1350" name="BLEND_FUNC_SRC_ALPHA" type="nv50_blend_factor"/>
-		<reg32 offset="0x1358" name="BLEND_FUNC_DST_ALPHA" type="nv50_blend_factor"/>
+		<reg32 offset="0x1350" name="BLEND_FUNC_SRC_ALPHA" type="NV50_BLEND_FACTOR"/>
+		<reg32 offset="0x1358" name="BLEND_FUNC_DST_ALPHA" type="NV50_BLEND_FACTOR"/>
 		<reg32 offset="0x1360" name="BLEND_ENABLE" length="8" type="boolean"/>
 		<reg32 offset="0x1380" name="STENCIL_FRONT_ENABLE" type="boolean"/>
 		<reg32 offset="0x1384" name="STENCIL_FRONT_OP_FAIL" type="gl_stencil_op"/>
@@ -505,11 +505,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1c0c" name="VERTEX_ARRAY_DIVISOR" length="32" stride="16" type="uint"/>
 		<array offset="0x1e00" name="IBLEND" stride="0x20" length="8">
 			<reg32 offset="0x04" name="EQUATION_RGB" type="gl_blend_equation"/>
-			<reg32 offset="0x08" name="FUNC_SRC_RGB" type="nv50_blend_factor"/>
-			<reg32 offset="0x0c" name="FUNC_DST_RGB" type="nv50_blend_factor"/>
+			<reg32 offset="0x08" name="FUNC_SRC_RGB" type="NV50_BLEND_FACTOR"/>
+			<reg32 offset="0x0c" name="FUNC_DST_RGB" type="NV50_BLEND_FACTOR"/>
 			<reg32 offset="0x10" name="EQUATION_ALPHA" type="gl_blend_equation"/>
-			<reg32 offset="0x14" name="FUNC_SRC_ALPHA" type="nv50_blend_factor"/>
-			<reg32 offset="0x18" name="FUNC_DST_ALPHA" type="nv50_blend_factor"/>
+			<reg32 offset="0x14" name="FUNC_SRC_ALPHA" type="NV50_BLEND_FACTOR"/>
+			<reg32 offset="0x18" name="FUNC_DST_ALPHA" type="NV50_BLEND_FACTOR"/>
 		</array>
 		<stripe offset="0x2000" name="SP" stride="64" length="6">
 			<reg32 offset="0x00" name="SELECT" type="bitfield">

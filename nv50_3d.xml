@@ -600,14 +600,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Goes to ROP, TP, MP. Related to blending. 1 by default.</doc>
 		</reg32>
 		<reg32 offset="0x1340" name="BLEND_EQUATION_RGB" type="gl_blend_equation"/>
-		<reg32 offset="0x1344" name="BLEND_FUNC_SRC_RGB" type="nv50_blend_factor"/>
-		<reg32 offset="0x1348" name="BLEND_FUNC_DST_RGB" type="nv50_blend_factor"/>
+		<reg32 offset="0x1344" name="BLEND_FUNC_SRC_RGB" type="NV50_BLEND_FACTOR"/>
+		<reg32 offset="0x1348" name="BLEND_FUNC_DST_RGB" type="NV50_BLEND_FACTOR"/>
 		<reg32 offset="0x134c" name="BLEND_EQUATION_ALPHA" type="gl_blend_equation"/>
-		<reg32 offset="0x1350" name="BLEND_FUNC_SRC_ALPHA" type="nv50_blend_factor"/>
+		<reg32 offset="0x1350" name="BLEND_FUNC_SRC_ALPHA" type="NV50_BLEND_FACTOR"/>
 		<reg32 offset="0x1354" name="UNK1354">
 			<doc>Accepts 0-1? Same as turing UNK0358</doc>
 		</reg32>
-		<reg32 offset="0x1358" name="BLEND_FUNC_DST_ALPHA" type="nv50_blend_factor"/>
+		<reg32 offset="0x1358" name="BLEND_FUNC_DST_ALPHA" type="NV50_BLEND_FACTOR"/>
 		<reg32 offset="0x135c" name="UNK135C" type="boolean">
 			<doc>Goes to ROP, 1cxx, TPDMA, MP. Related to UNK0F90.</doc>
 		</reg32>
@@ -1223,11 +1223,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<doc>Goes to ROP, TP, MP. 1 by default.</doc>
 			</reg32>
 			<reg32 offset="0x04" name="EQUATION_RGB" type="gl_blend_equation"/>
-			<reg32 offset="0x08" name="FUNC_SRC_RGB" type="nv50_blend_factor"/>
-			<reg32 offset="0x0c" name="FUNC_DST_RGB" type="nv50_blend_factor"/>
+			<reg32 offset="0x08" name="FUNC_SRC_RGB" type="NV50_BLEND_FACTOR"/>
+			<reg32 offset="0x0c" name="FUNC_DST_RGB" type="NV50_BLEND_FACTOR"/>
 			<reg32 offset="0x10" name="EQUATION_ALPHA" type="gl_blend_equation"/>
-			<reg32 offset="0x14" name="FUNC_SRC_ALPHA" type="nv50_blend_factor"/>
-			<reg32 offset="0x18" name="FUNC_DST_ALPHA" type="nv50_blend_factor"/>
+			<reg32 offset="0x14" name="FUNC_SRC_ALPHA" type="NV50_BLEND_FACTOR"/>
+			<reg32 offset="0x18" name="FUNC_DST_ALPHA" type="NV50_BLEND_FACTOR"/>
 		</array>
 		<reg32 offset="0x1f00" name="VERTEX_ARRAY_LIMIT_HIGH_ALT" length="32" stride="8" variants="NVA3_3D-"/>
 		<reg32 offset="0x1f04" name="VERTEX_ARRAY_LIMIT_LOW_ALT" length="32" stride="8" variants="NVA3_3D-"/>
