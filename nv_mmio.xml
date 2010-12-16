@@ -129,7 +129,7 @@
 			<bitfield pos="26" name="PTV" variants="NV17:NV20 NV30:NV50"/>
 			<bitfield pos="27" name="UNK27" variants="NVC0-"/>
 			<bitfield pos="28" name="PVIDEO" variants="NV03:NV50"/>
-			<bitfield pos="28" name="PGUNK180" variants="NVC0-"/>
+			<bitfield pos="28" name="PCOUNTER" variants="NVC0-"/>
 			<bitfield pos="29" name="PFFB" variants="NVC0-"/>
 			<bitfield pos="30" name="PDISPLAY" variants="NV50-"/>
 			<bitfield pos="31" name="UNK31" variants="NV50-"/>
@@ -423,7 +423,8 @@
 <!-- 140000 - 17ffff PRUNK140 -->
 <import file="nvc0_prunk140.xml" />
 
-<!-- 180000 - 1bffff PGUNK180 covered in nvc0_pgraph.xml -->
+<!-- 180000 - 1bffff PCOUNTER -->
+<import file="nvc0_pcounter.xml" />
 
 <!-- 200000 - 200fff PMEDIA -->
 <import file="nv_pmedia.xml" />
