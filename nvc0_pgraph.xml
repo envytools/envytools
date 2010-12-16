@@ -320,6 +320,12 @@
 				<bitfield low="0" high="4" name="MPCOUNT"/>
 				<bitfield low="16" high="20" name="UNK16"/>
 			</reg32>
+			<reg32 offset="0x614" name="RED_SWITCH">
+				<bitfield pos="1" name="UNK0_GPC"/>
+				<bitfield pos="5" name="POWER_GPC"/>
+				<bitfield pos="9" name="ENABLE_GPC"/>
+				<bitfield pos="11" name="UNK11"/>
+			</reg32>
 			<reg32 offset="0x618" name="MYINDEX"/>
 		</array>
 
@@ -334,6 +340,17 @@
 			<bitfield low="0" high="4" name="TPCOUNT"/>
 			<bitfield low="16" high="20" name="ROPCOUNT"/>
 		</reg32>
+		<reg32 offset="0x614" name="RED_SWITCH">
+			<bitfield pos="0" name="UNK0_MAIN"/>
+			<bitfield pos="1" name="UNK0_GPC"/>
+			<bitfield pos="4" name="POWER_MAIN"/>
+			<bitfield pos="5" name="POWER_GPC"/>
+			<bitfield pos="6" name="POWER_ROPC"/>
+			<bitfield pos="8" name="ENABLE_MAIN"/>
+			<bitfield pos="9" name="ENABLE_GPC"/>
+			<bitfield pos="10" name="ENABLE_ROPC"/>
+		</reg32>
+
 		<reg32 offset="0xc18" name="INTR_UP_STATUS"/>
 		<reg32 offset="0xc1c" name="INTR_UP_SET"/>
 		<reg32 offset="0xc20" name="INTR_UP_CLEAR"/>
