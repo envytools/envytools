@@ -18,7 +18,7 @@
 
 	</group>
 
-	<array name="TP_U1" offset="0" stride="0x1000" length="32">
+	<array name="GPC_U1" offset="0" stride="0x1000" length="32">
 		<use-group name="pcounter_unk1"/>
 	</array>
 
@@ -36,7 +36,7 @@
 
 	</array>
 
-	<array name="TP_U2" offset="0x38000" stride="0x200" length="32">
+	<array name="GPC_U2" offset="0x38000" stride="0x200" length="32">
 		<use-group name="pcounter_unk2"/>
 	</array>
 
