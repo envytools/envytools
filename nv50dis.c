@@ -712,7 +712,7 @@ F(sm2us24, 0xf, N("u24"), N("s24"))
 F1(sm3neg, 0x16, N("neg"))
 F1(sm3not, 0x16, N("not"))
 
-F1(splease, 0x11, N("please"))
+F1(ssfu, 0x11, N("sfu"))
 
 static struct insn tabssh[] = {
 	{ -1, -1, 0x00000000, 0x01000000, SHSRC },
@@ -759,8 +759,8 @@ static struct insn tabas[] = {
 };
 
 static struct insn tabs[] = {
-	{ -1, -1, 0x10000000, 0xf0008002, T(splease), N("mov"), N("b16"), SHDST, T(ssh) },
-	{ -1, -1, 0x10008000, 0xf0008002, T(splease), N("mov"), N("b32"), SDST, T(ssw) },
+	{ -1, -1, 0x10000000, 0xf0008002, N("mov"), T(ssfu), N("b16"), SHDST, T(ssh) },
+	{ -1, -1, 0x10008000, 0xf0008002, N("mov"), T(ssfu), N("b32"), SDST, T(ssw) },
 
 	{ -1, -1, 0x20000000, 0xe0008002, T(addop), T(sm1sat), N("b16"), SHDST, T(ssh), T(sch), T(addc0) },
 	{ -1, -1, 0x20008000, 0xe0008002, T(addop), T(sm1sat), N("b32"), SDST, T(ssw), T(scw), T(addc0) },
@@ -912,7 +912,7 @@ F(lm2us32, 0x3b, N("u32"), N("s32"))
 // stolen from opcode field.
 F1(o0neg, 0x3d, N("neg"))
 F1(o0sat, 0x3d, N("sat"))
-F1(lplease, 0x39, N("please"))
+F1(lsfu, 0x39, N("sfu"))
 
 static struct insn tablfm1[] = {
 	{ -1, -1, 0, 0, T(m1neg), T(s36abs) }
@@ -1262,9 +1262,9 @@ static struct insn tabl[] = {
 
 	// 1
 	{ -1, -1, 0x0000000010000000ull, 0xe4000000f0000000ull,
-		T(lane), T(lplease), N("mov"), N("b16"), LLHDST, T(lsh) },
+		T(lane), N("mov"), T(lsfu), N("b16"), LLHDST, T(lsh) },
 	{ -1, -1, 0x0400000010000000ull, 0xe4000000f0000000ull,
-		T(lane), T(lplease), N("mov"), N("b32"), LLDST, T(lsw) },
+		T(lane), N("mov"), T(lsfu), N("b32"), LLDST, T(lsw) },
 
 	// desc VVV
 	{ -1, -1, 0x2000000010000000ull, 0xe0000000f0000000ull,
