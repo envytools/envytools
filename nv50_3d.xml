@@ -402,8 +402,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1118" name="VERTEX_ID_BASE" variants="NV84_3D-">
 			<doc>VERTEX_ID starts counting from this value on every VERTEX_BEGIN.</doc>
 		</reg32>
-		<reg32 offset="0x111c" name="UNK111C" variants="NV84_3D-">
-			<doc>Goes to vfetch</doc>
+		<reg32 offset="0x111c" name="PRIMITIVE_ID" variants="NV84_3D-">
+			<doc>PRIMITIVE_ID counter. Zeroed by VERTEX_BEGIN unless proper flag passed.</doc>
 		</reg32>
 		<reg32 offset="0x1120" name="VTX_ATTR_MASK_UNK0DD0_ALT" length="4" variants="NVA3_3D-">
 			<doc>A mask of something for vertex attrs. Most likely.</doc>
@@ -832,9 +832,15 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="0x000d" name="TRIANGLE_STRIP_ADJACENCY"/>
 				<!-- XXX: there are also 1001-1003, 100f-1018, 101a-101b. They all alias one of the normal types. wtf? -->
 			</bitfield>
-			<bitfield name="INSTANCE_NEXT" pos="28" /> <!-- set bit for 2nd and higher instances -->
-			<!-- XXX: NV84+ have bit 29... -->
-			<!-- XXX: NVA0+ have bit 30... -->
+			<bitfield name="INSTANCE_NEXT" pos="28">
+				<doc>If set, INSTANCE_ID is increased by 1, otherwise it's set to 0.</doc>
+			</bitfield>
+			<bitfield name="PRIMITIVE_ID_CONT" pos="29" variants="NV84-" />
+				<doc>If set, PRIMITIVE_ID is unmodified, otherwise it's set to 0.</doc>
+			</bitfield>
+			<bitfield name="INSTANCE_CONT" pos="30" variants="NVA0-" />
+				<doc>If set, INSTANCE_ID is unmodified, otherwise see INSTANCE_NEXT description.</doc>
+			</bitfield>
 		</reg32>
 		<reg32 offset="0x15d8" name="VERTEX_END_D3D">
 			<bitfield pos="0" name="UNK0"/>
@@ -857,9 +863,15 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="0x000c" name="TRIANGLES_ADJACENCY"/>
 				<value value="0x000d" name="TRIANGLE_STRIP_ADJACENCY"/>
 			</bitfield>
-			<bitfield name="INSTANCE_NEXT" pos="28" /> <!-- set bit for 2nd and higher instances -->
-			<!-- XXX: NV84+ have bit 29... -->
-			<!-- XXX: NVA0+ have bit 30... -->
+			<bitfield name="INSTANCE_NEXT" pos="28">
+				<doc>If set, INSTANCE_ID is increased by 1, otherwise it's set to 0.</doc>
+			</bitfield>
+			<bitfield name="PRIMITIVE_ID_CONT" pos="29" variants="NV84-" />
+				<doc>If set, PRIMITIVE_ID is unmodified, otherwise it's set to 0.</doc>
+			</bitfield>
+			<bitfield name="INSTANCE_CONT" pos="30" variants="NVA0-" />
+				<doc>If set, INSTANCE_ID is unmodified, otherwise see INSTANCE_NEXT description.</doc>
+			</bitfield>
 		</reg32>
 		<reg32 offset="0x15e0" name="VERTEX_END_GL">
 			<bitfield pos="0" name="UNK0"/>
