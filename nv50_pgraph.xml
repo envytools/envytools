@@ -64,10 +64,13 @@
 		<brief>You tried to use tiled RT without 0x100-byte alignment.</brief>
 	</value>
 	<value value="0x1b" name="SAMPLER_OVER_LIMIT">
-		<brief>You to BIND_TSC a sampler not defined by TEX_LIMITS.</brief>
+		<brief>You tried to BIND_TSC a sampler not defined by TEX_LIMITS.</brief>
 	</value>
 	<value value="0x1c" name="TEXTURE_OVER_LIMIT">
-		<brief>You to BIND_TIC a texture not defined by TEX_LIMITS.</brief>
+		<brief>You tried to BIND_TIC a texture not defined by TEX_LIMITS.</brief>
+	</value>
+	<value value="0x1e" name="GP_TOO_MANY_OUTPUTS">
+		<brief>You tried to reserve more GP output space than the MP has available.</brief>
 	</value>
 	<value value="0x1f" name="RT_BPP128_WITH_MS8">
 		<brief>You tried to use 8xMSAA with 128bpp RT.</brief>
