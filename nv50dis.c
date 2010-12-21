@@ -344,6 +344,7 @@ static struct sreg oreg_sr[] = {
 static struct sreg sreg_sr[] = {
 	{ 0, "physid" },
 	{ 1, "clock" },
+	{ 3, "vstride" },
 	{ 4, "pm0" },
 	{ 5, "pm1" },
 	{ 6, "pm2" },
