@@ -346,8 +346,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0fbc" name="MSAA_MASK" length="4"/>
 		<reg32 offset="0x0fcc" name="CLIPID_ADDRESS_HIGH"/>
 		<reg32 offset="0x0fd0" name="CLIPID_ADDRESS_LOW"/>
-		<reg32 offset="0x0fd4" name="UNK0FD4">
-			<doc>0-0xff, goes to 10xx, 0x27 by default</doc>
+		<reg32 offset="0x0fd4" name="MAP_SEMANTIC_5">
+			<bitfield name="VIEWPORT_ID" high="7" low="0" type="int"/>
 		</reg32>
 		<reg32 offset="0x0fd8" name="UNK0FD8">
 			<doc>Goes to vfetch</doc>
@@ -1010,9 +1010,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Accepts anything, goes to 1cxx.</doc>
 		</reg32>
 		<reg32 offset="0x1880" name="VERTEX_ARRAY_PER_INSTANCE_ALT" length="32" type="boolean" variants="NVA3_3D-"/>
-		<reg32 offset="0x1900" name="UNK1900" type="boolean">
-			<doc>Goes to ROP, 1cxx, 14xx, 10xx.</doc>
-		</reg32>
+		<reg32 offset="0x1900" name="GP_VIEWPORT_ID_ENABLE" type="boolean"/>
 		<reg32 offset="0x1904" name="MAP_SEMANTIC_0">
 			<bitfield name="FFC0_ID" high="7" low="0" type="int"/>
 			<bitfield name="BFC0_ID" high="15" low="8" type="int"/>
