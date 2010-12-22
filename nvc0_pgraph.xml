@@ -31,7 +31,9 @@
 			<doc>You tried to use NOTIFY command on another NOTIFY command.</doc>
 		</bitfield>
 		<bitfield name="UNK7" pos="7" />
-		<bitfield name="UNK8" pos="8" />
+		<bitfield name="SOFTWARE_MTHD" pos="8">
+			<doc>You ran one of the SOFTWARE methods.</doc>
+		</bitfield>
 		<bitfield name="BUFFER_NOTIFY" pos="16">
 			<doc>You asked for m2mf transfer with interrupt after finish and got it.</doc>
 		</bitfield>
@@ -99,12 +101,29 @@
 		<bitfield name="ILLEGAL_CLASS" pos="5" />
 		<bitfield name="DOUBLE_NOTIFY" pos="6" />
 		<bitfield name="UNK7" pos="7" />
-		<bitfield name="UNK8" pos="8" />
+		<bitfield name="SOFTWARE_MTHD" pos="8" />
 		<bitfield name="BUFFER_NOTIFY" pos="16" />
 		<bitfield name="CTXCTL" pos="19" />
 		<bitfield name="DATA_ERROR" pos="20" />
 		<bitfield name="TRAP" pos="21" />
 		<bitfield name="SINGLE_STEP" pos="24" />
+	</reg32>
+	<reg32 offset="0x0140" name="INTR_DISPATCH_CTXCTL">
+		<doc>If a bit is set to 1, a given interrupt will use _CTXCTL versions
+		of interrupt registers and will be routed to main CTXCTL fuc interrupt
+		10 instead of host PGRAPH interrupt.</doc>
+		<bitfield name="ILLEGAL_MTHD" pos="4" />
+		<bitfield name="SOFTWARE_MTHD" pos="8" />
+	</reg32>
+	<reg32 offset="0x0144" name="INTR_CTXCTL">
+		<doc>Like INTR, but for CTXCTL interrupts.</doc>
+		<bitfield name="ILLEGAL_MTHD" pos="4" />
+		<bitfield name="SOFTWARE_MTHD" pos="8" />
+	</reg32>
+	<reg32 offset="0x0148" name="INTR_EN_CTXCTL">
+		<doc>Like INTR_EN, but for CTXCTL interrupts.</doc>
+		<bitfield name="ILLEGAL_MTHD" pos="4" />
+		<bitfield name="SOFTWARE_MTHD" pos="8" />
 	</reg32>
 
 	<reg32 offset="0x0200" name="ICMD_CMD" />
