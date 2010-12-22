@@ -20,6 +20,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0230" name="TILING_POSITION_OUT_Z" type="int"/>
 		<reg32 offset="0x0238" name="OFFSET_OUT_HIGH"/>
 		<reg32 offset="0x023c" name="OFFSET_OUT_LOW"/>
+		<reg32 offset="0x027c" name="FIRMWARE" length="0x20"/>
 		<reg32 offset="0x0300" name="EXEC">
 			<bitfield name="PUSH" pos="0" type="boolean"/>
 			<bitfield name="LINEAR_IN" pos="4" type="boolean"/>

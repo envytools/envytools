@@ -213,6 +213,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x08d4" name="BLIT_SRC_X_INT" type="int"/>
 		<reg32 offset="0x08d8" name="BLIT_SRC_Y_FRACT"/>
 		<reg32 offset="0x08dc" name="BLIT_SRC_Y_INT" type="int"/>
+		<reg32 offset="0x08e0" name="FIRMWARE" length="0x20" variants="NVC0_2D-"/>
 	</stripe>
 </domain>
 

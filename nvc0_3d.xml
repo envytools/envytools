@@ -528,6 +528,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</stripe>
 		<reg32 offset="0x2200" name="TEX_LIMITS" length="5" stride="16">
 		</reg32>
+		<reg32 offset="0x2300" name="FIRMWARE" length="0x20"/>
 		<reg32 offset="0x2380" name="CB_SIZE" type="uint"/>
 		<reg32 offset="0x2384" name="CB_ADDRESS_HIGH"/>
 		<reg32 offset="0x2388" name="CB_ADDRESS_LOW"/>
