@@ -731,6 +731,67 @@
 			<bitfield name="WARP" high="31" low="24" />
 		</reg32>
 	</group>
+	<group name="nv50_pgraph_mpc">
+		<doc>MP Context. The whole state of MP is accessible indirectly via these registers.
+		There are two main areas: small and large. Large contains $r registers and s[]
+		space contents. Small contains everything else.
+		</doc>
+		<reg32 offset="0x3b0" name="MPC_SMALL_SELECT">
+			<doc>Selects the 64-bit thing accessible by MPC_SMALL_DATA window.</doc>
+			<bitfield high="1" low="0" name="MP">
+				<doc>Selects which MP of this TP to access.</doc>
+			</bitfield>
+			<bitfield high="5" low="2" name="SPACE">
+				<doc>Selects which space to access.</doc>
+				<value value="0" name="MP_MAIN">
+					<doc>Same thing as available directly via PGRAPH_TP_MP.
+					Wraps on index 16.</doc>
+				</value>
+				<value value="1" name="MISC1" />
+				<value value="2" name="UNK2"/>
+				<value value="3" name="MISC3" />
+				<value value="4" name="UNK4"/>
+				<value value="5" name="UNK5"/>
+				<value value="6" name="UNK6"/>
+				<value value="7" name="UNK7"/>
+				<value value="9" name="UNK9"/> <!-- code cache? -->
+				<value value="0xa" name="UNKA"/>
+			</bitfield>
+			<bitfield high="31" low="6" name="INDEX">
+				<doc>Index inside the selected SPACE to access.
+				This bitfield is really smaller, and its usable size
+				depends on selected SPACE.</doc>
+			</bitfield>
+		</reg32>
+		<reg64 offset="0x3b4" name="MPC_SMALL_DATA" />
+		<reg32 offset="0x3bc" name="MPC_LARGE_SELECT">
+			<doc>Selects the 16-word thing accessible by MPC_LARGE_DATA window.</doc>
+			<bitfield high="1" low="0" name="MP">
+				<doc>Selects which MP of this TP to access.</doc>
+			</bitfield>
+			<bitfield pos="2" name="SPACE">
+				<value value="0" name="REGS">
+					<doc>$r registers. These are grouped in 64-reg groups.
+					The (warpid, reg index) -> (group, rindex, index)
+					mapping can be found in NV50_MPC_SMALL3_LOC0.</doc>
+				</value>
+				<value value="1" name="SHARED">
+					<doc>s[] space, in 64-byte groups.
+					(block, offset/64) -> group number mapping can be found
+					in NV50_MPC_SMALL3_LOC0.</doc>
+				</value>
+			</bitfield>
+			<bitfield high="4" low="3" name="RINDEX">
+				<doc>For registers, selects which subgroup of 16 regs to select
+				from the selected 64-reg group. Unused for s[].</doc>
+			</bitfield>
+			<bitfield high="12" low="5" name="GROUP">
+				<doc>Group index to select. Bit 12 is ignored for regs
+				on pre-NVA0 cards.</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x3c0" name="MPC_LARGE_DATA" length="16" />
+	</group>
 
 	<group name="nv50_pgraph_tprop">
 		<reg32 offset="0x08" name="TPROP_TRAP">
@@ -814,6 +875,179 @@
 		</stripe>
 	</array>
 </array>
+</domain>
+
+<!-- the MP context spaces. -->
+<domain name="NV50_MPC_SMALL1" width="64">
+	<array offset="0" name="STACK" stride="0x10" length="32">
+		<reg64 offset="0" name="ENTRY" length="16">
+			<bitfield high="21" low="0" name="PC" shr="2" />
+			<!-- 22 and 23 are useless -->
+			<bitfield high="28" low="24" name="WARPID" />
+			<bitfield high="31" low="29" name="TYPE">
+				<value value="1" name="BRANCH" />
+				<value value="2" name="CALL1" />
+				<value value="3" name="CALL2" />
+				<value value="4" name="BREAK" />
+				<value value="5" name="QUADON" />
+				<value value="6" name="JOINAT" />
+			</bitfield>
+			<bitfield high="63" low="32" name="LANEMASK"/>
+		</reg64>
+	</array>
+	<reg64 offset="0x200" name="MASK0" length="32">
+		<doc>State of each lane. The following combinations are possible:
+		<ul>
+		<li>M1=0, M2=0: active thread, or merely branched off.</li>
+		<li>M1=1, M2=0: thread breaked.</li>
+		<li>M1=0, M2=1: thread returned.</li>
+		<li>M1=1, M2=1: thread exitted.</li>
+		</ul>
+		</doc>
+		<bitfield high="31" low="0" name="M1" />
+		<bitfield high="63" low="32" name="M2" />
+	</reg64>
+	<reg64 offset="0x220" name="STACK_CONTROL" length="32">
+		<bitfield high="12" low="0" name="PTR">
+			<doc>Index of current top of the stack entry [ie. last pushed
+			entry]. 0x1fff if stack empty.</doc>
+		</bitfield>
+		<bitfield high="31" low="21" name="UNK"/> <!-- some sort of valid masks... -->
+	</reg64>
+	<reg64 offset="0x240" name="MASK1" length="32">
+		<bitfield high="31" low="0" name="ACTIVE">
+			<doc>Mask of active lanes in a warp.</doc>
+		</bitfield>
+		<bitfield high="63" low="32" name="DEAD">
+			<doc>Mask of dead lanes, ie. ones that will
+			be skipped by texture insns with "live" flag
+			set. For CP, VP, GP set to 1 for unused lanes
+			in a warp. For FP, set to 1 for unused lanes
+			as well as non-visible pixels that are part
+			of visible quad and will be used for computing
+			derivatives.</doc>
+		</bitfield>
+	</reg64>
+	<reg64 offset="0x260" name="MASK2" length="32">
+		<bitfield high="63" low="32" name="DEAD">
+			<doc>Aliases the previous one. nothing to see here.</doc>
+		</bitfield>
+	</reg64>
+	<reg64 offset="0x280" name="PC" shr="2" length="32">
+		<doc>The per-warp program counters.</doc>
+	</reg64>
+	<reg64 offset="0x2a0" name="WARPS">
+		<bitfield high="31" low="0" name="ACTIVE">
+			<doc>Mask of currently active warps</doc>
+		</bitfield>
+		<bitfield high="63" low="32" name="SKIPPED">
+			<doc>Mask of warps which will be skipped by the CONT command.
+			Note that hitting any sort of breakpoint by a warp causes
+			the corresponding bit to get set.
+			</doc>
+		</bitfield>
+	</reg64>
+	<reg64 offset="0x2a1" name="MISC2">
+		<bitfield pos="2" name="SINGLE_STEP">
+			<doc>Enables single stepping.</doc>
+		</bitfield>
+		<bitfield pos="3" name="CONT">
+			<doc>Continues paused execution.</doc>
+		</bitfield>
+		<bitfield pos="4" name="BREAK">
+			<doc>Will cause next CUDA execution to start in paused state.</doc>
+		</bitfield>
+		<bitfield high="63" low="32" name="CRASH_MASK">
+			<doc>Mask of warps which blew up</doc>
+		</bitfield>
+	</reg64>
+	<!-- something happens at 0x300+... -->
+</domain>
+<domain name="NV50_MPC_SMALL2" width="64">
+	<array offset="0" name="UNK0" stride="2" length="32">
+		<reg64 offset="0" name="SLOT" length="2" />
+	</array>
+	<array offset="0x40" name="BARRIER_WARP" stride="2" length="32">
+		<reg64 offset="0" name="SLOT" length="2">
+			<bitfield pos="2" name="UNKALWAYSSET1" />
+			<bitfield high="11" low="6" name="UNK2" />
+			<bitfield high="29" low="26" name="BARID" />
+			<bitfield pos="30" name="INCR" />
+			<bitfield pos="31" name="WAIT" />
+			<bitfield high="45" low="32" name="UNK46" />
+			<bitfield pos="53" name="UNKALWAYSSET2" />
+			<bitfield pos="61" name="UNK8" />
+		</reg64>
+	</array>
+	<reg64 offset="0x80" name="UNK2" length="32" />
+	<reg64 offset="0xa0" name="UNK3" length="32" />
+	<array offset="0xc0" name="UNK4" stride="2" length="32">
+		<reg64 offset="0" name="UNK0" />
+		<reg64 offset="1" name="UNK1" />
+	</array>
+	<reg64 offset="0x100" name="BARRIER_COUNTER" length="16">
+		<doc>The counters associated with barriers. Inexplicably shifted left by 1 bit. 6-bit on pre-NVA0, most likely 7-bit on NVAx.</doc>
+	</reg64>
+	<reg64 offset="0x110" name="UNK6" length="8" /> <!-- bits f -->
+</domain>
+<domain name="NV50_MPC_SMALL3" width="64">
+	<reg64 offset="0" name="ADDRESS" length="0x400">
+		<doc>$a1-$a4 registers... this shit is so ugly,
+		I won't even bother expressing it with proper
+		arrays. Basically, register $ax of warp y
+		lane z is at bits 16*(z&amp;3)...16*(z&amp;3)+15
+		of qword index
+		((z&amp;0x10)&gt;&gt;4) + (x-1)*2 + y*8 + ((z&amp;0xc)&gt;&gt;2) * 0x100
+		</doc>
+	</reg64>
+	<reg64 offset="0x400" name="COND" length="0x100">
+		<doc>$c0-$c3 registers. Reg $cx of warp y
+		lane z is at bits 4*(z&amp;0xf)...4*(z&amp;0xf)+3
+		of qword index 
+		</doc>
+	</reg64>
+	<reg64 offset="0x500" name="LOC0" length="0x20">
+		<doc>General information about a given warp.</doc>
+		<bitfield pos="0" name="REG_PACKED">
+			<doc>Use the "packed" format for $r storage.
+			If this bit is 0, the "striped" format for $r storage is used.
+			Register $rx for thread y in this warp can be find in group
+			REG_START + x, at rindex REG_RINDEX + ((y&amp;0x10)>>4),
+			in word (y&amp;0xf). Otherwise, the "packed" format for $r
+			storage is used, and reg $rx of thread y is stored in group
+			REG_GROUP_START + (x>>2) at rindex ((x&amp;3)^(warpid&amp;3)).
+			Also, the warps are limitted to 16 threads in this case.</doc>
+		</bitfield>
+		<bitfield high="3" low="1" name="UNK1" /> <!-- 000 for VP, 001 for GP, 100 for FP, 110 for CP? hm. -->
+		<bitfield high="5" low="4" name="REG_RINDEX">
+			<doc>The RINDEX to be used for $r regs in this warp, if format is not PACKED.</doc>
+		</bitfield>
+		<bitfield high="13" low="6" name="REG_START">
+			<doc>The starting group number of $r regs in this warp.</doc>
+		</bitfield>
+		<bitfield high="20" low="14" name="REG_NUM">
+			<doc>Number of $r regs in this warp.</doc>
+		</bitfield>
+		<bitfield high="28" low="21" name="SHARED_START">
+			<doc>For CPs, the starting group number of s[] memory of this warp.</doc>
+		</bitfield>
+		<bitfield high="36" low="29" name="SHARED_LIMIT">
+			<doc>For CPs, number of s[] groups - 1.</doc>
+		</bitfield>
+		<bitfield high="52" low="45" name="BARRIER_START">
+		</bitfield>
+
+	</reg64>
+	<reg64 offset="0x520" name="LOC1" length="0x20">
+		<doc>More general information about a given warp.</doc>
+		<!-- 00000000XXXXa0a0 for FPs, 0 for VPs, ??? for CPs, ??? for GPs? hm. -->
+	</reg64>
+	<reg64 offset="0x540" name="A7" length="0x20"> <!-- aiii! has something in low 32-bit -->
+		<doc>$a7 register. Yes, it's per-warp. And it's CP-only.
+		Don't ask me why. At least no insane reordering
+		is involved.</doc>
+		<bitfield high="47" low="32" name="A7" />
+	</reg64>
 </domain>
 
 </database>
