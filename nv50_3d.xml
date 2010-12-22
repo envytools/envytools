@@ -811,12 +811,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x15c8" name="UNK15C8" variants="NVA3_3D-">
 			<doc>0-2. Goes to ROP, TPDMA.</doc>
 		</reg32>
-		<reg32 offset="0x15cc" name="GP_BUILTIN_RESULT_EN">
-			<doc>Goes to ROP, TP, 2cxx, 10xx, 14xx.</doc>
-			<bitfield name="UNK0" high="15" low="0">
-				<doc>Accepts anything. viewport index?</doc>
+		<reg32 offset="0x15cc" name="LAYER">
+			<bitfield name="IDX" high="15" low="0">
+				<doc>The layer to render into, when not selected by GP.</doc>
 			</bitfield>
-			<bitfield name="LAYER_IDX" pos="16" type="boolean"/>
+			<bitfield name="USE_GP" pos="16" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x15d0" name="MULTISAMPLE_MODE" type="nv50_msaa_mode"/>
 		<reg32 offset="0x15d4" name="VERTEX_BEGIN_D3D">
