@@ -31,7 +31,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="8" name="ALWAYS"/>
 </enum>
 
-<domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
+<domain name="NV01_SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NV03_TEXTURED_TRIANGLE">
 		<reg32 offset="0x010c" name="PATCH"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>

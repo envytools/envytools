@@ -6,7 +6,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <import file="nv_object.xml"/>
 
-<domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
+<domain name="NV01_SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NV04_M2MF-NV50_M2MF">
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_BUFFER_IN" type="object"/>

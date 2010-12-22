@@ -8,7 +8,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nv_object.xml"/>
 <import file="nv50_defs.xml"/>
 
-<domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
+<domain name="NV01_SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NV50_COMPUTE-NVA3_COMPUTE">
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x01a0" name="DMA_GLOBAL" type="object"/>
