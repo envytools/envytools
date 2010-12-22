@@ -189,7 +189,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<stripe name="GRAPH" prefix="chipset" varset="obj-class" variants="NV01_CONTEXT_BETA1:NV84_CRYPT">
 		<doc>Methods available on all PGRAPH objects.</doc>
 		<reg32 offset="0x100" name="NOP" variants="NV04-" />
-		<reg32 offset="0x104" name="NOTIFY" variants="NV04-NVC0">
+		<reg32 offset="0x104" name="NOTIFY" variants="NV04:NVC0">
 			<value value="0" name="WRITE"/>
 			<value value="1" name="WRITE_AND_AWAKEN"/>
 		</reg32>
@@ -197,16 +197,26 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0108" name="NOTIFY_ADDRESS_LOW" variants="NVC0-"/>
 		<reg32 offset="0x010c" name="NOTIFY" variants="NVC0-">
 			<value value="0" name="WRITE"/>
-			<value value="1" name="WRITE_AND_AWAKEN"/><!-- not verified -->
+			<value value="1" name="WRITE_AND_AWAKEN"/>
 		</reg32>
 		<reg32 offset="0x0110" name="WAIT_FOR_IDLE" variants="NV50-"/>
 		<reg32 offset="0x0114" name="MACRO_UPLOAD_POS" variants="NVC0-"/>
 		<reg32 offset="0x0118" name="MACRO_UPLOAD_DATA" variants="NVC0-"/>
 		<reg32 offset="0x011c" name="MACRO_ID" variants="NVC0-"/>
 		<reg32 offset="0x0120" name="MACRO_POS" variants="NVC0-"/>
-		<reg32 offset="0x0120" name="UNK0120" variants="NVA3-"/>
-		<reg32 offset="0x0124" name="UNK0124" variants="NVA3-"/>
+		<reg32 offset="0x0120" name="UNK0120" variants="NVA3:NVC0"/>
+		<reg32 offset="0x0124" name="UNK0124" variants="NVA3:NVC0"/>
+		<reg32 offset="0x0124" name="UNK0124" variants="NVC0-"/> <!-- 3 -->
+		<reg32 offset="0x0130" name="UNK0130" variants="NVC0-"/> <!-- ff -->
+		<reg32 offset="0x0134" name="UNK0134" variants="NVC0-"/> <!-- ffffffff -->
+		<reg32 offset="0x0138" name="UNK0138" variants="NVC0-"/> <!-- 7 -->
+		<reg32 offset="0x013c" name="UNK013C" variants="NVC0-"/> <!-- ffffffff -->
 		<reg32 offset="0x0140" name="PM_TRIGGER" variants="NV40-"/> <!-- XXX: likely controlled by a PGRAPH_DEBUG bit. -->
+		<reg32 offset="0x0150" name="UNK0150" variants="NVC0-"/> <!-- ffffffff -->
+		<reg32 offset="0x0154" name="UNK0154" variants="NVC0-"/> <!-- ffffffff -->
+		<reg32 offset="0x3400" name="SCRATCH" length="0x80" variants="NVC0-"/>
+		<reg32 offset="0x3800" name="MACRO" length="0x80" stride="8" variants="NVC0-"/>
+		<reg32 offset="0x3804" name="MACRO_PARAM" length="0x80" stride="8" variants="NVC0-"/>
 	</stripe>
 </domain>
 
