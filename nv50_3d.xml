@@ -834,10 +834,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="INSTANCE_NEXT" pos="28">
 				<doc>If set, INSTANCE_ID is increased by 1, otherwise it's set to 0.</doc>
 			</bitfield>
-			<bitfield name="PRIMITIVE_ID_CONT" pos="29" variants="NV84-" />
+			<bitfield name="PRIMITIVE_ID_CONT" pos="29" variants="NV84_3D-">
 				<doc>If set, PRIMITIVE_ID is unmodified, otherwise it's set to 0.</doc>
 			</bitfield>
-			<bitfield name="INSTANCE_CONT" pos="30" variants="NVA0-" />
+			<bitfield name="INSTANCE_CONT" pos="30" variants="NVA0_3D-">
 				<doc>If set, INSTANCE_ID is unmodified, otherwise see INSTANCE_NEXT description.</doc>
 			</bitfield>
 		</reg32>
@@ -865,10 +865,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="INSTANCE_NEXT" pos="28">
 				<doc>If set, INSTANCE_ID is increased by 1, otherwise it's set to 0.</doc>
 			</bitfield>
-			<bitfield name="PRIMITIVE_ID_CONT" pos="29" variants="NV84-" />
+			<bitfield name="PRIMITIVE_ID_CONT" pos="29" variants="NV84_3D-">
 				<doc>If set, PRIMITIVE_ID is unmodified, otherwise it's set to 0.</doc>
 			</bitfield>
-			<bitfield name="INSTANCE_CONT" pos="30" variants="NVA0-" />
+			<bitfield name="INSTANCE_CONT" pos="30" variants="NVA0_3D-">
 				<doc>If set, INSTANCE_ID is unmodified, otherwise see INSTANCE_NEXT description.</doc>
 			</bitfield>
 		</reg32>

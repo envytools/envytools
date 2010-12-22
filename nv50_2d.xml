@@ -10,7 +10,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <domain name="NV01_SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NV50_2D-NVC0_2D">
-		<stripe variants="NV50_3D">
+		<stripe variants="NV50_2D">
 			<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 			<reg32 offset="0x0184" name="DMA_DST" type="object"/>
 			<reg32 offset="0x0188" name="DMA_SRC" type="object"/>
