@@ -9,11 +9,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nv50_defs.xml"/>
 
 <domain name="NV01_SUBCHAN" bare="yes" size="0x2000">
-	<stripe prefix="obj-class" variants="NV50_2D">
-		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
-		<reg32 offset="0x0184" name="DMA_DST" type="object"/>
-		<reg32 offset="0x0188" name="DMA_SRC" type="object"/>
-		<reg32 offset="0x018c" name="DMA_COND" type="object"/>
+	<stripe prefix="obj-class" variants="NV50_2D-NVC0_2D">
+		<stripe variants="NV50_3D">
+			<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+			<reg32 offset="0x0184" name="DMA_DST" type="object"/>
+			<reg32 offset="0x0188" name="DMA_SRC" type="object"/>
+			<reg32 offset="0x018c" name="DMA_COND" type="object"/>
+		</stripe>
 		<reg32 offset="0x0200" name="DST_FORMAT" type="NV50_SURFACE_FORMAT"/>
 		<reg32 offset="0x0204" name="DST_LINEAR" type="boolean"/>
 		<reg32 offset="0x0208" name="DST_TILE_MODE"/>
