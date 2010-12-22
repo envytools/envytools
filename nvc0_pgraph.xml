@@ -211,8 +211,10 @@
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
 	</array>
-	<array offset="0x4600" name="M2MF" stride="0x100" length="1">
+	<array offset="0x4600" name="M2MF" stride="0x200" length="1">
 		<reg32 offset="0x00" name="TRAP">
+			<bitfield name="PUSH_TOO_MUCH_DATA" pos="0" />
+			<bitfield name="PUSH_NOT_ENOUGH_DATA" pos="1" />
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
