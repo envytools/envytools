@@ -47,7 +47,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 </enum>
 
 <domain name="NV01_SUBCHAN" bare="yes">
-	<stripe prefix="obj-class" variants="NVC0_3D">
+	<stripe prefix="obj-class" variants="NVC0_3D-NVC1_3D">
 		<reg32 offset="0x0210" name="EARLY_FRAGMENT_TESTS" type="boolean"/>
 		<reg32 offset="0x0320" name="TESS_MODE">
 			<bitfield name="PRIM" high="3" low="0">

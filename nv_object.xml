@@ -154,6 +154,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x8597" name="NVA3_3D" variants="NVA3:NVAF"/>
 	<value value="0x8697" name="NVAF_3D" variants="NVAF:NVC0"/>
 	<value value="0x9097" name="NVC0_3D" variants="NVC0-"/>
+	<value value="0x9197" name="NVC1_3D" variants="NVC1-"/>
 
 	<!-- nv50+ non-3D objects -->
 	<value value="0x502d" name="NV50_2D" variants="NV50:NVC0"/>
