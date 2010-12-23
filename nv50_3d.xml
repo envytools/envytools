@@ -586,12 +586,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Accepts 0-f. Same as turing UNK02F0</doc>
 		</reg32>
 		<reg32 offset="0x1330" name="TSC_FLUSH">
-			<bitfield pos="0" name="UNK0"/>
-			<bitfield low="4" high="25" name="UNK1"/>
+			<bitfield pos="0" name="SPECIFIC"/>
+			<bitfield low="4" high="25" name="ENTRY"/>
 		</reg32>
 		<reg32 offset="0x1334" name="TIC_FLUSH">
-			<bitfield pos="0" name="UNK0"/>
-			<bitfield low="4" high="25" name="UNK1"/>
+			<bitfield pos="0" name="SPECIFIC"/>
+			<bitfield low="4" high="25" name="ENTRY"/>
 		</reg32>
 		<reg32 offset="0x1338" name="TEX_CACHE_CTL">
 			<bitfield low="4" high="5" name="UNK1">

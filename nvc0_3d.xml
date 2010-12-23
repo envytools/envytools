@@ -239,12 +239,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1314" name="ALPHA_TEST_FUNC" type="gl_comparison_op"/>
 		<reg32 offset="0x131c" name="BLEND_COLOR" length="4" type="float"/>
 		<reg32 offset="0x1330" name="TSC_FLUSH">
-			<bitfield pos="0" name="UNK0"/>
-			<bitfield low="4" high="25" name="UNK1"/>
+			<bitfield pos="0" name="SPECIFIC"/>
+			<bitfield low="4" high="25" name="ENTRY"/>
 		</reg32>
 		<reg32 offset="0x1334" name="TIC_FLUSH">
-			<bitfield pos="0" name="UNK0"/>
-			<bitfield low="4" high="25" name="UNK1"/>
+			<bitfield pos="0" name="SPECIFIC"/>
+			<bitfield low="4" high="25" name="ENTRY"/>
 		</reg32>
 		<reg32 offset="0x1338" name="TEX_CACHE_CTL">
 			<bitfield low="4" high="5" name="UNK1">
