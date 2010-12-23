@@ -459,7 +459,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1224" name="RT_ARRAY_MODE">
 			<bitfield name="LAYERS" high="15" low="0" type="int"/>
-			<bitfield name="VOLUME" pos="16" type="boolean"/>
+			<bitfield name="MODE" pos="16">
+				<value value="0" name="2D_ARRAY"/>
+				<value value="1" name="3D"/>
+			</bitfield>
 		</reg32>
 		<reg32 offset="0x1228" name="ZETA_HORIZ" type="int"/>
 		<reg32 offset="0x122c" name="ZETA_VERT" type="int"/>
