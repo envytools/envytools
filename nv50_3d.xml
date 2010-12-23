@@ -79,7 +79,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<bitfield low="4" high="6" name="Y" />
 				<bitfield low="8" high="10" name="Z" />
 			</reg32>
-			<reg32 offset="0x10" name="LAYER_STRIDE" type="uint"/><!-- in dwords -->
+			<reg32 offset="0x10" name="LAYER_STRIDE" shr="2"/>
 			<reg32 offset="0x14" name="UNK14"/>
 		</stripe>
 		<reg32 offset="0x0300" name="VTX_ATTR_1F" length="16" type="float"/> <!-- float... or rather direct value, without conversion. used also for ints declared as ints. -->
