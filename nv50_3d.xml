@@ -361,7 +361,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0fe4" name="ZETA_ADDRESS_LOW"/>
 		<reg32 offset="0x0fe8" name="ZETA_FORMAT" type="NV50_ZETA_FORMAT"/>
 		<reg32 offset="0x0fec" name="ZETA_TILE_MODE"/>
-		<reg32 offset="0x0ff0" name="ZETA_LAYER_STRIDE" type="int"/><!-- in dwords -->
+		<reg32 offset="0x0ff0" name="ZETA_LAYER_STRIDE" shr="2"/>
 		<reg32 offset="0x0ff4" name="SCREEN_SCISSOR_HORIZ">
 			<bitfield name="W" high="31" low="16" type="int"/>
 			<bitfield name="X" high="15" low="0" type="int"/>
