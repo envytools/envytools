@@ -75,12 +75,16 @@
 		<bitfield name="MACRO" pos="7">
 			<brief>Check 404490</brief>
 		</bitfield>
-		<bitfield name="UNK24" pos="24"/>
-		<bitfield name="UNK25" pos="25"/>
+		<bitfield name="GPC" pos="24"/>
+		<bitfield name="ROPC" pos="25"/>
 	</reg32>
 	<reg32 offset="0x0110" name="DATA_ERROR" type="NV50_PGRAPH_DATA_ERROR">
 		<doc>Stores type of the pending DATA_ERROR.</doc>
 	</reg32>
+	<reg32 offset="0x0118" name="GPC_TRAP"/>
+	<reg32 offset="0x011c" name="ROPC_TRAP"/>
+	<reg32 offset="0x0130" name="GPC_TRAP_EN"/>
+	<reg32 offset="0x0134" name="ROPC_TRAP_EN"/>
 	<reg32 offset="0x0138" name="TRAP_EN">
 		<brief>Trap enable</brief>
 		<doc>A bitmask of events that will cause traps, same bit assignments as in TRAP reg.</doc>
@@ -92,8 +96,8 @@
 		<bitfield name="UNK5" pos="5"/>
 		<bitfield name="UNK6" pos="6"/>
 		<bitfield name="MACRO" pos="7"/>
-		<bitfield name="UNK24" pos="24"/>
-		<bitfield name="UNK25" pos="25"/>
+		<bitfield name="GPC" pos="24"/>
+		<bitfield name="ROPC" pos="25"/>
 	</reg32>
 	<reg32 offset="0x013c" name="INTR_EN">
 		<brief>Interrupt enable</brief>
@@ -242,7 +246,20 @@
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
 	</array>
-	<array offset="0x8000" name="CCACHE" stride="0x100" length="1">
+	<array offset="0x4800" name="DDATA" stride="0x800" length="1">
+	</array>
+	<array offset="0x5800" name="UNK5800" stride="0x800" length="1">
+	</array>
+	<array offset="0x6000" name="UNK6000" stride="0x800" length="1">
+	</array>
+	<stripe offset="0x6800" stride="0x400" length="2">
+		<stripe offset="0" name="TPGRAD" stride="0x20" length="0x20">
+			<reg32 offset="0" name="MASK" length="8"/>
+		</stripe>
+	</stripe>
+	<array offset="0x7800" name="TPBUS" stride="0x800" length="1">
+	</array>
+	<array offset="0x8000" name="CCACHE" stride="0x800" length="1">
 		<reg32 offset="0x30" name="TRAP">
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
@@ -332,12 +349,82 @@
 	</group>
 
 	<group name="nvc0_ropc">
+		<array offset="0x000" name="ZROP" stride="0x100" length="1">
+		</array>
+		<array offset="0x100" name="CROP" stride="0x100" length="1">
+		</array>
+		<reg32 offset="0x204" name="TRAP">
+			<bitfield pos="0" name="CROP"/>
+			<bitfield pos="1" name="ZROP"/>
+		</reg32>
+		<reg32 offset="0x208" name="TRAP_EN">
+			<bitfield pos="0" name="CROP"/>
+			<bitfield pos="1" name="ZROP"/>
+		</reg32>
 	</group>
 
 	<group name="nvc0_tp">
+		<array offset="0x000" name="POLY" stride="0x200" length="1">
+		</array>
+		<array offset="0x200" name="TEX" stride="0x100" length="1">
+		</array>
+		<array offset="0x300" name="TPBUS" stride="0x100" length="1">
+		</array>
+		<array offset="0x400" name="L1" stride="0x100" length="1">
+		</array>
+		<reg32 offset="0x508" name="TRAP">
+			<bitfield pos="0" name="TEX"/>
+			<bitfield pos="1" name="MP"/>
+			<bitfield pos="2" name="POLY"/>
+			<bitfield pos="3" name="L1C"/>
+		</reg32>
+		<reg32 offset="0x50c" name="TRAP_EN">
+			<bitfield pos="0" name="TEX"/>
+			<bitfield pos="1" name="MP"/>
+			<bitfield pos="2" name="POLY"/>
+			<bitfield pos="3" name="L1C"/>
+		</reg32>
+		<array offset="0x600" name="MP" stride="0x200" length="1">
+		</array>
 	</group>
 
 	<group name="nvc0_gpc">
+		<array offset="0x380" name="UNK380" stride="0x080" length="1">
+		</array>
+		<array offset="0x400" name="PROP" stride="0x100" length="1">
+		</array>
+		<array offset="0x500" name="UNK500" stride="0x100" length="1">
+		</array>
+		<array offset="0x600" name="UNK600" stride="0x080" length="1">
+		</array>
+		<array offset="0x680" name="UNK680" stride="0x080" length="1">
+		</array>
+		<array offset="0x700" name="UNK700" stride="0x080" length="1">
+		</array>
+		<array offset="0x800" name="ESETUP" stride="0x080" length="1">
+		</array>
+		<array offset="0x880" name="RAST" stride="0x080" length="1">
+		</array>
+		<array offset="0x900" name="ZCULL" stride="0x080" length="1">
+		</array>
+		<array offset="0x980" name="UNK980" stride="0x080" length="1">
+		</array>
+		<array offset="0xa00" name="UNKA00" stride="0x100" length="1">
+		</array>
+		<array offset="0xb00" name="TPBUS" stride="0x100" length="1">
+		</array>
+		<array offset="0xc00" name="TPCONF" stride="0x080" length="1">
+		</array>
+		<array offset="0xc80" name="UNKC80" stride="0x080" length="1">
+		</array>
+		<array offset="0xd00" name="UNKD00" stride="0x080" length="1">
+		</array>
+		<array offset="0xe00" name="UNKE00" stride="0x100" length="1">
+		</array>
+		<array offset="0xf00" name="UNKF00" stride="0x100" length="1">
+		</array>
+		<array offset="0x1000" name="CCACHE" stride="0x100" length="1">
+		</array>
 		<array name="TP_BROADCAST" offset="0x1800" stride="0x800" length="1">
 			<use-group name="nvc0_tp"/>
 		</array>
@@ -355,6 +442,20 @@
 				<bitfield pos="11" name="UNK11"/>
 			</reg32>
 			<reg32 offset="0x618" name="MYINDEX"/>
+			<reg32 offset="0xc90" name="TRAP">
+				<bitfield pos="0" name="PROP"/>
+				<bitfield pos="1" name="ZCULL"/>
+				<bitfield pos="2" name="CCACHE"/>
+				<bitfield pos="3" name="ESETUP"/>
+				<bitfield low="16" high="23" name="TP"/>
+			</reg32>
+			<reg32 offset="0xc94" name="TRAP_EN">
+				<bitfield pos="0" name="PROP"/>
+				<bitfield pos="1" name="ZCULL"/>
+				<bitfield pos="2" name="CCACHE"/>
+				<bitfield pos="3" name="ESETUP"/>
+				<bitfield low="16" high="23" name="TP"/>
+			</reg32>
 		</array>
 
 		<array name="TP" offset="0x4000" stride="0x800" length="4">
