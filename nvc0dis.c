@@ -928,9 +928,8 @@ static struct insn tabm[] = {
 	{ -1, -1, 0x0000000000000005ull, 0x0000000000000007ull, OOPS },
 
 	{ -1, -1, 0x0000000000000006ull, 0xfe00000000000067ull, N("pfetch"), DST, VBASRC },
-	{ -1, -1, 0x06000000fc000006ull, 0xfe000000fc000107ull, N("vfetch"), VDST, T(ldvf), ATTR }, // VP
-	{ -1, -1, 0x0600000003f00006ull, 0xfe00000003f00107ull, N("vfetch"), VDST, T(ldvf), ATTR }, // GP
-	{ -1, -1, 0x0600000003f00106ull, 0xfe00000003f00107ull, N("vfetch patch"), VDST, T(ldvf), ATTR }, // per patch input
+	{ -1, -1, 0x0600000000000006ull, 0xfe00000000000107ull, N("vfetch"), VDST, T(ldvf), ATTR }, // src2 is vertex offset
+	{ -1, -1, 0x0600000000000106ull, 0xfe00000000000107ull, N("vfetch patch"), VDST, T(ldvf), ATTR }, // per patch input
 	{ -1, -1, 0x0a00000003f00006ull, 0xfe7e000003f00107ull, N("export"), VAR, ESRC }, // GP
 	{ -1, -1, 0x0a7e000003f00006ull, 0xfe7e000003f00107ull, N("export"), VAR, ESRC }, // VP
 	{ -1, -1, 0x0a7e000003f00106ull, 0xfe7e000003f00107ull, N("export patch"), VAR, ESRC }, // per patch output
