@@ -82,10 +82,10 @@
 	<reg32 offset="0x0110" name="DATA_ERROR" type="NV50_PGRAPH_DATA_ERROR">
 		<doc>Stores type of the pending DATA_ERROR.</doc>
 	</reg32>
-	<reg32 offset="0x0118" name="GPC_TRAP"/>
-	<reg32 offset="0x011c" name="ROPC_TRAP"/>
-	<reg32 offset="0x0130" name="GPC_TRAP_EN"/>
-	<reg32 offset="0x0134" name="ROPC_TRAP_EN"/>
+	<reg32 offset="0x0118" name="TRAP_GPCS"/>
+	<reg32 offset="0x011c" name="TRAP_ROPCS"/>
+	<reg32 offset="0x0130" name="TRAP_GPCS_EN"/>
+	<reg32 offset="0x0134" name="TRAP_ROPCS_EN"/>
 	<reg32 offset="0x0138" name="TRAP_EN">
 		<brief>Trap enable</brief>
 		<doc>A bitmask of events that will cause traps, same bit assignments as in TRAP reg.</doc>
@@ -284,7 +284,7 @@
 			<bitfield pos="8" name="BAR">
 				<doc>When BAR has all bits from BAR_REQMASK[0]&amp;BAR_REQMASK[1] set.</doc>
 			</bitfield>
-			<bitfield pos="11" name="WATCHDOG"/>
+			<bitfield pos="11" name="CC_WATCHDOG"/>
 			<bitfield pos="12" name="UNK12">
 				<doc>Related to fuc+0xaxx and 404160.</doc>
 			</bitfield>
@@ -303,7 +303,7 @@
 			<value value="0x26" name="MMIO_RD"/>
 			<value value="0x27" name="MMIO_WRS"/>
 			<value value="0x28" name="BAR"/>
-			<value value="0x2b" name="WATCHDOG"/>
+			<value value="0x2b" name="CC_WATCHDOG"/>
 			<value value="0x2c" name="UNK12"/>
 			<value value="0x2d" name="UNK13"/>
 		</enum>
@@ -324,7 +324,7 @@
 		<reg32 offset="0x40c" name="BAR_REQMASK" length="2"/>
 		<reg32 offset="0x414" name="BAR"/>
 		<reg32 offset="0x418" name="BAR_SET"/>
-		<reg32 offset="0x430" name="WATCHDOG">
+		<reg32 offset="0x430" name="CC_WATCHDOG">
 			<bitfield low="0" high="29" name="TIME_REMAINING"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
