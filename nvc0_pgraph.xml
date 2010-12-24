@@ -402,6 +402,11 @@
 			<bitfield pos="0" name="CROP"/>
 			<bitfield pos="1" name="ZROP"/>
 		</reg32>
+		<reg32 offset="0x210" name="RED_SWITCH">
+			<bitfield pos="2" name="UNK0_ROPC"/>
+			<bitfield pos="6" name="POWER_ROPC"/>
+			<bitfield pos="10" name="ENABLE_ROPC"/>
+		</reg32>
 	</group>
 
 	<group name="nvc0_tp">
