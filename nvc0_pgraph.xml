@@ -275,17 +275,16 @@
 			<bitfield pos="6" name="MMIO_RD"/>
 			<bitfield pos="7" name="MMIO_WRS"/>
 			<bitfield pos="8" name="BAR">
-				<doc>When BAR_STATUS has all bits from BAR_REQMASK set.</doc>
+				<doc>When BAR has all bits from BAR_REQMASK[0]&amp;BAR_REQMASK[1] set.</doc>
 			</bitfield>
 			<bitfield pos="11" name="WATCHDOG"/>
 			<bitfield pos="12" name="UNK12">
 				<doc>Related to fuc+0xaxx and 404160.</doc>
 			</bitfield>
 		</reg32>
-		<reg32 offset="0x40c" name="BAR_REQMASK"/>
-		<reg32 offset="0x414" name="BAR_STATUS" access="r"/>
-		<reg32 offset="0x414" name="BAR_AND" access="w"/>
-		<reg32 offset="0x418" name="BAR_OR" access="w"/>
+		<reg32 offset="0x40c" name="BAR_REQMASK" length="2"/>
+		<reg32 offset="0x414" name="BAR"/>
+		<reg32 offset="0x418" name="BAR_SET"/>
 		<reg32 offset="0x430" name="WATCHDOG">
 			<bitfield low="0" high="29" name="TIME_REMAINING"/>
 			<bitfield pos="31" name="ENABLE"/>
