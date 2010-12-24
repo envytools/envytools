@@ -388,6 +388,15 @@
 
 		<reg32 offset="0xa04" name="MEM_BASE" shr="8"/>
 		<reg32 offset="0xa0c" name="MEM_CHAN" type="nv50_channel"/>
+		<reg32 offset="0xa20" name="MEM_TARGET">
+			<bitfield low="0" high="4" name="TARGET">
+				<value value="1" name="VM"/>
+				<value value="2" name="VRAM"/>
+				<value value="3" name="SYSRAM_NOSNOOP"/>
+				<value value="4" name="SYSRAM"/>
+			</bitfield>
+			<bitfield pos="31" name="UNK31"/>
+		</reg32>
 	</group>
 
 	<group name="nvc0_ropc">
