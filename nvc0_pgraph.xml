@@ -273,9 +273,7 @@
 			<bitfield pos="2" name="STRAND"/>
 			<bitfield pos="5" name="MMCTX"/>
 			<bitfield pos="6" name="MMIO_RD"/>
-			<bitfield pos="7" name="UNK7">
-				<doc>Related to MMIO write with UNK29</doc>
-			</bitfield>
+			<bitfield pos="7" name="MMIO_WRS"/>
 			<bitfield pos="8" name="BAR">
 				<doc>When BAR_STATUS has all bits from BAR_REQMASK set.</doc>
 			</bitfield>
@@ -328,7 +326,7 @@
 		<reg32 offset="0x728" name="MMIO_CTRL">
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield low="2" high="25" name="ADDR" shr="2"/>
-			<bitfield pos="29" name="UNK29"/> <!-- only for writes? -->
+			<bitfield pos="29" name="WRS"/>
 			<bitfield pos="30" name="ACCESS">
 				<value value="0" name="READ"/>
 				<value value="1" name="WRITE"/>
