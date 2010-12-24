@@ -6,6 +6,7 @@
 
 <import file="nvchipsets.xml" />
 <import file="nv98_fuc.xml" />
+<import file="nv50_pgraph.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
@@ -118,8 +119,8 @@
 	</reg32>
 	<reg32 offset="0x0140" name="INTR_DISPATCH_CTXCTL">
 		<doc>If a bit is set to 1, a given interrupt will use _CTXCTL versions
-		of interrupt registers and will be routed to main CTXCTL fuc interrupt
-		10 instead of host PGRAPH interrupt.</doc>
+		of interrupt registers and will be routed to main CTXCTL interrupt source
+		11 [HUB_INTR] instead of host PGRAPH interrupt.</doc>
 		<bitfield name="ILLEGAL_MTHD" pos="4" />
 		<bitfield name="FIRMWARE_MTHD" pos="8" />
 	</reg32>
@@ -281,6 +282,38 @@
 			<bitfield pos="12" name="UNK12">
 				<doc>Related to fuc+0xaxx and 404160.</doc>
 			</bitfield>
+			<bitfield pos="13" name="UNK13"/>
+		</reg32>
+		<enum name="nvc0_ctxctl_isrc" inline="yes">
+			<value value="0x02" name="GPC_UNK2"/>
+			<value value="0x03" name="HUB_CHANNEL_SWITCH"/>
+			<value value="0x04" name="HUB_UNK4"/>
+			<value value="0x0b" name="HUB_INTR"/>
+			<value value="0x0c" name="HUB_UNK12"/>
+			<value value="0x20" name="ZERO"/>
+			<!-- 0x20 + X is DONE bit X -->
+			<value value="0x22" name="STRAND"/>
+			<value value="0x25" name="MMCTX"/>
+			<value value="0x26" name="MMIO_RD"/>
+			<value value="0x27" name="MMIO_WRS"/>
+			<value value="0x28" name="BAR"/>
+			<value value="0x2b" name="WATCHDOG"/>
+			<value value="0x2c" name="UNK12"/>
+			<value value="0x2d" name="UNK13"/>
+		</enum>
+		<bitset name="nvc0_ctxctl_iroute" inline="yes">
+			<bitfield low="0" high="5" name="SRC0" type="nvc0_ctxctl_isrc"/>
+			<bitfield low="8" high="13" name="SRC1" type="nvc0_ctxctl_isrc"/>
+			<bitfield pos="16" name="FUN">
+				<value value="0" name="OR"/>
+				<value value="1" name="AND"/>
+			</bitfield>
+			<bitfield pos="17" name="NOT"/>
+			<bitfield pos="18" name="LEVEL"/>
+		</bitset>
+		<reg32 offset="0x404" name="INTR_ROUTE" type="nvc0_ctxctl_iroute">
+			<doc>Indexed fuc register, in 8 copies. Index i determines the source
+			of fuc interrupt i+8.</doc>
 		</reg32>
 		<reg32 offset="0x40c" name="BAR_REQMASK" length="2"/>
 		<reg32 offset="0x414" name="BAR"/>
@@ -482,6 +515,10 @@
 			<bitfield pos="10" name="ENABLE_ROPC"/>
 		</reg32>
 
+		<reg32 offset="0xc14" name="INTR_UP_ROUTE" type="nvc0_ctxctl_iroute">
+			<doc>Indexed fuc register, in 19 copies. Index i determines the source
+			of interrupt i. Source for interrupt 19 is hardwired to 0x2b [WATCHDOG].</doc>
+		</reg32>
 		<reg32 offset="0xc18" name="INTR_UP_STATUS"/>
 		<reg32 offset="0xc1c" name="INTR_UP_SET"/>
 		<reg32 offset="0xc20" name="INTR_UP_CLEAR"/>
