@@ -38,7 +38,7 @@
 		<bitfield name="BUFFER_NOTIFY" pos="16">
 			<doc>You asked for m2mf transfer with interrupt after finish and got it.</doc>
 		</bitfield>
-		<bitfield name="CTXCTL" pos="19">
+		<bitfield name="CTXCTL_UP" pos="19">
 			<doc>Triggered by poking CTXCTL INTR_UP_SET.</doc>
 		</bitfield>
 		<bitfield name="DATA_ERROR" pos="20">
@@ -112,24 +112,24 @@
 		<bitfield name="UNK7" pos="7" />
 		<bitfield name="FIRMWARE_MTHD" pos="8" />
 		<bitfield name="BUFFER_NOTIFY" pos="16" />
-		<bitfield name="CTXCTL" pos="19" />
+		<bitfield name="CTXCTL_UP" pos="19" />
 		<bitfield name="DATA_ERROR" pos="20" />
 		<bitfield name="TRAP" pos="21" />
 		<bitfield name="SINGLE_STEP" pos="24" />
 	</reg32>
-	<reg32 offset="0x0140" name="INTR_DISPATCH_CTXCTL">
-		<doc>If a bit is set to 1, a given interrupt will use _CTXCTL versions
+	<reg32 offset="0x0140" name="INTR_DISPATCH_CTXCTL_DOWN">
+		<doc>If a bit is set to 1, a given interrupt will use _CTXCTL_DOWN versions
 		of interrupt registers and will be routed to main CTXCTL interrupt source
-		11 [HUB_INTR] instead of host PGRAPH interrupt.</doc>
+		11 [HUB_CTXCTL_DOWN] instead of host PGRAPH interrupt.</doc>
 		<bitfield name="ILLEGAL_MTHD" pos="4" />
 		<bitfield name="FIRMWARE_MTHD" pos="8" />
 	</reg32>
-	<reg32 offset="0x0144" name="INTR_CTXCTL">
+	<reg32 offset="0x0144" name="INTR_CTXCTL_DOWN">
 		<doc>Like INTR, but for CTXCTL interrupts.</doc>
 		<bitfield name="ILLEGAL_MTHD" pos="4" />
 		<bitfield name="FIRMWARE_MTHD" pos="8" />
 	</reg32>
-	<reg32 offset="0x0148" name="INTR_EN_CTXCTL">
+	<reg32 offset="0x0148" name="INTR_EN_CTXCTL_DOWN">
 		<doc>Like INTR_EN, but for CTXCTL interrupts.</doc>
 		<bitfield name="ILLEGAL_MTHD" pos="4" />
 		<bitfield name="FIRMWARE_MTHD" pos="8" />
@@ -294,7 +294,7 @@
 			<value value="0x02" name="GPC_UNK2"/>
 			<value value="0x03" name="HUB_CHANNEL_SWITCH"/>
 			<value value="0x04" name="HUB_UNK4"/>
-			<value value="0x0b" name="HUB_INTR"/>
+			<value value="0x0b" name="HUB_CTXCTL_DOWN"/>
 			<value value="0x0c" name="HUB_UNK12"/>
 			<value value="0x20" name="ZERO"/>
 			<!-- 0x20 + X is DONE bit X -->
