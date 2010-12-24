@@ -375,9 +375,9 @@
 		<reg32 offset="0x730" name="MMIO_WRVAL"/>
 		<reg32 offset="0x74c" name="MMCTX_LOAD_COUNT"/> <!-- WTF? -->
 
-		<reg32 offset="0x800" name="NEWSCRATCH" length="8"/>
-		<reg32 offset="0x820" name="NEWSCRATCH_SET" length="8"/>
-		<reg32 offset="0x840" name="NEWSCRATCH_CLEAR" length="8"/>
+		<reg32 offset="0x800" name="CC_SCRATCH" length="8"/>
+		<reg32 offset="0x820" name="CC_SCRATCH_SET" length="8"/>
+		<reg32 offset="0x840" name="CC_SCRATCH_CLEAR" length="8"/>
 		<reg32 offset="0x880" name="STRANDS"/>
 
 		<reg32 offset="0x908" name="STRAND_SAVE_SWBASE" shr="8"/>
