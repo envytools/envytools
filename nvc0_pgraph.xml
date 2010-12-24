@@ -386,7 +386,8 @@
 			<doc>In words.</doc>
 		</reg32>
 
-		<reg32 offset="0xa04" name="XFER_BASE" shr="8"/>
+		<reg32 offset="0xa04" name="MEM_BASE" shr="8"/>
+		<reg32 offset="0xa0c" name="MEM_CHAN" type="nv50_channel"/>
 	</group>
 
 	<group name="nvc0_ropc">
