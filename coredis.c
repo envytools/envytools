@@ -82,15 +82,21 @@ struct matches *catmatches(struct matches *a, struct matches *b) {
 
 struct matches *mergematches(struct match a, struct matches *b) {
 	struct matches *res = emptymatches();
-	int i;
+	int i, j;
 	for (i = 0; i < b->mnum; i++) {
-		ull cmask = a.m & b->m[i].m;
-		if ((a.a & cmask) == (b->m[i].a & cmask)) {
+		for (j = 0; j < MAXOPLEN; j++) {
+			ull cmask = a.m[j] & b->m[i].m[j];
+			if ((a.a[j] & cmask) != (b->m[i].a[j] & cmask))
+				break;
+		}
+		if (j == MAXOPLEN) {
 			struct match nm = b->m[i];
 			if (!nm.oplen)
 				nm.oplen = a.oplen;
-			nm.a |= a.a;
-			nm.m |= a.m;
+			for (j = 0; j < MAXOPLEN; j++) {
+				nm.a[j] |= a.a[j];
+				nm.m[j] |= a.m[j];
+			}
 			int j;
 			assert (a.nrelocs + nm.nrelocs <= 8);
 			for (j = 0; j < a.nrelocs; j++)
@@ -223,15 +229,27 @@ struct matches *atomunk APROTO {
 int setsbf (struct match *res, int pos, int len, ull num) {
 	if (!len)
 		return 1;
+	int idx = pos / 0x40;
+	pos %= 0x40;
 	ull m = ((1ull << len) - 1) << pos;
 	ull a = (num << pos) & m;
-	if ((a & m & res->m) == (res->a & m & res->m)) {
-		res->a |= a;
-		res->m |= m;
-		return 1;
+	if ((a & m & res->m[idx]) == (res->a[idx] & m & res->m[idx])) {
+		res->a[idx] |= a;
+		res->m[idx] |= m;
 	} else {
 		return 0;
 	}
+	if (pos + len > 0x40) {
+		ull m1 = (((1ull << len) - 1) >> (0x40 - pos));
+		ull a1 = (num >> (0x40 - pos)) & m1;
+		if ((a1 & m1 & res->m[idx+1]) == (res->a[idx+1] & m1 & res->m[idx+1])) {
+			res->a[idx+1] |= a1;
+			res->m[idx+1] |= m1;
+		} else {
+			return 0;
+		}
+	}
+	return 1;
 }
 
 int setbfe (struct match *res, const struct bitfield *bf, const struct expr *expr) {
@@ -263,7 +281,7 @@ int setbfe (struct match *res, const struct bitfield *bf, const struct expr *exp
 	ull totalsz = bf->shr + bf->sbf[0].len + bf->sbf[1].len;
 	if (bf->wrapok && totalsz < 64)
 		mask = (1ull << totalsz) - 1;
-	return (getbf(bf, &res->a, &res->m, 0) & mask) == (expr->num1 & mask);
+	return (getbf(bf, res->a, res->m, 0) & mask) == (expr->num1 & mask);
 }
 
 int setbf (struct match *res, const struct bitfield *bf, ull num) {
@@ -861,14 +879,14 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 					ctx->marks[cur / isa->posunit] |= 8;
 				}
 				if (active) {
-					ull a = 0, m = 0;
-					for (i = 0; i < 8 && cur + i < num; i++) {
-						a |= (ull)code[cur + i] << i*8;
+					ull a[MAXOPLEN] = {0}, m[MAXOPLEN] = {0};
+					for (i = 0; i < MAXOPLEN*8 && cur + i < num; i++) {
+						a[i/8] |= (ull)code[cur + i] << (i&7)*8;
 					}
 					ctx->oplen = 0;
 					ctx->pos = cur / isa->posunit + start;
 					ctx->endmark = 0;
-					atomtab (ctx, &a, &m, isa->troot, 0);
+					atomtab (ctx, a, m, isa->troot, 0);
 					if (ctx->oplen && !ctx->endmark && !(ctx->marks[cur / isa->posunit] & 4))
 						cur += ctx->oplen;
 					else
@@ -880,13 +898,13 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 		} while (!done);
 	} else {
 		while (cur < num) {
-			ull a = 0, m = 0;
-			for (i = 0; i < 8 && cur + i < num; i++) {
-				a |= (ull)code[cur + i] << i*8;
+			ull a[MAXOPLEN] = {0}, m[MAXOPLEN] = {0};
+			for (i = 0; i < MAXOPLEN*8 && cur + i < num; i++) {
+				a[i/8] |= (ull)code[cur + i] << (i&7)*8;
 			}
 			ctx->oplen = 0;
 			ctx->pos = cur / isa->posunit + start;
-			atomtab (ctx, &a, &m, isa->troot, 0);
+			atomtab (ctx, a, m, isa->troot, 0);
 			if (ctx->oplen)
 				cur += ctx->oplen;
 			else
@@ -973,15 +991,15 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 			skip = 0;
 			nonzero = 0;
 		}
-		ull a = 0, m = 0;
-		for (i = 0; i < 8 && cur + i < num; i++) {
-			a |= (ull)code[cur + i] << i*8;
+		ull a[MAXOPLEN] = {0}, m[MAXOPLEN] = {0};
+		for (i = 0; i < MAXOPLEN*8 && cur + i < num; i++) {
+			a[i/8] |= (ull)code[cur + i] << (i&7)*8;
 		}
 		ctx->oplen = 0;
 		ctx->pos = cur / isa->posunit + start;
 		ctx->atomsnum = 0;
 		ctx->endmark = 0;
-		atomtab (ctx, &a, &m, isa->troot, 0);
+		atomtab (ctx, a, m, isa->troot, 0);
 
 		if (ctx->endmark || ctx->marks[cur / isa->posunit] & 4)
 			active = 0;
@@ -1037,10 +1055,15 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 		}
 
 		if (ctx->oplen) {
-			a &= ~m;
-			if (ctx->oplen < 8)
-				a &= (1ull << ctx->oplen * 8) - 1;
-			if (a) {
+			int fl = 0;
+			for (i = ctx->oplen; i < MAXOPLEN * 8; i++)
+				a[i/8] &= ~(0xff << (i & 7) * 8);
+			for (i = 0; i < MAXOPLEN; i++) {
+				a[i] &= ~m[i];
+				if (a[i])
+					fl = 1;
+			}
+			if (fl) {
 				fprintf (out, " %s[unknown:", cunk);
 				for (i = 0; i < ctx->oplen || i == 0; i += isa->opunit) {
 					fprintf (out, " ");
@@ -1048,7 +1071,7 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 						if (cur+i+j >= num)
 							fprintf (out, "??");
 						else
-							fprintf (out, "%02llx", (a >> (i + j) * 8) & 0xff);
+							fprintf (out, "%02llx", (a[(i+j)/8] >> ((i + j)&7) * 8) & 0xff);
 				}
 				fprintf (out, "]");
 			}

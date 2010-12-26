@@ -88,10 +88,11 @@ int resolve (struct disctx *ctx, ull *val, struct match m, ull pos) {
 		ull totalsz = bf->shr + bf->sbf[0].len + bf->sbf[1].len;
 		if (bf->wrapok && totalsz < 64)
 			mask = (1ull << totalsz) - 1;
-		if ((getbf(bf, &m.a, &m.m, ctx) & mask) != (val & mask))
+		if ((getbf(bf, m.a, m.m, ctx) & mask) != (val & mask))
 			return 0;
 	}
-	*val = m.a;
+	for (i = 0; i < MAXOPLEN; i++)
+		val[i] = m.a[i];
 	return 1;
 }
 
@@ -279,11 +280,11 @@ int envyas_process(struct file *file) {
 		cursect = 0;
 		for (j = 0; j < sectionsnum; j++)
 			sections[j].pos = 0;
-		ull val;
+		ull val[MAXOPLEN];
 		for (i = 0; i < file->linesnum; i++) {
 			switch (file->lines[i]->type) {
 				case LINE_INSN:
-					if (!resolve(ctx, &val, im[i].m[0], sections[cursect].pos / ctx->isa->posunit + sections[cursect].base)) {
+					if (!resolve(ctx, val, im[i].m[0], sections[cursect].pos / ctx->isa->posunit + sections[cursect].base)) {
 						sections[cursect].pos += im[i].m[0].oplen;
 						im[i].m++;
 						im[i].mnum--;
@@ -309,7 +310,7 @@ int envyas_process(struct file *file) {
 						}
 						extend(&sections[cursect], im[i].m[0].oplen);
 						for (j = 0; j < im[i].m[0].oplen; j++)
-							sections[cursect].code[sections[cursect].pos++] = val >> (8*j);
+							sections[cursect].code[sections[cursect].pos++] = val[j>>3] >> (8*(j&7));
 					}
 					break;
 				case LINE_LABEL:

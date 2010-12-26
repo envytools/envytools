@@ -98,7 +98,23 @@ extern char *cbctarg;	// call and jump labels
 
 typedef unsigned long long ull;
 
-#define BF(s, l) (*m |= (((1ull<<l)-1)<<s), *a>>s&((1ull<<l)-1))
+static inline ull bf_(int s, int l, ull *a, ull *m) {
+	int idx = s / 0x40;
+	int bit = s % 0x40;
+	ull res = 0;
+	ull m0 = (((1ull << l) - 1) << bit);
+	m[idx] |= m0;
+	res |= (a[idx] & m0) >> bit;
+	if (bit + l > 0x40) {
+		ull m1 = (((1ull << l) - 1) >> (0x40 - bit));
+		m[idx+1] |= m1;
+		res |= (a[idx+1] & m1) << (0x40 - bit);
+	}
+	return res;
+}
+#define BF(s, l) bf_(s, l, a, m)
+
+#define MAXOPLEN (128/64)
 
 struct disctx;
 struct disisa;
@@ -198,7 +214,7 @@ struct reloc {
 
 struct match {
 	int oplen;
-	ull a, m;
+	ull a[MAXOPLEN], m[MAXOPLEN];
 	int lpos;
 	struct reloc relocs[8];
 	int nrelocs;
