@@ -139,7 +139,7 @@ struct matches *atomtab APROTO {
 	const struct insn *tab = v;
 	if (!ctx->reverse) {
 		int i;
-		while ((a[0]&tab->mask) != tab->val || !(tab->vartype & ctx->vartype) || !(tab->ptype & ctx->ptype))
+		while ((a[0]&tab->mask) != tab->val || (tab->vartype && !(tab->vartype & ctx->vartype)) || (tab->ptype && !(tab->ptype & ctx->ptype)))
 			tab++;
 		m[0] |= tab->mask;
 		for (i = 0; i < 16; i++)
@@ -149,13 +149,13 @@ struct matches *atomtab APROTO {
 		struct matches *res = emptymatches();
 		int i;
 		for (i = 0; ; i++) {
-			if (tab[i].vartype & ctx->vartype && tab[i].ptype & ctx->ptype) {
+			if ((!tab[i].vartype || tab[i].vartype & ctx->vartype) && (!tab[i].ptype || tab[i].ptype & ctx->ptype)) {
 				struct match sm = { 0, tab[i].val, tab[i].mask, spos };
 				struct matches *subm = tabdesc(ctx, sm, tab[i].atoms); 
 				if (subm)
 					res = catmatches(res, subm);
 			}
-			if (!tab[i].mask) break;
+			if (!tab[i].mask && !tab[i].vartype && !tab[i].ptype) break;
 		}
 		return res;
 	}

@@ -97,137 +97,137 @@ struct mem memsts_m = { "D", 0, &src1_r, &bimmstsoff };
 #define MEM34 atommem, &mem34_m
 
 static struct insn tabp[] = {
-	{ -1, -1, 0x00f00000, 0x00f00000 },
-	{ -1, -1, 0, 0, PRED },
+	{ 0x00f00000, 0x00f00000 },
+	{ 0, 0, PRED },
 };
 
 static struct insn tabdst[] = {
-	{ -1, -1, 0x00000000, 0x10000000, DST },
-	{ -1, -1, 0x10000000, 0x10000000, ODST },
-	{ -1, -1, 0, 0, OOPS },
+	{ 0x00000000, 0x10000000, DST },
+	{ 0x10000000, 0x10000000, ODST },
+	{ 0, 0, OOPS },
 };
 
 static struct insn tabsrc1[] = {
-	{ -1, -1, 0x00000000, 0x04000000, SRC1 },
-	{ -1, -1, 0x04000000, 0x04000000, ISRC },
-	{ -1, -1, 0, 0, OOPS },
+	{ 0x00000000, 0x04000000, SRC1 },
+	{ 0x04000000, 0x04000000, ISRC },
+	{ 0, 0, OOPS },
 };
 
 static struct insn tabsrc2[] = {
-	{ -1, -1, 0x00000000, 0x08000000, SRC2 },
-	{ -1, -1, 0x08000000, 0x1c000000, IMM6 },
-	{ -1, -1, 0x18000000, 0x1c000000, IMM4 },
-	{ -1, -1, 0x0c000000, 0x0c000000, IMM4 },
-	{ -1, -1, 0, 0, OOPS },
+	{ 0x00000000, 0x08000000, SRC2 },
+	{ 0x08000000, 0x1c000000, IMM6 },
+	{ 0x18000000, 0x1c000000, IMM4 },
+	{ 0x0c000000, 0x0c000000, IMM4 },
+	{ 0, 0, OOPS },
 };
 
 static struct insn tabm[] = {
-	{ -1, -1, 0x3c000000, 0x3c0000ff, N("bra"), BTARG },
-	{ -1, -1, 0x3c000002, 0x3c0000ff, N("call"), CTARG },
-	{ -1, -1, 0x34000003, 0x3c0000ff, N("ret") },
-	{ -1, -1, 0x00000004, 0x000000ff, U("04") },
-	{ -1, -1, 0x00000005, 0x000000ff, U("05") },
-	{ -1, -1, 0x00000006, 0x000000ff, U("06") },
-	{ -1, -1, 0x00000008, 0x000000ff, U("08") },
-	{ -1, -1, 0x00000009, 0x000000ff, U("09") },
-	{ -1, -1, 0x0000000a, 0x000000ff, U("0a") },
-	{ -1, -1, 0x0000000b, 0x000000ff, U("0b") },
-	{ -1, -1, 0x0000000e, 0x000000ff, U("0e") },
+	{ 0x3c000000, 0x3c0000ff, N("bra"), BTARG },
+	{ 0x3c000002, 0x3c0000ff, N("call"), CTARG },
+	{ 0x34000003, 0x3c0000ff, N("ret") },
+	{ 0x00000004, 0x000000ff, U("04") },
+	{ 0x00000005, 0x000000ff, U("05") },
+	{ 0x00000006, 0x000000ff, U("06") },
+	{ 0x00000008, 0x000000ff, U("08") },
+	{ 0x00000009, 0x000000ff, U("09") },
+	{ 0x0000000a, 0x000000ff, U("0a") },
+	{ 0x0000000b, 0x000000ff, U("0b") },
+	{ 0x0000000e, 0x000000ff, U("0e") },
 
-	{ -1, -1, 0x00000020, 0x000000ff, U("20") },
-	{ -1, -1, 0x00000021, 0x000000ff, U("21") },
-	{ -1, -1, 0x00000022, 0x000000ff, U("22") },
-	{ -1, -1, 0x00000023, 0x000000ff, U("23") },
-	{ -1, -1, 0x00000024, 0x000000ff, U("24") },
-	{ -1, -1, 0x00000025, 0x000000ff, U("25") },
-	{ -1, -1, 0x00000026, 0x000000ff, U("26") },
-	{ -1, -1, 0x00000028, 0x000000ff, N("orsetsg"), PDST, T(src1), T(src2) }, /* PDST |= (src1 > src2) */
-	{ -1, -1, 0x00000029, 0x000000ff, N("orsetsl"), PDST, T(src1), T(src2) }, /* PDST |= (src1 < src2) */
-	{ -1, -1, 0x0000002a, 0x000000ff, N("orsetse"), PDST, T(src1), T(src2) }, /* PDST |= (src1 == src2) */
-	{ -1, -1, 0x0000002b, 0x000000ff, U("2b") },
-	{ -1, -1, 0x0000002c, 0x000000ff, U("2c") },
-	{ -1, -1, 0x00000032, 0x000000ff, U("32") },
+	{ 0x00000020, 0x000000ff, U("20") },
+	{ 0x00000021, 0x000000ff, U("21") },
+	{ 0x00000022, 0x000000ff, U("22") },
+	{ 0x00000023, 0x000000ff, U("23") },
+	{ 0x00000024, 0x000000ff, U("24") },
+	{ 0x00000025, 0x000000ff, U("25") },
+	{ 0x00000026, 0x000000ff, U("26") },
+	{ 0x00000028, 0x000000ff, N("orsetsg"), PDST, T(src1), T(src2) }, /* PDST |= (src1 > src2) */
+	{ 0x00000029, 0x000000ff, N("orsetsl"), PDST, T(src1), T(src2) }, /* PDST |= (src1 < src2) */
+	{ 0x0000002a, 0x000000ff, N("orsetse"), PDST, T(src1), T(src2) }, /* PDST |= (src1 == src2) */
+	{ 0x0000002b, 0x000000ff, U("2b") },
+	{ 0x0000002c, 0x000000ff, U("2c") },
+	{ 0x00000032, 0x000000ff, U("32") },
 
-	{ -1, -1, 0x34000040, 0x3c0000ff, N("and"), PDST, PSRC1, PSRC2 },
-	{ -1, -1, 0x34000041, 0x3c0000ff, N("or"), PDST, PSRC1, PSRC2 },
-	{ -1, -1, 0x34000042, 0x3c0000ff, N("xor"), PDST, PSRC1, PSRC2 },
-	{ -1, -1, 0x34000043, 0x3c0000ff, N("nop") },
-	{ -1, -1, 0x34000044, 0x3c0000ff, N("andn"), PDST, PSRC1, PSRC2 },
-	{ -1, -1, 0x34000045, 0x3c0000ff, N("orn"), PDST, PSRC1, PSRC2 },
-	{ -1, -1, 0x34000046, 0x3c0000ff, N("xorn"), PDST, PSRC1, PSRC2 },
-	{ -1, -1, 0x00000048, 0x000000ff, N("setsg"), PDST, T(src1), T(src2) },
-	{ -1, -1, 0x00000049, 0x000000ff, N("setsl"), PDST, T(src1), T(src2) }, /* signed */
-	{ -1, -1, 0x0000004a, 0x000000ff, N("setse"), PDST, T(src1), T(src2) },
-	{ -1, -1, 0x0000004d, 0x000000ff, U("4d") },
-	{ -1, -1, 0x0000004e, 0x000000ff, U("4e") },
-	{ -1, -1, 0x00000052, 0x000000ff, N("btest"), PDST, T(src1), T(src2) },
-	{ -1, -1, 0x00000058, 0x000000ff, N("andsz"), PRED, T(dst), T(src1), T(src2) }, /* normal and, then set pred if result == 0 */
-	{ -1, -1, 0x00000059, 0x000000ff, N("orsz"), PRED, T(dst), T(src1), T(src2) },
-	{ -1, -1, 0x0000005c, 0x000000ff, U("5c") },
+	{ 0x34000040, 0x3c0000ff, N("and"), PDST, PSRC1, PSRC2 },
+	{ 0x34000041, 0x3c0000ff, N("or"), PDST, PSRC1, PSRC2 },
+	{ 0x34000042, 0x3c0000ff, N("xor"), PDST, PSRC1, PSRC2 },
+	{ 0x34000043, 0x3c0000ff, N("nop") },
+	{ 0x34000044, 0x3c0000ff, N("andn"), PDST, PSRC1, PSRC2 },
+	{ 0x34000045, 0x3c0000ff, N("orn"), PDST, PSRC1, PSRC2 },
+	{ 0x34000046, 0x3c0000ff, N("xorn"), PDST, PSRC1, PSRC2 },
+	{ 0x00000048, 0x000000ff, N("setsg"), PDST, T(src1), T(src2) },
+	{ 0x00000049, 0x000000ff, N("setsl"), PDST, T(src1), T(src2) }, /* signed */
+	{ 0x0000004a, 0x000000ff, N("setse"), PDST, T(src1), T(src2) },
+	{ 0x0000004d, 0x000000ff, U("4d") },
+	{ 0x0000004e, 0x000000ff, U("4e") },
+	{ 0x00000052, 0x000000ff, N("btest"), PDST, T(src1), T(src2) },
+	{ 0x00000058, 0x000000ff, N("andsz"), PRED, T(dst), T(src1), T(src2) }, /* normal and, then set pred if result == 0 */
+	{ 0x00000059, 0x000000ff, N("orsz"), PRED, T(dst), T(src1), T(src2) },
+	{ 0x0000005c, 0x000000ff, U("5c") },
 
-	{ -1, -1, 0x00000060, 0x200000ff, N("slct"), T(dst), PRED, T(src1), T(src2) }, // dst = PRED ? src1 : src2
-	{ -1, -1, 0x00000061, 0x080000ff, N("mov"), T(dst), T(src2) },
-	{ -1, -1, 0x08000061, 0x080000ff, N("mov"), T(dst), IMM14 },
-	{ -1, -1, 0x00000064, 0x000000ff, N("add"), T(dst), T(src1), T(src2) },
-	{ -1, -1, 0x00000065, 0x000000ff, N("sub"), T(dst), T(src1), T(src2) },
-	{ -1, -1, 0x00000066, 0x000000ff, N("avgs"), T(dst), T(src1), T(src2) }, // (a+b)/2, rounding UP, signed
-	{ -1, -1, 0x00000067, 0x000000ff, N("avgu"), T(dst), T(src1), T(src2) }, // (a+b)/2, rounding UP, unsigned
-	{ -1, -1, 0x0000006c, 0x000000ff, N("minsz"), T(dst), T(src1), T(src2) }, // (a > b) ? b : max(a, 0)
-	{ -1, -1, 0x0000006d, 0x000000ff, N("clampsex"), T(dst), T(src1), T(src2) }, // clamp to -2^b..2^b-1
-	{ -1, -1, 0x0000006e, 0x000000ff, N("sex"), T(dst), T(src1), T(src2) }, // like fuc insn of the same name
-	{ -1, -1, 0x0000006f, 0x000000ff, N("div2s"), T(dst), T(src1) }, // signed div by 2, round to 0
-	{ -1, -1, 0x00000070, 0x000000ff, N("bset"), T(dst), T(src1), T(src2) },
-	{ -1, -1, 0x00000071, 0x000000ff, N("bclr"), T(dst), T(src1), T(src2) },
-	{ -1, -1, 0x00000074, 0x000000ff, N("rot8"), T(dst), T(src1) },
-	{ -1, -1, 0x00000075, 0x000000ff, N("shl"), T(dst), T(src1), T(src2) },
-	{ -1, -1, 0x00000076, 0x000000ff, N("shr"), T(dst), T(src1), T(src2) },
-	{ -1, -1, 0x00000077, 0x000000ff, N("sar"), T(dst), T(src1), T(src2) },
-	{ -1, -1, 0x00000078, 0x000000ff, N("and"), T(dst), T(src1), T(src2) },
-	{ -1, -1, 0x00000079, 0x000000ff, N("or"), T(dst), T(src1), T(src2) },
-	{ -1, -1, 0x0000007a, 0x000000ff, N("xor"), T(dst), T(src1), T(src2) },
-	{ -1, -1, 0x0000007b, 0x000000ff, N("not"), T(dst), T(src1) },
-	{ -1, -1, 0x0000007c, 0x000000ff, U("7c"), T(dst), T(src1), T(src2) },
-	{ -1, -1, 0x0000007d, 0x000000ff, N("min"), T(dst), T(src1), T(src2) },
-	{ -1, -1, 0x0000007e, 0x000000ff, N("max"), T(dst), T(src1), T(src2) },
+	{ 0x00000060, 0x200000ff, N("slct"), T(dst), PRED, T(src1), T(src2) }, // dst = PRED ? src1 : src2
+	{ 0x00000061, 0x080000ff, N("mov"), T(dst), T(src2) },
+	{ 0x08000061, 0x080000ff, N("mov"), T(dst), IMM14 },
+	{ 0x00000064, 0x000000ff, N("add"), T(dst), T(src1), T(src2) },
+	{ 0x00000065, 0x000000ff, N("sub"), T(dst), T(src1), T(src2) },
+	{ 0x00000066, 0x000000ff, N("avgs"), T(dst), T(src1), T(src2) }, // (a+b)/2, rounding UP, signed
+	{ 0x00000067, 0x000000ff, N("avgu"), T(dst), T(src1), T(src2) }, // (a+b)/2, rounding UP, unsigned
+	{ 0x0000006c, 0x000000ff, N("minsz"), T(dst), T(src1), T(src2) }, // (a > b) ? b : max(a, 0)
+	{ 0x0000006d, 0x000000ff, N("clampsex"), T(dst), T(src1), T(src2) }, // clamp to -2^b..2^b-1
+	{ 0x0000006e, 0x000000ff, N("sex"), T(dst), T(src1), T(src2) }, // like fuc insn of the same name
+	{ 0x0000006f, 0x000000ff, N("div2s"), T(dst), T(src1) }, // signed div by 2, round to 0
+	{ 0x00000070, 0x000000ff, N("bset"), T(dst), T(src1), T(src2) },
+	{ 0x00000071, 0x000000ff, N("bclr"), T(dst), T(src1), T(src2) },
+	{ 0x00000074, 0x000000ff, N("rot8"), T(dst), T(src1) },
+	{ 0x00000075, 0x000000ff, N("shl"), T(dst), T(src1), T(src2) },
+	{ 0x00000076, 0x000000ff, N("shr"), T(dst), T(src1), T(src2) },
+	{ 0x00000077, 0x000000ff, N("sar"), T(dst), T(src1), T(src2) },
+	{ 0x00000078, 0x000000ff, N("and"), T(dst), T(src1), T(src2) },
+	{ 0x00000079, 0x000000ff, N("or"), T(dst), T(src1), T(src2) },
+	{ 0x0000007a, 0x000000ff, N("xor"), T(dst), T(src1), T(src2) },
+	{ 0x0000007b, 0x000000ff, N("not"), T(dst), T(src1) },
+	{ 0x0000007c, 0x000000ff, U("7c"), T(dst), T(src1), T(src2) },
+	{ 0x0000007d, 0x000000ff, N("min"), T(dst), T(src1), T(src2) },
+	{ 0x0000007e, 0x000000ff, N("max"), T(dst), T(src1), T(src2) },
 
-	{ -1, -1, 0x1c000080, 0x3c0000ff, N("st"), MEMST, SRC2 },
-	{ -1, -1, 0x3c000080, 0x3c0000ff, N("st"), MEMSTS, SRC2 },
-	{ -1, -1, 0x1c000081, 0x3c0000ff, N("ld"), DST, MEM1C },
-	{ -1, -1, 0x34000081, 0x3c0000ff, N("ld"), DST, MEM34 },
-	{ -1, -1, 0x00000083, 0x000000ff, U("83") },
-	{ -1, -1, 0x00000084, 0x000000ff, U("84") },
-	{ -1, -1, 0x00000089, 0x000000ff, U("89") },
-	{ -1, -1, 0x1c00008a, 0x3c0000ff, U("8a"), MEMST, SRC2 },
-	{ -1, -1, 0x0000008c, 0x000000ff, U("8c") },
-	{ -1, -1, 0x0000008d, 0x000000ff, U("8d") },
-	{ -1, -1, 0x0000008e, 0x000000ff, U("8e") },
-	{ -1, -1, 0x0000008f, 0x000000ff, U("8f") },
+	{ 0x1c000080, 0x3c0000ff, N("st"), MEMST, SRC2 },
+	{ 0x3c000080, 0x3c0000ff, N("st"), MEMSTS, SRC2 },
+	{ 0x1c000081, 0x3c0000ff, N("ld"), DST, MEM1C },
+	{ 0x34000081, 0x3c0000ff, N("ld"), DST, MEM34 },
+	{ 0x00000083, 0x000000ff, U("83") },
+	{ 0x00000084, 0x000000ff, U("84") },
+	{ 0x00000089, 0x000000ff, U("89") },
+	{ 0x1c00008a, 0x3c0000ff, U("8a"), MEMST, SRC2 },
+	{ 0x0000008c, 0x000000ff, U("8c") },
+	{ 0x0000008d, 0x000000ff, U("8d") },
+	{ 0x0000008e, 0x000000ff, U("8e") },
+	{ 0x0000008f, 0x000000ff, U("8f") },
 
-	{ -1, -1, 0x000000a0, 0x000000ff, U("a0") },
-	{ -1, -1, 0x000000a1, 0x000000ff, U("a1") },
-	{ -1, -1, 0x000000a2, 0x000000ff, U("a2") },
-	{ -1, -1, 0x000000a4, 0x000000ff, U("a4") },
-	{ -1, -1, 0x000000a8, 0x000000ff, N("orsetsng"), PDST, T(src1), T(src2) },
-	{ -1, -1, 0x000000a9, 0x000000ff, N("orsetsnl"), PDST, T(src1), T(src2) },
-	{ -1, -1, 0x000000aa, 0x000000ff, N("orsetsne"), PDST, T(src1), T(src2) },
-	{ -1, -1, 0x000000ac, 0x000000ff, U("ac") },
+	{ 0x000000a0, 0x000000ff, U("a0") },
+	{ 0x000000a1, 0x000000ff, U("a1") },
+	{ 0x000000a2, 0x000000ff, U("a2") },
+	{ 0x000000a4, 0x000000ff, U("a4") },
+	{ 0x000000a8, 0x000000ff, N("orsetsng"), PDST, T(src1), T(src2) },
+	{ 0x000000a9, 0x000000ff, N("orsetsnl"), PDST, T(src1), T(src2) },
+	{ 0x000000aa, 0x000000ff, N("orsetsne"), PDST, T(src1), T(src2) },
+	{ 0x000000ac, 0x000000ff, U("ac") },
 
-	{ -1, -1, 0x000000c8, 0x000000ff, N("setsle"), PDST, T(src1), T(src2) },
-	{ -1, -1, 0x000000c9, 0x000000ff, N("setsge"), PDST, T(src1), T(src2) },
-	{ -1, -1, 0x000000ca, 0x000000ff, N("setsne"), PDST, T(src1), T(src2) },
-	{ -1, -1, 0x000000d2, 0x000000ff, N("btestn"), PDST, T(src1), T(src2) },
-	{ -1, -1, 0x000000d8, 0x000000ff, N("andsnz"), PRED, T(dst), T(src1), T(src2) }, /* normal and, then set pred if result != 0 */
-	{ -1, -1, 0x000000d9, 0x000000ff, N("orsnz"), PRED, T(dst), T(src1), T(src2) },
+	{ 0x000000c8, 0x000000ff, N("setsle"), PDST, T(src1), T(src2) },
+	{ 0x000000c9, 0x000000ff, N("setsge"), PDST, T(src1), T(src2) },
+	{ 0x000000ca, 0x000000ff, N("setsne"), PDST, T(src1), T(src2) },
+	{ 0x000000d2, 0x000000ff, N("btestn"), PDST, T(src1), T(src2) },
+	{ 0x000000d8, 0x000000ff, N("andsnz"), PRED, T(dst), T(src1), T(src2) }, /* normal and, then set pred if result != 0 */
+	{ 0x000000d9, 0x000000ff, N("orsnz"), PRED, T(dst), T(src1), T(src2) },
 
-	{ -1, -1, 0, 0, OOPS },
+	{ 0, 0, OOPS },
 };
 
 static struct insn tabroot[] = {
-	{ -1, -1, 0x34000043, 0x3c0000ff, OP32, N("nop") },
-	{ -1, -1, 0x00000000, 0x20000000, OP32, T(m) },
-	{ -1, -1, 0x20000000, 0x20000000, OP32, T(p), T(m) },
+	{ 0x34000043, 0x3c0000ff, OP32, N("nop") },
+	{ 0x00000000, 0x20000000, OP32, T(m) },
+	{ 0x20000000, 0x20000000, OP32, T(p), T(m) },
 
-	{ -1, -1, 0, 0, OOPS },
+	{ 0, 0, OOPS },
 };
 
 static struct disisa vp3m_isa_s = {

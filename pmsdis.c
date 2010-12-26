@@ -59,13 +59,13 @@ static struct matches *atomst32 APROTO {
 }
 
 static struct insn tabm[] = {
-	{ -1, -1, 0x40, 0xff, OP24, N("addr"), ADDR16 },
-	{ -1, -1, 0x42, 0xff, OP24, N("data"), DATA16 },
-	{ -1, -1, 0x5f, 0xff, OP24, U("5f") },
-	{ -1, -1, 0xe0, 0xff, OP40, N("addr"), ADDR32 },
-	{ -1, -1, 0xe2, 0xff, OP40, N("data"), DATA32 },
-	{ -1, -1, 0x7f, 0xff, OP8, N("exit") },
-	{ -1, -1, 0, 0, OP8, OOPS },
+	{ 0x40, 0xff, OP24, N("addr"), ADDR16 },
+	{ 0x42, 0xff, OP24, N("data"), DATA16 },
+	{ 0x5f, 0xff, OP24, U("5f") },
+	{ 0xe0, 0xff, OP40, N("addr"), ADDR32 },
+	{ 0xe2, 0xff, OP40, N("data"), DATA32 },
+	{ 0x7f, 0xff, OP8, N("exit") },
+	{ 0, 0, OP8, OOPS },
 };
 
 static struct disisa pms_isa_s = {

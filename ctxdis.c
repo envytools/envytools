@@ -187,74 +187,74 @@ F1(p6, 6, N("a6"))
 F1(p7, 7, N("a7"))
 
 static struct insn tabarea[] = {
-	{ -1,       -1, 0, 0, T(p0), T(p1), T(p2), T(p3), T(p4), T(p5), T(p6), T(p7) },
+	{ 0, 0, T(p0), T(p1), T(p2), T(p3), T(p4), T(p5), T(p6), T(p7) },
 };
 
 
 static struct insn tabrpred[] = {
-	{ -1,       -1, 0x00, 0x7f, N("dir") }, // the direction flag
-	{ CTX_NV50, -1, 0x4a, 0x7f, N("newctxdone") },	// newctx CMD finished with loading new address... or something like that, it seems to be turned back off *very shortly* after the newctx CMD. only check it with a wait right after newctx. weird.
-	{ CTX_NV50, -1, 0x4b, 0x7f, N("xferbusy") },	// RAMIN xfer in progress
-	{ CTX_NV50, -1, 0x4c, 0x7f, N("delaydone") },
-	{ CTX_NV50, -1, 0x4d, 0x7f },	// always
-	{ CTX_NV50, -1, 0x60, 0x60, N("unit"), UNIT }, // if given unit present
-	{ CTX_NV40, -1, 0x68, 0x7f },	// always
-	{ -1,       -1, 0x00, 0x00, N("flag"), FLAG },
+	{ 0x00, 0x7f, N("dir") }, // the direction flag
+	{ 0x4a, 0x7f, N("newctxdone"), .vartype = CTX_NV50 },	// newctx CMD finished with loading new address... or something like that, it seems to be turned back off *very shortly* after the newctx CMD. only check it with a wait right after newctx. weird.
+	{ 0x4b, 0x7f, N("xferbusy"), .vartype = CTX_NV50 },	// RAMIN xfer in progress
+	{ 0x4c, 0x7f, N("delaydone"), .vartype = CTX_NV50 },
+	{ 0x4d, 0x7f, .vartype = CTX_NV50 },	// always
+	{ 0x60, 0x60, N("unit"), UNIT, .vartype = CTX_NV50 }, // if given unit present
+	{ 0x68, 0x7f, .vartype = CTX_NV40 },	// always
+	{ 0x00, 0x00, N("flag"), FLAG },
 };
 
 static struct insn tabpred[] = {
-	{ -1,       -1, 0x80, 0x80, N("not"), T(rpred) },
-	{ -1,       -1, 0x00, 0x80, T(rpred) },
-	{ -1,       -1, 0, 0, OOPS },
+	{ 0x80, 0x80, N("not"), T(rpred) },
+	{ 0x00, 0x80, T(rpred) },
+	{ 0, 0, OOPS },
 };
 
 static struct insn tabcmd5[] = {
-	{ CTX_NV50, -1, 0x04, 0x1f, C("NEWCTX") },		// fetches grctx DMA object from channel object in 784
-	{ CTX_NV50, -1, 0x05, 0x1f, C("NEXT_TO_SWAP") },	// copies 330 [new channel] to 784 [channel used for ctx RAM access]
-	{ CTX_NV50, -1, 0x06, 0x1f, C("SET_CONTEXT_POINTER") },	// copies scratch to 334
-	{ CTX_NV50, -1, 0x07, 0x1f, C("SET_XFER_POINTER") },	// copies scratch to 33c, anding it with 0xffff8
-	{ CTX_NV50, -1, 0x08, 0x1f, C("DELAY") },		// sleeps scratch cycles, then briefly lights up delaydone
-	{ CTX_NV50, -1, 0x09, 0x1f, C("ENABLE") },		// resets 0x40 to 0
-	{ CTX_NV50, -1, 0x0c, 0x1f, C("END") },			// halts program execution, resets PC to 0
-	{ CTX_NV50, -1, 0x0d, 0x1f, C("NEXT_TO_CURRENT") },	// movs new channel RAMIN address to current channel RAMIN address, basically where the real switch happens
-	{ -1,       -1, 0, 0, CMD },
+	{ 0x04, 0x1f, C("NEWCTX"), .vartype = CTX_NV50 },		// fetches grctx DMA object from channel object in 784
+	{ 0x05, 0x1f, C("NEXT_TO_SWAP"), .vartype = CTX_NV50 },	// copies 330 [new channel] to 784 [channel used for ctx RAM access]
+	{ 0x06, 0x1f, C("SET_CONTEXT_POINTER"), .vartype = CTX_NV50 },	// copies scratch to 334
+	{ 0x07, 0x1f, C("SET_XFER_POINTER"), .vartype = CTX_NV50 },	// copies scratch to 33c, anding it with 0xffff8
+	{ 0x08, 0x1f, C("DELAY"), .vartype = CTX_NV50 },		// sleeps scratch cycles, then briefly lights up delaydone
+	{ 0x09, 0x1f, C("ENABLE"), .vartype = CTX_NV50 },		// resets 0x40 to 0
+	{ 0x0c, 0x1f, C("END"), .vartype = CTX_NV50 },			// halts program execution, resets PC to 0
+	{ 0x0d, 0x1f, C("NEXT_TO_CURRENT"), .vartype = CTX_NV50 },	// movs new channel RAMIN address to current channel RAMIN address, basically where the real switch happens
+	{ 0, 0, CMD },
 };
 
 static struct insn tabcmd4[] = {
-	{ CTX_NV40, -1, 0x07, 0x1f, C("NEXT_TO_SWAP") },	// copies 330 [new channel] to 784 [channel used for ctx RAM access]
-	{ CTX_NV40, -1, 0x09, 0x1f, C("NEXT_TO_CURRENT") },	// movs new channel RAMIN address to current channel RAMIN address, basically where the real switch happens
-	{ CTX_NV40, -1, 0x0a, 0x1f, C("SET_CONTEXT_POINTER") },	// copies scratch to 334
-	{ CTX_NV40, -1, 0x0e, 0x1f, C("END") },
-	{ -1,       -1, 0, 0, CMD },
+	{ 0x07, 0x1f, C("NEXT_TO_SWAP"), .vartype = CTX_NV40 },	// copies 330 [new channel] to 784 [channel used for ctx RAM access]
+	{ 0x09, 0x1f, C("NEXT_TO_CURRENT"), .vartype = CTX_NV40 },	// movs new channel RAMIN address to current channel RAMIN address, basically where the real switch happens
+	{ 0x0a, 0x1f, C("SET_CONTEXT_POINTER"), .vartype = CTX_NV40 },	// copies scratch to 334
+	{ 0x0e, 0x1f, C("END"), .vartype = CTX_NV40 },
+	{ 0, 0, CMD },
 };
 
 static struct insn tabm[] = {
-	{ CTX_NV50, -1, 0x100000, 0xff0000, N("ctx"), PGRAPH5, SR },
-	{ CTX_NV50, -1, 0x100000, 0xf00000, N("ctx"), PGRAPH5, GSIZE5 },
-	{ CTX_NV40, -1, 0x100000, 0xffc000, N("ctx"), PGRAPH4, SR },
-	{ CTX_NV40, -1, 0x100000, 0xf00000, N("ctx"), PGRAPH4, GSIZE4 },
-	{ -1,       -1, 0x200000, 0xf00000, N("lsr"), IMM },			// moves 20-bit immediate to scratch reg
-	{ -1,       -1, 0x300000, 0xf00000, N("lsr2"), IMM },			// moves 20-bit immediate to 338
-	{ -1,       -1, 0x400000, 0xfc0000, N("jmp"), T(pred), BTARG },		// jumps if condition true
-	{ CTX_NV50, -1, 0x440000, 0xfc0000, N("call"), T(pred), CTARG },	// calls if condition true, NVAx only
-	{ CTX_NV50, -1, 0x480000, 0xfc0000, N("ret"), T(pred) },		// rets if condition true, NVAx only
-	{ -1,       -1, 0x500000, 0xf00000, N("waitfor"), T(pred) },		// waits until condition true.
-	{ CTX_NV50, -1, 0x600000, 0xf00000, N("cmd"), T(cmd5) },		// runs a CMD.
-	{ CTX_NV40, -1, 0x600000, 0xf00000, N("cmd"), T(cmd4) },		// runs a CMD.
-	{ -1,       -1, 0x700000, 0xf00080, N("clear"), T(rpred) },		// clears given flag
-	{ -1,       -1, 0x700080, 0xf00080, N("set"), T(rpred) },		// sets given flag
-	{ CTX_NV50, -1, 0x800000, 0xf80000, N("xfer1"), T(area) },
-	{ CTX_NV50, -1, 0x880000, 0xf80000, N("xfer2"), T(area) },
-	{ CTX_NV50, -1, 0x900000, 0x9f0000, N("disable"), DIS0 },		// ors 0x40 with given immediate.
-	{ CTX_NV50, -1, 0x910000, 0x9f0000, N("disable"), DIS1 },
-	{ CTX_NV50, -1, 0xa00000, 0xf00000, N("fl3"), PGRAPH5 },		// movs given PGRAPH register to 0x400830.
-	{ CTX_NV50, -1, 0xc00000, 0xf80000, N("seek1"), T(area), SEEKP },
-	{ CTX_NV50, -1, 0xc80000, 0xf80000, N("seek2"), T(area), SEEKP },
-	{ -1,       -1, 0, 0, OOPS },
+	{ 0x100000, 0xff0000, N("ctx"), PGRAPH5, SR, .vartype = CTX_NV50 },
+	{ 0x100000, 0xf00000, N("ctx"), PGRAPH5, GSIZE5, .vartype = CTX_NV50 },
+	{ 0x100000, 0xffc000, N("ctx"), PGRAPH4, SR, .vartype = CTX_NV40 },
+	{ 0x100000, 0xf00000, N("ctx"), PGRAPH4, GSIZE4, .vartype = CTX_NV40 },
+	{ 0x200000, 0xf00000, N("lsr"), IMM },			// moves 20-bit immediate to scratch reg
+	{ 0x300000, 0xf00000, N("lsr2"), IMM },			// moves 20-bit immediate to 338
+	{ 0x400000, 0xfc0000, N("jmp"), T(pred), BTARG },		// jumps if condition true
+	{ 0x440000, 0xfc0000, N("call"), T(pred), CTARG, .vartype = CTX_NV50 },	// calls if condition true, NVAx only
+	{ 0x480000, 0xfc0000, N("ret"), T(pred), .vartype = CTX_NV50 },		// rets if condition true, NVAx only
+	{ 0x500000, 0xf00000, N("waitfor"), T(pred) },		// waits until condition true.
+	{ 0x600000, 0xf00000, N("cmd"), T(cmd5), .vartype = CTX_NV50 },		// runs a CMD.
+	{ 0x600000, 0xf00000, N("cmd"), T(cmd4), .vartype = CTX_NV40 },		// runs a CMD.
+	{ 0x700000, 0xf00080, N("clear"), T(rpred) },		// clears given flag
+	{ 0x700080, 0xf00080, N("set"), T(rpred) },		// sets given flag
+	{ 0x800000, 0xf80000, N("xfer1"), T(area), .vartype = CTX_NV50 },
+	{ 0x880000, 0xf80000, N("xfer2"), T(area), .vartype = CTX_NV50 },
+	{ 0x900000, 0x9f0000, N("disable"), DIS0, .vartype = CTX_NV50 },		// ors 0x40 with given immediate.
+	{ 0x910000, 0x9f0000, N("disable"), DIS1, .vartype = CTX_NV50 },
+	{ 0xa00000, 0xf00000, N("fl3"), PGRAPH5, .vartype = CTX_NV50 },		// movs given PGRAPH register to 0x400830.
+	{ 0xc00000, 0xf80000, N("seek1"), T(area), SEEKP, .vartype = CTX_NV50 },
+	{ 0xc80000, 0xf80000, N("seek2"), T(area), SEEKP, .vartype = CTX_NV50 },
+	{ 0, 0, OOPS },
 };
 
 static struct insn tabroot[] = {
-	{ -1,       -1, 0, 0, OP32, T(m) },
+	{ 0, 0, OP32, T(m) },
 };
 
 static struct disisa ctx_isa_s = {

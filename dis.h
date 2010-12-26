@@ -194,11 +194,11 @@ struct atom {
 };
 
 struct insn {
-	int vartype;
-	int ptype;
 	ull val;
 	ull mask;
 	struct atom atoms[16];
+	int vartype;
+	int ptype;
 };
 
 struct matches {
@@ -341,19 +341,19 @@ int setsbf (struct match *res, int pos, int len, ull num);
  */
 
 #define F(n, f, a, b) static struct insn tab ## n[] = {\
-	{ -1, -1, 0,		1ull<<(f), a },\
-	{ -1, -1, 1ull<<(f),	1ull<<(f), b },\
-	{ -1, -1, 0, 0, OOPS },\
+	{ 0,		1ull<<(f), a },\
+	{ 1ull<<(f),	1ull<<(f), b },\
+	{ 0, 0, OOPS },\
 };
 #define F1(n, f, b) static struct insn tab ## n[] = {\
-	{ -1, -1, 0,		1ull<<(f) },\
-	{ -1, -1, 1ull<<(f),	1ull<<(f), b },\
-	{ -1, -1, 0, 0, OOPS },\
+	{ 0,		1ull<<(f) },\
+	{ 1ull<<(f),	1ull<<(f), b },\
+	{ 0, 0, OOPS },\
 };
 #define F1V(n, v, f, b) static struct insn tab ## n[] = {\
-	{ v, -1, 0,		1ull<<(f) },\
-	{ v, -1, 1ull<<(f),	1ull<<(f), b },\
-	{ -1, -1, 0, 0 },\
+	{ 0,		1ull<<(f), .vartype = v },\
+	{ 1ull<<(f),	1ull<<(f), b, .vartype = v },\
+	{ 0, 0 },\
 };
 
 #define T(x) atomtab, tab ## x
