@@ -66,7 +66,7 @@ struct matches *emptymatches() {
 
 struct matches *alwaysmatches(int lpos) {
 	struct matches *res = calloc(sizeof *res, 1);
-	struct match m = { 0, 0, 0, lpos };
+	struct match m = { .lpos = lpos };
 	RNN_ADDARRAY(res->m, m);
 	return res;
 }
@@ -150,7 +150,7 @@ struct matches *atomtab APROTO {
 		int i;
 		for (i = 0; ; i++) {
 			if ((!tab[i].vartype || tab[i].vartype & ctx->vartype) && (!tab[i].ptype || tab[i].ptype & ctx->ptype)) {
-				struct match sm = { 0, tab[i].val, tab[i].mask, spos };
+				struct match sm = { 0, .a = {tab[i].val}, .m = {tab[i].mask}, .lpos = spos };
 				struct matches *subm = tabdesc(ctx, sm, tab[i].atoms); 
 				if (subm)
 					res = catmatches(res, subm);
