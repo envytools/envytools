@@ -83,6 +83,7 @@
 
 <enum name="NV20_VERTEX_ATTR">
 	<value value="0" name="POS"/>
+	<value value="1" name="WEIGHT"/>
 	<value value="2" name="NORMAL"/>
 	<value value="3" name="COLOR0"/>
 	<value value="4" name="COLOR1"/>
