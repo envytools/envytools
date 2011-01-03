@@ -175,7 +175,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x0310" name="QUERY_ADDRESS_HIGH"/>
 		<reg32 offset="0x0314" name="QUERY_ADDRESS_LOW"/>
-		<reg32 offset="0x0318" name="QUERY_COUNTER"/>
+		<reg32 offset="0x0318" name="QUERY_SEQUENCE"/>
 		<reg32 offset="0x031c" name="QUERY_GET">
 			<bitfield name="UNK1" high="8" low="0" />
 			<bitfield name="INTR" pos="9" type="boolean" />

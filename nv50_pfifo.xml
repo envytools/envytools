@@ -391,7 +391,7 @@
 
 			<reg32 offset="0x200" name="QUERY_ADDRESS_HIGH" variants="NV84-"/>
 			<reg32 offset="0x204" name="QUERY_ADDRESS_LOW" variants="NV84-"/>
-			<reg32 offset="0x208" name="QUERY_COUNTER" variants="NV84-"/>
+			<reg32 offset="0x208" name="QUERY_SEQUENCE" variants="NV84-"/>
 			<reg32 offset="0x20c" name="CACHE_INST" variants="NV84-">
 				<bitfield high="29" low="0" name="ADDRESS" shr="10"/>
 				<bitfield high="31" low="30" name="TARGET" type="nv50_mem_target"/> <!-- XXX: guess -->

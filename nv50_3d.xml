@@ -1210,7 +1210,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1b00" name="QUERY_ADDRESS_HIGH"/>
 		<reg32 offset="0x1b04" name="QUERY_ADDRESS_LOW"/>
-		<reg32 offset="0x1b08" name="QUERY_COUNTER"/>
+		<reg32 offset="0x1b08" name="QUERY_SEQUENCE"/>
 		<reg32 offset="0x1b0c" name="QUERY_GET"/> <!-- 0x1000f010: usual fence, 0x0100f002: sample count query, 0x05805002: transform feedback query, 0x06805002: generated primitives query, 0x00005002: unknown -->
 		<reg32 offset="0x1b3c" name="VP_RESULT_MAP_ALT" length="32" variants="NVA3_3D">
 			<bitfield name="0" high="7" low="0" type="int"/>
