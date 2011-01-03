@@ -223,8 +223,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0db8" name="UNK0DB8" type="boolean">
 			<doc>Nothing seems to happen.</doc>
 		</reg32>
-		<reg32 offset="0x0dbc" name="UNK0DBC">
-			<doc>Nothing seems to happen.</doc>
+		<reg32 offset="0x0dbc" name="ZCULL_UNK0DBC">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield low="16" high="17" name="UNK16"/>
 		</reg32>
 		<reg32 offset="0x0dc0" name="POLYGON_OFFSET_POINT_ENABLE" type="boolean"/>
 		<reg32 offset="0x0dc4" name="POLYGON_OFFSET_LINE_ENABLE" type="boolean"/>
@@ -235,11 +236,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0dd0" name="VTX_ATTR_MASK_UNK0DD0" length="2">
 			<doc>A mask of something for vertex attrs. Most likely.</doc>
 		</reg32>
-		<reg32 offset="0x0dd8" name="UNK0DD8">
-			<doc>Doesn't seem to do anything. More bitfields?</doc>
+		<reg32 offset="0x0dd8" name="ZCULL_UNK0DD8">
 			<bitfield low="0" high="2" name="UNK0"/>
-			<bitfield low="8" high="9" name="UNK1"/>
-			<bitfield pos="16" name="UNK2"/>
+			<bitfield pos="9" name="UNK9" variants="NVA3_3D-"/>
+			<bitfield low="16" high="31" name="UNK16"/>
 		</reg32>
 		<reg32 offset="0x0ddc" name="UNK0DDC">
 			<doc>0-2, causes something to happen in vfetch.</doc>
@@ -722,9 +722,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1514" name="SAMPLECNT_ENABLE"/>
 		<reg32 offset="0x1518" name="POINT_SIZE" type="float"/>
-		<reg32 offset="0x151c" name="UNK151C" type="boolean">
-			<doc>Goes to 2cxx.</doc>
-		</reg32>
+		<reg32 offset="0x151c" name="ZCULL_STATCTRS_ENABLE"/>
 		<reg32 offset="0x1520" name="POINT_SPRITE_ENABLE" type="boolean"/>
 		<!-- XXX: 1528??? -->
 		<reg32 offset="0x152c" name="UNK152C" variants="NVA0_3D-">
@@ -777,8 +775,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="UNK2" high="23" low="8"/>
 			<bitfield name="UNK3" high="31" low="24"/>
 		</reg32>
-		<reg32 offset="0x1590" name="UNK1590">
-			<doc>0-0x3f, default 0x3f, goes to ROP and 2cxx.</doc>
+		<reg32 offset="0x1590" name="ZCULL_REGION">
+			<doc>0x3f means none.</doc>
 		</reg32>
 		<reg32 offset="0x1594" name="STENCIL_BACK_ENABLE" type="boolean"/>
 		<reg32 offset="0x1598" name="STENCIL_BACK_OP_FAIL" type="gl_stencil_op"/>
@@ -1076,14 +1074,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="1" name="OUTSIDE_ALL"/>
 			<value value="2" name="NEVER"/> <!-- sounds useless... and doesn't make sense. -->
 		</reg32>
-		<reg32 offset="0x1954" name="UNK1954">
-			<doc>Doesn't seem to do anything...</doc>
-			<bitfield pos="0" name="0"/>
-			<bitfield pos="4" name="1"/>
+		<reg32 offset="0x1954" name="ZCULL_VALIDATE">
+			<bitfield pos="0" name="CLEAR_UNK0"/>
+			<bitfield pos="4" name="CLEAR_UNK1"/>
 		</reg32>
-		<reg32 offset="0x1958" name="UNK1958">
-			<doc>Accepts only 0. wtf?</doc>
-		</reg32>
+		<reg32 offset="0x1958" name="ZCULL_INVALIDATE"/>
 		<reg32 offset="0x1960" name="UNK1960" variants="NVA3_3D-">
 			<doc>Goes to ropm. 0x11 by default.</doc>
 			<bitfield pos="0" name="0"/>
