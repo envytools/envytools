@@ -191,9 +191,18 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0d64" name="UNK0D64">
 			<doc>Goes to ROP, 0x04e3bfdf by default</doc>
 		</reg32>
-		<reg32 offset="0x0d68" name="UNK0D68">
-			<doc>Goes to vfetch, strmout, 14xx, 10xx, TP. Up to 0x3ff
-			on NV50, up to 0x7ff on NV84+. Maxed out by default.</doc>
+		<reg32 offset="0x0d68" name="COUNTER_ENABLE">
+				<bitfield pos="0x0" name="UNK00"/>
+				<bitfield pos="0x1" name="UNK01"/>
+				<bitfield pos="0x2" name="UNK02"/>
+				<bitfield pos="0x3" name="UNK03"/>
+				<bitfield pos="0x4" name="UNK04"/>
+				<bitfield pos="0x5" name="TRANSFORM_FEEDBACK"/>
+				<bitfield pos="0x6" name="GENERATED_PRIMITIVES"/>
+				<bitfield pos="0x7" name="UNK07"/>
+				<bitfield pos="0x8" name="UNK08"/>
+				<bitfield pos="0x9" name="UNK09"/>
+				<bitfield pos="0xa" name="UNK0A" variants="NV84_3D-"/>
 		</reg32>
 		<reg32 offset="0x0d6c" name="UNK0D6C" type="xy16" length="2">
 			<doc>Goes to 1cxx, 2cxx.</doc>
@@ -1211,7 +1220,110 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1b00" name="QUERY_ADDRESS_HIGH"/>
 		<reg32 offset="0x1b04" name="QUERY_ADDRESS_LOW"/>
 		<reg32 offset="0x1b08" name="QUERY_SEQUENCE"/>
-		<reg32 offset="0x1b0c" name="QUERY_GET"/> <!-- 0x1000f010: usual fence, 0x0100f002: sample count query, 0x05805002: transform feedback query, 0x06805002: generated primitives query, 0x00005002: unknown -->
+		<reg32 offset="0x1b0c" name="QUERY_GET">
+			<bitfield low="0" high="1" name="MODE">
+				<doc>UNK2 is supported by everything; SYNC only by QUERY/ZERO;
+				     UNK0 only by QUERY/ZERO, COUNTER/TRANSFORM_FEEDBACK,
+				     COUNTER/GENERATED_PRIMITIVES, QUERY/UNK02, and COUNTER/UNK0A
+				     [but that only if UNIT != ZCULL]. NFI what's the difference
+				     between UNK0 and UNK2.
+				 </doc>
+				<value value="0" name="WRITE_UNK0"/>
+				<value value="1" name="SYNC"/>
+				<value value="2" name="WRITE_UNK2"/>
+			</bitfield>
+			<bitfield pos="4" name="UNK4"/> <!-- used by NV for fences... -->
+			<bitfield pos="8" name="UNK8"/>
+			<bitfield low="12" high="15" name="UNIT">
+				<value value="0x0" name="STRMOUT_UNK00"/>
+				<value value="0x1" name="STRMOUT_VFETCH"/>
+				<value value="0x2" name="STRMOUT_UNK02"/>
+				<value value="0x4" name="CROP_UNK04"/>
+				<value value="0x5" name="STRMOUT_STRMOUT"/>
+				<value value="0x6" name="STRMOUT_UNK06"/>
+				<value value="0x7" name="ZROP_ZCULL"/>
+				<value value="0xa" name="CROP_UNK0A"/>
+				<value value="0xc" name="CROP_UNK0C"/>
+				<value value="0xf" name="CROP_CROP"/>
+			</bitfield>
+			<bitfield pos="16" name="SYNC_COND">
+				<value value="0" name="NEQUAL"/>
+				<value value="1" name="GREATER"/> <!-- SYNC if QUERY_COUNTER > memory -->
+			</bitfield>
+			<bitfield pos="20" name="INTR"/>
+			<bitfield pos="23" name="TYPE">
+				<!-- names don't make much sense. best I could come up with. -->
+				<value value="0" name="QUERY">
+					<doc>Writes QUERY_ID at word 0, queried value at word 1.</doc>
+				</value>
+				<value value="1" name="COUNTER">
+					<doc>Writes queried counter at word 0, zero at word 1.</doc>
+				</value>
+			</bitfield>
+			<!-- if TYPE is QUERY -->
+			<bitfield low="24" high="27" name="QUERY_SELECT">
+				<value value="0" name="ZERO">
+					<doc>Works with any UNIT.</doc>
+				</value>
+				<value value="1" name="SAMPLECTR">
+					<doc>Works with UNIT=CROP_CROP.</doc>
+				</value>
+				<value value="2" name="UNK02">
+					<doc>Works with UNIT=STRMOUT_STRMOUT.</doc>
+				</value>
+				<value value="5" name="ZCULL_STAT_UNK0">
+					<doc>Works with UNIT=ZROP_ZCULL.</doc>
+				</value>
+				<value value="6" name="ZCULL_STAT_UNK1">
+					<doc>Works with UNIT=ZROP_ZCULL.</doc>
+				</value>
+				<value value="7" name="ZCULL_STAT_UNK2">
+					<doc>Works with UNIT=ZROP_ZCULL.</doc>
+				</value>
+				<value value="8" name="ZCULL_STAT_UNK3">
+					<doc>Works with UNIT=ZROP_ZCULL.</doc>
+				</value>
+			</bitfield>
+			<!-- if TYPE is COUNTER -->
+			<bitfield low="24" high="27" name="COUNTER_SELECT">
+				<value value="0x0" name="UNK00">
+					<doc>Works with UNIT=STRMOUT_VFETCH.</doc>
+				</value>
+				<value value="0x1" name="UNK01">
+					<doc>Works with UNIT=STRMOUT_VFETCH.</doc>
+				</value>
+				<value value="0x2" name="UNK02">
+					<doc>Works with UNIT=STRMOUT_UNK02.</doc>
+				</value>
+				<value value="0x3" name="UNK03">
+					<doc>Works with UNIT=STRMOUT_UNK06.</doc>
+				</value>
+				<value value="0x4" name="UNK04">
+					<doc>Works with UNIT=STRMOUT_UNK06.</doc>
+				</value>
+				<value value="0x5" name="TRANSFORM_FEEDBACK">
+					<doc>Works with UNIT=STRMOUT_STRMOUT.</doc>
+				</value>
+				<value value="0x6" name="GENERATED_PRIMITIVES">
+					<doc>Works with UNIT=STRMOUT_STRMOUT.</doc>
+				</value>
+				<value value="0x7" name="UNK07">
+					<doc>Works with UNIT=CROP_UNK04.</doc>
+				</value>
+				<value value="0x8" name="UNK08">
+					<doc>Works with UNIT=CROP_UNK04.</doc>
+				</value>
+				<value value="0x9" name="UNK09">
+					<doc>Works with UNIT=CROP_UNK0A.</doc>
+				</value>
+				<value value="0xa" name="UNK0A" variants="NV84_3D-">
+					<doc>Works with any UNIT.</doc>
+				</value>
+			</bitfield>
+			<bitfield pos="28" name="SHORT">
+				<doc>If set, writes only the first word. Only supported by QUERY/ZERO and COUNTER/UNK0A.</doc>
+			</bitfield>
+		</reg32>
 		<reg32 offset="0x1b3c" name="VP_RESULT_MAP_ALT" length="32" variants="NVA3_3D">
 			<bitfield name="0" high="7" low="0" type="int"/>
 			<bitfield name="1" high="15" low="8" type="int"/>

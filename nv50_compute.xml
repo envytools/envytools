@@ -177,9 +177,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0314" name="QUERY_ADDRESS_LOW"/>
 		<reg32 offset="0x0318" name="QUERY_SEQUENCE"/>
 		<reg32 offset="0x031c" name="QUERY_GET">
-			<bitfield name="UNK1" high="8" low="0" />
-			<bitfield name="INTR" pos="9" type="boolean" />
-			<bitfield name="UNK2" high="15" low="10" />
+			<doc>Corresponds to 3d's QUERY/ZERO, with UNK4 flag set.</doc>
+			<bitfield name="INTR" pos="9"/>
+			<bitfield name="SHORT" pos="15"/>
 		</reg32>
 		<reg32 offset="0x0320" name="COND_ADDRESS_HIGH"/>
 		<reg32 offset="0x0324" name="COND_ADDRESS_LOW"/>
