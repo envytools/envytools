@@ -192,17 +192,17 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Goes to ROP, 0x04e3bfdf by default</doc>
 		</reg32>
 		<reg32 offset="0x0d68" name="COUNTER_ENABLE">
-				<bitfield pos="0x0" name="UNK00"/>
-				<bitfield pos="0x1" name="UNK01"/>
-				<bitfield pos="0x2" name="UNK02"/>
-				<bitfield pos="0x3" name="UNK03"/>
-				<bitfield pos="0x4" name="UNK04"/>
-				<bitfield pos="0x5" name="TRANSFORM_FEEDBACK"/>
-				<bitfield pos="0x6" name="GENERATED_PRIMITIVES"/>
-				<bitfield pos="0x7" name="UNK07"/>
-				<bitfield pos="0x8" name="UNK08"/>
-				<bitfield pos="0x9" name="UNK09"/>
-				<bitfield pos="0xa" name="UNK0A" variants="NV84_3D-"/>
+			<bitfield pos="0x0" name="VFETCH_VERTICES"/>
+			<bitfield pos="0x1" name="VFETCH_PRIMITIVES"/>
+			<bitfield pos="0x2" name="VP_LAUNCHES"/>
+			<bitfield pos="0x3" name="GP_LAUNCHES"/>
+			<bitfield pos="0x4" name="GP_PRIMITIVES_OUT"/>
+			<bitfield pos="0x5" name="TRANSFORM_FEEDBACK"/>
+			<bitfield pos="0x6" name="GENERATED_PRIMITIVES"/>
+			<bitfield pos="0x7" name="RAST_PRIMITIVES_PRECLIP"/>
+			<bitfield pos="0x8" name="RAST_PRIMITIVES_POSTCLIP"/>
+			<bitfield pos="0x9" name="FP_PIXELS"/>
+			<bitfield pos="0xa" name="UNK0A" variants="NV84_3D-"/>
 		</reg32>
 		<reg32 offset="0x0d6c" name="UNK0D6C" type="xy16" length="2">
 			<doc>Goes to 1cxx, 2cxx.</doc>
@@ -745,16 +745,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="1" name="SAMPLECNT"/>
 			<value value="2" name="ZCULL_STATS"/>
 			<value value="8" name="UNK08"/>
-			<value value="0x10" name="UNK10"/>
-			<value value="0x11" name="UNK11"/>
-			<value value="0x12" name="UNK12"/>
-			<value value="0x13" name="UNK13"/>
-			<value value="0x15" name="UNK15"/>
-			<value value="0x1a" name="UNK1A"/>
-			<value value="0x1b" name="UNK1B"/>
-			<value value="0x1c" name="UNK1C"/>
-			<value value="0x1d" name="UNK1D"/>
-			<value value="0x1e" name="UNK1E"/>
+			<value value="0x10" name="TRANSFORM_FEEDBACK"/>
+			<value value="0x11" name="GENERATED_PRIMITIVES"/>
+			<value value="0x12" name="VFETCH_VERTICES"/>
+			<value value="0x13" name="VFETCH_PRIMITIVES"/>
+			<value value="0x15" name="VP_LAUNCHES"/>
+			<value value="0x1a" name="GP_LAUNCHES"/>
+			<value value="0x1b" name="GP_PRIMITIVES_OUT"/>
+			<value value="0x1c" name="RAST_PRIMITIVES_PRECLIP"/>
+			<value value="0x1d" name="RAST_PRIMITIVES_POSTCLIP"/>
+			<value value="0x1e" name="FP_PIXELS"/>
 		</reg32>
 		<reg32 offset="0x1534" name="MULTISAMPLE_ENABLE" type="boolean">
 			<brief>Enables multisample rasterization modes.</brief>
@@ -1243,6 +1243,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="2" name="WRITE_UNK2"/>
 			</bitfield>
 			<bitfield pos="4" name="UNK4"/> <!-- used by NV for fences... -->
+			<bitfield low="5" high="7" name="UNK5" variants="NVA0_3D-"/>
 			<bitfield pos="8" name="UNK8"/>
 			<bitfield low="12" high="15" name="UNIT">
 				<value value="0x0" name="STRMOUT_UNK00"/>
@@ -1296,20 +1297,20 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</bitfield>
 			<!-- if TYPE is COUNTER -->
 			<bitfield low="24" high="27" name="COUNTER_SELECT">
-				<value value="0x0" name="UNK00">
+				<value value="0x0" name="VFETCH_VERTICES">
 					<doc>Works with UNIT=STRMOUT_VFETCH.</doc>
 				</value>
-				<value value="0x1" name="UNK01">
+				<value value="0x1" name="VFETCH_PRIMITIVES">
 					<doc>Works with UNIT=STRMOUT_VFETCH.</doc>
 				</value>
-				<value value="0x2" name="UNK02">
-					<doc>Works with UNIT=STRMOUT_UNK02.</doc>
+				<value value="0x2" name="VP_LAUNCHES">
+					<doc>Works with UNIT=STRMOUT_UNK02.</doc> <!-- VFETCH -->
 				</value>
-				<value value="0x3" name="UNK03">
-					<doc>Works with UNIT=STRMOUT_UNK06.</doc>
+				<value value="0x3" name="GP_LAUNCHES">
+					<doc>Works with UNIT=STRMOUT_UNK06.</doc> <!-- VFETCH -->
 				</value>
-				<value value="0x4" name="UNK04">
-					<doc>Works with UNIT=STRMOUT_UNK06.</doc>
+				<value value="0x4" name="GP_PRIMITIVES_OUT">
+					<doc>Works with UNIT=STRMOUT_UNK06.</doc> <!-- 10xx/GSCHED -->
 				</value>
 				<value value="0x5" name="TRANSFORM_FEEDBACK">
 					<doc>Works with UNIT=STRMOUT_STRMOUT.</doc>
@@ -1317,17 +1318,17 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="0x6" name="GENERATED_PRIMITIVES">
 					<doc>Works with UNIT=STRMOUT_STRMOUT.</doc>
 				</value>
-				<value value="0x7" name="UNK07">
-					<doc>Works with UNIT=CROP_UNK04.</doc>
+				<value value="0x7" name="RAST_PRIMITIVES_PRECLIP">
+					<doc>Works with UNIT=CROP_UNK04.</doc> <!-- 14xx -->
 				</value>
-				<value value="0x8" name="UNK08">
-					<doc>Works with UNIT=CROP_UNK04.</doc>
+				<value value="0x8" name="RAST_PRIMITIVES_POSTCLIP">
+					<doc>Works with UNIT=CROP_UNK04.</doc> <!-- 14xx -->
 				</value>
-				<value value="0x9" name="UNK09">
-					<doc>Works with UNIT=CROP_UNK0A.</doc>
+				<value value="0x9" name="FP_PIXELS">
+					<doc>Works with UNIT=CROP_UNK0A.</doc> <!-- TPROP -->
 				</value>
 				<value value="0xa" name="UNK0A" variants="NV84_3D-">
-					<doc>Works with any UNIT.</doc>
+					<doc>Works with UNIT=CROP_CROP.</doc>
 				</value>
 			</bitfield>
 			<bitfield pos="28" name="SHORT">
