@@ -127,6 +127,24 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x0d40" name="CLIPID_REGION_HORIZ" type="xw16" length="4" stride="8"/>
 		<reg32 offset="0x0d44" name="CLIPID_REGION_VERT" type="yh16" length="4" stride="8"/>
+		<reg32 offset="0x0d68" name="COUNTER_ENABLE">
+			<bitfield pos="0x0" name="UNK00"/>
+			<bitfield pos="0x1" name="UNK01"/>
+			<bitfield pos="0x2" name="UNK02"/>
+			<bitfield pos="0x3" name="UNK03"/>
+			<bitfield pos="0x4" name="UNK04"/>
+			<bitfield pos="0x5" name="EMITTED_PRIMITIVES"/><!-- not tested -->
+			<bitfield pos="0x6" name="UNK06"/><!-- different GENERATED_PRIMITIVES ? -->
+			<bitfield pos="0x7" name="UNK07"/>
+			<bitfield pos="0x8" name="UNK08"/>
+			<bitfield pos="0x9" name="UNK09"/>
+			<bitfield pos="0xa" name="GENERATED_PRIMITIVES"/><!-- for query 09005002 -->
+			<bitfield pos="0xb" name="UNK0B"/>
+			<bitfield pos="0xc" name="UNK0C"/>
+			<bitfield pos="0xd" name="UNK0D"/>
+			<bitfield pos="0xe" name="UNK0E"/>
+			<bitfield pos="0xf" name="UNK0F"/>
+		</reg32>
 		<reg32 offset="0x0d74" name="VERTEX_BUFFER_FIRST"/>
 		<reg32 offset="0x0d78" name="VERTEX_BUFFER_COUNT"/>
 		<reg32 offset="0x0d80" name="CLEAR_COLOR" length="4" type="float"/>
@@ -304,10 +322,28 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1514" name="SAMPLECNT_ENABLE"/>
 		<reg32 offset="0x1518" name="POINT_SIZE" type="float"/>
 		<reg32 offset="0x1520" name="POINT_SPRITE_ENABLE" type="boolean"/>
-		<reg32 offset="0x1530" name="SAMPLECNT_RESET">
-			<doc>Poke 1 to reset. appears to also accept 2, 0x10, 0x11,
-			0x12, 0x13, 0x15, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, but doesn't
-			work then. resets other things too?</doc>
+		<reg32 offset="0x1530" name="COUNTER_RESET">
+			<value value="0x01" name="SAMPLECNT"/>
+			<value value="0x02" name="UNK02"/>
+			<value value="0x03" name="UNK03"/>
+			<value value="0x04" name="UNK04"/>
+			<!-- gap -->
+			<value value="0x10" name="EMITTED_PRIMITIVES"/><!-- not tested -->
+			<value value="0x11" name="UNK11"/><!-- different GENERATED_PRIMITIVES ? -->
+			<value value="0x12" name="UNK12"/>
+			<value value="0x13" name="UNK13"/>
+			<!-- gap -->
+			<value value="0x15" name="UNK15"/>
+			<value value="0x16" name="UNK16"/>
+			<value value="0x17" name="UNK17"/>
+			<value value="0x18" name="UNK18"/>
+			<!-- gap -->
+			<value value="0x1a" name="UNK1A"/>
+			<value value="0x1b" name="UNK1B"/>
+			<value value="0x1c" name="UNK1C"/>
+			<value value="0x1d" name="UNK1D"/>
+			<value value="0x1e" name="UNK1E"/>
+			<value value="0x1f" name="GENERATED_PRIMITIVES"/><!-- for query 09005002 -->
 		</reg32>
 		<reg32 offset="0x1534" name="MULTISAMPLE_ZETA_ENABLE" type="boolean"/>
 		<reg32 offset="0x1538" name="ZETA_ENABLE" type="boolean"/>
@@ -495,11 +531,28 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1b04" name="QUERY_ADDRESS_LOW"/>
 		<reg32 offset="0x1b08" name="QUERY_SEQUENCE"/>
 		<reg32 offset="0x1b0c" name="QUERY_GET">
-			<value value="0x1000f010" name="FENCE"/>
-			<value value="0x0100f002" name="SAMPLE_COUNT"/>
-			<value value="0x05805002" name="TFB"/>
-			<value value="0x06805002" name="GENERATED_PRIMS"/>
-			<value value="0x00005002" name="UNK00005002"/>
+			<bitfield low="0" high="1" name="MODE">
+				<value value="0" name="WRITE_UNK0"/>
+				<value value="1" name="SYNC"/>
+				<value value="2" name="WRITE_UNK2"/>
+			</bitfield>
+			<bitfield pos="4" name="FENCE"/><!-- ? -->
+			<bitfield low="5" high="7" name="STREAM" type="int"/><!-- not sure about bit 7 -->
+			<bitfield pos="8" name="UNK8"/>
+			<bitfield low="12" high="15" name="UNIT"/>
+			<bitfield pos="16" name="SYNC_COND">
+				<value value="0" name="NEQUAL"/>
+				<value value="1" name="GREATER"/>
+			</bitfield>
+			<bitfield pos="20" name="INTR" type="boolean"/>
+			<bitfield pos="21" name="UNK21"/>
+			<bitfield low="23" high="27" name="SELECT">
+				<value value="0x00" name="ZERO"/>
+				<value value="0x02" name="SAMPLECNT"/><!-- u32 sequence, u32 result, u64 time -->
+				<value value="0x0b" name="EMITTED_PRIMS"/>
+				<value value="0x12" name="GENERATED_PRIMS"/><!-- u64 result, u64 time -->
+			</bitfield>
+			<bitfield pos="28" name="SHORT"/><!-- only write result (at offset 0) -->
 		</reg32>
 		<reg32 offset="0x1c00" name="VERTEX_ARRAY_FETCH" length="32" stride="16">
 			<bitfield name="STRIDE" high="11" low="0" type="int"/>
