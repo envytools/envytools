@@ -225,7 +225,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0da4" name="STRMOUT_PARAMS_LATCH">
 			<doc>Needed after changing strmout params. Probably resets some state too.</doc>
 		</reg32>
-		<reg32 offset="0x0da8" name="STRMOUT_PRIMITIVE_COUNT" type="int"/>
+		<reg32 offset="0x0da8" name="STRMOUT_PRIMITIVE_LIMIT" type="int"/>
 		<reg32 offset="0x0dac" name="POLYGON_MODE_FRONT" type="gl_polygon_mode"/>
 		<reg32 offset="0x0db0" name="POLYGON_MODE_BACK" type="gl_polygon_mode"/>
 		<reg32 offset="0x0db4" name="POLYGON_SMOOTH_ENABLE" type="boolean"/>
@@ -483,7 +483,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1238" name="UNK1238">
 			<doc>Accepts 0-0x3fffff, causes CCACHE_TRAP. Same as turing UNK03CC.</doc>
 		</reg32>
-		<reg32 offset="0x123c" name="DELAY3" variants="NVA0_3D-"/>
+		<reg32 offset="0x123c" name="DRAW_TFB_BYTES" variants="NVA0_3D-">
+			<doc>Draws VB vertices 0..(DRAW_TFB_BYTES-DRAW_TFB_BASE)/DRAW_TFB_STRIDE - 1.</doc>
+		</reg32>
 		<reg32 offset="0x1240" name="RT_HORIZ" length="8" stride="8">
 			<bitfield low="0" high="27" name="WIDTH"/>
 			<bitfield pos="31" name="LINEAR">
@@ -513,7 +515,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1294" name="STRMOUT_BUFFERS_CTRL">
 			<bitfield name="INTERLEAVED" pos="0" type="boolean"/>
-			<bitfield name="UNK1" pos="1" type="boolean" variants="NVA0_3D-"/>
+			<bitfield name="LIMIT_MODE" pos="1" variants="NVA0_3D-">
+				<value value="0" name="PRIMITIVES"/>
+				<value value="1" name="OFFSET"/>
+			</bitfield>
 			<bitfield name="SEPARATE" high="7" low="4" type="uint"/>
 			<bitfield name="STRIDE" high="19" low="8" type="uint" max="0x800"/>
 		</reg32>
@@ -587,9 +592,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x130c" name="DEPTH_TEST_FUNC" type="gl_comparison_op"/>
 		<reg32 offset="0x1310" name="ALPHA_TEST_REF" type="float"/>
 		<reg32 offset="0x1314" name="ALPHA_TEST_FUNC" type="gl_comparison_op"/>
-		<reg32 offset="0x1318" name="UNK1318" min="1" max="0xfff" variants="NVA0_3D-">
-			<doc>Goes to vfetch. 1 by default.</doc>
-		</reg32>
+		<reg32 offset="0x1318" name="DRAW_TFB_STRIDE" min="1" max="0xfff" variants="NVA0_3D-"/>
 		<reg32 offset="0x131c" name="BLEND_COLOR" length="4" type="float"/>
 		<reg32 offset="0x132c" name="UNK132C">
 			<doc>Accepts 0-f. Same as turing UNK02F0</doc>
@@ -635,9 +638,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x13a0" name="UNK13A0">
 			<doc>0-2, goes to 84xx</doc>
 		</reg32>
-		<reg32 offset="0x13a4" name="UNK13A4" variants="NVA0_3D-">
-			<doc>Goes to vfetch.</doc>
-		</reg32>
+		<reg32 offset="0x13a4" name="DRAW_TFB_BASE" variants="NVA0_3D-"/>
 		<reg32 offset="0x13a8" name="FRAG_COLOR_CLAMP_EN">
 			<bitfield pos="0" name="0"/>
 			<bitfield pos="4" name="1"/>
@@ -1008,7 +1009,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="3" high="31" low="24" type="int"/>
 		</reg32>
 		<reg32 offset="0x1700" name="POLYGON_STIPPLE_PATTERN" length="32"/>
-		<reg32 offset="0x1780" name="STRMOUT_UNK1780" length="4" variants="NVA0_3D-"/>
+		<reg32 offset="0x1780" name="STRMOUT_OFFSET" length="4" variants="NVA0_3D-">
+			<doc>Position in a buffer, in bytes. Write result of corresponding QUERY to resume a paused transform feedback.</doc>
+		</reg32>
 		<reg32 offset="0x1798" name="GP_ENABLE" type="boolean"/>
 		<reg32 offset="0x17a0" name="GP_REG_ALLOC_TEMP" type="int"/>
 		<reg32 offset="0x17a8" name="GP_REG_ALLOC_RESULT" type="int"/>
@@ -1019,7 +1022,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="3" name="TRIANGLE_STRIP"/>
 		</reg32>
 		<reg32 offset="0x17b4" name="RASTERIZE_ENABLE" type="boolean"/>
-		<reg32 offset="0x17b8" name="STRMOUT_ENABLE" type="boolean"/> <!-- check me -->
+		<reg32 offset="0x17b8" name="STRMOUT_ENABLE" type="boolean"/>
 		<reg32 offset="0x17fc" name="GP_RESULT_MAP" length="33">
 			<bitfield name="0" high="7" low="0" type="int"/>
 			<bitfield name="1" high="15" low="8" type="int"/>
@@ -1208,7 +1211,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1a80" name="STRMOUT_ADDRESS_HIGH" length="4" stride="16"/>
 		<reg32 offset="0x1a84" name="STRMOUT_ADDRESS_LOW" length="4" stride="16"/>
 		<reg32 offset="0x1a88" name="STRMOUT_NUM_ATTRIBS" length="4" stride="16" type="uint" max="0x40"/>
-		<reg32 offset="0x1a8c" name="STRMOUT_UNK1A8C" length="4" stride="16" variants="NVA0_3D-"/>
+		<reg32 offset="0x1a8c" name="STRMOUT_OFFSET_LIMIT" length="4" stride="16" variants="NVA0_3D-"/>
 		<reg32 offset="0x1ac0" name="VERTEX_ARRAY_ATTRIB" length="16">
 			<bitfield name="BUFFER" high="3" low="0" type="int"/>
 			<bitfield name="CONST" pos="4" type="boolean"/><!-- use latest VTX_ATTR_* -->
@@ -1243,7 +1246,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="2" name="WRITE_UNK2"/>
 			</bitfield>
 			<bitfield pos="4" name="UNK4"/> <!-- used by NV for fences... -->
-			<bitfield low="5" high="7" name="UNK5" variants="NVA0_3D-"/>
+			<bitfield low="5" high="7" name="INDEX" variants="NVA0_3D-"/>
 			<bitfield pos="8" name="UNK8"/>
 			<bitfield low="12" high="15" name="UNIT">
 				<value value="0x0" name="STRMOUT_UNK00"/>
@@ -1293,6 +1296,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				</value>
 				<value value="8" name="ZCULL_STAT_UNK3">
 					<doc>Works with UNIT=ZROP_ZCULL.</doc>
+				</value>
+				<value value="0xd" name="STRMOUT_OFFSET" variants="NVA0_3D-">
+					<doc>UNIT=STRMOUT. Indexed by STRMOUT buffer id.</doc>
 				</value>
 			</bitfield>
 			<!-- if TYPE is COUNTER -->

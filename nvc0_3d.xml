@@ -208,6 +208,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="UNK" pos="16" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x1234" name="LINKED_TSC" type="boolean"/>
+		<reg32 offset="0x123c" name="DRAW_TFB_BYTES"/>
 		<reg32 offset="0x1298" name="FP_RESULT_COUNT" type="int"/>
 		<reg32 offset="0x12cc" name="DEPTH_TEST_ENABLE" type="boolean"/>
 		<reg32 offset="0x12d0" name="D3D_FILL_MODE">
@@ -237,6 +238,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x130c" name="DEPTH_TEST_FUNC" type="gl_comparison_op"/>
 		<reg32 offset="0x1310" name="ALPHA_TEST_REF" type="float"/>
 		<reg32 offset="0x1314" name="ALPHA_TEST_FUNC" type="gl_comparison_op"/>
+		<reg32 offset="0x1318" name="DRAW_TFB_STRIDE" min="1" max="0xfff"/>
 		<reg32 offset="0x131c" name="BLEND_COLOR" length="4" type="float"/>
 		<reg32 offset="0x1330" name="TSC_FLUSH">
 			<bitfield pos="0" name="SPECIFIC"/>
@@ -267,6 +269,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1394" name="STENCIL_FRONT_FUNC_REF"/>
 		<reg32 offset="0x1398" name="STENCIL_FRONT_MASK"/>
 		<reg32 offset="0x139c" name="STENCIL_FRONT_FUNC_MASK"/>
+		<reg32 offset="0x13a4" name="DRAW_TFB_BASE"/>
 		<reg32 offset="0x13a8" name="FRAG_COLOR_CLAMP_EN">
 			<bitfield pos="0" name="0"/>
 			<bitfield pos="4" name="1"/>
