@@ -1283,10 +1283,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="2" name="STRMOUT_NO_OVERFLOW">
 					<doc>UNIT=STRMOUT. 1 if generated primitives fit in available space, 0 if not.</doc>
 				</value>
-				<value value="3" name="STRMOUT_OVERFLOW" variants="NVA0_3D-">
-					<doc>UNIT=STRMOUT. 0 if generated primitives fit
-				       	in available space, 1 if not. Word 0 and word 1
-				       	are *reversed* here: the flag goes to word 0,
+				<value value="3" name="STRMOUT_DROPPED_PRIMITIVES" variants="NVA0_3D-">
+					<doc>UNIT=STRMOUT. Returns COUNTER_GENERATED_PRIMITIVES - 
+					COUNTER_TRANSFORM_FEEDBACK. Word 0 and word 1
+				       	are *reversed* here: the result goes to word 0,
 				       	SEQUENCE goes to word 1.</doc>
 				</value>
 				<value value="4" name="STRMOUT_VERTICES" variants="NVA0_3D-">
