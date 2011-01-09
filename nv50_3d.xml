@@ -745,7 +745,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1530" name="COUNTER_RESET">
 			<value value="1" name="SAMPLECNT"/>
 			<value value="2" name="ZCULL_STATS"/>
-			<value value="8" name="UNK08"/>
+			<value value="8" name="STRMOUT_VERTICES" variants="NVA0_3D-"/>
 			<value value="0x10" name="TRANSFORM_FEEDBACK"/>
 			<value value="0x11" name="GENERATED_PRIMITIVES"/>
 			<value value="0x12" name="VFETCH_VERTICES"/>
@@ -1236,10 +1236,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1b0c" name="QUERY_GET">
 			<bitfield low="0" high="1" name="MODE">
 				<doc>UNK2 is supported by everything; SYNC only by QUERY/ZERO;
-				     UNK0 only by QUERY/ZERO, COUNTER/TRANSFORM_FEEDBACK,
-				     COUNTER/GENERATED_PRIMITIVES, QUERY/UNK02, and COUNTER/UNK0A
-				     [but that only if UNIT != ZCULL]. NFI what's the difference
-				     between UNK0 and UNK2.
+				     UNK0 only by QUERY/ZERO [unless UNIT is ZCULL], COUNTER/TRANSFORM_FEEDBACK,
+				     COUNTER/GENERATED_PRIMITIVES, QUERY/STRMOUT_NO_OVERFLOW, QUERY/UNK03, QUERY/UNK04, QUERY/UNK0D. NFI what's the difference between UNK0 and UNK2.
 				 </doc>
 				<value value="0" name="WRITE_UNK0"/>
 				<value value="1" name="SYNC"/>
@@ -1249,16 +1247,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield low="5" high="7" name="INDEX" variants="NVA0_3D-"/>
 			<bitfield pos="8" name="UNK8"/>
 			<bitfield low="12" high="15" name="UNIT">
-				<value value="0x0" name="STRMOUT_UNK00"/>
-				<value value="0x1" name="STRMOUT_VFETCH"/>
-				<value value="0x2" name="STRMOUT_UNK02"/>
-				<value value="0x4" name="CROP_UNK04"/>
-				<value value="0x5" name="STRMOUT_STRMOUT"/>
-				<value value="0x6" name="STRMOUT_UNK06"/>
-				<value value="0x7" name="ZROP_ZCULL"/>
-				<value value="0xa" name="CROP_UNK0A"/>
-				<value value="0xc" name="CROP_UNK0C"/>
-				<value value="0xf" name="CROP_CROP"/>
+				<value value="0x0" name="UNK00"/> <!-- STRMOUT -->
+				<value value="0x1" name="VFETCH"/> <!-- STRMOUT -->
+				<value value="0x2" name="VP"/> <!-- STRMOUT -->
+				<value value="0x4" name="RAST"/> <!-- CROP -->
+				<value value="0x5" name="STRMOUT"/> <!-- STRMOUT -->
+				<value value="0x6" name="GP"/> <!-- STRMOUT -->
+				<value value="0x7" name="ZCULL"/> <!-- ZROP -->
+				<value value="0xa" name="TPROP"/> <!-- CROP -->
+				<value value="0xc" name="UNK0C"/> <!-- CROP -->
+				<value value="0xf" name="CROP"/> <!-- CROP -->
 			</bitfield>
 			<bitfield pos="16" name="SYNC_COND">
 				<value value="0" name="NEQUAL"/>
@@ -1277,25 +1275,37 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<!-- if TYPE is QUERY -->
 			<bitfield low="24" high="27" name="QUERY_SELECT">
 				<value value="0" name="ZERO">
-					<doc>Works with any UNIT.</doc>
+					<doc>Any UNIT.</doc>
 				</value>
 				<value value="1" name="SAMPLECNT">
-					<doc>Works with UNIT=CROP_CROP.</doc>
+					<doc>UNIT=CROP.</doc>
 				</value>
-				<value value="2" name="UNK02">
-					<doc>Works with UNIT=STRMOUT_STRMOUT.</doc>
+				<value value="2" name="STRMOUT_NO_OVERFLOW">
+					<doc>UNIT=STRMOUT. 1 if generated primitives fit in available space, 0 if not.</doc>
+				</value>
+				<value value="3" name="STRMOUT_OVERFLOW" variants="NVA0_3D-">
+					<doc>UNIT=STRMOUT. 0 if generated primitives fit
+				       	in available space, 1 if not. Word 0 and word 1
+				       	are *reversed* here: the flag goes to word 0,
+				       	SEQUENCE goes to word 1.</doc>
+				</value>
+				<value value="4" name="STRMOUT_VERTICES" variants="NVA0_3D-">
+					<doc>UNIT=STRMOUT.</doc>
 				</value>
 				<value value="5" name="ZCULL_STAT_UNK0">
-					<doc>Works with UNIT=ZROP_ZCULL.</doc>
+					<doc>UNIT=ZCULL.</doc>
 				</value>
 				<value value="6" name="ZCULL_STAT_UNK1">
-					<doc>Works with UNIT=ZROP_ZCULL.</doc>
+					<doc>UNIT=ZCULL.</doc>
 				</value>
 				<value value="7" name="ZCULL_STAT_UNK2">
-					<doc>Works with UNIT=ZROP_ZCULL.</doc>
+					<doc>UNIT=ZCULL.</doc>
 				</value>
 				<value value="8" name="ZCULL_STAT_UNK3">
-					<doc>Works with UNIT=ZROP_ZCULL.</doc>
+					<doc>UNIT=ZCULL.</doc>
+				</value>
+				<value value="0xc" name="RT_UNK14" variants="NVA0_3D-">
+					<doc>UNIT=CROP. Indexed by RT id.</doc>
 				</value>
 				<value value="0xd" name="STRMOUT_OFFSET" variants="NVA0_3D-">
 					<doc>UNIT=STRMOUT. Indexed by STRMOUT buffer id.</doc>
@@ -1304,41 +1314,44 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<!-- if TYPE is COUNTER -->
 			<bitfield low="24" high="27" name="COUNTER_SELECT">
 				<value value="0x0" name="VFETCH_VERTICES">
-					<doc>Works with UNIT=STRMOUT_VFETCH.</doc>
+					<doc>UNIT=VFETCH.</doc>
 				</value>
 				<value value="0x1" name="VFETCH_PRIMITIVES">
-					<doc>Works with UNIT=STRMOUT_VFETCH.</doc>
+					<doc>UNIT=VFETCH.</doc>
 				</value>
 				<value value="0x2" name="VP_LAUNCHES">
-					<doc>Works with UNIT=STRMOUT_UNK02.</doc> <!-- VFETCH -->
+					<doc>UNIT=VP.</doc> <!-- VFETCH -->
 				</value>
 				<value value="0x3" name="GP_LAUNCHES">
-					<doc>Works with UNIT=STRMOUT_UNK06.</doc> <!-- VFETCH -->
+					<doc>UNIT=GP.</doc> <!-- VFETCH -->
 				</value>
 				<value value="0x4" name="GP_PRIMITIVES_OUT">
-					<doc>Works with UNIT=STRMOUT_UNK06.</doc> <!-- 10xx/GSCHED -->
+					<doc>UNIT=GP.</doc> <!-- 10xx/GSCHED -->
 				</value>
 				<value value="0x5" name="TRANSFORM_FEEDBACK">
-					<doc>Works with UNIT=STRMOUT_STRMOUT.</doc>
+					<doc>UNIT=STRMOUT.</doc>
 				</value>
 				<value value="0x6" name="GENERATED_PRIMITIVES">
-					<doc>Works with UNIT=STRMOUT_STRMOUT.</doc>
+					<doc>UNIT=STRMOUT.</doc>
 				</value>
 				<value value="0x7" name="RAST_PRIMITIVES_PRECLIP">
-					<doc>Works with UNIT=CROP_UNK04.</doc> <!-- 14xx -->
+					<doc>UNIT=RAST.</doc> <!-- 14xx -->
 				</value>
 				<value value="0x8" name="RAST_PRIMITIVES_POSTCLIP">
-					<doc>Works with UNIT=CROP_UNK04.</doc> <!-- 14xx -->
+					<doc>UNIT=RAST.</doc> <!-- 14xx -->
 				</value>
 				<value value="0x9" name="FP_PIXELS">
-					<doc>Works with UNIT=CROP_UNK0A.</doc> <!-- TPROP -->
+					<doc>UNIT=TPROP.</doc> <!-- TPROP -->
 				</value>
 				<value value="0xa" name="UNK0A" variants="NV84_3D-">
-					<doc>Works with UNIT=CROP_CROP.</doc>
+					<doc>UNIT=CROP.</doc>
+				</value>
+				<value value="0xc" name="UNK0C" variants="NVA0_3D-">
+					<doc>UNIT=CROP.</doc>
 				</value>
 			</bitfield>
 			<bitfield pos="28" name="SHORT">
-				<doc>If set, writes only the first word. Only supported by QUERY/ZERO and COUNTER/UNK0A.</doc>
+				<doc>If set, writes only the first word. Only supported by QUERY/ZERO; QUERY/SAMPLE, QUERY/STRMOUT_PRED, QUERY/ZCULL*</doc>
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x1b3c" name="VP_RESULT_MAP_ALT" length="32" variants="NVA3_3D">
