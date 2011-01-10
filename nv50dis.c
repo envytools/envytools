@@ -644,8 +644,11 @@ static struct bitfield omem16_imm = { { 2, 7 }, .shr = 1 };
 static struct bitfield omem32_imm = { { 2, 7 }, .shr = 2 };
 static struct mem omem16_m = { "o", 0, 0, &omem16_imm };
 static struct mem omem32_m = { "o", 0, 0, &omem32_imm };
+static struct mem fomem32_m = { "o", 0, &lareg_r, &fmem32_imm };
 #define OUT16 atommem, &omem16_m
 #define OUT32 atommem, &omem32_m
+#define FOUT32 atommem, &fomem32_m
+
 static struct insn tabss[] = {
 	{ 0x01800000, 0x01800000, SPRIM, .ptype = GP },	// XXX check
 	{ 0x01000000, 0x03806000, N("u8"), SSHARED8, .ptype = CP },
@@ -1258,7 +1261,8 @@ static struct insn tabl[] = {
 		N("mov"), LDST, LAREG },
 	{ 0x6000000000000000ull, 0xe0000000f0000000ull,
 		N("mov"), LDST, SREG },
-
+	{ 0x80c0000000000000ull, 0xe0c00000f0000000ull,
+		N("st"), N("b32"), FOUT32, LSRC3 },
 	{ 0xa000000000000000ull, 0xe0000000f0000000ull,
 		N("mov"), CDST, LSRC, IGNCE },
 	{ 0xc000000000000000ull, 0xe0000000f0000000ull,
