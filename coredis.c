@@ -498,6 +498,20 @@ struct matches *atomreg APROTO {
 	RNN_ADDARRAY(ctx->atoms, expr);
 }
 
+struct matches *atomdiscard APROTO {
+	if (ctx->reverse) {
+		if (spos == ctx->line->atomsnum)
+			return 0;
+		if (ctx->line->atoms[spos]->type == EXPR_DISCARD) {
+			return alwaysmatches(spos+1);
+		} else {
+			return 0;
+		}
+	}
+	struct expr *expr = makeex(EXPR_DISCARD);
+	RNN_ADDARRAY(ctx->atoms, expr);
+}
+
 int addexpr (const struct expr **iex, const struct expr *expr, int flip) {
 	if (flip) {
 		if (!*iex)

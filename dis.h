@@ -387,6 +387,9 @@ struct matches *atomunk APROTO;
 #define OOPS atomunk, "???"
 struct matches *atomunk APROTO;
 
+#define DISCARD atomdiscard, 0
+struct matches *atomdiscard APROTO;
+
 struct matches *atomimm APROTO;
 struct matches *atomctarg APROTO;
 struct matches *atombtarg APROTO;
