@@ -649,7 +649,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="24" name="6"/>
 			<bitfield pos="28" name="7"/>
 		</reg32>
-		<reg32 offset="0x13ac" name="Y_ORIGIN_BOTTOM" type="boolean"/><!-- XXX: bit 4 does something else -->
+		<reg32 offset="0x13ac" name="SCREEN_Y_CONTROL">
+			<bitfield pos="0" name="Y_NEGATE">
+				<doc>Negates screen Y coord, needs positive WINDOW_OFFSET_Y to be useful.</doc>
+			</bitfield>
+			<bitfield pos="4" name="TRIANGLE_RAST_FLIP">
+				<doc>If false, sample is in triangle if on left edge or on top edge.
+				If true, sample is in triangle if on bottom edge or on top edge. Top
+				means "at lower FINAL x coord in RT [after Y_NEGATE]".</doc>
+			</bitfield>
+		</reg32>
 		<reg32 offset="0x13b0" name="LINE_WIDTH" type="float"/>
 		<reg32 offset="0x13b4" name="TEX_LIMITS" length="3">
 			<bitfield name="SAMPLERS_LOG2" high="3" low="0" type="uint" min="0" max="4"/>
@@ -933,9 +942,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="1" high="7" low="4" type="nv50_vic"/>
 			<bitfield name="0" high="3" low="0" type="nv50_vic"/>
 		</reg32>
-		<reg32 offset="0x1658" name="POINT_SMOOTH_ENABLE" type="boolean"/>
-		<reg32 offset="0x165c" name="UNK165C" type="boolean">
-			<doc>Goes to 8cxx, 1cxx. 1 by default.</doc>
+		<reg32 offset="0x1658" name="POINT_SMOOTH_ENABLE" type="boolean">
+			<doc>Only works when POINT_RASTER_RULES=OGL.</doc>
+		</reg32>
+		<reg32 offset="0x165c" name="POINT_RASTER_RULES">
+			<doc>Affects at least X coord mode and POINT_SMOOTH_ENABLE.</doc>
+			<value value="0" name="OGL"/>
+			<value value="1" name="D3D"/>
 		</reg32>
 		<reg32 offset="0x1660" name="POINT_SPRITE_CTRL">
 			<bitfield pos="4" name="COORD_ORIGIN">
@@ -947,8 +960,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="1" name="UNK1"/>
 			<bitfield pos="2" name="SEAMLESS_CUBE_MAP"/>
 		</reg32>
-		<reg32 offset="0x1668" name="UNK1668">
-			<doc>Goes to 8cxx, 1cxx. 0-2.</doc>
+		<reg32 offset="0x1668" name="LINE_SMOOTH_BLUR">
+			<!-- wtf? filtering strength or what... -->
+			<value value="0" name="LOW"/>
+			<value value="1" name="MEDIUM"/>
+			<value value="2" name="HIGH"/>
 		</reg32>
 		<reg32 offset="0x166c" name="LINE_STIPPLE_ENABLE" type="boolean"/>
 		<reg32 offset="0x1670" name="COVERAGE_LUT" length="4">
@@ -1080,8 +1096,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="7" name="UNK7"/>
 			<bitfield pos="10" name="UNK10"/> <!-- 1 by default -->
 			<bitfield pos="11" name="UNK11"/>
-			<bitfield pos="12" name="UNK12"/>
-			<bitfield pos="13" name="UNK13" variants="NV84_3D-"/>
+			<bitfield low="12" high="13" name="UNK12">
+				<value value="0" name="UNK0"/>
+				<value value="1" name="UNK1"/>
+				<value value="2" name="UNK2" variants="NV84_3D-"/>
+			</bitfield>
 		</reg32>
 		<reg32 offset="0x1940" name="UNK1940">
 			<doc>Goes to 14xx.</doc>
