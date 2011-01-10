@@ -717,8 +717,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1480" name="STRMOUT_MAP" length="32"/>
 		<reg32 offset="0x1504" name="CLIPID_HEIGHT" type="uint" max="0x2000"/>
-		<reg32 offset="0x1508" name="UNK1508" type="xy16" length="2">
-			<doc>Goes to clipid.</doc>
+		<reg32 offset="0x1508" name="CLIPID_FILL_RECT_HORIZ">
+			<bitfield low="0" high="15" name="LOW"/>
+			<bitfield low="16" high="31" name="HIGH"/>
+		</reg32>
+		<reg32 offset="0x150c" name="CLIPID_FILL_RECT_VERT">
+			<bitfield low="0" high="15" name="LOW"/>
+			<bitfield low="16" high="31" name="HIGH"/>
 		</reg32>
 		<reg32 offset="0x1510" name="VP_CLIP_DISTANCE_ENABLE">
 			<bitfield name="0" pos="0" type="boolean"/>
@@ -1154,8 +1159,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="RT" high="9" low="6" type="int"/>
 			<bitfield name="LAYER" high="20" low="10" type="int"/>
 		</reg32>
-		<reg32 offset="0x19d4" name="UNK19D4">
-			<doc>Nothing seems to happen...</doc>
+		<reg32 offset="0x19d4" name="CLIPID_FILL">
+			<doc>Writes param to CLIPID subrectangle specified by intersection of SCREEN_SCISSOR and CLIPID_FILL_RECT.</doc>
 		</reg32>
 		<reg32 offset="0x19d8" name="UNK19D8" length="2">
 			<doc>Accepts: 2-6, 8, a, c, e, 10. Goes to 14xx, translated
