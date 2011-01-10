@@ -359,7 +359,6 @@ static struct bitfield lsrc_bf = { 9, 7 };
 static struct bitfield ssrc2_bf = { 0x10, 6 };
 static struct bitfield lsrc2_bf = { 0x10, 7 };
 static struct bitfield lsrc3_bf = { 0x2e, 7 };
-static struct bitfield odst_bf = { 2, 7 };
 static struct bitfield sareg_bf = { 0x1a, 2 };
 static struct bitfield lareg_bf = { { 0x1a, 2, 0x22, 1 } };
 static struct bitfield adst_bf = { 2, 3 };
@@ -389,8 +388,6 @@ static struct reg ldsrc2_r = { &lsrc2_bf, "r", "d" };
 static struct reg lsrc3_r = { &lsrc3_bf, "r" };
 static struct reg lhsrc3_r = { &lsrc3_bf, "r", .hilo = 1 };
 static struct reg ldsrc3_r = { &lsrc3_bf, "r", "d" };
-static struct reg odst_r = { &odst_bf, "o", .specials = oreg_sr, .cool = 1 };
-static struct reg ohdst_r = { &odst_bf, "o", .specials = oreg_sr, .hilo = 1, .cool = 1 };
 static struct reg sareg_r = { &sareg_bf, "a", .specials = areg_sr, .cool = 1 }; // for mem operands only
 static struct reg lareg_r = { &lareg_bf, "a", .specials = areg_sr, .cool = 1 };
 static struct reg adst_r = { &adst_bf, "a", .specials = areg_sr, .cool = 1 };
@@ -420,8 +417,6 @@ static struct reg sreg_r = { &sreg_bf, "sr", .specials = sreg_sr, .always_specia
 #define LHSRC3 atomreg, &lhsrc3_r
 #define LDSRC3 atomreg, &ldsrc3_r
 #define LAREG atomreg, &lareg_r
-#define ODST atomreg, &odst_r
-#define OHDST atomreg, &ohdst_r
 #define ADST atomreg, &adst_r
 #define COND atomreg, &cond_r
 #define C0 atomreg, &c0_r
@@ -441,11 +436,6 @@ static struct vec stsrc_v = { "r", &sdst_bf, &tsrc_cnt, 0 };
 #define STDST atomvec, &stdst_v
 #define LTSRC atomvec, &ltsrc_v
 #define STSRC atomvec, &stsrc_v
-
-#define LLDST T(lldst)
-F(lldst, 0x23, LDST, ODST)
-#define LLHDST T(llhdst)
-F(llhdst, 0x23, LHDST, OHDST)
 
 #define MCDST T(mcdst)
 F1(mcdst, 0x26, CDST)
@@ -650,6 +640,12 @@ static struct mem global2_m = { "g", &global2_idx, &lsrc_r };
 #define GLOBAL atommem, &global_m
 #define GLOBAL2 atommem, &global2_m
 
+static struct bitfield omem16_imm = { { 2, 7 }, .shr = 1 };
+static struct bitfield omem32_imm = { { 2, 7 }, .shr = 2 };
+static struct mem omem16_m = { "o", 0, 0, &omem16_imm };
+static struct mem omem32_m = { "o", 0, 0, &omem32_imm };
+#define OUT16 atommem, &omem16_m
+#define OUT32 atommem, &omem32_m
 static struct insn tabss[] = {
 	{ 0x01800000, 0x01800000, SPRIM, .ptype = GP },	// XXX check
 	{ 0x01000000, 0x03806000, N("u8"), SSHARED8, .ptype = CP },
@@ -888,6 +884,22 @@ static struct insn tablc3w[] = {
 	{ 0x0000000001800000ull, 0x0000000001800000ull, LSRC3 },
 	{ 0, 0, OOPS },
 };
+
+struct insn tablldst[] = {
+	{ 0x0000000000000000ull, 0x0000000800000000ull, LDST },
+	{ 0x00000008000001fcull, 0x00000008000001fcull, DISCARD },
+	{ 0x0000000800000000ull, 0x0000000800000000ull, OUT32 },
+	{ 0, 0, OOPS },
+};
+#define LLDST T(lldst)
+
+struct insn tabllhdst[] = {
+	{ 0x0000000000000000ull, 0x0000000800000000ull, LHDST },
+	{ 0x00000008000001fcull, 0x00000008000001fcull, DISCARD },
+	{ 0x0000000800000000ull, 0x0000000800000000ull, OUT16 },
+	{ 0, 0, OOPS },
+};
+#define LLHDST T(llhdst)
 
 F(shcnt, 0x34, T(lc2w), SHCNT)
 F(hshcnt, 0x34, T(lc2h), SHCNT)
