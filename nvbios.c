@@ -10,6 +10,7 @@ uint32_t len;
 const uint8_t bit_signature[] = { 0xff, 0xb8, 'B', 'I', 'T' };
 const uint8_t bmp_signature[] = { 0xff, 0x7f, 'N', 'V', 0x0 };
 uint8_t major_version, minor_version, micro_version, chip_version;
+uint32_t card_codename = 0;
 uint32_t strap = 0;
 
 #define RNN_ADDARRAY(a, e) \
@@ -421,25 +422,29 @@ static void parse_bios_version(uint16_t offset)
 
 	major_version = bios[offset + 3];
 	chip_version = bios[offset + 2];
+	if(card_codename <= 0)
+		card_codename = chip_version;
 	minor_version = bios[offset + 1];
 	micro_version = bios[offset + 0];
 	printf("Bios version %02x.%02x.%02x.%02x\n\n",
 		 bios[offset + 3], bios[offset + 2],
 		 bios[offset + 1], bios[offset]);
+	printf("Card codename %02x\n\n",
+		 card_codename);
 }
 
-void find_strap(int argc, char **argv) {
+void find_strap(int argc, char **argv, int i) {
 	char* strap_s = NULL;
 	char tmp[21];
 	char* end_ptr;
 
-	if (argc > 2 && strncmp(argv[2], "0x", 2)==0) {
-		strap_s = argv[2];
+	if (argc > 2 && strncmp(argv[i], "0x", 2)==0) {
+		strap_s = argv[i];
 	} else {
 		FILE *strapfile = NULL;
 
 		if (argc > 2) {
-			strapfile = fopen(argv[2], "r");
+			strapfile = fopen(argv[i], "r");
 		} else {
 			char *path;
 			const char * strap_filename = "strap_peek";
@@ -478,14 +483,34 @@ void find_strap(int argc, char **argv) {
 	fprintf(stderr, "No strap specified!\n");
 }
 
+int usage(char* name) {
+	printf("Usage: %s mybios.rom [-c XX] [strap]\n",name);
+	printf("Options:\n");
+	printf("  -n XX : override card generation\n");
+	return 1;
+}
+
 int main(int argc, char **argv) {
+	int i;
 	if (argc < 2) {
-		printf("Usage: %s mybios.rom [strap]\n", argv[0]);
-		return 1;
+		return usage(argv[0]);
 	}
 
-	find_strap(argc, argv);
-	
+	if(argc > 2) {
+		for(i = 2; i < argc; i++) {
+			if(!strncmp(argv[i],"-c",2)) {
+				i++;
+				if(i < argc) {
+					sscanf(argv[i],"%2hx",&card_codename);
+				} else {
+					return usage(argv[0]);
+				}
+			} else {
+				find_strap(argc, argv, i);
+			}
+		}
+	}
+
 	FILE *biosfile = fopen(argv[1], "r");
 	if (!biosfile) {
 		printf("Cannot read the file '%s'\n", argv[1]);
@@ -1116,48 +1141,60 @@ int main(int argc, char **argv) {
 
 				/* XXX: I don't trust the -1's and +1's... they must come
 				*      from somewhere! */
-				if (chip_version < 0xc0) {
-					reg_100224 = ((tUNK_0 + tUNK_19 + 1) << 24 |
-							(tUNK_1 + tUNK_19 + 1) << 8);
+				if (card_codename < 0xc0) {
+					reg_100224 = ((tUNK_0 + tUNK_19 + 1) << 24
+								| (tUNK_1 + tUNK_19 + 1) << 8);
 				
-					if (chip_version == 0xa8) {
-							reg_100224 |= (tUNK_2 - 1);
+					if (card_codename == 0xa8) {
+						reg_100224 |= (tUNK_2 - 1);
 					} else {
-						reg_100224 |= tUNK_2;
+						reg_100224 |= tUNK_2 + 2;
 					}
 				}
 				reg_100224 += tUNK_18 << 16;
 
 				reg_100228 = ((tUNK_12 << 16) | tUNK_11 << 8 | tUNK_10);
-				if(header_length > 19 && chip_version > 0xa5) {
+				if(header_length > 19 && card_codename > 0xa5) {
 					reg_100228 += (tUNK_19 - 1) << 24;
-				} /* I can't back up this else clause in all cases
-				else {
-					timing->reg_100228 += tUNK_12 << 24;
-				}*/
-
-
-				/* XXX: reg_10022c */
-
-				reg_100230 = (tUNK_20 << 24 | tUNK_21 << 16 |
-							tUNK_13 << 8  | tUNK_13);
-
-				/* XXX: +6? */
-				reg_100234 = (tRAS << 24 | (tUNK_19 + 6) << 8 | tRC);
-				if(tUNK_10 > tUNK_11) {
-					reg_100234 += tUNK_10 << 16;
-				} else {
-					reg_100234 += tUNK_11 << 16;
 				}
 
-				/* XXX; reg_100238, reg_10023c */
-				/* XXX; reg_100238, reg_10023c
-				 * reg: 0x00??????
-				 * reg_10023c:
-				 * 	0 for pre-NV50 cards
-				 * 	0x????0202 for NV50+ cards (empirical evidence) */
-				if(chip_version >= 0x50) {
+				if(card_codename >= 0x50) {
+					/* XXX: reg_10022c */
+
+					reg_100230 = (tUNK_20 << 24 | tUNK_21 << 16 |
+								tUNK_13 << 8  | tUNK_13);
+
+					reg_100234 = (tRAS << 24 | tRC);
+					if(tUNK_10 > tUNK_11) {
+						reg_100234 += tUNK_10 << 16;
+					} else {
+						reg_100234 += tUNK_11 << 16;
+					}
+
+					if(card_codename < 0xa3) {
+						reg_100234 |= (tUNK_2 + 2) << 8;
+					} else {
+						/* XXX: +6? */
+						reg_100234 |= (tUNK_19 + 6) << 8;
+					}
+
+					/* XXX; reg_100238, reg_10023c */
+					/* XXX; reg_100238, reg_10023c
+					 * reg: 0x00??????
+					 * reg_10023c:
+					 * 	0 for pre-NV50 cards
+					 * 	0x????0202 for NV50+ cards (empirical evidence) */
 					reg_10023c = 0x202;
+					if(card_codename < 0xa3) {
+						reg_10023c |= 0x4000000 | (tUNK_2 - 1) << 16;
+					} else {
+						// currently unknown
+						// 10023c seen as 06xxxxxx, 0bxxxxxx or 0fxxxxxx
+					}
+				} else {
+					/* Don't know, don't care...
+					* don't touch the rest */
+					reg_100228 |= 0x20200000;
 				}
 
 				printf("Registers: 220: %08x %08x %08x %08x\n",
