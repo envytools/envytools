@@ -656,7 +656,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="4" name="TRIANGLE_RAST_FLIP">
 				<doc>If false, sample is in triangle if on left edge or on top edge.
 				If true, sample is in triangle if on bottom edge or on top edge. Top
-				means "at lower FINAL x coord in RT [after Y_NEGATE]".</doc>
+				means "at lower FINAL x coord in RT [after Y_NEGATE]".
+				This also affects face winding.</doc>
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x13b0" name="LINE_WIDTH" type="float"/>
