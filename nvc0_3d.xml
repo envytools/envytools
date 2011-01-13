@@ -73,11 +73,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x0c" name="BUFFER_SIZE" type="int"/>
 			<reg32 offset="0x10" name="PRIMITIVE_ID" type="int"/>
 		</stripe>
-		<stripe offset="0x0700" name="TFB" length="4" stride="16">
-			<reg32 offset="0x0" name="UNK0700" type="int"/>
-			<reg32 offset="0x4" name="VARYING_COUNT" type="int"/>
-			<reg32 offset="0x8" name="BUFFER_STRIDE" type="int"/>
-		</stripe>
+		<reg32 offset="0x0700" name="TFB_UNK07X0" length="4" stride="16"/>
+		<reg32 offset="0x0704" name="TFB_VARYING_COUNT" length="4" stride="16" type="uint"/>
+		<reg32 offset="0x0708" name="TFB_BUFFER_STRIDE" length="4" stride="16" type="int"/>
 		<reg32 offset="0x0744" name="TFB_ENABLE" type="boolean"/>
 		<reg32 offset="0x077c" name="LOCAL_BASE"/>
 		<reg32 offset="0x0790" name="LOCAL_ADDRESS_HIGH"/>
@@ -616,7 +614,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		  <bitfield name="INDEX" high="7" low="4" type="uint"/>
 		</reg32>
 		<reg32 offset="0x2600" name="VERT_COLOR_CLAMP_EN" type="boolean"/>
-		<reg32 offset="0x2800" name="TFB_VARYING_LOCS" length="128"/>
+		<stripe offset="0x2800" length="4" stride="0x80">
+			<reg32 name="TFB_VARYING_LOCS" length="32"/>
+		</stripe>
 		<reg32 offset="0x3820" name="VERTEX_ARRAY_SELECT" type="uint"/>
 		<reg32 offset="0x3858" name="BLEND_ENABLES"/>
 		<reg32 offset="0x3868" name="POLYGON_MODE_FRONT" type="gl_polygon_mode"/>
