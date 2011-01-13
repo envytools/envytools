@@ -618,10 +618,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x2600" name="VERT_COLOR_CLAMP_EN" type="boolean"/>
 		<reg32 offset="0x2800" name="TFB_VARYING_LOCS" length="128"/>
 		<reg32 offset="0x3820" name="VERTEX_ARRAY_SELECT" type="uint"/>
-		<reg32 offset="0x3824" name="VERTEX_ARRAY_LIMIT_HIGH"/>
-		<reg32 offset="0x3828" name="VERTEX_ARRAY_LIMIT_LOW"/>
-		<reg32 offset="0x382c" name="VERTEX_ARRAY_START_HIGH"/>
-		<reg32 offset="0x3830" name="VERTEX_ARRAY_START_LOW"/>
 		<reg32 offset="0x3858" name="BLEND_ENABLES"/>
 		<reg32 offset="0x3868" name="POLYGON_MODE_FRONT" type="gl_polygon_mode"/>
 		<reg32 offset="0x3870" name="POLYGON_MODE_BACK" type="gl_polygon_mode"/>
