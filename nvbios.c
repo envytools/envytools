@@ -433,60 +433,100 @@ static void parse_bios_version(uint16_t offset)
 		 card_codename);
 }
 
-void find_strap(int argc, char **argv, int i) {
-	char* strap_s = NULL;
+int set_strap_from_string(const char* strap_s)
+{
 	char tmp[21];
 	char* end_ptr;
-
-	if (argc > 2 && strncmp(argv[i], "0x", 2)==0) {
-		strap_s = argv[i];
-	} else {
-		FILE *strapfile = NULL;
-
-		if (argc > 2) {
-			strapfile = fopen(argv[i], "r");
-		} else {
-			char *path;
-			const char * strap_filename = "strap_peek";
-			const char *pos = strrchr(argv[1], '/');
-			if (pos == NULL)
-				pos = argv[1];
-			else
-				pos++;
-			int base_length = pos-argv[1];
-
-			path = (char*) malloc(base_length + strlen(strap_filename));
-			strncpy(path, argv[1], base_length);
-			strncpy(path+base_length, strap_filename, strlen(strap_filename));
-
-			strapfile = fopen(path, "r");
-
-			free(path);
-		}
-		
-		if (strapfile) {
-			fread(tmp, 1, 21, strapfile);
-			strap_s = tmp;
-		}
-	}
+	unsigned long int value;
 
 	if (strap_s != NULL) {
-		strap = strtoul(strap_s, &end_ptr, 16);
-		if (strap != ULONG_MAX) {
+		value = strtoul(strap_s, &end_ptr, 16);
+		if (value != ULONG_MAX) {
+			strap = value;
 			printf("Strap set to 0x%x\n", strap);
-			return;
+			return 0;
 		}
 
 		fprintf(stderr, "Invalid strap value!\n");
 	}
 
-	fprintf(stderr, "No strap specified!\n");
+	return 1;
+}
+
+int set_strap_from_file(const char *path)
+{
+	FILE *strapfile = NULL;
+	char tmp[21];
+
+	strapfile = fopen(path, "r");
+	if (strapfile) {
+		fread(tmp, 1, 21, strapfile);
+		return set_strap_from_string(tmp);
+	}
+
+	return 1;
+}
+
+void find_strap(int argc, char **argv) {
+	FILE *strapfile = NULL;
+	char tmp[21];
+
+	char *path;
+	const char * strap_filename = "strap_peek";
+	const char *pos = strrchr(argv[1], '/');
+	if (pos == NULL)
+		pos = argv[1];
+	else
+		pos++;
+	int base_length = pos-argv[1];
+
+	path = (char*) malloc(base_length + strlen(strap_filename)+1);
+	strncpy(path, argv[1], base_length);
+	strncpy(path+base_length, strap_filename, strlen(strap_filename));
+
+	if(!set_strap_from_file(path))
+		printf("Strap register found in '%s'\n", path);
+
+	free(path);
+}
+
+int parse_args(int argc, char **argv) {
+	char tmp[16];
+	int i;
+	
+	for(i = 2; i < argc; i++) {
+		if (!strncmp(argv[i],"-c",2)) {
+			i++;
+			if(i < argc) {
+				sscanf(argv[i],"%2hx",&card_codename);
+				printf("Card generation forced to nv%2hx\n", card_codename);
+			} else {
+				return usage(argv[0]);
+			}
+		} else if (!strncmp(argv[i],"-s",2)) {
+			i++;
+			if (i < argc) {
+				if (!strncmp(argv[i],"0x",2)) {
+					set_strap_from_string(argv[i]+2);
+				} else {
+					set_strap_from_file(argv[i]);
+				}
+			} else {
+				return usage(argv[0]);
+			}
+		} else {
+			fprintf(stderr, "Unknown parameter '%s'\n", argv[i]);
+		}
+	}
+
+	return 0;
 }
 
 int usage(char* name) {
-	printf("Usage: %s mybios.rom [-c XX] [strap]\n",name);
+	printf("Usage: %s mybios.rom [-n XX] [-s strap]\n",name);
 	printf("Options:\n");
 	printf("  -n XX : override card generation\n");
+	printf("  -s XX : set the trap register\n");
 	return 1;
 }
 
@@ -496,19 +536,12 @@ int main(int argc, char **argv) {
 		return usage(argv[0]);
 	}
 
-	if(argc > 2) {
-		for(i = 2; i < argc; i++) {
-			if(!strncmp(argv[i],"-c",2)) {
-				i++;
-				if(i < argc) {
-					sscanf(argv[i],"%2hx",&card_codename);
-				} else {
-					return usage(argv[0]);
-				}
-			} else {
-				find_strap(argc, argv, i);
-			}
-		}
+	parse_args(argc, argv);
+
+	if (strap == 0) {
+		find_strap(argc, argv);
+		if (strap == 0)
+			fprintf(stderr, "No strap specified!\n");
 	}
 
 	FILE *biosfile = fopen(argv[1], "r");
