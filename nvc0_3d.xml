@@ -439,7 +439,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="0x000d" name="TRIANGLE_STRIP_ADJACENCY"/>
 				<value value="0x000e" name="PATCHES"/>
 			</bitfield>
-			<bitfield name="INSTANCE_NEXT" pos="28" /> <!-- set bit for 2nd and higher instances -->
+			<bitfield name="INSTANCE_NEXT" pos="26">
+				<doc>If set, increment INSTANCE_ID (before processing new vertices).</doc>
+			</bitfield>
+			<bitfield name="INSTANCE_CONT" pos="27">
+				<doc>If set, keep current INSTANCE_ID, otherwise reset it to 0.
+				If set together with INSTANCE_NEXT, an INVALID_ENUM error is generated.
+				</doc>
+			</bitfield>
 		</reg32>
 		<reg32 offset="0x1640" name="VERTEX_DATA"/>
 		<reg32 offset="0x1644" name="PRIM_RESTART_ENABLE" type="boolean"/>
