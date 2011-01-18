@@ -209,11 +209,18 @@ int main(int argc, char **argv) {
 			printf ("%s", line);
 		} else if (!strncmp(line, "W ", 2) || !strncmp(line, "R ", 2)) {
 			int skip = 0;
+			static double timestamp, timestamp_old = 0;
 			uint64_t addr, value;
 			int width;
 			int cci;
-			sscanf (line, "%*s %d %*s %*d %"SCNx64" %"SCNx64, &width, &addr, &value);
+			sscanf (line, "%*s %d %lf %*d %"SCNx64" %"SCNx64, &width, &timestamp, &addr, &value);
 			width *= 8;
+
+			/* Add a SLEEP line when two mmio accesses are more distant than 100µs */
+			if (timestamp_old > 0 && (timestamp - timestamp_old) > 0.0001)
+				printf("SLEEP %lfms\n", (timestamp - timestamp_old)*1000.0);
+			timestamp_old = timestamp;
+			
 			for (cci = 0; cci < cctxnum; cci++) {
 				struct cctx *cc = &cctx[cci];
 				if (cc->bar0 && addr >= cc->bar0 && addr < cc->bar0+cc->bar0l) {
@@ -326,19 +333,19 @@ int main(int argc, char **argv) {
 					if (cc->arch >= 5 && addr >= 0x700000 && addr < 0x800000) {
 						addr -= 0x700000;
 						addr += cc->praminbase;
-						printf ("[%d] MEM%d %"PRIx64" %s %"PRIx64"\n", cci, width, addr, line[0]=='W'?"<=":"=>", value);
+						printf ("[%d] %lf, MEM%d %"PRIx64" %s %"PRIx64"\n", cci, timestamp, width, addr, line[0]=='W'?"<=":"=>", value);
 						*findmem(cc, addr) = value;
 					} else if (!skip) {
 						struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, mmiodom, addr, line[0] == 'W');
 						char *decoded_val = rnndec_decodeval(cc->ctx, ai->typeinfo, value, ai->width);
-						printf ("[%d] MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %s %s %s\n", cci, width, line[0], addr, value, ai->name, line[0]=='W'?"<=":"=>", decoded_val);
+						printf ("[%d] %lf MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %s %s %s\n", cci, timestamp, width, line[0], addr, value, ai->name, line[0]=='W'?"<=":"=>", decoded_val);
 						free(ai->name);
 						free(ai);
 						free(decoded_val);
 					}
 				} else if (cc->bar1 && addr >= cc->bar1 && addr < cc->bar1+cc->bar1l) {
 					addr -= cc->bar1;
-					printf ("[%d] FB%d %"PRIx64" %s %"PRIx64"\n", cci, width, addr, line[0]=='W'?"<=":"=>", value);
+					printf ("[%d] %lf, FB%d %"PRIx64" %s %"PRIx64"\n", cci, timestamp, width, addr, line[0]=='W'?"<=":"=>", value);
 				} else if (cc->bar2 && addr >= cc->bar2 && addr < cc->bar2+cc->bar2l) {
 					addr -= cc->bar2;
 					if (cc->arch >= 6) {
@@ -352,7 +359,7 @@ int main(int argc, char **argv) {
 						pg += (addr&0xfff);
 						*findmem(cc, pg) = value;
 	//					printf ("%"PRIx64" %"PRIx64" %"PRIx64" %"PRIx64"\n", ramins, pd, pt, pg);
-						printf ("[%d] RAMIN%d %"PRIx64" %"PRIx64" %s %"PRIx64"\n", cci, width, addr, pg, line[0]=='W'?"<=":"=>", value);
+						printf ("[%d] %lf RAMIN%d %"PRIx64" %"PRIx64" %s %"PRIx64"\n", cci, timestamp, width, addr, pg, line[0]=='W'?"<=":"=>", value);
 					} else if (cc->arch == 5) {
 						uint64_t paddr = addr;
 						paddr += *findmem(cc, cc->fakechan + cc->ramins + 8);
@@ -369,9 +376,9 @@ int main(int argc, char **argv) {
 						pg += (paddr & (div-1));
 						*findmem(cc, pg) = value;
 	//					printf ("%"PRIx64" %"PRIx64" %"PRIx64" %"PRIx64"\n", ramins, pd, pt, pg);
-						printf ("[%d] RAMIN%d %"PRIx64" %"PRIx64" %s %"PRIx64"\n", cci, width, addr, pg, line[0]=='W'?"<=":"=>", value);
+						printf ("[%d] %lf RAMIN%d %"PRIx64" %"PRIx64" %s %"PRIx64"\n", cci, timestamp, width, addr, pg, line[0]=='W'?"<=":"=>", value);
 					} else {
-						printf ("[%d] RAMIN%d %"PRIx64" %s %"PRIx64"\n", cci, width, addr, line[0]=='W'?"<=":"=>", value);
+						printf ("[%d] %lf RAMIN%d %"PRIx64" %s %"PRIx64"\n", cci, timestamp, width, addr, line[0]=='W'?"<=":"=>", value);
 					}
 				}
 			}
