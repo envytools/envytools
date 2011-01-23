@@ -412,8 +412,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x15f4" name="VERTEX_BASE_HIGH"/>
 		<reg32 offset="0x15f8" name="VERTEX_BASE_LOW"/>
-		<reg32 offset="0x1604" name="POINT_COORD_REPLACE"><!-- applies to v[0x2c0] and up -->
-			<bitfield name="BITS" high="12" low="0"/>
+		<reg32 offset="0x1604" name="POINT_COORD_REPLACE">
+			<bitfield pos="2" name="COORD_ORIGIN">
+				<value value="0" name="LOWER_LEFT"/>
+				<value value="1" name="UPPER_LEFT"/>
+			</bitfield>
+			<bitfield high="10" low="3" name="ENABLE"/><!-- applies to v[0x300] and up -->
 		</reg32>
 		<reg32 offset="0x1608" name="CODE_ADDRESS_HIGH"/>
 		<reg32 offset="0x160c" name="CODE_ADDRESS_LOW"/>
@@ -462,7 +466,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="0" name="OGL"/>
 			<value value="1" name="D3D"/>
 		</reg32>
-		<reg32 offset="0x1660" name="POINT_SPRITE_CTRL"/>
 		<reg32 offset="0x1664" name="TEX_MISC">
 		  <bitfield pos="2" name="SEAMLESS_CUBE_MAP" type="boolean"/>
 		</reg32>
