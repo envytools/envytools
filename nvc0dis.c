@@ -958,7 +958,8 @@ F1(brawarp, 0xf, N("allwarp")) // probably jumps if the whole warp has the predi
 
 static struct insn tabc[] = {
 	{ 0x40000000000001e7ull, 0xf0000000000001e7ull, T(brawarp), T(p), N("bra"), BTARG },
-	{ 0x5000000000010007ull, 0xf000000000010007ull, N("call"), CTARG },
+	{ 0x5000000000010007ull, 0xf000000000014007ull, N("call"), CTARG },
+	{ 0x5000000000014007ull, 0xf000000000014007ull, N("call"), N("pcrel"), CONST },
 	{ 0x6000000000000007ull, 0xf000000000000007ull, N("joinat"), BTARG },
 	{ 0x80000000000001e7ull, 0xf0000000000001e7ull, T(p), N("exit") },
 	{ 0x90000000000001e7ull, 0xf8000000000001e7ull, T(p), N("ret") },
