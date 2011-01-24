@@ -245,8 +245,8 @@ static struct insn tabm[] = {
 	{ 0x700080, 0xf00080, N("set"), T(rpred) },		// sets given flag
 	{ 0x800000, 0xf80000, N("xfer1"), T(area), .vartype = CTX_NV50 },
 	{ 0x880000, 0xf80000, N("xfer2"), T(area), .vartype = CTX_NV50 },
-	{ 0x900000, 0x9f0000, N("disable"), DIS0, .vartype = CTX_NV50 },		// ors 0x40 with given immediate.
-	{ 0x910000, 0x9f0000, N("disable"), DIS1, .vartype = CTX_NV50 },
+	{ 0x900000, 0xff0000, N("disable"), DIS0, .vartype = CTX_NV50 },		// ors 0x40 with given immediate.
+	{ 0x910000, 0xff0000, N("disable"), DIS1, .vartype = CTX_NV50 },
 	{ 0xa00000, 0xf00000, N("fl3"), PGRAPH5, .vartype = CTX_NV50 },		// movs given PGRAPH register to 0x400830.
 	{ 0xc00000, 0xf80000, N("seek1"), T(area), SEEKP, .vartype = CTX_NV50 },
 	{ 0xc80000, 0xf80000, N("seek2"), T(area), SEEKP, .vartype = CTX_NV50 },
