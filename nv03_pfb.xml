@@ -24,6 +24,7 @@
 	<value value="8" name="PPPP"/>
 	<value value="9" name="PBSP"/>
 	<value value="0xa" name="PCRYPT"/>
+	<value value="0xb" name="PCOUNTER"/>
 	<value value="0xd" name="PCOPY"/>
 	<value value="0xe" name="PDAEMON"/>
 </enum>
@@ -42,6 +43,7 @@
 	<value value="0x0c" name="PVP"/>
 	<value value="0x0d" name="PBSP"/>
 	<value value="0x0e" name="PCRYPT"/>
+	<value value="0x0f" name="PCOUNTER"/>
 	<value value="0x11" name="PDAEMON"/>
 </enum>
 
