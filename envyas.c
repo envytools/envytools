@@ -405,7 +405,7 @@ int main(int argc, char **argv) {
 		envyas_isa = ctx_isa;
 		envyas_ofmt = OFMT_HEX32;
 	}
-	if (!strcmp(argv[0], "fucas")) {
+	if (!strcmp(argv[0], "fucas") || !strcmp(argv[0], "fµcas")) {
 		envyas_isa = fuc_isa;
 	}
 	if (!strcmp(argv[0], "vp2as")) {
@@ -458,7 +458,7 @@ int main(int argc, char **argv) {
 					envyas_isa = nvc0_isa;
 				else if (!strcmp(optarg, "ctx"))
 					envyas_isa = ctx_isa;
-				else if (!strcmp(optarg, "fuc"))
+				else if (!strcmp(optarg, "fuc") || !strcmp(optarg, "fµc"))
 					envyas_isa = fuc_isa;
 				else if (!strcmp(optarg, "vp2"))
 					envyas_isa = vp2_isa;
