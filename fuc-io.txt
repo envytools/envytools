@@ -45,7 +45,6 @@ A reference list of addresses
 
 + means NVA3+ only register.
 S means secret register. [see fuc-crypt.txt]
-D means PDAEMON-only register.
 
 host/I[] address / name / file
 
@@ -100,7 +99,7 @@ Common registers:
 120/04800  XFER_STATUS		xfer status		[fuc-xfer.txt]
 124/04900S CX_STATUS		crypt xfer status	[fuc-crypt.txt]
 128/04a00+ ???			???
-12c/04b00+ ???			???
+12c/04b00+ UC_CAPS2		microprocessor caps	[fuc-ctrl.txt]
 140/05000+ CODE_CMD		code VM command		[fuc-vm.txt]
 144/05100+ CODE_CMD_RES		code VM command result	[fuc-vm.txt]
 180/06000+ CODE_INDEX		code access window addr	[fuc-vm.txt]
@@ -108,12 +107,20 @@ Common registers:
 188/06200+ CODE_VIRT_ADDR	code access virt addr	[fuc-vm.txt]
 1c0/07000+ DATA_INDEX[0]	data access window addr	[fuc-data.txt]
 1c4/07100+ DATA[0]		data access window	[fuc-data.txt]
-1c8/07200D DATA_INDEX[1]	data access window addr	[fuc-data.txt]
-1cc/07300D DATA[1]		data access window	[fuc-data.txt]
-1d0/07400D DATA_INDEX[2]	data access window addr	[fuc-data.txt]
-1d4/07500D DATA[2]		data access window	[fuc-data.txt]
-1d8/07600D DATA_INDEX[3]	data access window addr	[fuc-data.txt]
-1dc/07700D DATA[3]		data access window	[fuc-data.txt]
+1c8/07200+ DATA_INDEX[1]	data access window addr	[fuc-data.txt]
+1cc/07300+ DATA[1]		data access window	[fuc-data.txt]
+1d0/07400+ DATA_INDEX[2]	data access window addr	[fuc-data.txt]
+1d4/07500+ DATA[2]		data access window	[fuc-data.txt]
+1d8/07600+ DATA_INDEX[3]	data access window addr	[fuc-data.txt]
+1dc/07700+ DATA[3]		data access window	[fuc-data.txt]
+1e0/07800+ DATA_INDEX[4]	data access window addr	[fuc-data.txt]
+1e4/07900+ DATA[4]		data access window	[fuc-data.txt]
+1e8/07a00+ DATA_INDEX[5]	data access window addr	[fuc-data.txt]
+1ec/07b00+ DATA[5]		data access window	[fuc-data.txt]
+1f0/07c00+ DATA_INDEX[6]	data access window addr	[fuc-data.txt]
+1f4/07d00+ DATA[6]		data access window	[fuc-data.txt]
+1f8/07e00+ DATA_INDEX[7]	data access window addr	[fuc-data.txt]
+1fc/07f00+ DATA[7]		data access window	[fuc-data.txt]
 fec/-      UC_SP		microprocessor $sp reg	[fuc-ctrl.txt]
 ff0/-      UC_PC		microprocessor $pc reg	[fuc-ctrl.txt]
 ff4/-      UPLOAD		old code/data upload	[fuc-io.txt]

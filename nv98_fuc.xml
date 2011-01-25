@@ -119,6 +119,25 @@
 		<doc>Also virtual address for code.</doc>
 	</reg32>
 
+	<reg32 offset="0x12c" name="CAPS2">
+		<bitfield low="0" high="3" name="UNK0">
+			<doc>Always 3.</doc>
+		</btifield>
+		<bitfield low="4" high="7" name="SECRETFUL">
+			<doc>0 if normal engine, 3 if secretful engine. Maybe has
+			two bits, for crypt part and for auth/secrets part?</doc>
+		</btifield>
+		<bitfield low="8" high="11" name="CODE_PORTS">
+			<doc># of CODE access ports?</doc>
+		</btifield>
+		<bitfield low="12" high="15" name="DATA_PORTS">
+			<doc># of DATA access ports</doc>
+		</btifield>
+		<bitfield low="16" high="19" name="VM_PAGES_LOG2">
+			<doc># of valid bits in code page number.</doc>
+		</btifield>
+	</reg32>
+
 	<reg32 offset="0x140" name="CODE_CMD" variants="NVA3-">
 		<bitfield low="0" high="23" name="PARAM"/>
 		<bitfield low="24" high="25" name="CMD">
@@ -137,12 +156,13 @@
 	</reg32>
 	<reg32 offset="0x184" name="CODE" variants="NVA3-"/>
 	<reg32 offset="0x188" name="CODE_VIRT_ADDR" shr="8" variants="NVA3-"/>
-	<reg32 offset="0x1c0" name="DATA_INDEX" variants="NVA3-">
+	<reg32 offset="0x1c0" name="DATA_INDEX" stride="8" length="8" variants="NVA3-">
+		<doc>Actual number of ports available in CAPS2.</doc>
 		<bitfield high="15" low="2" name="ADDR" shr="2"/>
 		<bitfield pos="24" name="WRITE_AUTOINCR"/>
 		<bitfield pos="25" name="READ_AUTOINCR"/>
 	</reg32>
-	<reg32 offset="0x1c4" name="DATA" variants="NVA3-"/>
+	<reg32 offset="0x1c4" name="DATA" stride="8" length="8" variants="NVA3-"/>
 
 	<reg32 offset="0xff0" name="PC"/>
 	<reg32 offset="0xff4" name="UPLOAD"/>
