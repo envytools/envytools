@@ -25,6 +25,7 @@
 	<value value="9" name="PBSP"/>
 	<value value="0xa" name="PCRYPT"/>
 	<value value="0xb" name="PCOUNTER"/>
+	<value value="0xc" name="SEMAPHORE_BG"/>
 	<value value="0xd" name="PCOPY"/>
 	<value value="0xe" name="PDAEMON"/>
 </enum>
