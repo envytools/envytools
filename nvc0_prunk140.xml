@@ -8,7 +8,16 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
+<group name="nvc0_prunk140_subp">
+</group>
+
 <group name="nvc0_prunk140">
+	<array name="SUBP_BROADCAST" offset="0x0800" stride="0x400" length="1">
+		<use-group name="nvc0_prunk140_subp"/>
+	</array>
+	<array name="SUBP" offset="0x1000" stride="0x400" length="4">
+		<use-group name="nvc0_prunk140_subp"/>
+	</array>
 </group>
 
 <array name="PRUNK140" offset="0x140000" stride="0x2000" length="16" variants="NVC0-">
