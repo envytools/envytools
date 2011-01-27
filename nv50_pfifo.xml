@@ -92,7 +92,7 @@
 			<bitfield pos="27" name="UNK27"/>
 			<bitfield pos="28" name="UNK28"/>
 			<bitfield pos="29" name="UNK29"/>
-			<bitfield pos="30" name="QUERY" variants="NV84-"/>
+			<bitfield pos="30" name="NOTIFY" variants="NV84-"/>
 		</reg32>
 		<reg32 offset="0x140" name="INTR_EN">
 			<bitfield pos="0" name="CACHE_ERROR"/>
@@ -113,7 +113,7 @@
 			<bitfield pos="27" name="UNK27"/>
 			<bitfield pos="28" name="UNK28"/>
 			<bitfield pos="29" name="UNK29"/>
-			<bitfield pos="30" name="QUERY" variants="NV84-"/>
+			<bitfield pos="30" name="NOTIFY" variants="NV84-"/>
 		</reg32>
 		<reg32 offset="0x210" name="RAMHT">
 			<bitfield high="15" low="0" name="INSTANCE" shr="4"/>
@@ -291,7 +291,15 @@
 			<reg32 offset="0x054" name="PULL1">
 				<bitfield high="3" low="0" name="ENGINE" type="nv50_pfifo_engine"/>
 				<bitfield pos="4" name="ACQUIRE_ACTIVE"/>
-				<bitfield high="6" low="5" name="UNK5_QUERY" variants="NV84-"/>
+				<bitfield pos="5" name="ACQUIRE_SOURCE" variants="NV84-">
+					<doc>Chooses whether SEMAPHORE.OFFSET or SEMAPHORE_ADDRESS is used for acquire.</doc>
+					<value value="0" name="OLD"/>
+					<value value="1" name="NEW"/>
+				</bitfield>
+				<bitfield pos="7" name="ACQUIRE_MODE" variants="NV84-">
+					<value value="0" name="EQUAL"/>
+					<value value="1" name="GEQUAL"/>
+				</bitfield>
 			</reg32>
 			<reg32 offset="0x058" name="HASH">
 				<bitfield high="15" low="0" name="INSTANCE"/>
@@ -389,9 +397,9 @@
 				<bitfield pos="31" name="VALID"/>
 			</reg32>
 
-			<reg32 offset="0x200" name="QUERY_ADDRESS_HIGH" variants="NV84-"/>
-			<reg32 offset="0x204" name="QUERY_ADDRESS_LOW" variants="NV84-"/>
-			<reg32 offset="0x208" name="QUERY_SEQUENCE" variants="NV84-"/>
+			<reg32 offset="0x200" name="SEMAPHORE_ADDRESS_HIGH" variants="NV84-"/>
+			<reg32 offset="0x204" name="SEMAPHORE_ADDRESS_LOW" variants="NV84-"/>
+			<reg32 offset="0x208" name="SEMAPHORE_SEQUENCE" variants="NV84-"/>
 			<reg32 offset="0x20c" name="CACHE_INST" variants="NV84-">
 				<bitfield high="29" low="0" name="ADDRESS" shr="10"/>
 				<bitfield high="31" low="30" name="TARGET" type="nv50_mem_target"/> <!-- XXX: guess -->
