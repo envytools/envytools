@@ -516,23 +516,6 @@ static struct insn tabm[] = {
 
 	{ 0x000000fa, 0x000f00ff, OP24, N("iowr"), IOR, REG1 },
 	{ 0x000100fa, 0x000f00ff, OP24, N("iowrs"), IOR, REG1, .vartype = NVA3P },
-	/* the transfer ops
-	 *
-	 * operand 1 is external offset and virtual address for code,
-	 * operand 2 is size << 16 | fuc physical address for data,
-	 * fuc physical address for code.
-	 *
-	 * These three ops xfer 4 << size bytes between external storage
-	 * at address (external base << 8) + external offset and fuc code/data
-	 * at address (fuc physical address). For xcld, the newly-loaded
-	 * page is also bound to virtual address (external offset). size is
-	 * forced to 6 for code. For data, it has to be in range 2-6.
-	 *
-	 * external base is taken from xdbase for data, xcbase for code.
-	 * target is taken from xtarget bits ???.
-	 * 
-	 * Use xdwait/xcwait to wait for transfers to complete.
-	 */
 	{ 0x000400fa, 0x000f00ff, OP24, N("xcld"), REG2, REG1 },
 	{ 0x000500fa, 0x000f00ff, OP24, N("xdld"), REG2, REG1 },
 	{ 0x000600fa, 0x000f00ff, OP24, N("xdst"), REG2, REG1 },
