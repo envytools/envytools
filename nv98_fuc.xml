@@ -122,20 +122,20 @@
 	<reg32 offset="0x12c" name="CAPS2">
 		<bitfield low="0" high="3" name="UNK0">
 			<doc>Always 3.</doc>
-		</btifield>
+		</bitfield>
 		<bitfield low="4" high="7" name="SECRETFUL">
 			<doc>0 if normal engine, 3 if secretful engine. Maybe has
 			two bits, for crypt part and for auth/secrets part?</doc>
-		</btifield>
+		</bitfield>
 		<bitfield low="8" high="11" name="CODE_PORTS">
 			<doc># of CODE access ports?</doc>
-		</btifield>
+		</bitfield>
 		<bitfield low="12" high="15" name="DATA_PORTS">
 			<doc># of DATA access ports</doc>
-		</btifield>
+		</bitfield>
 		<bitfield low="16" high="19" name="VM_PAGES_LOG2">
 			<doc># of valid bits in code page number.</doc>
-		</btifield>
+		</bitfield>
 	</reg32>
 
 	<reg32 offset="0x140" name="TLB_CMD" variants="NVA3-">
