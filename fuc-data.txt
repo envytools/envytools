@@ -1,8 +1,8 @@
 Introduction
 
 Data segment of the fuc is inside the microcontroller itself. Its size can
-be determined by looking at MMIO address fuc+0x108, bits 9-16 shifted left
-by 8.
+be determined by looking at UC_CAPS register, bits 9-16 shifted left by 8
+[see fuc-ctrl.txt].
 
 The segment has byte-oriented addressing and can be accessed in units of 8,
 16, or 32 bits. Unaligned accesses are not supported and cause botched reads
@@ -160,7 +160,7 @@ MMIO 0x1c0 + i * 8 / I[0x07000 + i * 0x200]: DATA_INDEX
   bits 2-15: bits 2-15 of the data address to poke
   bit 24: write autoincrement flag: if set, every write to corresponding DATA
           register increments the address by 4
-  bit 25: read autoincrement flag: like 34, but for reads
+  bit 25: read autoincrement flag: like 24, but for reads
 
 MMIO 0x1c4 + i * 8 / I[0x07100 + i * 0x200]: DATA
   Writes execute ST(32, DATA_INDEX & 0xfffc, value); and increment the address

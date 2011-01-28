@@ -508,13 +508,12 @@ static struct insn tabm[] = {
 	{ 0x000001f9, 0x00000fff, OP16, N("add"), SP, REG2 },
 	{ 0x000004f9, 0x00000fff, OP16, N("bra"), REG2 },
 	{ 0x000005f9, 0x00000fff, OP16, N("call"), REG2 },
-	{ 0x000008f9, 0x00000fff, OP16, N("itlb"), REG2, .vartype = NVA3P }, // drops given physical page's VM tag. page specified as index, not as address.
+	{ 0x000008f9, 0x00000fff, OP16, N("itlb"), REG2, .vartype = NVA3P },
 	{ 0x000009f9, 0x00000fff, OP16, N("bset"), FLAGS, REG2 },
 	{ 0x00000af9, 0x00000fff, OP16, N("bclr"), FLAGS, REG2 },
 	{ 0x00000bf9, 0x00000fff, OP16, N("btgl"), FLAGS, REG2 },
 	{ 0x000000f9, 0x000000ff, OP16, OOPS, REG2 },
 
-	/* iowr is asynchronous, iowrs waits for completion. */
 	{ 0x000000fa, 0x000f00ff, OP24, N("iowr"), IOR, REG1 },
 	{ 0x000100fa, 0x000f00ff, OP24, N("iowrs"), IOR, REG1, .vartype = NVA3P },
 	/* the transfer ops
@@ -556,30 +555,8 @@ static struct insn tabm[] = {
 
 	{ 0x000000fe, 0x000f00ff, OP24, N("mov"), SREG1, REG2 },
 	{ 0x000100fe, 0x000f00ff, OP24, N("mov"), REG1, SREG2 },
-	/*
-	 * REG1 = info about physical page in REG2, REG2 in pages
-	 *
-	 * info is:
-	 *  bits 8:15 virtual page contained
-	 *  bits 24:25 status
-	 *  	0: empty: not mapped to any virtual address
-	 *  	1: present: mapped to virtual address and usable
-	 *  	2: busy: mapped to virtual address, but in the process of uploading stuff. will hang if used.
-	 */
-	{ 0x000200fe, 0x000f00ff, OP24, N("ptlb"), REG1, REG2, .vartype = NVA3P }, /* no flags */
-	/*
-	 * REG1 = info about virtual address in REG2, REG2 in bytes
-	 *
-	 * info is:
-	 *  bits 0:7 physical page containing it [if there is one]
-	 *  bits 24:25 status
-	 *  	ORed across all pages mapped to this virtual address
-	 *  bit 30: multiple match
-	 *  	found more than one physical page
-	 *  bit 31: no match
-	 *  	didn't find any physical page
-	 */
-	{ 0x000300fe, 0x000f00ff, OP24, N("vtlb"), REG1, REG2, .vartype = NVA3P }, /* no flags */
+	{ 0x000200fe, 0x000f00ff, OP24, N("ptlb"), REG1, REG2, .vartype = NVA3P },
+	{ 0x000300fe, 0x000f00ff, OP24, N("vtlb"), REG1, REG2, .vartype = NVA3P },
 	{ 0x000c00fe, 0x000f00ff, OP24, N("xbit"), REG1, FLAGS, REG2 },
 	{ 0x000000fe, 0x000000ff, OP24, OOPS, REG1, REG2 },
 
@@ -594,8 +571,8 @@ static struct insn tabm[] = {
 	{ 0x000800ff, 0x000f00ff, OP24, N("xbit"), REG3, REG2, REG1 },
 	{ 0x000c00ff, 0x000f00ff, OP24, N("div"), REG3, REG2, REG1, .vartype = NVA3P },
 	{ 0x000d00ff, 0x000f00ff, OP24, N("mod"), REG3, REG2, REG1, .vartype = NVA3P },
-	{ 0x000e00ff, 0x000f00ff, OP24, U("ff/e"), REG3, IORR }, /* no flags */
-	{ 0x000f00ff, 0x000f00ff, OP24, N("iord"), REG3, IORR }, /* no flags */
+	{ 0x000e00ff, 0x000f00ff, OP24, U("ff/e"), REG3, IORR },
+	{ 0x000f00ff, 0x000f00ff, OP24, N("iord"), REG3, IORR },
 	{ 0x000000ff, 0x000000ff, OP24, OOPS, REG3, REG2, REG1 },
 
 	{ 0, 0, OOPS },

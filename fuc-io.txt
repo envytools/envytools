@@ -100,8 +100,8 @@ Common registers:
 124/04900S CX_STATUS		crypt xfer status	[fuc-crypt.txt]
 128/04a00+ ???			???
 12c/04b00+ UC_CAPS2		microprocessor caps	[fuc-ctrl.txt]
-140/05000+ CODE_CMD		code VM command		[fuc-vm.txt]
-144/05100+ CODE_CMD_RES		code VM command result	[fuc-vm.txt]
+140/05000+ TLB_CMD		code VM command		[fuc-vm.txt]
+144/05100+ TLB_CMD_RES		code VM command result	[fuc-vm.txt]
 180/06000+ CODE_INDEX		code access window addr	[fuc-vm.txt]
 184/06100+ CODE			code access window	[fuc-vm.txt]
 188/06200+ CODE_VIRT_ADDR	code access virt addr	[fuc-vm.txt]

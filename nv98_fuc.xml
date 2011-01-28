@@ -152,7 +152,10 @@
 		<bitfield high="15" low="2" name="PHYS_ADDR" shr="2"/>
 		<bitfield pos="24" name="WRITE_AUTOINCR"/>
 		<bitfield pos="25" name="READ_AUTOINCR"/>
-		<bitfield pos="28" name="UNK28"/>
+		<bitfield pos="28" name="SECRET"/>
+		<bitfield pos="29" name="SECRET_LOCKDOWN"/>
+		<bitfield pos="30" name="SECRET_FAIL"/>
+		<bitfield pos="31" name="SECRET_SCRUBBER_ACTIVE"/>
 	</reg32>
 	<reg32 offset="0x184" name="CODE" variants="NVA3-"/>
 	<reg32 offset="0x188" name="CODE_VIRT_ADDR" shr="8" variants="NVA3-"/>
@@ -174,7 +177,7 @@
 		</bitfield>
 		<bitfield pos="21" name="READBACK"/>
 		<bitfield pos="24" name="XFER_BUSY"/>
-		<bitfield pos="28" name="UNK28"/>
+		<bitfield pos="28" name="SECRET"/>
 		<bitfield pos="29" name="CODE_BUSY"/>
 	</reg32>
 	<reg32 offset="0xffc" name="HOST_IO_INDEX"/>
