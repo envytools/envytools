@@ -184,7 +184,7 @@ Unsized
  trap 2  |T+  |  |  |  |  |  |  |  |  | a|  |  |  |  |  |  |   | N/A |-    | trigger software trap
  trap 3  |T+  |  |  |  |  |  |  |  |  | b|  |  |  |  |  |  |   | N/A |-    | trigger software trap
  push    |D   |  |  |  |  |  |  |  |  |  | 0|  |  |  |  |  |   |-    |-    | push onto stack
- unbind  |V+  |  |  |  |  |  |  |  |  |  | 8|  |  |  |  |  |   | N/A |-    | drop TLB entry
+ itlb    |V+  |  |  |  |  |  |  |  |  |  | 8|  |  |  |  |  |   | N/A |-    | drop TLB entry
  pop     |D   |  |  |  |  |  |  |  |  |  |  |  | 0|  |  |  |   |-    |-    | pop from stack
  mov[>sr]|C   |  |  |  |  |  |  |  |  |  |  |  |  |  | 0|  |   |-    |-    | move to special register
  mov[<sr]|C   |  |  |  |  |  |  |  |  |  |  |  |  |  | 1|  |   |-    |-    | move from special register
