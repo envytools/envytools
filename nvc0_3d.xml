@@ -49,6 +49,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <domain name="NV01_SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NVC0_3D-NVC1_3D">
 		<reg32 offset="0x0210" name="EARLY_FRAGMENT_TESTS" type="boolean"/>
+		<reg32 offset="0x021c" name="MEM_BARRIER" type="bitfield">
+			<bitfield name="UNK0" pos="0"/>
+			<bitfield name="UNK1" pos="1"/>
+			<bitfield name="UNK2" pos="2"/><!-- used for glMemoryBarrier(), 0x1111 is used normally -->
+			<bitfield name="UNK4" pos="4"/>
+			<bitfield name="UNK8" pos="8"/>
+			<bitfield name="UNK12" pos="12"/>
+		</reg32>
 		<reg32 offset="0x0320" name="TESS_MODE">
 			<bitfield name="PRIM" high="3" low="0">
 				<value value="0" name="ISOLINES"/>
@@ -624,6 +632,21 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		  <bitfield name="INDEX" high="7" low="4" type="uint"/>
 		</reg32>
 		<reg32 offset="0x2600" name="VERT_COLOR_CLAMP_EN" type="boolean"/>
+		<stripe offset="0x2700" name="IMAGE" length="8" stride="0x20">
+			<reg32 offset="0x00" name="ADDRESS_HIGH"/>
+			<reg32 offset="0x04" name="ADDRESS_LOW"/>
+			<reg32 offset="0x08" name="WIDTH" type="uint"/>
+			<reg32 offset="0x0c" name="HEIGHT" type="bitfield">
+				<bitfield name="HEIGHT" high="16" low="0" type="uint"/><!-- 1 for buffer textures -->
+				<bitfield name="LINEAR" pos="20" type="boolean"/><!-- probably -->
+			</reg32>
+			<reg32 offset="0x10" name="FORMAT" type="bitfield">
+				<bitfield name="UNK0" pos="0" type="boolean"/><!-- default 0 -->
+				<bitfield name="FORMAT" high="11" low="4" type="NV50_SURFACE_FORMAT"/>
+				<bitfield name="UNK12" high="16" low="12"/><!-- default 0x14 -->
+			</reg32>
+			<reg32 offset="0x14" name="TILE_MODE"/>
+		</stripe>
 		<stripe offset="0x2800" length="4" stride="0x80">
 			<reg32 name="TFB_VARYING_LOCS" length="32"/>
 		</stripe>
