@@ -298,6 +298,9 @@
 		</reg32>
 	</array>
 
+	<array offset="0x8a000" name="PCODEC_PCI" stride="0x1000" length="1" variants="NVA3-">
+	</array>
+
 	<array offset="0x101000" name="PEXTDEV" stride="0x1000" length="1">
 	</array>
 
@@ -380,7 +383,7 @@
 
 <!-- 089000 - 089fff ??? -->
 
-<!-- 08a000 - 08afff ??? -->
+<!-- 08a000 - 08afff PCODEC_PCI covered above -->
 
 <!-- 090000 - 090fff PFIFO_CACHE1 covered in nv_pfifo.xml -->
 
@@ -402,7 +405,8 @@
 
 <!-- 105000 - 105fff PCOPY2 covered in nv98_pvp.xml -->
 
-<!-- 108000 - 109fff ??? -->
+<!-- 108000 - 109fff PCODEC -->
+<import file="nva3_pcodec.xml" />
 
 <!-- 10a000 - 10afff PDAEMON -->
 <import file="nva3_pdaemon.xml" />
