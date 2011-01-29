@@ -109,7 +109,7 @@
 			<bitfield pos="3" name="PRUNK140" variants="NVC0-"/>
 			<bitfield pos="4" name="PDMA" variants="NV01"/>
 			<bitfield pos="4" name="PMEDIA" variants="NV03-"/>
-			<bitfield pos="5" name="MASTER" variants="NVC0-"/> <!-- disable that and most of MMIO disappears -->
+			<bitfield pos="5" name="PMASTER" variants="NVC0-"/> <!-- disable that and most of MMIO disappears -->
 			<bitfield pos="6" name="PCOPY" variants="NVC0-"/>
 			<bitfield pos="7" name="PCOPY2" variants="NVC0-"/>
 			<bitfield pos="8" name="PFIFO" />
@@ -411,9 +411,10 @@
 
 <!-- 10f000 - 112fff ??? [NVA5] -->
 
-<!-- 10f000 - 11ffff PBFB covered in nv03_fb.xml -->
+<!-- 10f000 - 11ffff PBFB covered in nv03_pfb.xml -->
 
-<!-- 120000 - 12ffff ??? -->
+<!-- 120000 - 12ffff PMASTER -->
+<import file="nvc0_pmaster.xml" />
 
 <!-- 130000 - 13afff ??? -->
 

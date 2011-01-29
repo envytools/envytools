@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+<array name="PMASTER" offset="0x120000" stride="0x10000" length="1" variants="NVC0-">
+	<group name="nvc0_pmaster_gpc">
+	</group>
+
+	<group name="nvc0_pmaster_ropc">
+	</group>
+
+	<group name="nvc0_pmaster_unk3">
+	</group>
+
+	<array name="GPC_BROADCAST" offset="0x0400" stride="0x0400" length="1">
+		<use-group name="nvc0_pmaster_gpc"/>
+	</array>
+	<array name="ROPC_BROADCAST" offset="0x0800" stride="0x0400" length="1">
+		<use-group name="nvc0_pmaster_ropc"/>
+	</array>
+	<array name="UNK3_BROADCAST" offset="0x0c00" stride="0x0400" length="1">
+		<use-group name="nvc0_pmaster_unk3"/>
+	</array>
+
+	<reg32 offset="0x1c70" name="UNK3_COUNT"/>
+	<reg32 offset="0x1c74" name="ROPC_COUNT"/>
+	<reg32 offset="0x1c78" name="GPC_COUNT"/>
+
+	<array name="UNK3" offset="0x2000" stride="0x0400" length="8">
+		<use-group name="nvc0_pmaster_unk3"/>
+	</array>
+	<array name="ROPC" offset="0x4000" stride="0x0400" length="16">
+		<use-group name="nvc0_pmaster_ropc"/>
+	</array>
+	<array name="GPC" offset="0x8000" stride="0x0400" length="32">
+		<use-group name="nvc0_pmaster_gpc"/>
+	</array>
+</array>
+
+</domain>
+
+</database>
