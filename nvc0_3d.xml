@@ -166,12 +166,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0da0" name="CLEAR_STENCIL"/>
 		<reg32 offset="0x0db4" name="POLYGON_SMOOTH_ENABLE" type="boolean"/>
 		<reg32 offset="0x0dbc" name="ZCULL_UNK0DBC"/>
-		<reg32 offset="0x0dd8" nmae="ZCULL_UNK0DD8"/>
 		<reg32 offset="0x0dc0" name="POLYGON_OFFSET_POINT_ENABLE" type="boolean"/>
 		<reg32 offset="0x0dc4" name="POLYGON_OFFSET_LINE_ENABLE" type="boolean"/>
 		<reg32 offset="0x0dc8" name="POLYGON_OFFSET_FILL_ENABLE" type="boolean"/>
 		<reg32 offset="0x0dcc" name="PATCH_VERTICES" type="uint"/>
-		<reg32 offset="0x0dd8" nmae="ZCULL_UNK0DD8"/>
+		<reg32 offset="0x0dd8" name="ZCULL_UNK0DD8"/>
 		<reg32 offset="0x0df8" name="WINDOW_OFFSET_X" type="int"/><!-- 16 bit, signed !-->
 		<reg32 offset="0x0dfc" name="WINDOW_OFFSET_Y" type="int"/><!-- default 0, or height if 13ac = 1 !-->
 		<reg32 offset="0x0e00" name="SCISSOR_ENABLE" length="16" stride="16" type="boolean"/>
@@ -434,8 +433,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x15f4" name="VERTEX_BASE_HIGH"/>
 		<reg32 offset="0x15f8" name="VERTEX_BASE_LOW"/>
-		<reg32 offest="0x15fc" name="ZCULL_WINDOW_OFFSET_X"/>
-		<reg32 offest="0x1600" name="ZCULL_WINDOW_OFFSET_Y"/>
+		<reg32 offset="0x15fc" name="ZCULL_WINDOW_OFFSET_X"/>
+		<reg32 offset="0x1600" name="ZCULL_WINDOW_OFFSET_Y"/>
 		<reg32 offset="0x1604" name="POINT_COORD_REPLACE">
 			<bitfield pos="2" name="COORD_ORIGIN">
 				<value value="0" name="LOWER_LEFT"/>
