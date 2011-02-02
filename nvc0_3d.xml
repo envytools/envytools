@@ -98,7 +98,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x07ec" name="ZCULL_UNK07E8_ADDRESS_LOW"/>
 		<reg32 offset="0x07f0" name="ZCULL_UNK07F0_ADDRESS_HIGH"/>
 		<reg32 offset="0x07f4" name="ZCULL_UNK07F0_ADDRESS_LOW"/>
-		<stripe offset="0x0800" name="RT" length="8" stride="32">
+		<stripe offset="0x0800" name="RT" length="8" stride="64">
 			<reg32 offset="0x00" name="ADDRESS_HIGH"/>
 			<reg32 offset="0x04" name="ADDRESS_LOW"/>
 			<reg32 offset="0x08" name="HORIZ" type="uint"/>
