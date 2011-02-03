@@ -12,7 +12,8 @@ The lines are:
   2 [L]: FIFO data available	[fuc-fifo.txt]
   3 [E]: PFIFO channel switch	[fuc-fifo.txt]
   4 [E]: uc halted		[fuc-ctrl.txt]
-  5-7 [E]: scratch [unused by hw, user-defined]
+  5 [E]: ??? [related to fuc+0x0a4]
+  6-7 [E]: scratch [unused by hw, user-defined]
   8-9 [E]: engine-specific edge[?]
   10-15 [L]: engine-specific level[?]
 
@@ -63,10 +64,10 @@ line is wired straight to one of PMC.INTR bits:
   PCRYPT		14
   PUNK1C1		14
   PCOPY	pre-NVC0	22
-  PCOPY[0] NVC0+	??? [XXX: check this]
-  PCOPY[1] NVC0+	??? [XXX: check this]
+  PCOPY[0] NVC0+	5
+  PCOPY[1] NVC0+	6
   PDAEMON pre-NVC0	18
-  PDAEMON NVC0+		??? [XXX: check this]
+  PDAEMON NVC0+		24
 
 fuc interrupt and trap delivery is controlled by $iv0, $iv1, $tv, $tstatus
 registers and ie0, ie1, is0, is1, ta $flags bits. Traps behave like
