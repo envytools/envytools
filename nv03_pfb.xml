@@ -126,6 +126,8 @@
 		<value value="1" name="REORDER_TIMES3"/>
 	</reg32>
 
+	<reg32 offset="0x320" name="COMP_MAX_TAG" variants="NV50-"/>
+
 	<reg32 offset="0xc80" name="TLB_FLUSH" variants="NV50-">
 		<bitfield high="19" low="16" name="ENGINE" type="nv50_mmu_engine"/>
 		<bitfield pos="0" name="TRIGGER"/>

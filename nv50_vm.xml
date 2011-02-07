@@ -94,8 +94,8 @@
 
 <enum name="NV50_COMPRESSION">
 	<value value="0" name="NONE"/>
-	<value value="1" name="UNK1"/>
-	<value value="2" name="UNK2"/>
+	<value value="1" name="SINGLE"/>
+	<value value="2" name="DOUBLE"/>
 	<!-- valid only in DMAobj -->
 	<value value="3" name="USEVM"/>
 </enum>
@@ -130,6 +130,10 @@
 		<bitfield low="0" high="7" name="START_HIGH"/>
 		<bitfield low="24" high="31" name="LIMIT_HIGH"/>
 	</reg32>
+	<reg32 offset="0x10" name="COMP">
+		<bitfield low="0" high="11" name="TAG_START"/>
+		<bitfield low="16" high="27" name="TAG_LIMIT"/>
+	</reg32>
 </domain>
 
 <bitset name="NV50_PDE">
@@ -160,6 +164,7 @@
 	<bitfield low="12" high="39" name="ADDRESS" shr="12"/>
 	<bitfield low="40" high="46" name="STORAGE_TYPE" type="NV50_STORAGE_TYPE"/>
 	<bitfield low="47" high="48" name="COMPRESSION" type="NV50_COMPRESSION"/>
+	<bitfield low="49" high="60" name="TAG"/>
 </bitset>
 
 </database>
