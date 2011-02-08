@@ -149,6 +149,36 @@
 	<use-group name="nvc0_pbfb"/>
 </array>
 
+<group name="nvc0_pmfb_subp">
+	<array name="COMP" offset="0x0c0" stride="0x40" length="1">
+		<reg32 offset="0x08" name="TRIGGER">
+			<bitfield pos="0" name="FLUSH"/>
+			<bitfield pos="2" name="CLEAR"/>
+		</reg32>
+		<reg32 offset="0x0c" name="CLEAR_TAG_START"/>
+		<reg32 offset="0x10" name="CLEAR_TAG_END"/>
+		<reg32 offset="0x14" name="TAGMEM_BASE"/>
+		<reg32 offset="0x18" name="PART_COUNT"/>
+	</array>
+</group>
+
+<group name="nvc0_pmfb">
+	<array name="SUBP_BROADCAST" offset="0x0800" stride="0x400" length="1">
+		<use-group name="nvc0_pmfb_subp"/>
+	</array>
+	<array name="SUBP" offset="0x1000" stride="0x400" length="4">
+		<use-group name="nvc0_pmfb_subp"/>
+	</array>
+</group>
+
+<array name="PMFB" offset="0x140000" stride="0x2000" length="16" variants="NVC0-">
+	<use-group name="nvc0_pmfb"/>
+</array>
+
+<array name="PMFB_BROADCAST" offset="0x17e000" stride="0x2000" length="1" variants="NVC0-">
+	<use-group name="nvc0_pmfb"/>
+</array>
+
 </domain>
 
 </database>

@@ -106,7 +106,7 @@
 			<bitfield pos="1" name="PVPE" variants="NV17:NV98 NVA0"/> <!-- also controls NV50:NV98, NVA0 PVP -->
 			<bitfield pos="1" name="PPPP" variants="NV98 NVAA-"/>
 			<bitfield pos="2" name="PGUNK13B" variants="NVC0-"/>
-			<bitfield pos="3" name="PRUNK140" variants="NVC0-"/>
+			<bitfield pos="3" name="PMFB" variants="NVC0-"/>
 			<bitfield pos="4" name="PDMA" variants="NV01"/>
 			<bitfield pos="4" name="PMEDIA" variants="NV03-"/>
 			<bitfield pos="5" name="PMASTER" variants="NVC0-"/> <!-- disable that and most of MMIO disappears -->
@@ -425,8 +425,7 @@
 <!-- 13b000 - 13efff PGUNK13B -->
 <import file="nvc0_pgunk13b.xml" />
 
-<!-- 140000 - 17ffff PRUNK140 -->
-<import file="nvc0_prunk140.xml" />
+<!-- 140000 - 17ffff PMFB covered in nv03_pfb.xml -->
 
 <!-- 180000 - 1bffff PCOUNTER -->
 <import file="nvc0_pcounter.xml" />
