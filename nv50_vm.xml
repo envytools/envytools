@@ -134,6 +134,9 @@
 		<bitfield low="0" high="11" name="TAG_START"/>
 		<bitfield low="16" high="27" name="TAG_LIMIT"/>
 	</reg32>
+	<reg32 offset="0x14" name="EXTRA2">
+		<bitfield low="0" high="15" name="COMP_VRAM_START" shr="16"/>
+	</reg32>
 </domain>
 
 <bitset name="NV50_PDE">
