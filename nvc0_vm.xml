@@ -35,6 +35,12 @@
 	<value value="2" name="PAGE_NOT_PRESENT"/>
 	<value value="3" name="VSPACE_LIMIT"/>
 	<!-- ... -->
+	<value value="5" name="PAGE_SYSTEM_ONLY"/>
+	<value value="6" name="PAGE_READ_ONLY"/>
+	<!-- ... -->
+	<value value="0xa" name="COMPRESSED_SYSRAM"/>
+	<!-- ... -->
+	<value value="0xc" name="INVALID_STORAGE_TYPE"/>
 </enum>
 
 <enum name="NVC0_STORAGE_TYPE">
