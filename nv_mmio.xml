@@ -79,6 +79,7 @@
 			<bitfield pos="24" name="PFB" variants="NV01"/>
 			<bitfield pos="24" name="PCRTC" variants="NV03:NV50"/>
 			<bitfield pos="25" name="PCRTC2" variants="NV11:NV50"/>
+			<bitfield pos="25" name="PMFB" variants="NVC0-"/>
 			<bitfield pos="26" name="PDISPLAY" variants="NV50-"/>
 			<bitfield pos="28" name="SOFTWARE" variants="NV01"/>
 			<bitfield pos="28" name="PBUS" variants="NV03-"/>

@@ -106,6 +106,13 @@
 </array>
 
 <group name="nvc0_pmfb_subp">
+	<bitset name="nvc0_pmfb_intr" inline="yes">
+		<bitfield pos="5" name="COMP_TAG_MESSUP"/>
+	</bitset>
+	<reg32 offset="0x20" name="INTR">
+		<bitfield low="0" high="15" name="STATUS" type="nvc0_pmfb_intr"/>
+		<bitfield low="16" high="31" name="ENABLE" type="nvc0_pmfb_intr"/>
+	</reg32>
 	<array name="COMP" offset="0x0c0" stride="0x40" length="1">
 		<reg32 offset="0x08" name="TRIGGER">
 			<bitfield pos="0" name="FLUSH"/>
