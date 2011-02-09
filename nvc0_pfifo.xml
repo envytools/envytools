@@ -6,6 +6,7 @@
 
 <import file="nvchipsets.xml" />
 <import file="nv50_defs.xml" />
+<import file="nvc0_vm.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
@@ -17,33 +18,6 @@
 	<value value="4" name="PCOPY0"/>
 	<value value="5" name="PCOPY1"/>
 	<value value="0x1f" name="NONE"/>
-</enum>
-
-<enum name="NVC0_VM_ENGINE">
-	<value value="0x00" name="PGRAPH"/>
-	<value value="0x03" name="PEEPHOLE"/>
-	<value value="0x04" name="BAR1"/>
-	<value value="0x05" name="BAR3"/>
-	<value value="0x13" name="PCOUNTER"/>
-	<value value="0x15" name="PCOPY0"/>
-	<value value="0x16" name="PCOPY1"/>
-	<value value="0x17" name="PDAEMON"/>
-</enum>
-
-<enum name="NVC0_VM_HUBCLIENT">
-	<value value="0x01" name="PCOPY0"/>
-	<value value="0x02" name="PCOPY1"/>
-	<value value="0x04" name="DISPATCH"/>
-	<value value="0x05" name="CTXCTL"/>
-	<value value="0x07" name="BAR_READ"/>
-	<value value="0x08" name="BAR_WRITE"/>
-	<value value="0x11" name="PCOUNTER"/>
-	<value value="0x12" name="PDAEMON"/>
-	<value value="0x14" name="CCACHE"/>
-</enum>
-
-<enum name="NVC0_VM_GPCCLIENT">
-	<value value="0x0e" name="CTXCTL"/>
 </enum>
 
 <array name="PFIFO" offset="0x2000" stride="0x2000" length="1" variants="NVC0-">
@@ -123,13 +97,7 @@
 		<reg32 offset="4" name="ADDR_LOW"/>
 		<reg32 offset="8" name="ADDR_HIGH"/>
 		<reg32 offset="0xc" name="FLAGS">
-			<bitfield low="0" high="3" name="REASON">
-				<value value="0" name="PT_NOT_PRESENT"/>
-				<value value="1" name="PT_TOO_SHORT"/>
-				<value value="2" name="PAGE_NOT_PRESENT"/>
-				<value value="3" name="VSPACE_LIMIT"/>
-				<!-- ... -->
-			</bitfield>
+			<bitfield low="0" high="3" name="REASON" type="NVC0_VM_FAULT"/>
 			<bitfield low="4" high="5" name="UNK4"/>
 			<bitfield pos="6" name="SOURCE">
 				<value value="0" name="GPC"/>

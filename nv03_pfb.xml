@@ -5,6 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
+<import file="nv50_vm.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
@@ -13,51 +14,6 @@
 	<value value="1" name="4" variants="NV20:NV34"/>
 	<value value="0" name="4" variants="NV50-"/>
 	<value value="1" name="8" variants="NV50-"/>
-</enum>
-
-<enum name="nv50_mmu_engine" inline="yes">
-	<value value="0" name="PGRAPH"/>
-	<value value="1" name="PVP"/>
-	<value value="4" name="PEEPHOLE"/>
-	<value value="5" name="PFIFO"/>
-	<value value="6" name="BAR"/>
-	<value value="8" name="PPPP"/>
-	<value value="9" name="PBSP"/>
-	<value value="0xa" name="PCRYPT"/>
-	<value value="0xb" name="PCOUNTER"/>
-	<value value="0xc" name="SEMAPHORE_BG"/>
-	<value value="0xd" name="PCOPY"/>
-	<value value="0xe" name="PDAEMON"/>
-</enum>
-
-<enum name="nv50_mmu_client" inline="yes">
-	<value value="0x00" name="STRMOUT"/>
-	<value value="0x03" name="DISPATCH"/>
-	<value value="0x04" name="PFIFO_WRITE"/>
-	<value value="0x05" name="CCACHE"/>
-	<value value="0x06" name="PPPP"/>
-	<value value="0x07" name="CLIPID"/>
-	<value value="0x08" name="PFIFO_READ"/>
-	<value value="0x09" name="VFETCH"/>
-	<value value="0x0a" name="TEXTURE"/>
-	<value value="0x0b" name="PROP"/>
-	<value value="0x0c" name="PVP"/>
-	<value value="0x0d" name="PBSP"/>
-	<value value="0x0e" name="PCRYPT"/>
-	<value value="0x0f" name="PCOUNTER"/>
-	<value value="0x11" name="PDAEMON"/>
-</enum>
-
-<enum name="nv50_vm_fault_reason" inline="yes">
-	<value value="0" name="PT_NOT_PRESENT"/>
-	<value value="1" name="PT_TOO_SHORT"/>
-	<value value="2" name="PAGE_NOT_PRESENT"/>
-	<value value="3" name="PAGE_SYSTEM_ONLY"/>
-	<value value="4" name="PAGE_READ_ONLY"/>
-	<value value="6" name="NULL_DMAOBJ"/>
-	<value value="7" name="WRONG_MEMTYPE"/>
-	<value value="0xb" name="VRAM_LIMIT"/>
-	<value value="0xf" name="DMAOBJ_LIMIT"/>
 </enum>
 
 <array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV03:NVC0">
@@ -129,7 +85,7 @@
 	<reg32 offset="0x320" name="COMP_MAX_TAG" variants="NV50-"/>
 
 	<reg32 offset="0xc80" name="TLB_FLUSH" variants="NV50-">
-		<bitfield high="19" low="16" name="ENGINE" type="nv50_mmu_engine"/>
+		<bitfield high="19" low="16" name="ENGINE" type="NV50_VM_ENGINE"/>
 		<bitfield pos="0" name="TRIGGER"/>
 	</reg32>
 </array>

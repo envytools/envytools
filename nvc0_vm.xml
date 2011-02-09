@@ -1,0 +1,75 @@
+<database>
+<import file="copyright.xml"/>
+<import file="nv50_defs.xml"/>
+
+<enum name="NVC0_VM_ENGINE">
+	<value value="0x00" name="PGRAPH"/>
+	<value value="0x03" name="PEEPHOLE"/>
+	<value value="0x04" name="BAR1"/>
+	<value value="0x05" name="BAR3"/>
+	<value value="0x13" name="PCOUNTER"/>
+	<value value="0x15" name="PCOPY0"/>
+	<value value="0x16" name="PCOPY1"/>
+	<value value="0x17" name="PDAEMON"/>
+</enum>
+
+<enum name="NVC0_VM_HUBCLIENT">
+	<value value="0x01" name="PCOPY0"/>
+	<value value="0x02" name="PCOPY1"/>
+	<value value="0x04" name="DISPATCH"/>
+	<value value="0x05" name="CTXCTL"/>
+	<value value="0x07" name="BAR_READ"/>
+	<value value="0x08" name="BAR_WRITE"/>
+	<value value="0x11" name="PCOUNTER"/>
+	<value value="0x12" name="PDAEMON"/>
+	<value value="0x14" name="CCACHE"/>
+</enum>
+
+<enum name="NVC0_VM_GPCCLIENT">
+	<value value="0x0e" name="CTXCTL"/>
+</enum>
+
+<enum name="NVC0_VM_FAULT">
+	<value value="0" name="PT_NOT_PRESENT"/>
+	<value value="1" name="PT_TOO_SHORT"/>
+	<value value="2" name="PAGE_NOT_PRESENT"/>
+	<value value="3" name="VSPACE_LIMIT"/>
+	<!-- ... -->
+</enum>
+
+<enum name="NVC0_STORAGE_TYPE">
+	<value value="0x00" name="LINEAR"/>
+
+	<value value="0xfe" name="TILED"/>
+</enum>
+
+<bitset name="NVC0_PDE">
+	<bitfield pos="0" name="LPT_PRESENT"/>
+	<!-- 1? -->
+	<bitfield low="2" high="3" name="PT_SIZE">
+		<value value="0" name="FULL"/>
+		<value value="1" name="64M"/>
+		<value value="2" name="32M"/>
+		<value value="3" name="16M"/>
+	</bitfield>
+	<bitfield low="4" high="31" name="LPT_ADDRESS" shr="12"/>
+	<bitfield pos="32" name="SPT_PRESENT"/>
+	<!-- 33-35? -->
+	<bitfield low="36" high="63" name="SPT_ADDRESS" shr="12"/>
+</bitset>
+
+<bitset name="NVC0_PTE">
+	<bitfield pos="0" name="PRESENT"/>
+	<bitfield pos="1" name="SYSTEM_ONLY"/>
+	<bitfield pos="2" name="READ_ONLY"/>
+	<!-- 3? -->
+	<bitfield low="4" high="31" name="ADDRESS" shr="12"/>
+	<!-- 32? -->
+	<bitfield low="33" high="34" name="TARGET" type="nv50_mem_target"/>
+	<!-- 35? -->
+	<bitfield low="36" high="43" name="STORAGE_TYPE" type="NVC0_STORAGE_TYPE"/>
+	<bitfield low="44" high="60" name="TAG"/>
+</bitset>
+
+</database>
+
