@@ -14,10 +14,14 @@ The lines are:
   4 [E]: uc halted		[fuc-ctrl.txt]
   5 [E]: ??? [related to fuc+0x0a4]
   6-7 [E]: scratch [unused by hw, user-defined]
-  8-9 [E]: engine-specific edge[?]
-  10-15 [L]: engine-specific level[?]
+  8-9 [E by default]: engine-specific
+  10-15 [L by default]: engine-specific
 
-E means edge-triggered interrupt, L means level-triggered.
+E means edge-triggered interrupt, L means level-triggered. Each interrupt
+line has a physical wire assigned to it. For edge-triggered interrupts,
+there's a flip-flop that's set by 0-to-1 edge on the wire or a write to
+INTR_SET register, and cleared by writing to INTR_CLEAR register. For
+level-triggered interrupts, interrupt status is wired straight to the input.
 
 The interrupt and interrupt enable registers are actually visible as
 set/clear/status register triples: writing to the set register sets all bits
@@ -29,7 +33,8 @@ MMIO 0x000 / I[0x00000]: INTR_SET
 MMIO 0x004 / I[0x00100]: INTR_CLEAR
 MMIO 0x008 / I[0x00200]: INTR [status]
   A mask of currently pending interrupts. Write to SET to manually trigger
-  an interrupt. Write to CLEAR to ack an interrupt, if it's edge-triggered.
+  an interrupt. Write to CLEAR to ack an interrupt. Attempts to SET or CLEAR
+  level-triggered interrupts are ignored.
 
 MMIO 0x010 / I[0x00400]: INTR_EN_SET
 MMIO 0x014 / I[0x00500]: INTR_EN_CLEAR
@@ -38,13 +43,16 @@ MMIO 0x018 / I[0x00600]: INTR_EN [status]
   handler isn't run if a given interrupt happens [but the INTR bit is still
   set and it'll run once INTR_EN bit is set again].
 
-MMIO 0x00c / I[0x00300]: INTR_MODE [NVA3+] [XXX: verify this]
+MMIO 0x00c / I[0x00300]: INTR_MODE [NVA3+]
   Bits 0-15 are modes for the corresponding interrupt lines. 0 is edge
-  trigered, 1 is level triggered. Level-triggered interrupts don't require
-  acks.
+  trigered, 1 is level triggered.
 
   Setting a sw interrupt to level-triggered, or a hw interrupt to mode it
   wasn't meant to be set is likely a bad idea.
+
+  This register is set to 0xfc04 on reset.
+
+[XXX: check edge/level distinction on NV98]
 
 MMIO 0x01c / I[0x00700]: INTR_DISPATCH
   Bits 0-15: mask of interrupts that go to host
