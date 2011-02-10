@@ -36,6 +36,7 @@
 			</bitfield>
 
 			<bitfield low="0" high="7" name="STEPPING" variants="NV10-"/>
+			<bitfield low="15" high="19" name="UNK15"/>
 			<bitfield low="20" high="27" name="CHIPSET" type="chipset" variants="NV10-">
 				<doc>The card chipset. This is THE two-digit hex
 				number that goes after "NV".
@@ -56,10 +57,8 @@
 
 			TODO: Check how to byte-swap PFIFO pushbuffers.</doc>
 		</reg32>
-		<reg32 offset="0x100" name="INTR">
-			<doc>Shows currently pending interrupts. Read-only, except
-			for SOFTWARE bit. No need to ack these, they disappear by
-			acking in upstream unit.</doc>
+		<reg32 offset="0x008" name="BOOT_2" variants="NV98 NVAA-"/>
+		<bitset name="nv_pmc_intr" inline="yes">
 			<bitfield pos="0" name="PAUDIO" variants="NV01"/>
 			<bitfield pos="0" name="PVPE" variants="NV17:NV98 NVA0"/>
 			<bitfield pos="0" name="PPPP" variants="NV98 NVAA-"/>
@@ -87,8 +86,19 @@
 				<doc>Software interrupt: write 1 to this bit to trigger
 				interrupt, write 0 to stop.</doc>
 			</bitfield>
+		</bitset>
+		<reg32 offset="0x100" name="INTR_HOST" type="nv_pmc_intr">
+			<doc>Shows currently pending interrupts for host. Read-only, except
+			for SOFTWARE bit. No need to ack these, they disappear by
+			acking in upstream unit.</doc>
 		</reg32>
-		<reg32 offset="0x140" name="INTR_EN">
+		<reg32 offset="0x104" name="INTR_UNK1" type="nv_pmc_intr" variants="NVA3-">
+			<doc>Shows currently pending interrupts for ???.</doc>
+		</reg32>
+		<reg32 offset="0x108" name="INTR_PDAEMON" type="nv_pmc_intr" variants="NVA3-">
+			<doc>Shows currently pending interrupts for PDAEMON.</doc>
+		</reg32>
+		<reg32 offset="0x140" name="INTR_HOST_EN">
 			<doc>Enables reporting interrupts via IRQ lines. Doesn't affect
 			status shown in PMC_INTR, only sending actual bus interrupts.</doc>
 			<bitfield pos="0" name="HARDWARE">
@@ -97,6 +107,14 @@
 			<bitfield pos="1" name="SOFTWARE">
 				<doc>Enable reporting software interrupts.</doc>
 			</bitfield>
+		</reg32>
+		<reg32 offset="0x144" name="INTR_UNK1_EN" variants="NVA3-">
+			<bitfield pos="0" name="HARDWARE"/>
+			<bitfield pos="1" name="SOFTWARE"/>
+		</reg32>
+		<reg32 offset="0x148" name="INTR_PDAEMON_EN" variants="NVA3-">
+			<bitfield pos="0" name="HARDWARE"/>
+			<bitfield pos="1" name="SOFTWARE"/>
 		</reg32>
 		<reg32 offset="0x200" name="ENABLE">
 			<doc>Selects which card units are enabled.</doc>
@@ -140,6 +158,15 @@
 			<bitfield pos="0" name="0"/>
 			<bitfield pos="1" name="1"/>
 			<bitfield pos="2" name="2"/>
+		</reg32>
+		<reg32 offset="0x640" name="INTR_HOST_MASK" type="nv_pmc_intr" variants="NVA3-"/>
+		<reg32 offset="0x644" name="INTR_UNK1_MASK" type="nv_pmc_intr" variants="NVA3-"/>
+		<reg32 offset="0x648" name="INTR_PDAEMON_MASK" type="nv_pmc_intr" variants="NVA3-"/>
+		<reg32 offset="0xa00" name="NEW_ID" variants="NV98 NVAA-">
+			<bitfield low="0" high="4" name="UNK15"/>
+			<bitfield low="8" high="9" name="BOOT_2"/>
+			<bitfield low="12" high="19" name="STEPPING"/>
+			<bitfield low="20" high="27" name="CHIPSET" type="chipset"/>
 		</reg32>
 	</array>
 	<array offset="0x1000" name="PBUS" stride="0x1000" length="1">
