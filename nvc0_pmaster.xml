@@ -9,13 +9,75 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <array name="PMASTER" offset="0x120000" stride="0x10000" length="1" variants="NVC0-">
+	<group name="nvc0_pmaster_common">
+	</group>
+
 	<group name="nvc0_pmaster_gpc">
+		<reg32 offset="0x100" name="ENABLE">
+			<bitfield pos="0" name="PGUNK13B_U3"/>
+			<bitfield pos="1" name="PGUNK13B_U2"/>
+			<bitfield pos="2" name="PUNK10C"/>
+			<bitfield pos="3" name="PGRAPH_GPC"/>
+			<bitfield pos="4" name="PGUNK13B_U1"/>
+			<bitfield pos="5" name="UNK5"/>
+			<bitfield pos="8" name="UNK082"/>
+			<bitfield pos="9" name="PGUNK13B_U4"/>
+			<bitfield pos="10" name="PUNK130"/>
+			<bitfield pos="11" name="TP3"/>
+			<bitfield pos="12" name="TP2"/>
+			<bitfield pos="13" name="TP1"/>
+			<bitfield pos="14" name="TP0"/>
+			<bitfield pos="15" name="UNK15"/>
+			<bitfield pos="16" name="CTXCTL"/>
+		</reg32>
+		<use-group name="nvc0_pmaster_common"/>
 	</group>
 
 	<group name="nvc0_pmaster_ropc">
+		<reg32 offset="0x100" name="ENABLE">
+			<bitfield pos="0" name="PGUNK13B_U2"/>
+			<bitfield pos="1" name="PBFB"/>
+			<bitfield pos="2" name="PUNK10C"/>
+			<bitfield pos="3" name="PGUNK13B_U1"/>
+			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="5" name="PMFB"/>
+			<bitfield pos="7" name="UNK7"/>
+			<bitfield pos="8" name="PUNK130"/>
+			<bitfield pos="9" name="PGRAPH_ROP"/>
+			<bitfield pos="12" name="PGRAPH_ROP_CTL"/>
+			<bitfield pos="13" name="UNK13"/>
+		</reg32>
+		<use-group name="nvc0_pmaster_common"/>
 	</group>
 
 	<group name="nvc0_pmaster_unk3">
+		<reg32 offset="0x100" name="ENABLE">
+			<bitfield pos="0" name="PDISPLAY"/>
+			<bitfield pos="1" name="PGRAPH_DISPATCH"/>
+			<bitfield pos="2" name="PUNK021"/>
+			<bitfield pos="3" name="PUNK0C8"/>
+			<bitfield pos="4" name="PFUSE"/>
+			<bitfield pos="6" name="PUNK089"/>
+			<bitfield pos="7" name="PPCI_PUNK139"/>
+			<bitfield pos="9" name="PCOPY0"/>
+			<bitfield pos="10" name="PCOPY1"/>
+			<bitfield pos="11" name="PVP"/>
+			<bitfield pos="12" name="PPPP"/>
+			<bitfield pos="13" name="PBSP"/>
+			<bitfield pos="17" name="PDAEMON"/>
+			<bitfield pos="18" name="PTHERM"/>
+			<bitfield pos="20" name="PCODEC"/>
+			<bitfield pos="21" name="PCONNECTOR_UNK137"/>
+			<bitfield pos="22" name="PCONNECTOR_PEXTDEV_PROM"/>
+			<bitfield pos="23" name="PMASTER"/>
+			<bitfield pos="24" name="PGUNK13B_2C00"/>
+			<bitfield pos="25" name="PFFB"/>
+			<bitfield pos="26" name="PGRAPH_HUB"/>
+			<bitfield pos="27" name="PFFB_MMU"/>
+			<bitfield pos="28" name="PGUNK13B_1800"/>
+			<bitfield pos="31" name="PGUNK13B_3C00"/>
+		</reg32>
+		<use-group name="nvc0_pmaster_common"/>
 	</group>
 
 	<array name="GPC_BROADCAST" offset="0x0400" stride="0x0400" length="1">

@@ -9,7 +9,64 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <array name="PCOUNTER" offset="0xa000" stride="0x1000" length="1" variants="NV40:NVC0">
-
+	<reg32 offset="0x400" name="MS0_SRC" length="8">
+		<bitfield low="0" high="7" name="0"/>
+		<bitfield low="8" high="15" name="1"/>
+		<bitfield low="16" high="23" name="2"/>
+		<bitfield low="24" high="31" name="3"/>
+	</reg32>
+	<reg32 offset="0x420" name="MS0_OP" length="8">
+		<bitfield low="0" high="15" name="FUNC"/>
+		<bitfield low="16" high="17" name="UNK16"/>
+	</reg32>
+	<reg32 offset="0x440" name="MS1_SRC" length="8">
+		<bitfield low="0" high="7" name="0"/>
+		<bitfield low="8" high="15" name="1"/>
+		<bitfield low="16" high="23" name="2"/>
+		<bitfield low="24" high="31" name="3"/>
+	</reg32>
+	<reg32 offset="0x460" name="MS1_OP" length="8">
+		<bitfield low="0" high="15" name="FUNC"/>
+		<bitfield low="16" high="17" name="UNK16"/>
+	</reg32>
+	<reg32 offset="0x480" name="MS2_SRC" length="8">
+		<bitfield low="0" high="7" name="0"/>
+		<bitfield low="8" high="15" name="1"/>
+		<bitfield low="16" high="23" name="2"/>
+		<bitfield low="24" high="31" name="3"/>
+	</reg32>
+	<reg32 offset="0x4a0" name="MS2_OP" length="8">
+		<bitfield low="0" high="15" name="FUNC"/>
+		<bitfield low="16" high="18" name="UNK16"/>
+	</reg32>
+	<reg32 offset="0x4c0" name="MS3_SRC" length="8">
+		<bitfield low="0" high="7" name="0"/>
+		<bitfield low="8" high="15" name="1"/>
+		<bitfield low="16" high="23" name="2"/>
+		<bitfield low="24" high="31" name="3"/>
+	</reg32>
+	<reg32 offset="0x4e0" name="MS3_OP" length="8">
+		<bitfield low="0" high="15" name="FUNC"/>
+		<bitfield low="16" high="18" name="UNK16"/>
+	</reg32>
+	<reg32 offset="0x540" name="MSSRC_STATUS" length="8"/>
+	<reg32 offset="0x560" name="SPEC_SRC">
+		<bitfield low="0" high="7" name="SWAP"/>
+		<bitfield low="8" high="15" name="UNK8"/>
+	</reg32>
+	<reg32 offset="0x600" name="CTR_UNK0" length="8"/>
+	<reg32 offset="0x640" name="CTR_UNK0" length="8"/>
+	<reg32 offset="0x680" name="CTR_MS2" length="8"/>
+	<reg32 offset="0x6c0" name="CTR_MS1" length="8"/>
+	<reg32 offset="0x700" name="CTR_MS0" length="8"/>
+	<reg32 offset="0x740" name="CTR_MS3" length="8"/>
+	<reg32 offset="0x7c0" name="CTRL" length="8">
+		<bitfield pos="24" name="SWAP_OK_NEXT"/>
+		<bitfield pos="25" name="SWAP_OK_CUR"/>
+	</reg32>
+	<stripe offset="0x0800" stride="0x20" length="8">
+		<reg32 offset="0" name="STATUS" length="8"/>
+	</stripe>
 </array>
 
 </domain>

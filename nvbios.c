@@ -5,7 +5,7 @@
 #include <string.h>
 #include <limits.h>
 
-uint8_t bios[0x10000];
+uint8_t bios[0x10003];
 uint32_t len;
 const uint8_t bit_signature[] = { 0xff, 0xb8, 'B', 'I', 'T' };
 const uint8_t bmp_signature[] = { 0xff, 0x7f, 'N', 'V', 0x0 };

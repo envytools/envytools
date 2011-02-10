@@ -385,6 +385,19 @@
 		<reg32 offset="0x910" name="STRAND_SIZE">
 			<doc>In words.</doc>
 		</reg32>
+		<reg32 offset="0x918" name="STRAND_GENE_CNT"/> <!-- also used as param by UNK5? -->
+		<reg32 offset="0x91c" name="STRAND_FIRST_GENE"/>
+		<reg32 offset="0x928" name="STRAND_CMD">
+			<value value="1" name="LATCH_FIRST_GENE"/>
+			<value value="2" name="LATCH_GENE_CNT"/>
+			<value value="3" name="SAVE"/>
+			<value value="4" name="LOAD"/>
+			<value value="5" name="UNK5"/> <!-- uses 918 -->
+			<value value="0xa" name="UNKA"/> <!-- uses 93c, selects strand set? -->
+			<value value="0xb" name="UNKB"/> <!-- uses 93c -->
+			<value value="0xc" name="UNKC"/> <!-- pre other commands -->
+			<value value="0xd" name="UNKD"/> <!-- post other commands -->
+		</reg32>
 
 		<reg32 offset="0xa04" name="MEM_BASE" shr="8"/>
 		<reg32 offset="0xa0c" name="MEM_CHAN" type="nv50_channel"/>
