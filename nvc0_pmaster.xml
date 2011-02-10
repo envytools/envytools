@@ -9,11 +9,17 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <array name="PMASTER" offset="0x120000" stride="0x10000" length="1" variants="NVC0-">
-	<group name="nvc0_pmaster_common">
+	<group name="nvc0_pmaster_mmio_common">
+		<reg32 offset="0x120" name="INTR_ADDR"/>
+		<reg32 offset="0x124" name="INTR_VALUE"/>
+		<reg32 offset="0x128" name="INTR">
+			<bitfield pos="9" name="PENDING"/>
+		</reg32>
+		<reg32 offset="0x300" name="CFG" length="64"/>
 	</group>
 
-	<group name="nvc0_pmaster_gpc">
-		<reg32 offset="0x100" name="ENABLE">
+	<group name="nvc0_pmaster_mmio_gpc">
+		<reg32 offset="0x100" name="ENABLE0">
 			<bitfield pos="0" name="PGUNK13B_U3"/>
 			<bitfield pos="1" name="PGUNK13B_U2"/>
 			<bitfield pos="2" name="PUNK10C"/>
@@ -27,16 +33,20 @@
 			<bitfield pos="12" name="TP2"/>
 			<bitfield pos="13" name="TP1"/>
 			<bitfield pos="14" name="TP0"/>
-			<bitfield pos="15" name="UNK15"/>
+			<bitfield pos="15" name="PMASTER_MMIO"/>
 			<bitfield pos="16" name="CTXCTL"/>
 		</reg32>
-		<use-group name="nvc0_pmaster_common"/>
+		<reg32 offset="0x104" name="ENABLE1">
+			<bitfield pos="30" name="PCOUNTER_UNK2"/>
+			<bitfield pos="31" name="PCOUNTER_UNK1"/>
+		</reg32>
+		<use-group name="nvc0_pmaster_mmio_common"/>
 	</group>
 
-	<group name="nvc0_pmaster_ropc">
-		<reg32 offset="0x100" name="ENABLE">
+	<group name="nvc0_pmaster_mmio_ropc">
+		<reg32 offset="0x100" name="ENABLE0">
 			<bitfield pos="0" name="PGUNK13B_U2"/>
-			<bitfield pos="1" name="PBFB"/>
+			<bitfield pos="1" name="PBFB_0"/>
 			<bitfield pos="2" name="PUNK10C"/>
 			<bitfield pos="3" name="PGUNK13B_U1"/>
 			<bitfield pos="4" name="UNK4"/>
@@ -45,12 +55,21 @@
 			<bitfield pos="8" name="PUNK130"/>
 			<bitfield pos="9" name="PGRAPH_ROP"/>
 			<bitfield pos="12" name="PGRAPH_ROP_CTL"/>
-			<bitfield pos="13" name="UNK13"/>
+			<bitfield pos="13" name="PMASTER_MMIO"/>
 		</reg32>
-		<use-group name="nvc0_pmaster_common"/>
+		<reg32 offset="0x104" name="ENABLE1">
+			<bitfield pos="29" name="PCOUNTER_UNK2" variants="NVC0:NVC1"/>
+			<bitfield pos="30" name="PCOUNTER_UNK1_1" variants="NVC0:NVC1"/>
+			<bitfield pos="31" name="PCOUNTER_UNK1_0" variants="NVC0:NVC1"/>
+			<bitfield pos="28" name="PCOUNTER_UNK2" variants="NVC1-"/>
+			<bitfield pos="29" name="PCOUNTER_UNK1_1" variants="NVC1-"/>
+			<bitfield pos="30" name="PCOUNTER_UNK1_0" variants="NVC1-"/>
+			<bitfield pos="31" name="PBFB_1" variants="NVC1-"/>
+		</reg32>
+		<use-group name="nvc0_pmaster_mmio_common"/>
 	</group>
 
-	<group name="nvc0_pmaster_unk3">
+	<group name="nvc0_pmaster_mmio_hub">
 		<reg32 offset="0x100" name="ENABLE">
 			<bitfield pos="0" name="PDISPLAY"/>
 			<bitfield pos="1" name="PGRAPH_DISPATCH"/>
@@ -77,31 +96,57 @@
 			<bitfield pos="28" name="PGUNK13B_1800"/>
 			<bitfield pos="31" name="PGUNK13B_3C00"/>
 		</reg32>
-		<use-group name="nvc0_pmaster_common"/>
+		<reg32 offset="0x104" name="ENABLE1">
+			<bitfield pos="8" name="CTXCTL"/>
+			<bitfield pos="9" name="PMASTER_MMIO"/>
+			<bitfield pos="10" name="PUNK082"/>
+			<bitfield pos="11" name="PUNK0CCC"/>
+			<bitfield pos="12" name="PUNK0CC"/>
+			<bitfield pos="14" name="UNK14"/>
+			<bitfield pos="21" name="PCOUNTER_UNK1_7"/>
+			<bitfield pos="22" name="PCOUNTER_UNK1_6"/>
+			<bitfield pos="23" name="PCOUNTER_UNK1_5"/>
+			<bitfield pos="24" name="PCOUNTER_UNK1_4"/>
+			<bitfield pos="25" name="PCOUNTER_UNK1_3"/>
+			<bitfield pos="26" name="PCOUNTER_UNK2"/>
+			<bitfield pos="27" name="PCOUNTER_UNK1_2"/>
+			<bitfield pos="28" name="PCOUNTER_UNK1_1"/>
+			<bitfield pos="29" name="PCOUNTER_UNK1_0"/>
+			<bitfield pos="30" name="PCOUNTER_MAIN"/>
+			<bitfield pos="31" name="PFFB_PBFB"/>
+		</reg32>
+		<use-group name="nvc0_pmaster_mmio_common"/>
 	</group>
 
-	<array name="GPC_BROADCAST" offset="0x0400" stride="0x0400" length="1">
-		<use-group name="nvc0_pmaster_gpc"/>
+	<array name="MMIO_GPC_BROADCAST" offset="0x0400" stride="0x0400" length="1">
+		<use-group name="nvc0_pmaster_mmio_gpc"/>
 	</array>
-	<array name="ROPC_BROADCAST" offset="0x0800" stride="0x0400" length="1">
-		<use-group name="nvc0_pmaster_ropc"/>
+	<array name="MMIO_ROPC_BROADCAST" offset="0x0800" stride="0x0400" length="1">
+		<use-group name="nvc0_pmaster_mmio_ropc"/>
 	</array>
-	<array name="UNK3_BROADCAST" offset="0x0c00" stride="0x0400" length="1">
-		<use-group name="nvc0_pmaster_unk3"/>
+	<array name="MMIO_HUB_BROADCAST" offset="0x0c00" stride="0x0400" length="1">
+		<use-group name="nvc0_pmaster_mmio_hub"/>
 	</array>
 
-	<reg32 offset="0x1c70" name="UNK3_COUNT"/>
-	<reg32 offset="0x1c74" name="ROPC_COUNT"/>
-	<reg32 offset="0x1c78" name="GPC_COUNT"/>
+	<array offset="0x1000" name="MAIN" stride="0x1000" length="1">
+		<reg32 offset="0xc58" name="MMIO_INTR_0">
+			<bitfield low="8" high="15" name="HUB"/>
+			<bitfield low="16" high="31" name="ROPC"/>
+		</reg32>
+		<reg32 offset="0xc5c" name="MMIO_INTR_GPC"/>
+		<reg32 offset="0xc70" name="HUB_COUNT"/>
+		<reg32 offset="0xc74" name="ROPC_COUNT"/>
+		<reg32 offset="0xc78" name="GPC_COUNT"/>
+	</array>
 
-	<array name="UNK3" offset="0x2000" stride="0x0400" length="8">
-		<use-group name="nvc0_pmaster_unk3"/>
+	<array name="MMIO_HUB" offset="0x2000" stride="0x0400" length="8">
+		<use-group name="nvc0_pmaster_mmio_hub"/>
 	</array>
-	<array name="ROPC" offset="0x4000" stride="0x0400" length="16">
-		<use-group name="nvc0_pmaster_ropc"/>
+	<array name="MMIO_ROPC" offset="0x4000" stride="0x0400" length="16">
+		<use-group name="nvc0_pmaster_mmio_ropc"/>
 	</array>
-	<array name="GPC" offset="0x8000" stride="0x0400" length="32">
-		<use-group name="nvc0_pmaster_gpc"/>
+	<array name="MMIO_GPC" offset="0x8000" stride="0x0400" length="32">
+		<use-group name="nvc0_pmaster_mmio_gpc"/>
 	</array>
 </array>
 
