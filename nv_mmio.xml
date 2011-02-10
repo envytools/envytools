@@ -278,6 +278,10 @@
 		</reg32>
 	</array>
 
+	<array offset="0x22000" name="PUNK022" stride="0x400" length="1" variants="NV84:NVC0">
+		<reg32 offset="0x210" name="PDAEMON_ENABLE" variants="NVA3-"/>
+	</array>
+
 	<array offset="0x60000" name="PPEEPHOLE" stride="0x10000" length="1" variants="NV84-">
 		<doc>A small area that allows single peeks/pokes into the VRAM.
 		The address is paged.</doc>
@@ -406,7 +410,7 @@
 
 <!-- 021000 - 021fff ??? -->
 
-<!-- 022000 - 022fff ??? -->
+<!-- 022000 - 0223ff PUNK022 covered above -->
 
 <!-- 040000 - 045fff PFIFO_CHAN covered in nvc0_pfifo.xml -->
 
