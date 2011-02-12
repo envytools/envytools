@@ -75,9 +75,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x04" name="ADDRESS_LOW"/>
 			<reg32 offset="0x08" name="FORMAT" type="NV50_SURFACE_FORMAT"/>
 			<reg32 offset="0x0c" name="TILE_MODE">
-				<bitfield pos="0" name="UNK0" />
-				<bitfield low="4" high="6" name="Y" />
-				<bitfield low="8" high="10" name="Z" />
+				<bitfield low="0" high="3" name="X" />
+				<bitfield low="4" high="7" name="Y" />
+				<bitfield low="8" high="11" name="Z" />
 			</reg32>
 			<reg32 offset="0x10" name="LAYER_STRIDE" shr="2"/>
 			<reg32 offset="0x14" name="UNK14"/>
