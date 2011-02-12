@@ -1185,9 +1185,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			first. ctxvals bits 0-3 and 4-7 == val >> 1, bit 8 == val&amp;1.
 			</doc>
 		</reg32>
-		<reg32 offset="0x19e0" name="UNK19E0" type="boolean" length="8">
-			<doc>Goes to tpdma. 1 by default.</doc>
-		</reg32>
+		<reg32 offset="0x19e0" name="RT_COMP_ENABLE" type="boolean" length="8"/>
 		<reg32 offset="0x1a00" name="COLOR_MASK" length="8">
 			<bitfield name="R" high="3" low="0" type="boolean" />
 			<bitfield name="G" high="7" low="4" type="boolean" />
