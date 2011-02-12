@@ -1,0 +1,167 @@
+Introduction
+
+Commands to most of the engines are sent through a special engine caled PFIFO.
+PFIFO maintains multiple fully independent command queues, known as "channels"
+or "FIFO"s. Each channel is controlled through a "channel control area", which
+is a region of MMIO [pre-NVC0] or VRAM [NVC0+]. PFIFO intercepts all accesses
+to that area and acts upon them.
+
+PFIFO internally does time-sharing between the channels, but this is
+transparent to the user applications. The engines that PFIFO controls are also
+aware of channels, and maintain separate context for each channel.
+
+The context-switching ability of PFIFO depends on card generation. Since NV40,
+PFIFO is able to switch between channels at essentially any moment. On older
+cards, due to lack of backing storage for the CACHE, a switch is only possible
+when the CACHE is empty. The PFIFO-controlled engines are, however, much worse
+at switching: they can only switch between commands. While this wasn't a big
+problem on old cards, since the commands were guaranteed to execute in finite
+time, introduction of programmable shaders with looping capabilities made it
+possible to effectively hang the whole GPU by launching a long-running shader.
+[XXX: check if it still holds on NVC0]
+
+The engines that PFIFO controls are:
+
+idx|   name   |   cards   | description
+------------------------------------------------------------------------------
+ 0 |          |           | Not really an engine, causes interrupt for each 
+ / | SOFTWARE |    all    | command, can be used to execute driver functions
+1f |          |           | in sync with other commands.
+------------------------------------------------------------------------------
+   |          |           | Main engine of the card: 2d, 3d, compute.
+1/0| PGRAPH   |    all    | [see nv01-graph.txt for NV01:NV50, nv50-graph.txt,
+   |          |           | for NV50:NVC0, nvc0-graph.txt for NVC0:...]
+------------------------------------------------------------------------------
+2/-| PDVD     |?NV04:NV17?| Probably the HDVP MPEG2 decoding engine. Has
+   |          |           | legendary status. Noone can confirm its existence.
+------------------------------------------------------------------------------
+2/-| PMPEG    |?NV31:NV98 | The PFIFO interface to VPE MPEG2 decoding engine.
+   |          |           | [see vpe.txt]
+------------------------------------------------------------------------------
+3/-| PMSRCH   |?NV40:NV84 | ??? probably some other video decoding engine.
+------------------------------------------------------------------------------
+4/-| PVP      |?NV41:NV84 | VP1 microcoded video processor. [see vp1.txt]
+------------------------------------------------------------------------------
+4/-| PVP      |           | VP2 video decoding engines: video processor and
+--------------|           | bitstream processor. Microcoded through embedded
+6/-| PBSP     | NV84:NV98 | xtensa cores. [see vp2.txt]
+--------------|           |---------------------------------------------------
+5/-| PCRYPT   |           | AES cryptography and copy engine. [see crypt.txt]
+------------------------------------------------------------------------------
+2/2| PPPP     |           | VP3 fuc-microcoded video decoding engines: picture
+--------------|           | post-processor, video processor, bitstream
+4/1| PVP      | NV98:.... | processor. [see fuc-fifo.txt, fuc-bsp.txt,
+--------------|           | fuc-vp.txt, fuc-ppp.txt]
+6/3| PBSP     |           |
+------------------------------------------------------------------------------
+   |          |           | fuc-microcoded engine with AES crypto coprocessor.
+5/-| PCRYPT   | NV98:NVA3 | On NVA3+, the crypto powers were instead merged
+   |          |           | into PVP. [see fuc-fifo.txt, fuc-crypt.txt]
+------------------------------------------------------------------------------
+5/-| PUNK1C1  | NVAF:NVC0 | fuc-microcoded engine of unknown purpose
+------------------------------------------------------------------------------
+3/ |          |           | fuc-microcoded engine, meant to copy stuff from
+4,5| PCOPY    | NVA3:.... | point A to point B. Comes in two copies on NVC0+.
+   |          |           | [see fuc-fifo.txt, fuc-copy.txt]
+------------------------------------------------------------------------------
+idx is the FIFO engine id. The first number is the id for pre-nvc0 cards, the
+second is for nvc0+ cards.
+
+This file deals only with the user-visible side of the PFIFO. For kernel-side
+programming, see nv01-pfifo.txt, nv04-pfifo.txt, nv50-pfifo.txt, or
+nvc0-pfifo.txt.
+
+Note: NVC0 information can still be very incomplete / not exactly true.
+
+
+Overall operation
+
+The PFIFO can be split into roughly 4 pieces:
+
+ - PFIFO pusher: collects user's commands and injects them to
+ - PFIFO CACHE: a big queue of commands waiting for execution by
+ - PFIFO puller: executes the commands, passes them to the proper engine,
+    or to the driver.
+ - PFIFO switcher: ticks out the time slices for the channels and saves/
+    restores the state of the channel between PFIFO registers and RAMFC
+    memory.
+
+A channel consists of the following:
+
+ - channel mode: PIO [NV01:NV50], DMA [NV04:NVC0], or IB [NV50:NVC0]
+ - PFIFO DMA pusher state [DMA and IB channels only] [see fifo-dma-pusher.txt]
+ - PFIFO CACHE state: the commands already accepted but not yet executed
+ - PFIFO puller state [see fifo-puller.txt]
+ - RAMFC: area of VRAM storing the above when channel is not currently active
+   on PFIFO [not user-visible]
+ - RAMHT [pre-NVC0 only]: a table of "objects" that the channel can use. The
+   objects are identified by arbitrary 32-bit handles, and can be DMA objects
+   [see nv03-dmaobj.txt, nv04-dmaobj.txt, nv50-vm.txt] or engine objects [see
+   fifo-puller.txt and engine documentation]. On pre-NV50 cards, individual
+   objects can be shared between channels.
+ - vspace [NV50+ only]: A hierarchy of page tables that describes the virtual
+   memory space visible to engines while executing commands for the channel.
+   Multiple channels can share a vspace. [see nv50-vm.txt, nvc0-vm.txt]
+ - engine-specific state
+
+Channel mode determines the way of submitting commands to the channel. PIO
+mode is available on pre-NV50 cards, and involves poking the methods directly
+to the channel control area. It's slow and fragile - everything breaks down
+easily when more than one channel is used simultanously. Not recommended. See
+fifo-pio.txt for details.
+
+NV01 PFIFO doesn't support any DMA mode. There's apparently a PDMA engine that
+could be DMA command submission, but nobody bothers enough to figure out how
+it works.
+
+NV03 PFIFO introduced a hacky DMA mode that requires kernel assistance for
+every submitted batch of commands and prevents channel switching while stuff
+is being submitted. See fifo-nv03-dma.txt for details.
+
+NV04 PFIFO greatly enhanced the DMA mode and made it controllable directly
+through the channel control area. Thus, commands can now be submitted by
+multiple applications simultanously, without coordination with each other
+and without kernel's help. DMA mode is described in fifo-dma-pusher.txt.
+
+NV50 nuked the PIO mode, kept the NV04-style DMA mode, and introduced IB mode.
+IB mode is a modified version of DMA mode that, instead of following a single
+stream of commands from memory, has the ability to stitch together parts of
+multiple memory areas into a single command stream - allowing constructs that
+submit commands with parameters pulled directly from memory written by earlier
+commands. IB mode is described along with DMA mode in fifo-dma-pusher.txt.
+
+NVC0 rearchitected the whole PFIFO, made it possible to have up to 3 channels
+executing simultanously, and changed DMA packet format. It also got rid of the
+non-IB DMA mode [or at least we don't know how to activate it yet].
+
+The commands, as stored in CACHE, are tuples of:
+
+ - subchannel: 0-7
+ - method: 0-0x1ffc [really 0-0x7ff] pre-NVC0, 0-0x3ffc [really 0-0xfff] NVC0+
+ - parameter: 0-0xffffffff
+ - submission mode [NV10+]: I or NI
+
+Subchannel identifies the engine and object that the command will be sent to.
+The subchannels have no fixed assignments to engines/objects, and can be
+freely bound/rebound to them by using method 0. The "objects" are individual
+pieces of functionality of PFIFO-controlled engine. A single engine can expose
+any number of object types, though most engines only expose one.
+
+The method selects an individual command of the object bound to the selected
+subchannel, except methods 0-0xfc which are special and are executed directly
+by the puller, ignoring the bound object. Note that, traditionally, methods
+are treated as 4-byte addressable locations, and hence their numbers are
+written down multiplied by 4: method 0x3f thus is written as 0xfc. This is
+a leftover from PIO channels. In the documentation, whenever a specific method
+number is mentioned, it'll be written pre-multiplied by 4 unless specified
+otherwise.
+
+The parameter is an arbitrary 32-bit value that accompanies the method.
+
+The submission mode is I if the command was submitted through increasing DMA
+packet, or NI if the command was submitted through non-increasing packet. This
+information isn't actually used for anything by the card, but it's stored in
+the CACHE for certain optimisation when submitting PGRAPH commands.
+
+Method execution is described in detail in fifo-puller.txt and engine-specific
+documentation.
