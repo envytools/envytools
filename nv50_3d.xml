@@ -1166,9 +1166,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x19c4" name="LOGIC_OP_ENABLE" type="boolean"/>
 		<reg32 offset="0x19c8" name="LOGIC_OP" type="gl_logic_op"/>
-		<reg32 offset="0x19cc" name="UNK19CC" type="boolean">
-			<doc>Goes to tpdma, ROP. 1 by default.</doc>
-		</reg32>
+		<reg32 offset="0x19cc" name="ZETA_COMP_ENABLE" type="boolean"/>
 		<reg32 offset="0x19d0" name="CLEAR_BUFFERS">
 			<bitfield name="Z" pos="0" type="boolean"/>
 			<bitfield name="S" pos="1" type="boolean"/>
