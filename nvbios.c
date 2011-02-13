@@ -921,7 +921,13 @@ int main(int argc, char **argv) {
 		for (i=0; i < entry_count; i++) {
 			uint16_t id, fan, voltage;
 			uint16_t core, shader = 0, memclk;
+			uint8_t pcie_width = 0;
 			uint8_t timing_id = 0xff;
+
+			if (mode_info_length >= 28)
+			 // it is possible that the link width is a uint16_t
+			 // note the variable used is uint8_t
+				pcie_width = bios[start+28];
 
 			if (version == 0x12 || version == 0x13 || version == 0x15) {
 				id = bios[start+0];
@@ -971,8 +977,8 @@ int main(int argc, char **argv) {
 					timing_id = bios[start+subent(timing_entry)+1];
 			}
 
-			printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Voltage %d[*10mV] Timing %d Fan %d --\n",
-				id, core, memclk, shader, voltage, timing_id, fan
+			printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
+				id, core, memclk, shader, voltage, timing_id, fan, pcie_width
 			);
 			if (mode_info_length > 20) {
 				int i=0;
