@@ -612,11 +612,11 @@
 				<bitfield high="28" low="18" name="METHOD_COUNT"/>
 				<bitfield high="31" low="29" name="ERROR">
 					<value value="0" name="NONE"/>
-					<value value="1" name="CALL" variants="NV11-"/>
-					<value value="2" name="NON_CACHE"/>
-					<value value="3" name="RETURN" variants="NV11-"/>
-					<value value="4" name="RESERVED_CMD"/>
-					<value value="6" name="PROTECTION"/>
+					<value value="1" name="CALL_SUBR_ACTIVE" variants="NV11-"/>
+					<value value="2" name="INVALID_MTHD"/>
+					<value value="3" name="RET_SUBR_INACTIVE" variants="NV11-"/>
+					<value value="4" name="INVALID_CMD"/>
+					<value value="6" name="MEM_FAULT"/>
 				</bitfield>
 			</reg32>
 			<reg32 offset="0x02c" name="DMA_INSTANCE" variants="NV04-" shr="4"/>
