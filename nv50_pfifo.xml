@@ -279,10 +279,10 @@
 				<bitfield high="23" low="20" name="SEMAPHORE_ERROR">
 					<value value="0" name="NONE"/>
 					<!-- XXX: figure out wtf they mean. Doesn't seem to be consistent. -->
-					<value value="1" name="OFFSET_UNALIGNED"/>
+					<value value="1" name="ADDRESS_UNALIGNED"/>
 					<value value="2" name="INVALID_STATE"/>
-					<value value="3" name="OFFSET_TOO_LARGE"/>
-					<value value="4" name="PROTECTION"/>
+					<value value="3" name="ADDRESS_TOO_LARGE"/>
+					<value value="4" name="MEM_FAULT"/>
 				</bitfield>
 				<bitfield high="31" low="28" name="STATUS">
 					<!-- XXX: figure this out -->
