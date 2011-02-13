@@ -345,3 +345,123 @@ method M+4 [ie. the next method].
 
 Inline method command is a single-word command that submits a single method
 with a short [12-bit] parameter encoded in VV..V field.
+
+NVC0 also did away with the NON_CACHE error - invalid low methods are pushed
+into CACHE as usual, puller will complain about the instead when it tries to
+execute them.
+
+
+The pusher pseudocode - pre-NVC0
+
+while(1) {
+	if (dma_get != dma_put) {
+		/* pushbuffer non-empty, read a word. */
+		b32 word;
+		try {
+			if (!ib_enable && dma_get >= dma_limit)
+				throw DMA_PUSHER(PROTECTION);
+			if (chipset < NV11)
+				word = READ_DMAOBJ_32(dma_pushbuffer, dma_get, LE);
+			else if (chipset < NV50)
+				word = READ_DMAOBJ_32(dma_pushbuffer, dma_get, big_endian?BE:LE);
+			else
+				word = READ_DMAOBJ_32(dma_pushbuffer, dma_get, pmc_endian);
+			dma_get += 4;
+			if (!nonmain)
+				dma_mget = dma_get;
+		} catch (VM_FAULT) {
+			throw DMA_PUSHER(PROTECTION);
+		}
+		/* now, see if we're in the middle of a command */
+		if (dma_state.lenp) {
+			/* second word of long non-inc methods command - method count */
+			dma_state.lenp = 0;
+			/* [XXX: obvious question: what if word > 0xffffff?] */
+			dma_state.mcnt = word;
+		} else if (dma_state.mcnt) {
+			/* data word of methods command */
+			data_shadow = word;
+			if (!PULLER_KNOWS_MTHD(dma_state.mthd))
+				throw DMA_PUSHER(NON_CACHE);
+			if (!sli_enable || sli_active) {
+				CACHE_PUSH(dma_state.subc, dma_state.mthd, word, dma_state.ni);
+			}
+			if (!dma_state.ni)
+				dma_state.mthd++; /* [XXX: obvious question: overflow?] */
+			dma_state.mcnt--;
+		} else {
+			/* no command active - this is the first word of a new one */
+			rsvd_shadow = word;
+			/* match all forms */
+			if ((word & 0xe0000003) == 0x20000000 && !ib_enable) {
+				/* old jump */
+				dma_get_jmp_shadow = dma_get;
+				dma_get = word & 0x1fffffff;
+			} else if ((word & 3) == 1 && !ib_enable && chipset >= NV11) {
+				/* jump */
+				dma_get_jmp_shadow = dma_get;
+				dma_get = word & 0xfffffffc;
+			} else if ((word & 3) == 2 && !ib_enable && chipset >= NV11) {
+				/* call */
+				if (subr_active)
+					throw DMA_PUSHER(CALL);
+				subr_return = dma_get;
+				subr_active = 1;
+				dma_get = word & 0xfffffffc;
+			} else if (word == 0x00020000 && !ib_enable && chipset >= NV11) {
+				/* return */
+				if (!subr_active)
+					throw DMA_PUSHER(RETURN);
+				dma_get = subr_return;
+				subr_active = 0;
+			} else if ((word & 0xe0030003) == 0) {
+				/* increasing methods */
+				dma_state.mthd = (word >> 2) & 0x7ff;
+				dma_state.subc = (word >> 13) & 7;
+				dma_state.mcnt = (word >> 18) & 0x7ff;
+				dma_state.ni = 0;
+			} else if ((word & 0xe0030003) == 0x40000000 && chipset >= NV10) {
+				/* non-increasing methods */
+				dma_state.mthd = (word >> 2) & 0x7ff;
+				dma_state.subc = (word >> 13) & 7;
+				dma_state.mcnt = (word >> 18) & 0x7ff;
+				dma_state.ni = 1;
+			} else if ((word & 0xffff0003) == 0x00030000 && ib_enable) {
+				/* long non-increasing methods */
+				dma_state.mthd = (word >> 2) & 0x7ff;
+				dma_state.subc = (word >> 13) & 7;
+				dma_state.lenp = 1;
+				dma_state.ni = 1;
+			} else if ((word & 0xffff000f) == 0x00010000 && sli_enable) {
+				if (sli_mask & ((word >> 4) & 0xfff))
+					sli_active = 1;
+				else
+					sli_active = 0;
+			} else {
+				throw DMA_PUSHER(RESERVED_CMD);
+			}
+		}
+	} else if (ib_enable && ib_get != ib_put) {
+		/* current pushbuffer empty, but we have more IB entries to read */
+		b64 entry;
+		try {
+			/* XXX: does endian switch affect the whole thing, or just 32-bit parts? */
+			entry = READ_DMAOBJ_64(dma_pushbuffer, ib_address + ib_get * 8, pmc_endian);
+			ib_get++;
+			if (ib_get == (1 << ib_order))
+				ib_get = 0;
+		} catch (VM_FAULT) {
+			throw DMA_PUSHER(PROTECTION);
+		}
+		len = entry >> 42 & 0x3fffff;
+		if (!len)
+			throw DMA_PUSHER(IB);
+		dma_get = entry & 0xfffffffffc;
+		dma_put = dma_get + len * 4;
+		if (entry & 1 << 41)
+			nonmain = 1;
+		else
+			nonmain = 0;
+	}
+	/* otherwise, pushbuffer empty and IB empty or nonexistent - nothing to do. */
+}
