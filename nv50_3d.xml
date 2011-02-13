@@ -627,7 +627,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Goes to ROP, 1cxx, TPDMA, MP. Related to UNK0F90.</doc>
 		</reg32>
 		<reg32 offset="0x1360" name="BLEND_ENABLE" length="8" type="boolean"/>
-		<reg32 offset="0x1380" name="STENCIL_FRONT_ENABLE" type="boolean"/>
+		<reg32 offset="0x1380" name="STENCIL_ENABLE" type="boolean"/>
 		<reg32 offset="0x1384" name="STENCIL_FRONT_OP_FAIL" type="gl_stencil_op"/>
 		<reg32 offset="0x1388" name="STENCIL_FRONT_OP_ZFAIL" type="gl_stencil_op"/>
 		<reg32 offset="0x138c" name="STENCIL_FRONT_OP_ZPASS" type="gl_stencil_op"/>
@@ -815,7 +815,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1590" name="ZCULL_REGION">
 			<doc>0x3f means none.</doc>
 		</reg32>
-		<reg32 offset="0x1594" name="STENCIL_BACK_ENABLE" type="boolean"/>
+		<reg32 offset="0x1594" name="STENCIL_TWO_SIDE_ENABLE" type="boolean"/>
 		<reg32 offset="0x1598" name="STENCIL_BACK_OP_FAIL" type="gl_stencil_op"/>
 		<reg32 offset="0x159c" name="STENCIL_BACK_OP_ZFAIL" type="gl_stencil_op"/>
 		<reg32 offset="0x15a0" name="STENCIL_BACK_OP_ZPASS" type="gl_stencil_op"/>

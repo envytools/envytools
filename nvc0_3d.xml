@@ -303,7 +303,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1350" name="BLEND_FUNC_SRC_ALPHA" type="NV50_BLEND_FACTOR"/>
 		<reg32 offset="0x1358" name="BLEND_FUNC_DST_ALPHA" type="NV50_BLEND_FACTOR"/>
 		<reg32 offset="0x1360" name="BLEND_ENABLE" length="8" type="boolean"/>
-		<reg32 offset="0x1380" name="STENCIL_FRONT_ENABLE" type="boolean"/>
+		<reg32 offset="0x1380" name="STENCIL_ENABLE" type="boolean"/>
 		<reg32 offset="0x1384" name="STENCIL_FRONT_OP_FAIL" type="gl_stencil_op"/>
 		<reg32 offset="0x1388" name="STENCIL_FRONT_OP_ZFAIL" type="gl_stencil_op"/>
 		<reg32 offset="0x138c" name="STENCIL_FRONT_OP_ZPASS" type="gl_stencil_op"/>
