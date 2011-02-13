@@ -696,9 +696,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1434" name="VB_ELEMENT_BASE" type="int"/>
 		<reg32 offset="0x1438" name="VB_INSTANCE_BASE" type="int"/>
 		<reg32 offset="0x143c" name="CLEAR_FLAGS">
-			<doc>Goes to TP, ROP, 2cxx, 1cxx. 0x10 by default.</doc>
-			<bitfield pos="0" name="OGL"/><!-- set for OpenGL, don't know what it does -->
-			<bitfield pos="4" name="D3D"/><!-- if set, only VIEWPORT settings apply to clears -->
+			<bitfield pos="0" name="STENCIL_MASK"/>
+			<bitfield pos="4" name="CLEAR_RECT">
+				<value value="0" name="SCISSOR"/>
+				<value value="0" name="VIEWPORT"/>
+			</bitfield>
 		</reg32>
 		<reg32 offset="0x1440" name="CODE_CB_FLUSH">
 			<doc>Works with writing 0, but appears to accept values
