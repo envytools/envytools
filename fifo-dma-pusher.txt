@@ -37,7 +37,7 @@ bool   | dma_state.ni     | NV10+ | Current command's NI flag
 bool   | dma_state.lenp   | NV50+ | [I] Large NI command length pending
 b32    | ref              | NV10+ | reference counter [shared with puller]
 bool   | subr_active      | NV11+ | [O] Subroutine active
-b32    | subr_return      | NV11+ | [O] sobroutine return address
+b32    | subr_return      | NV11+ | [O] subroutine return address
 bool   | big_endian       | 11:50 | [*] pushbuffer endian switch
 bool   | sli_enable       | NV50+ | [*] SLI cond command enabled
 b12    | sli_mask         | NV50+ | [*] SLI cond mask
@@ -262,7 +262,7 @@ in low 24 bits of the next word in the pushbuffer.
 
 The subsequent mthd_count words after the first word [or second word in case
 of the long command] are the method parameters to be submitted. If command
-type is increasing methods, the method number increases by 4 [ie. by 1 mehod]
+type is increasing methods, the method number increases by 4 [ie. by 1 method]
 for each submitted word. If type is non-increasing, all words are submitted
 to the same method.
 
@@ -347,7 +347,7 @@ Inline method command is a single-word command that submits a single method
 with a short [12-bit] parameter encoded in VV..V field.
 
 NVC0 also did away with the NON_CACHE error - invalid low methods are pushed
-into CACHE as usual, puller will complain about the instead when it tries to
+into CACHE as usual, puller will complain about them instead when it tries to
 execute them.
 
 
