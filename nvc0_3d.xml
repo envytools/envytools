@@ -131,11 +131,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x0c08" name="DEPTH_RANGE_NEAR" length="16" stride="16" type="float"/>
 		<reg32 offset="0x0c0c" name="DEPTH_RANGE_FAR" length="16" stride="16" type="float"/>
-		<reg32 offset="0x0d00" name="VIEWPORT_CLIP_HORIZ" length="8" stride="8">
+		<reg32 offset="0x0d00" name="CLIP_RECT_HORIZ" length="8" stride="8">
 			<bitfield name="MIN" high="15" low="0" type="uint"/>
 			<bitfield name="MAX" high="31" low="16" type="uint"/>
 		</reg32>
-		<reg32 offset="0x0d04" name="VIEWPORT_CLIP_VERT" length="8" stride="8">
+		<reg32 offset="0x0d04" name="CLIP_RECT_VERT" length="8" stride="8">
 			<bitfield name="MIN" high="15" low="0" type="uint"/>
 			<bitfield name="MAX" high="31" low="16" type="uint"/>
 		</reg32>
@@ -527,8 +527,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="12" name="UNK12"/>
 			<bitfield pos="13" name="UNK13"/>
 		</reg32>
-		<reg32 offset="0x194c" name="VIEWPORT_CLIP_RECTS_EN" type="boolean"/>
-		<reg32 offset="0x1950" name="VIEWPORT_CLIP_MODE">
+		<reg32 offset="0x194c" name="CLIP_RECTS_EN" type="boolean"/>
+		<reg32 offset="0x1950" name="CLIP_RECTS_MODE">
 			<value value="0" name="INSIDE_ANY"/>
 			<value value="1" name="OUTSIDE_ALL"/>
 			<value value="2" name="NEVER"/> <!-- sounds useless... and doesn't make sense. -->
