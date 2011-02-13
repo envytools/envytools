@@ -336,6 +336,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			0-3... what do they do, if anything?</doc>
 		</reg32>
 		<reg32 offset="0x1504" name="CLIPID_HEIGHT" type="uint" max="0x2000"/>
+		<reg32 offset="0x1508" name="CLIPID_FILL_RECT_HORIZ">
+			<bitfield low="0" high="15" name="LOW"/>
+			<bitfield low="16" high="31" name="HIGH"/>
+		</reg32>
+		<reg32 offset="0x150c" name="CLIPID_FILL_RECT_VERT">
+			<bitfield low="0" high="15" name="LOW"/>
+			<bitfield low="16" high="31" name="HIGH"/>
+		</reg32>
 		<reg32 offset="0x1510" name="VP_CLIP_DISTANCE_ENABLE">
 			<bitfield name="0" pos="0" type="boolean"/>
 			<bitfield name="1" pos="1" type="boolean"/>
@@ -566,6 +574,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="A" pos="5" type="boolean"/>
 			<bitfield name="RT" high="9" low="6" type="int"/>
 			<bitfield name="LAYER" high="20" low="10" type="int"/>
+		</reg32>
+		<reg32 offset="0x19d4" name="CLIPID_FILL">
+			<doc>Writes param to CLIPID subrectangle specified by intersection of SCREEN_SCISSOR and CLIPID_FILL_RECT.</doc>
 		</reg32>
 		<reg32 offset="0x1a00" name="COLOR_MASK" length="8">
 			<bitfield name="R" high="3" low="0" type="boolean" />
