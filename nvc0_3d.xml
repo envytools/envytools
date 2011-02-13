@@ -309,8 +309,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x138c" name="STENCIL_FRONT_OP_ZPASS" type="gl_stencil_op"/>
 		<reg32 offset="0x1390" name="STENCIL_FRONT_FUNC_FUNC" type="gl_comparison_op"/>
 		<reg32 offset="0x1394" name="STENCIL_FRONT_FUNC_REF"/>
-		<reg32 offset="0x1398" name="STENCIL_FRONT_MASK"/>
-		<reg32 offset="0x139c" name="STENCIL_FRONT_FUNC_MASK"/>
+		<reg32 offset="0x1398" name="STENCIL_FRONT_FUNC_MASK"/>
+		<reg32 offset="0x139c" name="STENCIL_FRONT_MASK"/>
 		<reg32 offset="0x13a4" name="DRAW_TFB_BASE"/>
 		<reg32 offset="0x13a8" name="FRAG_COLOR_CLAMP_EN">
 			<bitfield pos="0" name="0"/>
