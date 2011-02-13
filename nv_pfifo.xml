@@ -793,7 +793,7 @@
 		<reg32 offset="0x40" name="DMA_PUT"/>
 		<reg32 offset="0x44" name="DMA_GET" access="r"/>
 		<reg32 offset="0x48" name="REF" access="r"/>
-		<reg32 offset="0x54" name="SUBROUTINE" access="r"/>
+		<reg32 offset="0x54" name="DMA_CGET" access="r"/>
 	</array>
 
 </domain>
