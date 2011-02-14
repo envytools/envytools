@@ -60,6 +60,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0a04" name="UNK0A04"/>
 		<reg32 offset="0x0a08" name="UNK0A08"/>
 		<reg32 offset="0x1234" name="LINKED_TSC"/>
+		<reg32 offset="0x1550" name="COND_ADDRESS_HIGH"/>
+		<reg32 offset="0x1554" name="COND_ADDRESS_LOW"/>
+		<reg32 offset="0x1558" name="COND_MODE" type="nv50_cond_mode"/>
 		<reg32 offset="0x155c" name="TSC_ADDRESS_HIGH"/>
 		<reg32 offset="0x1560" name="TSC_ADDRESS_LOW"/>
 		<reg32 offset="0x1564" name="TSC_LIMIT"/>
