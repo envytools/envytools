@@ -38,6 +38,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x032c" name="NOTIFY_ADDRESS_HIGH"/>
 		<reg32 offset="0x0330" name="NOTIFY_ADDRESS_LOW"/>
 		<reg32 offset="0x0334" name="NOTIFY"/>
+		<reg32 offset="0x0338" name="COND_ADDRESS_HIGH"/>
+		<reg32 offset="0x033c" name="COND_ADDRESS_LOW"/>
+		<reg32 offset="0x0340" name="COND_MODE" type="nv50_cond_mode"/>
 		<reg32 offset="0x0344" name="TILING_POSITION_IN_X" type="int"/>
 		<reg32 offset="0x0348" name="TILING_POSITION_IN_Y" type="int"/>
 		<reg32 offset="0x034c" name="TILING_POSITION_OUT_X" type="int"/>
