@@ -366,8 +366,12 @@
 			<reg32 offset="0x110" name="UNK110">
 				<doc>Bits 0xffffffff.</doc>
 			</reg32>
-			<reg32 offset="0x114" name="UNK114">
-				<doc>Bits 3.</doc>
+			<reg32 offset="0x114" name="FIFO_ENDIAN">
+				<bitfield pos="0" name="PMC_OVERRIDE_ENABLE"/>
+				<bitfield pos="1" name="PMC_OVERRIDE_MODE">
+					<value value="0" name="LITTLE"/>
+					<value value="1" name="BIG"/>
+				</bitfield>
 			</reg32>
 			<reg32 offset="0x118" name="UNK118">
 				<doc>Bits 7. Reads as 2.</doc>
