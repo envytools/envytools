@@ -938,6 +938,7 @@ int main(int argc, char **argv) {
 			} else if (version >= 0x21 && version <= 0x24) {
 				id = bios[start+0];
 				core = le16(start+6);
+				shader = core + (signed char) bios[start+8];
 				memclk = le16(start+11);
 				fan = bios[start+4];
 				voltage = bios[start+5];
