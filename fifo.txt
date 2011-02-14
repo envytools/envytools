@@ -165,3 +165,13 @@ the CACHE for certain optimisation when submitting PGRAPH commands.
 
 Method execution is described in detail in fifo-puller.txt and engine-specific
 documentation.
+
+Pre-NV11, PFIFO treats everything as little-endian. NV11 introduced big-endian
+mode, which affects pushbuffer/IB reads and semaphores. On NV11:NV50 cards,
+the endian can be selected per channel via big_endian flag. On NV50+ cards,
+PFIFO endianness is a global switch.
+[XXX: look for NVC0 PFIFO endian switch]
+
+The channel control area endianness is not affected by the big_endian flag or
+NV50+ PFIFO endianness switch. Instead, it follows the PMC MMIO endian switch.
+[XXX: is it still true for NVC0, with VRAM-backed channel control area?]

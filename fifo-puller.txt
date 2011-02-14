@@ -319,7 +319,8 @@ New-style semaphores
  - acquire supports "wait for value equal to X" and "wait for value greater
    or equal X" modes
 
-Semaphores have to be 4-byte aligned.
+Semaphores have to be 4-byte aligned. All values are stored with endianness
+selected by big_endian flag [NV11:NV50] or by PFIFO endianness [NV50+]
 
 On pre-NVC0, both old-style semaphores and new-style semaphores use the DMA
 object stored in dma_semaphore, which can be set through DMA_SEMAPHORE method.
@@ -346,11 +347,9 @@ SEMAPHORE_TRIGGER method with the requested operation as parameter.
 The new-style release operation writes the following 16-byte structure to
 memory at semaphore_address:
 
-word 0: semaphore_sequence
-word 1: 0
-word 2: PTIMER timestamp, low part [see ptimer.txt]
-word 3: PTIMER timestamp, high part
-[XXX: check big-endian mode]
+0x00: [32-bit] semaphore_sequence
+0x04: [32-bit] 0
+0x08: [64-bit] PTIMER timestamp [see ptimer.txt]
 
 The new-style "acquire equal" operation behaves exactly like old-style
 acquire, but uses semaphore_address instead of semaphore_offset and
@@ -423,7 +422,7 @@ mthd 0x0068 / 0x01a: SEMAPHORE_ACQUIRE [NV11:NVC0]
 		word = READ_DMAOBJ_32(dma_semaphore, semaphore_offset, big_endian?BE:LE);
 	} else {
 		try {
-			word = READ_DMAOBJ_32(dma_semaphore, semaphore_offset, pmc_endian);
+			word = READ_DMAOBJ_32(dma_semaphore, semaphore_offset, pfifo_endian);
 		} catch (VM_FAULT) {
 			throw SEMAPHORE(MEM_FAULT);
 		}
@@ -452,7 +451,7 @@ mthd 0x006c / 0x01b: SEMAPHORE_RELEASE [NV11:NVC0]
 		WRITE_DMAOBJ_32(dma_semaphore, semaphore_offset, param, big_endian?BE:LE);
 	} else {
 		try {
-			WRITE_DMAOBJ_32(dma_semaphore, semaphore_offset, param, pmc_endian);
+			WRITE_DMAOBJ_32(dma_semaphore, semaphore_offset, param, pfifo_endian);
 		} catch (VM_FAULT) {
 			throw SEMAPHORE(MEM_FAULT);
 		}
@@ -482,29 +481,27 @@ mthd 0x001c / 0x007: SEMAPHORE_TRIGGER [NV84:]
 	if (param == 2) {
 		if (chipset < NVC0) {
 			try {
-				WRITE_DMAOBJ_32(dma_semaphore, semaphore_address+0x0, param, pmc_endian);
-				WRITE_DMAOBJ_32(dma_semaphore, semaphore_address+0x4, 0, pmc_endian);
-				WRITE_DMAOBJ_32(dma_semaphore, semaphore_address+0x8, timestamp, pmc_endian);
-				WRITE_DMAOBJ_32(dma_semaphore, semaphore_address+0xc, timestamp >> 32, pmc_endian);
+				WRITE_DMAOBJ_32(dma_semaphore, semaphore_address+0x0, param, pfifo_endian);
+				WRITE_DMAOBJ_32(dma_semaphore, semaphore_address+0x4, 0, pfifo_endian);
+				WRITE_DMAOBJ_64(dma_semaphore, semaphore_address+0x8, timestamp, pfifo_endian);
 			} catch (VM_FAULT) {
 				throw SEMAPHORE(MEM_FAULT);
 			}
 		} else {
-			WRITE_VM_32(semaphore_address+0x0, param, pmc_endian);
-			WRITE_VM_32(semaphore_address+0x4, 0, pmc_endian);
-			WRITE_VM_32(semaphore_address+0x8, timestamp, pmc_endian);
-			WRITE_VM_32(semaphore_address+0xc, timestamp >> 32, pmc_endian);
+			WRITE_VM_32(semaphore_address+0x0, param, pfifo_endian);
+			WRITE_VM_32(semaphore_address+0x4, 0, pfifo_endian);
+			WRITE_VM_64(semaphore_address+0x8, timestamp, pfifo_endian);
 		}
 	} else {
 		b32 word;
 		if (chipset < NVC0) {
 			try {
-				word = READ_DMAOBJ_32(dma_semaphore, semaphore_address, pmc_endian);
+				word = READ_DMAOBJ_32(dma_semaphore, semaphore_address, pfifo_endian);
 			} catch (VM_FAULT) {
 				throw SEMAPHORE(MEM_FAULT);
 			}
 		} else {
-			word = READ_VM_32(semaphore_address, pmc_endian);
+			word = READ_VM_32(semaphore_address, pfifo_endian);
 		}
 		if ((op == 1 && word == semaphore_sequence) || (op == 4 && (int32_t)(word - semaphore_sequence) >= 0)) {
 			/* already done */
