@@ -533,15 +533,28 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x192c" name="VIEWPORT_TRANSFORM_EN" type="boolean"/>
 		<reg32 offset="0x193c" name="VIEW_VOLUME_CLIP_CTRL">
 			<bitfield pos="0" name="UNK0"/>
-			<bitfield pos="1" name="UNK1"/>
-			<bitfield pos="2" name="UNK2"/>
-			<bitfield pos="3" name="UNK3"/>
-			<bitfield pos="4" name="UNK4"/>
+			<bitfield high="2" low="1" name="UNK1">
+				<value value="0" name="UNK0"/>
+				<value value="1" name="UNK1"/>
+				<value value="2" name="UNK2"/>
+			</bitfield>
+			<bitfield pos="3" name="DEPTH_CLAMP_NEAR"/>
+			<bitfield pos="4" name="DEPTH_CLAMP_FAR"/>
 			<bitfield pos="7" name="UNK7"/>
 			<bitfield pos="10" name="UNK10"/> <!-- 1 by default -->
 			<bitfield pos="11" name="UNK11"/>
-			<bitfield pos="12" name="UNK12"/>
-			<bitfield pos="13" name="UNK13"/>
+			<bitfield high="13" low="12" name="UNK12">
+				<value value="0" name="UNK0"/>
+				<value value="1" name="UNK1"/>
+				<value value="2" name="UNK2"/>
+			</bitfield>
+			<doc>2c1c: grctx default
+			0000: cull whole triangles only
+			0002: make depth clamp work even if only 0080 is set and 1000 is not
+			0008: clamp -z
+			0010: clamp +z
+			0080: cull whole points and lines too, make depth clamp not work
+			1000: clip properly if 0080 is set, make depth clamp work again</doc>
 		</reg32>
 		<reg32 offset="0x194c" name="CLIP_RECTS_EN" type="boolean"/>
 		<reg32 offset="0x1950" name="CLIP_RECTS_MODE">
