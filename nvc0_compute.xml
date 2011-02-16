@@ -16,7 +16,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0208" name="UNK0208">
 			<doc>bits 0xffffff, 0x10-aligned</doc>
 		</reg32>
-		<reg32 offset="0x020c" name="UNK020C"/>
+		<reg32 offset="0x020c" name="UNK020C">
 			<doc>bits 0x1fffff, 0x200-aligned</doc>
 		</reg32>
 		<reg32 offset="0x0210" name="TEX_LIMITS">
