@@ -6,6 +6,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <import file="nvchipsets.xml" />
 <import file="nv_defs.xml" />
+<import file="nv50_defs.xml" />
 
 <enum name="obj-class" varset="chipset" bare="yes">
 	<!-- non-PGRAPH object classes; TODO: check/reorganize these -->
