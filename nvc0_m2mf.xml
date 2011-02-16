@@ -25,10 +25,15 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="PUSH" pos="0" type="boolean"/>
 			<bitfield name="LINEAR_IN" pos="4" type="boolean"/>
 			<bitfield name="LINEAR_OUT" pos="8" type="boolean"/>
+			<bitfield name="UNK12" pos="12"/>
 			<bitfield name="NOTIFY" pos="13" type="boolean"/>
-			<bitfield name="INC" high="23" low="20" type="int"/>
+			<bitfield name="UNK16" low="16" high="17"/>
+			<bitfield name="UNK20" pos="20"/>
 		</reg32>
 		<reg32 offset="0x0304" name="DATA"/>
+		<reg32 offset="0x0308" name="UNK308">
+			<doc>0-2, no ICMD</doc>
+		</reg32>
 		<reg32 offset="0x030c" name="OFFSET_IN_HIGH"/>
 		<reg32 offset="0x0310" name="OFFSET_IN_LOW"/>
 		<reg32 offset="0x0314" name="PITCH_IN" type="int"/>

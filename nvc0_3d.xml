@@ -48,14 +48,31 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <domain name="NV01_SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NVC0_3D-NVC1_3D">
+		<reg32 offset="0x0200" name="UNK200"/>
+		<reg32 offset="0x0204" name="UNK204">
+			<doc>0-0x13 or 0x1f</doc>
+		</reg32>
+		<reg32 offset="0x0208" name="UNK208">
+			<doc>0x013fffff, scan pending</doc>
+		</reg32>
+		<reg32 offset="0x020c" name="UNK20C" type="boolean"/>
 		<reg32 offset="0x0210" name="EARLY_FRAGMENT_TESTS" type="boolean"/>
-		<reg32 offset="0x021c" name="MEM_BARRIER" type="bitfield">
+		<reg32 offset="0x0214" name="UNK214">
+			<doc>0x9fffffff, scan pending</doc>
+		</reg32>
+		<reg32 offset="0x0218" name="UNK218">
+			<doc>0x00, 0x10, or 0x20</doc>
+		</reg32>
+		<reg32 offset="0x021c" name="MEM_BARRIER">
 			<bitfield name="UNK0" pos="0"/>
 			<bitfield name="UNK1" pos="1"/>
 			<bitfield name="UNK2" pos="2"/><!-- used for glMemoryBarrier(), 0x1111 is used normally -->
 			<bitfield name="UNK4" pos="4"/>
 			<bitfield name="UNK8" pos="8"/>
 			<bitfield name="UNK12" pos="12"/>
+		</reg32>
+		<reg32 offset="0x0220" name="UNK220" length="0x28">
+			<doc>Very likely to be manual vertex data submission.</doc>
 		</reg32>
 		<reg32 offset="0x0320" name="TESS_MODE">
 			<bitfield name="PRIM" high="3" low="0">
@@ -629,7 +646,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1f00" name="VERTEX_ARRAY_LIMIT_HIGH" length="32" stride="8"/>
 		<reg32 offset="0x1f04" name="VERTEX_ARRAY_LIMIT_LOW" length="32" stride="8"/>
 		<stripe offset="0x2000" name="SP" stride="64" length="6">
-			<reg32 offset="0x00" name="SELECT" type="bitfield">
+			<reg32 offset="0x00" name="SELECT">
 				<bitfield name="ENABLE" pos="0" type="boolean"/>
 				<bitfield name="PROGRAM" high="6" low="4">
 					<value value="0" name="VP_A"/>
@@ -644,6 +661,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x0c" name="GPR_ALLOC" type="uint"/>
 		</stripe>
 		<reg32 offset="0x2200" name="TEX_LIMITS" length="5" stride="16">
+			<bitfield name="SAMPLERS_LOG2" high="3" low="0" type="uint" min="0" max="4"/>
+			<bitfield name="TEXTURES_LOG2" high="7" low="4" type="uint" min="0" max="7"/>
 		</reg32>
 		<reg32 offset="0x2300" name="FIRMWARE" length="0x20"/>
 		<reg32 offset="0x2380" name="CB_SIZE" type="uint"/>
@@ -651,30 +670,41 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x2388" name="CB_ADDRESS_LOW"/>
 		<reg32 offset="0x238c" name="CB_POS" type="uint"/>
 		<reg32 offset="0x2390" name="CB_DATA" length="16"/>
-		<reg32 offset="0x2400" name="BIND_TSC" length="5" stride="32" type="bitfield">
+		<reg32 offset="0x2400" name="BIND_TSC" length="5" stride="32">
 		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
 		  <bitfield name="SAMPLER" high="11" low="4" type="uint"/>
 		  <bitfield name="TSC" high="24" low="12" type="uint"/>
 		</reg32>
-		<reg32 offset="0x2404" name="BIND_TIC" length="5" stride="32" type="bitfield">
+		<reg32 offset="0x2404" name="BIND_TIC" length="5" stride="32">
 		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
 		  <bitfield name="TEXTURE" high="8" low="1" type="uint"/>
 		  <bitfield name="TIC" high="30" low="9" type="uint"/>
 		</reg32>
-		<reg32 offset="0x2410" name="CB_BIND" length="5" stride="32" type="bitfield">
+		<reg32 offset="0x2408" name="BIND_TSC2" length="5" stride="32">
+		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
+		  <bitfield name="UNK" pos="4"/>
+		  <bitfield name="TSC" high="24" low="12" type="uint"/>
+		</reg32>
+		<reg32 offset="0x240c" name="BIND_TIC2" length="5" stride="32">
+		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
+		  <bitfield name="UNK" pos="1"/>
+		  <bitfield name="TIC" high="30" low="9" type="uint"/>
+		</reg32>
+		<reg32 offset="0x2410" name="CB_BIND" length="5" stride="32">
 		  <bitfield name="VALID" pos="0" type="boolean"/>
-		  <bitfield name="INDEX" high="7" low="4" type="uint"/>
+		  <bitfield name="INDEX" high="8" low="4" type="uint"/>
+		  <!-- XXX: valid INDEX is 0..0x11. wtf? -->
 		</reg32>
 		<reg32 offset="0x2600" name="VERT_COLOR_CLAMP_EN" type="boolean"/>
 		<stripe offset="0x2700" name="IMAGE" length="8" stride="0x20">
 			<reg32 offset="0x00" name="ADDRESS_HIGH"/>
 			<reg32 offset="0x04" name="ADDRESS_LOW"/>
 			<reg32 offset="0x08" name="WIDTH" type="uint"/>
-			<reg32 offset="0x0c" name="HEIGHT" type="bitfield">
+			<reg32 offset="0x0c" name="HEIGHT">
 				<bitfield name="HEIGHT" high="16" low="0" type="uint"/><!-- 1 for buffer textures -->
 				<bitfield name="LINEAR" pos="20" type="boolean"/><!-- probably -->
 			</reg32>
-			<reg32 offset="0x10" name="FORMAT" type="bitfield">
+			<reg32 offset="0x10" name="FORMAT">
 				<bitfield name="UNK0" pos="0" type="boolean"/><!-- default 0 -->
 				<bitfield name="FORMAT" high="11" low="4" type="NV50_SURFACE_FORMAT"/>
 				<bitfield name="UNK12" high="16" low="12"/><!-- default 0x14 -->

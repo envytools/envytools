@@ -10,12 +10,49 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <domain name="NV01_SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NVC0_COMPUTE">
-		<reg32 offset="0x0204" name="UNK0204"/>
-		<reg32 offset="0x0208" name="UNK0208"/>
+		<reg32 offset="0x0204" name="UNK0204">
+			<doc>bits 0xffffff, 0x10-aligned</doc>
+		</reg32>
+		<reg32 offset="0x0208" name="UNK0208">
+			<doc>bits 0xffffff, 0x10-aligned</doc>
+		</reg32>
 		<reg32 offset="0x020c" name="UNK020C"/>
-		<reg32 offset="0x0210" name="UNK0210"/><!-- default 0x33 -->
+			<doc>bits 0x1fffff, 0x200-aligned</doc>
+		</reg32>
+		<reg32 offset="0x0210" name="TEX_LIMITS">
+			<bitfield name="SAMPLERS_LOG2" high="3" low="0" type="uint" min="0" max="4"/>
+			<bitfield name="TEXTURES_LOG2" high="7" low="4" type="uint" min="0" max="7"/>
+		</reg32>
 		<reg32 offset="0x0214" name="SHARED_BASE">
 			<doc>32 bit address, not shifted. Contents of $sbase register.</doc>
+		</reg32>
+		<reg32 offset="0x021c" name="MEM_BARRIER">
+			<bitfield name="UNK0" pos="0"/>
+			<bitfield name="UNK1" pos="1"/>
+			<bitfield name="UNK2" pos="2"/><!-- used for glMemoryBarrier(), 0x1111 is used normally -->
+			<bitfield name="UNK4" pos="4"/>
+			<bitfield name="UNK8" pos="8"/>
+			<bitfield name="UNK12" pos="12"/>
+		</reg32>
+		<reg32 offset="0x0228" name="BIND_TSC">
+		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
+		  <bitfield name="SAMPLER" high="11" low="4" type="uint"/>
+		  <bitfield name="TSC" high="24" low="12" type="uint"/>
+		</reg32>
+		<reg32 offset="0x022c" name="BIND_TIC">
+		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
+		  <bitfield name="TEXTURE" high="8" low="1" type="uint"/>
+		  <bitfield name="TIC" high="30" low="9" type="uint"/>
+		</reg32>
+		<reg32 offset="0x0230" name="BIND_TSC2">
+		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
+		  <bitfield name="UNK" pos="4"/>
+		  <bitfield name="TSC" high="24" low="12" type="uint"/>
+		</reg32>
+		<reg32 offset="0x0234" name="BIND_TIC2">
+		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
+		  <bitfield name="UNK" pos="1"/>
+		  <bitfield name="TIC" high="30" low="9" type="uint"/>
 		</reg32>
 		<reg32 offset="0x0238" name="GRIDDIM_YX">
 			<bitfield name="X" high="15" low="0" type="uint"/>
@@ -23,15 +60,19 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc></doc>
 		</reg32>
 		<reg32 offset="0x023c" name="GRIDDIM_Z" type="uint"/>
+		<reg32 offset="0x0244" name="UNK244_TIC_FLUSH"/>
 		<reg32 offset="0x024c" name="SHARED_SIZE" type="uint"/><!-- default 0 -->
-		<reg32 offset="0x0250" name="BLOCK_ALLOC">
-			<bitfield name="THREADS" high="15" low="0" type="uint"/>
-			<bitfield name="BARRIERS" high="31" low="16" type="uint"/>
-			<doc></doc>
+		<reg32 offset="0x0250" name="THREADS_ALLOC"/>
+		<reg32 offset="0x0254" name="UNK0254">
+			<doc>0-0x10</doc>
 		</reg32>
-		<reg32 offset="0x0254" name="UNK0254"/>
-		<reg32 offset="0x029c" name="UNK029C"/>
-		<reg32 offset="0x02a0" name="UNK02A0"/><!-- default 0x8000 -->
+		<reg32 offset="0x028c" name="UNK028C">
+			<doc>No icmd...</doc>
+		</reg32>
+		<reg32 offset="0x029c" name="UNK029C" type="boolean"/>
+		<reg32 offset="0x02a0" name="UNK02A0"><!-- default 0x8000 -->
+			<doc>bits 1fff0, default 0x8000. Apparently unchanged from nv50.</doc>
+		</reg32>
 		<reg32 offset="0x02c0" name="CP_GPR_ALLOC"/>
 		<reg32 offset="0x02c4" name="UNK02C4"/><!-- 0 and 1 seen -->
 		<reg32 offset="0x02c8" name="GLOBAL_BASE">

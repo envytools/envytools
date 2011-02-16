@@ -33,7 +33,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0234" name="SRC_LINEAR" type="boolean"/>
 		<reg32 offset="0x0238" name="SRC_TILE_MODE"/>
 		<reg32 offset="0x023c" name="SRC_DEPTH" type="int"/>
-		<reg32 offset="0x0240" name="SRC_LAYER" type="int"/>
+		<reg32 offset="0x0240" name="SRC_LAYER" type="int"/> <!-- XXX: something different on NVC0? -->
 		<reg32 offset="0x0244" name="SRC_PITCH" type="uint" max="0x40000"/>
 		<reg32 offset="0x0248" name="SRC_WIDTH" type="uint" max="0x10000"/>
 		<reg32 offset="0x024c" name="SRC_HEIGHT" type="uint" max="0x10000"/>
@@ -90,6 +90,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="2" name="MONO_1X64"/>
 			<value value="3" name="COLOR"/>
 		</reg32>
+		<reg32 offset="0x02dc" name="UNK2DC" variants="NVC0_2D-">
+			<doc>0-2</doc>
+		</reg32>
+		<reg32 offset="0x02e0" name="UNK2E0" variants="NVC0_2D-">
+			<doc>0, 0x11, 0x12, 0x21, 0x22</doc>
+		</reg32>
 		<reg32 offset="0x02e8" name="PATTERN_COLOR_FORMAT">
 			<!-- XXX: maybe same as COLOR_KEY_FORMAT and someone just messed up? -->
 			<value value="0x0000" name="16BPP"/>
@@ -98,6 +104,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="0x0003" name="8BPP"/>
 			<value value="0x0004" name="UNK4"/>
 			<value value="0x0005" name="UNK5"/>
+			<value value="0x0006" name="UNK6"/>
 		</reg32>
 		<reg32 offset="0x02ec" name="PATTERN_MONO_FORMAT">
 			<value value="0" name="CGA6"/>
@@ -132,6 +139,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="Y2" high="23" low="16" type="uint"/>
 			<bitfield name="Y3" high="31" low="24" type="uint"/>
 		</reg32>
+		<reg32 offset="0x0540" name="DRAW_COLOR_LONG" length="4" variants="NVC0_2D-"/>
 		<reg32 offset="0x0580" name="DRAW_SHAPE">
 			<value value="0x0000" name="POINTS"/>
 			<value value="0x0001" name="LINES"/>
