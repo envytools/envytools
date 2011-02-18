@@ -566,9 +566,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x12e0" name="LOCAL_SIZE_LOG" type="uint">
 			<doc>log2(size_in_bytes/8). 1-0xd, or 0 to disable local.</doc>
 		</reg32>
-		<reg32 offset="0x12e4" name="UNK12E4" variants="NVA3_3D-" type="boolean">
-			<doc>Goes to tpdma, MP, ROP.</doc>
-		</reg32>
+		<reg32 offset="0x12e4" name="BLEND_INDEPENDENT" type="boolean"/>
 		<reg32 offset="0x12e8" name="DEPTH_WRITE_ENABLE" type="boolean"/>
 		<reg32 offset="0x12ec" name="ALPHA_TEST_ENABLE" type="boolean"/>
 		<reg32 offset="0x12f0" name="PM_SET" length="4">
@@ -1116,7 +1114,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="24" name="6"/>
 			<bitfield pos="28" name="7"/>
 		</reg32>
-		<reg32 offset="0x1944" name="DELAY4" variants="NVA3_3D-"/>
+		<reg32 offset="0x1944" name="UNK1944" variants="NVA3_3D-"/>
 		<reg32 offset="0x194c" name="CLIP_RECTS_EN" type="boolean"/>
 		<reg32 offset="0x1950" name="CLIP_RECTS_MODE">
 			<value value="0" name="INSIDE_ANY"/>
@@ -1197,7 +1195,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1a20" name="UNK1A20">
 			<doc>Goes to 1cxx. 0-0xff.</doc>
 		</reg32>
-		<reg32 offset="0x1a24" name="DELAY1"/>
+		<reg32 offset="0x1a24" name="DELAY"/>
 		<reg32 offset="0x1a28" name="UNK1A28">
 			<doc>Goes to vfetch, 4 by default.</doc>
 			<bitfield low="0" high="7" name="0">

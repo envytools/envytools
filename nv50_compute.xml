@@ -66,12 +66,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x023c" name="CB_DATA" length="16"/>
 		<reg32 offset="0x027c" name="TSC_FLUSH">
-			<bitfield pos="0" name="UNK0"/>
-			<bitfield low="4" high="25" name="UNK1"/>
+			<bitfield pos="0" name="SPECIFIC"/>
+			<bitfield low="4" high="25" name="ENTRY"/>
 		</reg32>
 		<reg32 offset="0x0280" name="TIC_FLUSH">
-			<bitfield pos="0" name="UNK0"/>
-			<bitfield low="4" high="25" name="UNK1"/>
+			<bitfield pos="0" name="SPECIFIC"/>
+			<bitfield low="4" high="25" name="ENTRY"/>
 		</reg32>
 		<reg32 offset="0x0284" name="DELAY1">
 			<doc>writing x causes GPU to do nothing for exactly 2*x clocks.</doc>

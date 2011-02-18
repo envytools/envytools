@@ -26,14 +26,20 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x021c" name="DST_HEIGHT" type="int"/>
 		<reg32 offset="0x0220" name="DST_ADDRESS_HIGH"/>
 		<reg32 offset="0x0224" name="DST_ADDRESS_LOW"/>
-		<reg32 offset="0x0228" name="UNK228">
+		<reg32 offset="0x0228" name="UNK228" variants="NV50_2D:NVC0_2D">
 			<doc>Accepts 0 and 1</doc>
+		</reg32>
+		<reg32 offset="0x0228" name="UNK228" variants="NVC0_2D-">
+			<doc>Only 0, same as 9097 UNK02D4</doc>
 		</reg32>
 		<reg32 offset="0x0230" name="SRC_FORMAT" type="NV50_SURFACE_FORMAT"/>
 		<reg32 offset="0x0234" name="SRC_LINEAR" type="boolean"/>
 		<reg32 offset="0x0238" name="SRC_TILE_MODE"/>
 		<reg32 offset="0x023c" name="SRC_DEPTH" type="int"/>
-		<reg32 offset="0x0240" name="SRC_LAYER" type="int"/> <!-- XXX: something different on NVC0? -->
+		<reg32 offset="0x0240" name="SRC_LAYER" type="int" variants="NV50_2D:NVC0_2D"/>
+		<reg32 offset="0x0240" name="UNK0240" variants="NVC0_2D-">
+			<doc>0-2</doc>
+		</reg32>
 		<reg32 offset="0x0244" name="SRC_PITCH" type="uint" max="0x40000"/>
 		<reg32 offset="0x0248" name="SRC_WIDTH" type="uint" max="0x10000"/>
 		<reg32 offset="0x024c" name="SRC_HEIGHT" type="uint" max="0x10000"/>

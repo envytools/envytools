@@ -41,9 +41,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x01" name="2XMS"/>
 	<value value="0x02" name="4XMS"/>
 	<value value="0x03" name="8XMS"/>
+	<value value="0x04" name="UNK4"/>
+	<value value="0x05" name="UNK5"/>
+	<value value="0x06" name="UNK6"/>
 	<value value="0x08" name="4XMS_4XCS"/>
 	<value value="0x09" name="4XMS_12XCS"/>
 	<value value="0x0a" name="8XMS_8XCS"/>
+	<value value="0x0b" name="UNK0B"/>
 </enum>
 
 <domain name="NV01_SUBCHAN" bare="yes">
@@ -71,25 +75,93 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="UNK8" pos="8"/>
 			<bitfield name="UNK12" pos="12"/>
 		</reg32>
-		<reg32 offset="0x0220" name="UNK220" length="0x28">
+		<reg32 offset="0x0220" name="UNK0220" length="0x28">
 			<doc>Very likely to be manual vertex data submission.</doc>
 		</reg32>
+		<reg32 offset="0x02c0" name="UNK02C0" type="boolean"/>
+		<reg32 offset="0x02c4" name="UNK02C4" type="boolean">
+			<doc>Shared with dijkstra</doc>
+		</reg32>
+		<reg32 offset="0x02c8" name="GLOBAL_BASE">
+			<bitfield name="HIGH" high="7" low="0"/>
+			<bitfield name="INDEX" high="23" low="16"/>
+			<bitfield name="FLAGS" high="31" low="30"/><!-- default 0xc -->
+			<doc>Remaps high byte of g[] address used in CP (INDEX -> HIGH).</doc>
+		</reg32>
+		<reg32 offset="0x02cc" name="UNK02CC">
+			<doc>0-0x3fffff</doc>
+		</reg32>
+		<reg32 offset="0x02d0" name="UNK02D0">
+			<doc>0-0x3fffff</doc>
+		</reg32>
+		<reg32 offset="0x02d4" name="UNK02D4">
+			<doc>Only 0, same as 902d UNK228</doc>
+		</reg32>
+		<reg32 offset="0x02d8" name="UNK02D8">
+			<doc>0x00, 0x10, 0x20, 0x30, 0x40, 0x50. Tiling mode for something?</doc>
+		</reg32>
+		<reg32 offset="0x02e4" name="UNK02E4" variants="NVC1_3D-">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="8" name="UNK8"/>
+			<bitfield low="12" high="15" name="UNK12"/>
+		</reg32>
+		<reg32 offset="0x02ec" name="UNK02EC">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield low="4" high="11" name="UNK4"/>
+		</reg32>
+		<reg32 offset="0x0300" name="UNK0300">
+			<doc>0-3</doc>
+		</reg32>
+		<reg32 offset="0x0304" name="UNK0304">
+			<doc>0xffffffff</doc>
+		</reg32>
+		<reg32 offset="0x0308" name="UNK0308">
+			<doc>Only 3 on NVC0_3D, 3 or 1 on NVC1_3D. Shared with dijkstra.</doc>
+		</reg32>
+		<reg32 offset="0x030c" name="UNK030C">
+			<doc>0-1, no icmd, shared with dijkstra.</doc>
+		</reg32>
+		<reg32 offset="0x0310" name="UNK0310">
+			<doc>0-0xff, no icmd.</doc>
+		</reg32>
+		<reg32 offset="0x0314" name="UNK0314">
+			<doc>0-1</doc>
+		</reg32>
+		<reg32 offset="0x0318" name="UNK0318">
+			<doc>8 or 0x101-0x108</doc>
+		</reg32>
+		<reg32 offset="0x031c" name="UNK031C">
+			<doc>8 or 0x101-0x108</doc>
+		</reg32>
 		<reg32 offset="0x0320" name="TESS_MODE">
-			<bitfield name="PRIM" high="3" low="0">
+			<bitfield name="PRIM" high="1" low="0">
 				<value value="0" name="ISOLINES"/>
 				<value value="1" name="TRIANGLES"/>
 				<value value="2" name="QUADS"/>
 			</bitfield>
-			<bitfield name="SPACING" high="7" low="4">
+			<bitfield name="SPACING" high="5" low="4">
 				<value value="0" name="EQUAL"/>
 				<value value="1" name="FRACTIONAL_ODD"/>
 				<value value="2" name="FRACTIONAL_EVEN"/>
 			</bitfield>
-			<bitfield name="CW" high="8" low="8" type="boolean"/>
-			<bitfield name="CONNECTED" high="9" low="9" type="boolean"/>
+			<bitfield name="CW" high="8" low="8"/>
+			<bitfield name="CONNECTED" high="9" low="9"/>
 		</reg32>
 		<reg32 offset="0x0324" name="TESS_LEVEL_OUTER" length="4" type="float"/>
 		<reg32 offset="0x0334" name="TESS_LEVEL_INNER" length="2" type="float"/>
+		<reg32 offset="0x033c" name="UNK033C" length="9">
+			<doc>0-1, no icmd.</doc>
+		</reg32>
+		<reg32 offset="0x0360" name="UNK0360">
+			<doc>Aligned to 0x80</doc>
+		</reg32>
+		<reg32 offset="0x0364" name="UNK0364">
+			<doc>0-0x80</doc>
+		</reg32>
+		<reg32 offset="0x0368" name="UNK0368">
+			<doc>0-1, no icmd.</doc>
+		</reg32>
 		<reg32 offset="0x037c" name="RASTERIZE_ENABLE" type="boolean"/>
 		<stripe offset="0x0380" name="TFB" length="4" stride="32">
 			<reg32 offset="0x00" name="BUFFER_ENABLE" type="boolean"/>
@@ -98,23 +170,86 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x0c" name="BUFFER_SIZE" type="int"/>
 			<reg32 offset="0x10" name="PRIMITIVE_ID" type="int"/>
 		</stripe>
-		<reg32 offset="0x0700" name="TFB_UNK07X0" length="4" stride="16"/>
+		<reg32 offset="0x0400" name="UNK0400" length="0xc0">
+			<doc>Vertex submission of some sort?</doc>
+		</reg32>
+		<reg32 offset="0x0700" name="TFB_UNK07X0" length="4" stride="16">
+			<doc>0-3</doc>
+		</reg32>
 		<reg32 offset="0x0704" name="TFB_VARYING_COUNT" length="4" stride="16" type="uint"/>
 		<reg32 offset="0x0708" name="TFB_BUFFER_STRIDE" length="4" stride="16" type="int"/>
+		<reg32 offset="0x0740" name="UNK0740">
+			<doc>0-3</doc>
+		</reg32>
 		<reg32 offset="0x0744" name="TFB_ENABLE" type="boolean"/>
+		<reg32 offset="0x0748" name="UNK0748">
+			<doc>0-1</doc>
+		</reg32>
+		<reg32 offset="0x074c" name="UNK074C">
+			<doc>0-0xff</doc>
+		</reg32>
+		<reg32 offset="0x0750" name="UNK0750">
+			<doc>0-1</doc>
+		</reg32>
+		<reg32 offset="0x0754" name="UNK0754">
+			<doc>1, 2, 4, 8, 0x11, 0x12, 0x14, 0x18</doc>
+		</reg32>
+		<reg32 offset="0x075c" name="UNK075C">
+			<doc>0-0x20</doc>
+		</reg32>
+		<reg32 offset="0x0760" name="UNK0760" length="4">
+			<doc>0xffffffff, no icmd.</doc>
+		</reg32>
+		<reg32 offset="0x0770" name="UNK0770" length="3">
+			<bitfield low="4" high="7" name="UNK4"/>
+			<bitfield low="12" high="15" name="UNK12"/>
+			<bitfield low="20" high="23" name="UNK20"/>
+			<bitfield low="28" high="31" name="UNK28"/>
+		</reg32>
 		<reg32 offset="0x077c" name="LOCAL_BASE"/>
+		<reg32 offset="0x0780" name="UNK0780" length="4">
+			<doc>0xffffffff, no icmd.</doc>
+		</reg32>
 		<reg32 offset="0x0790" name="LOCAL_ADDRESS_HIGH"/>
 		<reg32 offset="0x0794" name="LOCAL_ADDRESS_LOW"/>
 		<reg32 offset="0x0798" name="LOCAL_SIZE_HIGH"/>
 		<reg32 offset="0x079c" name="LOCAL_SIZE_LOW"/>
+		<reg32 offset="0x07a0" name="UNK07A0">
+			<doc>0x3ffffff, aligned to 0x200, shared with dijkstra</doc>
+		</reg32>
+		<reg32 offset="0x07b0" name="UNK07B0" length="4">
+			<doc>Vertex data upload?</doc>
+		</reg32>
 		<reg32 offset="0x07c0" name="ZCULL_WIDTH"/>
 		<reg32 offset="0x07c4" name="ZCULL_HEIGHT"/>
-		<reg32 offset="0x07c8" name="ZCULL_UNK07C8"/><!-- bits 0xffff -->
-		<reg32 offset="0x07cc" name="ZCULL_UNK07CC"/><!-- bits 0xffff -->
+		<reg32 offset="0x07c8" name="ZCULL_UNK07C8">
+			<doc>0-0x800</doc>
+		</reg32>
+		<reg32 offset="0x07cc" name="ZCULL_UNK07CC">
+			<doc>0-0x7ff</doc>
+		</reg32>
+		<reg32 offset="0x07d0" name="UNK07D0" length="3">
+			<bitfield low="4" high="7" name="UNK4"/>
+			<bitfield low="12" high="15" name="UNK12"/>
+			<bitfield low="20" high="23" name="UNK20"/>
+			<bitfield low="28" high="31" name="UNK28"/>
+		</reg32>
+		<reg32 offset="0x07dc" name="UNK07DC" type="boolean"/>
+		<reg32 offset="0x07e0" name="UNK07E0">
+			<doc>0xffffffff</doc>
+		</reg32>
+		<reg32 offset="0x07e4" name="UNK07E4">
+			<doc>0-0xffff</doc>
+		</reg32>
 		<reg32 offset="0x07e8" name="ZCULL_UNK07E8_ADDRESS_HIGH"/>
 		<reg32 offset="0x07ec" name="ZCULL_UNK07E8_ADDRESS_LOW"/>
 		<reg32 offset="0x07f0" name="ZCULL_UNK07F0_ADDRESS_HIGH"/>
 		<reg32 offset="0x07f4" name="ZCULL_UNK07F0_ADDRESS_LOW"/>
+		<reg32 offset="0x07f8" name="UNK07F8">
+			<doc>Related to depth write / test?</doc>
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="4" name="UNK1"/>
+		</reg32>
 		<stripe offset="0x0800" name="RT" length="8" stride="64">
 			<reg32 offset="0x00" name="ADDRESS_HIGH"/>
 			<reg32 offset="0x04" name="ADDRESS_LOW"/>
@@ -122,15 +257,21 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x0c" name="VERT" type="uint"/>
 			<reg32 offset="0x10" name="FORMAT" type="NV50_SURFACE_FORMAT"/>
 			<reg32 offset="0x14" name="TILE_MODE">
-				<bitfield pos="0" name="UNK0" />
+				<bitfield pos="0" name="X" />
 				<bitfield low="4" high="6" name="Y" />
 				<bitfield low="8" high="10" name="Z" />
+				<bitfield pos="12" name="UNK12"/>
+				<bitfield pos="16" name="UNK16"/>
 			</reg32>
 			<reg32 offset="0x18" name="ARRAY_MODE"><!-- ??? -->
 			  <bitfield name="LAYERS" high="15" low="0" type="uint"/>
 			  <bitfield name="VOLUME" high="16" low="16" type="boolean"/>
 			</reg32>
 			<reg32 offset="0x1c" name="LAYER_STRIDE" type="uint"/><!-- in dwords -->
+			<reg32 offset="0x20" name="UNK20">
+				<doc>0-0xffff</doc>
+			</reg32>
+			<reg32 offset="0x24" name="UNK14" type="boolen"/>
 		</stripe>
 		<reg32 offset="0x0a00" name="VIEWPORT_SCALE_X" length="16" stride="32" type="float"/>
 		<reg32 offset="0x0a04" name="VIEWPORT_SCALE_Y" length="16" stride="32" type="float"/>
@@ -158,6 +299,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x0d40" name="CLIPID_REGION_HORIZ" type="xw16" length="4" stride="8"/>
 		<reg32 offset="0x0d44" name="CLIPID_REGION_VERT" type="yh16" length="4" stride="8"/>
+		<reg32 offset="0x0d60" name="UNK0D60">
+			<doc>0-0x400</doc>
+		</reg32>
+		<reg32 offset="0x0d64" name="UNK0D64">
+			<doc>0-8 or 0xf, shared with dijkstra</doc>
+		</reg32>
 		<reg32 offset="0x0d68" name="COUNTER_ENABLE">
 			<bitfield pos="0x0" name="UNK00"/>
 			<bitfield pos="0x1" name="UNK01"/>
@@ -176,18 +323,46 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="0xe" name="UNK0E"/>
 			<bitfield pos="0xf" name="UNK0F"/>
 		</reg32>
+		<reg32 offset="0x0d6c" name="UNK0D6C" type="xy16" length="2"/>
 		<reg32 offset="0x0d74" name="VERTEX_BUFFER_FIRST"/>
 		<reg32 offset="0x0d78" name="VERTEX_BUFFER_COUNT"/>
+		<reg32 offset="0x0d7c" name="UNK0D7C" type="boolean"/>
 		<reg32 offset="0x0d80" name="CLEAR_COLOR" length="4" type="float"/>
 		<reg32 offset="0x0d90" name="CLEAR_DEPTH" type="float"/>
+		<reg32 offset="0x0d94" name="UNK0D94">
+			<doc>0-1, shared with dijkstra</doc>
+		</reg32>
+		<reg32 offset="0x0d9c" name="UNK0D9C">
+			<doc>0-1</doc>
+		</reg32>
 		<reg32 offset="0x0da0" name="CLEAR_STENCIL"/>
+		<reg32 offset="0x0dac" name="POLYGON_MODE_FRONT" type="gl_polygon_mode"/>
+		<reg32 offset="0x0db0" name="POLYGON_MODE_BACK" type="gl_polygon_mode"/>
 		<reg32 offset="0x0db4" name="POLYGON_SMOOTH_ENABLE" type="boolean"/>
-		<reg32 offset="0x0dbc" name="ZCULL_UNK0DBC"/>
+		<reg32 offset="0x0db8" name="UNK0DB8" type="boolean"/>
+		<reg32 offset="0x0dbc" name="ZCULL_UNK0DBC">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield low="16" high="17" name="UNK16"/>
+		</reg32>
 		<reg32 offset="0x0dc0" name="POLYGON_OFFSET_POINT_ENABLE" type="boolean"/>
 		<reg32 offset="0x0dc4" name="POLYGON_OFFSET_LINE_ENABLE" type="boolean"/>
 		<reg32 offset="0x0dc8" name="POLYGON_OFFSET_FILL_ENABLE" type="boolean"/>
 		<reg32 offset="0x0dcc" name="PATCH_VERTICES" type="uint"/>
-		<reg32 offset="0x0dd8" name="ZCULL_UNK0DD8"/>
+		<reg32 offset="0x0dd8" name="ZCULL_UNK0DD8">
+			<bitfield low="0" high="2" name="UNK0"/>
+			<bitfield low="8" high="9" name="UNK8"/>
+			<bitfield low="16" high="31" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x0ddc" name="UNK0DDC">
+			<doc>0-2, no icmd</doc>
+		</reg32>
+		<reg32 offset="0x0de4" name="WATCHDOG_TIMER" type="uint"/> <!-- extended range wrt nv50? -->
+		<reg32 offset="0x0de8" name="UNK0DE8" type="boolean"/>
+		<reg32 offset="0x0dec" name="UNK0DEC" type="boolean"/>
+		<reg32 offset="0x0df4" name="UNK0DF4">
+			<doc>0xffffff, no icmd</doc>
+		</reg32>
+		<!-- XXX: the following two seem to have extra bits... -->
 		<reg32 offset="0x0df8" name="WINDOW_OFFSET_X" type="int"/><!-- 16 bit, signed !-->
 		<reg32 offset="0x0dfc" name="WINDOW_OFFSET_Y" type="int"/><!-- default 0, or height if 13ac = 1 !-->
 		<reg32 offset="0x0e00" name="SCISSOR_ENABLE" length="16" stride="16" type="boolean"/>
@@ -199,15 +374,26 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="MIN" high="15" low="0" type="uint"/>
 			<bitfield name="MAX" high="31" low="16" type="uint"/>
 		</reg32>
+		<reg32 offset="0x0f00" name="UNK0F00" length="4">
+			<doc>Vertex subm?</doc>
+		</reg32>
 		<reg32 offset="0x0f54" name="STENCIL_BACK_FUNC_REF"/>
 		<reg32 offset="0x0f58" name="STENCIL_BACK_MASK"/>
 		<reg32 offset="0x0f5c" name="STENCIL_BACK_FUNC_MASK"/>
 		<reg32 offset="0x0f84" name="VERTEX_RUNOUT_ADDRESS_HIGH"/>
 		<reg32 offset="0x0f88" name="VERTEX_RUNOUT_ADDRESS_LOW"/>
+		<reg32 offset="0x0f8c" name="UNK0F8C" type="boolean"/>
+		<reg32 offset="0x0f90" name="UNK0F90" type="boolean"/>
+		<reg32 offset="0x0f98" name="UNK0F98">
+			<doc>XXX scan pending</doc>
+		</reg32>
 		<reg32 offset="0x0f9c" name="DEPTH_BOUNDS" length="2" type="float"/>
+		<reg32 offset="0x0fac" name="UNK0FAC" type="boolean"/>
+		<reg32 offset="0x0fb0" name="UNK0FB0" type="boolean"/>
 		<reg32 offset="0x0fbc" name="MSAA_MASK" length="4"/>
 		<reg32 offset="0x0fcc" name="CLIPID_ADDRESS_HIGH"/>
 		<reg32 offset="0x0fd0" name="CLIPID_ADDRESS_LOW"/>
+		<reg32 offset="0x0fdc" name="UNK0FDC" type="boolean"/>
 		<reg32 offset="0x0fe0" name="ZETA_ADDRESS_HIGH"/>
 		<reg32 offset="0x0fe4" name="ZETA_ADDRESS_LOW"/>
 		<reg32 offset="0x0fe8" name="ZETA_FORMAT" type="NV50_ZETA_FORMAT"/>
@@ -221,6 +407,60 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="H" high="31" low="16" type="int"/>
 			<bitfield name="Y" high="15" low="0" type="int"/>
 		</reg32>
+		<reg32 offset="0x1000" name="UNK1000">
+			<doc>0, 1, 0x10, 0x11, 0x20, 0x21</doc>
+		</reg32>
+		<reg32 offset="0x1008" name="UNK1008">
+			<doc>2-0x10</doc>
+		</reg32>
+		<reg32 offset="0x100c" name="UNK100C">
+			<doc>1-0x400</doc>
+		</reg32>
+		<reg32 offset="0x1010" name="UNK1010">
+			<doc>1-0xffff</doc>
+		</reg32>
+		<reg32 offset="0x1018" name="UNK1018">
+			<doc>1-0x3ff</doc>
+		</reg32>
+		<reg32 offset="0x101c" name="UNK101C">
+			<doc>0-1</doc>
+		</reg32>
+		<reg32 offset="0x1020" name="UNK1020">
+			<doc>1-0x3ff</doc>
+		</reg32>
+		<reg32 offset="0x1024" name="UNK1024">
+			<doc>0-1</doc>
+		</reg32>
+		<reg32 offset="0x10cc" name="UNK10CC">
+			<bitfield low="0" high="7" name="UNK0"/>
+			<bitfield low="16" high="23" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x10e0" name="UNK10E0">
+			<bitfield low="0" high="7" name="UNK0"/>
+			<bitfield low="16" high="23" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x10e4" name="UNK10E4">
+			<bitfield low="0" high="7" name="UNK0"/>
+			<bitfield low="16" high="23" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x10e8" name="UNK10E8">
+			<bitfield low="0" high="5" name="UNK0"/>
+			<bitfield low="16" high="21" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x10ec" name="UNK10EC">
+			<bitfield low="0" high="7" name="UNK0"/>
+			<bitfield low="16" high="23" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x10f0" name="UNK10F0">
+			<bitfield low="0" high="7" name="UNK0"/>
+			<bitfield low="16" high="23" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x10f4" name="UNK10F4">
+			<doc>Shared with dijkstra</doc>
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="8" name="UNK8"/>
+		</reg32>
 		<reg32 offset="0x10f8" name="CLEAR_FLAGS">
 			<bitfield pos="0" name="STENCIL_MASK"/>
 			<bitfield pos="4" name="UNK4"/>
@@ -229,7 +469,20 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Selects which states affect CLEAR_BUFFERS.
 			CLIP_RECT, CLIPID and SCREEN_SCISSOR always affect it.</doc>
 		</reg32>
-		<reg32 offset="0x1118" name="VERTEX_ID" type="uint"/>
+		<reg32 offset="0x10fc" name="UNK10FC">
+			<doc>0, 0x10, 0x20</doc>
+		</reg32>
+		<reg32 offset="0x110c" name="UNK110C">
+			<doc>No icmd</doc>
+		</reg32>
+		<reg32 offset="0x1110" name="UNK1110" type="boolean"/>
+		<reg32 offset="0x1114" name="WRCACHE_FLUSH"/> <!-- XXX: check -->
+		<reg32 offset="0x1118" name="VERTEX_ID_BASE" type="uint"/>
+		<reg32 offset="0x1120" name="VTX_ATTR_MASK_UNK0DD0_ALT" length="4"/>
+		<reg32 offset="0x1140" name="UNK1140">
+			<doc>0 or 0x10.</doc>
+		</reg32>
+		<reg32 offset="0x1144" name="UNK1144" type="boolean"/>
 		<reg32 offset="0x114c" name="VTX_ATTR_DEFINE" variants="NVA0_3D-">
 			<bitfield name="ATTR" low="0" high="7" />
 			<bitfield name="COMP" low="8" high="10" type="uint" min="1" max="4"/>
@@ -242,13 +495,15 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1150" name="VTX_ATTR_DATA" variants="NVA0_3D-" length="4"/>
 		<reg32 offset="0x1160" name="VERTEX_ATTRIB_FORMAT" length="32">
-			<bitfield name="BUFFER" high="5" low="0" type="int"/>
+			<bitfield name="BUFFER" high="4" low="0" type="int"/>
 			<bitfield name="CONST" pos="6" type="boolean"/>
 			<bitfield name="OFFSET" high="20" low="7" type="int"/>
 			<bitfield name="SIZE" high="26" low="21" type="nvc0_vtxelt_size"/>
-			<bitfield name="TYPE" high="30" low="27" type="nvc0_vtxelt_type"/>
+			<bitfield name="TYPE" high="29" low="27" type="nvc0_vtxelt_type"/>
 			<bitfield name="BGRA" pos="31" type="boolean"/>
 		</reg32>
+		<reg32 offset="0x1214" name="UNK1214"/>
+		<reg32 offset="0x1218" name="UNK1218"/>
 		<reg32 offset="0x121c" name="RT_CONTROL">
 			<bitfield name="COUNT" high="3" low="0" type="int"/>
 			<bitfield name="MAP0" high="6" low="4" type="int"/>
@@ -260,6 +515,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="MAP6" high="24" low="22" type="int"/>
 			<bitfield name="MAP7" high="27" low="25" type="int"/>
 		</reg32>
+		<reg32 offset="0x1220" name="UNK1220">
+			<doc>0-0xc</doc>
+		</reg32>
 		<reg32 offset="0x1228" name="ZETA_HORIZ" type="int"/>
 		<reg32 offset="0x122c" name="ZETA_VERT" type="int"/>
 		<reg32 offset="0x1230" name="ZETA_ARRAY_MODE">
@@ -268,7 +526,20 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1234" name="LINKED_TSC" type="boolean"/>
 		<reg32 offset="0x123c" name="DRAW_TFB_BYTES"/>
-		<reg32 offset="0x1298" name="FP_RESULT_COUNT" type="int"/>
+		<reg32 offset="0x1284" name="UNK1284">
+			<doc>scan pending</doc>
+		</reg32>
+		<reg32 offset="0x1288" name="UNK1288_TIC_FLUSH"/>
+		<reg32 offset="0x1290" name="UNK1290">
+			<doc>0, 0x10, 0x20</doc>
+		</reg32>
+		<reg32 offset="0x12a4" name="UNK12A4"/>
+		<reg32 offset="0x12ac" name="UNK12AC" type="boolean">
+			<doc>Shared with dijkstra.</doc>
+		</reg32>
+		<reg32 offset="0x12c8" name="UNK12C8">
+			<doc>bits 0x1fffff, low 3 bits must be 0, 1, 4, 5, 6, 7.</doc>
+		</reg32>
 		<reg32 offset="0x12cc" name="DEPTH_TEST_ENABLE" type="boolean"/>
 		<reg32 offset="0x12d0" name="D3D_FILL_MODE">
 			<value value="1" name="POINT"/>
@@ -276,6 +547,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="3" name="SOLID"/>
 		</reg32>
 		<reg32 offset="0x12d4" name="SHADE_MODEL" type="gl_shade_model"/>
+		<reg32 offset="0x12d8" name="UNK12D8" length="2">
+			<doc>0, 0x10, 0x20</doc>
+		</reg32>
+		<reg32 offset="0x12e0" name="UNK12E0">
+			<doc>0-2</doc>
+		</reg32>
 		<reg32 offset="0x12e4" name="BLEND_INDEPENDENT" type="boolean"/>
 		<reg32 offset="0x12e8" name="DEPTH_WRITE_ENABLE" type="boolean"/>
 		<reg32 offset="0x12ec" name="ALPHA_TEST_ENABLE" type="boolean"/>
@@ -308,17 +585,20 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield low="4" high="25" name="ENTRY"/>
 		</reg32>
 		<reg32 offset="0x1338" name="TEX_CACHE_CTL">
-			<bitfield low="4" high="5" name="UNK1">
-				<doc>Accepts 0-2. 2 is used for flushing texture
-				caches.</doc>
-			</bitfield>
+			<bitfield low="0" high="2" name="UNK0"/>
+			<bitfield low="4" high="25" name="ENTRY"/>
 		</reg32>
+		<reg32 offset="0x133c" name="UNK133C" type="boolean"/>
 		<reg32 offset="0x1340" name="BLEND_EQUATION_RGB" type="gl_blend_equation"/>
 		<reg32 offset="0x1344" name="BLEND_FUNC_SRC_RGB" type="NV50_BLEND_FACTOR"/>
 		<reg32 offset="0x1348" name="BLEND_FUNC_DST_RGB" type="NV50_BLEND_FACTOR"/>
 		<reg32 offset="0x134c" name="BLEND_EQUATION_ALPHA" type="gl_blend_equation"/>
 		<reg32 offset="0x1350" name="BLEND_FUNC_SRC_ALPHA" type="NV50_BLEND_FACTOR"/>
+		<reg32 offset="0x1354" name="UNK1354" type="boolean">
+			<doc>Shared with dijkstra.</doc>
+		</reg32>
 		<reg32 offset="0x1358" name="BLEND_FUNC_DST_ALPHA" type="NV50_BLEND_FACTOR"/>
+		<reg32 offset="0x135c" name="UNK135C" type="boolean"/>
 		<reg32 offset="0x1360" name="BLEND_ENABLE" length="8" type="boolean"/>
 		<reg32 offset="0x1380" name="STENCIL_ENABLE" type="boolean"/>
 		<reg32 offset="0x1384" name="STENCIL_FRONT_OP_FAIL" type="gl_stencil_op"/>
@@ -344,15 +624,55 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="4" name="TRIANGLE_RAST_FLIP"/>
 		</reg32>
 		<reg32 offset="0x13b0" name="LINE_WIDTH" type="float"/>
-		<reg32 offset="0x1420" name="GP_VERTEX_OUTPUT_COUNT" type="uint" min="1" max="0x400"/><!-- ? -->
+		<reg32 offset="0x13b4" name="UNK13B4">
+			<doc>Related to LINE_WIDTH?</doc>
+		</reg32>
+		<reg32 offset="0x1418" name="UNK1418" type="boolean">
+			<doc>Related to LINE_WIDTH?</doc>
+		</reg32>
+		<reg32 offset="0x1420" name="UNK1420">
+			<doc>0-0xff</doc>
+		</reg32>
+		<reg32 offset="0x1424" name="UNK1424_TSC_FLUSH"/>
+		<reg32 offset="0x1428" name="UNK1428_TIC_FLUSH"/>
 		<reg32 offset="0x142c" name="VERTEX_ARRAY_FLUSH"/>
+		<reg32 offset="0x1430" name="UNK1430">
+			<doc>Goes to ROP. Both set when NOT MS/CS.</doc>
+			<bitfield pos="4" name="UNK0"/>
+			<bitfield pos="8" name="UNK1"/>
+		</reg32>
 		<reg32 offset="0x1434" name="VB_ELEMENT_BASE" type="int"/>
 		<reg32 offset="0x1438" name="VB_INSTANCE_BASE" type="int"/>
-		<reg32 offset="0x1440" name="CODE_CB_FLUSH">
-			<doc>Works with writing 0, but appears to accept values
-			0-3... what do they do, if anything?</doc>
+		<reg32 offset="0x143c" name="UNK143C_CLEAR_FLAGS">
+			<doc>XXX: wtf?</doc>
+			<bitfield pos="0" name="STENCIL_MASK"/>
+			<bitfield pos="4" name="CLEAR_RECT">
+				<value value="0" name="SCISSOR"/>
+				<value value="0" name="VIEWPORT"/>
+			</bitfield>
 		</reg32>
-		<reg32 offset="0x1504" name="CLIPID_HEIGHT" type="uint" max="0x2000"/>
+		<reg32 offset="0x1444" name="UNK1444">
+			<doc>0-0xff</doc>
+		</reg32>
+		<reg32 offset="0x1448" name="UNK1448">
+			<doc>0x1000-aligned</doc>
+		</reg32>
+		<reg32 offset="0x144c" name="UNK144C">
+			<doc>0x80-aligned</doc>
+		</reg32>
+		<reg32 offset="0x1450" name="UNK1450">
+			<doc>scan pending</doc>
+		</reg32>
+		<reg32 offset="0x1454" name="UNK1454">
+			<doc>scan pending</doc>
+		</reg32>
+		<reg32 offset="0x1464" name="UNK1464">
+			<doc>Only 0</doc>
+		</reg32>
+		<reg32 offset="0x1500" name="UNK1500">
+			<doc>Only 0</doc>
+		</reg32>
+		<reg32 offset="0x1504" name="CLIPID_HEIGHT" type="uint" max="0x4000"/>
 		<reg32 offset="0x1508" name="CLIPID_FILL_RECT_HORIZ">
 			<bitfield low="0" high="15" name="LOW"/>
 			<bitfield low="16" high="31" name="HIGH"/>
@@ -373,6 +693,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1514" name="SAMPLECNT_ENABLE"/>
 		<reg32 offset="0x1518" name="POINT_SIZE" type="float"/>
+		<reg32 offset="0x151c" name="ZCULL_STATCTRS_ENABLE"/>
 		<reg32 offset="0x1520" name="POINT_SPRITE_ENABLE" type="boolean"/>
 		<reg32 offset="0x1530" name="COUNTER_RESET">
 			<value value="0x01" name="SAMPLECNT"/>
@@ -429,8 +750,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x15b4" name="CSAA_ENABLE" type="boolean"/>
 		<reg32 offset="0x15b8" name="FRAMEBUFFER_SRGB" type="boolean"/>
 		<reg32 offset="0x15bc" name="POLYGON_OFFSET_UNITS" type="float"/>
-		<reg32 offset="0x15cc" name="GP_BUILTIN_RESULT_EN">
-			<bitfield name="LAYER" high="16" low="16" type="boolean"/>
+		<reg32 offset="0x15c8" name="UNK15C8">
+			<doc>0-3.</doc>
+		</reg32>
+		<reg32 offset="0x15cc" name="LAYER">
+			<bitfield name="IDX" high="15" low="0">
+				<doc>The layer to render into, when not selected by GP.</doc>
+			</bitfield>
+			<bitfield name="USE_GP" pos="16" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x15d0" name="MULTISAMPLE_MODE" type="nvc0_msaa_mode"/>
 		<reg32 offset="0x15d4" name="VERTEX_BEGIN_D3D">
@@ -469,20 +796,27 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x15fc" name="ZCULL_WINDOW_OFFSET_X"/>
 		<reg32 offset="0x1600" name="ZCULL_WINDOW_OFFSET_Y"/>
 		<reg32 offset="0x1604" name="POINT_COORD_REPLACE">
+			<bitfield low="0" high="1" name="UNK0">
+				<value value="0" name="UNK0"/>
+				<value value="1" name="UNK1"/>
+				<value value="2" name="UNK2"/>
+			</bitfield>
 			<bitfield pos="2" name="COORD_ORIGIN">
 				<value value="0" name="LOWER_LEFT"/>
 				<value value="1" name="UPPER_LEFT"/>
 			</bitfield>
-			<bitfield high="10" low="3" name="ENABLE"/><!-- applies to v[0x300] and up -->
+			<bitfield high="12" low="3" name="ENABLE"/><!-- applies to v[0x300] and up -->
 		</reg32>
 		<reg32 offset="0x1608" name="CODE_ADDRESS_HIGH"/>
 		<reg32 offset="0x160c" name="CODE_ADDRESS_LOW"/>
+		<reg32 offset="0x1610" name="UNK1610">
+			<doc>0-0x3f</doc>
+		</reg32>
 		<reg32 offset="0x1614" name="VERTEX_END_GL">
 			<bitfield pos="0" name="UNK0"/>
-			<bitfield pos="1" name="UNK1"/>
 		</reg32>
 		<reg32 offset="0x1618" name="VERTEX_BEGIN_GL">
-			<bitfield name="PRIMITIVE" high="27" low="0">
+			<bitfield name="PRIMITIVE" high="15" low="0">
 				<value value="0x0000" name="POINTS"/>
 				<value value="0x0001" name="LINES"/>
 				<value value="0x0002" name="LINE_LOOP"/>
@@ -499,6 +833,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="0x000d" name="TRIANGLE_STRIP_ADJACENCY"/>
 				<value value="0x000e" name="PATCHES"/>
 			</bitfield>
+			<bitfield pos="24" name="UNK24"/>
 			<bitfield name="INSTANCE_NEXT" pos="26">
 				<doc>If set, increment INSTANCE_ID (before processing new vertices).</doc>
 			</bitfield>
@@ -507,15 +842,30 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				If set together with INSTANCE_NEXT, an INVALID_ENUM error is generated.
 				</doc>
 			</bitfield>
+			<bitfield pos="29" name="UNK29"/>
+			<bitfield pos="30" name="UNK30"/>
 		</reg32>
+		<reg32 offset="0x161c" name="UNK161C">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield low="4" high="11" name="UNK4"/>
+		</reg32>
+		<reg32 offset="0x1620" name="UNK1620"/>
+		<reg32 offset="0x1624" name="UNK1624"/>
+		<reg32 offset="0x162c" name="UNK162C">
+			<doc>0-3</doc>
+		</reg32>
+		<reg32 offset="0x1634" name="UNK1634">
+			<doc>0xffffff</doc>
+		</reg32>
+		<reg32 offset="0x1638" name="UNK1638">
+			<doc>scan pending</doc>
+		</reg32>
+		<reg32 offset="0x163c" name="UNK163C" type="boolean"/>
 		<reg32 offset="0x1640" name="VERTEX_DATA"/>
 		<reg32 offset="0x1644" name="PRIM_RESTART_ENABLE" type="boolean"/>
 		<reg32 offset="0x1648" name="PRIM_RESTART_INDEX" type="int"/>
 		<reg32 offset="0x164c" name="VP_GP_BUILTIN_ATTR_EN">
-			<bitfield name="VERTEX_ID" pos="0" type="boolean"/><!-- works without bit 12 -->
-			<bitfield name="INSTANCE_ID" pos="4" type="boolean"/>
-			<bitfield name="PRIMITIVE_ID" pos="8" type="boolean"/>
-			<bitfield name="UNK12" pos="12" type="boolean"/><!-- set together with bit 0 -->
+			<bitfield name="UNK12" pos="12" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x1658" name="POINT_SMOOTH_ENABLE" type="boolean"/>
 		<reg32 offset="0x165c" name="POINT_RASTER_RULES">
@@ -523,31 +873,82 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="1" name="D3D"/>
 		</reg32>
 		<reg32 offset="0x1664" name="TEX_MISC">
-		  <bitfield pos="2" name="SEAMLESS_CUBE_MAP" type="boolean"/>
+			<bitfield pos="1" name="UNK"/>
+			<bitfield pos="2" name="SEAMLESS_CUBE_MAP"/>
+		</reg32>
+		<reg32 offset="0x1668" name="LINE_SMOOTH_BLUR">
+			<!-- wtf? filtering strength or what... -->
+			<value value="0" name="LOW"/>
+			<value value="1" name="MEDIUM"/>
+			<value value="2" name="HIGH"/>
 		</reg32>
 		<reg32 offset="0x166c" name="LINE_STIPPLE_ENABLE" type="boolean"/>
+		<reg32 offset="0x1670" name="COVERAGE_LUT" length="4">
+			<bitfield low="0" high="7" name="0"/>
+			<bitfield low="8" high="15" name="1"/>
+			<bitfield low="16" high="23" name="2"/>
+			<bitfield low="24" high="31" name="3"/>
+		</reg32>
 		<reg32 offset="0x1680" name="LINE_STIPPLE_PATTERN"/>
 		<reg32 offset="0x1684" name="PROVOKING_VERTEX_LAST" type="boolean"/>
 		<reg32 offset="0x1688" name="VERTEX_TWO_SIDE_ENABLE" type="boolean"/>
 		<reg32 offset="0x168c" name="POLYGON_STIPPLE_ENABLE" type="boolean"/>
+		<reg32 offset="0x1690" name="UNK1690">
+			<bitfield pos="0" name="ALWAYS_DERIV">
+				<doc>Always use auto LOD selection by implicit derivatives,
+				even in program types other than FP.</doc>
+			</bitfield>
+			<bitfield pos="16" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x169c" name="UNK169C" type="boolean"/>
+		<reg32 offset="0x16a0" name="UNK16A0"/>
+		<reg32 offset="0x16a4" name="UNK16A4">
+			<doc>Accepts at least 0x10003, scan pending</doc>
+		</reg32>
+		<reg32 offset="0x16a8" name="UNK16A8"/>
+		<reg32 offset="0x16b4" name="UNK16B4">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="1" name="UNK1"/>
+		</reg32>
 		<reg32 offset="0x1700" name="POLYGON_STIPPLE_PATTERN" length="32"/>
-		<reg32 offset="0x1780" name="STRMOUT_UNK1780" length="4" variants="NVA0_3D-"/>
+		<reg32 offset="0x1790" name="UNK1790">
+			<doc>Accepts at least 0x10002, scan pending</doc>
+		</reg32>
+		<reg32 offset="0x1794" name="UNK1794"/>
+		<reg32 offset="0x179c" name="UNK179C"/>
+			<doc>0-0xffff</doc>
+		</reg32>
 		<reg32 offset="0x17bc" name="UNK17BC_ADDRESS_HIGH"/>
 		<reg32 offset="0x17c0" name="UNK17BC_ADDRESS_LOW"/>
-		<reg32 offset="0x17c4" name="UNK17BC_LIMIT"/>
+		<reg32 offset="0x17c4" name="UNK17C4">
+			<doc>1-3</doc>
+		</reg32>
 		<reg32 offset="0x17c8" name="INDEX_ARRAY_START_HIGH"/><!-- proven changeable also between BEGIN/END -->
 		<reg32 offset="0x17cc" name="INDEX_ARRAY_START_LOW"/>
 		<reg32 offset="0x17d0" name="INDEX_ARRAY_LIMIT_HIGH"/>
 		<reg32 offset="0x17d4" name="INDEX_ARRAY_LIMIT_LOW"/>
-		<reg32 offset="0x17d8" name="INDEX_LOG2_SIZE"/>
+		<reg32 offset="0x17d8" name="INDEX_FORMAT">
+			<value value="0" name="I8"/>
+			<value value="1" name="I16"/>
+			<value value="2" name="I32"/>
+		</reg32>
 		<reg32 offset="0x17dc" name="INDEX_BATCH_FIRST"/>
 		<reg32 offset="0x17e0" name="INDEX_BATCH_COUNT"/>
+		<reg32 offset="0x17e4" name="UN17E4" length="6"/> <!-- suspiciously like the two above -->
+		<reg32 offset="0x187c" name="UNK187C"/>
 		<reg32 offset="0x1880" name="VERTEX_ARRAY_PER_INSTANCE" length="32" type="boolean"/>
-		<reg32 offset="0x1910" name="VP_POINT_SIZE_EN" type="boolean"/>
+		<reg32 offset="0x1910" name="VP_POINT_SIZE">
+			<bitfield pos="0" name="ENABLE"/>
+			<bitfield low="4" high="11" name="UNK4"/>
+		</reg32>
 		<reg32 offset="0x1918" name="CULL_FACE_ENABLE" type="boolean"/>
 		<reg32 offset="0x191c" name="FRONT_FACE" type="gl_front_face"/>
 		<reg32 offset="0x1920" name="CULL_FACE" type="gl_cull_face"/>
+		<reg32 offset="0x1924" name="UNK1924" type="boolean"/>
 		<reg32 offset="0x192c" name="VIEWPORT_TRANSFORM_EN" type="boolean"/>
+		<reg32 offset="0x1930" name="UNK1930" type="boolean">
+			<doc>Shared with dijkstra</doc>
+		</reg32>
 		<reg32 offset="0x193c" name="VIEW_VOLUME_CLIP_CTRL">
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield high="2" low="1" name="UNK1">
@@ -573,28 +974,59 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			0080: cull whole points and lines too, make depth clamp not work
 			1000: clip properly if 0080 is set, make depth clamp work again</doc>
 		</reg32>
+		<reg32 offset="0x1940" name="UNK1940">
+			<bitfield pos="0" name="0"/>
+			<bitfield pos="4" name="1"/>
+			<bitfield pos="8" name="2"/>
+			<bitfield pos="12" name="3"/>
+			<bitfield pos="16" name="4"/>
+			<bitfield pos="20" name="5"/>
+			<bitfield pos="24" name="6"/>
+			<bitfield pos="28" name="7"/>
+		</reg32>
+		<reg32 offset="0x1944" name="UNK1944">
+			<doc>0-2, no icmd, shared with dijkstra</doc>
+		</reg32>
+		<reg32 offset="0x1948" name="UNK1948" type="boolean"/>
 		<reg32 offset="0x194c" name="CLIP_RECTS_EN" type="boolean"/>
 		<reg32 offset="0x1950" name="CLIP_RECTS_MODE">
 			<value value="0" name="INSIDE_ANY"/>
 			<value value="1" name="OUTSIDE_ALL"/>
 			<value value="2" name="NEVER"/> <!-- sounds useless... and doesn't make sense. -->
 		</reg32>
-		<reg32 offset="0x196c" name="FP_ZORDER_CTRL"><!-- 0x11 if DEPR written -->
-			<doc>0x11 if DEPR written. Goes to 2cxx.</doc>
+		<reg32 offset="0x1958" name="ZCULL_INVALIDATE"/>
+		<reg32 offset="0x1968" name="UNK1968">
+			<doc>ZCULL-related.</doc>
 			<bitfield pos="0" name="0"/>
 			<bitfield pos="4" name="1"/>
 		</reg32>
+		<reg32 offset="0x196c" name="FP_ZORDER_CTRL"><!-- 0x11 if DEPR written -->
+			<doc>0x11 if DEPR written. ZCULL.</doc>
+			<bitfield pos="0" name="0"/>
+			<bitfield pos="4" name="1"/>
+		</reg32>
+		<reg32 offset="0x1970" name="UNK1970_D3D">
+			<!-- *not* VERTEX_BEGIN -->
+			<value value="0x0001" name="POINTS"/>
+			<value value="0x0002" name="LINES"/>
+			<value value="0x0003" name="LINE_STRIP"/>
+			<value value="0x0004" name="TRIANGLES"/>
+			<value value="0x0005" name="TRIANGLE_STRIP"/>
+			<value value="0x000a" name="LINES_ADJACENCY"/>
+			<value value="0x000b" name="LINE_STRIP_ADJACENCY"/>
+			<value value="0x000c" name="TRIANGLES_ADJACENCY"/>
+			<value value="0x000d" name="TRIANGLE_STRIP_ADJACENCY"/>
+			<value value="0x000e" name="PATCHES"/>
+		</reg32>
+		<reg32 offset="0x1978" name="UNK1978"/>
 		<reg32 offset="0x197c" name="CLIPID_ENABLE" type="boolean"/>
 		<reg32 offset="0x1980" name="CLIPID_WIDTH" type="uint" align="0x40" max="0x2000"/>
 		<reg32 offset="0x1984" name="CLIPID_ID"/>
-		<reg32 offset="0x19a8" name="FP_CONTROL">
-			<bitfield name="MULTIPLE_RESULTS" pos="0" type="boolean"/>
-			<bitfield name="EXPORTS_Z" pos="8" type="boolean"/>
-			<bitfield name="USES_KIL" pos="20" type="boolean"/>
-		</reg32>
 		<reg32 offset="0x19bc" name="DEPTH_BOUNDS_EN" type="boolean"/>
+		<reg32 offset="0x19c0" name="UNK19C0" type="boolean"/>
 		<reg32 offset="0x19c4" name="LOGIC_OP_ENABLE" type="boolean"/>
 		<reg32 offset="0x19c8" name="LOGIC_OP" type="gl_logic_op"/>
+		<reg32 offset="0x19cc" name="ZETA_COMP_ENABLE" type="boolean"/>
 		<reg32 offset="0x19d0" name="CLEAR_BUFFERS">
 			<bitfield name="Z" pos="0" type="boolean"/>
 			<bitfield name="S" pos="1" type="boolean"/>
@@ -608,16 +1040,22 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x19d4" name="CLIPID_FILL">
 			<doc>Writes param to CLIPID subrectangle specified by intersection of SCREEN_SCISSOR and CLIPID_FILL_RECT.</doc>
 		</reg32>
+		<reg32 offset="0x19e0" name="RT_COMP_ENABLE" type="boolean" length="8"/>
 		<reg32 offset="0x1a00" name="COLOR_MASK" length="8">
 			<bitfield name="R" high="3" low="0" type="boolean" />
 			<bitfield name="G" high="7" low="4" type="boolean" />
 			<bitfield name="B" high="11" low="8" type="boolean" />
 			<bitfield name="A" high="15" low="12" type="boolean" />
 		</reg32>
+		<reg32 offset="0x1a24" name="DELAY"/>
+		<reg32 offset="0x1a2c" name="UNK1A2C" length="5">
+			<doc>Shared with dijkstra</doc>
+		</reg32>
 		<reg32 offset="0x1b00" name="QUERY_ADDRESS_HIGH"/>
 		<reg32 offset="0x1b04" name="QUERY_ADDRESS_LOW"/>
 		<reg32 offset="0x1b08" name="QUERY_SEQUENCE"/>
 		<reg32 offset="0x1b0c" name="QUERY_GET">
+			<!-- XXX: figure this out -->
 			<bitfield low="0" high="1" name="MODE">
 				<value value="0" name="WRITE_UNK0"/>
 				<value value="1" name="SYNC"/>
@@ -649,6 +1087,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1c08" name="VERTEX_ARRAY_START_LOW" length="32" stride="16"/>
 		<reg32 offset="0x1c0c" name="VERTEX_ARRAY_DIVISOR" length="32" stride="16" type="uint"/>
 		<array offset="0x1e00" name="IBLEND" stride="0x20" length="8">
+			<reg32 offset="0x00" name="UNK00" type="boolean"/>
 			<reg32 offset="0x04" name="EQUATION_RGB" type="gl_blend_equation"/>
 			<reg32 offset="0x08" name="FUNC_SRC_RGB" type="NV50_BLEND_FACTOR"/>
 			<reg32 offset="0x0c" name="FUNC_DST_RGB" type="NV50_BLEND_FACTOR"/>
@@ -661,7 +1100,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<stripe offset="0x2000" name="SP" stride="64" length="6">
 			<reg32 offset="0x00" name="SELECT">
 				<bitfield name="ENABLE" pos="0" type="boolean"/>
-				<bitfield name="PROGRAM" high="6" low="4">
+				<bitfield name="PROGRAM" high="7" low="4">
 					<value value="0" name="VP_A"/>
 					<value value="1" name="VP_B"/>
 					<value value="2" name="TCP"/>
@@ -670,18 +1109,37 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 					<value value="5" name="FP"/>
 				</bitfield>
 			</reg32>
-			<reg32 offset="0x04" name="START_ID" type="uint"/>
+			<reg32 offset="0x04" name="START_ID"/>
+			<reg32 offset="0x08" name="UNK08">
+				<doc>Only 0. Some kind of flush?</doc>
+			</reg32>
 			<reg32 offset="0x0c" name="GPR_ALLOC" type="uint"/>
+			<reg32 offset="0x10" name="TYPE">
+				<value value="0" name="VP"/>
+				<value value="1" name="TCP"/>
+				<value value="2" name="TEP"/>
+				<value value="3" name="GP"/>
+				<value value="4" name="FP"/>
+			</reg32>
+			<reg32 offset="0x14" name="UNK14" length="4">
+				<doc>Only 0. Some kind of flush?</doc>
+			</reg32>
 		</stripe>
 		<reg32 offset="0x2200" name="TEX_LIMITS" length="5" stride="16">
 			<bitfield name="SAMPLERS_LOG2" high="3" low="0" type="uint" min="0" max="4"/>
 			<bitfield name="TEXTURES_LOG2" high="7" low="4" type="uint" min="0" max="7"/>
 		</reg32>
+		<reg32 offset="0x2204" name="UNK2204" length="5" stride="16">
+			<doc>Only 0. Some kind of flush?</doc>
+		</reg32>
+		<reg32 offset="0x2208" name="UNK2208" length="5" stride="16">
+			<doc>Only 0. Some kind of flush?</doc>
+		</reg32>
 		<reg32 offset="0x2300" name="FIRMWARE" length="0x20"/>
 		<reg32 offset="0x2380" name="CB_SIZE" type="uint"/>
 		<reg32 offset="0x2384" name="CB_ADDRESS_HIGH"/>
 		<reg32 offset="0x2388" name="CB_ADDRESS_LOW"/>
-		<reg32 offset="0x238c" name="CB_POS" type="uint"/>
+		<reg32 offset="0x238c" name="CB_POS"/>
 		<reg32 offset="0x2390" name="CB_DATA" length="16"/>
 		<reg32 offset="0x2400" name="BIND_TSC" length="5" stride="32">
 		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
@@ -708,25 +1166,64 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		  <bitfield name="INDEX" high="8" low="4" type="uint"/>
 		  <!-- XXX: valid INDEX is 0..0x11. wtf? -->
 		</reg32>
+		<reg32 offset="0x2500" name="UNK2500" length="5" stride="32">
+			<doc>Only 0. Some kind of flush?</doc>
+		</reg32>
+		<reg32 offset="0x2504" name="UNK2504" length="5" stride="32">
+			<doc>Only 0. Some kind of flush?</doc>
+		</reg32>
+		<reg32 offset="0x2508" name="UNK2508" length="5" stride="32">
+			<doc>Only 0. Some kind of flush?</doc>
+		</reg32>
+		<reg32 offset="0x250c" name="UNK250C" length="5" stride="32">
+			<doc>Only 0. Some kind of flush?</doc>
+		</reg32>
+		<reg32 offset="0x2510" name="UNK2510" length="5" stride="32">
+			<doc>Only 0. Some kind of flush?</doc>
+		</reg32>
 		<reg32 offset="0x2600" name="VERT_COLOR_CLAMP_EN" type="boolean"/>
 		<stripe offset="0x2700" name="IMAGE" length="8" stride="0x20">
 			<reg32 offset="0x00" name="ADDRESS_HIGH"/>
 			<reg32 offset="0x04" name="ADDRESS_LOW"/>
 			<reg32 offset="0x08" name="WIDTH" type="uint"/>
 			<reg32 offset="0x0c" name="HEIGHT">
-				<bitfield name="HEIGHT" high="16" low="0" type="uint"/><!-- 1 for buffer textures -->
-				<bitfield name="LINEAR" pos="20" type="boolean"/><!-- probably -->
+				<bitfield name="HEIGHT" high="15" low="0" type="uint"/><!-- 1 for buffer textures -->
+				<bitfield name="UNK16" pos="16"/>
+				<bitfield name="LINEAR" pos="20"/><!-- probably -->
 			</reg32>
 			<reg32 offset="0x10" name="FORMAT">
-				<bitfield name="UNK0" pos="0" type="boolean"/><!-- default 0 -->
-				<bitfield name="FORMAT" high="11" low="4" type="NV50_SURFACE_FORMAT"/>
-				<bitfield name="UNK12" high="16" low="12"/><!-- default 0x14 -->
+				<bitfield name="UNK0" pos="0"/><!-- default 0 -->
+				<bitfield name="FORMAT_COLOR" high="11" low="4" type="NV50_SURFACE_FORMAT"/>
+				<bitfield name="FORMAT_ZETA" high="16" low="12" type="NV50_ZETA_FORMAT"/>
 			</reg32>
 			<reg32 offset="0x14" name="TILE_MODE"/>
 		</stripe>
 		<stripe offset="0x2800" length="4" stride="0x80">
 			<reg32 name="TFB_VARYING_LOCS" length="32"/>
 		</stripe>
+		<reg32 offset="0x335c" name="PM_UNK335C" length="8">
+			<doc>0-0xffffffff</doc>
+		</reg32>
+		<reg32 offset="0x337c" name="PM_UNK337C" length="8">
+			<doc>0-0xff</doc>
+		</reg32>
+		<reg32 offset="0x339c" name="PM_UNK339C" length="8">
+			<bitfield low="0" high="2" name="0"/>
+			<bitfield low="4" high="6" name="1"/>
+			<bitfield low="8" high="10" name="2"/>
+			<bitfield low="12" high="14" name="3"/>
+			<bitfield low="16" high="18" name="4"/>
+			<bitfield low="20" high="22" name="5"/>
+			<bitfield low="24" high="26" name="6"/>
+			<bitfield low="28" high="30" name="7"/>
+		</reg32>
+		<reg32 offset="0x33bc" name="PM_UNK33BC" length="8">
+			<bitfield pos="0" name="0"/>
+			<bitfield low="4" high="15" name="4"/>
+		</reg32>
+		<reg32 offset="0x33dc" name="PM_UNK33DC">
+			<doc>0-0xff</doc>
+		</reg32>
 		<reg32 offset="0x3820" name="VERTEX_ARRAY_SELECT" type="uint"/>
 		<reg32 offset="0x3858" name="BLEND_ENABLES"/>
 		<reg32 offset="0x3868" name="POLYGON_MODE_FRONT" type="gl_polygon_mode"/>

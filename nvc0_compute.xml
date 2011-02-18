@@ -74,14 +74,26 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>bits 1fff0, default 0x8000. Apparently unchanged from nv50.</doc>
 		</reg32>
 		<reg32 offset="0x02c0" name="CP_GPR_ALLOC"/>
-		<reg32 offset="0x02c4" name="UNK02C4"/><!-- 0 and 1 seen -->
+		<reg32 offset="0x02c4" name="UNK02C4" type="boolean">
+			<doc>Shared with fermi</doc>
+		</reg32>
 		<reg32 offset="0x02c8" name="GLOBAL_BASE">
 			<bitfield name="HIGH" high="7" low="0"/>
 			<bitfield name="INDEX" high="23" low="16"/>
-			<bitfield name="FLAGS" high="31" low="28"/><!-- default 0xc -->
+			<bitfield name="FLAGS" high="31" low="30"/><!-- default 0xc -->
 			<doc>Remaps high byte of g[] address used in CP (INDEX -> HIGH).</doc>
 		</reg32>
-		<reg32 offset="0x0308" name="UNK0308"/>
+		<reg32 offset="0x0308" name="UNK0308">
+			<doc>3 or 1. Shared with fermi.</doc>
+		</reg32>
+		<reg32 offset="0x030c" name="UNK030C">
+			<doc>0-1, no icmd, shared with fermi.</doc>
+		</reg32>
+		<reg32 offset="0x0360" name="UNK0360">
+			<doc>Similar to turing?</doc>
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield low="8" high="9" name="UNK1"/>
+		</reg32>
 		<reg32 offset="0x0368" name="LAUNCH"/>
 		<reg32 offset="0x03ac" name="BLOCKDIM_YX">
 			<bitfield name="X" high="15" low="0" type="uint"/>
@@ -90,17 +102,56 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x03b0" name="BLOCKDIM_Z" type="uint"/>
 		<reg32 offset="0x03b4" name="CP_START_ID"/>
 		<reg32 offset="0x0500" name="FIRMWARE" length="0x20"/>
-		<reg32 offset="0x0758" name="UNK0758"/>
+		<reg32 offset="0x0758" name="UNK0758">
+			<doc>0-0x1ff</doc>
+		</reg32>
 		<reg32 offset="0x077c" name="LOCAL_BASE"/><!-- 32 bit address, not shifted, appears in $lbase -->
 		<reg32 offset="0x0780" name="UNK0780"/>
 		<reg32 offset="0x0790" name="LOCAL_ADDRESS_HIGH"/>
 		<reg32 offset="0x0794" name="LOCAL_ADDRESS_LOW"/>
 		<reg32 offset="0x0798" name="LOCAL_SIZE_HIGH"/>
 		<reg32 offset="0x079c" name="LOCAL_SIZE_LOW"/>
-		<reg32 offset="0x07a0" name="UNK07A0"/>
-		<reg32 offset="0x0a04" name="UNK0A04"/>
+		<reg32 offset="0x07a0" name="UNK07A0">
+			<doc>0x3ffffff, aligned to 0x200, shared with fermi</doc>
+		</reg32>
+		<reg32 offset="0x0a04" name="UNK0A04" type="boolean">
+			<doc>No icmd.</doc>
+		</reg32>
 		<reg32 offset="0x0a08" name="UNK0A08"/>
-		<reg32 offset="0x1234" name="LINKED_TSC"/>
+		<reg32 offset="0x0d64" name="UNK0D64">
+			<doc>0-8 or 0xf, shared with fermi</doc>
+		</reg32>
+		<reg32 offset="0x0d94" name="UNK0D94">
+			<doc>0-1, shared with fermi</doc>
+		</reg32>
+		<reg32 offset="0x0de4" name="WATCHDOG_TIMER" type="uint"/> <!-- extended range wrt nv50? -->
+		<reg32 offset="0x10f4" name="UNK10F4">
+			<doc>Shared with fermi</doc>
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="8" name="UNK8"/>
+		</reg32>
+		<reg32 offset="0x1234" name="LINKED_TSC" type="boolean"/>
+		<reg32 offset="0x1288" name="UNK1288_TIC_FLUSH"/>
+		<reg32 offset="0x12ac" name="UNK12AC" type="boolean">
+			<doc>Shared with fermi.</doc>
+		</reg32>
+		<reg32 offset="0x1330" name="TSC_FLUSH">
+			<bitfield pos="0" name="SPECIFIC"/>
+			<bitfield low="4" high="25" name="ENTRY"/>
+		</reg32>
+		<reg32 offset="0x1334" name="TIC_FLUSH">
+			<bitfield pos="0" name="SPECIFIC"/>
+			<bitfield low="4" high="25" name="ENTRY"/>
+		</reg32>
+		<reg32 offset="0x1338" name="TEX_CACHE_CTL">
+			<bitfield low="0" high="2" name="UNK0"/>
+			<bitfield low="4" high="25" name="ENTRY"/>
+		</reg32>
+		<reg32 offset="0x1354" name="UNK1354" type="boolean">
+			<doc>Shared with fermi.</doc>
+		</reg32>
+		<reg32 offset="0x1424" name="UNK1424_TSC_FLUSH"/>
 		<reg32 offset="0x1550" name="COND_ADDRESS_HIGH"/>
 		<reg32 offset="0x1554" name="COND_ADDRESS_LOW"/>
 		<reg32 offset="0x1558" name="COND_MODE" type="nv50_cond_mode"/>
@@ -112,24 +163,90 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x157c" name="TIC_LIMIT"/>
 		<reg32 offset="0x1608" name="CODE_ADDRESS_HIGH"/>
 		<reg32 offset="0x160c" name="CODE_ADDRESS_LOW"/>
+		<reg32 offset="0x1664" name="TEX_MISC">
+			<bitfield pos="0" name="UNK"/>
+			<bitfield pos="1" name="SEAMLESS_CUBE_MAP"/>
+		</reg32>
+		<reg32 offset="0x1690" name="UNK1690">
+			<bitfield pos="0" name="ALWAYS_DERIV">
+				<doc>Always use auto LOD selection by implicit derivatives,
+				even in program types other than FP.</doc>
+			</bitfield>
+			<bitfield pos="16" name="UNK16"/>
+		</reg32>
 		<reg32 offset="0x1694" name="CB_BIND">
 			<bitfield name="INDEX" high="31" low="1" type="uint"/>
 			<bitfield name="VALID" pos="0" type="boolean"/>
 		</reg32>
-		<reg32 offset="0x1698" name="UNK1698"/><!-- default 1 -->
+		<reg32 offset="0x1698" name="UNK1698"><!-- default 1 -->
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="8" name="UNK8"/>
+			<bitfield pos="12" name="UNK12"/>
+		</reg32>
+		<reg32 offset="0x1930" name="UNK1930" type="boolean">
+			<doc>Shared with fermi</doc>
+		</reg32>
+		<reg32 offset="0x1944" name="UNK1944">
+			<doc>0-2, no icmd, shared with fermi</doc>
+		</reg32>
+		<reg32 offset="0x1a24" name="DELAY"/>
+		<reg32 offset="0x1a2c" name="UNK1A2C" length="5">
+			<doc>Shared with fermi</doc>
+		</reg32>
 		<reg32 offset="0x1b00" name="QUERY_ADDRESS_HIGH"/>
 		<reg32 offset="0x1b04" name="QUERY_ADDRESS_LOW"/>
 		<reg32 offset="0x1b08" name="QUERY_SEQUENCE"/>
 		<reg32 offset="0x1b0c" name="QUERY_GET">
-			<bitfield name="UNK0" high="8" low="0"/>
-			<bitfield name="INTR" pos="9" type="boolean"/>
-			<bitfield name="UNK1" high="15" low="10"/>
+			<!-- XXX: figure this out -->
+			<bitfield name="UNK0" high="2" low="0"/>
+			<bitfield name="UNK20" pos="20"/>
+			<bitfield name="UNK28" pos="28"/>
 		</reg32>
 		<reg32 offset="0x2380" name="CB_SIZE"/>
 		<reg32 offset="0x2384" name="CB_ADDRESS_HIGH"/>
 		<reg32 offset="0x2388" name="CB_ADDRESS_LOW"/>
 		<reg32 offset="0x238c" name="CB_POS"/>
-		<reg32 offset="0x2390" name="CB_DATA"/>
+		<reg32 offset="0x2390" name="CB_DATA" length="16"/>
+		<stripe offset="0x2700" name="IMAGE" length="8" stride="0x20">
+			<reg32 offset="0x00" name="ADDRESS_HIGH"/>
+			<reg32 offset="0x04" name="ADDRESS_LOW"/>
+			<reg32 offset="0x08" name="WIDTH" type="uint"/>
+			<reg32 offset="0x0c" name="HEIGHT">
+				<bitfield name="HEIGHT" high="15" low="0" type="uint"/><!-- 1 for buffer textures -->
+				<bitfield name="UNK16" pos="16"/>
+				<bitfield name="LINEAR" pos="20"/><!-- probably -->
+			</reg32>
+			<reg32 offset="0x10" name="FORMAT">
+				<bitfield name="UNK0" pos="0"/><!-- default 0 -->
+				<bitfield name="FORMAT_COLOR" high="11" low="4" type="NV50_SURFACE_FORMAT"/>
+				<bitfield name="FORMAT_ZETA" high="16" low="12" type="NV50_ZETA_FORMAT"/>
+			</reg32>
+			<reg32 offset="0x14" name="TILE_MODE"/>
+		</stripe>
+		<reg32 offset="0x335c" name="PM_UNK335C" length="8">
+			<doc>0-0xffffffff</doc>
+		</reg32>
+		<reg32 offset="0x337c" name="PM_UNK337C" length="8">
+			<doc>0-0xff</doc>
+		</reg32>
+		<reg32 offset="0x339c" name="PM_UNK339C" length="8">
+			<bitfield low="0" high="2" name="0"/>
+			<bitfield low="4" high="6" name="1"/>
+			<bitfield low="8" high="10" name="2"/>
+			<bitfield low="12" high="14" name="3"/>
+			<bitfield low="16" high="18" name="4"/>
+			<bitfield low="20" high="22" name="5"/>
+			<bitfield low="24" high="26" name="6"/>
+			<bitfield low="28" high="30" name="7"/>
+		</reg32>
+		<reg32 offset="0x33bc" name="PM_UNK33BC" length="8">
+			<bitfield pos="0" name="0"/>
+			<bitfield low="4" high="15" name="4"/>
+		</reg32>
+		<reg32 offset="0x33dc" name="PM_UNK33DC">
+			<doc>0-0xff</doc>
+		</reg32>
 		<doc>USER_PARAM doesn't exist anymore, use a constant buffer for parameters.</doc>
 	</stripe>
 </domain>
