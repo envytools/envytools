@@ -413,6 +413,9 @@
 
 		<reg32 offset="0xa04" name="MEM_BASE" shr="8"/>
 		<reg32 offset="0xa0c" name="MEM_CHAN" type="nv50_channel"/>
+		<reg32 offset="0xa10" name="MEM_CMD">
+			<value value="7" name="LOAD_CHAN"/>
+		</reg32>
 		<reg32 offset="0xa20" name="MEM_TARGET">
 			<bitfield low="0" high="4" name="TARGET">
 				<value value="1" name="VM"/>
