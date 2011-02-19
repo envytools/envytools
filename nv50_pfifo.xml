@@ -57,6 +57,7 @@
 		</reg32>
 		<reg32 offset="0x084" name="UNK84">
 			<doc>Bits 0xffffffff. Comes up as 72f200 on NV50.</doc>
+			<bitfield pos="18" name="RAMHT_ALWAYS_FAIL"/>
 		</reg32>
 		<reg32 offset="0x088" name="UNK88">
 			<doc>Bits 0xffffffff. Goes to RAMFC.</doc>
