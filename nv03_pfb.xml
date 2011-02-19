@@ -91,7 +91,7 @@
 </array>
 
 <array name="PFFB" offset="0x100000" stride="0x1000" length="1" variants="NVC0-">
-	<array name="VM" offset="0xc00" stride="0x80" length="1">
+	<array name="VM" offset="0xc80" stride="0x80" length="1">
 		<reg32 offset="0x00" name="CFG">
 			<bitfield pos="0" name="PT_GRANULARITY">
 				<value value="0" name="128MB"/>
