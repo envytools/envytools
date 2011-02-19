@@ -131,6 +131,8 @@
 	<reg32 offset="0x08" name="CTRL_ADDR_LOW"/>
 	<reg32 offset="0x0c" name="CTRL_ADDR_HIGH"/>
 
+	<reg32 offset="0x18" name="DMA_GET"/>
+	<reg32 offset="0x1c" name="DMA_GET_HIGH"/>
 	<reg32 offset="0x20" name="DMA_MGET"/>
 	<reg32 offset="0x24" name="DMA_MGET_HIGH">
 		<bitfield high="7" low="0" name="ADDR_HIGH"/>
@@ -143,6 +145,13 @@
 		<bitfield high="15" low="8" name="UNK8"/>
 		<bitfield high="31" low="16" name="ORDER"/> <!-- XXX: check exact vals and bfs -->
 	</reg32>
+
+	<reg32 offset="0x5c" name="DMA_PUT"/>
+	<reg32 offset="0x60" name="DMA_PUT_HIGH"/>
+
+	<reg32 offset="0x68" name="DMA_GET_HIGH_RS">
+	<reg32 offset="0x60" name="DMA_PUT_HIGH_RS"/>
+	<reg32 offset="0x70" name="DMA_MGET_HIGH_RS">
 
 	<reg32 offset="0x84" name="DMA_STATE_0">
 		<bitfield pos="1" name="UNK1"/>
