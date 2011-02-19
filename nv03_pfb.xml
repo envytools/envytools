@@ -91,7 +91,38 @@
 </array>
 
 <array name="PFFB" offset="0x100000" stride="0x1000" length="1" variants="NVC0-">
-
+	<array name="VM" offset="0xc00" stride="0x80" length="1">
+		<reg32 offset="0x00" name="CFG">
+			<bitfield pos="0" name="PT_GRANULARITY">
+				<value value="0" name="128MB"/>
+				<value value="1" name="64MB"/>
+			</bitfield>
+			<!-- ... -->
+		</reg32>
+		<reg32 offset="0x34" name="TLB_FLUSH_PAGE">
+			<bitfield low="4" high="31" name="VIRT_ADDR" shr="12"/>
+		</reg32>
+		<reg32 offset="0x38" name="TLB_FLUSH_VSPACE">
+			<bitfield pos="1" name="TARGET">
+				<doc>SYSRAM matches both SYSRAM_SNOOP and _NOSNOOP</doc>
+				<value value="0" name="VRAM"/>
+				<value value="1" name="SYSRAM"/>
+			</bitfield>
+			<bitfield low="4" high="31" name="ADDR" shr="12"/>
+		</reg32>
+		<reg32 offset="0x3c" name="TLB_FLUSH_TRIGGER">
+			<bitfield pos="0" name="PAGE">
+				<value value="0" name="SPECIFIC"/>
+				<value value="1" name="ALL"/>
+			</bitfield>
+			<bitfield pos="1" name="VSPACE">
+				<value value="0" name="SPECIFIC"/>
+				<value value="1" name="ALL"/>
+			</bitfield>
+			<bitfield pos="2" name="UNK2"/>
+			<bitfield pos="31" name="TRIGGER"/>
+		</reg32>
+	</array>
 </array>
 
 <group name="nvc0_pbfb">
