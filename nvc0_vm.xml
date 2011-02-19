@@ -18,6 +18,7 @@
 	<value value="0x02" name="PCOPY1"/>
 	<value value="0x04" name="DISPATCH"/>
 	<value value="0x05" name="CTXCTL"/>
+	<value value="0x06" name="PFIFO"/>
 	<value value="0x07" name="BAR_READ"/>
 	<value value="0x08" name="BAR_WRITE"/>
 	<value value="0x11" name="PCOUNTER"/>
