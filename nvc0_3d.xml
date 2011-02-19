@@ -271,7 +271,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x20" name="UNK20">
 				<doc>0-0xffff</doc>
 			</reg32>
-			<reg32 offset="0x24" name="UNK14" type="boolen"/>
+			<reg32 offset="0x24" name="UNK14" type="boolean"/>
 		</stripe>
 		<reg32 offset="0x0a00" name="VIEWPORT_SCALE_X" length="16" stride="32" type="float"/>
 		<reg32 offset="0x0a04" name="VIEWPORT_SCALE_Y" length="16" stride="32" type="float"/>
@@ -915,7 +915,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Accepts at least 0x10002, scan pending</doc>
 		</reg32>
 		<reg32 offset="0x1794" name="UNK1794"/>
-		<reg32 offset="0x179c" name="UNK179C"/>
+		<reg32 offset="0x179c" name="UNK179C">
 			<doc>0-0xffff</doc>
 		</reg32>
 		<reg32 offset="0x17bc" name="UNK17BC_ADDRESS_HIGH"/>
