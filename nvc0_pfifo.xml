@@ -149,9 +149,9 @@
 	<reg32 offset="0x5c" name="DMA_PUT"/>
 	<reg32 offset="0x60" name="DMA_PUT_HIGH"/>
 
-	<reg32 offset="0x68" name="DMA_GET_HIGH_RS">
+	<reg32 offset="0x68" name="DMA_GET_HIGH_RS"/>
 	<reg32 offset="0x60" name="DMA_PUT_HIGH_RS"/>
-	<reg32 offset="0x70" name="DMA_MGET_HIGH_RS">
+	<reg32 offset="0x70" name="DMA_MGET_HIGH_RS"/>
 
 	<reg32 offset="0x84" name="DMA_STATE_0">
 		<bitfield pos="1" name="UNK1"/>
