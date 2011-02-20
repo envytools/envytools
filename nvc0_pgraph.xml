@@ -506,8 +506,23 @@
 		</array>
 		<array offset="0x400" name="PROP" stride="0x100" length="1">
 			<reg32 offset="0x20" name="TRAP">
-				<bitfield name="CLEAR" pos="30" />
-				<bitfield name="ENABLE" pos="31" />
+				<bitfield pos="1" name="RT_PITCH_OVERRUN"/>
+				<bitfield pos="4" name="RT_WIDTH_OVERRUN"/>
+				<bitfield pos="5" name="RT_HEIGHT_OVERRUN"/>
+				<bitfield pos="8" name="RT_STORAGE_TYPE_MISMATCH"/>
+				<bitfield pos="10" name="RT_LINEAR_MISMATCH"/>
+				<bitfield pos="30" name="CLEAR"/>
+				<bitfield pos="31" name="ENABLE"/>
+			</reg32>
+			<reg32 offset="0x34" name="TRAP_5">
+				<bitfield low="0" high="15" name="X"/>
+				<bitfield low="16" high="31" name="Y"/>
+			</reg32>
+			<reg32 offset="0x38" name="TRAP_6">
+				<bitfield low="8" high="13" name="FORMAT"/>
+			</reg32>
+			<reg32 offset="0x3c" name="TRAP_7">
+				<bitfield low="0" high="7" name="STORAGE_TYPE"/>
 			</reg32>
 		</array>
 		<array offset="0x500" name="UNK500" stride="0x100" length="1">
