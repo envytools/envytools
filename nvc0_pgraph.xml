@@ -163,6 +163,7 @@
 	<reg32 offset="0x0700" name="STATUS" access="r">
 		<bitfield name="ALL" pos="0"/>
 
+		<bitfield name="M2MF" pos="6"/>
 		<bitfield name="CTXCTL" pos="7"/>
 
 		<bitfield name="GPC" pos="24"/>
