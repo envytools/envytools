@@ -229,6 +229,8 @@
 		<bitfield low="0" high="6" name="CHID"/>
 		<bitfield pos="8" name="ACTIVE"/>
 	</reg32>
+
+	<reg32 offset="0x13c" name="INTR_HALT_MASK" type="nvc0_psubfifo_intr"/>
 </array>
 
 </domain>
