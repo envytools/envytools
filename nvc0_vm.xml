@@ -31,10 +31,13 @@
 	<value value="0x11" name="PCOUNTER"/>
 	<value value="0x12" name="PDAEMON"/>
 	<value value="0x14" name="CCACHE"/>
+	<value value="0x15" name="CCACHE_POST"/>
 </enum>
 
 <enum name="NVC0_VM_GPCCLIENT">
+	<value value="0x0c" name="ESETUP"/>
 	<value value="0x0e" name="CTXCTL"/>
+	<value value="0x0f" name="PROP"/>
 </enum>
 
 <enum name="NVC0_VM_FAULT">
