@@ -25,10 +25,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="PUSH" pos="0" type="boolean"/>
 			<bitfield name="LINEAR_IN" pos="4" type="boolean"/>
 			<bitfield name="LINEAR_OUT" pos="8" type="boolean"/>
-			<bitfield name="UNK12" pos="12"/>
-			<bitfield name="NOTIFY" pos="13" type="boolean"/>
-			<bitfield name="UNK16" low="16" high="17"/>
-			<bitfield name="UNK20" pos="20"/>
+			<bitfield name="QUERY" low="12" high="13">
+				<value value="0" name="NO"/>
+				<value value="1" name="UNK1"/>
+				<value value="2" name="YES"/>
+			</bitfield>
+			<bitfield name="BUF_NOTIFY" low="16" high="17" type="boolean"/>
+			<bitfield name="QUERY_SHORT" pos="20"/>
 		</reg32>
 		<reg32 offset="0x0304" name="DATA"/>
 		<reg32 offset="0x0308" name="UNK308">
@@ -40,9 +43,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0318" name="PITCH_OUT" type="int"/>
 		<reg32 offset="0x031c" name="LINE_LENGTH_IN" type="uint"/>
 		<reg32 offset="0x0320" name="LINE_COUNT" type="uint"/>
-		<reg32 offset="0x032c" name="NOTIFY_ADDRESS_HIGH"/>
-		<reg32 offset="0x0330" name="NOTIFY_ADDRESS_LOW"/>
-		<reg32 offset="0x0334" name="NOTIFY"/>
+		<reg32 offset="0x032c" name="QUERY_ADDRESS_HIGH"/>
+		<reg32 offset="0x0330" name="QUERY_ADDRESS_LOW"/>
+		<reg32 offset="0x0334" name="QUERY_SEQUENCE"/>
 		<reg32 offset="0x0338" name="COND_ADDRESS_HIGH"/>
 		<reg32 offset="0x033c" name="COND_ADDRESS_LOW"/>
 		<reg32 offset="0x0340" name="COND_MODE" type="nv50_cond_mode"/>
