@@ -236,6 +236,14 @@
 		<reg32 offset="0x200" name="CTX_CACHE" length="8" />
 	</array>
 	<array offset="0x4400" name="MACRO" stride="0x100" length="1">
+		<reg32 offset="0" name="REG" length="8"/>
+		<reg32 offset="0x88" name="MCACHE_CTRL">
+			<bitfield low="0" high="15" name="CLASS"/>
+			<bitfield low="16" high="27" name="MTHD" shr="2"/>
+			<bitfield pos="30" name="READ_TRIGGER"/>
+			<bitfield pos="31" name="WRITE_TRIGGER"/>
+		</reg32>
+		<reg32 offset="0x8c" name="MCACHE_DATA"/>
 		<reg32 offset="0x90" name="TRAP">
 			<bitfield name="TOO_FEW_PARAMS" pos="0" />
 			<bitfield name="TOO_MANY_PARAMS" pos="1" />
