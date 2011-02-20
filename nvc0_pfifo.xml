@@ -128,9 +128,12 @@
 </array>
 
 <array name="PSUBFIFO" offset="0x40000" stride="0x2000" length="3" variants="NVC0-">
+	<reg32 offset="0x00" name="IB_PUT"/>
+
 	<reg32 offset="0x08" name="CTRL_ADDR_LOW"/>
 	<reg32 offset="0x0c" name="CTRL_ADDR_HIGH"/>
 
+	<reg32 offset="0x14" name="IB_GET"/>
 	<reg32 offset="0x18" name="DMA_GET"/>
 	<reg32 offset="0x1c" name="DMA_GET_HIGH"/>
 	<reg32 offset="0x20" name="DMA_MGET"/>
@@ -139,6 +142,20 @@
 		<bitfield pos="31" name="VALID"/>
 	</reg32>
 
+	<reg32 offset="0x38" name="SEMAPHORE_ADDRESS_HIGH"/>
+	<reg32 offset="0x3c" name="SEMAPHORE_ADDRESS_LOW"/>
+	<reg32 offset="0x40" name="SEMAPHORE_SEQUENCE"/>
+	<reg32 offset="0x44" name="SEMAPHORE_STATE">
+		<bitfield low="0" high="3" name="MODE">
+			<value value="1" name="ACQUIRE_EQUAL"/>
+			<value value="2" name="RELEASE_LONG"/>
+			<value value="4" name="ACQUIRE_GEQUAL"/>
+		</bitfield>
+		<bitfield pos="12" name="UNK12"/>
+		<bitfield pos="19" name="ACQUIRE_PENDING"/>
+		<bitfield pos="20" name="UNK20"/>
+		<bitfield pos="24" name="UNK24"/>
+	</reg32>
 	<reg32 offset="0x48" name="IB_ADDRESS_LOW"/>
 	<reg32 offset="0x4c" name="IB_CONFIG">
 		<bitfield high="7" low="0" name="ADDRESS_HIGH"/>
@@ -150,7 +167,7 @@
 	<reg32 offset="0x60" name="DMA_PUT_HIGH"/>
 
 	<reg32 offset="0x68" name="DMA_GET_HIGH_RS"/>
-	<reg32 offset="0x60" name="DMA_PUT_HIGH_RS"/>
+	<reg32 offset="0x6c" name="DMA_PUT_HIGH_RS"/>
 	<reg32 offset="0x70" name="DMA_MGET_HIGH_RS"/>
 
 	<reg32 offset="0x84" name="DMA_STATE_0">
@@ -167,7 +184,12 @@
 	</reg32>
 	<reg32 offset="0x88" name="DMA_STATE_1">
 		<bitfield low="0" high="12" name="METHOD_COUNT"/>
+		<bitfield pos="16" name="PRECACHE_0_VALID"/>
+		<bitfield pos="20" name="PRECACHE_1_VALID"/>
+		<bitfield pos="24" name="PRECACHE_2_VALID"/>
 	</reg32>
+	<reg32 offset="0x8c" name="PRECACHE_0"/>
+	<reg32 offset="0x90" name="PRECACHE_1"/>
 
 	<reg32 offset="0xa4" name="ENGINE" length="2">
 		<bitfield low="0" high="4" name="0" type="nvc0_pfifo_engine"/>
@@ -183,14 +205,18 @@
 			<bitfield low="2" high="13" name="MTHD" shr="2"/>
 			<bitfield low="16" high="18" name="SUBCH"/>
 			<bitfield low="21" high="23" name="UNK21"/> <!-- type of submission command, perhaps? -->
-			<bitfield pos="31" name="UNK31"/>
+			<bitfield pos="31" name="VALID"/>
 		</reg32>
 		<reg32 offset="4" name="DATA"/>
 	</array>
 
+	<reg32 offset="0xf0" name="PRECACHE_2"/>
+
 	<bitset name="nvc0_psubfifo_intr" inline="yes">
-		<bitfield pos="23" name="SW_MTHD"/>
 		<bitfield pos="21" name="ILLEGAL_MTHD"/>
+		<bitfield pos="22" name="ILLEGAL_CMD"/>
+		<bitfield pos="23" name="SW_MTHD"/>
+		<bitfield pos="25" name="ILLEGAL_SEM"/>
 	</bitset>
 	<reg32 offset="0x108" name="INTR" type="nvc0_psubfifo_intr"/>
 	<reg32 offset="0x10c" name="INTR_EN" type="nvc0_psubfifo_intr"/>
