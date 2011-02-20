@@ -141,6 +141,7 @@
 		<bitfield high="7" low="0" name="ADDR_HIGH"/>
 		<bitfield pos="31" name="VALID"/>
 	</reg32>
+	<reg32 offset="0x28" name="REF_CNT"/>
 
 	<reg32 offset="0x38" name="SEMAPHORE_ADDRESS_HIGH"/>
 	<reg32 offset="0x3c" name="SEMAPHORE_ADDRESS_LOW"/>
