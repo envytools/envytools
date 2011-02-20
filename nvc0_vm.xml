@@ -35,6 +35,7 @@
 </enum>
 
 <enum name="NVC0_VM_GPCCLIENT">
+	<value value="0x01" name="TEX"/>
 	<value value="0x0c" name="ESETUP"/>
 	<value value="0x0e" name="CTXCTL"/>
 	<value value="0x0f" name="PROP"/>
