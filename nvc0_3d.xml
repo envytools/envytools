@@ -260,7 +260,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<bitfield pos="0" name="X" />
 				<bitfield low="4" high="6" name="Y" />
 				<bitfield low="8" high="10" name="Z" />
-				<bitfield pos="12" name="UNK12"/>
+				<bitfield pos="12" name="LINEAR"/>
 				<bitfield pos="16" name="UNK16"/>
 			</reg32>
 			<reg32 offset="0x18" name="ARRAY_MODE"><!-- ??? -->
@@ -268,9 +268,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			  <bitfield name="VOLUME" high="16" low="16" type="boolean"/>
 			</reg32>
 			<reg32 offset="0x1c" name="LAYER_STRIDE" type="uint"/><!-- in dwords -->
-			<reg32 offset="0x20" name="UNK20">
-				<doc>0-0xffff</doc>
-			</reg32>
+			<reg32 offset="0x20" name="BASE_LAYER"/>
 			<reg32 offset="0x24" name="UNK14" type="boolean"/>
 		</stripe>
 		<reg32 offset="0x0a00" name="VIEWPORT_SCALE_X" length="16" stride="32" type="float"/>
