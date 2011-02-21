@@ -57,92 +57,116 @@
 
 <enum name="NVC0_STORAGE_TYPE">
 	<value value="0x00" name="LINEAR"/>
-	<value value="0x01" name="UNK01"/>
-	<value value="0x02" name="UNK02_COMP"/>
-	<value value="0x03" name="UNK03_COMP"/>
-	<value value="0x04" name="UNK04_COMP"/>
-	<value value="0x05" name="UNK05_COMP"/>
-	<value value="0x07" name="UNK07_COMP"/>
-	<value value="0x08" name="UNK08_COMP"/>
-	<value value="0x09" name="UNK09_COMP"/>
-	<value value="0x0a" name="UNK0A_COMP"/>
-	<value value="0x11" name="UNK11"/>
-	<value value="0x17" name="UNK17_COMP"/>
-	<value value="0x18" name="UNK18_COMP"/>
-	<value value="0x19" name="UNK19_COMP"/>
-	<value value="0x1a" name="UNK1A_COMP"/>
-	<value value="0x26" name="UNK26"/>
-	<value value="0x27" name="UNK27"/>
-	<value value="0x28" name="UNK28"/>
-	<value value="0x29" name="UNK29"/>
-	<value value="0x3a" name="UNK3A_COMP"/>
-	<value value="0x3b" name="UNK3B_COMP"/>
-	<value value="0x3c" name="UNK3C_COMP"/>
-	<value value="0x3d" name="UNK3D_COMP"/>
-	<value value="0x3e" name="UNK3E_COMP"/>
-	<value value="0x3f" name="UNK3F_COMP"/>
-	<value value="0x40" name="UNK40_COMP"/>
-	<value value="0x41" name="UNK41_COMP"/>
-	<value value="0x46" name="UNK46"/>
-	<value value="0x51" name="UNK51_COMP"/>
-	<value value="0x52" name="UNK52_COMP"/>
-	<value value="0x53" name="UNK53_COMP"/>
-	<value value="0x54" name="UNK54_COMP"/>
-	<value value="0x7b" name="UNK7B"/>
-	<value value="0x86" name="UNK86_COMP"/>
-	<value value="0x87" name="UNK87_COMP"/>
-	<value value="0x88" name="UNK88_COMP"/>
-	<value value="0x89" name="UNK89_COMP"/>
-	<value value="0x8b" name="UNK8B"/>
-	<value value="0x8c" name="UNK8C"/>
-	<value value="0x8d" name="UNK8D"/>
-	<value value="0x8e" name="UNK8E"/>
-	<value value="0xa3" name="UNKA3_COMP"/>
-	<value value="0xa4" name="UNKA4_COMP"/>
-	<value value="0xa5" name="UNKA5_COMP"/>
-	<value value="0xa6" name="UNKA6_COMP"/>
-	<value value="0xa7" name="UNKA7"/>
-	<value value="0xa8" name="UNKA8"/>
-	<value value="0xa9" name="UNKA9"/>
-	<value value="0xaa" name="UNKAA"/>
-	<value value="0xbf" name="UNKBF_COMP"/>
-	<value value="0xc0" name="UNKC0_COMP"/>
-	<value value="0xc1" name="UNKC1_COMP"/>
-	<value value="0xc2" name="UNKC2_COMP"/>
-	<value value="0xc3" name="UNKC3"/>
-	<value value="0xcc" name="UNKCC_COMP"/>
-	<value value="0xcd" name="UNKCD_COMP"/>
-	<value value="0xce" name="UNKCE_COMP"/>
-	<value value="0xcf" name="UNKCF_COMP"/>
-	<value value="0xd0" name="UNKD0_COMP"/>
-	<value value="0xd1" name="UNKD1_COMP"/>
-	<value value="0xd8" name="UNKD8_COMP"/>
-	<value value="0xdb" name="UNKDB_COMP"/>
-	<value value="0xdd" name="UNKDD_COMP"/>
-	<value value="0xdf" name="UNKDF_COMP"/>
-	<value value="0xe0" name="UNKE0_COMP"/>
-	<value value="0xe2" name="UNKE2_COMP"/>
-	<value value="0xe3" name="UNKE3_COMP"/>
-	<value value="0xe4" name="UNKE4_COMP"/>
-	<value value="0xe5" name="UNKE5_COMP"/>
-	<value value="0xe6" name="UNKE6_COMP"/>
-	<value value="0xe9" name="UNKE9_COMP"/>
-	<value value="0xeb" name="UNKEB_COMP"/>
-	<value value="0xed" name="UNKED_COMP"/>
-	<value value="0xee" name="UNKEE_COMP"/>
-	<value value="0xf0" name="UNKF0_COMP"/>
-	<value value="0xf1" name="UNKF1_COMP"/>
-	<value value="0xf2" name="UNKF2_COMP"/>
-	<value value="0xf3" name="UNKF3_COMP"/>
-	<value value="0xf4" name="UNKF4_COMP"/>
-	<value value="0xf5" name="UNKF5_COMP"/>
-	<value value="0xf6" name="UNKF6_COMP"/>
-	<value value="0xf7" name="UNKF7_COMP"/>
-	<value value="0xf8" name="UNKF8_COMP"/>
-	<value value="0xf9" name="UNKF9_COMP"/>
-	<value value="0xfa" name="UNKFA_COMP"/>
-	<value value="0xfb" name="UNKFB_COMP"/>
-	<value value="0xfd" name="UNKFD"/>
+
+
+	<value value="0x01" name="Z16"/>
+
+	<value value="0x02" name="UNK02_Z16_COMP_MS1"/>
+	<value value="0x03" name="UNK03_Z16_COMP_MS2"/>
+	<value value="0x04" name="UNK04_Z16_COMP_MS4"/>
+	<value value="0x05" name="UNK05_Z16_COMP_MS8"/>
+
+	<value value="0x07" name="UNK07_Z16_COMP_MS1"/>
+	<value value="0x08" name="UNK08_Z16_COMP_MS2"/>
+	<value value="0x09" name="UNK09_Z16_COMP_MS4"/>
+	<value value="0x0a" name="UNK0A_Z16_COMP_MS8"/>
+
+
+	<value value="0x11" name="S8Z24"/> <!-- also X8Z24 -->
+
+	<value value="0x17" name="S8Z24_COMP_MS1"/>
+	<value value="0x18" name="S8Z24_COMP_MS2"/>
+	<value value="0x19" name="S8Z24_COMP_MS4"/>
+	<value value="0x1a" name="S8Z24_COMP_MS8"/>
+
+	<value value="0x26" name="C8Z24_MS4_CS12"/>
+	<value value="0x27" name="C8Z24_MS4_CS4"/>
+	<value value="0x28" name="C8Z24_MS8_CS8"/>
+	<value value="0x29" name="C8Z24_MS8_CS24"/>
+
+	<value value="0x3a" name="UNK3A_C8Z24_COMP_MS4_CS12"/>
+	<value value="0x3b" name="UNK3B_C8Z24_COMP_MS4_CS4"/>
+	<value value="0x3c" name="UNK3C_C8Z24_COMP_MS8_CS8"/>
+	<value value="0x3d" name="UNK3D_C8Z24_COMP_MS8_CS24"/>
+
+	<value value="0x3e" name="UNK3E_C8Z24_COMP_MS4_CS12"/>
+	<value value="0x3f" name="UNK3F_C8Z24_COMP_MS4_CS4"/>
+	<value value="0x40" name="UNK40_C8Z24_COMP_MS8_CS8"/>
+	<value value="0x41" name="UNK41_C8Z24_COMP_MS8_CS24"/>
+
+	<value value="0x46" name="Z24S8"/>
+
+	<value value="0x51" name="Z24S8_COMP_MS1"/>
+	<value value="0x52" name="Z24S8_COMP_MS2"/>
+	<value value="0x53" name="Z24S8_COMP_MS4"/>
+	<value value="0x54" name="Z24S8_COMP_MS8"/>
+
+	<value value="0x7b" name="Z32"/>
+
+	<value value="0x86" name="Z32_COMP_MS1"/>
+	<value value="0x87" name="Z32_COMP_MS2"/>
+	<value value="0x88" name="Z32_COMP_MS4"/>
+	<value value="0x89" name="Z32_COMP_MS8"/>
+
+	<value value="0x8b" name="Z24_C8S8_MS4_CS12"/>
+	<value value="0x8c" name="Z24_C8S8_MS4_CS4"/>
+	<value value="0x8d" name="Z24_C8S8_MS8_CS8"/>
+	<value value="0x8e" name="Z24_C8S8_MS8_CS24"/>
+	<value value="0xa3" name="Z24_C8S8_COMP_MS4_CS12"/>
+	<value value="0xa4" name="Z24_C8S8_COMP_MS4_CS4"/>
+	<value value="0xa5" name="Z24_C8S8_COMP_MS8_CS8"/>
+	<value value="0xa6" name="Z24_C8S8_COMP_MS8_CS24"/>
+
+	<value value="0xa7" name="Z32_C8S8_MS4_CS12"/>
+	<value value="0xa8" name="Z32_C8S8_MS4_CS4"/>
+	<value value="0xa9" name="Z32_C8S8_MS8_CS8"/>
+	<value value="0xaa" name="Z32_C8S8_MS8_CS24"/>
+	<value value="0xbf" name="Z32_C8S8_COMP_MS4_CS12"/>
+	<value value="0xc0" name="Z32_C8S8_COMP_MS4_CS4"/>
+	<value value="0xc1" name="Z32_C8S8_COMP_MS8_CS8"/>
+	<value value="0xc2" name="Z32_C8S8_COMP_MS8_CS24"/>
+
+	<value value="0xc3" name="Z32_S8"/>
+
+	<value value="0xcc" name="UNKCC_TILED_32_COMP_MS2"/>
+	<value value="0xcd" name="UNKCD_TILED_64_COMP_MS2"/>
+
+	<value value="0xce" name="Z32_S8_COMP_MS1"/>
+	<value value="0xcf" name="Z32_S8_COMP_MS2"/>
+	<value value="0xd0" name="Z32_S8_COMP_MS4"/>
+	<value value="0xd1" name="Z32_S8_COMP_MS8"/>
+
+	<value value="0xd8" name="UNKD8_TILED_32_COMP"/>
+	<value value="0xdb" name="UNKDB_TILED_32_COMP"/>
+	<value value="0xdd" name="UNKDD_TILED_32_COMP_MS2"/>
+	<value value="0xdf" name="UNKDF_TILED_32_COMP_MS4"/>
+	<value value="0xe0" name="UNKE0_TILED_32_COMP_MS4"/>
+	<value value="0xe2" name="UNKE2_TILED_32_COMP_MS4"/>
+	<value value="0xe3" name="UNKE3_TILED_32_COMP_MS4"/>
+	<value value="0xe4" name="UNKE4_TILED_32_COMP_MS8"/>
+	<value value="0xe5" name="UNKE5_TILED_32_COMP_MS8"/>
+
+	<value value="0xe6" name="UNKE6_TILED_64_COMP"/>
+	<value value="0xe9" name="UNKE9_TILED_64_COMP"/>
+	<value value="0xeb" name="UNKEB_TILED_64_COMP_MS2"/>
+	<value value="0xed" name="UNKED_TILED_64_COMP_MS4"/>
+	<value value="0xee" name="UNKEE_TILED_64_COMP_MS4"/>
+	<value value="0xf0" name="UNKF0_TILED_64_COMP_MS4"/>
+	<value value="0xf1" name="UNKF1_TILED_64_COMP_MS4"/>
+	<value value="0xf2" name="UNKF2_TILED_64_COMP_MS8"/>
+	<value value="0xf3" name="UNKF3_TILED_64_COMP_MS8"/>
+
+	<value value="0xf4" name="UNKF4_TILED_128_COMP"/>
+	<value value="0xf5" name="UNKF5_TILED_128_COMP"/>
+	<value value="0xf6" name="UNKF6_TILED_128_COMP_MS2"/>
+	<value value="0xf7" name="UNKF7_TILED_128_COMP_MS2"/>
+	<value value="0xf8" name="UNKF8_TILED_128_COMP_MS4"/>
+	<value value="0xf9" name="UNKF9_TILED_128_COMP_MS4"/>
+	<value value="0xfa" name="UNKFA_TILED_128_COMP_MS8"/>
+	<value value="0xfb" name="UNKFB_TILED_128_COMP_MS8"/>
+
+	<value value="0xfd" name="UNKFD_LINEAR"/>
+
 	<value value="0xfe" name="TILED"/>
 </enum>
 
