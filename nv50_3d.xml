@@ -46,13 +46,15 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <!--these probably aren't all-->
 <enum name="nv50_msaa_mode" inline="yes">
-	<value value="0x00" name="1X"/>
-	<value value="0x01" name="2XMS"/>
-	<value value="0x02" name="4XMS"/>
-	<value value="0x03" name="8XMS"/>
-	<value value="0x08" name="4XMS_4XCS"/>
-	<value value="0x09" name="4XMS_12XCS"/>
-	<value value="0x0a" name="8XMS_8XCS"/>
+	<value value="0x00" name="MS1"/>
+	<value value="0x01" name="MS2"/>
+	<value value="0x02" name="MS4"/>
+	<value value="0x03" name="MS8"/>
+	<value value="0x04" name="MS8_ALT"/>
+	<value value="0x05" name="MS2_ALT"/>
+	<value value="0x08" name="MS4_CS4"/>
+	<value value="0x09" name="MS4_CS12"/>
+	<value value="0x0a" name="MS8_CS8"/>
 </enum>
 
 <domain name="NV01_SUBCHAN" bare="yes">
