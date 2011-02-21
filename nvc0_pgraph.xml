@@ -509,6 +509,7 @@
 				<bitfield pos="1" name="RT_PITCH_OVERRUN"/>
 				<bitfield pos="4" name="RT_WIDTH_OVERRUN"/>
 				<bitfield pos="5" name="RT_HEIGHT_OVERRUN"/>
+				<bitfield pos="7" name="ZETA_STORAGE_TYPE_MISMATCH"/>
 				<bitfield pos="8" name="RT_STORAGE_TYPE_MISMATCH"/>
 				<bitfield pos="10" name="RT_LINEAR_MISMATCH"/>
 				<bitfield pos="30" name="CLEAR"/>
