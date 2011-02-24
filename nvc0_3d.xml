@@ -892,9 +892,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Accepts at least 0x10002, scan pending</doc>
 		</reg32>
 		<reg32 offset="0x1794" name="UNK1794"/>
-		<reg32 offset="0x179c" name="UNK179C">
-			<doc>0-0xffff</doc>
-		</reg32>
+		<reg32 offset="0x179c" name="ZETA_BASE_LAYER"/>
 		<reg32 offset="0x17bc" name="UNK17BC_ADDRESS_HIGH"/>
 		<reg32 offset="0x17c0" name="UNK17BC_ADDRESS_LOW"/>
 		<reg32 offset="0x17c4" name="UNK17C4">
