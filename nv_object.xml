@@ -207,7 +207,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="0" name="WRITE"/>
 			<value value="1" name="WRITE_AND_AWAKEN"/>
 		</reg32>
-		<reg32 offset="0x0110" name="WAIT_FOR_IDLE" variants="NV50-"/>
+		<reg32 offset="0x0110" name="SERIALIZE" variants="NV50-"/>
 		<reg32 offset="0x0114" name="MACRO_UPLOAD_POS" variants="NVC0-"/>
 		<reg32 offset="0x0118" name="MACRO_UPLOAD_DATA" variants="NVC0-"/>
 		<reg32 offset="0x011c" name="MACRO_ID" variants="NVC0-"/>
