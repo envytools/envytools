@@ -969,6 +969,7 @@ static struct insn tabc[] = {
 	{ 0xd000000000000007ull, 0xf00000000000c007ull, N("membar"), N("cta") },
 	{ 0xd00000000000c007ull, 0xf00000000000c007ull, N("trap") },
 	{ 0x0000000000000007ull, 0x0000000000000007ull, T(p), OOPS, BTARG },
+	{ 0, 0, OOPS },
 };
 
 static struct insn tabroot[] = {
