@@ -72,7 +72,9 @@
 			<brief>Check 405840. Shader-related.</brief>
 		</bitfield>
 		<bitfield name="UNK5" pos="5"/>
-		<bitfield name="UNK6" pos="6"/>
+		<bitfield name="UNK6" pos="6">
+			<brief>Check 40601c</brief>
+		</bitfield>
 		<bitfield name="MACRO" pos="7">
 			<brief>Check 404490</brief>
 		</bitfield>
@@ -276,6 +278,7 @@
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
 		<reg32 offset="0x1c" name="TRAP_UNK1">
+			<bitfield name="UNK0" pos="0" /> <!-- related to compute with too many threads -->
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
