@@ -271,6 +271,17 @@
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
+		<reg32 offset="0x44" name="TRAP_UNK44"/>
+		<reg32 offset="0x70" name="GPC_TPCNT" length="4">
+			<bitfield low="0" high="3" name="0"/>
+			<bitfield low="4" high="7" name="1"/>
+			<bitfield low="8" high="11" name="2"/>
+			<bitfield low="12" high="15" name="3"/>
+			<bitfield low="16" high="19" name="4"/>
+			<bitfield low="20" high="23" name="5"/>
+			<bitfield low="24" high="27" name="6"/>
+			<bitfield low="28" high="31" name="7"/>
+		</reg32>
 	</array>
 	<array offset="0x6000" name="UNK6000" stride="0x800" length="1">
 		<reg32 offset="0x18" name="TRAP_UNK0">
@@ -281,6 +292,22 @@
 			<bitfield name="UNK0" pos="0" /> <!-- related to compute with too many threads -->
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
+		</reg32>
+		<reg32 offset="0x28" name="GPC_TPCNT" length="4">
+			<bitfield low="0" high="3" name="0"/>
+			<bitfield low="4" high="7" name="1"/>
+			<bitfield low="8" high="11" name="2"/>
+			<bitfield low="12" high="15" name="3"/>
+			<bitfield low="16" high="19" name="4"/>
+			<bitfield low="20" high="23" name="5"/>
+			<bitfield low="24" high="27" name="6"/>
+			<bitfield low="28" high="31" name="7"/>
+		</reg32>
+		<reg32 offset="0xa8" name="TP_GPCID" length="0x40">
+			<bitfield low="0" high="4" name="0"/>
+			<bitfield low="8" high="12" name="1"/>
+			<bitfield low="16" high="20" name="2"/>
+			<bitfield low="24" high="28" name="3"/>
 		</reg32>
 	</array>
 	<stripe offset="0x6800" stride="0x400" length="2">
@@ -473,6 +500,7 @@
 				<bitfield name="CLEAR" pos="30" />
 				<bitfield name="ENABLE" pos="31" />
 			</reg32>
+			<reg32 offset="0x088" name="TPID"/>
 		</array>
 		<array offset="0x200" name="TEX" stride="0x100" length="1">
 			<reg32 offset="0x24" name="TRAP">
@@ -487,6 +515,7 @@
 				<bitfield name="CLEAR" pos="30" />
 				<bitfield name="ENABLE" pos="31" />
 			</reg32>
+			<reg32 offset="0xe8" name="TPID"/>
 		</array>
 		<reg32 offset="0x508" name="TRAP">
 			<bitfield pos="0" name="TEX"/>
@@ -501,6 +530,9 @@
 			<bitfield pos="3" name="L1C"/>
 		</reg32>
 		<array offset="0x600" name="MP" stride="0x200" length="1">
+			<reg32 offset="0x044" name="UNK44_TRAP"/>
+			<reg32 offset="0x04c" name="UNK4C_TRAP"/>
+			<reg32 offset="0x098" name="TPID"/>
 		</array>
 	</group>
 
@@ -559,8 +591,11 @@
 		<array offset="0xb00" name="TPBUS" stride="0x100" length="1">
 		</array>
 		<array offset="0xc00" name="TPCONF" stride="0x080" length="1">
+			<reg32 offset="0x8" name="TPCNT"/>
+			<reg32 offset="0x10" name="TPID" length="8"/>
 		</array>
 		<array offset="0xc80" name="UNKC80" stride="0x080" length="1">
+			<reg32 offset="0xc" name="TPCNT"/>
 		</array>
 		<array offset="0xd00" name="UNKD00" stride="0x080" length="1">
 		</array>
