@@ -106,6 +106,9 @@
 	<value value="0xc1" name="NVC1">
 		<brief>GF108: GeForce 430 GT</brief>
 	</value>
+	<value value="0xc8" name="NVC8">
+		<brief>GF110: GeForce 570/580 GTX</brief>
+	</value>
 </enum>
 
 </database>
