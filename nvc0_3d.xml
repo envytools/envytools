@@ -893,10 +893,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1794" name="UNK1794"/>
 		<reg32 offset="0x179c" name="ZETA_BASE_LAYER"/>
-		<reg32 offset="0x17bc" name="UNK17BC_ADDRESS_HIGH"/>
-		<reg32 offset="0x17c0" name="UNK17BC_ADDRESS_LOW"/>
-		<reg32 offset="0x17c4" name="UNK17C4">
-			<doc>1-3</doc>
+		<reg32 offset="0x17bc" name="VERTEX_QUARANTINE_ADDRESS_HIGH"/>
+		<reg32 offset="0x17c0" name="VERTEX_QUARANTINE_ADDRESS_LOW"/>
+		<reg32 offset="0x17c4" name="VERTEX_QUARANTINE_SIZE">
+			<value value="1" name="16K"/>
+			<value value="2" name="32K"/>
+			<value value="3" name="64K"/>
+			<doc>Stuff written to VERTEX_DATA gets put here. Maye more at higher offsets ?
+			It looks like this should be 1 MiB in size.</doc>
 		</reg32>
 		<reg32 offset="0x17c8" name="INDEX_ARRAY_START_HIGH"/><!-- proven changeable also between BEGIN/END -->
 		<reg32 offset="0x17cc" name="INDEX_ARRAY_START_LOW"/>
