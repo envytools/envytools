@@ -116,8 +116,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0304" name="UNK0304">
 			<doc>0xffffffff</doc>
 		</reg32>
-		<reg32 offset="0x0308" name="UNK0308">
-			<doc>Only 3 on NVC0_3D, 3 or 1 on NVC1_3D. Shared with dijkstra.</doc>
+		<reg32 offset="0x0308" name="CACHE_SPLIT">
+			<value value="1" name="16K_SHARED_48K_L1" variants="NVC1_3D-"/>
+			<value value="3" name="48K_SHARED_16K_L1"/>
 		</reg32>
 		<reg32 offset="0x030c" name="UNK030C">
 			<doc>0-1, no icmd, shared with dijkstra.</doc>

@@ -83,9 +83,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="FLAGS" high="31" low="30"/><!-- default 0xc -->
 			<doc>Remaps high byte of g[] address used in CP (INDEX -> HIGH).</doc>
 		</reg32>
-		<reg32 offset="0x0308" name="SHARED_CACHE_SIZE">
-			<value value="1" name="16K"/>
-			<value value="3" name="48K"/>
+		<reg32 offset="0x0308" name="CACHE_SPLIT">
+			<value value="1" name="16K_SHARED_48K_L1"/>
+			<value value="3" name="48K_SHARED_16K_L1"/>
 		</reg32>
 		<reg32 offset="0x030c" name="UNK030C">
 			<doc>0-1, no icmd, shared with fermi.</doc>
