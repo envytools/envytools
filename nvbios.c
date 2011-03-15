@@ -11,6 +11,7 @@ const uint8_t bit_signature[] = { 0xff, 0xb8, 'B', 'I', 'T' };
 const uint8_t bmp_signature[] = { 0xff, 0x7f, 'N', 'V', 0x0 };
 uint8_t major_version, minor_version, micro_version, chip_version;
 uint32_t card_codename = 0;
+uint8_t magic_number = 0;
 uint32_t strap = 0;
 
 #define RNN_ADDARRAY(a, e) \
@@ -503,6 +504,14 @@ int parse_args(int argc, char **argv) {
 			} else {
 				return usage(argv[0]);
 			}
+		} else if (!strncmp(argv[i],"-m",2)) {
+			i++;
+			if(i < argc) {
+				sscanf(argv[i],"%2hx",&magic_number);
+				printf("Magic number forced to %2hx\n", magic_number);
+			} else {
+				return usage(argv[0]);
+			}
 		} else if (!strncmp(argv[i],"-s",2)) {
 			i++;
 			if (i < argc) {
@@ -523,9 +532,10 @@ int parse_args(int argc, char **argv) {
 }
 
 int usage(char* name) {
-	printf("Usage: %s mybios.rom [-n XX] [-s strap]\n",name);
+	printf("Usage: %s mybios.rom [-c XX] [-s strap]\n",name);
 	printf("Options:\n");
-	printf("  -n XX : override card generation\n");
+	printf("  -c XX : override card generation\n");
+	printf("  -m XX : override \"magic number\" for memtimings\n");
 	printf("  -s XX : set the trap register\n");
 	return 1;
 }
@@ -1182,13 +1192,13 @@ int main(int argc, char **argv) {
 				/* XXX: I don't trust the -1's and +1's... they must come
 				*      from somewhere! */
 				if (card_codename < 0xc0) {
-					reg_100224 = ((tUNK_0 + tUNK_19 + 1) << 24
-								| (tUNK_1 + tUNK_19 + 1) << 8);
+					reg_100224 = ((tUNK_0 + tUNK_19 + 1 + magic_number) << 24
+								| (tUNK_1 + tUNK_19 + 1 + magic_number) << 8);
 				
 					if (card_codename == 0xa8) {
 						reg_100224 |= (tUNK_2 - 1);
 					} else {
-						reg_100224 |= tUNK_2 + 2;
+						reg_100224 |= (tUNK_2 + 2 - magic_number);
 					}
 				}
 				reg_100224 += tUNK_18 << 16;
@@ -1196,11 +1206,21 @@ int main(int argc, char **argv) {
 				reg_100228 = ((tUNK_12 << 16) | tUNK_11 << 8 | tUNK_10);
 				if(header_length > 19 && card_codename > 0xa5) {
 					reg_100228 += (tUNK_19 - 1) << 24;
+				} else if (header_length <= 19 && card_codename < 0xa0) {
+					reg_100228 += magic_number << 24;
 				}
 
 				if(card_codename >= 0x50) {
-					/* XXX: reg_10022c */
-
+					if(card_codename < 0x98) {
+						reg_10022c = (0x14 + tUNK_2) << 24 |
+									0x16 << 16 |
+									(tUNK_2 - 1) << 8 |
+									(tUNK_2 - 1);
+					} else {
+						/* See d.bul in NV98..
+						 * seems to have changed for G105M+*/
+					}
+					
 					reg_100230 = (tUNK_20 << 24 | tUNK_21 << 16 |
 								tUNK_13 << 8  | tUNK_13);
 
@@ -1225,7 +1245,7 @@ int main(int argc, char **argv) {
 					 * 	0 for pre-NV50 cards
 					 * 	0x????0202 for NV50+ cards (empirical evidence) */
 					reg_10023c = 0x202;
-					if(card_codename < 0xa3) {
+					if(card_codename < 0x98) {
 						reg_10023c |= 0x4000000 | (tUNK_2 - 1) << 16;
 					} else {
 						// currently unknown
@@ -1234,7 +1254,7 @@ int main(int argc, char **argv) {
 				} else {
 					/* Don't know, don't care...
 					* don't touch the rest */
-					reg_100228 |= 0x20200000;
+					reg_100228 |= 0x20200000 + magic_number << 24;
 				}
 
 				printf("Registers: 220: %08x %08x %08x %08x\n",
