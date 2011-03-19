@@ -986,7 +986,7 @@ int main(int argc, char **argv) {
 		for (i=0; i < entry_count; i++) {
 			uint16_t id, fan, voltage;
 			uint16_t core, shader = 0, memclk;
-			uint8_t pcie_width = 0;
+			uint8_t pcie_width = 0xff;
 			uint8_t timing_id = 0xff;
 
 			if (mode_info_length >= 28)
@@ -1044,8 +1044,7 @@ int main(int argc, char **argv) {
 			}
 
 			printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
-				id, core, memclk, shader, voltage, timing_id, fan, pcie_width
-			);
+				id, core, memclk, shader, voltage, timing_id, fan, pcie_width );
 			if (mode_info_length > 20) {
 				int i=0;
 				while (mode_info_length - i*20 > 20) {
@@ -1067,7 +1066,7 @@ int main(int argc, char **argv) {
 			} else if (version == 0x40) {
 				for(e=0; e < subentry_count; e++) {
 					printf("	%i:", e);
-					printcmd(start + mode_info_length + (e*subentry_size), subentry_count);
+					printcmd(start + mode_info_length + (e*subentry_size), subentry_size);
 					printf("\n");
 				}
 			}
