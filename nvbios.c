@@ -816,11 +816,16 @@ int main(int argc, char **argv) {
 		for (i = 0; i < entries; i++) {
 			if (ver == 0x20 || ver ==0x21) {
 				printf("-- Register 0x%08x ref_clk %dkHz --\n",
-				le32(soff), (rlen > 0x22) ? le32(soff + 31) : 0);
+					le32(soff), (rlen > 0x22) ? le32(soff + 31) : 0);
 			} else if (ver == 0x30) {
 				int rec_ptr = le16(soff+1);
 				printf("-- ID 0x%02x Register 0x%08x ref_clk %dkHz --\n",
-				bios[soff], le32(soff+3), le32(rec_ptr+28));
+					bios[soff], le32(soff+3), le32(rec_ptr+28));
+			} else if (ver == 0x40) {
+				int rec_ptr = le16(soff+1);
+				printf("-- ID 0x%02x Register 0x%08x ref_clk %dkHz --\n",
+					bios[soff], le32(soff+3), ((bios[soff] & 0xf0) == 0x80) ? 27000:100000);
+				/* FIXME: make sure it works for all cards */
 			}
 			printhex(soff, rlen);
 			printf("\n");
