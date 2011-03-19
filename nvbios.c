@@ -1210,7 +1210,7 @@ int main(int argc, char **argv) {
 						reg_100224 |= (tUNK_2 + 2 - magic_number);
 					}
 				}
-				reg_100224 += tUNK_18 << 16;
+				reg_100224 += (tUNK_18 ? tUNK_18 : 1) << 16;
 
 				reg_100228 = ((tUNK_12 << 16) | tUNK_11 << 8 | tUNK_10);
 				if(header_length > 19 && card_codename > 0xa5) {
