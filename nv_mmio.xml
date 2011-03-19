@@ -6,6 +6,7 @@
 
 <import file="nvchipsets.xml" />
 <import file="nv50_defs.xml" />
+<import file="nv50_vm.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 	<array offset="0x000000" name="PMC" stride="0x1000" length="1">
@@ -276,6 +277,23 @@
 			<bitfield low="0" high="27" name="INST" shr="12"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
+		<array offset="0x980" name="P2P" stride="0x80" length="1" variants="NV50:NVC0">
+			<reg32 offset="0x00" name="WRITE_SETUP_0" stride="8" length="3">
+				<bitfield low="16" high="31" name="ADDRESS" shr="16"/>
+			</reg32>
+			<reg32 offset="0x04" name="WRITE_SETUP_1" stride="8" length="3">
+				<bitfield low="0" high="6" name="STORAGE_TYPE" type="NV50_STORAGE_TYPE"/>
+				<bitfield low="7" high="21" name="UNK7"/>
+			</reg32>
+			<reg32 offset="0x20" name="UNK20_0" stride="8" length="3">
+			</reg32>
+			<reg32 offset="0x24" name="UNK20_1" stride="8" length="3">
+			</reg32>
+			<reg32 offset="0x60" name="WRITE_WINDOW" length="3">
+				<bitfield pos="0" name="DISABLE"/>
+				<bitfield low="16" high="31" name="OFFSET"/>
+			</reg32>
+		</array>
 	</array>
 
 	<array offset="0x22000" name="PUNK022" stride="0x400" length="1" variants="NV84:NVC0">
@@ -348,6 +366,10 @@
 				<bitfield pos="15" name="AUTBW"/><!-- Autonomous Bandwidth Mgmt -->
 			</bitfield>
 		</reg32>
+		<reg32 offset="0x198" name="P2P_OUT_WRITE_SETUP_ADDR_LOW" stride="8" length="3" variants="NV50:NVC0"/>
+		<reg32 offset="0x19c" name="P2P_OUT_WRITE_SETUP_ADDR_HIGH" stride="8" length="3" variants="NV50:NVC0"/>
+		<reg32 offset="0x1b0" name="P2P_OUT_WRITE_WINDOW_ADDR_LOW" stride="8" length="3" variants="NV50:NVC0"/>
+		<reg32 offset="0x1b4" name="P2P_OUT_WRITE_WINDOW_ADDR_HIGH" stride="8" length="3" variants="NV50:NVC0"/>
 	</array>
 
 	<array offset="0x8a000" name="PCODEC_PCI" stride="0x1000" length="1" variants="NVA3-">
