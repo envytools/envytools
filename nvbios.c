@@ -30,8 +30,10 @@ uint32_t bmpoffset = 0;
 uint32_t bitoffset = 0;
 uint32_t dcboffset = 0;
 uint32_t i2coffset = 0;
+uint32_t gpiooffset = 0;
 uint8_t dcbver, dcbhlen, dcbrlen, dcbentries;
 uint8_t i2cver, i2chlen, i2crlen, i2centries, i2cd0, i2cd1;
+uint8_t gpiover, gpiohlen, gpiorlen, gpioentries;
 int maxcond = -1;
 int maxiocond = -1;
 int maxiofcond = -1;
@@ -656,6 +658,7 @@ int main(int argc, char **argv) {
 			dcbentries = bios[dcboffset+2];
 			dcbrlen = bios[dcboffset+3];
 			i2coffset = le16(dcboffset+4);
+			gpiooffset = le16(dcboffset+10);
 		} else if (dcbver >= 0x20) {
 			dcbhlen = 8;
 			dcbentries = 16;
@@ -749,6 +752,43 @@ int main(int argc, char **argv) {
 		printf ("\n");
 	}
 
+	if (gpiooffset) {
+		gpiover = bios[gpiooffset];
+		gpiohlen = bios[gpiooffset+1];
+		gpioentries = bios[gpiooffset+2];
+		gpiorlen = bios[gpiooffset+3];
+		printf ("GPIO table %d.%d at %x\n", gpiover >> 4, gpiover&0xf, gpiooffset);
+		printhex(gpiooffset, gpiohlen);
+
+		int i;
+		uint16_t soff = gpiooffset + gpiohlen;
+		for (i = 0; i < gpioentries; i++) {
+			if (dcbver < 0x40) {
+				uint16_t entry = le16(soff);
+				if (((entry & 0x07e0) >> 5) == 0x3f)
+					printf("-- invalid entry --\n");
+				else
+					printf("-- entry %04x, tag %02x, line %02x, invert %02x --\n", entry,
+						(entry & 0x07e0) >> 5, (entry & 0x001f), ((entry & 0xf800) >> 11) != 4);
+				printhex(soff, gpiorlen);
+			} else {
+				uint32_t entry = le32(soff);
+				if (((entry & 0x0000ff00) >> 8) == 0xff)
+					printf("-- invalid entry --\n");
+				else
+					printf("-- entry %04x, tag %02x, line %02x, state(def) %02x, state(0) %02x, state(1) %02x --\n",
+						entry, (entry & 0x0000ff00) >> 8, (entry & 0x0000001f) >> 0, (entry & 0x01000000) >> 24,
+						(entry & 0x18000000) >> 27, (entry & 0x60000000) >> 29);
+				printhex(soff, gpiorlen);
+			}
+			soff += gpiorlen;
+			printf("\n");
+		}
+		printf("\n");
+	}
+
+
+
 	if (pll_limit_tbl_ptr) {
 		uint8_t ver = bios[pll_limit_tbl_ptr];
 		uint8_t hlen = 0, rlen = 0, entries = 0;
@@ -774,15 +814,16 @@ int main(int argc, char **argv) {
 		int i;
 		uint16_t soff = pll_limit_tbl_ptr + hlen;
 		for (i = 0; i < entries; i++) {
-			printhex(soff, rlen);
 			if (ver == 0x20 || ver ==0x21) {
-				printf("-- Register 0x%08x ref_clk %dkHz--\n\n",
+				printf("-- Register 0x%08x ref_clk %dkHz --\n",
 				le32(soff), (rlen > 0x22) ? le32(soff + 31) : 0);
 			} else if (ver == 0x30) {
 				int rec_ptr = le16(soff+1);
-				printf("-- ID 0x%02x Register 0x%08x ref_clk %dkHz\n\n",
+				printf("-- ID 0x%02x Register 0x%08x ref_clk %dkHz --\n",
 				bios[soff], le32(soff+3), le32(rec_ptr+28));
 			}
+			printhex(soff, rlen);
+			printf("\n");
 			soff += rlen;
 		}
 		printf("\n");
