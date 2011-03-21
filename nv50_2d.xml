@@ -70,17 +70,40 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x0298" name="COLOR_KEY"/>
 		<reg32 offset="0x029c" name="COLOR_KEY_ENABLE" type="boolean"/>
-		<reg32 offset="0x02a0" name="ROP"/>
-		<reg32 offset="0x02a4" name="BETA1"/>
-		<reg32 offset="0x02a8" name="BETA4"/>
+		<reg32 offset="0x02a0" name="ROP">
+			<doc>ROP(DSTbit, SRCbit, PATTERNbit) = ROP &gt;&gt; (DSTbit | SRCbit &lt;&lt; 1 | PATTERNbit &lt;&lt; 2) &amp; 1;</doc>
+		</reg32>
+		<reg32 offset="0x02a4" name="BETA1">
+			<bitfield low="23" high="30" name="BETA1"/>
+		</reg32>
+		<reg32 offset="0x02a8" name="BETA4">
+			<bitfield name="B" high="7" low="0" type="uint"/>
+			<bitfield name="G" high="15" low="8" type="uint"/>
+			<bitfield name="R" high="23" low="16" type="uint"/>
+			<bitfield name="A" high="31" low="24" type="uint"/>
+		</reg32>
 		<reg32 offset="0x02ac" name="OPERATION">
-			<value value="0x0000" name="SRCCOPY_AND"/>
-			<value value="0x0001" name="ROP_AND"/>
-			<value value="0x0002" name="BLEND_AND"/>
-			<value value="0x0003" name="SRCCOPY"/>
-			<value value="0x0004" name="UNK4"/>
-			<value value="0x0005" name="SRCCOPY_PREMULT"/>
-			<value value="0x0006" name="BLEND_PREMULT"/>
+			<value value="0x0000" name="SRCCOPY_AND">
+				<doc>if (SRC.A) DST = SRC;</doc>
+			</value>
+			<value value="0x0001" name="ROP_AND">
+				<doc>R = ROP(DST, SRC, PATTERN); if (R.A) DST = R;</doc>
+			</value>
+			<value value="0x0002" name="BLEND">
+				<doc>DST = (1 - SRC.A * BETA1) * DST + SRC * SRC.A * BETA1;</doc>
+			</value>
+			<value value="0x0003" name="SRCCOPY">
+				<doc>DST = SRC;</doc>
+			</value>
+			<value value="0x0004" name="ROP">
+				<doc>DST = ROP(DST, SRC, PATTERN);</doc>
+			</value>
+			<value value="0x0005" name="SRCCOPY_PREMULT">
+				<doc>DST = SRC * BETA4;</doc>
+			</value>
+			<value value="0x0006" name="BLEND_PREMULT">
+				<doc>DST = (1 - SRC.A * BETA4.A) * DST + SRC * BETA4;</doc>
+			</value>
 		</reg32>
 		<reg32 offset="0x02b0" name="PATTERN_OFFSET">
 			<bitfield high="5" low="0" name="X"/>
