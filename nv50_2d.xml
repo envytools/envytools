@@ -82,13 +82,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="0x0005" name="SRCCOPY_PREMULT"/>
 			<value value="0x0006" name="BLEND_PREMULT"/>
 		</reg32>
-		<reg32 offset="0x02b0" name="UNK2B0">
-			<bitfield high="5" low="0" name="UNK0">
-				<doc>Accepts anything</doc>
-			</bitfield>
-			<bitfield high="13" low="8" name="UNK1">
-				<doc>Accepts anything</doc>
-			</bitfield>
+		<reg32 offset="0x02b0" name="PATTERN_OFFSET">
+			<bitfield high="5" low="0" name="X"/>
+			<bitfield high="13" low="8" name="Y"/>
 		</reg32>
 		<reg32 offset="0x02b4" name="PATTERN_SELECT">
 			<value value="0" name="MONO_8X8"/>
