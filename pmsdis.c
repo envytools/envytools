@@ -44,7 +44,7 @@ static struct matches *atomst16 APROTO {
 	n[0] &= 0xffff0000;
 	n[0] |= num;
 	struct expr *expr = makeex(EXPR_NUM);
-	expr->num1 = num;
+	expr->num1 = n[0];
 	RNN_ADDARRAY(ctx->atoms, expr);
 }
 static struct matches *atomst32 APROTO {
