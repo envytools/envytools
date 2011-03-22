@@ -156,6 +156,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x8697" name="NVAF_3D" variants="NVAF:NVC0"/>
 	<value value="0x9097" name="NVC0_3D" variants="NVC0-"/>
 	<value value="0x9197" name="NVC1_3D" variants="NVC1-"/>
+	<value value="0x9297" name="NVC8_3D" variants="NVC8-"/>
 
 	<!-- nv50+ non-3D objects -->
 	<value value="0x502d" name="NV50_2D" variants="NV50:NVC0"/>
@@ -164,6 +165,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x50c0" name="NV50_COMPUTE" variants="NV50:NVC0"/>
 	<value value="0x85c0" name="NVA3_COMPUTE" variants="NVA3:NVC0"/>
 	<value value="0x90c0" name="NVC0_COMPUTE" variants="NVC0-"/>
+	<value value="0x92c0" name="NVC8_COMPUTE" variants="NVC8-"/>
 
 	<value value="0x74c1" name="NV84_CRYPT" variants="NV84:NV98 NVA0"/>
 </enum>

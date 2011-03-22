@@ -9,7 +9,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nv50_defs.xml"/>
 
 <domain name="NV01_SUBCHAN" bare="yes">
-	<stripe prefix="obj-class" variants="NVC0_COMPUTE">
+	<stripe prefix="obj-class" variants="NVC0_COMPUTE-NVC8_COMPUTE">
 		<reg32 offset="0x0204" name="UNK0204">
 			<doc>bits 0xffffff, 0x10-aligned</doc>
 		</reg32>
