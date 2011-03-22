@@ -39,7 +39,7 @@ static int staoff[] = { 0xdeaddead };
 static struct matches *atomst16 APROTO {
 	if (ctx->reverse)
 		return 0;
-	int *n = (int*)v;
+	unsigned int *n = (unsigned int*)v;
 	ull num = BF(8, 16);
 	n[0] &= 0xffff0000;
 	n[0] |= num;
@@ -50,7 +50,7 @@ static struct matches *atomst16 APROTO {
 static struct matches *atomst32 APROTO {
 	if (ctx->reverse)
 		return 0;
-	int *n = (int*)v;
+	unsigned int *n = (unsigned int*)v;
 	ull num = BF(8, 32);
 	n[0] = num;
 	struct expr *expr = makeex(EXPR_NUM);
