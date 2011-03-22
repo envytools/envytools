@@ -226,7 +226,7 @@ int main(int argc, char **argv) {
 				if (cc->bar0 && addr >= cc->bar0 && addr < cc->bar0+cc->bar0l) {
 					addr -= cc->bar0;
 					if (cc->pmsip && addr != cc->pmsnext) {
-						envydis(pms_isa, stdout, cc->pms, 0, cc->pmsnext & 0x3fc, -1, -1, 2, 0, 0);
+						envydis(pms_isa, stdout, cc->pms, 0, cc->pmsnext & 0x3fc, -1, -1, 0, 0, 0);
 						cc->pmsip = 0;
 					}
 					if (addr == 0 && !cc->chdone) {
