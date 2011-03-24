@@ -622,10 +622,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="0" name="Y_NEGATE"/>
 			<bitfield pos="4" name="TRIANGLE_RAST_FLIP"/>
 		</reg32>
-		<reg32 offset="0x13b0" name="LINE_WIDTH" type="float"/>
-		<reg32 offset="0x13b4" name="UNK13B4">
-			<doc>Related to LINE_WIDTH?</doc>
-		</reg32>
+		<reg32 offset="0x13b0" name="LINE_WIDTH_SMOOTH" type="float"/>
+		<reg32 offset="0x13b4" name="LINE_WIDTH_ALIASED" type="float"/>
 		<reg32 offset="0x1418" name="UNK1418" type="boolean">
 			<doc>Related to LINE_WIDTH?</doc>
 		</reg32>
