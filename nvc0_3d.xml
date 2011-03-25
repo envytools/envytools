@@ -59,7 +59,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0208" name="UNK208">
 			<doc>0x013fffff, scan pending</doc>
 		</reg32>
-		<reg32 offset="0x020c" name="UNK20C" type="boolean"/>
+		<reg32 offset="0x020c" name="LINE_WIDTH_SEPARATE" type="boolean"/>
 		<reg32 offset="0x0210" name="EARLY_FRAGMENT_TESTS" type="boolean"/>
 		<reg32 offset="0x0214" name="UNK214">
 			<doc>0x9fffffff, scan pending</doc>
