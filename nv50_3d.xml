@@ -1081,7 +1081,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1918" name="CULL_FACE_ENABLE" type="boolean"/>
 		<reg32 offset="0x191c" name="FRONT_FACE" type="gl_front_face"/>
 		<reg32 offset="0x1920" name="CULL_FACE" type="gl_cull_face"/>
-		<reg32 offset="0x1924" name="UNK1924" type="boolean">
+		<reg32 offset="0x1924" name="LINE_LAST_PIXEL" type="boolean">
 			<doc>Goes to csched, 14xx.</doc>
 		</reg32>
 		<reg32 offset="0x1928" name="FP_MULTISAMPLE" variants="NVA3_3D-">
