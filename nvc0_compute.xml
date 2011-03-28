@@ -10,14 +10,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <domain name="NV01_SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NVC0_COMPUTE-NVC8_COMPUTE">
-		<reg32 offset="0x0204" name="UNK0204">
+		<reg32 offset="0x0204" name="LOCAL_ALLOC">
 			<doc>bits 0xffffff, 0x10-aligned</doc>
 		</reg32>
 		<reg32 offset="0x0208" name="UNK0208">
-			<doc>bits 0xffffff, 0x10-aligned</doc>
+			<doc>bits 0xffffff, 0x10-aligned. Interferes with LOCAL_SIZE the same way LOCAL_ALLOC does</doc>
 		</reg32>
-		<reg32 offset="0x020c" name="UNK020C">
-			<doc>bits 0x1fffff, 0x200-aligned</doc>
+		<reg32 offset="0x020c" name="WARP_STACK_SIZE">
+			<doc>bits 0x1fffff, 0x200-aligned. Determines control stack size on per-warp basis. Set to x*0x200 == able to execute a callchain x*48 deep (requires x*0x200 local space per warp). Set to zero == callchain 16 deep (on-chip stack).</doc>
 		</reg32>
 		<reg32 offset="0x0210" name="TEX_LIMITS">
 			<bitfield name="SAMPLERS_LOG2" high="3" low="0" type="uint" min="0" max="4"/>
@@ -103,8 +103,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x03b0" name="BLOCKDIM_Z" type="uint"/>
 		<reg32 offset="0x03b4" name="CP_START_ID"/>
 		<reg32 offset="0x0500" name="FIRMWARE" length="0x20"/>
-		<reg32 offset="0x0758" name="UNK0758">
-			<doc>0-0x1ff</doc>
+		<reg32 offset="0x0758" name="SM_COUNT">
+			<doc>0-0x1ff.</doc>
 		</reg32>
 		<reg32 offset="0x077c" name="LOCAL_BASE"/><!-- 32 bit address, not shifted, appears in $lbase -->
 		<reg32 offset="0x0780" name="UNK0780"/>
@@ -112,8 +112,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0794" name="LOCAL_ADDRESS_LOW"/>
 		<reg32 offset="0x0798" name="LOCAL_SIZE_HIGH"/>
 		<reg32 offset="0x079c" name="LOCAL_SIZE_LOW"/>
-		<reg32 offset="0x07a0" name="UNK07A0">
-			<doc>0x3ffffff, aligned to 0x200, shared with fermi</doc>
+		<reg32 offset="0x07a0" name="WARP_LOCAL_ALLOC">
+			<doc>0x3ffffff, aligned to 0x200, shared with fermi. Total amount of local space (including stack and 0x208) required by single warp. Affects nphysid:nwarpid together with LOCAL_SIZE and SM_COUNT.</doc>
 		</reg32>
 		<reg32 offset="0x0a04" name="UNK0A04" type="boolean">
 			<doc>No icmd.</doc>
