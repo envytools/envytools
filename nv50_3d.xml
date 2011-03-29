@@ -1062,7 +1062,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="FFC0_ID" high="7" low="0" type="int"/>
 			<bitfield name="BFC0_ID" high="15" low="8" type="int"/>
 			<bitfield name="COLR_NR" high="23" low="16" type="int"/>
-			<bitfield name="CLMP_EN" high="31" low="24" type="boolean"/>
+			<bitfield name="CLMP_EN" pos="24" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x1908" name="MAP_SEMANTIC_1">
 			<bitfield name="CLIP_START" high="7" low="0" type="int"/>
