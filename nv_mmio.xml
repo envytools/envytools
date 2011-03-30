@@ -190,198 +190,15 @@
 			<bitfield low="20" high="27" name="CHIPSET" type="chipset"/>
 		</reg32>
 	</array>
-	<array offset="0x1000" name="PBUS" stride="0x1000" length="1">
-		<reg32 offset="0x100" name="INTR">
-			<bitfield pos="3" name="MMIO_FAULT"/>
-			<bitfield pos="26" name="PMS"/>
-		</reg32>
-		<reg32 offset="0x140" name="INTR_EN">
-			<bitfield pos="3" name="MMIO_FAULT"/>
-			<bitfield pos="26" name="PMS"/>
-		</reg32>
-		<reg32 offset="0x150" name="INTR_PMS_TRIGGER"/>
-		<stripe variants="NV17-">
-			<reg32 offset="0x304" name="PMS_CONTROL">
-			</reg32>
-			<reg32 offset="0x308" name="PMS_STATE">
-				<bitfield low="0" high="7" name="IP"/>
-				<bitfield pos="8" name="ACTIVE"/>
-			</reg32>
-			<reg32 offset="0x30c" name="PMS_TRIGGER">
-				<bitfield pos="0" name="START"/>
-			</reg32>
-			<reg8 offset="0x400" name="PMS_CODE" length="0x100"/>
-		</stripe>
-		<reg32 offset="0x540" name="PGRAPH_UNITS" variants="NV50:NVC0">
-			<doc>Enables PGRAPH engines that come in multiple copies.
-			</doc>
-			<bitfield high="15" low="0" name="TP_MASK">
-				<doc>Selects which TPs are enabled</doc>
-			</bitfield>
-			<bitfield high="23" low="16" name="ROPC_MASK">
-				<doc>Selects which ROP clusters are enabled</doc>
-			</bitfield>
-			<bitfield high="27" low="24" name="MP_MASK">
-				<doc>Selects which MPs inside each TP are enabled</doc>
-			</bitfield>
-			<bitfield high="31" low="28" name="UNK_MASK">
-				<doc>Unknown, always starts as 0b1111. Not setting
-				bit 28 causes the card to die. Not setting bits
-				29-31 has no obvious effects.
-				</doc>
-			</bitfield>
-		</reg32>
-		<reg32 offset="0x570" name="PEEPHOLE_ADDR" variants="NV30-NV50">
-			<doc>Virtual address to poke.</doc>
-		</reg32>
-		<reg32 offset="0x574" name="PEEPHOLE_DATA" variants="NV30-NV50">
-			<doc>Goes to the memory at address pointed to by ADDR.
-			Auto-increments ADDR on each access.</doc>
-		</reg32>
-		<reg32 offset="0x700" name="PMEM_START" variants="NV50-">
-			<doc>Selects the starting offset and target memory area
-			that is accessible by the 1MB PMEM window at 0x700000.
-			This is always unpaged and goes directly to VRAM / sysRAM.
-			</doc>
-			<bitfield high="23" low="0" shr="16" name="OFFSET"/>
-			<bitfield high="25" low="24" name="TARGET" type="nv50_mem_target"/>
-		</reg32>
-		<reg32 offset="0x704" name="MEM_CHAN" variants="NV50:NVC0">
-			<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
-			<bitfield pos="30" name="WHICH">
-				<value value="0" name="PEEPHOLE"/>
-				<value value="1" name="BAR"/>
-			</bitfield>
-		</reg32>
-		<reg32 offset="0x708" name="BAR1_CTXDMA" variants="NV50:NVC0">
-			<bitfield low="0" high="15" name="INST" shr="4"/>
-			<bitfield pos="31" name="ENABLE"/>
-		</reg32>
-		<reg32 offset="0x70c" name="BAR3_CTXDMA" variants="NV50:NVC0">
-			<bitfield low="0" high="15" name="INST" shr="4"/>
-			<bitfield pos="31" name="ENABLE"/>
-		</reg32>
-		<reg32 offset="0x710" name="PEEPHOLE_CTXDMA" variants="NV50:NVC0">
-			<bitfield low="0" high="15" name="INST" shr="4"/>
-			<bitfield pos="31" name="ENABLE"/>
-		</reg32>
-		<reg32 offset="0x704" name="BAR1_CHAN" variants="NVC0-">
-			<bitfield low="0" high="27" name="INST" shr="12"/>
-			<bitfield pos="31" name="ENABLE"/>
-		</reg32>
-		<reg32 offset="0x714" name="BAR3_CHAN" variants="NVC0-">
-			<bitfield low="0" high="27" name="INST" shr="12"/>
-			<bitfield pos="31" name="ENABLE"/>
-		</reg32>
-		<reg32 offset="0x718" name="PEEPHOLE_CHAN" variants="NVC0-">
-			<bitfield low="0" high="27" name="INST" shr="12"/>
-			<bitfield pos="31" name="ENABLE"/>
-		</reg32>
-		<array offset="0x980" name="P2P" stride="0x80" length="1" variants="NV50:NVC0">
-			<reg32 offset="0x00" name="WRITE_SETUP_0" stride="8" length="3">
-				<bitfield low="16" high="31" name="ADDRESS" shr="16"/>
-			</reg32>
-			<reg32 offset="0x04" name="WRITE_SETUP_1" stride="8" length="3">
-				<bitfield low="0" high="6" name="STORAGE_TYPE" type="NV50_STORAGE_TYPE"/>
-				<bitfield low="7" high="21" name="UNK7"/>
-			</reg32>
-			<reg32 offset="0x20" name="UNK20_0" stride="8" length="3">
-			</reg32>
-			<reg32 offset="0x24" name="UNK20_1" stride="8" length="3">
-			</reg32>
-			<reg32 offset="0x60" name="WRITE_WINDOW" length="3">
-				<bitfield pos="0" name="DISABLE"/>
-				<bitfield low="16" high="31" name="OFFSET"/>
-			</reg32>
-		</array>
-	</array>
 
 	<array offset="0x22000" name="PUNK022" stride="0x400" length="1" variants="NV84:NVC0">
 		<reg32 offset="0x210" name="PDAEMON_ENABLE" variants="NVA3-"/>
-	</array>
-
-	<array offset="0x60000" name="PPEEPHOLE" stride="0x10000" length="1" variants="NV84-">
-		<doc>A small area that allows single peeks/pokes into the VRAM.
-		The address is paged.</doc>
-		<reg32 offset="0" name="UNK0000" variants="NV50:NVC0"/>
-		<reg32 offset="4" name="UNK0004" variants="NV50:NVC0"/>
-		<reg32 offset="0xc" name="ADDR_HIGH" variants="NVC0-"/>
-		<reg32 offset="0x10" name="ADDR_LOW">
-			<doc>Virtual address to poke.</doc>
-		</reg32>
-		<reg32 offset="0x14" name="DATA">
-			<doc>Goes to the memory at address pointed to by ADDR.
-			Auto-increments ADDR on each access.</doc>
-		</reg32>
-	</array>
-
-	<reg8 offset="0x80000" name="PBUS_PMS_NEW_CODE" length="0x200" variants="NV92-"/>
-
-	<array offset="0x88000" name="PBUS_PCI" stride="0x1000" length="1" variants="NV40-">
-		<reg32 offset="0" name="PCIID">
-			<bitfield low="0" high="15" name="VENDOR"/>
-			<bitfield low="16" high="31" name="DEVICE"/>
-		</reg32>
-		<reg32 offset="4" name="CMD_STA"><!-- see PCI docs for other bits -->
-			<bitfield low="0" high="15" name="COMMAND">
-				<bitfield pos="0" name="IO"/>
-				<bitfield pos="1" name="MEMORY"/>
-				<bitfield pos="2" name="MASTER"/>
-				<bitfield pos="6" name="PARITY"/>
-			</bitfield>
-			<bitfield low="16" high="31" name="STATUS">
-				<bitfield pos="4" name="CAP_LIST"/>
-				<bitfield pos="8" name="PARITY"/>
-			</bitfield>
-		</reg32>
-		<reg32 offset="0x2c" name="SUBSYSTEM_ID">
-			<bitfield low="0" high="15" name="VENDOR"/>
-			<bitfield low="16" high="31" name="SUBSYSTEM"/>
-		</reg32>
-		<reg32 offset="0x10" name="BAR" length="6"/>
-		<reg32 offset="0x88" name="LINK">
-			<bitfield high="15" low="0" name="CTL">
-				<bitfield high="1" low="0" name="ASPM"/>
-				<bitfield pos="3" name="RCB"/><!-- Read Completion Boundary -->
-				<bitfield pos="4" name="DISABLE"/>
-				<bitfield pos="5" name="RETRAIN"/>
-				<bitfield pos="6" name="CLOCK"/><!-- Common Clock Configuration -->
-				<bitfield pos="7" name="XSYNCH"/><!-- Extended Synch -->
-				<bitfield pos="8" name="CLOCKPM"/>
-				<bitfield pos="9" name="HWAUTWD"/><!-- Hardware Autonomous Width Disable -->
-				<bitfield pos="10" name="BWMIE"/><!-- Bandwidth Mgmt Interrupt Enable -->
-				<bitfield pos="11" name="AUTBWIE"/><!-- Autonomous Bandwidth Mgmt IntrEn -->
-			</bitfield>
-			<bitfield high="31" low="16" name="STA">
-				<bitfield high="3" low="0" name="SPEED">
-					<value value="1" name="2.5GT/s"/>
-					<value value="2" name="5.0GT/s"/>
-				</bitfield>
-				<bitfield high="9" low="4" name="WIDTH" type="int"/>
-				<bitfield pos="10" name="TERR"/><!-- Training Error -->
-				<bitfield pos="11" name="TRAIN"/>
-				<bitfield pos="12" name="SL_CLK"/><!-- Slot Clock Configuration -->
-				<bitfield pos="13" name="DL_ACT"/><!-- Data Link Layer State -->
-				<bitfield pos="14" name="BWMGMT"/><!-- Bandwidth Mgmt Status -->
-				<bitfield pos="15" name="AUTBW"/><!-- Autonomous Bandwidth Mgmt -->
-			</bitfield>
-		</reg32>
-		<reg32 offset="0x198" name="P2P_OUT_WRITE_SETUP_ADDR_LOW" stride="8" length="3" variants="NV50:NVC0"/>
-		<reg32 offset="0x19c" name="P2P_OUT_WRITE_SETUP_ADDR_HIGH" stride="8" length="3" variants="NV50:NVC0"/>
-		<reg32 offset="0x1b0" name="P2P_OUT_WRITE_WINDOW_ADDR_LOW" stride="8" length="3" variants="NV50:NVC0"/>
-		<reg32 offset="0x1b4" name="P2P_OUT_WRITE_WINDOW_ADDR_HIGH" stride="8" length="3" variants="NV50:NVC0"/>
-	</array>
-
-	<array offset="0x8a000" name="PCODEC_PCI" stride="0x1000" length="1" variants="NVA3-">
 	</array>
 
 	<array offset="0x101000" name="PEXTDEV" stride="0x1000" length="1">
 	</array>
 
 	<reg8 offset="0x110000" name="PROM" length="0x10000" variants="NV03:NV04" />
-
-	<array offset="0x2ff000" name="PBRIDGE_PCI" stride="0x1000" length="1" variants="NVAA NVAC NVAF">
-	</array>
 
 	<reg8 offset="0x300000" name="PROM" length="0x10000" variants="NV04-" />
 
@@ -394,6 +211,7 @@
 <!-- 000000 - 000fff PMC covered above -->
 
 <!-- 001000 - 001fff PBUS covered above -->
+<import file="nv_pbus.xml" />
 
 <!-- 002000 - 003fff PFIFO -->
 <import file="nv_pfifo.xml" />
@@ -436,11 +254,11 @@
 
 <!-- 040000 - 045fff PFIFO_CHAN covered in nvc0_pfifo.xml -->
 
-<!-- 060000 - 060fff PEEPHOLE covered above -->
+<!-- 060000 - 060fff PEEPHOLE covered in nv_pbus.xml -->
 
 <!-- 070000 - 070fff PFIFO_MAGIC_FLUSH covered in nv_pfifo.xml -->
 
-<!-- 080000 - 080fff PBUS_PMS_NEW_CODE covered above -->
+<!-- 080000 - 080fff PBUS_PMS_NEW_CODE covered in nv_pbus.xml -->
 
 <!-- 082000 - 082fff ??? -->
 
@@ -453,11 +271,11 @@
 
 <!-- 087000 - 087fff PCRYPT covered in nv98_pvp.xml -->
 
-<!-- 088000 - 088fff PBUS_PCI covered above -->
+<!-- 088000 - 088fff PBUS_PCI covered in nv_pbus.xml -->
 
 <!-- 089000 - 089fff ??? -->
 
-<!-- 08a000 - 08afff PCODEC_PCI covered above -->
+<!-- 08a000 - 08afff PCODEC_PCI covered in nv_pbus.xml -->
 
 <!-- 090000 - 090fff PFIFO_CACHE1 covered in nv_pfifo.xml -->
 
@@ -508,7 +326,7 @@
 <!-- 200000 - 200fff PMEDIA -->
 <import file="nv_pmedia.xml" />
 
-<!-- 2ff000 - 2fffff PBRIDGE_PCI covered above -->
+<!-- 2ff000 - 2fffff PBRIDGE_PCI covered in nv_pbus.xml -->
 
 <!-- 300000 - 3fffff PROM covered above -->
 
