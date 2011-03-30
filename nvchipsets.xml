@@ -37,15 +37,23 @@
 	<value value="0x11" name="NV11">
 		<brief>GeForce2 MX</brief>
 	</value>
-	<value value="0x1a" name="NV1A" />
-	<value value="0x17" name="NV17" />
+	<value value="0x1a" name="NV1A">
+		<brief>Geforce2 IGP</brief>
+	</value>
+	<value value="0x17" name="NV17">
+		<brief>Geforce4MX 420/440/460</brief>
+	</value>
 	<value value="0x18" name="NV18" />
-	<value value="0x1f" name="NV1F" />
+	<value value="0x1f" name="NV1F">
+		<brief>Geforce4 MX IGP</brief>
+	</value>
 
 	<value value="0x20" name="NV20" />
 	<value value="0x25" name="NV25" />
 	<value value="0x28" name="NV28" />
-	<value value="0x2a" name="NV2A" />
+	<value value="0x2a" name="NV2A">
+		<brief>X-Box GPU</brief>
+	</value>
 
 	<value value="0x30" name="NV30" />
 	<value value="0x31" name="NV31" />
