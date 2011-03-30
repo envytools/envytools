@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<group name="pci_config_head">
+	<reg32 offset="0x00" name="PCIID">
+		<bitfield low="0" high="15" name="VENDOR"/>
+		<bitfield low="16" high="31" name="DEVICE"/>
+	</reg32>
+	<reg32 offset="0x04" name="CMD_STA">
+		<bitfield low="0" high="15" name="COMMAND">
+			<bitfield pos="0" name="IO"/>
+			<bitfield pos="1" name="MEMORY"/>
+			<bitfield pos="2" name="MASTER"/>
+			<bitfield pos="3" name="SPECIAL"/>
+			<bitfield pos="4" name="INVALIDATE"/>
+			<bitfield pos="5" name="VGA_PALETTE"/>
+			<bitfield pos="6" name="PARITY"/>
+			<bitfield pos="7" name="WAIT"/>
+			<bitfield pos="8" name="SERR"/>
+			<bitfield pos="9" name="FAST_BACK"/>
+			<bitfield pos="10" name="INTX_DISABLE"/>
+		</bitfield>
+		<bitfield low="16" high="31" name="STATUS">
+			<bitfield pos="3" name="INTERRUPT"/>
+			<bitfield pos="4" name="CAP_LIST"/>
+			<bitfield pos="5" name="66MHZ"/>
+			<bitfield pos="6" name="UDF"/>
+			<bitfield pos="7" name="FAST_BACK"/>
+			<bitfield pos="8" name="PARITY"/>
+			<bitfield low="9" high="10" name="DEVSEL">
+				<value value="0" name="FAST"/>
+				<value value="1" name="MEDIUM"/>
+				<value value="2" name="SLOW"/>
+			</bitfield>
+			<bitfield pos="11" name="SIG_TARGET_ABORT"/>
+			<bitfield pos="12" name="REC_TARGET_ABORT"/>
+			<bitfield pos="13" name="REC_MASTER_ABORT"/>
+			<bitfield pos="14" name="SIG_SYSTEM_ERROR"/>
+			<bitfield pos="15" name="DETECTED_PARITY"/>
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x08" name="REV_CLASS">
+		<bitfield low="0" high="7" name="REVISION"/>
+		<bitfield low="8" high="15" name="PROG_IF"/>
+		<bitfield low="16" high="23" name="SUBCLASS"/>
+		<bitfield low="24" high="31" name="CLASS"/>
+	</reg32>
+	<reg32 offset="0x0c" name="MISC0C">
+		<bitfield low="0" high="7" name="CACHE_LINE_SIZE"/>
+		<bitfield low="8" high="15" name="LATENCY_TIMER"/>
+		<bitfield low="16" high="22" name="HEADER_TYPE">
+			<value value="0" name="NORMAL"/>
+			<value value="1" name="BRIDGE"/>
+			<value value="2" name="CARDBUS"/>
+		</bitfield>
+		<bitfield pos="23" name="MULTI_FUN"/>
+		<bitfield low="24" high="31" name="BIST">
+			<bitfield low="0" high="3" name="CODE"/>
+			<bitfield pos="6" name="START"/>
+			<bitfield pos="7" name="CAPABLE"/>
+		</bitfield>
+	</reg32>
+</group>
+
+<group name="pci_config_normal">
+	<reg32 offset="0x10" name="BAR" length="6"/>
+	<reg32 offset="0x28" name="CARDBUS_CIS"/>
+	<reg32 offset="0x2c" name="SUBSYSTEM_ID">
+		<bitfield low="0" high="15" name="VENDOR"/>
+		<bitfield low="16" high="31" name="SUBSYSTEM"/>
+	</reg32>
+	<reg32 offset="0x30" name="ROM_ADDRESS">
+		<bitfield pos="0" name="ENABLE"/>
+		<bitfield low="11" high="31" name="ADDRESS" shr="11"/>
+	</reg32>
+	<reg32 offset="0x34" name="CAPABILITY_LIST">
+		<bitfield low="0" high="7" name="PTR"/>
+	</reg32>
+	<reg32 offset="0x3c" name="MISC3C">
+		<bitfield low="0" high="7" name="INTR_LINE"/>
+		<bitfield low="8" high="15" name="INTR_PIN"/>
+		<bitfield low="16" high="23" name="MIN_GRANT"/>
+		<bitfield low="24" high="31" name="MAX_LATENCY"/>
+	</reg32>
+</group>
+
+<group name="pci_config_agp">
+	<reg32 offset="0x00" name="AGP_HEAD">
+		<bitfield low="0" high="7" name="CAP_ID">
+			<value value="2" name="AGP"/>
+		</bitfield>
+		<bitfield low="8" high="15" name="NEXT_CAP_PTR"/>
+		<bitfield low="16" high="23" name="VERSION"/>
+		<bitfield low="24" high="31" name="RFU"/>
+	</reg32>
+	<reg32 offset="0x04" name="AGP_STATUS">
+		<bitfield pos="0" name="1X"/>
+		<bitfield pos="1" name="2X"/>
+		<bitfield pos="2" name="4X"/>
+		<bitfield pos="4" name="FW"/>
+		<bitfield pos="5" name="64BIT"/>
+		<bitfield pos="9" name="SBA"/>
+		<bitfield low="24" high="31" name="RQ"/>
+	</reg32>
+	<reg32 offset="0x08" name="AGP_COMMAND">
+		<bitfield pos="0" name="1X"/>
+		<bitfield pos="1" name="2X"/>
+		<bitfield pos="2" name="4X"/>
+		<bitfield pos="4" name="FW"/>
+		<bitfield pos="5" name="64BIT"/>
+		<bitfield pos="8" name="AGP"/>
+		<bitfield pos="9" name="SBA"/>
+		<bitfield low="24" high="31" name="RQ"/>
+	</reg32>
+</group>
+
+<group name="pci_config_pm">
+	<reg32 offset="0x00" name="PM_HEAD">
+		<bitfield low="0" high="7" name="CAP_ID">
+			<value value="1" name="PM"/>
+		</bitfield>
+		<bitfield low="8" high="15" name="NEXT_CAP_PTR"/>
+		<bitfield low="16" high="31" name="PMC">
+			<bitfield low="0" high="2" name="VERSION"/>
+			<bitfield pos="3" name="PME_CLOCK"/>
+			<bitfield pos="5" name="DSI"/>
+			<bitfield low="6" high="8" name="AUX_POWER"/>
+			<bitfield pos="9" name="D1"/>
+			<bitfield pos="10" name="D2"/>
+			<bitfield pos="11" name="PME_D0"/>
+			<bitfield pos="12" name="PME_D1"/>
+			<bitfield pos="13" name="PME_D2"/>
+			<bitfield pos="14" name="PME_D3"/>
+			<bitfield pos="15" name="PME_D3_COLD"/>
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x04" name="PM_CTRL">
+		<bitfield low="0" high="1" name="STATE"/>
+		<bitfield pos="3" name="NO_SOFT_RESET"/>
+		<bitfield pos="8" name="PME_ENABLE"/>
+		<bitfield low="9" high="12" name="DATA_SELECT"/>
+		<bitfield low="13" high="14" name="DATA_SCALE"/>
+		<bitfield pos="15" name="PME_STATUS"/>
+		<bitfield pos="22" name="PPB_B2_B3"/>
+		<bitfield pos="23" name="BPCC_ENABLE"/>
+		<bitfield low="24" high="31" name="DATA"/>
+	</reg32>
+</group>
+
+<group name="pci_config_msi64_nomask">
+	<reg32 offset="0x00" name="MSI_HEAD">
+		<bitfield low="0" high="7" name="CAP_ID">
+			<value value="5" name="MSI"/>
+		</bitfield>
+		<bitfield low="8" high="15" name="NEXT_CAP_PTR"/>
+		<bitfield pos="16" name="ENABLE"/>
+		<bitfield low="17" high="19" name="QMASK"/>
+		<bitfield low="20" high="22" name="QSIZE"/>
+		<bitfield pos="23" name="64BIT"/>
+		<bitfield pos="24" name="MASK"/>
+	</reg32>
+	<reg32 offset="0x04" name="ADDRESS_LOW"/>
+	<reg32 offset="0x08" name="ADDRESS_HIGH"/>
+	<reg32 offset="0x0c" name="DATA"/>
+</group>
+
+<group name="pci_config_exp_endpoint">
+	<reg32 offset="0x00" name="EXP_HEAD">
+		<bitfield low="0" high="7" name="CAP_ID">
+			<value value="0x10" name="EXP"/>
+		</bitfield>
+		<bitfield low="8" high="15" name="NEXT_CAP_PTR"/>
+		<bitfield low="16" high="19" name="VERSION"/>
+		<bitfield low="20" high="23" name="TYPE">
+			<value value="0" name="ENDPOINT"/>
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x04" name="EXP_DEV_CAP">
+		<bitfield low="0" high="2" name="MAX_PAYLOAD"/>
+		<bitfield low="3" high="4" name="PHANTOM_FUNCTIONS"/>
+		<bitfield pos="5" name="EXT_TAG"/>
+		<bitfield low="6" high="8" name="L0S_LAT"/>
+		<bitfield low="9" high="11" name="L1_LAT"/>
+		<bitfield pos="12" name="ATN_BUT"/>
+		<bitfield pos="13" name="ATN_LED"/>
+		<bitfield pos="14" name="PWR_LED"/>
+	</reg32>
+	<reg32 offset="0x08" name="EXP_DEV_CMD_STA">
+		<bitfield low="0" high="15" name="CMD">
+			<bitfield pos="0" name="CERE"/>
+			<bitfield pos="1" name="NFERE"/>
+			<bitfield pos="2" name="FERE"/>
+			<bitfield pos="3" name="URRE"/>
+			<bitfield pos="4" name="RELAX_EN"/>
+			<bitfield low="5" high="7" name="MAX_PAYLOAD"/>
+			<bitfield pos="8" name="EXT_TAG"/>
+			<bitfield pos="9" name="PHANTOM"/>
+			<bitfield pos="10" name="AUX_PME"/>
+			<bitfield pos="11" name="NOSNOOP"/>
+			<bitfield low="12" high="14" name="READRQ"/>
+		</bitfield>
+		<bitfield low="16" high="31" name="STA">
+			<bitfield pos="0" name="CED"/>
+			<bitfield pos="1" name="NFED"/>
+			<bitfield pos="2" name="FED"/>
+			<bitfield pos="3" name="URD"/>
+			<bitfield pos="4" name="AUXPD"/>
+			<bitfield pos="5" name="TRPND"/>
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x0c" name="EXP_LNK_CAP">
+		<bitfield high="3" low="0" name="SPEED">
+			<value value="1" name="2_5GT"/>
+			<value value="2" name="5_0GT"/>
+		</bitfield>
+		<bitfield high="9" low="4" name="WIDTH" type="int"/>
+		<bitfield low="10" high="11" name="ASPMS"/>
+		<bitfield low="12" high="14" name="L0SEL"/>
+		<bitfield low="15" high="17" name="L1EL"/>
+		<bitfield pos="18" name="CLKPM"/>
+		<bitfield pos="19" name="SDERC"/>
+		<bitfield pos="20" name="DLLLARC"/>
+		<bitfield pos="21" name="LBNC"/>
+		<bitfield low="24" high="31" name="PORT"/>
+	</reg32>
+	<reg32 offset="0x10" name="EXP_LNK_CMD_STA">
+		<bitfield low="0" high="15" name="CMD">
+			<bitfield low="0" high="1" name="ASPMC"/>
+			<bitfield pos="3" name="RCB"/>
+			<bitfield pos="6" name="CCC"/>
+			<bitfield pos="7" name="XSYNCH"/>
+			<bitfield pos="8" name="CLOCKPM"/>
+			<bitfield pos="9" name="HWAUTWD"/><!-- Hardware Autonomous Width Disable -->
+			<bitfield pos="10" name="BWMIE"/><!-- Bandwidth Mgmt Interrupt Enable -->
+			<bitfield pos="11" name="AUTBWIE"/><!-- Autonomous Bandwidth Mgmt IntrEn -->
+		</bitfield>
+		<bitfield low="16" high="31" name="STA">
+			<bitfield high="3" low="0" name="SPEED">
+				<value value="1" name="2_5GT"/>
+				<value value="2" name="5_0GT"/>
+			</bitfield>
+			<bitfield high="9" low="4" name="WIDTH" type="int"/>
+			<bitfield pos="12" name="SL_CLK"/><!-- Slot Clock Configuration -->
+			<bitfield pos="13" name="DL_ACT"/><!-- Data Link Layer State -->
+			<bitfield pos="14" name="BWMGMT"/><!-- Bandwidth Mgmt Status -->
+			<bitfield pos="15" name="AUTBW"/><!-- Autonomous Bandwidth Mgmt -->
+		</bitfield>
+	</reg32>
+</group>
+
+</database>

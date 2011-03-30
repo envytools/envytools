@@ -5,8 +5,6 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="nv50_defs.xml" />
-<import file="nv50_vm.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 	<array offset="0x000000" name="PMC" stride="0x1000" length="1">
