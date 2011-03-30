@@ -466,6 +466,7 @@
 
 <!-- 100000 - 100fff PFB or PFFB -->
 <import file="nv03_pfb.xml" />
+<import file="nv10_pfb.xml" />
 
 <!-- 101000 - 101fff PEXTDEV covered above -->
 

@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+<import file="nv50_vm.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+<enum name="nv20_bank_count" inline="yes">
+	<value value="0" name="2" variants="NV20:NV34"/>
+	<value value="1" name="4" variants="NV20:NV34"/>
+	<value value="0" name="4" variants="NV50-"/>
+	<value value="1" name="8" variants="NV50-"/>
+</enum>
+
+<array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV10:NVC0">
+	<reg32 offset="0x200" name="CFG0" variants="NV10:NV20 NV34">
+		<bitfield pos="0" name="TYPE_DDR"/>
+		<bitfield low="4" high="5" name="WIDTH">
+			<value value="2" name="32"/>
+			<value value="0" name="64"/>
+			<value value="1" name="128"/>
+		</bitfield>
+		<bitfield pos="12" name="RANKS">
+			<value value="0" name="1"/>
+			<value value="1" name="2"/>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x200" name="CFG0" variants="NV20:NV34">
+		<bitfield pos="0" name="TYPE_DDR"/>
+		<bitfield low="1" high="2" name="WIDTH">
+			<doc> Bitmask of enabled bus lines:
+				width = 128 * popcnt(value) </doc>
+		</bitfield>
+		<bitfield pos="8" name="RANKS">
+			<value value="0" name="1"/>
+			<value value="1" name="2"/>
+		</bitfield>
+		<bitfield pos="9" name="RANK_INTERLEAVE">
+			<doc> Rank select bits before row select bits
+				instead of after row select bits. </doc>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x200" name="CFG0" variants="NV50-">
+		<bitfield pos="2" name="RANKS">
+			<value value="0" name="1"/>
+			<value value="1" name="2"/>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x204" name="CFG1" variants="NV20:NV34 NV50-">
+		<bitfield low="12" high="15" name="COLBITS">
+			<doc> Number of column bits. </doc>
+		</bitfield>
+		<bitfield low="16" high="19" name="ROWBITSA">
+			<doc> Number of row bits used on rank A - 8. </doc>
+		</bitfield>
+		<bitfield low="20" high="23" name="ROWBITSB">
+			<doc> Number of row bits used on rank B - 8. </doc>
+		</bitfield>
+		<bitfield pos="24" name="BANKSA" type="nv20_bank_count">
+			<doc> Controls how many bank bits are used on rank A. </doc>
+		</bitfield>
+		<bitfield pos="28" name="BANKSB" type="nv20_bank_count">
+			<doc> Controls how many bank bits are used on rank B. </doc>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x20c" name="MEM_AMOUNT" variants="NV10-">
+		<bitfield high="7" low="0" name="HIGH" shr="32" variants="NV50-"/>
+		<bitfield high="31" low="12" name="LOW" shr="12"/>
+	</reg32>
+	
+	<reg32 offset="0x220" name="MEM_TIMINGS_0" variants="NV10:NVC0">
+		<doc> This, and the next 8 regs, are all related to memtimings.
+			A good place to read might be http://www.tweakers.fr/timings.html .
+			Although most bitfields are unknown, they are composed in
+			nouveau_mem_timing_init() (nouveau_mem.c, March 30th 2011).
+			</doc>
+		<bitfield high="7" low="0" name="RP">
+			<doc> RAS# precharge. </doc>
+		</bitfield>
+		<bitfield high="15" low="8" name="RAS">
+			<doc>Activate to precharge delay. </doc>
+		</bitfield>
+		<bitfield high="23" low="16" name="RFC">
+			<doc> Refresh to activate delay. </doc>
+		</bitfield>
+		<bitfield high="31" low="24" name="RC">
+			<doc> Row cycle time. </doc>
+		</bitfield>
+	</reg32>
+	
+	<reg32 offset="0x224" name="MEM_TIMINGS_1" variants="NV10:NVC0">
+	</reg32>
+	
+	<reg32 offset="0x228" name="MEM_TIMINGS_2" variants="NV10:NVC0">
+	</reg32>
+	
+	<reg32 offset="0x22c" name="MEM_TIMINGS_3" variants="NV40:NVC0">
+	</reg32>
+	
+	<reg32 offset="0x230" name="MEM_TIMINGS_4" variants="NV40:NVC0">
+	</reg32>
+	
+	<reg32 offset="0x234" name="MEM_TIMINGS_5" variants="NV40:NVC0">
+	</reg32>
+	
+	<reg32 offset="0x238" name="MEM_TIMINGS_6" variants="NV40:NVC0">
+	</reg32>
+	
+	<reg32 offset="0x23c" name="MEM_TIMINGS_7" variants="NV40:NVC0">
+	</reg32>
+	
+	<reg32 offset="0x250" name="BANKCFG" variants="NV50-">
+		<doc>Determines which bank is which, and how the banks are reordered for LSR tile_flags.</doc>
+		<value value="0" name="REORDER_SIMPLE"/>
+		<value value="1" name="REORDER_TIMES3"/>
+	</reg32>
+	
+	<reg32 offset="0x2c0" name="UNK2C0" variants="NV10:NVC0">
+		<doc> XXX: many unknown or unaddressed bitfields here, touched for reclocking </doc>
+		<bitfield pos="8" name="RESET">
+			<value value="0" name="NORMAL"/>
+			<value value="1" name="RESET"/>
+		</bitfield>
+	</reg32>
+	
+	<reg32 offset="0x320" name="COMP_MAX_TAG" variants="NV50-"/>
+
+	<reg32 offset="0xc80" name="TLB_FLUSH" variants="NV50-">
+		<bitfield high="19" low="16" name="ENGINE" type="NV50_VM_ENGINE"/>
+		<bitfield pos="0" name="TRIGGER"/>
+	</reg32>
+</array>
+
+<array name="PFFB" offset="0x100000" stride="0x1000" length="1" variants="NVC0-">
+	<array name="VM" offset="0xc80" stride="0x80" length="1">
+		<reg32 offset="0x00" name="CFG">
+			<bitfield pos="0" name="PT_GRANULARITY">
+				<value value="0" name="128MB"/>
+				<value value="1" name="64MB"/>
+			</bitfield>
+			<!-- ... -->
+		</reg32>
+		<reg32 offset="0x34" name="TLB_FLUSH_PAGE">
+			<bitfield low="4" high="31" name="VIRT_ADDR" shr="12"/>
+		</reg32>
+		<reg32 offset="0x38" name="TLB_FLUSH_VSPACE">
+			<bitfield pos="1" name="TARGET">
+				<doc>SYSRAM matches both SYSRAM_SNOOP and _NOSNOOP</doc>
+				<value value="0" name="VRAM"/>
+				<value value="1" name="SYSRAM"/>
+			</bitfield>
+			<bitfield low="4" high="31" name="ADDR" shr="12"/>
+		</reg32>
+		<reg32 offset="0x3c" name="TLB_FLUSH_TRIGGER">
+			<bitfield pos="0" name="PAGE">
+				<value value="0" name="SPECIFIC"/>
+				<value value="1" name="ALL"/>
+			</bitfield>
+			<bitfield pos="1" name="VSPACE">
+				<value value="0" name="SPECIFIC"/>
+				<value value="1" name="ALL"/>
+			</bitfield>
+			<bitfield pos="2" name="UNK2"/>
+			<bitfield pos="31" name="TRIGGER"/>
+		</reg32>
+	</array>
+</array>
+
+<group name="nvc0_pbfb">
+</group>
+
+<array name="PBFB_BROADCAST" offset="0x10f000" stride="0x1000" length="1" variants="NVC0-">
+	<use-group name="nvc0_pbfb"/>
+</array>
+
+<array name="PBFB" offset="0x110000" stride="0x1000" length="16" variants="NVC0-">
+	<use-group name="nvc0_pbfb"/>
+</array>
+
+<group name="nvc0_pmfb_subp">
+	<bitset name="nvc0_pmfb_intr" inline="yes">
+		<bitfield pos="5" name="COMP_TAG_MESSUP"/>
+	</bitset>
+	<reg32 offset="0x20" name="INTR">
+		<bitfield low="0" high="15" name="STATUS" type="nvc0_pmfb_intr"/>
+		<bitfield low="16" high="31" name="ENABLE" type="nvc0_pmfb_intr"/>
+	</reg32>
+	<array name="COMP" offset="0x0c0" stride="0x40" length="1">
+		<reg32 offset="0x08" name="TRIGGER">
+			<bitfield pos="0" name="FLUSH"/>
+			<bitfield pos="2" name="CLEAR"/>
+		</reg32>
+		<reg32 offset="0x0c" name="CLEAR_TAG_START"/>
+		<reg32 offset="0x10" name="CLEAR_TAG_END"/>
+		<reg32 offset="0x14" name="TAGMEM_BASE"/>
+		<reg32 offset="0x18" name="PART_COUNT"/>
+	</array>
+</group>
+
+<group name="nvc0_pmfb">
+	<array name="SUBP_BROADCAST" offset="0x0800" stride="0x400" length="1">
+		<use-group name="nvc0_pmfb_subp"/>
+	</array>
+	<array name="SUBP" offset="0x1000" stride="0x400" length="4">
+		<use-group name="nvc0_pmfb_subp"/>
+	</array>
+</group>
+
+<array name="PMFB" offset="0x140000" stride="0x2000" length="16" variants="NVC0-">
+	<use-group name="nvc0_pmfb"/>
+</array>
+
+<array name="PMFB_BROADCAST" offset="0x17e000" stride="0x2000" length="1" variants="NVC0-">
+	<use-group name="nvc0_pmfb"/>
+</array>
+
+</domain>
+
+</database>
