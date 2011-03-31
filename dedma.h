@@ -99,7 +99,7 @@ struct state {
 
 	struct {
 		char *buf;
-		unsigned long n;
+		size_t n;
 		uint32_t addr;
 	} parse;
 
