@@ -382,7 +382,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0f84" name="VERTEX_RUNOUT_ADDRESS_HIGH"/>
 		<reg32 offset="0x0f88" name="VERTEX_RUNOUT_ADDRESS_LOW"/>
 		<reg32 offset="0x0f8c" name="UNK0F8C" type="boolean"/>
-		<reg32 offset="0x0f90" name="UNK0F90" type="boolean"/>
+		<reg32 offset="0x0f90" name="COLOR_MASK_COMMON" type="boolean"/>
 		<reg32 offset="0x0f98" name="UNK0F98">
 			<doc>XXX scan pending</doc>
 		</reg32>

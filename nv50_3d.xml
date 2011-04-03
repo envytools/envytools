@@ -329,8 +329,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0f8c" name="UNK0F8C" type="boolean">
 			<doc>Goes to 14xx.</doc>
 		</reg32>
-		<reg32 offset="0x0f90" name="UNK0F90" type="boolean">
-			<doc>Goes to ROP, 1cxx, TPDMA, MP. Related to UNK135C.</doc>
+		<reg32 offset="0x0f90" name="COLOR_MASK_COMMON" type="boolean">
+			<doc>Goes to ROP, 1cxx, TPDMA, MP. Related to UNK135C.
+			If enabled, only COLOR_MASK(0) works and affects all RTs.</doc>
 		</reg32>
 		<reg32 offset="0x0f94" name="UNK0F94">
 			<doc>Accepts 0-1?, same as turing UNK032C</doc>
