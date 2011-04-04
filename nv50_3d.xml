@@ -330,8 +330,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Goes to 14xx.</doc>
 		</reg32>
 		<reg32 offset="0x0f90" name="COLOR_MASK_COMMON" type="boolean">
-			<doc>Goes to ROP, 1cxx, TPDMA, MP. Related to UNK135C.
-			If enabled, only COLOR_MASK(0) works and affects all RTs.</doc>
+			<doc>If enabled, only COLOR_MASK(0) works and affects all RTs.</doc>
 		</reg32>
 		<reg32 offset="0x0f94" name="UNK0F94">
 			<doc>Accepts 0-1?, same as turing UNK032C</doc>
@@ -613,8 +612,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x133c" name="BLEND_SEPARATE" type="boolean">
-			<doc>Goes to ROP, TP, MP. Separate values for RGB and ALPHA.
-			Applies to both factor and equation. Use RGB methods if disabled.</doc>
+			<doc>Separate values for RGB and ALPHA. Applies to both
+			factor and equation. Use RGB methods if disabled.</doc>
 		</reg32>
 		<reg32 offset="0x1340" name="BLEND_EQUATION_RGB" type="gl_blend_equation"/>
 		<reg32 offset="0x1344" name="BLEND_FUNC_SRC_RGB" type="NV50_BLEND_FACTOR"/>
@@ -626,7 +625,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1358" name="BLEND_FUNC_DST_ALPHA" type="NV50_BLEND_FACTOR"/>
 		<reg32 offset="0x135c" name="BLEND_ENABLE_COMMON" type="boolean">
-			<doc>Goes to ROP, 1cxx, TPDMA, MP. Like COLOR_MASK_COMMON.</doc>
+			<doc>Like COLOR_MASK_COMMON.</doc>
 		</reg32>
 		<reg32 offset="0x1360" name="BLEND_ENABLE" length="8" type="boolean"/>
 		<reg32 offset="0x1380" name="STENCIL_ENABLE" type="boolean"/>
