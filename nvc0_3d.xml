@@ -597,7 +597,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Shared with dijkstra.</doc>
 		</reg32>
 		<reg32 offset="0x1358" name="BLEND_FUNC_DST_ALPHA" type="NV50_BLEND_FACTOR"/>
-		<reg32 offset="0x135c" name="UNK135C" type="boolean"/>
+		<reg32 offset="0x135c" name="BLEND_ENABLE_COMMON" type="boolean"/>
 		<reg32 offset="0x1360" name="BLEND_ENABLE" length="8" type="boolean"/>
 		<reg32 offset="0x1380" name="STENCIL_ENABLE" type="boolean"/>
 		<reg32 offset="0x1384" name="STENCIL_FRONT_OP_FAIL" type="gl_stencil_op"/>

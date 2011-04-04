@@ -624,8 +624,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Accepts 0-1? Same as turing UNK0358</doc>
 		</reg32>
 		<reg32 offset="0x1358" name="BLEND_FUNC_DST_ALPHA" type="NV50_BLEND_FACTOR"/>
-		<reg32 offset="0x135c" name="UNK135C" type="boolean">
-			<doc>Goes to ROP, 1cxx, TPDMA, MP. Related to UNK0F90.</doc>
+		<reg32 offset="0x135c" name="BLEND_ENABLE_COMMON" type="boolean">
+			<doc>Goes to ROP, 1cxx, TPDMA, MP. Like COLOR_MASK_COMMON.</doc>
 		</reg32>
 		<reg32 offset="0x1360" name="BLEND_ENABLE" length="8" type="boolean"/>
 		<reg32 offset="0x1380" name="STENCIL_ENABLE" type="boolean"/>
