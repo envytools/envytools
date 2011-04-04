@@ -944,8 +944,8 @@ int main(int argc, char **argv) {
 		if (major_version == 0x4) {
 			header_length = bios[start+0];
 			version = bios[start+1];
-			entry_length = bios[start+2];
-			entry_count = bios[start+3];
+			entry_length = bios[start+3];
+			entry_count = bios[start+2];
 			mode_info_length = entry_length;
 		} else if (major_version < 0x70) {
 			version = bios[start+0];
@@ -989,15 +989,20 @@ int main(int argc, char **argv) {
 			uint8_t pcie_width = 0xff;
 			uint8_t timing_id = 0xff;
 
-			if (mode_info_length >= 28)
-			 // it is possible that the link width is a uint16_t
-			 // note the variable used is uint8_t
+			if (mode_info_length >= 28 && version >= 0x25) {
+				/* it is possible that the link width is a uint16_t
+				* note the variable used is uint8_t
+				* 0x25 is a guess, ofcourse cards before NV40 don't actually
+				* have PCI Express... so this value would be silly
+				*/
 				pcie_width = bios[start+28];
+			}
 
+			/* Old BIOS' might give rounding errors! */
 			if (version == 0x12 || version == 0x13 || version == 0x15) {
 				id = bios[start+0];
-				core = le16(start+1);
-				memclk = le16(start+3);
+				core = le16(start+1) / 100;
+				memclk = le16(start+5) / 100;
 				fan = bios[start+55];
 				voltage = bios[start+56];
 			} else if (version >= 0x21 && version <= 0x24) {
