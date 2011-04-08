@@ -611,7 +611,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				caches.</doc>
 			</bitfield>
 		</reg32>
-		<reg32 offset="0x133c" name="BLEND_SEPARATE" type="boolean">
+		<reg32 offset="0x133c" name="BLEND_SEPARATE_ALPHA" type="boolean">
 			<doc>Separate values for RGB and ALPHA. Applies to both
 			factor and equation. Use RGB methods if disabled.</doc>
 		</reg32>

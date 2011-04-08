@@ -587,7 +587,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield low="0" high="2" name="UNK0"/>
 			<bitfield low="4" high="25" name="ENTRY"/>
 		</reg32>
-		<reg32 offset="0x133c" name="BLEND_SEPARATE" type="boolean"/>
+		<reg32 offset="0x133c" name="BLEND_SEPARATE_ALPHA" type="boolean"/>
 		<reg32 offset="0x1340" name="BLEND_EQUATION_RGB" type="gl_blend_equation"/>
 		<reg32 offset="0x1344" name="BLEND_FUNC_SRC_RGB" type="NV50_BLEND_FACTOR"/>
 		<reg32 offset="0x1348" name="BLEND_FUNC_DST_RGB" type="NV50_BLEND_FACTOR"/>
