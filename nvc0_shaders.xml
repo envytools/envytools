@@ -30,6 +30,7 @@
 			<value value="0x61" name="VP_MAGIC"/>
 		</bitfield>
 		<bitfield high="12" low="10" name="KIND" type="NVC0_SHADER_KIND"/>
+		<bitfield pos="16" name="GMEM_ENABLE"/>
 		<bitfield pos="17" name="UNK17"/><!-- default 1 -->
 		<bitfield pos="26" name="LMEM_ENABLE"/>
 	</reg32>
@@ -70,6 +71,7 @@
 			<value value="0x61" name="GP_MAGIC"/>
 		</bitfield>
 		<bitfield high="12" low="10" name="KIND" type="NVC0_SHADER_KIND"/>
+		<bitfield pos="16" name="GMEM_ENABLE"/>
 		<bitfield pos="17" name="UNK17"/><!-- default 1 -->
 		<bitfield pos="26" name="LMEM_ENABLE"/>
 		<bitfield high="31" low="28" name="UNK28"/><!-- default 0x1, 0xf for point output -->
@@ -118,6 +120,7 @@
 		<bitfield high="12" low="10" name="KIND" type="NVC0_SHADER_KIND"/>
 		<bitfield pos="14" name="MULTIPLE_COLOR_OUTPUTS" type="boolean"/>
 		<bitfield pos="15" name="USES_KIL" type="boolean"/>
+		<bitfield pos="16" name="GMEM_ENABLE"/>
 		<bitfield pos="17" name="UNK17"/><!-- default 1 -->
 		<bitfield pos="26" name="LMEM_ENABLE"/>
 	</reg32>
