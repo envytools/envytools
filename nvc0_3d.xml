@@ -1065,7 +1065,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1c08" name="VERTEX_ARRAY_START_LOW" length="32" stride="16"/>
 		<reg32 offset="0x1c0c" name="VERTEX_ARRAY_DIVISOR" length="32" stride="16" type="uint"/>
 		<array offset="0x1e00" name="IBLEND" stride="0x20" length="8">
-			<reg32 offset="0x00" name="UNK00" type="boolean"/>
+			<reg32 offset="0x00" name="SEPARATE_ALPHA" type="boolean"/>
 			<reg32 offset="0x04" name="EQUATION_RGB" type="gl_blend_equation"/>
 			<reg32 offset="0x08" name="FUNC_SRC_RGB" type="NV50_BLEND_FACTOR"/>
 			<reg32 offset="0x0c" name="FUNC_DST_RGB" type="NV50_BLEND_FACTOR"/>
