@@ -192,8 +192,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0750" name="UNK0750">
 			<doc>0-1</doc>
 		</reg32>
-		<reg32 offset="0x0754" name="UNK0754">
-			<doc>1, 2, 4, 8, 0x11, 0x12, 0x14, 0x18</doc>
+		<reg32 offset="0x0754" name="SAMPLE_SHADING">
+			<bitfield high="3" low="0" name="MIN_SAMPLES" type="uint">
+				<doc>1, 2, 4, or 8. Takes effect even if ENABLE is 0.</doc>
+			</bitfield>
+			<bitfield pos="4" name="ENABLE" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x075c" name="UNK075C">
 			<doc>0-0x20</doc>
