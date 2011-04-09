@@ -376,7 +376,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>XXX scan pending</doc>
 		</reg32>
 		<reg32 offset="0x0f9c" name="DEPTH_BOUNDS" length="2" type="float"/>
-		<reg32 offset="0x0fac" name="UNK0FAC" type="boolean"/>
+		<reg32 offset="0x0fac" name="RT_SEPARATE_FRAG_DATA" type="boolean">
+			<doc>If disabled, all RTs receive colour output 0,
+			regardless of RT_CONTROL or the bit in the FP header.
+			XXX: what else ?</doc>
+		</reg32>
 		<reg32 offset="0x0fb0" name="UNK0FB0" type="boolean"/>
 		<reg32 offset="0x0fbc" name="MSAA_MASK" length="4"/>
 		<reg32 offset="0x0fcc" name="CLIPID_ADDRESS_HIGH"/>
