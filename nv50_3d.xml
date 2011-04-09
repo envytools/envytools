@@ -44,19 +44,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x30" name="2_10_10_10"/>
 </enum>
 
-<!--these probably aren't all-->
-<enum name="nv50_msaa_mode" inline="yes">
-	<value value="0x00" name="MS1"/>
-	<value value="0x01" name="MS2"/>
-	<value value="0x02" name="MS4"/>
-	<value value="0x03" name="MS8"/>
-	<value value="0x04" name="MS8_ALT"/>
-	<value value="0x05" name="MS2_ALT"/>
-	<value value="0x08" name="MS4_CS4"/>
-	<value value="0x09" name="MS4_CS12"/>
-	<value value="0x0a" name="MS8_CS8"/>
-</enum>
-
 <domain name="NV01_SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NV50_3D-NVAF_3D">
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>

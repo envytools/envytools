@@ -1,6 +1,9 @@
 <database>
 <import file="copyright.xml"/>
 
+<import file="nvchipsets.xml"/>
+<import file="nv50_defs.xml"/>
+
 <enum name="NV50_TIC_MAP">
 	<value value="0" name="ZERO" />
 	<value value="2" name="C0" />
@@ -21,7 +24,7 @@
 	<value value="7" name="FLOAT" />
 </enum>
 
-<domain name="NV50_TIC" size="0x20">
+<domain name="TIC" size="0x20" prefix="chipset">
 	<brief>Texture image control block</brief>
 	<reg32 offset="0" name="0">
 		<bitfield high="29" low="27" name="MAPA" type="NV50_TIC_MAP" />
@@ -149,7 +152,7 @@
 	<reg32 offset="0x1c" name="7">
 		<bitfield high="3" low="0" name="BASE_LEVEL" />
 		<bitfield high="7" low="4" name="MAX_LEVEL" />
-		<bitfield high="15" low="12" name="MS_MODE">
+		<bitfield high="15" low="12" name="MS_MODE" type="nv50_msaa_mode">
 			<doc>Like nv50/nvc0_msaa_mode, dimensions are unaffected.</doc>
 		</bitfield>
 	</reg32>
@@ -178,7 +181,7 @@
 	<value value="3" name="LINEAR" />
 </enum>
 
-<domain name="NV50_TSC" size="0x20">
+<domain name="TSC" size="0x20" prefix="chipset">
 	<brief>Texture sampler control block</brief>
 	<reg32 offset="0" name="0">
 		<bitfield high="2" low="0" name="WRAPS" type="NV50_TSC_WRAP" />

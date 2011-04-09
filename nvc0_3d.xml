@@ -36,20 +36,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x30" name="2_10_10_10"/>
 </enum>
 
-<enum name="nvc0_msaa_mode" inline="yes">
-	<value value="0x00" name="MS1"/>
-	<value value="0x01" name="MS2"/>
-	<value value="0x02" name="MS4"/>
-	<value value="0x03" name="MS8"/>
-	<value value="0x04" name="MS8_ALT"/>
-	<value value="0x05" name="MS2_ALT"/>
-	<value value="0x06" name="UNK6"/>
-	<value value="0x08" name="MS4_CS4"/>
-	<value value="0x09" name="MS4_CS12"/>
-	<value value="0x0a" name="MS8_CS8"/>
-	<value value="0x0b" name="MS8_CS24"/>
-</enum>
-
 <domain name="NV01_SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NVC0_3D-NVC8_3D">
 		<reg32 offset="0x0200" name="UNK200"/>
@@ -759,7 +745,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</bitfield>
 			<bitfield name="USE_GP" pos="16" type="boolean"/>
 		</reg32>
-		<reg32 offset="0x15d0" name="MULTISAMPLE_MODE" type="nvc0_msaa_mode"/>
+		<reg32 offset="0x15d0" name="MULTISAMPLE_MODE" type="nv50_msaa_mode"/>
 		<reg32 offset="0x15e4" name="EDGEFLAG_ENABLE" type="boolean"/>
 		<reg32 offset="0x15e8" name="VB_ELEMENT_U32" type="int"/>
 		<reg32 offset="0x15ec" name="VB_ELEMENT_U16_SETUP">

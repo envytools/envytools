@@ -39,6 +39,20 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x02" name="STRIPED"/>
 </enum>
 
+<enum name="nv50_msaa_mode" inline="yes">
+	<value value="0x00" name="MS1"/>
+	<value value="0x01" name="MS2"/>
+	<value value="0x02" name="MS4"/>
+	<value value="0x03" name="MS8"/>
+	<value value="0x04" name="MS8_ALT" varset="chipset" variants="NVA3-"/>
+	<value value="0x05" name="MS2_ALT" varset="chipset" variants="NVA3-"/>
+	<value value="0x06" name="UNK6" varset="chipset" variants="NVC0-"/>
+	<value value="0x08" name="MS4_CS4"/>
+	<value value="0x09" name="MS4_CS12"/>
+	<value value="0x0a" name="MS8_CS8"/>
+	<value value="0x0b" name="MS8_CS24" varset="chipset" variants="NVC0-"/>
+</enum>
+
 <!--XXX: figure this out someday-->
 <enum name="NV50_SURFACE_FORMAT">
 	<value value="0x00c0" name="R32G32B32A32_FLOAT"/><!-- tile flags 0x7400-->
