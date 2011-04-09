@@ -149,6 +149,9 @@
 	<reg32 offset="0x1c" name="7">
 		<bitfield high="3" low="0" name="BASE_LEVEL" />
 		<bitfield high="7" low="4" name="MAX_LEVEL" />
+		<bitfield high="15" low="12" name="MS_MODE">
+			<doc>Like nv50/nvc0_msaa_mode, dimensions are unaffected.</doc>
+		</bitfield>
 	</reg32>
 
 </domain>
