@@ -320,7 +320,7 @@
 
 	</array>
 
-	<array name="DISPLAY_USER" offset="00640000" stride="0x1000" length="5" variants="NV50-">
+	<array name="DISPLAY_USER" offset="0x640000" stride="0x1000" length="5" variants="NV50-">
 		<reg32 name="PUT" offset="0x0"/>
 		<reg32 name="GET" offset="0x4"/>
 	</array>
