@@ -938,7 +938,7 @@ int main(int argc, char **argv) {
 		uint8_t extra_data_length = 8, extra_data_count = 0;
 		uint8_t subentry_offset = 0, subentry_size = 0, subentry_count = 0;
 		uint16_t start = pm_mode_tbl_ptr;
-		uint8_t timing_entry = strap?(strap & 0x1c) >> 2:0xff;
+		uint8_t ram_cfg = strap?(strap & 0x1c) >> 2:0xff;
 		int e;
 
 		if (major_version == 0x4) {
@@ -969,7 +969,7 @@ int main(int argc, char **argv) {
 		start += header_length;
 		
 		printf ("PM_Mode table at %x. Version %x. Timing entry %x. Info_length %i.\n",
-			pm_mode_tbl_ptr, version, timing_entry, mode_info_length
+			pm_mode_tbl_ptr, version, ram_cfg, mode_info_length
 		);
 
 		if (version > 0x15 && version < 0x40)
@@ -1039,13 +1039,13 @@ int main(int argc, char **argv) {
 			timing_id = 0xff;
 			if (version > 0x15 && version < 0x40) {
 				uint16_t extra_start = start + mode_info_length;
-				uint16_t timing_extra_data = extra_start+(timing_entry*extra_data_length);
+				uint16_t timing_extra_data = extra_start+(ram_cfg*extra_data_length);
 				
-				if (timing_entry < extra_data_count)
+				if (ram_cfg < extra_data_count)
 					timing_id = bios[timing_extra_data+1];
 			} else if (version == 0x40) {
-				if (timing_entry < subentry_count)
-					timing_id = bios[start+subent(timing_entry)+1];
+				if (ram_cfg < subentry_count)
+					timing_id = bios[start+subent(ram_cfg)+1];
 			}
 
 			printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
