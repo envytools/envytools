@@ -553,22 +553,22 @@ int main(int argc, char **argv) {
 	if (strap == 0) {
 		find_strap(argc, argv);
 		if (strap == 0)
-			fprintf(stderr, "No strap specified!\n");
+			fprintf(stderr, "warning: No strap specified\n");
 	}
 
 	FILE *biosfile = fopen(argv[1], "r");
 	if (!biosfile) {
-		printf("Cannot read the file '%s'\n", argv[1]);
+		fprintf(stderr, "Cannot read the file '%s'\n", argv[1]);
 		return 1;
 	}
 	uint32_t filelen = fread(bios, 1, 0x10000, biosfile);
 	fclose(biosfile);
 	if (filelen < 512 || bios[0] != 0x55 || bios[1] != 0xaa) {
-		printf ("No signature found [%02x %02x]\n", bios[0], bios[1]);
+		fprintf (stderr, "No signature found [%02x %02x]\n", bios[0], bios[1]);
 		return 1;
 	}
 	if (filelen < bios[2]*512) {
-		printf ("Wrong length [%x %x]\n", filelen, bios[2]*512);
+		fprintf (stderr, "Wrong length [%x %x]\n", filelen, bios[2]*512);
 		return 1;
 	}
 	len = bios[2]*512;
