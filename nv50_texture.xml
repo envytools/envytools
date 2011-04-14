@@ -24,7 +24,7 @@
 	<value value="7" name="FLOAT" />
 </enum>
 
-<domain name="TIC" size="0x20" prefix="chipset">
+<domain name="TIC" size="0x20" prefix="chipset" variants="NV50-">
 	<brief>Texture image control block</brief>
 	<reg32 offset="0" name="0">
 		<bitfield high="29" low="27" name="MAPA" type="NV50_TIC_MAP" />
@@ -181,7 +181,7 @@
 	<value value="3" name="LINEAR" />
 </enum>
 
-<domain name="TSC" size="0x20" prefix="chipset">
+<domain name="TSC" size="0x20" prefix="chipset" variants="NV50-">
 	<brief>Texture sampler control block</brief>
 	<reg32 offset="0" name="0">
 		<bitfield high="2" low="0" name="WRAPS" type="NV50_TSC_WRAP" />
