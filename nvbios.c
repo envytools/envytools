@@ -1,3 +1,4 @@
+#include <errno.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -558,7 +559,7 @@ int main(int argc, char **argv) {
 
 	FILE *biosfile = fopen(argv[1], "r");
 	if (!biosfile) {
-		fprintf(stderr, "Cannot read the file '%s'\n", argv[1]);
+		fprintf(stderr, "Cannot read the file '%s': %s\n", argv[1], strerror(errno));
 		return 1;
 	}
 	uint32_t filelen = fread(bios, 1, 0x10000, biosfile);
