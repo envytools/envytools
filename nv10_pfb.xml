@@ -77,7 +77,7 @@
 	</reg32>
 	
 	<reg32 offset="0x220" name="MEM_TIMINGS_0" variants="NV10:NVC0">
-		<doc> This, and the next 8 regs, are all related to memtimings.
+		<doc> This, and the next 7 regs, are all related to memtimings.
 			A good place to read might be http://www.tweakers.fr/timings.html .
 			Although most bitfields are unknown, they are composed in
 			nouveau_mem_timing_init() (nouveau_mem.c, March 30th 2011).
@@ -175,6 +175,42 @@
 </array>
 
 <group name="nvc0_pbfb">
+	<reg32 offset="0x290" name="MEM_TIMINGS_0" variants="NV10:NVC0">
+		<doc> This, and the next 6 regs, are all related to memtimings.
+			A good place to read might be http://www.tweakers.fr/timings.html .
+			Most bitfields are unknown.
+			</doc>
+		<bitfield high="7" low="0" name="RP">
+			<doc> RAS# precharge. </doc>
+		</bitfield>
+		<bitfield high="15" low="8" name="RAS">
+			<doc>Activate to precharge delay. </doc>
+		</bitfield>
+		<bitfield high="23" low="16" name="RFC">
+			<doc> Refresh to activate delay. </doc>
+		</bitfield>
+		<bitfield high="31" low="24" name="RC">
+			<doc> Row cycle time. </doc>
+		</bitfield>
+	</reg32>
+	
+	<reg32 offset="0x294" name="MEM_TIMINGS_1" variants="NVC0-">
+	</reg32>
+	
+	<reg32 offset="0x298" name="MEM_TIMINGS_2" variants="NVC0-">
+	</reg32>
+	
+	<reg32 offset="0x29c" name="MEM_TIMINGS_3" variants="NVC0-">
+	</reg32>
+	
+	<reg32 offset="0x2a0" name="MEM_TIMINGS_4" variants="NVC0-">
+	</reg32>
+	
+	<reg32 offset="0x2a4" name="MEM_TIMINGS_5" variants="NVC0-">
+	</reg32>
+	
+	<reg32 offset="0x2a8" name="MEM_TIMINGS_6" variants="NVC0-">
+	</reg32>
 </group>
 
 <array name="PBFB_BROADCAST" offset="0x10f000" stride="0x1000" length="1" variants="NVC0-">
