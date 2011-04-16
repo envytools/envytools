@@ -969,14 +969,14 @@ int main(int argc, char **argv) {
 
 		start += header_length;
 		
-		printf ("PM_Mode table at %x. Version %x. Timing entry %x. Info_length %i.\n",
+		printf ("PM_Mode table at %x. Version %x. RamCFG %x. Info_length %i.\n",
 			pm_mode_tbl_ptr, version, ram_cfg, mode_info_length
 		);
 
 		if (version > 0x15 && version < 0x40)
 			printf("Extra_length %i. Extra_count %i.\n", extra_data_length, extra_data_count);
 		else if (version == 0x40)
-			printf("Subentry length %i. Subentry count %i.\n", subentry_size, subentry_count);
+			printf("Subentry length %i. Subentry count %i. Subentry Offset %i\n", subentry_size, subentry_count, subentry_offset);
 
 		printf("Header:\n");
 		printcmd(pm_mode_tbl_ptr, header_length>0?header_length:10);
@@ -1032,9 +1032,9 @@ int main(int argc, char **argv) {
 				id = bios[start+0];
 				fan = 0;
 				voltage = bios[start+2];
-				core = (le16(start+subent(0)) & 0xfff);
-				shader = (le16(start+subent(1)) & 0xfff);
-				memclk = (le16(start+subent(2)) & 0xfff);
+				core = (le16(start+subent(3)) & 0xfff);
+				shader = core / 2; // could have been 2,6 or 7
+				memclk = (le16(start+subent(5)) & 0xfff);
 			}
 
 			timing_id = 0xff;
