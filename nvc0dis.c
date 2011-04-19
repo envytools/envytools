@@ -126,9 +126,12 @@
  */
 
 
-static struct bitfield ctargoff = { { 26, 24 }, BF_SIGNED, .pcrel = 1, .addend = 8}; // PC is 32-bit. NFI how to reach further than 2^23 bytes.
+static struct bitfield ctargoff = { { 26, 24 }, BF_SIGNED, .pcrel = 1, .addend = 8};
+static struct bitfield actargoff = { 26, 32 };
 #define BTARG atombtarg, &ctargoff
 #define CTARG atomctarg, &ctargoff
+#define ABTARG atombtarg, &actargoff
+#define ACTARG atomctarg, &actargoff
 
 /*
  * Misc number fields
@@ -302,7 +305,7 @@ static struct bitfield slmem_imm = { { 0x1a, 24 }, BF_SIGNED };
 static struct bitfield cmem_imm = { 0x1a, 16 };
 static struct bitfield fcmem_imm = { { 0x1a, 16 }, BF_SIGNED };
 static struct bitfield vmem_imm = { 0x20, 16 };
-static struct bitfield cmem_idx = { 0x2a, 4 };
+static struct bitfield cmem_idx = { 0x2a, 5 };
 static struct bitfield vba_imm = { 0x1a, 6 };
 static struct bitfield lduld_imm = { 0x29, 11 };
 static struct mem gmem_m = { "g", 0, &src1_r, &gmem_imm };
@@ -958,21 +961,26 @@ F1(brawarp, 0xf, N("allwarp")) // probably jumps if the whole warp has the predi
 F1(lim, 0x10, N("lim"))
 
 static struct insn tabc[] = {
-	{ 0x40000000000001e7ull, 0xf0000000000001e7ull, T(brawarp), T(p), N("bra"), BTARG },
-	{ 0x5000000000000007ull, 0xf000000000004007ull, N("call"), T(lim), CTARG },
-	{ 0x5000000000004007ull, 0xf000000000004007ull, N("call"), T(lim), N("pcrel"), CONST },
-	{ 0x6000000000000007ull, 0xf000000000000007ull, N("joinat"), BTARG },
-	{ 0x6800000000000007ull, 0xf000000000000007ull, N("prebrk"), BTARG },
-	{ 0x7000000000000007ull, 0xf000000000000007ull, N("precnt"), BTARG },
-	{ 0x80000000000001e7ull, 0xf0000000000001e7ull, T(p), N("exit") },
+	{ 0x00000000000001e7ull, 0xf8000000000041e7ull, T(p), N("bra"), T(brawarp), N("abs"), ABTARG },
+	{ 0x00000000000041e7ull, 0xf8000000000041e7ull, T(p), N("bra"), T(brawarp), CONST },
+	{ 0x1000000000000007ull, 0xf800000000004007ull, N("call"), T(lim), N("abs"), ACTARG },
+	{ 0x1000000000004007ull, 0xf800000000004007ull, N("call"), T(lim), CONST },
+	{ 0x40000000000001e7ull, 0xf8000000000041e7ull, T(p), N("bra"), T(brawarp), BTARG },
+	{ 0x40000000000041e7ull, 0xf8000000000041e7ull, T(p), N("bra"), T(brawarp), N("pcrel"), CONST },
+	{ 0x5000000000000007ull, 0xf800000000004007ull, N("call"), T(lim), CTARG },
+	{ 0x5000000000004007ull, 0xf800000000004007ull, N("call"), T(lim), N("pcrel"), CONST },
+	{ 0x6000000000000007ull, 0xf800000000000007ull, N("joinat"), BTARG },
+	{ 0x6800000000000007ull, 0xf800000000000007ull, N("prebrk"), BTARG },
+	{ 0x7000000000000007ull, 0xf800000000000007ull, N("precont"), BTARG },
+	{ 0x80000000000001e7ull, 0xf8000000000001e7ull, T(p), N("exit") },
 	{ 0x90000000000001e7ull, 0xf8000000000001e7ull, T(p), N("ret") },
 	{ 0x98000000000001e7ull, 0xf8000000000001e7ull, T(p), N("discard") },
-	{ 0xa8000000000001e7ull, 0xf0000000000001e7ull, T(p), N("brk") },
-	{ 0xb0000000000001e7ull, 0xf0000000000001e7ull, T(p), N("cont") },
+	{ 0xa8000000000001e7ull, 0xf8000000000001e7ull, T(p), N("brk") },
+	{ 0xb0000000000001e7ull, 0xf8000000000001e7ull, T(p), N("cont") },
 	{ 0xc000000000000007ull, 0xf800000000000007ull, N("quadon") },
 	{ 0xc800000000000007ull, 0xf800000000000007ull, N("quadpop") },
-	{ 0xd000000000000007ull, 0xf00000000000c007ull, N("membar"), N("cta") },
-	{ 0xd00000000000c007ull, 0xf00000000000c007ull, N("trap") },
+	{ 0xd000000000000007ull, 0xf80000000000c007ull, N("membar"), N("cta") },
+	{ 0xd00000000000c007ull, 0xf80000000000c007ull, N("trap") },
 	{ 0x0000000000000007ull, 0x0000000000000007ull, T(p), OOPS, BTARG },
 	{ 0, 0, OOPS },
 };
