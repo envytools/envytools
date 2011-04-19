@@ -960,19 +960,26 @@ static struct insn tabp[] = {
 F1(brawarp, 0xf, N("allwarp")) // probably jumps if the whole warp has the predicate evaluate to true.
 F1(lim, 0x10, N("lim"))
 
+static struct insn tabbtarg[] = {
+	{ 0x0000000000000000ull, 0x0000000000004000ull, BTARG },
+	{ 0x0000000000004000ull, 0x0000000000004000ull, N("pcrel"), CONST },
+};
+
 static struct insn tabc[] = {
 	{ 0x00000000000001e7ull, 0xf8000000000041e7ull, T(p), N("bra"), T(brawarp), N("abs"), ABTARG },
 	{ 0x00000000000041e7ull, 0xf8000000000041e7ull, T(p), N("bra"), T(brawarp), CONST },
 	{ 0x1000000000000007ull, 0xf800000000004007ull, N("call"), T(lim), N("abs"), ACTARG },
 	{ 0x1000000000004007ull, 0xf800000000004007ull, N("call"), T(lim), CONST },
-	{ 0x40000000000001e7ull, 0xf8000000000041e7ull, T(p), N("bra"), T(brawarp), BTARG },
-	{ 0x40000000000041e7ull, 0xf8000000000041e7ull, T(p), N("bra"), T(brawarp), N("pcrel"), CONST },
+	{ 0x40000000000001e7ull, 0xf8000000000001e7ull, T(p), N("bra"), T(brawarp), T(btarg) },
 	{ 0x5000000000000007ull, 0xf800000000004007ull, N("call"), T(lim), CTARG },
 	{ 0x5000000000004007ull, 0xf800000000004007ull, N("call"), T(lim), N("pcrel"), CONST },
-	{ 0x6000000000000007ull, 0xf800000000000007ull, N("joinat"), BTARG },
-	{ 0x6800000000000007ull, 0xf800000000000007ull, N("prebrk"), BTARG },
-	{ 0x7000000000000007ull, 0xf800000000000007ull, N("precont"), BTARG },
+	{ 0x5800000000000007ull, 0xf800000000000007ull, N("prelongjmp"), T(btarg) },
+	{ 0x6000000000000007ull, 0xf800000000000007ull, N("joinat"), T(btarg) },
+	{ 0x6800000000000007ull, 0xf800000000000007ull, N("prebrk"), T(btarg) },
+	{ 0x7000000000000007ull, 0xf800000000000007ull, N("precont"), T(btarg) },
+	{ 0x7800000000000007ull, 0xf800000000000007ull, N("preret"), T(btarg) },
 	{ 0x80000000000001e7ull, 0xf8000000000001e7ull, T(p), N("exit") },
+	{ 0x88000000000001e7ull, 0xf8000000000001e7ull, T(p), N("longjmp") },
 	{ 0x90000000000001e7ull, 0xf8000000000001e7ull, T(p), N("ret") },
 	{ 0x98000000000001e7ull, 0xf8000000000001e7ull, T(p), N("discard") },
 	{ 0xa8000000000001e7ull, 0xf8000000000001e7ull, T(p), N("brk") },
