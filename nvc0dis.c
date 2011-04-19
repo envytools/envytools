@@ -130,8 +130,10 @@ static struct bitfield ctargoff = { { 26, 24 }, BF_SIGNED, .pcrel = 1, .addend =
 static struct bitfield actargoff = { 26, 32 };
 #define BTARG atombtarg, &ctargoff
 #define CTARG atomctarg, &ctargoff
+#define NTARG atomimm, &ctargoff
 #define ABTARG atombtarg, &actargoff
 #define ACTARG atomctarg, &actargoff
+#define ANTARG atomimm, &actargoff
 
 /*
  * Misc number fields
@@ -996,9 +998,13 @@ static struct insn tabcc[] = {
 static struct insn tabc[] = {
 	{ 0x0000000000000007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), T(brawarp), N("abs"), ABTARG },
 	{ 0x0000000000004007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), T(brawarp), CONST },
+	{ 0x0800000000000007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), SRC1, N("abs"), ANTARG },
+	{ 0x0800000000004007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), SRC1, CONST },
 	{ 0x1000000000000007ull, 0xf800000000004007ull, N("call"), T(lim), N("abs"), ACTARG },
 	{ 0x1000000000004007ull, 0xf800000000004007ull, N("call"), T(lim), CONST },
 	{ 0x4000000000000007ull, 0xf800000000000007ull, T(p), T(cc), N("bra"), T(brawarp), T(btarg) },
+	{ 0x4800000000000007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), SRC1, NTARG },
+	{ 0x4800000000004007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), SRC1, N("pcrel"), CONST },
 	{ 0x5000000000000007ull, 0xf800000000004007ull, N("call"), T(lim), CTARG },
 	{ 0x5000000000004007ull, 0xf800000000004007ull, N("call"), T(lim), N("pcrel"), CONST },
 	{ 0x5800000000000007ull, 0xf800000000000007ull, N("prelongjmp"), T(btarg) },
