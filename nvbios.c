@@ -1032,9 +1032,16 @@ int main(int argc, char **argv) {
 				id = bios[start+0];
 				fan = 0;
 				voltage = bios[start+2];
-				core = (le16(start+subent(3)) & 0xfff);
-				shader = core / 2; // could have been 2,6 or 7
-				memclk = (le16(start+subent(5)) & 0xfff);
+
+				if (subentry_size == 4) {
+					shader = (le16(start+subent(3)) & 0xfff);
+					core = shader / 2;
+					memclk = (le16(start+subent(5)) & 0xfff);
+				} else {
+					core = (le16(start+subent(0)) & 0xfff);
+					shader = (le16(start+subent(1)) & 0xfff);
+					memclk = (le16(start+subent(2)) & 0xfff);
+				}
 			}
 
 			timing_id = 0xff;
@@ -1168,16 +1175,61 @@ int main(int argc, char **argv) {
 			uint16_t data = le16((start+i*entry_length)+1);
 			uint16_t temp = (data & 0x0ff0) >> 4;
 			uint16_t type = (data & 0xf00f);
+			const char *type_s = NULL, *threshold = NULL;
+			const char *correction_target = NULL;
+			uint16_t correction_value = 0;
+			uint16_t fan_min, fan_max;
+
+			type_s = (type == 0xa000?"ambiant":"core");
+
+			/* Temperatures */
+			if (id == 0x4)
+				threshold = "critical";
+			else if (id == 0x5 || id == 0x7)
+				threshold = "throttling";
+			else if (id == 0x8)
+				threshold = "fan boost";
+
+			/* fan */
+			fan_min = data & 0xff;
+			fan_max= (data & 0xff00) >> 8;
+
+			correction_value = data;
+			if (id == 0x1) {
+				correction_target = "diode offset";
+				correction_value = (data >> 9) & 0x7f;
+			}
+			else if (id == 0x10)
+				correction_target = "diode multiplier";
+			else if (id == 0x11)
+				correction_target = "diode divisor";
+			else if (id == 0x12)
+				correction_target = "slope multiplier";
+			else if (id == 0x13)
+				correction_target = "slope divisor";
 
 			printcmd(start+i*entry_length, entry_length);
+			printf ("id = 0x%x, data = 0x%x ",
+						id, data);
 
-			if (id == 0x4 || id == 0x7 || id == 0x8)
-				printf ("id = 0x%x, temp = %i°C, type = 0x%x\n", id, temp, type);
-			else if (id == 0x1 || (id >= 0x10 && id <= 0x13))
-				printf ("id = 0x%x, data = 0x%x\n", id, data);
-			else
-				printf ("id = 0x%x, data = 0x%x, temp = %i°C, type = 0x%x\n",
-						id, data, temp, type);
+			if (id == 0xff)
+				printf("--disabled");
+			else if (id == 0x0)
+				printf ("-- new section type %i", data);
+			else if (threshold)
+				printf ("-- %s %s temperature is %i°C", threshold, type_s, temp);
+			else if (id == 0x1 || (id >= 0x10 && id <= 0x13) || id == 0x22) {
+				printf ("-- temp/fan management: ");
+				if (correction_target)
+					printf("%s = %i", correction_target, correction_value);
+				else if (id == 0x22)
+					printf("fan_min = %i, fan_max = %i", fan_min, fan_max);
+				else
+					printf("id = 0x%x, data = 0x%x", id, data);
+			} else
+				printf ("Unknown (temp ?= %i°C, type ?= 0x%x)", temp, type);
+
+			printf("\n");
 		}
 		printf("\n");
 	}
