@@ -218,6 +218,7 @@ static struct bitfield psrc2_bf = { 0x1a, 3 };
 static struct bitfield psrc3_bf = { 0x31, 3 };
 static struct bitfield pred_bf = { 0xa, 3 };
 static struct bitfield pdst_bf = { 0x11, 3 };
+static struct bitfield pdstn_bf = { 0x0e, 3 };
 static struct bitfield pdst2_bf = { 0x36, 3 };
 static struct bitfield pdst3_bf = { 0x35, 3 }; // ...the hell?
 static struct bitfield pdst4_bf = { 0x32, 3 }; // yay.
@@ -243,6 +244,7 @@ static struct reg psrc2_r = { &psrc2_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg psrc3_r = { &psrc3_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pred_r = { &pred_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdst_r = { &pdst_bf, "p", .specials = pred_sr, .cool = 1 };
+static struct reg pdstn_r = { &pdstn_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdst2_r = { &pdst2_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdst3_r = { &pdst3_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdst4_r = { &pdst4_bf, "p", .specials = pred_sr, .cool = 1 };
@@ -270,6 +272,7 @@ static struct reg lduld_dst2d_r = { &lduld_dst2_bf, "r", "d" };
 #define DST2D atomreg, &dst2d_r
 #define PRED atomreg, &pred_r
 #define PDST atomreg, &pdst_r
+#define PDSTN atomreg, &pdstn_r
 #define PDST2 atomreg, &pdst2_r
 #define PDST3 atomreg, &pdst3_r
 #define PDST4 atomreg, &pdst4_r
@@ -640,9 +643,9 @@ static struct insn tabprmtmod[] = {
 };
 
 static struct insn tabminmax[] = {
-	{ 0x000e000000000000ull, 0x001e000000000000ull, N("min") }, // looks like min/max is selected by a normal predicate. fun. needs to be checked
+	{ 0x000e000000000000ull, 0x001e000000000000ull, N("min") },
 	{ 0x001e000000000000ull, 0x001e000000000000ull, N("max") },
-	{ 0, 0, OOPS },
+	{ 0, 0, N("minmax"), T(pnot3), PSRC3 }, // min if true
 };
 
 // XXX: orthogonalise it. if possible.
@@ -772,10 +775,10 @@ static struct insn tabvsetop[] = {
 
 static struct insn tabm[] = {
 	{ 0x0800000000000000ull, 0xf800000000000007ull, T(minmax), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
-	// 10?
-	{ 0x1800000000000000ull, 0xf800000000000007ull, N("set"), T(setdt), DST, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) },
-	{ 0x200000000001c000ull, 0xf80000000001c007ull, N("set"), PDST, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) }, // and these unknown bits are what? another predicate?
-	// 28?
+	{ 0x1000000000000000ull, 0xf800000000000007ull, N("set"), T(setdt), DST, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) },
+	{ 0x1800000000000000ull, 0xf800000000000007ull, N("set"), N("ftz"), T(setdt), DST, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) },
+	{ 0x2000000000000000ull, 0xf800000000000007ull, N("set"), PDST, PDSTN, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) }, // and these unknown bits are what? another predicate?
+	{ 0x2800000000000000ull, 0xf800000000000007ull, N("set"), N("ftz"), PDST, PDSTN, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) }, // and these unknown bits are what? another predicate?
 	{ 0x3000000000000000ull, 0xf800000000000007ull, N("add"), T(fmf), T(ias), T(farm), N("f32"), DST, T(neg1), N("mul"), SRC1, T(fs2), T(neg2), SRC3 },
 	{ 0x3800000000000000ull, 0xf800000000000007ull, N("slct"), N("b32"), DST, SRC1, T(fs2), T(setit), N("f32"), SRC3 },
 	// 40?
@@ -801,7 +804,7 @@ static struct insn tabm[] = {
 
 	{ 0x0800000000000001ull, 0xf800000000000007ull, T(minmax), N("f64"), DSTD, T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2) },
 	{ 0x1000000000000001ull, 0xf800000000000007ull, N("set"), DST, T(setit), N("f64"), T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2), T(setlop) },
-	{ 0x180000000001c001ull, 0xf80000000001c007ull, N("set"), PDST, T(setit), N("f64"), T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2), T(setlop) },
+	{ 0x1800000000000001ull, 0xf800000000000007ull, N("set"), PDST, PDSTN, T(setit), N("f64"), T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2), T(setlop) },
 	{ 0x2000000000000001ull, 0xf800000000000007ull, N("fma"), T(farm), N("f64"), DSTD, T(neg1), SRC1D, T(ds2), T(neg2), SRC3D },
 	// 28?
 	// 30?
@@ -829,7 +832,7 @@ static struct insn tabm[] = {
 	{ 0x0800000000000043ull, 0xf8010000000000c7ull, T(minmax), T(us32), DST, SRC1, T(is2), CC }, // NFI what these bits mean, exactly.
 	{ 0x08010000000000c3ull, 0xf8010000000000c7ull, T(minmax), T(us32), CC, DST, SRC1, T(is2) },
 	{ 0x1000000000000003ull, 0xf800000000000007ull, N("set"), DST, T(setit), T(us32), SRC1, T(is2), T(acin), T(setlop) },
-	{ 0x180000000001c003ull, 0xf80000000001c007ull, N("set"), PDST, T(setit), T(us32), SRC1, T(is2), T(acin), T(setlop) },
+	{ 0x1800000000000003ull, 0xf800000000000007ull, N("set"), PDST, PDSTN, T(setit), T(us32), SRC1, T(is2), T(acin), T(setlop) },
 	{ 0x2000000000000003ull, 0xf8000000000000a7ull, T(addop), T(acout), DST, N("mul"), T(high), N("u32"), SRC1, T(is2), T(is3), T(acin2) }, // bet you these bits are independent s/u for each source, like on tesla?
 	{ 0x20000000000000a3ull, 0xf8000000000000a7ull, T(addop), T(acout), DST, N("mul"), T(high), N("s32"), SRC1, T(is2), T(is3), T(acin2) },
 	{ 0x2800000000000003ull, 0xf800000000000007ull, N("ins"), N("b32"), DST, SRC1, T(is2), T(is3) },
