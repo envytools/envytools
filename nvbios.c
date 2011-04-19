@@ -1178,6 +1178,7 @@ int main(int argc, char **argv) {
 			const char *type_s = NULL, *threshold = NULL;
 			const char *correction_target = NULL;
 			uint16_t correction_value = 0;
+			uint16_t fan_min, fan_max;
 
 			type_s = (type == 0xa000?"ambiant":"core");
 
@@ -1189,6 +1190,9 @@ int main(int argc, char **argv) {
 			else if (id == 0x8)
 				threshold = "fan boost";
 
+			/* fan */
+			fan_min = data & 0xff;
+			fan_max= (data & 0xff00) >> 8;
 
 			correction_value = data;
 			if (id == 0x1) {
@@ -1214,19 +1218,18 @@ int main(int argc, char **argv) {
 				printf ("-- new section type %i", data);
 			else if (threshold)
 				printf ("-- %s %s temperature is %i°C", threshold, type_s, temp);
-			else if (id == 0x1 || (id >= 0x10 && id <= 0x13)) {
+			else if (id == 0x1 || (id >= 0x10 && id <= 0x13) || id == 0x22) {
 				printf ("-- temp/fan management: ");
 				if (correction_target)
 					printf("%s = %i", correction_target, correction_value);
+				else if (id == 0x22)
+					printf("fan_min = %i, fan_max = %i", fan_min, fan_max);
 				else
 					printf("id = 0x%x, data = 0x%x", id, data);
 			} else
 				printf ("Unknown (temp ?= %i°C, type ?= 0x%x)", temp, type);
 
 			printf("\n");
-
-			/*printf ("id = 0x%x, data = 0x%x, temp = %i°C, type = 0x%x\n\n",
-						id, data, temp, type);*/
 		}
 		printf("\n");
 	}
