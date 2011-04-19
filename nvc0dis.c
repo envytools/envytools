@@ -453,6 +453,7 @@ static struct insn tabcs2[] = {
 static struct insn tabfs2[] = {
 	{ 0x0000000000000000ull, 0x0000c00000000000ull, SRC2 },
 	{ 0x0000400000000000ull, 0x0000c00000000000ull, CONST },
+	{ 0x0000800000000000ull, 0x0000c00000000000ull, SRC3 },
 	{ 0x0000c00000000000ull, 0x0000c00000000000ull, FIMM },
 	{ 0, 0, OOPS },
 };
@@ -468,6 +469,7 @@ F1(vas, 9, N("sat"))
 F1(fas, 0x31, N("sat"))
 F1(faf, 5, N("ftz"))
 F1(fmf, 6, N("ftz"))
+F1(fmz, 7, N("fmz"))
 F1(fmneg, 0x39, N("neg"))
 F1(neg1, 9, N("neg"))
 F1(neg2, 8, N("neg"))
@@ -779,12 +781,12 @@ static struct insn tabm[] = {
 	{ 0x1800000000000000ull, 0xf800000000000007ull, N("set"), N("ftz"), T(setdt), DST, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) },
 	{ 0x2000000000000000ull, 0xf800000000000007ull, N("set"), PDST, PDSTN, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) }, // and these unknown bits are what? another predicate?
 	{ 0x2800000000000000ull, 0xf800000000000007ull, N("set"), N("ftz"), PDST, PDSTN, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) }, // and these unknown bits are what? another predicate?
-	{ 0x3000000000000000ull, 0xf800000000000007ull, N("add"), T(fmf), T(ias), T(farm), N("f32"), DST, T(neg1), N("mul"), SRC1, T(fs2), T(neg2), SRC3 },
-	{ 0x3800000000000000ull, 0xf800000000000007ull, N("slct"), N("b32"), DST, SRC1, T(fs2), T(setit), N("f32"), SRC3 },
+	{ 0x3000000000000000ull, 0xf800000000000007ull, N("add"), T(fmf), T(ias), T(farm), N("f32"), DST, T(neg1), N("mul"), T(fmz), SRC1, T(fs2), T(neg2), T(is3) },
+	{ 0x3800000000000000ull, 0xf800000000000007ull, N("slct"), N("b32"), DST, SRC1, T(fs2), T(setit), N("f32"), T(is3) },
 	// 40?
 	{ 0x4800000000000000ull, 0xf800000000000007ull, N("quadop"), N("f32"), T(qop0), T(qop1), T(qop2), T(qop3), DST, T(qs1), SRC1, T(fs2) },
 	{ 0x5000000000000000ull, 0xf800000000000007ull, N("add"), T(faf), T(fas), T(farm), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
-	{ 0x5800000000000000ull, 0xf800000000000007ull, N("mul"), T(fmf), T(ias), T(farm), T(fmneg), N("f32"), DST, SRC1, T(fs2) },
+	{ 0x5800000000000000ull, 0xf800000000000007ull, N("mul"), T(fmz), T(fmf), T(ias), T(farm), T(fmneg), N("f32"), DST, SRC1, T(fs2) },
 	{ 0x6000000000000000ull, 0xf800000000000027ull, N("presin"), N("f32"), DST, T(neg2), T(abs2), T(fs2) },
 	{ 0x6000000000000020ull, 0xf800000000000027ull, N("preex2"), N("f32"), DST, T(neg2), T(abs2), T(fs2) },
 	// 68-b8?
