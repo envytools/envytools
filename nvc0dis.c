@@ -801,6 +801,8 @@ static struct insn tabm[] = {
 	{ 0xc80000000c000000ull, 0xf80000001c000007ull, N("lg2"), N("f32"), DST, T(neg1), T(abs1), SRC1 },
 	{ 0xc800000010000000ull, 0xf80000001c000007ull, N("rcp"), N("f32"), DST, T(neg1), T(abs1), SRC1 },
 	{ 0xc800000014000000ull, 0xf80000001c000007ull, N("rsqrt"), N("f32"), DST, T(neg1), T(abs1), SRC1 },
+	{ 0xc800000010000000ull, 0xf80000001c000007ull, N("rcp64h"), DST, SRC1 },
+	{ 0xc800000014000000ull, 0xf80000001c000007ull, N("rsqrt64h"), DST, SRC1 },
 	{ 0x0000000000000000ull, 0x0000000000000007ull, OOPS, T(farm), N("f32"), DST, SRC1, T(fs2), SRC3 },
 
 
