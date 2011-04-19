@@ -1032,9 +1032,16 @@ int main(int argc, char **argv) {
 				id = bios[start+0];
 				fan = 0;
 				voltage = bios[start+2];
-				core = (le16(start+subent(3)) & 0xfff);
-				shader = core / 2; // could have been 2,6 or 7
-				memclk = (le16(start+subent(5)) & 0xfff);
+
+				if (subentry_size == 4) {
+					shader = (le16(start+subent(3)) & 0xfff);
+					core = shader / 2;
+					memclk = (le16(start+subent(5)) & 0xfff);
+				} else {
+					core = (le16(start+subent(0)) & 0xfff);
+					shader = (le16(start+subent(1)) & 0xfff);
+					memclk = (le16(start+subent(2)) & 0xfff);
+				}
 			}
 
 			timing_id = 0xff;
