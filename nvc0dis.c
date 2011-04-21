@@ -428,6 +428,35 @@ static struct insn tabsetit[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabsetct[] = {
+	{ 0x0000000000000000ull, 0x0000000003f00000ull, N("never") },
+	{ 0x0000000000100000ull, 0x0000000003f00000ull, N("l") },
+	{ 0x0000000000200000ull, 0x0000000003f00000ull, N("e") },
+	{ 0x0000000000300000ull, 0x0000000003f00000ull, N("le") },
+	{ 0x0000000000400000ull, 0x0000000003f00000ull, N("g") },
+	{ 0x0000000000500000ull, 0x0000000003f00000ull, N("lg") },
+	{ 0x0000000000600000ull, 0x0000000003f00000ull, N("ge") },
+	{ 0x0000000000700000ull, 0x0000000003f00000ull, N("lge") },
+	{ 0x0000000000800000ull, 0x0000000003f00000ull, N("u") },
+	{ 0x0000000000900000ull, 0x0000000003f00000ull, N("lu") },
+	{ 0x0000000000a00000ull, 0x0000000003f00000ull, N("eu") },
+	{ 0x0000000000b00000ull, 0x0000000003f00000ull, N("leu") },
+	{ 0x0000000000c00000ull, 0x0000000003f00000ull, N("gu") },
+	{ 0x0000000000d00000ull, 0x0000000003f00000ull, N("lgu") },
+	{ 0x0000000000e00000ull, 0x0000000003f00000ull, N("geu") },
+	{ 0x0000000000f00000ull, 0x0000000003f00000ull, N("true") },
+	{ 0x0000000001000000ull, 0x0000000003f00000ull, N("no") },
+	{ 0x0000000001100000ull, 0x0000000003f00000ull, N("nc") },
+	{ 0x0000000001200000ull, 0x0000000003f00000ull, N("ns") },
+	{ 0x0000000001300000ull, 0x0000000003f00000ull, N("na") },
+	{ 0x0000000001400000ull, 0x0000000003f00000ull, N("a") },
+	{ 0x0000000001500000ull, 0x0000000003f00000ull, N("s") },
+	{ 0x0000000001600000ull, 0x0000000003f00000ull, N("c") },
+	{ 0x0000000001700000ull, 0x0000000003f00000ull, N("o") },
+	{ 0, 0, OOPS },
+};
+
+
 F(setdt, 5, N("b32"), N("f32"))
 F(setdti, 7, N("b32"), N("f32"))
 
@@ -890,6 +919,8 @@ static struct insn tabm[] = {
 
 
 	// 08?
+	{ 0x0000000000000004ull, 0xfc00000000000007ull, N("set"), T(setdt), DST, T(acout), T(setct), CC, T(setlop) },
+	{ 0x0400000000000004ull, 0xfc00000000000007ull, N("set"), PDST, PDSTN, T(setct), CC, T(setlop) },
 	{ 0x080e00001c000004ull, 0xfc0e00001c000007ull, N("mov"), DST, PSRC1 }, // likely pnot1. and likely some ops too.
 	{ 0x0c0e00000001c004ull, 0xfc0e0000c001c007ull, N("and"), PDST, T(pnot1), PSRC1, T(pnot2), PSRC2 },
 	{ 0x0c0e00004001c004ull, 0xfc0e0000c001c007ull, N("or"), PDST, T(pnot1), PSRC1, T(pnot2), PSRC2 },
