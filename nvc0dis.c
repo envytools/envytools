@@ -453,6 +453,13 @@ static struct insn tabcs2[] = {
 static struct insn tabfs2[] = {
 	{ 0x0000000000000000ull, 0x0000c00000000000ull, SRC2 },
 	{ 0x0000400000000000ull, 0x0000c00000000000ull, CONST },
+	{ 0x0000c00000000000ull, 0x0000c00000000000ull, FIMM },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabfs2w3[] = {
+	{ 0x0000000000000000ull, 0x0000c00000000000ull, SRC2 },
+	{ 0x0000400000000000ull, 0x0000c00000000000ull, CONST },
 	{ 0x0000800000000000ull, 0x0000c00000000000ull, SRC3 },
 	{ 0x0000c00000000000ull, 0x0000c00000000000ull, FIMM },
 	{ 0, 0, OOPS },
@@ -781,8 +788,8 @@ static struct insn tabm[] = {
 	{ 0x1800000000000000ull, 0xf800000000000007ull, N("set"), N("ftz"), T(setdt), DST, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) },
 	{ 0x2000000000000000ull, 0xf800000000000007ull, N("set"), PDST, PDSTN, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) }, // and these unknown bits are what? another predicate?
 	{ 0x2800000000000000ull, 0xf800000000000007ull, N("set"), N("ftz"), PDST, PDSTN, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) }, // and these unknown bits are what? another predicate?
-	{ 0x3000000000000000ull, 0xf800000000000007ull, N("add"), T(fmf), T(ias), T(farm), N("f32"), DST, T(neg1), N("mul"), T(fmz), SRC1, T(fs2), T(neg2), T(is3) },
-	{ 0x3800000000000000ull, 0xf800000000000007ull, N("slct"), N("b32"), DST, SRC1, T(fs2), T(setit), N("f32"), T(is3) },
+	{ 0x3000000000000000ull, 0xf800000000000007ull, N("add"), T(fmf), T(ias), T(farm), N("f32"), DST, T(neg1), N("mul"), T(fmz), SRC1, T(fs2w3), T(neg2), T(is3) },
+	{ 0x3800000000000000ull, 0xf800000000000007ull, N("slct"), N("b32"), DST, SRC1, T(fs2w3), T(setit), N("f32"), T(is3) },
 	// 40?
 	{ 0x4800000000000000ull, 0xf800000000000007ull, N("quadop"), N("f32"), T(qop0), T(qop1), T(qop2), T(qop3), DST, T(qs1), SRC1, T(fs2) },
 	{ 0x5000000000000000ull, 0xf800000000000007ull, N("add"), T(faf), T(fas), T(farm), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
@@ -803,7 +810,7 @@ static struct insn tabm[] = {
 	{ 0xc800000014000000ull, 0xf80000001c000007ull, N("rsqrt"), N("f32"), DST, T(neg1), T(abs1), SRC1 },
 	{ 0xc800000010000000ull, 0xf80000001c000007ull, N("rcp64h"), DST, SRC1 },
 	{ 0xc800000014000000ull, 0xf80000001c000007ull, N("rsqrt64h"), DST, SRC1 },
-	{ 0x0000000000000000ull, 0x0000000000000007ull, OOPS, T(farm), N("f32"), DST, SRC1, T(fs2), SRC3 },
+	{ 0x0000000000000000ull, 0x0000000000000007ull, OOPS, T(farm), N("f32"), DST, SRC1, T(fs2w3), T(is3) },
 
 
 	{ 0x0800000000000001ull, 0xf800000000000007ull, T(minmax), N("f64"), DSTD, T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2) },
