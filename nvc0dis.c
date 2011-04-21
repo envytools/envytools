@@ -434,6 +434,13 @@ F(setdti, 7, N("b32"), N("f32"))
 static struct insn tabis2[] = {
 	{ 0x0000000000000000ull, 0x0000c00000000000ull, SRC2 },
 	{ 0x0000400000000000ull, 0x0000c00000000000ull, CONST },
+	{ 0x0000c00000000000ull, 0x0000c00000000000ull, IMM },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabis2w3[] = {
+	{ 0x0000000000000000ull, 0x0000c00000000000ull, SRC2 },
+	{ 0x0000400000000000ull, 0x0000c00000000000ull, CONST },
 	{ 0x0000800000000000ull, 0x0000c00000000000ull, SRC3 },
 	{ 0x0000c00000000000ull, 0x0000c00000000000ull, IMM },
 	{ 0, 0, OOPS },
@@ -477,6 +484,7 @@ static struct insn tabds2[] = {
 F1(ias, 5, N("sat"))
 F1(vas, 9, N("sat"))
 F1(fas, 0x31, N("sat"))
+F1(sat38, 0x38, N("sat"))
 F1(faf, 5, N("ftz"))
 F1(fmf, 6, N("ftz"))
 F1(setftz, 0x3b, N("ftz"))
@@ -863,11 +871,10 @@ static struct insn tabm[] = {
 	{ 0x08000000000000c3ull, 0xf8000000000000c7ull, T(minmax), N("high"), T(us32), DST, T(acout), SRC1, T(is2) },
 	{ 0x1000000000000003ull, 0xf800000000000007ull, N("set"), T(setdti), DST, T(acout), T(setit), T(us32), SRC1, T(is2), T(acin), T(setlop) },
 	{ 0x1800000000000003ull, 0xf800000000000007ull, N("set"), PDST, PDSTN, T(setit), T(us32), SRC1, T(is2), T(acin), T(setlop) },
-	{ 0x2000000000000003ull, 0xf8000000000000a7ull, T(addop), T(acout), DST, N("mul"), T(high), N("u32"), SRC1, T(is2), T(is3), T(acin2) }, // bet you these bits are independent s/u for each source, like on tesla?
-	{ 0x20000000000000a3ull, 0xf8000000000000a7ull, T(addop), T(acout), DST, N("mul"), T(high), N("s32"), SRC1, T(is2), T(is3), T(acin2) },
-	{ 0x2800000000000003ull, 0xf800000000000007ull, N("ins"), N("b32"), DST, SRC1, T(is2), T(is3) },
-	{ 0x3000000000000003ull, 0xf800000000000007ull, N("slct"), N("b32"), DST, SRC1, T(is2), T(setit), T(us32), T(is3) },
-	{ 0x3800000000000003ull, 0xf800000000000007ull, N("sad"), T(us32), DST, SRC1, T(is2), T(is3) },
+	{ 0x2000000000000003ull, 0xf800000000000007ull, T(addop), T(sat38), DST, T(acout), N("mul"), T(high), T(mus32), SRC1, T(us32), T(is2w3), T(is3), T(acin2) },
+	{ 0x2800000000000003ull, 0xf800000000000007ull, N("ins"), N("b32"), DST, SRC1, T(is2w3), T(is3) },
+	{ 0x3000000000000003ull, 0xf800000000000007ull, N("slct"), N("b32"), DST, SRC1, T(is2w3), T(setit), T(us32), T(is3) },
+	{ 0x3800000000000003ull, 0xf800000000000007ull, N("sad"), T(us32), DST, SRC1, T(is2w3), T(is3) },
 	{ 0x4000000000000003ull, 0xf800000000000007ull, T(addop2), N("b32"), DST, N("shl"), SRC1, SHCNT, T(is2) },
 	{ 0x4800000000000003ull, 0xf800000000000007ull, T(addop), T(ias), N("b32"), T(acout), DST, SRC1, T(is2), T(acin) },
 	{ 0x5000000000000003ull, 0xf8000000000000a7ull, N("mul"), T(high), N("u32"), T(acout), DST, SRC1, T(is2) },	// looks like acout, but... wouldn't it always be 0? hm.
@@ -877,7 +884,7 @@ static struct insn tabm[] = {
 	{ 0x6800000000000003ull, 0xf800000000000007ull, T(logop), N("b32"), DST, T(not1), SRC1, T(not2), T(is2) },
 	{ 0x7000000000000003ull, 0xf800000000000007ull, N("ext"), T(rev), T(us32), DST, SRC1, T(is2) }, // yes. this can reverse bits in a bitfield. really.
 	{ 0x7800000000000003ull, 0xf800000000000007ull, N("bfind"), T(shiftamt), T(us32), DST, T(not2), T(is2) }, // index of highest bit set, counted from 0, -1 for 0 src. or highest bit different from sign for signed version. check me.
-	{ 0x0000000000000003ull, 0x0000000000000007ull, OOPS, N("b32"), DST, SRC1, T(is2), T(is3) },
+	{ 0x0000000000000003ull, 0x0000000000000007ull, OOPS, N("b32"), DST, SRC1, T(is2w3), T(is3) },
 
 
 	// 08?
