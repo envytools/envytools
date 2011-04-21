@@ -320,14 +320,14 @@ configure(struct state *s, int argc, char *argv[], char **path,
 			if (i + 1 >= argc)
 				goto fail;
 
-			s->chipset = strtol(argv[++i], NULL, 16);
+			s->chipset = strtoul(argv[++i], NULL, 16);
 
 		} else if (!strcmp(argv[i], "-o")) {
 			if (i + 2 >= argc || *nobj == MAX_OBJECTS)
 				goto fail;
 
-			obj[*nobj].handle = strtol(argv[++i], NULL, 16);
-			obj[*nobj].class = strtol(argv[++i], NULL, 16);
+			obj[*nobj].handle = strtoul(argv[++i], NULL, 16);
+			obj[*nobj].class = strtoul(argv[++i], NULL, 16);
 			(*nobj)++;
 
 		} else if (!strcmp(argv[i], "-r")) {

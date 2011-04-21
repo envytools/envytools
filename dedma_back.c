@@ -145,7 +145,7 @@ parse_valgrind(struct state *s)
 		if (i >= 4 && m == s->filter.map)
 			break;
 
-		i = sscanf(s->parse.buf, "++%*d++ create gpu object"
+		i = sscanf(s->parse.buf, "--%*d-- create gpu object"
 			   " 0x%*x:0x%x type 0x%x", &val[0], &val[1]);
 		if (i == 2)
 			add_object(s, val[0], val[1]);
