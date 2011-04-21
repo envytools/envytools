@@ -646,6 +646,14 @@ static struct insn tabaddop[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tablogop[] = {
+	{ 0x0000000000000000ull, 0x00000000000000c0ull, N("and") },
+	{ 0x0000000000000040ull, 0x00000000000000c0ull, N("or") },
+	{ 0x0000000000000080ull, 0x00000000000000c0ull, N("xor") },
+	{ 0x00000000000000c0ull, 0x00000000000000c0ull, N("mov2") },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabaddop2[] = {
 	{ 0x0000000000000000ull, 0x0180000000000000ull, N("add") },
 	{ 0x0080000000000000ull, 0x0180000000000000ull, N("sub") },
@@ -842,9 +850,7 @@ static struct insn tabm[] = {
 	{ 0x2000000000000002ull, 0xf800000000000007ull, N("add"), T(fmf), T(ias), T(farm), N("f32"), DST, T(acout2), T(neg1), N("mul"), T(fmz), SRC1, LIMM, T(neg2), SRC3 },
 	{ 0x2800000000000002ull, 0xf800000000000007ull, N("add"), T(faf), N("f32"), DST, T(acout2), T(neg1), T(abs1), SRC1, LIMM },
 	{ 0x3000000000000002ull, 0xf800000000000007ull, N("mul"), T(fmz), T(fmf), T(ias), N("f32"), DST, T(acout2), SRC1, LIMM },
-	{ 0x3800000000000002ull, 0xf8000000000000c7ull, N("and"), N("b32"), DST, SRC1, LIMM },
-	{ 0x3800000000000042ull, 0xf8000000000000c7ull, N("or"), N("b32"), DST, SRC1, LIMM },
-	{ 0x3800000000000082ull, 0xf8000000000000c7ull, N("xor"), N("b32"), DST, SRC1, LIMM },
+	{ 0x3800000000000002ull, 0xf800000000000007ull, T(logop), N("b32"), DST, T(acout2), T(not1), SRC1, T(not2), LIMM },
 	{ 0x0000000000000002ull, 0x0000000000000007ull, OOPS, N("b32"), DST, SRC1, LIMM },
 
 
@@ -864,10 +870,7 @@ static struct insn tabm[] = {
 	{ 0x50000000000000a3ull, 0xf8000000000000a7ull, N("mul"), T(high), N("s32"), T(acout), DST, SRC1, T(is2) },
 	{ 0x5800000000000003ull, 0xf800000000000007ull, N("shr"), T(us32), DST, SRC1, T(is2) },
 	{ 0x6000000000000003ull, 0xf800000000000007ull, N("shl"), N("b32"), DST, SRC1, T(is2) },
-	{ 0x6800000000000003ull, 0xf8000000000000c7ull, N("and"), N("b32"), DST, SRC1, T(is2) },
-	{ 0x6800000000000043ull, 0xf8000000000000c7ull, N("or"), N("b32"), DST, SRC1, T(is2) },
-	{ 0x6800000000000083ull, 0xf8000000000000c7ull, N("xor"), N("b32"), DST, SRC1, T(is2) },
-	{ 0x68000000000001c3ull, 0xf8000000000001c7ull, N("not2"), N("b32"), DST, SRC1, T(is2) }, // yes, this is probably just a mov2 with a not bit set.
+	{ 0x6800000000000003ull, 0xf800000000000007ull, T(logop), N("b32"), DST, T(not1), SRC1, T(not2), T(is2) },
 	{ 0x7000000000000003ull, 0xf800000000000007ull, N("ext"), T(rev), T(us32), DST, SRC1, T(is2) }, // yes. this can reverse bits in a bitfield. really.
 	{ 0x7800000000000003ull, 0xf800000000000007ull, N("bfind"), T(shiftamt), T(us32), DST, T(not2), T(is2) }, // index of highest bit set, counted from 0, -1 for 0 src. or highest bit different from sign for signed version. check me.
 	{ 0x0000000000000003ull, 0x0000000000000007ull, OOPS, N("b32"), DST, SRC1, T(is2), T(is3) },
