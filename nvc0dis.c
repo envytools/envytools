@@ -856,9 +856,10 @@ static struct insn tabm[] = {
 	{ 0x0000000000000002ull, 0x0000000000000007ull, OOPS, N("b32"), DST, SRC1, LIMM },
 
 
-	{ 0x0800000000000003ull, 0xf8010000000000c7ull, T(minmax), T(us32), DST, SRC1, T(is2) },
-	{ 0x0800000000000043ull, 0xf8010000000000c7ull, T(minmax), T(us32), DST, SRC1, T(is2), CC }, // NFI what these bits mean, exactly.
-	{ 0x08010000000000c3ull, 0xf8010000000000c7ull, T(minmax), T(us32), CC, DST, SRC1, T(is2) },
+	{ 0x0800000000000003ull, 0xf8000000000000c7ull, T(minmax), T(us32), DST, T(acout), SRC1, T(is2) },
+	{ 0x0800000000000043ull, 0xf8000000000000c7ull, T(minmax), N("low"), T(us32), DST, T(acout), SRC1, T(is2), CC },
+	{ 0x0800000000000083ull, 0xf8000000000000c7ull, T(minmax), N("med"), T(us32), DST, T(acout), SRC1, T(is2), CC },
+	{ 0x08000000000000c3ull, 0xf8000000000000c7ull, T(minmax), N("high"), T(us32), DST, T(acout), SRC1, T(is2) },
 	{ 0x1000000000000003ull, 0xf800000000000007ull, N("set"), DST, T(setit), T(us32), SRC1, T(is2), T(acin), T(setlop) },
 	{ 0x1800000000000003ull, 0xf800000000000007ull, N("set"), PDST, PDSTN, T(setit), T(us32), SRC1, T(is2), T(acin), T(setlop) },
 	{ 0x2000000000000003ull, 0xf8000000000000a7ull, T(addop), T(acout), DST, N("mul"), T(high), N("u32"), SRC1, T(is2), T(is3), T(acin2) }, // bet you these bits are independent s/u for each source, like on tesla?
