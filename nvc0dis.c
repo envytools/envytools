@@ -789,12 +789,12 @@ static struct insn tabm[] = {
 	{ 0x0800000000000000ull, 0xf800000000000007ull, T(minmax), T(faf), N("f32"), DST, T(acout), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
 	{ 0x1000000000000000ull, 0xf000000000000007ull, N("set"), T(setftz), T(setdt), DST, T(acout), T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) },
 	{ 0x2000000000000000ull, 0xf000000000000007ull, N("set"), T(setftz), PDST, PDSTN, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) },
-	{ 0x3000000000000000ull, 0xf800000000000007ull, N("add"), T(fmf), T(ias), T(farm), N("f32"), DST, T(neg1), N("mul"), T(fmz), SRC1, T(fs2w3), T(neg2), T(is3) },
+	{ 0x3000000000000000ull, 0xf800000000000007ull, N("add"), T(fmf), T(ias), T(farm), N("f32"), DST, T(acout), T(neg1), N("mul"), T(fmz), SRC1, T(fs2w3), T(neg2), T(is3) },
 	{ 0x3800000000000000ull, 0xf800000000000007ull, N("slct"), N("b32"), DST, SRC1, T(fs2w3), T(setit), N("f32"), T(is3) },
 	// 40?
 	{ 0x4800000000000000ull, 0xf800000000000007ull, N("quadop"), N("f32"), T(qop0), T(qop1), T(qop2), T(qop3), DST, T(qs1), SRC1, T(fs2) },
-	{ 0x5000000000000000ull, 0xf800000000000007ull, N("add"), T(faf), T(fas), T(farm), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
-	{ 0x5800000000000000ull, 0xf800000000000007ull, N("mul"), T(fmz), T(fmf), T(ias), T(farm), T(fmneg), N("f32"), DST, SRC1, T(fs2) },
+	{ 0x5000000000000000ull, 0xf800000000000007ull, N("add"), T(faf), T(fas), T(farm), N("f32"), DST, T(acout), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
+	{ 0x5800000000000000ull, 0xf800000000000007ull, N("mul"), T(fmz), T(fmf), T(ias), T(farm), T(fmneg), N("f32"), DST, T(acout), SRC1, T(fs2) },
 	{ 0x6000000000000000ull, 0xf800000000000027ull, N("presin"), N("f32"), DST, T(neg2), T(abs2), T(fs2) },
 	{ 0x6000000000000020ull, 0xf800000000000027ull, N("preex2"), N("f32"), DST, T(neg2), T(abs2), T(fs2) },
 	// 68-b8?
