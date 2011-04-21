@@ -836,9 +836,8 @@ static struct insn tabm[] = {
 
 
 	{ 0x0000000000000002ull, 0xf800000000000007ull, T(addop), DST, T(acout2), N("mul"), T(high), T(mus32), SRC1, T(us32), LIMM, SRC3 },
-	{ 0x0800000000000002ull, 0xf800000000000007ull, T(addop), T(ias), N("b32"), T(acout2), DST, SRC1, LIMM, T(acin) },
-	{ 0x1000000000000002ull, 0xf8000000000000a7ull, N("mul"), N("u32"), T(acout2), DST, SRC1, LIMM },
-	{ 0x10000000000000a2ull, 0xf8000000000000a7ull, N("mul"), N("s32"), DST, SRC1, LIMM },
+	{ 0x0800000000000002ull, 0xf800000000000007ull, T(addop), T(ias), N("b32"), DST, T(acout2), SRC1, LIMM, T(acin) },
+	{ 0x1000000000000002ull, 0xf800000000000007ull, N("mul"), T(high), DST, T(acout2), T(mus32), SRC1, T(us32), LIMM },
 	{ 0x18000000000001e2ull, 0xf8000000000001e7ull, N("mov"), N("b32"), DST, LIMM }, // wanna bet these unknown bits are tesla-like lanemask?
 	// 20?
 	{ 0x2800000000000002ull, 0xf800000000000007ull, N("add"), T(faf), N("f32"), DST, T(neg1), T(abs1), SRC1, LIMM },
