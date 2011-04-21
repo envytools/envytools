@@ -827,6 +827,14 @@ static struct insn tabvsetop[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabpsrc[] = {
+	{ 0x0000000000000000ull, 0x00000000fc000000ull, T(pnot1), PSRC1 },
+	{ 0x0000000000000000ull, 0x00000000c0000000ull, T(pnot1), PSRC1, N("and"), T(pnot2), PSRC2 },
+	{ 0x0000000040000000ull, 0x00000000c0000000ull, T(pnot1), PSRC1, N("or"), T(pnot2), PSRC2 },
+	{ 0x0000000080000000ull, 0x00000000c0000000ull, T(pnot1), PSRC1, N("xor"), T(pnot2), PSRC2 },
+	{ 0, 0, OOPS },
+};
+
 /*
  * Opcode format
  *
@@ -921,10 +929,8 @@ static struct insn tabm[] = {
 	// 08?
 	{ 0x0000000000000004ull, 0xfc00000000000007ull, N("set"), T(setdt), DST, T(acout), T(setct), CC, T(setlop) },
 	{ 0x0400000000000004ull, 0xfc00000000000007ull, N("set"), PDST, PDSTN, T(setct), CC, T(setlop) },
-	{ 0x080e00001c000004ull, 0xfc0e00001c000007ull, N("mov"), DST, PSRC1 }, // likely pnot1. and likely some ops too.
-	{ 0x0c0e00000001c004ull, 0xfc0e0000c001c007ull, N("and"), PDST, T(pnot1), PSRC1, T(pnot2), PSRC2 },
-	{ 0x0c0e00004001c004ull, 0xfc0e0000c001c007ull, N("or"), PDST, T(pnot1), PSRC1, T(pnot2), PSRC2 },
-	{ 0x0c0e00008001c004ull, 0xfc0e0000c001c007ull, N("xor"), PDST, T(pnot1), PSRC1, T(pnot2), PSRC2 },
+	{ 0x0800000000000004ull, 0xfc00000000000007ull, N("set"), T(setdt), DST, T(acout), T(psrc), T(setlop) },
+	{ 0x0c00000000000004ull, 0xfc00000000000007ull, N("set"), PDST, PDSTN, T(psrc), T(setlop) },
 	{ 0x1000000000000004ull, 0xfc00000000000007ull, N("cvt"), T(rint), T(fcrm), T(cvtfdst), T(cvtfsrc) },
 	{ 0x1400000000000004ull, 0xfc00000000000007ull, N("cvt"), T(fcrm), T(cvtidst), T(cvtfsrc) },
 	{ 0x1800000000000004ull, 0xfc00000000000007ull, N("cvt"), T(fcrm), T(cvtfdst), T(cvtisrc) },
