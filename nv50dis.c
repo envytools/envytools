@@ -799,6 +799,7 @@ static struct insn tabs[] = {
 
 	{ 0, 2, OOPS, SDST, T(ssw), T(scw) },
 
+	{ 0xa0000002, 0xf0000002, N("trap") },
 	{ 0xb0000002, 0xf0000002, N("brkpt"), .vartype = NV84P },
 
 	{ 0, 0, OOPS }
