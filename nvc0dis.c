@@ -786,7 +786,7 @@ static struct insn tabvsetop[] = {
  */
 
 static struct insn tabm[] = {
-	{ 0x0800000000000000ull, 0xf800000000000007ull, T(minmax), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
+	{ 0x0800000000000000ull, 0xf800000000000007ull, T(minmax), T(faf), N("f32"), DST, T(acout), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
 	{ 0x1000000000000000ull, 0xf000000000000007ull, N("set"), T(setftz), T(setdt), DST, T(acout), T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) },
 	{ 0x2000000000000000ull, 0xf000000000000007ull, N("set"), T(setftz), PDST, PDSTN, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) },
 	{ 0x3000000000000000ull, 0xf800000000000007ull, N("add"), T(fmf), T(ias), T(farm), N("f32"), DST, T(neg1), N("mul"), T(fmz), SRC1, T(fs2w3), T(neg2), T(is3) },
