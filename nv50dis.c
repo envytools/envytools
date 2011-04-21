@@ -252,6 +252,7 @@ static struct bitfield ctargoff = { { 0xb, 16, 0x2e, 6 }, BF_UNSIGNED, 2 };
 static struct bitfield immbf = { { 0x10, 6, 0x22, 26 }, .wrapok = 1 };
 static struct bitfield pmoff = { 0xa, 4 };
 static struct bitfield baroff = { 0x15, 4 };
+static struct bitfield barmaskoff = { 9, 12 };
 static struct bitfield offoff = { { 9, 16 }, .wrapok = 1 };
 static struct bitfield shcntoff = { 0x10, 7 };
 static struct bitfield hshcntoff = { 0x10, 4 };
@@ -261,6 +262,7 @@ static struct bitfield toffzoff = { { 0x30, 4 }, BF_SIGNED };
 #define IMM atomimm, &immbf
 #define PM atomimm, &pmoff
 #define BAR atomimm, &baroff
+#define BARMASK atomimm, &barmaskoff
 #define OFFS atomimm, &offoff
 #define SHCNT atomimm, &shcntoff
 #define HSHCNT atomimm, &hshcntoff
@@ -1647,20 +1649,25 @@ static struct insn tabp[] = {
 };
 
 F1(lim, 0x26, N("lim")) // if set, call is limited, and will be ignored if X limited calls already active on the stack. X is settable by CALL_LIMIT_LOG method.
+F1(barinc, 0x19, N("inc"))
+F1(barwait, 0x1a, N("wait"))
 
 static struct insn tabc[] = {
-	{ 0x00000000, 0xf0000000, T(p), N("discard"), .ptype = FP },
-	{ 0x10000000, 0xf0000000, T(p), N("bra"), BTARG },
-	{ 0x20000000, 0xf0000000, IGNPRED, N("call"), T(lim), CTARG },
-	{ 0x30000000, 0xf0000000, T(p), N("ret") },
-	{ 0x40000000, 0xf0000000, IGNPRED, N("breakaddr"), BTARG },
-	{ 0x50000000, 0xf0000000, T(p), N("break") },
-	{ 0x60000000, 0xf0000000, IGNPRED, N("quadon") },
-	{ 0x70000000, 0xf0000000, IGNPRED, N("quadpop") },
-	{ 0x861ffe00, 0xf61ffe00, IGNPRED, N("bar"), N("sync"), BAR },
-	{ 0x90000000, 0xf0000000, IGNPRED, N("trap") },
-	{ 0xa0000000, 0xf0000000, IGNPRED, N("joinat"), BTARG },
-	{ 0xb0000000, 0xf0000000, T(p), N("brkpt"), .vartype = NV84P },
+	{ 0x0000000000000000ull, 0x00000000f0000000ull, T(p), N("discard"), .ptype = FP },
+	{ 0x0000000010000000ull, 0x00000000f0000000ull, T(p), N("bra"), BTARG },
+	{ 0x0000000020000000ull, 0x00000000f0000000ull, IGNPRED, N("call"), T(lim), CTARG },
+	{ 0x0000000030000000ull, 0x00000000f0000000ull, T(p), N("ret") },
+	{ 0x0000000040000000ull, 0x00000000f0000000ull, IGNPRED, N("breakaddr"), BTARG },
+	{ 0x0000000050000000ull, 0x00000000f0000000ull, T(p), N("break") },
+	{ 0x0000000060000000ull, 0x00000000f0000000ull, IGNPRED, N("quadon") },
+	{ 0x0000000070000000ull, 0x00000000f0000000ull, IGNPRED, N("quadpop") },
+	{ 0x0000000080000000ull, 0x00004000f0000000ull, IGNPRED, N("bar"), T(barinc), T(barwait), BAR, BARMASK },
+	{ 0x0000400080000000ull, 0x00004000f0000000ull, IGNPRED, N("bar"), T(barinc), T(barwait), BAR, N("all") },
+	{ 0x0000000090000000ull, 0x00000000f0000000ull, IGNPRED, N("trap") },
+	{ 0x00000000a0000000ull, 0x00000000f0000000ull, IGNPRED, N("joinat"), BTARG },
+	{ 0x00000000b0000000ull, 0x00000000f0000000ull, T(p), N("brkpt"), .vartype = NV84P },
+	{ 0x00000000c0000000ull, 0x00000000f0000000ull, IGNPRED, N("bra"), T(lim), FCONST8, .vartype = NVA0P },
+	{ 0x00000000d0000000ull, 0x00000000f0000000ull, IGNPRED, N("preret"), T(lim), BTARG, .vartype = NVA0P },
 	{ 0, 0, T(p), OOPS, BTARG },
 };
 
