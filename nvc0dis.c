@@ -496,6 +496,7 @@ F1(abs1, 7, N("abs"))
 F1(abs2, 6, N("abs"))
 F1(rint, 7, N("rint"))
 F1(rev, 8, N("rev"))
+F1(nowrap, 9, N("nowrap"))
 
 F1(not1, 9, N("not"))
 F1(not2, 8, N("not"))
@@ -507,6 +508,7 @@ F1(acout2, 0x3a, CC)
 F1(acin, 6, CC)
 F1(acin2, 0x37, CC)
 F1(acin5, 5, CC)
+F1(acin7, 7, CC)
 
 F(us32, 5, N("u32"), N("s32"))
 F(mus32, 7, N("u32"), N("s32"))
@@ -879,8 +881,8 @@ static struct insn tabm[] = {
 	{ 0x4000000000000003ull, 0xf800000000000007ull, T(addop2), N("b32"), DST, T(acout), N("shl"), SRC1, SHCNT, T(is2) },
 	{ 0x4800000000000003ull, 0xf800000000000007ull, T(addop), T(ias), N("b32"), DST, T(acout), SRC1, T(is2), T(acin) },
 	{ 0x5000000000000003ull, 0xf800000000000007ull, N("mul"), T(high), DST, T(acout), T(mus32), SRC1, T(us32), T(is2) },
-	{ 0x5800000000000003ull, 0xf800000000000007ull, N("shr"), T(us32), DST, SRC1, T(is2) },
-	{ 0x6000000000000003ull, 0xf800000000000007ull, N("shl"), N("b32"), DST, SRC1, T(is2) },
+	{ 0x5800000000000003ull, 0xf800000000000007ull, N("shr"), T(rev), T(us32), DST, T(acout), SRC1, T(nowrap), T(is2), T(acin7) },
+	{ 0x6000000000000003ull, 0xf800000000000007ull, N("shl"), N("b32"), DST, T(acout), SRC1, T(nowrap), T(is2), T(acin) },
 	{ 0x6800000000000003ull, 0xf800000000000007ull, T(logop), N("b32"), DST, T(not1), SRC1, T(not2), T(is2) },
 	{ 0x7000000000000003ull, 0xf800000000000007ull, N("ext"), T(rev), T(us32), DST, T(acout), SRC1, T(is2) }, // yes. this can reverse bits in a bitfield. really.
 	{ 0x7800000000000003ull, 0xf800000000000007ull, N("bfind"), T(shiftamt), T(us32), DST, T(not2), T(is2) }, // index of highest bit set, counted from 0, -1 for 0 src. or highest bit different from sign for signed version. check me.
