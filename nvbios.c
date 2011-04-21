@@ -62,6 +62,7 @@ uint16_t pm_mode_tbl_ptr;
 uint16_t voltage_tbl_ptr;
 uint16_t temperature_tbl_ptr;
 uint16_t timings_tbl_ptr;
+uint16_t timings_map_tbl_ptr;
 
 uint16_t *subs = 0;
 int subsnum = 0, subsmax = 0;
@@ -640,6 +641,7 @@ int main(int argc, char **argv) {
 						voltage_tbl_ptr = le16(eoff + 12);
 						temperature_tbl_ptr = le16(eoff + 16);
 						timings_tbl_ptr = le16(eoff + 8);
+						timings_map_tbl_ptr = le16(eoff + 4);
 					}
 
 					break;
@@ -1381,6 +1383,53 @@ int main(int argc, char **argv) {
 			start += entry_length;
 		}
 	}
+	
+	if(timings_map_tbl_ptr) {
+		/* Mapping timings to clockspeeds since 2009 */
+		uint8_t 	version = 0, entry_count = 0, entry_length = 0,
+				xinfo_count = 0, xinfo_length = 0,
+				header_length = 0;
+		uint16_t start = timings_map_tbl_ptr;
+		uint16_t clock_low = 0, clock_hi = 0;
+		int i,j;
+		uint8_t ram_cfg = strap?(strap & 0x1c) >> 2:0xff;
+		uint8_t timing;
 
+		version = bios[start];
+		if (version == 0x10) {
+			header_length = bios[start+1];
+			entry_count = bios[start+5];
+			entry_length = bios[start+2];
+			xinfo_count = bios[start+4];
+			xinfo_length = bios[start+3];
+		}
+		printf ("Timing mapping table at %x. Version %x.\n", timings_map_tbl_ptr, version);
+		printf("Header:\n");
+		printcmd(timings_map_tbl_ptr, header_length>0?header_length:10);
+		printf ("\n\n");
+
+		start += header_length;
+		
+		for(i = 0; i < entry_count; i++) {
+			clock_low = le16(start);
+			clock_hi = le16(start+2);
+			timing = bios[start+entry_length+((ram_cfg+1)*xinfo_length)+1];
+			
+			printf("Entry %d: %d MHz - %d MHz, Timing %i\n",i, clock_low, clock_hi,timing);
+			printcmd(start, entry_length>0?entry_length:10);
+			start += entry_length;
+			for(j = 0; j < xinfo_count; j++) {
+				printf("\n");
+				if(ram_cfg == j)
+					printf("	*%i:",j);
+				else
+					printf("	 %i:", j);
+				printcmd(start+(xinfo_length * j), xinfo_length);
+			}
+			printf ("\n");
+
+			start += (xinfo_length * xinfo_count);
+		}
+	}
 	return 0;
 }
