@@ -497,6 +497,7 @@ F1(acout, 0x30, CC)
 F1(acout2, 0x3a, CC)
 F1(acin, 6, CC)
 F1(acin2, 0x37, CC)
+F1(acin5, 5, CC)
 
 F(us32, 5, N("u32"), N("s32"))
 F(mus32, 7, N("u32"), N("s32"))
@@ -850,7 +851,7 @@ static struct insn tabm[] = {
 	{ 0x2000000000000002ull, 0xf800000000000007ull, N("add"), T(fmf), T(ias), T(farm), N("f32"), DST, T(acout2), T(neg1), N("mul"), T(fmz), SRC1, LIMM, T(neg2), SRC3 },
 	{ 0x2800000000000002ull, 0xf800000000000007ull, N("add"), T(faf), N("f32"), DST, T(acout2), T(neg1), T(abs1), SRC1, LIMM },
 	{ 0x3000000000000002ull, 0xf800000000000007ull, N("mul"), T(fmz), T(fmf), T(ias), N("f32"), DST, T(acout2), SRC1, LIMM },
-	{ 0x3800000000000002ull, 0xf800000000000007ull, T(logop), N("b32"), DST, T(acout2), T(not1), SRC1, T(not2), LIMM },
+	{ 0x3800000000000002ull, 0xf800000000000007ull, T(logop), N("b32"), DST, T(acout2), T(not1), SRC1, T(not2), LIMM, T(acin5) },
 	{ 0x0000000000000002ull, 0x0000000000000007ull, OOPS, N("b32"), DST, SRC1, LIMM },
 
 
