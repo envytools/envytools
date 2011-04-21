@@ -668,6 +668,7 @@ static struct insn tabaddop2[] = {
 	{ 0x0000000000000000ull, 0x0180000000000000ull, N("add") },
 	{ 0x0080000000000000ull, 0x0180000000000000ull, N("sub") },
 	{ 0x0100000000000000ull, 0x0180000000000000ull, N("subr") },
+	{ 0x0180000000000000ull, 0x0180000000000000ull, N("addpo") },
 	{ 0, 0, OOPS },
 };
 
@@ -875,7 +876,7 @@ static struct insn tabm[] = {
 	{ 0x2800000000000003ull, 0xf800000000000007ull, N("ins"), N("b32"), DST, T(acout), SRC1, T(is2w3), T(is3) },
 	{ 0x3000000000000003ull, 0xf800000000000007ull, N("slct"), N("b32"), DST, SRC1, T(is2w3), T(setit), T(us32), T(is3) },
 	{ 0x3800000000000003ull, 0xf800000000000007ull, N("sad"), T(us32), DST, T(acout), SRC1, T(is2w3), T(is3) },
-	{ 0x4000000000000003ull, 0xf800000000000007ull, T(addop2), N("b32"), DST, N("shl"), SRC1, SHCNT, T(is2) },
+	{ 0x4000000000000003ull, 0xf800000000000007ull, T(addop2), N("b32"), DST, T(acout), N("shl"), SRC1, SHCNT, T(is2) },
 	{ 0x4800000000000003ull, 0xf800000000000007ull, T(addop), T(ias), N("b32"), T(acout), DST, SRC1, T(is2), T(acin) },
 	{ 0x5000000000000003ull, 0xf8000000000000a7ull, N("mul"), T(high), N("u32"), T(acout), DST, SRC1, T(is2) },	// looks like acout, but... wouldn't it always be 0? hm.
 	{ 0x50000000000000a3ull, 0xf8000000000000a7ull, N("mul"), T(high), N("s32"), T(acout), DST, SRC1, T(is2) },
