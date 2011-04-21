@@ -626,6 +626,17 @@ static struct insn tabcvtisrc[] = {
 	{ 0, 0, OOPS, T(neg2), T(abs2), SRC2 },
 };
 
+static struct insn tabmulf[] = {
+	{ 0x0000000000000000ull, 0x000e000000000000ull },
+	{ 0x0002000000000000ull, 0x000e000000000000ull, N("mul2") },
+	{ 0x0004000000000000ull, 0x000e000000000000ull, N("mul4") },
+	{ 0x0006000000000000ull, 0x000e000000000000ull, N("mul8") },
+	{ 0x000a000000000000ull, 0x000e000000000000ull, N("div2") },
+	{ 0x000c000000000000ull, 0x000e000000000000ull, N("div4") },
+	{ 0x000e000000000000ull, 0x000e000000000000ull, N("div8") },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabaddop[] = {
 	{ 0x0000000000000000ull, 0x0000000000000300ull, N("add") },
 	{ 0x0000000000000100ull, 0x0000000000000300ull, N("sub") },
@@ -794,7 +805,7 @@ static struct insn tabm[] = {
 	// 40?
 	{ 0x4800000000000000ull, 0xf800000000000007ull, N("quadop"), N("f32"), T(qop0), T(qop1), T(qop2), T(qop3), DST, T(qs1), SRC1, T(fs2) },
 	{ 0x5000000000000000ull, 0xf800000000000007ull, N("add"), T(faf), T(fas), T(farm), N("f32"), DST, T(acout), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
-	{ 0x5800000000000000ull, 0xf800000000000007ull, N("mul"), T(fmz), T(fmf), T(ias), T(farm), T(fmneg), N("f32"), DST, T(acout), SRC1, T(fs2) },
+	{ 0x5800000000000000ull, 0xf800000000000007ull, N("mul"), T(mulf), T(fmz), T(fmf), T(ias), T(farm), T(fmneg), N("f32"), DST, T(acout), SRC1, T(fs2) },
 	{ 0x6000000000000000ull, 0xf800000000000027ull, N("presin"), N("f32"), DST, T(neg2), T(abs2), T(fs2) },
 	{ 0x6000000000000020ull, 0xf800000000000027ull, N("preex2"), N("f32"), DST, T(neg2), T(abs2), T(fs2) },
 	// 68-b8?
