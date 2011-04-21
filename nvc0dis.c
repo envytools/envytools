@@ -429,6 +429,7 @@ static struct insn tabsetit[] = {
 };
 
 F(setdt, 5, N("b32"), N("f32"))
+F(setdti, 7, N("b32"), N("f32"))
 
 static struct insn tabis2[] = {
 	{ 0x0000000000000000ull, 0x0000c00000000000ull, SRC2 },
@@ -860,7 +861,7 @@ static struct insn tabm[] = {
 	{ 0x0800000000000043ull, 0xf8000000000000c7ull, T(minmax), N("low"), T(us32), DST, T(acout), SRC1, T(is2), CC },
 	{ 0x0800000000000083ull, 0xf8000000000000c7ull, T(minmax), N("med"), T(us32), DST, T(acout), SRC1, T(is2), CC },
 	{ 0x08000000000000c3ull, 0xf8000000000000c7ull, T(minmax), N("high"), T(us32), DST, T(acout), SRC1, T(is2) },
-	{ 0x1000000000000003ull, 0xf800000000000007ull, N("set"), DST, T(setit), T(us32), SRC1, T(is2), T(acin), T(setlop) },
+	{ 0x1000000000000003ull, 0xf800000000000007ull, N("set"), T(setdti), DST, T(acout), T(setit), T(us32), SRC1, T(is2), T(acin), T(setlop) },
 	{ 0x1800000000000003ull, 0xf800000000000007ull, N("set"), PDST, PDSTN, T(setit), T(us32), SRC1, T(is2), T(acin), T(setlop) },
 	{ 0x2000000000000003ull, 0xf8000000000000a7ull, T(addop), T(acout), DST, N("mul"), T(high), N("u32"), SRC1, T(is2), T(is3), T(acin2) }, // bet you these bits are independent s/u for each source, like on tesla?
 	{ 0x20000000000000a3ull, 0xf8000000000000a7ull, T(addop), T(acout), DST, N("mul"), T(high), N("s32"), SRC1, T(is2), T(is3), T(acin2) },
