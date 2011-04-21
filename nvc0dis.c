@@ -877,9 +877,8 @@ static struct insn tabm[] = {
 	{ 0x3000000000000003ull, 0xf800000000000007ull, N("slct"), N("b32"), DST, SRC1, T(is2w3), T(setit), T(us32), T(is3) },
 	{ 0x3800000000000003ull, 0xf800000000000007ull, N("sad"), T(us32), DST, T(acout), SRC1, T(is2w3), T(is3) },
 	{ 0x4000000000000003ull, 0xf800000000000007ull, T(addop2), N("b32"), DST, T(acout), N("shl"), SRC1, SHCNT, T(is2) },
-	{ 0x4800000000000003ull, 0xf800000000000007ull, T(addop), T(ias), N("b32"), T(acout), DST, SRC1, T(is2), T(acin) },
-	{ 0x5000000000000003ull, 0xf8000000000000a7ull, N("mul"), T(high), N("u32"), T(acout), DST, SRC1, T(is2) },	// looks like acout, but... wouldn't it always be 0? hm.
-	{ 0x50000000000000a3ull, 0xf8000000000000a7ull, N("mul"), T(high), N("s32"), T(acout), DST, SRC1, T(is2) },
+	{ 0x4800000000000003ull, 0xf800000000000007ull, T(addop), T(ias), N("b32"), DST, T(acout), SRC1, T(is2), T(acin) },
+	{ 0x5000000000000003ull, 0xf800000000000007ull, N("mul"), T(high), DST, T(acout), T(mus32), SRC1, T(us32), T(is2) },
 	{ 0x5800000000000003ull, 0xf800000000000007ull, N("shr"), T(us32), DST, SRC1, T(is2) },
 	{ 0x6000000000000003ull, 0xf800000000000007ull, N("shl"), N("b32"), DST, SRC1, T(is2) },
 	{ 0x6800000000000003ull, 0xf800000000000007ull, T(logop), N("b32"), DST, T(not1), SRC1, T(not2), T(is2) },
