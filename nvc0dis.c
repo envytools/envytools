@@ -476,6 +476,7 @@ F1(vas, 9, N("sat"))
 F1(fas, 0x31, N("sat"))
 F1(faf, 5, N("ftz"))
 F1(fmf, 6, N("ftz"))
+F1(setftz, 0x3b, N("ftz"))
 F1(fmz, 7, N("fmz"))
 F1(fmneg, 0x39, N("neg"))
 F1(neg1, 9, N("neg"))
@@ -784,10 +785,8 @@ static struct insn tabvsetop[] = {
 
 static struct insn tabm[] = {
 	{ 0x0800000000000000ull, 0xf800000000000007ull, T(minmax), N("f32"), DST, T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
-	{ 0x1000000000000000ull, 0xf800000000000007ull, N("set"), T(setdt), DST, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) },
-	{ 0x1800000000000000ull, 0xf800000000000007ull, N("set"), N("ftz"), T(setdt), DST, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) },
-	{ 0x2000000000000000ull, 0xf800000000000007ull, N("set"), PDST, PDSTN, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) }, // and these unknown bits are what? another predicate?
-	{ 0x2800000000000000ull, 0xf800000000000007ull, N("set"), N("ftz"), PDST, PDSTN, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) }, // and these unknown bits are what? another predicate?
+	{ 0x1000000000000000ull, 0xf000000000000007ull, N("set"), T(setftz), T(setdt), DST, T(acout), T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) },
+	{ 0x2000000000000000ull, 0xf000000000000007ull, N("set"), T(setftz), PDST, PDSTN, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) },
 	{ 0x3000000000000000ull, 0xf800000000000007ull, N("add"), T(fmf), T(ias), T(farm), N("f32"), DST, T(neg1), N("mul"), T(fmz), SRC1, T(fs2w3), T(neg2), T(is3) },
 	{ 0x3800000000000000ull, 0xf800000000000007ull, N("slct"), N("b32"), DST, SRC1, T(fs2w3), T(setit), N("f32"), T(is3) },
 	// 40?
