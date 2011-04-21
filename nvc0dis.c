@@ -883,7 +883,7 @@ static struct insn tabm[] = {
 	{ 0x5000000000000003ull, 0xf800000000000007ull, N("mul"), T(high), DST, T(acout), T(mus32), SRC1, T(us32), T(is2) },
 	{ 0x5800000000000003ull, 0xf800000000000007ull, N("shr"), T(rev), T(us32), DST, T(acout), SRC1, T(nowrap), T(is2), T(acin7) },
 	{ 0x6000000000000003ull, 0xf800000000000007ull, N("shl"), N("b32"), DST, T(acout), SRC1, T(nowrap), T(is2), T(acin) },
-	{ 0x6800000000000003ull, 0xf800000000000007ull, T(logop), N("b32"), DST, T(not1), SRC1, T(not2), T(is2) },
+	{ 0x6800000000000003ull, 0xf800000000000007ull, T(logop), N("b32"), DST, T(acout), T(not1), SRC1, T(not2), T(is2), T(acin5) },
 	{ 0x7000000000000003ull, 0xf800000000000007ull, N("ext"), T(rev), T(us32), DST, T(acout), SRC1, T(is2) }, // yes. this can reverse bits in a bitfield. really.
 	{ 0x7800000000000003ull, 0xf800000000000007ull, N("bfind"), T(shiftamt), T(us32), DST, T(not2), T(is2) }, // index of highest bit set, counted from 0, -1 for 0 src. or highest bit different from sign for signed version. check me.
 	{ 0x0000000000000003ull, 0x0000000000000007ull, OOPS, N("b32"), DST, SRC1, T(is2w3), T(is3) },
