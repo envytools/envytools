@@ -1263,252 +1263,152 @@ F(csldreg, 0x3a, LLHDST, LLDST)
 static struct insn tabl[] = {
 	// 0
 	// desc VVV
-	{ 0x0420000000000000ull, 0xe4200000f0000000ull,
-		T(lane), N("ld"), N("b32"), LLDST, FATTR, .ptype = VP|GP },
+	{ 0x0420000000000000ull, 0xe4200000f0000000ull, T(lane), N("ld"), N("b32"), LLDST, FATTR, .ptype = VP|GP },
 	// desc ^^^
-	{ 0x2000000000000000ull, 0xe0000000f0000000ull,
-		N("mov"), LDST, COND },
-	{ 0x4000000000000000ull, 0xe0000000f0000000ull,
-		N("mov"), LDST, LAREG },
-	{ 0x6000000000000000ull, 0xe0000000f0000000ull,
-		N("mov"), LDST, SREG },
-	{ 0x80c0000000000000ull, 0xe0c00000f0000000ull,
-		N("st"), N("b32"), FOUT32, LSRC3 },
-	{ 0xa000000000000000ull, 0xe0000000f0000000ull,
-		N("mov"), CDST, LSRC, IGNCE },
-	{ 0xc000000000000000ull, 0xe0000000f0000000ull,
-		N("shl"), ADST, T(lsw), HSHCNT },
+	{ 0x2000000000000000ull, 0xe0000000f0000000ull, N("mov"), LDST, COND },
+	{ 0x4000000000000000ull, 0xe0000000f0000000ull, N("mov"), LDST, LAREG },
+	{ 0x6000000000000000ull, 0xe0000000f0000000ull, N("mov"), LDST, SREG },
+	{ 0x80c0000000000000ull, 0xe0c00000f0000000ull, N("st"), N("b32"), FOUT32, LSRC3 },
+	{ 0xa000000000000000ull, 0xe0000000f0000000ull, N("mov"), CDST, LSRC, IGNCE },
+	{ 0xc000000000000000ull, 0xe0000000f0000000ull, N("shl"), ADST, T(lsw), HSHCNT },
 	
 	// desc VVV
-	{ 0xe040000000000000ull, 0xe0400000f0000000ull,
-		N("st"), N("b8"), T(fs8), T(sstreg), .ptype = CP },
-	{ 0xe000000000000000ull, 0xe4400000f0000000ull,
-		N("st"), N("b16"), T(fs16), T(sstreg), .ptype = CP },
-	{ 0xe400000000000000ull, 0xe4400000f0000000ull,
-		N("st"), T(unlock), N("b32"), T(fs32), T(sstreg), .ptype = CP },
+	{ 0xe040000000000000ull, 0xe0400000f0000000ull, N("st"), N("b8"), T(fs8), T(sstreg), .ptype = CP },
+	{ 0xe000000000000000ull, 0xe4400000f0000000ull, N("st"), N("b16"), T(fs16), T(sstreg), .ptype = CP },
+	{ 0xe400000000000000ull, 0xe4400000f0000000ull, N("st"), T(unlock), N("b32"), T(fs32), T(sstreg), .ptype = CP },
 	// desc ^^^
 
 	// 1
-	{ 0x0000000010000000ull, 0xe4000000f0000000ull,
-		T(lane), N("mov"), T(lsfu), N("b16"), LLHDST, T(lsh) },
-	{ 0x0400000010000000ull, 0xe4000000f0000000ull,
-		T(lane), N("mov"), T(lsfu), N("b32"), LLDST, T(lsw) },
+	{ 0x0000000010000000ull, 0xe4000000f0000000ull, T(lane), N("mov"), T(lsfu), N("b16"), LLHDST, T(lsh) },
+	{ 0x0400000010000000ull, 0xe4000000f0000000ull, T(lane), N("mov"), T(lsfu), N("b32"), LLDST, T(lsw) },
 
 	// desc VVV
-	{ 0x2000000010000000ull, 0xe0000000f0000000ull,
-		N("ld"), T(csldreg), T(fcon) },
+	{ 0x2000000010000000ull, 0xe0000000f0000000ull, N("ld"), T(csldreg), T(fcon) },
 
-	{ 0x4000000010000000ull, 0xe000c000f0000000ull,
-		N("ld"), T(csldreg), N("u8"), T(fs8), .vartype = NV84P, .ptype = CP },
-	{ 0x4000400010000000ull, 0xe000c000f0000000ull,
-		N("ld"), T(csldreg), N("u16"), T(fs16), .vartype = NV84P, .ptype = CP },
-	{ 0x4000800010000000ull, 0xe000c000f0000000ull,
-		N("ld"), T(csldreg), N("s16"), T(fs16), .vartype = NV84P, .ptype = CP },
-	{ 0x4000c00010000000ull, 0xe080c000f0000000ull,
-		N("ld"), T(csldreg), N("b32"), T(fs32), .vartype = NV84P, .ptype = CP },
-	{ 0x4080c04010000000ull, 0xe080c040f0000000ull,
-		N("ld"), N("lock"), CDST, T(csldreg), N("b32"), T(fs32), .vartype = NVA0P, .ptype = CP },
+	{ 0x4000000010000000ull, 0xe000c000f0000000ull, N("ld"), T(csldreg), N("u8"), T(fs8), .vartype = NV84P, .ptype = CP },
+	{ 0x4000400010000000ull, 0xe000c000f0000000ull, N("ld"), T(csldreg), N("u16"), T(fs16), .vartype = NV84P, .ptype = CP },
+	{ 0x4000800010000000ull, 0xe000c000f0000000ull, N("ld"), T(csldreg), N("s16"), T(fs16), .vartype = NV84P, .ptype = CP },
+	{ 0x4000c00010000000ull, 0xe080c000f0000000ull, N("ld"), T(csldreg), N("b32"), T(fs32), .vartype = NV84P, .ptype = CP },
+	{ 0x4080c04010000000ull, 0xe080c040f0000000ull, N("ld"), N("lock"), CDST, T(csldreg), N("b32"), T(fs32), .vartype = NVA0P, .ptype = CP },
 
-	{ 0x6000000010000200ull, 0xe0000000f0000600ull,
-		N("vote"), N("any"), CDST, IGNCE, .vartype = NVA0P },
-	{ 0x6000000010000400ull, 0xe0000000f0000600ull,
-		N("vote"), N("all"), CDST, IGNCE, .vartype = NVA0P },
+	{ 0x6000000010000200ull, 0xe0000000f0000600ull, N("vote"), N("any"), CDST, IGNCE, .vartype = NVA0P },
+	{ 0x6000000010000400ull, 0xe0000000f0000600ull, N("vote"), N("all"), CDST, IGNCE, .vartype = NVA0P },
 	// desc ^^^
 
 	// 2 and 3
 	{ 0x0000000020000000ull, 0xe4000000e0000000ull, T(addop), N("b16"), T(m2sat), MCDST, LLHDST, T(lsh), T(lc3h), T(addcond) },
 	{ 0x0400000020000000ull, 0xe4000000e0000000ull, T(addop), N("b32"), T(m2sat), MCDST, LLDST, T(lsw), T(lc3w), T(addcond) },
 
-	{ 0x6000000030000000ull, 0xe4000000f0000000ull,
-		N("set"), MCDST, LLHDST, T(seti), T(lm2us16), T(lsh), T(lc2h) },
-	{ 0x6400000030000000ull, 0xe4000000f0000000ull,
-		N("set"), MCDST, LLDST, T(seti), T(lm2us32), T(lsw), T(lc2w) },
+	{ 0x6000000030000000ull, 0xe4000000f0000000ull, N("set"), MCDST, LLHDST, T(seti), T(lm2us16), T(lsh), T(lc2h) },
+	{ 0x6400000030000000ull, 0xe4000000f0000000ull, N("set"), MCDST, LLDST, T(seti), T(lm2us32), T(lsw), T(lc2w) },
 
-	{ 0x8000000030000000ull, 0xe4000000f0000000ull,
-		N("max"), T(lm2us16), MCDST, LLHDST, T(lsh), T(lc2h) },
-	{ 0x8400000030000000ull, 0xe4000000f0000000ull,
-		N("max"), T(lm2us32), MCDST, LLDST, T(lsw), T(lc2w) },
+	{ 0x8000000030000000ull, 0xe4000000f0000000ull, N("max"), T(lm2us16), MCDST, LLHDST, T(lsh), T(lc2h) },
+	{ 0x8400000030000000ull, 0xe4000000f0000000ull, N("max"), T(lm2us32), MCDST, LLDST, T(lsw), T(lc2w) },
 
-	{ 0xa000000030000000ull, 0xe4000000f0000000ull,
-		N("min"), T(lm2us16), MCDST, LLHDST, T(lsh), T(lc2h) },
-	{ 0xa400000030000000ull, 0xe4000000f0000000ull,
-		N("min"), T(lm2us32), MCDST, LLDST, T(lsw), T(lc2w) },
+	{ 0xa000000030000000ull, 0xe4000000f0000000ull, N("min"), T(lm2us16), MCDST, LLHDST, T(lsh), T(lc2h) },
+	{ 0xa400000030000000ull, 0xe4000000f0000000ull, N("min"), T(lm2us32), MCDST, LLDST, T(lsw), T(lc2w) },
 
-	{ 0xc000000030000000ull, 0xe4000000f0000000ull,
-		N("shl"), N("b16"), MCDST, LLHDST, T(lsh), T(hshcnt) },
-	{ 0xc400000030000000ull, 0xe4000000f0000000ull,
-		N("shl"), N("b32"), MCDST, LLDST, T(lsw), T(shcnt) },
+	{ 0xc000000030000000ull, 0xe4000000f0000000ull, N("shl"), N("b16"), MCDST, LLHDST, T(lsh), T(hshcnt) },
+	{ 0xc400000030000000ull, 0xe4000000f0000000ull, N("shl"), N("b32"), MCDST, LLDST, T(lsw), T(shcnt) },
 
-	{ 0xe000000030000000ull, 0xe4000000f0000000ull,
-		N("shr"), T(lm2us16), MCDST, LLHDST, T(lsh), T(hshcnt) },
-	{ 0xe400000030000000ull, 0xe4000000f0000000ull,
-		N("shr"), T(lm2us32), MCDST, LLDST, T(lsw), T(shcnt) },
+	{ 0xe000000030000000ull, 0xe4000000f0000000ull, N("shr"), T(lm2us16), MCDST, LLHDST, T(lsh), T(hshcnt) },
+	{ 0xe400000030000000ull, 0xe4000000f0000000ull, N("shr"), T(lm2us32), MCDST, LLDST, T(lsw), T(shcnt) },
 
 	// 4
-	{ 0x0000000040000000ull, 0xe0010000f0000000ull,
-		N("mul"), MCDST, LLDST, T(s31us16), T(lsh), T(s30us16), T(lc2h) },
-	{ 0x0001000040000000ull, 0xe0010000f0000000ull,
-		N("mul"), MCDST, LLDST, T(s30high), T(s31us24), T(lsw), T(lc2w) },
+	{ 0x0000000040000000ull, 0xe0010000f0000000ull, N("mul"), MCDST, LLDST, T(s31us16), T(lsh), T(s30us16), T(lc2h) },
+	{ 0x0001000040000000ull, 0xe0010000f0000000ull, N("mul"), MCDST, LLDST, T(s30high), T(s31us24), T(lsw), T(lc2w) },
 
 	// 5
-	{ 0x0000000050000000ull, 0xe4000000f0000000ull,
-		N("sad"), MCDST, LLDST, T(lm2us16), T(lsh), T(lc2h), T(lc3w) },
-	{ 0x0400000050000000ull, 0xe4000000f0000000ull,
-		N("sad"), MCDST, LLDST, T(lm2us32), T(lsw), T(lc2w), T(lc3w) },
+	{ 0x0000000050000000ull, 0xe4000000f0000000ull, N("sad"), MCDST, LLDST, T(lm2us16), T(lsh), T(lc2h), T(lc3w) },
+	{ 0x0400000050000000ull, 0xe4000000f0000000ull, N("sad"), MCDST, LLDST, T(lm2us32), T(lsw), T(lc2w), T(lc3w) },
 
 	// 6 and 7
-	{ 0x0000000060000000ull, 0xe0000000f0000000ull,
-		T(addop2), MCDST, LLDST, N("mul"), N("u16"), T(lsh), T(lc2h), T(lc3w), T(addcond2) },
-	{ 0x2000000060000000ull, 0xe0000000f0000000ull,
-		T(addop2), MCDST, LLDST, N("mul"), N("s16"), T(lsh), T(lc2h), T(lc3w), T(addcond2) },
-	{ 0x4000000060000000ull, 0xe0000000f0000000ull,
-		T(addop2), N("sat"), MCDST, LLDST, N("mul"), N("s16"), T(lsh), T(lc2h), T(lc3w), T(addcond2) },
-	{ 0x6000000060000000ull, 0xe0000000f0000000ull,
-		T(addop2), MCDST, LLDST, N("mul"), N("u24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
-	{ 0x8000000060000000ull, 0xe0000000f0000000ull,
-		T(addop2), MCDST, LLDST, N("mul"), N("s24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
-	{ 0xa000000060000000ull, 0xe0000000f0000000ull,
-		T(addop2), N("sat"), MCDST, LLDST, N("mul"), N("s24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
-	{ 0xc000000060000000ull, 0xe0000000f0000000ull,
-		T(addop2), MCDST, LLDST, N("mul"), N("high"), N("u24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
-	{ 0xe000000060000000ull, 0xe0000000f0000000ull,
-		T(addop2), MCDST, LLDST, N("mul"), N("high"), N("s24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
-	{ 0x0000000070000000ull, 0xe0000000f0000000ull,
-		T(addop2), N("sat"), MCDST, LLDST, N("mul"), N("high"), N("s24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
+	{ 0x0000000060000000ull, 0xe0000000f0000000ull, T(addop2), MCDST, LLDST, N("mul"), N("u16"), T(lsh), T(lc2h), T(lc3w), T(addcond2) },
+	{ 0x2000000060000000ull, 0xe0000000f0000000ull, T(addop2), MCDST, LLDST, N("mul"), N("s16"), T(lsh), T(lc2h), T(lc3w), T(addcond2) },
+	{ 0x4000000060000000ull, 0xe0000000f0000000ull, T(addop2), N("sat"), MCDST, LLDST, N("mul"), N("s16"), T(lsh), T(lc2h), T(lc3w), T(addcond2) },
+	{ 0x6000000060000000ull, 0xe0000000f0000000ull, T(addop2), MCDST, LLDST, N("mul"), N("u24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
+	{ 0x8000000060000000ull, 0xe0000000f0000000ull, T(addop2), MCDST, LLDST, N("mul"), N("s24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
+	{ 0xa000000060000000ull, 0xe0000000f0000000ull, T(addop2), N("sat"), MCDST, LLDST, N("mul"), N("s24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
+	{ 0xc000000060000000ull, 0xe0000000f0000000ull, T(addop2), MCDST, LLDST, N("mul"), N("high"), N("u24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
+	{ 0xe000000060000000ull, 0xe0000000f0000000ull, T(addop2), MCDST, LLDST, N("mul"), N("high"), N("s24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
+	{ 0x0000000070000000ull, 0xe0000000f0000000ull, T(addop2), N("sat"), MCDST, LLDST, N("mul"), N("high"), N("s24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
 
 	// desc VVV
 	// 8
-	{ 0x0000000080000000ull, 0x00070000f0000000ull,
-		N("interp"), LDST, LVAR, .ptype = FP },
-	{ 0x0001000080000000ull, 0x00070000f0000000ull,
-		N("interp"), LDST, N("cent"), LVAR, .ptype = FP },
-	{ 0x0002000080000000ull, 0x00070000f0000000ull,
-		N("interp"), LDST, LVAR, LSRC, .ptype = FP },
-	{ 0x0003000080000000ull, 0x00070000f0000000ull,
-		N("interp"), LDST, N("cent"), LVAR, LSRC, .ptype = FP },
-	{ 0x0004000080000000ull, 0x00070000f0000000ull,
-		N("interp"), LDST, N("flat"), LVAR, .ptype = FP },
+	{ 0x0000000080000000ull, 0x00070000f0000000ull, N("interp"), LDST, LVAR, .ptype = FP },
+	{ 0x0001000080000000ull, 0x00070000f0000000ull, N("interp"), LDST, N("cent"), LVAR, .ptype = FP },
+	{ 0x0002000080000000ull, 0x00070000f0000000ull, N("interp"), LDST, LVAR, LSRC, .ptype = FP },
+	{ 0x0003000080000000ull, 0x00070000f0000000ull, N("interp"), LDST, N("cent"), LVAR, LSRC, .ptype = FP },
+	{ 0x0004000080000000ull, 0x00070000f0000000ull, N("interp"), LDST, N("flat"), LVAR, .ptype = FP },
 
 	// 9
-	{ 0x0000000090000000ull, 0xe0000000f0000000ull,
-		N("rcp"), N("f32"), LLDST, T(lfm1), LSRC },
-	{ 0x4000000090000000ull, 0xe0000000f0000000ull,
-		N("rsqrt"), N("f32"), LLDST, T(lfm1), LSRC },
-	{ 0x6000000090000000ull, 0xe0000000f0000000ull,
-		N("lg2"), N("f32"), LLDST, T(lfm1), LSRC },
-	{ 0x8000000090000000ull, 0xe0000000f0000000ull,
-		N("sin"), N("f32"), LLDST, LSRC },
-	{ 0xa000000090000000ull, 0xe0000000f0000000ull,
-		N("cos"), N("f32"), LLDST, LSRC },
-	{ 0xc000000090000000ull, 0xe0000000f0000000ull,
-		N("ex2"), N("f32"), LLDST, LSRC },
+	{ 0x0000000090000000ull, 0xe0000000f0000000ull, N("rcp"), N("f32"), LLDST, T(lfm1), LSRC },
+	{ 0x4000000090000000ull, 0xe0000000f0000000ull, N("rsqrt"), N("f32"), LLDST, T(lfm1), LSRC },
+	{ 0x6000000090000000ull, 0xe0000000f0000000ull, N("lg2"), N("f32"), LLDST, T(lfm1), LSRC },
+	{ 0x8000000090000000ull, 0xe0000000f0000000ull, N("sin"), N("f32"), LLDST, LSRC },
+	{ 0xa000000090000000ull, 0xe0000000f0000000ull, N("cos"), N("f32"), LLDST, LSRC },
+	{ 0xc000000090000000ull, 0xe0000000f0000000ull, N("ex2"), N("f32"), LLDST, LSRC },
 
 	// a
-	{ 0xc0000000a0000000ull, 0xcc404000f0000000ull,
-		N("cvt"), T(cvtmod), T(s35sat), N("f16"), MCDST, LLHDST, N("f16"), T(lsh) },
-	{ 0xc8000000a0000000ull, 0xcc404000f0000000ull,
-		N("cvt"), T(cvtmod), T(s35sat), T(cvtrint), N("f16"), MCDST, LLHDST, N("f16"), T(lsh) },
-	{ 0xc0004000a0000000ull, 0xc4404000f0000000ull,
-		N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f16"), MCDST, LLHDST, N("f32"), T(lsw) },
-	{ 0xc4004000a0000000ull, 0xcc404000f0000000ull,
-		N("cvt"), T(cvtmod), T(s35sat), N("f32"), MCDST, LLDST, N("f32"), T(lsw) },
-	{ 0xcc004000a0000000ull, 0xcc404000f0000000ull,
-		N("cvt"), T(cvtmod), T(s35sat), T(cvtrint), N("f32"), MCDST, LLDST, N("f32"), T(lsw) },
-	{ 0xc4000000a0000000ull, 0xc4404000f0000000ull,
-		N("cvt"), T(cvtmod), T(s35sat), N("f32"), MCDST, LLDST, N("f16"), T(lsh) },
+	{ 0xc0000000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), N("f16"), MCDST, LLHDST, N("f16"), T(lsh) },
+	{ 0xc8000000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrint), N("f16"), MCDST, LLHDST, N("f16"), T(lsh) },
+	{ 0xc0004000a0000000ull, 0xc4404000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f16"), MCDST, LLHDST, N("f32"), T(lsw) },
+	{ 0xc4004000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), N("f32"), MCDST, LLDST, N("f32"), T(lsw) },
+	{ 0xcc004000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrint), N("f32"), MCDST, LLDST, N("f32"), T(lsw) },
+	{ 0xc4000000a0000000ull, 0xc4404000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), N("f32"), MCDST, LLDST, N("f16"), T(lsh) },
 
-	{ 0xc0404000a0000000ull, 0xc4404000f0000000ull,
-		N("cvt"), T(cvtmod), T(cvtrnd), N("f32"), MCDST, LLDST, N("f64"), LDSRC, .vartype = NVA0 },
-	{ 0xc4404000a0000000ull, 0xcc404000f0000000ull,
-		N("cvt"), T(cvtmod), N("f64"), MCDST, LDDST, N("f64"), LDSRC, .vartype = NVA0 },
-	{ 0xcc404000a0000000ull, 0xcc404000f0000000ull,
-		N("cvt"), T(cvtmod), T(cvtrint), N("f64"), MCDST, LDDST, N("f64"), LDSRC, .vartype = NVA0 },
-	{ 0xc4400000a0000000ull, 0xc4404000f0000000ull,
-		N("cvt"), T(cvtmod), N("f64"), MCDST, LDDST, N("f32"), T(lsw), .vartype = NVA0 },
+	{ 0xc0404000a0000000ull, 0xc4404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrnd), N("f32"), MCDST, LLDST, N("f64"), LDSRC, .vartype = NVA0 },
+	{ 0xc4404000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), N("f64"), MCDST, LDDST, N("f64"), LDSRC, .vartype = NVA0 },
+	{ 0xcc404000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("f64"), MCDST, LDDST, N("f64"), LDSRC, .vartype = NVA0 },
+	{ 0xc4400000a0000000ull, 0xc4404000f0000000ull, N("cvt"), T(cvtmod), N("f64"), MCDST, LDDST, N("f32"), T(lsw), .vartype = NVA0 },
 
-	{ 0x80000000a0000000ull, 0xcc404000f0000000ull,
-		N("cvt"), T(cvtmod), T(cvtrint), N("u16"), MCDST, LLHDST, N("f16"), T(lsh) },
-	{ 0x80004000a0000000ull, 0xcc404000f0000000ull,
-		N("cvt"), T(cvtmod), T(cvtrint), N("u16"), MCDST, LLHDST, N("f32"), T(lsw) },
-	{ 0x88000000a0000000ull, 0xcc404000f0000000ull,
-		N("cvt"), T(cvtmod), T(cvtrint), N("s16"), MCDST, LLHDST, N("f16"), T(lsh) },
-	{ 0x88004000a0000000ull, 0xcc404000f0000000ull,
-		N("cvt"), T(cvtmod), T(cvtrint), N("s16"), MCDST, LLHDST, N("f32"), T(lsw) },
-	{ 0x84000000a0000000ull, 0xcc404000f0000000ull,
-		N("cvt"), T(cvtmod), T(cvtrint), N("u32"), MCDST, LLDST, N("f16"), T(lsh) },
-	{ 0x84004000a0000000ull, 0xcc404000f0000000ull,
-		N("cvt"), T(cvtmod), T(cvtrint), N("u32"), MCDST, LLDST, N("f32"), T(lsw) },
-	{ 0x8c000000a0000000ull, 0xcc404000f0000000ull,
-		N("cvt"), T(cvtmod), T(cvtrint), N("s32"), MCDST, LLDST, N("f16"), T(lsh) },
-	{ 0x8c004000a0000000ull, 0xcc404000f0000000ull,
-		N("cvt"), T(cvtmod), T(cvtrint), N("s32"), MCDST, LLDST, N("f32"), T(lsw) },
+	{ 0x80000000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("u16"), MCDST, LLHDST, N("f16"), T(lsh) },
+	{ 0x80004000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("u16"), MCDST, LLHDST, N("f32"), T(lsw) },
+	{ 0x88000000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("s16"), MCDST, LLHDST, N("f16"), T(lsh) },
+	{ 0x88004000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("s16"), MCDST, LLHDST, N("f32"), T(lsw) },
+	{ 0x84000000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("u32"), MCDST, LLDST, N("f16"), T(lsh) },
+	{ 0x84004000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("u32"), MCDST, LLDST, N("f32"), T(lsw) },
+	{ 0x8c000000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("s32"), MCDST, LLDST, N("f16"), T(lsh) },
+	{ 0x8c004000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("s32"), MCDST, LLDST, N("f32"), T(lsw) },
 
-	{ 0x80404000a0000000ull, 0xcc404000f0000000ull,
-		N("cvt"), T(cvtmod), T(cvtrint), N("u32"), MCDST, LLDST, N("f64"), LDSRC, .vartype = NVA0 },
-	{ 0x88404000a0000000ull, 0xcc404000f0000000ull,
-		N("cvt"), T(cvtmod), T(cvtrint), N("s32"), MCDST, LLDST, N("f64"), LDSRC, .vartype = NVA0 },
-	{ 0x84400000a0000000ull, 0xcc404000f0000000ull,
-		N("cvt"), T(cvtmod), T(cvtrint), N("u64"), MCDST, LDDST, N("f32"), T(lsw), .vartype = NVA0 },
-	{ 0x84404000a0000000ull, 0xcc404000f0000000ull,
-		N("cvt"), T(cvtmod), T(cvtrint), N("u64"), MCDST, LDDST, N("f64"), LDSRC, .vartype = NVA0 },
-	{ 0x8c400000a0000000ull, 0xcc404000f0000000ull,
-		N("cvt"), T(cvtmod), T(cvtrint), N("s64"), MCDST, LDDST, N("f32"), T(lsw), .vartype = NVA0 },
-	{ 0x8c404000a0000000ull, 0xcc404000f0000000ull,
-		N("cvt"), T(cvtmod), T(cvtrint), N("s64"), MCDST, LDDST, N("f64"), LDSRC, .vartype = NVA0 },
+	{ 0x80404000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("u32"), MCDST, LLDST, N("f64"), LDSRC, .vartype = NVA0 },
+	{ 0x88404000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("s32"), MCDST, LLDST, N("f64"), LDSRC, .vartype = NVA0 },
+	{ 0x84400000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("u64"), MCDST, LDDST, N("f32"), T(lsw), .vartype = NVA0 },
+	{ 0x84404000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("u64"), MCDST, LDDST, N("f64"), LDSRC, .vartype = NVA0 },
+	{ 0x8c400000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("s64"), MCDST, LDDST, N("f32"), T(lsw), .vartype = NVA0 },
+	{ 0x8c404000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("s64"), MCDST, LDDST, N("f64"), LDSRC, .vartype = NVA0 },
 
-	{ 0x40000000a0000000ull, 0xc4400000f0000000ull,
-		N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f16"), MCDST, LLHDST, T(cvtiisrc) },
-	{ 0x44000000a0000000ull, 0xc4400000f0000000ull,
-		N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f32"), MCDST, LLDST, T(cvtiisrc) },
+	{ 0x40000000a0000000ull, 0xc4400000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f16"), MCDST, LLHDST, T(cvtiisrc) },
+	{ 0x44000000a0000000ull, 0xc4400000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f32"), MCDST, LLDST, T(cvtiisrc) },
 
-	{ 0x44400000a0000000ull, 0xc4414000f0000000ull,
-		N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f64"), MCDST, LDDST, N("u32"), T(lsw), .vartype = NVA0 },
-	{ 0x44410000a0000000ull, 0xc4414000f0000000ull,
-		N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f64"), MCDST, LDDST, N("s32"), T(lsw), .vartype = NVA0 },
-	{ 0x40404000a0000000ull, 0xc4414000f0000000ull,
-		N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f32"), MCDST, LLDST, N("u64"), LDSRC, .vartype = NVA0 },
-	{ 0x40414000a0000000ull, 0xc4414000f0000000ull,
-		N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f32"), MCDST, LLDST, N("s64"), LDSRC, .vartype = NVA0 },
-	{ 0x44404000a0000000ull, 0xc4414000f0000000ull,
-		N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f64"), MCDST, LDDST, N("u64"), LDSRC, .vartype = NVA0 },
-	{ 0x44414000a0000000ull, 0xc4414000f0000000ull,
-		N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f64"), MCDST, LDDST, N("s64"), LDSRC, .vartype = NVA0 },
+	{ 0x44400000a0000000ull, 0xc4414000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f64"), MCDST, LDDST, N("u32"), T(lsw), .vartype = NVA0 },
+	{ 0x44410000a0000000ull, 0xc4414000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f64"), MCDST, LDDST, N("s32"), T(lsw), .vartype = NVA0 },
+	{ 0x40404000a0000000ull, 0xc4414000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f32"), MCDST, LLDST, N("u64"), LDSRC, .vartype = NVA0 },
+	{ 0x40414000a0000000ull, 0xc4414000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f32"), MCDST, LLDST, N("s64"), LDSRC, .vartype = NVA0 },
+	{ 0x44404000a0000000ull, 0xc4414000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f64"), MCDST, LDDST, N("u64"), LDSRC, .vartype = NVA0 },
+	{ 0x44414000a0000000ull, 0xc4414000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f64"), MCDST, LDDST, N("s64"), LDSRC, .vartype = NVA0 },
 
-	{ 0x00000000a0000000ull, 0xcc080000f0000000ull,
-		N("cvt"), T(cvtmod), N("u16"), MCDST, LLHDST, T(cvtiisrc) },
-	{ 0x00080000a0000000ull, 0xcc080000f0000000ull,
-		N("cvt"), T(cvtmod), N("u8"), MCDST, LLHDST, T(cvtiisrc) },
-	{ 0x04000000a0000000ull, 0xcc080000f0000000ull,
-		N("cvt"), T(cvtmod), N("u32"), MCDST, LLDST, T(cvtiisrc) },
-	{ 0x04080000a0000000ull, 0xcc080000f0000000ull,
-		N("cvt"), T(cvtmod), N("u8"), MCDST, LLDST, T(cvtiisrc) },
-	{ 0x08000000a0000000ull, 0xcc080000f0000000ull,
-		N("cvt"), T(cvtmod), N("s16"), MCDST, LLHDST, T(cvtiisrc) },
-	{ 0x08080000a0000000ull, 0xcc080000f0000000ull,
-		N("cvt"), T(cvtmod), N("s8"), MCDST, LLHDST, T(cvtiisrc) },
-	{ 0x0c000000a0000000ull, 0xcc080000f0000000ull,
-		N("cvt"), T(cvtmod), N("s32"), MCDST, LLDST, T(cvtiisrc) },
-	{ 0x0c080000a0000000ull, 0xcc080000f0000000ull,
-		N("cvt"), T(cvtmod), N("s8"), MCDST, LLDST, T(cvtiisrc) },
+	{ 0x00000000a0000000ull, 0xcc080000f0000000ull, N("cvt"), T(cvtmod), N("u16"), MCDST, LLHDST, T(cvtiisrc) },
+	{ 0x00080000a0000000ull, 0xcc080000f0000000ull, N("cvt"), T(cvtmod), N("u8"), MCDST, LLHDST, T(cvtiisrc) },
+	{ 0x04000000a0000000ull, 0xcc080000f0000000ull, N("cvt"), T(cvtmod), N("u32"), MCDST, LLDST, T(cvtiisrc) },
+	{ 0x04080000a0000000ull, 0xcc080000f0000000ull, N("cvt"), T(cvtmod), N("u8"), MCDST, LLDST, T(cvtiisrc) },
+	{ 0x08000000a0000000ull, 0xcc080000f0000000ull, N("cvt"), T(cvtmod), N("s16"), MCDST, LLHDST, T(cvtiisrc) },
+	{ 0x08080000a0000000ull, 0xcc080000f0000000ull, N("cvt"), T(cvtmod), N("s8"), MCDST, LLHDST, T(cvtiisrc) },
+	{ 0x0c000000a0000000ull, 0xcc080000f0000000ull, N("cvt"), T(cvtmod), N("s32"), MCDST, LLDST, T(cvtiisrc) },
+	{ 0x0c080000a0000000ull, 0xcc080000f0000000ull, N("cvt"), T(cvtmod), N("s8"), MCDST, LLDST, T(cvtiisrc) },
 
 
 	// b
-	{ 0x00000000b0000000ull, 0xc0000000f0000000ull,
-		N("add"), T(o0sat), T(af32r), N("f32"), MCDST, LLDST, T(m1neg), T(lsw), T(m2neg), T(lc3w) },
+	{ 0x00000000b0000000ull, 0xc0000000f0000000ull, N("add"), T(o0sat), T(af32r), N("f32"), MCDST, LLDST, T(m1neg), T(lsw), T(m2neg), T(lc3w) },
 
-	{ 0x60000000b0000000ull, 0xe0000000f0000000ull,
-		N("set"), MCDST, LLDST, T(setf), N("f32"), T(lfm1), T(lsw), T(lfm2), T(lc2w) },
+	{ 0x60000000b0000000ull, 0xe0000000f0000000ull, N("set"), MCDST, LLDST, T(setf), N("f32"), T(lfm1), T(lsw), T(lfm2), T(lc2w) },
 
-	{ 0x80000000b0000000ull, 0xe0000000f0000000ull,
-		N("max"), N("f32"), MCDST, LLDST, T(lfm1), T(lsw), T(lfm2), T(lc2w) },
+	{ 0x80000000b0000000ull, 0xe0000000f0000000ull, N("max"), N("f32"), MCDST, LLDST, T(lfm1), T(lsw), T(lfm2), T(lc2w) },
 
-	{ 0xa0000000b0000000ull, 0xe0000000f0000000ull,
-		N("min"), N("f32"), MCDST, LLDST, T(lfm1), T(lsw), T(lfm2), T(lc2w) },
+	{ 0xa0000000b0000000ull, 0xe0000000f0000000ull, N("min"), N("f32"), MCDST, LLDST, T(lfm1), T(lsw), T(lfm2), T(lc2w) },
 
-	{ 0xc0000000b0000000ull, 0xe0004000f0000000ull,
-		N("presin"), N("f32"), LLDST, T(lfm1), T(lsw) },
-	{ 0xc0004000b0000000ull, 0xe0004000f0000000ull,
-		N("preex2"), N("f32"), LLDST, T(lfm1), T(lsw) },
+	{ 0xc0000000b0000000ull, 0xe0004000f0000000ull, N("presin"), N("f32"), LLDST, T(lfm1), T(lsw) },
+	{ 0xc0004000b0000000ull, 0xe0004000f0000000ull, N("preex2"), N("f32"), LLDST, T(lfm1), T(lsw) },
 	/* preex2 converts float to fixed point, results:
 	 * 0-0x3fffffff: 7.23 fixed-point number
 	 * 0x40000000: +nan
@@ -1518,92 +1418,69 @@ static struct insn tabl[] = {
 	 */
 
 	// c
-	{ 0x00000000c0000000ull, 0xe0000000f0000000ull,
-		N("mul"), T(mf32r), N("f32"), MCDST, LLDST, T(m1neg), T(lsw), T(m2neg), T(lc2w) },
+	{ 0x00000000c0000000ull, 0xe0000000f0000000ull, N("mul"), T(mf32r), N("f32"), MCDST, LLDST, T(m1neg), T(lsw), T(m2neg), T(lc2w) },
 
-	{ 0x40000000c0000000ull, 0xc0000000f0000000ull,
-		N("slct"), N("b32"), MCDST, LLDST, T(lsw), T(lc2w), N("f32"), T(o0neg), T(lc3w) },
+	{ 0x40000000c0000000ull, 0xc0000000f0000000ull, N("slct"), N("b32"), MCDST, LLDST, T(lsw), T(lc2w), N("f32"), T(o0neg), T(lc3w) },
 
-	{ 0x80000000c0000000ull, 0xf0000000f0000000ull,
-		N("quadop"), N("f32"), T(qop0), T(qop1), T(qop2), T(qop3), MCDST, LLDST, T(qs1), LSRC, LSRC3 },
+	{ 0x80000000c0000000ull, 0xf0000000f0000000ull, N("quadop"), N("f32"), T(qop0), T(qop1), T(qop2), T(qop3), MCDST, LLDST, T(qs1), LSRC, LSRC3 },
 	// desc ^^^
 
 	// d
-	{ 0x00000000d0000000ull, 0xe4000000f0000000ull,
-		T(logop), N("b16"), MCDST, LLHDST, T(s32not), T(lsh), T(s33not), T(lc2h) },
-	{ 0x04000000d0000000ull, 0xe4000000f0000000ull,
-		T(logop), N("b32"), MCDST, LLDST, T(s32not), T(lsw), T(s33not), T(lc2w) },
+	{ 0x00000000d0000000ull, 0xe4000000f0000000ull, T(logop), N("b16"), MCDST, LLHDST, T(s32not), T(lsh), T(s33not), T(lc2h) },
+	{ 0x04000000d0000000ull, 0xe4000000f0000000ull, T(logop), N("b32"), MCDST, LLDST, T(s32not), T(lsw), T(s33not), T(lc2w) },
 
-	{ 0x20000000d0000000ull, 0xe0000000f0000000ull,
-		N("add"), ADST, LAREG, OFFS },
+	{ 0x20000000d0000000ull, 0xe0000000f0000000ull, N("add"), ADST, LAREG, OFFS },
 
 	// desc VVV
-	{ 0x40000000d0000000ull, 0xe0000000f0000000ull,
-		N("ld"), T(ldstm), T(ldsto), T(local) },
-	{ 0x60000000d0000000ull, 0xe0000000f0000000ull,
-		N("st"), T(ldstm), T(local), T(ldsto) },
+	{ 0x40000000d0000000ull, 0xe0000000f0000000ull, N("ld"), T(ldstm), T(ldsto), T(local) },
+	{ 0x60000000d0000000ull, 0xe0000000f0000000ull, N("st"), T(ldstm), T(local), T(ldsto) },
 
-	{ 0x80000000d0000000ull, 0xe0000000f0000000ull,
-		N("ld"), T(ldstm), T(ldsto), GLOBAL, .ptype = CP },
-	{ 0xa0000000d0000000ull, 0xe0000000f0000000ull,
-		N("st"), T(ldstm), GLOBAL, T(ldsto), .ptype = CP },
-	{ 0xc0000000d0000000ull, 0xe0000000f0000000ull,
-		T(redm), GLOBAL, T(ldsto), .vartype = NV84P, .ptype = CP },
-	{ 0xe0000000d0000000ull, 0xe0000000f0000000ull,
-		T(atomm), T(ldsto), GLOBAL2, T(ldsts2), T(mldsts3), .vartype = NV84P, .ptype = CP },
+	{ 0x80000000d0000000ull, 0xe0000000f0000000ull, N("ld"), T(ldstm), T(ldsto), GLOBAL, .ptype = CP },
+	{ 0xa0000000d0000000ull, 0xe0000000f0000000ull, N("st"), T(ldstm), GLOBAL, T(ldsto), .ptype = CP },
+	{ 0xc0000000d0000000ull, 0xe0000000f0000000ull, T(redm), GLOBAL, T(ldsto), .vartype = NV84P, .ptype = CP },
+	{ 0xe0000000d0000000ull, 0xe0000000f0000000ull, T(atomm), T(ldsto), GLOBAL2, T(ldsts2), T(mldsts3), .vartype = NV84P, .ptype = CP },
 
 	// e
-	{ 0x00000000e0000000ull, 0xc0000000f0000000ull,
-		N("add"), T(o0sat), N("f32"), MCDST, LLDST, T(m1neg), N("mul"), T(lsw), T(lc2w), T(m2neg), T(lc3w) },	// multiply, round, add, round. meh.
+	{ 0x00000000e0000000ull, 0xc0000000f0000000ull, N("add"), T(o0sat), N("f32"), MCDST, LLDST, T(m1neg), N("mul"), T(lsw), T(lc2w), T(m2neg), T(lc3w) },	// multiply, round, add, round. meh.
 
-	{ 0x40000000e0000000ull, 0xe0000000f0000000ull,
-		N("fma"), T(mad64r), N("f64"), MCDST, LDDST, T(m1neg), LDSRC, LDSRC2, T(m2neg), LDSRC3, .vartype = NVA0 },	// *fused* multiply-add, no intermediate rounding :)
-	{ 0x60000000e0000000ull, 0xe0000000f0000000ull,
-		N("add"), T(af64r), N("f64"), MCDST, LDDST, T(m1neg), LDSRC, T(m2neg), LDSRC3, .vartype = NVA0 },
-	{ 0x80000000e0000000ull, 0xe0000000f0000000ull,
-		N("mul"), T(cvtrnd), N("f64"), MCDST, LDDST, T(m1neg), LDSRC, LDSRC2, .vartype = NVA0 },
-	{ 0xa0000000e0000000ull, 0xe0000000f0000000ull,
-		N("min"), N("f64"), MCDST, LDDST, T(lfm1), LDSRC, T(lfm2), LDSRC2, .vartype = NVA0 },
-	{ 0xc0000000e0000000ull, 0xe0000000f0000000ull,
-		N("max"), N("f64"), MCDST, LDDST, T(lfm1), LDSRC, T(lfm2), LDSRC2, .vartype = NVA0 },
-	{ 0xe0000000e0000000ull, 0xe0000000f0000000ull,
-		N("set"), MCDST, LLDST, T(setf), N("f64"), T(lfm1), LDSRC, T(lfm2), LDSRC2, .vartype = NVA0 },
+	{ 0x40000000e0000000ull, 0xe0000000f0000000ull, N("fma"), T(mad64r), N("f64"), MCDST, LDDST, T(m1neg), LDSRC, LDSRC2, T(m2neg), LDSRC3, .vartype = NVA0 },	// *fused* multiply-add, no intermediate rounding :)
+	{ 0x60000000e0000000ull, 0xe0000000f0000000ull, N("add"), T(af64r), N("f64"), MCDST, LDDST, T(m1neg), LDSRC, T(m2neg), LDSRC3, .vartype = NVA0 },
+	{ 0x80000000e0000000ull, 0xe0000000f0000000ull, N("mul"), T(cvtrnd), N("f64"), MCDST, LDDST, T(m1neg), LDSRC, LDSRC2, .vartype = NVA0 },
+	{ 0xa0000000e0000000ull, 0xe0000000f0000000ull, N("min"), N("f64"), MCDST, LDDST, T(lfm1), LDSRC, T(lfm2), LDSRC2, .vartype = NVA0 },
+	{ 0xc0000000e0000000ull, 0xe0000000f0000000ull, N("max"), N("f64"), MCDST, LDDST, T(lfm1), LDSRC, T(lfm2), LDSRC2, .vartype = NVA0 },
+	{ 0xe0000000e0000000ull, 0xe0000000f0000000ull, N("set"), MCDST, LLDST, T(setf), N("f64"), T(lfm1), LDSRC, T(lfm2), LDSRC2, .vartype = NVA0 },
 
 	// f
-	{ 0x00000000f0000000ull, 0xf0000000f9000000ull, // order of inputs: x, y, z, index, dref, bias/lod. index is integer, others float.
-		N("texauto"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
-	{ 0x00000000f8000000ull, 0xf0000000f9000000ull,
-		N("texauto"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
+	// order of inputs: x, y, z, index, dref, bias/lod. index is integer, others float.
+	{ 0x00000000f0000000ull, 0xf0000000f9000000ull, N("texauto"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
+	{ 0x00000000f8000000ull, 0xf0000000f9000000ull, N("texauto"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
 
-	{ 0x00000000f1000000ull, 0xf0000000f1000000ull, // takes integer inputs.
-		N("texfetch"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
+	// takes integer inputs.
+	{ 0x00000000f1000000ull, 0xf0000000f1000000ull, N("texfetch"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
 
-	{ 0x20000000f0000000ull, 0xf0000000f8000000ull, // bias needs to be same for everything, or else.
-		N("texbias"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
-	{ 0x20000000f8000000ull, 0xf0000000f8000000ull,
-		N("texbias"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
+	// bias needs to be same for everything, or else.
+	{ 0x20000000f0000000ull, 0xf0000000f8000000ull, N("texbias"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
+	{ 0x20000000f8000000ull, 0xf0000000f8000000ull, N("texbias"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
 
-	{ 0x40000000f0000000ull, 0xf0000000f8000000ull, // lod needs to be same for everything, or else.
-		N("texlod"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
-	{ 0x40000000f8000000ull, 0xf0000000f8000000ull,
-		N("texlod"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
+	// lod needs to be same for everything, or else.
+	{ 0x40000000f0000000ull, 0xf0000000f8000000ull, N("texlod"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
+	{ 0x40000000f8000000ull, 0xf0000000f8000000ull, N("texlod"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC },
 
-	{ 0x60000000f0000000ull, 0xf00f0000f0000000ull, // integer input and output.
-		N("texsize"), T(texf), LTDST, TEX, SAMP, LDST }, // in: LOD, out: size.x, size.y, size.z
-	{ 0x60010000f8000000ull, 0xf00f0000f8000000ull, // input: 3 normalized cube coords [float], layer [int]; output: equivalent x, y, combined layer coords to pass to non-cube tex variants.
-		N("texprep"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC, .vartype = NVA3P },
-	{ 0x60020000f0000000ull, 0xf00f0000f8000000ull, // returned values are FIXED-point with 6 fractional bits
-		N("texquerylod"), T(texf), LTDST, TEX, SAMP, LTSRC, .vartype = NVA3P },
-	{ 0x60020000f8000000ull, 0xf00f0000f8000000ull,
-		N("texquerylod"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC, .vartype = NVA3P },
+	// integer input and output. in: LOD, out: size.x, size.y, size.z
+	{ 0x60000000f0000000ull, 0xf00f0000f0000000ull, N("texsize"), T(texf), LTDST, TEX, SAMP, LDST },
 
-	{ 0x80000000f0000000ull, 0xf0000000f1000000ull, // in: float coords + CSAA mask from ZETA
-		N("texcsaa"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
+	// input: 3 normalized cube coords [float], layer [int]; output: equivalent x, y, combined layer coords to pass to non-cube tex variants.
+	{ 0x60010000f8000000ull, 0xf00f0000f8000000ull, N("texprep"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC, .vartype = NVA3P },
 
-	{ 0x80000000f1000000ull, 0xf0000000f9000000ull,
-		N("texgather"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ, .vartype = NVA3P },
-	{ 0x80000000f9000000ull, 0xf0000000f9000000ull,
-		N("texgather"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC, .vartype = NVA3P },
+	// returned values are FIXED-point with 6 fractional bits
+	{ 0x60020000f0000000ull, 0xf00f0000f8000000ull, N("texquerylod"), T(texf), LTDST, TEX, SAMP, LTSRC, .vartype = NVA3P },
+	{ 0x60020000f8000000ull, 0xf00f0000f8000000ull, N("texquerylod"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC, .vartype = NVA3P },
+
+	// in: float coords + CSAA mask from ZETA
+	{ 0x80000000f0000000ull, 0xf0000000f1000000ull, N("texcsaa"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
+
+	{ 0x80000000f1000000ull, 0xf0000000f9000000ull, N("texgather"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ, .vartype = NVA3P },
+	{ 0x80000000f9000000ull, 0xf0000000f9000000ull, N("texgather"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC, .vartype = NVA3P },
 
 	{ 0xc0000000f0000200ull, 0xe0000000f0000600ull, N("emit"), .ptype = GP },
 	{ 0xc0000000f0000400ull, 0xe0000000f0000600ull, N("restart"), .ptype = GP },
