@@ -466,6 +466,34 @@ static struct insn tabsetct[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabcc[] = {
+	{ 0x0000000000000000ull, 0x00000000000003e0ull, N("never"), CC },
+	{ 0x0000000000000020ull, 0x00000000000003e0ull, N("l"), CC },
+	{ 0x0000000000000040ull, 0x00000000000003e0ull, N("e"), CC },
+	{ 0x0000000000000060ull, 0x00000000000003e0ull, N("le"), CC },
+	{ 0x0000000000000080ull, 0x00000000000003e0ull, N("g"), CC },
+	{ 0x00000000000000a0ull, 0x00000000000003e0ull, N("lg"), CC },
+	{ 0x00000000000000c0ull, 0x00000000000003e0ull, N("ge"), CC },
+	{ 0x00000000000000e0ull, 0x00000000000003e0ull, N("lge"), CC },
+	{ 0x0000000000000100ull, 0x00000000000003e0ull, N("u"), CC },
+	{ 0x0000000000000120ull, 0x00000000000003e0ull, N("lu"), CC },
+	{ 0x0000000000000140ull, 0x00000000000003e0ull, N("eu"), CC },
+	{ 0x0000000000000160ull, 0x00000000000003e0ull, N("leu"), CC },
+	{ 0x0000000000000180ull, 0x00000000000003e0ull, N("gu"), CC },
+	{ 0x00000000000001a0ull, 0x00000000000003e0ull, N("lgu"), CC },
+	{ 0x00000000000001c0ull, 0x00000000000003e0ull, N("geu"), CC },
+	{ 0x00000000000001e0ull, 0x00000000000003e0ull, },
+	{ 0x0000000000000200ull, 0x00000000000003e0ull, N("no"), CC },
+	{ 0x0000000000000220ull, 0x00000000000003e0ull, N("nc"), CC },
+	{ 0x0000000000000240ull, 0x00000000000003e0ull, N("ns"), CC },
+	{ 0x0000000000000260ull, 0x00000000000003e0ull, N("na"), CC },
+	{ 0x0000000000000280ull, 0x00000000000003e0ull, N("a"), CC },
+	{ 0x00000000000002a0ull, 0x00000000000003e0ull, N("s"), CC },
+	{ 0x00000000000002c0ull, 0x00000000000003e0ull, N("c"), CC },
+	{ 0x00000000000002e0ull, 0x00000000000003e0ull, N("o"), CC },
+	{ 0, 0, OOPS },
+};
+
 
 F(setdt, 5, N("b32"), N("f32"))
 F(setdti, 7, N("b32"), N("f32"))
@@ -988,8 +1016,9 @@ static struct insn tabm[] = {
 	{ 0x3400000000000004ull, 0xfc00000000000007ull, N("mov"), T(flhi), FLAGS, SRC1, N("mask"), T(is2) },
 	{ 0x3800000000000004ull, 0xfc00000000000007ull, N("bar"), N("read"), DST, BAR },
 	// 3c?
-	{ 0x40000000000001e4ull, 0xf8040000000001e7ull, N("nop") },
-	{ 0x40040000000001e4ull, 0xf8040000000001e7ull, N("pmevent"), PM }, // ... a bitmask of triggered pmevents? with 0 ignored?
+	{ 0x4000000000000004ull, 0xfc04000000000007ull, T(cc), N("nop") },
+	{ 0x4004000000000004ull, 0xfc04000000000007ull, T(cc), N("pmevent"), PM }, // ... a bitmask of triggered pmevents? with 0 ignored?
+	{ 0x4400000000000004ull, 0xfc00000000000007ull, N("lepc"), DST },
 	{ 0x48000000000fc004ull, 0xf8000000000fc067ull, N("vote"), N("all"), PDST2, T(pnot1), PSRC1 },
 	{ 0x48000000000fc024ull, 0xf8000000000fc067ull, N("vote"), N("any"), PDST2, T(pnot1), PSRC1 },
 	{ 0x48000000000fc044ull, 0xf8000000000fc067ull, N("vote"), N("uni"), PDST2, T(pnot1), PSRC1 },
@@ -1087,34 +1116,6 @@ F1(lim, 0x10, N("lim"))
 static struct insn tabbtarg[] = {
 	{ 0x0000000000000000ull, 0x0000000000004000ull, BTARG },
 	{ 0x0000000000004000ull, 0x0000000000004000ull, N("pcrel"), CONST },
-};
-
-static struct insn tabcc[] = {
-	{ 0x0000000000000000ull, 0x00000000000003e0ull, N("never"), CC },
-	{ 0x0000000000000020ull, 0x00000000000003e0ull, N("l"), CC },
-	{ 0x0000000000000040ull, 0x00000000000003e0ull, N("e"), CC },
-	{ 0x0000000000000060ull, 0x00000000000003e0ull, N("le"), CC },
-	{ 0x0000000000000080ull, 0x00000000000003e0ull, N("g"), CC },
-	{ 0x00000000000000a0ull, 0x00000000000003e0ull, N("lg"), CC },
-	{ 0x00000000000000c0ull, 0x00000000000003e0ull, N("ge"), CC },
-	{ 0x00000000000000e0ull, 0x00000000000003e0ull, N("lge"), CC },
-	{ 0x0000000000000100ull, 0x00000000000003e0ull, N("u"), CC },
-	{ 0x0000000000000120ull, 0x00000000000003e0ull, N("lu"), CC },
-	{ 0x0000000000000140ull, 0x00000000000003e0ull, N("eu"), CC },
-	{ 0x0000000000000160ull, 0x00000000000003e0ull, N("leu"), CC },
-	{ 0x0000000000000180ull, 0x00000000000003e0ull, N("gu"), CC },
-	{ 0x00000000000001a0ull, 0x00000000000003e0ull, N("lgu"), CC },
-	{ 0x00000000000001c0ull, 0x00000000000003e0ull, N("geu"), CC },
-	{ 0x00000000000001e0ull, 0x00000000000003e0ull, },
-	{ 0x0000000000000200ull, 0x00000000000003e0ull, N("no"), CC },
-	{ 0x0000000000000220ull, 0x00000000000003e0ull, N("nc"), CC },
-	{ 0x0000000000000240ull, 0x00000000000003e0ull, N("ns"), CC },
-	{ 0x0000000000000260ull, 0x00000000000003e0ull, N("na"), CC },
-	{ 0x0000000000000280ull, 0x00000000000003e0ull, N("a"), CC },
-	{ 0x00000000000002a0ull, 0x00000000000003e0ull, N("s"), CC },
-	{ 0x00000000000002c0ull, 0x00000000000003e0ull, N("c"), CC },
-	{ 0x00000000000002e0ull, 0x00000000000003e0ull, N("o"), CC },
-	{ 0, 0, OOPS },
 };
 
 static struct insn tabc[] = {
