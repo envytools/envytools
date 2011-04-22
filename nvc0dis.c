@@ -31,13 +31,13 @@
  *  - $r0-$r62: Normal, usable 32-bit regs. Allocated just like on tesla.
  *    Grouped into $r0d-$r60d for 64-bit quantities like doubles, into
  *    $r0q-$r56q for 128-bit quantities. There are no half-regs.
- *  - $r63: Bit bucket on write, 0 on read. Maybe just normal unallocated reg,
- *    like on tesla.
+ *  - $r63: Bit bucket on write, 0 on read.
  *  - $p0-$p6: 1-bit predicate registers, usable.
  *  - $p7: Always-true predicate.
- *  - $c0: Condition code register. Don't know exact bits yet, but at least
- *    zero, sign, and carry flags exist. Probably overflow too. Likely same
- *    bits as nv50.
+ *  - $c: Condition code register, like nv50 $cX registers. Has zero, sign,
+ *    carry, overflow bits, in that order.
+ *  - $flags: A meta-register consisting of $p0-$p6 at bits 0-6 and $c
+ *    at bits 12-15.
  */
 
 /*
@@ -252,6 +252,7 @@ static struct reg tex_r = { &tex_bf, "t", .cool = 1 };
 static struct reg samp_r = { &samp_bf, "s", .cool = 1 };
 static struct reg surf_r = { &surf_bf, "g", .cool = 1 };
 static struct reg cc_r = { 0, "c", .cool = 1 };
+static struct reg flags_r = { 0, "flags", .cool = 1 };
 static struct reg sreg_r = { &sreg_bf, "sr", .specials = sreg_sr, .always_special = 1 };
 static struct reg lduld_dst2_r = { &lduld_dst2_bf, "r" };
 static struct reg lduld_dst2d_r = { &lduld_dst2_bf, "r", "d" };
@@ -283,6 +284,7 @@ static struct reg lduld_dst2d_r = { &lduld_dst2_bf, "r", "d" };
 #define SREG atomreg, &sreg_r
 #define LDULD_DST2 atomreg, &lduld_dst2_r
 #define LDULD_DST2D atomreg, &lduld_dst2d_r
+#define FLAGS atomreg, &flags_r
 
 static struct bitfield tdst_cnt = { .addend = 4 };
 static struct bitfield tdst_mask = { 0x2e, 4 };
@@ -976,11 +978,12 @@ static struct insn tabm[] = {
 	{ 0x1800000000000004ull, 0xfc00000000000007ull, N("cvt"), T(fcrm), T(cvtfdst), T(cvtisrc) },
 	{ 0x1c00000000000004ull, 0xfc00000000000007ull, N("cvt"), T(ias), T(cvtidst), T(cvti2isrc) },
 	{ 0x2000000000000004ull, 0xfc00000000000007ull, N("selp"), N("b32"), DST, SRC1, T(is2), T(pnot3), PSRC3 },
-	{ 0x2400000000000004ull, 0xfc00000000000007ull, N("prmt"), T(prmtmod), N("b32"), DST, SRC1, SRC3, T(is2) }, // NFI what this does. and sources 2 and 3 are swapped for some reason.
+	{ 0x2400000000000004ull, 0xfc00000000000007ull, N("prmt"), T(prmtmod), N("b32"), DST, SRC1, T(is2w3), T(is3) },
 	{ 0x2800000000000004ull, 0xfc00000000000007ull, T(lane), N("mov"), N("b32"), DST, T(is2) },
 	{ 0x2c00000000000004ull, 0xfc00000000000007ull, N("mov"), N("b32"), DST, SREG },
-	{ 0x3000c3c003f00004ull, 0xfc00c3c003f00004ull, N("mov"), DST, CC },
-	{ 0x3400c3c000000004ull, 0xfc00c3c000000004ull, N("mov"), CC, SRC1 },
+	{ 0x3000000003f00004ull, 0xfc00000003f00004ull, N("mov"), DST, FLAGS, N("mask"), T(is2) },
+	{ 0x3000000000000004ull, 0xfc00000000000004ull, N("mov"), DST, SRC1, N("or"), FLAGS, N("mask"), T(is2) },
+	{ 0x3400000000000004ull, 0xfc00000000000004ull, N("mov"), FLAGS, SRC1, N("mask"), T(is2) },
 	// 38?
 	{ 0x40000000000001e4ull, 0xf8040000000001e7ull, N("nop") },
 	{ 0x40040000000001e4ull, 0xf8040000000001e7ull, N("pmevent"), PM }, // ... a bitmask of triggered pmevents? with 0 ignored?
