@@ -983,10 +983,11 @@ static struct insn tabm[] = {
 	{ 0x2400000000000004ull, 0xfc00000000000007ull, N("prmt"), T(prmtmod), N("b32"), DST, SRC1, T(is2w3), T(is3) },
 	{ 0x2800000000000004ull, 0xfc00000000000007ull, T(lane), N("mov"), N("b32"), DST, T(is2) },
 	{ 0x2c00000000000004ull, 0xfc00000000000007ull, N("mov"), N("b32"), DST, SREG },
-	{ 0x3000000003f00004ull, 0xfc00000003f00004ull, N("mov"), DST, T(flhi), FLAGS, N("mask"), T(is2) },
-	{ 0x3000000000000004ull, 0xfc00000000000004ull, N("mov"), DST, SRC1, N("or"), T(flhi), FLAGS, N("mask"), T(is2) },
-	{ 0x3400000000000004ull, 0xfc00000000000004ull, N("mov"), T(flhi), FLAGS, SRC1, N("mask"), T(is2) },
-	// 38?
+	{ 0x3000000003f00004ull, 0xfc00000003f00007ull, N("mov"), DST, T(flhi), FLAGS, N("mask"), T(is2) },
+	{ 0x3000000000000004ull, 0xfc00000000000007ull, N("mov"), DST, SRC1, N("or"), T(flhi), FLAGS, N("mask"), T(is2) },
+	{ 0x3400000000000004ull, 0xfc00000000000007ull, N("mov"), T(flhi), FLAGS, SRC1, N("mask"), T(is2) },
+	{ 0x3800000000000004ull, 0xfc00000000000007ull, N("bar"), N("read"), DST, BAR },
+	// 3c?
 	{ 0x40000000000001e4ull, 0xf8040000000001e7ull, N("nop") },
 	{ 0x40040000000001e4ull, 0xf8040000000001e7ull, N("pmevent"), PM }, // ... a bitmask of triggered pmevents? with 0 ignored?
 	{ 0x48000000000fc004ull, 0xf8000000000fc067ull, N("vote"), N("all"), PDST2, T(pnot1), PSRC1 },
