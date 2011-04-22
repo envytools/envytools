@@ -408,6 +408,14 @@ static struct insn tabfcrm[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabfcrmi[] = {
+	{ 0x0000000000000000ull, 0x0006000000000000ull, N("rni") },
+	{ 0x0002000000000000ull, 0x0006000000000000ull, N("rmi") },
+	{ 0x0004000000000000ull, 0x0006000000000000ull, N("rpi") },
+	{ 0x0006000000000000ull, 0x0006000000000000ull, N("rzi") },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabsetit[] = {
 	{ 0x0000000000000000ull, 0x0780000000000000ull, N("false") },
 	{ 0x0080000000000000ull, 0x0780000000000000ull, N("lt") },
@@ -517,13 +525,14 @@ F1(sat38, 0x38, N("sat"))
 F1(faf, 5, N("ftz"))
 F1(fmf, 6, N("ftz"))
 F1(setftz, 0x3b, N("ftz"))
+F1(ftz37, 0x37, N("ftz"))
 F1(fmz, 7, N("fmz"))
 F1(fmneg, 0x39, N("neg"))
 F1(neg1, 9, N("neg"))
 F1(neg2, 8, N("neg"))
 F1(abs1, 7, N("abs"))
 F1(abs2, 6, N("abs"))
-F1(rint, 7, N("rint"))
+F1(rint, 7, T(fcrmi))
 F1(rev, 8, N("rev"))
 F1(nowrap, 9, N("nowrap"))
 
@@ -931,7 +940,13 @@ static struct insn tabm[] = {
 	{ 0x0400000000000004ull, 0xfc00000000000007ull, N("set"), PDST, PDSTN, T(setct), CC, T(setlop) },
 	{ 0x0800000000000004ull, 0xfc00000000000007ull, N("set"), T(setdt), DST, T(acout), T(psrc), T(setlop) },
 	{ 0x0c00000000000004ull, 0xfc00000000000007ull, N("set"), PDST, PDSTN, T(psrc), T(setlop) },
-	{ 0x1000000000000004ull, 0xfc00000000000007ull, N("cvt"), T(rint), T(fcrm), T(cvtfdst), T(cvtfsrc) },
+	{ 0x1000000000900004ull, 0xfc00000001b00007ull, N("cvt"), T(ftz37), T(ias), T(rint), N("f16"), DST, T(acout), T(neg2), T(abs2), N("f16"), T(is2), HNUM },
+	{ 0x1000000001200004ull, 0xfc00000001b00007ull, N("cvt"), T(ftz37), T(ias), T(rint), N("f32"), DST, T(acout), T(neg2), T(abs2), N("f32"), T(fs2) },
+	{ 0x1000000001b00004ull, 0xfc00000001b00007ull, N("cvt"), T(ftz37), T(ias), T(rint), N("f64"), DSTD, T(acout), T(neg2), T(abs2), N("f64"), T(ds2) },
+	{ 0x1000000001100004ull, 0xfc00000001b00007ull, N("cvt"), T(ftz37), T(ias), T(fcrm), N("f16"), DST, T(acout), T(neg2), T(abs2), N("f32"), T(fs2) },
+	{ 0x1000000001a00004ull, 0xfc00000001b00007ull, N("cvt"), T(ftz37), T(ias), T(fcrm), N("f32"), DST, T(acout), T(neg2), T(abs2), N("f64"), T(ds2) },
+	{ 0x1000000000a00004ull, 0xfc00000001b00007ull, N("cvt"), T(ftz37), T(ias), N("f32"), DST, T(acout), T(neg2), T(abs2), N("f16"), T(is2), HNUM },
+	{ 0x1000000001300004ull, 0xfc00000001b00007ull, N("cvt"), T(ftz37), T(ias), N("f64"), DSTD, T(acout), T(neg2), T(abs2), N("f32"), T(fs2) },
 	{ 0x1400000000000004ull, 0xfc00000000000007ull, N("cvt"), T(fcrm), T(cvtidst), T(cvtfsrc) },
 	{ 0x1800000000000004ull, 0xfc00000000000007ull, N("cvt"), T(fcrm), T(cvtfdst), T(cvtisrc) },
 	{ 0x1c00000000000004ull, 0xfc00000000000007ull, N("cvt"), T(ias), T(cvtidst), T(cvtisrc) },
