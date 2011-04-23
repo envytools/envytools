@@ -336,7 +336,8 @@ static struct bitfield vmem_imm = { 0x20, 16 };
 static struct bitfield amem_imm = { 0x20, 10 };
 static struct bitfield cmem_idx = { 0x2a, 4 };
 static struct bitfield fcmem_idx = { 0x2a, 5 };
-static struct bitfield scmem_imm = { { 0x14, 6 }, BF_UNSIGNED, 2 };
+static struct bitfield sc1mem_imm = { { 0x14, 6 }, BF_UNSIGNED, 2 };
+static struct bitfield sc2mem_imm = { { 0x1a, 6 }, BF_UNSIGNED, 2 };
 static struct bitfield sc0mem_idx = { 0 };
 static struct bitfield sc1mem_idx = { .addend = 1 };
 static struct bitfield sc16mem_idx = { .addend = 16 };
@@ -390,9 +391,12 @@ static struct mem lduld_gmem2s4_m = { "g", 0, &src2_r, &lduld2s4_imm };
 static struct mem lduld_gdmem2s4_m = { "g", 0, &src2d_r, &lduld2s4_imm };
 // vertex base address (for tessellation and geometry programs)
 static struct mem vba_m = { "p", 0, &src1_r, &fcmem_imm };
-static struct mem sc0mem_m = { "c", &sc0mem_idx, 0, &scmem_imm };
-static struct mem sc1mem_m = { "c", &sc1mem_idx, 0, &scmem_imm };
-static struct mem sc16mem_m = { "c", &sc16mem_idx, 0, &scmem_imm };
+static struct mem sc1_0mem_m = { "c", &sc0mem_idx, 0, &sc1mem_imm };
+static struct mem sc1_1mem_m = { "c", &sc1mem_idx, 0, &sc1mem_imm };
+static struct mem sc1_16mem_m = { "c", &sc16mem_idx, 0, &sc1mem_imm };
+static struct mem sc2_0mem_m = { "c", &sc0mem_idx, 0, &sc2mem_imm };
+static struct mem sc2_1mem_m = { "c", &sc1mem_idx, 0, &sc2mem_imm };
+static struct mem sc2_16mem_m = { "c", &sc16mem_idx, 0, &sc2mem_imm };
 #define GLOBAL atommem, &gmem_m
 #define GLOBALD atommem, &gdmem_m
 #define GATOM atommem, &gamem_m
@@ -432,9 +436,12 @@ static struct mem sc16mem_m = { "c", &sc16mem_idx, 0, &scmem_imm };
 #define LDULD_GLOBAL2S4 atommem, &lduld_gmem2s4_m
 #define LDULD_GLOBALD2S4 atommem, &lduld_gdmem2s4_m
 #define LDULD_SHAREDS4 atommem, &lduld_smems4_m
-#define SCONST0 atommem, &sc0mem_m
-#define SCONST1 atommem, &sc1mem_m
-#define SCONST16 atommem, &sc16mem_m
+#define SCONST1_0 atommem, &sc1_0mem_m
+#define SCONST1_1 atommem, &sc1_1mem_m
+#define SCONST1_16 atommem, &sc1_16mem_m
+#define SCONST2_0 atommem, &sc2_0mem_m
+#define SCONST2_1 atommem, &sc2_1mem_m
+#define SCONST2_16 atommem, &sc2_16mem_m
 
 /*
  * The instructions
@@ -1637,9 +1644,17 @@ static struct insn tabi2iss[] = {
 
 static struct insn tabss1[] = {
 	{ 0x00000000, 0x00000300, SRC1 },
-	{ 0x00000100, 0x00000300, SCONST0 },
-	{ 0x00000200, 0x00000300, SCONST1 },
-	{ 0x00000300, 0x00000300, SCONST16 },
+	{ 0x00000100, 0x00000300, SCONST1_0 },
+	{ 0x00000200, 0x00000300, SCONST1_1 },
+	{ 0x00000300, 0x00000300, SCONST1_16 },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabss2[] = {
+	{ 0x00000000, 0x00000300, SRC2 },
+	{ 0x00000100, 0x00000300, SCONST2_0 },
+	{ 0x00000200, 0x00000300, SCONST2_1 },
+	{ 0x00000300, 0x00000300, SCONST2_16 },
 	{ 0, 0, OOPS },
 };
 
@@ -1695,6 +1710,8 @@ static struct insn tabs[] = {
 	{ 0x00000288, 0x000003ff, T(p), N("cvt"), T(rmsi), T(us32_18), DST, T(acout17), T(neg16), T(abs19), N("f32"), SRC2 },
 	{ 0x00000098, 0x000003ff, T(p), N("cvt"), T(sat18), N("f32"), DST, T(acout17), T(neg16), T(abs19), N("f32"), SRC2 },
 	{ 0x00000298, 0x000003ff, T(p), N("cvt"), T(sat18), T(rmsi), N("f32"), DST, T(acout17), T(neg16), T(abs19), N("f32"), SRC2 },
+
+	{ 0x000000a8, 0x000000ff, T(p), N("mul"), N("f32"), DST, SRC1, T(ss2) },
 	{ 0, 0, OOPS },
 };
 
