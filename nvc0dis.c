@@ -305,13 +305,13 @@ static struct bitfield esrc_cnt = { { 5, 2 }, .addend = 1 };
 static struct vec tdst_v = { "r", &dst_bf, &tdst_cnt, &tdst_mask };
 static struct vec tsrc_v = { "r", &src1_bf, &tsrc_cnt, 0 };
 static struct vec saddr_v = { "r", &src1_bf, &saddr_cnt, 0 };
-static struct vec esrc_v = { "r", &src2_bf, &esrc_cnt, 0 };
-static struct vec vdst_v = { "r", &dst_bf, &esrc_cnt, 0 };
+static struct vec asrc_v = { "r", &src2_bf, &esrc_cnt, 0 };
+static struct vec adst_v = { "r", &dst_bf, &esrc_cnt, 0 };
 #define TDST atomvec, &tdst_v
 #define TSRC atomvec, &tsrc_v
 #define SADDR atomvec, &saddr_v
-#define ESRC atomvec, &esrc_v
-#define VDST atomvec, &vdst_v
+#define ASRC atomvec, &asrc_v
+#define ADST atomvec, &adst_v
 
 /*
  * Memory fields
@@ -324,9 +324,9 @@ static struct bitfield slmem_imm = { { 0x1a, 24 }, BF_SIGNED };
 static struct bitfield cmem_imm = { 0x1a, 16 };
 static struct bitfield fcmem_imm = { { 0x1a, 16 }, BF_SIGNED };
 static struct bitfield vmem_imm = { 0x20, 16 };
+static struct bitfield amem_imm = { 0x20, 10 };
 static struct bitfield cmem_idx = { 0x2a, 4 };
 static struct bitfield fcmem_idx = { 0x2a, 5 };
-static struct bitfield vba_imm = { 0x1a, 6 };
 static struct bitfield lduld_imm = { { 0x2b, 10 }, BF_SIGNED };
 static struct bitfield lduld2_imm = { { 5, 5, 0x26, 5 }, BF_SIGNED };
 static struct bitfield ldulds1_imm = { { 0x2b, 10 }, BF_SIGNED, 1 };
@@ -345,7 +345,7 @@ static struct mem smem_m = { "s", 0, &src1_r, &slmem_imm };
 static struct mem lmem_m = { "l", 0, &src1_r, &slmem_imm };
 static struct mem fcmem_m = { "c", &fcmem_idx, &src1_r, &fcmem_imm };
 static struct mem vmem_m = { "v", 0, &src1_r, &vmem_imm };
-static struct mem amem_m = { "a", 0, &src1_r, &vmem_imm, &src2_r }; // XXX: wtf?
+static struct mem amem_m = { "a", 0, &src1_r, &amem_imm }; // XXX: wtf?
 static struct mem cmem_m = { "c", &cmem_idx, 0, &cmem_imm };
 static struct mem lcmem_m = { "l", 0, &src1_r, &slmem_imm };
 static struct mem gcmem_m = { "g", 0, &src1_r, &gcmem_imm };
@@ -376,7 +376,7 @@ static struct mem lduld_smems4_m = { "s", 0, &src1_r , &ldulds4_imm };
 static struct mem lduld_gmem2s4_m = { "g", 0, &src2_r, &lduld2s4_imm };
 static struct mem lduld_gdmem2s4_m = { "g", 0, &src2d_r, &lduld2s4_imm };
 // vertex base address (for tessellation and geometry programs)
-static struct mem vba_m = { 0, 0, &src1_r, &vba_imm };
+static struct mem vba_m = { "p", 0, &src1_r, &fcmem_imm };
 #define GLOBAL atommem, &gmem_m
 #define GLOBALD atommem, &gdmem_m
 #define GATOM atommem, &gamem_m
@@ -458,10 +458,10 @@ static struct insn tabldstd[] = {
 };
 
 static struct insn tabldvf[] = {
-	{ 0x60, 0xe0, N("b128") },
-	{ 0x40, 0xe0, N("b96") },
-	{ 0x20, 0xe0, N("b64") },
-	{ 0x00, 0xe0, N("b32") },
+	{ 0x60, 0x60, N("b128") },
+	{ 0x40, 0x60, N("b96") },
+	{ 0x20, 0x60, N("b64") },
+	{ 0x00, 0x60, N("b32") },
 	{ 0, 0, OOPS },
 };
 
@@ -863,6 +863,9 @@ F1(pnot1, 0x17, N("not"))
 F1(pnot2, 0x1d, N("not"))
 F1(pnot3, 0x34, N("not"))
 
+F1(patch, 0x8, N("patch"))
+F1(emit, 0x5, N("emit"))
+F1(restart, 0x6, N("restart"))
 F1(dtex, 0x2d, N("deriv"))
 F(ltex, 9, N("all"), N("live"))
 
@@ -1504,15 +1507,12 @@ static struct insn tabm[] = {
 	{ 0xf000400000000085ull, 0xfc00400000000087ull, N("suleab"), PDST2, DSTD, T(ldstt), T(sclamp), SURF, SADDR },
 	{ 0x0000000000000005ull, 0x0000000000000007ull, OOPS },
 
-	{ 0x0000000000000006ull, 0xfe00000000000067ull, N("pfetch"), DST, VBASRC },
-	{ 0x0600000000000006ull, 0xfe00000000000107ull, N("vfetch"), VDST, T(ldvf), ATTR }, // src2 is vertex offset
-	{ 0x0600000000000106ull, 0xfe00000000000107ull, N("vfetch"), N("patch"), VDST, T(ldvf), ATTR }, // per patch input
-	{ 0x0a00000003f00006ull, 0xfe7e000003f00107ull, N("export"), VAR, ESRC }, // GP
-	{ 0x0a7e000003f00006ull, 0xfe7e000003f00107ull, N("export"), VAR, ESRC }, // VP
-	{ 0x0a7e000003f00106ull, 0xfe7e000003f00107ull, N("export"), N("patch"), VAR, ESRC }, // per patch output
+	{ 0x0000000000000006ull, 0xfc00000000000007ull, N("ld"), DST, VBASRC },
+	/* XXX: what was bit 0x39 for, again? */
+	{ 0x0400000000000006ull, 0xfc00000000000007ull, N("ld"), T(patch), T(ldvf), ADST, ATTR, SRC2 },
+	{ 0x0800000000000006ull, 0xfc00000000000007ull, N("st"), T(patch), T(ldvf), ATTR, ASRC, SRC3 },
 	{ 0x1400000000000006ull, 0xfc00000000000007ull, N("ld"), T(ldstt), T(ldstd), FCONST },
-	{ 0x1c000000fc000026ull, 0xfe000000fc000067ull, N("emit") },
-	{ 0x1c000000fc000046ull, 0xfe000000fc000067ull, N("restart") },
+	{ 0x1c00000000000006ull, 0xfe00000000000007ull, N("out"), T(emit), T(restart), DST, SRC1, T(is2) },
 	{ 0x80000000fc000086ull, 0xfc000000fc000087ull, N("texauto"), T(texf), TDST, TEX, SAMP, TSRC }, // mad as a hatter.
 	{ 0x90000000fc000086ull, 0xfc000000fc000087ull, N("texfetch"), T(texf), TDST, TEX, SAMP, TSRC },
 	{ 0xc0000000fc000006ull, 0xfc000000fc000007ull, N("texsize"), T(texf), TDST, TEX, SAMP, TSRC },
