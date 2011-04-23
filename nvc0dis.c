@@ -917,12 +917,20 @@ static struct insn tabv4dmask[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabv2dmask[] = {
+	{ 0x0000000000000000ull, 0x0180000000000000ull, N("none") },
+	{ 0x0080000000000000ull, 0x0180000000000000ull, N("x") },
+	{ 0x0100000000000000ull, 0x0180000000000000ull, N("y") },
+	{ 0x0180000000000000ull, 0x0180000000000000ull },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabv4src1[] = {
 	{ 0x0000000000000000ull, 0x00000f0000000000ull, N("b0") },
 	{ 0x0000010000000000ull, 0x00000f0000000000ull, N("b1") },
 	{ 0x0000020000000000ull, 0x00000f0000000000ull, N("b2") },
 	{ 0x0000030000000000ull, 0x00000f0000000000ull, N("b3") },
-	{ 0x0000040000000000ull, 0x00000f0000000000ull,  },
+	{ 0x0000040000000000ull, 0x00000f0000000000ull  },
 	{ 0x0000050000000000ull, 0x00000f0000000000ull, N("b1234") },
 	{ 0x0000060000000000ull, 0x00000f0000000000ull, N("b2345") },
 	{ 0x0000070000000000ull, 0x00000f0000000000ull, N("b3456") },
@@ -932,6 +940,30 @@ static struct insn tabv4src1[] = {
 	{ 0x00000b0000000000ull, 0x00000f0000000000ull, N("b0213") },
 	{ 0x00000c0000000000ull, 0x00000f0000000000ull, N("b0321") },
 	{ 0x00000d0000000000ull, 0x00000f0000000000ull, N("b0132") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabv2src1[] = {
+	{ 0x0000000000000000ull, 0x00008c0000000000ull, N("h0") },
+	{ 0x0000040000000000ull, 0x00008c0000000000ull, N("h10") },
+	{ 0x0000080000000000ull, 0x00008c0000000000ull },
+	{ 0x00000c0000000000ull, 0x00008c0000000000ull, N("h1") },
+	{ 0x0000800000000000ull, 0x00008f0000000000ull, N("h0") },
+	{ 0x0000810000000000ull, 0x00008f0000000000ull, N("h10") },
+	{ 0x0000820000000000ull, 0x00008f0000000000ull, N("h20") },
+	{ 0x0000830000000000ull, 0x00008f0000000000ull, N("h30") },
+	{ 0x0000840000000000ull, 0x00008f0000000000ull },
+	{ 0x0000850000000000ull, 0x00008f0000000000ull, N("h1") },
+	{ 0x0000860000000000ull, 0x00008f0000000000ull, N("h21") },
+	{ 0x0000870000000000ull, 0x00008f0000000000ull, N("h31") },
+	{ 0x0000880000000000ull, 0x00008f0000000000ull, N("h02") },
+	{ 0x0000890000000000ull, 0x00008f0000000000ull, N("h12") },
+	{ 0x00008a0000000000ull, 0x00008f0000000000ull, N("h2") },
+	{ 0x00008b0000000000ull, 0x00008f0000000000ull, N("h32") },
+	{ 0x00008c0000000000ull, 0x00008f0000000000ull, N("h03") },
+	{ 0x00008d0000000000ull, 0x00008f0000000000ull, N("h13") },
+	{ 0x00008e0000000000ull, 0x00008f0000000000ull, N("h23") },
+	{ 0x00008f0000000000ull, 0x00008f0000000000ull, N("h3") },
 	{ 0, 0, OOPS },
 };
 
@@ -947,6 +979,27 @@ static struct insn tabv4src2[] = {
 	{ 0x0000008000000000ull, 0x000000f000000000ull, N("b7654") },
 	{ 0x0000009000000000ull, 0x000000f000000000ull, N("b5476") },
 	{ 0x000000a000000000ull, 0x000000f000000000ull, N("b6745") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabv2src2[] = {
+	{ 0x0000000000000000ull, 0x0000800000000000ull },
+	{ 0x0000800000000000ull, 0x000080f000000000ull, N("h0") },
+	{ 0x0000801000000000ull, 0x000080f000000000ull, N("h10") },
+	{ 0x0000802000000000ull, 0x000080f000000000ull, N("h20") },
+	{ 0x0000803000000000ull, 0x000080f000000000ull, N("h30") },
+	{ 0x0000804000000000ull, 0x000080f000000000ull, N("h01") },
+	{ 0x0000805000000000ull, 0x000080f000000000ull, N("h1") },
+	{ 0x0000806000000000ull, 0x000080f000000000ull, N("h21") },
+	{ 0x0000807000000000ull, 0x000080f000000000ull, N("h31") },
+	{ 0x0000808000000000ull, 0x000080f000000000ull, N("h02") },
+	{ 0x0000809000000000ull, 0x000080f000000000ull, N("h12") },
+	{ 0x000080a000000000ull, 0x000080f000000000ull, N("h2") },
+	{ 0x000080b000000000ull, 0x000080f000000000ull, N("h32") },
+	{ 0x000080c000000000ull, 0x000080f000000000ull, N("h03") },
+	{ 0x000080d000000000ull, 0x000080f000000000ull, N("h13") },
+	{ 0x000080e000000000ull, 0x000080f000000000ull },
+	{ 0x000080f000000000ull, 0x000080f000000000ull, N("h3") },
 	{ 0, 0, OOPS },
 };
 
@@ -1124,6 +1177,17 @@ static struct insn tabm[] = {
 	{ 0x9000000000000004ull, 0xfc00000000000007ull, N("vshr4"), T(vsclamp), T(sat9), T(v4dst), T(v4dmask), T(us8_39), DST, T(acout30), T(v4src1), T(us8_6), SRC1, T(v4src2), T(v4s2), SRC3  },
 	{ 0x9400000000000004ull, 0xfc00000000000007ull, N("vshl4"), T(vsclamp), T(sat9), T(v4dst), T(v4dmask), T(us8_39), DST, T(acout30), T(v4src1), T(us8_6), SRC1, T(v4src2), T(v4s2), SRC3  },
 	{ 0x9800000000000004ull, 0xfc00000000000007ull, N("vsel4"), T(sat9), T(v4dst), T(v4dmask), T(us8_39), DST, T(acout30), T(v4src1), T(us8_6), SRC1, T(v4src2), T(us8_5), T(v4s2), T(pnot3), PSRC3  },
+	{ 0xa000000000000004ull, 0xfc00000000000187ull, N("vadd2"), T(sat9), T(v4dst), T(v2dmask), T(us8_39), DST, T(acout30), T(v2src1), T(us8_6), SRC1, T(v2src2), T(us8_5), T(vs2), SRC3  },
+	{ 0xa000000000000084ull, 0xfc00000000000187ull, N("vsub2"), T(sat9), T(v4dst), T(v2dmask), T(us8_39), DST, T(acout30), T(v2src1), T(us8_6), SRC1, T(v2src2), T(us8_5), T(vs2), SRC3  },
+	{ 0xa000000000000104ull, 0xfc00000000000187ull, N("vsubr2"), T(sat9), T(v4dst), T(v2dmask), T(us8_39), DST, T(acout30), T(v2src1), T(us8_6), SRC1, T(v2src2), T(us8_5), T(vs2), SRC3  },
+	{ 0xa000000000000184ull, 0xfc00000000000187ull, N("vavg2"), T(sat9), T(v4dst), T(v2dmask), T(us8_39), DST, T(acout30), T(v2src1), T(us8_6), SRC1, T(v2src2), T(us8_5), T(vs2), SRC3  },
+	{ 0xa400000000000004ull, 0xfc00000000000087ull, N("vmin2"), T(sat9), T(v4dst), T(v2dmask), T(us8_39), DST, T(acout30), T(v2src1), T(us8_6), SRC1, T(v2src2), T(us8_5), T(vs2), SRC3  },
+	{ 0xa400000000000084ull, 0xfc00000000000087ull, N("vmax2"), T(sat9), T(v4dst), T(v2dmask), T(us8_39), DST, T(acout30), T(v2src1), T(us8_6), SRC1, T(v2src2), T(us8_5), T(vs2), SRC3  },
+	{ 0xa800000000000004ull, 0xfc00000000000007ull, N("vabsdiff2"), T(sat9), T(v4dst), T(v2dmask), T(us8_39), DST, T(acout30), T(v2src1), T(us8_6), SRC1, T(v2src2), T(us8_5), T(vs2), SRC3  },
+	{ 0xac00000000000004ull, 0xfc00000000000007ull, N("vset2"), T(v4dst), T(v2dmask), DST, T(acout30), T(vsetop), T(v2src1), T(us8_6), SRC1, T(v2src2), T(us8_5), T(vs2), SRC3  },
+	{ 0xb000000000000004ull, 0xfc00000000000007ull, N("vshr2"), T(vsclamp), T(sat9), T(v4dst), T(v2dmask), T(us8_39), DST, T(acout30), T(v2src1), T(us8_6), SRC1, T(v2src2), T(vs2), SRC3  },
+	{ 0xb400000000000004ull, 0xfc00000000000007ull, N("vshl2"), T(vsclamp), T(sat9), T(v4dst), T(v2dmask), T(us8_39), DST, T(acout30), T(v2src1), T(us8_6), SRC1, T(v2src2), T(vs2), SRC3  },
+	{ 0xb800000000000004ull, 0xfc00000000000007ull, N("vsel2"), T(sat9), T(v4dst), T(v2dmask), T(us8_39), DST, T(acout30), T(v2src1), T(us8_6), SRC1, T(v2src2), T(us8_5), T(vs2), T(pnot3), PSRC3  },
 	{ 0xc000000000000004ull, 0xf800000000000187ull, N("vadd"), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
 	{ 0xc000000000000084ull, 0xf800000000000187ull, N("vsub"), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
 	{ 0xc000000000000104ull, 0xf800000000000187ull, N("vsubr"), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
