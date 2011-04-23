@@ -858,12 +858,16 @@ F(us32_2a, 0x2a, N("u32"), N("s32"))
 
 F(us8_5, 5, N("u8"), N("s8"))
 F(us8_6, 6, N("u8"), N("s8"))
-F(us8_9, 9, N("u8"), N("s8"))
+F(us8_b, 0xb, N("u8"), N("s8"))
+F(us8_c, 0xc, N("u8"), N("s8"))
+F(us8_d, 0xd, N("u8"), N("s8"))
 F(us8_39, 0x39, N("u8"), N("s8"))
 
 F(us16_5, 5, N("u16"), N("s16"))
 F(us16_6, 6, N("u16"), N("s16"))
-F(us16_9, 9, N("u16"), N("s16"))
+F(us16_b, 0xb, N("u16"), N("s16"))
+F(us16_c, 0xc, N("u16"), N("s16"))
+F(us16_d, 0xd, N("u16"), N("s16"))
 F(us16_39, 0x39, N("u16"), N("s16"))
 
 F1(high5, 0x5, N("high"))
@@ -1595,22 +1599,28 @@ static struct insn tabpsrcs[] = {
 };
 
 static struct insn tabs[] = {
-	{ 0x00000008, 0xf80003ff, N("nop") },
-	{ 0x10000008, 0xf80003ff, N("set"), PDST, T(setct), CC },
-	{ 0x18000008, 0xf80003ff, N("set"), PDST, T(psrcs) },
-	{ 0x40000008, 0xf00003ff, N("mov"), N("b32"), DST, SREGS },
-	{ 0x50000008, 0xf80003ff, N("bar"), N("sync"), T(bars) },
-	{ 0x58000008, 0xf80003ff, N("bar"), N("arrive"), T(bars) },
-	{ 0x70000008, 0xf40003ff, N("presin"), N("f32"), DST, SRC1 },
-	{ 0x74000008, 0xf40003ff, N("preex2"), N("f32"), DST, SRC1 },
-	{ 0x80000008, 0xbc0003ff, N("cos"), N("f32"), DST, T(abs1e), SRC1 },
-	{ 0x84000008, 0xbc0003ff, N("sin"), N("f32"), DST, T(abs1e), SRC1 },
-	{ 0x88000008, 0xbc0003ff, N("ex2"), N("f32"), DST, T(abs1e), SRC1 },
-	{ 0x8c000008, 0xbc0003ff, N("lg2"), N("f32"), DST, T(abs1e), SRC1 },
-	{ 0x90000008, 0xbc0003ff, N("rcp"), N("f32"), DST, T(abs1e), SRC1 },
-	{ 0x94000008, 0xbc0003ff, N("rsqrt"), N("f32"), DST, T(abs1e), SRC1 },
-	{ 0x98000008, 0xbc0003ff, N("rcp64h"), DST, T(abs1e), SRC1 },
-	{ 0x9c000008, 0xbc0003ff, N("rsqrt64h"), DST, T(abs1e), SRC1 },
+	{ 0x00000008, 0xf80003ff, T(p), N("nop") },
+	{ 0x10000008, 0xf80003ff, T(p), N("set"), PDST, T(setct), CC },
+	{ 0x18000008, 0xf80003ff, T(p), N("set"), PDST, T(psrcs) },
+	{ 0x40000008, 0xf00003ff, T(p), N("mov"), N("b32"), DST, SREGS },
+	{ 0x50000008, 0xf80003ff, T(p), N("bar"), N("sync"), T(bars) },
+	{ 0x58000008, 0xf80003ff, T(p), N("bar"), N("arrive"), T(bars) },
+	{ 0x70000008, 0xf40003ff, T(p), N("presin"), N("f32"), DST, SRC1 },
+	{ 0x74000008, 0xf40003ff, T(p), N("preex2"), N("f32"), DST, SRC1 },
+	{ 0x80000008, 0xbc0003ff, T(p), N("cos"), N("f32"), DST, T(abs1e), SRC1 },
+	{ 0x84000008, 0xbc0003ff, T(p), N("sin"), N("f32"), DST, T(abs1e), SRC1 },
+	{ 0x88000008, 0xbc0003ff, T(p), N("ex2"), N("f32"), DST, T(abs1e), SRC1 },
+	{ 0x8c000008, 0xbc0003ff, T(p), N("lg2"), N("f32"), DST, T(abs1e), SRC1 },
+	{ 0x90000008, 0xbc0003ff, T(p), N("rcp"), N("f32"), DST, T(abs1e), SRC1 },
+	{ 0x94000008, 0xbc0003ff, T(p), N("rsqrt"), N("f32"), DST, T(abs1e), SRC1 },
+	{ 0x98000008, 0xbc0003ff, T(p), N("rcp64h"), DST, T(abs1e), SRC1 },
+	{ 0x9c000008, 0xbc0003ff, T(p), N("rsqrt64h"), DST, T(abs1e), SRC1 },
+	{ 0x00000108, 0x000007ff, N("vabsdiff2"), T(us16_d), DST, T(us16_c), SRC1, T(us16_b), SRC2 },
+	{ 0x00000308, 0x00000fff, N("vadd2"), T(us16_d), DST, T(us16_c), SRC1, T(us16_c), SRC2 },
+	{ 0x00000b08, 0x00000fff, N("vsubr2"), T(us16_d), DST, T(us16_c), SRC1, T(us16_c), SRC2 },
+	{ 0x00000508, 0x000007ff, N("vabsdiff4"), T(us8_d), DST, T(us8_c), SRC1, T(us8_b), SRC2 },
+	{ 0x00000708, 0x00000fff, N("vadd4"), T(us8_d), DST, T(us8_c), SRC1, T(us8_c), SRC2 },
+	{ 0x00000f08, 0x00000fff, N("vsubr4"), T(us8_d), DST, T(us8_c), SRC1, T(us8_c), SRC2 },
 	{ 0, 0, OOPS },
 };
 
@@ -1618,7 +1628,7 @@ static struct insn tabroot[] = {
 	{ 7, 0xf, OP64, T(c) }, // control instructions, special-cased.
 	{ 0x0, 0x18, OP64, T(p), T(m) },
 	{ 0x10, 0x18, OP64, N("join"), T(p), T(m), },
-	{ 0x8, 0x8, OP32, T(p), T(s) },
+	{ 0x8, 0x8, OP32, T(s) },
 	{ 0, 0, OOPS },
 };
 
