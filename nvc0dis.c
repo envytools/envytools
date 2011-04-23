@@ -226,6 +226,7 @@ static struct bitfield pdstn_bf = { 0x0e, 3 };
 static struct bitfield pdst2_bf = { 0x36, 3 };
 static struct bitfield pdst3_bf = { 0x35, 3 }; // ...the hell?
 static struct bitfield pdst4_bf = { 0x32, 3 }; // yay.
+static struct bitfield pdstl_bf = { 8, 2, 0x3a, 1 }; // argh...
 static struct bitfield tex_bf = { 0x20, 7 };
 static struct bitfield samp_bf = { 0x28, 4 };
 static struct bitfield surf_bf = { 0x1a, 3 };
@@ -252,6 +253,7 @@ static struct reg pdstn_r = { &pdstn_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdst2_r = { &pdst2_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdst3_r = { &pdst3_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdst4_r = { &pdst4_bf, "p", .specials = pred_sr, .cool = 1 };
+static struct reg pdstl_r = { &pdstl_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg tex_r = { &tex_bf, "t", .cool = 1 };
 static struct reg samp_r = { &samp_bf, "s", .cool = 1 };
 static struct reg surf_r = { &surf_bf, "g", .cool = 1 };
@@ -281,6 +283,7 @@ static struct reg lduld_dst2d_r = { &lduld_dst2_bf, "r", "d" };
 #define PDST2 atomreg, &pdst2_r
 #define PDST3 atomreg, &pdst3_r
 #define PDST4 atomreg, &pdst4_r
+#define PDSTL atomreg, &pdstl_r
 #define TEX atomreg, &tex_r
 #define SAMP atomreg, &samp_r
 #define SURF atomreg, &surf_r
@@ -1238,6 +1241,7 @@ static struct insn tabm[] = {
 	{ 0x8800000000000005ull, 0xf800000000000007ull, N("ldu"), T(ldstt), T(ldstd), T(gmem) },
 	{ 0x9000000000000005ull, 0xf800000000000007ull, N("st"), T(ldstt), T(scop), T(gmem), T(ldstd) },
 	{ 0x9800000000000005ull, 0xf800000000000007ull, N("cctl"), T(cctlop), T(cctlmod), DST, T(gcmem) },
+	{ 0xa000000000000005ull, 0xf800000000000007ull, N("ld"), N("lock"), T(ldstt), PDSTL, T(ldstd), GLOBAL },
 	{ 0xb320003f00000005ull, 0xfb20003f00000007ull, N("prefetch"), DST, SRC1, SRC2 },
 	{ 0xb300000000000005ull, 0xf3e0000000000007ull, N("ldu"), N("b32"), DST, T(lduld_gmem2), N("ld"), N("b32"), LDULD_DST2, T(lduld_gmem1) },
 	{ 0xb320000000000005ull, 0xf3e0000000000007ull, N("ldu"), N("b64"), DSTD, T(lduld_gmem2), N("ld"), N("b32"), LDULD_DST2, T(lduld_gmem1) },
