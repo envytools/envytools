@@ -838,6 +838,7 @@ static struct insn tabv4s2[] = {
 
 F1(sat5, 5, N("sat"))
 F1(sat9, 9, N("sat"))
+F1(sat18, 0x18, N("sat"))
 F1(sat31, 0x31, N("sat"))
 F1(sat38, 0x38, N("sat"))
 F1(ftz5, 5, N("ftz"))
@@ -873,6 +874,7 @@ F1(acin7, 7, CC)
 F(us32_5, 5, N("u32"), N("s32"))
 F(us32_7, 7, N("u32"), N("s32"))
 F(us32_6, 6, N("u32"), N("s32"))
+F(us32_18, 0x18, N("u32"), N("s32"))
 F(us32_2a, 0x2a, N("u32"), N("s32"))
 
 F(us8_5, 5, N("u8"), N("s8"))
@@ -1641,6 +1643,22 @@ static struct insn tabss1[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabrms[] = {
+	{ 0x00000000, 0x00300000, N("rn") },
+	{ 0x00100000, 0x00300000, N("rm") },
+	{ 0x00200000, 0x00300000, N("rp") },
+	{ 0x00300000, 0x00300000, N("rz") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabrmsi[] = {
+	{ 0x00000000, 0x00300000, N("rni") },
+	{ 0x00100000, 0x00300000, N("rmi") },
+	{ 0x00200000, 0x00300000, N("rpi") },
+	{ 0x00300000, 0x00300000, N("rzi") },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabs[] = {
 	{ 0x00000008, 0xf80003ff, T(p), N("nop") },
 	{ 0x10000008, 0xf80003ff, T(p), N("set"), PDST, T(setct), CC },
@@ -1670,7 +1688,13 @@ static struct insn tabs[] = {
 	{ 0x00000018, 0x000001ff, T(p), N("cvt"), T(i2isd), DST, T(acout17), T(neg16), T(abs19), T(i2iss), SRC2 },
 	{ 0x00000118, 0x000003ff, T(p), N("mov"), DST, IMMS },
 	{ 0x00000318, 0x000003ff, T(p), N("mov"), DST, FIMMS },
+
 	{ 0x00000028, 0x000000ff, T(p), N("mov"), DST, T(ss1) },
+
+	{ 0x00000088, 0x000003ff, T(p), N("cvt"), T(rms), N("f32"), DST, T(acout17), T(neg16), T(abs19), T(us32_18), SRC2 },
+	{ 0x00000288, 0x000003ff, T(p), N("cvt"), T(rmsi), T(us32_18), DST, T(acout17), T(neg16), T(abs19), N("f32"), SRC2 },
+	{ 0x00000098, 0x000003ff, T(p), N("cvt"), T(sat18), N("f32"), DST, T(acout17), T(neg16), T(abs19), N("f32"), SRC2 },
+	{ 0x00000298, 0x000003ff, T(p), N("cvt"), T(sat18), T(rmsi), N("f32"), DST, T(acout17), T(neg16), T(abs19), N("f32"), SRC2 },
 	{ 0, 0, OOPS },
 };
 
