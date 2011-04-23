@@ -142,6 +142,7 @@ static struct bitfield actargoff = { 26, 32 };
 static struct bitfield baroff = { 0x14, 4 };
 static struct bitfield pmoff = { 0x1a, 16 };
 static struct bitfield tcntoff = { 0x1a, 12 };
+static struct bitfield bptoff = { 0x1a, 20 };
 static struct bitfield immoff = { { 0x1a, 20 }, BF_SIGNED };
 static struct bitfield fimmoff = { { 0x1a, 20 }, BF_UNSIGNED, 12 };
 static struct bitfield dimmoff = { { 0x1a, 20 }, BF_UNSIGNED, 44 };
@@ -154,6 +155,7 @@ static struct bitfield hnumoff = { 0x38, 1 };
 #define BAR atomimm, &baroff
 #define PM atomimm, &pmoff
 #define TCNT atomimm, &tcntoff
+#define BPT atomimm, &bptoff
 #define IMM atomimm, &immoff
 #define FIMM atomimm, &fimmoff
 #define DIMM atomimm, &dimmoff
@@ -1494,9 +1496,9 @@ static struct insn tabm[] = {
 	{ 0xd800400100000005ull, 0xfc00400100000007ull, N("suredp"), T(redop), T(sclamp), SURF, SADDR, DST },
 	{ 0xdc00400000000005ull, 0xfc02400000000007ull, N("sustb"), T(ldstt), T(scop), T(sclamp), SURF, SADDR, T(ldstd) },
 	{ 0xdc02400000000005ull, 0xfc02400000000007ull, N("sustp"), T(scop), T(sclamp), SURF, SADDR, DST },
-	{ 0xe000000000000005ull, 0xf800000000000067ull, N("membar"), N("prep") }, // always used before all 3 other membars.
-	{ 0xe000000000000025ull, 0xf800000000000067ull, N("membar"), N("gl") },
-	{ 0xe000000000000045ull, 0xf800000000000067ull, N("membar"), N("sys") },
+	{ 0xe000000000000005ull, 0xfc00000000000067ull, N("membar"), N("cta") },
+	{ 0xe000000000000025ull, 0xfc00000000000067ull, N("membar"), N("gl") },
+	{ 0xe000000000000045ull, 0xfc00000000000067ull, N("membar"), N("sys") },
 	{ 0xe800000000000005ull, 0xfc00000000000007ull, N("st"), N("unlock"), T(ldstt), GLOBAL, T(ldstd) },
 	{ 0xf000400000000085ull, 0xfc00400000000087ull, N("suleab"), PDST2, DSTD, T(ldstt), T(sclamp), SURF, SADDR },
 	{ 0x0000000000000005ull, 0x0000000000000007ull, OOPS },
@@ -1530,6 +1532,7 @@ static struct insn tabp[] = {
 
 F1(brawarp, 0xf, N("allwarp")) // probably jumps if the whole warp has the predicate evaluate to true.
 F1(lim, 0x10, N("lim"))
+F1(terminate, 0xe, N("terminate"))
 
 static struct insn tabbtarg[] = {
 	{ 0x0000000000000000ull, 0x0000000000004000ull, BTARG },
@@ -1557,12 +1560,15 @@ static struct insn tabc[] = {
 	{ 0x8800000000000007ull, 0xf800000000000007ull, T(p), T(cc), N("longjmp") },
 	{ 0x9000000000000007ull, 0xf800000000000007ull, T(p), T(cc), N("ret") },
 	{ 0x9800000000000007ull, 0xf800000000000007ull, T(p), T(cc), N("discard") },
+	{ 0xa000000000000007ull, 0xf800000000000007ull, N("rtt"), T(terminate) },
 	{ 0xa800000000000007ull, 0xf800000000000007ull, T(p), T(cc), N("brk") },
 	{ 0xb000000000000007ull, 0xf800000000000007ull, T(p), T(cc), N("cont") },
 	{ 0xc000000000000007ull, 0xf800000000000007ull, N("quadon") },
 	{ 0xc800000000000007ull, 0xf800000000000007ull, N("quadpop") },
-	{ 0xd000000000000007ull, 0xf80000000000c007ull, N("membar"), N("cta") },
-	{ 0xd00000000000c007ull, 0xf80000000000c007ull, N("trap") },
+	{ 0xd000000000000007ull, 0xf80000000000c007ull, N("bpt"), N("drain"), BPT },
+	{ 0xd000000000004007ull, 0xf80000000000c007ull, N("bpt"), N("cal"), BPT },
+	{ 0xd000000000008007ull, 0xf80000000000c007ull, N("bpt"), N("pause"), BPT },
+	{ 0xd00000000000c007ull, 0xf80000000000c007ull, N("bpt"), N("trap"), BPT },
 	{ 0x0000000000000007ull, 0x0000000000000007ull, T(p), OOPS, BTARG },
 	{ 0, 0, OOPS },
 };
