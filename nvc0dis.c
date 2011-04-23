@@ -858,7 +858,13 @@ F(us32_2a, 0x2a, N("u32"), N("s32"))
 
 F(us8_5, 5, N("u8"), N("s8"))
 F(us8_6, 6, N("u8"), N("s8"))
+F(us8_9, 9, N("u8"), N("s8"))
 F(us8_39, 0x39, N("u8"), N("s8"))
+
+F(us16_5, 5, N("u16"), N("s16"))
+F(us16_6, 6, N("u16"), N("s16"))
+F(us16_9, 9, N("u16"), N("s16"))
+F(us16_39, 0x39, N("u16"), N("s16"))
 
 F1(high5, 0x5, N("high"))
 F1(high6, 6, N("high"))
@@ -1451,17 +1457,17 @@ static struct insn tabm[] = {
 	{ 0x9000000000000004ull, 0xfc00000000000007ull, N("vshr4"), T(vsclamp), T(sat9), T(v4dst), T(v4dmask), T(us8_39), DST, T(acout30), T(v4src1), T(us8_6), SRC1, T(v4src2), T(v4s2), SRC3  },
 	{ 0x9400000000000004ull, 0xfc00000000000007ull, N("vshl4"), T(vsclamp), T(sat9), T(v4dst), T(v4dmask), T(us8_39), DST, T(acout30), T(v4src1), T(us8_6), SRC1, T(v4src2), T(v4s2), SRC3  },
 	{ 0x9800000000000004ull, 0xfc00000000000007ull, N("vsel4"), T(sat9), T(v4dst), T(v4dmask), T(us8_39), DST, T(acout30), T(v4src1), T(us8_6), SRC1, T(v4src2), T(us8_5), T(v4s2), T(pnot3), PSRC3  },
-	{ 0xa000000000000004ull, 0xfc00000000000187ull, N("vadd2"), T(sat9), T(v4dst), T(v2dmask), T(us8_39), DST, T(acout30), T(v2src1), T(us8_6), SRC1, T(v2src2), T(us8_5), T(vs2), SRC3  },
-	{ 0xa000000000000084ull, 0xfc00000000000187ull, N("vsub2"), T(sat9), T(v4dst), T(v2dmask), T(us8_39), DST, T(acout30), T(v2src1), T(us8_6), SRC1, T(v2src2), T(us8_5), T(vs2), SRC3  },
-	{ 0xa000000000000104ull, 0xfc00000000000187ull, N("vsubr2"), T(sat9), T(v4dst), T(v2dmask), T(us8_39), DST, T(acout30), T(v2src1), T(us8_6), SRC1, T(v2src2), T(us8_5), T(vs2), SRC3  },
-	{ 0xa000000000000184ull, 0xfc00000000000187ull, N("vavg2"), T(sat9), T(v4dst), T(v2dmask), T(us8_39), DST, T(acout30), T(v2src1), T(us8_6), SRC1, T(v2src2), T(us8_5), T(vs2), SRC3  },
-	{ 0xa400000000000004ull, 0xfc00000000000087ull, N("vmin2"), T(sat9), T(v4dst), T(v2dmask), T(us8_39), DST, T(acout30), T(v2src1), T(us8_6), SRC1, T(v2src2), T(us8_5), T(vs2), SRC3  },
-	{ 0xa400000000000084ull, 0xfc00000000000087ull, N("vmax2"), T(sat9), T(v4dst), T(v2dmask), T(us8_39), DST, T(acout30), T(v2src1), T(us8_6), SRC1, T(v2src2), T(us8_5), T(vs2), SRC3  },
-	{ 0xa800000000000004ull, 0xfc00000000000007ull, N("vabsdiff2"), T(sat9), T(v4dst), T(v2dmask), T(us8_39), DST, T(acout30), T(v2src1), T(us8_6), SRC1, T(v2src2), T(us8_5), T(vs2), SRC3  },
-	{ 0xac00000000000004ull, 0xfc00000000000007ull, N("vset2"), T(v4dst), T(v2dmask), DST, T(acout30), T(vsetop), T(v2src1), T(us8_6), SRC1, T(v2src2), T(us8_5), T(vs2), SRC3  },
-	{ 0xb000000000000004ull, 0xfc00000000000007ull, N("vshr2"), T(vsclamp), T(sat9), T(v4dst), T(v2dmask), T(us8_39), DST, T(acout30), T(v2src1), T(us8_6), SRC1, T(v2src2), T(vs2), SRC3  },
-	{ 0xb400000000000004ull, 0xfc00000000000007ull, N("vshl2"), T(vsclamp), T(sat9), T(v4dst), T(v2dmask), T(us8_39), DST, T(acout30), T(v2src1), T(us8_6), SRC1, T(v2src2), T(vs2), SRC3  },
-	{ 0xb800000000000004ull, 0xfc00000000000007ull, N("vsel2"), T(sat9), T(v4dst), T(v2dmask), T(us8_39), DST, T(acout30), T(v2src1), T(us8_6), SRC1, T(v2src2), T(us8_5), T(vs2), T(pnot3), PSRC3  },
+	{ 0xa000000000000004ull, 0xfc00000000000187ull, N("vadd2"), T(sat9), T(v4dst), T(v2dmask), T(us16_39), DST, T(acout30), T(v2src1), T(us16_6), SRC1, T(v2src2), T(us16_5), T(vs2), SRC3  },
+	{ 0xa000000000000084ull, 0xfc00000000000187ull, N("vsub2"), T(sat9), T(v4dst), T(v2dmask), T(us16_39), DST, T(acout30), T(v2src1), T(us16_6), SRC1, T(v2src2), T(us16_5), T(vs2), SRC3  },
+	{ 0xa000000000000104ull, 0xfc00000000000187ull, N("vsubr2"), T(sat9), T(v4dst), T(v2dmask), T(us16_39), DST, T(acout30), T(v2src1), T(us16_6), SRC1, T(v2src2), T(us16_5), T(vs2), SRC3  },
+	{ 0xa000000000000184ull, 0xfc00000000000187ull, N("vavg2"), T(sat9), T(v4dst), T(v2dmask), T(us16_39), DST, T(acout30), T(v2src1), T(us16_6), SRC1, T(v2src2), T(us16_5), T(vs2), SRC3  },
+	{ 0xa400000000000004ull, 0xfc00000000000087ull, N("vmin2"), T(sat9), T(v4dst), T(v2dmask), T(us16_39), DST, T(acout30), T(v2src1), T(us16_6), SRC1, T(v2src2), T(us16_5), T(vs2), SRC3  },
+	{ 0xa400000000000084ull, 0xfc00000000000087ull, N("vmax2"), T(sat9), T(v4dst), T(v2dmask), T(us16_39), DST, T(acout30), T(v2src1), T(us16_6), SRC1, T(v2src2), T(us16_5), T(vs2), SRC3  },
+	{ 0xa800000000000004ull, 0xfc00000000000007ull, N("vabsdiff2"), T(sat9), T(v4dst), T(v2dmask), T(us16_39), DST, T(acout30), T(v2src1), T(us16_6), SRC1, T(v2src2), T(us16_5), T(vs2), SRC3  },
+	{ 0xac00000000000004ull, 0xfc00000000000007ull, N("vset2"), T(v4dst), T(v2dmask), DST, T(acout30), T(vsetop), T(v2src1), T(us16_6), SRC1, T(v2src2), T(us16_5), T(vs2), SRC3  },
+	{ 0xb000000000000004ull, 0xfc00000000000007ull, N("vshr2"), T(vsclamp), T(sat9), T(v4dst), T(v2dmask), T(us16_39), DST, T(acout30), T(v2src1), T(us16_6), SRC1, T(v2src2), T(vs2), SRC3  },
+	{ 0xb400000000000004ull, 0xfc00000000000007ull, N("vshl2"), T(vsclamp), T(sat9), T(v4dst), T(v2dmask), T(us16_39), DST, T(acout30), T(v2src1), T(us16_6), SRC1, T(v2src2), T(vs2), SRC3  },
+	{ 0xb800000000000004ull, 0xfc00000000000007ull, N("vsel2"), T(sat9), T(v4dst), T(v2dmask), T(us16_39), DST, T(acout30), T(v2src1), T(us16_6), SRC1, T(v2src2), T(us16_5), T(vs2), T(pnot3), PSRC3  },
 	{ 0xc000000000000004ull, 0xf800000000000187ull, N("vadd"), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
 	{ 0xc000000000000084ull, 0xf800000000000187ull, N("vsub"), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
 	{ 0xc000000000000104ull, 0xf800000000000187ull, N("vsubr"), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
