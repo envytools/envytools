@@ -495,8 +495,8 @@ static struct insn tabcc[] = {
 };
 
 
-F(setdt, 5, N("b32"), N("f32"))
-F(setdti, 7, N("b32"), N("f32"))
+F(setdt5, 5, N("b32"), N("f32"))
+F(setdt7, 7, N("b32"), N("f32"))
 
 static struct insn tabis2[] = {
 	{ 0x0000000000000000ull, 0x0000c00000000000ull, SRC2 },
@@ -554,41 +554,43 @@ static struct insn tabls2[] = {
 	{ 0, 0, OOPS },
 };
 
-F1(ias, 5, N("sat"))
-F1(vas, 9, N("sat"))
-F1(fas, 0x31, N("sat"))
+F1(sat5, 5, N("sat"))
+F1(sat9, 9, N("sat"))
+F1(sat31, 0x31, N("sat"))
 F1(sat38, 0x38, N("sat"))
-F1(faf, 5, N("ftz"))
-F1(fmf, 6, N("ftz"))
-F1(setftz, 0x3b, N("ftz"))
+F1(ftz5, 5, N("ftz"))
+F1(ftz6, 6, N("ftz"))
+F1(ftz3b, 0x3b, N("ftz"))
 F1(ftz37, 0x37, N("ftz"))
-F1(fmz, 7, N("fmz"))
-F1(fmneg, 0x39, N("neg"))
-F1(neg1, 9, N("neg"))
-F1(neg2, 8, N("neg"))
-F1(abs1, 7, N("abs"))
-F1(abs2, 6, N("abs"))
+F1(fmz7, 7, N("fmz"))
+F1(neg39, 0x39, N("neg"))
+F1(neg9, 9, N("neg"))
+F1(neg8, 8, N("neg"))
+F1(abs7, 7, N("abs"))
+F1(abs6, 6, N("abs"))
 F1(rint, 7, T(fcrmi))
 F1(rev, 8, N("rev"))
 F1(nowrap, 9, N("nowrap"))
 
-F1(not1, 9, N("not"))
-F1(not2, 8, N("not"))
+F1(not9, 9, N("not"))
+F1(not8, 8, N("not"))
 
 F1(shiftamt, 6, N("shiftamt"))
 
-F1(acout, 0x30, CC)
-F1(acout2, 0x3a, CC)
-F1(acin, 6, CC)
-F1(acin2, 0x37, CC)
+F1(acout30, 0x30, CC)
+F1(acout3a, 0x3a, CC)
+F1(acin6, 6, CC)
+F1(acin37, 0x37, CC)
 F1(acin5, 5, CC)
 F1(acin7, 7, CC)
 
-F(us32, 5, N("u32"), N("s32"))
-F(mus32, 7, N("u32"), N("s32"))
-F1(high, 6, N("high"))
-F(us32v, 6, N("u32"), N("s32"))
-F(us32d, 0x2a, N("u32"), N("s32"))
+F(us32_5, 5, N("u32"), N("s32"))
+F(us32_7, 7, N("u32"), N("s32"))
+F(us32_6, 6, N("u32"), N("s32"))
+F(us32_2a, 0x2a, N("u32"), N("s32"))
+
+F1(high5, 0x5, N("high"))
+F1(high6, 6, N("high"))
 
 F1(pnot1, 0x17, N("not"))
 F1(pnot2, 0x1d, N("not"))
@@ -599,7 +601,6 @@ F(ltex, 9, N("all"), N("live"))
 
 F(prefetchl, 6, N("l1"), N("l2"))
 
-F1(flhi, 0x5, N("high"))
 
 static struct insn tabtexf[] = {
 	{ 0, 0, T(ltex), T(dtex) },
@@ -677,61 +678,61 @@ static struct insn tabsetlop[] = {
 };
 
 static struct insn tabcvtfdst[] = {
-	{ 0x0000000000100000ull, 0x0000000000300000ull, N("f16"), DST, T(acout) },
-	{ 0x0000000000200000ull, 0x0000000000300000ull, N("f32"), DST, T(acout) },
-	{ 0x0000000000300000ull, 0x0000000000300000ull, N("f64"), DSTD, T(acout) },
+	{ 0x0000000000100000ull, 0x0000000000300000ull, N("f16"), DST, T(acout30) },
+	{ 0x0000000000200000ull, 0x0000000000300000ull, N("f32"), DST, T(acout30) },
+	{ 0x0000000000300000ull, 0x0000000000300000ull, N("f64"), DSTD, T(acout30) },
 	{ 0, 0, OOPS, DST },
 };
 
 static struct insn tabcvtidst[] = {
-	{ 0x0000000000000000ull, 0x0000000000300080ull, N("u8"), DST, T(acout) },
-	{ 0x0000000000000080ull, 0x0000000000300080ull, N("s8"), DST, T(acout) },
-	{ 0x0000000000100000ull, 0x0000000000300080ull, N("u16"), DST, T(acout) },
-	{ 0x0000000000100080ull, 0x0000000000300080ull, N("s16"), DST, T(acout) },
-	{ 0x0000000000200000ull, 0x0000000000300080ull, N("u32"), DST, T(acout) },
-	{ 0x0000000000200080ull, 0x0000000000300080ull, N("s32"), DST, T(acout) },
-	{ 0x0000000000300000ull, 0x0000000000300080ull, N("u64"), DSTD, T(acout) },
-	{ 0x0000000000300080ull, 0x0000000000300080ull, N("s64"), DSTD, T(acout) },
+	{ 0x0000000000000000ull, 0x0000000000300080ull, N("u8"), DST, T(acout30) },
+	{ 0x0000000000000080ull, 0x0000000000300080ull, N("s8"), DST, T(acout30) },
+	{ 0x0000000000100000ull, 0x0000000000300080ull, N("u16"), DST, T(acout30) },
+	{ 0x0000000000100080ull, 0x0000000000300080ull, N("s16"), DST, T(acout30) },
+	{ 0x0000000000200000ull, 0x0000000000300080ull, N("u32"), DST, T(acout30) },
+	{ 0x0000000000200080ull, 0x0000000000300080ull, N("s32"), DST, T(acout30) },
+	{ 0x0000000000300000ull, 0x0000000000300080ull, N("u64"), DSTD, T(acout30) },
+	{ 0x0000000000300080ull, 0x0000000000300080ull, N("s64"), DSTD, T(acout30) },
 	{ 0, 0, OOPS, DST },
 };
 
 static struct insn tabcvtf2idst[] = {
-	{ 0x0000000000100000ull, 0x0000000000300080ull, N("u16"), DST, T(acout) },
-	{ 0x0000000000100080ull, 0x0000000000300080ull, N("s16"), DST, T(acout) },
-	{ 0x0000000000200000ull, 0x0000000000300080ull, N("u32"), DST, T(acout) },
-	{ 0x0000000000200080ull, 0x0000000000300080ull, N("s32"), DST, T(acout) },
-	{ 0x0000000000300000ull, 0x0000000000300080ull, N("u64"), DSTD, T(acout) },
-	{ 0x0000000000300080ull, 0x0000000000300080ull, N("s64"), DSTD, T(acout) },
+	{ 0x0000000000100000ull, 0x0000000000300080ull, N("u16"), DST, T(acout30) },
+	{ 0x0000000000100080ull, 0x0000000000300080ull, N("s16"), DST, T(acout30) },
+	{ 0x0000000000200000ull, 0x0000000000300080ull, N("u32"), DST, T(acout30) },
+	{ 0x0000000000200080ull, 0x0000000000300080ull, N("s32"), DST, T(acout30) },
+	{ 0x0000000000300000ull, 0x0000000000300080ull, N("u64"), DSTD, T(acout30) },
+	{ 0x0000000000300080ull, 0x0000000000300080ull, N("s64"), DSTD, T(acout30) },
 	{ 0, 0, OOPS, DST },
 };
 
 static struct insn tabcvtf2isrc[] = {
-	{ 0x0000000000800000ull, 0x0000000003800000ull, T(neg2), T(abs2), N("f16"), HNUM, T(is2) },
-	{ 0x0000000001000000ull, 0x0000000003800000ull, T(neg2), T(abs2), N("f32"), T(fs2) },
-	{ 0x0000000001800000ull, 0x0000000003800000ull, T(neg2), T(abs2), N("f64"), T(ds2) },
-	{ 0, 0, OOPS, T(neg2), T(abs2), SRC2 },
+	{ 0x0000000000800000ull, 0x0000000003800000ull, T(neg8), T(abs6), N("f16"), HNUM, T(is2) },
+	{ 0x0000000001000000ull, 0x0000000003800000ull, T(neg8), T(abs6), N("f32"), T(fs2) },
+	{ 0x0000000001800000ull, 0x0000000003800000ull, T(neg8), T(abs6), N("f64"), T(ds2) },
+	{ 0, 0, OOPS, T(neg8), T(abs6), SRC2 },
 };
 
 static struct insn tabcvtisrc[] = {
-	{ 0x0000000000000000ull, 0x0000000003800200ull, T(neg2), T(abs2), N("u8"), BNUM, T(is2) },
-	{ 0x0000000000000200ull, 0x0000000003800200ull, T(neg2), T(abs2), N("s8"), BNUM, T(is2) },
-	{ 0x0000000000800000ull, 0x0000000003800200ull, T(neg2), T(abs2), N("u16"), HNUM, T(is2) },
-	{ 0x0000000000800200ull, 0x0000000003800200ull, T(neg2), T(abs2), N("s16"), HNUM, T(is2) },
-	{ 0x0000000001000000ull, 0x0000000003800200ull, T(neg2), T(abs2), N("u32"), T(is2) },
-	{ 0x0000000001000200ull, 0x0000000003800200ull, T(neg2), T(abs2), N("s32"), T(is2) },
-	{ 0x0000000001800000ull, 0x0000000003800200ull, T(neg2), T(abs2), N("u64"), T(ls2) },
-	{ 0x0000000001800200ull, 0x0000000003800200ull, T(neg2), T(abs2), N("s64"), T(ls2) },
-	{ 0, 0, OOPS, T(neg2), T(abs2), SRC2 },
+	{ 0x0000000000000000ull, 0x0000000003800200ull, T(neg8), T(abs6), N("u8"), BNUM, T(is2) },
+	{ 0x0000000000000200ull, 0x0000000003800200ull, T(neg8), T(abs6), N("s8"), BNUM, T(is2) },
+	{ 0x0000000000800000ull, 0x0000000003800200ull, T(neg8), T(abs6), N("u16"), HNUM, T(is2) },
+	{ 0x0000000000800200ull, 0x0000000003800200ull, T(neg8), T(abs6), N("s16"), HNUM, T(is2) },
+	{ 0x0000000001000000ull, 0x0000000003800200ull, T(neg8), T(abs6), N("u32"), T(is2) },
+	{ 0x0000000001000200ull, 0x0000000003800200ull, T(neg8), T(abs6), N("s32"), T(is2) },
+	{ 0x0000000001800000ull, 0x0000000003800200ull, T(neg8), T(abs6), N("u64"), T(ls2) },
+	{ 0x0000000001800200ull, 0x0000000003800200ull, T(neg8), T(abs6), N("s64"), T(ls2) },
+	{ 0, 0, OOPS, T(neg8), T(abs6), SRC2 },
 };
 
 static struct insn tabcvti2isrc[] = {
-	{ 0x0000000000000000ull, 0x0000000003800200ull, T(neg2), T(abs2), N("u8"), BNUM, T(is2) },
-	{ 0x0000000000000200ull, 0x0000000003800200ull, T(neg2), T(abs2), N("s8"), BNUM, T(is2) },
-	{ 0x0000000000800000ull, 0x0000000003800200ull, T(neg2), T(abs2), N("u16"), HNUM, T(is2) },
-	{ 0x0000000000800200ull, 0x0000000003800200ull, T(neg2), T(abs2), N("s16"), HNUM, T(is2) },
-	{ 0x0000000001000000ull, 0x0000000003800200ull, T(neg2), T(abs2), N("u32"), T(is2) },
-	{ 0x0000000001000200ull, 0x0000000003800200ull, T(neg2), T(abs2), N("s32"), T(is2) },
-	{ 0, 0, OOPS, T(neg2), T(abs2), SRC2 },
+	{ 0x0000000000000000ull, 0x0000000003800200ull, T(neg8), T(abs6), N("u8"), BNUM, T(is2) },
+	{ 0x0000000000000200ull, 0x0000000003800200ull, T(neg8), T(abs6), N("s8"), BNUM, T(is2) },
+	{ 0x0000000000800000ull, 0x0000000003800200ull, T(neg8), T(abs6), N("u16"), HNUM, T(is2) },
+	{ 0x0000000000800200ull, 0x0000000003800200ull, T(neg8), T(abs6), N("s16"), HNUM, T(is2) },
+	{ 0x0000000001000000ull, 0x0000000003800200ull, T(neg8), T(abs6), N("u32"), T(is2) },
+	{ 0x0000000001000200ull, 0x0000000003800200ull, T(neg8), T(abs6), N("s32"), T(is2) },
+	{ 0, 0, OOPS, T(neg8), T(abs6), SRC2 },
 };
 
 static struct insn tabmulf[] = {
@@ -923,97 +924,97 @@ static struct insn tabpsrc[] = {
  */
 
 static struct insn tabm[] = {
-	{ 0x0800000000000000ull, 0xf800000000000007ull, T(minmax), T(faf), N("f32"), DST, T(acout), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
-	{ 0x1000000000000000ull, 0xf000000000000007ull, N("set"), T(setftz), T(setdt), DST, T(acout), T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) },
-	{ 0x2000000000000000ull, 0xf000000000000007ull, N("set"), T(setftz), PDST, PDSTN, T(setit), N("f32"), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2), T(setlop) },
-	{ 0x3000000000000000ull, 0xf800000000000007ull, N("add"), T(fmf), T(ias), T(farm), N("f32"), DST, T(acout), T(neg1), N("mul"), T(fmz), SRC1, T(fs2w3), T(neg2), T(is3) },
-	{ 0x3800000000000000ull, 0xf800000000000007ull, N("slct"), T(faf), N("b32"), DST, SRC1, T(fs2w3), T(setit), N("f32"), T(is3) },
+	{ 0x0800000000000000ull, 0xf800000000000007ull, T(minmax), T(ftz5), N("f32"), DST, T(acout30), T(neg9), T(abs7), SRC1, T(neg8), T(abs6), T(fs2) },
+	{ 0x1000000000000000ull, 0xf000000000000007ull, N("set"), T(ftz3b), T(setdt5), DST, T(acout30), T(setit), N("f32"), T(neg9), T(abs7), SRC1, T(neg8), T(abs6), T(fs2), T(setlop) },
+	{ 0x2000000000000000ull, 0xf000000000000007ull, N("set"), T(ftz3b), PDST, PDSTN, T(setit), N("f32"), T(neg9), T(abs7), SRC1, T(neg8), T(abs6), T(fs2), T(setlop) },
+	{ 0x3000000000000000ull, 0xf800000000000007ull, N("add"), T(ftz6), T(sat5), T(farm), N("f32"), DST, T(acout30), T(neg9), N("mul"), T(fmz7), SRC1, T(fs2w3), T(neg8), T(is3) },
+	{ 0x3800000000000000ull, 0xf800000000000007ull, N("slct"), T(ftz5), N("b32"), DST, SRC1, T(fs2w3), T(setit), N("f32"), T(is3) },
 	// 40?
-	{ 0x4800000000000000ull, 0xf800000000000007ull, N("quadop"), T(faf), T(farm), N("f32"), T(qop0), T(qop1), T(qop2), T(qop3), DST, T(acout), T(qs1), SRC1, SRC2 },
-	{ 0x5000000000000000ull, 0xf800000000000007ull, N("add"), T(faf), T(fas), T(farm), N("f32"), DST, T(acout), T(neg1), T(abs1), SRC1, T(neg2), T(abs2), T(fs2) },
-	{ 0x5800000000000000ull, 0xf800000000000007ull, N("mul"), T(mulf), T(fmz), T(fmf), T(ias), T(farm), T(fmneg), N("f32"), DST, T(acout), SRC1, T(fs2) },
-	{ 0x6000000000000000ull, 0xf800000000000027ull, N("presin"), N("f32"), DST, T(neg2), T(abs2), T(fs2) },
-	{ 0x6000000000000020ull, 0xf800000000000027ull, N("preex2"), N("f32"), DST, T(neg2), T(abs2), T(fs2) },
+	{ 0x4800000000000000ull, 0xf800000000000007ull, N("quadop"), T(ftz5), T(farm), N("f32"), T(qop0), T(qop1), T(qop2), T(qop3), DST, T(acout30), T(qs1), SRC1, SRC2 },
+	{ 0x5000000000000000ull, 0xf800000000000007ull, N("add"), T(ftz5), T(sat31), T(farm), N("f32"), DST, T(acout30), T(neg9), T(abs7), SRC1, T(neg8), T(abs6), T(fs2) },
+	{ 0x5800000000000000ull, 0xf800000000000007ull, N("mul"), T(mulf), T(fmz7), T(ftz6), T(sat5), T(farm), T(neg39), N("f32"), DST, T(acout30), SRC1, T(fs2) },
+	{ 0x6000000000000000ull, 0xf800000000000027ull, N("presin"), N("f32"), DST, T(neg8), T(abs6), T(fs2) },
+	{ 0x6000000000000020ull, 0xf800000000000027ull, N("preex2"), N("f32"), DST, T(neg8), T(abs6), T(fs2) },
 	{ 0xc07e0000fc000000ull, 0xf87e0000fc0001c7ull, N("interp"), N("f32"), DST, VAR },
 	{ 0xc07e000000000040ull, 0xf87e0000000001c7ull, N("interp"), N("f32"), DST, SRC2, VAR },
 	{ 0xc07e0000fc000080ull, 0xf87e0000fc0001c7ull, N("interp"), N("f32"), DST, N("flat"), VAR },
 	{ 0xc07e0000fc000100ull, 0xf87e0000fc0001c7ull, N("interp"), N("f32"), DST, N("cent"), VAR },
 	{ 0xc07e000000000140ull, 0xf87e0000000001c7ull, N("interp"), N("f32"), DST, N("cent"), SRC2, VAR },
-	{ 0xc800000000000000ull, 0xf80000001c000007ull, N("cos"), T(ias), N("f32"), DST, T(neg1), T(abs1), SRC1 },
-	{ 0xc800000004000000ull, 0xf80000001c000007ull, N("sin"), T(ias), N("f32"), DST, T(neg1), T(abs1), SRC1 },
-	{ 0xc800000008000000ull, 0xf80000001c000007ull, N("ex2"), T(ias), N("f32"), DST, T(neg1), T(abs1), SRC1 },
-	{ 0xc80000000c000000ull, 0xf80000001c000007ull, N("lg2"), T(ias), N("f32"), DST, T(neg1), T(abs1), SRC1 },
-	{ 0xc800000010000000ull, 0xf80000001c000007ull, N("rcp"), T(ias), N("f32"), DST, T(neg1), T(abs1), SRC1 },
-	{ 0xc800000014000000ull, 0xf80000001c000007ull, N("rsqrt"), T(ias), N("f32"), DST, T(neg1), T(abs1), SRC1 },
-	{ 0xc800000018000000ull, 0xf80000001c000007ull, N("rcp64h"), T(ias), DST, T(neg1), T(abs1), SRC1 },
-	{ 0xc80000001c000000ull, 0xf80000001c000007ull, N("rsqrt64h"), T(ias), DST, T(neg1), T(abs1), SRC1 },
+	{ 0xc800000000000000ull, 0xf80000001c000007ull, N("cos"), T(sat5), N("f32"), DST, T(neg9), T(abs7), SRC1 },
+	{ 0xc800000004000000ull, 0xf80000001c000007ull, N("sin"), T(sat5), N("f32"), DST, T(neg9), T(abs7), SRC1 },
+	{ 0xc800000008000000ull, 0xf80000001c000007ull, N("ex2"), T(sat5), N("f32"), DST, T(neg9), T(abs7), SRC1 },
+	{ 0xc80000000c000000ull, 0xf80000001c000007ull, N("lg2"), T(sat5), N("f32"), DST, T(neg9), T(abs7), SRC1 },
+	{ 0xc800000010000000ull, 0xf80000001c000007ull, N("rcp"), T(sat5), N("f32"), DST, T(neg9), T(abs7), SRC1 },
+	{ 0xc800000014000000ull, 0xf80000001c000007ull, N("rsqrt"), T(sat5), N("f32"), DST, T(neg9), T(abs7), SRC1 },
+	{ 0xc800000018000000ull, 0xf80000001c000007ull, N("rcp64h"), T(sat5), DST, T(neg9), T(abs7), SRC1 },
+	{ 0xc80000001c000000ull, 0xf80000001c000007ull, N("rsqrt64h"), T(sat5), DST, T(neg9), T(abs7), SRC1 },
 	{ 0x0000000000000000ull, 0x0000000000000007ull, OOPS, T(farm), N("f32"), DST, SRC1, T(fs2w3), T(is3) },
 
 
-	{ 0x0800000000000001ull, 0xf800000000000007ull, T(minmax), N("f64"), DSTD, T(acout), T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2) },
-	{ 0x1000000000000001ull, 0xf800000000000007ull, N("set"), T(setdt), DST, T(acout), T(setit), N("f64"), T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2), T(setlop) },
-	{ 0x1800000000000001ull, 0xf800000000000007ull, N("set"), PDST, PDSTN, T(setit), N("f64"), T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2), T(setlop) },
-	{ 0x2000000000000001ull, 0xf800000000000007ull, N("fma"), T(farm), N("f64"), DSTD, T(acout), T(neg1), SRC1D, T(ds2), T(neg2), SRC3D },
-	{ 0x4800000000000001ull, 0xf800000000000007ull, N("add"), T(farm), N("f64"), DSTD, T(acout), T(neg1), T(abs1), SRC1D, T(neg2), T(abs2), T(ds2) },
-	{ 0x5000000000000001ull, 0xf800000000000007ull, N("mul"), T(farm), T(neg1), N("f64"), DSTD, T(acout), SRC1D, T(ds2) },
+	{ 0x0800000000000001ull, 0xf800000000000007ull, T(minmax), N("f64"), DSTD, T(acout30), T(neg9), T(abs7), SRC1D, T(neg8), T(abs6), T(ds2) },
+	{ 0x1000000000000001ull, 0xf800000000000007ull, N("set"), T(setdt5), DST, T(acout30), T(setit), N("f64"), T(neg9), T(abs7), SRC1D, T(neg8), T(abs6), T(ds2), T(setlop) },
+	{ 0x1800000000000001ull, 0xf800000000000007ull, N("set"), PDST, PDSTN, T(setit), N("f64"), T(neg9), T(abs7), SRC1D, T(neg8), T(abs6), T(ds2), T(setlop) },
+	{ 0x2000000000000001ull, 0xf800000000000007ull, N("fma"), T(farm), N("f64"), DSTD, T(acout30), T(neg9), SRC1D, T(ds2), T(neg8), SRC3D },
+	{ 0x4800000000000001ull, 0xf800000000000007ull, N("add"), T(farm), N("f64"), DSTD, T(acout30), T(neg9), T(abs7), SRC1D, T(neg8), T(abs6), T(ds2) },
+	{ 0x5000000000000001ull, 0xf800000000000007ull, N("mul"), T(farm), T(neg9), N("f64"), DSTD, T(acout30), SRC1D, T(ds2) },
 	{ 0x0000000000000001ull, 0x0000000000000007ull, OOPS, T(farm), N("f64"), DSTD, SRC1D, T(ds2), SRC3D },
 
 
-	{ 0x0000000000000002ull, 0xf800000000000007ull, T(addop), DST, T(acout2), N("mul"), T(high), T(mus32), SRC1, T(us32), LIMM, SRC3 },
-	{ 0x0800000000000002ull, 0xf800000000000007ull, T(addop), T(ias), N("b32"), DST, T(acout2), SRC1, LIMM, T(acin) },
-	{ 0x1000000000000002ull, 0xf800000000000007ull, N("mul"), T(high), DST, T(acout2), T(mus32), SRC1, T(us32), LIMM },
+	{ 0x0000000000000002ull, 0xf800000000000007ull, T(addop), DST, T(acout3a), N("mul"), T(high6), T(us32_7), SRC1, T(us32_5), LIMM, SRC3 },
+	{ 0x0800000000000002ull, 0xf800000000000007ull, T(addop), T(sat5), N("b32"), DST, T(acout3a), SRC1, LIMM, T(acin6) },
+	{ 0x1000000000000002ull, 0xf800000000000007ull, N("mul"), T(high6), DST, T(acout3a), T(us32_7), SRC1, T(us32_5), LIMM },
 	{ 0x1800000000000002ull, 0xf800000000000007ull, T(lane), N("mov"), N("b32"), DST, LIMM },
-	{ 0x2000000000000002ull, 0xf800000000000007ull, N("add"), T(fmf), T(ias), T(farm), N("f32"), DST, T(acout2), T(neg1), N("mul"), T(fmz), SRC1, LIMM, T(neg2), SRC3 },
-	{ 0x2800000000000002ull, 0xf800000000000007ull, N("add"), T(faf), N("f32"), DST, T(acout2), T(neg1), T(abs1), SRC1, LIMM },
-	{ 0x3000000000000002ull, 0xf800000000000007ull, N("mul"), T(fmz), T(fmf), T(ias), N("f32"), DST, T(acout2), SRC1, LIMM },
-	{ 0x3800000000000002ull, 0xf800000000000007ull, T(logop), N("b32"), DST, T(acout2), T(not1), SRC1, T(not2), LIMM, T(acin5) },
-	{ 0x4000000000000002ull, 0xf800000000000007ull, N("add"), N("b32"), DST, T(acout2), N("shl"), SRC1, SHCNT, LIMM },
+	{ 0x2000000000000002ull, 0xf800000000000007ull, N("add"), T(ftz6), T(sat5), T(farm), N("f32"), DST, T(acout3a), T(neg9), N("mul"), T(fmz7), SRC1, LIMM, T(neg8), SRC3 },
+	{ 0x2800000000000002ull, 0xf800000000000007ull, N("add"), T(ftz5), N("f32"), DST, T(acout3a), T(neg9), T(abs7), SRC1, LIMM },
+	{ 0x3000000000000002ull, 0xf800000000000007ull, N("mul"), T(fmz7), T(ftz6), T(sat5), N("f32"), DST, T(acout3a), SRC1, LIMM },
+	{ 0x3800000000000002ull, 0xf800000000000007ull, T(logop), N("b32"), DST, T(acout3a), T(not9), SRC1, T(not8), LIMM, T(acin5) },
+	{ 0x4000000000000002ull, 0xf800000000000007ull, N("add"), N("b32"), DST, T(acout3a), N("shl"), SRC1, SHCNT, LIMM },
 	{ 0x0000000000000002ull, 0x0000000000000007ull, OOPS, N("b32"), DST, SRC1, LIMM },
 
 
-	{ 0x0800000000000003ull, 0xf8000000000000c7ull, T(minmax), T(us32), DST, T(acout), SRC1, T(is2) },
-	{ 0x0800000000000043ull, 0xf8000000000000c7ull, T(minmax), N("low"), T(us32), DST, T(acout), SRC1, T(is2), CC },
-	{ 0x0800000000000083ull, 0xf8000000000000c7ull, T(minmax), N("med"), T(us32), DST, T(acout), SRC1, T(is2), CC },
-	{ 0x08000000000000c3ull, 0xf8000000000000c7ull, T(minmax), N("high"), T(us32), DST, T(acout), SRC1, T(is2) },
-	{ 0x1000000000000003ull, 0xf800000000000007ull, N("set"), T(setdti), DST, T(acout), T(setit), T(us32), SRC1, T(is2), T(acin), T(setlop) },
-	{ 0x1800000000000003ull, 0xf800000000000007ull, N("set"), PDST, PDSTN, T(setit), T(us32), SRC1, T(is2), T(acin), T(setlop) },
-	{ 0x2000000000000003ull, 0xf800000000000007ull, T(addop), T(sat38), DST, T(acout), N("mul"), T(high), T(mus32), SRC1, T(us32), T(is2w3), T(is3), T(acin2) },
-	{ 0x2800000000000003ull, 0xf800000000000007ull, N("ins"), N("b32"), DST, T(acout), SRC1, T(is2w3), T(is3) },
-	{ 0x3000000000000003ull, 0xf800000000000007ull, N("slct"), N("b32"), DST, SRC1, T(is2w3), T(setit), T(us32), T(is3) },
-	{ 0x3800000000000003ull, 0xf800000000000007ull, N("sad"), T(us32), DST, T(acout), SRC1, T(is2w3), T(is3) },
-	{ 0x4000000000000003ull, 0xf800000000000007ull, T(addop2), N("b32"), DST, T(acout), N("shl"), SRC1, SHCNT, T(is2) },
-	{ 0x4800000000000003ull, 0xf800000000000007ull, T(addop), T(ias), N("b32"), DST, T(acout), SRC1, T(is2), T(acin) },
-	{ 0x5000000000000003ull, 0xf800000000000007ull, N("mul"), T(high), DST, T(acout), T(mus32), SRC1, T(us32), T(is2) },
-	{ 0x5800000000000003ull, 0xf800000000000007ull, N("shr"), T(rev), T(us32), DST, T(acout), SRC1, T(nowrap), T(is2), T(acin7) },
-	{ 0x6000000000000003ull, 0xf800000000000007ull, N("shl"), N("b32"), DST, T(acout), SRC1, T(nowrap), T(is2), T(acin) },
-	{ 0x6800000000000003ull, 0xf800000000000007ull, T(logop), N("b32"), DST, T(acout), T(not1), SRC1, T(not2), T(is2), T(acin5) },
-	{ 0x7000000000000003ull, 0xf800000000000007ull, N("ext"), T(rev), T(us32), DST, T(acout), SRC1, T(is2) }, // yes. this can reverse bits in a bitfield. really.
-	{ 0x7800000000000003ull, 0xf800000000000007ull, N("bfind"), T(shiftamt), T(us32), DST, T(acout), T(not2), T(is2) }, // index of highest bit set, counted from 0, -1 for 0 src. or highest bit different from sign for signed version. check me.
+	{ 0x0800000000000003ull, 0xf8000000000000c7ull, T(minmax), T(us32_5), DST, T(acout30), SRC1, T(is2) },
+	{ 0x0800000000000043ull, 0xf8000000000000c7ull, T(minmax), N("low"), T(us32_5), DST, T(acout30), SRC1, T(is2), CC },
+	{ 0x0800000000000083ull, 0xf8000000000000c7ull, T(minmax), N("med"), T(us32_5), DST, T(acout30), SRC1, T(is2), CC },
+	{ 0x08000000000000c3ull, 0xf8000000000000c7ull, T(minmax), N("high"), T(us32_5), DST, T(acout30), SRC1, T(is2) },
+	{ 0x1000000000000003ull, 0xf800000000000007ull, N("set"), T(setdt7), DST, T(acout30), T(setit), T(us32_5), SRC1, T(is2), T(acin6), T(setlop) },
+	{ 0x1800000000000003ull, 0xf800000000000007ull, N("set"), PDST, PDSTN, T(setit), T(us32_5), SRC1, T(is2), T(acin6), T(setlop) },
+	{ 0x2000000000000003ull, 0xf800000000000007ull, T(addop), T(sat38), DST, T(acout30), N("mul"), T(high6), T(us32_7), SRC1, T(us32_5), T(is2w3), T(is3), T(acin37) },
+	{ 0x2800000000000003ull, 0xf800000000000007ull, N("ins"), N("b32"), DST, T(acout30), SRC1, T(is2w3), T(is3) },
+	{ 0x3000000000000003ull, 0xf800000000000007ull, N("slct"), N("b32"), DST, SRC1, T(is2w3), T(setit), T(us32_5), T(is3) },
+	{ 0x3800000000000003ull, 0xf800000000000007ull, N("sad"), T(us32_5), DST, T(acout30), SRC1, T(is2w3), T(is3) },
+	{ 0x4000000000000003ull, 0xf800000000000007ull, T(addop2), N("b32"), DST, T(acout30), N("shl"), SRC1, SHCNT, T(is2) },
+	{ 0x4800000000000003ull, 0xf800000000000007ull, T(addop), T(sat5), N("b32"), DST, T(acout30), SRC1, T(is2), T(acin6) },
+	{ 0x5000000000000003ull, 0xf800000000000007ull, N("mul"), T(high6), DST, T(acout30), T(us32_7), SRC1, T(us32_5), T(is2) },
+	{ 0x5800000000000003ull, 0xf800000000000007ull, N("shr"), T(rev), T(us32_5), DST, T(acout30), SRC1, T(nowrap), T(is2), T(acin7) },
+	{ 0x6000000000000003ull, 0xf800000000000007ull, N("shl"), N("b32"), DST, T(acout30), SRC1, T(nowrap), T(is2), T(acin6) },
+	{ 0x6800000000000003ull, 0xf800000000000007ull, T(logop), N("b32"), DST, T(acout30), T(not9), SRC1, T(not8), T(is2), T(acin5) },
+	{ 0x7000000000000003ull, 0xf800000000000007ull, N("ext"), T(rev), T(us32_5), DST, T(acout30), SRC1, T(is2) }, // yes. this can reverse bits in a bitfield. really.
+	{ 0x7800000000000003ull, 0xf800000000000007ull, N("bfind"), T(shiftamt), T(us32_5), DST, T(acout30), T(not8), T(is2) }, // index of highest bit set, counted from 0, -1 for 0 src. or highest bit different from sign for signed version. check me.
 	{ 0x0000000000000003ull, 0x0000000000000007ull, OOPS, N("b32"), DST, SRC1, T(is2w3), T(is3) },
 
 
 	// 08?
-	{ 0x0000000000000004ull, 0xfc00000000000007ull, N("set"), T(setdt), DST, T(acout), T(setct), CC, T(setlop) },
+	{ 0x0000000000000004ull, 0xfc00000000000007ull, N("set"), T(setdt5), DST, T(acout30), T(setct), CC, T(setlop) },
 	{ 0x0400000000000004ull, 0xfc00000000000007ull, N("set"), PDST, PDSTN, T(setct), CC, T(setlop) },
-	{ 0x0800000000000004ull, 0xfc00000000000007ull, N("set"), T(setdt), DST, T(acout), T(psrc), T(setlop) },
+	{ 0x0800000000000004ull, 0xfc00000000000007ull, N("set"), T(setdt5), DST, T(acout30), T(psrc), T(setlop) },
 	{ 0x0c00000000000004ull, 0xfc00000000000007ull, N("set"), PDST, PDSTN, T(psrc), T(setlop) },
-	{ 0x1000000000900004ull, 0xfc00000001b00007ull, N("cvt"), T(ftz37), T(ias), T(rint), N("f16"), DST, T(acout), T(neg2), T(abs2), N("f16"), T(is2), HNUM },
-	{ 0x1000000001200004ull, 0xfc00000001b00007ull, N("cvt"), T(ftz37), T(ias), T(rint), N("f32"), DST, T(acout), T(neg2), T(abs2), N("f32"), T(fs2) },
-	{ 0x1000000001b00004ull, 0xfc00000001b00007ull, N("cvt"), T(ftz37), T(ias), T(rint), N("f64"), DSTD, T(acout), T(neg2), T(abs2), N("f64"), T(ds2) },
-	{ 0x1000000001100004ull, 0xfc00000001b00007ull, N("cvt"), T(ftz37), T(ias), T(fcrm), N("f16"), DST, T(acout), T(neg2), T(abs2), N("f32"), T(fs2) },
-	{ 0x1000000001a00004ull, 0xfc00000001b00007ull, N("cvt"), T(ftz37), T(ias), T(fcrm), N("f32"), DST, T(acout), T(neg2), T(abs2), N("f64"), T(ds2) },
-	{ 0x1000000000a00004ull, 0xfc00000001b00007ull, N("cvt"), T(ftz37), T(ias), N("f32"), DST, T(acout), T(neg2), T(abs2), N("f16"), T(is2), HNUM },
-	{ 0x1000000001300004ull, 0xfc00000001b00007ull, N("cvt"), T(ftz37), T(ias), N("f64"), DSTD, T(acout), T(neg2), T(abs2), N("f32"), T(fs2) },
+	{ 0x1000000000900004ull, 0xfc00000001b00007ull, N("cvt"), T(ftz37), T(sat5), T(rint), N("f16"), DST, T(acout30), T(neg8), T(abs6), N("f16"), T(is2), HNUM },
+	{ 0x1000000001200004ull, 0xfc00000001b00007ull, N("cvt"), T(ftz37), T(sat5), T(rint), N("f32"), DST, T(acout30), T(neg8), T(abs6), N("f32"), T(fs2) },
+	{ 0x1000000001b00004ull, 0xfc00000001b00007ull, N("cvt"), T(ftz37), T(sat5), T(rint), N("f64"), DSTD, T(acout30), T(neg8), T(abs6), N("f64"), T(ds2) },
+	{ 0x1000000001100004ull, 0xfc00000001b00007ull, N("cvt"), T(ftz37), T(sat5), T(fcrm), N("f16"), DST, T(acout30), T(neg8), T(abs6), N("f32"), T(fs2) },
+	{ 0x1000000001a00004ull, 0xfc00000001b00007ull, N("cvt"), T(ftz37), T(sat5), T(fcrm), N("f32"), DST, T(acout30), T(neg8), T(abs6), N("f64"), T(ds2) },
+	{ 0x1000000000a00004ull, 0xfc00000001b00007ull, N("cvt"), T(ftz37), T(sat5), N("f32"), DST, T(acout30), T(neg8), T(abs6), N("f16"), T(is2), HNUM },
+	{ 0x1000000001300004ull, 0xfc00000001b00007ull, N("cvt"), T(ftz37), T(sat5), N("f64"), DSTD, T(acout30), T(neg8), T(abs6), N("f32"), T(fs2) },
 	{ 0x1400000000000004ull, 0xfc00000000000007ull, N("cvt"), T(ftz37), T(fcrmi), T(cvtf2idst), T(cvtf2isrc) },
 	{ 0x1800000000000004ull, 0xfc00000000000007ull, N("cvt"), T(fcrm), T(cvtfdst), T(cvtisrc) },
-	{ 0x1c00000000000004ull, 0xfc00000000000007ull, N("cvt"), T(ias), T(cvtidst), T(cvti2isrc) },
+	{ 0x1c00000000000004ull, 0xfc00000000000007ull, N("cvt"), T(sat5), T(cvtidst), T(cvti2isrc) },
 	{ 0x2000000000000004ull, 0xfc00000000000007ull, N("selp"), N("b32"), DST, SRC1, T(is2), T(pnot3), PSRC3 },
 	{ 0x2400000000000004ull, 0xfc00000000000007ull, N("prmt"), T(prmtmod), N("b32"), DST, SRC1, T(is2w3), T(is3) },
 	{ 0x2800000000000004ull, 0xfc00000000000007ull, T(lane), N("mov"), N("b32"), DST, T(is2) },
 	{ 0x2c00000000000004ull, 0xfc00000000000007ull, N("mov"), N("b32"), DST, SREG },
-	{ 0x3000000003f00004ull, 0xfc00000003f00007ull, N("mov"), DST, T(flhi), FLAGS, N("mask"), T(is2) },
-	{ 0x3000000000000004ull, 0xfc00000000000007ull, N("mov"), DST, SRC1, N("or"), T(flhi), FLAGS, N("mask"), T(is2) },
-	{ 0x3400000000000004ull, 0xfc00000000000007ull, N("mov"), T(flhi), FLAGS, SRC1, N("mask"), T(is2) },
+	{ 0x3000000003f00004ull, 0xfc00000003f00007ull, N("mov"), DST, T(high5), FLAGS, N("mask"), T(is2) },
+	{ 0x3000000000000004ull, 0xfc00000000000007ull, N("mov"), DST, SRC1, N("or"), T(high5), FLAGS, N("mask"), T(is2) },
+	{ 0x3400000000000004ull, 0xfc00000000000007ull, N("mov"), T(high5), FLAGS, SRC1, N("mask"), T(is2) },
 	{ 0x3800000000000004ull, 0xfc00000000000007ull, N("bar"), N("read"), DST, BAR },
 	// 3c?
 	{ 0x4000000000000004ull, 0xfc04000000000007ull, T(cc), N("nop") },
@@ -1027,17 +1028,17 @@ static struct insn tabm[] = {
 	{ 0x5000000000000024ull, 0xfc000000000000e7ull, N("bar and"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
 	{ 0x5000000000000044ull, 0xfc000000000000e7ull, N("bar or"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
 	{ 0x5000000000000084ull, 0xfc000000000000e7ull, N("bar arrive"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
-	{ 0x5400000000000004ull, 0xfc00000000000007ull, N("popc"), DST, T(not1), SRC1, T(not2), T(is2) }, // XXX: popc(SRC1 & SRC2)? insane idea, but I don't have any better
+	{ 0x5400000000000004ull, 0xfc00000000000007ull, N("popc"), DST, T(not9), SRC1, T(not8), T(is2) }, // XXX: popc(SRC1 & SRC2)? insane idea, but I don't have any better
 	// ???
-	{ 0xc000800000000004ull, 0xfc00800000000087ull, N("vadd"), T(vas), T(vdst), T(us32d), DST, T(vsrc1), T(us32v), SRC1, T(vsrc2), T(us32), SRC2, SRC3  },
-	{ 0xc000800000000084ull, 0xfc00800000000087ull, N("vsub"), T(vas), T(vdst), T(us32d), DST, T(vsrc1), T(us32v), SRC1, T(vsrc2), T(us32), SRC2, SRC3  },
-	{ 0xc800800000000004ull, 0xfc00800000000087ull, N("vmin"), T(vas), T(vdst), T(us32d), DST, T(vsrc1), T(us32v), SRC1, T(vsrc2), T(us32), SRC2, SRC3  },
-	{ 0xc800800000000084ull, 0xfc00800000000087ull, N("vmax"), T(vas), T(vdst), T(us32d), DST, T(vsrc1), T(us32v), SRC1, T(vsrc2), T(us32), SRC2, SRC3  },
-	{ 0xd000800000000004ull, 0xfc00800000000007ull, N("vabsdiff"), T(vas), T(vdst), T(us32d), DST, T(vsrc1), T(us32v), SRC1, T(vsrc2), T(us32), SRC2, SRC3  },
-	{ 0xd800800000000004ull, 0xfc00800000000007ull, N("vset"), T(vdst), DST, T(vsetop), T(vsrc1), T(us32v), SRC1, T(vsrc2), T(us32), SRC2, SRC3  },
-	{ 0xe000800000000004ull, 0xfc00800000000007ull, N("vshr"), T(vsclamp), T(vas), T(vdst), T(us32d), DST, T(vsrc1), T(us32v), SRC1, T(vsrc2), SRC2, SRC3  },
-	{ 0xe800800000000004ull, 0xfc00800000000007ull, N("vshl"), T(vsclamp), T(vas), T(vdst), T(us32d), DST, T(vsrc1), T(us32v), SRC1, T(vsrc2), SRC2, SRC3  },
-	{ 0xf000800000000004ull, 0xfc00800000000007ull, N("vmad"), T(vmop), T(vas), T(vmshr), DST, T(vsrc1), T(us32v), SRC1, T(vsrc2), T(us32), SRC2, SRC3  },
+	{ 0xc000800000000004ull, 0xfc00800000000087ull, N("vadd"), T(sat9), T(vdst), T(us32_2a), DST, T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), SRC2, SRC3  },
+	{ 0xc000800000000084ull, 0xfc00800000000087ull, N("vsub"), T(sat9), T(vdst), T(us32_2a), DST, T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), SRC2, SRC3  },
+	{ 0xc800800000000004ull, 0xfc00800000000087ull, N("vmin"), T(sat9), T(vdst), T(us32_2a), DST, T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), SRC2, SRC3  },
+	{ 0xc800800000000084ull, 0xfc00800000000087ull, N("vmax"), T(sat9), T(vdst), T(us32_2a), DST, T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), SRC2, SRC3  },
+	{ 0xd000800000000004ull, 0xfc00800000000007ull, N("vabsdiff"), T(sat9), T(vdst), T(us32_2a), DST, T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), SRC2, SRC3  },
+	{ 0xd800800000000004ull, 0xfc00800000000007ull, N("vset"), T(vdst), DST, T(vsetop), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), SRC2, SRC3  },
+	{ 0xe000800000000004ull, 0xfc00800000000007ull, N("vshr"), T(vsclamp), T(sat9), T(vdst), T(us32_2a), DST, T(vsrc1), T(us32_6), SRC1, T(vsrc2), SRC2, SRC3  },
+	{ 0xe800800000000004ull, 0xfc00800000000007ull, N("vshl"), T(vsclamp), T(sat9), T(vdst), T(us32_2a), DST, T(vsrc1), T(us32_6), SRC1, T(vsrc2), SRC2, SRC3  },
+	{ 0xf000800000000004ull, 0xfc00800000000007ull, N("vmad"), T(vmop), T(sat9), T(vmshr), DST, T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), SRC2, SRC3  },
 
 
 	{ 0x1000000000000005ull, 0xf800000000000207ull, T(redop), N("u32"), T(gmem), DST },
