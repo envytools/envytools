@@ -232,7 +232,8 @@ static struct bitfield pdstl_bf = { 8, 2, 0x3a, 1 }; // argh...
 static struct bitfield tex_bf = { 0x20, 7 };
 static struct bitfield samp_bf = { 0x28, 4 };
 static struct bitfield surf_bf = { 0x1a, 3 };
-static struct bitfield sreg_bf = { 0x1a, 7 };
+static struct bitfield sreg_bf = { 0x1a, 8 };
+static struct bitfield sregs_bf = { 0x14, 8 };
 static struct bitfield lduld_dst2_bf = { 0x20, 6 };
 
 static struct reg dst_r = { &dst_bf, "r", .specials = reg_sr };
@@ -262,6 +263,7 @@ static struct reg surf_r = { &surf_bf, "g", .cool = 1 };
 static struct reg cc_r = { 0, "c", .cool = 1 };
 static struct reg flags_r = { 0, "flags", .cool = 1 };
 static struct reg sreg_r = { &sreg_bf, "sr", .specials = sreg_sr, .always_special = 1 };
+static struct reg sregs_r = { &sregs_bf, "sr", .specials = sreg_sr, .always_special = 1 };
 static struct reg lduld_dst2_r = { &lduld_dst2_bf, "r" };
 static struct reg lduld_dst2d_r = { &lduld_dst2_bf, "r", "d" };
 static struct reg lduld_dst2q_r = { &lduld_dst2_bf, "r", "q" };
@@ -292,6 +294,7 @@ static struct reg lduld_dst2q_r = { &lduld_dst2_bf, "r", "q" };
 #define SURF atomreg, &surf_r
 #define CC atomreg, &cc_r
 #define SREG atomreg, &sreg_r
+#define SREGS atomreg, &sregs_r
 #define LDULD_DST2 atomreg, &lduld_dst2_r
 #define LDULD_DST2D atomreg, &lduld_dst2d_r
 #define LDULD_DST2Q atomreg, &lduld_dst2q_r
@@ -831,6 +834,7 @@ F1(neg9, 9, N("neg"))
 F1(neg8, 8, N("neg"))
 F1(abs7, 7, N("abs"))
 F1(abs6, 6, N("abs"))
+F1(abs1e, 0x1e, N("abs"))
 F1(rint, 7, T(fcrmi))
 F1(rev, 8, N("rev"))
 F(shclamp, 0x9, N("clamp"), N("wrap"))
@@ -862,6 +866,7 @@ F1(high6, 6, N("high"))
 F1(pnot1, 0x17, N("not"))
 F1(pnot2, 0x1d, N("not"))
 F1(pnot3, 0x34, N("not"))
+F1(pnotn, 0x18, N("not"))
 
 F1(patch, 0x8, N("patch"))
 F1(emit, 0x5, N("emit"))
@@ -1059,6 +1064,7 @@ static struct insn tabaddop2[] = {
 };
 
 F(bar, 0x2f, SRC1, BAR)
+F(bars, 0x1a, SRC1, BAR)
 F(tcnt, 0x2e, SRC2, TCNT)
 
 static struct insn tabprmtmod[] = {
@@ -1574,18 +1580,48 @@ static struct insn tabc[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabpsrcs[] = {
+	{ 0x0001c000, 0x0601c000, T(pnot1), PSRC1 },
+	{ 0x00000000, 0x06000000, T(pnot1), PSRC1, N("and"), T(pnotn), PDSTN },
+	{ 0x02000000, 0x06000000, T(pnot1), PSRC1, N("or"), T(pnotn), PDSTN },
+	{ 0x04000000, 0x06000000, T(pnot1), PSRC1, N("xor"), T(pnotn), PDSTN },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabs[] = {
+	{ 0x00000008, 0xf80003ff, N("nop") },
+	{ 0x10000008, 0xf80003ff, N("set"), PDST, T(setct), CC },
+	{ 0x18000008, 0xf80003ff, N("set"), PDST, T(psrcs) },
+	{ 0x40000008, 0xf00003ff, N("mov"), N("b32"), DST, SREGS },
+	{ 0x50000008, 0xf80003ff, N("bar"), N("sync"), T(bars) },
+	{ 0x58000008, 0xf80003ff, N("bar"), N("arrive"), T(bars) },
+	{ 0x70000008, 0xf40003ff, N("presin"), N("f32"), DST, SRC1 },
+	{ 0x74000008, 0xf40003ff, N("preex2"), N("f32"), DST, SRC1 },
+	{ 0x80000008, 0xbc0003ff, N("cos"), N("f32"), DST, T(abs1e), SRC1 },
+	{ 0x84000008, 0xbc0003ff, N("sin"), N("f32"), DST, T(abs1e), SRC1 },
+	{ 0x88000008, 0xbc0003ff, N("ex2"), N("f32"), DST, T(abs1e), SRC1 },
+	{ 0x8c000008, 0xbc0003ff, N("lg2"), N("f32"), DST, T(abs1e), SRC1 },
+	{ 0x90000008, 0xbc0003ff, N("rcp"), N("f32"), DST, T(abs1e), SRC1 },
+	{ 0x94000008, 0xbc0003ff, N("rsqrt"), N("f32"), DST, T(abs1e), SRC1 },
+	{ 0x98000008, 0xbc0003ff, N("rcp64h"), DST, T(abs1e), SRC1 },
+	{ 0x9c000008, 0xbc0003ff, N("rsqrt64h"), DST, T(abs1e), SRC1 },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabroot[] = {
-	{ 7, 7, OP64, T(c) }, // control instructions, special-cased.
-	{ 0x0, 0x10, OP64, T(p), T(m) },
-	{ 0x10, 0x10, OP64, N("join"), T(p), T(m), },
+	{ 7, 0xf, OP64, T(c) }, // control instructions, special-cased.
+	{ 0x0, 0x18, OP64, T(p), T(m) },
+	{ 0x10, 0x18, OP64, N("join"), T(p), T(m), },
+	{ 0x8, 0x8, OP32, T(p), T(s) },
 	{ 0, 0, OOPS },
 };
 
 static struct disisa nvc0_isa_s = {
 	tabroot,
 	8,
-	8,
+	4,
 	1,
+	.i_need_nv50as_hack = 1,
 };
 
 struct disisa *nvc0_isa = &nvc0_isa_s;
