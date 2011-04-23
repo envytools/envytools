@@ -1071,7 +1071,7 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 		if (ctx->oplen) {
 			int fl = 0;
 			for (i = ctx->oplen; i < MAXOPLEN * 8; i++)
-				a[i/8] &= ~(0xff << (i & 7) * 8);
+				a[i/8] &= ~(0xffull << (i & 7) * 8);
 			for (i = 0; i < MAXOPLEN; i++) {
 				a[i] &= ~m[i];
 				if (a[i])
