@@ -1496,8 +1496,9 @@ static struct insn tabm[] = {
 	{ 0xdc02400000000005ull, 0xfc02400000000007ull, N("sustp"), T(scop), T(sclamp), SURF, SADDR, DST },
 	{ 0xe000000000000005ull, 0xf800000000000067ull, N("membar"), N("prep") }, // always used before all 3 other membars.
 	{ 0xe000000000000025ull, 0xf800000000000067ull, N("membar"), N("gl") },
-	{ 0xf000400000000085ull, 0xfc00400000000087ull, N("suleab"), PDST2, DSTD, T(ldstt), T(sclamp), SURF, SADDR },
 	{ 0xe000000000000045ull, 0xf800000000000067ull, N("membar"), N("sys") },
+	{ 0xe800000000000005ull, 0xfc00000000000007ull, N("st"), N("unlock"), T(ldstt), GLOBAL, T(ldstd) },
+	{ 0xf000400000000085ull, 0xfc00400000000087ull, N("suleab"), PDST2, DSTD, T(ldstt), T(sclamp), SURF, SADDR },
 	{ 0x0000000000000005ull, 0x0000000000000007ull, OOPS },
 
 	{ 0x0000000000000006ull, 0xfe00000000000067ull, N("pfetch"), DST, VBASRC },
