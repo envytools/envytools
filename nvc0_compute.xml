@@ -63,9 +63,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0244" name="UNK244_TIC_FLUSH"/>
 		<reg32 offset="0x024c" name="SHARED_SIZE" type="uint"/><!-- default 0 -->
 		<reg32 offset="0x0250" name="THREADS_ALLOC"/>
-		<reg32 offset="0x0254" name="UNK0254">
-			<doc>0-0x10</doc>
-		</reg32>
+		<reg32 offset="0x0254" name="BARRIER_ALLOC"/>
 		<reg32 offset="0x028c" name="UNK028C">
 			<doc>No icmd...</doc>
 		</reg32>
