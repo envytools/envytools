@@ -325,6 +325,7 @@ static struct bitfield cmem_imm = { 0x1a, 16 };
 static struct bitfield fcmem_imm = { { 0x1a, 16 }, BF_SIGNED };
 static struct bitfield vmem_imm = { 0x20, 16 };
 static struct bitfield cmem_idx = { 0x2a, 4 };
+static struct bitfield fcmem_idx = { 0x2a, 5 };
 static struct bitfield vba_imm = { 0x1a, 6 };
 static struct bitfield lduld_imm = { { 0x2b, 10 }, BF_SIGNED };
 static struct bitfield lduld2_imm = { { 5, 5, 0x26, 5 }, BF_SIGNED };
@@ -342,7 +343,7 @@ static struct mem gamem_m = { "g", 0, &src1_r, &gamem_imm };
 static struct mem gadmem_m = { "g", 0, &src1d_r, &gamem_imm };
 static struct mem smem_m = { "s", 0, &src1_r, &slmem_imm };
 static struct mem lmem_m = { "l", 0, &src1_r, &slmem_imm };
-static struct mem fcmem_m = { "c", &cmem_idx, &src1_r, &fcmem_imm };
+static struct mem fcmem_m = { "c", &fcmem_idx, &src1_r, &fcmem_imm };
 static struct mem vmem_m = { "v", 0, &src1_r, &vmem_imm };
 static struct mem amem_m = { "a", 0, &src1_r, &vmem_imm, &src2_r }; // XXX: wtf?
 static struct mem cmem_m = { "c", &cmem_idx, 0, &cmem_imm };
@@ -1536,21 +1537,21 @@ F1(terminate, 0xe, N("terminate"))
 
 static struct insn tabbtarg[] = {
 	{ 0x0000000000000000ull, 0x0000000000004000ull, BTARG },
-	{ 0x0000000000004000ull, 0x0000000000004000ull, N("pcrel"), CONST },
+	{ 0x0000000000004000ull, 0x0000000000004000ull, N("pcrel"), FCONST },
 };
 
 static struct insn tabc[] = {
 	{ 0x0000000000000007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), T(lim), T(brawarp), N("abs"), ABTARG },
-	{ 0x0000000000004007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), T(lim), T(brawarp), CONST },
+	{ 0x0000000000004007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), T(lim), T(brawarp), FCONST },
 	{ 0x0800000000000007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), T(lim), SRC1, N("abs"), ANTARG },
-	{ 0x0800000000004007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), T(lim), SRC1, CONST },
+	{ 0x0800000000004007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), T(lim), SRC1, FCONST },
 	{ 0x1000000000000007ull, 0xf800000000004007ull, N("call"), T(lim), N("abs"), ACTARG },
-	{ 0x1000000000004007ull, 0xf800000000004007ull, N("call"), T(lim), CONST },
+	{ 0x1000000000004007ull, 0xf800000000004007ull, N("call"), T(lim), FCONST },
 	{ 0x4000000000000007ull, 0xf800000000000007ull, T(p), T(cc), N("bra"), T(lim), T(brawarp), T(btarg) },
 	{ 0x4800000000000007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), T(lim), SRC1, NTARG },
-	{ 0x4800000000004007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), T(lim), SRC1, N("pcrel"), CONST },
+	{ 0x4800000000004007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), T(lim), SRC1, N("pcrel"), FCONST },
 	{ 0x5000000000000007ull, 0xf800000000004007ull, N("call"), T(lim), CTARG },
-	{ 0x5000000000004007ull, 0xf800000000004007ull, N("call"), T(lim), N("pcrel"), CONST },
+	{ 0x5000000000004007ull, 0xf800000000004007ull, N("call"), T(lim), N("pcrel"), FCONST },
 	{ 0x5800000000000007ull, 0xf800000000000007ull, N("prelongjmp"), T(btarg) },
 	{ 0x6000000000000007ull, 0xf800000000000007ull, N("joinat"), T(btarg) },
 	{ 0x6800000000000007ull, 0xf800000000000007ull, N("prebrk"), T(btarg) },
