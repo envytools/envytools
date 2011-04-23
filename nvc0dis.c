@@ -1024,10 +1024,10 @@ static struct insn tabm[] = {
 	{ 0x48000000000fc024ull, 0xf8000000000fc067ull, N("vote"), N("any"), PDST2, T(pnot1), PSRC1 },
 	{ 0x48000000000fc044ull, 0xf8000000000fc067ull, N("vote"), N("uni"), PDST2, T(pnot1), PSRC1 },
 	{ 0x49c0000000000024ull, 0xf9c0000000000027ull, N("vote"), N("ballot"), DST, T(pnot1), PSRC1 }, // same insn as vote any, really... but need to check what happens for vote all and vote uni with non bit-bucked destination before unifying.
-	{ 0x5000000000000004ull, 0xfc000000000000e7ull, N("bar popc"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 }, // and yes, sync is just a special case of this.
-	{ 0x5000000000000024ull, 0xfc000000000000e7ull, N("bar and"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
-	{ 0x5000000000000044ull, 0xfc000000000000e7ull, N("bar or"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
-	{ 0x5000000000000084ull, 0xfc000000000000e7ull, N("bar arrive"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
+	{ 0x5000000000000004ull, 0xfc000000000000e7ull, N("bar"), N("popc"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 }, // and yes, sync is just a special case of this.
+	{ 0x5000000000000024ull, 0xfc000000000000e7ull, N("bar"), N("and"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
+	{ 0x5000000000000044ull, 0xfc000000000000e7ull, N("bar"), N("or"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
+	{ 0x5000000000000084ull, 0xfc000000000000e7ull, N("bar"), N("arrive"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
 	{ 0x5400000000000004ull, 0xfc00000000000007ull, N("popc"), DST, T(not9), SRC1, T(not8), T(is2) }, // XXX: popc(SRC1 & SRC2)? insane idea, but I don't have any better
 	// ???
 	{ 0xc000800000000004ull, 0xfc00800000000087ull, N("vadd"), T(sat9), T(vdst), T(us32_2a), DST, T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), SRC2, SRC3  },
@@ -1086,10 +1086,10 @@ static struct insn tabm[] = {
 
 	{ 0x0000000000000006ull, 0xfe00000000000067ull, N("pfetch"), DST, VBASRC },
 	{ 0x0600000000000006ull, 0xfe00000000000107ull, N("vfetch"), VDST, T(ldvf), ATTR }, // src2 is vertex offset
-	{ 0x0600000000000106ull, 0xfe00000000000107ull, N("vfetch patch"), VDST, T(ldvf), ATTR }, // per patch input
+	{ 0x0600000000000106ull, 0xfe00000000000107ull, N("vfetch"), N("patch"), VDST, T(ldvf), ATTR }, // per patch input
 	{ 0x0a00000003f00006ull, 0xfe7e000003f00107ull, N("export"), VAR, ESRC }, // GP
 	{ 0x0a7e000003f00006ull, 0xfe7e000003f00107ull, N("export"), VAR, ESRC }, // VP
-	{ 0x0a7e000003f00106ull, 0xfe7e000003f00107ull, N("export patch"), VAR, ESRC }, // per patch output
+	{ 0x0a7e000003f00106ull, 0xfe7e000003f00107ull, N("export"), N("patch"), VAR, ESRC }, // per patch output
 	{ 0x1400000000000006ull, 0xfc00000000000007ull, N("ld"), T(ldstt), T(ldstd), FCONST },
 	{ 0x1c000000fc000026ull, 0xfe000000fc000067ull, N("emit") },
 	{ 0x1c000000fc000046ull, 0xfe000000fc000067ull, N("restart") },
