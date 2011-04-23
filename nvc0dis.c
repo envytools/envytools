@@ -147,6 +147,7 @@ static struct bitfield fimmoff = { { 0x1a, 20 }, BF_UNSIGNED, 12 };
 static struct bitfield dimmoff = { { 0x1a, 20 }, BF_UNSIGNED, 44 };
 static struct bitfield limmoff = { { 0x1a, 32 }, .wrapok = 1 };
 static struct bitfield vimmoff = { 0x1a, 16 };
+static struct bitfield v4immoff = { 0x1a, 8 };
 static struct bitfield shcntoff = { 5, 5 };
 static struct bitfield bnumoff = { 0x37, 2 };
 static struct bitfield hnumoff = { 0x38, 1 };
@@ -158,6 +159,7 @@ static struct bitfield hnumoff = { 0x38, 1 };
 #define DIMM atomimm, &dimmoff
 #define LIMM atomimm, &limmoff
 #define VIMM atomimm, &vimmoff
+#define V4IMM atomimm, &v4immoff
 #define SHCNT atomimm, &shcntoff
 #define BNUM atomimm, &bnumoff
 #define HNUM atomimm, &hnumoff
@@ -562,6 +564,12 @@ static struct insn tabvs2[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabv4s2[] = {
+	{ 0x0000000000000000ull, 0x0000800000000000ull, V4IMM },
+	{ 0x0000800000000000ull, 0x0000800000000000ull, SRC2 },
+	{ 0, 0, OOPS },
+};
+
 F1(sat5, 5, N("sat"))
 F1(sat9, 9, N("sat"))
 F1(sat31, 0x31, N("sat"))
@@ -596,6 +604,10 @@ F(us32_5, 5, N("u32"), N("s32"))
 F(us32_7, 7, N("u32"), N("s32"))
 F(us32_6, 6, N("u32"), N("s32"))
 F(us32_2a, 0x2a, N("u32"), N("s32"))
+
+F(us8_5, 5, N("u8"), N("s8"))
+F(us8_6, 6, N("u8"), N("s8"))
+F(us8_39, 0x39, N("u8"), N("s8"))
 
 F1(high5, 0x5, N("high"))
 F1(high6, 6, N("high"))
@@ -875,6 +887,69 @@ static struct insn tabvsrc2[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabv4dst[] = {
+	{ 0x0000000000000000ull, 0x0000700000000000ull },
+	{ 0x0000100000000000ull, 0x0000700000000000ull, N("simd_min") },
+	{ 0x0000200000000000ull, 0x0000700000000000ull, N("simd_max") },
+	{ 0x0000400000000000ull, 0x0000700000000000ull, N("add") },
+	{ 0x0000500000000000ull, 0x0000700000000000ull, N("min") },
+	{ 0x0000600000000000ull, 0x0000700000000000ull, N("max") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabv4dmask[] = {
+	{ 0x0000000000000000ull, 0x0180000c00000000ull, N("none") },
+	{ 0x0080000000000000ull, 0x0180000c00000000ull, N("x") },
+	{ 0x0100000000000000ull, 0x0180000c00000000ull, N("y") },
+	{ 0x0180000000000000ull, 0x0180000c00000000ull, N("xy") },
+	{ 0x0000000400000000ull, 0x0180000c00000000ull, N("z") },
+	{ 0x0080000400000000ull, 0x0180000c00000000ull, N("xz") },
+	{ 0x0100000400000000ull, 0x0180000c00000000ull, N("yz") },
+	{ 0x0180000400000000ull, 0x0180000c00000000ull, N("xyz") },
+	{ 0x0000000800000000ull, 0x0180000c00000000ull, N("w") },
+	{ 0x0080000800000000ull, 0x0180000c00000000ull, N("xw") },
+	{ 0x0100000800000000ull, 0x0180000c00000000ull, N("yw") },
+	{ 0x0180000800000000ull, 0x0180000c00000000ull, N("xyw") },
+	{ 0x0000000c00000000ull, 0x0180000c00000000ull, N("zw") },
+	{ 0x0080000c00000000ull, 0x0180000c00000000ull, N("xzw") },
+	{ 0x0100000c00000000ull, 0x0180000c00000000ull, N("yzw") },
+	{ 0x0180000c00000000ull, 0x0180000c00000000ull },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabv4src1[] = {
+	{ 0x0000000000000000ull, 0x00000f0000000000ull, N("b0") },
+	{ 0x0000010000000000ull, 0x00000f0000000000ull, N("b1") },
+	{ 0x0000020000000000ull, 0x00000f0000000000ull, N("b2") },
+	{ 0x0000030000000000ull, 0x00000f0000000000ull, N("b3") },
+	{ 0x0000040000000000ull, 0x00000f0000000000ull,  },
+	{ 0x0000050000000000ull, 0x00000f0000000000ull, N("b1234") },
+	{ 0x0000060000000000ull, 0x00000f0000000000ull, N("b2345") },
+	{ 0x0000070000000000ull, 0x00000f0000000000ull, N("b3456") },
+	{ 0x0000080000000000ull, 0x00000f0000000000ull, N("b1023") },
+	{ 0x0000090000000000ull, 0x00000f0000000000ull, N("b2103") },
+	{ 0x00000a0000000000ull, 0x00000f0000000000ull, N("b3120") },
+	{ 0x00000b0000000000ull, 0x00000f0000000000ull, N("b0213") },
+	{ 0x00000c0000000000ull, 0x00000f0000000000ull, N("b0321") },
+	{ 0x00000d0000000000ull, 0x00000f0000000000ull, N("b0132") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabv4src2[] = {
+	{ 0x0000000000000000ull, 0x000000f000000000ull, N("b4") },
+	{ 0x0000001000000000ull, 0x000000f000000000ull, N("b5") },
+	{ 0x0000002000000000ull, 0x000000f000000000ull, N("b6") },
+	{ 0x0000003000000000ull, 0x000000f000000000ull, N("b7") },
+	{ 0x0000004000000000ull, 0x000000f000000000ull },
+	{ 0x0000005000000000ull, 0x000000f000000000ull, N("b3456") },
+	{ 0x0000006000000000ull, 0x000000f000000000ull, N("b2345") },
+	{ 0x0000007000000000ull, 0x000000f000000000ull, N("b1234") },
+	{ 0x0000008000000000ull, 0x000000f000000000ull, N("b7654") },
+	{ 0x0000009000000000ull, 0x000000f000000000ull, N("b5476") },
+	{ 0x000000a000000000ull, 0x000000f000000000ull, N("b6745") },
+	{ 0, 0, OOPS },
+};
+
 F(vsclamp, 0x7, N("clamp"), N("wrap"))
 
 static struct insn tabvmop[] = {
@@ -1038,7 +1113,10 @@ static struct insn tabm[] = {
 	{ 0x5000000000000044ull, 0xfc000000000000e7ull, N("bar"), N("or"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
 	{ 0x5000000000000084ull, 0xfc000000000000e7ull, N("bar"), N("arrive"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
 	{ 0x5400000000000004ull, 0xfc00000000000007ull, N("popc"), DST, T(not9), SRC1, T(not8), T(is2) }, // XXX: popc(SRC1 & SRC2)? insane idea, but I don't have any better
-	// ???
+	{ 0x8000000000000004ull, 0xfc00000000000187ull, N("vadd4"), T(sat9), T(v4dst), T(v4dmask), T(us8_39), DST, T(acout30), T(v4src1), T(us8_6), SRC1, T(v4src2), T(us8_5), T(v4s2), SRC3  },
+	{ 0x8000000000000084ull, 0xfc00000000000187ull, N("vsub4"), T(sat9), T(v4dst), T(v4dmask), T(us8_39), DST, T(acout30), T(v4src1), T(us8_6), SRC1, T(v4src2), T(us8_5), T(v4s2), SRC3  },
+	{ 0x8000000000000104ull, 0xfc00000000000187ull, N("vsubr4"), T(sat9), T(v4dst), T(v4dmask), T(us8_39), DST, T(acout30), T(v4src1), T(us8_6), SRC1, T(v4src2), T(us8_5), T(v4s2), SRC3  },
+	{ 0x8000000000000184ull, 0xfc00000000000187ull, N("vavg4"), T(sat9), T(v4dst), T(v4dmask), T(us8_39), DST, T(acout30), T(v4src1), T(us8_6), SRC1, T(v4src2), T(us8_5), T(v4s2), SRC3  },
 	{ 0xc000000000000004ull, 0xf800000000000187ull, N("vadd"), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
 	{ 0xc000000000000084ull, 0xf800000000000187ull, N("vsub"), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
 	{ 0xc000000000000104ull, 0xf800000000000187ull, N("vsubr"), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
