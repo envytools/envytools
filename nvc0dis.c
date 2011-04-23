@@ -149,6 +149,8 @@ static struct bitfield dimmoff = { { 0x1a, 20 }, BF_UNSIGNED, 44 };
 static struct bitfield limmoff = { { 0x1a, 32 }, .wrapok = 1 };
 static struct bitfield vimmoff = { 0x1a, 16 };
 static struct bitfield v4immoff = { 0x1a, 8 };
+static struct bitfield immsoff = { { 0x14, 12 }, BF_SIGNED };
+static struct bitfield fimmsoff = { { 0x14, 12 }, BF_UNSIGNED, 20 };
 static struct bitfield shcntoff = { 5, 5 };
 static struct bitfield shcntsoff = { 0x1a, 5 };
 static struct bitfield bnumoff = { 0x37, 2 };
@@ -163,6 +165,8 @@ static struct bitfield hnumoff = { 0x38, 1 };
 #define LIMM atomimm, &limmoff
 #define VIMM atomimm, &vimmoff
 #define V4IMM atomimm, &v4immoff
+#define IMMS atomimm, &immsoff
+#define FIMMS atomimm, &fimmsoff
 #define SHCNT atomimm, &shcntoff
 #define SHCNTS atomimm, &shcntsoff
 #define BNUM atomimm, &bnumoff
@@ -834,8 +838,10 @@ F1(fmz7, 7, N("fmz"))
 F1(neg39, 0x39, N("neg"))
 F1(neg9, 9, N("neg"))
 F1(neg8, 8, N("neg"))
+F1(neg16, 0x16, N("neg"))
 F1(abs7, 7, N("abs"))
 F1(abs6, 6, N("abs"))
+F1(abs19, 0x19, N("abs"))
 F1(abs1e, 0x1e, N("abs"))
 F1(rint, 7, T(fcrmi))
 F1(rev, 8, N("rev"))
@@ -846,6 +852,7 @@ F1(not8, 8, N("not"))
 
 F1(shiftamt, 6, N("shiftamt"))
 
+F1(acout17, 0x17, CC)
 F1(acout30, 0x30, CC)
 F1(acout3a, 0x3a, CC)
 F1(acin6, 6, CC)
@@ -1600,6 +1607,22 @@ static struct insn tabpsrcs[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabi2isd[] = {
+	{ 0x00000000, 0x00300000, N("u16") },
+	{ 0x00100000, 0x00300000, N("s16") },
+	{ 0x00200000, 0x00300000, N("u32") },
+	{ 0x00300000, 0x00300000, N("s32") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabi2iss[] = {
+	{ 0x00000000, 0x01000200, N("u16") },
+	{ 0x00000200, 0x01000200, N("s16") },
+	{ 0x01000000, 0x01000200, N("u32") },
+	{ 0x01000200, 0x01000200, N("s32") },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabs[] = {
 	{ 0x00000008, 0xf80003ff, T(p), N("nop") },
 	{ 0x10000008, 0xf80003ff, T(p), N("set"), PDST, T(setct), CC },
@@ -1625,6 +1648,10 @@ static struct insn tabs[] = {
 	{ 0x00000508, 0x000007ff, N("vabsdiff4"), T(us8_d), DST, T(us8_c), SRC1, T(us8_b), SRC2 },
 	{ 0x00000708, 0x00000fff, N("vadd4"), T(us8_d), DST, T(us8_c), SRC1, T(us8_c), SRC2 },
 	{ 0x00000f08, 0x00000fff, N("vsubr4"), T(us8_d), DST, T(us8_c), SRC1, T(us8_c), SRC2 },
+
+	{ 0x00000018, 0x000001ff, T(p), N("cvt"), T(i2isd), DST, T(acout17), T(neg16), T(abs19), T(i2iss), SRC2 },
+	{ 0x00000118, 0x000003ff, T(p), N("mov"), DST, IMMS },
+	{ 0x00000318, 0x000003ff, T(p), N("mov"), DST, FIMMS },
 	{ 0, 0, OOPS },
 };
 
