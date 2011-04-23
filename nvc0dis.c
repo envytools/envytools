@@ -886,19 +886,21 @@ static struct insn tabvmop[] = {
 };
 
 static struct insn tabvmshr[] = {
-	{ 0x0000000000000000ull, 0x0380000000000000ull, },
-	{ 0x0080000000000000ull, 0x0380000000000000ull, N("shr7") },
-	{ 0x0100000000000000ull, 0x0380000000000000ull, N("shr15") },
+	{ 0x0000000000000000ull, 0x0180000000000000ull, },
+	{ 0x0080000000000000ull, 0x0180000000000000ull, N("shr7") },
+	{ 0x0100000000000000ull, 0x0180000000000000ull, N("shr15") },
 	{ 0, 0, OOPS },
 };
 
 static struct insn tabvsetop[] = {
+	{ 0x000, 0x380, N("false") },
 	{ 0x080, 0x380, N("lt") },
 	{ 0x100, 0x380, N("eq") },
 	{ 0x180, 0x380, N("le") },
 	{ 0x200, 0x380, N("gt") },
 	{ 0x280, 0x380, N("ne") },
 	{ 0x300, 0x380, N("ge") },
+	{ 0x380, 0x380, N("true") },
 	{ 0, 0, OOPS },
 };
 
@@ -1037,17 +1039,18 @@ static struct insn tabm[] = {
 	{ 0x5000000000000084ull, 0xfc000000000000e7ull, N("bar"), N("arrive"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
 	{ 0x5400000000000004ull, 0xfc00000000000007ull, N("popc"), DST, T(not9), SRC1, T(not8), T(is2) }, // XXX: popc(SRC1 & SRC2)? insane idea, but I don't have any better
 	// ???
-	{ 0xc000000000000004ull, 0xfc00000000000187ull, N("vadd"), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
-	{ 0xc000000000000084ull, 0xfc00000000000187ull, N("vsub"), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
-	{ 0xc000000000000104ull, 0xfc00000000000187ull, N("vsubr"), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
-	{ 0xc000000000000184ull, 0xfc00000000000187ull, N("vaddpo"), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
-	{ 0xc800000000000004ull, 0xfc00000000000087ull, N("vmin"), T(sat9), T(vdst), T(us32_2a), DST, T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
-	{ 0xc800000000000084ull, 0xfc00000000000087ull, N("vmax"), T(sat9), T(vdst), T(us32_2a), DST, T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
-	{ 0xd000000000000004ull, 0xfc00000000000007ull, N("vabsdiff"), T(sat9), T(vdst), T(us32_2a), DST, T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
-	{ 0xd800000000000004ull, 0xfc00000000000007ull, N("vset"), T(vdst), DST, T(vsetop), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
-	{ 0xe000000000000004ull, 0xfc00000000000007ull, N("vshr"), T(vsclamp), T(sat9), T(vdst), T(us32_2a), DST, T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(vs2), SRC3  },
-	{ 0xe800000000000004ull, 0xfc00000000000007ull, N("vshl"), T(vsclamp), T(sat9), T(vdst), T(us32_2a), DST, T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(vs2), SRC3  },
-	{ 0xf000000000000004ull, 0xfc00000000000007ull, N("vmad"), T(vmop), T(sat9), T(vmshr), DST, T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
+	{ 0xc000000000000004ull, 0xf800000000000187ull, N("vadd"), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
+	{ 0xc000000000000084ull, 0xf800000000000187ull, N("vsub"), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
+	{ 0xc000000000000104ull, 0xf800000000000187ull, N("vsubr"), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
+	{ 0xc000000000000184ull, 0xf800000000000187ull, N("vaddpo"), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
+	{ 0xc800000000000004ull, 0xf800000000000087ull, N("vmin"), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
+	{ 0xc800000000000084ull, 0xf800000000000087ull, N("vmax"), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
+	{ 0xd000000000000004ull, 0xf800000000000007ull, N("vabsdiff"), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
+	{ 0xd800000000000004ull, 0xf800000000000007ull, N("vset"), T(vdst), DST, T(acout30), T(vsetop), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
+	{ 0xe000000000000004ull, 0xf800000000000007ull, N("vshr"), T(vsclamp), T(sat9), T(vdst), T(us32_2a), T(acout30), DST, T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
+	{ 0xe800000000000004ull, 0xf800000000000007ull, N("vshl"), T(vsclamp), T(sat9), T(vdst), T(us32_2a), T(acout30), DST, T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
+	{ 0xf000000000000004ull, 0xf800000000000007ull, N("vmad"), T(vmop), T(sat9), T(vmshr), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
+	{ 0xf800000000000004ull, 0xf800000000000007ull, N("vset"), PDST, PDSTN, T(vsetop), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), T(setlop)  },
 
 
 	{ 0x1000000000000005ull, 0xf800000000000207ull, T(redop), N("u32"), T(gmem), DST },
