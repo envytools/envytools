@@ -151,6 +151,7 @@ static struct bitfield vimmoff = { 0x1a, 16 };
 static struct bitfield v4immoff = { 0x1a, 8 };
 static struct bitfield immsoff = { { 0x14, 12 }, BF_SIGNED };
 static struct bitfield fimmsoff = { { 0x14, 12 }, BF_UNSIGNED, 20 };
+static struct bitfield simmsoff = { { 0x1a, 6, 8, 2 }, BF_SIGNED };
 static struct bitfield shcntoff = { 5, 5 };
 static struct bitfield shcntsoff = { 0x1a, 5 };
 static struct bitfield bnumoff = { 0x37, 2 };
@@ -167,6 +168,7 @@ static struct bitfield hnumoff = { 0x38, 1 };
 #define V4IMM atomimm, &v4immoff
 #define IMMS atomimm, &immsoff
 #define FIMMS atomimm, &fimmsoff
+#define SIMMS atomimm, &simmsoff
 #define SHCNT atomimm, &shcntoff
 #define SHCNTS atomimm, &shcntsoff
 #define BNUM atomimm, &bnumoff
@@ -1674,6 +1676,18 @@ static struct insn tabrmsi[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabsetits[] = {
+	{ 0x00000000, 0x0001c000, N("false") },
+	{ 0x00004000, 0x0001c000, N("lt") },
+	{ 0x00008000, 0x0001c000, N("eq") },
+	{ 0x0000c000, 0x0001c000, N("le") },
+	{ 0x00010000, 0x0001c000, N("gt") },
+	{ 0x00014000, 0x0001c000, N("ne") },
+	{ 0x00018000, 0x0001c000, N("ge") },
+	{ 0x0001c000, 0x0001c000, N("true") },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabs[] = {
 	{ 0x00000008, 0xf80003ff, T(p), N("nop") },
 	{ 0x10000008, 0xf80003ff, T(p), N("set"), PDST, T(setct), CC },
@@ -1710,6 +1724,9 @@ static struct insn tabs[] = {
 	{ 0x00000288, 0x000003ff, T(p), N("cvt"), T(rmsi), T(us32_18), DST, T(acout17), T(neg16), T(abs19), N("f32"), SRC2 },
 	{ 0x00000098, 0x000003ff, T(p), N("cvt"), T(sat18), N("f32"), DST, T(acout17), T(neg16), T(abs19), N("f32"), SRC2 },
 	{ 0x00000298, 0x000003ff, T(p), N("cvt"), T(sat18), T(rmsi), N("f32"), DST, T(acout17), T(neg16), T(abs19), N("f32"), SRC2 },
+
+	{ 0x00000048, 0x000000ff, T(p), N("set"), PDST, T(setits), N("s32"), SRC1, T(ss2) },
+	{ 0x000000c8, 0x000000ff, T(p), N("set"), PDST, T(setits), N("s32"), SRC1, SIMMS },
 
 	{ 0x000000a8, 0x000000ff, T(p), N("mul"), N("f32"), DST, SRC1, T(ss2) },
 	{ 0, 0, OOPS },
