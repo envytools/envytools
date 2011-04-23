@@ -150,6 +150,7 @@ static struct bitfield limmoff = { { 0x1a, 32 }, .wrapok = 1 };
 static struct bitfield vimmoff = { 0x1a, 16 };
 static struct bitfield v4immoff = { 0x1a, 8 };
 static struct bitfield shcntoff = { 5, 5 };
+static struct bitfield shcntsoff = { 0x1a, 5 };
 static struct bitfield bnumoff = { 0x37, 2 };
 static struct bitfield hnumoff = { 0x38, 1 };
 #define BAR atomimm, &baroff
@@ -163,6 +164,7 @@ static struct bitfield hnumoff = { 0x38, 1 };
 #define VIMM atomimm, &vimmoff
 #define V4IMM atomimm, &v4immoff
 #define SHCNT atomimm, &shcntoff
+#define SHCNTS atomimm, &shcntsoff
 #define BNUM atomimm, &bnumoff
 #define HNUM atomimm, &hnumoff
 
@@ -1615,6 +1617,8 @@ static struct insn tabs[] = {
 	{ 0x94000008, 0xbc0003ff, T(p), N("rsqrt"), N("f32"), DST, T(abs1e), SRC1 },
 	{ 0x98000008, 0xbc0003ff, T(p), N("rcp64h"), DST, T(abs1e), SRC1 },
 	{ 0x9c000008, 0xbc0003ff, T(p), N("rsqrt64h"), DST, T(abs1e), SRC1 },
+	{ 0x00000208, 0x800003ff, T(p), N("shl"), N("b32"), DST, SRC1, SHCNTS },
+	{ 0x80000208, 0x800003ff, T(p), N("shr"), N("s32"), DST, SRC1, SHCNTS },
 	{ 0x00000108, 0x000007ff, N("vabsdiff2"), T(us16_d), DST, T(us16_c), SRC1, T(us16_b), SRC2 },
 	{ 0x00000308, 0x00000fff, N("vadd2"), T(us16_d), DST, T(us16_c), SRC1, T(us16_c), SRC2 },
 	{ 0x00000b08, 0x00000fff, N("vsubr2"), T(us16_d), DST, T(us16_c), SRC1, T(us16_c), SRC2 },
