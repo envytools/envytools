@@ -697,23 +697,23 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<!-- FUCK ALERT: there are two of each method for each shader type. Yes, 12 in total. -->
 		<reg32 offset="0x1444" name="BIND_TSC" length="3" stride="8">
 			<bitfield name="VALID" pos="0" type="boolean"/>
-			<bitfield name="SAMPLER" high="7" low="4" type="int"/>
-			<bitfield name="TSC" high="20" low="12" type="int"/>
+			<bitfield name="SAMPLER" high="7" low="4" type="uint"/>
+			<bitfield name="TSC" high="20" low="12" type="uint"/>
 		</reg32>
 		<reg32 offset="0x1448" name="BIND_TIC" length="3" stride="8"><!-- VP, GP, FP -->
 			<bitfield name="VALID" pos="0" type="boolean"/>
-			<bitfield name="TEXTURE" high="8" low="1" type="int"/>
-			<bitfield name="TIC" high="30" low="9" type="int"/>
+			<bitfield name="TEXTURE" high="8" low="1" type="uint"/>
+			<bitfield name="TIC" high="30" low="9" type="uint"/>
 		</reg32>
 		<reg32 offset="0x1468" name="BIND_TSC2" length="3" stride="8">
 			<bitfield name="VALID" pos="0" type="boolean"/>
-			<bitfield name="SAMPLER" high="7" low="4" type="int"/>
-			<bitfield name="TSC" high="20" low="12" type="int"/>
+			<bitfield name="SAMPLER" pos="4" type="uint"/>
+			<bitfield name="TSC" high="20" low="12" type="uint"/>
 		</reg32>
 		<reg32 offset="0x146c" name="BIND_TIC2" length="3" stride="8">
 			<bitfield name="VALID" pos="0" type="boolean"/>
-			<bitfield name="TEXTURE" high="8" low="1" type="int"/>
-			<bitfield name="TIC" high="30" low="9" type="int"/>
+			<bitfield name="TEXTURE" pos="1" type="uint"/>
+			<bitfield name="TIC" high="30" low="9" type="uint"/>
 		</reg32>
 		<reg32 offset="0x1480" name="STRMOUT_MAP" length="32"/>
 		<reg32 offset="0x1504" name="CLIPID_HEIGHT" type="uint" max="0x2000"/>

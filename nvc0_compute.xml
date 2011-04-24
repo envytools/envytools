@@ -46,12 +46,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x0230" name="BIND_TSC2">
 		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
-		  <bitfield name="UNK" pos="4"/>
+		  <bitfield name="SAMPLER" pos="4" type="uint"/>
 		  <bitfield name="TSC" high="24" low="12" type="uint"/>
 		</reg32>
 		<reg32 offset="0x0234" name="BIND_TIC2">
 		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
-		  <bitfield name="UNK" pos="1"/>
+		  <bitfield name="TEXTURE" pos="1" type="uint"/>
 		  <bitfield name="TIC" high="30" low="9" type="uint"/>
 		</reg32>
 		<reg32 offset="0x0238" name="GRIDDIM_YX">
