@@ -352,6 +352,7 @@ static struct bitfield fcmem_idx = { 0x2a, 5 };
 static struct bitfield fcsmem_idx = { 0x5, 3 };
 static struct bitfield sc1mem_imm = { { 0x14, 6 }, BF_UNSIGNED, 2 };
 static struct bitfield sc2mem_imm = { { 0x1a, 6 }, BF_UNSIGNED, 2 };
+static struct bitfield sc3mem_imm = { { 8, 6 }, BF_UNSIGNED, 2 };
 static struct bitfield sc0mem_idx = { 0 };
 static struct bitfield sc1mem_idx = { .addend = 1 };
 static struct bitfield sc16mem_idx = { .addend = 16 };
@@ -421,6 +422,9 @@ static struct mem sc1_16mem_m = { "c", &sc16mem_idx, 0, &sc1mem_imm };
 static struct mem sc2_0mem_m = { "c", &sc0mem_idx, 0, &sc2mem_imm };
 static struct mem sc2_1mem_m = { "c", &sc1mem_idx, 0, &sc2mem_imm };
 static struct mem sc2_16mem_m = { "c", &sc16mem_idx, 0, &sc2mem_imm };
+static struct mem sc3_0mem_m = { "c", &sc0mem_idx, 0, &sc3mem_imm };
+static struct mem sc3_1mem_m = { "c", &sc1mem_idx, 0, &sc3mem_imm };
+static struct mem sc3_16mem_m = { "c", &sc16mem_idx, 0, &sc3mem_imm };
 #define GLOBAL atommem, &gmem_m
 #define GLOBALD atommem, &gdmem_m
 #define GATOM atommem, &gamem_m
@@ -476,6 +480,9 @@ static struct mem sc2_16mem_m = { "c", &sc16mem_idx, 0, &sc2mem_imm };
 #define SCONST2_0 atommem, &sc2_0mem_m
 #define SCONST2_1 atommem, &sc2_1mem_m
 #define SCONST2_16 atommem, &sc2_16mem_m
+#define SCONST3_0 atommem, &sc3_0mem_m
+#define SCONST3_1 atommem, &sc3_1mem_m
+#define SCONST3_16 atommem, &sc3_16mem_m
 
 /*
  * The instructions
@@ -899,6 +906,7 @@ F1(neg39, 0x39, N("neg"))
 F1(neg9, 9, N("neg"))
 F1(neg8, 8, N("neg"))
 F1(neg7, 7, N("neg"))
+F1(neg4, 4, N("neg"))
 F1(neg16, 0x16, N("neg"))
 F1(abs7, 7, N("abs"))
 F1(abs6, 6, N("abs"))
@@ -1722,6 +1730,13 @@ static struct insn tabss2a[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabss3a[] = {
+	{ 0x00000040, 0x000000c0, SCONST3_0 },
+	{ 0x00000080, 0x000000c0, SCONST3_1 },
+	{ 0x000000c0, 0x000000c0, SCONST3_16 },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabrms[] = {
 	{ 0x00000000, 0x00300000, N("rn") },
 	{ 0x00100000, 0x00300000, N("rm") },
@@ -1898,6 +1913,9 @@ static struct insn tabs[] = {
 	{ 0x000000bd, 0x000000ff, T(p), N("or"), DST, SRC1, SIMMS },
 	{ 0x000000dd, 0x000000ff, T(p), N("xor"), DST, SRC1, SIMMS },
 	{ 0x000000fd, 0x000000ff, T(p), N("mov2"), DST, SRC1, SIMMS },
+
+	{ 0x0000000e, 0x0000002f, N("add"), N("f32"), DST, T(neg4), N("mul"), SRC1, T(ss2a), SRC3S },
+	{ 0x0000002e, 0x0000002f, N("add"), N("f32"), DST, T(neg4), N("mul"), SRC1, SRC2, T(ss3a) },
 	{ 0, 0, OOPS },
 };
 
