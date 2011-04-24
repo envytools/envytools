@@ -968,7 +968,8 @@ F1(pnotn, 0x18, N("not"))
 F1(patch, 0x8, N("patch"))
 F1(emit, 0x5, N("emit"))
 F1(restart, 0x6, N("restart"))
-F1(dtex, 0x2d, N("deriv"))
+F(dtex, 0x2d, N("dfp"), N("dall"))
+F(dquadop, 0x9, N("dfp"), N("dall"))
 F(ltex, 9, N("all"), N("live"))
 
 static struct insn tabcctlop[] = {
@@ -1454,7 +1455,7 @@ static struct insn tabm[] = {
 	{ 0x3000000000000000ull, 0xf800000000000007ull, N("add"), T(ftz6), T(sat5), T(farm), N("f32"), DST, T(acout30), T(neg9), N("mul"), T(fmz7), SRC1, T(fs2w3), T(neg8), T(is3) },
 	{ 0x3800000000000000ull, 0xf800000000000007ull, N("slct"), T(ftz5), N("b32"), DST, SRC1, T(fs2w3), T(setit), N("f32"), T(is3) },
 	// 40?
-	{ 0x4800000000000000ull, 0xf800000000000007ull, N("quadop"), T(ftz5), T(farm), N("f32"), T(qop0), T(qop1), T(qop2), T(qop3), DST, T(acout30), T(qs1), SRC1, SRC2 },
+	{ 0x4800000000000000ull, 0xf800000000000007ull, N("quadop"), T(ftz5), T(farm), N("f32"), T(qop0), T(qop1), T(qop2), T(qop3), DST, T(acout30), T(dquadop), T(qs1), SRC1, SRC2 },
 	{ 0x5000000000000000ull, 0xf800000000000007ull, N("add"), T(ftz5), T(sat31), T(farm), N("f32"), DST, T(acout30), T(neg9), T(abs7), SRC1, T(neg8), T(abs6), T(fs2) },
 	{ 0x5800000000000000ull, 0xf800000000000007ull, N("mul"), T(mulf), T(fmz7), T(ftz6), T(sat5), T(farm), T(neg39), N("f32"), DST, T(acout30), SRC1, T(fs2) },
 	{ 0x6000000000000000ull, 0xf800000000000027ull, N("presin"), N("f32"), DST, T(neg8), T(abs6), T(fs2) },
