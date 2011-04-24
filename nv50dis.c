@@ -367,8 +367,8 @@ static struct bitfield adst_bf = { 2, 3 };
 static struct bitfield cond_bf = { 0x2c, 2 };
 static struct bitfield c0_bf = { 0, 0 };
 static struct bitfield cdst_bf = { 0x24, 2 };
-static struct bitfield tex_bf = { 9, 7 };
-static struct bitfield samp_bf = { 0x11, 4 };
+static struct bitfield tex_bf = { 9, 8 };
+static struct bitfield samp_bf = { 0x11, 5 };
 static struct bitfield sreg_bf = { 0x2e, 4 };
 
 static struct reg sdst_r = { &sdst_bf, "r" };
