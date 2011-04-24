@@ -346,6 +346,7 @@ static struct bitfield ss2mem_imm = { { 8, 2, 0x1a, 6 }, BF_SIGNED, 2 };
 static struct bitfield ss3mem_imm = { { 8, 2, 0x1a, 6 }, BF_SIGNED, 3 };
 static struct bitfield cmem_idx = { 0x2a, 4 };
 static struct bitfield fcmem_idx = { 0x2a, 5 };
+static struct bitfield fcsmem_idx = { 0x5, 3 };
 static struct bitfield sc1mem_imm = { { 0x14, 6 }, BF_UNSIGNED, 2 };
 static struct bitfield sc2mem_imm = { { 0x1a, 6 }, BF_UNSIGNED, 2 };
 static struct bitfield sc0mem_idx = { 0 };
@@ -368,6 +369,7 @@ static struct mem gadmem_m = { "g", 0, &src1d_r, &gamem_imm };
 static struct mem smem_m = { "s", 0, &src1_r, &slmem_imm };
 static struct mem lmem_m = { "l", 0, &src1_r, &slmem_imm };
 static struct mem fcmem_m = { "c", &fcmem_idx, &src1_r, &fcmem_imm };
+static struct mem fcsmem_m = { "c", &fcsmem_idx, &src1_r, &ss2mem_imm };
 static struct mem amem_m = { "a", 0, &src1_r, &amem_imm }; // XXX: wtf?
 static struct mem as1mem_m = { "a", 0, 0, &as1mem_imm };
 static struct mem as2mem_m = { "a", 0, 0, &as2mem_imm };
@@ -423,6 +425,7 @@ static struct mem sc2_16mem_m = { "c", &sc16mem_idx, 0, &sc2mem_imm };
 #define SHARED atommem, &smem_m
 #define LOCAL atommem, &lmem_m
 #define FCONST atommem, &fcmem_m
+#define FCONSTS atommem, &fcsmem_m
 #define ATTR atommem, &amem_m
 #define ATTRS1 atommem, &as1mem_m
 #define ATTRS2 atommem, &as2mem_m
@@ -1868,6 +1871,8 @@ static struct insn tabs[] = {
 	{ 0x0000005b, 0x000000ff, T(p), N("st"), N("b32"), GLOBALDS2, DST },
 	{ 0x0000009b, 0x000000ff, T(p), N("st"), N("b64"), GLOBALS3, DSTD },
 	{ 0x000000db, 0x000000ff, T(p), N("st"), N("b64"), GLOBALDS3, DSTD },
+
+	{ 0x0000001c, 0x0000001f, T(p), N("ld"), N("b32"), DST, FCONSTS },
 	{ 0, 0, OOPS },
 };
 
