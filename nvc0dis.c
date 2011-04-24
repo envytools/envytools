@@ -127,6 +127,8 @@
 
 
 static struct bitfield ctargoff = { { 26, 24 }, BF_SIGNED, .pcrel = 1, .addend = 8};
+static struct bitfield btargsoff = { { 0xe, 14 }, BF_SIGNED, 2, .pcrel = 1, .addend = 4};
+static struct bitfield ctargsoff = { { 6, 22 }, BF_SIGNED, 2, .pcrel = 1, .addend = 4};
 static struct bitfield actargoff = { 26, 32 };
 #define BTARG atombtarg, &ctargoff
 #define CTARG atomctarg, &ctargoff
@@ -134,6 +136,8 @@ static struct bitfield actargoff = { 26, 32 };
 #define ABTARG atombtarg, &actargoff
 #define ACTARG atomctarg, &actargoff
 #define ANTARG atomimm, &actargoff
+#define BTARGS atombtarg, &btargsoff
+#define CTARGS atomctarg, &ctargsoff
 
 /*
  * Misc number fields
@@ -143,6 +147,7 @@ static struct bitfield baroff = { 0x14, 4 };
 static struct bitfield pmoff = { 0x1a, 16 };
 static struct bitfield tcntoff = { 0x1a, 12 };
 static struct bitfield bptoff = { 0x1a, 20 };
+static struct bitfield bptsoff = { 7, 20 };
 static struct bitfield immoff = { { 0x1a, 20 }, BF_SIGNED };
 static struct bitfield fimmoff = { { 0x1a, 20 }, BF_UNSIGNED, 12 };
 static struct bitfield dimmoff = { { 0x1a, 20 }, BF_UNSIGNED, 44 };
@@ -160,6 +165,7 @@ static struct bitfield hnumoff = { 0x38, 1 };
 #define PM atomimm, &pmoff
 #define TCNT atomimm, &tcntoff
 #define BPT atomimm, &bptoff
+#define BPTS atomimm, &bptsoff
 #define IMM atomimm, &immoff
 #define FIMM atomimm, &fimmoff
 #define DIMM atomimm, &dimmoff
@@ -1640,7 +1646,10 @@ static struct insn tabp[] = {
 };
 
 F1(brawarp, 0xf, N("allwarp")) // probably jumps if the whole warp has the predicate evaluate to true.
+F1(brawarps, 0x1c, N("allwarp"))
 F1(lim, 0x10, N("lim"))
+F1(lims, 0x1d, N("lim"))
+F1(clims, 5, N("lim"))
 F1(terminate, 0xe, N("terminate"))
 
 static struct insn tabbtarg[] = {
@@ -1916,6 +1925,16 @@ static struct insn tabs[] = {
 
 	{ 0x0000000e, 0x0000002f, N("add"), N("f32"), DST, T(neg4), N("mul"), SRC1, T(ss2a), SRC3S },
 	{ 0x0000002e, 0x0000002f, N("add"), N("f32"), DST, T(neg4), N("mul"), SRC1, SRC2, T(ss3a) },
+
+	{ 0x0000001f, 0xc000001f, T(p), T(cc), N("bra"), T(lims), T(brawarps), BTARGS },
+	{ 0x4000001f, 0xf000001f, N("joinat"), BTARGS },
+	{ 0x5000001f, 0xf000001f, N("call"), T(clims), CTARGS },
+	{ 0x8000001f, 0xf800007f, N("bpt"), N("drain"), BPTS },
+	{ 0x8000003f, 0xf800007f, N("bpt"), N("cal"), BPTS },
+	{ 0x8000005f, 0xf800007f, N("bpt"), N("pause"), BPTS },
+	{ 0x8000007f, 0xf800007f, N("bpt"), N("trap"), BPTS },
+	{ 0x8800001f, 0xf800001f, T(p), T(cc), N("exit") },
+	{ 0x9000001f, 0xf800001f, T(p), T(cc), N("ret") },
 	{ 0, 0, OOPS },
 };
 
