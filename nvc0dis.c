@@ -312,17 +312,22 @@ static struct bitfield tdst_cnt = { .addend = 4 };
 static struct bitfield tdst_mask = { 0x2e, 4 };
 static struct bitfield tsrc_cnt = { { 0x34, 2 }, .addend = 1 };
 static struct bitfield saddr_cnt = { { 0x2c, 2 }, .addend = 1 };
-static struct bitfield esrc_cnt = { { 5, 2 }, .addend = 1 };
+static struct bitfield asrc_cnt = { { 5, 2 }, .addend = 1 };
+static struct bitfield asrcs_cnt = { { 6, 2 }, .addend = 1 };
 static struct vec tdst_v = { "r", &dst_bf, &tdst_cnt, &tdst_mask };
 static struct vec tsrc_v = { "r", &src1_bf, &tsrc_cnt, 0 };
 static struct vec saddr_v = { "r", &src1_bf, &saddr_cnt, 0 };
-static struct vec asrc_v = { "r", &src2_bf, &esrc_cnt, 0 };
-static struct vec adst_v = { "r", &dst_bf, &esrc_cnt, 0 };
+static struct vec asrc_v = { "r", &src2_bf, &asrc_cnt, 0 };
+static struct vec adst_v = { "r", &dst_bf, &asrc_cnt, 0 };
+static struct vec asrcs_v = { "r", &src2_bf, &asrcs_cnt, 0 };
+static struct vec adsts_v = { "r", &dst_bf, &asrcs_cnt, 0 };
 #define TDST atomvec, &tdst_v
 #define TSRC atomvec, &tsrc_v
 #define SADDR atomvec, &saddr_v
 #define ASRC atomvec, &asrc_v
 #define ADST atomvec, &adst_v
+#define ASRCS atomvec, &asrcs_v
+#define ADSTS atomvec, &adsts_v
 
 /*
  * Memory fields
@@ -335,7 +340,8 @@ static struct bitfield slmem_imm = { { 0x1a, 24 }, BF_SIGNED };
 static struct bitfield cmem_imm = { 0x1a, 16 };
 static struct bitfield fcmem_imm = { { 0x1a, 16 }, BF_SIGNED };
 static struct bitfield amem_imm = { { 0x20, 10 }, BF_SIGNED };
-static struct bitfield asmem_imm = { { 8, 2, 0x1a, 6 }, BF_UNSIGNED, 2 };
+static struct bitfield as1mem_imm = { { 8, 2, 0x14, 6 }, BF_UNSIGNED, 2 };
+static struct bitfield as2mem_imm = { { 8, 2, 0x1a, 6 }, BF_UNSIGNED, 2 };
 static struct bitfield cmem_idx = { 0x2a, 4 };
 static struct bitfield fcmem_idx = { 0x2a, 5 };
 static struct bitfield sc1mem_imm = { { 0x14, 6 }, BF_UNSIGNED, 2 };
@@ -361,7 +367,8 @@ static struct mem smem_m = { "s", 0, &src1_r, &slmem_imm };
 static struct mem lmem_m = { "l", 0, &src1_r, &slmem_imm };
 static struct mem fcmem_m = { "c", &fcmem_idx, &src1_r, &fcmem_imm };
 static struct mem amem_m = { "a", 0, &src1_r, &amem_imm }; // XXX: wtf?
-static struct mem asmem_m = { "a", 0, 0, &asmem_imm };
+static struct mem as1mem_m = { "a", 0, 0, &as1mem_imm };
+static struct mem as2mem_m = { "a", 0, 0, &as2mem_imm };
 static struct mem cmem_m = { "c", &cmem_idx, 0, &cmem_imm };
 static struct mem lcmem_m = { "l", 0, &src1_r, &slmem_imm };
 static struct mem gcmem_m = { "g", 0, &src1_r, &gcmem_imm };
@@ -407,7 +414,8 @@ static struct mem sc2_16mem_m = { "c", &sc16mem_idx, 0, &sc2mem_imm };
 #define LOCAL atommem, &lmem_m
 #define FCONST atommem, &fcmem_m
 #define ATTR atommem, &amem_m
-#define ATTRS atommem, &asmem_m
+#define ATTRS1 atommem, &as1mem_m
+#define ATTRS2 atommem, &as2mem_m
 #define CONST atommem, &cmem_m
 #define VBASRC atommem, &vba_m
 #define LCMEM atommem, &lcmem_m
@@ -490,6 +498,14 @@ static struct insn tabldvf[] = {
 	{ 0x40, 0x60, N("b96") },
 	{ 0x20, 0x60, N("b64") },
 	{ 0x00, 0x60, N("b32") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabldvfs[] = {
+	{ 0xc0, 0xc0, N("b128") },
+	{ 0x80, 0xc0, N("b96") },
+	{ 0x40, 0xc0, N("b64") },
+	{ 0x00, 0xc0, N("b32") },
 	{ 0, 0, OOPS },
 };
 
@@ -1809,9 +1825,11 @@ static struct insn tabs[] = {
 
 	{ 0x00000058, 0x0000007f, N("vmad"), DST, T(us32_d), T(vmadss1), SRC1, T(us32_c), T(vmadss2), SRC2 },
 
-	{ 0x00000009, 0x0000007f, T(p), N("interp"), T(interpmodes), DST, ATTRS, SRC1 },
+	{ 0x00000009, 0x0000007f, T(p), N("interp"), T(interpmodes), DST, ATTRS2, SRC1 },
 	{ 0x00000049, 0x0000007f, T(p), N("add"), N("f32"), DST, T(neg7), SRC1, T(ss2) },
 	{ 0x00000059, 0x0000007f, T(p), N("set"), PDST, T(setfts), N("f32"), SRC1, T(ss2) },
+	{ 0x00000029, 0x0000003f, T(p), N("ld"), T(ldvfs), ADSTS, ATTRS1, SRC2 },
+	{ 0x00000039, 0x0000003f, T(p), N("st"), T(ldvfs), ATTRS1, ASRCS, DST },
 	{ 0, 0, OOPS },
 };
 
