@@ -342,6 +342,8 @@ static struct bitfield fcmem_imm = { { 0x1a, 16 }, BF_SIGNED };
 static struct bitfield amem_imm = { { 0x20, 10 }, BF_SIGNED };
 static struct bitfield as1mem_imm = { { 8, 2, 0x14, 6 }, BF_UNSIGNED, 2 };
 static struct bitfield as2mem_imm = { { 8, 2, 0x1a, 6 }, BF_UNSIGNED, 2 };
+static struct bitfield ss2mem_imm = { { 8, 2, 0x1a, 6 }, BF_SIGNED, 2 };
+static struct bitfield ss3mem_imm = { { 8, 2, 0x1a, 6 }, BF_SIGNED, 3 };
 static struct bitfield cmem_idx = { 0x2a, 4 };
 static struct bitfield fcmem_idx = { 0x2a, 5 };
 static struct bitfield sc1mem_imm = { { 0x14, 6 }, BF_UNSIGNED, 2 };
@@ -369,6 +371,10 @@ static struct mem fcmem_m = { "c", &fcmem_idx, &src1_r, &fcmem_imm };
 static struct mem amem_m = { "a", 0, &src1_r, &amem_imm }; // XXX: wtf?
 static struct mem as1mem_m = { "a", 0, 0, &as1mem_imm };
 static struct mem as2mem_m = { "a", 0, 0, &as2mem_imm };
+static struct mem ls2mem_m = { "l", 0, &src1_r, &ss2mem_imm };
+static struct mem ls3mem_m = { "l", 0, &src1_r, &ss3mem_imm };
+static struct mem ss2mem_m = { "s", 0, &src1_r, &ss2mem_imm };
+static struct mem ss3mem_m = { "s", 0, &src1_r, &ss3mem_imm };
 static struct mem cmem_m = { "c", &cmem_idx, 0, &cmem_imm };
 static struct mem lcmem_m = { "l", 0, &src1_r, &slmem_imm };
 static struct mem gcmem_m = { "g", 0, &src1_r, &gcmem_imm };
@@ -416,6 +422,10 @@ static struct mem sc2_16mem_m = { "c", &sc16mem_idx, 0, &sc2mem_imm };
 #define ATTR atommem, &amem_m
 #define ATTRS1 atommem, &as1mem_m
 #define ATTRS2 atommem, &as2mem_m
+#define LOCALS2 atommem, &ls2mem_m
+#define LOCALS3 atommem, &ls3mem_m
+#define SHAREDS2 atommem, &ss2mem_m
+#define SHAREDS3 atommem, &ss3mem_m
 #define CONST atommem, &cmem_m
 #define VBASRC atommem, &vba_m
 #define LCMEM atommem, &lcmem_m
@@ -1830,6 +1840,15 @@ static struct insn tabs[] = {
 	{ 0x00000059, 0x0000007f, T(p), N("set"), PDST, T(setfts), N("f32"), SRC1, T(ss2) },
 	{ 0x00000029, 0x0000003f, T(p), N("ld"), T(ldvfs), ADSTS, ATTRS1, SRC2 },
 	{ 0x00000039, 0x0000003f, T(p), N("st"), T(ldvfs), ATTRS1, ASRCS, DST },
+
+	{ 0x0000000a, 0x000000ff, T(p), N("ld"), N("b32"), DST, LOCALS2 },
+	{ 0x0000004a, 0x000000ff, T(p), N("ld"), N("b32"), DST, SHAREDS2 },
+	{ 0x0000008a, 0x000000ff, T(p), N("ld"), N("b64"), DSTD, LOCALS3 },
+	{ 0x000000ca, 0x000000ff, T(p), N("ld"), N("b64"), DSTD, SHAREDS3 },
+	{ 0x0000001a, 0x000000ff, T(p), N("st"), N("b32"), LOCALS2, DST },
+	{ 0x0000005a, 0x000000ff, T(p), N("st"), N("b32"), SHAREDS2, DST },
+	{ 0x0000009a, 0x000000ff, T(p), N("st"), N("b64"), LOCALS3, DSTD },
+	{ 0x000000da, 0x000000ff, T(p), N("st"), N("b64"), SHAREDS3, DSTD },
 	{ 0, 0, OOPS },
 };
 
