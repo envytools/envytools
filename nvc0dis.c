@@ -296,6 +296,7 @@ static struct bitfield slmem_imm = { { 0x1a, 24 }, BF_SIGNED };
 static struct bitfield cmem_imm = { 0x1a, 16 };
 static struct bitfield fcmem_imm = { { 0x1a, 16 }, BF_SIGNED };
 static struct bitfield amem_imm = { { 0x20, 10 }, BF_SIGNED };
+static struct bitfield pix_imm = { { 0x1a, 8 }, BF_SIGNED };
 static struct bitfield as1mem_imm = { { 8, 2, 0x14, 6 }, BF_UNSIGNED, 2 };
 static struct bitfield as2mem_imm = { { 8, 2, 0x1a, 6 }, BF_UNSIGNED, 2 };
 static struct bitfield ss2mem_imm = { { 8, 2, 0x1a, 6 }, BF_SIGNED, 2 };
@@ -369,6 +370,7 @@ static struct mem lduld_gmem2s4_m = { "g", 0, &src2_r, &lduld2s4_imm };
 static struct mem lduld_gdmem2s4_m = { "g", 0, &src2d_r, &lduld2s4_imm };
 // vertex base address (for tessellation and geometry programs)
 static struct mem vba_m = { "p", 0, &src1_r, &fcmem_imm };
+static struct mem pix_m = { "pix", 0, &src1_r, &pix_imm };
 static struct mem sc1_0mem_m = { "c", &sc0mem_idx, 0, &sc1mem_imm };
 static struct mem sc1_1mem_m = { "c", &sc1mem_idx, 0, &sc1mem_imm };
 static struct mem sc1_16mem_m = { "c", &sc16mem_idx, 0, &sc1mem_imm };
@@ -399,6 +401,7 @@ static struct mem sc3_16mem_m = { "c", &sc16mem_idx, 0, &sc3mem_imm };
 #define GLOBALDS3 atommem, &gds3mem_m
 #define CONST atommem, &cmem_m
 #define VBASRC atommem, &vba_m
+#define PIX atommem, &pix_m
 #define LCMEM atommem, &lcmem_m
 #define GCMEM atommem, &gcmem_m
 #define GDCMEM atommem, &gdcmem_m
@@ -1507,6 +1510,16 @@ static struct insn tabinterpsample[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabpixinfo[] = {
+	{ 0x0000000000000000ull, 0x00000000000000e0ull, N("samplecnt") },
+	{ 0x0000000000000020ull, 0x00000000000000e0ull, N("covmask") },
+	{ 0x0000000000000040ull, 0x00000000000000e0ull, N("covered") },
+	{ 0x0000000000000060ull, 0x00000000000000e0ull, N("offset") },
+	{ 0x0000000000000080ull, 0x00000000000000e0ull, N("cent_offset") },
+	{ 0x00000000000000a0ull, 0x00000000000000e0ull, N("sampleid") },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabvsetop[] = {
 	{ 0x000, 0x380, N("false") },
 	{ 0x080, 0x380, N("lt") },
@@ -1726,6 +1739,7 @@ static struct insn tabm[] = {
 	/* XXX: what was bit 0x39 for, again? */
 	{ 0x0400000000000006ull, 0xfc00000000000007ull, N("ld"), T(patch), T(ldvf), ADST, ATTR, SRC2 },
 	{ 0x0800000000000006ull, 0xfc00000000000007ull, N("st"), T(patch), T(ldvf), ATTR, ASRC, SRC3 },
+	{ 0x1000000000000006ull, 0xfc00000000000007ull, N("pixinfo"), DST, PDST3, T(pixinfo), PIX },
 	{ 0x1400000000000006ull, 0xfc00000000000007ull, N("ld"), T(ldstt), T(ldstd), FCONST },
 	{ 0x1c00000000000006ull, 0xfc00000000000007ull, N("out"), T(emit), T(restart), DST, SRC1, T(is2) },
 	{ 0x8000000000000006ull, 0xf000000000000007ull, N("tex"), T(texm), T(lodt), T(texshd), T(texoff), T(texf), TDST, T(text), T(texi), TEX, SAMP, T(texsrc1), T(texsrc2) },
