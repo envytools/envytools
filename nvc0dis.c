@@ -858,6 +858,7 @@ F1(fmz7, 7, N("fmz"))
 F1(neg39, 0x39, N("neg"))
 F1(neg9, 9, N("neg"))
 F1(neg8, 8, N("neg"))
+F1(neg7, 7, N("neg"))
 F1(neg16, 0x16, N("neg"))
 F1(abs7, 7, N("abs"))
 F1(abs6, 6, N("abs"))
@@ -1701,6 +1702,26 @@ static struct insn tabsetits[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabsetfts[] = {
+	{ 0x00000000, 0x0001c080, N("false") },
+	{ 0x00000080, 0x0001c080, N("lt") },
+	{ 0x00004000, 0x0001c080, N("eq") },
+	{ 0x00004080, 0x0001c080, N("le") },
+	{ 0x00008000, 0x0001c080, N("gt") },
+	{ 0x00008080, 0x0001c080, N("ne") },
+	{ 0x0000c000, 0x0001c080, N("ge") },
+	{ 0x0000c080, 0x0001c080, N("num") },
+	{ 0x00010000, 0x0001c080, N("nan") },
+	{ 0x00010080, 0x0001c080, N("ltu") },
+	{ 0x00014000, 0x0001c080, N("equ") },
+	{ 0x00014080, 0x0001c080, N("leu") },
+	{ 0x00018000, 0x0001c080, N("gtu") },
+	{ 0x00018080, 0x0001c080, N("neu") },
+	{ 0x0001c000, 0x0001c080, N("geu") },
+	{ 0x0001c080, 0x0001c080, N("true") },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabvmadss1[] = {
 	{ 0x00000000, 0x00000e00, N("b0") },
 	{ 0x00000200, 0x00000e00, N("b1") },
@@ -1789,6 +1810,8 @@ static struct insn tabs[] = {
 	{ 0x00000058, 0x0000007f, N("vmad"), DST, T(us32_d), T(vmadss1), SRC1, T(us32_c), T(vmadss2), SRC2 },
 
 	{ 0x00000009, 0x0000007f, T(p), N("interp"), T(interpmodes), DST, ATTRS, SRC1 },
+	{ 0x00000049, 0x0000007f, T(p), N("add"), N("f32"), DST, T(neg7), SRC1, T(ss2) },
+	{ 0x00000059, 0x0000007f, T(p), N("set"), PDST, T(setfts), N("f32"), SRC1, T(ss2) },
 	{ 0, 0, OOPS },
 };
 
