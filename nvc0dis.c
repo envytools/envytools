@@ -226,6 +226,7 @@ static struct bitfield dst_bf = { 0xe, 6 };
 static struct bitfield src1_bf = { 0x14, 6 };
 static struct bitfield src2_bf = { 0x1a, 6 };
 static struct bitfield src3_bf = { 0x31, 6 };
+static struct bitfield src3s_bf = { 8, 6 };
 static struct bitfield dst2_bf = { 0x2b, 6 };
 static struct bitfield psrc1_bf = { 0x14, 3 };
 static struct bitfield psrc2_bf = { 0x1a, 3 };
@@ -253,6 +254,7 @@ static struct reg src2_r = { &src2_bf, "r", .specials = reg_sr };
 static struct reg src2d_r = { &src2_bf, "r", "d" };
 static struct reg src3_r = { &src3_bf, "r", .specials = reg_sr };
 static struct reg src3d_r = { &src3_bf, "r", "d" };
+static struct reg src3s_r = { &src3s_bf, "r", .specials = reg_sr };
 static struct reg dst2_r = { &dst2_bf, "r", .specials = reg_sr };
 static struct reg dst2d_r = { &dst2_bf, "r", "d" };
 static struct reg psrc1_r = { &psrc1_bf, "p", .specials = pred_sr, .cool = 1 };
@@ -286,6 +288,7 @@ static struct reg lduld_dst2q_r = { &lduld_dst2_bf, "r", "q" };
 #define SRC2D atomreg, &src2d_r
 #define PSRC2 atomreg, &psrc2_r
 #define SRC3 atomreg, &src3_r
+#define SRC3S atomreg, &src3s_r
 #define SRC3D atomreg, &src3d_r
 #define PSRC3 atomreg, &psrc3_r
 #define DST2 atomreg, &dst2_r
@@ -1711,6 +1714,14 @@ static struct insn tabss2[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabss2a[] = {
+	{ 0x00000000, 0x000000c0, SRC2 },
+	{ 0x00000040, 0x000000c0, SCONST2_0 },
+	{ 0x00000080, 0x000000c0, SCONST2_1 },
+	{ 0x000000c0, 0x000000c0, SCONST2_16 },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabrms[] = {
 	{ 0x00000000, 0x00300000, N("rn") },
 	{ 0x00100000, 0x00300000, N("rm") },
@@ -1877,6 +1888,8 @@ static struct insn tabs[] = {
 	{ 0x000000ac, 0x000000ff, T(p), N("add"), N("b32"), DST, SRC1, SIMMS },
 	{ 0x000000ec, 0x000000ff, T(p), N("subr"), N("b32"), DST, SRC1, SIMMS },
 	{ 0x0000001c, 0x0000001f, T(p), N("ld"), N("b32"), DST, FCONSTS },
+
+	{ 0x0000000d, 0x0000001f, N("add"), DST, N("mul"), T(us32_5), SRC1, T(us32_5), T(ss2a), SRC3S },
 	{ 0, 0, OOPS },
 };
 
