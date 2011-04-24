@@ -318,21 +318,42 @@ static struct reg lduld_dst2q_r = { &lduld_dst2_bf, "r", "q" };
 #define LDULD_DST2Q atomreg, &lduld_dst2q_r
 #define FLAGS atomreg, &flags_r
 
-static struct bitfield tdst_cnt = { .addend = 4 };
 static struct bitfield tdst_mask = { 0x2e, 4 };
-static struct bitfield tsrc_cnt = { { 0x34, 2 }, .addend = 1 };
+static struct bitfield cnt0 = { .addend = 0 };
+static struct bitfield cnt1 = { .addend = 1 };
+static struct bitfield cnt2 = { .addend = 2 };
+static struct bitfield cnt3 = { .addend = 3 };
+static struct bitfield cnt4 = { .addend = 4 };
 static struct bitfield saddr_cnt = { { 0x2c, 2 }, .addend = 1 };
 static struct bitfield asrc_cnt = { { 5, 2 }, .addend = 1 };
 static struct bitfield asrcs_cnt = { { 6, 2 }, .addend = 1 };
-static struct vec tdst_v = { "r", &dst_bf, &tdst_cnt, &tdst_mask };
-static struct vec tsrc_v = { "r", &src1_bf, &tsrc_cnt, 0 };
+static struct vec tdst_v = { "r", &dst_bf, &cnt4, &tdst_mask };
+static struct vec tsrc10_v = { "r", &src1_bf, &cnt0, 0 };
+static struct vec tsrc11_v = { "r", &src1_bf, &cnt1, 0 };
+static struct vec tsrc12_v = { "r", &src1_bf, &cnt2, 0 };
+static struct vec tsrc13_v = { "r", &src1_bf, &cnt3, 0 };
+static struct vec tsrc14_v = { "r", &src1_bf, &cnt4, 0 };
+static struct vec tsrc20_v = { "r", &src2_bf, &cnt0, 0 };
+static struct vec tsrc21_v = { "r", &src2_bf, &cnt1, 0 };
+static struct vec tsrc22_v = { "r", &src2_bf, &cnt2, 0 };
+static struct vec tsrc23_v = { "r", &src2_bf, &cnt3, 0 };
+static struct vec tsrc24_v = { "r", &src2_bf, &cnt4, 0 };
 static struct vec saddr_v = { "r", &src1_bf, &saddr_cnt, 0 };
 static struct vec asrc_v = { "r", &src2_bf, &asrc_cnt, 0 };
 static struct vec adst_v = { "r", &dst_bf, &asrc_cnt, 0 };
 static struct vec asrcs_v = { "r", &src2_bf, &asrcs_cnt, 0 };
 static struct vec adsts_v = { "r", &dst_bf, &asrcs_cnt, 0 };
 #define TDST atomvec, &tdst_v
-#define TSRC atomvec, &tsrc_v
+#define TSRC10 atomvec, &tsrc10_v
+#define TSRC11 atomvec, &tsrc11_v
+#define TSRC12 atomvec, &tsrc12_v
+#define TSRC13 atomvec, &tsrc13_v
+#define TSRC14 atomvec, &tsrc14_v
+#define TSRC20 atomvec, &tsrc20_v
+#define TSRC21 atomvec, &tsrc21_v
+#define TSRC22 atomvec, &tsrc22_v
+#define TSRC23 atomvec, &tsrc23_v
+#define TSRC24 atomvec, &tsrc24_v
 #define SADDR atomvec, &saddr_v
 #define ASRC atomvec, &asrc_v
 #define ADST atomvec, &adst_v
@@ -1019,6 +1040,94 @@ static struct insn tabtext[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabtexsrc1[] = {
+	{ 0x0000000000000000ull, 0x003c000000000000ull, TSRC11 }, // x
+	{ 0x0004000000000000ull, 0x003c000000000000ull, TSRC12 }, // t, x
+	{ 0x0008000000000000ull, 0x003c000000000000ull, TSRC12 }, // i, x
+	{ 0x000c000000000000ull, 0x003c000000000000ull, TSRC12 }, // t+i, x
+	{ 0x0010000000000000ull, 0x003c000000000000ull, TSRC12 }, // x, y
+	{ 0x0014000000000000ull, 0x003c000000000000ull, TSRC13 }, // t, x, y
+	{ 0x0018000000000000ull, 0x003c000000000000ull, TSRC13 }, // i, x, y
+	{ 0x001c000000000000ull, 0x003c000000000000ull, TSRC13 }, // t+i, x, y
+	{ 0x0020000000000000ull, 0x003c000000000000ull, TSRC13 }, // x, y, z
+	{ 0x0024000000000000ull, 0x003c000000000000ull, TSRC14 }, // t, x, y, z
+	{ 0x0030000000000000ull, 0x003c000000000000ull, TSRC13 }, // x, y, z
+	{ 0x0034000000000000ull, 0x003c000000000000ull, TSRC14 }, // t, x, y, z
+	{ 0x0038000000000000ull, 0x003c000000000000ull, TSRC14 }, // i, x, y, z
+	{ 0x003c000000000000ull, 0x003c000000000000ull, TSRC14 }, // t+i, x, y, z
+	{ 0, 0, SRC1, OOPS },
+};
+
+static struct insn tabtex4src1[] = {
+	{ 0x0010000000000000ull, 0x007c000000000000ull, TSRC12 }, // x, y
+	{ 0x0014000000000000ull, 0x007c000000000000ull, TSRC13 }, // t, x, y
+	{ 0x0018000000000000ull, 0x007c000000000000ull, TSRC13 }, // i, x, y
+	{ 0x001c000000000000ull, 0x007c000000000000ull, TSRC13 }, // t+i, x, y
+	{ 0x0050000000000000ull, 0x007c000000000000ull, TSRC13 }, // x, y, o
+	{ 0x0054000000000000ull, 0x007c000000000000ull, TSRC14 }, // t, x, y, o
+	{ 0x0058000000000000ull, 0x007c000000000000ull, TSRC14 }, // i, x, y, o
+	{ 0x005c000000000000ull, 0x007c000000000000ull, TSRC14 }, // t+i, x, y, o
+	{ 0, 0, SRC1, OOPS },
+};
+
+static struct insn tabtexgrsrc1[] = {
+	{ 0x0000000000000000ull, 0x00fc000000000000ull, TSRC11 }, // x
+	{ 0x0004000000000000ull, 0x00fc000000000000ull, TSRC12 }, // t, x
+	{ 0x0008000000000000ull, 0x00fc000000000000ull, TSRC12 }, // i, x
+	{ 0x000c000000000000ull, 0x00fc000000000000ull, TSRC12 }, // t+i, x
+	{ 0x0010000000000000ull, 0x00fc000000000000ull, TSRC12 }, // x, y
+	{ 0x0014000000000000ull, 0x00fc000000000000ull, TSRC13 }, // t, x, y
+	{ 0x0018000000000000ull, 0x00fc000000000000ull, TSRC13 }, // i, x, y
+	{ 0x001c000000000000ull, 0x00fc000000000000ull, TSRC13 }, // t+i, x, y
+	{ 0x0040000000000000ull, 0x00fc000000000000ull, TSRC12 }, // x, o
+	{ 0x0044000000000000ull, 0x00fc000000000000ull, TSRC13 }, // t, x, o
+	{ 0x0048000000000000ull, 0x00fc000000000000ull, TSRC13 }, // i, x, o
+	{ 0x004c000000000000ull, 0x00fc000000000000ull, TSRC13 }, // t+i, x, o
+	{ 0x0050000000000000ull, 0x00fc000000000000ull, TSRC13 }, // x, y, o
+	{ 0x0054000000000000ull, 0x00fc000000000000ull, TSRC14 }, // t, x, y, o
+	{ 0x0058000000000000ull, 0x00fc000000000000ull, TSRC14 }, // i, x, y, o
+	{ 0x005c000000000000ull, 0x00fc000000000000ull, TSRC14 }, // t+i, x, y, o
+	{ 0, 0, SRC1, OOPS },
+};
+
+static struct insn tabtexsrc2[] = {
+	{ 0x0000000000000000ull, 0x0540000000000000ull, TSRC20 }, //
+	{ 0x0040000000000000ull, 0x0540000000000000ull, TSRC21 }, // o
+	{ 0x0100000000000000ull, 0x0540000000000000ull, TSRC21 }, // d
+	{ 0x0140000000000000ull, 0x0540000000000000ull, TSRC22 }, // o, d
+	{ 0x0400000000000000ull, 0x0540000000000000ull, TSRC21 }, // l
+	{ 0x0440000000000000ull, 0x0540000000000000ull, TSRC22 }, // l, o
+	{ 0x0500000000000000ull, 0x0540000000000000ull, TSRC22 }, // l, d
+	{ 0x0540000000000000ull, 0x0540000000000000ull, TSRC23 }, // l, o, d
+	{ 0, 0, SRC2, OOPS },
+};
+
+static struct insn tabtexfsrc2[] = {
+	{ 0x0000000000000000ull, 0x02c0000000000000ull, TSRC20 }, //
+	{ 0x0040000000000000ull, 0x02c0000000000000ull, TSRC21 }, // o
+	{ 0x0080000000000000ull, 0x02c0000000000000ull, TSRC21 }, // ms
+	{ 0x00c0000000000000ull, 0x02c0000000000000ull, TSRC22 }, // o, ms
+	{ 0x0200000000000000ull, 0x02c0000000000000ull, TSRC21 }, // l
+	{ 0x0240000000000000ull, 0x02c0000000000000ull, TSRC22 }, // l, o
+	{ 0x0280000000000000ull, 0x02c0000000000000ull, TSRC22 }, // l, ms
+	{ 0x02c0000000000000ull, 0x02c0000000000000ull, TSRC23 }, // l, o, ms
+	{ 0, 0, SRC2, OOPS },
+};
+
+static struct insn tabtex4src2[] = {
+	{ 0x0000000000000000ull, 0x0140000000000000ull, TSRC20 }, //
+	{ 0x0040000000000000ull, 0x0140000000000000ull, TSRC21 }, // o
+	{ 0x0100000000000000ull, 0x0140000000000000ull, TSRC21 }, // d
+	{ 0x0140000000000000ull, 0x0140000000000000ull, TSRC22 }, // o, d
+	{ 0, 0, SRC2, OOPS },
+};
+
+static struct insn tabtexgrsrc2[] = {
+	{ 0x0000000000000000ull, 0x0030000000000000ull, TSRC22 }, // dtx/dsx, dtx/dsy
+	{ 0x0010000000000000ull, 0x0030000000000000ull, TSRC24 }, // dtx/dsx, dtx/dsy, dty/dsx, dty/dsy
+	{ 0, 0, SRC2, OOPS },
+};
+
 static struct insn tabtexquery[] = {
 	{ 0x0000000000000000ull, 0x0fc0000000000000ull, N("tdims") },
 	{ 0x0040000000000000ull, 0x0fc0000000000000ull, N("ttype") },
@@ -1694,13 +1803,13 @@ static struct insn tabm[] = {
 	{ 0x0800000000000006ull, 0xfc00000000000007ull, N("st"), T(patch), T(ldvf), ATTR, ASRC, SRC3 },
 	{ 0x1400000000000006ull, 0xfc00000000000007ull, N("ld"), T(ldstt), T(ldstd), FCONST },
 	{ 0x1c00000000000006ull, 0xfc00000000000007ull, N("out"), T(emit), T(restart), DST, SRC1, T(is2) },
-	{ 0x8000000000000006ull, 0xf000000000000007ull, N("tex"), T(texm), T(lodt), T(texshd), T(texoff), T(texf), TDST, T(text), T(texi), TEX, SAMP, SRC1, SRC2 },
-	{ 0x9000000000000006ull, 0xf000000000000007ull, N("texfetch"), T(texm), T(lodf), T(texcl), T(texms), T(texoff), T(ltex), TDST, T(text), T(texi), TEX, SAMP, SRC1, SRC2 },
-	{ 0xa000000000000006ull, 0xf000000000000007ull, N("texgather"), T(texm), T(texshd), T(toffg), T(texf), T(texrgba), TDST, T(text), T(texi), TEX, SAMP, SRC1, SRC2 },
-	{ 0xb000000000000006ull, 0xf000000000000007ull, N("texquerylod"), T(texm), T(texf), TDST, T(text), T(texi), TEX, SAMP, SRC1, SRC2 },
+	{ 0x8000000000000006ull, 0xf000000000000007ull, N("tex"), T(texm), T(lodt), T(texshd), T(texoff), T(texf), TDST, T(text), T(texi), TEX, SAMP, T(texsrc1), T(texsrc2) },
+	{ 0x9000000000000006ull, 0xf000000000000007ull, N("texfetch"), T(texm), T(lodf), T(texcl), T(texms), T(texoff), T(ltex), TDST, T(text), T(texi), TEX, SAMP, T(texsrc1), T(texfsrc2) },
+	{ 0xa000000000000006ull, 0xf000000000000007ull, N("texgather"), T(texm), T(texshd), T(toffg), T(texf), T(texrgba), TDST, T(text), T(texi), TEX, SAMP, T(tex4src1), T(tex4src2) },
+	{ 0xb000000000000006ull, 0xf000000000000007ull, N("texquerylod"), T(texm), T(texf), TDST, T(text), T(texi), TEX, SAMP, T(texsrc1), TSRC20 },
 	{ 0xc000000000000006ull, 0xf000000000000007ull, N("texquery"), T(texm), T(ltex), TDST, T(texquery), T(texi), TEX, SAMP, SRC1, SRC2 },
 	{ 0xd000000000000006ull, 0xf000000000000007ull, N("texcsaa"), T(texm), T(texf), TDST, TEX, SAMP, SRC1, SRC2 },
-	{ 0xe000000000000006ull, 0xf000000000000007ull, N("texgrad"), T(texm), T(texoff), T(ltex), TDST, T(text), T(texi), TEX, SAMP, SRC1, SRC2 },
+	{ 0xe000000000000006ull, 0xf000000000000007ull, N("texgrad"), T(texm), T(texoff), T(ltex), TDST, T(text), T(texi), TEX, SAMP, T(texgrsrc1), T(texgrsrc2) },
 	{ 0x0000000000000006ull, 0x0000000000000007ull, OOPS, T(texf), TDST, TEX, SAMP, SRC1, SRC2 },
 
 
