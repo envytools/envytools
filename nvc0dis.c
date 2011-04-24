@@ -199,12 +199,14 @@ static struct sreg sreg_sr[] = {
 	{ 0x10, "vtxcnt" }, // gl_PatchVerticesIn
 	{ 0x11, "invoc" }, // gl_InvocationID
 	{ 0x12, "ydir" }, // f32 +-1
+	{ 0x20, "tid" },
 	{ 0x21, "tidx" },
 	{ 0x22, "tidy" },
 	{ 0x23, "tidz" },
 	{ 0x25, "ctaidx" },
 	{ 0x26, "ctaidy" },
 	{ 0x27, "ctaidz" },
+	{ 0x28, "ntid" },
 	{ 0x29, "ntidx" },
 	{ 0x2a, "ntidy" },
 	{ 0x2b, "ntidz" },
