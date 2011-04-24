@@ -335,6 +335,7 @@ static struct bitfield slmem_imm = { { 0x1a, 24 }, BF_SIGNED };
 static struct bitfield cmem_imm = { 0x1a, 16 };
 static struct bitfield fcmem_imm = { { 0x1a, 16 }, BF_SIGNED };
 static struct bitfield amem_imm = { { 0x20, 10 }, BF_SIGNED };
+static struct bitfield asmem_imm = { { 8, 2, 0x1a, 6 }, BF_UNSIGNED, 2 };
 static struct bitfield cmem_idx = { 0x2a, 4 };
 static struct bitfield fcmem_idx = { 0x2a, 5 };
 static struct bitfield sc1mem_imm = { { 0x14, 6 }, BF_UNSIGNED, 2 };
@@ -360,6 +361,7 @@ static struct mem smem_m = { "s", 0, &src1_r, &slmem_imm };
 static struct mem lmem_m = { "l", 0, &src1_r, &slmem_imm };
 static struct mem fcmem_m = { "c", &fcmem_idx, &src1_r, &fcmem_imm };
 static struct mem amem_m = { "a", 0, &src1_r, &amem_imm }; // XXX: wtf?
+static struct mem asmem_m = { "a", 0, 0, &asmem_imm };
 static struct mem cmem_m = { "c", &cmem_idx, 0, &cmem_imm };
 static struct mem lcmem_m = { "l", 0, &src1_r, &slmem_imm };
 static struct mem gcmem_m = { "g", 0, &src1_r, &gcmem_imm };
@@ -405,6 +407,7 @@ static struct mem sc2_16mem_m = { "c", &sc16mem_idx, 0, &sc2mem_imm };
 #define LOCAL atommem, &lmem_m
 #define FCONST atommem, &fcmem_m
 #define ATTR atommem, &amem_m
+#define ATTRS atommem, &asmem_m
 #define CONST atommem, &cmem_m
 #define VBASRC atommem, &vba_m
 #define LCMEM atommem, &lcmem_m
@@ -1734,6 +1737,12 @@ static struct insn tabvmadss2[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabinterpmodes[] = {
+	{ 0x0000000000000000ull, 0x0000000000000080ull, N("mul") },
+	{ 0x0000000000000080ull, 0x0000000000000080ull, N("sc") },
+	{ 0, 0, OOPS },
+};
+
 
 static struct insn tabs[] = {
 	{ 0x00000008, 0xf80003ff, T(p), N("nop") },
@@ -1778,6 +1787,8 @@ static struct insn tabs[] = {
 	{ 0x000000c8, 0x000000ff, T(p), N("set"), PDST, T(setits), N("s32"), SRC1, SIMMS },
 
 	{ 0x00000058, 0x0000007f, N("vmad"), DST, T(us32_d), T(vmadss1), SRC1, T(us32_c), T(vmadss2), SRC2 },
+
+	{ 0x00000009, 0x0000007f, T(p), N("interp"), T(interpmodes), DST, ATTRS, SRC1 },
 	{ 0, 0, OOPS },
 };
 
