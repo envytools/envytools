@@ -375,6 +375,10 @@ static struct mem ls2mem_m = { "l", 0, &src1_r, &ss2mem_imm };
 static struct mem ls3mem_m = { "l", 0, &src1_r, &ss3mem_imm };
 static struct mem ss2mem_m = { "s", 0, &src1_r, &ss2mem_imm };
 static struct mem ss3mem_m = { "s", 0, &src1_r, &ss3mem_imm };
+static struct mem gs2mem_m = { "g", 0, &src1_r, &ss2mem_imm };
+static struct mem gs3mem_m = { "g", 0, &src1_r, &ss3mem_imm };
+static struct mem gds2mem_m = { "g", 0, &src1d_r, &ss2mem_imm };
+static struct mem gds3mem_m = { "g", 0, &src1d_r, &ss3mem_imm };
 static struct mem cmem_m = { "c", &cmem_idx, 0, &cmem_imm };
 static struct mem lcmem_m = { "l", 0, &src1_r, &slmem_imm };
 static struct mem gcmem_m = { "g", 0, &src1_r, &gcmem_imm };
@@ -426,6 +430,10 @@ static struct mem sc2_16mem_m = { "c", &sc16mem_idx, 0, &sc2mem_imm };
 #define LOCALS3 atommem, &ls3mem_m
 #define SHAREDS2 atommem, &ss2mem_m
 #define SHAREDS3 atommem, &ss3mem_m
+#define GLOBALS2 atommem, &gs2mem_m
+#define GLOBALS3 atommem, &gs3mem_m
+#define GLOBALDS2 atommem, &gds2mem_m
+#define GLOBALDS3 atommem, &gds3mem_m
 #define CONST atommem, &cmem_m
 #define VBASRC atommem, &vba_m
 #define LCMEM atommem, &lcmem_m
@@ -1851,6 +1859,15 @@ static struct insn tabs[] = {
 	{ 0x000000da, 0x000000ff, T(p), N("st"), N("b64"), SHAREDS3, DSTD },
 	{ 0x0000002a, 0x000000bf, T(p), N("mul"), DST, T(us32_6), SRC1, T(us32_6), T(ss2) },
 	{ 0x000000aa, 0x000000bf, T(p), N("mul"), DST, T(us32_6), SRC1, T(us32_6), SIMMS },
+
+	{ 0x0000000b, 0x000000ff, T(p), N("ld"), N("b32"), DST, GLOBALS2 },
+	{ 0x0000004b, 0x000000ff, T(p), N("ld"), N("b32"), DST, GLOBALDS2 },
+	{ 0x0000008b, 0x000000ff, T(p), N("ld"), N("b64"), DSTD, GLOBALS3 },
+	{ 0x000000cb, 0x000000ff, T(p), N("ld"), N("b64"), DSTD, GLOBALDS3 },
+	{ 0x0000001b, 0x000000ff, T(p), N("st"), N("b32"), GLOBALS2, DST },
+	{ 0x0000005b, 0x000000ff, T(p), N("st"), N("b32"), GLOBALDS2, DST },
+	{ 0x0000009b, 0x000000ff, T(p), N("st"), N("b64"), GLOBALS3, DSTD },
+	{ 0x000000db, 0x000000ff, T(p), N("st"), N("b64"), GLOBALDS3, DSTD },
 	{ 0, 0, OOPS },
 };
 
