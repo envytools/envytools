@@ -1047,7 +1047,7 @@ static struct insn tablodf[] = {
 };
 
 F1(texi, 0x32, N("ind"))
-F1(texshd, 0x38, N("shd"))
+F1(texshd, 0x38, N("shadow"))
 F1(texcl, 0x38, N("cl"))
 F1(texoff, 0x36, N("off"))
 F1(texms, 0x37, N("ms"))
