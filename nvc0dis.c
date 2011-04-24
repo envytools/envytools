@@ -993,6 +993,71 @@ static struct insn tabcctlmod[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabtexrgba[] = {
+	{ 0x0000000000000000ull, 0x0000000000000060ull, N("r") },
+	{ 0x0000000000000020ull, 0x0000000000000060ull, N("g") },
+	{ 0x0000000000000040ull, 0x0000000000000060ull, N("b") },
+	{ 0x0000000000000060ull, 0x0000000000000060ull, N("a") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabtexm[] = {
+	{ 0x0000000000000000ull, 0x0000000000000180ull },
+	{ 0x0000000000000080ull, 0x0000000000000180ull, N("t") },
+	{ 0x0000000000000100ull, 0x0000000000000180ull, N("p") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabtext[] = {
+	{ 0x0000000000000000ull, 0x0038000000000000ull, N("t1d") },
+	{ 0x0008000000000000ull, 0x0038000000000000ull, N("a1d") },
+	{ 0x0010000000000000ull, 0x0038000000000000ull, N("t2d") },
+	{ 0x0018000000000000ull, 0x0038000000000000ull, N("a2d") },
+	{ 0x0020000000000000ull, 0x0038000000000000ull, N("t3d") },
+	{ 0x0030000000000000ull, 0x0038000000000000ull, N("tcube") },
+	{ 0x0038000000000000ull, 0x0038000000000000ull, N("acube") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabtexquery[] = {
+	{ 0x0000000000000000ull, 0x0fc0000000000000ull, N("tdims") },
+	{ 0x0040000000000000ull, 0x0fc0000000000000ull, N("ttype") },
+	{ 0x0080000000000000ull, 0x0fc0000000000000ull, N("tsamplepos") },
+	{ 0x0200000000000000ull, 0x0fc0000000000000ull, N("sfilter") },
+	{ 0x0240000000000000ull, 0x0fc0000000000000ull, N("slod") },
+	{ 0x0280000000000000ull, 0x0fc0000000000000ull, N("swrap") },
+	{ 0x02c0000000000000ull, 0x0fc0000000000000ull, N("sbcolor") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tablodt[] = {
+	{ 0x0000000000000000ull, 0x0e00000000000000ull, N("lauto") },
+	{ 0x0200000000000000ull, 0x0e00000000000000ull, N("lzero") },
+	{ 0x0400000000000000ull, 0x0e00000000000000ull, N("lbias") },
+	{ 0x0600000000000000ull, 0x0e00000000000000ull, N("llod") },
+	{ 0x0c00000000000000ull, 0x0e00000000000000ull, N("lbiasa") },
+	{ 0x0e00000000000000ull, 0x0e00000000000000ull, N("lloda") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tablodf[] = {
+	{ 0x0000000000000000ull, 0x0200000000000000ull, N("lzero") },
+	{ 0x0200000000000000ull, 0x0200000000000000ull, N("llod") },
+	{ 0, 0, OOPS },
+};
+
+F1(texi, 0x32, N("ind"))
+F1(texshd, 0x38, N("shd"))
+F1(texcl, 0x38, N("cl"))
+F1(texoff, 0x36, N("off"))
+F1(texms, 0x37, N("ms"))
+
+static struct insn tabtoffg[] = {
+	{ 0x0000000000000000ull, 0x00c0000000000000ull },
+	{ 0x0040000000000000ull, 0x00c0000000000000ull, N("off") },
+	{ 0x0080000000000000ull, 0x00c0000000000000ull, N("ptp") },
+	{ 0, 0, OOPS },
+};
 
 static struct insn tabtexf[] = {
 	{ 0, 0, T(ltex), T(dtex) },
@@ -1628,11 +1693,15 @@ static struct insn tabm[] = {
 	{ 0x0400000000000006ull, 0xfc00000000000007ull, N("ld"), T(patch), T(ldvf), ADST, ATTR, SRC2 },
 	{ 0x0800000000000006ull, 0xfc00000000000007ull, N("st"), T(patch), T(ldvf), ATTR, ASRC, SRC3 },
 	{ 0x1400000000000006ull, 0xfc00000000000007ull, N("ld"), T(ldstt), T(ldstd), FCONST },
-	{ 0x1c00000000000006ull, 0xfe00000000000007ull, N("out"), T(emit), T(restart), DST, SRC1, T(is2) },
-	{ 0x80000000fc000086ull, 0xfc000000fc000087ull, N("texauto"), T(texf), TDST, TEX, SAMP, TSRC }, // mad as a hatter.
-	{ 0x90000000fc000086ull, 0xfc000000fc000087ull, N("texfetch"), T(texf), TDST, TEX, SAMP, TSRC },
-	{ 0xc0000000fc000006ull, 0xfc000000fc000007ull, N("texsize"), T(texf), TDST, TEX, SAMP, TSRC },
-	{ 0x0000000000000006ull, 0x0000000000000007ull, OOPS, T(texf), TDST, TEX, SAMP, TSRC }, // is assuming a tex instruction a good idea here? probably. there are loads of unknown tex insns after all.
+	{ 0x1c00000000000006ull, 0xfc00000000000007ull, N("out"), T(emit), T(restart), DST, SRC1, T(is2) },
+	{ 0x8000000000000006ull, 0xf000000000000007ull, N("tex"), T(texm), T(lodt), T(texshd), T(texoff), T(texf), TDST, T(text), T(texi), TEX, SAMP, SRC1, SRC2 },
+	{ 0x9000000000000006ull, 0xf000000000000007ull, N("texfetch"), T(texm), T(lodf), T(texcl), T(texms), T(texoff), T(ltex), TDST, T(text), T(texi), TEX, SAMP, SRC1, SRC2 },
+	{ 0xa000000000000006ull, 0xf000000000000007ull, N("texgather"), T(texm), T(texshd), T(toffg), T(texf), T(texrgba), TDST, T(text), T(texi), TEX, SAMP, SRC1, SRC2 },
+	{ 0xb000000000000006ull, 0xf000000000000007ull, N("texquerylod"), T(texm), T(texf), TDST, T(text), T(texi), TEX, SAMP, SRC1, SRC2 },
+	{ 0xc000000000000006ull, 0xf000000000000007ull, N("texquery"), T(texm), T(ltex), TDST, T(texquery), T(texi), TEX, SAMP, SRC1, SRC2 },
+	{ 0xd000000000000006ull, 0xf000000000000007ull, N("texcsaa"), T(texm), T(texf), TDST, TEX, SAMP, SRC1, SRC2 },
+	{ 0xe000000000000006ull, 0xf000000000000007ull, N("texgrad"), T(texm), T(texoff), T(ltex), TDST, T(text), T(texi), TEX, SAMP, SRC1, SRC2 },
+	{ 0x0000000000000006ull, 0x0000000000000007ull, OOPS, T(texf), TDST, TEX, SAMP, SRC1, SRC2 },
 
 
 
