@@ -1806,9 +1806,9 @@ static struct insn tabm[] = {
 	{ 0x8000000000000006ull, 0xf000000000000007ull, N("tex"), T(texm), T(lodt), T(texshd), T(texoff), T(texf), TDST, T(text), T(texi), TEX, SAMP, T(texsrc1), T(texsrc2) },
 	{ 0x9000000000000006ull, 0xf000000000000007ull, N("texfetch"), T(texm), T(lodf), T(texcl), T(texms), T(texoff), T(ltex), TDST, T(text), T(texi), TEX, SAMP, T(texsrc1), T(texfsrc2) },
 	{ 0xa000000000000006ull, 0xf000000000000007ull, N("texgather"), T(texm), T(texshd), T(toffg), T(texf), T(texrgba), TDST, T(text), T(texi), TEX, SAMP, T(tex4src1), T(tex4src2) },
-	{ 0xb000000000000006ull, 0xf000000000000007ull, N("texquerylod"), T(texm), T(texf), TDST, T(text), T(texi), TEX, SAMP, T(texsrc1), TSRC20 },
+	{ 0xb000000000000006ull, 0xf000000000000007ull, N("texquerylod"), T(texm), T(texf), TDST, T(text), T(texi), TEX, SAMP, T(texsrc1) },
 	{ 0xc000000000000006ull, 0xf000000000000007ull, N("texquery"), T(texm), T(ltex), TDST, T(texquery), T(texi), TEX, SAMP, SRC1, SRC2 },
-	{ 0xd000000000000006ull, 0xf000000000000007ull, N("texcsaa"), T(texm), T(texf), TDST, TEX, SAMP, SRC1, SRC2 },
+	{ 0xd000000000000006ull, 0xf000000000000007ull, N("texcsaa"), T(texm), T(texf), TDST, TEX, SAMP, TSRC13 },
 	{ 0xe000000000000006ull, 0xf000000000000007ull, N("texgrad"), T(texm), T(texoff), T(ltex), TDST, T(text), T(texi), TEX, SAMP, T(texgrsrc1), T(texgrsrc2) },
 	{ 0x0000000000000006ull, 0x0000000000000007ull, OOPS, T(texf), TDST, TEX, SAMP, SRC1, SRC2 },
 
