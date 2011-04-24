@@ -192,6 +192,10 @@ static struct sreg sreg_sr[] = {
 	{ 5, "pm1" },
 	{ 6, "pm2" },
 	{ 7, "pm3" },
+	{ 8, "pm4" },
+	{ 9, "pm5" },
+	{ 0xa, "pm6" },
+	{ 0xb, "pm7" },
 	{ 0x10, "vtxcnt" }, // gl_PatchVerticesIn
 	{ 0x11, "invoc" }, // gl_InvocationID
 	{ 0x12, "ydir" }, // f32 +-1
