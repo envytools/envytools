@@ -1849,6 +1849,8 @@ static struct insn tabs[] = {
 	{ 0x0000005a, 0x000000ff, T(p), N("st"), N("b32"), SHAREDS2, DST },
 	{ 0x0000009a, 0x000000ff, T(p), N("st"), N("b64"), LOCALS3, DSTD },
 	{ 0x000000da, 0x000000ff, T(p), N("st"), N("b64"), SHAREDS3, DSTD },
+	{ 0x0000002a, 0x000000bf, T(p), N("mul"), DST, T(us32_6), SRC1, T(us32_6), T(ss2) },
+	{ 0x000000aa, 0x000000bf, T(p), N("mul"), DST, T(us32_6), SRC1, T(us32_6), SIMMS },
 	{ 0, 0, OOPS },
 };
 
