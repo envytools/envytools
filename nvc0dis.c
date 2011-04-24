@@ -334,8 +334,7 @@ static struct bitfield gamem_imm = { { 0x1a, 17, 0x37, 3 }, BF_SIGNED };
 static struct bitfield slmem_imm = { { 0x1a, 24 }, BF_SIGNED };
 static struct bitfield cmem_imm = { 0x1a, 16 };
 static struct bitfield fcmem_imm = { { 0x1a, 16 }, BF_SIGNED };
-static struct bitfield vmem_imm = { 0x20, 16 };
-static struct bitfield amem_imm = { 0x20, 10 };
+static struct bitfield amem_imm = { { 0x20, 10 }, BF_SIGNED };
 static struct bitfield cmem_idx = { 0x2a, 4 };
 static struct bitfield fcmem_idx = { 0x2a, 5 };
 static struct bitfield sc1mem_imm = { { 0x14, 6 }, BF_UNSIGNED, 2 };
@@ -360,7 +359,6 @@ static struct mem gadmem_m = { "g", 0, &src1d_r, &gamem_imm };
 static struct mem smem_m = { "s", 0, &src1_r, &slmem_imm };
 static struct mem lmem_m = { "l", 0, &src1_r, &slmem_imm };
 static struct mem fcmem_m = { "c", &fcmem_idx, &src1_r, &fcmem_imm };
-static struct mem vmem_m = { "v", 0, &src1_r, &vmem_imm };
 static struct mem amem_m = { "a", 0, &src1_r, &amem_imm }; // XXX: wtf?
 static struct mem cmem_m = { "c", &cmem_idx, 0, &cmem_imm };
 static struct mem lcmem_m = { "l", 0, &src1_r, &slmem_imm };
@@ -406,7 +404,6 @@ static struct mem sc2_16mem_m = { "c", &sc16mem_idx, 0, &sc2mem_imm };
 #define SHARED atommem, &smem_m
 #define LOCAL atommem, &lmem_m
 #define FCONST atommem, &fcmem_m
-#define VAR atommem, &vmem_m
 #define ATTR atommem, &amem_m
 #define CONST atommem, &cmem_m
 #define VBASRC atommem, &vba_m
@@ -1336,6 +1333,21 @@ static struct insn tabvmshr[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabinterpmode[] = {
+	{ 0x0000000000000000ull, 0x00000000000000c0ull, N("pass") },
+	{ 0x0000000000000040ull, 0x00000000000000c0ull, N("mul") },
+	{ 0x0000000000000080ull, 0x00000000000000c0ull, N("flat") },
+	{ 0x00000000000000c0ull, 0x00000000000000c0ull, N("sc") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabinterpsample[] = {
+	{ 0x0000000000000000ull, 0x0000000000000300ull },
+	{ 0x0000000000000100ull, 0x0000000000000300ull, N("cent") },
+	{ 0x0000000000000200ull, 0x0000000000000300ull, N("off") },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabvsetop[] = {
 	{ 0x000, 0x380, N("false") },
 	{ 0x080, 0x380, N("lt") },
@@ -1389,11 +1401,7 @@ static struct insn tabm[] = {
 	{ 0x5800000000000000ull, 0xf800000000000007ull, N("mul"), T(mulf), T(fmz7), T(ftz6), T(sat5), T(farm), T(neg39), N("f32"), DST, T(acout30), SRC1, T(fs2) },
 	{ 0x6000000000000000ull, 0xf800000000000027ull, N("presin"), N("f32"), DST, T(neg8), T(abs6), T(fs2) },
 	{ 0x6000000000000020ull, 0xf800000000000027ull, N("preex2"), N("f32"), DST, T(neg8), T(abs6), T(fs2) },
-	{ 0xc07e0000fc000000ull, 0xf87e0000fc0001c7ull, N("interp"), N("f32"), DST, VAR },
-	{ 0xc07e000000000040ull, 0xf87e0000000001c7ull, N("interp"), N("f32"), DST, SRC2, VAR },
-	{ 0xc07e0000fc000080ull, 0xf87e0000fc0001c7ull, N("interp"), N("f32"), DST, N("flat"), VAR },
-	{ 0xc07e0000fc000100ull, 0xf87e0000fc0001c7ull, N("interp"), N("f32"), DST, N("cent"), VAR },
-	{ 0xc07e000000000140ull, 0xf87e0000000001c7ull, N("interp"), N("f32"), DST, N("cent"), SRC2, VAR },
+	{ 0xc000000000000000ull, 0xf800000000000007ull, N("interp"), T(interpmode), T(sat5), N("f32"), DST, T(interpsample), ATTR, SRC2, SRC3 },
 	{ 0xc800000000000000ull, 0xf80000001c000007ull, N("cos"), T(sat5), N("f32"), DST, T(neg9), T(abs7), SRC1 },
 	{ 0xc800000004000000ull, 0xf80000001c000007ull, N("sin"), T(sat5), N("f32"), DST, T(neg9), T(abs7), SRC1 },
 	{ 0xc800000008000000ull, 0xf80000001c000007ull, N("ex2"), T(sat5), N("f32"), DST, T(neg9), T(abs7), SRC1 },
