@@ -72,7 +72,9 @@ int nva_init() {
 			}
 		}
 
-		if (nva_cards[i].chipset < 0x10)
+		if (nva_cards[i].chipset < 0x04)
+			nva_cards[i].card_type = nva_cards[i].chipset;
+		else if (nva_cards[i].chipset < 0x10)
 			nva_cards[i].card_type = 0x04;
 		else if (nva_cards[i].chipset < 0x20)
 			nva_cards[i].card_type = 0x10;
