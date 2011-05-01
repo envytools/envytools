@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
 			fprintf (stderr, "No cards found.\n");
 		return 1;
 	}
-	int32_t a, b = 4, i;
+	int32_t a, b = 1, i;
 	if (optind >= argc) {
 		fprintf (stderr, "No address specified.\n");
 		return 1;
