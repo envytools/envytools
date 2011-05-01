@@ -58,6 +58,7 @@ uint16_t ram_restrict_tbl_ptr;
 
 uint16_t pll_limit_tbl_ptr;
 
+uint8_t p_tbls_ver;
 uint16_t pm_mode_tbl_ptr;
 uint16_t voltage_tbl_ptr;
 uint16_t temperature_tbl_ptr;
@@ -631,7 +632,8 @@ int main(int argc, char **argv) {
 					break;
 				case 'P':
 					printf("Bit P table version %x\n", version);
-			
+				
+					p_tbls_ver = version;
 					pm_mode_tbl_ptr = le16(eoff + 0);
 					if (version == 1) {
 						voltage_tbl_ptr = le16(eoff + 16);
@@ -1301,85 +1303,82 @@ int main(int argc, char **argv) {
 				printf("Entry %d: RP(%d), RAS(%d), RFC(%d), RC(%d)\n",
 					i, tRP, tRAS, tRFC, tRC);
 
-				reg_100220 = (tRC << 24 | tRFC << 16 | tRAS << 8 | tRP);
-
 				/* XXX: I don't trust the -1's and +1's... they must come
 				*      from somewhere! */
 				if (card_codename < 0xc0) {
+					reg_100220 = (tRC << 24 | tRFC << 16 | tRAS << 8 | tRP);
 					reg_100224 = ((tUNK_0 + tUNK_19 + 1 + magic_number) << 24
 								| (tUNK_1 + tUNK_19 + 1 + magic_number) << 8);
-				
+
 					if (card_codename == 0xa8) {
 						reg_100224 |= (tUNK_2 - 1);
 					} else {
 						reg_100224 |= (tUNK_2 + 2 - magic_number);
 					}
-				}
-				reg_100224 += (tUNK_18 ? tUNK_18 : 1) << 16;
+					reg_100224 += (tUNK_18 ? tUNK_18 : 1) << 16;
 
-				reg_100228 = ((tUNK_12 << 16) | tUNK_11 << 8 | tUNK_10);
-				if(header_length > 19 && card_codename > 0xa5) {
-					reg_100228 += (tUNK_19 - 1) << 24;
-				} else if (header_length <= 19 && card_codename < 0xa0) {
-					reg_100228 += magic_number << 24;
-				}
-
-				if(card_codename >= 0x50) {
-					if(card_codename < 0x98) {
-						reg_10022c = (0x14 + tUNK_2) << 24 |
-									0x16 << 16 |
-									(tUNK_2 - 1) << 8 |
-									(tUNK_2 - 1);
-					} else {
-						/* See d.bul in NV98..
-						 * seems to have changed for G105M+*/
-					}
-					
-					reg_100230 = (tUNK_20 << 24 | tUNK_21 << 16 |
-								tUNK_13 << 8  | tUNK_13);
-
-					reg_100234 = (tRAS << 24 | tRC);
-					if(tUNK_10 > tUNK_11) {
-						reg_100234 += tUNK_10 << 16;
-					} else {
-						reg_100234 += tUNK_11 << 16;
+					reg_100228 = ((tUNK_12 << 16) | tUNK_11 << 8 | tUNK_10);
+					if(header_length > 19 && card_codename > 0xa5) {
+						reg_100228 += (tUNK_19 - 1) << 24;
+					} else if (header_length <= 19 && card_codename < 0xa0) {
+						reg_100228 += magic_number << 24;
 					}
 
-					if(card_codename < 0xa3) {
-						reg_100234 |= (tUNK_2 + 2) << 8;
+					if(card_codename < 0x50) {
+						/* Don't know, don't care...
+						* don't touch the rest */
+						reg_100228 |= 0x20200000 + magic_number << 24;
 					} else {
-						/* XXX: +6? */
-						reg_100234 |= (tUNK_19 + 6) << 8;
+						reg_100230 = (tUNK_20 << 24 | tUNK_21 << 16 |
+									tUNK_13 << 8  | tUNK_13);
+
+						reg_100234 = (tRAS << 24 | tRC);
+						if(tUNK_10 > tUNK_11) {
+							reg_100234 += tUNK_10 << 16;
+						} else {
+							reg_100234 += tUNK_11 << 16;
+						}
+
+						if(p_tbls_ver == 1) {
+							reg_10022c = (0x14 + tUNK_2) << 24 |
+										0x16 << 16 |
+										(tUNK_2 - 1) << 8 |
+										(tUNK_2 - 1);
+							reg_100234 |= (tUNK_2 + 2) << 8;
+							reg_10023c |= 0x4000000 | (tUNK_2 - 1) << 16 | 0x202;
+						} else {
+							/* See d.bul in NV98..
+							 * seems to have changed for G105M+
+							 * 10023c seen as 06xxxxxx, 0bxxxxxx or 0fxxxxxx */
+							reg_10022c = (tUNK_2 - 1);
+							reg_100234 |= (tUNK_19 + 6) << 8;
+							reg_10023c = 0x202;
+						}
 					}
 
-					/* XXX; reg_100238, reg_10023c */
-					/* XXX; reg_100238, reg_10023c
-					 * reg: 0x00??????
-					 * reg_10023c:
-					 * 	0 for pre-NV50 cards
-					 * 	0x????0202 for NV50+ cards (empirical evidence) */
-					reg_10023c = 0x202;
-					if(card_codename < 0x98) {
-						reg_10023c |= 0x4000000 | (tUNK_2 - 1) << 16;
-					} else {
-						// currently unknown
-						// 10023c seen as 06xxxxxx, 0bxxxxxx or 0fxxxxxx
-					}
-				} else {
-					/* Don't know, don't care...
-					* don't touch the rest */
-					reg_100228 |= 0x20200000 + magic_number << 24;
-				}
-
-				printf("Registers: 220: %08x %08x %08x %08x\n",
+					printf("Registers: 220: %08x %08x %08x %08x\n",
 					reg_100220, reg_100224,
 					reg_100228, reg_10022c);
-				printf("           230: %08x %08x %08x %08x\n",
+					printf("           230: %08x %08x %08x %08x\n",
 					reg_100230, reg_100234,
 					reg_100238, reg_10023c);
+				} else {
+					reg_100220 = (tRC << 24 | (tRFC&0x7f) << 17 | tRAS << 8 | tRP);
+					reg_100224 = 0x4c << 24 | (tUNK_11&0x0f) << 20 | (tUNK_19 << 7) | (tUNK_2 & 0x0f);
+					reg_100228 = 0x44000011 | tUNK_0 << 16 | tUNK_1 << 8;
+					reg_10022c = tUNK_20 << 9 | tUNK_13;
+					reg_100230 = 0x42e00069 | tUNK_12 << 15;
+
+					printf("Registers: 290: %08x %08x %08x %08x\n",
+					reg_100220, reg_100224,
+					reg_100228, reg_10022c);
+					printf("           2a0: %08x %08x %08x %08x\n",
+					reg_100230, reg_100234,
+					reg_100238, reg_10023c);
+				}
 			}
 			printf("\n");
-			
+
 			start += entry_length;
 		}
 	}
@@ -1409,7 +1408,7 @@ int main(int argc, char **argv) {
 		printf ("\n\n");
 
 		start += header_length;
-		
+
 		for(i = 0; i < entry_count; i++) {
 			clock_low = le16(start);
 			clock_hi = le16(start+2);
