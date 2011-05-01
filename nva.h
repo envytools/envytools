@@ -22,4 +22,12 @@ static inline void nva_wr32(int card, uint32_t addr, uint32_t val) {
 	*((volatile uint32_t*)(((volatile uint8_t *)nva_cards[card].bar0) + addr)) = val;
 }
 
+static inline uint32_t nva_rd8(int card, uint32_t addr) {
+	return *(((volatile uint8_t *)nva_cards[card].bar0) + addr);
+}
+
+static inline void nva_wr8(int card, uint32_t addr, uint32_t val) {
+	*(((volatile uint8_t *)nva_cards[card].bar0) + addr) = val;
+}
+
 #endif
