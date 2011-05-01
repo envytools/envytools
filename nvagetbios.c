@@ -9,6 +9,11 @@
 #define NV_PROM_OFFSET              0x00300000
 #define NV_PROM_SIZE                0x00010000
 
+#define EOK 1
+#define EUNK 0
+#define ECRC -1
+#define ESIG -2
+
 static int nv_cksum(const uint8_t *data, unsigned int length)
 {
 	/*
@@ -22,16 +27,16 @@ static int nv_cksum(const uint8_t *data, unsigned int length)
 		sum += data[i];
 
 	if (sum)
-		return 0;
+		return ECRC;
 
-	return 1;
+	return EOK;
 }
 
 /* vbios should at least be NV_PROM_SIZE bytes long */
 int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 {
 	uint32_t pci_cfg_50 = 0;
-	uint32_t ret = 0;
+	uint32_t ret = EUNK;
 	int pcir_ptr;
 	int i;
 
@@ -43,8 +48,10 @@ int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 
 	/* bail if no rom signature */
 	if (nva_rd8(cnum, NV_PROM_OFFSET) != 0x55 ||
-	    nva_rd8(cnum, NV_PROM_OFFSET + 1) != 0xaa)
+	    nva_rd8(cnum, NV_PROM_OFFSET + 1) != 0xaa) {
+		ret = ESIG;
 		goto out;
+	}
 
 	/* additional check (see note below) - read PCI record header */
 	pcir_ptr = nva_rd8(cnum, NV_PROM_OFFSET + 0x18) |
@@ -52,8 +59,10 @@ int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 	if (nva_rd8(cnum, NV_PROM_OFFSET + pcir_ptr) != 'P' ||
 	    nva_rd8(cnum, NV_PROM_OFFSET + pcir_ptr + 1) != 'C' ||
 	    nva_rd8(cnum, NV_PROM_OFFSET + pcir_ptr + 2) != 'I' ||
-	    nva_rd8(cnum, NV_PROM_OFFSET + pcir_ptr + 3) != 'R')
+	    nva_rd8(cnum, NV_PROM_OFFSET + pcir_ptr + 3) != 'R') {
+		ret = ESIG;
 		goto out;
+	}
 
 	/* on some 6600GT/6800LE prom reads are messed up.  nvclock alleges a
 	 * a good read may be obtained by waiting or re-reading (cargocult: 5x)
@@ -80,7 +89,7 @@ out:
 int vbios_extract_pramin(int cnum, uint8_t *vbios, int *length)
 {
 	uint32_t old_bar0_pramin = 0;
-	uint32_t ret = 0;
+	uint32_t ret = EUNK;
 	int i;
 
 	fprintf(stderr, "Attempt to extract the vbios from card %i (nv%02x) using PRAMIN\n",
@@ -98,8 +107,10 @@ int vbios_extract_pramin(int cnum, uint8_t *vbios, int *length)
 
 	/* bail if no rom signature */
 	if (nva_rd8(cnum, NV_PRAMIN_OFFSET) != 0x55 ||
-	    nva_rd8(cnum, NV_PRAMIN_OFFSET + 1) != 0xaa)
+	    nva_rd8(cnum, NV_PRAMIN_OFFSET + 1) != 0xaa) {
+		ret = ESIG;
 		goto out;
+	}
 
 	for (i = 0; i < NV_PROM_SIZE; i++)
 		vbios[i] = nva_rd8(cnum, NV_PRAMIN_OFFSET + i);
@@ -130,7 +141,7 @@ int main(int argc, char **argv) {
 	int c;
 	int cnum =0;
 	char const *source = NULL;
-	int success = 0;
+	int result = 0;
 
 	assert(!nva_init());
 
@@ -162,19 +173,27 @@ int main(int argc, char **argv) {
 
 	/* Extraction */
 	if (strcasecmp(source, "pramin") == 0)
-		success = vbios_extract_pramin(cnum, vbios, NULL);
+		result = vbios_extract_pramin(cnum, vbios, NULL);
 	else if (strcasecmp(source, "prom") == 0)
-		success = vbios_extract_prom(cnum, vbios, NULL);
+		result = vbios_extract_prom(cnum, vbios, NULL);
 	else {
 		fprintf(stderr, "Unknown vbios extraction method.\n");
 		usage(1);
 	}
 
-	if (success) {
-		fprintf(stderr, "Extraction done. Valid checksum.\n");
-	} else {
-		fprintf(stderr, "Invalid checksum. You may want to try another retrieval method.\n");
-		return 2;
+	switch (result) {
+		case EOK:
+			fprintf(stderr, "Extraction done. Valid checksum.\n");
+			break;
+		case EUNK:
+			fprintf(stderr, "An unknown error hapenned.\n");
+			break;
+		case ECRC:
+			fprintf(stderr, "Invalid checksum. Broken vbios or broken retrieval method?\n");
+			break;
+		case ESIG:
+			fprintf(stderr, "Invalid signature. You may want to try another retrieval method.\n");
+			break;
 	}
 
 	return 0;
