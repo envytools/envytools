@@ -12,6 +12,8 @@ envyas
 nvalist
 nvapeek
 nvapoke
+nvapeek8
+nvapoke8
 envylex.c
 envyparse.c
 envyparse.h

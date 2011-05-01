@@ -28,6 +28,8 @@ add_executable(envyas envyas.c ${FLEX_envylex_OUTPUTS} ${BISON_envyparse_OUTPUTS
 add_executable(nvalist nvalist.c)
 add_executable(nvapeek nvapeek.c)
 add_executable(nvapoke nvapoke.c)
+add_executable(nvapeek8 nvapeek8.c)
+add_executable(nvapoke8 nvapoke8.c)
 
 target_link_libraries(envydis envy)
 target_link_libraries(envyas envy)
@@ -37,6 +39,8 @@ target_link_libraries(dedma rnn ${LIBXML2_LIBRARIES})
 target_link_libraries(nvalist nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvapeek nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvapoke nva ${PC_PCIACCESS_LIBRARIES})
+target_link_libraries(nvapeek8 nva ${PC_PCIACCESS_LIBRARIES})
+target_link_libraries(nvapoke8 nva ${PC_PCIACCESS_LIBRARIES})
 
 install(TARGETS envydis demmio headergen nvbios envy rnn envyas dedma
 	RUNTIME DESTINATION bin
