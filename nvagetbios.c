@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
 				sscanf(optarg, "%d", &cnum);
 				break;
 			case 's':
-				sscanf(optarg, "%s", &source);
+				strncpy(source, optarg, 20);
 				break;
 		}
 	if (cnum >= nva_cardsnum) {
