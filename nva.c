@@ -71,6 +71,22 @@ int nva_init() {
 					nva_cards[i].is_nv03p = 1;
 			}
 		}
+
+		if (nva_cards[i].chipset < 0x10)
+			nva_cards[i].card_type = 0x04;
+		else if (nva_cards[i].chipset < 0x20)
+			nva_cards[i].card_type = 0x10;
+		else if (nva_cards[i].chipset < 0x30)
+			nva_cards[i].card_type = 0x20;
+		else if (nva_cards[i].chipset < 0x40)
+			nva_cards[i].card_type = 0x30;
+		else if (nva_cards[i].chipset < 0x50 ||
+			nva_cards[i].chipset & 0xf0 == 0x60)
+			nva_cards[i].card_type = 0x40;
+		else if (nva_cards[i].chipset < 0xc0)
+			nva_cards[i].card_type = 0x50;
+		else
+			nva_cards[i].card_type = 0xc0;
 	}
 	return 0;
 }

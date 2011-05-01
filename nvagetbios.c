@@ -36,7 +36,7 @@ int vbios_extract_pramin(int cnum, uint8_t *vbios, int *length)
 	fprintf(stderr, "Attempt to extract the vbios from card %i (nv%02x) using PRAMIN\n",
 			cnum, nva_cards[cnum].chipset);
 
-	if (nva_cards[cnum].chipset >= 0x50) {
+	if (nva_cards[cnum].card_type == 0x50) {
 		uint32_t vbios_vram = (nva_rd32(cnum, 0x619f04) & ~0xff) << 8;
 
 		if (!vbios_vram)
@@ -63,7 +63,7 @@ int vbios_extract_pramin(int cnum, uint8_t *vbios, int *length)
 	fwrite(vbios, 1, vbios[2] * 512, stdout);
 
 out:
-	if (nva_cards[cnum].chipset >= 0x50)
+	if (nva_cards[cnum].card_type == 0x50)
 		nva_wr32(cnum, 0x1700, old_bar0_pramin);
 
 	return ret;

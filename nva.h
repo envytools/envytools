@@ -6,6 +6,7 @@ struct nva_card {
 	struct pci_device *pci;
 	uint32_t boot0;
 	int chipset;
+	int card_type;
 	int is_nv03p;
 	void *bar0;
 };
