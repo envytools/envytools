@@ -499,7 +499,7 @@ void find_strap(int argc, char **argv) {
 int parse_args(int argc, char **argv) {
 	char tmp[16];
 	int i;
-	
+
 	for(i = 2; i < argc; i++) {
 		if (!strncmp(argv[i],"-c",2)) {
 			i++;
@@ -632,7 +632,7 @@ int main(int argc, char **argv) {
 					break;
 				case 'P':
 					printf("Bit P table version %x\n", version);
-				
+
 					p_tbls_ver = version;
 					pm_mode_tbl_ptr = le16(eoff + 0);
 					if (version == 1) {
@@ -838,7 +838,7 @@ int main(int argc, char **argv) {
 		}
 		printf("\n");
 	}
-	
+
 	if (init_script_tbl_ptr) {
 		int i = 0;
 		uint16_t off = init_script_tbl_ptr;
@@ -850,7 +850,7 @@ int main(int argc, char **argv) {
 		}
 		printf ("Init script table at %x: %d main scripts\n\n", init_script_tbl_ptr, i);
 	}
-	
+
 	int subspos = 0, callspos = 0;
 	int ssdone = 0;
 	while (!ssdone || subspos < subsnum || callspos < callsnum) {
@@ -924,7 +924,7 @@ int main(int argc, char **argv) {
 		}
 		printf("\n");
 	}
-	
+
 	if (macro_tbl_ptr) {
 		printf ("Macro table at %x: %d macros:\n", macro_tbl_ptr, maxmac+1);
 		int i;
@@ -972,7 +972,7 @@ int main(int argc, char **argv) {
 		}
 
 		start += header_length;
-		
+
 		printf ("PM_Mode table at %x. Version %x. RamCFG %x. Info_length %i.\n",
 			pm_mode_tbl_ptr, version, ram_cfg, mode_info_length
 		);
@@ -985,7 +985,7 @@ int main(int argc, char **argv) {
 		printf("Header:\n");
 		printcmd(pm_mode_tbl_ptr, header_length>0?header_length:10);
 		printf ("\n");
-		
+
 		printf("%i performance levels\n", entry_count);
 		int i;
 		for (i=0; i < entry_count; i++) {
@@ -1052,7 +1052,7 @@ int main(int argc, char **argv) {
 			if (version > 0x15 && version < 0x40) {
 				uint16_t extra_start = start + mode_info_length;
 				uint16_t timing_extra_data = extra_start+(ram_cfg*extra_data_length);
-				
+
 				if (ram_cfg < extra_data_count)
 					timing_id = bios[timing_extra_data+1];
 			} else if (version == 0x40) {
@@ -1382,7 +1382,7 @@ int main(int argc, char **argv) {
 			start += entry_length;
 		}
 	}
-	
+
 	if(timings_map_tbl_ptr) {
 		/* Mapping timings to clockspeeds since 2009 */
 		uint8_t 	version = 0, entry_count = 0, entry_length = 0,
@@ -1413,7 +1413,7 @@ int main(int argc, char **argv) {
 			clock_low = le16(start);
 			clock_hi = le16(start+2);
 			timing = bios[start+entry_length+((ram_cfg+1)*xinfo_length)+1];
-			
+
 			printf("Entry %d: %d MHz - %d MHz, Timing %i\n",i, clock_low, clock_hi,timing);
 			printcmd(start, entry_length>0?entry_length:10);
 			start += entry_length;
