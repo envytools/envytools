@@ -14,6 +14,7 @@
 #define ESIG -2
 #define EIO -3
 #define EARG -4
+#define ENOTVBIOS -5
 
 
 static void chksum(uint8_t *data, unsigned int length)
@@ -87,13 +88,20 @@ int vbios_read(const char *filename, uint8_t **vbios, unsigned int *length)
 	if (*length <= 0)
 		return EIO;
 
+	/* Read the vbios */
 	*vbios = malloc(*length * sizeof(char));
 	if (fread(*vbios, 1, *length, fd_bios) < *length) {
 		free(*vbios);
 		return EIO;
 	}
-
 	fclose (fd_bios);
+
+	/* vbios verification */
+	if ((*vbios)[0] != 0x55 || (*vbios)[1] != 0xaa)
+		return ENOTVBIOS;
+
+	/* Set the right length */
+	*length = (*vbios)[2] * 512;
 
 	/* Update the checksum */
 	chksum(*vbios, *length);
@@ -153,7 +161,10 @@ out:
 			fprintf(stderr, "Upload done.\n");
 			break;
 		case EIO:
-			fprintf(stderr, "Cannot read the vbios \"%s\"\n", argv[optind]);
+			fprintf(stderr, "Cannot read the vbios \"%s\".\n", argv[optind]);
+			break;
+		case ENOTVBIOS:
+			fprintf(stderr, "The file \"%s\" isn't a valid vbios.\n", argv[optind]);
 			break;
 		case EUNK:
 		default:
