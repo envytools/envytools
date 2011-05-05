@@ -49,6 +49,10 @@ On NV40+ cards, all 0x1000 bytes of PCIE config space are mapped to MMIO
 register space at addresses 0x88000-0x88fff. It's a bad idea to access config
 space addresses >= 0x100 on the original NV40, which isn't a PCIE device.
 
+Note that bus master functionality may need to be enabled for NV50+ VM
+circuitry to work even when only VRAM is being accessed. The reason for this
+is currently unknown.
+
 
 BAR0: MMIO registers
 
