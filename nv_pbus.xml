@@ -24,10 +24,10 @@
 	<stripe offset="0x60">
 		<use-group name="pci_config_pm"/>
 	</stripe>
-	<stripe offset="0x68" variants="NV40-">
+	<stripe offset="0x68" variants="NV41-">
 		<use-group name="pci_config_msi64_nomask"/>
 	</stripe>
-	<stripe offset="0x78" variants="NV40-">
+	<stripe offset="0x78" variants="NV41-">
 		<use-group name="pci_config_exp_endpoint"/>
 	</stripe>
 	<reg32 offset="0x198" name="P2P_OUT_WRITE_SETUP_ADDR_LOW" stride="8" length="3" variants="NV50:NVC0"/>
@@ -128,7 +128,7 @@
 			<bitfield low="0" high="27" name="INST" shr="12"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
-		<array offset="0x800" name="PCI" stride="0x100" length="1" variants="NV01:NV40">
+		<array offset="0x800" name="PCI" stride="0x100" length="1" variants="NV01:NV50">
 			<use-group name="nv_pci"/>
 		</array>
 		<array offset="0x980" name="P2P" stride="0x80" length="1" variants="NV50:NVC0">
@@ -167,7 +167,7 @@
 
 	<reg8 offset="0x80000" name="PBUS_PMS_NEW_CODE" length="0x200" variants="NV92-"/>
 
-	<array offset="0x88000" name="PBUS_PCI" stride="0x1000" length="1" variants="NV40-">
+	<array offset="0x88000" name="PPCI" stride="0x1000" length="1" variants="NV40-">
 		<use-group name="nv_pci"/>
 	</array>
 
