@@ -188,7 +188,7 @@ int main(int argc, char **argv) {
 		if (!strncmp(line, "PCIDEV ", 7)) {
 			uint64_t bar[4], len[4], pciid;
 			sscanf (line, "%*s %*s %"SCNx64" %*s %"SCNx64" %"SCNx64" %"SCNx64" %"SCNx64" %*s %*s %*s %"SCNx64" %"SCNx64" %"SCNx64" %"SCNx64"", &pciid, &bar[0], &bar[1], &bar[2], &bar[3], &len[0], &len[1], &len[2], &len[3]);
-			if ((pciid >> 16) == 0x10de && bar[0] && (bar[0] & 0xf) == 0 && bar[1] && (bar[1] & 0xf) == 0xc) {
+			if ((pciid >> 16) == 0x10de && bar[0] && (bar[0] & 0xf) == 0 && bar[1] && (bar[1] & 0x1) == 0x0) {
 				struct cctx nc = { 0 };
 				nc.bar0 = bar[0], nc.bar0l = len[0];
 				nc.bar1 = bar[1], nc.bar1l = len[1];
