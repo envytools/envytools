@@ -23,10 +23,10 @@
 	<array name="PRMCIO" offset="0x601000" stride="0x1000" length="1" variants="NV03:NV50">
 		<use-group name="nv_vga_cio"/>
 	</array>
-	<array name="PCRTC2" offset="0x602000" stride="0x1000" length="1" variants="NV40:NV50">
+	<array name="PCRTC2" offset="0x602000" stride="0x1000" length="1" variants="NV11:NV50">
 		<use-group name="nv_pcrtc"/>
 	</array>
-	<array name="PRMCIO2" offset="0x603000" stride="0x1000" length="1" variants="NV40:NV50">
+	<array name="PRMCIO2" offset="0x603000" stride="0x1000" length="1" variants="NV11:NV50">
 		<use-group name="nv_vga_cio"/>
 	</array>
 </domain>

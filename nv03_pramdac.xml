@@ -26,10 +26,10 @@
 	<array name="PRMDIO" offset="0x681000" stride="0x1000" length="1" variants="NV03:NV50">
 		<use-group name="nv_vga_dio"/>
 	</array>
-	<array name="PRAMDAC2" offset="0x682000" stride="0x1000" length="1" variants="NV40:NV50">
+	<array name="PRAMDAC2" offset="0x682000" stride="0x1000" length="1" variants="NV11:NV50">
 		<use-group name="nv_pramdac"/>
 	</array>
-	<array name="PRMDIO2" offset="0x683000" stride="0x1000" length="1" variants="NV40:NV50">
+	<array name="PRMDIO2" offset="0x683000" stride="0x1000" length="1" variants="NV11:NV50">
 		<use-group name="nv_vga_dio"/>
 	</array>
 </domain>
