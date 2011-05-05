@@ -194,6 +194,9 @@
 	</array>
 
 	<array offset="0x101000" name="PEXTDEV" stride="0x1000" length="1">
+		<reg32 offset="0x000" name="STRAPS">
+			<bitfield pos="31" name="OVERRIDE_ENABLE"/>
+		</reg32>
 	</array>
 
 	<reg8 offset="0x110000" name="PROM" length="0x10000" variants="NV03:NV04" />
@@ -280,6 +283,9 @@
 <!-- 0a0000 - 0bffff PRM -->
 <import file="nv_vga.xml" />
 
+<!-- 0c0000 - 0cffff PRMVIO -->
+<import file="nv03_prmvio.xml" />
+
 <!-- 100000 - 100fff PFB or PFFB -->
 <import file="nv03_pfb.xml" />
 <import file="nv10_pfb.xml" />
@@ -333,7 +339,13 @@
 <import file="nv50_pgraph.xml" />
 <import file="nvc0_pgraph.xml" />
 
-<!-- 601000 - 601fff PRMCIO covered in nv_vga.xml -->
+<!-- 600000 - 67ffff PCRTC/PRMCIO -->
+<import file="nv03_pcrtc.xml" />
+
+<!-- 680000 - 6fffff PRAMDAC/PRMDIO -->
+<import file="nv03_pramdac.xml" />
+
+<!-- 601000 - 601fff PRMIO covered in nv50_pdisplay.xml -->
 
 <!-- 610000 - 6bffff PDISPLAY -->
 <import file="nv50_pdisplay.xml" />
