@@ -34,11 +34,11 @@
 	<value value="0x16" name="NV16">
 		<brief>GeForce2 Ultra</brief>
 	</value>
-	<value value="0x11" name="NV11">
-		<brief>GeForce2 MX</brief>
-	</value>
 	<value value="0x1a" name="NV1A">
 		<brief>Geforce2 IGP</brief>
+	</value>
+	<value value="0x11" name="NV11">
+		<brief>GeForce2 MX</brief>
 	</value>
 	<value value="0x17" name="NV17">
 		<brief>Geforce4MX 420/440/460</brief>
