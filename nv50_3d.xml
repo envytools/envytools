@@ -726,6 +726,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield low="16" high="31" name="HIGH"/>
 		</reg32>
 		<reg32 offset="0x1510" name="VP_CLIP_DISTANCE_ENABLE">
+			<doc>See also CLIP_DISTANCE_MODE.</doc>
 			<bitfield name="0" pos="0" type="boolean"/>
 			<bitfield name="1" pos="1" type="boolean"/>
 			<bitfield name="2" pos="2" type="boolean"/>
@@ -1093,16 +1094,19 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="2" name="UNK2" variants="NV84_3D-"/>
 			</bitfield>
 		</reg32>
-		<reg32 offset="0x1940" name="UNK1940">
-			<doc>Goes to 14xx.</doc>
-			<bitfield pos="0" name="0"/>
-			<bitfield pos="4" name="1"/>
-			<bitfield pos="8" name="2"/>
-			<bitfield pos="12" name="3"/>
-			<bitfield pos="16" name="4"/>
-			<bitfield pos="20" name="5"/>
-			<bitfield pos="24" name="6"/>
-			<bitfield pos="28" name="7"/>
+		<reg32 offset="0x1940" name="CLIP_DISTANCE_MODE">
+			<doc>A Primitive is culled if any cull distance is less than 0
+			for all its vertices. In CULL mode, triangles are unmodified if
+			they intersect a plane. In CLIP mode, the expected "cutting" occurs.
+			</doc>
+			<bitfield pos="0" name="0" type="nv50_clip_distance_mode"/>
+			<bitfield pos="4" name="1" type="nv50_clip_distance_mode"/>
+			<bitfield pos="8" name="2" type="nv50_clip_distance_mode"/>
+			<bitfield pos="12" name="3" type="nv50_clip_distance_mode"/>
+			<bitfield pos="16" name="4" type="nv50_clip_distance_mode"/>
+			<bitfield pos="20" name="5" type="nv50_clip_distance_mode"/>
+			<bitfield pos="24" name="6" type="nv50_clip_distance_mode"/>
+			<bitfield pos="28" name="7" type="nv50_clip_distance_mode"/>
 		</reg32>
 		<reg32 offset="0x1944" name="UNK1944" variants="NVA3_3D-"/>
 		<reg32 offset="0x194c" name="CLIP_RECTS_EN" type="boolean"/>

@@ -123,4 +123,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x001f" name="Z32_FLOAT_X16C8S8_UNORM"/>
 </enum>
 
+<enum name="nv50_clip_distance_mode" inline="yes">
+	<value value="0" name="CLIP"/>
+	<value value="1" name="CULL"/>
+</enum>
+
 </database>
