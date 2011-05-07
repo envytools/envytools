@@ -13,6 +13,7 @@
 #define EUNK 0
 #define ECRC -1
 #define ESIG -2
+#define ECARD -3
 
 static int nv_cksum(const uint8_t *data, unsigned int length)
 {
@@ -43,23 +44,29 @@ int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 	fprintf(stderr, "Attempt to extract the vbios from card %i (nv%02x) using PROM\n",
 			cnum, nva_cards[cnum].chipset);
 
-	pci_device_cfg_read_u32(nva_cards[cnum].pci, &pci_cfg_50, 0x50);
-	pci_device_cfg_write_u32(nva_cards[cnum].pci, 0x0, 0x50);
+	int32_t prom_offset;
+	if (nva_cards[cnum].chipset < 0x04) {
+		prom_offset = 0x110000;
+	} else {
+		prom_offset = 0x300000;
+		pci_device_cfg_read_u32(nva_cards[cnum].pci, &pci_cfg_50, 0x50);
+		pci_device_cfg_write_u32(nva_cards[cnum].pci, 0x0, 0x50);
+	}
 
 	/* bail if no rom signature */
-	if (nva_rd8(cnum, NV_PROM_OFFSET) != 0x55 ||
-	    nva_rd8(cnum, NV_PROM_OFFSET + 1) != 0xaa) {
+	if (nva_rd8(cnum, prom_offset) != 0x55 ||
+	    nva_rd8(cnum, prom_offset + 1) != 0xaa) {
 		ret = ESIG;
 		goto out;
 	}
 
 	/* additional check (see note below) - read PCI record header */
-	pcir_ptr = nva_rd8(cnum, NV_PROM_OFFSET + 0x18) |
-		   nva_rd8(cnum, NV_PROM_OFFSET + 0x19) << 8;
-	if (nva_rd8(cnum, NV_PROM_OFFSET + pcir_ptr) != 'P' ||
-	    nva_rd8(cnum, NV_PROM_OFFSET + pcir_ptr + 1) != 'C' ||
-	    nva_rd8(cnum, NV_PROM_OFFSET + pcir_ptr + 2) != 'I' ||
-	    nva_rd8(cnum, NV_PROM_OFFSET + pcir_ptr + 3) != 'R') {
+	pcir_ptr = nva_rd8(cnum, prom_offset + 0x18) |
+		   nva_rd8(cnum, prom_offset + 0x19) << 8;
+	if (nva_rd8(cnum, prom_offset + pcir_ptr) != 'P' ||
+	    nva_rd8(cnum, prom_offset + pcir_ptr + 1) != 'C' ||
+	    nva_rd8(cnum, prom_offset + pcir_ptr + 2) != 'I' ||
+	    nva_rd8(cnum, prom_offset + pcir_ptr + 3) != 'R') {
 		ret = ESIG;
 		goto out;
 	}
@@ -70,7 +77,7 @@ int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 	 */
 
 	for (i = 0; i < NV_PROM_SIZE; i++)
-		vbios[i] = nva_rd8(cnum, NV_PROM_OFFSET + i);
+		vbios[i] = nva_rd8(cnum, prom_offset + i);
 
 	ret = nv_cksum(vbios, vbios[2] * 512);
 
@@ -81,7 +88,8 @@ int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 	fwrite(vbios, 1, vbios[2] * 512, stdout);
 
 out:
-	pci_device_cfg_write_u32(nva_cards[cnum].pci, pci_cfg_50, 0x50);
+	if (nva_cards[cnum].chipset >= 0x04)
+		pci_device_cfg_write_u32(nva_cards[cnum].pci, pci_cfg_50, 0x50);
 	return ret;
 }
 
@@ -91,6 +99,12 @@ int vbios_extract_pramin(int cnum, uint8_t *vbios, int *length)
 	uint32_t old_bar0_pramin = 0;
 	uint32_t ret = EUNK;
 	int i;
+
+	if (nva_cards[cnum].chipset < 0x04) {
+		fprintf(stderr, "Card %i (nv%02x) does not support PRAMIN!\n",
+				cnum, nva_cards[cnum].chipset);
+		return ECARD;
+	}
 
 	fprintf(stderr, "Attempt to extract the vbios from card %i (nv%02x) using PRAMIN\n",
 			cnum, nva_cards[cnum].chipset);
@@ -167,8 +181,11 @@ int main(int argc, char **argv) {
 	}
 
 	if (source == NULL) {
-		fprintf(stderr, "No extraction method specified (using -s extraction_method). Defaulting to PRAMIN.\n");
-		source = "pramin";
+		if (nva_cards[cnum].chipset < 4)
+			source = "PROM";
+		else
+			source = "PRAMIN";
+		fprintf(stderr, "No extraction method specified (using -s extraction_method). Defaulting to %s.\n", source);
 	}
 
 	/* Extraction */
@@ -193,6 +210,9 @@ int main(int argc, char **argv) {
 			break;
 		case ESIG:
 			fprintf(stderr, "Invalid signature. You may want to try another retrieval method.\n");
+			break;
+		case ECARD:
+			fprintf(stderr, "Method not supported by this card. Try another retrieval method.\n");
 			break;
 	}
 
