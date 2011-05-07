@@ -12,9 +12,10 @@
 #define EUNK 0
 #define ECRC -1
 #define ESIG -2
-#define EIO -3
+#define EIOFAIL -3
 #define EARG -4
 #define ENOTVBIOS -5
+#define ECARD -6
 
 
 static void chksum(uint8_t *data, unsigned int length)
@@ -38,6 +39,10 @@ int vbios_upload_pramin(int cnum, uint8_t *vbios, int length)
 	uint32_t old_bar0_pramin = 0;
 	uint32_t ret = EUNK;
 	int i = 0;
+
+	if (nva_cards[cnum].chipset < 0x04) {
+		return ECARD;
+	}
 
 	fprintf(stderr, "Attempt to upload the vbios to card %i (nv%02x) using PRAMIN\n",
 			cnum, nva_cards[cnum].chipset);
@@ -78,7 +83,7 @@ int vbios_read(const char *filename, uint8_t **vbios, unsigned int *length)
 
 	fd_bios = fopen(filename ,"rb");
 	if (!fd_bios)
-		return EIO;
+		return EIOFAIL;
 
 	/* get the size */
 	fseek(fd_bios, 0, SEEK_END);
@@ -86,13 +91,13 @@ int vbios_read(const char *filename, uint8_t **vbios, unsigned int *length)
 	fseek(fd_bios, 0, SEEK_SET);
 
 	if (*length <= 0)
-		return EIO;
+		return EIOFAIL;
 
 	/* Read the vbios */
 	*vbios = malloc(*length * sizeof(char));
 	if (fread(*vbios, 1, *length, fd_bios) < *length) {
 		free(*vbios);
-		return EIO;
+		return EIOFAIL;
 	}
 	fclose (fd_bios);
 
@@ -160,11 +165,14 @@ out:
 		case EOK:
 			fprintf(stderr, "Upload done.\n");
 			break;
-		case EIO:
+		case EIOFAIL:
 			fprintf(stderr, "Cannot read the vbios \"%s\".\n", argv[optind]);
 			break;
 		case ENOTVBIOS:
 			fprintf(stderr, "The file \"%s\" isn't a valid vbios.\n", argv[optind]);
+			break;
+		case ECARD:
+			fprintf(stderr, "Upload not possible on this card.\n");
 			break;
 		case EUNK:
 		default:
