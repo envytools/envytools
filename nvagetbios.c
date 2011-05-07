@@ -84,9 +84,6 @@ int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 	if (length)
 		*length = vbios[2] * 512;
 
-	/* print the vbios on stdout */
-	fwrite(vbios, 1, vbios[2] * 512, stdout);
-
 out:
 	if (nva_cards[cnum].chipset >= 0x04)
 		pci_device_cfg_write_u32(nva_cards[cnum].pci, pci_cfg_50, 0x50);
@@ -134,9 +131,6 @@ int vbios_extract_pramin(int cnum, uint8_t *vbios, int *length)
 	if (length)
 		*length = vbios[2] * 512;
 
-	/* print the vbios on stdout */
-	fwrite(vbios, 1, vbios[2] * 512, stdout);
-
 out:
 	if (nva_cards[cnum].card_type >= 0x50)
 		nva_wr32(cnum, 0x1700, old_bar0_pramin);
@@ -156,6 +150,7 @@ int main(int argc, char **argv) {
 	int cnum =0;
 	char const *source = NULL;
 	int result = 0;
+	int length;
 
 	assert(!nva_init());
 
@@ -190,12 +185,19 @@ int main(int argc, char **argv) {
 
 	/* Extraction */
 	if (strcasecmp(source, "pramin") == 0)
-		result = vbios_extract_pramin(cnum, vbios, NULL);
+		result = vbios_extract_pramin(cnum, vbios, &length);
 	else if (strcasecmp(source, "prom") == 0)
-		result = vbios_extract_prom(cnum, vbios, NULL);
+		result = vbios_extract_prom(cnum, vbios, &length);
 	else {
 		fprintf(stderr, "Unknown vbios extraction method.\n");
 		usage(1);
+	}
+
+	if (isatty(fileno(stdout))) {
+		fprintf(stderr, "Refusing to write BIOS image to a terminal - please redirect output to a file.\n");
+	} else {
+		/* print the vbios on stdout */
+		fwrite(vbios, 1, length, stdout);
 	}
 
 	switch (result) {
