@@ -6,6 +6,8 @@
 #include <inttypes.h>
 #include <string.h>
 
+int sleep_disabled = 0;
+
 struct i2c_ctx {
 	int last;
 	int aok;
@@ -15,7 +17,7 @@ struct i2c_ctx {
 	int pend;
 };
 
-struct cctx { 
+struct cctx {
 	struct rnndeccontext *ctx;
 	int chdone;
 	int arch;
@@ -152,6 +154,7 @@ void doi2cw (struct cctx *cc, struct i2c_ctx *ctx, int byte) {
 		ctx->aok = 0;
 		ctx->wr = 0;
 		ctx->pend = 0;
+		sleep_disabled = 1;
 	}
 	if ((byte & 1) && (byte & 2) && !(ctx->last & 2)) {
 		/* data went high with high clock - stop bit */
@@ -162,6 +165,7 @@ void doi2cw (struct cctx *cc, struct i2c_ctx *ctx, int byte) {
 		ctx->aok = 0;
 		ctx->wr = 0;
 		ctx->pend = 0;
+		sleep_disabled = 0;
 	}
 	ctx->last = byte;
 }
@@ -247,10 +251,10 @@ int main(int argc, char **argv) {
 			width *= 8;
 
 			/* Add a SLEEP line when two mmio accesses are more distant than 100µs */
-			if (timestamp_old > 0 && (timestamp - timestamp_old) > 0.0001)
+			if (!sleep_disabled && timestamp_old > 0 && (timestamp - timestamp_old) > 0.0001)
 				printf("SLEEP %lfms\n", (timestamp - timestamp_old)*1000.0);
 			timestamp_old = timestamp;
-			
+
 			for (cci = 0; cci < cctxnum; cci++) {
 				struct cctx *cc = &cctx[cci];
 				if (cc->bar0 && addr >= cc->bar0 && addr < cc->bar0+cc->bar0l) {
