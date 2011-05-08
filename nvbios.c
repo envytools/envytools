@@ -1230,7 +1230,9 @@ int main(int argc, char **argv) {
 					printf("fan_min = %i, fan_max = %i", fan_min, fan_max);
 				else
 					printf("id = 0x%x, data = 0x%x", id, data);
-			} else
+			} else if (id == 0x24)
+				printf ("-- bump fan speed when at %i°C type 0x%x", temp, type);
+			else
 				printf ("Unknown (temp ?= %i°C, type ?= 0x%x)", temp, type);
 
 			printf("\n");
