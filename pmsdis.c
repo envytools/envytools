@@ -58,10 +58,21 @@ static struct matches *atomst32 APROTO {
 	RNN_ADDARRAY(ctx->atoms, expr);
 }
 
+static struct bitfield maskoff = { 8, 8 };
+#define CRTCMASK atomimm, &maskoff
+
+static struct insn tabcrtcevent[] = {
+	{ 0x000000, 0xff0000, N("active") },
+	{ 0x010000, 0xff0000, N("vblank") },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabm[] = {
 	{ 0x40, 0xff, OP24, N("addr"), ADDR16 },
 	{ 0x42, 0xff, OP24, N("data"), DATA16 },
-	{ 0x5f, 0xff, OP24, U("5f") },
+	{ 0x5f, 0xff, OP24, N("crtcwait"), CRTCMASK, T(crtcevent) },
+	{ 0xb0, 0xff, OP8, N("busoff") },
+	{ 0xd0, 0xff, OP8, N("buson") },
 	{ 0xe0, 0xff, OP40, N("addr"), ADDR32 },
 	{ 0xe2, 0xff, OP40, N("data"), DATA32 },
 	{ 0x7f, 0xff, OP8, N("exit") },
