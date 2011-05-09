@@ -1184,7 +1184,7 @@ int main(int argc, char **argv) {
 			uint16_t correction_value = 0;
 			uint16_t fan_min, fan_max;
 
-			type_s = (type == 0xa000?"ambiant":"core");
+			type_s = (type == 0xa000?"ambient":"core");
 
 			/* Temperatures */
 			if (id == 0x4)
