@@ -371,11 +371,34 @@ int main(int argc, char **argv) {
 						*findmem(cc, addr) = value;
 					} else if (!skip) {
 						struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, mmiodom, addr, line[0] == 'W');
-						char *decoded_val = rnndec_decodeval(cc->ctx, ai->typeinfo, value, ai->width);
-						printf ("[%d] %lf MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %s %s %s\n", cci, timestamp, width, line[0], addr, value, ai->name, line[0]=='W'?"<=":"=>", decoded_val);
-						free(ai->name);
-						free(ai);
-						free(decoded_val);
+						if (width == 32 && ai->width == 8) {
+							/* 32-bit write to 8-bit location - split it up */
+							int b;
+							free(ai->name);
+							free(ai);
+							int cnt;
+							for (b = 0; b < 4; b++) {
+								struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, mmiodom, addr+b, line[0] == 'W');
+								char *decoded_val = rnndec_decodeval(cc->ctx, ai->typeinfo, value >> b * 8 & 0xff, ai->width);
+								if (b == 0) {
+									printf ("[%d] %lf MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %n%s %s %s\n", cci, timestamp, width, line[0], addr, value, &cnt, ai->name, line[0]=='W'?"<=":"=>", decoded_val);
+								} else {
+									int c;
+									for (c = 0; c < cnt; c++)
+										printf(" ");
+									printf ("%s %s %s\n", ai->name, line[0]=='W'?"<=":"=>", decoded_val);
+								}
+								free(ai->name);
+								free(ai);
+								free(decoded_val);
+							}
+						} else {
+							char *decoded_val = rnndec_decodeval(cc->ctx, ai->typeinfo, value, ai->width);
+							printf ("[%d] %lf MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %s %s %s\n", cci, timestamp, width, line[0], addr, value, ai->name, line[0]=='W'?"<=":"=>", decoded_val);
+							free(ai->name);
+							free(ai);
+							free(decoded_val);
+						}
 					}
 				} else if (cc->bar1 && addr >= cc->bar1 && addr < cc->bar1+cc->bar1l) {
 					addr -= cc->bar1;
