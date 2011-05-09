@@ -200,14 +200,16 @@
 			<array offset="0x200" name="GX" stride="1" length="0x10"/>
 			<reg8 offset="0x210" name="GRX"/>
 			<array offset="0x300" name="AR" stride="1" length="0x20"/>
-			<reg8 offset="0x320" name="ARX"/>
+			<reg8 offset="0x320" name="ARX" type="vga_arx"/>
 			<reg8 offset="0x321" name="AR_STATE">
 				<bitfield pos="7" name="FLIPFLOP">
 					<value value="0" name="ARX"/>
 					<value value="1" name="AR"/>
 				</bitfield>
 			</reg8>
-			<array offset="0x400" name="CR" stride="1" length="0x100"/>
+			<array offset="0x400" name="CR" stride="0x100" length="1">
+				<use-group name="vga_cr"/>
+			</array>
 			<reg8 offset="0x500" name="CRX"/>
 			<group name="nv50_pdisplay_vga_pal_color">
 				<reg8 offset="0" name="B"/>

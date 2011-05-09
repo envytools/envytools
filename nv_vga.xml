@@ -6,6 +6,146 @@
 
 <import file="nvchipsets.xml" />
 
+<bitset name="vga_arx" inline="yes">
+	<bitfield low="0" high="4" name="INDEX"/>
+	<bitfield pos="5" name="PAL_ENABLE"/>
+</bitset>
+
+<group name="vga_cr">
+	<reg8 offset="0x00" name="CR00">
+		<bitfield low="0" high="7" name="HDT_0_7"/>
+	</reg8>
+	<reg8 offset="0x01" name="CR01">
+		<bitfield low="0" high="7" name="HDE_0_7"/>
+	</reg8>
+	<reg8 offset="0x02" name="CR02">
+		<bitfield low="0" high="7" name="HBS_0_7"/>
+	</reg8>
+	<reg8 offset="0x03" name="CR03">
+		<bitfield low="0" high="4" name="HBE_0_4"/>
+		<bitfield low="5" high="6" name="HDT_DELAY"/>
+		<bitfield pos="7" name="CR10_CR11_ENABLE"/>
+	</reg8>
+	<reg8 offset="0x04" name="CR04">
+		<bitfield low="0" high="7" name="HRS_0_7"/>
+	</reg8>
+	<reg8 offset="0x05" name="CR05">
+		<bitfield low="0" high="4" name="HRE_0_4"/>
+		<bitfield low="5" high="6" name="HR_DELAY"/>
+		<bitfield pos="7" name="HBE_5" type="uint"/>
+	</reg8>
+	<reg8 offset="0x06" name="CR06">
+		<bitfield low="0" high="7" name="VDT_0_7"/>
+	</reg8>
+	<reg8 offset="0x07" name="CR07">
+		<bitfield pos="0" name="VDT_8" type="uint"/>
+		<bitfield pos="1" name="VDE_8" type="uint"/>
+		<bitfield pos="2" name="VRS_8" type="uint"/>
+		<bitfield pos="3" name="VBS_8" type="uint"/>
+		<bitfield pos="4" name="VLC_8" type="uint"/>
+		<bitfield pos="5" name="VDT_9" type="uint"/>
+		<bitfield pos="6" name="VDE_9" type="uint"/>
+		<bitfield pos="7" name="VRS_9" type="uint"/>
+	</reg8>
+	<reg8 offset="0x08" name="CR08">
+		<bitfield low="0" high="4" name="SKIP_ROW"/>
+		<bitfield low="5" high="6" name="SKIP_BYTE"/>
+	</reg8>
+	<reg8 offset="0x09" name="CR09">
+		<bitfield low="0" high="4" name="CELL_HT"/>
+		<bitfield pos="5" name="VBS_9" type="uint"/>
+		<bitfield pos="6" name="VLC_9" type="uint"/>
+		<bitfield pos="7" name="SCANDBL"/>
+	</reg8>
+	<reg8 offset="0x0a" name="CR0A">
+		<bitfield low="0" high="4" name="CURSOR_START_LINE"/>
+		<bitfield pos="5" name="CURSOR_DISABLE"/>
+	</reg8>
+	<reg8 offset="0x0b" name="CR0B">
+		<bitfield low="0" high="4" name="CURSOR_END_LINE"/>
+		<bitfield low="5" high="6" name="CURSOR_DELAY"/>
+	</reg8>
+	<reg8 offset="0x0c" name="CR0C">
+		<bitfield low="0" high="7" name="CURSOR_ADDR_8_15"/>
+	</reg8>
+	<reg8 offset="0x0d" name="CR0D">
+		<bitfield low="0" high="7" name="CURSOR_ADDR_0_7"/>
+	</reg8>
+	<reg8 offset="0x0e" name="CR0E">
+		<bitfield low="0" high="7" name="START_ADDR_8_15"/>
+	</reg8>
+	<reg8 offset="0x0f" name="CR0F">
+		<bitfield low="0" high="7" name="START_ADDR_0_7"/>
+	</reg8>
+	<reg8 offset="0x10" name="CR10">
+		<bitfield low="0" high="7" name="VRS_0_7"/>
+	</reg8>
+	<reg8 offset="0x11" name="CR11">
+		<bitfield low="0" high="3" name="VRE_0_3"/>
+		<bitfield pos="4" name="INTR_PENDING"/>
+		<bitfield pos="5" name="INTR_DISABLE"/>
+		<bitfield pos="6" name="REFRESH">
+			<value value="0" name="3"/>
+			<value value="1" name="5"/>
+		</bitfield>
+		<bitfield pos="7" name="LOCK_CR0_CR7"/>
+	</reg8>
+	<reg8 offset="0x12" name="CR12">
+		<bitfield low="0" high="7" name="VDE_0_7"/>
+	</reg8>
+	<reg8 offset="0x13" name="CR13">
+		<bitfield low="0" high="7" name="OFFSET_0_7"/>
+	</reg8>
+	<reg8 offset="0x14" name="CR14">
+		<bitfield low="0" high="4" name="UNDERLINE_POS"/>
+		<bitfield pos="5" name="ADDR_DIV4"/>
+		<bitfield pos="6" name="ADDR_DWORD"/>
+	</reg8>
+	<reg8 offset="0x15" name="CR15">
+		<bitfield low="0" high="7" name="VBS_0_7"/>
+	</reg8>
+	<reg8 offset="0x16" name="CR16">
+		<bitfield low="0" high="7" name="VBE_0_7"/>
+	</reg8>
+	<reg8 offset="0x17" name="CR17">
+		<bitfield pos="0" name="CGA_INTERLEAVE"/>
+		<bitfield pos="1" name="HGC_INTERLEAVE"/>
+		<bitfield pos="2" name="SCAN_DIV2"/>
+		<bitfield pos="3" name="ADDR_DIV2"/>
+		<bitfield pos="5" name="ADDR_ROT_MODE">
+			<value value="0" name="13_TO_0"/>
+			<value value="1" name="15_TO_0"/>
+		</bitfield>
+		<bitfield pos="6" name="ADDR_WORD"/>
+		<bitfield pos="7" name="DISPLAY_ENABLE"/>
+	</reg8>
+	<reg8 offset="0x18" name="CR18">
+		<bitfield low="0" high="7" name="VLC_0_7"/>
+	</reg8>
+	<reg8 offset="0x1f" name="LOCK" variants="NV04:NV50">
+		<!-- for reads -->
+		<value value="0" name="LOCKED"/>
+		<value value="3" name="UNLOCKED"/>
+		<!-- for writes -->
+		<value value="0x57" name="UNLOCK"/>
+		<value value="0x99" name="LOCK"/>
+	</reg8>
+	<reg8 offset="0x22" name="MEM_LATCH"/>
+	<reg8 offset="0x24" name="AR_STATE">
+		<bitfield pos="7" name="FLIPFLOP">
+			<value value="0" name="ARX"/>
+			<value value="1" name="AR"/>
+		</bitfield>
+	</reg8>
+	<reg8 offset="0x26" name="ARX" type="vga_arx"/>
+</group>
+
+<domain name="NV_CR" bare="yes" prefix="chipset">
+<stripe name="CR">
+	<use-group name="vga_cr"/>
+</stripe>
+</domain>
+
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 	<reg8 offset="0xa0000" name="PRM" length="0x20000" variants="NV03-" />

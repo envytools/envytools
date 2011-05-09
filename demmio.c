@@ -34,6 +34,7 @@ struct cctx {
 	int pagesnum, pagesmax;
 	uint64_t bar0, bar0l, bar1, bar1l, bar2, bar2l;
 	struct i2c_ctx i2cb[10];
+	int crx0, crx1;
 };
 
 struct cctx *cctx = 0;
@@ -208,6 +209,7 @@ int main(int argc, char **argv) {
 	rnn_parsefile (db, "nv_mmio.xml");
 	rnn_prepdb (db);
 	struct rnndomain *mmiodom = rnn_finddomain(db, "NV_MMIO");
+	struct rnndomain *crdom = rnn_finddomain(db, "NV_CR");
 	FILE *fin = open_input(argv[1]);
 	if (!fin) {
 		fprintf (stderr, "Failed to open input file!\n");
@@ -308,6 +310,26 @@ int main(int argc, char **argv) {
 						cc->ramins = (value & 0xffff) << 4;
 					} else if (cc->arch >= 6 && addr == 0x1714) {
 						cc->ramins = (value & 0xfffffff) << 12;
+					} else if (addr == 0x6013d4) {
+						cc->crx0 = value & 0xff;
+					} else if (addr == 0x6033d4) {
+						cc->crx1 = value & 0xff;
+					} else if (addr == 0x6013d5) {
+						struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, crdom, cc->crx0, line[0] == 'W');
+						char *decoded_val = rnndec_decodeval(cc->ctx, ai->typeinfo, value, ai->width);
+						printf ("[%d] %lf CRTC0 %c     0x%02x       0x%02"PRIx64" %s %s %s\n", cci, timestamp, line[0], cc->crx0, value, ai->name, line[0]=='W'?"<=":"=>", decoded_val);
+						free(ai->name);
+						free(ai);
+						free(decoded_val);
+						skip = 1;
+					} else if (addr == 0x6033d5) {
+						struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, crdom, cc->crx1, line[0] == 'W');
+						char *decoded_val = rnndec_decodeval(cc->ctx, ai->typeinfo, value, ai->width);
+						printf ("[%d] %lf CRTC1 %c     0x%02x       0x%02"PRIx64" %s %s %s\n", cci, timestamp, line[0], cc->crx1, value, ai->name, line[0]=='W'?"<=":"=>", decoded_val);
+						free(ai->name);
+						free(ai);
+						free(decoded_val);
+						skip = 1;
 					} else if (cc->arch >= 5 && (addr & 0xfff000) == 0xe000) {
 						int bus = i2c_bus_num(addr);
 						if (bus != -1) {
