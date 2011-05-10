@@ -7,7 +7,8 @@
 
 #define NV_PRAMIN_OFFSET            0x00700000
 #define NV_PROM_OFFSET              0x00300000
-#define NV_PROM_SIZE                0x00010000
+#define NV03_PROM_SIZE              0x00010000
+#define NV_PROM_SIZE                0x00020000
 
 #define EOK 1
 #define EUNK 0
@@ -53,22 +54,60 @@ static int nv_checksignature(const uint8_t *data)
 
 	return EOK;
 }
+
+static int nv_ckbios(const uint8_t *data, int *length)
+{
+	uint16_t pcir_ptr;
+	uint32_t ret = EUNK;
+	int vbios_len, vbios2_len;
+
+	ret = nv_checksignature(data);
+	if (ret != EOK)
+		return ret;
+
+	vbios_len = data[2] * 512;
+	ret = nv_cksum(data, vbios_len);
+
+	if (length)
+		*length = vbios_len;
+
+	pcir_ptr = data[0x18] | data[0x19] << 8;
+
+	/* Check for a second vbios */
+	if (data[pcir_ptr + 0x15] == 0x80) {
+
+		ret = nv_checksignature(data + vbios_len);
+		if (ret != EOK)
+			return ret;
+
+		vbios2_len = data[vbios_len + 2] * 512;
+
+		ret = nv_cksum(data + vbios_len, vbios2_len);
+
+		if (length)
+			*length += vbios2_len;
+	}
+}
+
 /* vbios should at least be NV_PROM_SIZE bytes long */
 int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 {
 	uint32_t pci_cfg_50 = 0;
 	uint32_t ret = EUNK;
-	int pcir_ptr;
 	int i;
 
 	fprintf(stderr, "Attempt to extract the vbios from card %i (nv%02x) using PROM\n",
 			cnum, nva_cards[cnum].chipset);
 
 	int32_t prom_offset;
+	int32_t prom_size;
+
 	if (nva_cards[cnum].chipset < 0x04) {
 		prom_offset = 0x110000;
+		prom_size = NV03_PROM_SIZE;
 	} else {
 		prom_offset = 0x300000;
+		prom_size = NV_PROM_SIZE;
 		pci_device_cfg_read_u32(nva_cards[cnum].pci, &pci_cfg_50, 0x50);
 		pci_device_cfg_write_u32(nva_cards[cnum].pci, 0x0, 0x50);
 	}
@@ -78,18 +117,10 @@ int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 	 * each byte.  we'll hope pramin has something usable instead
 	 */
 
-	for (i = 0; i < NV_PROM_SIZE; i++)
+	for (i = 0; i < prom_size; i++)
 		vbios[i] = nva_rd8(cnum, prom_offset + i);
 
-	ret = nv_checksignature(vbios);
-	if (ret != EOK)
-		goto out;
-
-	ret = nv_cksum(vbios, vbios[2] * 512);
-
-	if (length)
-		*length = vbios[2] * 512;
-
+	ret = nv_ckbios(vbios, length);
 out:
 	if (nva_cards[cnum].chipset >= 0x04)
 		pci_device_cfg_write_u32(nva_cards[cnum].pci, pci_cfg_50, 0x50);
@@ -125,15 +156,7 @@ int vbios_extract_pramin(int cnum, uint8_t *vbios, int *length)
 	for (i = 0; i < NV_PROM_SIZE; i++)
 		vbios[i] = nva_rd8(cnum, NV_PRAMIN_OFFSET + i);
 
-	ret = nv_checksignature(vbios);
-	if (ret != EOK)
-		goto out;
-
-	ret = nv_cksum(vbios, vbios[2] * 512);
-
-	if (length)
-		*length = vbios[2] * 512;
-
+	ret = nv_ckbios(vbios, length);
 out:
 	if (nva_cards[cnum].card_type >= 0x50)
 		nva_wr32(cnum, 0x1700, old_bar0_pramin);
