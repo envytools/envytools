@@ -33,6 +33,26 @@ static int nv_cksum(const uint8_t *data, unsigned int length)
 	return EOK;
 }
 
+static int nv_checksignature(const uint8_t *data)
+{
+	uint16_t pcir_ptr;
+
+	/* bail if no rom signature */
+	if (data[0] != 0x55 || data[1] != 0xaa) {
+		return ESIG;
+	}
+
+	/* additional check (see note below) - read PCI record header */
+	pcir_ptr = data[0x18] | data[0x19] << 8;
+	if (data[pcir_ptr] != 'P' ||
+	    data[pcir_ptr + 1] != 'C' ||
+	    data[pcir_ptr + 2] != 'I' ||
+	    data[pcir_ptr + 3] != 'R') {
+		return ESIG;
+	}
+
+	return EOK;
+}
 /* vbios should at least be NV_PROM_SIZE bytes long */
 int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 {
@@ -53,24 +73,6 @@ int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 		pci_device_cfg_write_u32(nva_cards[cnum].pci, 0x0, 0x50);
 	}
 
-	/* bail if no rom signature */
-	if (nva_rd8(cnum, prom_offset) != 0x55 ||
-	    nva_rd8(cnum, prom_offset + 1) != 0xaa) {
-		ret = ESIG;
-		goto out;
-	}
-
-	/* additional check (see note below) - read PCI record header */
-	pcir_ptr = nva_rd8(cnum, prom_offset + 0x18) |
-		   nva_rd8(cnum, prom_offset + 0x19) << 8;
-	if (nva_rd8(cnum, prom_offset + pcir_ptr) != 'P' ||
-	    nva_rd8(cnum, prom_offset + pcir_ptr + 1) != 'C' ||
-	    nva_rd8(cnum, prom_offset + pcir_ptr + 2) != 'I' ||
-	    nva_rd8(cnum, prom_offset + pcir_ptr + 3) != 'R') {
-		ret = ESIG;
-		goto out;
-	}
-
 	/* on some 6600GT/6800LE prom reads are messed up.  nvclock alleges a
 	 * a good read may be obtained by waiting or re-reading (cargocult: 5x)
 	 * each byte.  we'll hope pramin has something usable instead
@@ -78,6 +80,10 @@ int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 
 	for (i = 0; i < NV_PROM_SIZE; i++)
 		vbios[i] = nva_rd8(cnum, prom_offset + i);
+
+	ret = nv_checksignature(vbios);
+	if (ret != EOK)
+		goto out;
 
 	ret = nv_cksum(vbios, vbios[2] * 512);
 
@@ -116,15 +122,12 @@ int vbios_extract_pramin(int cnum, uint8_t *vbios, int *length)
 		nva_wr32(cnum, 0x1700, vbios_vram >> 16);
 	}
 
-	/* bail if no rom signature */
-	if (nva_rd8(cnum, NV_PRAMIN_OFFSET) != 0x55 ||
-	    nva_rd8(cnum, NV_PRAMIN_OFFSET + 1) != 0xaa) {
-		ret = ESIG;
-		goto out;
-	}
-
 	for (i = 0; i < NV_PROM_SIZE; i++)
 		vbios[i] = nva_rd8(cnum, NV_PRAMIN_OFFSET + i);
+
+	ret = nv_checksignature(vbios);
+	if (ret != EOK)
+		goto out;
 
 	ret = nv_cksum(vbios, vbios[2] * 512);
 
