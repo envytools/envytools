@@ -58,12 +58,12 @@ uint16_t ram_restrict_tbl_ptr;
 
 uint16_t pll_limit_tbl_ptr;
 
-uint8_t p_tbls_ver;
-uint16_t pm_mode_tbl_ptr;
-uint16_t voltage_tbl_ptr;
-uint16_t temperature_tbl_ptr;
-uint16_t timings_tbl_ptr;
-uint16_t timings_map_tbl_ptr;
+uint8_t p_tbls_ver = 0;
+uint16_t pm_mode_tbl_ptr = 0;
+uint16_t voltage_tbl_ptr = 0;
+uint16_t temperature_tbl_ptr = 0;
+uint16_t timings_tbl_ptr = 0;
+uint16_t timings_map_tbl_ptr = 0;
 
 uint16_t *subs = 0;
 int subsnum = 0, subsmax = 0;
