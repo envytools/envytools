@@ -195,11 +195,17 @@
 			<reg8 offset="0x008" name="INP1"/>
 			<reg8 offset="0x00c" name="FC"/>
 			<reg8 offset="0x010" name="VSE2"/>
-			<array offset="0x100" name="SR" stride="1" length="8"/>
+			<array offset="0x100" name="SR" stride="8" length="1">
+				<use-group name="vga_sr"/>
+			</array>
 			<reg8 offset="0x108" name="SRX"/>
-			<array offset="0x200" name="GX" stride="1" length="0x10"/>
+			<array offset="0x200" name="GR" stride="0x10" length="1">
+				<use-group name="vga_gr"/>
+			</array>
 			<reg8 offset="0x210" name="GRX"/>
-			<array offset="0x300" name="AR" stride="1" length="0x20"/>
+			<array offset="0x300" name="AR" stride="0x20" length="1">
+				<use-group name="vga_ar"/>
+			</array>
 			<reg8 offset="0x320" name="ARX" type="vga_arx"/>
 			<reg8 offset="0x321" name="AR_STATE">
 				<bitfield pos="7" name="FLIPFLOP">

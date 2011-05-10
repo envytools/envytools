@@ -11,6 +11,125 @@
 	<bitfield pos="5" name="PAL_ENABLE"/>
 </bitset>
 
+<group name="vga_ar">
+	<reg8 offset="0x00" name="COLOR_LUT" length="0x10"/>
+	<reg8 offset="0x10" name="AR10">
+		<bitfield pos="0" name="MODE">
+			<value value="0" name="ALPHA"/>
+			<value value="1" name="GRAPHICS"/>
+		</bitfield>
+		<bitfield pos="1" name="MONOCHROME"/>
+		<bitfield pos="2" name="CHAR_COL8_MODE">
+			<value value="0" name="ALWAYS_BG"/>
+			<value value="1" name="EXTEND_C0_DF"/>
+		</bitfield>
+		<bitfield pos="3" name="ALPHA_BIT7_MODE">
+			<value value="0" name="BGCOLOR_BIT3"/>
+			<value value="1" name="BLINK"/>
+		</bitfield>
+		<bitfield pos="5" name="RESET_PAN_ON_VLC"/>
+		<bitfield pos="6" name="GRAPHICS8BPP"/>
+		<bitfield pos="7" name="COL_BIT4_5_SOURCE">
+			<value value="0" name="COLOR_LUT"/>
+			<value value="1" name="COLOR_HIGH"/>
+		</bitfield>
+	</reg8>
+	<reg8 offset="0x11" name="COLOR_OVERSCAN"/>
+	<reg8 offset="0x12" name="PLANE_CTRL">
+		<bitfield pos="0" name="PLANE0_ENABLE"/>
+		<bitfield pos="1" name="PLANE1_ENABLE"/>
+		<bitfield pos="2" name="PLANE2_ENABLE"/>
+		<bitfield pos="3" name="PLANE3_ENABLE"/>
+		<bitfield low="4" high="5" name="VSMUX">
+			<value value="0" name="BIT_0_2"/>
+			<value value="1" name="BIT_4_5"/>
+			<value value="2" name="BIT_1_3"/>
+			<value value="3" name="BIT_6_7"/>
+		</bitfield>
+	</reg8>
+	<reg8 offset="0x13" name="PAN"/>
+	<reg8 offset="0x14" name="COLOR_HIGH" shr="4"/>
+</group>
+
+<group name="vga_sr">
+	<reg8 offset="0" name="RESET">
+		<bitfield pos="0" name="NOTRESET0"/>
+		<bitfield pos="1" name="NOTRESET1"/>
+	</reg8>
+	<reg8 offset="1" name="SR1">
+		<bitfield pos="0" name="CHAR_WIDTH">
+			<value value="0" name="9"/>
+			<value value="1" name="8"/>
+		</bitfield>
+		<bitfield pos="2" name="CHAR_DIV2"/>
+		<bitfield pos="3" name="PCLOCK_DIV2"/>
+		<bitfield pos="4" name="CHAR_DIV4"/>
+		<bitfield pos="5" name="SCREEN_MEMORY_OFF"/>
+	</reg8>
+	<reg8 offset="2" name="PLANE_WRITE_ENABLE"/>
+	<reg8 offset="3" name="FONT_SELECT">
+		<bitfield low="0" high="1" name="FONT0_0_1"/>
+		<bitfield low="2" high="3" name="FONT1_0_1"/>
+		<bitfield pos="4" name="FONT0_2"/>
+		<bitfield pos="5" name="FONT1_2"/>
+	</reg8>
+	<reg8 offset="4" name="SR4">
+		<bitfield pos="0" name="MODE">
+			<value value="0" name="GRAPHICS"/>
+			<value value="1" name="ALPHA"/>
+		</bitfield>
+		<bitfield pos="1" name="MEM_GT_64KB"/>
+		<bitfield pos="2" name="EVEN_ODD"/>
+		<bitfield pos="3" name="CHAIN4"/>
+	</reg8>
+</group>
+
+<group name="vga_gr">
+	<reg8 offset="0x0" name="WRITE_SR_VALUE"/>
+	<reg8 offset="0x1" name="WRITE_SR_MASK"/>
+	<reg8 offset="0x2" name="COMPARE_VALUE"/>
+	<reg8 offset="0x3" name="ROP">
+		<bitfield low="0" high="2" name="ROTATE_R"/>
+		<bitfield low="3" high="4" name="LOP">
+			<value value="0" name="MOV"/>
+			<value value="1" name="AND"/>
+			<value value="2" name="OR"/>
+			<value value="3" name="XOR"/>
+		</bitfield>
+	</reg8>
+	<reg8 offset="0x4" name="READ_PLANE_SELECT"/>
+	<reg8 offset="0x5" name="MODE">
+		<bitfield low="0" high="1" name="WRITE">
+			<value value="0" name="RMW_CPU_LATCH"/>
+			<value value="1" name="COPY_LATCH"/>
+			<value value="2" name="WRITE_CPU_COLOR"/>
+			<value value="3" name="FILL_SR_PIXMASK"/>
+		</bitfield>
+		<bitfield pos="3" name="READ">
+			<value value="0" name="READ_PLANE"/>
+			<value value="1" name="READ_COMPARE"/>
+		</bitfield>
+		<bitfield pos="4" name="ODD_EVEN"/>
+		<bitfield pos="5" name="CGA4"/>
+		<bitfield pos="6" name="CHAIN4"/>
+	</reg8>
+	<reg8 offset="0x6" name="MISC">
+		<bitfield pos="0" name="MODE">
+			<value value="0" name="ALPHA"/>
+			<value value="1" name="GRAPHICS"/>
+		</bitfield>
+		<bitfield pos="1" name="ODD_EVEN"/>
+		<bitfield low="2" high="3" name="MAP_SELECT">
+			<value value="0" name="A0000_BFFFF"/>
+			<value value="1" name="A0000_AFFFF"/>
+			<value value="2" name="B0000_B7FFF"/>
+			<value value="3" name="B8000_BFFFF"/>
+		</bitfield>
+	</reg8>
+	<reg8 offset="0x7" name="COMPARE_IGNORE"/>
+	<reg8 offset="0x8" name="PIXMASK"/>
+</group>
+
 <group name="vga_cr">
 	<reg8 offset="0x00" name="CR00">
 		<bitfield low="0" high="7" name="HDT_0_7"/>
@@ -140,6 +259,24 @@
 	<reg8 offset="0x26" name="ARX" type="vga_arx"/>
 </group>
 
+<domain name="NV_AR" bare="yes" prefix="chipset">
+<stripe name="AR">
+	<use-group name="vga_ar"/>
+</stripe>
+</domain>
+
+<domain name="NV_SR" bare="yes" prefix="chipset">
+<stripe name="SR">
+	<use-group name="vga_sr"/>
+</stripe>
+</domain>
+
+<domain name="NV_GR" bare="yes" prefix="chipset">
+<stripe name="GR">
+	<use-group name="vga_gr"/>
+</stripe>
+</domain>
+
 <domain name="NV_CR" bare="yes" prefix="chipset">
 <stripe name="CR">
 	<use-group name="vga_cr"/>
@@ -157,7 +294,7 @@
 		<reg8 offset="0x3c5" name="SR"/>
 		<reg8 offset="0x3cc" name="MISC_R" access="r"/>
 		<reg8 offset="0x3ce" name="GRX"/>
-		<reg8 offset="0x3cf" name="GX"/>
+		<reg8 offset="0x3cf" name="GR"/>
 	</group>
 
 	<group name="nv_vga_cio">
