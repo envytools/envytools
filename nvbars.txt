@@ -16,6 +16,7 @@ The nvidia GPUs expose the following areas to the outside world through PCI:
  - legacy VGA ROM: 0xc0000-0xcffff [XXX: check this]
 
 
+
 PCI/PCIE configuration space
 
 Nvidia GPUs, like all PCI devices, have PCI configuration space. It contains:
@@ -47,7 +48,16 @@ On NV01:NV50 cards, PCI config space, or first 0x100 bytes of PCIE config
 space, are also mapped to MMIO register space at addresses 0x1800-0x18ff.
 On NV40+ cards, all 0x1000 bytes of PCIE config space are mapped to MMIO
 register space at addresses 0x88000-0x88fff. It's a bad idea to access config
-space addresses >= 0x100 on the original NV40, which isn't a PCIE device.
+space addresses >= 0x100 on NV40/NV45/NV4A.
+
+All NV01:NV40 cards, as well as NV40, NV45, NV4A are natively PCI/AGP devices,
+all other cards are natively PCIE devices. Some native AGP cards have PCIE
+variants, which consist of the PCIE GPU and a thin bridge between the GPU
+and the AGP bus. In the same way, native PCIE cards have AGP variants. On
+these devices, the BAR0 accesses will touch the underlying GPU's config space,
+but real PCI config cycles will be intercepted by the bridge, which will hide
+tha native bus type capability and expose the other one.
+[XXX: is that all?]
 
 Note that bus master functionality may need to be enabled for NV50+ VM
 circuitry to work even when only VRAM is being accessed. The reason for this
@@ -87,8 +97,9 @@ described in more detail in pmc.txt.
 
 BAR1: VRAM aperture
 
-This is an area of prefetchable memory that maps to the card's VRAM. On NV41+
-cards, it uses 64-bit addressing, on earlier ones it uses 32-bit addressing.
+This is an area of prefetchable memory that maps to the card's VRAM. On native
+PCIE cards, it uses 64-bit addressing, on native PCI/AGP ones it uses 32-bit
+addressing.
 
 On pre-NV50 cards and on NV50+ cards with BAR1 VM disabled, BAR addresses map
 directly to VRAM addresses. NV50+ cards additionally have a mode where all BAR
@@ -104,11 +115,10 @@ NV01: ???
 NV03: 16MB [with RAMIN]
 NV04: 16MB
 NV05: 32MB
-NV10-NV1A: 64MB
-NV17-NV1F, NV20 family: 128MB
+NV10, NV20 families: 128MB
 NV30, NV40, NV50 families: 256MB
 NVC0 family: 128MB
-[XXX: verify]
+[XXX: fuck, this is incorrect. straps?]
 
 Note that BAR size is independent from actual VRAM size, although on pre-NV40
 cards the BAR is guaranteed not to be smaller than VRAM. This means it's may
@@ -131,10 +141,11 @@ in 32-bit chunks like BAR0 if the big-endian switch is on. It's commonly
 used to map control structures for kernel use, while BAR1 is used to map
 user-accessible memory.
 
-The BAR uses 64-bit addressing on NV41+, 32-bit addressing on original NV40.
-It uses BAR2 slot on original NV40, BAR3 on NV41+. It is non-prefetchable
-memory on cards up to and including NVA0, prefetchable memory on NVAA+. The
-size is 16MB on NV40 family, 32MB on NV50 family, and 64MB on NVC0 family.
+The BAR uses 64-bit addressing on native PCIE cards, 32-bit addressing on
+native PCI/AGP. It uses BAR2 slot on native PCIE, BAR3 on native PCI/AGP.
+It is non-prefetchable memory on cards up to and including NVA0, prefetchable
+memory on NVAA+. The size is 16MB on NV40 family, 32MB on NV50 family, and
+64MB on NVC0 family.
 
 
 BAR2: NV03 indirect memory access
@@ -151,6 +162,7 @@ An area of IO ports used to access BAR0, BAR1, and BAR3 indirectly by real
 mode code that cannot map high memory addresses. Present on NV50+ cards.
 On earlier cards, the indirect access feature of VGA IO ports can be used
 instead.
+[XXX: It's present on some NV4x]
 
 This area is 0x80 bytes of IO ports, but only first 0x20 bytes are actually
 used; the rest are empty. The ports are all treated as 32-bit ports. They
