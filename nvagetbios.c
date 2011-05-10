@@ -28,9 +28,10 @@ static int nv_cksum(const uint8_t *data, unsigned int length)
 	for (i = 0; i < length; i++)
 		sum += data[i];
 
-	if (sum)
+	if (sum) {
+		fprintf(stderr, "Invalid checksum. Broken vbios or broken retrieval method?\n");
 		return ECRC;
-
+	}
 	return EOK;
 }
 
@@ -40,6 +41,7 @@ static int nv_checksignature(const uint8_t *data)
 
 	/* bail if no rom signature */
 	if (data[0] != 0x55 || data[1] != 0xaa) {
+		fprintf(stderr, "Invalid signature(0x55aa). You may want to try another retrieval method.\n");
 		return ESIG;
 	}
 
@@ -49,6 +51,8 @@ static int nv_checksignature(const uint8_t *data)
 	    data[pcir_ptr + 1] != 'C' ||
 	    data[pcir_ptr + 2] != 'I' ||
 	    data[pcir_ptr + 3] != 'R') {
+
+		fprintf(stderr, "Invalid signature(PCIR). You may want to try another retrieval method.\n");
 		return ESIG;
 	}
 
@@ -75,6 +79,8 @@ static int nv_ckbios(const uint8_t *data, int *length)
 
 	/* Check for a second vbios */
 	if (data[pcir_ptr + 0x15] == 0x80) {
+
+		fprintf(stderr, "Card has second bios\n");
 
 		ret = nv_checksignature(data + vbios_len);
 		if (ret != EOK)
@@ -226,6 +232,7 @@ int main(int argc, char **argv) {
 		fwrite(vbios, 1, length, stdout);
 	}
 
+/*
 	switch (result) {
 		case EOK:
 			fprintf(stderr, "Extraction done. Valid checksum.\n");
@@ -243,6 +250,6 @@ int main(int argc, char **argv) {
 			fprintf(stderr, "Method not supported by this card. Try another retrieval method.\n");
 			break;
 	}
-
+*/
 	return 0;
 }
