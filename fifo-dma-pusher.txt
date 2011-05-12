@@ -130,6 +130,17 @@ Note, however, that two different threads reading these values simultanously
 can interfere with each other. For this reason, the channel control area
 shouldn't ever be accessed by more than one thread at once, even for reading.
 
+On NV04:NV40 cards, the channel control area is in BAR0 at address 0x800000 +
+0x10000 * channel ID. On NV40, there are two BAR0 regions with channel control
+areas: the old-style is in BAR0 at 0x800000 + 0x10000 * channel ID, supports
+channels 0-0x1f [XXX: check], can do both PIO and DMA submission, but does not
+have DMA_CGET when used in DMA mode. The new-style area is in BAR0 at 0xc0000
++ 0x1000 * channel ID, supports only DMA mode, supports all channels, and has
+DMA_CGET. On NV50 cards, there's only one channel control area, and it's in
+BAR0 at address 0xc00000 + 0x2000 * channel ID. On NVC0, the channel control
+areas are accessed through selectable addresses in BAR1 and are backed by VRAM
+or host memory - see nvc0-pfifo.txt for more details.
+
 
 NV04-style mode
 

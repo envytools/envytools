@@ -408,3 +408,8 @@ Compression modes
 VM faults
 
 [XXX: write me]
+
+
+BAR1, BAR3, and the PEEPHOLE
+
+[XXX: write me]

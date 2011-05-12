@@ -56,8 +56,8 @@
 	</value>
 
 	<value value="0x30" name="NV30" />
-	<value value="0x31" name="NV31" />
 	<value value="0x35" name="NV35" />
+	<value value="0x31" name="NV31" />
 	<value value="0x36" name="NV36" />
 	<value value="0x34" name="NV34" />
 
@@ -67,7 +67,6 @@
 	<value value="0x43" name="NV43" />
 	<value value="0x45" name="NV45" />
 	<value value="0x47" name="NV47" />
-	<value value="0x48" name="NV48" />
 	<value value="0x49" name="NV49" />
 	<value value="0x4b" name="NV4B" />
 
@@ -76,7 +75,9 @@
 	<value value="0x4a" name="NV4A" />
 	<value value="0x4c" name="NV4C" />
 	<value value="0x4e" name="NV4E" />
+	<value value="0x63" name="NV63" />
 	<value value="0x67" name="NV67" />
+	<value value="0x68" name="NV68" />
 
 	<value value="0x50" name="NV50">
 		<brief>G80: GeForce 8800 GTX, Tesla *870, ...</brief>
