@@ -35,8 +35,15 @@
 			</bitfield>
 
 			<bitfield low="0" high="7" name="STEPPING" variants="NV10-"/>
-			<bitfield low="15" high="19" name="DEVICE_ID">
+			<bitfield low="16" high="19" name="DEVICE_ID" variants="NV10:NV92">
+				<doc>Equal to low 4 bits of PCI device id</doc>
+			</bitfield>
+			<bitfield low="15" high="19" name="DEVICE_ID" variants="NV92:NVD9">
 				<doc>Equal to low 5 bits of PCI device id</doc>
+			</bitfield>
+			<!-- XXX: variant transition uncertain: NVC8 is known to have 15:19, NVD9 has 12:17 -->
+			<bitfield low="12" high="17" name="DEVICE_ID" variants="NVD9-">
+				<doc>Equal to low 6 bits of PCI device id</doc>
 			</bitfield>
 			<bitfield low="20" high="27" name="CHIPSET" type="chipset" variants="NV10-">
 				<doc>The card chipset. This is THE two-digit hex

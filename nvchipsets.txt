@@ -21,13 +21,15 @@ and started using a different numbering. However, for the most part nvidia
 code names correspond 1 to 1 with the chipset ids.
 
 The chipset id has a one-to-many relationship with pci device ids. Note that
-the last few bits [0-4 depending on chipset id] of PCI device id are
+the last few bits [0-6 depending on chipset id] of PCI device id are
 changeable through straps [see pextdev.txt]. When pci ids of a chipset are
 listed in this file, the following shorthands are used:
 
 1234: PCI device id 0x1234
 1234*: PCI device ids 0x1234-0x1237, choosable by straps
 123X: PCI device ids 0x1230-0x123X, choosable by straps
+124X+: PCI device ids 0x1240-0x125X, choosable by straps
+124X*: PCI device ids 0x1240-0x127X, choosable by straps
 
 
 The card families
@@ -606,26 +608,17 @@ The pci vendor id is 0x10de. The pci device ids are:
 019X NV50
 040X NV84
 042X NV86
-060X NV92
-061X NV92
-062X NV94
-063X NV94
-064X NV96
-065X NV96
-06eX NV98
-06fX NV98
-05eX NVA0
-05fX NVA0
-084X NVAA
-086X NVAC
-087X NVAC
-0caX NVA3
-0cbX NVA3
-0a2X NVA5
-0a3X NVA5
-0a6X NVA8
-0a7X NVA8
-08aX NVAF
+060X+ NV92
+062X+ NV94
+064X+ NV96
+06eX+ NV98
+05eX+ NVA0
+084X+ NVAA
+086X+ NVAC
+0caX+ NVA3
+0a2X+ NVA5
+0a6X+ NVA8
+08aX+ NVAF
 
 The MMIO ranges for NV50 family are:
 
@@ -719,20 +712,14 @@ NVD9 [GF119]: 1:1:1:1
 
 The pci device ids are:
 
-06cX NVC0
-06dX NVC0
-0e2X NVC4
-0e3X NVC4
-0dcX NVC3
-0ddX NVC3
-0deX NVC1
-0dfX NVC1
-104X NVD9
-105X NVD9
-108X NVC8
-109X NVC8
-120X NVCE
-121X NVCE
+06cX+ NVC0
+0e2X+ NVC4
+0dcX+ NVC3
+0deX+ NVC1
+108X+ NVC8
+[XXX: could be 120X*]
+120X+ NVCE
+104X* NVD9
 
 The MMIO ranges for NVC0 family are:
 
