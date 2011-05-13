@@ -35,7 +35,9 @@
 			</bitfield>
 
 			<bitfield low="0" high="7" name="STEPPING" variants="NV10-"/>
-			<bitfield low="15" high="19" name="UNK15"/>
+			<bitfield low="15" high="19" name="DEVICE_ID">
+				<doc>Equal to low 5 bits of PCI device id</doc>
+			</bitfield>
 			<bitfield low="20" high="27" name="CHIPSET" type="chipset" variants="NV10-">
 				<doc>The card chipset. This is THE two-digit hex
 				number that goes after "NV".
@@ -182,7 +184,7 @@
 		<reg32 offset="0x644" name="INTR_UNK1_MASK" type="nv_pmc_intr" variants="NVA3-"/>
 		<reg32 offset="0x648" name="INTR_PDAEMON_MASK" type="nv_pmc_intr" variants="NVA3-"/>
 		<reg32 offset="0xa00" name="NEW_ID" variants="NV98 NVAA-">
-			<bitfield low="0" high="4" name="UNK15"/>
+			<bitfield low="0" high="4" name="DEVICE_ID"/>
 			<bitfield low="8" high="9" name="BOOT_2"/>
 			<bitfield low="12" high="19" name="STEPPING"/>
 			<bitfield low="20" high="27" name="CHIPSET" type="chipset"/>
