@@ -2,7 +2,7 @@ Nvidia GPU BARs, IO ports, and memory areas.
 
 The nvidia GPUs expose the following areas to the outside world through PCI:
 
- - PCI configuration space / PCIE extended configuration space [NV41+?]
+ - PCI configuration space / PCIE extended configuration space
  - MMIO registers: BAR0 - 0x1000000 bytes of memory
  - VRAM aperture: BAR1 - 0x1000000-0x10000000 bytes of memory depending on card type
  - indirect memory access IO ports: BAR2 - 0x100 bytes of IO port space [NV03 only]
@@ -31,7 +31,7 @@ Nvidia GPUs, like all PCI devices, have PCI configuration space. It contains:
 0x54-0x57: VGA legacy IO/memory ranges decoding enable - 1 to enable, 0 to
 	   disable
 0x60-0x67: PCI power management capability
-0x68-0x77: PCI MSI capability - 64-bit addressing, no mask [PCIE cards only]
+0x68-0x77: PCI MSI capability - 64-bit addressing, no mask [PCIE cards and NV40+ IGPs only]
 0x78-0x8b: PCI express capability - express endpoint [PCIE cards only]
 [XXX: NV40 has something at 0x98]
 
@@ -51,12 +51,16 @@ register space at addresses 0x88000-0x88fff. It's a bad idea to access config
 space addresses >= 0x100 on NV40/NV45/NV4A.
 
 All NV01:NV40 cards, as well as NV40, NV45, NV4A are natively PCI/AGP devices,
-all other cards are natively PCIE devices. Some native AGP cards have PCIE
-variants, which consist of the PCIE GPU and a thin bridge between the GPU
-and the AGP bus. In the same way, native PCIE cards have AGP variants. On
-these devices, the BAR0 accesses will touch the underlying GPU's config space,
-but real PCI config cycles will be intercepted by the bridge, which will hide
-tha native bus type capability and expose the other one.
+all other cards are natively PCIE devices. Pre-NV40 IGPs are connected through
+an internal AGP bus and are considered AGP devices, while NV40+ IGPs are
+connected by northbridge-internal interfaces and are *not* considered PCIE
+devices, thus lack the capability and extended config space. Some native AGP
+cards have PCIE variants, which consist of the PCIE GPU and a thin bridge
+between the GPU and the AGP bus, called BR02. In the same way, native PCIE
+cards have AGP variants. On these devices, the BAR0 accesses will touch the
+underlying GPU's config space, but real PCI config cycles will be intercepted
+by the bridge, which will hide tha native bus type capability and expose the
+other one, and show its own pciid instead of the GPU's.
 [XXX: is that all?]
 
 Note that bus master functionality may need to be enabled for NV50+ VM
