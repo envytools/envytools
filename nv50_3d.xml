@@ -344,7 +344,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0fbc" name="MSAA_MASK" length="4"/>
 		<reg32 offset="0x0fcc" name="CLIPID_ADDRESS_HIGH"/>
 		<reg32 offset="0x0fd0" name="CLIPID_ADDRESS_LOW"/>
-		<reg32 offset="0x0fd4" name="MAP_SEMANTIC_5">
+		<reg32 offset="0x0fd4" name="SEMANTIC_VIEWPORT">
 			<bitfield name="VIEWPORT_ID" high="7" low="0" type="int"/>
 		</reg32>
 		<reg32 offset="0x0fd8" name="UNK0FD8">
@@ -1047,24 +1047,24 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1880" name="VERTEX_ARRAY_PER_INSTANCE_ALT" length="32" type="boolean" variants="NVA3_3D-"/>
 		<reg32 offset="0x1900" name="GP_VIEWPORT_ID_ENABLE" type="boolean"/>
-		<reg32 offset="0x1904" name="MAP_SEMANTIC_0">
+		<reg32 offset="0x1904" name="SEMANTIC_COLOR">
 			<bitfield name="FFC0_ID" high="7" low="0" type="int"/>
 			<bitfield name="BFC0_ID" high="15" low="8" type="int"/>
 			<bitfield name="COLR_NR" high="23" low="16" type="int"/>
 			<bitfield name="CLMP_EN" pos="24" type="boolean"/>
 		</reg32>
-		<reg32 offset="0x1908" name="MAP_SEMANTIC_1">
+		<reg32 offset="0x1908" name="SEMANTIC_CLIP">
 			<bitfield name="CLIP_START" high="7" low="0" type="int"/>
 			<bitfield name="CLIP_NUM" high="11" low="8" type="int"/>
 		</reg32>
-		<reg32 offset="0x190c" name="MAP_SEMANTIC_2">
+		<reg32 offset="0x190c" name="SEMANTIC_LAYER">
 			<bitfield name="LAYER_ID" high="7" low="0" type="int"/>
 		</reg32>
-		<reg32 offset="0x1910" name="MAP_SEMANTIC_3">
+		<reg32 offset="0x1910" name="SEMANTIC_PTSZ">
 			<bitfield name="PTSZ_EN" pos="0" type="int"/>
 			<bitfield name="PTSZ_ID" high="11" low="4" type="int"/>
 		</reg32>
-		<reg32 offset="0x1914" name="MAP_SEMANTIC_4">
+		<reg32 offset="0x1914" name="SEMANTIC_PRIM_ID">
 			<bitfield name="PRIM_ID" high="7" low="0" type="int"/>
 		</reg32>
 		<reg32 offset="0x1918" name="CULL_FACE_ENABLE" type="boolean"/>
