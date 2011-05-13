@@ -3,11 +3,11 @@ Nvidia GPU BARs, IO ports, and memory areas.
 The nvidia GPUs expose the following areas to the outside world through PCI:
 
  - PCI configuration space / PCIE extended configuration space
- - MMIO registers: BAR0 - 0x1000000 bytes of memory
- - VRAM aperture: BAR1 - 0x1000000-0x10000000 bytes of memory depending on card type
+ - MMIO registers: BAR0 - memory, 0x1000000 bytes or more depending on card type
+ - VRAM aperture: BAR1 - memory, 0x1000000 bytes or more depending on card type
  - indirect memory access IO ports: BAR2 - 0x100 bytes of IO port space [NV03 only]
  - ???: BAR2 [only NV1x IGPs?]
- - RAMIN aperture: BAR2 or BAR3 - 0x1000000-0x2000000 bytes of memory depending on card type [NV40+]
+ - RAMIN aperture: BAR2 or BAR3 - memory, 0x1000000 bytes or more depending on card type [NV40+]
  - indirect memory access IO ports: BAR5 - 0x80 bytes of IO port space [NV50+]
  - PCI ROM aperture
  - PCI INTA interrupt line
@@ -34,6 +34,7 @@ Nvidia GPUs, like all PCI devices, have PCI configuration space. It contains:
 0x68-0x77: PCI MSI capability - 64-bit addressing, no mask [PCIE cards and NV40+ IGPs only]
 0x78-0x8b: PCI express capability - express endpoint [PCIE cards only]
 [XXX: NV40 has something at 0x98]
+[XXX: NVAA, NVAC, NVAF stolen memory regs at 0xf4+]
 
 And for PCIE cards only:
 
@@ -78,8 +79,8 @@ needed to fully control the cards.
 This space is a 16MB area of memory sparsely populated with areas representing
 individual engines, which in turn are sparsely populated with registers. The
 list of engines depends on card type. While there are no known registers
-outside 16MB range, some NV40 family cards [XXX: which?] have 64MB of space,
-and all NVC0+ cards have 32MB of space.
+outside 16MB range, the BAR itself can have a larger size on NV40+ cards if
+configured so by straps [see pstraps.txt].
 
 Its address is set up through PCI BAR 0. The BAR uses 32-bit addressing and
 is non-prefetchable memory.
@@ -119,10 +120,8 @@ NV01: ???
 NV03: 16MB [with RAMIN]
 NV04: 16MB
 NV05: 32MB
-NV10, NV20 families: 128MB
-NV30, NV40, NV50 families: 256MB
-NVC0 family: 128MB
-[XXX: fuck, this is incorrect. straps?]
+NV10-NV40: 64MB-512MB, set via straps [see pstraps.txt]
+NV50-NVC0: 64MB-64GB, set via straps [see pstraps.txt]
 
 Note that BAR size is independent from actual VRAM size, although on pre-NV40
 cards the BAR is guaranteed not to be smaller than VRAM. This means it's may
@@ -148,8 +147,8 @@ user-accessible memory.
 The BAR uses 64-bit addressing on native PCIE cards, 32-bit addressing on
 native PCI/AGP. It uses BAR2 slot on native PCIE, BAR3 on native PCI/AGP.
 It is non-prefetchable memory on cards up to and including NVA0, prefetchable
-memory on NVAA+. The size is 16MB on NV40 family, 32MB on NV50 family, and
-64MB on NVC0 family.
+memory on NVAA+. The size is at least 16MB and is set via straps
+[see pstraps.txt].
 
 
 BAR2: NV03 indirect memory access
@@ -165,7 +164,7 @@ BAR5: NV50 indirect memory access
 An area of IO ports used to access BAR0, BAR1, and BAR3 indirectly by real
 mode code that cannot map high memory addresses. Present on NV50+ cards.
 On earlier cards, the indirect access feature of VGA IO ports can be used
-instead.
+instead. This BAR can also be disabled via straps [see pstraps.txt].
 [XXX: It's present on some NV4x]
 
 This area is 0x80 bytes of IO ports, but only first 0x20 bytes are actually
@@ -210,7 +209,7 @@ video output on pre-NV50 cards. If shadow is enabled, EEPROM is disabled,
 PROM reads will return garbage, and PCI ROM aperture will access the VRAM
 shadow copy of BIOS. On pre-NV50 cards, the shadow BIOS is located at address
 0 of RAMIN, on NV50+ cards the shadow bios is pointed to by
-PDISPLAY.VGA.ROM_WINDOW register - see nv50_pdisplay.txt for details.
+PDISPLAY.VGA.ROM_WINDOW register - see pdisplay.txt for details.
 
 
 INTA: the card interrupt

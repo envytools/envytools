@@ -87,7 +87,7 @@
 			<bitfield pos="18" name="PTHERM"/>
 			<bitfield pos="20" name="PCODEC"/>
 			<bitfield pos="21" name="PCONNECTOR_UNK137"/>
-			<bitfield pos="22" name="PCONNECTOR_PEXTDEV_PROM"/>
+			<bitfield pos="22" name="PCONNECTOR_PSTRAPS_PROM"/>
 			<bitfield pos="23" name="PMASTER"/>
 			<bitfield pos="24" name="PGUNK13B_2C00"/>
 			<bitfield pos="25" name="PFFB"/>

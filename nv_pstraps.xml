@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+<bitset name="nv03_straps" inline="yes">
+	<bitfield pos="0" name="PCI_66MHZ"/>
+	<bitfield pos="1" name="PCI_SUB_BIOS"/>
+	<bitfield low="2" high="3" name="RAMCFG" variants="NV03:NV03P"/>
+	<bitfield pos="2" name="RAMCFG" variants="NV03P:NV04" type="hex"/>
+	<bitfield pos="3" name="PM_CAP" variants="NV03P:NV04"/>
+	<bitfield pos="4" name="RAM_WIDTH">
+		<value value="0" name="64"/>
+		<value value="1" name="128"/>
+	</bitfield>
+	<bitfield pos="5" name="BUS_TYPE">
+		<value value="0" name="PCI"/>
+		<value value="1" name="AGP"/>
+	</bitfield>
+	<bitfield pos="6" name="CRYSTAL">
+		<value value="0" name="13D5MHZ"/>
+		<value value="1" name="14D31818MHZ"/>
+	</bitfield>
+	<bitfield low="7" high="8" name="TV_MODE">
+		<value value="0" name="NONE"/>
+		<value value="1" name="NTSC"/>
+		<value value="2" name="PAL"/>
+	</bitfield>
+	<bitfield pos="9" name="PCI21" variants="NV03:NV03P"/>
+	<bitfield pos="9" name="AGPX2" variants="NV03P:NV04"/>
+</bitset>
+
+<bitset name="nv04_straps" inline="yes">
+	<bitfield pos="0" name="PCI_AD" variants="NV04:NV40 NV40 NV45 NV4A">
+		<value value="0" name="REVERSED"/>
+		<value value="1" name="NORMAL"/>
+	</bitfield>
+	<bitfield pos="1" name="PCI_SUB_BIOS"/>
+	<bitfield low="2" high="5" name="RAMCFG"/>
+	<bitfield pos="6" name="CRYSTAL_0" type="hex"/>
+	<bitfield low="7" high="8" name="TV_MODE">
+		<value value="0" name="SECAM"/>
+		<value value="1" name="NTSC"/>
+		<value value="2" name="PAL"/>
+		<value value="3" name="NONE"/>
+	</bitfield>
+	<bitfield pos="9" name="AGPX4" variants="NV04:NV40 NV40 NV45 NV4A"/>
+	<bitfield pos="10" name="AGP_SBA" variants="NV04:NV40 NV40 NV45 NV4A"/>
+	<bitfield pos="11" name="AGP_FASTWR" variants="NV04:NV40 NV40 NV45 NV4A"/>
+	<bitfield low="12" high="13" name="DEVID_0_1"/>
+	<bitfield pos="14" name="BUS_TYPE">
+		<value value="0" name="PCI"/>
+		<value value="1" name="AGP"/>
+	</bitfield>
+	<bitfield pos="15" name="FP_WIDTH">
+		<value value="0" name="12"/>
+		<value value="1" name="24"/>
+	</bitfield>
+	<bitfield low="16" high="19" name="FP_CONFIG" variants="NV17:NV20 NV25-"/>
+	<bitfield low="20" high="21" name="DEVID_2_3" variants="NV17:NV20 NV25-"/>
+	<bitfield pos="22" name="CRYSTAL_1" type="hex" variants="NV17:NV20 NV25-"/>
+</bitset>
+
+<bitset name="nv40_straps1" inline="yes">
+</bitset>
+
+<bitset name="nv50_straps0" inline="yes">
+	<bitfield pos="1" name="PCI_SUB_BIOS"/>
+	<bitfield low="2" high="5" name="RAMCFG"/>
+	<bitfield low="10" high="13" name="DEVICE_ID_0_3"/>
+	<bitfield low="14" high="15" name="BAR1_SIZE">
+		<value value="0" name="64MB"/>
+		<value value="1" name="128MB"/>
+		<value value="2" name="256MB"/>
+		<value value="3" name="512MB"/>
+	</bitfield>
+	<bitfield pos="28" name="DEVICE_ID_4" type="hex" variants="NV92-"/>
+</bitset>
+
+<bitset name="nv50_straps1" inline="yes">
+	<bitfield pos="16" name="BAR5_ENABLE"/>
+	<bitfield low="17" high="19" name="BAR0_SIZE_SHL"/>
+	<bitfield low="20" high="22" name="BAR1_SIZE_SHL"/>
+	<bitfield pos="23" name="BAR3_SIZE">
+		<value value="0" name="BAR0_SIZE_X2"/>
+		<value value="1" name="BAR0_SIZE"/>
+	</bitfield>
+</bitset>
+
+<array offset="0x101000" name="PSTRAPS" stride="0x1000" length="1">
+	<reg32 offset="0x000" name="STRAPS" variants="NV03:NV40">
+		<bitfield low="0" high="30" name="VALUE" type="nv03_straps" variants="NV03:NV04"/>
+		<bitfield low="0" high="30" name="VALUE" type="nv04_straps" variants="NV04:NV40"/>
+		<bitfield pos="31" name="OVERRIDE_ENABLE" variants="NV04-"/>
+	</reg32>
+	<stripe variants="NV40:NV50">
+		<reg32 offset="0x000" name="STRAPS0_PRIMARY">
+			<bitfield low="0" high="30" name="VALUE" type="nv04_straps"/>
+			<bitfield pos="31" name="OVERRIDE_ENABLE"/>
+		</reg32>
+		<reg32 offset="0x004" name="STRAPS0_SELECT" type="nv04_straps"/>
+		<reg32 offset="0x008" name="STRAPS0_SECONDARY" type="nv04_straps"/>
+		<reg32 offset="0x00c" name="STRAPS1_PRIMARY">
+			<bitfield low="0" high="30" name="VALUE" type="nv40_straps1"/>
+			<bitfield pos="31" name="OVERRIDE_ENABLE"/>
+		</reg32>
+		<reg32 offset="0x010" name="STRAPS1_SELECT" type="nv40_straps1"/>
+		<reg32 offset="0x014" name="STRAPS1_SECONDARY" type="nv40_straps1"/>
+	</stripe>
+	<stripe variants="NV50:NVC0">
+		<reg32 offset="0x000" name="STRAPS0_PRIMARY">
+			<bitfield low="0" high="30" name="VALUE" type="nv50_straps0"/>
+			<bitfield pos="31" name="OVERRIDE_ENABLE"/>
+		</reg32>
+		<reg32 offset="0x004" name="STRAPS0_SELECT" type="nv50_straps0"/>
+		<reg32 offset="0x008" name="STRAPS0_SECONDARY" type="nv50_straps0"/>
+		<reg32 offset="0x00c" name="STRAPS1_PRIMARY">
+			<bitfield low="0" high="30" name="VALUE" type="nv50_straps1"/>
+			<bitfield pos="31" name="OVERRIDE_ENABLE"/>
+		</reg32>
+		<reg32 offset="0x010" name="STRAPS1_SELECT" type="nv50_straps1"/>
+		<reg32 offset="0x014" name="STRAPS1_SECONDARY" type="nv50_straps1"/>
+	</stripe>
+</array>
+
+</domain>
+
+</database>
