@@ -112,7 +112,7 @@
 		<reg32 offset="0x010" name="STRAPS1_SELECT" type="nv40_straps1"/>
 		<reg32 offset="0x014" name="STRAPS1_SECONDARY" type="nv40_straps1"/>
 	</stripe>
-	<stripe variants="NV50:NVC0">
+	<stripe variants="NV50-">
 		<reg32 offset="0x000" name="STRAPS0_PRIMARY">
 			<bitfield low="0" high="30" name="VALUE" type="nv50_straps0"/>
 			<bitfield pos="31" name="OVERRIDE_ENABLE"/>
