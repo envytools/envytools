@@ -120,8 +120,9 @@ NV01: ???
 NV03: 16MB [with RAMIN]
 NV04: 16MB
 NV05: 32MB
-NV10-NV40: 64MB-512MB, set via straps [see pstraps.txt]
-NV50-NVC0: 64MB-64GB, set via straps [see pstraps.txt]
+NV10:NV17: 128MB
+NV17:NV50: 64MB-512MB, set via straps [see pstraps.txt]
+NV50-: 64MB-64GB, set via straps [see pstraps.txt]
 
 Note that BAR size is independent from actual VRAM size, although on pre-NV40
 cards the BAR is guaranteed not to be smaller than VRAM. This means it's may
