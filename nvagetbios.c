@@ -78,7 +78,7 @@ static int nv_ckbios(const uint8_t *data, int *length)
 	pcir_ptr = data[0x18] | data[0x19] << 8;
 
 	/* Check for a second vbios */
-	if (data[pcir_ptr + 0x15] == 0x80) {
+	if (!(data[pcir_ptr + 0x15] & 0x80)) {
 
 		fprintf(stderr, "Card has second bios\n");
 
