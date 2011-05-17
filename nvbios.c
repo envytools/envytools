@@ -28,6 +28,9 @@ uint32_t strap = 0;
 	} while(0)
 
 uint32_t bmpoffset = 0;
+uint16_t bmpver = 0;
+uint8_t bmpver_min;
+uint8_t bmpver_maj;
 uint32_t bitoffset = 0;
 uint32_t dcboffset = 0;
 uint32_t i2coffset = 0;
@@ -582,11 +585,17 @@ int main(int argc, char **argv) {
 	dcboffset = le16(0x36);
 	printf ("\n");
 	if (bmpoffset) {
-		parse_bios_version(bmpoffset + 10);
-		printf ("BMP at %x\n", bmpoffset);
+		bmpver_maj = bios[bmpoffset+5];
+		bmpver_min = bios[bmpoffset+6];
+		bmpver = bmpver_maj << 8 | bmpver_min;
+		printf ("BMP %02x.%02x at %x\n", bmpver_maj, bmpver_min, bmpoffset);
 		printf ("\n");
-		pm_mode_tbl_ptr = le16(bmpoffset + 148);
-		voltage_tbl_ptr = le16(bmpoffset + 152);
+		parse_bios_version(bmpoffset + 10);
+		printhex(bmpoffset, 256);
+		if (bmpver >= 0x527) {
+			pm_mode_tbl_ptr = le16(bmpoffset + 148);
+			voltage_tbl_ptr = le16(bmpoffset + 152);
+		}
 	}
 	if (bitoffset) {
 		int maxentry = bios[bitoffset+10];
