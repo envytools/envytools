@@ -1695,8 +1695,8 @@ static struct insn tabm[] = {
 	{ 0xc800000000000084ull, 0xf800000000000087ull, N("vmax"), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
 	{ 0xd000000000000004ull, 0xf800000000000007ull, N("vabsdiff"), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
 	{ 0xd800000000000004ull, 0xf800000000000007ull, N("vset"), T(vdst), DST, T(acout30), T(vsetop), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
-	{ 0xe000000000000004ull, 0xf800000000000007ull, N("vshr"), T(vsclamp), T(sat9), T(vdst), T(us32_2a), T(acout30), DST, T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
-	{ 0xe800000000000004ull, 0xf800000000000007ull, N("vshl"), T(vsclamp), T(sat9), T(vdst), T(us32_2a), T(acout30), DST, T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
+	{ 0xe000000000000004ull, 0xf800000000000007ull, N("vshr"), T(vsclamp), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
+	{ 0xe800000000000004ull, 0xf800000000000007ull, N("vshl"), T(vsclamp), T(sat9), T(vdst), T(us32_2a), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
 	{ 0xf000000000000004ull, 0xf800000000000007ull, N("vmad"), T(vmop), T(sat9), T(vmshr), DST, T(acout30), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), SRC3  },
 	{ 0xf800000000000004ull, 0xf800000000000007ull, N("vset"), PDST, PDSTN, T(vsetop), T(vsrc1), T(us32_6), SRC1, T(vsrc2), T(us32_5), T(vs2), T(setlop)  },
 
