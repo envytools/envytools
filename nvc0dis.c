@@ -1599,11 +1599,11 @@ static struct insn tabm[] = {
 	{ 0x0000000000000001ull, 0x0000000000000007ull, OOPS, T(farm), N("f64"), DSTD, SRC1D, T(ds2), SRC3D },
 
 
-	{ 0x0000000000000002ull, 0xf800000000000007ull, T(addop), DST, T(acout3a), N("mul"), T(high6), T(us32_7), SRC1, T(us32_5), LIMM, SRC3 },
+	{ 0x0000000000000002ull, 0xf800000000000007ull, T(addop), DST, T(acout3a), N("mul"), T(high6), T(us32_7), SRC1, T(us32_5), LIMM, DST },
 	{ 0x0800000000000002ull, 0xf800000000000007ull, T(addop), T(sat5), N("b32"), DST, T(acout3a), SRC1, LIMM, T(acin6) },
 	{ 0x1000000000000002ull, 0xf800000000000007ull, N("mul"), T(high6), DST, T(acout3a), T(us32_7), SRC1, T(us32_5), LIMM },
 	{ 0x1800000000000002ull, 0xf800000000000007ull, T(lane), N("mov"), N("b32"), DST, LIMM },
-	{ 0x2000000000000002ull, 0xf800000000000007ull, N("add"), T(ftz6), T(sat5), T(farm), N("f32"), DST, T(acout3a), T(neg9), N("mul"), T(fmz7), SRC1, LIMM, T(neg8), SRC3 },
+	{ 0x2000000000000002ull, 0xf800000000000007ull, N("add"), T(ftz6), T(sat5), T(farm), N("f32"), DST, T(acout3a), T(neg9), N("mul"), T(fmz7), SRC1, LIMM, T(neg8), DST },
 	{ 0x2800000000000002ull, 0xf800000000000007ull, N("add"), T(ftz5), N("f32"), DST, T(acout3a), T(neg9), T(abs7), SRC1, LIMM },
 	{ 0x3000000000000002ull, 0xf800000000000007ull, N("mul"), T(fmz7), T(ftz6), T(sat5), N("f32"), DST, T(acout3a), SRC1, LIMM },
 	{ 0x3800000000000002ull, 0xf800000000000007ull, T(logop), N("b32"), DST, T(acout3a), T(not9), SRC1, T(not8), LIMM, T(acin5) },
