@@ -917,6 +917,7 @@ F1(pnot2, 0x1d, N("not"))
 F1(pnot3, 0x34, N("not"))
 F1(pnotn, 0x18, N("not"))
 
+F1(outa, 0x9, N("out")) // read outputs to a[] from parallel tess control shader
 F1(patch, 0x8, N("patch"))
 F1(emit, 0x5, N("emit"))
 F1(restart, 0x6, N("restart"))
@@ -1742,7 +1743,7 @@ static struct insn tabm[] = {
 
 	{ 0x0000000000000006ull, 0xfc00000000000007ull, N("ld"), DST, VBASRC },
 	/* XXX: what was bit 0x39 for, again? */
-	{ 0x0400000000000006ull, 0xfc00000000000007ull, N("ld"), T(patch), T(ldvf), ADST, ATTR, SRC2 },
+	{ 0x0400000000000006ull, 0xfc00000000000007ull, N("ld"), T(patch), T(ldvf), ADST, T(outa), ATTR, SRC2 },
 	{ 0x0800000000000006ull, 0xfc00000000000007ull, N("st"), T(patch), T(ldvf), ATTR, ASRC, SRC3 },
 	{ 0x1000000000000006ull, 0xfc00000000000007ull, N("pixinfo"), DST, PDST3, T(pixinfo), PIX },
 	{ 0x1400000000000006ull, 0xfc00000000000007ull, N("ld"), T(ldstt), T(ldstd), FCONST },
