@@ -293,7 +293,6 @@ The MMIO ranges for NV10, NV20 and NV30 families are:
 000000:001000 PMC - card master control [pmc.txt]
 001000:002000 PBUS - bus control [pbus.txt]
 002000:004000 PFIFO - MMIO and DMA FIFO submission to PGRAPH and VPE [nv04-pfifo.txt]
-004000:005000 PCLOCK - PLL control [NV30+] [nv30-pclock.txt]
 005000:006000 ???
 007000:008000 PRMA - access to BAR0/BAR1 from real mode [nvvga.txt]
 008000:009000 PVIDEO - video overlay [nv10-pvideo.txt]
@@ -366,13 +365,14 @@ NV30 family: NV30, NV35, NV31, NV36, NV34
 The infamous GeForce FX series. Notable changes:
 
 NV30:
+ - 2-stage PLLs introduced [still located in PRAMDAC]
  - max VRAM size bumped to 256MB
- - redesigned clock setup
  - 3d engine extensions:
   - programmable fragment shader support
   - D3D9, shader model 2.0
  - added PEEPHOLE indirect memory access
 NV31:
+ - 2-stage PLLs split into two registers
  - VPE engine extended to work as a PFIFO engine
 [XXX: um... anything else noteworthy?]
 
@@ -412,6 +412,7 @@ NV40:
  - RAMIN reversal unit bumped to 512kB
  - 3d engine: support for shader model 3 and other additions
  - PGRAPH context switching microcode
+ - redesigned clock setup
  - separate clock for shaders
  - rearranged PCOUNTER to handle up to 8 clock domains
  - PFIFO cache bumped in size and moved location
@@ -499,7 +500,7 @@ The MMIO ranges for NV40 family are:
 000000:001000 PMC - card master control [pmc.txt]
 001000:002000 PBUS - bus control [pbus.txt]
 002000:004000 PFIFO - MMIO and DMA FIFO submission to execution engines [nv04-pfifo.txt]
-004000:005000 PCLOCK - PLL control [nv30-pclock.txt]
+004000:005000 PCLOCK - PLL control [nv40-pclock.txt]
 005000:006000 ???
 007000:008000 PRMA - access to BAR0 from real mode [nvvga.txt]
 008000:009000 PVIDEO - video overlay [nv10-pvideo.txt]
@@ -625,7 +626,7 @@ The MMIO ranges for NV50 family are:
 000000:001000 PMC - card master control [pmc.txt]
 001000:002000 PBUS - bus control [pbus.txt]
 002000:004000 PFIFO - DMA FIFO submission to execution engines [nv50-pfifo.txt]
-004000:005000 PCLOCK - PLL control [nv30-pclock.txt]
+004000:005000 PCLOCK - PLL control [nv40-pclock.txt]
 005000:006000 ???
 007000:008000 PRMA - access to BAR0 from real mode [nvvga.txt]
 009000:00a000 PTIMER - time measurement and time-based alarms [ptimer.txt]

@@ -31,8 +31,8 @@
 	<!-- XXX: wtf is that DLL thing? -->
 	<reg32 offset="0x500" name="DLL" variants="NV03:NV04" type="nv03_pll"/>
 	<reg32 offset="0x500" name="NVPLL" variants="NV04:NV30 NV35:NV40" type="nv03_pll"/>
-	<reg32 offset="0x504" name="MPLL" variants="NV03:NV30 NV35:NV40" type="nv03_pll"/>
-	<reg32 offset="0x508" name="VPLL" variants="NV03:NV30 NV35:NV40" type="nv03_pll"/>
+	<reg32 offset="0x504" name="MPLL" variants="NV03:NV30 NV31:NV40" type="nv03_pll"/>
+	<reg32 offset="0x508" name="VPLL" variants="NV03:NV30 NV31:NV50" type="nv03_pll"/>
 	<reg32 offset="0x500" name="NVPLL" variants="NV30:NV31" type="nv30_pll"/>
 	<reg32 offset="0x504" name="MPLL" variants="NV30:NV31" type="nv30_pll"/>
 	<reg32 offset="0x508" name="VPLL" variants="NV30:NV31" type="nv30_pll"/>
@@ -55,18 +55,30 @@
 			<value value="0" name="XTAL"/>
 			<value value="1" name="VIP"/>
 		</bitfield>
-		<bitfield pos="8" name="MPLL_PROG" variants="NV04:NV1A NV17:NV1F NV20:NV30"/>
+		<bitfield pos="2" name="USE_VPLL2" variants="NV11:NV50"/>
+		<bitfield pos="4" name="UNK4" variants="NV17:NV50"/>
+		<bitfield pos="8" name="MPLL_PROG" variants="NV04:NV1A NV17:NV1F NV20:NV40"/>
 		<bitfield pos="9" name="VPLL_PROG" variants="NV04:NV50"/>
-		<bitfield pos="10" name="NVPLL_PROG" variants="NV04:NV30"/>
-		<bitfield pos="16" name="VS_PCLK_TV_VSCLK"/>
-		<bitfield pos="17" name="VS_PCLK_TV_PCLK"/>
-		<bitfield pos="20" name="TVCLK_SOURCE">
+		<bitfield pos="10" name="NVPLL_PROG" variants="NV04:NV40"/>
+		<bitfield pos="11" name="VPLL2_PROG" variants="NV11:NV50"/>
+		<bitfield pos="16" name="TV_VSCLK"/>
+		<bitfield pos="17" name="TV_PCLK"/>
+		<bitfield pos="18" name="TV_VSCLK2" variants="NV11:NV50"/>
+		<bitfield pos="19" name="TV_PCLK2" variants="NV11:NV50"/>
+		<bitfield pos="20" name="TVCLK_SOURCE" variants="NV04:NV17">
 			<value value="0" name="EXT"/>
 			<value value="1" name="VIP"/>
 		</bitfield>
 		<bitfield pos="24" name="TVCLK_DB2"/>
 		<bitfield pos="28" name="VCLK_DB2"/>
+		<bitfield pos="29" name="VCLK2_DB2" variants="NV11:NV20 NV25:NV50"/>
 	</reg32>
+	<reg32 offset="0x520" name="VPLL2" variants="NV11:NV20 NV25:NV30 NV31:NV50" type="nv03_pll"/>
+	<reg32 offset="0x520" name="VPLL2" variants="NV30:NV31" type="nv30_pll"/>
+	<reg32 offset="0x570" name="NVPLL_S2" variants="NV31:NV34" type="nv31_pll_s2"/>
+	<reg32 offset="0x574" name="MPLL_S2" variants="NV31:NV34" type="nv31_pll_s2"/>
+	<reg32 offset="0x578" name="VPLL_S2" variants="NV31:NV34" type="nv31_pll_s2"/>
+	<reg32 offset="0x57c" name="VPLL2_S2" variants="NV31:NV34" type="nv31_pll_s2"/>
 </group>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
