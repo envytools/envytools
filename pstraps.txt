@@ -129,7 +129,11 @@ crystal type is:
 
 set 1:
 bit 0: enables OHCI 1394 controller on PCI function 1 [NV17 and NV18 only]
-bits 1-30: ?
+bits 1-3: ?
+bit 4: pci device class
+	0: 0x030200 [3d controller]
+	1: 0x030000 [vga controller]
+bits 5-30: ?
 
 
 NV50 and NVC0 families straps sets
@@ -151,7 +155,11 @@ bit 28: DEVICE_ID bit 4 [NV92-]
 bits 29-30: ?
 
 set 1:
-bits 0-15: ?
+bits 0-3: ?
+bit 4: pci device class
+	0: 0x030200 [3d controller]
+	1: 0x030000 [vga controller]
+bits 5-15: ?
 16: BAR5 enable
 17-19: BAR0 size
 	0 16MB

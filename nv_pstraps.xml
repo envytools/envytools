@@ -88,6 +88,10 @@
 
 <bitset name="nv17_straps1" inline="yes">
 	<bitfield pos="0" name="FIREWIRE" variants="NV17:NV1F"/>
+	<bitfield pos="4" name="PCI_CLASS">
+		<value value="0" name="VGA_CONTROLLER"/>
+		<value value="1" name="3D_CONTROLLER"/>
+	</bitfield>
 </bitset>
 
 <bitset name="nv50_straps0" inline="yes">
@@ -105,6 +109,10 @@
 </bitset>
 
 <bitset name="nv50_straps1" inline="yes">
+	<bitfield pos="4" name="PCI_CLASS">
+		<value value="0" name="VGA_CONTROLLER"/>
+		<value value="1" name="3D_CONTROLLER"/>
+	</bitfield>
 	<bitfield pos="16" name="BAR5_ENABLE"/>
 	<bitfield low="17" high="19" name="BAR0_SIZE_SHL"/>
 	<bitfield low="20" high="22" name="BAR1_SIZE_SHL"/>
