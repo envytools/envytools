@@ -13,6 +13,16 @@
 	<bitfield low="16" high="18" name="P"/>
 </bitset>
 
+<bitset name="nv30_pll" inline="yes">
+	<bitfield low="0" high="3" name="M1"/>
+	<bitfield low="4" high="6" name="M2"/>
+	<bitfield pos="7" name="NM2_ENABLE"/>
+	<bitfield low="8" high="15" name="N1"/>
+	<bitfield low="16" high="18" name="P"/>
+	<bitfield low="19" high="21" name="N2_0_2"/>
+	<bitfield low="24" high="21" name="N2_3_4"/>
+</bitset>
+
 <group name="nv_pramdac">
 	<reg32 offset="0x300" name="CURSOR_POS">
 		<bitfield low="0" high="15" name="X"/>
@@ -20,9 +30,12 @@
 	</reg32>
 	<!-- XXX: wtf is that DLL thing? -->
 	<reg32 offset="0x500" name="DLL" variants="NV03:NV04" type="nv03_pll"/>
-	<reg32 offset="0x500" name="NVPLL" variants="NV04:NV30" type="nv03_pll"/>
-	<reg32 offset="0x504" name="MPLL" variants="NV03:NV30" type="nv03_pll"/>
-	<reg32 offset="0x508" name="VPLL" variants="NV03:NV50" type="nv03_pll"/>
+	<reg32 offset="0x500" name="NVPLL" variants="NV04:NV30 NV35:NV40" type="nv03_pll"/>
+	<reg32 offset="0x504" name="MPLL" variants="NV03:NV30 NV35:NV40" type="nv03_pll"/>
+	<reg32 offset="0x508" name="VPLL" variants="NV03:NV30 NV35:NV40" type="nv03_pll"/>
+	<reg32 offset="0x500" name="NVPLL" variants="NV30:NV31" type="nv30_pll"/>
+	<reg32 offset="0x504" name="MPLL" variants="NV30:NV31" type="nv30_pll"/>
+	<reg32 offset="0x508" name="VPLL" variants="NV30:NV31" type="nv30_pll"/>
 	<reg32 offset="0x50c" name="PLL_CONTROL" variants="NV03:NV04">
 		<bitfield pos="0" name="DLL_PROG"/>
 		<bitfield pos="4" name="DLL_BYPASS"/>
