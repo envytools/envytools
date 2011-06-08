@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+<array offset="0x4000" name="PCLOCK" stride="0x1000" variants="NV40:NVC0" length="1">
+</array>
+
+<array offset="0xc000" name="PCONTROL" stride="0x1000" variants="NV40:NVC0" length="1">
+</array>
+
+</domain>
+
+</database>

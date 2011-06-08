@@ -222,7 +222,8 @@
 <import file="nv50_pfifo.xml" />
 <import file="nvc0_pfifo.xml" />
 
-<!-- 004000 - 004fff ??? -->
+<!-- 004000 - 004fff PCLOCK -->
+<import file="nv40_pclock.xml" />
 
 <!-- 005000 - 005fff ??? -->
 
@@ -239,7 +240,7 @@
 <!-- 00b000 - 00bfff PVPE -->
 <import file="nv17_pvpe.xml" />
 
-<!-- 00c000 - 00cfff ??? -->
+<!-- 00c000 - 00cfff PCONTROL covered in nv40_pclock.xml -->
 
 <!-- 00d000 - 00dfff PTV -->
 <import file="nv17_ptv.xml" />
