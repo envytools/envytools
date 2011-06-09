@@ -1,10 +1,12 @@
 #include "nva.h"
 #include <stdio.h>
-#include <assert.h>
 #include <pciaccess.h>
 
 int main() {
-	assert(!nva_init());
+	if (nva_init()) {
+		fprintf (stderr, "PCI init failure!\n");
+		return 1;
+	}
 	int i;
 	for (i = 0; i < nva_cardsnum; i++)
 		printf ("%d: %04x:%02x:%02x.%x NV%02X%s %08x\n", i,

@@ -1,6 +1,5 @@
 #include "nva.h"
 #include <stdio.h>
-#include <assert.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
@@ -127,7 +126,10 @@ int main(int argc, char **argv) {
 	int cnum = 0;
 	int result = 0;
 
-	assert(!nva_init());
+	if (nva_init()) {
+		fprintf (stderr, "PCI init failure!\n");
+		return 1;
+	}
 
 	/* Arguments parsing */
 	while ((c = getopt (argc, argv, "hc:")) != -1)

@@ -1,10 +1,12 @@
 #include "nva.h"
 #include <stdio.h>
-#include <assert.h>
 #include <unistd.h>
 
 int main(int argc, char **argv) {
-	assert(!nva_init());
+	if (nva_init()) {
+		fprintf (stderr, "PCI init failure!\n");
+		return 1;
+	}
 	int c;
 	int cnum =0;
 	while ((c = getopt (argc, argv, "c:")) != -1)
