@@ -46,7 +46,7 @@ target_link_libraries(nvapoke8 nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvagetbios nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvafakebios nva ${PC_PCIACCESS_LIBRARIES})
 
-install(TARGETS envydis demmio headergen nvbios envy rnn envyas dedma
+install(TARGETS envydis demmio headergen nvbios envy rnn envyas dedma nva nvalist nvapeek nvapoke nvapeek8 nvapoke8 nvagetbios nvafakebios
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
 	ARCHIVE DESTINATION lib${LIB_SUFFIX})
