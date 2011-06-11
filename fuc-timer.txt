@@ -13,50 +13,14 @@ Time-related registers overview
 
 As seen in [fuc-io.txt], these registers can be accessed both from
 host (using MMIO areas in BAR0) and fuc (using io* instructions).
-The addresses of the relevant registers are detailed bellow.
 
-host/I[] address / name / file
-
-Common registers:
-020/00800  PERIODIC_PERIOD	periodic timer period
-024/00900  PERIODIC_TIME	periodic timer counter
-028/00a00  PERIODIC_ENABLE	periodic interrupt en
-02c/00b00  TIME_LOW		PTIMER time low
-030/00c00  TIME_HIGH		PTIMER time high
-034/00d00  WATCHDOG_TIME	watchdog timer counter
-038/00e00  WATCHDOG_ENABLE	watchdog interrupt en
-
-
-Reading PTIMER's clock
-
-PTIMER's clock is a 64 bits value that is spread on two registers:
-
-- TIME_LOW: The lower part of PTIMER's clock
-- TIME_HIGH: The higher part of PTIMER's clock
-
-In order to accurately read the clock, the following code should be used:
-
-uint32 high1, high2, low;
-
-do
-{
-	high1 = iord(TIME_HIGH);
-	low = iord(TIME_LOW);
-	high2 = iord(TIME_HIGH);
-} while(high1 != high2);
-
-This code works the mutual dependency. Without it, there could be some reading
-errors of 32 bits:
-
- - TIME_LOW is read, overflows and then TIME_HIGH is read
- - TIME_HIGH is read, TIME_LOW overflows, TIME_LOW is read
 
 MMIO 0x020 / I[0x00800]: PERIODIC_PERIOD
 MMIO 0x024 / I[0x00900]: PERIODIC_TIME
 MMIO 0x028 / I[0x00a00]: PERIODIC_ENABLE
 
 Fuc engines all have a periodic timer. This timer generates an interrupt
-periodically on the line 0.
+periodically on line 0.
 
 More technically, this happens when PERIODIC_TIME reaches 0. This register
 is decremented after each PTIMER's tick unless PERIODIC_ENABLE is clear.
@@ -65,13 +29,22 @@ The periodicity can be setup by setting the PERIODIC_PERIOD register to the numb
 of PTIMER ticks wanted.
 
 Operation (after each PTIMER tick):
-	if (iord(PERIODIC_ENABLE)
-		iowr(PERIODIC_TIME, iord(PERIODIC_TIME) - 1);
+	if (PERIODIC_ENABLE)
+		PERIODIC_TIME = PERIODIC_TIME) - 1;
 
-	if (iord(PERIODIC_TIME) == 0) {
-		iowr(INTR_SET, 0b1)
-		iowr(PERIODIC_TIME, iord(PERIODIC_PERIOD));
+	if (PERIODIC_TIME == 0) {
+		raise_interrupt(0);
+		PERIODIC_TIME = PERIODIC_PERIOD;
 	}
+
+
+MMIO 0x02c / I[0x00b00]: TIME_LOW
+MMIO 0x030 / I[0x00c00]: TIME_HIGH
+
+These are just aliases for PTIMER's TIME_LOW and TIME_HIGH.
+
+See [ptimer.txt] for more information.
+
 
 MMIO 0x034 / I[0x00d00]: WATCHDOG_TIME
 MMIO 0x038 / I[0x00e00]: WATCHDOG_ENABLE
@@ -86,12 +59,12 @@ be executed.
 In fuc's case, the watchdog doesn't reboot the µc.
 It is very similar to the periodic timer. The differences are:
 
- - it generates an interrupt on line 1 instead of 0. 
+ - it generates an interrupt on line 1 instead of 0.
  - it manually needs to be reset
 
 Operation (after each PTIMER tick):
-	if (iord(WATCHDOG_ENABLE)
-		iowr(WATCHDOG_TIME, iord(WATCHDOG_TIME) - 1);
+	if (WATCHDOG_ENABLE)
+		WATCHDOG_TIME = WATCHDOG_TIME - 1;
 
-	if (iord(WATCHDOG_TIME) == 0)
-		iowr(INTR_SET, 0b10)
+	if (WATCHDOG_TIME == 0)
+		raise_interrupt(1);
