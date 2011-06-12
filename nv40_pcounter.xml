@@ -49,17 +49,26 @@
 		<bitfield low="0" high="15" name="FUNC"/>
 		<bitfield low="16" high="18" name="UNK16"/>
 	</reg32>
+	<reg32 offset="0x500" name="UNK4_OP" length="8">
+		<bitfield low="0" high="15" name="FUNC"/>
+		<bitfield low="16" high="17" name="UNK16"/>
+	</reg32>
+	<reg32 offset="0x520" name="UNK4_OP" length="8">
+		<bitfield low="0" high="15" name="FUNC"/>
+		<bitfield low="16" high="17" name="UNK16"/>
+	</reg32>
 	<reg32 offset="0x540" name="MSSRC_STATUS" length="8"/>
-	<reg32 offset="0x560" name="SPEC_SRC">
+	<reg32 offset="0x560" name="SPEC_SRC" variants="NV84-">
 		<bitfield low="0" high="7" name="SWAP"/>
 		<bitfield low="8" high="15" name="UNK8"/>
 	</reg32>
 	<reg32 offset="0x600" name="CTR_UNK0" length="8"/>
-	<reg32 offset="0x640" name="CTR_UNK0" length="8"/>
+	<reg32 offset="0x640" name="CTR_UNK1" length="8"/>
 	<reg32 offset="0x680" name="CTR_MS2" length="8"/>
 	<reg32 offset="0x6c0" name="CTR_MS1" length="8"/>
 	<reg32 offset="0x700" name="CTR_MS0" length="8"/>
 	<reg32 offset="0x740" name="CTR_MS3" length="8"/>
+	<reg32 offset="0x780" name="UNK780" length="8"/>
 	<reg32 offset="0x7c0" name="CTRL" length="8">
 		<bitfield pos="24" name="SWAP_OK_NEXT"/>
 		<bitfield pos="25" name="SWAP_OK_CUR"/>

@@ -11,7 +11,73 @@
 
 <array name="PCOUNTER" offset="0x180000" stride="0x40000" length="1" variants="NVC0-">
 	<group name="pcounter_unk1">
-
+		<reg32 offset="0" name="STATUS" length="8"/>
+		<reg32 offset="0x40" name="MS0_SRC">
+			<bitfield low="0" high="7" name="0"/>
+			<bitfield low="8" high="15" name="1"/>
+			<bitfield low="16" high="23" name="2"/>
+			<bitfield low="24" high="31" name="3"/>
+		</reg32>
+		<reg32 offset="0x44" name="MS0_OP">
+			<bitfield low="0" high="15" name="FUNC"/>
+			<bitfield low="16" high="20" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x48" name="MS1_SRC">
+			<bitfield low="0" high="7" name="0"/>
+			<bitfield low="8" high="15" name="1"/>
+			<bitfield low="16" high="23" name="2"/>
+			<bitfield low="24" high="31" name="3"/>
+		</reg32>
+		<reg32 offset="0x4c" name="MS1_OP">
+			<bitfield low="0" high="15" name="FUNC"/>
+			<bitfield low="16" high="20" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x50" name="MS2_SRC">
+			<bitfield low="0" high="7" name="0"/>
+			<bitfield low="8" high="15" name="1"/>
+			<bitfield low="16" high="23" name="2"/>
+			<bitfield low="24" high="31" name="3"/>
+		</reg32>
+		<reg32 offset="0x54" name="MS2_OP">
+			<bitfield low="0" high="15" name="FUNC"/>
+			<bitfield low="16" high="20" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x58" name="MS3_SRC">
+			<bitfield low="0" high="7" name="0"/>
+			<bitfield low="8" high="15" name="1"/>
+			<bitfield low="16" high="23" name="2"/>
+			<bitfield low="24" high="31" name="3"/>
+		</reg32>
+		<reg32 offset="0x5c" name="MS3_OP">
+			<bitfield low="0" high="15" name="FUNC"/>
+			<bitfield low="16" high="20" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x5c" name="MS3_OP">
+			<bitfield low="0" high="15" name="FUNC"/>
+			<bitfield low="16" high="20" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x60" name="UNK4_OP">
+			<bitfield low="0" high="15" name="FUNC"/>
+			<bitfield low="16" high="20" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x64" name="UNK5_OP">
+			<bitfield low="0" high="15" name="FUNC"/>
+			<bitfield low="16" high="20" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x6c" name="SWAP_SRC"/>
+		<reg32 offset="0x9c" name="CTRL">
+		</reg32>
+		<reg32 offset="0xa4" name="CTR_MS2"/>
+		<reg32 offset="0xa8" name="CTR_MS0"/>
+		<reg32 offset="0xac" name="CTR_MS1"/>
+		<reg32 offset="0xb0" name="CTR_MS3"/>
+		<reg32 offset="0xbc" name="CTR_UNK0"/>
+		<reg32 offset="0xe4" name="MSSTAT">
+			<bitfield pos="24" name="MS2"/>
+			<bitfield pos="25" name="MS0"/>
+			<bitfield pos="26" name="MS1"/>
+			<bitfield pos="27" name="MS3"/>
+		</reg32>
 	</group>
 
 	<group name="pcounter_unk2">
