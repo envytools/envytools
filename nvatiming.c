@@ -252,6 +252,10 @@ int main(int argc, char **argv)
 	} else
 		card = &nva_cards[cnum];
 
+	/* activate all the engines */
+	pmc_enable = nva_rd32(cnum, 0x200);
+	nva_wr32(cnum, 0x200, 0xffffffff);
+
 	printf("Using card nv%x\n\n", card->chipset);
 
 	time_ptimer(cnum);
@@ -264,13 +268,12 @@ int main(int argc, char **argv)
 	printf("\n");
 
 	if (card->chipset < 0x98 || card->chipset == 0xa0) {
+		/* restore PMC enable */
+		nva_wr32(cnum, 0x200, pmc_enable);
+
 		printf("Your card doesn't support fuc (chipset > nv98+ && chipset != nva0 needed)\n");
 		return 0;
 	}
-
-	/* activate all the engines */
-	pmc_enable = nva_rd32(cnum, 0x200);
-	nva_wr32(cnum, 0x200, 0xffffffff);
 
 	time_fuc_engine_periodic(cnum, "PBSP", 0x84000);
 	time_fuc_engine_watchdog(cnum, "PBSP", 0x84000);
