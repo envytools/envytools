@@ -20,7 +20,13 @@
 	<bitfield low="8" high="15" name="N1"/>
 	<bitfield low="16" high="18" name="P"/>
 	<bitfield low="19" high="21" name="N2_0_2"/>
-	<bitfield low="24" high="21" name="N2_3_4"/>
+	<bitfield low="24" high="25" name="N2_3_4"/>
+</bitset>
+
+<bitset name="nv31_pll_s2" inline="yes">
+	<bitfield low="0" high="7" name="M"/>
+	<bitfield low="8" high="15" name="N"/>
+	<bitfield pos="31" name="ENABLE"/>
 </bitset>
 
 <group name="nv_pramdac">
