@@ -836,16 +836,27 @@ int main(int argc, char **argv) {
 				printf("-- Register 0x%08x ref_clk %dkHz --\n",
 					le32(soff), (rlen > 0x22) ? le32(soff + 31) : 0);
 			} else if (ver == 0x30) {
-				int rec_ptr = le16(soff+1);
+				uint16_t rec_ptr = le16(soff+1);
 				printf("-- ID 0x%02x Register 0x%08x ref_clk %dkHz --\n",
 					bios[soff], le32(soff+3), le32(rec_ptr+28));
+				if (rec_ptr) {
+					printf("-- VCO1 \t");
+					printf("freq [%d-%d]MHz, inputfreq [%d-%d]MHz, N [%d-%d], M [%d-%d] --\n",
+						le16(rec_ptr), le16(rec_ptr+2), le16(rec_ptr+8), le16(rec_ptr+10),
+						bios[rec_ptr+16], bios[rec_ptr+17], bios[rec_ptr+18], bios[rec_ptr+19]);
+					printf("-- VCO2 \t");
+					printf("freq [%d-%d]MHz, inputfreq [%d-%d]MHz, N [%d-%d], M [%d-%d] --\n",
+						le16(rec_ptr+4), le16(rec_ptr+6), le16(rec_ptr+12), le16(rec_ptr+14),
+						bios[rec_ptr+20], bios[rec_ptr+21], bios[rec_ptr+22], bios[rec_ptr+23]);
+					printf("-- log2P_max [%d], log2P_bias [%d] --\n", bios[rec_ptr+25], bios[rec_ptr+27]);
+				}
 			} else if (ver == 0x40) {
 				uint16_t rec_ptr = le16(soff+1);
 				printf("-- ID 0x%02x Register 0x%08x ref_clk %dkHz, ?alt_ref_clk %dkHz --\n",
 					bios[soff], le32(soff+3), le16(soff+9)*1000, le16(soff+7)*1000);
 				if (rec_ptr) {
 					printf("-- VCO1 \t");
-					printf("freq [%d-%d]MHz, inputfreq [%d-%d]MHz, m [%d-%d], n [%d-%d], p [%d-%d] --\n",
+					printf("freq [%d-%d]MHz, inputfreq [%d-%d]MHz, M [%d-%d], N [%d-%d], P [%d-%d] --\n",
 						le16(rec_ptr), le16(rec_ptr+2), le16(rec_ptr+4), le16(rec_ptr+6),
 						bios[rec_ptr+8], bios[rec_ptr+9], bios[rec_ptr+10], bios[rec_ptr+11],
 						bios[rec_ptr+12], bios[rec_ptr+13]);
