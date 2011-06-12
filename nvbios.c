@@ -833,8 +833,18 @@ int main(int argc, char **argv) {
 		uint16_t soff = pll_limit_tbl_ptr + hlen;
 		for (i = 0; i < entries; i++) {
 			if (ver == 0x20 || ver ==0x21) {
-				printf("-- Register 0x%08x ref_clk %dkHz --\n",
-					le32(soff), (rlen > 0x22) ? le32(soff + 31) : 0);
+				printf("-- Register 0x%08x --\n", le32(soff));
+				printf("-- VCO1 - ");
+				printf("freq [%d-%d]MHz, inputfreq [%d-%d]MHz, N [%d-%d], M [%d-%d] --\n",
+					le16(soff+4), le16(soff+6), le16(soff+12), le16(soff+14),
+					bios[soff+20], bios[soff+21], bios[soff+22], bios[soff+23]);
+				printf("-- VCO2 - ");
+				printf("freq [%d-%d]MHz, inputfreq [%d-%d]MHz, N [%d-%d], M [%d-%d] --\n",
+					le16(soff+8), le16(soff+10), le16(soff+16), le16(soff+18),
+					bios[soff+24], bios[soff+25], bios[soff+26], bios[soff+27]);
+				printf("-- log2P_max [%d](XXX: must be less than 8), log2P_bias [%d], ref_clk %dkHz --\n",
+					bios[soff+29], bios[soff+30], (rlen > 0x22) ? le32(soff+31) : 0);
+				// XXX: C51 has some ref_clk hacks
 				printhex(soff, rlen);
 				printf("\n");
 			} else if (ver == 0x30) {
