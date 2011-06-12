@@ -870,6 +870,7 @@ int main(int argc, char **argv) {
 				printf("\n");
 			} else if (ver == 0x30) {
 				uint16_t rec_ptr = le16(soff+1);
+				uint32_t ref_clk;
 				printf("-- ID 0x%02x Register 0x%08x rec_ptr 0x%x --\n",
 					bios[soff], le32(soff+3), rec_ptr);
 				printhex(soff, rlen);
@@ -883,8 +884,30 @@ int main(int argc, char **argv) {
 					printf("freq [%d-%d]MHz, inputfreq [%d-%d]MHz, N [%d-%d], M [%d-%d] --\n",
 						le16(rec_ptr+4), le16(rec_ptr+6), le16(rec_ptr+12), le16(rec_ptr+14),
 						bios[rec_ptr+20], bios[rec_ptr+21], bios[rec_ptr+22], bios[rec_ptr+23]);
+
+					/* Some rare cases have an ref_clk set to 0 in the entry
+					 * Use the same approach we did for nv4x
+					 */
+					ref_clk = le32(rec_ptr+28);
+
+					if (strap && ref_clk == 0)
+						switch (strap & (1 << 6)) {
+						case 0:
+							ref_clk = 13500;
+							break;
+						case (1 << 6):
+							ref_clk = 14318;
+							break;
+						case (1 << 22):
+							ref_clk = 27000;
+							break;
+						case (1 << 22 | 1 << 6):
+							ref_clk = 25000;
+							break;
+						}
+
 					printf("-- log2P_max [%d], log2P_bias [%d], ref_clk %dkHz --\n",
-						bios[rec_ptr+25], bios[rec_ptr+27], le32(rec_ptr+28));
+						bios[rec_ptr+25], bios[rec_ptr+27], ref_clk);
 					printhex(rec_ptr, 32);
 					printf("\n");
 				}
