@@ -900,7 +900,7 @@ int main(int argc, char **argv) {
 						le16(rec_ptr), le16(rec_ptr+2), le16(rec_ptr+4), le16(rec_ptr+6),
 						bios[rec_ptr+8], bios[rec_ptr+9], bios[rec_ptr+10], bios[rec_ptr+11],
 						bios[rec_ptr+12], bios[rec_ptr+13]);
-					printhex(rec_ptr, 13);
+					printhex(rec_ptr, 14);
 					printf("\n");
 				}
 			}
