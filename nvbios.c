@@ -838,8 +838,7 @@ int main(int argc, char **argv) {
 			} else if (ver == 0x40) {
 				int rec_ptr = le16(soff+1);
 				printf("-- ID 0x%02x Register 0x%08x ref_clk %dkHz --\n",
-					bios[soff], le32(soff+3), ((bios[soff] & 0xf0) == 0x80) ? 27000:100000);
-				/* FIXME: make sure it works for all cards */
+					bios[soff], le32(soff+3), le16(soff+9)*1000);
 			}
 			printhex(soff, rlen);
 			printf("\n");
