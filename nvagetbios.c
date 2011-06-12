@@ -189,7 +189,7 @@ int main(int argc, char **argv) {
 	}
 
 	/* Arguments parsing */
-	while ((c = getopt (argc, argv, "hc:s:")) != -1)
+	while ((c = getopt (argc, argv, "hc:s:")) != -1) {
 		switch (c) {
 			case 'h':
 				usage(0);
@@ -201,6 +201,8 @@ int main(int argc, char **argv) {
 				source = optarg;
 				break;
 		}
+	}
+
 	if (cnum >= nva_cardsnum) {
 		if (nva_cardsnum)
 			fprintf (stderr, "No such card.\n");
