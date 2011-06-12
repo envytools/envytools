@@ -833,7 +833,7 @@ int main(int argc, char **argv) {
 		uint16_t soff = pll_limit_tbl_ptr + hlen;
 		for (i = 0; i < entries; i++) {
 			if (ver == 0x20 || ver ==0x21) {
-				uint16_t ref_clk = 0;
+				uint32_t ref_clk = 0;
 				printf("-- Register 0x%08x --\n", le32(soff));
 				printf("-- VCO1 - ");
 				printf("freq [%d-%d]MHz, inputfreq [%d-%d]MHz, N [%d-%d], M [%d-%d] --\n",
@@ -845,7 +845,7 @@ int main(int argc, char **argv) {
 					bios[soff+24], bios[soff+25], bios[soff+26], bios[soff+27]);
 
 				if (rlen > 0x22)
-					le32(soff+31);
+					ref_clk = le32(soff+31);
 
 				// nv4x cards detect the ref_clk from the strap
 				// XXX: C51 has some extra ref_clk hacks
