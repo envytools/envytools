@@ -92,7 +92,7 @@ void time_pgraph_dispatch_clock(unsigned int card)
 	gettimeofday(&end, NULL);
 	t_end = nva_rd32(card, reg);
 
-	printf("PGRAPH.DISPATCH's clock: 1s = %d cycles --> frequency = %f MHz\n",
+	printf("PGRAPH.DISPATCH's clock: 1s = %llu cycles --> frequency = %f MHz\n",
 	       (t_end - t_start), (t_end - t_start)/1000000.0);
 }
 
@@ -125,7 +125,7 @@ void time_ptimer(unsigned int card)
 	u32 r9220 = nva_rd32(card, 0x9220);
 
 	ptimer_boot = time_ptimer_clock(card);
-	printf("PTIMER's boot: 1s = %d cycles --> frequency = %f MHz\n",
+	printf("PTIMER's boot: 1s = %llu cycles --> frequency = %f MHz\n",
 	       ptimer_boot, ptimer_boot/1000000.0);
 
 	/* Calibrate to standard frequency (27MHz?) */
@@ -134,7 +134,7 @@ void time_ptimer(unsigned int card)
 	nva_wr32(card, 0x9220, 0x0);
 
 	ptimer_default = time_ptimer_clock(card);
-	printf("PTIMER's clock source: 1s = %d cycles --> frequency = %f MHz\n",
+	printf("PTIMER's clock source: 1s = %llu cycles --> frequency = %f MHz\n",
 	       ptimer_default, ptimer_default/1000000.0);
 
 	if (nva_cards[card].card_type >= 0x40) {
@@ -144,7 +144,7 @@ void time_ptimer(unsigned int card)
 		nva_wr32(card, 0x9220, 0x10000);
 
 		ptimer_max = time_ptimer_clock(card);
-		printf("PTIMER's clock source (max): 1s = %d cycles --> frequency = %f MHz\n",
+		printf("PTIMER's clock source (max): 1s = %llu cycles --> frequency = %f MHz\n",
 		ptimer_max, ptimer_max/1000000.0);
 	}
 
@@ -154,7 +154,7 @@ void time_ptimer(unsigned int card)
 	nva_wr32(card, 0x9220, 0x0);
 
 	ptimer_calibrated = time_ptimer_clock(card);
-	printf("PTIMER calibrated: 1s = %d cycles --> frequency = %f MHz\n",
+	printf("PTIMER calibrated: 1s = %llu cycles --> frequency = %f MHz\n",
 	       ptimer_calibrated, ptimer_calibrated/1000000.0);
 
 	/* Restore the previous values */
@@ -227,7 +227,8 @@ int main(int argc, char **argv)
 {
 	struct nva_card *card = NULL;
 	u32 pmc_enable;
-	char c, cnum = 0;
+	int c;
+	char cnum = 0;
 
 	if (nva_init()) {
 		fprintf (stderr, "PCI init failure!\n");
