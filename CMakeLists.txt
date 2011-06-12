@@ -33,6 +33,7 @@ add_executable(nvapoke8 nvapoke8.c)
 add_executable(nvagetbios nvagetbios.c)
 add_executable(nvafakebios nvafakebios.c)
 add_executable(nvascan nvascan.c)
+add_executable(nvapct nvapct.c)
 
 target_link_libraries(envydis envy)
 target_link_libraries(envyas envy)
@@ -47,6 +48,7 @@ target_link_libraries(nvapoke8 nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvagetbios nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvafakebios nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvascan nva ${PC_PCIACCESS_LIBRARIES})
+target_link_libraries(nvapct nva ${PC_PCIACCESS_LIBRARIES})
 
 install(TARGETS envydis demmio headergen nvbios envy rnn envyas dedma nva nvalist nvapeek nvapoke nvapeek8 nvapoke8 nvagetbios nvafakebios
 	RUNTIME DESTINATION bin

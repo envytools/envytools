@@ -17,6 +17,7 @@ nvapoke8
 nvagetbios
 nvafakebios
 nvascan
+nvapct
 envylex.c
 envyparse.c
 envyparse.h
