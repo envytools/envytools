@@ -63,6 +63,7 @@ uint16_t pll_limit_tbl_ptr;
 
 uint8_t p_tbls_ver = 0;
 uint16_t pm_mode_tbl_ptr = 0;
+uint16_t voltage_map_tbl_ptr = 0;
 uint16_t voltage_tbl_ptr = 0;
 uint16_t temperature_tbl_ptr = 0;
 uint16_t timings_tbl_ptr = 0;
@@ -653,6 +654,8 @@ int main(int argc, char **argv) {
 						temperature_tbl_ptr = le16(eoff + 16);
 						timings_tbl_ptr = le16(eoff + 8);
 						timings_map_tbl_ptr = le16(eoff + 4);
+						if (elen >= 34)
+							voltage_map_tbl_ptr = le16(eoff + 32);
 					}
 
 					break;
@@ -1068,7 +1071,11 @@ int main(int argc, char **argv) {
 					timing_id = bios[start+subent(ram_cfg)+1];
 			}
 
-			printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
+			if (version < 0x40)
+				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
+				id, core, memclk, shader, voltage, timing_id, fan, pcie_width );
+			else
+				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Voltage entry %d Timing %d Fan %d PCIe link width %d --\n",
 				id, core, memclk, shader, voltage, timing_id, fan, pcie_width );
 			if (mode_info_length > 20) {
 				int i=0;
@@ -1102,6 +1109,37 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
+	if (voltage_map_tbl_ptr) {
+		uint8_t version = 0, entry_count = 0, entry_length = 0;
+		uint8_t header_length = 0, mask = 0;
+		uint16_t start = voltage_map_tbl_ptr;
+		int i;
+
+		version = bios[start+0];
+		header_length = bios[start+1];
+		entry_length = bios[start+2];
+		entry_count = bios[start+3];
+
+		printf ("Voltage map table at %x. Version %x.\n", voltage_map_tbl_ptr, version);
+
+		printf("Header:\n");
+		printcmd(voltage_map_tbl_ptr, header_length>0?header_length:10);
+		printf("\n\n");
+
+		start += header_length;
+
+		for (i=0; i < entry_count; i++) {
+			printf ("-- ID = %u: voltage_min = %u, voltage_max = %u [µV] --\n",
+				i, le32(start), le32(start+4));
+			printcmd(start, entry_length);
+			printf("\n\n");
+
+			start += entry_length;
+		}
+
+		printf("\n");
+	}
+
 	if (voltage_tbl_ptr) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0, mask = 0;
@@ -1125,40 +1163,46 @@ int main(int argc, char **argv) {
 			mask = bios[start+4];
 		} else if (version == 0x40) {
 			header_length = bios[start+1];
-			entry_count = 0;
+			entry_length = bios[start+2];
+			entry_count = bios[start+3];
+			mask = bios[start+11];
 		}
-
-		start += header_length;
 
 		printf ("Voltage table at %x. Version %x.\n", voltage_tbl_ptr, version);
 
 		printf("Header:\n");
 		printcmd(voltage_tbl_ptr, header_length>0?header_length:10);
-		printf ("mask = %x\n\n", mask);
+		printf (" mask = %x\n\n", mask);
 
-		printf ("%i entries\n", entry_count);
-		int i;
-		for (i=0; i < entry_count; i++) {
-			uint8_t id, label;
+		if (version < 0x40) {
+			start += header_length;
 
-			if (version < 0x40) {
+			printf ("%i entries\n", entry_count);
+			int i;
+			for (i=0; i < entry_count; i++) {
+				uint8_t id, label;
+
 				id = bios[start+1];
-				label = bios[start+0];
-			} else if (version == 0x40) {
-				id = 0;
-				label = 0;
-			}
+				label = bios[start+0] * 10000;
 
-			printf ("-- ID = %x, voltage = %u[*10mV] --\n", id, label);
-			if (entry_length > 20) {
-				printcmd(start, 20); printf("\n");
-				printcmd(start + 20, entry_length - 20);
-			} else {
-				printcmd(start, entry_length);
-			}
-			printf("\n\n");
+				printf ("-- ID = %x, voltage = %u[µV] --\n", id, label);
+				if (entry_length > 20) {
+					printcmd(start, 20); printf("\n");
+					printcmd(start + 20, entry_length - 20);
+				} else {
+					printcmd(start, entry_length);
+				}
+				printf("\n\n");
 
-			start += entry_length;
+				start += entry_length;
+			}
+		} else {
+			/* That's what nouveau does, but it doesn't make sense... */
+			uint32_t volt_uv = le32(start+4);
+			uint16_t step_uv = le16(start+8);
+
+			printf ("-- Voltage range = %u-%u µV, step = %u µV--\n",
+				volt_uv, volt_uv + volt_uv * mask, step_uv);
 		}
 		printf("\n");
 	}
