@@ -172,22 +172,33 @@
 			</stripe>
 		</stripe>
 
-		<stripe name="CRTC_CLK" offset="0x4000" stride="0x800" length="2">
-			<reg32 name="CLK_CTRL1" offset="0x100">
+		<array offset="0x4000" name="CLOCK" stride="0x2000" length="1">
+			<bitset name="nv50_vpll_s1" inline="yes">
+				<bitfield low="0" high="7" name="N1"/>
+				<bitfield low="16" high="23" name="M1"/>
+			</bitset>
+			<bitset name="nv50_vpll_s2" inline="yes">
+				<bitfield low="0" high="7" name="N2"/>
+				<bitfield low="16" high="23" name="M2"/>
+				<bitfield low="28" high="30" name="P"/>
+			</bitset>
+			<reg32 offset="0x0000" name="UNK00"/>
+			<reg32 offset="0x0004" name="UNK04"/>
+			<reg32 offset="0x0100" name="VPLL_CTRL1" stride="0x800" length="2">
 				<bitfield name="CONNECTED" high="10" low="9"/>
 			</reg32>
-			<reg32 name="VPLL_A" offset="0x104"/>
-			<reg32 name="VPLL_B" offset="0x108"/>
-			<reg32 name="CLK_CTRL2" offset="0x200"/>
-		</stripe>
-
-		<stripe name="DAC_CLK" offset="0x4000" stride="0x800" length="3">
-			<reg32 name="CLK_CTRL2" offset="0x280"/>
-		</stripe>
-
-		<stripe name="SOR_CLK" offset="0x4000" stride="0x800" length="3">
-			<reg32 name="CLK_CTRL2" offset="0x300"/>
-		</stripe>
+			<reg32 offset="0x0104" name="VPLL_S1" stride="0x800" length="2" type="nv50_vpll_s1"/>
+			<reg32 offset="0x0108" name="VPLL_S2" stride="0x800" length="2" type="nv50_vpll_s2"/>
+			<reg32 offset="0x010c" name="VPLL_UNK0C" stride="0x800" length="2"/>
+			<reg32 offset="0x0110" name="VPLL_VGA25_S1" type="nv50_vpll_s1"/>
+			<reg32 offset="0x0114" name="VPLL_VGA25_S2" type="nv50_vpll_s2"/>
+			<reg32 offset="0x0118" name="VPLL_VGA28_S1" type="nv50_vpll_s1"/>
+			<reg32 offset="0x011c" name="VPLL_VGA28_S2" type="nv50_vpll_s2"/>
+			<reg32 offset="0x0200" name="VPLL_CTRL2" stride="0x800" length="2"/>
+			<reg32 offset="0x0280" name="DAC" stride="0x800" length="3"/>
+			<reg32 offset="0x0300" name="SOR" stride="0x800" length="3"/>
+			<reg32 offset="0x0380" name="UNK380" stride="0x800" length="3"/>
+		</array>
 
 		<array offset="0x9000" name="VGA" stride="0x1000" length="1">
 			<reg8 offset="0x000" name="MISC"/>
