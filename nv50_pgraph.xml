@@ -728,9 +728,24 @@
 	</reg32>
 
 	<array offset="0x7000" name="ROPC" stride="0x100" length="8">
-		<reg32 offset="0x0c" name="JOE1" />
-
-		<reg32 offset="0x90" name="JOE2" />
+		<!-- one of them is ZROP, the other CROP -->
+		<array offset="0" name="UNK1" stride="0x80" length="1">
+			<reg32 offset="0x0c" name="JOE" />
+			<!-- should be set to the same value as PFB.BANKCFG -->
+			<reg32 offset="0x10" name="BANKCFG"/>
+		</array>
+		<array offset="0x80" name="UNK2" stride="0x80" length="1">
+			<reg32 offset="0x10" name="JOE" />
+			<reg32 offset="0x14" name="BANKCFG"/>
+		</array>
+	</array>
+	<array offset="0x7c00" name="ROPM" stride="0x200" length="1">
+		<array offset="0x7c00" name="ZROP" stride="0x100" length="1">
+		</array>
+		<array offset="0x7d00" name="CROP" stride="0x100" length="1">
+			<reg32 offset="0x00" name="SAMPLECNT">
+			<reg32 offset="0x20" name="BANKCFG"/>
+		</array>
 	</array>
 
 	<group name="nv50_pgraph_mp">
