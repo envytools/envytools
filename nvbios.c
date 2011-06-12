@@ -809,6 +809,7 @@ int main(int argc, char **argv) {
 	if (pll_limit_tbl_ptr) {
 		uint8_t ver = bios[pll_limit_tbl_ptr];
 		uint8_t hlen = 0, rlen = 0, entries = 0;
+		uint8_t *record = NULL;
 		printf ("PLL limits table at %x, version %x\n", pll_limit_tbl_ptr, ver);
 		switch (ver) {
 			case 0:
@@ -839,9 +840,16 @@ int main(int argc, char **argv) {
 				printf("-- ID 0x%02x Register 0x%08x ref_clk %dkHz --\n",
 					bios[soff], le32(soff+3), le32(rec_ptr+28));
 			} else if (ver == 0x40) {
-				int rec_ptr = le16(soff+1);
-				printf("-- ID 0x%02x Register 0x%08x ref_clk %dkHz --\n",
-					bios[soff], le32(soff+3), le16(soff+9)*1000);
+				uint16_t rec_ptr = le16(soff+1);
+				printf("-- ID 0x%02x Register 0x%08x ref_clk %dkHz, ?alt_ref_clk %dkHz --\n",
+					bios[soff], le32(soff+3), le16(soff+9)*1000, le16(soff+7)*1000);
+				if (rec_ptr) {
+					printf("-- VCO1 \t");
+					printf("freq [%d-%d]MHz, inputfreq [%d-%d]MHz, m [%d-%d], n [%d-%d], p [%d-%d] --\n",
+						le16(rec_ptr), le16(rec_ptr+2), le16(rec_ptr+4), le16(rec_ptr+6),
+						bios[rec_ptr+8], bios[rec_ptr+9], bios[rec_ptr+10], bios[rec_ptr+11],
+						bios[rec_ptr+12], bios[rec_ptr+13]);
+				}
 			}
 			printhex(soff, rlen);
 			printf("\n");
