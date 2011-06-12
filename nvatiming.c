@@ -153,6 +153,33 @@ ptime_t time_ptimer_clock(unsigned int card)
 	return t_end - t_start;
 }
 
+u64 crystal_type(unsigned int card)
+{
+	unsigned int crystal, chipset;
+
+	chipset = nva_cards[card].chipset;
+
+	crystal = (nva_rd32(card, 0x101000) & 0x40) >> 6;
+
+	if ((chipset >= 0x17 && chipset < 0x20) ||
+		chipset > 0x25) {
+		crystal += (nva_rd32(card, 0x101000) & 0x400000) >> 21;
+	}
+
+	switch (crystal) {
+	case 0:
+		return 13500000;
+	case 1:
+		return 14318800;
+	case 2:
+		return 27000000;
+	case 3:
+		return 25000000;
+	default:
+		return 0;
+	}
+}
+
 void time_ptimer(unsigned int card)
 {
 	ptime_t ptimer_boot, ptimer_default, ptimer_max, ptimer_calibrated;
@@ -294,7 +321,8 @@ int main(int argc, char **argv)
 	pmc_enable = nva_rd32(cnum, 0x200);
 	nva_wr32(cnum, 0x200, 0xffffffff);
 
-	printf("Using card nv%x\n\n", card->chipset);
+	printf("Using card nv%x, crystal frequency = %f MHz\n\n",
+	       card->chipset, crystal_type(cnum)/1000000.0);
 
 	time_ptimer(cnum);
 	printf("\n");
