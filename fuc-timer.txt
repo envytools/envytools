@@ -3,14 +3,17 @@ Introduction
 Time and timer-related registers are the same across each fuc engines
 at the exception of PGRAPH CTXCTLs that lack TIME_LOW and TIME_HIGH.
 
-[XXX: Check what timer-related registers are missing in PGRAPH CTXCTLs]
-
 You can:
 
  - Read PTIMER's clock
  - Use a periodic timer: Generate an interrupt periodically
  - Use a watchdog/one-shot timer: Generate an interrupt once in the future
 
+The periodic and watchdog timers aren't bound to PTIMER's clock. The actual clock
+depends on the fuc engine:
+
+ - PDAEMON: The value seems to be fixed to 202.495 MHz [XXX: check]
+ - Others: [XXX: TODO]
 
 MMIO 0x020 / I[0x00800]: PERIODIC_PERIOD
   A 32-bit register defining the period of the periodic timer.
@@ -23,14 +26,14 @@ Fuc engines all have a periodic timer. This timer generates an interrupt
 periodically on line 0.
 
 More technically, this happens when PERIODIC_TIME reaches 0. This register
-is decremented after each PTIMER's tick unless PERIODIC_ENABLE is clear.
+is decremented after each clock source tick unless PERIODIC_ENABLE is clear.
 
 The periodicity can be setup by setting the PERIODIC_PERIOD register to the number
-of PTIMER ticks wanted.
+of clock source ticks wanted.
 
 [XXX: Check what is the actual time sourkce for this timer]
 
-Operation (after each PTIMER tick):
+Operation (after each clock source tick):
 	if (PERIODIC_ENABLE && PERIODIC_TIME > 0)
 		PERIODIC_TIME = PERIODIC_TIME) - 1;
 
@@ -67,7 +70,7 @@ the periodic timer. The differences are:
 
 [XXX: Check what is the actual time source for this timer]
 
-Operation (after each PTIMER tick):
+Operation (after each clock source tick):
 	if (WATCHDOG_ENABLE && WATCHDOG_TIME > 0)
 		WATCHDOG_TIME = WATCHDOG_TIME - 1;
 

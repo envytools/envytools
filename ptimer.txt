@@ -14,7 +14,7 @@ PTIMER's clock source depends on chipset families:
 
  - nv03 family: MPLL (memory PLL)
  - nv04-40 families: Core PLL
- - nv40-C0 family: A 27MHz crystal
+ - nv40-C0 family: A programmable clock set to 27MHz by default
 
 On nv03-nv40 chipsets, ptimer's clock is divided by a configurable divider stage.
 The resulting clock frequency is given by (where NUMERATOR > DENOMINATOR):
@@ -29,7 +29,7 @@ given by the equation:
 
   clock_source = 27 * (1 + CLOCK_SOURCE.DENOMINATOR) / (1 + CLOCK_SOURCE.NUMERATOR)
 
-[XXX: Check the clock source consistency across boards]
+[XXX: Check clock source consistency across boards]
 
 Registers are:
 
