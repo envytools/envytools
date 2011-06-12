@@ -126,6 +126,7 @@ crystal type is:
  0 - 13.500MHz
  1 - 14.31818MHz
  2 - 27.000MHz
+ 3 - 25.000MHz
 
 set 1:
 bit 0: enables OHCI 1394 controller on PCI function 1 [NV17 and NV18 only]
@@ -146,10 +147,13 @@ bit 1: if 0, this GPU is part of a motherboard and ROMless, subsystem device
        subsystem will be read from 32-bit LE word at address 0x54 in the ROM
        [XXX: check ROM address]
 bits 2-5: RAM config, for use by BIOS
-bits 6-9: ?
+bit 6: crystal type bit 0
+bits 7-9: ?
 bits 10-13: DEVICE_ID, bits 0-3
 bits 14-15: BAR1 size, part 1
-bits 16-23: ?
+bits 16-21: ?
+bit 22: crystal type bit 1
+bit 23: ?
 bits 24-27: flat panel config [used to select entry from fp mode table]
 bit 28: DEVICE_ID bit 4 [NV92-]
 bits 29-30: ?

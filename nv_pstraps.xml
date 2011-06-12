@@ -97,6 +97,7 @@
 <bitset name="nv50_straps0" inline="yes">
 	<bitfield pos="1" name="PCI_SUB_BIOS"/>
 	<bitfield low="2" high="5" name="RAMCFG"/>
+	<bitfield pos="6" name="CRYSTAL_0" type="hex"/>
 	<bitfield low="10" high="13" name="DEVICE_ID_0_3"/>
 	<bitfield low="14" high="15" name="BAR1_SIZE">
 		<value value="0" name="64MB"/>
@@ -104,6 +105,7 @@
 		<value value="2" name="256MB"/>
 		<value value="3" name="512MB"/>
 	</bitfield>
+	<bitfield pos="22" name="CRYSTAL_1" type="hex"/>
 	<bitfield low="24" high="27" name="FP_CONFIG"/>
 	<bitfield pos="28" name="DEVICE_ID_4" type="hex" variants="NV92-"/>
 </bitset>
