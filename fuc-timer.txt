@@ -1,6 +1,9 @@
 Introduction
 
-Time and timer-related registers are the same across each fuc engines.
+Time and timer-related registers are the same across each fuc engines
+at the exception of PGRAPH CTXCTLs that lack TIME_LOW and TIME_HIGH.
+
+[XXX: Check what timer-related registers are missing in PGRAPH CTXCTLs]
 
 You can:
 
@@ -9,15 +12,12 @@ You can:
  - Use a watchdog/one-shot timer: Generate an interrupt once in the future
 
 
-Time-related registers overview
-
-As seen in [fuc-io.txt], these registers can be accessed both from
-host (using MMIO areas in BAR0) and fuc (using io* instructions).
-
-
 MMIO 0x020 / I[0x00800]: PERIODIC_PERIOD
+  A 32-bit register defining the period of the periodic timer.
 MMIO 0x024 / I[0x00900]: PERIODIC_TIME
+  A 32-bit counter storing the time remaining before the tick.
 MMIO 0x028 / I[0x00a00]: PERIODIC_ENABLE
+  bit 1: Enable the periodic timer.
 
 Fuc engines all have a periodic timer. This timer generates an interrupt
 periodically on line 0.
@@ -28,8 +28,10 @@ is decremented after each PTIMER's tick unless PERIODIC_ENABLE is clear.
 The periodicity can be setup by setting the PERIODIC_PERIOD register to the number
 of PTIMER ticks wanted.
 
+[XXX: Check what is the actual time sourkce for this timer]
+
 Operation (after each PTIMER tick):
-	if (PERIODIC_ENABLE)
+	if (PERIODIC_ENABLE && PERIODIC_TIME > 0)
 		PERIODIC_TIME = PERIODIC_TIME) - 1;
 
 	if (PERIODIC_TIME == 0) {
@@ -41,7 +43,8 @@ Operation (after each PTIMER tick):
 MMIO 0x02c / I[0x00b00]: TIME_LOW
 MMIO 0x030 / I[0x00c00]: TIME_HIGH
 
-These are just aliases for PTIMER's TIME_LOW and TIME_HIGH.
+These are just aliases for PTIMER's TIME_LOW and TIME_HIGH. Both of them are
+32-bit counters.
 
 See [ptimer.txt] for more information.
 
@@ -56,14 +59,16 @@ A classic use of a watchdog is to set it before calling a sensitive function by
 initializing it to, for instance, twice the usual time needed by this function to
 be executed.
 
-In fuc's case, the watchdog doesn't reboot the µc.
-It is very similar to the periodic timer. The differences are:
+In fuc's case, the watchdog doesn't reboot the µc. Indeed, it is very similar to
+the periodic timer. The differences are:
 
  - it generates an interrupt on line 1 instead of 0.
  - it manually needs to be reset
 
+[XXX: Check what is the actual time source for this timer]
+
 Operation (after each PTIMER tick):
-	if (WATCHDOG_ENABLE)
+	if (WATCHDOG_ENABLE && WATCHDOG_TIME > 0)
 		WATCHDOG_TIME = WATCHDOG_TIME - 1;
 
 	if (WATCHDOG_TIME == 0)
