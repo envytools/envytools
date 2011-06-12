@@ -833,6 +833,7 @@ int main(int argc, char **argv) {
 		uint16_t soff = pll_limit_tbl_ptr + hlen;
 		for (i = 0; i < entries; i++) {
 			if (ver == 0x20 || ver ==0x21) {
+				uint16_t ref_clk = 0;
 				printf("-- Register 0x%08x --\n", le32(soff));
 				printf("-- VCO1 - ");
 				printf("freq [%d-%d]MHz, inputfreq [%d-%d]MHz, N [%d-%d], M [%d-%d] --\n",
@@ -842,9 +843,29 @@ int main(int argc, char **argv) {
 				printf("freq [%d-%d]MHz, inputfreq [%d-%d]MHz, N [%d-%d], M [%d-%d] --\n",
 					le16(soff+8), le16(soff+10), le16(soff+16), le16(soff+18),
 					bios[soff+24], bios[soff+25], bios[soff+26], bios[soff+27]);
+
+				if (rlen > 0x22)
+					le32(soff+31);
+
+				// nv4x cards detect the ref_clk from the strap
+				// XXX: C51 has some extra ref_clk hacks
+				if (strap && ref_clk == 0)
+					switch (strap & (1 << 6)) {
+					case 0:
+						ref_clk = 13500;
+						break;
+					case (1 << 6):
+						ref_clk = 14318;
+						break;
+					case (1 << 22):
+						ref_clk = 27000;
+						break;
+					case (1 << 22 | 1 << 6):
+						ref_clk = 25000;
+						break;
+					}
 				printf("-- log2P_max [%d](XXX: must be less than 8), log2P_bias [%d], ref_clk %dkHz --\n",
-					bios[soff+29], bios[soff+30], (rlen > 0x22) ? le32(soff+31) : 0);
-				// XXX: C51 has some ref_clk hacks
+					bios[soff+29], bios[soff+30], ref_clk);
 				printhex(soff, rlen);
 				printf("\n");
 			} else if (ver == 0x30) {
