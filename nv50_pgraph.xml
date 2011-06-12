@@ -743,7 +743,7 @@
 		<array offset="0x7c00" name="ZROP" stride="0x100" length="1">
 		</array>
 		<array offset="0x7d00" name="CROP" stride="0x100" length="1">
-			<reg32 offset="0x00" name="SAMPLECNT">
+			<reg32 offset="0x00" name="SAMPLECNT"/>
 			<reg32 offset="0x20" name="BANKCFG"/>
 		</array>
 	</array>
