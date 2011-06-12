@@ -65,6 +65,44 @@ void time_pcounter(unsigned int cnum)
 		printf ("Set %d: %d Hz\n", i, nva_rd32(cnum, 0xa600 + i * 4));
 }
 
+void time_pcounter_nvc0(unsigned int cnum)
+{
+	printf ("Perf counters:\n");
+
+	int parts = nva_rd32(cnum, 0x121c74);
+	int gpcs = nva_rd32(cnum, 0x121c78);
+
+	int i, u;
+	for (i = 0; i < 8; i++) {
+		nva_wr32(cnum, 0x1b009c + i * 0x200, 0x40002);
+		nva_wr32(cnum, 0x1b0044 + i * 0x200, 0xffff);
+		nva_wr32(cnum, 0x1b00a8 + i * 0x200, 0);
+	}
+	sleep(1);
+	for (i = 0; i < 8; i++)
+		printf ("HUB set %d: %d Hz\n", i, nva_rd32(cnum, 0x1b00a8 + i * 0x200));
+	for (u = 0; u < parts; u++) {
+		for (i = 0; i < 2; i++) {
+			nva_wr32(cnum, 0x1a009c + i * 0x200 + u * 0x1000, 0x40002);
+			nva_wr32(cnum, 0x1a0044 + i * 0x200 + u * 0x1000, 0xffff);
+			nva_wr32(cnum, 0x1a00a8 + i * 0x200 + u * 0x1000, 0);
+		}
+		sleep(1);
+		for (i = 0; i < 2; i++)
+			printf ("ROPC[%d] set %d: %d Hz\n", u, i, nva_rd32(cnum, 0x1a00a8 + i * 0x200 + u * 0x1000));
+	}
+	for (u = 0; u < gpcs; u++) {
+		for (i = 0; i < 1; i++) {
+			nva_wr32(cnum, 0x18009c + i * 0x200 + u * 0x1000, 0x40002);
+			nva_wr32(cnum, 0x180044 + i * 0x200 + u * 0x1000, 0xffff);
+			nva_wr32(cnum, 0x1800a8 + i * 0x200 + u * 0x1000, 0);
+		}
+		sleep(1);
+		for (i = 0; i < 1; i++)
+			printf ("GPC[%d] set %d: %d Hz\n", u, i, nva_rd32(cnum, 0x1800a8 + i * 0x200 + u * 0x1000));
+	}
+}
+
 void time_pgraph_dispatch_clock(unsigned int card)
 {
 	struct timeval start, end;
@@ -264,8 +302,13 @@ int main(int argc, char **argv)
 	time_pgraph_dispatch_clock(cnum);
 	printf("\n");
 
-	time_pcounter(cnum);
-	printf("\n");
+	if (card->card_type == 0xc0) {
+		time_pcounter_nvc0(cnum);
+		printf("\n");
+	} else {
+		time_pcounter(cnum);
+		printf("\n");
+	}
 
 	if (card->chipset < 0x98 || card->chipset == 0xa0) {
 		/* restore PMC enable */
