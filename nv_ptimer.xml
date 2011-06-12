@@ -17,7 +17,7 @@
 	</reg32>
 	<reg32 offset="0x200" name="NUMERATOR" />
 	<reg32 offset="0x210" name="DENOMINATOR" />
-	<reg32 offset="0x220" name="CLOCK_SOURCE">
+	<reg32 offset="0x220" name="CLOCK_SOURCE" variants="NV40-">
 		<bitfield low="0" high="7" name="DENOMINATOR" />
 		<bitfield low="8" high="12" name="NUMERATOR" />
 		<bitfield pos="16" name="MAX_FREQUENCY" />
