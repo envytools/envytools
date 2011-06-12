@@ -13,20 +13,20 @@ typedef unsigned __int64 u64;
 #else
 typedef unsigned long long u64;
 #endif
-//typedef u64 time_t;
+typedef u64 ptime_t;
 #include <time.h>
 
 #define NV04_PTIMER_TIME_0                                 0x00009400
 #define NV04_PTIMER_TIME_1                                 0x00009410
 
-time_t time_diff_us(struct timeval start, struct timeval end)
+ptime_t time_diff_us(struct timeval start, struct timeval end)
 {
 	return ((end.tv_sec) - (start.tv_sec))*1000000 + ((end.tv_usec) - (start.tv_usec));
 }
 
-time_t get_time(unsigned int card)
+ptime_t get_time(unsigned int card)
 {
-	time_t low;
+	ptime_t low;
 
 	/* From kmmio dumps on nv28 this looks like how the blob does this.
 	* It reads the high dword twice, before and after.
@@ -34,14 +34,14 @@ time_t get_time(unsigned int card)
 	* advances between high and low dword reads and may corrupt the
 	* result. Not confirmed.
 	*/
-	time_t high2 = nva_rd32(card, NV04_PTIMER_TIME_1);
-	time_t high1;
+	ptime_t high2 = nva_rd32(card, NV04_PTIMER_TIME_1);
+	ptime_t high1;
 	do {
 		high1 = high2;
 		low = nva_rd32(card, NV04_PTIMER_TIME_0);
 		high2 = nva_rd32(card, NV04_PTIMER_TIME_1);
 	} while (high1 != high2);
-	return ((((time_t)high2) << 32) | (time_t)low) >> 5;
+	return ((((ptime_t)high2) << 32) | (ptime_t)low) >> 5;
 }
 
 void time_pcounter(unsigned int cnum)
@@ -68,7 +68,7 @@ void time_pcounter(unsigned int cnum)
 void time_pgraph_dispatch_clock(unsigned int card)
 {
 	struct timeval start, end;
-	time_t t_start, t_end;
+	ptime_t t_start, t_end;
 	u32 reg;
 
 	if (nva_cards[card].card_type == 0x50)
@@ -96,10 +96,10 @@ void time_pgraph_dispatch_clock(unsigned int card)
 	       (t_end - t_start), (t_end - t_start)/1000000.0);
 }
 
-time_t time_ptimer_clock(unsigned int card)
+ptime_t time_ptimer_clock(unsigned int card)
 {
 	struct timeval start, end;
-	time_t t_start, t_end;
+	ptime_t t_start, t_end;
 
 	gettimeofday(&start, NULL);
 	t_start = get_time(card);
@@ -117,7 +117,7 @@ time_t time_ptimer_clock(unsigned int card)
 
 void time_ptimer(unsigned int card)
 {
-	time_t ptimer_boot, ptimer_default, ptimer_max, ptimer_calibrated;
+	ptime_t ptimer_boot, ptimer_default, ptimer_max, ptimer_calibrated;
 
 	/* Save the current values */
 	u32 r9200 = nva_rd32(card, 0x9200);
@@ -166,7 +166,7 @@ void time_ptimer(unsigned int card)
 void time_fuc_engine_periodic (unsigned int card, const char *fuc_engine_name, u32 fucengine)
 {
 	struct timeval start, end;
-	time_t t_start, t_end;
+	ptime_t t_start, t_end;
 
 	/* Save the current values */
 	u32 r24 = nva_rd32(card, fucengine + 0x24);
@@ -185,7 +185,7 @@ void time_fuc_engine_periodic (unsigned int card, const char *fuc_engine_name, u
 
 	gettimeofday(&end, NULL);
 
-	time_t val = time_diff_us(start, end);
+	ptime_t val = time_diff_us(start, end);
 	printf("%s's periodic timer: frequency = %f MHz\n", fuc_engine_name, 10000000.0/val);
 
 	/* Restore the previous values */
@@ -196,7 +196,7 @@ void time_fuc_engine_periodic (unsigned int card, const char *fuc_engine_name, u
 void time_fuc_engine_watchdog (unsigned int card, const char *fuc_engine_name, u32 fucengine)
 {
 	struct timeval start, end;
-	time_t t_start, t_end;
+	ptime_t t_start, t_end;
 
 	/* Save the current values */
 	u32 r34 = nva_rd32(card, fucengine + 0x34);
@@ -215,7 +215,7 @@ void time_fuc_engine_watchdog (unsigned int card, const char *fuc_engine_name, u
 
 	gettimeofday(&end, NULL);
 
-	time_t val = time_diff_us(start, end);
+	ptime_t val = time_diff_us(start, end);
 	printf("%s's watchdog: frequency       = %f MHz\n", fuc_engine_name, 10000000.0/val);
 
 	/* Restore the previous values */
