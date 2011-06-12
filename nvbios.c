@@ -850,7 +850,7 @@ int main(int argc, char **argv) {
 				// nv4x cards detect the ref_clk from the strap
 				// XXX: C51 has some extra ref_clk hacks
 				if (strap && ref_clk == 0)
-					switch (strap & (1 << 6)) {
+					switch (strap & (1 << 22 | 1 << 6)) {
 					case 0:
 						ref_clk = 13500;
 						break;
@@ -891,7 +891,7 @@ int main(int argc, char **argv) {
 					ref_clk = le32(rec_ptr+28);
 
 					if (strap && ref_clk == 0)
-						switch (strap & (1 << 6)) {
+						switch (strap & (1 << 22 | 1 << 6)) {
 						case 0:
 							ref_clk = 13500;
 							break;
