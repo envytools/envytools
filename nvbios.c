@@ -1246,8 +1246,8 @@ int main(int argc, char **argv) {
 		} else if (version == 0x40) {
 			header_length = bios[start+1];
 			entry_length = bios[start+2];
-			entry_count = bios[start+3];
-			mask = bios[start+11];
+			entry_count = bios[start+3];	// XXX: NFI what the entries are for
+			mask = bios[start+11];			// guess
 		}
 
 		printf ("Voltage table at %x. Version %x.\n", voltage_tbl_ptr, version);
@@ -1279,12 +1279,22 @@ int main(int argc, char **argv) {
 				start += entry_length;
 			}
 		} else {
-			/* That's what nouveau does, but it doesn't make sense... */
+			/* That's what nouveau does, but it doesn't make much sense... */
 			uint32_t volt_uv = le32(start+4);
-			uint16_t step_uv = le16(start+8);
+			int16_t step_uv = le16(start+8);
+			uint16_t nr_label = mask + 1; // XXX: hacky solution
+			int i;
 
-			printf ("-- Voltage range = %u-%u µV, step = %u µV--\n",
-				volt_uv, volt_uv + volt_uv * mask, step_uv);
+			printf("-- Maximum voltage %d µV, voltage step %d µV, Maximum voltage to be used %d µV --\n",
+					volt_uv, step_uv, le32(start+14));
+
+			for (i = 0; i < nr_label; i++) {
+				printf("-- Vid %d, voltage %d µV --\n", i, volt_uv);
+				volt_uv += step_uv;
+			}
+
+//			printf ("-- Voltage range = %u-%u µV, step = %u µV--\n",
+//				volt_uv, volt_uv + volt_uv * mask, step_uv);
 		}
 		printf("\n");
 	}
