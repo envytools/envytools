@@ -1262,12 +1262,12 @@ int main(int argc, char **argv) {
 			printf ("%i entries\n", entry_count);
 			int i;
 			for (i=0; i < entry_count; i++) {
-				uint8_t id, label;
+				uint32_t id, label;
 
 				id = bios[start+1];
 				label = bios[start+0] * 10000;
 
-				printf ("-- ID = %x, voltage = %u[µV] --\n", id, label);
+				printf ("-- ID = %x, voltage = %u µV --\n", id, label);
 				if (entry_length > 20) {
 					printcmd(start, 20); printf("\n");
 					printcmd(start + 20, entry_length - 20);
