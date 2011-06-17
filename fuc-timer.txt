@@ -1,7 +1,7 @@
 Introduction
 
-Time and timer-related registers are the same across each fuc engines
-at the exception of PGRAPH CTXCTLs that lack TIME_LOW and TIME_HIGH.
+Time and timer-related registers are the same across each fuc engines, except
+PGRAPH CTXCTLs which lack PTIMER access.
 
 You can:
 
@@ -9,54 +9,83 @@ You can:
  - Use a periodic timer: Generate an interrupt periodically
  - Use a watchdog/one-shot timer: Generate an interrupt once in the future
 
-The periodic and watchdog timers aren't bound to PTIMER's clock. The actual clock
-depends on the fuc engine:
+Also note that the CTXCTLs have another watchdog timer on their own - see
+nvc0-pgraph-ctxctl.txt for more information.
 
- - PDAEMON: The value seems to be fixed to 202.495 MHz [XXX: check]
- - Others: [XXX: TODO]
+
+fuc core clock
+
+The periodic and watchdog timers are bound to the fuc engine's core clock. The
+source of that clock depends on the engine and card:
+
+ - PBSP, PVP, PPPP: core/vdec clock [nvc0 clock #14]
+ - PCRYPT: core clock [XXX: divider]
+ - PUNK1C1: ??? [XXX]
+ - PCOPYs, PGRAPH HUB CTXCTL: core/hub clock [nvc0 clock #9]
+ - PDAEMON: daemon clock [nvc0 clock #12]
+ - PGRAPH GPC CTXCTLs: GPC clock [nvc0 clock #0] [XXX: divider]
+[XXX: check sources on nva3, figure out dividers]
+
+For more information about the clocks see nv50-pclock.txt, nva3-pclock.txt,
+nvc0-pclock.txt
+
+
+Periodic timer
+
+All fuc engines have a periodic timer. This timer generates periodic interrupts
+on line 0. The registers controlling this timer are:
 
 MMIO 0x020 / I[0x00800]: PERIODIC_PERIOD
-  A 32-bit register defining the period of the periodic timer.
+  A 32-bit register defining the period of the periodic timer, minus 1.
 MMIO 0x024 / I[0x00900]: PERIODIC_TIME
   A 32-bit counter storing the time remaining before the tick.
 MMIO 0x028 / I[0x00a00]: PERIODIC_ENABLE
-  bit 1: Enable the periodic timer.
+  bit 0: Enable the periodic timer. If 0, the counter doesn't change and no
+	 interrupts are generated.
 
-Fuc engines all have a periodic timer. This timer generates an interrupt
-periodically on line 0.
-
-More technically, this happens when PERIODIC_TIME reaches 0. This register
-is decremented after each clock source tick unless PERIODIC_ENABLE is clear.
-
-The periodicity can be setup by setting the PERIODIC_PERIOD register to the number
-of clock source ticks wanted.
-
-[XXX: Check what is the actual time sourkce for this timer]
+When the counter is enabled, PERIODIC_TIME decreases by 1 every clock cycle.
+When PERIODIC_TIME reaches 0, an interrupt is generated on line 0 and the
+counter is reset to PERIODIC_PERIOD.
 
 Operation (after each clock source tick):
-	if (PERIODIC_ENABLE && PERIODIC_TIME > 0)
-		PERIODIC_TIME = PERIODIC_TIME) - 1;
-
-	if (PERIODIC_TIME == 0) {
-		raise_interrupt(0);
-		PERIODIC_TIME = PERIODIC_PERIOD;
+	if (PERIODIC_ENABLE) {
+		if (PERIODIC_TIME == 0) {
+			PERIODIC_TIME = PERIODIC_PERIOD;
+			intr_line[0] = 1;
+		} else {
+			PERIODIC_TIME--;
+			intr_line[0] = 0;
+		}
+	} else {
+		intr_line[0] = 0;
 	}
 
 
+PTIMER access
+
+The fuc engines other than PGRAPH's CTXCTLs have PTIMER's time registers
+aliased into their IO space. aliases are:
+
 MMIO 0x02c / I[0x00b00]: TIME_LOW
+	Alias of PTIMER's TIME_LOW register [MMIO 0x9400]
 MMIO 0x030 / I[0x00c00]: TIME_HIGH
+	Alias of PTIMER's TIME_HIGH register [MMIO 0x9410]
 
-These are just aliases for PTIMER's TIME_LOW and TIME_HIGH. Both of them are
-32-bit counters.
+Both of these registers are read-only. See ptimer.txt for more information
+about PTIMER.
 
-See [ptimer.txt] for more information.
 
+Watchdog timer
+
+Apart from a periodic timer, the fuc engines also have an independent one-shot
+timer, also called watchdog timer. It can be used to set up a single interrupt
+in near future. The registers are:
 
 MMIO 0x034 / I[0x00d00]: WATCHDOG_TIME
+  A 32-bit counter storing the time remaining before the interrupt.
 MMIO 0x038 / I[0x00e00]: WATCHDOG_ENABLE
-
-A watchdog is usually a timer that, when reaching 0, resets a microcontroler.
-This is a mean of rebooting a microcontroler when it is stuck in an infinite loop.
+  bit 0: Enable the watchdog timer. If 0, the counter doesn't change and no
+	 interrupts are generated.
 
 A classic use of a watchdog is to set it before calling a sensitive function by
 initializing it to, for instance, twice the usual time needed by this function to
@@ -66,13 +95,16 @@ In fuc's case, the watchdog doesn't reboot the µc. Indeed, it is very similar t
 the periodic timer. The differences are:
 
  - it generates an interrupt on line 1 instead of 0.
- - it manually needs to be reset
-
-[XXX: Check what is the actual time source for this timer]
+ - it needs to be reset manually
 
 Operation (after each clock source tick):
-	if (WATCHDOG_ENABLE && WATCHDOG_TIME > 0)
-		WATCHDOG_TIME = WATCHDOG_TIME - 1;
-
-	if (WATCHDOG_TIME == 0)
-		raise_interrupt(1);
+	if (WATCHDOG_ENABLE) {
+		if (WATCHDOG_TIME == 0) {
+			intr_line[1] = 1;
+		} else {
+			WATCHDOG_TIME--;
+			intr_line[1] = 0;
+		}
+	} else {
+		intr_line[1] = 0;
+	}
