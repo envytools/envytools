@@ -10,21 +10,24 @@
 
 <array offset="0x9000" name="PTIMER" stride="0x1000" length="1">
 	<reg32 offset="0x100" name="INTR">
-		<bitfield pos="0" name="ALARM" />
+		<bitfield pos="0" name="ALARM"/>
 	</reg32>
 	<reg32 offset="0x140" name="INTR_EN">
-		<bitfield pos="0" name="ALARM" />
+		<bitfield pos="0" name="ALARM"/>
 	</reg32>
-	<reg32 offset="0x200" name="NUMERATOR" />
-	<reg32 offset="0x210" name="DENOMINATOR" />
-	<reg32 offset="0x220" name="CLOCK_SOURCE" variants="NV40-">
-		<bitfield low="0" high="7" name="DENOMINATOR" />
-		<bitfield low="8" high="12" name="NUMERATOR" />
-		<bitfield pos="16" name="MAX_FREQUENCY" />
+	<reg32 offset="0x200" name="CLOCK_DIV"/>
+	<reg32 offset="0x210" name="CLOCK_MUL"/>
+	<reg32 offset="0x220" name="CLOCK_SOURCE" variants="NV41-">
+		<bitfield low="0" high="7" name="INTERNAL_MUL"/>
+		<bitfield low="8" high="12" name="INTERNAL_DIV"/>
+		<bitfield pos="16" name="SELECT">
+			<value value="0" name="INTERNAL"/>
+			<value value="0" name="EXTERNAL"/>
+		</bitfield>
 	</reg32>
-	<reg32 offset="0x400" name="TIME_0" />
-	<reg32 offset="0x410" name="TIME_1" />
-	<reg32 offset="0x420" name="ALARM_0" />
+	<reg32 offset="0x400" name="TIME_LOW" />
+	<reg32 offset="0x410" name="TIME_HIGH" />
+	<reg32 offset="0x420" name="ALARM" />
 </array>
 
 </domain>
