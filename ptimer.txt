@@ -1,9 +1,44 @@
 Introduction
 
-Some operations in GPUs are time sensitive. These operations can range from very
-low-level (enforcing memory timings) to high-level (monitoring execution time).
+PTIMER is a small functional unit used to measure time by the card. It has
+a 56-bit tick counter connected to a programmable clock source. The current
+value of this counter is used for timestamping by many other units on the GPU.
+Two such timestamps can be substracted to get the wall time elapsed between
+their creation and measure eg. command execution time. Also, it's possible to
+set up an interrupt that will be triggered when the low 27 bits of the counter
+reach a specified value.
 
-This need lead nVidia to write PTIMER, an engine dedicated to time tracking.
+The PTIMER's MMIO range is 0x9000:0xa000. It is enabled by PMC.ENABLE bit 16,
+and its interrupt line is connected to PMC.INTR line 20. It's available on all
+cards, starting with nv01.
+
+Curiously, on NV41+ the PTIMER is also used to report MMIO faults, ie. MMIO
+space accesses from host that failed for some reason.
+
+
+MMIO register list
+
+* means a NV41+ only register
+# means a register available only on [XXX: check which chipsets]
+
+009060# ???		???
+009064# ???		???
+009080# ???		???
+[XXX: figure these out]
+009084* MMIO_FAULT_ADDR	address and type of last MMIO fault
+009088* MMIO_FAULT_DATE	data written on last MMIO fault
+[XXX: document these]
+009100  INTR		interrupt status / acknowledge
+009140  INTR_EN		interrupt enable
+009200  NUMERATOR	clock multiplier
+009210  DENOMINATOR	clock divider
+009220* CLOCK_SOURCE	clock source selection
+009400  TIME_LOW	low part of the time counter
+009410  TIME_HIGH	high part of the time counter
+009420  ALARM		the TIME_LOW value to interrupt on
+
+
+The time counter
 
 PTIMER's clock is a 64-bit value that is spread across two 32-bit registers:
 
@@ -13,15 +48,15 @@ PTIMER's clock is a 64-bit value that is spread across two 32-bit registers:
 PTIMER's clock source depends on chipset families:
 
  - nv03 family: MPLL (memory PLL)
- - nv04-40 families: Core PLL
- - nv40-C0 family: A programmable clock set to 27MHz by default
+ - nv04:nv41: Core PLL
+ - nv41+: A programmable clock set to 27MHz by default
 
 On nv03-nv40 chipsets, ptimer's clock is divided by a configurable divider stage.
 The resulting clock frequency is given by (where NUMERATOR > DENOMINATOR):
 
   clock = clock_source * PTIMER.DENOMINATOR / PTIMER.NUMERATOR
 
-On nv40-nvc0, clock source is not bound anymore to the core or the memory PLL.
+On nv41-nvc0, clock source is not bound anymore to the core or the memory PLL.
 Instead clock source is by default set to 27MHz but can be divided or increased
 up to around 100MHz. Bit 16 of CLOCK_SOURCE overrides this modulation and
 sets the clock source at its maximum value. If bit 16 is clear, clock source is
