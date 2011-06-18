@@ -1,0 +1,109 @@
+The nvidia GPUs, like most electronic devices, use clock signals to control
+their operation. Since they're complicated devices made of many subunits with
+different performance needs, there are multiple clock signals for various
+parts of the GPU.
+
+The set of available clocks and the method of setting them varies a lot with
+the card type.
+
+NV01:NV40 chipsets have the following clocks:
+
+ - core clock [NVPLL]: used to clock the graphics engine - on NV04+ cards only
+ - memory clock [MPLL]: used to clock memory and, before NV04, the graphics
+   engine - not present on IGPs
+ - video clock 1 [VPLL]: used to drive first/only video output
+ - video clock 2 [VPLL2]: used to drive second video output - only on NV11+
+   cards
+[XXX: DLL on NV03]
+[XXX: NV01???]
+
+These clocks are set in PDAC [NV01] or PRAMDAC [NV03 and up] areas - see
+pramdac.txt for more information.
+
+NV40 generation cards have the following clocks:
+
+ - host clock: clocks the host interface parts, like PFIFO
+[XXX: figure out where that one comes from]
+ - core clock [NVPLL]: clocks most of the card's logic
+ - unknown clock 4008
+[XXX: is that just the shader clock?]
+ - video clocks [VPLL1,VPLL2]: used to drive the video outputs
+ - memory clocks [MPLL1-MPLL4]: used to clock the VRAM, there's one of them
+   for each memory partition connected to the card
+ - unknown clock 4050 - not present on all cards
+[XXX: figure it out]
+ - unknown clock 4058 - not present on all cards
+[XXX: figure it out]
+
+The clocks other than VPLLs are set through the new PCLOCK area
+[see nv40-pclock.txt], VPLLs are set through PRAMDAC like before.
+
+NV50:NVA3 cards have the following clocks:
+
+ - root clock: used as the base for other clocks
+[XXX: not sure about this one]
+ - host clock: clocks the host interface parts, like PFIFO
+[XXX: figure out where that one comes from]
+ - NVIO clock [IOPLL]: used for communication with the NVIO chip, NV50 and
+   NVA0 only
+ - memory clock [MPLL]: used to clock the VRAM, not present on IGPs
+ - unknown clock 4010: present on NV50, NV92, NVA0 only
+ - unknown clock 4018: present on NV50, NVA0 only
+[XXX: figure these out]
+ - core clock [NVPLL]: clocks most of the card's logic
+ - shader clock [SPLL]: clocks the CUDA multiprocessor / shader units
+ - xtensa clock [XTPLL]: clocks the xtensa cores used for video decoding,
+   only present on NV84:NV98 and NVA0
+ - video clocks [VPLL1,VPLL2]: used to drive the video outputs
+
+The root clock is set up in PNVIO area [see pnvio.txt], VPLLs are set up in
+PDISPLAY area [see pdisplay.txt], and the other clocks are set up in PCLOCK
+area [see nv50-pclock.txt].
+
+NVA3:NVC0 cards have the following clocks:
+
+ - root clocks [RPLL1-4]: used as base for other clocks
+[XXX: how many are there exactly?]
+ - host clock: clocks the host interface parts, like PFIFO
+[XXX: figure out where that one comes from]
+ - memory clock [MPLL, clock #0/#16]: used to clock the VRAM, not present on IGPs
+ - core clock [NVPLL, clock #1/#17]: clocks most of the card's logic
+ - shader clock [SPLL, clock #2/#18]: clocks the CUDA multiprocessor / shader units
+ - unknown clock #8/#24
+ - unknown clock #9/#25
+ - timer clock [clock #20]: input to the PTIMER engine
+ - unknown clock #21
+ - unknown clock #22
+ - unknown clock #24
+ - vdec clock [clock #25]: used to clock the fuc video decoding engines
+ - unknown clock #28
+ - daemon clock [clock #29]: used to clock PDAEMON
+ - unknown clock #31
+ - video clocks [VPLL1,VPLL2]: used to drive the video outputs
+
+The root clocks are set up in PNVIO area [see pnvio.txt], VPLLs are set up in
+PDISPLAY area [see pdisplay.txt], and the other clocks are set up in PCLOCK
+area [see nva3-pclock.txt].
+
+NVC0+ cards have the following clocks:
+
+ - root clocks [RPLL1-4]: used as base for other clocks
+[XXX: how many are there exactly?]
+ - host clock: clocks the host interface parts, like PFIFO
+[XXX: figure out where that one comes from]
+ - GPC clock [GPCPLL, clock #0]: used to clock the GPCs
+ - ROP clock [ROPPLL, clock #1]: used to clock the ROPs - not present on NVC1, XBAR clock used instead
+ - XBAR clock [XBARPLL, clock #2]: used to clock the crossbar between GPCs and ROPs, as well as ROPs on NVC1
+ - core clock [NVPLL, clock #7]: clocks the core card logic
+ - VM clock [clock #8]: clocks the TLBs and page table lookup circuitry [XXX: guess]
+ - HUB clock [clock #9]: clocks the common part of PGRAPH, and the PCOPY engines
+ - timer clock [clock #11]: input to the PTIMER engine
+ - daemon clock [clock #12]: used to clock PDAEMON
+ - vdec clock [clock #14]: used to clock the fuc video decoding engines
+ - memory clock [MPLL, clock M]: used to clock the VRAM, one per memory partition
+[XXX: uses two PLLs, actually]
+ - video clocks [VPLL1,VPLL2]: used to drive the video outputs
+
+The root clocks are set up in PNVIO area [see pnvio.txt], VPLLs are set up in
+PDISPLAY area [see pdisplay.txt], the MPLLs are set up in PMCLOCK area, and
+the other clocks are set up in PCLOCK area [see nvc0-pclock.txt].
