@@ -225,7 +225,7 @@ void time_ptimer(unsigned int card)
 	/* Restore the previous values */
 	nva_wr32(card, 0x9200, r9200);
 	nva_wr32(card, 0x9210, r9210);
-	nva_wr32(card, 0x9220, r9210);
+	nva_wr32(card, 0x9220, r9220);
 }
 
 void time_fuc_engine_periodic (unsigned int card, const char *fuc_engine_name, u32 fucengine)
