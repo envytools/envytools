@@ -26,7 +26,7 @@ MMIO register list
 009080# ???		???
 [XXX: figure these out]
 009084* MMIO_FAULT_ADDR	address and type of last MMIO fault
-009088* MMIO_FAULT_DATE	data written on last MMIO fault
+009088* MMIO_FAULT_DATA	data written on last MMIO fault
 [XXX: document these]
 009100  INTR		interrupt status / acknowledge
 009140  INTR_EN		interrupt enable
