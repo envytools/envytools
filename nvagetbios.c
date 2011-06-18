@@ -106,15 +106,20 @@ int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 
 	int32_t prom_offset;
 	int32_t prom_size;
+	int32_t pbus_offset;
 
 	if (nva_cards[cnum].chipset < 0x04) {
 		prom_offset = 0x110000;
 		prom_size = NV03_PROM_SIZE;
 	} else {
+		if (nva_cards[cnum].chipset < 0x40)
+			pbus_offset = 0x1800;
+		else
+			pbus_offset = 0x88000;
 		prom_offset = 0x300000;
 		prom_size = NV_PROM_SIZE;
-		pci_device_cfg_read_u32(nva_cards[cnum].pci, &pci_cfg_50, 0x50);
-		pci_device_cfg_write_u32(nva_cards[cnum].pci, 0x0, 0x50);
+		pci_cfg_50 = nva_rd32(cnum, pbus_offset + 0x50);
+		nva_wr32(cnum, pbus_offset + 0x50, 0);
 	}
 
 	/* on some 6600GT/6800LE prom reads are messed up.  nvclock alleges a
@@ -127,8 +132,9 @@ int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 
 	ret = nv_ckbios(vbios, length);
 out:
-	if (nva_cards[cnum].chipset >= 0x04)
-		pci_device_cfg_write_u32(nva_cards[cnum].pci, pci_cfg_50, 0x50);
+	if (nva_cards[cnum].chipset >= 0x04) {
+		nva_wr32(cnum, pbus_offset + 0x50, pci_cfg_50);
+	}
 	return ret;
 }
 

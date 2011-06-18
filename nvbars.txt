@@ -28,6 +28,8 @@ Nvidia GPUs, like all PCI devices, have PCI configuration space. It contains:
            output, and use EEPROM for PCI ROM; 1 to enable ROM shadow and
 	   video output, using shadow copy in VRAM for PCI ROM.
 	   [XXX: wrong on NV03]
+	   [XXX: this register and possibly some others doesn't get written when
+	   poked through actual PCI config accesses - PBUS writes work fine]
 0x54-0x57: VGA legacy IO/memory ranges decoding enable - 1 to enable, 0 to
 	   disable
 0x60-0x67: PCI power management capability
