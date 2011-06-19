@@ -41,7 +41,8 @@ int main(int argc, char **argv) {
 		z = nva_rd32(cnum, a+i);
 		nva_wr32(cnum, a+i, x);
 		if (x || y || z) {
-			printf ("%06x: %08x %08x %08x\n", a+i, x, y, z);
+			int cool = (x != y) || (y != z);
+			printf ("%06x: %08x %08x %08x%s\n", a+i, x, y, z, cool?" *":"");
 			ls = 1;
 		} else {
 			if (ls)
