@@ -44,13 +44,27 @@ ptime_t get_time(unsigned int card)
 	return ((((ptime_t)high2) << 32) | (ptime_t)low) >> 5;
 }
 
-void time_pcounter(unsigned int cnum)
+void time_pcounter_nv10(unsigned int cnum)
 {
-	if (nva_cards[cnum].card_type != 0x50 || nva_cards[cnum].chipset == 0x50) {
-		printf("pcounter is unsupported on your card\n");
-		return;
-	}
+	printf ("Perf counter:\n");
 
+
+	nva_wr32(cnum, 0xa404, 0);
+	nva_wr32(cnum, 0xa40c, 0xffff);
+	nva_wr32(cnum, 0xa414, 0xffff);
+	nva_wr32(cnum, 0xa41c, 0);
+	nva_wr32(cnum, 0xa620, 0);
+	nva_wr32(cnum, 0xa624, 0);
+	nva_wr32(cnum, 0xa628, 0);
+	nva_wr32(cnum, 0xa62c, 0);
+	nva_wr32(cnum, 0xa63c, 0);
+	nva_wr32(cnum, 0xa404, 0xffff);
+	sleep(1);
+	printf ("Set 0: %d Hz\n", nva_rd32(cnum, 0xa608));
+}
+
+void time_pcounter_nv84(unsigned int cnum)
+{
 	printf ("Perf counters:\n");
 
 	int i;
@@ -333,8 +347,13 @@ int main(int argc, char **argv)
 	if (card->card_type == 0xc0) {
 		time_pcounter_nvc0(cnum);
 		printf("\n");
-	} else {
-		time_pcounter(cnum);
+	} else if (card->chipset >= 0x84){
+		time_pcounter_nv84(cnum);
+		printf("\n");
+	} else if (card->chipset >= 0x20) {
+		printf("pcounter is unsupported on your card\n");
+	} else if (card->chipset >= 0x10) {
+		time_pcounter_nv10(cnum);
 		printf("\n");
 	}
 
