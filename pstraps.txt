@@ -73,8 +73,8 @@ bit 1: if 0, this GPU is part of a motherboard and ROMless, subsystem device
        value by system bios. if 1, this is a standalone card and has ROM -
        subsystem will be read from 32-bit LE word at address 0x54 in the ROM
 bits 2-3: [original NV03 only]: memory type, apparently useless
-bit 2 [NV03P]: memory type, apparently useless
-bit 3 [NV03P]: if 0, no Power Management capability is exposed and GPU uses
+bit 2 [NV03T]: memory type, apparently useless
+bit 3 [NV03T]: if 0, no Power Management capability is exposed and GPU uses
        pci id 0x0018, if 1 Power Management capability exposed and GPU uses
        pci id 0x0019
 bit 4: ram width: 0 64-bit, 1 128-bit. Apparently useless.
@@ -83,7 +83,7 @@ bit 6: crystal frequency: 0 - 13.500MHz, 1 - 14.31818MHz
 bits 7-8: TV mode: 0 - no TV encoder, 1 - NTSC TV encoder present, 2 - PAL TV
        encoder present
 bit 9 [original NV03]: PCI version: 0 PCI 2.0, 1 PCI 2.1.
-bit 9 [NV03P]: if set, AGP x2 is supported
+bit 9 [NV03T]: if set, AGP x2 is supported
 
 
 NV04-NV40 families straps

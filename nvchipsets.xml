@@ -14,8 +14,8 @@
 	<value name="NV03">
 		<brief>RIVA 128</brief>
 	</value>
-	<value name="NV03P">
-		<brief>RIVA 128 ZX?</brief>
+	<value name="NV03T">
+		<brief>RIVA 128 ZX</brief>
 	</value>
 
 	<value name="NV04">

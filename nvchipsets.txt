@@ -120,20 +120,20 @@ pci vendor id of 0x12d2. The pci device ids are 0x0008 and 0x0009. The device
 id of NV02 was supposed to be 0x0010.
 
 
-NV03 family: NV03, NV03P
+NV03 family: NV03, NV03T
 
 The first [moderately] sane GPUs from nvidia, and also the first to use AGP
 bus. There are two chips in this family, and confusingly both use chipset id
 NV03, but can be told apart by revision. The original NV03 is used in RIVA 128
-cards, while the revised NV03, known as NV03P, is used in RIVA 128 ZX. NV03
-supports AGP 1x and a maximum of 4MB of VRAM, while NV03P supports AGP 2x and
-8MB of VRAM. NV03P also increased number of slots in PFIFO cache. These GPUs
+cards, while the revised NV03, known as NV03T, is used in RIVA 128 ZX. NV03
+supports AGP 1x and a maximum of 4MB of VRAM, while NV03T supports AGP 2x and
+8MB of VRAM. NV03T also increased number of slots in PFIFO cache. These GPUs
 were also manufactured by SFS-Thomson and bear the code name of STG-3000.
 
 The pci vendor id is 0x12d2. The pci device ids are:
 
 0018 original NV03
-0019 NV03P, 0028 also means that the power management capability is disabled,
+0019 NV03T, 0028 also means that the power management capability is disabled,
 	     0029 means it's enabled
 
 The NV03 GPU is made of the following functional blocks:

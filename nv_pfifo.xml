@@ -736,16 +736,16 @@
 				<doc>Bits ffffff.</doc>
 			</reg32>
 
-			<reg32 offset="0x100" name="ADDR" stride="0x8" length="32" variants="NV01:NV03P">
+			<reg32 offset="0x100" name="ADDR" stride="0x8" length="32" variants="NV01:NV03T">
 				<bitfield high="12" low="2" name="MTHD" shr="2"/>
 				<bitfield high="15" low="13" name="SUBCH"/>
 			</reg32>
-			<reg32 offset="0x104" name="DATA" stride="0x8" length="32" variants="NV01:NV03P"/>
-			<reg32 offset="0x200" name="ADDR" stride="0x8" length="64" variants="NV03P:NV04">
+			<reg32 offset="0x104" name="DATA" stride="0x8" length="32" variants="NV01:NV03T"/>
+			<reg32 offset="0x200" name="ADDR" stride="0x8" length="64" variants="NV03T:NV04">
 				<bitfield high="12" low="2" name="MTHD" shr="2"/>
 				<bitfield high="15" low="13" name="SUBCH"/>
 			</reg32>
-			<reg32 offset="0x204" name="DATA" stride="0x8" length="64" variants="NV03P:NV04"/>
+			<reg32 offset="0x204" name="DATA" stride="0x8" length="64" variants="NV03T:NV04"/>
 			<reg32 offset="0x600" name="ADDR" stride="0x8" length="256" variants="NV04:NV40">
 				<doc>Note that the cache actually only has 128 entries,
 				the higher 128 are aliases. This is done so that GET/PUT

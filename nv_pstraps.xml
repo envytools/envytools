@@ -11,9 +11,9 @@
 <bitset name="nv03_straps" inline="yes">
 	<bitfield pos="0" name="PCI_66MHZ"/>
 	<bitfield pos="1" name="PCI_SUB_BIOS"/>
-	<bitfield low="2" high="3" name="RAMCFG" variants="NV03:NV03P"/>
-	<bitfield pos="2" name="RAMCFG" variants="NV03P:NV04" type="hex"/>
-	<bitfield pos="3" name="PM_CAP" variants="NV03P:NV04"/>
+	<bitfield low="2" high="3" name="RAMCFG" variants="NV03:NV03T"/>
+	<bitfield pos="2" name="RAMCFG" variants="NV03T:NV04" type="hex"/>
+	<bitfield pos="3" name="PM_CAP" variants="NV03T:NV04"/>
 	<bitfield pos="4" name="RAM_WIDTH">
 		<value value="0" name="64"/>
 		<value value="1" name="128"/>
@@ -31,8 +31,8 @@
 		<value value="1" name="NTSC"/>
 		<value value="2" name="PAL"/>
 	</bitfield>
-	<bitfield pos="9" name="PCI21" variants="NV03:NV03P"/>
-	<bitfield pos="9" name="AGPX2" variants="NV03P:NV04"/>
+	<bitfield pos="9" name="PCI21" variants="NV03:NV03T"/>
+	<bitfield pos="9" name="AGPX2" variants="NV03T:NV04"/>
 </bitset>
 
 <bitset name="nv04_straps" inline="yes">

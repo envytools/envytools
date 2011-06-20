@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+	<array offset="0x000000" name="PMC" stride="0x1000" length="1">
+		<reg32 offset="0x000" name="ID" variants="NV01:NV04">
+			<bitfield low="0" high="3" name="REV_MINOR"/>
+			<bitfield low="4" high="7" name="REV_MAJOR"/>
+			<bitfield low="8" high="11" name="IMPLEMENTATION"/>
+			<bitfield low="12" high="15" name="ALWAYS0_2"/>
+			<bitfield low="16" high="19" name="CHIPSET">
+				<value value="1" name="NV01"/>
+				<value value="2" name="NV02"/>
+				<value value="3" name="NV03"/>
+			</bitfield>
+			<bitfield low="24" high="27" name="ALWAYS0_1"/>
+			<bitfield low="28" high="31" name="FOUNDRY">
+				<value value="0" name="SGS"/>
+				<value value="1" name="HELIOS"/>
+				<value value="2" name="TMSC"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x000" name="ID" variants="NV04:NV10">
+			<bitfield low="12" high="15" name="ARCHITECTURE">
+				<value value="4" name="NV04"/>
+			</bitfield>
+			<bitfield low="16" high="19" name="REV_MINOR"/>
+			<bitfield low="20" high="23" name="REV_MAJOR"/>
+			<bitfield low="24" high="27" name="ALWAYS0"/>
+			<bitfield low="28" high="31" name="FOUNDRY">
+				<value value="0" name="SGS"/>
+				<value value="1" name="HELIOS"/>
+				<value value="2" name="TMSC"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x000" name="ID" variants="NV10-">
+			<bitfield low="0" high="7" name="STEPPING"/>
+			<bitfield low="16" high="19" name="DEVICE_ID" variants="NV10:NV92"/>
+			<bitfield low="15" high="19" name="DEVICE_ID" variants="NV92:NVC8"/>
+			<bitfield low="12" high="17" name="DEVICE_ID" variants="NVC8-"/>
+			<bitfield low="20" high="27" name="CHIPSET" type="chipset"/>
+		</reg32>
+		<reg32 offset="0x004" name="ENDIAN" variants="NV11-"/>
+		<reg32 offset="0x008" name="BOOT_2" variants="NV92-"/>
+		<bitset name="nv_pmc_intr" inline="yes">
+			<bitfield pos="0" name="PAUDIO" variants="NV01"/>
+			<bitfield pos="0" name="PVPE" variants="NV17:NV98 NVA0"/>
+			<bitfield pos="0" name="PPPP" variants="NV98 NVAA-"/>
+			<bitfield pos="4" name="PDMA" variants="NV01"/>
+			<bitfield pos="4" name="PMEDIA" variants="NV03-"/>
+			<bitfield pos="5" name="PCOPY0" variants="NVC0-"/>
+			<bitfield pos="6" name="PCOPY1" variants="NVC0-"/>
+			<bitfield pos="8" name="PFIFO" />
+			<bitfield pos="9" name="UNK9" variants="NVA3-" />
+			<bitfield pos="11" name="UNK11" variants="NVA3:NVC0" />
+			<bitfield pos="12" name="PGRAPH" />
+			<bitfield pos="13" name="UNK13" variants="NVA3:NVC0" />
+			<bitfield pos="13" name="PBFB" variants="NVC0-"/>
+			<bitfield pos="14" name="PCRYPT" variants="NV84:NVA3"/>
+			<bitfield pos="14" name="UNK14" variants="NVA3:NVC0" />
+			<bitfield pos="15" name="PBSP" variants="NV84-"/>
+			<bitfield pos="16" name="PRM" variants="NV01"/>
+			<bitfield pos="16" name="PVIDEO" variants="NV03-NV40"/>
+			<bitfield pos="16" name="UNK16" variants="NVA3:NVC0" />
+			<bitfield pos="17" name="PVP" variants="NV40-"/>
+			<bitfield pos="18" name="PDAEMON" variants="NVA3:NVC0"/>
+			<bitfield pos="18" name="PTHERM" variants="NVC0-"/>
+			<bitfield pos="19" name="UNK19" variants="NVA3:NVC0" />
+			<bitfield pos="20" name="PTIMER" />
+			<bitfield pos="21" name="PCONNECTOR" variants="NV50-"/>
+			<bitfield pos="22" name="PCOPY" variants="NVA3:NVC0"/>
+			<bitfield pos="23" name="UNK23" variants="NVC0-" />
+			<bitfield pos="24" name="PFB" variants="NV01"/>
+			<bitfield pos="24" name="PCRTC" variants="NV03:NV50"/>
+			<bitfield pos="24" name="PDAEMON" variants="NVC0-"/>
+			<bitfield pos="25" name="PCRTC2" variants="NV11:NV50"/>
+			<bitfield pos="25" name="PMFB" variants="NVC0-"/>
+			<bitfield pos="26" name="PDISPLAY" variants="NV50-"/>
+			<bitfield pos="27" name="UNK27" variants="NVA3:NVC0" />
+			<bitfield pos="27" name="PFFB" variants="NVC0-"/>
+			<bitfield pos="28" name="SOFTWARE" variants="NV01"/>
+			<bitfield pos="28" name="PBUS" variants="NV03-"/>
+			<bitfield pos="29" name="UNK29" variants="NVA3-"/>
+			<bitfield pos="30" name="PMASTER" variants="NVC0-"/>
+			<bitfield pos="31" name="SOFTWARE" variants="NV03-">
+				<doc>Software interrupt: write 1 to this bit to trigger
+				interrupt, write 0 to stop.</doc>
+			</bitfield>
+		</bitset>
+		<reg32 offset="0x100" name="INTR_HOST" type="nv_pmc_intr">
+			<doc>Shows currently pending interrupts for host. Read-only, except
+			for SOFTWARE bit. No need to ack these, they disappear by
+			acking in upstream unit.</doc>
+		</reg32>
+		<reg32 offset="0x104" name="INTR_UNK1" type="nv_pmc_intr" variants="NVA3-">
+			<doc>Shows currently pending interrupts for ???.</doc>
+		</reg32>
+		<reg32 offset="0x108" name="INTR_PDAEMON" type="nv_pmc_intr" variants="NVA3-">
+			<doc>Shows currently pending interrupts for PDAEMON.</doc>
+		</reg32>
+		<reg32 offset="0x140" name="INTR_HOST_EN">
+			<doc>Enables reporting interrupts via IRQ lines. Doesn't affect
+			status shown in PMC_INTR, only sending actual bus interrupts.</doc>
+			<bitfield pos="0" name="HARDWARE">
+				<doc>Enable reporting hardware interrupts, ie. all but SOFTWARE.</doc>
+			</bitfield>
+			<bitfield pos="1" name="SOFTWARE">
+				<doc>Enable reporting software interrupts.</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x144" name="INTR_UNK1_EN" variants="NVA3-">
+			<bitfield pos="0" name="HARDWARE"/>
+			<bitfield pos="1" name="SOFTWARE"/>
+		</reg32>
+		<reg32 offset="0x148" name="INTR_PDAEMON_EN" variants="NVA3-">
+			<bitfield pos="0" name="HARDWARE"/>
+			<bitfield pos="1" name="SOFTWARE"/>
+		</reg32>
+		<reg32 offset="0x200" name="ENABLE">
+			<doc>Selects which card units are enabled.</doc>
+			<bitfield pos="0" name="PAUDIO" variants="NV01"/>
+			<!-- might be HDVP video decoding -->
+			<bitfield pos="0" name="UNK0" variants="NV03:NV04 NV10-"/>
+			<!-- I wonder how much modern NVA0 VPE has in common with the original NV17 thing. oh meh. we'll find out some day.-->
+			<bitfield pos="1" name="PVPE" variants="NV17:NV98 NVA0"/> <!-- also controls NV50:NV98, NVA0 PVP -->
+			<bitfield pos="1" name="PPPP" variants="NV98 NVAA-"/>
+			<bitfield pos="2" name="PGUNK13B" variants="NVC0-"/>
+			<bitfield pos="3" name="PMFB" variants="NVC0-"/>
+			<bitfield pos="4" name="PDMA" variants="NV01"/>
+			<bitfield pos="4" name="PMEDIA" variants="NV03-"/>
+			<bitfield pos="5" name="PMASTER" variants="NVC0-"/> <!-- disable that and most of MMIO disappears -->
+			<bitfield pos="6" name="PCOPY" variants="NVC0-"/>
+			<bitfield pos="7" name="PCOPY2" variants="NVC0-"/>
+			<bitfield pos="8" name="PFIFO" />
+			<bitfield pos="12" name="PGRAPH" />
+			<bitfield pos="13" name="PCOPY" variants="NVA3:NVC0"/>
+			<bitfield pos="13" name="PDAEMON" variants="NVC0-"/>
+			<bitfield pos="14" name="PCRYPT" variants="NV84:NVA3"/>
+			<bitfield pos="15" name="PBSP" variants="NV84-"/>
+			<bitfield pos="16" name="PRM" variants="NV01"/>
+			<bitfield pos="16" name="PTIMER" variants="NV03-"/>
+			<bitfield pos="17" name="PVP" variants="NV98 NVAA-"/>
+			<bitfield pos="20" name="PFB" variants="NV03:NVC0"/>
+			<bitfield pos="20" name="PBFB" variants="NVC0-"/>
+			<bitfield pos="24" name="PFB" variants="NV01"/>
+			<bitfield pos="24" name="PCRTC" variants="NV03:NV50"/>
+			<bitfield pos="25" name="PCRTC2" variants="NV11:NV50"/>
+			<bitfield pos="26" name="PTV" variants="NV17:NV20 NV30:NV50"/>
+			<bitfield pos="27" name="UNK27" variants="NVC0-"/>
+			<bitfield pos="28" name="PVIDEO" variants="NV03:NV50"/>
+			<bitfield pos="28" name="PCOUNTER" variants="NVC0-"/>
+			<bitfield pos="29" name="PFFB" variants="NVC0-"/>
+			<bitfield pos="30" name="PDISPLAY" variants="NV50-"/>
+			<bitfield pos="31" name="UNK31" variants="NV50-"/>
+			<!-- XXX: NV84:NVC0 have lots of other bits that apparently don't affect anything, but not really. -->
+		</reg32>
+		<reg32 offset="0x204" name="SUBFIFO_ENABLE" variants="NVC0-">
+			<bitfield pos="0" name="0"/>
+			<bitfield pos="1" name="1"/>
+			<bitfield pos="2" name="2"/>
+		</reg32>
+		<reg32 offset="0x208" name="UNK208" variants="NVC0-"/>
+		<reg32 offset="0x20c" name="UNK20C" variants="NVC1-"/>
+		<reg32 offset="0x300" name="BAR1_HIDE_LOW" variants="NV17-">
+			<bitfield low="0" high="28" name="ADDR"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x304" name="BAR1_HIDE_HIGH" variants="NV17-"/>
+		<reg32 offset="0x640" name="INTR_HOST_MASK" type="nv_pmc_intr" variants="NVA3-"/>
+		<reg32 offset="0x644" name="INTR_UNK1_MASK" type="nv_pmc_intr" variants="NVA3-"/>
+		<reg32 offset="0x648" name="INTR_PDAEMON_MASK" type="nv_pmc_intr" variants="NVA3-"/>
+		<reg32 offset="0xa00" name="NEW_ID" variants="NV94-">
+			<bitfield low="0" high="4" name="DEVICE_ID"/>
+			<bitfield low="8" high="9" name="BOOT_2"/>
+			<bitfield low="12" high="19" name="STEPPING"/>
+			<bitfield low="20" high="27" name="CHIPSET" type="chipset"/>
+		</reg32>
+	</array>
+</domain>
+</database>
