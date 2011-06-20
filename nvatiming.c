@@ -77,6 +77,27 @@ void time_pcounter_nv10(unsigned int cnum)
 	}
 }
 
+void time_pcounter_nv40(unsigned int cnum)
+{
+	printf ("Perf counters:\n");
+
+	int i;
+	uint32_t debug1 = nva_rd32(cnum, 0x400084);
+	for (i = 0; i < 8; i++) {
+		nva_wr32(cnum, 0xa7c0 + i * 4, 0x1);
+		nva_wr32(cnum, 0xa460 + i * 4, 0);
+		nva_wr32(cnum, 0xa4a0 + i * 4, 0);
+		nva_wr32(cnum, 0xa4e0 + i * 4, 0);
+		nva_wr32(cnum, 0xa500 + i * 4, 0);
+		nva_wr32(cnum, 0xa520 + i * 4, 0);
+		nva_wr32(cnum, 0xa420 + i * 4, 0xffff);
+		nva_wr32(cnum, 0x400084, debug1 | 0x20);
+		sleep(1);
+		nva_wr32(cnum, 0x400084, debug1 | 0x20);
+		printf ("Set %d: %d Hz\n", i, nva_rd32(cnum, 0xa600 + i * 4));
+	}
+}
+
 void time_pcounter_nv84(unsigned int cnum)
 {
 	printf ("Perf counters:\n");
@@ -365,7 +386,8 @@ int main(int argc, char **argv)
 		time_pcounter_nv84(cnum);
 		printf("\n");
 	} else if (card->chipset >= 0x40) {
-		printf("pcounter is unsupported on your card\n");
+		time_pcounter_nv40(cnum);
+		printf("\n");
 	} else if (card->chipset >= 0x10) {
 		time_pcounter_nv10(cnum);
 		printf("\n");
@@ -373,7 +395,7 @@ int main(int argc, char **argv)
 
 	if (card->chipset < 0x98 || card->chipset == 0xa0) {
 		/* restore PMC enable */
-		nva_wr32(cnum, 0x200, pmc_enable);
+//		nva_wr32(cnum, 0x200, pmc_enable);
 
 		printf("Your card doesn't support fuc (chipset > nv98+ && chipset != nva0 needed)\n");
 		return 0;
