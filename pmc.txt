@@ -34,7 +34,7 @@ no annotation - available on all cards
 000204[6] SUBFIFO_ENABLE	PSUBFIFO enables
 000208[6] ???			??? [related to enable?]
 [XXX: figure out 208]
-00020c[7] ???			???
+00020c[7] ???			??? [related to enable?]
 [XXX: figure out 20c]
 000260...000274[5] ???		??? related to PFIFO engines
 [XXX: figure out 260...]
@@ -124,7 +124,7 @@ This register and the endian switch don't exist on pre-NV11 cards - they're
 always little-endian.
 
 Note that this switch is also used by NV50+ PFIFO as its default endianness
-- see nv50_pfifo.txt for details.
+- see nv50-pfifo.txt for details.
 
 The MMIO areas containing aliases of 8-bit VGA registers are unaffected by
 this switch, despite being in BAR0.
@@ -132,12 +132,267 @@ this switch, despite being in BAR0.
 
 Engine enables
 
-[XXX: write me]
+PMC contains the main engine enable register, which is used to turn whole
+engines on and off:
+
+MMIO 0x000200: ENABLE
+  When given bit is set to 0, the corresponding engine is disabled, when set
+  to 1, it is enabled. Most engines disappear from MMIO space and reset to
+  default state when disabled.
+
+On NV01, the bits are:
+  0: PAUDIO
+  4: PDMA
+  8: PFIFO [nv01-pfifo.txt]
+  12: PGRAPH
+  16: PRM
+  24: PFB
+[XXX: this is probably wrong...]
+
+On NV03:NV04, the bits are:
+  0: ??? [XXX]
+  4: PMEDIA [pmedia.txt]
+  8: PFIFO [nv01-pfifo.txt]
+  12: PGRAPH [nv03-pgraph.txt]
+  16: PTIMER [ptimer.txt]
+  20: PFB [nv03-pfb.txt]
+  24: CRTC [nvvga.txt]
+  28: PRAMDAC.VIDEO [pramdac.txt]
+
+On NV04:NV50, the bits are:
+  0: ??? - alleged to be related to I2C [NV10-] [XXX]
+  1: VPE [vpe.txt] [NV17-], also controls PVP [vp1.txt] [NV41-]
+  4: PMEDIA [pmedia.txt]
+  8: PFIFO [nv04-pfifo.txt]
+  12: PGRAPH [nv04-pgraph.txt, nv10-pgraph.txt, nv20-pgraph.txt, nv30-pgraph.txt, nv40-pgraph.txt]
+  13: PGRAPH CS??? apparently exists on some late NV4x... [nv40-pgraph.txt] [NV4?-]
+  [XXX: figure out the CS thing, figure out the variants. Known not to exist on NV40, NV43, NV44, NV49]
+  16: PTIMER [ptimer.txt]
+  20: PFB [nv03-pfb.txt, nv10-pfb.txt, nv40-pfb.txt]
+  24: PCRTC [nvvga.txt]
+  25: PCRTC2 [nvvga.txt] [NV11-]
+  26: PTV [ptv.txt] [NV17:NV20, NV25:NV50]
+  28: PRAMDAC.VIDEO [pramdac.txt] [NV04:NV10] or PVIDEO [pvideo.txt] [NV10:NV50]
+
+On NV50:NVC0, the bits are:
+  0: ??? - alleged to be related to I2C
+  1: VPE [vpe.txt] and PVP [vp1.txt, vp2.txt] [NV50:NV98 and NVA0]
+  1: PPPP [fuc-ppp.txt] [NV98 and NVAA-]
+  4: PMEDIA [pmedia.txt]
+  8: PFIFO [nv50-pfifo.txt]
+  12: PGRAPH [nv50-pgraph.txt]
+  13: PCOPY [fuc-copy.txt] [NVA3-]
+  14: PCRYPT [crypt.txt, fuc-crypt.txt] [NV84:NVA3]
+  14: PUNK1C1 [NVAF]
+  15: PBSP [vp2.txt, fuc-bsp.txt] [NV84-]
+  16: PTIMER [ptimer.txt]
+  17: PVP [fuc-vp.txt] [NV98 and NVAA-]
+  20: PFB [nv50-pfb.txt]
+  21: ??? [NV84-]
+  22: ??? [NV84-]
+  23: ??? [NV84-]
+  24: ??? [NV84-]
+  25: ??? [NV84-]
+  26: ??? [NV84-]
+  27: ??? [NV84-]
+  28: ??? [NV84-]
+  30: PDISPLAY [pdisplay.txt]
+  31: ???
+[XXX: unknowns]
+
+On NVC0+, the bits are:
+  0: ??? - alleged to be related to I2C
+  1: PPPP [fuc-ppp.txt]
+  2: PGUNK13B
+  3: PMFB [nvc0-pmfb.txt]
+  4: PMEDIA [pmedia.txt]
+  5: PIBUS [pibus.txt]
+  6: PCOPY[0] [fuc-copy.txt]
+  7: PCOPY[1] [fuc-copy.txt]
+  8: PFIFO [nvc0-pfifo.txt]
+  12: PGRAPH [nvc0-pgraph.txt]
+  13: PDAEMON [pdaemon.txt]
+  15: PBSP [fuc-bsp.txt]
+  16: PTIMER [ptimer.txt]
+  17: PVP [fuc-vp.txt]
+  20: PBFB [nvc0-pbfb.txt]
+  27: ???
+  28: PCOUNTER [pcounter.txt]
+  29: PFFB [nvc0-pffb.txt]
+  30: PDISPLAY [pdisplay.txt]
+  31: ???
+
+NVC0 also introduced SUBFIFO_ENABLE register:
+
+MMIO 0x000204: SUBFIFO_ENABLE
+  Enables PFIFO's PSUBFIFOs. Bit i corresponds to PSUBFIFO[i]. See
+  nvc0-pfifo.txt for details.
+
+There are also two other registers looking like ENABLE, but with seemingly
+no effect and currently unknown purpose:
+
+MMIO 0x000208: ??? [NVC0-]
+  Has the same bits as ENABLE, comes up as all-1 on boot, except for PDISPLAY
+  bit which comes up as 0.
+
+MMIO 0x00020c: ??? [NVC1-]
+  Has bits which correspond to PFIFO engines in ENABLE, ie.
+    1: PPPP
+    6: PCOPY[0]
+    7: PCOPY[1]
+    12: PGRAPH
+    15: PBSP
+    17: PVP
+  Comes up as all-1.
+
+[XXX: RE these two]
 
 
 Interrupts
 
-[XXX: write me]
+Another thing that PMC handles is the top-level interrupt routing. On cards
+earlier than NVA3, PMC gets interrupt lines from all interested engines on
+the card, aggregates them together, adds in an option to trigger a "software"
+interrupt manually, and routes them to the PCI INTA pin. There is an enable
+register, but it only allows one to enable/disable all hardware or all
+software interrupts.
+
+NVA3 introduced fine-grained interrupt masking, as well as an option to route
+interrupts to PDAEMON. Aside from PCI interrupt and PDAEMON interrupt, there's
+also a third option to route interrupts to, but it's currently unknown.
+
+MMIO 0x000100: INTR_HOST
+MMIO 0x000104: INTR_UNK1 [NVA3-]
+MMIO 0x000108: INTR_DAEMON [NVA3-]
+  Interrupt status. Bits 0-30 are hardware interrupts, bit 31 is software
+  interrupt. 1 if the relevant input interrupt line is active and, for NVA3+
+  chipsets, enabled in INTR_MASK_*. Bits 0-30 are read-only, bit 31 can be
+  written to set/clear the software interrupt. Bit 31 can only be set to 1 if
+  software interrupts are enabled in INTR_MASK_*, except for UNK1 on NVC0+,
+  where it works even if masked.
+
+MMIO 0x000140: INTR_EN_HOST
+MMIO 0x000144: INTR_EN_UNK1 [NVA3-]
+MMIO 0x000148: INTR_EN_DAEMON [NVA3-]
+  bit 0: hardware interrupt enable - if 1, and any of bits 0-30 of INTR_* are
+         active, the corresponding output interrupt line will be asserted.
+  bit 1: software interrupt enable - if 1, bit 31 of INTR_* is active, the
+         corresponding output interrupt line will be asserted.
+
+MMIO 0x000160: INTR_LN_HOST
+MMIO 0x000164: INTR_LN_UNK1 [NVA3-]
+MMIO 0x000168: INTR_LN_DAEMON [NVA3-]
+  Provides a way to peek at the status of corresponding output interrupt line.
+  On NV01:NVC0, 0 if the output line is active, 1 if inactive. On NVC0+, 1 if
+  active, 0 if inactive.
+
+MMIO 0x000640: INTR_MASK_HOST [NVA3-]
+MMIO 0x000644: INTR_MASK_UNK1 [NVA3-]
+MMIO 0x000648: INTR_MASK_DAEMON [NVA3-]
+  Interrupt mask. If a bit is set to 0 here, it'll be masked off to always-0
+  in the INTR_* register, otherwise it'll be connected to the corresponding
+  input interrupt line. For HOST and DAEMON, all interrupts can be enabled.
+  For UNK1 on pre-NVC0 cards, only input line #8 [PFIFO] can be enabled, for
+  UNK1 on NVC0+ cards all interrupts but the software interrupt can be
+  enabled - however in this case software interrupt works even without being
+  enabled.
+
+The HOST output interrupt line corresponds to PCI INTA pin on the card. UNK1
+is unknown. DAEMON goes to PDAEMON's fuc interrupt line #10.
+[XXX: figure out the third destination]
+[XXX: anything special for MSI?]
+
+The input interrupt lines are, for NV01:
+
+0: PAUDIO
+4: PDMA
+8: PFIFO [nv01-pfifo.txt]
+12: PGRAPH
+16: PRM
+20: PTIMER [ptimer.txt]
+24: PFB
+28: software
+[XXX: check]
+
+For NV03:
+
+4: PMEDIA [pmedia.txt]
+8: PFIFO [nv01-pfifo.txt]
+12: PGRAPH [nv03-pgraph.txt]
+13: PGRAPH's DMA engine [nv03-pgraph.txt] [XXX: check]
+16: PRAMDAC.VIDEO [pramdac.txt]
+20: PTIMER [ptimer.txt]
+24: PGRAPH's vblank interrupt [nv03-graph.txt, nvvga.txt]
+28: PBUS [pbus.txt]
+31: software
+
+For NV04:NV50:
+
+0: VPE [vpe.txt] [NV17:NV20 and NV25:NV50]
+4: PMEDIA [pmedia.txt]
+8: PFIFO [nv04-pfifo.txt]
+12: PGRAPH [nv04-pgraph.txt, nv10-pgraph.txt, nv20-pgraph.txt, nv30-pgraph.txt, nv40-pgraph.txt]
+16: PRAMDAC.VIDEO [pramdac.txt] [NV04:NV10] or PVIDEO [pvideo.txt] [NV10:NV50]
+17: PVP [vp1.txt] [NV41-] [XXX: check this]
+20: PTIMER [ptimer.txt]
+24: PCRTC [nvvga.txt]
+25: PCRTC2 [nvvga.txt] [NV17:NV20 and NV25:NV50]
+28: PBUS [pbus.txt]
+31: software
+
+For NV50:NVC0:
+
+0: VPE [vpe.txt] [NV50:NV98 and NVA0]
+0: PPPP [fuc-ppp.txt] [NV98 and NVAA-]
+4: PMEDIA [pmedia.txt]
+8: PFIFO [nv50-pfifo.txt]
+9: ??? [NVA3?-]
+11: ??? [NVA3?-]
+12: PGRAPH [nv50-pgraph.txt]
+13: ??? [NVA3?-]
+14: PCRYPT [crypt.txt, fuc-crypt.txt] [NV84:NVA3]
+14: PUNK1C1 [NV84:NVA3]
+15: PBSP [vp2.txt, fuc-bsp.txt] [NV84-]
+16: ??? [NVA3?-]
+17: PVP [vp1.txt, vp2.txt, fuc-vp.txt] [XXX: check this]
+18: PDAEMON [pdaemon.txt] [NVA3-]
+19: ??? [NVA3?-]
+20: PTIMER [ptimer.txt]
+21: PNVIO's GPIO interrupts [pnvio.txt]
+22: PCOPY [fuc-copy.txt]
+26: PDISPLAY [pdisplay.txt]
+27: ??? [NVA3?-]
+28: PBUS [pbus.txt]
+29: ??? [NVA3?-]
+31: software
+[XXX: figure out unknown interrupts. They could've been introduced much
+earlier, but we only know them from bitscanning the INTR_MASK regs. on NVA3+.]
+
+For NVC0+:
+
+0: PPPP [fuc-ppp.txt]
+4: PMEDIA [pmedia.txt]
+5: PCOPY[0] [fuc-copy.txt]
+6: PCOPY[1] [fuc-copy.txt]
+8: PFIFO [nvc0-pfifo.txt]
+9: ???
+12: PGRAPH [nvc0-pgraph.txt]
+13: PBFB [nvc0-pbfb.txt]
+15: PBSP [fuc-bsp.txt]
+17: PVP [fuc-vp.txt]
+18: PTHERM [ptherm.txt]
+20: PTIMER [ptimer.txt]
+21: PNVIO's GPIO interrupts [pnvio.txt]
+23: ???
+24: PDAEMON [pdaemon.txt]
+25: PMFB [nvc0-pmfb.txt]
+26: PDISPLAY [pdisplay.txt]
+27: PFFB [nvc0-pffb.txt]
+28: PBUS [pbus.txt]
+29: ???
+30: PIBUS [pibus.txt]
+31: software
+[XXX: unknowns]
 
 
 BAR1 hidden area

@@ -65,7 +65,7 @@
 			<bitfield pos="14" name="UNK14" variants="NVA3:NVC0" />
 			<bitfield pos="15" name="PBSP" variants="NV84-"/>
 			<bitfield pos="16" name="PRM" variants="NV01"/>
-			<bitfield pos="16" name="PVIDEO" variants="NV03-NV40"/>
+			<bitfield pos="16" name="PVIDEO" variants="NV03:NV50"/>
 			<bitfield pos="16" name="UNK16" variants="NVA3:NVC0" />
 			<bitfield pos="17" name="PVP" variants="NV40-"/>
 			<bitfield pos="18" name="PDAEMON" variants="NVA3:NVC0"/>
@@ -92,42 +92,28 @@
 				interrupt, write 0 to stop.</doc>
 			</bitfield>
 		</bitset>
-		<reg32 offset="0x100" name="INTR_HOST" type="nv_pmc_intr">
-			<doc>Shows currently pending interrupts for host. Read-only, except
-			for SOFTWARE bit. No need to ack these, they disappear by
-			acking in upstream unit.</doc>
-		</reg32>
-		<reg32 offset="0x104" name="INTR_UNK1" type="nv_pmc_intr" variants="NVA3-">
-			<doc>Shows currently pending interrupts for ???.</doc>
-		</reg32>
-		<reg32 offset="0x108" name="INTR_PDAEMON" type="nv_pmc_intr" variants="NVA3-">
-			<doc>Shows currently pending interrupts for PDAEMON.</doc>
-		</reg32>
-		<reg32 offset="0x140" name="INTR_HOST_EN">
-			<doc>Enables reporting interrupts via IRQ lines. Doesn't affect
-			status shown in PMC_INTR, only sending actual bus interrupts.</doc>
-			<bitfield pos="0" name="HARDWARE">
-				<doc>Enable reporting hardware interrupts, ie. all but SOFTWARE.</doc>
-			</bitfield>
-			<bitfield pos="1" name="SOFTWARE">
-				<doc>Enable reporting software interrupts.</doc>
-			</bitfield>
-		</reg32>
-		<reg32 offset="0x144" name="INTR_UNK1_EN" variants="NVA3-">
+		<reg32 offset="0x100" name="INTR_HOST" type="nv_pmc_intr"/>
+		<reg32 offset="0x104" name="INTR_UNK1" type="nv_pmc_intr" variants="NVA3-"/>
+		<reg32 offset="0x108" name="INTR_DAEMON" type="nv_pmc_intr" variants="NVA3-"/>
+		<reg32 offset="0x140" name="INTR_EN_HOST">
 			<bitfield pos="0" name="HARDWARE"/>
 			<bitfield pos="1" name="SOFTWARE"/>
 		</reg32>
-		<reg32 offset="0x148" name="INTR_PDAEMON_EN" variants="NVA3-">
+		<reg32 offset="0x144" name="INTR_EN_UNK1" variants="NVA3-">
 			<bitfield pos="0" name="HARDWARE"/>
 			<bitfield pos="1" name="SOFTWARE"/>
 		</reg32>
-		<reg32 offset="0x200" name="ENABLE">
-			<doc>Selects which card units are enabled.</doc>
+		<reg32 offset="0x148" name="INTR_EN_DAEMON" variants="NVA3-">
+			<bitfield pos="0" name="HARDWARE"/>
+			<bitfield pos="1" name="SOFTWARE"/>
+		</reg32>
+		<reg32 offset="0x160" name="INTR_LN_HOST">
+		<reg32 offset="0x164" name="INTR_LN_HOST" variants="NVA3-">
+		<reg32 offset="0x168" name="INTR_LN_HOST" variants="NVA3-">
+		<bitset name="nv_pmc_enable" inline="yes">
 			<bitfield pos="0" name="PAUDIO" variants="NV01"/>
-			<!-- might be HDVP video decoding -->
 			<bitfield pos="0" name="UNK0" variants="NV03:NV04 NV10-"/>
-			<!-- I wonder how much modern NVA0 VPE has in common with the original NV17 thing. oh meh. we'll find out some day.-->
-			<bitfield pos="1" name="PVPE" variants="NV17:NV98 NVA0"/> <!-- also controls NV50:NV98, NVA0 PVP -->
+			<bitfield pos="1" name="PVPE" variants="NV17:NV98 NVA0"/>
 			<bitfield pos="1" name="PPPP" variants="NV98 NVAA-"/>
 			<bitfield pos="2" name="PGUNK13B" variants="NVC0-"/>
 			<bitfield pos="3" name="PMFB" variants="NVC0-"/>
@@ -150,30 +136,37 @@
 			<bitfield pos="24" name="PFB" variants="NV01"/>
 			<bitfield pos="24" name="PCRTC" variants="NV03:NV50"/>
 			<bitfield pos="25" name="PCRTC2" variants="NV11:NV50"/>
-			<bitfield pos="26" name="PTV" variants="NV17:NV20 NV30:NV50"/>
+			<bitfield pos="26" name="PTV" variants="NV17:NV20 NV25:NV50"/>
 			<bitfield pos="27" name="UNK27" variants="NVC0-"/>
 			<bitfield pos="28" name="PVIDEO" variants="NV03:NV50"/>
 			<bitfield pos="28" name="PCOUNTER" variants="NVC0-"/>
 			<bitfield pos="29" name="PFFB" variants="NVC0-"/>
 			<bitfield pos="30" name="PDISPLAY" variants="NV50-"/>
 			<bitfield pos="31" name="UNK31" variants="NV50-"/>
-			<!-- XXX: NV84:NVC0 have lots of other bits that apparently don't affect anything, but not really. -->
-		</reg32>
+		</bitset>
+		<reg32 offset="0x200" name="ENABLE" type="nv_pmc_enable"/>
 		<reg32 offset="0x204" name="SUBFIFO_ENABLE" variants="NVC0-">
 			<bitfield pos="0" name="0"/>
 			<bitfield pos="1" name="1"/>
 			<bitfield pos="2" name="2"/>
 		</reg32>
-		<reg32 offset="0x208" name="UNK208" variants="NVC0-"/>
-		<reg32 offset="0x20c" name="UNK20C" variants="NVC1-"/>
+		<reg32 offset="0x208" name="UNK208" type="nv_pmc_enable" variants="NVC0-"/>
+		<reg32 offset="0x20c" name="UNK20C" variants="NVC1-">
+			<bitfield pos="1" name="PPPP"/>
+			<bitfield pos="6" name="PCOPY0"/>
+			<bitfield pos="7" name="PCOPY1"/>
+			<bitfield pos="12" name="PGRAPH"/>
+			<bitfield pos="15" name="PBSP"/>
+			<bitfield pos="17" name="PVP"/>
+		</reg32>
 		<reg32 offset="0x300" name="BAR1_HIDE_LOW" variants="NV17-">
 			<bitfield low="0" high="28" name="ADDR"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
 		<reg32 offset="0x304" name="BAR1_HIDE_HIGH" variants="NV17-"/>
-		<reg32 offset="0x640" name="INTR_HOST_MASK" type="nv_pmc_intr" variants="NVA3-"/>
-		<reg32 offset="0x644" name="INTR_UNK1_MASK" type="nv_pmc_intr" variants="NVA3-"/>
-		<reg32 offset="0x648" name="INTR_PDAEMON_MASK" type="nv_pmc_intr" variants="NVA3-"/>
+		<reg32 offset="0x640" name="INTR_MASK_HOST" type="nv_pmc_intr" variants="NVA3-"/>
+		<reg32 offset="0x644" name="INTR_MASK_UNK1" type="nv_pmc_intr" variants="NVA3-"/>
+		<reg32 offset="0x648" name="INTR_MASK_DAEMON" type="nv_pmc_intr" variants="NVA3-"/>
 		<reg32 offset="0xa00" name="NEW_ID" variants="NV94-">
 			<bitfield low="0" high="4" name="DEVICE_ID"/>
 			<bitfield low="8" high="9" name="BOOT_2"/>
