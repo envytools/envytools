@@ -393,6 +393,14 @@ int main(int argc, char **argv)
 		printf("\n");
 	}
 
+	if (card->card_type >= 0x50) {
+		uint32_t t0 = nva_rd32(cnum, 0x610018);
+		sleep(1);
+		uint32_t t1 = nva_rd32(cnum, 0x610018);
+		printf ("PDISPLAY clock: %d Hz\n", t1 - t0);
+		printf("\n");
+	}
+
 	if (card->chipset < 0x98 || card->chipset == 0xa0) {
 		/* restore PMC enable */
 //		nva_wr32(cnum, 0x200, pmc_enable);
