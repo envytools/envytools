@@ -129,8 +129,8 @@
 
 <!-- 10f000 - 11ffff PBFB covered in nv03_pfb.xml -->
 
-<!-- 120000 - 12ffff PMASTER -->
-<import file="nvc0_pmaster.xml" />
+<!-- 120000 - 12ffff PIBUS -->
+<import file="nvc0_pibus.xml" />
 
 <!-- 130000 - 13afff ??? -->
 
