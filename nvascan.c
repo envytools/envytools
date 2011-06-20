@@ -10,10 +10,14 @@ int main(int argc, char **argv) {
 	}
 	int c;
 	int cnum =0;
-	while ((c = getopt (argc, argv, "c:")) != -1)
+	int alias = 0;
+	while ((c = getopt (argc, argv, "ac:")) != -1)
 		switch (c) {
 			case 'c':
 				sscanf(optarg, "%d", &cnum);
+				break;
+			case 'a':
+				alias = 1;
 				break;
 		}
 	if (cnum >= nva_cardsnum) {
@@ -42,7 +46,27 @@ int main(int argc, char **argv) {
 		nva_wr32(cnum, a+i, x);
 		if (x || y || z) {
 			int cool = (x != y) || (y != z);
-			printf ("%06x: %08x %08x %08x%s\n", a+i, x, y, z, cool?" *":"");
+			int isalias = 0, areg;
+			if (cool && alias) {
+				int j;
+				nva_wr32(cnum, a+i, -1);
+				for (j = 0; j < i; j+=4) {
+					uint32_t sv = nva_rd32(cnum, a+j);
+					nva_wr32(cnum, a+j, 0);
+					uint32_t ch = nva_rd32(cnum, a+i);
+					nva_wr32(cnum, a+j, sv);
+					if (ch == z) {
+						areg = a + j;
+						isalias = 1;
+						break;
+					}
+				}
+			}
+			printf ("%06x: %08x %08x %08x%s", a+i, x, y, z, cool?" *":"");
+			if (isalias) {
+				printf(" ALIASES %06x", areg);
+			}
+			printf("\n");
 			ls = 1;
 		} else {
 			if (ls)
