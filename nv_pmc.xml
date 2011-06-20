@@ -151,7 +151,7 @@
 			<bitfield pos="2" name="2"/>
 		</reg32>
 		<reg32 offset="0x208" name="UNK208" type="nv_pmc_enable" variants="NVC0-"/>
-		<reg32 offset="0x20c" name="UNK20C" variants="NVC1-">
+		<reg32 offset="0x20c" name="UNK20C" variants="NVC4-">
 			<bitfield pos="1" name="PPPP"/>
 			<bitfield pos="6" name="PCOPY0"/>
 			<bitfield pos="7" name="PCOPY1"/>

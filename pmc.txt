@@ -16,7 +16,7 @@ no annotation - available on all cards
 [4] - available on NV94+
 [5] - available on NVA3+
 [6] - available on NVC0+
-[7] - available on NVC1+
+[7] - available on NVC4+
 
 000000    ID			card identification
 000004[1] ENDIAN		endian switch
@@ -235,7 +235,7 @@ MMIO 0x000208: ??? [NVC0-]
   Has the same bits as ENABLE, comes up as all-1 on boot, except for PDISPLAY
   bit which comes up as 0.
 
-MMIO 0x00020c: ??? [NVC1-]
+MMIO 0x00020c: ??? [NVC4-]
   Has bits which correspond to PFIFO engines in ENABLE, ie.
     1: PPPP
     6: PCOPY[0]
