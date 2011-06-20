@@ -159,11 +159,11 @@
 			<bitfield pos="15" name="PBSP"/>
 			<bitfield pos="17" name="PVP"/>
 		</reg32>
-		<reg32 offset="0x300" name="BAR1_HIDE_LOW" variants="NV17-">
+		<reg32 offset="0x300" name="VRAM_HIDE_LOW" variants="NV17-">
 			<bitfield low="0" high="28" name="ADDR"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
-		<reg32 offset="0x304" name="BAR1_HIDE_HIGH" variants="NV17-"/>
+		<reg32 offset="0x304" name="VRAM_HIDE_HIGH" variants="NV17-"/>
 		<reg32 offset="0x640" name="INTR_MASK_HOST" type="nv_pmc_intr" variants="NVA3-"/>
 		<reg32 offset="0x644" name="INTR_MASK_UNK1" type="nv_pmc_intr" variants="NVA3-"/>
 		<reg32 offset="0x648" name="INTR_MASK_DAEMON" type="nv_pmc_intr" variants="NVA3-"/>

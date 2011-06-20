@@ -38,8 +38,8 @@ no annotation - available on all cards
 [XXX: figure out 20c]
 000260...000274[5] ???		??? related to PFIFO engines
 [XXX: figure out 260...]
-000300[2] BAR1_HIDE_LOW		BAR1 hidden area low address and enable
-000304[2] BAR1_HIDE_HIGH	BAR1 hidden area high address
+000300[2] VRAM_HIDE_LOW		VRAM hidden area low address and enable
+000304[2] VRAM_HIDE_HIGH	VRAM hidden area high address
 000640[5] INTR_MASK_HOST	interrupt mask - host
 000644[5] INTR_MASK_UNK1	interrupt mask - ???
 000648[5] INTR_MASK_PDAEMON	interrupt mask - PDAEMON
@@ -395,6 +395,25 @@ For NVC0+:
 [XXX: unknowns]
 
 
-BAR1 hidden area
+VRAM hidden area
 
-[XXX: write me]
+NV17/NV20 added a feature to disable host reads through selected range of
+VRAM. The registers are:
+
+MMIO 0x000300: VRAM_HIDE_LOW
+  bits 0-28: address of start of the hidden area. bits 0-1 are ignored, the
+             area is always 4-byte aligned.
+  bit 31: hidden area enabled
+MMIO 0x000304: VRAM_HIDE_HIGH
+  bits 0-28: address of end of the hidden area. bits 0-1 are ignored, the
+             area is always 4-byte aligned.
+
+The start and end addresses are both inclusive. All BAR1, BAR2/BAR3, PEEPHOLE
+and PMEM/PRAMIN reads whose offsets fall into this window will be silently
+mangled to read 0 instead. Writes are unaffected. Note that offset from start
+of the BAR/PEEPHOLE/PRAMIN/PMEM is used for the comparison, not the actual
+VRAM address - thus the selected window will cover a different thing in each
+affected space.
+
+The VRAM hidden area functionality got silently nuked on NVC0+ chipsets. The
+registers are still present, but they don't do anything.
