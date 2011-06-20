@@ -27,7 +27,7 @@
 		<bitfield pos="2" name="UNK2"/>
 	</bitset>
 
-	<array name="PCONNECTOR" offset="0x0000E000" stride="0x1000" length="1" variants="NV50-">
+	<array name="PNVIO" offset="0x0000E000" stride="0x1000" length="1" variants="NV50-">
 		<doc>
 		Anything here that concerns i2c port > 1 is based on extrapolation.
 		</doc>

@@ -55,8 +55,8 @@
 <!-- 00d000 - 00dfff PTV -->
 <import file="nv17_ptv.xml" />
 
-<!-- 00e000 - 00efff PCONNECTOR -->
-<import file="nv50_pconnector.xml" />
+<!-- 00e000 - 00efff PNVIO -->
+<import file="nv50_pnvio.xml" />
 
 <!-- 00f000 - 00ffff PVP covered in nv17_pvpe.xml -->
 

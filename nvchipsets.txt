@@ -633,7 +633,7 @@ The MMIO ranges for NV50 family are:
 00a000:00b000 PCOUNTER - performance monitoring counters [pcounter.txt]
 00b000:00c000 PVPE - MPEG2 decoding engine [vpe.txt]
 00c000:00d000 PCONTROL - control of misc stuff [nv40-pcontrol.txt]
-00e000:00f000 PCONNECTOR - GPIOs, I2C buses, PWM fan control, and other external devices [pconnector.txt]
+00e000:00f000 PNVIO - GPIOs, I2C buses, PWM fan control, and other external devices [pnvio.txt]
 00f000:010000 PVP - VP1 video processing engine [NV50] [vp1.txt]
 00f000:010000 PVP - VP2 xtensa video processing engine [NV84:NV98, NVA0] [vp2.txt]
 [XXX: some PCI config crap here, probably on PCIE NV40 and NVC0 too]
@@ -730,7 +730,7 @@ The MMIO ranges for NVC0 family are:
 007000:008000 PRMA - access to BAR0 from real mode [nvvga.txt]
 009000:00a000 PTIMER - time measurement and time-based alarms [ptimer.txt]
 00c000:00d000 ???
-00e000:00f000 PCONNECTOR - GPIOs, I2C buses, PWM fan control, and other external devices [pconnector.txt]
+00e000:00f000 PNVIO - GPIOs, I2C buses, PWM fan control, and other external devices [pnvio.txt]
 020000:021000 PTHERM - thermal sensor [ptherm.txt]
 021000:022000 ???
 022000:023000 ???
