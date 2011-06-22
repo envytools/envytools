@@ -101,6 +101,7 @@ include at least:
 001000:002000 PBUS - bus control [pbus.txt]
 002000:004000 PFIFO - MMIO-mapped FIFO submission to PGRAPH [nv01-pfifo.txt]
 100000:101000 PDMA - DMA submission to PGRAPH - NV01 specific
+101000:102000 PTIMER - time measurement and time-based alarms [ptimer.txt]
 400000:401000 PGRAPH - accelerated drawing engine
 600000:601000 PFB - VRAM and video output control - NV01 specific
 602000:603000 PRAM - priviledgd RAM control - NV01 specific
