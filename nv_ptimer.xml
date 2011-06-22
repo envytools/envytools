@@ -8,7 +8,21 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array offset="0x9000" name="PTIMER" stride="0x1000" length="1">
+<array offset="0x101000" name="PTIMER" stride="0x1000" length="1" variants="NV01:NV03">
+	<reg32 offset="0x100" name="INTR">
+		<bitfield pos="0" name="ALARM"/>
+	</reg32>
+	<reg32 offset="0x140" name="INTR_EN">
+		<bitfield pos="0" name="ALARM"/>
+	</reg32>
+	<reg32 offset="0x200" name="CLOCK_DIV"/>
+	<reg32 offset="0x210" name="CLOCK_MUL"/>
+	<reg32 offset="0x400" name="TIME_LOW" />
+	<reg32 offset="0x404" name="TIME_HIGH" />
+	<reg32 offset="0x410" name="ALARM" />
+</array>
+
+<array offset="0x9000" name="PTIMER" stride="0x1000" length="1" variants="NV03-">
 	<reg32 offset="0x100" name="INTR">
 		<bitfield pos="0" name="ALARM"/>
 	</reg32>
