@@ -121,6 +121,9 @@
 	<value value="0xce" name="NVCE">
 		<brief>GF114: GeForce 410M/520M</brief>
 	</value>
+	<value value="0xcf" name="NVCF">
+		<brief>GF116: GeForce GTX 550Ti</brief>
+	</value>
 	<value value="0xd9" name="NVD9">
 		<brief>GF119: GeForce 410M/520M</brief>
 	</value>

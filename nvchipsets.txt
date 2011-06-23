@@ -73,7 +73,7 @@ is:
    - NV84 subfamily: NV84, NV86, NV92, NV94, NV96, NV98
    - NVA0 subfamily: NVA0, NVAA, NVAC
    - NVA3 subfamily: NVA3, NVA5, NVA8, NVAF
- - NVC0 family: NVC0, NVC4, NVC3, NVC1, NVC8, NVCE, ??? [GF116], ??? [GF118], NVD9
+ - NVC0 family: NVC0, NVC4, NVC3, NVC1, NVC8, NVCE, NVCF, NVD9
 
 Whenever a range of cards is mentioned in the documentation, it's written as
 "NVxx:NVyy". This is left-inclusive, right-noninclusive range of chipset ids
@@ -708,8 +708,7 @@ NVC3 [GF106]: 1:4:3:1
 NVC1 [GF108]: 1:2:1:2
 NVC8 [GF110]: 4:4:6:1
 NVCE [GF114]: 2:4:4:1
-[XXX: GF116]
-[XXX: GF118]
+NVCF [GF116]: 1:4:3:1
 NVD9 [GF119]: 1:1:1:1
 
 The pci device ids are:
@@ -719,8 +718,8 @@ The pci device ids are:
 0dcX+ NVC3
 0deX+ NVC1
 108X+ NVC8
-[XXX: could be 120X*]
-120X+ NVCE
+120X* NVCE
+124X* NVCF
 104X* NVD9
 
 The MMIO ranges for NVC0 family are:
