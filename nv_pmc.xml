@@ -41,8 +41,8 @@
 		<reg32 offset="0x000" name="ID" variants="NV10-">
 			<bitfield low="0" high="7" name="STEPPING"/>
 			<bitfield low="16" high="19" name="DEVICE_ID" variants="NV10:NV92"/>
-			<bitfield low="15" high="19" name="DEVICE_ID" variants="NV92:NVC8"/>
-			<bitfield low="12" high="17" name="DEVICE_ID" variants="NVC8-"/>
+			<bitfield low="15" high="19" name="DEVICE_ID" variants="NV92:NVD9"/>
+			<bitfield low="12" high="17" name="DEVICE_ID" variants="NVD9-"/>
 			<bitfield low="20" high="27" name="CHIPSET" type="chipset"/>
 		</reg32>
 		<reg32 offset="0x004" name="ENDIAN" variants="NV11-"/>

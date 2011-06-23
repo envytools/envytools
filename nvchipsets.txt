@@ -718,8 +718,8 @@ The pci device ids are:
 0dcX+ NVC3
 0deX+ NVC1
 108X+ NVC8
-120X* NVCE
-124X* NVCF
+120X+ NVCE
+124X+ NVCF
 104X* NVD9
 
 The MMIO ranges for NVC0 family are:

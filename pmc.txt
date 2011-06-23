@@ -75,8 +75,8 @@ MMIO 0x000000: ID [NV04:NV10]
 MMIO 0x000000: ID [NV10-]
   bits 0-7: stepping
   bits 16-19: device id [NV10:NV92]
-  bits 15-19: device id [NV92:NVC8]
-  bits 12-19: device id [NVC8-] [XXX: check variant transition]
+  bits 15-19: device id [NV92:NVD8]
+  bits 12-19: device id [NVD9-]
     The value of this bitfield is equal to low 4, 5, or 6 bits of the PCI
     device id. The bitfield size and position changed between cards due to
     varying amount of changeable bits. See pstraps.txt and nvchipset.txt for
