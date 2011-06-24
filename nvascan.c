@@ -61,6 +61,7 @@ int main(int argc, char **argv) {
 						break;
 					}
 				}
+				nva_wr32(cnum, a+i, x);
 			}
 			printf ("%06x: %08x %08x %08x%s", a+i, x, y, z, cool?" *":"");
 			if (isalias) {
