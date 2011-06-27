@@ -10,6 +10,7 @@ uint8_t bios[0x10003];
 uint32_t len;
 const uint8_t bit_signature[] = { 0xff, 0xb8, 'B', 'I', 'T' };
 const uint8_t bmp_signature[] = { 0xff, 0x7f, 'N', 'V', 0x0 };
+const uint8_t hwsq_signature[] = { 'H', 'W', 'S', 'Q' };
 uint8_t major_version, minor_version, micro_version, chip_version;
 uint32_t card_codename = 0;
 uint8_t magic_number = 0;
@@ -35,6 +36,7 @@ uint32_t bitoffset = 0;
 uint32_t dcboffset = 0;
 uint32_t i2coffset = 0;
 uint32_t gpiooffset = 0;
+uint32_t hwsqoffset = 0;
 uint8_t dcbver, dcbhlen, dcbrlen, dcbentries;
 uint8_t i2cver, i2chlen, i2crlen, i2centries, i2cd0, i2cd1;
 uint8_t gpiover, gpiohlen, gpiorlen, gpioentries;
@@ -584,6 +586,7 @@ int main(int argc, char **argv) {
 	bmpoffset = findstr(bios, len, bmp_signature, 5);
 	bitoffset = findstr(bios, len, bit_signature, 5);
 	dcboffset = le16(0x36);
+	hwsqoffset = findstr(bios, len, hwsq_signature, 4);
 	printf ("\n");
 	if (bmpoffset) {
 		bmpver_maj = bios[bmpoffset+5];
@@ -709,6 +712,30 @@ int main(int argc, char **argv) {
 			}
 			printhex (soff, dcbrlen);
 			printf("\n");
+		}
+		printf ("\n");
+	}
+	if (hwsqoffset) {
+		uint8_t entry_count, bytes_to_write, i, e;
+
+		hwsqoffset += sizeof(hwsq_signature);
+
+		entry_count = bios[hwsqoffset];
+		bytes_to_write = bios[hwsqoffset + 1];
+
+		printf("HWSQ script: Entry count %u, entry length %u\n", entry_count, bytes_to_write);
+
+		for (i=0; i < entry_count; i++) {
+			uint16_t entry_offset = hwsqoffset + 2 + i * bytes_to_write;
+			uint32_t sequencer = le32(entry_offset);
+			uint8_t bytes_written = 4;
+
+			printf("HWSQ entry %u: sequencer control = %u\n", i, sequencer);
+			while (bytes_written < bytes_to_write) {
+				printf("0x%x: 0x%x\n", bytes_written, le32(entry_offset + bytes_written));
+				bytes_written += 4;
+			}
+			printf ("\n");
 		}
 		printf ("\n");
 	}
