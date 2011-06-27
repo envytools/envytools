@@ -36,7 +36,7 @@
 		<bitfield low="8" high="12" name="INTERNAL_DIV"/>
 		<bitfield pos="16" name="SELECT">
 			<value value="0" name="INTERNAL"/>
-			<value value="0" name="EXTERNAL"/>
+			<value value="1" name="EXTERNAL"/>
 		</bitfield>
 	</reg32>
 	<reg32 offset="0x400" name="TIME_LOW" />
