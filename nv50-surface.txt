@@ -372,15 +372,21 @@ elements, the element size, and the element layout. Not all binding points
 care about the format - m2mf and PCOPY treat all surfaces as arrays of bytes.
 Also, format specification differs a lot between the binding points that make
 use of it - 2d engine and render targets use a big enum of valid formats,
-with values specifying both the layout and component assignment, while texture
-units decouple layout specification from component assignment, allowing
-arbitrary swizzles.
+with values specifying both the layout and components, while texture
+units decouple layout specification from component assignment and type
+selection, allowing arbitrary swizzles.
 
 The surface formats can be broadly divided into the following categories:
 
- - color formats: elements correspond directly to pixels, or samples in
+ - simple color formats: elements correspond directly to pixels, or samples in
    a multisampled surface. Each element has 1 to 4 bitfields corresponding
    to R, G, B, A components. Usable for texturing, color RTs, and 2d engine.
+ - shared exponent color format: like above, but the components are floats
+   sharing the exponent bitfield. Usable for texturing only.
+ - YUV color formats: element corresponds to two pixels lying in the same
+   horizontal line. The pixels have three components, conventionally labeled
+   as Y, U, V. U and V components are common for the two pixels making up an
+   element, but Y components are separate. Usable for texturing only.
  - zeta formats: elements correspond to pixels, or samples in a multisampled
    surface. There is a per-sample depth component, optionally a per-sample
    stencil component, and optionally a per-pixel coverage value for CSAA
@@ -393,9 +399,166 @@ The surface formats can be broadly divided into the following categories:
    Usable for texturing and 2d engine.
 
 
-Color surface formats
+Simple color surface formats
 
-[XXX: write me]
+A simple color surface is a surface where each element corresponds directly to
+a pixel, each pixel has 4 components known as R, G, B, A [in that order], and
+the bitfields in element correspond directly to components. There can be less
+bitfields than components - the remaining components will be ignored on write,
+and get a default value on read, which is 0 for R, G, B and 1 for A.
+
+When bound to texture unit, the simple color formats are specified in three
+parts. First, the format is specified, which is an enumerated value shared
+with other format types. This format specifies the format type and, for simple
+color formats, element size, and location of bitfields inside the element.
+Then, the type [float/sint/uint/unorm/snorm] of each element component is
+specified. Finally, a swizzle is specified: each of the 4 component outputs
+[R, G, B, A] from the texture unit can be mapped to any of the components
+present in the element [called C0-C3], constant 0, integer constant 1, or
+float constant 1.
+
+Thanks to the swizzle capability, there's no need to support multiple
+orderings in the format itself, and all simple color texture formats have
+C0 bitfield starting at LSB of the first byte, C1 [if present] at the first
+bit after C0, and so on. Thus it's enough to specify bitfield lengths to
+uniquely identify a texture type: for example 5_5_6 is a format with 3
+components and element size of 2 bytes, C0 at bits 0-4, C1 at bits 5-9,
+and C2 at bits 10-15. The element is always treated as a little-endian word
+of the proper size, and bitfields are listed from LSB side. Also, in some
+cases the texture format has bitfields used only for padding, and not usable
+as components: these will be listed in the name as X<size>. For example,
+32_8_X24 is a format with elment size of 8 bytes, where bits 0-31 are C0,
+32-39 are C1, and 40-63 are unusable.
+[XXX: what exactly happens to element layout in big-endian mode?]
+
+However, when bound to RTs or the 2d engine, all of the format, including
+element size, element layout, component types, component assignment, and SRGB
+flag, is specified by a single enumerated value. These formats have
+a many-to-one relationship to texture formats, and are listed here below the
+corresponding one. The information listed here for a format is C0-C3
+assignments to actual components and component type, plus SRGB flag where
+applicable. The components can be R, G, B, A, representing a bitfield
+corresponding directly to a single component, X representing an unused
+bitfield, or Y representing a bitfield copied to all components on read,
+and filled with the R value on write.
+
+The formats are:
+
+Element size 16:
+ - texture format 0x01: 32_32_32_32
+  - RT format 0xc0: RGBA, float
+  - RT format 0xc1: RGBA, sint
+  - RT format 0xc2: RGBA, uint
+  - RT format 0xc3: RGBX, float
+  - RT format 0xc4: RGBX, sint
+  - RT format 0xc5: RGBX, uint
+Element size 8:
+ - texture format 0x03: 16_16_16_16
+  - RT format 0xc6: RGBA, unorm
+  - RT format 0xc7: RGBA, snorm
+  - RT format 0xc8: RGBA, sint
+  - RT format 0xc9: RGBA, uint
+  - RT format 0xca: RGBA, float
+  - RT format 0xce: RGBX, float
+ - texture format 0x04: 32_32
+  - RT format 0xcb: RG, float
+  - RT format 0xcc: RG, sint
+  - RT format 0xcd: RG, uint
+ - texture format 0x05: 32_8_X24
+Element size 4:
+ - texture format 0x07: 8_8_8_X8
+[XXX: htf do I determine if a surface format counts as 0x07 or 0x08?]
+ - texture format 0x08: 8_8_8_8
+  - RT format 0xcf: BGRA, unorm
+  - RT format 0xd0: BGRA, unorm, SRGB
+  - RT format 0xd5: RGBA, unorm
+  - RT format 0xd6: RGBA, unorm, SRGB
+  - RT format 0xd7: RGBA, snorm
+  - RT format 0xd8: RGBA, sint
+  - RT format 0xd9: RGBA, uint
+  - RT format 0xe6: BGRX, unorm
+  - RT format 0xe7: BGRX, unorm, SRGB
+  - RT format 0xf9: RGBX, unorm
+  - RT format 0xfa: RGBX, unorm, SRGB
+  - RT format 0xfd: BGRX, unorm [XXX]
+  - RT format 0xfe: BGRX, unorm [XXX]
+ - texture format 0x09: 10_10_10_2
+  - RT format 0xd1: RGBA, unorm
+  - RT format 0xd2: RGBA, uint
+  - RT format 0xdf: BGRA, unorm
+ - texture format 0x0c: 16_16
+  - RT formt 0xda: RG, unorm
+  - RT formt 0xdb: RG, snorm
+  - RT formt 0xdc: RG, sint
+  - RT formt 0xdd: RG, uint
+  - RT formt 0xde: RG, float
+ - texture format 0x0d: 24_8
+ - texture format 0x0e: 8_24
+ - texture format 0x0f: 32
+  - RT format 0xe3: R, sint
+  - RT format 0xe4: R, uint
+  - RT format 0xe5: R, float
+  - RT format 0xff: Y, uint [XXX]
+ - texture format 0x21: 11_11_10
+  - RT format 0xe0: RGB, float
+Element size 2:
+ - texture format 0x12: 4_4_4_4
+ - texture format 0x13: 1_5_5_5
+ - texture format 0x14: 5_5_5_1
+  - RT format 0xe9: BGRA, unorm
+  - RT format 0xf8: BGRX, unorm
+  - RT format 0xfb: BGRX, unorm [XXX]
+  - RT format 0xfc: BGRX, unorm [XXX]
+ - texture format 0x15: 5_6_5
+  - RT format 0xe8: BGR, unorm
+ - texture format 0x16: 5_5_6
+ - texture format 0x18: 8_8
+  - RT format 0xea: RG, unorm
+  - RT format 0xeb: RG, snorm
+  - RT format 0xec: RG, uint
+  - RT format 0xed: RG, sint
+ - texture format 0x1b: 16
+  - RT format 0xee: R, unorm
+  - RT format 0xef: R, snorm
+  - RT format 0xf0: R, sint
+  - RT format 0xf1: R, uint
+  - RT format 0xf2: R, float
+Element size 1:
+ - texture format 0x1d: 8
+  - RT format 0xf3: R, unorm
+  - RT format 0xf4: R, snorm
+  - RT format 0xf5: R, sint
+  - RT format 0xf6: R, uint
+  - RT format 0xf7: A, unorm
+ - texture format 0x1e: 4_4
+[XXX: which component types are valid for a given bitfield size?]
+[XXX: clarify float encoding for weird sizes]
+
+
+Shared exponent color format
+
+A shared exponent color format is like a simple color format, but there's
+an extra bitfield, called E, that's used as a shared exponent for C0-C2. The
+remaining three bitfields correspond to the mantissas of C0-C2, respectively.
+They can be swizzled arbitrarily, but they have to use the float type.
+
+Element size 4:
+ - texture format 0x20: 9_9_9_E5
+
+
+YUV color formats
+
+These formats are also similar to color formats. However, The components are
+conventionally called Y, U, V: C0 is known as U, C1 is known as Y, and C2 is
+known as V. An element represents two pixels, and has 4 bitfields: YA
+representing Y value for first pixel, YB representing Y value for second
+pixel, U representing U value for both pixels, and V representing V value
+of both pixels. There are two YUV formats, differing in bitfield order:
+
+Element size 4:
+ - texture format 0x21: U8_YA8_V8_YB8
+ - texture format 0x22: YA8_U8_YB8_V8
+[XXX: verify I haven't screwed up the ordering here]
 
 
 Zeta surface formats

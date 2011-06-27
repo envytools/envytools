@@ -27,57 +27,46 @@
 <domain name="TIC" size="0x20" prefix="chipset" variants="NV50-">
 	<brief>Texture image control block</brief>
 	<reg32 offset="0" name="0">
-		<bitfield high="29" low="27" name="MAPA" type="NV50_TIC_MAP" />
-		<bitfield high="26" low="24" name="MAPB" type="NV50_TIC_MAP" />
-		<bitfield high="23" low="21" name="MAPG" type="NV50_TIC_MAP" />
-		<bitfield high="20" low="18" name="MAPR" type="NV50_TIC_MAP" />
-		<bitfield high="17" low="15" name="TYPE3" type="NV50_TIC_TYPE" />
-		<bitfield high="14" low="12" name="TYPE2" type="NV50_TIC_TYPE" />
-		<bitfield high="11" low="9" name="TYPE1" type="NV50_TIC_TYPE" />
-		<bitfield high="8" low="6" name="TYPE0" type="NV50_TIC_TYPE" />
+		<bitfield high="29" low="27" name="MAPA" type="NV50_TIC_MAP"/>
+		<bitfield high="26" low="24" name="MAPB" type="NV50_TIC_MAP"/>
+		<bitfield high="23" low="21" name="MAPG" type="NV50_TIC_MAP"/>
+		<bitfield high="20" low="18" name="MAPR" type="NV50_TIC_MAP"/>
+		<bitfield high="17" low="15" name="TYPE3" type="NV50_TIC_TYPE"/>
+		<bitfield high="14" low="12" name="TYPE2" type="NV50_TIC_TYPE"/>
+		<bitfield high="11" low="9" name="TYPE1" type="NV50_TIC_TYPE"/>
+		<bitfield high="8" low="6" name="TYPE0" type="NV50_TIC_TYPE"/>
 		<bitfield high="5" low="0" name="FMT">
-			<!-- could we change it to LE? format 5 doesn't exactly make sense now.... -->
-			<value value="0x01" name="32_32_32_32" />
-			<value value="0x03" name="16_16_16_16" />
-			<value value="0x04" name="32_32" />
-			<value value="0x05" name="32_8">
-				<doc>32-bit word C0 followed by byte C1 followed by 3 ignored bytes.</doc>
-			</value>
-			<value value="0x08" name="8_8_8_8" />
-			<value value="0x09" name="2_10_10_10" />
-			<value value="0x0c" name="16_16" />
-			<value value="0x0d" name="8_24" />
-			<value value="0x0e" name="24_8" />
-			<value value="0x0f" name="32" />
+			<value value="0x01" name="32_32_32_32"/>
+			<value value="0x03" name="16_16_16_16"/>
+			<value value="0x04" name="32_32"/>
+			<value value="0x05" name="32_8_X24"/>
+			<value value="0x08" name="8_8_8_8"/>
+			<value value="0x09" name="10_10_10_2"/>
+			<value value="0x0c" name="16_16"/>
+			<value value="0x0d" name="24_8"/>
+			<value value="0x0e" name="8_24"/>
+			<value value="0x0f" name="32"/>
 			<value value="0x10" name="BPTC_FLOAT"/>
 			<value value="0x11" name="BPTC_UFLOAT"/>
-			<value value="0x12" name="4_4_4_4" />
-			<value value="0x13" name="5_5_5_1" />
-			<value value="0x14" name="1_5_5_5" />
-			<value value="0x15" name="5_6_5" />
-			<value value="0x16" name="6_5_5" />
+			<value value="0x12" name="4_4_4_4"/>
+			<value value="0x13" name="1_5_5_5"/>
+			<value value="0x14" name="5_5_5_1"/>
+			<value value="0x15" name="5_6_5"/>
+			<value value="0x16" name="5_5_6"/>
 			<value value="0x17" name="BPTC"/>
-			<value value="0x18" name="8_8" />
-			<value value="0x1b" name="16" />
-			<value value="0x1d" name="8" />
-			<value value="0x1e" name="4_4" />
+			<value value="0x18" name="8_8"/>
+			<value value="0x1b" name="16"/>
+			<value value="0x1d" name="8"/>
+			<value value="0x1e" name="4_4"/>
 			<value value="0x1f" name="BITMAP_8X8">
 				<doc>Each element is 64-bit LE word specifying 8x8 block of 1-bit texels.
 				This format forces using a special "box" filter: result of sampling is
 				a percentage of "lit" area in WxH rectangle centered on the sampled location.</doc>
 			</value>
-			<value value="0x20" name="E5_9_9_9">
-				<doc>Shared-exponent type.</doc>
-			</value>
-			<value value="0x21" name="10_11_11" />
-			<value value="0x22" name="C1_C2_C1_C0">
-				<doc>Format is 8_8_8_8. C0, C2 are shared between two neighboring texels,
-				C1 are separate. Single 32-bit word covers two such texels. Meant to be
-				used as YUV formats.</doc>
-			</value>
-			<value value="0x23" name="C2_C1_C0_C1">
-				<doc>Like above.</doc>
-			</value>
+			<value value="0x20" name="9_9_9_E5"/>
+			<value value="0x21" name="11_11_10"/>
+			<value value="0x22" name="U8_YA8_V8_YB8"/>
+			<value value="0x23" name="YA8_U8_YB8_V8"/>
 			<value value="0x24" name="DXT1" />
 			<value value="0x25" name="DXT3" />
 			<value value="0x26" name="DXT5" />

@@ -55,46 +55,50 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <!--XXX: figure this out someday-->
 <enum name="NV50_SURFACE_FORMAT">
-	<value value="0x00c0" name="R32G32B32A32_FLOAT"/><!-- tile flags 0x7400-->
-	<value value="0x00c1" name="R32G32B32A32_SINT"/>
-	<value value="0x00c2" name="R32G32B32A32_UINT"/>
-	<value value="0x00c3" name="R32G32B32X32_FLOAT"/>
-	<value value="0x00c4" name="R32G32B32X32_SINT"/>
-	<value value="0x00c5" name="R32G32B32X32_UINT"/>
-	<value value="0x00c6" name="R16G16B16A16_UNORM"/><!-- tile flags 0x7000-->
-	<value value="0x00c7" name="R16G16B16A16_SNORM"/>
-	<value value="0x00c8" name="R16G16B16A16_SINT"/>
-	<value value="0x00c9" name="R16G16B16A16_UINT"/>
-	<value value="0x00ca" name="R16G16B16A16_FLOAT"/>
-	<value value="0x00cb" name="R32G32_FLOAT"/>
-	<value value="0x00cc" name="R32G32_SINT"/>
-	<value value="0x00cd" name="R32G32_UINT"/>
-	<value value="0x00ce" name="R16G16B16X16_FLOAT"/>
-	<value value="0x00cf" name="A8R8G8B8_UNORM"/>
-	<value value="0x00d0" name="A8R8G8B8_SRGB"/>
-	<value value="0x00d1" name="A2B10G10R10_UNORM"/>
-	<value value="0x00d2" name="A2B10G10R10_UINT"/>
-	<value value="0x00d5" name="A8B8G8R8_UNORM"/>
-	<value value="0x00d6" name="A8B8G8R8_SRGB"/>
-	<value value="0x00d7" name="A8B8G8R8_SNORM"/>
-	<value value="0x00d8" name="A8B8G8R8_SINT"/>
-	<value value="0x00d9" name="A8B8G8R8_UINT"/>
-	<value value="0x00da" name="R16G16_UNORM"/>
-	<value value="0x00db" name="R16G16_SNORM"/>
-	<value value="0x00dc" name="R16G16_SINT"/>
-	<value value="0x00dd" name="R16G16_UINT"/>
-	<value value="0x00de" name="R16G16_FLOAT"/>
-	<value value="0x00df" name="A2R10G10B10_UNORM"/>
-	<value value="0x00e0" name="B10G11R11_FLOAT"/>
+	<value value="0x001c" name="UNK1C"/>
+	<value value="0x001d" name="UNK1D"/>
+	<value value="0x00c0" name="RGBA32_FLOAT"/>
+	<value value="0x00c1" name="RGBA32_SINT"/>
+	<value value="0x00c2" name="RGBA32_UINT"/>
+	<value value="0x00c3" name="RGBX32_FLOAT"/>
+	<value value="0x00c4" name="RGBX32_SINT"/>
+	<value value="0x00c5" name="RGBX32_UINT"/>
+	<value value="0x00c6" name="RGBA16_UNORM"/>
+	<value value="0x00c7" name="RGBA16_SNORM"/>
+	<value value="0x00c8" name="RGBA16_SINT"/>
+	<value value="0x00c9" name="RGBA16_UINT"/>
+	<value value="0x00ca" name="RGBA16_FLOAT"/>
+	<value value="0x00cb" name="RG32_FLOAT"/>
+	<value value="0x00cc" name="RG32_SINT"/>
+	<value value="0x00cd" name="RG32_UINT"/>
+	<value value="0x00ce" name="RGBX16_FLOAT"/>
+	<value value="0x00cf" name="BGRA8_UNORM"/>
+	<value value="0x00d0" name="BGRA8_SRGB"/>
+	<value value="0x00d1" name="RGB10_A2_UNORM"/>
+	<value value="0x00d2" name="RGB10_A2_UINT"/>
+	<value value="0x00d5" name="RGBA8_UNORM"/>
+	<value value="0x00d6" name="RGBA8_SRGB"/>
+	<value value="0x00d7" name="RGBA8_SNORM"/>
+	<value value="0x00d8" name="RGBA8_SINT"/>
+	<value value="0x00d9" name="RGBA8_UINT"/>
+	<value value="0x00da" name="RG16_UNORM"/>
+	<value value="0x00db" name="RG16_SNORM"/>
+	<value value="0x00dc" name="RG16_SINT"/>
+	<value value="0x00dd" name="RG16_UINT"/>
+	<value value="0x00de" name="RG16_FLOAT"/>
+	<value value="0x00df" name="BGR10_A2_UNORM"/>
+	<value value="0x00e0" name="R11G11B10_FLOAT"/>
+	<value value="0x00e3" name="R32_SINT"/>
+	<value value="0x00e4" name="R32_UINT"/>
 	<value value="0x00e5" name="R32_FLOAT"/>
-	<value value="0x00e6" name="X8R8G8B8_UNORM"/>
-	<value value="0x00e7" name="X8R8G8B8_SRGB"/>
-	<value value="0x00e8" name="R5G6B5_UNORM"/>
-	<value value="0x00e9" name="A1R5G5B5_UNORM"/>
-	<value value="0x00ea" name="R8G8_UNORM"/>
-	<value value="0x00eb" name="R8G8_SNORM"/>
-	<value value="0x00ec" name="R8G8_SINT"/>
-	<value value="0x00ed" name="R8G8_UINT"/>
+	<value value="0x00e6" name="BGRX8_UNORM"/>
+	<value value="0x00e7" name="BGRX8_SRGB"/>
+	<value value="0x00e8" name="B5G6R5_UNORM"/>
+	<value value="0x00e9" name="BGR5_A1_UNORM"/>
+	<value value="0x00ea" name="RG8_UNORM"/>
+	<value value="0x00eb" name="RG8_SNORM"/>
+	<value value="0x00ec" name="RG8_SINT"/>
+	<value value="0x00ed" name="RG8_UINT"/>
 	<value value="0x00ee" name="R16_UNORM"/>
 	<value value="0x00ef" name="R16_SNORM"/>
 	<value value="0x00f0" name="R16_SINT"/>
@@ -105,9 +109,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x00f5" name="R8_SINT"/>
 	<value value="0x00f6" name="R8_UINT"/>
 	<value value="0x00f7" name="A8_UNORM"/>
-	<value value="0x00f8" name="X1R5G5B5_UNORM"/>
-	<value value="0x00f9" name="X8B8G8R8_UNORM"/>
-	<value value="0x00fa" name="X8B8G8R8_SRGB"/>
+	<value value="0x00f8" name="BGR5_X1_UNORM"/>
+	<value value="0x00f9" name="RGBX8_UNORM"/>
+	<value value="0x00fa" name="RGBX8_SRGB"/>
+	<value value="0x00fb" name="BGR5_X1_UNORM_UNKFB"/>
+	<value value="0x00fc" name="BGR5_X1_UNORM_UNKFC"/>
+	<value value="0x00fd" name="BGRX8_UNORM_UNKFD"/>
+	<value value="0x00fe" name="BGRX8_UNORM_UNKFE"/>
+	<value value="0x00ff" name="Y32_UINT_UNKFF"/>
 </enum>
 
 <enum name="NV50_ZETA_FORMAT">
