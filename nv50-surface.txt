@@ -304,12 +304,111 @@ V| 0|3000|0010|3020|0030||3100|0110|3120|0130|||3800|0810|3820|0830||3900|
  +--+----+----+----+----++----+----+----+----+++----+----+----+----++----+
 
 
-Textures: mipmapping and arrays
+Textures, mipmapping and arrays
+
+A texture on nv50/nvc0 can have one of 9 types:
+
+ - 1D: made of 1 or more mip levels, each mip level is a tiled surface with
+   height and depth forced to 1
+ - 2D: made of 1 or more mip levels, each mip level is a tiled surface with
+   depth forced to 1
+ - 3D: made of 1 or more mip levels, each mip level is a tiled surface
+ - 1D_ARRAY: made of some number of subtextures, each subtexture is like
+   a single 1D texture
+ - 2D_ARRAY: made of some number of subtextures, each subtexture is like
+   a single 2D texture
+ - CUBE: made of 6 subtextures, each subtexture is like a single 2D texture -
+   has the same layout as a 2D_ARRAY with 6 subtextures, but different
+   semantics
+ - BUFFER: a simple packed 1D array of elements - not a surface
+ - RECT: a single linear surface, or a single tiled surface with depth forced
+   to 1
+ - CUBE_ARRAY [NVA3+]: like 2D_ARRAY, but subtexture count has to be divisible
+   by 6, and groups of 6 subtextures behave like CUBE textures
+
+Types other than BUFFER and RECT are made of subtextures, which are in turn
+made of mip levels, which are tiled surfaces. For such textures, only the
+parameters of the first mip level of the first subtexture are specified -
+parameters of the following mip levels and subtextures are calculated
+automatically.
+
+Each mip level has each dimension 2 times smaller than the corresponding
+dimension of previous mip level, rounding down unless it would result in size
+of 0. Since texture units use auto-sizing for the tile size, the bigtile sizes
+will be different between mip levels. The surface for each mip level starts
+right after the previous one ends. Also, the total size of the subtexture is
+rounded up to the size of the 0th mip level's bigtile size.
+
+	mip_address[0] = subtexture_address;
+	mip_width[0] = texture_width;
+	mip_height[0] = texture_height;
+	mip_depth[0] = texture_depth;
+	mip_bytes[0] = calc_surface_bytes(mip[0]);
+	subtexture_bytes = mip_bytes[0];
+	for (i = 1; i <= max_mip_level; i++) {
+		mip_address[i] = mip_address[i-1] + mip_bytes[i-1];
+		mip_width[i] = max(1, floor(mip_width[i-1] / 2));
+		mip_height[i] = max(1, floor(mip_height[i-1] / 2));
+		mip_depth[i] = max(1, floor(mip_depth[i-1] / 2));
+		mip_bytes[i] = calc_surface_bytes(mip[1]);
+		subtexture_bytes += mip_bytes[i];
+	}
+	subtexture_bytes = alignup(subtexture_bytes, calc_surface_bigtile_bytes(mip[0]));
+
+For 1D_ARRAY, 2D_ARRAY, CUBE and CUBE_ARRAY textures, the subtextures are
+stored sequentially:
+
+	for (i = 0; i < subtexture_count; i++) {
+		subtexture_address[i] = texture_address + i * subtexture_bytes;
+	}
+
+For more information about textures, see nv50-texture.txt
+
+
+Surface formats
+
+A surface's format determines the type of information it stores in its
+elements, the element size, and the element layout. Not all binding points
+care about the format - m2mf and PCOPY treat all surfaces as arrays of bytes.
+Also, format specification differs a lot between the binding points that make
+use of it - 2d engine and render targets use a big enum of valid formats,
+with values specifying both the layout and component assignment, while texture
+units decouple layout specification from component assignment, allowing
+arbitrary swizzles.
+
+The surface formats can be broadly divided into the following categories:
+
+ - color formats: elements correspond directly to pixels, or samples in
+   a multisampled surface. Each element has 1 to 4 bitfields corresponding
+   to R, G, B, A components. Usable for texturing, color RTs, and 2d engine.
+ - zeta formats: elements correspond to pixels, or samples in a multisampled
+   surface. There is a per-sample depth component, optionally a per-sample
+   stencil component, and optionally a per-pixel coverage value for CSAA
+   surfaces. Usable for texturing and ZETA RT.
+ - compressed texture formats: elements correspond to blocks of pixels, and
+   are decoded to RGBA color values on the fly. Can be used only for
+   texturing.
+ - bitmap texture format: each element corresponds to 8x8 block of pixels,
+   with 1 bit per pixel. Has to be used with a special texture sampler.
+   Usable for texturing and 2d engine.
+
+
+Color surface formats
 
 [XXX: write me]
 
 
-Surface formats
+Zeta surface formats
+
+[XXX: write me]
+
+
+Compressed texture formats
+
+[XXX: write me]
+
+
+Bitmap surface format
 
 [XXX: write me]
 
