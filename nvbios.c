@@ -723,7 +723,7 @@ int main(int argc, char **argv) {
 		entry_count = bios[hwsqoffset];
 		bytes_to_write = bios[hwsqoffset + 1];
 
-		printf("HWSQ script: Entry count %u, entry length %u\n", entry_count, bytes_to_write);
+		printf("HWSQ table at %x: Entry count %u, entry length %u\n", hwsqoffset, entry_count, bytes_to_write);
 
 		for (i=0; i < entry_count; i++) {
 			uint16_t entry_offset = hwsqoffset + 2 + i * bytes_to_write;
@@ -732,7 +732,8 @@ int main(int argc, char **argv) {
 
 			printf("HWSQ entry %u: sequencer control = %u\n", i, sequencer);
 			while (bytes_written < bytes_to_write) {
-				printf("0x%x: 0x%x\n", bytes_written, le32(entry_offset + bytes_written));
+				//printf("%x: 0x%x\n", entry_offset + bytes_written, le32(entry_offset + bytes_written));
+				printhex(entry_offset + bytes_written, 4);
 				bytes_written += 4;
 			}
 			printf ("\n");
