@@ -1,0 +1,324 @@
+Introduction
+
+This file deals with nv50+ cards only. For older cards, see nv01-surface.txt.
+
+A "surface" is a 2d or 3d array of pixels. Surfaces are used for image storage,
+and can be bound to at least the following slots on the engines:
+
+ - m2mf input and output buffers
+ - 2d source and destination surfaces
+ - 3d/compute texture units: the textures
+ - 3d color render targets
+ - 3d zeta render target
+ - compute g[] spaces [nv50:nvc0]
+ - 3d/compute image units [nvc0+]
+ - PCOPY input and output buffers
+ - PDISPLAY: the framebuffer
+[XXX: vdec stuff]
+[XXX: nvc0 ZCULL?]
+
+Surfaces on nv50+ cards come in two types: linear and tiled. Linear surfaces
+have a simple format, but they're are limitted to 2 dimensions only, don't
+support arrays nor mipmapping when used as textures, cannot be used for zeta
+buffers, and have lower performance than tiled textures. Tiled surfaces
+can have up to three dimensions, can be put into arrays and be mipmapped,
+and use custom pixel arrangement in memory. However, tiled surfaces need to
+be placed in memory area with special storage type, depending on the surface
+format [see nv50-vm.txt, nv50-memory.txt].
+
+Tiled surfaces have two main levels of pixel rearrangement: high-level and
+low-level. Low-level rearrangement is quite complicated, depends on surface's
+storage type, and is hidden by the VM subsystem - if the surface is accessed
+through VM with properly set storage type, only the high-level rearrangement
+is visible. Thus the low-level rearrangement can only be seen when accessing
+tiled system RAM directly from CPU, or accessing tiled VRAM with storage type
+set to 0. Also, low-level rearrangement for VRAM uses several tricks to
+distribute load evenly across memory partitions, while rearrangement for
+system RAM skips them and merely reorders pixels inside a roptile. High-level
+rearrangement, otoh, is relatively simple, and always visible to the user -
+its knowledge is needed to calculate address of a given pixel, or to calculate
+the memory size of a surface.
+
+
+Surface elements
+
+A basic unit of surface is an "element", which can be 1, 2, 4, 8, or 16 bytes
+long. element type is vital in selecting the proper compressed storage type
+for a surface. For most surface formats, an element means simply a pixel. This
+is different for surfaces storing compressed textures - the elements are
+compressed blocks. Also, it's different for bitmap textures - in these, an
+element is a 64-bit word containing 8x8 block of pixels.
+
+While texture, RT, and 2d bindings deal only with surface elements, they're
+ignored by some other binding points, like PCOPY and m2mf - in these, the
+element size is ignored, and the surface is treated as an array of bytes. That
+is, a 16x16 surface of 4-byte elements is treated as a 64x16 surface of bytes.
+
+
+Linear surfaces
+
+A linear surface is a 2d array of elements, where each row is contiguous in
+memory, and each row starts at a fixed distance from start of the previous
+one. This distance is the surface's "pitch". Linear surfaces always use
+storage type 0 [linear].
+
+The attributes defining a linear surface are:
+
+ - address: 40-bit VM address, aligned to 64 bytes
+ - pitch: distance between subsequent rows in bytes - needs to be a multiple
+   of 64
+ - element size: implied by format, or defaulting to 1 if binding point is
+   byte-oriented
+ - width: surface width in elements, only used when bounds checking / size
+   information is needed
+ - height: surface height in elements, only used when bounds checking / size
+   information is needed
+[XXX: check pitch, width, height min/max values. this may depend on binding
+point. check if 64 byte alignment still holds on nvc0.]
+
+The address of element (x,y) is:
+
+ address + pitch * y + elem_size * x
+
+Or, alternatively, the address of byte (x,y) is:
+
+ address + pitch * y + x
+
+
+Tiled surfaces
+
+A tiled surface is a 3d array of elements, stored in memory in units called
+"tiles". There are two levels of tiling. The lower-level tile is called
+a "roptile" and has a fixed size. This size is 64 bytes × 4 × 1 on nv50:nvc0
+cards, 64 bytes × 8 × 1 for nvc0+ cards. The higher-level tile is called
+a bigtile, and is of variable size between 1×1×1 and 32×32×32 roptiles.
+
+The attributes defining a tiled surface are:
+
+ - address: 40-bit VM address, aligned to roptile size [0x100 bytes on
+   nv50:nvc0, 0x200 bytes on nvc0]
+ - tile size x: 0-5, log2 of roptiles per bigtile in x dimension 
+ - tile size y: 0-5, log2 of roptiles per bigtile in y dimension 
+ - tile size z: 0-5, log2 of roptiles per bigtile in z dimension 
+ - element size: implied by format, or defaulting to 1 if the binding point
+   is byte-oriented
+ - width: surface width [size in x dimension] in elements
+ - height: surface height [size in y dimension] in elements
+ - depth: surface depth [size in z dimension] in elements
+[XXX: check bounduaries on them all, check tiling on nvc0.]
+[XXX: PCOPY surfaces with weird tile size]
+
+It should be noted that some limts on these parameters are to some extent
+specific to the binding point. In particular, x tile size greater than 0 is
+only supported by the render targets and texture units, with render targets
+only supporting 0 and 1. y tile sizes 0-5 can be safely used with all tiled
+surface binding points, and z tile sizes 0-5 can be used with binding points
+other than nv50 g[] spaces, which only support 0.
+
+The tiled format works as follows:
+
+First, the big tile size is computed. This computation depends on the binding
+point: some binding points clamp the effective bigtile size in a given
+dimension to the smallest size that would cover the whole surfaces, some do
+not. The ones that do are called "auto-sizing" binding points. One of such
+binding ports where it's important is the texture unit: since all mipmap
+levels of a texture use a single "tile size" field in TIC, the auto-sizing is
+needed to ensure that small mipmaps of a large surface don't use needlessly
+large tiles. Pseudocode:
+
+	bytes_per_roptile_x = 64;
+	if (chipset < nvc0)
+		bytes_per_roptile_y = 4;
+	else
+		bytes_per_roptile_y = 8;
+	bytes_per_roptile = 1;
+	eff_tile_size_x = tile_size_x;
+	eff_tile_size_y = tile_size_y;
+	eff_tile_size_z = tile_size_z;
+	if (auto_sizing) {
+		while (eff_tile_size_x > 0 && (bytes_per_roptile_x << (eff_tile_size_x - 1)) >= width * element_size)
+			eff_tile_size_x--;
+		while (eff_tile_size_y > 0 && (bytes_per_roptile_y << (eff_tile_size_y - 1)) >= height)
+			eff_tile_size_y--;
+		while (eff_tile_size_z > 0 && (bytes_per_roptile_z << (eff_tile_size_z - 1)) >= depth)
+			eff_tile_size_z--;
+	}
+	roptiles_per_bigtile_x = 1 << eff_tile_size_x;
+	roptiles_per_bigtile_y = 1 << eff_tile_size_y;
+	roptiles_per_bigtile_z = 1 << eff_tile_size_z;
+	bytes_per_bigtile_x = bytes_per_roptile_x * roptiles_per_bigtile_x;
+	bytes_per_bigtile_y = bytes_per_roptile_y * roptiles_per_bigtile_y;
+	bytes_per_bigtile_z = bytes_per_roptile_z * roptiles_per_bigtile_z;
+	elements_per_bigtile_x = bytes_per_bigtile_x / element_size;
+	roptile_bytes = bytes_per_roptile_x * bytes_per_roptile_y * bytes_per_roptile_z;
+	bigtile_roptiles = roptiles_per_bigtils_x * roptiles_per_bigtile_y * roptiles_per_bigtile_z;
+	bigtile_bytes = roptile_bytes * bigtile_roptiles;
+
+Due to the auto-sizing being present on some binding points, it's a bad idea
+to use surfaces that have bigtile size at least two times bigger than the
+actual surface - they'll be unusable on these binding points [and waste a lot
+of memory anyway].
+
+Once bigtile size is known, the geometry and size of the surface can be
+determined. A surface is first broken down into bigtiles. Each bigtile convers
+a contiguous elments_per_bigtile_x × bytes_per_bigtile_y × bytes_per_bigtile_z
+aligned subarea of the surface. If the surface size is not a multiple of the
+bigtile size in any dimension, the size is aligned up for surface layout
+purposes and the remaining space is unused. The bigtiles making up a surface
+are stored sequentially in memory first in x direction, then in y direction,
+then in z direction.
+
+	bigtiles_per_surface_x = ceil(width * element_size / bytes_per_bigtile_x);
+	bigtiles_per_surface_y = ceil(height / bytes_per_bigtile_y);
+	bigtiles_per_surface_z = ceil(depth / bytes_per_bigtile_z);
+	surface_bigtiles = bigtiles_per_surface_x * bigtiles_per_surface_y * bigtiles_per_surface_z;
+	// total bytes in surface - surface resides at addresses [address, address+surface_bytes)
+	surface_bytes = surface_bigtiles * bigtile_bytes;
+	bigtile_address = address + floor(x_coord * element_size / bytes_per_bigtile_x) * bigtile_bytes
+				+ floor(y_coord / bytes_per_bigtile_y) * bigtile_bytes * bigtiles_per_surface_x;
+				+ floor(z_coord / bytes_per_bigtile_z) * bigtile_bytes * bigtiles_per_surface_x * bigtiles_per_surface_z;
+	x_coord_in_bigtile = (x_coord * element_size) % bytes_per_bigtile_x;
+	y_coord_in_bigtile = y_coord % bytes_per_bigtile_y;
+	z_coord_in_bigtile = z_coord % bytes_per_bigtile_z;
+
+Like bigtiles in the surface, roptiles inside a bigtile are stored ordered first by x coord, then by y coord, then by z coord.
+
+	roptile_address = bigtile_address
+			+ floor(x_coord_in_bigtile / bytes_per_roptile_x) * roptile_bytes
+			+ floor(y_coord_in_bigtile / bytes_per_roptile_y) * roptile_bytes * roptiles_per_bigtile_x
+			+ z_coord_in_bigtile * roptile_bytes * roptiles_per_bigtile_x * roptiles_per_bigtile_y; // bytes_per_roptile_z always 1.
+	x_coord_in_roptile = x_coord_in_bigtile % bytes_per_roptile_x;
+	y_coord_in_roptile = y_coord_in_bigtile % bytes_per_roptile_y;
+
+The elements inside a roptile are likewise stored ordered first by x coordinate, and then by y:
+
+	element_address = roptile_address + x_coord_in_roptile + y_coord_in_roptile * bytes_per_roptile_x;
+
+Note that the above is the higher-level rearrangement only - the element
+address resulting from the above pseudocode is the address that user would see
+by looking through the card's VM subsystem. The lower-level rearrangement is
+storage type dependent, invisible to the user, and will be covered below.
+
+As an example, let's take a 13 × 17 × 3 surface with element size of 16
+bytes, tile size x of 1, tile size y of 1, and tile size z of 1. Further,
+the card is assumed to be nv50. The surface will be located in memory the
+following way:
+
+ bigtile size in bytes = 0x800 bytes
+ bigtile width: 128 bytes / 8 elements
+ bigtile height: 8
+ bigtile depth: 2
+ surface width in bigtiles: 2
+ surface height in bigtiles: 3
+ surface depth in bigtiles: 2
+ surface memory size: 0x6000 bytes
+
+| - x element bounduary
+|| - x roptile bounduary
+||| - x bigtile bounduary
+[no line] - y element bounduary
+--- - y roptile bounduary
+=== - y bigtile bounduary
+
+z == 0:
+ x -->
+y+--+----+----+----+----++----+----+----+----+++----+----+----+----++----+
+||  |  0 |  1 |  2 |  3 ||  4 |  5 |  6 |  7 |||  8 |  9 | 10 | 11 || 12 |
+|+--+----+----+----+----++----+----+----+----+++----+----+----+----++----+
+V| 0|0000|0010|0020|0030||0100|0110|0120|0130|||0800|0810|0820|0830||0900|
+ | 1|0040|0050|0060|0070||0140|0150|0160|0170|||0840|0850|0860|0870||0940|
+ | 2|0080|0090|00a0|00b0||0180|0190|01a0|01b0|||0880|0890|08a0|08b0||0980|
+ | 3|00c0|00d0|00e0|00f0||01c0|01d0|01e0|01f0|||08c0|08d0|08e0|08f0||09c0|
+ +--+----+----+----+----++----+----+----+----+++----+----+----+----++----+
+ | 4|0200|0210|0220|0230||0300|0310|0320|0330|||0a00|0a10|0a20|0a30||0b00|
+ | 5|0240|0250|0260|0270||0340|0350|0360|0370|||0a40|0a50|0a60|0a70||0b40|
+ | 6|0280|0290|02a0|02b0||0380|0390|03a0|03b0|||0a80|0a90|0aa0|0ab0||0b80|
+ | 7|02c0|02d0|02e0|02f0||03c0|03d0|03e0|03f0|||0ac0|0ad0|0ae0|0af0||0bc0|
+ +==+====+====+====+====++====+====+====+====+++====+====+====+====++====+
+ | 8|1000|1010|1020|1030||1100|1110|1120|1130|||1800|1810|1820|1830||1900|
+ | 9|1040|1050|1060|1070||1140|1150|1160|1170|||1840|1850|1860|1870||1940|
+ |10|1080|1090|10a0|10b0||1180|1190|11a0|11b0|||1880|1890|18a0|18b0||1980|
+ |11|10c0|10d0|10e0|10f0||11c0|11d0|11e0|11f0|||18c0|18d0|18e0|18f0||19c0|
+ +--+----+----+----+----++----+----+----+----+++----+----+----+----++----+
+ |12|1200|1210|1220|1230||1300|1310|1320|1330|||1a00|1a10|1a20|1a30||1b00|
+ |13|1240|1250|1260|1270||1340|1350|1360|1370|||1a40|1a50|1a60|1a70||1b40|
+ |14|1280|1290|12a0|12b0||1380|1390|13a0|13b0|||1a80|1a90|1aa0|1ab0||1b80|
+ |15|12c0|12d0|12e0|12f0||13c0|13d0|13e0|13f0|||1ac0|1ad0|1ae0|1af0||1bc0|
+ +==+====+====+====+====++====+====+====+====+++====+====+====+====++====+
+ |16|2000|2010|2020|2030||2100|2110|2120|2130|||2800|2810|2820|2830||2900|
+ +--+----+----+----+----++----+----+----+----+++----+----+----+----++----+
+z == 1:
+ x -->
+y+--+----+----+----+----++----+----+----+----+++----+----+----+----++----+
+||  |  0 |  1 |  2 |  3 ||  4 |  5 |  6 |  7 |||  8 |  9 | 10 | 11 || 12 |
+|+--+----+----+----+----++----+----+----+----+++----+----+----+----++----+
+V| 0|0400|0010|0420|0030||0500|0110|0520|0130|||0c00|0810|0c20|0830||0d00|
+ | 1|0440|0050|0460|0070||0540|0150|0560|0170|||0c40|0850|0c60|0870||0d40|
+ | 2|0480|0090|04a0|00b0||0580|0190|05a0|01b0|||0c80|0890|0ca0|08b0||0d80|
+ | 3|04c0|00d0|04e0|00f0||05c0|01d0|05e0|01f0|||0cc0|08d0|0ce0|08f0||0dc0|
+ +--+----+----+----+----++----+----+----+----+++----+----+----+----++----+
+ | 4|0600|0210|0620|0230||0700|0310|0720|0330|||0e00|0a10|0e20|0a30||0f00|
+ | 5|0640|0250|0660|0270||0740|0350|0760|0370|||0e40|0a50|0e60|0a70||0f40|
+ | 6|0680|0290|06a0|02b0||0780|0390|07a0|03b0|||0e80|0a90|0ea0|0ab0||0f80|
+ | 7|06c0|02d0|06e0|02f0||07c0|03d0|07e0|03f0|||0ec0|0ad0|0ee0|0af0||0fc0|
+ +==+====+====+====+====++====+====+====+====+++====+====+====+====++====+
+ | 8|1400|1010|1420|1030||1500|1110|1520|1130|||1c00|1810|1c20|1830||1d00|
+ | 9|1440|1050|1460|1070||1540|1150|1560|1170|||1c40|1850|1c60|1870||1d40|
+ |10|1480|1090|14a0|10b0||1580|1190|15a0|11b0|||1c80|1890|1ca0|18b0||1d80|
+ |11|14c0|10d0|14e0|10f0||15c0|11d0|15e0|11f0|||1cc0|18d0|1ce0|18f0||1dc0|
+ +--+----+----+----+----++----+----+----+----+++----+----+----+----++----+
+ |12|1600|1210|1620|1230||1700|1310|1720|1330|||1e00|1a10|1e20|1a30||1f00|
+ |13|1640|1250|1660|1270||1740|1350|1760|1370|||1e40|1a50|1e60|1a70||1f40|
+ |14|1680|1290|16a0|12b0||1780|1390|17a0|13b0|||1e80|1a90|1ea0|1ab0||1f80|
+ |15|16c0|12d0|16e0|12f0||17c0|13d0|17e0|13f0|||1ec0|1ad0|1ee0|1af0||1fc0|
+ +==+====+====+====+====++====+====+====+====+++====+====+====+====++====+
+ |16|2400|2010|2420|2030||2500|2110|2520|2130|||2c00|2810|2c20|2830||2d00|
+ +--+----+----+----+----++----+----+----+----+++----+----+----+----++----+
+[z bigtile bounduary here]
+z == 2:
+ x -->
+y+--+----+----+----+----++----+----+----+----+++----+----+----+----++----+
+||  |  0 |  1 |  2 |  3 ||  4 |  5 |  6 |  7 |||  8 |  9 | 10 | 11 || 12 |
+|+--+----+----+----+----++----+----+----+----+++----+----+----+----++----+
+V| 0|3000|0010|3020|0030||3100|0110|3120|0130|||3800|0810|3820|0830||3900|
+ | 1|3040|0050|3060|0070||3140|0150|3160|0170|||3840|0850|3860|0870||3940|
+ | 2|3080|0090|30a0|00b0||3180|0190|31a0|01b0|||3880|0890|38a0|08b0||3980|
+ | 3|30c0|00d0|30e0|00f0||31c0|01d0|31e0|01f0|||38c0|08d0|38e0|08f0||39c0|
+ +--+----+----+----+----++----+----+----+----+++----+----+----+----++----+
+ | 4|3200|0210|3220|0230||3300|0310|3320|0330|||3a00|0a10|3a20|0a30||3b00|
+ | 5|3240|0250|3260|0270||3340|0350|3360|0370|||3a40|0a50|3a60|0a70||3b40|
+ | 6|3280|0290|32a0|02b0||3380|0390|33a0|03b0|||3a80|0a90|3aa0|0ab0||3b80|
+ | 7|32c0|02d0|32e0|02f0||33c0|03d0|33e0|03f0|||3ac0|0ad0|3ae0|0af0||3bc0|
+ +==+====+====+====+====++====+====+====+====+++====+====+====+====++====+
+ | 8|4000|1010|4020|1030||4100|1110|4120|1130|||4800|1810|4820|1830||4900|
+ | 9|4040|1050|4060|1070||4140|1150|4160|1170|||4840|1850|4860|1870||4940|
+ |10|4080|1090|40a0|10b0||4180|1190|41a0|11b0|||4880|1890|48a0|18b0||4980|
+ |11|40c0|10d0|40e0|10f0||41c0|11d0|41e0|11f0|||48c0|18d0|48e0|18f0||49c0|
+ +--+----+----+----+----++----+----+----+----+++----+----+----+----++----+
+ |12|4200|1210|4220|1230||4300|1310|4320|1330|||4a00|1a10|4a20|1a30||4b00|
+ |13|4240|1250|4260|1270||4340|1350|4360|1370|||4a40|1a50|4a60|1a70||4b40|
+ |14|4280|1290|42a0|12b0||4380|1390|43a0|13b0|||4a80|1a90|4aa0|1ab0||4b80|
+ |15|42c0|12d0|42e0|12f0||43c0|13d0|43e0|13f0|||4ac0|1ad0|4ae0|1af0||4bc0|
+ +==+====+====+====+====++====+====+====+====+++====+====+====+====++====+
+ |16|5000|2010|5020|2030||5100|2110|5120|2130|||5800|2810|5820|2830||5900|
+ +--+----+----+----+----++----+----+----+----+++----+----+----+----++----+
+
+
+Textures: mipmapping and arrays
+
+[XXX: write me]
+
+
+Surface formats
+
+[XXX: write me]
+
+
+nv50 storage types
+
+[XXX: write me]
+
+
+nvc0 storage types
+
+[XXX: write me]
