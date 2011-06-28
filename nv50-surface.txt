@@ -2,8 +2,8 @@ Introduction
 
 This file deals with nv50+ cards only. For older cards, see nv01-surface.txt.
 
-A "surface" is a 2d or 3d array of pixels. Surfaces are used for image storage,
-and can be bound to at least the following slots on the engines:
+A "surface" is a 2d or 3d array of elements. Surfaces are used for image
+storage, and can be bound to at least the following slots on the engines:
 
  - m2mf input and output buffers
  - 2d source and destination surfaces
@@ -22,11 +22,11 @@ have a simple format, but they're are limitted to 2 dimensions only, don't
 support arrays nor mipmapping when used as textures, cannot be used for zeta
 buffers, and have lower performance than tiled textures. Tiled surfaces
 can have up to three dimensions, can be put into arrays and be mipmapped,
-and use custom pixel arrangement in memory. However, tiled surfaces need to
+and use custom element arrangement in memory. However, tiled surfaces need to
 be placed in memory area with special storage type, depending on the surface
 format [see nv50-vm.txt, nv50-memory.txt].
 
-Tiled surfaces have two main levels of pixel rearrangement: high-level and
+Tiled surfaces have two main levels of element rearrangement: high-level and
 low-level. Low-level rearrangement is quite complicated, depends on surface's
 storage type, and is hidden by the VM subsystem - if the surface is accessed
 through VM with properly set storage type, only the high-level rearrangement
@@ -34,20 +34,20 @@ is visible. Thus the low-level rearrangement can only be seen when accessing
 tiled system RAM directly from CPU, or accessing tiled VRAM with storage type
 set to 0. Also, low-level rearrangement for VRAM uses several tricks to
 distribute load evenly across memory partitions, while rearrangement for
-system RAM skips them and merely reorders pixels inside a roptile. High-level
+system RAM skips them and merely reorders elements inside a roptile. High-level
 rearrangement, otoh, is relatively simple, and always visible to the user -
-its knowledge is needed to calculate address of a given pixel, or to calculate
-the memory size of a surface.
+its knowledge is needed to calculate address of a given element, or to
+calculate the memory size of a surface.
 
 
 Surface elements
 
 A basic unit of surface is an "element", which can be 1, 2, 4, 8, or 16 bytes
 long. element type is vital in selecting the proper compressed storage type
-for a surface. For most surface formats, an element means simply a pixel. This
+for a surface. For most surface formats, an element means simply a sample. This
 is different for surfaces storing compressed textures - the elements are
 compressed blocks. Also, it's different for bitmap textures - in these, an
-element is a 64-bit word containing 8x8 block of pixels.
+element is a 64-bit word containing 8x8 block of samples.
 
 While texture, RT, and 2d bindings deal only with surface elements, they're
 ignored by some other binding points, like PCOPY and m2mf - in these, the
@@ -365,6 +365,181 @@ stored sequentially:
 For more information about textures, see nv50-texture.txt
 
 
+Multisampled surfaces
+
+Some surfaces are used as multisampled surfaces. This includes surfaces bound
+as color nad zeta render targets when multisampling type is other than 1X, as
+well as multisampled textures on nvc0+.
+
+A multisampled surface contains several samples per pixel. A "sample" is
+a single set of RGBA or depth/stencil values [depending on surface type].
+These samples correspond to various points inside the pixel, called sample
+positions. When a multisample surface has to be displayed, it is downsampled
+to a normal surface by an operation called "resolving".
+
+nv50+ GPUs also support a variant of multisampling called "coverage sampling"
+or CSAA. When CSAA is used, there are two sample types: full samples and
+coverage samples. Full samples behave as in normal multisampling. Coverage
+samples have assigned positions inside a pixel, but their values are not
+stored in the render target surfaces when rendering. Instead, a special
+component, called C or coverage, is added to the zeta surface, and for each
+coverage sample, a bitmask of full samples with the same value is stored.
+During the resolve process, this bitmask is used to assign different weights
+to the full samples depending on the count of coverage samples with matching
+values, thus improving picture quality. Note that the C component conceptually
+belongs to a whole pixel, not to individual samples. However, for surface
+layout purposes, its value is split into several parts, and each of the parts
+is stored together with one of the samples.
+
+For the most part, multisampling mode does not affect surface layout - in
+fact, a multisampled render target is bound as a non-multisampled texture for
+the resolving process. However, multisampling mode is vital for CSAA zeta
+surface layout, and for render target storage type selection if compression is
+to be used - the compression schema used is directly tied to multisampling
+mode.
+
+The following multisample modes exist:
+
+ - mode 0x0: MS1 [1×1] - no multisampling
+	sample 0: (0x0.8, 0x0.8) [0,0]
+ - mode 0x1: MS2 [2×1]
+	sample 0: (0x0.4, 0x0.4) [0,0]
+	sample 1: (0x0.c, 0x0.c) [1,0]
+ - mode 0x2: MS4 [2×2]
+	sample 0: (0x0.6, 0x0.2) [0,0]
+	sample 1: (0x0.e, 0x0.6) [1,0]
+	sample 2: (0x0.2, 0x0.a) [0,1]
+	sample 3: (0x0.a, 0x0.e) [1,1]
+ - mode 0x3: MS8 [4×2]
+	sample 0: (0x0.1, 0x0.7) [0,0]
+	sample 1: (0x0.5, 0x0.3) [1,0]
+	sample 2: (0x0.3, 0x0.d) [0,1]
+	sample 3: (0x0.7, 0x0.b) [1,1]
+	sample 4: (0x0.9, 0x0.5) [2,0]
+	sample 5: (0x0.f, 0x0.1) [3,0]
+	sample 6: (0x0.b, 0x0.f) [2,1]
+	sample 7: (0x0.d, 0x0.9) [3,1]
+ - mode 0x4: MS2_ALT [2×1] [NVA3-]
+	sample 0: (0x0.c, 0x0.c) [1,0]
+	sample 1: (0x0.4, 0x0.4) [0,0]
+ - mode 0x5: MS8_ALT [4×2] [NVA3-]
+	sample 0: (0x0.9, 0x0.5) [2,0]
+	sample 1: (0x0.7, 0x0.b) [1,1]
+	sample 2: (0x0.d, 0x0.9) [3,1]
+	sample 3: (0x0.5, 0x0.3) [1,0]
+	sample 4: (0x0.3, 0x0.d) [0,1]
+	sample 5: (0x0.1, 0x0.7) [0,0]
+	sample 6: (0x0.b, 0x0.f) [2,1]
+	sample 7: (0x0.f, 0x0.1) [3,0]
+[XXX: wtf is up with modes 4 and 5?]
+ - mode 0x6: ??? [NVC0-] [XXX]
+ - mode 0x8: MS4_CS4 [2×2]
+	sample 0: (0x0.6, 0x0.2) [0,0]
+	sample 1: (0x0.e, 0x0.6) [1,0]
+	sample 2: (0x0.2, 0x0.a) [0,1]
+	sample 3: (0x0.a, 0x0.e) [1,1]
+	coverage sample 4: (0x0.5, 0x0.7), belongs to 1, 3, 0, 2
+	coverage sample 5: (0x0.9, 0x0.4), belongs to 3, 2, 1, 0
+	coverage sample 6: (0x0.7, 0x0.c), belongs to 0, 1, 2, 3
+	coverage sample 7: (0x0.b, 0x0.9), belongs to 2, 0, 3, 1
+	C component is 16 bits per pixel, bitfields:
+		0-3: sample 4 associations: 0, 1, 2, 3
+		4-7: sample 5 associations: 0, 1, 2, 3
+		8-11: sample 6 associations: 0, 1, 2, 3
+		12-15: sample 7 associations: 0, 1, 2, 3
+ - mode 0x9: MS4_CS12 [2×2]
+	sample 0: (0x0.6, 0x0.1) [0,0]
+	sample 1: (0x0.f, 0x0.6) [1,0]
+	sample 2: (0x0.1, 0x0.a) [0,1]
+	sample 3: (0x0.a, 0x0.f) [1,1]
+	coverage sample 4: (0x0.4, 0x0.e), belongs to 2, 3
+	coverage sample 5: (0x0.c, 0x0.3), belongs to 1, 0
+	coverage sample 6: (0x0.d, 0x0.d), belongs to 3, 1
+	coverage sample 7: (0x0.4, 0x0.4), belongs to 0, 2
+	coverage sample 8: (0x0.9, 0x0.5), belongs to 0, 1, 2
+	coverage sample 9: (0x0.7, 0x0.7), belongs to 0, 2, 1, 3
+	coverage sample a: (0x0.b, 0x0.8), belongs to 1, 3, 0
+	coverage sample b: (0x0.3, 0x0.8), belongs to 2, 0, 3
+	coverage sample c: (0x0.8, 0x0.c), belongs to 3, 2, 1
+	coverage sample d: (0x0.2, 0x0.2), belongs to 0, 2
+	coverage sample e: (0x0.5, 0x0.b), belongs to 2, 3, 0, 1
+	coverage sample f: (0x0.e, 0x0.9), belongs to 1, 3
+	C component is 32 bits per pixel, bitfields:
+		0-1: sample 4 associations: 2, 3
+		2-3: sample 5 associations: 0, 1
+		4-5: sample 6 associations: 1, 3
+		6-7: sample 7 associations: 0, 2
+		8-10: sample 8 associations: 0, 1, 2
+		11-14: sample 9 associations: 0, 1, 2, 3
+		15-17: sample a associations: 0, 1, 3
+		18-20: sample b associations: 0, 2, 3
+		31-23: sample c associations: 1, 2, 3
+		24-25: sample d associations: 0, 2
+		26-29: sample e associations: 0, 1, 2, 3
+		30-31: sample f associations: 1, 3
+ - mode 0xa: MS8_CS8 [4×2]
+	sample 0: (0x0.1, 0x0.3) [0,0]
+	sample 1: (0x0.6, 0x0.4) [1,0]
+	sample 2: (0x0.3, 0x0.f) [0,1]
+	sample 3: (0x0.4, 0x0.b) [1,1]
+	sample 4: (0x0.c, 0x0.1) [2,0]
+	sample 5: (0x0.e, 0x0.7) [3,0]
+	sample 6: (0x0.8, 0x0.8) [2,1]
+	sample 7: (0x0.f, 0x0.d) [3,1]
+	coverage sample 8: (0x0.5, 0x0.7), belongs to 1, 6, 3, 0
+	coverage sample 9: (0x0.7, 0x0.2), belongs to 1, 0, 4, 6
+	coverage sample a: (0x0.b, 0x0.6), belongs to 5, 6, 1, 4
+	coverage sample b: (0x0.d, 0x0.3), belongs to 4, 5, 6, 1
+	coverage sample c: (0x0.2, 0x0.9), belongs to 3, 0, 2, 1
+	coverage sample d: (0x0.7, 0x0.c), belongs to 3, 2, 6, 7
+	coverage sample e: (0x0.a, 0x0.e), belongs to 7, 3, 2, 6
+	coverage sample f: (0x0.c, 0x0.a), belongs to 5, 6, 7, 3
+	C component is 32 bits per pixel, bitfields:
+		0-3: sample 8 associations: 0, 1, 3, 6
+		4-7: sample 8 associations: 0, 1, 4, 6
+		8-11: sample 8 associations: 1, 4, 5, 6
+		12-15: sample 8 associations: 1, 4, 5, 6
+		16-19: sample 8 associations: 0, 1, 2, 3
+		20-23: sample 8 associations: 2, 3, 6, 7
+		24-27: sample 8 associations: 2, 3, 6, 7
+		28-31: sample 8 associations: 3, 5, 6, 7
+ - mode 0xb: MS8_CS24 [NVC0-]
+	[XXX: nail down sample positions]
+	[XXX: figure out C component]
+
+The sample ids are, for full samples, the values appearing in the sampleid
+register. The numbers in () are the geometric coordinates of the sample
+inside a pixel, as used by the rasterization process. The dimensions in []
+are dimensions of a block represents a pixel in the surface - if it's 4×2,
+each pixel is represented in the surface as a block 4 elements wide and 2
+elements tall. The numbers in [] after each full sample are the coordinates
+inside this block.
+
+Each coverage sample "belongs to" several full samples. For every such pair
+of coverage sample and full sample, the C component contains a bit that tells
+if the coverage sample's value is the same as the full one's, ie. if the last
+rendered primitive that covered the full sample also covered the coverage
+sample. When the surface is resolved, each sample will "contribute" to exactly
+one full sample. The full samples always contribute to themselves, while
+coverage sample will contribute to the first full sample that they belong to,
+in order listed above, that has the relevant bit set in C component of the
+zeta surface. If none of the C bits for a given coverage sample are set, the
+sample will default to contributing to the first sample in its belongs list.
+Then, for each full sample, the number of samples contributing to it is
+counted, and used as its weight when performing the downsample calculation.
+
+Note that, while the belongs list orderings are carefully chosen based on
+sample locations and to even the weights, the bits in C component don't use
+this ordering and are sorted by sample id instead.
+
+The C component is 16 or 32 bits per pixel, depending on the format. It is
+then split into 8-bit chunks, starting from LSB, and each chunk is assigned
+to one of the full samples. For MS4_CS4 and MS8_CS8, only samples in the top
+line of each block get a chunk assigned, for MS4_CS12 all samples get a chunk.
+The chunks are assigned to samples ordered first by x coordinate of the
+sample, then by its y coordinate.
+
+
 Surface formats
 
 A surface's format determines the type of information it stores in its
@@ -378,31 +553,31 @@ selection, allowing arbitrary swizzles.
 
 The surface formats can be broadly divided into the following categories:
 
- - simple color formats: elements correspond directly to pixels, or samples in
-   a multisampled surface. Each element has 1 to 4 bitfields corresponding
-   to R, G, B, A components. Usable for texturing, color RTs, and 2d engine.
+ - simple color formats: elements correspond directly to samples. Each element
+   has 1 to 4 bitfields corresponding to R, G, B, A components. Usable for
+   texturing, color RTs, and 2d engine.
  - shared exponent color format: like above, but the components are floats
    sharing the exponent bitfield. Usable for texturing only.
  - YUV color formats: element corresponds to two pixels lying in the same
    horizontal line. The pixels have three components, conventionally labeled
    as Y, U, V. U and V components are common for the two pixels making up an
    element, but Y components are separate. Usable for texturing only.
- - zeta formats: elements correspond to pixels, or samples in a multisampled
-   surface. There is a per-sample depth component, optionally a per-sample
-   stencil component, and optionally a per-pixel coverage value for CSAA
-   surfaces. Usable for texturing and ZETA RT.
- - compressed texture formats: elements correspond to blocks of pixels, and
+ - zeta formats: elements correspond to samples. There is a per-sample depth
+   component, optionally a per-sample stencil component, and optionally a
+   per-pixel coverage value for CSAA surfaces. Usable for texturing and ZETA
+   RT.
+ - compressed texture formats: elements correspond to blocks of samples, and
    are decoded to RGBA color values on the fly. Can be used only for
    texturing.
- - bitmap texture format: each element corresponds to 8x8 block of pixels,
-   with 1 bit per pixel. Has to be used with a special texture sampler.
+ - bitmap texture format: each element corresponds to 8x8 block of samples,
+   with 1 bit per sample. Has to be used with a special texture sampler.
    Usable for texturing and 2d engine.
 
 
 Simple color surface formats
 
 A simple color surface is a surface where each element corresponds directly to
-a pixel, each pixel has 4 components known as R, G, B, A [in that order], and
+a sample, each sample has 4 components known as R, G, B, A [in that order], and
 the bitfields in element correspond directly to components. There can be less
 bitfields than components - the remaining components will be ignored on write,
 and get a default value on read, which is 0 for R, G, B and 1 for A.
