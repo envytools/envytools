@@ -2065,10 +2065,10 @@ static struct insn tabs[] = {
 };
 
 static struct insn tabroot[] = {
+	{ 0x8, 0x8, OP32, T(s) },
 	{ 7, 0xf, OP64, T(c) }, // control instructions, special-cased.
 	{ 0x0, 0x18, OP64, T(p), T(m) },
 	{ 0x10, 0x18, OP64, N("join"), T(p), T(m), },
-	{ 0x8, 0x8, OP32, T(s) },
 	{ 0, 0, OOPS },
 };
 
