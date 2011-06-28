@@ -1780,6 +1780,7 @@ F1(terminate, 0xe, N("terminate"))
 static struct insn tabbtarg[] = {
 	{ 0x0000000000000000ull, 0x0000000000004000ull, BTARG },
 	{ 0x0000000000004000ull, 0x0000000000004000ull, N("pcrel"), FCONSTNR },
+	{ 0, 0, OOPS },
 };
 
 static struct insn tabc[] = {
