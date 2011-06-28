@@ -1990,10 +1990,10 @@ static struct insn tabs[] = {
 	{ 0x00000f08, 0x00000fff, N("vsubr4"), T(us8_d), DST, T(us8_c), SRC1, T(us8_c), SRC2 },
 
 	{ 0x00000018, 0x000001ff, T(p), N("cvt"), T(i2isd), DST, T(acout17), T(neg16), T(abs19), T(i2iss), SRC2 },
-	{ 0x00000118, 0x000003ff, T(p), N("mov"), DST, IMMS },
-	{ 0x00000318, 0x000003ff, T(p), N("mov"), DST, FIMMS },
+	{ 0x00000118, 0x000003ff, T(p), N("mov"), N("b32"), DST, IMMS },
+	{ 0x00000318, 0x000003ff, T(p), N("mov"), N("b32"), DST, FIMMS },
 
-	{ 0x00000028, 0x000000ff, T(p), N("mov"), DST, T(ss1) },
+	{ 0x00000028, 0x000000ff, T(p), N("mov"), N("b32"), DST, T(ss1) },
 
 	{ 0x00000088, 0x000003ff, T(p), N("cvt"), T(rms), N("f32"), DST, T(acout17), T(neg16), T(abs19), T(us32_18), SRC2 },
 	{ 0x00000288, 0x000003ff, T(p), N("cvt"), T(rmsi), T(us32_18), DST, T(acout17), T(neg16), T(abs19), N("f32"), SRC2 },
@@ -2040,14 +2040,14 @@ static struct insn tabs[] = {
 	{ 0x0000001c, 0x0000001f, T(p), N("ld"), N("b32"), DST, FCONSTS },
 
 	{ 0x0000000d, 0x0000001f, N("add"), DST, N("mul"), T(us32_5), SRC1, T(us32_5), T(ss2a), SRC3S },
-	{ 0x0000001d, 0x000000ff, T(p), N("and"), DST, SRC1, T(ss2) },
-	{ 0x0000003d, 0x000000ff, T(p), N("or"), DST, SRC1, T(ss2) },
-	{ 0x0000005d, 0x000000ff, T(p), N("xor"), DST, SRC1, T(ss2) },
-	{ 0x0000007d, 0x000000ff, T(p), N("mov2"), DST, SRC1, T(ss2) },
-	{ 0x0000009d, 0x000000ff, T(p), N("and"), DST, SRC1, SIMMS },
-	{ 0x000000bd, 0x000000ff, T(p), N("or"), DST, SRC1, SIMMS },
-	{ 0x000000dd, 0x000000ff, T(p), N("xor"), DST, SRC1, SIMMS },
-	{ 0x000000fd, 0x000000ff, T(p), N("mov2"), DST, SRC1, SIMMS },
+	{ 0x0000001d, 0x000000ff, T(p), N("and"), N("b32"), DST, SRC1, T(ss2) },
+	{ 0x0000003d, 0x000000ff, T(p), N("or"), N("b32"), DST, SRC1, T(ss2) },
+	{ 0x0000005d, 0x000000ff, T(p), N("xor"), N("b32"), DST, SRC1, T(ss2) },
+	{ 0x0000007d, 0x000000ff, T(p), N("mov2"), N("b32"), DST, SRC1, T(ss2) },
+	{ 0x0000009d, 0x000000ff, T(p), N("and"), N("b32"), DST, SRC1, SIMMS },
+	{ 0x000000bd, 0x000000ff, T(p), N("or"), N("b32"), DST, SRC1, SIMMS },
+	{ 0x000000dd, 0x000000ff, T(p), N("xor"), N("b32"), DST, SRC1, SIMMS },
+	{ 0x000000fd, 0x000000ff, T(p), N("mov2"), N("b32"), DST, SRC1, SIMMS },
 
 	{ 0x0000000e, 0x0000002f, N("add"), N("f32"), DST, T(neg4), N("mul"), SRC1, T(ss2a), SRC3S },
 	{ 0x0000002e, 0x0000002f, N("add"), N("f32"), DST, T(neg4), N("mul"), SRC1, SRC2, T(ss3a) },
