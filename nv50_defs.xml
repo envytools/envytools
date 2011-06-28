@@ -55,7 +55,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <!--XXX: figure this out someday-->
 <enum name="NV50_SURFACE_FORMAT">
-	<value value="0x001c" name="UNK1C"/>
+	<value value="0x001c" name="BITMAP"/>
 	<value value="0x001d" name="UNK1D"/>
 	<value value="0x00c0" name="RGBA32_FLOAT"/>
 	<value value="0x00c1" name="RGBA32_SINT"/>

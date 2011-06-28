@@ -551,6 +551,14 @@ with values specifying both the layout and components, while texture
 units decouple layout specification from component assignment and type
 selection, allowing arbitrary swizzles.
 
+There are 3 main enums used for specifying surface formats:
+ - texture format: used for textures, epecifies element size and layout, but
+   not the component assignments nor type
+ - color format: used for color RTs and the 2d engine, specifies the full
+   format
+ - zeta format: used for zeta RTs, specifies the full format, except the
+   speficic coverage sampling mode, if applicable
+
 The surface formats can be broadly divided into the following categories:
 
  - simple color formats: elements correspond directly to samples. Each element
@@ -572,6 +580,7 @@ The surface formats can be broadly divided into the following categories:
  - bitmap texture format: each element corresponds to 8x8 block of samples,
    with 1 bit per sample. Has to be used with a special texture sampler.
    Usable for texturing and 2d engine.
+[XXX: wtf is color format 0x1d?]
 
 
 Simple color surface formats
@@ -621,90 +630,90 @@ The formats are:
 
 Element size 16:
  - texture format 0x01: 32_32_32_32
-  - RT format 0xc0: RGBA, float
-  - RT format 0xc1: RGBA, sint
-  - RT format 0xc2: RGBA, uint
-  - RT format 0xc3: RGBX, float
-  - RT format 0xc4: RGBX, sint
-  - RT format 0xc5: RGBX, uint
+  - color format 0xc0: RGBA, float
+  - color format 0xc1: RGBA, sint
+  - color format 0xc2: RGBA, uint
+  - color format 0xc3: RGBX, float
+  - color format 0xc4: RGBX, sint
+  - color format 0xc5: RGBX, uint
 Element size 8:
  - texture format 0x03: 16_16_16_16
-  - RT format 0xc6: RGBA, unorm
-  - RT format 0xc7: RGBA, snorm
-  - RT format 0xc8: RGBA, sint
-  - RT format 0xc9: RGBA, uint
-  - RT format 0xca: RGBA, float
-  - RT format 0xce: RGBX, float
+  - color format 0xc6: RGBA, unorm
+  - color format 0xc7: RGBA, snorm
+  - color format 0xc8: RGBA, sint
+  - color format 0xc9: RGBA, uint
+  - color format 0xca: RGBA, float
+  - color format 0xce: RGBX, float
  - texture format 0x04: 32_32
-  - RT format 0xcb: RG, float
-  - RT format 0xcc: RG, sint
-  - RT format 0xcd: RG, uint
+  - color format 0xcb: RG, float
+  - color format 0xcc: RG, sint
+  - color format 0xcd: RG, uint
  - texture format 0x05: 32_8_X24
 Element size 4:
  - texture format 0x07: 8_8_8_X8
 [XXX: htf do I determine if a surface format counts as 0x07 or 0x08?]
  - texture format 0x08: 8_8_8_8
-  - RT format 0xcf: BGRA, unorm
-  - RT format 0xd0: BGRA, unorm, SRGB
-  - RT format 0xd5: RGBA, unorm
-  - RT format 0xd6: RGBA, unorm, SRGB
-  - RT format 0xd7: RGBA, snorm
-  - RT format 0xd8: RGBA, sint
-  - RT format 0xd9: RGBA, uint
-  - RT format 0xe6: BGRX, unorm
-  - RT format 0xe7: BGRX, unorm, SRGB
-  - RT format 0xf9: RGBX, unorm
-  - RT format 0xfa: RGBX, unorm, SRGB
-  - RT format 0xfd: BGRX, unorm [XXX]
-  - RT format 0xfe: BGRX, unorm [XXX]
+  - color format 0xcf: BGRA, unorm
+  - color format 0xd0: BGRA, unorm, SRGB
+  - color format 0xd5: RGBA, unorm
+  - color format 0xd6: RGBA, unorm, SRGB
+  - color format 0xd7: RGBA, snorm
+  - color format 0xd8: RGBA, sint
+  - color format 0xd9: RGBA, uint
+  - color format 0xe6: BGRX, unorm
+  - color format 0xe7: BGRX, unorm, SRGB
+  - color format 0xf9: RGBX, unorm
+  - color format 0xfa: RGBX, unorm, SRGB
+  - color format 0xfd: BGRX, unorm [XXX]
+  - color format 0xfe: BGRX, unorm [XXX]
  - texture format 0x09: 10_10_10_2
-  - RT format 0xd1: RGBA, unorm
-  - RT format 0xd2: RGBA, uint
-  - RT format 0xdf: BGRA, unorm
+  - color format 0xd1: RGBA, unorm
+  - color format 0xd2: RGBA, uint
+  - color format 0xdf: BGRA, unorm
  - texture format 0x0c: 16_16
-  - RT formt 0xda: RG, unorm
-  - RT formt 0xdb: RG, snorm
-  - RT formt 0xdc: RG, sint
-  - RT formt 0xdd: RG, uint
-  - RT formt 0xde: RG, float
+  - color format 0xda: RG, unorm
+  - color format 0xdb: RG, snorm
+  - color format 0xdc: RG, sint
+  - color format 0xdd: RG, uint
+  - color format 0xde: RG, float
  - texture format 0x0d: 24_8
  - texture format 0x0e: 8_24
  - texture format 0x0f: 32
-  - RT format 0xe3: R, sint
-  - RT format 0xe4: R, uint
-  - RT format 0xe5: R, float
-  - RT format 0xff: Y, uint [XXX]
+  - color format 0xe3: R, sint
+  - color format 0xe4: R, uint
+  - color format 0xe5: R, float
+  - color format 0xff: Y, uint [XXX]
  - texture format 0x21: 11_11_10
-  - RT format 0xe0: RGB, float
+  - color format 0xe0: RGB, float
 Element size 2:
  - texture format 0x12: 4_4_4_4
  - texture format 0x13: 1_5_5_5
  - texture format 0x14: 5_5_5_1
-  - RT format 0xe9: BGRA, unorm
-  - RT format 0xf8: BGRX, unorm
-  - RT format 0xfb: BGRX, unorm [XXX]
-  - RT format 0xfc: BGRX, unorm [XXX]
+  - color format 0xe9: BGRA, unorm
+  - color format 0xf8: BGRX, unorm
+  - color format 0xfb: BGRX, unorm [XXX]
+  - color format 0xfc: BGRX, unorm [XXX]
  - texture format 0x15: 5_6_5
-  - RT format 0xe8: BGR, unorm
+  - color format 0xe8: BGR, unorm
  - texture format 0x16: 5_5_6
  - texture format 0x18: 8_8
-  - RT format 0xea: RG, unorm
-  - RT format 0xeb: RG, snorm
-  - RT format 0xec: RG, uint
-  - RT format 0xed: RG, sint
+  - color format 0xea: RG, unorm
+  - color format 0xeb: RG, snorm
+  - color format 0xec: RG, uint
+  - color format 0xed: RG, sint
  - texture format 0x1b: 16
-  - RT format 0xee: R, unorm
-  - RT format 0xef: R, snorm
-  - RT format 0xf0: R, sint
-  - RT format 0xf1: R, uint
-  - RT format 0xf2: R, float
+  - color format 0xee: R, unorm
+  - color format 0xef: R, snorm
+  - color format 0xf0: R, sint
+  - color format 0xf1: R, uint
+  - color format 0xf2: R, float
 Element size 1:
  - texture format 0x1d: 8
-  - RT format 0xf3: R, unorm
-  - RT format 0xf4: R, snorm
-  - RT format 0xf5: R, sint
-  - RT format 0xf6: R, uint
-  - RT format 0xf7: A, unorm
+  - color format 0xf3: R, unorm
+  - color format 0xf4: R, snorm
+  - color format 0xf5: R, sint
+  - color format 0xf6: R, uint
+  - color format 0xf7: A, unorm
  - texture format 0x1e: 4_4
 [XXX: which component types are valid for a given bitfield size?]
 [XXX: clarify float encoding for weird sizes]
@@ -756,9 +765,9 @@ a coverage sampling mode with a zeta format without C component, or the other
 way around.
 
 Like with color formats, there are two different enums that specify zeta
-formats: texture formats and RT formats. However, this time the RT formats
+formats: texture formats and zeta formats. However, this time the zata formats
 have one-to-many relationship with texture formats: Texture format contains
-information about the specific coverage sampling mode used, while RT format
+information about the specific coverage sampling mode used, while zeta format
 merely says whether coverage sampling is in use, and the mode is taken from
 RT multisample configuration.
 
@@ -771,33 +780,33 @@ the sampling process.
 The formats are:
 
 Element size 2:
- - RT format 0x13: Z16 [NVA0+ only]
+ - zeta format 0x13: Z16 [NVA0+ only]
   - texture format 0x3a: Z16 [NVA0+ only]
 Element size 4:
- - RT format 0x0a: Z32
+ - zeta format 0x0a: Z32
   - texture format 0x2f
- - RT format 0x14: S8_Z24
+ - zeta format 0x14: S8_Z24
   - texture format 0x29
- - RT format 0x15: Z24_X8
+ - zeta format 0x15: Z24_X8
   - texture format 0x2b
- - RT format 0x16: Z24_S8
+ - zeta format 0x16: Z24_S8
   - texture format 0x2a
- - RT format 0x18: Z24_C8
+ - zeta format 0x18: Z24_C8
   - texture format 0x2c: MS4_CS4
   - texture format 0x2d: MS8_CS8
   - texture format 0x2e: MS4_CS12
 Element size 8:
- - RT format 0x19: Z32_S8_X24
+ - zeta format 0x19: Z32_S8_X24
   - texture format 0x30
- - RT format 0x1d: Z24_X8_S8_C8_X16
+ - zeta format 0x1d: Z24_X8_S8_C8_X16
   - texture format 0x31: MS4_CS4
   - texture format 0x32: MS8_CS8
   - texture format 0x37: MS4_CS12
- - RT format 0x1e: Z32_X8_C8_X16
+ - zeta format 0x1e: Z32_X8_C8_X16
   - texture format 0x33: MS4_CS4
   - texture format 0x34: MS8_CS8
   - texture format 0x38: MS4_CS12
- - RT format 0x1f: Z32_S8_C8_X16
+ - zeta format 0x1f: Z32_S8_C8_X16
   - texture format 0x35: MS4_CS4
   - texture format 0x36: MS8_CS8
   - texture format 0x39: MS4_CS12
@@ -811,7 +820,24 @@ Compressed texture formats
 
 Bitmap surface format
 
-[XXX: write me]
+A bitmap surface has only one component, and the component has 1 bit per sample
+- that is, the component's valu ecan be either 0 or 1 for each sample in the
+surface. The surface is made of 8-byte elements, with each element
+representing 8×8 block of samples. The element is treated as a 64-bit word,
+with each sample taking 1 bit. The bits start from LSB and are ordered first
+by x coordinate of the sample, then by its y coordinate.
+
+This format can be used for 2d engine and texturing. When used for textuging,
+it forces using a special "box" filter: result of sampling is a percentage of
+"lit" area in WxH rectangle centered on the sampled location. See
+nv50-texture.txt for more details.
+[XXX: figure out more. Check how it works with 2d engine.]
+
+The formats are:
+
+Element size 8:
+ - texture format 0x1f: BITMAP
+  - color format 0x1c: BITMAP
 
 
 nv50 storage types

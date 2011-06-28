@@ -58,11 +58,7 @@
 			<value value="0x1b" name="16"/>
 			<value value="0x1d" name="8"/>
 			<value value="0x1e" name="4_4"/>
-			<value value="0x1f" name="BITMAP_8X8">
-				<doc>Each element is 64-bit LE word specifying 8x8 block of 1-bit texels.
-				This format forces using a special "box" filter: result of sampling is
-				a percentage of "lit" area in WxH rectangle centered on the sampled location.</doc>
-			</value>
+			<value value="0x1f" name="BITMAP"/>
 			<value value="0x20" name="9_9_9_E5"/>
 			<value value="0x21" name="11_11_10"/>
 			<value value="0x22" name="U8_YA8_V8_YB8"/>
