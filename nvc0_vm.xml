@@ -72,34 +72,34 @@
 	<value value="0x0a" name="UNK0A_Z16_COMP_MS8"/>
 
 
-	<value value="0x11" name="S8Z24"/> <!-- also X8Z24 -->
+	<value value="0x11" name="Z24_S8"/> <!-- also X8Z24 -->
 
-	<value value="0x17" name="S8Z24_COMP_MS1"/>
-	<value value="0x18" name="S8Z24_COMP_MS2"/>
-	<value value="0x19" name="S8Z24_COMP_MS4"/>
-	<value value="0x1a" name="S8Z24_COMP_MS8"/>
+	<value value="0x17" name="Z24_S8_COMP_MS1"/>
+	<value value="0x18" name="Z24_S8_COMP_MS2"/>
+	<value value="0x19" name="Z24_S8_COMP_MS4"/>
+	<value value="0x1a" name="Z24_S8_COMP_MS8"/>
 
-	<value value="0x26" name="C8Z24_MS4_CS12"/>
-	<value value="0x27" name="C8Z24_MS4_CS4"/>
-	<value value="0x28" name="C8Z24_MS8_CS8"/>
-	<value value="0x29" name="C8Z24_MS8_CS24"/>
+	<value value="0x26" name="Z24_C8_MS4_CS12"/>
+	<value value="0x27" name="Z24_C8_MS4_CS4"/>
+	<value value="0x28" name="Z24_C8_MS8_CS8"/>
+	<value value="0x29" name="Z24_C8_MS8_CS24"/>
 
-	<value value="0x3a" name="UNK3A_C8Z24_COMP_MS4_CS12"/>
-	<value value="0x3b" name="UNK3B_C8Z24_COMP_MS4_CS4"/>
-	<value value="0x3c" name="UNK3C_C8Z24_COMP_MS8_CS8"/>
-	<value value="0x3d" name="UNK3D_C8Z24_COMP_MS8_CS24"/>
+	<value value="0x3a" name="UNK3A_Z24_C8_COMP_MS4_CS12"/>
+	<value value="0x3b" name="UNK3B_Z24_C8_COMP_MS4_CS4"/>
+	<value value="0x3c" name="UNK3C_Z24_C8_COMP_MS8_CS8"/>
+	<value value="0x3d" name="UNK3D_Z24_C8_COMP_MS8_CS24"/>
 
-	<value value="0x3e" name="UNK3E_C8Z24_COMP_MS4_CS12"/>
-	<value value="0x3f" name="UNK3F_C8Z24_COMP_MS4_CS4"/>
-	<value value="0x40" name="UNK40_C8Z24_COMP_MS8_CS8"/>
-	<value value="0x41" name="UNK41_C8Z24_COMP_MS8_CS24"/>
+	<value value="0x3e" name="UNK3E_Z24_C8_COMP_MS4_CS12"/>
+	<value value="0x3f" name="UNK3F_Z24_C8_COMP_MS4_CS4"/>
+	<value value="0x40" name="UNK40_Z24_C8_COMP_MS8_CS8"/>
+	<value value="0x41" name="UNK41_Z24_C8_COMP_MS8_CS24"/>
 
-	<value value="0x46" name="Z24S8"/>
+	<value value="0x46" name="S8_Z24"/>
 
-	<value value="0x51" name="Z24S8_COMP_MS1"/>
-	<value value="0x52" name="Z24S8_COMP_MS2"/>
-	<value value="0x53" name="Z24S8_COMP_MS4"/>
-	<value value="0x54" name="Z24S8_COMP_MS8"/>
+	<value value="0x51" name="S8_Z24_COMP_MS1"/>
+	<value value="0x52" name="S8_Z24_COMP_MS2"/>
+	<value value="0x53" name="S8_Z24_COMP_MS4"/>
+	<value value="0x54" name="S8_Z24_COMP_MS8"/>
 
 	<value value="0x7b" name="Z32"/>
 
@@ -108,23 +108,24 @@
 	<value value="0x88" name="Z32_COMP_MS4"/>
 	<value value="0x89" name="Z32_COMP_MS8"/>
 
-	<value value="0x8b" name="Z24_C8S8_MS4_CS12"/>
-	<value value="0x8c" name="Z24_C8S8_MS4_CS4"/>
-	<value value="0x8d" name="Z24_C8S8_MS8_CS8"/>
-	<value value="0x8e" name="Z24_C8S8_MS8_CS24"/>
-	<value value="0xa3" name="Z24_C8S8_COMP_MS4_CS12"/>
-	<value value="0xa4" name="Z24_C8S8_COMP_MS4_CS4"/>
-	<value value="0xa5" name="Z24_C8S8_COMP_MS8_CS8"/>
-	<value value="0xa6" name="Z24_C8S8_COMP_MS8_CS24"/>
+	<!-- X fields skipped. -->
+	<value value="0x8b" name="Z24_S8_C8_MS4_CS12"/>
+	<value value="0x8c" name="Z24_S8_C8_MS4_CS4"/>
+	<value value="0x8d" name="Z24_S8_C8_MS8_CS8"/>
+	<value value="0x8e" name="Z24_S8_C8_MS8_CS24"/>
+	<value value="0xa3" name="Z24_S8_C8_COMP_MS4_CS12"/>
+	<value value="0xa4" name="Z24_S8_C8_COMP_MS4_CS4"/>
+	<value value="0xa5" name="Z24_S8_C8_COMP_MS8_CS8"/>
+	<value value="0xa6" name="Z24_S8_C8_COMP_MS8_CS24"/>
 
-	<value value="0xa7" name="Z32_C8S8_MS4_CS12"/>
-	<value value="0xa8" name="Z32_C8S8_MS4_CS4"/>
-	<value value="0xa9" name="Z32_C8S8_MS8_CS8"/>
-	<value value="0xaa" name="Z32_C8S8_MS8_CS24"/>
-	<value value="0xbf" name="Z32_C8S8_COMP_MS4_CS12"/>
-	<value value="0xc0" name="Z32_C8S8_COMP_MS4_CS4"/>
-	<value value="0xc1" name="Z32_C8S8_COMP_MS8_CS8"/>
-	<value value="0xc2" name="Z32_C8S8_COMP_MS8_CS24"/>
+	<value value="0xa7" name="Z32_S8_C8_MS4_CS12"/>
+	<value value="0xa8" name="Z32_S8_C8_MS4_CS4"/>
+	<value value="0xa9" name="Z32_S8_C8_MS8_CS8"/>
+	<value value="0xaa" name="Z32_S8_C8_MS8_CS24"/>
+	<value value="0xbf" name="Z32_S8_C8_COMP_MS4_CS12"/>
+	<value value="0xc0" name="Z32_S8_C8_COMP_MS4_CS4"/>
+	<value value="0xc1" name="Z32_S8_C8_COMP_MS8_CS8"/>
+	<value value="0xc2" name="Z32_S8_C8_COMP_MS8_CS24"/>
 
 	<value value="0xc3" name="Z32_S8"/>
 

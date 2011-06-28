@@ -121,15 +121,15 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <enum name="NV50_ZETA_FORMAT">
 	<value value="0x000a" name="Z32_FLOAT"/>
-	<value value="0x0013" name="Z16_UNORM"/><!--NVA0+ only-->
-	<value value="0x0014" name="Z24S8_UNORM"/>
-	<value value="0x0015" name="X8Z24_UNORM"/>
-	<value value="0x0016" name="S8Z24_UNORM"/>
-	<value value="0x0018" name="C8Z24_UNORM"/>
-	<value value="0x0019" name="Z32_FLOAT_X24S8_UNORM"/>
-	<value value="0x001d" name="X16C8S8X8Z24_UNORM"/>
-	<value value="0x001e" name="Z32_FLOAT_X16C8X8_UNORM"/>
-	<value value="0x001f" name="Z32_FLOAT_X16C8S8_UNORM"/>
+	<value value="0x0013" name="Z16_UNORM" varset="chipset" variants="NVA0-"/>
+	<value value="0x0014" name="S8_Z24_UNORM"/>
+	<value value="0x0015" name="Z24_X8_UNORM"/>
+	<value value="0x0016" name="Z24_S8_UNORM"/>
+	<value value="0x0018" name="Z24_C8_UNORM"/>
+	<value value="0x0019" name="Z32_S8_X24_FLOAT"/>
+	<value value="0x001d" name="Z24_X8_S8_C8_X16_UNORM"/>
+	<value value="0x001e" name="Z32_X8_C8_X16_FLOAT"/>
+	<value value="0x001f" name="Z32_S8_C8_X16_FLOAT"/>
 </enum>
 
 <enum name="nv50_clip_distance_mode" inline="yes">

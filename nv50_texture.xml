@@ -72,23 +72,23 @@
 			<value value="0x26" name="DXT5" />
 			<value value="0x27" name="RGTC1" />
 			<value value="0x28" name="RGTC2" />
-			<value value="0x29" name="Z24S8" />
-			<value value="0x2a" name="S8Z24" />
-			<value value="0x2b" name="X8Z24" />
-			<value value="0x2c" name="C8Z24_MS4_CS4" />
-			<value value="0x2d" name="C8Z24_MS8_CS8" />
-			<value value="0x2e" name="C8Z24_MS4_CS12" />
-			<value value="0x2f" name="Z32" />
-			<value value="0x30" name="X24S8Z32" />
-			<value value="0x31" name="X16C8S8X8Z24_MS4_CS4" />
-			<value value="0x32" name="X16C8S8X8Z24_MS8_CS8" />
-			<value value="0x33" name="X16C8X8Z32_MS4_CS4" />
-			<value value="0x34" name="X16C8X8Z32_MS8_CS8" />
-			<value value="0x35" name="X16C8S8Z32_MS4_CS4" />
-			<value value="0x36" name="X16C8S8Z32_MS8_CS8" />
-			<value value="0x37" name="X16C8S8X8Z24_MS4_CS12" />
-			<value value="0x38" name="X16C8X8Z32_MS4_CS12" />
-			<value value="0x39" name="X16C8S8Z32_MS4_CS12" />
+			<value value="0x29" name="S8_Z24"/>
+			<value value="0x2a" name="Z24_S8"/>
+			<value value="0x2b" name="Z24_X8"/>
+			<value value="0x2c" name="Z24_C8_MS4_CS4"/>
+			<value value="0x2d" name="Z24_C8_MS8_CS8"/>
+			<value value="0x2e" name="Z24_C8_MS4_CS12"/>
+			<value value="0x2f" name="Z32"/>
+			<value value="0x30" name="Z32_S8_X24"/>
+			<value value="0x31" name="Z24_X8_S8_C8_X16_MS4_CS4"/>
+			<value value="0x32" name="Z24_X8_S8_C8_X16_MS8_CS8"/>
+			<value value="0x33" name="Z32_X8_C8_X16_MS4_CS4" />
+			<value value="0x34" name="Z32_X8_C8_X16_MS8_CS8" />
+			<value value="0x35" name="Z32_S8_C8_X16_MS4_CS4" />
+			<value value="0x36" name="Z32_S8_C8_X16_MS8_CS8" />
+			<value value="0x37" name="Z24_X8_S8_C8_X16_MS4_CS12"/>
+			<value value="0x38" name="Z32_X8_C8_X16_MS4_CS12" />
+			<value value="0x39" name="Z32_S8_C8_X16_MS4_CS12" />
 			<value value="0x3a" name="Z16" />
 		</bitfield>
 	</reg32>

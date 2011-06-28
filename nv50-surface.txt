@@ -738,7 +738,70 @@ Element size 4:
 
 Zeta surface formats
 
-[XXX: write me]
+A zeta surface, like a simple color surface, has one element per sample.
+It contains up to three components: the depth component [called Z], optionally
+the stencil component [called S], and if coverage sampling is in use, the
+coverage component [called C].
+
+The Z component can be a 32-bit float, a 24-bit normalized unsinged integer, or
+[on NVA0+] a 16-bit normalized unsigned integer. The S component, if present,
+is always an 8-bit raw integer.
+
+The C component is special: if present, it's an 8-bit bitfield in each sample.
+However, semantically it is a per-pixel value, and the values of the samples'
+C components are stitched together to obtain a per-pixel value. This stitching
+process depends on the multisample mode, thus it needs to be specified to
+bind a coverage sampled zeta surface as a texture. It's not allowed to use
+a coverage sampling mode with a zeta format without C component, or the other
+way around.
+
+Like with color formats, there are two different enums that specify zeta
+formats: texture formats and RT formats. However, this time the RT formats
+have one-to-many relationship with texture formats: Texture format contains
+information about the specific coverage sampling mode used, while RT format
+merely says whether coverage sampling is in use, and the mode is taken from
+RT multisample configuration.
+
+For textures, Z corresponds to C0, S to C1, and C to C2. However, C cannot
+be used together with Z and/or S in a single sampler. Z and S sampling works
+normally, but when C is sampled, the sampler returns preprocessed weights
+instead of the raw value - see nv50-texture.txt for more information about
+the sampling process.
+
+The formats are:
+
+Element size 2:
+ - RT format 0x13: Z16 [NVA0+ only]
+  - texture format 0x3a: Z16 [NVA0+ only]
+Element size 4:
+ - RT format 0x0a: Z32
+  - texture format 0x2f
+ - RT format 0x14: S8_Z24
+  - texture format 0x29
+ - RT format 0x15: Z24_X8
+  - texture format 0x2b
+ - RT format 0x16: Z24_S8
+  - texture format 0x2a
+ - RT format 0x18: Z24_C8
+  - texture format 0x2c: MS4_CS4
+  - texture format 0x2d: MS8_CS8
+  - texture format 0x2e: MS4_CS12
+Element size 8:
+ - RT format 0x19: Z32_S8_X24
+  - texture format 0x30
+ - RT format 0x1d: Z24_X8_S8_C8_X16
+  - texture format 0x31: MS4_CS4
+  - texture format 0x32: MS8_CS8
+  - texture format 0x37: MS4_CS12
+ - RT format 0x1e: Z32_X8_C8_X16
+  - texture format 0x33: MS4_CS4
+  - texture format 0x34: MS8_CS8
+  - texture format 0x38: MS4_CS12
+ - RT format 0x1f: Z32_S8_C8_X16
+  - texture format 0x35: MS4_CS4
+  - texture format 0x36: MS8_CS8
+  - texture format 0x39: MS4_CS12
+[XXX: figure out the MS8_CS24 formats]
 
 
 Compressed texture formats

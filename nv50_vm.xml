@@ -50,33 +50,32 @@
 <enum name="NV50_STORAGE_TYPE">
 	<value value="0x00" name="LINEAR"/>
 
-	<value value="0x10" name="Z24S8_MS1"/>
-	<value value="0x11" name="Z24S8_MS2"/>
-	<value value="0x12" name="Z24S8_MS4"/>
-	<value value="0x13" name="Z24S8_MS8"/>
+	<value value="0x10" name="S8_Z24_MS1"/>
+	<value value="0x11" name="S8_Z24_MS2"/>
+	<value value="0x12" name="S8_Z24_MS4"/>
+	<value value="0x13" name="S8_Z24_MS8"/>
 
-	<value value="0x18" name="Z24S8_LSR_MS1"/>
-	<value value="0x19" name="Z24S8_LSR_MS2"/>
-	<value value="0x1a" name="Z24S8_LSR_MS4"/>
-	<value value="0x1b" name="Z24S8_LSR_MS8"/>
+	<value value="0x18" name="S8_Z24_LSR_MS1"/>
+	<value value="0x19" name="S8_Z24_LSR_MS2"/>
+	<value value="0x1a" name="S8_Z24_LSR_MS4"/>
+	<value value="0x1b" name="S8_Z24_LSR_MS8"/>
 
-	<value value="0x20" name="S8Z24_MS1"/>
-	<value value="0x21" name="S8Z24_MS2"/>
-	<value value="0x22" name="S8Z24_MS4"/>
-	<value value="0x23" name="S8Z24_MS8"/>
-	<value value="0x24" name="C8Z24_MS4_CS4"/>
-	<value value="0x25" name="C8Z24_MS4_CS12"/>
-	<value value="0x26" name="C8Z24_MS8_CS8"/>
+	<value value="0x20" name="Z24_S8_MS1"/>
+	<value value="0x21" name="Z24_S8_MS2"/>
+	<value value="0x22" name="Z24_S8_MS4"/>
+	<value value="0x23" name="Z24_S8_MS8"/>
+	<value value="0x24" name="Z24_C8_MS4_CS4"/>
+	<value value="0x25" name="Z24_C8_MS4_CS12"/>
+	<value value="0x26" name="Z24_C8_MS8_CS8"/>
 
-	<value value="0x28" name="S8Z24_MS1_LSR"/>
-	<value value="0x29" name="S8Z24_MS2_LSR"/>
-	<value value="0x2a" name="S8Z24_MS4_LSR"/>
-	<value value="0x2b" name="S8Z24_MS8_LSR"/>
-	<value value="0x2c" name="C8Z24_MS4_CS4_LSR"/>
-	<value value="0x2d" name="C8Z24_MS4_CS12_LSR"/>
-	<value value="0x2e" name="C8Z24_MS8_CS8_LSR"/>
+	<value value="0x28" name="Z24_S8_MS1_LSR"/>
+	<value value="0x29" name="Z24_S8_MS2_LSR"/>
+	<value value="0x2a" name="Z24_S8_MS4_LSR"/>
+	<value value="0x2b" name="Z24_S8_MS8_LSR"/>
+	<value value="0x2c" name="Z24_C8_MS4_CS4_LSR"/>
+	<value value="0x2d" name="Z24_C8_MS4_CS12_LSR"/>
+	<value value="0x2e" name="Z24_C8_MS8_CS8_LSR"/>
 
-	<!-- in no way certain. -->
 	<value value="0x40" name="Z32_MS1"/>
 	<value value="0x41" name="Z32_MS2"/>
 	<value value="0x42" name="Z32_MS4"/>
@@ -91,21 +90,18 @@
 	<value value="0x49" name="Z32_MS4_LSR"/>
 	<value value="0x4a" name="Z32_MS8_LSR"/>
 
-	<!-- I hope you don't need to read that one aloud. -->
-	<!-- think 64-bit big endian ordering. -->
-	<value value="0x54" name="X16C8S8X8Z24_MS4_CS4"/>
-	<value value="0x55" name="X16C8S8X8Z24_MS4_CS12"/>
-	<value value="0x56" name="X16C8S8X8Z24_MS8_CS8"/>
+	<value value="0x54" name="Z24_X8_S8_C8_X16_MS4_CS4"/>
+	<value value="0x55" name="Z24_X8_S8_C8_X16_MS4_CS12"/>
+	<value value="0x56" name="Z24_X8_S8_C8_X16_MS8_CS8"/>
 
-	<value value="0x60" name="X24S8Z32_MS1"/>
-	<value value="0x61" name="X24S8Z32_MS2"/>
-	<value value="0x62" name="X24S8Z32_MS4"/>
-	<value value="0x63" name="X24S8Z32_MS8"/>
-	<value value="0x64" name="X16C8S8Z32_MS4_CS4"/>
-	<value value="0x65" name="X16C8S8Z32_MS4_CS12"/>
-	<value value="0x66" name="X16C8S8Z32_MS8_CS8"/>
+	<value value="0x60" name="Z32_S8_X24_MS1"/>
+	<value value="0x61" name="Z32_S8_X24_MS2"/>
+	<value value="0x62" name="Z32_S8_X24_MS4"/>
+	<value value="0x63" name="Z32_S8_X24_MS8"/>
+	<value value="0x64" name="Z32_S8_C8_X16_MS4_CS4"/>
+	<value value="0x65" name="Z32_S8_C8_X16_MS4_CS12"/>
+	<value value="0x66" name="Z32_S8_C8_X16_MS8_CS8"/>
 
-	<!-- even less certain -->
 	<value value="0x68" name="Z16_MS1"/>
 	<value value="0x69" name="Z16_MS2"/>
 	<value value="0x6a" name="Z16_MS4"/>
