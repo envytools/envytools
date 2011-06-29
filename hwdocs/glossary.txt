@@ -1,0 +1,68 @@
+C
+
+component: one of the values associated with samples in a surface, or a single
+element of a vector. For color values, the components are commonly called R,
+G, B, A. For zeta surfaces, the components are Z [depth], S [stencil], and C
+[coverage].
+
+
+E
+
+element: a basic unit of a surface for memory layout purposes. Can be 1, 2,
+4, 8, or 16 bytes long. Depending on surface type, can represent a single
+sample, or a block of samples.
+
+
+I
+
+IGP: integrated graphics processor, a GPU integrated into the northbridge,
+lacking dedicated VRAM.
+
+
+R
+
+render target - a surface bound to the 2d or 3d engine as the destination. The
+2d engine has a single color render target. The 3d engine can have, depending
+on card, up to 8 color render targets and 1 zeta render target.
+
+
+S
+
+sample: a basic conceptual unit of a surface, a sample corresponds to a single
+set of component values.
+
+storage type:  [XXX]
+
+surface: a 2d or 3d array of samples, elements, or bytes, depending on the
+viewpoint - depending on how it's used, it can be a render target, a texture,
+a framebuffer, etc. [nv50-surface.txt]
+
+surface element: see element
+
+surface format: information including the element size of a surface, layout
+of the element, interpretation of element data, and components available
+in a surface
+
+surface type: the main classification of surfaces. A surface can be a color
+surface, or a zeta surface. A color surface can be a simple color surface,
+YUV surface, compressed texture surface, or a bitmap surface
+
+
+T
+
+texture: a surface bound to the texturing units for sampling. This includes
+the 2d source surface on nv50+ cards.
+
+
+V
+
+VRAM: video RAM, the main working area of the card, a big area of RAM located
+on the card connected directly to the GPU. The IGPs don't have real VRAM, and
+instead use a special area of system RAM as fake VRAM.
+
+
+Z
+
+zeta surface: a surface containing the depth buffer, optionally the stencil
+buffer, and the special coverage component if coverage sampling is in use
+[see nv50-surface.txt]

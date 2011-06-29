@@ -1,0 +1,64 @@
+This is a list of all existing and some planned documentation files, along
+with their rough quality level:
+
+[     ] - file not yet written, or empty stub
+[*    ] - file has some random WIP information, but lacks proper structure
+          and may start off in the middle of things
+[**   ] - file has at least the main structure and a reasonable amount of
+          useful information
+[***  ] - file has been written, but there is a relatively large  number of
+          unknown things about the area it covers, or some sections of the
+	  file are still missing
+[**** ] - file has been written and is mostly complete, but there are still
+          some small unknowns or information pending verification
+[*****] - file is complete and fully verified
+
+
+Metafiles
+[-----] index.txt - List of existing and planned documentation files
+[-----] glossary.txt - List of common terms and their definitions
+
+
+Hardware overview docs
+[     ] intro.txt - Overview of the nvidia GPU functionality
+[***  ] nvbars.txt - PCI BARs and other means of accessing the GPU
+[***  ] nvchipsets.txt - List and overview of all chipset variants, MMIO maps
+[**   ] nvclock.txt - List of clocks present on the GPUs
+
+
+Misc GPU units
+[***  ] pmc.txt - PMC unit, interrupt routing, card ID, engine enables
+[**   ] pstraps.txt - PSTRAPS unit, straps readout and override
+[**** ] ptimer.txt - PTIMER engine, clock setup, readout, and alarms
+
+
+Memory access and structure
+[***  ] nv50-surface.txt - NV50 and NVC0 surface overview, formats, and internal storage
+[**   ] nv50-vm.txt - NV50 virtual memory
+
+
+FIFO, user perspective
+[**** ] fifo.txt - FIFO overview
+[**** ] fifo-dma-pusher.txt - DMA submission to FIFOs on NV04+
+[***  ] fifo-puller.txt - handling of submitted commands by FIFO
+
+
+fuc engines:
+[     ] fuc.txt - Introductory documentation about fuc
+[*****] fuc-arith.txt - fuc arithmetic instructions
+[*****] fuc-branch.txt - fuc branching instructions
+[*****] fuc-data.txt - fuc data space
+[     ] fuc-ctrl.txt - fuc uc control
+[**** ] fuc-intr.txt - fuc interrupt and trap handling
+[**** ] fuc-io.txt - fuc IO space access and map
+[**** ] fuc-isa.txt - fuc ISA overview and opcode map
+[**** ] fuc-timer.txt - fuc timers and clocks
+[**** ] fuc-vm.txt - fuc code space and virtual memory
+[**** ] fuc-xfer.txt - fuc coda/data xfers to/from external memory
+[     ] fuc-crypt.txt - fuc crypt coprocessor and PCRYPT engine
+[     ] fuc-perf.txt - fuc performance monitoring signals
+[     ] fuc-fifo.txt - fuc interaction with PFIFO
+[     ] fuc-bsp.txt - fuc-based PBSP engine
+[     ] fuc-vp.txt - fuc-based PVP engine
+[     ] fuc-ppp.txt - fuc-based PPPP engine
+[     ] fuc-copy.txt - PCOPY engine
