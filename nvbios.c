@@ -1,3 +1,6 @@
+#include "rnn.h"
+#include "rnndec.h"
+#include "dis.h"
 #include <errno.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -730,12 +733,8 @@ int main(int argc, char **argv) {
 			uint32_t sequencer = le32(entry_offset);
 			uint8_t bytes_written = 4;
 
-			printf("HWSQ entry %u: sequencer control = %u\n", i, sequencer);
-			while (bytes_written < bytes_to_write) {
-				//printf("%x: 0x%x\n", entry_offset + bytes_written, le32(entry_offset + bytes_written));
-				printhex(entry_offset + bytes_written, 4);
-				bytes_written += 4;
-			}
+			printf("-- HWSQ entry %u at %x: sequencer control = %u\n", i, entry_offset, sequencer);
+			envydis(pms_isa, stdout, bios + entry_offset + 4, 0, bytes_to_write - 4, -1, -1, 0, 0, 0);
 			printf ("\n");
 		}
 		printf ("\n");
