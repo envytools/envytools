@@ -28,7 +28,7 @@ resolve_using_path(char *filename, char *buf, unsigned buf_len)
 	const char *rnn_path = getenv("RNN_PATH");
 
 	if (!rnn_path)
-		goto out;
+		rnn_path = "./rnndb";
 
 	do {
 		int tmp_len;
