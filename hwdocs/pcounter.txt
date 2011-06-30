@@ -26,3 +26,9 @@ NVA5 signals
 
 set 0:
 0xa3: PTIMER_TIME_B12 [ptimer.txt]
+
+
+NVA8 signals
+
+set 1:
+0xcb: GPU_IDLE
