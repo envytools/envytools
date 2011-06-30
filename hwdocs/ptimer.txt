@@ -128,6 +128,9 @@ card, the returned timestamp will be this 64-bit number. Because of the 5-bit
 shift, the timestamps are actually counted in units of 1/32 of PTIMER tick,
 with resolution of 32 ticks.
 
+Also, TIME_LOW bit 17 [ie. bit 12 of the actual counter] is connected to
+a PCOUNTER signal on NV10:NVC0, called PTIMER_TIME_B12.
+
 
 Reading the clock
 
