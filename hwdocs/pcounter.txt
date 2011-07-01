@@ -25,6 +25,14 @@ NVAC signals
 set 0 [host]:
 0x53: PTIMER_TIME_B12 [ptimer.txt]
 
+set 2:
+0xd4-0xd9: PCRYPT_USER_0-5 [fuc-perf.txt]
+
+set 5 [vdec]:
+0x1e-0x23: PBSP_USER_0-5 [fuc-perf.txt]
+0x4e-0x53: PPPP_USER_0-5 [fuc-perf.txt]
+0x9c-0xa1: PVP_USER_0-5 [fuc-perf.txt]
+
 
 NVA5 signals
 
@@ -41,8 +49,8 @@ set 5:
 
 set 6 [vdec]:
 0x24-0x29: PBSP_USER_0-5 [fuc-perf.txt]
+0x38-0x3d: PPPP_USER_0-5 [fuc-perf.txt]
 0x4c-0x51: PVP_USER_0-5 [fuc-perf.txt]
-0x58-0x5d: PPPP_USER_0-5 [fuc-perf.txt]
 
 
 NVA8 signals
