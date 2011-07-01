@@ -42,7 +42,7 @@ set 5:
 set 6 [vdec]:
 0x24-0x29: PBSP_USER_0-5 [fuc-perf.txt]
 0x4c-0x51: PVP_USER_0-5 [fuc-perf.txt]
-0x38-0x3d: PPPP_USER_0-5 [fuc-perf.txt]
+0x58-0x5d: PPPP_USER_0-5 [fuc-perf.txt]
 
 
 NVA8 signals
