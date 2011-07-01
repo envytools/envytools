@@ -368,7 +368,7 @@ For more information about textures, see nv50-texture.txt
 Multisampled surfaces
 
 Some surfaces are used as multisampled surfaces. This includes surfaces bound
-as color nad zeta render targets when multisampling type is other than 1X, as
+as color and zeta render targets when multisampling type is other than 1X, as
 well as multisampled textures on nvc0+.
 
 A multisampled surface contains several samples per pixel. A "sample" is
@@ -557,7 +557,7 @@ There are 3 main enums used for specifying surface formats:
  - color format: used for color RTs and the 2d engine, specifies the full
    format
  - zeta format: used for zeta RTs, specifies the full format, except the
-   speficic coverage sampling mode, if applicable
+   specific coverage sampling mode, if applicable
 
 The surface formats can be broadly divided into the following categories:
 
@@ -611,7 +611,7 @@ and C2 at bits 10-15. The element is always treated as a little-endian word
 of the proper size, and bitfields are listed from LSB side. Also, in some
 cases the texture format has bitfields used only for padding, and not usable
 as components: these will be listed in the name as X<size>. For example,
-32_8_X24 is a format with elment size of 8 bytes, where bits 0-31 are C0,
+32_8_X24 is a format with element size of 8 bytes, where bits 0-31 are C0,
 32-39 are C1, and 40-63 are unusable.
 [XXX: what exactly happens to element layout in big-endian mode?]
 
@@ -765,7 +765,7 @@ a coverage sampling mode with a zeta format without C component, or the other
 way around.
 
 Like with color formats, there are two different enums that specify zeta
-formats: texture formats and zeta formats. However, this time the zata formats
+formats: texture formats and zeta formats. However, this time the zeta formats
 have one-to-many relationship with texture formats: Texture format contains
 information about the specific coverage sampling mode used, while zeta format
 merely says whether coverage sampling is in use, and the mode is taken from
@@ -821,13 +821,13 @@ Compressed texture formats
 Bitmap surface format
 
 A bitmap surface has only one component, and the component has 1 bit per sample
-- that is, the component's valu ecan be either 0 or 1 for each sample in the
+- that is, the component's value can be either 0 or 1 for each sample in the
 surface. The surface is made of 8-byte elements, with each element
 representing 8×8 block of samples. The element is treated as a 64-bit word,
 with each sample taking 1 bit. The bits start from LSB and are ordered first
 by x coordinate of the sample, then by its y coordinate.
 
-This format can be used for 2d engine and texturing. When used for textuging,
+This format can be used for 2d engine and texturing. When used for texturing,
 it forces using a special "box" filter: result of sampling is a percentage of
 "lit" area in WxH rectangle centered on the sampled location. See
 nv50-texture.txt for more details.
