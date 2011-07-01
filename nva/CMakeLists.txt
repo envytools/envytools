@@ -16,6 +16,7 @@ add_executable(nvagetbios nvagetbios.c)
 add_executable(nvafakebios nvafakebios.c)
 add_executable(nvascan nvascan.c)
 add_executable(nvatiming nvatiming.c)
+add_executable(nvapms nvapms.c)
 
 target_link_libraries(nvalist nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvapeek nva ${PC_PCIACCESS_LIBRARIES})
@@ -26,8 +27,9 @@ target_link_libraries(nvagetbios nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvafakebios nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvascan nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvatiming nva ${PC_PCIACCESS_LIBRARIES})
+target_link_libraries(nvapms nva ${PC_PCIACCESS_LIBRARIES})
 
-install(TARGETS nva nvalist nvapeek nvapoke nvapeek8 nvapoke8 nvagetbios nvafakebios nvascan nvatiming
+install(TARGETS nva nvalist nvapeek nvapoke nvapeek8 nvapoke8 nvagetbios nvafakebios nvascan nvatiming nvapms
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
 	ARCHIVE DESTINATION lib${LIB_SUFFIX})
