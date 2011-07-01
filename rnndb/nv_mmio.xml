@@ -68,6 +68,9 @@
 
 <!-- 022000 - 0223ff PUNK022 covered above -->
 
+<!-- 022400 - 0227ff PUNK0224 -->
+<import file="nvc0_punk0224.xml" />
+
 <!-- 040000 - 045fff PFIFO_CHAN covered in nvc0_pfifo.xml -->
 
 <!-- 060000 - 060fff PEEPHOLE covered in nv_pbus.xml -->
