@@ -168,7 +168,10 @@
 				<value value="0" name="SPECIFIC"/>
 				<value value="1" name="ALL"/>
 			</bitfield>
-			<bitfield pos="2" name="UNK2"/>
+			<bitfield pos="2" name="SET">
+				<value value="0" name="HUB_AND_GPC"/>
+				<value value="1" name="HUB_ONLY"/>
+			</bitfield>
 			<bitfield pos="31" name="TRIGGER"/>
 		</reg32>
 	</array>
