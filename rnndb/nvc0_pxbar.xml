@@ -8,8 +8,8 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array name="PGUNK13B" offset="0x13b000" stride="0x4000" length="1" variants="NVC0-">
-	<array name="TP_UNK1" offset="0x0000" stride="0x80" length="32">
+<array name="PXBAR" offset="0x13b000" stride="0x4000" length="1" variants="NVC0-">
+	<array name="GPC_UNK1" offset="0x0000" stride="0x80" length="32">
 
 	</array>
 
@@ -21,11 +21,11 @@
 
 	</array>
 	
-	<array name="TP_UNK2" offset="0x1c00" stride="0x20" length="32">
+	<array name="GPC_UNK2" offset="0x1c00" stride="0x20" length="32">
 
 	</array>
 
-	<array name="TP_UNK3" offset="0x2000" stride="0x40" length="32">
+	<array name="GPC_UNK3" offset="0x2000" stride="0x40" length="32">
 
 	</array>
 	
@@ -37,7 +37,7 @@
 
 	</array>
 
-	<array name="TP_UNK4" offset="0x3000" stride="0x40" length="32">
+	<array name="GPC_UNK4" offset="0x3000" stride="0x40" length="32">
 
 	</array>
 	

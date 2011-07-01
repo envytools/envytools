@@ -64,6 +64,7 @@
 <import file="nv50_ptherm.xml" />
 
 <!-- 021000 - 021fff ??? -->
+<import file="nv50_punk021.xml" />
 
 <!-- 022000 - 0223ff PUNK022 covered above -->
 
@@ -88,7 +89,8 @@
 
 <!-- 088000 - 088fff PBUS_PCI covered in nv_pbus.xml -->
 
-<!-- 089000 - 089fff ??? -->
+<!-- 089000 - 089fff ??? [NV84+] -->
+<import file="nv84_punk089.xml" />
 
 <!-- 08a000 - 08afff PCODEC_PCI covered in nv_pbus.xml -->
 
@@ -120,22 +122,30 @@
 <!-- 108000 - 109fff PCODEC -->
 <import file="nva3_pcodec.xml" />
 
+<!-- 109000 - 109fff PFUSE -->
+<import file="nva3_pfuse.xml" />
+
 <!-- 10a000 - 10afff PDAEMON -->
 <import file="nva3_pdaemon.xml" />
 
-<!-- 10c000 - 10efff ??? -->
+<!-- 10c000 - 10efff ??? [NVC0] -->
 
-<!-- 10f000 - 112fff ??? [NVA5] -->
+<!-- 10f000 - 111fff ??? [NVA5] -->
 
 <!-- 10f000 - 11ffff PBFB covered in nv03_pfb.xml -->
 
 <!-- 120000 - 12ffff PIBUS -->
 <import file="nvc0_pibus.xml" />
 
-<!-- 130000 - 13afff ??? -->
+<!-- 130000 - 136fff ??? [NVC0] -->
 
-<!-- 13b000 - 13efff PGUNK13B -->
-<import file="nvc0_pgunk13b.xml" />
+<!-- 137000 - 137fff PCLOCK -->
+<import file="nvc0_pclock.xml" />
+
+<!-- 138000 - 13afff ??? [NVC0] -->
+
+<!-- 13b000 - 13efff PXBAR -->
+<import file="nvc0_pxbar.xml" />
 
 <!-- 140000 - 17ffff PMFB covered in nv03_pfb.xml -->
 

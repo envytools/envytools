@@ -628,7 +628,6 @@ The MMIO ranges for NV50 family are:
 001000:002000 PBUS - bus control [pbus.txt]
 002000:004000 PFIFO - DMA FIFO submission to execution engines [nv50-pfifo.txt]
 004000:005000 PCLOCK - PLL control [nv40-pclock.txt]
-005000:006000 ???
 007000:008000 PRMA - access to BAR0 from real mode [nvvga.txt]
 009000:00a000 PTIMER - time measurement and time-based alarms [ptimer.txt]
 00a000:00b000 PCOUNTER - performance monitoring counters [pcounter.txt]
@@ -656,6 +655,7 @@ The MMIO ranges for NV50 family are:
 100000:101000 PFB - memory interface and VM control [nv50-pfb.txt]
 101000:102000 PSTRAPS - straps readout / override [pstraps.txt]
 102000:103000 PCRYPT - VP2 cryptographic engine [NV84:NV98, NVA0] [crypt.txt]
+[XXX: NVAC has something unrelated[?] at 102000]
 103000:104000 PBSP - VP2 BSP engine [NV84:NV98, NVA0] [vp2.txt]
 104000:105000 PCOPY - memory copy engine [NVA3-] [fuc.txt, fuc-copy.txt]
 108000:109000 PCODEC - the HDA codec doing HDMI audio [NVA3-] [pcodec.txt]
@@ -758,8 +758,8 @@ The MMIO ranges for NVC0 family are:
 130000:135000 ???
 137000:138000 PCLOCK - clock setting [nvc0-pclock.txt]
 138000:13b000 ???
-13b000:13f000 ???
-140000:180000 PMFBs - middle memory controllers [nvc0-pmfb.txt]
+13b000:13f000 PXBAR - crossbar between memory controllers and GPCs [nvc0-pxbar.txt]
+140000:180000 PMFBs - middle memory controllers: compression and L2 cache [nvc0-pmfb.txt]
 180000:1c0000 PCOUNTER - performance monitoring counters [pcounter.txt]
 1c0000:1c1000 ???
 [XXX: PUNK1C1 on newer ones?]
