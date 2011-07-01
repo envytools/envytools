@@ -437,7 +437,7 @@ int main(int argc, char **argv)
 		printf("Your card doesn't support PCOPY[0] (nva3+ only)\n\n");
 	}
 
-	if (card->chipset >= 0xc0) {
+	if (card->chipset >= 0xc0 && card->chipset < 0xd9) {
 		time_fuc_engine_periodic(cnum, "PCOPY[1]", 0x105000);
 		time_fuc_engine_watchdog(cnum, "PCOPY[1]", 0x105000);
 		printf("\n");
@@ -459,6 +459,14 @@ int main(int argc, char **argv)
 		printf("\n");
 	} else {
 		printf("Your card doesn't support PUNK1C1 (nvaf only)\n\n");
+	}
+
+	if (card->chipset == 0xd9) {
+		time_fuc_engine_periodic(cnum, "PDISPLAY", 0x627000);
+		time_fuc_engine_watchdog(cnum, "PDISPLAY", 0x627000);
+		printf("\n");
+	} else {
+		printf("Your card doesn't support PDISPLAY (nvd9 only)\n\n");
 	}
 
 	if (card->chipset >= 0xc0) {
