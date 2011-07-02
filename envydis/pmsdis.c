@@ -60,6 +60,12 @@ static struct matches *atomst32 APROTO {
 
 static struct bitfield maskoff = { 8, 8 };
 #define CRTCMASK atomimm, &maskoff
+static struct bitfield flagoff = { 0, 5 };
+#define FLAG atomimm, &flagoff
+static struct bitfield waitoff = { 0, 2 };
+#define WAIT atomimm, &waitoff
+static struct bitfield waitsoff = { 2, 4 };
+#define WAITS atomimm, &waitsoff
 
 static struct insn tabcrtcevent[] = {
 	{ 0x000000, 0xff0000, N("active") },
@@ -67,15 +73,23 @@ static struct insn tabcrtcevent[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabfl[] = {
+	{ 0x10, 0x1f, N("buspause") },
+	{ 0, 0, FLAG },
+};
+
 static struct insn tabm[] = {
-	{ 0x40, 0xff, OP24, N("addr"), ADDR16 },
-	{ 0x42, 0xff, OP24, N("data"), DATA16 },
-	{ 0x5f, 0xff, OP24, N("crtcwait"), CRTCMASK, T(crtcevent) },
-	{ 0xb0, 0xff, OP8, N("busoff") },
-	{ 0xd0, 0xff, OP8, N("buson") },
-	{ 0xe0, 0xff, OP40, N("addr"), ADDR32 },
-	{ 0xe2, 0xff, OP40, N("data"), DATA32 },
+	{ 0x00, 0xff, OP8, N("nop") },
+	{ 0x00, 0xc0, OP8, N("wait"), WAIT, N("shl"), WAITS },
+	{ 0x40, 0xff, OP24, N("addr"), ADDR16, .vartype = PMS_NV50 },
+	{ 0x42, 0xff, OP24, N("data"), DATA16, .vartype = PMS_NV50 },
+	{ 0x5f, 0xff, OP24, N("crtcwait"), CRTCMASK, T(crtcevent), .vartype = PMS_NV41 | PMS_NV50 },
 	{ 0x7f, 0xff, OP8, N("exit") },
+	{ 0x80, 0xe0, OP8, N("unset"), T(fl) }, 
+	{ 0xa0, 0xe0, OP8, N("set1"), T(fl) }, 
+	{ 0xc0, 0xe0, OP8, N("set0"), T(fl) }, 
+	{ 0xe0, 0xff, OP40, N("addr"), ADDR32, .vartype = PMS_NV50 },
+	{ 0xe2, 0xff, OP40, N("data"), DATA32, .vartype = PMS_NV50 },
 	{ 0, 0, OP8, OOPS },
 };
 
