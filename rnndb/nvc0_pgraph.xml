@@ -532,6 +532,7 @@
 		<array offset="0x600" name="MP" stride="0x200" length="1">
 			<reg32 offset="0x044" name="UNK44_TRAP"/>
 			<reg32 offset="0x04c" name="UNK4C_TRAP"/>
+			<reg32 offset="0x058" name="TRAP_HANDLER_PC"/>
 			<reg32 offset="0x098" name="TPID"/>
 		</array>
 	</group>
