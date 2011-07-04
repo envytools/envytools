@@ -533,6 +533,21 @@
 			<reg32 offset="0x044" name="UNK44_TRAP"/>
 			<reg32 offset="0x04c" name="UNK4C_TRAP"/>
 			<reg32 offset="0x058" name="TRAP_HANDLER_PC"/>
+			<reg32 offset="0x060" name="PM_OP" length="4">
+				<bitfield low="0" high="15" name="0"/>
+				<bitfield low="16" high="31" name="1"/>
+			</reg32>
+			<reg32 offset="0x070" name="PM_COUNTER_OVERFLOW">
+				<bitfield pos="0" name="0"/>
+				<bitfield pos="1" name="1"/>
+				<bitfield pos="2" name="2"/>
+				<bitfield pos="3" name="3"/>
+				<bitfield pos="4" name="4"/>
+				<bitfield pos="5" name="5"/>
+				<bitfield pos="6" name="6"/>
+				<bitfield pos="7" name="7"/>
+			</reg32>
+			<reg32 offset="0x074" name="PM_COUNTER" length="8"/>
 			<reg32 offset="0x098" name="TPID"/>
 		</array>
 	</group>
