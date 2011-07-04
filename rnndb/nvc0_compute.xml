@@ -106,12 +106,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x077c" name="LOCAL_BASE"/><!-- 32 bit address, not shifted, appears in $lbase -->
 		<reg32 offset="0x0780" name="UNK0780"/>
-		<reg32 offset="0x0790" name="LOCAL_ADDRESS_HIGH"/>
-		<reg32 offset="0x0794" name="LOCAL_ADDRESS_LOW"/>
-		<reg32 offset="0x0798" name="LOCAL_SIZE_HIGH"/>
-		<reg32 offset="0x079c" name="LOCAL_SIZE_LOW"/>
-		<reg32 offset="0x07a0" name="WARP_LOCAL_ALLOC">
-			<doc>0x3ffffff, aligned to 0x200, shared with fermi. Total amount of local space (including stack and 0x208) required by single warp. Affects nphysid:nwarpid together with LOCAL_SIZE and SM_COUNT.</doc>
+		<reg32 offset="0x0790" name="TEMP_ADDRESS_HIGH"/>
+		<reg32 offset="0x0794" name="TEMP_ADDRESS_LOW"/>
+		<reg32 offset="0x0798" name="TEMP_SIZE_HIGH"/>
+		<reg32 offset="0x079c" name="TEMP_SIZE_LOW"/>
+		<reg32 offset="0x07a0" name="WARP_TEMP_ALLOC">
+			<doc>0x3ffffff, aligned to 0x200, shared with fermi. Total amount of temp space (stack + local positive + local negative) required by single warp. Affects nphysid:nwarpid together with TEMP_SIZE and SM_COUNT.</doc>
 		</reg32>
 		<reg32 offset="0x0a04" name="UNK0A04" type="boolean">
 			<doc>No icmd.</doc>

@@ -200,11 +200,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0780" name="UNK0780" length="4">
 			<doc>0xffffffff, no icmd.</doc>
 		</reg32>
-		<reg32 offset="0x0790" name="LOCAL_ADDRESS_HIGH"/>
-		<reg32 offset="0x0794" name="LOCAL_ADDRESS_LOW"/>
-		<reg32 offset="0x0798" name="LOCAL_SIZE_HIGH"/>
-		<reg32 offset="0x079c" name="LOCAL_SIZE_LOW"/>
-		<reg32 offset="0x07a0" name="UNK07A0">
+		<reg32 offset="0x0790" name="TEMP_ADDRESS_HIGH"/>
+		<reg32 offset="0x0794" name="TEMP_ADDRESS_LOW"/>
+		<reg32 offset="0x0798" name="TEMP_SIZE_HIGH"/>
+		<reg32 offset="0x079c" name="TEMP_SIZE_LOW"/>
+		<reg32 offset="0x07a0" name="WARP_TEMP_ALLOC">
 			<doc>0x3ffffff, aligned to 0x200, shared with dijkstra</doc>
 		</reg32>
 		<reg32 offset="0x07b0" name="UNK07B0" length="4">
