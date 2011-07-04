@@ -10,13 +10,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <domain name="NV01_SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NVC0_COMPUTE-NVC8_COMPUTE">
-		<reg32 offset="0x0204" name="LOCAL_ALLOC">
+		<reg32 offset="0x0204" name="LOCAL_POS_ALLOC">
 			<doc>bits 0xffffff, 0x10-aligned</doc>
 		</reg32>
-		<reg32 offset="0x0208" name="UNK0208">
-			<doc>bits 0xffffff, 0x10-aligned. Interferes with LOCAL_SIZE the same way LOCAL_ALLOC does</doc>
+		<reg32 offset="0x0208" name="LOCAL_NEG_ALLOC">
+			<doc>bits 0xffffff, 0x10-aligned.</doc>
 		</reg32>
-		<reg32 offset="0x020c" name="WARP_STACK_SIZE">
+		<reg32 offset="0x020c" name="WARP_CSTACK_SIZE">
 			<doc>bits 0x1fffff, 0x200-aligned. Determines control stack size on per-warp basis. Set to x*0x200 == able to execute a callchain x*48 deep (requires x*0x200 local space per warp). Set to zero == callchain 16 deep (on-chip stack).</doc>
 		</reg32>
 		<reg32 offset="0x0210" name="TEX_LIMITS">
