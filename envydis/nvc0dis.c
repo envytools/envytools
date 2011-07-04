@@ -122,6 +122,7 @@ static struct sreg sreg_sr[] = {
 	{ 0x21, "tidx" },
 	{ 0x22, "tidy" },
 	{ 0x23, "tidz" },
+	{ 0x24, "launcharg" },
 	{ 0x25, "ctaidx" },
 	{ 0x26, "ctaidy" },
 	{ 0x27, "ctaidz" },
@@ -133,14 +134,21 @@ static struct sreg sreg_sr[] = {
 	{ 0x2d, "nctaidx" },
 	{ 0x2e, "nctaidy" },
 	{ 0x2f, "nctaidz" },
-	{ 0x30, "sbase" },	// the address in g[] space where s[] is.
-	{ 0x34, "lbase" },	// the address in g[] space where l[] is.
-	{ 0x37, "stackbase" },
+	{ 0x30, "swinbase" },	// the address in g[] space where s[] is.
+	{ 0x31, "swinsz" },
+	{ 0x32, "smemsz" },
+	{ 0x33, "smembanks" },
+	{ 0x34, "lwinbase" },	// the address in g[] space where l[] is.
+	{ 0x35, "lwinsz" },
+	{ 0x36, "lpossz" }, // size of positive l[]
+	{ 0x37, "lnegstart" }, // min valid address address of negative l[]
 	{ 0x38, "lanemask_eq" }, // I have no idea what these do, but ptxas eats them just fine.
 	{ 0x39, "lanemask_lt" },
 	{ 0x3a, "lanemask_le" },
 	{ 0x3b, "lanemask_gt" },
 	{ 0x3c, "lanemask_ge" },
+	// 0x40 ??? call stack related
+	// 0x42 ??? call stack related
 	{ 0x50, "clock" }, // XXX some weird shift happening here.
 	{ 0x51, "clockhi" },
 	{ -1 },
