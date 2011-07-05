@@ -9,21 +9,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nv50_defs.xml" />
 
 <enum name="obj-class" varset="chipset" bare="yes">
-	<!-- non-PGRAPH object classes; TODO: check/reorganize these -->
-	<value value="0x0001" name="NV01_ROOT"/>
-	<value value="0x0002" name="NV01_CONTEXT_DMA"/>
-	<value value="0x0003" name="NV01_DEVICE"/>
-	<value value="0x0004" name="NV01_TIMER"/>
+	<value value="0x0002" name="NV01_DMA_FROM_MEMORY"/>
+	<value value="0x0003" name="NV01_DMA_TO_MEMORY"/>
 	<value value="0x0030" name="NV01_NULL"/>
-	<value value="0x003d" name="NV01_MEMORY_LOCAL_BANKED"/>
-	<value value="0x003e" name="NV01_MAPPING_SYSTEM"/>
-	<value value="0x003f" name="NV03_MEMORY_LOCAL_CURSOR"/>
-	<value value="0x0040" name="NV01_MEMORY_LOCAL_LINEAR"/>
-	<value value="0x0041" name="NV01_MAPPING_LOCAL"/>
-	<value value="0x0046" name="NV03_VIDEO_LUT_CURSOR_DAC"/>
-	<value value="0x006a" name="NV03_CHANNEL_PIO"/>
-	<value value="0x006b" name="NV03_CHANNEL_DMA"/>
-	<value value="0x007c" name="NV10_VIDEO_DISPLAY"/>
+	<value value="0x003d" name="NV03_DMA_IN_MEMORY"/>
 
 	<!-- nv01-nv04-only image objects: note that they conflict with nv05+ objects -->
 	<!-- TODO: commented out to avoid possible issues due to the conflicts, but the variant support should be able to handle this anyway -->
