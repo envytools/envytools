@@ -6,6 +6,7 @@
 
 <import file="nvchipsets.xml" />
 <import file="nv_vga.xml" />
+<import file="nv98_fuc.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 	<array name="PRMIO" offset="0x601000" stride="0x1000" length="1" variants="NV50-">
@@ -14,7 +15,7 @@
 		<use-group name="nv_vga_cio"/>
 		<use-group name="nv_vga_dio"/>
 	</array>
-	<array name="PDISPLAY" offset="0x610000" stride="0x10000" length="1" variants="NV50-">
+	<array name="PDISPLAY" offset="0x610000" stride="0x20000" length="1" variants="NV50-">
 		
 		<reg32 offset="0x0010" name="OBJECTS"/>
 
@@ -335,6 +336,10 @@
 				<reg32 offset="0x28" name="UNK28"/>
 				<reg32 offset="0x30" name="UNK30"/>
 			</array>
+		</array>
+		<array name="FUC" offset="0x17000" stride="0x1000" length="1" variants="NVD9-">
+			<use-group name="nv98_fucbase"/>
+			<use-group name="nv98_fuc_targets"/>
 		</array>
 
 	</array>
