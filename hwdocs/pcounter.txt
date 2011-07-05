@@ -25,6 +25,10 @@ NVAC signals
 set 0 [host]:
 0x53: PTIMER_TIME_B12 [ptimer.txt]
 
+set 1 [graph]:
+0xc9: PGRAPH_IDLE
+0xcb: PGRAPH_INTR_PENDING
+
 set 2:
 0xd4-0xd9: PCRYPT_USER_0-5 [fuc-perf.txt]
 
