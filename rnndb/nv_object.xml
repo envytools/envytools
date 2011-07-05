@@ -42,6 +42,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 	<value value="0x0044" name="NV04_IMAGE_PATTERN" variants="NV04-NV50"/>
 
+	<value value="0x001a" name="NV01_RENDER_SOLID_POINT" variants="NV01:NV04"/>
+
+	<value value="0x001b" name="NV01_RENDER_SOLID_LINE" variants="NV01:NV04"/>
+
 	<value value="0x001c" name="NV01_RENDER_SOLID_LIN" variants="NV01:NV40"/>
 	<value value="0x005c" name="NV04_RENDER_SOLID_LIN" variants="NV04:NV50"/>
 	<value value="0x035c" name="NV30_RENDER_SOLID_LIN" variants="NV30:NV40"/>

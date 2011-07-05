@@ -192,14 +192,41 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 	</stripe>
 
-
-	<stripe prefix="obj-class" variants="NV01_RENDER_SOLID_LIN-NV40_RENDER_SOLID_LIN">
+	<stripe prefix="obj-class" variants="NV01_RENDER_SOLID_POINT">
 		<reg32 offset="0x010c" name="PATCH"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="CLIP_RECTANGLE" type="object">
 			<doc>Accepts NV01_CONTEXT_CLIP_RECTANGLE</doc>
 		</reg32>
-		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV01_RENDER_SOLID_LIN">
+		<reg32 offset="0x0188" name="PATTERN" type="object">
+			<doc>Accepts NV01_CONTEXT_PATTERN</doc>
+		</reg32>
+		<reg32 offset="0x018c" name="ROP" type="object">
+			<doc>Accepts NV03_CONTEXT_ROP</doc>
+		</reg32>
+		<reg32 offset="0x0190" name="BETA1" type="object">
+			<doc>Accepts NV01_CONTEXT_BETA1</doc>
+		</reg32>
+		<reg32 offset="0x0194" name="SURFACE_DST" type="object">
+			<doc>Accepts NV03_CONTEXT_SURFACE_DST</doc>
+		</reg32>
+		<reg32 offset="0x02fc" name="OPERATION" type="nv03_operation"/>
+		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv01_color_format"/>
+		<reg32 offset="0x0304" name="COLOR"/>
+		<reg32 offset="0x0400" name="POINT" length="32" type="xy16"/>
+		<reg32 offset="0x0480" name="POINT32_X" length="16" stride="8" type="int"/>
+		<reg32 offset="0x0484" name="POINT32_Y" length="16" stride="8" type="int"/>
+		<reg32 offset="0x0500" name="CPOINT_COLOR" length="16" stride="8"/>
+		<reg32 offset="0x0504" name="CPOINT_POINT" length="16" stride="8" type="xy16"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV01_RENDER_SOLID_LINE-NV40_RENDER_SOLID_LIN">
+		<reg32 offset="0x010c" name="PATCH"/>
+		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
+		<reg32 offset="0x0184" name="CLIP_RECTANGLE" type="object">
+			<doc>Accepts NV01_CONTEXT_CLIP_RECTANGLE</doc>
+		</reg32>
+		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV01_RENDER_SOLID_LINE-NV01_RENDER_SOLID_LIN">
 			<doc>Accepts NV01_CONTEXT_PATTERN</doc>
 		</reg32>
 		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV04_RENDER_SOLID_LIN-">
@@ -211,7 +238,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0190" name="BETA1" type="object">
 			<doc>Accepts NV01_CONTEXT_BETA1</doc>
 		</reg32>
-		<reg32 offset="0x0194" name="SURFACE_DST" type="object" variants="NV01_RENDER_SOLID_LIN">
+		<reg32 offset="0x0194" name="SURFACE_DST" type="object" variants="NV01_RENDER_SOLID_LINE-NV01_RENDER_SOLID_LIN">
 			<doc>Accepts NV03_CONTEXT_SURFACE_DST</doc>
 		</reg32>
 		<stripe variants="NV04_RENDER_SOLID_LIN-">
