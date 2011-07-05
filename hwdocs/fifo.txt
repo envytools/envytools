@@ -32,15 +32,12 @@ idx|   name   |   cards   | description
 1/0| PGRAPH   |    all    | [see nv01-graph.txt for NV01:NV50, nv50-graph.txt,
    |          |           | for NV50:NVC0, nvc0-graph.txt for NVC0:...]
 ------------------------------------------------------------------------------
-2/-| PDVD     |?NV04:NV17?| Probably the HDVP MPEG2 decoding engine. Has
-   |          |           | legendary status. Noone can confirm its existence.
-------------------------------------------------------------------------------
-2/-| PMPEG    |?NV31:NV98 | The PFIFO interface to VPE MPEG2 decoding engine.
+2/-| PMPEG    | NV31:NV98 | The PFIFO interface to VPE MPEG2 decoding engine.
    |          |           | [see vpe.txt]
 ------------------------------------------------------------------------------
-3/-| PMSRCH   |?NV40:NV84 | ??? probably some other video decoding engine.
+3/-| PMSRCH   | NV40:NV84 | ??? probably some other video decoding engine.
 ------------------------------------------------------------------------------
-4/-| PVP      |?NV41:NV84 | VP1 microcoded video processor. [see vp1.txt]
+4/-| PVP      | NV41:NV84 | VP1 microcoded video processor. [see vp1.txt]
 ------------------------------------------------------------------------------
 4/-| PVP      |           | VP2 video decoding engines: video processor and
 --------------|           | bitstream processor. Microcoded through embedded

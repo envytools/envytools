@@ -17,8 +17,9 @@
 <enum name="nv04_pfifo_engine" inline="yes">
 	<value value="0" name="SOFTWARE"/>
 	<value value="1" name="PGRAPH"/>
-	<!-- multiple sources claim here that 2 == DVD on early cards [NV04? NV10?], but
-	I can't seem to find the damn thing... -->
+	<value value="2" name="PMPEG" variants="NV31-"/>
+	<value value="3" name="PMSRCH" variants="NV40-"/>
+	<value value="4" name="PVP" variants="NV41-"/>
 </enum>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
