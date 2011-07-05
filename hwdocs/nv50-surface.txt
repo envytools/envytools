@@ -842,6 +842,150 @@ Element size 8:
 
 nv50 storage types
 
+On nv50, the storage type is made of two parts: the storage type itself, and
+the compression mode. The storage type is a 7-bit enum, the compression mode
+is a 2-bit enum.
+
+The compression modes are:
+ - 0: NONE - no compression
+ - 1: SINGLE - 2 compression tag bits per roptile, 1 tag cell per 64kB page
+ - 2: DOUBLE - 4 compression tag bits per roptile, 2 tag cells per 64kB page
+[XXX: verify somehow.]
+
+The set of valid compression modes varies with the storage type. NONE is
+always valid.
+
+As mentioned before, the low-level rearrangement is further split into two
+sublevels: short range reordering, rearranging bytes in a single roptile,
+and long range reordering, rearranging roptiles. Short range reordering
+is performed for both VRAM and system RAM, and is highly dependent on the
+storage type. Long range reordering is done only for VRAM, and has only three
+types:
+
+ - none [NONE] - no reordering, only used for storage type 0 [linear]
+ - small scale [SSR] - roptiles rearranged inside a single 4kB page, used for
+   non-0 storage types
+ - large scale [LSR] - large blocks of memory rearranged, based on internal
+   VRAM geometry. Bounduaries between VRAM areas using NONE/SSR and LSR need
+   to be properly aligned in physical space to prevent conflicts.   
+
+Long range reordering is described in detail in nv50-vram.txt.
+
+The storage types can be roughly split into the following groups:
+
+ - linear storage type: used for linear surfaces and non-surface buffers
+ - tiled color storage types: used for non-zeta tiled surfaces
+ - zeta storage types: used for zeta surfaces
+
+On the original nv50, non-0 storage types can only be used on VRAM, on NV84
+and later cards they can also be used on system RAM. Compression modes other
+than NONE can only be used on VRAM. However, due to the nv50 limitation, tiled
+surfaces stored in system RAM are allowed to use storage type 0, and will work
+correctly for texturing and m2mf source/destination - rendering to them with
+2d or 3d engine is impossible, though.
+
+Correct storage types are only enforced by texture units and ROPs [ie. 2d and
+3d engine render targets + CUDA global/local/stack spaces], which have
+dedicated paths to memory and depend on the storage types for performance. The
+other engines have storage type handling done by the common memory controller
+logic, and will accept any storage type.
+
+The linear storage type is:
+
+storage type 0x00: LINEAR
+  long range reordering: NONE
+  valid compression modes: NONE
+  There's no short range reordering on this storage type - the offset inside
+  a roptile is identical between the virtual and physical addresses.
+
+
+nv50 tiled color storage types
+
+The following tiled color storage types exist:
+
+storage type 0x70: TILED
+  long range reordering: SSR
+  valid compression modes: NONE
+  valid surface formats: any non-zeta with element size of 1, 2, 4, or 8 bytes
+  valid multisampling modes: any
+storage type 0x72: TILED_LSR
+  long range reordering: LSR
+  valid compression modes: NONE
+  valid surface formats: any non-zeta with element size of 1, 2, 4, or 8 bytes
+  valid multisampling modes: any
+storage type 0x76: TILED_128_LSR
+  long range reordering: LSR
+  valid compression modes: NONE
+  valid surface formats: any non-zeta with element size of 16 bytes
+  valid multisampling modes: any
+
+[XXX]
+
+storage type 0x74: TILED_128
+  long range reordering: SSR
+  valid compression modes: NONE
+  valid surface formats: any non-zeta with element size of 16 bytes
+  valid multisampling modes: any
+
+[XXX]
+
+storage type 0x78: TILED_32_MS4
+  long range reordering: SSR
+  valid compression modes: NONE, SINGLE
+  valid surface formats: any non-zeta with element size of 4 bytes
+  valid multisampling modes: MS1, MS2*, MS4*
+storage type 0x79: TILED_32_MS8
+  long range reordering: SSR
+  valid compression modes: NONE, SINGLE
+  valid surface formats: any non-zeta with element size of 4 bytes
+  valid multisampling modes: MS8*
+storage type 0x7a: TILED_32_MS4_LSR
+  long range reordering: LSR
+  valid compression modes: NONE, SINGLE
+  valid surface formats: any non-zeta with element size of 4 bytes
+  valid multisampling modes: MS1, MS2*, MS4*
+storage type 0x7b: TILED_32_MS8_LSR
+  long range reordering: LSR
+  valid compression modes: NONE, SINGLE
+  valid surface formats: any non-zeta with element size of 4 bytes
+  valid multisampling modes: MS8*
+
+[XXX]
+
+storage type 0x7c: TILED_64_MS4
+  long range reordering: SSR
+  valid compression modes: NONE, SINGLE
+  valid surface formats: any non-zeta with element size of 8 bytes
+  valid multisampling modes: MS1, MS2*, MS4*
+storage type 0x7d: TILED_64_MS8
+  long range reordering: SSR
+  valid compression modes: NONE, SINGLE
+  valid surface formats: any non-zeta with element size of 8 bytes
+  valid multisampling modes: MS8*
+
+[XXX]
+
+storage type 0x44: TILED_24
+  long range reordering: SSR
+  valid compression modes: NONE
+  valid surface formats: texture format 8_8_8_X8 and corresponding color formats
+  valid multisampling modes: any
+storage type 0x45: TILED_24_MS4
+  long range reordering: SSR
+  valid compression modes: NONE, SINGLE
+  valid surface formats: texture format 8_8_8_X8 and corresponding color formats
+  valid multisampling modes: MS1, MS2*, MS4*
+storage type 0x46: TILED_24_MS8
+  long range reordering: SSR
+  valid compression modes: NONE, SINGLE
+  valid surface formats: texture format 8_8_8_X8 and corresponding color formats
+  valid multisampling modes: MS8*
+
+[XXX]
+
+
+nv50 zeta storage types
+
 [XXX: write me]
 
 
