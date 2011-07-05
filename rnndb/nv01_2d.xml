@@ -193,16 +193,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</stripe>
 
 
-	<stripe prefix="obj-class" variants="NV01_RENDER_SOLID_LINE-NV40_RENDER_SOLID_LINE">
+	<stripe prefix="obj-class" variants="NV01_RENDER_SOLID_LIN-NV40_RENDER_SOLID_LIN">
 		<reg32 offset="0x010c" name="PATCH"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="CLIP_RECTANGLE" type="object">
 			<doc>Accepts NV01_CONTEXT_CLIP_RECTANGLE</doc>
 		</reg32>
-		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV01_RENDER_SOLID_LINE">
+		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV01_RENDER_SOLID_LIN">
 			<doc>Accepts NV01_CONTEXT_PATTERN</doc>
 		</reg32>
-		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV04_RENDER_SOLID_LINE-">
+		<reg32 offset="0x0188" name="PATTERN" type="object" variants="NV04_RENDER_SOLID_LIN-">
 			<doc>Accepts NV04_IMAGE_PATTERN</doc>
 		</reg32>
 		<reg32 offset="0x018c" name="ROP" type="object">
@@ -211,10 +211,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0190" name="BETA1" type="object">
 			<doc>Accepts NV01_CONTEXT_BETA1</doc>
 		</reg32>
-		<reg32 offset="0x0194" name="SURFACE_DST" type="object" variants="NV01_RENDER_SOLID_LINE">
+		<reg32 offset="0x0194" name="SURFACE_DST" type="object" variants="NV01_RENDER_SOLID_LIN">
 			<doc>Accepts NV03_CONTEXT_SURFACE_DST</doc>
 		</reg32>
-		<stripe variants="NV04_RENDER_SOLID_LINE-">
+		<stripe variants="NV04_RENDER_SOLID_LIN-">
 			<reg32 offset="0x0194" name="BETA4" type="object">
 				<doc>Accepts NV04_CONTEXT_BETA4</doc>
 			</reg32>
