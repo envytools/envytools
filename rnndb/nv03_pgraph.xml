@@ -13,7 +13,7 @@
 	<value value="0x03" name="CHROMA"/>
 	<value value="0x04" name="UNK04"/> <!-- just 304 -->
 	<value value="0x05" name="CLIP"/>
-	<value value="0x06" name="PATT"/>
+	<value value="0x06" name="PATTERN"/>
 	<value value="0x07" name="RECT"/>
 	<value value="0x08" name="POINT"/>
 	<value value="0x09" name="LINE"/>

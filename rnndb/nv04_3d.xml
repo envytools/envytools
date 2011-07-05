@@ -80,7 +80,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 </enum>
 
 <domain name="NV01_SUBCHAN" bare="yes">
-	<stripe prefix="obj-class" variants="NV04_CONTEXT_SURFACES_3D-NV10_CONTEXT_SURFACES_3D">
+	<stripe prefix="obj-class" variants="NV04_SURF_3D-NV10_SURF_3D">
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_COLOR" type="object"/>
 		<reg32 offset="0x0188" name="DMA_ZETA" type="object"/>
@@ -127,8 +127,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0184" name="DMA_A" type="object"/>
 		<reg32 offset="0x0188" name="DMA_B" type="object"/>
 		<reg32 offset="0x018c" name="SURFACES" type="object">
-			<doc>Accepts NV04_CONTEXT_SURFACES_3D, plus
-			NV10_CONTEXT_SURFACES_3D on NV10_TEXTURED_TRIANGLE</doc>
+			<doc>Accepts NV04_SURF_3D, plus
+			NV10_SURF_3D on NV10_TEXTURED_TRIANGLE</doc>
 		</reg32>
 		<reg32 offset="0x0300" name="COLORKEY"/>
 		<reg32 offset="0x0304" name="OFFSET"/>
@@ -240,8 +240,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0184" name="DMA_A" type="object"/>
 		<reg32 offset="0x0188" name="DMA_B" type="object"/>
 		<reg32 offset="0x018c" name="SURFACES" type="object">
-			<doc>Accepts NV04_CONTEXT_SURFACES_3D, plus
-			NV10_CONTEXT_SURFACES_3D on NV10_MULTITEX_TRIANGLE</doc>
+			<doc>Accepts NV04_SURF_3D, plus
+			NV10_SURF_3D on NV10_MULTITEX_TRIANGLE</doc>
 		</reg32>
 		<reg32 offset="0x0308" name="OFFSET" length="2"/>
 		<reg32 offset="0x0310" name="FORMAT" length="2">
