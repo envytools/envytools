@@ -67,7 +67,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0300" name="BETA_1D31"/>
 	</stripe>
 
-	<stripe prefix="obj-class" variants="NV04_BETA_SOLID">
+	<stripe prefix="obj-class" variants="NV04_CONTEXT_BETA4">
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0300" name="BETA_FACTOR"/>
   	</stripe>
@@ -216,7 +216,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<stripe variants="NV04_RENDER_SOLID_LINE-">
 			<reg32 offset="0x0194" name="BETA4" type="object">
-				<doc>Accepts NV04_BETA_SOLID</doc>
+				<doc>Accepts NV04_CONTEXT_BETA4</doc>
 			</reg32>
 			<reg32 offset="0x0198" name="SURFACE" type="object">
 				<doc>Accepts NV04_CONTEXT_SURFACES_2D and up.</doc>
@@ -261,7 +261,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<stripe variants="NV04_RENDER_SOLID_TRIANGLE-">
 			<reg32 offset="0x0194" name="BETA4" type="object">
-				<doc>Accepts NV04_BETA_SOLID</doc>
+				<doc>Accepts NV04_CONTEXT_BETA4</doc>
 			</reg32>
 			<reg32 offset="0x0198" name="SURFACE" type="object">
 				<doc>Accepts NV04_CONTEXT_SURFACES_2D and up.</doc>
@@ -313,7 +313,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<stripe variants="NV04_RENDER_SOLID_RECTANGLE-">
 			<reg32 offset="0x0194" name="BETA4" type="object">
-				<doc>Accepts NV04_BETA_SOLID</doc>
+				<doc>Accepts NV04_CONTEXT_BETA4</doc>
 			</reg32>
 			<reg32 offset="0x0198" name="SURFACE" type="object">
 				<doc>Accepts NV04_CONTEXT_SURFACES_2D and up.</doc>
@@ -369,7 +369,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</stripe>
 		<stripe variants="NV04_IMAGE_BLIT-">
 			<reg32 offset="0x0198" name="BETA4" type="object">
-				<doc>Accepts NV04_BETA_SOLID</doc>
+				<doc>Accepts NV04_CONTEXT_BETA4</doc>
 			</reg32>
 			<reg32 offset="0x019c" name="SURFACES" type="object">
 				<doc>Accepts NV04_CONTEXT_SURFACES_2D and up.</doc>
@@ -401,7 +401,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Accepts NV01_CONTEXT_BETA1</doc>
 		</reg32>
 		<reg32 offset="0x019c" name="BETA4" type="object">
-			<doc>Accepts NV04_BETA_SOLID</doc>
+			<doc>Accepts NV04_CONTEXT_BETA4</doc>
 		</reg32>
 		<reg32 offset="0x01a0" name="SURFACE" type="object" variants="NV04_INDEXED_IMAGE_FROM_CPU">
 			<doc>Accepts NV04_CONTEXT_SURFACES_2D, NV04_SWIZZLED_SURFACE</doc>
@@ -452,7 +452,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</stripe>
 		<stripe variants="NV04_IMAGE_FROM_CPU-">
 			<reg32 offset="0x0198" name="BETA4" type="object">
-				<doc>Accepts NV04_BETA_SOLID</doc>
+				<doc>Accepts NV04_CONTEXT_BETA4</doc>
 			</reg32>
 			<reg32 offset="0x019c" name="SURFACE" type="object">
 				<doc>Accepts NV04_CONTEXT_SURFACES_2D and up.</doc>
@@ -502,7 +502,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</stripe>
 		<stripe variants="NV04_STRETCHED_IMAGE_FROM_CPU-">
 			<reg32 offset="0x0194" name="BETA4" type="object">
-				<doc>Accepts NV04_BETA_SOLID</doc>
+				<doc>Accepts NV04_CONTEXT_BETA4</doc>
 			</reg32>
 			<reg32 offset="0x0198" name="SURFACE" type="object">
 				<doc>Accepts NV04_CONTEXT_SURFACES_2D and up.</doc>
@@ -543,7 +543,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</stripe>
 		<stripe variants="NV04_SCALED_IMAGE_FROM_MEMORY-">
 			<reg32 offset="0x0194" name="BETA4" type="object">
-				<doc>Accepts NV04_BETA_SOLID</doc>
+				<doc>Accepts NV04_CONTEXT_BETA4</doc>
 			</reg32>
 			<reg32 offset="0x0198" name="SURFACE" type="object" variants="NV04_SCALED_IMAGE_FROM_MEMORY">
 				<doc>Accepts NV04_CONTEXT_SURFACES_2D, NV04_SWIZZLED_SURFACE</doc>
@@ -664,7 +664,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Accepts NV01_CONTEXT_BETA1</doc>
 		</reg32>
 		<reg32 offset="0x0194" name="BETA4" type="object">
-			<doc>Accepts NV04_BETA_SOLID</doc>
+			<doc>Accepts NV04_CONTEXT_BETA4</doc>
 		</reg32>
 		<reg32 offset="0x0198" name="SURFACE" type="object">
 			<doc>Accepts NV04_CONTEXT_SURFACES_2D and up</doc>

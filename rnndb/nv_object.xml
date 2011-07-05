@@ -29,7 +29,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 	<!-- pre-nv50 2D objects -->
 	<value value="0x0012" name="NV01_CONTEXT_BETA1" variants="NV01-NV50"/>
-	<value value="0x0072" name="NV04_BETA_SOLID" variants="NV04-NV50"/>
+	<value value="0x0072" name="NV04_CONTEXT_BETA4" variants="NV04-NV50"/>
 
 	<value value="0x0017" name="NV01_CONTEXT_COLOR_KEY" variants="NV01:NV50"/>
 	<value value="0x0057" name="NV04_CONTEXT_COLOR_KEY" variants="NV04-NV50"/>
