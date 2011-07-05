@@ -614,32 +614,32 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0300" name="COLOR_FORMAT"/>
 		<reg32 offset="0x0304" name="MONOCHROME_FORMAT"/>
 		<reg32 offset="0x03fc" name="COLOR1_A"/>
-		<reg32 offset="0x0400" name="UNCLIPPED_RECTANGLE_POINT">
+		<reg32 offset="0x0400" name="UNCLIPPED_RECTANGLE_POINT" stride="8" length="64">
 			<bitfield name="Y" high="15" low="0" type="int"/>
 			<bitfield name="X" high="31" low="16" type="int"/>
 		</reg32>
-		<reg32 offset="0x0404" name="UNCLIPPED_RECTANGLE_SIZE">
+		<reg32 offset="0x0404" name="UNCLIPPED_RECTANGLE_SIZE" stride="8" length="64">
 			<bitfield name="H" high="15" low="0" type="int"/>
 			<bitfield name="W" high="31" low="16" type="int"/>
 		</reg32>
 		<reg32 offset="0x07f4" name="CLIP_POINT0_B" type="lt16"/>
 		<reg32 offset="0x07f8" name="CLIP_POINT1_B" type="rb16"/>
 		<reg32 offset="0x07fc" name="COLOR1_B"/>
-		<reg32 offset="0x0800" name="CLIPPED_RECTANGLE_POINT_0" type="lt16"/>
-		<reg32 offset="0x0804" name="CLIPPED_RECTANGLE_POINT_1" type="rb16"/>
+		<reg32 offset="0x0800" name="CLIPPED_RECTANGLE_POINT_0" stride="8" length="64" type="lt16"/>
+		<reg32 offset="0x0804" name="CLIPPED_RECTANGLE_POINT_1" stride="8" length="64" type="rb16"/>
 		<reg32 offset="0x0bec" name="CLIP_C_POINT0" type="lt16"/>
 		<reg32 offset="0x0bf0" name="CLIP_C_POINT1" type="rb16"/>
 		<reg32 offset="0x0bf4" name="COLOR1_C"/>
 		<reg32 offset="0x0bf8" name="SIZE_C" type="wh16"/>
 		<reg32 offset="0x0bfc" name="POINT_C" type="xy16"/>
-		<reg32 offset="0x0c00" name="MONOCHROME_COLOR1_C" length="32"/>
+		<reg32 offset="0x0c00" name="MONOCHROME_COLOR1_C" length="128"/>
 		<reg32 offset="0x0fe8" name="CLIP_D_POINT0" type="lt16"/>
 		<reg32 offset="0x0fec" name="CLIP_D_POINT1" type="rb16"/>
 		<reg32 offset="0x0ff0" name="COLOR1_D"/>
 		<reg32 offset="0x0ff4" name="SIZE_IN_D" type="wh16"/>
 		<reg32 offset="0x0ff8" name="SIZE_OUT_D" type="wh16"/>
 		<reg32 offset="0x0ffc" name="POINT_D" type="xy16"/>
-		<reg32 offset="0x1000" name="MONOCHROME_COLOR1_D" length="32"/>
+		<reg32 offset="0x1000" name="MONOCHROME_COLOR1_D" length="128"/>
 		<reg32 offset="0x13e4" name="CLIP_E_POINT0" type="lt16"/>
 		<reg32 offset="0x13e8" name="CLIP_E_POINT1" type="rb16"/>
 		<reg32 offset="0x13ec" name="COLOR0_E"/>
@@ -647,7 +647,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x13f4" name="SIZE_IN_E" type="wh16"/>
 		<reg32 offset="0x13f8" name="SIZE_OUT_E" type="wh16"/>
 		<reg32 offset="0x13fc" name="POINT_E" type="xy16"/>
-		<reg32 offset="0x1400" name="MONOCHROME_COLOR01_E" length="32"/>
+		<reg32 offset="0x1400" name="MONOCHROME_COLOR01_E" length="128"/>
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV04_GDI_RECTANGLE_TEXT">
