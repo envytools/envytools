@@ -4,6 +4,8 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="copyright.xml"/>
 
+<import file="nvchipsets.xml"/>
+
 <enum name="nv50_mem_target" inline="yes">
 	<value value="0" name="VRAM"/>
 	<!-- 1 is some other sysram. -->

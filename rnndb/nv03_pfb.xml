@@ -4,6 +4,8 @@
 	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="copyright.xml"/>
 
+<import file="nvchipsets.xml"/>
+
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV03:NV10">

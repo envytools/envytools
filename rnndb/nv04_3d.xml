@@ -80,7 +80,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 </enum>
 
 <domain name="NV01_SUBCHAN" bare="yes">
-	<stripe prefix="obj-class" variants="NV04_SURF_3D-NV10_SURF_3D">
+	<stripe prefix="obj-class" variants="NV04_SURFACE_3D-NV10_SURFACE_3D">
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_COLOR" type="object"/>
 		<reg32 offset="0x0188" name="DMA_ZETA" type="object"/>

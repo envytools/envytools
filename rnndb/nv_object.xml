@@ -237,7 +237,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</stripe>
 		<reg32 offset="0x80" name="YIELD" variants="NV40-"/>
 	</stripe>
-	<stripe name="GRAPH" prefix="chipset" varset="obj-class" variants="NV01_UBETA:NV84_CRYPT">
+	<stripe name="GRAPH" prefix="chipset" varset="obj-class" variants="NV01_BETA:NV84_CRYPT">
 		<doc>Methods available on all PGRAPH objects.</doc>
 		<reg32 offset="0x100" name="NOP" variants="NV04-" />
 		<reg32 offset="0x104" name="NOTIFY" variants="NV04:NVC0">
