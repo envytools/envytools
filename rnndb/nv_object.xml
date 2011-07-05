@@ -68,6 +68,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x038a" name="NV30_IMAGE_FROM_CPU" variants="NV30:NV40"/>
 	<value value="0x308a" name="NV40_IMAGE_FROM_CPU" variants="NV40-NV50"/>
 
+	<value value="0x0022" name="NV01_MONOCHROME_IMAGE_FROM_CPU" variants="NV01:NV04"/>
+
 	<value value="0x0036" name="NV03_STRETCHED_IMAGE_FROM_CPU" variants="NV03:NV40"/>
 	<value value="0x0076" name="NV04_STRETCHED_IMAGE_FROM_CPU" variants="NV04:NV50"/>
 	<value value="0x0066" name="NV05_STRETCHED_IMAGE_FROM_CPU" variants="NV05:NV50"/>
