@@ -319,7 +319,7 @@ For NV03:
 4: PMEDIA [pmedia.txt]
 8: PFIFO [nv01-pfifo.txt]
 12: PGRAPH [nv03-pgraph.txt]
-13: PGRAPH's DMA engine [nv03-pgraph.txt] [XXX: check]
+13: PGRAPH's DMA engine [nv03-pgraph.txt]
 16: PRAMDAC.VIDEO [pramdac.txt]
 20: PTIMER [ptimer.txt]
 24: PGRAPH's vblank interrupt [nv03-graph.txt, nvvga.txt]
