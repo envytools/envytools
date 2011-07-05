@@ -183,7 +183,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0597" name="NV25_3D" variants="NV25:NV40"/>
 	<value value="0x0397" name="NV30_3D" variants="NV30:NV40"/>
 	<value value="0x0497" name="NV35_3D" variants="NV35:NV34"/>
-	<value value="0x0697" name="NV34_3D" variants="NV34"/>
+	<value value="0x0697" name="NV34_3D" variants="NV34:NV40"/>
 	<value value="0x4097" name="NV40_3D" variants="NV40:NV44"/>
 	<value value="0x4497" name="NV44_3D" variants="NV44:NV50"/>
 	<value value="0x5097" name="NV50_3D" variants="NV50:NVA0"/>
@@ -192,8 +192,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x8597" name="NVA3_3D" variants="NVA3:NVAF"/>
 	<value value="0x8697" name="NVAF_3D" variants="NVAF:NVC0"/>
 	<value value="0x9097" name="NVC0_3D" variants="NVC0-"/>
-	<value value="0x9197" name="NVC1_3D" variants="NVC1-"/>
-	<value value="0x9297" name="NVC8_3D" variants="NVC8-"/>
+	<value value="0x9197" name="NVC1_3D" variants="NVC1"/>
+	<value value="0x9297" name="NVC8_3D" variants="NVC8 NVD9-"/>
 
 	<!-- nv50+ non-3D objects -->
 	<value value="0x502d" name="NV50_2D" variants="NV50:NVC0"/>
@@ -202,7 +202,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x50c0" name="NV50_COMPUTE" variants="NV50:NVC0"/>
 	<value value="0x85c0" name="NVA3_COMPUTE" variants="NVA3:NVC0"/>
 	<value value="0x90c0" name="NVC0_COMPUTE" variants="NVC0-"/>
-	<value value="0x92c0" name="NVC8_COMPUTE" variants="NVC8-"/>
+	<value value="0x92c0" name="NVC8_COMPUTE" variants="NVC8 NVD9-"/>
 
 	<value value="0x74c1" name="NV84_CRYPT" variants="NV84:NV98 NVA0"/>
 
