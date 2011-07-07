@@ -18,7 +18,7 @@ The canonical repo is at: http://github.com/pathscale/envytools/
 
 = Building, installing =
 
-You'll need: cmake, libxml2, libxml2-dev, flex, bison
+You'll need: cmake, libxml2, libxml2-dev, libpciaccess-dev, flex, bison
 
 To build, use
 
