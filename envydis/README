@@ -1,0 +1,64 @@
+Using envydis
+
+envydis reads from standard input and prints the disassembly to standard
+output. By default, input is parsed as sequence space- or comma-separated
+hexadecimal numbers representing the bytes to disassemble. The options are:
+
+ input format
+  -w Instead of sequence of hexadecimal bytes, treat input as sequence of
+     hexadecimal 32-bit words
+  -W Instead of sequence of hexadecimal bytes, treat input as sequence of
+     hexadecimal 64-bit words
+  -i Treat input as pure binary
+ input subranging
+  -b <base> Assume the start of input to be at address <base> in code segment
+  -d <skip> Skip/discard that many bytes of input before starting to read code
+  -l <limit> Don't disassemble more than <limit> bytes.
+ variant selection
+  -m <machine> Select the ISA to disassemble. One of: 
+     [****] nv50: nv50 [tesla] CUDA/shader ISA
+     [*** ] nvc0: nvc0 [fermi] CUDA/shader ISA
+     [**  ] ctx: nv40 and nv50 PGRAPH context-switching microcode
+     [*** ] fuc: fifo microcode, used to power various engines on nv98+ cards
+     [**  ] pms: PBUS power management scripts
+     [*** ] vp2: video processor 2 [nv84-gen] code, an xtensa variant
+     [*   ] vp3m: video processor 3 [nv98-gen] master/mocomp microcode
+     [****] macro: nvc0 PGRAPH macro method ISA
+     Where the quality level is:
+     [    ]: Bare beginnings
+     [*   ]: Knows a few instructions
+     [**  ]: Knows enough instructions to write some simple code
+     [*** ]: Knows most instructions, enough to write advanced code
+     [****]: Knows all instructions, or very close to.
+  -V <variant> Select variant of the ISA.
+     For nv50:
+       nv50: The original NV50 [aka compute capability 1.0]
+       nv84: NV84, NV86, NV92, NV94, NV96, NV98 [aka compute capability 1.1]
+       nva0: NVA0 [aka compute capability 1.3]
+       nvaa: NVAA, NVAC [aka compute capability 1.2]
+       nva3: NVA3, NVA5, NVA8, NVAF [aka compute capability 1.2 + d3d10.1]
+     For ctx:
+       nv40: NV40 generation cards
+       nv50: NV50 generation cards
+     For fuc:
+       nv98: NV98, NVAA, NVAC
+       nva3: NVA3 and up
+  -v [nv50/nvc0 only] Disassemble vertex program ISA
+  -g [nv50/nvc0 only] Disassemble geometry program ISA
+  -f/-p [nv50/nvc0 only] Disassemble fragment program ISA
+  -c [nv50/nvc0 only] Disassemble compute program ISA
+  -s [nv50/nvc0 only] Disassemble vertex, geometry, or fragment program ISA
+ output format
+  -n Disable output coloring
+  -q Disable printing address + opcodes.
+
+envydis can also be invoked under one of the alternative names, which imply
+-m and sometimes -w options:
+  - nv50dis: -m nv50 -w
+  - nvc0dis: -m nvc0 -w
+  - ctxdis: -m ctx -w
+  - fucdis: -m fuc
+  - pmsdis: -m pms
+  - vp2dis: -m vp2
+  - vp3mdis: -m vp3m
+  - macrodis: -m macro -w
