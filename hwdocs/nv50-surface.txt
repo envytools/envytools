@@ -507,6 +507,10 @@ The following multisample modes exist:
 	[XXX: nail down sample positions]
 	[XXX: figure out C component]
 
+Note that MS8 and MS8_C* modes cannot be used with surfaces that have 16-byte
+element size due to a hardware limitation.
+[XXX: check on NVC0.]
+
 The sample ids are, for full samples, the values appearing in the sampleid
 register. The numbers in () are the geometric coordinates of the sample
 inside a pixel, as used by the rasterization process. The dimensions in []
