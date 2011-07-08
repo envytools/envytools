@@ -342,9 +342,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0404" name="RECTANGLE_SIZE" length="16" stride="8" type="wh16"/>
 	</stripe>
 
-	<stripe prefix="obj-class" variants="NV01_BLIT-NV11_BLIT">
+	<stripe prefix="obj-class" variants="NV01_BLIT-NV15_BLIT">
 		<reg32 offset="0x010c" name="PATCH"/>
-		<stripe variants="NV11_BLIT">
+		<stripe variants="NV15_BLIT">
 			<reg32 offset="0x0108" name="WAIT_FOR_IDLE"/>
 			<reg32 offset="0x0120" name="FLIP_SET_READ"/>
 			<reg32 offset="0x0124" name="FLIP_SET_WRITE"/>

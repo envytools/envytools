@@ -47,7 +47,7 @@
 </enum>
 
 <group name="nv10tcl-base">
-	<stripe variants="NV11_3D-">
+	<stripe variants="NV15_3D-">
 		<reg32 offset="0x0120" name="FLIP_SET_READ"/>
 		<reg32 offset="0x0124" name="FLIP_SET_WRITE"/>
 		<reg32 offset="0x0128" name="FLIP_MAX"/>
@@ -467,7 +467,7 @@
 			<reg32 offset="0x03ec" name="POINT_SIZE" type="int"/>
 			<reg32 offset="0x06f8" name="POINT_PARAMETER" length="8" type="float"/>
 
-			<stripe offset="0x0d40" name="COLOR_LOGIC_OP" variants="NV11_3D-">
+			<stripe offset="0x0d40" name="COLOR_LOGIC_OP" variants="NV15_3D-">
 				<reg32 offset="0x0" name="ENABLE" type="boolean"/>
 				<reg32 offset="0x4" name="OP" type="gl_logic_op"/>
 			</stripe>
