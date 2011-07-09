@@ -15,8 +15,8 @@
 		<use-group name="nv_vga_cio"/>
 		<use-group name="nv_vga_dio"/>
 	</array>
-	<array name="PDISPLAY" offset="0x610000" stride="0x20000" length="1" variants="NV50-">
-		
+	<array name="PDISP" offset="0x610000" stride="0x20000" length="1" variants="NV50:NVD9">
+
 		<reg32 offset="0x0010" name="OBJECTS"/>
 
 		<reg32 offset="0x0020" name="INTR_0"/>
@@ -354,12 +354,12 @@
 
 	</array>
 
-	<array name="DISPLAY_USER" offset="0x640000" stride="0x1000" length="5" variants="NV50-">
+	<array name="DISP_USER" offset="0x640000" stride="0x1000" length="5" variants="NV50:NVD9">
 		<reg32 name="PUT" offset="0x0"/>
 		<reg32 name="GET" offset="0x4"/>
 	</array>
 
-	<array name="CURSOR_USER" offset="0x645000" stride="0x1000" length="4" variants="NV50-">
+	<array name="CURSOR_USER" offset="0x645000" stride="0x1000" length="4" variants="NV50:NVD9">
 		<reg32 name="POS_CTRL" offset="0x80"/>
 		<reg32 name="POS" offset="0x84">
 			<doc>
