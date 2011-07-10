@@ -44,13 +44,14 @@
 	<array offset="0x1000" name="PBUS" stride="0x1000" length="1">
 		<reg32 offset="0x100" name="INTR">
 			<bitfield pos="3" name="MMIO_FAULT" variants="NV41-"/>
-			<bitfield pos="26" name="PMS"/>
+			<bitfield pos="26" name="USER" variants="NV50-" />
 		</reg32>
 		<reg32 offset="0x140" name="INTR_EN">
-			<bitfield pos="26" name="PMS"/>
 			<bitfield pos="3" name="MMIO_FAULT" variants="NV41-"/>
+			<bitfield pos="26" name="USER" variants="NV50-" />
 		</reg32>
-		<reg32 offset="0x150" name="INTR_PMS_TRIGGER"/>
+		<reg32 offset="0x150" name="INTR_USER_TRIGGER" variants="NV50-"/>
+		<reg32 offset="0x154" name="INTR_USER_SCRATCH" length="4" variants="NV50-"/>
 		<stripe offset="0x300" name="HWSQ" variants="NV17:NV20 NV25:NVC0">
 			<reg32 offset="0x304" name="CONTROL">
 			</reg32>
