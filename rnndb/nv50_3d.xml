@@ -41,7 +41,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x18" name="8_8"/>
 	<value value="0x1b" name="16"/>
 	<value value="0x1d" name="8"/>
-	<value value="0x30" name="2_10_10_10"/>
+	<value value="0x30" name="10_10_10_2"/>
 </enum>
 
 <domain name="NV01_SUBCHAN" bare="yes">
