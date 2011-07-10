@@ -435,7 +435,7 @@ extern struct disisa *nv50_isa;
 extern struct disisa *nvc0_isa;
 extern struct disisa *ctx_isa;
 extern struct disisa *fuc_isa;
-extern struct disisa *pms_isa;
+extern struct disisa *hwsq_isa;
 extern struct disisa *vp2_isa;
 extern struct disisa *vp3m_isa;
 extern struct disisa *macro_isa;

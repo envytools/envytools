@@ -51,19 +51,19 @@
 			<bitfield pos="3" name="MMIO_FAULT" variants="NV41-"/>
 		</reg32>
 		<reg32 offset="0x150" name="INTR_PMS_TRIGGER"/>
-		<stripe variants="NV17:NV20 NV25:NVC0">
-			<reg32 offset="0x304" name="PMS_CONTROL">
+		<stripe offset="0x300" name="HWSQ" variants="NV17:NV20 NV25:NVC0">
+			<reg32 offset="0x304" name="CONTROL">
 			</reg32>
-			<reg32 offset="0x308" name="PMS_STATE">
+			<reg32 offset="0x308" name="STATE">
 				<bitfield low="0" high="7" name="IP"/>
 				<bitfield pos="8" name="ACTIVE"/>
 			</reg32>
-			<reg32 offset="0x30c" name="PMS_TRIGGER">
+			<reg32 offset="0x30c" name="TRIGGER">
 				<bitfield pos="0" name="START"/>
 			</reg32>
-			<reg8 offset="0x400" name="PMS_CODE" length="0x40" variants="NV17:NV20 NV25:NV40"/>
-			<reg8 offset="0x400" name="PMS_CODE" length="0x80" variants="NV40:NV50"/>
-			<reg8 offset="0x400" name="PMS_CODE" length="0x100" variants="NV50:NVC0"/>
+			<reg8 offset="0x400" name="CODE" length="0x40" variants="NV17:NV20 NV25:NV40"/>
+			<reg8 offset="0x400" name="CODE" length="0x80" variants="NV40:NV50"/>
+			<reg8 offset="0x400" name="CODE" length="0x100" variants="NV50:NVC0"/>
 		</stripe>
 		<reg32 offset="0x540" name="PGRAPH_UNITS" variants="NV50:NVC0">
 			<doc>Enables PGRAPH engines that come in multiple copies.
@@ -167,7 +167,7 @@
 		</reg32>
 	</array>
 
-	<reg8 offset="0x80000" name="PBUS_PMS_NEW_CODE" length="0x200" variants="NV92:NVC0"/>
+	<reg8 offset="0x80000" name="PBUS_HWSQ_NEW_CODE" length="0x200" variants="NV92:NVC0"/>
 
 	<array offset="0x88000" name="PPCI" stride="0x1000" length="1" variants="NV40-">
 		<use-group name="nv_pci"/>

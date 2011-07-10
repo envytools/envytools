@@ -77,7 +77,7 @@
 
 <!-- 070000 - 070fff PFIFO_MAGIC_FLUSH covered in nv_pfifo.xml -->
 
-<!-- 080000 - 080fff PBUS_PMS_NEW_CODE covered in nv_pbus.xml -->
+<!-- 080000 - 080fff PBUS_HWSQ_NEW_CODE covered in nv_pbus.xml -->
 
 <!-- 082000 - 082fff ??? -->
 

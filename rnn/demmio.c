@@ -26,10 +26,10 @@ struct cctx {
 	uint64_t ramins;
 	uint64_t fakechan;
 	int i2cip;
-	int pmsip;
-	uint32_t pmsnext;
+	int hwsqip;
+	uint32_t hwsqnext;
 	uint32_t ctxpos;
-	uint8_t pms[0x200];
+	uint8_t hwsq[0x200];
 	struct mpage **pages;
 	int pagesnum, pagesmax;
 	uint64_t bar0, bar0l, bar1, bar1l, bar2, bar2l;
@@ -261,9 +261,9 @@ int main(int argc, char **argv) {
 				struct cctx *cc = &cctx[cci];
 				if (cc->bar0 && addr >= cc->bar0 && addr < cc->bar0+cc->bar0l) {
 					addr -= cc->bar0;
-					if (cc->pmsip && addr != cc->pmsnext) {
-						envydis(pms_isa, stdout, cc->pms, 0, cc->pmsnext & 0x3fc, -1, -1, 0, 0, 0);
-						cc->pmsip = 0;
+					if (cc->hwsqip && addr != cc->hwsqnext) {
+						envydis(hwsq_isa, stdout, cc->hwsq, 0, cc->hwsqnext & 0x3fc, -1, -1, 0, 0, 0);
+						cc->hwsqip = 0;
 					}
 					if (addr == 0 && !cc->chdone) {
 						char chname[5];
@@ -352,19 +352,19 @@ int main(int argc, char **argv) {
 					} else if ((addr & 0xfff000) == 0x9000 && (cc->i2cip != -1)) {
 						/* ignore PTIMER meddling during I2C */
 						skip = 1;
-					} else if (addr == 0x1400 || addr == 0x80000 || addr == cc->pmsnext) {
-						if (!cc->pmsip) {
+					} else if (addr == 0x1400 || addr == 0x80000 || addr == cc->hwsqnext) {
+						if (!cc->hwsqip) {
 							struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, mmiodom, addr, line[0] == 'W');
-							printf ("[%d] PMS      0x%06"PRIx64"            %s\n", cci, addr, ai->name);
+							printf ("[%d] HWSQ     0x%06"PRIx64"            %s\n", cci, addr, ai->name);
 							free(ai->name);
 							free(ai);
 						}
-						cc->pms[(addr & 0x1fc) + 0] = value;
-						cc->pms[(addr & 0x1fc) + 1] = value >> 8;
-						cc->pms[(addr & 0x1fc) + 2] = value >> 16;
-						cc->pms[(addr & 0x1fc) + 3] = value >> 24;
-						cc->pmsip = 1;
-						cc->pmsnext = addr + 4;
+						cc->hwsq[(addr & 0x1fc) + 0] = value;
+						cc->hwsq[(addr & 0x1fc) + 1] = value >> 8;
+						cc->hwsq[(addr & 0x1fc) + 2] = value >> 16;
+						cc->hwsq[(addr & 0x1fc) + 3] = value >> 24;
+						cc->hwsqip = 1;
+						cc->hwsqnext = addr + 4;
 						skip = 1;
 					} else if (addr == 0x400324 && cc->arch >= 4 && cc->arch <= 5) {
 						cc->ctxpos = value;

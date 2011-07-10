@@ -20,7 +20,7 @@ hexadecimal numbers representing the bytes to disassemble. The options are:
      [*** ] nvc0: nvc0 [fermi] CUDA/shader ISA
      [**  ] ctx: nv40 and nv50 PGRAPH context-switching microcode
      [*** ] fuc: fifo microcode, used to power various engines on nv98+ cards
-     [**  ] pms: PBUS power management scripts
+     [**  ] hwsq: PBUS hardware sequencer microcode
      [*** ] vp2: video processor 2 [nv84-gen] code, an xtensa variant
      [*   ] vp3m: video processor 3 [nv98-gen] master/mocomp microcode
      [****] macro: nvc0 PGRAPH macro method ISA
@@ -58,7 +58,7 @@ envydis can also be invoked under one of the alternative names, which imply
   - nvc0dis: -m nvc0 -w
   - ctxdis: -m ctx -w
   - fucdis: -m fuc
-  - pmsdis: -m pms
+  - hwsqdis: -m hwsq
   - vp2dis: -m vp2
   - vp3mdis: -m vp3m
   - macrodis: -m macro -w

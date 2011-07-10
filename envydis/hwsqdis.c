@@ -93,11 +93,11 @@ static struct insn tabm[] = {
 	{ 0, 0, OP8, OOPS },
 };
 
-static struct disisa pms_isa_s = {
+static struct disisa hwsq_isa_s = {
 	tabm,
 	5,
 	1,
 	1,
 };
 
-struct disisa *pms_isa = &pms_isa_s;
+struct disisa *hwsq_isa = &hwsq_isa_s;

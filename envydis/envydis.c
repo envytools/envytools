@@ -59,8 +59,8 @@ int main(int argc, char **argv) {
 	}
 	if (!strcmp(argv[0], "fucdis") || !strcmp(argv[0], "fµcdis"))
 		isa = fuc_isa;
-	if (!strcmp(argv[0], "pmsdis"))
-		isa = pms_isa;
+	if (!strcmp(argv[0], "hwsqdis"))
+		isa = hwsq_isa;
 	if (!strcmp(argv[0], "vp2dis"))
 		isa = vp2_isa;
 	if (!strcmp(argv[0], "vp3mdis"))
@@ -133,8 +133,8 @@ int main(int argc, char **argv) {
 					isa = ctx_isa;
 				else if (!strcmp(optarg, "fuc") || !strcmp(optarg, "fµc"))
 					isa = fuc_isa;
-				else if (!strcmp(optarg, "pms"))
-					isa = pms_isa;
+				else if (!strcmp(optarg, "hwsq"))
+					isa = hwsq_isa;
 				else if (!strcmp(optarg, "vp2"))
 					isa = vp2_isa;
 				else if (!strcmp(optarg, "vp3m"))
