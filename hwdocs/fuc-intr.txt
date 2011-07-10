@@ -54,17 +54,19 @@ MMIO 0x00c / I[0x00300]: INTR_MODE [NVA3+]
 
 [XXX: check edge/level distinction on NV98]
 
-MMIO 0x01c / I[0x00700]: INTR_DISPATCH
-  Bits 0-15: mask of interrupts that go to host
-  Bits 16-31: mask of interrupts that go to fuc vector 1.
-  If an interrupt is set in one of these masks, it goes to the respective
-  handler. If an interrupt is set in neither, it goes to fuc vector 0.
-  Setting an interrupt in both is a bad idea, and just results in the
-  interrupt being ignored.
+MMIO 0x01c / I[0x00700]: INTR_ROUTING
+  Bits 0-15: bit 0 of interrupt routing selector, one for each interrupt line
+  Bits 16-31: bit 1 of interrupt routing selector, one for each interrupt line
+For each interrupt line, the two bits from respective bitfields are put
+together to find its routing testination:
+  0: fuc vector 0
+  1: PMC HOST/DAEMON line
+  2: fuc vector 1
+  3: PMC UNK1 line [NVC0+ only]
 
-If an interrupt set for host irq delivery is active and unmasked, the fuc
-host interrupt line is active. For engines other than PGRAPH CTXCTLs, this
-line is wired straight to one of PMC.INTR bits:
+If any interrupt set for PMC irq delivery is active and unmasked, the
+corresponding PMC interrupt input line is active. The corresponding PMC lines
+are:
 
   PBSP			15
   PVP			17
@@ -76,6 +78,9 @@ line is wired straight to one of PMC.INTR bits:
   PCOPY[1] NVC0+	6
   PDAEMON pre-NVC0	18
   PDAEMON NVC0+		24
+  PGRAPH HUB CTXCTL	[unconnected]
+  PGRAPH GPC CTXCTL	[unconnected]
+  PDISPLAY		???
 
 fuc interrupt and trap delivery is controlled by $iv0, $iv1, $tv, $tstatus
 registers and ie0, ie1, is0, is1, ta $flags bits. Traps behave like

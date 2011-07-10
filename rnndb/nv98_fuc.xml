@@ -24,15 +24,15 @@
 	<reg32 offset="0x010" name="INTR_EN_SET" access="w" type="nv98_fuc_intr"/>
 	<reg32 offset="0x014" name="INTR_EN_CLR" access="w" type="nv98_fuc_intr"/>
 	<reg32 offset="0x018" name="INTR_EN" access="r" type="nv98_fuc_intr"/>
-	<reg32 offset="0x01c" name="INTR_DISPATCH">
+	<reg32 offset="0x01c" name="INTR_ROUTING">
 		<doc>
 			Each interrupt has 2 bits in here, and its handling
 			is determined by their combination:
 			<ul>
 			<li>M1 = 0, M2 = 0: fuc interrupt 0</li>
 			<li>M1 = 0, M2 = 1: fuc interrupt 1</li>
-			<li>M1 = 1, M2 = 0: host interrupt</li>
-			<li>M1 = 1, M2 = 1: ignored</li>
+			<li>M1 = 1, M2 = 0: PMC HOST/DAEMON interrupt</li>
+			<li>M1 = 1, M2 = 1: PMC UNK1 interrupt [NVC0+ only]</li>
 			</ul>
 		</doc>
 		<bitfield low="0" high="15" name="M1" type="nv98_fuc_intr"/>
