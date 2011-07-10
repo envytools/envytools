@@ -43,12 +43,12 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 	<array offset="0x1000" name="PBUS" stride="0x1000" length="1">
 		<reg32 offset="0x100" name="INTR">
-			<bitfield pos="3" name="MMIO_FAULT"/>
+			<bitfield pos="3" name="MMIO_FAULT" variants="NV41-"/>
 			<bitfield pos="26" name="PMS"/>
 		</reg32>
 		<reg32 offset="0x140" name="INTR_EN">
-			<bitfield pos="3" name="MMIO_FAULT"/>
 			<bitfield pos="26" name="PMS"/>
+			<bitfield pos="3" name="MMIO_FAULT" variants="NV41-"/>
 		</reg32>
 		<reg32 offset="0x150" name="INTR_PMS_TRIGGER"/>
 		<stripe variants="NV17:NV20 NV25:NVC0">
