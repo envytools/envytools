@@ -1,6 +1,6 @@
 %{
 #include "envyas.h"
-#include "envyparse.h"
+#include "parse.h"
 int ws;
 
 static int yywrap(void) {
