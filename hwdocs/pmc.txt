@@ -302,7 +302,11 @@ is unknown. DAEMON goes to PDAEMON's fuc interrupt line #10.
 [XXX: figure out the third destination]
 [XXX: anything special for MSI?]
 
-The input interrupt lines are, for NV01:
+On pre-NVA3, each PMC interrupt input is a single 0/1 line. On NVA3+, some
+inputs have a single line for all three outputs, while some others have 2
+lines: one for HOST and DAEMON outputs, and one for UNK1 outuput.
+
+The input interrupts are, for NV01:
 
 0: PAUDIO
 4: PDMA
@@ -345,7 +349,7 @@ For NV50:NVC0:
 0: VPE [vpe.txt] [NV50:NV98 and NVA0]
 0: PPPP [fuc-ppp.txt] [NV98 and NVAA-]
 4: PMEDIA [pmedia.txt]
-8: PFIFO [nv50-pfifo.txt]
+8: PFIFO [nv50-pfifo.txt] - has separate UNK1 line on NVA3+
 9: ??? [NVA3?-]
 11: ??? [NVA3?-]
 12: PGRAPH [nv50-pgraph.txt]
@@ -370,16 +374,16 @@ earlier, but we only know them from bitscanning the INTR_MASK regs. on NVA3+.]
 
 For NVC0+:
 
-0: PPPP [fuc-ppp.txt]
+0: PPPP [fuc-ppp.txt] - has separate UNK1 line
 4: PMEDIA [pmedia.txt]
-5: PCOPY[0] [fuc-copy.txt]
-6: PCOPY[1] [fuc-copy.txt]
+5: PCOPY[0] [fuc-copy.txt] - has separate UNK1 line
+6: PCOPY[1] [fuc-copy.txt] - has separate UNK1 line
 8: PFIFO [nvc0-pfifo.txt]
 9: ???
-12: PGRAPH [nvc0-pgraph.txt]
+12: PGRAPH [nvc0-pgraph.txt] - has separate UNK1 line
 13: PBFB [nvc0-pbfb.txt]
-15: PBSP [fuc-bsp.txt]
-17: PVP [fuc-vp.txt]
+15: PBSP [fuc-bsp.txt] - has separate UNK1 line
+17: PVP [fuc-vp.txt] - has separate UNK1 line
 18: PTHERM [ptherm.txt]
 20: PTIMER [ptimer.txt]
 21: PNVIO's GPIO interrupts [pnvio.txt]
@@ -388,7 +392,7 @@ For NVC0+:
 25: PMFB [nvc0-pmfb.txt]
 26: PDISPLAY [pdisplay.txt]
 27: PFFB [nvc0-pffb.txt]
-28: PBUS [pbus.txt]
+28: PBUS [pbus.txt] - has separate UNK1 line
 29: ???
 30: PIBUS [pibus.txt]
 31: software
