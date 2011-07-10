@@ -47,10 +47,14 @@
 			<bitfield pos="26" name="USER" variants="NV50-" />
 			<bitfield pos="28" name="USER2" variants="NVC0-" />
 		</reg32>
-		<reg32 offset="0x140" name="INTR_EN">
+		<reg32 offset="0x140" name="INTR_EN"> <!-- affects PMC.INTR_HOST and PMC.INTR_DAEMON only -->
 			<bitfield pos="3" name="MMIO_FAULT" variants="NV41-"/>
 			<bitfield pos="26" name="USER" variants="NV50-" />
 			<bitfield pos="28" name="USER2" variants="NVC0-" />
+		</reg32>
+		<reg32 offset="0x144" name="INTR_EN_UNK1" variants="NVC0-"> <!-- affects PMC.INTR_UNK1 only, conspiciously missing bit 28 [USER2] -->
+			<bitfield pos="3" name="MMIO_FAULT" variants="NV41-"/>
+			<bitfield pos="26" name="USER" variants="NV50-" />
 		</reg32>
 		<reg32 offset="0x150" name="INTR_USER_TRIGGER" variants="NV50-"/>
 		<reg32 offset="0x154" name="INTR_USER_SCRATCH" length="4" variants="NV50-"/>
