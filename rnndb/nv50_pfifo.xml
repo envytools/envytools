@@ -74,7 +74,7 @@
 		<reg32 offset="0x098" name="UNK98" variants="NV84-">
 			<doc>Bits 0xffffffff</doc>
 		</reg32>
-		<reg32 offset="0x100" name="INTR">
+		<reg32 offset="0x100" name="INTR"> <!-- affects PMC.INTR_HOST and PMC.INTR_DAEMON only -->
 			<bitfield pos="0" name="CACHE_ERROR"/>
 			<bitfield pos="4" name="BAR_FAULT"/>
 			<bitfield pos="6" name="PEEPHOLE_FAULT"/>
@@ -95,7 +95,10 @@
 			<bitfield pos="29" name="UNK29"/>
 			<bitfield pos="30" name="NOTIFY" variants="NV84-"/>
 		</reg32>
-		<reg32 offset="0x140" name="INTR_EN">
+		<reg32 offset="0x104" name="INTR_UNK1" variants="NVA3-"> <!-- affects PMC.INTR_HOST and PMC.INTR_DAEMON only -->
+			<bitfield pos="30" name="NOTIFY"/>
+		</reg32>
+		<reg32 offset="0x140" name="INTR_EN"> <!-- affects PMC.INTR_HOST and PMC.INTR_DAEMON only -->
 			<bitfield pos="0" name="CACHE_ERROR"/>
 			<bitfield pos="4" name="BAR_FAULT"/>
 			<bitfield pos="6" name="PEEPHOLE_FAULT"/>
@@ -115,6 +118,9 @@
 			<bitfield pos="28" name="UNK28"/>
 			<bitfield pos="29" name="UNK29"/>
 			<bitfield pos="30" name="NOTIFY" variants="NV84-"/>
+		</reg32>
+		<reg32 offset="0x144" name="INTR_EN_UNK1" variants="NVA3-">
+			<bitfield pos="30" name="NOTIFY"/>
 		</reg32>
 		<reg32 offset="0x210" name="RAMHT">
 			<bitfield high="15" low="0" name="INSTANCE" shr="4"/>
