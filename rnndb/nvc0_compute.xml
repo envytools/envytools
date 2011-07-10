@@ -197,10 +197,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1b04" name="QUERY_ADDRESS_LOW"/>
 		<reg32 offset="0x1b08" name="QUERY_SEQUENCE"/>
 		<reg32 offset="0x1b0c" name="QUERY_GET">
-			<!-- XXX: figure this out -->
-			<bitfield name="UNK0" high="2" low="0"/>
-			<bitfield name="UNK20" pos="20"/>
-			<bitfield name="UNK28" pos="28"/>
+			<bitfield low="0" high="1" name="MODE">
+				<value value="0" name="WRITE"/>
+				<value value="3" name="WRITE_INTR_UNK1"/>
+			</bitfield>
+			<bitfield pos="20" name="INTR"/>
+			<bitfield pos="28" name="SHORT"/>
 		</reg32>
 		<reg32 offset="0x2380" name="CB_SIZE"/>
 		<reg32 offset="0x2384" name="CB_ADDRESS_HIGH"/>

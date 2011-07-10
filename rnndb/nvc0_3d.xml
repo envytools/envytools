@@ -1033,10 +1033,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1b0c" name="QUERY_GET">
 			<!-- XXX: figure this out -->
 			<bitfield low="0" high="1" name="MODE">
-				<value value="0" name="WRITE_UNK0"/>
+				<value value="0" name="WRITE"/>
 				<value value="1" name="SYNC"/>
 				<value value="2" name="WRITE_UNK2"/>
+				<value value="3" name="WRITE_INTR_UNK1"/>
 			</bitfield>
+			<bitfield pos="2" name="UNK2"/>
 			<bitfield pos="4" name="FENCE"/><!-- ? -->
 			<bitfield low="5" high="7" name="STREAM" type="int"/><!-- not sure about bit 7 -->
 			<bitfield pos="8" name="UNK8"/>
@@ -1045,7 +1047,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="0" name="NEQUAL"/>
 				<value value="1" name="GREATER"/>
 			</bitfield>
-			<bitfield pos="20" name="INTR" type="boolean"/>
+			<bitfield pos="20" name="INTR"/>
 			<bitfield pos="21" name="UNK21"/>
 			<bitfield low="23" high="27" name="SELECT">
 				<value value="0x00" name="ZERO"/>
