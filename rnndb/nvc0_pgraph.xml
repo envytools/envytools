@@ -12,7 +12,7 @@
 
 <array name="PGRAPH" offset="0x400000" stride="0x200000" length="1" variants="NVC0-">
 
-	<reg32 offset="0x0100" name="INTR">
+	<reg32 offset="0x0100" name="INTR"> <!-- HOST/DAEMON only -->
 		<brief>Interrupt status</brief>
 		<doc>Shows currently pending interrupts. Write 1 to a bit to reset it, and ACK the interrupt.</doc>
 		<bitfield name="NOTIFY" pos="0">
@@ -86,6 +86,13 @@
 	</reg32>
 	<reg32 offset="0x0118" name="TRAP_GPCS"/>
 	<reg32 offset="0x011c" name="TRAP_ROPCS"/>
+	<reg32 offset="0x0120" name="INTR_UNK1">
+		<!-- a bitfield in the QUERY command selects whether to trigger an interrupt here or in the usual reg -->
+		<bitfield name="QUERY" pos="1"/>
+	</reg32>
+	<reg32 offset="0x0124" name="INTR_EN_UNK1">
+		<bitfield name="QUERY" pos="1"/>
+	</reg32>
 	<reg32 offset="0x0130" name="TRAP_GPCS_EN"/>
 	<reg32 offset="0x0134" name="TRAP_ROPCS_EN"/>
 	<reg32 offset="0x0138" name="TRAP_EN">
