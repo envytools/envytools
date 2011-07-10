@@ -7,4 +7,6 @@ nvagetbios
 nvafakebios
 nvascan
 nvatiming
+nvapms
+nvafuzz
 libnva.a
