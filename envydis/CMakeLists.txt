@@ -6,15 +6,15 @@ find_package(BISON REQUIRED)
 
 include_directories(../include)
 
-flex_target(envylex envylex.l ${CMAKE_CURRENT_BINARY_DIR}/envylex.c)
-bison_target(envyparse envyparse.y ${CMAKE_CURRENT_BINARY_DIR}/envyparse.c)
-add_flex_bison_dependency(envylex envyparse)
+flex_target(lex lex.l ${CMAKE_CURRENT_BINARY_DIR}/lex.c)
+bison_target(parse parse.y ${CMAKE_CURRENT_BINARY_DIR}/parse.c)
+add_flex_bison_dependency(lex parse)
 include_directories(.)
 
-add_library(envy coredis.c nv50dis.c nvc0dis.c ctxdis.c fucdis.c hwsqdis.c vp2dis.c vp3mdis.c macrodis.c envyprint.c)
+add_library(envy core.c nv50.c nvc0.c ctx.c fuc.c hwsq.c vp2.c vp3m.c macro.c print.c)
 
 add_executable(envydis envydis.c)
-add_executable(envyas envyas.c ${FLEX_envylex_OUTPUTS} ${BISON_envyparse_OUTPUTS})
+add_executable(envyas envyas.c ${FLEX_lex_OUTPUTS} ${BISON_parse_OUTPUTS})
 
 target_link_libraries(envydis envy)
 target_link_libraries(envyas envy)
