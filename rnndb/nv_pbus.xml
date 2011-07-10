@@ -45,13 +45,18 @@
 		<reg32 offset="0x100" name="INTR">
 			<bitfield pos="3" name="MMIO_FAULT" variants="NV41-"/>
 			<bitfield pos="26" name="USER" variants="NV50-" />
+			<bitfield pos="28" name="USER2" variants="NVC0-" />
 		</reg32>
 		<reg32 offset="0x140" name="INTR_EN">
 			<bitfield pos="3" name="MMIO_FAULT" variants="NV41-"/>
 			<bitfield pos="26" name="USER" variants="NV50-" />
+			<bitfield pos="28" name="USER2" variants="NVC0-" />
 		</reg32>
 		<reg32 offset="0x150" name="INTR_USER_TRIGGER" variants="NV50-"/>
 		<reg32 offset="0x154" name="INTR_USER_SCRATCH" length="4" variants="NV50-"/>
+		<reg32 offset="0x170" name="INTR_USER2_TRIGGER" variants="NVC0-"/>
+		<reg32 offset="0x174" name="INTR_USER2_SCRATCH" length="4" variants="NVC0-"/>
+
 		<stripe offset="0x300" name="HWSQ" variants="NV17:NV20 NV25:NVC0">
 			<reg32 offset="0x304" name="CONTROL">
 			</reg32>
