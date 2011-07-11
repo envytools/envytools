@@ -462,6 +462,14 @@ int main(int argc, char **argv)
 	}
 
 	if (card->chipset == 0xd9) {
+		time_fuc_engine_periodic(cnum, "PUNK1C3", 0x1c3000);
+		time_fuc_engine_watchdog(cnum, "PUNK1C3", 0x1c3000);
+		printf("\n");
+	} else {
+		printf("Your card doesn't support PUNK1C3 (nvd9 only)\n\n");
+	}
+
+	if (card->chipset == 0xd9) {
 		time_fuc_engine_periodic(cnum, "PDISPLAY", 0x627000);
 		time_fuc_engine_watchdog(cnum, "PDISPLAY", 0x627000);
 		printf("\n");
