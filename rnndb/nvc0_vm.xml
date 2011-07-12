@@ -38,6 +38,7 @@
 	<value value="0x00" name="L1"/>
 	<value value="0x01" name="TEX"/>
 	<value value="0x0c" name="ESETUP"/>
+	<value value="0x0d" name="CCACHE"/>
 	<value value="0x0e" name="CTXCTL"/>
 	<value value="0x0f" name="PROP"/>
 </enum>
