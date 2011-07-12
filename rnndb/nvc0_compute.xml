@@ -185,8 +185,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="VALID" pos="0" type="boolean"/>
 			<bitfield name="INDEX" high="12" low="8" type="uint"/>
 		</reg32>
-		<reg32 offset="0x1698" name="UNK1698"><!-- default 1 -->
-			<bitfield pos="0" name="UNK0"/>
+		<reg32 offset="0x1698" name="FLUSH">
+			<bitfield pos="0" name="CODE"/>
 			<bitfield pos="4" name="UNK4"/>
 			<bitfield pos="8" name="UNK8"/>
 			<bitfield pos="12" name="UNK12"/>
