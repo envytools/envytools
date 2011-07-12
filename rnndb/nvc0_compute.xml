@@ -94,6 +94,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield low="8" high="9" name="UNK1"/>
 		</reg32>
 		<reg32 offset="0x0368" name="LAUNCH"/>
+		<reg32 offset="0x036c" name="UNK036C">
+			<doc>0-3.</doc>
+		</reg32>
 		<reg32 offset="0x03ac" name="BLOCKDIM_YX">
 			<bitfield name="X" high="15" low="0" type="uint"/>
 			<bitfield name="Y" high="31" low="16" type="uint"/>
