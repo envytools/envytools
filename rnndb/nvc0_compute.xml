@@ -93,7 +93,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield low="8" high="9" name="UNK1"/>
 		</reg32>
-		<reg32 offset="0x0368" name="LAUNCH"/>
+		<reg32 offset="0x0368" name="LAUNCH">
+			<doc>Parameter passed to this method is available as $launcharg special register</doc>
+		</reg32>
 		<reg32 offset="0x036c" name="UNK036C">
 			<doc>0-3.</doc>
 		</reg32>
