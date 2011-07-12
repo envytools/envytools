@@ -122,8 +122,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>No icmd.</doc>
 		</reg32>
 		<reg32 offset="0x0a08" name="UNK0A08"/>
-		<reg32 offset="0x0d64" name="UNK0D64">
-			<doc>0-8 or 0xf, shared with fermi</doc>
+		<reg32 offset="0x0d64" name="CALL_LIMIT_LOG">
+			<doc>Determines how many "limitted" calls are allowed. Value 0 means none.
+		        Values 1-8 are interpretted as log2(limit)+1. Value 0xf means unlimitted.</doc>
 		</reg32>
 		<reg32 offset="0x0d94" name="UNK0D94">
 			<doc>0-1, shared with fermi</doc>
