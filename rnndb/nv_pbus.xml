@@ -62,17 +62,45 @@
 		<reg32 offset="0x174" name="INTR_USER2_SCRATCH" length="4" variants="NVC0-"/>
 
 		<stripe offset="0x300" name="HWSQ" variants="NV17:NV20 NV25:NVC0">
-			<reg32 offset="0x304" name="CONTROL">
+			<reg32 offset="0x304" name="ENTRY_POINT">
+				<bitfield low="0" high="7" name="0"/>
+				<bitfield low="8" high="15" name="1"/>
+				<bitfield low="16" high="23" name="2"/>
+				<bitfield low="24" high="31" name="3"/>
 			</reg32>
-			<reg32 offset="0x308" name="STATE">
+			<bitset name="nv_pbus_hwsq_state" inline="yes">
 				<bitfield low="0" high="7" name="IP"/>
 				<bitfield pos="8" name="ACTIVE"/>
+				<bitfield pos="9" name="ILLEGAL_OPCODE" variants="NV41:NV92"/> <!-- variants may be incorrect -->
+				<bitfield pos="10" name="IP_HIGH" variants="NV92-"/>
+			</bitset>
+			<reg32 offset="0x308" name="STATE">
+				<bitfield low="0" high="15" name="A" type="nv_pbus_hwsq_state"/>
+				<bitfield low="16" high="31" name="B" type="nv_pbus_hwsq_state" variants="NV17:NV92"/>
 			</reg32>
 			<reg32 offset="0x30c" name="TRIGGER">
-				<bitfield pos="0" name="START"/>
+				<bitfield pos="0" name="TYPE">
+					<value value="0" name="STOP"/>
+					<value value="1" name="START"/>
+				</bitfield>
+				<bitfield pos="1" name="SELECT" variants="NV17:NV92">
+					<value value="0" name="B"/>
+					<value value="1" name="A"/>
+				</bitfield>
+				<bitfield low="2" high="3" name="ENTRY_POINT"/>
 			</reg32>
-			<reg8 offset="0x400" name="CODE" length="0x40" variants="NV17:NV20 NV25:NV40"/>
-			<reg8 offset="0x400" name="CODE" length="0x80" variants="NV40:NV50"/>
+			<reg32 offset="0x310" name="FLAG" length="2">
+				<bitfield low="0" name="15" name="VALUE_MASK"/>
+				<bitfield low="16" name="32" name="OVERRIDE_MASK"/>
+			</reg32>
+			<reg32 offset="0x318" name="ENTRY_POINT_HIGH" variants="NV92-">
+				<bitfield pos="0" name="0"/>
+				<bitfield pos="8" name="1"/>
+				<bitfield pos="16" name="2"/>
+				<bitfield pos="24" name="3"/>
+			</reg32>
+			<reg8 offset="0x400" name="CODE" length="0x40" variants="NV17:NV20 NV25:NV41"/>
+			<reg8 offset="0x400" name="CODE" length="0x80" variants="NV41:NV50"/>
 			<reg8 offset="0x400" name="CODE" length="0x100" variants="NV50:NVC0"/>
 		</stripe>
 		<reg32 offset="0x540" name="PGRAPH_UNITS" variants="NV50:NVC0">
