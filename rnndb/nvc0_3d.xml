@@ -1179,9 +1179,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<stripe offset="0x2800" length="4" stride="0x80">
 			<reg32 name="TFB_VARYING_LOCS" length="32"/>
 		</stripe>
-		<reg32 offset="0x335c" name="PM_UNK335C" length="8">
-			<doc>0-0xffffffff</doc>
-		</reg32>
+		<reg32 offset="0x335c" name="PM_SET" length="8"/>
 		<reg32 offset="0x337c" name="PM_UNK337C" length="8">
 			<doc>0-0xff</doc>
 		</reg32>
