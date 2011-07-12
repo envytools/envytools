@@ -90,8 +90,8 @@
 				<bitfield low="2" high="3" name="ENTRY_POINT"/>
 			</reg32>
 			<reg32 offset="0x310" name="FLAG" length="2">
-				<bitfield low="0" name="15" name="VALUE_MASK"/>
-				<bitfield low="16" name="32" name="OVERRIDE_MASK"/>
+				<bitfield low="0" high="15" name="VALUE_MASK"/>
+				<bitfield low="16" high="31" name="OVERRIDE_MASK"/>
 			</reg32>
 			<reg32 offset="0x318" name="ENTRY_POINT_HIGH" variants="NV92-">
 				<bitfield pos="0" name="0"/>
