@@ -110,7 +110,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>0-0x1ff.</doc>
 		</reg32>
 		<reg32 offset="0x077c" name="LOCAL_BASE"/><!-- 32 bit address, not shifted, appears in $lbase -->
-		<reg32 offset="0x0780" name="UNK0780"/>
+		<reg32 offset="0x0780" name="GRIDID"/>
 		<reg32 offset="0x0790" name="TEMP_ADDRESS_HIGH"/>
 		<reg32 offset="0x0794" name="TEMP_ADDRESS_LOW"/>
 		<reg32 offset="0x0798" name="TEMP_SIZE_HIGH"/>
