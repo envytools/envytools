@@ -1807,7 +1807,7 @@ static struct insn tabc[] = {
 	{ 0x6000000000000007ull, 0xf800000000000007ull, N("joinat"), T(btarg) },
 	{ 0x6800000000000007ull, 0xf800000000000007ull, N("prebrk"), T(btarg) },
 	{ 0x7000000000000007ull, 0xf800000000000007ull, N("precont"), T(btarg) },
-	{ 0x7800000000000007ull, 0xf800000000000007ull, N("preret"), T(btarg) },
+	{ 0x7800000000000007ull, 0xf800000000000007ull, N("preret"), T(lim), T(btarg) },
 	{ 0x8000000000000007ull, 0xf800000000000007ull, T(p), T(cc), N("exit") },
 	{ 0x8800000000000007ull, 0xf800000000000007ull, T(p), T(cc), N("longjmp") },
 	{ 0x9000000000000007ull, 0xf800000000000007ull, T(p), T(cc), N("ret") },
