@@ -67,7 +67,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x028c" name="UNK028C">
 			<doc>No icmd...</doc>
 		</reg32>
-		<reg32 offset="0x029c" name="UNK029C" type="boolean"/>
+		<reg32 offset="0x029c" name="COMPUTE_BEGIN">
+			<bitfield pos="0" name="UNK0"/>
+		</reg32>
 		<reg32 offset="0x02a0" name="UNK02A0"><!-- default 0x8000 -->
 			<doc>bits 1fff0, default 0x8000. Apparently unchanged from nv50.</doc>
 		</reg32>
@@ -118,8 +120,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x07a0" name="WARP_TEMP_ALLOC">
 			<doc>0x3ffffff, aligned to 0x200, shared with fermi. Total amount of temp space (stack + local positive + local negative) required by single warp. Affects nphysid:nwarpid together with TEMP_SIZE and SM_COUNT.</doc>
 		</reg32>
-		<reg32 offset="0x0a04" name="UNK0A04" type="boolean">
-			<doc>No icmd.</doc>
+		<reg32 offset="0x0a04" name="COMPUTE_END">
+			<bitfield pos="0" name="UNK0"/>
 		</reg32>
 		<reg32 offset="0x0a08" name="UNK0A08"/>
 		<reg32 offset="0x0d64" name="CALL_LIMIT_LOG">
