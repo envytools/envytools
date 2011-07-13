@@ -14,15 +14,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0030" name="NV01_NULL"/>
 	<value value="0x003d" name="NV03_DMA_IN_MEMORY"/>
 
-	<!-- nv01-nv04-only image objects: note that they conflict with nv05+ objects -->
-	<!-- TODO: commented out to avoid possible issues due to the conflicts, but the variant support should be able to handle this anyway -->
-	<!--
-	<value value="0x0064" name="NV01_IMAGE_SRCCOPY_AND" variants="NV01-NV04"/>
-	<value value="0x0065" name="NV03_IMAGE_SRCCOPY" variants="NV03-NV04"/>
-	<value value="0x0066" name="NV04_IMAGE_SRCCOPY_PREMULT" variants="NV04"/>
-	<value value="0x0067" name="NV04_IMAGE_BLEND_PREMULT" variants="NV04"/>
-	-->
-
 	<!-- pre-nv50 2D objects -->
 
 	<!-- long name [NV04 style], long name [NV01 style] -->
@@ -62,6 +53,18 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 	<!-- CONTEXT_CLIP_RECTANGLE, IMAGE_RECTANGLE_BLACK -->
 	<value value="0x0019" name="NV01_CLIP" variants="NV01:NV84"/>
+
+	<!-- [none], IMAGE_SRCCOPY_AND -->
+	<value value="0x0064" name="NV01_OP_SRCCOPY_AND" variants="NV01:NV05"/>
+
+	<!-- [none], IMAGE_SRCCOPY -->
+	<value value="0x0065" name="NV03_OP_SRCCOPY" variants="NV03:NV05"/>
+
+	<!-- [none], IMAGE_SRCCOPY_PREMULT -->
+	<value value="0x0066" name="NV04_OP_SRCCOPY_PREMULT" variants="NV04:NV05"/>
+
+	<!-- [none], IMAGE_BLEND_PREMULT -->
+	<value value="0x0067" name="NV04_OP_BLEND_PREMULT" variants="NV04:NV05"/>
 
 	<!-- RENDER_SOLID_POINT -->
 	<value value="0x001a" name="NV01_POINT" variants="NV01:NV04"/>
