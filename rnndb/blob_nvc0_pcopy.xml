@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+<import file="nvchipsets.xml"/>
+<import file="nv_object.xml"/>
+<domain name="NV01_SUBCHAN" bare="yes">
+	<stripe prefix="obj-class" variants="BLOB_NVC0_PCOPY1 BLOB_NVC0_PCOPY0">
+		<reg32 offset="0x100" name="NOP"/>
+		<reg32 offset="0x140" name="PM_TRIGGER"/>
+		<reg32 offset="0x200" name="MODE"/>
+			<doc>must be set before touching any other method. the only useful setting is 1.</doc>	<!-- it does? blob doesn't touch it at all -->
+		<reg32 offset="0x204" name="WATCHDOG"/>
+			<doc>if non-zero, PCOPY will raise an error if a single EXEC invocation takes more than this many main engine cycles</doc>
+		<reg32 offset="0x240" name="QUERY_ADDRESS_HIGH"/>
+		<reg32 offset="0x244" name="QUERY_ADDRESS_LOW"/>
+		<reg32 offset="0x248" name="QUERY_COUNTER"/>
+		<reg32 offset="0x250" name="UNK0x250"/>
+			<doc>sets targets modes</doc>
+		<reg32 offset="0x254" name="COND_ADDRESS_HIGH"/>
+		<reg32 offset="0x258" name="COND_ADDRESS_LOW"/>
+		<reg32 offset="0x25c" name="COND_MODE"/>
+		<reg32 offset="0x300" name="EXEC">
+			<bitfield pos="0" name="QUERY_WRITE"/>
+			<bitfield pos="1" name="UNK1"/>
+			<bitfield pos="2" name="UNK_QUERY2"/>
+			<bitfield pos="4" name="UNK_QUERY4"/>
+			<bitfield low="7" high="7" name="SRC_MODE">
+				<value value="0" name="2D_LINEAR"/>
+				<value value="1" name="3D_TILED"/>
+			</bitfield>
+			<bitfield low="8" high="8" name="DST_MODE">
+				<value value="0" name="2D_LINEAR"/>
+				<value value="1" name="3D_TILED"/>
+			</bitfield>
+			<bitfield pos="9" name="2D_ENABLE"/>
+			<bitfield pos="10" name="SWIZZLE_ENABLE"/>
+		</reg32>
+		<reg32 offset="0x400" name="SRC_ADDRESS_HIGH"/>
+		<reg32 offset="0x404" name="SRC_ADDRESS_LOW"/>
+		<reg32 offset="0x408" name="DST_ADDRESS_HIGH"/>
+		<reg32 offset="0x40c" name="DST_ADDRESS_LOW"/>
+		<reg32 offset="0x410" name="SRC_PITCH"/>
+		<reg32 offset="0x414" name="DST_PITCH"/>
+		<reg32 offset="0x418" name="X_COUNT"/>
+		<reg32 offset="0x41c" name="Y_COUNT"/>
+		<reg32 offset="0x700" name="CONST0"/>
+		<reg32 offset="0x704" name="CONST1"/>
+		<reg32 offset="0x708" name="SWIZZLE">
+			<bitfield low="0" high="3" name="COMPONENT0">
+				<value value="0" name="SRC0"/>
+				<value value="1" name="SRC1"/>
+				<value value="2" name="SRC2"/>
+				<value value="3" name="SRC3"/>
+				<value value="4" name="CONST0"/>
+				<value value="5" name="CONST1"/>
+				<value value="6" name="ZERO"/>
+			</bitfield>
+			<bitfield low="4" high="7" name="COMPONENT1">
+				<value value="0" name="SRC0"/>
+				<value value="1" name="SRC1"/>
+				<value value="2" name="SRC2"/>
+				<value value="3" name="SRC3"/>
+				<value value="4" name="CONST0"/>
+				<value value="5" name="CONST1"/>
+				<value value="6" name="ZERO"/>
+			</bitfield>
+			<bitfield low="8" high="11" name="COMPONENT2">
+				<value value="0" name="SRC0"/>
+				<value value="1" name="SRC1"/>
+				<value value="2" name="SRC2"/>
+				<value value="3" name="SRC3"/>
+				<value value="4" name="CONST0"/>
+				<value value="5" name="CONST1"/>
+				<value value="6" name="ZERO"/>
+			</bitfield>
+			<bitfield low="12" high="15" name="COMPONENT3">
+				<value value="0" name="SRC0"/>
+				<value value="1" name="SRC1"/>
+				<value value="2" name="SRC2"/>
+				<value value="3" name="SRC3"/>
+				<value value="4" name="CONST0"/>
+				<value value="5" name="CONST1"/>
+				<value value="6" name="ZERO"/>
+			</bitfield>
+			<bitfield low="16" high="17" name="COMPONENT_SIZE"/>
+			<bitfield low="20" high="22" name="SRC_NUM_COMPONENTS"/>
+			<bitfield low="24" high="26" name="DST_NUM_COMPONENTS"/>
+		</reg32>
+		<reg32 offset="0x70c" name="DST_TILE_MODE"/>
+		<reg32 offset="0x710" name="DST_SIZE_X"/>
+		<reg32 offset="0x714" name="DST_SIZE_Y"/>
+		<reg32 offset="0x718" name="DST_SIZE_Z"/>
+		<reg32 offset="0x71c" name="DST_POS_Z"/>
+		<reg32 offset="0x720" name="DST_POS_XY">
+			<bitfield low="0" high="15" name="X"/>
+			<bitfield low="16" high="31" name="Y"/>
+		</reg32>
+		<reg32 offset="0x728" name="SRC_TILE_MODE"/>
+		<reg32 offset="0x72c" name="SRC_SIZE_X"/>
+		<reg32 offset="0x730" name="SRC_SIZE_Y"/>
+		<reg32 offset="0x734" name="SRC_SIZE_Z"/>
+		<reg32 offset="0x738" name="SRC_POS_Z"/>
+		<reg32 offset="0x73c" name="SRC_POS_XY">
+			<bitfield low="0" high="15" name="X"/>
+			<bitfield low="16" high="31" name="Y"/>
+		</reg32>
+		<reg32 offset="0x1114" name="WRCACHE_FLUSH"/>
+	</stripe>
+</domain>
+</database>

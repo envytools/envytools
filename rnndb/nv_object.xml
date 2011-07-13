@@ -209,6 +209,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x92c0" name="NVC8_COMPUTE" variants="NVC8 NVD9-"/>
 
 	<value value="0x74c1" name="NV84_CRYPT" variants="NV84:NV98 NVA0"/>
+	
+	<value value="0x90b8" name="BLOB_NVC0_PCOPY1" variants="NVC0"/>
+	<value value="0x90b5" name="BLOB_NVC0_PCOPY0" variants="NVC0"/>
 
 	<!-- MPEG -->
 	<value value="0x3174" name="NV31_MPEG" variants="NV31:NV84"/>
