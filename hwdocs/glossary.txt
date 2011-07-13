@@ -1,9 +1,30 @@
 C
 
+class: an enumerated value selecting the type of a FIFO object. They were
+introduced in hardware on NV04, being managed in software on NV01:NV04. The
+nvidia binary blob, aside from actual hardware objects, assigns classes to
+many software-only objects. For a list of classes, see classes.txt
+
+channel: an independent stream of commands to the GPU, handled via PFIFO, or
+PDISPLAY for display channels. A PFIFO channel can send commands to any of the
+PFIFO-bound engines, and has an associated context, which is switched so that
+channels don't interfere with each other. A display channel is restricted
+to control the PDISPLAY engine only and there's no context separation between
+channels - they control the same hardware. Also called a FIFO.
+
 component: one of the values associated with samples in a surface, or a single
 element of a vector. For color values, the components are commonly called R,
-G, B, A. For zeta surfaces, the components are Z [depth], S [stencil], and C
-[coverage].
+G, B, A. While the conventional names for these are red, green, blue, alpha,
+they're mostly interchangeable and can be used to represent any data. For zeta
+surfaces, the components are Z [depth], S [stencil], and C [coverage], and
+their function is hardwired.
+
+
+D
+
+DMA object: a FIFO object represeting an area of memory, used on NV01:NVC0.
+Can be used to represent both contiguous and paged areas of memory.
+[nv01-dmaobj.txt, nv03-dmaobj.txt, nv04-dmaobj.txt, nv50-vm.txt]
 
 
 E
@@ -12,16 +33,67 @@ element: a basic unit of a surface for memory layout purposes. Can be 1, 2,
 4, 8, or 16 bytes long. Depending on surface type, can represent a single
 sample, or a block of samples.
 
+engine object: a FIFO object representing a connection to one of the PFIFO
+engines, possibly including some of the engine context / configuration. Engine
+objects bound to PGRAPH are known as graph objects. Graph objects come in
+multiple classes to expose various parts of the functionality that PGRAPH
+offers, while other engines usually have only one available object class.
+
+
+F
+
+FIFO: see channel
+
+FIFO object: an engine object [NV01:NVC0] or a DMA object [NV04:NVC0] bound
+to a specific FIFO channel with an entry in RAMHT, can be referenced in FIFO
+commands by its RAMHT handle. On NVC0+, RAMHT and physical FIFO objects no
+longer exist, but the engine object classes are still passed around to select
+functionality exposed via a subchannel.
+
+
+G
+
+graph object - an engine object bound to PGRAPH.
+
 
 I
 
 IGP: integrated graphics processor, a GPU integrated into the northbridge,
-lacking dedicated VRAM.
+lacking dedicated VRAM. Nvidia IGPs include: NV0A, NV1A, NV1F, NV2A, NV4C,
+NV4E, NV67, NV68, NV63, NVAA, NVAC, NVAF.
+
+
+P
+
+PFIFO: command stream processing engine. Gathers FIFO commands from user
+buffers and direct submission, sorting them out and sending them to execution
+engines, which [depending on chipset] may include: PGRAPH, PMPEG, PMSRCH, PVP,
+PBSP, PCRYPT, PPPP, PCOPY, plus some unknown ones.
 
 
 R
 
-render target - a surface bound to the 2d or 3d engine as the destination. The
+RAMFC: an area of RAMIN [NV01:NV50] or channel structure [NV50+] used to store
+PFIFO context for inactive channels.
+
+RAMHT: an area or RAMIN [NV01:NV50], channel structure [NV50+ PFIFO] or
+display structure [NV50+ PDISPLAY] used to store associations between FIFO
+object handles and object addresses. On NV01:NV50, there's only one RAMHT
+covering all channels. On NV50+, each FIFO channel has its own RAMHT. The
+display channels also have a single RAMHT covering them all. However, when
+a RAMHT covers multiple channels, each entry is tagged with the channel id,
+thus the actual bindings are always per-channel.
+
+RAMIN: instance memory - on NV01:NV50 cards, a special area at the end of
+VRAM, used to store a shadow copy of the VBIOS [NV04+ only], RAMFC, RAMHT,
+RAMRO, FIFO objects, and engine context [NV20+]. Replaced by the channel
+structure on NV50+.
+
+RAMRO: runout memory - on NV01:NV50 cards, an area of RAMIN used to store
+PIO FIFO command submissions that were rejected for some reason, for later
+processing by host interrupt handler.
+
+render target: a surface bound to the 2d or 3d engine as the destination. The
 2d engine has a single color render target. The 3d engine can have, depending
 on card, up to 8 color render targets and 1 zeta render target.
 
@@ -31,7 +103,12 @@ S
 sample: a basic conceptual unit of a surface, a sample corresponds to a single
 set of component values.
 
-storage type:  [XXX]
+storage type: an enumerated value selecting the internal layout of a surface
+[as seen on the high level], or pages / tiled regions [low level].
+
+subchannel: A single binding point of a FIFO channel, accomodating one engine
+object. There are 8 subchannels on each channel. Objects can be dynamically
+bound and unbound to subchannels through the command stream.
 
 surface: a 2d or 3d array of samples, elements, or bytes, depending on the
 viewpoint - depending on how it's used, it can be a render target, a texture,
