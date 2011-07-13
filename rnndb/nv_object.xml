@@ -181,6 +181,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<!-- new-style 3D objects -->
 	<value value="0x0056" name="NV10_3D" variants="NV10:NV30"/>
 	<value value="0x0096" name="NV15_3D" variants="NV15:NV30"/>
+	<value value="0x0098" name="NV11_3D" variants="NV17:NV20"/> <!-- wtf? -->
 	<value value="0x0099" name="NV17_3D" variants="NV17:NV20"/>
 	<value value="0x0097" name="NV20_3D" variants="NV20:NV34"/>
 	<value value="0x0597" name="NV25_3D" variants="NV25:NV40"/>
