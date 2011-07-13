@@ -138,6 +138,10 @@
 	<value value="0x48" name="SEMANTIC_PTSZ_OVER_LIMIT">
 		<brief>You tried to use a point size slot out of range of VP/GP outputs.</brief>
 	</value>
+
+	<value value="0x98" name="RT_LINEAR_WITH_ZETA_NVC0">
+		<brief>You tried to use linear RTs with ZETA enabled.</brief>
+	</value>
 </enum>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
