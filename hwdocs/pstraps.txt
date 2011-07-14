@@ -32,7 +32,7 @@ PEXTDEV by nvidia.
 
 The PSTRAPS registers are:
 
-0x101000: straps set 0 primary value
+MMIO 0x101000: straps set 0 primary value
 	bits 0-30: straps primary value
 	bit 31: override enable [NV04+ only]
 
@@ -41,28 +41,35 @@ is restored to the original straps as read by the card on reset. If bit 31
 is 1, override is enabled, and the straps value is set to the value written
 by host.
 
-0x101004: straps set 0 select mask [NV17:NV20 and NV25+ only]
+MMIO 0x101004: straps set 0 select mask [NV17:NV20 and NV25+ only]
 	bits 0-30: strap source selection for strap bit X
 When corresponding bit is set to 1, the card takes its value from the main
 straps value, when corresponding bit is set to 0, the card takes its value from
 the secondary value. This register is always writable and not affected by
 override enable.
 
-0x101008: straps set 0 secondary value [NV17:NV20 and NV25+ only]
+MMIO 0x101008: straps set 0 secondary value [NV17:NV20 and NV25+ only]
 	bits 0-30: straps secondary value
 This register is always writable and not affected by override enable.
 
-0x10100c: straps set 1 primary value [NV17:NV20 and NV25+ only]: like
+MMIO 0x10100c: straps set 1 primary value [NV17:NV20 and NV25+ only]: like
 	0x101000, but for straps set 1
 
-0x101010: straps set 1 select mask [NV17:NV20 and NV25+ only]: like 0x101004,
+MMIO 0x101010: straps set 1 select mask [NV17:NV20 and NV25+ only]: like 0x101004,
 	but for straps set 1
 
-0x101014: straps set 1 secondary value [NV17:NV20 and NV25+ only]: like
+MMIO 0x101014: straps set 1 secondary value [NV17:NV20 and NV25+ only]: like
 	0x101008, but for straps set 1
 
 On NV03:NV17, PSTRAPS is enabled by PMC.ENABLE bit 20 [PFB], on later cards
 it's unaffected by PMC.ENABLE [see pmc.txt].
+
+On NV03:NV04 cards, the PSTRAPS area is also home to an unrelated register
+controlling ROM timings:
+
+MMIO 0x101200: ROM_TIMINGS
+
+It's described in more detail in prom.txt
 
 
 NV03 family straps

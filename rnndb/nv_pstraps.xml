@@ -158,6 +158,10 @@
 		<reg32 offset="0x010" name="STRAPS1_SELECT" type="nv50_straps1"/>
 		<reg32 offset="0x014" name="STRAPS1_SECONDARY" type="nv50_straps1"/>
 	</stripe>
+	<reg32 offset="0x200" name="ROM_TIMINGS" variants="NV03:NV04">
+		<bitfield low="0" high="3" name="UNK0"/>
+		<bitfield low="4" high="5" name="UNK1"/>
+	</reg32>
 </array>
 
 </domain>
