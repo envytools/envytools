@@ -187,7 +187,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1698" name="FLUSH">
 			<bitfield pos="0" name="CODE"/>
-			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="4" name="GLOBAL"/>
 			<bitfield pos="8" name="UNK8"/>
 			<bitfield pos="12" name="CB"/>
 		</reg32>
