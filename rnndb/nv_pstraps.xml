@@ -124,13 +124,16 @@
 	</bitfield>
 </bitset>
 
+<bitset name="nvd9_straps2" inline="yes">
+</bitset>
+
 <array offset="0x101000" name="PSTRAPS" stride="0x1000" length="1" variants="NV03:NV1A NV11:NV1F NV20:NV2A NV25-">
-	<reg32 offset="0x000" name="STRAPS" variants="NV03:NV17 NV20:NV25">
+	<reg32 offset="0x000" name="STRAPS" variants="NV03:NV17 NV1F:NV25">
 		<bitfield low="0" high="30" name="VALUE" type="nv03_straps" variants="NV03:NV04"/>
 		<bitfield low="0" high="30" name="VALUE" type="nv04_straps" variants="NV04:NV40"/>
 		<bitfield pos="31" name="OVERRIDE_ENABLE" variants="NV04-"/>
 	</reg32>
-	<stripe variants="NV17:NV20 NV25:NV50">
+	<stripe variants="NV17:NV1F NV25:NV50">
 		<reg32 offset="0x000" name="STRAPS0_PRIMARY">
 			<bitfield low="0" high="30" name="VALUE" type="nv04_straps"/>
 			<bitfield pos="31" name="OVERRIDE_ENABLE"/>
@@ -157,6 +160,16 @@
 		</reg32>
 		<reg32 offset="0x010" name="STRAPS1_SELECT" type="nv50_straps1"/>
 		<reg32 offset="0x014" name="STRAPS1_SECONDARY" type="nv50_straps1"/>
+		<reg32 offset="0x028" name="UNK028" variants="NVD9-"/>
+		<reg32 offset="0x02c" name="UNK02C" variants="NVD9-"/>
+		<reg32 offset="0x030" name="UNK030" variants="NVD9-"/>
+		<reg32 offset="0x034" name="STRAPS2_PRIMARY" variants="NVD9-">
+			<bitfield low="0" high="30" name="VALUE" type="nvd9_straps2"/>
+			<bitfield pos="31" name="OVERRIDE_ENABLE"/>
+		</reg32>
+		<reg32 offset="0x038" name="STRAPS2_SELECT" variants="NVD9-" type="nvd9_straps2"/>
+		<reg32 offset="0x03c" name="STRAPS2_SECONDARY" variants="NVD9-" type="nvd9_straps2"/>
+		<reg32 offset="0x040" name="UNK040" variants="NVD9-"/>
 	</stripe>
 	<reg32 offset="0x200" name="ROM_TIMINGS" variants="NV03:NV04">
 		<bitfield low="0" high="3" name="UNK0"/>
