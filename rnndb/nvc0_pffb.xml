@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+<import file="nvc0_vm.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+<array name="PFFB" offset="0x100000" stride="0x1000" length="1" variants="NVC0-">
+	<array name="VM" offset="0xc80" stride="0x80" length="1">
+		<reg32 offset="0x00" name="CFG">
+			<bitfield pos="0" name="PT_GRANULARITY">
+				<value value="0" name="128MB"/>
+				<value value="1" name="64MB"/>
+			</bitfield>
+			<!-- ... -->
+		</reg32>
+		<reg32 offset="0x34" name="TLB_FLUSH_PAGE">
+			<bitfield low="4" high="31" name="VIRT_ADDR" shr="12"/>
+		</reg32>
+		<reg32 offset="0x38" name="TLB_FLUSH_VSPACE">
+			<bitfield pos="1" name="TARGET">
+				<doc>SYSRAM matches both SYSRAM_SNOOP and _NOSNOOP</doc>
+				<value value="0" name="VRAM"/>
+				<value value="1" name="SYSRAM"/>
+			</bitfield>
+			<bitfield low="4" high="31" name="ADDR" shr="12"/>
+		</reg32>
+		<reg32 offset="0x3c" name="TLB_FLUSH_TRIGGER">
+			<bitfield pos="0" name="PAGE">
+				<value value="0" name="SPECIFIC"/>
+				<value value="1" name="ALL"/>
+			</bitfield>
+			<bitfield pos="1" name="VSPACE">
+				<value value="0" name="SPECIFIC"/>
+				<value value="1" name="ALL"/>
+			</bitfield>
+			<bitfield pos="2" name="SET">
+				<value value="0" name="HUB_AND_GPC"/>
+				<value value="1" name="HUB_ONLY"/>
+			</bitfield>
+			<bitfield pos="31" name="TRIGGER"/>
+		</reg32>
+	</array>
+</array>
+
+</domain>
+
+</database>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+<import file="nvc0_vm.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+<group name="nvc0_pmfb_subp">
+	<bitset name="nvc0_pmfb_intr" inline="yes">
+		<bitfield pos="5" name="COMP_TAG_MESSUP"/>
+	</bitset>
+	<reg32 offset="0x20" name="INTR">
+		<bitfield low="0" high="15" name="STATUS" type="nvc0_pmfb_intr"/>
+		<bitfield low="16" high="31" name="ENABLE" type="nvc0_pmfb_intr"/>
+	</reg32>
+	<array name="COMP" offset="0x0c0" stride="0x40" length="1">
+		<reg32 offset="0x08" name="TRIGGER">
+			<bitfield pos="0" name="FLUSH"/>
+			<bitfield pos="2" name="CLEAR"/>
+		</reg32>
+		<reg32 offset="0x0c" name="CLEAR_TAG_START"/>
+		<reg32 offset="0x10" name="CLEAR_TAG_END"/>
+		<reg32 offset="0x14" name="TAGMEM_BASE"/>
+		<reg32 offset="0x18" name="PART_COUNT"/>
+	</array>
+</group>
+
+<group name="nvc0_pmfb">
+	<array name="SUBP_BROADCAST" offset="0x0800" stride="0x400" length="1">
+		<use-group name="nvc0_pmfb_subp"/>
+	</array>
+	<array name="SUBP" offset="0x1000" stride="0x400" length="4">
+		<use-group name="nvc0_pmfb_subp"/>
+	</array>
+</group>
+
+<array name="PMFB" offset="0x140000" stride="0x2000" length="16" variants="NVC0-">
+	<use-group name="nvc0_pmfb"/>
+</array>
+
+<array name="PMFB_BROADCAST" offset="0x17e000" stride="0x2000" length="1" variants="NVC0-">
+	<use-group name="nvc0_pmfb"/>
+</array>
+
+</domain>
+
+</database>

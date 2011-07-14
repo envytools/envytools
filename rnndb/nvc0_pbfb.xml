@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+<group name="nvc0_pbfb">
+	<reg32 offset="0x210" name="REFCTRL">
+		<bitfield low="0" high="7" name="PUT"/>
+		<bitfield low="8" high="15" name="GET"/>
+		<bitfield pos="31" name="AUTO_REFRESH"/>
+	</reg32>
+
+	<reg32 offset="0x290" name="MEM_TIMINGS_0" variants="NV10:NVC0">
+		<doc> This, and the next 6 regs, are all related to memtimings.
+			A good place to read might be http://www.tweakers.fr/timings.html .
+			Most bitfields are unknown.
+			</doc>
+		<bitfield high="7" low="0" name="RP">
+			<doc> RAS# precharge. </doc>
+		</bitfield>
+		<bitfield high="15" low="8" name="RAS">
+			<doc>Activate to precharge delay. </doc>
+		</bitfield>
+		<bitfield high="23" low="16" name="RFC">
+			<doc> Refresh to activate delay. </doc>
+		</bitfield>
+		<bitfield high="31" low="24" name="RC">
+			<doc> Row cycle time. </doc>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x294" name="MEM_TIMINGS_1" variants="NVC0-">
+	</reg32>
+
+	<reg32 offset="0x298" name="MEM_TIMINGS_2" variants="NVC0-">
+	</reg32>
+
+	<reg32 offset="0x29c" name="MEM_TIMINGS_3" variants="NVC0-">
+	</reg32>
+
+	<reg32 offset="0x2a0" name="MEM_TIMINGS_4" variants="NVC0-">
+	</reg32>
+
+	<reg32 offset="0x2a4" name="MEM_TIMINGS_5" variants="NVC0-">
+	</reg32>
+
+	<reg32 offset="0x2a8" name="MEM_TIMINGS_6" variants="NVC0-">
+	</reg32>
+
+	<reg32 offset="0x310" name="REFRESH" variants="NVC0-">
+		<bitfield pos="0" name="TRIGGER"/>
+	</reg32>
+	<reg32 offset="0x314" name="PRECHARGE" variants="NVC0-">
+		<bitfield pos="0" name="TRIGGER"/>
+	</reg32>
+	<reg32 offset="0x31c" name="SELF_REFRESH" variants="NVC0-">
+		<bitfield pos="0" name="ENABLE"/>
+	</reg32>
+</group>
+
+<array name="PBFB_BROADCAST" offset="0x10f000" stride="0x1000" length="1" variants="NVC0-">
+	<use-group name="nvc0_pbfb"/>
+</array>
+
+<array name="PBFB" offset="0x110000" stride="0x1000" length="16" variants="NVC0-">
+	<use-group name="nvc0_pbfb"/>
+</array>
+
+</domain>
+
+</database>

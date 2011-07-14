@@ -108,6 +108,7 @@
 <!-- 100000 - 100fff PFB or PFFB -->
 <import file="nv03_pfb.xml" />
 <import file="nv10_pfb.xml" />
+<import file="nvc0_pffb.xml" />
 
 <!-- 101000 - 101fff PSTRAPS -->
 <import file="nv_pstraps.xml" />
@@ -135,7 +136,8 @@
 
 <!-- 10f000 - 111fff ??? [NVA5] -->
 
-<!-- 10f000 - 11ffff PBFB covered in nv03_pfb.xml -->
+<!-- 10f000 - 11ffff PBFB covered -->
+<import file="nvc0_pbfb.xml" />
 
 <!-- 120000 - 12ffff PIBUS -->
 <import file="nvc0_pibus.xml" />
@@ -150,7 +152,8 @@
 <!-- 13b000 - 13efff PXBAR -->
 <import file="nvc0_pxbar.xml" />
 
-<!-- 140000 - 17ffff PMFB covered in nv03_pfb.xml -->
+<!-- 140000 - 17ffff PMFB -->
+<import file="nvc0_pmfb.xml" />
 
 <!-- 180000 - 1bffff PCOUNTER -->
 <import file="nvc0_pcounter.xml" />
