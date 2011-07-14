@@ -9,6 +9,28 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <group name="nvc0_pbfb">
+	<reg32 offset="0x200" name="CFG0">
+		<bitfield pos="2" name="RANKS">
+			<value value="0" name="A"/>
+			<value value="1" name="AB"/>
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x204" name="CFG1">
+		<bitfield low="12" high="15" name="COLBITS">
+			<doc> Number of column bits. </doc>
+		</bitfield>
+		<bitfield low="16" high="19" name="ROWBITSA">
+			<doc> Number of row bits used on rank A - 8. </doc>
+		</bitfield>
+		<bitfield low="20" high="23" name="ROWBITSB">
+			<doc> Number of row bits used on rank B - 8. </doc>
+		</bitfield>
+		<bitfield low="24" high="25" name="BANKBITS">
+			<doc> Number of bank bits - 2. </doc>
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x20c" name="MEM_AMOUNT" shr="20"/>
+
 	<reg32 offset="0x210" name="REFCTRL">
 		<bitfield low="0" high="7" name="PUT"/>
 		<bitfield low="8" high="15" name="GET"/>

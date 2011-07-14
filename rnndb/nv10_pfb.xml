@@ -9,13 +9,6 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<enum name="nv20_bank_count" inline="yes">
-	<value value="0" name="2" variants="NV20:NV34"/>
-	<value value="1" name="4" variants="NV20:NV34"/>
-	<value value="0" name="4" variants="NV50-"/>
-	<value value="1" name="8" variants="NV50-"/>
-</enum>
-
 <array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV10:NVC0">
 	<reg32 offset="0x200" name="CFG0" variants="NV10:NV20 NV34">
 		<bitfield pos="0" name="TYPE_DDR"/>
@@ -37,8 +30,8 @@
 				width = 128 * popcnt(value) </doc>
 		</bitfield>
 		<bitfield pos="8" name="RANKS">
-			<value value="0" name="1"/>
-			<value value="1" name="2"/>
+			<value value="0" name="A"/>
+			<value value="1" name="AB"/>
 		</bitfield>
 		<bitfield pos="9" name="RANK_INTERLEAVE">
 			<doc> Rank select bits before row select bits
@@ -48,8 +41,8 @@
 
 	<reg32 offset="0x200" name="CFG0" variants="NV50-">
 		<bitfield pos="2" name="RANKS">
-			<value value="0" name="1"/>
-			<value value="1" name="2"/>
+			<value value="0" name="A"/>
+			<value value="1" name="AB"/>
 		</bitfield>
 	</reg32>
 
@@ -63,11 +56,18 @@
 		<bitfield low="20" high="23" name="ROWBITSB">
 			<doc> Number of row bits used on rank B - 8. </doc>
 		</bitfield>
-		<bitfield pos="24" name="BANKSA" type="nv20_bank_count">
-			<doc> Controls how many bank bits are used on rank A. </doc>
+		<bitfield low="24" high="24" name="BANKBITS" variants="NV50-">
+			<doc> Number of bank bits - 2. </doc>
 		</bitfield>
-		<bitfield pos="28" name="BANKSB" type="nv20_bank_count">
+		<bitfield pos="24" name="BANKSA" variants="NV20:NV34">
+			<doc> Controls how many bank bits are used on rank A. </doc>
+			<value value="0" name="2"/>
+			<value value="1" name="4"/>
+		</bitfield>
+		<bitfield pos="28" name="BANKSB" variants="NV20:NV34">
 			<doc> Controls how many bank bits are used on rank B. </doc>
+			<value value="0" name="2"/>
+			<value value="1" name="4"/>
 		</bitfield>
 	</reg32>
 
