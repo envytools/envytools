@@ -142,6 +142,19 @@ parse_valgrind(struct state *s)
 		i = sscanf(s->parse.buf, "--%*d-- w %d:%x, %x%c%x%c%x%c%x",
 			   &m, &addr, &val[0], &c[0], &val[1], &c[1],
 			   &val[2], &c[2], &val[3]);
+		if(i==6){			//reorder words (2,1) => (1,2)
+			unsigned x = val[0];
+			val[0] = val[1];
+			val[1] = x;
+		}
+		else if(i==9){		//reorder words (4,3,2,1) => (1,2,3,4)
+			unsigned x = val[0];
+			val[0] = val[3];
+			val[3] = x;
+			x      = val[1];
+			val[1] = val[2];
+			val[2] = x;
+		}
 		if (i >= 4 && m == s->filter.map)
 			break;
 
