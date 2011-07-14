@@ -31,7 +31,7 @@
 	</reg32>
 	<reg32 offset="0x20c" name="MEM_AMOUNT" shr="20"/>
 
-	<reg32 offset="0x210" name="REFCTRL">
+	<reg32 offset="0x210" name="REFCTRL" variants="NVC0-">
 		<bitfield low="0" high="7" name="PUT"/>
 		<bitfield low="8" high="15" name="GET"/>
 		<bitfield pos="31" name="AUTO_REFRESH"/>

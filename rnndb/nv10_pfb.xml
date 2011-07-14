@@ -76,7 +76,7 @@
 		<bitfield high="31" low="12" name="LOW" shr="12"/>
 	</reg32>
 
-	<reg32 offset="0x210" name="REFCTRL">
+	<reg32 offset="0x210" name="REFCTRL" variants="NV10:NVC0">
 		<bitfield low="0" high="7" name="PUT"/>
 		<bitfield low="8" high="15" name="GET"/>
 		<bitfield pos="31" name="AUTO_REFRESH"/>
