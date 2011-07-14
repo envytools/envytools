@@ -189,7 +189,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="0" name="CODE"/>
 			<bitfield pos="4" name="UNK4"/>
 			<bitfield pos="8" name="UNK8"/>
-			<bitfield pos="12" name="UNK12"/>
+			<bitfield pos="12" name="CB"/>
 		</reg32>
 		<reg32 offset="0x1930" name="UNK1930" type="boolean">
 			<doc>Shared with fermi</doc>
