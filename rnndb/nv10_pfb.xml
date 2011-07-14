@@ -156,22 +156,6 @@
 </array>
 
 <array name="PFFB" offset="0x100000" stride="0x1000" length="1" variants="NVC0-">
-	<reg32 offset="0x210" name="REFCTRL">
-		<bitfield low="0" high="7" name="PUT"/>
-		<bitfield low="8" high="15" name="GET"/>
-		<bitfield pos="31" name="AUTO_REFRESH"/>
-	</reg32>
-
-	<reg32 offset="0x310" name="REFRESH" variants="NVC0-">
-		<bitfield pos="0" name="TRIGGER"/>
-	</reg32>
-	<reg32 offset="0x314" name="PRECHARGE" variants="NVC0-">
-		<bitfield pos="0" name="TRIGGER"/>
-	</reg32>
-	<reg32 offset="0x31c" name="SELF_REFRESH" variants="NVC0-">
-		<bitfield pos="0" name="ENABLE"/>
-	</reg32>
-
 	<array name="VM" offset="0xc80" stride="0x80" length="1">
 		<reg32 offset="0x00" name="CFG">
 			<bitfield pos="0" name="PT_GRANULARITY">
@@ -210,6 +194,12 @@
 </array>
 
 <group name="nvc0_pbfb">
+	<reg32 offset="0x210" name="REFCTRL">
+		<bitfield low="0" high="7" name="PUT"/>
+		<bitfield low="8" high="15" name="GET"/>
+		<bitfield pos="31" name="AUTO_REFRESH"/>
+	</reg32>
+
 	<reg32 offset="0x290" name="MEM_TIMINGS_0" variants="NV10:NVC0">
 		<doc> This, and the next 6 regs, are all related to memtimings.
 			A good place to read might be http://www.tweakers.fr/timings.html .
@@ -245,6 +235,16 @@
 	</reg32>
 
 	<reg32 offset="0x2a8" name="MEM_TIMINGS_6" variants="NVC0-">
+	</reg32>
+
+	<reg32 offset="0x310" name="REFRESH" variants="NVC0-">
+		<bitfield pos="0" name="TRIGGER"/>
+	</reg32>
+	<reg32 offset="0x314" name="PRECHARGE" variants="NVC0-">
+		<bitfield pos="0" name="TRIGGER"/>
+	</reg32>
+	<reg32 offset="0x31c" name="SELF_REFRESH" variants="NVC0-">
+		<bitfield pos="0" name="ENABLE"/>
 	</reg32>
 </group>
 
