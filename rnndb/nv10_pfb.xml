@@ -71,18 +71,18 @@
 		</bitfield>
 	</reg32>
 
-	<reg32 offset="0x20c" name="MEM_AMOUNT" variants="NV10-">
+	<reg32 offset="0x20c" name="MEM_AMOUNT">
 		<bitfield high="7" low="0" name="HIGH" shr="32" variants="NV50-"/>
 		<bitfield high="31" low="12" name="LOW" shr="12"/>
 	</reg32>
 
-	<reg32 offset="0x210" name="REFCTRL" variants="NV10:NVC0">
+	<reg32 offset="0x210" name="REFCTRL">
 		<bitfield low="0" high="7" name="PUT"/>
 		<bitfield low="8" high="15" name="GET"/>
 		<bitfield pos="31" name="AUTO_REFRESH"/>
 	</reg32>
 
-	<reg32 offset="0x220" name="MEM_TIMINGS_0" variants="NV10:NVC0">
+	<reg32 offset="0x220" name="MEM_TIMINGS_0">
 		<doc> This, and the next 7 regs, are all related to memtimings.
 			A good place to read might be http://www.tweakers.fr/timings.html .
 			Although most bitfields are unknown, they are composed in
@@ -102,25 +102,34 @@
 		</bitfield>
 	</reg32>
 
-	<reg32 offset="0x224" name="MEM_TIMINGS_1" variants="NV10:NVC0">
+	<reg32 offset="0x224" name="MEM_TIMINGS_1">
 	</reg32>
 
-	<reg32 offset="0x228" name="MEM_TIMINGS_2" variants="NV10:NVC0">
+	<reg32 offset="0x228" name="MEM_TIMINGS_2">
 	</reg32>
 
-	<reg32 offset="0x22c" name="MEM_TIMINGS_3" variants="NV40:NVC0">
+	<reg32 offset="0x22c" name="MEM_TIMINGS_3" variants="NV40-">
 	</reg32>
 
-	<reg32 offset="0x230" name="MEM_TIMINGS_4" variants="NV40:NVC0">
+	<reg32 offset="0x230" name="MEM_TIMINGS_4" variants="NV40-">
 	</reg32>
 
-	<reg32 offset="0x234" name="MEM_TIMINGS_5" variants="NV40:NVC0">
+	<reg32 offset="0x234" name="MEM_TIMINGS_5" variants="NV40-">
 	</reg32>
 
-	<reg32 offset="0x238" name="MEM_TIMINGS_6" variants="NV40:NVC0">
+	<reg32 offset="0x238" name="MEM_TIMINGS_6" variants="NV40-">
 	</reg32>
 
-	<reg32 offset="0x23c" name="MEM_TIMINGS_7" variants="NV40:NVC0">
+	<reg32 offset="0x23c" name="MEM_TIMINGS_7" variants="NV46 NV49 NV4B NV50-">
+	</reg32>
+
+	<reg32 offset="0x240" name="MEM_TIMINGS_8" variants="NV49 NV4B NV50-">
+	</reg32>
+
+	<reg32 offset="0x244" name="MEM_TIMINGS_9" variants="NV50-">
+	</reg32>
+
+	<reg32 offset="0x248" name="MEM_TIMINGS_10" variants="NV94-">
 	</reg32>
 
 	<reg32 offset="0x250" name="BANKCFG" variants="NV50-">
@@ -129,7 +138,7 @@
 		<value value="1" name="REORDER_TIMES3"/>
 	</reg32>
 
-	<reg32 offset="0x2c0" name="UNK2C0" variants="NV10:NVC0">
+	<reg32 offset="0x2c0" name="UNK2C0">
 		<doc> XXX: many unknown or unaddressed bitfields here, touched for reclocking </doc>
 		<bitfield pos="8" name="RESET">
 			<value value="0" name="NORMAL"/>
@@ -137,13 +146,16 @@
 		</bitfield>
 	</reg32>
 
-	<reg32 offset="0x2d0" name="REFRESH" variants="NV10:NVC0">
+	<reg32 offset="0x2d0" name="REFRESH">
 		<bitfield pos="0" name="TRIGGER"/>
 	</reg32>
-	<reg32 offset="0x2d4" name="PRECHARGE" variants="NV10:NVC0">
+	<reg32 offset="0x2d4" name="PRECHARGE">
 		<bitfield pos="0" name="TRIGGER"/>
 	</reg32>
-	<reg32 offset="0x2dc" name="SELF_REFRESH" variants="NV10:NVC0">
+	<reg32 offset="0x2d8" name="UNK2D8">
+		<bitfield pos="0" name="TRIGGER"/>
+	</reg32>
+	<reg32 offset="0x2dc" name="SELF_REFRESH">
 		<bitfield pos="0" name="ENABLE"/>
 	</reg32>
 
