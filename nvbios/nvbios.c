@@ -1414,7 +1414,7 @@ int main(int argc, char **argv) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0;
 		uint16_t start = timings_tbl_ptr;
-		uint8_t tUNK_0, tUNK_1, tUNK_2;
+		uint8_t tWR, tUNK_1, tCL;
 		uint8_t tRP;		/* Byte 3 */
 		uint8_t tRAS;	/* Byte 5 */
 		uint8_t tRFC;	/* Byte 7 */
@@ -1456,9 +1456,9 @@ int main(int argc, char **argv) {
 			case 19:
 				tUNK_18 = bios[start+18];
 			default:
-				tUNK_0  = bios[start+0];
+				tWR  = bios[start+0];
 				tUNK_1  = bios[start+1];
-				tUNK_2  = bios[start+2];
+				tCL  = bios[start+2];
 				tRP     = bios[start+3];
 				tRAS    = bios[start+5];
 				tRFC    = bios[start+7];
@@ -1480,13 +1480,13 @@ int main(int argc, char **argv) {
 				*      from somewhere! */
 				if (card_codename < 0xc0) {
 					reg_100220 = (tRC << 24 | tRFC << 16 | tRAS << 8 | tRP);
-					reg_100224 = ((tUNK_0 + tUNK_19 + 1 + magic_number) << 24
+					reg_100224 = ((tWR + tUNK_19 + 1 + magic_number) << 24
 								| (tUNK_1 + tUNK_19 + 1 + magic_number) << 8);
 
 					if (card_codename == 0xa8) {
-						reg_100224 |= (tUNK_2 - 1);
+						reg_100224 |= (tCL - 1);
 					} else {
-						reg_100224 |= (tUNK_2 + 2 - magic_number);
+						reg_100224 |= (tCL + 2 - magic_number);
 					}
 					reg_100224 += (tUNK_18 ? tUNK_18 : 1) << 16;
 
@@ -1513,17 +1513,17 @@ int main(int argc, char **argv) {
 						}
 
 						if(p_tbls_ver == 1) {
-							reg_10022c = (0x14 + tUNK_2) << 24 |
+							reg_10022c = (0x14 + tCL) << 24 |
 										0x16 << 16 |
-										(tUNK_2 - 1) << 8 |
-										(tUNK_2 - 1);
-							reg_100234 |= (tUNK_2 + 2) << 8;
-							reg_10023c |= 0x4000000 | (tUNK_2 - 1) << 16 | 0x202;
+										(tCL - 1) << 8 |
+										(tCL - 1);
+							reg_100234 |= (tCL + 2) << 8;
+							reg_10023c |= 0x4000000 | (tCL - 1) << 16 | 0x202;
 						} else {
 							/* See d.bul in NV98..
 							 * seems to have changed for G105M+
 							 * 10023c seen as 06xxxxxx, 0bxxxxxx or 0fxxxxxx */
-							reg_10022c = (tUNK_2 - 1);
+							reg_10022c = (tCL - 1);
 							reg_100234 |= (tUNK_19 + 6) << 8;
 							reg_10023c = 0x202;
 						}
@@ -1537,8 +1537,8 @@ int main(int argc, char **argv) {
 					reg_100238, reg_10023c);
 				} else {
 					reg_100220 = (tRC << 24 | (tRFC&0x7f) << 17 | tRAS << 8 | tRP);
-					reg_100224 = 0x4c << 24 | (tUNK_11&0x0f) << 20 | (tUNK_19 << 7) | (tUNK_2 & 0x0f);
-					reg_100228 = 0x44000011 | tUNK_0 << 16 | tUNK_1 << 8;
+					reg_100224 = 0x4c << 24 | (tUNK_11&0x0f) << 20 | (tUNK_19 << 7) | (tCL & 0x0f);
+					reg_100228 = 0x44000011 | tWR << 16 | tUNK_1 << 8;
 					reg_10022c = tUNK_20 << 9 | tUNK_13;
 					reg_100230 = 0x42e00069 | tUNK_12 << 15;
 
