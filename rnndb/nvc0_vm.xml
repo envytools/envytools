@@ -55,6 +55,8 @@
 	<value value="0xa" name="COMPRESSED_SYSRAM"/>
 	<!-- ... -->
 	<value value="0xc" name="INVALID_STORAGE_TYPE"/>
+	<!-- ... -->
+	<value value="0xe" name="GLOBAL_MAP"/> <!-- ask faulting L1 for more details -->
 </enum>
 
 <enum name="NVC0_STORAGE_TYPE">

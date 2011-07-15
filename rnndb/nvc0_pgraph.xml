@@ -519,8 +519,10 @@
 		</array>
 		<array offset="0x400" name="L1" stride="0x100" length="1">
 			<reg32 offset="0x8c" name="TRAP">
-				<bitfield name="CLEAR" pos="30" />
-				<bitfield name="ENABLE" pos="31" />
+				<bitfield pos="1" name="GLOBAL_MAP_READ"/> <!-- not passed up to TP.TRAP, causes VM fault -->
+				<bitfield pos="2" name="GLOBAL_MAP_WRITE"/> <!-- not passed up to TP.TRAP, causes VM fault -->
+				<bitfield pos="30" name="CLEAR"/>
+				<bitfield pos="31" name="ENABLE"/>
 			</reg32>
 			<reg32 offset="0xe8" name="TPID"/>
 		</array>
