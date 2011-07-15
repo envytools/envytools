@@ -11,20 +11,44 @@
 
 <array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV10:NVC0">
 	<reg32 offset="0x200" name="CFG0" variants="NV10:NV20 NV34">
-		<bitfield pos="0" name="TYPE_DDR"/>
+		<doc>Address is:
+		<ul>
+		<li>2-4 bits selecting a byte inside a memory cell [depending on bus width]</li>
+		<li>8-9 bits selecting a column</li>
+		<li>2 bits selecting a bank</li>
+		<li>9-12 bits selecting a row</li>
+		<li>0 or 1 bits selecting a rank</li>
+		</ul></doc>
+		<bitfield pos="0" name="TYPE">
+			<value value="0" name="SDR"/> <!-- invalid on NV17+ -->
+			<value value="1" name="DDR"/>
+		</bitfield>
 		<bitfield low="4" high="5" name="WIDTH">
-			<value value="2" name="32"/>
+			<value value="2" name="32" variants="NV15-"/>
 			<value value="0" name="64"/>
 			<value value="1" name="128"/>
 		</bitfield>
+		<bitfield pos="8" name="UNK8"/>
 		<bitfield pos="12" name="RANKS">
 			<value value="0" name="1"/>
 			<value value="1" name="2"/>
 		</bitfield>
+		<bitfield pos="16" name="UNK16"/>
+		<bitfield low="20" high="23" name="ROWBITS">
+			<doc>Valid values: 9-12.</doc>
+		</bitfield>
+		<bitfield low="24" high="27" name="COLBITS">
+			<doc>Valid values: 8-9.</doc>
+		</bitfield>
+		<bitfield pos="28" name="UNK28" variants="NV10:NV17"/> <!-- something SDR-only? -->
+		<bitfield low="29" high="31" name="UNK29" variants="NV15-"/>
 	</reg32>
 
 	<reg32 offset="0x200" name="CFG0" variants="NV20:NV34">
-		<bitfield pos="0" name="TYPE_DDR"/>
+		<bitfield pos="0" name="TYPE">
+			<value value="0" name="SDR"/>
+			<value value="1" name="DDR"/>
+		</bitfield>
 		<bitfield low="1" high="2" name="WIDTH">
 			<doc> Bitmask of enabled bus lines:
 				width = 128 * popcnt(value) </doc>
