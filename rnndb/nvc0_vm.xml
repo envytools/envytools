@@ -198,7 +198,7 @@
 	<bitfield low="4" high="31" name="ADDRESS" shr="12"/>
 	<!-- 32? -->
 	<bitfield low="33" high="34" name="TARGET" type="nv50_mem_target"/>
-	<!-- 35? -->
+	<bitfield pos="35" name="ENCRYPTED"/> <!-- SYSRAM only -->
 	<bitfield low="36" high="43" name="STORAGE_TYPE" type="NVC0_STORAGE_TYPE"/>
 	<bitfield low="44" high="60" name="TAG"/>
 </bitset>
