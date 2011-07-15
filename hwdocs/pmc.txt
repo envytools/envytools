@@ -203,7 +203,7 @@ On NV50:NVC0, the bits are:
 On NVC0+, the bits are:
   0: ??? - alleged to be related to I2C
   1: PPPP [fuc-ppp.txt]
-  2: PGUNK13B
+  2: PXBAR [nvc0-pxbar.txt]
   3: PMFB [nvc0-pmfb.txt]
   4: PMEDIA [pmedia.txt]
   5: PIBUS [pibus.txt]
