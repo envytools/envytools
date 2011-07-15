@@ -80,7 +80,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x02c8" name="GLOBAL_BASE">
 			<bitfield name="HIGH" high="7" low="0"/>
 			<bitfield name="INDEX" high="23" low="16"/>
-			<bitfield name="FLAGS" high="31" low="30"/><!-- default 0xc -->
+			<bitfield name="READ_OK" pos="30"/>
+			<bitfield name="WRITE_OK" pos="31"/>
 			<doc>Remaps high byte of g[] address used in CP (INDEX -> HIGH).</doc>
 		</reg32>
 		<reg32 offset="0x0308" name="CACHE_SPLIT">
