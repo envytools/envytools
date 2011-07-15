@@ -296,7 +296,7 @@
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
 		<reg32 offset="0x1c" name="TRAP_UNK1">
-			<bitfield name="UNK0" pos="0" /> <!-- related to compute with too many threads -->
+			<bitfield name="TEMP_TOO_SMALL" pos="0" />
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
@@ -316,6 +316,7 @@
 			<bitfield low="16" high="20" name="2"/>
 			<bitfield low="24" high="28" name="3"/>
 		</reg32>
+		<reg32 offset="0x4b0" name="TEMP_SIZE_PER_MP" shr="8"/>
 	</array>
 	<stripe offset="0x6800" stride="0x400" length="2">
 		<stripe offset="0" name="TPGRAD" stride="0x20" length="0x20">
