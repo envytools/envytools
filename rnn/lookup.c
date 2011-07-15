@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
 	char *name = "NV_MMIO";
 	char *variant = NULL;
 	char c, mode = 'd';
-	uint64_t reg, val = 0;
+	uint64_t reg, colors=1, val = 0;
 	struct rnndeccontext *vc;
 
 	rnn_init();
@@ -32,7 +32,7 @@ int main(int argc, char **argv) {
 	struct rnndb *db = rnn_newdb();
 
 	/* Arguments parsing */
-	while ((c = getopt (argc, argv, "f:a:d:e:b:")) != -1) {
+	while ((c = getopt (argc, argv, "f:a:d:e:b:c")) != -1) {
 		switch (c) {
 			case 'f':
 				file = strdup(optarg);
@@ -52,13 +52,17 @@ int main(int argc, char **argv) {
 			case  'a':
 				variant = strdup(optarg);
 				break;
+			case 'c':
+				colors = 0;
+				break;
 		}
 	}
 
 	rnn_parsefile (db, file);
 	rnn_prepdb (db);
 	vc = rnndec_newcontext(db);
-	vc->colors = &rnndec_colorsterm;
+	if(colors)
+		vc->colors = &rnndec_colorsterm;
 
 	if (variant)
 		rnndec_varadd(vc, "chipset", variant);
