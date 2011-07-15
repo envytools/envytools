@@ -48,24 +48,27 @@
 
 	<reg32 offset="0x204" name="CFG1" variants="NV20:NV34 NV50-">
 		<bitfield low="12" high="15" name="COLBITS">
-			<doc> Number of column bits. </doc>
+			<doc> Number of column bits. </doc> <!-- 8-10 valid on NV20 -->
 		</bitfield>
 		<bitfield low="16" high="19" name="ROWBITSA">
-			<doc> Number of row bits used on rank A - 8. </doc>
+			<doc> Number of row bits used on rank A - 8. </doc> <!-- 1-5 valid on NV20 -->
 		</bitfield>
 		<bitfield low="20" high="23" name="ROWBITSB">
 			<doc> Number of row bits used on rank B - 8. </doc>
 		</bitfield>
-		<bitfield low="24" high="24" name="BANKBITS" variants="NV50-">
+		<bitfield low="24" high="24" name="BANKBITS" variants="NV50:NVA3">
+			<doc> Number of bank bits - 2. </doc>
+		</bitfield>
+		<bitfield low="24" high="25" name="BANKBITS" variants="NVA3-">
 			<doc> Number of bank bits - 2. </doc>
 		</bitfield>
 		<bitfield pos="24" name="BANKSA" variants="NV20:NV34">
-			<doc> Controls how many bank bits are used on rank A. </doc>
+			<doc> Controls how many banks are used on rank A. </doc>
 			<value value="0" name="2"/>
 			<value value="1" name="4"/>
 		</bitfield>
 		<bitfield pos="28" name="BANKSB" variants="NV20:NV34">
-			<doc> Controls how many bank bits are used on rank B. </doc>
+			<doc> Controls how many banks are used on rank B. </doc>
 			<value value="0" name="2"/>
 			<value value="1" name="4"/>
 		</bitfield>
