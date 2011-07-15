@@ -324,6 +324,18 @@
 		</stripe>
 	</stripe>
 	<array offset="0x7800" name="TPBUS" stride="0x800" length="1">
+		<reg32 offset="0x0c" name="TP_GPCID" length="44">
+			<bitfield low="0" high="4" name="0"/>
+			<bitfield low="5" high="9" name="1"/>
+			<bitfield low="10" high="14" name="2"/>
+			<bitfield low="15" high="19" name="3"/>
+			<bitfield low="20" high="24" name="4"/>
+			<bitfield low="25" high="29" name="5"/>
+		</reg32>
+		<reg32 offset="0xbc" name="TOTAL">
+			<bitfield low="0" high="7" name="ROPC_COUNT"/>
+			<bitfield low="8" high="15" name="GPC_COUNT"/>
+		</reg32>
 	</array>
 	<array offset="0x8000" name="CCACHE" stride="0x800" length="1">
 		<reg32 offset="0x04" name="HUB2GPC_ADDR" shr="8"/>
@@ -533,6 +545,22 @@
 			</reg32>
 		</array>
 		<array offset="0x300" name="TPBUS" stride="0x100" length="1">
+			<reg32 offset="0x00" name="TP_GPCID" length="44">
+				<bitfield low="0" high="4" name="0"/>
+				<bitfield low="5" high="9" name="1"/>
+				<bitfield low="10" high="14" name="2"/>
+				<bitfield low="15" high="19" name="3"/>
+				<bitfield low="20" high="24" name="4"/>
+				<bitfield low="25" high="29" name="5"/>
+			</reg32>
+			<reg32 offset="0xd0" name="UNKD0">
+				<bitfield low="0" high="7" name="ROPC_COUNT"/>
+				<bitfield low="8" high="15" name="GPC_COUNT"/>
+				<bitfield low="16" high="28" name="UNK16"/>
+			</reg32>
+			<reg32 offset="0xe4" name="UNKE4">
+				<bitfield low="0" high="29" name="UNK0"/>
+			</reg32>
 		</array>
 		<array offset="0x480" name="L1" stride="0x80" length="1">
 			<reg32 offset="0x0c" name="TRAP">
@@ -645,6 +673,18 @@
 		<array offset="0xa00" name="UNKA00" stride="0x100" length="1">
 		</array>
 		<array offset="0xb00" name="TPBUS" stride="0x100" length="1">
+			<reg32 offset="0x08" name="TP_GPCID" length="44">
+				<bitfield low="0" high="4" name="0"/>
+				<bitfield low="5" high="9" name="1"/>
+				<bitfield low="10" high="14" name="2"/>
+				<bitfield low="15" high="19" name="3"/>
+				<bitfield low="20" high="24" name="4"/>
+				<bitfield low="25" high="29" name="5"/>
+			</reg32>
+			<reg32 offset="0xb8" name="TOTAL">
+				<bitfield low="0" high="7" name="ROPC_COUNT"/>
+				<bitfield low="8" high="15" name="GPC_COUNT"/>
+			</reg32>
 		</array>
 		<array offset="0xc00" name="TPCONF" stride="0x080" length="1">
 			<reg32 offset="0x8" name="TPCNT"/>
