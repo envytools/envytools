@@ -82,6 +82,13 @@
 		<bitfield pos="31" name="AUTO_REFRESH"/>
 	</reg32>
 
+	<reg32 offset="0x214" name="PRAMIN_WR_PROT" variants="NV10:NV40"> <!-- check vars -->
+		<doc>If set, all writes to VRAM from address VRAM_SIZE-(MASK+1)*0x10000
+		until the end of VRAM other than via PRAMIN are ignored.</doc>
+		<bitfield pos="0" name="ENABLE"/>
+		<bitfield low="4" high="7" name="MASK"/>
+	</reg32>
+
 	<reg32 offset="0x220" name="MEM_TIMINGS_0">
 		<doc> This, and the next 7 regs, are all related to memtimings.
 			A good place to read might be http://www.tweakers.fr/timings.html .
