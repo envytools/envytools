@@ -10,6 +10,10 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <array name="PFFB" offset="0x100000" stride="0x1000" length="1" variants="NVC0-">
+	<reg32 offset="0x800" name="PART_CONFIG">
+		<bitfield low="0" high="3" name="PART_COUNT"/>
+		<bitfield pos="4" name="MEM_SPLIT_ENABLE"/>
+	</reg32>
 	<array name="VM" offset="0xc80" stride="0x80" length="1">
 		<reg32 offset="0x00" name="CFG">
 			<bitfield pos="0" name="PT_GRANULARITY">

@@ -601,8 +601,11 @@
 				<bitfield name="ENABLE" pos="31" />
 			</reg32>
 		</array>
-		<array offset="0x880" name="RAST" stride="0x080" length="1">
-			<reg32 offset="0x2c" name="ROPC_COUNT"/>
+		<array offset="0x880" name="FFB" stride="0x080" length="1">
+			<reg32 offset="0x2c" name="PART_CONFIG">
+				<bitfield low="0" high="3" name="PART_COUNT"/>
+				<bitfield pos="4" name="MEM_SPLIT_ENABLE"/>
+			</reg32>
 		</array>
 		<array offset="0x900" name="ZCULL" stride="0x080" length="1">
 			<reg32 offset="0x00" name="TRAP">
