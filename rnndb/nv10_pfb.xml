@@ -45,22 +45,46 @@
 	</reg32>
 
 	<reg32 offset="0x200" name="CFG0" variants="NV20:NV34">
-		<bitfield pos="0" name="TYPE">
-			<value value="0" name="SDR"/>
-			<value value="1" name="DDR"/>
+		<doc>NV20 addressing for a rank:<ul>
+			<li>2 bits selecting byte inside a memory cell</li>
+			<li>2 bits selecting a column</li>
+			<li>0-2 more bits selecting byte inside a memory cell [depending on bus width]</li>
+			<li>6-8 more bits selecting a column</li>
+			<li>1 bit selecting a bank</li>
+			<li>8-12 bits selecting a row</li>
+			<li>0-1 more bits selecting a bank</li>
+			</ul>
+			NV25 addressing for a rank:<ul>
+			<li>2 bits selecting byte inside a memory cell</li>
+			<li>2 bits selecting a column</li>
+			<li>0-2 more bits selecting byte inside a memory cell [depending on bus width]</li>
+			<li>6-8 more bits selecting a column</li>
+			<li>1-2 bits selecting a bank</li>
+			<li>8-12 bits selecting a row</li>
+			</ul>
+			Rank B starts right after rank A ends, unless RANK_INTERLEAVE enabled.
+		</doc>
+		<bitfield low="0" high="3" name="BUS_WIDTH">
+			<value value="0" name="32"/>
+			<value value="1" name="64"/>
+			<value value="3" name="128"/>
+			<value value="7" name="256" variants="NV30-"/>
 		</bitfield>
-		<bitfield low="1" high="2" name="WIDTH">
-			<doc> Bitmask of enabled bus lines:
-				width = 128 * popcnt(value) </doc>
-		</bitfield>
+		<bitfield low="4" high="5" name="UNK4" variants="NV20:NV25"/>
 		<bitfield pos="8" name="RANKS">
 			<value value="0" name="A"/>
 			<value value="1" name="AB"/>
 		</bitfield>
-		<bitfield pos="9" name="RANK_INTERLEAVE">
+		<bitfield pos="9" name="RANK_INTERLEAVE" variants="NV25-">
 			<doc> Rank select bits before row select bits
-				instead of after row select bits. </doc>
+				instead of after row select bits. Should not be used
+				if BANKSA != BANKSB.</doc>
 		</bitfield>
+		<bitfield pos="11" name="UNK11"/>
+		<bitfield low="16" high="19" name="UNK16"/>
+		<bitfield low="24" high="25" name="UNK24"/>
+		<bitfield low="26" high="27" name="UNK26" variants="NV25-"/>
+		<bitfield low="28" high="30" name="UNK28" variants="NV30-"/>
 	</reg32>
 
 	<reg32 offset="0x200" name="CFG0" variants="NV50-">
@@ -71,6 +95,8 @@
 	</reg32>
 
 	<reg32 offset="0x204" name="CFG1" variants="NV20:NV34 NV50-">
+		<bitfield low="4" high="6" name="UNK4" variants="NV20:NV34"/>
+		<bitfield low="8" high="10" name="UNK6" variants="NV20:NV34"/>
 		<bitfield low="12" high="15" name="COLBITS">
 			<doc> Number of column bits. </doc> <!-- 8-10 valid on NV20 -->
 		</bitfield>
@@ -193,7 +219,7 @@
 		<bitfield pos="0" name="ENABLE"/>
 	</reg32>
 
-	<reg32 offset="0x320" name="COMP_MAX_TAG" variants="NV50-"/>
+	<reg32 offset="0x320" name="COMP_MAX_TAG" variants="NV20-"/>
 
 	<reg32 offset="0xc80" name="TLB_FLUSH" variants="NV50-">
 		<bitfield high="19" low="16" name="ENGINE" type="NV50_VM_ENGINE"/>
