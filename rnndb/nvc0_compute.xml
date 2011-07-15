@@ -109,7 +109,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x03b0" name="BLOCKDIM_Z" type="uint"/>
 		<reg32 offset="0x03b4" name="CP_START_ID"/>
 		<reg32 offset="0x0500" name="FIRMWARE" length="0x20"/>
-		<reg32 offset="0x0758" name="SM_COUNT">
+		<reg32 offset="0x0758" name="MP_LIMIT">
 			<doc>0-0x1ff.</doc>
 		</reg32>
 		<reg32 offset="0x077c" name="LOCAL_BASE"/><!-- 32 bit address, not shifted, appears in $lbase -->
