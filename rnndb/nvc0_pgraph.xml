@@ -326,6 +326,18 @@
 	<array offset="0x7800" name="TPBUS" stride="0x800" length="1">
 	</array>
 	<array offset="0x8000" name="CCACHE" stride="0x800" length="1">
+		<reg32 offset="0x04" name="HUB2GPC_ADDR" shr="8"/>
+		<reg32 offset="0x08" name="HUB2GPC_CONF">
+			<bitfield low="0" high="7" name="UNK0"/>
+			<bitfield low="8" high="10" name="UNK8"/>
+			<bitfield pos="31" name="UNK31"/>
+		</reg32>
+		<reg32 offset="0x0c" name="HUB2ESETUP_ADDR" shr="8"/>
+		<reg32 offset="0x10" name="HUB2ESETUP_CONF">
+			<bitfield low="0" high="10" name="UNK0"/>
+			<bitfield low="11" high="15" name="UNK11"/>
+			<bitfield pos="31" name="UNK31"/>
+		</reg32>
 		<reg32 offset="0x30" name="TRAP">
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
@@ -504,7 +516,11 @@
 
 	<group name="nvc0_tp">
 		<array offset="0x000" name="POLY" stride="0x200" length="1">
-			<reg32 offset="0x84" name="TRAP">
+			<reg32 offset="0x048" name="POLY2ESETUP">
+				<bitfield low="0" high="27" name="ADDRESS" shr="12"/>
+				<bitfield pos="28" name="UNK28"/>
+			</reg32>
+			<reg32 offset="0x084" name="TRAP">
 				<bitfield name="CLEAR" pos="30" />
 				<bitfield name="ENABLE" pos="31" />
 			</reg32>
@@ -596,6 +612,15 @@
 		<array offset="0x700" name="UNK700" stride="0x080" length="1">
 		</array>
 		<array offset="0x800" name="ESETUP" stride="0x080" length="1">
+			<reg32 offset="0x08" name="HUB2ESETUP_ADDR" shr="8"/>
+			<reg32 offset="0x0c" name="HUB2ESETUP_CONF">
+				<bitfield low="0" high="10" name="UNK0"/>
+				<bitfield pos="31" name="UNK31"/>
+			</reg32>
+			<reg32 offset="0x10" name="POLY2ESETUP">
+				<bitfield low="0" high="27" name="ADDRESS" shr="12"/>
+				<bitfield pos="31" name="UNK31"/>
+			</reg32>
 			<reg32 offset="0x24" name="TRAP">
 				<bitfield name="CLEAR" pos="30" />
 				<bitfield name="ENABLE" pos="31" />
@@ -606,6 +631,8 @@
 				<bitfield low="0" high="3" name="PART_COUNT"/>
 				<bitfield pos="4" name="MEM_SPLIT_ENABLE"/>
 			</reg32>
+			<reg32 offset="0x34" name="UNK34_ADDR" shr="8"/>
+			<reg32 offset="0x38" name="UNK38_ADDR" shr="8"/>
 		</array>
 		<array offset="0x900" name="ZCULL" stride="0x080" length="1">
 			<reg32 offset="0x00" name="TRAP">
@@ -633,6 +660,10 @@
 		<array offset="0xf00" name="UNKF00" stride="0x100" length="1">
 		</array>
 		<array offset="0x1000" name="CCACHE" stride="0x100" length="1">
+			<reg32 offset="0x04" name="HUB2GPC_ADDR" shr="8"/>
+			<reg32 offset="0x08" name="HUB2GPC_CONF">
+				<bitfield low="0" high="7" name="UNK0"/>
+			</reg32>
 			<reg32 offset="0x28" name="TRAP">
 				<bitfield name="CLEAR" pos="30" />
 				<bitfield name="ENABLE" pos="31" />
