@@ -117,7 +117,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0790" name="TEMP_ADDRESS_HIGH"/>
 		<reg32 offset="0x0794" name="TEMP_ADDRESS_LOW"/>
 		<reg32 offset="0x0798" name="TEMP_SIZE_HIGH"/>
-		<reg32 offset="0x079c" name="TEMP_SIZE_LOW"/>
+		<reg32 offset="0x079c" name="TEMP_SIZE_LOW"/> <!-- has to be aligned to 0x20000 -->
 		<reg32 offset="0x07a0" name="WARP_TEMP_ALLOC">
 			<doc>0x3ffffff, aligned to 0x200, shared with fermi. Total amount of temp space (stack + local positive + local negative) required by single warp. Affects nphysid:nwarpid together with TEMP_SIZE and SM_COUNT.</doc>
 		</reg32>
