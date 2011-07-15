@@ -518,14 +518,14 @@
 		</array>
 		<array offset="0x300" name="TPBUS" stride="0x100" length="1">
 		</array>
-		<array offset="0x400" name="L1" stride="0x100" length="1">
-			<reg32 offset="0x8c" name="TRAP">
+		<array offset="0x480" name="L1" stride="0x80" length="1">
+			<reg32 offset="0x0c" name="TRAP">
 				<bitfield pos="1" name="GLOBAL_MAP_READ"/> <!-- not passed up to TP.TRAP, causes VM fault -->
 				<bitfield pos="2" name="GLOBAL_MAP_WRITE"/> <!-- not passed up to TP.TRAP, causes VM fault -->
 				<bitfield pos="30" name="CLEAR"/>
 				<bitfield pos="31" name="ENABLE"/>
 			</reg32>
-			<reg32 offset="0xe8" name="TPID"/>
+			<reg32 offset="0x68" name="TPID"/>
 		</array>
 		<reg32 offset="0x508" name="TRAP">
 			<bitfield pos="0" name="TEX"/>
