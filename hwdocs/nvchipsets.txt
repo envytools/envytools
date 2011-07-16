@@ -733,7 +733,7 @@ The MMIO ranges for NVC0 family are:
 00e000:00f000 PNVIO - GPIOs, I2C buses, PWM fan control, and other external devices [pnvio.txt]
 020000:021000 PTHERM - thermal sensor [ptherm.txt]
 021000:022000 ???
-022000:023000 ???
+022400:022800 PUNITS - control over enabled card units [punits.txt]
 040000:060000 PSUBFIFOs - individual SUBFIFOs of PFIFO [nvc0-pfifo.txt]
 060000:070000 PEEPHOLE - indirect VM access [nvc0-vm.txt]
 070000:080000 PFIFO_BAR_FLUSH - used to flush BAR writes [nvc0-vm.txt]
