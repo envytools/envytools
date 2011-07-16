@@ -16,6 +16,17 @@
 	<reg32 offset="0x040" name="DESIGN_UNK_ZCULL_PER_GPC_COUNT" variants="NVC1-"/>
 	<reg32 offset="0x044" name="DESIGN_UNK5_COUNT" variants="NVD9-"/>
 	<reg32 offset="0x048" name="DESIGN_CRTC_COUNT" variants="NVD9-"/>
+	<reg32 offset="0x100" name="HW_MISC_DISABLE">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="1" name="PVP_PPPP"/>
+		<bitfield pos="2" name="PBSP"/>
+		<bitfield pos="3" name="UNK3" variants="NVD9-"/>
+		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="8" name="PCOPY0"/>
+		<bitfield pos="9" name="PCOPY1"/>
+		<bitfield pos="10" name="UNK10" variants="NVC1-"/>
+		<bitfield pos="11" name="UNK11" variants="NVC1-"/>
+	</reg32>
 	<reg32 offset="0x104" name="HW_GPC_DISABLE_MASK"/>
 	<reg32 offset="0x108" name="HW_TP_DISABLE_MASK" length="8"/>
 	<reg32 offset="0x128" name="HW_UNK_ZCULL_DISABLE_MASK" length="8"/>
@@ -25,6 +36,17 @@
 	<reg32 offset="0x154" name="HW_UNK2_DISABLE_MASK"/>
 	<reg32 offset="0x158" name="HW_UNK3_DISABLE_MASK" variants="NVC1-"/>
 	<reg32 offset="0x15c" name="HW_CRTC_DISABLE_MASK" variants="NVD9-"/>
+	<reg32 offset="0x180" name="SW_MISC_DISABLE">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="1" name="PVP_PPPP"/>
+		<bitfield pos="2" name="PBSP"/>
+		<bitfield pos="3" name="UNK3" variants="NVD9-"/>
+		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="8" name="PCOPY0"/>
+		<bitfield pos="9" name="PCOPY1"/>
+		<bitfield pos="10" name="UNK10" variants="NVC1-"/>
+		<bitfield pos="11" name="UNK11" variants="NVC1-"/>
+	</reg32>
 	<reg32 offset="0x184" name="SW_GPC_DISABLE_MASK"/>
 	<reg32 offset="0x188" name="SW_TP_DISABLE_MASK" length="8"/>
 	<reg32 offset="0x1a8" name="SW_UNK_ZCULL_DISABLE_MASK" length="8"/>
