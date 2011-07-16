@@ -62,7 +62,7 @@ is:
  - NV01 family: NV01
  - NV03 family: NV03
  - NV04 family: NV04, NV05
- - NV10 family: NV10, NV15, NV1A, NV11, NV17, NV18, NV1F
+ - NV10 family: NV10, NV15, NV1A, NV11, NV17, NV1F, NV18
  - NV20 family: NV20, NV2A, NV25, NV28
  - NV30 family: NV30, NV35, NV31, NV36, NV34
  - NV40 family:
@@ -236,7 +236,7 @@ The MMIO ranges are:
 800000:1000000 USER - PFIFO MMIO and DMA submission area [fifo-pio.txt, fifo-dma-pusher.txt]
 
 
-NV10 family: NV10, NV15, NV1A, NV11, NV17, NV18, NV1F
+NV10 family: NV10, NV15, NV1A, NV11, NV17, NV1F, NV18
 
 The notable changes in this generation are:
 
@@ -259,10 +259,11 @@ NV11:
  - dual head support, meant for laptops with flat panel + external display
 NV17:
  - builtin TV encoder
- - ZCULL and Z compression
+ - ZCULL
  - added VPE: MPEG2 decoding engine
 NV18:
  - AGP x8 support
+ - second straps set
 
 The chipsets are [pixel pipelines and ROPs : texture units]:
 
@@ -271,8 +272,8 @@ The chipsets are [pixel pipelines and ROPs : texture units]:
  - NV1A: 2:4, IGP - the IGP of GeForce 2 lineup [nForce]
  - NV11: 2:4 - the low-end card of GeForce 2 lineup [GeForce 2 MX]
  - NV17: 2:4 - the low-end card of GeForce 4 lineup [GeForce 4 MX]
- - NV18: 2:4 - like NV17, but with added AGP x8 support
  - NV1F: 2:4, IGP - the IGP of GeForce 4 lineup [nForce 2]
+ - NV18: 2:4 - like NV17, but with added AGP x8 support
 
 NV1A and NV1F are IGPs and lack VRAM, memory controller, mediaport, and ROM
 interface. They use the internal interfaces of the northbridge to access
@@ -285,8 +286,8 @@ The pci vendor id is 0x10de, the pci device ids are:
 01a0* NV1A
 0110* NV11
 017X NV17
-018X NV18
 01fX NV1F
+018X NV18
 00ff NV18 [faked by PCIE bridge]
 
 The MMIO ranges for NV10, NV20 and NV30 families are:
@@ -330,7 +331,8 @@ and NV17 additions is NV25. Notable changes:
 NV20:
  - no dual head support again
  - no PTV, VPE
- - no ZCULL, but Z compression present
+ - no ZCULL
+ - a new memory controller with Z compression
  - 3d engine extensions:
   - programmable vertex shader support
   - D3D8, shader model 1.1 

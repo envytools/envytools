@@ -63,7 +63,7 @@
 		</bitfield>
 		<bitfield pos="2" name="USE_VPLL2" variants="NV11:NV50"/>
 		<bitfield pos="4" name="UNK4" variants="NV17:NV50"/>
-		<bitfield pos="8" name="MPLL_PROG" variants="NV04:NV1A NV17:NV1F NV20:NV40"/>
+		<bitfield pos="8" name="MPLL_PROG" variants="NV04:NV1A NV17:NV1F NV18:NV40"/>
 		<bitfield pos="9" name="VPLL_PROG" variants="NV04:NV50"/>
 		<bitfield pos="10" name="NVPLL_PROG" variants="NV04:NV40"/>
 		<bitfield pos="11" name="VPLL2_PROG" variants="NV11:NV50"/>

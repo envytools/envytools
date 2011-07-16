@@ -43,10 +43,10 @@
 	<value value="0x17" name="NV17">
 		<brief>Geforce4MX 420/440/460</brief>
 	</value>
-	<value value="0x18" name="NV18" />
 	<value value="0x1f" name="NV1F">
 		<brief>Geforce4 MX IGP</brief>
 	</value>
+	<value value="0x18" name="NV18" />
 
 	<value value="0x20" name="NV20" />
 	<value value="0x25" name="NV25" />

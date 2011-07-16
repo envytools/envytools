@@ -16,7 +16,7 @@ NV03 has 10 straps bits. NV04 bumped this count to 16 straps bits, and allowed
 the driver to override the straps value at runtime. NV11 bumped the count to
 22 bits, NV20 bumped it to 31 bits.
 
-NV17 introduced a second set of 31 straps, and added another override
+NV18 introduced a second set of 31 straps, and added another override
 mechanism. Each straps set now consists of 2 31-bit values: primary and
 secondary, and a 31-bit "select" mask that chooses which value is the source
 of a given bit in the "effective" value used internally by the card. Both
@@ -43,7 +43,7 @@ MMIO register list
 
 no annotation - available on all NV03+ cards
 [1] - available on NV03:NV04 only
-[2] - available on NV17:NV1F and NV25+ only
+[2] - available on NV18:NV20 and NV25+ only
 [3] - available on NVD9+ only
 
 101000    STRAPS0_PRIMARY	straps set 0 primary value
@@ -65,7 +65,7 @@ no annotation - available on all NV03+ cards
 Straps readout/override registers
 
 MMIO 0x101000: STRAPS0_PRIMARY
-MMIO 0x10100c: STRAPS1_PRIMARY [NV17:NV1F and NV25+ only]
+MMIO 0x10100c: STRAPS1_PRIMARY [NV18:NV20 and NV25+ only]
 MMIO 0x101034: STRAPS2_PRIMARY [NVD9+ only]
   bits 0-30: straps primary value
   bit 31: override enable [NV04+ only]
@@ -75,8 +75,8 @@ is restored to the original straps as read by the card on reset. If bit 31
 is 1, override is enabled, and the straps value is set to the value written
 by host.
 
-MMIO 0x101004: STRAPS0_SELECT [NV17:NV1F and NV25+ only]
-MMIO 0x101010: STRAPS1_SELECT [NV17:NV1F and NV25+ only]
+MMIO 0x101004: STRAPS0_SELECT [NV18:NV20 and NV25+ only]
+MMIO 0x101010: STRAPS1_SELECT [NV18:NV20 and NV25+ only]
 MMIO 0x101038: STRAPS2_SELECT [NVD9+ only]
   bits 0-30: strap source selection for strap bit X
 
@@ -85,8 +85,8 @@ straps value, when corresponding bit is set to 0, the card takes its value from
 the secondary value. This register is always writable and not affected by
 override enable.
 
-MMIO 0x101008: STRAPS0_SECONDARY [NV17:NV1F and NV25+ only]
-MMIO 0x101014: STRAPS1_SECONDARY [NV17:NV1F and NV25+ only]
+MMIO 0x101008: STRAPS0_SECONDARY [NV18:NV20 and NV25+ only]
+MMIO 0x101014: STRAPS1_SECONDARY [NV18:NV20 and NV25+ only]
 MMIO 0x10103c: STRAPS2_SECONDARY [NVD9+ only]
   bits 0-30: straps secondary value
 
@@ -157,7 +157,7 @@ crystal type is:
  3 - 25.000MHz
 
 set 1:
-bit 0: enables OHCI 1394 controller on PCI function 1 [NV17 and NV18 only]
+bit 0: enables OHCI 1394 controller on PCI function 1 [NV18 only]
 bits 1-3: ?
 bit 4: pci device class
 	0: 0x030200 [3d controller]

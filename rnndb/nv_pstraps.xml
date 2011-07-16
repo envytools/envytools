@@ -87,7 +87,7 @@
 </bitset>
 
 <bitset name="nv17_straps1" inline="yes">
-	<bitfield pos="0" name="FIREWIRE" variants="NV17:NV1F"/>
+	<bitfield pos="0" name="FIREWIRE" variants="NV18:NV20"/>
 	<bitfield pos="4" name="PCI_CLASS">
 		<value value="0" name="3D_CONTROLLER"/>
 		<value value="1" name="VGA_CONTROLLER"/>
@@ -127,13 +127,13 @@
 <bitset name="nvd9_straps2" inline="yes">
 </bitset>
 
-<array offset="0x101000" name="PSTRAPS" stride="0x1000" length="1" variants="NV03:NV1A NV11:NV1F NV20:NV2A NV25-">
-	<reg32 offset="0x000" name="STRAPS" variants="NV03:NV17 NV1F:NV25">
+<array offset="0x101000" name="PSTRAPS" stride="0x1000" length="1" variants="NV03-">
+	<reg32 offset="0x000" name="STRAPS" variants="NV03:NV18 NV20:NV25">
 		<bitfield low="0" high="30" name="VALUE" type="nv03_straps" variants="NV03:NV04"/>
 		<bitfield low="0" high="30" name="VALUE" type="nv04_straps" variants="NV04:NV40"/>
 		<bitfield pos="31" name="OVERRIDE_ENABLE" variants="NV04-"/>
 	</reg32>
-	<stripe variants="NV17:NV1F NV25:NV50">
+	<stripe variants="NV18:NV20 NV25:NV50">
 		<reg32 offset="0x000" name="STRAPS0_PRIMARY">
 			<bitfield low="0" high="30" name="VALUE" type="nv04_straps"/>
 			<bitfield pos="31" name="OVERRIDE_ENABLE"/>
