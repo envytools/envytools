@@ -716,8 +716,8 @@
 		<array name="CTXCTL" offset="0x2000" stride="0x1000" length="1">
 			<use-group name="nvc0_ctxctl"/>
 			<reg32 offset="0x608" name="UNITS">
-				<bitfield low="0" high="4" name="TPCOUNT"/>
-				<bitfield low="16" high="20" name="UNK16"/>
+				<bitfield low="0" high="4" name="TP_COUNT"/>
+				<bitfield low="16" high="20" name="UNK_ZCULL_COUNT"/>
 			</reg32>
 			<reg32 offset="0x614" name="RED_SWITCH">
 				<bitfield pos="1" name="UNK0_GPC"/>
@@ -750,8 +750,8 @@
 	<array name="CTXCTL" offset="0x9000" stride="0x1000" length="1">
 		<use-group name="nvc0_ctxctl"/>
 		<reg32 offset="0x604" name="UNITS">
-			<bitfield low="0" high="4" name="GPCCOUNT"/>
-			<bitfield low="16" high="20" name="ROPCOUNT"/>
+			<bitfield low="0" high="4" name="GPC_COUNT"/>
+			<bitfield low="16" high="20" name="ROPC_COUNT"/>
 		</reg32>
 		<reg32 offset="0x614" name="RED_SWITCH">
 			<bitfield pos="0" name="UNK0_MAIN"/>
