@@ -333,6 +333,7 @@ NV20:
  - no PTV, VPE
  - no ZCULL
  - a new memory controller with Z compression
+ - RAMIN reversal unit bumped to 0x40 bytes
  - 3d engine extensions:
   - programmable vertex shader support
   - D3D8, shader model 1.1 
@@ -374,10 +375,21 @@ NV30:
   - programmable fragment shader support
   - D3D9, shader model 2.0
  - added PEEPHOLE indirect memory access
+ - new-style memory timings
+NV35:
+ - 3d engine additions:
+  - ??? [XXX]
 NV31:
+ - no NV35 changes, this chipset is derived from NV30
  - 2-stage PLLs split into two registers
  - VPE engine extended to work as a PFIFO engine
-[XXX: um... anything else noteworthy?]
+NV36:
+ - a merge of NV31 and NV36 changes from NV30
+NV34:
+ - a comeback of NV10 memory controller!
+ - NV10-style mem timings again
+ - no Z compression again
+ - RAMIN reversal unit back at 16 bytes
 
 The chipset configurations are [vertex shaders : pixel shaders and ROPs]:
 
@@ -414,6 +426,7 @@ NV40:
  - RAMIN bumped in size to max 16MB, many structure layout changes
  - RAMIN reversal unit bumped to 512kB
  - 3d engine: support for shader model 3 and other additions
+ - Z compression came back
  - PGRAPH context switching microcode
  - redesigned clock setup
  - separate clock for shaders
@@ -427,6 +440,7 @@ NV40:
  - BIOS uses all-new BIT structure to describe the card
  - individually disablable shader and ROP units.
  - added PCONTROL area to... control... stuff?
+ - memory controller uses NV30-style timings again
  [XXX more changes]
 NV41:
  - introduced PVP, microcoded VP1 video processor
