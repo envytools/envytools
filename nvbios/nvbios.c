@@ -1476,8 +1476,10 @@ int main(int argc, char **argv) {
 
 			printcmd(start, entry_length); printf("\n");
 			if (bios[start+0] != 0) {
-				printf("Entry %d: RP(%d), RAS(%d), RFC(%d), RC(%d)\n",
-					i, tRP, tRAS, tRFC, tRC);
+				printf("Entry %d: WR(%d), CL(%d)\n",
+					i, tWR,tCL);
+				printf("       : RP(%d), RAS(%d), RFC(%d), RC(%d)\n",
+					tRP, tRAS, tRFC, tRC);
 
 				/* XXX: I don't trust the -1's and +1's... they must come
 				*      from somewhere! */
