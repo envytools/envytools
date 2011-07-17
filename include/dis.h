@@ -427,9 +427,8 @@ uint16_t readle16 (uint8_t *);
 #define FUC_NV98 1
 #define FUC_NVA3 2
 
-#define PMS_NV17 1
-#define PMS_NV41 2
-#define PMS_NV50 4
+#define HWSQ_NV17 1
+#define HWSQ_NV41 2
 
 extern struct disisa *nv50_isa;
 extern struct disisa *nvc0_isa;
