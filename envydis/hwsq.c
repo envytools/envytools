@@ -30,46 +30,29 @@
  * Immediate fields
  */
 
-static int stdoff[] = { 0xdeaddead };
-static int staoff[] = { 0xdeaddead };
-#define ADDR16 atomst16, staoff
-#define ADDR32 atomst32, staoff
-#define DATA16 atomst16, stdoff
-#define DATA32 atomst32, stdoff
-static struct matches *atomst16 APROTO {
-	if (ctx->reverse)
-		return 0;
-	unsigned int *n = (unsigned int*)v;
-	ull num = BF(8, 16);
-	n[0] &= 0xffff0000;
-	n[0] |= num;
-	struct expr *expr = makeex(EXPR_NUM);
-	expr->num1 = n[0];
-	RNN_ADDARRAY(ctx->atoms, expr);
-}
-static struct matches *atomst32 APROTO {
-	if (ctx->reverse)
-		return 0;
-	unsigned int *n = (unsigned int*)v;
-	ull num = BF(8, 32);
-	n[0] = num;
-	struct expr *expr = makeex(EXPR_NUM);
-	expr->num1 = num;
-	RNN_ADDARRAY(ctx->atoms, expr);
-}
-
+static struct bitfield imm16off = { 8, 16 };
+#define IMM16 atomimm, &imm16off
+static struct bitfield imm32off = { 8, 32 };
+#define IMM32 atomimm, &imm32off
 static struct bitfield maskoff = { 8, 8 };
-#define CRTCMASK atomimm, &maskoff
+#define EVMASK atomimm, &maskoff
 static struct bitfield flagoff = { 0, 5 };
 #define FLAG atomimm, &flagoff
 static struct bitfield waitoff = { 0, 2 };
 #define WAIT atomimm, &waitoff
-static struct bitfield waitsoff = { 2, 4 };
+static struct bitfield waitsoff = { 2, 4, .shr = 1 };
 #define WAITS atomimm, &waitsoff
 
-static struct insn tabcrtcevent[] = {
-	{ 0x000000, 0xff0000, N("active") },
-	{ 0x010000, 0xff0000, N("vblank") },
+F1(vblank0, 8, N("vblank0"))
+F1(vblank1, 9, N("vblank1"))
+
+static struct insn tabevmask[] = {
+	{ 0, 0, T(vblank0), T(vblank1) },
+};
+
+static struct insn tabevent[] = {
+	{ 0x000000, 0xff0000, N("all0") },
+	{ 0x010000, 0xff0000, N("all1") },
 	{ 0, 0, OOPS },
 };
 
@@ -81,15 +64,15 @@ static struct insn tabfl[] = {
 static struct insn tabm[] = {
 	{ 0x00, 0xff, OP8, N("nop") },
 	{ 0x00, 0xc0, OP8, N("wait"), WAIT, N("shl"), WAITS },
-	{ 0x40, 0xff, OP24, N("addr"), ADDR16, .vartype = PMS_NV50 },
-	{ 0x42, 0xff, OP24, N("data"), DATA16, .vartype = PMS_NV50 },
-	{ 0x5f, 0xff, OP24, N("crtcwait"), CRTCMASK, T(crtcevent), .vartype = PMS_NV41 | PMS_NV50 },
+	{ 0x40, 0xff, OP24, N("addrlo"), IMM16, .vartype = HWSQ_NV41 },
+	{ 0x42, 0xff, OP24, N("datalo"), IMM16, .vartype = HWSQ_NV41 },
+	{ 0x5f, 0xff, OP24, N("ewait"), T(evmask), T(event), .vartype = HWSQ_NV41 },
 	{ 0x7f, 0xff, OP8, N("exit") },
 	{ 0x80, 0xe0, OP8, N("unset"), T(fl) }, 
 	{ 0xa0, 0xe0, OP8, N("set1"), T(fl) }, 
 	{ 0xc0, 0xe0, OP8, N("set0"), T(fl) }, 
-	{ 0xe0, 0xff, OP40, N("addr"), ADDR32, .vartype = PMS_NV50 },
-	{ 0xe2, 0xff, OP40, N("data"), DATA32, .vartype = PMS_NV50 },
+	{ 0xe0, 0xff, OP40, N("addr"), IMM32, .vartype = HWSQ_NV41 },
+	{ 0xe2, 0xff, OP40, N("data"), IMM32, .vartype = HWSQ_NV41 },
 	{ 0, 0, OP8, OOPS },
 };
 

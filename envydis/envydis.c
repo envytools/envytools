@@ -244,6 +244,15 @@ int main(int argc, char **argv) {
 				fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
 				return 1;
 			}
+		} else if (isa == hwsq_isa) {
+			if (!strcmp(varname, "nv17"))
+				vartype = HWSQ_NV17;
+			else if (!strcmp(varname, "nv41"))
+				vartype = HWSQ_NV41;
+			else {
+				fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
+				return 1;
+			}
 		} else {
 			fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
 			return 1;

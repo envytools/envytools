@@ -31,7 +31,7 @@ Misc GPU units
 [***  ] pmc.txt - PMC unit, interrupt routing, card ID, engine enables
 [     ] pbus.txt - PBUS engine and PCI config space
 [**   ] hwsq.txt - HWSQ scripts on PBUS engine
-[**   ] pstraps.txt - PSTRAPS unit, straps readout and override
+[***  ] pstraps.txt - PSTRAPS unit, straps readout and override
 [**** ] ptimer.txt - PTIMER engine, clock setup, readout, and alarms
 
 
