@@ -73,6 +73,7 @@ uint16_t voltage_tbl_ptr = 0;
 uint16_t temperature_tbl_ptr = 0;
 uint16_t timings_tbl_ptr = 0;
 uint16_t timings_map_tbl_ptr = 0;
+uint16_t pm_unknown_tbl_ptr = 0;
 
 uint16_t *subs = 0;
 int subsnum = 0, subsmax = 0;
@@ -655,11 +656,13 @@ int main(int argc, char **argv) {
 						voltage_tbl_ptr = le16(eoff + 16);
 						temperature_tbl_ptr = le16(eoff + 12);
 						timings_tbl_ptr = le16(eoff + 4);
+						pm_unknown_tbl_ptr = le16(eoff + 21);
 					} else if (version == 2) {
 						voltage_tbl_ptr = le16(eoff + 12);
 						temperature_tbl_ptr = le16(eoff + 16);
 						timings_tbl_ptr = le16(eoff + 8);
 						timings_map_tbl_ptr = le16(eoff + 4);
+						pm_unknown_tbl_ptr = le16(eoff + 24);
 						if (elen >= 34)
 							voltage_map_tbl_ptr = le16(eoff + 32);
 					}
@@ -1601,6 +1604,33 @@ int main(int argc, char **argv) {
 			printf ("\n");
 
 			start += (xinfo_length * xinfo_count);
+		}
+		printf("\n");
+	}
+
+	if(pm_unknown_tbl_ptr) {
+		uint8_t 	version = 0, entry_count = 0, entry_length = 0,
+				header_length = 0;
+		uint16_t start = pm_unknown_tbl_ptr;
+		int i;
+
+		version = bios[start];
+
+		if (version == 0x10) {
+			header_length = bios[start+1];
+			entry_count = bios[start+3];
+			entry_length = bios[start+2];
+		}
+
+		printf ("Unknown PM table at %x. Version %x.\n", pm_unknown_tbl_ptr, version);
+		printcmd(start, header_length>0?header_length:10);
+		printf("\n\n");
+
+		start += header_length;
+		for(i = 0; i < entry_count; i++) {
+			printcmd(start, entry_length>0?entry_length:10);
+			printf("\n");
+			start += entry_length;
 		}
 	}
 	return 0;
