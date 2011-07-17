@@ -513,7 +513,7 @@ The pci ids:
 01dX NV46
 024X NV4E
 03dX NV4C
-063X NV67/NV68
+053X NV67/NV68
 07eX NV63
 
 The MMIO ranges for NV40 family are:
