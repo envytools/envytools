@@ -506,7 +506,6 @@ The pci ids:
 02e2 NV4B [faked by AGP bridge]
 02e3 NV49 [faked by AGP bridge]
 02e4 NV49 [faked by AGP bridge]
-038X NV4B
 039X NV4B
 
 016X NV44
