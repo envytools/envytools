@@ -24,10 +24,13 @@ Hardware overview docs
 [***  ] nvbars.txt - PCI BARs and other means of accessing the GPU
 [***  ] nvchipsets.txt - List and overview of all chipset variants, MMIO maps
 [**   ] nvclock.txt - List of clocks present on the GPUs
+[***  ] classes.txt - List and overview of object classes
 
 
 Misc GPU units
 [***  ] pmc.txt - PMC unit, interrupt routing, card ID, engine enables
+[     ] pbus.txt - PBUS engine and PCI config space
+[**   ] hwsq.txt - HWSQ scripts on PBUS engine
 [**   ] pstraps.txt - PSTRAPS unit, straps readout and override
 [**** ] ptimer.txt - PTIMER engine, clock setup, readout, and alarms
 

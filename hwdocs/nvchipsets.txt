@@ -392,6 +392,8 @@ NV34:
  - NV10-style mem timings again
  - no Z compression again
  - RAMIN reversal unit back at 16 bytes
+ - 3d engine additions:
+  - ??? [XXX]
 
 The chipset configurations are [vertex shaders : pixel shaders and ROPs]:
 

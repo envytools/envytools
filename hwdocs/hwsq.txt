@@ -1,0 +1,227 @@
+Introduction
+
+HWSQ is a very limitted programmable "microcontroller" present on NV17:NV20
+and NV25:NVC0 cards. Its capabilities include: setting/clearing several
+register bits all around the card, waiting a fixed amount of time, waiting
+for one of a small predefined set of events [NV41+ only], and writing
+arbitrary values to arbitrary MMIO registers [NV41+ only].
+
+There is no control flow, no GPRs, no arithmetic. It's only possible to
+execute a very simple preconfigured series of commands from start to finish.
+
+HWSQ registers reside inside of PBUS MMIO area [see pbus.txt].
+
+
+MMIO registers
+
+no annotation - NV17:NVC0
+
+[1] NV17:NV41
+[2] NV41:NV50
+[3] NV50:NVC0
+[4] NV92:NVC0
+
+001304           ENTRY_POINT
+001308           STATUS
+00130c           TRIGGER
+001310           FLAGS_0
+001314           FLAGS_1
+001318[4]        ENTRY_POINT_HIGH
+001400:001440[1] CODE
+001400:001480[2] CODE
+001400:001500[3] CODE
+080000:080200[4] NEW_CODE
+
+
+Code space
+
+The HWSQ commands are stored in dedicated code RAM. The code RAM is 0x40
+bytes long on NV17:NV41 cards, 0x80 bytes long on NV41:NV50, 0x100 bytes long
+on NV50:NV92, and 0x200 bytes long on NV92+.
+
+The code RAM is byte-oriented, but the MMIO registers used to access it are
+word-oriented, and touch 4 bytes at once. They are treated as little-endian:
+bits 0-7 of the word touch byte 0, bits 8-15 touch byte 1, 16-23 touch byte 2,
+24-31 touch byte 3.
+
+The code RAM is direct-mapped to MMIO space. On all cards, accessing a word
+at MMIO 0x1400 + i, where 0 <= i < 0x100, i < code RAM size, and i is
+divisible by 4, accesses bytes i..i+3 of code RAM. On NV92+, due to
+increased code RAM size, a new code RAM access window has been introduced
+at MMIO 0x080000: MMIO 0x80000 + i, where 0 <= i < 0x200 and i is divisible
+by 4, accesses bytes i..i+3 of code RAM. The old 0x1400 window still exists,
+but is limitted to first 0x100 bytes of code RAM.
+
+MMIO 0x1400 + [0..0xf] * 4: CODE [NV17:NV41]
+MMIO 0x1400 + [0..0x1f] * 4: CODE [NV41:NV50]
+MMIO 0x1400 + [0..0x3f] * 4: CODE [NV50:NVC0]
+MMIO 0x80000 + [0..0x7f] * 4: NEW_CODE [NV92:NVC0]
+  Index i accesses code RAM bytes i*4, i*4+1, i*4+2, i*4+3, mapped to bits
+  0-7, 8-15, 16-23, 24-31 respectively.
+
+
+Opcodes
+
+The HWSQ opcodes are variable-length, most are a single byte. The first byte
+determines the length of the opcode. The valid opcodes [or their first bytes]
+are:
+
+ - 0x00-0x3f: wait - waits a fixed amount of PTIMER clocks [single byte]
+ - 0x40: addr16 - sets low 16 bits of MMIO address and executes MMIO write [3 bytes] [NV41+ only]
+ - 0x42: data16 - sets low 16 bits of MMIO data [3 bytes] [NV41+ only]
+ - 0x5f: ewait - waits for an event [3 bytes] [NV41+ only]
+ - 0x7f: exit - finishes HWSQ execution [single byte]
+ - 0x80-0x9f: unset - sets a flag to "don't touch" [single byte]
+ - 0xa0-0xbf: set0 - sets a flag to "override to 0" [single byte]
+ - 0xc0-0xdf: set1 - sets a flag to "override to 1" [single byte]
+ - 0xe0: addr32 - sets MMIO address and executes MMIO write [5 bytes] [NV41+ only]
+ - 0xe2: data32 - sets MMIO data [5 bytes] [NV41+ only]
+
+
+Script execution
+
+HWSQ execution has to be started manually by the host every time the script
+is to be executed. The execution can begin at arbitrary point and continues
+until the "exit" opcode is executed.
+
+First, the entry point needs to be set. There are 4 entry points, selectable
+when triggering the execution start. They are set through the ENTRY_POINT
+registers:
+
+MMIO 0x001304: ENTRY_POINT
+  bits 0-7: bits 0-7 of entry point 0 address
+  bits 8-15: bits 0-7 of entry point 1 address
+  bits 16-23: bits 0-7 of entry point 2 address
+  bits 24-31: bits 0-7 of entry point 3 address
+MMIO 0x001318: ENTRY_POINT_HIGH [NV92:NVC0]
+  bit 0: bit 8 of entry point 0 address
+  bit 8: bit 8 of entry point 1 address
+  bit 16: bit 8 of entry point 2 address
+  bit 24: bit 8 of entry point 3 address
+
+Once entry points are set and the code is uploaded, scripts can be started by
+poking the TRIGGER register. The NV17:NV92 HWSQ hardware has support for two
+HWSQ "execution slots", with independent instruction pointers. However, they
+have no support for concurrent execution: a long wait on one of the slots will
+also hang the other. NV92+ have only one execution slot.
+
+MMIO 0x00130c: TRIGGER [write only]
+  bit 0: trigger type. 0 aborts execution, 1 starts execution.
+  bit 1: slot. 0 means slot B, 1 means slot A [NV17:NV92 only]
+  bits 2-3: entry point selection [for start trigger only]
+
+Execution status can be monitored through the STATUS register:
+
+MMIO 0x001308: STATUS [read only]
+  bits 0-7: bits 0-7 of current slot A IP [instruction pointer]. The IP is the
+            address of the *next* instruction to be fetched, so if HWSQ is
+	    currently executing a wait opcode, this will point to the byte
+	    after the opcode. After the script exits normally, it'll point
+	    to the exit instruction - exit doesn't increase the IP.
+  bit 8: 1 if HWSQ slot A is currently executing, 0 if not
+  bit 9: 1 if HWSQ slot A encountered an unknown opcode [NV41:NV92 only]
+  bit 10: bit 8 of current slot A IP [NV92+ only]
+  bits 16-31: like bits 0-15, but for slot B [NV17:NV92 only]
+
+When HWSQ hits an unknown opcode on NV41:NV92 cards, the "illegal opcode" bit
+in STATUS register is lit, and the execution hangs. The HWSQ slot is still
+considered executing, however, and needs to be manually aborted. On NV17:NV41
+and NV92:NVC0, unknown opcodes are treated as 1-byte nops.
+
+HWSQ execution can end by hitting an "exit" opcode, or manual abort. The exit
+opcode is:
+
+Opcode: 0x7f exit
+  Stops HWSQ execution on a given slot. IP is not incremented.
+
+Manual abort is executed by poking the TRIGGER register with type set to
+abort. Note that, in some cases on wait instructions, the abort triggers
+an unknown opcode condition and the script hangs instead - a second abort
+is needed to clear the unknown opcode condition and actually abort the
+execution.
+
+
+PTIMER wait opcodes
+
+The PTIMER wait opcodes are used to insert constant delays into a script. The
+delays are selectable by a simple encoding style, and are counted in PTIMER
+clocks. A PTIMER clock here is considered to be the actual clock at which the
+TIME_* registers are increased - ie. a single clock is what causes the TIME_*
+registers to increase by 0x20.
+
+The opcodes are:
+
+Opcode: 0x00-0x3f wait #wait_length shl #(wait_shift * 2)
+  opcode bits 0-1: wait_length [0-3]
+  opcode bits 2-5: wait_shift [0-15] - written in the assembler instruction
+                   premultiplied by 2.
+  Delays next HWSQ opcode execution by (wait_length << (wait_shift * 2)) * 0x20
+  PTIMER clocks. If PTIMER uses standard calibration values, this corresponds
+  to (wait_length << (wait_shift * 2)) µs.
+
+
+Flags
+
+The main purpose of HWSQ on pre-NV41 chipsets is to twiddle various bits in
+registers all around the card. They're called "HWSQ flags". There are 32
+flags. A flag can be in one of 3 states:
+
+ - unset: the value of corresponding register bit is unaffected
+ - override to 0: the value of corresponding register bit is forced to 0, and
+                  cannot be changed by normal means
+ - override to 1: the value of corresponding register bit is forced to 1, and
+                  cannot be changed by normal means
+
+The current state of HWSQ flags can be accessed by the FLAGS registers:
+
+MMIO 0x001310: FLAGS_0
+  bits 0-15: values of flags 0-15. If override is enabled for a flag, this is
+             what the corresponding register bit should be forced to.
+	     Otherwise, it is ignored.
+  bits 15-31: override enables of flags 0-15. If the bit corresponding to
+              a given flag is set, the flag is in one of the override states,
+	      otherwise it's in the unset state.
+MMIO 0x001314: FLAGS_1
+  Like FLAGS_0, but for flags 16-31.
+
+The flags state can be modified from HWSQ scripts by using one of the flag
+opcodes:
+
+Opcode: 0x80-0x9f unset #flag
+  bits 0-4: flag index
+  Switches the selected flag to "unset" state.
+
+Opcode: 0xa0-0xbf set0 #flag
+  bits 0-4: flag index
+  Switches the selected flag to "override to 0" state.
+
+Opcode: 0xc0-0xdf set1 #flag
+  bits 0-4: flag index
+  Switches the selected flag to "override to 1" state.
+
+The known flags are:
+
+[XXX: check on other cards than NV18]
+0: 60081c/60281c/CR4d b0
+1: 60081c/60281c/CR4d b1
+2: 60081c/60281c/CR4d b4
+3: 60081c/60281c/CR4d b5
+4: 680880 b28
+5: 682880 b28
+6: 680880 b29
+7: 682880 b29
+27: 10f0 b31
+28: 1084 b22
+29: 1084 b24
+30: 1084 b26
+31: 1084 b27
+
+
+MMIO poke opcodes
+
+[XXX: write me]
+
+
+Event wait opcodes
+
+[XXX: write me]
