@@ -27,6 +27,10 @@ no annotation - NV17:NVC0
 001310           FLAGS_0
 001314           FLAGS_1
 001318[4]        ENTRY_POINT_HIGH
+001380[2]        ???
+001384[2]        ???
+001388[2]        ???
+00138c[2]        ???
 001400:001440[1] CODE
 001400:001480[2] CODE
 001400:001500[3] CODE
@@ -67,15 +71,15 @@ determines the length of the opcode. The valid opcodes [or their first bytes]
 are:
 
  - 0x00-0x3f: wait - waits a fixed amount of PTIMER clocks [single byte]
- - 0x40: addr16 - sets low 16 bits of MMIO address and executes MMIO write [3 bytes] [NV41+ only]
- - 0x42: data16 - sets low 16 bits of MMIO data [3 bytes] [NV41+ only]
+ - 0x40: addrlo - sets low 16 bits of MMIO address and executes MMIO write [3 bytes] [NV41+ only]
+ - 0x42: datalo - sets low 16 bits of MMIO data [3 bytes] [NV41+ only]
  - 0x5f: ewait - waits for an event [3 bytes] [NV41+ only]
  - 0x7f: exit - finishes HWSQ execution [single byte]
  - 0x80-0x9f: unset - sets a flag to "don't touch" [single byte]
  - 0xa0-0xbf: set0 - sets a flag to "override to 0" [single byte]
  - 0xc0-0xdf: set1 - sets a flag to "override to 1" [single byte]
- - 0xe0: addr32 - sets MMIO address and executes MMIO write [5 bytes] [NV41+ only]
- - 0xe2: data32 - sets MMIO data [5 bytes] [NV41+ only]
+ - 0xe0: addr - sets MMIO address and executes MMIO write [5 bytes] [NV41+ only]
+ - 0xe2: data - sets MMIO data [5 bytes] [NV41+ only]
 
 
 Script execution
@@ -131,7 +135,7 @@ and NV92:NVC0, unknown opcodes are treated as 1-byte nops.
 HWSQ execution can end by hitting an "exit" opcode, or manual abort. The exit
 opcode is:
 
-Opcode: 0x7f exit
+Opcode: 0x7f - exit
   Stops HWSQ execution on a given slot. IP is not incremented.
 
 Manual abort is executed by poking the TRIGGER register with type set to
@@ -151,7 +155,7 @@ registers to increase by 0x20.
 
 The opcodes are:
 
-Opcode: 0x00-0x3f wait #wait_length shl #(wait_shift * 2)
+Opcode: 0x00-0x3f - wait #wait_length shl #(wait_shift * 2)
   opcode bits 0-1: wait_length [0-3]
   opcode bits 2-5: wait_shift [0-15] - written in the assembler instruction
                    premultiplied by 2.
@@ -187,15 +191,15 @@ MMIO 0x001314: FLAGS_1
 The flags state can be modified from HWSQ scripts by using one of the flag
 opcodes:
 
-Opcode: 0x80-0x9f unset #flag
+Opcode: 0x80-0x9f - unset #flag
   bits 0-4: flag index
   Switches the selected flag to "unset" state.
 
-Opcode: 0xa0-0xbf set0 #flag
+Opcode: 0xa0-0xbf - set0 #flag
   bits 0-4: flag index
   Switches the selected flag to "override to 0" state.
 
-Opcode: 0xc0-0xdf set1 #flag
+Opcode: 0xc0-0xdf - set1 #flag
   bits 0-4: flag index
   Switches the selected flag to "override to 1" state.
 
@@ -219,7 +223,44 @@ The known flags are:
 
 MMIO poke opcodes
 
-[XXX: write me]
+On NV41+ cards, HWSQ can write arbitrary values to arbitrary MMIO addresses.
+This is done in two parts: first, the data value has to be set with one of
+the "set data" opcodes, then the MMIO address should be set using the "set
+address" opcode. The opcode setting the address also triggers the MMIO write.
+
+If a script writes multiple MMIO registers, it may make use of the "short"
+data and address opcodes. They take a 16-bit parameter, filling the high 16
+bits with the high 16 bits of previously used value.
+
+Thus, there are 2 32-bit state registers used for MMIO poke opcodes: ADDR
+and DATA. Both of these registers are per-slot on chipsets that have two
+executions slots. These registers are not directly accessible through MMIO.
+
+Opcode: 0xe2 <b0:7> <b8:15> <b16:23> <b24:31> - data #imm32 [NV41+]
+  This is a 5-byte opcode. First byte is the actual opcode, while the next
+  bytes specify the 32-bit immediate value.
+  DATA = imm32;
+
+Opcode: 0x42 <b0:7> <b8:15> - datalo #imm16 [NV41+]
+  This is a 3-byte opcode. First byte is the actual opcode, while the next
+  bytes specify the 16-bit immediate value.
+  DATA = (DATA & 0xffff0000) | imm16;
+
+Opcode: 0xe0 <b0:7> <b8:15> <b16:23> <b24:31> - addr #imm32 [NV41+]
+  This is a 5-byte opcode. First byte is the actual opcode, while the next
+  bytes specify the 32-bit immediate value.
+  ADDR = imm32;
+  MMIO_WR32(ADDR, DATA);
+
+Opcode: 0x40 <b0:7> <b8:15> - addrlo #imm16 [NV41+]
+  This is a 3-byte opcode. First byte is the actual opcode, while the next
+  bytes specify the 16-bit immediate value.
+  ADDR = (ADDR & 0xffff0000) | imm16;
+  MMIO_WR32(ADDR, DATA);
+
+For the addr and addrlo instructions to work, and the pokes to be executed,
+HWSQ MMIO access has to be enabled. This is done by setting bit 3 of
+PBUS.DEBUG_6 [0x1098] register to 1 [see pbus.txt for details].
 
 
 Event wait opcodes

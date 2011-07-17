@@ -42,6 +42,9 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 	<array offset="0x1000" name="PBUS" stride="0x1000" length="1">
+		<reg32 offset="0x098" name="DEBUG_6" variants="NV17:NV20 NV25-">
+			<bitfield pos="3" name="HWSQ_MMIO_ENABLE" variants="NV41:NVC0"/>
+		</reg32>
 		<reg32 offset="0x100" name="INTR">
 			<bitfield pos="3" name="MMIO_FAULT" variants="NV41-"/>
 			<bitfield pos="26" name="USER" variants="NV50-" />
