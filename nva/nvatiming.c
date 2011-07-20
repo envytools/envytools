@@ -342,7 +342,7 @@ int main(int argc, char **argv)
 	struct nva_card *card = NULL;
 	u32 pmc_enable;
 	int c;
-	char cnum = 0;
+	int cnum = 0;
 
 	if (nva_init()) {
 		fprintf (stderr, "PCI init failure!\n");
