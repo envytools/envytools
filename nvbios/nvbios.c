@@ -68,6 +68,15 @@ int subsnum = 0, subsmax = 0;
 uint16_t *calls = 0;
 int callsnum = 0, callsmax = 0;
 
+int usage(char* name) {
+	printf("Usage: %s mybios.rom [-c XX] [-s strap]\n",name);
+	printf("Options:\n");
+	printf("  -c XX : override card generation\n");
+	printf("  -m XX : override \"magic number\" for memtimings\n");
+	printf("  -s XX : set the trap register\n");
+	return 1;
+}
+
 static bool nv_cksum(const uint8_t *data, unsigned int length)
 {
 	/*
@@ -438,7 +447,6 @@ static void parse_bios_version(uint16_t offset)
 
 int set_strap_from_string(const char* strap_s)
 {
-	char tmp[21];
 	char* end_ptr;
 	unsigned long int value;
 
@@ -471,9 +479,6 @@ int set_strap_from_file(const char *path)
 }
 
 void find_strap(int argc, char **argv) {
-	FILE *strapfile = NULL;
-	char tmp[21];
-
 	char *path;
 	const char * strap_filename = "strap_peek";
 	const char *pos = strrchr(argv[1], '/');
@@ -494,23 +499,22 @@ void find_strap(int argc, char **argv) {
 }
 
 int parse_args(int argc, char **argv) {
-	char tmp[16];
 	int i;
 
 	for(i = 2; i < argc; i++) {
 		if (!strncmp(argv[i],"-c",2)) {
 			i++;
 			if(i < argc) {
-				sscanf(argv[i],"%2hx",&card_codename);
-				printf("Card generation forced to nv%2hx\n", card_codename);
+				sscanf(argv[i],"%2x",&card_codename);
+				printf("Card generation forced to nv%2x\n", card_codename);
 			} else {
 				return usage(argv[0]);
 			}
 		} else if (!strncmp(argv[i],"-m",2)) {
 			i++;
 			if(i < argc) {
-				sscanf(argv[i],"%2hx",&magic_number);
-				printf("Magic number forced to %2hx\n", magic_number);
+				sscanf(argv[i],"%2hhx",&magic_number);
+				printf("Magic number forced to %2hhx\n", magic_number);
 			} else {
 				return usage(argv[0]);
 			}
@@ -531,15 +535,6 @@ int parse_args(int argc, char **argv) {
 	}
 
 	return 0;
-}
-
-int usage(char* name) {
-	printf("Usage: %s mybios.rom [-c XX] [-s strap]\n",name);
-	printf("Options:\n");
-	printf("  -c XX : override card generation\n");
-	printf("  -m XX : override \"magic number\" for memtimings\n");
-	printf("  -s XX : set the trap register\n");
-	return 1;
 }
 
 int main(int argc, char **argv) {
@@ -596,7 +591,6 @@ int main(int argc, char **argv) {
 		int maxentry = bios[bitoffset+10];
 		printf ("BIT at %x, %x entries\n", bitoffset, maxentry);
 		printf ("\n");
-		int i;
 		printhex(bitoffset, 12);
 		for (i = 0; i < maxentry; i++) {
 			uint32_t off = bitoffset + 12 + i*6;
@@ -686,7 +680,6 @@ int main(int argc, char **argv) {
 		}
 		printhex(dcboffset, dcbhlen);
 		printf("\n");
-		int i;
 		for (i = 0; i < dcbentries; i++) {
 			uint16_t soff = dcboffset + dcbhlen + dcbrlen * i;
 			uint32_t conn = le32(soff);
@@ -721,7 +714,7 @@ int main(int argc, char **argv) {
 		for (i=0; i < entry_count; i++) {
 			uint16_t entry_offset = hwsqoffset + 2 + i * bytes_to_write;
 			uint32_t sequencer = le32(entry_offset);
-			uint8_t bytes_written = 4;
+			//uint8_t bytes_written = 4;
 
 			printf("-- HWSQ entry %u at %x: sequencer control = %u\n", i, entry_offset, sequencer);
 			envydis(hwsq_isa, stdout, bios + entry_offset + 4, 0, bytes_to_write - 4, -1, -1, 0, 0, 0);
@@ -747,7 +740,6 @@ int main(int argc, char **argv) {
 			printf ("I2C table at %x:\n", i2coffset);
 		}
 		printf ("\n");
-		int i;
 		for (i = 0; i < i2centries; i++) {
 			uint16_t off = i2coffset + i2chlen + i2crlen * i;
 			printf ("Entry %x: ", i);
@@ -794,7 +786,6 @@ int main(int argc, char **argv) {
 		printf ("GPIO table %d.%d at %x\n", gpiover >> 4, gpiover&0xf, gpiooffset);
 		printhex(gpiooffset, gpiohlen);
 
-		int i;
 		uint16_t soff = gpiooffset + gpiohlen;
 		for (i = 0; i < gpioentries; i++) {
 			if (dcbver < 0x40) {
@@ -826,7 +817,6 @@ int main(int argc, char **argv) {
 	if (pll_limit_tbl_ptr) {
 		uint8_t ver = bios[pll_limit_tbl_ptr];
 		uint8_t hlen = 0, rlen = 0, entries = 0;
-		uint8_t *record = NULL;
 		printf ("PLL limits table at %x, version %x\n", pll_limit_tbl_ptr, ver);
 		switch (ver) {
 			case 0:
@@ -846,7 +836,6 @@ int main(int argc, char **argv) {
 				entries = bios[pll_limit_tbl_ptr+3];
 		}
 		printhex(pll_limit_tbl_ptr, hlen);
-		int i;
 		uint16_t soff = pll_limit_tbl_ptr + hlen;
 		for (i = 0; i < entries; i++) {
 			if (ver == 0x20 || ver ==0x21) {
@@ -950,7 +939,7 @@ int main(int argc, char **argv) {
 	}
 
 	if (init_script_tbl_ptr) {
-		int i = 0;
+		i = 0;
 		uint16_t off = init_script_tbl_ptr;
 		uint16_t soff;
 		while ((soff = le16(off))) {
@@ -994,7 +983,6 @@ int main(int argc, char **argv) {
 		printf ("Display script table at %x, version %x:\n", disp_script_tbl_ptr, ver);
 		printhex(disp_script_tbl_ptr, hlen + rlen * entries);
 		printf ("\n");
-		int i = 0;
 		for (i = 0; i < entries; i++) {
 			uint16_t table = le16(disp_script_tbl_ptr + hlen + i * rlen);
 			if (!table)
@@ -1010,7 +998,6 @@ int main(int argc, char **argv) {
 
 	if (condition_tbl_ptr) {
 		printf ("Condition table at %x: %d conditions:\n", condition_tbl_ptr, maxcond+1);
-		int i;
 		for (i = 0; i <= maxcond; i++) {
 			printcmd(condition_tbl_ptr + 12 * i, 12);
 			printf ("[0x%02x] R[0x%06x] & 0x%08x == 0x%08x\n", i,
@@ -1023,7 +1010,6 @@ int main(int argc, char **argv) {
 
 	if (macro_index_tbl_ptr) {
 		printf ("Macro index table at %x: %d macro indices:\n", macro_index_tbl_ptr, maxmi+1);
-		int i;
 		for (i = 0; i <= maxmi; i++) {
 			printcmd(macro_index_tbl_ptr + 2 * i, 2);
 			printf ("[0x%02x] 0x%02x *%d\n", i,
@@ -1037,7 +1023,6 @@ int main(int argc, char **argv) {
 
 	if (macro_tbl_ptr) {
 		printf ("Macro table at %x: %d macros:\n", macro_tbl_ptr, maxmac+1);
-		int i;
 		for (i = 0; i <= maxmac; i++) {
 			printcmd(macro_tbl_ptr + 8 * i, 8);
 			printf ("[0x%02x] R[0x%06x] = 0x%08x\n", i,
@@ -1091,13 +1076,14 @@ int main(int argc, char **argv) {
 			printf("Extra_length %i. Extra_count %i.\n", extra_data_length, extra_data_count);
 		else if (version == 0x40)
 			printf("Subentry length %i. Subentry count %i. Subentry Offset %i\n", subentry_size, subentry_count, subentry_offset);
+		else
+			printf("Version unknown\n");
 
 		printf("Header:\n");
 		printcmd(pm_mode_tbl_ptr, header_length>0?header_length:10);
 		printf ("\n");
 
 		printf("%i performance levels\n", entry_count);
-		int i;
 		for (i=0; i < entry_count; i++) {
 			uint16_t id, fan, voltage;
 			uint16_t core, shader = 0, memclk;
@@ -1165,17 +1151,16 @@ int main(int argc, char **argv) {
 
 				if (ram_cfg < extra_data_count)
 					timing_id = bios[timing_extra_data+1];
+
+				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
+					id, core, memclk, shader, voltage, timing_id, fan, pcie_width );
 			} else if (version == 0x40) {
 				if (ram_cfg < subentry_count)
 					timing_id = bios[start+subent(ram_cfg)+1];
+				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Voltage entry %d Timing %d PCIe link width %d --\n",
+					id, core, memclk, shader, voltage, timing_id, pcie_width );
 			}
 
-			if (version < 0x40)
-				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
-				id, core, memclk, shader, voltage, timing_id, fan, pcie_width );
-			else
-				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Voltage entry %d Timing %d Fan %d PCIe link width %d --\n",
-				id, core, memclk, shader, voltage, timing_id, fan, pcie_width );
 			if (mode_info_length > 20) {
 				int i=0;
 				while (mode_info_length - i*20 > 20) {
@@ -1210,9 +1195,8 @@ int main(int argc, char **argv) {
 
 	if (voltage_map_tbl_ptr) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
-		uint8_t header_length = 0, mask = 0;
+		uint8_t header_length = 0;
 		uint16_t start = voltage_map_tbl_ptr;
-		int i;
 
 		version = bios[start+0];
 		header_length = bios[start+1];
@@ -1277,7 +1261,6 @@ int main(int argc, char **argv) {
 			start += header_length;
 
 			printf ("%i entries\n", entry_count);
-			int i;
 			for (i=0; i < entry_count; i++) {
 				uint32_t id, label;
 
@@ -1300,7 +1283,6 @@ int main(int argc, char **argv) {
 			uint32_t volt_uv = le32(start+4);
 			int16_t step_uv = le16(start+8);
 			uint16_t nr_label = mask + 1; // XXX: hacky solution
-			int i;
 
 			printf("-- Maximum voltage %d µV, voltage step %d µV, Maximum voltage to be used %d µV --\n",
 					volt_uv, step_uv, le32(start+14));
@@ -1334,7 +1316,6 @@ int main(int argc, char **argv) {
 		printf ("\n\n");
 
 		printf ("%i entries\n", entry_count);
-		int i;
 		for (i=0; i < entry_count; i++) {
 			uint8_t id = bios[(start+i*entry_length)+0];
 			uint16_t data = le16((start+i*entry_length)+1);
@@ -1413,7 +1394,6 @@ int main(int argc, char **argv) {
 		uint8_t tUNK_18, tUNK_19, tUNK_20, tUNK_21;
 		uint32_t reg_100220 = 0, reg_100224 = 0, reg_100228 = 0, reg_10022c = 0;
 		uint32_t reg_100230 = 0, reg_100234 = 0, reg_100238 = 0, reg_10023c = 0;
-		int i;
 
 		version = bios[start+0];
 		if (version == 0x10) {
@@ -1492,7 +1472,7 @@ int main(int argc, char **argv) {
 					if(card_codename < 0x50) {
 						/* Don't know, don't care...
 						* don't touch the rest */
-						reg_100228 |= 0x20200000 + magic_number << 24;
+						reg_100228 |= 0x20200000 + (magic_number << 24);
 					} else {
 						reg_100230 = (tUNK_20 << 24 | tUNK_21 << 16 |
 									tUNK_13 << 8  | tUNK_13);
@@ -1555,7 +1535,7 @@ int main(int argc, char **argv) {
 				header_length = 0;
 		uint16_t start = timings_map_tbl_ptr;
 		uint16_t clock_low = 0, clock_hi = 0;
-		int i,j;
+		int j;
 		uint8_t ram_cfg = strap?(strap & 0x1c) >> 2:0xff;
 		uint8_t timing;
 
@@ -1601,7 +1581,6 @@ int main(int argc, char **argv) {
 		uint8_t 	version = 0, entry_count = 0, entry_length = 0,
 				header_length = 0;
 		uint16_t start = pm_unknown_tbl_ptr;
-		int i;
 
 		version = bios[start];
 
