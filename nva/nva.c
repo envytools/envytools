@@ -63,9 +63,9 @@ int nva_init() {
 		if (nva_cards[i].chipset < 0x10) {
 			if (nva_cards[i].boot0 & 0xf000) {
 				if (nva_cards[i].boot0 & 0xf00000)
-					nva_cards[i].chipset = 4;
-				else
 					nva_cards[i].chipset = 5;
+				else
+					nva_cards[i].chipset = 4;
 			} else {
 				nva_cards[i].chipset = nva_cards[i].boot0 >> 16 & 0xf;
 				if ((nva_cards[i].boot0 & 0xff) >= 0x20)
