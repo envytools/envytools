@@ -32,7 +32,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
-#include "rnn.h"
+#include "util.h"
 
 extern char *cnorm;	// instruction code and misc stuff
 extern char *cname;	// instruction name and mods

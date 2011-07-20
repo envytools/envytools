@@ -1,7 +1,8 @@
 #include <pciaccess.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "nva.h"
-#include "rnn.h"
+#include "util.h"
 
 struct nva_card *nva_cards = 0;
 int nva_cardsnum = 0;
@@ -28,7 +29,7 @@ int nva_init() {
 			continue;
 		}
 		c.pci = dev;
-		RNN_ADDARRAY(nva_cards, c);
+		ADDARRAY(nva_cards, c);
 	}
 	pci_iterator_destroy(it);
 
@@ -47,7 +48,7 @@ int nva_init() {
 			continue;
 		}
 		c.pci = dev;
-		RNN_ADDARRAY(nva_cards, c);
+		ADDARRAY(nva_cards, c);
 	}
 	pci_iterator_destroy(it);
 

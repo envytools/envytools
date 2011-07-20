@@ -48,11 +48,11 @@ add_object(struct state *s, uint32_t handle, uint32_t class)
 			obj->ctx = rnndec_newcontext(s->db);
 			obj->ctx->colors = s->colors;
 
-			RNN_FINDARRAY(chs->vals, v, v->value == s->chipset);
+			FINDARRAY(chs->vals, v, v->value == s->chipset);
 			rnndec_varadd(obj->ctx, "chipset",
 				      v ? v->name : "NV01");
 
-			RNN_FINDARRAY(cls->vals, v, v->value == class);
+			FINDARRAY(cls->vals, v, v->value == class);
 			obj->name = v ? v->name : NULL;
 			rnndec_varadd(obj->ctx, "obj-class",
 				      v ? v->name : "NV01_NULL");

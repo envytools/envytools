@@ -173,12 +173,12 @@ static int trytypetag (struct rnndb *db, char *file, xmlNode *node, struct rnnty
 	if (!strcmp(node->name, "value")) {
 		struct rnnvalue *val = parsevalue(db, file, node);
 		if (val)
-			RNN_ADDARRAY(ti->vals, val);
+			ADDARRAY(ti->vals, val);
 		return 1;
 	} else if (!strcmp(node->name, "bitfield")) {
 		struct rnnbitfield *bf = parsebitfield(db, file, node);
 		if (bf)
-			RNN_ADDARRAY(ti->bitfields, bf);
+			ADDARRAY(ti->bitfields, bf);
 		return 1;
 	}
 	return 0;
@@ -269,7 +269,7 @@ static void parsespectype(struct rnndb *db, char *file, xmlNode *node) {
 			db->estatus = 1;
 			return;
 		}
-	RNN_ADDARRAY(db->spectypes, res);
+	ADDARRAY(db->spectypes, res);
 	xmlNode *chain = node->children;
 	while (chain) {
 		if (chain->type != XML_ELEMENT_NODE) {
@@ -337,7 +337,7 @@ static void parseenum(struct rnndb *db, char *file, xmlNode *node) {
 		cur->varinfo.varsetstr = varsetstr;
 		cur->varinfo.variantsstr = variantsstr;
 		cur->file = file;
-		RNN_ADDARRAY(db->enums, cur);
+		ADDARRAY(db->enums, cur);
 	}
 	xmlNode *chain = node->children;
 	while (chain) {
@@ -345,7 +345,7 @@ static void parseenum(struct rnndb *db, char *file, xmlNode *node) {
 		} else if (!strcmp(chain->name, "value")) {
 			struct rnnvalue *val = parsevalue(db, file, chain);
 			if (val)
-				RNN_ADDARRAY(cur->vals, val);
+				ADDARRAY(cur->vals, val);
 		} else if (!trytop(db, file, chain) && !trydoc(db, file, chain)) {
 			fprintf (stderr, "%s:%d: wrong tag in enum: <%s>\n", file, chain->line, chain->name);
 			db->estatus = 1;
@@ -459,7 +459,7 @@ static void parsebitset(struct rnndb *db, char *file, xmlNode *node) {
 		cur->varinfo.varsetstr = varsetstr;
 		cur->varinfo.variantsstr = variantsstr;
 		cur->file = file;
-		RNN_ADDARRAY(db->bitsets, cur);
+		ADDARRAY(db->bitsets, cur);
 	}
 	xmlNode *chain = node->children;
 	while (chain) {
@@ -467,7 +467,7 @@ static void parsebitset(struct rnndb *db, char *file, xmlNode *node) {
 		} else if (!strcmp(chain->name, "bitfield")) {
 			struct rnnbitfield *bf = parsebitfield(db, file, chain);
 			if (bf)
-				RNN_ADDARRAY(cur->bitfields, bf);
+				ADDARRAY(cur->bitfields, bf);
 		} else if (!trytop(db, file, chain) && !trydoc(db, file, chain)) {
 			fprintf (stderr, "%s:%d: wrong tag in bitset: <%s>\n", file, chain->line, chain->name);
 			db->estatus = 1;
@@ -529,7 +529,7 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 			struct rnndelem *delem;
 			if (chain->type != XML_ELEMENT_NODE) {
 			} else if ((delem = trydelem(db, file, chain))) {
-				RNN_ADDARRAY(res->subelems, delem);
+				ADDARRAY(res->subelems, delem);
 			} else if (!trytop(db, file, chain) && !trydoc(db, file, chain)) {
 				fprintf (stderr, "%s:%d: wrong tag in %s: <%s>\n", file, chain->line, node->name, chain->name);
 				db->estatus = 1;
@@ -631,14 +631,14 @@ static void parsegroup(struct rnndb *db, char *file, xmlNode *node) {
 	if (!cur) {
 		cur = calloc(sizeof *cur, 1);
 		cur->name = strdup(name);
-		RNN_ADDARRAY(db->groups, cur);
+		ADDARRAY(db->groups, cur);
 	}
 	xmlNode *chain = node->children;
 	while (chain) {
 		struct rnndelem *delem;
 		if (chain->type != XML_ELEMENT_NODE) {
 		} else if ((delem = trydelem(db, file, chain))) {
-			RNN_ADDARRAY(cur->subelems, delem);
+			ADDARRAY(cur->subelems, delem);
 		} else if (!trytop(db, file, chain) && !trydoc(db, file, chain)) {
 			fprintf (stderr, "%s:%d: wrong tag in group: <%s>\n", file, chain->line, chain->name);
 			db->estatus = 1;
@@ -711,14 +711,14 @@ static void parsedomain(struct rnndb *db, char *file, xmlNode *node) {
 		cur->varinfo.varsetstr = varsetstr;
 		cur->varinfo.variantsstr = variantsstr;
 		cur->file = file;
-		RNN_ADDARRAY(db->domains, cur);
+		ADDARRAY(db->domains, cur);
 	}
 	xmlNode *chain = node->children;
 	while (chain) {
 		struct rnndelem *delem;
 		if (chain->type != XML_ELEMENT_NODE) {
 		} else if ((delem = trydelem(db, file, chain))) {
-			RNN_ADDARRAY(cur->subelems, delem);
+			ADDARRAY(cur->subelems, delem);
 		} else if (!trytop(db, file, chain) && !trydoc(db, file, chain)) {
 			fprintf (stderr, "%s:%d: wrong tag in domain: <%s>\n", file, chain->line, chain->name);
 			db->estatus = 1;
@@ -786,14 +786,14 @@ static void parsecopyright(struct rnndb *db, char *file, xmlNode *node) {
 						fprintf (stderr, "%s:%d: missing \"name\" attribute for nick\n", file, authorchild->line);
 						db->estatus = 1;
 					} else
-						RNN_ADDARRAY(author->nicknames, nickname);
+						ADDARRAY(author->nicknames, nickname);
 				} else {
 					fprintf (stderr, "%s:%d: wrong tag in author: <%s>\n", file, authorchild->line, authorchild->name);
 					db->estatus = 1;
 				}
 				authorchild = authorchild->next;
 			}
-			RNN_ADDARRAY(copyright->authors, author);
+			ADDARRAY(copyright->authors, author);
 		} else {
 			fprintf (stderr, "%s:%d: wrong tag in copyright: <%s>\n", file, chain->line, chain->name);
 			db->estatus = 1;
@@ -854,7 +854,7 @@ void rnn_parsefile (struct rnndb *db, char *file_orig) {
 		if (!strcmp(db->files[i], file))
 			return;
 		
-	RNN_ADDARRAY(db->files, file);
+	ADDARRAY(db->files, file);
 	xmlDocPtr doc = xmlParseFile(file);
 	if (!doc) {
 		fprintf (stderr, "%s: couldn't open database file. Please set the env var RNN_PATH.\n", file);
@@ -904,9 +904,9 @@ static void copytypeinfo (struct rnntypeinfo *dst, struct rnntypeinfo *src, char
 	dst->max = src->max;
 	dst->align = src->align;
 	for (i = 0; i < src->valsnum; i++)
-		RNN_ADDARRAY(dst->vals, copyvalue(src->vals[i], file));
+		ADDARRAY(dst->vals, copyvalue(src->vals[i], file));
 	for (i = 0; i < src->bitfieldsnum; i++)
-		RNN_ADDARRAY(dst->bitfields, copybitfield(src->bitfields[i], file));
+		ADDARRAY(dst->bitfields, copybitfield(src->bitfields[i], file));
 }
 
 static struct rnnbitfield *copybitfield (struct rnnbitfield *bf, char *file) {
@@ -934,7 +934,7 @@ static struct rnndelem *copydelem (struct rnndelem *elem, char *file) {
 	copytypeinfo(&res->typeinfo, &elem->typeinfo, file);
 	int i;
 	for (i = 0; i < elem->subelemsnum; i++)
-		RNN_ADDARRAY(res->subelems, copydelem(elem->subelems[i], file));
+		ADDARRAY(res->subelems, copydelem(elem->subelems[i], file));
 	return res;
 }
 
@@ -972,7 +972,7 @@ static void prepvarinfo (struct rnndb *db, char *what, struct rnnvarinfo *vi, st
 	int i;
 	if (parent)
 		for (i = 0; i < parent->varsetsnum; i++)
-			RNN_ADDARRAY(vi->varsets, copyvarset(parent->varsets[i]));
+			ADDARRAY(vi->varsets, copyvarset(parent->varsets[i]));
 	struct rnnenum *varset = vi->prefenum;
 	if (!varset && !vi->varsetstr && parent)
 		vi->varsetstr = parent->varsetstr;
@@ -998,7 +998,7 @@ static void prepvarinfo (struct rnndb *db, char *what, struct rnnvarinfo *vi, st
 			vs->variants = calloc(sizeof *vs->variants, nvars);
 			for (i = 0; i < nvars; i++)
 				vs->variants[i] = 1;
-			RNN_ADDARRAY(vi->varsets, vs);
+			ADDARRAY(vi->varsets, vs);
 		}
 		while (1) {
 			while (*vars == ' ') vars++;
@@ -1089,7 +1089,7 @@ static void preptypeinfo(struct rnndb *db, struct rnntypeinfo *ti, char *prefix,
 				ti->type = RNN_TTYPE_INLINE_ENUM;
 				int j;
 				for (j = 0; j < en->valsnum; j++)
-					RNN_ADDARRAY(ti->vals, copyvalue(en->vals[j], file));
+					ADDARRAY(ti->vals, copyvalue(en->vals[j], file));
 			} else {
 				ti->type = RNN_TTYPE_ENUM;
 				ti->eenum = en;
@@ -1099,7 +1099,7 @@ static void preptypeinfo(struct rnndb *db, struct rnntypeinfo *ti, char *prefix,
 				ti->type = RNN_TTYPE_INLINE_BITSET;
 				int j;
 				for (j = 0; j < bs->bitfieldsnum; j++)
-					RNN_ADDARRAY(ti->bitfields, copybitfield(bs->bitfields[j], file));
+					ADDARRAY(ti->bitfields, copybitfield(bs->bitfields[j], file));
 			} else {
 				ti->type = RNN_TTYPE_BITSET;
 				ti->ebitset = bs;
@@ -1170,7 +1170,7 @@ static void prepdelem(struct rnndb *db, struct rnndelem *elem, char *prefix, str
 			}
 		if (gr) {
 			for (i = 0; i < gr->subelemsnum; i++)
-				RNN_ADDARRAY(elem->subelems, copydelem(gr->subelems[i], elem->file));
+				ADDARRAY(elem->subelems, copydelem(gr->subelems[i], elem->file));
 		} else {
 			fprintf (stderr, "group %s not found!\n", elem->name);
 			db->estatus = 1;

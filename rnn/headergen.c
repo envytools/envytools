@@ -1,4 +1,5 @@
 #include "rnn.h"
+#include "util.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
@@ -118,7 +119,7 @@ void printdelem (struct rnndelem *elem, uint64_t offset) {
 	if (elem->varinfo.dead)
 		return;
 	if (elem->length != 1)
-		RNN_ADDARRAY(strides, elem->stride);
+		ADDARRAY(strides, elem->stride);
 	if (elem->name) {
 		if (stridesnum) {
 			int len, total;
@@ -257,7 +258,7 @@ int main(int argc, char **argv) {
 				f.guard[j] = toupper(f.guard[j]);
 			else
 				f.guard[j] = '_';
-		RNN_ADDARRAY(fouts, f);
+		ADDARRAY(fouts, f);
 		printhead(f, db);
 	}
 

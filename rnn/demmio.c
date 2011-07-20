@@ -1,6 +1,7 @@
 #include "rnn.h"
 #include "rnndec.h"
 #include "dis.h"
+#include "util.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
@@ -54,7 +55,7 @@ uint32_t *findmem (struct cctx *ctx, uint64_t addr) {
 	}
 	struct mpage *pg = calloc (sizeof *pg, 1);
 	pg->tag = tag;
-	RNN_ADDARRAY(ctx->pages, pg);
+	ADDARRAY(ctx->pages, pg);
 	return &pg->contents[(addr&0xfff)/4];
 }
 
@@ -240,7 +241,7 @@ int main(int argc, char **argv) {
 				nc.ctx->colors = &rnndec_colorsterm;
 				for (i = 0; i < 10; i++)
 					nc.i2cb[i].last = 7;
-				RNN_ADDARRAY(cctx, nc);
+				ADDARRAY(cctx, nc);
 			}
 			printf ("%s", line);
 		} else if (!strncmp(line, "W ", 2) || !strncmp(line, "R ", 2)) {

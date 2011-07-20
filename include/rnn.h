@@ -196,29 +196,4 @@ struct rnnbitset *rnn_findbitset (struct rnndb *db, const char *name);
 struct rnndomain *rnn_finddomain (struct rnndb *db, const char *name);
 struct rnnspectype *rnn_findspectype (struct rnndb *db, const char *name);
 
-#define RNN_ADDARRAY(a, e) \
-	do { \
-	if ((a ## num) >= (a ## max)) { \
-		if (!(a ## max)) \
-			(a ## max) = 16; \
-		else \
-			(a ## max) *= 2; \
-		(a) = realloc((a), (a ## max)*sizeof(*(a))); \
-	} \
-	(a)[(a ## num)++] = (e); \
-	} while(0)
-
-#define RNN_FINDARRAY(a, tmp, pred)				\
-	({							\
-		int __i;					\
-								\
-		for (__i = 0; __i < (a ## num); __i++) {	\
-			tmp = (a)[__i];				\
-			if (pred)				\
-				break;				\
-		}						\
-								\
-		tmp = ((pred) ? tmp : NULL);			\
-	})
-
 #endif

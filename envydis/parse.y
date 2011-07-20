@@ -43,7 +43,7 @@ void yyerror (char const *err) {
 start:	file { return envyas_process($1); }
 ;
 
-file:	file line { $$ = $1; if ($2) RNN_ADDARRAY($$->lines, $2); }
+file:	file line { $$ = $1; if ($2) ADDARRAY($$->lines, $2); }
 |	/**/ { $$ = calloc(sizeof *$$, 1); }
 ;
 
@@ -53,8 +53,8 @@ line:	T_ID ':' { $$ = calloc(sizeof *$$, 1); $$->type = LINE_LABEL; $$->str = $1
 |	';' { $$ = 0; }
 ;
 
-insn:	insn expr { $$ = $1; RNN_ADDARRAY($$->atoms, $2); }
-|	expr { $$ = calloc(sizeof *$$, 1); $$->type = LINE_INSN; RNN_ADDARRAY($$->atoms, $1); }
+insn:	insn expr { $$ = $1; ADDARRAY($$->atoms, $2); }
+|	expr { $$ = calloc(sizeof *$$, 1); $$->type = LINE_INSN; ADDARRAY($$->atoms, $1); }
 ;
 
 expr:	expr T_PLUSPLUS expr0 { $$ = makebinex(EXPR_PIADD, $1, $3); }
@@ -101,7 +101,7 @@ aexpr:	T_MEM expr ']' { $$ = makeex(EXPR_MEM); $$->str = $1; $$->expr1 = $2; }
 |	T_NUM ':' T_NUM { $$ = makeex(EXPR_BITFIELD); $$->num1 = $1; $$->num2 = $3; }
 ;
 
-vbody:	vbody expr { $$ = $1; RNN_ADDARRAY($$->vexprs, $2); }
+vbody:	vbody expr { $$ = $1; ADDARRAY($$->vexprs, $2); }
 |	/**/ { $$ = makeex(EXPR_VEC); }
 ;
 

@@ -1,5 +1,4 @@
-#include "rnn.h"
-#include "rnndec.h"
+#include "util.h"
 #include "dis.h"
 #include <errno.h>
 #include <stdio.h>
@@ -18,18 +17,6 @@ uint8_t major_version, minor_version, micro_version, chip_version;
 uint32_t card_codename = 0;
 uint8_t magic_number = 0;
 uint32_t strap = 0;
-
-#define RNN_ADDARRAY(a, e) \
-	do { \
-	if ((a ## num) >= (a ## max)) { \
-		if (!(a ## max)) \
-			(a ## max) = 16; \
-		else \
-			(a ## max) *= 2; \
-		(a) = realloc((a), (a ## max)*sizeof(*(a))); \
-	} \
-	(a)[(a ## num)++] = (e); \
-	} while(0)
 
 uint32_t bmpoffset = 0;
 uint16_t bmpver = 0;
@@ -276,7 +263,7 @@ void printscript (uint16_t soff) {
 					if (calls[i] == x)
 						break;
 				if (i == callsnum)
-					RNN_ADDARRAY(calls, x);
+					ADDARRAY(calls, x);
 				break;
 			case 0x5e:
 				printcmd (soff, 6);
@@ -311,7 +298,7 @@ void printscript (uint16_t soff) {
 					if (subs[i] == x)
 						break;
 				if (i == subsnum)
-					RNN_ADDARRAY(subs, x);
+					ADDARRAY(subs, x);
 				break;
 			case 0x6e:
 				printcmd (soff, 13);
@@ -968,7 +955,7 @@ int main(int argc, char **argv) {
 		uint16_t soff;
 		while ((soff = le16(off))) {
 			off += 2;
-			RNN_ADDARRAY(subs, i);
+			ADDARRAY(subs, i);
 			i++;
 		}
 		printf ("Init script table at %x: %d main scripts\n\n", init_script_tbl_ptr, i);

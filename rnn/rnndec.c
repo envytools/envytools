@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <inttypes.h>
+#include "util.h"
 
 struct rnndeccolors rnndec_colorsterm = {
 	.ceval = "\033[35m",
@@ -42,7 +43,7 @@ int rnndec_varadd(struct rnndeccontext *ctx, char *varset, char *variant) {
 			struct rnndecvariant *ci = calloc (sizeof *ci, 1);
 			ci->en = en;
 			ci->variant = i;
-			RNN_ADDARRAY(ctx->vars, ci);
+			ADDARRAY(ctx->vars, ci);
 			return 1;
 		}
 	fprintf (stderr, "Variant %s doesn't exist in enum %s!\n", variant, varset);

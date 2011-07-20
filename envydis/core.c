@@ -67,14 +67,14 @@ struct matches *emptymatches() {
 struct matches *alwaysmatches(int lpos) {
 	struct matches *res = calloc(sizeof *res, 1);
 	struct match m = { .lpos = lpos };
-	RNN_ADDARRAY(res->m, m);
+	ADDARRAY(res->m, m);
 	return res;
 }
 
 struct matches *catmatches(struct matches *a, struct matches *b) {
 	int i;
 	for (i = 0; i < b->mnum; i++)
-		RNN_ADDARRAY(a->m, b->m[i]);
+		ADDARRAY(a->m, b->m[i]);
 	free(b->m);
 	free(b);
 	return a;
@@ -102,7 +102,7 @@ struct matches *mergematches(struct match a, struct matches *b) {
 			for (j = 0; j < a.nrelocs; j++)
 				nm.relocs[nm.nrelocs + j] = a.relocs[j];
 			nm.nrelocs += a.nrelocs;
-			RNN_ADDARRAY(res->m, nm);
+			ADDARRAY(res->m, nm);
 		}
 	}
 	free(b->m);
@@ -113,7 +113,7 @@ struct matches *mergematches(struct match a, struct matches *b) {
 struct matches *tabdesc (struct disctx *ctx, struct match m, const struct atom *atoms) {
 	if (!atoms->fun) {
 		struct matches *res = emptymatches();
-		RNN_ADDARRAY(res->m, m);
+		ADDARRAY(res->m, m);
 		return res;
 	}
 	struct matches *ms = atoms->fun(ctx, 0, 0, atoms->arg, m.lpos);
@@ -200,7 +200,7 @@ struct matches *atomname APROTO {
 	if (!ctx->reverse) {
 		struct expr *expr = makeex(EXPR_ID);
 		expr->str = v;
-		RNN_ADDARRAY(ctx->atoms, expr);
+		ADDARRAY(ctx->atoms, expr);
 	} else {
 		return matchid(ctx, spos, v);
 	}
@@ -211,7 +211,7 @@ struct matches *atomcmd APROTO {
 		struct expr *expr = makeex(EXPR_ID);
 		expr->str = v;
 		expr->special = 1;
-		RNN_ADDARRAY(ctx->atoms, expr);
+		ADDARRAY(ctx->atoms, expr);
 	} else {
 		return matchid(ctx, spos, v);
 	}
@@ -223,7 +223,7 @@ struct matches *atomunk APROTO {
 	struct expr *expr = makeex(EXPR_ID);
 	expr->str = v;
 	expr->special = 2;
-	RNN_ADDARRAY(ctx->atoms, expr);
+	ADDARRAY(ctx->atoms, expr);
 }
 
 int setsbf (struct match *res, int pos, int len, ull num) {
@@ -315,7 +315,7 @@ struct matches *atomimm APROTO {
 		return matchimm(ctx, bf, spos);
 	struct expr *expr = makeex(EXPR_NUM);
 	expr->num1 = GETBF(bf);
-	RNN_ADDARRAY(ctx->atoms, expr);
+	ADDARRAY(ctx->atoms, expr);
 }
 
 struct matches *atomctarg APROTO {
@@ -326,7 +326,7 @@ struct matches *atomctarg APROTO {
 	expr->num1 = GETBF(bf);
 	mark(ctx, expr->num1, 2);
 	expr->special = 2;
-	RNN_ADDARRAY(ctx->atoms, expr);
+	ADDARRAY(ctx->atoms, expr);
 }
 
 struct matches *atombtarg APROTO {
@@ -337,7 +337,7 @@ struct matches *atombtarg APROTO {
 	expr->num1 = GETBF(bf);
 	mark(ctx, expr->num1, 1);
 	expr->special = 1;
-	RNN_ADDARRAY(ctx->atoms, expr);
+	ADDARRAY(ctx->atoms, expr);
 }
 
 struct matches *atomign APROTO {
@@ -495,7 +495,7 @@ struct matches *atomreg APROTO {
 	}
 	struct expr *expr = printreg(ctx, a, m, reg);
 	if (!expr) expr = makeex(EXPR_NUM);
-	RNN_ADDARRAY(ctx->atoms, expr);
+	ADDARRAY(ctx->atoms, expr);
 }
 
 struct matches *atomdiscard APROTO {
@@ -509,7 +509,7 @@ struct matches *atomdiscard APROTO {
 		}
 	}
 	struct expr *expr = makeex(EXPR_DISCARD);
-	RNN_ADDARRAY(ctx->atoms, expr);
+	ADDARRAY(ctx->atoms, expr);
 }
 
 int addexpr (const struct expr **iex, const struct expr *expr, int flip) {
@@ -609,7 +609,7 @@ struct matches *atommem APROTO {
 				nex->str = aprint("%s%lld", nex->str, GETBF(mem->idx));
 			expr = nex;
 		}
-		RNN_ADDARRAY(ctx->atoms, expr);
+		ADDARRAY(ctx->atoms, expr);
 		if (mem->literal && expr->expr1->type == EXPR_NUM) {
 			ull ptr = expr->expr1->num1;
 			mark(ctx, ptr, 0x10);
@@ -622,7 +622,7 @@ struct matches *atommem APROTO {
 			expr = makeex(EXPR_NUM);
 			expr->num1 = num;
 			expr->special = 3;
-			RNN_ADDARRAY(ctx->atoms, expr);
+			ADDARRAY(ctx->atoms, expr);
 		}
 	} else {
 		if (spos == ctx->line->atomsnum)
@@ -709,7 +709,7 @@ struct matches *atommem APROTO {
 				return 0;
 		}
 		struct matches *rres = emptymatches();
-		RNN_ADDARRAY(rres->m, res);
+		ADDARRAY(rres->m, res);
 		return rres;
 	}
 }
@@ -729,13 +729,13 @@ struct matches *atomvec APROTO {
 				struct expr *sexpr = makeex(EXPR_REG);
 				sexpr->special = vec->cool;
 				sexpr->str = aprint("%s%lld", vec->name,  base + k++);
-				RNN_ADDARRAY(expr->vexprs, sexpr);
+				ADDARRAY(expr->vexprs, sexpr);
 			} else {
 				struct expr *sexpr = makeex(EXPR_DISCARD);
-				RNN_ADDARRAY(expr->vexprs, sexpr);
+				ADDARRAY(expr->vexprs, sexpr);
 			}
 		}
-		RNN_ADDARRAY(ctx->atoms, expr);
+		ADDARRAY(ctx->atoms, expr);
 	} else {
 		if (spos == ctx->line->atomsnum)
 			return 0;
@@ -780,7 +780,7 @@ struct matches *atomvec APROTO {
 			       return 0;	
 		}
 		struct matches *rres = emptymatches();
-		RNN_ADDARRAY(rres->m, res);
+		ADDARRAY(rres->m, res);
 		return rres;
 	}
 }
@@ -791,7 +791,7 @@ struct matches *atombf APROTO {
 		struct expr *expr = makeex(EXPR_BITFIELD);
 		expr->num1 = GETBF(&bf[0]);
 		expr->num2 = expr->num1 + GETBF(&bf[1]);
-		RNN_ADDARRAY(ctx->atoms, expr);
+		ADDARRAY(ctx->atoms, expr);
 	} else {
 		if (spos == ctx->line->atomsnum)
 			return 0;
@@ -806,7 +806,7 @@ struct matches *atombf APROTO {
 		if (!setbf(&res, &bf[1], b))
 			return 0;
 		struct matches *rres = emptymatches();
-		RNN_ADDARRAY(rres->m, res);
+		ADDARRAY(rres->m, res);
 		return rres;
 	}
 }

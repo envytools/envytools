@@ -163,7 +163,7 @@ int envyas_process(struct file *file) {
 			struct matches *m = atomtab(ctx, 0, 0, ctx->isa->troot, 0);
 			for (j = 0; j < m->mnum; j++)
 				if (m->m[j].lpos == ctx->line->atomsnum) {
-					RNN_ADDARRAY(im[i].m, m->m[j]);
+					ADDARRAY(im[i].m, m->m[j]);
 				}
 			if (!im[i].mnum) {
 				fprintf (stderr, "No match on insn %d!\n", i+1);
@@ -190,7 +190,7 @@ int envyas_process(struct file *file) {
 		sectionsnum = 0;
 		int cursect = 0;
 		struct section def = { "default" };
-		RNN_ADDARRAY(sections, def);
+		ADDARRAY(sections, def);
 		for (i = 0; i < file->linesnum; i++) {
 			switch (file->lines[i]->type) {
 				case LINE_INSN:
@@ -208,7 +208,7 @@ int envyas_process(struct file *file) {
 						}
 					}
 					struct label l = { file->lines[i]->str, sections[cursect].pos / ctx->isa->posunit + sections[cursect].base };
-					RNN_ADDARRAY(ctx->labels, l);
+					ADDARRAY(ctx->labels, l);
 					break;
 				case LINE_DIR:
 					if (!strcmp(file->lines[i]->str, ".section")) {
@@ -227,7 +227,7 @@ int envyas_process(struct file *file) {
 							struct section s = { file->lines[i]->atoms[0]->str };
 							if (file->lines[i]->atomsnum == 2)
 								s.base = file->lines[i]->atoms[1]->num1;
-							RNN_ADDARRAY(sections, s);
+							ADDARRAY(sections, s);
 						}
 						cursect = j;
 					} else if (!strcmp(file->lines[i]->str, ".align")) {
@@ -269,7 +269,7 @@ int envyas_process(struct file *file) {
 							}
 						}
 						struct label l = { file->lines[i]->atoms[0]->str, num };
-						RNN_ADDARRAY(ctx->labels, l);
+						ADDARRAY(ctx->labels, l);
 					} else if (!donum(&sections[cursect], file->lines[i], ctx, 0)) {
 						fprintf (stderr, "Unknown directive %s\n", file->lines[i]->str);
 						return 1;

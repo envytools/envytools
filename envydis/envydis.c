@@ -181,7 +181,7 @@ int main(int argc, char **argv) {
 							nl.name = strdup(buf);
 						else
 							nl.name = 0;
-						RNN_ADDARRAY(labels, nl);
+						ADDARRAY(labels, nl);
 					}
 					break;
 				}
@@ -191,7 +191,7 @@ int main(int argc, char **argv) {
 					sscanf(optarg, "%llx", &nl.val);
 					nl.type = 1;
 					nl.name = 0;
-					RNN_ADDARRAY(labels, nl);
+					ADDARRAY(labels, nl);
 					break;
 				}
 		}
