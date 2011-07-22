@@ -9,12 +9,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <domain name="NV01_SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NV31_MPEG-NV84_MPEG">
-		<reg32 offset="0x0160" name="SIZE">
-			<doc>Seems to correspond to 0x1774/0x30000000</doc>
-			<bitfield low="0" high="15" name="W" type="int"/>
-			<bitfield low="16" high="31" name="H" type="int"/>
-		</reg32>
-		<reg32 offset="0x0164" name="UNK164">
+		<reg32 offset="0x0160" name="UNK160">
 			<doc>Seems to correspond to 0x1774/0x31000000, which
 			contains (width / 32), the value you poke in here is
 			not divided by 32 however.</doc>
@@ -22,6 +17,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield low="16" high="16" name="UNK">
 				<doc>PMPEG error if not set</doc>
 			</bitfield>
+		</reg32>
+		<reg32 offset="0x0164" name="SIZE">
+			<doc>Seems to correspond to 0x1774/0x30000000</doc>
+			<bitfield low="0" high="15" name="W" type="int"/>
+			<bitfield low="16" high="31" name="H" type="int"/>
 		</reg32>
 		<reg32 offset="0x0190" name="DMA_CMD" type="object"/>
 		<reg32 offset="0x01a0" name="DMA_DATA" type="object"/>
