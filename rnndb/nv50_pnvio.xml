@@ -124,16 +124,22 @@
 			<reg32 name="CTRL" offset="0x24">
 				<bitfield low="0" high="3" name="LEN"/>
 				<bitfield low="12" high="15" name="CMD"/>
-				<bitfield pos="16" name="EXEC_IN_PROGRESS"/>
-				<bitfield pos="20" name="LINKEN_ENABLED"/>
-				<bitfield pos="24" name="LINKSTAT_READY"/>
+				<bitfield pos="16" name="TX_PENDING"/>
+				<bitfield low="20" high="21" name="UNK_REQ"/>
+				<bitfield low="24" high="25" name="UNK_REP"/>
+				<bitfield pos="31" name="RESET"/>
 			</reg32>
 			<reg32 name="STAT" offset="0x28">
 				<bitfield low="0" high="4" name="COUNT"/>
+				<bitfield low="8" high="8" name="TIMEOUT"/>
+				<bitfield low="9" high="9" name="ERR9"/>
+				<bitfield low="10" high="10" name="ERR10"/>
+				<bitfield low="11" high="11" name="ERR11"/>
 				<bitfield low="16" high="17" name="AUX_REPLY" type="nv50_auxch_reply"/>
 				<bitfield low="18" high="19" name="I2C_REPLY" type="nv50_auxch_reply"/>
-				<bitfield pos="28" name="READY"/>
+				<bitfield pos="28" name="SINK_PRESENT"/>
 			</reg32>
+			<reg32 name="TX_TIMEOUT" offset="0x3c"/>
 			<reg32 name="SETUP" offset="0x40"/>
 		</array>
 
