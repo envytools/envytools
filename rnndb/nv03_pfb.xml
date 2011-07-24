@@ -9,13 +9,36 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV03:NV10">
-	<reg32 offset="0x000" name="BOOT_0" variants="NV03:NV04">
+	<reg32 offset="0x000" name="BOOT_0" variants="NV03:NV03T">
 		<bitfield low="0" high="1" name="RAM_AMOUNT">
-			<value value="0" name="8MB"/>
+			<value value="0" name="1MB"/>
 			<value value="1" name="2MB"/>
 			<value value="2" name="4MB"/>
 		</bitfield>
-		<bitfield pos="2" name="RAM_WIDTH_128"/>
+		<bitfield pos="2" name="TYPE">
+			<value value="0" name="SDR"/> <!-- guess -->
+			<value value="1" name="SG"/>
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x000" name="BOOT_0" variants="NV03T:NV04">
+		<bitfield low="0" high="1" name="RAM_AMOUNT">
+			<!-- note: if 8MB bit set, it overrides this field except for mem type selection -->
+			<value value="0" name="1MB_SG"/>
+			<value value="1" name="2MB_SG"/>
+			<value value="2" name="4MB_SG"/>
+			<value value="3" name="8MB_SDR"/>
+		</bitfield>
+		<bitfield pos="2" name="RAM_WIDTH">
+			<value value="0" name="64"/>
+			<value value="1" name="128"/>
+		</bitfield>
+		<bitfield pos="3" name="BANKS">
+			<value value="0" name="2"/>
+			<value value="1" name="4"/>
+		</bitfield>
+		<!-- swaps bits 32-63 and 64-95 of memory bus -->
+		<bitfield pos="4" name="BUS_SWAP"/>
+		<bitfield pos="5" name="8MB"/>
 	</reg32>
 	<reg32 offset="0x000" name="BOOT_0" variants="NV04:NV10">
 		<bitfield low="0" high="1" name="RAM_AMOUNT">
