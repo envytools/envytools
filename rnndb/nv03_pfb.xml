@@ -23,7 +23,7 @@
 	<reg32 offset="0x000" name="BOOT_0" variants="NV03T:NV04">
 		<bitfield low="0" high="1" name="RAM_AMOUNT">
 			<!-- note: if 8MB bit set, it overrides this field except for mem type selection -->
-			<value value="0" name="1MB_SG"/>
+			<value value="0" name="8MB_SG"/>
 			<value value="1" name="2MB_SG"/>
 			<value value="2" name="4MB_SG"/>
 			<value value="3" name="8MB_SDR"/>
