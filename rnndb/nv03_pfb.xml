@@ -11,13 +11,13 @@
 <array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV03:NV10">
 	<reg32 offset="0x000" name="BOOT_0" variants="NV03:NV03T">
 		<bitfield low="0" high="1" name="RAM_AMOUNT">
-			<value value="0" name="1MB"/>
-			<value value="1" name="2MB"/>
-			<value value="2" name="4MB"/>
+			<value value="0" name="1MB"/> <!-- SGRAM, 32-bit bus, 2^8 columns, 2^9 rows, 2 internal banks, 1 external bank -->
+			<value value="1" name="2MB"/> <!-- SGRAM, 64-bit bus, 2^8 columns, 2^9 rows, 2 internal banks, 1 external bank -->
+			<value value="2" name="4MB"/> <!-- see below -->
 		</bitfield>
-		<bitfield pos="2" name="TYPE">
-			<value value="0" name="SDR"/> <!-- guess -->
-			<value value="1" name="SG"/>
+		<bitfield pos="2" name="4MB_BUS_WIDTH">
+			<value value="0" name="64"/> <!-- SGRAM, 64-bit bus, 2^8 columns, 2^9 rows, 2 internal banks, 2 external banks -->
+			<value value="1" name="128"/> <!-- SGRAM, 128-bit bus, 2^8 columns, 2^9 rows, 2 internal banks, 1 external bank -->
 		</bitfield>
 	</reg32>
 	<reg32 offset="0x000" name="BOOT_0" variants="NV03T:NV04">
