@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<bitset name="NV17_MPEG_CMD_NOP">
+	<bitfield low="28" high="31" name="OP">
+		<value value="1" name="NOP"/>
+	</bitfield>
+</bitset>
+
+<bitset name="NV17_MPEG_CMD_SURFACE">
+	<bitfield low="0" high="23" name="OFFSET" shr="5"/>
+	<bitfield pos="24" name="PLANE">
+		<value value="0" name="LUMA"/>
+		<value value="1" name="CHROMA"/>
+	</bitfield>
+	<bitfield low="25" high="27" name="INDEX"/>
+	<bitfield low="28" high="31" name="OP">
+		<value value="2" name="SURFACE"/>
+	</bitfield>
+</bitset>
+
+<bitset name="NV17_MPEG_CMD_SIZE">
+	<bitfield low="0" high="10" name="WIDTH"/>
+	<bitfield low="12" high="22" name="HEIGHT"/>
+	<bitfield low="24" high="31" name="OP">
+		<value value="0x30" name="SIZE"/>
+	</bitfield>
+</bitset>
+
+<bitset name="NV17_MPEG_CMD_PITCH">
+	<bitfield low="0" high="6" name="PITCH"/>
+	<bitfield low="24" high="31" name="OP">
+		<value value="0x31" name="PITCH"/>
+	</bitfield>
+</bitset>
+
+<bitset name="NV17_MPEG_CMD_MODE">
+	<bitfield pos="0" name="IDCT_ENABLE"/>
+	<bitfield pos="4" name="UNK4"/>
+	<bitfield low="24" high="31" name="OP">
+		<value value="0x32" name="MODE"/>
+	</bitfield>
+</bitset>
+
+<bitset name="NV17_MPEG_CMD_UNK4">
+	<bitfield low="1" high="14" name="UNK1"/>
+	<bitfield low="28" high="31" name="OP">
+		<value value="4" name="UNK4"/>
+	</bitfield>
+</bitset>
+
+<bitset name="NV17_MPEG_CMD_UNK5">
+	<bitfield pos="0" name="UNK0"/>
+	<bitfield low="28" high="31" name="OP">
+		<value value="5" name="UNK5"/>
+	</bitfield>
+</bitset>
+
+<bitset name="NV17_MPEG_CMD_UNK6">
+	<bitfield pos="0" name="UNK0"/>
+	<bitfield low="28" high="31" name="OP">
+		<value value="5" name="UNK6"/>
+	</bitfield>
+</bitset>
+
+<bitset name="NV17_MPEG_CMD_UNK70">
+	<bitfield pos="0" name="UNK0"/>
+	<bitfield low="24" high="31" name="OP">
+		<value value="0x70" name="UNK70"/>
+	</bitfield>
+</bitset>
+
+<bitset name="NV17_MPEG_CMD_SEQUENCE"> <!-- followed by a word param -->
+	<bitfield low="24" high="31" name="OP">
+		<value value="0x71" name="SEQUENCE"/>
+	</bitfield>
+</bitset>
+
+<bitset name="NV17_MPEG_CMD_CHROMA_MB_HEADER">
+	<bitfield pos="15" name="UNK15"/>
+	<bitfield pos="16" name="UNK16"/>
+	<bitfield pos="17" name="FIELD">
+		<value value="0" name="TOP"/>
+		<value value="1" name="BOTTOM"/>
+	</bitfield>
+	<bitfield pos="19" name="TYPE">
+		<value value="0" name="FIELD"/>
+		<value value="1" name="FRAME"/>
+	</bitfield>
+	<bitfield low="20" high="22" name="SURFACE"/>
+	<bitfield pos="23" name="UNK23"/>
+	<bitfield low="26" high="27" name="CBP"/>
+	<bitfield low="28" high="31" name="OP">
+		<value value="8" name="CHROMA_MB_HEADER"/>
+	</bitfield>
+</bitset>
+
+<bitset name="NV17_MPEG_CMD_LUMA_MB_HEADER">
+	<bitfield pos="15" name="UNK15"/>
+	<bitfield pos="16" name="UNK16"/>
+	<bitfield pos="17" name="FIELD">
+		<value value="0" name="TOP"/>
+		<value value="1" name="BOTTOM"/>
+	</bitfield>
+	<bitfield pos="19" name="TYPE">
+		<value value="0" name="FIELD"/>
+		<value value="1" name="FRAME"/>
+	</bitfield>
+	<bitfield low="20" high="22" name="SURFACE"/>
+	<bitfield pos="23" name="UNK23"/>
+	<bitfield low="24" high="27" name="CBP"/>
+	<bitfield low="28" high="31" name="OP">
+		<value value="9" name="LUMA_MB_HEADER"/>
+	</bitfield>
+</bitset>
+
+<bitset name="NV17_MPEG_CMD_MB_COORDS">
+	<bitfield low="0" high="10" name="X"/>
+	<bitfield low="12" high="22" name="Y"/>
+	<bitfield low="28" high="31" name="OP">
+		<value value="0xa" name="MB_COORDS"/>
+	</bitfield>
+</bitset>
+
+<bitset name="NV17_MPEG_CMD_CHROMA_MV_HEADER">
+	<bitfield pos="16" name="UNK16"/>
+	<bitfield pos="17" name="FIELD">
+		<value value="0" name="TOP"/>
+		<value value="1" name="BOTTOM"/>
+	</bitfield>
+	<bitfield pos="19" name="TYPE">
+		<value value="0" name="FIELD"/>
+		<value value="1" name="FRAME"/>
+	</bitfield>
+	<bitfield low="20" high="22" name="SURFACE"/>
+	<bitfield pos="23" name="IDX"/>
+	<bitfield pos="24" name="UNK24"/>
+	<bitfield pos="25" name="ODD_Y"/>
+	<bitfield pos="26" name="ODD_X"/>
+	<bitfield pos="27" name="DIRECTION">
+		<value value="0" name="FORWARD"/>
+		<value value="1" name="BACKWARD"/>
+	</bitfield>
+	<bitfield low="28" high="31" name="OP">
+		<value value="0xc" name="CHROMA_MV_HEADER"/>
+	</bitfield>
+</bitset>
+
+<bitset name="NV17_MPEG_CMD_LUMA_MV_HEADER">
+	<bitfield pos="16" name="UNK16"/>
+	<bitfield pos="17" name="FIELD">
+		<value value="0" name="TOP"/>
+		<value value="1" name="BOTTOM"/>
+	</bitfield>
+	<bitfield pos="19" name="TYPE">
+		<value value="0" name="FIELD"/>
+		<value value="1" name="FRAME"/>
+	</bitfield>
+	<bitfield low="20" high="22" name="SURFACE"/>
+	<bitfield pos="23" name="IDX"/>
+	<bitfield pos="24" name="UNK24"/>
+	<bitfield pos="25" name="ODD_Y"/>
+	<bitfield pos="26" name="ODD_X"/>
+	<bitfield pos="27" name="DIRECTION">
+		<value value="0" name="FORWARD"/>
+		<value value="1" name="BACKWARD"/>
+	</bitfield>
+	<bitfield low="28" high="31" name="OP">
+		<value value="0xd" name="LUMA_MV_HEADER"/>
+	</bitfield>
+</bitset>
+
+<bitset name="NV17_MPEG_CMD_MV_COORDS">
+	<bitfield low="0" high="10" name="X"/>
+	<bitfield low="12" high="22" name="Y"/>
+	<bitfield low="28" high="31" name="OP">
+		<value value="0xe" name="MV_COORDS"/>
+	</bitfield>
+</bitset>
+
+</database>
