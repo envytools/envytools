@@ -85,7 +85,7 @@
 	</stripe>
 </array>
 
-<array name="PVPE" offset="0xb100" stride="0x400" length="1" variants="NV40:NV98 NVA0">
+<array name="PMPEG" offset="0xb100" stride="0x400" length="1" variants="NV40:NV98 NVA0">
 	<use-group name="pmpeg"/>
 </array>
 
