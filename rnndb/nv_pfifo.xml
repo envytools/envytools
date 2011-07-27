@@ -733,9 +733,9 @@
 			<reg32 offset="0x104" name="UNK104" variants="NV40-">
 				<doc>RO, reads as 3.</doc>
 			</reg32>
-			<reg32 offset="0x10c" name="UNK10C" length="3" variants="NV40-">
-				<doc>Bits ffffff.</doc>
-			</reg32>
+			<reg32 offset="0x10c" name="MPEGCTX_INST" variants="NV41-"/>
+			<reg32 offset="0x110" name="MSRCHCTX_INST" variants="NV41-"/>
+			<reg32 offset="0x114" name="VPCTX_INST" variants="NV41-"/>
 
 			<reg32 offset="0x100" name="ADDR" stride="0x8" length="32" variants="NV01:NV03T">
 				<bitfield high="12" low="2" name="MTHD" shr="2"/>

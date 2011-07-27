@@ -9,11 +9,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <domain name="NV01_SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NV31_MPEG-NV84_MPEG">
-		<reg32 offset="0x0160" name="UNK160">
+		<reg32 offset="0x0160" name="PITCH">
 			<doc>Seems to correspond to 0x1774/0x31000000, which
 			contains (width / 32), the value you poke in here is
 			not divided by 32 however.</doc>
-			<bitfield low="0" high="12" name="W" type="int"/>
+			<bitfield low="0" high="12" name="PITCH" type="int"/>
 			<bitfield low="16" high="16" name="UNK">
 				<doc>PMPEG error if not set</doc>
 			</bitfield>
@@ -33,8 +33,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0204" name="IMAGE_C_OFFSET" stride="8" length="8">
 			<doc>0x1774/0x21000000</doc>
 		</reg32>
-		<reg32 offset="0x0310" name="UNK310"/>
-		<reg32 offset="0x0314" name="UNK314">
+		<reg32 offset="0x0310" name="FORMAT">
+			<bitfield pos="0" name="DATA_FORMAT">
+				<value value="0" name="S16"/>
+				<value value="0" name="S8"/>
+			</bitfield>
+			<bitfield pos="8" name="UNK8"/>
+		</reg32>
+		<reg32 offset="0x0314" name="IDCT_ENABLE">
 			<doc>Perhaps 0x1774/0x32000000, so, iDCT enable?</doc>
 		</reg32>
 		<stripe variants="NV84_MPEG">

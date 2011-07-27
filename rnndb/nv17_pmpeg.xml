@@ -5,14 +5,18 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
+<import file="nv40_pvpe.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <group name="pmpeg">
 	<bitset name="pmpeg_intr" inline="yes">
 		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="4" name="UNK4" variants="NV50-"/>
 		<bitfield pos="8" name="DONE"/> <!-- GET == PUT -->
 		<bitfield pos="16" name="ERROR"/>
+		<bitfield pos="20" name="UNK20" variants="NV44-"/>
+		<bitfield pos="24" name="FIFO_ERR" variants="NV31-"/>
 	</bitset>
 	<reg32 offset="0x000" name="INTR" type="pmpeg_intr"/>
 	<reg32 offset="0x040" name="INTR_EN" type="pmpeg_intr"/>
@@ -54,7 +58,16 @@
 	</reg32>
 	<reg32 offset="0x114" name="ERROR_CMD"/>
 	<reg32 offset="0x118" name="ERROR_MMIO_ADDR"/>
-	<reg32 offset="0x200" name="CONFIG">
+	<reg32 offset="0x120" name="COMPAT_MODE" variants="NV31-"/> <!-- 17/ffff/0 -->
+	<reg32 offset="0x130" name="FIFO_ERR" variants="NV31-">
+		<bitfield pos="0" name="CLEAR"/>
+		<bitfield pos="4" name="ILLEGAL_MTHD"/>
+		<bitfield pos="5" name="ILLEGAL_VALUE"/>
+	</reg32>
+	<reg32 offset="0x134" name="FIFO_ERR_MTHD" variants="NV31-"/>
+	<reg32 offset="0x138" name="FIFO_ERR_DATA" variants="NV31-"/>
+	<reg32 offset="0x150" name="UNK250" variants="NV31-"/> <!-- RO 12 -->
+	<reg32 offset="0x200" name="CONFIG"> <!-- 10000/ffffffff on pre-NV31, 30200/ffffffff on NV31+, ... -->
 		<bitfield pos="8" name="ERROR_CHECK"/>
 		<bitfield pos="16" name="CMD_TARGET">
 			<value value="0" name="VRAM"/>
@@ -65,18 +78,50 @@
 			<value value="1" name="BIG"/>
 		</bitfield>
 	</reg32>
+	<reg32 offset="0x208" name="UNK208"/> <!-- ffff -->
 	<reg32 offset="0x210" name="UNK310"/> <!-- 1f/1f/0 -->
 	<reg32 offset="0x214" name="UNK314"/> <!-- 0/ffff/0 -->
+	<reg32 offset="0x218" name="CHANNEL_CUR" variants="NV44-"/>
+	<reg32 offset="0x21c" name="CHANNEL_NEXT" variants="NV44-"/>
 	<reg32 offset="0x220" name="CMD_OFFSET"/> <!-- ffffffc0 on pre-NV31, fffffffc NV31+ -->
 	<reg32 offset="0x224" name="CMD_LIMIT"/> <!-- ffffffc0 on pre-NV31, fffffffc NV31+ -->
 	<reg32 offset="0x228" name="CMD_PUT"/> <!-- ffffffc0 on pre-NV31, fffffffc NV31+ -->
 	<reg32 offset="0x22c" name="ENABLE"/> <!-- 0/1/0 -->
 	<reg32 offset="0x230" name="CMD_GET"/> <!-- RO -->
+	<reg32 offset="0x234" name="CMD_BASE" variants="NV31:NV50"/> <!-- fffffffc -->
 	<reg32 offset="0x240" name="SEQUENCE"/> <!-- RO -->
 	<reg32 offset="0x250" name="UNK350"/> <!-- ffffffff -->
 	<reg32 offset="0x254" name="UNK354"/> <!-- RO & funny -->
+	<reg32 offset="0x260" name="DATA_BASE" variants="NV31:NV50"/>
+	<reg32 offset="0x264" name="DATA_LIMIT" variants="NV31:NV50"/>
+	<reg32 offset="0x268" name="DATA_OFFSET" variants="NV31-"/>
+	<reg32 offset="0x26c" name="DATA_SIZE" variants="NV31-"/>
+	<reg32 offset="0x270" name="IMAGE_BASE" variants="NV31:NV50"/>
+	<reg32 offset="0x274" name="IMAGE_LIMIT" variants="NV31:NV50"/>
+	<reg32 offset="0x278" name="PITCH" variants="NV31-">
+		<bitfield low="5" high="11" name="PITCH" shr="5"/>
+		<bitfield pos="16" name="UN16"/>
+	</reg32>
+	<reg32 offset="0x27c" name="SIZE" variants="NV31-">
+		<bitfield low="0" high="10" name="W"/>
+		<bitfield low="16" high="26" name="H"/>
+	</reg32>
+	<reg32 offset="0x288" name="FORMAT" variants="NV31:NV50"> <!-- mthd 310-->
+		<bitfield pos="0" name="DATA_FORMAT">
+			<value value="0" name="S16"/>
+			<value value="0" name="S8"/>
+		</bitfield>
+		<bitfield pos="8" name="UNK8"/>
+	</reg32>
+	<reg32 offset="0x290" name="DMA_QUERY" type="pvpe_dma" variants="NV84-"/>
+	<reg32 offset="0x294" name="QUERY_ADDRESS" variants="NV84-"/>
 	<reg32 offset="0x300" name="UNK400"/> <!-- ff -->
 	<reg32 offset="0x310" name="UNK410"/> <!-- ffffffff -->
+	<reg32 offset="0x320" name="DMA_UNK0" type="pvpe_dma" variants="NV50-"/>
+	<reg32 offset="0x324" name="DMA_UNK1" type="pvpe_dma" variants="NV50-"/>
+	<reg32 offset="0x328" name="DMA_UNK2" type="pvpe_dma" variants="NV50-"/>
+	<reg32 offset="0x350" name="IMAGE_Y_OFFSET" stride="8" length="8" variants="NV31-"/>
+	<reg32 offset="0x354" name="IMAGE_C_OFFSET" stride="8" length="8" variants="NV31-"/>
 </group>
 
 <array name="PMPEG" offset="0xb000" stride="0x1000" length="1" variants="NV17:NV20 NV30:NV40">
