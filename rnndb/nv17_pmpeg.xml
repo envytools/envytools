@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+<group name="pmpeg">
+	<bitset name="pmpeg_intr" inline="yes">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="8" name="DONE"/> <!-- GET == PUT -->
+		<bitfield pos="16" name="ERROR"/>
+	</bitset>
+	<reg32 offset="0x000" name="INTR" type="pmpeg_intr"/>
+	<reg32 offset="0x040" name="INTR_EN" type="pmpeg_intr"/>
+	<reg32 offset="0x100" name="STATUS">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="4" name="UNK4"/> <!-- fetch -->
+		<bitfield pos="5" name="UNK5"/> <!-- 5, 6, 7/1 command - awaiting data? -->
+		<bitfield pos="9" name="UNK9"/> <!-- 8, 9 command -->
+		<bitfield pos="13" name="UNK13"/> <!-- 7/1, 8. 9, c, d command - awaiting data? -->
+		<bitfield pos="14" name="UNK14"/> <!-- fetch -->
+		<bitfield pos="15" name="UNK15"/> <!-- fetch -->
+		<bitfield pos="24" name="UNK24"/> <!-- fetch -->
+		<bitfield pos="25" name="UNK25"/> <!-- fetch -->
+		<bitfield pos="26" name="UNK26"/> <!-- fetch -->
+		<bitfield pos="29" name="UNK29"/> <!-- 7, a, b, f command -->
+		<bitfield pos="30" name="UNK30"/> <!-- 7 command -->
+
+	</reg32>
+	<reg32 offset="0x104" name="UNK204">
+		<bitfield pos="0" name="IDCT_ENABLE"/>
+		<bitfield pos="4" name="MODE_UNK4"/>
+		<bitfield pos="8" name="UNK8"/> <!-- RO 1 -->
+		<bitfield pos="12" name="UNK12"/> <!-- RO 1 -->
+	</reg32>
+	<reg32 offset="0x110" name="ERROR_STATUS">
+		<bitfield pos="0" name="INVALID_MMIO_ADDR"/> <!-- write to nonexistent or RO MMIO address -->
+		<bitfield pos="1" name="INVALID_MMIO_VALUE"/> <!-- invalid value written to MMIO -->
+		<bitfield pos="4" name="INVALID_CMD"/>
+		<bitfield pos="5" name="INVALID_CMD_PARAM"/>
+		<bitfield pos="6" name="INVALID_CMD_UNK6"/> <!-- 4 -->
+		<bitfield pos="7" name="INVALID_CMD_UNK7"/> <!-- 4 -->
+		<bitfield pos="8" name="INVALID_DATA_UNK8"/> <!-- asynchronous or on data - 5 -->
+		<bitfield pos="9" name="INVALID_DATA_UNK9"/> <!-- asynchronous or on data - 5-->
+		<bitfield pos="10" name="INVALID_DATA_UNK10"/> <!-- 71000001 -->
+		<bitfield pos="11" name="UNK11"/> <!-- cmd a -->
+		<bitfield pos="12" name="UNK12"/> <!-- cmd a -->
+		<bitfield pos="13" name="INVALID_SEQUENCE"/> <!-- cmd 8 -->
+		<bitfield pos="14" name="UNK14"/> <!-- c, d, e -->
+	</reg32>
+	<reg32 offset="0x114" name="ERROR_CMD"/>
+	<reg32 offset="0x118" name="ERROR_MMIO_ADDR"/>
+	<reg32 offset="0x200" name="CONFIG">
+		<bitfield pos="8" name="ERROR_CHECK"/>
+		<bitfield pos="16" name="CMD_TARGET">
+			<value value="0" name="VRAM"/>
+			<value value="1" name="AGP"/> <!-- or PCI? -->
+		</bitfield>
+		<bitfield pos="20" name="ENDIAN">
+			<value value="0" name="LITTLE"/>
+			<value value="1" name="BIG"/>
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x210" name="UNK310"/> <!-- 1f/1f/0 -->
+	<reg32 offset="0x214" name="UNK314"/> <!-- 0/ffff/0 -->
+	<reg32 offset="0x220" name="CMD_OFFSET"/> <!-- ffffffc0 on pre-NV31, fffffffc NV31+ -->
+	<reg32 offset="0x224" name="CMD_LIMIT"/> <!-- ffffffc0 on pre-NV31, fffffffc NV31+ -->
+	<reg32 offset="0x228" name="CMD_PUT"/> <!-- ffffffc0 on pre-NV31, fffffffc NV31+ -->
+	<reg32 offset="0x22c" name="ENABLE"/> <!-- 0/1/0 -->
+	<reg32 offset="0x230" name="CMD_GET"/> <!-- RO -->
+	<reg32 offset="0x240" name="SEQUENCE"/> <!-- RO -->
+	<reg32 offset="0x250" name="UNK350"/> <!-- ffffffff -->
+	<reg32 offset="0x254" name="UNK354"/> <!-- RO & funny -->
+	<reg32 offset="0x300" name="UNK400"/> <!-- ff -->
+	<reg32 offset="0x310" name="UNK410"/> <!-- ffffffff -->
+</group>
+
+<array name="PMPEG" offset="0xb000" stride="0x1000" length="1" variants="NV17:NV20 NV30:NV40">
+	<stripe offset="0x100">
+		<use-group name="pmpeg"/>
+	</stripe>
+</array>
+
+<array name="PVPE" offset="0xb100" stride="0x400" length="1" variants="NV40:NV98 NVA0">
+	<use-group name="pmpeg"/>
+</array>
+
+</domain>
+
+</database>

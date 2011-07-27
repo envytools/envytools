@@ -8,11 +8,11 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array name="PVPE" offset="0xb000" stride="0x1000" length="1" variants="NV17:NV20 NV30:NV98 NVA0">
+<array name="PVP" offset="0x00f000" stride="0x1000" length="1" variants="NV84:NV98 NVA0">
 
 </array>
 
-<array name="PVP" offset="0xf000" stride="0x1000" length="1" variants="NV40:NV98 NVA0">
+<array name="PBSP" offset="0x103000" stride="0x1000" length="1" variants="NV84:NV98 NVA0">
 
 </array>
 
