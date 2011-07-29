@@ -53,8 +53,8 @@
 		<bitfield pos="10" name="INVALID_DATA_UNK10"/> <!-- 71000001 -->
 		<bitfield pos="11" name="UNK11"/> <!-- cmd a -->
 		<bitfield pos="12" name="UNK12"/> <!-- cmd a -->
-		<bitfield pos="13" name="INVALID_SEQUENCE"/> <!-- cmd 8 -->
-		<bitfield pos="14" name="UNK14"/> <!-- c, d, e -->
+		<bitfield pos="13" name="INVALID_SEQUENCE_MB"/> <!-- cmd 8/9 not immediately followed by cmd a, or cmd a out of blue -->
+		<bitfield pos="14" name="INVALID_SEQUENCE_MV"/> <!-- cmd c/d not immediately followed by cmd e, or cmd e out of blue -->
 	</reg32>
 	<reg32 offset="0x114" name="ERROR_CMD"/>
 	<reg32 offset="0x118" name="ERROR_MMIO_ADDR"/>

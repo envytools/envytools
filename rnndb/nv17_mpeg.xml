@@ -155,7 +155,10 @@
 </bitset>
 
 <bitset name="NV17_MPEG_CMD_CHROMA_MV_HEADER">
-	<bitfield pos="16" name="UNK16"/>
+	<bitfield pos="16" name="COUNT">
+		<value value="0" name="1"/>
+		<value value="1" name="2"/>
+	</bitfield>
 	<bitfield pos="17" name="FIELD">
 		<value value="0" name="TOP"/>
 		<value value="1" name="BOTTOM"/>
@@ -166,10 +169,13 @@
 	</bitfield>
 	<bitfield low="20" high="22" name="SURFACE"/>
 	<bitfield pos="23" name="IDX"/>
-	<bitfield pos="24" name="UNK24"/>
-	<bitfield pos="25" name="ODD_Y"/>
-	<bitfield pos="26" name="ODD_X"/>
-	<bitfield pos="27" name="DIRECTION">
+	<bitfield pos="24" name="MV_SPLIT">
+		<value value="0" name="FIELD"/>
+		<value value="1" name="HALF_MB"/>
+	</bitfield>
+	<bitfield pos="25" name="Y_HALF"/>
+	<bitfield pos="26" name="X_HALF"/>
+	<bitfield pos="27" name="DIRECTION"> <!-- wtf is this for? -->
 		<value value="0" name="FORWARD"/>
 		<value value="1" name="BACKWARD"/>
 	</bitfield>
@@ -179,7 +185,10 @@
 </bitset>
 
 <bitset name="NV17_MPEG_CMD_LUMA_MV_HEADER">
-	<bitfield pos="16" name="UNK16"/>
+	<bitfield pos="16" name="COUNT">
+		<value value="0" name="1"/>
+		<value value="1" name="2"/>
+	</bitfield>
 	<bitfield pos="17" name="FIELD">
 		<value value="0" name="TOP"/>
 		<value value="1" name="BOTTOM"/>
@@ -190,10 +199,13 @@
 	</bitfield>
 	<bitfield low="20" high="22" name="SURFACE"/>
 	<bitfield pos="23" name="IDX"/>
-	<bitfield pos="24" name="UNK24"/>
-	<bitfield pos="25" name="ODD_Y"/>
-	<bitfield pos="26" name="ODD_X"/>
-	<bitfield pos="27" name="DIRECTION">
+	<bitfield pos="24" name="MV_SPLIT">
+		<value value="0" name="FIELD"/>
+		<value value="1" name="HALF_MB"/>
+	</bitfield>
+	<bitfield pos="25" name="Y_HALF"/>
+	<bitfield pos="26" name="X_HALF"/>
+	<bitfield pos="27" name="DIRECTION"> <!-- wtf is this for? -->
 		<value value="0" name="FORWARD"/>
 		<value value="1" name="BACKWARD"/>
 	</bitfield>
