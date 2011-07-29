@@ -45,11 +45,11 @@
 		<bitfield pos="0" name="INVALID_MMIO_ADDR"/> <!-- write to nonexistent or RO MMIO address -->
 		<bitfield pos="1" name="INVALID_MMIO_VALUE"/> <!-- invalid value written to MMIO -->
 		<bitfield pos="4" name="INVALID_CMD"/>
-		<bitfield pos="5" name="INVALID_CMD_PARAM"/>
-		<bitfield pos="6" name="INVALID_CMD_UNK6"/> <!-- 4 -->
-		<bitfield pos="7" name="INVALID_CMD_UNK7"/> <!-- 4 -->
-		<bitfield pos="8" name="INVALID_DATA_UNK8"/> <!-- asynchronous or on data - 5 -->
-		<bitfield pos="9" name="INVALID_DATA_UNK9"/> <!-- asynchronous or on data - 5-->
+		<bitfield pos="5" name="INVALID_SIZE"/>
+		<bitfield pos="6" name="INVALID_CMD4_UNK9"/> <!-- UNK9 set to 0 -->
+		<bitfield pos="7" name="INVALID_QUANT_SCALE"/> <!-- QUANT_SCALE not 1-112 nor 128 -->
+		<bitfield pos="8" name="INVALID_INTRA_DC_WEIGHT"/> <!-- tried to set IQ weight for DC intra coords to something other than 8 -->
+		<bitfield pos="9" name="INVALID_IQ_WEIGHT"/> <!-- tried to set 0 IQ weight -->
 		<bitfield pos="10" name="INVALID_DATA_UNK10"/> <!-- 71000001 -->
 		<bitfield pos="11" name="UNK11"/> <!-- cmd a -->
 		<bitfield pos="12" name="UNK12"/> <!-- cmd a -->

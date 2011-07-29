@@ -47,22 +47,24 @@
 	</bitfield>
 </bitset>
 
-<bitset name="NV17_MPEG_CMD_UNK4">
-	<bitfield low="1" high="14" name="UNK1"/>
+<bitset name="NV17_MPEG_CMD_IQ_SETUP">
+	<bitfield low="1" high="8" name="QUANT_SCALE"/> <!-- 1-112 or 128??? -->
+	<bitfield low="9" high="12" name="UNK9"/>
+	<bitfield low="13" high="14" name="UNK13"/>
 	<bitfield low="28" high="31" name="OP">
-		<value value="4" name="UNK4"/>
+		<value value="4" name="IQ_SETUP"/>
 	</bitfield>
 </bitset>
 
-<bitset name="NV17_MPEG_CMD_UNK5"> <!-- followed by some data words? -->
-	<bitfield pos="0" name="UNK0"/>
+<bitset name="NV17_MPEG_CMD_IQ_MATRIX"> <!-- followed by 0x10 data words, each with packed 4 8-bit weights -->
+	<bitfield pos="0" name="INTRA"/>
 	<bitfield low="28" high="31" name="OP">
-		<value value="5" name="UNK5"/>
+		<value value="5" name="IQ_MATRIX"/>
 	</bitfield>
 </bitset>
 
 <bitset name="NV17_MPEG_CMD_BLOCK_DATA"> <!-- followed by NV17_MPEG_BLOCK_DATA until LAST bit set -->
-	<bitfield pos="0" name="UNK0"/>
+	<bitfield pos="0" name="INTRA"/> <!-- check me -->
 	<bitfield low="28" high="31" name="OP">
 		<value value="6" name="BLOCK_DATA"/>
 	</bitfield>
