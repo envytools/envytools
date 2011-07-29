@@ -41,7 +41,7 @@
 
 <bitset name="NV17_MPEG_CMD_MODE">
 	<bitfield pos="0" name="IDCT_ENABLE"/>
-	<bitfield pos="4" name="UNK4"/> <!-- forces result to 0 in IDCT mode??? -->
+	<bitfield pos="4" name="IQ_ENABLE"/>
 	<bitfield low="24" high="31" name="OP">
 		<value value="0x32" name="MODE"/>
 	</bitfield>
