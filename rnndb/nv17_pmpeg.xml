@@ -37,7 +37,7 @@
 	</reg32>
 	<reg32 offset="0x104" name="UNK204">
 		<bitfield pos="0" name="IDCT_ENABLE"/>
-		<bitfield pos="4" name="MODE_UNK4"/>
+		<bitfield pos="4" name="IQ_ENABLE"/>
 		<bitfield pos="8" name="UNK8"/> <!-- RO 1 -->
 		<bitfield pos="12" name="UNK12"/> <!-- RO 1 -->
 	</reg32>
