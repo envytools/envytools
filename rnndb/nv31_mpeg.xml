@@ -36,7 +36,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0310" name="FORMAT">
 			<bitfield pos="0" name="DATA_FORMAT">
 				<value value="0" name="S16"/>
-				<value value="0" name="S8"/>
+				<value value="1" name="S8"/>
 			</bitfield>
 			<bitfield pos="8" name="UNK8"/>
 		</reg32>

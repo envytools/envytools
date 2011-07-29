@@ -109,7 +109,7 @@
 	<reg32 offset="0x288" name="FORMAT" variants="NV31:NV50"> <!-- mthd 310-->
 		<bitfield pos="0" name="DATA_FORMAT">
 			<value value="0" name="S16"/>
-			<value value="0" name="S8"/>
+			<value value="1" name="S8"/>
 		</bitfield>
 		<bitfield pos="8" name="UNK8"/>
 	</reg32>
