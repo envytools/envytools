@@ -49,7 +49,7 @@
 
 <bitset name="NV17_MPEG_CMD_IQ_SETUP">
 	<bitfield low="1" high="8" name="QUANT_SCALE"/> <!-- 1-112 or 128??? -->
-	<bitfield low="9" high="12" name="UNK9"/>
+	<bitfield low="9" high="12" name="INTRA_DC_MULT"/>
 	<bitfield low="13" high="14" name="UNK13"/>
 	<bitfield low="28" high="31" name="OP">
 		<value value="4" name="IQ_SETUP"/>

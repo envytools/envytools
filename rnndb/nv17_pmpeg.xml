@@ -46,7 +46,7 @@
 		<bitfield pos="1" name="INVALID_MMIO_VALUE"/> <!-- invalid value written to MMIO -->
 		<bitfield pos="4" name="INVALID_CMD"/>
 		<bitfield pos="5" name="INVALID_SIZE"/>
-		<bitfield pos="6" name="INVALID_CMD4_UNK9"/> <!-- UNK9 set to 0 -->
+		<bitfield pos="6" name="INVALID_INTRA_DC_MULT"/> <!-- INTRA_DC_MULT set to 0 -->
 		<bitfield pos="7" name="INVALID_QUANT_SCALE"/> <!-- QUANT_SCALE not 1-112 nor 128 -->
 		<bitfield pos="8" name="INVALID_INTRA_DC_WEIGHT"/> <!-- tried to set IQ weight for DC intra coords to something other than 8 -->
 		<bitfield pos="9" name="INVALID_IQ_WEIGHT"/> <!-- tried to set 0 IQ weight -->
