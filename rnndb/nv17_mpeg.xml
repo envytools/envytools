@@ -79,10 +79,10 @@
 	<bitfield pos="31" name="COORD0_FORCE_0"/>
 </bitset>
 
-<bitset name="NV17_MPEG_CMD_UNK70">
-	<bitfield pos="0" name="UNK0"/>
+<bitset name="NV17_MPEG_CMD_SYNC"> <!-- XXX: what does this do without INTR? -->
+	<bitfield pos="0" name="INTR"/>
 	<bitfield low="24" high="31" name="OP">
-		<value value="0x70" name="UNK70"/>
+		<value value="0x70" name="SYNC"/>
 	</bitfield>
 </bitset>
 

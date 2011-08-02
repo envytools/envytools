@@ -11,9 +11,9 @@
 
 <group name="pmpeg">
 	<bitset name="pmpeg_intr" inline="yes">
-		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="0" name="SYNC"/>
 		<bitfield pos="4" name="UNK4" variants="NV50-"/>
-		<bitfield pos="8" name="DONE"/> <!-- GET == PUT -->
+		<bitfield pos="8" name="FETCH_DONE"/> <!-- GET == PUT -->
 		<bitfield pos="16" name="ERROR"/>
 		<bitfield pos="20" name="UNK20" variants="NV44-"/>
 		<bitfield pos="24" name="FIFO_ERR" variants="NV31-"/>
