@@ -16,6 +16,135 @@
 
 <array name="PBSP" offset="0x84000" stride="0x1000" length="1" variants="NV98 NVAA-">
 	<use-group name="nv98_vpbase"/>
+	<array offset="0x400" name="BSP" stride="0x80">
+		<reg32 offset="0x00" name="MODE">
+			<bitfield low="0" high="7" name="WIDTH_MB"/>
+			<bitfield low="8" high="15" name="HEIGHT_MB"/>
+			<bitfield low="16" high="17" name="PICTURE_STRUCTURE">
+				<value value="0" name="FRAME"/>
+				<value value="1" name="FIELD_TOP"/>
+				<value value="2" name="FIELD_BOTTOM"/>
+			</bitfield>
+			<bitfield low="18" high="19" name="PICTURE_CODING_TYPE">
+				<!-- MPEG1/2 only -->
+				<value value="0" name="D"/>
+				<value value="1" name="I"/>
+				<value value="2" name="P"/>
+				<value value="3" name="B"/>
+
+			</bitfield>
+			<bitfield low="20" high="22" name="FORMAT">
+				<value value="0" name="MPEG1"/>
+				<value value="1" name="MPEG2"/>
+				<value value="3" name="H264"/>
+			</bitfield>
+			<bitfield low="24" high="25" name="UNK24"/> <!-- not used in MPEG12 nor H264 -->
+		</reg32>
+		<reg32 offset="0x04" name="PARM_H264">
+			<bitfield pos="0" name="ENTROPY_CODING_MODE_FLAG"/>
+			<bitfield pos="9" name="MB_ADAPTIVE_FRAME_FIELD_FLAG"/>
+			<bitfield low="12" high="16" name="NAL_UNIT_TYPE"/>
+			<bitfield pos="17" name="UNK17"/> <!-- always 0 -->
+			<bitfield low="18" high="19" name="CABAC_INIT_IDC"/>
+			<bitfield los="20" high="21" name="UNK20"/> <!-- taken from picture parameters -->
+			<bitfield pos="22" name="DIRECT_8X8_INFERENCE_FLAG"/>
+			<bitfield pos="23" name="TRANSFORM_8X8_MODE_FLAG"/>
+		</reg32>
+		<reg32 offset="0x08" name="PARM_MPEG12">
+			<bitfield low="0" high="1" name="INTRA_DC_PRECISION"/>
+			<bitfield pos="2" name="FRAME_PRED_FRAME_DCT"/>
+			<bitfield pos="3" name="INTRA_VLC_FORMAT"/>
+			<bitfield pos="4" name="CONCEALMENT_MOTION_VECTORS"/>
+			<bitfield low="16" high="19" name="F_CODE_0"/>
+			<bitfield low="20" high="23" name="F_CODE_1"/>
+			<bitfield low="24" high="27" name="F_CODE_2"/>
+			<bitfield low="28" high="31" name="F_CODE_3"/>
+		</reg32>
+		<reg32 offset="0x20" name="SLICE_PARM">
+			<!-- H@64 only -->
+			<bitfield low="0" high="1" name="SLICE_TYPE">
+				<value value="0" name="P"/>
+				<value value="1" name="B"/>
+				<value value="2" name="I"/>
+			</bitfield>
+			<!-- MPEG12 only -->
+			<bitfield low="2" high="14" name="MB_IDX"/>
+			<!-- MPEG12 only -->
+			<bitfield low="15" high="24" name="SLICE_START_LINE"/>
+			<!-- H264 only -->
+			<bitfield low="2" high="14" name="SLICE_IDX"/> <!-- ??? -->
+			<!-- H264 only -->
+			<bitfield low="15" high="19" name="NUM_REF_IDX_L0_ACTIVE_MINUS1"/>
+			<bitfield low="20" high="24" name="NUM_REF_IDX_L1_ACTIVE_MINUS1"/>
+			<!-- quantiser_scale_code in MPEG12, sliceqpy in H264 -->
+			<bitfield low="25" high="30" name="QUANTISER"/>
+		</reg32>
+		<!-- only H264? -->
+		<reg32 offset="0x40" name="SLICE_POS">
+			<bitfield low="0" high="12" name="MB_IDX"/>
+			<bitfield low="13" high="20" name="MB_X"/>
+			<bitfield low="21" high="28" name="MB_Y"/>
+			<bitfield pos="29" name="UNK29"/> <!-- always 1 -->
+		</reg32>
+		<reg32 offset="0x44" name="COMMAND">
+			<bitfield low="0" high="4" name="CMD">
+				<value value="0" name="GET_UE"/> <!-- buggy? -->
+				<value value="1" name="GET_SE"/>
+				<value value="2" name="GETBITS"/>
+				<value value="3" name="NEXT_START_CODE"/>
+				<value value="4" name="ALIGN_BYTE"/>
+				<value value="11" name="PRED_WEIGHT_TABLE"/>
+				 <!-- MPEG12 macroblock() syntax element in a loop -->
+				<value value="12" name="MACROBLOCKS"/>
+				<value value="14" name="NEXTBITS"/>
+				<value value="18" name="UNK18_NOPARM_NORES"/> <!-- halt? -->
+			</bitfield>
+			<bitfield low="5" high="10" name="PARAM"/>
+		</reg32>
+		<reg32 offset="0x48" name="STATUS">
+			<bitfield pos="0" name="CMD"/>
+			<bitfield pos="1" name="UNK1"/>
+			<bitfield pos="2" name="UNK2"/> <!-- BSP2VP filler? -->
+			<bitfield pos="4" name="UNK4"/> <!-- BSP2VP writer? -->
+		</reg32>
+		<reg32 offset="0x4c" name="COMMAND_RES"/>
+		<bitset name="nv98_bsp_intr" inline="yes">
+			<bitfield pos="0" name="ERR_UNK0"/>
+			<bitfield pos="1" name="ERR_UNK1"/>
+			<bitfield pos="2" name="ERR_UNK2"/>
+			<bitfield pos="3" name="BSP2VP_FULL"/>
+			<bitfield pos="4" name="DONE"/>
+		</bitset>
+		<reg32 offset="0x50" name="INTR_EN" type="nv98_bsp_intr"/>
+		<reg32 offset="0x54" name="INTR" type="nv98_bsp_intr"/> <!-- fuc intr 10 -->
+	</array>
+	<array offset="0x480" name="STREAM" stride="0x80">
+		<reg32 offset="0x00" name="STREAM_0" stride="8" length="4">
+			<bitfield low="0" high="23" name="LENGTH"/>
+			<bitfield low="24" high="31" name="ADDR_HI"/>
+		</reg32>
+		<reg32 offset="0x04" name="STREAM_1" stride="8" length="4">
+			<bitfield pos="0" name="ENABLE"/>
+			<bitfield pos="1" name="UNK1"/>
+			<bitfield low="2" high="31" name="ADDR_LO"/>
+		</reg32>
+		<reg32 offset="0x40" name="UNK40"/>
+		<reg32 offset="0x44" name="RESET_TRIGGER"/>
+	</array>
+	<array offset="0x500" name="BSP2VP" stride="0x80">
+		<reg32 offset="0x00" name="ADDR" shr="8"/>
+		<reg32 offset="0x04" name="GET"/>
+		<reg32 offset="0x08" name="PUT"/>
+		<reg32 offset="0x0c" name="SIZE"/>
+		<reg32 offset="0x10" name="TRIGGER">
+			<bitfield pos="0" name="FLUSH"/>
+			<bitfield pos="1" name="RESET"/>
+		</reg32>
+		<!-- only in H264 -->
+		<reg32 offset="0x14" name="UNK14"/> <!-- ffffffff -->
+		<reg32 offset="0x18" name="UNK18"/> <!-- fff -->
+		<reg32 offset="0x1c" name="UNK1C"/> <!-- 1 -->
+	</array>
 </array>
 
 <array name="PVP" offset="0x85000" stride="0x1000" length="1" variants="NV98 NVAA-">
