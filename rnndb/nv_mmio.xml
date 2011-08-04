@@ -122,9 +122,9 @@
 
 <!-- 103000 - 103fff PBSP covered in nv84_pvp.xml -->
 
-<!-- 104000 - 104fff PCOPY covered in nv98_pvp.xml -->
-
-<!-- 105000 - 105fff PCOPY2 covered in nv98_pvp.xml -->
+<!-- 104000 - 104fff PCOPY -->
+<!-- 105000 - 105fff PCOPY2 -->
+<import file="nva3_pcopy.xml" />
 
 <!-- 108000 - 109fff PCODEC -->
 <import file="nva3_pcodec.xml" />
