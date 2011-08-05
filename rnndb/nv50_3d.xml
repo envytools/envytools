@@ -224,6 +224,27 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0dbc" name="ZCULL_UNK0DBC">
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield low="16" high="17" name="UNK16"/>
+			<doc>
+			UNK16 is seen to be set when the clear value change passes 0.5.
+
+			NOTE: the following may be nonsense, but that's what it looked like:
+			For LESS:
+				if (INC_TILE.zmax < ZCULL_TILE.zmin && UNK0 == 1)
+					pass;
+				else
+				if (INC_TILE.zmin > ZCULL_TILE.zmax)
+					prune;
+				else
+					per_pixel_test;
+			For GREATER:
+				if (INC_TILE.zmin > ZCULL_TILE.zmax && UNK0 == 1)
+					pass;
+				else
+				if (INC_TILE.zmax < ZCULL_TILE.zmin)
+					prune;
+				else
+					per_pixel_test;
+			</doc>
 		</reg32>
 		<reg32 offset="0x0dc0" name="POLYGON_OFFSET_POINT_ENABLE" type="boolean"/>
 		<reg32 offset="0x0dc4" name="POLYGON_OFFSET_LINE_ENABLE" type="boolean"/>
@@ -1118,6 +1139,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1954" name="ZCULL_VALIDATE">
 			<bitfield pos="0" name="CLEAR_UNK0"/>
 			<bitfield pos="4" name="CLEAR_UNK1"/>
+			<doc>Set all ZCULL tiles to CLEAR_DEPTH if CLEAR_UNK0 is 1.
+			Changing the test direction or writing FragDepth does not deactivate
+			ZCULL, at least not for untouched tiles.
+			Upon writing ZCULL tiles, the values in the actual depth buffer are
+			checked.
+			</doc>
 		</reg32>
 		<reg32 offset="0x1958" name="ZCULL_INVALIDATE"/>
 		<reg32 offset="0x1960" name="UNK1960" variants="NVA3_3D-">

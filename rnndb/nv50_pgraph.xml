@@ -676,9 +676,18 @@
 		<reg32 offset="0x18" name="UNK18"/> <!-- mask... -->
 		<array offset="0x20" name="REGION" stride="0x10" length="8">
 			<reg32 offset="0" name="UNK0" />
-			<reg32 offset="4" name="UNK1" />
-			<reg32 offset="8" name="UNK2" />
-			<reg32 offset="0xc" name="UNK3" />
+			<reg32 offset="4" name="SIZE">
+				<bitfield name="HEIGHT" high="15" low="0" type="uint" />
+				<bitfield name="WIDTH" high="31" low="16" type="uint" />
+				<doc>Both aligned to 64. Takes effect immediately.</doc>
+			</reg32>
+			<reg32 offset="8" name="BASE" /><!-- in pixels (width * height) -->
+			<reg32 offset="0xc" name="UNK3">
+				<doc>Blob initializes this to ff806001.
+				NV50_3D method 0dbc bit  0 appears in bit 1,
+				NV50_3D method 0dbc bit 16 appears in bit 2.
+				</doc>
+			</reg32>
 		</array>
 		<reg32 offset="0xbc" name="JOE" />
 	</array>
