@@ -20,15 +20,26 @@
 		<reg32 offset="0x00" name="MODE">
 			<bitfield low="0" high="7" name="WIDTH_MB"/>
 			<bitfield low="8" high="15" name="HEIGHT_MB"/>
+			<!-- H@64 and MPEG12 -->
 			<bitfield low="16" high="17" name="PICTURE_STRUCTURE">
 				<value value="0" name="FRAME"/>
 				<value value="1" name="FIELD_TOP"/>
 				<value value="2" name="FIELD_BOTTOM"/>
 			</bitfield>
+			<!-- VC-1 -->
+			<bitfield pos="16" name="FIELD">
+				<value value="0" name="TOP"/>
+				<value value="1" name="BOTTOM"/>
+			</bitfield>
+			<bitfield pos="16" name="FIELD_IN_BITSTREAM">
+				<value value="0" name="FIRST"/>
+				<value value="1" name="SECOND"/>
+			</bitfield>
 			<bitfield low="18" high="19" name="PICTURE_CODING_TYPE">
-				<!-- MPEG1/2 only -->
-				<value value="0" name="D"/>
-				<value value="1" name="I"/>
+				<!-- not used by H264 -->
+				<value value="0" name="D"/> <!-- MPEG1 only -->
+				<value value="0" name="SKIPPED"/> <!-- VC-1 only -->
+				<value value="1" name="I"/> <!-- also BI for VC-1 -->
 				<value value="2" name="P"/>
 				<value value="3" name="B"/>
 
@@ -36,9 +47,14 @@
 			<bitfield low="20" high="22" name="FORMAT">
 				<value value="0" name="MPEG1"/>
 				<value value="1" name="MPEG2"/>
+				<value value="2" name="VC1"/>
 				<value value="3" name="H264"/>
 			</bitfield>
-			<bitfield low="24" high="25" name="UNK24"/> <!-- not used in MPEG12 nor H264 -->
+			<bitfield low="24" high="25" name="PROFILE"> <!-- VC-1 only -->
+				<value value="0" name="SIMPLE"/>
+				<value value="1" name="MAIN"/>
+				<value value="2" name="ADVANCED"/>
+			</bitfield>
 		</reg32>
 		<reg32 offset="0x04" name="PARM_H264">
 			<bitfield pos="0" name="ENTROPY_CODING_MODE_FLAG"/>
@@ -46,7 +62,7 @@
 			<bitfield low="12" high="16" name="NAL_UNIT_TYPE"/>
 			<bitfield pos="17" name="UNK17"/> <!-- always 0 -->
 			<bitfield low="18" high="19" name="CABAC_INIT_IDC"/>
-			<bitfield los="20" high="21" name="UNK20"/> <!-- taken from picture parameters -->
+			<bitfield pos="20" high="21" name="UNK20"/> <!-- taken from picture parameters -->
 			<bitfield pos="22" name="DIRECT_8X8_INFERENCE_FLAG"/>
 			<bitfield pos="23" name="TRANSFORM_8X8_MODE_FLAG"/>
 		</reg32>
@@ -59,6 +75,59 @@
 			<bitfield low="20" high="23" name="F_CODE_1"/>
 			<bitfield low="24" high="27" name="F_CODE_2"/>
 			<bitfield low="28" high="31" name="F_CODE_3"/>
+		</reg32>
+		<reg32 offset="0x0c" name="PARM_VC1_0">
+			<bitfield low="0" high="6" name="REFDIST"/>
+			<bitfield pos="7" name="NUMREF"/>
+			<bitfield low="8" high="9" name="FCM">
+				<value value="0" name="FRAME_PROGRESSIVE"/>
+				<value value="2" name="FRAME_INTERLACE"/>
+				<value value="3" name="FIELD_INTERLACE"/>
+			</bitfield>
+			<bitfield low="10" high="11" name="REFDIST"/>
+			<bitfield pos="12" name="REFFIELD"/>
+			<bitfield pos="16" name="UNK16_BITPLANE"/>
+		</reg32>
+		<reg32 offset="0x10" name="PARM_VC1_1">
+			<bitfield low="0" high="2" name="CBPTAB"/> <!-- or icbptab -->
+			<bitfield low="4" high="6" name="MVTAB"/> <!-- or imvtab -->
+			<bitfield low="8" high="9" name="2MVBPTAB"/>
+			<bitfield low="10" high="11" name="4MVBPTAB"/>
+			<bitfield low="12" high="14" name="MBMODETAB"/>
+			<bitfield pos="16" name="TRANSDCTAB"/>
+			<bitfield pos="17" name="UNK17"/>
+			<enum name="pbsp_vc1_transacfrm" inline="yes">
+				<value value="0" name="HIGH_RATE"/> <!-- tables 219-232 -->
+				<value value="1" name="LOW_MOTION"/> <!-- tables 191-204 -->
+				<value value="2" name="HIGH_MOTION"/> <!-- tables 177-190 -->
+				<value value="3" name="MID_RATE"/> <!-- tables 205-218 -->
+			</enum>
+			<bitfield low="20" high="21" name="TRANSACFRM" type="pbsp_vc1_transacfrm"/>
+			<bitfield low="22" high="23" name="TRANSACFRM2" type="pbsp_vc1_transacfrm"/>
+		</reg32>
+		<reg32 offset="0x14" name="PARM_VC1_2">
+			<bitfield pos="0" name="DQUANT_INFRAME"/>
+			<bitfield pos="1" name="DQBILEVEL"/>
+			<bitfield low="2" high="3" name="DQPROFILE"/>
+			<bitfield low="4" high="5" name="DQBEDGE"/> <!-- dqsbedge or dqdbedge -->
+			<bitfield low="16" high="20" name="PQUANT"/>
+			<bitfield low="24" high="28" name="ALTPQUANT"/>
+		</reg32>
+		<reg32 offset="0x18" name="PARM_VC1_3">
+			<bitfield pos="0" name="DMVRANGE_HORIZ_NOT_EXT"/> <!-- 1 if range *not* extended -->
+			<bitfield pos="1" name="DMVRANGE_VERT_NOT_EXT"/>
+			<bitfield low="2" high="3" name="MVRANGE"/> <!-- 0-3, in order of size -->
+			<bitfield low="4" high="5" name="MVMODE"> <!-- if mvmode == intensity compensation, mvmode2 instead -->
+				<value value="0" name="MIXED"/>
+				<value value="1" name="ONE"/>
+				<value value="2" name="ONE_HPEL"/>
+				<value value="3" name="ONE_HPEL_BILINEAR"/>
+			</bitfield>
+			<bitfield low="6" high="7" name="TTFRM"/>
+			<bitfield pos="8" name="TTMBF"/>
+			<bitfield pos="9" name="4MVSWITCH"/>
+			<bitfield pos="10" name="CONDOVER_ZERO"/>
+			<bitfield pos="11" name="UNK11"/>
 		</reg32>
 		<reg32 offset="0x20" name="SLICE_PARM">
 			<!-- H@64 only -->
@@ -97,6 +166,7 @@
 				 <!-- MPEG12 macroblock() syntax element in a loop -->
 				<value value="12" name="MACROBLOCKS"/>
 				<value value="14" name="NEXTBITS"/>
+				<value value="17" name="BITPLANE"/> <!-- VC-1, param is plane index -->
 				<value value="18" name="UNK18_NOPARM_NORES"/> <!-- halt? -->
 			</bitfield>
 			<bitfield low="5" high="10" name="PARAM"/>
