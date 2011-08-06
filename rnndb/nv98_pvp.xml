@@ -127,7 +127,7 @@
 			<bitfield pos="8" name="TTMBF"/>
 			<bitfield pos="9" name="4MVSWITCH"/>
 			<bitfield pos="10" name="CONDOVER_ZERO"/>
-			<bitfield pos="11" name="UNK11"/>
+			<bitfield pos="11" name="SYNCMARKER"/> <!-- set this to 0 for B and BI, to syncmarker header flag for I and P -->
 		</reg32>
 		<reg32 offset="0x20" name="SLICE_PARM">
 			<!-- H@64 only -->
