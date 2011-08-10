@@ -446,4 +446,47 @@
 
 </domain>
 
+<domain name="NV50_RAMFC">
+	<reg32 offset="0x00" name="IB_PUT"/>
+	<reg32 offset="0x04" name="IB_GET"/>
+	<reg32 offset="0x08" name="DMA_PUT"/>
+	<reg32 offset="0x0c" name="DMA_PUT_HIGH"/>
+	<reg32 offset="0x10" name="DMA_GET"/>
+	<reg32 offset="0x14" name="DMA_GET_HIGH"/>
+	<reg32 offset="0x18" name="DMA_MGET"/>
+	<reg32 offset="0x1c" name="DMA_MGET_HIGH"/>
+	<reg32 offset="0x20" name="DMA_GET_HIGH_RDSHADOW"/>
+	<reg32 offset="0x24" name="DMA_PUT_HIGH_RDSHADOW"/>
+	<reg32 offset="0x28" name="DMA_PUT_HIGH_WRSHADOW"/>
+	<reg32 offset="0x2c" name="DMA_MGET_HIGH_RDSHADOW"/>
+	<reg32 offset="0x30" name="DMA_STATE"/>
+	<reg32 offset="0x34" name="METHOD_COUNT"/>
+	<reg32 offset="0x38" name="DMA_DCOUNT_SHADOW"/>
+	<reg32 offset="0x3c" name="DMA_FETCH"/>
+	<reg32 offset="0x40" name="SUBROUTINE"/>
+	<reg32 offset="0x44" name="DMA_TIMESLICE"/>
+	<reg32 offset="0x48" name="DMA_INSTANCE"/>
+	<reg32 offset="0x4c" name="DMA_LIMIT"/>
+	<reg32 offset="0x50" name="IB_ADDRESS_LOW"/>
+	<reg32 offset="0x54" name="IB_CONFIG"/>
+	<reg32 offset="0x58" name="ENGINE"/>
+	<reg32 offset="0x5c" name="PULL1"/>
+	<reg32 offset="0x60" name="ACQUIRE_TIMEOUT"/>
+	<reg32 offset="0x64" name="ACQUIRE_TIMESTAMP"/>
+	<reg32 offset="0x68" name="ACQUIRE_VALUE"/>
+	<reg32 offset="0x6c" name="SEMAPHORE"/>
+	<reg32 offset="0x70" name="UNK0E4"/>
+	<reg32 offset="0x74" name="REF"/>
+	<reg32 offset="0x78" name="UNK88"/>
+	<reg32 offset="0x7c" name="SLI"/>
+	<reg32 offset="0x80" name="RAMHT"/>
+	<reg32 offset="0x84" name="CACHE_CNT"/>
+	<!-- following NV84+ -->
+	<reg32 offset="0x88" name="CACHE_INST"/>
+	<reg32 offset="0x8c" name="SEMAPHORE_ADDRESS_HIGH"/>
+	<reg32 offset="0x90" name="SEMAPHORE_ADDRESS_LOW"/>
+	<reg32 offset="0x94" name="SEMAPHORE_SEQUENCE"/>
+	<reg32 offset="0x98" name="CHAN_INST"/>
+</domain>
+
 </database>
