@@ -273,14 +273,8 @@
 			</reg32>
 			<reg32 offset="0x050" name="PULL0">
 				<bitfield pos="0" name="ACCESS"/>
-				<bitfield pos="4" name="HASH">
-					<value value="0" name="SUCCEEDED"/>
-					<value value="1" name="FAILED"/>
-				</bitfield>
-				<bitfield pos="8" name="DEVICE">
-					<value value="0" name="HARDWARE"/>
-					<value value="1" name="SOFTWARE"/>
-				</bitfield>
+				<bitfield pos="4" name="HASH_FAILED"/>
+				<bitfield pos="8" name="DEVICE_SOFTWARE"/>
 				<bitfield pos="12" name="HASH_BUSY"/>
 				<bitfield pos="16" name="ACQUIRE_BUSY"/>
 				<bitfield high="23" low="20" name="SEMAPHORE_ERROR">
@@ -291,6 +285,7 @@
 					<value value="3" name="ADDRESS_TOO_LARGE"/>
 					<value value="4" name="MEM_FAULT"/>
 				</bitfield>
+				<bitfield pos="24" name="INVALID_ENGINE"/>
 				<bitfield high="31" low="28" name="STATUS">
 					<!-- XXX: figure this out -->
 				</bitfield>

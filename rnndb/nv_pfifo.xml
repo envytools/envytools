@@ -576,14 +576,8 @@
 			<reg32 offset="0x030" name="PUT" variants="NV01:NV03"/>
 			<reg32 offset="0x040" name="PULL0" variants="NV01:NV04">
 				<bitfield pos="0" name="ACCESS"/>
-				<bitfield pos="4" name="HASH">
-					<value value="0" name="SUCCEEDED"/>
-					<value value="1" name="FAILED"/>
-				</bitfield>
-				<bitfield pos="8" name="DEVICE">
-					<value value="0" name="HARDWARE"/>
-					<value value="1" name="SOFTWARE"/>
-				</bitfield>
+				<bitfield pos="4" name="HASH_FAILED"/>
+				<bitfield pos="8" name="DEVICE_SOFTWARE"/>
 			</reg32>
 			<reg32 offset="0x020" name="DMA_PUSH" variants="NV04-">
 				<bitfield pos="0" name="ACCESS"/>
@@ -644,14 +638,8 @@
 			</reg32>
 			<reg32 offset="0x050" name="PULL0" variants="NV04-">
 				<bitfield pos="0" name="ACCESS"/>
-				<bitfield pos="4" name="HASH">
-					<value value="0" name="SUCCEEDED"/>
-					<value value="1" name="FAILED"/>
-				</bitfield>
-				<bitfield pos="8" name="DEVICE">
-					<value value="0" name="HARDWARE"/>
-					<value value="1" name="SOFTWARE"/>
-				</bitfield>
+				<bitfield pos="4" name="HASH_FAILED"/>
+				<bitfield pos="8" name="DEVICE_SOFTWARE"/>
 				<bitfield pos="12" name="HASH_BUSY"/>
 				<bitfield pos="16" name="ACQUIRE_BUSY" variants="NV11-"/>
 				<bitfield high="23" low="20" name="SEMAPHORE_ERROR" variants="NV11-">
