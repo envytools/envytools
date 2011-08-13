@@ -119,12 +119,12 @@ int envy_bios_parse (struct envy_bios *bios) {
 		if (device == 0x18 || device == 0x19) {
 			bios->type = ENVY_BIOS_TYPE_NV03;
 		} else {
-			ENVY_BIOS_ERR("Unknown SGS/NVidia pciid %04x\n", device); 
+			ENVY_BIOS_ERR("Unknown SGS/NVidia pciid %04x\n", device);
 			break;
 		}
 		bios->bmp_offset = find_string(bios, "\xff\x7fNV\0", 5);
 		if (!bios->bmp_offset) {
-			ENVY_BIOS_ERR("BMP not found\n", device); 
+			ENVY_BIOS_ERR("BMP not found\n", device);
 			break;
 		}
 		parse_bmp_nv03(bios);

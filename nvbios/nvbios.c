@@ -1059,6 +1059,9 @@ int main(int argc, char **argv) {
 			pm_mode_tbl_ptr, version, ram_cfg, mode_info_length
 		);
 
+		if (version < 0x30)
+			printf("PWM_div 0x%x, ", le16(start+6));
+
 		if (version > 0x15 && version < 0x40)
 			printf("Extra_length %i. Extra_count %i.\n", extra_data_length, extra_data_count);
 		else if (version == 0x40)
