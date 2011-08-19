@@ -156,26 +156,28 @@
 
 		Trying to launch a ctxprog xfer touching a disabled subunit is a bad idea.
 		</doc>
-		<bitfield name="DISPATCH" pos="0" /> <!-- 8XX, 54XX+ [or 48XX+], 6FFX, force STATUS 1. NV50 strand 0. NVA0 strand 0. -->
+		<bitfield name="DISPATCH" pos="0" /> <!-- 08XX, 54XX+ [or 48XX+], 6FFX, force STATUS 1. NV50 strand 0. NVA0 strand 0. -->
 		<bitfield name="M2MF" pos="1" /> <!-- 68XX. NV50 strand 0. NVA0 strand 0. -->
-		<bitfield name="VFETCH" pos="2" /> <!-- CXX, NV50 strand 1. NVA0 strand 3. -->
+		<bitfield name="VFETCH" pos="2" /> <!-- 0CXX, NV50 strand 1. NVA0 strand 3. -->
 		<bitfield name="CCACHE" pos="3" /> <!-- 50XX, NV50 strand 2. NVA0 strand 4. -->
-		<bitfield name="UNK10XX" pos="6" /> <!-- NV50 strand 2. NVA0 strand 1. -->
+		<bitfield name="CCACHE_UNK4" pos="4" />
+		<bitfield name="STRMOUT_GSCHED_UNK5" pos="5" />
+		<bitfield name="GSCHED" pos="6" /> <!-- 10XX, NV50 strand 2. NVA0 strand 1. -->
 		<bitfield name="STRMOUT" pos="7" /> <!-- 18XX, NV50 strand 2. NVA0 strand 0. -->
-		<bitfield name="UNK14XX" pos="8" /> <!-- and 15XX, NV50 strand 2. NVA0 strand 7 / 2. -->
-		<bitfield name="UNK8CXX" pos="9" /> <!-- 8CXX / 80XX, NV50 strand 4. NVA0 strand 6 -->
+		<bitfield name="UNK14XX" pos="8" /> <!-- 14XX, 15XX, NV50 strand 2. NVA0 strand 7 / 2. -->
+		<bitfield name="TPRAST" pos="9" /> <!-- 8CXX / 80XX, NV50 strand 4. NVA0 strand 6 -->
 		<bitfield name="TPROP" pos="10" /> <!-- 8EXX / 87XX, NV50 strand 4. NVA0 strand 6 -->
 		<bitfield name="TEXTURE" pos="11" /> <!-- 88XX, 89XX, 8AXX / 85XX, 86XX, NV50 strand 4. NVA0 strand 6 -->
-		<bitfield name="UNK84XX" pos="12" /> <!-- NV50 strand 4. NVA0 strand 6. -->
+		<bitfield name="TPVP" pos="12" /> <!-- 84XX, NV50 strand 4. NVA0 strand 6. -->
 		<bitfield name="MP" pos="13" /> <!-- 82XX, 83XX / 81XX, 82XX, 83XX, NV50 xfer2. NVA0 xfer2 -->
-		<bitfield name="UNK24XX" pos="14" /> <!-- NV50 strand 0. NVA0 strand 2. huge. -->
-		<bitfield name="CSCHED" pos="15" /> <!-- force STATUS 2001 and some other stuff, NV50 strand 1 and xfer2. NVA0 strand 0 and xfer2. -->
-		<bitfield name="UNK1CXX" pos="16" /> <!-- NV50 strand 2. NVA0 strand 0. -->
-		<bitfield name="CLIPID" pos="17" /> <!-- NV50 strand 0. NVA0 strand 6 -->
-		<bitfield name="ZCULL" pos="18" /> <!-- NV50 strand 0. NVA0 strand 6 -->
-		<bitfield name="ENG2D" pos="19" /> <!-- NV50 strand 1. NVA0 strand 6 -->
-		<bitfield name="UNK34XX" pos="20" /> <!-- NV50 strand 2. NVA0 strand 0. -->
-		<bitfield name="ROP" pos="21" /> <!-- 7xxx, NV50 strands 1 and 3. NVA0 strand 5. -->
+		<bitfield name="UNK24XX" pos="14" /> <!-- 24XX, NV50 strand 0. NVA0 strand 2. huge. -->
+		<bitfield name="CSCHED" pos="15" /> <!-- 20XX, NV50 strand 1 and xfer2. NVA0 strand 0 and xfer2. -->
+		<bitfield name="UNK1CXX" pos="16" /> <!-- 1CXX, NV50 strand 2. NVA0 strand 0. -->
+		<bitfield name="CLIPID" pos="17" /> <!-- 20XX, NV50 strand 0. NVA0 strand 6 -->
+		<bitfield name="ZCULL" pos="18" /> <!-- 2Cxx, NV50 strand 0. NVA0 strand 6 -->
+		<bitfield name="ENG2D" pos="19" /> <!-- 30XX, NV50 strand 1. NVA0 strand 6 -->
+		<bitfield name="UNK34XX" pos="20" /> <!-- 34XX, NV50 strand 2. NVA0 strand 0. -->
+		<bitfield name="ROP" pos="21" /> <!-- 7XXX, NV50 strands 1 and 3. NVA0 strand 5. -->
 	</reg32>
 	<reg32 offset="0x0060" name="UNK60" />
 	<reg32 offset="0x0080" name="DEBUG_0">
@@ -444,25 +446,29 @@
 
 	<reg32 offset="0x0700" name="STATUS" access="r">
 		<doc>Shows which parts of PGRAPH are currently busy with doing some stuff. 1 means busy, 0 means idle.</doc>
+		<!-- missing: UNK24XX -->
 		<bitfield name="ALL" pos="0">
 			<doc>Is 1 if anything at all is busy.</doc>
 		</bitfield>
 		<bitfield name="DISPATCH" pos="1"/>
+
 		<bitfield name="M2MF" pos="6"/>
+
 		<bitfield name="CTXPROG" pos="8"/>
 		<bitfield name="VFETCH" pos="9"/>
 		<bitfield name="CCACHE" pos="10"/>
-		<bitfield name="STRMOUT" pos="11"/>
+		<bitfield name="STRMOUT_GSCHED_UNK5" pos="11"/>
+		<bitfield name="UNK14XX" pos="12"/>
 		<bitfield name="CSCHED" pos="13"/>
 		<bitfield name="UNK1CXX" pos="14"/>
 		<bitfield name="CLIPID" pos="15"/>
 		<bitfield name="ZCULL" pos="16"/>
 		<bitfield name="ENG2D" pos="17"/>
 		<bitfield name="UNK34XX" pos="18"/>
-		<bitfield name="UNK8CXX" pos="19"/>
+		<bitfield name="TPRAST" pos="19"/>
 		<bitfield name="TPROP" pos="20"/>
 		<bitfield name="TEX" pos="21"/>
-		<bitfield name="UNK84XX" pos="22"/>
+		<bitfield name="TPVP" pos="22"/>
 		<bitfield name="MP" pos="23"/>
 		<bitfield name="ROP" pos="24"/>
 	</reg32>
