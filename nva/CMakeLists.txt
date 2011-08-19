@@ -19,7 +19,6 @@ add_executable(nvatiming nvatiming.c)
 add_executable(nvapms nvapms.c)
 add_executable(nvafuzz nvafuzz.c)
 add_executable(nvawatch nvawatch.c)
-add_executable(nvastrscan nvastrscan.c)
 
 target_link_libraries(nvalist nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvapeek nva ${PC_PCIACCESS_LIBRARIES})
@@ -33,9 +32,8 @@ target_link_libraries(nvatiming nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvapms nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvafuzz nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvawatch nva ${PC_PCIACCESS_LIBRARIES})
-target_link_libraries(nvastrscan nva ${PC_PCIACCESS_LIBRARIES})
 
-install(TARGETS nva nvalist nvapeek nvapoke nvapeek8 nvapoke8 nvagetbios nvafakebios nvascan nvatiming nvapms nvafuzz nvawatch nvastrscan
+install(TARGETS nva nvalist nvapeek nvapoke nvapeek8 nvapoke8 nvagetbios nvafakebios nvascan nvatiming nvapms nvafuzz nvawatch
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
 	ARCHIVE DESTINATION lib${LIB_SUFFIX})

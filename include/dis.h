@@ -426,6 +426,7 @@ uint16_t readle16 (uint8_t *);
 
 #define FUC_NV98 1
 #define FUC_NVA3 2
+#define FUC_NVD9 4
 
 #define HWSQ_NV17 1
 #define HWSQ_NV41 2

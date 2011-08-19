@@ -240,6 +240,8 @@ int main(int argc, char **argv) {
 				vartype = FUC_NV98;
 			else if (!strcmp(varname, "nva3"))
 				vartype = FUC_NVA3;
+			else if (!strcmp(varname, "nvd9"))
+				vartype = FUC_NVD9;
 			else {
 				fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
 				return 1;

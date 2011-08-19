@@ -521,6 +521,8 @@ int main(int argc, char **argv) {
 				envyas_vartype = FUC_NV98;
 			else if (!strcmp(varname, "nva3"))
 				envyas_vartype = FUC_NVA3;
+			else if (!strcmp(varname, "nvd9"))
+				envyas_vartype = FUC_NVD9;
 			else {
 				fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
 				return 1;

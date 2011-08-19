@@ -27,6 +27,7 @@
 
 #define NV98 FUC_NV98
 #define NVA3P FUC_NVA3
+#define NVD9P FUC_NVD9
 
 /*
  * Code target fields
@@ -40,6 +41,8 @@ static struct bitfield pcrel8off = { { 16, 8 }, BF_SIGNED, .pcrel = 1 };
 #define SABTARG atombtarg, &imm8off
 #define LCTARG atomctarg, &imm16woff
 #define SCTARG atomctarg, &imm8off
+#define LLBTARG atombtarg, &imm24off
+#define LLCTARG atomctarg, &imm24off
 
 /*
  * Register fields
@@ -103,6 +106,7 @@ static struct bitfield imm16hoff = { { 16, 16 }, BF_UNSIGNED, 16 };
 static struct bitfield imm8hoff = { { 16, 8 }, BF_UNSIGNED, 16 };
 static struct bitfield strapoff = { 8, 2 };
 static struct bitfield cimm2off = { 20, 6 };
+static struct bitfield imm24off = { 8, 24 };
 #define IMM16 atomimm, &imm16off
 #define IMM8 atomimm, &imm8off
 #define IMM16S atomimm, &imm16soff
@@ -389,6 +393,9 @@ static struct insn tabsi[] = {
 	{ 0x0000043d, 0x00000f3f, OP16, N("clear"), T(sz), REG2 },
 	{ 0x0000053d, 0x00000f3f, OP16, N("setf"), T(sz), REG2, .vartype = NVA3P },
 	{ 0x0000003d, 0x0000003f, OP16, OOPS, T(sz), REG2 },
+
+	{ 0x0000003e, 0x000000ff, OP32, N("lbra"), LLBTARG, .vartype = NVD9P },
+	{ 0x0000007e, 0x000000ff, OP32, N("lcall"), LLCTARG, .vartype = NVD9P },
 
 	{ 0, 0, OOPS, T(sz) },
 };
