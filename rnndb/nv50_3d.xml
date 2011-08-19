@@ -361,7 +361,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0fb4" name="UNK0FB4">
 			<doc>Accepts 0-2, goes to 1cxx, clipid.</doc>
 		</reg32>
-		<reg32 offset="0x0fb8" name="UNK0FB8"/>
+		<reg32 offset="0x0fb8" name="UNK0FB8">
+			<doc>0-0x1f, goes to eng2d</doc>
+		</reg32>
 		<reg32 offset="0x0fbc" name="MSAA_MASK" length="4"/>
 		<reg32 offset="0x0fcc" name="CLIPID_ADDRESS_HIGH"/>
 		<reg32 offset="0x0fd0" name="CLIPID_ADDRESS_LOW"/>
@@ -1091,15 +1093,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1918" name="CULL_FACE_ENABLE" type="boolean"/>
 		<reg32 offset="0x191c" name="FRONT_FACE" type="gl_front_face"/>
 		<reg32 offset="0x1920" name="CULL_FACE" type="gl_cull_face"/>
-		<reg32 offset="0x1924" name="LINE_LAST_PIXEL" type="boolean">
-			<doc>Goes to csched, 14xx.</doc>
-		</reg32>
+		<reg32 offset="0x1924" name="LINE_LAST_PIXEL" type="boolean"/>
 		<reg32 offset="0x1928" name="FP_MULTISAMPLE" variants="NVA3_3D-">
 			<bitfield pos="0" name="EXPORT_SAMPLE_MASK"/>
 			<bitfield pos="1" name="FORCE_PER_SAMPLE"/>
 		</reg32>
 		<reg32 offset="0x192c" name="VIEWPORT_TRANSFORM_EN" type="boolean"/>
-		<!-- 193c: previously thought to be somehow related to logic op -->
 		<reg32 offset="0x193c" name="VIEW_VOLUME_CLIP_CTRL">
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield pos="1" name="UNK1" variants="NVA0_3D-"/>
