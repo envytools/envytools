@@ -12,6 +12,10 @@ set 0 [host]:
 set 1 [graph]:
 0xc8: PGRAPH_IDLE
 0xca: PGRAPH_INTR_PENDING
+0xd2: CTXCTL flag 0x1c
+0xd3: CTXCTL flag 0x1d
+0xd4: CTXCTL flag 0x1e
+0xd5: CTXCTL flag 0x1f
 
 
 NV86 signals
@@ -28,6 +32,10 @@ set 0 [host]:
 set 1 [graph]:
 0xc9: PGRAPH_IDLE
 0xcb: PGRAPH_INTR_PENDING
+0xd3: CTXCTL flag 0x1c
+0xd4: CTXCTL flag 0x1d
+0xd5: CTXCTL flag 0x1e
+0xd6: CTXCTL flag 0x1f
 
 set 2:
 0xd4-0xd9: PCRYPT_USER_0-5 [fuc-perf.txt]
@@ -46,6 +54,10 @@ set 0 [host]:
 set 1 [graph]:
 0xcb: PGRAPH_IDLE
 0xcd: PGRAPH_INTR_PENDING
+0xd5: CTXCTL flag 0x1c
+0xd6: CTXCTL flag 0x1d
+0xd7: CTXCTL flag 0x1e
+0xd8: CTXCTL flag 0x1f
 
 set 5:
 0x2d-0x32: PCOPY_USER_0-5 [fuc-perf.txt]

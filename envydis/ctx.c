@@ -192,7 +192,11 @@ static struct insn tabarea[] = {
 
 
 static struct insn tabrpred[] = {
-	{ 0x00, 0x7f, N("dir") }, // the direction flag
+	{ 0x00, 0x7f, N("dir") }, // the direction flag; 0: read from memory, 1: write to memory
+	{ 0x1c, 0x7f, N("pm0") },
+	{ 0x1d, 0x7f, N("pm1") },
+	{ 0x1e, 0x7f, N("pm2") },
+	{ 0x1f, 0x7f, N("pm3") },
 	{ 0x4a, 0x7f, N("newctxdone"), .vartype = CTX_NV50 },	// newctx CMD finished with loading new address... or something like that, it seems to be turned back off *very shortly* after the newctx CMD. only check it with a wait right after newctx. weird.
 	{ 0x4b, 0x7f, N("xferbusy"), .vartype = CTX_NV50 },	// RAMIN xfer in progress
 	{ 0x4c, 0x7f, N("delaydone"), .vartype = CTX_NV50 },

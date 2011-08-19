@@ -539,7 +539,10 @@
 		<bitfield name="UNK1" pos="1"/> <!-- set while loading/saving context... -->
 		<bitfield name="DISPATCH_DROP" pos="3"/> <!-- causes incoming methods to get ignored, haven't dug deeper yet. -->
 		<bitfield name="XFER_ENABLE" pos="14"/> <!-- xfer just hangs when attempted without this bit set. -->
-		<bitfield name="UNK1D" pos="29"/> <!-- set while saving context... -->
+		<bitfield name="PM0" pos="28"/>
+		<bitfield name="PM1" pos="29"/>
+		<bitfield name="PM2" pos="30"/>
+		<bitfield name="PM3" pos="31"/>
 	</reg32>
 	<reg32 offset="0x0828" name="CTXCTL_FLAGS_1"> <!-- saved to context -->
 		<bitfield name="UNK0" pos="0"/> <!-- weird stuff happens when not set -->
