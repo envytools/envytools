@@ -63,7 +63,7 @@ VM is used by several clients, which are identified by VM client id:
  - 3: DISPATCH: PGRAPH context save/restore, NOTIFY, QUERY, COND, and m2mf.
  - 4: PFIFO_WRITE: non-blocking write accesses by PFIFO, for FIFOs and BARs
  - 5: CCACHE: PGRAPH c[], code, TIC, and TSC accesses
- - 6: PMPEG: on nv50 also handles PVP and PMSRCH [nv50:nv98]
+ - 6: PVPE: VM front-end for PMPEG + PMSRCH [nv50 only] + PVP [nv50 only] [nv50:nv98]
  - 6: PPPP [nv98-]
  - 7: CLIPID: PGRAPH window clip id reads/writes
  - 8: PFIFO_READ: reads by PFIFO, for FIFOs and BARs
@@ -71,31 +71,32 @@ VM is used by several clients, which are identified by VM client id:
  - a: TEXTURE: PGRAPH texture fetches
  - b: ROP: PGRAPH raster output and CUDA global/local memory accesses
  - c: PVP [nv84-]
- - d: PBSP
+ - d: PBSP [nv84-]
  - e: PCRYPT [nv84:nva3]
  - e: PUNK1C1 [nvaf]
- - f: PCOUNTER
- - 11: PDAEMON
- - 13: PCOPY
+ - f: PCOUNTER [nv84-]
+ - 11: PDAEMON [nva3-]
+ - 13: PCOPY [nva3-]
 
 A related concept is VM engine, which is a group of clients that share TLBs
 and stay on the same channel at any single moment. It's possible for a client
 to be part of several VM engines. The engines are:
 
  - 0: PGRAPH: STRMOUT + DISPATCH + CCACHE + CLIPID + VFETCH + TEXTURE + ROP
- - 1: PVP: PVP
+ - 1: PVP: PVPE [nv50:nv84]
+ - 1: PVP: PVP [nv84-]
  - 4: PEEPHOLE: PFIFO_WRITE + PFIFO_READ
  - 5: PFIFO: PFIFO_WRITE + PFIFO_READ
  - 6: BAR: PFIFO_WRITE + PFIFO_READ
- - 8: PMPEG: PMPEG [nv50:nv98]
+ - 7: PMSRCH: PVPE [nv50:nv84]
+ - 8: PMPEG: PVPE [nv50:nv98]
  - 8: PPPP: PPPP [nv98-]
- - 9: PBSP: PBSP
+ - 9: PBSP: PBSP [nv84-]
  - a: PCRYPT: PCRYPT [nv84:nva3]
  - b: PCOUNTER: PCOUNTER
  - c: SEMAPHORE_BG: PFIFO_READ - handles background semaphore acquire polling
- - d: PCOPY: PCOPY
- - e: PDAEMON: PDAEMON
-[XXX: verify pre-nv98 vdec clients and engines]
+ - d: PCOPY: PCOPY [nva3-]
+ - e: PDAEMON: PDAEMON [nva3-]
 
 Client+engine combination doesn't, however, fully identify the source of the
 access - to disambiguate that, DMA slot ids are used. The set of DMA slot

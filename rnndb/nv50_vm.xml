@@ -2,37 +2,41 @@
 <import file="copyright.xml"/>
 <import file="nv50_defs.xml"/>
 
-<enum name="NV50_VM_ENGINE">
+<enum name="NV50_VM_ENGINE" varset="chipset">
 	<value value="0" name="PGRAPH"/>
 	<value value="1" name="PVP"/>
 	<value value="4" name="PEEPHOLE"/>
 	<value value="5" name="PFIFO"/>
 	<value value="6" name="BAR"/>
-	<value value="8" name="PPPP"/>
-	<value value="9" name="PBSP"/>
-	<value value="0xa" name="PCRYPT"/>
-	<value value="0xb" name="PCOUNTER"/>
-	<value value="0xc" name="SEMAPHORE_BG"/>
-	<value value="0xd" name="PCOPY"/>
-	<value value="0xe" name="PDAEMON"/>
+	<value value="7" name="PMSRCH" variants="NV50:NV84"/>
+	<value value="8" name="PMPEG" variants="NV50:NV98 NVA0"/>
+	<value value="8" name="PPPP" variants="NV98 NVAA-"/>
+	<value value="9" name="PBSP" variants="NV84-"/>
+	<value value="0xa" name="PCRYPT" variants="NV84:NVA3"/>
+	<value value="0xb" name="PCOUNTER" variants="NV84-"/>
+	<value value="0xc" name="SEMAPHORE_BG" variants="NV84-"/>
+	<value value="0xd" name="PCOPY" variants="NVA3-"/>
+	<value value="0xe" name="PDAEMON" variants="NVA3-"/>
 </enum>
 
-<enum name="NV50_VM_CLIENT">
+<enum name="NV50_VM_CLIENT" varset="chipset">
 	<value value="0x00" name="STRMOUT"/>
 	<value value="0x03" name="DISPATCH"/>
 	<value value="0x04" name="PFIFO_WRITE"/>
 	<value value="0x05" name="CCACHE"/>
-	<value value="0x06" name="PPPP"/>
+	<value value="0x06" name="PVPE" variants="NV50:NV98 NVA0"/>
+	<value value="0x06" name="PPPP" variants="NV98 NVAA-"/>
 	<value value="0x07" name="CLIPID"/>
 	<value value="0x08" name="PFIFO_READ"/>
 	<value value="0x09" name="VFETCH"/>
 	<value value="0x0a" name="TEXTURE"/>
 	<value value="0x0b" name="PROP"/>
-	<value value="0x0c" name="PVP"/>
-	<value value="0x0d" name="PBSP"/>
-	<value value="0x0e" name="PCRYPT"/>
-	<value value="0x0f" name="PCOUNTER"/>
-	<value value="0x11" name="PDAEMON"/>
+	<value value="0x0c" name="PVP" variants="NV84-"/>
+	<value value="0x0d" name="PBSP" variants="NV84-"/>
+	<value value="0x0e" name="PCRYPT" variants="NV84-"/>
+	<value value="0x0f" name="PCOUNTER" variants="NV84-"/>
+	<value value="0x11" name="PDAEMON" variants="NVA3-"/>
+	<value value="0x13" name="PCOPY" variants="NVA3-"/>
 </enum>
 
 <enum name="NV50_VM_FAULT">
