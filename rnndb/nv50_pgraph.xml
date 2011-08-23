@@ -160,8 +160,8 @@
 		<bitfield name="M2MF" pos="1" /> <!-- 68XX. NV50 strand 0. NVA0 strand 0. -->
 		<bitfield name="VFETCH" pos="2" /> <!-- 0CXX, NV50 strand 1. NVA0 strand 3. -->
 		<bitfield name="CCACHE" pos="3" /> <!-- 50XX, NV50 strand 2. NVA0 strand 4. -->
-		<bitfield name="CCACHE_UNK4" pos="4" />
-		<bitfield name="STRMOUT_GSCHED_UNK5" pos="5" />
+		<bitfield name="UNK4" pos="4" />
+		<bitfield name="UNK5" pos="5" />
 		<bitfield name="GSCHED" pos="6" /> <!-- 10XX, NV50 strand 2. NVA0 strand 1. -->
 		<bitfield name="STRMOUT" pos="7" /> <!-- 18XX, NV50 strand 2. NVA0 strand 0. -->
 		<bitfield name="UNK14XX" pos="8" /> <!-- 14XX, 15XX, NV50 strand 2. NVA0 strand 7 / 2. -->
@@ -381,9 +381,31 @@
 	</reg32>
 
 	<!-- blob checks these on 100c80... -->
-	<reg32 offset="0x0380" name="UNK380"/>
-	<reg32 offset="0x0384" name="UNK384"/>
-	<reg32 offset="0x0388" name="UNK388"/>
+	<reg32 offset="0x0380" name="VSTATUS_0">
+		<bitfield low="0" high="2" name="VFETCH"/>
+		<bitfield low="3" high="5" name="CCACHE"/>
+		<bitfield low="6" high="8" name="UNK4"/>
+		<bitfield low="9" high="11" name="UNK5"/>
+		<bitfield low="12" high="14" name="GSCHED"/>
+		<bitfield low="15" high="17" name="STRMOUT"/> <!-- untested -->
+		<bitfield low="18" high="20" name="UNK14XX"/>
+	</reg32>
+	<reg32 offset="0x0384" name="VSTATUS_1">
+		<bitfield low="0" high="2" name="TPRAST"/>
+		<bitfield low="3" high="5" name="TPROP"/>
+		<bitfield low="6" high="8" name="TEXTURE"/> <!-- untested -->
+		<bitfield low="9" high="11" name="TPVP"/> <!-- untested -->
+		<bitfield low="12" high="14" name="MP"/>
+	</reg32>
+	<reg32 offset="0x0388" name="VSTATUS_2">
+		<bitfield low="0" high="2" name="UNK24XX"/>
+		<bitfield low="3" high="5" name="CSCHED"/>
+		<bitfield low="6" high="8" name="UNK1CXX"/>
+		<bitfield low="9" high="11" name="CLIPID"/>
+		<bitfield low="12" high="14" name="ZCULL"/>
+		<bitfield low="15" high="17" name="ENG2D"/>
+		<bitfield low="18" high="20" name="UNK34XX"/>
+	</reg32>
 
 	<stripe offset="0x0400" name="STRAND">
 		<reg32 offset="0x00" name="BUSY" access="r"/>
@@ -447,30 +469,33 @@
 	<reg32 offset="0x0700" name="STATUS" access="r">
 		<doc>Shows which parts of PGRAPH are currently busy with doing some stuff. 1 means busy, 0 means idle.</doc>
 		<!-- missing: UNK24XX -->
-		<bitfield name="ALL" pos="0">
+		<bitfield pos="0" name="ALL">
 			<doc>Is 1 if anything at all is busy.</doc>
 		</bitfield>
-		<bitfield name="DISPATCH" pos="1"/>
-
-		<bitfield name="M2MF" pos="6"/>
-
-		<bitfield name="CTXPROG" pos="8"/>
-		<bitfield name="VFETCH" pos="9"/>
-		<bitfield name="CCACHE" pos="10"/>
-		<bitfield name="STRMOUT_GSCHED_UNK5" pos="11"/>
-		<bitfield name="UNK14XX" pos="12"/>
-		<bitfield name="CSCHED" pos="13"/>
-		<bitfield name="UNK1CXX" pos="14"/>
-		<bitfield name="CLIPID" pos="15"/>
-		<bitfield name="ZCULL" pos="16"/>
-		<bitfield name="ENG2D" pos="17"/>
-		<bitfield name="UNK34XX" pos="18"/>
-		<bitfield name="TPRAST" pos="19"/>
-		<bitfield name="TPROP" pos="20"/>
-		<bitfield name="TEX" pos="21"/>
-		<bitfield name="TPVP" pos="22"/>
-		<bitfield name="MP" pos="23"/>
-		<bitfield name="ROP" pos="24"/>
+		<bitfield pos="1" name="DISPATCH"/>
+		<bitfield pos="2" name="UNK2"/>
+		<bitfield pos="3" name="UNK3"/>
+		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="5" name="UNK5"/>
+		<bitfield pos="6" name="M2MF"/>
+		<bitfield pos="7" name="UNK7"/>
+		<bitfield pos="8" name="CTXPROG"/>
+		<bitfield pos="9" name="VFETCH"/>
+		<bitfield pos="10" name="CCACHE_UNK4"/>
+		<bitfield pos="11" name="STRMOUT_GSCHED_UNK5"/>
+		<bitfield pos="12" name="UNK14XX"/>
+		<bitfield pos="13" name="UNK24XX_CSCHED"/>
+		<bitfield pos="14" name="UNK1CXX"/>
+		<bitfield pos="15" name="CLIPID"/>
+		<bitfield pos="16" name="ZCULL"/>
+		<bitfield pos="17" name="ENG2D"/>
+		<bitfield pos="18" name="UNK34XX"/>
+		<bitfield pos="19" name="TPRAST"/>
+		<bitfield pos="20" name="TPROP"/>
+		<bitfield pos="21" name="TEX"/>
+		<bitfield pos="22" name="TPVP"/>
+		<bitfield pos="23" name="MP"/>
+		<bitfield pos="24" name="ROP"/>
 	</reg32>
 	<reg32 offset="0x0704" name="TRAPPED_ADDR">
 		<doc>Offending subchan + method, for [most types of] PGRAPH interrupts.</doc>
