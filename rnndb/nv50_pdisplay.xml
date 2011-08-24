@@ -201,6 +201,16 @@
 			<reg32 offset="0x0380" name="UNK380" stride="0x800" length="3"/>
 		</array>
 
+		<array offset="0x6000" name="CRTC_STAT" stride="0x800" length="2">
+			<reg32 name="VERT" offset="0x340">
+				<bitfield low="0" high="15" name="VLINE"/>
+				<bitfield low="16" high="31" name="VBLANK_COUNT"/>
+			</reg32>
+			<reg32 name="HORZ" offset="0x344">
+				<bitfield low="0" high="15" name="HLINE"/>
+			</reg32>
+		</array>
+
 		<array offset="0x9000" name="VGA" stride="0x1000" length="1">
 			<reg8 offset="0x000" name="MISC"/>
 			<reg8 offset="0x004" name="INP0"/>
