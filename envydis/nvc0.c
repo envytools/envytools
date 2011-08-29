@@ -147,8 +147,8 @@ static struct sreg sreg_sr[] = {
 	{ 0x3a, "lanemask_le" },
 	{ 0x3b, "lanemask_gt" },
 	{ 0x3c, "lanemask_ge" },
-	// 0x40 ??? call stack related
-	// 0x42 ??? call stack related
+	{ 0x40, "trapstat" },
+	{ 0x42, "warperr" },
 	{ 0x50, "clock" }, // XXX some weird shift happening here.
 	{ 0x51, "clockhi" },
 	{ -1 },
