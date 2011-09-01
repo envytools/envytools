@@ -64,6 +64,10 @@
 		<bitfield name="CHAN" high="29" low="0" type="nv50_channel"/>
 		<bitfield name="VALID" pos="30"/>
 	</reg32>
+	<reg32 offset="0x054" name="CHANNEL_TRIGGER">
+		<bitfield pos="0" name="UNLOAD"/>
+		<bitfield pos="1" name="LOAD"/>
+	</reg32>
 
 	<reg32 offset="0x064" name="FIFO_DATA"/>
 	<reg32 offset="0x068" name="FIFO_CMD">
@@ -84,8 +88,12 @@
 		<bitfield pos="17" name="PM_TRIGGER"/>
 	</reg32>
 
-	<reg32 offset="0x100" name="CTRL">
+	<reg32 offset="0x100" name="UC_CTRL">
 		<bitfield pos="1" name="START_TRIGGER"/>
+		<bitfield pos="2" name="RESET_UNK2_TRIGGER"/>
+		<bitfield pos="3" name="RESET_UNK3_TRIGGER"/>
+		<bitfield pos="4" name="STOPPED"/>
+		<bitfield pos="5" name="SLEEPING"/>
 	</reg32>
 
 	<reg32 offset="0x104" name="ENTRY"/>
@@ -119,7 +127,11 @@
 		<doc>Also virtual address for code.</doc>
 	</reg32>
 
-	<reg32 offset="0x12c" name="CAPS2">
+	<reg32 offset="0x128" name="UC_STAT" variants="NVA3-">
+		<bitfield pos="8" name="TRAP_ACTIVE"/>
+	</reg32>
+
+	<reg32 offset="0x12c" name="CAPS2" variants="NVA3-">
 		<bitfield low="0" high="3" name="UNK0">
 			<doc>Always 3.</doc>
 		</bitfield>
