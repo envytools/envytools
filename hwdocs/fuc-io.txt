@@ -16,7 +16,7 @@ is word-addressable 0x40000-byte space. However, most registers are duplicated
 64 times: bits 2-7 of the address are ignored. The few registers that don't
 ignore these bits are called "indexed" registers. From host POV, the fuc IO
 space is a 0x1000-byte window in BAR0. Its base address is engine-dependent.
-First 0xfe0 bytes of this window are tied to the fuc IO space, while last 0x20
+First 0xf00 bytes of this window are tied to the fuc IO space, while last 0x100
 bytes contain several host-only registers. Host mmio address fuc_base + X is
 directed to fuc IO space address X << 6 | HOST_IO_INDEX << 2. HOST_IO_INDEX
 is specified in the host-only MMIO register fuc_base + 0xffc:
@@ -48,7 +48,7 @@ S means secret register. [see fuc-crypt.txt]
 
 host/I[] address / name / file
 
-Common registers:
+Common registers [present on all engines]:
 000/00000  INTR_SET		trigger interrupt	[fuc-intr.txt]
 004/00100  INTR_CLEAR		clear interrupt		[fuc-intr.txt]
 008/00200  INTR			interrupt status	[fuc-intr.txt]
@@ -80,9 +80,9 @@ Common registers:
 078/01e00  FIFO_LIMIT		FIFO size		[fuc-fifo.txt]
 080/02000  SCRATCH2		scratch register	[fuc-io.txt]
 084/02100  SCRATCH3		scratch register	[fuc-io.txt]
-088/02200  MISC_TRIGGER		various commands	[fuc-io.txt]
-08c/02300  ???			???
-090/02400+ ???			???
+088/02200  PM_TRIGGER		perfmon triggers	[fuc-pm.txt]
+08c/02300  PM_MODE		perfmon signal mode	[fuc-pm.txt]
+090/02400  ???			???
 094/02500+ ???			???
 098/02600+ ???			???
 09c/02700+ ???			???
@@ -121,6 +121,8 @@ Common registers:
 1f4/07d00+ DATA[6]		data access window	[fuc-data.txt]
 1f8/07e00+ DATA_INDEX[7]	data access window addr	[fuc-data.txt]
 1fc/07f00+ DATA[7]		data access window	[fuc-data.txt]
+
+Host-only common registers [present on all engines]:
 fec/-      UC_SP		microprocessor $sp reg	[fuc-ctrl.txt]
 ff0/-      UC_PC		microprocessor $pc reg	[fuc-ctrl.txt]
 ff4/-      UPLOAD		old code/data upload	[fuc-io.txt]
