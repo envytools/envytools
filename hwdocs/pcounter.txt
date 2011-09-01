@@ -1,30 +1,181 @@
-NV10 signals
+=== NV10 signals ===
 
 0x87: PTIMER_TIME_B12 [ptimer.txt]
 0x9f: PCOUNTER_FLAG
 
+=== NV40:NVC0 trailer signals ===
 
-NV50 signals
+0x0e: PGRAPH.WRCACHE_FLUSH
+0x0f: PGRAPH.PM_TRIGGER
+0x10: PCOUNTER_S7_MS2
+0x11: PCOUNTER_S6_MS2
+0x12: PCOUNTER_S5_MS2
+0x13: PCOUNTER_S4_MS2
+0x14: PCOUNTER_S3_MS2
+0x15: PCOUNTER_S2_MS2
+0x16: PCOUNTER_S1_MS2
+0x17: PCOUNTER_S0_MS2
+0x18: PCOUNTER_S7_FLAG
+0x19: PCOUNTER_S6_FLAG
+0x1a: PCOUNTER_S5_FLAG
+0x1b: PCOUNTER_S4_FLAG
+0x1c: PCOUNTER_S3_FLAG
+0x1d: PCOUNTER_S2_FLAG
+0x1e: PCOUNTER_S1_FLAG
+0x1f: PCOUNTER_S0_FLAG
+
+
+=== NV50 signals ===
 
 set 0 [host]:
+0x00: PFIFO/host memory write
+0x1a: PFIFO/host memory read
+0x1c: triple MMIO read???
+0x1d: MMIO read [or any BAR?]
 0x27: PTIMER_TIME_B12 [ptimer.txt]
+0x29: MMIO read or write [or any BAR?]
+0x2a: MMIO write [or any BAR?]
+0x20 trailer base
 
 set 1 [graph]:
+0x3f: VFETCH.JOE related
+0x6e: ZCULL
+0x73: CSCHED
+0x77-0x7e: GSCHED
+0x80-0x82: STRMOUT
+0x95-0x99: UNK24xx
+0xa7: ENG2D
+0xb8-0xbb: UNK14xx
 0xc8: PGRAPH_IDLE
 0xca: PGRAPH_INTR_PENDING
 0xd2: CTXCTL flag 0x1c
 0xd3: CTXCTL flag 0x1d
 0xd4: CTXCTL flag 0x1e
 0xd5: CTXCTL flag 0x1f
+0xe3-0xe6: UNK1Cxx
+0xe0 trailer base
+
+set 2:
+0x3a: PVPE
+0x5d: memory access
+0x5e: happens when reading memory through VGA window?
+0x64: memory read [?]
+0x68: memory read [?]
+0x80: memory access
+0x89-0xa6: PVPE
+0xac: PFB 100c98
+0xad: PFIFO host DMAobj load
+0xb8: PFB 100e0c
+0xc4: PFIFO/host memory read
+0xea: CCACHE
+0xe0 trailer base
+
+set 3 [MPs]:
+0x20 trailer base
+
+set 4 [mem]:
+0x1a: PFB 100008
+0x20 trailer base
 
 
-NV86 signals
+=== NV86 signals ===
 
 set 0 [host]:
 0x2c: PTIMER_TIME_B12 [ptimer.txt]
 
 
-NVAC signals
+=== NV98 signals ===
+
+set 0 [host]:
+0x04: PFIFO/host memory write
+0x28: happens once with PFIFO write or PDISPLAY access [not PFIFO read]
+0x2a: PFIFO/host memory read
+0x2d: MMIO read [or any BAR?]
+0x37: PTIMER_TIME_B12 [ptimer.txt]
+0x39: MMIO read or write [or any BAR?]
+0x3a: MMIO write [or any BAR?]
+0x40 trailer base
+
+set 1 [graph]:
+0x31: CSCHED
+0x37: UNK24xx
+0x4f: ZCULL
+0x57-0x59: GSCHED
+0x5f: STRMOUT
+0x8d: UNK24xx
+0x9b-0x9d: ENG2D
+0xae-0xb0: UNK14xx
+0xbd: PGRAPH_IDLE
+0xbf: PGRAPH_INTR_PENDING
+0xc7: CTXCTL flag 0x1c
+0xc8: CTXCTL flag 0x1d
+0xc9: CTXCTL flag 0x1e
+0xca: CTXCTL flag 0x1f
+0xd9-0xdb: UNK1Cxx
+0xe0 trailer base
+
+set 2:
+0x36-0x37: ENG2D
+0x58: ZCULL
+0x60: ENG2D
+0xc0 trailer base
+
+set 3 [MPs]:
+0x20 trailer base
+
+set 4:
+0x40 trailer base
+
+set 5:
+0x37: PCRYPT PM_TRIGGER 2nd
+0xe0 trailer base
+0x38: PCRYPT WRCACHE_FLUSH 2nd
+0x3b: PCRYPT idle
+0x45: PCRYPT PM_TRIGGER
+0x46: PCRYPT WRCACHE_FLUSH
+0x47-0x4c: PCRYPT USER
+0x60 trailer base
+
+set 6 [vdec]:
+0x12: PBSP idle
+0x15: PBSP $ta
+0x1c: PBSP PM_TRIGGER
+0x1d: PBSP WRCACHE_FLUSH
+0x1e-0x23: PBSP USER
+0x42: PPPP idle
+0x45: PPPP $ta
+0x4c: PPPP PM_TRIGGER
+0x4d: PPPP WRCACHE_FLUSH
+0x4e-0x53: PPPP USER
+0x5d: PVP VUC idle
+0x90: PVP idle
+0x93: PVP $ta
+0x9a: PVP PM_TRIGGER
+0x9b: PVP WRCACHE_FLUSH
+0x9c-0xa1: PVP USER
+0xa0 trailer base
+
+set 7: 
+0x07: something related to MAGIC_FLUSH + PFIFO memory read?
+0x22: 16 * PFIFO host DMAobj load
+0x23: 16 * PFIFO host DMAobj load
+0x24: MAGIC_FLUSH + PFIFO memory read
+0x2c: MAGIC_FLUSH + memory access
+0x2e: MAGIC_FLUSH + memory access
+0x30: MAGIC_FLUSH [misses 1 sometimes?] + memory read
+0x32: MAGIC_FLUSH [misses 1 sometimes?] + memory read
+0x4c: MAGIC_FLUSH + PFIFO memory read
+0x4d: MAGIC_FLUSH
+0x65: PBSP PM_TRIGGER 2nd
+0x66: PBSP WRCACHE_FLUSH 2nd
+0x71: PPPP PM_TRIGGER 2nd
+0x72: PPPP WRCACHE_FLUSH 2nd
+0x8c: PVP PM_TRIGGER 2nd
+0x8d: PVP WRCACHE_FLUSH 2nd
+0xa0 trailer base
+
+
+=== NVAC signals ===
 
 set 0 [host]:
 0x53: PTIMER_TIME_B12 [ptimer.txt]
@@ -46,30 +197,88 @@ set 5 [vdec]:
 0x9c-0xa1: PVP_USER_0-5 [fuc-perf.txt]
 
 
-NVA5 signals
+=== NVA5 signals ===
 
 set 0 [host]:
+0x1a: PFIFO writes
+0x74: MMIO reads
+0x96: PFIFO reads
+0x99: MMIO reads
 0xa3: PTIMER_TIME_B12 [ptimer.txt]
+0xa5: MMIO accesses
+0xa6: MMIO writes
+0xe0 trailer base
 
 set 1 [graph]:
+0x2f: CCACHE_UNK4 ??? [flag 2]
+0x30: CCACHE_UNK4 ??? [flag 2]
+0x33: CCACHE_UNK5 ??? [flag 2]
+0x34: CCACHE_UNK5 ??? [flag 2]
+0x37: PGRAPH 24xx ??? [idle?]
+0x77: ZCULL ??? [idle?]
+0xa9: ENG2D ??? [idle?]
+0xab: ENG2D ??? [idle?]
+0xbc: PGRAPH 14xx ??? [idle?]
+0xbe: PGRAPH 14xx ??? [idle?]
+0xca: DISPATCH ???? [idle?]
 0xcb: PGRAPH_IDLE
 0xcd: PGRAPH_INTR_PENDING
 0xd5: CTXCTL flag 0x1c
 0xd6: CTXCTL flag 0x1d
 0xd7: CTXCTL flag 0x1e
 0xd8: CTXCTL flag 0x1f
+0xe0 trailer base
+
+set 2:
+0x2a: CCACHE ??? [idle?]
+0x2c: CCACHE ??? [idle?]
+0x49: GSCHED ??? [idle?]
+0x4b: GSCHED ??? [idle?]
+0x4e: STRMOUT ??? [idle?]
+0x50: STRMOUT ??? [idle?]
+0x6c: 14xx ??? [idle?]
+0x6d: 14xx ??? [idle?]
+0xc0 trailer base
+
+set 3 [MP]:
+0x20 trailer base
+
+set 4 [mem]:
+0x60 trailer base
 
 set 5:
 0x2d-0x32: PCOPY_USER_0-5 [fuc-perf.txt]
 0x4e-0x53: PDAEMON_USER_0-5 [fuc-perf.txt]
+0x60 trailer base
 
 set 6 [vdec]:
+0x17: PBSP FIFO idle
+0x18: PBSP idle
+0x19-0x1b: PBSP uc execution
+0x22: PBSP PM_TRIGGER
+0x23: PBSP WRCACHE_FLUSH
 0x24-0x29: PBSP_USER_0-5 [fuc-perf.txt]
+0x2b: PPPP
+0x36: PPPP PM_TRIGGER
+0x37: PPPP WRCACHE_FLUSH
 0x38-0x3d: PPPP_USER_0-5 [fuc-perf.txt]
+0x3f: PVP
+0x4a: PVP PM_TRIGGER
+0x4b: PVP WRCACHE_FLUSH
 0x4c-0x51: PVP_USER_0-5 [fuc-perf.txt]
+0x54-0x58: PBSP
+0x5f-0x7e: PPPP
+0x88-0x8b: PVP [vuc?]
+0xa0-0xa4: PVP [xfrm? - 4c b3, b5]
+0xad-0xaf: PVP [580 - 4c b7]
+0xb6: PVP [680 - 4c b8]
+0xc0-0xc5: PBSP.CRYPT
+0xc0 trailer base
 
+set 7:
+0xe0 trailer base
 
-NVA8 signals
+=== NVA8 signals ===
 
 set 1 [graph]:
 0xcb: PGRAPH_IDLE
