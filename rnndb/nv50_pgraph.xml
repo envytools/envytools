@@ -405,6 +405,7 @@
 		<bitfield low="12" high="14" name="ZCULL"/>
 		<bitfield low="15" high="17" name="ENG2D"/>
 		<bitfield low="18" high="20" name="UNK34XX"/>
+		<bitfield low="21" high="23" name="ROP"/>
 	</reg32>
 
 	<stripe offset="0x0400" name="STRAND">
