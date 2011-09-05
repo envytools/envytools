@@ -31,4 +31,11 @@ static inline void nva_wr8(int card, uint32_t addr, uint32_t val) {
 	*(((volatile uint8_t *)nva_cards[card].bar0) + addr) = val;
 }
 
+static inline uint32_t nva_mask(int cnum, uint32_t reg, uint32_t mask, uint32_t val)
+{
+	uint32_t tmp = nva_rd32(cnum, reg);
+	nva_wr32(cnum, reg, (tmp & ~mask) | val);
+	return tmp;
+}
+
 #endif

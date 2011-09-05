@@ -44,13 +44,6 @@ ptime_t get_time(unsigned int card)
 	return ((((ptime_t)high2) << 32) | (ptime_t)low);
 }
 
-static inline u32 nva_mask(int cnum, u32 reg, u32 mask, u32 val)
-{
-	u32 tmp = nva_rd32(cnum, reg);
-	nva_wr32(cnum, reg, (tmp & ~mask) | val);
-	return tmp;
-}
-
 static ptime_t
 pms_launch(int cnum, struct pms_ucode* pms, ptime_t *wall_time)
 {
