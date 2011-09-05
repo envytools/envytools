@@ -142,23 +142,23 @@
 			<doc>Goes to the memory at address pointed to by ADDR.
 			Auto-increments ADDR on each access.</doc>
 		</reg32>
-		<reg32 offset="0x588" name="CLOCK_GATING_2" variants="NV50-NVC0">
+		<reg32 offset="0x588" name="CLOCK_GATING_2" variants="NV17-">
 			<doc>Disable engines by stopping their clock.
 			A pair of bit is affected to each stoppable engine.
 			Both need to be set in order to disable the engine.
 			</doc>
-			<bitfield high="1" low="0" name="PGRAPH" />
-			<bitfield high="5" low="4" name="VPE" variants="NV50-NV98"/>
-			<bitfield high="5" low="4" name="PPPP" variants="NV98-"/>
+			<bitfield high="1" low="0" name="PGRAPH"/>
+			<bitfield high="5" low="4" name="VPE" variants="NV17:NV98 NVA0"/>
+			<bitfield high="5" low="4" name="PPPP" variants="NV98 NVAA-"/>
 		</reg32>
-		<reg32 offset="0x590" name="CLOCK_GATING_4" variants="NV50-NVC0">
+		<reg32 offset="0x590" name="CLOCK_GATING_4" variants="NV17-">
 			<doc>Disable engines by stopping their clock.
 			A pair of bit is affected to each stoppable engine.
 			Both need to be set in order to disable the engine.
 			</doc>
 			<bitfield high="9" low="8" name="PVP" variants="NV98-"/>
-			<bitfield high="11" low="10" name="PCRYPT" />
-			<bitfield high="13" low="12" name="PBSP"/>
+			<bitfield high="11" low="10" name="PCRYPT" variants="NV84:NVA3"/>
+			<bitfield high="13" low="12" name="PBSP" variants="NV84-"/>
 		</reg32>
 		<reg32 offset="0x700" name="PMEM_START" variants="NV50-">
 			<doc>Selects the starting offset and target memory area
