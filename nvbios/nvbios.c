@@ -1059,8 +1059,9 @@ int main(int argc, char **argv) {
 			pm_mode_tbl_ptr, version, ram_cfg, mode_info_length
 		);
 
-		if (version < 0x30)
+		if (version < 0x40)
 			printf("PWM_div 0x%x, ", le16(start+6));
+
 
 		if (version > 0x15 && version < 0x40)
 			printf("Extra_length %i. Extra_count %i.\n", extra_data_length, extra_data_count);
@@ -1364,6 +1365,8 @@ int main(int argc, char **argv) {
 					printf("id = 0x%x, data = 0x%x", id, data);
 			} else if (id == 0x24)
 				printf ("-- bump fan speed when at %i°C type 0x%x", temp, type);
+			else if (id == 0x26)
+					printf("-- pwm frequency %i", data);
 			else
 				printf ("Unknown (temp ?= %i°C, type ?= 0x%x)", temp, type);
 
