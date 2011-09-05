@@ -183,7 +183,7 @@ void find_ptimer_b12(int cnum)
 	int i;
 	uint32_t r_9210, r_9400;
 
-	printf("<PTIMER_B17>\n");
+	printf("<PTIMER_B12>\n");
 
 	r_9210 = nva_rd32(cnum, 0x9210);
 	r_9400 = nva_rd32(cnum, 0x9400);
@@ -222,7 +222,7 @@ void find_ptimer_b12(int cnum)
 
 	signals_comparaison_free(diffs);
 
-	printf("</PTIMER_B17>\n\n");
+	printf("</PTIMER_B12>\n\n");
 }
 
 void find_pgraphIdle_and_interrupt(int cnum)
