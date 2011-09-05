@@ -83,6 +83,13 @@ set 4 [mem]:
 set 0 [host]:
 0x2c: PTIMER_TIME_B12 [ptimer.txt]
 
+set 1 [graph]:
+0xbd: PGRAPH_IDLE
+0xbf: PGRAPH_INTR_PENDING
+0xc7: CTXCTL flag 0x1c
+0xc8: CTXCTL flag 0x1d
+0xc9: CTXCTL flag 0x1e
+0xca: CTXCTL flag 0x1f
 
 === NV98 signals ===
 
