@@ -15,6 +15,7 @@ void yyerror (char const *err) {
 }
 
 %token <str> T_ID
+%token <str> T_LABEL
 %token <str> T_DIR
 %token <str> T_MEM
 %token <str> T_REG
@@ -54,7 +55,9 @@ line:	T_ID ':' { $$ = calloc(sizeof *$$, 1); $$->type = LINE_LABEL; $$->str = $1
 ;
 
 insn:	insn expr { $$ = $1; ADDARRAY($$->atoms, $2); }
+|	insn T_ID { $$ = $1; struct expr *e = makeex(EXPR_ID); e->str = $2; ADDARRAY($$->atoms, e); }
 |	expr { $$ = calloc(sizeof *$$, 1); $$->type = LINE_INSN; ADDARRAY($$->atoms, $1); }
+|	T_ID { $$ = calloc(sizeof *$$, 1); $$->type = LINE_INSN; struct expr *e = makeex(EXPR_ID); e->str = $1; ADDARRAY($$->atoms, e); }
 ;
 
 expr:	expr T_PLUSPLUS expr0 { $$ = makebinex(EXPR_PIADD, $1, $3); }
@@ -94,7 +97,7 @@ aexpr:	T_MEM expr ']' { $$ = makeex(EXPR_MEM); $$->str = $1; $$->expr1 = $2; }
 |	'(' expr ')' { $$ = $2; }
 |	T_REG { $$ = makeex(EXPR_REG); $$->str = $1; }
 |	T_NUM { $$ = makeex(EXPR_NUM); $$->num1 = $1; $$->isimm = 1; }
-|	T_ID { $$ = makeex(EXPR_ID); $$->str = $1; $$->isimm = 1; }
+|	T_LABEL { $$ = makeex(EXPR_LABEL); $$->str = $1; $$->isimm = 1; }
 |	T_UMINUS aexpr { $$ = makeunex(EXPR_NEG, $2); }
 |	'~' aexpr { $$ = makeunex(EXPR_NOT, $2); }
 |	'#' { $$ = makeex(EXPR_DISCARD); }

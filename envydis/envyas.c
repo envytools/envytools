@@ -22,7 +22,7 @@ ull calc (const struct expr *expr, struct disctx *ctx) {
 	switch (expr->type) {
 		case EXPR_NUM:
 			return expr->num1;
-		case EXPR_ID:
+		case EXPR_LABEL:
 			for (i = 0; i < ctx->labelsnum; i++)
 				if (!strcmp(ctx->labels[i].name, expr->str))
 					return ctx->labels[i].val;
@@ -216,7 +216,7 @@ int envyas_process(struct file *file) {
 							fprintf (stderr, "Too many arguments for .section\n");
 							return 1;
 						}
-						if (file->lines[i]->atoms[0]->type != EXPR_ID || (file->lines[i]->atomsnum == 2 && file->lines[i]->atoms[1]->type != EXPR_NUM)) {
+						if (file->lines[i]->atoms[0]->type != EXPR_LABEL || (file->lines[i]->atomsnum == 2 && file->lines[i]->atoms[1]->type != EXPR_NUM)) {
 							fprintf (stderr, "Wrong arguments for .section\n");
 							return 1;
 						}
@@ -256,7 +256,7 @@ int envyas_process(struct file *file) {
 						sections[cursect].pos += num;
 					} else if (!strcmp(file->lines[i]->str, ".equ")) {
 						if (file->lines[i]->atomsnum != 2
-							|| file->lines[i]->atoms[0]->type != EXPR_ID
+							|| file->lines[i]->atoms[0]->type != EXPR_LABEL
 							|| !file->lines[i]->atoms[1]->isimm) {
 							fprintf (stderr, "Wrong arguments for .equ\n");
 							return 1;

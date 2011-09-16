@@ -61,6 +61,16 @@ void printexpr(FILE *out, const struct expr *expr, int lvl) {
 					break;
 			}
 			return;
+		case EXPR_LABEL:
+			switch (expr->special) {
+				case 2:
+					fprintf(out, "%s#%s", cunk, expr->str);
+					break;
+				default:
+					fprintf(out, "%s#%s", cnum, expr->str);
+					break;
+			}
+			return;
 		case EXPR_REG:
 			switch (expr->special) {
 				case 1:

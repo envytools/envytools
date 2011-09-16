@@ -287,6 +287,7 @@ struct expr {
 	enum etype {
 		EXPR_NUM,
 		EXPR_ID,
+		EXPR_LABEL,
 		EXPR_REG,
 		EXPR_MEM,
 		EXPR_VEC,
