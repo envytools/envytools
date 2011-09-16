@@ -466,42 +466,8 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 	if (varname) {
-		if (envyas_isa == nv50_isa) {
-			if (!strcmp(varname, "nv50"))
-				envyas_vartype = NV50;
-			else if (!strcmp(varname, "nv84"))
-				envyas_vartype = NV84;
-			else if (!strcmp(varname, "nva0"))
-				envyas_vartype = NVA0;
-			else if (!strcmp(varname, "nvaa"))
-				envyas_vartype = NVAA;
-			else if (!strcmp(varname, "nva3"))
-				envyas_vartype = NVA3;
-			else {
-				fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
-				return 1;
-			}
-		} else if (envyas_isa == ctx_isa) {
-			if (!strcmp(varname, "nv40"))
-				envyas_vartype = CTX_NV40;
-			else if (!strcmp(varname, "nv50"))
-				envyas_vartype = CTX_NV50;
-			else {
-				fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
-				return 1;
-			}
-		} else if (envyas_isa == fuc_isa) {
-			if (!strcmp(varname, "nv98"))
-				envyas_vartype = FUC_NV98;
-			else if (!strcmp(varname, "nva3"))
-				envyas_vartype = FUC_NVA3;
-			else if (!strcmp(varname, "nvd9"))
-				envyas_vartype = FUC_NVD9;
-			else {
-				fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
-				return 1;
-			}
-		} else {
+		envyas_vartype = ed_getvariant(envyas_isa, varname);
+		if (!envyas_vartype) {
 			fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
 			return 1;
 		}

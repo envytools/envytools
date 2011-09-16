@@ -250,12 +250,19 @@ struct disctx {
 	int endmark;
 };
 
+struct disvariant {
+	const char *name;
+	int vartype;
+};
+
 struct disisa {
 	struct insn *troot;
 	int maxoplen;
 	int opunit;
 	int posunit;
 	int i_need_nv50as_hack;
+	const struct disvariant *vars;
+	int varsnum;
 };
 
 struct file {
@@ -415,28 +422,13 @@ uint16_t readle16 (uint8_t *);
 #define FP 4
 #define CP 8
 
-#define NV50  0x01
-#define NV84  0x02
-#define NVA0  0x04
-#define NVAA  0x08
-#define NVA3  0x10
-
-#define CTX_NV40 1
-#define CTX_NV50 2
-
-#define FUC_NV98 1
-#define FUC_NVA3 2
-#define FUC_NVD9 4
-
-#define HWSQ_NV17 1
-#define HWSQ_NV41 2
-
 extern const struct disisa *nv50_isa;
 extern const struct disisa *ctx_isa;
 extern const struct disisa *fuc_isa;
 extern const struct disisa *hwsq_isa;
 
 const struct disisa *ed_getisa(const char *name);
+int ed_getvariant(const struct disisa *isa, const char *name);
 
 void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int vartype, int ptype, int quiet, struct label *labels, int labelsnum);
 void printexpr(FILE *out, const struct expr *expr, int lvl);

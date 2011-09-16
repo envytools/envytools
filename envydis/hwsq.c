@@ -25,6 +25,9 @@
 
 #include "dis-intern.h"
 
+#define NV17 1
+#define NV41 2
+
 /*
  * Immediate fields
  */
@@ -63,16 +66,21 @@ static struct insn tabfl[] = {
 static struct insn tabm[] = {
 	{ 0x00, 0xff, OP8, N("nop") },
 	{ 0x00, 0xc0, OP8, N("wait"), WAIT, N("shl"), WAITS },
-	{ 0x40, 0xff, OP24, N("addrlo"), IMM16, .vartype = HWSQ_NV41 },
-	{ 0x42, 0xff, OP24, N("datalo"), IMM16, .vartype = HWSQ_NV41 },
-	{ 0x5f, 0xff, OP24, N("ewait"), T(evmask), T(event), .vartype = HWSQ_NV41 },
+	{ 0x40, 0xff, OP24, N("addrlo"), IMM16, .vartype = NV41 },
+	{ 0x42, 0xff, OP24, N("datalo"), IMM16, .vartype = NV41 },
+	{ 0x5f, 0xff, OP24, N("ewait"), T(evmask), T(event), .vartype = NV41 },
 	{ 0x7f, 0xff, OP8, N("exit") },
 	{ 0x80, 0xe0, OP8, N("unset"), T(fl) }, 
 	{ 0xa0, 0xe0, OP8, N("set1"), T(fl) }, 
 	{ 0xc0, 0xe0, OP8, N("set0"), T(fl) }, 
-	{ 0xe0, 0xff, OP40, N("addr"), IMM32, .vartype = HWSQ_NV41 },
-	{ 0xe2, 0xff, OP40, N("data"), IMM32, .vartype = HWSQ_NV41 },
+	{ 0xe0, 0xff, OP40, N("addr"), IMM32, .vartype = NV41 },
+	{ 0xe2, 0xff, OP40, N("data"), IMM32, .vartype = NV41 },
 	{ 0, 0, OP8, OOPS },
+};
+
+static const struct disvariant hwsq_vars[] = {
+	"nv17", NV17,
+	"nv41", NV41,
 };
 
 const struct disisa hwsq_isa_s = {
@@ -80,6 +88,8 @@ const struct disisa hwsq_isa_s = {
 	5,
 	1,
 	1,
+	.vars = hwsq_vars,
+	.varsnum = sizeof hwsq_vars / sizeof *hwsq_vars,
 };
 
 const struct disisa *hwsq_isa = &hwsq_isa_s;

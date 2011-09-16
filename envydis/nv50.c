@@ -221,6 +221,12 @@
  *    anyway.
  */
 
+#define NV50  0x01
+#define NV84  0x02
+#define NVA0  0x04
+#define NVAA  0x08
+#define NVA3  0x10
+
 #define NV84P NV84|NVA0|NVAA|NVA3
 #define NVA0P NVA0|NVAA|NVA3
 #define NVA3P NVA3
@@ -1563,12 +1569,22 @@ static struct insn tabroot[] = {
 	{ 0, 0, OOPS },
 };
 
+static const struct disvariant nv50_vars[] = {
+	"nv50", NV50,
+	"nv84", NV84,
+	"nva0", NVA0,
+	"nvaa", NVAA,
+	"nva3", NVA3,
+};
+
 const struct disisa nv50_isa_s = {
 	tabroot,
 	8,
 	4,
 	1,
 	.i_need_nv50as_hack = 1,
+	.vars = nv50_vars,
+	.varsnum = sizeof nv50_vars / sizeof *nv50_vars,
 };
 
 const struct disisa *nv50_isa = &nv50_isa_s;

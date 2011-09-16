@@ -179,51 +179,8 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 	if (varname) {
-		if (isa == nv50_isa) {
-			if (!strcmp(varname, "nv50"))
-				vartype = NV50;
-			else if (!strcmp(varname, "nv84"))
-				vartype = NV84;
-			else if (!strcmp(varname, "nva0"))
-				vartype = NVA0;
-			else if (!strcmp(varname, "nvaa"))
-				vartype = NVAA;
-			else if (!strcmp(varname, "nva3"))
-				vartype = NVA3;
-			else {
-				fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
-				return 1;
-			}
-		} else if (isa == ctx_isa) {
-			if (!strcmp(varname, "nv40"))
-				vartype = CTX_NV40;
-			else if (!strcmp(varname, "nv50"))
-				vartype = CTX_NV50;
-			else {
-				fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
-				return 1;
-			}
-		} else if (isa == fuc_isa) {
-			if (!strcmp(varname, "nv98"))
-				vartype = FUC_NV98;
-			else if (!strcmp(varname, "nva3"))
-				vartype = FUC_NVA3;
-			else if (!strcmp(varname, "nvd9"))
-				vartype = FUC_NVD9;
-			else {
-				fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
-				return 1;
-			}
-		} else if (isa == hwsq_isa) {
-			if (!strcmp(varname, "nv17"))
-				vartype = HWSQ_NV17;
-			else if (!strcmp(varname, "nv41"))
-				vartype = HWSQ_NV41;
-			else {
-				fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
-				return 1;
-			}
-		} else {
+		vartype = ed_getvariant(isa, varname);
+		if (!vartype) {
 			fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
 			return 1;
 		}

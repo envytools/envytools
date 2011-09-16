@@ -1125,3 +1125,11 @@ const struct disisa *ed_getisa(const char *name) {
 			return isas[i].isa;
 	return 0;
 };
+
+int ed_getvariant(const struct disisa *isa, const char *name) {
+	int i;
+	for (i = 0; i < isa->varsnum; i++)
+		if (!strcmp(name, isa->vars[i].name))
+			return isa->vars[i].vartype;
+	return 0;
+}

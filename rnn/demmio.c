@@ -218,6 +218,9 @@ int main(int argc, char **argv) {
 	}
 	char line[1024];
 	int i;
+	const struct disisa *ctx_isa = ed_getisa("ctx");
+	int ctx_var_nv40 = ed_getvariant(ctx_isa, "nv40");
+	int ctx_var_nv50 = ed_getvariant(ctx_isa, "nv50");
 	while (1) {
 		/* yes, static buffer. but mmiotrace lines are bound to have sane length anyway. */
 		if (!fgets(line, sizeof(line), fin))
@@ -377,7 +380,7 @@ int main(int argc, char **argv) {
 						param[3] = value >> 24;
 						struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, mmiodom, addr, line[0] == 'W');
 						printf ("[%d] MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %s %s ", cci, width, line[0], addr, value, ai->name, line[0]=='W'?"<=":"=>");
-						envydis(ed_getisa("ctx"), stdout, param, cc->ctxpos, 4, cc->arch == 5 ? CTX_NV50 : CTX_NV40, -1, 0, 0, 0);
+						envydis(ctx_isa, stdout, param, cc->ctxpos, 4, cc->arch == 5 ? ctx_var_nv50 : ctx_var_nv40, -1, 0, 0, 0);
 						cc->ctxpos++;
 						free(ai->name);
 						free(ai);

@@ -25,9 +25,12 @@
 
 #include "dis-intern.h"
 
-#define NV98 FUC_NV98
-#define NVA3P FUC_NVA3
-#define NVD9P FUC_NVD9
+#define NV98 1
+#define NVA3 2
+#define NVD9 4
+
+#define NVA3P (NVA3 | NVD9)
+#define NVD9P NVD9
 
 /*
  * Code target fields
@@ -568,11 +571,25 @@ static struct insn tabm[] = {
 	{ 0, 0, OOPS },
 };
 
+static const struct disvariant fuc_vars[] = {
+	"nv98", NV98,
+	"0", NV98,
+	"fuc0", NV98,
+	"nva3", NVA3,
+	"3", NVA3,
+	"fuc3", NVA3,
+	"nvd9", NVD9,
+	"4", NVD9,
+	"fuc4", NVD9,
+};
+
 const struct disisa fuc_isa_s = {
 	tabm,
 	4,
 	1,
 	1,
+	.vars = fuc_vars,
+	.varsnum = sizeof fuc_vars / sizeof *fuc_vars,
 };
 
 const struct disisa *fuc_isa = &fuc_isa_s;
