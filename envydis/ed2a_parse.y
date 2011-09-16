@@ -114,69 +114,69 @@ file:	file line			{ $$ = $1; if (!fun) { if ($2) ADDARRAY($$->insns, $2); else $
 
 line:	insn ';'
 |	insn '\n'
-|	T_WORDC				{ $$ = ed2a_make_label_insn($1); }
+|	T_WORDC				{ $$ = ed2a_make_label_insn($1); $$->loc = @$; }
 |	error '\n'			{ $$ = 0; }
 |	error ';'			{ $$ = 0; }
 ;
 
-insn:	ipiece				{ $$ = calloc (sizeof *$$, 1); ADDARRAY($$->pieces, $1); }
-|	insn '&' '\n' ipiece		{ $$ = $1; ADDARRAY($$->pieces, $4); }
-|	insn '\n' '&' ipiece		{ $$ = $1; ADDARRAY($$->pieces, $4); }
-|	insn '&' ipiece			{ $$ = $1; ADDARRAY($$->pieces, $3); }
+insn:	ipiece				{ $$ = calloc (sizeof *$$, 1); ADDARRAY($$->pieces, $1); $$->loc = @$; }
+|	insn '&' '\n' ipiece		{ $$ = $1; ADDARRAY($$->pieces, $4); $$->loc = @$; }
+|	insn '\n' '&' ipiece		{ $$ = $1; ADDARRAY($$->pieces, $4); $$->loc = @$; }
+|	insn '&' ipiece			{ $$ = $1; ADDARRAY($$->pieces, $3); $$->loc = @$; }
 ;
 
 prefs:	/**/				{ $$.prefs = 0; $$.prefsnum = 0; $$.prefsmax = 0; }
 |	prefs expr			{ $$ = $1; ADDARRAY($$.prefs, $2); }
 ;
 
-ipiece:	prefs ipiecenp			{ $$ = $2; $$->prefs = $1.prefs; $$->prefsnum = $1.prefsnum; $$->prefsmax = $1.prefsmax; }
+ipiece:	prefs ipiecenp			{ $$ = $2; $$->prefs = $1.prefs; $$->prefsnum = $1.prefsnum; $$->prefsmax = $1.prefsmax; $$->loc = @$; }
 ;
 
-ipiecenp:	T_WORD			{ $$ = calloc (sizeof *$$, 1); $$->name = $1; }
-|	ipiecenp iop			{ $$ = $1; ADDARRAY($$->iops, $2); }
+ipiecenp:	T_WORD			{ $$ = calloc (sizeof *$$, 1); $$->name = $1; $$->loc = @$; }
+|	ipiecenp iop			{ $$ = $1; ADDARRAY($$->iops, $2); $$->loc = @$; }
 ;
 
 mods:	/**/				{ $$.mods = 0; $$.modsnum = 0; $$.modsmax = 0; }
 |	mods T_WORD			{ $$ = $1; ADDARRAY($$.mods, $2); }
 ;
 
-iop:	mods expr			{ $$ = calloc (sizeof *$$, 1); $$->mods = $1.mods; $$->modsnum = $1.modsnum; $$->modsmax = $1.modsmax; ADDARRAY($$->exprs, $2); }
-|	iop '|' expr			{ $$ = $1; ADDARRAY($$->exprs, $3); }
+iop:	mods expr			{ $$ = calloc (sizeof *$$, 1); $$->mods = $1.mods; $$->modsnum = $1.modsnum; $$->modsmax = $1.modsmax; ADDARRAY($$->exprs, $2); $$->loc = @$; }
+|	iop '|' expr			{ $$ = $1; ADDARRAY($$->exprs, $3); $$->loc = @$; }
 ;
 
 expr:	expr4
 ;
 
-expr4:	expr4 '+' expr5			{ $$ = ed2a_make_expr_bi(ED2A_ET_PLUS, $1, $3); }
-|	expr4 '-' expr5			{ $$ = ed2a_make_expr_bi(ED2A_ET_MINUS, $1, $3); }
+expr4:	expr4 '+' expr5			{ $$ = ed2a_make_expr_bi(ED2A_ET_PLUS, $1, $3); $$->loc = @$; }
+|	expr4 '-' expr5			{ $$ = ed2a_make_expr_bi(ED2A_ET_MINUS, $1, $3); $$->loc = @$; }
 |	expr5
 ;
 
-expr5:	expr5 '*' expr6			{ $$ = ed2a_make_expr_bi(ED2A_ET_MUL, $1, $3); }
+expr5:	expr5 '*' expr6			{ $$ = ed2a_make_expr_bi(ED2A_ET_MUL, $1, $3); $$->loc = @$; }
 |	expr6
 ;
 
-expr6:	T_UMINUS expr6			{ $$ = ed2a_make_expr_bi(ED2A_ET_UMINUS, $2, 0); }
+expr6:	T_UMINUS expr6			{ $$ = ed2a_make_expr_bi(ED2A_ET_UMINUS, $2, 0); $$->loc = @$; }
 |	expr7
 ;
 
-expr7:	expr7 '.' swzspec		{ $$ = ed2a_make_expr_swz($1, $3); }
-|	expr7 '.' '(' swzspecs ')'	{ $$ = ed2a_make_expr_swz($1, $4); }
-|	'#'				{ $$ = ed2a_make_expr(ED2A_ET_DISCARD); }
+expr7:	expr7 '.' swzspec		{ $$ = ed2a_make_expr_swz($1, $3); $$->loc = @$; }
+|	expr7 '.' '(' swzspecs ')'	{ $$ = ed2a_make_expr_swz($1, $4); $$->loc = @$; }
+|	'#'				{ $$ = ed2a_make_expr(ED2A_ET_DISCARD); $$->loc = @$; }
 |	'(' expr ')'			{ $$ = $2; }
-|	'(' ipiecenp ')'		{ $$ = ed2a_make_expr_ipiece($2); }
-|	mems expr ']'			{ $$ = ed2a_make_expr_mem(ED2A_ET_MEM, $1, $2, 0); }
-|	mems expr T_PLUSPLUS expr ']'	{ $$ = ed2a_make_expr_mem(ED2A_ET_MEMPOSTI, $1, $2, $4); }
-|	mems expr T_MINUSMINUS expr ']'	{ $$ = ed2a_make_expr_mem(ED2A_ET_MEMPOSTD, $1, $2, $4); }
-|	mems expr T_PLUSEQ expr ']'	{ $$ = ed2a_make_expr_mem(ED2A_ET_MEMPREI, $1, $2, $4); }
-|	mems expr T_MINUSEQ expr ']'	{ $$ = ed2a_make_expr_mem(ED2A_ET_MEMPRED, $1, $2, $4); }
-|	T_HASHWORD			{ $$ = ed2a_make_expr_str(ED2A_ET_LABEL, $1); }
-|	T_NUM				{ $$ = ed2a_make_expr_num($1); }
-|	T_NUM ':' T_NUM			{ $$ = ed2a_make_expr_num2($1, $3); }
-|	T_REG				{ $$ = ed2a_make_expr_str(ED2A_ET_REG, $1); }
-|	T_REG ':' T_REG			{ $$ = ed2a_make_expr_reg2($1, $3); }
-|	'{' rvec '}'			{ $$ = ed2a_make_expr_rvec($2); }
-|	T_STR				{ $$ = ed2a_make_expr_str(ED2A_ET_STR, $1.str); $$->num = $1.len; }
+|	'(' ipiecenp ')'		{ $$ = ed2a_make_expr_ipiece($2); $$->loc = @$; }
+|	mems expr ']'			{ $$ = ed2a_make_expr_mem(ED2A_ET_MEM, $1, $2, 0); $$->loc = @$; }
+|	mems expr T_PLUSPLUS expr ']'	{ $$ = ed2a_make_expr_mem(ED2A_ET_MEMPOSTI, $1, $2, $4); $$->loc = @$; }
+|	mems expr T_MINUSMINUS expr ']'	{ $$ = ed2a_make_expr_mem(ED2A_ET_MEMPOSTD, $1, $2, $4); $$->loc = @$; }
+|	mems expr T_PLUSEQ expr ']'	{ $$ = ed2a_make_expr_mem(ED2A_ET_MEMPREI, $1, $2, $4); $$->loc = @$; }
+|	mems expr T_MINUSEQ expr ']'	{ $$ = ed2a_make_expr_mem(ED2A_ET_MEMPRED, $1, $2, $4); $$->loc = @$; }
+|	T_HASHWORD			{ $$ = ed2a_make_expr_str(ED2A_ET_LABEL, $1); $$->loc = @$; }
+|	T_NUM				{ $$ = ed2a_make_expr_num($1); $$->loc = @$; }
+|	T_NUM ':' T_NUM			{ $$ = ed2a_make_expr_num2($1, $3); $$->loc = @$; }
+|	T_REG				{ $$ = ed2a_make_expr_str(ED2A_ET_REG, $1); $$->loc = @$; }
+|	T_REG ':' T_REG			{ $$ = ed2a_make_expr_reg2($1, $3); $$->loc = @$; }
+|	'{' rvec '}'			{ $$ = ed2a_make_expr_rvec($2); $$->loc = @$; }
+|	T_STR				{ $$ = ed2a_make_expr_str(ED2A_ET_STR, $1.str); $$->num = $1.len; $$->loc = @$; }
 ;
 
 rvec:	rvec T_REG			{ $$ = $1; ADDARRAY($$->elems, $2); }

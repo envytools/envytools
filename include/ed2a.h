@@ -9,12 +9,14 @@ struct ed2a_file {
 	int insnsnum;
 	int insnsmax;
 	int broken;
+	struct ed2_loc loc;
 };
 
 struct ed2a_insn {
 	struct ed2a_ipiece **pieces;
 	int piecesnum;
 	int piecesmax;
+	struct ed2_loc loc;
 };
 
 struct ed2a_ipiece {
@@ -25,6 +27,7 @@ struct ed2a_ipiece {
 	struct ed2a_iop **iops;
 	int iopsnum;
 	int iopsmax;
+	struct ed2_loc loc;
 };
 
 struct ed2a_iop {
@@ -34,6 +37,7 @@ struct ed2a_iop {
 	struct ed2a_expr **exprs;
 	int exprsnum;
 	int exprsmax;
+	struct ed2_loc loc;
 };
 
 struct ed2a_expr {
@@ -67,6 +71,7 @@ struct ed2a_expr {
 	struct ed2a_ipiece *ipiece;
 	struct ed2a_rvec *rvec;
 	struct ed2a_swz *swz;
+	struct ed2_loc loc;
 };
 
 struct ed2a_rvec {
