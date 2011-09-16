@@ -174,7 +174,7 @@ void ed2a_del_iop(struct ed2a_iop *iop) {
 	int i;
 	for (i = 0; i < iop->modsnum; i++)
 		free(iop->mods[i]);
-	free(iop->exprs);
+	free(iop->mods);
 	for (i = 0; i < iop->exprsnum; i++)
 		ed2a_del_expr(iop->exprs[i]);
 	free(iop->exprs);
