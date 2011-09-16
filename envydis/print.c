@@ -212,6 +212,12 @@ void printexpr(FILE *out, const struct expr *expr, int lvl) {
 			if (lvl >= 1)
 				fprintf(out, "%s)", cmem);
 			return;
+		case EXPR_SESTART:
+			fprintf(out, "%s(", cmem);
+			return;
+		case EXPR_SEEND:
+			fprintf(out, "%s)", cmem);
+			return;
 		default:
 			assert(0);
 	}

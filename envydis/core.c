@@ -187,6 +187,32 @@ struct matches *atomendmark APROTO {
 	}
 }
 
+struct matches *atomsestart APROTO {
+	if (!ctx->reverse) {
+		struct expr *expr = makeex(EXPR_SESTART);
+		ADDARRAY(ctx->atoms, expr);
+	} else {
+		struct expr *e = ctx->line->atoms[spos];
+		if (e->type == EXPR_SESTART)
+			return alwaysmatches(spos+1);
+		else
+			return 0;
+	}
+}
+
+struct matches *atomseend APROTO {
+	if (!ctx->reverse) {
+		struct expr *expr = makeex(EXPR_SEEND);
+		ADDARRAY(ctx->atoms, expr);
+	} else {
+		struct expr *e = ctx->line->atoms[spos];
+		if (e->type == EXPR_SEEND)
+			return alwaysmatches(spos+1);
+		else
+			return 0;
+	}
+}
+
 struct matches *matchid(struct disctx *ctx, int spos, const char *v) {
 	if (spos == ctx->line->atomsnum)
 		return 0;
@@ -1055,10 +1081,15 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 				fprintf (out, "\n");
 		}
 
+		int noblank = 0;
+
 		for (i = 0; i < ctx->atomsnum; i++) {
-			if (i || !quiet)
+			if (ctx->atoms[i]->type == EXPR_SEEND)
+				noblank = 1;
+			if ((i || !quiet) && !noblank)
 				fprintf (out, " ");
 			printexpr(out, ctx->atoms[i], 0);
+			noblank = (ctx->atoms[i]->type == EXPR_SESTART);
 		}
 
 		if (ctx->oplen) {

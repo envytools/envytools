@@ -306,6 +306,8 @@ struct expr {
 		EXPR_OR,
 		EXPR_PIADD,
 		EXPR_PISUB,
+		EXPR_SESTART,
+		EXPR_SEEND,
 	} type;
 	const char *str;
 	ull num1, num2;
@@ -383,6 +385,12 @@ struct matches *atomopl APROTO;
 
 struct matches *atomendmark APROTO;
 #define ENDMARK atomendmark, 0
+
+struct matches *atomsestart APROTO;
+#define SESTART atomsestart, 0
+
+struct matches *atomseend APROTO;
+#define SEEND atomseend, 0
 
 #define N(x) atomname, x
 struct matches *atomname APROTO;
