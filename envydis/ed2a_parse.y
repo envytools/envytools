@@ -6,7 +6,7 @@
 #include "ed2a_lex.h"
 #include <stdio.h>
 void ed2a_error (YYLTYPE *loc, yyscan_t lex_state, void (*fun) (struct ed2a_insn *insn, void *parm), void *parm, struct ed2a_file **res, char const *err) {
-	fprintf (stderr, "%s:%d.%d-%d.%d: %s\n", loc->file, loc->lstart, loc->cstart, loc->lend, loc->cend, err);
+	fprintf (stderr, ED2_LOC_FORMAT "%s\n", ED2_LOC_PARAMS(*loc), err);
 }
 
 #define YYLLOC_DEFAULT(Current, Rhs, N)					\
@@ -16,11 +16,13 @@ void ed2a_error (YYLTYPE *loc, yyscan_t lex_state, void (*fun) (struct ed2a_insn
 			(Current).cstart = YYRHSLOC(Rhs, 1).cstart;	\
 			(Current).lend = YYRHSLOC(Rhs, N).lend;		\
 			(Current).cend = YYRHSLOC(Rhs, N).cend;		\
+			(Current).file = YYRHSLOC(Rhs, 1).file;		\
 		} else {						\
-			(Current).lstart = YYRHSLOC(Rhs, 0).lend;	\
-			(Current).cstart = YYRHSLOC(Rhs, 0).cend;	\
-			(Current).lend = YYRHSLOC(Rhs, 0).lend;		\
-			(Current).cend = YYRHSLOC(Rhs, 0).cend;		\
+			(Current).lstart = yylloc.lstart;	\
+			(Current).cstart = yylloc.cstart;	\
+			(Current).lend = yylloc.lstart;		\
+			(Current).cend = yylloc.cstart;		\
+			(Current).file = yylloc.file;		\
 		}							\
 	} while(0)
 

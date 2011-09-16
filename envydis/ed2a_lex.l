@@ -31,7 +31,7 @@ static void common(struct ed2a_lex_intern *x, YYLTYPE *loc, const char *str) {
 }
 
 #define YY_USER_ACTION common(&yyextra, yylloc, yytext);
-#define YY_USER_INIT yyextra.line = 1; yyextra.pos = 1; yyextra.ws = 0;
+#define YY_USER_INIT yyextra.line = 1; yyextra.pos = 1; yyextra.ws = 0; yylloc->lend = 1; yylloc->cend = 1; yylloc->lstart = 1; yylloc->cstart = 1; yylloc->file = yyextra.file;
 
 %}
 
