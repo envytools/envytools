@@ -23,7 +23,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "dis.h"
+#include "dis-intern.h"
 
 /*
  * Code target field
@@ -230,11 +230,11 @@ static struct insn tabroot[] = {
 	{ 0, 0, OOPS },
 };
 
-static struct disisa vp3m_isa_s = {
+const struct disisa vp3m_isa_s = {
 	tabroot,
 	4,
 	4,
 	4,
 };
 
-struct disisa *vp3m_isa = &vp3m_isa_s;
+const struct disisa *vp3m_isa = &vp3m_isa_s;

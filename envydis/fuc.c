@@ -23,7 +23,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "dis.h"
+#include "dis-intern.h"
 
 #define NV98 FUC_NV98
 #define NVA3P FUC_NVA3
@@ -568,11 +568,11 @@ static struct insn tabm[] = {
 	{ 0, 0, OOPS },
 };
 
-static struct disisa fuc_isa_s = {
+const struct disisa fuc_isa_s = {
 	tabm,
 	4,
 	1,
 	1,
 };
 
-struct disisa *fuc_isa = &fuc_isa_s;
+const struct disisa *fuc_isa = &fuc_isa_s;

@@ -23,7 +23,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "dis.h"
+#include "dis-intern.h"
 
 /*
  * Table of Contents
@@ -1563,7 +1563,7 @@ static struct insn tabroot[] = {
 	{ 0, 0, OOPS },
 };
 
-static struct disisa nv50_isa_s = {
+const struct disisa nv50_isa_s = {
 	tabroot,
 	8,
 	4,
@@ -1571,4 +1571,4 @@ static struct disisa nv50_isa_s = {
 	.i_need_nv50as_hack = 1,
 };
 
-struct disisa *nv50_isa = &nv50_isa_s;
+const struct disisa *nv50_isa = &nv50_isa_s;

@@ -23,8 +23,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "dis.h"
-#include "rnn.h"
+#include "dis-intern.h"
 
 /*
  * Immediate fields
@@ -76,11 +75,11 @@ static struct insn tabm[] = {
 	{ 0, 0, OP8, OOPS },
 };
 
-static struct disisa hwsq_isa_s = {
+const struct disisa hwsq_isa_s = {
 	tabm,
 	5,
 	1,
 	1,
 };
 
-struct disisa *hwsq_isa = &hwsq_isa_s;
+const struct disisa *hwsq_isa = &hwsq_isa_s;

@@ -1,7 +1,7 @@
 #include "envyas.h"
 #include <libgen.h>
 
-static struct disisa *envyas_isa = 0;
+static const struct disisa *envyas_isa = 0;
 
 enum {
 	OFMT_RAW,
@@ -393,27 +393,12 @@ int envyas_process(struct file *file) {
 
 int main(int argc, char **argv) {
 	argv[0] = basename(argv[0]);
-	if (!strcmp(argv[0], "nv50as")) {
-		envyas_isa = nv50_isa;
-		envyas_ofmt = OFMT_HEX32;
-	}
-	if (!strcmp(argv[0], "nvc0as")) {
-		envyas_isa = nvc0_isa;
-		envyas_ofmt = OFMT_HEX32;
-	}
-	if (!strcmp(argv[0], "ctxas")) {
-		envyas_isa = ctx_isa;
-		envyas_ofmt = OFMT_HEX32;
-	}
-	if (!strcmp(argv[0], "fucas") || !strcmp(argv[0], "fµcas")) {
-		envyas_isa = fuc_isa;
-	}
-	if (!strcmp(argv[0], "vp2as")) {
-		envyas_isa = vp2_isa;
-	}
-	if (!strcmp(argv[0], "macroas")) {
-		envyas_isa = macro_isa;
-		envyas_ofmt = OFMT_HEX32;
+	int len = strlen(argv[0]);
+	if (len > 2 && !strcmp(argv[0] + len - 2, "as")) {
+		argv[0][len-2] = 0;
+		envyas_isa = ed_getisa(argv[0]);
+		if (envyas_isa && envyas_isa->opunit == 4)
+			envyas_ofmt = OFMT_HEX32;
 	}
 	int c;
 	unsigned base = 0, skip = 0, limit = 0;
@@ -452,19 +437,8 @@ int main(int argc, char **argv) {
 				envyas_ofmt = OFMT_RAW;
 				break;
 			case 'm':
-				if (!strcmp(optarg, "nv50"))
-					envyas_isa = nv50_isa;
-				else if (!strcmp(optarg, "nvc0"))
-					envyas_isa = nvc0_isa;
-				else if (!strcmp(optarg, "ctx"))
-					envyas_isa = ctx_isa;
-				else if (!strcmp(optarg, "fuc") || !strcmp(optarg, "fµc"))
-					envyas_isa = fuc_isa;
-				else if (!strcmp(optarg, "vp2"))
-					envyas_isa = vp2_isa;
-				else if (!strcmp(optarg, "macro"))
-					envyas_isa = macro_isa;
-				else {
+				envyas_isa = ed_getisa(optarg);
+				if (!envyas_isa) {
 					fprintf (stderr, "Unknown architecure \"%s\"!\n", optarg);
 					return 1;
 				}

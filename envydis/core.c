@@ -24,6 +24,7 @@
  */
 
 #include "dis.h"
+#include "dis-intern.h"
 #include <stdarg.h>
 
 /*
@@ -860,7 +861,7 @@ uint16_t readle16 (uint8_t *p) {
  * FILE*.
  */
 
-void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int vartype, int ptype, int quiet, struct label *labels, int labelsnum)
+void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int vartype, int ptype, int quiet, struct label *labels, int labelsnum)
 {
 	struct disctx c = { 0 };
 	struct disctx *ctx = &c;
@@ -1101,3 +1102,26 @@ void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int 
 	}
 	free(ctx->marks);
 }
+
+static const struct {
+	const char *name;
+	const struct disisa *isa;
+} isas[] = {
+	"nv50", &nv50_isa_s,
+	"nvc0", &nvc0_isa_s,
+	"ctx", &ctx_isa_s,
+	"fuc", &fuc_isa_s,
+	"fµc", &fuc_isa_s,
+	"hwsq", &hwsq_isa_s,
+	"vp2", &vp2_isa_s,
+	"vp3m", &vp3m_isa_s,
+	"macro", &macro_isa_s,
+};
+
+const struct disisa *ed_getisa(const char *name) {
+	int i;
+	for (i = 0; i < sizeof isas / sizeof *isas; i++)
+		if (!strcmp(name, isas[i].name))
+			return isas[i].isa;
+	return 0;
+};

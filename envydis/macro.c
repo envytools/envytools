@@ -23,7 +23,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "dis.h"
+#include "dis-intern.h"
 
 /*
  * Immediate fields
@@ -163,11 +163,11 @@ static struct insn tabroot[] = {
 	{ 0, 0, OP32, T(exit), T(m) },
 };
 
-static struct disisa macro_isa_s = {
+const struct disisa macro_isa_s = {
 	tabroot,
 	4,
 	4,
 	4,
 };
 
-struct disisa *macro_isa = &macro_isa_s;
+const struct disisa *macro_isa = &macro_isa_s;

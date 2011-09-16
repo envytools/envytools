@@ -704,7 +704,7 @@ int main(int argc, char **argv) {
 			//uint8_t bytes_written = 4;
 
 			printf("-- HWSQ entry %u at %x: sequencer control = %u\n", i, entry_offset, sequencer);
-			envydis(hwsq_isa, stdout, bios->data + entry_offset + 4, 0, bytes_to_write - 4, -1, -1, 0, 0, 0);
+			envydis(ed_getisa("hwsq"), stdout, bios->data + entry_offset + 4, 0, bytes_to_write - 4, -1, -1, 0, 0, 0);
 			printf ("\n");
 		}
 		printf ("\n");

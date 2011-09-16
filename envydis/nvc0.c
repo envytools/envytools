@@ -23,7 +23,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "dis.h"
+#include "dis-intern.h"
 
 /*
  * Registers:
@@ -2084,7 +2084,7 @@ static struct insn tabroot[] = {
 	{ 0, 0, OOPS },
 };
 
-static struct disisa nvc0_isa_s = {
+const struct disisa nvc0_isa_s = {
 	tabroot,
 	8,
 	4,
@@ -2092,4 +2092,4 @@ static struct disisa nvc0_isa_s = {
 	.i_need_nv50as_hack = 1,
 };
 
-struct disisa *nvc0_isa = &nvc0_isa_s;
+const struct disisa *nvc0_isa = &nvc0_isa_s;

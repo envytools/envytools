@@ -23,7 +23,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "dis.h"
+#include "dis-intern.h"
 
 /*
  * Options:
@@ -415,11 +415,11 @@ static struct insn tabroot[] = {
 	{ 0, 0, OOPS },
 };
 
-static struct disisa vp2_isa_s = {
+const struct disisa vp2_isa_s = {
 	tabroot,
 	3,
 	1,
 	1,
 };
 
-struct disisa *vp2_isa = &vp2_isa_s;
+const struct disisa *vp2_isa = &vp2_isa_s;

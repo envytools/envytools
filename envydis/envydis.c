@@ -38,36 +38,19 @@
 
 int main(int argc, char **argv) {
 	FILE *infile = stdin;
-	struct disisa *isa = 0;
+	const struct disisa *isa = 0;
 	struct label *labels = 0;
 	int labelsnum = 0;
 	int labelsmax = 0;
 	int w = 0, bin = 0, quiet = 0;
 	const char *varname = 0;
 	argv[0] = basename(argv[0]);
-	if (!strcmp(argv[0], "nv50dis")) {
-		isa = nv50_isa;
-		w = 1;
-	}
-	if (!strcmp(argv[0], "nvc0dis")) {
-		isa = nvc0_isa;
-		w = 1;
-	}
-	if (!strcmp(argv[0], "ctxdis")) {
-		isa = ctx_isa;
-		w = 1;
-	}
-	if (!strcmp(argv[0], "fucdis") || !strcmp(argv[0], "fµcdis"))
-		isa = fuc_isa;
-	if (!strcmp(argv[0], "hwsqdis"))
-		isa = hwsq_isa;
-	if (!strcmp(argv[0], "vp2dis"))
-		isa = vp2_isa;
-	if (!strcmp(argv[0], "vp3mdis"))
-		isa = vp3m_isa;
-	if (!strcmp(argv[0], "macrodis")) {
-		isa = macro_isa;
-		w = 1;
+	int len = strlen(argv[0]);
+	if (len > 3 && !strcmp(argv[0] + len - 3, "dis")) {
+		argv[0][len-3] = 0;
+		isa = ed_getisa(argv[0]);
+		if (isa && isa->opunit == 4)
+			w = 1;
 	}
 	int ptype = -1;
 	int vartype = -1;
@@ -125,23 +108,8 @@ int main(int argc, char **argv) {
 				cbctarg = "";
 				break;
 			case 'm':
-				if (!strcmp(optarg, "nv50"))
-					isa = nv50_isa;
-				else if (!strcmp(optarg, "nvc0"))
-					isa = nvc0_isa;
-				else if (!strcmp(optarg, "ctx"))
-					isa = ctx_isa;
-				else if (!strcmp(optarg, "fuc") || !strcmp(optarg, "fµc"))
-					isa = fuc_isa;
-				else if (!strcmp(optarg, "hwsq"))
-					isa = hwsq_isa;
-				else if (!strcmp(optarg, "vp2"))
-					isa = vp2_isa;
-				else if (!strcmp(optarg, "vp3m"))
-					isa = vp3m_isa;
-				else if (!strcmp(optarg, "macro"))
-					isa = macro_isa;
-				else {
+				isa = ed_getisa(optarg);
+				if (!isa) {
 					fprintf (stderr, "Unknown architecure \"%s\"!\n", optarg);
 					return 1;
 				}

@@ -263,7 +263,7 @@ int main(int argc, char **argv) {
 				if (cc->bar0 && addr >= cc->bar0 && addr < cc->bar0+cc->bar0l) {
 					addr -= cc->bar0;
 					if (cc->hwsqip && addr != cc->hwsqnext) {
-						envydis(hwsq_isa, stdout, cc->hwsq, 0, cc->hwsqnext & 0x3fc, -1, -1, 0, 0, 0);
+						envydis(ed_getisa("hwsq"), stdout, cc->hwsq, 0, cc->hwsqnext & 0x3fc, -1, -1, 0, 0, 0);
 						cc->hwsqip = 0;
 					}
 					if (addr == 0 && !cc->chdone) {
@@ -377,7 +377,7 @@ int main(int argc, char **argv) {
 						param[3] = value >> 24;
 						struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, mmiodom, addr, line[0] == 'W');
 						printf ("[%d] MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %s %s ", cci, width, line[0], addr, value, ai->name, line[0]=='W'?"<=":"=>");
-						envydis(ctx_isa, stdout, param, cc->ctxpos, 4, cc->arch == 5 ? CTX_NV50 : CTX_NV40, -1, 0, 0, 0);
+						envydis(ed_getisa("ctx"), stdout, param, cc->ctxpos, 4, cc->arch == 5 ? CTX_NV50 : CTX_NV40, -1, 0, 0, 0);
 						cc->ctxpos++;
 						free(ai->name);
 						free(ai);

@@ -227,7 +227,7 @@ struct label {
 };
 
 struct disctx {
-	struct disisa *isa;
+	const struct disisa *isa;
 	uint8_t *code8;
 	uint32_t *code32;
 	uint64_t *code64;
@@ -431,16 +431,14 @@ uint16_t readle16 (uint8_t *);
 #define HWSQ_NV17 1
 #define HWSQ_NV41 2
 
-extern struct disisa *nv50_isa;
-extern struct disisa *nvc0_isa;
-extern struct disisa *ctx_isa;
-extern struct disisa *fuc_isa;
-extern struct disisa *hwsq_isa;
-extern struct disisa *vp2_isa;
-extern struct disisa *vp3m_isa;
-extern struct disisa *macro_isa;
+extern const struct disisa *nv50_isa;
+extern const struct disisa *ctx_isa;
+extern const struct disisa *fuc_isa;
+extern const struct disisa *hwsq_isa;
 
-void envydis (struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int vartype, int ptype, int quiet, struct label *labels, int labelsnum);
+const struct disisa *ed_getisa(const char *name);
+
+void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int vartype, int ptype, int quiet, struct label *labels, int labelsnum);
 void printexpr(FILE *out, const struct expr *expr, int lvl);
 
 #endif

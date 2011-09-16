@@ -23,7 +23,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "dis.h"
+#include "dis-intern.h"
 
 /*
  * PGRAPH registers of interest, NV50
@@ -261,11 +261,11 @@ static struct insn tabroot[] = {
 	{ 0, 0, OP32, T(m) },
 };
 
-static struct disisa ctx_isa_s = {
+const struct disisa ctx_isa_s = {
 	tabroot,
 	4,
 	4,
 	4,
 };
 
-struct disisa *ctx_isa = &ctx_isa_s;
+const struct disisa *ctx_isa = &ctx_isa_s;
