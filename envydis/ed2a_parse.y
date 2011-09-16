@@ -1,12 +1,29 @@
 %{
 #include "ed2_misc.h"
 #include "ed2a.h"
+#define YYLTYPE struct ed2_loc
 #include "ed2a_parse.h"
 #include "ed2a_lex.h"
 #include <stdio.h>
 void ed2a_error (YYLTYPE *loc, yyscan_t lex_state, void (*fun) (struct ed2a_insn *insn, void *parm), void *parm, struct ed2a_file **res, char const *err) {
-	fprintf (stderr, "%d.%d-%d.%d: %s\n", loc->first_line, loc->first_column, loc->last_line, loc->last_column, err);
+	fprintf (stderr, "%s:%d.%d-%d.%d: %s\n", loc->file, loc->lstart, loc->cstart, loc->lend, loc->cend, err);
 }
+
+#define YYLLOC_DEFAULT(Current, Rhs, N)					\
+	do {								\
+		if (N) {						\
+			(Current).lstart = YYRHSLOC(Rhs, 1).lstart;	\
+			(Current).cstart = YYRHSLOC(Rhs, 1).cstart;	\
+			(Current).lend = YYRHSLOC(Rhs, N).lend;		\
+			(Current).cend = YYRHSLOC(Rhs, N).cend;		\
+		} else {						\
+			(Current).lstart = YYRHSLOC(Rhs, 0).lend;	\
+			(Current).cstart = YYRHSLOC(Rhs, 0).cend;	\
+			(Current).lend = YYRHSLOC(Rhs, 0).lend;		\
+			(Current).cend = YYRHSLOC(Rhs, 0).cend;		\
+		}							\
+	} while(0)
+
 %}
 
 %locations
@@ -124,7 +141,7 @@ mods:	/**/				{ $$.mods = 0; $$.modsnum = 0; $$.modsmax = 0; }
 ;
 
 iop:	mods expr			{ $$ = calloc (sizeof *$$, 1); $$->mods = $1.mods; $$->modsnum = $1.modsnum; $$->modsmax = $1.modsmax; ADDARRAY($$->exprs, $2); }
-|	iop '|' expr		{ $$ = $1; ADDARRAY($$->exprs, $3); }
+|	iop '|' expr			{ $$ = $1; ADDARRAY($$->exprs, $3); }
 ;
 
 expr:	expr4
@@ -182,10 +199,15 @@ mems:	'['				{ $$ = 0; }
 
 %%
 
-struct ed2a_file *ed2a_read_file (FILE *file, void (*fun) (struct ed2a_insn *insn, void *parm), void *parm) {
+struct ed2a_file *ed2a_read_file (FILE *file, const char *filename, void (*fun) (struct ed2a_insn *insn, void *parm), void *parm) {
 	struct ed2a_file *res;
 	yyscan_t lex_state;
-	ed2a_lex_init(&lex_state);
+	struct ed2a_lex_intern lex_extra;
+	lex_extra.line = 1;
+	lex_extra.pos = 1;
+	lex_extra.ws = 0;
+	lex_extra.file = filename;
+	ed2a_lex_init_extra(lex_extra, &lex_state);
 	ed2a_set_in(file, lex_state);
 	ed2a_parse(lex_state, fun, parm, &res);
 	ed2a_lex_destroy(lex_state);

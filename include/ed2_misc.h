@@ -1,8 +1,16 @@
-#ifndef ED2_TYPES_H
-#define ED2_TYPES_H
+#ifndef ED2_MISC_H
+#define ED2_MISC_H
 
 #include <stdlib.h>
 #include <inttypes.h>
+
+struct ed2_loc {
+	int lstart;
+	int cstart;
+	int lend;
+	int cend;
+	const char *file;
+};
 
 char *ed2_str_deescape(char *str, uint64_t *len);
 

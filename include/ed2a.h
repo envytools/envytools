@@ -141,6 +141,6 @@ void ed2a_print_ipiece(struct ed2a_ipiece *ipiece, FILE *ofile, const struct ed2
 void ed2a_print_iop(struct ed2a_iop *iop, FILE *ofile, const struct ed2a_colors *col);
 void ed2a_print_expr(struct ed2a_expr *expr, FILE *ofile, const struct ed2a_colors *col, int prio);
 
-struct ed2a_file *ed2a_read_file (FILE *file, void (*fun) (struct ed2a_insn *insn, void *parm), void *parm);
+struct ed2a_file *ed2a_read_file (FILE *file, const char *filename, void (*fun) (struct ed2a_insn *insn, void *parm), void *parm);
 
 #endif

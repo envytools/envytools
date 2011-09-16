@@ -459,14 +459,14 @@ int main(int argc, char **argv) {
 			perror(argv[optind]);
 			return 1;
 		}
-		file_ed2 = ed2a_read_file(ifile, 0, 0);
+		file_ed2 = ed2a_read_file(ifile, argv[optind], 0, 0);
 		optind++;
 		if (optind < argc) {
 			fprintf (stderr, "Too many parameters!\n");
 			return 1;
 		}
 	} else {
-		file_ed2 = ed2a_read_file(stdin, 0, 0);
+		file_ed2 = ed2a_read_file(stdin, "stdin", 0, 0);
 	}
 	if (!envyas_isa) {
 		fprintf (stderr, "No architecture specified!\n");

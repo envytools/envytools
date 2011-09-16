@@ -27,6 +27,6 @@ static void fun (struct ed2a_insn *insn, void *parm) {
 
 int main() {
 //	ed2a_print_file(ed2a_read_file(stdin, 0, 0), stdout);
-	ed2a_read_file(stdin, fun, stdout);
+	ed2a_read_file(stdin, "stdin", fun, stdout);
 	return 0;
 }

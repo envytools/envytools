@@ -1,22 +1,22 @@
 %top{
-	struct intern;
+	struct ed2a_lex_intern {
+		int line;
+		int pos;
+		int ws;
+		const char *file;
+	};
 }
 
 %{
 #include "ed2_misc.h"
 #include "ed2a.h"
+#define YYLTYPE struct ed2_loc
 #include "ed2a_parse.h"
 
-struct intern {
-	int line;
-	int pos;
-	int ws;
-};
-
-static void common(struct intern *x, YYLTYPE *loc, const char *str) {
+static void common(struct ed2a_lex_intern *x, YYLTYPE *loc, const char *str) {
 	int i;
-	loc->first_line = x->line;
-	loc->first_column = x->pos;
+	loc->lstart = x->line;
+	loc->cstart = x->pos;
 	for (i = 0; str[i]; i++) {
 		if (str[i] == '\n') {
 			x->pos = 1;
@@ -25,8 +25,9 @@ static void common(struct intern *x, YYLTYPE *loc, const char *str) {
 			x->pos++;
 		}
 	}
-	loc->last_line = x->line;
-	loc->last_column = x->pos;
+	loc->lend = x->line;
+	loc->cend = x->pos;
+	loc->file = x->file;
 }
 
 #define YY_USER_ACTION common(&yyextra, yylloc, yytext);
@@ -40,7 +41,7 @@ static void common(struct intern *x, YYLTYPE *loc, const char *str) {
 %option noyywrap
 %option prefix="ed2a_"
 %option header-file="ed2a_lex.h"
-%option extra-type="struct intern"
+%option extra-type="struct ed2a_lex_intern"
 
 %%
 
