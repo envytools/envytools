@@ -414,18 +414,11 @@ struct matches *atombf APROTO;
 ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx);
 #define GETBF(bf) getbf(bf, a, m, ctx)
 
-uint32_t readle32 (uint8_t *);
-uint16_t readle16 (uint8_t *);
 
 #define VP 1
 #define GP 2
 #define FP 4
 #define CP 8
-
-extern const struct disisa *nv50_isa;
-extern const struct disisa *ctx_isa;
-extern const struct disisa *fuc_isa;
-extern const struct disisa *hwsq_isa;
 
 const struct disisa *ed_getisa(const char *name);
 int ed_getvariant(const struct disisa *isa, const char *name);

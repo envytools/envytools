@@ -421,5 +421,3 @@ const struct disisa vp2_isa_s = {
 	1,
 	1,
 };
-
-const struct disisa *vp2_isa = &vp2_isa_s;

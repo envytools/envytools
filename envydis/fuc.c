@@ -591,5 +591,3 @@ const struct disisa fuc_isa_s = {
 	.vars = fuc_vars,
 	.varsnum = sizeof fuc_vars / sizeof *fuc_vars,
 };
-
-const struct disisa *fuc_isa = &fuc_isa_s;

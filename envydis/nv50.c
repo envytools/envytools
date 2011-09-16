@@ -1586,5 +1586,3 @@ const struct disisa nv50_isa_s = {
 	.vars = nv50_vars,
 	.varsnum = sizeof nv50_vars / sizeof *nv50_vars,
 };
-
-const struct disisa *nv50_isa = &nv50_isa_s;

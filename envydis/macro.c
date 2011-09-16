@@ -169,5 +169,3 @@ const struct disisa macro_isa_s = {
 	4,
 	4,
 };
-
-const struct disisa *macro_isa = &macro_isa_s;

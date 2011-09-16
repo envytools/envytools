@@ -846,14 +846,6 @@ ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx) {
 	return res;
 }
 
-uint32_t readle32 (uint8_t *p) {
-	return p[0] | p[1] << 8 | p[2] << 16 | p[3] << 24;
-}
-
-uint16_t readle16 (uint8_t *p) {
-	return p[0] | p[1] << 8;
-}
-
 /*
  * Disassembler driver
  *

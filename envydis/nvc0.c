@@ -2091,5 +2091,3 @@ const struct disisa nvc0_isa_s = {
 	1,
 	.i_need_nv50as_hack = 1,
 };
-
-const struct disisa *nvc0_isa = &nvc0_isa_s;

@@ -91,5 +91,3 @@ const struct disisa hwsq_isa_s = {
 	.vars = hwsq_vars,
 	.varsnum = sizeof hwsq_vars / sizeof *hwsq_vars,
 };
-
-const struct disisa *hwsq_isa = &hwsq_isa_s;

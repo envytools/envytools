@@ -277,5 +277,3 @@ const struct disisa ctx_isa_s = {
 	.vars = ctx_vars,
 	.varsnum = sizeof ctx_vars / sizeof *ctx_vars,
 };
-
-const struct disisa *ctx_isa = &ctx_isa_s;
