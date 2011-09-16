@@ -130,29 +130,29 @@ static struct insn tabdst[] = {
 F1(annul, 5, N("annul")); // if set, delay slot insn is annuled if branch taken [ie. branch behaves as if delay slots didn't exist]
 
 static struct insn tabm[] = {
-	{ 0x00000000, 0x003e0007, T(dst), N("add"), REG2, REG3 },
-	{ 0x00020000, 0x003e0007, T(dst), N("adc"), REG2, REG3 },
-	{ 0x00040000, 0x003e0007, T(dst), N("sub"), REG2, REG3 },
-	{ 0x00060000, 0x003e0007, T(dst), N("sbb"), REG2, REG3 },
-	{ 0x00100000, 0x003e0007, T(dst), N("xor"), REG2, REG3 },
-	{ 0x00120000, 0x003e0007, T(dst), N("or"), REG2, REG3 },
-	{ 0x00140000, 0x003e0007, T(dst), N("and"), REG2, REG3 },
-	{ 0x00160000, 0x003e0007, T(dst), N("andn"), REG2, REG3 }, // REG2 & ~REG3
-	{ 0x00180000, 0x003e0007, T(dst), N("nand"), REG2, REG3 }, // ~(REG2 & REG3)
+	{ 0x00000000, 0x003e0007, T(dst), SESTART, N("add"), REG2, REG3, SEEND },
+	{ 0x00020000, 0x003e0007, T(dst), SESTART, N("adc"), REG2, REG3, SEEND },
+	{ 0x00040000, 0x003e0007, T(dst), SESTART, N("sub"), REG2, REG3, SEEND },
+	{ 0x00060000, 0x003e0007, T(dst), SESTART, N("sbb"), REG2, REG3, SEEND },
+	{ 0x00100000, 0x003e0007, T(dst), SESTART, N("xor"), REG2, REG3, SEEND },
+	{ 0x00120000, 0x003e0007, T(dst), SESTART, N("or"), REG2, REG3, SEEND },
+	{ 0x00140000, 0x003e0007, T(dst), SESTART, N("and"), REG2, REG3, SEEND },
+	{ 0x00160000, 0x003e0007, T(dst), SESTART, N("andn"), REG2, REG3, SEEND }, // REG2 & ~REG3
+	{ 0x00180000, 0x003e0007, T(dst), SESTART, N("nand"), REG2, REG3, SEEND }, // ~(REG2 & REG3)
 	{ 0x00000011, 0xffffffff, N("nop") }, // SC
 	{ 0x00000091, 0xffffffff }, // SC [just exit]
 	{ 0x00000001, 0xfffff87f, N("parm"), REG1 }, // SC
 	{ 0x00000001, 0x00003807, T(dst), MIMM }, // SC
 	{ 0x00000001, 0xffffc007, T(dst), REG2 }, // SC
-	{ 0x00000001, 0x00000007, T(dst), N("add"), REG2, MIMM },
+	{ 0x00000001, 0x00000007, T(dst), SESTART, N("add"), REG2, MIMM, SEEND },
 	// take REG2, replace BFSZ bits starting at BFDSTPOS with BFSZ bits starting at BFSRCPOS in REG3.
-	{ 0x00000002, 0x00000007, T(dst), N("extrinsrt"), REG2, REG3, BFSRCPOS, BFSZ, BFDSTPOS },
+	{ 0x00000002, 0x00000007, T(dst), SESTART, N("extrinsrt"), REG2, REG3, BFSRCPOS, BFSZ, BFDSTPOS, SEEND },
 	// take BFSZ bits starting at REG2 in REG3, shift left by BFDSTPOS
-	{ 0x00000003, 0x00000007, T(dst), N("extrshl"), REG3, REG2, BFSZ, BFDSTPOS },
+	{ 0x00000003, 0x00000007, T(dst), SESTART, N("extrshl"), REG3, REG2, BFSZ, BFDSTPOS, SEEND },
 	// take BFSZ bits starting at BFSRCPOS in REG3, shift left by REG2
-	{ 0x00000004, 0x00000007, T(dst), N("extrshl"), REG3, BFSRCPOS, BFSZ, REG2 },
+	{ 0x00000004, 0x00000007, T(dst), SESTART, N("extrshl"), REG3, BFSRCPOS, BFSZ, REG2, SEEND },
 	{ 0x00000015, 0x00003877, N("read"), REG1, MIMM }, // SC
-	{ 0x00000015, 0x00000077, N("read"), REG1, N("add"), REG2, MIMM },
+	{ 0x00000015, 0x00000077, N("read"), REG1, SESTART, N("add"), REG2, MIMM, SEEND },
 	{ 0x00000007, 0x00003817, N("bra"), T(annul), BTARG },
 	{ 0x00000007, 0x00000017, N("braz"), T(annul), REG2, BTARG },
 	{ 0x00000017, 0x00000017, N("branz"), T(annul), REG2, BTARG },

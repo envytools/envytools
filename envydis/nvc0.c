@@ -1775,7 +1775,7 @@ static struct insn tabp[] = {
 	{ 0x1c00, 0x3c00 },
 	{ 0x3c00, 0x3c00, N("never") },	// probably.
 	{ 0x0000, 0x2000, PRED },
-	{ 0x2000, 0x2000, N("not"), PRED },
+	{ 0x2000, 0x2000, SESTART, N("not"), PRED, SEEND },
 	{ 0, 0, OOPS },
 };
 

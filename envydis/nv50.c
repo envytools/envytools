@@ -779,10 +779,10 @@ static struct insn tabs[] = {
 	{ 0x50000000, 0xf0008002, N("sad"), SDST, T(sm1us16), SHSRC, SHSRC2, SDST },
 	{ 0x50008000, 0xf0008002, N("sad"), SDST, T(sm1us32), SSRC, SSRC2, SDST },
 
-	{ 0x60000000, 0xe0008102, T(addop), SDST, N("mul"), N("u16"), T(ssh), T(sch), SDST, T(addc0) },
-	{ 0x60000100, 0xe0008102, T(addop), SDST, N("mul"), N("s16"), T(ssh), T(sch), SDST, T(addc0) },
-	{ 0x60008000, 0xe0008102, T(addop), N("sat"), SDST, N("mul"), N("s16"), T(ssh), T(sch), SDST, T(addc0) },
-	{ 0x60008100, 0xe0008102, T(addop), SDST, N("mul"), N("u24"), T(ssw), T(scw), SDST, T(addc0) },
+	{ 0x60000000, 0xe0008102, T(addop), SDST, SESTART, N("mul"), N("u16"), T(ssh), T(sch), SEEND, SDST, T(addc0) },
+	{ 0x60000100, 0xe0008102, T(addop), SDST, SESTART, N("mul"), N("s16"), T(ssh), T(sch), SEEND, SDST, T(addc0) },
+	{ 0x60008000, 0xe0008102, T(addop), N("sat"), SDST, SESTART, N("mul"), N("s16"), T(ssh), T(sch), SEEND, SDST, T(addc0) },
+	{ 0x60008100, 0xe0008102, T(addop), SDST, SESTART, N("mul"), N("u24"), T(ssw), T(scw), SEEND, SDST, T(addc0) },
 
 	// desc VVV
 	{ 0x80000000, 0xf3000102, N("interp"), SDST, SVAR, .ptype = FP },		// most likely something is wrong with this.
@@ -797,7 +797,7 @@ static struct insn tabs[] = {
 
 	{ 0xc0000000, 0xf0000002, N("mul"), N("f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), T(scw) },
 
-	{ 0xe0000000, 0xf0000002, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), N("mul"), T(ssw), T(scw), T(sm3neg), SDST },
+	{ 0xe0000000, 0xf0000002, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), SESTART, N("mul"), T(ssw), T(scw), SEEND, T(sm3neg), SDST },
 
 	{ 0xf0000000, 0xf1000002, N("texauto"), T(sm1tex), STDST, TEX, SAMP, STSRC },
 	{ 0xf1000000, 0xf1000002, N("texfetch"), T(sm1tex), STDST, TEX, SAMP, STSRC},
@@ -825,10 +825,10 @@ static struct insn tabi[] = {
 	{ 0x40000000, 0xf0400000, N("mul"), SDST, T(sm2us16), T(ssh), T(sm1us16), IMM },
 	{ 0x40400000, 0xf0400000, N("mul"), SDST, T(sm1high), T(sm2us24), T(ssw), IMM },
 
-	{ 0x60000000, 0xe0008100, T(addop), SDST, N("mul"), N("u16"), T(ssh), IMM, SDST, T(addc0) },
-	{ 0x60000100, 0xe0008100, T(addop), SDST, N("mul"), N("s16"), T(ssh), IMM, SDST, T(addc0) },
-	{ 0x60008000, 0xe0008100, T(addop), N("sat"), SDST, N("mul"), N("s16"), T(ssh), IMM, SDST, T(addc0) },
-	{ 0x60008100, 0xe0008100, T(addop), SDST, N("mul"), N("u24"), T(ssw), IMM, SDST, T(addc0) },
+	{ 0x60000000, 0xe0008100, T(addop), SDST, SESTART, N("mul"), N("u16"), T(ssh), IMM, SEEND, SDST, T(addc0) },
+	{ 0x60000100, 0xe0008100, T(addop), SDST, SESTART, N("mul"), N("s16"), T(ssh), IMM, SEEND, SDST, T(addc0) },
+	{ 0x60008000, 0xe0008100, T(addop), N("sat"), SDST, SESTART, N("mul"), N("s16"), T(ssh), IMM, SEEND, SDST, T(addc0) },
+	{ 0x60008100, 0xe0008100, T(addop), SDST, SESTART, N("mul"), N("u24"), T(ssw), IMM, SEEND, SDST, T(addc0) },
 
 	// desc VVV
 	{ 0xb0000000, 0xf0000000, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), IMM },
@@ -842,7 +842,7 @@ static struct insn tabi[] = {
 	{ 0xd0008100, 0xf0008100, N("mov2"), N("b32"), SDST, T(sm3not), T(ssw), IMM },
 
 	// desc VVV
-	{ 0xe0000000, 0xf0000000, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), N("mul"), T(ssw), IMM, T(sm3neg), SDST },
+	{ 0xe0000000, 0xf0000000, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), SESTART, N("mul"), T(ssw), IMM, SEEND, T(sm3neg), SDST },
 	// desc ^^^
 
 	{ 0, 0, OOPS, SDST, T(ssw), IMM },
@@ -1329,15 +1329,15 @@ static struct insn tabl[] = {
 	{ 0x0400000050000000ull, 0xe4000000f0000000ull, N("sad"), MCDST, LLDST, T(lm2us32), T(lsw), T(lc2w), T(lc3w) },
 
 	// 6 and 7
-	{ 0x0000000060000000ull, 0xe0000000f0000000ull, T(addop2), MCDST, LLDST, N("mul"), N("u16"), T(lsh), T(lc2h), T(lc3w), T(addcond2) },
-	{ 0x2000000060000000ull, 0xe0000000f0000000ull, T(addop2), MCDST, LLDST, N("mul"), N("s16"), T(lsh), T(lc2h), T(lc3w), T(addcond2) },
-	{ 0x4000000060000000ull, 0xe0000000f0000000ull, T(addop2), N("sat"), MCDST, LLDST, N("mul"), N("s16"), T(lsh), T(lc2h), T(lc3w), T(addcond2) },
-	{ 0x6000000060000000ull, 0xe0000000f0000000ull, T(addop2), MCDST, LLDST, N("mul"), N("u24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
-	{ 0x8000000060000000ull, 0xe0000000f0000000ull, T(addop2), MCDST, LLDST, N("mul"), N("s24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
-	{ 0xa000000060000000ull, 0xe0000000f0000000ull, T(addop2), N("sat"), MCDST, LLDST, N("mul"), N("s24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
-	{ 0xc000000060000000ull, 0xe0000000f0000000ull, T(addop2), MCDST, LLDST, N("mul"), N("high"), N("u24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
-	{ 0xe000000060000000ull, 0xe0000000f0000000ull, T(addop2), MCDST, LLDST, N("mul"), N("high"), N("s24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
-	{ 0x0000000070000000ull, 0xe0000000f0000000ull, T(addop2), N("sat"), MCDST, LLDST, N("mul"), N("high"), N("s24"), T(lsw), T(lc2w), T(lc3w), T(addcond2) },
+	{ 0x0000000060000000ull, 0xe0000000f0000000ull, T(addop2), MCDST, LLDST, SESTART, N("mul"), N("u16"), T(lsh), T(lc2h), SEEND, T(lc3w), T(addcond2) },
+	{ 0x2000000060000000ull, 0xe0000000f0000000ull, T(addop2), MCDST, LLDST, SESTART, N("mul"), N("s16"), T(lsh), T(lc2h), SEEND, T(lc3w), T(addcond2) },
+	{ 0x4000000060000000ull, 0xe0000000f0000000ull, T(addop2), N("sat"), MCDST, LLDST, SESTART, N("mul"), N("s16"), T(lsh), T(lc2h), SEEND, T(lc3w), T(addcond2) },
+	{ 0x6000000060000000ull, 0xe0000000f0000000ull, T(addop2), MCDST, LLDST, SESTART, N("mul"), N("u24"), T(lsw), T(lc2w), SEEND, T(lc3w), T(addcond2) },
+	{ 0x8000000060000000ull, 0xe0000000f0000000ull, T(addop2), MCDST, LLDST, SESTART, N("mul"), N("s24"), T(lsw), T(lc2w), SEEND, T(lc3w), T(addcond2) },
+	{ 0xa000000060000000ull, 0xe0000000f0000000ull, T(addop2), N("sat"), MCDST, LLDST, SESTART, N("mul"), N("s24"), T(lsw), T(lc2w), SEEND, T(lc3w), T(addcond2) },
+	{ 0xc000000060000000ull, 0xe0000000f0000000ull, T(addop2), MCDST, LLDST, SESTART, N("mul"), N("high"), N("u24"), T(lsw), T(lc2w), SEEND, T(lc3w), T(addcond2) },
+	{ 0xe000000060000000ull, 0xe0000000f0000000ull, T(addop2), MCDST, LLDST, SESTART, N("mul"), N("high"), N("s24"), T(lsw), T(lc2w), SEEND, T(lc3w), T(addcond2) },
+	{ 0x0000000070000000ull, 0xe0000000f0000000ull, T(addop2), N("sat"), MCDST, LLDST, SESTART, N("mul"), N("high"), N("s24"), T(lsw), T(lc2w), SEEND, T(lc3w), T(addcond2) },
 
 	// desc VVV
 	// 8
@@ -1447,7 +1447,7 @@ static struct insn tabl[] = {
 	{ 0xe0000000d0000000ull, 0xe0000000f0000000ull, T(atomm), T(ldsto), GLOBAL2, T(ldsts2), T(mldsts3), .vartype = NV84P, .ptype = CP },
 
 	// e
-	{ 0x00000000e0000000ull, 0xc0000000f0000000ull, N("add"), T(o0sat), N("f32"), MCDST, LLDST, T(m1neg), N("mul"), T(lsw), T(lc2w), T(m2neg), T(lc3w) },	// multiply, round, add, round. meh.
+	{ 0x00000000e0000000ull, 0xc0000000f0000000ull, N("add"), T(o0sat), N("f32"), MCDST, LLDST, T(m1neg), SESTART, N("mul"), T(lsw), T(lc2w), SEEND, T(m2neg), T(lc3w) },	// multiply, round, add, round. meh.
 
 	{ 0x40000000e0000000ull, 0xe0000000f0000000ull, N("fma"), T(mad64r), N("f64"), MCDST, LDDST, T(m1neg), LDSRC, LDSRC2, T(m2neg), LDSRC3, .vartype = NVA0 },	// *fused* multiply-add, no intermediate rounding :)
 	{ 0x60000000e0000000ull, 0xe0000000f0000000ull, N("add"), T(af64r), N("f64"), MCDST, LDDST, T(m1neg), LDSRC, T(m2neg), LDSRC3, .vartype = NVA0 },
@@ -1505,30 +1505,30 @@ static struct insn tabl[] = {
  * Predicates
  */
 static struct insn tabp[] = {
-	{ 0x0000000000000000ull, 0x00000f8000000000ull, N("never") },
-	{ 0x0000008000000000ull, 0x00000f8000000000ull, N("l"), COND },
-	{ 0x0000010000000000ull, 0x00000f8000000000ull, N("e"), COND },
-	{ 0x0000018000000000ull, 0x00000f8000000000ull, N("le"), COND },
-	{ 0x0000020000000000ull, 0x00000f8000000000ull, N("g"), COND },
-	{ 0x0000028000000000ull, 0x00000f8000000000ull, N("lg"), COND },
-	{ 0x0000030000000000ull, 0x00000f8000000000ull, N("ge"), COND },
-	{ 0x0000038000000000ull, 0x00000f8000000000ull, N("lge"), COND },
-	{ 0x0000040000000000ull, 0x00000f8000000000ull, N("u"), COND },
-	{ 0x0000048000000000ull, 0x00000f8000000000ull, N("lu"), COND },
-	{ 0x0000050000000000ull, 0x00000f8000000000ull, N("eu"), COND },
-	{ 0x0000058000000000ull, 0x00000f8000000000ull, N("leu"), COND },
-	{ 0x0000060000000000ull, 0x00000f8000000000ull, N("gu"), COND },
-	{ 0x0000068000000000ull, 0x00000f8000000000ull, N("lgu"), COND },
-	{ 0x0000070000000000ull, 0x00000f8000000000ull, N("geu"), COND },
+	{ 0x0000000000000000ull, 0x00000f8000000000ull, SESTART, N("never"), SEEND },
+	{ 0x0000008000000000ull, 0x00000f8000000000ull, SESTART, N("l"), COND, SEEND },
+	{ 0x0000010000000000ull, 0x00000f8000000000ull, SESTART, N("e"), COND, SEEND },
+	{ 0x0000018000000000ull, 0x00000f8000000000ull, SESTART, N("le"), COND, SEEND },
+	{ 0x0000020000000000ull, 0x00000f8000000000ull, SESTART, N("g"), COND, SEEND },
+	{ 0x0000028000000000ull, 0x00000f8000000000ull, SESTART, N("lg"), COND, SEEND },
+	{ 0x0000030000000000ull, 0x00000f8000000000ull, SESTART, N("ge"), COND, SEEND },
+	{ 0x0000038000000000ull, 0x00000f8000000000ull, SESTART, N("lge"), COND, SEEND },
+	{ 0x0000040000000000ull, 0x00000f8000000000ull, SESTART, N("u"), COND, SEEND },
+	{ 0x0000048000000000ull, 0x00000f8000000000ull, SESTART, N("lu"), COND, SEEND },
+	{ 0x0000050000000000ull, 0x00000f8000000000ull, SESTART, N("eu"), COND, SEEND },
+	{ 0x0000058000000000ull, 0x00000f8000000000ull, SESTART, N("leu"), COND, SEEND },
+	{ 0x0000060000000000ull, 0x00000f8000000000ull, SESTART, N("gu"), COND, SEEND },
+	{ 0x0000068000000000ull, 0x00000f8000000000ull, SESTART, N("lgu"), COND, SEEND },
+	{ 0x0000070000000000ull, 0x00000f8000000000ull, SESTART, N("geu"), COND, SEEND },
 	{ 0x0000078000000000ull, 0x00000f8000000000ull },
-	{ 0x0000080000000000ull, 0x00000f8000000000ull, N("o"), COND },
-	{ 0x0000088000000000ull, 0x00000f8000000000ull, N("c"), COND },
-	{ 0x0000090000000000ull, 0x00000f8000000000ull, N("a"), COND },
-	{ 0x0000098000000000ull, 0x00000f8000000000ull, N("s"), COND },
-	{ 0x00000e0000000000ull, 0x00000f8000000000ull, N("ns"), COND },
-	{ 0x00000e8000000000ull, 0x00000f8000000000ull, N("na"), COND },
-	{ 0x00000f0000000000ull, 0x00000f8000000000ull, N("nc"), COND },
-	{ 0x00000f8000000000ull, 0x00000f8000000000ull, N("no"), COND },
+	{ 0x0000080000000000ull, 0x00000f8000000000ull, SESTART, N("o"), COND, SEEND },
+	{ 0x0000088000000000ull, 0x00000f8000000000ull, SESTART, N("c"), COND, SEEND },
+	{ 0x0000090000000000ull, 0x00000f8000000000ull, SESTART, N("a"), COND, SEEND },
+	{ 0x0000098000000000ull, 0x00000f8000000000ull, SESTART, N("s"), COND, SEEND },
+	{ 0x00000e0000000000ull, 0x00000f8000000000ull, SESTART, N("ns"), COND, SEEND },
+	{ 0x00000e8000000000ull, 0x00000f8000000000ull, SESTART, N("na"), COND, SEEND },
+	{ 0x00000f0000000000ull, 0x00000f8000000000ull, SESTART, N("nc"), COND, SEEND },
+	{ 0x00000f8000000000ull, 0x00000f8000000000ull, SESTART, N("no"), COND, SEEND },
 	{ 0, 0, OOPS },
 };
 
