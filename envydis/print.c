@@ -25,6 +25,8 @@
 
 #include "dis.h"
 
+const struct ed2a_colors *ed2a_colors = &ed2a_def_colors;
+
 void printexpr(FILE *out, const struct expr *expr, int lvl) {
 	int i;
 	switch (expr->type) {
@@ -217,6 +219,13 @@ void printexpr(FILE *out, const struct expr *expr, int lvl) {
 			return;
 		case EXPR_SEEND:
 			fprintf(out, "%s)", cmem);
+			return;
+		case EXPR_ED2A:
+			if (lvl >= 1)
+				fprintf(out, "%s(", cmem);
+			ed2a_print_expr(expr->ed2a, out, ed2a_colors, 0);
+			if (lvl >= 1)
+				fprintf(out, "%s)", cmem);
 			return;
 		default:
 			assert(0);

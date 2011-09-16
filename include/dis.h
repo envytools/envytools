@@ -33,6 +33,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "util.h"
+#include "ed2a.h"
 
 extern char *cnorm;	// instruction code and misc stuff
 extern char *cname;	// instruction name and mods
@@ -308,6 +309,7 @@ struct expr {
 		EXPR_PISUB,
 		EXPR_SESTART,
 		EXPR_SEEND,
+		EXPR_ED2A,
 	} type;
 	const char *str;
 	ull num1, num2;
@@ -318,11 +320,19 @@ struct expr {
 	int vexprsmax;
 	int isimm;
 	int special;
+	struct ed2a_expr *ed2a;
 };
 
 static inline struct expr *makeex(enum etype type) {
 	struct expr *res = calloc(sizeof(*res), 1);
 	res->type = type;
+	return res;
+}
+
+static inline struct expr *makeed2a(struct ed2a_expr *ed2a) {
+	struct expr *res = calloc(sizeof(*res), 1);
+	res->type = EXPR_ED2A;
+	res->ed2a = ed2a;
 	return res;
 }
 
@@ -423,11 +433,12 @@ struct matches *atombf APROTO;
 ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx);
 #define GETBF(bf) getbf(bf, a, m, ctx)
 
-
 #define VP 1
 #define GP 2
 #define FP 4
 #define CP 8
+
+extern const struct ed2a_colors *ed2a_colors;
 
 const struct disisa *ed_getisa(const char *name);
 int ed_getvariant(const struct disisa *isa, const char *name);

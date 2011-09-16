@@ -3,6 +3,8 @@
 
 static const struct disisa *envyas_isa = 0;
 
+void convert_ipiece(struct line *line, struct ed2a_ipiece *ipiece);
+
 enum {
 	OFMT_RAW,
 	OFMT_HEX8,
@@ -115,10 +117,10 @@ void extend(struct section *s, int add) {
 }
 
 int donum (struct section *s, struct line *line, struct disctx *ctx, int wren) {
-	if (line->str[1] != 'b' && line->str[1] != 's' && line->str[1] != 'u')
+	if (line->str[0] != 'b' && line->str[0] != 's' && line->str[0] != 'u')
 		return 0;
 	char *end;
-	ull bits = strtoull(line->str+2, &end, 0);
+	ull bits = strtoull(line->str+1, &end, 0);
 	if (*end)
 		return 0;
 	if (bits > 64 || bits & 7 || !bits)
@@ -133,8 +135,8 @@ int donum (struct section *s, struct line *line, struct disctx *ctx, int wren) {
 		extend(s, bits/8 * line->atomsnum);
 		for (i = 0; i < line->atomsnum; i++) {
 			ull num = calc(line->atoms[i], ctx);
-			if ((line->str[1] == 'u' && bits != 64 && num >= (1ull << bits))
-				|| (line->str[1] == 's' && bits != 64 && num >= (1ull << bits - 1) && num < (-1ull << bits - 1))) {
+			if ((line->str[0] == 'u' && bits != 64 && num >= (1ull << bits))
+				|| (line->str[0] == 's' && bits != 64 && num >= (1ull << bits - 1) && num < (-1ull << bits - 1))) {
 				fprintf (stderr, "Argument %d too large for %s\n", i, line->str);
 				exit(1);
 			}
@@ -211,7 +213,7 @@ int envyas_process(struct file *file) {
 					ADDARRAY(ctx->labels, l);
 					break;
 				case LINE_DIR:
-					if (!strcmp(file->lines[i]->str, ".section")) {
+					if (!strcmp(file->lines[i]->str, "section")) {
 						if (file->lines[i]->atomsnum > 2) {
 							fprintf (stderr, "Too many arguments for .section\n");
 							return 1;
@@ -230,7 +232,7 @@ int envyas_process(struct file *file) {
 							ADDARRAY(sections, s);
 						}
 						cursect = j;
-					} else if (!strcmp(file->lines[i]->str, ".align")) {
+					} else if (!strcmp(file->lines[i]->str, "align")) {
 						if (file->lines[i]->atomsnum > 1) {
 							fprintf (stderr, "Too many arguments for .align\n");
 							return 1;
@@ -243,7 +245,7 @@ int envyas_process(struct file *file) {
 						sections[cursect].pos += num - 1;
 						sections[cursect].pos /= num;
 						sections[cursect].pos *= num;
-					} else if (!strcmp(file->lines[i]->str, ".skip")) {
+					} else if (!strcmp(file->lines[i]->str, "skip")) {
 						if (file->lines[i]->atomsnum > 1) {
 							fprintf (stderr, "Too many arguments for .skip\n");
 							return 1;
@@ -254,7 +256,7 @@ int envyas_process(struct file *file) {
 						}
 						ull num = file->lines[i]->atoms[0]->num1;
 						sections[cursect].pos += num;
-					} else if (!strcmp(file->lines[i]->str, ".equ")) {
+					} else if (!strcmp(file->lines[i]->str, "equ")) {
 						if (file->lines[i]->atomsnum != 2
 							|| file->lines[i]->atoms[0]->type != EXPR_LABEL
 							|| !file->lines[i]->atoms[1]->isimm) {
@@ -316,12 +318,12 @@ int envyas_process(struct file *file) {
 				case LINE_LABEL:
 					break;
 				case LINE_DIR:
-					if (!strcmp(file->lines[i]->str, ".section")) {
+					if (!strcmp(file->lines[i]->str, "section")) {
 						for (j = 0; j < sectionsnum; j++)
 							if (!strcmp(sections[j].name, file->lines[i]->atoms[0]->str))
 								break;
 						cursect = j;
-					} else if (!strcmp(file->lines[i]->str, ".align")) {
+					} else if (!strcmp(file->lines[i]->str, "align")) {
 						ull num = file->lines[i]->atoms[0]->num1;
 						ull oldpos = sections[cursect].pos;
 						sections[cursect].pos += num - 1;
@@ -330,14 +332,14 @@ int envyas_process(struct file *file) {
 						extend(&sections[cursect], 0);
 						for (j = oldpos; j < sections[cursect].pos; j++)
 							sections[cursect].code[j] = 0;
-					} else if (!strcmp(file->lines[i]->str, ".skip")) {
+					} else if (!strcmp(file->lines[i]->str, "skip")) {
 						ull num = file->lines[i]->atoms[0]->num1;
 						ull oldpos = sections[cursect].pos;
 						sections[cursect].pos += num;
 						extend(&sections[cursect], 0);
 						for (j = oldpos; j < sections[cursect].pos; j++)
 							sections[cursect].code[j] = 0;
-					} else if (!strcmp(file->lines[i]->str, ".equ")) {
+					} else if (!strcmp(file->lines[i]->str, "equ")) {
 						/* nothing to be done */
 					} else if (!donum(&sections[cursect], file->lines[i], ctx, 1)) {
 						fprintf (stderr, "Unknown directive %s\n", file->lines[i]->str);
@@ -450,16 +452,21 @@ int main(int argc, char **argv) {
 				envyas_outname = optarg;
 				break;
 		}
+	struct ed2a_file *file_ed2;
 	if (optind < argc) {
-		if (!freopen(argv[optind], "r", stdin)) {
+		FILE *ifile = fopen(argv[optind], "r");
+		if (!ifile) {
 			perror(argv[optind]);
 			return 1;
 		}
+		file_ed2 = ed2a_read_file(ifile, 0, 0);
 		optind++;
 		if (optind < argc) {
 			fprintf (stderr, "Too many parameters!\n");
 			return 1;
 		}
+	} else {
+		file_ed2 = ed2a_read_file(stdin, 0, 0);
 	}
 	if (!envyas_isa) {
 		fprintf (stderr, "No architecture specified!\n");
@@ -472,5 +479,39 @@ int main(int argc, char **argv) {
 			return 1;
 		}
 	}
-	return yyparse();
+	struct file *file = calloc(sizeof *file, 1);
+	int i;
+	for (i = 0; i < file_ed2->insnsnum; i++) {
+		struct ed2a_insn *insn = file_ed2->insns[i];
+		if (insn->piecesnum != 1) {
+			fprintf (stderr, "Multi-piece instruction!!\n");
+			return 1;
+		}
+		struct ed2a_ipiece *ipiece = insn->pieces[0];
+		struct line *line = calloc(sizeof *line, 1);
+		if (!strcmp(ipiece->name, "label")) {
+			if (ipiece->prefsnum || ipiece->iopsnum != 1 || ipiece->iops[0]->exprsnum != 1 || ipiece->iops[0]->modsnum || ipiece->iops[0]->exprs[0]->type != ED2A_ET_LABEL) {
+				fprintf (stderr, "Invalid label instruction!!\n");
+				return 1;
+			}
+			line->type = LINE_LABEL;
+			line->str = ipiece->iops[0]->exprs[0]->str;
+		} else if (!strcmp(ipiece->name, "section") || !strcmp(ipiece->name, "align") || !strcmp(ipiece->name, "skip") || !strcmp(ipiece->name, "equ") || ((ipiece->name[0] == 's' || ipiece->name[0] == 'b' || ipiece->name[0] == 'u') && isdigit(ipiece->name[1]))) {
+			if (ipiece->prefsnum) {
+				fprintf (stderr, "Invalid directive!!\n");
+				return 1;
+			}
+			line->type = LINE_DIR;
+			line->str = ipiece->name;
+			int j;
+			for (j = 0; j < ipiece->iopsnum; j++) {
+				convert_iop(line, ipiece->iops[j]);
+			}
+		} else {
+			line->type = LINE_INSN;
+			convert_ipiece(line, ipiece);
+		}
+		ADDARRAY(file->lines, line);
+	}
+	return envyas_process(file);
 }
