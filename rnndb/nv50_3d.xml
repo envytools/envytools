@@ -229,18 +229,18 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 			NOTE: the following may be nonsense, but that's what it looked like:
 			For LESS:
-				if (INC_TILE.zmax < ZCULL_TILE.zmin && UNK0 == 1)
+				if ((INC_TILE.zmax LT ZCULL_TILE.zmin) AND (UNK0 == 1))
 					pass;
 				else
-				if (INC_TILE.zmin > ZCULL_TILE.zmax)
+				if (INC_TILE.zmin GT ZCULL_TILE.zmax)
 					prune;
 				else
 					per_pixel_test;
 			For GREATER:
-				if (INC_TILE.zmin > ZCULL_TILE.zmax && UNK0 == 1)
+				if ((INC_TILE.zmin GT ZCULL_TILE.zmax) AND (UNK0 == 1))
 					pass;
 				else
-				if (INC_TILE.zmax < ZCULL_TILE.zmin)
+				if (INC_TILE.zmax LT ZCULL_TILE.zmin)
 					prune;
 				else
 					per_pixel_test;
