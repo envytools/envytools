@@ -3,23 +3,33 @@
 #include <string.h>
 
 const struct ed2a_colors ed2a_null_colors = {
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
-	"",
+	.reset	= "",
+	.iname	= "",
+	.mod	= "",
+	.sym	= "",
+	.reg	= "",
+	.regsp	= "",
+	.num	= "",
+	.mem	= "",
+	.btarg	= "",
+	.ctarg	= "",
+	.bctarg	= "",
+	.err	= "",
 };
 
 const struct ed2a_colors ed2a_def_colors = {
-	"\x1b[32m",
-	"\x1b[36m",
-	"\x1b[36m",
-	"\x1b[31m",
-	"\x1b[33m",
-	"\x1b[35m",
-	"\x1b[1;31m",
+	.reset	= "\x1b[0m",
+	.iname	= "\x1b[0;32m",
+	.mod	= "\x1b[0;36m",
+	.sym	= "\x1b[0;36m",
+	.reg	= "\x1b[0;31m",
+	.regsp	= "\x1b[0;35m",
+	.num	= "\x1b[0;33m",
+	.mem	= "\x1b[0;35m",
+	.btarg	= "\x1b[0;35m",
+	.ctarg	= "\x1b[0;1;37m",
+	.bctarg	= "\x1b[0;1;35m",
+	.err	= "\x1b[0;1;31m",
 };
 
 void ed2a_print_file(struct ed2a_file *file, FILE *ofile, const struct ed2a_colors *col) {

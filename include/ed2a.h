@@ -128,12 +128,17 @@ void ed2a_del_rvec(struct ed2a_rvec *rvec);
 void ed2a_del_swz(struct ed2a_swz *swz);
 
 struct ed2a_colors {
+	const char *reset;
 	const char *iname;
 	const char *mod;
 	const char *sym;
 	const char *reg;
+	const char *regsp;
 	const char *num;
 	const char *mem;
+	const char *btarg;
+	const char *ctarg;
+	const char *bctarg;
 	const char *err;
 };
 

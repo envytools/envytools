@@ -18,7 +18,7 @@ static void fun (struct ed2a_insn *insn, void *parm) {
 				noblank = 1;
 			if (j && !noblank)
 				fprintf (ofile, " ");
-			printexpr(ofile, line->atoms[j], 0);
+			printexpr(ofile, line->atoms[j], 0, &ed2a_def_colors);
 			noblank = (line->atoms[j]->type == EXPR_SESTART);
 		}
 		fprintf(ofile, "\n");

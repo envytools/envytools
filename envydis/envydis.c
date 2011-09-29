@@ -44,6 +44,7 @@ int main(int argc, char **argv) {
 	int labelsmax = 0;
 	int w = 0, bin = 0, quiet = 0;
 	const char *varname = 0;
+	const struct ed2a_colors *cols = &ed2a_def_colors;
 	argv[0] = basename(argv[0]);
 	int len = strlen(argv[0]);
 	if (len > 3 && !strcmp(argv[0] + len - 3, "dis")) {
@@ -96,16 +97,7 @@ int main(int argc, char **argv) {
 				quiet = 1;
 				break;
 			case 'n':
-				cnorm = "";
-				cname = "";
-				creg0 = "";
-				creg1 = "";
-				cmem = "";
-				cnum = "";
-				cunk = "";
-				cbtarg = "";
-				cctarg = "";
-				cbctarg = "";
+				cols = &ed2a_null_colors;
 				break;
 			case 'm':
 				isa = ed_getisa(optarg);
@@ -232,6 +224,6 @@ int main(int argc, char **argv) {
 	int cnt = num - skip;
 	if (limit && limit < cnt)
 		cnt = limit;
-	envydis (isa, stdout, code+skip, base, cnt, vartype, ptype, quiet, labels, labelsnum);
+	envydis (isa, stdout, code+skip, base, cnt, vartype, ptype, quiet, labels, labelsnum, cols);
 	return 0;
 }

@@ -35,17 +35,6 @@
 #include "util.h"
 #include "ed2a.h"
 
-extern char *cnorm;	// instruction code and misc stuff
-extern char *cname;	// instruction name and mods
-extern char *creg0;	// $r registers
-extern char *creg1;	// other registers
-extern char *cmem;	// memory accesses
-extern char *cnum;	// numbers
-extern char *cunk;	// unknown stuff
-extern char *cbtarg;	// jump labels
-extern char *cctarg;	// call labels
-extern char *cbctarg;	// call and jump labels
-
 /*
  * Table format
  *
@@ -444,7 +433,7 @@ extern const struct ed2a_colors *ed2a_colors;
 const struct disisa *ed_getisa(const char *name);
 int ed_getvariant(const struct disisa *isa, const char *name);
 
-void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int vartype, int ptype, int quiet, struct label *labels, int labelsnum);
-void printexpr(FILE *out, const struct expr *expr, int lvl);
+void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int vartype, int ptype, int quiet, struct label *labels, int labelsnum, const struct ed2a_colors *cols);
+void printexpr(FILE *out, const struct expr *expr, int lvl, const struct ed2a_colors *cols);
 
 #endif

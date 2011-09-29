@@ -31,17 +31,6 @@
  * Color scheme
  */
 
-char *cnorm = "\x1b[0m";	// lighgray: instruction code and misc stuff
-char *cname = "\x1b[0;32m";	// green: instruction name and mods
-char *creg0 = "\x1b[0;31m";	// blue: $r registers
-char *creg1 = "\x1b[0;35m";	// pink: funny registers
-char *cmem = "\x1b[0;36m";	// cyan: memory accesses
-char *cnum = "\x1b[0;33m";	// yellow: numbers
-char *cunk = "\x1b[1;31m";	// red: unknown stuff
-char *cbtarg = "\x1b[0;35m";	// pink: jump labels
-char *cctarg = "\x1b[1;37m";	// white: call labels
-char *cbctarg = "\x1b[1;35m";	// white: call and jump labels
-
 char *aprint(const char *format, ...) {
 	va_list va;
 	va_start(va, format);
@@ -879,7 +868,7 @@ ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx) {
  * FILE*.
  */
 
-void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int vartype, int ptype, int quiet, struct label *labels, int labelsnum)
+void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int vartype, int ptype, int quiet, struct label *labels, int labelsnum, const struct ed2a_colors *cols)
 {
 	struct disctx c = { 0 };
 	struct disctx *ctx = &c;
@@ -951,40 +940,40 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 		if (ctx->names[cur / isa->posunit]) {
 			if (skip) {
 				if (nonzero)
-					fprintf(out, "%s[%x bytes skipped]\n", cunk, skip);
+					fprintf(out, "%s[%x bytes skipped]\n", cols->err, skip);
 				else
-					fprintf(out, "%s[%x zero bytes skipped]\n", cnorm, skip);
+					fprintf(out, "%s[%x zero bytes skipped]\n", cols->reset, skip);
 				skip = 0;
 				nonzero = 0;
 			}
 			if (ctx->marks[cur / isa->posunit] & 0x30)
-				fprintf (out, "%s%s:\n", cnorm, ctx->names[cur / isa->posunit]);
+				fprintf (out, "%s%s:\n", cols->reset, ctx->names[cur / isa->posunit]);
 			else if (ctx->marks[cur / isa->posunit] & 2)
-				fprintf (out, "\n%s%s:\n", cctarg, ctx->names[cur / isa->posunit]);
+				fprintf (out, "\n%s%s:\n", cols->ctarg, ctx->names[cur / isa->posunit]);
 			else if (ctx->marks[cur / isa->posunit] & 1)
-				fprintf (out, "%s%s:\n", cbtarg, ctx->names[cur / isa->posunit]);
+				fprintf (out, "%s%s:\n", cols->btarg, ctx->names[cur / isa->posunit]);
 			else
-				fprintf (out, "%s%s:\n", cnorm, ctx->names[cur / isa->posunit]);
+				fprintf (out, "%s%s:\n", cols->reset, ctx->names[cur / isa->posunit]);
 		}
 		if (ctx->marks[cur / isa->posunit] & 0x30) {
 			if (skip) {
 				if (nonzero)
-					fprintf(out, "%s[%x bytes skipped]\n", cunk, skip);
+					fprintf(out, "%s[%x bytes skipped]\n", cols->err, skip);
 				else
-					fprintf(out, "%s[%x zero bytes skipped]\n", cnorm, skip);
+					fprintf(out, "%s[%x zero bytes skipped]\n", cols->reset, skip);
 				skip = 0;
 				nonzero = 0;
 			}
-			fprintf (out, "%s%08x:%s", cnum, cur / isa->posunit + start, cnorm);
+			fprintf (out, "%s%08x:%s", cols->mem, cur / isa->posunit + start, cols->reset);
 			if (ctx->marks[cur / isa->posunit] & 0x10) {
 				uint32_t val = 0;
 				for (i = 0; i < 4 && cur + i < num; i++) {
 					val |= code[cur + i] << i*8;
 				}
-				fprintf (out, " %s%08x\n", cmem, val);
+				fprintf (out, " %s%08x\n", cols->num, val);
 				cur += 4 / isa->posunit;
 			} else {
-				fprintf (out, " %s\"", cmem);
+				fprintf (out, " %s\"", cols->num);
 				while (code[cur]) {
 					switch (code[cur]) {
 						case '\n':
@@ -1018,9 +1007,9 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 		}
 		if (skip) {
 			if (nonzero)
-				fprintf(out, "%s[%x bytes skipped]\n", cunk, skip);
+				fprintf(out, "%s[%x bytes skipped]\n", cols->err, skip);
 			else
-				fprintf(out, "%s[%x zero bytes skipped]\n", cnorm, skip);
+				fprintf(out, "%s[%x zero bytes skipped]\n", cols->reset, skip);
 			skip = 0;
 			nonzero = 0;
 		}
@@ -1042,16 +1031,16 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 		switch (ctx->marks[cur / isa->posunit] & 3) {
 			case 0:
 				if (!quiet)
-					fprintf (out, "%s%08x:%s", cnorm, cur / isa->posunit + start, cnorm);
+					fprintf (out, "%s%08x:%s", cols->reset, cur / isa->posunit + start, cols->reset);
 				break;
 			case 1:
-				fprintf (out, "%s%08x:%s", cbtarg, cur / isa->posunit + start, cnorm);
+				fprintf (out, "%s%08x:%s", cols->btarg, cur / isa->posunit + start, cols->reset);
 				break;
 			case 2:
-				fprintf (out, "%s%08x:%s", cctarg, cur / isa->posunit + start, cnorm);
+				fprintf (out, "%s%08x:%s", cols->ctarg, cur / isa->posunit + start, cols->reset);
 				break;
 			case 3:
-				fprintf (out, "%s%08x:%s", cbctarg, cur / isa->posunit + start, cnorm);
+				fprintf (out, "%s%08x:%s", cols->bctarg, cur / isa->posunit + start, cols->reset);
 				break;
 		}
 
@@ -1062,18 +1051,18 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 					if (i+j && i+j >= ctx->oplen)
 						fprintf (out, "  ");
 					else if (cur+i+j >= num)
-						fprintf (out, "%s??", cunk);
+						fprintf (out, "%s??", cols->err);
 					else
-						fprintf (out, "%s%02x", cnorm, code[cur + i + j]);
+						fprintf (out, "%s%02x", cols->reset, code[cur + i + j]);
 			}
 			fprintf (out, "  ");
 
 			if (ctx->marks[cur / isa->posunit] & 2)
-				fprintf (out, "%sC", cctarg);
+				fprintf (out, "%sC", cols->ctarg);
 			else
 				fprintf (out, " ");
 			if (ctx->marks[cur / isa->posunit] & 1)
-				fprintf (out, "%sB", cbtarg);
+				fprintf (out, "%sB", cols->btarg);
 			else
 				fprintf (out, " ");
 		} else if (quiet == 1) {
@@ -1088,7 +1077,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 				noblank = 1;
 			if ((i || !quiet) && !noblank)
 				fprintf (out, " ");
-			printexpr(out, ctx->atoms[i], 0);
+			printexpr(out, ctx->atoms[i], 0, cols);
 			noblank = (ctx->atoms[i]->type == EXPR_SESTART);
 		}
 
@@ -1102,7 +1091,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 					fl = 1;
 			}
 			if (fl) {
-				fprintf (out, " %s[unknown:", cunk);
+				fprintf (out, " %s[unknown:", cols->err);
 				for (i = 0; i < ctx->oplen || i == 0; i += isa->opunit) {
 					fprintf (out, " ");
 					for (j = isa->opunit - 1; j >= 0; j--)
@@ -1114,14 +1103,14 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 				fprintf (out, "]");
 			}
 			if (cur + ctx->oplen > num) {
-				fprintf (out, " %s[incomplete]%s", cunk, cnorm);
+				fprintf (out, " %s[incomplete]%s", cols->err, cols->reset);
 			}
 			cur += ctx->oplen;
 		} else {
-			fprintf (out, " %s[unknown op length]%s", cunk, cnorm);
+			fprintf (out, " %s[unknown op length]%s", cols->err, cols->reset);
 			cur++;
 		}
-		fprintf (out, "%s\n", cnorm);
+		fprintf (out, "%s\n", cols->reset);
 	}
 	free(ctx->marks);
 }
