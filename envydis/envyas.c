@@ -1,4 +1,4 @@
-#include "envyas.h"
+#include "dis.h"
 #include <libgen.h>
 
 static const struct disisa *envyas_isa = 0;
