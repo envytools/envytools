@@ -1,30 +1,13 @@
 %{
 #include "ed2_misc.h"
+#include "ed2_parse.h"
 #include "ed2a.h"
-#define YYLTYPE struct ed2_loc
 #include "ed2a_parse.h"
 #include "ed2a_lex.h"
 #include <stdio.h>
 void ed2a_error (YYLTYPE *loc, yyscan_t lex_state, void (*fun) (struct ed2a_insn *insn, void *parm), void *parm, struct ed2a_file **res, char const *err) {
 	fprintf (stderr, ED2_LOC_FORMAT "%s\n", ED2_LOC_PARAMS(*loc), err);
 }
-
-#define YYLLOC_DEFAULT(Current, Rhs, N)					\
-	do {								\
-		if (N) {						\
-			(Current).lstart = YYRHSLOC(Rhs, 1).lstart;	\
-			(Current).cstart = YYRHSLOC(Rhs, 1).cstart;	\
-			(Current).lend = YYRHSLOC(Rhs, N).lend;		\
-			(Current).cend = YYRHSLOC(Rhs, N).cend;		\
-			(Current).file = YYRHSLOC(Rhs, 1).file;		\
-		} else {						\
-			(Current).lstart = yylloc.lstart;	\
-			(Current).cstart = yylloc.cstart;	\
-			(Current).lend = yylloc.lstart;		\
-			(Current).cend = yylloc.cstart;		\
-			(Current).file = yylloc.file;		\
-		}							\
-	} while(0)
 
 %}
 
@@ -208,7 +191,7 @@ mems:	'['				{ $$ = 0; }
 struct ed2a_file *ed2a_read_file (FILE *file, const char *filename, void (*fun) (struct ed2a_insn *insn, void *parm), void *parm) {
 	struct ed2a_file *res;
 	yyscan_t lex_state;
-	struct ed2a_lex_intern lex_extra;
+	struct ed2_lex_intern lex_extra;
 	lex_extra.line = 1;
 	lex_extra.pos = 1;
 	lex_extra.ws = 0;
