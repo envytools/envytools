@@ -6,7 +6,7 @@
 #include "ed2a_lex.h"
 #include <stdio.h>
 void ed2a_error (YYLTYPE *loc, yyscan_t lex_state, void (*fun) (struct ed2a_insn *insn, void *parm), void *parm, struct ed2a_file **res, char const *err) {
-	fprintf (stderr, ED2_LOC_FORMAT "%s\n", ED2_LOC_PARAMS(*loc), err);
+	fprintf (stderr, ED2_LOC_FORMAT(*loc, "%s\n"), err);
 }
 
 %}

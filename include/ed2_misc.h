@@ -13,8 +13,7 @@ struct ed2_loc {
 	const char *file;
 };
 
-#define ED2_LOC_FORMAT "%s:%d.%d-%d.%d: "
-#define ED2_LOC_PARAMS(loc) (loc).file, (loc).lstart, (loc).cstart, (loc).lend, (loc).cend
+#define ED2_LOC_FORMAT(loc, str) "%s:%d.%d-%d.%d: " str, (loc).file, (loc).lstart, (loc).cstart, (loc).lend, (loc).cend
 
 char *ed2_str_deescape(char *str, uint64_t *len);
 
