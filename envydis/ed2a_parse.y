@@ -30,7 +30,7 @@ void ed2a_error (YYLTYPE *loc, yyscan_t lex_state, void (*fun) (struct ed2a_insn
 	struct ed2a_iop *iop;
 	struct ed2a_rvec *rvec;
 	struct ed2a_swz *swz;
-	struct ed2a_astr astr;
+	struct ed2_astr astr;
 	struct {
 		char **mods;
 		int modsnum;

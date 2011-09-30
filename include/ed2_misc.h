@@ -29,4 +29,9 @@ char *ed2_str_deescape(char *str, uint64_t *len);
 	(a)[(a ## num)++] = (e); \
 	} while(0)
 
+struct ed2_astr {
+	char *str;
+	uint64_t len;
+};
+
 #endif

@@ -101,11 +101,6 @@ struct ed2a_swz {
 	int elemsmax;
 };
 
-struct ed2a_astr {
-	char *str;
-	uint64_t len;
-};
-
 struct ed2a_expr *ed2a_make_expr(enum ed2a_etype type);
 struct ed2a_expr *ed2a_make_expr_bi(enum ed2a_etype type, struct ed2a_expr *, struct ed2a_expr *);
 struct ed2a_expr *ed2a_make_expr_mem(enum ed2a_etype type, char *str, struct ed2a_expr *, struct ed2a_expr *);
