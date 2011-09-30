@@ -67,6 +67,8 @@ void ed2a_print_ipiece(struct ed2a_ipiece *ipiece, FILE *ofile, const struct ed2
 		fprintf(ofile, " ");
 		ed2a_print_iop(ipiece->iops[i], ofile, col);
 	}
+	for (i = 0; i < ipiece->modsnum; i++)
+		fprintf(ofile, " %s%s", col->mod, ipiece->mods[i]);
 }
 
 void ed2a_print_iop(struct ed2a_iop *iop, FILE *ofile, const struct ed2a_colors *col) {

@@ -81,6 +81,7 @@ void ed2a_error (YYLTYPE *loc, yyscan_t lex_state, void (*fun) (struct ed2a_insn
 %type <insn> insn
 %type <ipiece> ipiece
 %type <ipiece> ipiecenp
+%type <ipiece> ipiecenpnm
 %type <iop> iop
 %type <rvec> rvec
 %type <str> mems
@@ -134,8 +135,11 @@ prefs:	/**/				{ $$.prefs = 0; $$.prefsnum = 0; $$.prefsmax = 0; }
 ipiece:	prefs ipiecenp			{ $$ = $2; $$->prefs = $1.prefs; $$->prefsnum = $1.prefsnum; $$->prefsmax = $1.prefsmax; $$->loc = @$; }
 ;
 
-ipiecenp:	T_WORD			{ $$ = calloc (sizeof *$$, 1); $$->name = $1; $$->loc = @$; }
-|	ipiecenp iop			{ $$ = $1; ADDARRAY($$->iops, $2); $$->loc = @$; }
+ipiecenp: ipiecenpnm mods		{ $$ = $1; $$->mods = $2.mods; $$->modsnum = $2.modsnum; $$->modsmax = $2.modsmax; }
+;
+
+ipiecenpnm:	T_WORD			{ $$ = calloc (sizeof *$$, 1); $$->name = $1; $$->loc = @$; }
+|	ipiecenpnm iop			{ $$ = $1; ADDARRAY($$->iops, $2); $$->loc = @$; }
 ;
 
 mods:	/**/				{ $$.mods = 0; $$.modsnum = 0; $$.modsmax = 0; }

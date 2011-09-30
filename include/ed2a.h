@@ -27,6 +27,9 @@ struct ed2a_ipiece {
 	struct ed2a_iop **iops;
 	int iopsnum;
 	int iopsmax;
+	char **mods;
+	int modsnum;
+	int modsmax;
 	struct ed2_loc loc;
 };
 

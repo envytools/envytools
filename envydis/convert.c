@@ -50,6 +50,11 @@ void convert_ipiece(struct line *line, struct ed2a_ipiece *ipiece) {
 	for (i = 0; i < ipiece->iopsnum; i++) {
 		convert_iop(line, ipiece->iops[i]);
 	}
+	for (i = 0; i < ipiece->modsnum; i++) {
+		struct expr *e = makeex(EXPR_ID);
+		e->str = ipiece->mods[i];
+		ADDARRAY(line->atoms, e);
+	}
 }
 
 struct expr *convert_expr(struct ed2a_expr *expr) {
