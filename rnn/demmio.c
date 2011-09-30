@@ -221,6 +221,7 @@ int main(int argc, char **argv) {
 	const struct disisa *ctx_isa = ed_getisa("ctx");
 	int ctx_var_nv40 = ed_getvariant(ctx_isa, "nv40");
 	int ctx_var_nv50 = ed_getvariant(ctx_isa, "nv50");
+	const struct ed2a_colors *discolors = &ed2a_def_colors;
 	while (1) {
 		/* yes, static buffer. but mmiotrace lines are bound to have sane length anyway. */
 		if (!fgets(line, sizeof(line), fin))
@@ -266,7 +267,7 @@ int main(int argc, char **argv) {
 				if (cc->bar0 && addr >= cc->bar0 && addr < cc->bar0+cc->bar0l) {
 					addr -= cc->bar0;
 					if (cc->hwsqip && addr != cc->hwsqnext) {
-						envydis(ed_getisa("hwsq"), stdout, cc->hwsq, 0, cc->hwsqnext & 0x3fc, -1, -1, 0, 0, 0);
+						envydis(ed_getisa("hwsq"), stdout, cc->hwsq, 0, cc->hwsqnext & 0x3fc, -1, -1, 0, 0, 0, discolors);
 						cc->hwsqip = 0;
 					}
 					if (addr == 0 && !cc->chdone) {
@@ -380,7 +381,7 @@ int main(int argc, char **argv) {
 						param[3] = value >> 24;
 						struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, mmiodom, addr, line[0] == 'W');
 						printf ("[%d] MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %s %s ", cci, width, line[0], addr, value, ai->name, line[0]=='W'?"<=":"=>");
-						envydis(ctx_isa, stdout, param, cc->ctxpos, 4, cc->arch == 5 ? ctx_var_nv50 : ctx_var_nv40, -1, 0, 0, 0);
+						envydis(ctx_isa, stdout, param, cc->ctxpos, 4, cc->arch == 5 ? ctx_var_nv50 : ctx_var_nv40, -1, 0, 0, 0, discolors);
 						cc->ctxpos++;
 						free(ai->name);
 						free(ai);
