@@ -14,7 +14,7 @@ enum {
 } envyas_ofmt = OFMT_HEX8;
 
 int envyas_ptype = -1;
-int envyas_vartype = -1;
+int envyas_feats = 0;
 
 char *envyas_outname = 0;
 
@@ -157,7 +157,7 @@ int envyas_process(struct file *file) {
 	ctx->reverse = 1;
 	ctx->isa = envyas_isa;
 	ctx->ptype = envyas_ptype;
-	ctx->vartype = envyas_vartype;
+	ctx->feats = envyas_feats;
 	struct matches *im = calloc(sizeof *im, file->linesnum);
 	for (i = 0; i < file->linesnum; i++) {
 		if (file->lines[i]->type == LINE_INSN) {
@@ -473,11 +473,12 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 	if (varname) {
-		envyas_vartype = ed_getvariant(envyas_isa, varname);
-		if (!envyas_vartype) {
+		const struct disvariant *var = ed_getvariant(envyas_isa, varname);
+		if (!var) {
 			fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
 			return 1;
 		}
+		envyas_feats = var->feats;
 	}
 	struct file *file = calloc(sizeof *file, 1);
 	int i;

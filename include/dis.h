@@ -146,7 +146,7 @@ struct sreg {
 		SR_ONE,
 		SR_DISCARD,
 	} mode;
-	int vartype;
+	int fmask;
 };
 
 struct reg {
@@ -187,7 +187,7 @@ struct insn {
 	ull val;
 	ull mask;
 	struct atom atoms[16];
-	int vartype;
+	int fmask;
 	int ptype;
 };
 
@@ -225,7 +225,7 @@ struct disctx {
 	const char **names;
 	uint32_t codebase;
 	uint32_t codesz;
-	int vartype;
+	int feats;
 	int ptype;
 	int oplen;
 	uint32_t pos;
@@ -242,7 +242,7 @@ struct disctx {
 
 struct disvariant {
 	const char *name;
-	int vartype;
+	int feats;
 };
 
 struct disisa {
@@ -361,8 +361,8 @@ int setsbf (struct match *res, int pos, int len, ull num);
 	{ 0, 0, OOPS },\
 };
 #define F1V(n, v, f, b) static struct insn tab ## n[] = {\
-	{ 0,		1ull<<(f), .vartype = v },\
-	{ 1ull<<(f),	1ull<<(f), b, .vartype = v },\
+	{ 0,		1ull<<(f), .fmask = v },\
+	{ 1ull<<(f),	1ull<<(f), b, .fmask = v },\
 	{ 0, 0 },\
 };
 
@@ -431,9 +431,9 @@ ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx);
 extern const struct ed2a_colors *ed2a_colors;
 
 const struct disisa *ed_getisa(const char *name);
-int ed_getvariant(const struct disisa *isa, const char *name);
+const struct disvariant *ed_getvariant(const struct disisa *isa, const char *name);
 
-void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int vartype, int ptype, int quiet, struct label *labels, int labelsnum, const struct ed2a_colors *cols);
+void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int feats, int ptype, int quiet, struct label *labels, int labelsnum, const struct ed2a_colors *cols);
 void printexpr(FILE *out, const struct expr *expr, int lvl, const struct ed2a_colors *cols);
 
 #endif

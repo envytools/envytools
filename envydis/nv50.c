@@ -221,15 +221,10 @@
  *    anyway.
  */
 
-#define NV50  0x01
-#define NV84  0x02
-#define NVA0  0x04
-#define NVAA  0x08
-#define NVA3  0x10
-
-#define NV84P NV84|NVA0|NVAA|NVA3
-#define NVA0P NVA0|NVAA|NVA3
-#define NVA3P NVA3
+#define F_SM11		0x01
+#define F_SM12		0x02
+#define F_FP64		0x04
+#define F_D3D10_1	0x08
 
 /*
  * Code target field
@@ -357,7 +352,7 @@ static struct sreg sreg_sr[] = {
 	{ 5, "pm1" },
 	{ 6, "pm2" },
 	{ 7, "pm3" },
-	{ 8, "sampleid", .vartype = NVA3P },
+	{ 8, "sampleid", .fmask = F_D3D10_1 },
 	{ -1 },
 };
 static struct bitfield sdst_bf = { 2, 6 };
@@ -806,7 +801,7 @@ static struct insn tabs[] = {
 	{ 0, 2, OOPS, SDST, T(ssw), T(scw) },
 
 	{ 0x90000002, 0xf0000002, N("trap") },
-	{ 0xb0000002, 0xf0000002, N("brkpt"), .vartype = NV84P },
+	{ 0xb0000002, 0xf0000002, N("brkpt"), .fmask = F_SM11 },
 
 	{ 0, 0, OOPS }
 };
@@ -972,14 +967,14 @@ static struct insn tabldstm[] = { // we seriously need to unify these, if possib
 };
 
 static struct insn tabraadd[] = {
-	{ 0x0080000000000000ull, 0x00e0000000000000ull, N("u64"), .vartype = NVA0P },
+	{ 0x0080000000000000ull, 0x00e0000000000000ull, N("u64"), .fmask = F_SM12 },
 	{ 0x00c0000000000000ull, 0x00e0000000000000ull, N("u32") },
 	{ 0x00e0000000000000ull, 0x00e0000000000000ull, N("s32") },
 	{ 0, 0, OOPS }
 };
 
 static struct insn tabrab[] = {
-	{ 0x0080000000000000ull, 0x00e0000000000000ull, N("b64"), .vartype = NVA0P },
+	{ 0x0080000000000000ull, 0x00e0000000000000ull, N("b64"), .fmask = F_SM12 },
 	{ 0x00c0000000000000ull, 0x00e0000000000000ull, N("b32") },
 	{ 0, 0, OOPS }
 };
@@ -1263,7 +1258,7 @@ static struct insn tabaddcond2[] = {
 };
 
 F(sstreg, 0x35, LHSRC3, LSRC3)
-F1V(unlock, NVA0P, 0x37, N("unlock"))
+F1V(unlock, F_SM12, 0x37, N("unlock"))
 F(csldreg, 0x3a, LLHDST, LLDST)
 
 static struct insn tabl[] = {
@@ -1291,14 +1286,14 @@ static struct insn tabl[] = {
 	// desc VVV
 	{ 0x2000000010000000ull, 0xe0000000f0000000ull, N("ld"), T(csldreg), T(fcon) },
 
-	{ 0x4000000010000000ull, 0xe000c000f0000000ull, N("ld"), T(csldreg), N("u8"), T(fs8), .vartype = NV84P, .ptype = CP },
-	{ 0x4000400010000000ull, 0xe000c000f0000000ull, N("ld"), T(csldreg), N("u16"), T(fs16), .vartype = NV84P, .ptype = CP },
-	{ 0x4000800010000000ull, 0xe000c000f0000000ull, N("ld"), T(csldreg), N("s16"), T(fs16), .vartype = NV84P, .ptype = CP },
-	{ 0x4000c00010000000ull, 0xe080c000f0000000ull, N("ld"), T(csldreg), N("b32"), T(fs32), .vartype = NV84P, .ptype = CP },
-	{ 0x4080c04010000000ull, 0xe080c040f0000000ull, N("ld"), N("lock"), CDST, T(csldreg), N("b32"), T(fs32), .vartype = NVA0P, .ptype = CP },
+	{ 0x4000000010000000ull, 0xe000c000f0000000ull, N("ld"), T(csldreg), N("u8"), T(fs8), .fmask = F_SM11, .ptype = CP },
+	{ 0x4000400010000000ull, 0xe000c000f0000000ull, N("ld"), T(csldreg), N("u16"), T(fs16), .fmask = F_SM11, .ptype = CP },
+	{ 0x4000800010000000ull, 0xe000c000f0000000ull, N("ld"), T(csldreg), N("s16"), T(fs16), .fmask = F_SM11, .ptype = CP },
+	{ 0x4000c00010000000ull, 0xe080c000f0000000ull, N("ld"), T(csldreg), N("b32"), T(fs32), .fmask = F_SM11, .ptype = CP },
+	{ 0x4080c04010000000ull, 0xe080c040f0000000ull, N("ld"), N("lock"), CDST, T(csldreg), N("b32"), T(fs32), .fmask = F_SM12, .ptype = CP },
 
-	{ 0x6000000010000200ull, 0xe0000000f0000600ull, N("vote"), N("any"), CDST, IGNCE, .vartype = NVA0P },
-	{ 0x6000000010000400ull, 0xe0000000f0000600ull, N("vote"), N("all"), CDST, IGNCE, .vartype = NVA0P },
+	{ 0x6000000010000200ull, 0xe0000000f0000600ull, N("vote"), N("any"), CDST, IGNCE, .fmask = F_SM12 },
+	{ 0x6000000010000400ull, 0xe0000000f0000600ull, N("vote"), N("all"), CDST, IGNCE, .fmask = F_SM12 },
 	// desc ^^^
 
 	// 2 and 3
@@ -1363,10 +1358,10 @@ static struct insn tabl[] = {
 	{ 0xcc004000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrint), N("f32"), MCDST, LLDST, N("f32"), T(lsw) },
 	{ 0xc4000000a0000000ull, 0xc4404000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), N("f32"), MCDST, LLDST, N("f16"), T(lsh) },
 
-	{ 0xc0404000a0000000ull, 0xc4404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrnd), N("f32"), MCDST, LLDST, N("f64"), LDSRC, .vartype = NVA0 },
-	{ 0xc4404000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), N("f64"), MCDST, LDDST, N("f64"), LDSRC, .vartype = NVA0 },
-	{ 0xcc404000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("f64"), MCDST, LDDST, N("f64"), LDSRC, .vartype = NVA0 },
-	{ 0xc4400000a0000000ull, 0xc4404000f0000000ull, N("cvt"), T(cvtmod), N("f64"), MCDST, LDDST, N("f32"), T(lsw), .vartype = NVA0 },
+	{ 0xc0404000a0000000ull, 0xc4404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrnd), N("f32"), MCDST, LLDST, N("f64"), LDSRC, .fmask = F_FP64 },
+	{ 0xc4404000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), N("f64"), MCDST, LDDST, N("f64"), LDSRC, .fmask = F_FP64 },
+	{ 0xcc404000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("f64"), MCDST, LDDST, N("f64"), LDSRC, .fmask = F_FP64 },
+	{ 0xc4400000a0000000ull, 0xc4404000f0000000ull, N("cvt"), T(cvtmod), N("f64"), MCDST, LDDST, N("f32"), T(lsw), .fmask = F_FP64 },
 
 	{ 0x80000000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("u16"), MCDST, LLHDST, N("f16"), T(lsh) },
 	{ 0x80004000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("u16"), MCDST, LLHDST, N("f32"), T(lsw) },
@@ -1377,22 +1372,22 @@ static struct insn tabl[] = {
 	{ 0x8c000000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("s32"), MCDST, LLDST, N("f16"), T(lsh) },
 	{ 0x8c004000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("s32"), MCDST, LLDST, N("f32"), T(lsw) },
 
-	{ 0x80404000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("u32"), MCDST, LLDST, N("f64"), LDSRC, .vartype = NVA0 },
-	{ 0x88404000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("s32"), MCDST, LLDST, N("f64"), LDSRC, .vartype = NVA0 },
-	{ 0x84400000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("u64"), MCDST, LDDST, N("f32"), T(lsw), .vartype = NVA0 },
-	{ 0x84404000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("u64"), MCDST, LDDST, N("f64"), LDSRC, .vartype = NVA0 },
-	{ 0x8c400000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("s64"), MCDST, LDDST, N("f32"), T(lsw), .vartype = NVA0 },
-	{ 0x8c404000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("s64"), MCDST, LDDST, N("f64"), LDSRC, .vartype = NVA0 },
+	{ 0x80404000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("u32"), MCDST, LLDST, N("f64"), LDSRC, .fmask = F_FP64 },
+	{ 0x88404000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("s32"), MCDST, LLDST, N("f64"), LDSRC, .fmask = F_FP64 },
+	{ 0x84400000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("u64"), MCDST, LDDST, N("f32"), T(lsw), .fmask = F_FP64 },
+	{ 0x84404000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("u64"), MCDST, LDDST, N("f64"), LDSRC, .fmask = F_FP64 },
+	{ 0x8c400000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("s64"), MCDST, LDDST, N("f32"), T(lsw), .fmask = F_FP64 },
+	{ 0x8c404000a0000000ull, 0xcc404000f0000000ull, N("cvt"), T(cvtmod), T(cvtrint), N("s64"), MCDST, LDDST, N("f64"), LDSRC, .fmask = F_FP64 },
 
 	{ 0x40000000a0000000ull, 0xc4400000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f16"), MCDST, LLHDST, T(cvtiisrc) },
 	{ 0x44000000a0000000ull, 0xc4400000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f32"), MCDST, LLDST, T(cvtiisrc) },
 
-	{ 0x44400000a0000000ull, 0xc4414000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f64"), MCDST, LDDST, N("u32"), T(lsw), .vartype = NVA0 },
-	{ 0x44410000a0000000ull, 0xc4414000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f64"), MCDST, LDDST, N("s32"), T(lsw), .vartype = NVA0 },
-	{ 0x40404000a0000000ull, 0xc4414000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f32"), MCDST, LLDST, N("u64"), LDSRC, .vartype = NVA0 },
-	{ 0x40414000a0000000ull, 0xc4414000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f32"), MCDST, LLDST, N("s64"), LDSRC, .vartype = NVA0 },
-	{ 0x44404000a0000000ull, 0xc4414000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f64"), MCDST, LDDST, N("u64"), LDSRC, .vartype = NVA0 },
-	{ 0x44414000a0000000ull, 0xc4414000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f64"), MCDST, LDDST, N("s64"), LDSRC, .vartype = NVA0 },
+	{ 0x44400000a0000000ull, 0xc4414000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f64"), MCDST, LDDST, N("u32"), T(lsw), .fmask = F_FP64 },
+	{ 0x44410000a0000000ull, 0xc4414000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f64"), MCDST, LDDST, N("s32"), T(lsw), .fmask = F_FP64 },
+	{ 0x40404000a0000000ull, 0xc4414000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f32"), MCDST, LLDST, N("u64"), LDSRC, .fmask = F_FP64 },
+	{ 0x40414000a0000000ull, 0xc4414000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f32"), MCDST, LLDST, N("s64"), LDSRC, .fmask = F_FP64 },
+	{ 0x44404000a0000000ull, 0xc4414000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f64"), MCDST, LDDST, N("u64"), LDSRC, .fmask = F_FP64 },
+	{ 0x44414000a0000000ull, 0xc4414000f0000000ull, N("cvt"), T(cvtmod), T(s35sat), T(cvtrnd), N("f64"), MCDST, LDDST, N("s64"), LDSRC, .fmask = F_FP64 },
 
 	{ 0x00000000a0000000ull, 0xcc080000f0000000ull, N("cvt"), T(cvtmod), N("u16"), MCDST, LLHDST, T(cvtiisrc) },
 	{ 0x00080000a0000000ull, 0xcc080000f0000000ull, N("cvt"), T(cvtmod), N("u8"), MCDST, LLHDST, T(cvtiisrc) },
@@ -1443,18 +1438,18 @@ static struct insn tabl[] = {
 
 	{ 0x80000000d0000000ull, 0xe0000000f0000000ull, N("ld"), T(ldstm), T(ldsto), GLOBAL, .ptype = CP },
 	{ 0xa0000000d0000000ull, 0xe0000000f0000000ull, N("st"), T(ldstm), GLOBAL, T(ldsto), .ptype = CP },
-	{ 0xc0000000d0000000ull, 0xe0000000f0000000ull, T(redm), GLOBAL, T(ldsto), .vartype = NV84P, .ptype = CP },
-	{ 0xe0000000d0000000ull, 0xe0000000f0000000ull, T(atomm), T(ldsto), GLOBAL2, T(ldsts2), T(mldsts3), .vartype = NV84P, .ptype = CP },
+	{ 0xc0000000d0000000ull, 0xe0000000f0000000ull, T(redm), GLOBAL, T(ldsto), .fmask = F_SM11, .ptype = CP },
+	{ 0xe0000000d0000000ull, 0xe0000000f0000000ull, T(atomm), T(ldsto), GLOBAL2, T(ldsts2), T(mldsts3), .fmask = F_SM11, .ptype = CP },
 
 	// e
 	{ 0x00000000e0000000ull, 0xc0000000f0000000ull, N("add"), T(o0sat), N("f32"), MCDST, LLDST, T(m1neg), SESTART, N("mul"), T(lsw), T(lc2w), SEEND, T(m2neg), T(lc3w) },	// multiply, round, add, round. meh.
 
-	{ 0x40000000e0000000ull, 0xe0000000f0000000ull, N("fma"), T(mad64r), N("f64"), MCDST, LDDST, T(m1neg), LDSRC, LDSRC2, T(m2neg), LDSRC3, .vartype = NVA0 },	// *fused* multiply-add, no intermediate rounding :)
-	{ 0x60000000e0000000ull, 0xe0000000f0000000ull, N("add"), T(af64r), N("f64"), MCDST, LDDST, T(m1neg), LDSRC, T(m2neg), LDSRC3, .vartype = NVA0 },
-	{ 0x80000000e0000000ull, 0xe0000000f0000000ull, N("mul"), T(cvtrnd), N("f64"), MCDST, LDDST, T(m1neg), LDSRC, LDSRC2, .vartype = NVA0 },
-	{ 0xa0000000e0000000ull, 0xe0000000f0000000ull, N("min"), N("f64"), MCDST, LDDST, T(lfm1), LDSRC, T(lfm2), LDSRC2, .vartype = NVA0 },
-	{ 0xc0000000e0000000ull, 0xe0000000f0000000ull, N("max"), N("f64"), MCDST, LDDST, T(lfm1), LDSRC, T(lfm2), LDSRC2, .vartype = NVA0 },
-	{ 0xe0000000e0000000ull, 0xe0000000f0000000ull, N("set"), MCDST, LLDST, T(setf), N("f64"), T(lfm1), LDSRC, T(lfm2), LDSRC2, .vartype = NVA0 },
+	{ 0x40000000e0000000ull, 0xe0000000f0000000ull, N("fma"), T(mad64r), N("f64"), MCDST, LDDST, T(m1neg), LDSRC, LDSRC2, T(m2neg), LDSRC3, .fmask = F_FP64 },	// *fused* multiply-add, no intermediate rounding :)
+	{ 0x60000000e0000000ull, 0xe0000000f0000000ull, N("add"), T(af64r), N("f64"), MCDST, LDDST, T(m1neg), LDSRC, T(m2neg), LDSRC3, .fmask = F_FP64 },
+	{ 0x80000000e0000000ull, 0xe0000000f0000000ull, N("mul"), T(cvtrnd), N("f64"), MCDST, LDDST, T(m1neg), LDSRC, LDSRC2, .fmask = F_FP64 },
+	{ 0xa0000000e0000000ull, 0xe0000000f0000000ull, N("min"), N("f64"), MCDST, LDDST, T(lfm1), LDSRC, T(lfm2), LDSRC2, .fmask = F_FP64 },
+	{ 0xc0000000e0000000ull, 0xe0000000f0000000ull, N("max"), N("f64"), MCDST, LDDST, T(lfm1), LDSRC, T(lfm2), LDSRC2, .fmask = F_FP64 },
+	{ 0xe0000000e0000000ull, 0xe0000000f0000000ull, N("set"), MCDST, LLDST, T(setf), N("f64"), T(lfm1), LDSRC, T(lfm2), LDSRC2, .fmask = F_FP64 },
 
 	// f
 	// order of inputs: x, y, z, index, dref, bias/lod. index is integer, others float.
@@ -1476,17 +1471,17 @@ static struct insn tabl[] = {
 	{ 0x60000000f0000000ull, 0xf00f0000f0000000ull, N("texsize"), T(texf), LTDST, TEX, SAMP, LDST },
 
 	// input: 3 normalized cube coords [float], layer [int]; output: equivalent x, y, combined layer coords to pass to non-cube tex variants.
-	{ 0x60010000f8000000ull, 0xf00f0000f8000000ull, N("texprep"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC, .vartype = NVA3P },
+	{ 0x60010000f8000000ull, 0xf00f0000f8000000ull, N("texprep"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC, .fmask = F_D3D10_1 },
 
 	// returned values are FIXED-point with 6 fractional bits
-	{ 0x60020000f0000000ull, 0xf00f0000f8000000ull, N("texquerylod"), T(texf), LTDST, TEX, SAMP, LTSRC, .vartype = NVA3P },
-	{ 0x60020000f8000000ull, 0xf00f0000f8000000ull, N("texquerylod"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC, .vartype = NVA3P },
+	{ 0x60020000f0000000ull, 0xf00f0000f8000000ull, N("texquerylod"), T(texf), LTDST, TEX, SAMP, LTSRC, .fmask = F_D3D10_1 },
+	{ 0x60020000f8000000ull, 0xf00f0000f8000000ull, N("texquerylod"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC, .fmask = F_D3D10_1 },
 
 	// in: float coords + CSAA mask from ZETA
 	{ 0x80000000f0000000ull, 0xf0000000f1000000ull, N("texcsaa"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ },
 
-	{ 0x80000000f1000000ull, 0xf0000000f9000000ull, N("texgather"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ, .vartype = NVA3P },
-	{ 0x80000000f9000000ull, 0xf0000000f9000000ull, N("texgather"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC, .vartype = NVA3P },
+	{ 0x80000000f1000000ull, 0xf0000000f9000000ull, N("texgather"), T(texf), LTDST, TEX, SAMP, LTSRC, TOFFX, TOFFY, TOFFZ, .fmask = F_D3D10_1 },
+	{ 0x80000000f9000000ull, 0xf0000000f9000000ull, N("texgather"), N("cube"), T(texf), LTDST, TEX, SAMP, LTSRC, .fmask = F_D3D10_1 },
 
 	{ 0xc0000000f0000200ull, 0xe0000000f0000600ull, N("emit"), .ptype = GP },
 	{ 0xc0000000f0000400ull, 0xe0000000f0000600ull, N("restart"), .ptype = GP },
@@ -1549,9 +1544,9 @@ static struct insn tabc[] = {
 	{ 0x0000400080000000ull, 0x00004000f0000000ull, IGNPRED, N("bar"), T(barinc), T(barwait), BAR, N("all") },
 	{ 0x0000000090000000ull, 0x00000000f0000000ull, IGNPRED, N("trap") },
 	{ 0x00000000a0000000ull, 0x00000000f0000000ull, IGNPRED, N("joinat"), BTARG },
-	{ 0x00000000b0000000ull, 0x00000000f0000000ull, T(p), N("brkpt"), .vartype = NV84P },
-	{ 0x00000000c0000000ull, 0x00000000f0000000ull, IGNPRED, N("bra"), T(lim), FCONST8, .vartype = NVA0P },
-	{ 0x00000000d0000000ull, 0x00000000f0000000ull, IGNPRED, N("preret"), T(lim), BTARG, .vartype = NVA0P },
+	{ 0x00000000b0000000ull, 0x00000000f0000000ull, T(p), N("brkpt"), .fmask = F_SM11 },
+	{ 0x00000000c0000000ull, 0x00000000f0000000ull, IGNPRED, N("bra"), T(lim), FCONST8, .fmask = F_D3D10_1 }, /* XXX: check variants */
+	{ 0x00000000d0000000ull, 0x00000000f0000000ull, IGNPRED, N("preret"), T(lim), BTARG, .fmask = F_D3D10_1 },
 	{ 0, 0, T(p), OOPS, BTARG },
 };
 
@@ -1570,11 +1565,11 @@ static struct insn tabroot[] = {
 };
 
 static const struct disvariant nv50_vars[] = {
-	"nv50", NV50,
-	"nv84", NV84,
-	"nva0", NVA0,
-	"nvaa", NVAA,
-	"nva3", NVA3,
+	"nv50", 0,
+	"nv84", F_SM11,
+	"nva0", F_SM11 | F_SM12 | F_FP64,
+	"nvaa", F_SM11 | F_SM12,
+	"nva3", F_SM11 | F_SM12 | F_D3D10_1,
 };
 
 const struct disisa nv50_isa_s = {

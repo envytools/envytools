@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
 			w = 1;
 	}
 	int ptype = -1;
-	int vartype = -1;
+	int feats = 0;
 	int c;
 	unsigned base = 0, skip = 0, limit = 0;
 	while ((c = getopt (argc, argv, "vgfpcsb:d:l:m:V:wWinqu:M:")) != -1)
@@ -171,11 +171,12 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 	if (varname) {
-		vartype = ed_getvariant(isa, varname);
-		if (!vartype) {
+		const struct disvariant *var = ed_getvariant(isa, varname);
+		if (!var) {
 			fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
 			return 1;
 		}
+		feats = var->feats;
 	}
 	int num = 0;
 	int maxnum = 16;
@@ -224,6 +225,6 @@ int main(int argc, char **argv) {
 	int cnt = num - skip;
 	if (limit && limit < cnt)
 		cnt = limit;
-	envydis (isa, stdout, code+skip, base, cnt, vartype, ptype, quiet, labels, labelsnum, cols);
+	envydis (isa, stdout, code+skip, base, cnt, feats, ptype, quiet, labels, labelsnum, cols);
 	return 0;
 }
