@@ -1,5 +1,7 @@
 #include "ed2s.h"
+#include "util.h"
 #include <stdlib.h>
+#include <string.h>
 
 /* the last one is not a prime - elf hash only goes up to 2^28-1, no point in having more buckets */
 static const int primes[] = { 127, 509, 2039, 8191, 32749, 131071, 524287, 2097143, 8388593, 33554393, 134217689, 268435456 };
@@ -16,6 +18,9 @@ struct ed2s_symtab *ed2s_symtab_new() {
 }
 
 void ed2s_symtab_del(struct ed2s_symtab *tab) {
+	int i;
+	for (i = 0; i < tab->symsnum; i++)
+		free(tab->syms[i].name);
 	free(tab->buckets);
 	free(tab->syms);
 	free(tab);
@@ -31,9 +36,10 @@ int ed2s_symtab_get(struct ed2s_symtab *tab, const char *name) {
 	return -1;
 }
 
-int ed2s_symtab_put(struct ed2s_symtab *tab, char *name) {
-	if (ed2_symtab_get(tab, name) != -1)
+int ed2s_symtab_put(struct ed2s_symtab *tab, const char *cname) {
+	if (ed2s_symtab_get(tab, cname) != -1)
 		return -1;
+	char *name = strdup(cname);
 	struct ed2s_sym sym;
 	uint32_t hash = ed2s_elf_hash(name);
 	int bucket = hash % tab->bucketsnum;
