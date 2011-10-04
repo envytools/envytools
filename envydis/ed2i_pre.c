@@ -74,7 +74,7 @@ int ed2ip_transform_features(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 				fprintf (stderr, ED2_LOC_FORMAT(preisa->features[i]->loc, "Undefined feature %s\n"), preisa->features[i]->conflicts[j]);
 				broken = 1;
 			} else if (isa->symtab->syms[idx].type != ED2I_ST_FEATURE) {
-				fprintf (stderr, ED2_LOC_FORMAT(preisa->features[i]->loc, "Implied symbol %s is not a feature\n"), preisa->features[i]->conflicts[j]);
+				fprintf (stderr, ED2_LOC_FORMAT(preisa->features[i]->loc, "Conflicting symbol %s is not a feature\n"), preisa->features[i]->conflicts[j]);
 				broken = 1;
 			} else {
 				isa->features[i].conflicts[j] = isa->symtab->syms[idx].idata;
@@ -100,7 +100,7 @@ int ed2ip_transform_variants(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 				fprintf (stderr, ED2_LOC_FORMAT(preisa->variants[i]->loc, "Redefined symbol %s\n"), preisa->variants[i]->names[j]);
 				broken = 1;
 			} else {
-				isa->symtab->syms[idx].type = ED2I_ST_FEATURE;
+				isa->symtab->syms[idx].type = ED2I_ST_VARIANT;
 				isa->symtab->syms[idx].idata = i;
 			}
 		}
@@ -114,10 +114,10 @@ int ed2ip_transform_variants(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 			isa->variants[i].features[j] = -1;
 			int idx = ed2s_symtab_get(isa->symtab, preisa->variants[i]->features[j]);
 			if (idx == -1) {
-				fprintf (stderr, ED2_LOC_FORMAT(preisa->variants[i]->loc, "Undefined variant %s\n"), preisa->variants[i]->features[j]);
+				fprintf (stderr, ED2_LOC_FORMAT(preisa->variants[i]->loc, "Undefined feature %s\n"), preisa->variants[i]->features[j]);
 				broken = 1;
 			} else if (isa->symtab->syms[idx].type != ED2I_ST_FEATURE) {
-				fprintf (stderr, ED2_LOC_FORMAT(preisa->variants[i]->loc, "Implied symbol %s is not a variant\n"), preisa->variants[i]->features[j]);
+				fprintf (stderr, ED2_LOC_FORMAT(preisa->variants[i]->loc, "Symbol %s is not a feature\n"), preisa->variants[i]->features[j]);
 				broken = 1;
 			} else {
 				isa->variants[i].features[j] = isa->symtab->syms[idx].idata;
