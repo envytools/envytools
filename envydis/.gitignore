@@ -1,9 +1,10 @@
 envydis
 envyas
-ed2a_lex.c
-ed2a_lex.h
-ed2a_parse.c
-ed2a_parse.h
+ed2*_lex.c
+ed2*_lex.h
+ed2*_parse.c
+ed2*_parse.h
 ed2acat
+ed2itest
 libed2.a
 libenvy.a

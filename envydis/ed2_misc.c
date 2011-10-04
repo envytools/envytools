@@ -73,3 +73,10 @@ char *ed2_str_deescape(char *str, uint64_t *len) {
 	*len = rlen;
 	return res;
 }
+
+void ed2_free_strings(char **strs, int strsnum) {
+	int i;
+	for (i = 0; i < strsnum; i++)
+		free(strs[i]);
+	free(strs);
+}

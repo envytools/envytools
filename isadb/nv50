@@ -1,0 +1,12 @@
+FEATURE sm11	"SM11 new opcodes";
+FEATURE sm12	"SM12 new opcodes"	IMPLIES sm11;
+FEATURE fp64	"64-bit floating point";
+FEATURE d3d10_1	"Direct3D 10.1 new features";
+
+VARIANT nv50	"NV50";
+VARIANT nv84	"NV84:NVA0"	FEATURE sm11;
+VARIANT nva0	"NVA0"		FEATURE sm12 fp64;
+VARIANT nvaa	"NVAA, NVAC"	FEATURE sm12;
+VARIANT nva3	"NVA3+"		FEATURE sm12 d3d10_1;
+
+

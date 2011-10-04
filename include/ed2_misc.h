@@ -22,4 +22,6 @@ struct ed2_astr {
 	uint64_t len;
 };
 
+void ed2_free_strings(char **strs, int strsnum);
+
 #endif

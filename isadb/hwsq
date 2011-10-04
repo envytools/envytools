@@ -1,0 +1,4 @@
+FEATURE nv41op "NV41+ opcodes";
+
+VARIANT nv17 "NV17:NV41";
+VARIANT nv41 "NV41+" FEATURE nv41op;
