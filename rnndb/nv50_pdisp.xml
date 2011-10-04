@@ -8,6 +8,68 @@
 <import file="nv_vga.xml" />
 <import file="nv98_fuc.xml" />
 
+<group name="NV_HDMI">
+	<array offset="0x000" name="AUDIO_INFOFRAME" length="1">
+		<reg32 offset="0x000" name="CTRL">
+			<bitfield pos="0" name="ENABLE"/>
+			<bitfield pos="4" name="OTHER"/>
+			<bitfield pos="8" name="SINGLE"/>
+		</reg32>
+		<reg32 offset="0x004" name="STATUS"/>
+		<reg32 offset="0x008" name="HEADER"/>
+		<reg32 offset="0x00c" name="SUBPACK" length="2"/>
+	</array>
+	<array offset="0x020" name="AVI_INFOFRAME" length="1">
+		<reg32 offset="0x000" name="CTRL">
+			<bitfield pos="0" name="ENABLE"/>
+			<bitfield pos="4" name="OTHER"/>
+			<bitfield pos="8" name="SINGLE"/>
+		</reg32>
+		<reg32 offset="0x004" name="STATUS"/>
+		<reg32 offset="0x008" name="HEADER"/>
+		<reg32 offset="0x00c" name="SUBPACK" length="4"/>
+	</array>
+	<array offset="0x03c" name="GENERIC" length="1">
+		<reg32 offset="0x000" name="CTRL">
+			<bitfield pos="0" name="ENABLE"/>
+			<bitfield pos="4" name="OTHER"/>
+			<bitfield pos="8" name="SINGLE"/>
+			<bitfield pos="12" name="HBLANK"/>
+			<bitfield pos="16" name="AUDIO"/>
+		</reg32>
+		<reg32 offset="0x004" name="STATUS"/>
+		<reg32 offset="0x008" name="HEADER"/>
+		<reg32 offset="0x00c" name="SUBPACK" length="8"/>
+	</array>
+	<array offset="0x068" name="ACR">
+		<reg32 offset="0x000" name="CTRL"/>
+		<reg32 offset="0x004" name="SUBPACK_LOW" stride="8" length="7">
+			<bitfield low="8" high="31" name="CTS"/>
+		</reg32>
+		<reg32 offset="0x008" name="SUBPACK_HIGH" stride="8" length="7">
+			<bitfield low="0" high="23" name="N"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+	</array>
+	<reg32 offset="0x0a4" name="CTRL">
+		<bitfield low="0" high="6" name="REKEY"/>
+		<bitfield pos="8" name="AUDIO_LAYOUT"/>
+		<bitfield pos="12" name="SAMPLE_FLAT"/>
+		<bitfield low="16" high="20" name="MAX_AC_PACKET"/>
+		<bitfield pos="30" name="ENABLE"/>
+	</reg32>
+	<reg32 offset="0x0a8" name="VSYNC_KEEPOUT">
+		<bitfield low="0" high="9" name="END"/>
+		<bitfield low="16" high="25" name="START"/>
+		<bitfield pos="31" name="ENABLE"/>
+	</reg32>
+	<reg32 offset="0x0ac" name="VSYNC_WINDOW">
+		<bitfield low="0" high="9" name="END"/>
+		<bitfield low="16" high="25" name="START"/>
+		<bitfield pos="31" name="ENABLE"/>
+	</reg32>
+</group>
+
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 	<array name="PRMIO" offset="0x601000" stride="0x1000" length="1" variants="NV50-">
 		<!-- as opposed to earlier cards, NV50+ keep all the legacy regs in one place. -->
@@ -209,6 +271,43 @@
 			<reg32 name="HORZ" offset="0x344">
 				<bitfield low="0" high="15" name="HLINE"/>
 			</reg32>
+		</array>
+
+		<array offset="0x6500" name="HDMI" stride="0x800" length="2" variants="NV50:NVA3">
+			<use-group name="NV_HDMI"/>
+		</array>
+
+		<array offset="0x7300" name="AUDIO">
+			<reg32 offset="0x000" name="DEBUG0"/>
+			<reg32 offset="0x004" name="DEBUG1"/>
+			<reg32 offset="0x008" name="DEBUG2"/>
+			<reg32 offset="0x00c" name="FS" length="7">
+				<bitfield low="0" high="11" name="LOW"/>
+				<bitfield low="16" high="27" name="HIGH"/>
+			</reg32>
+			<reg32 offset="0x030" name="CNTRL0">
+				<bitfield low="0" high="7" name="ERROR_TOLERANCE"/>
+				<bitfield pos="8" name="SOFT_RESET"/>
+				<bitfield pos="12" name="SOFT_RESET_ALL"/>
+				<bitfield low="16" high="19" name="SAMPLING_FREQ"/>
+				<bitfield low="20" high="21" name="SOURCE_SELECT">
+					<value value="0" name="AUTO"/>
+					<value value="1" name="SPDIF"/>
+					<value value="2" name="HDAL"/>
+				</bitfield>
+				<bitfield low="24" high="31" name="FRAMES_PER_BLOCK"/>
+			</reg32>
+			<reg32 offset="0x03c" name="N">
+				<bitfield low="0" high="19" name="VALUE"/>
+				<bitfield pos="20" name="RESETF"/>
+				<bitfield pos="24" name="GENERATE">
+					<value value="0" name="NORMAL"/>
+					<value value="1" name="ALTERNATIVE"/>
+				</bitfield>
+				<bitfield pos="28" name="LOOKUP_ENABLE"/>
+			</reg32>
+			<reg32 offset="0x04c" name="UNK04C" length="7"/> <!-- nvidia write at same time as FS -->
+			<reg32 offset="0x0e0" name="UNK0E0" length="7"/> <!-- nvidia write at same time as FS -->
 		</array>
 
 		<array offset="0x9000" name="VGA" stride="0x1000" length="1">
