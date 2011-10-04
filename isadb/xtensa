@@ -1,0 +1,48 @@
+FEATURE density		"Code density option";
+FEATURE loop		"Loop option";
+FEATURE el32r		"Extended L32R option"			CONFLICT mmu;
+FEATURE mul16		"16-bit integer multiply option";
+FEATURE mul32		"32-bit integer multiply option";
+FEATURE mul32high	"32-bit integer high multiply option"	IMPLIES mul32; /* considered part of mul32 by xtensa */
+FEATURE div32		"32-bit integer divide option";
+FEATURE mac16		"MAC16 option";
+FEATURE clamps		"Miscellaneous operations option - CLAMPS";
+FEATURE minmax		"Miscellaneous operations option - MIN, MAX, MINU, MAXU";
+FEATURE nsa		"Miscellaneous operations option - NSA, NSAU";
+FEATURE sext		"Miscellaneous operations option - SEXT";
+FEATURE coproc		"Coprocessor option"			IMPLIES exception;
+FEATURE boolean		"Boolean option";
+FEATURE float		"Floating-point coprocessor option"	IMPLIES coproc boolean;
+FEATURE mpsync		"Multiprocessor synchronization option";
+FEATURE condstore	"Conditional store option"		IMPLIES mpsync;
+
+FEATURE exception	"Exception option";
+FEATURE unalignedexc	"Unaligned exception option"		IMPLIES exception;
+FEATURE relocexc	"Relocatable vector option"		IMPLIES exception;
+FEATURE interrupt	"Interrupt option"			IMPLIES exception;
+FEATURE hpintr		"High-priority interrupt option"	IMPLIES interrupt;
+FEATURE timer		"Timer interrupt option"		IMPLIES interrupt;
+
+FEATURE icache		"Instruction cache option";
+FEATURE icachetest	"Instruction cache test option"		IMPLIES icache;
+FEATURE icachelock	"Instruction cache index lock option"	IMPLIES icache;
+FEATURE dcache		"Data cache option";
+FEATURE dcachetest	"Data cache test option"		IMPLIES dcache;
+FEATURE dcachelock	"Data cache index lock option"		IMPLIES dcache;
+FEATURE hwalign		"Hardware alignment option"		IMPLIES unalignedexc;
+FEATURE ecc		"Memory ECC/parity option"		IMPLIES exception;
+
+FEATURE cacheattr	"Cache attribute"			IMPLIES exception;
+FEATURE tlb		"TLB instructions"			IMPLIES exception;
+FEATURE mmu		"MMU option"				IMPLIES tlb;
+
+FEATURE window		"Windowed register option"		IMPLIES exception;
+FEATURE miscsr		"Miscellaneous special registers option";
+FEATURE threadptr	"Thread pointer option";
+FEATURE procid		"Processor ID option";
+FEATURE debug		"Debug option"				IMPLIES hpintr;
+FEATURE traceport	"Trace port option";
+
+FEATURE simulator	"Simulator features";
+
+VARIANT vp2		"nvidia VP2 video decoding core"	FEATURE density loop mul16 minmax boolean exception interrupt hpintr window debug;
