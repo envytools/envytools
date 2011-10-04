@@ -383,7 +383,7 @@
 			<reg32 offset="0xffc" name="DEAD_CAFE"/>
 		</array>
 
-		<array name="DAC_REGS" offset="0xA000" stride="0x800" length="3">
+		<array name="DAC" offset="0xa000" stride="0x800" length="3">
 			<reg32 name="DPMS_CTRL" offset="0x4">
 				<bitfield name="HSYNC_OFF" pos="0"/>
 				<bitfield name="VSYNC_OFF" pos="2"/>
@@ -406,32 +406,41 @@
 			</reg32>
 		</array>
 
-		<array name="SOR_REGS" offset="0xC000" stride="0x800" length="3">
-			<reg32 name="DPMS_CTRL" offset="0x4">
-				<bitfield name="ON" pos="0"/>
-				<bitfield name="PENDING" pos="31"/>
+		<array name="SOR" offset="0xc000" stride="0x800" length="4">
+			<reg32 offset="0x000" name="CAP"/>
+			<reg32 offset="0x004" name="PWR">
+				<bitfield pos="0" name="NORMAL_STATE">
+					<value value="0" name="PD"/>
+					<value value="1" name="PU"/>
+				</bitfield>
+				<bitfield pos="1" name="NORMAL_START">
+					<value value="0" name="NORMAL"/>
+					<value value="1" name="ALT"/>
+				</bitfield>
+				<bitfield pos="16" name="SAFE_STATE">
+					<value value="0" name="PD"/>
+					<value value="1" name="PU"/>
+				</bitfield>
+				<bitfield pos="17" name="SAFE_START">
+					<value value="0" name="NORMAL"/>
+					<value value="1" name="ALT"/>
+				</bitfield>
+				<bitfield pos="24" name="HALT_DELAY"/>
+				<bitfield pos="28" name="MODE"/>
+				<bitfield pos="31" name="TRIGGER"/>
 			</reg32>
-			<reg32 name="CLK_CTRL1" offset="0x8">
-				<bitfield name="CONNECTED" high="10" low="9"/>
+			<reg32 offset="0x00c" name="PLL0"/>
+			<reg32 offset="0x010" name="PLL1"/>
+			<reg32 offset="0x014" name="PLL2"/>
+			<reg32 offset="0x018" name="CSTM"/>
+			<reg32 offset="0x030" name="BLANK"/> <!-- guess -->
+			<reg32 offset="0x040" name="SEQ_INST" length="16"/>
+			<reg32 offset="0x080" name="PWM_DIV"/>
+			<reg32 offset="0x084" name="PWM_CTL">
+				<bitfield pos="31" name="TRIGGER"/>
 			</reg32>
-			<reg32 name="UNK_00C" offset="0xC"/>
-			<reg32 name="UNK_010" offset="0x10"/>
-			<reg32 name="UNK_014" offset="0x14"/>
-			<reg32 name="UNK_018" offset="0x18"/>
-			<reg32 name="DPMS_STATE" offset="0x30">
-				<doc>
-				These values only relate to the SOR's and are not meant for writing.
-				</doc>
-				<bitfield name="ACTIVE" high="17" low="16"/>
-				<bitfield name="BLANKED" pos="19"/>
-				<bitfield name="WAIT" pos="28"/>
-			</reg32>
-			<reg32 name="BACKLIGHT" offset="0x84">
-				<bitfield high="11" low="0" name="LEVEL"/> <!-- XXX: known to be larger on later cards -->
-				<bitfield pos="31" name="ENABLE"/>
-			</reg32>
-			<array offset="0x100" name="DP" stride="0x80" length="2">
-				<reg32 offset="0x0c" name="CTRL">
+			<array offset="0x100" name="LINK" stride="0x080" length="2">
+				<reg32 offset="0x0c" name="DP_CTRL">
 					<bitfield pos="14" name="ENHANCED_FRAME_ENABLED"/>
 					<bitfield high="20" low="16" name="LANE_MASK"/> <!-- XXX: not 19? -->
 					<bitfield high="27" low="24" name="TRAINING_PATTERN">
@@ -440,10 +449,8 @@
 						<value value="2" name="2"/>
 					</bitfield>
 				</reg32>
-				<reg32 offset="0x18" name="UNK18"/>
-				<reg32 offset="0x20" name="UNK20"/>
-				<reg32 offset="0x28" name="UNK28"/>
-				<reg32 offset="0x30" name="UNK30"/>
+				<reg32 offset="0x18" name="LANE_DRIVE_CURRENT"/>
+				<reg32 offset="0x20" name="LANE_PREEMPHASIS"/>
 			</array>
 		</array>
 		<array name="DAEMON" offset="0x17000" stride="0x1000" length="1" variants="NVD9-">
