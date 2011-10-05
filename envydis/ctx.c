@@ -264,17 +264,10 @@ static struct insn tabroot[] = {
 	{ 0, 0, OP32, T(m) },
 };
 
-static const struct disvariant ctx_vars[] = {
-	"nv40", F_NV40,
-	"nv50", F_NV50,
-};
-
 struct disisa ctx_isa_s = {
 	"ctx",
 	tabroot,
 	4,
 	4,
 	4,
-	.vars = ctx_vars,
-	.varsnum = sizeof ctx_vars / sizeof *ctx_vars,
 };

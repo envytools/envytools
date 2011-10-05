@@ -1564,14 +1564,6 @@ static struct insn tabroot[] = {
 	{ 0, 0, OOPS },
 };
 
-static const struct disvariant nv50_vars[] = {
-	"nv50", 0,
-	"nv84", F_SM11,
-	"nva0", F_SM11 | F_SM12 | F_FP64,
-	"nvaa", F_SM11 | F_SM12,
-	"nva3", F_SM11 | F_SM12 | F_D3D10_1,
-};
-
 struct disisa nv50_isa_s = {
 	"nv50",
 	tabroot,
@@ -1579,6 +1571,4 @@ struct disisa nv50_isa_s = {
 	4,
 	1,
 	.i_need_nv50as_hack = 1,
-	.vars = nv50_vars,
-	.varsnum = sizeof nv50_vars / sizeof *nv50_vars,
 };

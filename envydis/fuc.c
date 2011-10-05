@@ -568,24 +568,10 @@ static struct insn tabm[] = {
 	{ 0, 0, OOPS },
 };
 
-static const struct disvariant fuc_vars[] = {
-	"nv98", F_FUC0,
-	"0", F_FUC0,
-	"fuc0", F_FUC0,
-	"nva3", F_FUC3P,
-	"3", F_FUC3P,
-	"fuc3", F_FUC3P,
-	"nvd9", F_FUC3P | F_PC24,
-	"4", F_FUC3P | F_PC24,
-	"fuc4", F_FUC3P | F_PC24,
-};
-
 struct disisa fuc_isa_s = {
 	"fuc",
 	tabm,
 	4,
 	1,
 	1,
-	.vars = fuc_vars,
-	.varsnum = sizeof fuc_vars / sizeof *fuc_vars,
 };

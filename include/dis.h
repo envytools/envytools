@@ -35,6 +35,7 @@
 #include "util.h"
 #include "ed2a.h"
 #include "ed2i.h"
+#include "ed2v.h"
 
 /*
  * Table format
@@ -226,7 +227,7 @@ struct disctx {
 	const char **names;
 	uint32_t codebase;
 	uint32_t codesz;
-	int feats;
+	struct ed2v_variant *variant;
 	int ptype;
 	int oplen;
 	uint32_t pos;
@@ -241,11 +242,6 @@ struct disctx {
 	int endmark;
 };
 
-struct disvariant {
-	const char *name;
-	int feats;
-};
-
 struct disisa {
 	const char *ed2name;
 	struct insn *troot;
@@ -253,8 +249,6 @@ struct disisa {
 	int opunit;
 	int posunit;
 	int i_need_nv50as_hack;
-	const struct disvariant *vars;
-	int varsnum;
 	struct ed2i_isa *ed2;
 };
 
@@ -434,9 +428,8 @@ ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx);
 extern const struct ed2a_colors *ed2a_colors;
 
 const struct disisa *ed_getisa(const char *name);
-const struct disvariant *ed_getvariant(const struct disisa *isa, const char *name);
 
-void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int feats, int ptype, int quiet, struct label *labels, int labelsnum, const struct ed2a_colors *cols);
+void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, struct ed2v_variant *variant, int ptype, int quiet, struct label *labels, int labelsnum, const struct ed2a_colors *cols);
 void printexpr(FILE *out, const struct expr *expr, int lvl, const struct ed2a_colors *cols);
 
 #endif

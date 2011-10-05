@@ -77,17 +77,10 @@ static struct insn tabm[] = {
 	{ 0, 0, OP8, OOPS },
 };
 
-static const struct disvariant hwsq_vars[] = {
-	"nv17", 0,
-	"nv41", F_NV41P,
-};
-
 struct disisa hwsq_isa_s = {
 	"hwsq",
 	tabm,
 	5,
 	1,
 	1,
-	.vars = hwsq_vars,
-	.varsnum = sizeof hwsq_vars / sizeof *hwsq_vars,
 };
