@@ -10,4 +10,6 @@ nvatiming
 nvapms
 nvafuzz
 nvawatch
+nvacounter
+nvastrscan
 libnva.a

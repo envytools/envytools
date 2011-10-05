@@ -229,18 +229,18 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 			NOTE: the following may be nonsense, but that's what it looked like:
 			For LESS:
-				if (INC_TILE.zmax < ZCULL_TILE.zmin && UNK0 == 1)
+				if ((INC_TILE.zmax LT ZCULL_TILE.zmin) AND (UNK0 == 1))
 					pass;
 				else
-				if (INC_TILE.zmin > ZCULL_TILE.zmax)
+				if (INC_TILE.zmin GT ZCULL_TILE.zmax)
 					prune;
 				else
 					per_pixel_test;
 			For GREATER:
-				if (INC_TILE.zmin > ZCULL_TILE.zmax && UNK0 == 1)
+				if ((INC_TILE.zmin GT ZCULL_TILE.zmax) AND (UNK0 == 1))
 					pass;
 				else
-				if (INC_TILE.zmax < ZCULL_TILE.zmin)
+				if (INC_TILE.zmax LT ZCULL_TILE.zmin)
 					prune;
 				else
 					per_pixel_test;
@@ -1065,9 +1065,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="2" high="23" low="16" type="int"/>
 			<bitfield name="3" high="31" low="24" type="int"/>
 		</reg32>
-		<reg32 offset="0x187c" name="UNK187C">
-			<doc>Accepts anything, goes to 1cxx.</doc>
-		</reg32>
+		<reg32 offset="0x187c" name="POLYGON_OFFSET_CLAMP"/>
 		<reg32 offset="0x1880" name="VERTEX_ARRAY_PER_INSTANCE_ALT" length="32" type="boolean" variants="NVA3_3D-"/>
 		<reg32 offset="0x1900" name="GP_VIEWPORT_ID_ENABLE" type="boolean"/>
 		<reg32 offset="0x1904" name="SEMANTIC_COLOR">
