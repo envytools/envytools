@@ -26,5 +26,6 @@ struct ed2s_symtab *ed2s_symtab_new();
 void ed2s_symtab_del(struct ed2s_symtab *tab);
 int ed2s_symtab_get(struct ed2s_symtab *tab, const char *name);
 int ed2s_symtab_put(struct ed2s_symtab *tab, const char *name);
+int ed2s_symtab_get_int(struct ed2s_symtab *tab, const char *name, int type);
 
 #endif

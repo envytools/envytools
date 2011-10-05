@@ -40,4 +40,6 @@
 		_a > _b ? _a : _b;		\
 	})
 
+#define CEILDIV(a, b) (((a) + (b) - 1)/(b))
+
 #endif

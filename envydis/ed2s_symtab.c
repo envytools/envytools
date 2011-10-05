@@ -71,3 +71,10 @@ int ed2s_symtab_put(struct ed2s_symtab *tab, const char *cname) {
 	}
 	return res;
 }
+
+int ed2s_symtab_get_int(struct ed2s_symtab *tab, const char *name, int type) {
+	int idx = ed2s_symtab_get(tab, name);
+	if (idx == -1 || tab->syms[idx].type != type)
+		return -1;
+	return tab->syms[idx].idata;
+}

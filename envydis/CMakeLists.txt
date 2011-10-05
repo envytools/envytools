@@ -17,7 +17,7 @@ add_flex_bison_dependency(ed2i_lex ed2i_parse)
 include_directories(.)
 
 add_library(envy core.c nv50.c nvc0.c ctx.c fuc.c hwsq.c vp2.c vp3m.c macro.c print.c convert.c)
-add_library(ed2 ${FLEX_ed2a_lex_OUTPUTS} ${BISON_ed2a_parse_OUTPUTS} ed2a_funcs.c ed2a_print.c ${FLEX_ed2i_lex_OUTPUTS} ${BISON_ed2i_parse_OUTPUTS} ed2i_pre.c ed2i_funcs.c ed2s_hash.c ed2s_symtab.c ed2_misc.c ed2_parse.c)
+add_library(ed2 ${FLEX_ed2a_lex_OUTPUTS} ${BISON_ed2a_parse_OUTPUTS} ed2a_funcs.c ed2a_print.c ${FLEX_ed2i_lex_OUTPUTS} ${BISON_ed2i_parse_OUTPUTS} ed2i_pre.c ed2i_funcs.c ed2s_hash.c ed2s_symtab.c ed2v_funcs.c ed2_misc.c ed2_parse.c)
 
 add_executable(envydis envydis.c)
 #add_executable(envyas envyas.c ${FLEX_lex_OUTPUTS} ${BISON_parse_OUTPUTS})
