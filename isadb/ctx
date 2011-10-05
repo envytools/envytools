@@ -1,0 +1,7 @@
+FEATURE nv40op	"NV4X only operations"	CONFLICT nv50op;
+FEATURE nv50op	"NV50+ only operations"	CONFLICT nv40op;
+FEATURE callret	"call/ret operations"	IMPLIES nv50op;
+
+VARIANT nv40	"NV40:NV50 ctxctl"		FEATURE nv40op;
+VARIANT nv50	"NV50:NVA0 ctxctl"		FEATURE nv50op;
+VARIANT nva0	"NVA0:NVC0 ctxctl"		FEATURE nv50op callret;
