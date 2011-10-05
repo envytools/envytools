@@ -107,18 +107,27 @@ strnn:		T_STR	{ $$ = $1.str; if (strlen($$) != $1.len) YYERROR; }
 
 %%
 
-struct ed2i_isa *ed2i_read_file (FILE *file, const char *filename) {
+struct ed2i_isa *ed2i_read_isa (const char *isaname) {
+	FILE *file = ed2_find_file(isaname, getenv("ED2_PATH"), 0); 
+	if (!file)
+		file = ed2_find_file(isaname, ".:isadb:../isadb:envytools/isadb", 0);
+	if (!file) {
+		fprintf (stderr, "Cannot find ISA definition file for ISA %s.\n");
+		fprintf (stderr, "Please set ED2_PATH to point to the isadb directory from envytools.\n");
+		return 0;
+	}
 	yyscan_t lex_state;
 	struct ed2_lex_intern lex_extra;
 	struct ed2i_isa *isa;
 	lex_extra.line = 1;
 	lex_extra.pos = 1;
 	lex_extra.ws = 0;
-	lex_extra.file = filename;
+	lex_extra.file = isaname;
 	ed2i_lex_init_extra(lex_extra, &lex_state);
 	ed2i_set_in(file, lex_state);
 	int res = ed2i_parse(lex_state, &isa);
 	ed2i_lex_destroy(lex_state);
+	fclose(file);
 	if (res)
 		return 0;
 	return isa;

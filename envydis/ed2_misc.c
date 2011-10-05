@@ -80,3 +80,36 @@ void ed2_free_strings(char **strs, int strsnum) {
 		free(strs[i]);
 	free(strs);
 }
+
+FILE *ed2_find_file(const char *name, const char *path, char **pfullname) {
+	if (!path)
+		return 0;
+	while (path) {
+		const char *npath = strchr(path, ':');
+		size_t plen;
+		if (npath) {
+			plen = npath - path;
+			npath++;
+		} else {
+			plen = strlen(path);
+		}
+		if (plen) {
+			char *fullname = malloc(strlen(name) + plen + 2);
+			strncpy(fullname, path, plen);
+			fullname[plen] = '/';
+			fullname[plen+1] = 0;
+			strcat(fullname, name);
+			FILE *file = fopen(fullname, "r");
+			if (file) {
+				if (pfullname)
+					*pfullname = fullname;
+				else
+					free(fullname);
+				return file;
+			}
+			free(fullname);
+		}
+		path = npath;
+	}
+	return 0;
+}

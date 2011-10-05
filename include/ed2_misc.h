@@ -3,6 +3,7 @@
 
 #include "util.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <inttypes.h>
 
 struct ed2_loc {
@@ -23,5 +24,7 @@ struct ed2_astr {
 };
 
 void ed2_free_strings(char **strs, int strsnum);
+
+FILE *ed2_find_file(const char *name, const char *path, char **pfullname);
 
 #endif

@@ -36,6 +36,6 @@ struct ed2i_isa {
 };
 
 void ed2i_del_isa(struct ed2i_isa *isa);
-struct ed2i_isa *ed2i_read_file (FILE *file, const char *filename);
+struct ed2i_isa *ed2i_read_isa (const char *isaname);
 
 #endif
