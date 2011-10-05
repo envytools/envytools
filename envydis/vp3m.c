@@ -230,7 +230,8 @@ static struct insn tabroot[] = {
 	{ 0, 0, OOPS },
 };
 
-const struct disisa vp3m_isa_s = {
+struct disisa vp3m_isa_s = {
+	"vuc",
 	tabroot,
 	4,
 	4,

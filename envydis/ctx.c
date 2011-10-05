@@ -269,7 +269,8 @@ static const struct disvariant ctx_vars[] = {
 	"nv50", F_NV50,
 };
 
-const struct disisa ctx_isa_s = {
+struct disisa ctx_isa_s = {
+	"ctx",
 	tabroot,
 	4,
 	4,

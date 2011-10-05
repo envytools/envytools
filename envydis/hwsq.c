@@ -82,7 +82,8 @@ static const struct disvariant hwsq_vars[] = {
 	"nv41", F_NV41P,
 };
 
-const struct disisa hwsq_isa_s = {
+struct disisa hwsq_isa_s = {
+	"hwsq",
 	tabm,
 	5,
 	1,

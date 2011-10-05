@@ -34,6 +34,7 @@
 #include <unistd.h>
 #include "util.h"
 #include "ed2a.h"
+#include "ed2i.h"
 
 /*
  * Table format
@@ -246,6 +247,7 @@ struct disvariant {
 };
 
 struct disisa {
+	const char *ed2name;
 	struct insn *troot;
 	int maxoplen;
 	int opunit;
@@ -253,6 +255,7 @@ struct disisa {
 	int i_need_nv50as_hack;
 	const struct disvariant *vars;
 	int varsnum;
+	struct ed2i_isa *ed2;
 };
 
 struct file {

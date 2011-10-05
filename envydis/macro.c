@@ -163,7 +163,8 @@ static struct insn tabroot[] = {
 	{ 0, 0, OP32, T(exit), T(m) },
 };
 
-const struct disisa macro_isa_s = {
+struct disisa macro_isa_s = {
+	"macro",
 	tabroot,
 	4,
 	4,

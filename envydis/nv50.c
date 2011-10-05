@@ -1572,7 +1572,8 @@ static const struct disvariant nv50_vars[] = {
 	"nva3", F_SM11 | F_SM12 | F_D3D10_1,
 };
 
-const struct disisa nv50_isa_s = {
+struct disisa nv50_isa_s = {
+	"nv50",
 	tabroot,
 	8,
 	4,

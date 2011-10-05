@@ -1117,7 +1117,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 
 static const struct {
 	const char *name;
-	const struct disisa *isa;
+	struct disisa *isa;
 } isas[] = {
 	"nv50", &nv50_isa_s,
 	"nvc0", &nvc0_isa_s,
@@ -1133,8 +1133,13 @@ static const struct {
 const struct disisa *ed_getisa(const char *name) {
 	int i;
 	for (i = 0; i < sizeof isas / sizeof *isas; i++)
-		if (!strcmp(name, isas[i].name))
+		if (!strcmp(name, isas[i].name)) {
+			if (!isas[i].isa->ed2)
+				isas[i].isa->ed2 = ed2i_read_isa(isas[i].isa->ed2name);
+			if (!isas[i].isa->ed2)
+				return 0;
 			return isas[i].isa;
+		}
 	return 0;
 };
 

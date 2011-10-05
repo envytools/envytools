@@ -415,7 +415,8 @@ static struct insn tabroot[] = {
 	{ 0, 0, OOPS },
 };
 
-const struct disisa vp2_isa_s = {
+struct disisa vp2_isa_s = {
+	"xtensa",
 	tabroot,
 	3,
 	1,

@@ -580,7 +580,8 @@ static const struct disvariant fuc_vars[] = {
 	"fuc4", F_FUC3P | F_PC24,
 };
 
-const struct disisa fuc_isa_s = {
+struct disisa fuc_isa_s = {
+	"fuc",
 	tabm,
 	4,
 	1,

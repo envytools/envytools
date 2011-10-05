@@ -2084,7 +2084,8 @@ static struct insn tabroot[] = {
 	{ 0, 0, OOPS },
 };
 
-const struct disisa nvc0_isa_s = {
+struct disisa nvc0_isa_s = {
+	"nvc0",
 	tabroot,
 	8,
 	4,
