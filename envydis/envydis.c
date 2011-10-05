@@ -170,6 +170,8 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 	struct ed2v_variant *var = ed2v_new_variant(isa->ed2, varname);
+	if (!var)
+		return 1;
 	int num = 0;
 	int maxnum = 16;
 	uint8_t *code = malloc (maxnum);

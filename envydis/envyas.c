@@ -474,7 +474,7 @@ int main(int argc, char **argv) {
 	}
 	envyas_variant = ed2v_new_variant(envyas_isa->ed2, varname);
 	if (!envyas_variant)
-		return 0;
+		return 1;
 	struct file *file = calloc(sizeof *file, 1);
 	int i;
 	for (i = 0; i < file_ed2->insnsnum; i++) {
