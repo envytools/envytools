@@ -78,7 +78,7 @@ void ed2a_error (YYLTYPE *loc, yyscan_t lex_state, void (*fun) (struct ed2a_insn
 %type <mods> mods
 %type <prefs> prefs
 
-%destructor { ed2a_del_file($$); } <file>
+%destructor { if (!fun) ed2a_del_file($$); } <file>
 %destructor { ed2a_del_insn($$); } <insn>
 %destructor { ed2a_del_ipiece($$); } <ipiece>
 %destructor { ed2a_del_iop($$); } <iop>
