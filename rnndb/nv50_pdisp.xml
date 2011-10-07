@@ -452,6 +452,9 @@
 				<reg32 offset="0x18" name="LANE_DRIVE_CURRENT"/>
 				<reg32 offset="0x20" name="LANE_PREEMPHASIS"/>
 			</array>
+			<array offset="0x500" name="HDMI" variants="NVA3-">
+				<use-group name="NV_HDMI"/>
+			</array>
 		</array>
 		<array name="DAEMON" offset="0x17000" stride="0x1000" length="1" variants="NVD9-">
 			<use-group name="nv98_fucbase"/>
