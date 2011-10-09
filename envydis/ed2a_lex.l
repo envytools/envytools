@@ -43,3 +43,4 @@
 <ncomment>"+/"			{ yyextra.nest--; if (!yyextra.nest) BEGIN normal; }
 <ncomment>"/+"			{ yyextra.nest++; }
 <ncomment>.			{ }
+<ncomment>\n			{ }
