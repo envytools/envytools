@@ -3,6 +3,7 @@
 
 int main(int argc, char **argv) {
 	struct ed2i_isa *isa = ed2i_read_isa(argv[1]);
-	ed2i_del_isa(isa);
+	if (isa)
+		ed2i_del_isa(isa);
 	return 0;
 }
