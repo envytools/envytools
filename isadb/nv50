@@ -9,4 +9,7 @@ VARIANT nva0	"NVA0"		FEATURE sm12 fp64;
 VARIANT nvaa	"NVAA, NVAC"	FEATURE sm12;
 VARIANT nva3	"NVA3+"		FEATURE sm12 d3d10_1;
 
-
+MODE	vp	"vertex program";
+MODE	gp	"geometry program";
+MODE	fp	"fragment program";
+MODE	cp	"compute program";
