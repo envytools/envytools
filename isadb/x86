@@ -1,0 +1,57 @@
+/* pre-cpuid features */
+
+FEATURE op8086		"8086-only features";
+FEATURE op80186		"80186+ features";
+FEATURE op286		"80286+ features"	IMPLIES op80186;
+FEATURE op386		"80386+ features"	IMPLIES op286;
+FEATURE op486		"80486+ features"	IMPLIES op386;
+FEATURE cpuid		"CPUID instruction"	IMPLIES op486;
+FEATURE fpu		"FPU";
+FEATURE fpu387		"80387+ FPU"		IMPLIES fpu;
+FEATURE fpu486		"80486+ FPU"		IMPLIES fpu387;
+
+/* cpuid features */
+
+FEATURE lm		"Long mode";
+FEATURE ia64		"IA-64 processor in disguise";
+
+FEATURE cmov		"Conditional move/compare instruction";
+FEATURE cx8		"CMPXCHG8B instruction";
+FEATURE cx16		"CMPXCHG16B instruction";
+FEATURE lahf64		"LAHF/SAHF in 64-bit mode";
+
+FEATURE mmx		"MMX extensions";
+FEATURE mmxext		"AMD MMX extensions";
+FEATURE	_3dnow		"3DNow!";
+FEATURE	_3dnowext	"3DNow! extensions";
+FEATURE sse		"SSE extensions";
+FEATURE sse2		"SSE2 extensions";
+FEATURE sse3		"SSE3 extensions";
+FEATURE ssse3		"SSSE3 extensions";
+FEATURE sse4_1		"SSE4.1 extensions";
+FEATURE sse4_2		"SSE4.2 extensions";
+FEATURE avx		"AVX extensions";
+
+FEATURE pclmulqdq	"Carryless multiplication";
+FEATURE fma		"Fused multiply add";
+FEATURE movbe		"MOVBE instruction";
+FEATURE popcnt		"POPCNT instruction";
+FEATURE aesni		"AESNI extensions";
+FEATURE fxsr		"FXSAVE/FXRSTOR";
+FEATURE xsave		"XSAVE/XRSTOR state management";
+FEATURE rdrand		"RDRAND instruction";
+
+FEATURE tsc		"Time stamp counter";
+FEATURE msr		"RDMSR and WRMSR support";
+FEATURE sep		"SYSENTER and SYSEXIT";
+FEATURE clfsh		"CLFLUSH instruction";
+FEATURE monitor		"MONITOR/MWAIT";
+FEATURE vmx		"Virtual machine extensions";
+FEATURE smx		"Safer mode extensions";
+FEATURE syscall		"SYSCALL/SYSRET instructions";
+FEATURE rdtscp		"RDTSCP instruction";
+
+/* execution modes */
+MODE	m16		"16-bit code";
+MODE	m32		"32-bit code" FEATURE op386;
+MODE	m64		"64-bit code" FEATURE lm;
