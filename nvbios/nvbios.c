@@ -692,6 +692,9 @@ int main(int argc, char **argv) {
 	}
 	if (bios->hwsq_offset) {
 		uint8_t entry_count, bytes_to_write, i, e;
+		const struct disisa *hwsq_isa = ed_getisa("hwsq");
+		struct ed2v_variant *hwsq_var_nv17 = ed2v_new_variant(hwsq_isa->ed2, "nv17");
+		struct ed2v_variant *hwsq_var_nv41 = ed2v_new_variant(hwsq_isa->ed2, "nv41");
 
 		bios->hwsq_offset += 4;
 
@@ -706,7 +709,7 @@ int main(int argc, char **argv) {
 			//uint8_t bytes_written = 4;
 
 			printf("-- HWSQ entry %u at %x: sequencer control = %u\n", i, entry_offset, sequencer);
-			envydis(ed_getisa("hwsq"), stdout, bios->data + entry_offset + 4, 0, bytes_to_write - 4, -1, -1, 0, 0, 0, discolors);
+			envydis(hwsq_isa, stdout, bios->data + entry_offset + 4, 0, bytes_to_write - 4, hwsq_var_nv41, -1, 0, 0, 0, discolors);
 			printf ("\n");
 		}
 		printf ("\n");
