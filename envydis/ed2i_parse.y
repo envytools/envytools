@@ -112,7 +112,7 @@ struct ed2i_isa *ed2i_read_isa (const char *isaname) {
 	if (!file)
 		file = ed2_find_file(isaname, ".:isadb:../isadb:envytools/isadb", 0);
 	if (!file) {
-		fprintf (stderr, "Cannot find ISA definition file for ISA %s.\n");
+		fprintf (stderr, "Cannot find ISA definition file for ISA %s.\n", isaname);
 		fprintf (stderr, "Please set ED2_PATH to point to the isadb directory from envytools.\n");
 		return 0;
 	}
