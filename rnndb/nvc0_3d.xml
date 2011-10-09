@@ -161,7 +161,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0400" name="UNK0400" length="0xc0">
 			<doc>Vertex submission of some sort?</doc>
 		</reg32>
-		<reg32 offset="0x0700" name="TFB_UNK07X0" length="4" stride="16">
+		<reg32 offset="0x0700" name="TFB_STREAM" length="4" stride="16">
 			<doc>0-3</doc>
 		</reg32>
 		<reg32 offset="0x0704" name="TFB_VARYING_COUNT" length="4" stride="16" type="uint"/>
