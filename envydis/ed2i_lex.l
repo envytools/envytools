@@ -29,6 +29,8 @@
 "CONFLICT"			{ yyextra.ws = 0; return T_CONFLICT; }
 "IMPLIES"			{ yyextra.ws = 0; return T_IMPLIES; }
 "VARIANT"			{ yyextra.ws = 0; return T_VARIANT; }
+"MODE"				{ yyextra.ws = 0; return T_MODE; }
+"DEFAULT"			{ yyextra.ws = 0; return T_DEFAULT; }
 [a-z_][a-zA-Z_0-9]*		{ yyextra.ws = 0; yylval->str = strdup(yytext); return T_WORD; }
 \$[a-zA-Z_0-9]*			{ yyextra.ws = 0; yylval->str = strdup(yytext+1); return T_REG; }
 \#[a-zA-Z_0-9]+			{ yyextra.ws = 0; yylval->str = strdup(yytext+1); return T_HASHWORD; }

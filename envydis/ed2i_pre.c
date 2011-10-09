@@ -18,12 +18,21 @@ void ed2ip_del_variant(struct ed2ip_variant *v) {
 	free(v);
 }
 
+void ed2ip_del_mode(struct ed2ip_mode *m) {
+	ed2_free_strings(m->names, m->namesnum);
+	ed2_free_strings(m->features, m->featuresnum);
+	free(m->description);
+	free(m);
+}
+
 void ed2ip_del_isa(struct ed2ip_isa *isa) {
 	int i;
 	for (i = 0; i < isa->featuresnum; i++)
 		ed2ip_del_feature(isa->features[i]);
 	for (i = 0; i < isa->variantsnum; i++)
 		ed2ip_del_variant(isa->variants[i]);
+	for (i = 0; i < isa->modesnum; i++)
+		ed2ip_del_mode(isa->modes[i]);
 	free(isa);
 }
 
@@ -131,12 +140,69 @@ int ed2ip_transform_variants(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 	return broken;
 }
 
+int ed2ip_transform_modes(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
+	int i, j;
+	int broken = 0;
+	isa->modesnum = preisa->modesnum;
+	isa->modes = calloc(sizeof *isa->modes, isa->modesnum);
+	isa->defmode = -1;
+	for (i = 0; i < isa->modesnum; i++) {
+		for (j = 0; j < preisa->modes[i]->namesnum; j++) {
+			int idx = ed2s_symtab_put(isa->symtab, preisa->modes[i]->names[j]);
+			if (idx == -1) {
+				fprintf (stderr, ED2_LOC_FORMAT(preisa->modes[i]->loc, "Redefined symbol %s\n"), preisa->modes[i]->names[j]);
+				broken = 1;
+			} else {
+				isa->symtab->syms[idx].type = ED2I_ST_MODE;
+				isa->symtab->syms[idx].idata = i;
+			}
+		}
+		isa->modes[i].names = preisa->modes[i]->names;
+		isa->modes[i].namesnum = preisa->modes[i]->namesnum;
+		isa->modes[i].description = preisa->modes[i]->description;
+
+		isa->modes[i].featuresnum = preisa->modes[i]->featuresnum;
+		isa->modes[i].features = calloc(sizeof *isa->modes[i].features, isa->modes[i].featuresnum);
+		for (j = 0; j < isa->modes[i].featuresnum; j++) {
+			isa->modes[i].features[j] = -1;
+			int idx = ed2s_symtab_get(isa->symtab, preisa->modes[i]->features[j]);
+			if (idx == -1) {
+				fprintf (stderr, ED2_LOC_FORMAT(preisa->modes[i]->loc, "Undefined feature %s\n"), preisa->modes[i]->features[j]);
+				broken = 1;
+			} else if (isa->symtab->syms[idx].type != ED2I_ST_FEATURE) {
+				fprintf (stderr, ED2_LOC_FORMAT(preisa->modes[i]->loc, "Symbol %s is not a feature\n"), preisa->modes[i]->features[j]);
+				broken = 1;
+			} else {
+				isa->modes[i].features[j] = isa->symtab->syms[idx].idata;
+			}
+			free(preisa->modes[i]->features[j]);
+		}
+		if (preisa->modes[i]->isdefault) {
+			if (preisa->modes[i]->featuresnum) {
+				fprintf (stderr, "Default mode %s has required features\n", isa->modes[i].names[0]);
+				broken = 1;
+			}
+			if (isa->defmode == -1) {
+				isa->defmode = i;
+			} else {
+				fprintf (stderr, "More than one default mode: %s and %s\n", isa->modes[isa->defmode].names[0], isa->modes[i].names[0]);
+				broken = 1;
+			}
+		}
+		free(preisa->modes[i]->features);
+		free(preisa->modes[i]);
+	}
+	free(preisa->modes);
+	return broken;
+}
+
 struct ed2i_isa *ed2ip_transform(struct ed2ip_isa *preisa) {
 	int broken = preisa->broken;
 	struct ed2i_isa *isa = calloc(sizeof *isa, 1);
 	isa->symtab = ed2s_symtab_new();
 	broken |= ed2ip_transform_features(preisa, isa);
 	broken |= ed2ip_transform_variants(preisa, isa);
+	broken |= ed2ip_transform_modes(preisa, isa);
 	free(preisa);
 	if (broken) {
 		ed2i_del_isa(isa);

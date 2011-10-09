@@ -30,6 +30,7 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 	} strs;
 	struct ed2ip_feature *feature;
 	struct ed2ip_variant *variant;
+	struct ed2ip_mode *mode;
 	struct ed2ip_isa *isa;
 }
 
@@ -52,6 +53,8 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 %token T_CONFLICT "CONFLICT"
 %token T_IMPLIES "IMPLIES"
 %token T_VARIANT "VARIANT"
+%token T_MODE "MODE"
+%token T_DEFAULT "DEFAULT"
 
 %type <str> strnn
 %type <str> description
@@ -60,6 +63,8 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 %type <feature> fmods
 %type <variant> variant
 %type <variant> vmods
+%type <mode> mode
+%type <mode> memods
 %type <isa> file
 
 %destructor { free($$); } <str>
@@ -67,6 +72,7 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 %destructor { ed2_free_strings($$.strs, $$.strsnum); } <strs>
 %destructor { ed2ip_del_feature($$); } <feature>
 %destructor { ed2ip_del_variant($$); } <variant>
+%destructor { ed2ip_del_mode($$); } <mode>
 %destructor { ed2ip_del_isa($$); } <isa>
 
 %%
@@ -76,6 +82,7 @@ start:	file		{ *isa = ed2ip_transform($1); }
 file:	/**/		{ $$ = calloc(sizeof *$$, 1); }
 |	file feature	{ $$ = $1; ADDARRAY($$->features, $2); }
 |	file variant	{ $$ = $1; ADDARRAY($$->variants, $2); }
+|	file mode	{ $$ = $1; ADDARRAY($$->modes, $2); }
 |	file error ';'	{ $$ = $1; $$->broken = 1; }
 ;
 
@@ -100,6 +107,14 @@ variant:	"VARIANT" wordsnz description vmods ';'	{ $$ = $4; $$->loc = @$; $$->de
 
 vmods:		/**/	{ $$ = calloc(sizeof *$$, 1); }
 |		vmods "FEATURE" wordsnz { int i; $$ = $1; for (i = 0; i < $3.strsnum; i++) ADDARRAY($$->features, $3.strs[i]); free($3.strs); }
+;
+
+mode:		"MODE" wordsnz description memods ';' { $$ = $4; $$->loc = @$; $$->description = $3; $$->names = $2.strs; $$->namesnum = $2.strsnum; $$->namesmax = $2.strsmax; }
+;
+
+memods:		/**/	{ $$ = calloc(sizeof *$$, 1); }
+|		memods "FEATURE" wordsnz { int i; $$ = $1; for (i = 0; i < $3.strsnum; i++) ADDARRAY($$->features, $3.strs[i]); free($3.strs); }
+|		memods "DEFAULT" { $$ = $1; $$->isdefault = 1; }
 ;
 
 strnn:		T_STR	{ $$ = $1.str; if (strlen($$) != $1.len) YYERROR; }
