@@ -123,6 +123,7 @@ struct ed2i_isa *ed2i_read_isa (const char *isaname) {
 	lex_extra.pos = 1;
 	lex_extra.ws = 0;
 	lex_extra.file = isaname;
+	lex_extra.nest = 0;
 	ed2i_lex_init_extra(lex_extra, &lex_state);
 	ed2i_set_in(file, lex_state);
 	int res = ed2i_parse(lex_state, &isa);

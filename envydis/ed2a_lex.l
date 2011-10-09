@@ -14,9 +14,13 @@
 %option header-file="ed2a_lex.h"
 %option extra-type="struct ed2_lex_intern"
 
+%s normal
+%x ncomment
+
 %%
 
 "/*"([^*]|"*"+[^/])*"*"+"/"	{ }
+"/+"				{ yyextra.nest++; BEGIN ncomment; }
 [ \t]				{ yyextra.ws = 1; }
 \n				{ yyextra.ws = 1; return '\n'; }
 "//".*\n			{ yyextra.ws = 1; return '\n'; }
@@ -36,3 +40,6 @@
 [*+&|)}\]:;#.]			{ yyextra.ws = 0; return yytext[0]; }
 \"([^\\"]|\\[\\"'nrtafv]|\\x[0-9a-fA-F][0-9a-fA-F])*\"	{ yyextra.ws = 0; yylval->astr.str = ed2_str_deescape(yytext, &yylval->astr.len); return T_STR; }
 .				{ return T_ERR; }
+<ncomment>"+/"			{ yyextra.nest--; if (!yyextra.nest) BEGIN normal; }
+<ncomment>"/+"			{ yyextra.nest++; }
+<ncomment>.			{ }

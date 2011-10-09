@@ -8,6 +8,7 @@ struct ed2_lex_intern {
 	int pos;
 	const char *file;
 	int ws;
+	int nest;
 };
 
 #define YYLTYPE struct ed2_loc
@@ -30,7 +31,7 @@ struct ed2_lex_intern {
 	} while(0)
 
 #define YY_USER_ACTION ed2_lex_common(&yyextra, yylloc, yytext);
-#define YY_USER_INIT yyextra.line = 1; yyextra.pos = 1; yyextra.ws = 0; yylloc->lend = 1; yylloc->cend = 1; yylloc->lstart = 1; yylloc->cstart = 1; yylloc->file = yyextra.file;
+#define YY_USER_INIT yyextra.line = 1; yyextra.pos = 1; yyextra.ws = 0; yylloc->lend = 1; yylloc->cend = 1; yylloc->lstart = 1; yylloc->cstart = 1; yylloc->file = yyextra.file; yyextra.nest = 0;
 
 void ed2_lex_common(struct ed2_lex_intern *x, YYLTYPE *loc, const char *str);
 

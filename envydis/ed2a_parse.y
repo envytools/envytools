@@ -196,6 +196,7 @@ struct ed2a_file *ed2a_read_file (FILE *file, const char *filename, void (*fun) 
 	lex_extra.pos = 1;
 	lex_extra.ws = 0;
 	lex_extra.file = filename;
+	lex_extra.nest = 0;
 	ed2a_lex_init_extra(lex_extra, &lex_state);
 	ed2a_set_in(file, lex_state);
 	ed2a_parse(lex_state, fun, parm, &res);
