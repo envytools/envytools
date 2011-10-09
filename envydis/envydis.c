@@ -44,6 +44,7 @@ int main(int argc, char **argv) {
 	int labelsmax = 0;
 	int w = 0, bin = 0, quiet = 0;
 	const char *varname = 0;
+	const char *modename = 0;
 	const struct ed2a_colors *cols = &ed2a_def_colors;
 	argv[0] = basename(argv[0]);
 	int len = strlen(argv[0]);
@@ -53,27 +54,10 @@ int main(int argc, char **argv) {
 		if (isa && isa->opunit == 4)
 			w = 1;
 	}
-	int ptype = -1;
 	int c;
 	unsigned base = 0, skip = 0, limit = 0;
-	while ((c = getopt (argc, argv, "vgfpcsb:d:l:m:V:wWinqu:M:")) != -1)
+	while ((c = getopt (argc, argv, "b:d:l:m:V:O:wWinqu:M:")) != -1)
 		switch (c) {
-			case 'v':
-				ptype = VP;
-				break;
-			case 'g':
-				ptype = GP;
-				break;
-			case 'f':
-			case 'p':
-				ptype = FP;
-				break;
-			case 'c':
-				ptype = CP;
-				break;
-			case 's':
-				ptype = VP|GP|FP;
-				break;
 			case 'b':
 				sscanf(optarg, "%x", &base);
 				break;
@@ -107,6 +91,9 @@ int main(int argc, char **argv) {
 				break;
 			case 'V':
 				varname = optarg;
+				break;
+			case 'O':
+				modename = optarg;
 				break;
 			case 'M':
 				{
@@ -172,6 +159,9 @@ int main(int argc, char **argv) {
 	struct ed2v_variant *var = ed2v_new_variant(isa->ed2, varname);
 	if (!var)
 		return 1;
+	if (modename)
+		if (ed2v_set_mode(var, modename))
+			return 1;
 	int num = 0;
 	int maxnum = 16;
 	uint8_t *code = malloc (maxnum);
@@ -219,6 +209,6 @@ int main(int argc, char **argv) {
 	int cnt = num - skip;
 	if (limit && limit < cnt)
 		cnt = limit;
-	envydis (isa, stdout, code+skip, base, cnt, var, ptype, quiet, labels, labelsnum, cols);
+	envydis (isa, stdout, code+skip, base, cnt, var, quiet, labels, labelsnum, cols);
 	return 0;
 }

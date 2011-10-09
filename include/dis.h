@@ -228,7 +228,6 @@ struct disctx {
 	uint32_t codebase;
 	uint32_t codesz;
 	struct ed2v_variant *variant;
-	int ptype;
 	int oplen;
 	uint32_t pos;
 	int reverse;
@@ -420,16 +419,11 @@ struct matches *atombf APROTO;
 ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx);
 #define GETBF(bf) getbf(bf, a, m, ctx)
 
-#define VP 1
-#define GP 2
-#define FP 4
-#define CP 8
-
 extern const struct ed2a_colors *ed2a_colors;
 
 const struct disisa *ed_getisa(const char *name);
 
-void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, struct ed2v_variant *variant, int ptype, int quiet, struct label *labels, int labelsnum, const struct ed2a_colors *cols);
+void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, struct ed2v_variant *variant, int quiet, struct label *labels, int labelsnum, const struct ed2a_colors *cols);
 void printexpr(FILE *out, const struct expr *expr, int lvl, const struct ed2a_colors *cols);
 
 #endif

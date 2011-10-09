@@ -13,7 +13,6 @@ enum {
 	OFMT_CHEX32,
 } envyas_ofmt = OFMT_HEX8;
 
-int envyas_ptype = -1;
 struct ed2v_variant *envyas_variant;
 
 char *envyas_outname = 0;
@@ -156,7 +155,6 @@ int envyas_process(struct file *file) {
 	struct disctx *ctx = &ctx_s;
 	ctx->reverse = 1;
 	ctx->isa = envyas_isa;
-	ctx->ptype = envyas_ptype;
 	ctx->variant = envyas_variant;
 	struct matches *im = calloc(sizeof *im, file->linesnum);
 	for (i = 0; i < file->linesnum; i++) {
@@ -405,24 +403,9 @@ int main(int argc, char **argv) {
 	int c;
 	unsigned base = 0, skip = 0, limit = 0;
 	const char *varname = 0;
-	while ((c = getopt (argc, argv, "vgfpcsam:V:o:wi")) != -1)
+	const char *modename = 0;
+	while ((c = getopt (argc, argv, "am:V:O:o:wi")) != -1)
 		switch (c) {
-			case 'v':
-				envyas_ptype = VP;
-				break;
-			case 'g':
-				envyas_ptype = GP;
-				break;
-			case 'f':
-			case 'p':
-				envyas_ptype = FP;
-				break;
-			case 'c':
-				envyas_ptype = CP;
-				break;
-			case 's':
-				envyas_ptype = VP|GP|FP;
-				break;
 			case 'a':
 				if (envyas_ofmt == OFMT_HEX32)
 					envyas_ofmt = OFMT_CHEX32;
@@ -447,6 +430,9 @@ int main(int argc, char **argv) {
 				break;
 			case 'V':
 				varname = optarg;
+				break;
+			case 'O':
+				modename = optarg;
 				break;
 			case 'o':
 				envyas_outname = optarg;
@@ -475,6 +461,9 @@ int main(int argc, char **argv) {
 	envyas_variant = ed2v_new_variant(envyas_isa->ed2, varname);
 	if (!envyas_variant)
 		return 1;
+	if (modename)
+		if (ed2v_set_mode(envyas_variant, modename))
+			return 1;
 	struct file *file = calloc(sizeof *file, 1);
 	int i;
 	for (i = 0; i < file_ed2->insnsnum; i++) {

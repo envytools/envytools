@@ -31,6 +31,10 @@
  * Color scheme
  */
 
+int var_ok(int fmask, int ptype, struct ed2v_variant *var) {
+	return (!fmask || (var->fmask[0] & fmask) == fmask) && (!ptype || (var->mode != -1 && ptype & 1 << var->mode));
+}
+
 char *aprint(const char *format, ...) {
 	va_list va;
 	va_start(va, format);
@@ -129,7 +133,7 @@ struct matches *atomtab APROTO {
 	const struct insn *tab = v;
 	if (!ctx->reverse) {
 		int i;
-		while ((a[0]&tab->mask) != tab->val || (tab->fmask && tab->fmask != (tab->fmask & ctx->variant->fmask[0])) || (tab->ptype && !(tab->ptype & ctx->ptype)))
+		while ((a[0]&tab->mask) != tab->val || !var_ok(tab->fmask, tab->ptype, ctx->variant))
 			tab++;
 		m[0] |= tab->mask;
 		for (i = 0; i < 16; i++)
@@ -139,7 +143,7 @@ struct matches *atomtab APROTO {
 		struct matches *res = emptymatches();
 		int i;
 		for (i = 0; ; i++) {
-			if ((!tab[i].fmask || tab[i].fmask == (tab[i].fmask & ctx->variant->fmask[0])) && (!tab[i].ptype || tab[i].ptype & ctx->ptype)) {
+			if (var_ok(tab[0].fmask, tab[0].ptype, ctx->variant)) {
 				struct match sm = { 0, .a = {tab[i].val}, .m = {tab[i].mask}, .lpos = spos };
 				struct matches *subm = tabdesc(ctx, sm, tab[i].atoms); 
 				if (subm)
@@ -367,7 +371,7 @@ int matchreg (struct match *res, const struct reg *reg, const struct expr *expr,
 	if (reg->specials) {
 		int i = 0;
 		for (i = 0; reg->specials[i].num != -1; i++) {
-			if (reg->specials[i].fmask && reg->specials[i].fmask != (reg->specials[i].fmask & ctx->variant->fmask[0]))
+			if (!var_ok(reg->specials[i].fmask, 0, ctx->variant))
 				continue;
 			switch (reg->specials[i].mode) {
 				case SR_NAMED:
@@ -452,7 +456,7 @@ static struct expr *printreg (struct disctx *ctx, ull *a, ull *m, const struct r
 	if (reg->specials) {
 		int i;
 		for (i = 0; reg->specials[i].num != -1; i++) {
-			if (reg->specials[i].fmask && reg->specials[i].fmask != (reg->specials[i].fmask & ctx->variant->fmask[0]))
+			if (!var_ok(reg->specials[i].fmask, 0, ctx->variant))
 				continue;
 			if (num == reg->specials[i].num) {
 				switch (reg->specials[i].mode) {
@@ -868,7 +872,7 @@ ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx) {
  * FILE*.
  */
 
-void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, struct ed2v_variant *variant, int ptype, int quiet, struct label *labels, int labelsnum, const struct ed2a_colors *cols)
+void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, struct ed2v_variant *variant, int quiet, struct label *labels, int labelsnum, const struct ed2a_colors *cols)
 {
 	struct disctx c = { 0 };
 	struct disctx *ctx = &c;
@@ -879,7 +883,6 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 	ctx->codebase = start;
 	ctx->codesz = num;
 	ctx->variant = variant;
-	ctx->ptype = ptype;
 	ctx->isa = isa;
 	if (labels) {
 		for (i = 0; i < labelsnum; i++) {

@@ -226,6 +226,11 @@
 #define F_FP64		0x04
 #define F_D3D10_1	0x08
 
+#define VP 1
+#define GP 2
+#define FP 4
+#define CP 8
+
 /*
  * Code target field
  *
