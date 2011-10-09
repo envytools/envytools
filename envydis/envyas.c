@@ -40,6 +40,18 @@ int envyas_vartype = -1;
 
 char *envyas_outname = 0;
 
+static char* expand_local_label(const char *local, const char *global) {
+	char *full = malloc((global ? strlen(global) : 0) + strlen(local) + 3);
+	full[0] = '_';
+	full[1] = '_';
+	if (global)
+		strcpy(full + 2, global);
+	else
+		full[2] = '\0';
+	strcat(full, local);
+	return full;
+}
+
 ull calc (const struct expr *expr, struct disctx *ctx) {
 	int i;
 	ull x;
@@ -47,6 +59,11 @@ ull calc (const struct expr *expr, struct disctx *ctx) {
 		case EXPR_NUM:
 			return expr->num1;
 		case EXPR_LABEL:
+			if (expr->str[0] == '_' && expr->str[1] != '_') {
+				const char *full_label = expand_local_label(expr->str, ctx->cur_global_label);
+				free((char *)expr->str);
+				((struct expr *)expr)->str = full_label;
+			}
 			for (i = 0; i < ctx->labelsnum; i++)
 				if (!strcmp(ctx->labels[i].name, expr->str))
 					return ctx->labels[i].val;
@@ -209,6 +226,7 @@ int envyas_process(struct file *file) {
 	do {
 		allok = 1;
 		ctx->labelsnum = 0;
+		ctx->cur_global_label = NULL;
 		for (i = 0; i < sectionsnum; i++)
 			free(sections[i].code);
 		sectionsnum = 0;
@@ -225,6 +243,14 @@ int envyas_process(struct file *file) {
 					sections[cursect].pos += im[i].m[0].oplen;
 					break;
 				case LINE_LABEL:
+					if (file->lines[i]->str[0] == '_' && file->lines[i]->str[1] != '_') {
+						char *full_label = expand_local_label(file->lines[i]->str, ctx->cur_global_label);
+						free(file->lines[i]->str);
+						file->lines[i]->str = full_label;
+					}
+					else
+						ctx->cur_global_label = file->lines[i]->str;
+
 					for (j = 0; j < ctx->labelsnum; j++) {
 						if (!strcmp(ctx->labels[j].name, file->lines[i]->str)) {
 							fprintf (stderr, "Label %s redeclared!\n", file->lines[i]->str);
@@ -302,6 +328,7 @@ int envyas_process(struct file *file) {
 			}
 		}
 		cursect = 0;
+		ctx->cur_global_label = NULL;
 		for (j = 0; j < sectionsnum; j++)
 			sections[j].pos = 0;
 		ull val[MAXOPLEN];
@@ -338,6 +365,8 @@ int envyas_process(struct file *file) {
 					}
 					break;
 				case LINE_LABEL:
+					if (file->lines[i]->str[0] != '_')
+						ctx->cur_global_label = file->lines[i]->str;
 					break;
 				case LINE_DIR:
 					if (!strcmp(file->lines[i]->str, ".section")) {

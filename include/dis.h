@@ -248,6 +248,7 @@ struct disctx {
 	int atomsnum;
 	int atomsmax;
 	int endmark;
+	const char *cur_global_label;
 };
 
 struct disvariant {
