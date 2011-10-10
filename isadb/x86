@@ -378,15 +378,16 @@ SEQ readimma SWITCH {
 };
 
 /* XXX: what the fuck shall we do with the lock prefix? */
-SEQ opr SWITCH {
+SEQ opm SWITCH {
 	op 0x06 MODE m16|m32:						INSN "push" MOD opsz $es;
-	op 0x07 MODE m16|m32:						INSN "pop" MOD opsz $es;
 	op 0x0e MODE m16|m32:						INSN "push" MOD opsz $cs;
+	op 0x16 MODE m16|m32:						INSN "push" MOD opsz $ss;
+	op 0x1e MODE m16|m32:						INSN "push" MOD opsz $ds;
+	/* 0x26, 0x2e, 0x36, 0x3e segment prefixes - handled in oproot */
+	op 0x07 MODE m16|m32:						INSN "pop" MOD opsz $es;
 	op 0x0f FEATURE op286:		READ op; GOTO op0f;
 	op 0x0f MODE m16|m32 FEATURE op8086:				INSN "pop" MOD opsz $cs;
-	op 0x16 MODE m16|m32:						INSN "push" MOD opsz $ss;
 	op 0x17 MODE m16|m32:						INSN "pop" MOD opsz $ss;
-	op 0x1e MODE m16|m32:						INSN "push" MOD opsz $ds;
 	op 0x1f MODE m16|m32:						INSN "pop" MOD opsz $ds;
 	op 0x50/0xf8 MODE m16|m32:					INSN "push" MOD opsz oprega;
 	op 0x50/0xf8 MODE m64 oszpref 1:				INSN "push" ["b16"] opreg16;
@@ -397,6 +398,7 @@ SEQ opr SWITCH {
 	op 0x60 MODE m16|m32 FEATURE op80186:				INSN "pusha" MOD opsz;
 	op 0x61 MODE m16|m32 FEATURE op80186:				INSN "popa" MOD opsz;
 	op 0x63 rexw 1:			SEQ domodrm;			INSN "movsx" ["b64"] reg64 ["b32"] rm32; // XXX: it's valid without REX.W, but "discouraged"... wtf?
+	/* 0x64-0x67: segment and size prefixes - handled in oproot */
 	op 0x68 MODE m16|m32 FEATURE op80186:	SEQ readimma;		INSN "push" MOD opsz imma;
 	op 0x68 MODE m64 oszpref 1:	READ i16;			INSN "push" ["b16"] imm16;
 	op 0x68 MODE m64 oszpref 0:	READ i32;			INSN "push" ["b64"] eimm32;
@@ -440,6 +442,8 @@ SEQ opr SWITCH {
 	op 0xb8/0xf8 osz b64:		READ LE i64;			INSN "mov" opreg64 imm64; // needs a special case: the only insn that allows imm64
 	op 0xc6:			SEQ domodrm; READ i8;		INSN "mov" rm8 imm8;
 	op 0xc7:			SEQ domodrm; SEQ readimma;	INSN "mov" rma imma;
+	/* 0xf0 - lock prefix - handled in oproot */
+	/* 0xf2, 0xf3 - rep prefixes - handled in oproot */
 	op 0xff:			SEQ domodrm;			SWITCH {
 		reg 6 MODE m16|m32:					INSN "push" MOD opsz rma;
 		reg 6 MODE m64 oszpref 1:				INSN "push" ["b16"] rm16;
@@ -477,4 +481,23 @@ SEQ op0f SWITCH {
 	};
 	op 0xc8/0xf8 osz b32 FEATURE op486:				INSN "bswap" ["b32"] opreg32; // needs a special case: b16 variant doesn't exist
 	op 0xc8/0xf8 osz b64 FEATURE op486:				INSN "bswap" ["b64"] opreg64;
+};
+
+SEQ oproot {
+	READ op;
+	SWITCH {
+		op 0x26:		segpref = es; GOTO oproot;
+		op 0x2e:		segpref = cs; GOTO oproot;
+		op 0x36:		segpref = ss; GOTO oproot;
+		op 0x3e:		segpref = ds; GOTO oproot;
+		op 0x40/0xf0 MODE m64:	rexpresent = 1; rex = op[0:3]; GOTO opm;
+		op 0x64:		segpref = fs; GOTO oproot;
+		op 0x65:		segpref = gs; GOTO oproot;
+		op 0x66:		oszpref = 1; GOTO oproot;
+		op 0x67:		aszpref = 1; GOTO oproot;
+		op 0xf0:		lockpref = 1; GOTO oproot;
+		op 0xf2:		reppref = repnz; GOTO oproot;
+		op 0xf3:		reppref = repz; GOTO oproot;
+		DEFAULT:		GOTO opm;
+	};
 };
