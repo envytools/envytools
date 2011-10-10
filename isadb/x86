@@ -381,17 +381,23 @@ OPCHUNK aop 3;
 
 IGROUP alu SWITCH {
 	aop 0: "add";
+	aop 1: "or";
 	aop 2: "adc";
 	aop 3: "sbb";
+	aop 4: "and";
 	aop 5: "sub";
+	aop 6: "xor";
 	aop 7: "cmp";
 };
 
 IGROUP alulock SWITCH {
 	aop 0: "add" MOD lock;
+	aop 1: "or" MOD lock;
 	aop 2: "adc" MOD lock;
 	aop 3: "sbb" MOD lock;
+	aop 4: "and" MOD lock;
 	aop 5: "sub" MOD lock;
+	aop 6: "xor" MOD lock;
 	aop 7: "cmp";
 };
 
@@ -483,6 +489,7 @@ SEQ opm SWITCH {
 	/* 0xf0 - lock prefix - handled in oproot */
 	/* 0xf2, 0xf3 - rep prefixes - handled in oproot */
 	op 0xf6:			SEQ domodrm;			SWITCH {
+		reg 2:							INSN "not" MOD lock ["b8"] rm8;
 		reg 3:							INSN "neg" MOD lock ["b8"] rm8;
 		reg 4:							INSN "mul" ["b8"] rm8;
 		reg 5:							INSN "imul" ["b8"] rm8;
@@ -490,6 +497,7 @@ SEQ opm SWITCH {
 		reg 7:							INSN "idiv" ["b8"] rm8;
 	};
 	op 0xf7:			SEQ domodrm;			SWITCH {
+		reg 2:							INSN "not" MOD lock MOD opsz rma;
 		reg 3:							INSN "neg" MOD lock MOD opsz rma;
 		reg 4:							INSN "mul" MOD opsz rma;
 		reg 5:							INSN "imul" MOD opsz rma;
