@@ -401,6 +401,17 @@ IGROUP alulock SWITCH {
 	aop 7: "cmp";
 };
 
+IGROUP shift SWITCH {
+	reg 0: "rol";
+	reg 1: "ror";
+	reg 2: "rcl";
+	reg 3: "rcr";
+	reg 4: "shl";
+	reg 4: "sal";
+	reg 5: "shr";
+	reg 7: "sar";
+};
+
 /* XXX: what the fuck shall we do with the lock prefix? */
 SEQ opm SWITCH {
 	op 0x00/0xf7:			SEQ domodrm;			INSN IGROUP alulock ["b8"] rm8 reg8;
@@ -482,8 +493,14 @@ SEQ opm SWITCH {
 	op 0xb8/0xf8 osz b16:		READ LE i16;			INSN "mov" opreg16 imm16;
 	op 0xb8/0xf8 osz b32:		READ LE i32;			INSN "mov" opreg32 imm32;
 	op 0xb8/0xf8 osz b64:		READ LE i64;			INSN "mov" opreg64 imm64; // needs a special case: the only insn that allows imm64
+	op 0xc0 FEATURE op80186:	SEQ domodrm; READ i8;		INSN IGROUP shift ["b8"] rm8 imm8;
+	op 0xc1 FEATURE op80186:	SEQ domodrm; READ i8;		INSN IGROUP shift MOD opsz rma imm8;
 	op 0xc6:			SEQ domodrm; READ i8;		INSN "mov" rm8 imm8;
 	op 0xc7:			SEQ domodrm; SEQ readimma;	INSN "mov" rma imma;
+	op 0xd0:			SEQ domodrm;			INSN IGROUP shift ["b8"] rm8 1;
+	op 0xd1:			SEQ domodrm;			INSN IGROUP shift MOD opsz rma 1;
+	op 0xd2:			SEQ domodrm;			INSN IGROUP shift ["b8"] rm8 $cl;
+	op 0xd3:			SEQ domodrm;			INSN IGROUP shift MOD opsz rma $cl;
 	op 0xd4 MODE m16|m32:		READ i8;			INSN "aam" imm8;
 	op 0xd5 MODE m16|m32:		READ i8;			INSN "aad" imm8;
 	/* 0xf0 - lock prefix - handled in oproot */
@@ -525,12 +542,16 @@ SEQ op0f SWITCH {
 	op 0xa1 MODE m16|m32 FEATURE op386:				INSN "pop" MOD opsz $fs;
 	op 0xa1 MODE m64 oszpref 1:					INSN "pop" ["b16"] $fs;
 	op 0xa1 MODE m64 oszpref 0:					INSN "pop" ["b64"] $fs;
+	op 0xa4 FEATURE op386:		SEQ domodrm; READ i8;		INSN "shld" MOD opsz rma rega imm8;
+	op 0xa5 FEATURE op386:		SEQ domodrm;			INSN "shld" MOD opsz rma rega $cl;
 	op 0xa8 MODE m16|m32 FEATURE op386:				INSN "push" MOD opsz $gs;
 	op 0xa8 MODE m64 oszpref 1:					INSN "push" ["b16"] $gs;
 	op 0xa8 MODE m64 oszpref 0:					INSN "push" ["b64"] $gs;
 	op 0xa9 MODE m16|m32 FEATURE op386:				INSN "pop" MOD opsz $gs;
 	op 0xa9 MODE m64 oszpref 1:					INSN "pop" ["b16"] $gs;
 	op 0xa9 MODE m64 oszpref 0:					INSN "pop" ["b64"] $gs;
+	op 0xac FEATURE op386:		SEQ domodrm; READ i8;		INSN "shrd" MOD opsz rma rega imm8;
+	op 0xad FEATURE op386:		SEQ domodrm;			INSN "shrd" MOD opsz rma rega $cl;
 	op 0xaf FEATURE op386:		SEQ domodrm;			INSN "imul" MOD opsz rega rma;
 	op 0xb0 FEATURE op486:		SEQ domodrm;			INSN "cmpxchg" MOD lock ["b8"] rm8 reg8;
 	op 0xb1 FEATURE op486:		SEQ domodrm;			INSN "cmpxchg" MOD lock MOD opsz rma rega;
