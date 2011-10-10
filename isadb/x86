@@ -413,6 +413,10 @@ SEQ opm SWITCH {
 	op 0x0f MODE m16|m32 FEATURE op8086:				INSN "pop" MOD opsz $cs;
 	op 0x17 MODE m16|m32:						INSN "pop" MOD opsz $ss;
 	op 0x1f MODE m16|m32:						INSN "pop" MOD opsz $ds;
+	op 0x27 MODE m16|m32:						INSN "daa";
+	op 0x2f MODE m16|m32:						INSN "das";
+	op 0x37 MODE m16|m32:						INSN "aaa";
+	op 0x3f MODE m16|m32:						INSN "aas";
 	/* 0x40-0x4f used for rex prefix in 64-bit mode - handled in oproot */
 	op 0x40/0xf8 MODE m16|m32:					INSN "inc" MOD opsz oprega;
 	op 0x48/0xf8 MODE m16|m32:					INSN "dec" MOD opsz oprega;
@@ -474,6 +478,8 @@ SEQ opm SWITCH {
 	op 0xb8/0xf8 osz b64:		READ LE i64;			INSN "mov" opreg64 imm64; // needs a special case: the only insn that allows imm64
 	op 0xc6:			SEQ domodrm; READ i8;		INSN "mov" rm8 imm8;
 	op 0xc7:			SEQ domodrm; SEQ readimma;	INSN "mov" rma imma;
+	op 0xd4 MODE m16|m32:		READ i8;			INSN "aam" imm8;
+	op 0xd5 MODE m16|m32:		READ i8;			INSN "aad" imm8;
 	/* 0xf0 - lock prefix - handled in oproot */
 	/* 0xf2, 0xf3 - rep prefixes - handled in oproot */
 	op 0xf6:			SEQ domodrm;			SWITCH {
