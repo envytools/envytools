@@ -652,6 +652,14 @@ SEQ opm SWITCH {
 	op 0xc1 FEATURE op80186:	SEQ domodrm; READ i8;		INSN IGROUP shift MOD opsz rma imm8;
 	op 0xc2:			READ i16;			INSN "ret" MOD opesz imm16;
 	op 0xc3:							INSN "ret" MOD opesz;
+	op 0xc4 MODE m16|m32:		SEQ domodrm;			SWITCH {
+		mod 0-2:						INSN "les" MOD opsz rega mem;
+		/* 3: vex */
+	};
+	op 0xc5 MODE m16|m32:		SEQ domodrm;			SWITCH {
+		mod 0-2:						INSN "lds" MOD opsz rega mem;
+		/* 3: vex */
+	};
 	op 0xc6:			SEQ domodrm; READ i8;		INSN "mov" rm8 imm8;
 	op 0xc7:			SEQ domodrm; SEQ readimma;	INSN "mov" rma imma;
 	op 0xc8 FEATURE op80186:	READ i16; READ d8;		INSN "leave" MOD opesz imm16 IMM(d8);
@@ -755,7 +763,10 @@ SEQ op0f SWITCH {
 	op 0xaf FEATURE op386:		SEQ domodrm;			INSN "imul" MOD opsz rega rma;
 	op 0xb0 FEATURE op486:		SEQ domodrm;			INSN "cmpxchg" MOD lock ["b8"] rm8 reg8;
 	op 0xb1 FEATURE op486:		SEQ domodrm;			INSN "cmpxchg" MOD lock MOD opsz rma rega;
+	op 0xb2 FEATURE op386:		SEQ domodrm;			INSN "lss" MOD opsz rega mem;
 	op 0xb3 FEATURE op386:		SEQ domodrm;			INSN "btr" MOD lock MOD opsz rma rega;
+	op 0xb4 FEATURE op386:		SEQ domodrm;			INSN "lfs" MOD opsz rega mem;
+	op 0xb5 FEATURE op386:		SEQ domodrm;			INSN "lgs" MOD opsz rega mem;
 	op 0xb6 FEATURE op386:		SEQ domodrm;			INSN "movzx" MOD opsz rega ["b8"] rm8;
 	op 0xb7 rexw 0 FEATURE op386:	SEQ domodrm;			INSN "movzx" ["b32"] reg32 ["b16"] rm16;
 	op 0xb7 rexw 1 FEATURE op386:	SEQ domodrm;			INSN "movzx" ["b64"] reg64 ["b16"] rm16;
