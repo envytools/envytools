@@ -202,7 +202,7 @@ EXPR mema32 SWITCH {
 	rm 4 sibb 5 mod 0:		MEM(IMM(d32)		+ sibsi32			SEGMENT segdds MOD ma32 ["abs"]);
 	rm 4 sibb 5 mod 1-2:		MEM($rd[sibb rexb]	+ sibsi32	+ dispa32	SEGMENT segdss MOD ma32);
 	rm 5 mod 0 MODE m16|m32:	MEM(IMM(d32)						SEGMENT segdds MOD ma32 ["abs"]);
-	rm 5 mod 0 MODE m64:		MEM(IMM(d32 PCREL END )					SEGMENT segdds MOD ma32 "pcrel");
+	rm 5 mod 0 MODE m64:		MEM(IMM(d32 PCREL END)					SEGMENT segdds MOD ma32 "pcrel");
 	rm 5 mod 1-2:			MEM($rd[rm rexb]			+ dispa32	SEGMENT segdss MOD ma32);
 };
 
@@ -279,6 +279,19 @@ EXPR imma SWITCH {
 	osz b64:	eimm32;
 };
 
+EXPR btarg8s16 IMM(i8 SEX 16 PCREL END);
+EXPR btarg8s32 IMM(i8 SEX 32 PCREL END);
+EXPR btarg8s64 IMM(i8 SEX 64 PCREL END);
+EXPR btarg16 IMM(i16 PCREL END);
+EXPR btarg32 IMM(i32 PCREL END);
+EXPR btarg32s64 IMM(i32 SEX 64 PCREL END);
+
+EXPR loopreg SWITCH {
+	asz a16:	$cx;
+	asz a32:	$ecx;
+	asz a64:	$rcx;
+};
+
 /* modifiers */
 
 MOD pred SWITCH {
@@ -335,6 +348,15 @@ MOD opsz SWITCH {
 	osz b64:	["b64"];
 };
 
+MOD opesz SWITCH {
+	MODE m16 oszpref 0:	["b16"];
+	MODE m16 oszpref 1:	"b32";
+	MODE m32 oszpref 0:	["b32"];
+	MODE m32 oszpref 1:	"b16";
+	MODE m64 oszpref 0:	["b64"];
+	MODE m64 oszpref 1:	"b16";
+};
+
 MOD lock SWITCH {
 	lockpref 0:		/* nothing */;
 	lockpref 1 mod 0-2:	"lock";		// reject lock prefix if mod == 3 [ie. operand not in memory]
@@ -375,6 +397,44 @@ SEQ mova_addr SWITCH {
 SEQ readimma SWITCH {
 	osz b16:	READ LE i16;
 	osz b32|b64:	READ LE i32;
+};
+
+SEQ readnbtarg SWITCH {
+	MODE m16 oszpref 0:	READ i16;	INSN "j" MOD pred ["near"] ["b16"] btarg16;
+	MODE m16 oszpref 1:	READ i32;	INSN "j" MOD pred ["near"] "b32" btarg32;
+	MODE m32 oszpref 0:	READ i32;	INSN "j" MOD pred ["near"] ["b32"] btarg32;
+	MODE m32 oszpref 1:	READ i16;	INSN "j" MOD pred ["near"] "b16" btarg16;
+	MODE m64:		READ i32;	INSN "j" MOD pred ["near"] ["b64"] btarg32s64;
+};
+
+/* cheat and use d16 for segment */
+SEQ readfbtarg SWITCH {
+	osz b16:		READ i16; READ d16;
+	osz b32:		READ i32; READ d16;
+};
+
+EXPR fbtargseg IMM(d16);
+EXPR fbtarg SWITCH {
+	MODE m16 osz b16:	["b16"] IMM(i16);
+	MODE m16 osz b32:	"b32" IMM(i32);
+	MODE m32 osz b16:	"b16" IMM(i16);
+	MODE m32 osz b32:	["b32"] IMM(i32);
+};
+
+EXPR sbtarg SWITCH {
+	MODE m16 oszpref 0:	["b16"] btarg8s16;
+	MODE m16 oszpref 1:	"b32" btarg8s32;
+	MODE m32 oszpref 0:	["b32"] btarg8s32;
+	MODE m32 oszpref 1:	"b16" btarg8s16;
+	MODE m64:		["b64"] btarg8s64;
+};
+
+EXPR nbtarg SWITCH {
+	MODE m16 oszpref 0:	["b16"] btarg16;
+	MODE m16 oszpref 1:	"b32" btarg32;
+	MODE m32 oszpref 0:	["b32"] btarg32;
+	MODE m32 oszpref 1:	"b16" btarg16;
+	MODE m64:		["b64"] btarg32s64;
 };
 
 OPCHUNK aop 3;
@@ -445,6 +505,7 @@ SEQ opm SWITCH {
 	op 0x58/0xf8 MODE m64 oszpref 0:				INSN "pop" ["b64"] opreg64;
 	op 0x60 MODE m16|m32 FEATURE op80186:				INSN "pusha" MOD opsz;
 	op 0x61 MODE m16|m32 FEATURE op80186:				INSN "popa" MOD opsz;
+	op 0x62 MODE m16|m32 FEATURE op80186:	SEQ domodrm;		INSN "bound" MOD opsz rega mem;
 	op 0x63 rexw 1:			SEQ domodrm;			INSN "movsx" ["b64"] reg64 ["b32"] rm32; // XXX: it's valid without REX.W, but "discouraged"... wtf?
 	/* 0x64-0x67: segment and size prefixes - handled in oproot */
 	op 0x68 MODE m16|m32 FEATURE op80186:	SEQ readimma;		INSN "push" MOD opsz imma;
@@ -455,6 +516,7 @@ SEQ opm SWITCH {
 	op 0x6a MODE m64 oszpref 1:	READ i8;			INSN "push" ["b16"] imm8s16;
 	op 0x6a MODE m64 oszpref 0:	READ i8;			INSN "push" ["b64"] imm8s64;
 	op 0x6b FEATURE op80186:	SEQ domodrm; READ i8;		INSN "imul" MOD opsz rega rma imm8sa;
+	op 0x70/0xf0:			READ i8;			INSN "j" MOD pred ["short"] sbtarg;
 	op 0x80:			SEQ domodrm; READ i8; aop = reg;	INSN IGROUP alulock ["b8"] rm8 imm8;
 	op 0x81:			SEQ domodrm; SEQ readimma; aop = reg;	INSN IGROUP alulock MOD opsz rma imma;
 	op 0x83:			SEQ domodrm; READ i8; aop = reg;	INSN IGROUP alulock MOD opsz rma imm8sa;
@@ -487,6 +549,7 @@ SEQ opm SWITCH {
 	op 0x99 osz b16:						INSN "cwd";
 	op 0x99 osz b32:						INSN "cdq";
 	op 0x99 osz b64:						INSN "cqo";
+	op 0x9a MODE m16|m32:		SEQ readfbtarg;			INSN "lcall" fbtargseg fbtarg;		// XXX: better syntax?
 	op 0xa0:			SEQ mova_addr;			INSN "mov" $al mova_mem;
 	op 0xa1:			SEQ mova_addr;			INSN "mov" acca mova_mem;
 	op 0xa2:			SEQ mova_addr;			INSN "mov" mova_mam $al;
@@ -499,14 +562,34 @@ SEQ opm SWITCH {
 	op 0xb8/0xf8 osz b64:		READ LE i64;			INSN "mov" opreg64 imm64; // needs a special case: the only insn that allows imm64
 	op 0xc0 FEATURE op80186:	SEQ domodrm; READ i8;		INSN IGROUP shift ["b8"] rm8 imm8;
 	op 0xc1 FEATURE op80186:	SEQ domodrm; READ i8;		INSN IGROUP shift MOD opsz rma imm8;
+	op 0xc2:			READ i16;			INSN "ret" MOD opesz imm16;
+	op 0xc3:							INSN "ret" MOD opesz;
 	op 0xc6:			SEQ domodrm; READ i8;		INSN "mov" rm8 imm8;
 	op 0xc7:			SEQ domodrm; SEQ readimma;	INSN "mov" rma imma;
+	op 0xc8 FEATURE op80186:	READ i16; READ d8;		INSN "leave" MOD opesz imm16 IMM(d8);
+	op 0xc9 FEATURE op80186:					INSN "leave" MOD opesz;
+	op 0xca:			READ i16;			INSN "lret" MOD opesz imm16;
+	op 0xcb:							INSN "lret" MOD opesz;
+	op 0xcc:							INSN "int3";
+	op 0xcd:			READ i8;			INSN "int" imm8;
+	op 0xce MODE m16|m32:						INSN "into";
+	op 0xcf:							INSN "iret" MOD opsz;
 	op 0xd0:			SEQ domodrm;			INSN IGROUP shift ["b8"] rm8 1;
 	op 0xd1:			SEQ domodrm;			INSN IGROUP shift MOD opsz rma 1;
 	op 0xd2:			SEQ domodrm;			INSN IGROUP shift ["b8"] rm8 $cl;
 	op 0xd3:			SEQ domodrm;			INSN IGROUP shift MOD opsz rma $cl;
 	op 0xd4 MODE m16|m32:		READ i8;			INSN "aam" imm8;
 	op 0xd5 MODE m16|m32:		READ i8;			INSN "aad" imm8;
+	op 0xe0:			READ i8;			INSN "loopnz" ["short"] sbtarg loopreg;
+	op 0xe0:			READ i8;			INSN "loopne" ["short"] sbtarg loopreg;
+	op 0xe1:			READ i8;			INSN "loopz" ["short"] sbtarg loopreg;
+	op 0xe1:			READ i8;			INSN "loope" ["short"] sbtarg loopreg;
+	op 0xe2:			READ i8;			INSN "loop" ["short"] sbtarg loopreg;
+	op 0xe3:			READ i8;			INSN "jcxz" ["short"] sbtarg loopreg;
+	op 0xe8:			SEQ readnbtarg;			INSN "call" ["near"] nbtarg;
+	op 0xe9:			SEQ readnbtarg;			INSN "jmp" ["near"] nbtarg;
+	op 0xea MODE m16|m32:		SEQ readfbtarg;			INSN "ljmp" fbtargseg fbtarg;
+	op 0xeb:			READ i8;			INSN "jmp" ["short"] sbtarg;
 	/* 0xf0 - lock prefix - handled in oproot */
 	/* 0xf2, 0xf3 - rep prefixes - handled in oproot */
 	op 0xf6:			SEQ domodrm;			SWITCH {
@@ -534,6 +617,10 @@ SEQ opm SWITCH {
 	op 0xff:			SEQ domodrm;			SWITCH {
 		reg 0:							INSN "inc" MOD lock MOD opsz rma;
 		reg 1:							INSN "dec" MOD lock MOD opsz rma;
+		reg 2:							INSN "call" MOD opsz rma;
+		reg 3:							INSN "lcall" MOD opsz mem;
+		reg 4:							INSN "jmp" MOD opsz rma;
+		reg 5:							INSN "ljmp" MOD opsz mem;
 		reg 6 MODE m16|m32:					INSN "push" MOD opsz rma;
 		reg 6 MODE m64 oszpref 1:				INSN "push" ["b16"] rm16;
 		reg 6 MODE m64 oszpref 0:				INSN "push" ["b64"] rm64;
@@ -542,6 +629,7 @@ SEQ opm SWITCH {
 
 SEQ op0f SWITCH {
 	op 0x40/0xf0 FEATURE cmov:	SEQ domodrm;			INSN "cmov" MOD pred MOD opsz rega rma;
+	op 0x80/0xf0 FEATURE op386:	SEQ readnbtarg;			INSN "j" MOD pred ["near"] nbtarg;
 	op 0x90/0xf0 FEATURE op386:	SEQ domodrm;			INSN "set" MOD pred rm8;
 	op 0xa0 MODE m16|m32 FEATURE op386:				INSN "push" MOD opsz $fs;
 	op 0xa0 MODE m64 oszpref 1:					INSN "push" ["b16"] $fs;
