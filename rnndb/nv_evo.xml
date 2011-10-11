@@ -10,18 +10,29 @@
 <domain name="NV_EVO_MASTER" bare="yes" prefix="chipset">
 
 	<!-- write 0 here executes all evo commands pending in PDISPLAY fifo -->
-	<reg32 offset="0x80" name="FLUSH_COMMANDS"/>
+	<reg32 offset="0x80" name="FLUSH"/>
 
-	<reg32 offset="0x84" name="FLUSH2">
-		<bitfield pos="2" name="FLUSH_CLUT_CRTC0"/>
-		<bitfield pos="3" name="FLUSH_CLUT_CRTC1"/>
-		<bitfield pos="30" name="NOTIFY_ENABLED"/> <!--???-->
-		<bitfield pos="31" name="FLUSH_MAIN"/>
+	<reg32 offset="0x84" name="FLUSH_CRTL">
+
+		<!-- set by blob on clut changes -->
+		<bitfield pos="2" name="CRTC0"/>
+		<bitfield pos="3" name="CRTC1"/>
+
+		<!-- if set, device will write non-zero value to first dword
+		     of 'notify' buffer once it completes processing of
+		     commands -->
+		<bitfield pos="31" name="NOTIFY"/>
 	</reg32>
 
-	<!-- dma object that PDISPLAY needs when it uses display sync channels
-	     maybe that stores its state to
-	     when PDISPLAY executes non-main channel?...-->
+	<!--
+		darktama: not sure exactly what this is..
+
+		the first dword of the structure is used by nvidia to wait on
+		full completion of an EVO "update" command
+
+		method 0x8c on the master evo channel will fill a lot more of
+		this structure with some undefined info
+	-->
 	<reg32 offset="0x88" name="DMA_NOTIFY"/>
 
 	<array name="DAC" offset="0x400" stride="0x80" length="2">
@@ -29,7 +40,8 @@
 		<reg32 offset="0x0" name="MODE_CTL">
 			<bitfield pos="0" name="CRTC0"/>
 			<bitfield pos="1" name="CRTC1"/>
-			<bitfield pos="6" name="ENABLED"/>
+
+			<bitfield pos="6" name="UNK6"/>
 
 			<bitfield low="8" high="13"  name="PROTOCOL">
 				<value name="VGA"     value="0x0"/>
@@ -73,7 +85,7 @@
 			<bitfield pos="0" name="CRTC0"/>
 			<bitfield pos="1" name="CRTC1"/>
 
-			<bitfield pos="6" name="ENABLED"/>
+			<bitfield pos="6" name="UNK6"/>
 
 			<bitfield low="8" high="11"  name="PROTOCOL">
 				<value name="LVDS" value="0"/>
@@ -89,11 +101,10 @@
 		</reg32>
 	</array>
 
-
 	<array name="CRTC" offset="0x800" stride="0x400" length="2">
 
 		<reg32 offset="0x004" name="CLOCK">
-			<bitfield low="0" high="22" name="CLK_KHZ" type="uint"/>
+			<bitfield low="0" high="22" name="FREQ_KHZ" type="uint"/>
 			<bitfield pos="23" name="ENABLED"/>
 		</reg32>
 
@@ -101,7 +112,7 @@
 			<bitfield pos="1" name="ENABLED"/>
 		</reg32>
 
-		<reg32 offset="0x010" name="BACKGROUND_COLOR">
+		<reg32 offset="0x010" name="BORDER_COLOR">
 			<bitfield low="0" high="9" name="RED" type="uint"/>
 			<bitfield low="10" high="19" name="GREEN" type="uint"/>
 			<bitfield low="20" high="29" name="BLUE" type="uint"/>
@@ -129,13 +140,13 @@
 			<bitfield low="16" high="31" name="VSYNC_TO_START_DISP_NEXTFIELD" type="uint" />
 		</reg32>
 
-		<!-- TODO: (!) very related to scale/mode. Large values cause flicker on LVDS/DVI/VGA, clock?-->
+		<!-- TODO: (!) very related to scale/mode.
+		     Large values cause flicker on LVDS/DVI/VGA, clock?-->
 		<reg32 offset="0x028" name="UNK828">
 			<bitfield low="0" high="11" name="UNK" type="uint" />
 		</reg32>
 
 		<reg32 offset="0x02C" name="UNK82C"/> <!-- set always to 0 -->
-
 
 		<reg32 offset="0x040" name="CLUT">
 			<bitfield pos="31" name="ENABLED">
@@ -202,19 +213,19 @@
 
 			<bitfield low="3" high="5" name="MODE">
 				<value value="0" name="OFF"/>
-				<value value="3" name="STATIC_2X2"/>
 				<value value="2" name="DYNAMIC_2X2"/>
+				<value value="3" name="STATIC_2X2"/>
 			</bitfield>
 		</reg32>
 
 		<reg32 offset="0x0a4" name="BLUR_CTRL">
-			<!-- BLUR_ENABLE + UNK1 = black screen + hung card,
+			<!-- ENABLE + UNK1 = black screen + hung card with
 			     no way to fix by setting back the old value -->
 			<bitfield low="0" high="1" name="UNK1"/>
 			<bitfield pos="2" name="ENABLE"/>
 			<bitfield pos="3" name="UNK3"/>
 
-			<!-- set to same values as BLUR1, but seems to do nothing -->
+			<!-- set to same value as BLUR1, but seems to do nothing -->
 			<bitfield low="16" high="23" name="BLUR2" type="int"/>
 
 			<!-- Blur value, (negative == sharpness) -->
@@ -269,21 +280,24 @@
 <domain name="NV_EVO_SYNC" bare="yes" prefix="chipset">
 
 	<!-- same as on main EVO channel -->
-	<reg32 offset="0x80" name="FLUSH_COMMANDS"/>
+	<reg32 offset="0x80" name="FLUSH"/>
 
-	<!-- TODO: different values depends on whenever sync semaphore is used -->
-	<reg32 offset="0x84" name="SYNC_CTRL">
-		<bitfield pos="4" name="NOT_USE_SEM"/>
-		<bitfield pos="8" name="USE_SEM"/>
+	<!-- sets conditions as when to execute the flip -->
+	<reg32 offset="0x84" name="SWAP_CRTL">
+		<!-- number of vblanks to wait before swap-->
+		<bitfield low="4" high="7" name="INTERVAL"/>
+
+		<!-- force instant swap -->
+		<bitfield pos="8" name="IMMEDIATE"/>
 	</reg32>
 
 	<!-- Semaphore support to sync against PGRAPH -->
 	<reg32 offset="0x88" name="SEM_OFFSET"/>
-	<reg32 offset="0x8c" name="SEM_WAIT_VALUE"/>
-	<reg32 offset="0x90" name="SEM_WRITE_VALUE"/>
+	<reg32 offset="0x8c" name="SEM_ACQUIRE"/>
+	<reg32 offset="0x90" name="SEM_RELEASE"/>
 	<reg32 offset="0x94" name="SEM_DMAOBJ"/>
 
-	<!-- 0 written on pageflip-->
+	<!-- set to 0  on pageflip -->
 	<reg32 offset="0xa0" name="UNKA0"/>
 	<reg32 offset="0xa5" name="UNKA4"/>
 
@@ -292,17 +306,17 @@
 
 	<!-- darktama: allows gamma somehow, PDISP will bitch at you if
 		* you don't wait for vblank before changing this..
-		nouveau write 0x40000000 here-->
+		nouveau writes 0x40000000 here-->
 	<reg32 offset="0xe0" name="UNKE0"/>
 
 	<!-- set to 0xfffe0000 on page flip -->
 	<reg32 offset="0x100" name="UNK100"/>
 
-	<!-- 0 written on pageflip -->
+	<!-- set to 0  on pageflip -->
 	<reg32 offset="0x110" name="UNK110"/>
 	<reg32 offset="0x114" name="UNK114"/>
 
-	<!-- new framebuffer settings to apply. Same as in main evo channel-->
+	<!-- new framebuffer settings to apply. Same as in main evo channel -->
 	<stripe offset="0x800">
 		<use-group name="nv50_evo_fb_settings" />
 	</stripe>
