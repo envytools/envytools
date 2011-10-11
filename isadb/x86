@@ -363,51 +363,51 @@ MOD repcc SWITCH {
 /* modifiers */
 
 MOD pred SWITCH {
-	op[0:3] 0x0:	"o"
+	op[0:3] 0x0:	"o";
 
-	op[0:3] 0x1:	"no"
+	op[0:3] 0x1:	"no";
 
-	op[0:3] 0x2:	"c"
-	op[0:3] 0x2:	"b"
-	op[0:3] 0x2:	"nae"
+	op[0:3] 0x2:	"c";
+	op[0:3] 0x2:	"b";
+	op[0:3] 0x2:	"nae";
 
-	op[0:3] 0x3:	"nc"
-	op[0:3] 0x3:	"nb"
-	op[0:3] 0x3:	"ae"
+	op[0:3] 0x3:	"nc";
+	op[0:3] 0x3:	"nb";
+	op[0:3] 0x3:	"ae";
 
-	op[0:3] 0x4:	"z"
-	op[0:3] 0x4:	"e"
+	op[0:3] 0x4:	"z";
+	op[0:3] 0x4:	"e";
 
-	op[0:3] 0x5:	"nz"
-	op[0:3] 0x5:	"ne"
+	op[0:3] 0x5:	"nz";
+	op[0:3] 0x5:	"ne";
 
-	op[0:3] 0x6:	"na"
-	op[0:3] 0x6:	"be"
+	op[0:3] 0x6:	"na";
+	op[0:3] 0x6:	"be";
 
-	op[0:3] 0x7:	"a"
-	op[0:3] 0x7:	"nbe"
+	op[0:3] 0x7:	"a";
+	op[0:3] 0x7:	"nbe";
 
-	op[0:3] 0x8:	"s"
+	op[0:3] 0x8:	"s";
 
-	op[0:3] 0x9:	"ns"
+	op[0:3] 0x9:	"ns";
 
-	op[0:3] 0xa:	"p"
-	op[0:3] 0xa:	"pe"
+	op[0:3] 0xa:	"p";
+	op[0:3] 0xa:	"pe";
 
-	op[0:3] 0xb:	"np"
-	op[0:3] 0xb:	"po"
+	op[0:3] 0xb:	"np";
+	op[0:3] 0xb:	"po";
 
-	op[0:3] 0xc:	"l"
-	op[0:3] 0xc:	"nge"
+	op[0:3] 0xc:	"l";
+	op[0:3] 0xc:	"nge";
 
-	op[0:3] 0xd:	"nl"
-	op[0:3] 0xd:	"ge"
+	op[0:3] 0xd:	"nl";
+	op[0:3] 0xd:	"ge";
 
-	op[0:3] 0xe:	"ng"
-	op[0:3] 0xe:	"le"
+	op[0:3] 0xe:	"ng";
+	op[0:3] 0xe:	"le";
 
-	op[0:3] 0xf:	"g"
-	op[0:3] 0xf:	"nle"
+	op[0:3] 0xf:	"g";
+	op[0:3] 0xf:	"nle";
 };
 
 MOD opsz SWITCH {
@@ -482,11 +482,11 @@ SEQ readimma SWITCH {
 };
 
 SEQ readnbtarg SWITCH {
-	MODE m16 oszpref 0:	READ i16;	INSN "j" MOD pred ["near"] ["b16"] btarg16;
-	MODE m16 oszpref 1:	READ i32;	INSN "j" MOD pred ["near"] "b32" btarg32;
-	MODE m32 oszpref 0:	READ i32;	INSN "j" MOD pred ["near"] ["b32"] btarg32;
-	MODE m32 oszpref 1:	READ i16;	INSN "j" MOD pred ["near"] "b16" btarg16;
-	MODE m64:		READ i32;	INSN "j" MOD pred ["near"] ["b64"] btarg32s64;
+	MODE m16 oszpref 0:	READ i16;
+	MODE m16 oszpref 1:	READ i32;
+	MODE m32 oszpref 0:	READ i32;
+	MODE m32 oszpref 1:	READ i16;
+	MODE m64:		READ i32;
 };
 
 /* cheat and use d16 for segment */
