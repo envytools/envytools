@@ -402,6 +402,20 @@ MOD opsz SWITCH {
 	osz b64:	["b64"];
 };
 
+MOD ioopsz SWITCH {
+	MODE m16 oszpref 0:	["b16"];
+	MODE m16 oszpref 1:	["b32"];
+	MODE m32|m64 oszpref 0:	["b32"];
+	MODE m32|m64 oszpref 1:	["b16"];
+};
+
+EXPR ioacca SWITCH {
+	MODE m16 oszpref 0:	$ax;
+	MODE m16 oszpref 1:	$eax;
+	MODE m32|m64 oszpref 0:	$eax;
+	MODE m32|m64 oszpref 1:	$ax;
+};
+
 MOD opesz SWITCH {
 	MODE m16 oszpref 0:	["b16"];
 	MODE m16 oszpref 1:	"b32";
@@ -570,6 +584,10 @@ SEQ opm SWITCH {
 	op 0x6a MODE m64 oszpref 1:	READ i8;			INSN "push" ["b16"] imm8s16;
 	op 0x6a MODE m64 oszpref 0:	READ i8;			INSN "push" ["b64"] imm8s64;
 	op 0x6b FEATURE op80186:	SEQ domodrm; READ i8;		INSN "imul" MOD opsz rega rma imm8sa;
+	op 0x6c FEATURE op80186:					INSN "ins" MOD rep "b8" strdst;
+	op 0x6d FEATURE op80186:					INSN "ins" MOD rep MOD opsz strdst;
+	op 0x6e FEATURE op80186:					INSN "outs" MOD rep "b8" strsrc;
+	op 0x6f FEATURE op80186:					INSN "outs" MOD rep MOD opsz strsrc;
 	op 0x70/0xf0:			READ i8;			INSN "j" MOD pred ["short"] sbtarg;
 	op 0x80:			SEQ domodrm; READ i8; aop = reg;	INSN IGROUP alulock ["b8"] rm8 imm8;
 	op 0x81:			SEQ domodrm; SEQ readimma; aop = reg;	INSN IGROUP alulock MOD opsz rma imma;
@@ -650,10 +668,18 @@ SEQ opm SWITCH {
 	op 0xe1:			READ i8;			INSN "loope" ["short"] sbtarg loopreg;
 	op 0xe2:			READ i8;			INSN "loop" ["short"] sbtarg loopreg;
 	op 0xe3:			READ i8;			INSN "jcxz" ["short"] sbtarg loopreg;
+	op 0xe4:			READ i8;			INSN "in" ["b8"] $al imm8;
+	op 0xe5:			READ i8;			INSN "in" MOD ioopsz ioacca imm8;
+	op 0xe6:			READ i8;			INSN "out" ["b8"] imm8 $al;
+	op 0xe7:			READ i8;			INSN "out" MOD ioopsz imm8 ioacca;
 	op 0xe8:			SEQ readnbtarg;			INSN "call" ["near"] nbtarg;
 	op 0xe9:			SEQ readnbtarg;			INSN "jmp" ["near"] nbtarg;
 	op 0xea MODE m16|m32:		SEQ readfbtarg;			INSN "ljmp" fbtargseg fbtarg;
 	op 0xeb:			READ i8;			INSN "jmp" ["short"] sbtarg;
+	op 0xec:							INSN "in" ["b8"] $al $dx;
+	op 0xed:							INSN "in" MOD ioopsz ioacca $dx;
+	op 0xee:							INSN "out" ["b8"] $dx $al;
+	op 0xef:							INSN "out" MOD ioopsz $dx ioacca;
 	/* 0xf0 - lock prefix - handled in oproot */
 	/* 0xf2, 0xf3 - rep prefixes - handled in oproot */
 	op 0xf6:			SEQ domodrm;			SWITCH {
