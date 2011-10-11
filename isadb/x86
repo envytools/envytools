@@ -51,6 +51,8 @@ FEATURE smx		"Safer mode extensions";
 FEATURE syscall		"SYSCALL/SYSRET instructions";
 FEATURE rdtscp		"RDTSCP instruction";
 
+FEATURE nop		"NOP instruction with parameters"
+
 /* execution modes */
 
 MODE	m16		"16-bit code";
@@ -333,6 +335,12 @@ EXPR strsrc SWITCH {
 	asz a64:	MEM($rsi SEGMENT segdds);
 };
 
+EXPR xlatsrc SWITCH {
+	asz a16:	MEM($bx SEGMENT segdds);
+	asz a32:	MEM($ebx SEGMENT segdds);
+	asz a64:	MEM($rbx SEGMENT segdds);
+};
+
 MOD rep SWITCH {
 	reppref repz:	"rep";
 	reppref null:	/* nothing */;
@@ -603,6 +611,7 @@ SEQ opm SWITCH {
 	op 0x8a:			SEQ domodrm;			INSN "mov" ["b8"] reg8 rm8;
 	op 0x8b:			SEQ domodrm;			INSN "mov" MOD opsz reg16 rm16;
 	op 0x8c:			SEQ domodrm;			INSN "mov" ["b16"] rm16 sreg; // XXX: manual mentions 64-bit forms...
+	op 0x8d:			SEQ domodrm;			INSN "lea" MOD opsz rega mem;
 	op 0x8e:			SEQ domodrm;			INSN "mov" ["b16"] sreg_nocs rm16;
 	op 0x8f:			SEQ domodrm;			SWITCH {
 		reg 0 MODE m16|m32:					INSN "pop" MOD opsz rma;
@@ -676,6 +685,7 @@ SEQ opm SWITCH {
 	op 0xd3:			SEQ domodrm;			INSN IGROUP shift MOD opsz rma $cl;
 	op 0xd4 MODE m16|m32:		READ i8;			INSN "aam" imm8;
 	op 0xd5 MODE m16|m32:		READ i8;			INSN "aad" imm8;
+	op 0xd7:							INSN "xlat" xlatsrc;
 	op 0xe0:			READ i8;			INSN "loopnz" ["short"] sbtarg loopreg;
 	op 0xe0:			READ i8;			INSN "loopne" ["short"] sbtarg loopreg;
 	op 0xe1:			READ i8;			INSN "loopz" ["short"] sbtarg loopreg;
@@ -739,6 +749,11 @@ SEQ opm SWITCH {
 };
 
 SEQ op0f SWITCH {
+	op 0x0b:							INSN "ud2";
+	op 0x1f:			SEQ domodrm;			SWITCH {
+		reg 0 FEATURE nop:					INSN "nop" MOD opsz rma;
+	};
+	op 0x38:			READ op; GOTO op0f38;
 	op 0x40/0xf0 FEATURE cmov:	SEQ domodrm;			INSN "cmov" MOD pred MOD opsz rega rma;
 	op 0x80/0xf0 FEATURE op386:	SEQ readnbtarg;			INSN "j" MOD pred ["near"] nbtarg;
 	op 0x90/0xf0 FEATURE op386:	SEQ domodrm;			INSN "set" MOD pred rm8;
@@ -748,6 +763,7 @@ SEQ op0f SWITCH {
 	op 0xa1 MODE m16|m32 FEATURE op386:				INSN "pop" MOD opsz $fs;
 	op 0xa1 MODE m64 oszpref 1:					INSN "pop" ["b16"] $fs;
 	op 0xa1 MODE m64 oszpref 0:					INSN "pop" ["b64"] $fs;
+	op 0xa2 FEATURE cpuid:						INSN "cpuid";
 	op 0xa3 FEATURE op386:		SEQ domodrm;			INSN "bt" MOD opsz rma rega;
 	op 0xa4 FEATURE op386:		SEQ domodrm; READ i8;		INSN "shld" MOD opsz rma rega imm8;
 	op 0xa5 FEATURE op386:		SEQ domodrm;			INSN "shld" MOD opsz rma rega $cl;
@@ -790,6 +806,11 @@ SEQ op0f SWITCH {
 	};
 	op 0xc8/0xf8 osz b32 FEATURE op486:				INSN "bswap" ["b32"] opreg32; // needs a special case: b16 variant doesn't exist
 	op 0xc8/0xf8 osz b64 FEATURE op486:				INSN "bswap" ["b64"] opreg64;
+};
+
+SEQ op0f38 SWITCH {
+	op 0xf0 FEATURE movbe:		SEQ domodrm;			INSN "movbe" rega rma;
+	op 0xf1 FEATURE movbe:		SEQ domodrm;			INSN "movbe" rma rega;
 };
 
 SEQ oproot {
