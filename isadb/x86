@@ -410,6 +410,12 @@ MOD pred SWITCH {
 	op[0:3] 0xf:	"nle";
 };
 
+MOD bp SWITCH {
+	segpref cs:	"pn";
+	segpref ds:	"pt";
+	segpref null:	/* nothing */;
+};
+
 MOD opsz SWITCH {
 	osz b16:	["b16"];
 	osz b32:	["b32"];
@@ -603,7 +609,7 @@ SEQ opm SWITCH {
 	op 0x6d FEATURE op80186:					INSN "ins" MOD rep MOD opsz strdst;
 	op 0x6e FEATURE op80186:					INSN "outs" MOD rep "b8" strsrc;
 	op 0x6f FEATURE op80186:					INSN "outs" MOD rep MOD opsz strsrc;
-	op 0x70/0xf0:			READ i8;			INSN "j" MOD pred ["short"] sbtarg;
+	op 0x70/0xf0:			READ i8;			INSN "j" MOD bp MOD pred ["short"] sbtarg;
 	op 0x80:			SEQ domodrm; READ i8; aop = reg;	INSN IGROUP alulock ["b8"] rm8 imm8;
 	op 0x81:			SEQ domodrm; SEQ readimma; aop = reg;	INSN IGROUP alulock MOD opsz rma imma;
 	op 0x83:			SEQ domodrm; READ i8; aop = reg;	INSN IGROUP alulock MOD opsz rma imm8sa;
@@ -815,7 +821,7 @@ SEQ op0f SWITCH {
 	op 0x35 FEATURE sep rexw 1:					INSN "sysexit" "b64";
 	op 0x38:			READ op; GOTO op0f38;
 	op 0x40/0xf0 FEATURE cmov:	SEQ domodrm;			INSN "cmov" MOD pred MOD opsz rega rma;
-	op 0x80/0xf0 FEATURE op386:	SEQ readnbtarg;			INSN "j" MOD pred ["near"] nbtarg;
+	op 0x80/0xf0 FEATURE op386:	SEQ readnbtarg;			INSN "j" MOD bp MOD pred ["near"] nbtarg;
 	op 0x90/0xf0 FEATURE op386:	SEQ domodrm;			INSN "set" MOD pred rm8;
 	op 0xa0 MODE m16|m32 FEATURE op386:				INSN "push" MOD opsz $fs;
 	op 0xa0 MODE m64 oszpref 1:					INSN "push" ["b16"] $fs;
