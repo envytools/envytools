@@ -775,11 +775,15 @@ SEQ op0f SWITCH {
 		reg 4 FEATURE op286:					INSN "smsw" rm16;
 		reg 6 FEATURE op286:					INSN "lmsw" rm16;
 		reg 7 mod 0-2 FEATURE op486:				INSN "invlpg" mem;
+		reg 7 mod 3 rm 0 MODE m64:				INSN "swapgs";
 		reg 7 mod 3 rm 1 FEATURE rdtscp:			INSN "rdtscp";
 	};
 	op 0x02 FEATURE op286:		SEQ domodrm;			INSN "lar" MOD opsz rega rm16; // XXX: should be rejected in real mode
 	op 0x03 FEATURE op286:		SEQ domodrm;			INSN "lsl" MOD opsz rega rm16;
+	op 0x05 FEATURE syscall:					INSN "syscall"; // XXX: intel and amd don't agree on valid MODEs
 	op 0x06 FEATURE op286:						INSN "clts";
+	op 0x07 FEATURE syscall rexw 0:					INSN "sysret" ["b32"];
+	op 0x07 FEATURE syscall rexw 1:					INSN "sysret" "b64";
 	op 0x08 FEATURE op486:						INSN "invd";
 	op 0x09 FEATURE op486:						INSN "wbinvd";
 	op 0x0b:							INSN "ud2";
