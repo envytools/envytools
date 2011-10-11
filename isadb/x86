@@ -292,6 +292,31 @@ EXPR loopreg SWITCH {
 	asz a64:	$rcx;
 };
 
+EXPR strdst SWITCH {
+	asz a16:	MEM($di SEGMENT $es);
+	asz a32:	MEM($edi SEGMENT $es);
+	asz a64:	MEM($rdi SEGMENT $es);
+};
+
+EXPR strsrc SWITCH {
+	asz a16:	MEM($si SEGMENT segdds);
+	asz a32:	MEM($esi SEGMENT segdds);
+	asz a64:	MEM($rsi SEGMENT segdds);
+};
+
+MOD rep SWITCH {
+	reppref repz:	"rep";
+	reppref null:	/* nothing */;
+};
+
+MOD repcc SWITCH {
+	reppref repz:	"repz";
+	reppref repz:	"repe";
+	reppref repnz:	"repnz";
+	reppref repnz:	"repne";
+	reppref null:	/* nothing */;
+};
+
 /* modifiers */
 
 MOD pred SWITCH {
@@ -554,8 +579,18 @@ SEQ opm SWITCH {
 	op 0xa1:			SEQ mova_addr;			INSN "mov" acca mova_mem;
 	op 0xa2:			SEQ mova_addr;			INSN "mov" mova_mam $al;
 	op 0xa3:			SEQ mova_addr;			INSN "mov" mova_mem acca;
+	op 0xa4:							INSN "movs" MOD rep "b8" strdst strsrc;
+	op 0xa5:							INSN "movs" MOD rep MOD opsz strdst strsrc;
+	op 0xa6:							INSN "cmps" MOD repcc "b8" strdst strsrc;
+	op 0xa7:							INSN "cmps" MOD repcc MOD opsz strdst strsrc;
 	op 0xa8:			READ i8;			INSN "test" ["b8"] $al imm8;
 	op 0xa9:			SEQ readimma;			INSN "test" MOD opsz acca imma;
+	op 0xaa:							INSN "stos" MOD rep "b8" strdst;
+	op 0xab:							INSN "stos" MOD rep MOD opsz strdst;
+	op 0xac:							INSN "lods" MOD rep "b8" strsrc;
+	op 0xad:							INSN "lods" MOD rep MOD opsz strsrc;
+	op 0xae:							INSN "scas" MOD repcc "b8" strdst;
+	op 0xaf:							INSN "scas" MOD repcc MOD opsz strdst;
 	op 0xb0/0xf8:			READ i8;			INSN "mov" opreg8 imm8;
 	op 0xb8/0xf8 osz b16:		READ LE i16;			INSN "mov" opreg16 imm16;
 	op 0xb8/0xf8 osz b32:		READ LE i32;			INSN "mov" opreg32 imm32;
