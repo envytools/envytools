@@ -622,6 +622,12 @@ SEQ opm SWITCH {
 	op 0x99 osz b32:						INSN "cdq";
 	op 0x99 osz b64:						INSN "cqo";
 	op 0x9a MODE m16|m32:		SEQ readfbtarg;			INSN "lcall" fbtargseg fbtarg;		// XXX: better syntax?
+	op 0x9c:							INSN "pushf" MOD opesz;
+	op 0x9d:							INSN "popf" MOD opesz;
+	op 0x9e MODE m16|m32:						INSN "sahf";
+	op 0x9e MODE m64 FEATURE lahf64					INSN "sahf";
+	op 0x9f MODE m16|m32:						INSN "lahf";
+	op 0x9f MODE m64 FEATURE lahf64					INSN "lahf";
 	op 0xa0:			SEQ mova_addr;			INSN "mov" $al mova_mem;
 	op 0xa1:			SEQ mova_addr;			INSN "mov" acca mova_mem;
 	op 0xa2:			SEQ mova_addr;			INSN "mov" mova_mam $al;
@@ -682,6 +688,7 @@ SEQ opm SWITCH {
 	op 0xef:							INSN "out" MOD ioopsz $dx ioacca;
 	/* 0xf0 - lock prefix - handled in oproot */
 	/* 0xf2, 0xf3 - rep prefixes - handled in oproot */
+	op 0xf5:							INSN "cmc";
 	op 0xf6:			SEQ domodrm;			SWITCH {
 		reg 0:			READ i8;			INSN "test" ["b8"] rm8 imm8;
 		reg 2:							INSN "not" MOD lock ["b8"] rm8;
@@ -700,6 +707,12 @@ SEQ opm SWITCH {
 		reg 6:							INSN "div" MOD opsz rma;
 		reg 7:							INSN "idiv" MOD opsz rma;
 	};
+	op 0xf8:							INSN "clc";
+	op 0xf9:							INSN "stc";
+	op 0xfa:							INSN "cli";
+	op 0xfb:							INSN "sti";
+	op 0xfc:							INSN "cld";
+	op 0xfd:							INSN "std";
 	op 0xfe:			SEQ domodrm;			SWITCH {
 		reg 0:							INSN "inc" MOD lock ["b8"] rm8;
 		reg 1:							INSN "dec" MOD lock ["b8"] rm8;
