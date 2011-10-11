@@ -9,6 +9,8 @@ FEATURE cpuid		"CPUID instruction"	IMPLIES op486;
 FEATURE fpu		"FPU";
 FEATURE fpu387		"80387+ FPU"		IMPLIES fpu;
 FEATURE fpu486		"80486+ FPU"		IMPLIES fpu387;
+FEATURE testreg		"$tr registers"		IMPLIES op386;
+FEATURE smm		"System management mode"	IMPLIES op386;
 
 /* cpuid features */
 
@@ -50,6 +52,7 @@ FEATURE vmx		"Virtual machine extensions";
 FEATURE smx		"Safer mode extensions";
 FEATURE syscall		"SYSCALL/SYSRET instructions";
 FEATURE rdtscp		"RDTSCP instruction";
+FEATURE rdpmc		"RDPMC instruction";
 
 FEATURE nop		"NOP instruction with parameters"
 
@@ -274,6 +277,9 @@ EXPR reg8 $rb[reg rexr];
 EXPR reg16 $rw[reg rexr];
 EXPR reg32 $rd[reg rexr];
 EXPR reg64 $r[reg rexr];
+EXPR creg $cr[reg rexr];
+EXPR dreg $dr[reg rexr];
+EXPR treg $tr[reg rexr];
 
 EXPR opreg8 $rb[op[0:2] rexr];
 EXPR opreg16 $rw[op[0:2] rexr];
@@ -582,6 +588,7 @@ SEQ opm SWITCH {
 	op 0x60 MODE m16|m32 FEATURE op80186:				INSN "pusha" MOD opsz;
 	op 0x61 MODE m16|m32 FEATURE op80186:				INSN "popa" MOD opsz;
 	op 0x62 MODE m16|m32 FEATURE op80186:	SEQ domodrm;		INSN "bound" MOD opsz rega mem;
+	op 0x64 MODE m16|m32 FEATURE op286:	SEQ domodrm;		INSN "arpl" rm16 reg16; // XXX: should be rejected in real mode
 	op 0x63 rexw 1:			SEQ domodrm;			INSN "movsx" ["b64"] reg64 ["b32"] rm32; // XXX: it's valid without REX.W, but "discouraged"... wtf?
 	/* 0x64-0x67: segment and size prefixes - handled in oproot */
 	op 0x68 MODE m16|m32 FEATURE op80186:	SEQ readimma;		INSN "push" MOD opsz imma;
@@ -706,6 +713,7 @@ SEQ opm SWITCH {
 	op 0xef:							INSN "out" MOD ioopsz $dx ioacca;
 	/* 0xf0 - lock prefix - handled in oproot */
 	/* 0xf2, 0xf3 - rep prefixes - handled in oproot */
+	op 0xf4:							INSN "hlt";
 	op 0xf5:							INSN "cmc";
 	op 0xf6:			SEQ domodrm;			SWITCH {
 		reg 0:			READ i8;			INSN "test" ["b8"] rm8 imm8;
@@ -749,10 +757,58 @@ SEQ opm SWITCH {
 };
 
 SEQ op0f SWITCH {
+	op 0x00:			SEQ domodrm;			SWITCH {
+		reg 0 FEATURE op286:					INSN "sldt" rm16;
+		reg 1 FEATURE op286:					INSN "str" rm16;
+		reg 2 FEATURE op286:					INSN "lldt" rm16;
+		reg 3 FEATURE op286:					INSN "ltr" rm16;
+		reg 4 FEATURE op286:					INSN "verr" rm16;
+		reg 5 FEATURE op286:					INSN "verw" rm16;
+	};
+	op 0x01:			SEQ domodrm;			SWITCH {
+		reg 0 mod 0-2 FEATURE op286:				INSN "sgdt" mem;
+		reg 1 mod 0-2 FEATURE op286:				INSN "sidt" mem;
+		reg 2 mod 0-2 FEATURE op286:				INSN "lgdt" mem;
+		reg 2 mod 3 rm 0 FEATURE xsave:				INSN "xgetbv";
+		reg 2 mod 3 rm 1 FEATURE xsave:				INSN "xsetbv";
+		reg 3 mod 0-2 FEATURE op286:				INSN "lidt" mem;
+		reg 4 FEATURE op286:					INSN "smsw" rm16;
+		reg 6 FEATURE op286:					INSN "lmsw" rm16;
+		reg 7 mod 0-2 FEATURE op486:				INSN "invlpg" mem;
+		reg 7 mod 3 rm 1 FEATURE rdtscp:			INSN "rdtscp";
+	};
+	op 0x02 FEATURE op286:		SEQ domodrm;			INSN "lar" MOD opsz rega rm16; // XXX: should be rejected in real mode
+	op 0x03 FEATURE op286:		SEQ domodrm;			INSN "lsl" MOD opsz rega rm16;
+	op 0x06 FEATURE op286:						INSN "clts";
+	op 0x08 FEATURE op486:						INSN "invd";
+	op 0x09 FEATURE op486:						INSN "wbinvd";
 	op 0x0b:							INSN "ud2";
 	op 0x1f:			SEQ domodrm;			SWITCH {
 		reg 0 FEATURE nop:					INSN "nop" MOD opsz rma;
 	};
+	op 0x20/0xfc FEATURE op386:	SEQ domodrm;			SWITCH {
+		op 0x20 mod 3 MODE m16|m32:				INSN "mov" rm32 creg;
+		op 0x20 mod 3 MODE m64:					INSN "mov" rm64 creg;
+		op 0x21 mod 3 MODE m16|m32:				INSN "mov" rm32 dreg;
+		op 0x21 mod 3 MODE m64:					INSN "mov" rm64 dreg;
+		op 0x22 mod 3 MODE m16|m32:				INSN "mov" creg rm32;
+		op 0x22 mod 3 MODE m64:					INSN "mov" creg rm64;
+		op 0x23 mod 3 MODE m16|m32:				INSN "mov" dreg rm32;
+		op 0x23 mod 3 MODE m64:					INSN "mov" dreg rm64;
+	};
+	op 0x24/0xfd FEATURE testreg:	SEQ domodrm;			SWITCH {
+		op 0x24 mod 3 MODE m16|m32:				INSN "mov" rm32 treg;
+		op 0x24 mod 3 MODE m64:					INSN "mov" rm64 treg;
+		op 0x26 mod 3 MODE m16|m32:				INSN "mov" treg rm32;
+		op 0x26 mod 3 MODE m64:					INSN "mov" treg rm64;
+	};
+	op 0x30 FEATURE msr:						INSN "wrmsr";
+	op 0x31 FEATURE tsc:						INSN "rdtsc";
+	op 0x32 FEATURE msr:						INSN "rdmsr";
+	op 0x33 FEATURE rdpmc:						INSN "rdpmc";
+	op 0x34 FEATURE sep:						INSN "sysenter"; // XXX: intel and amd don't agree on valid MODEs
+	op 0x35 FEATURE sep rexw 0:					INSN "sysexit" ["b32"];
+	op 0x35 FEATURE sep rexw 1:					INSN "sysexit" "b64";
 	op 0x38:			READ op; GOTO op0f38;
 	op 0x40/0xf0 FEATURE cmov:	SEQ domodrm;			INSN "cmov" MOD pred MOD opsz rega rma;
 	op 0x80/0xf0 FEATURE op386:	SEQ readnbtarg;			INSN "j" MOD pred ["near"] nbtarg;
@@ -773,9 +829,18 @@ SEQ op0f SWITCH {
 	op 0xa9 MODE m16|m32 FEATURE op386:				INSN "pop" MOD opsz $gs;
 	op 0xa9 MODE m64 oszpref 1:					INSN "pop" ["b16"] $gs;
 	op 0xa9 MODE m64 oszpref 0:					INSN "pop" ["b64"] $gs;
+	op 0xaa FEATURE smm:						INSN "rsm";
 	op 0xab FEATURE op386:		SEQ domodrm;			INSN "bts" MOD lock MOD opsz rma rega;
 	op 0xac FEATURE op386:		SEQ domodrm; READ i8;		INSN "shrd" MOD opsz rma rega imm8;
 	op 0xad FEATURE op386:		SEQ domodrm;			INSN "shrd" MOD opsz rma rega $cl;
+	op 0xae:			SEQ domodrm;			SWITCH {
+		reg 4 mod 0-2 rexw 0 FEATURE xsave:			INSN "xsave" ["b32"] mem;
+		reg 4 mod 0-2 rexw 1 FEATURE xsave:			INSN "xsave" "b64" mem;
+		reg 5 mod 0-2 rexw 0 FEATURE xsave:			INSN "xrstor" ["b32"] mem;
+		reg 5 mod 0-2 rexw 1 FEATURE xsave:			INSN "xrstor" "b64" mem;
+		reg 6 mod 0-2 rexw 0 FEATURE xsaveopt:			INSN "xsaveopt" ["b32"] mem;
+		reg 6 mod 0-2 rexw 1 FEATURE xsaveopt:			INSN "xsaveopt" "b64" mem;
+	};
 	op 0xaf FEATURE op386:		SEQ domodrm;			INSN "imul" MOD opsz rega rma;
 	op 0xb0 FEATURE op486:		SEQ domodrm;			INSN "cmpxchg" MOD lock ["b8"] rm8 reg8;
 	op 0xb1 FEATURE op486:		SEQ domodrm;			INSN "cmpxchg" MOD lock MOD opsz rma rega;
