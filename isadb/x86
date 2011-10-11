@@ -166,6 +166,18 @@ EXPR dispa16 SWITCH {
 	mod 2:		IMM(d16);
 };
 
+EXPR dispa32 SWITCH {
+	mod 0:		ZERO;
+	mod 1:		IMM(d8 SEX 32);
+	mod 2:		IMM(d32);
+};
+
+EXPR dispa64 SWITCH {
+	mod 0:		ZERO;
+	mod 1:		IMM(d8 SEX 64);
+	mod 2:		IMM(d32 SEX 64);
+};
+
 MOD ma16 SWITCH {
 	MODE m32	"a16";
 	MODE m16	["a16"];
@@ -204,6 +216,23 @@ EXPR mema32 SWITCH {
 	rm 5 mod 0 MODE m16|m32:	MEM(IMM(d32)						SEGMENT segdds MOD ma32 ["abs"]);
 	rm 5 mod 0 MODE m64:		MEM(IMM(d32 PCREL END)					SEGMENT segdds MOD ma32 "pcrel");
 	rm 5 mod 1-2:			MEM($rd[rm rexb]			+ dispa32	SEGMENT segdss MOD ma32);
+};
+
+EXPR sibsi64 SWITCH {
+	sibi#rexx 0-3|5-15 sibs 0:	$r[sibi rexx] * 1;
+	sibi#rexx 0-3|5-15 sibs 1:	$r[sibi rexx] * 2;
+	sibi#rexx 0-3|5-15 sibs 2:	$r[sibi rexx] * 4;
+	sibi#rexx 0-3|5-15 sibs 3:	$r[sibi rexx] * 8;
+	sibi#rexx 4:			0;
+};
+
+EXPR mema64 SWITCH {
+	rm 0-3|6-7:			MEM($r[rm rexb]				+ dispa64	SEGMENT segdds MOD ["a64"]);
+	rm 4 sibb 0-4|6-7:		MEM($r[sibb rexb]	+ sibsi64	+ dispa64	SEGMENT segdds MOD ["a64"]);
+	rm 4 sibb 5 mod 0:		MEM(IMM(d32 SEX 64)	+ sibsi64			SEGMENT segdds MOD ["a64"] ["abs"]);
+	rm 4 sibb 5 mod 1-2:		MEM($r[sibb rexb]	+ sibsi64	+ dispa64	SEGMENT segdss MOD ["a64"]);
+	rm 5 mod 0:			MEM(IMM(d32 SEX 64 PCREL END)				SEGMENT segdds MOD ["a64"] "pcrel");
+	rm 5 mod 1-2:			MEM($r[rm rexb]				+ dispa64	SEGMENT segdss MOD ["a64"]);
 };
 
 EXPR mem SWITCH {
