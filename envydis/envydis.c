@@ -1,6 +1,6 @@
 /*
  *
- * Copyright (C) 2009 Marcin Kościelnicki <koriakin@0x04.net>
+ * Copyright (C) 2010-2011 Marcin Kościelnicki <koriakin@0x04.net>
  * All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
