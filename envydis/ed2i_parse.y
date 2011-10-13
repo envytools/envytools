@@ -61,6 +61,7 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 /* XXX: destructors */
 
 %token <str> T_WORD
+%token <str> T_LBSTR
 %token <str> T_REG
 %token <astr> T_STR
 %token <num> T_NUM
@@ -76,6 +77,31 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 %token T_VARIANT "VARIANT"
 %token T_MODE "MODE"
 %token T_DEFAULT "DEFAULT"
+%token T_OPFIELD "OPFIELD"
+%token T_DEFZERO "DEFZERO"
+%token T_ENUM "ENUM"
+%token T_BITS "BITS"
+%token T_FUNC "FUNC"
+%token T_SWITCH "SWITCH"
+%token T_EXPR "EXPR"
+%token T_IMM "IMM"
+%token T_MEM "MEM"
+%token T_SEGMENT "SEGMENT"
+%token T_SEX "SEX"
+%token T_MOD "MOD"
+%token T_PCREL "PCREL"
+%token T_START "START"
+%token T_END "END"
+%token T_READ "READ"
+%token T_LET "LET"
+%token T_GOTO "GOTO"
+%token T_SEQ "SEQ"
+%token T_LE "LE"
+%token T_BE "BE"
+%token T_ARG "ARG"
+%token T_IGROUP "IGROUP"
+%token T_INSN "INSN"
+%token T_CONST "CONST"
 
 %type <str> strnn
 %type <str> description
@@ -104,6 +130,13 @@ file:	/**/		{ $$ = calloc(sizeof *$$, 1); }
 |	file feature	{ $$ = $1; ADDARRAY($$->features, $2); }
 |	file variant	{ $$ = $1; ADDARRAY($$->variants, $2); }
 |	file mode	{ $$ = $1; ADDARRAY($$->modes, $2); }
+|	file opfield
+|	file func
+|	file exprdef
+|	file argdef
+|	file moddef
+|	file seqdef
+|	file igroup
 |	file error ';'	{ $$ = $1; $$->broken = 1; }
 ;
 
@@ -139,6 +172,204 @@ memods:		/**/	{ $$ = calloc(sizeof *$$, 1); }
 ;
 
 strnn:		T_STR	{ $$ = $1.str; if (strlen($$) != $1.len) YYERROR; }
+;
+
+opfield:	"OPFIELD" T_WORD T_NUM opfmods ';'
+|		"OPFIELD" T_WORD "ENUM" '{' enumvals '}'  opfmods ';'
+;
+
+func:		"FUNC" T_WORD T_NUM funcval ';'
+|		"FUNC" T_WORD "ENUM" '{' enumvals '}' funcval ';'
+;
+
+enumvals:	enumvals enumval
+|		/**/
+;
+
+enumval:	T_WORD ';'
+|		T_WORD "DEFAULT" ';'
+;
+
+opfmods:	/**/
+|		opfmods "DEFZERO"
+|		opfmods "BITS" '{' opfbitfields '}'
+;
+
+opfbitfields:	opfbitfields opfbitfield
+|		/**/
+;
+
+
+opfbitfield:	T_NUM T_WORD ';'
+|		T_NUM ':' T_NUM T_WORD ';'
+;
+
+funcval:	T_NUM
+|		T_WORD
+|		"SWITCH" '{' funccases '}'
+;
+
+funccases:	funccases case funcval ';'
+|		/* */
+;
+
+exprdef:	"EXPR" T_WORD fexpr ';'
+;
+
+argdef:		"ARG" T_WORD arg ';'
+;
+
+arg:		"SWITCH" '{' argcases '}'
+|		qmods expr
+;
+
+argcases:	argcases case arg ';'
+|		/* */
+;
+
+fexpr:		"SWITCH" '{' exprcases '}'
+|		expr
+;
+
+expr:		expr '+' expr6
+|		expr6
+;
+
+expr6:		expr6 '*' expra
+|		expra
+;
+
+expra:		"MEM" '(' expr memmods ')'
+|		"IMM" '(' bitfield immmods ')'
+|		T_WORD
+|		T_REG
+|		T_REG '[' bitfield ']'
+|		T_NUM
+|		'#'
+;
+
+memmods:	/* */
+|		memmods "SEGMENT" expr
+|		memmods qmod
+;
+
+immmods:	/* */
+|		immmods "SEX" T_NUM
+|		immmods "PCREL" "END"
+|		immmods "PCREL" "START" /* XXX: anchors? */
+;
+
+exprcases:	exprcases case fexpr ';'
+|		/* */
+;
+
+moddef:		"MOD" T_WORD mods ';'
+;
+
+qmods:		qmods qmod
+|		/* */
+;
+
+mods:		mods mod
+|		/* */
+;
+
+mod:		"SWITCH" '{' modcases '}'
+|		qmod
+;
+
+qmod:		"MOD" T_WORD
+|		T_STR
+|		T_LBSTR ']'
+;
+
+modcases:	modcases case mods ';'
+|		/* */
+;
+
+igroup:		"IGROUP" T_WORD fbinsn ';'
+;
+
+fbinsn:		"SWITCH" '{' binsncases '}'
+|		binsn mods
+;
+
+binsncases:	binsncases case fbinsn ';'
+|		/* */
+;
+
+binsn:		T_STR
+|		"IGROUP" T_WORD
+;
+
+insn:		binsn args qmods
+;
+
+args:		args arg
+|		/**/
+;
+
+seqdef:		"SEQ" T_WORD seq ';'
+;
+
+seq:		"SWITCH" '{' seqcases '}'
+|		'{' seqs '}'
+|		"READ" T_WORD
+|		"READ" "LE" T_WORD
+|		"READ" "BE" T_WORD
+|		"LET" bitfield '=' bitfield
+|		"LET" bitfield '=' "CONST" expr
+|		"GOTO" T_WORD
+|		"SEQ" T_WORD
+|		"INSN" insn
+;
+
+seqcases:	seqcases case seqs
+|		/* */
+;
+
+seqs:		seqs seq ';'
+|		/* */
+;
+
+case:		caseparts ':'
+;
+
+caseparts:	caseparts casepart
+|		/* */
+;
+
+casepart:	"MODE" cmodelist
+|		"FEATURE" cfeatlist
+|		bitfield cmatchlist
+;
+
+cmodelist:	T_WORD
+|		cmodelist '|' T_WORD
+;
+
+cfeatlist:	T_WORD
+|		cfeatlist '&' T_WORD
+;
+
+cmatchlist:	cmatchvar
+|		cmatchlist '|' cmatchvar
+;
+
+cmatchvar:	T_WORD	/* for enums */
+|		T_NUM
+|		T_NUM '/' T_NUM
+|		T_NUM '-' T_NUM
+|		T_NUM '-' T_NUM '/' T_NUM
+;
+
+bitfield:	bitchunk
+|		bitfield '#' bitchunk
+;
+
+bitchunk:	T_WORD
+|		T_WORD '[' T_NUM ']'
+|		T_WORD '[' T_NUM ':' T_NUM ']'
 ;
 
 %%

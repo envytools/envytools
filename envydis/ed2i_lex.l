@@ -55,6 +55,31 @@
 "VARIANT"			{ yyextra.ws = 0; return T_VARIANT; }
 "MODE"				{ yyextra.ws = 0; return T_MODE; }
 "DEFAULT"			{ yyextra.ws = 0; return T_DEFAULT; }
+"OPFIELD"			{ yyextra.ws = 0; return T_OPFIELD; }
+"DEFZERO"			{ yyextra.ws = 0; return T_DEFZERO; }
+"ENUM"				{ yyextra.ws = 0; return T_ENUM; }
+"BITS"				{ yyextra.ws = 0; return T_BITS; }
+"FUNC"				{ yyextra.ws = 0; return T_FUNC; }
+"SWITCH"			{ yyextra.ws = 0; return T_SWITCH; }
+"EXPR"				{ yyextra.ws = 0; return T_EXPR; }
+"IMM"				{ yyextra.ws = 0; return T_IMM; }
+"MEM"				{ yyextra.ws = 0; return T_MEM; }
+"SEGMENT"			{ yyextra.ws = 0; return T_SEGMENT; }
+"SEX"				{ yyextra.ws = 0; return T_SEX; }
+"MOD"				{ yyextra.ws = 0; return T_MOD; }
+"PCREL"				{ yyextra.ws = 0; return T_PCREL; }
+"START"				{ yyextra.ws = 0; return T_START; }
+"END"				{ yyextra.ws = 0; return T_END; }
+"READ"				{ yyextra.ws = 0; return T_READ; }
+"LET"				{ yyextra.ws = 0; return T_LET; }
+"GOTO"				{ yyextra.ws = 0; return T_GOTO; }
+"SEQ"				{ yyextra.ws = 0; return T_SEQ; }
+"LE"				{ yyextra.ws = 0; return T_LE; }
+"BE"				{ yyextra.ws = 0; return T_BE; }
+"ARG"				{ yyextra.ws = 0; return T_ARG; }
+"IGROUP"			{ yyextra.ws = 0; return T_IGROUP; }
+"INSN"				{ yyextra.ws = 0; return T_INSN; }
+"CONST"				{ yyextra.ws = 0; return T_CONST; }
 [a-z_][a-zA-Z_0-9]*		{ yyextra.ws = 0; yylval->str = strdup(yytext); return T_WORD; }
 \$[a-zA-Z_0-9]*			{ yyextra.ws = 0; yylval->str = strdup(yytext+1); return T_REG; }
 0[0-7]*|[1-9][0-9]*|0[xX][0-9a-fA-F]+		{ yyextra.ws = 0; yylval->num = strtoull(yytext, 0, 0); return T_NUM; }
@@ -64,8 +89,9 @@
 "-"/[^-= \t]			{ if (yyextra.ws) { yyextra.ws = 0; return T_UMINUS; } else { yyextra.ws = 0; return '-'; } }
 "--"				{ yyextra.ws = 0; return T_MINUSMINUS; }
 "-="				{ yyextra.ws = 0; return T_MINUSEQ; }
-[({]				{ yyextra.ws = 1; return yytext[0]; }
-[*+&|)}\]:;#.]			{ yyextra.ws = 0; return yytext[0]; }
+\[\"([^\\"]|\\[\\"'nrtafv]|\\x[0-9a-fA-F][0-9a-fA-F])*\"	{ yyextra.ws = 0; yylval->astr.str = ed2_str_deescape(yytext+1, &yylval->astr.len); return T_LBSTR; }
+[[({]				{ yyextra.ws = 1; return yytext[0]; }
+[*=/+&|)}\]:;#.]		{ yyextra.ws = 0; return yytext[0]; }
 \"([^\\"]|\\[\\"'nrtafv]|\\x[0-9a-fA-F][0-9a-fA-F])*\"	{ yyextra.ws = 0; yylval->astr.str = ed2_str_deescape(yytext, &yylval->astr.len); return T_STR; }
 .				{ return T_ERR; }
 <ncomment>"+/"			{ yyextra.nest--; if (!yyextra.nest) BEGIN normal; }
