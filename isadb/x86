@@ -138,25 +138,25 @@ FUNC asz ENUM {
 /* expressions */
 
 EXPR segdds SWITCH {
-	segpref null	$ds;
-	segpref null	#;
-	segpref es	$es;
-	segpref cs	$cs;
-	segpref ss	$ss;
-	segpref ds	$ds;
-	segpref fs	$fs;
-	segpref gs	$gs;
+	segpref null:	$ds;
+	segpref null:	#;
+	segpref es:	$es;
+	segpref cs:	$cs;
+	segpref ss:	$ss;
+	segpref ds:	$ds;
+	segpref fs:	$fs;
+	segpref gs:	$gs;
 };
 
 EXPR segdss SWITCH {
-	segpref null	$ss;
-	segpref null	#;
-	segpref es	$es;
-	segpref cs	$cs;
-	segpref ss	$ss;
-	segpref ds	$ds;
-	segpref fs	$fs;
-	segpref gs	$gs;
+	segpref null:	$ss;
+	segpref null:	#;
+	segpref es:	$es;
+	segpref cs:	$cs;
+	segpref ss:	$ss;
+	segpref ds:	$ds;
+	segpref fs:	$fs;
+	segpref gs:	$gs;
 };
 
 EXPR mova_mem SWITCH {
@@ -166,31 +166,31 @@ EXPR mova_mem SWITCH {
 };
 
 EXPR dispa16 SWITCH {
-	mod 0:		ZERO;
+	mod 0:		0;
 	mod 1:		IMM(d8 SEX 16);
 	mod 2:		IMM(d16);
 };
 
 EXPR dispa32 SWITCH {
-	mod 0:		ZERO;
+	mod 0:		0;
 	mod 1:		IMM(d8 SEX 32);
 	mod 2:		IMM(d32);
 };
 
 EXPR dispa64 SWITCH {
-	mod 0:		ZERO;
+	mod 0:		0;
 	mod 1:		IMM(d8 SEX 64);
 	mod 2:		IMM(d32 SEX 64);
 };
 
 MOD ma16 SWITCH {
-	MODE m32	"a16";
-	MODE m16	["a16"];
+	MODE m32:	"a16";
+	MODE m16:	["a16"];
 };
 
 MOD ma32 SWITCH {
-	MODE m16|m64	"a32";
-	MODE m32	["a32"];
+	MODE m16|m64:	"a32";
+	MODE m32:	["a32"];
 };
 
 EXPR mema16 SWITCH {
@@ -206,38 +206,38 @@ EXPR mema16 SWITCH {
 };
 
 EXPR sibsi32 SWITCH {
-	sibi#rexx 0-3|5-15 sibs 0:	$rd[sibi rexx] * 1;
-	sibi#rexx 0-3|5-15 sibs 1:	$rd[sibi rexx] * 2;
-	sibi#rexx 0-3|5-15 sibs 2:	$rd[sibi rexx] * 4;
-	sibi#rexx 0-3|5-15 sibs 3:	$rd[sibi rexx] * 8;
+	sibi#rexx 0-3|5-15 sibs 0:	$rd[sibi#rexx] * 1;
+	sibi#rexx 0-3|5-15 sibs 1:	$rd[sibi#rexx] * 2;
+	sibi#rexx 0-3|5-15 sibs 2:	$rd[sibi#rexx] * 4;
+	sibi#rexx 0-3|5-15 sibs 3:	$rd[sibi#rexx] * 8;
 	sibi#rexx 4:			0;
 };
 
 EXPR mema32 SWITCH {
-	rm 0-3|6-7:			MEM($rd[rm rexb]			+ dispa32	SEGMENT segdds MOD ma32);
-	rm 4 sibb 0-4|6-7:		MEM($rd[sibb rexb]	+ sibsi32	+ dispa32	SEGMENT segdds MOD ma32);
+	rm 0-3|6-7:			MEM($rd[rm#rexb]			+ dispa32	SEGMENT segdds MOD ma32);
+	rm 4 sibb 0-4|6-7:		MEM($rd[sibb#rexb]	+ sibsi32	+ dispa32	SEGMENT segdds MOD ma32);
 	rm 4 sibb 5 mod 0:		MEM(IMM(d32)		+ sibsi32			SEGMENT segdds MOD ma32 ["abs"]);
-	rm 4 sibb 5 mod 1-2:		MEM($rd[sibb rexb]	+ sibsi32	+ dispa32	SEGMENT segdss MOD ma32);
+	rm 4 sibb 5 mod 1-2:		MEM($rd[sibb#rexb]	+ sibsi32	+ dispa32	SEGMENT segdss MOD ma32);
 	rm 5 mod 0 MODE m16|m32:	MEM(IMM(d32)						SEGMENT segdds MOD ma32 ["abs"]);
 	rm 5 mod 0 MODE m64:		MEM(IMM(d32 PCREL END)					SEGMENT segdds MOD ma32 "pcrel");
-	rm 5 mod 1-2:			MEM($rd[rm rexb]			+ dispa32	SEGMENT segdss MOD ma32);
+	rm 5 mod 1-2:			MEM($rd[rm#rexb]			+ dispa32	SEGMENT segdss MOD ma32);
 };
 
 EXPR sibsi64 SWITCH {
-	sibi#rexx 0-3|5-15 sibs 0:	$r[sibi rexx] * 1;
-	sibi#rexx 0-3|5-15 sibs 1:	$r[sibi rexx] * 2;
-	sibi#rexx 0-3|5-15 sibs 2:	$r[sibi rexx] * 4;
-	sibi#rexx 0-3|5-15 sibs 3:	$r[sibi rexx] * 8;
+	sibi#rexx 0-3|5-15 sibs 0:	$r[sibi#rexx] * 1;
+	sibi#rexx 0-3|5-15 sibs 1:	$r[sibi#rexx] * 2;
+	sibi#rexx 0-3|5-15 sibs 2:	$r[sibi#rexx] * 4;
+	sibi#rexx 0-3|5-15 sibs 3:	$r[sibi#rexx] * 8;
 	sibi#rexx 4:			0;
 };
 
 EXPR mema64 SWITCH {
-	rm 0-3|6-7:			MEM($r[rm rexb]				+ dispa64	SEGMENT segdds MOD ["a64"]);
-	rm 4 sibb 0-4|6-7:		MEM($r[sibb rexb]	+ sibsi64	+ dispa64	SEGMENT segdds MOD ["a64"]);
-	rm 4 sibb 5 mod 0:		MEM(IMM(d32 SEX 64)	+ sibsi64			SEGMENT segdds MOD ["a64"] ["abs"]);
-	rm 4 sibb 5 mod 1-2:		MEM($r[sibb rexb]	+ sibsi64	+ dispa64	SEGMENT segdss MOD ["a64"]);
-	rm 5 mod 0:			MEM(IMM(d32 SEX 64 PCREL END)				SEGMENT segdds MOD ["a64"] "pcrel");
-	rm 5 mod 1-2:			MEM($r[rm rexb]				+ dispa64	SEGMENT segdss MOD ["a64"]);
+	rm 0-3|6-7:			MEM($r[rm#rexb]				+ dispa64	SEGMENT segdds ["a64"]);
+	rm 4 sibb 0-4|6-7:		MEM($r[sibb#rexb]	+ sibsi64	+ dispa64	SEGMENT segdds ["a64"]);
+	rm 4 sibb 5 mod 0:		MEM(IMM(d32 SEX 64)	+ sibsi64			SEGMENT segdds ["a64"] ["abs"]);
+	rm 4 sibb 5 mod 1-2:		MEM($r[sibb#rexb]	+ sibsi64	+ dispa64	SEGMENT segdss ["a64"]);
+	rm 5 mod 0:			MEM(IMM(d32 SEX 64 PCREL END)				SEGMENT segdds ["a64"] "pcrel");
+	rm 5 mod 1-2:			MEM($r[rm#rexb]				+ dispa64	SEGMENT segdss ["a64"]);
 };
 
 EXPR mem SWITCH {
@@ -255,36 +255,36 @@ EXPR acca SWITCH {
 
 EXPR rm8 SWITCH {
 	mod 0-2:	mem;
-	mod 3:		$rb[rm rexb];
+	mod 3:		$rb[rm#rexb];
 };
 
 EXPR rm16 SWITCH {
 	mod 0-2:	mem;
-	mod 3:		$rw[rm rexb];
+	mod 3:		$rw[rm#rexb];
 };
 
 EXPR rm32 SWITCH {
 	mod 0-2:	mem;
-	mod 3:		$rd[rm rexb];
+	mod 3:		$rd[rm#rexb];
 };
 
 EXPR rm64 SWITCH {
 	mod 0-2:	mem;
-	mod 3:		$r[rm rexb];
+	mod 3:		$r[rm#rexb];
 };
 
-EXPR reg8 $rb[reg rexr];
-EXPR reg16 $rw[reg rexr];
-EXPR reg32 $rd[reg rexr];
-EXPR reg64 $r[reg rexr];
-EXPR creg $cr[reg rexr];
-EXPR dreg $dr[reg rexr];
-EXPR treg $tr[reg rexr];
+EXPR reg8 $rb[reg#rexr];
+EXPR reg16 $rw[reg#rexr];
+EXPR reg32 $rd[reg#rexr];
+EXPR reg64 $r[reg#rexr];
+EXPR creg $cr[reg#rexr];
+EXPR dreg $dr[reg#rexr];
+EXPR treg $tr[reg#rexr];
 
-EXPR opreg8 $rb[op[0:2] rexr];
-EXPR opreg16 $rw[op[0:2] rexr];
-EXPR opreg32 $rd[op[0:2] rexr];
-EXPR opreg64 $r[op[0:2] rexr];
+EXPR opreg8 $rb[op[0:2]#rexr];
+EXPR opreg16 $rw[op[0:2]#rexr];
+EXPR opreg32 $rd[op[0:2]#rexr];
+EXPR opreg64 $r[op[0:2]#rexr];
 
 EXPR rma SWITCH {
 	osz b16:	rm16;
@@ -502,14 +502,14 @@ SEQ readfbtarg SWITCH {
 };
 
 EXPR fbtargseg IMM(d16);
-EXPR fbtarg SWITCH {
+ARG fbtarg SWITCH {
 	MODE m16 osz b16:	["b16"] IMM(i16);
 	MODE m16 osz b32:	"b32" IMM(i32);
 	MODE m32 osz b16:	"b16" IMM(i16);
 	MODE m32 osz b32:	["b32"] IMM(i32);
 };
 
-EXPR sbtarg SWITCH {
+ARG sbtarg SWITCH {
 	MODE m16 oszpref 0:	["b16"] btarg8s16;
 	MODE m16 oszpref 1:	"b32" btarg8s32;
 	MODE m32 oszpref 0:	["b32"] btarg8s32;
@@ -517,7 +517,7 @@ EXPR sbtarg SWITCH {
 	MODE m64:		["b64"] btarg8s64;
 };
 
-EXPR nbtarg SWITCH {
+ARG nbtarg SWITCH {
 	MODE m16 oszpref 0:	["b16"] btarg16;
 	MODE m16 oszpref 1:	"b32" btarg32;
 	MODE m32 oszpref 0:	["b32"] btarg32;
@@ -525,7 +525,7 @@ EXPR nbtarg SWITCH {
 	MODE m64:		["b64"] btarg32s64;
 };
 
-OPCHUNK aop 3;
+OPFIELD aop 3;
 
 IGROUP alu SWITCH {
 	aop 0: "add";
@@ -566,8 +566,8 @@ SEQ opm SWITCH {
 	op 0x01/0xf7:			SEQ domodrm;			INSN IGROUP alulock MOD opsz rma rega;
 	op 0x02/0xf7:			SEQ domodrm;			INSN IGROUP alu ["b8"] reg8 rm8;
 	op 0x03/0xf7:			SEQ domodrm;			INSN IGROUP alu MOD opsz reg16 rm16;
-	op 0x04/0xf7:			READ i8; aop = op[3:5];		INSN IGROUP alu ["b8"] $al imm8;
-	op 0x05/0xf7:			SEQ readimma; aop = op[3:5];	INSN IGROUP alu MOD opsz acca imma;
+	op 0x04/0xf7:			READ i8; LET aop = op[3:5];	INSN IGROUP alu ["b8"] $al imm8;
+	op 0x05/0xf7:			SEQ readimma; LET aop = op[3:5];	INSN IGROUP alu MOD opsz acca imma;
 	op 0x06 MODE m16|m32:						INSN "push" MOD opsz $es;
 	op 0x0e MODE m16|m32:						INSN "push" MOD opsz $cs;
 	op 0x16 MODE m16|m32:						INSN "push" MOD opsz $ss;
@@ -610,9 +610,9 @@ SEQ opm SWITCH {
 	op 0x6e FEATURE op80186:					INSN "outs" MOD rep "b8" strsrc;
 	op 0x6f FEATURE op80186:					INSN "outs" MOD rep MOD opsz strsrc;
 	op 0x70/0xf0:			READ i8;			INSN "j" MOD bp MOD pred ["short"] sbtarg;
-	op 0x80:			SEQ domodrm; READ i8; aop = reg;	INSN IGROUP alulock ["b8"] rm8 imm8;
-	op 0x81:			SEQ domodrm; SEQ readimma; aop = reg;	INSN IGROUP alulock MOD opsz rma imma;
-	op 0x83:			SEQ domodrm; READ i8; aop = reg;	INSN IGROUP alulock MOD opsz rma imm8sa;
+	op 0x80:			SEQ domodrm; READ i8; LET aop = reg;	INSN IGROUP alulock ["b8"] rm8 imm8;
+	op 0x81:			SEQ domodrm; SEQ readimma; LET aop = reg;	INSN IGROUP alulock MOD opsz rma imma;
+	op 0x83:			SEQ domodrm; READ i8; LET aop = reg;	INSN IGROUP alulock MOD opsz rma imm8sa;
 	op 0x84:			SEQ domodrm;			INSN "test" ["b8"] rm8 reg8;
 	op 0x85:			SEQ domodrm;			INSN "test" MOD opsz rma rega;
 	op 0x86:			SEQ domodrm;			INSN "xchg" ["b8"] rm8 reg8;
@@ -647,9 +647,9 @@ SEQ opm SWITCH {
 	op 0x9c:							INSN "pushf" MOD opesz;
 	op 0x9d:							INSN "popf" MOD opesz;
 	op 0x9e MODE m16|m32:						INSN "sahf";
-	op 0x9e MODE m64 FEATURE lahf64					INSN "sahf";
+	op 0x9e MODE m64 FEATURE lahf64:				INSN "sahf";
 	op 0x9f MODE m16|m32:						INSN "lahf";
-	op 0x9f MODE m64 FEATURE lahf64					INSN "lahf";
+	op 0x9f MODE m64 FEATURE lahf64:				INSN "lahf";
 	op 0xa0:			SEQ mova_addr;			INSN "mov" $al mova_mem;
 	op 0xa1:			SEQ mova_addr;			INSN "mov" acca mova_mem;
 	op 0xa2:			SEQ mova_addr;			INSN "mov" mova_mam $al;
@@ -731,7 +731,7 @@ SEQ opm SWITCH {
 		reg 7:							INSN "idiv" ["b8"] rm8;
 	};
 	op 0xf7:			SEQ domodrm;			SWITCH {
-		reg 0:			SEQ readimma			INSN "test" MOD opsz rma imma;
+		reg 0:			SEQ readimma;			INSN "test" MOD opsz rma imma;
 		reg 2:							INSN "not" MOD lock MOD opsz rma;
 		reg 3:							INSN "neg" MOD lock MOD opsz rma;
 		reg 4:							INSN "mul" MOD opsz rma;
@@ -891,18 +891,18 @@ SEQ op0f38 SWITCH {
 SEQ oproot {
 	READ op;
 	SWITCH {
-		op 0x26:		segpref = es; GOTO oproot;
-		op 0x2e:		segpref = cs; GOTO oproot;
-		op 0x36:		segpref = ss; GOTO oproot;
-		op 0x3e:		segpref = ds; GOTO oproot;
-		op 0x40/0xf0 MODE m64:	rexpresent = 1; rex = op[0:3]; GOTO opm;
-		op 0x64:		segpref = fs; GOTO oproot;
-		op 0x65:		segpref = gs; GOTO oproot;
-		op 0x66:		oszpref = 1; GOTO oproot;
-		op 0x67:		aszpref = 1; GOTO oproot;
-		op 0xf0:		lockpref = 1; GOTO oproot;
-		op 0xf2:		reppref = repnz; GOTO oproot;
-		op 0xf3:		reppref = repz; GOTO oproot;
-		DEFAULT:		GOTO opm;
+		op 0x26:		LET segpref = CONST es; GOTO oproot;
+		op 0x2e:		LET segpref = CONST cs; GOTO oproot;
+		op 0x36:		LET segpref = CONST ss; GOTO oproot;
+		op 0x3e:		LET segpref = CONST ds; GOTO oproot;
+		op 0x40/0xf0 MODE m64:	LET rexpresent = CONST 1; LET rex = op[0:3]; GOTO opm;
+		op 0x64:		LET segpref = CONST fs; GOTO oproot;
+		op 0x65:		LET segpref = CONST gs; GOTO oproot;
+		op 0x66:		LET oszpref = CONST 1; GOTO oproot;
+		op 0x67:		LET aszpref = CONST 1; GOTO oproot;
+		op 0xf0:		LET lockpref = CONST 1; GOTO oproot;
+		op 0xf2:		LET reppref = CONST repnz; GOTO oproot;
+		op 0xf3:		LET reppref = CONST repz; GOTO oproot;
+		/* default */:		GOTO opm;
 	};
 };
