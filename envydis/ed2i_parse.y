@@ -61,9 +61,6 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 /* XXX: destructors */
 
 %token <str> T_WORD
-%token <str> T_WORDC
-%token <str> T_HASHWORD
-%token <str> T_WORDLB
 %token <str> T_REG
 %token <astr> T_STR
 %token <num> T_NUM

@@ -57,7 +57,6 @@
 "DEFAULT"			{ yyextra.ws = 0; return T_DEFAULT; }
 [a-z_][a-zA-Z_0-9]*		{ yyextra.ws = 0; yylval->str = strdup(yytext); return T_WORD; }
 \$[a-zA-Z_0-9]*			{ yyextra.ws = 0; yylval->str = strdup(yytext+1); return T_REG; }
-\#[a-zA-Z_0-9]+			{ yyextra.ws = 0; yylval->str = strdup(yytext+1); return T_HASHWORD; }
 0[0-7]*|[1-9][0-9]*|0[xX][0-9a-fA-F]+		{ yyextra.ws = 0; yylval->num = strtoull(yytext, 0, 0); return T_NUM; }
 "++"				{ yyextra.ws = 0; return T_PLUSPLUS; }
 "+="				{ yyextra.ws = 0; return T_PLUSEQ; }
@@ -66,8 +65,6 @@
 "--"				{ yyextra.ws = 0; return T_MINUSMINUS; }
 "-="				{ yyextra.ws = 0; return T_MINUSEQ; }
 [({]				{ yyextra.ws = 1; return yytext[0]; }
-[a-z_][a-zA-Z_0-9]*:		{ yyextra.ws = 1; yytext[strlen(yytext)-1] = 0; yylval->str = strdup(yytext); return T_WORDC; }
-[a-z_][a-zA-Z_0-9]*"["		{ yyextra.ws = 1; yytext[strlen(yytext)-1] = 0; yylval->str = strdup(yytext); return T_WORDLB; }
 [*+&|)}\]:;#.]			{ yyextra.ws = 0; return yytext[0]; }
 \"([^\\"]|\\[\\"'nrtafv]|\\x[0-9a-fA-F][0-9a-fA-F])*\"	{ yyextra.ws = 0; yylval->astr.str = ed2_str_deescape(yytext, &yylval->astr.len); return T_STR; }
 .				{ return T_ERR; }
