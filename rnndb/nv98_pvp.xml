@@ -219,6 +219,59 @@
 
 <array name="PVP" offset="0x85000" stride="0x1000" length="1" variants="NV98 NVAA-">
 	<use-group name="nv98_vpbase"/>
+	<array offset="0x400" name="VUC" stride="0x100">
+		<reg32 offset="0x00" name="DATA" length="16"/> <!-- indexed -->
+		<reg32 offset="0x40" name="CODE_CONTROL">
+			<bitfield low="0" high="10" name="IP"/>
+			<bitfield pos="16" name="PAUSE"/>
+		</reg32>
+		<reg32 offset="0x44" name="CODE"/>
+		<bitset name="nv98_pvp_vuc_intr"> <!-- fuc intr 10 -->
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="1" name="UNK1"/>
+			<bitfield pos="2" name="UNK2"/>
+			<bitfield pos="3" name="UNK3"/>
+			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="5" name="UNK5"/>
+			<bitfield pos="6" name="UNK6"/>
+		</bitset>
+		<reg32 offset="0x58" name="MODE">
+			<!-- ... -->
+		</reg32>
+		<reg32 offset="0x70" name="INTR" type="nv98_pvp_vuc_intr"/>
+		<reg32 offset="0x74" name="INTR_EN" type="nv98_pvp_vuc_intr"/>
+		<reg32 offset="0xa8" name="UNKA8"/>
+	</array>
+	<array offset="0x500" name="TRANS" stride="0x80">
+		<reg32 offset="0x00" name="CODE_SELECT" length="4">
+			<bitfield low="0" high="7" name="START"/>
+			<bitfield low="8" high="15" name="LENGTH"/>
+		</reg32>
+		<reg32 offset="0x24" name="IQ_MODE">
+			<bitfield pos="0" name="Q_SCALE_TYPE"/>
+			<bitfield pos="1" name="ALTERNATE_SCAN"/>
+			<bitfield low="2" high="3" name="INTRA_DC_PRECISION"/>
+		</reg32>
+		<reg32 offset="0x2c" name="QUANT_MATRIX"/>
+		<reg32 offset="0x30" name="QUANT_MATRIX_CTRL">
+			<bitfield pos="0" name="UNK0"/> <!-- set before upload -->
+		</reg32>
+		<reg32 offset="0x34" name="CODE"/>
+		<reg32 offset="0x38" name="CODE_CTRL">
+			<bitfield pos="0" name="UNK0"/> <!-- set before upload -->
+			<bitfield pos="4" name="UNK4"/> <!-- set after upload -->
+		</reg32>
+	</array>
+	<array offset="0x680" name="UNK680" stride="0x80">
+		<bitset name="nv98_pvp_680_intr"> <!-- fuc intr 15 -->
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="8" name="UNK8"/>
+		</bitset>
+		<reg32 offset="0x2c" name="INTR_EN" type="nv98_pvp_680_intr"/>
+		<reg32 offset="0x30" name="INTR" type="nv98_pvp_680_intr"/>
+		<reg32 offset="0x38" name="UNK38_HEIGHT"/>
+	</array>
 </array>
 
 <array name="PPPP" offset="0x86000" stride="0x1000" length="1" variants="NV98 NVAA-">
