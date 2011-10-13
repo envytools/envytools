@@ -183,7 +183,7 @@
 <!-- 601000 - 601fff PRMIO covered in nv50_pdisplay.xml -->
 
 <!-- 610000 - 6bffff PDISPLAY -->
-<import file="nv50_pdisplay.xml" />
+<import file="nv50_pdisp.xml" />
 
 <!-- 700000 - 7fffff PRAMIN / PMEM covered above -->
 
