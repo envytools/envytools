@@ -54,7 +54,7 @@ FEATURE syscall		"SYSCALL/SYSRET instructions";
 FEATURE rdtscp		"RDTSCP instruction";
 FEATURE rdpmc		"RDPMC instruction";
 
-FEATURE nop		"NOP instruction with parameters"
+FEATURE nop		"NOP instruction with parameters";
 
 /* execution modes */
 
@@ -127,12 +127,12 @@ FUNC asz ENUM {
 	a32;
 	a64;
 } SWITCH {
-	MODE m16 mszpref 0:		b16;
-	MODE m16 mszpref 1:		b32;
-	MODE m32 mszpref 1:		b16;
-	MODE m32 mszpref 0:		b32;
-	MODE m64 mszpref 1:		b32;
-	MODE m64 mszpref 0:		b64;
+	MODE m16 mszpref 0:		a16;
+	MODE m16 mszpref 1:		a32;
+	MODE m32 mszpref 1:		a16;
+	MODE m32 mszpref 0:		a32;
+	MODE m64 mszpref 1:		a32;
+	MODE m64 mszpref 0:		a64;
 };
 
 /* expressions */
