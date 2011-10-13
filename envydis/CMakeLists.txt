@@ -35,7 +35,7 @@ target_link_libraries(envyas envy)
 target_link_libraries(ed2acat envy)
 target_link_libraries(ed2itest ed2)
 
-install(TARGETS envydis envy envyas
+install(TARGETS envydis envyas ed2acat ed2itest ed2 envy
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
 	ARCHIVE DESTINATION lib${LIB_SUFFIX})
