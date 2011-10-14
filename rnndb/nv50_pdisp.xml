@@ -9,7 +9,7 @@
 <import file="nv98_fuc.xml" />
 
 <group name="NV_HDMI">
-	<array offset="0x000" name="AUDIO_INFOFRAME" length="1">
+	<array offset="0x000" name="AUDIO_INFOFRAME" stride="0x10" length="1">
 		<reg32 offset="0x000" name="CTRL">
 			<bitfield pos="0" name="ENABLE"/>
 			<bitfield pos="4" name="OTHER"/>
@@ -19,7 +19,7 @@
 		<reg32 offset="0x008" name="HEADER"/>
 		<reg32 offset="0x00c" name="SUBPACK" length="2"/>
 	</array>
-	<array offset="0x020" name="AVI_INFOFRAME" length="1">
+	<array offset="0x020" name="AVI_INFOFRAME" stride="0x10" length="1">
 		<reg32 offset="0x000" name="CTRL">
 			<bitfield pos="0" name="ENABLE"/>
 			<bitfield pos="4" name="OTHER"/>
@@ -29,7 +29,7 @@
 		<reg32 offset="0x008" name="HEADER"/>
 		<reg32 offset="0x00c" name="SUBPACK" length="4"/>
 	</array>
-	<array offset="0x03c" name="GENERIC" length="1">
+	<array offset="0x03c" name="GENERIC" stride="0x10" length="1">
 		<reg32 offset="0x000" name="CTRL">
 			<bitfield pos="0" name="ENABLE"/>
 			<bitfield pos="4" name="OTHER"/>
@@ -41,7 +41,7 @@
 		<reg32 offset="0x008" name="HEADER"/>
 		<reg32 offset="0x00c" name="SUBPACK" length="8"/>
 	</array>
-	<array offset="0x068" name="ACR">
+	<array offset="0x068" name="ACR" stride="0x40" length="1">
 		<reg32 offset="0x000" name="CTRL"/>
 		<reg32 offset="0x004" name="SUBPACK_LOW" stride="8" length="7">
 			<bitfield low="8" high="31" name="CTS"/>
@@ -51,7 +51,7 @@
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
 	</array>
-	<reg32 offset="0x0a4" name="CTRL">
+	<reg32 offset="0x0a4" name="CTRL" stride="0x10">
 		<bitfield low="0" high="6" name="REKEY"/>
 		<bitfield pos="8" name="AUDIO_LAYOUT"/>
 		<bitfield pos="12" name="SAMPLE_FLAT"/>
@@ -63,6 +63,7 @@
 		<bitfield low="16" high="25" name="START"/>
 		<bitfield pos="31" name="ENABLE"/>
 	</reg32>
+	
 	<reg32 offset="0x0ac" name="VSYNC_WINDOW">
 		<bitfield low="0" high="9" name="END"/>
 		<bitfield low="16" high="25" name="START"/>
@@ -277,7 +278,7 @@
 			<use-group name="NV_HDMI"/>
 		</array>
 
-		<array offset="0x7300" name="AUDIO">
+		<array offset="0x7300" name="AUDIO" stride="0x100">
 			<reg32 offset="0x000" name="DEBUG0"/>
 			<reg32 offset="0x004" name="DEBUG1"/>
 			<reg32 offset="0x008" name="DEBUG2"/>
@@ -452,7 +453,7 @@
 				<reg32 offset="0x18" name="LANE_DRIVE_CURRENT"/>
 				<reg32 offset="0x20" name="LANE_PREEMPHASIS"/>
 			</array>
-			<array offset="0x500" name="HDMI" variants="NVA3-">
+			<array offset="0x500" name="HDMI" variants="NVA3-" stride="0x800">
 				<use-group name="NV_HDMI"/>
 			</array>
 		</array>
