@@ -564,6 +564,12 @@ static struct rnndelem *trydelem(struct rnndb *db, char *file, xmlNode *node) {
 			}
 			chain = chain->next;
 		}
+
+		/* Sanity checking */
+		if (res->type == RNN_ETYPE_ARRAY && res->stride == 0) {
+			fprintf(stderr, "%s: Array %s's stride is undefined. Aborting.\n", file, res->name);
+			exit(-1);
+		}
 		return res;
 
 	}
