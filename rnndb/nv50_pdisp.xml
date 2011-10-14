@@ -51,7 +51,7 @@
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
 	</array>
-	<reg32 offset="0x0a4" name="CTRL" stride="0x10">
+	<reg32 offset="0x0a4" name="CTRL">
 		<bitfield low="0" high="6" name="REKEY"/>
 		<bitfield pos="8" name="AUDIO_LAYOUT"/>
 		<bitfield pos="12" name="SAMPLE_FLAT"/>
@@ -63,7 +63,6 @@
 		<bitfield low="16" high="25" name="START"/>
 		<bitfield pos="31" name="ENABLE"/>
 	</reg32>
-	
 	<reg32 offset="0x0ac" name="VSYNC_WINDOW">
 		<bitfield low="0" high="9" name="END"/>
 		<bitfield low="16" high="25" name="START"/>
@@ -278,7 +277,7 @@
 			<use-group name="NV_HDMI"/>
 		</array>
 
-		<array offset="0x7300" name="AUDIO" stride="0x100">
+		<array offset="0x7300" name="AUDIO" stride="0x100" length="1">
 			<reg32 offset="0x000" name="DEBUG0"/>
 			<reg32 offset="0x004" name="DEBUG1"/>
 			<reg32 offset="0x008" name="DEBUG2"/>
@@ -453,7 +452,7 @@
 				<reg32 offset="0x18" name="LANE_DRIVE_CURRENT"/>
 				<reg32 offset="0x20" name="LANE_PREEMPHASIS"/>
 			</array>
-			<array offset="0x500" name="HDMI" variants="NVA3-" stride="0x800">
+			<array offset="0x500" name="HDMI" variants="NVA3-" stride="0x800" length="1">
 				<use-group name="NV_HDMI"/>
 			</array>
 		</array>
