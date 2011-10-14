@@ -294,6 +294,10 @@ static struct rnndecaddrinfo *trymatch (struct rnndeccontext *ctx, struct rnndel
 			case RNN_ETYPE_ARRAY:
 				if (addr < elems[i]->offset)
 					break;
+				if (elems[i]->stride == 0) {
+					fprintf(stderr, "RNNElement named '%s' has an undefined stride. Aborting.\n", elems[i]->name);
+					exit(-1);
+				}
 				idx = (addr-elems[i]->offset)/elems[i]->stride;
 				offset = (addr-elems[i]->offset)%elems[i]->stride;
 				if (elems[i]->length && idx >= elems[i]->length)
