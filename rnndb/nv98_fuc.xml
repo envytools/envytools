@@ -106,6 +106,7 @@
 	<reg32 offset="0x110" name="XFER_EXT_BASE" shr="8"/>
 	<reg32 offset="0x114" name="XFER_FUC_ADDR"/>
 	<reg32 offset="0x118" name="XFER_CTRL">
+		<bitfield pos="0" name="FULL"/>
 		<bitfield pos="4" name="SEG">
 			<value value="0" name="DATA"/>
 			<value value="1" name="CODE"/>
@@ -127,10 +128,19 @@
 		<doc>Also virtual address for code.</doc>
 	</reg32>
 
-	<reg32 offset="0x128" name="UC_STAT" variants="NVA3-">
-		<bitfield pos="8" name="TRAP_ACTIVE"/>
+	<reg32 offset="0x120" name="XFER_STATUS">
+		<bitfield pos="1" name="PENDING"/>
+		<bitfield low="4" high="5" name="UNK4"/>
+		<bitfield low="16" high="18" name="STORES_PENDING"/>
+		<bitfield low="24" high="26" name="LOADS_PENDING"/>
 	</reg32>
-
+	<reg32 offset="0x128" name="UC_STATUS" variants="NVA3-">
+		<bitfield pos="2" name="XCLD_IDLE"/>
+		<bitfield pos="3" name="CRYPT_IDLE"/>
+		<bitfield pos="8" name="TRAP_ACTIVE"/>
+		<bitfield pos="18" name="XDST_IDLE"/>
+		<bitfield pos="19" name="XDLD_IDLE"/>
+	</reg32>
 	<reg32 offset="0x12c" name="CAPS2" variants="NVA3-">
 		<bitfield low="0" high="3" name="UNK0">
 			<doc>Always 3.</doc>
