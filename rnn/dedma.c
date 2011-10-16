@@ -250,7 +250,8 @@ dedma(struct state *s, FILE *f, bool dry_run)
 			/* out of band data */
 			e0->out_of_band = true;
 
-		} else if (abs(e0->addr - e1->addr) > MAX_DELTA) {
+		} else if (abs(e0->addr - e1->addr) > MAX_DELTA &&
+			   !e1->out_of_band) {
 			/* wrap around or out of band data not caught by
 			 * the address window */
 
