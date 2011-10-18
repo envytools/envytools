@@ -5,6 +5,6 @@ ed2*_lex.h
 ed2*_parse.c
 ed2*_parse.h
 ed2acat
-ed2itest
+ed2ishow
 libed2.a
 libenvy.a

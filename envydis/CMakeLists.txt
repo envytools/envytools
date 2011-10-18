@@ -27,15 +27,15 @@ add_library(ed2
 add_executable(envydis envydis.c)
 add_executable(envyas envyas.c)
 add_executable(ed2acat ed2acat.c)
-add_executable(ed2itest ed2itest.c)
+add_executable(ed2ishow ed2ishow.c)
 
 target_link_libraries(envy ed2)
 target_link_libraries(envydis envy)
 target_link_libraries(envyas envy)
 target_link_libraries(ed2acat envy)
-target_link_libraries(ed2itest ed2)
+target_link_libraries(ed2ishow ed2)
 
-install(TARGETS envydis envyas ed2acat ed2itest ed2 envy
+install(TARGETS envydis envyas ed2acat ed2ishow ed2 envy
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
 	ARCHIVE DESTINATION lib${LIB_SUFFIX})
