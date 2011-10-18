@@ -39,26 +39,22 @@ struct ed2i_feature {
 	char **names;
 	int namesnum;
 	char *description;
-	int *implies;
-	int impliesnum;
-	int *conflicts;
-	int conflictsnum;
+	uint32_t *ifmask;
+	uint32_t *cfmask;
 };
 
 struct ed2i_variant {
 	char **names;
 	int namesnum;
 	char *description;
-	int *features;
-	int featuresnum;
+	uint32_t *fmask;
 };
 
 struct ed2i_mode {
 	char **names;
 	int namesnum;
 	char *description;
-	int *features;
-	int featuresnum;
+	uint32_t *fmask;
 	int modeset;
 };
 

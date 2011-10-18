@@ -31,17 +31,12 @@ struct ed2v_variant *ed2v_new_variant_i(struct ed2i_isa *isa, int variant) {
 	assert(variant >= -1 && variant < isa->variantsnum);
 	struct ed2v_variant *res = calloc(sizeof *res, 1);
 	int i;
-	res->fmask = calloc(sizeof *res->fmask, CEILDIV(isa->featuresnum, ED2V_CHUNK_SIZE));
 	res->mode = calloc(sizeof *res->mode, isa->modesetsnum);
 	res->isa = isa;
 	if (variant != -1) {
-		for (i = 0; i < isa->variants[variant].featuresnum; i++) {
-			if (ed2v_add_feature_i(res, isa->variants[variant].features[i])) {
-				fprintf (stderr, "Broken ISA description: variant %s has conflicting features!\n", isa->variants[variant].names[0]);
-				free(res);
-				return 0;
-			}
-		}
+		res->fmask = ed2_mask_dup(isa->variants[variant].fmask, isa->featuresnum);
+	} else {
+		res->fmask = ed2_mask_new(isa->featuresnum);
 	}
 	for (i = 0; i < isa->modesetsnum; i++) {
 		res->mode[i] = isa->modesets[i].defmode;
@@ -72,17 +67,13 @@ int ed2v_add_feature_i(struct ed2v_variant *var, int feature) {
 	assert(feature >= 0 && feature < var->isa->featuresnum);
 	if (ed2v_has_feature(var, feature))
 		return 0;
-	for (i = 0; i < f->conflictsnum; i++) {
-		if (ed2v_has_feature(var, f->conflicts[i])) {
-			fprintf (stderr, "Conflicting ISA features used: %s and %s\n", f->names[0], var->isa->features[f->conflicts[i]].names[0]);
+	for (i = 0; i < var->isa->featuresnum; i++) {
+		if (ed2v_has_feature(var, i) && ed2_mask_get(f->cfmask, i)) {
+			fprintf (stderr, "Conflicting ISA features used: %s and %s\n", f->names[0], var->isa->features[i].names[0]);
 			return -1;
 		}
 	}
-	var->fmask[feature/32] |= 1 << (feature % 32);
-	for (i = 0; i < f->impliesnum; i++) {
-		if (ed2v_add_feature_i(var, f->implies[i]))
-			return -1;
-	}
+	ed2_mask_or(var->fmask, f->ifmask, var->isa->featuresnum);
 	return 0;
 }
 
@@ -99,11 +90,11 @@ int ed2v_set_mode_i(struct ed2v_variant *var, int mode) {
 	int i;
 	struct ed2i_mode *m = &var->isa->modes[mode];
 	assert(mode >= 0 && mode < var->isa->modesnum);
-	var->mode[m->modeset] = mode;
-	for (i = 0; i < m->featuresnum; i++) {
-		if (ed2v_add_feature_i(var, m->features[i]))
-			return -1;
+	if (!ed2_mask_contains(var->fmask, m->fmask, var->isa->featuresnum)) {
+		fprintf (stderr, "%s feature requirements not met\n", mode);
+		return -1;
 	}
+	var->mode[m->modeset] = mode;
 	return 0;
 }
 

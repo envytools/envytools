@@ -28,6 +28,7 @@
 #include "util.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <inttypes.h>
 
 struct ed2_loc {
@@ -39,6 +40,33 @@ struct ed2_loc {
 };
 
 #define ED2_LOC_FORMAT(loc, str) "%s:%d.%d-%d.%d: " str, (loc).file, (loc).lstart, (loc).cstart, (loc).lend, (loc).cend
+
+#define ED2_MASK_CHUNK_SIZE 32
+#define ED2_MASK_SIZE(num) CEILDIV((num), ED2_MASK_CHUNK_SIZE)
+
+static inline int ed2_mask_get(uint32_t *mask, int num) {
+	return (mask[num/32] >> (num % 32)) & 1;
+}
+
+static inline void ed2_mask_set(uint32_t *mask, int num) {
+	mask[num/32] |= 1 << (num % 32);
+}
+
+static inline uint32_t *ed2_mask_new(int num) {
+	uint32_t *res = calloc(sizeof *res, ED2_MASK_SIZE(num));
+	return res;
+}
+
+static inline uint32_t *ed2_mask_dup(uint32_t *mask, int num) {
+	uint32_t *res = ed2_mask_new(num);
+	memcpy(res, mask, ED2_MASK_SIZE(num) * sizeof *res);
+	return res;
+}
+
+void ed2_mask_or(uint32_t *dmask, uint32_t *smask, int size);
+int ed2_mask_or_r(uint32_t *dmask, uint32_t *smask, int size);
+
+int ed2_mask_intersect(uint32_t *a, uint32_t *b, int size);
 
 char *ed2_str_deescape(char *str, uint64_t *len);
 

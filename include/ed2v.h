@@ -26,6 +26,7 @@
 #define ED2V_H
 
 #include "ed2i.h"
+#include "ed2_misc.h"
 
 struct ed2v_variant {
 	struct ed2i_isa *isa;
@@ -33,10 +34,8 @@ struct ed2v_variant {
 	int *mode;
 };
 
-#define ED2V_CHUNK_SIZE 32
-
 static inline int ed2v_has_feature(struct ed2v_variant *var, int feature) {
-	return (var->fmask[feature/32] >> (feature % 32)) & 1;
+	return ed2_mask_get(var->fmask, feature);
 };
 
 static inline int ed2v_get_mode(struct ed2v_variant *var, int modeset) {

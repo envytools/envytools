@@ -76,17 +76,20 @@ static const char *const typenames[] = {
 	[ED2I_ST_MODE] = "mode",
 };
 
-int ed2ip_find_sym(struct ed2i_isa *isa, const char *name, int type, struct ed2_loc *loc, int *pbroken) {
+int ed2ip_transform_sym(struct ed2i_isa *isa, char *name, int type, struct ed2_loc *loc, int *pbroken) {
 	int idx = ed2s_symtab_get(isa->symtab, name);
 	if (idx == -1) {
 		fprintf (stderr, ED2_LOC_FORMAT(*loc, "Undefined symbol %s\n"), name);
 		*pbroken |= 1;
+		free(name);
 		return -1;
 	} else if (isa->symtab->syms[idx].type != type) {
 		fprintf (stderr, ED2_LOC_FORMAT(*loc, "Symbol %s is not a %s\n"), name, typenames[type]);
 		*pbroken |= 1;
+		free(name);
 		return -1;
 	} else {
+		free(name);
 		return isa->symtab->syms[idx].idata;
 	}
 }
@@ -103,8 +106,54 @@ int ed2ip_put_sym(struct ed2i_isa *isa, char *name, int type, struct ed2_loc *lo
 	}
 }
 
+uint32_t *ed2ip_list_to_fmask(struct ed2i_isa *isa, char **names, int namesnum, struct ed2_loc *loc, int *pbroken) {
+	uint32_t *res = ed2_mask_new(isa->featuresnum);
+	int i;
+	for (i = 0; i < namesnum; i++) {
+		int idx = ed2ip_transform_sym(isa, names[i], ED2I_ST_FEATURE, loc, pbroken);
+		if (idx != -1)
+			ed2_mask_set(res, idx);
+	}
+	free(names);
+	return res;
+}
+
+void ed2ip_ifmask_closure(struct ed2i_isa *isa, uint32_t *fmask) {
+	int i;
+	for (i = 0; i < isa->featuresnum; i++) {
+		if (ed2_mask_get(fmask, i)) {
+			if (ed2_mask_or_r(fmask, isa->features[i].ifmask, isa->featuresnum)) {
+				i = 0;
+			}
+		}
+	}
+}
+
+void ed2ip_fmask_closure(struct ed2i_isa *isa, uint32_t *fmask) {
+	int i;
+	for (i = 0; i < isa->featuresnum; i++) {
+		if (ed2_mask_get(fmask, i)) {
+			ed2_mask_or(fmask, isa->features[i].ifmask, isa->featuresnum);
+		}
+	}
+}
+
+int ed2ip_fmask_conflicts(struct ed2i_isa *isa, uint32_t *fmask, struct ed2_loc *loc) {
+	int i;
+	for (i = 0; i < isa->featuresnum; i++) {
+		if (ed2_mask_get(fmask, i)) {
+			int idx = ed2_mask_intersect(fmask, isa->features[i].cfmask, isa->featuresnum);
+			if (idx != -1) {
+				fprintf(stderr, ED2_LOC_FORMAT(*loc, "Conflicting features %s and %s\n"), isa->features[i].names[0], isa->features[idx].names[0]);
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+
 int ed2ip_transform_features(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
-	int i, j;
+	int i, j, k;
 	int broken = 0;
 	isa->featuresnum = preisa->featuresnum;
 	isa->features = calloc(sizeof *isa->features, isa->featuresnum);
@@ -116,21 +165,35 @@ int ed2ip_transform_features(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 		isa->features[i].namesnum = preisa->features[i]->namesnum;
 		isa->features[i].description = preisa->features[i]->description;
 	}
+	/* initialise both masks as written */
 	for (i = 0; i < isa->featuresnum; i++) {
-		isa->features[i].impliesnum = preisa->features[i]->impliesnum;
-		isa->features[i].implies = calloc(sizeof *isa->features[i].implies, isa->features[i].impliesnum);
-		for (j = 0; j < isa->features[i].impliesnum; j++) {
-			isa->features[i].implies[j] = ed2ip_find_sym(isa, preisa->features[i]->implies[j], ED2I_ST_FEATURE, &preisa->features[i]->loc, &broken);
-			free(preisa->features[i]->implies[j]);
+		isa->features[i].ifmask = ed2ip_list_to_fmask(isa, preisa->features[i]->implies, preisa->features[i]->impliesnum, &preisa->features[i]->loc, &broken);
+		isa->features[i].cfmask = ed2ip_list_to_fmask(isa, preisa->features[i]->conflicts, preisa->features[i]->conflictsnum, &preisa->features[i]->loc, &broken);
+	}
+	for (i = 0; i < isa->featuresnum; i++) {
+		/* every feature implies itself */
+		ed2_mask_set(isa->features[i].ifmask, i);
+		/* calculate full closure of implied features */
+		ed2ip_ifmask_closure(isa, isa->features[i].ifmask);
+		/* if i conflicts with j, j conflicts with i */
+		for (j = 0; j < isa->featuresnum; j++) {
+			if (ed2_mask_get(isa->features[i].cfmask, j))
+				ed2_mask_set(isa->features[j].cfmask, i);
 		}
-		free(preisa->features[i]->implies);
-		isa->features[i].conflictsnum = preisa->features[i]->conflictsnum;
-		isa->features[i].conflicts = calloc(sizeof *isa->features[i].conflicts, isa->features[i].conflictsnum);
-		for (j = 0; j < isa->features[i].conflictsnum; j++) {
-			isa->features[i].conflicts[j] = ed2ip_find_sym(isa, preisa->features[i]->conflicts[j], ED2I_ST_FEATURE, &preisa->features[i]->loc, &broken);
-			free(preisa->features[i]->conflicts[j]);
+	}
+	for (i = 0; i < isa->featuresnum; i++) {
+		/* if i implies k, j implies l, and k conflicts with l, i conflicts with j */
+		for (j = 0; j < isa->featuresnum; j++) {
+			for (k = 0; k < isa->featuresnum; k++) {
+				if (ed2_mask_get(isa->features[i].ifmask, k) && ed2_mask_intersect(isa->features[k].cfmask, isa->features[j].ifmask, isa->featuresnum) != -1) {
+					ed2_mask_set(isa->features[i].cfmask, j);
+					ed2_mask_set(isa->features[j].cfmask, i);
+				}
+			}
 		}
-		free(preisa->features[i]->conflicts);
+	}
+	for (i = 0; i < isa->featuresnum; i++) {
+		broken |= ed2ip_fmask_conflicts(isa, isa->features[i].ifmask, &preisa->features[i]->loc);
 		free(preisa->features[i]);
 	}
 	free(preisa->features);
@@ -150,13 +213,9 @@ int ed2ip_transform_variants(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 		isa->variants[i].namesnum = preisa->variants[i]->namesnum;
 		isa->variants[i].description = preisa->variants[i]->description;
 
-		isa->variants[i].featuresnum = preisa->variants[i]->featuresnum;
-		isa->variants[i].features = calloc(sizeof *isa->variants[i].features, isa->variants[i].featuresnum);
-		for (j = 0; j < isa->variants[i].featuresnum; j++) {
-			isa->variants[i].features[j] = ed2ip_find_sym(isa, preisa->variants[i]->features[j], ED2I_ST_FEATURE, &preisa->variants[i]->loc, &broken);
-			free(preisa->variants[i]->features[j]);
-		}
-		free(preisa->variants[i]->features);
+		isa->variants[i].fmask = ed2ip_list_to_fmask(isa, preisa->variants[i]->features, preisa->variants[i]->featuresnum, &preisa->variants[i]->loc, &broken);
+		ed2ip_fmask_closure(isa, isa->variants[i].fmask);
+
 		free(preisa->variants[i]);
 	}
 	free(preisa->variants);
@@ -195,12 +254,9 @@ int ed2ip_transform_modesets(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 			isa->modes[kk].namesnum = ms->modes[k]->namesnum;
 			isa->modes[kk].description = ms->modes[k]->description;
 
-			isa->modes[kk].featuresnum = ms->modes[k]->featuresnum;
-			isa->modes[kk].features = calloc(sizeof *isa->modes[kk].features, isa->modes[kk].featuresnum);
-			for (j = 0; j < isa->modes[kk].featuresnum; j++) {
-				isa->modes[kk].features[j] = ed2ip_find_sym(isa, ms->modes[k]->features[j], ED2I_ST_FEATURE, &ms->modes[k]->loc, &broken);
-				free(ms->modes[k]->features[j]);
-			}
+			isa->modes[kk].fmask = ed2ip_list_to_fmask(isa, ms->modes[k]->features, ms->modes[k]->featuresnum, &ms->modes[k]->loc, &broken);
+			ed2ip_fmask_closure(isa, isa->modes[kk].fmask);
+
 			if (ms->modes[k]->isdefault) {
 				if (ms->modes[k]->featuresnum) {
 					fprintf (stderr, "Default mode %s has required features\n", isa->modes[kk].names[0]);
@@ -213,7 +269,7 @@ int ed2ip_transform_modesets(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 					broken = 1;
 				}
 			}
-			free(ms->modes[k]->features);
+
 			free(ms->modes[k]);
 		}
 		free(ms->modes);
