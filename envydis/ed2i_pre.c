@@ -69,6 +69,40 @@ void ed2ip_del_isa(struct ed2ip_isa *isa) {
 	free(isa);
 }
 
+static const char *const typenames[] = {
+	[ED2I_ST_FEATURE] = "feature",
+	[ED2I_ST_VARIANT] = "variant",
+	[ED2I_ST_MODESET] = "modeset",
+	[ED2I_ST_MODE] = "mode",
+};
+
+int ed2ip_find_sym(struct ed2i_isa *isa, const char *name, int type, struct ed2_loc *loc, int *pbroken) {
+	int idx = ed2s_symtab_get(isa->symtab, name);
+	if (idx == -1) {
+		fprintf (stderr, ED2_LOC_FORMAT(*loc, "Undefined symbol %s\n"), name);
+		*pbroken |= 1;
+		return -1;
+	} else if (isa->symtab->syms[idx].type != type) {
+		fprintf (stderr, ED2_LOC_FORMAT(*loc, "Symbol %s is not a %s\n"), name, typenames[type]);
+		*pbroken |= 1;
+		return -1;
+	} else {
+		return isa->symtab->syms[idx].idata;
+	}
+}
+
+int ed2ip_put_sym(struct ed2i_isa *isa, char *name, int type, struct ed2_loc *loc, int idata) {
+	int idx = ed2s_symtab_put(isa->symtab, name);
+	if (idx == -1) {
+		fprintf (stderr, ED2_LOC_FORMAT(*loc, "Redefined symbol %s\n"), name);
+		return 1;
+	} else {
+		isa->symtab->syms[idx].type = type;
+		isa->symtab->syms[idx].idata = idata;
+		return 0;
+	}
+}
+
 int ed2ip_transform_features(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 	int i, j;
 	int broken = 0;
@@ -76,14 +110,7 @@ int ed2ip_transform_features(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 	isa->features = calloc(sizeof *isa->features, isa->featuresnum);
 	for (i = 0; i < isa->featuresnum; i++) {
 		for (j = 0; j < preisa->features[i]->namesnum; j++) {
-			int idx = ed2s_symtab_put(isa->symtab, preisa->features[i]->names[j]);
-			if (idx == -1) {
-				fprintf (stderr, ED2_LOC_FORMAT(preisa->features[i]->loc, "Redefined symbol %s\n"), preisa->features[i]->names[j]);
-				broken = 1;
-			} else {
-				isa->symtab->syms[idx].type = ED2I_ST_FEATURE;
-				isa->symtab->syms[idx].idata = i;
-			}
+			broken |= ed2ip_put_sym(isa, preisa->features[i]->names[j], ED2I_ST_FEATURE, &preisa->features[i]->loc, i);
 		}
 		isa->features[i].names = preisa->features[i]->names;
 		isa->features[i].namesnum = preisa->features[i]->namesnum;
@@ -93,34 +120,14 @@ int ed2ip_transform_features(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 		isa->features[i].impliesnum = preisa->features[i]->impliesnum;
 		isa->features[i].implies = calloc(sizeof *isa->features[i].implies, isa->features[i].impliesnum);
 		for (j = 0; j < isa->features[i].impliesnum; j++) {
-			isa->features[i].implies[j] = -1;
-			int idx = ed2s_symtab_get(isa->symtab, preisa->features[i]->implies[j]);
-			if (idx == -1) {
-				fprintf (stderr, ED2_LOC_FORMAT(preisa->features[i]->loc, "Undefined feature %s\n"), preisa->features[i]->implies[j]);
-				broken = 1;
-			} else if (isa->symtab->syms[idx].type != ED2I_ST_FEATURE) {
-				fprintf (stderr, ED2_LOC_FORMAT(preisa->features[i]->loc, "Implied symbol %s is not a feature\n"), preisa->features[i]->implies[j]);
-				broken = 1;
-			} else {
-				isa->features[i].implies[j] = isa->symtab->syms[idx].idata;
-			}
+			isa->features[i].implies[j] = ed2ip_find_sym(isa, preisa->features[i]->implies[j], ED2I_ST_FEATURE, &preisa->features[i]->loc, &broken);
 			free(preisa->features[i]->implies[j]);
 		}
 		free(preisa->features[i]->implies);
 		isa->features[i].conflictsnum = preisa->features[i]->conflictsnum;
 		isa->features[i].conflicts = calloc(sizeof *isa->features[i].conflicts, isa->features[i].conflictsnum);
 		for (j = 0; j < isa->features[i].conflictsnum; j++) {
-			isa->features[i].conflicts[j] = -1;
-			int idx = ed2s_symtab_get(isa->symtab, preisa->features[i]->conflicts[j]);
-			if (idx == -1) {
-				fprintf (stderr, ED2_LOC_FORMAT(preisa->features[i]->loc, "Undefined feature %s\n"), preisa->features[i]->conflicts[j]);
-				broken = 1;
-			} else if (isa->symtab->syms[idx].type != ED2I_ST_FEATURE) {
-				fprintf (stderr, ED2_LOC_FORMAT(preisa->features[i]->loc, "Conflicting symbol %s is not a feature\n"), preisa->features[i]->conflicts[j]);
-				broken = 1;
-			} else {
-				isa->features[i].conflicts[j] = isa->symtab->syms[idx].idata;
-			}
+			isa->features[i].conflicts[j] = ed2ip_find_sym(isa, preisa->features[i]->conflicts[j], ED2I_ST_FEATURE, &preisa->features[i]->loc, &broken);
 			free(preisa->features[i]->conflicts[j]);
 		}
 		free(preisa->features[i]->conflicts);
@@ -137,14 +144,7 @@ int ed2ip_transform_variants(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 	isa->variants = calloc(sizeof *isa->variants, isa->variantsnum);
 	for (i = 0; i < isa->variantsnum; i++) {
 		for (j = 0; j < preisa->variants[i]->namesnum; j++) {
-			int idx = ed2s_symtab_put(isa->symtab, preisa->variants[i]->names[j]);
-			if (idx == -1) {
-				fprintf (stderr, ED2_LOC_FORMAT(preisa->variants[i]->loc, "Redefined symbol %s\n"), preisa->variants[i]->names[j]);
-				broken = 1;
-			} else {
-				isa->symtab->syms[idx].type = ED2I_ST_VARIANT;
-				isa->symtab->syms[idx].idata = i;
-			}
+			broken |= ed2ip_put_sym(isa, preisa->variants[i]->names[j], ED2I_ST_VARIANT, &preisa->variants[i]->loc, i);
 		}
 		isa->variants[i].names = preisa->variants[i]->names;
 		isa->variants[i].namesnum = preisa->variants[i]->namesnum;
@@ -153,17 +153,7 @@ int ed2ip_transform_variants(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 		isa->variants[i].featuresnum = preisa->variants[i]->featuresnum;
 		isa->variants[i].features = calloc(sizeof *isa->variants[i].features, isa->variants[i].featuresnum);
 		for (j = 0; j < isa->variants[i].featuresnum; j++) {
-			isa->variants[i].features[j] = -1;
-			int idx = ed2s_symtab_get(isa->symtab, preisa->variants[i]->features[j]);
-			if (idx == -1) {
-				fprintf (stderr, ED2_LOC_FORMAT(preisa->variants[i]->loc, "Undefined feature %s\n"), preisa->variants[i]->features[j]);
-				broken = 1;
-			} else if (isa->symtab->syms[idx].type != ED2I_ST_FEATURE) {
-				fprintf (stderr, ED2_LOC_FORMAT(preisa->variants[i]->loc, "Symbol %s is not a feature\n"), preisa->variants[i]->features[j]);
-				broken = 1;
-			} else {
-				isa->variants[i].features[j] = isa->symtab->syms[idx].idata;
-			}
+			isa->variants[i].features[j] = ed2ip_find_sym(isa, preisa->variants[i]->features[j], ED2I_ST_FEATURE, &preisa->variants[i]->loc, &broken);
 			free(preisa->variants[i]->features[j]);
 		}
 		free(preisa->variants[i]->features);
@@ -181,14 +171,7 @@ int ed2ip_transform_modesets(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 	int modesnum = 0;
 	for (i = 0; i < isa->modesetsnum; i++) {
 		for (j = 0; j < preisa->modesets[i]->namesnum; j++) {
-			int idx = ed2s_symtab_put(isa->symtab, preisa->modesets[i]->names[j]);
-			if (idx == -1) {
-				fprintf (stderr, ED2_LOC_FORMAT(preisa->modesets[i]->loc, "Redefined symbol %s\n"), preisa->modesets[i]->names[j]);
-				broken = 1;
-			} else {
-				isa->symtab->syms[idx].type = ED2I_ST_MODESET;
-				isa->symtab->syms[idx].idata = i;
-			}
+			broken |= ed2ip_put_sym(isa, preisa->modesets[i]->names[j], ED2I_ST_MODESET, &preisa->modesets[i]->loc, i);
 		}
 		isa->modesets[i].names = preisa->modesets[i]->names;
 		isa->modesets[i].namesnum = preisa->modesets[i]->namesnum;
@@ -206,14 +189,7 @@ int ed2ip_transform_modesets(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 		for (k = 0; k < ms->modesnum; k++) {
 			int kk = k + isa->modesets[i].firstmode;
 			for (j = 0; j < ms->modes[k]->namesnum; j++) {
-				int idx = ed2s_symtab_put(isa->symtab, ms->modes[k]->names[j]);
-				if (idx == -1) {
-					fprintf (stderr, ED2_LOC_FORMAT(ms->modes[k]->loc, "Redefined symbol %s\n"), ms->modes[k]->names[j]);
-					broken = 1;
-				} else {
-					isa->symtab->syms[idx].type = ED2I_ST_MODE;
-					isa->symtab->syms[idx].idata = i;
-				}
+				broken |= ed2ip_put_sym(isa, ms->modes[k]->names[j], ED2I_ST_MODE, &ms->modes[k]->loc, kk);
 			}
 			isa->modes[kk].names = ms->modes[k]->names;
 			isa->modes[kk].namesnum = ms->modes[k]->namesnum;
@@ -222,17 +198,7 @@ int ed2ip_transform_modesets(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 			isa->modes[kk].featuresnum = ms->modes[k]->featuresnum;
 			isa->modes[kk].features = calloc(sizeof *isa->modes[kk].features, isa->modes[kk].featuresnum);
 			for (j = 0; j < isa->modes[kk].featuresnum; j++) {
-				isa->modes[kk].features[j] = -1;
-				int idx = ed2s_symtab_get(isa->symtab, ms->modes[k]->features[j]);
-				if (idx == -1) {
-					fprintf (stderr, ED2_LOC_FORMAT(ms->modes[k]->loc, "Undefined feature %s\n"), ms->modes[k]->features[j]);
-					broken = 1;
-				} else if (isa->symtab->syms[idx].type != ED2I_ST_FEATURE) {
-					fprintf (stderr, ED2_LOC_FORMAT(ms->modes[k]->loc, "Symbol %s is not a feature\n"), ms->modes[k]->features[j]);
-					broken = 1;
-				} else {
-					isa->modes[kk].features[j] = isa->symtab->syms[idx].idata;
-				}
+				isa->modes[kk].features[j] = ed2ip_find_sym(isa, ms->modes[k]->features[j], ED2I_ST_FEATURE, &ms->modes[k]->loc, &broken);
 				free(ms->modes[k]->features[j]);
 			}
 			if (ms->modes[k]->isdefault) {
