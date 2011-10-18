@@ -47,5 +47,10 @@ void ed2i_del_isa(struct ed2i_isa *isa) {
 		free(isa->modes[i].features);
 	}
 	free(isa->modes);
+	for (i = 0; i < isa->modesetsnum; i++) {
+		ed2_free_strings(isa->modesets[i].names, isa->modesets[i].namesnum);
+		free(isa->modesets[i].description);
+	}
+	free(isa->modesets);
 	free(isa);
 }

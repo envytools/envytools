@@ -47,5 +47,12 @@ FEATURE simulator	"Simulator features";
 
 VARIANT vp2		"nvidia VP2 video decoding core"	FEATURE density loop mul16 minmax boolean exception interrupt hpintr window debug;
 
-MODE	l32r_pc		"PC-relative L32R"			DEFAULT;
-MODE	l32r_litbase	"$litbase L32R"				FEATURE el32r;
+MODE l32r "L32R behavior" {
+	l32r_pc		"PC-relative L32R"			DEFAULT;
+	l32r_litbase	"$litbase L32R"				FEATURE el32r;
+};
+
+MODE endian "Endianness" {
+	le		"Little endian";
+	be		"Big endian";
+};

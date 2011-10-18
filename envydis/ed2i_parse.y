@@ -55,6 +55,7 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 	struct ed2ip_feature *feature;
 	struct ed2ip_variant *variant;
 	struct ed2ip_mode *mode;
+	struct ed2ip_modeset *modeset;
 	struct ed2ip_isa *isa;
 }
 
@@ -102,6 +103,7 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 %token T_IGROUP "IGROUP"
 %token T_INSN "INSN"
 %token T_CONST "CONST"
+%token T_OPTIONAL "OPTIONAL"
 
 %type <str> strnn
 %type <str> description
@@ -110,6 +112,9 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 %type <feature> fmods
 %type <variant> variant
 %type <variant> vmods
+%type <modeset> modeset
+%type <modeset> modes
+%type <modeset> msmods
 %type <mode> mode
 %type <mode> memods
 %type <isa> file
@@ -120,6 +125,7 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 %destructor { ed2ip_del_feature($$); } <feature>
 %destructor { ed2ip_del_variant($$); } <variant>
 %destructor { ed2ip_del_mode($$); } <mode>
+%destructor { ed2ip_del_modeset($$); } <modeset>
 %destructor { ed2ip_del_isa($$); } <isa>
 
 %%
@@ -129,7 +135,7 @@ start:	file		{ *isa = ed2ip_transform($1); }
 file:	/**/		{ $$ = calloc(sizeof *$$, 1); }
 |	file feature	{ $$ = $1; ADDARRAY($$->features, $2); }
 |	file variant	{ $$ = $1; ADDARRAY($$->variants, $2); }
-|	file mode	{ $$ = $1; ADDARRAY($$->modes, $2); }
+|	file modeset	{ $$ = $1; ADDARRAY($$->modesets, $2); }
 |	file opfield
 |	file func
 |	file exprdef
@@ -163,7 +169,19 @@ vmods:		/**/	{ $$ = calloc(sizeof *$$, 1); }
 |		vmods "FEATURE" wordsnz { int i; $$ = $1; for (i = 0; i < $3.strsnum; i++) ADDARRAY($$->features, $3.strs[i]); free($3.strs); }
 ;
 
-mode:		"MODE" wordsnz description memods ';' { $$ = $4; $$->loc = @$; $$->description = $3; $$->names = $2.strs; $$->namesnum = $2.strsnum; $$->namesmax = $2.strsmax; }
+
+modeset:	"MODE" wordsnz description msmods '{' modes '}' ';' { $$ = $4; $$->names = $2.strs; $$->namesnum = $2.strsnum; $$->namesmax = $2.strsmax; $$->description = $3; $$->modes = $6->modes; $$->modesnum = $6->modesnum; $$->modesmax = $6->modesmax; free($6); }
+;
+
+modes:		modes mode { $$ = $1; ADDARRAY($$->modes, $2); }
+|		/**/	{ $$ = calloc(sizeof *$$, 1); }
+;
+
+msmods:		/**/	{ $$ = calloc(sizeof *$$, 1); }
+|		msmods "OPTIONAL" { $$ = $1; $$->isoptional = 1; }
+;
+
+mode:		wordsnz description memods ';' { $$ = $3; $$->loc = @$; $$->description = $2; $$->names = $1.strs; $$->namesnum = $1.strsnum; $$->namesmax = $1.strsmax; }
 ;
 
 memods:		/**/	{ $$ = calloc(sizeof *$$, 1); }

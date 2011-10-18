@@ -29,10 +29,12 @@
 
 struct ed2v_variant *ed2v_new_variant_i(struct ed2i_isa *isa, int variant) {
 	assert(variant >= -1 && variant < isa->variantsnum);
-	struct ed2v_variant *res = calloc(sizeof *res + sizeof *res->fmask * CEILDIV(isa->featuresnum, ED2V_CHUNK_SIZE), 1);
+	struct ed2v_variant *res = calloc(sizeof *res, 1);
+	int i;
+	res->fmask = calloc(sizeof *res->fmask, CEILDIV(isa->featuresnum, ED2V_CHUNK_SIZE));
+	res->mode = calloc(sizeof *res->mode, isa->modesetsnum);
 	res->isa = isa;
 	if (variant != -1) {
-		int i;
 		for (i = 0; i < isa->variants[variant].featuresnum; i++) {
 			if (ed2v_add_feature_i(res, isa->variants[variant].features[i])) {
 				fprintf (stderr, "Broken ISA description: variant %s has conflicting features!\n", isa->variants[variant].names[0]);
@@ -41,7 +43,9 @@ struct ed2v_variant *ed2v_new_variant_i(struct ed2i_isa *isa, int variant) {
 			}
 		}
 	}
-	res->mode = isa->defmode;
+	for (i = 0; i < isa->modesetsnum; i++) {
+		res->mode[i] = isa->modesets[i].defmode;
+	}
 	return res;
 }
 
@@ -57,6 +61,8 @@ struct ed2v_variant *ed2v_new_variant(struct ed2i_isa *isa, const char *variant)
 }
 
 void ed2v_del_variant(struct ed2v_variant *var) {
+	free(var->fmask);
+	free(var->mode);
 	free(var);
 }
 
@@ -93,7 +99,7 @@ int ed2v_set_mode_i(struct ed2v_variant *var, int mode) {
 	int i;
 	struct ed2i_mode *m = &var->isa->modes[mode];
 	assert(mode >= 0 && mode < var->isa->modesnum);
-	var->mode = mode;
+	var->mode[m->modeset] = mode;
 	for (i = 0; i < m->featuresnum; i++) {
 		if (ed2v_add_feature_i(var, m->features[i]))
 			return -1;

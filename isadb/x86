@@ -58,9 +58,16 @@ FEATURE nop		"NOP instruction with parameters";
 
 /* execution modes */
 
-MODE	m16		"16-bit code";
-MODE	m32		"32-bit code" FEATURE op386;
-MODE	m64		"64-bit code" FEATURE lm;
+MODE pmode "Processor mode" {
+	rm		"Real mode or virtual 8086 mode";
+	pm		"Protected mode" FEATURE op286;
+};
+
+MODE ctype "Code type" {
+	m16		"16-bit code";
+	m32		"32-bit code" FEATURE op386;
+	m64		"64-bit code" FEATURE lm;
+};
 
 /* opcode fields */
 

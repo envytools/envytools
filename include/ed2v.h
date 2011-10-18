@@ -29,14 +29,18 @@
 
 struct ed2v_variant {
 	struct ed2i_isa *isa;
-	int mode;
-	uint32_t fmask[0];
+	uint32_t *fmask;
+	int *mode;
 };
 
 #define ED2V_CHUNK_SIZE 32
 
 static inline int ed2v_has_feature(struct ed2v_variant *var, int feature) {
 	return (var->fmask[feature/32] >> (feature % 32)) & 1;
+};
+
+static inline int ed2v_get_mode(struct ed2v_variant *var, int modeset) {
+	return var->mode[modeset];
 };
 
 struct ed2v_variant *ed2v_new_variant_i(struct ed2i_isa *isa, int variant);

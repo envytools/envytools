@@ -31,7 +31,7 @@
  */
 
 int var_ok(int fmask, int ptype, struct ed2v_variant *var) {
-	return (!fmask || (var->fmask[0] & fmask) == fmask) && (!ptype || (var->mode != -1 && ptype & 1 << var->mode));
+	return (!fmask || (var->fmask[0] & fmask) == fmask) && (!ptype || (var->mode[0] != -1 && ptype & 1 << var->mode[0]));
 }
 
 char *aprint(const char *format, ...) {

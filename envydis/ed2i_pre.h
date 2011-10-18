@@ -53,6 +53,18 @@ struct ed2ip_variant {
 	struct ed2_loc loc;
 };
 
+struct ed2ip_modeset {
+	char **names;
+	int namesnum;
+	int namesmax;
+	char *description;
+	int isoptional;
+	struct ed2ip_mode **modes;
+	int modesnum;
+	int modesmax;
+	struct ed2_loc loc;
+};
+
 struct ed2ip_mode {
 	char **names;
 	int namesnum;
@@ -72,9 +84,9 @@ struct ed2ip_isa {
 	struct ed2ip_variant **variants;
 	int variantsnum;
 	int variantsmax;
-	struct ed2ip_mode **modes;
-	int modesnum;
-	int modesmax;
+	struct ed2ip_modeset **modesets;
+	int modesetsnum;
+	int modesetsmax;
 	int broken;
 };
 

@@ -31,6 +31,7 @@
 enum {
 	ED2I_ST_FEATURE,
 	ED2I_ST_VARIANT,
+	ED2I_ST_MODESET,
 	ED2I_ST_MODE,
 };
 
@@ -58,6 +59,17 @@ struct ed2i_mode {
 	char *description;
 	int *features;
 	int featuresnum;
+	int modeset;
+};
+
+struct ed2i_modeset {
+	char **names;
+	int namesnum;
+	char *description;
+	int isoptional;	
+	int firstmode;
+	int modesnum;
+	int defmode;
 };
 
 struct ed2i_isa {
@@ -65,9 +77,10 @@ struct ed2i_isa {
 	int featuresnum;
 	struct ed2i_variant *variants;
 	int variantsnum;
+	struct ed2i_modeset *modesets;
+	int modesetsnum;
 	struct ed2i_mode *modes;
 	int modesnum;
-	int defmode;
 	struct ed2s_symtab *symtab;
 };
 

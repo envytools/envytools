@@ -80,6 +80,7 @@
 "IGROUP"			{ yyextra.ws = 0; return T_IGROUP; }
 "INSN"				{ yyextra.ws = 0; return T_INSN; }
 "CONST"				{ yyextra.ws = 0; return T_CONST; }
+"OPTIONAL"				{ yyextra.ws = 0; return T_OPTIONAL; }
 [a-z_][a-zA-Z_0-9]*		{ yyextra.ws = 0; yylval->str = strdup(yytext); return T_WORD; }
 \$[a-zA-Z_0-9]*			{ yyextra.ws = 0; yylval->str = strdup(yytext+1); return T_REG; }
 0[0-7]*|[1-9][0-9]*|0[xX][0-9a-fA-F]+		{ yyextra.ws = 0; yylval->num = strtoull(yytext, 0, 0); return T_NUM; }
