@@ -56,3 +56,464 @@ MODE endian "Endianness" {
 	le		"Little endian";
 	be		"Big endian";
 };
+
+OPFIELD ob1 8;
+OPFIELD ob2 8;
+OPFIELD ob3 8;
+
+FUNC op0 4 SWITCH {
+	MODE le: ob1[0:3];
+	MODE be: ob1[4:7];
+};
+FUNC n 2 SWITCH {
+	MODE le: ob1[4:5];
+	MODE be: ob1[2:3];
+};
+FUNC m 2 SWITCH {
+	MODE le: ob1[6:7];
+	MODE be: ob1[0:1];
+};
+FUNC imm6 6 SWITCH {
+	MODE le: ob2[4:7]#ob1[4:5];
+	MODE be: ob2[0:3]#ob1[0:1];
+};
+FUNC imm7 7 SWITCH {
+	MODE le: ob2[4:7]#ob1[4:6];
+	MODE be: ob2[0:3]#ob1[0:2];
+};
+FUNC z 1 SWITCH {
+	MODE le: ob1[6];
+	MODE be: ob1[2];
+};
+FUNC i 1 SWITCH {
+	MODE le: ob1[7];
+	MODE be: ob1[3];
+};
+FUNC t 4 SWITCH {
+	MODE le: ob1[4:7];
+	MODE be: ob1[0:3];
+};
+FUNC s 4 SWITCH {
+	MODE le: ob2[0:3];
+	MODE be: ob2[4:7];
+};
+FUNC r 4 SWITCH {
+	MODE le: ob2[4:7];
+	MODE be: ob2[0:3];
+};
+FUNC rs 8 ob2;
+FUNC op1 4 SWITCH {
+	MODE le: ob3[0:3];
+	MODE be: ob3[4:7];
+};
+FUNC op2 4 SWITCH {
+	MODE le: ob3[4:7];
+	MODE be: ob3[0:3];
+};
+FUNC imm8 8 ob3;
+FUNC imm12 12 SWITCH {
+	MODE le: ob2[4:7]#ob3;
+	MODE be: ob3#ob2[0:3];
+};
+FUNC imm16 16 SWITCH {
+	MODE le: ob2#ob3;
+	MODE be: ob3#ob2;
+};
+FUNC offset 18 SWITCH {
+	MODE le: ob1[6:7]#ob2#ob3;
+	MODE be: ob3#ob2#ob1[0:1];
+};
+
+EXPR ar $a[r];
+EXPR as $a[s];
+EXPR at $a[t];
+
+ARG br $b[r];
+ARG bs $b[s];
+ARG bt $b[t];
+ARG bsq $b[s VECTOR 4];
+ARG bso $b[s VECTOR 8];
+
+ARG fr $f[r];
+ARG fs $f[s];
+ARG ft $f[t];
+
+ARG mw $m[r[0:1]];
+ARG my $m[t[2] +2];
+ARG mx $m[r[2]];
+
+ARG btarg8 IMM(imm8 SEX 32 PCREL START +4 BTARG);
+ARG btarg12 IMM(imm12 SEX 32 PCREL START +4 BTARG);
+
+ARG btarg6 IMM(imm6 PCREL START +4 BTARG);
+
+ARG ltarg IMM(imm8 PCREL START +4 BTARG);
+ARG jtarg IMM(offset SEX 32 PCREL START +4 BTARG);
+ARG ctarg IMM(offset << 2 SEX 32 PCREL(START &-4) +4 CTARG);
+
+EXPR b4const SWITCH {
+	r 0x0: -1;
+	r 0x1: 1;
+	r 0x2: 2;
+	r 0x3: 3;
+	r 0x4: 4;
+	r 0x5: 5;
+	r 0x6: 6;
+	r 0x7: 7;
+	r 0x8: 8;
+	r 0x9: 10;
+	r 0xa: 12;
+	r 0xb: 16;
+	r 0xc: 32;
+	r 0xd: 64;
+	r 0xe: 128;
+	r 0xf: 256;
+};
+
+EXPR b4constu SWITCH {
+	r 0x0: 0x8000;
+	r 0x1: 0x10000;
+	r 0x2: 2;
+	r 0x3: 3;
+	r 0x4: 4;
+	r 0x5: 5;
+	r 0x6: 6;
+	r 0x7: 7;
+	r 0x8: 8;
+	r 0x9: 10;
+	r 0xa: 12;
+	r 0xb: 16;
+	r 0xc: 32;
+	r 0xd: 64;
+	r 0xe: 128;
+	r 0xf: 256;
+};
+
+EXPR slli_shift SWITCH {
+	t#op2[0] 0x01: 31;
+	t#op2[0] 0x02: 30;
+	t#op2[0] 0x03: 29;
+	t#op2[0] 0x04: 28;
+	t#op2[0] 0x05: 27;
+	t#op2[0] 0x06: 26;
+	t#op2[0] 0x07: 25;
+	t#op2[0] 0x08: 24;
+	t#op2[0] 0x09: 23;
+	t#op2[0] 0x0a: 22;
+	t#op2[0] 0x0b: 21;
+	t#op2[0] 0x0c: 20;
+	t#op2[0] 0x0d: 19;
+	t#op2[0] 0x0e: 18;
+	t#op2[0] 0x0f: 17;
+	t#op2[0] 0x10: 16;
+	t#op2[0] 0x11: 15;
+	t#op2[0] 0x12: 14;
+	t#op2[0] 0x13: 13;
+	t#op2[0] 0x14: 12;
+	t#op2[0] 0x15: 11;
+	t#op2[0] 0x16: 10;
+	t#op2[0] 0x17: 9;
+	t#op2[0] 0x18: 8;
+	t#op2[0] 0x19: 7;
+	t#op2[0] 0x1a: 6;
+	t#op2[0] 0x1b: 5;
+	t#op2[0] 0x1c: 4;
+	t#op2[0] 0x1d: 3;
+	t#op2[0] 0x1e: 2;
+	t#op2[0] 0x1f: 1;
+};
+
+ARG data8 MEM(as + IMM(imm8 ZEX 32));
+ARG data16 MEM(as + IMM(imm8 << 1 ZEX 32));
+ARG data32 MEM(as + IMM(imm8 << 2 ZEX 32));
+ARG data32pi MEM(as += IMM(imm8 << 2 ZEX 32));
+ARG datacl MEM(as + IMM(op2 << 4 ZEX 32));
+ARG data32e MEM(as + IMM(r << 2 OEX 32));
+ARG data32n MEM(as + IMM(r << 2 ZEX 32));
+ARG data32r_pc MEM(IMM(imm16 << 2 OEX 32 PCREL(START +3 &-4)) LIT);
+ARG data32r_litbase MEM($litbase + IMM(imm16 << 2 OEX 32) LIT);
+ARG datarr MEM(as + at);
+ARG datarrpi MEM(as += at);
+
+ARG addin_imm SWITCH {
+	t 0:		-1;
+	t 1-0xf:	IMM(t);
+};
+
+EXPR sreg $sr[rs];
+
+MOD mac16lh SWITCH {
+	op1[0:1] 0:	"ll";
+	op1[0:1] 1:	"hl";
+	op1[0:1] 2:	"lh";
+	op1[0:1] 3:	"hh";
+};
+
+SEQ ilong SWITCH {
+	op0 0x0 op1 0x0 op2 0x0 r 0x0 m 0 n 0 s 0 FEATURE exception:	INSN "ill"			[[ TRAP; ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x0 m 2 n 0 s 0:			INSN "ret"			[[ BRANCH($a[0]); ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x0 m 2 n 1 s 0 FEATURE window:	INSN "retw"			[[ retw($a[0]); ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x0 m 2 n 2:				INSN "jx" as			[[ BRANCH($1); ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x0 m 3 n 0:				INSN "callx0" as		[[ $a[0] = NEXTPC; BRANCH($1); ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x0 m 3 n 1 FEATURE window:		INSN "callx4" as		[[ $a[0] = callw(1, $1); ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x0 m 3 n 2 FEATURE window:		INSN "callx8" as		[[ $a[0] = callw(2, $1); ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x0 m 3 n 3 FEATURE window:		INSN "callx12" as		[[ $a[0] = callw(3, $1); ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x1 FEATURE window:			INSN "movsp" at as		[[ $1 = movsp($2); ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x2 t 0x0 s 0x0:			INSN "isync"			[[ isync; ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x2 t 0x1 s 0x0:			INSN "rsync"			[[ rsync; ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x2 t 0x2 s 0x0:			INSN "esync"			[[ esync; ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x2 t 0x3 s 0x0:			INSN "dsync"			[[ dsync; ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x2 t 0x8 s 0x0 FEATURE exception:	INSN "excw"			[[ excw; ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x2 t 0xc s 0x0:			INSN "memw"			[[ memw; ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x2 t 0xd s 0x0:			INSN "extw"			[[ extw; ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x2 t 0xf s 0x0: 			INSN "nop" NOP;
+	op0 0x0 op1 0x0 op2 0x0 r 0x3 t 0x0 s 0x0 FEATURE exception:	INSN "rfe"			[[ rfe; ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x3 t 0x0 s 0x1 FEATURE exception:	INSN "rfue"			[[ rfue; ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x3 t 0x0 s 0x2 FEATURE exception:	INSN "rfde"			[[ rfde; ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x3 t 0x0 s 0x4 FEATURE window:	INSN "rfwo"			[[ rfwo; ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x3 t 0x0 s 0x5 FEATURE window:	INSN "rfwu"			[[ rfwu; ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x3 t 0x1 FEATURE hpintr:		INSN "rfi" IMM(s UNSIGNED)	[[ rfi($1); ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x3 t 0x2 s 0x0 FEATURE ecc:		INSN "rfme"			[[ rfme; ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x4 FEATURE debug:			INSN "break" IMM(s UNSIGNED) IMM(t UNSIGNED)	[[ break($1, $2); ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x5 s 0x0 t 0x0 FEATURE exception:	INSN "syscall"		[[ syscall; ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x5 s 0x1 t 0x0 FEATURE simulator:	INSN "simcall"		[[ simcall; ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x6 FEATURE interrupt:		INSN "rsil" at IMM(s UNSIGNED)	[[ $1 = rsil($2); ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x7 t 0x0 FEATURE interrupt:		INSN "waiti" IMM(s UNSIGNED)	[[ waiti($1); ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x8 FEATURE boolean:			INSN "any4" bt bsq		[[ $1 = $2[0] || $2[1] || $2[2] || $2[3] ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0x9 FEATURE boolean:			INSN "all4" bt bsq		[[ $1 = $2[0] && $2[1] && $2[2] && $2[3] ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0xa FEATURE boolean:			INSN "any8" bt bso		[[ $1 = $2[0] || $2[1] || $2[2] || $2[3] || $2[4] || $2[5] || $2[6] || $2[7] ]];
+	op0 0x0 op1 0x0 op2 0x0 r 0xb FEATURE boolean:			INSN "all8" bt bso		[[ $1 = $2[0] && $2[1] && $2[2] && $2[3] && $2[4] && $2[5] && $2[6] && $2[7] ]];
+	op0 0x0 op1 0x0 op2 0x1:					INSN "and" ar as at		[[ $1 = $2 & $3; ]];
+	op0 0x0 op1 0x0 op2 0x2:					INSN "or" ar as at		[[ $1 = $2 | $3; ]];
+	op0 0x0 op1 0x0 op2 0x3:					INSN "xor" ar as at		[[ $1 = $2 ^ $3; ]];
+	op0 0x0 op1 0x0 op2 0x4 r 0x0 t 0x0:				INSN "ssr" as		[[ $sar = ZEX($1[0:4], 6); ]];
+	op0 0x0 op1 0x0 op2 0x4 r 0x1 t 0x0:				INSN "ssl" as		[[ $sar = 32 - ZEX($1[0:4], 6); ]];
+	op0 0x0 op1 0x0 op2 0x4 r 0x2 t 0x0:				INSN "ssa8l" as		[[ $sar = 0[0] # $1[0:1] # 0[0:2]; ]];
+	op0 0x0 op1 0x0 op2 0x4 r 0x3 t 0x0:				INSN "ssa8b" as		[[ $sar = 32 - (0[0] # $1[0:1] # 0[0:2]); ]];
+	op0 0x0 op1 0x0 op2 0x4 r 0x4 t 0x0/0xe:			INSN "ssai" IMM(s#t[0] UNSIGNED)	[[ $sar = ZEX($1, 6); ]];
+	op0 0x0 op1 0x0 op2 0x4 r 0x6:					INSN "rer" at as		[[ $1 = rer($2); ]];
+	op0 0x0 op1 0x0 op2 0x4 r 0x7:					INSN "wer" at as		[[ wer($1, $2); ]];
+	op0 0x0 op1 0x0 op2 0x4 r 0x8 s 0x0 FEATURE window:		INSN "rotw" IMM(t)		[[ rotw($1); ]];
+	op0 0x0 op1 0x0 op2 0x4 r 0xe FEATURE nsa:			INSN "nsa" at as		[[ $1 = CLZS($2); ]];
+	op0 0x0 op1 0x0 op2 0x4 r 0xf FEATURE nsa:			INSN "nsau" at as		[[ $1 = CLZ($2); ]];
+	op0 0x0 op1 0x0 op2 0x5 r 0x3 FEATURE tlb:			INSN "ritlb0" at as		[[ $1 = ritlb0($2); ]];
+	op0 0x0 op1 0x0 op2 0x5 r 0x4 t 0x0 FEATURE tlb:		INSN "iitlb" as		[[ iitlb($1); ]];
+	op0 0x0 op1 0x0 op2 0x5 r 0x5 FEATURE tlb:			INSN "pitlb" at as		[[ $1 = pitlb($1, $2); ]];
+	op0 0x0 op1 0x0 op2 0x5 r 0x6 FEATURE tlb:			INSN "witlb" at as		[[ witlb($1, $2); ]];
+	op0 0x0 op1 0x0 op2 0x5 r 0x7 FEATURE tlb:			INSN "ritlb1" at as		[[ $1 = ritlb1($2); ]];
+	op0 0x0 op1 0x0 op2 0x5 r 0xb FEATURE tlb:			INSN "rdtlb0" at as		[[ $1 = rdtlb0($2); ]];
+	op0 0x0 op1 0x0 op2 0x5 r 0xc t 0x0 FEATURE tlb:		INSN "idtlb" as		[[ idtlb($1); ]];
+	op0 0x0 op1 0x0 op2 0x5 r 0xd FEATURE tlb:			INSN "pdtlb" at as		[[ $1 = pdtlb($2); ]];
+	op0 0x0 op1 0x0 op2 0x5 r 0xe FEATURE tlb:			INSN "wdtlb" at as		[[ wdtlb($1, $2); ]];
+	op0 0x0 op1 0x0 op2 0x5 r 0xf FEATURE tlb:			INSN "rdtlb1" at as		[[ $1 = rdtlb1($2); ]];
+	op0 0x0 op1 0x0 op2 0x6 s 0x0:					INSN "neg" ar at		[[ $1 = -$2; ]];
+	op0 0x0 op1 0x0 op2 0x6 s 0x1:					INSN "abs" ar at		[[ $1 = ABS($2); ]];
+	op0 0x0 op1 0x0 op2 0x8:					INSN "add" ar as at		[[ $1 = $2 + $3; ]];
+	op0 0x0 op1 0x0 op2 0x9:					INSN "addx2" ar as at	[[ $1 = $2 * 2 + $3; ]];
+	op0 0x0 op1 0x0 op2 0xa:					INSN "addx4" ar as at	[[ $1 = $2 * 4 + $3; ]];
+	op0 0x0 op1 0x0 op2 0xb:					INSN "addx8" ar as at	[[ $1 = $2 * 8 + $3; ]];
+	op0 0x0 op1 0x0 op2 0xc:					INSN "sub" ar as at		[[ $1 = $2 - $3; ]];
+	op0 0x0 op1 0x0 op2 0xd:					INSN "subx2" ar as at	[[ $1 = $2 * 2 - $3; ]];
+	op0 0x0 op1 0x0 op2 0xe:					INSN "subx4" ar as at	[[ $1 = $2 * 4 - $3; ]];
+	op0 0x0 op1 0x0 op2 0xf:					INSN "subx8" ar as at	[[ $1 = $2 * 8 - $3; ]];
+	op0 0x0 op1 0x1 op2 0/0xe:					INSN "slli" ar as slli_shift	[[ $1 = $2 << $3; ]];
+	op0 0x0 op1 0x1 op2 2/0xe:					INSN "srai" ar at IMM(s#op2[0] UNSIGNED)	[[ $1 = $2 >>> $3; ]];
+	op0 0x0 op1 0x1 op2 0x4:					INSN "srli" ar at IMM(s UNSIGNED)	[[ $1 = $2 >> $3; ]];
+	op0 0x0 op1 0x1 op2 0x6:					INSN "xsr" at sreg		[[ SWAP($1, $2); ]];
+	op0 0x0 op1 0x1 op2 0x8:					INSN "src" ar as at		[[ $1 = (($2 # $3) >> $sar)[0:31] ]];
+	op0 0x0 op1 0x1 op2 0x9 s 0x0:					INSN "srl" ar at		[[ $1 = $2 >> $sar; ]];
+	op0 0x0 op1 0x1 op2 0xa t 0x0:					INSN "sll" ar as		[[ $1 = $2 << (32 - $sar); ]];
+	op0 0x0 op1 0x1 op2 0xb s 0x0:					INSN "sra" ar at		[[ $1 = $2 >>> $sar; ]];
+	op0 0x0 op1 0x1 op2 0xc FEATURE mul16:				INSN "mul16u" ar as at	[[ $1 = ZEX($1[0:15], 32) * ZEX($2[0:15], 32); ]];
+	op0 0x0 op1 0x1 op2 0xd FEATURE mul16:				INSN "mul16s" ar as at	[[ $1 = SEX($1[0:15], 32) * SEX($2[0:15], 32); ]];
+	op0 0x0 op1 0x1 op2 0xf r 0x0 FEATURE icachetest:		INSN "lict" at as		[[ $1 = lict($2); ]];
+	op0 0x0 op1 0x1 op2 0xf r 0x1 FEATURE icachetest:		INSN "sict" at as		[[ sict($1, $2); ]];
+	op0 0x0 op1 0x1 op2 0xf r 0x2 FEATURE icachetest:		INSN "licw" at as		[[ $1 = licw($2); ]];
+	op0 0x0 op1 0x1 op2 0xf r 0x3 FEATURE icachetest:		INSN "sicw" at as		[[ sicw($1, $2); ]];
+	op0 0x0 op1 0x1 op2 0xf r 0x8 FEATURE dcachetest:		INSN "ldct" at as		[[ $1 = ldct($2); ]];
+	op0 0x0 op1 0x1 op2 0xf r 0x9 FEATURE dcachetest:		INSN "sdct" at as		[[ sdct($1, $2); ]];
+	op0 0x0 op1 0x1 op2 0xf r 0xe t 0x0 s 0x0 FEATURE ocd:		INSN "rfdo"			[[ rfdo; ]];
+	op0 0x0 op1 0x1 op2 0xf r 0xe t 0x1 s 0x0/0xe FEATURE ocd:	INSN "rfdd"			[[ rfdd; ]]; // XXX
+	op0 0x0 op1 0x2 op2 0x0 FEATURE boolean:			INSN "andb" br bs bt		[[ $1 = $2 && $3; ]];
+	op0 0x0 op1 0x2 op2 0x1 FEATURE boolean:			INSN "andbc" br bs bt	[[ $1 = $2 && !$3; ]];
+	op0 0x0 op1 0x2 op2 0x2 FEATURE boolean:			INSN "orb" br bs bt		[[ $1 = $2 || $3; ]];
+	op0 0x0 op1 0x2 op2 0x3 FEATURE boolean:			INSN "orbc" br bs bt		[[ $1 = $2 || !$3; ]];
+	op0 0x0 op1 0x2 op2 0x4 FEATURE boolean:			INSN "xorb" br bs bt		[[ $1 = $2 ^^ $3; ]];
+	op0 0x0 op1 0x2 op2 0x8 FEATURE mul32:				INSN "mull" ar as at		[[ $1 = $2 * $3; ]];
+	op0 0x0 op1 0x2 op2 0xa FEATURE mul32:				INSN "muluh" ar as at	[[ $1 = UMUL($2, $3)[32:63]; ]];
+	op0 0x0 op1 0x2 op2 0xb FEATURE mul32:				INSN "mulsh" ar as at	[[ $1 = SMUL($2, $3)[32:63]; ]];
+	op0 0x0 op1 0x2 op2 0xc FEATURE div32:				INSN "quou" ar as at		[[ $1 = UDIV($2, $3); ]];
+	op0 0x0 op1 0x2 op2 0xd FEATURE div32:				INSN "quos" ar as at		[[ $1 = SDIV($2, $3); ]];
+	op0 0x0 op1 0x2 op2 0xe FEATURE div32:				INSN "remu" ar as at		[[ $1 = UMOD($2, $3); ]];
+	op0 0x0 op1 0x2 op2 0xf FEATURE div32:				INSN "rems" ar as at		[[ $1 = SMOD($2, $3); ]];
+	op0 0x0 op1 0x3 op2 0x0:					INSN "rsr" at sreg		[[ $1 = $2; ]];
+	op0 0x0 op1 0x3 op2 0x1:					INSN "wsr" at sreg		[[ $2 = $1; ]];
+	op0 0x0 op1 0x3 op2 0x2 FEATURE sext:				INSN "sext" ar as IMM(t +7)	[[ $1 = SEX($2[0:$3], 32); ]];
+	op0 0x0 op1 0x3 op2 0x3 FEATURE clamps:				INSN "clamps" ar as IMM(t +7)	[[ $1 = CLAMPS($2, $3); ]];
+	op0 0x0 op1 0x3 op2 0x4 FEATURE minmax:				INSN "min" ar as at		[[ $1 = MINS($2, $3); ]];
+	op0 0x0 op1 0x3 op2 0x5 FEATURE minmax:				INSN "max" ar as at		[[ $1 = MAXS($2, $3); ]];
+	op0 0x0 op1 0x3 op2 0x6 FEATURE minmax:				INSN "minu" ar as at		[[ $1 = MINU($2, $3); ]];
+	op0 0x0 op1 0x3 op2 0x7 FEATURE minmax:				INSN "maxu" ar as at		[[ $1 = MAXU($2, $3); ]];
+	op0 0x0 op1 0x3 op2 0x8:					INSN "moveqz" ar as at	[[ IF($3 == 0) $1 = $2; ]];
+	op0 0x0 op1 0x3 op2 0x9:					INSN "movnez" ar as at	[[ IF($3 != 0) $1 = $2; ]];
+	op0 0x0 op1 0x3 op2 0xa:					INSN "movltz" ar as at	[[ IF($3 SIGNED < 0) $1 = $2; ]];
+	op0 0x0 op1 0x3 op2 0xb:					INSN "movgez" ar as at	[[ IF($3 SIGNED >= 0) $1 = $2; ]];
+	op0 0x0 op1 0x3 op2 0xc FEATURE boolean:			INSN "movf" ar as bt		[[ IF(!$3) $1 = $2; ]];
+	op0 0x0 op1 0x3 op2 0xd FEATURE boolean:			INSN "movt" ar as bt		[[ IF($3) $1 = $2; ]];
+	op0 0x0 op1 0x3 op2 0xe:					INSN "rur" ar $ur[t#s]	[[ $1 = $2; ]];
+	op0 0x0 op1 0x3 op2 0xf:					INSN "wur" at $ur[rs]	[[ $2 = $1; ]];
+	op0 0x0 op1 0x4/0xe:						INSN "extui" ar at IMM(s#op1[0]) IMM(op2 +1)	[[ $1 = ZEX($2[$3:$3+$4-1], 32); ]];
+	op0 0x0 op1 0x8 op2 0 FEATURE float:				INSN "lsx" fr datarr		[[ $1 = $2; ]];
+	op0 0x0 op1 0x8 op2 1 FEATURE float:				INSN "lsxu" fr datarrpi	[[ $1 = $2; ]];
+	op0 0x0 op1 0x8 op2 4 FEATURE float:				INSN "ssx" fr datarr		[[ $2 = $1; ]];
+	op0 0x0 op1 0x8 op2 5 FEATURE float:				INSN "ssxu" fr datarrpi	[[ $2 = $1; ]];
+	op0 0x0 op1 0x9 op2 0 FEATURE window:				INSN "l32e" at data32e	[[ $1 = $2; ]];
+	op0 0x0 op1 0x9 op2 4 FEATURE window:				INSN "s32e" at data32e	[[ $2 = $1; ]];
+	op0 0x0 op1 0xa op2 0 FEATURE float:				INSN "adds" fr fs ft;	// XXX
+	op0 0x0 op1 0xa op2 1 FEATURE float:				INSN "subs" fr fs ft;
+	op0 0x0 op1 0xa op2 2 FEATURE float:				INSN "muls" fr fs ft;
+	op0 0x0 op1 0xa op2 4 FEATURE float:				INSN "madds" fr fs ft;
+	op0 0x0 op1 0xa op2 5 FEATURE float:				INSN "msubs" fr fs ft;
+	op0 0x0 op1 0xa op2 8 FEATURE float:				INSN "rounds" ar fs IMM(t UNSIGNED);
+	op0 0x0 op1 0xa op2 9 FEATURE float:				INSN "truncs" ar fs IMM(t UNSIGNED);
+	op0 0x0 op1 0xa op2 a FEATURE float:				INSN "floors" ar fs IMM(t UNSIGNED);
+	op0 0x0 op1 0xa op2 b FEATURE float:				INSN "ceils" ar fs IMM(t UNSIGNED);
+	op0 0x0 op1 0xa op2 c FEATURE float:				INSN "floats" fr as IMM(t UNSIGNED);
+	op0 0x0 op1 0xa op2 d FEATURE float:				INSN "ufloats" fr as IMM(t UNSIGNED);
+	op0 0x0 op1 0xa op2 e FEATURE float:				INSN "utruncs" ar fs IMM(t UNSIGNED);
+	op0 0x0 op1 0xa op2 f t 0x0 FEATURE float:			INSN "movs" fr fs;
+	op0 0x0 op1 0xa op2 f t 0x1 FEATURE float:			INSN "abss" fr fs;
+	op0 0x0 op1 0xa op2 f t 0x4 FEATURE float:			INSN "rfr" ar fs;
+	op0 0x0 op1 0xa op2 f t 0x5 FEATURE float:			INSN "wfr" fr as;
+	op0 0x0 op1 0xa op2 f t 0x6 FEATURE float:			INSN "negs" fr fs;
+	op0 0x0 op1 0xb op2 1 FEATURE float:				INSN "uns" br fs ft;
+	op0 0x0 op1 0xb op2 2 FEATURE float:				INSN "oeqs" br fs ft;
+	op0 0x0 op1 0xb op2 3 FEATURE float:				INSN "ueqs" br fs ft;
+	op0 0x0 op1 0xb op2 4 FEATURE float:				INSN "olts" br fs ft;
+	op0 0x0 op1 0xb op2 5 FEATURE float:				INSN "ults" br fs ft;
+	op0 0x0 op1 0xb op2 6 FEATURE float:				INSN "oles" br fs ft;
+	op0 0x0 op1 0xb op2 7 FEATURE float:				INSN "ules" br fs ft;
+	op0 0x0 op1 0xb op2 8 FEATURE float:				INSN "moveqzs" fr fs at;
+	op0 0x0 op1 0xb op2 9 FEATURE float:				INSN "movnezs" fr fs at;
+	op0 0x0 op1 0xb op2 a FEATURE float:				INSN "movltzs" fr fs at;
+	op0 0x0 op1 0xb op2 b FEATURE float:				INSN "movgezs" fr fs at;
+	op0 0x0 op1 0xb op2 c FEATURE float:				INSN "movfs" fr fs bt;
+	op0 0x0 op1 0xb op2 d FEATURE float:				INSN "movts" fr fs bt;
+	op0 0x1 MODE l32r_pc:						INSN "l32r" at data32r_pc	[[ $1 = $2; ]];
+	op0 0x1 MODE l32r_litbase:					INSN "l32r" at data32r_litbase	[[ $1 = $2; ]];
+	op0 0x2 r 0x0:							INSN "l8ui" at data8		[[ $1 = $2; ]];
+	op0 0x2 r 0x1:							INSN "l16ui" at data16	[[ $1 = $2; ]];
+	op0 0x2 r 0x2:							INSN "l32i" at data32	[[ $1 = $2; ]];
+	op0 0x2 r 0x4:							INSN "s8i" at data8		[[ $2 = $1; ]];
+	op0 0x2 r 0x5:							INSN "s16i" at data16	[[ $2 = $1; ]];
+	op0 0x2 r 0x6:							INSN "s32i" at data32	[[ $2 = $1; ]];
+	op0 0x2 r 0x7 t 0x0 FEATURE dcache:				INSN "dpfr" data32;
+	op0 0x2 r 0x7 t 0x1 FEATURE dcache:				INSN "dpfw" data32;
+	op0 0x2 r 0x7 t 0x2 FEATURE dcache:				INSN "dpfro" data32;
+	op0 0x2 r 0x7 t 0x3 FEATURE dcache:				INSN "dpfwo" data32;
+	op0 0x2 r 0x7 t 0x4 FEATURE dcache:				INSN "dhwb" data32;
+	op0 0x2 r 0x7 t 0x5 FEATURE dcache:				INSN "dhwbi" data32;
+	op0 0x2 r 0x7 t 0x6 FEATURE dcache:				INSN "dhi" data32;
+	op0 0x2 r 0x7 t 0x7 FEATURE dcache:				INSN "dii" data32;
+	op0 0x2 r 0x7 t 0x8 op1 0x0 FEATURE dcachelock:			INSN "dpfl" datacl;
+	op0 0x2 r 0x7 t 0x8 op1 0x2 FEATURE dcachelock:			INSN "dhu" datacl;
+	op0 0x2 r 0x7 t 0x8 op1 0x3 FEATURE dcachelock:			INSN "diu" datacl;
+	op0 0x2 r 0x7 t 0x8 op1 0x4 FEATURE dcache:			INSN "diwb" datacl;
+	op0 0x2 r 0x7 t 0x8 op1 0x5 FEATURE dcache:			INSN "diwbi" datacl;
+	op0 0x2 r 0x7 t 0xc FEATURE icache:				INSN "ipf" data32;
+	op0 0x2 r 0x7 t 0xd op1 0x0 FEATURE icachelock:			INSN "ipfl" datacl;
+	op0 0x2 r 0x7 t 0xd op1 0x2 FEATURE icachelock:			INSN "ihu" datacl;
+	op0 0x2 r 0x7 t 0xd op1 0x3 FEATURE icachelock:			INSN "iiu" datacl;
+	op0 0x2 r 0x7 t 0xe FEATURE icache:				INSN "ihi" data32;
+	op0 0x2 r 0x7 t 0xf FEATURE icache:				INSN "iii" data32;
+	op0 0x2 r 0x9:							INSN "l16si" at data16;
+	op0 0x2 r 0xa:							INSN "movi" at IMM(imm8#s SEX 32);
+	op0 0x2 r 0xb FEATURE mpsync:					INSN "l32ai" at data32;
+	op0 0x2 r 0xc:							INSN "addi" at as IMM(imm8 SEX 32);
+	op0 0x2 r 0xd:							INSN "addmi" at as IMM(imm8 <<8 SEX 32);
+	op0 0x2 r 0xe FEATURE condstore:				INSN "s32c1i" at data32;
+	op0 0x2 r 0xf FEATURE mpsync:					INSN "s32ri" at data32;
+	op0 0x3 r 0x0 FEATURE float:					INSN "lsi" ft data32;
+	op0 0x3 r 0x4 FEATURE float:					INSN "ssi" ft data32;
+	op0 0x3 r 0x8 FEATURE float:					INSN "lsiu" ft data32pi;
+	op0 0x3 r 0xc FEATURE float:					INSN "ssiu" ft data32pi;
+	op0 0x4 op2 0x0 op1 0x8/0xc r 0/0x8 t 0/0xb FEATURE mac16:	INSN "mula" MOD mac16lh mx my; INSN "ldinc" mw as;
+	op0 0x4 op2 0x1 op1 0x8/0xc r 0/0x8 t 0/0xb FEATURE mac16:	INSN "mula" MOD mac16lh mx my; INSN "lddec" mw as;
+	op0 0x4 op2 0x2 op1 0x4/0xc r 0/0xb s 0 t 0/0xb FEATURE mac16:	INSN "mul" MOD mac16lh mx my;
+	op0 0x4 op2 0x2 op1 0x8/0xc r 0/0xb s 0 t 0/0xb FEATURE mac16:	INSN "mula" MOD mac16lh mx my;
+	op0 0x4 op2 0x2 op1 0xc/0xc r 0/0xb s 0 t 0/0xb FEATURE mac16:	INSN "muls" MOD mac16lh mx my;
+	op0 0x4 op2 0x3 op1 0x4/0xc r 0 t 0/0xb FEATURE mac16:		INSN "mul" MOD mac16lh as my;
+	op0 0x4 op2 0x3 op1 0x8/0xc r 0 t 0/0xb FEATURE mac16:		INSN "mula" MOD mac16lh as my;
+	op0 0x4 op2 0x3 op1 0xc/0xc r 0 t 0/0xb FEATURE mac16:		INSN "muls" MOD mac16lh as my;
+	op0 0x4 op2 0x4 op1 0x8/0xc r 0/0x8 FEATURE mac16:		INSN "mula" MOD mac16lh mx at; INSN "ldinc" mw as;
+	op0 0x4 op2 0x5 op1 0x8/0xc r 0/0x8 FEATURE mac16:		INSN "mula" MOD mac16lh mx at; INSN "lddec" mw as;
+	op0 0x4 op2 0x6 op1 0x4/0xc r 0/0xb s 0 FEATURE mac16:		INSN "mul" MOD mac16lh mx at;
+	op0 0x4 op2 0x6 op1 0x8/0xc r 0/0xb s 0 FEATURE mac16:		INSN "mula" MOD mac16lh mx at;
+	op0 0x4 op2 0x6 op1 0xc/0xc r 0/0xb s 0 FEATURE mac16:		INSN "muls" MOD mac16lh mx at;
+	op0 0x4 op2 0x7 op1 0x0/0xc r 0 FEATURE mac16:			INSN "umul" MOD mac16lh as at;
+	op0 0x4 op2 0x7 op1 0x4/0xc r 0 FEATURE mac16:			INSN "mul" MOD mac16lh as at;
+	op0 0x4 op2 0x7 op1 0x8/0xc r 0 FEATURE mac16:			INSN "mula" MOD mac16lh as at;
+	op0 0x4 op2 0x7 op1 0xc/0xc r 0 FEATURE mac16:			INSN "muls" MOD mac16lh as at;
+	op0 0x4 op2 0x8 op1 0 r 0/0xc t 0 FEATURE mac16:		INSN "ldinc" mw as; // XXX: nice mem argument?
+	op0 0x4 op2 0x9 op1 0 r 0/0xc t 0 FEATURE mac16:		INSN "lddec" mw as;
+	op0 0x5 n 0:							INSN "call0" ctarg;
+	op0 0x5 n 1 FEATURE window:					INSN "call4" ctarg;
+	op0 0x5 n 2 FEATURE window:					INSN "call8" ctarg;
+	op0 0x5 n 3 FEATURE window:					INSN "call12" ctarg;
+	op0 0x6 n 0:							INSN "j" jtarg ENDMARK;
+	op0 0x6 n 1 m 0:						INSN "beqz" as btarg12;
+	op0 0x6 n 1 m 1:						INSN "bnez" as btarg12;
+	op0 0x6 n 1 m 2:						INSN "bltz" as btarg12;
+	op0 0x6 n 1 m 3:						INSN "bgez" as btarg12;
+	op0 0x6 n 2 m 0:						INSN "beqi" as b4const btarg8;
+	op0 0x6 n 2 m 1:						INSN "bnei" as b4const btarg8;
+	op0 0x6 n 2 m 2:						INSN "blti" as b4const btarg8;
+	op0 0x6 n 2 m 3:						INSN "bgei" as b4const btarg8;
+	op0 0x6 n 3 m 0 FEATURE window:					INSN "entry" as IMM(imm12 << 3 ZEX 32);
+	op0 0x6 n 3 m 1 r 0x0 FEATURE boolean:				INSN "bf" bs btarg8;
+	op0 0x6 n 3 m 1 r 0x1 FEATURE boolean:				INSN "bt" bs btarg8;
+	op0 0x6 n 3 m 1 r 0x8 FEATURE loop:				INSN "loop" as ltarg;
+	op0 0x6 n 3 m 1 r 0x9 FEATURE loop:				INSN "loopnez" as ltarg;
+	op0 0x6 n 3 m 1 r 0xa FEATURE loop:				INSN "loopgtz" as ltarg;
+	op0 0x6 n 3 m 2:						INSN "bltui" as b4constu btarg8;
+	op0 0x6 n 3 m 3:						INSN "bgeui" as b4constu btarg8;
+	op0 0x7 r 0x0:							INSN "bnone" as at btarg8;
+	op0 0x7 r 0x1:							INSN "beq" as at btarg8;
+	op0 0x7 r 0x2:							INSN "blt" as at btarg8;
+	op0 0x7 r 0x3:							INSN "bltu" as at btarg8;
+	op0 0x7 r 0x4:							INSN "ball" as at btarg8;
+	op0 0x7 r 0x5:							INSN "bbc" as at btarg8;
+	op0 0x7 r 0x6/0xe:						INSN "bbci" as IMM(t#r[0]) btarg8;
+	op0 0x7 r 0x8:							INSN "bany" as at btarg8;
+	op0 0x7 r 0x9:							INSN "bne" as at btarg8;
+	op0 0x7 r 0xa:							INSN "bge" as at btarg8;
+	op0 0x7 r 0xb:							INSN "bgeu" as at btarg8;
+	op0 0x7 r 0xc:							INSN "bnall" as at btarg8;
+	op0 0x7 r 0xd:							INSN "bbs" as at btarg8;
+	op0 0x7 r 0xe/0xe:						INSN "bbsi" as IMM(t#r[0]) btarg8;
+};
+
+SEQ ishort SWITCH {
+	op0 8:						INSN "l32i" ["n"] at data32n;
+	op0 9:						INSN "s32i" ["n"] at data32n;
+	op0 0xa:					INSN "add" ["n"] ar as at;
+	op0 0xb:					INSN "addi" ["n"] ar as addin_imm;
+	op0 0xc i 0:					INSN "movi" ["n"] as IMM(imm7 TSAEX 32);
+	op0 0xc i 1 z 0:				INSN "beqz" ["n"] as btarg6;
+	op0 0xc i 1 z 1:				INSN "bnez" ["n"] as btarg6;
+	op0 0xd r 0:					INSN "mov" ["n"] at as;
+	op0 0xd r 0xf t 0 s 0:				INSN "ret" ["n"] ENDMARK;
+	op0 0xd r 0xf t 1 s 0 FEATURE window:		INSN "retw" ["n"] ENDMARK;
+	op0 0xd r 0xf t 2 FEATURE debug:		INSN "break" ["n"] IMM(s);
+	op0 0xd r 0xf t 3 s 0:				INSN "nop" ["n"] NOP;
+	op0 0xd r 0xf t 6 s 0 FEATURE exception:	INSN "ill" ["n"];
+};
+
+SEQ root {
+	READ ob1;
+	READ ob2;
+	SWITCH {
+	op0 0/8:			READ ob3; GOTO ilong;
+	op0 8/8 FEATURE density:	GOTO ishort;
+	};
+};
