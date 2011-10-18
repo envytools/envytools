@@ -121,13 +121,13 @@ FUNC osz ENUM {
 	b32;
 	b64;
 } SWITCH {
-	MODE m16 oszpref 0:		b16;
-	MODE m16 oszpref 1:		b32;
-	MODE m32 oszpref 1:		b16;
-	MODE m32 oszpref 0:		b32;
-	MODE m64 rexw 0 oszpref 1:	b16;
-	MODE m64 rexw 0 oszpref 0:	b32;
-	MODE m64 rexw 1:		b64;
+	MODE m16 oszpref 0:		CONST b16;
+	MODE m16 oszpref 1:		CONST b32;
+	MODE m32 oszpref 1:		CONST b16;
+	MODE m32 oszpref 0:		CONST b32;
+	MODE m64 rexw 0 oszpref 1:	CONST b16;
+	MODE m64 rexw 0 oszpref 0:	CONST b32;
+	MODE m64 rexw 1:		CONST b64;
 };
 
 FUNC asz ENUM {
@@ -135,12 +135,12 @@ FUNC asz ENUM {
 	a32;
 	a64;
 } SWITCH {
-	MODE m16 mszpref 0:		a16;
-	MODE m16 mszpref 1:		a32;
-	MODE m32 mszpref 1:		a16;
-	MODE m32 mszpref 0:		a32;
-	MODE m64 mszpref 1:		a32;
-	MODE m64 mszpref 0:		a64;
+	MODE m16 mszpref 0:		CONST a16;
+	MODE m16 mszpref 1:		CONST a32;
+	MODE m32 mszpref 1:		CONST a16;
+	MODE m32 mszpref 0:		CONST a32;
+	MODE m64 mszpref 1:		CONST a32;
+	MODE m64 mszpref 0:		CONST a64;
 };
 
 /* expressions */
