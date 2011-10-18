@@ -142,7 +142,7 @@
 			<doc>Goes to the memory at address pointed to by ADDR.
 			Auto-increments ADDR on each access.</doc>
 		</reg32>
-		<reg32 offset="0x588" name="CLOCK_GATING_2" variants="NV17-">
+		<reg32 offset="0x588" name="CLOCK_GATING_2" variants="NV17:NVC0">
 			<doc>Disable engines by stopping their clock.
 			A pair of bit is affected to each stoppable engine.
 			Both need to be set in order to disable the engine.
@@ -154,7 +154,7 @@
 			<bitfield high="11" low="10" name="PCRTC2" variants="NV17:NV50"/>
 			<bitfield high="13" low="12" name="PVIDEO" variants="NV17:NV50"/>
 		</reg32>
-		<reg32 offset="0x590" name="CLOCK_GATING_4" variants="NV17-">
+		<reg32 offset="0x590" name="CLOCK_GATING_4" variants="NV17:NVC0">
 			<doc>Disable engines by stopping their clock.
 			A pair of bit is affected to each stoppable engine.
 			Both need to be set in order to disable the engine.
@@ -165,9 +165,14 @@
 					additionally controls both PTV and PVIDEO on NV40+
 				</doc>
 			</bitfield>
-			<bitfield high="9" low="8" name="PVP" variants="NV98-"/>
+			<bitfield high="7" low="6" name="PCOPY" variants="NVA3-"/>
+			<bitfield high="9" low="8" name="PVP" variants="NV98-">
+				<doc>XXX: Does not work on NVAC Asus AT3IONT-I (Deluxe)?</doc>
+			</bitfield>
 			<bitfield high="11" low="10" name="PCRYPT" variants="NV84:NVA3"/>
-			<bitfield high="13" low="12" name="PBSP" variants="NV84-"/>
+			<bitfield high="13" low="12" name="PBSP" variants="NV84-">
+				<doc>XXX: Does not work on NVAC Asus AT3IONT-I (Deluxe)?</doc>
+			</bitfield>
 		</reg32>
 		<reg32 offset="0x700" name="PMEM_START" variants="NV50-">
 			<doc>Selects the starting offset and target memory area
