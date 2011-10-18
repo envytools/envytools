@@ -45,10 +45,12 @@
 %%
 
 "/*"([^*]|"*"+[^/])*"*"+"/"	{ }
+"[["([^]]|"]"[^]])*"]]"		{ }
 "/+"				{ yyextra.nest++; BEGIN ncomment; }
 [ \t]				{ yyextra.ws = 1; }
 \n				{ yyextra.ws = 1; }
 "//".*\n			{ yyextra.ws = 1; }
+"<<"				{ yyextra.ws = 0; return T_SHL; }
 "FEATURE"			{ yyextra.ws = 0; return T_FEATURE; }
 "CONFLICT"			{ yyextra.ws = 0; return T_CONFLICT; }
 "IMPLIES"			{ yyextra.ws = 0; return T_IMPLIES; }
@@ -66,6 +68,11 @@
 "MEM"				{ yyextra.ws = 0; return T_MEM; }
 "SEGMENT"			{ yyextra.ws = 0; return T_SEGMENT; }
 "SEX"				{ yyextra.ws = 0; return T_SEX; }
+"ZEX"				{ yyextra.ws = 0; return T_ZEX; }
+"TSAEX"				{ yyextra.ws = 0; return T_TSAEX; }
+"OEX"				{ yyextra.ws = 0; return T_OEX; }
+"UNSIGNED"			{ yyextra.ws = 0; return T_UNSIGNED; }
+"SIGNED"			{ yyextra.ws = 0; return T_SIGNED; }
 "MOD"				{ yyextra.ws = 0; return T_MOD; }
 "PCREL"				{ yyextra.ws = 0; return T_PCREL; }
 "START"				{ yyextra.ws = 0; return T_START; }
@@ -80,7 +87,15 @@
 "IGROUP"			{ yyextra.ws = 0; return T_IGROUP; }
 "INSN"				{ yyextra.ws = 0; return T_INSN; }
 "CONST"				{ yyextra.ws = 0; return T_CONST; }
-"OPTIONAL"				{ yyextra.ws = 0; return T_OPTIONAL; }
+"OPTIONAL"			{ yyextra.ws = 0; return T_OPTIONAL; }
+"VECTOR"			{ yyextra.ws = 0; return T_VECTOR; }
+"NOP"				{ yyextra.ws = 0; return T_NOP; }
+"ENDMARK"			{ yyextra.ws = 0; return T_ENDMARK; }
+"FLAG"				{ yyextra.ws = 0; return T_FLAG; }
+"BTARG"				{ yyextra.ws = 0; return T_BTARG; }
+"CTARG"				{ yyextra.ws = 0; return T_CTARG; }
+"LIT"				{ yyextra.ws = 0; return T_LIT; }
+[A-Z]*				{ yyextra.ws = 0; fprintf(stderr, "Unknown keyword %s\n", yytext); return T_ERR; }
 [a-z_][a-zA-Z_0-9]*		{ yyextra.ws = 0; yylval->str = strdup(yytext); return T_WORD; }
 \$[a-zA-Z_0-9]*			{ yyextra.ws = 0; yylval->str = strdup(yytext+1); return T_REG; }
 0[0-7]*|[1-9][0-9]*|0[xX][0-9a-fA-F]+		{ yyextra.ws = 0; yylval->num = strtoull(yytext, 0, 0); return T_NUM; }

@@ -68,10 +68,11 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 %token <num> T_NUM
 %token T_ERR
 %token T_UMINUS
-%token T_PLUSPLUS
-%token T_MINUSMINUS
-%token T_PLUSEQ
-%token T_MINUSEQ
+%token T_PLUSPLUS "++"
+%token T_MINUSMINUS "--"
+%token T_PLUSEQ "+="
+%token T_MINUSEQ "-="
+%token T_SHL "<<"
 %token T_FEATURE "FEATURE"
 %token T_CONFLICT "CONFLICT"
 %token T_IMPLIES "IMPLIES"
@@ -89,6 +90,11 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 %token T_MEM "MEM"
 %token T_SEGMENT "SEGMENT"
 %token T_SEX "SEX"
+%token T_ZEX "ZEX"
+%token T_TSAEX "TSAEX"
+%token T_OEX "OEX"
+%token T_SIGNED "SIGNED"
+%token T_UNSIGNED "UNSIGNED"
 %token T_MOD "MOD"
 %token T_PCREL "PCREL"
 %token T_START "START"
@@ -104,6 +110,13 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 %token T_INSN "INSN"
 %token T_CONST "CONST"
 %token T_OPTIONAL "OPTIONAL"
+%token T_VECTOR "VECTOR"
+%token T_NOP "NOP"
+%token T_ENDMARK "ENDMARK"
+%token T_FLAG "FLAG"
+%token T_BTARG "BTARG"
+%token T_CTARG "CTARG"
+%token T_LIT "LIT"
 
 %type <str> strnn
 %type <str> description
@@ -142,6 +155,7 @@ file:	/**/		{ $$ = calloc(sizeof *$$, 1); }
 |	file argdef
 |	file moddef
 |	file seqdef
+|	file insndef
 |	file igroup
 |	file error ';'	{ $$ = $1; $$->broken = 1; }
 ;
@@ -222,8 +236,7 @@ opfbitfield:	T_NUM T_WORD ';'
 |		T_NUM ':' T_NUM T_WORD ';'
 ;
 
-funcval:	T_NUM
-|		T_WORD
+funcval:	bitfconst
 |		"SWITCH" '{' funccases '}'
 ;
 
@@ -261,20 +274,51 @@ expra:		"MEM" '(' expr memmods ')'
 |		"IMM" '(' bitfield immmods ')'
 |		T_WORD
 |		T_REG
-|		T_REG '[' bitfield ']'
+|		T_REG '[' bitfield regmods ']'
 |		T_NUM
+|		T_UMINUS T_NUM
 |		'#'
+;
+
+regmods:	/* */
+|		regmods "<<" T_NUM
+|		regmods '+' T_NUM
+|		regmods "VECTOR" T_NUM
 ;
 
 memmods:	/* */
 |		memmods "SEGMENT" expr
+|		memmods "LIT"
+|		memmods "+="  expr
+|		memmods "-="  expr
+|		memmods "++"  expr
+|		memmods "--"  expr
 |		memmods qmod
 ;
 
 immmods:	/* */
 |		immmods "SEX" T_NUM
+|		immmods "ZEX" T_NUM
+|		immmods "TSAEX" T_NUM
+|		immmods "OEX" T_NUM
+|		immmods "SIGNED"
+|		immmods "UNSIGNED"
+|		immmods "BTARG"
+|		immmods "CTARG"
+|		immmods "<<" T_NUM
+|		immmods '+' T_NUM
+|		immmods '-' T_NUM
 |		immmods "PCREL" "END"
 |		immmods "PCREL" "START" /* XXX: anchors? */
+|		immmods "PCREL" '(' pcrelmods ')'
+;
+
+pcrelmods:	"START"
+|		"END"
+|		pcrelmods '&' T_NUM
+|		pcrelmods '&' '-' T_NUM
+|		pcrelmods '+' T_NUM
+|		pcrelmods '-' T_NUM
 ;
 
 exprcases:	exprcases case fexpr ';'
@@ -297,6 +341,8 @@ mod:		"SWITCH" '{' modcases '}'
 ;
 
 qmod:		"MOD" T_WORD
+|		"FLAG" '(' bitfield T_STR ')'
+|		"FLAG" '(' bitfield T_STR T_STR ')'
 |		T_STR
 |		T_LBSTR ']'
 ;
@@ -320,11 +366,25 @@ binsn:		T_STR
 |		"IGROUP" T_WORD
 ;
 
-insn:		binsn args qmods
+insn:		binsn args qmods imods
+|		"SWITCH" '{' insncases '}'
+;
+
+imods:		/* */
+|		imods "NOP"
+|		imods "ENDMARK"
+;
+
+insncases:	insncases case insn ';'
+|		insncases error ';'
+|		/* */
 ;
 
 args:		args arg
 |		/**/
+;
+
+insndef:	"INSN" T_WORD insn ';'
 ;
 
 seqdef:		"SEQ" T_WORD seq ';'
@@ -335,11 +395,16 @@ seq:		"SWITCH" '{' seqcases '}'
 |		"READ" T_WORD
 |		"READ" "LE" T_WORD
 |		"READ" "BE" T_WORD
-|		"LET" bitfield '=' bitfield
-|		"LET" bitfield '=' "CONST" expr
+|		"LET" bitfield '=' bitfconst
 |		"GOTO" T_WORD
 |		"SEQ" T_WORD
 |		"INSN" insn
+|		"INSN" T_WORD
+;
+
+bitfconst:	bitfield
+|		"CONST" T_NUM
+|		"CONST" T_WORD
 ;
 
 seqcases:	seqcases case seqs
@@ -347,6 +412,7 @@ seqcases:	seqcases case seqs
 ;
 
 seqs:		seqs seq ';'
+|		seqs error ';'
 |		/* */
 ;
 
