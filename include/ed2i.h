@@ -68,6 +68,14 @@ struct ed2i_modeset {
 	int defmode;
 };
 
+struct ed2i_opfield {
+	char *name;
+	int start;
+	int len;
+	char **enumvals;
+	int enumvalsnum;
+};
+
 struct ed2i_isa {
 	struct ed2i_feature *features;
 	int featuresnum;
@@ -77,10 +85,18 @@ struct ed2i_isa {
 	int modesetsnum;
 	struct ed2i_mode *modes;
 	int modesnum;
+	struct ed2i_opfield *opfields;
+	int opfieldsnum;
+	int opbits;
+	uint32_t *opdefault;
+	uint32_t *opdefmask;
 	struct ed2s_symtab *symtab;
 };
 
 void ed2i_del_isa(struct ed2i_isa *isa);
 struct ed2i_isa *ed2i_read_isa (const char *isaname);
+
+void ed2i_set_opfield_1(uint32_t *mask, struct ed2i_opfield *opf);
+void ed2i_set_opfield_val(uint32_t *mask, struct ed2i_opfield *opf, uint64_t val);
 
 #endif

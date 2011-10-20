@@ -77,6 +77,21 @@ struct ed2ip_mode {
 	struct ed2_loc loc;
 };
 
+struct ed2ip_enumval {
+	char *name;
+	int isdefault;
+};
+
+struct ed2ip_opfield {
+	char *name;
+	int len;
+	struct ed2ip_enumval **enumvals;
+	int enumvalsnum;
+	int enumvalsmax;
+	int hasdef;
+	uint64_t defval;
+};
+
 struct ed2ip_isa {
 	struct ed2ip_feature **features;
 	int featuresnum;
@@ -87,6 +102,9 @@ struct ed2ip_isa {
 	struct ed2ip_modeset **modesets;
 	int modesetsnum;
 	int modesetsmax;
+	struct ed2ip_opfield **opfields;
+	int opfieldsnum;
+	int opfieldsmax;
 	int broken;
 };
 

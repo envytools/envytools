@@ -56,6 +56,8 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 	struct ed2ip_variant *variant;
 	struct ed2ip_mode *mode;
 	struct ed2ip_modeset *modeset;
+	struct ed2ip_opfield *opfield;
+	struct ed2ip_enumval *enumval;
 	struct ed2ip_isa *isa;
 }
 
@@ -80,7 +82,6 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 %token T_MODE "MODE"
 %token T_DEFAULT "DEFAULT"
 %token T_OPFIELD "OPFIELD"
-%token T_DEFZERO "DEFZERO"
 %token T_ENUM "ENUM"
 %token T_BITS "BITS"
 %token T_FUNC "FUNC"
@@ -130,6 +131,10 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 %type <modeset> msmods
 %type <mode> mode
 %type <mode> memods
+%type <opfield> opfield
+%type <opfield> opfmods
+%type <opfield> enumvals
+%type <enumval> enumval
 %type <isa> file
 
 %destructor { free($$); } <str>
@@ -139,6 +144,8 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 %destructor { ed2ip_del_variant($$); } <variant>
 %destructor { ed2ip_del_mode($$); } <mode>
 %destructor { ed2ip_del_modeset($$); } <modeset>
+%destructor { ed2ip_del_opfield($$); } <opfield>
+%destructor { ed2ip_del_enumval($$); } <enumval>
 %destructor { ed2ip_del_isa($$); } <isa>
 
 %%
@@ -149,7 +156,7 @@ file:	/**/		{ $$ = calloc(sizeof *$$, 1); }
 |	file feature	{ $$ = $1; ADDARRAY($$->features, $2); }
 |	file variant	{ $$ = $1; ADDARRAY($$->variants, $2); }
 |	file modeset	{ $$ = $1; ADDARRAY($$->modesets, $2); }
-|	file opfield
+|	file opfield	{ $$ = $1; ADDARRAY($$->opfields, $2); }
 |	file func
 |	file exprdef
 |	file argdef
@@ -206,25 +213,25 @@ memods:		/**/	{ $$ = calloc(sizeof *$$, 1); }
 strnn:		T_STR	{ $$ = $1.str; if (strlen($$) != $1.len) YYERROR; }
 ;
 
-opfield:	"OPFIELD" T_WORD T_NUM opfmods ';'
-|		"OPFIELD" T_WORD "ENUM" '{' enumvals '}'  opfmods ';'
+opfield:	"OPFIELD" T_WORD T_NUM opfmods ';' { $$ = $4; $$->name = $2; $$->len = $3; }
+|		"OPFIELD" T_WORD "ENUM" '{' enumvals '}'  opfmods ';'	{ $$ = $7; $$->name = $2; $$->enumvals = $5->enumvals; $$->enumvalsnum = $5->enumvalsnum; $$->enumvalsmax = $5->enumvalsmax; free($5); }
 ;
 
 func:		"FUNC" T_WORD T_NUM funcval ';'
 |		"FUNC" T_WORD "ENUM" '{' enumvals '}' funcval ';'
 ;
 
-enumvals:	enumvals enumval
-|		/**/
+enumvals:	enumvals enumval	{ $$ = $1; ADDARRAY($$->enumvals, $2); }
+|		/**/	{ $$ = calloc(sizeof *$$, 1); }
 ;
 
-enumval:	T_WORD ';'
-|		T_WORD "DEFAULT" ';'
+enumval:	T_WORD ';'	{ $$ = calloc(sizeof *$$, 1); $$->name = $1; }
+|		T_WORD "DEFAULT" ';'	{ $$ = calloc(sizeof *$$, 1); $$->name = $1; $$->isdefault = 1; }
 ;
 
-opfmods:	/**/
-|		opfmods "DEFZERO"
-|		opfmods "BITS" '{' opfbitfields '}'
+opfmods:	/**/	{ $$ = calloc(sizeof *$$, 1); }
+|		opfmods "DEFAULT" T_NUM	{ $$ = $1; if ($$->hasdef) { fprintf(stderr, ED2_LOC_FORMAT(@$, "Redefined default value\n")); /* XXX */ } $$->defval = $3; $$->hasdef = 1; }
+|		opfmods "BITS" '{' opfbitfields '}'	{ $$ = $1; fprintf(stderr, "OPFIELD BITS\n"); /*abort(); XXX */ }
 ;
 
 opfbitfields:	opfbitfields opfbitfield

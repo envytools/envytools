@@ -72,9 +72,9 @@ MODE ctype "Code type" {
 
 /* opcode fields */
 
-OPFIELD oszpref 1 DEFZERO;
-OPFIELD mszpref 1 DEFZERO;
-OPFIELD lockpref 1 DEFZERO;
+OPFIELD oszpref 1 DEFAULT 0;
+OPFIELD mszpref 1 DEFAULT 0;
+OPFIELD lockpref 1 DEFAULT 0;
 OPFIELD reppref ENUM {
 	null DEFAULT;
 	repz;
@@ -89,8 +89,8 @@ OPFIELD segpref ENUM {
 	fs;
 	gs;
 };
-OPFIELD rexpresent 1 DEFZERO;
-OPFIELD rex 4 DEFZERO BITS {
+OPFIELD rexpresent 1 DEFAULT 0;
+OPFIELD rex 4 DEFAULT 0 BITS {
 	0 rexb;
 	1 rexx;
 	2 rexr;

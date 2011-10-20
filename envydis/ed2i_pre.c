@@ -58,6 +58,21 @@ void ed2ip_del_mode(struct ed2ip_mode *m) {
 	free(m);
 }
 
+void ed2ip_del_enumval(struct ed2ip_enumval *ev) {
+	free(ev->name);
+	free(ev);
+}
+
+void ed2ip_del_opfield(struct ed2ip_opfield *opf) {
+	int i;
+	for (i = 0; i < opf->enumvalsnum; i++) {
+		ed2ip_del_enumval(opf->enumvals[i]);
+	}
+	free(opf->enumvals);
+	free(opf->name);
+	free(opf);
+}
+
 void ed2ip_del_isa(struct ed2ip_isa *isa) {
 	int i;
 	for (i = 0; i < isa->featuresnum; i++)
@@ -66,6 +81,8 @@ void ed2ip_del_isa(struct ed2ip_isa *isa) {
 		ed2ip_del_variant(isa->variants[i]);
 	for (i = 0; i < isa->modesetsnum; i++)
 		ed2ip_del_modeset(isa->modesets[i]);
+	for (i = 0; i < isa->opfieldsnum; i++)
+		ed2ip_del_opfield(isa->opfields[i]);
 	free(isa);
 }
 
@@ -279,6 +296,60 @@ int ed2ip_transform_modesets(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 	return broken;
 }
 
+int ed2ip_transform_opfields(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
+	int i, j;
+	int broken = 0;
+	isa->opfieldsnum = preisa->opfieldsnum;
+	isa->opfields = calloc(sizeof *isa->opfields, isa->opfieldsnum);
+	isa->opbits = 0;
+	for (i = 0; i < isa->opfieldsnum; i++) {
+		struct ed2ip_opfield *popf = preisa->opfields[i];
+		struct ed2i_opfield *opf = &isa->opfields[i];
+		int def = -1;
+		opf->name = popf->name;
+		if (popf->enumvalsnum) {
+			opf->len = ed2_lg2ceil(popf->enumvalsnum);
+			opf->enumvalsnum = popf->enumvalsnum;
+			opf->enumvals = calloc(sizeof *opf->enumvals, opf->enumvalsnum);
+			for (j = 0; j < opf->enumvalsnum; j++) {
+				opf->enumvals[j] = popf->enumvals[j]->name;
+				if (popf->enumvals[j]->isdefault) {
+					if (def == -1) {
+						def = j;
+					} else {
+						fprintf (stderr, "More than one default value in OPFIELD %s: %s and %s\n", opf->name, opf->enumvals[def], opf->enumvals[j]);
+						broken = 1;
+					}
+				}
+			}
+			if (def != -1) {
+				if (popf->hasdef) {
+					fprintf (stderr, "More than one default value in OPFIELD %s: %s and %"PRIx64"\n", opf->name, opf->enumvals[def], popf->defval);
+					broken = 1;
+				} else {
+					popf->hasdef = 1;
+					popf->defval = def;
+				}
+			}
+		} else {
+			isa->opfields[i].len = preisa->opfields[i]->len;
+		}
+		isa->opfields[i].start = isa->opbits;
+		isa->opbits += isa->opfields[i].len;
+	}
+	isa->opdefault = ed2_mask_new(isa->opbits);
+	isa->opdefmask = ed2_mask_new(isa->opbits);
+	for (i = 0; i < isa->opfieldsnum; i++) {
+		if (preisa->opfields[i]->hasdef) {
+			ed2i_set_opfield_1(isa->opdefmask, &isa->opfields[i]);
+			ed2i_set_opfield_val(isa->opdefault, &isa->opfields[i], preisa->opfields[i]->defval);
+		}
+		free(preisa->opfields[i]);
+	}
+	free(preisa->opfields);
+	return broken;
+}
+
 struct ed2i_isa *ed2ip_transform(struct ed2ip_isa *preisa) {
 	int broken = preisa->broken;
 	struct ed2i_isa *isa = calloc(sizeof *isa, 1);
@@ -286,6 +357,7 @@ struct ed2i_isa *ed2ip_transform(struct ed2ip_isa *preisa) {
 	broken |= ed2ip_transform_features(preisa, isa);
 	broken |= ed2ip_transform_variants(preisa, isa);
 	broken |= ed2ip_transform_modesets(preisa, isa);
+	broken |= ed2ip_transform_opfields(preisa, isa);
 	free(preisa);
 	if (broken) {
 		ed2i_del_isa(isa);

@@ -179,3 +179,13 @@ int ed2_mask_contains(uint32_t *a, uint32_t *b, int size) {
 		}
 	return 1;
 }
+
+void ed2_mask_print(FILE *out, uint32_t *mask, int size) {
+	int rsize = ED2_MASK_SIZE(size);
+	int i;
+	for (i = 0; i < rsize; i++) {
+		if (i)
+			fprintf(out, " ");
+		fprintf (out, "%08"PRIx32, mask[i]);
+	}
+}

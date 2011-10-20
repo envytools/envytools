@@ -68,6 +68,8 @@ int ed2_mask_or_r(uint32_t *dmask, uint32_t *smask, int size);
 
 int ed2_mask_intersect(uint32_t *a, uint32_t *b, int size);
 
+void ed2_mask_print(FILE *out, uint32_t *mask, int size);
+
 char *ed2_str_deescape(char *str, uint64_t *len);
 
 struct ed2_astr {
@@ -78,5 +80,13 @@ struct ed2_astr {
 void ed2_free_strings(char **strs, int strsnum);
 
 FILE *ed2_find_file(const char *name, const char *path, char **pfullname);
+
+static inline int ed2_lg2ceil(unsigned num) {
+	int i = 0;
+	if (!num)
+		return 0;
+	while ((1u << i) - 1u < num - 1u) i++;
+	return i;
+}
 
 #endif

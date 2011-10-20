@@ -58,7 +58,6 @@
 "MODE"				{ yyextra.ws = 0; return T_MODE; }
 "DEFAULT"			{ yyextra.ws = 0; return T_DEFAULT; }
 "OPFIELD"			{ yyextra.ws = 0; return T_OPFIELD; }
-"DEFZERO"			{ yyextra.ws = 0; return T_DEFZERO; }
 "ENUM"				{ yyextra.ws = 0; return T_ENUM; }
 "BITS"				{ yyextra.ws = 0; return T_BITS; }
 "FUNC"				{ yyextra.ws = 0; return T_FUNC; }

@@ -30,6 +30,7 @@ int main(int argc, char **argv) {
 	struct ed2i_isa *isa = ed2i_read_isa(argv[1]);
 	if (isa) {
 		int i, j;
+		printf ("Features:\n");
 		for (i = 0; i < isa->featuresnum; i++) {
 			printf ("Feature %s \"%s\"\n", isa->features[i].names[0], isa->features[i].description);
 			for (j = 0; j < isa->featuresnum; j++) {
@@ -41,6 +42,8 @@ int main(int argc, char **argv) {
 					printf ("\tConflicts with %s\n", isa->features[j].names[0]);
 			}
 		}
+		printf ("\n");
+		printf ("Variants:\n");
 		for (i = 0; i < isa->variantsnum; i++) {
 			printf ("Variant %s \"%s\"\n", isa->variants[i].names[0], isa->variants[i].description);
 			for (j = 0; j < isa->featuresnum; j++) {
@@ -48,6 +51,7 @@ int main(int argc, char **argv) {
 					printf ("\tFeature %s\n", isa->features[j].names[0]);
 			}
 		}
+		printf ("\n");
 		for (i = 0; i < isa->modesetsnum; i++) {
 			struct ed2i_modeset *ms = &isa->modesets[i];
 			int k;
@@ -59,7 +63,18 @@ int main(int argc, char **argv) {
 						printf ("\t\tRequired feature %s\n", isa->features[j].names[0]);
 				}
 			}
+			printf ("\n");
 		}
+		printf("Opcode length %d bits, fields:\n", isa->opbits);
+		for (i = 0; i < isa->opfieldsnum; i++) {
+			struct ed2i_opfield *of = &isa->opfields[i];
+			printf ("Opcode field %s: bits %d-%d\n", of->name, of->start, of->start + of->len - 1);
+			for (j = 0; j < of->enumvalsnum; j++) {
+				printf("\tValue %d: %s\n", j, of->enumvals[j]);
+			}
+		}
+		printf ("Defbits: "); ed2_mask_print(stdout, isa->opdefault, isa->opbits); printf("\n");
+		printf ("Defmask: "); ed2_mask_print(stdout, isa->opdefmask, isa->opbits); printf("\n");
 		ed2i_del_isa(isa);
 	}
 	return 0;
