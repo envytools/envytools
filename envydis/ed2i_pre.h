@@ -110,7 +110,10 @@ struct ed2ip_isa {
 
 void ed2ip_del_feature(struct ed2ip_feature *f);
 void ed2ip_del_variant(struct ed2ip_variant *v);
+void ed2ip_del_modeset(struct ed2ip_modeset *ms);
 void ed2ip_del_mode(struct ed2ip_mode *m);
+void ed2ip_del_enumval(struct ed2ip_enumval *ev);
+void ed2ip_del_opfield(struct ed2ip_opfield *opf);
 void ed2ip_del_isa(struct ed2ip_isa *isa);
 
 struct ed2i_isa *ed2ip_transform(struct ed2ip_isa *isa);
