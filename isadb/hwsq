@@ -10,16 +10,16 @@ OPFIELD imm32 32;
 SEQ root {
 	READ op;
 	SWITCH {
-		op 0:					INSN "nop" NOP;
-		op 0/0xc0:				INSN "wait" IMM(op[0:1]) "shl" IMM(op[2:5] << 1);
-		op 0x40 FEATURE nv41op:	READ LE imm16;	INSN "addrlo" IMM(imm16);
-		op 0x42 FEATURE nv41op:	READ LE imm16;	INSN "datalo" IMM(imm16);
-		op 0x5f:	READ ewa1; READ ewa2;	INSN "ewait" FLAG(ewa1[0] "vblank0") FLAG(ewa1[1] "vblank1") FLAG(ewa2[0] "all0" "all1");
-		op 0x7f:				INSN "exit";
-		op 0x80/0xe0:				INSN "unset" IMM(op[0:4]);
-		op 0xa0/0xe0:				INSN "set1" IMM(op[0:4]);
-		op 0xc0/0xe0:				INSN "set0" IMM(op[0:4]);
-		op 0xe0 FEATURE nv41op:	READ LE imm32;	INSN "addr" IMM(imm32);
-		op 0xe2 FEATURE nv41op:	READ LE imm32;	INSN "data" IMM(imm32);
+		op 0:						INSN "nop" NOP;
+		op 0/0xc0:					INSN "wait" IMM(op[0:1]) "shl" IMM(op[2:5] << 1);
+		op 0x40 FEATURE nv41op:	READ LE imm16;		INSN "addrlo" IMM(imm16);
+		op 0x42 FEATURE nv41op:	READ LE imm16;		INSN "datalo" IMM(imm16);
+		op 0x5f FEATURE nv41op:	READ ewa1; READ ewa2;	INSN "ewait" FLAG(ewa1[0] "vblank0") FLAG(ewa1[1] "vblank1") FLAG(ewa2[0] "all0" "all1");
+		op 0x7f:					INSN "exit";
+		op 0x80/0xe0:					INSN "unset" IMM(op[0:4]);
+		op 0xa0/0xe0:					INSN "set1" IMM(op[0:4]);
+		op 0xc0/0xe0:					INSN "set0" IMM(op[0:4]);
+		op 0xe0 FEATURE nv41op:	READ LE imm32;		INSN "addr" IMM(imm32);
+		op 0xe2 FEATURE nv41op:	READ LE imm32;		INSN "data" IMM(imm32);
 	};
 };
