@@ -53,6 +53,13 @@ void ed2i_del_isa(struct ed2i_isa *isa) {
 		free(isa->modesets[i].description);
 	}
 	free(isa->modesets);
+	for (i = 0; i < isa->opfieldsnum; i++) {
+		free(isa->opfields[i].name);
+		ed2_free_strings(isa->opfields[i].enumvals, isa->opfields[i].enumvalsnum);
+	}
+	free(isa->opfields);
+	free(isa->opdefault);
+	free(isa->opdefmask);
 	free(isa);
 }
 
