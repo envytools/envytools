@@ -64,7 +64,7 @@
 		<bitfield name="CHAN" high="29" low="0" type="nv50_channel"/>
 		<bitfield name="VALID" pos="30"/>
 	</reg32>
-	<reg32 offset="0x054" name="CHANNEL_TRIGGER">
+	<reg32 offset="0x058" name="CHANNEL_TRIGGER">
 		<bitfield pos="0" name="UNLOAD"/>
 		<bitfield pos="1" name="LOAD"/>
 	</reg32>
