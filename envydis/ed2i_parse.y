@@ -102,7 +102,6 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 %token T_END "END"
 %token T_READ "READ"
 %token T_LET "LET"
-%token T_GOTO "GOTO"
 %token T_SEQ "SEQ"
 %token T_LE "LE"
 %token T_BE "BE"
@@ -403,7 +402,6 @@ seq:		"SWITCH" '{' seqcases '}'
 |		"READ" "LE" T_WORD
 |		"READ" "BE" T_WORD
 |		"LET" bitfield '=' bitfconst
-|		"GOTO" T_WORD
 |		"SEQ" T_WORD
 |		"INSN" insn
 |		"INSN" T_WORD

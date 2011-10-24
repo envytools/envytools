@@ -513,7 +513,7 @@ SEQ root {
 	READ ob1;
 	READ ob2;
 	SWITCH {
-	op0 0/8:			READ ob3; GOTO ilong;
-	op0 8/8 FEATURE density:	GOTO ishort;
+	op0 0/8:			READ ob3; SEQ ilong;
+	op0 8/8 FEATURE density:	SEQ ishort;
 	};
 };

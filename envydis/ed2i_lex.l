@@ -78,7 +78,6 @@
 "END"				{ yyextra.ws = 0; return T_END; }
 "READ"				{ yyextra.ws = 0; return T_READ; }
 "LET"				{ yyextra.ws = 0; return T_LET; }
-"GOTO"				{ yyextra.ws = 0; return T_GOTO; }
 "SEQ"				{ yyextra.ws = 0; return T_SEQ; }
 "LE"				{ yyextra.ws = 0; return T_LE; }
 "BE"				{ yyextra.ws = 0; return T_BE; }
