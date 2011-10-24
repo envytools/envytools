@@ -103,7 +103,7 @@
 		<bitfield low="9" high="16" name="DATA_SIZE" shr="8"/>
 	</reg32>
 
-	<reg32 offset="0x10c" name="XFER_BLOCK_ON_FIFO"/>
+	<reg32 offset="0x10c" name="UC_BLOCK_ON_FIFO"/>
 	<reg32 offset="0x110" name="XFER_EXT_BASE" shr="8"/>
 	<reg32 offset="0x114" name="XFER_FUC_ADDR"/>
 	<reg32 offset="0x118" name="XFER_CTRL">
