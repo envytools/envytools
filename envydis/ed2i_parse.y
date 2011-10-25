@@ -58,6 +58,13 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 	struct ed2ip_modeset *modeset;
 	struct ed2ip_opfield *opfield;
 	struct ed2ip_enumval *enumval;
+	struct ed2ip_case *casem;
+	struct ed2ip_casepart *casepart;
+	struct ed2ip_caseval *caseval;
+	struct ed2ip_bitfield *bitfield;
+	struct ed2ip_bitchunk *bitchunk;
+	struct ed2ip_insn *insn;
+	struct ed2ip_seq *seq;
 	struct ed2ip_isa *isa;
 }
 
@@ -134,6 +141,21 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 %type <opfield> opfmods
 %type <opfield> enumvals
 %type <enumval> enumval
+%type <insn> insn
+%type <insn> binsn
+%type <seq> seq
+%type <seq> seqs
+%type <seq> seqcases
+%type <seq> seqdef
+%type <casem> case
+%type <casem> caseparts
+%type <casepart> casepart
+%type <casepart> cmodelist
+%type <casepart> cfeatlist
+%type <casepart> cmatchlist
+%type <caseval> cmatchvar
+%type <bitfield> bitfield
+%type <bitchunk> bitchunk
 %type <isa> file
 
 %destructor { free($$); } <str>
@@ -145,6 +167,13 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 %destructor { ed2ip_del_modeset($$); } <modeset>
 %destructor { ed2ip_del_opfield($$); } <opfield>
 %destructor { ed2ip_del_enumval($$); } <enumval>
+%destructor { ed2ip_del_insn($$); } <insn>
+%destructor { ed2ip_del_seq($$); } <seq>
+%destructor { ed2ip_del_case($$); } <casem>
+%destructor { ed2ip_del_casepart($$); } <casepart>
+%destructor { ed2ip_del_caseval($$); } <caseval>
+%destructor { ed2ip_del_bitfield($$); } <bitfield>
+%destructor { ed2ip_del_bitchunk($$); } <bitchunk>
 %destructor { ed2ip_del_isa($$); } <isa>
 
 %%
@@ -160,7 +189,7 @@ file:	/**/		{ $$ = calloc(sizeof *$$, 1); }
 |	file exprdef
 |	file argdef
 |	file moddef
-|	file seqdef
+|	file seqdef	{ $$ = $1; ADDARRAY($$->seqs, $2); }
 |	file insndef
 |	file igroup
 |	file error ';'	{ $$ = $1; $$->broken = 1; }
@@ -242,7 +271,9 @@ opfbitfield:	T_NUM T_WORD ';'
 |		T_NUM ':' T_NUM T_WORD ';'
 ;
 
-funcval:	bitfconst
+funcval:	bitfield
+|		"CONST" T_NUM
+|		"CONST" T_WORD
 |		"SWITCH" '{' funccases '}'
 ;
 
@@ -347,9 +378,9 @@ mod:		"SWITCH" '{' modcases '}'
 ;
 
 qmod:		"MOD" T_WORD
-|		"FLAG" '(' bitfield T_STR ')'
-|		"FLAG" '(' bitfield T_STR T_STR ')'
-|		T_STR
+|		"FLAG" '(' bitfield strnn ')'
+|		"FLAG" '(' bitfield strnn strnn ')'
+|		strnn
 |		T_LBSTR ']'
 ;
 
@@ -368,12 +399,12 @@ binsncases:	binsncases case fbinsn ';'
 |		/* */
 ;
 
-binsn:		T_STR
-|		"IGROUP" T_WORD
+binsn:		strnn	{ $$ = calloc (sizeof *$$, 1); $$->iname = $1; $$->type = ED2IP_INSN_INSN; }
+|		"IGROUP" T_WORD	{ $$ = 0; /* XXX */ }
 ;
 
-insn:		binsn args qmods imods
-|		"SWITCH" '{' insncases '}'
+insn:		binsn args qmods imods	{ $$ = $1; /* XXX */ }
+|		"SWITCH" '{' insncases '}'	{ $$ = 0; /* XXX */ }
 ;
 
 imods:		/* */
@@ -393,72 +424,69 @@ args:		args arg
 insndef:	"INSN" T_WORD insn ';'
 ;
 
-seqdef:		"SEQ" T_WORD seq ';'
+seqdef:		"SEQ" T_WORD seq ';' { $$ = $3; $$->name = $2; }
 ;
 
-seq:		"SWITCH" '{' seqcases '}'
-|		'{' seqs '}'
-|		"READ" T_WORD
-|		"READ" "LE" T_WORD
-|		"READ" "BE" T_WORD
-|		"LET" bitfield '=' bitfconst
-|		"SEQ" T_WORD
-|		"INSN" insn
-|		"INSN" T_WORD
+seq:		"SWITCH" '{' seqcases '}'	{ $$ = $3; }
+|		'{' seqs '}'	{ $$ = $2; }
+|		"READ" bitfield	{ $$ = calloc(sizeof *$$, 1); $$->type = ED2IP_SEQ_READ; $$->read_endian = ED2I_ENDIAN_UNKNOWN; $$->bf_dst = $2; }
+|		"READ" "LE" bitfield	{ $$ = calloc(sizeof *$$, 1); $$->type = ED2IP_SEQ_READ; $$->read_endian = ED2I_ENDIAN_LE; $$->bf_dst = $3; }
+|		"READ" "BE" bitfield	{ $$ = calloc(sizeof *$$, 1); $$->type = ED2IP_SEQ_READ; $$->read_endian = ED2I_ENDIAN_BE; $$->bf_dst = $3; }
+|		"LET" bitfield '=' bitfield	{ $$ = calloc(sizeof *$$, 1); $$->type = ED2IP_SEQ_LET_COPY; $$->bf_dst = $2; $$->bf_src = $4; }
+|		"LET" bitfield '=' "CONST" T_NUM	{ $$ = calloc(sizeof *$$, 1); $$->type = ED2IP_SEQ_LET_CONST; $$->bf_dst = $2; $$->const_src = $5; }
+|		"LET" bitfield '=' "CONST" T_WORD	{ $$ = calloc(sizeof *$$, 1); $$->type = ED2IP_SEQ_LET_CONST; $$->bf_dst = $2; $$->const_str = $5; }
+|		"SEQ" T_WORD	{ $$ = calloc(sizeof *$$, 1); $$->type = ED2IP_SEQ_CALL; $$->call_seq = $2; }
+|		"INSN" insn	{ $$ = calloc(sizeof *$$, 1); $$->type = ED2IP_SEQ_INSN_INLINE; $$->insn_inline = $2; }
+|		"INSN" T_WORD	{ $$ = calloc(sizeof *$$, 1); $$->type = ED2IP_SEQ_INSN_REF; $$->insn_ref = $2; }
 ;
 
-bitfconst:	bitfield
-|		"CONST" T_NUM
-|		"CONST" T_WORD
+seqcases:	seqcases case seqs	{ $$ = $1; ADDARRAY($$->seqs, $3); ADDARRAY($$->cases, $2); }
+|		/* */	{ $$ = calloc(sizeof *$$, 1); $$->type = ED2IP_SEQ_SWITCH; }
 ;
 
-seqcases:	seqcases case seqs
-|		/* */
-;
-
-seqs:		seqs seq ';'
-|		seqs error ';'
-|		/* */
+seqs:		seqs seq ';'	{ $$ = $1; ADDARRAY($$->seqs, $2); }
+|		seqs error ';'	{ $$ = $1; $$->broken = 1; }
+|		/* */	{ $$ = calloc(sizeof *$$, 1); $$->type = ED2IP_SEQ_SEQ; }
 ;
 
 case:		caseparts ':'
 ;
 
-caseparts:	caseparts casepart
-|		/* */
+caseparts:	caseparts casepart	{ $$ = $1; ADDARRAY($$->parts, $2); }
+|		/* */	{ $$ = calloc(sizeof *$$, 1); }
 ;
 
-casepart:	"MODE" cmodelist
-|		"FEATURE" cfeatlist
-|		bitfield cmatchlist
+casepart:	"MODE" cmodelist	{ $$ = $2; }
+|		"FEATURE" cfeatlist	{ $$ = $2; }
+|		bitfield cmatchlist	{ $$ = $2; $$->bf = $1; }
 ;
 
-cmodelist:	T_WORD
-|		cmodelist '|' T_WORD
+cmodelist:	T_WORD	{ $$ = calloc(sizeof *$$, 1); $$->type = ED2IP_CP_MODE; ADDARRAY($$->names, $1); }
+|		cmodelist '|' T_WORD	{ $$ = $1; ADDARRAY($$->names, $3); }
 ;
 
-cfeatlist:	T_WORD
-|		cfeatlist '&' T_WORD
+cfeatlist:	T_WORD	{ $$ = calloc(sizeof *$$, 1); $$->type = ED2IP_CP_FEATURE; ADDARRAY($$->names, $1); }
+|		cfeatlist '&' T_WORD	{ $$ = $1; ADDARRAY($$->names, $3); }
 ;
 
-cmatchlist:	cmatchvar
-|		cmatchlist '|' cmatchvar
+cmatchlist:	cmatchvar	{ $$ = calloc(sizeof *$$, 1); $$->type = ED2IP_CP_BITFIELD; ADDARRAY($$->vals, $1); }
+|		cmatchlist '|' cmatchvar { $$ = $1; ADDARRAY($$->vals, $3); }
 ;
 
-cmatchvar:	T_WORD	/* for enums */
-|		T_NUM
-|		T_NUM '/' T_NUM
-|		T_NUM '-' T_NUM
-|		T_NUM '-' T_NUM '/' T_NUM
+cmatchvar:	T_WORD	/* for enums */	{ $$ = calloc(sizeof *$$, 1); $$->str = $1; }
+|		T_NUM	{ $$ = calloc(sizeof *$$, 1); $$->val1 = $$->val2 = $1; }
+|		T_NUM '/' T_NUM	{ $$ = calloc(sizeof *$$, 1); $$->val1 = $$->val2 = $1; $$->mask = $3; }
+|		T_NUM '-' T_NUM	{ $$ = calloc(sizeof *$$, 1); $$->val1 = $1; $$->val2 = $3; }
+|		T_NUM '-' T_NUM '/' T_NUM	{ $$ = calloc(sizeof *$$, 1); $$->val1 = $1; $$->val2 = $3; $$->mask = $5; }
 ;
 
-bitfield:	bitchunk
-|		bitfield '#' bitchunk
+bitfield:	bitchunk	{ $$ = calloc(sizeof *$$, 1); ADDARRAY($$->chunks, $1); }
+|		bitfield '#' bitchunk	{ $$ = $1; ADDARRAY($$->chunks, $3); }
 ;
 
-bitchunk:	T_WORD
-|		T_WORD '[' T_NUM ']'
-|		T_WORD '[' T_NUM ':' T_NUM ']'
+bitchunk:	T_WORD	{ $$ = calloc(sizeof *$$, 1); $$->name = $1; $$->from = $$->to = -1; }
+|		T_WORD '[' T_NUM ']'	{ $$ = calloc(sizeof *$$, 1); $$->name = $1; $$->from = $$->to = $3; }
+|		T_WORD '[' T_NUM ':' T_NUM ']'	{ $$ = calloc(sizeof *$$, 1); $$->name = $1; $$->from = $3; $$->to = $5; }
 ;
 
 %%

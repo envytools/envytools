@@ -28,6 +28,12 @@
 #include "ed2s.h"
 #include <stdio.h>
 
+enum ed2i_endian {
+	ED2I_ENDIAN_UNKNOWN,
+	ED2I_ENDIAN_LE,
+	ED2I_ENDIAN_BE,
+};
+
 enum {
 	ED2I_ST_FEATURE,
 	ED2I_ST_VARIANT,

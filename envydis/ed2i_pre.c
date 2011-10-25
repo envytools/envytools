@@ -73,6 +73,67 @@ void ed2ip_del_opfield(struct ed2ip_opfield *opf) {
 	free(opf);
 }
 
+void ed2ip_del_insn(struct ed2ip_insn *in) {
+	free(in->iname);
+	free(in);
+}
+
+void ed2ip_del_seq(struct ed2ip_seq *s) {
+	int i;
+	free(s->name);
+	for (i = 0; i < s->seqsnum; i++)
+		ed2ip_del_seq(s->seqs[i]);
+	free(s->seqs);
+	for (i = 0; i < s->casesnum; i++)
+		ed2ip_del_case(s->cases[i]);
+	free(s->cases);
+	if (s->insn_inline)
+		ed2ip_del_insn(s->insn_inline);
+	free(s->call_seq);
+	if (s->bf_dst)
+		ed2ip_del_bitfield(s->bf_dst);
+	if (s->bf_src)
+		ed2ip_del_bitfield(s->bf_src);
+	free(s->const_str);
+	free(s);
+}
+
+void ed2ip_del_case(struct ed2ip_case *c) {
+	int i;
+	for (i = 0; i < c->partsnum; i++)
+		ed2ip_del_casepart(c->parts[i]);
+	free(c->parts);
+	free(c);
+}
+
+void ed2ip_del_casepart(struct ed2ip_casepart *cp) {
+	int i;
+	free(cp->bf);
+	for (i = 0; i < cp->valsnum; i++)
+		ed2ip_del_caseval(cp->vals[i]);
+	free(cp->vals);
+	ed2_free_strings(cp->names, cp->namesnum);
+	free(cp);
+}
+
+void ed2ip_del_caseval(struct ed2ip_caseval *cv) {
+	free(cv->str);
+	free(cv);
+}
+
+void ed2ip_del_bitfield(struct ed2ip_bitfield *bf) {
+	int i;
+	for (i = 0; i < bf->chunksnum; i++)
+		free(bf->chunks[i]);
+	free(bf->chunks);
+	free(bf);
+}
+
+void ed2ip_del_bitchunk(struct ed2ip_bitchunk *bc) {
+	free(bc->name);
+	free(bc);
+}
+
 void ed2ip_del_isa(struct ed2ip_isa *isa) {
 	int i;
 	for (i = 0; i < isa->featuresnum; i++)
@@ -358,6 +419,10 @@ struct ed2i_isa *ed2ip_transform(struct ed2ip_isa *preisa) {
 	broken |= ed2ip_transform_variants(preisa, isa);
 	broken |= ed2ip_transform_modesets(preisa, isa);
 	broken |= ed2ip_transform_opfields(preisa, isa);
+	int i;
+	for (i = 0; i < preisa->seqsnum; i++)
+		ed2ip_del_seq(preisa->seqs[i]);
+	free(preisa->seqs);
 	free(preisa);
 	if (broken) {
 		ed2i_del_isa(isa);
