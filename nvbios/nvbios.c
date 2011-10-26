@@ -1070,7 +1070,7 @@ int main(int argc, char **argv) {
 			extra_data_count = bios->data[start+4];
 			extra_data_length = bios->data[start+5];
 			entry_length = mode_info_length + extra_data_count * extra_data_length;
-		} else if (major_version == 0x70) {
+		} else if (major_version == 0x70 || major_version == 0x75) {
 			version = bios->data[start+0];
 			header_length = bios->data[start+1];
 			subentry_offset = bios->data[start+2];
@@ -1079,6 +1079,8 @@ int main(int argc, char **argv) {
 			entry_length = subentry_offset + subentry_size * subentry_count;
 			mode_info_length = subentry_offset;
 			entry_count = bios->data[start+5];
+		} else {
+			printf("Unknown PM major version %x\n", major_version);
 		}
 
 		start += header_length;
