@@ -91,7 +91,7 @@ Common registers [present on all engines]:
 100/04000  UC_CTRL		microprocessor control	[fuc-ctrl.txt]
 104/04100  UC_ENTRY		microcode entry point	[fuc-ctrl.txt]
 108/04200  UC_CAPS		microprocessor caps	[fuc-ctrl.txt]
-10c/04300  ???			???
+10c/04300  UC_BLOCK_ON_FIFO	microprocessor block	[fuc-ctrl.txt]
 110/04400  XFER_EXT_BASE	xfer external base	[fuc-xfer.txt]
 114/04500  XFER_FUC_ADDR	xfer fuc address	[fuc-xfer.txt]
 118/04600  XFER_CTRL		xfer control		[fuc-xfer.txt]
