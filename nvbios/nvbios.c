@@ -1046,6 +1046,7 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
+#define subent(n) (subentry_offset + ((n) * subentry_size))
 	if (pm_mode_tbl_ptr) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t mode_info_length = 0, header_length = 0;
@@ -1104,7 +1105,7 @@ int main(int argc, char **argv) {
 		printf("%i performance levels\n", entry_count);
 		for (i=0; i < entry_count; i++) {
 			uint16_t id, fan, voltage;
-			uint16_t core, shader = 0, memclk;
+			uint16_t core, shader = 0, memclk, vdec = 0;
 			uint8_t pcie_width = 0xff;
 			uint8_t timing_id = 0xff;
 
@@ -1116,6 +1117,16 @@ int main(int argc, char **argv) {
 				*/
 				pcie_width = bios->data[start+28];
 			}
+			
+			if (version > 0x15 && version < 0x40) {
+				uint16_t extra_start = start + mode_info_length;
+				uint16_t timing_extra_data = extra_start+(ram_cfg*extra_data_length);
+
+				if (ram_cfg < extra_data_count)
+					timing_id = bios->data[timing_extra_data+1];
+			} else if (version == 0x40 && ram_cfg < subentry_count) {
+				timing_id = bios->data[start+subent(ram_cfg)+1];
+			}
 
 			/* Old BIOS' might give rounding errors! */
 			if (version == 0x12 || version == 0x13 || version == 0x15) {
@@ -1124,6 +1135,10 @@ int main(int argc, char **argv) {
 				memclk = le16(start+5) / 100;
 				fan = bios->data[start+55];
 				voltage = bios->data[start+56];
+				
+				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz "
+					"Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
+					id, core, memclk, voltage, timing_id, fan, pcie_width );
 			} else if (version >= 0x21 && version <= 0x24) {
 				id = bios->data[start+0];
 				core = le16(start+6);
@@ -1131,6 +1146,10 @@ int main(int argc, char **argv) {
 				memclk = le16(start+11);
 				fan = bios->data[start+4];
 				voltage = bios->data[start+5];
+				
+				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz "
+					"Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
+					id, core, memclk, shader, voltage, timing_id, fan, pcie_width );
 			} else if (version == 0x25) {
 				id = bios->data[start+0];
 				core = le16(start+6);
@@ -1138,45 +1157,56 @@ int main(int argc, char **argv) {
 				memclk = le16(start+12);
 				fan = bios->data[start+4];
 				voltage = bios->data[start+5];
+				
+				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz "
+					"Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
+					id, core, memclk, shader, voltage, timing_id, fan, pcie_width );
 			} else if (version == 0x30 || version == 0x35) {
+				uint16_t dom6 = 0;
 				id = bios->data[start+0];
 				fan = bios->data[start+6];
 				voltage = bios->data[start+7];
 				core = le16(start+8);
 				shader = le16(start+10);
 				memclk = le16(start+12);
+				vdec = le16(start+16);
+				dom6 = le16(start+20);
+				
+				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Vdec %dMHz "
+					"Dom6 %dMHz Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
+					id, core, memclk, shader, vdec, dom6, voltage, timing_id, fan, pcie_width );
 			} else if (version == 0x40) {
-#define subent(n) (subentry_offset + ((n) * subentry_size))
+				uint16_t hub01 = 0, hub06 = 0, copy = 0, rop = 0, daemon = 0, hub07 = 0, unka0 = 0;
 				id = bios->data[start+0];
-				fan = 0;
 				voltage = bios->data[start+2];
 
 				if (subentry_size == 4) {
+					hub06 = (le16(start+subent(0)) & 0xfff);
+					hub01 = (le16(start+subent(1)) & 0xfff);
+					copy = (le16(start+subent(2)) & 0xfff);
 					shader = (le16(start+subent(3)) & 0xfff);
 					core = shader / 2;
+					rop = (le16(start+subent(4)) & 0xfff);
 					memclk = (le16(start+subent(5)) & 0xfff);
+					vdec   = (le16(start+subent(6)) & 0xfff);
+					daemon = (le16(start+subent(10)) & 0xfff);
+					hub07 = (le16(start+subent(11)) & 0xfff);
+
+					printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Hub01 %dMHz "
+						"Hub06 %dMHz Hub07 %dMHz ROP %dMHz VDec %dMHz Daemon %dMHz "
+						"Voltage entry %d Timing %d PCIe link width %d --\n",
+						id, core, memclk, shader, hub01, hub06, hub07,
+						rop, vdec, daemon, voltage, timing_id, pcie_width );
 				} else {
 					core = (le16(start+subent(0)) & 0xfff);
 					shader = (le16(start+subent(1)) & 0xfff);
 					memclk = (le16(start+subent(2)) & 0xfff);
+					unka0 = (le16(start+subent(3)) & 0xfff);
+
+					printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz "
+						"Unka0 %dMHz Voltage entry %d Timing %d PCIe link width %d --\n",
+						id, core, memclk, shader, unka0, voltage, timing_id, pcie_width );
 				}
-			}
-
-			timing_id = 0xff;
-			if (version > 0x15 && version < 0x40) {
-				uint16_t extra_start = start + mode_info_length;
-				uint16_t timing_extra_data = extra_start+(ram_cfg*extra_data_length);
-
-				if (ram_cfg < extra_data_count)
-					timing_id = bios->data[timing_extra_data+1];
-
-				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
-					id, core, memclk, shader, voltage, timing_id, fan, pcie_width );
-			} else if (version == 0x40) {
-				if (ram_cfg < subentry_count)
-					timing_id = bios->data[start+subent(ram_cfg)+1];
-				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Voltage entry %d Timing %d PCIe link width %d --\n",
-					id, core, memclk, shader, voltage, timing_id, pcie_width );
 			}
 
 			if (mode_info_length > 20) {
