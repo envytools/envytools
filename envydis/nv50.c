@@ -806,37 +806,62 @@ static struct insn tabs[] = {
  * Immediate instructions
  */
 
+static struct insn tabis[] = {
+	{ 0x01000000, 0x01000000, SPRIM, .ptype = GP },	// XXX check
+	{ 0x01000000, 0x03006000, N("u8"), SSHARED8, .ptype = CP },
+	{ 0x01002000, 0x03006000, N("u16"), SSHARED16, .ptype = CP },
+	{ 0x01004000, 0x03006000, N("s16"), SSHARED16, .ptype = CP },
+	{ 0x01006000, 0x03006000, N("b32"), SSHARED32, .ptype = CP },
+	{ 0x03000000, 0x03006000, N("u8"), SSHARED8PI, .ptype = CP },
+	{ 0x03002000, 0x03006000, N("u16"), SSHARED16PI, .ptype = CP },
+	{ 0x03004000, 0x03006000, N("s16"), SSHARED16PI, .ptype = CP },
+	{ 0x03006000, 0x03006000, N("b32"), SSHARED32PI, .ptype = CP },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabish[] = {
+	{ 0x00000000, 0x01000000, SHSRC },
+	{ 0x01000000, 0x01000000, T(is) },
+	{ 0, 0, OOPS }
+};
+
+static struct insn tabisw[] = {
+	{ 0x00000000, 0x01000000, SSRC },
+	{ 0x01000000, 0x01000000, T(is) },
+	{ 0, 0, OOPS }
+};
+
 static struct insn tabi[] = {
 	{ 0x10000000, 0xf0008000, N("mov"), N("b16"), LHDST, IMM },
 	{ 0x10008000, 0xf0008000, N("mov"), N("b32"), LDST, IMM },	// yes. LDST. special case.
 
-	{ 0x20000000, 0xe0008000, T(addop), T(sm1sat), N("b16"), SHDST, T(ssh), IMM, T(addc0) },
-	{ 0x20008000, 0xe0008000, T(addop), T(sm1sat), N("b32"), SDST, T(ssw), IMM, T(addc0) },
+	{ 0x20000000, 0xe0008000, T(addop), T(sm1sat), N("b16"), SHDST, T(ish), IMM, T(addc0) },
+	{ 0x20008000, 0xe0008000, T(addop), T(sm1sat), N("b32"), SDST, T(isw), IMM, T(addc0) },
 
-	{ 0x40000000, 0xf0400000, N("mul"), SDST, T(sm2us16), T(ssh), T(sm1us16), IMM },
-	{ 0x40400000, 0xf0400000, N("mul"), SDST, T(sm1high), T(sm2us24), T(ssw), IMM },
+	{ 0x40000000, 0xf0400000, N("mul"), SDST, T(sm2us16), T(ish), T(sm1us16), IMM },
+	{ 0x40400000, 0xf0400000, N("mul"), SDST, T(sm1high), T(sm2us24), T(isw), IMM },
 
-	{ 0x60000000, 0xe0008100, T(addop), SDST, SESTART, N("mul"), N("u16"), T(ssh), IMM, SEEND, SDST, T(addc0) },
-	{ 0x60000100, 0xe0008100, T(addop), SDST, SESTART, N("mul"), N("s16"), T(ssh), IMM, SEEND, SDST, T(addc0) },
-	{ 0x60008000, 0xe0008100, T(addop), N("sat"), SDST, SESTART, N("mul"), N("s16"), T(ssh), IMM, SEEND, SDST, T(addc0) },
-	{ 0x60008100, 0xe0008100, T(addop), SDST, SESTART, N("mul"), N("u24"), T(ssw), IMM, SEEND, SDST, T(addc0) },
-
-	// desc VVV
-	{ 0xb0000000, 0xf0000000, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), IMM },
-
-	{ 0xc0000000, 0xf0000000, N("mul"), N("f32"), SDST, T(sm2neg), T(ssw), T(sm3neg), IMM },
-	// desc ^^^
-
-	{ 0xd0000000, 0xf0008100, N("and"), N("b32"), SDST, T(sm3not), T(ssw), IMM },
-	{ 0xd0000100, 0xf0008100, N("or"), N("b32"), SDST, T(sm3not), T(ssw), IMM },
-	{ 0xd0008000, 0xf0008100, N("xor"), N("b32"), SDST, T(sm3not), T(ssw), IMM },
-	{ 0xd0008100, 0xf0008100, N("mov2"), N("b32"), SDST, T(sm3not), T(ssw), IMM },
+	{ 0x60000000, 0xe0008100, T(addop), SDST, SESTART, N("mul"), N("u16"), T(ish), IMM, SEEND, SDST, T(addc0) },
+	{ 0x60000100, 0xe0008100, T(addop), SDST, SESTART, N("mul"), N("s16"), T(ish), IMM, SEEND, SDST, T(addc0) },
+	{ 0x60008000, 0xe0008100, T(addop), N("sat"), SDST, SESTART, N("mul"), N("s16"), T(ish), IMM, SEEND, SDST, T(addc0) },
+	{ 0x60008100, 0xe0008100, T(addop), SDST, SESTART, N("mul"), N("u24"), T(isw), IMM, SEEND, SDST, T(addc0) },
 
 	// desc VVV
-	{ 0xe0000000, 0xf0000000, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), SESTART, N("mul"), T(ssw), IMM, SEEND, T(sm3neg), SDST },
+	{ 0xb0000000, 0xf0000000, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), T(isw), T(sm3neg), IMM },
+
+	{ 0xc0000000, 0xf0000000, N("mul"), N("f32"), SDST, T(sm2neg), T(isw), T(sm3neg), IMM },
 	// desc ^^^
 
-	{ 0, 0, OOPS, SDST, T(ssw), IMM },
+	{ 0xd0000000, 0xf0008100, N("and"), N("b32"), SDST, T(sm3not), T(isw), IMM },
+	{ 0xd0000100, 0xf0008100, N("or"), N("b32"), SDST, T(sm3not), T(isw), IMM },
+	{ 0xd0008000, 0xf0008100, N("xor"), N("b32"), SDST, T(sm3not), T(isw), IMM },
+	{ 0xd0008100, 0xf0008100, N("mov2"), N("b32"), SDST, T(sm3not), T(isw), IMM },
+
+	// desc VVV
+	{ 0xe0000000, 0xf0000000, N("add"), T(sm1sat), N("f32"), SDST, T(sm2neg), SESTART, N("mul"), T(isw), IMM, SEEND, T(sm3neg), SDST },
+	// desc ^^^
+
+	{ 0, 0, OOPS, SDST, T(isw), IMM },
 };
 
 /*
