@@ -748,7 +748,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield low="0" high="15" name="LOW"/>
 			<bitfield low="16" high="31" name="HIGH"/>
 		</reg32>
-		<reg32 offset="0x1510" name="VP_CLIP_DISTANCE_ENABLE">
+		<reg32 offset="0x1510" name="CLIP_DISTANCE_ENABLE">
 			<doc>See also CLIP_DISTANCE_MODE.</doc>
 			<bitfield name="0" pos="0" type="boolean"/>
 			<bitfield name="1" pos="1" type="boolean"/>

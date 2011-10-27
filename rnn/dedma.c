@@ -250,7 +250,8 @@ dedma(struct state *s, FILE *f, bool dry_run)
 			/* out of band data */
 			e0->out_of_band = true;
 
-		} else if (abs(e0->addr - e1->addr) > MAX_DELTA) {
+		} else if (abs(e0->addr - e1->addr) > MAX_DELTA &&
+			   !e1->out_of_band) {
 			/* wrap around or out of band data not caught by
 			 * the address window */
 
@@ -283,9 +284,21 @@ dedma(struct state *s, FILE *f, bool dry_run)
 					drop_ent(s, i--);
 					break;
 
+				} else if (e0->addr == e1->addr + 3) {
+					/* 8bit writes */
+					e1->val |= e0->val << 24;
+					drop_ent(s, i--);
+					break;
+
 				} else if (e0->addr == e1->addr + 2) {
 					/* 16bit writes */
 					e1->val |= e0->val << 16;
+					drop_ent(s, i--);
+					break;
+
+				} else if (e0->addr == e1->addr + 1) {
+					/* 8bit writes */
+					e1->val |= e0->val << 8;
 					drop_ent(s, i--);
 					break;
 

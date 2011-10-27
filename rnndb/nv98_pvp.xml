@@ -219,10 +219,131 @@
 
 <array name="PVP" offset="0x85000" stride="0x1000" length="1" variants="NV98 NVAA-">
 	<use-group name="nv98_vpbase"/>
+	<array offset="0x400" name="VUC" stride="0x100">
+		<reg32 offset="0x00" name="DATA" length="16"/> <!-- indexed -->
+		<reg32 offset="0x40" name="CODE_CONTROL">
+			<bitfield low="0" high="10" name="IP"/>
+			<bitfield pos="16" name="PAUSE"/>
+		</reg32>
+		<reg32 offset="0x44" name="CODE"/>
+		<bitset name="nv98_pvp_vuc_intr"> <!-- fuc intr 10 -->
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="1" name="UNK1"/>
+			<bitfield pos="2" name="UNK2"/>
+			<bitfield pos="3" name="UNK3"/>
+			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="5" name="UNK5"/>
+			<bitfield pos="6" name="UNK6"/>
+		</bitset>
+		<reg32 offset="0x58" name="MODE">
+			<!-- ... -->
+		</reg32>
+		<reg32 offset="0x70" name="INTR" type="nv98_pvp_vuc_intr"/>
+		<reg32 offset="0x74" name="INTR_EN" type="nv98_pvp_vuc_intr"/>
+		<reg32 offset="0xa8" name="UNKA8"/>
+	</array>
+	<array offset="0x500" name="TRANS" stride="0x80">
+		<reg32 offset="0x00" name="CODE_SELECT" length="4">
+			<bitfield low="0" high="7" name="START"/>
+			<bitfield low="8" high="15" name="LENGTH"/>
+		</reg32>
+		<reg32 offset="0x24" name="IQ_MODE">
+			<bitfield pos="0" name="Q_SCALE_TYPE"/>
+			<bitfield pos="1" name="ALTERNATE_SCAN"/>
+			<bitfield low="2" high="3" name="INTRA_DC_PRECISION"/>
+		</reg32>
+		<reg32 offset="0x2c" name="QUANT_MATRIX"/>
+		<reg32 offset="0x30" name="QUANT_MATRIX_CTRL">
+			<bitfield pos="0" name="UNK0"/> <!-- set before upload -->
+		</reg32>
+		<reg32 offset="0x34" name="CODE"/>
+		<reg32 offset="0x38" name="CODE_CTRL">
+			<bitfield pos="0" name="UNK0"/> <!-- set before upload -->
+			<bitfield pos="4" name="UNK4"/> <!-- set after upload -->
+		</reg32>
+	</array>
+	<array offset="0x680" name="UNK680" stride="0x80">
+		<bitset name="nv98_pvp_680_intr"> <!-- fuc intr 15 -->
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="8" name="UNK8"/>
+		</bitset>
+		<reg32 offset="0x2c" name="INTR_EN" type="nv98_pvp_680_intr"/>
+		<reg32 offset="0x30" name="INTR" type="nv98_pvp_680_intr"/>
+		<reg32 offset="0x38" name="UNK38_HEIGHT"/>
+	</array>
 </array>
 
 <array name="PPPP" offset="0x86000" stride="0x1000" length="1" variants="NV98 NVAA-">
 	<use-group name="nv98_vpbase"/>
+	<array offset="0x400" stride="0x80" length="1" name="PIN">
+		<reg32 offset="0x00" name="UNK00"/>
+		<reg32 offset="0x04" name="DIMS">
+			<bitfield low="0" high="7" name="PIC_WIDTH" shr="4"/>
+			<bitfield low="8" high="15" name="PIC_HEIGHT" shr="4"/>
+			<bitfield low="16" high="23" name="SURF_WIDTH" shr="4"/>
+			<bitfield pos="24" name="UNK24"/> <!-- used only for VC-1 -->
+			<bitfield pos="28" name="UNK28"/> <!-- set for VC-1, clear for H.264 -->
+			<bitfield pos="29" name="UNK29"/>
+		</reg32>	<!-- for surface layout purposes -->
+		<reg32 offset="0x08" name="UNK08">
+			<bitfield low="0" high="2" name="UNK0"/>
+			<bitfield pos="4" name="POUT_TWO_FIELDS"/> <!-- ? -->
+		</reg32>
+		<reg32 offset="0x0c" name="SURF_ADDR" length="2" shr="8"/>
+		<reg32 offset="0x14" name="UNK14">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="1" name="UNK1"/>
+			<bitfield low="28" high="31" name="UNK28"/>
+		</reg32>
+		<reg32 offset="0x18" name="INTR_ENABLE">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="31" name="UNK31"/>
+		</reg32>
+		<reg32 offset="0x1c" name="INTR">
+			<bitfield pos="0" name="UNK0"/>
+		</reg32>
+		<reg32 offset="0x20" name="UNK20"/>
+		<reg32 offset="0x24" name="INTR_UNK"/>
+		<reg32 offset="0x28" name="Y_PUT" shr="4"/>
+	</array>
+	<array offset="0x500" stride="0xc0" name="H264">
+		<reg32 offset="0x00" name="INTR_UNK0"/>
+		<reg32 offset="0x04" name="INTR_UNK1"/>
+		<reg32 offset="0x08" name="INTR_UNK2"/>
+		<reg32 offset="0x0c" name="TRIGGER">
+			<bitfield pos="0" name="LUMA_TRIGGER"/>
+			<bitfield pos="4" name="CHROMA_TRIGGER"/>
+			<bitfield pos="8" name="UNK8"/>
+			<bitfield low="30" high="31" name="UNK30"/>
+		</reg32>
+	</array>
+	<array offset="0x5c0" stride="0x40" name="VC1">
+		<reg32 offset="0x00" name="INTR_UNK0"/>
+		<reg32 offset="0x04" name="INTR_UNK1"/>
+		<reg32 offset="0x08" name="INTR_UNK2"/>
+		<reg32 offset="0x0c" name="TRIGGER">
+			<bitfield pos="0" name="LUMA_TRIGGER"/>
+			<bitfield pos="4" name="CHROMA_TRIGGER"/>
+			<bitfield low="30" high="31" name="UNK30"/>
+		</reg32>
+		<reg32 offset="0x10" name="UNK10"> <!-- set separately for luma and chroma -->
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield low="4" high="6" name="UNK4"/>
+		</reg32>
+		<reg32 offset="0x14" name="UNK14">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield low="4" high="8" name="PQUANT"/>
+		</reg32>
+	</array>
+	<array offset="0x640" stride="0x40" length="1" name="POUT">
+		<reg32 offset="0x00" name="INTR_UNK0"/>
+		<reg32 offset="0x04" name="INTR_UNK1"/>
+		<reg32 offset="0x08" name="INTR_UNK2"/>
+		<reg32 offset="0x0c" name="SURF_WIDTH" shr="4"/> <!-- for surface layout purposes -->
+		<reg32 offset="0x10" name="SURF_ADDR" length="2" shr="8"/>
+		<reg32 offset="0x18" name="UNK18"/> <!-- single bit -->
+	</array>
 </array>
 
 <array name="PCRYPT" offset="0x87000" stride="0x1000" length="1" variants="NV98 NVAA:NVA3">

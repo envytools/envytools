@@ -91,7 +91,7 @@ Common registers [present on all engines]:
 100/04000  UC_CTRL		microprocessor control	[fuc-ctrl.txt]
 104/04100  UC_ENTRY		microcode entry point	[fuc-ctrl.txt]
 108/04200  UC_CAPS		microprocessor caps	[fuc-ctrl.txt]
-10c/04300  ???			???
+10c/04300  UC_BLOCK_ON_FIFO	microprocessor block	[fuc-ctrl.txt]
 110/04400  XFER_EXT_BASE	xfer external base	[fuc-xfer.txt]
 114/04500  XFER_FUC_ADDR	xfer fuc address	[fuc-xfer.txt]
 118/04600  XFER_CTRL		xfer control		[fuc-xfer.txt]
@@ -128,6 +128,60 @@ ff0/-      UC_PC		microprocessor $pc reg	[fuc-ctrl.txt]
 ff4/-      UPLOAD		old code/data upload	[fuc-io.txt]
 ff8/-      UPLOAD_ADDR		old code/data up addr	[fuc-io.txt]
 ffc/-      HOST_IO_INDEX	IO space index for host	[fuc-io.txt]
+
+Engine-specific ranges:
+
+[A] - NVA3+ only
+[C] - NVC0+ only
+[f] - all engines except PGRAPH CTXCTLs
+[s] - secretful engines only
+[b] - PBSP engine only
+[v] - PVP engine only
+[p] - PPPP engine only
+[c] - PCOPY engines only
+
+600/18000:640/19000[f]  EXTMEM	memory interface	[fuc-fifo-extmem.txt]
+
+400/10000:480/12000[b]  BSP	bitstream processor	[fuc-bsp.txt]
+480/12000:500/14000[b]  STREAM	bitstream input		[fuc-bsp.txt]
+500/14000:580/16000[b]  MBRING	macroblock data output	[fuc-bsp.txt]
+580/16000:600/18000[bA] ???	???			[fuc-bsp.txt]
+640/19000:680/1a000[bA] JOE	???			[fuc-bsp.txt]
+680/1a000:700/1c000[bC] ???	???			[fuc-bsp.txt]
+
+400/10000:480/12000[v]  VP	video processor		[fuc-vp.txt]
+480/12000:500/14000[v]  MBRING	macroblock data input	[fuc-vp.txt]
+500/14000:580/16000[v]  TRANS	block transform		[fuc-vp.txt]
+580/16000:600/18000[v]  ???	???			[fuc-vp.txt]
+640/19000:680/1a000[v]  ???	???			[fuc-vp.txt]
+680/1a000:700/1c000[v]  ???	???			[fuc-vp.txt]
+700/1c000:740/1d000[vA] JOE	???			[fuc-vp.txt]
+740/1d000:780/1e000[vC] ???	???			[fuc-vp.txt]
+
+400/10000:480/12000[p]  PIN	picture input		[fuc-ppp.txt]
+480/12000:500/14000[pA] ???	???			[fuc-ppp.txt] [XXX: NVA3+ or NVC0+?]
+500/14000:5c0/17000[p]  H264	H.264 postprocessing	[fuc-ppp.txt]
+5c0/17000:600/18000[p]  VC1	VC-1 postprocessing	[fuc-ppp.txt]
+640/19000:680/1a000[p]  POUT	picture output		[fuc-ppp.txt]
+680/1a000:700/1c000[p]  ???	???			[fuc-ppp.txt]
+700/1c000:740/1d000[p]  ???	???			[fuc-ppp.txt]
+740/1d000:780/1e000[pA] JOE	???			[fuc-ppp.txt]
+780/1e000:7c0/1f000[pA] ???	???			[fuc-ppp.txt] [XXX: NVA3+ or NVC0+?]
+
+640/19000:680/1a000[cC] ???	???			[fuc-copy.txt]
+800/20000:880/22000[c]  COPY	copy engine		[fuc-copy.txt]
+900/24000:980/26000[c]  ???	???			[fuc-copy.txt]
+
+800/20000:a00/28000[s]  ???	???			[fuc-crypt.txt]
+c00/30000:c40/31000[s]  ???	???			[fuc-crypt.txt]
+d00/34000:d40/35000[s]  ???	???			[fuc-crypt.txt]
+
+[XXX: PDAEMON]
+[XXX: CTXCTLs]
+[XXX: PUNK1C1]
+[XXX: NVD9]
+[XXX: PUNK1C3]
+[XXX: PUNK627]
 
 
 Misc registers

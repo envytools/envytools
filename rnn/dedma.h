@@ -42,7 +42,7 @@
 #define MAX_DELTA 16384 /* size of the reordering window */
 #define MAX_OUT_OF_BAND 8 /* maximum consecutive out of band data entries */
 #define MAX_CACHE 4096 /* dump cache size */
-#define MAX_OBJECTS 64 /* object cache size */
+#define MAX_OBJECTS 256 /* object cache size */
 #define MAX_SUBCHAN 8
 
 struct ent {
