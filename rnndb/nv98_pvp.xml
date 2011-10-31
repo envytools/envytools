@@ -227,6 +227,7 @@
 		<reg32 offset="0x18" name="UNK18"/> <!-- fff -->
 		<reg32 offset="0x1c" name="UNK1C"/> <!-- 1 -->
 	</array>
+	<reg32 offset="0x580" name="BITPLANE_DATA" length="4" variants="NVA3-"/> <!-- indexed -->
 </array>
 
 <array name="PVP" offset="0x85000" stride="0x1000" length="1" variants="NV98 NVAA-">
