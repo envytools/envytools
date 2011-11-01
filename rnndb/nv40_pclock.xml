@@ -73,8 +73,8 @@
 	<reg32 offset="0x02c" name="NVPLL_COEF" variants="NV50:NVA3" type="nv50_pll_coef"/>
 	<reg32 offset="0x030" name="VDPLL_CTRL" variants="NV84:NV98 NVA0" type="nv50_pll_ctrl"/>
 	<reg32 offset="0x034" name="VDPLL_COEF" variants="NV84:NV98 NVA0" type="nv50_pll_coef"/>
-	<reg32 offset="0x700" name="DOM6_VDEC_P" variants="NV50:NV92 NV98:NVA3" type="nv50_div"/>
-	<reg32 offset="0x800" name="DOM6_VDEC_P" variants="NV92:NV98" type="nv50_div"/>
+	<reg32 offset="0x700" name="DIV" variants="NV50:NV92 NV98:NVAA" type="nv50_div"/>
+	<reg32 offset="0x800" name="DIV" variants="NV92:NV98" type="nv50_div"/>
 </array>
 
 <array offset="0xc000" name="PCONTROL" stride="0x1000" variants="NV40:NVC0" length="1">
@@ -97,19 +97,19 @@
 			<value value="0" name="CRYSTAL_P"/>
 			<value value="1" name="DOM6" variants="NV84-"/>
 			<value value="2" name="SPLL_P"/>
-			<value value="3" name="NVCLK_1"/>
+			<value value="3" name="NVCLK_1_P"/>
 		</bitfield>
 
 		<bitfield low="4" high="5" name="SCLK">
 			<doc>right-shift is SPLL.P on all clocks</doc>
 			<value value="0" name="SCLK_1_P"/>
-			<value value="2" name="NVPLL_P"/>
+			<value value="2" name="NVCLK_1_P"/>
 			<value value="3" name="SPLL_P"/>
 		</bitfield>
 
 		<bitfield pos="7" name="SCLK_1">
 			<value value="0" name="CRYSTAL"/>
-			<value value="1" name="HOST"/>
+			<value value="1" name="HREF"/>
 		</bitfield>
 
 		<bitfield pos="9" name="MCLK_1" variants="NV84-">

@@ -226,8 +226,8 @@
 				<bitfield low="8" high="13" name="N" variants="NV84:NVA0"/>
 				<bitfield low="16" high="18" name="P"/>
 				<bitfield pos="24" name="PMUL" variants="NV50 NVA0">
-					<value value="0" name="2"/>
-					<value value="1" name="4"/>
+					<value value="0" name="4"/>
+					<value value="1" name="2"/>
 				</bitfield>
 			</reg32>
 			<reg32 name="REG3" offset="0xc">
