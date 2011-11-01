@@ -21,11 +21,18 @@
 		<bitfield pos="3" name="UNK3"/>
 	</bitset>
 
-	<bitset name="nv50_i2c" inline="yes">
-		<bitfield pos="0" name="CL"/>
-		<bitfield pos="1" name="DA"/>
-		<bitfield pos="2" name="UNK2"/>
-	</bitset>
+	<group name="nv50_pnvio_i2c">
+		<reg32 offset="0x00" name="UNK00"/> <!-- RO, 0x80 -->
+		<reg32 offset="0x04" name="UNK04"/> <!-- RO, 0x80 -->
+		<reg32 offset="0x08" name="UNK08"/> <!-- RO, 0x80 -->
+		<reg32 offset="0x0c" name="UNK0c"/> <!-- RO, 0x80 -->
+		<reg32 offset="0x10" name="UNK10"/> <!-- RO, 0x80 -->
+		<reg32 offset="0x14" name="BITBANG">
+			<bitfield pos="0" name="CL"/>
+			<bitfield pos="1" name="DA"/>
+			<bitfield pos="2" name="UNK2"/>
+		</reg32>
+	</group>
 
 	<array name="PNVIO" offset="0x0000E000" stride="0x1000" length="1" variants="NV50-">
 		<doc>
@@ -84,6 +91,19 @@
 			</reg32>
 		</array>
 
+		<array name="I2C_PORT_0" offset="0x124" length="1" stride="0x18">
+			<use-group name="nv50_pnvio_i2c"/>
+		</array>
+		<array name="I2C_PORT_1" offset="0x13c" length="1" stride="0x18">
+			<use-group name="nv50_pnvio_i2c"/>
+		</array>
+		<array name="I2C_PORT_2" offset="0x154" length="1" stride="0x18">
+			<use-group name="nv50_pnvio_i2c"/>
+		</array>
+		<array name="I2C_PORT_3" offset="0x16c" length="1" stride="0x18">
+			<use-group name="nv50_pnvio_i2c"/>
+		</array>
+
 		<!-- always use SOURCE_PLL1 on nv84:94 -->
 		<reg32 name="CLOCK_SOURCE" offset="0x18c" variants="NV50 NVA0">
 			<doc>XTPLL is always linked to SOURCE_PLL2</doc>
@@ -98,12 +118,12 @@
 			</bitfield>
 		</reg32>
 
-		<reg32 name="I2C_PORT_0" offset="0x138" type="nv50_i2c"/>
-		<reg32 name="I2C_PORT_1" offset="0x150" type="nv50_i2c"/>
-		<reg32 name="I2C_PORT_2" offset="0x168" type="nv50_i2c"/>
-		<reg32 name="I2C_PORT_3" offset="0x180" type="nv50_i2c"/>
-		<reg32 name="I2C_PORT_4" offset="0x254" type="nv50_i2c"/>
-		<reg32 name="I2C_PORT_5" offset="0x274" type="nv50_i2c"/>
+		<array name="I2C_PORT_4" offset="0x240" length="1" stride="0x18" variants="NV84-">
+			<use-group name="nv50_pnvio_i2c"/>
+		</array>
+		<array name="I2C_PORT_5" offset="0x258" length="1" stride="0x18" variants="NV84-">
+			<use-group name="nv50_pnvio_i2c"/>
+		</array>
 
 		<reg32 name="GPIO_2" offset="0x280">
 			<bitfield low="0" high="3" name="16" type="nv50_gpio"/>
@@ -131,6 +151,13 @@
 			<bitfield low="16" high="31" name="UNK2_MASK_16"/>
 		</reg32>
 
+		<reg32 offset="0xe338" name="I2C_PORT_0_UNK18" variants="NVA3-"/>
+		<reg32 offset="0xe350" name="I2C_PORT_1_UNK18" variants="NVA3-"/>
+		<reg32 offset="0xe368" name="I2C_PORT_2_UNK18" variants="NVA3-"/>
+		<reg32 offset="0xe380" name="I2C_PORT_3_UNK18" variants="NVA3-"/>
+		<reg32 offset="0xe398" name="I2C_PORT_4_UNK18" variants="NVA3-"/>
+		<reg32 offset="0xe3b0" name="I2C_PORT_5_UNK18" variants="NVA3-"/>
+
 		<array name="AUXCH" offset="0x4c0" length="4" stride="0x50">
 			<reg32 name="DATA_OUT" offset="0x00" length="4"/>
 			<reg32 name="DATA_IN" offset="0x10" length="4"/>
@@ -157,10 +184,22 @@
 			<reg32 name="SETUP" offset="0x40"/>
 		</array>
 
-		<reg32 name="I2C_PORT_6" offset="0x764" type="nv50_i2c"/>
-		<reg32 name="I2C_PORT_7" offset="0x780" type="nv50_i2c"/>
-		<reg32 name="I2C_PORT_8" offset="0x79c" type="nv50_i2c"/>
-		<reg32 name="I2C_PORT_9" offset="0x7b8" type="nv50_i2c"/>
+		<array name="I2C_PORT_6" offset="0x750" length="1" stride="0x1c" variants="NVA3-">
+			<use-group name="nv50_pnvio_i2c"/>
+			<reg32 offset="0x18" name="UNK18"/>
+		</array>
+		<array name="I2C_PORT_7" offset="0x750" length="1" stride="0x1c" variants="NVA3-">
+			<use-group name="nv50_pnvio_i2c"/>
+			<reg32 offset="0x18" name="UNK18"/>
+		</array>
+		<array name="I2C_PORT_8" offset="0x750" length="1" stride="0x1c" variants="NVA3-">
+			<use-group name="nv50_pnvio_i2c"/>
+			<reg32 offset="0x18" name="UNK18"/>
+		</array>
+		<array name="I2C_PORT_9" offset="0x750" length="1" stride="0x1c" variants="NVA3-">
+			<use-group name="nv50_pnvio_i2c"/>
+			<reg32 offset="0x18" name="UNK18"/>
+		</array>
 
 		<reg32 name="SOURCE_PLL" offset="0x81c" stride="0x0c" length="2" variants="NV50:NV94 NVA0">
 			<doc>freq = (crystal * PMUL * N / M) >> P</doc>
