@@ -84,6 +84,20 @@
 			</reg32>
 		</array>
 
+		<!-- always use SOURCE_PLL1 on nv84:94 -->
+		<reg32 name="CLOCK_SOURCE" offset="0x18c" variants="NV50 NVA0">
+			<doc>XTPLL is always linked to SOURCE_PLL2</doc>
+			<bitfield pos="4" name="SPLL_NVPLL">
+				<value value="0" name="SOURCE_PLL1" />
+				<value value="1" name="SOURCE_PLL2" />
+			</bitfield>
+
+			<bitfield pos="5" name="MPLL">
+				<value value="0" name="SOURCE_PLL1" />
+				<value value="1" name="SOURCE_PLL2" />
+			</bitfield>
+		</reg32>
+
 		<reg32 name="I2C_PORT_0" offset="0x138" type="nv50_i2c"/>
 		<reg32 name="I2C_PORT_1" offset="0x150" type="nv50_i2c"/>
 		<reg32 name="I2C_PORT_2" offset="0x168" type="nv50_i2c"/>
@@ -148,6 +162,29 @@
 		<reg32 name="I2C_PORT_8" offset="0x79c" type="nv50_i2c"/>
 		<reg32 name="I2C_PORT_9" offset="0x7b8" type="nv50_i2c"/>
 
+		<reg32 name="SOURCE_PLL" offset="0x81c" stride="0x0c" length="2" variants="NV50:NV94 NVA0">
+			<doc>freq = (crystal * PMUL * N / M) >> P</doc>
+			<bitfield low="0" high="7" name="M-1" variants="NV50 NVA0"/>
+			<bitfield low="0" high="7" name="M" variants="NV84:NVA0"/>
+			<bitfield low="8" high="15" name="N-1" variants="NV50 NVA0"/>
+			<bitfield low="8" high="15" name="N" variants="NV84:NVA0"/>
+			<bitfield low="16" high="18" name="P"/>
+			<bitfield pos="24" name="PMUL" variants="NV50 NVA0">
+				<value value="0" name="2"/>
+				<value value="1" name="4"/>
+			</bitfield>
+		</reg32>
+
+		<reg32 name="SOURCE_PLL" offset="0x81c" stride="0x28" length="2" variants="NV94:NVA0">
+			<doc>freq = (crystal * N / M) >> P</doc>
+			<bitfield low="0" high="7" name="M"/>
+			<bitfield low="8" high="15" name="N"/>
+			<bitfield low="16" high="18" name="P"/>
+		</reg32>
+
+		<reg32 name="SOURCE_PLL_EXT" offset="0x824" stride="0x28" length="2" variants="NV94:NVA0">
+			<bitfield low="16" high="18" name="P_BIAS" variants="NV50:NV94 NVA0"/>
+		</reg32>
 	</array>
 </domain>
 
