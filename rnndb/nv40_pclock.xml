@@ -9,12 +9,26 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <bitset name="nv50_pll_ctrl" inline="yes">
-	<bitfield low="0" high="15" name="UNK0"/>
+	<bitfield low="0" high="7" name="UNK0"/>
+	<bitfield pos="8" name="ENABLE_UNK0"/>
+	<bitfield low="16" high="18" name="P"/>
+	<bitfield pos="31" name="STAGE1_ENABLE"/>
+</bitset>
+
+<bitset name="nv50_nvpll_ctrl" inline="yes">
+	<bitfield low="0" high="7" name="UNK0"/>
+	<bitfield pos="8" name="ENABLE_UNK0"/>
 	<bitfield low="16" high="18" name="P"/>
 	<bitfield low="19" high="21" name="P2"/>
-	<bitfield low="21" high="26" name="UNK21"/>
-	<bitfield low="28" high="29" name="UNK28"/>
-	<bitfield pos="30" name="STAGE2_ENABLE"/>
+	<bitfield pos="29" name="UNK29"/>
+	<bitfield pos="31" name="STAGE1_ENABLE"/>
+</bitset>
+
+<bitset name="nv50_nviopll_ctrl" inline="yes">
+	<bitfield low="0" high="7" name="UNK0"/>
+	<bitfield pos="8" name="ENABLE_UNK0"/>
+	<bitfield pos="19" name="UNK19"/>
+	<bitfield pos="21" name="UNK21"/>
 	<bitfield pos="31" name="STAGE1_ENABLE"/>
 </bitset>
 
@@ -22,12 +36,12 @@
 	<bitfield low="0" high="7" name="UNK0"/>
 	<bitfield pos="8" name="ENABLE_UNK0"/>
 	<bitfield pos="9" name="MPLL_BYPASS"/>
+	<bitfield low="10" high="15" name="UNK10"/>
 	<bitfield low="16" high="18" name="P"/>
 	<bitfield low="19" high="21" name="LOG2PBIAS"/>
 	<bitfield low="22" high="24" name="P2"/>
 	<bitfield low="25" high="26" name="UNK25"/>
 	<bitfield low="28" high="29" name="UNK28"/>
-	<bitfield pos="30" name="STAGE2_ENABLE"/>
 	<bitfield pos="31" name="STAGE1_ENABLE"/>
 </bitset>
 
@@ -39,26 +53,27 @@
 </bitset>
 
 <bitset name="nv50_div" inline="yes">
-	<bitfield low="0" high="2" name="DOM6_P"/>
-	<bitfield low="8" high="10" name="VDEC_P"/>
+	<bitfield low="0" high="2" name="DOM6_P" variants="NV84-"/>
+	<bitfield low="8" high="10" name="VDEC_P" variants="NV84-"/>
+	<bitfield pos="31" name="UNK31"/>
 </bitset>
 
 <array offset="0x4000" name="PCLOCK" stride="0x1000" variants="NV40:NVC0" length="1">
-	<reg32 offset="0x000" name="NVIO_PLL_CTRL" variants="NV50 NVA0" type="nv50_pll_ctrl"/>
+	<reg32 offset="0x000" name="NVIO_PLL_CTRL" variants="NV50 NVA0" type="nv50_nviopll_ctrl"/>
 	<reg32 offset="0x004" name="NVIO_PLL_COEF" variants="NV50 NVA0" type="nv50_pll_coef"/>
 	<reg32 offset="0x008" name="MPLL_CTRL" variants="NV50:NVAA" type="nv50_mpll_ctrl"/>
 	<reg32 offset="0x00c" name="MPLL_COEF" variants="NV50:NVAA" type="nv50_pll_coef"/>
 	<reg32 offset="0x010" name="UNK10_PLL_CTRL" variants="NV50 NVA0" type="nv50_mpll_ctrl"/>
-	<reg32 offset="0x014" name="UNK10_PLL_COEF" variants="NV50 NVA0" type="nv50_mpll_coef"/>
+	<reg32 offset="0x014" name="UNK10_PLL_COEF" variants="NV50 NVA0" type="nv50_pll_coef"/>
 	<reg32 offset="0x018" name="UNK18_PLL_CTRL" variants="NV50 NV92 NVA0" type="nv50_mpll_ctrl"/>
-	<reg32 offset="0x01c" name="UNK18_PLL_COEF" variants="NV50 NV92 NVA0" type="nv50_mpll_coef"/>
+	<reg32 offset="0x01c" name="UNK18_PLL_COEF" variants="NV50 NV92 NVA0" type="nv50_pll_coef"/>
 	<reg32 offset="0x020" name="SPLL_CTRL" variants="NV50:NVA3" type="nv50_pll_ctrl"/>
 	<reg32 offset="0x024" name="SPLL_COEF" variants="NV50:NVA3" type="nv50_pll_coef"/>
-	<reg32 offset="0x028" name="NVPLL_CTRL" variants="NV50:NVA3" type="nv50_pll_ctrl"/>
+	<reg32 offset="0x028" name="NVPLL_CTRL" variants="NV50:NVA3" type="nv50_nvpll_ctrl"/>
 	<reg32 offset="0x02c" name="NVPLL_COEF" variants="NV50:NVA3" type="nv50_pll_coef"/>
 	<reg32 offset="0x030" name="VDPLL_CTRL" variants="NV84:NV98 NVA0" type="nv50_pll_ctrl"/>
 	<reg32 offset="0x034" name="VDPLL_COEF" variants="NV84:NV98 NVA0" type="nv50_pll_coef"/>
-	<reg32 offset="0x700" name="DOM6_VDEC_P" variants="NV84:NV92 NV98:NVA3" type="nv50_div"/>
+	<reg32 offset="0x700" name="DOM6_VDEC_P" variants="NV50:NV92 NV98:NVA3" type="nv50_div"/>
 	<reg32 offset="0x800" name="DOM6_VDEC_P" variants="NV92:NV98" type="nv50_div"/>
 </array>
 
@@ -78,10 +93,11 @@
 		- dom6: must clock something ;)
 		</doc>
 		<bitfield low="0" high="1" name="NVCLK">
+			<doc>right shift is NVPLL.P1 if NVCLK_1 is 0, NVPLL.P2 if NVCLK_1 is 1.</doc>
 			<value value="0" name="CRYSTAL_P"/>
-			<value value="1" name="DOM6"/>
+			<value value="1" name="DOM6" variants="NV84-"/>
 			<value value="2" name="SPLL_P"/>
-			<value value="3" name="NVPLL_P"/>
+			<value value="3" name="NVCLK_1"/>
 		</bitfield>
 
 		<bitfield low="4" high="5" name="SCLK">
@@ -124,10 +140,11 @@
 			<value value="1" name="HREF"/>
 		</bitfield>
 
-		<bitfield pos="20" name="NVCLK_SHIFT" variant="NV84:NVA3">
-			<value value="0" name="NVPLL_P" variant="NVA0"/>
-			<value value="0" name="DOM6_P" variant="NV84:NVA0"/>
-			<value value="1" name="0"/>
+		<bitfield pos="20" name="NVCLK_1">
+			<doc>Selects NVCLK postdivider, and the clock as well if NVCLK is set to NVCLK_1</doc>
+			<value value="0" name="NVPLL_P1" variant="NV50 NVA0"/>
+			<value value="0" name="NVPLL_DOM6_P" variant="NV84:NVA0"/>
+			<value value="1" name="NVIOPLL_NVPLL_P2"/>
 		</bitfield>
 
 		<bitfield pos="21" name="NVPLL_REF" variants="NV84-">

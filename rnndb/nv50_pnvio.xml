@@ -107,15 +107,20 @@
 		<!-- always use SOURCE_PLL1 on nv84:94 -->
 		<reg32 name="CLOCK_SOURCE" offset="0x18c" variants="NV50 NVA0">
 			<doc>XTPLL is always linked to SOURCE_PLL2</doc>
-			<bitfield low="0" high="3" name="UNK0" />
-			<bitfield pos="4" name="SPLL_NVPLL">
+			<bitfield low="0" high="1" name="UNK0" />
+			<bitfield pos="2" name="SPLL_NVPLL">
 				<value value="0" name="SOURCE_PLL1" />
 				<value value="1" name="SOURCE_PLL2" />
 			</bitfield>
-			<bitfield pos="5" name="MPLL">
+			<bitfield pos="3" name="MPLL">
 				<value value="0" name="SOURCE_PLL1" />
 				<value value="1" name="SOURCE_PLL2" />
 			</bitfield>
+			<bitfield pos="4" name="NVIOPLL">
+				<value value="0" name="SOURCE_PLL1" />
+				<value value="1" name="SOURCE_PLL2" />
+			</bitfield>
+			<bitfield pos="5" name="UNK5"/>
 			<bitfield low="16" high="17" name="UNK16" />
 		</reg32>
 
