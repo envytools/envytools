@@ -91,6 +91,7 @@
 			</reg32>
 		</array>
 
+<<<<<<< HEAD
 		<array name="I2C_PORT_0" offset="0x124" length="1" stride="0x18">
 			<use-group name="nv50_pnvio_i2c"/>
 		</array>
@@ -103,27 +104,40 @@
 		<array name="I2C_PORT_3" offset="0x16c" length="1" stride="0x18">
 			<use-group name="nv50_pnvio_i2c"/>
 		</array>
+=======
+		<reg32 name="I2C_PORT_0" offset="0x138" type="nv50_i2c"/>
+		<reg32 name="I2C_PORT_1" offset="0x150" type="nv50_i2c"/>
+		<reg32 name="I2C_PORT_2" offset="0x168" type="nv50_i2c"/>
+		<reg32 name="I2C_PORT_3" offset="0x180" type="nv50_i2c"/>
+>>>>>>> rnndb: some fixes to pnvio and pclock
 
 		<!-- always use SOURCE_PLL1 on nv84:94 -->
 		<reg32 name="CLOCK_SOURCE" offset="0x18c" variants="NV50 NVA0">
 			<doc>XTPLL is always linked to SOURCE_PLL2</doc>
+			<bitfield low="0" high="3" name="UNK0" />
 			<bitfield pos="4" name="SPLL_NVPLL">
 				<value value="0" name="SOURCE_PLL1" />
 				<value value="1" name="SOURCE_PLL2" />
 			</bitfield>
-
 			<bitfield pos="5" name="MPLL">
 				<value value="0" name="SOURCE_PLL1" />
 				<value value="1" name="SOURCE_PLL2" />
 			</bitfield>
+			<bitfield pos="6" name="UNK6" />
+			<bitfield low="16" high="17" name="UNK17" />
 		</reg32>
 
+<<<<<<< HEAD
 		<array name="I2C_PORT_4" offset="0x240" length="1" stride="0x18" variants="NV84-">
 			<use-group name="nv50_pnvio_i2c"/>
 		</array>
 		<array name="I2C_PORT_5" offset="0x258" length="1" stride="0x18" variants="NV84-">
 			<use-group name="nv50_pnvio_i2c"/>
 		</array>
+=======
+		<reg32 name="I2C_PORT_4" offset="0x254" type="nv50_i2c"/>
+		<reg32 name="I2C_PORT_5" offset="0x274" type="nv50_i2c"/>
+>>>>>>> rnndb: some fixes to pnvio and pclock
 
 		<reg32 name="GPIO_2" offset="0x280">
 			<bitfield low="0" high="3" name="16" type="nv50_gpio"/>
@@ -201,29 +215,61 @@
 			<reg32 offset="0x18" name="UNK18"/>
 		</array>
 
-		<reg32 name="SOURCE_PLL" offset="0x81c" stride="0x0c" length="2" variants="NV50:NV94 NVA0">
-			<doc>freq = (crystal * PMUL * N / M) >> P</doc>
-			<bitfield low="0" high="7" name="M_MINUS1" variants="NV50 NVA0"/>
-			<bitfield low="0" high="7" name="M" variants="NV84:NVA0"/>
-			<bitfield low="8" high="15" name="N_MINUS1" variants="NV50 NVA0"/>
-			<bitfield low="8" high="15" name="N" variants="NV84:NVA0"/>
-			<bitfield low="16" high="18" name="P"/>
-			<bitfield pos="24" name="PMUL" variants="NV50 NVA0">
-				<value value="0" name="2"/>
-				<value value="1" name="4"/>
-			</bitfield>
-		</reg32>
+		<!--
+		TODO: there also appear to be three other pairs of regs at e800:e818, could also be some kind of PLLs
+		e810/e814 appear to deal with NVIOPLL...
+		-->
 
-		<reg32 name="SOURCE_PLL" offset="0x81c" stride="0x28" length="2" variants="NV94:NVA0">
-			<doc>freq = (crystal * N / M) >> P</doc>
-			<bitfield low="0" high="7" name="M"/>
-			<bitfield low="8" high="15" name="N"/>
-			<bitfield low="16" high="18" name="P"/>
-		</reg32>
+		<array name="SOURCE_PLL" offset="0x818" stride="0x0c" length="2" variants="NV50:NV94 NVA0">
+			<reg32 name="REG1" offset="0x0">
+				<bitfield low="0" high="6" name="UNK0" />
+				<bitfield low="15" high="19" name="UNK15" />
+				<bitfield low="24" high="32" name="UNK24" />
+			</reg32>
+			<reg32 name="REG2" offset="0x4">
+				<doc>freq = (crystal * PMUL * N / M) >> P</doc>
+				<bitfield low="0" high="5" name="M_MINUS1" variants="NV50 NVA0"/>
+				<bitfield low="0" high="5" name="M" variants="NV84:NVA0"/>
+				<bitfield low="8" high="13" name="N_MINUS1" variants="NV50 NVA0"/>
+				<bitfield low="8" high="13" name="N" variants="NV84:NVA0"/>
+				<bitfield low="16" high="18" name="P"/>
+				<bitfield pos="24" name="PMUL" variants="NV50 NVA0">
+					<value value="0" name="2"/>
+					<value value="1" name="4"/>
+				</bitfield>
+			</reg32>
+			<reg32 name="REG3" offset="0xc">
+				<bitfield low="0" high="13" name="UNK0" />
+				<bitfield low="16" high="24" name="UNK16" />
+				<bitfield low="28" high="31" name="UNK28" />
+			</reg32>
+		</array>
 
-		<reg32 name="SOURCE_PLL_EXT" offset="0x824" stride="0x28" length="2" variants="NV94:NVA0">
-			<bitfield low="16" high="18" name="P_BIAS"/>
-		</reg32>
+		<array name="SOURCE_PLL" offset="0x818" stride="0x28" length="2" variants="NV94:NVA0">
+			<reg32 name="REG1" offset="0x0">
+				<bitfield low="0" high="8" name="UNK0" />
+				<bitfield low="19" high="20" name="UNK19" />
+				<bitfield pos="27" name="UNK27" />
+				<bitfield pos="31" name="UNK31" />
+			</reg32>
+			<reg32 name="REG2" offset="0x4">
+				<doc>freq = (crystal * N / M) >> P</doc>
+				<bitfield low="0" high="7" name="M"/>
+				<bitfield low="8" high="15" name="N"/>
+				<bitfield low="16" high="18" name="P"/>
+			</reg32>
+			<reg32 name="REG3" offset="0x8">
+				<bitfield low="0" high="13" name="UNK0" />
+				<bitfield low="16" high="24" name="UNK16" />
+				<bitfield low="28" high="31" name="UNK28" />
+			</reg32>
+			<reg32 name="REG4" offset="0xc">
+				<bitfield low="0" high="8" name="UNK0" />
+				<bitfield low="16" high="18" name="P_BIAS" />
+				<bitfield low="19" high="25" name="UNK19" />
+				<bitfield low="26" high="30" name="UNK26" />
+			</reg32>
+		</array>
 	</array>
 </domain>
 

@@ -70,6 +70,12 @@
 		- hclk: href * 27778 / 10000
 		- hclkm3: hclk * 3
 		- hclkm3d2: hclk * 3 / 2
+		- nvclk: clocks core
+		- sclk: clocks shader
+		- mclk_1: clocks memory on nv84-
+		- mclk: clocks memory on nv50
+		- vdclk: clocks video decoding
+		- dom6: must clock something ;)
 		</doc>
 		<bitfield low="0" high="1" name="NVCLK">
 			<value value="0" name="CRYSTAL_P"/>
@@ -81,7 +87,6 @@
 		<bitfield low="4" high="5" name="SCLK">
 			<doc>right-shift is SPLL.P on all clocks</doc>
 			<value value="0" name="SCLK_1_P"/>
-			<value value="1" name="INVALID"/>
 			<value value="2" name="NVPLL_P"/>
 			<value value="3" name="SPLL_P"/>
 		</bitfield>
@@ -91,9 +96,9 @@
 			<value value="1" name="HOST"/>
 		</bitfield>
 
-		<bitfield pos="9" name="MCLK">
+		<bitfield pos="9" name="MCLK_1" variants="NV84-">
 			<value value="0" name="MPLL"/>
-			<value value="1" name="MCLK_1"/>
+			<value value="1" name="MCLK"/>
 		</bitfield>
 
 		<bitfield low="10" high="11" name="VDCLK" variants="NV84-">
@@ -102,41 +107,40 @@
 			<value value="0" name="CRYSTAL_P" variants="NV84:NVA0"/>
 			<value value="1" name="0"/>
 			<value value="2" name="HCLK_M_3_D_2_P" variants="NV98"/> <!-- Host * 3 / 2 -->
-			<value value="2" name="VDCLK_1_P" variants="NV50:NV98 NVA0"/>
+			<value value="2" name="VDCLK_1_P" variants="NV84:NV98 NVA0"/>
 			<value value="3" name="MCLK_P" variants="NV98"/>
 			<value value="3" name="NVCLK_P" variants="NV50:NV98 NVA0"/>
 		</bitfield>
 
-		<bitfield low="14" high="15" name="MCLK_1">
+		<bitfield low="14" high="15" name="MCLK">
 			<doc>right-shifted by MPLL.P on all clocks</doc>
 			<value value="0" name="CRYSTAL_P"/>
-			<value value="1" name="INVALID"/>
 			<value value="2" name="HREF_P"/>
 			<value value="3" name="HREF_P"/>
 		</bitfield>
 
-		<bitfield pos="16" name="MPLL_REF">
+		<bitfield pos="16" name="MPLL_REF" variants="NV84-">
 			<value value="0" name="SOURCE_PLL"/>
 			<value value="1" name="HREF"/>
 		</bitfield>
 
-		<bitfield pos="20" name="NVCLK_SHIFT">
+		<bitfield pos="20" name="NVCLK_SHIFT" variant="NV84:NVA3">
 			<value value="0" name="NVPLL_P" variant="NVA0"/>
-			<value value="0" name="DOM6_P" variant="NV50:NVA0"/>
+			<value value="0" name="DOM6_P" variant="NV84:NVA0"/>
 			<value value="1" name="0"/>
 		</bitfield>
 
-		<bitfield pos="21" name="NVPLL_REF">
+		<bitfield pos="21" name="NVPLL_REF" variants="NV84-">
 			<value value="0" name="SOURCE_PLL"/>
 			<value value="1" name="HREF"/>
 		</bitfield>
 
-		<bitfield pos="22" name="SPLL_REF">
+		<bitfield pos="22" name="SPLL_REF" variants="NV84-">
 			<value value="0" name="SOURCE_PLL"/>
 			<value value="1" name="HREF"/>
 		</bitfield>
 
-		<bitfield pos="24" name="VDCLK_1">
+		<bitfield pos="24" name="VDCLK_1" variants="NV84-">
 			<value value="0" name="NVPLL"/>
 			<value value="1" name="VDPLL"/>
 		</bitfield>
@@ -150,15 +154,12 @@
 		<bitfield low="26" high="27" name="DOM6" variants="NV84:NVA0">
 			<doc></doc>
 			<value value="0" name="HREF"/>
-			<value value="1" name="INVALID"/>
 			<value value="2" name="HCLK"/>
 			<value value="3" name="HCLK_M_3_P"/> <!-- (HCLK * 3) >> P-->
 		</bitfield>
 
 		<bitfield low="28" high="29" name="HOST">
 			<value value="0" name="HREF"/>
-			<value value="1" name="INVALID"/>
-			<value value="2" name="INVALID" variants="NV50"/>
 			<value value="2" name="HCLK" variants="NV84-"/>
 			<value value="3" name="HCLK"/>
 		</bitfield>
