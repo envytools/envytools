@@ -164,9 +164,9 @@
 
 		<reg32 name="SOURCE_PLL" offset="0x81c" stride="0x0c" length="2" variants="NV50:NV94 NVA0">
 			<doc>freq = (crystal * PMUL * N / M) >> P</doc>
-			<bitfield low="0" high="7" name="M-1" variants="NV50 NVA0"/>
+			<bitfield low="0" high="7" name="M_MINUS1" variants="NV50 NVA0"/>
 			<bitfield low="0" high="7" name="M" variants="NV84:NVA0"/>
-			<bitfield low="8" high="15" name="N-1" variants="NV50 NVA0"/>
+			<bitfield low="8" high="15" name="N_MINUS1" variants="NV50 NVA0"/>
 			<bitfield low="8" high="15" name="N" variants="NV84:NVA0"/>
 			<bitfield low="16" high="18" name="P"/>
 			<bitfield pos="24" name="PMUL" variants="NV50 NVA0">
@@ -183,7 +183,7 @@
 		</reg32>
 
 		<reg32 name="SOURCE_PLL_EXT" offset="0x824" stride="0x28" length="2" variants="NV94:NVA0">
-			<bitfield low="16" high="18" name="P_BIAS" variants="NV50:NV94 NVA0"/>
+			<bitfield low="16" high="18" name="P_BIAS"/>
 		</reg32>
 	</array>
 </domain>

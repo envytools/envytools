@@ -48,18 +48,18 @@
 	<reg32 offset="0x004" name="NVIO_PLL_COEF" variants="NV50 NVA0" type="nv50_pll_coef"/>
 	<reg32 offset="0x008" name="MPLL_CTRL" variants="NV50:NVAA" type="nv50_mpll_ctrl"/>
 	<reg32 offset="0x00c" name="MPLL_COEF" variants="NV50:NVAA" type="nv50_pll_coef"/>
-	<reg32 offset="0x010" name="UNK10_PLL_CTRL" variants="NV50 NVA0" type="nv50_pll_ctrl"/>
-	<reg32 offset="0x014" name="UNK10_PLL_COEF" variants="NV50 NVA0" type="nv50_pll_coef"/>
-	<reg32 offset="0x018" name="UNK18_PLL_CTRL" variants="NV50 NV92 NVA0" type="nv50_pll_ctrl"/>
-	<reg32 offset="0x01c" name="UNK18_PLL_COEF" variants="NV50 NV92 NVA0" type="nv50_pll_coef"/>
+	<reg32 offset="0x010" name="UNK10_PLL_CTRL" variants="NV50 NVA0" type="nv50_mpll_ctrl"/>
+	<reg32 offset="0x014" name="UNK10_PLL_COEF" variants="NV50 NVA0" type="nv50_mpll_coef"/>
+	<reg32 offset="0x018" name="UNK18_PLL_CTRL" variants="NV50 NV92 NVA0" type="nv50_mpll_ctrl"/>
+	<reg32 offset="0x01c" name="UNK18_PLL_COEF" variants="NV50 NV92 NVA0" type="nv50_mpll_coef"/>
 	<reg32 offset="0x020" name="SPLL_CTRL" variants="NV50:NVA3" type="nv50_pll_ctrl"/>
 	<reg32 offset="0x024" name="SPLL_COEF" variants="NV50:NVA3" type="nv50_pll_coef"/>
 	<reg32 offset="0x028" name="NVPLL_CTRL" variants="NV50:NVA3" type="nv50_pll_ctrl"/>
 	<reg32 offset="0x02c" name="NVPLL_COEF" variants="NV50:NVA3" type="nv50_pll_coef"/>
-	<reg32 offset="0x030" name="XTPLL_CTRL" variants="NV84:NV98 NVA0" type="nv50_pll_ctrl"/>
-	<reg32 offset="0x034" name="XTPLL_COEF" variants="NV84:NV98 NVA0" type="nv50_pll_coef"/>
-	<reg32 offset="0x700" name="DOM6_VDEC_P" variants="NV84:NV92 NV98" type="nv50_div"/>
-	<reg32 offset="0x800" name="DOM6_VDEC_P" variants="NV92 NV94 NV96" type="nv50_div"/>
+	<reg32 offset="0x030" name="VDPLL_CTRL" variants="NV84:NV98 NVA0" type="nv50_pll_ctrl"/>
+	<reg32 offset="0x034" name="VDPLL_COEF" variants="NV84:NV98 NVA0" type="nv50_pll_coef"/>
+	<reg32 offset="0x700" name="DOM6_VDEC_P" variants="NV84:NV92 NV98:NVA3" type="nv50_div"/>
+	<reg32 offset="0x800" name="DOM6_VDEC_P" variants="NV92:NV98" type="nv50_div"/>
 </array>
 
 <array offset="0xc000" name="PCONTROL" stride="0x1000" variants="NV40:NVC0" length="1">
@@ -90,57 +90,57 @@
 			<value value="1" name="MCLK_1"/>
 		</bitfield>
 
-		<bitfield low="10" high="11" name="VDEC_CLK">
-			<doc>right-shift using DOM6-VDEC_P</doc>
+		<bitfield low="10" high="11" name="VDEC_CLK" variants="NV84-">
+			<doc>right-shifted by DOM6_VDEC_P</doc>
 			<value value="0" name="NVCLK_P" variants="NVA0"/>
-			<value value="0" name="CRYSTAL_P"/>
+			<value value="0" name="CRYSTAL_P" variants="NV84:NVA0"/>
 			<value value="1" name="0"/>
 			<value value="2" name="HCLK_M_3_D_2_P" variants="NV98"/> <!-- Host * 3 / 2 -->
-			<value value="2" name="VDEC_CLK_1_P" variants="NV50-NV98 NVA0"/>
+			<value value="2" name="VDEC_CLK_1_P" variants="NV50:NV98 NVA0"/>
 			<value value="3" name="MCLK_P" variants="NV98"/>
-			<value value="3" name="NVCLK_P" variants="NV50-NV98 NVA0"/>
+			<value value="3" name="NVCLK_P" variants="NV50:NV98 NVA0"/>
 		</bitfield>
 
 		<bitfield low="14" high="15" name="MCLK_1">
-			<doc>right-shift is MPLL1.P on all clocks</doc>
+			<doc>right-shifted by MPLL1.P on all clocks</doc>
 			<value value="0" name="CRYSTAL_P"/>
 			<value value="1" name="INVALID"/>
 			<value value="2" name="HREF_P"/>
 			<value value="3" name="HREF_P"/>
 		</bitfield>
 
-		<bitfield pos="16" name="MTPLL_REF">
+		<bitfield pos="16" name="MPLL_REF">
 			<value value="0" name="SOURCE_PLL"/>
 			<value value="1" name="HREF"/>
 		</bitfield>
 
 		<bitfield pos="20" name="NVCLK_SHIFT">
 			<value value="0" name="NVPLL_P" variant="NVA0"/>
-			<value value="0" name="DOM6_P" variant="NV50-NVA0"/>
+			<value value="0" name="DOM6_P" variant="NV50:NVA0"/>
 			<value value="1" name="0"/>
 		</bitfield>
 
-		<bitfield pos="21" name="NVTPLL_REF">
+		<bitfield pos="21" name="NVPLL_REF">
 			<value value="0" name="SOURCE_PLL"/>
 			<value value="1" name="HREF"/>
 		</bitfield>
 
-		<bitfield pos="22" name="STPLL_REF">
+		<bitfield pos="22" name="SPLL_REF">
 			<value value="0" name="SOURCE_PLL"/>
 			<value value="1" name="HREF"/>
 		</bitfield>
 
 		<bitfield pos="24" name="VDEC_CLK_1">
 			<value value="0" name="NVPLL"/>
-			<value value="1" name="XTPLL"/>
+			<value value="1" name="VDPLL"/>
 		</bitfield>
 
-		<bitfield pos="25" name="XTPLL_REF">
+		<bitfield pos="25" name="VDPLL_REF" variants="NV84-">
 			<value value="0" name="SOURCE_PLL"/>
 			<value value="1" name="HREF"/>
 		</bitfield>
 
-		<bitfield low="26" high="27" name="DOM6" variants="NV84-NVA0">
+		<bitfield low="26" high="27" name="DOM6" variants="NV50:NVA3">
 			<doc>nv50 and nva0 always use PLL(e810) >> 2</doc>
 			<value value="0" name="HREF"/>
 			<value value="1" name="INVALID"/>
@@ -158,7 +158,7 @@
 	</reg32>
 
 	<reg32 offset="0x050" name="CLOCK_SOURCE" variants="NV94:NVA0">
-		<doc>XTPLL is always linked to SOURCE_PLL2</doc>
+		<doc>VDPLL is always linked to SOURCE_PLL2</doc>
 		<bitfield low="0" high="1" name="SPLL">
 			<value value="0" name="SOURCE_PLL1"/>
 			<value value="1" name="CRYSTAL"/>
