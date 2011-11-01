@@ -64,7 +64,13 @@
 
 <array offset="0xc000" name="PCONTROL" stride="0x1000" variants="NV40:NVC0" length="1">
 	<reg32 offset="0x040" name="MASTER" variants="NV50:NVA3">
-		<doc>when a name is suffixed by "_P", it means the clock is right-shifted</doc>
+		<doc>
+		- when a name is suffixed by "_P", it means the clock is right-shifted
+		- href: PCIE reference clock
+		- hclk: href * 27778 / 10000
+		- hclkm3: hclk * 3
+		- hclkm3d2: hclk * 3 / 2
+		</doc>
 		<bitfield low="0" high="1" name="NVCLK">
 			<value value="0" name="CRYSTAL_P"/>
 			<value value="1" name="DOM6"/>
@@ -73,7 +79,7 @@
 		</bitfield>
 
 		<bitfield low="4" high="5" name="SCLK">
-			<doc>right-shift is SPLL1.P on all clocks</doc>
+			<doc>right-shift is SPLL.P on all clocks</doc>
 			<value value="0" name="SCLK_1_P"/>
 			<value value="1" name="INVALID"/>
 			<value value="2" name="NVPLL_P"/>
@@ -90,19 +96,19 @@
 			<value value="1" name="MCLK_1"/>
 		</bitfield>
 
-		<bitfield low="10" high="11" name="VDEC_CLK" variants="NV84-">
+		<bitfield low="10" high="11" name="VDCLK" variants="NV84-">
 			<doc>right-shifted by DOM6_VDEC_P</doc>
 			<value value="0" name="NVCLK_P" variants="NVA0"/>
 			<value value="0" name="CRYSTAL_P" variants="NV84:NVA0"/>
 			<value value="1" name="0"/>
 			<value value="2" name="HCLK_M_3_D_2_P" variants="NV98"/> <!-- Host * 3 / 2 -->
-			<value value="2" name="VDEC_CLK_1_P" variants="NV50:NV98 NVA0"/>
+			<value value="2" name="VDCLK_1_P" variants="NV50:NV98 NVA0"/>
 			<value value="3" name="MCLK_P" variants="NV98"/>
 			<value value="3" name="NVCLK_P" variants="NV50:NV98 NVA0"/>
 		</bitfield>
 
 		<bitfield low="14" high="15" name="MCLK_1">
-			<doc>right-shifted by MPLL1.P on all clocks</doc>
+			<doc>right-shifted by MPLL.P on all clocks</doc>
 			<value value="0" name="CRYSTAL_P"/>
 			<value value="1" name="INVALID"/>
 			<value value="2" name="HREF_P"/>
@@ -130,7 +136,7 @@
 			<value value="1" name="HREF"/>
 		</bitfield>
 
-		<bitfield pos="24" name="VDEC_CLK_1">
+		<bitfield pos="24" name="VDCLK_1">
 			<value value="0" name="NVPLL"/>
 			<value value="1" name="VDPLL"/>
 		</bitfield>
@@ -140,12 +146,13 @@
 			<value value="1" name="HREF"/>
 		</bitfield>
 
-		<bitfield low="26" high="27" name="DOM6" variants="NV50:NVA3">
-			<doc>nv50 and nva0 always use PLL(e810) >> 2</doc>
+		<!-- nv50 and nva0 always use PLL(e810) >> 2 -->
+		<bitfield low="26" high="27" name="DOM6" variants="NV84:NVA0">
+			<doc></doc>
 			<value value="0" name="HREF"/>
 			<value value="1" name="INVALID"/>
 			<value value="2" name="HCLK"/>
-			<value value="3" name="HCLK_M_3_P"/> <!-- (Host * 3) >> P-->
+			<value value="3" name="HCLK_M_3_P"/> <!-- (HCLK * 3) >> P-->
 		</bitfield>
 
 		<bitfield low="28" high="29" name="HOST">
