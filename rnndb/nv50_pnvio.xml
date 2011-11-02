@@ -123,15 +123,13 @@
 			<use-group name="nv50_pnvio_i2c"/>
 		</array>
 
-		<!-- always use RPLL1 on nv84:94 -->
-		<!-- XXX: what is that thing doing on NVAA+? -->
-		<reg32 name="CLOCK_SOURCE" offset="0x18c" variants="NV50 NVA0-">
+		<reg32 name="CLOCK_SOURCE" offset="0x18c" variants="NV50:NV94 NVA0-">
 			<doc>XTPLL is always linked to SOURCE_PLL2</doc>
-			<bitfield pow="0" name="RPLL1">
+			<bitfield pos="0" name="RPLL1">
 				<value value="0" name="CRYSTAL_PMUL"/>
 				<value value="1" name="7MHZ"/>
 			</bitfield>
-			<bitfield pow="1" name="RPLL2">
+			<bitfield pos="1" name="RPLL2">
 				<value value="0" name="CRYSTAL_PMUL"/>
 				<value value="1" name="7MHZ"/>
 			</bitfield>
@@ -152,7 +150,7 @@
 				<value value="0" name="ZPLL_DIV16"/> <!-- note: ZPLL_P is ignored -->
 				<value value="1" name="CRYSTAL_DIV16"/>
 			</bitfield>
-			<bitfield pos="17" name="UNK17" />
+			<bitfield pos="17" name="UNK17" /> <!-- something to do with VPLLs? -->
 			<bitfield pos="20" name="UNK20" variants="NVAA-"/>
 		</reg32>
 

@@ -29,7 +29,7 @@
 	<bitfield pos="8" name="ENABLE_UNK0"/>
 	<bitfield pos="19" name="NVIOPLL_REF">
 		<value value="0" name="NVIOSRC"/>
-		<value value="1" name="RPLL1"/> <!-- ? -->
+		<value value="1" name="RPLL1_DIV4"/> <!-- ? -->
 	</bitfield>
 	<bitfield pos="21" name="NVIOCLK">
 		<value value="0" name="NVIOPLL"/>
