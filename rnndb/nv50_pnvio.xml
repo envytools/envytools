@@ -128,12 +128,12 @@
 		<reg32 name="CLOCK_SOURCE" offset="0x18c" variants="NV50 NVA0-">
 			<doc>XTPLL is always linked to SOURCE_PLL2</doc>
 			<bitfield pow="0" name="RPLL1">
-				<value value="0" name="CRYSTAL"/>
-				<value value="1" name="UNK1"/>
+				<value value="0" name="CRYSTAL_PMUL"/>
+				<value value="1" name="7MHZ"/>
 			</bitfield>
 			<bitfield pow="1" name="RPLL2">
-				<value value="0" name="CRYSTAL"/>
-				<value value="1" name="UNK1"/>
+				<value value="0" name="CRYSTAL_PMUL"/>
+				<value value="1" name="7MHZ"/>
 			</bitfield>
 			<bitfield pos="2" name="SPLL_NVPLL">
 				<value value="0" name="RPLL1" />
@@ -149,7 +149,7 @@
 				<value value="3" name="RPLL2_DIV4" />
 			</bitfield>
 			<bitfield pos="16" name="NVIOSRC">
-				<value value="0" name="ZPLL_DIV16"/>
+				<value value="0" name="ZPLL_DIV16"/> <!-- note: ZPLL_P is ignored -->
 				<value value="1" name="CRYSTAL_DIV16"/>
 			</bitfield>
 			<bitfield pos="17" name="UNK17" />
@@ -258,13 +258,13 @@
 				<bitfield low="24" high="32" name="UNK24" />
 			</reg32>
 			<reg32 name="REG2" offset="0x4">
-				<doc>freq = (crystal * PMUL * N / M) >> P</doc>
+				<doc>freq = (CLOCK_SOURCE_RPLLx * N / M) >> P</doc>
 				<bitfield low="0" high="5" name="M_MINUS1" variants="NV50 NVA0"/>
 				<bitfield low="0" high="5" name="M" variants="NV84:NVA0"/>
 				<bitfield low="8" high="13" name="N_MINUS1" variants="NV50 NVA0"/>
 				<bitfield low="8" high="13" name="N" variants="NV84:NVA0"/>
 				<bitfield low="16" high="18" name="P"/>
-				<bitfield pos="24" name="PMUL" variants="NV50 NVA0">
+				<bitfield pos="24" name="PMUL" variants="NV50 NVA0"> <!-- only applies to crystal -->
 					<value value="0" name="4"/>
 					<value value="1" name="2"/>
 				</bitfield>
