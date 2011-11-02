@@ -143,8 +143,8 @@
 		<bitfield low="14" high="15" name="MCLK">
 			<doc>right-shifted by MPLL.P on all clocks</doc>
 			<value value="0" name="CRYSTAL_P"/>
-			<value value="2" name="HREF_P"/>
-			<value value="3" name="HREF_P"/>
+			<value value="2" name="MCLK_1_P"/>
+			<value value="3" name="MCLK_1_P"/>
 		</bitfield>
 
 		<bitfield pos="16" name="MPLL_REF" variants="NV84:NV98 NVA0">
@@ -198,6 +198,9 @@
 
 		<bitfield low="30" high="31" name="MCLK_1">
 			<value value="0" name="HREF"/>
+			<value value="1" name="HCLK"/>
+			<value value="2" name="NVPLL"/>
+			<value value="3" name="SPLL"/>
 		</bitfield>
 	</reg32>
 
