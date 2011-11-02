@@ -34,6 +34,8 @@
 
 <!-- 004000 - 004fff PCLOCK -->
 <import file="nv40_pclock.xml" />
+<import file="nv50_pclock.xml" />
+<import file="nva3_pclock.xml" />
 
 <!-- 005000 - 005fff ??? -->
 
@@ -51,7 +53,7 @@
 <import file="nv17_pmpeg.xml" />
 <import file="nv40_pvpe.xml" />
 
-<!-- 00c000 - 00cfff PCONTROL covered in nv40_pclock.xml -->
+<!-- 00c000 - 00cfff PCONTROL covered in nv40_pclock.xml, nv50_pclock.xml, nva3_pclock.xml -->
 
 <!-- 00d000 - 00dfff PTV -->
 <import file="nv17_ptv.xml" />
