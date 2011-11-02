@@ -27,8 +27,14 @@
 <bitset name="nv50_nviopll_ctrl" inline="yes">
 	<bitfield low="0" high="7" name="UNK0"/>
 	<bitfield pos="8" name="ENABLE_UNK0"/>
-	<bitfield pos="19" name="UNK19"/>
-	<bitfield pos="21" name="UNK21"/>
+	<bitfield pos="19" name="NVIOPLL_REF">
+		<value value="0" name="NVIOSRC"/>
+		<value value="1" name="RPLL1"/> <!-- ? -->
+	</bitfield>
+	<bitfield pos="21" name="NVIOCLK">
+		<value value="0" name="NVIOPLL"/>
+		<value value="1" name="CRYSTAL_DIV4"/>
+	</bitfield>
 	<bitfield pos="31" name="ENABLE"/>
 </bitset>
 

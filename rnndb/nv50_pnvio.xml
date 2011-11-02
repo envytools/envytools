@@ -127,7 +127,14 @@
 		<!-- XXX: what is that thing doing on NVAA+? -->
 		<reg32 name="CLOCK_SOURCE" offset="0x18c" variants="NV50 NVA0-">
 			<doc>XTPLL is always linked to SOURCE_PLL2</doc>
-			<bitfield low="0" high="1" name="UNK0" />
+			<bitfield pow="0" name="RPLL1">
+				<value value="0" name="CRYSTAL"/>
+				<value value="1" name="UNK1"/>
+			</bitfield>
+			<bitfield pow="1" name="RPLL2">
+				<value value="0" name="CRYSTAL"/>
+				<value value="1" name="UNK1"/>
+			</bitfield>
 			<bitfield pos="2" name="SPLL_NVPLL">
 				<value value="0" name="RPLL1" />
 				<value value="1" name="RPLL2" />
@@ -141,9 +148,9 @@
 				<value value="2" name="RPLL1_DIV4" />
 				<value value="3" name="RPLL2_DIV4" />
 			</bitfield>
-			<bitfield pos="16" name="NVIOPLL">
+			<bitfield pos="16" name="NVIOSRC">
 				<value value="0" name="ZPLL_DIV16"/>
-				<value value="1" name="CRYSTAL_DIV8"/>
+				<value value="1" name="CRYSTAL_DIV16"/>
 			</bitfield>
 			<bitfield pos="17" name="UNK17" />
 			<bitfield pos="20" name="UNK20" variants="NVAA-"/>
