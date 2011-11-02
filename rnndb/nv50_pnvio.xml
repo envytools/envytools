@@ -138,10 +138,14 @@
 			</bitfield>
 			<bitfield low="4" high="5" name="ZPLL">
 				<value value="0" name="CRYSTAL" />
-				<value value="2" name="RPLL1" />
-				<value value="3" name="RPLL2" />
+				<value value="2" name="RPLL1_DIV4" />
+				<value value="3" name="RPLL2_DIV4" />
 			</bitfield>
-			<bitfield low="16" high="17" name="UNK16" />
+			<bitfield pos="16" name="NVIOPLL">
+				<value value="0" name="ZPLL_DIV16"/>
+				<value value="1" name="CRYSTAL_DIV8"/>
+			</bitfield>
+			<bitfield pos="17" name="UNK17" />
 			<bitfield pos="20" name="UNK20" variants="NVAA-"/>
 		</reg32>
 
