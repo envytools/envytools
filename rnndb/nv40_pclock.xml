@@ -8,7 +8,7 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<bitset name="nv50_pll_ctrl" inline="yes">
+<bitset name="nv50_spll_ctrl" inline="yes">
 	<bitfield low="0" high="7" name="UNK0"/>
 	<bitfield pos="8" name="ENABLE_UNK0"/>
 	<bitfield low="16" high="18" name="P"/>
@@ -65,11 +65,11 @@
 	<reg32 offset="0x014" name="UNK10_PLL_COEF" variants="NV50 NVA0" type="nv50_pll_coef"/>
 	<reg32 offset="0x018" name="UNK18_PLL_CTRL" variants="NV50 NV92 NVA0" type="nv50_mpll_ctrl"/>
 	<reg32 offset="0x01c" name="UNK18_PLL_COEF" variants="NV50 NV92 NVA0" type="nv50_pll_coef"/>
-	<reg32 offset="0x020" name="SPLL_CTRL" variants="NV50:NVA3" type="nv50_pll_ctrl"/>
+	<reg32 offset="0x020" name="SPLL_CTRL" variants="NV50:NVA3" type="nv50_spll_ctrl"/>
 	<reg32 offset="0x024" name="SPLL_COEF" variants="NV50:NVA3" type="nv50_pll_coef"/>
 	<reg32 offset="0x028" name="NVPLL_CTRL" variants="NV50:NVA3" type="nv50_nvpll_ctrl"/>
 	<reg32 offset="0x02c" name="NVPLL_COEF" variants="NV50:NVA3" type="nv50_pll_coef"/>
-	<reg32 offset="0x030" name="VDPLL_CTRL" variants="NV84:NV98 NVA0" type="nv50_pll_ctrl"/>
+	<reg32 offset="0x030" name="VDPLL_CTRL" variants="NV84:NV98 NVA0" type="nv50_nvpll_ctrl"/>
 	<reg32 offset="0x034" name="VDPLL_COEF" variants="NV84:NV98 NVA0" type="nv50_pll_coef"/>
 	<reg32 offset="0x088" name="UNK88_PLL_CTRL" variants="NVA0" type="nv50_mpll_ctrl"/>
 	<reg32 offset="0x08c" name="UNK88_PLL_COEF" variants="NVA0" type="nv50_pll_coef"/>
@@ -142,9 +142,9 @@
 
 		<bitfield pos="20" name="NVCLK_1">
 			<doc>Selects NVCLK postdivider, and the clock as well if NVCLK is set to NVCLK_1</doc>
-			<value value="0" name="NVPLL_P1" variant="NV50 NVA0"/>
-			<value value="0" name="NVPLL_DOM6_P" variant="NV84:NVA0"/>
-			<value value="1" name="NVIOPLL_NVPLL_P2"/>
+			<value value="0" name="NVPLL_P1"/>
+			<value value="1" name="NVIOPLL_NVPLL_P2" variants="NV50 NVA0"/>
+			<value value="1" name="DOM6_P" variants="NV84:NVA0"/>
 		</bitfield>
 
 		<bitfield pos="21" name="NVPLL_REF" variants="NV84-">
