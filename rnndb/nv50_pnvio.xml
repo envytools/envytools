@@ -6,6 +6,25 @@
 
 <import file="nvchipsets.xml" />
 
+<bitset name="nv50_pnvio_pll_ctrl" inline="yes">
+	<bitfield low="0" high="7" name="UNK0"/>
+	<bitfield pos="8" name="STAGES">
+		<value value="0" name="2"/>
+		<value value="1" name="1"/>
+	</bitfield>
+	<bitfield low="12" high="15" name="UNK12"/>
+	<bitfield low="16" high="18" name="P"/>
+	<bitfield pos="30" name="STAGE2_ENABLE"/>
+	<bitfield pos="31" name="STAGE1_ENABLE"/>
+</bitset>
+
+<bitset name="nv50_pnvio_pll_coef" inline="yes">
+	<bitfield low="0" high="7" name="M1"/>
+	<bitfield low="8" high="15" name="N1"/>
+	<bitfield low="16" high="23" name="M2"/>
+	<bitfield low="24" high="32" name="N2"/>
+</bitset>
+
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 	<enum name="nv50_auxch_reply" inline="yes">
@@ -104,24 +123,26 @@
 			<use-group name="nv50_pnvio_i2c"/>
 		</array>
 
-		<!-- always use SOURCE_PLL1 on nv84:94 -->
-		<reg32 name="CLOCK_SOURCE" offset="0x18c" variants="NV50 NVA0">
+		<!-- always use RPLL1 on nv84:94 -->
+		<!-- XXX: what is that thing doing on NVAA+? -->
+		<reg32 name="CLOCK_SOURCE" offset="0x18c" variants="NV50 NVA0-">
 			<doc>XTPLL is always linked to SOURCE_PLL2</doc>
 			<bitfield low="0" high="1" name="UNK0" />
 			<bitfield pos="2" name="SPLL_NVPLL">
-				<value value="0" name="SOURCE_PLL1" />
-				<value value="1" name="SOURCE_PLL2" />
+				<value value="0" name="RPLL1" />
+				<value value="1" name="RPLL2" />
 			</bitfield>
 			<bitfield pos="3" name="MPLL">
-				<value value="0" name="SOURCE_PLL1" />
-				<value value="1" name="SOURCE_PLL2" />
+				<value value="0" name="RPLL1" />
+				<value value="1" name="RPLL2" />
 			</bitfield>
 			<bitfield pos="4" name="NVIOPLL">
-				<value value="0" name="SOURCE_PLL1" />
-				<value value="1" name="SOURCE_PLL2" />
+				<value value="0" name="RPLL1" />
+				<value value="1" name="RPLL2" />
 			</bitfield>
 			<bitfield pos="5" name="UNK5"/>
 			<bitfield low="16" high="17" name="UNK16" />
+			<bitfield pos="20" name="UNK20" variants="NVAA-"/>
 		</reg32>
 
 		<array name="I2C_PORT_4" offset="0x240" length="1" stride="0x18" variants="NV84-">
@@ -208,11 +229,18 @@
 		</array>
 
 		<!--
-		TODO: there also appear to be three other pairs of regs at e800:e818, could also be some kind of PLLs
-		e810/e814 appear to deal with NVIOPLL...
+		TODO: VPLL aliases on NV94-style PNVIO
 		-->
 
-		<array name="SOURCE_PLL" offset="0x818" stride="0x0c" length="2" variants="NV50:NV94 NVA0">
+		<reg32 offset="0x800" name="VPLL1_CTRL" type="nv50_pnvio_pll_ctrl" variants="NV50:NV94 NVA0"/>
+		<reg32 offset="0x804" name="VPLL1_COEF" type="nv50_pnvio_pll_coef" variants="NV50:NV94 NVA0"/>
+		<reg32 offset="0x808" name="VPLL2_CTRL" type="nv50_pnvio_pll_ctrl" variants="NV50:NV94 NVA0"/>
+		<reg32 offset="0x80c" name="VPLL2_COEF" type="nv50_pnvio_pll_coef" variants="NV50:NV94 NVA0"/>
+		<!-- ZPLL: the base for NVIOPLL -->
+		<reg32 offset="0x810" name="ZPLL_CTRL" type="nv50_pnvio_pll_ctrl" variants="NV50:NV94 NVA0"/>
+		<reg32 offset="0x814" name="ZPLL_COEF" type="nv50_pnvio_pll_coef" variants="NV50:NV94 NVA0"/>
+
+		<array name="RPLL" offset="0x818" stride="0x0c" length="2" variants="NV50:NV94 NVA0">
 			<reg32 name="REG1" offset="0x0">
 				<bitfield low="0" high="6" name="UNK0" />
 				<bitfield low="15" high="19" name="UNK15" />
@@ -237,7 +265,7 @@
 			</reg32>
 		</array>
 
-		<array name="SOURCE_PLL" offset="0x818" stride="0x28" length="2" variants="NV94:NVA0">
+		<array name="RPLL" offset="0x818" stride="0x28" length="2" variants="NV94:NVA0">
 			<reg32 name="REG1" offset="0x0">
 				<bitfield low="0" high="8" name="UNK0" />
 				<bitfield low="19" high="20" name="UNK19" />

@@ -12,7 +12,7 @@
 	<bitfield low="0" high="7" name="UNK0"/>
 	<bitfield pos="8" name="ENABLE_UNK0"/>
 	<bitfield low="16" high="18" name="P"/>
-	<bitfield pos="31" name="STAGE1_ENABLE"/>
+	<bitfield pos="31" name="ENABLE"/>
 </bitset>
 
 <bitset name="nv50_nvpll_ctrl" inline="yes">
@@ -21,7 +21,7 @@
 	<bitfield low="16" high="18" name="P"/>
 	<bitfield low="19" high="21" name="P2"/>
 	<bitfield pos="29" name="UNK29"/>
-	<bitfield pos="31" name="STAGE1_ENABLE"/>
+	<bitfield pos="31" name="ENABLE"/>
 </bitset>
 
 <bitset name="nv50_nviopll_ctrl" inline="yes">
@@ -29,7 +29,7 @@
 	<bitfield pos="8" name="ENABLE_UNK0"/>
 	<bitfield pos="19" name="UNK19"/>
 	<bitfield pos="21" name="UNK21"/>
-	<bitfield pos="31" name="STAGE1_ENABLE"/>
+	<bitfield pos="31" name="ENABLE"/>
 </bitset>
 
 <bitset name="nv50_mpll_ctrl" inline="yes">
@@ -42,14 +42,12 @@
 	<bitfield low="22" high="24" name="P2"/>
 	<bitfield low="25" high="26" name="UNK25"/>
 	<bitfield low="28" high="29" name="UNK28"/>
-	<bitfield pos="31" name="STAGE1_ENABLE"/>
+	<bitfield pos="31" name="ENABLE"/>
 </bitset>
 
 <bitset name="nv50_pll_coef" inline="yes">
-	<bitfield low="0" high="7" name="M1"/>
-	<bitfield low="8" high="15" name="N1"/>
-	<bitfield low="16" high="23" name="M2"/>
-	<bitfield low="24" high="32" name="N2"/>
+	<bitfield low="0" high="7" name="M"/>
+	<bitfield low="8" high="15" name="N"/>
 </bitset>
 
 <bitset name="nv50_div" inline="yes">
@@ -73,6 +71,8 @@
 	<reg32 offset="0x02c" name="NVPLL_COEF" variants="NV50:NVA3" type="nv50_pll_coef"/>
 	<reg32 offset="0x030" name="VDPLL_CTRL" variants="NV84:NV98 NVA0" type="nv50_pll_ctrl"/>
 	<reg32 offset="0x034" name="VDPLL_COEF" variants="NV84:NV98 NVA0" type="nv50_pll_coef"/>
+	<reg32 offset="0x088" name="UNK88_PLL_CTRL" variants="NVA0" type="nv50_mpll_ctrl"/>
+	<reg32 offset="0x08c" name="UNK88_PLL_COEF" variants="NVA0" type="nv50_pll_coef"/>
 	<reg32 offset="0x700" name="DIV" variants="NV50:NV92 NV98:NVAA" type="nv50_div"/>
 	<reg32 offset="0x800" name="DIV" variants="NV92:NV98" type="nv50_div"/>
 </array>
@@ -182,28 +182,32 @@
 		</bitfield>
 	</reg32>
 
-	<reg32 offset="0x050" name="CLOCK_SOURCE" variants="NV94:NVA0">
-		<doc>VDPLL is always linked to SOURCE_PLL2</doc>
-		<bitfield low="0" high="1" name="SPLL">
-			<value value="0" name="SOURCE_PLL1"/>
+	<reg32 offset="0x050" name="CLOCK_SOURCE" variants="NV94:NVAA">
+		<doc>VDPLL is always linked to RPLL1</doc>
+		<bitfield low="0" high="1" name="SPLL" variants="NV94:NVA0">
+			<value value="0" name="RPLL2"/>
 			<value value="1" name="CRYSTAL"/>
 			<value value="2" name="HREF"/>
-			<value value="3" name="SOURCE_PLL2"/>
+			<value value="3" name="RPLL1"/>
 		</bitfield>
 
-		<bitfield low="2" high="3" name="MPLL">
-			<value value="0" name="SOURCE_PLL1"/>
+		<bitfield low="2" high="3" name="MPLL" variants="NV94:NVA0">
+			<value value="0" name="RPLL2"/>
 			<value value="1" name="CRYSTAL"/>
 			<value value="2" name="HREF"/>
-			<value value="3" name="SOURCE_PLL2"/>
+			<value value="3" name="RPLL1"/>
 		</bitfield>
 
-		<bitfield low="11" high="12" name="NVPLL">
-			<value value="0" name="SOURCE_PLL1"/>
+		<bitfield pos="4" name="UNK4" variants="NV94:NVA0"/>
+
+		<bitfield low="11" high="12" name="NVPLL" variants="NV94:NVA0">
+			<value value="0" name="RPLL2"/>
 			<value value="1" name="CRYSTAL"/>
 			<value value="2" name="HREF"/>
-			<value value="3" name="SOURCE_PLL2"/>
+			<value value="3" name="RPLL1"/>
 		</bitfield>
+		<bitfield pos="13" name="UNK13" variants="NV94:NVA0"/>
+		<bitfield low="14" high="17" name="UNK14"/>
 	</reg32>
 </array>
 
