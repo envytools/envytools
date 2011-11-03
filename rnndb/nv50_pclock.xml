@@ -41,7 +41,10 @@
 <bitset name="nv50_mpll_ctrl" inline="yes">
 	<bitfield low="0" high="7" name="UNK0"/>
 	<bitfield pos="8" name="ENABLE_UNK0"/>
-	<bitfield pos="9" name="MPLL_BYPASS"/>
+	<bitfield pos="9" name="MCLK">
+		<value value="0" name="MPLL"/>
+		<value value="1" name="MCLK_1"/>
+	</bitfield>
 	<bitfield low="10" high="15" name="UNK10"/>
 	<bitfield low="16" high="18" name="P"/>
 	<bitfield low="19" high="21" name="LOG2PBIAS"/>
@@ -122,10 +125,7 @@
 
 		<bitfield pos="8" name="UNK8" variants="NV98"/>
 
-		<bitfield pos="9" name="MCLK_1" variants="NV84-">
-			<value value="0" name="MPLL"/>
-			<value value="1" name="MCLK"/>
-		</bitfield>
+		<bitfield pos="9" name="UNK9" variants="NV84-"/>
 
 		<bitfield low="10" high="11" name="VDCLK" variants="NV84-">
 			<doc>right-shifted by DOM6_VDEC_P</doc>
@@ -140,11 +140,11 @@
 
 		<bitfield pos="12" name="UNK12" variants="NV98 NVA0"/>
 
-		<bitfield low="14" high="15" name="MCLK">
+		<bitfield low="14" high="15" name="MCLK_1">
 			<doc>right-shifted by MPLL.P on all clocks</doc>
 			<value value="0" name="CRYSTAL_P"/>
-			<value value="2" name="MCLK_1_P"/>
-			<value value="3" name="MCLK_1_P"/>
+			<value value="2" name="MCLK_2_P"/>
+			<value value="3" name="MCLK_2_P"/>
 		</bitfield>
 
 		<bitfield pos="16" name="MPLL_REF" variants="NV84:NV98 NVA0">
@@ -196,7 +196,7 @@
 			<value value="3" name="HCLK"/>
 		</bitfield>
 
-		<bitfield low="30" high="31" name="MCLK_1">
+		<bitfield low="30" high="31" name="MCLK_2">
 			<value value="0" name="HREF"/>
 			<value value="1" name="HCLK"/>
 			<value value="2" name="NVPLL"/>
