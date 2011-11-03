@@ -253,7 +253,10 @@
 		</reg32>
 		<reg32 offset="0x70" name="INTR" type="nv98_pvp_vuc_intr"/>
 		<reg32 offset="0x74" name="INTR_EN" type="nv98_pvp_vuc_intr"/>
-		<reg32 offset="0xa8" name="UNKA8"/>
+		<reg32 offset="0xa0" name="RING_ADDR"/>
+		<reg32 offset="0xa4" name="RING_SIZE"/>
+		<reg32 offset="0xa8" name="RING_OFS"/>
+		<reg32 offset="0xac" name="RING_AVAIL"/>
 	</array>
 	<array offset="0x500" name="TRANS" stride="0x80">
 		<reg32 offset="0x00" name="CODE_SELECT" length="4">
