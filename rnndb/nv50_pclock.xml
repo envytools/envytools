@@ -102,7 +102,7 @@
 		- dom6: must clock something ;)
 		</doc>
 		<bitfield low="0" high="1" name="NVCLK">
-			<doc>right shift is NVPLL.P1 if NVCLK_1 is 0, NVPLL.P2 if NVCLK_1 is 1.</doc>
+			<doc>right shift is NVPLL.P1 if NVCLK_1 is 0, NVPLL.P2 if NVCLK_1 is 1. Gets post-multiplied by NVCLK_MUL.</doc>
 			<value value="0" name="CRYSTAL_P"/>
 			<value value="1" name="DOM6" variants="NV84-"/>
 			<value value="2" name="SPLL_P"/>
@@ -207,6 +207,10 @@
 
 	<reg32 offset="0x044" name="HOST_MUL">
 		<doc>HOST clock is multiplied by this/16. If it's > 16, it gets clamped to 16.</doc>
+	</reg32>
+
+	<reg32 offset="0x04c" name="NVCLK_MUL">
+		<doc>NVCLK clock is multiplied by this/16. If it's > 16, it gets clamped to 16.</doc>
 	</reg32>
 
 	<reg32 offset="0x050" name="CLOCK_SOURCE" variants="NV94:NVAA">
