@@ -191,6 +191,7 @@
 		</bitfield>
 
 		<bitfield low="28" high="29" name="HOST">
+			<doc>Gets post-multiplied by HOST_MUL.</doc>
 			<value value="0" name="HREF"/>
 			<value value="2" name="HCLK" variants="NV84-"/>
 			<value value="3" name="HCLK"/>
@@ -202,6 +203,10 @@
 			<value value="2" name="NVPLL"/>
 			<value value="3" name="SPLL"/>
 		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x044" name="HOST_MUL">
+		<doc>HOST clock is multiplied by this/16. If it's > 16, it gets clamped to 16.</doc>
 	</reg32>
 
 	<reg32 offset="0x050" name="CLOCK_SOURCE" variants="NV94:NVAA">
