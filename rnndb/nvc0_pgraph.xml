@@ -532,6 +532,13 @@
 				<bitfield low="0" high="27" name="ADDRESS" shr="12"/>
 				<bitfield pos="28" name="UNK28"/>
 			</reg32>
+			<reg32 offset="0x05c" name="TFB_UNFUCKUP_OFFSET_QUERIES">
+				<doc>If set to 0, the 9097/1b0c/0d005002 query will return bytes written
+				since the last time TFB_BUFFER_OFFSET (9097/0390) was written.
+				Set it to 1 to make it return the full/absolute offset, which is required
+				for a sane implementation of transform feedback.
+				(Setting only on GPC[0].TP[0] seems enough.)</doc>
+			</reg32>
 			<reg32 offset="0x084" name="TRAP">
 				<bitfield name="CLEAR" pos="30" />
 				<bitfield name="ENABLE" pos="31" />
