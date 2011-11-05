@@ -293,6 +293,21 @@ int envyas_process(struct file *file) {
 						sections[cursect].pos += num - 1;
 						sections[cursect].pos /= num;
 						sections[cursect].pos *= num;
+					} else if (!strcmp(file->lines[i]->str, ".size")) {
+						if (file->lines[i]->atomsnum > 1) {
+							fprintf (stderr, "Too many arguments for .size\n");
+							return 1;
+						}
+						if (file->lines[i]->atoms[0]->type != EXPR_NUM) {
+							fprintf (stderr, "Wrong arguments for .size\n");
+							return 1;
+						}
+						ull num = file->lines[i]->atoms[0]->num1;
+						if (sections[cursect].pos > num) {
+							fprintf (stderr, "Section '%s' exceeds .size by %llu bytes\n", sections[cursect].name, sections[cursect].pos - num);
+							return 1;
+						}
+						sections[cursect].pos = num;
 					} else if (!strcmp(file->lines[i]->str, ".skip")) {
 						if (file->lines[i]->atomsnum > 1) {
 							fprintf (stderr, "Too many arguments for .skip\n");
@@ -380,6 +395,17 @@ int envyas_process(struct file *file) {
 						sections[cursect].pos += num - 1;
 						sections[cursect].pos /= num;
 						sections[cursect].pos *= num;
+						extend(&sections[cursect], 0);
+						for (j = oldpos; j < sections[cursect].pos; j++)
+							sections[cursect].code[j] = 0;
+					} else if (!strcmp(file->lines[i]->str, ".size")) {
+						ull num = file->lines[i]->atoms[0]->num1;
+						ull oldpos = sections[cursect].pos;
+						if (sections[cursect].pos > num) {
+							fprintf (stderr, "Section '%s' exceeds .size by %llu bytes\n", sections[cursect].name, sections[cursect].pos - num);
+							return 1;
+						}
+						sections[cursect].pos = num;
 						extend(&sections[cursect], 0);
 						for (j = oldpos; j < sections[cursect].pos; j++)
 							sections[cursect].code[j] = 0;
