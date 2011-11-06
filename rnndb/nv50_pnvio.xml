@@ -25,6 +25,23 @@
 	<bitfield low="24" high="32" name="N2"/>
 </bitset>
 
+<bitset name="nva3_rpll_ctrl" inline="yes">
+	<bitfield pos="0" name="ENABLE"/>
+	<bitfield low="1" high="2" name="UNK1"/>
+	<bitfield pos="3" name="BYPASS"/> <!-- and use the usual clk_id + 10 -->
+	<bitfield low="4" high="6" name="UNK4"/>
+	<bitfield pos="8" name="UNK8" />
+	<bitfield low="16" high="17" name="UNK16" />
+	<bitfield pos="24" name="UNK24" />
+</bitset>
+
+<bitset name="nva3_rpll_coef" inline="yes">
+	<bitfield low="0" high="7" name="M"/>
+	<bitfield low="8" high="15" name="N"/>
+	<bitfield low="16" high="21" name="UNK16" />
+	<bitfield low="24" high="31" name="UNK28" />
+</bitset>
+
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 	<enum name="nv50_auxch_reply" inline="yes">
@@ -297,6 +314,28 @@
 				<bitfield low="16" high="18" name="P_BIAS" />
 				<bitfield low="19" high="25" name="UNK19" />
 				<bitfield low="26" high="30" name="UNK26" />
+			</reg32>
+		</array>
+
+		<array name="RPLL1" offset="0x820" stride="0x10" length="1" variants="NVA3:NVAF">
+			<reg32 name="CTRL" offset="0x0" type="nva3_rpll_ctrl" />
+			<reg32 name="COEF" offset="0x4" type="nva3_rpll_coef" />
+			<reg32 name="REG3" offset="0x8">
+				<bitfield low="0" high="21" name="UNK0" />
+			</reg32>
+			<reg32 name="REG4" offset="0xc">
+				<bitfield low="0" high="4" name="UNK0" />
+			</reg32>
+		</array>
+
+		<array name="RPLL2" offset="0x8a0" stride="0x10" length="1" variants="NVA3:NVAF">
+			<reg32 name="CTRL" offset="0x0" type="nva3_rpll_ctrl" />
+			<reg32 name="COEF" offset="0x4" type="nva3_rpll_coef" />
+			<reg32 name="REG3" offset="0x8">
+				<bitfield low="0" high="21" name="UNK0" />
+			</reg32>
+			<reg32 name="REG4" offset="0xc">
+				<bitfield low="0" high="4" name="UNK0" />
 			</reg32>
 		</array>
 	</array>
