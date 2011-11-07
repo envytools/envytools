@@ -39,6 +39,9 @@
 		</reg32>
 		<reg32 offset="0x088" name="CODE"/>
 	</array>
+	<reg32 offset="0x420" name="BSP_REGION_BASE" stride="0x10" length="4" shr="8"/>
+	<reg32 offset="0x424" name="BSP_REGION_TARGET" stride="0x10" length="4"/>
+	<reg32 offset="0x428" name="BSP_REGION_LIMIT" stride="0x10" length="4" shr="8"/>
 	<array offset="0xc00" name="XTENSA" stride="0x400">
 		<use-group name="nv84_xtensa_common"/>
 	</array>
