@@ -74,10 +74,12 @@
 			<bitfield low="4" high="7" name="PMPEG" variants="NV50:NV98 NVA0"/>
 			<bitfield low="4" high="7" name="PPPP" variants="NV98 NVAA-"/>
 			<bitfield low="8" high="11" name="PMSRCH" variants="NV50"/>
+			<bitfield low="8" high="11" name="UNUSED2" variants="NV84:NVA3"/>
 			<bitfield low="8" high="11" name="PCOPY" variants="NVA3-"/>
 			<bitfield low="12" high="15" name="PVP"/>
 			<bitfield low="16" high="23" name="UNK16"/>
 			<bitfield low="24" high="27" name="PCRYPT" variants="NV84:NVA3"/>
+			<bitfield low="24" high="27" name="UNUSED4" variants="NVA3:NVAF"/>
 			<bitfield low="24" high="27" name="PUNK1C1" variants="NVAF-"/>
 			<bitfield low="28" high="31" name="PBSP" variants="NV84-"/>
 		</reg32>
