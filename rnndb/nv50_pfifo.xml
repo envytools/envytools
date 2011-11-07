@@ -436,7 +436,8 @@
 		<bitfield high="39" low="2" shr="2" name="ADDRESS"/>
 		<bitfield pos="40" name="UNK40"/>
 		<bitfield pos="41" name="NON_MAIN"/>
-		<bitfield high="63" low="42" shr="2" name="SIZE"/>
+		<bitfield high="62" low="42" shr="2" name="SIZE"/> <!-- XXX: what size is this thing exactly? -->
+		<bitfield pos="63" name="NO_PREFETCH"/>
 	</bitset>
 
 </domain>
