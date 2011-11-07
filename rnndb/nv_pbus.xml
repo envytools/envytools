@@ -166,7 +166,7 @@
 				</doc>
 			</bitfield>
 			<bitfield high="7" low="6" name="PCOPY" variants="NVA3-"/>
-			<bitfield high="9" low="8" name="PVP" variants="NV98-">
+			<bitfield high="9" low="8" name="PVP" variants="NV84-">
 				<doc>XXX: Does not work on NVAC Asus AT3IONT-I (Deluxe)?</doc>
 			</bitfield>
 			<bitfield high="11" low="10" name="PCRYPT" variants="NV84:NVA3"/>
