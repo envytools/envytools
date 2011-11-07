@@ -12,11 +12,11 @@
 	<reg32 offset="0x028" name="CHANNEL_CUR"/>
 	<reg32 offset="0x02c" name="CHANNEL_NEXT"/>
 	<reg32 offset="0x030" name="XT_REGION_BASE" stride="0xc" length="16" shr="8"/>
-	<reg32 offset="0x034" name="XT_REGION_LIMIT" stride="0xc" length="16" shr="8"/>
-	<reg32 offset="0x038" name="XT_MREGION_SETUP" stride="0xc" length="16">
+	<reg32 offset="0x034" name="XT_REGION_SETUP" stride="0xc" length="16">
 		<bitfield low="0" high="6" name="TARGET"/> <!-- 0x1c for physical VRAM, 0xf for the context dmaobj [?], 0-0xe for relevant DMA slot -->
 		<bitfield low="8" high="10" name="MODE"/> <!-- caching or something? -->
 	</reg32>
+	<reg32 offset="0x038" name="XT_REGION_LIMIT" stride="0xc" length="16" shr="8"/>
 
 	<reg32 offset="0x0fc" name="HOST_IO_INDEX"/>
 
