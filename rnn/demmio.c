@@ -225,22 +225,22 @@ FILE *open_input(char *filename) {
 
 int main(int argc, char **argv) {
 	rnn_init();
-	if (argc < 2) {
-		printf ("Usage:\n"
-				"\tdemmio trace.txt\n"
-			);
-		return 0;
-	}
+
 	struct rnndb *db = rnn_newdb();
 	rnn_parsefile (db, "nv_mmio.xml");
 	rnn_prepdb (db);
 	struct rnndomain *mmiodom = rnn_finddomain(db, "NV_MMIO");
 	struct rnndomain *crdom = rnn_finddomain(db, "NV_CR");
-	FILE *fin = open_input(argv[1]);
+	FILE *fin = stdin;
+
+	if (argc > 1)
+		fin = open_input(argv[1]);
+
 	if (!fin) {
 		fprintf (stderr, "Failed to open input file!\n");
 		return 1;
 	}
+
 	char line[1024];
 	int i;
 	const struct disisa *ctx_isa = ed_getisa("ctx");
