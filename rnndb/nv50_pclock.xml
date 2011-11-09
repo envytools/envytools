@@ -109,7 +109,13 @@
 			<value value="3" name="NVCLK_1_P"/>
 		</bitfield>
 
-		<bitfield low="2" high="3" name="UNK2" variants="NV98 NVA0"/>
+		<bitfield low="2" high="3" name="TCLK" variants="NV98 NVA0">
+			<doc>selects 'external' PTIMER clock source</doc>
+			<value value="0" name="HREF"/>
+			<value value="1" name="0"/>
+			<value value="2" name="HCLK"/>
+			<value value="3" name="HCLK_M_3"/>
+		</bitfield>
 
 		<bitfield low="4" high="5" name="SCLK">
 			<doc>right-shift is SPLL.P on all clocks</doc>
@@ -173,8 +179,8 @@
 		<bitfield pos="23" name="UNK23" variants="NV98"/>
 
 		<bitfield pos="24" name="VDCLK_1" variants="NV84-">
-			<value value="0" name="NVPLL"/>
-			<value value="1" name="VDPLL"/>
+			<value value="0" name="VDPLL"/>
+			<value value="1" name="NVPLL"/>
 		</bitfield>
 
 		<bitfield pos="25" name="VDPLL_REF" variants="NV84-">
