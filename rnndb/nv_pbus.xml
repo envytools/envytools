@@ -44,6 +44,12 @@
 	<array offset="0x1000" name="PBUS" stride="0x1000" length="1">
 		<reg32 offset="0x098" name="DEBUG_6" variants="NV17:NV20 NV25-">
 			<bitfield pos="3" name="HWSQ_MMIO_ENABLE" variants="NV41:NVC0"/>
+
+			<!-- enables clock gating of various engings. Actual gaing must be enabled
+			     on per engine basis, by setting its value in 1588/1590 to 1 -->
+			<bitfield pos="5" name="CLOCK_GATING_1588" variants="NV50-"/>
+			<bitfield pos="6" name="CLOCK_GATING_1590" variants="NV50-"/>
+
 		</reg32>
 		<reg32 offset="0x100" name="INTR">
 			<bitfield pos="3" name="MMIO_FAULT" variants="NV41-"/>
@@ -116,6 +122,23 @@
 			<reg8 offset="0x100" name="CODE" length="0x80" variants="NV41:NV50"/>
 			<reg8 offset="0x100" name="CODE" length="0x100" variants="NV50:NVC0"/>
 		</stripe>
+
+		<reg32 offset="0x530" name="UNK530" variants="NV50-">
+			<doc>This register is very related to clocks and it has
+				lot of unknown stuff.
+				Bit 7 makes the core and MP clocks to be divided
+				by factor that depends on P of corresponding clock
+				as long as card is idle.
+				When its not clocks return to normal
+				P=0,1 - factor of 16
+				P=2,3 - factor of 4
+				P=4   - factor of 2
+
+				Note that this setting is indepedent from 1588/1590 gating
+			</doc>
+			<bitfield pos="7" name="DYNAMIC_CLOCK_GATING"/>
+		</reg32>
+
 		<reg32 offset="0x540" name="PGRAPH_UNITS" variants="NV50:NVC0">
 			<doc>Enables PGRAPH engines that come in multiple copies.
 			</doc>
@@ -147,7 +170,7 @@
 			A pair of bit is affected to each stoppable engine.
 			Both need to be set in order to disable the engine.
 			</doc>
-			<bitfield high="1" low="0" name="PGRAPH"/>
+			<bitfield high="1" low="0" name="PGRAPH_MP"/> <!-- gates shader clock -->
 			<bitfield high="5" low="4" name="VPE" variants="NV17:NV98 NVA0"/>
 			<bitfield high="5" low="4" name="PPPP" variants="NV98 NVAA-"/>
 			<bitfield high="9" low="8" name="PCRTC" variants="NV17:NV50"/>
