@@ -99,7 +99,7 @@
 		- mclk_1: clocks memory on nv84-
 		- mclk: clocks memory on nv50
 		- vdclk: clocks video decoding
-		- dom6: must clock something ;)
+		- dom6: probably clocks pdisp, verified by measuring rate of evo commands
 		</doc>
 		<bitfield low="0" high="1" name="NVCLK">
 			<doc>right shift is NVPLL.P1 if NVCLK_1 is 0, NVPLL.P2 if NVCLK_1 is 1. Gets post-multiplied by NVCLK_MUL.</doc>
@@ -129,9 +129,9 @@
 			<value value="1" name="HREF"/>
 		</bitfield>
 
-		<bitfield pos="8" name="UNK8" variants="NV98"/>
-
-		<bitfield pos="9" name="UNK9" variants="NV84-"/>
+		<bitfield low="8" high="9" name="XTCLK">
+			<doc>this is clock that runs xtensa cores</doc>
+		</bitfield>
 
 		<bitfield low="10" high="11" name="VDCLK" variants="NV84-">
 			<doc>right-shifted by DOM6_VDEC_P</doc>
@@ -144,7 +144,7 @@
 			<value value="3" name="NVCLK_P" variants="NV50:NV98 NVA0"/>
 		</bitfield>
 
-		<bitfield pos="12" name="UNK12" variants="NV98 NVA0"/>
+		<bitfield pos="12" name="UNK12" variants="NV86:NV98 NVA0"/>
 
 		<bitfield low="14" high="15" name="MCLK_1">
 			<doc>right-shifted by MPLL.P on all clocks</doc>
@@ -176,7 +176,7 @@
 			<value value="1" name="HREF"/>
 		</bitfield>
 
-		<bitfield pos="23" name="UNK23" variants="NV98"/>
+		<bitfield pos="23" name="UNK23" variants="NV86:NV98"/>
 
 		<bitfield pos="24" name="VDCLK_1" variants="NV84-">
 			<value value="0" name="VDPLL"/>
@@ -246,6 +246,12 @@
 		<bitfield pos="13" name="UNK13" variants="NV94:NVA0"/>
 		<bitfield low="14" high="17" name="UNK14"/>
 	</reg32>
+
+	<!-- this register is read and written by blob while doing reclocking -->
+	<reg32 offset="0x108" name="UNK108" variants="NV86-">
+		<bitfield name="UNK" low="0" high="3"/>
+	</reg32>
+
 </array>
 
 </domain>
