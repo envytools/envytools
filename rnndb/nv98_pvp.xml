@@ -214,10 +214,10 @@
 		<reg32 offset="0x44" name="RESET_TRIGGER"/>
 	</array>
 	<array offset="0x500" name="BSP2VP" stride="0x80">
-		<reg32 offset="0x00" name="ADDR" shr="8"/>
-		<reg32 offset="0x04" name="GET"/>
-		<reg32 offset="0x08" name="PUT"/>
-		<reg32 offset="0x0c" name="SIZE"/>
+		<reg32 offset="0x00" name="MBRING_ADDR" shr="8"/>
+		<reg32 offset="0x04" name="MBRING_GET"/>
+		<reg32 offset="0x08" name="MBRING_PUT"/>
+		<reg32 offset="0x0c" name="MBRING_SIZE"/>
 		<reg32 offset="0x10" name="TRIGGER">
 			<bitfield pos="0" name="FLUSH"/>
 			<bitfield pos="1" name="RESET"/>
@@ -253,10 +253,10 @@
 		</reg32>
 		<reg32 offset="0x70" name="INTR" type="nv98_pvp_vuc_intr"/>
 		<reg32 offset="0x74" name="INTR_EN" type="nv98_pvp_vuc_intr"/>
-		<reg32 offset="0xa0" name="RING_ADDR" shr="8"/>
-		<reg32 offset="0xa4" name="RING_SIZE"/>
-		<reg32 offset="0xa8" name="RING_OFS"/>
-		<reg32 offset="0xac" name="RING_AVAIL"/>
+		<reg32 offset="0xa0" name="MBRING_ADDR" shr="8"/>
+		<reg32 offset="0xa4" name="MBRING_SIZE"/>
+		<reg32 offset="0xa8" name="MBRING_GET"/>
+		<reg32 offset="0xac" name="MBRING_AVAIL"/> <!-- yes, really. -->
 	</array>
 	<array offset="0x500" name="TRANS" stride="0x80">
 		<reg32 offset="0x00" name="CODE_SELECT" length="4">
