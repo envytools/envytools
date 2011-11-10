@@ -130,7 +130,7 @@
 		</bitfield>
 
 		<bitfield low="8" high="9" name="XTCLK" variants="NV84:NV98 NVA0">
-			<doc>this is clock that runs xtensa cores, right-shift by XTPLL.P on all clocks</doc>
+			<doc>this is clock that runs xtensa cores, right-shift determined by XCTLK_1 on all clocks</doc>
 			<value value="0" name="CRYSTAL_P"/>
 			<value value="1" name="0"/>
 			<value value="2" name="HCLK_M_3_D_2_P"/> <!-- Host * 3 / 2 -->
@@ -183,8 +183,9 @@
 		<bitfield pos="23" name="UNK23" variants="NV86:NV98"/>
 
 		<bitfield pos="24" name="XTCLK_1" variants="NV84-">
-			<value value="0" name="XTPLL"/>
-			<value value="1" name="NVPLL"/>
+			<doc>Selects XTCLK postdivider, and the clock if XTCLK/VDCLK is set to XTCLK_1</doc>
+			<value value="0" name="XTPLL_P1"/>
+			<value value="1" name="NVPLL_XTPLL_P2"/>
 		</bitfield>
 
 		<bitfield pos="25" name="XTPLL_REF" variants="NV84-">
