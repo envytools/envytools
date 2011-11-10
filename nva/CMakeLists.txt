@@ -24,6 +24,7 @@ add_executable(nvacounter nvacounter.c)
 add_executable(nvaevo nvaevo.c)
 add_executable(nvastrscan nvastrscan.c)
 add_executable(nvaxttime nvaxttime.c)
+add_executable(evotiming evotiming.c)
 
 target_link_libraries(nvalist nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvapeek nva ${PC_PCIACCESS_LIBRARIES})
@@ -42,6 +43,7 @@ target_link_libraries(nvacounter nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvaevo nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvastrscan nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvaxttime nva ${PC_PCIACCESS_LIBRARIES})
+target_link_libraries(evotiming nva ${PC_PCIACCESS_LIBRARIES})
 
 install(TARGETS nva
 		nvalist
@@ -60,6 +62,7 @@ install(TARGETS nva
 		nvaevo
 		nvastrscan
 		nvaxttime
+		evotiming
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
 	ARCHIVE DESTINATION lib${LIB_SUFFIX})
