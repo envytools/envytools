@@ -55,10 +55,12 @@
 	<reg32 offset="0x0fc" name="HOST_IO_INDEX"/>
 
 	<reg32 offset="0x128" name="JOE"/>
+	<reg32 offset="0x130" name="XT_REG_ADDR"/>
+	<reg32 offset="0x134" name="XT_REG_DATA"/>
 	<reg32 offset="0x138" name="XT_PC"/>
 	<reg32 offset="0x13c" name="LIMIT_FAULT_ADDR"/>
 	<reg32 offset="0x148" name="SCRATCH" length="5" stride="0xc"/>
-	<reg32 offset="0x184" name="INTR_EN" type="nv84_xtensa_intr"/>
+	<reg32 offset="0x184" name="INTR_EN" type="nv84_xtensa_intr"/> <!-- for host -->
 	<reg32 offset="0x19c" name="DMAOBJ" length="16"/>
 	<reg32 offset="0x1dc" name="SCRATCH_X2H"/>
 	<reg32 offset="0x1e0" name="SCRATCH_H2X"/>
