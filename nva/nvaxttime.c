@@ -73,6 +73,7 @@ int main(int argc, char **argv) {
 	int32_t a, i;
 	nva_wr32(cnum, 0x200, 0x40110011);
 	nva_wr32(cnum, 0x200, 0xffffffff);
+	usleep(1000);
 	nva_wr32(cnum, 0x1700, 0x10);
 	nva_wr32(cnum, 0x701080, 0x00190000);
 	nva_wr32(cnum, 0x701084, 0x002fffff);
@@ -125,7 +126,7 @@ int main(int argc, char **argv) {
 	nva_wr32(cnum, 0x700000+0xf44, 0x2101ffff);
 	nva_wr32(cnum, 0x700000+0xf48, 0x10);
 	nva_wr32(cnum, 0x700000+0xf4c, 0);
-	nva_wr32(cnum, 0x700000+0xf50, 0x10000);
+	nva_wr32(cnum, 0x700000+0xf50, 0x110000);
 	nva_wr32(cnum, 0x700000+0xf54, 0x80000);
 	nva_wr32(cnum, 0x700000+0xf58, 0);
 	nva_wr32(cnum, 0x700000+0xf5c, 0);
@@ -139,7 +140,7 @@ int main(int argc, char **argv) {
 	nva_wr32(cnum, 0x700000+0xf7c, 0x30000fff);
 	nva_wr32(cnum, 0x700000+0xf80, 0x4000600);
 	nva_wr32(cnum, 0x700000+0xf84, 0);
-	nva_wr32(cnum, 0x700000+0xf88, 0x10);
+	nva_wr32(cnum, 0x700000+0xf88, 0x410);
 	nva_wr32(cnum, 0x700000+0xf8c, 0);
 	nva_wr32(cnum, 0x700000+0xf90, 0);
 	nva_wr32(cnum, 0x700000+0xf94, 0);
@@ -179,11 +180,11 @@ int main(int argc, char **argv) {
 	nva_wr32(cnum, 0x700000+0xe7c, 0x30000fff);
 	nva_wr32(cnum, 0x700000+0xe80, 0x4000600);
 	nva_wr32(cnum, 0x700000+0xe84, 0);
-	nva_wr32(cnum, 0x700000+0xe88, 0x10);
+	nva_wr32(cnum, 0x700000+0xe88, 0x410);
 	nva_wr32(cnum, 0x700000+0xe8c, 0);
 	nva_wr32(cnum, 0x700000+0xe90, 0);
 	nva_wr32(cnum, 0x700000+0xe94, 0);
-	nva_wr32(cnum, 0x700000+0xe98, 1);
+	nva_wr32(cnum, 0x700000+0xe98, 0x101);
 	for (i = 0; i <= 0x1000; i+= 4)
 		nva_wr32(cnum, 0x700000+0x6000 + i, 0);
 	nva_wr32(cnum, 0x700000+0x7008, 0x1);
@@ -195,16 +196,20 @@ int main(int argc, char **argv) {
 	nva_wr32(cnum, 0x700000+0x1110, 0);
 	nva_wr32(cnum, 0x700000+0x1114, 0);
 	nva_wr32(cnum, 0x700000+0x9000, 1);
+	nva_wr32(cnum, 0x70000, 1);
+	while (nva_rd32(cnum, 0x70000));
 	nva_wr32(cnum, 0x2600, 0x8000100d);
 	nva_wr32(cnum, 0x2604, 0xc000100f);
-	nva_wr32(cnum, 0x27fc, 0x8000000e);
-	nva_wr32(cnum, 0x32f4, 0x9);
+	nva_wr32(cnum, 0x27fc, 0x8000100e);
+	nva_wr32(cnum, 0x32f4, 0x109);
 	nva_wr32(cnum, 0x32ec, 0x1);
 	nva_wr32(cnum, 0x2500, 0x101);
 	nva_wr32(cnum, 0x700000+0x20000, 0x00040000);
 	nva_wr32(cnum, 0x700000+0x20004, 0x00000001);
 	nva_wr32(cnum, 0x700000+0x10000, 0x00120000);
 	nva_wr32(cnum, 0x700000+0x10004, 0x00008000);
+	nva_wr32(cnum, 0x70000, 1);
+	while (nva_rd32(cnum, 0x70000));
 	nva_wr32(cnum, 0xc0208c, 1);
 	usleep(1000);
 	struct timeval start, end;
