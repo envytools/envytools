@@ -344,6 +344,11 @@ int envyas_process(struct file *file) {
 							fprintf (stderr, "Wrong arguments for .equ\n");
 							return 1;
 						}
+						if (file->lines[i]->atoms[0]->str[0] == '_' && file->lines[i]->atoms[0]->str[1] != '_') {
+							char *full_label = expand_local_label(file->lines[i]->atoms[0]->str, ctx->cur_global_label);
+							free((void*)file->lines[i]->atoms[0]->str);
+							file->lines[i]->atoms[0]->str = full_label;
+						}
 						ull num = calc(file->lines[i]->atoms[1], ctx);
 						for (j = 0; j < ctx->labelsnum; j++) {
 							if (!strcmp(ctx->labels[j].name, file->lines[i]->atoms[0]->str)) {
