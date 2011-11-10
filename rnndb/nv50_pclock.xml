@@ -78,8 +78,8 @@
 	<reg32 offset="0x024" name="SPLL_COEF" type="nv50_pll_coef"/>
 	<reg32 offset="0x028" name="NVPLL_CTRL" type="nv50_nvpll_ctrl"/>
 	<reg32 offset="0x02c" name="NVPLL_COEF" type="nv50_pll_coef"/>
-	<reg32 offset="0x030" name="VDPLL_CTRL" variants="NV84:NV98 NVA0" type="nv50_nvpll_ctrl"/>
-	<reg32 offset="0x034" name="VDPLL_COEF" variants="NV84:NV98 NVA0" type="nv50_pll_coef"/>
+	<reg32 offset="0x030" name="XTPLL_CTRL" variants="NV84:NV98 NVA0" type="nv50_nvpll_ctrl"/>
+	<reg32 offset="0x034" name="XTPLL_COEF" variants="NV84:NV98 NVA0" type="nv50_pll_coef"/>
 	<reg32 offset="0x088" name="UNK88_PLL_CTRL" variants="NVA0" type="nv50_mpll_ctrl"/>
 	<reg32 offset="0x08c" name="UNK88_PLL_COEF" variants="NVA0" type="nv50_pll_coef"/>
 	<reg32 offset="0x700" name="DIV" variants="NV50:NV92 NV98:NVAA" type="nv50_div"/>
@@ -129,17 +129,21 @@
 			<value value="1" name="HREF"/>
 		</bitfield>
 
-		<bitfield low="8" high="9" name="XTCLK">
-			<doc>this is clock that runs xtensa cores</doc>
+		<bitfield low="8" high="9" name="XTCLK" variants="NV84:NV98 NVA0">
+			<doc>this is clock that runs xtensa cores, right-shift by XTPLL.P on all clocks</doc>
+			<value value="0" name="CRYSTAL_P"/>
+			<value value="1" name="0"/>
+			<value value="2" name="HCLK_M_3_D_2_P"/> <!-- Host * 3 / 2 -->
+			<value value="3" name="XTCLK_1_P"/>
 		</bitfield>
 
 		<bitfield low="10" high="11" name="VDCLK" variants="NV84-">
-			<doc>right-shifted by DOM6_VDEC_P</doc>
+			<doc>right-shifted by VDEC_P</doc>
 			<value value="0" name="NVCLK_P" variants="NVA0"/>
 			<value value="0" name="CRYSTAL_P" variants="NV84:NVA0"/>
 			<value value="1" name="0"/>
 			<value value="2" name="HCLK_M_3_D_2_P" variants="NV98"/> <!-- Host * 3 / 2 -->
-			<value value="2" name="VDCLK_1_P" variants="NV84:NV98 NVA0"/>
+			<value value="2" name="XTCLK_1_P" variants="NV84:NV98 NVA0"/>
 			<value value="3" name="MCLK_P" variants="NV98"/>
 			<value value="3" name="NVCLK_P" variants="NV50:NV98 NVA0"/>
 		</bitfield>
@@ -178,12 +182,12 @@
 
 		<bitfield pos="23" name="UNK23" variants="NV86:NV98"/>
 
-		<bitfield pos="24" name="VDCLK_1" variants="NV84-">
-			<value value="0" name="VDPLL"/>
+		<bitfield pos="24" name="XTCLK_1" variants="NV84-">
+			<value value="0" name="XTPLL"/>
 			<value value="1" name="NVPLL"/>
 		</bitfield>
 
-		<bitfield pos="25" name="VDPLL_REF" variants="NV84-">
+		<bitfield pos="25" name="XTPLL_REF" variants="NV84-">
 			<value value="0" name="SOURCE_PLL"/>
 			<value value="1" name="HREF"/>
 		</bitfield>
@@ -220,7 +224,7 @@
 	</reg32>
 
 	<reg32 offset="0x050" name="CLOCK_SOURCE" variants="NV94:NVAA">
-		<doc>VDPLL is always linked to RPLL1</doc>
+		<doc>XTPLL is always linked to RPLL1</doc>
 		<bitfield low="0" high="1" name="SPLL" variants="NV94:NVA0">
 			<value value="0" name="RPLL2"/>
 			<value value="1" name="CRYSTAL"/>
