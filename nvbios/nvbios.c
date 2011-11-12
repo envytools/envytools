@@ -1609,9 +1609,9 @@ int main(int argc, char **argv) {
 		for(i = 0; i < entry_count; i++) {
 			clock_low = le16(start);
 			clock_hi = le16(start+2);
-			timing = bios->data[start+entry_length+((ram_cfg+1)*xinfo_length)+1];
+			timing = bios->data[start+entry_length+(ram_cfg*xinfo_length)+1];
 
-			printf("Entry %d: %d MHz - %d MHz, Timing %i\n",i, clock_low, clock_hi,timing);
+			printf("Entry %d: %d MHz - %d MHz, Timing %i\n",i, clock_low, clock_hi, timing);
 			printcmd(start, entry_length>0?entry_length:10);
 			start += entry_length;
 			for(j = 0; j < xinfo_count; j++) {
