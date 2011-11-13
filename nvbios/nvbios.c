@@ -1442,11 +1442,11 @@ int main(int argc, char **argv) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0;
 		uint16_t start = timings_tbl_ptr;
-		uint8_t tWR, tUNK_1, tCL;
-		uint8_t tRP;		/* Byte 3 */
-		uint8_t tRAS;	/* Byte 5 */
-		uint8_t tRFC;	/* Byte 7 */
-		uint8_t tRC;		/* Byte 9 */
+		uint8_t tWR, tWTR, tCL;
+		uint8_t tRC;		/* Byte 3 */
+		uint8_t tRFC;	/* Byte 5 */
+		uint8_t tRAS;	/* Byte 7 */
+		uint8_t tRCD;		/* Byte 9 */
 		uint8_t tUNK_10, tUNK_11, tUNK_12, tUNK_13, tUNK_14;
 		uint8_t tUNK_18, tUNK_19, tUNK_20, tUNK_21;
 		uint32_t reg_100220 = 0, reg_100224 = 0, reg_100228 = 0, reg_10022c = 0;
@@ -1484,12 +1484,12 @@ int main(int argc, char **argv) {
 				tUNK_18 = bios->data[start+18];
 			default:
 				tWR  = bios->data[start+0];
-				tUNK_1  = bios->data[start+1];
+				tWTR  = bios->data[start+1];
 				tCL  = bios->data[start+2];
-				tRP     = bios->data[start+3];
-				tRAS    = bios->data[start+5];
-				tRFC    = bios->data[start+7];
-				tRC     = bios->data[start+9];
+				tRC     = bios->data[start+3];
+				tRFC    = bios->data[start+5];
+				tRAS    = bios->data[start+7];
+				tRCD     = bios->data[start+9];
 				tUNK_10 = bios->data[start+10];
 				tUNK_11 = bios->data[start+11];
 				tUNK_12 = bios->data[start+12];
@@ -1500,17 +1500,17 @@ int main(int argc, char **argv) {
 
 			printcmd(start, entry_length); printf("\n");
 			if (bios->data[start+0] != 0) {
-				printf("Entry %d: WR(%d), CL(%d)\n",
-					i, tWR,tCL);
-				printf("       : RP(%d), RAS(%d), RFC(%d), RC(%d)\n",
-					tRP, tRAS, tRFC, tRC);
+				printf("Entry %d: WR(%d), WTR(%d), CL(%d)\n",
+					i, tWR,tWTR,tCL);
+				printf("       : RC(%d), RFC(%d), RAS(%d), RCD(%d)\n",
+					tRC, tRFC, tRAS, tRCD);
 
 				/* XXX: I don't trust the -1's and +1's... they must come
 				*      from somewhere! */
 				if (card_codename < 0xc0) {
-					reg_100220 = (tRC << 24 | tRFC << 16 | tRAS << 8 | tRP);
+					reg_100220 = (tRCD << 24 | tRAS << 16 | tRFC << 8 | tRC);
 					reg_100224 = ((tWR + tUNK_19 + 1 + magic_number) << 24
-								| (tUNK_1 + tUNK_19 + 1 + magic_number) << 8);
+								| (tWTR + tUNK_19 + 1 + magic_number) << 8);
 
 					if (card_codename == 0xa8) {
 						reg_100224 |= (tCL - 1);
@@ -1534,7 +1534,7 @@ int main(int argc, char **argv) {
 						reg_100230 = (tUNK_20 << 24 | tUNK_21 << 16 |
 									tUNK_13 << 8  | tUNK_13);
 
-						reg_100234 = (tRAS << 24 | tRC);
+						reg_100234 = (tRFC << 24 | tRCD);
 						if(tUNK_10 > tUNK_11) {
 							reg_100234 += tUNK_10 << 16;
 						} else {
@@ -1565,9 +1565,9 @@ int main(int argc, char **argv) {
 					reg_100230, reg_100234,
 					reg_100238, reg_10023c);
 				} else {
-					reg_100220 = (tRC << 24 | (tRFC&0x7f) << 17 | tRAS << 8 | tRP);
+					reg_100220 = (tRCD << 24 | (tRAS&0x7f) << 17 | tRFC << 8 | tRC);
 					reg_100224 = 0x4c << 24 | (tUNK_11&0x0f) << 20 | (tUNK_19 << 7) | (tCL & 0x0f);
-					reg_100228 = 0x44000011 | tWR << 16 | tUNK_1 << 8;
+					reg_100228 = 0x44000011 | tWR << 16 | tWTR << 8;
 					reg_10022c = tUNK_20 << 9 | tUNK_13;
 					reg_100230 = 0x42e00069 | tUNK_12 << 15;
 
@@ -1614,9 +1614,9 @@ int main(int argc, char **argv) {
 		for(i = 0; i < entry_count; i++) {
 			clock_low = le16(start);
 			clock_hi = le16(start+2);
-			timing = bios->data[start+entry_length+((ram_cfg+1)*xinfo_length)+1];
+			timing = bios->data[start+entry_length+(ram_cfg*xinfo_length)+1];
 
-			printf("Entry %d: %d MHz - %d MHz, Timing %i\n",i, clock_low, clock_hi,timing);
+			printf("Entry %d: %d MHz - %d MHz, Timing %i\n",i, clock_low, clock_hi, timing);
 			printcmd(start, entry_length>0?entry_length:10);
 			start += entry_length;
 			for(j = 0; j < xinfo_count; j++) {

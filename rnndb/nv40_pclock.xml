@@ -8,37 +8,10 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<bitset name="nv50_pll1" inline="yes">
-	<bitfield low="0" high="15" name="UNK0"/>
-	<bitfield low="16" high="18" name="P"/>
-	<bitfield low="19" high="26" name="UNK19"/>
-	<bitfield low="28" high="29" name="UNK28"/>
-	<bitfield pos="31" name="ENABLE"/>
-</bitset>
-
-<bitset name="nv50_pll2" inline="yes">
-	<bitfield low="0" high="7" name="M"/>
-	<bitfield low="8" high="15" name="N"/>
-</bitset>
-
-<array offset="0x4000" name="PCLOCK" stride="0x1000" variants="NV40:NVC0" length="1">
-	<reg32 offset="0x000" name="NVIO_PLL1" variants="NV50 NVA0" type="nv50_pll1"/>
-	<reg32 offset="0x004" name="NVIO_PLL2" variants="NV50 NVA0" type="nv50_pll2"/>
-	<reg32 offset="0x008" name="MPLL1" variants="NV50:NVAA" type="nv50_pll1"/>
-	<reg32 offset="0x00c" name="MPLL2" variants="NV50:NVAA" type="nv50_pll2"/>
-	<reg32 offset="0x010" name="UNK10_PLL1" variants="NV50 NVA0" type="nv50_pll1"/>
-	<reg32 offset="0x014" name="UNK10_PLL2" variants="NV50 NVA0" type="nv50_pll2"/>
-	<reg32 offset="0x018" name="UNK18_PLL1" variants="NV50 NV92 NVA0" type="nv50_pll1"/>
-	<reg32 offset="0x01c" name="UNK18_PLL2" variants="NV50 NV92 NVA0" type="nv50_pll2"/>
-	<reg32 offset="0x020" name="SPLL1" variants="NV50:NVA3" type="nv50_pll1"/>
-	<reg32 offset="0x024" name="SPLL2" variants="NV50:NVA3" type="nv50_pll2"/>
-	<reg32 offset="0x028" name="NVPLL1" variants="NV50:NVA3" type="nv50_pll1"/>
-	<reg32 offset="0x02c" name="NVPLL2" variants="NV50:NVA3" type="nv50_pll2"/>
-	<reg32 offset="0x030" name="XTPLL1" variants="NV84:NV98 NVA0" type="nv50_pll1"/>
-	<reg32 offset="0x034" name="XTPLL2" variants="NV84:NV98 NVA0" type="nv50_pll2"/>
+<array offset="0x4000" name="PCLOCK" stride="0x1000" variants="NV40:NV50" length="1">
 </array>
 
-<array offset="0xc000" name="PCONTROL" stride="0x1000" variants="NV40:NVC0" length="1">
+<array offset="0xc000" name="PCONTROL" stride="0x1000" variants="NV40:NV50" length="1">
 </array>
 
 </domain>

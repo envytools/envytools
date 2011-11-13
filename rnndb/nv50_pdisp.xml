@@ -248,7 +248,17 @@
 			<reg32 offset="0x0000" name="UNK00"/>
 			<reg32 offset="0x0004" name="UNK04"/>
 			<reg32 offset="0x0100" name="VPLL_CTRL1" stride="0x800" length="2">
-				<bitfield name="CONNECTED" high="10" low="9"/>
+				<bitfield low="0" high="7" name="UNK0"/> <!-- e800 bits 0-7 -->
+				<bitfield pos="8" name="STAGES">
+					<value value="0" name="2"/>
+					<value value="1" name="1"/>
+				</bitfield>
+				<bitfield low="9" high="10" name="CONNECTED"/>
+				<bitfield low="16" high="19" name="UNK12"/> <!-- e800 bits 12-15 -->
+				<bitfield low="23" high="26" name="UNK23"/>
+				<bitfield pos="28" name="UNK28"/>
+				<bitfield pos="30" name="STAGE1_DISABLE"/>
+				<bitfield pos="31" name="STAGE2_DISABLE"/>
 			</reg32>
 			<reg32 offset="0x0104" name="VPLL_S1" stride="0x800" length="2" type="nv50_vpll_s1"/>
 			<reg32 offset="0x0108" name="VPLL_S2" stride="0x800" length="2" type="nv50_vpll_s2"/>

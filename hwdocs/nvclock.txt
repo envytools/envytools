@@ -40,23 +40,30 @@ The clocks other than VPLLs are set through the new PCLOCK area
 
 NV50:NVA3 cards have the following clocks:
 
- - root clock: used as the base for other clocks
-[XXX: not sure about this one]
- - host clock: clocks the host interface parts, like PFIFO
-[XXX: figure out where that one comes from]
- - NVIO clock [IOPLL]: used for communication with the NVIO chip, NV50 and
+ - crystal clock: input from a quartz crystal, user as the base for other
+   clocks
+ - PCIE reference clock [HREF]: input from the PCIE bus, used as the base
+   for other clocks
+ - root clocks [RPLL1, RPLL2]: used as the base for other clocks
+ - host clock [HCLK]: clocks the host interface parts, like PFIFO
+ - timer clock [TCLK]: clocks the PTIMER circuitry, only present on NV84+
+ - NVIO clock [IOCLK]: used for communication with the NVIO chip, NV50 and
    NVA0 only
- - memory clock [MPLL]: used to clock the VRAM, not present on IGPs
+[XXX: figure out this, the ZPLL, and the DOM6]
+ - memory clock [MCLK]: used to clock the VRAM, not present on IGPs
  - unknown clock 4010: present on NV50, NV92, NVA0 only
  - unknown clock 4018: present on NV50, NVA0 only
+ - unknown clock 4088: present on NVA0 only
 [XXX: figure these out]
- - core clock [NVPLL]: clocks most of the card's logic
- - shader clock [SPLL]: clocks the CUDA multiprocessor / shader units
- - xtensa clock [XTPLL]: clocks the xtensa cores used for video decoding,
+ - core clock [NVCLK]: clocks most of the card's logic
+ - shader clock [SCLK]: clocks the CUDA multiprocessor / shader units
+ - xtensa clock [XTCLK]: clocks the xtensa cores used for video decoding,
    only present on NV84:NV98 and NVA0
- - video clocks [VPLL1,VPLL2]: used to drive the video outputs
+ - vdec clock [VDCLK]: clocks the remaining parts of video decoding engines,
+   only present on NV84+
+ - video clocks [VCLK1,VCLK2]: used to drive the video outputs
 
-The root clock is set up in PNVIO area [see pnvio.txt], VPLLs are set up in
+The root clocks are set up in PNVIO area [see pnvio.txt], VPLLs are set up in
 PDISPLAY area [see pdisplay.txt], and the other clocks are set up in PCLOCK
 area [see nv50-pclock.txt].
 
@@ -71,7 +78,7 @@ NVA3:NVC0 cards have the following clocks:
  - shader clock [SPLL, clock #2/#18]: clocks the CUDA multiprocessor / shader units
  - unknown clock #8/#24
  - unknown clock #9/#25
- - timer clock [clock #20]: input to the PTIMER engine
+ - timer clock [TCLK, clock #20]: clocks the PTIMER circuitry
  - unknown clock #21
  - unknown clock #22
  - unknown clock #24
@@ -97,7 +104,7 @@ NVC0+ cards have the following clocks:
  - core clock [NVPLL, clock #7]: clocks the core card logic
  - VM clock [clock #8]: clocks the TLBs and page table lookup circuitry [XXX: guess]
  - HUB clock [clock #9]: clocks the common part of PGRAPH, and the PCOPY engines
- - timer clock [clock #11]: input to the PTIMER engine
+ - timer clock [TCLK, clock #11]: clocks the PTIMER circuitry
  - daemon clock [clock #12]: used to clock PDAEMON
  - vdec clock [clock #14]: used to clock the fuc video decoding engines
  - memory clock [MPLL, clock M]: used to clock the VRAM, one per memory partition

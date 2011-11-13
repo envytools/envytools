@@ -9,6 +9,7 @@ include_directories(../include)
 add_library(nva nva.c)
 add_executable(nvalist nvalist.c)
 add_executable(nvapeek nvapeek.c)
+add_executable(nvapeeki nvapeeki.c)
 add_executable(nvapoke nvapoke.c)
 add_executable(nvapeek8 nvapeek8.c)
 add_executable(nvapoke8 nvapoke8.c)
@@ -21,10 +22,14 @@ add_executable(nvafuzz nvafuzz.c)
 add_executable(nvawatch nvawatch.c)
 add_executable(nvacounter nvacounter.c)
 add_executable(nvaevo nvaevo.c)
+add_executable(nvastrscan nvastrscan.c)
+add_executable(nvaxttime nvaxttime.c)
+add_executable(evotiming evotiming.c)
 
 target_link_libraries(nvalist nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvapeek nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvapoke nva ${PC_PCIACCESS_LIBRARIES})
+target_link_libraries(nvapeeki nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvapeek8 nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvapoke8 nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvagetbios nva ${PC_PCIACCESS_LIBRARIES})
@@ -36,8 +41,28 @@ target_link_libraries(nvafuzz nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvawatch nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvacounter nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvaevo nva ${PC_PCIACCESS_LIBRARIES})
+target_link_libraries(nvastrscan nva ${PC_PCIACCESS_LIBRARIES})
+target_link_libraries(nvaxttime nva ${PC_PCIACCESS_LIBRARIES})
+target_link_libraries(evotiming nva ${PC_PCIACCESS_LIBRARIES})
 
-install(TARGETS nva nvalist nvapeek nvapoke nvapeek8 nvapoke8 nvagetbios nvafakebios nvascan nvatiming nvapms nvafuzz nvawatch nvaevo
+install(TARGETS nva
+		nvalist
+		nvapeek
+		nvapoke
+		nvapeeki
+		nvapeek8
+		nvapoke8
+		nvagetbios
+		nvafakebios
+		nvascan
+		nvatiming
+		nvapms
+		nvafuzz
+		nvawatch
+		nvaevo
+		nvastrscan
+		nvaxttime
+		evotiming
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
 	ARCHIVE DESTINATION lib${LIB_SUFFIX})

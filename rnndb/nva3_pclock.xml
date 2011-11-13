@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+<bitset name="nva3_nvpll_ctrl" inline="yes">
+	<!-- clock source = PLL_CLK_SRC1.CLK0 -->
+	<bitfield pos="0" name="ENABLE"/>
+	<bitfield low="1" high="2" name="UNK1"/>
+	<bitfield pos="3" name="BYPASS"/> <!-- and use CLK_SRC2 instead of 1 -->
+	<bitfield low="4" high="6" name="UNK4"/>
+	<bitfield low="16" high="17" name="UNK16"/>
+</bitset>
+
+<bitset name="nva3_mpll_ctrl" inline="yes">
+	<!-- clock source = PLL_CLK_SRC1.CLK2 -->
+	<bitfield pos="0" name="ENABLE"/>
+	<bitfield low="1" high="2" name="UNK1"/>
+	<bitfield pos="3" name="BYPASS"/> <!-- and use CLK_SRC2 instead of 1 -->
+	<bitfield low="4" high="6" name="UNK4"/>
+	<bitfield pos="9" name="UNK9"/>
+	<bitfield low="16" high="17" name="UNK16"/>
+	<bitfield low="27" high="28" name="UNK27"/> <!-- always on -->
+</bitset>
+
+<bitset name="nva3_spll_ctrl" inline="yes">
+	<!-- clock source = PLL_CLK_SRC1.CLK1 -->
+	<doc>bit 16 sometimes is not writable and forced to 0</doc>
+	<bitfield pos="0" name="ENABLE"/>
+	<bitfield low="1" high="2" name="UNK1"/>
+	<bitfield pos="3" name="BYPASS"/> <!-- and use CLK_SRC2 instead of 1 -->
+	<bitfield low="4" high="6" name="UNK4"/>
+	<bitfield low="16" high="17" name="UNK16"/>
+</bitset>
+
+<bitset name="nva3_pll_coef" inline="yes">
+	<bitfield low="0" high="7" name="M"/>
+	<bitfield low="8" high="15" name="N"/>
+	<bitfield low="16" high="21" name="P"/>
+</bitset>
+
+<bitset name="nva3_pll_src" inline="yes">
+	<doc>VCO = (2 * VCO_SRC) / VCO_DIV</doc>
+	<bitfield pos="0" name="UNK0"/>
+	<bitfield low="4" high="5" name="VCO_SRC">
+		<value value="0" name="RPLL1"/>
+		<value value="1" name="RPLL1"/>
+		<value value="2" name="RPLL1"/>
+		<value value="3" name="RPLL2"/>
+	</bitfield>
+	<bitfield pos="6" name="OUTPUT_1">
+		<value value="0" name="100000"/>
+		<value value="1" name="108000"/>
+	</bitfield>
+	<bitfield pos="8" name="ENABLE"/>
+	<bitfield low="9" high="10" name="UNK9"/>
+	<bitfield low="12" high="13" name="OUTPUT">
+		<value value="0" name="CRYSTAL"/>
+		<value value="1" name="DISABLED"/>
+		<value value="2" name="OUTPUT_1"/>
+		<value value="3" name="VCO"/>
+	</bitfield>
+	<bitfield pos="15" name="UNK15"/>
+	<bitfield low="16" high="21" name="VCO_DIV"/>
+	<bitfield low="24" high="31" name="UNK24"/>
+</bitset>
+
+<array offset="0x4000" name="PCLOCK" stride="0x1000" variants="NVA3:NVC0" length="1">
+	<!-- tested on my nva3 only -->
+
+	<reg32 offset="0x000" name="MPLL_CTRL" type="nva3_mpll_ctrl"/>
+	<reg32 offset="0x004" name="MPLL_COEF" type="nva3_pll_coef"/>
+
+	<array offset="0x120" name="PLL_CLK_SRC1" stride="0x40" length="1">
+		<reg32 name="CLK0" offset="0x00" type="nva3_pll_src"/>
+		<reg32 name="CLK1" offset="0x04" type="nva3_pll_src"/>
+		<reg32 name="CLK2" offset="0x08" type="nva3_pll_src"/>
+		<reg32 name="CLK8" offset="0x20" type="nva3_pll_src"/> <!-- related to PDISP CLOCK -->
+		<reg32 name="CLK9" offset="0x24" type="nva3_pll_src"/>
+	</array>
+	<array offset="0x160" name="PLL_CLK_SRC2" stride="0x40" length="1">
+		<reg32 name="CLK0" offset="0x00" type="nva3_pll_src"/>
+		<reg32 name="CLK1" offset="0x04" type="nva3_pll_src"/>
+		<reg32 name="CLK2" offset="0x08" type="nva3_pll_src"/>
+		<reg32 name="CLK8" offset="0x20" type="nva3_pll_src"/>
+		<reg32 name="CLK9" offset="0x24" type="nva3_pll_src"/>
+		<reg32 name="CLK12" offset="0x30" type="nva3_pll_src"/>
+		<reg32 name="CLK13" offset="0x34" type="nva3_pll_src"/>
+		<reg32 name="CLK14" offset="0x38" type="nva3_pll_src"/>
+	</array>
+	<array offset="0x1a0" name="PLL_CLK_SRC3" stride="0x20" length="1">
+		<reg32 name="CLK0" offset="0x00" type="nva3_pll_src"/>
+		<reg32 name="CLK1" offset="0x04" type="nva3_pll_src"/>
+		<reg32 name="CLK4" offset="0x10" type="nva3_pll_src"/>
+		<reg32 name="CLK5" offset="0x14" type="nva3_pll_src"/>
+		<reg32 name="CLK7" offset="0x1c" type="nva3_pll_src"/>
+	</array>
+
+	<reg32 offset="0x200" name="NVPLL_CTRL" type="nva3_nvpll_ctrl"/>
+	<reg32 offset="0x204" name="NVPLL_COEF" type="nva3_pll_coef"/>
+	<reg32 offset="0x220" name="SPLL_CTRL" type="nva3_spll_ctrl"/>
+	<reg32 offset="0x224" name="SPLL_COEF" type="nva3_pll_coef"/>
+
+	<!-- UNKA0 has no PLL. It takes its source clock from PLL_CLK_SRC3.CLK0 -->
+	<!-- VDEC has no PLL. It takes its source clock from PLL_CLK_SRC3.CLK1 -->
+	<!-- PDAEMON has no PLL. It takes its source clock from PLL_CLK_SRC3.CLK5 -->
+	<!-- PCOPY has no PLL. It takes its source clock from NVPLL -->
+</array>
+
+<array offset="0xc000" name="PCONTROL" stride="0x1000" variants="NVA3:NVC0" length="1">
+	<reg32 offset="0x040" name="MASTER">
+		<bitfield pos="12" name="UNK12"/> <!-- should be the same as on nv50 -->
+
+		<bitfield low="28" high="29" name="HOST"> <!-- guess from nv50 -->
+			<doc>Gets post-multiplied by HOST_MUL.</doc>
+			<value value="0" name="HREF"/>
+			<value value="2" name="HCLK" variants="NV84-"/>
+			<value value="3" name="HCLK"/>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x044" name="NVCLK_MUL">
+		<doc>
+			NVCLK = source * 64 / (2+NVCLK_MUL).
+			0 <= NVCLK_MUL < 64
+		</doc>
+	</reg32>
+
+	<!-- isn't used by the blob. All the bits writable -->
+	<reg32 offset="0x04c" name="UNK4C" />
+
+	<reg32 offset="0x050" name="CLOCK_SOURCE">
+		<!-- mode 1 and 3 are the same. 0 and 2 crash the card -->
+		<bitfield low="14" high="15" name="UNK14" />
+
+		<!-- changing this doesn't change any clocks measured by nvatiming on my nva3 -->
+		<bitfield low="16" high="17" name="UNK16" />
+	</reg32>
+</array>
+
+</domain>
+
+</database>

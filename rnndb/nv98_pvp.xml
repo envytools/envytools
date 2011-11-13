@@ -38,7 +38,7 @@
 			<bitfield low="18" high="19" name="PICTURE_CODING_TYPE">
 				<!-- not used by H264 -->
 				<value value="0" name="D"/> <!-- MPEG1 only -->
-				<value value="0" name="SKIPPED"/> <!-- VC-1 only -->
+				<value value="0" name="SKIPPED"/> <!-- VC-1 and MPEG4 only -->
 				<value value="1" name="I"/> <!-- also BI for VC-1 -->
 				<value value="2" name="P"/>
 				<value value="3" name="B"/>
@@ -49,11 +49,14 @@
 				<value value="1" name="MPEG2"/>
 				<value value="2" name="VC1"/>
 				<value value="3" name="H264"/>
+				<value value="4" name="MPEG4" variants="NVA3-"/>
 			</bitfield>
-			<bitfield low="24" high="25" name="PROFILE"> <!-- VC-1 only -->
-				<value value="0" name="SIMPLE"/>
-				<value value="1" name="MAIN"/>
-				<value value="2" name="ADVANCED"/>
+			<bitfield low="24" high="25" name="PROFILE"> <!-- VC-1 and MPEG4 only -->
+				<value value="0" name="VC1_SIMPLE"/>
+				<value value="1" name="VC1_MAIN"/>
+				<value value="2" name="VC1_ADVANCED"/>
+				<value value="0" name="MPEG4_SHORT_HEADER"/>
+				<value value="2" name="MPEG4_LONG_HEADER"/>
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x04" name="PARM_H264">
@@ -76,25 +79,29 @@
 			<bitfield low="24" high="27" name="F_CODE_2"/>
 			<bitfield low="28" high="31" name="F_CODE_3"/>
 		</reg32>
-		<reg32 offset="0x0c" name="PARM_VC1_0">
-			<bitfield low="0" high="6" name="REFDIST"/>
-			<bitfield pos="7" name="NUMREF"/>
+		<reg32 offset="0x0c" name="PARM_VC1_MPEG4_0">
+			<bitfield low="0" high="6" name="VC1_REFDIST"/>
+			<bitfield low="0" high="6" name="MPEG4_MB_Y" variants="NVA3-"/>
+			<bitfield pos="7" name="VC1_NUMREF"/>
 			<bitfield low="8" high="9" name="FCM">
-				<value value="0" name="FRAME_PROGRESSIVE"/>
-				<value value="2" name="FRAME_INTERLACE"/>
+				<value value="0" name="FRAME_PROGRESSIVE"/> <!-- also MPEG4 non-interlaced -->
+				<value value="2" name="FRAME_INTERLACE"/> <!-- also MPEG4 interlaced -->
 				<value value="3" name="FIELD_INTERLACE"/>
 			</bitfield>
-			<bitfield low="10" high="11" name="REFDIST"/>
-			<bitfield pos="12" name="REFFIELD"/>
-			<bitfield pos="16" name="UNK16_BITPLANE"/>
+			<bitfield low="10" high="11" name="VC1_REFDIST"/>
+			<bitfield pos="12" name="VC1_REFFIELD"/>
+			<bitfield pos="16" name="UNK16_BITPLANE"/> <!-- always set for MPEG4 -->
+			<bitfield low="24" high="31" name="MPEG4_MB_X" variants="NVA3-"/>
 		</reg32>
-		<reg32 offset="0x10" name="PARM_VC1_1">
-			<bitfield low="0" high="2" name="CBPTAB"/> <!-- or icbptab -->
-			<bitfield low="4" high="6" name="MVTAB"/> <!-- or imvtab -->
-			<bitfield low="8" high="9" name="2MVBPTAB"/>
-			<bitfield low="10" high="11" name="4MVBPTAB"/>
-			<bitfield low="12" high="14" name="MBMODETAB"/>
-			<bitfield pos="16" name="TRANSDCTAB"/>
+		<reg32 offset="0x10" name="PARM_VC1_MPEG4_1">
+			<bitfield low="0" high="2" name="VC1_CBPTAB"/> <!-- or icbptab -->
+			<bitfield low="0" high="2" name="MPEG4_INTRA_DC_VLC_THR" variants="NVA3-"/> 
+			<bitfield low="4" high="6" name="VC1_MVTAB"/> <!-- or imvtab -->
+			<bitfield low="4" high="6" name="MPEG4_RESYNC_MARKER_ZEROS_M15" variants="NVA3-"/> <!-- this + 15 is number of 0 bits in resync_marker -->
+			<bitfield low="8" high="9" name="VC1_2MVBPTAB"/>
+			<bitfield low="10" high="11" name="VC1_4MVBPTAB"/>
+			<bitfield low="12" high="14" name="VC1_MBMODETAB"/>
+			<bitfield pos="16" name="VC1_TRANSDCTAB"/>
 			<bitfield pos="17" name="UNK17"/>
 			<enum name="pbsp_vc1_transacfrm" inline="yes">
 				<value value="0" name="HIGH_RATE"/> <!-- tables 219-232 -->
@@ -102,32 +109,37 @@
 				<value value="2" name="HIGH_MOTION"/> <!-- tables 177-190 -->
 				<value value="3" name="MID_RATE"/> <!-- tables 205-218 -->
 			</enum>
-			<bitfield low="20" high="21" name="TRANSACFRM" type="pbsp_vc1_transacfrm"/>
-			<bitfield low="22" high="23" name="TRANSACFRM2" type="pbsp_vc1_transacfrm"/>
+			<bitfield low="20" high="21" name="VC1_TRANSACFRM" type="pbsp_vc1_transacfrm"/> <!-- set to 3 for MPEG4 -->
+			<bitfield low="22" high="23" name="VC1_TRANSACFRM2" type="pbsp_vc1_transacfrm"/> <!-- set to 3 for MPEG4 -->
 		</reg32>
-		<reg32 offset="0x14" name="PARM_VC1_2">
-			<bitfield pos="0" name="DQUANT_INFRAME"/>
-			<bitfield pos="1" name="DQBILEVEL"/>
-			<bitfield low="2" high="3" name="DQPROFILE"/>
-			<bitfield low="4" high="5" name="DQBEDGE"/> <!-- dqsbedge or dqdbedge -->
-			<bitfield low="16" high="20" name="PQUANT"/>
-			<bitfield low="24" high="28" name="ALTPQUANT"/>
+		<reg32 offset="0x14" name="PARM_VC1_MPEG4_2">
+			<bitfield pos="0" name="VC1_DQUANT_INFRAME"/>
+			<bitfield pos="1" name="VC1_DQBILEVEL"/>
+			<bitfield low="2" high="3" name="VC1_DQPROFILE"/>
+			<bitfield low="4" high="5" name="VC1_DQBEDGE"/> <!-- dqsbedge or dqdbedge -->
+			<bitfield low="16" high="20" name="VC1_PQUANT"/>
+			<bitfield low="16" high="20" name="MPEG4_QUANT_SCALE" variants="NVA3-"/>
+			<bitfield low="24" high="28" name="VC1_ALTPQUANT"/>
 		</reg32>
-		<reg32 offset="0x18" name="PARM_VC1_3">
-			<bitfield pos="0" name="DMVRANGE_HORIZ_NOT_EXT"/> <!-- 1 if range *not* extended -->
-			<bitfield pos="1" name="DMVRANGE_VERT_NOT_EXT"/>
-			<bitfield low="2" high="3" name="MVRANGE"/> <!-- 0-3, in order of size -->
-			<bitfield low="4" high="5" name="MVMODE"> <!-- if mvmode == intensity compensation, mvmode2 instead -->
+		<reg32 offset="0x18" name="PARM_VC1_MPEG4_3">
+			<bitfield pos="0" name="VC1_DMVRANGE_HORIZ_NOT_EXT"/> <!-- 1 if range *not* extended -->
+			<bitfield pos="1" name="VC1_DMVRANGE_VERT_NOT_EXT"/>
+			<bitfield low="2" high="3" name="VC1_MVRANGE"/> <!-- 0-3, in order of size -->
+			<bitfield low="4" high="5" name="VC1_MVMODE"> <!-- if mvmode == intensity compensation, mvmode2 instead -->
 				<value value="0" name="MIXED"/>
 				<value value="1" name="ONE"/>
 				<value value="2" name="ONE_HPEL"/>
 				<value value="3" name="ONE_HPEL_BILINEAR"/>
 			</bitfield>
-			<bitfield low="6" high="7" name="TTFRM"/>
-			<bitfield pos="8" name="TTMBF"/>
-			<bitfield pos="9" name="4MVSWITCH"/>
-			<bitfield pos="10" name="CONDOVER_ZERO"/>
-			<bitfield pos="11" name="SYNCMARKER"/> <!-- set this to 0 for B and BI, to syncmarker header flag for I and P -->
+			<bitfield low="0" high="1" name="MPEG4_F_CODE_BW_M1_B01" variants="NVA3-"/> <!--  bits 0-1 of (f_code_bw - 1) -->
+			<bitfield low="2" high="3" name="MPEG4_F_CODE_FW_M1_B01" variants="NVA3-"/> <!--  bits 0-1 of (f_code_fw - 1) -->
+			<bitfield pos="4" name="MPEG4_F_CODE_BW_M1_B2" variants="NVA3-"/> <!--  bit 2 of (f_code_bw - 1) -->
+			<bitfield pos="5" name="MPEG4_F_CODE_FW_M1_B2" variants="NVA3-"/> <!--  bit 2 of (f_code_fw - 1) -->
+			<bitfield low="6" high="7" name="VC1_TTFRM"/>
+			<bitfield pos="8" name="VC1_TTMBF"/> <!-- set to 1 for MPEG4 -->
+			<bitfield pos="9" name="VC1_4MVSWITCH"/>
+			<bitfield pos="10" name="VC1_CONDOVER_ZERO"/>
+			<bitfield pos="11" name="VC1_SYNCMARKER"/> <!-- set this to 0 for B and BI, to syncmarker header flag for I and P -->
 		</reg32>
 		<reg32 offset="0x20" name="SLICE_PARM">
 			<!-- H@64 only -->
@@ -202,10 +214,10 @@
 		<reg32 offset="0x44" name="RESET_TRIGGER"/>
 	</array>
 	<array offset="0x500" name="BSP2VP" stride="0x80">
-		<reg32 offset="0x00" name="ADDR" shr="8"/>
-		<reg32 offset="0x04" name="GET"/>
-		<reg32 offset="0x08" name="PUT"/>
-		<reg32 offset="0x0c" name="SIZE"/>
+		<reg32 offset="0x00" name="MBRING_ADDR" shr="8"/>
+		<reg32 offset="0x04" name="MBRING_GET"/>
+		<reg32 offset="0x08" name="MBRING_PUT"/>
+		<reg32 offset="0x0c" name="MBRING_SIZE"/>
 		<reg32 offset="0x10" name="TRIGGER">
 			<bitfield pos="0" name="FLUSH"/>
 			<bitfield pos="1" name="RESET"/>
@@ -215,6 +227,7 @@
 		<reg32 offset="0x18" name="UNK18"/> <!-- fff -->
 		<reg32 offset="0x1c" name="UNK1C"/> <!-- 1 -->
 	</array>
+	<reg32 offset="0x580" name="BITPLANE_DATA" length="4" variants="NVA3-"/> <!-- indexed -->
 </array>
 
 <array name="PVP" offset="0x85000" stride="0x1000" length="1" variants="NV98 NVAA-">
@@ -240,7 +253,10 @@
 		</reg32>
 		<reg32 offset="0x70" name="INTR" type="nv98_pvp_vuc_intr"/>
 		<reg32 offset="0x74" name="INTR_EN" type="nv98_pvp_vuc_intr"/>
-		<reg32 offset="0xa8" name="UNKA8"/>
+		<reg32 offset="0xa0" name="MBRING_ADDR" shr="8"/>
+		<reg32 offset="0xa4" name="MBRING_SIZE"/>
+		<reg32 offset="0xa8" name="MBRING_GET"/>
+		<reg32 offset="0xac" name="MBRING_AVAIL"/> <!-- yes, really. -->
 	</array>
 	<array offset="0x500" name="TRANS" stride="0x80">
 		<reg32 offset="0x00" name="CODE_SELECT" length="4">

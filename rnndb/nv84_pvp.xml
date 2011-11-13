@@ -6,14 +6,138 @@
 
 <import file="nvchipsets.xml" />
 
+<domain name="NV_VP2_MMIO">
+	<reg32 offset="0x38000" name="SCRATCH_INTERN" length="0x40"/>
+	<reg32 offset="0x38100" name="XT_REGION_BASE" stride="0x10" length="16" shr="8"/>
+	<reg32 offset="0x38114" name="XT_REGION_SETUP" stride="0x10" length="16">
+		<bitfield low="0" high="6" name="TARGET"/>
+		<bitfield low="8" high="10" name="MODE"/>
+	</reg32>
+	<reg32 offset="0x38118" name="XT_REGION_LIMIT" stride="0x10" length="16" shr="8"/>
+	<reg32 offset="0x3811c" name="DMAOBJ" stride="0x10" length="16"/> <!-- XXX: 32-bit??? -->
+	<reg32 offset="0x38208" name="CHANNEL_CUR"/>
+	<reg32 offset="0x3820c" name="CHANNEL_NEXT"/>
+	<reg32 offset="0x38218" name="LIMIT_FAULT_ADDR"/>
+	<reg32 offset="0x38220" name="FIFO_DATA"/>
+	<reg32 offset="0x38224" name="FIFO_MTHD"/>
+	<reg32 offset="0x38228" name="FIFO_EMPTY"/>
+	<reg32 offset="0x382b8" name="SCRATCH" length="5"/>
+	<reg32 offset="0x382d4" name="TIME_LOW"/>
+	<reg32 offset="0x382d8" name="TIME_HIGH"/>
+	<reg32 offset="0x382e0" name="SCRATCH_X2H"/>
+	<reg32 offset="0x382e4" name="SCRATCH_H2X"/>
+</domain>
+
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array name="PVP" offset="0x00f000" stride="0x1000" length="1" variants="NV84:NV98 NVA0">
+<group name="nv84_xtensa_common">
+	<bitset name="nv84_xtensa_intr" inline="yes">
+		<bitfield pos="3" name="VM_FAULT"/>
+		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="5" name="LIMIT_FAULT"/>
+	</bitset>
+	<reg32 offset="0x014" name="FIFO_MTHD"/>
+	<reg32 offset="0x018" name="FIFO_DATA"/>
+	<reg32 offset="0x01c" name="FIFO_STATUS">
+		<bitfield pos="0" name="EMPTY"/>
+		<bitfield low="4" high="31" name="UNK4"/> <!-- XXX: what's the correct high bit? -->
+	</reg32>
+	<reg32 offset="0x020" name="INTR" type="nv84_xtensa_intr"/>
+	<reg32 offset="0x028" name="CHANNEL_CUR"/>
+	<reg32 offset="0x02c" name="CHANNEL_NEXT"/>
+	<reg32 offset="0x030" name="XT_REGION_BASE" stride="0xc" length="16" shr="8"/>
+	<reg32 offset="0x034" name="XT_REGION_SETUP" stride="0xc" length="16">
+		<bitfield low="0" high="6" name="TARGET"/> <!-- 0x1c for physical VRAM, 0xf for the context dmaobj [?], 0-0xe for relevant DMA slot -->
+		<bitfield low="8" high="10" name="MODE"/> <!-- caching or something? -->
+	</reg32>
+	<reg32 offset="0x038" name="XT_REGION_LIMIT" stride="0xc" length="16" shr="8"/>
 
+	<reg32 offset="0x0fc" name="HOST_IO_INDEX"/>
+
+	<reg32 offset="0x128" name="JOE"/>
+	<reg32 offset="0x130" name="XT_REG_ADDR"/>
+	<reg32 offset="0x134" name="XT_REG_DATA"/>
+	<reg32 offset="0x138" name="XT_PC"/>
+	<reg32 offset="0x13c" name="LIMIT_FAULT_ADDR"/>
+	<reg32 offset="0x148" name="SCRATCH" length="5" stride="0xc"/>
+	<reg32 offset="0x184" name="INTR_EN" type="nv84_xtensa_intr"/> <!-- for host -->
+	<reg32 offset="0x19c" name="DMAOBJ" length="16"/>
+	<reg32 offset="0x1dc" name="SCRATCH_X2H"/>
+	<reg32 offset="0x1e0" name="SCRATCH_H2X"/>
+</group>
+
+<array name="PVP" offset="0x00f000" stride="0x1000" length="1" variants="NV84:NV98 NVA0">
+	<array offset="0xc00" name="XTENSA" stride="0x400">
+		<use-group name="nv84_xtensa_common"/>
+	</array>
 </array>
 
 <array name="PBSP" offset="0x103000" stride="0x1000" length="1" variants="NV84:NV98 NVA0">
-
+	<array offset="0x000" name="BSP" stride="0x200">
+		<reg32 offset="0x00" name="UNK00"/>
+		<reg32 offset="0x04" name="UNK04"/>
+		<reg32 offset="0x08" name="UNK08"/>
+		<reg32 offset="0x0c" name="UNK0C"/>
+		<reg32 offset="0x10" name="UNK10_STATUS"/>
+		<reg32 offset="0x1c" name="INTR_ENABLE">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="1" name="UIRQ1"/>
+			<bitfield pos="2" name="UNK2"/>
+			<bitfield pos="3" name="UIRQ4"/>
+			<bitfield pos="4" name="UIRQ3"/>
+		</reg32>
+		<reg32 offset="0x20" name="UNK20"/>
+		<reg32 offset="0x24" name="INTR">
+			<bitfield low="0" high="3" name="0">
+				<value value="0" name="NONE"/>
+				<value value="1" name="UIRQ0"/>
+				<value value="2" name="UIRQ1"/>
+				<value value="3" name="UIRQ2"/>
+				<value value="4" name="UIRQ3"/>
+			</bitfield>
+			<bitfield pos="4" name="UIRQ4"/>
+		</reg32>
+		<reg32 offset="0x28" name="UNK28"/>
+		<reg32 offset="0x40" name="STREAM_OFFSET" stride="8" length="8"/>
+		<reg32 offset="0x44" name="STREAM_CONF" stride="8" length="8">
+			<bitfield low="0" high="27" name="LENGTH"/>
+			<bitfield pos="28" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x80" name="UNK80"/>
+	</array>
+	<array offset="0x200" name="VUC" stride="0x100">
+		<reg32 offset="0x000" name="DATA" length="32"/> <!-- indexed like fµc, but only one word per index, instead of two -->
+		<reg32 offset="0x084" name="CODE_CONTROL">
+			<bitfield low="0" high="10" name="IP"/>
+			<bitfield pos="16" name="PAUSE"/>
+		</reg32>
+		<reg32 offset="0x088" name="CODE"/>
+		<bitset name="nv84_pbsp_vuc_intr" inline="yes">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="1" name="UNK1"/>
+			<bitfield pos="2" name="UNK2"/>
+			<bitfield pos="3" name="UNK3"/>
+			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="5" name="UNK5"/>
+		</bitset>
+		<reg32 offset="0x0d4" name="INTR" type="nv84_pbsp_vuc_intr"/>
+		<reg32 offset="0x0d8" name="INTR" type="nv84_pbsp_vuc_intr"/>
+	</array>
+	<reg32 offset="0x420" name="STREAM_BASE" shr="8"/>
+	<reg32 offset="0x424" name="STREAM_TARGET"/>
+	<reg32 offset="0x428" name="STREAM_LIMIT" shr="8"/>
+	<reg32 offset="0x430" name="MBDATA_BASE" shr="8"/> <!-- goes to VP -->
+	<reg32 offset="0x434" name="MBDATA_TARGET"/>
+	<reg32 offset="0x438" name="MBDATA_LIMIT" shr="8"/>
+	<reg32 offset="0x440" name="UNK440_BASE" shr="8"/>
+	<reg32 offset="0x444" name="UNK440_TARGET"/>
+	<reg32 offset="0x448" name="UNK440_LIMIT" shr="8"/>
+	<reg32 offset="0x450" name="MBRING_BASE" shr="8"/>
+	<reg32 offset="0x454" name="MBRING_TARGET"/>
+	<reg32 offset="0x458" name="MBRING_LIMIT" shr="8"/>
+	<array offset="0xc00" name="XTENSA" stride="0x400">
+		<use-group name="nv84_xtensa_common"/>
+	</array>
 </array>
 
 </domain>
