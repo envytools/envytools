@@ -127,7 +127,7 @@
 	<reg32 offset="0x044" name="NVCLK_MUL">
 		<doc>
 			NVCLK = source * 64 / (2+NVCLK_MUL).
-			0 <= NVCLK_MUL < 64
+			0 &lt; or equal NVCLK_MUL &lt; 64
 		</doc>
 	</reg32>
 
