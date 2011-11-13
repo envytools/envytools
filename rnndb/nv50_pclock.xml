@@ -224,7 +224,7 @@
 		<doc>NVCLK clock is multiplied by this/16. If it's > 16, it gets clamped to 16.</doc>
 	</reg32>
 
-	<reg32 offset="0x050" name="CLOCK_SOURCE" variants="NV94:NVAA">
+	<reg32 offset="0x050" name="CLOCK_SOURCE" variants="NV94:NVA0">
 		<doc>XTPLL is always linked to RPLL1</doc>
 		<bitfield low="0" high="1" name="SPLL" variants="NV94:NVA0">
 			<value value="0" name="RPLL2"/>

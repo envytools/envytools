@@ -80,7 +80,7 @@
 		<reg32 name="CLK0" offset="0x00" type="nva3_pll_src"/>
 		<reg32 name="CLK1" offset="0x04" type="nva3_pll_src"/>
 		<reg32 name="CLK2" offset="0x08" type="nva3_pll_src"/>
-		<reg32 name="CLK8" offset="0x20" type="nva3_pll_src"/>
+		<reg32 name="CLK8" offset="0x20" type="nva3_pll_src"/> <!-- related to PDISP CLOCK -->
 		<reg32 name="CLK9" offset="0x24" type="nva3_pll_src"/>
 	</array>
 	<array offset="0x160" name="PLL_CLK_SRC2" stride="0x40" length="1">
@@ -113,6 +113,34 @@
 </array>
 
 <array offset="0xc000" name="PCONTROL" stride="0x1000" variants="NVA3:NVC0" length="1">
+	<reg32 offset="0x040" name="MASTER">
+		<bitfield pos="12" name="UNK12"/> <!-- should be the same as on nv50 -->
+
+		<bitfield low="28" high="29" name="HOST"> <!-- guess from nv50 -->
+			<doc>Gets post-multiplied by HOST_MUL.</doc>
+			<value value="0" name="HREF"/>
+			<value value="2" name="HCLK" variants="NV84-"/>
+			<value value="3" name="HCLK"/>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x044" name="NVCLK_MUL">
+		<doc>
+			NVCLK = source * 64 / (2+NVCLK_MUL).
+			0 &lt; NVCLK_MUL &lt; 64
+		</doc>
+	</reg32>
+
+	<!-- isn't used by the blob. All the bits writable -->
+	<reg32 offset="0x04c" name="UNK4C" />
+
+	<reg32 offset="0x050" name="CLOCK_SOURCE">
+		<!-- mode 1 and 3 are the same. 0 and 2 crash the card -->
+		<bitfield low="14" high="15" name="UNK14" />
+
+		<!-- changing this doesn't change any clocks measured by nvatiming on my nva3 -->
+		<bitfield low="16" high="17" name="UNK16" />
+	</reg32>
 </array>
 
 </domain>
