@@ -353,6 +353,16 @@ struct matches *atomctarg APROTO {
 	mark(ctx, expr->num1, 2);
 	expr->special = 2;
 	ADDARRAY(ctx->atoms, expr);
+	int i;
+	for (i = 0; i < ctx->labelsnum; i++) {
+		if (ctx->labels[i].val == expr->num1 && ctx->labels[i].name) {
+			struct expr *expr = makeex(EXPR_LABEL);
+			expr->str = strdup(ctx->labels[i].name);
+			expr->special = 2;
+			ADDARRAY(ctx->atoms, expr);
+			return;
+		}
+	}
 }
 
 struct matches *atombtarg APROTO {
@@ -364,6 +374,16 @@ struct matches *atombtarg APROTO {
 	mark(ctx, expr->num1, 1);
 	expr->special = 1;
 	ADDARRAY(ctx->atoms, expr);
+	int i;
+	for (i = 0; i < ctx->labelsnum; i++) {
+		if (ctx->labels[i].val == expr->num1 && ctx->labels[i].name) {
+			struct expr *expr = makeex(EXPR_LABEL);
+			expr->str = strdup(ctx->labels[i].name);
+			expr->special = 2;
+			ADDARRAY(ctx->atoms, expr);
+			return;
+		}
+	}
 }
 
 struct matches *atomign APROTO {
@@ -891,6 +911,8 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 	ctx->vartype = vartype;
 	ctx->ptype = ptype;
 	ctx->isa = isa;
+	ctx->labels = labels;
+	ctx->labelsnum = labelsnum;
 	if (labels) {
 		for (i = 0; i < labelsnum; i++) {
 			mark(ctx, labels[i].val, labels[i].type);
