@@ -287,15 +287,6 @@ void time_ptimer(unsigned int card)
 		ptimer_max, ptimer_max/1000000.0);
 	}
 
-	/* Calibrate to read in µs */
-	nva_wr32(card, 0x9200, 27);
-	nva_wr32(card, 0x9210, 0x1);
-	nva_wr32(card, 0x9220, 0x0);
-
-	ptimer_calibrated = time_ptimer_clock(card);
-	printf("PTIMER calibrated: 1s = %llu cycles --> frequency = %f MHz\n",
-	       ptimer_calibrated, ptimer_calibrated/1000000.0);
-
 	/* Restore the previous values */
 	nva_wr32(card, 0x9200, r9200);
 	nva_wr32(card, 0x9210, r9210);
