@@ -6,11 +6,20 @@
 
 <import file="nvchipsets.xml" />
 
+<bitset name="nv84_vp2_target" inline="yes">
+	<bitfield low="0" high="3" name="DMAIDX"/>
+	<bitfield pos="4" name="MODE">
+		<value value="0" name="DMAOBJ"/>
+		<value value="1" name="PHYS"/>
+	</bitfield>
+	<bitfield low="5" high="6" name="PHYS_TARGET" type="nv50_mem_target"/>
+</bitset>
+
 <domain name="NV_VP2_MMIO">
 	<reg32 offset="0x38000" name="SCRATCH_INTERN" length="0x40"/>
 	<reg32 offset="0x38100" name="XT_REGION_BASE" stride="0x10" length="16" shr="8"/>
 	<reg32 offset="0x38114" name="XT_REGION_SETUP" stride="0x10" length="16">
-		<bitfield low="0" high="6" name="TARGET"/>
+		<bitfield low="0" high="6" name="TARGET" type="nv84_vp2_target"/>
 		<bitfield low="8" high="10" name="MODE"/>
 	</reg32>
 	<reg32 offset="0x38118" name="XT_REGION_LIMIT" stride="0x10" length="16" shr="8"/>
@@ -47,7 +56,7 @@
 	<reg32 offset="0x02c" name="CHANNEL_NEXT"/>
 	<reg32 offset="0x030" name="XT_REGION_BASE" stride="0xc" length="16" shr="8"/>
 	<reg32 offset="0x034" name="XT_REGION_SETUP" stride="0xc" length="16">
-		<bitfield low="0" high="6" name="TARGET"/> <!-- 0x1c for physical VRAM, 0xf for the context dmaobj [?], 0-0xe for relevant DMA slot -->
+		<bitfield low="0" high="6" name="TARGET" type="nv84_vp2_target"/>
 		<bitfield low="8" high="10" name="MODE"/> <!-- caching or something? -->
 	</reg32>
 	<reg32 offset="0x038" name="XT_REGION_LIMIT" stride="0xc" length="16" shr="8"/>
@@ -124,16 +133,16 @@
 		<reg32 offset="0x0d8" name="INTR" type="nv84_pbsp_vuc_intr"/>
 	</array>
 	<reg32 offset="0x420" name="STREAM_BASE" shr="8"/>
-	<reg32 offset="0x424" name="STREAM_TARGET"/>
+	<reg32 offset="0x424" name="STREAM_TARGET" type="nv84_vp2_target"/>
 	<reg32 offset="0x428" name="STREAM_LIMIT" shr="8"/>
 	<reg32 offset="0x430" name="MBDATA_BASE" shr="8"/> <!-- goes to VP -->
-	<reg32 offset="0x434" name="MBDATA_TARGET"/>
+	<reg32 offset="0x434" name="MBDATA_TARGET" type="nv84_vp2_target"/>
 	<reg32 offset="0x438" name="MBDATA_LIMIT" shr="8"/>
 	<reg32 offset="0x440" name="UNK440_BASE" shr="8"/>
-	<reg32 offset="0x444" name="UNK440_TARGET"/>
+	<reg32 offset="0x444" name="UNK440_TARGET" type="nv84_vp2_target"/>
 	<reg32 offset="0x448" name="UNK440_LIMIT" shr="8"/>
 	<reg32 offset="0x450" name="MBRING_BASE" shr="8"/>
-	<reg32 offset="0x454" name="MBRING_TARGET"/>
+	<reg32 offset="0x454" name="MBRING_TARGET" type="nv84_vp2_target"/>
 	<reg32 offset="0x458" name="MBRING_LIMIT" shr="8"/>
 	<array offset="0xc00" name="XTENSA" stride="0x400">
 		<use-group name="nv84_xtensa_common"/>
