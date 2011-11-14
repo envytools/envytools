@@ -49,6 +49,8 @@
 		<bitfield pos="4" name="UNK4"/>
 		<bitfield pos="5" name="LIMIT_FAULT"/>
 	</bitset>
+	<reg32 offset="0x00c" name="SCRATCH_INTERN_IDX"/>
+	<reg32 offset="0x010" name="SCRATCH_INTERN"/>
 	<reg32 offset="0x014" name="FIFO_MTHD"/>
 	<reg32 offset="0x018" name="FIFO_DATA"/>
 	<reg32 offset="0x01c" name="FIFO_STATUS">
