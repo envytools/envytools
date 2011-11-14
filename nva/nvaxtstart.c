@@ -106,10 +106,17 @@ int main(int argc, char **argv) {
 	}
 	int c;
 	int cnum =0;
-	while ((c = getopt (argc, argv, "c:")) != -1)
+	uint32_t base = 0;
+	while ((c = getopt (argc, argv, "c:bv")) != -1)
 		switch (c) {
 			case 'c':
 				sscanf(optarg, "%d", &cnum);
+				break;
+			case 'b':
+				base = 0x103000;
+				break;
+			case 'v':
+				base = 0xf000;
 				break;
 		}
 	if (cnum >= nva_cardsnum) {
@@ -119,17 +126,30 @@ int main(int argc, char **argv) {
 			fprintf (stderr, "No cards found.\n");
 		return 1;
 	}
+	if (!base) {
+		fprintf (stderr, "No engine specified. Specify -b for PBSP, -v for PVP\n");
+		return 1;
+	}
 	int32_t a, i;
 	nva_wr32(cnum, 0x200, 0x40110011);
 	nva_wr32(cnum, 0x200, 0xffffffff);
 	usleep(1000);
 	nva_wr32(cnum, 0x1700, 0x10);
-	nva_wr32(cnum, 0x701080, 0x00190000);
-	nva_wr32(cnum, 0x701084, 0x003fffff);
-	nva_wr32(cnum, 0x701088, 0x00300000);
-	nva_wr32(cnum, 0x70108c, 0x00000000);
-	nva_wr32(cnum, 0x701090, 0x00000000);
-	nva_wr32(cnum, 0x701094, 0x00000000);
+	if (base == 0x103000) {
+		nva_wr32(cnum, 0x701080, 0x00190000);
+		nva_wr32(cnum, 0x701084, 0x003fffff);
+		nva_wr32(cnum, 0x701088, 0x00300000);
+		nva_wr32(cnum, 0x70108c, 0x00000000);
+		nva_wr32(cnum, 0x701090, 0x00000000);
+		nva_wr32(cnum, 0x701094, 0x00000000);
+	} else {
+		nva_wr32(cnum, 0x701040, 0x00190000);
+		nva_wr32(cnum, 0x701044, 0x003fffff);
+		nva_wr32(cnum, 0x701048, 0x00300000);
+		nva_wr32(cnum, 0x70104c, 0x00000000);
+		nva_wr32(cnum, 0x701050, 0x00000000);
+		nva_wr32(cnum, 0x701054, 0x00000000);
+	}
 	nva_wr32(cnum, 0x1700, 0x30);
 	nva_wr32(cnum, 0x700000, 0x00000000);
 	nva_wr32(cnum, 0x1700, 0x20);
@@ -141,17 +161,17 @@ int main(int argc, char **argv) {
 	nva_wr32(cnum, 0x70000, 1);
 	while (nva_rd32(cnum, 0x70000));
 	usleep(1000);
-	nva_wr32(cnum, 0x103d10, 0x1fffffff);
-	nva_wr32(cnum, 0x103d08, 0xfffffff);
-	nva_wr32(cnum, 0x103d28, 0x90044);
-	nva_wr32(cnum, 0x103cc0, 0x2000);
-	nva_wr32(cnum, 0x103cc4, 0x1c);
-	nva_wr32(cnum, 0x103cc8, 0x400);
-	nva_wr32(cnum, 0x103ce4, 0x0000);
-	nva_wr32(cnum, 0x103ce8, 0x0f);
-	nva_wr32(cnum, 0x103cec, 0x404);
-	nva_wr32(cnum, 0x103c20, 0x3f);
-	nva_wr32(cnum, 0x103d84, 0x3f);
+	nva_wr32(cnum, base+0xd10, 0x1fffffff);
+	nva_wr32(cnum, base+0xd08, 0xfffffff);
+	nva_wr32(cnum, base+0xd28, 0x90044);
+	nva_wr32(cnum, base+0xcc0, 0x2000);
+	nva_wr32(cnum, base+0xcc4, 0x1c);
+	nva_wr32(cnum, base+0xcc8, 0x400);
+	nva_wr32(cnum, base+0xce4, 0x0000);
+	nva_wr32(cnum, base+0xce8, 0x0f);
+	nva_wr32(cnum, base+0xcec, 0x404);
+	nva_wr32(cnum, base+0xc20, 0x3f);
+	nva_wr32(cnum, base+0xd84, 0x3f);
 	nva_wr32(cnum, 0x1588, nva_rd32(cnum, 0x1588) & ~0xffff);
 	nva_wr32(cnum, 0x2500, 1);
 	nva_wr32(cnum, 0x3200, 1);
@@ -239,7 +259,10 @@ int main(int argc, char **argv) {
 	for (i = 0; i <= 0x1000; i+= 4)
 		nva_wr32(cnum, 0x700000+0x6000 + i, 0);
 	nva_wr32(cnum, 0x700000+0x7008, 0x1);
-	nva_wr32(cnum, 0x700000+0x700c, 0x00600004);
+	if (base == 0x103000)
+		nva_wr32(cnum, 0x700000+0x700c, 0x00600004);
+	else
+		nva_wr32(cnum, 0x700000+0x700c, 0x00400004);
 	nva_wr32(cnum, 0x700000+0x1100, 0x0019003d);
 	nva_wr32(cnum, 0x700000+0x1104, 0xffffffff);
 	nva_wr32(cnum, 0x700000+0x1108, 0);
