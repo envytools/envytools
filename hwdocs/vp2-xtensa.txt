@@ -1,0 +1,70 @@
+
+Configured options:
+
+ - Code Density Option
+ - Loop Option
+ - 16-bit Integer Multiply Option
+ - Miscellaneous Operations Option:
+  - InstructionCLAMPS = 0
+  - InstructionMINMAX = 1
+  - InstructionNSA = 0
+  - InstructionSEXT = 0
+ - Boolean Option
+ - Exception Option
+  - NDEPC = 1
+  - ResetVector = 0xc0000020
+  - UserExceptionVector = 0xc0000420
+  - KernelExceptionVector = 0xc0000600
+  - DoubleExceptionVector = 0xc0000a00
+ - Interrupt Option
+  - NINTERRUPT = 10 [XXX: check PVP]
+  - INTTYPE: XXX
+ - High-priority Interrupt Option
+  - NLEVEL: 6
+  - LEVEL: XXX
+  - EXCMLEVEL: XXX
+  - NNMI: 1 [XXX: check]
+  - InterruptVector[2] = 0xc0000b40
+  - InterruptVector[3] = 0xc0000c00
+  - InterruptVector[4] = 0xc0000d20
+  - InterruptVector[5] = 0xc0000e00
+  - InterruptVector[6] = 0xc0000f00
+  - InterruptVector[7] = 0xc0001000
+ - Timer Interrupt Option
+  - NCOMPARE = 2
+  - TIMERINT: XXX
+ - Instruction Cache Option
+  - InstCacheWayCount: XXX
+  - InstCacheLineBytes: XXX
+  - InstCacheBytes: XXX
+  - MemErrDetection: XXX
+ - Instruction Cache Test Option
+ - Instruction Cache Index Lock Option
+ - Data Cache Option
+  - DataCacheWayCount: XXX
+  - DataCacheLineBytes: XXX
+  - DataCacheBytes: XXX
+  - IsWriteback: XXX
+  - MemErrDetection: XXX
+ - Data Cache Test Option
+ - Data Cache Index Lock Option
+ - XLMI Option
+  - XLMIBytes = 256kB
+  - XLMIPAddr = 0xcffc0000
+ - Region Protection Option
+ - Windowed Register Option
+  - WindowOverflow4 = 0xc0000800
+  - WindowUnderflow4 = 0xc0000840
+  - WindowOverflow8 = 0xc0000880
+  - WindowUnderflow8 = 0xc00008c0
+  - WindowOverflow12 = 0xc0000900
+  - WindowUnderflow12 = 0xc0000940
+  - NAREG = 32
+ - Processor Interface Option
+ - Debug Option
+  - DEBUGLEVEL = 6 [XXX: check]
+  - NIBREAK = 2
+  - NDBREAK = 2
+  - SZICOUNT = 32
+  - OCD: XXX
+ - Trace Port Option? [XXX]
