@@ -76,6 +76,8 @@
 	<reg32 offset="0x13c" name="LIMIT_FAULT_ADDR"/>
 	<reg32 offset="0x148" name="SCRATCH" length="5" stride="0xc"/>
 	<reg32 offset="0x184" name="INTR_EN" type="nv84_xtensa_intr"/> <!-- for host -->
+	<reg32 offset="0x18c" name="TIME_LOW"/>
+	<reg32 offset="0x190" name="TIME_HIGH"/>
 	<reg32 offset="0x19c" name="XT_REGION_SCRATCH" length="16"/>
 	<reg32 offset="0x1dc" name="SCRATCH_X2H"/>
 	<reg32 offset="0x1e0" name="SCRATCH_H2X"/>
