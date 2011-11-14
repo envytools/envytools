@@ -127,7 +127,22 @@ int main(int argc, char **argv) {
 					struct label nl;
 					char type;
 					char buf[1000] = "";
-					while (fscanf(mapfile, " %c%llx%s", &type, &nl.val, buf) >= 2) {
+
+					while(fgets(buf, sizeof(buf), mapfile)) {
+
+						if (buf[0] == '#' || buf[0] == '\n')
+							continue;
+
+						char* tmp = strchr(buf, '#');
+						if (tmp)
+							tmp = '\0';
+
+						char name[200];
+						if (sscanf(buf, "%c%llx%s", &type, &nl.val, name) < 2) {
+							fprintf(stderr, "Malformated input: %s\n", buf);
+							continue;
+						}
+
 						switch (type) {
 							case 'B':
 								nl.type = 1;
@@ -146,7 +161,7 @@ int main(int argc, char **argv) {
 								return 1;
 						}
 						if (*buf)
-							nl.name = strdup(buf);
+							nl.name = strdup(name);
 						else
 							nl.name = 0;
 						ADDARRAY(labels, nl);
