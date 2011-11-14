@@ -15,4 +15,10 @@ nvacounter
 nvastrscan
 nvaevo
 nvaxttime
+nvaxtstart
+nvaxtpeek
+nvaxtpoke
+nvaxtrsr
+nvaxtssr
+nvaxtinsn
 libnva.a
