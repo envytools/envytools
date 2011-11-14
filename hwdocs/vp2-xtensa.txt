@@ -21,7 +21,7 @@ Configured options:
   - INTTYPE: XXX
  - High-priority Interrupt Option
   - NLEVEL: 6
-  - LEVEL: XXX
+  - LEVEL: 1, 1, 2, 3, 7, 4, 5, 5, 5, 5 [XXX: check PVP]
   - EXCMLEVEL: XXX
   - NNMI: 1 [XXX: check]
   - InterruptVector[2] = 0xc0000b40
@@ -32,20 +32,19 @@ Configured options:
   - InterruptVector[7] = 0xc0001000
  - Timer Interrupt Option
   - NCOMPARE = 2
-  - TIMERINT: XXX
+  - TIMERINT[0]: 0
+  - TIMERINT[1]: 1
  - Instruction Cache Option
-  - InstCacheWayCount: XXX
-  - InstCacheLineBytes: XXX
-  - InstCacheBytes: XXX
-  - MemErrDetection: XXX
+  - InstCacheWayCount: 3
+  - InstCacheLineBytes: 0x20
+  - InstCacheBytes: 0x3000
  - Instruction Cache Test Option
  - Instruction Cache Index Lock Option
  - Data Cache Option
-  - DataCacheWayCount: XXX
-  - DataCacheLineBytes: XXX
-  - DataCacheBytes: XXX
-  - IsWriteback: XXX
-  - MemErrDetection: XXX
+  - DataCacheWayCount: 2
+  - DataCacheLineBytes: 0x20
+  - DataCacheBytes: 0x1000
+  - IsWriteback: Yes
  - Data Cache Test Option
  - Data Cache Index Lock Option
  - XLMI Option
