@@ -18,14 +18,18 @@
 <domain name="NV_VP2_MMIO">
 	<reg32 offset="0x38000" name="SCRATCH_INTERN" length="0x40"/>
 	<reg32 offset="0x38100" name="XT_REGION_BASE" stride="0x10" length="16" shr="8"/>
-	<reg32 offset="0x38114" name="XT_REGION_SETUP" stride="0x10" length="16">
+	<reg32 offset="0x38104" name="XT_REGION_SETUP" stride="0x10" length="16">
 		<bitfield low="0" high="6" name="TARGET" type="nv84_vp2_target"/>
 		<bitfield low="8" high="10" name="MODE"/>
 	</reg32>
-	<reg32 offset="0x38118" name="XT_REGION_LIMIT" stride="0x10" length="16" shr="8"/>
-	<reg32 offset="0x3811c" name="DMAOBJ" stride="0x10" length="16"/> <!-- XXX: 32-bit??? -->
+	<reg32 offset="0x38108" name="XT_REGION_LIMIT" stride="0x10" length="16" shr="8"/>
+	<reg32 offset="0x3810c" name="XT_REGION_SCRATCH" stride="0x10" length="16"/>
 	<reg32 offset="0x38208" name="CHANNEL_CUR"/>
 	<reg32 offset="0x3820c" name="CHANNEL_NEXT"/>
+	<reg32 offset="0x38210" name="DMAOBJ_LOAD" access="w">
+		<bitfield low="0" high="15" name="INST"/>
+		<bitfield low="16" high="19" name="DMAIDX"/>
+	</reg32>
 	<reg32 offset="0x38218" name="LIMIT_FAULT_ADDR"/>
 	<reg32 offset="0x38220" name="FIFO_DATA"/>
 	<reg32 offset="0x38224" name="FIFO_MTHD"/>
@@ -70,7 +74,7 @@
 	<reg32 offset="0x13c" name="LIMIT_FAULT_ADDR"/>
 	<reg32 offset="0x148" name="SCRATCH" length="5" stride="0xc"/>
 	<reg32 offset="0x184" name="INTR_EN" type="nv84_xtensa_intr"/> <!-- for host -->
-	<reg32 offset="0x19c" name="DMAOBJ" length="16"/>
+	<reg32 offset="0x19c" name="XT_REGION_SCRATCH" length="16"/>
 	<reg32 offset="0x1dc" name="SCRATCH_X2H"/>
 	<reg32 offset="0x1e0" name="SCRATCH_H2X"/>
 </group>
