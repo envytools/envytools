@@ -1,0 +1,106 @@
+.skip 0x20
+
+restart:
+
+movi $a1 0xf
+slli $a1 $a1 28
+
+movi $a2 0x0f
+wsr $a2 $ps
+
+loo:
+l32i $a2 [$a1]
+beqi $a2 1 #peek
+beqi $a2 2 #poke
+beqi $a2 3 #rsr
+beqi $a2 4 #wsr
+beqi $a2 5 #insn
+j #loo
+
+peek:
+l32i $a2 [$a1+4]
+l32i $a2 [$a2]
+s32i $a2 [$a1+4]
+memw
+movi $a2 0
+s32i $a2 [$a1]
+j #loo
+
+poke:
+l32i $a2 [$a1+4]
+l32i $a3 [$a1+8]
+s32i $a3 [$a2]
+memw
+movi $a2 0
+s32i $a2 [$a1]
+j #loo
+
+rsr:
+l32i $a2 [$a1+4]
+call 0 #modret
+rsr $a2 $lbeg
+s32i $a2 [$a1+4]
+movi $a2 0
+s32i $a2 [$a1+0xc]
+memw
+s32i $a2 [$a1]
+j #loo
+
+wsr:
+l32i $a2 [$a1+4]
+l32i $a3 [$a1+8]
+call 0 #modret
+wsr $a3 $lbeg
+movi $a2 0
+s32i $a2 [$a1+0xc]
+memw
+s32i $a2 [$a1]
+j #loo
+
+insn:
+l32i $a2 [$a1+4]
+l32i $a3 [$a1+8]
+call 0 #modinsn
+nop
+s32i $a3 [$a1+8]
+movi $a2 0
+s32i $a2 [$a1+0xc]
+memw
+s32i $a2 [$a1]
+j #loo
+
+
+.align 4
+modret:
+s8i $a2 [$a0+1]
+dhwb [$a0]
+dhwb [$a0+4]
+isync
+ihi [$a0]
+ihi [$a0+4]
+isync
+ret
+
+modinsn:
+s8i $a2 [$a0]
+srli $a2 $a2 8
+s8i $a2 [$a0+1]
+srli $a2 $a2 8
+s8i $a2 [$a0+2]
+dhwb [$a0]
+dhwb [$a0+4]
+isync
+ihi [$a0]
+ihi [$a0+4]
+isync
+ret
+
+.align 0x400
+.skip 0x200
+rsr $a2 $exccause
+addi $a2 $a2 0x40
+s32i $a2 [$a1+0xc]
+memw
+movi $a2 0
+s32i $a2 [$a1]
+j #restart
