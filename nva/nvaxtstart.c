@@ -27,78 +27,6 @@
 #include <stdio.h>
 #include <unistd.h>
 
-uint32_t code[] = {
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x00000000,
-	0x400fa012,
-	0xa0220111,
-	0x13e6200f,
-	0x26002122,
-	0x22260e12,
-	0x32322620,
-	0x264a4226,
-	0xfa866252,
-	0x012122ff,
-	0x22002222,
-	0x20c00161,
-	0x00a02200,
-	0x46006122,
-	0x2122fff5,
-	0x02213201,
-	0xc0006232,
-	0xa0220020,
-	0x00612200,
-	0x22fff006,
-	0x05050121,
-	0x03002000,
-	0x22016122,
-	0x612200a0,
-	0x0020c003,
-	0x46006122,
-	0x2122ffe9,
-	0x02213201,
-	0x30000305,
-	0xa0221300,
-	0x03612200,
-	0x220020c0,
-	0xe2860061,
-	0x012122ff,
-	0x05022132,
-	0x20f00003,
-	0x02613200,
-	0x2200a022,
-	0x20c00361,
-	0x00612200,
-	0x00ffdb06,
-	0x42014022,
-	0x70420070,
-	0x00200001,
-	0xe20070e2,
-	0x20000170,
-	0x00008000,
-	0x20004022,
-	0x40224128,
-	0x41282001,
-	0x42024022,
-	0x70420070,
-	0x00200001,
-	0xe20070e2,
-	0x20000170,
-	0x00008000,
-	[0x600/4] = 0x2203e820,
-	[0x604/4] = 0x612240c2,
-	[0x608/4] = 0x0020c003,
-	[0x60c/4] = 0x2200a022,
-	[0x610/4] = 0x82860061,
-	[0x614/4] = 0x000000fe,
-};
-
 int main(int argc, char **argv) {
 	if (nva_init()) {
 		fprintf (stderr, "PCI init failure!\n");
@@ -126,11 +54,27 @@ int main(int argc, char **argv) {
 			fprintf (stderr, "No cards found.\n");
 		return 1;
 	}
+
 	if (!base) {
 		fprintf (stderr, "No engine specified. Specify -b for PBSP, -v for PVP\n");
 		return 1;
 	}
-	int32_t a, i;
+	
+	if (optind >= argc) {
+	    fprintf(stderr, "At least specify payload file.\n");
+	    return 1;
+	}
+
+	FILE *payload = fopen(argv[optind], "rb");
+    
+    if (payload == NULL) {
+        fprintf(stderr, "Binary file %s could not be opened.\n", argv[optind]);
+        return 1;
+    } else {
+        fprintf(stderr, "Uploading file %s.\n", argv[optind]);
+    }
+    
+    int32_t a, i;
 	nva_wr32(cnum, 0x200, 0x40110011);
 	nva_wr32(cnum, 0x200, 0xffffffff);
 	usleep(1000);
@@ -155,9 +99,24 @@ int main(int argc, char **argv) {
 	nva_wr32(cnum, 0x1700, 0x20);
 	for (i = 0; i < 0x100000; i+= 4)
 		nva_wr32(cnum, 0x700000 + i, 0xffff06);
-	for (i = 0; i < sizeof(code) / 4; i++) {
-		nva_wr32(cnum, 0x700000 + i * 4, code[i]);
+		
+	for (i = 0; ; i += 4) {
+	    uint32_t word = 0;
+	    int y;
+	    int character = 0;
+	    for (y = 0; y < 4; y++) {
+    		character = fgetc(payload);
+    		if (character == EOF) {
+    		    break;
+    		}
+    		word |= ((unsigned char)character) << (y * 8);
+    	}
+    	nva_wr32(cnum, 0x700000 + i, word);
+   		if (character == EOF) {
+   		    break;
+   		}
 	}
+	
 	nva_wr32(cnum, 0x70000, 1);
 	while (nva_rd32(cnum, 0x70000));
 	usleep(1000);
