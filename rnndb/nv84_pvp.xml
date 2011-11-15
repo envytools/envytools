@@ -20,7 +20,13 @@
 	<reg32 offset="0x38100" name="XT_REGION_BASE" stride="0x10" length="16" shr="8"/>
 	<reg32 offset="0x38104" name="XT_REGION_SETUP" stride="0x10" length="16">
 		<bitfield low="0" high="6" name="TARGET" type="nv84_vp2_target"/>
-		<bitfield low="8" high="10" name="MODE"/>
+		<bitfield low="8" high="9" name="ENDIAN_SWAP_SIZE">
+			<value value="0" name="1"/> <!-- equiivalent to no swapping -->
+			<value value="1" name="2"/>
+			<value value="2" name="4"/>
+			<value value="3" name="8"/>
+		</bitfield>
+		<bitfield pos="10" name="ENDIAN_SWAP_ENABLE"/>
 	</reg32>
 	<reg32 offset="0x38108" name="XT_REGION_LIMIT" stride="0x10" length="16" shr="8"/>
 	<reg32 offset="0x3810c" name="XT_REGION_SCRATCH" stride="0x10" length="16"/>
@@ -67,7 +73,13 @@
 	<reg32 offset="0x030" name="XT_REGION_BASE" stride="0xc" length="16" shr="8"/>
 	<reg32 offset="0x034" name="XT_REGION_SETUP" stride="0xc" length="16">
 		<bitfield low="0" high="6" name="TARGET" type="nv84_vp2_target"/>
-		<bitfield low="8" high="10" name="MODE"/> <!-- caching or something? -->
+		<bitfield low="8" high="9" name="ENDIAN_SWAP_SIZE">
+			<value value="0" name="1"/> <!-- equiivalent to no swapping -->
+			<value value="1" name="2"/>
+			<value value="2" name="4"/>
+			<value value="3" name="8"/>
+		</bitfield>
+		<bitfield pos="10" name="ENDIAN_SWAP_ENABLE"/>
 	</reg32>
 	<reg32 offset="0x038" name="XT_REGION_LIMIT" stride="0xc" length="16" shr="8"/>
 
