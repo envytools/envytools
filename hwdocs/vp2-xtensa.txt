@@ -17,13 +17,31 @@ Configured options:
   - KernelExceptionVector = 0xc0000600
   - DoubleExceptionVector = 0xc0000a00
  - Interrupt Option
-  - NINTERRUPT = 10 [XXX: check PVP]
-  - INTTYPE: XXX
+  - NINTERRUPT = 10
+  - INTTYPE[0]: Timer
+  - INTTYPE[1]: Timer
+  - INTTYPE[2]: Level
+  - INTTYPE[3]: XXX Level/Edge/WriteErr
+  - INTTYPE[4]: NMI
+  - INTTYPE[5]: Level
+  - INTTYPE[6]: Level
+  - INTTYPE[7]: Level
+  - INTTYPE[8]: Level
+  - INTTYPE[9]: Level
  - High-priority Interrupt Option
   - NLEVEL: 6
-  - LEVEL: 1, 1, 2, 3, 7, 4, 5, 5, 5, 5 [XXX: check PVP]
-  - EXCMLEVEL: XXX
-  - NNMI: 1 [XXX: check]
+  - LEVEL[0]: 1
+  - LEVEL[1]: 1
+  - LEVEL[2]: 2
+  - LEVEL[3]: 3
+  - LEVEL[4]: 7
+  - LEVEL[5]: 4
+  - LEVEL[6]: 5
+  - LEVEL[7]: 5
+  - LEVEL[8]: 5
+  - LEVEL[9]: 5
+  - EXCMLEVEL: 1
+  - NNMI: 1
   - InterruptVector[2] = 0xc0000b40
   - InterruptVector[3] = 0xc0000c00
   - InterruptVector[4] = 0xc0000d20
@@ -61,7 +79,7 @@ Configured options:
   - NAREG = 32
  - Processor Interface Option
  - Debug Option
-  - DEBUGLEVEL = 6 [XXX: check]
+  - DEBUGLEVEL = 6
   - NIBREAK = 2
   - NDBREAK = 2
   - SZICOUNT = 32

@@ -34,6 +34,9 @@
 	<reg32 offset="0x38220" name="FIFO_DATA"/>
 	<reg32 offset="0x38224" name="FIFO_MTHD"/>
 	<reg32 offset="0x38228" name="FIFO_EMPTY"/>
+	<reg32 offset="0x38268" name="X2H_INTR">
+		<doc>Write anything to trigger X2H interrupt, read returns 1 if host INTR X2H bit is set, 0 otherwise.</doc>
+	</reg32>
 	<reg32 offset="0x382b8" name="SCRATCH" length="5"/>
 	<reg32 offset="0x382d4" name="TIME_LOW"/>
 	<reg32 offset="0x382d8" name="TIME_HIGH"/>
@@ -45,6 +48,7 @@
 
 <group name="nv84_xtensa_common">
 	<bitset name="nv84_xtensa_intr" inline="yes">
+		<bitfield pos="2" name="X2H"/>
 		<bitfield pos="3" name="VM_FAULT"/>
 		<bitfield pos="4" name="UNK4"/>
 		<bitfield pos="5" name="LIMIT_FAULT"/>
@@ -69,6 +73,10 @@
 
 	<reg32 offset="0x0fc" name="HOST_IO_INDEX"/>
 
+	<reg32 offset="0x124" name="XT_INTR_TRIGGER">
+		<bitfield pos="0" name="NMI"/>
+		<bitfield pos="1" name="H2X"/>
+	</reg32>
 	<reg32 offset="0x128" name="JOE"/>
 	<reg32 offset="0x130" name="XT_REG_ADDR"/>
 	<reg32 offset="0x134" name="XT_REG_DATA"/>
