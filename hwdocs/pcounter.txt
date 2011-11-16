@@ -105,7 +105,8 @@ set 1 [graph]:
 === NVA0 signals ===
 
 set 6 [vdec]:
-0x00-0x07: PVP_USER0-7
+0x00-0x07: PVP_USER_0-7
+0xa0 trailer base
 
 === NV98 signals ===
 

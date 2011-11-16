@@ -56,8 +56,8 @@
 		<bitfield low="2" high="3" name="1" type="nv_vp2_pm_signal"/>
 		<bitfield low="4" high="5" name="2" type="nv_vp2_pm_signal"/>
 		<bitfield low="6" high="7" name="3" type="nv_vp2_pm_signal"/>
-		<bitfield low="8" high="9" name="4" type="nv_vp2_pm_signal"/>
-		<bitfield low="10" high="11" name="5" type="nv_vp2_pm_signal"/>
+		<bitfield low="8" high="9" name="PM_TRIGGER" type="nv_vp2_pm_signal"/>
+		<bitfield low="10" high="11" name="WRCACHE_FLUSH" type="nv_vp2_pm_signal"/>
 		<bitfield low="12" high="13" name="6" type="nv_vp2_pm_signal"/>
 		<bitfield low="14" high="15" name="7" type="nv_vp2_pm_signal"/>
 	</reg32>

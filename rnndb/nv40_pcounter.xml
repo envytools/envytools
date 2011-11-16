@@ -74,9 +74,22 @@
 	<reg32 offset="0x740" name="CTR_MS3" length="8"/>
 	<reg32 offset="0x760" name="UNK760" length="8" variants="NV84-"/> <!-- fffffff0 -->
 	<reg32 offset="0x780" name="UNK780" length="8"/> <!-- ffffffff -->
-	<reg32 offset="0x7a0" name="UNK7A0" variants="NV84-"/> <!-- bfffffff -->
-	<reg32 offset="0x7a4" name="UNK7A4" variants="NV84-"/> <!-- ffff -->
-	<reg32 offset="0x7a8" name="UNK7A8" variants="NV84-"/> <!-- 11 -->
+	<reg32 offset="0x7a0" name="CHANNEL" variants="NV84-"/>
+	<reg32 offset="0x7a4" name="DMAOBJ" variants="NV84-"/>
+	<reg32 offset="0x7a8" name="UNK7A8" variants="NV84-">
+		<bitfield pos="0" name="UNK0"/> <!-- RW -->
+		<bitfield pos="4" name="UNK4"/> <!-- RW -->
+		<!-- the following are related to PM_TRIGGER / WRCACHE_FLUSH -->
+		<bitfield pos="8" name="PGRAPH"/>
+		<bitfield pos="9" name="PBSP"/>
+		<!-- perhaps NV84 PCRYPT too? -->
+		<!-- perhaps PUNK1C1 too? -->
+		<bitfield pos="10" name="PCRYPT" variants="NV98 NVAC:NVA3"/>
+		<bitfield pos="11" name="PVP"/>
+		<!-- perhaps PMPEG too? -->
+		<bitfield pos="12" name="PPPP" variants="NV98 NVAC-"/>
+		<!-- PCOPY missing for some reason -->
+	</reg32>
 	<reg32 offset="0x7c0" name="CTRL" length="8">
 		<bitfield low="0" high="1" name="UNK0"/>
 		<bitfield low="4" high="6" name="UNK4"/>
