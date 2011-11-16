@@ -101,6 +101,12 @@ set 1 [graph]:
 0xc9: CTXCTL flag 0x1e
 0xca: CTXCTL flag 0x1f
 
+
+=== NVA0 signals ===
+
+set 6 [vdec]:
+0x00-0x07: PVP_USER0-7
+
 === NV98 signals ===
 
 set 0 [host]:

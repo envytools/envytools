@@ -15,7 +15,7 @@
 	<bitfield low="5" high="6" name="PHYS_TARGET" type="nv50_mem_target"/>
 </bitset>
 
-<domain name="NV_VP2_MMIO">
+<domain name="NV_VP2_XLMI">
 	<reg32 offset="0x38000" name="SCRATCH_INTERN" length="0x40"/>
 	<reg32 offset="0x38100" name="XT_REGION_BASE" stride="0x10" length="16" shr="8"/>
 	<reg32 offset="0x38104" name="XT_REGION_SETUP" stride="0x10" length="16">
@@ -43,7 +43,24 @@
 	<reg32 offset="0x38268" name="X2H_INTR">
 		<doc>Write anything to trigger X2H interrupt, read returns 1 if host INTR X2H bit is set, 0 otherwise.</doc>
 	</reg32>
+	<reg32 offset="0x3826c" name="X2H_INTR_SCRATCH"/>
 	<reg32 offset="0x382b8" name="SCRATCH" length="5"/>
+	<enum name="nv_vp2_pm_signal" inline="yes">
+		<value value="0" name="NOP"/>
+		<value value="1" name="CLEAR"/>
+		<value value="2" name="PULSE"/>
+		<value value="3" name="SET"/>
+	</enum>
+	<reg32 offset="0x382cc" name="PM_SIGNAL">
+		<bitfield low="0" high="1" name="0" type="nv_vp2_pm_signal"/>
+		<bitfield low="2" high="3" name="1" type="nv_vp2_pm_signal"/>
+		<bitfield low="4" high="5" name="2" type="nv_vp2_pm_signal"/>
+		<bitfield low="6" high="7" name="3" type="nv_vp2_pm_signal"/>
+		<bitfield low="8" high="9" name="4" type="nv_vp2_pm_signal"/>
+		<bitfield low="10" high="11" name="5" type="nv_vp2_pm_signal"/>
+		<bitfield low="12" high="13" name="6" type="nv_vp2_pm_signal"/>
+		<bitfield low="14" high="15" name="7" type="nv_vp2_pm_signal"/>
+	</reg32>
 	<reg32 offset="0x382d4" name="TIME_LOW"/>
 	<reg32 offset="0x382d8" name="TIME_HIGH"/>
 	<reg32 offset="0x382e0" name="SCRATCH_X2H"/>
