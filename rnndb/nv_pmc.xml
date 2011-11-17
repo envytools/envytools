@@ -138,6 +138,19 @@
 			<bitfield pos="20" name="PFB" variants="NV03:NVC0"/>
 			<bitfield pos="20" name="PBFB" variants="NVC0-"/>
 			<bitfield pos="24" name="PFB" variants="NV01"/>
+			<bitfield pos="21" name="PGRAPH_CHSW" variants="NV84:NVC0"/>
+			<bitfield pos="22" name="PMPEG_CHSW" variants="NV84:NV98 NVA0"/>
+			<bitfield pos="22" name="PPPP_CHSW" variants="NV98 NVAA:NVC0"/>
+			<bitfield pos="23" name="UNUSED2_CHSW" variants="NV84:NVA3"/>
+			<bitfield pos="23" name="PCOPY_CHSW" variants="NVA3:NVC0"/>
+			<bitfield pos="24" name="PVP_CHSW" variants="NV84:NVC0"/>
+			<bitfield pos="25" name="PCRYPT_CHSW" variants="NV84:NVA3"/>
+			<bitfield pos="25" name="UNUSED4_CHSW" variants="NVA3:NVAF"/>
+			<bitfield pos="25" name="PUNK1C1_CHSW" variants="NVAF:NVC0"/>
+			<bitfield pos="26" name="PBSP_CHSW" variants="NV84:NVC0"/>
+			<!-- place for two more CHSWs? -->
+			<bitfield pos="27" name="UNK27" variants="NV84:NVC0"/>
+			<bitfield pos="28" name="UNK28" variants="NV84:NVC0"/>
 			<bitfield pos="24" name="PCRTC" variants="NV03:NV50"/>
 			<bitfield pos="25" name="PCRTC2" variants="NV11:NV50"/>
 			<bitfield pos="26" name="PTV" variants="NV17:NV20 NV25:NV50"/>
