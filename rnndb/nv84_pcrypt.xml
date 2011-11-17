@@ -26,10 +26,11 @@
 		<bitfield pos="7" name="QUERY"/>
 		<bitfield pos="8" name="FAULT"/>
 	</bitset>
-	<reg32 offset="0x108" name="UNK108">
-		<bitfield low="0" high="1" name="UNK0"/>
-		<!-- UNK4 and up are part of the context, UNK0 is not -->
-		<bitfield low="4" high="6" name="UNK4"/>
+	<reg32 offset="0x108" name="VALID">
+		<bitfield low="0" high="1" name="UNK0"/> <!-- INSTANCE -->
+		<bitfield pos="4" name="DMA_QUERY"/>
+		<bitfield pos="5" name="DMA_SRC"/>
+		<bitfield pos="6" name="DMA_DST"/>
 		<bitfield low="24" high="28" name="UNK24"/>
 		<bitfield pos="30" name="UNK30"/>
 	</reg32>
@@ -53,15 +54,29 @@
 	<reg32 offset="0x268" name="DST_ADDRESS_HIGH"/>
 	<reg32 offset="0x284" name="QUERY_SEQUENCE"/>
 	<reg32 offset="0x288" name="LENGTH"/>
+	<reg32 offset="0x28c" name="LAUNCH">
+		<bitfield low="4" high="5" name="QUERY">
+			<value value="0" name="NONE"/>
+			<value value="1" name="WRITE"/>
+			<value value="2" name="WRITE_AND_INTR"/>
+		</bitfield>
+		<bitfield low="8" high="9" name="MODE">
+			<value value="0" name="COPY"/>
+			<value value="1" name="ENCRYPT"/>
+			<value value="2" name="DECRYPT"/>
+		</bitfield>
+		<bitfield pos="12" name="UNK8"/>
+		<bitfield pos="16" name="UNK12"/>
+	</reg32>
 </array>
 
 </domain>
 
 <domain name="NV84_CRCTX">
-	<reg32 offset="0x00" name="UNK200" length="4"/>
-	<reg32 offset="0x10" name="UNK210" length="4"/>
-	<reg32 offset="0x20" name="UNK20" length="4"/>
-	<reg32 offset="0x30" name="UNK30" length="4"/>
+	<reg32 offset="0x00" name="KEY_OBFUSCATED" length="4"/>
+	<reg32 offset="0x10" name="IV_OBFUSCATED" length="4"/>
+	<reg32 offset="0x20" name="TMP_OBFUSCATED" length="4"/>
+	<reg32 offset="0x30" name="UNK30_OBFUSCATED" length="4"/>
 	<reg32 offset="0x40" name="DMA_QUERY"/>
 	<reg32 offset="0x44" name="CRYPT_MODE"/>
 	<reg32 offset="0x48" name="INSTANCE"/>
