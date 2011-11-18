@@ -156,6 +156,9 @@ int main(int argc, char **argv) {
 							case 'S':
 								nl.type = 0x20;
 								break;
+							case 'N':
+								nl.type = 0x42;
+								break;
 							default:
 								fprintf (stderr, "Unknown label type %c\n", type);
 								return 1;
