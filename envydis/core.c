@@ -928,6 +928,10 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 				if (labels[i].name)
 					ctx->names[labels[i].val - ctx->codebase] = labels[i].name;
 			}
+			if (labels[i].size) {
+				for (j = 0; j < labels[i].size; j+=4)
+					mark(ctx, labels[i].val + j, labels[i].type);
+			}
 		}
 		int done;
 		do {

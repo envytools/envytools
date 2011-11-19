@@ -223,6 +223,7 @@ struct label {
 	const char *name;
 	ull val;
 	int type;
+	unsigned size;
 };
 
 struct disctx {

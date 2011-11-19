@@ -138,7 +138,8 @@ int main(int argc, char **argv) {
 							tmp = '\0';
 
 						char name[200];
-						if (sscanf(buf, "%c%llx%s", &type, &nl.val, name) < 2) {
+						int comps = sscanf(buf, "%c%llx%s%x", &type, &nl.val, name, &nl.size);;
+						if (comps < 2) {
 							fprintf(stderr, "Malformated input: %s\n", buf);
 							continue;
 						}
@@ -159,11 +160,16 @@ int main(int argc, char **argv) {
 							case 'N':
 								nl.type = 0x42;
 								break;
+							case 'D':
+								nl.type = 0x10;
+								break;
 							default:
 								fprintf (stderr, "Unknown label type %c\n", type);
 								return 1;
 						}
-						if (*buf)
+						if (comps < 4)
+							nl.size = 0;
+						if (comps >= 3)
 							nl.name = strdup(name);
 						else
 							nl.name = 0;
