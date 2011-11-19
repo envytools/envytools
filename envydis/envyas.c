@@ -173,6 +173,8 @@ int donum (struct section *s, struct line *line, struct disctx *ctx, int wren) {
 		}
 	if (wren) {
 		extend(s, bits/8 * line->atomsnum);
+		if (s->pos % (bits/8))
+			fprintf (stderr, "Warning: Unaligned data %s; section '%s', offset 0x%x\n", line->str, s->name, s->pos);
 		for (i = 0; i < line->atomsnum; i++) {
 			ull num = calc(line->atoms[i], ctx);
 			if ((line->str[1] == 'u' && bits != 64 && num >= (1ull << bits))
