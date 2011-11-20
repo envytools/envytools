@@ -946,7 +946,7 @@ static struct insn tablc3w[] = {
 	{ 0, 0, OOPS },
 };
 
-struct insn tablldst[] = {
+static struct insn tablldst[] = {
 	{ 0x0000000000000000ull, 0x0000000800000000ull, LDST },
 	{ 0x00000008000001fcull, 0x00000008000001fcull, DISCARD },
 	{ 0x0000000800000000ull, 0x0000000800000000ull, OUT32 },
@@ -954,7 +954,7 @@ struct insn tablldst[] = {
 };
 #define LLDST T(lldst)
 
-struct insn tabllhdst[] = {
+static struct insn tabllhdst[] = {
 	{ 0x0000000000000000ull, 0x0000000800000000ull, LHDST },
 	{ 0x00000008000001fcull, 0x00000008000001fcull, DISCARD },
 	{ 0x0000000800000000ull, 0x0000000800000000ull, OUT16 },
