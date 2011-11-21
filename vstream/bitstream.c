@@ -91,6 +91,7 @@ int vs_byte(struct bitstream *str) {
 			str->zero_bytes++;
 		else
 			str->zero_bytes = 0;
+		str->hasbyte = 1;
 	}
 	str->bitpos = 7;
 	return 0;
@@ -111,6 +112,7 @@ int vs_u(struct bitstream *str, uint32_t *val, int size) {
 		}
 		return 0;
 	} else {
+		*val = 0;
 		for (i = 0; i < size; i++) {
 			if (!str->hasbyte) {
 				if (vs_byte(str))
@@ -129,8 +131,61 @@ int vs_u(struct bitstream *str, uint32_t *val, int size) {
 	}
 }
 
-int vs_ue(struct bitstream *str, uint32_t *val);
-int vs_se(struct bitstream *str, int32_t *val);
+int vs_ue(struct bitstream *str, uint32_t *val) {
+	int lzb = 0;
+	uint32_t tmp;
+	if (str->dir == VS_ENCODE) {
+		tmp = 0;
+		while (*val >= (1 << (lzb + 1)) - 1) {
+			if (vs_u(str, &tmp, 1))
+				return 1;
+			lzb++;
+		}
+		tmp = 1;
+		if (vs_u(str, &tmp, 1))
+			return 1;
+		tmp = *val - ((1 << lzb) - 1);
+		if (vs_u(str, &tmp, lzb))
+			return 1;
+		return 0;
+	} else {
+		do {
+			if (vs_u(str, &tmp, 1))
+				return 1;
+			lzb++;
+		} while (!tmp);
+		lzb--;
+		if (lzb >= 31) {
+			fprintf (stderr, "Exp-Golomb number insanely big\n");
+			return 1;
+		}
+		if (vs_u(str, &tmp, lzb))
+			return 1;
+		*val = tmp + (1 << lzb) - 1;
+		return 0;
+	}
+}
+
+int vs_se(struct bitstream *str, int32_t *val) {
+	uint32_t tmp;
+	if (str->dir == VS_ENCODE) {
+		if (*val > 0) {
+			tmp = *val * 2 - 1;
+		} else {
+			tmp = -*val * 2;
+		}
+		return vs_ue(str, &tmp);
+	} else {
+		if (vs_ue(str, &tmp))
+			return 1;
+		if (tmp & 1) {
+			*val = (tmp + 1) >> 1;
+		} else {
+			*val = -(tmp >> 1);
+		}
+		return 0;
+	}
+}
 
 int vs_start(struct bitstream *str, uint32_t *val) {
 	if (str->bitpos != 7) {
@@ -165,6 +220,7 @@ int vs_start(struct bitstream *str, uint32_t *val) {
 			return 1;
 		}
 		str->curbyte = str->bytes[str->bytepos++];
+		str->zero_bytes = 0;
 		*val = str->curbyte;
 	}
 	return 0;
