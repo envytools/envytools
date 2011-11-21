@@ -177,9 +177,39 @@
 
 <array name="PBSP" offset="0x103000" stride="0x1000" length="1" variants="NV84:NV98 NVA0">
 	<array offset="0x000" name="BSP" stride="0x200">
-		<reg32 offset="0x00" name="UNK00"/>
-		<reg32 offset="0x04" name="UNK04"/>
-		<reg32 offset="0x08" name="UNK08"/>
+		<reg32 offset="0x00" name="PIC_PARM">
+			<bitfield pos="0" name="ENTROPY_CODING_MODE_FLAG"/>
+			<bitfield low="1" high="8" name="WIDTH_MB"/>
+			<bitfield pos="9" name="FRAME_MBAFF"/> <!-- mb_adaptive_frame_field_flag && !field_pic_flag -->
+			<bitfield low="10" high="11" name="PICTURE_STRUCTURE">
+				<value value="0" name="FRAME"/>
+				<value value="1" name="FIELD_TOP"/>
+				<value value="2" name="FIELD_BOTTOM"/>
+			</bitfield>
+			<bitfield low="12" high="16" name="NAL_UNIT_TYPE"/>
+			<bitfield pos="17" name="UNK17"/> <!-- taken from picture parameters -->
+			<bitfield low="18" high="19" name="CABAC_INIT_IDC"/>
+			<bitfield pos="20" high="21" name="UNK20"/> <!-- taken from sequence parameters -->
+			<bitfield pos="22" name="DIRECT_8X8_INFERENCE_FLAG"/>
+			<bitfield pos="23" name="TRANSFORM_8X8_MODE_FLAG"/>
+		</reg32>
+		<reg32 offset="0x04" name="SLICE_PARM">
+			<bitfield low="0" high="1" name="SLICE_TYPE">
+				<value value="0" name="P"/>
+				<value value="1" name="B"/>
+				<value value="2" name="I"/>
+			</bitfield>
+			<bitfield low="2" high="14" name="SLICE_IDX"/> <!-- ??? -->
+			<bitfield low="15" high="19" name="NUM_REF_IDX_L0_ACTIVE_MINUS1"/>
+			<bitfield low="20" high="24" name="NUM_REF_IDX_L1_ACTIVE_MINUS1"/>
+			<bitfield low="25" high="30" name="SLICEQPY"/>
+		</reg32>
+		<reg32 offset="0x08" name="SLICE_POS">
+			<bitfield low="0" high="12" name="MB_IDX"/>
+			<bitfield low="13" high="20" name="MB_X"/>
+			<bitfield low="21" high="28" name="MB_Y"/>
+			<bitfield pos="29" name="UNK29"/> <!-- always 1 -->
+		</reg32>
 		<reg32 offset="0x0c" name="COMMAND">
 			<!-- XXX: try the other ones -->
 			<value value="0" name="GET_UE"/> <!-- buggy? -->
@@ -187,6 +217,13 @@
 			<value value="2" name="GETBITS"/>
 			<value value="3" name="NEXT_START_CODE"/>
 			<value value="4" name="ALIGN_BYTE"/>
+			<value value="5" name="UNK5_NOPARM_RES"/>
+			<value value="6" name="UNK6_NOPARM_RES"/>
+			<value value="7" name="UNK7_NOPARM_RES"/>
+			<value value="8" name="UNK8_NOPARM_NORES"/>
+			<value value="9" name="UNK9_NOPARM_NORES"/>
+			<value value="10" name="UNK10_NOPARM_NORES"/>
+			<value value="11" name="PRED_WEIGHT_TABLE"/>
 			<value value="12" name="MACROBLOCKS"/>
 		</reg32>
 		<reg32 offset="0x10" name="STATUS">
