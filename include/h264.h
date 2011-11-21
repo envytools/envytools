@@ -22,45 +22,43 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef VSTREAM_H
-#define VSTREAM_H
+#ifndef H264_H
+#define H264_H
 
-#include <inttypes.h>
+#include "vstream.h"
 
-struct bitstream {
-	enum vs_dir {
-		VS_ENCODE,
-		VS_DECODE,
-	} dir;
-	uint8_t *bytes;
-	int bytesnum;
-	int bytesmax;
-	uint8_t curbyte;
-	int bitpos;
-	int bytepos;
-	int zero_bytes;
-	enum vs_type {
-		VS_MPEG12,
-		VS_H264,
-	} type;
-	int hasbyte;
+struct h264_seqparm {
 };
 
-enum vs_align_byte_mode {
-	VS_ALIGN_0, /* 000...00 */
-	VS_ALIGN_1, /* 111...11 */
-	VS_ALIGN_10, /* 100...00 */
+struct h264_picparm {
+	struct h264_seqparm *seqparm;
+	uint32_t num_ref_idx_l0_default_active_minus1;
+	uint32_t num_ref_idx_l1_default_active_minus1;
 };
 
-int vs_ue(struct bitstream *str, uint32_t *val);
-int vs_se(struct bitstream *str, int32_t *val);
-int vs_u(struct bitstream *str, uint32_t *val, int size);
-int vs_start(struct bitstream *str, uint32_t *val);
-int vs_align_byte(struct bitstream *str, enum vs_align_byte_mode mode);
-int vs_end(struct bitstream *str);
-int vs_infer(struct bitstream *str, uint32_t *val, uint32_t ival);
+struct h264_sliceparm {
+	struct h264_picparm *picparm;
+	uint32_t num_ref_idx_l0_active_minus1;
+	uint32_t num_ref_idx_l1_active_minus1;
+	uint32_t slice_type;
+};
 
-struct bitstream *vs_new_encode(enum vs_type type);
-struct bitstream *vs_new_decode(enum vs_type type, uint8_t *bytes, int bytesnum);
+struct h264_pred_weight_table_entry {
+	uint32_t luma_weight_flag;
+	uint32_t luma_weight;
+	uint32_t luma_offset;
+	uint32_t chroma_weight_flag;
+	uint32_t chroma_weight[2];
+	uint32_t chroma_offset[2];
+};
+
+struct h264_pred_weight_table {
+	uint32_t luma_log2_weight_denom;
+	uint32_t chroma_log2_weight_denom;
+	struct h264_pred_weight_table_entry l0[0x20];
+	struct h264_pred_weight_table_entry l1[0x20];
+};
+
+int h264_pred_weight_table(struct bitstream *str, struct h264_sliceparm *slp, struct h264_pred_weight_table *table);
 
 #endif
