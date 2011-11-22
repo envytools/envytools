@@ -12,6 +12,8 @@ Payload word 1:
   bits 0-7: macroblock y coord [0-based]
   bits 8-15: macroblock x coord [0-based]
 Payload word 2:
+  bit 0: first macroblock of a slice flag
+  bit 1: skipped macroblock flag
   XXX
 Payload word 3:
   XXX

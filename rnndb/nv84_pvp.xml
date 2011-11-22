@@ -180,7 +180,7 @@
 		<reg32 offset="0x00" name="PIC_PARM">
 			<bitfield pos="0" name="ENTROPY_CODING_MODE_FLAG"/>
 			<bitfield low="1" high="8" name="WIDTH_MB"/>
-			<bitfield pos="9" name="FRAME_MBAFF"/> <!-- mb_adaptive_frame_field_flag && !field_pic_flag -->
+			<bitfield pos="9" name="MBAFFFRAMEFLAG"/>
 			<bitfield low="10" high="11" name="PICTURE_STRUCTURE">
 				<value value="0" name="FRAME"/>
 				<value value="1" name="FIELD_TOP"/>
@@ -217,7 +217,7 @@
 			<value value="2" name="GETBITS"/>
 			<value value="3" name="NEXT_START_CODE"/>
 			<value value="4" name="ALIGN_BYTE"/>
-			<value value="5" name="UNK5_NOPARM_RES"/>
+			<value value="5" name="MORE_RBSP_DATA"/>
 			<value value="6" name="UNK6_NOPARM_RES"/>
 			<value value="7" name="UNK7_NOPARM_RES"/>
 			<value value="8" name="UNK8_NOPARM_NORES"/>
