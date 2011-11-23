@@ -10,8 +10,87 @@
 
 <array name="PCRYPT" offset="0x102000" stride="0x1000" length="1" variants="NV84:NV98 NVA0">
 
+	<reg32 offset="0x00c" name="UNK00C">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="4" name="FIFO_ACCESS"/>
+		<bitfield pos="8" name="UNK8"/>
+		<bitfield low="12" high="14" name="UNK12"/>
+	</reg32>
+	<bitset name="nv84_pcrypt_intr" inline="yes">
+		<bitfield pos="0" name="INVALID_STATE"/>
+		<bitfield pos="1" name="ILLEGAL_MTHD"/>
+		<bitfield pos="2" name="ILLEGAL_CLASS"/>
+		<bitfield pos="3" name="UNK3"/>
+		<bitfield pos="5" name="UNK5"/>
+		<bitfield pos="6" name="UNK6"/>
+		<bitfield pos="7" name="QUERY"/>
+		<bitfield pos="8" name="FAULT"/>
+	</bitset>
+	<reg32 offset="0x108" name="VALID">
+		<bitfield low="0" high="1" name="UNK0"/> <!-- INSTANCE -->
+		<bitfield pos="4" name="DMA_QUERY"/>
+		<bitfield pos="5" name="DMA_SRC"/>
+		<bitfield pos="6" name="DMA_DST"/>
+		<bitfield low="24" high="28" name="UNK24"/>
+		<bitfield pos="30" name="UNK30"/>
+	</reg32>
+	<reg32 offset="0x130" name="INTR" type="nv84_pcrypt_intr"/>
+	<reg32 offset="0x140" name="INTR_EN" type="nv84_pcrypt_intr"/>
+	<reg32 offset="0x180" name="INST"/>
+	<reg32 offset="0x188" name="CHAN_CUR"/>
+	<reg32 offset="0x18c" name="CHAN_NEXT"/>
+	<reg32 offset="0x190" name="FIFO_MTHD"/>
+	<reg32 offset="0x194" name="FIFO_DATA"/>
+	<reg32 offset="0x244" name="CRYPT_MODE"/>
+	<!-- XXX: 24-bit for some reason... -->
+	<reg32 offset="0x248" name="DMA_QUERY"/>
+	<reg32 offset="0x24c" name="DMA_SRC"/>
+	<reg32 offset="0x250" name="DMA_DST"/>
+	<reg32 offset="0x254" name="QUERY_ADDRESS_LOW"/>
+	<reg32 offset="0x258" name="QUERY_ADDRESS_HIGH"/>
+	<reg32 offset="0x25c" name="SRC_ADDRESS_LOW"/>
+	<reg32 offset="0x260" name="SRC_ADDRESS_HIGH"/>
+	<reg32 offset="0x264" name="DST_ADDRESS_LOW"/>
+	<reg32 offset="0x268" name="DST_ADDRESS_HIGH"/>
+	<reg32 offset="0x284" name="QUERY_SEQUENCE"/>
+	<reg32 offset="0x288" name="LENGTH"/>
+	<reg32 offset="0x28c" name="LAUNCH">
+		<bitfield low="4" high="5" name="QUERY">
+			<value value="0" name="NONE"/>
+			<value value="1" name="WRITE"/>
+			<value value="2" name="WRITE_AND_INTR"/>
+		</bitfield>
+		<bitfield low="8" high="9" name="MODE">
+			<value value="0" name="COPY"/>
+			<value value="1" name="ENCRYPT"/>
+			<value value="2" name="DECRYPT"/>
+		</bitfield>
+		<bitfield pos="12" name="UNK8"/>
+		<bitfield pos="16" name="UNK12"/>
+	</reg32>
 </array>
 
+</domain>
+
+<domain name="NV84_CRCTX">
+	<reg32 offset="0x00" name="KEY_OBFUSCATED" length="4"/>
+	<reg32 offset="0x10" name="IV_OBFUSCATED" length="4"/>
+	<reg32 offset="0x20" name="TMP_OBFUSCATED" length="4"/>
+	<reg32 offset="0x30" name="UNK30_OBFUSCATED" length="4"/>
+	<reg32 offset="0x40" name="DMA_QUERY"/>
+	<reg32 offset="0x44" name="CRYPT_MODE"/>
+	<reg32 offset="0x48" name="INSTANCE"/>
+	<reg32 offset="0x4c" name="UNK108"/>
+	<reg32 offset="0x50" name="QUERY_ADDRESS_HIGH"/>
+	<reg32 offset="0x54" name="QUERY_ADDRESS_LOW"/>
+	<reg32 offset="0x58" name="DMA_DST"/>
+	<reg32 offset="0x5c" name="DMA_SRC"/>
+	<reg32 offset="0x60" name="DST_ADDRESS_HIGH"/>
+	<reg32 offset="0x64" name="DST_ADDRESS_LOW"/>
+	<reg32 offset="0x68" name="SRC_ADDRESS_HIGH"/>
+	<reg32 offset="0x6c" name="SRC_ADDRESS_LOW"/>
+	<reg32 offset="0x78" name="QUERY_SEQUENCE"/>
+	<reg32 offset="0x7c" name="LENGTH"/>
 </domain>
 
 </database>

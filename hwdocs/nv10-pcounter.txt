@@ -1,0 +1,4 @@
+=== NV10 signals ===
+
+0x87: PTIMER_TIME_B12 [ptimer.txt]
+0x9f: PCOUNTER_FLAG

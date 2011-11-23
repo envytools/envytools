@@ -538,6 +538,7 @@ The MMIO ranges for NV40 family are:
 0c2000:0c3000 PRMVIO2 - like PRMVIO, but for second head [nvvga.txt]
 100000:101000 PFB - memory interface and PCIE GART [nv40-pfb.txt]
 101000:102000 PSTRAPS - straps readout / override [pstraps.txt]
+102000:103000 ??? - IGPs only [XXX]
 200000:201000 PMEDIA - mediaport [pmedia.txt]
 300000:400000 PROM - ROM access window [nvbios.txt]
 400000:410000 PGRAPH - accelerated 2d/3d drawing engine [nv40-pgraph.txt]
@@ -675,7 +676,7 @@ The MMIO ranges for NV50 family are:
 100000:101000 PFB - memory interface and VM control [nv50-pfb.txt]
 101000:102000 PSTRAPS - straps readout / override [pstraps.txt]
 102000:103000 PCRYPT - VP2 cryptographic engine [NV84:NV98, NVA0] [crypt.txt]
-[XXX: NVAC has something unrelated[?] at 102000]
+102000:103000 ??? - IGPs only [XXX]
 103000:104000 PBSP - VP2 BSP engine [NV84:NV98, NVA0] [vp2.txt]
 104000:105000 PCOPY - memory copy engine [NVA3-] [fuc.txt, fuc-copy.txt]
 108000:109000 PCODEC - the HDA codec doing HDMI audio [NVA3-] [pcodec.txt]
@@ -719,6 +720,13 @@ NVC0:
    to monitor various parts of GPU
  - redesigned clock setting
 [XXX: ...]
+NVD9:
+ - a major revision to VP3 video decoding, now called VP5. vµc microcode removed.
+ - another revision to the fµc ISA, allowing 24-bit PC
+ - added PUNK1C3 fµc engine
+ - redesigned I2C bus interface
+ - redesigned PDISPLAY
+ - removed second PCOPY engine
 
 Chipsets in NVC0 family [GPC count : MP count per GPC : ROPC count : memory partitions per ROPC]:
 
@@ -750,6 +758,7 @@ The MMIO ranges for NVC0 family are:
 007000:008000 PRMA - access to BAR0 from real mode [nvvga.txt]
 009000:00a000 PTIMER - time measurement and time-based alarms [ptimer.txt]
 00c000:00d000 ???
+00d000:00e000 PI2C - I2C buses [NVD9-] [pi2c.txt]
 00e000:00f000 PNVIO - GPIOs, I2C buses, PWM fan control, and other external devices [pnvio.txt]
 020000:021000 PTHERM - thermal sensor [ptherm.txt]
 021000:022000 ???
@@ -783,6 +792,7 @@ The MMIO ranges for NVC0 family are:
 180000:1c0000 PCOUNTER - performance monitoring counters [pcounter.txt]
 1c0000:1c1000 ???
 [XXX: PUNK1C1 on newer ones?]
+1c3000:1c4000 ??? some fµc engine, NVD9+ only
 [XXX: did they finally kill off this one?]
 200000:201000 PMEDIA - mediaport [pmedia.txt]
 300000:400000 PROM - ROM access window [nvbios.txt]

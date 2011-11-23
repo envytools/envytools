@@ -6,36 +6,122 @@
 
 <import file="nvchipsets.xml" />
 
-<domain name="NV_VP2_MMIO">
-	<reg32 offset="0x38000" name="SCRATCH_INTERN" length="0x40"/>
+<bitset name="nv84_vp2_target" inline="yes">
+	<bitfield low="0" high="3" name="DMAIDX"/>
+	<bitfield pos="4" name="MODE">
+		<value value="0" name="DMAOBJ"/>
+		<value value="1" name="PHYS"/>
+	</bitfield>
+	<bitfield low="5" high="6" name="PHYS_TARGET" type="nv50_mem_target"/>
+</bitset>
+
+<group name="nv_xlmi_common">
+	<reg32 offset="0x38000" name="UPARM" length="0x40"/>
 	<reg32 offset="0x38100" name="XT_REGION_BASE" stride="0x10" length="16" shr="8"/>
-	<reg32 offset="0x38114" name="XT_REGION_SETUP" stride="0x10" length="16">
-		<bitfield low="0" high="6" name="TARGET"/>
-		<bitfield low="8" high="10" name="MODE"/>
+	<reg32 offset="0x38104" name="XT_REGION_SETUP" stride="0x10" length="16">
+		<bitfield low="0" high="6" name="TARGET" type="nv84_vp2_target"/>
+		<bitfield low="8" high="9" name="ENDIAN_SWAP_SIZE">
+			<value value="0" name="1"/> <!-- equiivalent to no swapping -->
+			<value value="1" name="2"/>
+			<value value="2" name="4"/>
+			<value value="3" name="8"/>
+		</bitfield>
+		<bitfield pos="10" name="ENDIAN_SWAP_ENABLE"/>
 	</reg32>
-	<reg32 offset="0x38118" name="XT_REGION_LIMIT" stride="0x10" length="16" shr="8"/>
-	<reg32 offset="0x3811c" name="DMAOBJ" stride="0x10" length="16"/> <!-- XXX: 32-bit??? -->
+	<reg32 offset="0x38108" name="XT_REGION_LIMIT" stride="0x10" length="16" shr="8"/>
+	<reg32 offset="0x3810c" name="XT_REGION_SCRATCH" stride="0x10" length="16"/>
 	<reg32 offset="0x38208" name="CHANNEL_CUR"/>
 	<reg32 offset="0x3820c" name="CHANNEL_NEXT"/>
+	<reg32 offset="0x38210" name="DMAOBJ_LOAD" access="w">
+		<bitfield low="0" high="15" name="INST"/>
+		<bitfield low="16" high="19" name="DMAIDX"/>
+	</reg32>
 	<reg32 offset="0x38218" name="LIMIT_FAULT_ADDR"/>
+	<!-- 3821c engine-specific -->
 	<reg32 offset="0x38220" name="FIFO_DATA"/>
 	<reg32 offset="0x38224" name="FIFO_MTHD"/>
 	<reg32 offset="0x38228" name="FIFO_EMPTY"/>
+	<reg32 offset="0x38268" name="X2H_INTR">
+		<doc>Write anything to trigger X2H interrupt, read returns 1 if host INTR X2H bit is set, 0 otherwise.</doc>
+	</reg32>
+	<reg32 offset="0x3826c" name="X2H_INTR_SCRATCH"/>
+	<reg32 offset="0x38270" name="UPARM_PULL_ENABLE" access="w"/> <!-- if this and FIFO_CTRL bit 0 enabled, methods 0x400..0x4fc will be automatically processed by moving the value into UPARM regs -->
 	<reg32 offset="0x382b8" name="SCRATCH" length="5"/>
+	<enum name="nv_vp2_pm_signal" inline="yes">
+		<value value="0" name="NOP"/>
+		<value value="1" name="CLEAR"/>
+		<value value="2" name="PULSE"/>
+		<value value="3" name="SET"/>
+	</enum>
+	<reg32 offset="0x382cc" name="PM_SIGNAL">
+		<bitfield low="0" high="1" name="0" type="nv_vp2_pm_signal"/>
+		<bitfield low="2" high="3" name="1" type="nv_vp2_pm_signal"/>
+		<bitfield low="4" high="5" name="2" type="nv_vp2_pm_signal"/>
+		<bitfield low="6" high="7" name="3" type="nv_vp2_pm_signal"/>
+		<bitfield low="8" high="9" name="PM_TRIGGER" type="nv_vp2_pm_signal"/>
+		<bitfield low="10" high="11" name="WRCACHE_FLUSH" type="nv_vp2_pm_signal"/>
+		<bitfield low="12" high="13" name="6" type="nv_vp2_pm_signal"/>
+		<bitfield low="14" high="15" name="7" type="nv_vp2_pm_signal"/>
+	</reg32>
 	<reg32 offset="0x382d4" name="TIME_LOW"/>
 	<reg32 offset="0x382d8" name="TIME_HIGH"/>
+	<!-- 382dc engine-specific -->
 	<reg32 offset="0x382e0" name="SCRATCH_X2H"/>
 	<reg32 offset="0x382e4" name="SCRATCH_H2X"/>
+</group>
+
+<domain name="NV_PVP_XLMI">
+	<use-group name="nv_xlmi_common"/>
+	<reg32 offset="0x3821c" name="INTR">
+		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="5" name="UNK5"/>
+		<bitfield pos="6" name="VM_FAULT"/>
+		<bitfield pos="7" name="LIMIT_FAULT"/>
+		<bitfield pos="10" name="UNK10"/>
+		<bitfield pos="11" name="UNK11"/>
+		<bitfield pos="12" name="WATCHDOG"/>
+		<bitfield pos="13" name="H2X"/>
+	</reg32>
+	<reg32 offset="0x382dc" name="FIFO_CTRL">
+		<bitfield pos="0" name="UPARM_PULL_ENABLE"/> <!-- if this and 38270 enabled, methods 0x400..0x4fc will be automatically processed by moving the value into UPARM regs -->
+		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="8" name="PFIFO_ACCESS"/>
+	</reg32>
+</domain>
+
+<domain name="NV_PBSP_XLMI">
+	<use-group name="nv_xlmi_common"/>
+	<reg32 offset="0x3821c" name="INTR">
+		<bitfield pos="0" name="BSP"/>
+		<bitfield pos="1" name="VUC"/>
+		<bitfield pos="2" name="MEMIF"/>
+		<bitfield pos="3" name="LIMIT_FAULT"/>
+		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="5" name="WATCHDOG"/>
+		<bitfield pos="6" name="H2X"/>
+		<bitfield pos="7" name="UNK7"/>
+		<bitfield pos="8" name="VM_FAULT"/>
+		<bitfield pos="9" name="UNK9"/>
+	</reg32>
+	<reg32 offset="0x382dc" name="FIFO_CTRL">
+		<bitfield pos="0" name="UPARM_PULL_ENABLE"/> <!-- if this and 38270 enabled, methods 0x400..0x4fc will be automatically processed by moving the value into UPARM regs -->
+		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="8" name="UNK8"/>
+		<bitfield pos="12" name="PFIFO_ACCESS"/>
+	</reg32>
 </domain>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <group name="nv84_xtensa_common">
 	<bitset name="nv84_xtensa_intr" inline="yes">
+		<bitfield pos="2" name="X2H"/>
 		<bitfield pos="3" name="VM_FAULT"/>
-		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="4" name="WATCHDOG"/>
 		<bitfield pos="5" name="LIMIT_FAULT"/>
 	</bitset>
+	<reg32 offset="0x00c" name="UPARM_IDX"/>
+	<reg32 offset="0x010" name="UPARM"/>
 	<reg32 offset="0x014" name="FIFO_MTHD"/>
 	<reg32 offset="0x018" name="FIFO_DATA"/>
 	<reg32 offset="0x01c" name="FIFO_STATUS">
@@ -47,13 +133,23 @@
 	<reg32 offset="0x02c" name="CHANNEL_NEXT"/>
 	<reg32 offset="0x030" name="XT_REGION_BASE" stride="0xc" length="16" shr="8"/>
 	<reg32 offset="0x034" name="XT_REGION_SETUP" stride="0xc" length="16">
-		<bitfield low="0" high="6" name="TARGET"/> <!-- 0x1c for physical VRAM, 0xf for the context dmaobj [?], 0-0xe for relevant DMA slot -->
-		<bitfield low="8" high="10" name="MODE"/> <!-- caching or something? -->
+		<bitfield low="0" high="6" name="TARGET" type="nv84_vp2_target"/>
+		<bitfield low="8" high="9" name="ENDIAN_SWAP_SIZE">
+			<value value="0" name="1"/> <!-- equiivalent to no swapping -->
+			<value value="1" name="2"/>
+			<value value="2" name="4"/>
+			<value value="3" name="8"/>
+		</bitfield>
+		<bitfield pos="10" name="ENDIAN_SWAP_ENABLE"/>
 	</reg32>
 	<reg32 offset="0x038" name="XT_REGION_LIMIT" stride="0xc" length="16" shr="8"/>
 
 	<reg32 offset="0x0fc" name="HOST_IO_INDEX"/>
 
+	<reg32 offset="0x124" name="XT_INTR_TRIGGER">
+		<bitfield pos="0" name="NMI"/>
+		<bitfield pos="1" name="H2X"/>
+	</reg32>
 	<reg32 offset="0x128" name="JOE"/>
 	<reg32 offset="0x130" name="XT_REG_ADDR"/>
 	<reg32 offset="0x134" name="XT_REG_DATA"/>
@@ -61,7 +157,9 @@
 	<reg32 offset="0x13c" name="LIMIT_FAULT_ADDR"/>
 	<reg32 offset="0x148" name="SCRATCH" length="5" stride="0xc"/>
 	<reg32 offset="0x184" name="INTR_EN" type="nv84_xtensa_intr"/> <!-- for host -->
-	<reg32 offset="0x19c" name="DMAOBJ" length="16"/>
+	<reg32 offset="0x18c" name="TIME_LOW"/>
+	<reg32 offset="0x190" name="TIME_HIGH"/>
+	<reg32 offset="0x19c" name="XT_REGION_SCRATCH" length="16"/>
 	<reg32 offset="0x1dc" name="SCRATCH_X2H"/>
 	<reg32 offset="0x1e0" name="SCRATCH_H2X"/>
 </group>
@@ -69,49 +167,112 @@
 <array name="PVP" offset="0x00f000" stride="0x1000" length="1" variants="NV84:NV98 NVA0">
 	<array offset="0xc00" name="XTENSA" stride="0x400">
 		<use-group name="nv84_xtensa_common"/>
+		<reg32 offset="0x194" name="FIFO_CTRL">
+			<bitfield pos="0" name="UPARM_PULL_ENABLE"/> <!-- if this and 38270 enabled, methods 0x400..0x4fc will be automatically processed by moving the value into UPARM regs -->
+			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="8" name="PFIFO_ACCESS"/>
+		</reg32>
 	</array>
 </array>
 
 <array name="PBSP" offset="0x103000" stride="0x1000" length="1" variants="NV84:NV98 NVA0">
 	<array offset="0x000" name="BSP" stride="0x200">
-		<reg32 offset="0x00" name="UNK00"/>
-		<reg32 offset="0x04" name="UNK04"/>
-		<reg32 offset="0x08" name="UNK08"/>
-		<reg32 offset="0x0c" name="UNK0C"/>
-		<reg32 offset="0x10" name="UNK10_STATUS"/>
+		<reg32 offset="0x00" name="PIC_PARM">
+			<bitfield pos="0" name="ENTROPY_CODING_MODE_FLAG"/>
+			<bitfield low="1" high="8" name="WIDTH_MB"/>
+			<bitfield pos="9" name="MBAFFFRAMEFLAG"/>
+			<bitfield low="10" high="11" name="PICTURE_STRUCTURE">
+				<value value="0" name="FRAME"/>
+				<value value="1" name="FIELD_TOP"/>
+				<value value="2" name="FIELD_BOTTOM"/>
+			</bitfield>
+			<bitfield low="12" high="16" name="NAL_UNIT_TYPE"/>
+			<bitfield pos="17" name="UNK17"/> <!-- taken from picture parameters -->
+			<bitfield low="18" high="19" name="CABAC_INIT_IDC"/>
+			<bitfield pos="20" high="21" name="UNK20"/> <!-- taken from sequence parameters -->
+			<bitfield pos="22" name="DIRECT_8X8_INFERENCE_FLAG"/>
+			<bitfield pos="23" name="TRANSFORM_8X8_MODE_FLAG"/>
+		</reg32>
+		<reg32 offset="0x04" name="SLICE_PARM">
+			<bitfield low="0" high="1" name="SLICE_TYPE">
+				<value value="0" name="P"/>
+				<value value="1" name="B"/>
+				<value value="2" name="I"/>
+			</bitfield>
+			<bitfield low="2" high="14" name="SLICE_IDX"/> <!-- ??? -->
+			<bitfield low="15" high="19" name="NUM_REF_IDX_L0_ACTIVE_MINUS1"/>
+			<bitfield low="20" high="24" name="NUM_REF_IDX_L1_ACTIVE_MINUS1"/>
+			<bitfield low="25" high="30" name="SLICEQPY"/>
+		</reg32>
+		<reg32 offset="0x08" name="SLICE_POS">
+			<bitfield low="0" high="12" name="MB_IDX"/>
+			<bitfield low="13" high="20" name="MB_X"/>
+			<bitfield low="21" high="28" name="MB_Y"/>
+			<bitfield pos="29" name="UNK29"/> <!-- always 1 -->
+		</reg32>
+		<reg32 offset="0x0c" name="COMMAND">
+			<!-- XXX: try the other ones -->
+			<value value="0" name="GET_UE"/> <!-- buggy? -->
+			<value value="1" name="GET_SE"/>
+			<value value="2" name="GETBITS"/>
+			<value value="3" name="NEXT_START_CODE"/>
+			<value value="4" name="ALIGN_BYTE"/>
+			<value value="5" name="MORE_RBSP_DATA"/>
+			<value value="6" name="UNK6_NOPARM_RES"/>
+			<value value="7" name="UNK7_NOPARM_RES"/>
+			<value value="8" name="UNK8_NOPARM_NORES"/>
+			<value value="9" name="UNK9_NOPARM_NORES"/>
+			<value value="10" name="UNK10_NOPARM_NORES"/>
+			<value value="11" name="PRED_WEIGHT_TABLE"/>
+			<value value="12" name="MACROBLOCKS"/>
+		</reg32>
+		<reg32 offset="0x10" name="STATUS">
+			<bitfield pos="0" nme="CMD"/>
+			<!-- bits like VP3? -->
+		</reg32>
+		<reg32 offset="0x14" name="COMMAND_RES"/>
 		<reg32 offset="0x1c" name="INTR_ENABLE">
-			<bitfield pos="0" name="UNK0"/>
-			<bitfield pos="1" name="UIRQ1"/>
-			<bitfield pos="2" name="UNK2"/>
-			<bitfield pos="3" name="UIRQ4"/>
+			<bitfield pos="0" name="UIRQ0"/>
+			<bitfield pos="1" name="END_OF_STREAM"/>
+			<bitfield pos="2" name="UIRQ2"/>
+			<bitfield pos="3" name="MBRING_FULL"/>
 			<bitfield pos="4" name="UIRQ3"/>
 		</reg32>
 		<reg32 offset="0x20" name="UNK20"/>
 		<reg32 offset="0x24" name="INTR">
-			<bitfield low="0" high="3" name="0">
+			<bitfield low="0" high="3" name="INPUT">
 				<value value="0" name="NONE"/>
-				<value value="1" name="UIRQ0"/>
-				<value value="2" name="UIRQ1"/>
+				<value value="1" name="UIRQ0"/> <!-- decode error? -->
+				<value value="2" name="END_OF_STREAM"/>
 				<value value="3" name="UIRQ2"/>
 				<value value="4" name="UIRQ3"/>
 			</bitfield>
-			<bitfield pos="4" name="UIRQ4"/>
+			<bitfield pos="4" name="MBRING_FULL"/>
 		</reg32>
-		<reg32 offset="0x28" name="UNK28"/>
-		<reg32 offset="0x40" name="STREAM_OFFSET" stride="8" length="8"/>
-		<reg32 offset="0x44" name="STREAM_CONF" stride="8" length="8">
+		<reg32 offset="0x28" name="RESET"/>
+		<reg32 offset="0x40" name="STREAM_CONF" stride="8" length="8">
 			<bitfield low="0" high="27" name="LENGTH"/>
 			<bitfield pos="28" name="ENABLE"/>
 		</reg32>
-		<reg32 offset="0x80" name="UNK80"/>
+		<reg32 offset="0x44" name="STREAM_OFFSET" stride="8" length="8"/>
+		<reg32 offset="0x80" name="STREAM_BIT"/> <!-- write starts the stream input engine -->
+		<reg32 offset="0x100" name="MBRING_ADDR"/>
+		<reg32 offset="0x104" name="MBRING_GET"/>
+		<reg32 offset="0x108" name="MBRING_PUT"/>
+		<reg32 offset="0x10c" name="MBRING_SIZE"/>
+		<reg32 offset="0x110" name="MBRING_TRIGGER">
+			<bitfield pos="0" name="FLUSH"/>
+			<bitfield pos="1" name="RESET"/>
+			<bitfield pos="2" name="RESUME"/>
+		</reg32>
 	</array>
 	<array offset="0x200" name="VUC" stride="0x100">
 		<reg32 offset="0x000" name="DATA" length="32"/> <!-- indexed like fµc, but only one word per index, instead of two -->
-		<reg32 offset="0x084" name="CODE_CONTROL">
+		<reg32 offset="0x088" name="CODE_CONTROL">
 			<bitfield low="0" high="10" name="IP"/>
 			<bitfield pos="16" name="PAUSE"/>
 		</reg32>
-		<reg32 offset="0x088" name="CODE"/>
+		<reg32 offset="0x08c" name="CODE"/>
 		<bitset name="nv84_pbsp_vuc_intr" inline="yes">
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield pos="1" name="UNK1"/>
@@ -121,22 +282,28 @@
 			<bitfield pos="5" name="UNK5"/>
 		</bitset>
 		<reg32 offset="0x0d4" name="INTR" type="nv84_pbsp_vuc_intr"/>
-		<reg32 offset="0x0d8" name="INTR" type="nv84_pbsp_vuc_intr"/>
+		<reg32 offset="0x0d8" name="INTR_EN" type="nv84_pbsp_vuc_intr"/>
 	</array>
 	<reg32 offset="0x420" name="STREAM_BASE" shr="8"/>
-	<reg32 offset="0x424" name="STREAM_TARGET"/>
+	<reg32 offset="0x424" name="STREAM_TARGET" type="nv84_vp2_target"/>
 	<reg32 offset="0x428" name="STREAM_LIMIT" shr="8"/>
 	<reg32 offset="0x430" name="MBDATA_BASE" shr="8"/> <!-- goes to VP -->
-	<reg32 offset="0x434" name="MBDATA_TARGET"/>
+	<reg32 offset="0x434" name="MBDATA_TARGET" type="nv84_vp2_target"/>
 	<reg32 offset="0x438" name="MBDATA_LIMIT" shr="8"/>
 	<reg32 offset="0x440" name="UNK440_BASE" shr="8"/>
-	<reg32 offset="0x444" name="UNK440_TARGET"/>
+	<reg32 offset="0x444" name="UNK440_TARGET" type="nv84_vp2_target"/>
 	<reg32 offset="0x448" name="UNK440_LIMIT" shr="8"/>
 	<reg32 offset="0x450" name="MBRING_BASE" shr="8"/>
-	<reg32 offset="0x454" name="MBRING_TARGET"/>
+	<reg32 offset="0x454" name="MBRING_TARGET" type="nv84_vp2_target"/>
 	<reg32 offset="0x458" name="MBRING_LIMIT" shr="8"/>
 	<array offset="0xc00" name="XTENSA" stride="0x400">
 		<use-group name="nv84_xtensa_common"/>
+		<reg32 offset="0x194" name="FIFO_CTRL">
+			<bitfield pos="0" name="UPARM_PULL_ENABLE"/> <!-- if this and 38270 enabled, methods 0x400..0x4fc will be automatically processed by moving the value into UPARM regs -->
+			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="8" name="UNK8"/>
+			<bitfield pos="12" name="PFIFO_ACCESS"/>
+		</reg32>
 	</array>
 </array>
 

@@ -1,0 +1,117 @@
+Packet type 0: macroblock info
+
+Packet is made of a header word and 3 or 6 payload words.
+
+Header word:
+  bits 0-23: number of payload words [3 or 6]
+  bits 24-31: packet type [3]
+
+Payload word 0:
+  bits 0-12: macroblock address [0-based]
+Payload word 1:
+  bits 0-7: macroblock y coord [0-based]
+  bits 8-15: macroblock x coord [0-based]
+Payload word 2:
+  bit 0: first macroblock of a slice flag
+  bit 1: skipped macroblock flag
+  XXX
+Payload word 3:
+  XXX
+Payload word 4:
+  XXX
+Payload word 5:
+  XXX
+
+XXX
+
+
+Packet type 1: motion vectors
+
+Packet is made of two header words + 1 word for each motion vector.
+
+Header word:
+  bits 0-23: number of motion vectors [always 0x20?]
+  bits 24-31: packet type [1]
+
+Second header word:
+  XXX
+ 
+Motion vector word:
+  XXX
+
+XXX
+
+
+
+Packet type 2: DCT coords
+
+Packet is made of a header word + 1 halfword for each DCT coord
+
+Header word:
+  bits 0-23: number of payload half-words [always divisible by 0x10]
+  bits 24-31: packet type [2]
+
+DCT coord halfword:
+  bits 0-15: DCT coordinate
+
+XXX
+
+
+Packet type 3: coded subblock pattern
+
+Packet is made of a header word and a payload word.
+
+Header word:
+  bits 0-23: number of payload words [1]
+  bits 24-31: packet type [3]
+
+Payload word:
+  XXX
+
+XXX
+
+
+Packet type 4: pred_weight_table
+
+Packet is made of a header word and a variable number of table write requests, each request being two words long.
+
+Header word:
+  bits 0-23: number of write requests
+  bits 24-31: packet type [4]
+
+Request word 0: table index to write
+Request word 1: data value to write
+
+The table indices are:
+
+Index i * 2, 0 <= i <= 0x1f:
+  bits 0-7: luma_offset_l0[i]
+  bits 8-15: luma_weight_l0[i]
+  bit 16: chroma_weight_l0_flag[i]
+  bit 17: luma_weight_l0_flag[i]
+Index i * 2 + 1, 0 <= i <= 0x1f:
+  bits 0-7: chroma_offset_l0[i][1]
+  bits 8-15: chroma_weight_l0[i][1]
+  bits 16-23: chroma_offset_l0[i][0]
+  bits 24-31: chroma_weight_l0[i][0]
+Index 0x40 + i * 2, 0 <= i <= 0x1f:
+  bits 0-7: luma_offset_l1[i]
+  bits 8-15: luma_weight_l1[i]
+  bit 16: chroma_weight_l1_flag[i]
+  bit 17: luma_weight_l1_flag[i]
+Index 0x40 + i * 2 + 1, 0 <= i <= 0x1f:
+  bits 0-7: chroma_offset_l1[i][1]
+  bits 8-15: chroma_weight_l1[i][1]
+  bits 16-23: chroma_offset_l1[i][0]
+  bits 24-31: chroma_weight_l1[i][0]
+Index 0x80:
+  bits 0-2: chroma_log2_weight_denom
+  bits 3-5: luma_log2_weight_denom
+
+This packet is sent by the PRED_WEIGHT_TABLE [0xb] BSP command. It emits the requests in the following order:
+
+ - 0x80
+ - for 0 <= i <= num_ref_idx_l0_active_minus1: 2*i, 2*i + 1
+ - for 0 <= i <= num_ref_idx_l1_active_minus1: 0x40 + 2*i, 0x40 + 2*i + 1
+
+The fields corresponding to data not present in the bitstream are set to 0 - they're *not* set to their inferred values.

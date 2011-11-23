@@ -41,6 +41,18 @@ struct ed2v_variant *envyas_variant;
 
 char *envyas_outname = 0;
 
+static char* expand_local_label(const char *local, const char *global) {
+	char *full = malloc((global ? strlen(global) : 0) + strlen(local) + 3);
+	full[0] = '_';
+	full[1] = '_';
+	if (global)
+		strcpy(full + 2, global);
+	else
+		full[2] = '\0';
+	strcat(full, local);
+	return full;
+}
+
 ull calc (const struct expr *expr, struct disctx *ctx, struct ed2_loc loc) {
 	int i;
 	ull x;
@@ -48,6 +60,11 @@ ull calc (const struct expr *expr, struct disctx *ctx, struct ed2_loc loc) {
 		case EXPR_NUM:
 			return expr->num1;
 		case EXPR_LABEL:
+			if (expr->str[0] == '_' && expr->str[1] != '_') {
+				const char *full_label = expand_local_label(expr->str, ctx->cur_global_label);
+				free((char *)expr->str);
+				((struct expr *)expr)->str = full_label;
+			}
 			for (i = 0; i < ctx->labelsnum; i++)
 				if (!strcmp(ctx->labels[i].name, expr->str))
 					return ctx->labels[i].val;
@@ -127,6 +144,7 @@ struct section {
 	uint8_t *code;
 	int pos;
 	int maxpos;
+	int first_label, last_label;
 };
 
 void extend(struct section *s, int add) {
@@ -156,6 +174,8 @@ int donum (struct section *s, struct line *line, struct disctx *ctx, int wren) {
 		}
 	if (wren) {
 		extend(s, bits/8 * line->atomsnum);
+		if (s->pos % (bits/8))
+			fprintf (stderr, "Warning: Unaligned data %s; section '%s', offset 0x%x\n", line->str, s->name, s->pos);
 		for (i = 0; i < line->atomsnum; i++) {
 			ull num = calc(line->atoms[i], ctx, line->loc);
 			if ((line->str[0] == 'u' && bits != 64 && num >= (1ull << bits))
@@ -171,6 +191,18 @@ int donum (struct section *s, struct line *line, struct disctx *ctx, int wren) {
 	}
 	s->pos += bits/8 * line->atomsnum;
 	return 1;
+}
+
+int find_label(struct disctx *ctx, struct section *sect, int ofs, int start_at) {
+	int i;
+	/* Doesn't have any labels */
+	if (sect->first_label == -1)
+		return -1;
+	for (i = start_at >= 0 ? start_at : sect->first_label; i <= sect->last_label; i++) {
+		if (ctx->labels[i].type == 0 && ctx->labels[i].val == ofs)
+			return i;
+	}
+	return -1;
 }
 
 int envyas_process(struct file *file) {
@@ -209,11 +241,13 @@ int envyas_process(struct file *file) {
 	do {
 		allok = 1;
 		ctx->labelsnum = 0;
+		ctx->cur_global_label = NULL;
 		for (i = 0; i < sectionsnum; i++)
 			free(sections[i].code);
 		sectionsnum = 0;
 		int cursect = 0;
 		struct section def = { "default" };
+		def.first_label = -1;
 		ADDARRAY(sections, def);
 		for (i = 0; i < file->linesnum; i++) {
 			switch (file->lines[i]->type) {
@@ -225,6 +259,14 @@ int envyas_process(struct file *file) {
 					sections[cursect].pos += im[i].m[0].oplen;
 					break;
 				case LINE_LABEL:
+					if (file->lines[i]->str[0] == '_' && file->lines[i]->str[1] != '_') {
+						char *full_label = expand_local_label(file->lines[i]->str, ctx->cur_global_label);
+						free(file->lines[i]->str);
+						file->lines[i]->str = full_label;
+					}
+					else
+						ctx->cur_global_label = file->lines[i]->str;
+
 					for (j = 0; j < ctx->labelsnum; j++) {
 						if (!strcmp(ctx->labels[j].name, file->lines[i]->str)) {
 							fprintf (stderr, ED2_LOC_FORMAT(file->lines[i]->loc, "Label %s redeclared!\n"), file->lines[i]->str);
@@ -232,6 +274,9 @@ int envyas_process(struct file *file) {
 						}
 					}
 					struct label l = { file->lines[i]->str, sections[cursect].pos / ctx->isa->posunit + sections[cursect].base };
+					if (sections[cursect].first_label < 0)
+						sections[cursect].first_label = ctx->labelsnum;
+					sections[cursect].last_label = ctx->labelsnum;
 					ADDARRAY(ctx->labels, l);
 					break;
 				case LINE_DIR:
@@ -249,6 +294,7 @@ int envyas_process(struct file *file) {
 								break;
 						if (j == sectionsnum) {
 							struct section s = { file->lines[i]->atoms[0]->str };
+							s.first_label = -1;
 							if (file->lines[i]->atomsnum == 2)
 								s.base = file->lines[i]->atoms[1]->num1;
 							ADDARRAY(sections, s);
@@ -267,6 +313,21 @@ int envyas_process(struct file *file) {
 						sections[cursect].pos += num - 1;
 						sections[cursect].pos /= num;
 						sections[cursect].pos *= num;
+					} else if (!strcmp(file->lines[i]->str, "size")) {
+						if (file->lines[i]->atomsnum > 1) {
+							fprintf (stderr, "Too many arguments for .size\n");
+							return 1;
+						}
+						if (file->lines[i]->atoms[0]->type != EXPR_NUM) {
+							fprintf (stderr, "Wrong arguments for .size\n");
+							return 1;
+						}
+						ull num = file->lines[i]->atoms[0]->num1;
+						if (sections[cursect].pos > num) {
+							fprintf (stderr, "Section '%s' exceeds .size by %llu bytes\n", sections[cursect].name, sections[cursect].pos - num);
+							return 1;
+						}
+						sections[cursect].pos = num;
 					} else if (!strcmp(file->lines[i]->str, "skip")) {
 						if (file->lines[i]->atomsnum > 1) {
 							fprintf (stderr, ED2_LOC_FORMAT(file->lines[i]->loc, "Too many arguments for .skip\n"));
@@ -285,6 +346,11 @@ int envyas_process(struct file *file) {
 							fprintf (stderr, ED2_LOC_FORMAT(file->lines[i]->loc, "Wrong arguments for .equ\n"));
 							return 1;
 						}
+						if (file->lines[i]->atoms[0]->str[0] == '_' && file->lines[i]->atoms[0]->str[1] != '_') {
+							char *full_label = expand_local_label(file->lines[i]->atoms[0]->str, ctx->cur_global_label);
+							free((void*)file->lines[i]->atoms[0]->str);
+							file->lines[i]->atoms[0]->str = full_label;
+						}
 						ull num = calc(file->lines[i]->atoms[1], ctx, file->lines[i]->loc);
 						for (j = 0; j < ctx->labelsnum; j++) {
 							if (!strcmp(ctx->labels[j].name, file->lines[i]->atoms[0]->str)) {
@@ -292,7 +358,7 @@ int envyas_process(struct file *file) {
 								return 1;
 							}
 						}
-						struct label l = { file->lines[i]->atoms[0]->str, num };
+						struct label l = { file->lines[i]->atoms[0]->str, num , /* Distinguish .equ labels from regular labels */ 1 };
 						ADDARRAY(ctx->labels, l);
 					} else if (!donum(&sections[cursect], file->lines[i], ctx, 0)) {
 						fprintf (stderr, ED2_LOC_FORMAT(file->lines[i]->loc, "Unknown directive %s\n"), file->lines[i]->str);
@@ -302,6 +368,7 @@ int envyas_process(struct file *file) {
 			}
 		}
 		cursect = 0;
+		ctx->cur_global_label = NULL;
 		for (j = 0; j < sectionsnum; j++)
 			sections[j].pos = 0;
 		ull val[MAXOPLEN];
@@ -338,6 +405,8 @@ int envyas_process(struct file *file) {
 					}
 					break;
 				case LINE_LABEL:
+					if (file->lines[i]->str[0] != '_')
+						ctx->cur_global_label = file->lines[i]->str;
 					break;
 				case LINE_DIR:
 					if (!strcmp(file->lines[i]->str, "section")) {
@@ -351,6 +420,17 @@ int envyas_process(struct file *file) {
 						sections[cursect].pos += num - 1;
 						sections[cursect].pos /= num;
 						sections[cursect].pos *= num;
+						extend(&sections[cursect], 0);
+						for (j = oldpos; j < sections[cursect].pos; j++)
+							sections[cursect].code[j] = 0;
+					} else if (!strcmp(file->lines[i]->str, "size")) {
+						ull num = file->lines[i]->atoms[0]->num1;
+						ull oldpos = sections[cursect].pos;
+						if (sections[cursect].pos > num) {
+							fprintf (stderr, "Section '%s' exceeds .size by %llu bytes\n", sections[cursect].name, sections[cursect].pos - num);
+							return 1;
+						}
+						sections[cursect].pos = num;
 						extend(&sections[cursect], 0);
 						for (j = oldpos; j < sections[cursect].pos; j++)
 							sections[cursect].code[j] = 0;
@@ -394,14 +474,29 @@ int envyas_process(struct file *file) {
 				for (j = 0; j < sections[i].pos; j+=4) {
 					uint32_t val;
 					val = sections[i].code[j] | sections[i].code[j+1] << 8 | sections[i].code[j+2] << 16 | sections[i].code[j+3] << 24;
-					if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32)
+					if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32) {
+						int k;
+						for (k = 0; k < 4; k++) {
+							int l = find_label(ctx, &sections[i], j + k, -1);
+							while (l >= 0) {
+								fprintf(outfile, "/* 0x%04x: %s */\n", j + k, ctx->labels[l].name);
+								l = find_label(ctx, &sections[i], j + k, l + 1);
+							}
+						}
 						fprintf (outfile, "\t");
+					}
 					fprintf (outfile, "0x%08x,\n", val);
 				}
 			} else {
 				for (j = 0; j < sections[i].pos; j++) {
-					if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32)
+					if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32) {
+						int l = find_label(ctx, &sections[i], j, -1);
+						while (l >= 0) {
+							fprintf(outfile, "/* 0x%04x: %s */\n", j, ctx->labels[l].name);
+							l = find_label(ctx, &sections[i], j, l + 1);
+						}
 						fprintf (outfile, "\t");
+					}
 					fprintf (outfile, "0x%02x,\n", sections[i].code[j]);
 				}
 			}

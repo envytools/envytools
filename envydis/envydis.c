@@ -105,7 +105,23 @@ int main(int argc, char **argv) {
 					struct label nl;
 					char type;
 					char buf[1000] = "";
-					while (fscanf(mapfile, " %c%llx%s", &type, &nl.val, buf) >= 2) {
+
+					while(fgets(buf, sizeof(buf), mapfile)) {
+
+						if (buf[0] == '#' || buf[0] == '\n')
+							continue;
+
+						char* tmp = strchr(buf, '#');
+						if (tmp)
+							tmp = '\0';
+
+						char name[200];
+						int comps = sscanf(buf, "%c%llx%s%x", &type, &nl.val, name, &nl.size);;
+						if (comps < 2) {
+							fprintf(stderr, "Malformated input: %s\n", buf);
+							continue;
+						}
+
 						switch (type) {
 							case 'B':
 								nl.type = 1;
@@ -119,12 +135,20 @@ int main(int argc, char **argv) {
 							case 'S':
 								nl.type = 0x20;
 								break;
+							case 'N':
+								nl.type = 0x42;
+								break;
+							case 'D':
+								nl.type = 0x10;
+								break;
 							default:
 								fprintf (stderr, "Unknown label type %c\n", type);
 								return 1;
 						}
-						if (*buf)
-							nl.name = strdup(buf);
+						if (comps < 4)
+							nl.size = 0;
+						if (comps >= 3)
+							nl.name = strdup(name);
 						else
 							nl.name = 0;
 						ADDARRAY(labels, nl);

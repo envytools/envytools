@@ -367,9 +367,7 @@
 				<bitfield high="27" low="0" name="ADDRESS" shr="12"/>
 				<bitfield high="29" low="28" name="TARGET" type="nv50_mem_target"/>
 			</reg32>
-			<reg32 offset="0x0fc" name="UNK0FC">
-				<doc>RO. Sort of.</doc>
-			</reg32>
+			<reg32 offset="0x0fc" name="KICK_CHANNEL" type="nv50_channel"/>
 			<reg32 offset="0x100" name="UNK100" variants="NV84-">
 				<doc>Bits 0xffffffff, up as 4004f.</doc>
 			</reg32>

@@ -86,10 +86,10 @@ static struct reg pred_r = { &pred_bf, "p", .cool = 1, .specials = pred_sr };
 #define PDST atomreg, &pdst_r
 #define PRED atomreg, &pred_r
 
-struct mem mem1c_m = { "D", 0, &src1_r, &bimm8off };
-struct mem mem34_m = { "D", 0, &src1_r, 0, &src2_r };
-struct mem memst_m = { "D", 0, &src1_r, &bimmstoff };
-struct mem memsts_m = { "D", 0, &src1_r, &bimmstsoff };
+static struct mem mem1c_m = { "D", 0, &src1_r, &bimm8off };
+static struct mem mem34_m = { "D", 0, &src1_r, 0, &src2_r };
+static struct mem memst_m = { "D", 0, &src1_r, &bimmstoff };
+static struct mem memsts_m = { "D", 0, &src1_r, &bimmstsoff };
 #define MEM1C atommem, &mem1c_m
 #define MEMST atommem, &memst_m
 #define MEMSTS atommem, &memsts_m

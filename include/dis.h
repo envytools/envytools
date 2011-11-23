@@ -215,6 +215,7 @@ struct label {
 	const char *name;
 	ull val;
 	int type;
+	unsigned size;
 };
 
 struct disctx {
@@ -238,6 +239,7 @@ struct disctx {
 	int atomsnum;
 	int atomsmax;
 	int endmark;
+	const char *cur_global_label;
 };
 
 struct disisa {

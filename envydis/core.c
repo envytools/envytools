@@ -52,6 +52,12 @@ void mark(struct disctx *ctx, uint32_t ptr, int m) {
 	ctx->marks[ptr - ctx->codebase] |= m;
 }
 
+int is_nr_mark(struct disctx *ctx, uint32_t ptr) {
+	if (ptr < ctx->codebase || ptr >= ctx->codebase + ctx->codesz / ctx->isa->posunit)
+		return 0;
+	return ctx->marks[ptr - ctx->codebase] & 0x40;
+}
+
 struct matches *emptymatches() {
 	struct matches *res = calloc(sizeof *res, 1);
 	return res;
@@ -344,6 +350,8 @@ struct matches *atomctarg APROTO {
 	struct expr *expr = makeex(EXPR_NUM);
 	expr->num1 = GETBF(bf);
 	mark(ctx, expr->num1, 2);
+	if (is_nr_mark(ctx, expr->num1))
+		ctx->endmark = 1;
 	expr->special = 2;
 	ADDARRAY(ctx->atoms, expr);
 	int i;
@@ -911,6 +919,10 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 			if (labels[i].val >= ctx->codebase && labels[i].val < ctx->codebase + ctx->codesz) {
 				if (labels[i].name)
 					ctx->names[labels[i].val - ctx->codebase] = labels[i].name;
+			}
+			if (labels[i].size) {
+				for (j = 0; j < labels[i].size; j+=4)
+					mark(ctx, labels[i].val + j, labels[i].type);
 			}
 		}
 		int done;

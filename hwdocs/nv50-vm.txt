@@ -83,8 +83,7 @@ and stay on the same channel at any single moment. It's possible for a client
 to be part of several VM engines. The engines are:
 
  - 0: PGRAPH: STRMOUT + DISPATCH + CCACHE + CLIPID + VFETCH + TEXTURE + ROP
- - 1: PVP: PVPE [nv50:nv84]
- - 1: PVP: PVP [nv84-]
+ - 1: PVP: PVP
  - 4: PEEPHOLE: PFIFO_WRITE + PFIFO_READ
  - 5: PFIFO: PFIFO_WRITE + PFIFO_READ
  - 6: BAR: PFIFO_WRITE + PFIFO_READ
@@ -133,14 +132,16 @@ ids depends on both engine and client id. The DMA slots are
  - 5/4/1: FIFO semaphore write
  - 5/8/1: FIFO semaphore read
  - c/8/1: FIFO background semaphore read
+[XXX 1/* pre-nv84]
+[XXX 7/*]
+[XXX 8/* pre-nv98]
+[XXX b/*]
+ - 1/1/0-f: PVP DMA targets 0-0xf [nv84:nv98]
+ - 9/d/0-f: PBSP DMA targets 0-0xf [nv84:nv98]
  - a/e/0: PCRYPT context [nv84:nv98]
  - a/e/1: PCRYPT SRC [nv84:nv98]
  - a/e/2: PCRYPT DST [nv84:nv98]
  - a/e/3: PCRYPT QUERY [nv84:nv98]
-[XXX 1/* pre-nv98]
-[XXX 8/* pre-nv98]
-[XXX 9/* pre-nv98]
-[XXX b/* pre-nv98]
  - 1/1/0-7: PVP fuc targets 0-7 [nv98:]
  - 8/6/0-7: PPPP fuc targets 0-7 [nv98:]
  - 9/d/0-7: PBSP fuc targets 0-7 [nv98:]

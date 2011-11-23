@@ -142,7 +142,7 @@
 			<bitfield pos="11" name="VC1_SYNCMARKER"/> <!-- set this to 0 for B and BI, to syncmarker header flag for I and P -->
 		</reg32>
 		<reg32 offset="0x20" name="SLICE_PARM">
-			<!-- H@64 only -->
+			<!-- H264 only -->
 			<bitfield low="0" high="1" name="SLICE_TYPE">
 				<value value="0" name="P"/>
 				<value value="1" name="B"/>
