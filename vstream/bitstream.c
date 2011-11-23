@@ -80,6 +80,10 @@ int vs_byte(struct bitstream *str) {
 							}
 							str->zero_bytes = 0;
 							str->curbyte = str->bytes[str->bytepos++];
+							if (str->curbyte > 3) {
+								fprintf(stderr, "Invalid escape sequence: 00 00 03 %02x!\n", str->curbyte);
+								return 1;
+							}
 							break;
 					}
 				}

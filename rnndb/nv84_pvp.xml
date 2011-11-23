@@ -180,7 +180,7 @@
 		<reg32 offset="0x00" name="PIC_PARM">
 			<bitfield pos="0" name="ENTROPY_CODING_MODE_FLAG"/>
 			<bitfield low="1" high="8" name="WIDTH_MB"/>
-			<bitfield pos="9" name="MBAFFFRAMEFLAG"/>
+			<bitfield pos="9" name="MBAFF_FRAME_FLAG"/>
 			<bitfield low="10" high="11" name="PICTURE_STRUCTURE">
 				<value value="0" name="FRAME"/>
 				<value value="1" name="FIELD_TOP"/>
@@ -233,7 +233,7 @@
 			<bitfield pos="0" nme="CMD"/>
 			<!-- bits like VP3? -->
 		</reg32>
-		<reg32 offset="0x14" name="COMMAND_RES"/>
+		<reg32 offset="0x14" name="RESULT"/>
 		<reg32 offset="0x1c" name="INTR_ENABLE">
 			<bitfield pos="0" name="UIRQ0"/>
 			<bitfield pos="1" name="END_OF_STREAM"/>
@@ -258,7 +258,7 @@
 			<bitfield pos="28" name="ENABLE"/>
 		</reg32>
 		<reg32 offset="0x44" name="STREAM_OFFSET" stride="8" length="8"/>
-		<reg32 offset="0x80" name="STREAM_BIT"/> <!-- write starts the stream input engine -->
+		<reg32 offset="0x80" name="STREAM_BITPOS"/> <!-- write starts the stream input engine -->
 		<reg32 offset="0x100" name="MBRING_ADDR"/>
 		<reg32 offset="0x104" name="MBRING_GET"/>
 		<reg32 offset="0x108" name="MBRING_PUT"/>
@@ -269,7 +269,7 @@
 			<bitfield pos="2" name="RESUME"/>
 		</reg32>
 	</array>
-	<array offset="0x200" name="VUC" stride="0x100">
+	<array offset="0x200" name="VUC" stride="0x200">
 		<reg32 offset="0x000" name="DATA" length="32"/> <!-- indexed like fµc, but only one word per index, instead of two -->
 		<reg32 offset="0x088" name="CODE_CONTROL">
 			<bitfield low="0" high="10" name="IP"/>
@@ -287,18 +287,39 @@
 		<reg32 offset="0x0d4" name="INTR" type="nv84_pbsp_vuc_intr"/>
 		<reg32 offset="0x0d8" name="INTR_EN" type="nv84_pbsp_vuc_intr"/>
 	</array>
-	<reg32 offset="0x420" name="STREAM_BASE" shr="8"/>
-	<reg32 offset="0x424" name="STREAM_TARGET" type="nv84_vp2_target"/>
-	<reg32 offset="0x428" name="STREAM_LIMIT" shr="8"/>
-	<reg32 offset="0x430" name="MBDATA_BASE" shr="8"/> <!-- goes to VP -->
-	<reg32 offset="0x434" name="MBDATA_TARGET" type="nv84_vp2_target"/>
-	<reg32 offset="0x438" name="MBDATA_LIMIT" shr="8"/>
-	<reg32 offset="0x440" name="UNK440_BASE" shr="8"/>
-	<reg32 offset="0x444" name="UNK440_TARGET" type="nv84_vp2_target"/>
-	<reg32 offset="0x448" name="UNK440_LIMIT" shr="8"/>
-	<reg32 offset="0x450" name="MBRING_BASE" shr="8"/>
-	<reg32 offset="0x454" name="MBRING_TARGET" type="nv84_vp2_target"/>
-	<reg32 offset="0x458" name="MBRING_LIMIT" shr="8"/>
+	<array offset="0x400" name="MEMIF" stride="0x200">
+		<reg32 offset="0x000" name="STATUS">
+			<bitfield low="0" high="5" name="UNK0"/>
+			<bitfield low="8" high="11" name="FAULT_TYPE">
+				<value value="0" name="NONE"/>
+				<value value="1" name="LIMIT"/>
+				<value value="2" name="VM"/>
+				<value value="3" name="UNK3"/>
+			</bitfield>
+			<bitfield low="12" high="15" name="FAULT_PORT">
+				<value value="0" name="NONE"/>
+				<value value="1" name="STREAM"/>
+				<value value="2" name="MBRING"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x004" name="FAULT_ADDRESS"/>
+		<reg32 offset="0x00c" name="INTR">
+			<bitfield pos="0" name="FAULT"/>
+			<bitfield pos="4" name="UNK4"/> <!-- *not* an interrupt -->
+		</reg32>
+		<reg32 offset="0x020" name="STREAM_BASE" shr="8"/>
+		<reg32 offset="0x024" name="STREAM_TARGET" type="nv84_vp2_target"/>
+		<reg32 offset="0x028" name="STREAM_LIMIT" shr="8"/>
+		<reg32 offset="0x030" name="MBDATA_BASE" shr="8"/> <!-- goes to VP -->
+		<reg32 offset="0x034" name="MBDATA_TARGET" type="nv84_vp2_target"/>
+		<reg32 offset="0x038" name="MBDATA_LIMIT" shr="8"/>
+		<reg32 offset="0x040" name="UNK440_BASE" shr="8"/>
+		<reg32 offset="0x044" name="UNK440_TARGET" type="nv84_vp2_target"/>
+		<reg32 offset="0x048" name="UNK440_LIMIT" shr="8"/>
+		<reg32 offset="0x050" name="MBRING_BASE" shr="8"/>
+		<reg32 offset="0x054" name="MBRING_TARGET" type="nv84_vp2_target"/>
+		<reg32 offset="0x058" name="MBRING_LIMIT" shr="8"/>
+	</array>
 	<array offset="0xc00" name="XTENSA" stride="0x400">
 		<use-group name="nv84_xtensa_common"/>
 		<reg32 offset="0x194" name="FIFO_CTRL">

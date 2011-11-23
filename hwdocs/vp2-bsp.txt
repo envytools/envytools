@@ -1,3 +1,108 @@
+= Introduction =
+
+The BSP is the first stage of the VP2 decoding pipeline. It is part of
+PBSP and deals with decoding the H.264 bitstream into syntax elements.
+
+The input to the BSP is the raw H.264 bitstream. The output of BSP is MBRING,
+a ring buffer structure storing the decoded syntax elements in the form
+of word-aligned packets.
+
+The BSP can only parse the pred_weight_table() and slice_data() elements
+in hardware. The remaining parts of the slice are supposed to be parsed
+semi-manually by the microcode controlling PBSP. The BSP has commands that
+parse single syntax elements for that purpose.
+
+
+== The registers ==
+
+The BSP registers are located in PBSP XLMI space at addresses 0x00000:0x08000
+[BAR0 addresses 0x103000:0x103200]. They are:
+
+00000:02000/103000:103080 - BSP control registers
+00000/103000: PIC_PARM - bitstream parameters for slice_data parsing
+00100/103004: SLICE_PARM - bitstream parameters for pred_weight_table and
+                           slice_data parsing
+00200/103008: SLICE_POS - position of the current macroblock, for slice_data
+                          parsing
+00300/10300c: COMMAND - writing executes a BSP command
+00400/103010: STATUS - shows busy status of various parts of the BSP
+00500/103014: RESULT - result of a command
+00700/10301c: INTR_EN - interrupt enable mask
+00800/103020: ??? [XXX]
+00900/103024: INTR - interrupt status
+00a00/103028: RESET - resets the BSP and its registers to initial state
+01000+i*0x100/103040+i*4, 0<=i<8: CONF[i] - length and enable bit of
+						   stream buffer i
+01100+i*0x100/103044+i*4, 0<=i<8: OFFSET[i] - offset of stream buffer i
+02000/103080: BITPOS - the bit position in the stream
+04000/103100: OFFSET - the MBRING offset
+04100/103104: HALT_POS - the MBRING halt position
+04200/103108: WRITE_POS - the MBRING write position
+04300/10310c: SIZE - the MBRING size
+04400/103110: TRIGGER - writing executes MBRING commands
+
+
+== Reset ==
+
+The engine may be reset at any time by poking the RESET register.
+
+BAR0 0x103028 / XLMI 0x00a00: RESET
+  Any write will cause the BSP to be reset. All internal state is reset to
+  default values. All user-writable registers are set to 0, except UNK8
+  which is set to 0xffffffff.
+
+
+== Parameter and position registers ==
+
+The values of these registers are used by the PRED_WEIGHT_TABLE and SLICE_DATA
+commands for bitstream parsing. SLICE_POS is also updated by SLICE_DATA
+command to point to the last processed macroblock. For the meaning of these
+fields, see PRED_WEIGHT_TABLE and SLICE_DATA command descriptions.
+
+BAR0 0x103000 / XLMI 0x00000: PIC_PARM
+  bit 0: entropy_coding_mode_flag
+  bits 1-8: width_mbs
+  bit 9: mbaff_frame_flag
+  bits 10-11: picture_structure
+  bits 12-16: nal_unit_type
+  bit 17: ??? [XXX]
+  bits 18-19: cabac_init_idc
+  bits 20-21: ??? [XXX]
+  bit 22: direct_8x8_inference_flag
+  bit 23: transform_8x8_mode_flag
+
+BAR0 0x103004 / XLMI 0x00100: SLICE_PARM
+  bits 0-1: slice_type
+  bits 2-14: ??? [XXX]
+  bits 15-19: num_ref_idx_l0_active_minus1
+  bits 20-24: num_ref_idx_l1_active_minus1
+  bits 25-30: sliceqpy
+
+BAR0 0x103008 / XLMI 0x00200: SLICE_POS
+  bits 0-12: mb_idx
+  bits 13-20: mb_x
+  bits 21-28: mb_y
+  bit 29: ??? [XXX]
+
+
+== Interrupts ==
+
+[XXX: write me]
+
+
+== Stream input ==
+
+[XXX: RE and write me]
+
+
+== MBRING output ==
+
+[XXX: write me]
+
+
+== Command and status registers ==
+
+[XXX: write me]
 
 
 == The commands ==

@@ -189,7 +189,7 @@
 			<bitfield pos="2" name="UNK2"/> <!-- BSP2VP filler? -->
 			<bitfield pos="4" name="UNK4"/> <!-- BSP2VP writer? -->
 		</reg32>
-		<reg32 offset="0x4c" name="COMMAND_RES"/>
+		<reg32 offset="0x4c" name="RESULT"/>
 		<bitset name="nv98_bsp_intr" inline="yes">
 			<bitfield pos="0" name="ERR_UNK0"/>
 			<bitfield pos="1" name="ERR_UNK1"/>
