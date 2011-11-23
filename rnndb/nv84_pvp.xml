@@ -211,20 +211,23 @@
 			<bitfield pos="29" name="UNK29"/> <!-- always 1 -->
 		</reg32>
 		<reg32 offset="0x0c" name="COMMAND">
-			<!-- XXX: try the other ones -->
-			<value value="0" name="GET_UE"/> <!-- buggy? -->
-			<value value="1" name="GET_SE"/>
-			<value value="2" name="GETBITS"/>
-			<value value="3" name="NEXT_START_CODE"/>
-			<value value="4" name="ALIGN_BYTE"/>
-			<value value="5" name="MORE_RBSP_DATA"/>
-			<value value="6" name="UNK6_NOPARM_RES"/>
-			<value value="7" name="UNK7_NOPARM_RES"/>
-			<value value="8" name="UNK8_NOPARM_NORES"/>
-			<value value="9" name="UNK9_NOPARM_NORES"/>
-			<value value="10" name="UNK10_NOPARM_NORES"/>
-			<value value="11" name="PRED_WEIGHT_TABLE"/>
-			<value value="12" name="MACROBLOCKS"/>
+			<bitfield low="0" high="3" name="CMD">
+				<!-- XXX: try the other ones -->
+				<value value="0" name="GET_UE"/>
+				<value value="1" name="GET_SE"/>
+				<value value="2" name="GETBITS"/>
+				<value value="3" name="NEXT_START_CODE"/>
+				<value value="4" name="ALIGN_BYTE"/>
+				<value value="5" name="MORE_RBSP_DATA"/>
+				<value value="6" name="UNK6_NOPARM_RES"/>
+				<value value="7" name="UNK7_NOPARM_RES"/>
+				<value value="8" name="UNK8_NOPARM_NORES"/>
+				<value value="9" name="UNK9_NOPARM_NORES"/>
+				<value value="10" name="UNK10_NOPARM_NORES"/>
+				<value value="11" name="PRED_WEIGHT_TABLE"/>
+				<value value="12" name="MACROBLOCKS"/>
+			</bitfield>
+			<bitfield low="4" high="8" name="PARAM"/>
 		</reg32>
 		<reg32 offset="0x10" name="STATUS">
 			<bitfield pos="0" nme="CMD"/>
@@ -236,7 +239,7 @@
 			<bitfield pos="1" name="END_OF_STREAM"/>
 			<bitfield pos="2" name="UIRQ2"/>
 			<bitfield pos="3" name="MBRING_FULL"/>
-			<bitfield pos="4" name="UIRQ3"/>
+			<bitfield pos="4" name="MACROBLOCKS_DONE"/>
 		</reg32>
 		<reg32 offset="0x20" name="UNK20"/>
 		<reg32 offset="0x24" name="INTR">
@@ -245,7 +248,7 @@
 				<value value="1" name="UIRQ0"/> <!-- decode error? -->
 				<value value="2" name="END_OF_STREAM"/>
 				<value value="3" name="UIRQ2"/>
-				<value value="4" name="UIRQ3"/>
+				<value value="4" name="MACROBLOCKS_DONE"/>
 			</bitfield>
 			<bitfield pos="4" name="MBRING_FULL"/>
 		</reg32>

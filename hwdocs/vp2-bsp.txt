@@ -1,0 +1,138 @@
+
+
+== The commands ==
+
+Command 0: GET_UE
+
+Parameter: none
+Result: the decoded value of parsed bitfield, or 0xffffffff if out of range
+
+Parses one ue(v) element as defined in H.264 spec. Only elements in range
+0..0xfffe [up to 31 bits in the bitstream] are supported by this command.
+If the next bits of the bitstream are a valid ue(v) element in supported
+range, the element is parsed, the bitstream pointer advances past it, and
+its parsed value is returned as the result. Otherwise, bitstream pointer
+is not modified and 0xffffffff is returned.
+
+Operation:
+	if (nextbits(16) != 0) {
+		int bitcnt = 0;
+		while (getbits(1) == 0)
+			bitcnt++;
+		return (1 << bitcnt) - 1 + getbits(bitcnt);
+	} else {
+		return 0xffffffff;
+	}
+
+
+Command 1: GET_SE
+
+Parameter: none
+Result: the decoded value of parsed bitfield, or 0x80000000 if out of range
+
+Parses one se(v) element as defined in H.264 spec. Only elements in range
+-0x7fff..0x7fff [up to 31 bits in the bitstream] are supported by this command.
+If the next bits of the bitstream are a valid se(v) element in supported
+range, the element is parsed, the bitstream pointer advances past it, and
+its parsed value is returned as the result. Otherwise, bitstream pointer
+is not modified and 0x80000000 is returned.
+
+Operation:
+	if (nextbits(16) != 0) {
+		int bitcnt = 0;
+		while (getbits(1) == 0)
+			bitcnt++;
+		int tmp = (1 << bitcnt) - 1 + getbits(bitcnt);
+		if (tmp & 1)
+			return (tmp+1) >> 1;
+		else
+			return -(tmp >> 1);
+	} else {
+		return 0x80000000;
+	}
+
+
+Command 2: GETBITS
+
+Parameter: number of bits to read, or 0 to read 32 bits
+Result: the bits from the bitstream
+
+Given parameter n, returns the next (n?n:32) bits from the bitstream as an
+unsigned integer.
+
+Operation:
+	return getbits(n?n:32);
+
+
+Command 3: NEXT_START_CODE
+
+Parameter: none
+Result: the next start code found
+
+Skips bytes in the raw bitstream until the start code [00 00 01] is found.
+Then, read the byte after the start code and return it as the result. The
+bitstream pointer is advanced to point after the returned byte.
+
+Operation:
+	byte_align();
+	while (nextbytes_raw(3) != 1)
+		getbits_raw(8);
+	getbits_raw(24);
+	return getbits_raw(8);
+
+
+Command 4: ALIGN_BYTE
+
+Parameter: none
+Result: none
+
+Skips bits in the bitstream until the current bit position is byte-aligned.
+
+Oprtation:
+	byte_align();
+
+
+Command 5: MORE_RBSP_DATA
+
+Parameter: none
+Result: 1 if there's more data in RBSP, 0 otherwise
+
+Returns 0 if there's a valid RBSP trailing bits element at the current bit
+position, 1 otherwise. Does not modify the bitstream pointer.
+
+Operation:
+	if (nextbits(1) == 1
+			&& nextbits((bitpos - 1) & 7) == 0
+			&& (nextbytes_raw(3) == 1 || nextbytes_raw(3) == 0))
+		return 0;
+	else
+		return 1;
+
+
+Commands 6-0xa: unknown [XXX]
+
+
+Command 0xb: PRED_WEIGHT_TABLE
+
+Parameter: none
+Result: XXX: check
+
+Parses the pred_weight_table element, stores its contents in internal memory,
+and advances the bitstream to the end of the element.
+
+Operation:
+	XXX
+
+
+Command 0xc: MACROBLOCKS
+
+Parameter: none
+Result: XXX: check
+
+Writes the stored pred_weight_table data to MBRING, parses the slice_data
+element, storing decoded data into MBRING, halting when the RBSP trailing bit
+sequence is encountered. When done, raises the MACROBLOCKS_DONE interrupt.
+Bitstream pointer is updated to point to the RBSP traling bits.
+
+Operation:
+	XXXX
