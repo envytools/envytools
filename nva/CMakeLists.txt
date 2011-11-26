@@ -3,8 +3,8 @@ cmake_minimum_required(VERSION 2.6)
 
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(PC_PCIACCESS pciaccess REQUIRED)
-pkg_check_modules(PC_X11 x11 REQUIRED)
-pkg_check_modules(PC_XEXT xext REQUIRED)
+pkg_check_modules(PC_X11 x11)
+pkg_check_modules(PC_XEXT xext)
 
 include_directories(../include)
 
@@ -34,7 +34,17 @@ add_executable(nvaxtssr nvaxtssr.c)
 add_executable(nvaxtinsn nvaxtinsn.c)
 add_executable(nvavucstart nvavucstart.c)
 add_executable(evotiming evotiming.c)
-add_executable(nvamemtiming nvamemtiming.c set_timings.c vbios_mgmt.c libXNVCtrl/NVCtrl.c)
+
+if (PC_X11_FOUND AND PC_XEXT_FOUND)
+	add_executable(nvamemtiming nvamemtiming.c set_timings.c vbios_mgmt.c libXNVCtrl/NVCtrl.c)
+	target_link_libraries(nvamemtiming nva ${PC_PCIACCESS_LIBRARIES} ${PC_X11_LIBRARIES} ${PC_XEXT_LIBRARIES})
+	install(TARGETS nvamemtiming
+	RUNTIME DESTINATION bin
+	LIBRARY DESTINATION lib${LIB_SUFFIX}
+	ARCHIVE DESTINATION lib${LIB_SUFFIX})
+else(PC_X11_FOUND AND PC_XEXT_FOUND)
+	message("Warning: nvamemtiming won't be build because of un-met dependencies (X11 and/or XEXT)")
+endif(PC_X11_FOUND AND PC_XEXT_FOUND)
 
 target_link_libraries(nvalist nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvapeek nva ${PC_PCIACCESS_LIBRARIES})
@@ -61,7 +71,6 @@ target_link_libraries(nvaxtssr nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvavucstart nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvaxtinsn nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(evotiming nva ${PC_PCIACCESS_LIBRARIES})
-target_link_libraries(nvamemtiming nva ${PC_PCIACCESS_LIBRARIES} ${PC_X11_LIBRARIES} ${PC_XEXT_LIBRARIES})
 
 install(TARGETS nva
 		nvalist
