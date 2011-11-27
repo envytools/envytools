@@ -11,7 +11,7 @@ bison_target(parse parse.y ${CMAKE_CURRENT_BINARY_DIR}/parse.c)
 add_flex_bison_dependency(lex parse)
 include_directories(.)
 
-add_library(envy core.c nv50.c nvc0.c ctx.c fuc.c hwsq.c vp2.c vp3m.c macro.c print.c)
+add_library(envy core.c nv50.c nvc0.c ctx.c fuc.c hwsq.c vp2.c vuc.c macro.c print.c)
 
 add_executable(envydis envydis.c)
 add_executable(envyas envyas.c ${FLEX_lex_OUTPUTS} ${BISON_parse_OUTPUTS})

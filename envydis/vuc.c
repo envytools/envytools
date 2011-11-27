@@ -257,7 +257,7 @@ static const struct disvariant vuc_vars[] = {
     "vp3", VP3,
 };
 
-const struct disisa vp3m_isa_s = {
+const struct disisa vuc_isa_s = {
 	tabroot,
 	4,
 	4,
