@@ -41,6 +41,55 @@
 
 int vbios_upload_pramin(int cnum, uint8_t *vbios, int length);
 
+static int
+write_to_file(const char *path, const char *data)
+{
+	FILE *file = fopen(path, "wb");
+	if (!file)
+		return 1;
+	fputs(data, file);
+	fclose(file);
+	return 0;
+}
+
+static void mmiotrace_start(int entry)
+{
+	int ret;
+
+	ret = mount("debugfs", "/sys/kernel/debug", "debugfs", 0, 0);
+	if (ret)
+		fprintf(stderr, "mounting debugfs returned error %i: %s\n", ret, strerror(ret));
+
+	if (write_to_file("/sys/kernel/debug/tracing/buffer_size_kb", "128000"))
+		fprintf(stderr, "Increasing the buffer size returned error %i: %s\n", ret, strerror(ret));
+
+	if (write_to_file("/sys/kernel/debug/tracing/current_tracer", "mmiotrace"))
+		fprintf(stderr, "Changing the tracer returned error %i: %s\n", ret, strerror(ret));
+
+	if (write_to_file("/sys/kernel/debug/tracing/current_tracer", "mmiotrace"))
+		fprintf(stderr, "Changing the tracer returned error %i: %s\n", ret, strerror(ret));
+
+	pid_t pid = fork();
+        if (pid == 0) {
+                char cmd[101];
+                snprintf(cmd, 100, "cat /sys/kernel/debug/tracing/trace_pipe > mmt_entry_%i", entry);
+		exit(system(cmd));
+	} else if (pid < 0) {
+		perror("fork");
+	}
+
+	printf("mmiotrace started\n");
+}
+
+static void
+mmiotrace_stop()
+{
+	if (write_to_file("/sys/kernel/debug/tracing/current_tracer", "nop"))
+		fprintf(stderr, "Copying the trace to a file failed\n");
+
+	printf("mmiotrace stopped\n");	
+}
+
 int upclock_card(Display *dpy)
 {
 	unsigned long start_time, get_time;
@@ -109,8 +158,10 @@ int wait_for_perflvl(Display *dpy, uint8_t wanted_perflvl)
 
 		XNVCTRLQueryTargetAttribute (dpy, NV_CTRL_TARGET_TYPE_X_SCREEN, 0,
 						0, NV_CTRL_GPU_CURRENT_PERFORMANCE_LEVEL, &tmp);
-		if (cur_perflvl < 0)
+		if (cur_perflvl < 0) {
 			cur_perflvl = tmp;
+			fprintf(stderr, "NV_CTRL_GPU_CURRENT_PERFORMANCE_LEVEL = %d\n", cur_perflvl);
+		}
 		else if (tmp != cur_perflvl) {
 			cur_perflvl = tmp;
 			fprintf(stderr, "Changed NV_CTRL_GPU_CURRENT_PERFORMANCE_LEVEL = %d\n", cur_perflvl);
@@ -121,7 +172,7 @@ int wait_for_perflvl(Display *dpy, uint8_t wanted_perflvl)
 	return 0;
 }
 
-int force_timing_changes(uint8_t wanted_perflvl)
+int force_timing_changes(uint8_t wanted_perflvl, int mmiotrace)
 {
 	Display *dpy;
 	int ret, i = 0;
@@ -140,16 +191,19 @@ int force_timing_changes(uint8_t wanted_perflvl)
 	}
 
 	if (!upclock_card(dpy)) {
+		if (write_to_file("/sys/kernel/debug/tracing/trace_marker", "Start downclocking\n"))
+			fprintf(stderr, "Addind a marker to the mmiotrace returned error %i: %s\n", ret, strerror(ret));
+
 		if (!wait_for_perflvl(dpy, wanted_perflvl)) {
 			fprintf(stderr, "Downclock monitoring finished\n");
 			ret = 0;
 		}
 	}
 
-	XCloseDisplay(dpy);
-
 	/* wait for PDAEMON to actually change the memory clock */
 	sleep(1);
+	
+	XCloseDisplay(dpy);
 
 	return ret;
 }
@@ -172,7 +226,7 @@ static void print_reg_diff(FILE* outf, uint32_t orig, uint32_t dest, int no_diff
 }
 
 static void dump_timings(int cnum, FILE* outf, uint8_t *vbios_entry,
-		  size_t vbios_entry_size, int8_t progression)
+		  size_t vbios_entry_size, int8_t progression, int color)
 {
 	static uint32_t ref_val[0xd0] = { 0 };
 	static int ref_exist = 0;
@@ -203,7 +257,7 @@ static void dump_timings(int cnum, FILE* outf, uint8_t *vbios_entry,
 
 		val = nva_rd32(cnum, reg + r);
 
-		print_reg_diff(outf, ref_val[r], val, progression == 0);
+		print_reg_diff(outf, ref_val[r], val, !color || progression == 0);
 
 		/* if the value wasn't initialized before, store it as a reference */
 		if (ref_exist == 0)
@@ -220,7 +274,7 @@ static void dump_timings(int cnum, FILE* outf, uint8_t *vbios_entry,
 }
 
 static int launch(int cnum, FILE* outf, uint8_t *vbios_data, uint16_t vbios_length, uint8_t perflvl,
-	uint16_t timing_entry_offset, uint8_t entry_length, uint8_t progression)
+	uint16_t timing_entry_offset, uint8_t entry_length, int mmiotrace, uint8_t progression, int color)
 {
 	printf("--- Start sequence number %u\n", progression);
 
@@ -239,19 +293,27 @@ static int launch(int cnum, FILE* outf, uint8_t *vbios_data, uint16_t vbios_leng
 	/* modify our env so as we can launch apps on X */
 	setenv("DISPLAY", ":0", 1);
 
+	/* monitor downclocking */
+	if (mmiotrace)
+		mmiotrace_start(progression);
+
 	pid_t pid = fork();
 	if (pid == 0) {
-		exit (system("X > /dev/null 2> /dev/null"));
+		system("killall X 2> /dev/null > /dev/null");
+		exit(system("X > /dev/null 2> /dev/null"));
 	} else if (pid == -1) {
 		fprintf(stderr, "Fork failed! Abort\n");
 		exit (4);
 	}
 
 	/* X runs, wait for the right perflvl to be selected */
-	if (force_timing_changes(perflvl))
+	if (force_timing_changes(perflvl, mmiotrace))
 		return 1;
 
-	dump_timings(cnum, outf, vbios_data + timing_entry_offset, entry_length, progression);
+	if (mmiotrace)
+                mmiotrace_stop();
+
+	dump_timings(cnum, outf, vbios_data + timing_entry_offset, entry_length, progression, color);
 
 	system("killall X");
 	sleep(5);
@@ -259,8 +321,9 @@ static int launch(int cnum, FILE* outf, uint8_t *vbios_data, uint16_t vbios_leng
 	return 0;
 }
 
-int work_loop(int cnum, uint8_t *vbios_data, uint16_t vbios_length,
-	      uint16_t timing_entry_offset, uint8_t entry_length, uint8_t perflvl)
+int complete_dump(int cnum, uint8_t *vbios_data, uint16_t vbios_length,
+	      uint16_t timing_entry_offset, uint8_t entry_length,
+	      uint8_t perflvl, int do_mmiotrace)
 {
 	int i;
 
@@ -272,7 +335,7 @@ int work_loop(int cnum, uint8_t *vbios_data, uint16_t vbios_length,
 	}
 
 	launch(cnum, outf, vbios_data, vbios_length, perflvl,
-		       timing_entry_offset, entry_length, 0);
+		       timing_entry_offset, entry_length, do_mmiotrace, 0, 0);
 
 
 	/* iterate through the vbios timing values */
@@ -282,10 +345,36 @@ int work_loop(int cnum, uint8_t *vbios_data, uint16_t vbios_length,
 		vbios_data[timing_entry_offset + i]++;
 
 		launch(cnum, outf, vbios_data, vbios_length, perflvl,
-		       timing_entry_offset, entry_length, i+1);
+		       timing_entry_offset, entry_length, do_mmiotrace, i + 1, 1);
 
 		vbios_data[timing_entry_offset + i] = orig;
 	}
+
+	fclose(outf);
+
+	return 0;
+}
+
+int manual_check(int cnum, int manual_entry, int manual_value,
+		 uint8_t *vbios_data, uint16_t vbios_length,
+		 uint16_t timing_entry_offset, uint8_t entry_length,
+		 uint8_t perflvl, int do_mmiotrace)
+{
+	char outfile[11];
+	int i;
+
+	snprintf(outfile, 10, "entry_%i", manual_entry);
+
+	/* TODO: get this filename from the command line */
+	FILE *outf = fopen(outfile, "wb");
+	if (!outf) {
+		perror("Open the output file");
+		return 1;
+	}
+	
+	vbios_data[timing_entry_offset + manual_entry]++;
+	launch(cnum, outf, vbios_data, vbios_length, perflvl,
+		timing_entry_offset, entry_length, do_mmiotrace, manual_entry + 1, 0);
 
 	fclose(outf);
 

@@ -29,29 +29,57 @@
 #include "nva.h"
 
 int vbios_read(const char *filename, uint8_t **vbios, uint16_t *length);
-int work_loop(int cnum, uint8_t *vbios_data, uint16_t vbios_length,
-	      uint16_t timing_entry_offset, uint8_t entry_length, uint8_t perflvl);
+int complete_dump(int cnum, uint8_t *vbios_data, uint16_t vbios_length,
+	      uint16_t timing_entry_offset, uint8_t entry_length,
+	      uint8_t perflvl, int do_mmiotrace);
+
+int manual_check(int cnum, int manual_entry, int manual_value,
+		 uint8_t *vbios_data, uint16_t vbios_length,
+		 uint16_t timing_entry_offset, uint8_t entry_length,
+		 uint8_t perflvl, int do_mmiotrace);
 
 void usage(int argc, char **argv)
 {
-	fprintf(stderr, "Usage: %s [-c cnum] vbios.rom timing_table_offset timing_entry perflvl\n", argv[0]);
+	fprintf(stderr, "Usage: %s [-c cnum ...] vbios.rom timing_table_offset timing_entry perflvl\n", argv[0]);
+	fprintf(stderr, "\n\nOptional args:\n");
+	fprintf(stderr, "\t-c cnum: Specify the card number\n");
+	fprintf(stderr, "\t-t: Generate a mmiotrace of all meaningful operations\n");
+	//fprintf(stderr, "\t-d: Force deep testing\n");
+	fprintf(stderr, "\t-e: Only modify the specified entry (to be used with -v)\n");
+	fprintf(stderr, "\t-v: Set the specified value to the specified entry\n");
 	exit(-1);
 }
 
 int parse_cmd_line(int argc, char **argv,
-		   int *cnum, char **vbios,
+		   int *cnum, int *mmiotrace,
+		   int *manual_entry, int *manual_value,
+		   char **vbios,
 		   uint16_t *timing_offset, uint8_t *timing_entry, uint8_t *perflvl)
 {
 	int c;
 
 	*cnum = 0;
+	*mmiotrace = 0;
 	*vbios = NULL;
+	*manual_entry = -1;
+	*manual_value = -1;
 
-	while ((c = getopt (argc, argv, "c:")) != -1)
+	while ((c = getopt (argc, argv, "htc:e:v:")) != -1)
 		switch (c) {
+			case 'e':
+				sscanf(optarg, "%d", manual_entry);
+				break;
+			case 'v':
+				sscanf(optarg, "%d", manual_value);
+				break;
 			case 'c':
 				sscanf(optarg, "%d", cnum);
 				break;
+			case 't':
+				*mmiotrace = 1;
+				break;
+			case 'h':
+				usage(argc, argv);
 		}
 	if (*cnum >= nva_cardsnum) {
 		if (nva_cardsnum)
@@ -60,6 +88,10 @@ int parse_cmd_line(int argc, char **argv,
 			fprintf (stderr, "No cards found.\n");
 		return 1;
 	}
+
+	if ((*manual_entry < 0 && *manual_value >= 0) ||
+	    (*manual_entry >= 0 && *manual_value < 0))
+		usage(argc, argv);
 
 	if (argc != optind + 4)
 		usage(argc, argv);
@@ -99,7 +131,7 @@ int read_timings(uint8_t *vbios_data, uint16_t vbios_length,
 int main(int argc, char** argv)
 {
 	/* after parsing the command line */
-	int cnum;
+	int cnum, mmiotrace, manual_entry, manual_value;
 	uint16_t timing_table_offset;
 	uint8_t timing_entry, perflvl;
 	char *vbios;
@@ -119,7 +151,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 	
-	parse_cmd_line(argc, argv, &cnum, &vbios, &timing_table_offset, &timing_entry, &perflvl);
+	parse_cmd_line(argc, argv, &cnum, &mmiotrace, &manual_entry, &manual_value, &vbios, &timing_table_offset, &timing_entry, &perflvl);
 
 	if (!vbios_read(vbios, &vbios_data, &vbios_length)) {
 		fprintf(stderr, "Error while reading the vbios\n");
@@ -133,6 +165,8 @@ int main(int argc, char** argv)
 		return ret;
 	}
 
-	/* TODO: Allow the user to select the operation mode he wants */
-	return work_loop(cnum, vbios_data, vbios_length, timing_offset, entry_length, perflvl);
+	if (manual_entry < 0)
+		return complete_dump(cnum, vbios_data, vbios_length, timing_offset, entry_length, perflvl, mmiotrace);
+	else
+		return manual_check(cnum, manual_entry, manual_value, vbios_data, vbios_length, timing_offset, entry_length, perflvl, mmiotrace);
 }
