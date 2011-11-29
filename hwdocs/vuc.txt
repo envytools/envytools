@@ -217,20 +217,6 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
         TODO: There exists a predicated version with bit 29 set, predicate in 20:24, DST := SRC3.
         Delay: immediate
 
-    0x40: [and DST SRC1 SRC2]
-        Delay: immediate
-    
-    0x41: [or DST SRC1 SRC2]
-        Delay: immediate
-    
-    0x42: [xor DST SRC1 SRC2]
-          xor REG REG GPREG
-          xor REG REG IMM?
-        Delay: immediate
-       
-    0x44: [andn DST SRC1 SRC2]
-        Delay: 
-		
 	0x64: [add DST SRC1 SRC2]
 		  add REG REG GPREG
 		Assigns DST the value of SRC1 + SRC2
@@ -238,15 +224,21 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
 		XXX: Carry?
 		Delay: immediate
     
-    0x65, 0x66: [sub DST SRC1 SRC2]
-          sub REG REG REG
+    0x65: [sub DST SRC1 SRC2]
+          sub REG REG GPREG
           sub REG REG IMM6
-          sub REG IMM6 REG
             DST := SRC1 - SRC2
         XXX: Carry? Signedness?
-        0x66 variant allows subtracting IMM - REG
         Delay: immediate
         
+    0x66: [subr DST SRC1 SRC2]
+          subr REG REG GPREG
+          subr REG REG IMM6
+            DST := SRC2 - SRC1
+        XXX: Carry? Signedness?
+        Only present on VP2
+        Delay: immediate
+    
     0x6c: [minsz DST SRC1 SRC2]
           minsz REG GPREG
           minsz REG IMM6?
@@ -335,7 +327,7 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
     0x70: [bset DST SRC1 SRC2]
           bset REG REG GPREG
           bset REG REG IMM4
-        Set bit SRC2 in SRC1
+        Set bit SRC2 in SRC1.
             DST := SRC1 | (1 << SRC1)
         Delay: immediate
     
@@ -479,21 +471,31 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
 registers:
 - 16-bit:
     $r0 - hardwired 0
-    $r1-$r15 - general purpose?
+    $r1-$r15 - general purpose
 - 1-bit predicate:
-    $p0 - ?
-    $p1 - ~p0 (envydis: np0)
-    $p2-$p14 - ?
+    $p0 - general purpose
+    $p1 - ~$p0 (envydis: $np0)
+    $p2-$p14 - general purpose
     $p15 - hardwired to 1.
-- 16-but input/output registers
-    $io4, $io9, $io12-$io15, $io27: nonzero
-    $io22-$io24: related to orsetreg's unknown bits, regardless of result
-    $io8: PC
-    $io14: predicate bitfield ($p0 == $io14[0])
-    $io15: instruction count (?: check nops, effect of delays)
-    $io24, $io27 survived suspend to ram. Possible to change by bashing ioregs or screwing up insns, unsure
-    $io23: fresh after full upload, value 0xf
-    $io24 always near 0x316
-    $io27 always 0x3ff or 0, not directly writable
+- 64 × 16-bit special registers
+    $sr8 ($pc): PC
+    $sr14 ($pred): predicate bitfield ($p0 == $pred[0])
+    $sr15 ($cnt): cycle counter (?: check nops, effect of delays)
+    
+    Unknown:
+    $sr0: controls $sr48-$sr58 (bits 0-6 when set separately)
+    $sr1: similar to $sr0 (bits 0-4)
+    $sr2: bits 0-3 set separately affect registers $sr16-$sr24
+    $sr3: bits 0-4 affect
+    $sr6: writing bit 15 alternates values between 0x8103 and 0
+    $sr9: values 0, 1, 3, may be related to upload/execution order
+    $sr10: usually 0, but may be different (negative) after reupload
+    $sr4, $sr9, $sr12-$sr15, $sr27: nonzero
+    $sr22-$sr24: related to orsetreg's unknown bits, regardless of result
+    $sr48-$sr58: affected by writing $sr0 and $sr1
+    $sr32-$sr42: affected by $sr3
     No change on write:
-    $io4, $io12
+    $sr4, $sr8-$sr10, $sr12-$sr15
+    No side effects on read/write:
+    $sr5, $sr28, $sr31 over all bits
+    

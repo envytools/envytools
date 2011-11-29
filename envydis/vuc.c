@@ -64,11 +64,18 @@ static struct sreg pred_sr[] = {
 	{ 15, 0, SR_ONE },
 	{ -1 },
 };
+static struct sreg sreg_sr[] = {
+    { 8, "pc" },
+    { 14, "pred" },
+    { 15, "cnt" },
+    { -1 },
+};
+
 static struct bitfield src1_bf = { 8, 4 };
-static struct bitfield isrc_bf = { 8, 4, 24, 1 };
+static struct bitfield srsrc_bf = { 8, 4, 24, 2 };
 static struct bitfield src2_bf = { 12, 4 };
 static struct bitfield dst_bf = { 16, 4 };
-static struct bitfield ldst_bf = { 16, 4, 24, 1 };
+static struct bitfield srdst_bf = { 16, 4, 24, 2 };
 static struct bitfield psrc1_bf = { 8, 4 };
 static struct bitfield psrc2_bf = { 12, 4 };
 static struct bitfield pdst_bf = { 16, 4 };
@@ -76,8 +83,8 @@ static struct bitfield pred_bf = { 20, 4 };
 static struct reg src1_r = { &src1_bf, "r", .specials = reg_sr };
 static struct reg src2_r = { &src2_bf, "r", .specials = reg_sr };
 static struct reg dst_r = { &dst_bf, "r", .specials = reg_sr };
-static struct reg odst_r = { &ldst_bf, "o", .cool = 1 };
-static struct reg isrc_r = { &isrc_bf, "i", .cool = 1 };
+static struct reg srdst_r = { &srdst_bf, "sr", .specials = sreg_sr, .cool = 1 };
+static struct reg srsrc_r = { &srsrc_bf, "sr", .specials = sreg_sr, .cool = 1 };
 static struct reg psrc1_r = { &psrc1_bf, "p", .cool = 1, .specials = pred_sr };
 static struct reg psrc2_r = { &psrc2_bf, "p", .cool = 1, .specials = pred_sr };
 static struct reg pdst_r = { &pdst_bf, "p", .cool = 1, .specials = pred_sr };
@@ -85,8 +92,8 @@ static struct reg pred_r = { &pred_bf, "p", .cool = 1, .specials = pred_sr };
 #define SRC1 atomreg, &src1_r
 #define SRC2 atomreg, &src2_r
 #define DST atomreg, &dst_r
-#define ISRC atomreg, &isrc_r
-#define ODST atomreg, &odst_r
+#define SRSRC atomreg, &srsrc_r
+#define SRDST atomreg, &srdst_r
 #define PSRC1 atomreg, &psrc1_r
 #define PSRC2 atomreg, &psrc2_r
 #define PDST atomreg, &pdst_r
@@ -108,13 +115,13 @@ static struct insn tabp[] = {
 
 static struct insn tabdst[] = {
 	{ 0x00000000, 0x10000000, DST },
-	{ 0x10000000, 0x10000000, ODST },
+	{ 0x10000000, 0x10000000, SRDST },
 	{ 0, 0, OOPS },
 };
 
 static struct insn tabsrc1[] = {
 	{ 0x00000000, 0x04000000, SRC1 },
-	{ 0x04000000, 0x04000000, ISRC },
+	{ 0x04000000, 0x04000000, SRSRC },
 	{ 0, 0, OOPS },
 };
 
@@ -179,7 +186,7 @@ static struct insn tabm[] = {
 
 	{ 0x00000060, 0x200000ff, N("slct"), T(dst), PRED, T(src1), T(src2) }, // dst = PRED ? src1 : src2
 	{ 0x00000061, 0x080000ff, N("mov"), T(dst), T(src2) },
-	{ 0x18000061, 0x180000ff, N("mov"), ODST, IMM12 },
+	{ 0x18000061, 0x180000ff, N("mov"), SRDST, IMM12 },
 	{ 0x08000061, 0x180000ff, N("mov"), DST, IMM14 },
 	{ 0x00000064, 0x000000ff, N("add"), T(dst), T(src1), T(src2) },
 	{ 0x00000065, 0x000000ff, N("sub"), T(dst), T(src1), T(src2) },
