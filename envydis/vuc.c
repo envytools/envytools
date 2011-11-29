@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010-2011 Marcin Kościelnicki <koriakin@0x04.net>
+ * Copyright (C) 2011 Paweł Czaplejewicz <pcz@porcupinefactory.org>
  * All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
@@ -24,6 +25,9 @@
 
 #include "dis-intern.h"
 
+#define VP2 1
+#define VP3 2
+
 /*
  * Code target field
  *
@@ -37,12 +41,14 @@ static struct bitfield ctargoff = { 8, 11 };
 
 static struct bitfield imm4off = { 12, 4 };
 static struct bitfield imm6off = { { 12, 4, 24, 2 } };
+static struct bitfield imm12off = { { 8, 8, 20, 4 } };
 static struct bitfield imm14off = { { 8, 8, 20, 6 } };
 static struct bitfield bimm8off = { { 12, 4, 20, 4 } };
 static struct bitfield bimmstoff = { 16, 8 };
 static struct bitfield bimmstsoff = { 16, 4 };
 #define IMM4 atomimm, &imm4off
 #define IMM6 atomimm, &imm6off
+#define IMM12 atomimm, &imm12off
 #define IMM14 atomimm, &imm14off
 
 /*
@@ -140,9 +146,12 @@ static struct insn tabm[] = {
 	{ 0x00000024, 0x000000ff, U("24") },
 	{ 0x00000025, 0x000000ff, U("25") },
 	{ 0x00000026, 0x000000ff, U("26") },
-	{ 0x00000028, 0x000000ff, N("orsetsg"), PDST, T(src1), T(src2) }, /* PDST |= (src1 > src2) */
-	{ 0x00000029, 0x000000ff, N("orsetsl"), PDST, T(src1), T(src2) }, /* PDST |= (src1 < src2) */
-	{ 0x0000002a, 0x000000ff, N("orsetse"), PDST, T(src1), T(src2) }, /* PDST |= (src1 == src2) */
+    { 0x00000028, 0x200000ff, N("orsetsg"), PRED, T(src1), T(src2) }, /* PDST |= (src1 > src2) */
+    { 0x20000028, 0x200000ff, N("orsetsg"), PDST, T(src1), T(src2) },
+    { 0x00000029, 0x200000ff, N("orsetsl"), PRED, T(src1), T(src2) }, /* PDST |= (src1 < src2) */
+    { 0x20000029, 0x200000ff, N("orsetsl"), PDST, T(src1), T(src2) },
+    { 0x0000002a, 0x200000ff, N("orsetse"), PRED, T(src1), T(src2) }, /* PDST |= (src1 == src2) */
+    { 0x2000002a, 0x200000ff, N("orsetse"), PDST, T(src1), T(src2) },
 	{ 0x0000002b, 0x000000ff, U("2b") },
 	{ 0x0000002c, 0x000000ff, U("2c") },
 	{ 0x00000032, 0x000000ff, U("32") },
@@ -154,27 +163,34 @@ static struct insn tabm[] = {
 	{ 0x34000044, 0x3c0000ff, N("andn"), PDST, PSRC1, PSRC2 },
 	{ 0x34000045, 0x3c0000ff, N("orn"), PDST, PSRC1, PSRC2 },
 	{ 0x34000046, 0x3c0000ff, N("xorn"), PDST, PSRC1, PSRC2 },
-	{ 0x00000048, 0x000000ff, N("setsg"), PDST, T(src1), T(src2) },
-	{ 0x00000049, 0x000000ff, N("setsl"), PDST, T(src1), T(src2) }, /* signed */
-	{ 0x0000004a, 0x000000ff, N("setse"), PDST, T(src1), T(src2) },
+    { 0x00000048, 0x200000ff, N("setsg"), PRED, T(src1), T(src2) },
+    { 0x20000048, 0x200000ff, N("setsg"), PDST, T(src1), T(src2) },
+    { 0x00000049, 0x200000ff, N("setsl"), PRED, T(src1), T(src2) }, /* signed */
+    { 0x20000049, 0x200000ff, N("setsl"), PDST, T(src1), T(src2) },
+    { 0x0000004a, 0x200000ff, N("setse"), PRED, T(src1), T(src2) },
+    { 0x2000004a, 0x200000ff, N("setse"), PDST, T(src1), T(src2) },
 	{ 0x0000004d, 0x000000ff, U("4d") },
 	{ 0x0000004e, 0x000000ff, U("4e") },
-	{ 0x00000052, 0x000000ff, N("btest"), PDST, T(src1), T(src2) },
-	{ 0x00000058, 0x000000ff, N("andsz"), PRED, T(dst), T(src1), T(src2) }, /* normal and, then set pred if result == 0 */
-	{ 0x00000059, 0x000000ff, N("orsz"), PRED, T(dst), T(src1), T(src2) },
+    { 0x00000052, 0x200000ff, N("btest"), PRED, T(src1), T(src2) },
+    { 0x20000052, 0x200000ff, N("btest"), PDST, T(src1), T(src2) },
+	{ 0x00000058, 0x200000ff, N("andsnz"), PRED, T(dst), T(src1), T(src2) }, /* normal and, then set pred if result != 0 */
+	{ 0x00000059, 0x200000ff, N("orsnz"), PRED, T(dst), T(src1), T(src2) },
 	{ 0x0000005c, 0x000000ff, U("5c") },
 
 	{ 0x00000060, 0x200000ff, N("slct"), T(dst), PRED, T(src1), T(src2) }, // dst = PRED ? src1 : src2
 	{ 0x00000061, 0x080000ff, N("mov"), T(dst), T(src2) },
-	{ 0x08000061, 0x080000ff, N("mov"), T(dst), IMM14 },
+	{ 0x18000061, 0x180000ff, N("mov"), ODST, IMM12 },
+	{ 0x08000061, 0x180000ff, N("mov"), DST, IMM14 },
 	{ 0x00000064, 0x000000ff, N("add"), T(dst), T(src1), T(src2) },
 	{ 0x00000065, 0x000000ff, N("sub"), T(dst), T(src1), T(src2) },
-	{ 0x00000066, 0x000000ff, N("avgs"), T(dst), T(src1), T(src2) }, // (a+b)/2, rounding UP, signed
-	{ 0x00000067, 0x000000ff, N("avgu"), T(dst), T(src1), T(src2) }, // (a+b)/2, rounding UP, unsigned
+	{ 0x00000066, 0x000000ff, N("subr"), T(dst), T(src1), T(src2), .vartype = VP2 },
+	{ 0x00000067, 0x000000ff, N("clear"), T(dst), .vartype = VP2 },
+	{ 0x00000066, 0x000000ff, N("avgs"), T(dst), T(src1), T(src2), .vartype = VP3 }, // (a+b)/2, rounding UP, signed
+	{ 0x00000067, 0x000000ff, N("avgu"), T(dst), T(src1), T(src2), .vartype = VP3 }, // (a+b)/2, rounding UP, unsigned
 	{ 0x0000006c, 0x000000ff, N("minsz"), T(dst), T(src1), T(src2) }, // (a > b) ? b : max(a, 0)
 	{ 0x0000006d, 0x000000ff, N("clampsex"), T(dst), T(src1), T(src2) }, // clamp to -2^b..2^b-1
 	{ 0x0000006e, 0x000000ff, N("sex"), T(dst), T(src1), T(src2) }, // like fuc insn of the same name
-	{ 0x0000006f, 0x000000ff, N("div2s"), T(dst), T(src1) }, // signed div by 2, round to 0
+	{ 0x0000006f, 0x000000ff, N("div2s"), T(dst), T(src1), .vartype = VP3 }, // signed div by 2, round to 0. Not present on vp2?
 	{ 0x00000070, 0x000000ff, N("bset"), T(dst), T(src1), T(src2) },
 	{ 0x00000071, 0x000000ff, N("bclr"), T(dst), T(src1), T(src2) },
 	{ 0x00000074, 0x000000ff, N("rot8"), T(dst), T(src1) },
@@ -186,8 +202,8 @@ static struct insn tabm[] = {
 	{ 0x0000007a, 0x000000ff, N("xor"), T(dst), T(src1), T(src2) },
 	{ 0x0000007b, 0x000000ff, N("not"), T(dst), T(src1) },
 	{ 0x0000007c, 0x000000ff, U("7c"), T(dst), T(src1), T(src2) },
-	{ 0x0000007d, 0x000000ff, N("min"), T(dst), T(src1), T(src2) },
-	{ 0x0000007e, 0x000000ff, N("max"), T(dst), T(src1), T(src2) },
+	{ 0x0000007d, 0x000000ff, N("min"), T(dst), T(src1), T(src2), .vartype = VP3 },
+	{ 0x0000007e, 0x000000ff, N("max"), T(dst), T(src1), T(src2), .vartype = VP3},
 
 	{ 0x1c000080, 0x3c0000ff, N("st"), MEMST, SRC2 },
 	{ 0x3c000080, 0x3c0000ff, N("st"), MEMSTS, SRC2 },
@@ -206,17 +222,24 @@ static struct insn tabm[] = {
 	{ 0x000000a1, 0x000000ff, U("a1") },
 	{ 0x000000a2, 0x000000ff, U("a2") },
 	{ 0x000000a4, 0x000000ff, U("a4") },
-	{ 0x000000a8, 0x000000ff, N("orsetsng"), PDST, T(src1), T(src2) },
-	{ 0x000000a9, 0x000000ff, N("orsetsnl"), PDST, T(src1), T(src2) },
-	{ 0x000000aa, 0x000000ff, N("orsetsne"), PDST, T(src1), T(src2) },
+    { 0x000000a8, 0x200000ff, N("orsetsng"), PRED, T(src1), T(src2) },
+    { 0x200000a8, 0x200000ff, N("orsetsng"), PDST, T(src1), T(src2) },
+    { 0x000000a9, 0x200000ff, N("orsetsnl"), PRED, T(src1), T(src2) },
+    { 0x200000a9, 0x200000ff, N("orsetsnl"), PDST, T(src1), T(src2) },
+    { 0x000000aa, 0x200000ff, N("orsetsne"), PRED, T(src1), T(src2) },
+    { 0x200000aa, 0x200000ff, N("orsetsne"), PDST, T(src1), T(src2) },
 	{ 0x000000ac, 0x000000ff, U("ac") },
 
-	{ 0x000000c8, 0x000000ff, N("setsle"), PDST, T(src1), T(src2) },
-	{ 0x000000c9, 0x000000ff, N("setsge"), PDST, T(src1), T(src2) },
-	{ 0x000000ca, 0x000000ff, N("setsne"), PDST, T(src1), T(src2) },
-	{ 0x000000d2, 0x000000ff, N("btestn"), PDST, T(src1), T(src2) },
-	{ 0x000000d8, 0x000000ff, N("andsnz"), PRED, T(dst), T(src1), T(src2) }, /* normal and, then set pred if result != 0 */
-	{ 0x000000d9, 0x000000ff, N("orsnz"), PRED, T(dst), T(src1), T(src2) },
+    { 0x000000c8, 0x200000ff, N("setsle"), PRED, T(src1), T(src2) },
+    { 0x200000c8, 0x200000ff, N("setsle"), PDST, T(src1), T(src2) },
+    { 0x000000c9, 0x200000ff, N("setsge"), PRED, T(src1), T(src2) },
+    { 0x200000c9, 0x200000ff, N("setsge"), PDST, T(src1), T(src2) },
+    { 0x000000ca, 0x200000ff, N("setsne"), PRED, T(src1), T(src2) },
+    { 0x200000ca, 0x200000ff, N("setsne"), PDST, T(src1), T(src2) },
+    { 0x000000d2, 0x200000ff, N("btestn"), PRED, T(src1), T(src2) },
+    { 0x200000d2, 0x200000ff, N("btestn"), PDST, T(src1), T(src2) },
+	{ 0x000000d8, 0x200000ff, N("andsz"), PRED, T(dst), T(src1), T(src2) }, /* normal and, then set pred if result == 0 */
+	{ 0x000000d9, 0x200000ff, N("orsz"), PRED, T(dst), T(src1), T(src2) },
 
 	{ 0, 0, OOPS },
 };
@@ -229,9 +252,16 @@ static struct insn tabroot[] = {
 	{ 0, 0, OOPS },
 };
 
-const struct disisa vp3m_isa_s = {
+static const struct disvariant vuc_vars[] = {
+    "vp2", VP2,
+    "vp3", VP3,
+};
+
+const struct disisa vuc_isa_s = {
 	tabroot,
 	4,
 	4,
 	4,
+    .vars = vuc_vars,
+    .varsnum = sizeof vuc_vars / sizeof *vuc_vars,
 };

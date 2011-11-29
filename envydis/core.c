@@ -1170,7 +1170,8 @@ static const struct {
 	"fµc", &fuc_isa_s,
 	"hwsq", &hwsq_isa_s,
 	"vp2", &vp2_isa_s,
-	"vp3m", &vp3m_isa_s,
+	"vuc", &vuc_isa_s,
+    "vµc", &vuc_isa_s,
 	"macro", &macro_isa_s,
 };
 

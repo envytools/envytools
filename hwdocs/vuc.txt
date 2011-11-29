@@ -1,0 +1,499 @@
+This document describes vµc ISA as found on VP2 and VP3.
+
+opcode format:
+    0-7 select the instruction
+    8-11 operand
+    12-15 operand
+    16-19 operand
+    20-23
+        predicated: predicate
+        non-predicated: extra operand
+    24-25 are extra 2 bits for immediates, or extra bit for selecting $i16-31 as opposed to $i0-15
+    26 selects source operand 1: 0 is $rX, 1 is immediate
+    27 selects source operand 2: 0 is $rX, 1 is immediate
+    28 selects destination operand: 0 means $rX, 1 means $iX; 
+    29: 0 for unpredicated insns, 1 for predicated insns
+    
+    --only vp2
+    30-39: unknown purpose and are usually 0x3ff
+    if all instructions have:
+    0x000: all ok
+    0x3fe: nothing runs
+    0x3fd: nothing runs
+    ...
+    0x3f5: runs
+    
+    going up from 0x3f0, things stop running at 0x3f7
+    
+
+XXX: Find a io register responsible for overflow and carry
+XXX: Find signedness of instructions
+TODO: Find out exact immediate sizes in most instructions
+
+Instructions:
+Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "~a" signifies bitwise negation of a. ceil(), floor() and rand() are sign-aware, assume values to be of infinite precision. All signed values are noted when applicable/known.
+
+
+* Flow:
+	0x00: [bra TARGET]
+          bra IMM?
+        Branch to address.
+        Delay: 1 instruction
+    
+	0x02: [call TARGET]
+          call IMM?
+        XXX: stack and calling convention
+	0x03: [ret]
+          ret
+        TODO: delay (blob: 1)
+        XXX: stack and calling convention
+	0x43: [nop]
+          nop
+        Done!
+
+* Predicate:
+    0x28: [orsetsg DST SRC1 SRC2]
+          orsetsg PRED REG GPREG
+          orsetsg PRED REG IMM6
+            DST := DST | (SRC1 > SRC2)
+        Delay: immediate
+    
+    0x29: [orsetsl DST SRC1 SRC2]
+          orsetsl PRED REG GPREG
+          orsetsl PRED REG IMM6
+            DST := DST | (SRC1 < SRC2)
+        Delay: immediate
+    
+    0x2a: [orsetse DST SRC1 SRC2]
+          orsetse PRED REG GPREG
+          orsetse PRED REG IMM6
+            DST := DST | (SRC1 == SRC2)
+        Delay: immediate
+    
+    0xa8: [orsetsng DST SRC1 SRC2]
+          orsetsng PRED REG GPREG
+          orsetsng PRED REG IMM6
+            signed SRC1, SRC2
+            DST := DST | (SRC1 <= SRC2)
+        Delay: immediate
+    
+    0xa9: [orsetsnl DST SRC1 SRC2]
+          orsetsnl PRED REG GPREG
+          orsetsnl PRED REG IMM6
+            signed SRC1, SRC2
+            DST := DST | (SRC1 >= SRC2)
+        Delay: immediate
+    
+    0xaa: [orsetsne DST SRC1 SRC2]
+          orsetsne PRED REG GPREG
+          orsetsne PRED REG IMM6
+            signed SRC1, SRC2
+            DST := DST | (SRC1 != SRC2)
+        Delay: immediate
+            
+    0x48: [setsg DST SRC1 SRC2]
+          setsg PRED REG GPREG
+          setsg PRED REG IMM6
+            DST := SRC1 > SRC2
+        Delay: immediate
+    
+    0x49: [setsl DST SRC1 SRC2]
+          setsl PRED REG GPREG
+          setsl PRED REG IMM6
+            DST := SRC1 < SRC2
+        Delay: immediate
+    
+    0x4a: [setse DST SRC1 SRC2]
+          setse PRED REG GPREG
+          setse PRED REG IMM6
+            DST := SRC1 == SRC2
+        Delay: immediate
+        
+    0xc8: [setsle DST SRC1 SRC2]
+          setsle PRED REG GPREG
+          setsle PRED REG IMM6
+            DST := SRC1 <= SRC2
+        Delay: immediate
+    
+    0xc9: [setsge DST SRC1 SRC2]
+          setsge PRED REG GPREG
+          setsge PRED REG IMM6
+            DST := SRC1 >= SRC2
+        Delay: immediate
+    
+    0xca: [setsne DST SRC1 SRC2]
+          setsne PRED REG GPREG
+          setsne PRED REG IMM6
+            DST := SRC1 != SRC2
+        Delay: immediate
+    
+    0x40: [and DST SRC1 SRC2]
+          and PRED PRED PRED
+            DST := SRC1 & SRC2
+        Delay: immediate
+    
+    0x41: [or DST SRC1 SRC2]
+          or PRED PRED PRED
+            DST := SRC1 | SRC2
+        Delay: immediate
+    
+    0x42: [xor DST SRC1 SRC2]
+          xor PRED PRED PRED
+            DST := SRC1 ^ SRC2
+        Delay: immediate
+   
+    0x44: [andn DST SRC1 SRC2]
+          andn PRED PRED PRED
+            DST := SRC1 & ~SRC2
+        Delay: immediate
+    
+    0x45: [orn DST SRC1 SRC2]
+          orn PRED PRED PRED
+            DST := SRC1 | ~SRC2
+        Delay: immediate
+    
+    0x46: [xorn DST SRC1 SRC2]
+          xorn PRED PRED PRED
+            DST := SRC1 == SRC2
+            (DST := ~(SRC1 ^ SRC2)
+        Delay: immediate
+    
+    0x52: [btest DST SRC1 SRC2]
+          btest PRED REG GPREG
+          btest PRED REG IMM6
+            DST := (SRC1 >> SRC2) & 1
+        Delay: immediate
+
+    0xd8: [btestn DST SRC1 SRC2]
+          btestn PRED REG GPREG
+          btestn PRED REG IMM6
+            DST := ~((SRC1 >> SRC2) & 1)
+        Delay: immediate
+        
+   
+* Memory
+    0x80: [st DST SRC]
+		  st MEM[IMM8] GPREG
+		  st MEM[GPREG + IMM8] GPREG
+		  PRED st MEM[IMM4] GPREG
+		  PRED st MEM[GPREG + IMM4] GPREG
+        TODO: check if all the above are correct
+        Store data into memory. If instruction is predicated, the imediate value will be shorter.
+            DST := SRC
+        Delay: immediate
+    
+    0x81: [ld DST SRC]
+          ld GPREG MEM[IMM8]
+          ld GPREG MEM[GPREG + IMM8]
+          PRED ld GPREG MEM[IMM4]
+          PRED ld GPREG MEM[GPREG + IMM4]
+        Load data from memory.
+            DST := SRC
+        Delay: 2 * MOV. Value is being read imediately (or it seems so), delay applies to DST update.
+        
+        
+* Arithmetic
+    0x61: [mov DST SRC]
+          mov REG GPREG
+          mov GPREG IMM14
+          mov IOREG IMM12
+        Sets DST to value of SRC
+            DST := SRC
+        Delay: immediate
+    
+    0x67: [clear DST]
+          clear REG
+            DST := 0
+        Delay: immediate
+        
+    0x60: [slct DST SRC1 SRC2 SRC3]
+          slct REG PRED GPREG
+          slct REG PRED IMM6?
+            if SRC1
+                DST := SRC2
+            else
+                DST := SRC3
+            endif
+        TODO: There exists a predicated version with bit 29 set, predicate in 20:24, DST := SRC3.
+        Delay: immediate
+
+    0x40: [and DST SRC1 SRC2]
+        Delay: immediate
+    
+    0x41: [or DST SRC1 SRC2]
+        Delay: immediate
+    
+    0x42: [xor DST SRC1 SRC2]
+          xor REG REG GPREG
+          xor REG REG IMM?
+        Delay: immediate
+       
+    0x44: [andn DST SRC1 SRC2]
+        Delay: 
+		
+	0x64: [add DST SRC1 SRC2]
+		  add REG REG GPREG
+		Assigns DST the value of SRC1 + SRC2
+			DST := SRC1 + SRC2
+		XXX: Carry?
+		Delay: immediate
+    
+    0x65, 0x66: [sub DST SRC1 SRC2]
+          sub REG REG REG
+          sub REG REG IMM6
+          sub REG IMM6 REG
+            DST := SRC1 - SRC2
+        XXX: Carry? Signedness?
+        0x66 variant allows subtracting IMM - REG
+        Delay: immediate
+        
+    0x6c: [minsz DST SRC1 SRC2]
+          minsz REG GPREG
+          minsz REG IMM6?
+        Signed minimum with a quirk.
+            signed SRC1, SRC2
+            if SRC1 > SRC2
+                DST := SRC2
+            else
+                DST := max(SRC1, 0)
+            endif
+        Delay: immediate
+    
+    0x6d: [clampsex DST SRC1 SRC2]
+          clampsex REG GPREG
+          clampsex REG IMM6?
+        Clamp SRC1 to -2**SRC2..2**SRC2-1. If SRC1 is not in the interval, DST becomes the closer interval boundary. Otherwise DST becomes SRC1.
+            signed SRC1
+            if SRC1 < 0
+                DST := (-(2 ** SRC2)) | SRC1
+            else
+                DST := ((2 ** SRC1) - 1) & SRC1
+            end
+        Delay: immediate
+    
+    0x6e: [sex DST SRC1 SRC2]
+          sex REG REG GPREG
+          sex REG REG IMM6?
+        Sign extend all bits from SRC2 and higher (truncate SRC1 to SRC2 bits, then cast it back with sign to 16 bits).
+            if SRC1 & (2 ** SRC2)
+                DST := (-(2 ** SRC2)) | SRC1
+            else
+                DST := ((2 ** SRC1) - 1) & SRC1
+            end
+        Delay: immediate
+    
+    0x6f: [div2s DST SRC]
+          div2s REG REG
+        Signed division by 2, round to 0
+            signed SRC
+            if SRC < 0
+                DST := ceil(SRC / 2)
+            else
+                DST := floor(SRC / 2)
+            endif
+        Not present on vp2?
+    
+    0x66: [avgs DST SRC1 SRC2]
+          avgs REG REG GPREG
+          avgs REG REG IMM?
+        Signed average
+            signed SRC1, SRC2
+            DST := ceil((SRC1 + SRC2) / 2)
+        Present on vp3
+        Not present on vp2?
+        Delay: immediate
+    
+    0x67: [avgu DST SRC1 SRC2]
+          avgu REG REG GPREG
+          avgu REG REG IMM?
+        Unsigned average
+            DST := ceil((SRC1 + SRC2) / 2)
+        Present on vp3
+        Not present on vp2?
+        Delay: immediate
+    
+    0x7d: [min DST SRC1 SRC2]
+          min REG REG GPREG
+          min REG REG IMM?
+        Minimum.
+        XXX: signed?
+            DST := min(SRC1, SRC2)
+        Present on vp3
+        Not present on vp2?
+        Delay: immediate
+    
+    0x7e: [max DST SRC1 SRC2]
+          max REG REG GPREG
+          max REG REG IMM?
+        Maximum.
+        XXX: signed?
+            DST := max(SRC1, SRC2)
+        Present on vp3
+        Not present on vp2?
+        Delay: immediate
+    
+    0x70: [bset DST SRC1 SRC2]
+          bset REG REG GPREG
+          bset REG REG IMM4
+        Set bit SRC2 in SRC1
+            DST := SRC1 | (1 << SRC1)
+        Delay: immediate
+    
+    0x71: [bclr DST SRC1 SRC2]
+          bclr REG REG GPREG
+          blcr REG REG IMM4
+        Clear bit.
+            DST := SRC1 & ~(1 << SRC1)
+        Delay: immediate
+    
+    0x74: [rot8 DST SRC]
+          rot8 REG REG
+        Swap bytes.
+            DST := ((SRC & 0xff) << 16) | (SRC >> 16)
+        Delay: immediate
+    
+	0x75: [shl DST SRC1 SRC2]
+		  shl REG REG GPREG
+		  shl REG REG IMM4
+		Assigns DST value of SRC1 shifted left by SRC2 bits.
+			DST := SRC1 << SRC2
+		Delay: immediate
+		
+	0x76: [shr DST SRC1 SRC2]
+          shr REG REG GPREG
+          shr REG REG IMM4
+        Assigns DST value of SRC1 shifted right by SRC2 bits.
+            DST := SRC1 >> SRC2
+        Delay: immediate
+    
+    0x77: [sar DST SRC1 SRC2]
+          sar REG REG GPREG
+          sar REG REG IMM4
+        Assigns DST value of SRC1 shifted right by SRC2 bits, preserving the sign bit.
+            if SRC1 < 0
+                DST := (0xffff0000 | SRC1) >> SRC2
+            else
+                DST := SRC1 >> SRC2
+            endif
+        Delay: immediate
+    
+    0x78: [and DST SRC1 SRC2]
+          and REG REG GPREG
+          and REG REG IMM6?
+            DST := SRC1 & SRC2
+        Delay: immediate
+	
+	0x79: [or DST SRC1 SRC2]
+          or REG REG GPREG
+          or REG REG IMM6?
+            DST := SRC1 | SRC2
+        Delay: immediate
+	
+	0x7a: [xor DST SRC1 SRC2]
+          xor REG REG GPREG
+          xor REG REG IMM6?
+            DST := SRC1 ^ SRC2
+        Delay: immediate
+    
+    0x7b: [not DST SRC]
+          not REG REG
+            DST := ~SRC
+        Delay: immediate
+	
+	0x7d: [min DST SRC1 SRC2]
+          min REG REG GPREG
+          min REG REG IMM6?
+            DST := min(SRC1, SRC2)
+        Delay: immediate
+	
+	0x58: [andsnz PRED DST SRC1 SRC2]
+		  andsnz PRED REG REG GPREG
+		  andsnz PRED REG REG IMM6?
+		Assigns DST value of bitwise AND of SRC1 and SRC2, sets PRED if DST != 0.
+			DST := SRC1 & SRC2
+			PRED := DST != 0
+		Delay: immediate
+    
+    0x59: [orsnz PRED DST SRC1 SRC2]
+          orsz PRED REG REG GPREG
+          orsz PRED REG REG IMM6?
+        Assigns DST value of bitwise OR of SRC1 and SRC2, sets PRED if DST != 0.
+            DST := SRC1 & SRC2
+            PRED := DST != 0
+        Delay: immediate
+    
+    0xd8: [andsz PRED DST SRC1 SRC2]
+          andsz PRED REG REG GPREG
+          andsz PRED REG REG IMM6?
+        Assigns DST value of bitwise AND of SRC1 and SRC2, sets PRED if DST == 0.
+            DST := SRC1 & SRC2
+            PRED := DST == 0
+        Delay: immediate
+    
+    0xd9: [orsz PRED DST SRC1 SRC2]
+          orsz PRED REG REG GPREG
+          orsz PRED REG REG IMM6?
+        Assigns DST value of bitwise OR of SRC1 and SRC2, sets PRED if DST == 0.
+            DST := SRC1 & SRC2
+            PRED := DST == 0
+        Delay: immediate
+    
+* Unknown
+    0x83: I/O? SRC1
+        [8:12]: GPREG SRC1
+        [12:20]: all
+        [20:]: const: 1c0
+        Similar to 0x84
+    0x84: I/O? ?DST SRC1
+		  unk84 ?IOREG GPREG[12:16]
+		  [8:12]: (0, 2, 3, 4, 5)
+		  [16:20]: all
+          [20:24]: (0, 1, 2)
+          [25]: 1, 0
+          [26:]: const
+		  some sort of memory write?
+		  
+		if 28:32 < 0xc then disable 
+            
+	0x7c: DST SRC1 SRC2
+		  unk7c GPREG? GPREG? IMM?
+		  DST: 16:20
+		  SRC1:?
+		  SRC2: ?
+		if src2 == 3: dst := MOONPHASE(0x1f | 0)
+		if src2 == 7: dst := MOONPHASE(0x1f | 0)
+		if src2 == 8: dst := 4
+		if src2 == 9: dst := 0 + (src1 % 4) * 4
+		if src2 == 0xa: dst := 100 + src1 % 4
+		else: dst:= 0
+        delay: immediate
+            
+    0x8f: DST SRC1 SRC2
+        DST: GPREG [16:20]
+        SRC1:GPREG
+        SRC2:GPREG/IMM4? [bit27 set: imm]
+        symmetrical
+        DST := [90     1    bc  8002     1    3f  3b3f  fbdf  ff3f    1e  1927  1b5a  3a17  1e33   a5f  3c21] [SRC1 + SRC2]
+        Delay: skips 2*MOV
+            
+registers:
+- 16-bit:
+    $r0 - hardwired 0
+    $r1-$r15 - general purpose?
+- 1-bit predicate:
+    $p0 - ?
+    $p1 - ~p0 (envydis: np0)
+    $p2-$p14 - ?
+    $p15 - hardwired to 1.
+- 16-but input/output registers
+    $io4, $io9, $io12-$io15, $io27: nonzero
+    $io22-$io24: related to orsetreg's unknown bits, regardless of result
+    $io8: PC
+    $io14: predicate bitfield ($p0 == $io14[0])
+    $io15: instruction count (?: check nops, effect of delays)
+    $io24, $io27 survived suspend to ram. Possible to change by bashing ioregs or screwing up insns, unsure
+    $io23: fresh after full upload, value 0xf
+    $io24 always near 0x316
+    $io27 always 0x3ff or 0, not directly writable
+    No change on write:
+    $io4, $io12
