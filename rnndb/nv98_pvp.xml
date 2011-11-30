@@ -347,6 +347,14 @@
 			<bitfield pos="8" name="UNK8"/>
 			<bitfield low="30" high="31" name="UNK30"/>
 		</reg32>
+
+		<!-- UNK10..1c and UNK40-UNK80 are all used together, or not at all, never seen it used so far -->
+		<reg32 offset="0x10" name="UNK10" />
+		<reg32 offset="0x14" name="UNK14" />
+		<reg32 offset="0x18" name="UNK18" />
+		<reg32 offset="0x1c" name="UNK1c" />
+		<reg32 offset="0x40" name="UNK40" stride="4" length="0x10"/><!-- a different program uploaded array for luma/chroma -->
+		<reg32 offset="0x80" name="UNK80" stride="4" length="0x10"/><!-- a different program uploaded array for luma/chroma -->
 	</array>
 	<array offset="0x5c0" stride="0x40" name="VC1">
 		<reg32 offset="0x00" name="INTR_UNK0"/>
@@ -374,7 +382,13 @@
 		<reg32 offset="0x10" name="SURF_ADDR" length="2" shr="8"/>
 		<reg32 offset="0x18" name="UNK18"/> <!-- single bit -->
 	</array>
-	<array offset="0x680" length="0x20" stride="4" name="UNK680" /> <!-- array saving purposes -->
+	<array offset="0x680" length="0x20" stride="4" name="UNK680" /> <!-- saved to user buffer, linked to UNK700.. -->
+	<array offset="0x700" length="1" stride="0x40" name="UNK700">
+		<reg32 offset="0x00" name="UNK00"/><!-- some kind of trigger -->
+		<!-- UNK00 trigger: 0x11 is written before luma postproc, 0 is written after reading UNK680 array to user buffer, before chroma postproc, so luma only? -->
+		<reg32 offset="0x04" name="UNK04"/>
+		<reg32 offset="0x08" name="UNK08"/>
+	</array>
 </array>
 
 <array name="PCRYPT" offset="0x87000" stride="0x1000" length="1" variants="NV98 NVAA:NVA3">
