@@ -126,6 +126,20 @@ static struct mem ememstr_m = { "E", 0, &src1_r, 0, &dst_r };
 #define EMEMSTIS atommem, &ememstis_m
 #define EMEMSTR atommem, &ememstr_m
 
+static struct mem fmemldi_m = { "F", 0, &src1_r, &bimmldoff };
+static struct mem fmemldis_m = { "F", 0, &src1_r, &bimmldsoff };
+static struct mem fmemldr_m = { "F", 0, &src1_r, 0, &src2_r };
+#define FMEMLDI atommem, &fmemldi_m
+#define FMEMLDIS atommem, &fmemldis_m
+#define FMEMLDR atommem, &fmemldr_m
+
+static struct mem gmemldi_m = { "G", 0, &src1_r, &bimmldoff };
+static struct mem gmemldis_m = { "G", 0, &src1_r, &bimmldsoff };
+static struct mem gmemldr_m = { "G", 0, &src1_r, 0, &src2_r };
+#define GMEMLDI atommem, &gmemldi_m
+#define GMEMLDIS atommem, &gmemldis_m
+#define GMEMLDR atommem, &gmemldr_m
+
 static struct insn tabp[] = {
 	{ 0x00f00000, 0x00f00000 },
 	{ 0, 0, PRED },
@@ -236,12 +250,22 @@ static struct insn tabm[] = {
 	{ 0x14000081, 0x1c0000ff, N("ld"), DST, DMEMLDR },
 	{ 0x1c000081, 0x3c0000ff, N("ld"), DST, DMEMLDI },
 	{ 0x3c000081, 0x3c0000ff, N("ld"), DST, DMEMLDIS },
-	{ 0x00000083, 0x000000ff, U("83") },
-	{ 0x00000084, 0x000000ff, U("84") },
-	{ 0x00000089, 0x000000ff, U("89") },
-	{ 0x1c00008a, 0x3c0000ff, U("8a"), DMEMSTI, SRC2 },
-	{ 0x0000008c, 0x000000ff, U("8c") },
-	{ 0x0000008d, 0x000000ff, U("8d") },
+	{ 0x14000083, 0x1c0000ff, U("83"), DST, FMEMLDR },
+	{ 0x1c000083, 0x3c0000ff, U("83"), DST, FMEMLDI },
+	{ 0x3c000083, 0x3c0000ff, U("83"), DST, FMEMLDIS },
+	{ 0x1c000084, 0x3c0000ff, U("84"), DMEMSTI, SRC2 },
+	{ 0x3c000084, 0x3c0000ff, U("84"), DMEMSTIS, SRC2 },
+	{ 0x14000084, 0x1c0000ff, U("84"), DMEMSTR, SRC2 }, // store?
+	{ 0x14000089, 0x1c0000ff, U("89"), DST, GMEMLDR },
+	{ 0x1c000089, 0x3c0000ff, U("89"), DST, GMEMLDI },
+	{ 0x3c000089, 0x3c0000ff, U("89"), DST, GMEMLDIS },
+	{ 0x1c00008a, 0x3c0000ff, U("8a"), DMEMSTI, SRC2 }, // store?
+	{ 0x3c00008a, 0x3c0000ff, U("8a"), DMEMSTIS, SRC2 },
+	{ 0x1400008a, 0x1c0000ff, U("8a"), DMEMSTR, SRC2 },
+	{ 0x1c00008c, 0x3c0000ff, U("8c"), DMEMSTI, SRC2 }, // store? space really unknown
+	{ 0x3c00008c, 0x3c0000ff, U("8c"), DMEMSTIS, SRC2 },
+	{ 0x3400008c, 0x1c0000ff, U("8c"), DMEMSTR, SRC2 },
+	{ 0x0000008d, 0x000000ff, U("8d"), DST }, // load?
 	{ 0x1c00008e, 0x3c0000ff, N("iowr"), EMEMSTI, SRC2 },
 	{ 0x3c00008e, 0x3c0000ff, N("iowr"), EMEMSTIS, SRC2 },
 	{ 0x1400008e, 0x1c0000ff, N("iowr"), EMEMSTR, SRC2 },

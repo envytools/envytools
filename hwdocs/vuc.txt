@@ -469,11 +469,18 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
         Delay: immediate
     
 * Unknown
-    0x83: I/O? SRC1
-        [8:12]: GPREG SRC1
-        [12:20]: all
-        [20:]: const: 1c0
-        Similar to 0x84
+    0x83: I/O? Memory load type
+        Memory space unknown, labeled F.
+        Composed of 8-byte structures.
+        XXX: address space size
+        Delay: 2 * MOV
+    
+    0x89: I/O? Memory load type
+        Memory space unknown, labeled G.
+        Composed of 8-byte structures.
+        XXX: address space size
+        Delay: 2 * MOV
+    
     0x84: I/O? ?DST SRC1
 		  unk84 ?IOREG GPREG[12:16]
 		  [8:12]: (0, 2, 3, 4, 5)
@@ -498,7 +505,13 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
 		else: dst:= 0
         delay: immediate
 
-            
+    0x8d: DST
+          unk8d GPREG
+          DST: 16:20
+        Always yields 2. Predicates can be applied. Only used in h264, only in the form of 0x1c05008d. the 8 in c suggests register/immediate source choice.
+        Blob ORs it with [$sr28|$sr29] ored with [0x8|0x4], then writes to E[2].
+        Delay: 2 * MOV
+    
 registers:
 - 16-bit:
     $r0 - hardwired 0
@@ -526,7 +539,7 @@ registers:
     $sr48-$sr58: affected by writing $sr0 and $sr1
     $sr32-$sr42: affected by $sr3
     No change on write:
-    $sr4, $sr8-$sr10, $sr12-$sr15
+    $sr4, $sr8-$sr10, $sr12-$sr15, $sr32+
     No side effects on read/write:
     $sr5, $sr28, $sr31 over all bits
     
