@@ -6,11 +6,11 @@ xtensa access:
     * write D memory space
     * run
 
-access to xtensa from host (VP2, PBSP):
+access to xtensa from host (PBSP):
     xtensa address 0xcffc0000 + X for X < 0x30000 is the same as host MMIO address 0x103000 + ((X / 0x40) & ~3), index X >> 2 & 0x3f
     where index is set by poking 103cfc
 
-control registers as seen from xtensa (VP2, PBSP):
+control registers as seen from xtensa (PBSP):
     cffca200 [execution control]:
             bits 0-10 are code address
             bit 16 is halt flag - on clear, vµc will start running from the address in 0-10, on set it will halt
@@ -19,4 +19,5 @@ control registers as seen from xtensa (VP2, PBSP):
 
 Memory spaces:
     code space: 0x800 30-bit words long on VP3, 0x800 40-bit words long on VP2
-    data space: 0x800 16-bit words long. visible from xtensa (VP2, PBSP): data space index X = cffc8000 + X * 4
+    data space: 0x800 16-bit words long. visible from xtensa (PBSP): data space index X = cffc8000 + X * 4
+    io space: 0x10 16-bit words

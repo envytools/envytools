@@ -1,5 +1,12 @@
 This document describes vµc ISA as found on VP2 and VP3.
 
+Address spaces:
+    D[] - data memory address space (access via ld/st)
+    E[] - io address space (access via iord/iowr)
+    
+Predicates:
+    Most instructions can be conditionally executed depending on predicate state.
+
 opcode format:
     0-7 select the instruction
     8-11 operand
@@ -173,24 +180,54 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
    
 * Memory
     0x80: [st DST SRC]
-		  st MEM[IMM8] GPREG
-		  st MEM[GPREG + IMM8] GPREG
-		  PRED st MEM[IMM4] GPREG
-		  PRED st MEM[GPREG + IMM4] GPREG
-        TODO: check if all the above are correct
-        Store data into memory. If instruction is predicated, the imediate value will be shorter.
+		  st MEM[IMM10] GPREG
+		  st MEM[GPREG] GPREG
+		  st MEM[GPREG + IMM10] GPREG
+		  st MEM[GPREG + GPREG] GPREG
+		Predicated exceptions:
+		  PRED st MEM[IMM6] GPREG
+		  PRED st MEM[GPREG + IMM6] GPREG
+        Store data into memory. If instruction is predicated, the immediate value will be shorter.
             DST := SRC
         Delay: immediate
     
     0x81: [ld DST SRC]
-          ld GPREG MEM[IMM8]
-          ld GPREG MEM[GPREG + IMM8]
-          PRED ld GPREG MEM[IMM4]
-          PRED ld GPREG MEM[GPREG + IMM4]
-        Load data from memory.
+          ld GPREG MEM[IMM10]
+          ld GPREG MEM[GPREG]
+          ld GPREG MEM[GPREG + IMM10]
+          ld GPREG MEM[GPREG + GPREG]
+        Predicated exceptions:
+          PRED ld GPREG MEM[IMM6]
+          PRED ld GPREG MEM[GPREG + IMM6]
+        Load data from memory MEM. If instruction is predicated, immediate is shorter.
             DST := SRC
-        Delay: 2 * MOV. Value is being read imediately (or it seems so), delay applies to DST update.
-        
+        Delay: 2 * MOV. Value is being read immediately (or it seems so), delay applies to DST update.
+
+* IO
+    0x8f: [iord DST SRC]
+          iord GPREG IO[IMM10]
+          iord GPREG IO[GPREG]
+          iord GPREG IO[GPREG + IMM10]
+          iord GPREG IO[GPREG + GPREG]
+        Predicated exceptions:
+          PRED iord GPREG IO[IMM6]
+          PRED iord GPREG IO[GPREG + IMM6]
+        Read data from IO address space - a copy of [ld] instruction. If predicated, immediate is shorter.
+        XXX: verify predicated forms
+            DST := SRC
+        Delay: 2 * MOV. Value is being read immediately (or it seems so), delay applies to DST update.
+    
+    0x8e: [iowr DST SRC]
+          iowr IO[IMM10] GPREG
+          iowr IO[GPREG] GPREG
+          iowr IO[GPREG + IMM10] GPREG
+        Predicated exceptions:
+          PRED iowr IO[IMM6] GPREG
+          PRED iowr IO[GPREG + IMM6] GPREG
+        Write data into IO address space. If instruction is predicated, the immediate value will be shorter.
+        XXX: verify all forms
+            DST := SRC
+        Delay: immediate
         
 * Arithmetic
     0x61: [mov DST SRC]
@@ -219,6 +256,7 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
 
 	0x64: [add DST SRC1 SRC2]
 		  add REG REG GPREG
+		  add REG REG IMM6
 		Assigns DST the value of SRC1 + SRC2
 			DST := SRC1 + SRC2
 		XXX: Carry?
@@ -441,7 +479,7 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
 		  [8:12]: (0, 2, 3, 4, 5)
 		  [16:20]: all
           [20:24]: (0, 1, 2)
-          [25]: 1, 0
+          [25]: 1, 0 # extra 1
           [26:]: const
 		  some sort of memory write?
 		  
@@ -459,14 +497,7 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
 		if src2 == 0xa: dst := 100 + src1 % 4
 		else: dst:= 0
         delay: immediate
-            
-    0x8f: DST SRC1 SRC2
-        DST: GPREG [16:20]
-        SRC1:GPREG
-        SRC2:GPREG/IMM4? [bit27 set: imm]
-        symmetrical
-        DST := [90     1    bc  8002     1    3f  3b3f  fbdf  ff3f    1e  1927  1b5a  3a17  1e33   a5f  3c21] [SRC1 + SRC2]
-        Delay: skips 2*MOV
+
             
 registers:
 - 16-bit:

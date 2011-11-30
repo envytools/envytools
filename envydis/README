@@ -22,7 +22,7 @@ hexadecimal numbers representing the bytes to disassemble. The options are:
      [*** ] fuc: fifo microcode, used to power various engines on nv98+ cards
      [**  ] hwsq: PBUS hardware sequencer microcode
      [*** ] vp2: video processor 2 [nv84-gen] code, an xtensa variant
-     [*   ] vp3m: video processor 3 [nv98-gen] master/mocomp microcode
+     [*   ] vuc: video processor 2/3 master/mocomp microcode
      [****] macro: nvc0 PGRAPH macro method ISA
      Where the quality level is:
      [    ]: Bare beginnings
@@ -43,6 +43,9 @@ hexadecimal numbers representing the bytes to disassemble. The options are:
      For fuc:
        nv98: NV98, NVAA, NVAC
        nva3: NVA3 and up
+     For vuc:
+       vp2: NV84 generation cards
+       vp3: NV98
   -v [nv50/nvc0 only] Disassemble vertex program ISA
   -g [nv50/nvc0 only] Disassemble geometry program ISA
   -f/-p [nv50/nvc0 only] Disassemble fragment program ISA
@@ -60,5 +63,5 @@ envydis can also be invoked under one of the alternative names, which imply
   - fucdis: -m fuc
   - hwsqdis: -m hwsq
   - vp2dis: -m vp2
-  - vp3mdis: -m vp3m
+  - vucdis: -m vuc
   - macrodis: -m macro -w

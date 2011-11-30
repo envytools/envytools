@@ -43,9 +43,10 @@ static struct bitfield imm4off = { 12, 4 };
 static struct bitfield imm6off = { { 12, 4, 24, 2 } };
 static struct bitfield imm12off = { { 8, 8, 20, 4 } };
 static struct bitfield imm14off = { { 8, 8, 20, 6 } };
-static struct bitfield bimm8off = { { 12, 4, 20, 4 } };
-static struct bitfield bimmstoff = { 16, 8 };
-static struct bitfield bimmstsoff = { 16, 4 };
+static struct bitfield bimmldoff = { { 12, 4, 20, 6 } };
+static struct bitfield bimmldsoff = { { 12, 4, 24, 2 } };
+static struct bitfield bimmstoff = { 16, 10 };
+static struct bitfield bimmstsoff = { 16, 4, 24, 2 };
 #define IMM4 atomimm, &imm4off
 #define IMM6 atomimm, &imm6off
 #define IMM12 atomimm, &imm12off
@@ -99,14 +100,31 @@ static struct reg pred_r = { &pred_bf, "p", .cool = 1, .specials = pred_sr };
 #define PDST atomreg, &pdst_r
 #define PRED atomreg, &pred_r
 
-static struct mem mem1c_m = { "D", 0, &src1_r, &bimm8off };
-static struct mem mem34_m = { "D", 0, &src1_r, 0, &src2_r };
-static struct mem memst_m = { "D", 0, &src1_r, &bimmstoff };
-static struct mem memsts_m = { "D", 0, &src1_r, &bimmstsoff };
-#define MEM1C atommem, &mem1c_m
-#define MEMST atommem, &memst_m
-#define MEMSTS atommem, &memsts_m
-#define MEM34 atommem, &mem34_m
+static struct mem dmemldi_m = { "D", 0, &src1_r, &bimmldoff };
+static struct mem dmemldis_m = { "D", 0, &src1_r, &bimmldsoff };
+static struct mem dmemldr_m = { "D", 0, &src1_r, 0, &src2_r };
+static struct mem dmemsti_m = { "D", 0, &src1_r, &bimmstoff };
+static struct mem dmemstis_m = { "D", 0, &src1_r, &bimmstsoff };
+static struct mem dmemstr_m = { "D", 0, &src1_r, 0, &dst_r };
+#define DMEMLDI atommem, &dmemldi_m
+#define DMEMLDIS atommem, &dmemldis_m
+#define DMEMLDR atommem, &dmemldr_m
+#define DMEMSTI atommem, &dmemsti_m
+#define DMEMSTIS atommem, &dmemstis_m
+#define DMEMSTR atommem, &dmemstr_m
+
+static struct mem ememldi_m = { "E", 0, &src1_r, &bimmldoff };
+static struct mem ememldis_m = { "E", 0, &src1_r, &bimmldsoff };
+static struct mem ememldr_m = { "E", 0, &src1_r, 0, &src2_r };
+static struct mem ememsti_m = { "E", 0, &src1_r, &bimmstoff };
+static struct mem ememstis_m = { "E", 0, &src1_r, &bimmstsoff };
+static struct mem ememstr_m = { "E", 0, &src1_r, 0, &dst_r };
+#define EMEMLDI atommem, &ememldi_m
+#define EMEMLDIS atommem, &ememldis_m
+#define EMEMLDR atommem, &ememldr_m
+#define EMEMSTI atommem, &ememsti_m
+#define EMEMSTIS atommem, &ememstis_m
+#define EMEMSTR atommem, &ememstr_m
 
 static struct insn tabp[] = {
 	{ 0x00f00000, 0x00f00000 },
@@ -212,21 +230,27 @@ static struct insn tabm[] = {
 	{ 0x0000007d, 0x000000ff, N("min"), T(dst), T(src1), T(src2), .vartype = VP3 },
 	{ 0x0000007e, 0x000000ff, N("max"), T(dst), T(src1), T(src2), .vartype = VP3},
 
-	{ 0x1c000080, 0x3c0000ff, N("st"), MEMST, SRC2 },
-	{ 0x3c000080, 0x3c0000ff, N("st"), MEMSTS, SRC2 },
-	{ 0x1c000081, 0x3c0000ff, N("ld"), DST, MEM1C },
-	{ 0x34000081, 0x3c0000ff, N("ld"), DST, MEM34 },
+	{ 0x1c000080, 0x3c0000ff, N("st"), DMEMSTI, SRC2 },
+	{ 0x3c000080, 0x3c0000ff, N("st"), DMEMSTIS, SRC2 },
+	{ 0x14000080, 0x1c0000ff, N("st"), DMEMSTR, SRC2 },
+	{ 0x14000081, 0x1c0000ff, N("ld"), DST, DMEMLDR },
+	{ 0x1c000081, 0x3c0000ff, N("ld"), DST, DMEMLDI },
+	{ 0x3c000081, 0x3c0000ff, N("ld"), DST, DMEMLDIS },
 	{ 0x00000083, 0x000000ff, U("83") },
 	{ 0x00000084, 0x000000ff, U("84") },
 	{ 0x00000089, 0x000000ff, U("89") },
-	{ 0x1c00008a, 0x3c0000ff, U("8a"), MEMST, SRC2 },
+	{ 0x1c00008a, 0x3c0000ff, U("8a"), DMEMSTI, SRC2 },
 	{ 0x0000008c, 0x000000ff, U("8c") },
 	{ 0x0000008d, 0x000000ff, U("8d") },
-	{ 0x0000008e, 0x000000ff, U("8e") },
-	{ 0x0000008f, 0x000000ff, U("8f") },
+	{ 0x1c00008e, 0x3c0000ff, N("iowr"), EMEMSTI, SRC2 },
+	{ 0x3c00008e, 0x3c0000ff, N("iowr"), EMEMSTIS, SRC2 },
+	{ 0x1400008e, 0x1c0000ff, N("iowr"), EMEMSTR, SRC2 },
+	{ 0x1400008f, 0x1c0000ff, N("iord"), DST, EMEMLDR },
+	{ 0x1c00008f, 0x3c0000ff, N("iord"), DST, EMEMLDI },
+	{ 0x3c00008f, 0x3c0000ff, N("iord"), DST, EMEMLDIS },
 
 	{ 0x000000a0, 0x000000ff, U("a0") },
-	{ 0x000000a1, 0x000000ff, U("a1") },
+	{ 0x000000a1, 0x000000ff, U("a1"), SRC2 }, //src2 is source
 	{ 0x000000a2, 0x000000ff, U("a2") },
 	{ 0x000000a4, 0x000000ff, U("a4") },
     { 0x000000a8, 0x200000ff, N("orsetsng"), PRED, T(src1), T(src2) },
