@@ -41,6 +41,20 @@
 
 int vbios_upload_pramin(int cnum, uint8_t *vbios, int length);
 
+enum value_type {
+	EMPTY,
+	VALUE,
+	BITFIELD
+};
+
+enum value_type timing_value_types[25] = {
+	VALUE, VALUE, VALUE, VALUE, EMPTY,
+	VALUE, EMPTY, VALUE, EMPTY, VALUE,
+	VALUE, VALUE, VALUE, VALUE, BITFIELD,
+	VALUE, BITFIELD, VALUE, VALUE, VALUE,
+	VALUE, VALUE, VALUE, VALUE, VALUE
+};
+
 static int
 write_to_file(const char *path, const char *data)
 {
@@ -325,7 +339,7 @@ int complete_dump(int cnum, uint8_t *vbios_data, uint16_t vbios_length,
 	      uint16_t timing_entry_offset, uint8_t entry_length,
 	      uint8_t perflvl, int do_mmiotrace)
 {
-	int i;
+	int i, b;
 
 	/* TODO: get this filename from the command line */
 	FILE *outf = fopen("regs_timing", "wb");
@@ -339,13 +353,29 @@ int complete_dump(int cnum, uint8_t *vbios_data, uint16_t vbios_length,
 
 
 	/* iterate through the vbios timing values */
-	for (i = 0; i < entry_length; i++)
-	{
+	for (i = 0; i < entry_length; i++) {
 		uint8_t orig = vbios_data[timing_entry_offset + i];
-		vbios_data[timing_entry_offset + i]++;
 
-		launch(cnum, outf, vbios_data, vbios_length, perflvl,
-		       timing_entry_offset, entry_length, do_mmiotrace, i + 1, 1);
+		switch (timing_value_types[i]) {
+		case EMPTY:
+			if (orig == 0) {
+				fprintf(outf, "timing entry [%u/%zu] is supposed empty\n\n", i + 1, entry_length);
+				break;
+			} else
+				fprintf(outf, "WARNING: The following entry was supposed to be unused!\n");
+		case VALUE:
+			vbios_data[timing_entry_offset + i]++;
+			launch(cnum, outf, vbios_data, vbios_length, perflvl,
+				timing_entry_offset, entry_length, do_mmiotrace, i + 1, 1);
+			break;
+		case BITFIELD:
+			for (b = 0; b < 8; b++) {
+				vbios_data[timing_entry_offset + i] = (1 << b);
+				launch(cnum, outf, vbios_data, vbios_length, perflvl,
+					timing_entry_offset, entry_length, do_mmiotrace, i + 1, 1);
+			}
+			break;
+		}
 
 		vbios_data[timing_entry_offset + i] = orig;
 	}
