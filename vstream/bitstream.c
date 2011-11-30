@@ -309,3 +309,8 @@ int vs_infer(struct bitstream *str, uint32_t *val, uint32_t ival) {
 	}
 	return 0;
 }
+
+void vs_destroy(struct bitstream *str) {
+	free(str->bytes);
+	free(str);
+}

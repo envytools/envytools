@@ -32,15 +32,21 @@ struct h264_seqparm {
 
 struct h264_picparm {
 	struct h264_seqparm *seqparm;
+	uint32_t entropy_coding_mode_flag;
 	uint32_t num_ref_idx_l0_default_active_minus1;
 	uint32_t num_ref_idx_l1_default_active_minus1;
+	uint32_t pic_init_qp_minus26;
 };
 
 struct h264_sliceparm {
 	struct h264_picparm *picparm;
+	uint32_t slice_type;
 	uint32_t num_ref_idx_l0_active_minus1;
 	uint32_t num_ref_idx_l1_active_minus1;
-	uint32_t slice_type;
+	uint32_t slice_qp_delta;
+	uint32_t cabac_init_idc;
+	/* derived stuff starts here */
+	uint32_t sliceqpy;
 };
 
 struct h264_pred_weight_table_entry {
@@ -57,6 +63,17 @@ struct h264_pred_weight_table {
 	uint32_t chroma_log2_weight_denom;
 	struct h264_pred_weight_table_entry l0[0x20];
 	struct h264_pred_weight_table_entry l1[0x20];
+};
+
+struct h264_macroblock {
+	uint32_t mb_skip_flag;
+	uint32_t mb_field_decoding_flag;
+	uint32_t mb_type;
+	uint32_t coded_block_pattern;
+	uint32_t transform_size_8x8_flag;
+	uint32_t mb_qp_delta;
+	uint32_t pcm_sample_luma[256];
+	uint32_t pcm_sample_chroma[64];
 };
 
 int h264_pred_weight_table(struct bitstream *str, struct h264_sliceparm *slp, struct h264_pred_weight_table *table);

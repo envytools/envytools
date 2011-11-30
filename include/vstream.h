@@ -62,5 +62,6 @@ int vs_infer(struct bitstream *str, uint32_t *val, uint32_t ival);
 
 struct bitstream *vs_new_encode(enum vs_type type);
 struct bitstream *vs_new_decode(enum vs_type type, uint8_t *bytes, int bytesnum);
+void vs_destroy(struct bitstream *str);
 
 #endif
