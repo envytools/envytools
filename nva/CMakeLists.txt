@@ -6,7 +6,7 @@ pkg_check_modules(PC_PCIACCESS pciaccess REQUIRED)
 pkg_check_modules(PC_X11 x11)
 pkg_check_modules(PC_XEXT xext)
 
-include_directories(../include)
+include_directories(${PC_PCIACCESS_INCLUDE_DIRS} ../include)
 
 add_library(nva nva.c)
 add_executable(nvalist nvalist.c)
