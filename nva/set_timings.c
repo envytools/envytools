@@ -36,10 +36,16 @@
 #include <errno.h>
 
 #include "nva.h"
+#include "nvamemtiming.h"
 
 #define	NOUVEAU_TIME_WAIT 60
 
 int vbios_upload_pramin(int cnum, uint8_t *vbios, int length);
+
+enum color {
+	NO_COLOR = 0,
+	COLOR = 1
+};
 
 enum value_type {
 	EMPTY,
@@ -47,13 +53,23 @@ enum value_type {
 	BITFIELD
 };
 
-enum value_type timing_value_types[25] = {
+enum value_type nv40_timing_value_types[] = {
 	VALUE, VALUE, VALUE, VALUE, EMPTY,
 	VALUE, EMPTY, VALUE, EMPTY, VALUE,
 	VALUE, VALUE, VALUE, VALUE, BITFIELD,
 	VALUE, BITFIELD, VALUE, VALUE, VALUE,
 	VALUE, VALUE, VALUE, VALUE, VALUE
 };
+
+enum value_type nvc0_timing_value_types[] = {
+	VALUE, VALUE, VALUE, VALUE, EMPTY,
+	VALUE, EMPTY, VALUE, EMPTY, VALUE,
+	VALUE, VALUE, VALUE, VALUE, BITFIELD,
+	EMPTY, EMPTY, EMPTY, VALUE, VALUE,
+	VALUE, VALUE, EMPTY, EMPTY, VALUE
+};
+
+enum value_type *timing_value_types = NULL;
 
 static int
 write_to_file(const char *path, const char *data)
@@ -66,7 +82,8 @@ write_to_file(const char *path, const char *data)
 	return 0;
 }
 
-static void mmiotrace_start(int entry)
+static void
+mmiotrace_start(int entry)
 {
 	int ret;
 
@@ -104,7 +121,8 @@ mmiotrace_stop()
 	printf("mmiotrace stopped\n");	
 }
 
-int upclock_card(Display *dpy)
+static int
+upclock_card(Display *dpy)
 {
 	unsigned long start_time, get_time;
 	struct timeval tv;
@@ -146,7 +164,8 @@ int upclock_card(Display *dpy)
 }
 
 
-int wait_for_perflvl(Display *dpy, uint8_t wanted_perflvl)
+static int
+wait_for_perflvl(Display *dpy, uint8_t wanted_perflvl)
 {
 	unsigned long start_time, get_time;
 	struct timeval tv;
@@ -186,7 +205,8 @@ int wait_for_perflvl(Display *dpy, uint8_t wanted_perflvl)
 	return 0;
 }
 
-int force_timing_changes(uint8_t wanted_perflvl, int mmiotrace)
+static int
+force_timing_changes(uint8_t wanted_perflvl, int mmiotrace)
 {
 	Display *dpy;
 	int ret, i = 0;
@@ -222,7 +242,8 @@ int force_timing_changes(uint8_t wanted_perflvl, int mmiotrace)
 	return ret;
 }
 
-static void print_reg_diff(FILE* outf, uint32_t orig, uint32_t dest, int no_diff)
+static void
+print_reg_diff(FILE* outf, uint32_t orig, uint32_t dest, enum color diff)
 {
 	uint8_t *o = (uint8_t*)&orig;
 	uint8_t *d = (uint8_t*)&dest;
@@ -231,7 +252,7 @@ static void print_reg_diff(FILE* outf, uint32_t orig, uint32_t dest, int no_diff
 	for (i = 3; i >= 0; i--) {
 		const char* colour = "\e[0;31m";
 
-		if (no_diff || o[i] == d[i])
+		if (diff == NO_COLOR || o[i] == d[i])
                         colour = NULL;  
 
 		fprintf(outf, "%s%02x%s", colour?colour:"", d[i], colour?"\e[0m":"");
@@ -239,16 +260,43 @@ static void print_reg_diff(FILE* outf, uint32_t orig, uint32_t dest, int no_diff
 	fprintf(outf, " ");
 }
 
-static void dump_timings(int cnum, FILE* outf, uint8_t *vbios_entry,
-		  size_t vbios_entry_size, int8_t progression, int color)
+static void
+dump_regs(int cnum, FILE* outf, uint32_t ref_val[], int ref_exist, uint32_t reg, uint32_t regs_len, enum color color)
 {
-	static uint32_t ref_val[0xd0] = { 0 };
+	uint32_t val;
+	int r;
+
+	for (r = 0; r < regs_len; r+=4)
+        {
+                if (r % 0x10 == 0)
+                        fprintf(outf, "%08x: ", reg + r);
+
+                val = nva_rd32(cnum, reg + r);
+
+                print_reg_diff(outf, ref_val[r], val, color);
+
+                /* if the value wasn't initialized before, store it as a reference */
+                if (ref_exist == 0)
+                        ref_val[r] = val;
+
+                if (r % 0x10 == 0xc)
+                        fprintf(outf, "\n");
+        }
+}
+
+static void
+dump_timings(struct nvamemtiming_conf *conf, FILE* outf,
+			 int8_t progression, enum color color)
+{
+	static uint32_t ref_val1[0xa0] = { 0 };
+	static uint32_t ref_val2[0x10] = { 0 };
+	static uint32_t ref_val3[0x10] = { 0 };
 	static int ref_exist = 0;
-	uint32_t reg, regs_len, val;
+	uint8_t *vbios_entry = conf->vbios.data + conf->vbios.timing_entry_offset;
 	int i, r;
 
-	fprintf(outf, "timing entry [%u/%zu]: ", progression, vbios_entry_size);
-	for (i = 0; i < vbios_entry_size; i++) {
+	fprintf(outf, "timing entry [%u/%zu]: ", progression, conf->vbios.timing_entry_length);
+	for (i = 0; i < conf->vbios.timing_entry_length; i++) {
 		if (i != progression - 1)
 			fprintf(outf, "%02x ", vbios_entry[i]);
 		else
@@ -256,29 +304,12 @@ static void dump_timings(int cnum, FILE* outf, uint8_t *vbios_entry,
 	}
 	fprintf(outf, "\n");
 
-	if (nva_cards[cnum].card_type >= 0xc0) {
-		reg = 0x10f290;
-		regs_len = 0x70;
+	if (nva_cards[conf->cnum].card_type >= 0xc0) {
+		dump_regs(conf->cnum, outf, ref_val1, ref_exist, 0x10f290, 0xa0, color && progression > 0);
 	} else  {
-		reg = 0x100220;
-		regs_len = 0xd0;
-	}
-
-	for (r = 0; r < regs_len; r+=4)
-	{
-		if (r % 0x10 == 0)
-			fprintf(outf, "%08x: ", reg + r);
-
-		val = nva_rd32(cnum, reg + r);
-
-		print_reg_diff(outf, ref_val[r], val, !color || progression == 0);
-
-		/* if the value wasn't initialized before, store it as a reference */
-		if (ref_exist == 0)
-			ref_val[r] = val;
-
-		if (r % 0x10 == 0xc)
-			fprintf(outf, "\n");
+		dump_regs(conf->cnum, outf, ref_val1, ref_exist, 0x100220, 0xd0, color && progression > 0);
+		dump_regs(conf->cnum, outf, ref_val2, ref_exist, 0x100510, 0x10, color && progression > 0);
+		dump_regs(conf->cnum, outf, ref_val3, ref_exist, 0x100710, 0x10, color && progression > 0);
 	}
 
 	fprintf(outf, "\n");
@@ -287,8 +318,8 @@ static void dump_timings(int cnum, FILE* outf, uint8_t *vbios_entry,
 	ref_exist = 1;
 }
 
-static int launch(int cnum, FILE* outf, uint8_t *vbios_data, uint16_t vbios_length, uint8_t perflvl,
-	uint16_t timing_entry_offset, uint8_t entry_length, int mmiotrace, uint8_t progression, int color)
+static int
+launch(struct nvamemtiming_conf *conf, FILE *outf, uint8_t progression, enum color color)
 {
 	printf("--- Start sequence number %u\n", progression);
 
@@ -298,7 +329,7 @@ static int launch(int cnum, FILE* outf, uint8_t *vbios_data, uint16_t vbios_leng
 		exit (2);
 	}
 	
-	if (vbios_upload_pramin(cnum, vbios_data, vbios_length) != 1)
+	if (vbios_upload_pramin(conf->cnum, conf->vbios.data, conf->vbios.length) != 1)
 	{
 		fprintf(stderr, "upload failed. Abort\n");
 		exit(3);
@@ -308,7 +339,7 @@ static int launch(int cnum, FILE* outf, uint8_t *vbios_data, uint16_t vbios_leng
 	setenv("DISPLAY", ":0", 1);
 
 	/* monitor downclocking */
-	if (mmiotrace)
+	if (conf->mmiotrace)
 		mmiotrace_start(progression);
 
 	pid_t pid = fork();
@@ -321,13 +352,13 @@ static int launch(int cnum, FILE* outf, uint8_t *vbios_data, uint16_t vbios_leng
 	}
 
 	/* X runs, wait for the right perflvl to be selected */
-	if (force_timing_changes(perflvl, mmiotrace))
+	if (force_timing_changes(conf->timing.perflvl, conf->mmiotrace))
 		return 1;
 
-	if (mmiotrace)
+	if (conf->mmiotrace)
                 mmiotrace_stop();
 
-	dump_timings(cnum, outf, vbios_data + timing_entry_offset, entry_length, progression, color);
+	dump_timings(conf, outf, progression, color);
 
 	system("killall X");
 	sleep(5);
@@ -335,11 +366,21 @@ static int launch(int cnum, FILE* outf, uint8_t *vbios_data, uint16_t vbios_leng
 	return 0;
 }
 
-int complete_dump(int cnum, uint8_t *vbios_data, uint16_t vbios_length,
-	      uint16_t timing_entry_offset, uint8_t entry_length,
-	      uint8_t perflvl, int do_mmiotrace)
+static void
+iterate_bitfield(struct nvamemtiming_conf *conf, FILE *outf, uint8_t index, enum color color)
 {
-	int i, b;
+	int b;
+	for (b = 0; b < 8; b++) {
+		conf->vbios.data[conf->vbios.timing_entry_offset + index] = (1 << b);
+		launch(conf, outf, index + 1 , COLOR);
+	}
+}
+
+
+int
+complete_dump(struct nvamemtiming_conf *conf)
+{
+	int i;
 
 	/* TODO: get this filename from the command line */
 	FILE *outf = fopen("regs_timing", "wb");
@@ -348,36 +389,33 @@ int complete_dump(int cnum, uint8_t *vbios_data, uint16_t vbios_length,
 		return 1;
 	}
 
-	launch(cnum, outf, vbios_data, vbios_length, perflvl,
-		       timing_entry_offset, entry_length, do_mmiotrace, 0, 0);
+	if (nva_cards[conf->cnum].card_type >= 0xc0)
+		timing_value_types = nvc0_timing_value_types;
+	else
+		timing_value_types = nv40_timing_value_types;
 
+	launch(conf, outf, 0, NO_COLOR);
 
 	/* iterate through the vbios timing values */
-	for (i = 0; i < entry_length; i++) {
-		uint8_t orig = vbios_data[timing_entry_offset + i];
+	for (i = 0; i < conf->vbios.timing_entry_length; i++) {
+		uint8_t orig = conf->vbios.data[conf->vbios.timing_entry_offset + i];
 
-		switch (timing_value_types[i]) {
-		case EMPTY:
-			if (orig == 0) {
-				fprintf(outf, "timing entry [%u/%zu] is supposed empty\n\n", i + 1, entry_length);
-				break;
-			} else
+		if (timing_value_types[i] == VALUE ||
+			(timing_value_types[i] == EMPTY && orig > 0))
+		{
+			if (timing_value_types[i] == EMPTY && orig > 0)
 				fprintf(outf, "WARNING: The following entry was supposed to be unused!\n");
-		case VALUE:
-			vbios_data[timing_entry_offset + i]++;
-			launch(cnum, outf, vbios_data, vbios_length, perflvl,
-				timing_entry_offset, entry_length, do_mmiotrace, i + 1, 1);
-			break;
-		case BITFIELD:
-			for (b = 0; b < 8; b++) {
-				vbios_data[timing_entry_offset + i] = (1 << b);
-				launch(cnum, outf, vbios_data, vbios_length, perflvl,
-					timing_entry_offset, entry_length, do_mmiotrace, i + 1, 1);
-			}
-			break;
+
+			conf->vbios.data[conf->vbios.timing_entry_offset + i]++;
+			launch(conf, outf, i + 1, COLOR);
+		} else if (timing_value_types[i] == BITFIELD) {
+			iterate_bitfield(conf, outf, i + 1, COLOR);
+		} else if (timing_value_types[i] == EMPTY) {
+			fprintf(outf, "timing entry [%u/%zu] is supposed empty\n\n",
+				i + 1, conf->vbios.timing_entry_length);
 		}
 
-		vbios_data[timing_entry_offset + i] = orig;
+		conf->vbios.data[conf->vbios.timing_entry_offset + i] = orig;
 	}
 
 	fclose(outf);
@@ -385,15 +423,12 @@ int complete_dump(int cnum, uint8_t *vbios_data, uint16_t vbios_length,
 	return 0;
 }
 
-int manual_check(int cnum, int manual_entry, int manual_value,
-		 uint8_t *vbios_data, uint16_t vbios_length,
-		 uint16_t timing_entry_offset, uint8_t entry_length,
-		 uint8_t perflvl, int do_mmiotrace)
+int bitfield_check(struct nvamemtiming_conf *conf)
 {
-	char outfile[11];
+	char outfile[21];
 	int i;
 
-	snprintf(outfile, 10, "entry_%i", manual_entry);
+	snprintf(outfile, 20, "entry_b_%i", conf->bitfield.index);
 
 	/* TODO: get this filename from the command line */
 	FILE *outf = fopen(outfile, "wb");
@@ -401,10 +436,31 @@ int manual_check(int cnum, int manual_entry, int manual_value,
 		perror("Open the output file");
 		return 1;
 	}
-	
-	vbios_data[timing_entry_offset + manual_entry]++;
-	launch(cnum, outf, vbios_data, vbios_length, perflvl,
-		timing_entry_offset, entry_length, do_mmiotrace, manual_entry + 1, 0);
+
+	launch(conf, outf, 0, NO_COLOR);
+	iterate_bitfield(conf, outf, conf->bitfield.index, COLOR);
+
+	fclose(outf);
+
+	return 0;
+}
+
+int manual_check(struct nvamemtiming_conf *conf)
+{
+	char outfile[21];
+	int i;
+
+	snprintf(outfile, 20, "entry_%i_%i", conf->manual.index, conf->manual.value);
+
+	/* TODO: get this filename from the command line */
+	FILE *outf = fopen(outfile, "wb");
+	if (!outf) {
+		perror("Open the output file");
+		return 1;
+	}
+
+	conf->vbios.data[conf->vbios.timing_entry_offset + conf->timing.entry]++;
+	launch(conf, outf, 0, NO_COLOR);
 
 	fclose(outf);
 
