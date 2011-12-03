@@ -118,7 +118,7 @@ mmiotrace_stop()
 	if (write_to_file("/sys/kernel/debug/tracing/current_tracer", "nop"))
 		fprintf(stderr, "Copying the trace to a file failed\n");
 
-	printf("mmiotrace stopped\n");	
+	printf("mmiotrace stopped\n");
 }
 
 static int
@@ -148,17 +148,14 @@ upclock_card(Display *dpy)
 
 		gettimeofday(&tv, NULL);
 		get_time = tv.tv_sec;
-		if ((start_time + 5) < get_time ) {
-			fprintf(stderr, "ERROR - Timeout\n");
-			return 4;
-		}
 
 		XNVCTRLQueryTargetAttribute (dpy, NV_CTRL_TARGET_TYPE_X_SCREEN, 0,
 						0, NV_CTRL_GPU_CURRENT_PERFORMANCE_MODE, &tmp);
 
-	} while ( tmp != NV_CTRL_GPU_CURRENT_PERFORMANCE_MODE_MAXPERF);
+	} while ( tmp != NV_CTRL_GPU_CURRENT_PERFORMANCE_MODE_MAXPERF && (start_time + 2) < get_time);
 
 	kill(pid, SIGTERM);
+	waitpid(pid, NULL);
 
 	return 0;
 }
@@ -174,6 +171,7 @@ wait_for_perflvl(Display *dpy, uint8_t wanted_perflvl)
 	gettimeofday(&tv, NULL);
 	start_time = tv.tv_sec;
 
+	fprintf(stderr, "XNVCTRLQueryTargetAttribute with dpy = %p\n", dpy);
 	XNVCTRLQueryTargetAttribute (dpy, NV_CTRL_TARGET_TYPE_GPU, 0, 0, NV_CTRL_GPU_ADAPTIVE_CLOCK_STATE , &tmp);
 	if (tmp != NV_CTRL_GPU_ADAPTIVE_CLOCK_STATE_ENABLED) {
 		fprintf(stderr, "ERROR - Driver not in Adaptive state\n");
@@ -208,7 +206,7 @@ wait_for_perflvl(Display *dpy, uint8_t wanted_perflvl)
 static int
 force_timing_changes(uint8_t wanted_perflvl, int mmiotrace)
 {
-	Display *dpy;
+	Display *dpy = NULL;
 	int ret, i = 0;
 
 	/* wait for X to come up */
@@ -218,15 +216,21 @@ force_timing_changes(uint8_t wanted_perflvl, int mmiotrace)
 		dpy = XOpenDisplay(NULL);
 		i++;
 	} while(!dpy && i < 200 ); /* wait 2 seconds */
-	
+	fprintf(stderr, "-- Display opened (pid = %i, dpy = %p)\n", getpid(), dpy);
+
 	if (!dpy) {
 		fprintf(stderr, "ERROR - XOpenDisplay failed\n");
 		return 1;
 	}
 
 	if (!upclock_card(dpy)) {
-		if (write_to_file("/sys/kernel/debug/tracing/trace_marker", "Start downclocking\n"))
-			fprintf(stderr, "Addind a marker to the mmiotrace returned error %i: %s\n", ret, strerror(ret));
+		if (mmiotrace) {
+			ret = write_to_file("/sys/kernel/debug/tracing/trace_marker", "Start downclocking\n");
+			if (ret)
+				fprintf(stderr, "Addind a marker to the mmiotrace returned error %i: %s\n", ret, strerror(ret));
+		}
+
+		fprintf(stderr, "Call wait_for_perflvl with dpy = %p\n", dpy);
 
 		if (!wait_for_perflvl(dpy, wanted_perflvl)) {
 			fprintf(stderr, "Downclock monitoring finished\n");
@@ -236,8 +240,9 @@ force_timing_changes(uint8_t wanted_perflvl, int mmiotrace)
 
 	/* wait for PDAEMON to actually change the memory clock */
 	sleep(1);
-	
+
 	XCloseDisplay(dpy);
+	fprintf(stderr, "-- Display closed (pid = %i)\n", getpid());
 
 	return ret;
 }
@@ -253,7 +258,7 @@ print_reg_diff(FILE* outf, uint32_t orig, uint32_t dest, enum color diff)
 		const char* colour = "\e[0;31m";
 
 		if (diff == NO_COLOR || o[i] == d[i])
-                        colour = NULL;  
+                        colour = NULL;
 
 		fprintf(outf, "%s%02x%s", colour?colour:"", d[i], colour?"\e[0m":"");
 	}
@@ -288,7 +293,7 @@ static void
 dump_timings(struct nvamemtiming_conf *conf, FILE* outf,
 			 int8_t progression, enum color color)
 {
-	static uint32_t ref_val1[0xa0] = { 0 };
+	static uint32_t ref_val1[0xd0] = { 0 };
 	static uint32_t ref_val2[0x10] = { 0 };
 	static uint32_t ref_val3[0x10] = { 0 };
 	static int ref_exist = 0;
@@ -328,7 +333,7 @@ launch(struct nvamemtiming_conf *conf, FILE *outf, uint8_t progression, enum col
 		fprintf(stderr, "rmmod not found. Abort\n");
 		exit (2);
 	}
-	
+
 	if (vbios_upload_pramin(conf->cnum, conf->vbios.data, conf->vbios.length) != 1)
 	{
 		fprintf(stderr, "upload failed. Abort\n");
@@ -345,7 +350,9 @@ launch(struct nvamemtiming_conf *conf, FILE *outf, uint8_t progression, enum col
 	pid_t pid = fork();
 	if (pid == 0) {
 		system("killall X 2> /dev/null > /dev/null");
-		exit(system("X > /dev/null 2> /dev/null"));
+		system("X > /dev/null 2> /dev/null");
+		fprintf(stderr, "X exited, let's quit!\n");
+		exit(0);
 	} else if (pid == -1) {
 		fprintf(stderr, "Fork failed! Abort\n");
 		exit (4);
@@ -361,6 +368,12 @@ launch(struct nvamemtiming_conf *conf, FILE *outf, uint8_t progression, enum col
 	dump_timings(conf, outf, progression, color);
 
 	system("killall X");
+
+	/* wait for all zombie processes */
+	while(wait(NULL) > 0);
+
+
+	/* wait for the nvidia driver to modeset back to the crappy resolution */
 	sleep(5);
 
 	return 0;
@@ -409,7 +422,7 @@ complete_dump(struct nvamemtiming_conf *conf)
 			conf->vbios.data[conf->vbios.timing_entry_offset + i]++;
 			launch(conf, outf, i + 1, COLOR);
 		} else if (timing_value_types[i] == BITFIELD) {
-			iterate_bitfield(conf, outf, i + 1, COLOR);
+			iterate_bitfield(conf, outf, i, COLOR);
 		} else if (timing_value_types[i] == EMPTY) {
 			fprintf(outf, "timing entry [%u/%zu] is supposed empty\n\n",
 				i + 1, conf->vbios.timing_entry_length);
