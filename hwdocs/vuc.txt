@@ -7,6 +7,8 @@ Address spaces:
 Predicates:
     Most instructions can be conditionally executed depending on predicate state.
 
+Invalid instructions: found no influence on machine state.
+    
 opcode format:
     0-7 select the instruction
     8-11 operand
@@ -31,14 +33,21 @@ opcode format:
     0x3f5: runs
     
     going up from 0x3f0, things stop running at 0x3f7
-    
+
+Opcodes:
+Some opcodes repeat, some of those are "covered" by single variations. E.g. 0x8e can be sex or iowr, depending on source parameters. In the docs and envydis the variant used in the code is presented. It appears that the "override" opcode has 0x14000000 set, while base has one or more of those bts unset. XXX: check with "canonical" arithmetics at 0x6X.
+
+"base" opcodes with mask 0x1f: 0x04, 0x05, 0x06, 0x0c, 0x0d, 0x0e
+Other repeating "base" opodes: 0x21, 0x61
 
 XXX: Find a io register responsible for overflow and carry
 XXX: Find signedness of instructions
 TODO: Find out exact immediate sizes in most instructions
+NOTE: only 0x48-0x4a are confirmed to take predicates as arguments on NV96. Other "set"s were scanned but nothing found, even "orsetsg"s from nv96
 
 Instructions:
 Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "~a" signifies bitwise negation of a. ceil(), floor() and rand() are sign-aware, assume values to be of infinite precision. All signed values are noted when applicable/known.
+
 
 
 * Flow:
@@ -101,24 +110,28 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
     0x48: [setsg DST SRC1 SRC2]
           setsg PRED REG GPREG
           setsg PRED REG IMM6
+          setsg PRED PRED PRED
             DST := SRC1 > SRC2
         Delay: immediate
     
     0x49: [setsl DST SRC1 SRC2]
           setsl PRED REG GPREG
           setsl PRED REG IMM6
+            signed SRC1, SRC2
             DST := SRC1 < SRC2
         Delay: immediate
     
     0x4a: [setse DST SRC1 SRC2]
           setse PRED REG GPREG
           setse PRED REG IMM6
+          setse PRED PRED PRED
             DST := SRC1 == SRC2
         Delay: immediate
         
     0xc8: [setsle DST SRC1 SRC2]
           setsle PRED REG GPREG
           setsle PRED REG IMM6
+          setsle PRED PRED PRED
             DST := SRC1 <= SRC2
         Delay: immediate
     
@@ -165,13 +178,14 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
             (DST := ~(SRC1 ^ SRC2)
         Delay: immediate
     
-    0x52: [btest DST SRC1 SRC2]
+    0x32, 0x52: [btest DST SRC1 SRC2]
           btest PRED REG GPREG
           btest PRED REG IMM6
             DST := (SRC1 >> SRC2) & 1
+        Only 2 forms.
         Delay: immediate
 
-    0xd8: [btestn DST SRC1 SRC2]
+    0xd2: [btestn DST SRC1 SRC2]
           btestn PRED REG GPREG
           btestn PRED REG IMM6
             DST := ~((SRC1 >> SRC2) & 1)
@@ -234,13 +248,9 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
           mov REG GPREG
           mov GPREG IMM14
           mov IOREG IMM12
-        Sets DST to value of SRC
+        Sets DST to value of SRC.
+        "Base" opcode - actually 0x01.
             DST := SRC
-        Delay: immediate
-    
-    0x67: [clear DST]
-          clear REG
-            DST := 0
         Delay: immediate
         
     0x60: [slct DST SRC1 SRC2 SRC3]
@@ -252,6 +262,7 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
                 DST := SRC3
             endif
         TODO: There exists a predicated version with bit 29 set, predicate in 20:24, DST := SRC3.
+        "Base" opcode - actually 0x00.
         Delay: immediate
 
 	0x64: [add DST SRC1 SRC2]
@@ -259,34 +270,46 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
 		  add REG REG IMM6
 		Assigns DST the value of SRC1 + SRC2
 			DST := SRC1 + SRC2
-		XXX: Carry?
+		XXX: Flags?
+		"Base" opcode - actually 0x04.
 		Delay: immediate
     
     0x65: [sub DST SRC1 SRC2]
-          sub REG REG GPREG
-          sub REG REG IMM6
+          sub REG GPREG GPREG
+          sub GPREG REG GPREG
+          sub REG GPREG IMM6
+          sub GPREG REG IMM6
             DST := SRC1 - SRC2
-        XXX: Carry? Signedness?
+        XXX: Flags?
+        "Base" opcode - actually 0x65.
         Delay: immediate
         
     0x66: [subr DST SRC1 SRC2]
           subr REG REG GPREG
           subr REG REG IMM6
             DST := SRC2 - SRC1
-        XXX: Carry? Signedness?
+        XXX: Flags?
+        "Base" opcode - actually 0x66.
         Only present on VP2
         Delay: immediate
-    
+        0x67: [clear DST]
+          clear REG
+            DST := 0
+        "Base opcode - actually 0x07.
+        Delay: immediate
+        
     0x6c: [minsz DST SRC1 SRC2]
           minsz REG GPREG
           minsz REG IMM6?
         Signed minimum with a quirk.
+        Arithmetic, 0x1f mask
             signed SRC1, SRC2
             if SRC1 > SRC2
                 DST := SRC2
             else
                 DST := max(SRC1, 0)
             endif
+        "Base" opcode - actually 0x6c.
         Delay: immediate
     
     0x6d: [clampsex DST SRC1 SRC2]
@@ -299,6 +322,7 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
             else
                 DST := ((2 ** SRC1) - 1) & SRC1
             end
+        "Base" opcode - actually 0x6d.
         Delay: immediate
     
     0x6e: [sex DST SRC1 SRC2]
@@ -310,6 +334,7 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
             else
                 DST := ((2 ** SRC1) - 1) & SRC1
             end
+        "Base" opcode - actually 0x6e.
         Delay: immediate
     
     0x6f: [div2s DST SRC]
@@ -341,6 +366,40 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
         Present on vp3
         Not present on vp2?
         Delay: immediate
+    
+    0xa0: [mul SRC1 SRC2]
+          absmul GPREG GPREG
+            if SRC2 >= 2 ** 10
+                $arthi:$artlo := 0
+            else
+                $arthi:$artlo := SRC1 * SRC2
+            endif
+        Unsigned multiplication. SRC2 is 10 bit unsigned.
+        "Override" opcode.
+    
+    0xa1: [muls SRC1 SRC2]
+          muls GPREG GPREG
+            signed SRC1, SRC2
+            if SRC2 >= 2 ** 10 or SRC2 < -(2 ** 10)
+                $arthi:$artlo := 0
+            else
+                $arthi:$artlo := SRC1 * sex(SRC2, 10)
+            endif
+        Signed multiplication. SRC2 is 10 bit signed.
+        "Override" opcode.
+        Delay: ???
+    
+    0xa2: [shift SRC]
+          shift GPREG
+          shift IMM4
+            if SRC >= 2 ** 10
+                SHIFT := 1
+            else
+                SHIFT := SRC + 1
+            endif
+            $arthi:artlo := $arthi:$artlo >> SHIFT
+        Shift. XXX: verify what happens if SRC exceeds limit, check signedness.
+        Delay: ???
     
     0x7d: [min DST SRC1 SRC2]
           min REG REG GPREG
@@ -469,6 +528,11 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
         Delay: immediate
     
 * Unknown
+    0x04: I/O?
+        Version 0x34f00004 stops execution. I/O wait? Reads from $sr6 afterwards, always preceded by 0x20 slct $sr->$sr
+    
+    0x08, 0x09, 0x0a: Arithmetic? Looks like _or_sets block (not on vp2)
+    
     0x83: I/O? Memory load type
         Memory space unknown, labeled F.
         Composed of 8-byte structures.
@@ -491,26 +555,34 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
 		  some sort of memory write?
 		  
 		if 28:32 < 0xc then disable 
-            
-	0x7c: DST SRC1 SRC2
-		  unk7c GPREG? GPREG? IMM?
-		  DST: 16:20
-		  SRC1:?
-		  SRC2: ?
-		if src2 == 3: dst := MOONPHASE(0x1f | 0)
-		if src2 == 7: dst := MOONPHASE(0x1f | 0)
-		if src2 == 8: dst := 4
-		if src2 == 9: dst := 0 + (src1 % 4) * 4
-		if src2 == 0xa: dst := 100 + src1 % 4
-		else: dst:= 0
-        delay: immediate
+        
 
-    0x8d: DST
-          unk8d GPREG
-          DST: 16:20
-        Always yields 2. Predicates can be applied. Only used in h264, only in the form of 0x1c05008d. the 8 in c suggests register/immediate source choice.
+    0x8d: I/O? Memory load type.
+        Always yields 2. Predicates can be applied. Only used in h264, only in the form of 0x1c05008d.
         Blob ORs it with [$sr28|$sr29] ored with [0x8|0x4], then writes to E[2].
         Delay: 2 * MOV
+    
+    0x7c: DST SRC1 SRC2
+          unk7c GPREG? GPREG? IMM?
+          DST: 16:20
+          SRC1: ?
+          SRC2: ?
+            if src2 == 3: dst := MOONPHASE(0x1f | 0)
+            if src2 == 7: dst := MOONPHASE(0x1f | 0)
+            if src2 == 8: dst := 4
+            if src2 == 9: dst := 0 + (src1 % 4) * 4
+            if src2 == 0xa: dst := 100 + src1 % 4
+            else: dst:= 0
+        delay: immediate
+        
+    0x05: I/O?
+        Usage: alternated with $sr6 writes.
+    0x24: I/O
+        no params (?)
+        First run: change $sr16-$sr21, $sr24 and $sr27-$sr31.
+        Consecutive runs: change $sr16-$sr24 and $sr27-$sr31 ($sr22, $sr23 == 1).
+        "Override" opcode.
+        XXX: delay (blob: 5)
     
 registers:
 - 16-bit:
@@ -523,21 +595,28 @@ registers:
     $p15 - hardwired to 1.
 - 64 × 16-bit special registers
     $sr8 ($pc): PC
+    $sr12 ($arthi): Arithmetic result high word register
+    $sr13 ($artlo): Arithmetic result low word register
     $sr14 ($pred): predicate bitfield ($p0 == $pred[0])
     $sr15 ($cnt): cycle counter (?: check nops, effect of delays)
     
     Unknown:
     $sr0: controls $sr48-$sr58 (bits 0-6 when set separately)
-    $sr1: similar to $sr0 (bits 0-4)
-    $sr2: bits 0-3 set separately affect registers $sr16-$sr24
-    $sr3: bits 0-4 affect
-    $sr6: writing bit 15 alternates values between 0x8103 and 0
+    $sr1: similar to $sr0 (bits 0-4, probably more)
+    $sr2: bits 0-3 affect registers $sr16-$sr24
+    $sr3: bits 0-4 affect $sr32-$sr42
+    $sr6: writing 0x8000 alternates values between 0x8103 and 0
     $sr9: values 0, 1, 3, may be related to upload/execution order
     $sr10: usually 0, but may be different (negative) after reupload
-    $sr4, $sr9, $sr12-$sr15, $sr27: nonzero
+    $sr16: modifies $sr17-$sr24, $sr27-$sr31
+    $sr17-$sr24: modified by $sr16
     $sr22-$sr24: related to orsetreg's unknown bits, regardless of result
-    $sr48-$sr58: affected by writing $sr0 and $sr1
+    $sr27-$sr31: modified by $sr16
     $sr32-$sr42: affected by $sr3
+    $sr48-$sr58: affected by writing $sr0 and $sr1
+    
+    
+    $sr4, $sr9, $sr12-$sr15, $sr27: nonzero
     No change on write:
     $sr4, $sr8-$sr10, $sr12-$sr15, $sr32+
     No side effects on read/write:

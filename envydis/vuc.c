@@ -67,6 +67,8 @@ static struct sreg pred_sr[] = {
 };
 static struct sreg sreg_sr[] = {
     { 8, "pc" },
+    { 12, "arthi" },
+    { 13, "artlo" },
     { 14, "pred" },
     { 15, "cnt" },
     { -1 },
@@ -165,35 +167,53 @@ static struct insn tabsrc2[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabarithsrc2[] = {
+    { 0x00000000, 0x08000000, SRC2 },
+    { 0x08000000, 0x08000000, IMM4 },
+    { 0, 0, OOPS },
+};
+
+// Tables describig parameters for "set" functions
+
+static struct insn tabpdst[] = {
+    { 0x20000000, 0x20000000, PDST },
+    { 0x00000000, 0x20000000, PRED },
+    { 0, 0, OOPS },
+};
+
 static struct insn tabm[] = {
 	{ 0x3c000000, 0x3c0000ff, N("bra"), BTARG },
 	{ 0x3c000002, 0x3c0000ff, N("call"), CTARG },
 	{ 0x34000003, 0x3c0000ff, N("ret") },
-	{ 0x00000004, 0x000000ff, U("04") },
-	{ 0x00000005, 0x000000ff, U("05") },
-	{ 0x00000006, 0x000000ff, U("06") },
-	{ 0x00000008, 0x000000ff, U("08") },
-	{ 0x00000009, 0x000000ff, U("09") },
-	{ 0x0000000a, 0x000000ff, U("0a") },
+	{ 0x14000004, 0x140000ff, U("04") },
+	{ 0x14000005, 0x140000ff, U("05"), IMM4 },
+	{ 0x14000006, 0x140000ff, U("06") },
+	
+	{ 0x00000008, 0x000000ff, U("08"), T(pdst), T(src1), T(src2) },
+	{ 0x00000009, 0x000000ff, U("09"), T(pdst), T(src1), T(src2) },
+	{ 0x0000000a, 0x000000ff, U("0a"), T(pdst), T(src1), T(src2) },
+	
 	{ 0x0000000b, 0x000000ff, U("0b") },
 	{ 0x0000000e, 0x000000ff, U("0e") },
 
-	{ 0x00000020, 0x000000ff, U("20") },
-	{ 0x00000021, 0x000000ff, U("21") },
-	{ 0x00000022, 0x000000ff, U("22") },
-	{ 0x00000023, 0x000000ff, U("23") },
-	{ 0x00000024, 0x000000ff, U("24") },
-	{ 0x00000025, 0x000000ff, U("25") },
-	{ 0x00000026, 0x000000ff, U("26") },
-    { 0x00000028, 0x200000ff, N("orsetsg"), PRED, T(src1), T(src2) }, /* PDST |= (src1 > src2) */
-    { 0x20000028, 0x200000ff, N("orsetsg"), PDST, T(src1), T(src2) },
-    { 0x00000029, 0x200000ff, N("orsetsl"), PRED, T(src1), T(src2) }, /* PDST |= (src1 < src2) */
-    { 0x20000029, 0x200000ff, N("orsetsl"), PDST, T(src1), T(src2) },
-    { 0x0000002a, 0x200000ff, N("orsetse"), PRED, T(src1), T(src2) }, /* PDST |= (src1 == src2) */
-    { 0x2000002a, 0x200000ff, N("orsetse"), PDST, T(src1), T(src2) },
-	{ 0x0000002b, 0x000000ff, U("2b") },
-	{ 0x0000002c, 0x000000ff, U("2c") },
-	{ 0x00000032, 0x000000ff, U("32") },
+	{ 0x14000020, 0x140000ff, U("20") },
+	{ 0x14000021, 0x140000ff, U("21") },
+	{ 0x14000022, 0x140000ff, U("22") },
+
+	{ 0x14000024, 0x140000ff, U("24") },
+	{ 0x14000025, 0x140000ff, U("25") },
+	{ 0x14000026, 0x140000ff, U("26") },
+	{ 0x14000028, 0x140000ff, U("28") },
+    { 0x1400002a, 0x140000ff, U("2a") },
+    // never used by the blob in the below form, probably opcode's "proper" function is above
+    { 0x00000028, 0x100000ff, N("orsetsg"), T(pdst), T(src1), T(src2) }, /* PDST |= (src1 > src2) */
+    { 0x00000029, 0x000000ff, N("orsetsl"), T(pdst), T(src1), T(src2) }, /* PDST |= (src1 < src2) */
+    { 0x0000002a, 0x000000ff, N("orsetse"), T(pdst), T(src1), T(src2) }, /* PDST |= (src1 == src2) */
+    
+	{ 0x1400002b, 0x140000ff, U("2b") },
+	{ 0x1400002c, 0x140000ff, U("2c") },
+	
+	{ 0x00000032, 0x000000ff, N("btest"), T(pdst), T(src1), T(src2) }, // rarely used
 
 	{ 0x34000040, 0x3c0000ff, N("and"), PDST, PSRC1, PSRC2 },
 	{ 0x34000041, 0x3c0000ff, N("or"), PDST, PSRC1, PSRC2 },
@@ -202,16 +222,17 @@ static struct insn tabm[] = {
 	{ 0x34000044, 0x3c0000ff, N("andn"), PDST, PSRC1, PSRC2 },
 	{ 0x34000045, 0x3c0000ff, N("orn"), PDST, PSRC1, PSRC2 },
 	{ 0x34000046, 0x3c0000ff, N("xorn"), PDST, PSRC1, PSRC2 },
-    { 0x00000048, 0x200000ff, N("setsg"), PRED, T(src1), T(src2) },
-    { 0x20000048, 0x200000ff, N("setsg"), PDST, T(src1), T(src2) },
-    { 0x00000049, 0x200000ff, N("setsl"), PRED, T(src1), T(src2) }, /* signed */
-    { 0x20000049, 0x200000ff, N("setsl"), PDST, T(src1), T(src2) },
-    { 0x0000004a, 0x200000ff, N("setse"), PRED, T(src1), T(src2) },
-    { 0x2000004a, 0x200000ff, N("setse"), PDST, T(src1), T(src2) },
-	{ 0x0000004d, 0x000000ff, U("4d") },
+	
+	{ 0x14000048, 0x140000ff, N("setsg"), T(pdst), PSRC1, PSRC2 }, // signed
+    { 0x00000048, 0x000000ff, N("setsg"), T(pdst), T(src1), T(src2) }, // signed
+    { 0x14000049, 0x140000ff, N("setsle"), T(pdst), PSRC1, PSRC2 }, // with predicates, equality also evaluates to 1 (?!?)
+    { 0x00000049, 0x000000ff, N("setsl"), T(pdst), T(src1), T(src2) }, /* signed */
+    { 0x1400004a, 0x140000ff, N("setse"), T(pdst), PSRC1, PSRC2 },
+    { 0x0000004a, 0x000000ff, N("setse"), T(pdst), T(src1), T(src2) },
+    
+	{ 0x1400004d, 0x140000ff, U("4d") },
 	{ 0x0000004e, 0x000000ff, U("4e") },
-    { 0x00000052, 0x200000ff, N("btest"), PRED, T(src1), T(src2) },
-    { 0x20000052, 0x200000ff, N("btest"), PDST, T(src1), T(src2) },
+    { 0x00000052, 0x000000ff, N("btest"), T(pdst), T(src1), T(src2) },
 	{ 0x00000058, 0x200000ff, N("andsnz"), PRED, T(dst), T(src1), T(src2) }, /* normal and, then set pred if result != 0 */
 	{ 0x00000059, 0x200000ff, N("orsnz"), PRED, T(dst), T(src1), T(src2) },
 	{ 0x0000005c, 0x000000ff, U("5c") },
@@ -273,26 +294,19 @@ static struct insn tabm[] = {
 	{ 0x1c00008f, 0x3c0000ff, N("iord"), DST, EMEMLDI },
 	{ 0x3c00008f, 0x3c0000ff, N("iord"), DST, EMEMLDIS },
 
-	{ 0x000000a0, 0x000000ff, U("a0") },
-	{ 0x000000a1, 0x000000ff, U("a1"), SRC2 }, //src2 is source
-	{ 0x000000a2, 0x000000ff, U("a2") },
-	{ 0x000000a4, 0x000000ff, U("a4") },
-    { 0x000000a8, 0x200000ff, N("orsetsng"), PRED, T(src1), T(src2) },
-    { 0x200000a8, 0x200000ff, N("orsetsng"), PDST, T(src1), T(src2) },
-    { 0x000000a9, 0x200000ff, N("orsetsnl"), PRED, T(src1), T(src2) },
-    { 0x200000a9, 0x200000ff, N("orsetsnl"), PDST, T(src1), T(src2) },
-    { 0x000000aa, 0x200000ff, N("orsetsne"), PRED, T(src1), T(src2) },
-    { 0x200000aa, 0x200000ff, N("orsetsne"), PDST, T(src1), T(src2) },
-	{ 0x000000ac, 0x000000ff, U("ac") },
+	{ 0x140000a0, 0x140000ff, N("mul"), SRC1, T(arithsrc2) },
+	{ 0x140000a1, 0x140000ff, N("muls"), SRC1, T(arithsrc2) },
+	{ 0x140000a2, 0x140000ff, N("shift"), T(arithsrc2) },
+	{ 0x140000a4, 0x140000ff, U("a4") },
+	{ 0x140000a8, 0x140000ff, U("a8") },
+	// not used in the following form
+    //{ 0x000000a8, 0x000000ff, N("orsetsng"), T(pdst), T(src1), T(src2) },
+	{ 0x140000ac, 0x140000ff, U("ac") },
 
-    { 0x000000c8, 0x200000ff, N("setsle"), PRED, T(src1), T(src2) },
-    { 0x200000c8, 0x200000ff, N("setsle"), PDST, T(src1), T(src2) },
-    { 0x000000c9, 0x200000ff, N("setsge"), PRED, T(src1), T(src2) },
-    { 0x200000c9, 0x200000ff, N("setsge"), PDST, T(src1), T(src2) },
-    { 0x000000ca, 0x200000ff, N("setsne"), PRED, T(src1), T(src2) },
-    { 0x200000ca, 0x200000ff, N("setsne"), PDST, T(src1), T(src2) },
-    { 0x000000d2, 0x200000ff, N("btestn"), PRED, T(src1), T(src2) },
-    { 0x200000d2, 0x200000ff, N("btestn"), PDST, T(src1), T(src2) },
+    { 0x000000c8, 0x000000ff, N("setsle"), T(pdst), T(src1), T(src2) },
+    { 0x000000c9, 0x000000ff, N("setsge"), T(pdst), T(src1), T(src2) },
+    { 0x000000ca, 0x000000ff, N("setsne"), T(pdst), T(src1), T(src2) },
+    { 0x000000d2, 0x000000ff, N("btestn"), T(pdst), T(src1), T(src2) },
 	{ 0x000000d8, 0x200000ff, N("andsz"), PRED, T(dst), T(src1), T(src2) }, /* normal and, then set pred if result == 0 */
 	{ 0x000000d9, 0x200000ff, N("orsz"), PRED, T(dst), T(src1), T(src2) },
 
