@@ -47,9 +47,10 @@ void usage(int argc, char **argv)
 	fprintf(stderr, "\n\nOptional args:\n");
 	fprintf(stderr, "\t-c cnum: Specify the card number\n");
 	fprintf(stderr, "\t-t: Generate a mmiotrace of all meaningful operations\n");
-	fprintf(stderr, "\t-e: Only modify the specified entry (to be used with -v)\n");
+	fprintf(stderr, "\t-e: Only modify the specified index (to be used with -v)\n");
 	fprintf(stderr, "\t-v: Set the specified value to the specified entry\n");
-	fprintf(stderr, "\t-b: Consider the specified entry as a bitfield and RE it\n");
+	fprintf(stderr, "\t-b index: Consider the specified index as a bitfield and RE it\n");
+	fprintf(stderr, "\t-d timing_entry_high: For each indexes, iterate between the timing_entry and the timing_entry_high value (Deep mode)\n");
 	exit(-1);
 }
 
@@ -73,6 +74,8 @@ int read_timings(struct nvamemtiming_conf *conf)
 
 	conf->vbios.timing_entry_offset = conf->vbios.timing_table_offset + header[1] + conf->timing.entry * header[3];
 
+	if (conf->mode == MODE_DEEP)
+		conf->deep.timing_entry_offset = conf->vbios.timing_table_offset + header[1] + conf->deep.entry * header[3];
 	return 0;
 }
 
@@ -85,7 +88,7 @@ int parse_cmd_line(int argc, char **argv, struct nvamemtiming_conf *conf)
 	conf->mode = MODE_AUTO;
 	conf->vbios.file = NULL;
 
-	while ((c = getopt (argc, argv, "htb:c:e:v:")) != -1)
+	while ((c = getopt (argc, argv, "htd:b:c:e:v:")) != -1)
 		switch (c) {
 			case 'e':
 				if (conf->mode != MODE_AUTO && conf->mode != MODE_MANUAL)
@@ -100,10 +103,16 @@ int parse_cmd_line(int argc, char **argv, struct nvamemtiming_conf *conf)
 				sscanf(optarg, "%d", &conf->manual.value);
 				break;
 			case 'b':
-				if (conf->mode != MODE_AUTO && conf->mode != MODE_BITFIELD)
+				if (conf->mode != MODE_AUTO)
 					usage(argc, argv);
 				conf->mode = MODE_BITFIELD;
 				sscanf(optarg, "%d", &conf->bitfield.index);
+				break;
+			case 'd':
+				if (conf->mode != MODE_AUTO)
+					usage(argc, argv);
+				conf->mode = MODE_DEEP;
+				sscanf(optarg, "%d", &conf->deep.entry);
 				break;
 			case 'c':
 				sscanf(optarg, "%d", &conf->cnum);
@@ -146,7 +155,7 @@ int main(int argc, char** argv)
 		fprintf (stderr, "PCI init failure!\n");
 		return 1;
 	}
-	
+
 	parse_cmd_line(argc, argv, &conf);
 
 	/* read the vbios */
@@ -164,7 +173,9 @@ int main(int argc, char** argv)
 
 	switch (conf.mode) {
 	case MODE_AUTO:
-		return complete_dump(&conf);
+		return shallow_dump(&conf);
+	case MODE_DEEP:
+		return deep_dump(&conf);
 	case MODE_BITFIELD:
 		return bitfield_check(&conf);
 	case MODE_MANUAL:

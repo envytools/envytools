@@ -25,14 +25,14 @@
 #ifndef NVAMEMTIMING_H
 #define NVAMEMTIMING_H
 	#include <stdint.h>
-	
+
 	typedef enum { false = 0, true = 1 } bool;
 
 	struct nvamemtiming_conf {
 		int cnum;
 		bool mmiotrace;
 
-		enum { MODE_AUTO = 0, MODE_BITFIELD = 1, MODE_MANUAL = 2 } mode;
+		enum { MODE_AUTO = 0, MODE_BITFIELD = 1, MODE_MANUAL = 2, MODE_DEEP = 3 } mode;
 		union {
 			struct {
 				uint8_t index;
@@ -42,6 +42,11 @@
 			struct {
 				uint8_t index;
 			} bitfield;
+
+			struct {
+				uint8_t entry;
+				uint16_t timing_entry_offset;
+			} deep;
 		};
 
 		struct {
@@ -62,7 +67,8 @@
 
 	int vbios_read(const char *filename, uint8_t **vbios, uint16_t *length);
 
-	int complete_dump(struct nvamemtiming_conf *conf);
+	int deep_dump(struct nvamemtiming_conf *conf);
+	int shallow_dump(struct nvamemtiming_conf *conf);
 	int bitfield_check(struct nvamemtiming_conf *conf);
 	int manual_check(struct nvamemtiming_conf *conf);
 

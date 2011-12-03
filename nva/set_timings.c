@@ -293,9 +293,10 @@ static void
 dump_timings(struct nvamemtiming_conf *conf, FILE* outf,
 			 int8_t progression, enum color color)
 {
-	static uint32_t ref_val1[0xd0] = { 0 };
-	static uint32_t ref_val2[0x10] = { 0 };
+	static uint32_t ref_val1[0xa0] = { 0 };
+	static uint32_t ref_val2[0x30] = { 0 };
 	static uint32_t ref_val3[0x10] = { 0 };
+	static uint32_t ref_val4[0x10] = { 0 };
 	static int ref_exist = 0;
 	uint8_t *vbios_entry = conf->vbios.data + conf->vbios.timing_entry_offset;
 	int i, r;
@@ -312,9 +313,10 @@ dump_timings(struct nvamemtiming_conf *conf, FILE* outf,
 	if (nva_cards[conf->cnum].card_type >= 0xc0) {
 		dump_regs(conf->cnum, outf, ref_val1, ref_exist, 0x10f290, 0xa0, color && progression > 0);
 	} else  {
-		dump_regs(conf->cnum, outf, ref_val1, ref_exist, 0x100220, 0xd0, color && progression > 0);
-		dump_regs(conf->cnum, outf, ref_val2, ref_exist, 0x100510, 0x10, color && progression > 0);
-		dump_regs(conf->cnum, outf, ref_val3, ref_exist, 0x100710, 0x10, color && progression > 0);
+		dump_regs(conf->cnum, outf, ref_val1, ref_exist, 0x100220, 0x30, color && progression > 0);
+		dump_regs(conf->cnum, outf, ref_val2, ref_exist, 0x1002c0, 0x30, color && progression > 0);
+		dump_regs(conf->cnum, outf, ref_val3, ref_exist, 0x100510, 0x10, color && progression > 0);
+		dump_regs(conf->cnum, outf, ref_val4, ref_exist, 0x100710, 0x10, color && progression > 0);
 	}
 
 	fprintf(outf, "\n");
@@ -389,9 +391,71 @@ iterate_bitfield(struct nvamemtiming_conf *conf, FILE *outf, uint8_t index, enum
 	}
 }
 
+static void
+iterate_values(struct nvamemtiming_conf *conf, FILE *outf, uint8_t index, enum color color)
+{
+	uint8_t initial, target;
+	int v;
+
+	if (conf->mode != MODE_DEEP)
+		return;
+
+	initial = conf->vbios.data[conf->vbios.timing_entry_offset + index];
+	target = conf->vbios.data[conf->deep.timing_entry_offset + index];
+
+	for (v = initial+1; v <= target; v++) {
+		conf->vbios.data[conf->vbios.timing_entry_offset + index] = v;
+		launch(conf, outf, index + 1 , COLOR);
+	}
+}
 
 int
-complete_dump(struct nvamemtiming_conf *conf)
+deep_dump(struct nvamemtiming_conf *conf)
+{
+	int i;
+
+	/* TODO: get this filename from the command line */
+	FILE *outf = fopen("regs_timing_full", "wb");
+	if (!outf) {
+		perror("Open regs_timing_full");
+		return 1;
+	}
+
+	if (nva_cards[conf->cnum].card_type >= 0xc0)
+		timing_value_types = nvc0_timing_value_types;
+	else
+		timing_value_types = nv40_timing_value_types;
+
+	launch(conf, outf, 0, NO_COLOR);
+
+	/* iterate through the vbios timing values */
+	for (i = 0; i < conf->vbios.timing_entry_length; i++) {
+		uint8_t orig = conf->vbios.data[conf->vbios.timing_entry_offset + i];
+
+		if (timing_value_types[i] == VALUE ||
+			(timing_value_types[i] == EMPTY && orig > 0))
+		{
+			if (timing_value_types[i] == EMPTY && orig > 0)
+				fprintf(outf, "WARNING: The following entry was supposed to be unused!\n");
+
+			iterate_values(conf, outf, i, COLOR);
+		} else if (timing_value_types[i] == BITFIELD) {
+			iterate_bitfield(conf, outf, i, COLOR);
+		} else if (timing_value_types[i] == EMPTY) {
+			fprintf(outf, "timing entry [%u/%zu] is supposed empty\n\n",
+				i + 1, conf->vbios.timing_entry_length);
+		}
+
+		conf->vbios.data[conf->vbios.timing_entry_offset + i] = orig;
+	}
+
+	fclose(outf);
+
+	return 0;
+}
+
+int
+shallow_dump(struct nvamemtiming_conf *conf)
 {
 	int i;
 
