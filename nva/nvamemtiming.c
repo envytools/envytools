@@ -71,11 +71,11 @@ int read_timings(struct nvamemtiming_conf *conf)
 	}
 
 	conf->vbios.timing_entry_length = header[3];
-
 	conf->vbios.timing_entry_offset = conf->vbios.timing_table_offset + header[1] + conf->timing.entry * header[3];
 
 	if (conf->mode == MODE_DEEP)
 		conf->deep.timing_entry_offset = conf->vbios.timing_table_offset + header[1] + conf->deep.entry * header[3];
+
 	return 0;
 }
 
@@ -87,6 +87,7 @@ int parse_cmd_line(int argc, char **argv, struct nvamemtiming_conf *conf)
 	conf->mmiotrace = false;
 	conf->mode = MODE_AUTO;
 	conf->vbios.file = NULL;
+	conf->counter = 0;
 
 	while ((c = getopt (argc, argv, "htd:b:c:e:v:")) != -1)
 		switch (c) {
@@ -144,11 +145,12 @@ int parse_cmd_line(int argc, char **argv, struct nvamemtiming_conf *conf)
 
 int main(int argc, char** argv)
 {
+	unsigned long start_time, total_time;
 	struct nvamemtiming_conf conf;
+	struct timeval tv;
 	int ret;
 
 	signal(SIGINT, signal_handler);
-	//signal(SIGTERM, signal_handler);
 	signal(SIGSEGV, signal_handler);
 
 	if (nva_init()) {
@@ -159,7 +161,7 @@ int main(int argc, char** argv)
 	parse_cmd_line(argc, argv, &conf);
 
 	/* read the vbios */
-	if (!vbios_read(conf.vbios.file, &conf.vbios.data, &conf.vbios.length)) {
+	if (vbios_read(conf.vbios.file, &conf.vbios.data, &conf.vbios.length) != 1) {
 		fprintf(stderr, "Error while reading the vbios\n");
 		return 1;
 	}
@@ -171,14 +173,29 @@ int main(int argc, char** argv)
 		return ret;
 	}
 
+	/* start the counter to return how long did the run take */
+	gettimeofday(&tv, NULL);
+	start_time = tv.tv_sec;
+
 	switch (conf.mode) {
 	case MODE_AUTO:
-		return shallow_dump(&conf);
+		ret = shallow_dump(&conf);
 	case MODE_DEEP:
-		return deep_dump(&conf);
+		ret = deep_dump(&conf);
 	case MODE_BITFIELD:
-		return bitfield_check(&conf);
+		ret = bitfield_check(&conf);
 	case MODE_MANUAL:
-		return manual_check(&conf);
+		ret = manual_check(&conf);
 	}
+
+	gettimeofday(&tv, NULL);
+	total_time = tv.tv_sec - start_time;
+
+	printf("The run tested %i configurations in %i:%i:%is\n",
+	       0,
+	       total_time / 3600,
+	       (total_time % 3600) / 60,
+	       total_time % 60);
+
+	return ret;
 }

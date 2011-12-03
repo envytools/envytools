@@ -142,6 +142,8 @@ upclock_card(Display *dpy)
 		exit (4);
 	}
 
+	sleep(1);
+
 	do
 	{
 		usleep(10000); /* 10 ms */
@@ -171,7 +173,7 @@ wait_for_perflvl(Display *dpy, uint8_t wanted_perflvl)
 	gettimeofday(&tv, NULL);
 	start_time = tv.tv_sec;
 
-	fprintf(stderr, "XNVCTRLQueryTargetAttribute with dpy = %p\n", dpy);
+	fprintf(stderr, "XNVCTRLQueryTargetAttribute\n");
 	XNVCTRLQueryTargetAttribute (dpy, NV_CTRL_TARGET_TYPE_GPU, 0, 0, NV_CTRL_GPU_ADAPTIVE_CLOCK_STATE , &tmp);
 	if (tmp != NV_CTRL_GPU_ADAPTIVE_CLOCK_STATE_ENABLED) {
 		fprintf(stderr, "ERROR - Driver not in Adaptive state\n");
@@ -216,7 +218,7 @@ force_timing_changes(uint8_t wanted_perflvl, int mmiotrace)
 		dpy = XOpenDisplay(NULL);
 		i++;
 	} while(!dpy && i < 200 ); /* wait 2 seconds */
-	fprintf(stderr, "-- Display opened (pid = %i, dpy = %p)\n", getpid(), dpy);
+	fprintf(stderr, "-- Display opened\n");
 
 	if (!dpy) {
 		fprintf(stderr, "ERROR - XOpenDisplay failed\n");
@@ -229,8 +231,6 @@ force_timing_changes(uint8_t wanted_perflvl, int mmiotrace)
 			if (ret)
 				fprintf(stderr, "Addind a marker to the mmiotrace returned error %i: %s\n", ret, strerror(ret));
 		}
-
-		fprintf(stderr, "Call wait_for_perflvl with dpy = %p\n", dpy);
 
 		if (!wait_for_perflvl(dpy, wanted_perflvl)) {
 			fprintf(stderr, "Downclock monitoring finished\n");
@@ -295,7 +295,7 @@ dump_timings(struct nvamemtiming_conf *conf, FILE* outf,
 {
 	static uint32_t ref_val1[0xa0] = { 0 };
 	static uint32_t ref_val2[0x30] = { 0 };
-	static uint32_t ref_val3[0x10] = { 0 };
+	static uint32_t ref_val3[0x20] = { 0 };
 	static uint32_t ref_val4[0x10] = { 0 };
 	static int ref_exist = 0;
 	uint8_t *vbios_entry = conf->vbios.data + conf->vbios.timing_entry_offset;
@@ -311,7 +311,10 @@ dump_timings(struct nvamemtiming_conf *conf, FILE* outf,
 	fprintf(outf, "\n");
 
 	if (nva_cards[conf->cnum].card_type >= 0xc0) {
+		dump_regs(conf->cnum, outf, ref_val3, ref_exist, 0x10f240, 0x20, color && progression > 0);
 		dump_regs(conf->cnum, outf, ref_val1, ref_exist, 0x10f290, 0xa0, color && progression > 0);
+		dump_regs(conf->cnum, outf, ref_val4, ref_exist, 0x10f610, 0x10, color && progression > 0);
+		dump_regs(conf->cnum, outf, ref_val2, ref_exist, 0x10f720, 0x20, color && progression > 0);
 	} else  {
 		dump_regs(conf->cnum, outf, ref_val1, ref_exist, 0x100220, 0x30, color && progression > 0);
 		dump_regs(conf->cnum, outf, ref_val2, ref_exist, 0x1002c0, 0x30, color && progression > 0);
@@ -374,6 +377,8 @@ launch(struct nvamemtiming_conf *conf, FILE *outf, uint8_t progression, enum col
 	/* wait for all zombie processes */
 	while(wait(NULL) > 0);
 
+	/* increase the launch counter */
+	conf->counter++;
 
 	/* wait for the nvidia driver to modeset back to the crappy resolution */
 	sleep(5);
