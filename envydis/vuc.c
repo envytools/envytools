@@ -147,15 +147,16 @@ static struct insn tabp[] = {
 	{ 0, 0, PRED },
 };
 
+// tabdst and tabsrc1 are used only with base instructions
 static struct insn tabdst[] = {
 	{ 0x00000000, 0x10000000, DST },
-	{ 0x10000000, 0x10000000, SRDST },
+	{ 0x10000000, 0x14000000, SRDST }, // only one of dst, src1 can be $sr
 	{ 0, 0, OOPS },
 };
 
 static struct insn tabsrc1[] = {
 	{ 0x00000000, 0x04000000, SRC1 },
-	{ 0x04000000, 0x04000000, SRSRC },
+	{ 0x04000000, 0x14000000, SRSRC }, // only one of dst, src1 can be $sr
 	{ 0, 0, OOPS },
 };
 
@@ -214,20 +215,21 @@ static struct insn tabovr[] = {
     { 0x1400002b, 0x140000ff, U("2b") },
     { 0x1400002c, 0x140000ff, U("2c") },
     
-    { 0x34000040, 0x3c0000ff, N("and"), PDST, PSRC1, PSRC2 },
-    { 0x34000041, 0x3c0000ff, N("or"), PDST, PSRC1, PSRC2 },
-    { 0x34000042, 0x3c0000ff, N("xor"), PDST, PSRC1, PSRC2 },
-    { 0x34000043, 0x3c0000ff, N("nop") },
-    { 0x34000044, 0x3c0000ff, N("andn"), PDST, PSRC1, PSRC2 },
-    { 0x34000045, 0x3c0000ff, N("orn"), PDST, PSRC1, PSRC2 },
-    { 0x34000046, 0x3c0000ff, N("xorn"), PDST, PSRC1, PSRC2 },
+    { 0x14000040, 0x1c0000ff, N("setand"), T(pdst), PSRC1, PSRC2 },
+    { 0x14000041, 0x1c0000ff, N("setor"), T(pdst), PSRC1, PSRC2 },
+    { 0x14000042, 0x1c0000ff, N("setne"), T(pdst), PSRC1, PSRC2 },
+    { 0x14000043, 0x1c0000ff, N("nop") },
+    { 0x14000044, 0x1c0000ff, N("setl"), T(pdst), PSRC1, PSRC2 },
+    { 0x14000045, 0x1c0000ff, N("setge"), T(pdst), PSRC1, PSRC2 },
+    { 0x14000046, 0x1c0000ff, N("sete"), T(pdst), PSRC1, PSRC2 },
     
     { 0x14000048, 0x140000ff, N("setg"), T(pdst), PSRC1, PSRC2 }, // signed
     { 0x14000049, 0x140000ff, N("setle"), T(pdst), PSRC1, PSRC2 },
     { 0x1400004a, 0x140000ff, N("sete"), T(pdst), PSRC1, PSRC2 },
 
-    { 0x1400004d, 0x140000ff, N("orsetnand"), T(pdst), PSRC1, PSRC2 },
-    { 0x1400004e, 0x140000ff, N("orsetneq"), T(pdst), PSRC1, PSRC2 },
+    { 0x1400004c, 0x140000ff, N("setnor"), T(pdst), PSRC1, PSRC2 },
+    { 0x1400004d, 0x140000ff, N("setnand"), T(pdst), PSRC1, PSRC2 },
+    { 0x1400004e, 0x140000ff, N("setne"), T(pdst), PSRC1, PSRC2 },
     
     { 0x1c000080, 0x3c0000ff, N("st"), DMEMSTI, SRC2 },
     { 0x3c000080, 0x3c0000ff, N("st"), DMEMSTIS, SRC2 },
@@ -296,7 +298,7 @@ static struct insn tabm[] = {
     { 0x0000000a, 0x0000001f, N("setse"), T(pmod), T(src1), T(src2) },    
     { 0x0000000b, 0x000000ff, N("setsle"), T(pmod), T(src1), T(src2) },
     
-    { 0x0000000c, 0x0000001f, N("minsz"), T(pmod), T(dst), T(src1), T(src2) }, // (a > b) ? b : min(a, 0), PRED := SRC1 > SRC2
+    { 0x0000000c, 0x0000001f, N("minsz"), T(pmod), T(dst), T(src1), T(src2) }, // (a > b) ? b : max(a, 0), PRED := SRC1 > SRC2
     { 0x0000000d, 0x0000001f, N("clampsex"), T(pmod), T(dst), T(src1), T(src2) }, // clamp to -2^b..2^b-1, PRED := not clamped
     { 0x0000000e, 0x0000001f, N("sex"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := no change
     
@@ -305,6 +307,7 @@ static struct insn tabm[] = {
     { 0x00000010, 0x0000001f, N("bset"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := even
     { 0x00000011, 0x0000001f, N("bclr"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := odd
     { 0x00000012, 0x0000001f, N("btest"), T(pmod), T(src1), T(src2) },
+    
     
     { 0x00000014, 0x0000001f, N("rot8"), T(pmod), T(dst), T(src1) }, // PRED := odd
     { 0x00000015, 0x0000001f, N("shl"), T(pmod), T(dst), T(src1), T(src2) }, // pdst becomes last bit shifted out
