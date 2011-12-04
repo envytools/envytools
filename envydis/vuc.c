@@ -175,8 +175,6 @@ static struct insn tabarithsrc2[] = {
 
 // Tables describing parameters for "set" functions
 static struct insn tabpdst[] = {
-    { 0x00000060, 0x00000060, ENDMARK }, // don't modify predicate
-    
     { 0x20000000, 0x20000000, PDST },
     { 0x00000000, 0x20000000, PRED },
     { 0, 0, OOPS },
@@ -185,12 +183,12 @@ static struct insn tabpdst[] = {
 static struct insn tabpmod[] = {
     { 0x00000060, 0x00000060, ENDMARK }, // don't modify predicate
     
-    { 0x00000000, 0x000000e0, N("pand") },
-    { 0x00000020, 0x000000e0, N("por") },
-    { 0x00000040, 0x000000e0, ENDMARK },
-    { 0x00000080, 0x000000e0, N("pandn") },
-    { 0x000000a0, 0x000000e0, N("porn") },
-    { 0x000000c0, 0x000000e0, N("pnot") },
+    { 0x00000000, 0x000000e0, N("pand"), T(pdst) },
+    { 0x00000020, 0x000000e0, N("por"), T(pdst) },
+    { 0x00000040, 0x000000e0, T(pdst) },
+    { 0x00000080, 0x000000e0, N("pandn"), T(pdst) },
+    { 0x000000a0, 0x000000e0, N("porn"), T(pdst) },
+    { 0x000000c0, 0x000000e0, N("pnot"), T(pdst) },
     { 0, 0, OOPS },
 };
 
@@ -280,44 +278,44 @@ static struct insn tabm[] = {
     { 0x08000061, 0x1800007f, N("mov"), DST, IMM14 }, // mov can set predicate: DST is odd. Useless again.
     
     // General forms for instructions setting predicate in a useless way
-    { 0x00000000, 0x0000001f, U("slct"), T(pmod), T(pdst), T(dst), PRED, T(src1), T(src2) }, // XXX: arguments overlap
+    { 0x00000000, 0x0000001f, U("slct"), T(pmod), T(dst), PRED, T(src1), T(src2) }, // XXX: arguments overlap
     
-    { 0x00000001, 0x0800001f, U("mov"), T(pmod), T(pdst), T(dst), T(src2) },
-    { 0x18000001, 0x1800001f, U("mov"), T(pmod), T(pdst), SRDST, IMM12 },
-    { 0x08000001, 0x1800001f, U("mov"), T(pmod), T(pdst), DST, IMM14 }, // XXX: arguents overlap
+    { 0x00000001, 0x0800001f, U("mov"), T(pmod), T(dst), T(src2) },
+    { 0x18000001, 0x1800001f, U("mov"), T(pmod), SRDST, IMM12 },
+    { 0x08000001, 0x1800001f, U("mov"), T(pmod), DST, IMM14 }, // XXX: arguents overlap
     
     
     // all accepted forms
-    { 0x00000004, 0x0000001f, N("add"), T(pmod), T(pdst), T(dst), T(src1), T(src2) }, // set pred if result is odd
-    { 0x00000005, 0x0000001f, N("sub"), T(pmod), T(pdst), T(dst), T(src1), T(src2) },// set pred if result is odd
-    { 0x00000006, 0x0000001f, N("subr"), T(pmod), T(pdst), T(dst), T(src1), T(src2), .vartype = VP2 }, // set pred if result is odd
+    { 0x00000004, 0x0000001f, N("add"), T(pmod), T(dst), T(src1), T(src2) }, // set pred if result is odd
+    { 0x00000005, 0x0000001f, N("sub"), T(pmod), T(dst), T(src1), T(src2) },// set pred if result is odd
+    { 0x00000006, 0x0000001f, N("subr"), T(pmod), T(dst), T(src1), T(src2), .vartype = VP2 }, // set pred if result is odd
 
     
-    { 0x00000008, 0x0000001f, N("setsg"), T(pmod), T(pdst), T(src1), T(src2) },
-    { 0x00000009, 0x0000001f, N("setsl"), T(pmod), T(pdst), T(src1), T(src2) },
-    { 0x0000000a, 0x0000001f, N("setse"), T(pmod), T(pdst), T(src1), T(src2) },    
-    { 0x0000000b, 0x000000ff, N("setsle"), T(pmod), T(pdst), T(src1), T(src2) },
+    { 0x00000008, 0x0000001f, N("setsg"), T(pmod), T(src1), T(src2) },
+    { 0x00000009, 0x0000001f, N("setsl"), T(pmod), T(src1), T(src2) },
+    { 0x0000000a, 0x0000001f, N("setse"), T(pmod), T(src1), T(src2) },    
+    { 0x0000000b, 0x000000ff, N("setsle"), T(pmod), T(src1), T(src2) },
     
-    { 0x0000000c, 0x0000001f, N("minsz"), T(pmod), T(pdst), T(dst), T(src1), T(src2) }, // (a > b) ? b : min(a, 0), PRED := SRC1 > SRC2
-    { 0x0000000d, 0x0000001f, N("clampsex"), T(pmod), T(pdst), T(dst), T(src1), T(src2) }, // clamp to -2^b..2^b-1, PRED := not clamped
-    { 0x0000000e, 0x0000001f, N("sex"), T(pmod), T(pdst), T(dst), T(src1), T(src2) }, // PRED := no change
+    { 0x0000000c, 0x0000001f, N("minsz"), T(pmod), T(dst), T(src1), T(src2) }, // (a > b) ? b : min(a, 0), PRED := SRC1 > SRC2
+    { 0x0000000d, 0x0000001f, N("clampsex"), T(pmod), T(dst), T(src1), T(src2) }, // clamp to -2^b..2^b-1, PRED := not clamped
+    { 0x0000000e, 0x0000001f, N("sex"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := no change
     
-    { 0x0000000f, 0x0000001f, N("setzero"), T(pmod), T(pdst), T(src1), T(src2) }, // PRED := is zero
+    { 0x0000000f, 0x0000001f, N("setzero"), T(pmod), T(src1), T(src2), .vartype = VP2 }, // PRED := is zero
     
-    { 0x00000010, 0x0000001f, N("bset"), T(pmod), T(pdst), T(dst), T(src1), T(src2) }, // PRED := even
-    { 0x00000011, 0x0000001f, N("bclr"), T(pmod), T(pdst), T(dst), T(src1), T(src2) }, // PRED := odd
-    { 0x00000012, 0x0000001f, N("btest"), T(pmod), T(pdst), T(src1), T(src2) },
+    { 0x00000010, 0x0000001f, N("bset"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := even
+    { 0x00000011, 0x0000001f, N("bclr"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := odd
+    { 0x00000012, 0x0000001f, N("btest"), T(pmod), T(src1), T(src2) },
     
-    { 0x00000014, 0x0000001f, N("rot8"), T(pmod), T(pdst), T(dst), T(src1) }, // PRED := odd
-    { 0x00000015, 0x0000001f, N("shl"), T(pmod), T(pdst), T(dst), T(src1), T(src2) }, // pdst becomes last bit shifted out
-    { 0x00000016, 0x0000001f, N("shr"), T(pmod), T(pdst), T(dst), T(src1), T(src2) }, // pdst becomes last bit shifted out
-    { 0x00000017, 0x0000001f, N("sar"), T(pmod), T(pdst), T(dst), T(src1), T(src2) }, // pdst becomes last bit shifted out
+    { 0x00000014, 0x0000001f, N("rot8"), T(pmod), T(dst), T(src1) }, // PRED := odd
+    { 0x00000015, 0x0000001f, N("shl"), T(pmod), T(dst), T(src1), T(src2) }, // pdst becomes last bit shifted out
+    { 0x00000016, 0x0000001f, N("shr"), T(pmod), T(dst), T(src1), T(src2) }, // pdst becomes last bit shifted out
+    { 0x00000017, 0x0000001f, N("sar"), T(pmod), T(dst), T(src1), T(src2) }, // pdst becomes last bit shifted out
     
-    { 0x00000018, 0x0000001f, N("and"), T(pmod), T(pdst), T(dst), T(src1), T(src2) }, /* PRED := odd */
-    { 0x00000019, 0x0000001f, N("or"), T(pmod), T(pdst), T(dst), T(src1), T(src2) }, // PRED := even
-    { 0x0000001a, 0x0000001f, N("xor"), T(pmod), T(pdst), T(dst), T(src1), T(src2) }, // PRED := odd
-    { 0x0000001b, 0x0000001f, N("not"), T(pmod), T(pdst), T(dst), T(src1), T(src2) }, // PRED := odd
-    { 0x0000001c, 0x0000001f, U("1c"), T(pmod), T(pdst), T(dst), T(src1), T(src2) },
+    { 0x00000018, 0x0000001f, N("and"), T(pmod), T(dst), T(src1), T(src2) }, /* PRED := odd */
+    { 0x00000019, 0x0000001f, N("or"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := even
+    { 0x0000001a, 0x0000001f, N("xor"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := odd
+    { 0x0000001b, 0x0000001f, N("not"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := odd
+    { 0x0000001c, 0x0000001f, U("1c"), T(pmod), T(dst), T(src1), T(src2) },
      
      
     // Opcodes with flag bits not verified
