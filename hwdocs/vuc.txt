@@ -110,7 +110,11 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
     0x48: [setsg DST SRC1 SRC2]
           setsg PRED REG GPREG
           setsg PRED REG IMM6
-          setsg PRED PRED PRED
+            DST := SRC1 > SRC2
+        Delay: immediate
+        
+    0x48: [setg DST SRC1 SRC2]
+          setg PRED PRED PRED
             DST := SRC1 > SRC2
         Delay: immediate
     
@@ -121,17 +125,30 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
             DST := SRC1 < SRC2
         Delay: immediate
     
+    0x49: [setle DST SRC1 SRC2]
+          setle PRED PRED PRED
+            DST := SRC1 <= SRC2
+        Delay: immediate
+    
     0x4a: [setse DST SRC1 SRC2]
           setse PRED REG GPREG
           setse PRED REG IMM6
-          setse PRED PRED PRED
             DST := SRC1 == SRC2
         Delay: immediate
-        
+    
+    0x4a: [sete DST SRC1 SRC2]
+          sete PRED PRED PRED
+            DST := SRC1 == SRC2
+        Delay: immediate
+    
+    0x4d: [orsetnand DST SRC1 SRC2]
+          orsetnand PRED PRED PRED
+            DST := DST | (~(SRC1 & SRC2))
+        Delay: TODO
+    
     0xc8: [setsle DST SRC1 SRC2]
           setsle PRED REG GPREG
           setsle PRED REG IMM6
-          setsle PRED PRED PRED
             DST := SRC1 <= SRC2
         Delay: immediate
     
@@ -309,7 +326,7 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
             else
                 DST := max(SRC1, 0)
             endif
-        "Base" opcode - actually 0x6c.
+        "Base" opcode - actually 0x0c.
         Delay: immediate
     
     0x6d: [clampsex DST SRC1 SRC2]
@@ -322,10 +339,10 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
             else
                 DST := ((2 ** SRC1) - 1) & SRC1
             end
-        "Base" opcode - actually 0x6d.
+        "Base" opcode - actually 0x0d.
         Delay: immediate
     
-    0x6e: [sex DST SRC1 SRC2]
+    0x0e, 0x4e, 0x6e: [sex DST SRC1 SRC2]
           sex REG REG GPREG
           sex REG REG IMM6?
         Sign extend all bits from SRC2 and higher (truncate SRC1 to SRC2 bits, then cast it back with sign to 16 bits).
@@ -334,7 +351,8 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
             else
                 DST := ((2 ** SRC1) - 1) & SRC1
             end
-        "Base" opcode - actually 0x6e.
+        "Base" opcode - actually 0x0e.
+        0x0e is used with 0x00a00000 set
         Delay: immediate
     
     0x6f: [div2s DST SRC]
@@ -531,7 +549,12 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
     0x04: I/O?
         Version 0x34f00004 stops execution. I/O wait? Reads from $sr6 afterwards, always preceded by 0x20 slct $sr->$sr
     
-    0x08, 0x09, 0x0a: Arithmetic? Looks like _or_sets block (not on vp2)
+    0x08, 0x09, 0x0a, 0x0b: Arithmetic? Looks like _or_sets block (not on vp2)
+    
+    0x5c: Arithmetic.
+        Sets PRED if SRC & f == a?
+        Performs normal 0x7c in addition.
+        Delay: immediate
     
     0x83: I/O? Memory load type
         Memory space unknown, labeled F.
@@ -583,6 +606,8 @@ Note: "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "
         Consecutive runs: change $sr16-$sr24 and $sr27-$sr31 ($sr22, $sr23 == 1).
         "Override" opcode.
         XXX: delay (blob: 5)
+        
+    0xa4, 0xa8, 0xac: Only after multiplication. 2, 2 or 1, plenty delay (blob).
     
 registers:
 - 16-bit:

@@ -186,15 +186,16 @@ static struct insn tabm[] = {
 	{ 0x3c000002, 0x3c0000ff, N("call"), CTARG },
 	{ 0x34000003, 0x3c0000ff, N("ret") },
 	{ 0x14000004, 0x140000ff, U("04") },
-	{ 0x14000005, 0x140000ff, U("05"), IMM4 },
-	{ 0x14000006, 0x140000ff, U("06") },
+	{ 0x14000005, 0x140000ff, U("05"), T(src2) },
+	{ 0x14000006, 0x140000ff, U("06"), T(src2) },
 	
 	{ 0x00000008, 0x000000ff, U("08"), T(pdst), T(src1), T(src2) },
 	{ 0x00000009, 0x000000ff, U("09"), T(pdst), T(src1), T(src2) },
 	{ 0x0000000a, 0x000000ff, U("0a"), T(pdst), T(src1), T(src2) },
 	
-	{ 0x0000000b, 0x000000ff, U("0b") },
-	{ 0x0000000e, 0x000000ff, U("0e") },
+	{ 0x0000000b, 0x000000ff, U("0b"), T(pdst), T(src1), T(src2) },
+	
+	{ 0x0000000e, 0x000000ff, N("sex"), T(dst), T(src1), T(src2) }, // Rarely used version
 
 	{ 0x14000020, 0x140000ff, U("20") },
 	{ 0x14000021, 0x140000ff, U("21") },
@@ -204,9 +205,10 @@ static struct insn tabm[] = {
 	{ 0x14000025, 0x140000ff, U("25") },
 	{ 0x14000026, 0x140000ff, U("26") },
 	{ 0x14000028, 0x140000ff, U("28") },
+	{ 0x14000029, 0x140000ff, U("29") },
     { 0x1400002a, 0x140000ff, U("2a") },
     // never used by the blob in the below form, probably opcode's "proper" function is above
-    { 0x00000028, 0x100000ff, N("orsetsg"), T(pdst), T(src1), T(src2) }, /* PDST |= (src1 > src2) */
+    { 0x00000028, 0x000000ff, N("orsetsg"), T(pdst), T(src1), T(src2) }, /* PDST |= (src1 > src2) */
     { 0x00000029, 0x000000ff, N("orsetsl"), T(pdst), T(src1), T(src2) }, /* PDST |= (src1 < src2) */
     { 0x0000002a, 0x000000ff, N("orsetse"), T(pdst), T(src1), T(src2) }, /* PDST |= (src1 == src2) */
     
@@ -223,19 +225,20 @@ static struct insn tabm[] = {
 	{ 0x34000045, 0x3c0000ff, N("orn"), PDST, PSRC1, PSRC2 },
 	{ 0x34000046, 0x3c0000ff, N("xorn"), PDST, PSRC1, PSRC2 },
 	
-	{ 0x14000048, 0x140000ff, N("setsg"), T(pdst), PSRC1, PSRC2 }, // signed
+	{ 0x14000048, 0x140000ff, N("setg"), T(pdst), PSRC1, PSRC2 }, // signed
     { 0x00000048, 0x000000ff, N("setsg"), T(pdst), T(src1), T(src2) }, // signed
-    { 0x14000049, 0x140000ff, N("setsle"), T(pdst), PSRC1, PSRC2 }, // with predicates, equality also evaluates to 1 (?!?)
+    { 0x14000049, 0x140000ff, N("setle"), T(pdst), PSRC1, PSRC2 }, // with predicates, equality also evaluates to 1 (?!?)
     { 0x00000049, 0x000000ff, N("setsl"), T(pdst), T(src1), T(src2) }, /* signed */
-    { 0x1400004a, 0x140000ff, N("setse"), T(pdst), PSRC1, PSRC2 },
+    { 0x1400004a, 0x140000ff, N("sete"), T(pdst), PSRC1, PSRC2 },
     { 0x0000004a, 0x000000ff, N("setse"), T(pdst), T(src1), T(src2) },
     
-	{ 0x1400004d, 0x140000ff, U("4d") },
-	{ 0x0000004e, 0x000000ff, U("4e") },
+	{ 0x1400004d, 0x140000ff, N("orsetnand"), T(pdst), PSRC1, PSRC2 },
+	{ 0x1400004e, 0x140000ff, N("orsetneq"), T(pdst), PSRC1, PSRC2 },
+	{ 0x0000004e, 0x000000ff, N("sex"), T(dst), T(src1), T(src2) }, // Rarely used version
     { 0x00000052, 0x000000ff, N("btest"), T(pdst), T(src1), T(src2) },
 	{ 0x00000058, 0x200000ff, N("andsnz"), PRED, T(dst), T(src1), T(src2) }, /* normal and, then set pred if result != 0 */
 	{ 0x00000059, 0x200000ff, N("orsnz"), PRED, T(dst), T(src1), T(src2) },
-	{ 0x0000005c, 0x000000ff, U("5c") },
+	{ 0x0000005c, 0x200000ff, U("5c"), PRED, T(dst), T(src1), T(src2) },
 
 	{ 0x00000060, 0x200000ff, N("slct"), T(dst), PRED, T(src1), T(src2) }, // dst = PRED ? src1 : src2
 	{ 0x00000061, 0x080000ff, N("mov"), T(dst), T(src2) },
@@ -286,7 +289,7 @@ static struct insn tabm[] = {
 	{ 0x1c00008c, 0x3c0000ff, U("8c"), DMEMSTI, SRC2 }, // store? space really unknown
 	{ 0x3c00008c, 0x3c0000ff, U("8c"), DMEMSTIS, SRC2 },
 	{ 0x3400008c, 0x1c0000ff, U("8c"), DMEMSTR, SRC2 },
-	{ 0x0000008d, 0x000000ff, U("8d"), DST }, // load?
+	{ 0x1400008d, 0x140000ff, U("8d"), DST }, // load?
 	{ 0x1c00008e, 0x3c0000ff, N("iowr"), EMEMSTI, SRC2 },
 	{ 0x3c00008e, 0x3c0000ff, N("iowr"), EMEMSTIS, SRC2 },
 	{ 0x1400008e, 0x1c0000ff, N("iowr"), EMEMSTR, SRC2 },
@@ -294,14 +297,15 @@ static struct insn tabm[] = {
 	{ 0x1c00008f, 0x3c0000ff, N("iord"), DST, EMEMLDI },
 	{ 0x3c00008f, 0x3c0000ff, N("iord"), DST, EMEMLDIS },
 
+	// arithmetic subsystem block
 	{ 0x140000a0, 0x140000ff, N("mul"), SRC1, T(arithsrc2) },
 	{ 0x140000a1, 0x140000ff, N("muls"), SRC1, T(arithsrc2) },
 	{ 0x140000a2, 0x140000ff, N("shift"), T(arithsrc2) },
-	{ 0x140000a4, 0x140000ff, U("a4") },
-	{ 0x140000a8, 0x140000ff, U("a8") },
+	{ 0x140000a4, 0x140000ff, U("a4"), T(src2) },
+	{ 0x140000a8, 0x140000ff, U("a8"), T(src2) },
 	// not used in the following form
     //{ 0x000000a8, 0x000000ff, N("orsetsng"), T(pdst), T(src1), T(src2) },
-	{ 0x140000ac, 0x140000ff, U("ac") },
+	{ 0x140000ac, 0x140000ff, U("ac"), T(src2) },
 
     { 0x000000c8, 0x000000ff, N("setsle"), T(pdst), T(src1), T(src2) },
     { 0x000000c9, 0x000000ff, N("setsge"), T(pdst), T(src1), T(src2) },
