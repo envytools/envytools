@@ -38,7 +38,7 @@ Opcodes:
 Some opcodes repeat, some of those are "covered" by single variations. E.g. 0x8e can be sex or iowr, depending on source parameters. In the docs and envydis the variant used in the code is presented. It appears that the "override" opcode has 0x14000000 set, while base has one or more of those bts unset. XXX: check with "canonical" arithmetics at 0x6X.
 
 "base" opcodes with mask 0x1f: 0x04, 0x05, 0x06, 0x0c, 0x0d, 0x0e
-Other repeating "base" opodes: 0x21, 0x61
+Other repeating "base" opodes: 0x21, 0x61; 
 
 XXX: Find a io register responsible for overflow and carry
 XXX: Find signedness of instructions
@@ -614,8 +614,8 @@ registers:
     $r0 - hardwired 0
     $r1-$r15 - general purpose
 - 1-bit predicate:
-    $p0 - general purpose
-    $p1 - ~$p0 (envydis: $np0)
+    $p0 - general purpose, can only be cleared by setting $p1
+    $p1 - ~$p0 (envydis: $np0), general purpose, can only be cleared by setting $p0
     $p2-$p14 - general purpose
     $p15 - hardwired to 1.
 - 64 × 16-bit special registers
