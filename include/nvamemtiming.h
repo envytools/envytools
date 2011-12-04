@@ -31,6 +31,7 @@
 	struct nvamemtiming_conf {
 		int cnum;
 		bool mmiotrace;
+		uint16_t counter;
 
 		enum { MODE_AUTO = 0, MODE_BITFIELD = 1, MODE_MANUAL = 2, MODE_DEEP = 3 } mode;
 		union {
