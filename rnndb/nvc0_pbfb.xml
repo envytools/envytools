@@ -5,6 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
+<import file="nv_pfb.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
@@ -74,15 +75,9 @@
 	<reg32 offset="0x2a8" name="MEM_TIMINGS_6" variants="NVC0-">
 	</reg32>
 
-	<reg32 offset="0x310" name="REFRESH" variants="NVC0-">
-		<bitfield pos="0" name="TRIGGER"/>
-	</reg32>
-	<reg32 offset="0x314" name="PRECHARGE" variants="NVC0-">
-		<bitfield pos="0" name="TRIGGER"/>
-	</reg32>
-	<reg32 offset="0x31c" name="SELF_REFRESH" variants="NVC0-">
-		<bitfield pos="0" name="ENABLE"/>
-	</reg32>
+	<array name="PFB_RAMCHIP_CFG" offset="0x300" stride="0x30" length="1" variants="NVC0-">
+		<use-group name="ramchip_cfg" />
+	</array>
 </group>
 
 <array name="PBFB_BROADCAST" offset="0x10f000" stride="0x1000" length="1" variants="NVC0-">
