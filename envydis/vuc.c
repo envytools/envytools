@@ -70,7 +70,7 @@ static struct sreg sreg_sr[] = {
     { 12, "arthi" },
     { 13, "artlo" },
     { 14, "pred" },
-    { 15, "cnt" },
+    { 15, "icount" },
     { -1 },
 };
 
@@ -182,7 +182,7 @@ static struct insn tabpdst[] = {
 };
 
 static struct insn tabpmod[] = {
-    { 0x00000060, 0x00000060, ENDMARK }, // don't modify predicate
+    { 0x00000060, 0x00000060 }, // don't modify predicate
     
     { 0x00000000, 0x000000e0, N("pand"), T(pdst) },
     { 0x00000020, 0x000000e0, N("por"), T(pdst) },
@@ -198,22 +198,22 @@ static struct insn tabovr[] = {
     { 0x3c000000, 0x3c0000ff, N("bra"), BTARG },
     { 0x3c000002, 0x3c0000ff, N("call"), CTARG },
     { 0x34000003, 0x3c0000ff, N("ret") },
-    { 0x14000004, 0x140000ff, U("04") },
-    { 0x14000005, 0x140000ff, U("05"), T(src2) },
-    { 0x14000006, 0x140000ff, U("06"), T(src2) },
+    { 0x14000004, 0x140000ff, U("o04") },
+    { 0x14000005, 0x140000ff, U("o05"), T(src2) },
+    { 0x14000006, 0x140000ff, U("o06"), T(src2) },
 
-    { 0x14000020, 0x140000ff, U("20") },
-    { 0x14000021, 0x140000ff, U("21") },
-    { 0x14000022, 0x140000ff, U("22") },
+    { 0x14000020, 0x140000ff, U("o20") },
+    { 0x14000021, 0x140000ff, U("o21") },
+    { 0x14000022, 0x140000ff, U("o22") },
 
-    { 0x14000024, 0x140000ff, U("24") },
-    { 0x14000025, 0x140000ff, U("25") },
-    { 0x14000026, 0x140000ff, U("26") },
-    { 0x14000028, 0x140000ff, U("28") },
-    { 0x14000029, 0x140000ff, U("29") },
-    { 0x1400002a, 0x140000ff, U("2a") },
-    { 0x1400002b, 0x140000ff, U("2b") },
-    { 0x1400002c, 0x140000ff, U("2c") },
+    { 0x14000024, 0x140000ff, U("o24") },
+    { 0x14000025, 0x140000ff, U("o25") },
+    { 0x14000026, 0x140000ff, U("o26") },
+    { 0x14000028, 0x140000ff, U("o28") },
+    { 0x14000029, 0x140000ff, U("o29") },
+    { 0x1400002a, 0x140000ff, U("o2a") },
+    { 0x1400002b, 0x140000ff, U("o2b") },
+    { 0x1400002c, 0x140000ff, U("o2c") },
     
     { 0x14000040, 0x1c0000ff, N("setand"), T(pdst), PSRC1, PSRC2 },
     { 0x14000041, 0x1c0000ff, N("setor"), T(pdst), PSRC1, PSRC2 },
@@ -237,22 +237,22 @@ static struct insn tabovr[] = {
     { 0x14000081, 0x1c0000ff, N("ld"), DST, DMEMLDR },
     { 0x1c000081, 0x3c0000ff, N("ld"), DST, DMEMLDI },
     { 0x3c000081, 0x3c0000ff, N("ld"), DST, DMEMLDIS },
-    { 0x14000083, 0x1c0000ff, U("83"), DST, FMEMLDR },
-    { 0x1c000083, 0x3c0000ff, U("83"), DST, FMEMLDI },
-    { 0x3c000083, 0x3c0000ff, U("83"), DST, FMEMLDIS },
-    { 0x1c000084, 0x3c0000ff, U("84"), DMEMSTI, SRC2 },
-    { 0x3c000084, 0x3c0000ff, U("84"), DMEMSTIS, SRC2 },
-    { 0x14000084, 0x1c0000ff, U("84"), DMEMSTR, SRC2 }, // store?
-    { 0x14000089, 0x1c0000ff, U("89"), DST, GMEMLDR },
-    { 0x1c000089, 0x3c0000ff, U("89"), DST, GMEMLDI },
-    { 0x3c000089, 0x3c0000ff, U("89"), DST, GMEMLDIS },
-    { 0x1c00008a, 0x3c0000ff, U("8a"), DMEMSTI, SRC2 }, // store?
-    { 0x3c00008a, 0x3c0000ff, U("8a"), DMEMSTIS, SRC2 },
-    { 0x1400008a, 0x1c0000ff, U("8a"), DMEMSTR, SRC2 },
-    { 0x1c00008c, 0x3c0000ff, U("8c"), DMEMSTI, SRC2 }, // store? space really unknown
-    { 0x3c00008c, 0x3c0000ff, U("8c"), DMEMSTIS, SRC2 },
-    { 0x3400008c, 0x1c0000ff, U("8c"), DMEMSTR, SRC2 },
-    { 0x1400008d, 0x140000ff, U("8d"), DST }, // load?
+    { 0x14000083, 0x1c0000ff, U("o83"), DST, FMEMLDR },
+    { 0x1c000083, 0x3c0000ff, U("o83"), DST, FMEMLDI },
+    { 0x3c000083, 0x3c0000ff, U("o83"), DST, FMEMLDIS },
+    { 0x1c000084, 0x3c0000ff, U("o84"), DMEMSTI, SRC2 },
+    { 0x3c000084, 0x3c0000ff, U("o84"), DMEMSTIS, SRC2 },
+    { 0x14000084, 0x1c0000ff, U("o84"), DMEMSTR, SRC2 }, // store?
+    { 0x14000089, 0x1c0000ff, U("o89"), DST, GMEMLDR },
+    { 0x1c000089, 0x3c0000ff, U("o89"), DST, GMEMLDI },
+    { 0x3c000089, 0x3c0000ff, U("o89"), DST, GMEMLDIS },
+    { 0x1c00008a, 0x3c0000ff, U("o8a"), DMEMSTI, SRC2 }, // store?
+    { 0x3c00008a, 0x3c0000ff, U("o8a"), DMEMSTIS, SRC2 },
+    { 0x1400008a, 0x1c0000ff, U("o8a"), DMEMSTR, SRC2 },
+    { 0x1c00008c, 0x3c0000ff, U("o8c"), DMEMSTI, SRC2 }, // store? space really unknown
+    { 0x3c00008c, 0x3c0000ff, U("o8c"), DMEMSTIS, SRC2 },
+    { 0x3400008c, 0x1c0000ff, U("o8c"), DMEMSTR, SRC2 },
+    { 0x1400008d, 0x140000ff, U("o8d"), DST }, // load?
     { 0x1c00008e, 0x3c0000ff, N("iowr"), EMEMSTI, SRC2 },
     { 0x3c00008e, 0x3c0000ff, N("iowr"), EMEMSTIS, SRC2 },
     { 0x1400008e, 0x1c0000ff, N("iowr"), EMEMSTR, SRC2 },
@@ -264,28 +264,26 @@ static struct insn tabovr[] = {
     { 0x140000a0, 0x140000ff, N("mul"), SRC1, T(arithsrc2) },
     { 0x140000a1, 0x140000ff, N("muls"), SRC1, T(arithsrc2) },
     { 0x140000a2, 0x140000ff, N("shift"), T(arithsrc2) },
-    { 0x140000a4, 0x140000ff, U("a4"), T(src2) },
-    { 0x140000a8, 0x140000ff, U("a8"), T(src2) },
-    { 0x140000ac, 0x140000ff, U("ac"), T(src2) },
+    { 0x140000a4, 0x140000ff, U("oa4"), T(src2) },
+    { 0x140000a8, 0x140000ff, U("oa8"), T(src2) },
+    { 0x140000ac, 0x140000ff, U("oac"), T(src2) },
     
     { 0, 0, OOPS },
 };
 
 static struct insn tabm[] = {
-    // Desired forms for instructions setting predicate in a useless way
-    { 0x00000060, 0x2000007f, N("slct"), T(dst), PRED, T(src1), T(src2) }, // dst = PRED ? src1 : src2. Can set predicate, but it's useless: SRC2 is odd.
+    // Desired forms for instructions with overlapping predicate
+    { 0x00000060, 0x2000007f, N("slct"), T(dst), PRED, T(src1), T(src2) }, // dst = PRED ? src1 : src2. Can set predicate: DST is odd
     
-    { 0x00000061, 0x0800007f, N("mov"), T(dst), T(src2) },
+    { 0x00000001, 0x0800001f, N("mov"), T(pmod), T(dst), T(src2) },
     { 0x18000061, 0x1800007f, N("mov"), SRDST, IMM12 },
-    { 0x08000061, 0x1800007f, N("mov"), DST, IMM14 }, // mov can set predicate: DST is odd. Useless again.
+    { 0x08000061, 0x1800007f, N("mov"), DST, IMM14 }, // mov can set predicate: DST is odd
     
-    // General forms for instructions setting predicate in a useless way
-    { 0x00000000, 0x0000001f, U("slct"), T(pmod), T(dst), PRED, T(src1), T(src2) }, // XXX: arguments overlap
+    // General forms for instructions with overlaps
+    { 0x00000000, 0x0000001f, U("slct"), T(pmod), T(dst), T(pdst), T(src1), T(src2) }, // XXX: source and destination predicate is the same
     
-    { 0x00000001, 0x0800001f, U("mov"), T(pmod), T(dst), T(src2) },
     { 0x18000001, 0x1800001f, U("mov"), T(pmod), SRDST, IMM12 },
-    { 0x08000001, 0x1800001f, U("mov"), T(pmod), DST, IMM14 }, // XXX: arguents overlap
-    
+    { 0x08000001, 0x1800001f, U("mov"), T(pmod), DST, IMM14 }, // overlap: in immediate form bits 9:12 of immediate are same as destination predicate
     
     // all accepted forms
     { 0x00000004, 0x0000001f, N("add"), T(pmod), T(dst), T(src1), T(src2) }, // set pred if result is odd
