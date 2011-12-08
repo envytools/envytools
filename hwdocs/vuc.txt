@@ -153,13 +153,16 @@ Note: the [[mode] predicate] section is shortened to PDST below. PDST is then th
         
 * Arithmetic
     0x00: [slct DST SRC1 SRC2 SRC3]
-          slct REG PRED REG GPREG
-          slct REG PRED REG IMM6
+          slct REG PRED GPREG GPREG
+          slct GPREG PRED REG GPREG
+          slct REG PRED GPREG IMM6
+          slct GPREG PRED REG IMM6
             if SRC1
                 DST := SRC2
             else
                 DST := SRC3
             endif
+            PDST := DST & 1
         NOTE: PDST not supprted by envydis.
         Delay: immediate
 
@@ -169,12 +172,15 @@ Note: the [[mode] predicate] section is shortened to PDST below. PDST is then th
           mov SRREG IMM12
         Sets DST to value of SRC.
             DST := SRC
-        NOTE: PDST not supported by envydis.
+            PDST := DST & 1
+        NOTE: PDST not supported by envydis with immediate operands.
         Delay: immediate
          
     0x04: [add DST SRC1 SRC2]
-          add REG REG GPREG
-          add REG REG IMM6
+          add REG GPREG GPREG
+          add GPREG REG GPREG
+          add REG GPREG IMM6
+          add GPREG REG IMM6
         Assigns DST the value of SRC1 + SRC2. PDST is lowest bit of result.
             DST := SRC1 + SRC2
             PDST := DST & 1
@@ -247,6 +253,9 @@ Note: the [[mode] predicate] section is shortened to PDST below. PDST is then th
             end
             PDST := DST < 0
         Delay: immediate
+    
+    
+    Unverified instructions (not present on vp2):
     
     0x6f: [div2s DST SRC]
           div2s REG REG
@@ -641,7 +650,8 @@ Registers:
     $r0 - hardwired 0
     $r1-$r15 - general purpose
 - 1-bit predicate:
-    $p0, $p1 - general purpose, always opposite, can only be cleared by setting the other
+    $p0 - general purpose
+    $p1 (envydis: $np0) - read only, value: ~p0
     $p2-$p14 - general purpose
     $p15 - hardwired to 1
 - 64 × 16-bit special registers
