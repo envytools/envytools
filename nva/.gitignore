@@ -21,6 +21,8 @@ nvaxtpoke
 nvaxtrsr
 nvaxtssr
 nvaxtinsn
+nvaupload
+nvadownload
 evotiming
 nvavucstart
 libnva.a
