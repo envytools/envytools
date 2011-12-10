@@ -175,12 +175,24 @@ struct h264_cabac_context {
 	int BinCount;
 };
 
+struct h264_cabac_se_val {
+	int val;
+	const struct h264_cabac_se_val *subtab;
+	int blen;
+	struct h264_cabac_se_bit {
+		int bidx;
+		int val;
+	} bits[8];
+};
+
 struct h264_cabac_context *h264_cabac_new(struct h264_slice *slice);
 int h264_cabac_init_arith(struct bitstream *str, struct h264_cabac_context *cabac);
 int h264_cabac_renorm(struct bitstream *str, struct h264_cabac_context *cabac);
 int h264_cabac_decision(struct bitstream *str, struct h264_cabac_context *cabac, int ctxIdx, uint32_t *binVal);
 int h264_cabac_bypass(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *binVal);
 int h264_cabac_terminate(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *binVal);
+int h264_cabac_se(struct bitstream *str, struct h264_cabac_context *cabac, const struct h264_cabac_se_val *tab, int *ctxIdx, uint32_t *val);
+int h264_cabac_tu(struct bitstream *str, struct h264_cabac_context *cabac, int *ctxIdx, int numidx, uint32_t cMax, uint32_t *val);
 void h264_cabac_destroy(struct h264_cabac_context *cabac);
 
 #endif

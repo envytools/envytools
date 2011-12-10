@@ -856,6 +856,97 @@ int h264_cabac_terminate(struct bitstream *str, struct h264_cabac_context *cabac
 	return 0;
 }
 
+static int in_tab(const struct h264_cabac_se_val *tab, uint32_t val) {
+	int i;
+	for (i = 0; tab[i].blen; i++) {
+		if (tab[i].subtab) {
+			if (in_tab(tab[i].subtab, val))
+				return 1;
+		} else {
+			if (val == tab[i].val)
+				return 1;
+		}
+	}
+	return 0;
+}
+
+int h264_cabac_se(struct bitstream *str, struct h264_cabac_context *cabac, const struct h264_cabac_se_val *tab, int *ctxIdx, uint32_t *val) {
+	if (str->dir == VS_ENCODE) {
+		int i, j;
+		for (i = 0; tab[i].blen; i++) {
+			if (tab[i].subtab ? in_tab(tab[i].subtab, *val) : *val == tab[i].val) {
+				uint32_t bit;
+				for (j = 0; j < tab[i].blen; j++) {
+					bit = tab[i].bits[j].val;
+					if (h264_cabac_decision(str, cabac, ctxIdx[tab[i].bits[j].bidx], &bit))
+						return 1;
+				}
+				if (tab[i].subtab)
+					return h264_cabac_se(str, cabac, tab[i].subtab, ctxIdx, val);
+				else
+					return 0;
+			}
+		}
+		fprintf(stderr, "No binarization for a value\n");
+		return 1;
+	} else {
+		int i, j;
+		uint32_t bit[8];
+		int bidx[8];
+		for (i = 0; i < 8; i++)
+			bidx[i] = -1;
+		for (i = 0; tab[i].blen; i++) {
+			for (j = 0; j < tab[i].blen; j++) {
+				if (bidx[j] == -1) {
+					bidx[j] = tab[i].bits[j].bidx;
+					if (h264_cabac_decision(str, cabac, ctxIdx[bidx[j]], &bit[j]))
+						return 1;
+				}
+				if (bidx[j] != tab[i].bits[j].bidx) {
+					fprintf(stderr, "Inconsistent CABAC se table!\n");
+					return 1;
+				}
+				if (bit[j] != tab[i].bits[j].val)
+					break;
+			}
+			if (j == tab[i].blen) {
+				if (tab[i].subtab) {
+					return h264_cabac_se(str, cabac, tab[i].subtab, ctxIdx, val);
+				} else {
+					*val = tab[i].val;
+					return 0;
+				}
+			}
+		}
+		fprintf(stderr, "No value for a binarization\n");
+		return 1;
+	}
+}
+
+int h264_cabac_tu(struct bitstream *str, struct h264_cabac_context *cabac, int *ctxIdx, int numidx, uint32_t cMax, uint32_t *val) {
+	if (str->dir == VS_ENCODE) {
+		int i;
+		if (*val > cMax) {
+			fprintf(stderr, "TU value over limit\n");
+			return 1;
+		}
+		for (i = 0; i <= *val && i < cMax; i++) {
+			uint32_t tmp = i < *val;
+			if (h264_cabac_decision(str, cabac, ctxIdx[i >= numidx ? numidx - 1 : i], &tmp)) return 1;
+		}
+		return 0;
+	} else {
+		int i = -1;
+		uint32_t tmp;
+		do {
+			if (h264_cabac_decision(str, cabac, ctxIdx[i >= numidx ? numidx - 1 : i], &tmp)) return 1;
+			i++;
+		} while(tmp && i < cMax);
+		*val = i;
+		return 0;		
+	}
+}
+
 void h264_cabac_destroy(struct h264_cabac_context *cabac) {
 	free(cabac);
 }
