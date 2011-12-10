@@ -140,7 +140,11 @@ int vs_ue(struct bitstream *str, uint32_t *val) {
 	uint32_t tmp;
 	if (str->dir == VS_ENCODE) {
 		tmp = 0;
-		while (*val >= (1 << (lzb + 1)) - 1) {
+		if (*val >= (uint32_t)0xffffffff) {
+			fprintf (stderr, "Exp-Golomb number larger than 2^32-2\n");
+			return 1;
+		}
+		while (*val >= (uint32_t)(1u << (lzb + 1)) - 1) {
 			if (vs_u(str, &tmp, 1))
 				return 1;
 			lzb++;
@@ -159,13 +163,13 @@ int vs_ue(struct bitstream *str, uint32_t *val) {
 			lzb++;
 		} while (!tmp);
 		lzb--;
-		if (lzb >= 31) {
-			fprintf (stderr, "Exp-Golomb number insanely big\n");
+		if (lzb > 31) {
+			fprintf (stderr, "Exp-Golomb number larger than 2^32-2\n");
 			return 1;
 		}
 		if (vs_u(str, &tmp, lzb))
 			return 1;
-		*val = tmp + (1 << lzb) - 1;
+		*val = tmp + (1u << lzb) - 1;
 		return 0;
 	}
 }
@@ -173,6 +177,10 @@ int vs_ue(struct bitstream *str, uint32_t *val) {
 int vs_se(struct bitstream *str, int32_t *val) {
 	uint32_t tmp;
 	if (str->dir == VS_ENCODE) {
+		if (*val == (int32_t)(-0x7fffffff-1)) {
+			fprintf (stderr, "Exp-Golomb signed number equal to -2^31\n");
+			return 1;
+		}
 		if (*val > 0) {
 			tmp = *val * 2 - 1;
 		} else {
