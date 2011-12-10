@@ -26,6 +26,8 @@
 #ifndef __UTIL_H__
 #define __UTIL_H__
 
+#include <stdlib.h>
+
 #define ADDARRAY(a, e) \
 	do { \
 	if ((a ## num) >= (a ## max)) { \
