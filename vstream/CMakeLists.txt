@@ -7,11 +7,13 @@ add_library(vstream bitstream.c h264.c h264_cabac.c)
 
 add_executable(vstest vstest.c)
 add_executable(predtest predtest.c)
+add_executable(deh264 deh264.c)
 
 target_link_libraries(vstest vstream)
 target_link_libraries(predtest vstream)
+target_link_libraries(deh264 vstream)
 
-install(TARGETS vstest vstream
+install(TARGETS vstest vstream deh264
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
 	ARCHIVE DESTINATION lib${LIB_SUFFIX})
