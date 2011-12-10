@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 
 include_directories(../include)
 
-add_library(vstream bitstream.c h264.c h264_cabac.c)
+add_library(vstream bitstream.c h264.c h264_cabac.c h264_print.c)
 
 add_executable(vstest vstest.c)
 add_executable(predtest predtest.c)

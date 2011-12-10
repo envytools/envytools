@@ -36,6 +36,7 @@ int main() {
 		ADDARRAY(bytes, c);
 	}
 	struct bitstream *str = vs_new_decode(VS_H264, bytes, bytesnum);
+	struct h264_seqparm *seqparms[32] = { 0 };
 	int res;
 	while (1) {
 		uint32_t start_code;
@@ -49,7 +50,27 @@ int main() {
 		printf("NAL unit:\n");
 		printf("\tnal_ref_idc = %d\n", nal_ref_idc);
 		printf("\tnal_unit_type = %d\n", nal_unit_type);
+		struct h264_seqparm *sp;
 		switch (nal_unit_type) {
+			case H264_NAL_UNIT_TYPE_SEQPARM:
+				sp = calloc (sizeof *sp, 1);
+				if (h264_seqparm(str, sp)) {
+					free(sp);
+					goto err;
+				} else {
+					if (vs_end(str)) goto err;
+					h264_print_seqparm(sp);
+					if (sp->seq_parameter_set_id > 31) {
+						fprintf(stderr, "seq_parameter_set_id out of bounds\n");
+						goto err;
+					} else {
+						if (seqparms[sp->seq_parameter_set_id]) {
+							h264_del_seqparm(seqparms[sp->seq_parameter_set_id]);
+						}
+						seqparms[sp->seq_parameter_set_id] = sp;
+					}
+				}
+				break;
 			case H264_NAL_UNIT_TYPE_ACC_UNIT_DELIM: {
 				uint32_t primary_pic_type;
 				if (vs_u(str, &primary_pic_type, 3)) goto err;

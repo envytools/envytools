@@ -47,6 +47,21 @@ enum h264_nal_unit_type {
 	H264_NAL_UNIT_TYPE_SLICE_EXT = 20,		/* SVC/MVC */
 };
 
+enum h264_profile_idc {
+	H264_PROFILE_CAVLC_444 = 44,
+	H264_PROFILE_BASELINE = 66,
+	H264_PROFILE_MAIN = 77,
+	H264_PROFILE_SCALABLE_BASELINE = 83,
+	H264_PROFILE_SCALABLE_HIGH = 86,
+	H264_PROFILE_EXTENDED = 88,
+	H264_PROFILE_HIGH = 100,
+	H264_PROFILE_HIGH_10 = 110,
+	H264_PROFILE_MULTIVIEW_HIGH = 118,
+	H264_PROFILE_HIGH_422 = 122,
+	H264_PROFILE_STEREO_HIGH = 128,
+	H264_PROFILE_HIGH_444_PRED = 244,
+};
+
 enum h264_primary_pic_type {
 	H264_PRIMARY_PIC_TYPE_I = 0,
 	H264_PRIMARY_PIC_TYPE_P_I = 1,
@@ -58,7 +73,48 @@ enum h264_primary_pic_type {
 	H264_PRIMARY_PIC_TYPE_P_B_I_SP_SI = 7,
 };
 
+struct h264_vui {
+	/* XXX: fill me */
+};
+
 struct h264_seqparm {
+	uint32_t profile_idc;
+	uint32_t constraint_set;
+	uint32_t level_idc;
+	uint32_t seq_parameter_set_id;
+	/* start of new profile only stuff */
+	uint32_t chroma_format_idc;
+	uint32_t separate_colour_plane_flag;
+	uint32_t bit_depth_luma_minus8;
+	uint32_t bit_depth_chroma_minus8;
+	uint32_t qpprime_y_zero_transform_bypass_flag;
+	uint32_t seq_scaling_matrix_present_flag;
+	uint32_t seq_scaling_list_present_flag[12];
+	uint32_t use_default_scaling_matrix_flag[12];
+	uint32_t seq_scaling_list_4x4[6][16];
+	uint32_t seq_scaling_list_8x8[6][64];
+	/* end of new profile only stuff */
+	uint32_t log2_max_frame_num_minus4;
+	uint32_t pic_order_cnt_type;
+	uint32_t log2_max_pic_order_cnt_lsb_minus4;
+	uint32_t delta_pic_order_always_zero_flag;
+	int32_t offset_for_non_ref_pic;
+	int32_t offset_for_top_to_bottom_field;
+	uint32_t num_ref_frames_in_pic_order_cnt_cycle;
+	int32_t offset_for_ref_frame[255];
+	uint32_t max_num_ref_frames;
+	uint32_t gaps_in_frame_num_value_allowed_flag;
+	uint32_t pic_width_in_mbs_minus1;
+	uint32_t pic_height_in_map_units_minus1;
+	uint32_t frame_mbs_only_flag;
+	uint32_t mb_adaptive_frame_field_flag;
+	uint32_t direct_8x8_inference_flag;
+	uint32_t frame_cropping_flag;
+	uint32_t frame_crop_left_offset;
+	uint32_t frame_crop_right_offset;
+	uint32_t frame_crop_top_offset;
+	uint32_t frame_crop_bottom_offset;
+	struct h264_vui *vui;
 };
 
 struct h264_picparm {
@@ -108,5 +164,9 @@ struct h264_macroblock {
 };
 
 int h264_pred_weight_table(struct bitstream *str, struct h264_sliceparm *slp, struct h264_pred_weight_table *table);
+void h264_del_seqparm(struct h264_seqparm *seqparm);
+int h264_seqparm(struct bitstream *str, struct h264_seqparm *seqparm);
+
+void h264_print_seqparm(struct h264_seqparm *seqparm);
 
 #endif
