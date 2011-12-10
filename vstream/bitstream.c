@@ -210,7 +210,7 @@ int vs_start(struct bitstream *str, uint32_t *val) {
 		ADDARRAY(str->bytes, 1);
 		ADDARRAY(str->bytes, *val);
 	} else {
-		str->zero_bytes = -1;
+		str->zero_bytes--;
 		do {
 			str->zero_bytes++;
 			if (str->bytepos >= str->bytesnum) {
@@ -236,6 +236,28 @@ int vs_start(struct bitstream *str, uint32_t *val) {
 		*val = str->curbyte;
 	}
 	return 0;
+}
+
+int vs_search_start(struct bitstream *str) {
+	if (str->dir != VS_DECODE) {
+		fprintf (stderr, "vs_search_start called in encode mode!\n");
+		return -1;
+	}
+	str->hasbyte = 0;
+	str->bitpos = 7;
+	while (1) {
+		if (str->bytepos >= str->bytesnum)
+			return 0;
+		if (str->zero_bytes == 2 && str->bytes[str->bytepos] == 1)
+			return 1;
+		if (str->bytes[str->bytepos] == 0) {
+			if (str->zero_bytes != 2)
+				str->zero_bytes++;
+		} else {
+			str->zero_bytes = 0;
+		}
+		str->bytepos++;
+	}
 }
 
 int vs_align_byte(struct bitstream *str, enum vs_align_byte_mode mode) {
