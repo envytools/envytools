@@ -596,6 +596,15 @@ int main(int argc, char **argv) {
 		printf ("\n");
 		parse_bios_version(bios->bmp_offset + 10);
 		printhex(bios->bmp_offset, 256);
+		if (bmpver >= 0x510) {
+			init_script_tbl_ptr = le32(bios->bmp_offset + 75);
+			macro_index_tbl_ptr = le32(bios->bmp_offset + 77);
+			macro_tbl_ptr = le32(bios->bmp_offset + 79);
+			condition_tbl_ptr = le32(bios->bmp_offset + 81);
+			io_condition_tbl_ptr = le32(bios->bmp_offset + 83);
+			io_flag_condition_tbl_ptr = le32(bios->bmp_offset + 85);
+			init_function_tbl_ptr = le32(bios->bmp_offset + 87);
+		}
 		if (bmpver >= 0x527) {
 			pm_mode_tbl_ptr = le16(bios->bmp_offset + 148);
 			voltage_tbl_ptr = le16(bios->bmp_offset + 152);
