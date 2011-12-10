@@ -174,6 +174,52 @@ int h264_seqparm(struct bitstream *str, struct h264_seqparm *seqparm) {
 	return 0;
 }
 
+int h264_mb_avail(struct h264_slice *slice, uint32_t mbaddr) {
+	/* XXX: wrong with FMO */
+	if (mbaddr < slice->first_mb_in_slice
+		|| mbaddr > slice->curr_mb_addr)
+		return 0;
+	return 1;
+}
+
+uint32_t h264_next_mb_addr(struct h264_slice *slice, uint32_t mbaddr) {
+	/* XXX: wrong with FMO */
+	return mbaddr+1;
+}
+
+uint32_t h264_mb_nb(struct h264_slice *slice, enum h264_mb_pos pos) {
+	uint32_t mbaddr = slice->curr_mb_addr;
+	if (slice->mbaff_frame_flag)
+		mbaddr /= 2;
+	switch (pos) {
+		case H264_MB_THIS:
+			break;
+		case H264_MB_A:
+			if ((mbaddr % slice->pic_width_in_mbs) == 0)
+				return -1;
+			mbaddr--;
+			break;
+		case H264_MB_B:
+			mbaddr -= slice->pic_width_in_mbs;
+			break;
+		case H264_MB_C:
+			if (((mbaddr+1) % slice->pic_width_in_mbs) == 0)
+				return -1;
+			mbaddr -= slice->pic_width_in_mbs - 1;
+			break;
+		case H264_MB_D:
+			if ((mbaddr % slice->pic_width_in_mbs) == 0)
+				return -1;
+			mbaddr -= slice->pic_width_in_mbs + 1;
+			break;
+	}
+	if (slice->mbaff_frame_flag)
+		mbaddr *= 2;
+	if (!h264_mb_avail(slice, mbaddr))
+		return -1;
+	return mbaddr;
+}
+
 int h264_pred_weight_table_entry(struct bitstream *str, struct h264_pred_weight_table *table, struct h264_pred_weight_table_entry *entry) {
 	int ret = 0;
 	ret |= vs_u(str, &entry->luma_weight_flag, 1);

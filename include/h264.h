@@ -163,6 +163,10 @@ struct h264_macroblock {
 	uint32_t pcm_sample_chroma[64];
 };
 
+int h264_mb_avail(struct h264_slice *slice, uint32_t mbaddr);
+uint32_t h264_mb_nb(struct h264_slice *slice, enum h264_mb_pos pos);
+uint32_t h264_next_mb_addr(struct h264_slice *slice, uint32_t mbaddr);
+
 void h264_del_seqparm(struct h264_seqparm *seqparm);
 int h264_seqparm(struct bitstream *str, struct h264_seqparm *seqparm);
 int h264_pred_weight_table(struct bitstream *str, struct h264_slice *slice, struct h264_pred_weight_table *table);
