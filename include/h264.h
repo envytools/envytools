@@ -73,6 +73,114 @@ enum h264_primary_pic_type {
 	H264_PRIMARY_PIC_TYPE_P_B_I_SP_SI = 7,
 };
 
+enum h264_slice_type {
+	H264_SLICE_TYPE_P = 0,
+	H264_SLICE_TYPE_B = 1,
+	H264_SLICE_TYPE_I = 2,
+	H264_SLICE_TYPE_SP = 3,
+	H264_SLICE_TYPE_SI = 4,
+};
+
+enum h264_mb_type {
+	/* I */
+	H264_MB_TYPE_I_BASE = 0,
+	H264_MB_TYPE_I_NXN		= H264_MB_TYPE_I_BASE + 0,
+	H264_MB_TYPE_I_16X16_0_0_0	= H264_MB_TYPE_I_BASE + 1,
+	H264_MB_TYPE_I_16X16_1_0_0	= H264_MB_TYPE_I_BASE + 2,
+	H264_MB_TYPE_I_16X16_2_0_0	= H264_MB_TYPE_I_BASE + 3,
+	H264_MB_TYPE_I_16X16_3_0_0	= H264_MB_TYPE_I_BASE + 4,
+	H264_MB_TYPE_I_16X16_0_1_0	= H264_MB_TYPE_I_BASE + 5,
+	H264_MB_TYPE_I_16X16_1_1_0	= H264_MB_TYPE_I_BASE + 6,
+	H264_MB_TYPE_I_16X16_2_1_0	= H264_MB_TYPE_I_BASE + 7,
+	H264_MB_TYPE_I_16X16_3_1_0	= H264_MB_TYPE_I_BASE + 8,
+	H264_MB_TYPE_I_16X16_0_2_0	= H264_MB_TYPE_I_BASE + 9,
+	H264_MB_TYPE_I_16X16_1_2_0	= H264_MB_TYPE_I_BASE + 10,
+	H264_MB_TYPE_I_16X16_2_2_0	= H264_MB_TYPE_I_BASE + 11,
+	H264_MB_TYPE_I_16X16_3_2_0	= H264_MB_TYPE_I_BASE + 12,
+	H264_MB_TYPE_I_16X16_0_0_1	= H264_MB_TYPE_I_BASE + 13,
+	H264_MB_TYPE_I_16X16_1_0_1	= H264_MB_TYPE_I_BASE + 14,
+	H264_MB_TYPE_I_16X16_2_0_1	= H264_MB_TYPE_I_BASE + 15,
+	H264_MB_TYPE_I_16X16_3_0_1	= H264_MB_TYPE_I_BASE + 16,
+	H264_MB_TYPE_I_16X16_0_1_1	= H264_MB_TYPE_I_BASE + 17,
+	H264_MB_TYPE_I_16X16_1_1_1	= H264_MB_TYPE_I_BASE + 18,
+	H264_MB_TYPE_I_16X16_2_1_1	= H264_MB_TYPE_I_BASE + 19,
+	H264_MB_TYPE_I_16X16_3_1_1	= H264_MB_TYPE_I_BASE + 20,
+	H264_MB_TYPE_I_16X16_0_2_1	= H264_MB_TYPE_I_BASE + 21,
+	H264_MB_TYPE_I_16X16_1_2_1	= H264_MB_TYPE_I_BASE + 22,
+	H264_MB_TYPE_I_16X16_2_2_1	= H264_MB_TYPE_I_BASE + 23,
+	H264_MB_TYPE_I_16X16_3_2_1	= H264_MB_TYPE_I_BASE + 24,
+	H264_MB_TYPE_I_PCM		= H264_MB_TYPE_I_BASE + 25,
+	H264_MB_TYPE_I_END		= H264_MB_TYPE_I_BASE + 26,
+	/* SI */
+	H264_MB_TYPE_SI_BASE		= H264_MB_TYPE_I_END,
+	H264_MB_TYPE_SI			= H264_MB_TYPE_SI_BASE + 0,
+	H264_MB_TYPE_SI_END		= H264_MB_TYPE_SI_BASE + 1,
+	/* P */
+	H264_MB_TYPE_P_BASE		= H264_MB_TYPE_SI_END,
+	H264_MB_TYPE_P_L0_16X16		= H264_MB_TYPE_P_BASE + 0,
+	H264_MB_TYPE_P_L0_L0_16X8	= H264_MB_TYPE_P_BASE + 1,
+	H264_MB_TYPE_P_L0_L0_8X16	= H264_MB_TYPE_P_BASE + 2,
+	H264_MB_TYPE_P_8X8		= H264_MB_TYPE_P_BASE + 3,
+	H264_MB_TYPE_P_8X8REF0		= H264_MB_TYPE_P_BASE + 4,
+	H264_MB_TYPE_P_SKIP		= H264_MB_TYPE_P_BASE + 5,
+	H264_MB_TYPE_P_END		= H264_MB_TYPE_P_BASE + 6,
+	/* B */
+	H264_MB_TYPE_B_BASE		= H264_MB_TYPE_P_END,
+	H264_MB_TYPE_B_DIRECT_16X16	= H264_MB_TYPE_B_BASE + 0,
+	H264_MB_TYPE_B_L0_16X16		= H264_MB_TYPE_B_BASE + 1,
+	H264_MB_TYPE_B_L1_16X16		= H264_MB_TYPE_B_BASE + 2,
+	H264_MB_TYPE_B_BI_16X16		= H264_MB_TYPE_B_BASE + 3,
+	H264_MB_TYPE_B_L0_L0_16X8	= H264_MB_TYPE_B_BASE + 4,
+	H264_MB_TYPE_B_L0_L0_8X16	= H264_MB_TYPE_B_BASE + 5,
+	H264_MB_TYPE_B_L1_L1_16X8	= H264_MB_TYPE_B_BASE + 6,
+	H264_MB_TYPE_B_L1_L1_8X16	= H264_MB_TYPE_B_BASE + 7,
+	H264_MB_TYPE_B_L0_L1_16X8	= H264_MB_TYPE_B_BASE + 8,
+	H264_MB_TYPE_B_L0_L1_8X16	= H264_MB_TYPE_B_BASE + 9,
+	H264_MB_TYPE_B_L1_L0_16X8	= H264_MB_TYPE_B_BASE + 10,
+	H264_MB_TYPE_B_L1_L0_8X16	= H264_MB_TYPE_B_BASE + 11,
+	H264_MB_TYPE_B_L0_BI_16X8	= H264_MB_TYPE_B_BASE + 12,
+	H264_MB_TYPE_B_L0_BI_8X16	= H264_MB_TYPE_B_BASE + 13,
+	H264_MB_TYPE_B_L1_BI_16X8	= H264_MB_TYPE_B_BASE + 14,
+	H264_MB_TYPE_B_L1_BI_8X16	= H264_MB_TYPE_B_BASE + 15,
+	H264_MB_TYPE_B_BI_L0_16X8	= H264_MB_TYPE_B_BASE + 16,
+	H264_MB_TYPE_B_BI_L0_8X16	= H264_MB_TYPE_B_BASE + 17,
+	H264_MB_TYPE_B_BI_L1_16X8	= H264_MB_TYPE_B_BASE + 18,
+	H264_MB_TYPE_B_BI_L1_8X16	= H264_MB_TYPE_B_BASE + 19,
+	H264_MB_TYPE_B_BI_BI_16X8	= H264_MB_TYPE_B_BASE + 20,
+	H264_MB_TYPE_B_BI_BI_8X16	= H264_MB_TYPE_B_BASE + 21,
+	H264_MB_TYPE_B_8X8		= H264_MB_TYPE_B_BASE + 22,
+	H264_MB_TYPE_B_SKIP		= H264_MB_TYPE_B_BASE + 23,
+	H264_MB_TYPE_B_END		= H264_MB_TYPE_B_BASE + 24,
+};
+
+enum h264_sub_mb_type {
+	/* P */
+	H264_SUB_MB_TYPE_P_BASE = 0,
+	H264_SUB_MB_TYPE_P_L0_8X8 = H264_SUB_MB_TYPE_P_BASE + 0,
+	H264_SUB_MB_TYPE_P_L0_8X4 = H264_SUB_MB_TYPE_P_BASE + 1,
+	H264_SUB_MB_TYPE_P_L0_4X8 = H264_SUB_MB_TYPE_P_BASE + 2,
+	H264_SUB_MB_TYPE_P_L0_4X4 = H264_SUB_MB_TYPE_P_BASE + 3,
+	H264_SUB_MB_TYPE_P_END = H264_SUB_MB_TYPE_P_BASE + 4,
+	/* B */
+	H264_SUB_MB_TYPE_B_BASE = H264_SUB_MB_TYPE_P_END,
+	H264_SUB_MB_TYPE_B_DIRECT_8X8 = H264_SUB_MB_TYPE_B_BASE + 0,
+	H264_SUB_MB_TYPE_B_L0_8X8 = H264_SUB_MB_TYPE_B_BASE + 1,
+	H264_SUB_MB_TYPE_B_L1_8X8 = H264_SUB_MB_TYPE_B_BASE + 2,
+	H264_SUB_MB_TYPE_B_BI_8X8 = H264_SUB_MB_TYPE_B_BASE + 3,
+	H264_SUB_MB_TYPE_B_L0_8X4 = H264_SUB_MB_TYPE_B_BASE + 4,
+	H264_SUB_MB_TYPE_B_L0_4X8 = H264_SUB_MB_TYPE_B_BASE + 5,
+	H264_SUB_MB_TYPE_B_L1_8X4 = H264_SUB_MB_TYPE_B_BASE + 6,
+	H264_SUB_MB_TYPE_B_L1_4X8 = H264_SUB_MB_TYPE_B_BASE + 7,
+	H264_SUB_MB_TYPE_B_BI_8X4 = H264_SUB_MB_TYPE_B_BASE + 8,
+	H264_SUB_MB_TYPE_B_BI_4X8 = H264_SUB_MB_TYPE_B_BASE + 9,
+	H264_SUB_MB_TYPE_B_L0_4X4 = H264_SUB_MB_TYPE_B_BASE + 10,
+	H264_SUB_MB_TYPE_B_L1_4X4 = H264_SUB_MB_TYPE_B_BASE + 11,
+	H264_SUB_MB_TYPE_B_BI_4X4 = H264_SUB_MB_TYPE_B_BASE + 12,
+	H264_SUB_MB_TYPE_B_END = H264_SUB_MB_TYPE_B_BASE + 13,
+};
+
+struct h264_cabac_context;
+
 struct h264_vui {
 	/* XXX: fill me */
 };
@@ -123,6 +231,19 @@ struct h264_picparm {
 	uint32_t num_ref_idx_l0_default_active_minus1;
 	uint32_t num_ref_idx_l1_default_active_minus1;
 	uint32_t pic_init_qp_minus26;
+	uint32_t transform_8x8_mode_flag;
+};
+
+struct h264_macroblock {
+	uint32_t mb_field_decoding_flag;
+	uint32_t mb_type;
+	uint32_t coded_block_pattern;
+	uint32_t transform_size_8x8_flag;
+	int32_t mb_qp_delta;
+	uint32_t pcm_sample_luma[256];
+	uint32_t pcm_sample_chroma[64];
+	uint32_t sub_mb_type[4];
+	uint32_t intra_chroma_pred_mode;
 };
 
 struct h264_slice {
@@ -132,8 +253,19 @@ struct h264_slice {
 	uint32_t num_ref_idx_l1_active_minus1;
 	uint32_t slice_qp_delta;
 	uint32_t cabac_init_idc;
+	uint32_t first_mb_in_slice;
 	/* derived stuff starts here */
 	uint32_t sliceqpy;
+	uint32_t last_mb_in_slice;
+	uint32_t pic_width_in_mbs;
+	uint32_t mbaff_frame_flag;
+	uint32_t mbwidthc;
+	uint32_t mbheightc;
+	/* previous and current macroblock */
+	uint32_t prev_mb_addr;
+	uint32_t curr_mb_addr;
+	/* macroblocks */
+	struct h264_macroblock *mbs;
 };
 
 struct h264_pred_weight_table_entry {
@@ -152,22 +284,82 @@ struct h264_pred_weight_table {
 	struct h264_pred_weight_table_entry l1[0x20];
 };
 
-struct h264_macroblock {
-	uint32_t mb_skip_flag;
-	uint32_t mb_field_decoding_flag;
-	uint32_t mb_type;
-	uint32_t coded_block_pattern;
-	uint32_t transform_size_8x8_flag;
-	uint32_t mb_qp_delta;
-	uint32_t pcm_sample_luma[256];
-	uint32_t pcm_sample_chroma[64];
+enum h264_mb_pos {
+	H264_MB_THIS,
+	H264_MB_A,	/* left */
+	H264_MB_B,	/* above */
+	H264_MB_C,	/* right and above */
+	H264_MB_D,	/* left and above */
 };
+
+static inline int h264_is_skip_mb_type(uint32_t mb_type) {
+	switch (mb_type) {
+		case H264_MB_TYPE_P_SKIP:
+		case H264_MB_TYPE_B_SKIP:
+			return 1;
+		default:
+			return 0;
+	}
+}
+
+static inline int h264_is_submb_mb_type(uint32_t mb_type) {
+	switch (mb_type) {
+		case H264_MB_TYPE_P_8X8:
+		case H264_MB_TYPE_P_8X8REF0:
+		case H264_MB_TYPE_B_8X8:
+			return 1;
+		default:
+			return 0;
+	}
+}
+
+static inline int h264_is_intra_16x16_mb_type(uint32_t mb_type) {
+	return (mb_type >= H264_MB_TYPE_I_16X16_0_0_0 && mb_type <= H264_MB_TYPE_I_16X16_3_2_1);
+}
+
+static inline int h264_sub_mb_type_split_mode(uint32_t sub_mb_type) {
+	switch (sub_mb_type) {
+		case H264_SUB_MB_TYPE_P_L0_8X8:
+		case H264_SUB_MB_TYPE_B_L0_8X8:
+		case H264_SUB_MB_TYPE_B_L1_8X8:
+		case H264_SUB_MB_TYPE_B_BI_8X8:
+			return 0;
+		case H264_SUB_MB_TYPE_P_L0_8X4:
+		case H264_SUB_MB_TYPE_B_L0_8X4:
+		case H264_SUB_MB_TYPE_B_L1_8X4:
+		case H264_SUB_MB_TYPE_B_BI_8X4:
+			return 1;
+		case H264_SUB_MB_TYPE_P_L0_4X8:
+		case H264_SUB_MB_TYPE_B_L0_4X8:
+		case H264_SUB_MB_TYPE_B_L1_4X8:
+		case H264_SUB_MB_TYPE_B_BI_4X8:
+			return 2;
+		case H264_SUB_MB_TYPE_P_L0_4X4:
+		case H264_SUB_MB_TYPE_B_L0_4X4:
+		case H264_SUB_MB_TYPE_B_L1_4X4:
+		case H264_SUB_MB_TYPE_B_BI_4X4:
+		case H264_SUB_MB_TYPE_B_DIRECT_8X8:
+			return 3;
+	}
+}
 
 int h264_mb_avail(struct h264_slice *slice, uint32_t mbaddr);
 uint32_t h264_mb_nb(struct h264_slice *slice, enum h264_mb_pos pos);
 uint32_t h264_next_mb_addr(struct h264_slice *slice, uint32_t mbaddr);
 
+int h264_mb_skip_flag(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *binVal);
+int h264_mb_field_decoding_flag(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *binVal);
+int h264_mb_type(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t slice_type, uint32_t *val);
+int h264_sub_mb_type(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t slice_type, uint32_t *val);
+int h264_coded_block_pattern(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t mb_type, int has_chroma, uint32_t *val);
+int h264_mb_transform_size_8x8_flag(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *binVal);
+int h264_mb_qp_delta(struct bitstream *str, struct h264_cabac_context *cabac, int32_t *val);
+int h264_prev_intra_pred_mode_flag(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *val);
+int h264_rem_intra_pred_mode(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *val);
+int h264_intra_chroma_pred_mode(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *val);
+
 void h264_del_seqparm(struct h264_seqparm *seqparm);
+
 int h264_seqparm(struct bitstream *str, struct h264_seqparm *seqparm);
 int h264_pred_weight_table(struct bitstream *str, struct h264_slice *slice, struct h264_pred_weight_table *table);
 
