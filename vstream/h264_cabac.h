@@ -178,9 +178,9 @@ struct h264_cabac_context {
 struct h264_cabac_context *h264_cabac_new(struct h264_slice *slice);
 int h264_cabac_init_arith(struct bitstream *str, struct h264_cabac_context *cabac);
 int h264_cabac_renorm(struct bitstream *str, struct h264_cabac_context *cabac);
-int h264_cabac_decision(struct bitstream *str, struct h264_cabac_context *cabac, int ctxIdx, int *binVal);
-int h264_cabac_bypass(struct bitstream *str, struct h264_cabac_context *cabac, int *binVal);
-int h264_cabac_terminate(struct bitstream *str, struct h264_cabac_context *cabac, int *binVal);
+int h264_cabac_decision(struct bitstream *str, struct h264_cabac_context *cabac, int ctxIdx, uint32_t *binVal);
+int h264_cabac_bypass(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *binVal);
+int h264_cabac_terminate(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *binVal);
 void h264_cabac_destroy(struct h264_cabac_context *cabac);
 
 #endif

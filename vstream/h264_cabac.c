@@ -753,7 +753,11 @@ int h264_cabac_renorm(struct bitstream *str, struct h264_cabac_context *cabac) {
 	return 0;
 }
 
-int h264_cabac_decision(struct bitstream *str, struct h264_cabac_context *cabac, int ctxIdx, int *binVal) {
+int h264_cabac_decision(struct bitstream *str, struct h264_cabac_context *cabac, int ctxIdx, uint32_t *binVal) {
+	if (ctxIdx == -1)
+		return h264_cabac_bypass(str, cabac, binVal);
+	if (ctxIdx == H264_CABAC_CTXIDX_TERMINATE)
+		return h264_cabac_terminate(str, cabac, binVal);
 	int qCodIRangeIdx = cabac->codIRange >> 6 & 3;
 	int codIRangeLPS = rangeTabLPS[cabac->pStateIdx[ctxIdx]][qCodIRangeIdx];
 	cabac->codIRange -= codIRangeLPS;
@@ -784,7 +788,7 @@ int h264_cabac_decision(struct bitstream *str, struct h264_cabac_context *cabac,
 	return 0;
 }
 
-int h264_cabac_bypass(struct bitstream *str, struct h264_cabac_context *cabac, int *binVal) {
+int h264_cabac_bypass(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *binVal) {
 	cabac->codIOffset <<= 1;
 	if (str->dir == VS_ENCODE) {
 		if (*binVal)
@@ -816,7 +820,7 @@ int h264_cabac_bypass(struct bitstream *str, struct h264_cabac_context *cabac, i
 	return 0;
 }
 
-int h264_cabac_terminate(struct bitstream *str, struct h264_cabac_context *cabac, int *binVal) {
+int h264_cabac_terminate(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *binVal) {
 	cabac->codIRange -= 2;
 	if (str->dir == VS_ENCODE) {
 		if (*binVal) {
