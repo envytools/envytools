@@ -312,6 +312,45 @@ int vs_end(struct bitstream *str) {
 	}
 }
 
+int vs_has_more_data(struct bitstream *str) {
+	if (str->dir == VS_ENCODE) {
+		fprintf (stderr, "vs_has_more_data called in encode mode\n");
+		return -1;
+	}
+	int byte;
+	int offs = 0;
+	switch (str->type) {
+		case VS_H264:
+			if (!str->hasbyte) {
+				if (str->bytepos == str->bytesnum) {
+					fprintf (stderr, "no RBSP trailer byte\n");
+					return -1;
+				}
+				offs = 1;
+				byte = str->bytes[str->bytepos];
+			} else {
+				byte = str->curbyte;
+				offs = 0;
+			}
+			byte &= (1 << str->bitpos+1) - 1;
+			if (byte != (1 << str->bitpos))
+				return 0;
+			break;
+		case VS_MPEG12:
+			break;
+	}
+	offs += str->curbyte;
+	if (offs < str->bytesnum && str->bytes[offs])
+		return 0;
+	if (offs+1 < str->bytesnum && str->bytes[offs+1])
+		return 0;
+	if (offs+2 < str->bytesnum && str->bytes[offs+2] > 2)
+		return 0;
+	/* followed by 00 00 00 or 00 00 01 or 00* EOF */
+	return 1;
+
+}
+
 struct bitstream *vs_new_encode(enum vs_type type) {
 	struct bitstream *res = calloc(sizeof *res, 1);
 	res->dir = VS_ENCODE;

@@ -58,6 +58,7 @@ int vs_u(struct bitstream *str, uint32_t *val, int size);
 int vs_start(struct bitstream *str, uint32_t *val);
 int vs_align_byte(struct bitstream *str, enum vs_align_byte_mode mode);
 int vs_end(struct bitstream *str);
+int vs_has_more_data(struct bitstream *str);
 int vs_infer(struct bitstream *str, uint32_t *val, uint32_t ival);
 int vs_search_start(struct bitstream *str);
 
