@@ -125,7 +125,7 @@ struct h264_picparm {
 	uint32_t pic_init_qp_minus26;
 };
 
-struct h264_sliceparm {
+struct h264_slice {
 	struct h264_picparm *picparm;
 	uint32_t slice_type;
 	uint32_t num_ref_idx_l0_active_minus1;
@@ -163,9 +163,9 @@ struct h264_macroblock {
 	uint32_t pcm_sample_chroma[64];
 };
 
-int h264_pred_weight_table(struct bitstream *str, struct h264_sliceparm *slp, struct h264_pred_weight_table *table);
 void h264_del_seqparm(struct h264_seqparm *seqparm);
 int h264_seqparm(struct bitstream *str, struct h264_seqparm *seqparm);
+int h264_pred_weight_table(struct bitstream *str, struct h264_slice *slice, struct h264_pred_weight_table *table);
 
 void h264_print_seqparm(struct h264_seqparm *seqparm);
 

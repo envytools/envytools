@@ -106,7 +106,7 @@ struct h264_cabac_context {
 	int BinCount;
 };
 
-struct h264_cabac_context *h264_cabac_new(struct h264_sliceparm *slp);
+struct h264_cabac_context *h264_cabac_new(struct h264_slice *slice);
 int h264_cabac_init_arith(struct bitstream *str, struct h264_cabac_context *cabac);
 int h264_cabac_renorm(struct bitstream *str, struct h264_cabac_context *cabac);
 int h264_cabac_decision(struct bitstream *str, struct h264_cabac_context *cabac, int ctxIdx, int *binVal);

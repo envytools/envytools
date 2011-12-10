@@ -199,15 +199,15 @@ int h264_pred_weight_table_entry(struct bitstream *str, struct h264_pred_weight_
 	return ret;
 }
 
-int h264_pred_weight_table(struct bitstream *str, struct h264_sliceparm *slp, struct h264_pred_weight_table *table) {
+int h264_pred_weight_table(struct bitstream *str, struct h264_slice *slice, struct h264_pred_weight_table *table) {
 	int ret = 0;
 	ret |= vs_ue(str, &table->luma_log2_weight_denom);
 	ret |= vs_ue(str, &table->chroma_log2_weight_denom);
 	int i;
-	for (i = 0; i <= slp->num_ref_idx_l0_active_minus1; i++)
+	for (i = 0; i <= slice->num_ref_idx_l0_active_minus1; i++)
 		ret |= h264_pred_weight_table_entry(str, table, &table->l0[i]);
-	if (slp->slice_type % 5 == 1)
-		for (i = 0; i <= slp->num_ref_idx_l1_active_minus1; i++)
+	if (slice->slice_type % 5 == 1)
+		for (i = 0; i <= slice->num_ref_idx_l1_active_minus1; i++)
 			ret |= h264_pred_weight_table_entry(str, table, &table->l1[i]);
 	return ret;
 }

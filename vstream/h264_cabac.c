@@ -111,7 +111,7 @@ static uint8_t transIdxMPS[64] = {
 	49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 62, 63,
 };
 
-struct h264_cabac_context *h264_cabac_new(struct h264_sliceparm *slp) {
+struct h264_cabac_context *h264_cabac_new(struct h264_slice *slice) {
 	struct h264_cabac_context *cabac = calloc (sizeof *cabac, 1);
 	/* XXX: write me */
 	return cabac;
