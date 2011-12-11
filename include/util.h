@@ -53,6 +53,8 @@
 		tmp = ((pred) ? tmp : NULL);			\
 	})
 
+#define ARRAY_SIZE(a) (sizeof (a) / sizeof *(a))
+
 #define min(a,b)				\
 	({					\
 		typeof (a) _a = (a);		\

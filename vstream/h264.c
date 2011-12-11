@@ -24,6 +24,7 @@
 
 #include "h264.h"
 #include "h264_cabac.h"
+#include "util.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -67,6 +68,148 @@ int h264_scaling_list(struct bitstream *str, uint32_t *scaling_list, int size, u
 		}
 	}
 	return 0;
+}
+
+int h264_hrd_parameters(struct bitstream *str, struct h264_hrd_parameters *hrd) {
+	if (vs_ue(str, &hrd->cpb_cnt_minus1)) return 1;
+	if (hrd->cpb_cnt_minus1 > 31) {
+		fprintf(stderr, "cpb_cnt_minus1 out of range\n");
+		return 1;
+	}
+	if (vs_u(str, &hrd->bit_rate_scale, 4)) return 1;
+	if (vs_u(str, &hrd->cpb_size_scale, 4)) return 1;
+	int i;
+	for (i = 0; i <= hrd->cpb_cnt_minus1; i++) {
+		if (vs_ue(str, &hrd->bit_rate_value_minus1[i])) return 1;
+		if (vs_ue(str, &hrd->cpb_size_value_minus1[i])) return 1;
+		if (vs_u(str, &hrd->cbr_flag[i], 1)) return 1;
+	}
+	if (vs_u(str, &hrd->initial_cpb_removal_delay_length_minus1, 5)) return 1;
+	if (vs_u(str, &hrd->cpb_removal_delay_length_minus1, 5)) return 1;
+	if (vs_u(str, &hrd->dpb_output_delay_length_minus1, 5)) return 1;
+	if (vs_u(str, &hrd->time_offset_length, 5)) return 1;
+	return 0;
+}
+
+static const uint32_t aspect_ratios[][2] = {
+	{ 0, 0 },
+	{ 1, 1 },
+	{ 12, 11 },
+	{ 10, 11 },
+	{ 16, 11 },
+	{ 40, 33 },
+	{ 24, 11 },
+	{ 20, 11 },
+	{ 32, 11 },
+	{ 80, 33 },
+	{ 18, 11 },
+	{ 15, 11 },
+	{ 64, 33 },
+	{ 160, 99 },
+	{ 4, 3 },
+	{ 3, 2 },
+	{ 2, 1 },
+};
+
+int h264_vui_parameters(struct bitstream *str, struct h264_vui *vui) {
+	if (vs_u(str, &vui->aspect_ratio_present_flag, 1)) return 1;
+	if (vui->aspect_ratio_present_flag) {
+		if (vs_u(str, &vui->aspect_ratio_idc, 8)) return 1;
+		if (vui->aspect_ratio_idc == 255) {
+			if (vs_u(str, &vui->sar_width, 16)) return 1;
+			if (vs_u(str, &vui->sar_height, 16)) return 1;
+		} else {
+			if (vui->aspect_ratio_idc < ARRAY_SIZE(aspect_ratios)) {
+				if (vs_infer(str, &vui->sar_width, aspect_ratios[vui->aspect_ratio_idc][0])) return 1;
+				if (vs_infer(str, &vui->sar_width, aspect_ratios[vui->aspect_ratio_idc][1])) return 1;
+			} else {
+				fprintf(stderr, "WARNING: unknown aspect_ratio_idc %d\n", vui->aspect_ratio_idc);
+				if (vs_infer(str, &vui->sar_width, 0)) return 1;
+				if (vs_infer(str, &vui->sar_width, 0)) return 1;
+			}
+		}
+	} else {
+		if (vs_infer(str, &vui->aspect_ratio_idc, 0)) return 1;
+		if (vs_infer(str, &vui->sar_width, 0)) return 1;
+		if (vs_infer(str, &vui->sar_width, 0)) return 1;
+	}
+	if (vs_u(str, &vui->overscan_info_present_flag, 1)) return 1;
+	if (vui->overscan_info_present_flag) {
+		if (vs_u(str, &vui->overscan_appropriate_flag, 1)) return 1;
+	}
+	if (vs_u(str, &vui->video_signal_type_present_flag, 1)) return 1;
+	if (vui->video_signal_type_present_flag) {
+		if (vs_u(str, &vui->video_format, 3)) return 1;
+		if (vs_u(str, &vui->video_full_range_flag, 1)) return 1;
+		if (vs_u(str, &vui->colour_description_present_flag, 1)) return 1;
+	} else {
+		if (vs_infer(str, &vui->video_format, 5)) return 1;
+		if (vs_infer(str, &vui->video_full_range_flag, 0)) return 1;
+		if (vs_infer(str, &vui->colour_description_present_flag, 0)) return 1;
+	}
+	if (vui->colour_description_present_flag) {
+		if (vs_u(str, &vui->colour_primaries, 8)) return 1;
+		if (vs_u(str, &vui->transfer_characteristics, 8)) return 1;
+		if (vs_u(str, &vui->matrix_coefficients, 8)) return 1;
+	} else {
+		if (vs_infer(str, &vui->colour_primaries, 2)) return 1;
+		if (vs_infer(str, &vui->transfer_characteristics, 2)) return 1;
+		if (vs_infer(str, &vui->matrix_coefficients, 2)) return 1;
+	}
+	if (vs_u(str, &vui->chroma_loc_info_present_flag, 1)) return 1;
+	if (vui->chroma_loc_info_present_flag) {
+		if (vs_ue(str, &vui->chroma_sample_loc_type_top_field)) return 1;
+		if (vs_ue(str, &vui->chroma_sample_loc_type_bottom_field)) return 1;
+	} else {
+		if (vs_infer(str, &vui->chroma_sample_loc_type_top_field, 0)) return 1;
+		if (vs_infer(str, &vui->chroma_sample_loc_type_bottom_field, 0)) return 1;
+	}
+	if (vs_u(str, &vui->timing_info_present_flag, 1)) return 1;
+	if (vui->timing_info_present_flag) {
+		if (vs_u(str, &vui->num_units_in_tick, 32)) return 1;
+		if (vs_u(str, &vui->time_scale, 32)) return 1;
+		if (vs_u(str, &vui->fixed_frame_rate_flag, 1)) return 1;
+	} else {
+		if (vs_infer(str, &vui->fixed_frame_rate_flag, 0)) return 1;
+	}
+	uint32_t tmp;
+	tmp = !!vui->nal_hrd_parameters;
+	if (vs_u(str, &tmp, 1)) return 1;
+	if (tmp) {
+		if (str->dir == VS_DECODE)
+			vui->nal_hrd_parameters = calloc(sizeof *vui->nal_hrd_parameters, 1);
+		if (h264_hrd_parameters(str, vui->nal_hrd_parameters)) return 1;
+	}
+	tmp = !!vui->vcl_hrd_parameters;
+	if (vs_u(str, &tmp, 1)) return 1;
+	if (tmp) {
+		if (str->dir == VS_DECODE)
+			vui->vcl_hrd_parameters = calloc(sizeof *vui->vcl_hrd_parameters, 1);
+		if (h264_hrd_parameters(str, vui->vcl_hrd_parameters)) return 1;
+	}
+	if (vui->nal_hrd_parameters || vui->vcl_hrd_parameters) {
+		if (vs_u(str, &vui->low_delay_hrd_flag, 1)) return 1;
+	}
+	if (vs_u(str, &vui->pic_struct_present_flag, 1)) return 1;
+	if (vs_u(str, &vui->bitstream_restriction_present_flag, 1)) return 1;
+	if (vui->bitstream_restriction_present_flag) {
+		if (vs_u(str, &vui->motion_vectors_over_pic_bounduaries_flag, 1)) return 1;
+		if (vs_ue(str, &vui->max_bytes_per_pic_denom)) return 1;
+		if (vs_ue(str, &vui->max_bits_per_mb_denom)) return 1;
+		if (vs_ue(str, &vui->log2_max_mv_length_horizontal)) return 1;
+		if (vs_ue(str, &vui->log2_max_mv_length_vertical)) return 1;
+		if (vs_ue(str, &vui->num_reorder_frames)) return 1;
+		if (vs_ue(str, &vui->max_dec_frame_buffering)) return 1;
+	} else {
+		if (vs_infer(str, &vui->motion_vectors_over_pic_bounduaries_flag, 1)) return 1;
+		if (vs_infer(str, &vui->max_bytes_per_pic_denom, 2)) return 1;
+		if (vs_infer(str, &vui->max_bits_per_mb_denom, 1)) return 1;
+		if (vs_infer(str, &vui->log2_max_mv_length_horizontal, 16)) return 1;
+		if (vs_infer(str, &vui->log2_max_mv_length_vertical, 16)) return 1;
+		/* XXX: not entirely correct */
+		if (vs_infer(str, &vui->num_reorder_frames, 16)) return 1;
+		if (vs_infer(str, &vui->max_dec_frame_buffering, 16)) return 1;
+	}
 }
 
 int h264_seqparm(struct bitstream *str, struct h264_seqparm *seqparm) {
@@ -167,8 +310,7 @@ int h264_seqparm(struct bitstream *str, struct h264_seqparm *seqparm) {
 		if (str->dir == VS_DECODE) {
 			seqparm->vui = calloc (sizeof *seqparm->vui, 1);
 		}
-		/* XXX: implement me */
-		abort();
+		if (h264_vui_parameters(str, seqparm->vui)) return 1;
 	} else {
 		seqparm->vui = 0;
 	}

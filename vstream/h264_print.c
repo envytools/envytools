@@ -25,6 +25,22 @@
 #include "h264.h"
 #include <stdio.h>
 
+void h264_print_hrd(struct h264_hrd_parameters *hrd) {
+	printf ("\t\t\tcpb_cnt_minus1 = %d\n", hrd->cpb_cnt_minus1);
+	printf ("\t\t\tbit_rate_scale = %d\n", hrd->bit_rate_scale);
+	printf ("\t\t\tcpb_size_scale = %d\n", hrd->cpb_size_scale);
+	int i;
+	for (i = 0; i <= hrd->cpb_cnt_minus1; i++) {
+		printf ("\t\t\tbit_rate_value_minus1[%d] = %d\n", i, hrd->bit_rate_value_minus1[i]);
+		printf ("\t\t\tcpb_size_value_minus1[%d] = %d\n", i, hrd->cpb_size_value_minus1[i]);
+		printf ("\t\t\tcbr_flag[%d] = %d\n", i, hrd->cbr_flag[i]);
+	}
+	printf ("\t\t\tinitial_cpb_removal_delay_length_minus1 = %d\n", hrd->initial_cpb_removal_delay_length_minus1);
+	printf ("\t\t\tcpb_removal_delay_length_minus1 = %d\n", hrd->cpb_removal_delay_length_minus1);
+	printf ("\t\t\tdpb_output_delay_length_minus1 = %d\n", hrd->dpb_output_delay_length_minus1);
+	printf ("\t\t\ttime_offset_length = %d\n", hrd->time_offset_length);
+}
+
 void h264_print_seqparm(struct h264_seqparm *seqparm) {
 	printf("Sequence parameter set:\n");
 	const char *profile_name = "???";
@@ -125,6 +141,50 @@ void h264_print_seqparm(struct h264_seqparm *seqparm) {
 	printf ("\tframe_crop_top_offset = %d\n", seqparm->frame_crop_top_offset);
 	printf ("\tframe_crop_bottom_offset = %d\n", seqparm->frame_crop_bottom_offset);
 	if (seqparm->vui) {
-		/* XXX */
+		printf("\tVUI parameters:\n");
+		printf("\t\taspect_ratio_present_flag = %d\n", seqparm->vui->aspect_ratio_present_flag);
+		printf("\t\taspect_ratio_idc = %d\n", seqparm->vui->aspect_ratio_idc);
+		printf("\t\tsar_width = %d\n", seqparm->vui->sar_width);
+		printf("\t\tsar_height = %d\n", seqparm->vui->sar_height);
+		printf("\t\toverscan_info_present_flag = %d\n", seqparm->vui->overscan_info_present_flag);
+		if (seqparm->vui->overscan_info_present_flag) {
+			printf("\t\toverscan_appropriate_flag = %d\n", seqparm->vui->overscan_appropriate_flag);
+		}
+		printf("\t\tvideo_signal_type_present_flag = %d\n", seqparm->vui->video_signal_type_present_flag);
+		printf("\t\tvideo_format = %d\n", seqparm->vui->video_format);
+		printf("\t\tvideo_full_range_flag = %d\n", seqparm->vui->video_full_range_flag);
+		printf("\t\tcolour_description_present_flag = %d\n", seqparm->vui->colour_description_present_flag);
+		printf("\t\tcolour_primaries = %d\n", seqparm->vui->colour_primaries);
+		printf("\t\ttransfer_characteristics = %d\n", seqparm->vui->transfer_characteristics);
+		printf("\t\tmatrix_coefficients = %d\n", seqparm->vui->matrix_coefficients);
+		printf("\t\tchroma_loc_info_present_flag = %d\n", seqparm->vui->chroma_loc_info_present_flag);
+		printf("\t\tchroma_sample_loc_type_top_field = %d\n", seqparm->vui->chroma_sample_loc_type_top_field);
+		printf("\t\tchroma_sample_loc_type_bottom_field = %d\n", seqparm->vui->chroma_sample_loc_type_bottom_field);
+		printf("\t\ttiming_info_present_flag = %d\n", seqparm->vui->timing_info_present_flag);
+		if (seqparm->vui->timing_info_present_flag) {
+			printf("\t\tnum_units_in_tick = %d\n", seqparm->vui->num_units_in_tick);
+			printf("\t\ttime_scale = %d\n", seqparm->vui->time_scale);
+		}
+		printf("\t\tfixed_frame_rate_flag = %d\n", seqparm->vui->fixed_frame_rate_flag);
+		if (seqparm->vui->nal_hrd_parameters) {
+			printf("\t\tNAL HRD parameters:\n");
+			h264_print_hrd(seqparm->vui->nal_hrd_parameters);
+		}
+		if (seqparm->vui->vcl_hrd_parameters) {
+			printf("\t\tVCL HRD parameters:\n");
+			h264_print_hrd(seqparm->vui->vcl_hrd_parameters);
+		}
+		if (seqparm->vui->nal_hrd_parameters || seqparm->vui->vcl_hrd_parameters) {
+			printf("\t\tlow_delay_hrd_flag = %d\n", seqparm->vui->low_delay_hrd_flag);
+		}
+		printf("\t\tpic_struct_present_flag = %d\n", seqparm->vui->pic_struct_present_flag);
+		printf("\t\tbitstream_restriction_present_flag = %d\n", seqparm->vui->bitstream_restriction_present_flag);
+		printf("\t\tmotion_vectors_over_pic_bounduaries_flag = %d\n", seqparm->vui->motion_vectors_over_pic_bounduaries_flag);
+		printf("\t\tmax_bytes_per_pic_denom = %d\n", seqparm->vui->max_bytes_per_pic_denom);
+		printf("\t\tmax_bits_per_mb_denom = %d\n", seqparm->vui->max_bits_per_mb_denom);
+		printf("\t\tlog2_max_mv_length_horizontal = %d\n", seqparm->vui->log2_max_mv_length_horizontal);
+		printf("\t\tlog2_max_mv_length_vertical = %d\n", seqparm->vui->log2_max_mv_length_vertical);
+		printf("\t\tnum_reorder_frames = %d\n", seqparm->vui->num_reorder_frames);
+		printf("\t\tmax_dec_frame_buffering = %d\n", seqparm->vui->max_dec_frame_buffering);
 	}
 }
