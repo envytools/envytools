@@ -637,13 +637,30 @@ int main(int argc, char **argv) {
 						init96_tbl_ptr = le32(eoff+16);
 					break;
 				case 'M':
-					if (bios->data[off+1] == 1 && elen >= 5) {
-						ram_restrict_group_count = bios->data[eoff+2];
-						ram_restrict_tbl_ptr = le16(eoff+3);
-					} else if (bios->data[off+1] == 2 && elen >= 3) {
-						ram_restrict_group_count = bios->data[eoff];
-						ram_restrict_tbl_ptr = le16(eoff+1);
+					if (version == 1) {
+						if (elen >= 5) {
+							ram_restrict_group_count = bios->data[eoff+2];
+							ram_restrict_tbl_ptr = le16(eoff+3);
+						}
+					} else if (version == 2) {
+						if (elen >= 3) {
+							ram_restrict_group_count = bios->data[eoff];
+							ram_restrict_tbl_ptr = le16(eoff+1);
+						}
 					}
+
+					if (elen >= 7)
+						printf("M.tbl_05 at %x\n", le16(eoff+5));
+					if (elen >= 9)
+						printf("M.tbl_07 at %x\n", le16(eoff+7));
+					if (elen >= 0xb)
+						printf("M.tbl_09 at %x\n", le16(eoff+9));
+					if (elen >= 0xd)
+						printf("M.tbl_0b at %x\n", le16(eoff+0xb));
+					if (elen >= 0xf)
+						printf("M.tbl_0c at %x\n", le16(eoff+0xd));
+					if (elen >= 0x11)
+						printf("M.tbl_0d at %x\n", le16(eoff+0xf));
 					break;
 				case 'C':
 					pll_limit_tbl_ptr = le16(eoff + 8);
@@ -1128,7 +1145,7 @@ int main(int argc, char **argv) {
 				*/
 				pcie_width = bios->data[start+28];
 			}
-			
+
 			if (version > 0x15 && version < 0x40) {
 				uint16_t extra_start = start + mode_info_length;
 				uint16_t timing_extra_data = extra_start+(ram_cfg*extra_data_length);
@@ -1146,7 +1163,7 @@ int main(int argc, char **argv) {
 				memclk = le16(start+5) / 100;
 				fan = bios->data[start+55];
 				voltage = bios->data[start+56];
-				
+
 				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz "
 					"Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
 					id, core, memclk, voltage, timing_id, fan, pcie_width );
@@ -1157,7 +1174,7 @@ int main(int argc, char **argv) {
 				memclk = le16(start+11);
 				fan = bios->data[start+4];
 				voltage = bios->data[start+5];
-				
+
 				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz "
 					"Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
 					id, core, memclk, shader, voltage, timing_id, fan, pcie_width );
@@ -1168,7 +1185,7 @@ int main(int argc, char **argv) {
 				memclk = le16(start+12);
 				fan = bios->data[start+4];
 				voltage = bios->data[start+5];
-				
+
 				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz "
 					"Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
 					id, core, memclk, shader, voltage, timing_id, fan, pcie_width );
@@ -1182,7 +1199,7 @@ int main(int argc, char **argv) {
 				memclk = le16(start+12);
 				vdec = le16(start+16);
 				dom6 = le16(start+20);
-				
+
 				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Vdec %dMHz "
 					"Dom6 %dMHz Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
 					id, core, memclk, shader, vdec, dom6, voltage, timing_id, fan, pcie_width );

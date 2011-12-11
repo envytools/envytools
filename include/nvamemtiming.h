@@ -41,6 +41,11 @@
 			} manual;
 
 			struct {
+                                uint8_t start;
+                                uint8_t end;
+                        } range;
+
+			struct {
 				uint8_t index;
 			} bitfield;
 

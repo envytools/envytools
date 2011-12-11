@@ -417,12 +417,18 @@ iterate_values(struct nvamemtiming_conf *conf, FILE *outf, uint8_t index, enum c
 int
 deep_dump(struct nvamemtiming_conf *conf)
 {
+	char filename[21];
 	int i;
 
+	if (conf->range.start == -1 ||  conf->range.end == -1)
+		sprintf(filename, "regs_timing_deep_%i_%i", conf->range.start, conf->range.end);
+	else
+		sprintf(filename, "regs_timing_deep");
+
 	/* TODO: get this filename from the command line */
-	FILE *outf = fopen("regs_timing_full", "wb");
+	FILE *outf = fopen(filename, "wb");
 	if (!outf) {
-		perror("Open regs_timing_full");
+		perror("Open regs_timing_deep");
 		return 1;
 	}
 
@@ -430,6 +436,13 @@ deep_dump(struct nvamemtiming_conf *conf)
 		timing_value_types = nvc0_timing_value_types;
 	else
 		timing_value_types = nv40_timing_value_types;
+
+	if (conf->range.start == (unsigned char) -1)
+		conf->range.start = 0;
+	if (conf->range.end == (unsigned char) -1)
+		conf->range.end = conf->vbios.timing_entry_length;
+
+	fprintf(stderr, "Deep mode: Will iterate between %i and %i\n", conf->range.start, conf->range.end);
 
 	launch(conf, outf, 0, NO_COLOR);
 
@@ -462,10 +475,16 @@ deep_dump(struct nvamemtiming_conf *conf)
 int
 shallow_dump(struct nvamemtiming_conf *conf)
 {
+	char filename[21];
 	int i;
 
+	if (conf->range.start == -1 ||  conf->range.end == -1)
+		sprintf(filename, "regs_timing_%i_%i", conf->range.start, conf->range.end);
+	else
+		sprintf(filename, "regs_timing");
+
 	/* TODO: get this filename from the command line */
-	FILE *outf = fopen("regs_timing", "wb");
+	FILE *outf = fopen(filename, "wb");
 	if (!outf) {
 		perror("Open regs_timing");
 		return 1;
@@ -476,10 +495,17 @@ shallow_dump(struct nvamemtiming_conf *conf)
 	else
 		timing_value_types = nv40_timing_value_types;
 
+	if (conf->range.start == (unsigned char) -1)
+		conf->range.start = 0;
+	if (conf->range.end == (unsigned char) -1)
+		conf->range.end = conf->vbios.timing_entry_length;
+
+	fprintf(stderr, "Shallow mode: Will iterate between %i and %i\n", conf->range.start, conf->range.end);
+
 	launch(conf, outf, 0, NO_COLOR);
 
 	/* iterate through the vbios timing values */
-	for (i = 0; i < conf->vbios.timing_entry_length; i++) {
+	for (i = conf->range.start; i < conf->range.end; i++) {
 		uint8_t orig = conf->vbios.data[conf->vbios.timing_entry_offset + i];
 
 		if (timing_value_types[i] == VALUE ||
@@ -519,6 +545,8 @@ int bitfield_check(struct nvamemtiming_conf *conf)
 		return 1;
 	}
 
+	printf("Bitfield mode: test index %i\n", conf->bitfield.index);
+
 	launch(conf, outf, 0, NO_COLOR);
 	iterate_bitfield(conf, outf, conf->bitfield.index, COLOR);
 
@@ -541,7 +569,9 @@ int manual_check(struct nvamemtiming_conf *conf)
 		return 1;
 	}
 
-	conf->vbios.data[conf->vbios.timing_entry_offset + conf->timing.entry]++;
+	printf("Manual mode: set index %i to value 0x%x\n", conf->manual.index, conf->manual.value);
+
+	conf->vbios.data[conf->vbios.timing_entry_offset + conf->manual.index] = conf->manual.value;
 	launch(conf, outf, 0, NO_COLOR);
 
 	fclose(outf);

@@ -87,9 +87,10 @@ int parse_cmd_line(int argc, char **argv, struct nvamemtiming_conf *conf)
 	conf->mmiotrace = false;
 	conf->mode = MODE_AUTO;
 	conf->vbios.file = NULL;
-	conf->counter = 0;
+	conf->range.start = -1;
+	conf->range.end = -1;
 
-	while ((c = getopt (argc, argv, "htd:b:c:e:v:")) != -1)
+	while ((c = getopt (argc, argv, "hts:f:d:b:c:e:v:")) != -1)
 		switch (c) {
 			case 'e':
 				if (conf->mode != MODE_AUTO && conf->mode != MODE_MANUAL)
@@ -103,17 +104,27 @@ int parse_cmd_line(int argc, char **argv, struct nvamemtiming_conf *conf)
 				conf->mode = MODE_MANUAL;
 				sscanf(optarg, "%d", &conf->manual.value);
 				break;
+			case 'd':
+				if (conf->mode != MODE_AUTO)
+					usage(argc, argv);
+				conf->mode = MODE_DEEP;
+				sscanf(optarg, "%d", &conf->deep.entry);
+				break;
 			case 'b':
 				if (conf->mode != MODE_AUTO)
 					usage(argc, argv);
 				conf->mode = MODE_BITFIELD;
 				sscanf(optarg, "%d", &conf->bitfield.index);
 				break;
-			case 'd':
+			case 's':
 				if (conf->mode != MODE_AUTO)
 					usage(argc, argv);
-				conf->mode = MODE_DEEP;
-				sscanf(optarg, "%d", &conf->deep.entry);
+				sscanf(optarg, "%d", &conf->range.start);
+				break;
+			case 'f':
+				if (conf->mode != MODE_AUTO)
+					usage(argc, argv);
+				sscanf(optarg, "%d", &conf->range.end);
 				break;
 			case 'c':
 				sscanf(optarg, "%d", &conf->cnum);
@@ -180,19 +191,23 @@ int main(int argc, char** argv)
 	switch (conf.mode) {
 	case MODE_AUTO:
 		ret = shallow_dump(&conf);
+		break;
 	case MODE_DEEP:
 		ret = deep_dump(&conf);
+		break;
 	case MODE_BITFIELD:
 		ret = bitfield_check(&conf);
+		break;
 	case MODE_MANUAL:
 		ret = manual_check(&conf);
+		break;
 	}
 
 	gettimeofday(&tv, NULL);
 	total_time = tv.tv_sec - start_time;
 
 	printf("The run tested %i configurations in %i:%i:%is\n",
-	       0,
+	       conf.counter,
 	       total_time / 3600,
 	       (total_time % 3600) / 60,
 	       total_time % 60);
