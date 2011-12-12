@@ -263,6 +263,9 @@
 		<reg32 offset="0x374" name="COLOR_LOGIC_OP_ENABLE" type="boolean"/>
 		<reg32 offset="0x378" name="COLOR_LOGIC_OP_OP" type="gl_logic_op"/>
 		<reg32 offset="0x37c" name="NORMALIZE_ENABLE" type="boolean" variants="NV30_3D-NV35_3D"/>
+		<reg32 offset="0x380" name="DEPTH_BOUNDS_TEST_ENABLE" type="boolean" variants="NV35_3D NV40_3D-NV44_3D"/>
+		<reg32 offset="0x384" name="DEPTH_BOUNDS_TEST_ZMIN" type="float" variants="NV35_3D NV40_3D-NV44_3D"/>
+		<reg32 offset="0x388" name="DEPTH_BOUNDS_TEST_ZMAX" type="float" variants="NV35_3D NV40_3D-NV44_3D"/>
 		<reg32 offset="0x390" name="COLOR_MATERIAL" variants="NV30_3D-NV35_3D">
 			<bitfield pos="0" name="FRONT_EMISSION_ENABLE"/>
 			<bitfield pos="2" name="FRONT_AMBIENT_ENABLE"/>
