@@ -29,7 +29,18 @@
 #include <stdlib.h>
 
 void h264_del_seqparm(struct h264_seqparm *seqparm) {
+	int i, j;
 	free(seqparm->vui);
+	if (seqparm->is_mvc) {
+		free(seqparm->views);
+		for (i = 0; i <= seqparm->num_level_values_signalled_minus1; i++) {
+			for (j = 0; j <= seqparm->levels[i].num_applicable_ops_minus1; j++) {
+				free(seqparm->levels[i].applicable_ops[j].target_view_id);
+			}
+			free(seqparm->levels[i].applicable_ops);
+		}
+		free(seqparm->levels);
+	}
 	free(seqparm);
 }
 
@@ -313,6 +324,151 @@ int h264_seqparm(struct bitstream *str, struct h264_seqparm *seqparm) {
 		if (h264_vui_parameters(str, seqparm->vui)) return 1;
 	} else {
 		seqparm->vui = 0;
+	}
+	return 0;
+}
+
+int h264_svc_vui_parameters(struct bitstream *str, struct h264_vui *vui) {
+	/* XXX */
+	abort();
+	return 0;
+}
+
+int h264_seqparm_svc(struct bitstream *str, struct h264_seqparm *seqparm) {
+	if (str->dir == VS_DECODE)
+		seqparm->is_svc = 1;
+	if (vs_u(str, &seqparm->inter_layer_deblocking_filter_control_present_flag, 1)) return 1;
+	if (vs_u(str, &seqparm->extended_spatial_scalability_idc, 2)) return 1;
+	if (seqparm->chroma_format_idc == 1 || seqparm->chroma_format_idc == 2) {
+		if (vs_u(str, &seqparm->chroma_phase_x_plus1_flag, 1)) return 1;
+	} else {
+		if (vs_infer(str, &seqparm->chroma_phase_x_plus1_flag, 1)) return 1;
+	}
+	if (seqparm->chroma_format_idc == 1) {
+		if (vs_u(str, &seqparm->chroma_phase_y_plus1, 2)) return 1;
+	} else {
+		if (vs_infer(str, &seqparm->chroma_phase_y_plus1, 1)) return 1;
+	}
+	if (seqparm->extended_spatial_scalability_idc == 1) {
+		if (seqparm->chroma_format_idc && !seqparm->separate_colour_plane_flag) {
+			if (vs_u(str, &seqparm->seq_ref_layer_chroma_phase_x_plus1_flag, 1)) return 1;
+			if (vs_u(str, &seqparm->seq_ref_layer_chroma_phase_y_plus1, 2)) return 1;
+		} else {
+			if (vs_infer(str, &seqparm->seq_ref_layer_chroma_phase_x_plus1_flag, 1)) return 1;
+			if (vs_infer(str, &seqparm->seq_ref_layer_chroma_phase_y_plus1, 1)) return 1;
+		}
+		if (vs_se(str, &seqparm->seq_ref_layer_left_offset)) return 1;
+		if (vs_se(str, &seqparm->seq_ref_layer_top_offset)) return 1;
+		if (vs_se(str, &seqparm->seq_ref_layer_right_offset)) return 1;
+		if (vs_se(str, &seqparm->seq_ref_layer_bottom_offset)) return 1;
+	} else {
+		if (vs_infer(str, &seqparm->seq_ref_layer_chroma_phase_x_plus1_flag, seqparm->chroma_phase_x_plus1_flag)) return 1;
+		if (vs_infer(str, &seqparm->seq_ref_layer_chroma_phase_y_plus1, seqparm->chroma_phase_y_plus1)) return 1;
+		if (vs_infer(str, &seqparm->seq_ref_layer_left_offset, 0)) return 1;
+		if (vs_infer(str, &seqparm->seq_ref_layer_top_offset, 0)) return 1;
+		if (vs_infer(str, &seqparm->seq_ref_layer_right_offset, 0)) return 1;
+		if (vs_infer(str, &seqparm->seq_ref_layer_bottom_offset, 0)) return 1;
+	}
+	if (vs_u(str, &seqparm->seq_tcoeff_level_prediction_flag, 1)) return 1;
+	if (seqparm->seq_tcoeff_level_prediction_flag) {
+		if (vs_u(str, &seqparm->adaptive_tcoeff_level_prediction_flag, 1)) return 1;
+	} else {
+		if (vs_infer(str, &seqparm->adaptive_tcoeff_level_prediction_flag, 0)) return 1;
+	}
+	if (vs_u(str, &seqparm->slice_header_restriction_flag, 1)) return 1;
+	uint32_t svc_vui_parameters_present_flag = !!(seqparm->svc_vui);
+	if (vs_u(str, &svc_vui_parameters_present_flag, 1)) return 1;
+	if (svc_vui_parameters_present_flag) {
+		if (str->dir == VS_DECODE) {
+			seqparm->svc_vui = calloc (sizeof *seqparm->svc_vui, 1);
+		}
+		if (h264_svc_vui_parameters(str, seqparm->svc_vui)) return 1;
+	} else {
+		seqparm->svc_vui = 0;
+	}
+	return 0;
+}
+
+int h264_mvc_vui_parameters(struct bitstream *str, struct h264_vui *vui) {
+	/* XXX */
+	abort();
+	return 0;
+}
+
+int h264_seqparm_mvc(struct bitstream *str, struct h264_seqparm *seqparm) {
+	uint32_t bit_equal_to_one = 1;
+	int i, j, k;
+	if (str->dir == VS_DECODE)
+		seqparm->is_mvc = 1;
+	if (vs_u(str, &bit_equal_to_one, 1)) return 1;
+	if (!bit_equal_to_one) {
+		fprintf(stderr, "bit_equal_to_one invalid\n");
+		return 1;
+	}
+	if (vs_ue(str, &seqparm->num_views_minus1)) return 1;
+	if (str->dir == VS_DECODE)
+		seqparm->views = calloc(sizeof *seqparm->views, seqparm->num_views_minus1 + 1);
+	for (i = 0; i <= seqparm->num_views_minus1; i++)
+		if (vs_ue(str, &seqparm->views[i].view_id)) return 1;
+	for (i = 1; i <= seqparm->num_views_minus1; i++) {
+		if (vs_ue(str, &seqparm->views[i].num_anchor_refs_l0)) return 1;
+		if (seqparm->views[i].num_anchor_refs_l0 > 15) {
+			fprintf (stderr, "num_anchor_refs_l0 over limit\n");
+			return 1;
+		}
+		for (j = 0; j < seqparm->views[i].num_anchor_refs_l0; j++)
+			if (vs_ue(str, &seqparm->views[i].anchor_ref_l0[j])) return 1;
+		if (vs_ue(str, &seqparm->views[i].num_anchor_refs_l1)) return 1;
+		if (seqparm->views[i].num_anchor_refs_l1 > 15) {
+			fprintf (stderr, "num_anchor_refs_l1 over limit\n");
+			return 1;
+		}
+		for (j = 0; j < seqparm->views[i].num_anchor_refs_l1; j++)
+			if (vs_ue(str, &seqparm->views[i].anchor_ref_l1[j])) return 1;
+	}
+	for (i = 1; i <= seqparm->num_views_minus1; i++) {
+		if (vs_ue(str, &seqparm->views[i].num_non_anchor_refs_l0)) return 1;
+		if (seqparm->views[i].num_non_anchor_refs_l0 > 15) {
+			fprintf (stderr, "num_non_anchor_refs_l0 over limit\n");
+			return 1;
+		}
+		for (j = 0; j < seqparm->views[i].num_non_anchor_refs_l0; j++)
+			if (vs_ue(str, &seqparm->views[i].non_anchor_ref_l0[j])) return 1;
+		if (vs_ue(str, &seqparm->views[i].num_non_anchor_refs_l1)) return 1;
+		if (seqparm->views[i].num_non_anchor_refs_l1 > 15) {
+			fprintf (stderr, "num_non_anchor_refs_l1 over limit\n");
+			return 1;
+		}
+		for (j = 0; j < seqparm->views[i].num_non_anchor_refs_l1; j++)
+			if (vs_ue(str, &seqparm->views[i].non_anchor_ref_l1[j])) return 1;
+	}
+	if (vs_ue(str, &seqparm->num_level_values_signalled_minus1)) return 1;
+	if (str->dir == VS_DECODE)
+		seqparm->levels = calloc(sizeof *seqparm->levels, seqparm->num_level_values_signalled_minus1 + 1);
+	for (i = 0; i <= seqparm->num_level_values_signalled_minus1; i++) {
+		if (vs_u(str, &seqparm->levels[i].level_idc, 8)) return 1;
+		if (vs_ue(str, &seqparm->levels[i].num_applicable_ops_minus1)) return 1;
+		if (str->dir == VS_DECODE)
+			seqparm->levels[i].applicable_ops = calloc(sizeof *seqparm->levels[i].applicable_ops, seqparm->levels[i].num_applicable_ops_minus1 + 1);
+		for (j = 0; j <= seqparm->levels[i].num_applicable_ops_minus1; j++) {
+			if (vs_u(str, &seqparm->levels[i].applicable_ops[j].temporal_id, 3)) return 1;
+			if (vs_ue(str, &seqparm->levels[i].applicable_ops[j].num_target_views_minus1)) return 1;
+			if (str->dir == VS_DECODE)
+				seqparm->levels[i].applicable_ops[j].target_view_id = calloc(sizeof *seqparm->levels[i].applicable_ops[j].target_view_id, seqparm->levels[i].applicable_ops[j].num_target_views_minus1 + 1);
+			for (k = 0; k <= seqparm->levels[i].applicable_ops[j].num_target_views_minus1; k++)
+				if (vs_ue(str, &seqparm->levels[i].applicable_ops[j].target_view_id[k])) return 1;
+			if (vs_ue(str, &seqparm->levels[i].applicable_ops[j].num_views_minus1)) return 1;
+		}
+	}
+	uint32_t mvc_vui_parameters_present_flag = !!(seqparm->mvc_vui);
+	if (vs_u(str, &mvc_vui_parameters_present_flag, 1)) return 1;
+	if (mvc_vui_parameters_present_flag) {
+		if (str->dir == VS_DECODE) {
+			seqparm->mvc_vui = calloc (sizeof *seqparm->mvc_vui, 1);
+		}
+		if (h264_mvc_vui_parameters(str, seqparm->mvc_vui)) return 1;
+	} else {
+		seqparm->mvc_vui = 0;
 	}
 	return 0;
 }

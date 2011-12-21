@@ -84,7 +84,7 @@ void h264_print_seqparm(struct h264_seqparm *seqparm) {
 	}
 	printf ("\tprofile_idc = %d [%s]\n", seqparm->profile_idc, profile_name);
 	printf ("\tconstraint_set =");
-	int i, j;
+	int i, j, k;
 	for (i = 7; i >= 0; i--)
 		printf(" %d", seqparm->constraint_set >> i & 1);
 	printf("\n");
@@ -186,6 +186,58 @@ void h264_print_seqparm(struct h264_seqparm *seqparm) {
 		printf("\t\tlog2_max_mv_length_vertical = %d\n", seqparm->vui->log2_max_mv_length_vertical);
 		printf("\t\tnum_reorder_frames = %d\n", seqparm->vui->num_reorder_frames);
 		printf("\t\tmax_dec_frame_buffering = %d\n", seqparm->vui->max_dec_frame_buffering);
+	}
+	if (seqparm->is_svc) {
+		printf("\tinter_layer_deblocking_filter_control_present_flag = %d\n", seqparm->inter_layer_deblocking_filter_control_present_flag);
+		printf("\textended_spatial_scalability_idc = %d\n", seqparm->extended_spatial_scalability_idc);
+		printf("\tchroma_phase_x_plus1_flag = %d\n", seqparm->chroma_phase_x_plus1_flag);
+		printf("\tchroma_phase_y_plus1 = %d\n", seqparm->chroma_phase_y_plus1);
+		printf("\tseq_ref_layer_chroma_phase_x_plus1_flag = %d\n", seqparm->seq_ref_layer_chroma_phase_x_plus1_flag);
+		printf("\tseq_ref_layer_chroma_phase_y_plus1 = %d\n", seqparm->seq_ref_layer_chroma_phase_y_plus1);
+		printf("\tseq_ref_layer_left_offset = %d\n", seqparm->seq_ref_layer_left_offset);
+		printf("\tseq_ref_layer_top_offset = %d\n", seqparm->seq_ref_layer_top_offset);
+		printf("\tseq_ref_layer_right_offset = %d\n", seqparm->seq_ref_layer_right_offset);
+		printf("\tseq_ref_layer_bottom_offset = %d\n", seqparm->seq_ref_layer_bottom_offset);
+		printf("\tseq_tcoeff_level_prediction_flag = %d\n", seqparm->seq_tcoeff_level_prediction_flag);
+		printf("\tadaptive_tcoeff_level_prediction_flag = %d\n", seqparm->adaptive_tcoeff_level_prediction_flag);
+		printf("\tslice_header_restriction_flag = %d\n", seqparm->slice_header_restriction_flag);
+		if (seqparm->svc_vui) {
+			/* XXX */
+		}
+	}
+	if (seqparm->is_mvc) {
+		printf("\tnum_views_minus1 = %d\n", seqparm->num_views_minus1);
+		for (i = 0; i <= seqparm->num_views_minus1; i++) {
+			printf("\tview_id[%d] = %d\n", i, seqparm->views[i].view_id);
+			printf("\tnum_anchor_refs_l0[%d] = %d\n", i, seqparm->views[i].num_anchor_refs_l0);
+			for (j = 1; j < seqparm->views[i].num_anchor_refs_l0; j++)
+				printf("\tanchor_ref_l0[%d][%d] = %d\n", i, j, seqparm->views[i].anchor_ref_l0[j]);
+			printf("\tnum_anchor_refs_l1[%d] = %d\n", i, seqparm->views[i].num_anchor_refs_l1);
+			for (j = 1; j < seqparm->views[i].num_anchor_refs_l1; j++)
+				printf("\tanchor_ref_l1[%d][%d] = %d\n", i, j, seqparm->views[i].anchor_ref_l1[j]);
+			printf("\tnum_non_anchor_refs_l0[%d] = %d\n", i, seqparm->views[i].num_non_anchor_refs_l0);
+			for (j = 1; j < seqparm->views[i].num_non_anchor_refs_l0; j++)
+				printf("\tnon_anchor_ref_l0[%d][%d] = %d\n", i, j, seqparm->views[i].non_anchor_ref_l0[j]);
+			printf("\tnum_non_anchor_refs_l1[%d] = %d\n", i, seqparm->views[i].num_non_anchor_refs_l1);
+			for (j = 1; j < seqparm->views[i].num_non_anchor_refs_l1; j++)
+				printf("\tnon_anchor_ref_l1[%d][%d] = %d\n", i, j, seqparm->views[i].non_anchor_ref_l1[j]);
+		}
+		printf("\tnum_level_values_signalled_minus1 = %d\n", seqparm->num_level_values_signalled_minus1);
+		for (i = 0; i <= seqparm->num_level_values_signalled_minus1; i++) {
+			printf("\tlevel_idc[%d] = %d.%d\n", i, seqparm->levels[i].level_idc / 10, seqparm->levels[i].level_idc % 10);
+			printf("\tnum_applicable_ops_minus1[%d] = %d\n", i, seqparm->levels[i].num_applicable_ops_minus1);
+			for (j = 0; j <= seqparm->levels[i].num_applicable_ops_minus1; j++) {
+				struct h264_seqparm_mvc_applicable_op *op = &seqparm->levels[i].applicable_ops[j];
+				printf("\tapplicable_op_temporal_id[%d][%d] = %d\n", i, j, op->temporal_id);
+				printf("\tapplicable_op_num_target_views_minus1[%d][%d] = %d\n", i, j, op->num_target_views_minus1);
+				for (k = 0; k <= op->num_target_views_minus1; k++)
+					printf("\tapplicable_op_target_view_id[%d][%d][%d] = %d\n", i, j, k, op->target_view_id[k]);
+				printf("\tapplicable_op_num_views_minus1[%d][%d] = %d\n", i, j, op->num_views_minus1);
+			}
+		}
+		if (seqparm->mvc_vui) {
+			/* XXX */
+		}
 	}
 }
 

@@ -278,6 +278,48 @@ struct h264_seqparm {
 	uint32_t frame_crop_top_offset;
 	uint32_t frame_crop_bottom_offset;
 	struct h264_vui *vui;
+	/* SVC part */
+	int is_svc;
+	uint32_t inter_layer_deblocking_filter_control_present_flag;
+	uint32_t extended_spatial_scalability_idc;
+	uint32_t chroma_phase_x_plus1_flag;
+	uint32_t chroma_phase_y_plus1;
+	uint32_t seq_ref_layer_chroma_phase_x_plus1_flag;
+	uint32_t seq_ref_layer_chroma_phase_y_plus1;
+	uint32_t seq_ref_layer_left_offset;
+	uint32_t seq_ref_layer_top_offset;
+	uint32_t seq_ref_layer_right_offset;
+	uint32_t seq_ref_layer_bottom_offset;
+	uint32_t seq_tcoeff_level_prediction_flag;
+	uint32_t adaptive_tcoeff_level_prediction_flag;
+	uint32_t slice_header_restriction_flag;
+	struct h264_vui *svc_vui;
+	/* MVC part */
+	int is_mvc;
+	uint32_t num_views_minus1;
+	struct h264_seqparm_mvc_view {
+		uint32_t view_id;
+		uint32_t num_anchor_refs_l0;
+		uint32_t anchor_ref_l0[15];
+		uint32_t num_anchor_refs_l1;
+		uint32_t anchor_ref_l1[15];
+		uint32_t num_non_anchor_refs_l0;
+		uint32_t non_anchor_ref_l0[15];
+		uint32_t num_non_anchor_refs_l1;
+		uint32_t non_anchor_ref_l1[15];
+	} *views;
+	uint32_t num_level_values_signalled_minus1;
+	struct h264_seqparm_mvc_level {
+		uint32_t level_idc;
+		uint32_t num_applicable_ops_minus1;
+		struct h264_seqparm_mvc_applicable_op {
+			uint32_t temporal_id;
+			uint32_t num_target_views_minus1;
+			uint32_t *target_view_id;
+			uint32_t num_views_minus1;
+		} *applicable_ops;
+	} *levels;
+	struct h264_vui *mvc_vui;
 	/* extension [alpha] part */
 	int has_ext;
 	uint32_t aux_format_idc;
@@ -426,6 +468,8 @@ int h264_intra_chroma_pred_mode(struct bitstream *str, struct h264_cabac_context
 void h264_del_seqparm(struct h264_seqparm *seqparm);
 
 int h264_seqparm(struct bitstream *str, struct h264_seqparm *seqparm);
+int h264_seqparm_svc(struct bitstream *str, struct h264_seqparm *seqparm);
+int h264_seqparm_mvc(struct bitstream *str, struct h264_seqparm *seqparm);
 int h264_seqparm_ext(struct bitstream *str, struct h264_seqparm **seqparms, uint32_t *pseq_parameter_set_id);
 int h264_pred_weight_table(struct bitstream *str, struct h264_slice *slice, struct h264_pred_weight_table *table);
 

@@ -52,28 +52,27 @@ int main() {
 		printf("\tnal_unit_type = %d\n", nal_unit_type);
 		struct h264_seqparm *sp;
 		uint32_t idx;
+		uint32_t additional_extension_flag = 0;
 		switch (nal_unit_type) {
 			case H264_NAL_UNIT_TYPE_SEQPARM:
 				sp = calloc (sizeof *sp, 1);
 				if (h264_seqparm(str, sp)) {
 					free(sp);
 					goto err;
-				} else {
-					if (vs_end(str)) {
-						free(sp);
-						goto err;
-					}
-					h264_print_seqparm(sp);
-					if (sp->seq_parameter_set_id > 31) {
-						fprintf(stderr, "seq_parameter_set_id out of bounds\n");
-						goto err;
-					} else {
-						if (seqparms[sp->seq_parameter_set_id]) {
-							h264_del_seqparm(seqparms[sp->seq_parameter_set_id]);
-						}
-						seqparms[sp->seq_parameter_set_id] = sp;
-					}
 				}
+				if (vs_end(str)) {
+					free(sp);
+					goto err;
+				}
+				h264_print_seqparm(sp);
+				if (sp->seq_parameter_set_id > 31) {
+					fprintf(stderr, "seq_parameter_set_id out of bounds\n");
+					goto err;
+				}
+				if (seqparms[sp->seq_parameter_set_id]) {
+					h264_del_seqparm(seqparms[sp->seq_parameter_set_id]);
+				}
+				seqparms[sp->seq_parameter_set_id] = sp;
 				break;
 			case H264_NAL_UNIT_TYPE_SEQPARM_EXT:
 				if (h264_seqparm_ext(str, seqparms, &idx))
@@ -105,6 +104,57 @@ int main() {
 				break;
 			case H264_NAL_UNIT_TYPE_END_STREAM:
 				printf ("End of stream.\n");
+				break;
+			case H264_NAL_UNIT_TYPE_SUBSET_SEQPARM:
+				sp = calloc (sizeof *sp, 1);
+				if (h264_seqparm(str, sp)) {
+					free(sp);
+					goto err;
+				}
+				switch (sp->profile_idc) {
+					case H264_PROFILE_SCALABLE_BASELINE:
+					case H264_PROFILE_SCALABLE_HIGH:
+						if (h264_seqparm_svc(str, sp)) {
+							free(sp);
+							goto err;
+						}
+						break;
+					case H264_PROFILE_MULTIVIEW_HIGH:
+					case H264_PROFILE_STEREO_HIGH:
+						if (h264_seqparm_mvc(str, sp)) {
+							free(sp);
+							goto err;
+						}
+						break;
+					default:
+						break;
+				}
+				if (vs_u(str, &additional_extension_flag, 1)) {
+					free(sp);
+					goto err;
+				}
+				if (additional_extension_flag) {
+					fprintf(stderr, "WARNING: additional data in subset seqparm extension\n");
+					while (vs_has_more_data(str)) {
+						if (vs_u(str, &additional_extension_flag, 1)) {
+							free(sp);
+							goto err;
+						}
+					}
+				}
+				if (vs_end(str)) {
+					free(sp);
+					goto err;
+				}
+				h264_print_seqparm(sp);
+				if (sp->seq_parameter_set_id > 31) {
+					fprintf(stderr, "seq_parameter_set_id out of bounds\n");
+					goto err;
+				}
+				if (seqparms[sp->seq_parameter_set_id]) {
+					h264_del_seqparm(seqparms[sp->seq_parameter_set_id]);
+				}
+				seqparms[sp->seq_parameter_set_id] = sp;
 				break;
 			default:
 				fprintf(stderr, "Unknown NAL type\n");
