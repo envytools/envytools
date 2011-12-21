@@ -317,6 +317,33 @@ int h264_seqparm(struct bitstream *str, struct h264_seqparm *seqparm) {
 	return 0;
 }
 
+int h264_seqparm_ext(struct bitstream *str, struct h264_seqparm **seqparms, uint32_t *pseq_parameter_set_id) {
+	if (vs_ue(str, pseq_parameter_set_id)) return 1;
+	struct h264_seqparm *seqparm = seqparms[*pseq_parameter_set_id];
+	if (*pseq_parameter_set_id > 31) {
+		fprintf(stderr, "seq_parameter_set_id out of bounds\n");
+		return 1;
+	}
+	if (vs_ue(str, &seqparm->aux_format_idc)) return 1;
+	if (seqparm->aux_format_idc) {
+		if (vs_ue(str, &seqparm->bit_depth_aux_minus8)) return 1;
+		if (vs_u(str, &seqparm->alpha_incr_flag, 1)) return 1;
+		if (vs_u(str, &seqparm->alpha_opaque_value, seqparm->bit_depth_aux_minus8 + 9)) return 1;
+		if (vs_u(str, &seqparm->alpha_transparent_value, seqparm->bit_depth_aux_minus8 + 9)) return 1;
+	}
+	uint32_t additional_extension_flag = 0;
+	if (vs_u(str, &additional_extension_flag, 1)) return 1;
+	if (additional_extension_flag) {
+		fprintf(stderr, "WARNING: additional data in seqparm extension\n");
+		while (vs_has_more_data(str)) {
+			if (vs_u(str, &additional_extension_flag, 1)) return 1;
+		}
+	}
+	if (str->dir == VS_DECODE)
+		seqparm->has_ext = 1;
+	return 0;
+}
+
 int h264_mb_avail(struct h264_slice *slice, uint32_t mbaddr) {
 	/* XXX: wrong with FMO */
 	if (mbaddr < slice->first_mb_in_slice

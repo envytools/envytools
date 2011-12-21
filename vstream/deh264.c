@@ -51,6 +51,7 @@ int main() {
 		printf("\tnal_ref_idc = %d\n", nal_ref_idc);
 		printf("\tnal_unit_type = %d\n", nal_unit_type);
 		struct h264_seqparm *sp;
+		uint32_t idx;
 		switch (nal_unit_type) {
 			case H264_NAL_UNIT_TYPE_SEQPARM:
 				sp = calloc (sizeof *sp, 1);
@@ -58,7 +59,10 @@ int main() {
 					free(sp);
 					goto err;
 				} else {
-					if (vs_end(str)) goto err;
+					if (vs_end(str)) {
+						free(sp);
+						goto err;
+					}
 					h264_print_seqparm(sp);
 					if (sp->seq_parameter_set_id > 31) {
 						fprintf(stderr, "seq_parameter_set_id out of bounds\n");
@@ -70,6 +74,13 @@ int main() {
 						seqparms[sp->seq_parameter_set_id] = sp;
 					}
 				}
+				break;
+			case H264_NAL_UNIT_TYPE_SEQPARM_EXT:
+				if (h264_seqparm_ext(str, seqparms, &idx))
+					goto err;
+				if (vs_end(str))
+					goto err;
+				h264_print_seqparm_ext(seqparms[idx]);
 				break;
 			case H264_NAL_UNIT_TYPE_ACC_UNIT_DELIM: {
 				uint32_t primary_pic_type;

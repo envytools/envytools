@@ -59,8 +59,19 @@ enum h264_profile_idc {
 	H264_PROFILE_MULTIVIEW_HIGH = 118,
 	H264_PROFILE_HIGH_422 = 122,
 	H264_PROFILE_STEREO_HIGH = 128,
+	H264_PROFILE_HIGH_444 = 144,
 	H264_PROFILE_HIGH_444_PRED = 244,
 };
+
+/* constraints:
+ *  0: conforms to baseline / scalable baseline
+ *  1: conforms to main / scalable high
+ *  2: conforms to extended
+ *  3: for BASELINE, MAIN, EXTENDED: level 1b
+ *     for HIGH, HIGH_10, HIGH_422, HIGH_444, CAVLC_444, SCALABLE_HIGH: intra-only [must be set for CAVLC_444]
+ *  4: conforms to multiview high
+ *  5: if MULTIVIEW_HIGH, conforms to stereo high
+ */
 
 enum h264_primary_pic_type {
 	H264_PRIMARY_PIC_TYPE_I = 0,
@@ -267,6 +278,13 @@ struct h264_seqparm {
 	uint32_t frame_crop_top_offset;
 	uint32_t frame_crop_bottom_offset;
 	struct h264_vui *vui;
+	/* extension [alpha] part */
+	int has_ext;
+	uint32_t aux_format_idc;
+	uint32_t bit_depth_aux_minus8;
+	uint32_t alpha_incr_flag;
+	uint32_t alpha_opaque_value;
+	uint32_t alpha_transparent_value;
 };
 
 struct h264_picparm {
@@ -299,6 +317,9 @@ struct h264_slice {
 	uint32_t cabac_init_idc;
 	uint32_t first_mb_in_slice;
 	/* derived stuff starts here */
+	uint32_t chroma_array_type;
+	uint32_t bit_depth_luma_minus8;
+	uint32_t bit_depth_chroma_minus8;
 	uint32_t sliceqpy;
 	uint32_t last_mb_in_slice;
 	uint32_t pic_width_in_mbs;
@@ -405,8 +426,10 @@ int h264_intra_chroma_pred_mode(struct bitstream *str, struct h264_cabac_context
 void h264_del_seqparm(struct h264_seqparm *seqparm);
 
 int h264_seqparm(struct bitstream *str, struct h264_seqparm *seqparm);
+int h264_seqparm_ext(struct bitstream *str, struct h264_seqparm **seqparms, uint32_t *pseq_parameter_set_id);
 int h264_pred_weight_table(struct bitstream *str, struct h264_slice *slice, struct h264_pred_weight_table *table);
 
 void h264_print_seqparm(struct h264_seqparm *seqparm);
+void h264_print_seqparm_ext(struct h264_seqparm *seqparm);
 
 #endif

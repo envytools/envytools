@@ -188,3 +188,14 @@ void h264_print_seqparm(struct h264_seqparm *seqparm) {
 		printf("\t\tmax_dec_frame_buffering = %d\n", seqparm->vui->max_dec_frame_buffering);
 	}
 }
+
+void h264_print_seqparm_ext(struct h264_seqparm *seqparm) {
+	printf("Sequence parameter set extension:\n");
+	printf("\taux_format_idc = %d\n", seqparm->aux_format_idc);
+	if (seqparm->aux_format_idc) {
+		printf("\tbit_depth_aux_minus8 = %d\n", seqparm->bit_depth_aux_minus8);
+		printf("\talpha_incr_flag = %d\n", seqparm->alpha_incr_flag);
+		printf("\talpha_opaque_value = %d\n", seqparm->alpha_opaque_value);
+		printf("\talpha_transparent_value = %d\n", seqparm->alpha_transparent_value);
+	}
+}
