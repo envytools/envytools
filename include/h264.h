@@ -73,6 +73,16 @@ enum h264_profile_idc {
  *  5: if MULTIVIEW_HIGH, conforms to stereo high
  */
 
+enum h264_slice_group_map_type {
+	H264_SLICE_GROUP_MAP_INTERLEAVED = 0,
+	H264_SLICE_GROUP_MAP_DISPERSED = 1,
+	H264_SLICE_GROUP_MAP_FOREGROUND = 2,
+	H264_SLICE_GROUP_MAP_CHANGING_BOX = 3,
+	H264_SLICE_GROUP_MAP_CHANGING_VERTICAL = 4,
+	H264_SLICE_GROUP_MAP_CHANGING_HORIZONTAL = 5,
+	H264_SLICE_GROUP_MAP_EXPLICIT = 6,
+};
+
 enum h264_primary_pic_type {
 	H264_PRIMARY_PIC_TYPE_I = 0,
 	H264_PRIMARY_PIC_TYPE_P_I = 1,
@@ -330,12 +340,38 @@ struct h264_seqparm {
 };
 
 struct h264_picparm {
-	struct h264_seqparm *seqparm;
+	uint32_t pic_parameter_set_id;
+	uint32_t seq_parameter_set_id;
 	uint32_t entropy_coding_mode_flag;
+	uint32_t bottom_field_pic_order_in_frame_present_flag;
+	uint32_t num_slice_groups_minus1;
+	uint32_t slice_group_map_type;
+	uint32_t run_length_minus1[8];
+	uint32_t top_left[8];
+	uint32_t bottom_right[8];
+	uint32_t slice_group_change_direction_flag;
+	uint32_t slice_group_change_rate_minus1;
+	uint32_t pic_size_in_map_units_minus1;
+	uint32_t *slice_group_id;
 	uint32_t num_ref_idx_l0_default_active_minus1;
 	uint32_t num_ref_idx_l1_default_active_minus1;
+	uint32_t weighted_pred_flag;
+	uint32_t weighted_bipred_idc;
 	uint32_t pic_init_qp_minus26;
+	uint32_t pic_init_qs_minus26;
+	uint32_t chroma_qp_index_offset;
+	uint32_t deblocking_filter_control_present_flag;
+	uint32_t constrained_intra_pred_flag;
+	uint32_t redundant_pic_cnt_present_flag;
+	/* start of new stuff */
 	uint32_t transform_8x8_mode_flag;
+	uint32_t chroma_format_idc;
+	uint32_t pic_scaling_matrix_present_flag;
+	uint32_t pic_scaling_list_present_flag[12];
+	uint32_t use_default_scaling_matrix_flag[12];
+	uint32_t pic_scaling_list_4x4[6][16];
+	uint32_t pic_scaling_list_8x8[6][64];
+	uint32_t second_chroma_qp_index_offset;
 };
 
 struct h264_macroblock {
@@ -351,6 +387,7 @@ struct h264_macroblock {
 };
 
 struct h264_slice {
+	struct h264_seqparm *seqparm;
 	struct h264_picparm *picparm;
 	uint32_t slice_type;
 	uint32_t num_ref_idx_l0_active_minus1;
@@ -466,14 +503,17 @@ int h264_rem_intra_pred_mode(struct bitstream *str, struct h264_cabac_context *c
 int h264_intra_chroma_pred_mode(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *val);
 
 void h264_del_seqparm(struct h264_seqparm *seqparm);
+void h264_del_picparm(struct h264_picparm *picparm);
 
 int h264_seqparm(struct bitstream *str, struct h264_seqparm *seqparm);
 int h264_seqparm_svc(struct bitstream *str, struct h264_seqparm *seqparm);
 int h264_seqparm_mvc(struct bitstream *str, struct h264_seqparm *seqparm);
 int h264_seqparm_ext(struct bitstream *str, struct h264_seqparm **seqparms, uint32_t *pseq_parameter_set_id);
+int h264_picparm(struct bitstream *str, struct h264_seqparm **seqparms, struct h264_seqparm **subseqparms, struct h264_picparm *picparm);
 int h264_pred_weight_table(struct bitstream *str, struct h264_slice *slice, struct h264_pred_weight_table *table);
 
 void h264_print_seqparm(struct h264_seqparm *seqparm);
 void h264_print_seqparm_ext(struct h264_seqparm *seqparm);
+void h264_print_picparm(struct h264_picparm *picparm);
 
 #endif

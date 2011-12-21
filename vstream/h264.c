@@ -30,7 +30,11 @@
 
 void h264_del_seqparm(struct h264_seqparm *seqparm) {
 	int i, j;
-	free(seqparm->vui);
+	if (seqparm->vui) {
+		free(seqparm->vui->nal_hrd_parameters);
+		free(seqparm->vui->vcl_hrd_parameters);
+		free(seqparm->vui);
+	}
 	if (seqparm->is_mvc) {
 		free(seqparm->views);
 		for (i = 0; i <= seqparm->num_level_values_signalled_minus1; i++) {
@@ -42,6 +46,11 @@ void h264_del_seqparm(struct h264_seqparm *seqparm) {
 		free(seqparm->levels);
 	}
 	free(seqparm);
+}
+
+void h264_del_picparm(struct h264_picparm *picparm) {
+	free(picparm->slice_group_id);
+	free(picparm);
 }
 
 int h264_scaling_list(struct bitstream *str, uint32_t *scaling_list, int size, uint32_t *use_default_flag) {
@@ -475,9 +484,13 @@ int h264_seqparm_mvc(struct bitstream *str, struct h264_seqparm *seqparm) {
 
 int h264_seqparm_ext(struct bitstream *str, struct h264_seqparm **seqparms, uint32_t *pseq_parameter_set_id) {
 	if (vs_ue(str, pseq_parameter_set_id)) return 1;
-	struct h264_seqparm *seqparm = seqparms[*pseq_parameter_set_id];
 	if (*pseq_parameter_set_id > 31) {
 		fprintf(stderr, "seq_parameter_set_id out of bounds\n");
+		return 1;
+	}
+	struct h264_seqparm *seqparm = seqparms[*pseq_parameter_set_id];
+	if (!seqparm) {
+		fprintf(stderr, "seqparm extension for nonexistent seqparm\n");
 		return 1;
 	}
 	if (vs_ue(str, &seqparm->aux_format_idc)) return 1;
@@ -497,6 +510,115 @@ int h264_seqparm_ext(struct bitstream *str, struct h264_seqparm **seqparms, uint
 	}
 	if (str->dir == VS_DECODE)
 		seqparm->has_ext = 1;
+	return 0;
+}
+
+int h264_picparm(struct bitstream *str, struct h264_seqparm **seqparms, struct h264_seqparm **subseqparms, struct h264_picparm *picparm) {
+	int i;
+	if (vs_ue(str, &picparm->pic_parameter_set_id)) return 1;
+	if (vs_ue(str, &picparm->seq_parameter_set_id)) return 1;
+	if (picparm->seq_parameter_set_id > 31) {
+		fprintf(stderr, "seq_parameter_set_id out of bounds\n");
+		return 1;
+	}
+	if (vs_u(str, &picparm->entropy_coding_mode_flag, 1)) return 1;
+	if (vs_u(str, &picparm->bottom_field_pic_order_in_frame_present_flag, 1)) return 1;
+	if (vs_ue(str, &picparm->num_slice_groups_minus1)) return 1;
+	if (picparm->num_slice_groups_minus1) {
+		if (picparm->num_slice_groups_minus1 > 7) {
+			fprintf(stderr, "num_slice_groups_minus1 over limit\n");
+			return 1;
+		}
+		if (vs_ue(str, &picparm->slice_group_map_type)) return 1;
+		switch (picparm->slice_group_map_type) {
+			case H264_SLICE_GROUP_MAP_INTERLEAVED:
+				for (i = 0; i <= picparm->num_slice_groups_minus1; i++)
+					if (vs_ue(str, &picparm->run_length_minus1[i])) return 1;
+
+				break;
+			case H264_SLICE_GROUP_MAP_DISPERSED:
+				break;
+			case H264_SLICE_GROUP_MAP_FOREGROUND:
+				for (i = 0; i < picparm->num_slice_groups_minus1; i++) {
+					if (vs_ue(str, &picparm->top_left[i])) return 1;
+					if (vs_ue(str, &picparm->bottom_right[i])) return 1;
+
+				}
+				break;
+			case H264_SLICE_GROUP_MAP_CHANGING_BOX:
+			case H264_SLICE_GROUP_MAP_CHANGING_VERTICAL:
+			case H264_SLICE_GROUP_MAP_CHANGING_HORIZONTAL:
+				if (vs_u(str, &picparm->slice_group_change_direction_flag, 1)) return 1;
+				if (vs_ue(str, &picparm->slice_group_change_rate_minus1)) return 1;
+				break;
+			case H264_SLICE_GROUP_MAP_EXPLICIT:
+				if (vs_ue(str, &picparm->pic_size_in_map_units_minus1)) return 1;
+				if (str->dir == VS_DECODE)
+					picparm->slice_group_id = calloc(sizeof *picparm->slice_group_id, picparm->pic_size_in_map_units_minus1 + 1);
+				static const int sizes[8] = { 0, 1, 2, 2, 3, 3, 3, 3 };
+				for (i = 0; i <= picparm->pic_size_in_map_units_minus1; i++)
+					if (vs_u(str, &picparm->slice_group_id[i], sizes[picparm->num_slice_groups_minus1])) return 1;
+				break;
+			default:
+				fprintf(stderr, "Unknown slice_group_map_type %d!\n", picparm->slice_group_map_type);
+				return 1;
+		}
+	}
+	if (vs_ue(str, &picparm->num_ref_idx_l0_default_active_minus1)) return 1;
+	if (vs_ue(str, &picparm->num_ref_idx_l1_default_active_minus1)) return 1;
+	if (vs_u(str, &picparm->weighted_pred_flag, 1)) return 1;
+	if (vs_u(str, &picparm->weighted_bipred_idc, 2)) return 1;
+	if (vs_se(str, &picparm->pic_init_qp_minus26)) return 1;
+	if (vs_se(str, &picparm->pic_init_qs_minus26)) return 1;
+	if (vs_se(str, &picparm->chroma_qp_index_offset)) return 1;
+	if (vs_u(str, &picparm->deblocking_filter_control_present_flag, 1)) return 1;
+	if (vs_u(str, &picparm->constrained_intra_pred_flag, 1)) return 1;
+	if (vs_u(str, &picparm->redundant_pic_cnt_present_flag, 1)) return 1;
+	int more;
+	if (str->dir == VS_ENCODE) {
+		more = picparm->transform_8x8_mode_flag || picparm->pic_scaling_matrix_present_flag || picparm->second_chroma_qp_index_offset != picparm->chroma_qp_index_offset;
+	} else {
+		more = vs_has_more_data(str);
+	}
+	if (more) {
+		if (vs_u(str, &picparm->transform_8x8_mode_flag, 1)) return 1;
+		if (vs_u(str, &picparm->pic_scaling_matrix_present_flag, 1)) return 1;
+		if (picparm->pic_scaling_matrix_present_flag) {
+			/* brain damage workaround start */
+			struct h264_seqparm *seqparm = seqparms[picparm->seq_parameter_set_id], *subseqparm = subseqparms[picparm->seq_parameter_set_id];;
+			if (seqparm) {
+				picparm->chroma_format_idc = seqparm->chroma_format_idc;
+				if (subseqparm) {
+					if (subseqparm->chroma_format_idc != picparm->chroma_format_idc) {
+						fprintf(stderr, "conflicting chroma_format_idc between seqparm and subseqparm, please complain to ITU/ISO about retarded spec and to bitstream source about retarded bitstream.\n");
+						return 1;
+					}
+				}
+			} else if (subseqparm) {
+				picparm->chroma_format_idc = subseqparm->chroma_format_idc;
+			} else {
+				fprintf(stderr, "picparm for nonexistent seqparm/subseqparm!\n");
+				return 1;
+			}
+			/* brain damage workaround end */
+			int i;
+			for (i = 0; i < (picparm->chroma_format_idc == 3 ? 12 : 8); i++) {
+				if (vs_u(str, &picparm->pic_scaling_list_present_flag[i], 1)) return 1;
+				if (picparm->pic_scaling_list_present_flag[i]) {
+					if (i < 6) {
+						if (h264_scaling_list(str, picparm->pic_scaling_list_4x4[i], 16, &picparm->use_default_scaling_matrix_flag[i])) return 1;;
+					} else {
+						if (h264_scaling_list(str, picparm->pic_scaling_list_8x8[i-6], 64, &picparm->use_default_scaling_matrix_flag[i])) return 1;;
+					}
+				}
+			}
+		}
+		if (vs_se(str, &picparm->second_chroma_qp_index_offset)) return 1;
+	} else {
+		if (vs_infer(str, &picparm->transform_8x8_mode_flag, 0)) return 1;
+		if (vs_infer(str, &picparm->pic_scaling_matrix_present_flag, 0)) return 1;
+		if (vs_infer(str, &picparm->second_chroma_qp_index_offset, picparm->chroma_qp_index_offset)) return 1;
+	}
 	return 0;
 }
 
@@ -609,7 +731,7 @@ int h264_residual(struct bitstream *str, struct h264_cabac_context *cabac, struc
 
 int h264_macroblock_layer(struct bitstream *str, struct h264_cabac_context *cabac, struct h264_slice *slice, struct h264_macroblock *mb) {
 	struct h264_picparm *picparm = slice->picparm;
-	struct h264_seqparm *seqparm = picparm->seqparm;
+	struct h264_seqparm *seqparm = slice->seqparm;
 	if (h264_mb_type(str, cabac, slice->slice_type, &mb->mb_type)) return 1;
 	if (mb->mb_type == H264_MB_TYPE_I_PCM) {
 		if (vs_align_byte(str, VS_ALIGN_0)) return 1;

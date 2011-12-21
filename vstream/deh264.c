@@ -37,6 +37,8 @@ int main() {
 	}
 	struct bitstream *str = vs_new_decode(VS_H264, bytes, bytesnum);
 	struct h264_seqparm *seqparms[32] = { 0 };
+	struct h264_seqparm *subseqparms[32] = { 0 };
+	struct h264_picparm *picparms[256] = { 0 };
 	int res;
 	while (1) {
 		uint32_t start_code;
@@ -51,17 +53,18 @@ int main() {
 		printf("\tnal_ref_idc = %d\n", nal_ref_idc);
 		printf("\tnal_unit_type = %d\n", nal_unit_type);
 		struct h264_seqparm *sp;
+		struct h264_picparm *pp;
 		uint32_t idx;
 		uint32_t additional_extension_flag = 0;
 		switch (nal_unit_type) {
 			case H264_NAL_UNIT_TYPE_SEQPARM:
 				sp = calloc (sizeof *sp, 1);
 				if (h264_seqparm(str, sp)) {
-					free(sp);
+					h264_del_seqparm(sp);
 					goto err;
 				}
 				if (vs_end(str)) {
-					free(sp);
+					h264_del_seqparm(sp);
 					goto err;
 				}
 				h264_print_seqparm(sp);
@@ -73,6 +76,26 @@ int main() {
 					h264_del_seqparm(seqparms[sp->seq_parameter_set_id]);
 				}
 				seqparms[sp->seq_parameter_set_id] = sp;
+				break;
+			case H264_NAL_UNIT_TYPE_PICPARM:
+				pp = calloc (sizeof *pp, 1);
+				if (h264_picparm(str, seqparms, subseqparms, pp)) {
+					h264_del_picparm(pp);
+					goto err;
+				}
+				if (vs_end(str)) {
+					h264_del_picparm(pp);
+					goto err;
+				}
+				h264_print_picparm(pp);
+				if (pp->pic_parameter_set_id > 255) {
+					fprintf(stderr, "pic_parameter_set_id out of bounds\n");
+					goto err;
+				}
+				if (picparms[pp->pic_parameter_set_id]) {
+					h264_del_picparm(picparms[pp->pic_parameter_set_id]);
+				}
+				picparms[pp->pic_parameter_set_id] = pp;
 				break;
 			case H264_NAL_UNIT_TYPE_SEQPARM_EXT:
 				if (h264_seqparm_ext(str, seqparms, &idx))
@@ -108,21 +131,21 @@ int main() {
 			case H264_NAL_UNIT_TYPE_SUBSET_SEQPARM:
 				sp = calloc (sizeof *sp, 1);
 				if (h264_seqparm(str, sp)) {
-					free(sp);
+					h264_del_seqparm(sp);
 					goto err;
 				}
 				switch (sp->profile_idc) {
 					case H264_PROFILE_SCALABLE_BASELINE:
 					case H264_PROFILE_SCALABLE_HIGH:
 						if (h264_seqparm_svc(str, sp)) {
-							free(sp);
+							h264_del_seqparm(sp);
 							goto err;
 						}
 						break;
 					case H264_PROFILE_MULTIVIEW_HIGH:
 					case H264_PROFILE_STEREO_HIGH:
 						if (h264_seqparm_mvc(str, sp)) {
-							free(sp);
+							h264_del_seqparm(sp);
 							goto err;
 						}
 						break;
@@ -130,20 +153,20 @@ int main() {
 						break;
 				}
 				if (vs_u(str, &additional_extension_flag, 1)) {
-					free(sp);
+					h264_del_seqparm(sp);
 					goto err;
 				}
 				if (additional_extension_flag) {
 					fprintf(stderr, "WARNING: additional data in subset seqparm extension\n");
 					while (vs_has_more_data(str)) {
 						if (vs_u(str, &additional_extension_flag, 1)) {
-							free(sp);
+							h264_del_seqparm(sp);
 							goto err;
 						}
 					}
 				}
 				if (vs_end(str)) {
-					free(sp);
+					h264_del_seqparm(sp);
 					goto err;
 				}
 				h264_print_seqparm(sp);
@@ -151,10 +174,10 @@ int main() {
 					fprintf(stderr, "seq_parameter_set_id out of bounds\n");
 					goto err;
 				}
-				if (seqparms[sp->seq_parameter_set_id]) {
-					h264_del_seqparm(seqparms[sp->seq_parameter_set_id]);
+				if (subseqparms[sp->seq_parameter_set_id]) {
+					h264_del_seqparm(subseqparms[sp->seq_parameter_set_id]);
 				}
-				seqparms[sp->seq_parameter_set_id] = sp;
+				subseqparms[sp->seq_parameter_set_id] = sp;
 				break;
 			default:
 				fprintf(stderr, "Unknown NAL type\n");

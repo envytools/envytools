@@ -251,3 +251,74 @@ void h264_print_seqparm_ext(struct h264_seqparm *seqparm) {
 		printf("\talpha_transparent_value = %d\n", seqparm->alpha_transparent_value);
 	}
 }
+
+void h264_print_picparm(struct h264_picparm *picparm) {
+	printf("Picture parameter set:\n");
+	printf ("\tpic_parameter_set_id = %d\n", picparm->pic_parameter_set_id);
+	printf ("\tseq_parameter_set_id = %d\n", picparm->seq_parameter_set_id);
+	printf ("\tentropy_coding_mode_flag = %d\n", picparm->entropy_coding_mode_flag);
+	printf ("\tbottom_field_pic_order_in_frame_present_flag = %d\n", picparm->bottom_field_pic_order_in_frame_present_flag);
+	printf ("\tnum_slice_groups_minus1 = %d\n", picparm->num_slice_groups_minus1);
+	if (picparm->num_slice_groups_minus1) {
+		int i;
+		printf ("\tslice_group_map_type = %d\n", picparm->slice_group_map_type);
+		switch (picparm->slice_group_map_type) {
+			case H264_SLICE_GROUP_MAP_INTERLEAVED:
+				for (i = 0; i <= picparm->num_slice_groups_minus1; i++) {
+					printf ("\trun_length_minus1[%d] = %d\n", i, picparm->run_length_minus1[i]);
+
+				}
+				break;
+			case H264_SLICE_GROUP_MAP_DISPERSED:
+				break;
+			case H264_SLICE_GROUP_MAP_FOREGROUND:
+				for (i = 0; i < picparm->num_slice_groups_minus1; i++) {
+					printf ("\ttop_left[%d] = %d\n", i, picparm->top_left[i]);
+					printf ("\tbottom_right[%d] = %d\n", i, picparm->bottom_right[i]);
+
+				}
+				break;
+			case H264_SLICE_GROUP_MAP_CHANGING_BOX:
+			case H264_SLICE_GROUP_MAP_CHANGING_VERTICAL:
+			case H264_SLICE_GROUP_MAP_CHANGING_HORIZONTAL:
+				printf ("\tslice_group_change_direction_flag = %d\n", picparm->slice_group_change_direction_flag);
+				printf ("\tslice_group_change_rate_minus1 = %d\n", picparm->slice_group_change_rate_minus1);
+				break;
+			case H264_SLICE_GROUP_MAP_EXPLICIT:
+				printf ("\tpic_size_in_map_units_minus1 = %d\n", picparm->pic_size_in_map_units_minus1);
+				for (i = 0; i <= picparm->pic_size_in_map_units_minus1; i++)
+					printf ("\tslice_group_id[%d] = %d\n", i, picparm->slice_group_id[i]);
+				break;
+		}
+	}
+	printf ("\tnum_ref_idx_l0_default_active_minus1 = %d\n", picparm->num_ref_idx_l0_default_active_minus1);
+	printf ("\tnum_ref_idx_l1_default_active_minus1 = %d\n", picparm->num_ref_idx_l1_default_active_minus1);
+	printf ("\tweighted_pred_flag = %d\n", picparm->weighted_pred_flag);
+	printf ("\tweighted_bipred_idc = %d\n", picparm->weighted_bipred_idc);
+	printf ("\tpic_init_qp_minus26 = %d\n", picparm->pic_init_qp_minus26);
+	printf ("\tpic_init_qs_minus26 = %d\n", picparm->pic_init_qs_minus26);
+	printf ("\tchroma_qp_index_offset = %d\n", picparm->chroma_qp_index_offset);
+	printf ("\tdeblocking_filter_control_present_flag = %d\n", picparm->deblocking_filter_control_present_flag);
+	printf ("\tconstrained_intra_pred_flag = %d\n", picparm->constrained_intra_pred_flag);
+	printf ("\tredundant_pic_cnt_present_flag = %d\n", picparm->redundant_pic_cnt_present_flag);
+	printf ("\ttransform_8x8_mode_flag = %d\n", picparm->transform_8x8_mode_flag);
+	printf ("\tpic_scaling_matrix_present_flag = %d\n", picparm->pic_scaling_matrix_present_flag);
+	if (picparm->pic_scaling_matrix_present_flag) {
+		int i, j;
+		for (i = 0; i < (picparm->chroma_format_idc == 3 ? 12 : 8); i++) {
+			printf ("\tpic_scaling_list_present_flag[%d] = %d\n", i, picparm->pic_scaling_list_present_flag[i]);
+			if (picparm->pic_scaling_list_present_flag[i]) {
+				printf ("\tuse_default_scaling_matrix_flag[%d] = %d\n", i, picparm->use_default_scaling_matrix_flag[i]);
+				if (!picparm->use_default_scaling_matrix_flag[i]) {
+					for (j = 0; j < (i < 6 ? 16 : 64); j++) {
+						if (i < 6)
+							printf ("\tpic_scaling_list[%d][%d] = %d\n", i, j, picparm->pic_scaling_list_4x4[i][j]);
+						else
+							printf ("\tpic_scaling_list[%d][%d] = %d\n", i, j, picparm->pic_scaling_list_8x8[i-6][j]);
+					}
+				}
+			}
+		}
+	}
+	printf ("\tsecond_chroma_qp_index_offset = %d\n", picparm->second_chroma_qp_index_offset);
+}
