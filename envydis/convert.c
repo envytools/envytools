@@ -71,7 +71,9 @@ struct expr *convert_expr(struct ed2a_expr *expr) {
 			res = makebinex(EXPR_MUL, convert_expr(expr->e1), convert_expr(expr->e2));
 			break;
 		case ED2A_ET_UMINUS:
-			res = makebinex(EXPR_SUB, makeex(EXPR_NUM), convert_expr(expr->e1));
+			res = makeex(EXPR_NUM);
+			res->isimm = 1;
+			res = makebinex(EXPR_SUB, res, convert_expr(expr->e1));
 			break;
 		case ED2A_ET_DISCARD:
 			res = makeex(EXPR_DISCARD);
