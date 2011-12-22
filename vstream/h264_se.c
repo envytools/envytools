@@ -32,11 +32,11 @@ int h264_mb_skip_flag(struct bitstream *str, struct h264_cabac_context *cabac, u
 		return 1;
 	}
 	int ctxIdxOffset, ctxIdxInc;
-	if (cabac->slice->slice_type == H264_SLICE_TYPE_P || cabac->slice->slice_type == H264_SLICE_TYPE_SP)
+	if (cabac->slice->slice_type == H264_SLICE_TYPE_P || cabac->slice->slice_type == H264_SLICE_TYPE_SP) {
 		ctxIdxOffset = H264_CABAC_CTXIDX_MB_SKIP_FLAG_P;
-	if (cabac->slice->slice_type == H264_SLICE_TYPE_B)
+	} else if (cabac->slice->slice_type == H264_SLICE_TYPE_B) {
 		ctxIdxOffset = H264_CABAC_CTXIDX_MB_SKIP_FLAG_B;
-	else {
+	} else {
 		fprintf (stderr, "mb_skip_flag used in I/SI slice\n");
 		return 1;
 	}
