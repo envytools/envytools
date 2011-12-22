@@ -928,7 +928,16 @@ uint32_t h264_next_mb_addr(struct h264_slice *slice, uint32_t mbaddr) {
 	return mbaddr+1;
 }
 
-uint32_t h264_mb_nb(struct h264_slice *slice, enum h264_mb_pos pos) {
+static const struct h264_macroblock mb_unavail = {
+	/* filled with "default" values assumed by prediction for unavailable mbs, to avoid special cases */
+	.mb_type = H264_MB_TYPE_UNAVAIL,
+	.mb_field_decoding_flag = 0,
+	.coded_block_pattern = 0x0f,
+	.transform_size_8x8_flag = 0,
+	.intra_chroma_pred_mode = 0,
+};
+
+const struct h264_macroblock *h264_mb_nb(struct h264_slice *slice, enum h264_mb_pos pos) {
 	uint32_t mbaddr = slice->curr_mb_addr;
 	if (slice->mbaff_frame_flag)
 		mbaddr /= 2;
@@ -937,7 +946,7 @@ uint32_t h264_mb_nb(struct h264_slice *slice, enum h264_mb_pos pos) {
 			break;
 		case H264_MB_A:
 			if ((mbaddr % slice->pic_width_in_mbs) == 0)
-				return -1;
+				return &mb_unavail;
 			mbaddr--;
 			break;
 		case H264_MB_B:
@@ -945,20 +954,20 @@ uint32_t h264_mb_nb(struct h264_slice *slice, enum h264_mb_pos pos) {
 			break;
 		case H264_MB_C:
 			if (((mbaddr+1) % slice->pic_width_in_mbs) == 0)
-				return -1;
+				return &mb_unavail;
 			mbaddr -= slice->pic_width_in_mbs - 1;
 			break;
 		case H264_MB_D:
 			if ((mbaddr % slice->pic_width_in_mbs) == 0)
-				return -1;
+				return &mb_unavail;
 			mbaddr -= slice->pic_width_in_mbs + 1;
 			break;
 	}
 	if (slice->mbaff_frame_flag)
 		mbaddr *= 2;
 	if (!h264_mb_avail(slice, mbaddr))
-		return -1;
-	return mbaddr;
+		return &mb_unavail;
+	return &slice->mbs[mbaddr];
 }
 
 int h264_pred_weight_table_entry(struct bitstream *str, struct h264_pred_weight_table *table, struct h264_pred_weight_table_entry *entry) {

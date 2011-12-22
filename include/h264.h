@@ -192,6 +192,8 @@ enum h264_mb_type {
 	H264_MB_TYPE_B_8X8		= H264_MB_TYPE_B_BASE + 22,
 	H264_MB_TYPE_B_SKIP		= H264_MB_TYPE_B_BASE + 23,
 	H264_MB_TYPE_B_END		= H264_MB_TYPE_B_BASE + 24,
+	/* for internal use only */
+	H264_MB_TYPE_UNAVAIL		= H264_MB_TYPE_B_END,
 };
 
 enum h264_sub_mb_type {
@@ -584,7 +586,7 @@ static inline int h264_sub_mb_type_split_mode(uint32_t sub_mb_type) {
 }
 
 int h264_mb_avail(struct h264_slice *slice, uint32_t mbaddr);
-uint32_t h264_mb_nb(struct h264_slice *slice, enum h264_mb_pos pos);
+const struct h264_macroblock *h264_mb_nb(struct h264_slice *slice, enum h264_mb_pos pos);
 uint32_t h264_next_mb_addr(struct h264_slice *slice, uint32_t mbaddr);
 
 int h264_mb_skip_flag(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *binVal);
