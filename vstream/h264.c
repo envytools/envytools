@@ -1017,11 +1017,15 @@ int h264_mb_pred(struct bitstream *str, struct h264_cabac_context *cabac, struct
 				}
 			}
 		}
-		if (slice->chroma_array_type == 1 || slice->chroma_array_type == 2)
+		if (slice->chroma_array_type == 1 || slice->chroma_array_type == 2) {
 			if (h264_intra_chroma_pred_mode(str, cabac, &mb->intra_chroma_pred_mode)) return 1;
+		} else {
+			if (vs_infer(str, &mb->intra_chroma_pred_mode, 0)) return 1;
+		}
 	} else if (mb->mb_type != H264_MB_TYPE_B_DIRECT_16X16) {
 		/* XXX */
 		abort();
+		if (vs_infer(str, &mb->intra_chroma_pred_mode, 0)) return 1;
 	}
 }
 
@@ -1066,8 +1070,9 @@ int h264_macroblock_layer(struct bitstream *str, struct h264_cabac_context *caba
 						noSubMbPartSizeLessThan8x8Flag = 0;
 				}
 			}
+			if (vs_infer(str, &mb->intra_chroma_pred_mode, 0)) return 1;
 		} else {
-			if (mb->mb_type == H264_MB_TYPE_I_NXN) {
+			if (mb->mb_type == H264_MB_TYPE_I_NXN || mb->mb_type == H264_MB_TYPE_SI) {
 				if (picparm->transform_8x8_mode_flag) {
 					if (h264_transform_size_8x8_flag(str, cabac, &mb->transform_size_8x8_flag)) return 1;
 				} else {
@@ -1076,10 +1081,10 @@ int h264_macroblock_layer(struct bitstream *str, struct h264_cabac_context *caba
 			}
 			if (h264_mb_pred(str, cabac, slice, mb)) return 1;
 		}
-		if (mb->mb_type == H264_MB_TYPE_I_NXN || mb->mb_type >= H264_MB_TYPE_I_END) {
+		if (mb->mb_type == H264_MB_TYPE_I_NXN || mb->mb_type == H264_MB_TYPE_SI || mb->mb_type >= H264_MB_TYPE_I_END) {
 			int has_chroma = seqparm->chroma_format_idc < 3 && seqparm->chroma_format_idc != 0;
 			if (h264_coded_block_pattern(str, cabac, mb->mb_type, has_chroma, &mb->coded_block_pattern)) return 1;
-			if (mb->mb_type != H264_MB_TYPE_I_NXN) {
+			if (mb->mb_type >= H264_MB_TYPE_I_END) {
 				if ((mb->coded_block_pattern & 0xf) && picparm->transform_8x8_mode_flag && noSubMbPartSizeLessThan8x8Flag && (mb->mb_type != H264_MB_TYPE_B_DIRECT_16X16 || seqparm->direct_8x8_inference_flag)) {
 					if (h264_transform_size_8x8_flag(str, cabac, &mb->transform_size_8x8_flag)) return 1;
 				} else {
@@ -1110,6 +1115,7 @@ int infer_skip(struct bitstream *str, struct h264_slice *slice, struct h264_macr
 	if (vs_infer(str, &mb->mb_qp_delta, 0)) return 1;
 	if (vs_infer(str, &mb->transform_size_8x8_flag, 0)) return 1;
 	if (vs_infer(str, &mb->coded_block_pattern, 0)) return 1;
+	if (vs_infer(str, &mb->intra_chroma_pred_mode, 0)) return 1;
 	/* XXX: more stuff? */
 	return 0;
 }

@@ -436,7 +436,7 @@ int h264_coded_block_pattern(struct bitstream *str, struct h264_cabac_context *c
 	} else {
 		int i;
 		uint32_t bit[6] = { 0 };
-		int ctxIdx, ctxIdx2;
+		int ctxIdx;
 		uint32_t mbAddrA = h264_mb_nb(cabac->slice, H264_MB_A);
 		uint32_t mbAddrB = h264_mb_nb(cabac->slice, H264_MB_B);
 		uint32_t mbtA = (mbAddrA != (uint32_t)-1 ? cabac->slice->mbs[mbAddrA].mb_type : -1);
@@ -470,7 +470,7 @@ int h264_coded_block_pattern(struct bitstream *str, struct h264_cabac_context *c
 				int condTermFlagA = (cbpA >> 4) > 1;
 				int condTermFlagB = (cbpB >> 4) > 1;
 				ctxIdx = H264_CABAC_CTXIDX_CODED_BLOCK_PATTERN_CHROMA + condTermFlagA + condTermFlagB * 2 + 4;
-				h264_cabac_decision(str, cabac, ctxIdx2, &bit[5]);
+				h264_cabac_decision(str, cabac, ctxIdx, &bit[5]);
 			}
 		}
 		if (str->dir == VS_DECODE) {
@@ -546,11 +546,11 @@ int h264_rem_intra_pred_mode(struct bitstream *str, struct h264_cabac_context *c
 int h264_intra_chroma_pred_mode(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *val) {
 	if (!cabac)
 		return vs_ue(str, val);
-	int ctxIdx[3];
+	int ctxIdx[2];
 	uint32_t mbAddrA = h264_mb_nb(cabac->slice, H264_MB_A);
 	uint32_t mbAddrB = h264_mb_nb(cabac->slice, H264_MB_B);
-	int condTermFlagA = (mbAddrA != (uint32_t)-1 && cabac->slice->mbs[mbAddrA].intra_chroma_pred_mode);
-	int condTermFlagB = (mbAddrB != (uint32_t)-1 && cabac->slice->mbs[mbAddrB].intra_chroma_pred_mode);
+	int condTermFlagA = (mbAddrA != (uint32_t)-1 && cabac->slice->mbs[mbAddrA].intra_chroma_pred_mode != 0);
+	int condTermFlagB = (mbAddrB != (uint32_t)-1 && cabac->slice->mbs[mbAddrB].intra_chroma_pred_mode != 0);
 	ctxIdx[0] = H264_CABAC_CTXIDX_INTRA_CHROMA_PRED_MODE + condTermFlagA + condTermFlagB;
 	ctxIdx[1] = H264_CABAC_CTXIDX_INTRA_CHROMA_PRED_MODE + 3;
 	return h264_cabac_tu(str, cabac, ctxIdx, 2, 3, val);

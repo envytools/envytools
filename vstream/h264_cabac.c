@@ -940,8 +940,8 @@ int h264_cabac_tu(struct bitstream *str, struct h264_cabac_context *cabac, int *
 		int i = -1;
 		uint32_t tmp;
 		do {
-			if (h264_cabac_decision(str, cabac, ctxIdx[i >= numidx ? numidx - 1 : i], &tmp)) return 1;
 			i++;
+			if (h264_cabac_decision(str, cabac, ctxIdx[i >= numidx ? numidx - 1 : i], &tmp)) return 1;
 		} while(tmp && i < cMax);
 		*val = i;
 		return 0;		
