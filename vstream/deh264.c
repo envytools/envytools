@@ -40,6 +40,7 @@ int main() {
 	struct h264_seqparm *subseqparms[32] = { 0 };
 	struct h264_picparm *picparms[256] = { 0 };
 	int res;
+	int last_idr = 0;
 	while (1) {
 		uint32_t start_code;
 		if (vs_start(str, &start_code)) goto err;
@@ -54,9 +55,30 @@ int main() {
 		printf("\tnal_unit_type = %d\n", nal_unit_type);
 		struct h264_seqparm *sp;
 		struct h264_picparm *pp;
+		struct h264_slice *slice;
 		uint32_t idx;
 		uint32_t additional_extension_flag = 0;
 		switch (nal_unit_type) {
+			case H264_NAL_UNIT_TYPE_SLICE_NONIDR:
+			case H264_NAL_UNIT_TYPE_SLICE_IDR:
+			case H264_NAL_UNIT_TYPE_SLICE_AUX:
+				slice = calloc (sizeof *slice, 1);
+				slice->nal_ref_idc = nal_ref_idc;
+				slice->nal_unit_type = nal_unit_type;
+				if (nal_unit_type == H264_NAL_UNIT_TYPE_SLICE_IDR)
+					last_idr = 1;
+				if (nal_unit_type == H264_NAL_UNIT_TYPE_SLICE_NONIDR)
+					last_idr = 0;
+				/* for AUX, keep IDR status of last slice */
+				slice->idr_pic_flag = last_idr;
+				if (h264_slice_header(str, seqparms, picparms, slice)) {
+					h264_del_slice(slice);
+					goto err;
+				}
+				h264_print_slice_header(slice);
+				slice->mbs = calloc (sizeof *slice->mbs, (slice->seqparm->pic_width_in_mbs_minus1 + 1) * (slice->seqparm->pic_height_in_map_units_minus1 + 1) * (slice->seqparm->mb_adaptive_frame_field_flag + 1));
+				h264_del_slice(slice);
+				break;
 			case H264_NAL_UNIT_TYPE_SEQPARM:
 				sp = calloc (sizeof *sp, 1);
 				if (h264_seqparm(str, sp)) {

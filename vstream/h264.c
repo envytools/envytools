@@ -53,6 +53,13 @@ void h264_del_picparm(struct h264_picparm *picparm) {
 	free(picparm);
 }
 
+void h264_del_slice(struct h264_slice *slice) {
+	free(slice->dec_ref_pic_marking.mmcos);
+	free(slice->dec_ref_base_pic_marking.mmcos);
+	free(slice->mbs);
+	free(slice);
+}
+
 int h264_scaling_list(struct bitstream *str, uint32_t *scaling_list, int size, uint32_t *use_default_flag) {
 	uint32_t lastScale = 8;
 	uint32_t nextScale = 8;
@@ -618,6 +625,292 @@ int h264_picparm(struct bitstream *str, struct h264_seqparm **seqparms, struct h
 		if (vs_infer(str, &picparm->transform_8x8_mode_flag, 0)) return 1;
 		if (vs_infer(str, &picparm->pic_scaling_matrix_present_flag, 0)) return 1;
 		if (vs_infer(str, &picparm->second_chroma_qp_index_offset, picparm->chroma_qp_index_offset)) return 1;
+	}
+	return 0;
+}
+
+int h264_ref_pic_list_modification(struct bitstream *str, struct h264_slice *slice, struct h264_ref_pic_list_modification *list) {
+	int i;
+	if (vs_u(str, &list->flag, 1)) return 1;
+	if (list->flag) {
+		i = 0;
+		do {
+			if (vs_ue(str, &list->list[i].op)) return 1;
+			if (list->list[i].op != 3) {
+				if (vs_ue(str, &list->list[i].param)) return 1;
+				if (i == 32) {
+					fprintf(stderr, "Too many ref_pic_list_modification entries\n");
+					return 1;
+				}
+			}
+		} while (list->list[i++].op != 3);
+	} else {
+		if (vs_infer(str, &list->list[0].op, 3)) return 1;
+	}
+	return 0;
+}
+
+int h264_dec_ref_pic_marking(struct bitstream *str, int idr_pic_flag, struct h264_dec_ref_pic_marking *ref) {
+	if (idr_pic_flag) {
+		if (vs_u(str, &ref->no_output_of_prior_pics_flag, 1)) return 1;
+		if (vs_u(str, &ref->long_term_reference_flag, 1)) return 1;
+	} else {
+		if (vs_u(str, &ref->adaptive_ref_pic_marking_mode_flag, 1)) return 1;
+		if (ref->adaptive_ref_pic_marking_mode_flag) {
+			struct h264_mmco_entry mmco;
+			int i = 0;
+			do {
+				if (str->dir == VS_ENCODE)
+					mmco = ref->mmcos[i];
+				if (vs_ue(str, &mmco.memory_management_control_operation)) return 1;
+				switch (mmco.memory_management_control_operation) {
+					case H264_MMCO_END:
+						break;
+					case H264_MMCO_FORGET_SHORT:
+						if (vs_ue(str, &mmco.difference_of_pic_nums_minus1)) return 1;
+						break;
+					case H264_MMCO_FORGET_LONG:
+						if (vs_ue(str, &mmco.long_term_pic_num)) return 1;
+						break;
+					case H264_MMCO_SHORT_TO_LONG:
+						if (vs_ue(str, &mmco.difference_of_pic_nums_minus1)) return 1;
+						if (vs_ue(str, &mmco.long_term_frame_idx)) return 1;
+						break;
+					case H264_MMCO_FORGET_LONG_MANY:
+						if (vs_ue(str, &mmco.max_long_term_frame_idx_plus1)) return 1;
+						break;
+					case H264_MMCO_FORGET_ALL:
+						break;
+					case H264_MMCO_THIS_TO_LONG:
+						if (vs_ue(str, &mmco.long_term_frame_idx)) return 1;
+						break;
+					default:
+						fprintf (stderr, "Unknown MMCO %d\n", mmco.memory_management_control_operation);
+						return 1;
+				}
+				if (str->dir == VS_DECODE) 
+					ADDARRAY(ref->mmcos, mmco);
+				i++;
+			} while (mmco.memory_management_control_operation != H264_MMCO_END);
+		}
+	}
+	return 0;
+}
+
+int h264_dec_ref_base_pic_marking(struct bitstream *str, struct h264_nal_svc_header *svc, struct h264_dec_ref_base_pic_marking *ref) {
+	if (vs_u(str, &ref->store_ref_base_pic_flag, 1)) return 1;
+	if ((svc->use_ref_base_pic_flag || ref->store_ref_base_pic_flag) && !svc->idr_flag) {
+		if (vs_u(str, &ref->adaptive_ref_base_pic_marking_mode_flag, 1)) return 1;
+		if (ref->adaptive_ref_base_pic_marking_mode_flag) {
+			struct h264_mmco_entry mmco;
+			int i = 0;
+			do {
+				if (str->dir == VS_ENCODE)
+					mmco = ref->mmcos[i];
+				if (vs_ue(str, &mmco.memory_management_control_operation)) return 1;
+				switch (mmco.memory_management_control_operation) {
+					case H264_MMCO_END:
+						break;
+					case H264_MMCO_FORGET_SHORT:
+						if (vs_ue(str, &mmco.difference_of_pic_nums_minus1)) return 1;
+						break;
+					case H264_MMCO_FORGET_LONG:
+						if (vs_ue(str, &mmco.long_term_pic_num)) return 1;
+						break;
+					default:
+						fprintf (stderr, "Unknown MMCO %d\n", mmco.memory_management_control_operation);
+						return 1;
+				}
+				if (str->dir == VS_DECODE) 
+					ADDARRAY(ref->mmcos, mmco);
+				i++;
+			} while (mmco.memory_management_control_operation != H264_MMCO_END);
+		}
+	}
+	return 0;
+}
+
+int h264_slice_header(struct bitstream *str, struct h264_seqparm **seqparms, struct h264_picparm **picparms, struct h264_slice *slice) {
+	if (vs_ue(str, &slice->first_mb_in_slice)) return 1;
+	uint32_t slice_type = slice->slice_type + slice->slice_all_same * 5;
+	if (vs_ue(str, &slice_type)) return 1;
+	slice->slice_type = slice_type % 5;
+	slice->slice_all_same = slice_type / 5;
+	uint32_t pic_parameter_set_id;
+	if (str->dir == VS_ENCODE)
+		pic_parameter_set_id = slice->picparm->pic_parameter_set_id;
+	if (vs_ue(str, &pic_parameter_set_id)) return 1;
+	if (str->dir == VS_DECODE) {
+		if (pic_parameter_set_id > 255) {
+			fprintf(stderr, "pic_parameter_set_id out of range\n");
+			return 1;
+		}
+		slice->picparm = picparms[pic_parameter_set_id];
+		if (!slice->picparm) {
+			fprintf(stderr, "pic_parameter_set_id doesn't specify a picparm\n");
+			return 1;
+		}
+		slice->seqparm = seqparms[slice->picparm->seq_parameter_set_id];
+		if (!slice->seqparm) {
+			fprintf(stderr, "seq_parameter_set_id doesn't specify a seqparm\n");
+			return 1;
+		}
+		if (slice->nal_unit_type == H264_NAL_UNIT_TYPE_SLICE_AUX) {
+			slice->chroma_array_type = 0;
+			slice->bit_depth_luma_minus8 = slice->seqparm->bit_depth_aux_minus8;
+			slice->bit_depth_chroma_minus8 = 0;
+		} else {
+			slice->chroma_array_type = (slice->seqparm->separate_colour_plane_flag?0:slice->seqparm->chroma_format_idc);
+			slice->bit_depth_luma_minus8 = slice->seqparm->bit_depth_luma_minus8;
+			slice->bit_depth_chroma_minus8 = slice->seqparm->bit_depth_chroma_minus8;
+		}
+		slice->pic_width_in_mbs = slice->seqparm->pic_width_in_mbs_minus1 + 1;
+		switch (slice->chroma_array_type) {
+			case 0:
+				slice->mbwidthc = 0;
+				slice->mbheightc = 0;
+				break;
+			case 1:
+				slice->mbwidthc = 8;
+				slice->mbheightc = 8;
+				break;
+			case 2:
+				slice->mbwidthc = 8;
+				slice->mbheightc = 16;
+				break;
+			case 3:
+				slice->mbwidthc = 16;
+				slice->mbheightc = 16;
+				break;
+		}
+	}
+	if (slice->seqparm->separate_colour_plane_flag)
+		if (vs_u(str, &slice->colour_plane_id, 2)) return 1;
+	if (vs_u(str, &slice->frame_num, slice->seqparm->log2_max_frame_num_minus4 + 4)) return 1;
+	if (!slice->seqparm->frame_mbs_only_flag) {
+		if (vs_u(str, &slice->field_pic_flag, 1)) return 1;
+	} else {
+		if (vs_infer(str, &slice->field_pic_flag, 0)) return 1;
+	}
+	if (slice->field_pic_flag) {
+		if (vs_u(str, &slice->bottom_field_flag, 1)) return 1;
+	} else {
+		if (vs_infer(str, &slice->bottom_field_flag, 0)) return 1;
+	}
+	if (str->dir == VS_DECODE) {
+		slice->mbaff_frame_flag = slice->seqparm->mb_adaptive_frame_field_flag && !slice->field_pic_flag;
+	}
+	if (slice->idr_pic_flag) {
+		if (vs_ue(str, &slice->idr_pic_id)) return 1;
+	}
+	switch (slice->seqparm->pic_order_cnt_type) {
+		case 0:
+			if (vs_u(str, &slice->pic_order_cnt_lsb, slice->seqparm->log2_max_pic_order_cnt_lsb_minus4 + 4)) return 1;
+			if (slice->picparm->bottom_field_pic_order_in_frame_present_flag && !slice->field_pic_flag) {
+				if (vs_se(str, &slice->delta_pic_order_cnt_bottom)) return 1;
+			} else {
+				if (vs_infer(str, &slice->delta_pic_order_cnt_bottom, 0)) return 1;
+			}
+			break;
+		case 1:
+			if (!slice->seqparm->delta_pic_order_always_zero_flag) {
+				if (vs_se(str, &slice->delta_pic_order_cnt[0])) return 1;
+				if (slice->picparm->bottom_field_pic_order_in_frame_present_flag && !slice->field_pic_flag) {
+					if (vs_se(str, &slice->delta_pic_order_cnt[1])) return 1;
+				} else {
+					if (vs_infer(str, &slice->delta_pic_order_cnt[1], 0)) return 1;
+				}
+			} else {
+				if (vs_infer(str, &slice->delta_pic_order_cnt[0], 0)) return 1;
+				if (vs_infer(str, &slice->delta_pic_order_cnt[1], 0)) return 1;
+			}
+			break;
+	}
+	if (slice->picparm->redundant_pic_cnt_present_flag) {
+		if (vs_ue(str, &slice->redundant_pic_cnt)) return 1;
+	} else {
+		if (vs_infer(str, &slice->redundant_pic_cnt, 0)) return 1;
+	}
+	if (!slice->seqparm->is_svc || slice->svc.quality_id == 0) {
+		if (slice->slice_type == H264_SLICE_TYPE_B)
+			if (vs_u(str, &slice->direct_spatial_mb_pred_flag, 1)) return 1;
+		if (slice->slice_type != H264_SLICE_TYPE_I && slice->slice_type != H264_SLICE_TYPE_SI) {
+			if (vs_u(str, &slice->num_ref_idx_active_override_flag, 1)) return 1;
+			if (slice->num_ref_idx_active_override_flag) {
+				if (vs_ue(str, &slice->num_ref_idx_l0_active_minus1)) return 1;
+				if (slice->slice_type == H264_SLICE_TYPE_B)
+					if (vs_ue(str, &slice->num_ref_idx_l1_active_minus1)) return 1;
+			} else {
+				if (vs_infer(str, &slice->num_ref_idx_l0_active_minus1, slice->picparm->num_ref_idx_l0_default_active_minus1)) return 1;
+				if (slice->slice_type == H264_SLICE_TYPE_B)
+					if (vs_infer(str, &slice->num_ref_idx_l1_active_minus1, slice->picparm->num_ref_idx_l1_default_active_minus1)) return 1;
+
+			}
+			if (slice->num_ref_idx_l0_active_minus1 > 31) {
+				fprintf(stderr, "num_ref_idx_l0_active_minus1 out of range\n");
+				return 1;
+			}
+			if (slice->num_ref_idx_l1_active_minus1 > 31) {
+				fprintf(stderr, "num_ref_idx_l1_active_minus1 out of range\n");
+				return 1;
+			}
+			/* ref_pic_list_modification */
+			if (h264_ref_pic_list_modification(str, slice, &slice->ref_pic_list_modification_l0)) return 1;
+			if (slice->slice_type == H264_SLICE_TYPE_B) {
+				if (h264_ref_pic_list_modification(str, slice, &slice->ref_pic_list_modification_l1)) return 1;
+			}
+		}
+		if ((slice->picparm->weighted_pred_flag && (slice->slice_type == H264_SLICE_TYPE_P || slice->slice_type == H264_SLICE_TYPE_SP)) || (slice->picparm->weighted_bipred_idc == 1 && slice->slice_type == H264_SLICE_TYPE_B)) {
+			if (slice->seqparm->is_svc && !slice->svc.no_inter_layer_pred_flag) {
+				if (vs_u(str, &slice->base_pred_weight_table_flag, 1)) return 1;
+			} else {
+				if (vs_infer(str, &slice->base_pred_weight_table_flag, 0)) return 1;
+			}
+			if (!slice->base_pred_weight_table_flag)
+				if (h264_pred_weight_table(str, slice, &slice->pred_weight_table)) return 1;
+		}
+		if (slice->nal_ref_idc) {
+			if (h264_dec_ref_pic_marking(str, slice->idr_pic_flag, &slice->dec_ref_pic_marking)) return 1;
+			if (slice->seqparm->is_svc && !slice->seqparm->slice_header_restriction_flag) {
+				if (h264_dec_ref_base_pic_marking(str, &slice->svc, &slice->dec_ref_base_pic_marking)) return 1;
+			}
+		}
+	} else {
+		/* XXX: infer me */
+	}
+	if (slice->picparm->entropy_coding_mode_flag && slice->slice_type != H264_SLICE_TYPE_I && slice->slice_type != H264_SLICE_TYPE_SI) {
+		if (vs_ue(str, &slice->cabac_init_idc)) return 1;
+		if (slice->cabac_init_idc > 2) {
+			fprintf(stderr, "cabac_init_idc out of range!\n");
+			return 1;
+		}
+	}
+	if (vs_se(str, &slice->slice_qp_delta)) return 1;
+	slice->sliceqpy = slice->picparm->pic_init_qp_minus26 + 26 + slice->slice_qp_delta;
+	if (slice->slice_type == H264_SLICE_TYPE_SP)
+		if (vs_u(str, &slice->sp_for_switch_flag, 1)) return 1;
+	if (slice->slice_type == H264_SLICE_TYPE_SP || slice->slice_type == H264_SLICE_TYPE_SI)
+		if (vs_se(str, &slice->slice_qs_delta)) return 1;
+	if (slice->picparm->deblocking_filter_control_present_flag) {
+		if (vs_ue(str, &slice->disable_deblocking_filter_idc)) return 1;
+		if (slice->disable_deblocking_filter_idc != 1) {
+			if (vs_se(str, &slice->slice_alpha_c0_offset_div2)) return 1;
+			if (vs_se(str, &slice->slice_beta_offset_div2)) return 1;
+		} else {
+			if (vs_infer(str, &slice->slice_alpha_c0_offset_div2, 0)) return 1;
+			if (vs_infer(str, &slice->slice_beta_offset_div2, 0)) return 1;
+		}
+	} else {
+		if (vs_infer(str, &slice->disable_deblocking_filter_idc, 0)) return 1;
+		if (vs_infer(str, &slice->slice_alpha_c0_offset_div2, 0)) return 1;
+		if (vs_infer(str, &slice->slice_beta_offset_div2, 0)) return 1;
+	}
+	if (slice->picparm->num_slice_groups_minus1 && slice->picparm->slice_group_map_type >= 3 && slice->picparm->slice_group_map_type <= 5)
+		if (vs_u(str, &slice->slice_group_change_cycle, clog2(((slice->seqparm->pic_width_in_mbs_minus1 + 1) * (slice->seqparm->pic_height_in_map_units_minus1 + 1) + slice->picparm->slice_group_change_rate_minus1) / (slice->picparm->slice_group_change_rate_minus1 + 1) + 1))) return 1;
+	if (slice->seqparm->is_svc) {
+		/* XXX */
+		fprintf(stderr, "SVC\n");
+		return 1;
 	}
 	return 0;
 }

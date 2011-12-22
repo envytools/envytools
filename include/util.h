@@ -53,6 +53,17 @@
 		tmp = ((pred) ? tmp : NULL);			\
 	})
 
+/* ceil(log2(x)) */
+static inline int clog2(unsigned x) {
+	unsigned y = 1;
+	int r = 0;
+	while (x > y) {
+		r++;
+		y <<= 1;
+	}
+	return r;
+}
+
 #define ARRAY_SIZE(a) (sizeof (a) / sizeof *(a))
 
 #define min(a,b)				\

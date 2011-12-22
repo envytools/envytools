@@ -322,3 +322,167 @@ void h264_print_picparm(struct h264_picparm *picparm) {
 	}
 	printf ("\tsecond_chroma_qp_index_offset = %d\n", picparm->second_chroma_qp_index_offset);
 }
+
+void h264_print_ref_pic_list_modification(struct h264_ref_pic_list_modification *list, char *which) {
+	static const char *const opnames[6] = { "pic_num sub", "pic_num add", "long term", "end", "view idx sub", "view idx add" };
+	static const char *const argnames[6] = { "abs_diff_pic_num_minus1", "abs_diff_pic_num_minus1", "long_term_pic_num", 0, "abs_diff_view_idx_minus1", "abs_diff_view_idx_minus1" };
+	int i;
+	printf("\tref_pic_list_modification_flag_%s = %d\n", which, list->flag);
+	for (i = 0; list->list[i].op != 3; i++) {
+		int op = list->list[i].op;
+		printf("\tmodification_of_pic_nums_idc = %d [%s]\n", op, opnames[op]);
+		printf("\t%s = %d\n", argnames[i], list->list[i].op);
+	}
+	printf("\tmodification_of_pic_nums_idc = 3 [END]\n");
+}
+
+void h264_print_pred_weight_table(struct h264_slice *slice, struct h264_pred_weight_table *table) {
+	printf("\tluma_log2_weight_denom = %d\n", table->luma_log2_weight_denom);
+	printf("\tchroma_log2_weight_denom = %d\n", table->chroma_log2_weight_denom);
+	int i;
+	for (i = 0; i <= slice->num_ref_idx_l0_active_minus1; i++) {
+		printf("\tluma_weight_l0_flag[%d] = %d\n", i, table->l0[i].luma_weight_flag);
+		printf("\tluma_weight_l0[%d] = %d\n", i, table->l0[i].luma_weight);
+		printf("\tluma_offset_l0[%d] = %d\n", i, table->l0[i].luma_offset);
+		printf("\tchroma_weight_l0_flag[%d] = %d\n", i, table->l0[i].chroma_weight_flag);
+		printf("\tchroma_weight_l0[%d][0] = %d\n", i, table->l0[i].chroma_weight[0]);
+		printf("\tchroma_weight_l0[%d][1] = %d\n", i, table->l0[i].chroma_weight[1]);
+		printf("\tchroma_offset_l0[%d][0] = %d\n", i, table->l0[i].chroma_offset[0]);
+		printf("\tchroma_offset_l0[%d][1] = %d\n", i, table->l0[i].chroma_offset[1]);
+	}
+	if (slice->slice_type == H264_SLICE_TYPE_B) {
+		for (i = 0; i <= slice->num_ref_idx_l1_active_minus1; i++) {
+			printf("\tluma_weight_l1_flag[%d] = %d\n", i, table->l1[i].luma_weight_flag);
+			printf("\tluma_weight_l1[%d] = %d\n", i, table->l1[i].luma_weight);
+			printf("\tluma_offset_l1[%d] = %d\n", i, table->l1[i].luma_offset);
+			printf("\tchroma_weight_l1_flag[%d] = %d\n", i, table->l1[i].chroma_weight_flag);
+			printf("\tchroma_weight_l1[%d][0] = %d\n", i, table->l1[i].chroma_weight[0]);
+			printf("\tchroma_weight_l1[%d][1] = %d\n", i, table->l1[i].chroma_weight[1]);
+			printf("\tchroma_offset_l1[%d][0] = %d\n", i, table->l1[i].chroma_offset[0]);
+			printf("\tchroma_offset_l1[%d][1] = %d\n", i, table->l1[i].chroma_offset[1]);
+		}
+	}
+}
+
+void h264_print_dec_ref_pic_marking(int idr_pic_flag, struct h264_dec_ref_pic_marking *ref) {
+	if (idr_pic_flag) {
+		printf("\tno_output_of_prior_pics_flag = %d\n", ref->no_output_of_prior_pics_flag);
+		printf("\tlong_term_reference_flag = %d\n", ref->long_term_reference_flag);
+	} else {
+		printf("\tadaptive_ref_pic_marking_mode_flag = %d\n", ref->adaptive_ref_pic_marking_mode_flag);
+		if (ref->adaptive_ref_pic_marking_mode_flag) {
+			int i = 0;
+			do {
+				printf("\tmemory_management_control_operation = %d\n", ref->mmcos[i].memory_management_control_operation);
+				switch (ref->mmcos[i].memory_management_control_operation) {
+					case H264_MMCO_END:
+						break;
+					case H264_MMCO_FORGET_SHORT:
+						printf("\tdifference_of_pic_nums_minus1 = %d\n", ref->mmcos[i].difference_of_pic_nums_minus1);
+						break;
+					case H264_MMCO_FORGET_LONG:
+						printf("\tlong_term_pic_num = %d\n", ref->mmcos[i].long_term_pic_num);
+						break;
+					case H264_MMCO_SHORT_TO_LONG:
+						printf("\tdifference_of_pic_nums_minus1 = %d\n", ref->mmcos[i].difference_of_pic_nums_minus1);
+						printf("\tlong_term_frame_idx = %d\n", ref->mmcos[i].long_term_frame_idx);
+						break;
+					case H264_MMCO_FORGET_LONG_MANY:
+						printf("\tmax_long_term_frame_idx_plus1 = %d\n", ref->mmcos[i].max_long_term_frame_idx_plus1);
+						break;
+					case H264_MMCO_FORGET_ALL:
+						break;
+					case H264_MMCO_THIS_TO_LONG:
+						printf("\tlong_term_frame_idx = %d\n", ref->mmcos[i].long_term_frame_idx);
+						break;
+				}
+			} while (ref->mmcos[i++].memory_management_control_operation != H264_MMCO_END);
+		}
+	}
+}
+
+void h264_print_dec_ref_base_pic_marking(struct h264_nal_svc_header *svc, struct h264_dec_ref_base_pic_marking *ref) {
+	printf("\tstore_ref_base_pic_flag = %d\n", ref->store_ref_base_pic_flag);
+	if ((svc->use_ref_base_pic_flag || ref->store_ref_base_pic_flag) && !svc->idr_flag) {
+		printf("\tadaptive_ref_base_pic_marking_mode_flag = %d\n", ref->adaptive_ref_base_pic_marking_mode_flag);
+		if (ref->adaptive_ref_base_pic_marking_mode_flag) {
+			int i = 0;
+			do {
+				printf("\tmemory_management_control_operation = %d\n", ref->mmcos[i].memory_management_control_operation);
+				switch (ref->mmcos[i].memory_management_control_operation) {
+					case H264_MMCO_END:
+						break;
+					case H264_MMCO_FORGET_SHORT:
+						printf("\tdifference_of_pic_nums_minus1 = %d\n", ref->mmcos[i].difference_of_pic_nums_minus1);
+						break;
+					case H264_MMCO_FORGET_LONG:
+						printf("\tlong_term_pic_num = %d\n", ref->mmcos[i].long_term_pic_num);
+						break;
+				}
+			} while (ref->mmcos[i++].memory_management_control_operation != H264_MMCO_END);
+		}
+	}
+}
+
+void h264_print_slice_header(struct h264_slice *slice) {
+	printf("Slice header:\n");
+	printf("\tfirst_mb_in_slice = %d\n", slice->first_mb_in_slice);
+	static const char *const stypes[5] = { "P", "B", "I", "SP", "SI" };
+	printf("\tslice_type = %d [%s%s]\n", slice->slice_type + slice->slice_all_same * 5, slice->slice_all_same ? "all ":"", stypes[slice->slice_type]);
+	printf("\tpic_parameter_set_id = %d\n", slice->picparm->pic_parameter_set_id);
+	if (slice->seqparm->separate_colour_plane_flag)
+		printf("\tcolour_plane_id = %d\n", slice->colour_plane_id);
+	printf("\tframe_num = %d\n", slice->frame_num);
+	printf("\tfield_pic_flag = %d\n", slice->field_pic_flag);
+	printf("\tbottom_field_flag = %d\n", slice->bottom_field_flag);
+	if (slice->idr_pic_flag)
+		printf("\tidr_pic_id = %d\n", slice->idr_pic_id);
+	switch (slice->seqparm->pic_order_cnt_type) {
+		case 0:
+			printf("\tpic_order_cnt_lsb = %d\n", slice->pic_order_cnt_lsb);
+			printf("\tdelta_pic_order_cnt_bottom = %d\n", slice->delta_pic_order_cnt_bottom);
+			break;
+		case 1:
+			printf("\tdelta_pic_order_cnt[0] = %d\n", slice->delta_pic_order_cnt[0]);
+			printf("\tdelta_pic_order_cnt[1] = %d\n", slice->delta_pic_order_cnt[1]);
+			break;
+	}
+	printf("\tredundant_pic_cnt = %d\n", slice->redundant_pic_cnt);
+	if (slice->slice_type == H264_SLICE_TYPE_B)
+		printf("\tdirect_spatial_mb_pred_flag = %d\n", slice->direct_spatial_mb_pred_flag);
+	if (slice->slice_type != H264_SLICE_TYPE_I && slice->slice_type != H264_SLICE_TYPE_SI) {
+		printf("\tnum_ref_idx_active_override_flag = %d\n", slice->num_ref_idx_active_override_flag);
+		printf("\tnum_ref_idx_l0_active_minus1 = %d\n", slice->num_ref_idx_l0_active_minus1);
+		if (slice->slice_type == H264_SLICE_TYPE_B)
+			printf("\tnum_ref_idx_l1_active_minus1 = %d\n", slice->num_ref_idx_l1_active_minus1);
+		h264_print_ref_pic_list_modification(&slice->ref_pic_list_modification_l0, "l0");
+		if (slice->slice_type == H264_SLICE_TYPE_B)
+			h264_print_ref_pic_list_modification(&slice->ref_pic_list_modification_l1, "l1");
+	}
+	if ((slice->picparm->weighted_pred_flag && (slice->slice_type == H264_SLICE_TYPE_P || slice->slice_type == H264_SLICE_TYPE_SP)) || (slice->picparm->weighted_bipred_idc == 1 && slice->slice_type == H264_SLICE_TYPE_B)) {
+		printf("\tbase_pred_weight_table_flag = %d\n", slice->base_pred_weight_table_flag);
+		if (!slice->base_pred_weight_table_flag) {
+			h264_print_pred_weight_table(slice, &slice->pred_weight_table);
+		}
+	}
+	if (slice->nal_ref_idc) {
+		h264_print_dec_ref_pic_marking(slice->idr_pic_flag, &slice->dec_ref_pic_marking);
+		if (slice->seqparm->is_svc && !slice->seqparm->slice_header_restriction_flag)
+			h264_print_dec_ref_base_pic_marking(&slice->svc, &slice->dec_ref_base_pic_marking);
+	}
+	if (slice->slice_type != H264_SLICE_TYPE_I && slice->slice_type != H264_SLICE_TYPE_SI)
+		printf("\tcabac_init_idc = %d\n", slice->cabac_init_idc);
+	printf("\tslice_qp_delta = %d\n", slice->slice_qp_delta);
+	if (slice->slice_type == H264_SLICE_TYPE_SP)
+		printf("\tsp_for_switch_flag = %d\n", slice->sp_for_switch_flag);
+	if (slice->slice_type == H264_SLICE_TYPE_SP || slice->slice_type == H264_SLICE_TYPE_SI)
+		printf("\tslice_qs_delta = %d\n", slice->slice_qs_delta);
+	printf("\tdisable_deblocking_filter_idc = %d\n", slice->disable_deblocking_filter_idc);
+	printf("\tslice_alpha_c0_offset_div2 = %d\n", slice->slice_alpha_c0_offset_div2);
+	printf("\tslice_beta_offset_div2 = %d\n", slice->slice_beta_offset_div2);
+	if (slice->picparm->num_slice_groups_minus1 && slice->picparm->slice_group_map_type >= 3 && slice->picparm->slice_group_map_type <= 5)
+		printf("\tslice_group_change_cycle = %d\n", slice->slice_group_change_cycle);
+	if (slice->seqparm->is_svc) {
+		/* XXX */
+	}
+}

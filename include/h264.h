@@ -94,6 +94,26 @@ enum h264_primary_pic_type {
 	H264_PRIMARY_PIC_TYPE_P_B_I_SP_SI = 7,
 };
 
+enum h264_ref_pic_mod { /* modification_of_pic_nums_idc */
+	H264_REF_PIC_MOD_PIC_NUM_SUB = 0,
+	H264_REF_PIC_MOD_PIC_NUM_ADD = 1,
+	H264_REF_PIC_MOD_LONG_TERM = 2,
+	H264_REF_PIC_MOD_END = 3,
+	/* MVC */
+	H264_REF_PIC_MOD_VIEW_IDX_SUB = 4,
+	H264_REF_PIC_MOD_VIEW_IDX_ADD = 5,
+};
+
+enum h264_mmco { /* memory_management_control_operation */
+	H264_MMCO_END = 0,
+	H264_MMCO_FORGET_SHORT = 1,
+	H264_MMCO_FORGET_LONG = 2,
+	H264_MMCO_SHORT_TO_LONG = 3,
+	H264_MMCO_FORGET_LONG_MANY = 4,
+	H264_MMCO_FORGET_ALL = 5,
+	H264_MMCO_THIS_TO_LONG = 6,
+};
+
 enum h264_slice_type {
 	H264_SLICE_TYPE_P = 0,
 	H264_SLICE_TYPE_B = 1,
@@ -386,30 +406,13 @@ struct h264_macroblock {
 	uint32_t intra_chroma_pred_mode;
 };
 
-struct h264_slice {
-	struct h264_seqparm *seqparm;
-	struct h264_picparm *picparm;
-	uint32_t slice_type;
-	uint32_t num_ref_idx_l0_active_minus1;
-	uint32_t num_ref_idx_l1_active_minus1;
-	uint32_t slice_qp_delta;
-	uint32_t cabac_init_idc;
-	uint32_t first_mb_in_slice;
-	/* derived stuff starts here */
-	uint32_t chroma_array_type;
-	uint32_t bit_depth_luma_minus8;
-	uint32_t bit_depth_chroma_minus8;
-	uint32_t sliceqpy;
-	uint32_t last_mb_in_slice;
-	uint32_t pic_width_in_mbs;
-	uint32_t mbaff_frame_flag;
-	uint32_t mbwidthc;
-	uint32_t mbheightc;
-	/* previous and current macroblock */
-	uint32_t prev_mb_addr;
-	uint32_t curr_mb_addr;
-	/* macroblocks */
-	struct h264_macroblock *mbs;
+struct h264_ref_pic_list_modification {
+	uint32_t flag;
+	struct h264_slice_ref_pic_list_modification_entry {
+		uint32_t op;
+		uint32_t param;
+		uint32_t param2;
+	} list[33];
 };
 
 struct h264_pred_weight_table_entry {
@@ -426,6 +429,95 @@ struct h264_pred_weight_table {
 	uint32_t chroma_log2_weight_denom;
 	struct h264_pred_weight_table_entry l0[0x20];
 	struct h264_pred_weight_table_entry l1[0x20];
+};
+
+struct h264_dec_ref_pic_marking {
+	uint32_t no_output_of_prior_pics_flag;
+	uint32_t long_term_reference_flag;
+	uint32_t adaptive_ref_pic_marking_mode_flag;
+	struct h264_mmco_entry {
+		uint32_t memory_management_control_operation;
+		uint32_t difference_of_pic_nums_minus1;
+		uint32_t long_term_pic_num;
+		uint32_t long_term_frame_idx;
+		uint32_t max_long_term_frame_idx_plus1;
+	} *mmcos;
+	int mmcosnum;
+	int mmcosmax;
+};
+
+struct h264_dec_ref_base_pic_marking {
+	uint32_t store_ref_base_pic_flag;
+	uint32_t adaptive_ref_base_pic_marking_mode_flag;
+	struct h264_mmco_entry *mmcos;
+	int mmcosnum;
+	int mmcosmax;
+};
+
+struct h264_nal_svc_header {
+	uint32_t idr_flag;
+	uint32_t priority_id;
+	uint32_t no_inter_layer_pred_flag;
+	uint32_t dependency_id;
+	uint32_t quality_id;
+	uint32_t temporal_id;
+	uint32_t use_ref_base_pic_flag;
+	uint32_t discardable_flag;
+	uint32_t output_flag;
+};
+
+struct h264_slice {
+	uint32_t nal_ref_idc;
+	uint32_t nal_unit_type;
+	struct h264_nal_svc_header svc;
+	uint32_t first_mb_in_slice;
+	struct h264_seqparm *seqparm;
+	struct h264_picparm *picparm;
+	uint32_t slice_type;
+	uint32_t slice_all_same;
+	uint32_t colour_plane_id;
+	uint32_t frame_num;
+	uint32_t field_pic_flag;
+	uint32_t bottom_field_flag;
+	uint32_t idr_pic_id;
+	uint32_t pic_order_cnt_lsb;
+	uint32_t delta_pic_order_cnt_bottom;
+	uint32_t delta_pic_order_cnt[2];
+	uint32_t redundant_pic_cnt;
+	uint32_t direct_spatial_mb_pred_flag;
+	uint32_t num_ref_idx_active_override_flag;
+	uint32_t num_ref_idx_l0_active_minus1;
+	uint32_t num_ref_idx_l1_active_minus1;
+	struct h264_ref_pic_list_modification ref_pic_list_modification_l0;
+	struct h264_ref_pic_list_modification ref_pic_list_modification_l1;
+	uint32_t base_pred_weight_table_flag;
+	struct h264_pred_weight_table pred_weight_table;
+	struct h264_dec_ref_pic_marking dec_ref_pic_marking;
+	struct h264_dec_ref_base_pic_marking dec_ref_base_pic_marking;
+	uint32_t slice_qp_delta;
+	uint32_t sp_for_switch_flag;
+	uint32_t slice_qs_delta;
+	uint32_t cabac_init_idc;
+	uint32_t disable_deblocking_filter_idc;
+	uint32_t slice_alpha_c0_offset_div2;
+	uint32_t slice_beta_offset_div2;
+	uint32_t slice_group_change_cycle;
+	/* derived stuff starts here */
+	uint32_t idr_pic_flag;
+	uint32_t chroma_array_type;
+	uint32_t bit_depth_luma_minus8;
+	uint32_t bit_depth_chroma_minus8;
+	uint32_t mbwidthc;
+	uint32_t mbheightc;
+	uint32_t pic_width_in_mbs;
+	uint32_t sliceqpy;
+	uint32_t mbaff_frame_flag;
+	uint32_t last_mb_in_slice;
+	/* previous and current macroblock */
+	uint32_t prev_mb_addr;
+	uint32_t curr_mb_addr;
+	/* macroblocks */
+	struct h264_macroblock *mbs;
 };
 
 enum h264_mb_pos {
@@ -504,16 +596,19 @@ int h264_intra_chroma_pred_mode(struct bitstream *str, struct h264_cabac_context
 
 void h264_del_seqparm(struct h264_seqparm *seqparm);
 void h264_del_picparm(struct h264_picparm *picparm);
+void h264_del_slice(struct h264_slice *slice);
 
 int h264_seqparm(struct bitstream *str, struct h264_seqparm *seqparm);
 int h264_seqparm_svc(struct bitstream *str, struct h264_seqparm *seqparm);
 int h264_seqparm_mvc(struct bitstream *str, struct h264_seqparm *seqparm);
 int h264_seqparm_ext(struct bitstream *str, struct h264_seqparm **seqparms, uint32_t *pseq_parameter_set_id);
 int h264_picparm(struct bitstream *str, struct h264_seqparm **seqparms, struct h264_seqparm **subseqparms, struct h264_picparm *picparm);
+int h264_slice_header(struct bitstream *str, struct h264_seqparm **seqparms, struct h264_picparm **picparms, struct h264_slice *slice);
 int h264_pred_weight_table(struct bitstream *str, struct h264_slice *slice, struct h264_pred_weight_table *table);
 
 void h264_print_seqparm(struct h264_seqparm *seqparm);
 void h264_print_seqparm_ext(struct h264_seqparm *seqparm);
 void h264_print_picparm(struct h264_picparm *picparm);
+void h264_print_slice_header(struct h264_slice *slice);
 
 #endif
