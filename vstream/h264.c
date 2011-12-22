@@ -1000,12 +1000,25 @@ int h264_pred_weight_table(struct bitstream *str, struct h264_slice *slice, stru
 }
 
 int h264_mb_pred(struct bitstream *str, struct h264_cabac_context *cabac, struct h264_slice *slice, struct h264_macroblock *mb) {
+	int i;
 	if (mb->mb_type < H264_MB_TYPE_P_BASE) {
 		if (!h264_is_intra_16x16_mb_type(mb->mb_type)) {
+			if (!mb->transform_size_8x8_flag) {
+				for (i = 0; i < 16; i++) {
+					if (h264_prev_intra_pred_mode_flag(str, cabac, &mb->prev_intra4x4_pred_mode_flag[i])) return 1;
+					if (!mb->prev_intra4x4_pred_mode_flag[i])
+						if (h264_rem_intra_pred_mode(str, cabac, &mb->rem_intra4x4_pred_mode[i])) return 1;
+				}
+			} else {
+				for (i = 0; i < 4; i++) {
+					if (h264_prev_intra_pred_mode_flag(str, cabac, &mb->prev_intra8x8_pred_mode_flag[i])) return 1;
+					if (!mb->prev_intra8x8_pred_mode_flag[i])
+						if (h264_rem_intra_pred_mode(str, cabac, &mb->rem_intra8x8_pred_mode[i])) return 1;
+				}
+			}
 		}
-
-		/* XXX */
-		abort();
+		if (slice->chroma_array_type == 1 || slice->chroma_array_type == 2)
+			if (h264_intra_chroma_pred_mode(str, cabac, &mb->intra_chroma_pred_mode)) return 1;
 	} else if (mb->mb_type != H264_MB_TYPE_B_DIRECT_16X16) {
 		/* XXX */
 		abort();

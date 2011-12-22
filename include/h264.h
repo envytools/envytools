@@ -402,8 +402,12 @@ struct h264_macroblock {
 	int32_t mb_qp_delta;
 	uint32_t pcm_sample_luma[256];
 	uint32_t pcm_sample_chroma[64];
-	uint32_t sub_mb_type[4];
+	uint32_t prev_intra4x4_pred_mode_flag[16];
+	uint32_t rem_intra4x4_pred_mode[16];
+	uint32_t prev_intra8x8_pred_mode_flag[4];
+	uint32_t rem_intra8x8_pred_mode[4];
 	uint32_t intra_chroma_pred_mode;
+	uint32_t sub_mb_type[4];
 };
 
 struct h264_ref_pic_list_modification {
