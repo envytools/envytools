@@ -706,6 +706,7 @@ int h264_cabac_init_arith (struct bitstream *str, struct h264_cabac_context *cab
 			return 1;
 		}
 	}
+	return 0;
 }
 
 static int put_bit(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t bit) {
