@@ -434,8 +434,13 @@ int h264_coded_block_pattern(struct bitstream *str, struct h264_cabac_context *c
 		int i;
 		uint32_t bit[6] = { 0 };
 		int ctxIdx;
-		uint32_t cbpA = h264_mb_nb(cabac->slice, H264_MB_A, 0)->coded_block_pattern;
-		uint32_t cbpB = h264_mb_nb(cabac->slice, H264_MB_B, 0)->coded_block_pattern;
+		const struct h264_macroblock *mbT = h264_mb_nb(cabac->slice, H264_MB_THIS, 0);
+		const struct h264_macroblock *mbA;
+		const struct h264_macroblock *mbB;
+		int idxA;
+		int idxB;
+		mbA = h264_mb_nb(cabac->slice, H264_MB_A, 0);
+		mbB = h264_mb_nb(cabac->slice, H264_MB_B, 0);
 		if (str->dir == VS_ENCODE) {
 			if (*val >= (has_chroma?48:16)) {
 				fprintf(stderr, "coded_block_pattern too large\n");
@@ -449,19 +454,23 @@ int h264_coded_block_pattern(struct bitstream *str, struct h264_cabac_context *c
 			bit[5] = *val >> 5 > 1;
 		}
 		for (i = 0; i < 4; i++) {
-			int condTermFlagA = !((i & 1)?bit[i-1]:(cbpA >> (i+1) & 1));
-			int condTermFlagB = !((i & 2)?bit[i-2]:(cbpB >> (i+2) & 1));
+			mbA = h264_mb_nb_b(cabac->slice, H264_MB_A, H264_BLOCK_8X8, 0, i, &idxA);
+			mbB = h264_mb_nb_b(cabac->slice, H264_MB_B, H264_BLOCK_8X8, 0, i, &idxB);
+			int condTermFlagA = !(mbA == mbT ? bit[idxA] : mbA->coded_block_pattern >> idxA & 1);
+			int condTermFlagB = !(mbB == mbT ? bit[idxB] : mbB->coded_block_pattern >> idxB & 1);
 			ctxIdx = H264_CABAC_CTXIDX_CODED_BLOCK_PATTERN_LUMA + condTermFlagA + condTermFlagB * 2;
 			h264_cabac_decision(str, cabac, ctxIdx, &bit[i]);
 		}
 		if (has_chroma) {
-			int condTermFlagA = (cbpA >> 4) > 0;
-			int condTermFlagB = (cbpB >> 4) > 0;
+			mbA = h264_mb_nb(cabac->slice, H264_MB_A, 0);
+			mbB = h264_mb_nb(cabac->slice, H264_MB_B, 0);
+			int condTermFlagA = (mbA->coded_block_pattern >> 4) > 0;
+			int condTermFlagB = (mbB->coded_block_pattern >> 4) > 0;
 			ctxIdx = H264_CABAC_CTXIDX_CODED_BLOCK_PATTERN_CHROMA + condTermFlagA + condTermFlagB * 2;
 			h264_cabac_decision(str, cabac, ctxIdx, &bit[4]);
 			if (bit[4]) {
-				int condTermFlagA = (cbpA >> 4) > 1;
-				int condTermFlagB = (cbpB >> 4) > 1;
+				int condTermFlagA = (mbA->coded_block_pattern >> 4) > 1;
+				int condTermFlagB = (mbB->coded_block_pattern >> 4) > 1;
 				ctxIdx = H264_CABAC_CTXIDX_CODED_BLOCK_PATTERN_CHROMA + condTermFlagA + condTermFlagB * 2 + 4;
 				h264_cabac_decision(str, cabac, ctxIdx, &bit[5]);
 			}
@@ -545,6 +554,15 @@ int h264_intra_chroma_pred_mode(struct bitstream *str, struct h264_cabac_context
 	return h264_cabac_tu(str, cabac, ctxIdx, 2, 3, val);
 }
 
+static const struct h264_macroblock *inter_filter(struct h264_slice *slice, const struct h264_macroblock *mb, int inter) {
+	if (!inter
+			&& slice->picparm->constrained_intra_pred_flag
+			&& slice->nal_unit_type == H264_NAL_UNIT_TYPE_SLICE_PART_A
+			&& h264_is_inter_mb_type(mb->mb_type))
+		return h264_mb_unavail(1);
+	else
+		return mb;
+}
 
 int h264_coded_block_flag(struct bitstream *str, struct h264_cabac_context *cabac, int cat, int idx, uint32_t *val) {
 	static const int basectx[14] = {
@@ -563,20 +581,8 @@ int h264_coded_block_flag(struct bitstream *str, struct h264_cabac_context *caba
 		H264_CABAC_CTXIDX_CODED_BLOCK_FLAG_CAT12,
 		H264_CABAC_CTXIDX_CODED_BLOCK_FLAG_CAT13,
 	};
-	const struct h264_macroblock *mbT = h264_mb_nb(cabac->slice, H264_MB_THIS, 0);
+	const struct h264_macroblock *mbT = h264_mb_nb_p(cabac->slice, H264_MB_THIS, 0);
 	int inter = h264_is_inter_mb_type(mbT->mb_type);
-	const struct h264_macroblock *mbA = h264_mb_nb(cabac->slice, H264_MB_A, inter);
-	const struct h264_macroblock *mbB = h264_mb_nb(cabac->slice, H264_MB_B, inter);
-	if (!inter && cabac->slice->picparm->constrained_intra_pred_flag && cabac->slice->nal_unit_type == H264_NAL_UNIT_TYPE_SLICE_PART_A) {
-		if (h264_is_inter_mb_type(mbA->mb_type)) {
-			mbA = h264_mb_unavail(1);
-		}
-		if (h264_is_inter_mb_type(mbB->mb_type)) {
-			mbB = h264_mb_unavail(1);
-		}
-	}
-	int condTermFlagA;
-	int condTermFlagB;
 	int which;
 	switch (cat) {
 		case H264_CTXBLOCKCAT_LUMA_DC:
@@ -605,13 +611,19 @@ int h264_coded_block_flag(struct bitstream *str, struct h264_cabac_context *caba
 			idx &= 7;
 			break;
 	}
+	const struct h264_macroblock *mbA;
+	const struct h264_macroblock *mbB;
+	int idxA;
+	int idxB;
 	switch (cat) {
 		case H264_CTXBLOCKCAT_LUMA_DC:
 		case H264_CTXBLOCKCAT_CB_DC:
 		case H264_CTXBLOCKCAT_CR_DC:
 		case H264_CTXBLOCKCAT_CHROMA_DC:
-			condTermFlagA = mbA->coded_block_flag[which][16];
-			condTermFlagB = mbB->coded_block_flag[which][16];
+			mbA = h264_mb_nb(cabac->slice, H264_MB_A, inter);
+			mbB = h264_mb_nb(cabac->slice, H264_MB_B, inter);
+			idxA = 16;
+			idxB = 16;
 			break;
 		case H264_CTXBLOCKCAT_LUMA_AC:
 		case H264_CTXBLOCKCAT_LUMA_4X4:
@@ -619,50 +631,34 @@ int h264_coded_block_flag(struct bitstream *str, struct h264_cabac_context *caba
 		case H264_CTXBLOCKCAT_CB_4X4:
 		case H264_CTXBLOCKCAT_CR_AC:
 		case H264_CTXBLOCKCAT_CR_4X4:
-			if (idx & 1) {
-				condTermFlagA = mbT->coded_block_flag[which][idx-1];
-			} else if (idx & 4) {
-				condTermFlagA = mbT->coded_block_flag[which][idx-3];
-			} else {
-				condTermFlagA = mbA->coded_block_flag[which][idx+5];
-			}
-			if (idx & 2) {
-				condTermFlagB = mbT->coded_block_flag[which][idx-2];
-			} else if (idx & 8) {
-				condTermFlagB = mbT->coded_block_flag[which][idx-6];
-			} else {
-				condTermFlagB = mbB->coded_block_flag[which][idx+10];
-			}
+			mbA = h264_mb_nb_b(cabac->slice, H264_MB_A, H264_BLOCK_4X4, inter, idx, &idxA);
+			mbB = h264_mb_nb_b(cabac->slice, H264_MB_B, H264_BLOCK_4X4, inter, idx, &idxB);
 			break;
 		case H264_CTXBLOCKCAT_LUMA_8X8:
 		case H264_CTXBLOCKCAT_CB_8X8:
 		case H264_CTXBLOCKCAT_CR_8X8:
-			if (idx & 1) {
-				condTermFlagA = mbT->coded_block_flag[which][(idx-1) * 4];
-			} else {
-				condTermFlagA = mbA->coded_block_flag[which][(idx+1) * 4] && mbA->transform_size_8x8_flag;
-			}
-			if (idx & 2) {
-				condTermFlagB = mbT->coded_block_flag[which][(idx-2) * 4];
-			} else {
-				condTermFlagB = mbB->coded_block_flag[which][(idx+2) * 4] && mbA->transform_size_8x8_flag;
-			}
+			mbA = h264_mb_nb_b(cabac->slice, H264_MB_A, H264_BLOCK_8X8, inter, idx, &idxA);
+			mbB = h264_mb_nb_b(cabac->slice, H264_MB_B, H264_BLOCK_8X8, inter, idx, &idxB);
+			if (!mbA->transform_size_8x8_flag)
+				idxA = -1;
+			else
+				idxA *= 4;
+			if (!mbB->transform_size_8x8_flag)
+				idxB = -1;
+			else
+				idxB *= 4;
 			break;
 		case H264_CTXBLOCKCAT_CHROMA_AC:
-			if (idx & 1) {
-				condTermFlagA = mbT->coded_block_flag[which][idx-1];
-			} else {
-				condTermFlagA = mbA->coded_block_flag[which][idx+1];
-			}
-			if (idx & 6) {
-				condTermFlagB = mbT->coded_block_flag[which][idx-2];
-			} else {
-				condTermFlagB = mbB->coded_block_flag[which][idx+(cabac->slice->chroma_array_type * 4)-2];
-			}
+			mbA = h264_mb_nb_b(cabac->slice, H264_MB_A, H264_BLOCK_CHROMA, inter, idx, &idxA);
+			mbB = h264_mb_nb_b(cabac->slice, H264_MB_B, H264_BLOCK_CHROMA, inter, idx, &idxB);
 			break;
 		default:
 			abort();
 	}
+	mbA = inter_filter(cabac->slice, mbA, inter);
+	mbB = inter_filter(cabac->slice, mbB, inter);
+	int condTermFlagA = (idxA == -1 ? 0 : mbA->coded_block_flag[which][idxA]);
+	int condTermFlagB = (idxB == -1 ? 0 : mbB->coded_block_flag[which][idxB]);
 	int ctxIdx = basectx[cat] + condTermFlagA + condTermFlagB * 2;
 	return h264_cabac_decision(str, cabac, ctxIdx, val);
 }
