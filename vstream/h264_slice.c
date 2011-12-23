@@ -41,16 +41,35 @@ uint32_t h264_next_mb_addr(struct h264_slice *slice, uint32_t mbaddr) {
 	return mbaddr+1;
 }
 
-static const struct h264_macroblock mb_unavail = {
+static const struct h264_macroblock mb_unavail_intra = {
 	/* filled with "default" values assumed by prediction for unavailable mbs, to avoid special cases */
 	.mb_type = H264_MB_TYPE_UNAVAIL,
 	.mb_field_decoding_flag = 0,
 	.coded_block_pattern = 0x0f,
 	.transform_size_8x8_flag = 0,
 	.intra_chroma_pred_mode = 0,
+	.coded_block_flag = {
+		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+		{ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 },
+	},
 };
 
-const struct h264_macroblock *h264_mb_nb(struct h264_slice *slice, enum h264_mb_pos pos) {
+static const struct h264_macroblock mb_unavail_inter = {
+	/* filled with "default" values assumed by prediction for unavailable mbs, to avoid special cases */
+	.mb_type = H264_MB_TYPE_UNAVAIL,
+	.mb_field_decoding_flag = 0,
+	.coded_block_pattern = 0x0f,
+	.transform_size_8x8_flag = 0,
+	.intra_chroma_pred_mode = 0,
+	.coded_block_flag = { 0 },
+};
+
+const struct h264_macroblock *h264_mb_unavail(int inter) {
+	return (inter ? &mb_unavail_inter : &mb_unavail_intra);
+}
+
+const struct h264_macroblock *h264_mb_nb(struct h264_slice *slice, enum h264_mb_pos pos, int inter) {
 	uint32_t mbaddr = slice->curr_mb_addr;
 	if (slice->mbaff_frame_flag)
 		mbaddr /= 2;
@@ -59,7 +78,7 @@ const struct h264_macroblock *h264_mb_nb(struct h264_slice *slice, enum h264_mb_
 			break;
 		case H264_MB_A:
 			if ((mbaddr % slice->pic_width_in_mbs) == 0)
-				return &mb_unavail;
+				return h264_mb_unavail(inter);
 			mbaddr--;
 			break;
 		case H264_MB_B:
@@ -67,19 +86,19 @@ const struct h264_macroblock *h264_mb_nb(struct h264_slice *slice, enum h264_mb_
 			break;
 		case H264_MB_C:
 			if (((mbaddr+1) % slice->pic_width_in_mbs) == 0)
-				return &mb_unavail;
+				return h264_mb_unavail(inter);
 			mbaddr -= slice->pic_width_in_mbs - 1;
 			break;
 		case H264_MB_D:
 			if ((mbaddr % slice->pic_width_in_mbs) == 0)
-				return &mb_unavail;
+				return h264_mb_unavail(inter);
 			mbaddr -= slice->pic_width_in_mbs + 1;
 			break;
 	}
 	if (slice->mbaff_frame_flag)
 		mbaddr *= 2;
 	if (!h264_mb_avail(slice, mbaddr))
-		return &mb_unavail;
+		return h264_mb_unavail(inter);
 	return &slice->mbs[mbaddr];
 }
 

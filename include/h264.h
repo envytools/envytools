@@ -559,6 +559,10 @@ static inline int h264_is_intra_16x16_mb_type(uint32_t mb_type) {
 	return (mb_type >= H264_MB_TYPE_I_16X16_0_0_0 && mb_type <= H264_MB_TYPE_I_16X16_3_2_1);
 }
 
+static inline int h264_is_inter_mb_type(uint32_t mb_type) {
+	return mb_type >= H264_MB_TYPE_P_BASE;
+}
+
 static inline int h264_sub_mb_type_split_mode(uint32_t sub_mb_type) {
 	switch (sub_mb_type) {
 		case H264_SUB_MB_TYPE_P_L0_8X8:
@@ -586,7 +590,8 @@ static inline int h264_sub_mb_type_split_mode(uint32_t sub_mb_type) {
 }
 
 int h264_mb_avail(struct h264_slice *slice, uint32_t mbaddr);
-const struct h264_macroblock *h264_mb_nb(struct h264_slice *slice, enum h264_mb_pos pos);
+const struct h264_macroblock *h264_mb_unavail(int inter);
+const struct h264_macroblock *h264_mb_nb(struct h264_slice *slice, enum h264_mb_pos pos, int inter);
 uint32_t h264_next_mb_addr(struct h264_slice *slice, uint32_t mbaddr);
 
 int h264_mb_skip_flag(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *binVal);

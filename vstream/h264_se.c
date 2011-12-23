@@ -40,8 +40,8 @@ int h264_mb_skip_flag(struct bitstream *str, struct h264_cabac_context *cabac, u
 		fprintf (stderr, "mb_skip_flag used in I/SI slice\n");
 		return 1;
 	}
-	const struct h264_macroblock *mbA = h264_mb_nb(cabac->slice, H264_MB_A);
-	const struct h264_macroblock *mbB = h264_mb_nb(cabac->slice, H264_MB_B);
+	const struct h264_macroblock *mbA = h264_mb_nb(cabac->slice, H264_MB_A, 0);
+	const struct h264_macroblock *mbB = h264_mb_nb(cabac->slice, H264_MB_B, 0);
 	int condTermFlagA = (mbA->mb_type != H264_MB_TYPE_UNAVAIL && !h264_is_skip_mb_type(mbA->mb_type));
 	int condTermFlagB = (mbB->mb_type != H264_MB_TYPE_UNAVAIL && !h264_is_skip_mb_type(mbB->mb_type));
 	ctxIdxInc = condTermFlagA + condTermFlagB;
@@ -52,8 +52,8 @@ int h264_mb_field_decoding_flag(struct bitstream *str, struct h264_cabac_context
 	if (!cabac)
 		return vs_u(str, binVal, 1);
 	int ctxIdxOffset = H264_CABAC_CTXIDX_MB_FIELD_DECODING_FLAG, ctxIdxInc;
-	int condTermFlagA = h264_mb_nb(cabac->slice, H264_MB_A)->mb_field_decoding_flag;
-	int condTermFlagB = h264_mb_nb(cabac->slice, H264_MB_B)->mb_field_decoding_flag;
+	int condTermFlagA = h264_mb_nb(cabac->slice, H264_MB_A, 0)->mb_field_decoding_flag;
+	int condTermFlagB = h264_mb_nb(cabac->slice, H264_MB_B, 0)->mb_field_decoding_flag;
 	ctxIdxInc = condTermFlagA + condTermFlagB;
 	return h264_cabac_decision(str, cabac, ctxIdxOffset+ctxIdxInc, binVal);
 }
@@ -204,8 +204,8 @@ int h264_mb_type(struct bitstream *str, struct h264_cabac_context *cabac, uint32
 		}
 	} else {
 		int bidx[11];
-		uint32_t mbtA = h264_mb_nb(cabac->slice, H264_MB_A)->mb_type;
-		uint32_t mbtB = h264_mb_nb(cabac->slice, H264_MB_B)->mb_type;
+		uint32_t mbtA = h264_mb_nb(cabac->slice, H264_MB_A, 0)->mb_type;
+		uint32_t mbtB = h264_mb_nb(cabac->slice, H264_MB_B, 0)->mb_type;
 		int condTermFlagA = mbtA != H264_MB_TYPE_UNAVAIL;
 		int condTermFlagB = mbtB != H264_MB_TYPE_UNAVAIL;
 		switch (slice_type) {
@@ -433,8 +433,8 @@ int h264_coded_block_pattern(struct bitstream *str, struct h264_cabac_context *c
 		int i;
 		uint32_t bit[6] = { 0 };
 		int ctxIdx;
-		uint32_t cbpA = h264_mb_nb(cabac->slice, H264_MB_A)->coded_block_pattern;
-		uint32_t cbpB = h264_mb_nb(cabac->slice, H264_MB_B)->coded_block_pattern;
+		uint32_t cbpA = h264_mb_nb(cabac->slice, H264_MB_A, 0)->coded_block_pattern;
+		uint32_t cbpB = h264_mb_nb(cabac->slice, H264_MB_B, 0)->coded_block_pattern;
 		if (str->dir == VS_ENCODE) {
 			if (*val >= (has_chroma?48:16)) {
 				fprintf(stderr, "coded_block_pattern too large\n");
@@ -476,8 +476,8 @@ int h264_transform_size_8x8_flag(struct bitstream *str, struct h264_cabac_contex
 	if (!cabac)
 		return vs_u(str, binVal, 1);
 	int ctxIdxOffset = H264_CABAC_CTXIDX_TRANSFORM_SIZE_8X8_FLAG, ctxIdxInc;
-	int condTermFlagA = h264_mb_nb(cabac->slice, H264_MB_A)->transform_size_8x8_flag;
-	int condTermFlagB = h264_mb_nb(cabac->slice, H264_MB_B)->transform_size_8x8_flag;
+	int condTermFlagA = h264_mb_nb(cabac->slice, H264_MB_A, 0)->transform_size_8x8_flag;
+	int condTermFlagB = h264_mb_nb(cabac->slice, H264_MB_B, 0)->transform_size_8x8_flag;
 	ctxIdxInc = condTermFlagA + condTermFlagB;
 	return h264_cabac_decision(str, cabac, ctxIdxOffset+ctxIdxInc, binVal);
 }
@@ -537,8 +537,8 @@ int h264_intra_chroma_pred_mode(struct bitstream *str, struct h264_cabac_context
 	if (!cabac)
 		return vs_ue(str, val);
 	int ctxIdx[2];
-	int condTermFlagA = h264_mb_nb(cabac->slice, H264_MB_A)->intra_chroma_pred_mode != 0;
-	int condTermFlagB = h264_mb_nb(cabac->slice, H264_MB_B)->intra_chroma_pred_mode != 0;
+	int condTermFlagA = h264_mb_nb(cabac->slice, H264_MB_A, 0)->intra_chroma_pred_mode != 0;
+	int condTermFlagB = h264_mb_nb(cabac->slice, H264_MB_B, 0)->intra_chroma_pred_mode != 0;
 	ctxIdx[0] = H264_CABAC_CTXIDX_INTRA_CHROMA_PRED_MODE + condTermFlagA + condTermFlagB;
 	ctxIdx[1] = H264_CABAC_CTXIDX_INTRA_CHROMA_PRED_MODE + 3;
 	return h264_cabac_tu(str, cabac, ctxIdx, 2, 3, val);
