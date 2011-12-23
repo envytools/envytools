@@ -362,6 +362,7 @@ int h264_slice_data(struct bitstream *str, struct h264_slice *slice) {
 					return vs_align_byte(str, VS_ALIGN_0);
 				}
 			}
+			slice->prev_mb_addr = slice->curr_mb_addr;
 			if (str->dir == VS_DECODE)
 				slice->last_mb_in_slice = slice->curr_mb_addr;
 			slice->curr_mb_addr = h264_next_mb_addr(slice, slice->curr_mb_addr);
@@ -384,6 +385,7 @@ int h264_slice_data(struct bitstream *str, struct h264_slice *slice) {
 							end = 1;
 							break;
 						}
+						slice->prev_mb_addr = slice->curr_mb_addr;
 						slice->curr_mb_addr = h264_next_mb_addr(slice, slice->curr_mb_addr);
 					}
 					if (vs_ue(str, &mb_skip_run)) return 1;
@@ -399,6 +401,8 @@ int h264_slice_data(struct bitstream *str, struct h264_slice *slice) {
 						slice->last_mb_in_slice = slice->curr_mb_addr;
 						slice->mbs[slice->curr_mb_addr].mb_type = skip_type;
 						if (infer_skip(str, slice, &slice->mbs[slice->curr_mb_addr])) return 1;
+						slice->prev_mb_addr = slice->curr_mb_addr;
+						slice->last_mb_in_slice = slice->curr_mb_addr;
 						slice->curr_mb_addr = h264_next_mb_addr(slice, slice->curr_mb_addr);
 					}
 					int more = vs_has_more_data(str);
@@ -432,6 +436,7 @@ int h264_slice_data(struct bitstream *str, struct h264_slice *slice) {
 				if (more == 0)
 					goto out_cavlc;
 			}
+			slice->prev_mb_addr = slice->curr_mb_addr;
 			if (str->dir == VS_DECODE)
 				slice->last_mb_in_slice = slice->curr_mb_addr;
 			slice->curr_mb_addr = h264_next_mb_addr(slice, slice->curr_mb_addr);
