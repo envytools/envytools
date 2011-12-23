@@ -180,10 +180,10 @@ const struct h264_macroblock *h264_mb_nb_b(struct h264_slice *slice, enum h264_m
 		M_FRAME_FROM_FIELD = 1,
 		M_FIELD_FROM_FRAME = 2,
 	} mode = M_SAME;
-	if (!mbt->mb_field_decoding_flag && mbp->mb_field_decoding_flag) {
+	if (!mbt->mb_field_decoding_flag && mbp->mb_field_decoding_flag && mbp->mb_type != H264_MB_TYPE_UNAVAIL) {
 		mode = M_FRAME_FROM_FIELD;
 	}
-	if (mbt->mb_field_decoding_flag && !mbp->mb_field_decoding_flag) {
+	if (mbt->mb_field_decoding_flag && !mbp->mb_field_decoding_flag && mbp->mb_type != H264_MB_TYPE_UNAVAIL) {
 		mode = M_FIELD_FROM_FRAME;
 	}
 	int par = slice->curr_mb_addr & 1;
