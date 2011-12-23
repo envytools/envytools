@@ -545,6 +545,12 @@ enum h264_mb_pos {
 	H264_MB_D,	/* left and above */
 };
 
+enum h264_block_size {
+	H264_BLOCK_4X4,
+	H264_BLOCK_CHROMA,
+	H264_BLOCK_8X8,
+};
+
 static inline int h264_is_skip_mb_type(uint32_t mb_type) {
 	switch (mb_type) {
 		case H264_MB_TYPE_P_SKIP:
@@ -607,6 +613,8 @@ const struct h264_macroblock *h264_mb_unavail(int inter);
 const struct h264_macroblock *h264_mb_nb_p(struct h264_slice *slice, enum h264_mb_pos pos, int inter);
 /* 6.4.10.1 */
 const struct h264_macroblock *h264_mb_nb(struct h264_slice *slice, enum h264_mb_pos pos, int inter);
+/* 6.4.10.2+ */
+const struct h264_macroblock *h264_mb_nb_b(struct h264_slice *slice, enum h264_mb_pos pos, enum h264_block_size bs, int inter, int idx, int *pidx);
 
 uint32_t h264_next_mb_addr(struct h264_slice *slice, uint32_t mbaddr);
 

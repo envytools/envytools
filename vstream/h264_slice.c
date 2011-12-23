@@ -163,6 +163,124 @@ const struct h264_macroblock *h264_mb_nb(struct h264_slice *slice, enum h264_mb_
 				}
 			}
 			return mbp;
+		default:
+			abort();
+	}
+}
+
+const struct h264_macroblock *h264_mb_nb_b(struct h264_slice *slice, enum h264_mb_pos pos, enum h264_block_size bs, int inter, int idx, int *pidx) {
+	const struct h264_macroblock *mbp = h264_mb_nb_p(slice, pos, inter);
+	const struct h264_macroblock *mbo = h264_mb_nb(slice, pos, inter);
+	const struct h264_macroblock *mbt = &slice->mbs[slice->curr_mb_addr];
+	if (slice->chroma_array_type == 1 && bs == H264_BLOCK_CHROMA)
+		bs = H264_BLOCK_8X8;
+	/* from now on BLOCK_CHROMA means 8x4 blocks */
+	enum {
+		M_SAME = 0,
+		M_FRAME_FROM_FIELD = 1,
+		M_FIELD_FROM_FRAME = 2,
+	} mode = M_SAME;
+	if (!mbt->mb_field_decoding_flag && mbp->mb_field_decoding_flag) {
+		mode = M_FRAME_FROM_FIELD;
+	}
+	if (mbt->mb_field_decoding_flag && !mbp->mb_field_decoding_flag) {
+		mode = M_FIELD_FROM_FRAME;
+	}
+	int par = slice->curr_mb_addr & 1;
+	switch(pos) {
+		case H264_MB_A:
+			switch (bs) {
+				case H264_BLOCK_4X4:
+					if (idx & 1) {
+						*pidx = idx - 1;
+						return mbt;
+					} else if (idx & 4) {
+						*pidx = idx - 3;
+						return mbt;
+					} else {
+						switch (mode) {
+							case M_SAME:
+								*pidx = idx + 5;
+								return mbo;
+							case M_FRAME_FROM_FIELD:
+								*pidx = (idx >> 2 & 2) + par * 8 + 5;
+								return mbo;
+							case M_FIELD_FROM_FRAME:
+								*pidx = (idx << 2 & 8) + 5;
+								return mbp + (idx >> 3);
+						}
+					}
+				case H264_BLOCK_CHROMA:
+					if (idx & 1) {
+						*pidx = idx - 1;
+						return mbt;
+					} else {
+						switch (mode) {
+							case M_SAME:
+								*pidx = idx + 1;
+								return mbo;
+							case M_FRAME_FROM_FIELD:
+								*pidx = (idx >> 1 & 2) + par * 4 + 1;
+								return mbo;
+							case M_FIELD_FROM_FRAME:
+								*pidx = (idx << 1 & 4) + 1;
+								return mbp + (idx >> 2);
+						}
+					}
+				case H264_BLOCK_8X8:
+					if (idx & 1) {
+						*pidx = idx - 1;
+						return mbt;
+					} else {
+						switch (mode) {
+							case M_SAME:
+								*pidx = idx + 1;
+								return mbo;
+							case M_FRAME_FROM_FIELD:
+								*pidx = par * 2 + 1;
+								return mbo;
+							case M_FIELD_FROM_FRAME:
+								*pidx = 1;
+								return mbp + (idx >> 1);
+						}
+					}
+				default:
+					abort();
+			}
+		case H264_MB_B:
+			switch (bs) {
+				case H264_BLOCK_4X4:
+					if (idx & 2) {
+						*pidx = idx - 2;
+						return mbt;
+					} else if (idx & 8) {
+						*pidx = idx - 6;
+						return mbt;
+					} else {
+						*pidx = idx + 10;
+						return mbo;
+					}
+				case H264_BLOCK_CHROMA:
+					if (idx & 6) {
+						*pidx = idx - 2;
+						return mbt;
+					} else {
+						*pidx = idx + 6;
+						return mbo;
+					}
+				case H264_BLOCK_8X8:
+					if (idx & 2) {
+						*pidx = idx - 2;
+						return mbt;
+					} else {
+						*pidx = idx + 2;
+						return mbo;
+					}
+				default:
+					abort();
+			}
+		default:
+			abort();
 	}
 }
 
