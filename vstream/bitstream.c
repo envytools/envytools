@@ -199,6 +199,45 @@ int vs_se(struct bitstream *str, int32_t *val) {
 	}
 }
 
+int vs_vlc(struct bitstream *str, uint32_t *val, const struct vs_vlc_val *tab) {
+	if (str->dir == VS_ENCODE) {
+		int i, j;
+		for (i = 0; tab[i].blen; i++) {
+			if (*val == tab[i].val) {
+				uint32_t bit;
+				for (j = 0; j < tab[i].blen; j++) {
+					bit = tab[i].bits[j];
+					if (vs_u(str, &bit, 1))
+						return 1;
+				}
+				return 0;
+			}
+		}
+		fprintf(stderr, "No VLC code for a value\n");
+		return 1;
+	} else {
+		int i, j;
+		uint32_t bit[32];
+		int n = 0;
+		for (i = 0; tab[i].blen; i++) {
+			for (j = 0; j < tab[i].blen; j++) {
+				if (j == n) {
+					if (vs_u(str, &bit[j], 1)) return 1;
+					n = j + 1;
+				}
+				if (bit[j] != tab[i].bits[j])
+					break;
+			}
+			if (j == tab[i].blen) {
+				*val = tab[i].val;
+				return 0;
+			}
+		}
+		fprintf(stderr, "Invalid VLC code\n");
+		return 1;
+	}
+}
+
 int vs_start(struct bitstream *str, uint32_t *val) {
 	if (str->bitpos != 7) {
 		fprintf (stderr, "Start code attempted at non-bytealigned position\n");
