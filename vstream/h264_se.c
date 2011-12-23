@@ -554,6 +554,72 @@ int h264_intra_chroma_pred_mode(struct bitstream *str, struct h264_cabac_context
 	return h264_cabac_tu(str, cabac, ctxIdx, 2, 3, val);
 }
 
+int h264_ref_idx(struct bitstream *str, struct h264_cabac_context *cabac, int idx, int which, int max, uint32_t *val) {
+	if (!max)
+		return vs_infer(str, val, 0);
+	if (!cabac) {
+		if (max == 1) {
+			uint32_t tmp = 1 - *val;
+			if (vs_u(str, val, 1)) return 1;
+			*val = 1 - tmp;
+			return 0;
+		} else {
+			return vs_ue(str, val);
+		}
+	}
+	int idxA, idxB;
+	const struct h264_macroblock *mbT = h264_mb_nb(cabac->slice, H264_MB_THIS, 0);
+	const struct h264_macroblock *mbA = h264_mb_nb_b(cabac->slice, H264_MB_A, H264_BLOCK_8X8, 0, idx, &idxA);
+	const struct h264_macroblock *mbB = h264_mb_nb_b(cabac->slice, H264_MB_B, H264_BLOCK_8X8, 0, idx, &idxB);
+	int thrA, thrB;
+	thrA = (!mbT->mb_field_decoding_flag && mbA->mb_field_decoding_flag);
+	thrB = (!mbT->mb_field_decoding_flag && mbB->mb_field_decoding_flag);
+	int condTermFlagA = mbA->ref_idx[which][idxA] > thrA;
+	int condTermFlagB = mbB->ref_idx[which][idxB] > thrB;
+	int ctxIdx[3];
+	ctxIdx[0] = H264_CABAC_CTXIDX_REF_IDX + condTermFlagA + 2 * condTermFlagB;
+	ctxIdx[1] = H264_CABAC_CTXIDX_REF_IDX + 4;
+	ctxIdx[2] = H264_CABAC_CTXIDX_REF_IDX + 5;
+	return h264_cabac_tu(str, cabac, ctxIdx, 3, -1, val);
+}
+
+int h264_mvd(struct bitstream *str, struct h264_cabac_context *cabac, int idx, int comp, int which, int32_t *val) {
+	if (!cabac)
+		return vs_se(str, val);
+	int baseidx = (comp ? H264_CABAC_CTXIDX_MVD_Y : H264_CABAC_CTXIDX_MVD_X);
+	int idxA, idxB;
+	const struct h264_macroblock *mbT = h264_mb_nb(cabac->slice, H264_MB_THIS, 0);
+	const struct h264_macroblock *mbA = h264_mb_nb_b(cabac->slice, H264_MB_A, H264_BLOCK_4X4, 0, idx, &idxA);
+	const struct h264_macroblock *mbB = h264_mb_nb_b(cabac->slice, H264_MB_B, H264_BLOCK_4X4, 0, idx, &idxB);
+	int absMvdCompA = abs(mbA->mvd[which][idxA][comp]);
+	int absMvdCompB = abs(mbB->mvd[which][idxB][comp]);
+	if (comp) {
+		if (mbT->mb_field_decoding_flag && !mbA->mb_field_decoding_flag)
+			absMvdCompA /= 2;
+		if (!mbT->mb_field_decoding_flag && mbA->mb_field_decoding_flag)
+			absMvdCompA *= 2;
+		if (mbT->mb_field_decoding_flag && !mbB->mb_field_decoding_flag)
+			absMvdCompB /= 2;
+		if (!mbT->mb_field_decoding_flag && mbB->mb_field_decoding_flag)
+			absMvdCompB *= 2;
+	}
+	int sum = absMvdCompA + absMvdCompB;
+	int inc;
+	if (sum < 3)
+		inc = 0;
+	else if (sum <= 32)
+		inc = 1;
+	else
+		inc = 2;
+	int ctxIdx[5];
+	ctxIdx[0] = baseidx + inc;
+	ctxIdx[1] = baseidx + 3;
+	ctxIdx[2] = baseidx + 4;
+	ctxIdx[3] = baseidx + 5;
+	ctxIdx[4] = baseidx + 6;
+	return h264_cabac_ueg(str, cabac, ctxIdx, 5, 3, 1, 9, val);
+}
+
 static const struct h264_macroblock *inter_filter(struct h264_slice *slice, const struct h264_macroblock *mb, int inter) {
 	if (!inter
 			&& slice->picparm->constrained_intra_pred_flag

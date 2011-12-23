@@ -410,6 +410,8 @@ struct h264_macroblock {
 	uint32_t rem_intra8x8_pred_mode[4];
 	uint32_t intra_chroma_pred_mode;
 	uint32_t sub_mb_type[4];
+	uint32_t ref_idx[2][4];
+	int32_t mvd[2][16][2];
 	int16_t block_luma_dc[3][16]; /* [0 luma, 1 cb, 2 cr][coeff] */
 	int16_t block_luma_ac[3][16][15]; /* [0 luma, 1 cb, 2 cr][blkIdx][coeff] */
 	int16_t block_luma_4x4[3][16][16]; /* [0 luma, 1 cb, 2 cr][blkIdx][coeff] */
@@ -628,6 +630,8 @@ int h264_mb_qp_delta(struct bitstream *str, struct h264_cabac_context *cabac, in
 int h264_prev_intra_pred_mode_flag(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *val);
 int h264_rem_intra_pred_mode(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *val);
 int h264_intra_chroma_pred_mode(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *val);
+int h264_ref_idx(struct bitstream *str, struct h264_cabac_context *cabac, int idx, int which, int max, uint32_t *val);
+int h264_mvd(struct bitstream *str, struct h264_cabac_context *cabac, int idx, int comp, int which, int32_t *val);
 
 int h264_coded_block_flag(struct bitstream *str, struct h264_cabac_context *cabac, int cat, int idx, uint32_t *val);
 int h264_significant_coeff_flag(struct bitstream *str, struct h264_cabac_context *cabac, int field, int cat, int idx, int last, uint32_t *val);
