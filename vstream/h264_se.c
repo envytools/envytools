@@ -53,8 +53,8 @@ int h264_mb_field_decoding_flag(struct bitstream *str, struct h264_cabac_context
 	if (!cabac)
 		return vs_u(str, binVal, 1);
 	int ctxIdxOffset = H264_CABAC_CTXIDX_MB_FIELD_DECODING_FLAG, ctxIdxInc;
-	int condTermFlagA = h264_mb_nb(cabac->slice, H264_MB_A, 0)->mb_field_decoding_flag;
-	int condTermFlagB = h264_mb_nb(cabac->slice, H264_MB_B, 0)->mb_field_decoding_flag;
+	int condTermFlagA = h264_mb_nb_p(cabac->slice, H264_MB_A, 0)->mb_field_decoding_flag;
+	int condTermFlagB = h264_mb_nb_p(cabac->slice, H264_MB_B, 0)->mb_field_decoding_flag;
 	ctxIdxInc = condTermFlagA + condTermFlagB;
 	return h264_cabac_decision(str, cabac, ctxIdxOffset+ctxIdxInc, binVal);
 }

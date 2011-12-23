@@ -85,13 +85,13 @@ const struct h264_macroblock *h264_mb_unavail(int inter) {
 	return (inter ? &mb_unavail_inter : &mb_unavail_intra);
 }
 
-const struct h264_macroblock *h264_mb_nb(struct h264_slice *slice, enum h264_mb_pos pos, int inter) {
+const struct h264_macroblock *h264_mb_nb_p(struct h264_slice *slice, enum h264_mb_pos pos, int inter) {
 	uint32_t mbaddr = slice->curr_mb_addr;
 	if (slice->mbaff_frame_flag)
 		mbaddr /= 2;
 	switch (pos) {
 		case H264_MB_THIS:
-			break;
+			return &slice->mbs[slice->curr_mb_addr];
 		case H264_MB_A:
 			if ((mbaddr % slice->pic_width_in_mbs) == 0)
 				return h264_mb_unavail(inter);
@@ -116,6 +116,54 @@ const struct h264_macroblock *h264_mb_nb(struct h264_slice *slice, enum h264_mb_
 	if (!h264_mb_avail(slice, mbaddr))
 		return h264_mb_unavail(inter);
 	return &slice->mbs[mbaddr];
+}
+
+const struct h264_macroblock *h264_mb_nb(struct h264_slice *slice, enum h264_mb_pos pos, int inter) {
+	const struct h264_macroblock *mbp = h264_mb_nb_p(slice, pos, inter);
+	const struct h264_macroblock *mbt = &slice->mbs[slice->curr_mb_addr];
+	switch (pos) {
+		case H264_MB_THIS:
+			return mbp;
+		case H264_MB_A:
+			/* to the left */
+			/* if not MBAFF - simply use mbp */
+			/* if MBAFF and mbp not available - just pass mbp */
+			/* if MBAFF and mbp available and frame/field coding differs - use mbp[0] */
+			/* if MBAFF and mbp available and frame/field coding same - use mbp[curr_mb & 1] */
+			if (slice->mbaff_frame_flag
+					&& mbp->mb_type != H264_MB_TYPE_UNAVAIL
+					&& (slice->curr_mb_addr & 1)
+					&& mbp->mb_field_decoding_flag == mbt->mb_field_decoding_flag)
+				return mbp + 1;
+			return mbp;
+		case H264_MB_B:
+			if (slice->mbaff_frame_flag) {
+				if (mbt->mb_field_decoding_flag) {
+					/* MBAFF and in field mb */
+					if (mbp->mb_type == H264_MB_TYPE_UNAVAIL)
+						return mbp;
+					/* MBAFF and in field mb, with mb pair above available */
+					/* if above mb pair is frame coded, use bottom mb */
+					/* if above is field coded, use mb of same parity */
+					if (!(slice->curr_mb_addr & 1)
+							&& mbp->mb_field_decoding_flag)
+						return mbp;
+					else
+						return mbp+1;
+				} else {
+					/* MBAFF and in frame mb */
+					/* if in bottom mb of the pair, use the top mb */
+					if (slice->curr_mb_addr & 1)
+						return mbt-1;
+					/* otherwise, use the bottom mb of the above pair, whether field or frame */
+					else if (mbp->mb_type != H264_MB_TYPE_UNAVAIL)
+						return mbp+1;
+					else
+						return mbp;
+				}
+			}
+			return mbp;
+	}
 }
 
 int h264_mb_pred(struct bitstream *str, struct h264_cabac_context *cabac, struct h264_slice *slice, struct h264_macroblock *mb) {

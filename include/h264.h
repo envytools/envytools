@@ -602,7 +602,12 @@ static inline int h264_sub_mb_type_split_mode(uint32_t sub_mb_type) {
 
 int h264_mb_avail(struct h264_slice *slice, uint32_t mbaddr);
 const struct h264_macroblock *h264_mb_unavail(int inter);
+
+/* 6.4.8, 6.4.9 */
+const struct h264_macroblock *h264_mb_nb_p(struct h264_slice *slice, enum h264_mb_pos pos, int inter);
+/* 6.4.10.1 */
 const struct h264_macroblock *h264_mb_nb(struct h264_slice *slice, enum h264_mb_pos pos, int inter);
+
 uint32_t h264_next_mb_addr(struct h264_slice *slice, uint32_t mbaddr);
 
 int h264_mb_skip_flag(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *binVal);
