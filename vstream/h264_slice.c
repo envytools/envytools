@@ -28,17 +28,33 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+int h264_mb_slice_group(struct h264_slice *slice, uint32_t mbaddr) {
+	if (mbaddr < 0 || mbaddr >= slice->pic_width_in_mbs)
+		return 0;
+	if (!slice->picparm->num_slice_groups_minus1)
+		return 0;
+	if (slice->seqparm->frame_mbs_only_flag || slice->field_pic_flag)
+		return slice->sgmap[mbaddr];
+	if (slice->mbaff_frame_flag)
+		return slice->sgmap[mbaddr/2];
+	int x = mbaddr % slice->pic_width_in_mbs;
+	int y = mbaddr / slice->pic_width_in_mbs;
+	return slice->sgmap[y / 2 * slice->pic_width_in_mbs + x];
+}
+
 int h264_mb_avail(struct h264_slice *slice, uint32_t mbaddr) {
-	/* XXX: wrong with FMO */
 	if (mbaddr < slice->first_mb_in_slice
 		|| mbaddr > slice->curr_mb_addr)
 		return 0;
-	return 1;
+	return h264_mb_slice_group(slice, mbaddr) == h264_mb_slice_group(slice, slice->curr_mb_addr);
 }
 
 uint32_t h264_next_mb_addr(struct h264_slice *slice, uint32_t mbaddr) {
-	/* XXX: wrong with FMO */
-	return mbaddr+1;
+	int sg = h264_mb_slice_group(slice, mbaddr);
+	mbaddr++;
+	while (mbaddr < slice->pic_width_in_mbs && h264_mb_slice_group(slice, mbaddr) != sg)
+		mbaddr++;
+	return mbaddr;
 }
 
 static const struct h264_macroblock mb_unavail_intra = {

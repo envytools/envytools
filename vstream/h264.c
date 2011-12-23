@@ -55,6 +55,7 @@ void h264_del_picparm(struct h264_picparm *picparm) {
 void h264_del_slice(struct h264_slice *slice) {
 	free(slice->dec_ref_pic_marking.mmcos);
 	free(slice->dec_ref_base_pic_marking.mmcos);
+	free(slice->sgmap);
 	free(slice->mbs);
 	free(slice);
 }
@@ -729,6 +730,116 @@ int h264_dec_ref_base_pic_marking(struct bitstream *str, struct h264_nal_svc_hea
 	return 0;
 }
 
+int h264_prep_sgmap(struct h264_slice *slice) {
+	if (slice->sgmap)
+		return 0;
+	int width = slice->seqparm->pic_width_in_mbs_minus1 + 1;
+	int height = slice->seqparm->pic_height_in_map_units_minus1 + 1;
+	int i, j, k;
+	int num = slice->picparm->num_slice_groups_minus1 + 1;
+	slice->sgmap = calloc(sizeof *slice->sgmap, width * height);
+	j = 0, k = 0;
+	int musg0 = slice->slice_group_change_cycle * (slice->picparm->slice_group_change_rate_minus1 + 1);
+	if (musg0 > width * height)
+		musg0 = width * height;
+	int sulg = musg0;
+	if (slice->picparm->slice_group_change_direction_flag)
+		sulg = width * height - sulg;
+	for (i = 0; i < width * height; i++) {
+		int x = i % width;
+		int y = i / width;
+		switch (slice->picparm->slice_group_map_type) {
+			case H264_SLICE_GROUP_MAP_INTERLEAVED:
+				slice->sgmap[i] = j;
+				if (k == slice->picparm->run_length_minus1[j]) {
+					k = 0;
+					j++;
+					j %= num;
+				} else {
+					k++;
+				}
+				break;
+			case H264_SLICE_GROUP_MAP_DISPERSED:
+				slice->sgmap[i] = (x + ((y * num) / 2)) % num;
+				break;
+			case H264_SLICE_GROUP_MAP_FOREGROUND:
+				slice->sgmap[i] = num-1;
+				for (j = num - 2; j >= 0; j--) {
+					int xtl = slice->picparm->top_left[j] % slice->pic_width_in_mbs;
+					int ytl = slice->picparm->top_left[j] / slice->pic_width_in_mbs;
+					int xbr = slice->picparm->bottom_right[j] % slice->pic_width_in_mbs;
+					int ybr = slice->picparm->bottom_right[j] / slice->pic_width_in_mbs;
+					if (x >= xtl && x <= xbr && y >= ytl && y <= ybr)
+						slice->sgmap[i] = j;
+				}
+				break;
+			case H264_SLICE_GROUP_MAP_CHANGING_BOX:
+				slice->sgmap[i] = 1;
+				/* will be fixed below */
+				break;
+			case H264_SLICE_GROUP_MAP_CHANGING_VERTICAL:
+				slice->sgmap[i] = slice->picparm->slice_group_change_direction_flag ^ (i >= sulg);
+				break;
+			case H264_SLICE_GROUP_MAP_CHANGING_HORIZONTAL:
+				k = x * height + y;
+				slice->sgmap[i] = slice->picparm->slice_group_change_direction_flag ^ (k >= sulg);
+				break;
+			case H264_SLICE_GROUP_MAP_EXPLICIT:
+				if (width * height != slice->picparm->pic_size_in_map_units_minus1 + 1) {
+					fprintf(stderr, "pic_size_in_map_units_minus1 mismatch!\n");
+					return 1;
+				}
+				slice->sgmap[i] = slice->picparm->slice_group_id[i];
+				break;
+			default:
+				abort();
+		}
+	}
+	if (slice->picparm->slice_group_map_type == H264_SLICE_GROUP_MAP_CHANGING_BOX) {
+		int cdf = slice->picparm->slice_group_change_direction_flag;
+		int x = (width - cdf) / 2;
+		int y = (height - cdf) / 2;
+		int xmin = x, xmax = x;
+		int ymin = y, ymax = y;
+		int xdir = cdf - 1;
+		int ydir = cdf;
+		int muv;
+		for (k = 0; k < musg0; k += muv) {
+			muv = slice->sgmap[y * width + x];
+			slice->sgmap[y * width + x] = 0;
+			if (xdir == -1 && x == xmin) {
+				if (xmin)
+					xmin--;
+				x = xmin;
+				xdir = 0;
+				ydir = 2 * cdf - 1;
+			} else if (xdir == 1 && x == xmax) {
+				if (xmax != width - 1)
+					xmax++;
+				x = xmax;
+				xdir = 0;
+				ydir = 1 - 2 * cdf;
+			} else if (ydir == -1 && y == ymin) {
+				if (ymin)
+					ymin--;
+				y = ymin;
+				xdir = 1 - 2 * cdf;
+				ydir = 0;
+			} else if (ydir == 1 && y == ymax) {
+				if (ymax != height - 1)
+					ymax++;
+				y = ymax;
+				xdir = 2 * cdf - 1;
+				ydir = 0;
+			} else {
+				x += xdir;
+				y += ydir;
+			}
+		}
+	}
+	return 0;
+}
+
 int h264_slice_header(struct bitstream *str, struct h264_seqparm **seqparms, struct h264_picparm **picparms, struct h264_slice *slice) {
 	if (vs_ue(str, &slice->first_mb_in_slice)) return 1;
 	uint32_t slice_type = slice->slice_type + slice->slice_all_same * 5;
@@ -912,6 +1023,8 @@ int h264_slice_header(struct bitstream *str, struct h264_seqparm **seqparms, str
 	}
 	if (slice->picparm->num_slice_groups_minus1 && slice->picparm->slice_group_map_type >= 3 && slice->picparm->slice_group_map_type <= 5)
 		if (vs_u(str, &slice->slice_group_change_cycle, clog2(((slice->seqparm->pic_width_in_mbs_minus1 + 1) * (slice->seqparm->pic_height_in_map_units_minus1 + 1) + slice->picparm->slice_group_change_rate_minus1) / (slice->picparm->slice_group_change_rate_minus1 + 1) + 1))) return 1;
+	if (slice->picparm->num_slice_groups_minus1)
+		if (h264_prep_sgmap(slice)) return 1;
 	if (slice->seqparm->is_svc) {
 		/* XXX */
 		fprintf(stderr, "SVC\n");

@@ -533,6 +533,7 @@ struct h264_slice {
 	uint32_t prev_mb_addr;
 	uint32_t curr_mb_addr;
 	/* macroblocks */
+	int *sgmap;
 	struct h264_macroblock *mbs;
 };
 
