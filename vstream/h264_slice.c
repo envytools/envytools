@@ -396,21 +396,28 @@ int h264_macroblock_layer(struct bitstream *str, struct h264_cabac_context *caba
 	return 0;
 }
 
-int infer_skip(struct bitstream *str, struct h264_slice *slice, struct h264_macroblock *mb) {
+static int inferred_mb_field_decoding_flag(struct h264_slice *slice) {
+	if (slice->mbaff_frame_flag) {
+		const struct h264_macroblock *mbA = h264_mb_nb_p(slice, H264_MB_A, 0);
+		const struct h264_macroblock *mbB = h264_mb_nb_p(slice, H264_MB_B, 0);
+		if (mbA->mb_type != H264_MB_TYPE_UNAVAIL) {
+			return mbA->mb_field_decoding_flag;
+		} else if (mbB->mb_type != H264_MB_TYPE_UNAVAIL) {
+			return mbB->mb_field_decoding_flag;
+		} else {
+			return 0;
+		}
+	} else {
+		return slice->field_pic_flag;
+	}
+}
+
+static int infer_skip(struct bitstream *str, struct h264_slice *slice, struct h264_macroblock *mb) {
 	uint32_t skip_type = (slice->slice_type == H264_SLICE_TYPE_B ? H264_MB_TYPE_B_SKIP : H264_MB_TYPE_P_SKIP);
 	if (slice->mbaff_frame_flag) {
 		if (slice->curr_mb_addr & 1) {
 			if (h264_is_skip_mb_type(slice->mbs[slice->curr_mb_addr & ~1].mb_type)) {
-				int val;
-				const struct h264_macroblock *mbA = h264_mb_nb_p(slice, H264_MB_A, 0);
-				const struct h264_macroblock *mbB = h264_mb_nb_p(slice, H264_MB_B, 0);
-				if (mbA->mb_type != H264_MB_TYPE_UNAVAIL) {
-					val = mbA->mb_field_decoding_flag;
-				} else if (mbB->mb_type != H264_MB_TYPE_UNAVAIL) {
-					val = mbB->mb_field_decoding_flag;
-				} else {
-					val = 0;
-				}
+				int val = inferred_mb_field_decoding_flag(slice);
 				if (vs_infer(str, &mb[-1].mb_field_decoding_flag, val)) return 1;
 			}
 			if (vs_infer(str, &mb->mb_field_decoding_flag, mb[-1].mb_field_decoding_flag)) return 1;
@@ -450,7 +457,19 @@ int h264_slice_data(struct bitstream *str, struct h264_slice *slice) {
 				if (str->dir == VS_ENCODE) {
 					mb_skip_flag = slice->mbs[slice->curr_mb_addr].mb_type == skip_type;
 				}
+				/* mb_field_decoding_flag is decoded *after* mb_skip_flag in some circumstances, have to use an inferred value for CABAC prediction */
+				int save = slice->mbs[slice->curr_mb_addr].mb_field_decoding_flag;
+				int ival;
+				if (slice->mbaff_frame_flag
+						&& slice->curr_mb_addr & 1
+						&& slice->mbs[slice->curr_mb_addr - 1].mb_type != skip_type) {
+					ival = slice->mbs[slice->curr_mb_addr - 1].mb_field_decoding_flag;
+				} else {
+					ival = inferred_mb_field_decoding_flag(slice);
+				}
+				slice->mbs[slice->curr_mb_addr].mb_field_decoding_flag = ival;
 				if (h264_mb_skip_flag(str, cabac, &mb_skip_flag)) { h264_cabac_destroy(cabac); return 1; }
+				slice->mbs[slice->curr_mb_addr].mb_field_decoding_flag = save;
 			}
 			if (mb_skip_flag) {
 				if (infer_skip(str, slice, &slice->mbs[slice->curr_mb_addr])) { h264_cabac_destroy(cabac); return 1; }
