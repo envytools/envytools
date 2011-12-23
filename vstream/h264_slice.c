@@ -599,7 +599,7 @@ int h264_macroblock_layer(struct bitstream *str, struct h264_cabac_context *caba
 			if (h264_mb_pred(str, cabac, slice, mb)) return 1;
 		}
 		if (mb->mb_type == H264_MB_TYPE_I_NXN || mb->mb_type == H264_MB_TYPE_SI || mb->mb_type >= H264_MB_TYPE_I_END) {
-			int has_chroma = seqparm->chroma_format_idc < 3 && seqparm->chroma_format_idc != 0;
+			int has_chroma = slice->chroma_array_type < 3 && slice->chroma_array_type != 0;
 			if (h264_coded_block_pattern(str, cabac, mb->mb_type, has_chroma, &mb->coded_block_pattern)) return 1;
 			if (mb->mb_type >= H264_MB_TYPE_I_END) {
 				if ((mb->coded_block_pattern & 0xf) && picparm->transform_8x8_mode_flag && noSubMbPartSizeLessThan8x8Flag && (mb->mb_type != H264_MB_TYPE_B_DIRECT_16X16 || seqparm->direct_8x8_inference_flag)) {
