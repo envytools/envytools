@@ -43,7 +43,7 @@ int h264_mb_slice_group(struct h264_slice *slice, uint32_t mbaddr) {
 }
 
 int h264_mb_avail(struct h264_slice *slice, uint32_t mbaddr) {
-	if (mbaddr < slice->first_mb_in_slice
+	if (mbaddr < slice->first_mb_in_slice * (slice->mbaff_frame_flag + 1)
 		|| mbaddr > slice->curr_mb_addr)
 		return 0;
 	return h264_mb_slice_group(slice, mbaddr) == h264_mb_slice_group(slice, slice->curr_mb_addr);
