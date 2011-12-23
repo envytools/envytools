@@ -25,6 +25,7 @@
 #include "h264.h"
 #include "h264_cabac.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 int h264_mb_skip_flag(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *binVal) {
 	if (!cabac) {
@@ -542,4 +543,315 @@ int h264_intra_chroma_pred_mode(struct bitstream *str, struct h264_cabac_context
 	ctxIdx[0] = H264_CABAC_CTXIDX_INTRA_CHROMA_PRED_MODE + condTermFlagA + condTermFlagB;
 	ctxIdx[1] = H264_CABAC_CTXIDX_INTRA_CHROMA_PRED_MODE + 3;
 	return h264_cabac_tu(str, cabac, ctxIdx, 2, 3, val);
+}
+
+
+int h264_coded_block_flag(struct bitstream *str, struct h264_cabac_context *cabac, int cat, int idx, uint32_t *val) {
+	static const int basectx[14] = {
+		H264_CABAC_CTXIDX_CODED_BLOCK_FLAG_CAT0,
+		H264_CABAC_CTXIDX_CODED_BLOCK_FLAG_CAT1,
+		H264_CABAC_CTXIDX_CODED_BLOCK_FLAG_CAT2,
+		H264_CABAC_CTXIDX_CODED_BLOCK_FLAG_CAT3,
+		H264_CABAC_CTXIDX_CODED_BLOCK_FLAG_CAT4,
+		H264_CABAC_CTXIDX_CODED_BLOCK_FLAG_CAT5,
+		H264_CABAC_CTXIDX_CODED_BLOCK_FLAG_CAT6,
+		H264_CABAC_CTXIDX_CODED_BLOCK_FLAG_CAT7,
+		H264_CABAC_CTXIDX_CODED_BLOCK_FLAG_CAT8,
+		H264_CABAC_CTXIDX_CODED_BLOCK_FLAG_CAT9,
+		H264_CABAC_CTXIDX_CODED_BLOCK_FLAG_CAT10,
+		H264_CABAC_CTXIDX_CODED_BLOCK_FLAG_CAT11,
+		H264_CABAC_CTXIDX_CODED_BLOCK_FLAG_CAT12,
+		H264_CABAC_CTXIDX_CODED_BLOCK_FLAG_CAT13,
+	};
+	const struct h264_macroblock *mbT = h264_mb_nb(cabac->slice, H264_MB_THIS, 0);
+	int inter = h264_is_inter_mb_type(mbT->mb_type);
+	const struct h264_macroblock *mbA = h264_mb_nb(cabac->slice, H264_MB_A, inter);
+	const struct h264_macroblock *mbB = h264_mb_nb(cabac->slice, H264_MB_B, inter);
+	if (!inter && cabac->slice->picparm->constrained_intra_pred_flag && cabac->slice->nal_unit_type == H264_NAL_UNIT_TYPE_SLICE_PART_A) {
+		if (h264_is_inter_mb_type(mbA->mb_type)) {
+			mbA = h264_mb_unavail(1);
+		}
+		if (h264_is_inter_mb_type(mbB->mb_type)) {
+			mbB = h264_mb_unavail(1);
+		}
+	}
+	int condTermFlagA;
+	int condTermFlagB;
+	int which;
+	switch (cat) {
+		case H264_CTXBLOCKCAT_LUMA_DC:
+		case H264_CTXBLOCKCAT_LUMA_AC:
+		case H264_CTXBLOCKCAT_LUMA_4X4:
+		case H264_CTXBLOCKCAT_LUMA_8X8:
+			which = 0;
+			break;
+		case H264_CTXBLOCKCAT_CB_DC:
+		case H264_CTXBLOCKCAT_CB_AC:
+		case H264_CTXBLOCKCAT_CB_4X4:
+		case H264_CTXBLOCKCAT_CB_8X8:
+			which = 1;
+			break;
+		case H264_CTXBLOCKCAT_CR_DC:
+		case H264_CTXBLOCKCAT_CR_AC:
+		case H264_CTXBLOCKCAT_CR_4X4:
+		case H264_CTXBLOCKCAT_CR_8X8:
+			which = 2;
+			break;
+		case H264_CTXBLOCKCAT_CHROMA_DC:
+			which = idx + 1;
+			break;
+		case H264_CTXBLOCKCAT_CHROMA_AC:
+			which = (idx >> 3) + 1;
+			idx &= 7;
+			break;
+	}
+	switch (cat) {
+		case H264_CTXBLOCKCAT_LUMA_DC:
+		case H264_CTXBLOCKCAT_CB_DC:
+		case H264_CTXBLOCKCAT_CR_DC:
+		case H264_CTXBLOCKCAT_CHROMA_DC:
+			condTermFlagA = mbA->coded_block_flag[which][16];
+			condTermFlagB = mbB->coded_block_flag[which][16];
+			break;
+		case H264_CTXBLOCKCAT_LUMA_AC:
+		case H264_CTXBLOCKCAT_LUMA_4X4:
+		case H264_CTXBLOCKCAT_CB_AC:
+		case H264_CTXBLOCKCAT_CB_4X4:
+		case H264_CTXBLOCKCAT_CR_AC:
+		case H264_CTXBLOCKCAT_CR_4X4:
+			if (idx & 1) {
+				condTermFlagA = mbT->coded_block_flag[which][idx-1];
+			} else if (idx & 4) {
+				condTermFlagA = mbT->coded_block_flag[which][idx-3];
+			} else {
+				condTermFlagA = mbA->coded_block_flag[which][idx+5];
+			}
+			if (idx & 2) {
+				condTermFlagB = mbT->coded_block_flag[which][idx-2];
+			} else if (idx & 8) {
+				condTermFlagB = mbT->coded_block_flag[which][idx-6];
+			} else {
+				condTermFlagB = mbB->coded_block_flag[which][idx+10];
+			}
+			break;
+		case H264_CTXBLOCKCAT_LUMA_8X8:
+		case H264_CTXBLOCKCAT_CB_8X8:
+		case H264_CTXBLOCKCAT_CR_8X8:
+			if (idx & 1) {
+				condTermFlagA = mbT->coded_block_flag[which][(idx-1) * 4];
+			} else {
+				condTermFlagA = mbA->coded_block_flag[which][(idx+1) * 4] && mbA->transform_size_8x8_flag;
+			}
+			if (idx & 2) {
+				condTermFlagB = mbT->coded_block_flag[which][(idx-2) * 4];
+			} else {
+				condTermFlagB = mbB->coded_block_flag[which][(idx+2) * 4] && mbA->transform_size_8x8_flag;
+			}
+			break;
+		case H264_CTXBLOCKCAT_CHROMA_AC:
+			if (idx & 1) {
+				condTermFlagA = mbT->coded_block_flag[which][idx-1];
+			} else {
+				condTermFlagA = mbA->coded_block_flag[which][idx+1];
+			}
+			if (idx & 6) {
+				condTermFlagB = mbT->coded_block_flag[which][idx-2];
+			} else {
+				condTermFlagB = mbB->coded_block_flag[which][idx+(cabac->slice->chroma_array_type * 4)-2];
+			}
+			break;
+		default:
+			abort();
+	}
+	int ctxIdx = basectx[cat] + condTermFlagA + condTermFlagB * 2;
+	return h264_cabac_decision(str, cabac, ctxIdx, val);
+}
+
+int h264_significant_coeff_flag(struct bitstream *str, struct h264_cabac_context *cabac, int field, int cat, int idx, int last, uint32_t *val) {
+	static const int basectx[2][2][14] = {
+		{
+			{
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FRAME_CAT0,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FRAME_CAT1,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FRAME_CAT2,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FRAME_CAT3,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FRAME_CAT4,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FRAME_CAT5,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FRAME_CAT6,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FRAME_CAT7,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FRAME_CAT8,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FRAME_CAT9,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FRAME_CAT10,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FRAME_CAT11,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FRAME_CAT12,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FRAME_CAT13,
+			},  {
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FIELD_CAT0,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FIELD_CAT1,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FIELD_CAT2,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FIELD_CAT3,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FIELD_CAT4,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FIELD_CAT5,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FIELD_CAT6,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FIELD_CAT7,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FIELD_CAT8,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FIELD_CAT9,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FIELD_CAT10,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FIELD_CAT11,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FIELD_CAT12,
+				H264_CABAC_CTXIDX_SIGNIFICANT_COEFF_FLAG_FIELD_CAT13,
+			},
+		}, {
+			{
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FRAME_CAT0,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FRAME_CAT1,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FRAME_CAT2,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FRAME_CAT3,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FRAME_CAT4,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FRAME_CAT5,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FRAME_CAT6,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FRAME_CAT7,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FRAME_CAT8,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FRAME_CAT9,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FRAME_CAT10,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FRAME_CAT11,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FRAME_CAT12,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FRAME_CAT13,
+			},  {
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FIELD_CAT0,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FIELD_CAT1,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FIELD_CAT2,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FIELD_CAT3,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FIELD_CAT4,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FIELD_CAT5,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FIELD_CAT6,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FIELD_CAT7,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FIELD_CAT8,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FIELD_CAT9,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FIELD_CAT10,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FIELD_CAT11,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FIELD_CAT12,
+				H264_CABAC_CTXIDX_LAST_SIGNIFICANT_COEFF_FLAG_FIELD_CAT13,
+			},
+		},
+	};
+	static const int tab8x8[63][3] = {
+		{  0,  0, 0 }, /*  0 */
+		{  1,  1, 1 }, /*  1 */
+		{  2,  1, 1 }, /*  2 */
+		{  3,  2, 1 }, /*  3 */
+		{  4,  2, 1 }, /*  4 */
+		{  5,  3, 1 }, /*  5 */
+		{  5,  3, 1 }, /*  6 */
+		{  4,  4, 1 }, /*  7 */
+		{  4,  5, 1 }, /*  8 */
+		{  3,  6, 1 }, /*  9 */
+		{  3,  7, 1 }, /* 10 */
+		{  4,  7, 1 }, /* 11 */
+		{  4,  7, 1 }, /* 12 */
+		{  4,  8, 1 }, /* 13 */
+		{  5,  4, 1 }, /* 14 */
+		{  5,  5, 1 }, /* 15 */
+		{  4,  6, 2 }, /* 16 */
+		{  4,  9, 2 }, /* 17 */
+		{  4, 10, 2 }, /* 18 */
+		{  4, 10, 2 }, /* 19 */
+		{  3,  8, 2 }, /* 20 */
+		{  3, 11, 2 }, /* 21 */
+		{  6, 12, 2 }, /* 22 */
+		{  7, 11, 2 }, /* 23 */
+		{  7,  9, 2 }, /* 24 */
+		{  7,  9, 2 }, /* 25 */
+		{  8, 10, 2 }, /* 26 */
+		{  9, 10, 2 }, /* 27 */
+		{ 10,  8, 2 }, /* 28 */
+		{  9, 11, 2 }, /* 29 */
+		{  8, 12, 2 }, /* 30 */
+		{  7, 11, 2 }, /* 31 */
+		{  7,  9, 3 }, /* 32 */
+		{  6,  9, 3 }, /* 33 */
+		{ 11, 10, 3 }, /* 34 */
+		{ 12, 10, 3 }, /* 35 */
+		{ 13,  8, 3 }, /* 36 */
+		{ 11, 11, 3 }, /* 37 */
+		{  6, 12, 3 }, /* 38 */
+		{  7, 11, 3 }, /* 39 */
+		{  8,  9, 4 }, /* 40 */
+		{  9,  9, 4 }, /* 41 */
+		{ 14, 10, 4 }, /* 42 */
+		{ 10, 10, 4 }, /* 43 */
+		{  9,  8, 4 }, /* 44 */
+		{  8, 13, 4 }, /* 45 */
+		{  6, 13, 4 }, /* 46 */
+		{ 11,  9, 4 }, /* 47 */
+		{ 12,  9, 5 }, /* 48 */
+		{ 13, 10, 5 }, /* 49 */
+		{ 11, 10, 5 }, /* 50 */
+		{  6,  8, 5 }, /* 51 */
+		{  9, 13, 6 }, /* 52 */
+		{ 14, 13, 6 }, /* 53 */
+		{ 10,  9, 6 }, /* 54 */
+		{  9,  9, 6 }, /* 55 */
+		{ 11, 10, 7 }, /* 56 */
+		{ 12, 10, 7 }, /* 57 */
+		{ 13, 14, 7 }, /* 58 */
+		{ 11, 14, 7 }, /* 59 */
+		{ 14, 14, 8 }, /* 60 */
+		{ 10, 14, 8 }, /* 61 */
+		{ 12, 14, 8 }, /* 62 */
+	};
+	int ctxInc;
+	switch (cat) {
+		case H264_CTXBLOCKCAT_LUMA_DC:
+		case H264_CTXBLOCKCAT_LUMA_AC:
+		case H264_CTXBLOCKCAT_LUMA_4X4:
+		case H264_CTXBLOCKCAT_CB_DC:
+		case H264_CTXBLOCKCAT_CB_AC:
+		case H264_CTXBLOCKCAT_CB_4X4:
+		case H264_CTXBLOCKCAT_CR_DC:
+		case H264_CTXBLOCKCAT_CR_AC:
+		case H264_CTXBLOCKCAT_CR_4X4:
+		case H264_CTXBLOCKCAT_CHROMA_AC:
+			ctxInc = idx;
+			break;
+		case H264_CTXBLOCKCAT_CHROMA_DC:
+			ctxInc = idx / cabac->slice->chroma_array_type;
+			if (ctxInc > 2)
+				ctxInc = 2;
+			break;
+		case H264_CTXBLOCKCAT_LUMA_8X8:
+		case H264_CTXBLOCKCAT_CB_8X8:
+		case H264_CTXBLOCKCAT_CR_8X8:
+			if (last)
+				ctxInc = tab8x8[idx][2];
+			else
+				ctxInc = tab8x8[idx][field];
+			break;
+	}
+	int ctxIdx = basectx[last][field][cat] + ctxInc;
+	return h264_cabac_decision(str, cabac, ctxIdx, val);
+}
+
+int h264_coeff_abs_level_minus1(struct bitstream *str, struct h264_cabac_context *cabac, int cat, int num1, int numgt1, int32_t *val) {
+	static const int basectx[14] = {
+		H264_CABAC_CTXIDX_COEFF_ABS_LEVEL_MINUS1_PRE_CAT0,
+		H264_CABAC_CTXIDX_COEFF_ABS_LEVEL_MINUS1_PRE_CAT1,
+		H264_CABAC_CTXIDX_COEFF_ABS_LEVEL_MINUS1_PRE_CAT2,
+		H264_CABAC_CTXIDX_COEFF_ABS_LEVEL_MINUS1_PRE_CAT3,
+		H264_CABAC_CTXIDX_COEFF_ABS_LEVEL_MINUS1_PRE_CAT4,
+		H264_CABAC_CTXIDX_COEFF_ABS_LEVEL_MINUS1_PRE_CAT5,
+		H264_CABAC_CTXIDX_COEFF_ABS_LEVEL_MINUS1_PRE_CAT6,
+		H264_CABAC_CTXIDX_COEFF_ABS_LEVEL_MINUS1_PRE_CAT7,
+		H264_CABAC_CTXIDX_COEFF_ABS_LEVEL_MINUS1_PRE_CAT8,
+		H264_CABAC_CTXIDX_COEFF_ABS_LEVEL_MINUS1_PRE_CAT9,
+		H264_CABAC_CTXIDX_COEFF_ABS_LEVEL_MINUS1_PRE_CAT10,
+		H264_CABAC_CTXIDX_COEFF_ABS_LEVEL_MINUS1_PRE_CAT11,
+		H264_CABAC_CTXIDX_COEFF_ABS_LEVEL_MINUS1_PRE_CAT12,
+		H264_CABAC_CTXIDX_COEFF_ABS_LEVEL_MINUS1_PRE_CAT13,
+	};
+	int ctxIdx[2];
+	ctxIdx[0] = basectx[cat] + (numgt1 ? 0 : (num1 >= 4 ? 4 : num1 + 1));
+	int clamp = (cat == H264_CTXBLOCKCAT_CHROMA_DC ? 3 : 4);
+	ctxIdx[1] = basectx[cat] + 5 + (numgt1 > clamp ? clamp : numgt1);
+	return h264_cabac_ueg(str, cabac, ctxIdx, 2, 0, 0, 14, val);
 }

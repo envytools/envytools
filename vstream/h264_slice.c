@@ -161,6 +161,11 @@ int h264_macroblock_layer(struct bitstream *str, struct h264_cabac_context *caba
 		if (vs_infer(str, &mb->transform_size_8x8_flag, 0)) return 1;
 		if (vs_infer(str, &mb->coded_block_pattern, 0x2f)) return 1;
 		if (vs_infer(str, &mb->intra_chroma_pred_mode, 0)) return 1;
+		for (i = 0; i < 17; i++) {
+			mb->coded_block_flag[0][i] = 1;
+			mb->coded_block_flag[1][i] = 1;
+			mb->coded_block_flag[2][i] = 1;
+		}
 	} else {
 		int noSubMbPartSizeLessThan8x8Flag = 1;
 		if (h264_is_submb_mb_type(mb->mb_type)) {
@@ -206,8 +211,8 @@ int h264_macroblock_layer(struct bitstream *str, struct h264_cabac_context *caba
 		if (mb->coded_block_pattern || h264_is_intra_16x16_mb_type(mb->mb_type)) {
 			if (h264_mb_qp_delta(str, cabac, &mb->mb_qp_delta))
 				return 1;
-			if (h264_residual(str, cabac, slice, mb, 0, 15)) return 1;
 		}
+		if (h264_residual(str, cabac, slice, mb, 0, 15)) return 1;
 	}
 	return 0;
 }
@@ -222,6 +227,12 @@ int infer_skip(struct bitstream *str, struct h264_slice *slice, struct h264_macr
 	if (vs_infer(str, &mb->coded_block_pattern, 0)) return 1;
 	if (vs_infer(str, &mb->intra_chroma_pred_mode, 0)) return 1;
 	/* XXX: more stuff? */
+	int i;
+	for (i = 0; i < 17; i++) {
+		mb->coded_block_flag[0][i] = 0;
+		mb->coded_block_flag[1][i] = 0;
+		mb->coded_block_flag[2][i] = 0;
+	}
 	return 0;
 }
 

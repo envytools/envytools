@@ -410,6 +410,7 @@ struct h264_macroblock {
 	uint32_t rem_intra8x8_pred_mode[4];
 	uint32_t intra_chroma_pred_mode;
 	uint32_t sub_mb_type[4];
+	int coded_block_flag[3][17]; /* [0 luma, 1 cb, 2 cr][blkIdx], with blkIdx == 16 being DC */
 };
 
 struct h264_ref_pic_list_modification {
@@ -604,6 +605,10 @@ int h264_mb_qp_delta(struct bitstream *str, struct h264_cabac_context *cabac, in
 int h264_prev_intra_pred_mode_flag(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *val);
 int h264_rem_intra_pred_mode(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *val);
 int h264_intra_chroma_pred_mode(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *val);
+
+int h264_coded_block_flag(struct bitstream *str, struct h264_cabac_context *cabac, int cat, int idx, uint32_t *val);
+int h264_significant_coeff_flag(struct bitstream *str, struct h264_cabac_context *cabac, int field, int cat, int idx, int last, uint32_t *val);
+int h264_coeff_abs_level_minus1(struct bitstream *str, struct h264_cabac_context *cabac, int cat, int num1, int numgt1, int32_t *val);
 
 void h264_del_seqparm(struct h264_seqparm *seqparm);
 void h264_del_picparm(struct h264_picparm *picparm);
