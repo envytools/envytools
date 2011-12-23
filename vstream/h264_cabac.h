@@ -253,6 +253,7 @@ int h264_cabac_bypass(struct bitstream *str, struct h264_cabac_context *cabac, u
 int h264_cabac_terminate(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *binVal);
 int h264_cabac_se(struct bitstream *str, struct h264_cabac_context *cabac, const struct h264_cabac_se_val *tab, int *ctxIdx, uint32_t *val);
 int h264_cabac_tu(struct bitstream *str, struct h264_cabac_context *cabac, int *ctxIdx, int numidx, uint32_t cMax, uint32_t *val);
+int h264_cabac_ueg(struct bitstream *str, struct h264_cabac_context *cabac, int *ctxIdx, int numidx, int k, int sign, uint32_t uCoff, int32_t *val);
 void h264_cabac_destroy(struct h264_cabac_context *cabac);
 
 #endif

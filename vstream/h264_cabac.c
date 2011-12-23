@@ -1575,6 +1575,59 @@ int h264_cabac_tu(struct bitstream *str, struct h264_cabac_context *cabac, int *
 	}
 }
 
+int h264_cabac_ueg(struct bitstream *str, struct h264_cabac_context *cabac, int *ctxIdx, int numidx, int k, int sign, uint32_t uCoff, int32_t *val) {
+	uint32_t tuval = abs(*val);
+	if (tuval > uCoff)
+		tuval = uCoff;
+	if (h264_cabac_tu(str, cabac, ctxIdx, numidx, uCoff, &tuval)) return 1;
+	uint32_t rval = tuval;
+	if (tuval >= uCoff) {
+		if (str->dir == VS_ENCODE) {
+			rval = abs(*val);
+			uint32_t sufS = rval - uCoff;
+			uint32_t tmp = 1;
+			while (sufS >= (1 << k)) {
+				if (h264_cabac_bypass(str, cabac, &tmp)) return 1;
+				sufS -= 1 << k;
+				k++;
+			}
+			tmp = 0;
+			if (h264_cabac_bypass(str, cabac, &tmp)) return 1;
+			while (k--) {
+				tmp = sufS >> k & 1;
+				if (h264_cabac_bypass(str, cabac, &tmp)) return 1;
+			}
+		} else {
+			uint32_t tmp;
+			while (1) {
+				if (h264_cabac_bypass(str, cabac, &tmp)) return 1;
+				if (!tmp)
+					break;
+				rval += 1 << k;
+				k++;
+			}
+			while (k--) {
+				if (h264_cabac_bypass(str, cabac, &tmp)) return 1;
+				rval += tmp << k;
+			}
+		}
+	}
+	if (rval && sign) {
+		uint32_t s = *val < 0;
+		if (h264_cabac_bypass(str, cabac, &s)) return 1;
+		if (str->dir == VS_DECODE) {
+			if (s)
+				*val = -rval;
+			else
+				*val = rval;
+		}
+	} else {
+		if (str->dir == VS_DECODE)
+			*val = rval;
+	}
+	return 0;
+}
+
 void h264_cabac_destroy(struct h264_cabac_context *cabac) {
 	free(cabac);
 }
