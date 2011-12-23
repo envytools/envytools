@@ -76,7 +76,13 @@ int main() {
 					goto err;
 				}
 				h264_print_slice_header(slice);
-				slice->mbs = calloc (sizeof *slice->mbs, (slice->seqparm->pic_width_in_mbs_minus1 + 1) * (slice->seqparm->pic_height_in_map_units_minus1 + 1) * (slice->seqparm->mb_adaptive_frame_field_flag + 1));
+				slice->mbs = calloc (sizeof *slice->mbs, slice->pic_size_in_mbs);
+				if (h264_slice_data(str, slice)) {
+					h264_print_slice_data(slice);
+					h264_del_slice(slice);
+					goto err;
+				}
+				h264_print_slice_data(slice);
 				h264_del_slice(slice);
 				break;
 			case H264_NAL_UNIT_TYPE_SEQPARM:

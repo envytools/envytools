@@ -486,3 +486,172 @@ void h264_print_slice_header(struct h264_slice *slice) {
 		/* XXX */
 	}
 }
+
+void h264_print_block(int16_t *block, int num) {
+	int i;
+	for (i = 0; i < num; i++)
+		printf(" %d", block[i]);
+	printf("\n");
+}
+
+void h264_print_pcm(uint32_t *pcm, int num) {
+	int i;
+	for (i = 0; i < num; i++)
+		printf(" %d", pcm[i]);
+	printf("\n");
+}
+
+void h264_print_macroblock(struct h264_slice *slice, struct h264_macroblock *mb) {
+	static const char *const mbtypenames[] = {
+		"I_NxN",
+		"I_16X16_0_0_0",
+		"I_16X16_1_0_0",
+		"I_16X16_2_0_0",
+		"I_16X16_3_0_0",
+		"I_16X16_0_1_0",
+		"I_16X16_1_1_0",
+		"I_16X16_2_1_0",
+		"I_16X16_3_1_0",
+		"I_16X16_0_2_0",
+		"I_16X16_1_2_0",
+		"I_16X16_2_2_0",
+		"I_16X16_3_2_0",
+		"I_16X16_0_0_1",
+		"I_16X16_1_0_1",
+		"I_16X16_2_0_1",
+		"I_16X16_3_0_1",
+		"I_16X16_0_1_1",
+		"I_16X16_1_1_1",
+		"I_16X16_2_1_1",
+		"I_16X16_3_1_1",
+		"I_16X16_0_2_1",
+		"I_16X16_1_2_1",
+		"I_16X16_2_2_1",
+		"I_16X16_3_2_1",
+		"I_PCM",
+		"SI",
+		"P_L0_16X16",
+		"P_L0_L0_16X8",
+		"P_L0_L0_8X16",
+		"P_8X8",
+		"P_8X8REF0",
+		"P_SKIP",
+		"B_DIRECT_16X16",
+		"B_L0_16X16",
+		"B_L1_16X16",
+		"B_BI_16X16",
+		"B_L0_L0_16X8",
+		"B_L0_L0_8X16",
+		"B_L1_L1_16X8",
+		"B_L1_L1_8X16",
+		"B_L0_L1_16X8",
+		"B_L0_L1_8X16",
+		"B_L1_L0_16X8",
+		"B_L1_L0_8X16",
+		"B_L0_BI_16X8",
+		"B_L0_BI_8X16",
+		"B_L1_BI_16X8",
+		"B_L1_BI_8X16",
+		"B_BI_L0_16X8",
+		"B_BI_L0_8X16",
+		"B_BI_L1_16X8",
+		"B_BI_L1_8X16",
+		"B_BI_BI_16X8",
+		"B_BI_BI_8X16",
+		"B_8X8",
+		"B_SKIP",
+		"UNAVAIL",
+	};
+	static const char *const aname[3] = { "Luma", "Cb", "Cr" };
+	printf("\t\tmb_field_decoding_flag = %d\n", mb->mb_field_decoding_flag);
+	printf("\t\tmb_type = %d [%s]\n", mb->mb_type, mbtypenames[mb->mb_type]);
+	int i, j;
+	if (mb->mb_type == H264_MB_TYPE_I_PCM) {
+		printf("\t\tLuma PCM:");
+		h264_print_pcm(mb->pcm_sample_luma, 256);
+		switch (slice->chroma_array_type) {
+			case 0:
+				break;
+			case 1:
+				printf("\t\tChroma PCM:");
+				h264_print_pcm(mb->pcm_sample_chroma, 128);
+				break;
+			case 2:
+				printf("\t\tChroma PCM:");
+				h264_print_pcm(mb->pcm_sample_chroma, 256);
+				break;
+			case 3:
+				printf("\t\tChroma PCM:");
+				h264_print_pcm(mb->pcm_sample_chroma, 512);
+				break;
+		}
+	} else {
+		printf("\t\ttransform_size_8x8_flag = %d\n", mb->transform_size_8x8_flag);
+		printf("\t\tcoded_block_pattern = %d\n", mb->coded_block_pattern);
+		if (mb->mb_type == H264_MB_TYPE_I_NXN || mb->mb_type == H264_MB_TYPE_SI) {
+			if (mb->transform_size_8x8_flag) {
+				for (i = 0; i < 4; i++) {
+					printf("\t\tprev_intra8x8_pred_mode_flag[%d] = %d\n", i, mb->prev_intra8x8_pred_mode_flag[i]);
+					if (!mb->prev_intra8x8_pred_mode_flag[i])
+						printf("\t\trem_intra8x8_pred_mode[%d] = %d\n", i, mb->rem_intra8x8_pred_mode[i]);
+				}
+			} else {
+				for (i = 0; i < 16; i++) {
+					printf("\t\tprev_intra4x4_pred_mode_flag[%d] = %d\n", i, mb->prev_intra4x4_pred_mode_flag[i]);
+					if (!mb->prev_intra4x4_pred_mode_flag[i])
+						printf("\t\trem_intra4x4_pred_mode[%d] = %d\n", i, mb->rem_intra4x4_pred_mode[i]);
+				}
+			}
+		}
+		if (mb->mb_type < H264_MB_TYPE_P_BASE)
+			printf("\t\tintra_chroma_pred_mode = %d\n", mb->intra_chroma_pred_mode);
+		printf("\t\tmb_qp_delta = %d\n", mb->mb_qp_delta);
+		int n = (slice->chroma_array_type == 3 ? 3 : 1);
+		if (h264_is_intra_16x16_mb_type(mb->mb_type)) {
+			for (i = 0; i < n; i++) {
+				printf("\t\t%s DC:", aname[i]);
+				h264_print_block(mb->block_luma_dc[i], 16);
+				for (j = 0; j < 16; j++) {
+					printf("\t\t%s AC %d:", aname[i], j);
+					h264_print_block(mb->block_luma_ac[i][j], 15);
+				}
+			}
+		} else if (mb->transform_size_8x8_flag) {
+			for (i = 0; i < n; i++) {
+				for (j = 0; j < 4; j++) {
+					printf("\t\t%s 8x8 %d:", aname[i], j);
+					h264_print_block(mb->block_luma_8x8[i][j], 64);
+				}
+			}
+		} else {
+			for (i = 0; i < n; i++) {
+				for (j = 0; j < 16; j++) {
+					printf("\t\t%s 4x4 %d:", aname[i], j);
+					h264_print_block(mb->block_luma_4x4[i][j], 16);
+				}
+			}
+		}
+		if (slice->chroma_array_type == 1 || slice->chroma_array_type == 2) {
+			for (i = 0; i < 2; i++) {
+				printf("\t\t%s DC:", aname[i+1]);
+				h264_print_block(mb->block_chroma_dc[i], slice->chroma_array_type * 4);
+				for (j = 0; j < slice->chroma_array_type * 4; j++) {
+					printf("\t\t%s AC %d:", aname[i+1], j);
+					h264_print_block(mb->block_chroma_ac[i][j], 15);
+				}
+			}
+		}
+	}
+}
+
+void h264_print_slice_data(struct h264_slice *slice) {
+	printf("Slice data:\n");
+	int mb = slice->first_mb_in_slice * (1 + slice->mbaff_frame_flag);
+	while (1) {
+		printf("\tMacroblock %d (%d, %d):\n", mb, mb % slice->pic_width_in_mbs, mb / slice->pic_width_in_mbs);
+		h264_print_macroblock(slice, &slice->mbs[mb]);
+		if (mb == slice->last_mb_in_slice)
+			break;
+		mb = h264_next_mb_addr(slice, mb);
+	}
+}

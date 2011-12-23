@@ -410,6 +410,13 @@ struct h264_macroblock {
 	uint32_t rem_intra8x8_pred_mode[4];
 	uint32_t intra_chroma_pred_mode;
 	uint32_t sub_mb_type[4];
+	int16_t block_luma_dc[3][16]; /* [0 luma, 1 cb, 2 cr][coeff] */
+	int16_t block_luma_ac[3][16][15]; /* [0 luma, 1 cb, 2 cr][blkIdx][coeff] */
+	int16_t block_luma_4x4[3][16][16]; /* [0 luma, 1 cb, 2 cr][blkIdx][coeff] */
+	int16_t block_luma_8x8[3][4][64]; /* [0 luma, 1 cb, 2 cr][blkIdx][coeff] */
+	int16_t block_chroma_dc[2][8]; /* [0 cb, 1 cr][coeff] */
+	int16_t block_chroma_ac[2][8][15]; /* [0 cb, 1 cr][blkIdx][coeff] */
+	int num_coeff[3][16]; /* [0 luma, 1 cb, 2 cr][blkIdx] */
 	int coded_block_flag[3][17]; /* [0 luma, 1 cb, 2 cr][blkIdx], with blkIdx == 16 being DC */
 };
 
@@ -517,6 +524,8 @@ struct h264_slice {
 	uint32_t mbwidthc;
 	uint32_t mbheightc;
 	uint32_t pic_width_in_mbs;
+	uint32_t pic_height_in_mbs;
+	uint32_t pic_size_in_mbs;
 	uint32_t sliceqpy;
 	uint32_t mbaff_frame_flag;
 	uint32_t last_mb_in_slice;
@@ -621,6 +630,7 @@ int h264_seqparm_ext(struct bitstream *str, struct h264_seqparm **seqparms, uint
 int h264_picparm(struct bitstream *str, struct h264_seqparm **seqparms, struct h264_seqparm **subseqparms, struct h264_picparm *picparm);
 int h264_slice_header(struct bitstream *str, struct h264_seqparm **seqparms, struct h264_picparm **picparms, struct h264_slice *slice);
 int h264_pred_weight_table(struct bitstream *str, struct h264_slice *slice, struct h264_pred_weight_table *table);
+int h264_residual(struct bitstream *str, struct h264_cabac_context *cabac, struct h264_slice *slice, struct h264_macroblock *mb, int start, int end);
 
 void h264_print_seqparm(struct h264_seqparm *seqparm);
 void h264_print_seqparm_ext(struct h264_seqparm *seqparm);

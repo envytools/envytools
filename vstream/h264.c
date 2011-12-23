@@ -796,6 +796,12 @@ int h264_slice_header(struct bitstream *str, struct h264_seqparm **seqparms, str
 	} else {
 		if (vs_infer(str, &slice->bottom_field_flag, 0)) return 1;
 	}
+	slice->pic_height_in_mbs = (slice->seqparm->pic_height_in_map_units_minus1 + 1);
+	if (!slice->seqparm->frame_mbs_only_flag)
+		slice->pic_height_in_mbs *= 2;
+	if (slice->field_pic_flag)
+		slice->pic_height_in_mbs /= 2;
+	slice->pic_size_in_mbs = slice->pic_width_in_mbs * slice->pic_height_in_mbs;
 	if (str->dir == VS_DECODE) {
 		slice->mbaff_frame_flag = slice->seqparm->mb_adaptive_frame_field_flag && !slice->field_pic_flag;
 	}

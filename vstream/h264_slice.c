@@ -126,6 +126,8 @@ int h264_mb_pred(struct bitstream *str, struct h264_cabac_context *cabac, struct
 			if (vs_infer(str, &mb->intra_chroma_pred_mode, 0)) return 1;
 		}
 	} else if (mb->mb_type != H264_MB_TYPE_B_DIRECT_16X16) {
+		fprintf(stderr, "mb_pred\n");
+		return 1;
 		/* XXX */
 		abort();
 		if (vs_infer(str, &mb->intra_chroma_pred_mode, 0)) return 1;
@@ -133,12 +135,7 @@ int h264_mb_pred(struct bitstream *str, struct h264_cabac_context *cabac, struct
 }
 
 int h264_sub_mb_pred(struct bitstream *str, struct h264_cabac_context *cabac, struct h264_slice *slice, struct h264_macroblock *mb) {
-	/* XXX */
-	abort();
-}
-
-int h264_residual(struct bitstream *str, struct h264_cabac_context *cabac, struct h264_slice *slice, struct h264_macroblock *mb, int a, int b) {
-	fprintf(stderr, "residual\n");
+	fprintf(stderr, "sub_mb_pred\n");
 	return 1;
 	/* XXX */
 	abort();
