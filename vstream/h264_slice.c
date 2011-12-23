@@ -280,8 +280,27 @@ int h264_macroblock_layer(struct bitstream *str, struct h264_cabac_context *caba
 
 int infer_skip(struct bitstream *str, struct h264_slice *slice, struct h264_macroblock *mb) {
 	uint32_t skip_type = (slice->slice_type == H264_SLICE_TYPE_B ? H264_MB_TYPE_B_SKIP : H264_MB_TYPE_P_SKIP);
-	if ((slice->curr_mb_addr & 1) && h264_is_skip_mb_type(slice->mbs[slice->curr_mb_addr & ~1].mb_type))
-		if (vs_infer(str, &mb->mb_field_decoding_flag, 0)) return 1;
+	if (slice->mbaff_frame_flag) {
+		if (slice->curr_mb_addr & 1) {
+			if (h264_is_skip_mb_type(slice->mbs[slice->curr_mb_addr & ~1].mb_type)) {
+				int val;
+				const struct h264_macroblock *mbA = h264_mb_nb_p(slice, H264_MB_A, 0);
+				const struct h264_macroblock *mbB = h264_mb_nb_p(slice, H264_MB_B, 0);
+				if (mbA->mb_type != H264_MB_TYPE_UNAVAIL) {
+					val = mbA->mb_field_decoding_flag;
+				} else if (mbB->mb_type != H264_MB_TYPE_UNAVAIL) {
+					val = mbB->mb_field_decoding_flag;
+				} else {
+					val = 0;
+				}
+				if (vs_infer(str, &mb[-1].mb_field_decoding_flag, val)) return 1;
+			}
+			if (vs_infer(str, &mb->mb_field_decoding_flag, mb[-1].mb_field_decoding_flag)) return 1;
+		}
+	} else {
+		if (vs_infer(str, &slice->mbs[slice->curr_mb_addr].mb_field_decoding_flag, slice->field_pic_flag)) return 1;
+
+	}
 	if (vs_infer(str, &mb->mb_type, skip_type)) return 1;
 	if (vs_infer(str, &mb->mb_qp_delta, 0)) return 1;
 	if (vs_infer(str, &mb->transform_size_8x8_flag, 0)) return 1;
@@ -314,11 +333,10 @@ int h264_slice_data(struct bitstream *str, struct h264_slice *slice) {
 					mb_skip_flag = slice->mbs[slice->curr_mb_addr].mb_type == skip_type;
 				}
 				if (h264_mb_skip_flag(str, cabac, &mb_skip_flag)) { h264_cabac_destroy(cabac); return 1; }
-				if (mb_skip_flag) {
-					if (infer_skip(str, slice, &slice->mbs[slice->curr_mb_addr])) { h264_cabac_destroy(cabac); return 1; }
-				}
 			}
-			if (!mb_skip_flag) {
+			if (mb_skip_flag) {
+				if (infer_skip(str, slice, &slice->mbs[slice->curr_mb_addr])) { h264_cabac_destroy(cabac); return 1; }
+			} else {
 				if (slice->mbaff_frame_flag) {
 					uint32_t first_addr = slice->curr_mb_addr & ~1;
 					if (slice->curr_mb_addr == first_addr) {
@@ -329,6 +347,8 @@ int h264_slice_data(struct bitstream *str, struct h264_slice *slice) {
 						}
 						if (vs_infer(str, &slice->mbs[first_addr + 1].mb_field_decoding_flag, slice->mbs[first_addr].mb_field_decoding_flag)) { h264_cabac_destroy(cabac); return 1; }
 					}
+				} else {
+					if (vs_infer(str, &slice->mbs[slice->curr_mb_addr].mb_field_decoding_flag, slice->field_pic_flag)) { h264_cabac_destroy(cabac); return 1; }
 				}
 				if (h264_macroblock_layer(str, cabac, slice, &slice->mbs[slice->curr_mb_addr])) { h264_cabac_destroy(cabac); return 1; }
 			}
@@ -397,6 +417,8 @@ int h264_slice_data(struct bitstream *str, struct h264_slice *slice) {
 						if (h264_mb_field_decoding_flag(str, 0, &slice->mbs[first_addr].mb_field_decoding_flag)) return 1;
 					if (vs_infer(str, &slice->mbs[first_addr + 1].mb_field_decoding_flag, slice->mbs[first_addr].mb_field_decoding_flag)) return 1;
 				}
+			} else {
+				if (vs_infer(str, &slice->mbs[slice->curr_mb_addr].mb_field_decoding_flag, slice->field_pic_flag)) return 1;
 			}
 			if (h264_macroblock_layer(str, 0, slice, &slice->mbs[slice->curr_mb_addr])) return 1;
 			if(str->dir == VS_ENCODE) {

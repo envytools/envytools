@@ -648,7 +648,10 @@ void h264_print_slice_data(struct h264_slice *slice) {
 	printf("Slice data:\n");
 	int mb = slice->first_mb_in_slice * (1 + slice->mbaff_frame_flag);
 	while (1) {
-		printf("\tMacroblock %d (%d, %d):\n", mb, mb % slice->pic_width_in_mbs, mb / slice->pic_width_in_mbs);
+		if (slice->mbaff_frame_flag)
+			printf("\tMacroblock %d (%d, %d, %d):\n", mb, mb/2 % slice->pic_width_in_mbs, mb/2 / slice->pic_width_in_mbs, mb%2);
+		else
+			printf("\tMacroblock %d (%d, %d):\n", mb, mb % slice->pic_width_in_mbs, mb / slice->pic_width_in_mbs);
 		h264_print_macroblock(slice, &slice->mbs[mb]);
 		if (mb == slice->last_mb_in_slice)
 			break;
