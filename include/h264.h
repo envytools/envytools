@@ -403,7 +403,7 @@ struct h264_macroblock {
 	uint32_t transform_size_8x8_flag;
 	int32_t mb_qp_delta;
 	uint32_t pcm_sample_luma[256];
-	uint32_t pcm_sample_chroma[64];
+	uint32_t pcm_sample_chroma[512];
 	uint32_t prev_intra4x4_pred_mode_flag[16];
 	uint32_t rem_intra4x4_pred_mode[16];
 	uint32_t prev_intra8x8_pred_mode_flag[4];
