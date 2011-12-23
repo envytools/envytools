@@ -284,8 +284,68 @@ const struct h264_macroblock *h264_mb_nb_b(struct h264_slice *slice, enum h264_m
 	}
 }
 
-int h264_mb_pred(struct bitstream *str, struct h264_cabac_context *cabac, struct h264_slice *slice, struct h264_macroblock *mb) {
+/* part mode, part 0 type, part 1 type */
+static const int mb_part_info[][3] = {
+	[H264_MB_TYPE_P_L0_16X16] = { 0, 1 },
+	[H264_MB_TYPE_B_L0_16X16] = { 0, 1 },
+	[H264_MB_TYPE_B_L1_16X16] = { 0, 2 },
+	[H264_MB_TYPE_B_BI_16X16] = { 0, 3 },
+	[H264_MB_TYPE_P_L0_L0_16X8] = { 1, 1, 1 },
+	[H264_MB_TYPE_B_L0_L0_16X8] = { 1, 1, 1 },
+	[H264_MB_TYPE_B_L0_L1_16X8] = { 1, 1, 2 },
+	[H264_MB_TYPE_B_L0_BI_16X8] = { 1, 1, 3 },
+	[H264_MB_TYPE_B_L1_L0_16X8] = { 1, 2, 1 },
+	[H264_MB_TYPE_B_L1_L1_16X8] = { 1, 2, 2 },
+	[H264_MB_TYPE_B_L1_BI_16X8] = { 1, 2, 3 },
+	[H264_MB_TYPE_B_BI_L0_16X8] = { 1, 3, 1 },
+	[H264_MB_TYPE_B_BI_L1_16X8] = { 1, 3, 2 },
+	[H264_MB_TYPE_B_BI_BI_16X8] = { 1, 3, 3 },
+	[H264_MB_TYPE_P_L0_L0_8X16] = { 2, 1, 1 },
+	[H264_MB_TYPE_B_L0_L0_8X16] = { 2, 1, 1 },
+	[H264_MB_TYPE_B_L0_L1_8X16] = { 2, 1, 2 },
+	[H264_MB_TYPE_B_L0_BI_8X16] = { 2, 1, 3 },
+	[H264_MB_TYPE_B_L1_L0_8X16] = { 2, 2, 1 },
+	[H264_MB_TYPE_B_L1_L1_8X16] = { 2, 2, 2 },
+	[H264_MB_TYPE_B_L1_BI_8X16] = { 2, 2, 3 },
+	[H264_MB_TYPE_B_BI_L0_8X16] = { 2, 3, 1 },
+	[H264_MB_TYPE_B_BI_L1_8X16] = { 2, 3, 2 },
+	[H264_MB_TYPE_B_BI_BI_8X16] = { 2, 3, 3 },
+};
+
+static const int sub_mb_part_info[][2] = {
+	[H264_SUB_MB_TYPE_B_DIRECT_8X8] = { 0, 0 },
+	[H264_SUB_MB_TYPE_P_L0_8X8] = { 0, 1 },
+	[H264_SUB_MB_TYPE_B_L0_8X8] = { 0, 1 },
+	[H264_SUB_MB_TYPE_B_L1_8X8] = { 0, 2 },
+	[H264_SUB_MB_TYPE_B_BI_8X8] = { 0, 3 },
+	[H264_SUB_MB_TYPE_P_L0_8X4] = { 1, 1 },
+	[H264_SUB_MB_TYPE_B_L0_8X4] = { 1, 1 },
+	[H264_SUB_MB_TYPE_B_L1_8X4] = { 1, 2 },
+	[H264_SUB_MB_TYPE_B_BI_8X4] = { 1, 3 },
+	[H264_SUB_MB_TYPE_P_L0_4X8] = { 2, 1 },
+	[H264_SUB_MB_TYPE_B_L0_4X8] = { 2, 1 },
+	[H264_SUB_MB_TYPE_B_L1_4X8] = { 2, 2 },
+	[H264_SUB_MB_TYPE_B_BI_4X8] = { 2, 3 },
+	[H264_SUB_MB_TYPE_P_L0_4X4] = { 3, 1 },
+	[H264_SUB_MB_TYPE_B_L0_4X4] = { 3, 1 },
+	[H264_SUB_MB_TYPE_B_L1_4X4] = { 3, 2 },
+	[H264_SUB_MB_TYPE_B_BI_4X4] = { 3, 3 },
+};
+
+static int infer_intra(struct bitstream *str, struct h264_macroblock *mb, int which) {
 	int i;
+	for (i = 0; i < 4; i++) {
+		if (vs_infer(str, &mb->ref_idx[which][i], 0)) return 1;
+	}
+	for (i = 0; i < 16; i++) {
+		if (vs_infer(str, &mb->mvd[which][i][0], 0)) return 1;
+		if (vs_infer(str, &mb->mvd[which][i][1], 0)) return 1;
+	}
+	return 0;
+}
+
+int h264_mb_pred(struct bitstream *str, struct h264_cabac_context *cabac, struct h264_slice *slice, struct h264_macroblock *mb) {
+	int i, j;
 	if (mb->mb_type < H264_MB_TYPE_P_BASE) {
 		if (!h264_is_intra_16x16_mb_type(mb->mb_type)) {
 			if (!mb->transform_size_8x8_flag) {
@@ -307,20 +367,186 @@ int h264_mb_pred(struct bitstream *str, struct h264_cabac_context *cabac, struct
 		} else {
 			if (vs_infer(str, &mb->intra_chroma_pred_mode, 0)) return 1;
 		}
+		if (infer_intra(str, mb, 0)) return 1;
+		if (infer_intra(str, mb, 1)) return 1;
 	} else if (mb->mb_type != H264_MB_TYPE_B_DIRECT_16X16) {
-		fprintf(stderr, "mb_pred\n");
-		return 1;
-		/* XXX */
-		abort();
+		int ifrom[4], pmode[4];
+		ifrom[0] = -1;
+		pmode[0] = mb_part_info[mb->mb_type][1];
+		switch (mb_part_info[mb->mb_type][0]) {
+			case 0: /* 16x16 */
+				ifrom[1] = 0;
+				ifrom[2] = 0;
+				ifrom[3] = 0;
+				break;
+			case 1: /* 16x8 */
+				ifrom[1] = 0;
+				ifrom[2] = -1;
+				ifrom[3] = 2;
+				pmode[2] = mb_part_info[mb->mb_type][2];
+				break;
+			case 2:
+				ifrom[1] = -1;
+				ifrom[2] = 0;
+				ifrom[3] = 1;
+				pmode[1] = mb_part_info[mb->mb_type][2];
+				break;
+		}
+		int max = slice->num_ref_idx_l0_active_minus1;
+		if (slice->mbaff_frame_flag && mb->mb_field_decoding_flag)
+			max *= 2, max++;
+		for (i = 0; i < 4; i++) {
+			if (ifrom[i] == -1) {
+				if (pmode[i] & 1) {
+					if (h264_ref_idx(str, cabac, i, 0, max, &mb->ref_idx[0][i])) return 1;
+				} else {
+					if (vs_infer(str, &mb->ref_idx[0][i], 0)) return 1;
+				}
+			} else {
+				if (vs_infer(str, &mb->ref_idx[0][i], mb->ref_idx[0][ifrom[i]])) return 1;
+			}
+		}
+		max = slice->num_ref_idx_l1_active_minus1;
+		if (slice->mbaff_frame_flag && mb->mb_field_decoding_flag)
+			max *= 2, max++;
+		for (i = 0; i < 4; i++) {
+			if (ifrom[i] == -1) {
+				if (pmode[i] & 2) {
+					if (h264_ref_idx(str, cabac, i, 1, max, &mb->ref_idx[1][i])) return 1;
+				} else {
+					if (vs_infer(str, &mb->ref_idx[1][i], 0)) return 1;
+				}
+			} else {
+				if (vs_infer(str, &mb->ref_idx[1][i], mb->ref_idx[1][ifrom[i]])) return 1;
+			}
+		}
+		for (i = 0; i < 4; i++) {
+			if (ifrom[i] == -1) {
+				if (pmode[i] & 1) {
+					if (h264_mvd(str, cabac, i * 4, 0, 0, &mb->mvd[0][i*4][0])) return 1;
+					if (h264_mvd(str, cabac, i * 4, 1, 0, &mb->mvd[0][i*4][1])) return 1;
+				} else {
+					if (vs_infer(str, &mb->mvd[0][i*4][0], 0)) return 1;
+					if (vs_infer(str, &mb->mvd[0][i*4][1], 0)) return 1;
+				}
+			} else {
+				if (vs_infer(str, &mb->mvd[0][i*4][0], mb->mvd[0][ifrom[i]*4][0])) return 1;
+				if (vs_infer(str, &mb->mvd[0][i*4][1], mb->mvd[0][ifrom[i]*4][1])) return 1;
+			}
+			for (j = 1; j < 4; j++) {
+				if (vs_infer(str, &mb->mvd[0][i*4+j][0], mb->mvd[0][i*4][0])) return 1;
+				if (vs_infer(str, &mb->mvd[0][i*4+j][1], mb->mvd[0][i*4][1])) return 1;
+			}
+		}
+		for (i = 0; i < 4; i++) {
+			if (ifrom[i] == -1) {
+				if (pmode[i] & 2) {
+					if (h264_mvd(str, cabac, i * 4, 0, 1, &mb->mvd[1][i*4][0])) return 1;
+					if (h264_mvd(str, cabac, i * 4, 1, 1, &mb->mvd[1][i*4][1])) return 1;
+				} else {
+					if (vs_infer(str, &mb->mvd[1][i*4][0], 0)) return 1;
+					if (vs_infer(str, &mb->mvd[1][i*4][1], 0)) return 1;
+				}
+			} else {
+				if (vs_infer(str, &mb->mvd[1][i*4][0], mb->mvd[1][ifrom[i]*4][0])) return 1;
+				if (vs_infer(str, &mb->mvd[1][i*4][1], mb->mvd[1][ifrom[i]*4][1])) return 1;
+			}
+			for (j = 1; j < 4; j++) {
+				if (vs_infer(str, &mb->mvd[1][i*4+j][0], mb->mvd[1][i*4][0])) return 1;
+				if (vs_infer(str, &mb->mvd[1][i*4+j][1], mb->mvd[1][i*4][1])) return 1;
+			}
+		}
 		if (vs_infer(str, &mb->intra_chroma_pred_mode, 0)) return 1;
+	} else {
+		if (vs_infer(str, &mb->intra_chroma_pred_mode, 0)) return 1;
+		if (infer_intra(str, mb, 0)) return 1;
+		if (infer_intra(str, mb, 1)) return 1;
 	}
+	return 0;
 }
 
 int h264_sub_mb_pred(struct bitstream *str, struct h264_cabac_context *cabac, struct h264_slice *slice, struct h264_macroblock *mb) {
-	fprintf(stderr, "sub_mb_pred\n");
-	return 1;
-	/* XXX */
-	abort();
+	int i;
+	int pmode[4];
+	int ifrom[16];
+	for (i = 0; i < 4; i++) {
+		if (h264_sub_mb_type(str, cabac, slice->slice_type, &mb->sub_mb_type[i])) return 1;
+		pmode[i] = sub_mb_part_info[mb->sub_mb_type[i]][1];
+		int sm = sub_mb_part_info[mb->sub_mb_type[i]][0];
+		ifrom[i*4] = -1;
+		switch (sm) {
+			case 0:
+				ifrom[i*4 + 1] = i*4;
+				ifrom[i*4 + 2] = i*4;
+				ifrom[i*4 + 3] = i*4;
+				break;
+			case 1:
+				ifrom[i*4 + 1] = i*4;
+				ifrom[i*4 + 2] = -1;
+				ifrom[i*4 + 3] = i*4 + 2;
+				break;
+			case 2:
+				ifrom[i*4 + 1] = -1;
+				ifrom[i*4 + 2] = i*4;
+				ifrom[i*4 + 3] = i*4 + 1;
+				break;
+			case 3:
+				ifrom[i*4 + 1] = -1;
+				ifrom[i*4 + 2] = -1;
+				ifrom[i*4 + 3] = -1;
+				break;
+		}
+	}
+	int max = slice->num_ref_idx_l0_active_minus1;
+	if (slice->mbaff_frame_flag && mb->mb_field_decoding_flag)
+		max *= 2, max++;
+	for (i = 0; i < 4; i++) {
+		if (pmode[i] & 1 && mb->mb_type != H264_MB_TYPE_P_8X8REF0) {
+			if (h264_ref_idx(str, cabac, i, 0, max, &mb->ref_idx[0][i])) return 1;
+		} else {
+			if (vs_infer(str, &mb->ref_idx[0][i], 0)) return 1;
+		}
+	}
+	max = slice->num_ref_idx_l1_active_minus1;
+	if (slice->mbaff_frame_flag && mb->mb_field_decoding_flag)
+		max *= 2, max++;
+	for (i = 0; i < 4; i++) {
+		if (pmode[i] & 2) {
+			if (h264_ref_idx(str, cabac, i, 1, max, &mb->ref_idx[1][i])) return 1;
+		} else {
+			if (vs_infer(str, &mb->ref_idx[1][i], 0)) return 1;
+		}
+	}
+	for (i = 0; i < 16; i++) {
+		if (ifrom[i] == -1) {
+			if (pmode[i/4] & 1) {
+				if (h264_mvd(str, cabac, i, 0, 0, &mb->mvd[0][i][0])) return 1;
+				if (h264_mvd(str, cabac, i, 1, 0, &mb->mvd[0][i][1])) return 1;
+			} else {
+				if (vs_infer(str, &mb->mvd[0][i][0], 0)) return 1;
+				if (vs_infer(str, &mb->mvd[0][i][1], 0)) return 1;
+			}
+		} else {
+			if (vs_infer(str, &mb->mvd[0][i][0], mb->mvd[0][ifrom[i]][0])) return 1;
+			if (vs_infer(str, &mb->mvd[0][i][1], mb->mvd[0][ifrom[i]][1])) return 1;
+		}
+	}
+	for (i = 0; i < 16; i++) {
+		if (ifrom[i] == -1) {
+			if (pmode[i/4] & 2) {
+				if (h264_mvd(str, cabac, i, 0, 1, &mb->mvd[1][i][0])) return 1;
+				if (h264_mvd(str, cabac, i, 1, 1, &mb->mvd[1][i][1])) return 1;
+			} else {
+				if (vs_infer(str, &mb->mvd[1][i][0], 0)) return 1;
+				if (vs_infer(str, &mb->mvd[1][i][1], 0)) return 1;
+			}
+		} else {
+			if (vs_infer(str, &mb->mvd[1][i][0], mb->mvd[1][ifrom[i]][0])) return 1;
+			if (vs_infer(str, &mb->mvd[1][i][1], mb->mvd[1][ifrom[i]][1])) return 1;
+		}
+	}
+	if (vs_infer(str, &mb->intra_chroma_pred_mode, 0)) return 1;
+	return 0;
 }
 
 int h264_macroblock_layer(struct bitstream *str, struct h264_cabac_context *cabac, struct h264_slice *slice, struct h264_macroblock *mb) {
@@ -340,6 +566,8 @@ int h264_macroblock_layer(struct bitstream *str, struct h264_cabac_context *caba
 		if (vs_infer(str, &mb->transform_size_8x8_flag, 0)) return 1;
 		if (vs_infer(str, &mb->coded_block_pattern, 0x2f)) return 1;
 		if (vs_infer(str, &mb->intra_chroma_pred_mode, 0)) return 1;
+		if (infer_intra(str, mb, 0)) return 1;
+		if (infer_intra(str, mb, 1)) return 1;
 		for (i = 0; i < 17; i++) {
 			mb->coded_block_flag[0][i] = 1;
 			mb->coded_block_flag[1][i] = 1;
@@ -431,7 +659,8 @@ static int infer_skip(struct bitstream *str, struct h264_slice *slice, struct h2
 	if (vs_infer(str, &mb->transform_size_8x8_flag, 0)) return 1;
 	if (vs_infer(str, &mb->coded_block_pattern, 0)) return 1;
 	if (vs_infer(str, &mb->intra_chroma_pred_mode, 0)) return 1;
-	/* XXX: more stuff? */
+	if (infer_intra(str, mb, 0)) return 1;
+	if (infer_intra(str, mb, 1)) return 1;
 	int i;
 	for (i = 0; i < 17; i++) {
 		mb->coded_block_flag[0][i] = 0;

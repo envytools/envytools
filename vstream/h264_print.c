@@ -562,10 +562,29 @@ void h264_print_macroblock(struct h264_slice *slice, struct h264_macroblock *mb)
 		"B_SKIP",
 		"UNAVAIL",
 	};
+	static const char *const submbtypenames[] = {
+		"P_L0_8X8",
+		"P_L0_8X4",
+		"P_L0_4X8",
+		"P_L0_4X4",
+		"B_DIRECT_8X8",
+		"B_L0_8X8",
+		"B_L1_8X8",
+		"B_BI_8X8",
+		"B_L0_8X4",
+		"B_L0_4X8",
+		"B_L1_8X4",
+		"B_L1_4X8",
+		"B_BI_8X4",
+		"B_BI_4X8",
+		"B_L0_4X4",
+		"B_L1_4X4",
+		"B_BI_4X4",
+	};
 	static const char *const aname[3] = { "Luma", "Cb", "Cr" };
 	printf("\t\tmb_field_decoding_flag = %d\n", mb->mb_field_decoding_flag);
 	printf("\t\tmb_type = %d [%s]\n", mb->mb_type, mbtypenames[mb->mb_type]);
-	int i, j;
+	int i, j, k;
 	if (mb->mb_type == H264_MB_TYPE_I_PCM) {
 		printf("\t\tLuma PCM:");
 		h264_print_pcm(mb->pcm_sample_luma, 256);
@@ -586,6 +605,32 @@ void h264_print_macroblock(struct h264_slice *slice, struct h264_macroblock *mb)
 				break;
 		}
 	} else {
+		if (h264_is_submb_mb_type(mb->mb_type)) {
+			for (i = 0; i < 4; i++) {
+				printf("\t\tsub_mb_type[%d] = %d [%s]\n", i, mb->sub_mb_type[i], submbtypenames[mb->sub_mb_type[i]]);
+			}
+		}
+		int n;
+		if (mb->mb_type >= H264_MB_TYPE_B_BASE)
+			n = 2;
+		else if (mb->mb_type >= H264_MB_TYPE_P_BASE)
+			n = 1;
+		else
+			n = 0;
+		for (i = 0; i < n; i++) {
+			printf("\t\tref_idx_l%d =", i);
+			for (j = 0; j < 4; j++) {
+				printf(" %d", mb->ref_idx[i][j]);
+			}
+			printf("\n");
+			for (k = 0; k < 2; k++) {
+				printf("\t\tmvd_l%d[...][%d] =", i, k);
+				for (j = 0; j < 16; j++) {
+					printf(" %d", mb->mvd[i][j][k]);
+				}
+				printf("\n");
+			}
+		}
 		printf("\t\ttransform_size_8x8_flag = %d\n", mb->transform_size_8x8_flag);
 		printf("\t\tcoded_block_pattern = %d\n", mb->coded_block_pattern);
 		if (mb->mb_type == H264_MB_TYPE_I_NXN || mb->mb_type == H264_MB_TYPE_SI) {
@@ -606,7 +651,7 @@ void h264_print_macroblock(struct h264_slice *slice, struct h264_macroblock *mb)
 		if (mb->mb_type < H264_MB_TYPE_P_BASE)
 			printf("\t\tintra_chroma_pred_mode = %d\n", mb->intra_chroma_pred_mode);
 		printf("\t\tmb_qp_delta = %d\n", mb->mb_qp_delta);
-		int n = (slice->chroma_array_type == 3 ? 3 : 1);
+		n = (slice->chroma_array_type == 3 ? 3 : 1);
 		if (h264_is_intra_16x16_mb_type(mb->mb_type)) {
 			for (i = 0; i < n; i++) {
 				printf("\t\t%s DC:", aname[i]);
