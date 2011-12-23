@@ -1470,10 +1470,6 @@ int h264_cabac_terminate(struct bitstream *str, struct h264_cabac_context *cabac
 	} else {
 		if (cabac->codIOffset >= cabac->codIRange) {
 			*binVal = 1;
-			if (!(cabac->codIOffset & 1)) {
-				fprintf (stderr, "Last CABAC bit not 1\n");
-				return 1;
-			}
 		} else {
 			*binVal = 0;
 			if (h264_cabac_renorm(str, cabac))
@@ -1564,12 +1560,13 @@ int h264_cabac_tu(struct bitstream *str, struct h264_cabac_context *cabac, int *
 		}
 		return 0;
 	} else {
-		int i = -1;
-		uint32_t tmp;
-		do {
-			i++;
+		int i;
+		uint32_t tmp = 1;
+		for (i = 0; i < cMax; i++) {
 			if (h264_cabac_decision(str, cabac, ctxIdx[i >= numidx ? numidx - 1 : i], &tmp)) return 1;
-		} while(tmp && i < cMax);
+			if (!tmp)
+				break;
+		}
 		*val = i;
 		return 0;		
 	}

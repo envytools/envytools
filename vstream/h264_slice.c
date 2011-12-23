@@ -204,7 +204,7 @@ int h264_macroblock_layer(struct bitstream *str, struct h264_cabac_context *caba
 		} else {
 			int infer_cbp = (((mb->mb_type - H264_MB_TYPE_I_16X16_0_0_0) >> 2) % 3) << 4;
 			if (mb->mb_type >= H264_MB_TYPE_I_16X16_0_0_1)
-				infer_cbp = 0xf;
+				infer_cbp |= 0xf;
 			if (vs_infer(str, &mb->coded_block_pattern, infer_cbp)) return 1;
 			if (vs_infer(str, &mb->transform_size_8x8_flag, 0)) return 1;
 		}
@@ -239,6 +239,8 @@ int infer_skip(struct bitstream *str, struct h264_slice *slice, struct h264_macr
 int h264_slice_data(struct bitstream *str, struct h264_slice *slice) {
 	slice->prev_mb_addr = -1;
 	slice->curr_mb_addr = slice->first_mb_in_slice * (1 + slice->mbaff_frame_flag);
+	if (str->dir == VS_DECODE)
+		slice->last_mb_in_slice = slice->curr_mb_addr;
 	uint32_t skip_type = (slice->slice_type == H264_SLICE_TYPE_B ? H264_MB_TYPE_B_SKIP : H264_MB_TYPE_P_SKIP);
 	if (slice->picparm->entropy_coding_mode_flag) {
 		if (vs_align_byte(str, VS_ALIGN_1)) return 1;
@@ -275,10 +277,17 @@ int h264_slice_data(struct bitstream *str, struct h264_slice *slice) {
 				if (end_of_slice_flag) {
 					slice->last_mb_in_slice = slice->curr_mb_addr;
 					h264_cabac_destroy(cabac);
-					return 0;
+					/* XXX: cabac_zero_word crap */
+					return vs_align_byte(str, VS_ALIGN_0);
 				}
 			}
+			if (str->dir == VS_DECODE)
+				slice->last_mb_in_slice = slice->curr_mb_addr;
 			slice->curr_mb_addr = h264_next_mb_addr(slice, slice->curr_mb_addr);
+			if (slice->curr_mb_addr >= slice->pic_size_in_mbs) {
+				fprintf(stderr, "MB index out of range!\n");
+				return 1;
+			}
 		}
 	} else {
 		while (1) {
@@ -298,7 +307,7 @@ int h264_slice_data(struct bitstream *str, struct h264_slice *slice) {
 					}
 					if (vs_ue(str, &mb_skip_run)) return 1;
 					if (end)
-						return 0;
+						goto out_cavlc;
 				} else {
 					if (vs_ue(str, &mb_skip_run)) return 1;
 					while (mb_skip_run--) {
@@ -315,7 +324,7 @@ int h264_slice_data(struct bitstream *str, struct h264_slice *slice) {
 					if (more == -1)
 						return 1;
 					if (more == 0)
-						return 0;
+						goto out_cavlc;
 				}
 			}
 			if (slice->mbaff_frame_flag) {
@@ -331,16 +340,25 @@ int h264_slice_data(struct bitstream *str, struct h264_slice *slice) {
 			if (h264_macroblock_layer(str, 0, slice, &slice->mbs[slice->curr_mb_addr])) return 1;
 			if(str->dir == VS_ENCODE) {
 				if (slice->last_mb_in_slice == slice->curr_mb_addr)
-					return 0;
+					goto out_cavlc;
 			} else {
 				slice->last_mb_in_slice = slice->curr_mb_addr;
 				int more = vs_has_more_data(str);
 				if (more == -1)
 					return 1;
 				if (more == 0)
-					return 0;
+					goto out_cavlc;
 			}
+			if (str->dir == VS_DECODE)
+				slice->last_mb_in_slice = slice->curr_mb_addr;
 			slice->curr_mb_addr = h264_next_mb_addr(slice, slice->curr_mb_addr);
+			if (slice->curr_mb_addr >= slice->pic_size_in_mbs) {
+				fprintf(stderr, "MB index out of range!\n");
+				return 1;
+			}
 		}
+out_cavlc:
+		if (vs_end(str)) return 1;
+		return 0;
 	}
 }

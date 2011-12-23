@@ -334,20 +334,20 @@ int vs_has_more_data(struct bitstream *str) {
 			}
 			byte &= (1 << str->bitpos+1) - 1;
 			if (byte != (1 << str->bitpos))
-				return 0;
+				return 1;
 			break;
 		case VS_MPEG12:
 			break;
 	}
-	offs += str->curbyte;
+	offs += str->bytepos;
 	if (offs < str->bytesnum && str->bytes[offs])
-		return 0;
+		return 1;
 	if (offs+1 < str->bytesnum && str->bytes[offs+1])
-		return 0;
+		return 1;
 	if (offs+2 < str->bytesnum && str->bytes[offs+2] > 2)
-		return 0;
+		return 1;
 	/* followed by 00 00 00 or 00 00 01 or 00* EOF */
-	return 1;
+	return 0;
 
 }
 
