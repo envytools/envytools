@@ -331,7 +331,7 @@ void h264_print_ref_pic_list_modification(struct h264_ref_pic_list_modification 
 	for (i = 0; list->list[i].op != 3; i++) {
 		int op = list->list[i].op;
 		printf("\tmodification_of_pic_nums_idc = %d [%s]\n", op, opnames[op]);
-		printf("\t%s = %d\n", argnames[i], list->list[i].op);
+		printf("\t%s = %d\n", argnames[op], list->list[i].op);
 	}
 	printf("\tmodification_of_pic_nums_idc = 3 [END]\n");
 }
