@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-int h264_residual_cavlc(struct bitstream *str, struct h264_slice *slice, int16_t *block, int *num, int cat, int idx, int start, int end, int maxnumcoeff) {
+int h264_residual_cavlc(struct bitstream *str, struct h264_slice *slice, int32_t *block, int *num, int cat, int idx, int start, int end, int maxnumcoeff) {
 	uint32_t total_coeff, trailing_ones;
 	int i, j;
 	int32_t tb[maxnumcoeff];
@@ -120,7 +120,7 @@ int h264_residual_cavlc(struct bitstream *str, struct h264_slice *slice, int16_t
 	return 0;
 }
 
-int h264_residual_cabac(struct bitstream *str, struct h264_cabac_context *cabac, struct h264_slice *slice, struct h264_macroblock *mb, int16_t *block, int cat, int idx, int start, int end, int maxnumcoeff, int coded) {
+int h264_residual_cabac(struct bitstream *str, struct h264_cabac_context *cabac, struct h264_slice *slice, struct h264_macroblock *mb, int32_t *block, int cat, int idx, int start, int end, int maxnumcoeff, int coded) {
 	int i;
 	uint32_t coded_block_flag = 0;
 	for (i = 0 ; i < maxnumcoeff; i++)
@@ -251,7 +251,7 @@ int h264_residual_cabac(struct bitstream *str, struct h264_cabac_context *cabac,
 	return 0;
 }
 
-int h264_residual_block(struct bitstream *str, struct h264_cabac_context *cabac, struct h264_slice *slice, struct h264_macroblock *mb, int16_t *block, int *num, int cat, int idx, int start, int end, int maxnumcoeff, int coded) {
+int h264_residual_block(struct bitstream *str, struct h264_cabac_context *cabac, struct h264_slice *slice, struct h264_macroblock *mb, int32_t *block, int *num, int cat, int idx, int start, int end, int maxnumcoeff, int coded) {
 	if (!cabac) {
 		if (!coded) {
 			int i;
@@ -293,7 +293,7 @@ int h264_residual_luma(struct bitstream *str, struct h264_cabac_context *cabac, 
 	int se = (h264_is_intra_16x16_mb_type(mb->mb_type) ? end - 1 : end);
 	if (!mb->transform_size_8x8_flag || !cabac) {
 		for (i = 0; i < 16; i++) {
-			int16_t tmp[16];
+			int32_t tmp[16];
 			int cat;
 			if (mb->transform_size_8x8_flag) {
 				for (j = 0; j < 16; j++)

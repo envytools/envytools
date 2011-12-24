@@ -431,12 +431,12 @@ struct h264_macroblock {
 	uint32_t sub_mb_type[4];
 	uint32_t ref_idx[2][4];
 	int32_t mvd[2][16][2];
-	int16_t block_luma_dc[3][16]; /* [0 luma, 1 cb, 2 cr][coeff] */
-	int16_t block_luma_ac[3][16][15]; /* [0 luma, 1 cb, 2 cr][blkIdx][coeff] */
-	int16_t block_luma_4x4[3][16][16]; /* [0 luma, 1 cb, 2 cr][blkIdx][coeff] */
-	int16_t block_luma_8x8[3][4][64]; /* [0 luma, 1 cb, 2 cr][blkIdx][coeff] */
-	int16_t block_chroma_dc[2][8]; /* [0 cb, 1 cr][coeff] */
-	int16_t block_chroma_ac[2][8][15]; /* [0 cb, 1 cr][blkIdx][coeff] */
+	int32_t block_luma_dc[3][16]; /* [0 luma, 1 cb, 2 cr][coeff] */
+	int32_t block_luma_ac[3][16][15]; /* [0 luma, 1 cb, 2 cr][blkIdx][coeff] */
+	int32_t block_luma_4x4[3][16][16]; /* [0 luma, 1 cb, 2 cr][blkIdx][coeff] */
+	int32_t block_luma_8x8[3][4][64]; /* [0 luma, 1 cb, 2 cr][blkIdx][coeff] */
+	int32_t block_chroma_dc[2][8]; /* [0 cb, 1 cr][coeff] */
+	int32_t block_chroma_ac[2][8][15]; /* [0 cb, 1 cr][blkIdx][coeff] */
 	int total_coeff[3][16]; /* [0 luma, 1 cb, 2 cr][blkIdx] */
 	int coded_block_flag[3][17]; /* [0 luma, 1 cb, 2 cr][blkIdx], with blkIdx == 16 being DC */
 };

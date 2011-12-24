@@ -490,7 +490,7 @@ void h264_print_slice_header(struct h264_slice *slice) {
 	}
 }
 
-void h264_print_block(int16_t *block, int num) {
+void h264_print_block(int32_t *block, int num) {
 	int i;
 	for (i = 0; i < num; i++)
 		printf(" %d", block[i]);
