@@ -284,6 +284,17 @@ const struct h264_macroblock *h264_mb_nb_b(struct h264_slice *slice, enum h264_m
 	}
 }
 
+const struct h264_macroblock *h264_inter_filter(struct h264_slice *slice, const struct h264_macroblock *mb, int inter) {
+	if (!inter
+			&& slice->picparm->constrained_intra_pred_flag
+			&& slice->nal_unit_type == H264_NAL_UNIT_TYPE_SLICE_PART_A
+			&& h264_is_inter_mb_type(mb->mb_type))
+		return h264_mb_unavail(1);
+	else
+		return mb;
+}
+
+
 /* part mode, part 0 type, part 1 type */
 static const int mb_part_info[][3] = {
 	[H264_MB_TYPE_P_L0_16X16] = { 0, 1 },
@@ -573,6 +584,11 @@ int h264_macroblock_layer(struct bitstream *str, struct h264_cabac_context *caba
 			mb->coded_block_flag[1][i] = 1;
 			mb->coded_block_flag[2][i] = 1;
 		}
+		for (i = 0; i < 16; i++) {
+			mb->total_coeff[0][i] = 16;
+			mb->total_coeff[1][i] = 16;
+			mb->total_coeff[2][i] = 16;
+		}
 	} else {
 		int noSubMbPartSizeLessThan8x8Flag = 1;
 		if (h264_is_submb_mb_type(mb->mb_type)) {
@@ -666,6 +682,11 @@ static int infer_skip(struct bitstream *str, struct h264_slice *slice, struct h2
 		mb->coded_block_flag[0][i] = 0;
 		mb->coded_block_flag[1][i] = 0;
 		mb->coded_block_flag[2][i] = 0;
+	}
+	for (i = 0; i < 16; i++) {
+		mb->total_coeff[0][i] = 0;
+		mb->total_coeff[1][i] = 0;
+		mb->total_coeff[2][i] = 0;
 	}
 	return 0;
 }

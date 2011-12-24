@@ -222,6 +222,25 @@ enum h264_sub_mb_type {
 	H264_SUB_MB_TYPE_B_END = H264_SUB_MB_TYPE_B_BASE + 13,
 };
 
+enum h264_cabac_ctxblockcat {
+	H264_CTXBLOCKCAT_LUMA_DC = 0,
+	H264_CTXBLOCKCAT_LUMA_AC = 1,
+	H264_CTXBLOCKCAT_LUMA_4X4 = 2,
+	H264_CTXBLOCKCAT_CHROMA_DC = 3,
+	H264_CTXBLOCKCAT_CHROMA_AC = 4,
+	/* 8x8 mode only */
+	H264_CTXBLOCKCAT_LUMA_8X8 = 5,
+	/* 4:4:4 mode only */
+	H264_CTXBLOCKCAT_CB_DC = 6,
+	H264_CTXBLOCKCAT_CB_AC = 7,
+	H264_CTXBLOCKCAT_CB_4X4 = 8,
+	H264_CTXBLOCKCAT_CB_8X8 = 9,
+	H264_CTXBLOCKCAT_CR_DC = 10,
+	H264_CTXBLOCKCAT_CR_AC = 11,
+	H264_CTXBLOCKCAT_CR_4X4 = 12,
+	H264_CTXBLOCKCAT_CR_8X8 = 13,
+};
+
 struct h264_cabac_context;
 
 struct h264_hrd_parameters {
@@ -418,7 +437,7 @@ struct h264_macroblock {
 	int16_t block_luma_8x8[3][4][64]; /* [0 luma, 1 cb, 2 cr][blkIdx][coeff] */
 	int16_t block_chroma_dc[2][8]; /* [0 cb, 1 cr][coeff] */
 	int16_t block_chroma_ac[2][8][15]; /* [0 cb, 1 cr][blkIdx][coeff] */
-	int num_coeff[3][16]; /* [0 luma, 1 cb, 2 cr][blkIdx] */
+	int total_coeff[3][16]; /* [0 luma, 1 cb, 2 cr][blkIdx] */
 	int coded_block_flag[3][17]; /* [0 luma, 1 cb, 2 cr][blkIdx], with blkIdx == 16 being DC */
 };
 
@@ -617,6 +636,7 @@ const struct h264_macroblock *h264_mb_nb_p(struct h264_slice *slice, enum h264_m
 const struct h264_macroblock *h264_mb_nb(struct h264_slice *slice, enum h264_mb_pos pos, int inter);
 /* 6.4.10.2+ */
 const struct h264_macroblock *h264_mb_nb_b(struct h264_slice *slice, enum h264_mb_pos pos, enum h264_block_size bs, int inter, int idx, int *pidx);
+const struct h264_macroblock *h264_inter_filter(struct h264_slice *slice, const struct h264_macroblock *mb, int inter);
 
 uint32_t h264_next_mb_addr(struct h264_slice *slice, uint32_t mbaddr);
 
@@ -636,6 +656,11 @@ int h264_mvd(struct bitstream *str, struct h264_cabac_context *cabac, int idx, i
 int h264_coded_block_flag(struct bitstream *str, struct h264_cabac_context *cabac, int cat, int idx, uint32_t *val);
 int h264_significant_coeff_flag(struct bitstream *str, struct h264_cabac_context *cabac, int field, int cat, int idx, int last, uint32_t *val);
 int h264_coeff_abs_level_minus1(struct bitstream *str, struct h264_cabac_context *cabac, int cat, int num1, int numgt1, int32_t *val);
+
+int h264_coeff_token(struct bitstream *str, struct h264_slice *slice, int cat, int idx, uint32_t *trailingOnes, uint32_t *totalCoeff);
+int h264_level(struct bitstream *str, int suffixLength, int onebias, int32_t *val);
+int h264_total_zeros(struct bitstream *str, int mode, int tzVlcIndex, uint32_t *val);
+int h264_run_before(struct bitstream *str, int zerosLeft, uint32_t *val);
 
 void h264_del_seqparm(struct h264_seqparm *seqparm);
 void h264_del_picparm(struct h264_picparm *picparm);

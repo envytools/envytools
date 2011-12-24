@@ -29,11 +29,95 @@
 #include <stdlib.h>
 #include <assert.h>
 
-int h264_residual_cavlc(struct bitstream *str, struct h264_slice *slice, int16_t *block, int *num, int start, int end, int maxnumcoeff) {
-	fprintf(stderr, "residual cavlc\n");
-	return 1;
-	/* XXX */
-	abort();
+int h264_residual_cavlc(struct bitstream *str, struct h264_slice *slice, int16_t *block, int *num, int cat, int idx, int start, int end, int maxnumcoeff) {
+	uint32_t total_coeff, trailing_ones;
+	int i, j;
+	int32_t tb[maxnumcoeff];
+	uint32_t run[maxnumcoeff];
+	int last;
+	uint32_t total_zeros;
+	if (str->dir == VS_ENCODE) {
+		total_coeff = 0;
+		trailing_ones = 0;
+		for (i = 0; i < maxnumcoeff; i++)
+			if (block[i]) {
+				if (i < start || i > end) {
+					fprintf(stderr, "Non-zero coord outside of start..end\n");
+					return 1;
+				}
+				total_coeff++;
+				if (abs(block[i]) == 1)
+					trailing_ones++;
+				else
+					trailing_ones = 0;
+				total_zeros = i + 1 - total_coeff - start;
+			}
+		last = start - 1;
+		for (i = 0, j = total_coeff - 1; i < maxnumcoeff; i++) {
+			if (block[i]) {
+				run[j] = i - last - 1;
+				tb[j] = block[i];
+				last = i;
+				j--;
+			}
+		}
+		if (trailing_ones > 3)
+			trailing_ones = 3;
+	}
+	if (h264_coeff_token(str, slice, cat, idx, &trailing_ones, &total_coeff)) return 1;
+	if (num)
+		*num = total_coeff;
+	if (total_coeff) {
+		int suffixLength;
+		if (total_coeff > 10 && trailing_ones < 3)
+			suffixLength = 1;
+		else
+			suffixLength = 0;
+		for (i = 0; i < total_coeff; i++) {
+			if (i < trailing_ones) {
+				uint32_t s = tb[i] < 0;
+				if (vs_u(str, &s, 1)) return 1;
+				tb[i] = 1 - 2 * s;
+			} else {
+				int onebias = (i == trailing_ones && trailing_ones < 3);
+				if (h264_level(str, suffixLength, onebias, &tb[i])) return 1;
+				if (suffixLength == 0)
+					suffixLength = 1;
+				if (abs(tb[i]) > (3 << (suffixLength - 1)) && suffixLength < 6)
+					suffixLength++;
+			}
+		}
+		int mode;
+		if (cat == H264_CTXBLOCKCAT_CHROMA_DC) {
+			mode = slice->chroma_array_type;
+		} else {
+			mode = 0;
+		}
+		if (total_coeff < end - start + 1) {
+			if (h264_total_zeros(str, mode, total_coeff, &total_zeros)) return 1;
+		} else {
+			if (vs_infer(str, &total_zeros, 0)) return 1;
+		}
+		int zerosLeft = total_zeros;
+		for (i = 0; i < total_coeff - 1; i++) {
+			if (h264_run_before(str, zerosLeft, &run[i])) return 1;
+			zerosLeft -= run[i];
+			if (zerosLeft < 0) {
+				fprintf(stderr, "zerosLeft underflow\n");
+				return 1;
+			}
+		}
+		run[total_coeff-1] = zerosLeft;
+	}
+	if (str->dir == VS_DECODE) {
+		for (i = 0; i < maxnumcoeff; i++)
+			block[i] = 0;
+		for (i = total_coeff - 1, j = -1; i >= 0; i--) {
+			j += run[i] + 1;
+			block[start + j] = tb[i];
+		}
+	}
+	return 0;
 }
 
 int h264_residual_cabac(struct bitstream *str, struct h264_cabac_context *cabac, struct h264_slice *slice, struct h264_macroblock *mb, int16_t *block, int cat, int idx, int start, int end, int maxnumcoeff, int coded) {
@@ -185,7 +269,7 @@ int h264_residual_block(struct bitstream *str, struct h264_cabac_context *cabac,
 				*num = 0;
 			return 0;
 		} else {
-			return h264_residual_cavlc(str, slice, block, num, start, end, maxnumcoeff);
+			return h264_residual_cavlc(str, slice, block, num, cat, idx, start, end, maxnumcoeff);
 		}
 	} else {
 		return h264_residual_cabac(str, cabac, slice, mb, block, cat, idx, start, end, maxnumcoeff, coded);
@@ -224,7 +308,7 @@ int h264_residual_luma(struct bitstream *str, struct h264_cabac_context *cabac, 
 					tmp[j] = mb->block_luma_4x4[which][i][j];
 				cat = cattab[which][2];
 			}
-			if (h264_residual_block(str, cabac, slice, mb, tmp, &mb->num_coeff[which][i], cat, i, ss, se, n, mb->coded_block_pattern >> (i >> 2) & 1)) return 1;
+			if (h264_residual_block(str, cabac, slice, mb, tmp, &mb->total_coeff[which][i], cat, i, ss, se, n, mb->coded_block_pattern >> (i >> 2) & 1)) return 1;
 			if (mb->transform_size_8x8_flag) {
 				for (j = 0; j < 16; j++)
 					mb->block_luma_8x8[which][i >> 2][4 * j + (i & 3)] = tmp[j];
@@ -253,7 +337,7 @@ int h264_residual(struct bitstream *str, struct h264_cabac_context *cabac, struc
 		}
 		for (i = 0; i < 2; i++) {
 			for (j = 0; j < 4 * slice->chroma_array_type; j++) {
-				if (h264_residual_block(str, cabac, slice, mb, mb->block_chroma_ac[i][j], &mb->num_coeff[i+1][j], H264_CTXBLOCKCAT_CHROMA_AC, i * 8 + j, (start?start-1:0), end-1, 15, mb->coded_block_pattern & 0x20)) return 1;
+				if (h264_residual_block(str, cabac, slice, mb, mb->block_chroma_ac[i][j], &mb->total_coeff[i+1][j], H264_CTXBLOCKCAT_CHROMA_AC, i * 8 + j, (start?start-1:0), end-1, 15, mb->coded_block_pattern & 0x20)) return 1;
 			}
 		}
 	} else if (slice->chroma_array_type == 3) {

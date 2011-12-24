@@ -620,16 +620,6 @@ int h264_mvd(struct bitstream *str, struct h264_cabac_context *cabac, int idx, i
 	return h264_cabac_ueg(str, cabac, ctxIdx, 5, 3, 1, 9, val);
 }
 
-static const struct h264_macroblock *inter_filter(struct h264_slice *slice, const struct h264_macroblock *mb, int inter) {
-	if (!inter
-			&& slice->picparm->constrained_intra_pred_flag
-			&& slice->nal_unit_type == H264_NAL_UNIT_TYPE_SLICE_PART_A
-			&& h264_is_inter_mb_type(mb->mb_type))
-		return h264_mb_unavail(1);
-	else
-		return mb;
-}
-
 int h264_coded_block_flag(struct bitstream *str, struct h264_cabac_context *cabac, int cat, int idx, uint32_t *val) {
 	static const int basectx[14] = {
 		H264_CABAC_CTXIDX_CODED_BLOCK_FLAG_CAT0,
@@ -721,8 +711,8 @@ int h264_coded_block_flag(struct bitstream *str, struct h264_cabac_context *caba
 		default:
 			abort();
 	}
-	mbA = inter_filter(cabac->slice, mbA, inter);
-	mbB = inter_filter(cabac->slice, mbB, inter);
+	mbA = h264_inter_filter(cabac->slice, mbA, inter);
+	mbB = h264_inter_filter(cabac->slice, mbB, inter);
 	int condTermFlagA = (idxA == -1 ? 0 : mbA->coded_block_flag[which][idxA]);
 	int condTermFlagB = (idxB == -1 ? 0 : mbB->coded_block_flag[which][idxB]);
 	int ctxIdx = basectx[cat] + condTermFlagA + condTermFlagB * 2;
