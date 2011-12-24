@@ -400,6 +400,8 @@ int h264_coeff_token(struct bitstream *str, struct h264_slice *slice, int cat, i
 			which = 2;
 			bs = H264_BLOCK_4X4;
 			break;
+		default:
+			abort();
 	}
 	if (!tab) {
 		int idxA, idxB;
@@ -809,6 +811,8 @@ int h264_total_zeros(struct bitstream *str, int mode, int tzVlcIndex, uint32_t *
 		case 2:
 			tab = total_zeros_c2_tab[tzVlcIndex];
 			break;
+		default:
+			abort();
 	}
 	if (vs_vlc(str, val, tab)) return 1;
 	return 0;

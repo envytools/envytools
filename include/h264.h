@@ -601,32 +601,6 @@ static inline int h264_is_inter_mb_type(uint32_t mb_type) {
 	return mb_type >= H264_MB_TYPE_P_BASE;
 }
 
-static inline int h264_sub_mb_type_split_mode(uint32_t sub_mb_type) {
-	switch (sub_mb_type) {
-		case H264_SUB_MB_TYPE_P_L0_8X8:
-		case H264_SUB_MB_TYPE_B_L0_8X8:
-		case H264_SUB_MB_TYPE_B_L1_8X8:
-		case H264_SUB_MB_TYPE_B_BI_8X8:
-			return 0;
-		case H264_SUB_MB_TYPE_P_L0_8X4:
-		case H264_SUB_MB_TYPE_B_L0_8X4:
-		case H264_SUB_MB_TYPE_B_L1_8X4:
-		case H264_SUB_MB_TYPE_B_BI_8X4:
-			return 1;
-		case H264_SUB_MB_TYPE_P_L0_4X8:
-		case H264_SUB_MB_TYPE_B_L0_4X8:
-		case H264_SUB_MB_TYPE_B_L1_4X8:
-		case H264_SUB_MB_TYPE_B_BI_4X8:
-			return 2;
-		case H264_SUB_MB_TYPE_P_L0_4X4:
-		case H264_SUB_MB_TYPE_B_L0_4X4:
-		case H264_SUB_MB_TYPE_B_L1_4X4:
-		case H264_SUB_MB_TYPE_B_BI_4X4:
-		case H264_SUB_MB_TYPE_B_DIRECT_8X8:
-			return 3;
-	}
-}
-
 int h264_mb_avail(struct h264_slice *slice, uint32_t mbaddr);
 const struct h264_macroblock *h264_mb_unavail(int inter);
 
@@ -645,7 +619,7 @@ int h264_mb_field_decoding_flag(struct bitstream *str, struct h264_cabac_context
 int h264_mb_type(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t slice_type, uint32_t *val);
 int h264_sub_mb_type(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t slice_type, uint32_t *val);
 int h264_coded_block_pattern(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t mb_type, int has_chroma, uint32_t *val);
-int h264_mb_transform_size_8x8_flag(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *binVal);
+int h264_transform_size_8x8_flag(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *binVal);
 int h264_mb_qp_delta(struct bitstream *str, struct h264_cabac_context *cabac, int32_t *val);
 int h264_prev_intra_pred_mode_flag(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *val);
 int h264_rem_intra_pred_mode(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t *val);
@@ -672,6 +646,7 @@ int h264_seqparm_mvc(struct bitstream *str, struct h264_seqparm *seqparm);
 int h264_seqparm_ext(struct bitstream *str, struct h264_seqparm **seqparms, uint32_t *pseq_parameter_set_id);
 int h264_picparm(struct bitstream *str, struct h264_seqparm **seqparms, struct h264_seqparm **subseqparms, struct h264_picparm *picparm);
 int h264_slice_header(struct bitstream *str, struct h264_seqparm **seqparms, struct h264_picparm **picparms, struct h264_slice *slice);
+int h264_slice_data(struct bitstream *str, struct h264_slice *slice);
 int h264_pred_weight_table(struct bitstream *str, struct h264_slice *slice, struct h264_pred_weight_table *table);
 int h264_residual(struct bitstream *str, struct h264_cabac_context *cabac, struct h264_slice *slice, struct h264_macroblock *mb, int start, int end);
 
@@ -679,5 +654,6 @@ void h264_print_seqparm(struct h264_seqparm *seqparm);
 void h264_print_seqparm_ext(struct h264_seqparm *seqparm);
 void h264_print_picparm(struct h264_picparm *picparm);
 void h264_print_slice_header(struct h264_slice *slice);
+void h264_print_slice_data(struct h264_slice *slice);
 
 #endif

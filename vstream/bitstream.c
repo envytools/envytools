@@ -311,6 +311,8 @@ int vs_align_byte(struct bitstream *str, enum vs_align_byte_mode mode) {
 		case VS_ALIGN_10:
 			pad = 1 << str->bitpos;
 			break;
+		default:
+			abort();
 	}
 	if (str->dir == VS_ENCODE) {
 		if (str->bitpos != 7) {
@@ -348,6 +350,8 @@ int vs_end(struct bitstream *str) {
 			}
 			return vs_align_byte(str, VS_ALIGN_0);
 			/* XXX: add the cabac special case */
+		default:
+			abort();
 	}
 }
 
@@ -371,7 +375,7 @@ int vs_has_more_data(struct bitstream *str) {
 				byte = str->curbyte;
 				offs = 0;
 			}
-			byte &= (1 << str->bitpos+1) - 1;
+			byte &= (1 << (str->bitpos+1)) - 1;
 			if (byte != (1 << str->bitpos))
 				return 1;
 			break;
@@ -409,6 +413,18 @@ struct bitstream *vs_new_decode(enum vs_type type, uint8_t *bytes, int bytesnum)
 }
 
 int vs_infer(struct bitstream *str, uint32_t *val, uint32_t ival) {
+	if (str->dir == VS_ENCODE) {
+		if (*val != ival) {
+			fprintf (stderr, "Wrong infered value: %d != %d\n", *val, ival);
+			return 1;
+		}
+	} else {
+		*val = ival;
+	}
+	return 0;
+}
+
+int vs_infers(struct bitstream *str, int32_t *val, int32_t ival) {
 	if (str->dir == VS_ENCODE) {
 		if (*val != ival) {
 			fprintf (stderr, "Wrong infered value: %d != %d\n", *val, ival);

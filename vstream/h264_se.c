@@ -180,6 +180,8 @@ int h264_mb_type(struct bitstream *str, struct h264_cabac_context *cabac, uint32
 				rstart = H264_MB_TYPE_B_BASE;
 				rend = H264_MB_TYPE_B_SKIP;
 				break;
+			default:
+				abort();
 		}
 		if (str->dir == VS_ENCODE) {
 			if (*val >= rstart && *val < rend) {
@@ -476,7 +478,7 @@ int h264_coded_block_pattern(struct bitstream *str, struct h264_cabac_context *c
 			}
 		}
 		if (str->dir == VS_DECODE) {
-			*val = bit[0] | bit[1] << 1 | bit[2] << 2 | bit[3] << 3 | bit[4] << 4+bit[5];
+			*val = bit[0] | bit[1] << 1 | bit[2] << 2 | bit[3] << 3 | bit[4] << (4+bit[5]);
 		}
 		return 0;
 	}
@@ -666,6 +668,8 @@ int h264_coded_block_flag(struct bitstream *str, struct h264_cabac_context *caba
 			which = (idx >> 3) + 1;
 			idx &= 7;
 			break;
+		default:
+			abort();
 	}
 	const struct h264_macroblock *mbA;
 	const struct h264_macroblock *mbB;
@@ -877,6 +881,8 @@ int h264_significant_coeff_flag(struct bitstream *str, struct h264_cabac_context
 			else
 				ctxInc = tab8x8[idx][field];
 			break;
+		default:
+			abort();
 	}
 	int ctxIdx = basectx[last][field][cat] + ctxInc;
 	return h264_cabac_decision(str, cabac, ctxIdx, val);

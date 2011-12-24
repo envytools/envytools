@@ -237,6 +237,7 @@ int h264_vui_parameters(struct bitstream *str, struct h264_vui *vui) {
 		if (vs_infer(str, &vui->num_reorder_frames, 16)) return 1;
 		if (vs_infer(str, &vui->max_dec_frame_buffering, 16)) return 1;
 	}
+	return 0;
 }
 
 int h264_seqparm(struct bitstream *str, struct h264_seqparm *seqparm) {
@@ -380,10 +381,10 @@ int h264_seqparm_svc(struct bitstream *str, struct h264_seqparm *seqparm) {
 	} else {
 		if (vs_infer(str, &seqparm->seq_ref_layer_chroma_phase_x_plus1_flag, seqparm->chroma_phase_x_plus1_flag)) return 1;
 		if (vs_infer(str, &seqparm->seq_ref_layer_chroma_phase_y_plus1, seqparm->chroma_phase_y_plus1)) return 1;
-		if (vs_infer(str, &seqparm->seq_ref_layer_left_offset, 0)) return 1;
-		if (vs_infer(str, &seqparm->seq_ref_layer_top_offset, 0)) return 1;
-		if (vs_infer(str, &seqparm->seq_ref_layer_right_offset, 0)) return 1;
-		if (vs_infer(str, &seqparm->seq_ref_layer_bottom_offset, 0)) return 1;
+		if (vs_infers(str, &seqparm->seq_ref_layer_left_offset, 0)) return 1;
+		if (vs_infers(str, &seqparm->seq_ref_layer_top_offset, 0)) return 1;
+		if (vs_infers(str, &seqparm->seq_ref_layer_right_offset, 0)) return 1;
+		if (vs_infers(str, &seqparm->seq_ref_layer_bottom_offset, 0)) return 1;
 	}
 	if (vs_u(str, &seqparm->seq_tcoeff_level_prediction_flag, 1)) return 1;
 	if (seqparm->seq_tcoeff_level_prediction_flag) {
@@ -624,7 +625,7 @@ int h264_picparm(struct bitstream *str, struct h264_seqparm **seqparms, struct h
 	} else {
 		if (vs_infer(str, &picparm->transform_8x8_mode_flag, 0)) return 1;
 		if (vs_infer(str, &picparm->pic_scaling_matrix_present_flag, 0)) return 1;
-		if (vs_infer(str, &picparm->second_chroma_qp_index_offset, picparm->chroma_qp_index_offset)) return 1;
+		if (vs_infers(str, &picparm->second_chroma_qp_index_offset, picparm->chroma_qp_index_offset)) return 1;
 	}
 	return 0;
 }
@@ -925,7 +926,7 @@ int h264_slice_header(struct bitstream *str, struct h264_seqparm **seqparms, str
 			if (slice->picparm->bottom_field_pic_order_in_frame_present_flag && !slice->field_pic_flag) {
 				if (vs_se(str, &slice->delta_pic_order_cnt_bottom)) return 1;
 			} else {
-				if (vs_infer(str, &slice->delta_pic_order_cnt_bottom, 0)) return 1;
+				if (vs_infers(str, &slice->delta_pic_order_cnt_bottom, 0)) return 1;
 			}
 			break;
 		case 1:
@@ -934,11 +935,11 @@ int h264_slice_header(struct bitstream *str, struct h264_seqparm **seqparms, str
 				if (slice->picparm->bottom_field_pic_order_in_frame_present_flag && !slice->field_pic_flag) {
 					if (vs_se(str, &slice->delta_pic_order_cnt[1])) return 1;
 				} else {
-					if (vs_infer(str, &slice->delta_pic_order_cnt[1], 0)) return 1;
+					if (vs_infers(str, &slice->delta_pic_order_cnt[1], 0)) return 1;
 				}
 			} else {
-				if (vs_infer(str, &slice->delta_pic_order_cnt[0], 0)) return 1;
-				if (vs_infer(str, &slice->delta_pic_order_cnt[1], 0)) return 1;
+				if (vs_infers(str, &slice->delta_pic_order_cnt[0], 0)) return 1;
+				if (vs_infers(str, &slice->delta_pic_order_cnt[1], 0)) return 1;
 			}
 			break;
 	}
@@ -1013,13 +1014,13 @@ int h264_slice_header(struct bitstream *str, struct h264_seqparm **seqparms, str
 			if (vs_se(str, &slice->slice_alpha_c0_offset_div2)) return 1;
 			if (vs_se(str, &slice->slice_beta_offset_div2)) return 1;
 		} else {
-			if (vs_infer(str, &slice->slice_alpha_c0_offset_div2, 0)) return 1;
-			if (vs_infer(str, &slice->slice_beta_offset_div2, 0)) return 1;
+			if (vs_infers(str, &slice->slice_alpha_c0_offset_div2, 0)) return 1;
+			if (vs_infers(str, &slice->slice_beta_offset_div2, 0)) return 1;
 		}
 	} else {
 		if (vs_infer(str, &slice->disable_deblocking_filter_idc, 0)) return 1;
-		if (vs_infer(str, &slice->slice_alpha_c0_offset_div2, 0)) return 1;
-		if (vs_infer(str, &slice->slice_beta_offset_div2, 0)) return 1;
+		if (vs_infers(str, &slice->slice_alpha_c0_offset_div2, 0)) return 1;
+		if (vs_infers(str, &slice->slice_beta_offset_div2, 0)) return 1;
 	}
 	if (slice->picparm->num_slice_groups_minus1 && slice->picparm->slice_group_map_type >= 3 && slice->picparm->slice_group_map_type <= 5)
 		if (vs_u(str, &slice->slice_group_change_cycle, clog2(((slice->seqparm->pic_width_in_mbs_minus1 + 1) * (slice->seqparm->pic_height_in_map_units_minus1 + 1) + slice->picparm->slice_group_change_rate_minus1) / (slice->picparm->slice_group_change_rate_minus1 + 1) + 1))) return 1;
@@ -1040,8 +1041,8 @@ int h264_pred_weight_table_entry(struct bitstream *str, struct h264_pred_weight_
 		ret |= vs_se(str, &entry->luma_weight);
 		ret |= vs_se(str, &entry->luma_offset);
 	} else {
-		ret |= vs_infer(str, &entry->luma_weight, 1 << table->luma_log2_weight_denom);
-		ret |= vs_infer(str, &entry->luma_offset, 0);
+		ret |= vs_infers(str, &entry->luma_weight, 1 << table->luma_log2_weight_denom);
+		ret |= vs_infers(str, &entry->luma_offset, 0);
 	}
 	ret |= vs_u(str, &entry->chroma_weight_flag, 1);
 	if (entry->chroma_weight_flag) {
@@ -1050,10 +1051,10 @@ int h264_pred_weight_table_entry(struct bitstream *str, struct h264_pred_weight_
 		ret |= vs_se(str, &entry->chroma_weight[1]);
 		ret |= vs_se(str, &entry->chroma_offset[1]);
 	} else {
-		ret |= vs_infer(str, &entry->chroma_weight[0], 1 << table->chroma_log2_weight_denom);
-		ret |= vs_infer(str, &entry->chroma_offset[0], 0);
-		ret |= vs_infer(str, &entry->chroma_weight[1], 1 << table->chroma_log2_weight_denom);
-		ret |= vs_infer(str, &entry->chroma_offset[1], 0);
+		ret |= vs_infers(str, &entry->chroma_weight[0], 1 << table->chroma_log2_weight_denom);
+		ret |= vs_infers(str, &entry->chroma_offset[0], 0);
+		ret |= vs_infers(str, &entry->chroma_weight[1], 1 << table->chroma_log2_weight_denom);
+		ret |= vs_infers(str, &entry->chroma_offset[1], 0);
 	}
 	return ret;
 }

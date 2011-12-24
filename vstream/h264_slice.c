@@ -349,8 +349,8 @@ static int infer_intra(struct bitstream *str, struct h264_macroblock *mb, int wh
 		if (vs_infer(str, &mb->ref_idx[which][i], 0)) return 1;
 	}
 	for (i = 0; i < 16; i++) {
-		if (vs_infer(str, &mb->mvd[which][i][0], 0)) return 1;
-		if (vs_infer(str, &mb->mvd[which][i][1], 0)) return 1;
+		if (vs_infers(str, &mb->mvd[which][i][0], 0)) return 1;
+		if (vs_infers(str, &mb->mvd[which][i][1], 0)) return 1;
 	}
 	return 0;
 }
@@ -437,16 +437,16 @@ int h264_mb_pred(struct bitstream *str, struct h264_cabac_context *cabac, struct
 					if (h264_mvd(str, cabac, i * 4, 0, 0, &mb->mvd[0][i*4][0])) return 1;
 					if (h264_mvd(str, cabac, i * 4, 1, 0, &mb->mvd[0][i*4][1])) return 1;
 				} else {
-					if (vs_infer(str, &mb->mvd[0][i*4][0], 0)) return 1;
-					if (vs_infer(str, &mb->mvd[0][i*4][1], 0)) return 1;
+					if (vs_infers(str, &mb->mvd[0][i*4][0], 0)) return 1;
+					if (vs_infers(str, &mb->mvd[0][i*4][1], 0)) return 1;
 				}
 			} else {
-				if (vs_infer(str, &mb->mvd[0][i*4][0], mb->mvd[0][ifrom[i]*4][0])) return 1;
-				if (vs_infer(str, &mb->mvd[0][i*4][1], mb->mvd[0][ifrom[i]*4][1])) return 1;
+				if (vs_infers(str, &mb->mvd[0][i*4][0], mb->mvd[0][ifrom[i]*4][0])) return 1;
+				if (vs_infers(str, &mb->mvd[0][i*4][1], mb->mvd[0][ifrom[i]*4][1])) return 1;
 			}
 			for (j = 1; j < 4; j++) {
-				if (vs_infer(str, &mb->mvd[0][i*4+j][0], mb->mvd[0][i*4][0])) return 1;
-				if (vs_infer(str, &mb->mvd[0][i*4+j][1], mb->mvd[0][i*4][1])) return 1;
+				if (vs_infers(str, &mb->mvd[0][i*4+j][0], mb->mvd[0][i*4][0])) return 1;
+				if (vs_infers(str, &mb->mvd[0][i*4+j][1], mb->mvd[0][i*4][1])) return 1;
 			}
 		}
 		for (i = 0; i < 4; i++) {
@@ -455,16 +455,16 @@ int h264_mb_pred(struct bitstream *str, struct h264_cabac_context *cabac, struct
 					if (h264_mvd(str, cabac, i * 4, 0, 1, &mb->mvd[1][i*4][0])) return 1;
 					if (h264_mvd(str, cabac, i * 4, 1, 1, &mb->mvd[1][i*4][1])) return 1;
 				} else {
-					if (vs_infer(str, &mb->mvd[1][i*4][0], 0)) return 1;
-					if (vs_infer(str, &mb->mvd[1][i*4][1], 0)) return 1;
+					if (vs_infers(str, &mb->mvd[1][i*4][0], 0)) return 1;
+					if (vs_infers(str, &mb->mvd[1][i*4][1], 0)) return 1;
 				}
 			} else {
-				if (vs_infer(str, &mb->mvd[1][i*4][0], mb->mvd[1][ifrom[i]*4][0])) return 1;
-				if (vs_infer(str, &mb->mvd[1][i*4][1], mb->mvd[1][ifrom[i]*4][1])) return 1;
+				if (vs_infers(str, &mb->mvd[1][i*4][0], mb->mvd[1][ifrom[i]*4][0])) return 1;
+				if (vs_infers(str, &mb->mvd[1][i*4][1], mb->mvd[1][ifrom[i]*4][1])) return 1;
 			}
 			for (j = 1; j < 4; j++) {
-				if (vs_infer(str, &mb->mvd[1][i*4+j][0], mb->mvd[1][i*4][0])) return 1;
-				if (vs_infer(str, &mb->mvd[1][i*4+j][1], mb->mvd[1][i*4][1])) return 1;
+				if (vs_infers(str, &mb->mvd[1][i*4+j][0], mb->mvd[1][i*4][0])) return 1;
+				if (vs_infers(str, &mb->mvd[1][i*4+j][1], mb->mvd[1][i*4][1])) return 1;
 			}
 		}
 		if (vs_infer(str, &mb->intra_chroma_pred_mode, 0)) return 1;
@@ -534,12 +534,12 @@ int h264_sub_mb_pred(struct bitstream *str, struct h264_cabac_context *cabac, st
 				if (h264_mvd(str, cabac, i, 0, 0, &mb->mvd[0][i][0])) return 1;
 				if (h264_mvd(str, cabac, i, 1, 0, &mb->mvd[0][i][1])) return 1;
 			} else {
-				if (vs_infer(str, &mb->mvd[0][i][0], 0)) return 1;
-				if (vs_infer(str, &mb->mvd[0][i][1], 0)) return 1;
+				if (vs_infers(str, &mb->mvd[0][i][0], 0)) return 1;
+				if (vs_infers(str, &mb->mvd[0][i][1], 0)) return 1;
 			}
 		} else {
-			if (vs_infer(str, &mb->mvd[0][i][0], mb->mvd[0][ifrom[i]][0])) return 1;
-			if (vs_infer(str, &mb->mvd[0][i][1], mb->mvd[0][ifrom[i]][1])) return 1;
+			if (vs_infers(str, &mb->mvd[0][i][0], mb->mvd[0][ifrom[i]][0])) return 1;
+			if (vs_infers(str, &mb->mvd[0][i][1], mb->mvd[0][ifrom[i]][1])) return 1;
 		}
 	}
 	for (i = 0; i < 16; i++) {
@@ -548,12 +548,12 @@ int h264_sub_mb_pred(struct bitstream *str, struct h264_cabac_context *cabac, st
 				if (h264_mvd(str, cabac, i, 0, 1, &mb->mvd[1][i][0])) return 1;
 				if (h264_mvd(str, cabac, i, 1, 1, &mb->mvd[1][i][1])) return 1;
 			} else {
-				if (vs_infer(str, &mb->mvd[1][i][0], 0)) return 1;
-				if (vs_infer(str, &mb->mvd[1][i][1], 0)) return 1;
+				if (vs_infers(str, &mb->mvd[1][i][0], 0)) return 1;
+				if (vs_infers(str, &mb->mvd[1][i][1], 0)) return 1;
 			}
 		} else {
-			if (vs_infer(str, &mb->mvd[1][i][0], mb->mvd[1][ifrom[i]][0])) return 1;
-			if (vs_infer(str, &mb->mvd[1][i][1], mb->mvd[1][ifrom[i]][1])) return 1;
+			if (vs_infers(str, &mb->mvd[1][i][0], mb->mvd[1][ifrom[i]][0])) return 1;
+			if (vs_infers(str, &mb->mvd[1][i][1], mb->mvd[1][ifrom[i]][1])) return 1;
 		}
 	}
 	if (vs_infer(str, &mb->intra_chroma_pred_mode, 0)) return 1;
@@ -573,7 +573,7 @@ int h264_macroblock_layer(struct bitstream *str, struct h264_cabac_context *caba
 			if (vs_u(str, &mb->pcm_sample_chroma[i], slice->bit_depth_chroma_minus8 + 8)) return 1;
 		if (cabac)
 			if (h264_cabac_init_arith(str, cabac)) return 1;
-		if (vs_infer(str, &mb->mb_qp_delta, 0)) return 1;
+		if (vs_infers(str, &mb->mb_qp_delta, 0)) return 1;
 		if (vs_infer(str, &mb->transform_size_8x8_flag, 0)) return 1;
 		if (vs_infer(str, &mb->coded_block_pattern, 0x2f)) return 1;
 		if (vs_infer(str, &mb->intra_chroma_pred_mode, 0)) return 1;
@@ -596,7 +596,7 @@ int h264_macroblock_layer(struct bitstream *str, struct h264_cabac_context *caba
 			int i;
 			for (i = 0; i < 4; i++) {
 				if (mb->sub_mb_type[i] != H264_SUB_MB_TYPE_B_DIRECT_8X8) {
-					if (h264_sub_mb_type_split_mode(mb->sub_mb_type[i]))
+					if (sub_mb_part_info[mb->sub_mb_type[i]][0])
 						noSubMbPartSizeLessThan8x8Flag = 0;
 				} else {
 					if (!seqparm->direct_8x8_inference_flag)
@@ -632,8 +632,9 @@ int h264_macroblock_layer(struct bitstream *str, struct h264_cabac_context *caba
 			if (vs_infer(str, &mb->transform_size_8x8_flag, 0)) return 1;
 		}
 		if (mb->coded_block_pattern || h264_is_intra_16x16_mb_type(mb->mb_type)) {
-			if (h264_mb_qp_delta(str, cabac, &mb->mb_qp_delta))
-				return 1;
+			if (h264_mb_qp_delta(str, cabac, &mb->mb_qp_delta)) return 1;
+		} else {
+			if (vs_infers(str, &mb->mb_qp_delta, 0)) return 1;
 		}
 		if (h264_residual(str, cabac, slice, mb, 0, 15)) return 1;
 	}
@@ -671,7 +672,7 @@ static int infer_skip(struct bitstream *str, struct h264_slice *slice, struct h2
 
 	}
 	if (vs_infer(str, &mb->mb_type, skip_type)) return 1;
-	if (vs_infer(str, &mb->mb_qp_delta, 0)) return 1;
+	if (vs_infers(str, &mb->mb_qp_delta, 0)) return 1;
 	if (vs_infer(str, &mb->transform_size_8x8_flag, 0)) return 1;
 	if (vs_infer(str, &mb->coded_block_pattern, 0)) return 1;
 	if (vs_infer(str, &mb->intra_chroma_pred_mode, 0)) return 1;
