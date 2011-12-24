@@ -423,7 +423,7 @@ int h264_coded_block_pattern(struct bitstream *str, struct h264_cabac_context *c
 		if (vs_ue(str, &tmp))
 			return 1;
 		if (str->dir == VS_DECODE) {
-			if (*val >= maxval) {
+			if (tmp >= maxval) {
 				fprintf(stderr, "coded_block_pattern too large\n");
 				return 1;
 			}

@@ -760,8 +760,8 @@ int h264_slice_data(struct bitstream *str, struct h264_slice *slice) {
 				} else {
 					if (vs_ue(str, &mb_skip_run)) return 1;
 					while (mb_skip_run--) {
-						if (slice->curr_mb_addr == (uint32_t)-1) {
-							fprintf(stderr, "MB index out of bounds\n");
+						if (slice->curr_mb_addr >= slice->pic_size_in_mbs) {
+							fprintf(stderr, "MB index out of range!\n");
 							return 1;
 						}
 						slice->last_mb_in_slice = slice->curr_mb_addr;
@@ -777,6 +777,10 @@ int h264_slice_data(struct bitstream *str, struct h264_slice *slice) {
 					if (more == 0)
 						goto out_cavlc;
 				}
+			}
+			if (slice->curr_mb_addr >= slice->pic_size_in_mbs) {
+				fprintf(stderr, "MB index out of range!\n");
+				return 1;
 			}
 			if (slice->mbaff_frame_flag) {
 				uint32_t first_addr = slice->curr_mb_addr & ~1;
