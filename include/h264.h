@@ -337,10 +337,10 @@ struct h264_seqparm {
 	uint32_t chroma_phase_y_plus1;
 	uint32_t seq_ref_layer_chroma_phase_x_plus1_flag;
 	uint32_t seq_ref_layer_chroma_phase_y_plus1;
-	uint32_t seq_ref_layer_left_offset;
-	uint32_t seq_ref_layer_top_offset;
-	uint32_t seq_ref_layer_right_offset;
-	uint32_t seq_ref_layer_bottom_offset;
+	int32_t seq_ref_layer_left_offset;
+	int32_t seq_ref_layer_top_offset;
+	int32_t seq_ref_layer_right_offset;
+	int32_t seq_ref_layer_bottom_offset;
 	uint32_t seq_tcoeff_level_prediction_flag;
 	uint32_t adaptive_tcoeff_level_prediction_flag;
 	uint32_t slice_header_restriction_flag;
@@ -398,9 +398,9 @@ struct h264_picparm {
 	uint32_t num_ref_idx_l1_default_active_minus1;
 	uint32_t weighted_pred_flag;
 	uint32_t weighted_bipred_idc;
-	uint32_t pic_init_qp_minus26;
-	uint32_t pic_init_qs_minus26;
-	uint32_t chroma_qp_index_offset;
+	int32_t pic_init_qp_minus26;
+	int32_t pic_init_qs_minus26;
+	int32_t chroma_qp_index_offset;
 	uint32_t deblocking_filter_control_present_flag;
 	uint32_t constrained_intra_pred_flag;
 	uint32_t redundant_pic_cnt_present_flag;
@@ -412,7 +412,7 @@ struct h264_picparm {
 	uint32_t use_default_scaling_matrix_flag[12];
 	uint32_t pic_scaling_list_4x4[6][16];
 	uint32_t pic_scaling_list_8x8[6][64];
-	uint32_t second_chroma_qp_index_offset;
+	int32_t second_chroma_qp_index_offset;
 };
 
 struct h264_macroblock {
@@ -452,11 +452,11 @@ struct h264_ref_pic_list_modification {
 
 struct h264_pred_weight_table_entry {
 	uint32_t luma_weight_flag;
-	uint32_t luma_weight;
-	uint32_t luma_offset;
+	int32_t luma_weight;
+	int32_t luma_offset;
 	uint32_t chroma_weight_flag;
-	uint32_t chroma_weight[2];
-	uint32_t chroma_offset[2];
+	int32_t chroma_weight[2];
+	int32_t chroma_offset[2];
 };
 
 struct h264_pred_weight_table {
@@ -516,8 +516,8 @@ struct h264_slice {
 	uint32_t bottom_field_flag;
 	uint32_t idr_pic_id;
 	uint32_t pic_order_cnt_lsb;
-	uint32_t delta_pic_order_cnt_bottom;
-	uint32_t delta_pic_order_cnt[2];
+	int32_t delta_pic_order_cnt_bottom;
+	int32_t delta_pic_order_cnt[2];
 	uint32_t redundant_pic_cnt;
 	uint32_t direct_spatial_mb_pred_flag;
 	uint32_t num_ref_idx_active_override_flag;
@@ -529,13 +529,13 @@ struct h264_slice {
 	struct h264_pred_weight_table pred_weight_table;
 	struct h264_dec_ref_pic_marking dec_ref_pic_marking;
 	struct h264_dec_ref_base_pic_marking dec_ref_base_pic_marking;
-	uint32_t slice_qp_delta;
+	int32_t slice_qp_delta;
 	uint32_t sp_for_switch_flag;
-	uint32_t slice_qs_delta;
+	int32_t slice_qs_delta;
 	uint32_t cabac_init_idc;
 	uint32_t disable_deblocking_filter_idc;
-	uint32_t slice_alpha_c0_offset_div2;
-	uint32_t slice_beta_offset_div2;
+	int32_t slice_alpha_c0_offset_div2;
+	int32_t slice_beta_offset_div2;
 	uint32_t slice_group_change_cycle;
 	/* derived stuff starts here */
 	uint32_t idr_pic_flag;
@@ -547,7 +547,7 @@ struct h264_slice {
 	uint32_t pic_width_in_mbs;
 	uint32_t pic_height_in_mbs;
 	uint32_t pic_size_in_mbs;
-	uint32_t sliceqpy;
+	int32_t sliceqpy;
 	uint32_t mbaff_frame_flag;
 	uint32_t last_mb_in_slice;
 	/* previous and current macroblock */
