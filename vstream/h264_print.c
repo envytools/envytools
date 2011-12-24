@@ -63,6 +63,9 @@ void h264_print_seqparm(struct h264_seqparm *seqparm) {
 		case H264_PROFILE_HIGH_422:
 			profile_name = "High 4:2:2";
 			break;
+		case H264_PROFILE_HIGH_444:
+			profile_name = "High 4:4:4";
+			break;
 		case H264_PROFILE_HIGH_444_PRED:
 			profile_name = "High 4:4:4 Predictive";
 			break;
