@@ -29,17 +29,21 @@
 #include <stdlib.h>
 
 int h264_mb_slice_group(struct h264_slice *slice, uint32_t mbaddr) {
-	if (mbaddr < 0 || mbaddr >= slice->pic_width_in_mbs)
+	if (mbaddr < 0 || mbaddr >= slice->pic_size_in_mbs)
 		return 0;
 	if (!slice->picparm->num_slice_groups_minus1)
 		return 0;
-	if (slice->seqparm->frame_mbs_only_flag || slice->field_pic_flag)
-		return slice->sgmap[mbaddr];
-	if (slice->mbaff_frame_flag)
-		return slice->sgmap[mbaddr/2];
-	int x = mbaddr % slice->pic_width_in_mbs;
-	int y = mbaddr / slice->pic_width_in_mbs;
-	return slice->sgmap[y / 2 * slice->pic_width_in_mbs + x];
+	int ret;
+	if (slice->seqparm->frame_mbs_only_flag || slice->field_pic_flag) {
+		ret = slice->sgmap[mbaddr];
+	} else if (!slice->mbaff_frame_flag) {
+		ret = slice->sgmap[mbaddr/2];
+	} else {
+		int x = mbaddr % slice->pic_width_in_mbs;
+		int y = mbaddr / slice->pic_width_in_mbs;
+		ret = slice->sgmap[y / 2 * slice->pic_width_in_mbs + x];
+	}
+	return ret;
 }
 
 int h264_mb_avail(struct h264_slice *slice, uint32_t mbaddr) {
@@ -52,7 +56,7 @@ int h264_mb_avail(struct h264_slice *slice, uint32_t mbaddr) {
 uint32_t h264_next_mb_addr(struct h264_slice *slice, uint32_t mbaddr) {
 	int sg = h264_mb_slice_group(slice, mbaddr);
 	mbaddr++;
-	while (mbaddr < slice->pic_width_in_mbs && h264_mb_slice_group(slice, mbaddr) != sg)
+	while (mbaddr < slice->pic_size_in_mbs && h264_mb_slice_group(slice, mbaddr) != sg)
 		mbaddr++;
 	return mbaddr;
 }
