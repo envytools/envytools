@@ -395,6 +395,7 @@ struct bitstream *vs_new_encode(enum vs_type type) {
 	res->dir = VS_ENCODE;
 	res->type = type;
 	res->bitpos = 7;
+	return res;
 }
 
 struct bitstream *vs_new_decode(enum vs_type type, uint8_t *bytes, int bytesnum) {
@@ -404,6 +405,7 @@ struct bitstream *vs_new_decode(enum vs_type type, uint8_t *bytes, int bytesnum)
 	res->bytes = bytes;
 	res->bytesnum = bytesnum;
 	res->bitpos = 7;
+	return res;
 }
 
 int vs_infer(struct bitstream *str, uint32_t *val, uint32_t ival) {
