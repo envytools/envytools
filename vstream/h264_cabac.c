@@ -1348,7 +1348,8 @@ static int put_bit(struct bitstream *str, struct h264_cabac_context *cabac, uint
 		if (vs_u(str, &bit, 1))
 			return 1;
 	}
-	while (cabac->bitsOutstanding--) {
+	while (cabac->bitsOutstanding) {
+		cabac->bitsOutstanding--;
 		if (vs_u(str, &nbit, 1))
 			return 1;
 	}
