@@ -22,7 +22,7 @@ Packet is made of a header word and 3 or 6 payload words.
 
 Header word:
   bits 0-23: number of payload words [3 or 6]
-  bits 24-31: packet type [3]
+  bits 24-31: packet type [0]
 
 Payload word 0:
   bits 0-12: macroblock address
