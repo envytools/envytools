@@ -876,24 +876,6 @@ int h264_slice_header(struct bitstream *str, struct h264_seqparm **seqparms, str
 			slice->bit_depth_chroma_minus8 = slice->seqparm->bit_depth_chroma_minus8;
 		}
 		slice->pic_width_in_mbs = slice->seqparm->pic_width_in_mbs_minus1 + 1;
-		switch (slice->chroma_array_type) {
-			case 0:
-				slice->mbwidthc = 0;
-				slice->mbheightc = 0;
-				break;
-			case 1:
-				slice->mbwidthc = 8;
-				slice->mbheightc = 8;
-				break;
-			case 2:
-				slice->mbwidthc = 8;
-				slice->mbheightc = 16;
-				break;
-			case 3:
-				slice->mbwidthc = 16;
-				slice->mbheightc = 16;
-				break;
-		}
 	}
 	if (slice->seqparm->separate_colour_plane_flag)
 		if (vs_u(str, &slice->colour_plane_id, 2)) return 1;

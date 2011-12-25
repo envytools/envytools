@@ -573,8 +573,10 @@ int h264_macroblock_layer(struct bitstream *str, struct h264_cabac_context *caba
 		int i;
 		for (i = 0; i < 256; i++)
 			if (vs_u(str, &mb->pcm_sample_luma[i], slice->bit_depth_luma_minus8 + 8)) return 1;
-		for (i = 0; i < 2 * slice->mbwidthc * slice->mbheightc; i++)
-			if (vs_u(str, &mb->pcm_sample_chroma[i], slice->bit_depth_chroma_minus8 + 8)) return 1;
+		if (slice->chroma_array_type) {
+			for (i = 0; i < (64 << slice->chroma_array_type); i++)
+				if (vs_u(str, &mb->pcm_sample_chroma[i], slice->bit_depth_chroma_minus8 + 8)) return 1;
+		}
 		if (cabac)
 			if (h264_cabac_init_arith(str, cabac)) return 1;
 		if (vs_infers(str, &mb->mb_qp_delta, 0)) return 1;

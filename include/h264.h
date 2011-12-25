@@ -542,8 +542,6 @@ struct h264_slice {
 	uint32_t chroma_array_type;
 	uint32_t bit_depth_luma_minus8;
 	uint32_t bit_depth_chroma_minus8;
-	uint32_t mbwidthc;
-	uint32_t mbheightc;
 	uint32_t pic_width_in_mbs;
 	uint32_t pic_height_in_mbs;
 	uint32_t pic_size_in_mbs;

@@ -43,8 +43,6 @@ int main(int argc, char **argv) {
 	slice->num_ref_idx_l1_active_minus1 = 31;
 	slice->bit_depth_luma_minus8 = 0;
 	slice->bit_depth_chroma_minus8 = 0;
-	slice->mbwidthc = 8;
-	slice->mbheightc = 8;
 	slice->mbs = calloc(sizeof *slice->mbs, slice->pic_size_in_mbs);
 	int i, j, k;
 	for (i = 0; i < 96; i++) {
