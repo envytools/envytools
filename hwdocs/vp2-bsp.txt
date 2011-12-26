@@ -233,7 +233,7 @@ Operation:
 
 Command 2: GETBITS
 
-Parameter: number of bits to read, or 0 to read 32 bits
+Parameter: number of bits to read, or 0 to read 32 bits [5 bits]
 Result: the bits from the bitstream
 
 Given parameter n, returns the next (n?n:32) bits from the bitstream as an
@@ -260,18 +260,18 @@ Operation:
 	return getbits_raw(8);
 
 
-Command 4: CABAC_ALIGN
+Command 4: CABAC_START
 
 Parameter: none
 Result: none
 
-Skips bits in the bitstream until the current bit position is byte-aligned.
-Initialises the CABAC engine in some way.
-[XXX: RE me]
+Skips bits in the bitstream until the current bit position is byte-aligned,
+then initialises the arithmetic decoding engine registers codIRange and
+codIOffset, as per H.264.9.3.1.2.
 
 Oprtation:
 	byte_align();
-	cabac_init_unk1();
+	cabac_init_engine();
 
 
 Command 5: MORE_RBSP_DATA
@@ -309,21 +309,22 @@ Operation:
 	return cabac_terminate();
 
 
-Command 8: CABAC_INIT
+Command 8: CABAC_INIT_CTX
 
 Parameter: none
 Result: none
-[XXX: RE me]
 
-Initialises the CABAC engine in some way.
+Initialises the CABAC context variables, as per H.264.9.3.1.1. slice_type,
+cabac_init_idc [for P/B slices], and sliceqpy have to be set in the PARM
+registers for this command to work properly.
 
 Operation:
-	cabac_init_unk2();
+	cabac_init_ctx();
 
 
-Command 9: MACROBLOCK_SKIP
+Command 9: MACROBLOCK_SKIP_MBFDF
 
-Parameter: mb_field_decoding_flag presence
+Parameter: mb_field_decoding_flag presence [1 bit]
 Result: none
 
 If parameter is 1, mb_field_decoding_flag syntax element is parsed. Otherwise,
@@ -333,12 +334,23 @@ is emitted into the MBRING, and its data stored into internal state. SLICE_POS
 has to be set to the address of this macroblock.
 
 Operation:
-	XXX
+	if (param) {
+		if (entropy_coding_mode_flag)
+			this_mb.mb_field_decoding_flag = cabac_mb_field_decoding_flag();
+		else
+			this_mb.mb_field_decoding_flag = getbits(1);
+	} else {
+		this_mb.mb_field_decoding_flag = mb_field_decoding_flag_infer();
+	}
+	this_mb.mb_skip_flag = 1;
+	this_mb.slice_tag = slice_tag;
+	[XXX: more inferred crap]
+	mbring_emit_macroblock();
 
 
-Command 0xa: MACROBLOCK_LAYER
+Command 0xa: MACROBLOCK_LAYER_MBFDF
 
-Parameter: mb_field_decoding_flag presence
+Parameter: mb_field_decoding_flag presence [1 bit]
 Result: none
 
 If parameter is 1, mb_field_decoding_flag syntax element is parsed. Otherwise,
@@ -348,7 +360,17 @@ decoded macroblock is emitted into the MBRING, and stored into internal state.
 SLICE_POS has to be set to the address of this macroblock.
 
 Operation:
-	XXX
+	if (param) {
+		if (entropy_coding_mode_flag)
+			this_mb.mb_field_decoding_flag = cabac_mb_field_decoding_flag();
+		else
+			this_mb.mb_field_decoding_flag = getbits(1);
+	} else {
+		this_mb.mb_field_decoding_flag = mb_field_decoding_flag_infer();
+	}
+	this_mb.mb_skip_flag = 0;
+	this_mb.slice_tag = slice_tag;
+	macroblock_layer();
 
 
 Command 0xb: PRED_WEIGHT_TABLE
@@ -377,4 +399,85 @@ is called. When this command finishes, SLICE_POS is updated to the address of
 the last macroblock in the parsed slice.
 
 Operation:
-	XXX
+	if (entropy_coding_mode_flag) {
+		cabac_init_ctx();
+		[XXX: does it also auto-align?]
+		cabac_init_engine();
+	}
+	mb_pos.first = 1;
+	first = 1;
+	skip_pending = 0;
+	end = 0;
+	bottom = 0;
+	while (1) {
+		if (slice_type == P || slice_type == B) {
+			if (entropy_coding_mode_flag) {
+				while (1) {
+					tmp = cabac_mb_skip_flag();
+					if (!tmp)
+						break;
+					skip_pending++;
+					if (!mbaff_frame_flag || bottom) {
+						end = cabac_terminate();
+						if (end)
+							break;
+					}
+					bottom = !bottom;
+				}
+			} else {
+				skip_pending = get_ue();
+				end = !more_rbsp_data();
+				bottom ^= skip_pending & 1;
+			}
+		} else {
+			skip_pending = 0;
+		}
+		while (1) {
+			if (!skip_pending)
+				break;
+			if (mbaff_frame_flag && bottom && skip_pending < 2)
+				break;
+			if (first) {
+				first = 0;
+			} else {
+				mb_pos_advance();
+			}
+			macroblock_skip_mbfdf(0);
+			skip_pending--;
+		}
+		if (end)
+			break;
+		if (first) {
+			first = 0;
+		} else {
+			mb_pos_advance();
+		}
+		if (mbaff_frame_flag) {
+			if (skip_pending) {
+				macroblock_skip_mbfdf(1);
+				mb_pos_advance();
+				macroblock_layer_mbfdf(0);
+				skip_pending = 0;
+			} else {
+				if (bottom) {
+					macroblock_layer_mbfdf(0);
+				} else {
+					macroblock_layer_mbfdf(1);
+				}
+			}
+			bottom = !bottom;
+		} else {
+			macroblock_layer_mbfdf(0);
+		}
+		if (entropy_coding_mode) {
+			if (mbaff_frame_flag && bottom)) {
+				end = 0;
+			} else {
+				end = cabac_terminate();
+			}
+		} else {
+			end = !more_rbsp_data();
+		}
+		if (end) break;
+	}
+	trigger_intr(SLICE_DATA_DONE);

@@ -216,13 +216,13 @@
 				<value value="1" name="GET_SE"/>
 				<value value="2" name="GETBITS"/>
 				<value value="3" name="NEXT_START_CODE"/>
-				<value value="4" name="CABAC_ALIGN"/>
+				<value value="4" name="CABAC_START"/>
 				<value value="5" name="MORE_RBSP_DATA"/>
 				<value value="6" name="MB_SKIP_FLAG"/>
 				<value value="7" name="END_OF_SLICE_FLAG"/>
-				<value value="8" name="CABAC_INIT"/>
-				<value value="9" name="MACROBLOCK_SKIP"/>
-				<value value="10" name="MACROBLOCK_LAYER"/>
+				<value value="8" name="CABAC_INIT_CTX"/>
+				<value value="9" name="MACROBLOCK_SKIP_MBFDF"/>
+				<value value="10" name="MACROBLOCK_LAYER_MBFDF"/>
 				<value value="11" name="PRED_WEIGHT_TABLE"/>
 				<value value="12" name="SLICE_DATA"/>
 			</bitfield>
