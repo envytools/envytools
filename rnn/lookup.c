@@ -81,6 +81,7 @@ int main(int argc, char **argv) {
 			case 'c':
 				colors = 0;
 				break;
+			default: usage();
 		}
 	}
 
