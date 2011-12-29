@@ -1,0 +1,5 @@
+FEATURE vp2op	"VP2-only opcodes";
+FEATURE vp3op	"VP3-only opcodes";
+
+VARIANT vp2	"VP2"	FEATURE vp2op;
+VARIANT vp3	"VP3"	FEATURE vp3op;
