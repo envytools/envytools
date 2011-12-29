@@ -1,0 +1,23 @@
+There are at least two vuc engines in VP2: one in PBSP and one in PVP. They are both directly accessible from xtensa engines.
+
+xtensa access:
+    * upload code
+    * read D memory space
+    * write D memory space
+    * run
+
+access to xtensa from host (PBSP):
+    xtensa address 0xcffc0000 + X for X < 0x30000 is the same as host MMIO address 0x103000 + ((X / 0x40) & ~3), index X >> 2 & 0x3f
+    where index is set by poking 103cfc
+
+control registers as seen from xtensa (PBSP):
+    cffca200 [execution control]:
+            bits 0-10 are code address
+            bit 16 is halt flag - on clear, vµc will start running from the address in 0-10, on set it will halt
+    cffca300 [code space access]: instruction read/write. Used to access opcodes one-by-one at address defined by [execution control]. First: low 32 bits of opcode, then high 8 bits. After that address auto-increments.
+
+
+Memory spaces:
+    code space: 0x800 30-bit words long on VP3, 0x800 40-bit words long on VP2
+    data space: 0x800 16-bit words long. visible from xtensa (PBSP): data space index X = cffc8000 + X * 4
+    io space: 0x10 16-bit words

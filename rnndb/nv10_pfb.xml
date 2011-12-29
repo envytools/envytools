@@ -6,6 +6,7 @@
 
 <import file="nvchipsets.xml" />
 <import file="nv50_vm.xml" />
+<import file="nv_pfb.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
@@ -142,54 +143,84 @@
 		<bitfield low="4" high="7" name="MASK"/>
 	</reg32>
 
-	<reg32 offset="0x220" name="MEM_TIMINGS_0">
+	<reg32 offset="0x220" name="MEM_TIMINGS_0" variants="NV30:NV34 NV35:NVC0">
 		<doc> This, and the next 7 regs, are all related to memtimings.
 			A good place to read might be http://www.tweakers.fr/timings.html .
 			Although most bitfields are unknown, they are composed in
 			nouveau_mem_timing_init() (nouveau_mem.c, March 30th 2011).
 			</doc>
-		<bitfield high="7" low="0" name="RP">
-			<doc> RAS# precharge. </doc>
+		<bitfield high="7" low="0" name="RC">
+			<doc> Row Cycle. </doc>
 		</bitfield>
-		<bitfield high="15" low="8" name="RAS">
-			<doc>Activate to precharge delay. </doc>
-		</bitfield>
-		<bitfield high="23" low="16" name="RFC">
+		<bitfield high="15" low="8" name="RFC">
 			<doc> Refresh to activate delay. </doc>
+		</bitfield>
+		<bitfield high="23" low="16" name="tRAS">
+			<doc> Row Access Strobe. </doc>
 		</bitfield>
 		<bitfield high="31" low="24" name="RC">
 			<doc> Row cycle time. </doc>
 		</bitfield>
 	</reg32>
 
-	<reg32 offset="0x224" name="MEM_TIMINGS_1">
+	<reg32 offset="0x224" name="MEM_TIMINGS_1" variants="NV30:NV34 NV35:NVC0">
+		<bitfield high="31" low="24" name="tcW2P">
+			<doc>
+				Write to precharge command delay.
+				tWR + (burst length/2) + (tCWL - 1)
+			</doc>
+		</bitfield>
+		<bitfield high="25" low="8" name="tcW2R">
+			<doc>
+				Write to read command delay.
+				tWTR + (burst length/2) + (tCWL - 1)
+			</doc>
+		</bitfield>
 	</reg32>
 
-	<reg32 offset="0x228" name="MEM_TIMINGS_2">
+	<reg32 offset="0x228" name="MEM_TIMINGS_2" variants="NV30:NV34 NV35:NVC0">
+		<bitfield high="31" low="28" name="UNK28">
+			<doc> 2 on NV30:NV50 </doc>
+		</bitfield>
+		<bitfield high="27" low="24" name="tCWL">
+			<doc> Cas Write Latency </doc>
+		</bitfield>
+		<bitfield high="23" low="20" name="UNK20">
+			<doc> 2 on NV30:NV50 </doc>
+		</bitfield>
 	</reg32>
 
 	<reg32 offset="0x22c" name="MEM_TIMINGS_3" variants="NV40-">
 	</reg32>
 
-	<reg32 offset="0x230" name="MEM_TIMINGS_4" variants="NV40-">
+	<reg32 offset="0x230" name="MEM_TIMINGS_REFRESH" variants="NV30:NV34 NV35:NV50">
+		<doc> Exact workings unknown, but initialized by VBIOS init script </doc>
+		<bitfield high="4" low="0" name="LO" />
+		<bitfield high="15" low="5" name="VAL" />
 	</reg32>
 
-	<reg32 offset="0x234" name="MEM_TIMINGS_5" variants="NV40-">
+	<reg32 offset="0x230" name="MEM_TIMINGS_4" variants="NV50:NVC0">
 	</reg32>
 
-	<reg32 offset="0x238" name="MEM_TIMINGS_6" variants="NV40-">
+	<reg32 offset="0x234" name="MEM_TIMINGS_5" variants="NV40:NVC0">
+	</reg32>
+
+	<reg32 offset="0x238" name="MEM_TIMINGS_6" variants="NV40:NVC0">
 	</reg32>
 
 	<reg32 offset="0x23c" name="MEM_TIMINGS_7" variants="NV46 NV49 NV4B NV50-">
 	</reg32>
 
-	<reg32 offset="0x240" name="MEM_TIMINGS_8" variants="NV49 NV4B NV50-">
+	<reg32 offset="0x240" name="MEM_TIMINGS_8" variants="NV49 NV4B NV50:NVC0">
 	</reg32>
 
-	<reg32 offset="0x244" name="MEM_TIMINGS_9" variants="NV50-">
+	<reg32 offset="0x244" name="MEM_TIMINGS_REFRESH" variants="NV50:NVC0">
+		<doc> Exact workings unknown, but initialized by VBIOS init script </doc>
+		<bitfield high="4" low="0" name="LO" />
+		<bitfield high="15" low="5" name="VAL" />
 	</reg32>
 
-	<reg32 offset="0x248" name="MEM_TIMINGS_10" variants="NV94-">
+	<reg32 offset="0x248" name="MEM_TIMINGS_10" variants="NV94:NVC0">
 	</reg32>
 
 	<reg32 offset="0x250" name="BANKCFG" variants="NV50-">
@@ -198,26 +229,9 @@
 		<value value="1" name="REORDER_TIMES3"/>
 	</reg32>
 
-	<reg32 offset="0x2c0" name="UNK2C0">
-		<doc> XXX: many unknown or unaddressed bitfields here, touched for reclocking </doc>
-		<bitfield pos="8" name="RESET">
-			<value value="0" name="NORMAL"/>
-			<value value="1" name="RESET"/>
-		</bitfield>
-	</reg32>
-
-	<reg32 offset="0x2d0" name="REFRESH">
-		<bitfield pos="0" name="TRIGGER"/>
-	</reg32>
-	<reg32 offset="0x2d4" name="PRECHARGE">
-		<bitfield pos="0" name="TRIGGER"/>
-	</reg32>
-	<reg32 offset="0x2d8" name="UNK2D8">
-		<bitfield pos="0" name="TRIGGER"/>
-	</reg32>
-	<reg32 offset="0x2dc" name="SELF_REFRESH">
-		<bitfield pos="0" name="ENABLE"/>
-	</reg32>
+	<array name="PFB_RAMCHIP_CFG" offset="0x2c0" stride="0x30" length="1" variants="NV30:NVC0">
+		<use-group name="ramchip_cfg" />
+	</array>
 
 	<reg32 offset="0x320" name="COMP_MAX_TAG" variants="NV20-"/>
 

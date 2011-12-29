@@ -39,7 +39,7 @@
 struct envy_bios *bios;
 uint8_t major_version, minor_version, micro_version, chip_version;
 uint32_t card_codename = 0;
-uint8_t magic_number = 0;
+uint8_t tCWL = 0;
 uint32_t strap = 0;
 
 uint16_t bmpver = 0;
@@ -92,7 +92,7 @@ int usage(char* name) {
 	printf("Usage: %s mybios.rom [-c XX] [-s strap]\n",name);
 	printf("Options:\n");
 	printf("  -c XX : override card generation\n");
-	printf("  -m XX : override \"magic number\" for memtimings\n");
+	printf("  -m XX : set tCWL (for timing entry size < 20)\n");
 	printf("  -s XX : set the trap register\n");
 	return 1;
 }
@@ -491,8 +491,8 @@ int parse_args(int argc, char **argv) {
 		} else if (!strncmp(argv[i],"-m",2)) {
 			i++;
 			if(i < argc) {
-				sscanf(argv[i],"%2hhx",&magic_number);
-				printf("Magic number forced to %2hhx\n", magic_number);
+				sscanf(argv[i],"%2hhx",&tCWL);
+				printf("tCWL set to %2hhx\n", tCWL);
 			} else {
 				return usage(argv[0]);
 			}
@@ -598,6 +598,15 @@ int main(int argc, char **argv) {
 		printf ("\n");
 		parse_bios_version(bios->bmp_offset + 10);
 		printhex(bios->bmp_offset, 256);
+		if (bmpver >= 0x510) {
+			init_script_tbl_ptr = le32(bios->bmp_offset + 75);
+			macro_index_tbl_ptr = le32(bios->bmp_offset + 77);
+			macro_tbl_ptr = le32(bios->bmp_offset + 79);
+			condition_tbl_ptr = le32(bios->bmp_offset + 81);
+			io_condition_tbl_ptr = le32(bios->bmp_offset + 83);
+			io_flag_condition_tbl_ptr = le32(bios->bmp_offset + 85);
+			init_function_tbl_ptr = le32(bios->bmp_offset + 87);
+		}
 		if (bmpver >= 0x527) {
 			pm_mode_tbl_ptr = le16(bios->bmp_offset + 148);
 			voltage_tbl_ptr = le16(bios->bmp_offset + 152);
@@ -630,13 +639,30 @@ int main(int argc, char **argv) {
 						init96_tbl_ptr = le32(eoff+16);
 					break;
 				case 'M':
-					if (bios->data[off+1] == 1 && elen >= 5) {
-						ram_restrict_group_count = bios->data[eoff+2];
-						ram_restrict_tbl_ptr = le16(eoff+3);
-					} else if (bios->data[off+1] == 2 && elen >= 3) {
-						ram_restrict_group_count = bios->data[eoff];
-						ram_restrict_tbl_ptr = le16(eoff+1);
+					if (version == 1) {
+						if (elen >= 5) {
+							ram_restrict_group_count = bios->data[eoff+2];
+							ram_restrict_tbl_ptr = le16(eoff+3);
+						}
+					} else if (version == 2) {
+						if (elen >= 3) {
+							ram_restrict_group_count = bios->data[eoff];
+							ram_restrict_tbl_ptr = le16(eoff+1);
+						}
 					}
+
+					if (elen >= 7)
+						printf("M.tbl_05 at %x\n", le16(eoff+5));
+					if (elen >= 9)
+						printf("M.tbl_07 at %x\n", le16(eoff+7));
+					if (elen >= 0xb)
+						printf("M.tbl_09 at %x\n", le16(eoff+9));
+					if (elen >= 0xd)
+						printf("M.tbl_0b at %x\n", le16(eoff+0xb));
+					if (elen >= 0xf)
+						printf("M.tbl_0c at %x\n", le16(eoff+0xd));
+					if (elen >= 0x11)
+						printf("M.tbl_0d at %x\n", le16(eoff+0xf));
 					break;
 				case 'C':
 					pll_limit_tbl_ptr = le16(eoff + 8);
@@ -1124,7 +1150,7 @@ int main(int argc, char **argv) {
 				*/
 				pcie_width = bios->data[start+28];
 			}
-			
+
 			if (version > 0x15 && version < 0x40) {
 				uint16_t extra_start = start + mode_info_length;
 				uint16_t timing_extra_data = extra_start+(ram_cfg*extra_data_length);
@@ -1142,7 +1168,7 @@ int main(int argc, char **argv) {
 				memclk = le16(start+5) / 100;
 				fan = bios->data[start+55];
 				voltage = bios->data[start+56];
-				
+
 				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz "
 					"Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
 					id, core, memclk, voltage, timing_id, fan, pcie_width );
@@ -1153,7 +1179,7 @@ int main(int argc, char **argv) {
 				memclk = le16(start+11);
 				fan = bios->data[start+4];
 				voltage = bios->data[start+5];
-				
+
 				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz "
 					"Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
 					id, core, memclk, shader, voltage, timing_id, fan, pcie_width );
@@ -1164,7 +1190,7 @@ int main(int argc, char **argv) {
 				memclk = le16(start+12);
 				fan = bios->data[start+4];
 				voltage = bios->data[start+5];
-				
+
 				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz "
 					"Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
 					id, core, memclk, shader, voltage, timing_id, fan, pcie_width );
@@ -1178,7 +1204,7 @@ int main(int argc, char **argv) {
 				memclk = le16(start+12);
 				vdec = le16(start+16);
 				dom6 = le16(start+20);
-				
+
 				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Vdec %dMHz "
 					"Dom6 %dMHz Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
 					id, core, memclk, shader, vdec, dom6, voltage, timing_id, fan, pcie_width );
@@ -1447,8 +1473,8 @@ int main(int argc, char **argv) {
 		uint8_t tRFC;	/* Byte 5 */
 		uint8_t tRAS;	/* Byte 7 */
 		uint8_t tRCD;		/* Byte 9 */
-		uint8_t tUNK_10, tUNK_11, tUNK_12, tUNK_13, tUNK_14;
-		uint8_t tUNK_18, tUNK_19, tUNK_20, tUNK_21;
+		uint8_t tUNK_10, tUNK_11, tUNK_12, tUNK_13, tRAM_FT1; /* 14 */
+		uint8_t tUNK_18, /* 19 == tCWL */tUNK_20, tUNK_21;
 		uint32_t reg_100220 = 0, reg_100224 = 0, reg_100228 = 0, reg_10022c = 0;
 		uint32_t reg_100230 = 0, reg_100234 = 0, reg_100238 = 0, reg_10023c = 0;
 
@@ -1470,7 +1496,6 @@ int main(int argc, char **argv) {
 		printf ("%i entries\n", entry_count);
 		for (i = 0; i < entry_count; i++) {
 			tUNK_18 = 1;
-			tUNK_19 = 1;
 			tUNK_20 = 0;
 			tUNK_21 = 0;
 			switch (entry_length<22?entry_length:22) {
@@ -1479,7 +1504,8 @@ int main(int argc, char **argv) {
 			case 21:
 				tUNK_20 = bios->data[start+20];
 			case 20:
-				tUNK_19 = bios->data[start+19];
+				if(bios->data[start+19] > 0)
+					tCWL = bios->data[start+19];
 			case 19:
 				tUNK_18 = bios->data[start+18];
 			default:
@@ -1494,45 +1520,51 @@ int main(int argc, char **argv) {
 				tUNK_11 = bios->data[start+11];
 				tUNK_12 = bios->data[start+12];
 				tUNK_13 = bios->data[start+13];
-				tUNK_14 = bios->data[start+14];
+				tRAM_FT1 = bios->data[start+14];
 				break;
 			}
 
 			printcmd(start, entry_length); printf("\n");
 			if (bios->data[start+0] != 0) {
-				printf("Entry %d: WR(%d), WTR(%d), CL(%d)\n",
+				printf("Entry %d: WR(%02d), WTR(%02d),  CL(%02d)\n",
 					i, tWR,tWTR,tCL);
-				printf("       : RC(%d), RFC(%d), RAS(%d), RCD(%d)\n",
+				printf("       : RC(%02d), RFC(%02d), RAS(%02d), RCD(%02d)\n\n",
 					tRC, tRFC, tRAS, tRCD);
+				/** First parse RAM_FT1 */
+				printf("RAM FT   : ");
+				if(tRAM_FT1 & 0x1) {
+					printf("ODT(ZQ/4) | ");
+				} else {
+					printf("ODT(Off) | ");
+				}
 
-				/* XXX: I don't trust the -1's and +1's... they must come
-				*      from somewhere! */
+				if(tRAM_FT1 & 0x2) {
+					printf("DLL(Off) | ");
+				} else {
+					printf("DLL(On) | ");
+				}
+
+				if(tRAM_FT1 & 0x4) {
+					printf("RON_PULL(Hi)\n");
+				} else {
+					printf("RON_PULL(Lo)\n");
+				}
+
 				if (card_codename < 0xc0) {
 					reg_100220 = (tRCD << 24 | tRAS << 16 | tRFC << 8 | tRC);
-					reg_100224 = ((tWR + tUNK_19 + 1 + magic_number) << 24
-								| (tWTR + tUNK_19 + 1 + magic_number) << 8);
+					reg_100224 = ((tWR + 2 + (tCWL - 1)) << 24 |
+								(tUNK_18 ? tUNK_18 : 1) << 16 |
+								(tWTR + 2 + (tCWL - 1)) << 8);
 
-					if (card_codename == 0xa8) {
-						reg_100224 |= (tCL - 1);
-					} else {
-						reg_100224 |= (tCL + 2 - magic_number);
-					}
-					reg_100224 += (tUNK_18 ? tUNK_18 : 1) << 16;
-
-					reg_100228 = ((tUNK_12 << 16) | tUNK_11 << 8 | tUNK_10);
-					if(header_length > 19 && card_codename > 0xa5) {
-						reg_100228 += (tUNK_19 - 1) << 24;
-					} else if (header_length <= 19 && card_codename < 0xa0) {
-						reg_100228 += magic_number << 24;
-					}
+					reg_100228 = ((tCWL - 1) << 24 | (tUNK_12 << 16) | tUNK_11 << 8 | tUNK_10);
 
 					if(card_codename < 0x50) {
 						/* Don't know, don't care...
 						* don't touch the rest */
-						reg_100228 |= 0x20200000 + (magic_number << 24);
+						reg_100224 |= (tCL + 2 - (tCWL - 1));
+						reg_100228 |= 0x20200000;
 					} else {
-						reg_100230 = (tUNK_20 << 24 | tUNK_21 << 16 |
-									tUNK_13 << 8  | tUNK_13);
+						reg_100230 = (tUNK_13 << 8  | tUNK_13);
 
 						reg_100234 = (tRFC << 24 | tRCD);
 						if(tUNK_10 > tUNK_11) {
@@ -1542,18 +1574,27 @@ int main(int argc, char **argv) {
 						}
 
 						if(p_tbls_ver == 1) {
+							reg_100224 |= (tCL + 2 - (tCWL - 1));
 							reg_10022c = (0x14 + tCL) << 24 |
 										0x16 << 16 |
 										(tCL - 1) << 8 |
 										(tCL - 1);
 							reg_100234 |= (tCL + 2) << 8;
-							reg_10023c |= 0x4000000 | (tCL - 1) << 16 | 0x202;
+							reg_100238 = (0x33 - tCWL) << 16 |
+										tCWL << 8 |
+										(0x2E + tCL - tCWL);
+							reg_10023c |= 0x4000202 | (tCL - 1) << 16;
 						} else {
 							/* See d.bul in NV98..
 							 * seems to have changed for G105M+
 							 * 10023c seen as 06xxxxxx, 0bxxxxxx or 0fxxxxxx */
+							reg_100224 |= (5 + tCL - tCWL);
 							reg_10022c = (tCL - 1);
-							reg_100234 |= (tUNK_19 + 6) << 8;
+							reg_100230 |= tUNK_20 << 24 | tUNK_21 << 16;
+							reg_100234 |= (tCWL + 6) << 8;
+							reg_100238 = (0x5A + tCL) << 16 |
+										(6 - tCL + tCWL) << 8 |
+										(0x50 + tCL - tCWL);
 							reg_10023c = 0x202;
 						}
 					}
@@ -1566,7 +1607,7 @@ int main(int argc, char **argv) {
 					reg_100238, reg_10023c);
 				} else {
 					reg_100220 = (tRCD << 24 | (tRAS&0x7f) << 17 | tRFC << 8 | tRC);
-					reg_100224 = 0x4c << 24 | (tUNK_11&0x0f) << 20 | (tUNK_19 << 7) | (tCL & 0x0f);
+					reg_100224 = 0x4c << 24 | (tUNK_11&0x0f) << 20 | (tCWL << 7) | (tCL & 0x0f);
 					reg_100228 = 0x44000011 | tWR << 16 | tWTR << 8;
 					reg_10022c = tUNK_20 << 9 | tUNK_13;
 					reg_100230 = 0x42e00069 | tUNK_12 << 15;

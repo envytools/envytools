@@ -229,15 +229,20 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x07dc" name="UNK07DC" type="boolean"/>
 		<reg32 offset="0x07e0" name="UNK07E0">
-			<doc>0xffffffff</doc>
+			<doc>0xffffffff, align(width * height * 19, 128 KiB)</doc>
 		</reg32>
 		<reg32 offset="0x07e4" name="UNK07E4">
-			<doc>0-0xffff</doc>
+			<doc>0-0xffff, only seen as 0x07e0 shifted right by 16</doc>
 		</reg32>
-		<reg32 offset="0x07e8" name="ZCULL_UNK07E8_ADDRESS_HIGH"/>
-		<reg32 offset="0x07ec" name="ZCULL_UNK07E8_ADDRESS_LOW"/>
-		<reg32 offset="0x07f0" name="ZCULL_UNK07F0_ADDRESS_HIGH"/>
-		<reg32 offset="0x07f4" name="ZCULL_UNK07F0_ADDRESS_LOW"/>
+		<reg32 offset="0x07e8" name="ZCULL_ADDRESS_HIGH"/>
+		<reg32 offset="0x07ec" name="ZCULL_ADDRESS_LOW"/>
+		<reg32 offset="0x07f0" name="ZCULL_LIMIT_HIGH"/>
+		<reg32 offset="0x07f4" name="ZCULL_LIMIT_LOW">
+			<doc>ADDRESS + align((width * height) / 28, 128 KiB),
+			receives the same address as the next allocated object, so should be a limit ...
+			doesn't have any immediate effect though (as long as data is in cache ?)
+			</doc>
+		</reg32>
 		<reg32 offset="0x07f8" name="UNK07F8">
 			<doc>Related to depth write / test?</doc>
 			<bitfield pos="0" name="UNK0"/>
@@ -975,15 +980,20 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="2" name="NEVER"/> <!-- sounds useless... and doesn't make sense. -->
 		</reg32>
 		<reg32 offset="0x1958" name="ZCULL_INVALIDATE"/>
-		<reg32 offset="0x1968" name="UNK1968">
-			<doc>ZCULL-related.</doc>
-			<bitfield pos="0" name="0"/>
-			<bitfield pos="4" name="1"/>
+		<reg32 offset="0x1968" name="ZCULL_UNK1968">
+			<bitfield pos="0" name="TESTS_ENABLE" type="boolean"/>
+			<bitfield pos="4" name="UNK4"/>
 		</reg32>
-		<reg32 offset="0x196c" name="FP_ZORDER_CTRL"><!-- 0x11 if DEPR written -->
-			<doc>0x11 if DEPR written. ZCULL.</doc>
-			<bitfield pos="0" name="0"/>
-			<bitfield pos="4" name="1"/>
+		<reg32 offset="0x196c" name="ZCULL_TEST_MASK">
+			<doc>
+			Set FAIL_GT_PASS_LT to 1 if the FP may increase the depth result,
+			and PASS_GT_FAIL_LT to 1 if the FP may decrease the depth result.
+			The prior disables coarse rejection/pass for GT/LT direction,
+			the latter disables coarse rejection/pass for LT/GT direction.
+			Looks useful for ARB_conservative_depth.
+			</doc>
+			<bitfield pos="0" name="FAIL_GT_PASS_LT" type="boolean"/>
+			<bitfield pos="4" name="PASS_GT_FAIL_LT" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x1970" name="UNK1970_D3D">
 			<!-- *not* VERTEX_BEGIN -->

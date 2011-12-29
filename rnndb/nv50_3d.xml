@@ -710,7 +710,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="0" name="STENCIL_MASK"/>
 			<bitfield pos="4" name="CLEAR_RECT">
 				<value value="0" name="SCISSOR"/>
-				<value value="0" name="VIEWPORT"/>
+				<value value="1" name="VIEWPORT"/>
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x1440" name="CODE_CB_FLUSH">

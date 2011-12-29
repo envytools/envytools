@@ -180,9 +180,15 @@ set 1 [graph]:
 
 === NVA0 signals ===
 
+set 5 [misc core]:
+0x00-0x07: PBSP_USER_0-7
+0x08-0x0f: PVP_USER_0-7
+0x60 trailer base
+
 set 6 [vdec]:
 0x00-0x07: PVP_USER_0-7
 0xa0 trailer base
+
 
 === NV98 signals ===
 
