@@ -5,7 +5,7 @@
 
 int main() {
 	struct bitstream *str = vs_new_encode(VS_H264);
-	struct h264_sliceparm *slp = calloc (sizeof *slp, 1);
+	struct h264_slice *slp = calloc (sizeof *slp, 1);
 	slp->slice_type = 1;
 	slp->num_ref_idx_l0_active_minus1 = 7;
 	slp->num_ref_idx_l1_active_minus1 = 0x13;

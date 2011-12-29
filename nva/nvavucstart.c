@@ -55,7 +55,7 @@ uint32_t pbsp_get_host_addr(uint32_t xt_addr) {
 
 uint32_t pbsp_get_host_index(uint32_t xt_addr) {
     uint32_t offset = xt_addr - XTENSA_HOSTMAPPED_BASE;
-    return (offset & (XTENSA_SECTION_SIZE_BYTES - 1)) / XTENSA_WORD_SIZE_BYTES;
+    return (offset / XTENSA_WORD_SIZE_BYTES) % XTENSA_SECTION_SIZE_BYTES;
 }
 
 void host_xt_wr32(int cnum, uint32_t xt_addr, uint32_t val) {

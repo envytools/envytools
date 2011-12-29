@@ -31,7 +31,7 @@
 				<value value="0" name="TOP"/>
 				<value value="1" name="BOTTOM"/>
 			</bitfield>
-			<bitfield pos="16" name="FIELD_IN_BITSTREAM">
+			<bitfield pos="17" name="FIELD_IN_BITSTREAM">
 				<value value="0" name="FIRST"/>
 				<value value="1" name="SECOND"/>
 			</bitfield>
@@ -63,9 +63,9 @@
 			<bitfield pos="0" name="ENTROPY_CODING_MODE_FLAG"/>
 			<bitfield pos="9" name="MB_ADAPTIVE_FRAME_FIELD_FLAG"/>
 			<bitfield low="12" high="16" name="NAL_UNIT_TYPE"/>
-			<bitfield pos="17" name="UNK17"/> <!-- always 0 -->
+			<bitfield pos="17" name="CONSTRAINED_INTRA_PRED"/>
 			<bitfield low="18" high="19" name="CABAC_INIT_IDC"/>
-			<bitfield pos="20" high="21" name="UNK20"/> <!-- taken from picture parameters -->
+			<bitfield pos="20" high="21" name="CHROMA_FORMAT_IDC"/>
 			<bitfield pos="22" name="DIRECT_8X8_INFERENCE_FLAG"/>
 			<bitfield pos="23" name="TRANSFORM_8X8_MODE_FLAG"/>
 		</reg32>
@@ -97,7 +97,7 @@
 			<bitfield low="0" high="2" name="VC1_CBPTAB"/> <!-- or icbptab -->
 			<bitfield low="0" high="2" name="MPEG4_INTRA_DC_VLC_THR" variants="NVA3-"/> 
 			<bitfield low="4" high="6" name="VC1_MVTAB"/> <!-- or imvtab -->
-			<bitfield low="4" high="6" name="MPEG4_RESYNC_MARKER_ZEROS_M15" variants="NVA3-"/> <!-- this + 15 is number of 0 bits in resync_marker -->
+			<bitfield low="4" high="6" name="MPEG4_RESYNC_MARKER_ZEROS_M15" variants="NVA3-"/> <!-- this + 15 is number of 0 bits in resync_marker, set to 0 to disable resync_marker -->
 			<bitfield low="8" high="9" name="VC1_2MVBPTAB"/>
 			<bitfield low="10" high="11" name="VC1_4MVBPTAB"/>
 			<bitfield low="12" high="14" name="VC1_MBMODETAB"/>
@@ -160,6 +160,11 @@
 			<!-- quantiser_scale_code in MPEG12, sliceqpy in H264 -->
 			<bitfield low="25" high="30" name="QUANTISER"/>
 		</reg32>
+		<reg32 offset="0x24" name="UNK_POS" variants="NVA3-"><!-- absolute pos?? -->
+			<bitfield low="0" high="12" name="MB_IDX"/>
+			<bitfield low="13" high="20" name="MB_X"/>
+			<bitfield low="21" high="28" name="MB_Y"/>
+		</reg32>
 		<!-- only H264? -->
 		<reg32 offset="0x40" name="SLICE_POS">
 			<bitfield low="0" high="12" name="MB_IDX"/>
@@ -189,7 +194,7 @@
 			<bitfield pos="2" name="UNK2"/> <!-- BSP2VP filler? -->
 			<bitfield pos="4" name="UNK4"/> <!-- BSP2VP writer? -->
 		</reg32>
-		<reg32 offset="0x4c" name="COMMAND_RES"/>
+		<reg32 offset="0x4c" name="RESULT"/>
 		<bitset name="nv98_bsp_intr" inline="yes">
 			<bitfield pos="0" name="ERR_UNK0"/>
 			<bitfield pos="1" name="ERR_UNK1"/>
@@ -199,6 +204,8 @@
 		</bitset>
 		<reg32 offset="0x50" name="INTR_EN" type="nv98_bsp_intr"/>
 		<reg32 offset="0x54" name="INTR" type="nv98_bsp_intr"/> <!-- fuc intr 10 -->
+		<reg32 offset="0x58" name="UNK58" variants="NVA3-"/><!-- errstat from ERR_UNK2 interrupt? Write 0 after reading -->
+		<reg32 offset="0x64" name="UNK64" variants="NVA3-"/><!-- MPEG4 writes 4 as part of recovery with resync_marker, and waits until it turns to 0 -->
 	</array>
 	<array offset="0x480" name="STREAM" stride="0x80">
 		<reg32 offset="0x00" name="STREAM_0" stride="8" length="4">
@@ -207,11 +214,14 @@
 		</reg32>
 		<reg32 offset="0x04" name="STREAM_1" stride="8" length="4">
 			<bitfield pos="0" name="ENABLE"/>
-			<bitfield pos="1" name="UNK1"/>
+			<bitfield pos="1" name="UNK1"/> <!-- set for crypto crap streams -->
 			<bitfield low="2" high="31" name="ADDR_LO"/>
 		</reg32>
-		<reg32 offset="0x40" name="UNK40"/>
-		<reg32 offset="0x44" name="RESET_TRIGGER"/>
+		<reg32 offset="0x40" name="STREAM_POSITION">
+			<bitfield low="0" high="26" name="BIT_POS" /><!-- linear increasing position, in bits rather than bytes -->
+			<bitfield low="27" high="28" name="STREAM_INDEX" />
+		</reg32>
+		<reg32 offset="0x44" name="RESET_TRIGGER"/><!-- write 1, read until you obtain 0 -->
 	</array>
 	<array offset="0x500" name="BSP2VP" stride="0x80">
 		<reg32 offset="0x00" name="MBRING_ADDR" shr="8"/>
@@ -226,8 +236,12 @@
 		<reg32 offset="0x14" name="UNK14"/> <!-- ffffffff -->
 		<reg32 offset="0x18" name="UNK18"/> <!-- fff -->
 		<reg32 offset="0x1c" name="UNK1C"/> <!-- 1 -->
+
+		<reg32 offset="0x58" name="UNK58" variants="NVA3-"/>
+		<reg32 offset="0x5c" name="TOTAL_LENGTH" variants="NVA3-"/><!-- sum over STREAM_0[i].LENGTH -->
+		<reg32 offset="0x60" name="MB_TOTAL" variants="NVA3-"/>
 	</array>
-	<reg32 offset="0x580" name="BITPLANE_DATA" length="4" variants="NVA3-"/> <!-- indexed -->
+	<reg32 offset="0x580" name="BITPLANE_DATA" length="4" variants="NVA3-"/> <!-- indexed, needs to be saved/restored for mpeg4 -->
 </array>
 
 <array name="PVP" offset="0x85000" stride="0x1000" length="1" variants="NV98 NVAA-">
@@ -333,6 +347,14 @@
 			<bitfield pos="8" name="UNK8"/>
 			<bitfield low="30" high="31" name="UNK30"/>
 		</reg32>
+
+		<!-- UNK10..1c and UNK40-UNK80 are all used together, or not at all, never seen it used so far -->
+		<reg32 offset="0x10" name="UNK10" />
+		<reg32 offset="0x14" name="UNK14" />
+		<reg32 offset="0x18" name="UNK18" />
+		<reg32 offset="0x1c" name="UNK1c" />
+		<reg32 offset="0x40" name="UNK40" stride="4" length="0x10"/><!-- a different program uploaded array for luma/chroma -->
+		<reg32 offset="0x80" name="UNK80" stride="4" length="0x10"/><!-- a different program uploaded array for luma/chroma -->
 	</array>
 	<array offset="0x5c0" stride="0x40" name="VC1">
 		<reg32 offset="0x00" name="INTR_UNK0"/>
@@ -359,6 +381,13 @@
 		<reg32 offset="0x0c" name="SURF_WIDTH" shr="4"/> <!-- for surface layout purposes -->
 		<reg32 offset="0x10" name="SURF_ADDR" length="2" shr="8"/>
 		<reg32 offset="0x18" name="UNK18"/> <!-- single bit -->
+	</array>
+	<array offset="0x680" length="0x20" stride="4" name="UNK680" /> <!-- saved to user buffer, linked to UNK700.. -->
+	<array offset="0x700" length="1" stride="0x40" name="UNK700">
+		<reg32 offset="0x00" name="UNK00"/><!-- some kind of trigger -->
+		<!-- UNK00 trigger: 0x11 is written before luma postproc, 0 is written after reading UNK680 array to user buffer, before chroma postproc, so luma only? -->
+		<reg32 offset="0x04" name="UNK04"/>
+		<reg32 offset="0x08" name="UNK08"/>
 	</array>
 </array>
 

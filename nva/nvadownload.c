@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2010-2011 Marcin Kościelnicki <koriakin@0x04.net>
- * Copyright (C) 2010 Francisco Jerez <currojerez@riseup.net>
  * All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
@@ -23,63 +22,55 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __UTIL_H__
-#define __UTIL_H__
+#include "nva.h"
+#include <stdio.h>
+#include <unistd.h>
 
-#include <stdlib.h>
-
-#define ADDARRAY(a, e) \
-	do { \
-	if ((a ## num) >= (a ## max)) { \
-		if (!(a ## max)) \
-			(a ## max) = 16; \
-		else \
-			(a ## max) *= 2; \
-		(a) = realloc((a), (a ## max)*sizeof(*(a))); \
-	} \
-	(a)[(a ## num)++] = (e); \
-	} while(0)
-
-#define FINDARRAY(a, tmp, pred)				\
-	({							\
-		int __i;					\
-								\
-		for (__i = 0; __i < (a ## num); __i++) {	\
-			tmp = (a)[__i];				\
-			if (pred)				\
-				break;				\
-		}						\
-								\
-		tmp = ((pred) ? tmp : NULL);			\
-	})
-
-/* ceil(log2(x)) */
-static inline int clog2(unsigned x) {
-	unsigned y = 1;
-	int r = 0;
-	while (x > y) {
-		r++;
-		y <<= 1;
+int main(int argc, char **argv) {
+	if (nva_init()) {
+		fprintf (stderr, "PCI init failure!\n");
+		return 1;
 	}
-	return r;
+	int c;
+	int cnum =0;
+	while ((c = getopt (argc, argv, "c:")) != -1)
+		switch (c) {
+			case 'c':
+				sscanf(optarg, "%d", &cnum);
+				break;
+		}
+	if (cnum >= nva_cardsnum) {
+		if (nva_cardsnum)
+			fprintf (stderr, "No such card.\n");
+		else
+			fprintf (stderr, "No cards found.\n");
+		return 1;
+	}
+	uint32_t a, b;
+	if (optind >= argc) {
+		fprintf (stderr, "No address specified.\n");
+		return 1;
+	}
+	if (optind + 1 >= argc) {
+		fprintf (stderr, "No length specified.\n");
+		return 1;
+	}
+	FILE *file = stdout;
+	if (optind + 2 < argc) {
+		file = fopen(argv[optind+2], "wb");
+		if (!file) {
+			perror("fopen");
+			return 1;
+		}
+	}
+	sscanf (argv[optind], "%x", &a);
+	sscanf (argv[optind+1], "%x", &b);
+	b += a;
+	while (a != b) {
+		nva_wr32(cnum, 0x1700, a >> 16);
+		int c = nva_rd8(cnum, 0x700000 | (a&0xffff));
+		putc(c, file);
+		a++;
+	}
+	return 0;
 }
-
-#define ARRAY_SIZE(a) (sizeof (a) / sizeof *(a))
-
-#define min(a,b)				\
-	({					\
-		typeof (a) _a = (a);		\
-		typeof (b) _b = (b);		\
-		_a < _b ? _a : _b;		\
-	})
-
-#define max(a,b)				\
-	({					\
-		typeof (a) _a = (a);		\
-		typeof (b) _b = (b);		\
-		_a > _b ? _a : _b;		\
-	})
-
-#define CEILDIV(a, b) (((a) + (b) - 1)/(b))
-
-#endif

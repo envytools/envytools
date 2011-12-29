@@ -52,15 +52,26 @@ enum vs_align_byte_mode {
 	VS_ALIGN_10, /* 100...00 */
 };
 
+struct vs_vlc_val {
+	uint32_t val;
+	int blen;
+	int bits[32];
+};
+
 int vs_ue(struct bitstream *str, uint32_t *val);
 int vs_se(struct bitstream *str, int32_t *val);
 int vs_u(struct bitstream *str, uint32_t *val, int size);
+int vs_vlc(struct bitstream *str, uint32_t *val, const struct vs_vlc_val *tab);
 int vs_start(struct bitstream *str, uint32_t *val);
 int vs_align_byte(struct bitstream *str, enum vs_align_byte_mode mode);
 int vs_end(struct bitstream *str);
+int vs_has_more_data(struct bitstream *str);
 int vs_infer(struct bitstream *str, uint32_t *val, uint32_t ival);
+int vs_infers(struct bitstream *str, int32_t *val, int32_t ival);
+int vs_search_start(struct bitstream *str);
 
 struct bitstream *vs_new_encode(enum vs_type type);
 struct bitstream *vs_new_decode(enum vs_type type, uint8_t *bytes, int bytesnum);
+void vs_destroy(struct bitstream *str);
 
 #endif

@@ -4,6 +4,7 @@
 int main() {
 	struct bitstream *str = vs_new_encode(VS_H264);
 	uint32_t val;
+	int32_t sval;
 	val = 0xde;
 	if (vs_start(str, &val))
 		return 1;
@@ -22,14 +23,14 @@ int main() {
 	val = 0x6;
 	if (vs_ue(str, &val))
 		return 1;
-	val = 0;
-	if (vs_se(str, &val))
+	sval = 0;
+	if (vs_se(str, &sval))
 		return 1;
-	val = -3;
-	if (vs_se(str, &val))
+	sval = -3;
+	if (vs_se(str, &sval))
 		return 1;
-	val = 3;
-	if (vs_se(str, &val))
+	sval = 3;
+	if (vs_se(str, &sval))
 		return 1;
 	if (vs_end(str))
 		return 1;
@@ -77,34 +78,34 @@ int main() {
 		return 1;
 	}
 
-	if (vs_se(nstr, &val))
+	if (vs_se(nstr, &sval))
 		return 1;
-	if (val != 0) {
-		fprintf (stderr, "Fail 7: %x\n", val);
-		return 1;
-	}
-
-	if (vs_se(nstr, &val))
-		return 1;
-	if (val != -3) {
-		fprintf (stderr, "Fail 8: %x\n", val);
+	if (sval != 0) {
+		fprintf (stderr, "Fail 7: %x\n", sval);
 		return 1;
 	}
 
-	if (vs_se(nstr, &val))
+	if (vs_se(nstr, &sval))
 		return 1;
-	if (val != 3) {
-		fprintf (stderr, "Fail 9: %x\n", val);
+	if (sval != -3) {
+		fprintf (stderr, "Fail 8: %x\n", sval);
+		return 1;
+	}
+
+	if (vs_se(nstr, &sval))
+		return 1;
+	if (sval != 3) {
+		fprintf (stderr, "Fail 9: %x\n", sval);
 		return 1;
 	}
 
 	if (vs_end(nstr))
 		return 1;
 	if (nstr->bytepos != nstr->bytesnum || nstr->hasbyte) {
-		fprintf (stderr, "Bitstream not fully consumed!\n", val);
+		fprintf (stderr, "Bitstream not fully consumed!\n");
 		return 1;
 	}
-	fprintf (stderr, "All ok!\n", val);
+	fprintf (stderr, "All ok!\n");
 
 	return 0;
 }

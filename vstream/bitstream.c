@@ -80,6 +80,10 @@ int vs_byte(struct bitstream *str) {
 							}
 							str->zero_bytes = 0;
 							str->curbyte = str->bytes[str->bytepos++];
+							if (str->curbyte > 3) {
+								fprintf(stderr, "Invalid escape sequence: 00 00 03 %02x!\n", str->curbyte);
+								return 1;
+							}
 							break;
 					}
 				}
@@ -136,7 +140,11 @@ int vs_ue(struct bitstream *str, uint32_t *val) {
 	uint32_t tmp;
 	if (str->dir == VS_ENCODE) {
 		tmp = 0;
-		while (*val >= (1 << (lzb + 1)) - 1) {
+		if (*val >= (uint32_t)0xffffffff) {
+			fprintf (stderr, "Exp-Golomb number larger than 2^32-2\n");
+			return 1;
+		}
+		while (*val >= (uint32_t)(1u << (lzb + 1)) - 1) {
 			if (vs_u(str, &tmp, 1))
 				return 1;
 			lzb++;
@@ -155,13 +163,13 @@ int vs_ue(struct bitstream *str, uint32_t *val) {
 			lzb++;
 		} while (!tmp);
 		lzb--;
-		if (lzb >= 31) {
-			fprintf (stderr, "Exp-Golomb number insanely big\n");
+		if (lzb > 31) {
+			fprintf (stderr, "Exp-Golomb number larger than 2^32-2\n");
 			return 1;
 		}
 		if (vs_u(str, &tmp, lzb))
 			return 1;
-		*val = tmp + (1 << lzb) - 1;
+		*val = tmp + (1u << lzb) - 1;
 		return 0;
 	}
 }
@@ -169,6 +177,10 @@ int vs_ue(struct bitstream *str, uint32_t *val) {
 int vs_se(struct bitstream *str, int32_t *val) {
 	uint32_t tmp;
 	if (str->dir == VS_ENCODE) {
+		if (*val == (int32_t)(-0x7fffffff-1)) {
+			fprintf (stderr, "Exp-Golomb signed number equal to -2^31\n");
+			return 1;
+		}
 		if (*val > 0) {
 			tmp = *val * 2 - 1;
 		} else {
@@ -187,6 +199,45 @@ int vs_se(struct bitstream *str, int32_t *val) {
 	}
 }
 
+int vs_vlc(struct bitstream *str, uint32_t *val, const struct vs_vlc_val *tab) {
+	if (str->dir == VS_ENCODE) {
+		int i, j;
+		for (i = 0; tab[i].blen; i++) {
+			if (*val == tab[i].val) {
+				uint32_t bit;
+				for (j = 0; j < tab[i].blen; j++) {
+					bit = tab[i].bits[j];
+					if (vs_u(str, &bit, 1))
+						return 1;
+				}
+				return 0;
+			}
+		}
+		fprintf(stderr, "No VLC code for a value\n");
+		return 1;
+	} else {
+		int i, j;
+		uint32_t bit[32];
+		int n = 0;
+		for (i = 0; tab[i].blen; i++) {
+			for (j = 0; j < tab[i].blen; j++) {
+				if (j == n) {
+					if (vs_u(str, &bit[j], 1)) return 1;
+					n = j + 1;
+				}
+				if (bit[j] != tab[i].bits[j])
+					break;
+			}
+			if (j == tab[i].blen) {
+				*val = tab[i].val;
+				return 0;
+			}
+		}
+		fprintf(stderr, "Invalid VLC code\n");
+		return 1;
+	}
+}
+
 int vs_start(struct bitstream *str, uint32_t *val) {
 	if (str->bitpos != 7) {
 		fprintf (stderr, "Start code attempted at non-bytealigned position\n");
@@ -198,7 +249,7 @@ int vs_start(struct bitstream *str, uint32_t *val) {
 		ADDARRAY(str->bytes, 1);
 		ADDARRAY(str->bytes, *val);
 	} else {
-		str->zero_bytes = -1;
+		str->zero_bytes--;
 		do {
 			str->zero_bytes++;
 			if (str->bytepos >= str->bytesnum) {
@@ -226,6 +277,28 @@ int vs_start(struct bitstream *str, uint32_t *val) {
 	return 0;
 }
 
+int vs_search_start(struct bitstream *str) {
+	if (str->dir != VS_DECODE) {
+		fprintf (stderr, "vs_search_start called in encode mode!\n");
+		return -1;
+	}
+	str->hasbyte = 0;
+	str->bitpos = 7;
+	while (1) {
+		if (str->bytepos >= str->bytesnum)
+			return 0;
+		if (str->zero_bytes == 2 && str->bytes[str->bytepos] == 1)
+			return 1;
+		if (str->bytes[str->bytepos] == 0) {
+			if (str->zero_bytes != 2)
+				str->zero_bytes++;
+		} else {
+			str->zero_bytes = 0;
+		}
+		str->bytepos++;
+	}
+}
+
 int vs_align_byte(struct bitstream *str, enum vs_align_byte_mode mode) {
 	uint32_t pad;
 	switch (mode) {
@@ -238,6 +311,8 @@ int vs_align_byte(struct bitstream *str, enum vs_align_byte_mode mode) {
 		case VS_ALIGN_10:
 			pad = 1 << str->bitpos;
 			break;
+		default:
+			abort();
 	}
 	if (str->dir == VS_ENCODE) {
 		if (str->bitpos != 7) {
@@ -275,7 +350,48 @@ int vs_end(struct bitstream *str) {
 			}
 			return vs_align_byte(str, VS_ALIGN_0);
 			/* XXX: add the cabac special case */
+		default:
+			abort();
 	}
+}
+
+int vs_has_more_data(struct bitstream *str) {
+	if (str->dir == VS_ENCODE) {
+		fprintf (stderr, "vs_has_more_data called in encode mode\n");
+		return -1;
+	}
+	int byte;
+	int offs = 0;
+	switch (str->type) {
+		case VS_H264:
+			if (!str->hasbyte) {
+				if (str->bytepos == str->bytesnum) {
+					fprintf (stderr, "no RBSP trailer byte\n");
+					return -1;
+				}
+				offs = 1;
+				byte = str->bytes[str->bytepos];
+			} else {
+				byte = str->curbyte;
+				offs = 0;
+			}
+			byte &= (1 << (str->bitpos+1)) - 1;
+			if (byte != (1 << str->bitpos))
+				return 1;
+			break;
+		case VS_MPEG12:
+			break;
+	}
+	offs += str->bytepos;
+	if (offs < str->bytesnum && str->bytes[offs])
+		return 1;
+	if (offs+1 < str->bytesnum && str->bytes[offs+1])
+		return 1;
+	if (offs+2 < str->bytesnum && str->bytes[offs+2] > 2)
+		return 1;
+	/* followed by 00 00 00 or 00 00 01 or 00* EOF */
+	return 0;
+
 }
 
 struct bitstream *vs_new_encode(enum vs_type type) {
@@ -283,6 +399,7 @@ struct bitstream *vs_new_encode(enum vs_type type) {
 	res->dir = VS_ENCODE;
 	res->type = type;
 	res->bitpos = 7;
+	return res;
 }
 
 struct bitstream *vs_new_decode(enum vs_type type, uint8_t *bytes, int bytesnum) {
@@ -292,6 +409,7 @@ struct bitstream *vs_new_decode(enum vs_type type, uint8_t *bytes, int bytesnum)
 	res->bytes = bytes;
 	res->bytesnum = bytesnum;
 	res->bitpos = 7;
+	return res;
 }
 
 int vs_infer(struct bitstream *str, uint32_t *val, uint32_t ival) {
@@ -304,4 +422,21 @@ int vs_infer(struct bitstream *str, uint32_t *val, uint32_t ival) {
 		*val = ival;
 	}
 	return 0;
+}
+
+int vs_infers(struct bitstream *str, int32_t *val, int32_t ival) {
+	if (str->dir == VS_ENCODE) {
+		if (*val != ival) {
+			fprintf (stderr, "Wrong infered value: %d != %d\n", *val, ival);
+			return 1;
+		}
+	} else {
+		*val = ival;
+	}
+	return 0;
+}
+
+void vs_destroy(struct bitstream *str) {
+	free(str->bytes);
+	free(str);
 }
