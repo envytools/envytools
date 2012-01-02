@@ -36,8 +36,10 @@
  */
 
 static struct bitfield ctargoff = { 8, 11 };
+static struct bitfield rbrtargoff = { 34, 6, .pcrel = 1 };
 #define BTARG atombtarg, &ctargoff
 #define CTARG atomctarg, &ctargoff
+#define RBRTARG atombtarg, &rbrtargoff
 
 static struct bitfield imm4off = { 12, 4 };
 static struct bitfield imm6off = { { 12, 4, 24, 2 } };
@@ -83,6 +85,7 @@ static struct bitfield psrc1_bf = { 8, 4 };
 static struct bitfield psrc2_bf = { 12, 4 };
 static struct bitfield pdst_bf = { 16, 4 };
 static struct bitfield pred_bf = { 20, 4 };
+static struct bitfield rbrpred_bf = { 30, 3, .addend = 8 };
 static struct reg src1_r = { &src1_bf, "r", .specials = reg_sr };
 static struct reg src2_r = { &src2_bf, "r", .specials = reg_sr };
 static struct reg dst_r = { &dst_bf, "r", .specials = reg_sr };
@@ -92,6 +95,7 @@ static struct reg psrc1_r = { &psrc1_bf, "p", .cool = 1, .specials = pred_sr };
 static struct reg psrc2_r = { &psrc2_bf, "p", .cool = 1, .specials = pred_sr };
 static struct reg pdst_r = { &pdst_bf, "p", .cool = 1, .specials = pred_sr };
 static struct reg pred_r = { &pred_bf, "p", .cool = 1, .specials = pred_sr };
+static struct reg rbrpred_r = { &rbrpred_bf, "p", .cool = 1, .specials = pred_sr };
 #define SRC1 atomreg, &src1_r
 #define SRC2 atomreg, &src2_r
 #define DST atomreg, &dst_r
@@ -101,6 +105,7 @@ static struct reg pred_r = { &pred_bf, "p", .cool = 1, .specials = pred_sr };
 #define PSRC2 atomreg, &psrc2_r
 #define PDST atomreg, &pdst_r
 #define PRED atomreg, &pred_r
+#define RBRPRED atomreg, &rbrpred_r
 
 static struct mem dmemldi_m = { "D", 0, &src1_r, &bimmldoff };
 static struct mem dmemldis_m = { "D", 0, &src1_r, &bimmldsoff };
@@ -329,13 +334,19 @@ static struct insn tabm[] = {
 	{ 0, 0, OOPS },
 };
 
-static struct insn tabroot[] = {
-	{ 0x34000043, 0x3c0000ff, OP32, N("nop") },
-	{ 0x14000000, 0x34000000, OP32, T(ovr) },
-    { 0x34000000, 0x34000000, OP32, T(p), T(ovr) },
-	{ 0x00000000, 0x20000000, OP32, T(m) },
-	{ 0x20000000, 0x20000000, OP32, T(p), T(m) },
+static struct insn tabops[] = {
+	{ 0x34000043, 0x3c0000ff, N("nop") },
+	{ 0x14000000, 0x34000000, T(ovr) },
+    { 0x34000000, 0x34000000, T(p), T(ovr) },
+	{ 0x00000000, 0x20000000, T(m) },
+	{ 0x20000000, 0x20000000, T(p), T(m) },
+};
 
+static struct insn tabroot[] = {
+	{ 0, 0, OP64, T(ops), .vartype = VP3 },
+	{ 0xffc0000000ull, 0xffc0000000ull, OP64, T(ops), .vartype = VP2 },
+	{ 0x0000000000ull, 0x0200000000ull, OP64, RBRPRED, N("rbra"), RBRTARG, T(ops), .vartype = VP2 },
+	{ 0x0200000000ull, 0x0200000000ull, OP64, N("not"), RBRPRED, N("rbra"), RBRTARG, T(ops), .vartype = VP2 },
 	{ 0, 0, OOPS },
 };
 
@@ -346,9 +357,9 @@ static const struct disvariant vuc_vars[] = {
 
 const struct disisa vuc_isa_s = {
 	tabroot,
-	4,
-	4,
-	4,
+	8,
+	8,
+	8,
     .vars = vuc_vars,
     .varsnum = sizeof vuc_vars / sizeof *vuc_vars,
 };
