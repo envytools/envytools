@@ -68,11 +68,19 @@ static struct sreg pred_sr[] = {
 	{ -1 },
 };
 static struct sreg sreg_sr[] = {
+    { 4, "h2v" },
+    { 5, "v2h" },
+    { 7, "parm" },
     { 8, "pc" },
+    { 10, "cstop" },
     { 12, "arthi" },
     { 13, "artlo" },
     { 14, "pred" },
     { 15, "icount" },
+    { 25, "qpy" },
+    { 26, "qpc" },
+    { 28, "mbxy" },
+    { 29, "mbaddr" },
     { -1 },
 };
 

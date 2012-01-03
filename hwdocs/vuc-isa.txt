@@ -1,4 +1,60 @@
-This document describes vµc ISA as found on VP2 and VP3.
+= Introduction =
+
+This file deals with description of the ISA used by the vµc microprocessor,
+which is described in vuc.txt.
+
+The microprocessor registers, instructions and memory spaces are mostly 16-bit
+oriented. There are 3 ISA register files:
+
+ - $r0-$r15, 16-bit general-purpose registers, for arithmetic and addressing
+   - $r0: read-only and hardwired to 0
+   - $r1-$r15: read/write
+ - $p0-$p15, 1-bit predicate registers, for conditional execution
+   - $p0: read/write
+   - $p1: read only and hardwired to !$p0
+   - $p2-$p14: read/write
+   - $p15: read-only and hardwired to 1
+ - $sr0-$sr63, 16-bit special registers
+   - $sr0: ??? controls $sr48-$sr58 (bits 0-6 when set separately) [XXX]
+   - $sr1: ??? similar to $sr0 (bits 0-4, probably more) [XXX]
+   - $sr2: ??? bits 0-3 affect registers $sr16-$sr24 [XXX]
+   - $sr3: ??? bits 0-4 affect $sr32-$sr42 [XXX]
+   - $sr4/$h2v: a scratch register to pass data from host to vµc [see vuc.txt]
+   - $sr5/$v2h: a scratch register to pass data from vµc to host [see vuc.txt]
+   - $sr6: some sort of control/status reg, writing 0x8000 alternates values
+     between 0x8103 and 0 [XXX]
+   - $sr7/$parm: sequence/picture/slice parameters required by vµc hardware
+     [see vuc.txt]
+   - $sr8/$pc: address of currently executed instruction
+   - $sr9: ??? values 0, 1, 3, may be related to upload/execution order [XXX]
+   - $sr10/$cstop: aliases call stack top? [XXX]
+   - $sr11: ??? seems to be another code address [XXX]
+   - $sr12/$arthi: Arithmetic result high word register
+   - $sr13/$artlo: Arithmetic result low word register
+   - $sr14/$pred: predicates - aliases the $p register file, bit X corresponds
+     to $pX register
+   - $sr15/$icnt: instruction/cycle counter (?: check nops, effect of delays)
+   - $sr16: ??? modifies $sr17-$sr24, $sr27-$sr31 [XXX]
+   - $sr17-$sr24: ??? modified by $sr16 [XXX]
+   - $sr22-$sr24: ??? related to orsetreg's unknown bits, regardless of result
+   - $sr25/$qpy:
+       bits 0-5: mb_qp_delta [input] / QPy [output] [H.264]
+       bits 0-5: quantiser_scale_code [input and output] [MPEG1/MPEG2]
+       bits 8-11: ??? [XXX]
+   - $sr26/$qpc:
+       bits 0-5: QPc for Cb [output] [H.264]
+       bits 8-13: QPc for Cr [output] [H.264]
+   - $sr27: ??? modified by $sr16 [XXX]
+   - $sr28/$mbxy:
+       bits 0-7: macroblock Y position
+       bits 8-15: macroblock X position
+   - $sr29/$mbaddr:
+       bits 0-12: macroblock address
+       bit 15: first macroblock in slice flag
+   - $sr30: ??? modified by $sr16 [XXX]
+   - $sr31: ??? modified by $sr16 [XXX]
+   - $sr32-$sr42: ??? affected by $sr3, read only [XXX]
+   - $sr48-$sr58: ??? affected by writing $sr0 and $sr1, read only [XXX]
 
 Address spaces
     D[] - data memory address space (access via ld/st)
@@ -643,43 +699,4 @@ Known override instructions control machine state, access memory spaces, externa
         XXX: delay (blob: 5)
         
     0xa4, 0xa8, 0xac: Only after multiplication. 2, 2 or 1, plenty delay (blob).
-    
 
-Registers:
-- 16-bit:
-    $r0 - hardwired 0
-    $r1-$r15 - general purpose
-- 1-bit predicate:
-    $p0 - general purpose
-    $p1 (envydis: $np0) - read only, value: ~p0
-    $p2-$p14 - general purpose
-    $p15 - hardwired to 1
-- 64 × 16-bit special registers
-    $sr8 ($pc): PC
-    $sr12 ($arthi): Arithmetic result high word register
-    $sr13 ($artlo): Arithmetic result low word register
-    $sr14 ($pred): predicate bitfield ($p0 == $pred[0])
-    $sr15 ($cnt): cycle counter (?: check nops, effect of delays)
-    
-    Unknown:
-    $sr0: controls $sr48-$sr58 (bits 0-6 when set separately)
-    $sr1: similar to $sr0 (bits 0-4, probably more)
-    $sr2: bits 0-3 affect registers $sr16-$sr24
-    $sr3: bits 0-4 affect $sr32-$sr42
-    $sr6: writing 0x8000 alternates values between 0x8103 and 0
-    $sr9: values 0, 1, 3, may be related to upload/execution order
-    $sr10: usually 0, but may be different (negative) after reupload
-    $sr16: modifies $sr17-$sr24, $sr27-$sr31
-    $sr17-$sr24: modified by $sr16
-    $sr22-$sr24: related to orsetreg's unknown bits, regardless of result
-    $sr27-$sr31: modified by $sr16
-    $sr32-$sr42: affected by $sr3
-    $sr48-$sr58: affected by writing $sr0 and $sr1
-    
-    
-    $sr4, $sr9, $sr12-$sr15, $sr27: nonzero
-    No change on write:
-    $sr4, $sr8-$sr10, $sr12-$sr15, $sr32+
-    No side effects on read/write:
-    $sr5, $sr28, $sr31 over all bits
-    

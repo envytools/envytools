@@ -277,7 +277,8 @@
 			<bitfield pos="16" name="PAUSE"/>
 		</reg32>
 		<reg32 offset="0x08c" name="CODE_WINDOW"/>
-		<reg32 offset="0x090" name="SCRATCH"/>
+		<reg32 offset="0x090" name="H2V"/>
+		<reg32 offset="0x094" name="V2H"/>
 		<reg32 offset="0x098" name="PARM">
 			<bitfield low="0" high="6" name="WIDTH"/>
 			<bitfield pos="8" name="MBAFF_FRAME_FLAG"/>
