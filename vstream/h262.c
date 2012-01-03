@@ -65,7 +65,7 @@ int h262_seqparm(struct bitstream *str, struct h262_seqparm *seqparm) {
 			if (vs_u(str, &seqparm->intra_quantiser_matrix[i], 8)) return 1;
 	}
 	if (vs_u(str, &seqparm->load_non_intra_quantiser_matrix, 1)) return 1;
-	if (seqparm->load_intra_quantiser_matrix) {
+	if (seqparm->load_non_intra_quantiser_matrix) {
 		for (i = 0; i < 64; i++)
 			if (vs_u(str, &seqparm->non_intra_quantiser_matrix[i], 8)) return 1;
 	}
