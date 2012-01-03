@@ -340,6 +340,7 @@ static struct insn tabops[] = {
     { 0x34000000, 0x34000000, T(p), T(ovr) },
 	{ 0x00000000, 0x20000000, T(m) },
 	{ 0x20000000, 0x20000000, T(p), T(m) },
+	{ 0, 0, OOPS },
 };
 
 static struct insn tabroot[] = {
