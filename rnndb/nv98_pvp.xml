@@ -14,6 +14,14 @@
 	<use-group name="nv98_fuc_targets"/>
 </group>
 
+<enum name="vp3_mode" inline="yes">
+	<value value="0" name="MPEG1"/>
+	<value value="1" name="MPEG2"/>
+	<value value="2" name="VC1"/>
+	<value value="3" name="H264"/>
+	<value value="4" name="MPEG4" variants="NVA3-"/>
+</enum>
+
 <array name="PBSP" offset="0x84000" stride="0x1000" length="1" variants="NV98 NVAA-">
 	<use-group name="nv98_vpbase"/>
 	<array offset="0x400" name="BSP" stride="0x80">
@@ -44,13 +52,7 @@
 				<value value="3" name="B"/>
 
 			</bitfield>
-			<bitfield low="20" high="22" name="FORMAT">
-				<value value="0" name="MPEG1"/>
-				<value value="1" name="MPEG2"/>
-				<value value="2" name="VC1"/>
-				<value value="3" name="H264"/>
-				<value value="4" name="MPEG4" variants="NVA3-"/>
-			</bitfield>
+			<bitfield low="20" high="22" name="MODE" type="vp3_mode"/>
 			<bitfield low="24" high="25" name="PROFILE"> <!-- VC-1 and MPEG4 only -->
 				<value value="0" name="VC1_SIMPLE"/>
 				<value value="1" name="VC1_MAIN"/>
@@ -253,6 +255,8 @@
 			<bitfield pos="16" name="PAUSE"/>
 		</reg32>
 		<reg32 offset="0x44" name="CODE"/>
+		<reg32 offset="0x48" name="ICNT"/>
+		<reg32 offset="0x4c" name="WDCNT"/>
 		<bitset name="nv98_pvp_vuc_intr"> <!-- fuc intr 10 -->
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield pos="1" name="UNK1"/>
@@ -262,7 +266,10 @@
 			<bitfield pos="5" name="UNK5"/>
 			<bitfield pos="6" name="UNK6"/>
 		</bitset>
-		<reg32 offset="0x58" name="MODE">
+		<reg32 offset="0x50" name="H2V"/>
+		<reg32 offset="0x54" name="V2H"/>
+		<reg32 offset="0x58" name="PARM">
+			<bitfield low="0" high="2" name="MODE" type="vp3_mode"/>
 			<!-- ... -->
 		</reg32>
 		<reg32 offset="0x70" name="INTR" type="nv98_pvp_vuc_intr"/>
@@ -276,6 +283,10 @@
 		<reg32 offset="0x00" name="CODE_SELECT" length="4">
 			<bitfield low="0" high="7" name="START"/>
 			<bitfield low="8" high="15" name="LENGTH"/>
+		</reg32>
+		<reg32 offset="0x20" name="PARM">
+			<bitfield low="0" high="2" name="MODE" type="vp3_mode"/>
+			<bitfield low="4" high="5" name="UNK4"/>
 		</reg32>
 		<reg32 offset="0x24" name="IQ_MODE">
 			<bitfield pos="0" name="Q_SCALE_TYPE"/>
