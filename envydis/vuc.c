@@ -76,7 +76,7 @@ static struct sreg sreg_sr[] = {
     { 12, "arthi" },
     { 13, "artlo" },
     { 14, "pred" },
-    { 15, "icount" },
+    { 15, "icnt" },
     { 25, "qpy" },
     { 26, "qpc" },
     { 28, "mbxy" },
@@ -211,11 +211,11 @@ static struct insn tabovr[] = {
     { 0x3c000000, 0x3c0000ff, N("bra"), BTARG },
     { 0x3c000002, 0x3c0000ff, N("call"), CTARG },
     { 0x34000003, 0x3c0000ff, N("ret") },
-    { 0x14000004, 0x140000ff, U("o04") },
+    { 0x14000004, 0x140000ff, N("sleep") },	/* halt everything until there's work to do */
     { 0x14000005, 0x140000ff, U("o05"), T(src2) },
     { 0x14000006, 0x140000ff, U("o06"), T(src2) },
 
-    { 0x14000020, 0x140000ff, U("o20") },
+    { 0x14000020, 0x140000ff, N("clicnt") },	/* reset $icnt to 0 */
     { 0x14000021, 0x140000ff, U("o21") },
     { 0x14000022, 0x140000ff, U("o22") },
 
