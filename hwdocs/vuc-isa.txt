@@ -18,16 +18,16 @@ oriented. There are 3 ISA register files:
    only be valid for H.264 mode for now]
    - $sr0: ??? controls $sr48-$sr58 (bits 0-6 when set separately) [XXX]
    - $sr1: ??? similar to $sr0 (bits 0-4, probably more) [XXX]
-   - $sr2/$pidx: partition and subpartition index, used to select which
+   - $sr2/$spidx: partition and subpartition index, used to select which
      [sub]partitions some other special registers access:
        bits 0-1: subpartition index
        bits 2-3: partition index
        Note that, for indexing purposes, each partition index is considered
        to refer to an 8x8 block, and each subpartition index to 4x4 block. If
        partition/subpartition size is bigger than that, the indices will
-       alias. Thus, for 16x8 partitioning mode, $pidx equal to 0-7 wil select
-       the top partition, $pidx equal to 8-15 will select the bottom one. For
-       8x16 partitioning, $pidx equal to 0-3 and 8-11 will select the left
+       alias. Thus, for 16x8 partitioning mode, $spidx equal to 0-7 wil select
+       the top partition, $spidx equal to 8-15 will select the bottom one. For
+       8x16 partitioning, $spidx equal to 0-3 and 8-11 will select the left
        partition, 4-7 and 12-15 will select the right partition.
    - $sr3: ??? bits 0-4 affect $sr32-$sr42 [XXX]
    - $sr4/$h2v: a scratch register to pass data from host to vµc [see vuc.txt]
@@ -60,12 +60,12 @@ oriented. There are 3 ISA register files:
    - $sr14/$pred: predicates - aliases the $p register file, bit X corresponds
      to $pX register
    - $sr15/$icnt: instruction/cycle counter (?: check nops, effect of delays)
-   - $sr16/$mvxl0: sign-extended mvd_l0[$pidx][0] [input]
-   - $sr17/$mvyl0: sign-extended mvd_l0[$pidx][1] [input]
-   - $sr18/$mvxl1: sign-extended mvd_l1[$pidx][0] [input]
-   - $sr19/$mvyl1: sign-extended mvd_l1[$pidx][1] [input]
-   - $sr20/$refl0: ref_idx_l0[$pidx>>2] [input]
-   - $sr21/$refl1: ref_idx_l1[$pidx>>2] [input]
+   - $sr16/$mvxl0: sign-extended mvd_l0[$spidx][0] [input]
+   - $sr17/$mvyl0: sign-extended mvd_l0[$spidx][1] [input]
+   - $sr18/$mvxl1: sign-extended mvd_l1[$spidx][0] [input]
+   - $sr19/$mvyl1: sign-extended mvd_l1[$spidx][1] [input]
+   - $sr20/$refl0: ref_idx_l0[$spidx>>2] [input]
+   - $sr21/$refl1: ref_idx_l1[$spidx>>2] [input]
    - $sr22-$sr23: ??? modified by $sr16 [XXX]
    - $sr22-$sr23: ??? related to orsetreg's unknown bits, regardless of result
    - $sr24/$mbflags:
@@ -75,13 +75,13 @@ oriented. There are 3 ISA register files:
        bit 3: transform_size_8x8_flag [RW]
        bit 4: ??? [XXX]
        bit 5: is I_16x16 macroblock [RO]
-       bit 6: partition selected by $pidx uses L0 or Bi prediction [RO]
-       bit 7: partition selected by $pidx uses L1 or Bi prediction [RO]
+       bit 6: partition selected by $spidx uses L0 or Bi prediction [RO]
+       bit 7: partition selected by $spidx uses L1 or Bi prediction [RO]
        bit 8: mb_field_decoding_flag for next macroblock [only valid if $sr6
               bit 10 is set] [RO]
        bit 9: mb_skip_flag for next macroblock [only valid if $sr6 bit 10 is
               set] [RO]
-       bit 10: partition selected by $pidx uses Direct prediction [RO]
+       bit 10: partition selected by $spidx uses Direct prediction [RO]
        bit 11: any partition of macroblock uses Direct prediction [RO]
        bit 12: is I_PCM macroblock [RO]
        bit 13: is P_SKIP macroblock [RO]
@@ -611,16 +611,16 @@ Note: the [[mode] predicate] section is shortened to PDST below. PDST is then th
           lut PRED REG GPREG IMM6
           lut PRED GPREG REG IMM6
 	Loads DST with a value of lookup table selected by SRC2 at index selected by SRC1. Table selection is 4-bit.
-	Table 0: mvx, index is 1-bit. if index is 0, returns $mvxl0[$pidx], otherwise $mvxl1[$pidx]
-	Table 1: mvy, index is 1-bit. if index is 0, returns $mvyl0[$pidx], otherwise $mvyl1[$pidx]
-	Table 2: ref, index is 1-bit. if index is 0, returns $refl0[$pidx], otherwise $refl1[$pidx]
-	Table 3: s22, index is 1-bit. if index is 0, returns $sr22[$pidx], otherwise $sr23[$pidx]
+	Table 0: mvx, index is 1-bit. if index is 0, returns $mvxl0[$spidx], otherwise $mvxl1[$spidx]
+	Table 1: mvy, index is 1-bit. if index is 0, returns $mvyl0[$spidx], otherwise $mvyl1[$spidx]
+	Table 2: ref, index is 1-bit. if index is 0, returns $refl0[$spidx], otherwise $refl1[$spidx]
+	Table 3: s22, index is 1-bit. if index is 0, returns $sr22[$spidx], otherwise $sr23[$spidx]
 	Table 4: mvxns, index is 1-bit. if $mbtype is 0x7f [P_SKIP], returns 0, otherwise same as mvx
 	Table 5: mvyns, index is 1-bit. if $mbtype is 0x7f [P_SKIP], returns 0, otherwise same as mvy
 	Table 6: refns, index is 1-bit. if $mbtype is 0x7f [P_SKIP], returns 0, otherwise same as ref
 	Table 7: s22ns, index is 1-bit. if $mbtype is 0x7f [P_SKIP], returns 0, otherwise same as s22
 	Table 8: pcnt, index is 3-bit. If index is 0-3, returns subpartition count of given partition index. Otherwise, returns partition count of the macroblock.
-	Table 9: pidx, index is 2-bit. If index is less than pcnt[4], returns $pidx value corresponding to given partition index. Otherwise returns junk.
+	Table 9: spidx, indexing is two-dimensional, with first index being 2-bit and taken from bits 0-1 of SRC2, second index being 2-bit and taken from bits 8-9 of SRC2. the first index signifies partition index, while the second signifies a subpartition index. If partition index is less than pcnt[4] and subpartition index is less than subpcnt[partidx], returns $spidx value corresponding to given partition index. Otherwise returns junk.
 	Table 0xa: pnext, indexing is two-dimensional, with first index being 3-bit and taken from bits 0-2 of SRC2, second index being 2-bit and taken from bits 8-9 of SRC2. the first index signifies partition index, while the second signifies a subpartition index. If partition index is less than pcnt[4], returns two-part index of the next subpartition in this partition, or the first subpartition of the next partition in macroblock if already at last subpartition, or pcnt[4] if already at last subpartition of last partition. The returned index is in the same format as input index. Additionally, predicate output is set if the transition was to the next subpartition within a partition, cleared if the transition was between partitions or out of the last partition.
 	Table 0xb: pmode, index is 2-bit. If index is less then pcnt[4] and $mbtype is inter-predicted, returns inter prediction mode used for the given partition index, otherwise returns 0. The prediction modes are: 0 for direct prediction, 1 for L0 prediction, 2 for L1 prediction, 3 for Bi prediction.
 	Tables 0xc-0xf: unused, always return 0.
@@ -650,6 +650,10 @@ Note: the [[mode] predicate] section is shortened to PDST below. PDST is then th
 				    r = (SRC2 & 1) << 3;
 			    else
 				    r = (SRC2 & 3) << 2;
+			    if (submbpartmode($submbtype >> ((r >> 2) * 4)) == 8x4)
+				    r |= (SRC2 >> 8 & 1) << 1;
+			    else
+				    r |= (SRC2 >> 8 & 3);
 			    break;
 		    case 0xa:
 			    if ((SRC2&7) < 4) {

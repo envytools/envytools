@@ -68,7 +68,7 @@ static struct sreg pred_sr[] = {
 	{ -1 },
 };
 static struct sreg sreg_sr[] = {
-    { 2, "pidx" },
+    { 2, "spidx" },
     { 4, "h2v" },
     { 5, "v2h" },
     { 6, "stat" },
