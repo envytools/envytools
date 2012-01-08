@@ -604,12 +604,12 @@ Note: the [[mode] predicate] section is shortened to PDST below. PDST is then th
         Delay: immediate
 
         
-* Unknown:
-    0x1c: [PDST DST SRC1 SRC2]
-          PRED REG GPREG GPREG
-          PRED GPREG REG GPREG
-          PRED REG GPREG IMM6
-          PRED GPREG REG IMM6
+* Lookup table:
+    0x1c: [lut PDST DST SRC1 SRC2]
+          lut PRED REG GPREG GPREG
+          lut PRED GPREG REG GPREG
+          lut PRED REG GPREG IMM6
+          lut PRED GPREG REG IMM6
 	Loads DST with a value of lookup table selected by SRC2 at index selected by SRC1. Table selection is 4-bit.
 	Table 0: mvx, index is 1-bit. if index is 0, returns $mvxl0[$pidx], otherwise $mvxl1[$pidx]
 	Table 1: mvy, index is 1-bit. if index is 0, returns $mvyl0[$pidx], otherwise $mvyl1[$pidx]
@@ -621,7 +621,7 @@ Note: the [[mode] predicate] section is shortened to PDST below. PDST is then th
 	Table 7: s22ns, index is 1-bit. if $mbtype is 0x7f [P_SKIP], returns 0, otherwise same as s22
 	Table 8: pcnt, index is 3-bit. If index is 0-3, returns subpartition count of given partition index. Otherwise, returns partition count of the macroblock.
 	Table 9: pidx, index is 2-bit. If index is less than pcnt[4], returns $pidx value corresponding to given partition index. Otherwise returns junk.
-	Table 0xa: ???
+	Table 0xa: pnext, indexing is two-dimensional, with first index being 3-bit and taken from bits 0-2 of SRC2, second index being 2-bit and taken from bits 8-9 of SRC2. the first index signifies partition index, while the second signifies a subpartition index. If partition index is less than pcnt[4], returns two-part index of the next subpartition in this partition, or the first subpartition of the next partition in macroblock if already at last subpartition, or pcnt[4] if already at last subpartition of last partition. The returned index is in the same format as input index. Additionally, predicate output is set if the transition was to the next subpartition within a partition, cleared if the transition was between partitions or out of the last partition.
 	Table 0xb: pmode, index is 2-bit. If index is less then pcnt[4] and $mbtype is inter-predicted, returns inter prediction mode used for the given partition index, otherwise returns 0. The prediction modes are: 0 for direct prediction, 1 for L0 prediction, 2 for L1 prediction, 3 for Bi prediction.
 	Tables 0xc-0xf: unused, always return 0.
 	    switch (SRC2 & 0xf) {
@@ -652,21 +652,24 @@ Note: the [[mode] predicate] section is shortened to PDST below. PDST is then th
 				    r = (SRC2 & 3) << 2;
 			    break;
 		    case 0xa:
-			    /* XXX: figure this out */
 			    if ((SRC2&7) < 4) {
 				    if (mbpartcnt($mbtype) < 4)
-					    r = 1;
+					    c = 1;
 				    else if ($mbtype == 0 || $mbtype == 0x19) /* I_NxN or I_PCM */
-					    r = ($mbflags[3:3] ? 1 : 4); /* transform_size_8x8_flag */
+					    c = ($mbflags[3:3] ? 1 : 4); /* transform_size_8x8_flag */
 				    else
-					    r = submbpartcnt(($submbtype >> ((SRC2 & 3) * 4)) & 0xf);
+					    c = submbpartcnt(($submbtype >> ((SRC2 & 3) * 4)) & 0xf);
 			    } else {
-				    r = mbpartcnt($mbtype);
+				    c = mbpartcnt($mbtype);
 			    }
-			    if (r == 1)
-				    r = (SRC2 & 3) + 1;
-			    else
-				    r = (SRC2 & 3) + 0x100;
+			    sp = SRC2 >> 8 & 3;
+			    p = SRC2 & 3;
+			    sp++;
+			    if (sp >= c) {
+				    p++;
+				    sp = 0;
+			    }
+			    r = sp << 8 | p;
 			    break;
 		    case 0xb:
 			    r = submbpredmode(SRC2 & 3);
@@ -677,7 +680,7 @@ Note: the [[mode] predicate] section is shortened to PDST below. PDST is then th
 	    }
 	    DST = r;
 	    if ((SRC2 & 0xf) == 0xa)
-		    PDST = r >> 8 & 1;
+		    PDST = (r >> 8 & 3) != 0;
 	    else
 		    PDST = r & 1;
         Blob seems to use the predicate [5c]. 0x100 above is sometimes 0x200
