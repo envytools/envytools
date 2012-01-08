@@ -68,8 +68,10 @@ static struct sreg pred_sr[] = {
 	{ -1 },
 };
 static struct sreg sreg_sr[] = {
+    { 2, "pidx" },
     { 4, "h2v" },
     { 5, "v2h" },
+    { 6, "stat" },
     { 7, "parm" },
     { 8, "pc" },
     { 10, "cstop" },
@@ -77,10 +79,20 @@ static struct sreg sreg_sr[] = {
     { 13, "artlo" },
     { 14, "pred" },
     { 15, "icnt" },
+    { 16, "mvxl0" },
+    { 17, "mvyl0" },
+    { 18, "mvxl1" },
+    { 19, "mvyl1" },
+    { 20, "refl0" },
+    { 21, "refl1" },
+    { 24, "mbflags" },
     { 25, "qpy" },
     { 26, "qpc" },
+    { 27, "mbpart" },
     { 28, "mbxy" },
     { 29, "mbaddr" },
+    { 30, "mbtype" },
+    { 31, "submbtype" },
     { -1 },
 };
 
@@ -216,17 +228,17 @@ static struct insn tabovr[] = {
     { 0x14000006, 0x140000ff, U("o06"), T(src2) },
 
     { 0x14000020, 0x140000ff, N("clicnt") },	/* reset $icnt to 0 */
-    { 0x14000021, 0x140000ff, U("o21") },
-    { 0x14000022, 0x140000ff, U("o22") },
-
-    { 0x14000024, 0x140000ff, U("o24") },
-    { 0x14000025, 0x140000ff, U("o25") },
-    { 0x14000026, 0x140000ff, U("o26") },
-    { 0x14000028, 0x140000ff, U("o28") },
-    { 0x14000029, 0x140000ff, U("o29") },
-    { 0x1400002a, 0x140000ff, U("o2a") },
-    { 0x1400002b, 0x140000ff, U("o2b") },
-    { 0x1400002c, 0x140000ff, U("o2c") },
+    { 0x14000021, 0x140000ff, U("o21") }, /* ADV */
+    { 0x14000022, 0x140000ff, U("o22") }, /* ADV */
+    { 0x14000023, 0x140000ff, U("o23") }, /* VP2 */
+    { 0x14000024, 0x140000ff, N("mbiread") },	/* read data for current macroblock into registers/memory */
+    { 0x14000025, 0x140000ff, U("o25") }, /* ANEW */
+    { 0x14000026, 0x140000ff, U("o26") }, /* ANEW */
+    { 0x14000028, 0x140000ff, N("mbinext") },	/* advance input to the next macroblock */
+    { 0x14000029, 0x140000ff, U("o29") }, /* ADV */
+    { 0x1400002a, 0x140000ff, U("o2a") }, /* ADV */
+    { 0x1400002b, 0x140000ff, U("o2b") }, /* ADV */
+    { 0x1400002c, 0x140000ff, U("o2c") }, /* ANEW */
     
     { 0x14000040, 0x1c0000ff, N("setand"), T(pdst), PSRC1, PSRC2 },
     { 0x14000041, 0x1c0000ff, N("setor"), T(pdst), PSRC1, PSRC2 },

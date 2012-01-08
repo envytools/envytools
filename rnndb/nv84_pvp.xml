@@ -315,7 +315,7 @@
 			<bitfield pos="1" name="VPRING_MV_HALT"/>
 			<bitfield pos="2" name="VPRING_MBINFO_HALT"/>
 			<bitfield pos="3" name="WATCHDOG"/>
-			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="4" name="MBRING_READ_DONE"/>
 			<bitfield pos="5" name="UNK5"/>
 		</bitset>
 		<reg32 offset="0x0d4" name="INTR" type="nv84_pbsp_vuc_intr"/>
@@ -366,6 +366,7 @@
 				<value value="0" name="NONE"/>
 				<value value="1" name="STREAM"/>
 				<value value="2" name="MBRING"/>
+				<value value="4" name="MVSURF"/>
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x004" name="FAULT_ADDRESS"/>

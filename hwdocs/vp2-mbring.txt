@@ -43,11 +43,11 @@ Payload word 3:
 Payload word 4:
   For i = 0 .. 7:
     bits i*4+0 - i*4+2: rem_intra_pred_mode[i]
-    bit i*4+3: pred_intra_pred_mode_flag[i]
+    bit i*4+3: prev_intra_pred_mode_flag[i]
 Payload word 5:
   For i = 0 .. 7:
     bits i*4+0 - i*4+2: rem_intra_pred_mode[i+8]
-    bit i*4+3: pred_intra_pred_mode_flag[i+8]
+    bit i*4+3: prev_intra_pred_mode_flag[i+8]
 
 Packet has 3 payload words when macroblock is skipped, 6 when it's not
 skipped. This packet type is present for all macroblocks. The mb_type
@@ -74,8 +74,8 @@ Second header word:
   bit i = bit 4 of ref_idx[i]
  
 Motion vector word i:
-  bits 0-12: mvd[i] X coord
-  bits 13-27: mvd[i] Y coord
+  bits 0-12: mvd[i] Y coord
+  bits 13-27: mvd[i] X coord
   bits 28-31: bits 0-3 of ref_idx[i]
 
 Indices 0..15 correspond to mvd_l0 and ref_idx_l0, indices 16-31 correspond
