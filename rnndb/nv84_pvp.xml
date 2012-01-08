@@ -316,7 +316,7 @@
 			<bitfield pos="2" name="VPRING_MBINFO_HALT"/>
 			<bitfield pos="3" name="WATCHDOG"/>
 			<bitfield pos="4" name="MBRING_READ_DONE"/>
-			<bitfield pos="5" name="UNK5"/>
+			<bitfield pos="5" name="V2H"/>
 		</bitset>
 		<reg32 offset="0x0d4" name="INTR" type="nv84_pbsp_vuc_intr"/>
 		<reg32 offset="0x0d8" name="INTR_EN" type="nv84_pbsp_vuc_intr"/>
