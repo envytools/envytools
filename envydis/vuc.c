@@ -224,7 +224,7 @@ static struct insn tabovr[] = {
     { 0x3c000002, 0x3c0000ff, N("call"), CTARG },
     { 0x34000003, 0x3c0000ff, N("ret") },
     { 0x14000004, 0x140000ff, N("sleep") },	/* halt everything until there's work to do */
-    { 0x14000005, 0x140000ff, U("o05"), T(src2) },
+    { 0x14000005, 0x140000ff, N("wstc"), T(src2) },	/* do nothing until bit #SRC2 of $stat is clear */
     { 0x14000006, 0x140000ff, U("o06"), T(src2) },
 
     { 0x14000020, 0x140000ff, N("clicnt") },	/* reset $icnt to 0 */
