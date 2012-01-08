@@ -341,7 +341,7 @@ static struct insn tabm[] = {
     { 0x00000019, 0x0000001f, N("or"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := even
     { 0x0000001a, 0x0000001f, N("xor"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := odd
     { 0x0000001b, 0x0000001f, N("not"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := odd
-    { 0x0000001c, 0x0000001f, U("1c"), T(pmod), T(dst), T(src1), T(src2) },
+    { 0x0000001c, 0x0000001f, N("lut"), T(pmod), T(dst), T(src1), T(src2) }, /* 264, VC1 */
      
      
     // Opcodes with flag bits not verified
