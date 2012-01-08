@@ -235,8 +235,8 @@ static struct insn tabovr[] = {
     { 0x14000025, 0x140000ff, U("o25") }, /* ANEW */
     { 0x14000026, 0x140000ff, U("o26") }, /* ANEW */
     { 0x14000028, 0x140000ff, N("mbinext") },	/* advance input to the next macroblock */
-    { 0x14000029, 0x140000ff, U("mvsread") },	/* read data for current macroblock/macroblock pair from MVSURF */
-    { 0x1400002a, 0x140000ff, U("o2a") }, /* ADV */
+    { 0x14000029, 0x140000ff, N("mvsread") },	/* read data for current macroblock/macroblock pair from input MVSURF */
+    { 0x1400002a, 0x140000ff, N("mvswrite") },	/* write data for current macroblock/macroblock pair to output MVSURF */
     { 0x1400002b, 0x140000ff, U("o2b") }, /* ADV */
     { 0x1400002c, 0x140000ff, U("o2c") }, /* ANEW */
     
