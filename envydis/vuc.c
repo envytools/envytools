@@ -222,7 +222,7 @@ static struct insn tabsrc2[] = {
 
 static struct insn tabarithsrc2[] = {
     { 0x00000000, 0x08000000, SRC2 },
-    { 0x08000000, 0x08000000, IMM4 },
+    { 0x08000000, 0x08000000, IMM6 },
     { 0, 0, OOPS },
 };
 
