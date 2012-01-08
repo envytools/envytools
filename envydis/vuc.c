@@ -140,32 +140,59 @@ static struct mem dmemstr_m = { "D", 0, &src1_r, 0, &dst_r };
 #define DMEMSTIS atommem, &dmemstis_m
 #define DMEMSTR atommem, &dmemstr_m
 
-static struct mem ememldi_m = { "E", 0, &src1_r, &bimmldoff };
-static struct mem ememldis_m = { "E", 0, &src1_r, &bimmldsoff };
-static struct mem ememldr_m = { "E", 0, &src1_r, 0, &src2_r };
-static struct mem ememsti_m = { "E", 0, &src1_r, &bimmstoff };
-static struct mem ememstis_m = { "E", 0, &src1_r, &bimmstsoff };
-static struct mem ememstr_m = { "E", 0, &src1_r, 0, &dst_r };
-#define EMEMLDI atommem, &ememldi_m
-#define EMEMLDIS atommem, &ememldis_m
-#define EMEMLDR atommem, &ememldr_m
-#define EMEMSTI atommem, &ememsti_m
-#define EMEMSTIS atommem, &ememstis_m
-#define EMEMSTR atommem, &ememstr_m
+static struct mem b6memldi_m = { "B6", 0, &src1_r, &bimmldoff };
+static struct mem b6memldis_m = { "B6", 0, &src1_r, &bimmldsoff };
+static struct mem b6memldr_m = { "B6", 0, &src1_r, 0, &src2_r };
+static struct mem b6memsti_m = { "B6", 0, &src1_r, &bimmstoff };
+static struct mem b6memstis_m = { "B6", 0, &src1_r, &bimmstsoff };
+static struct mem b6memstr_m = { "B6", 0, &src1_r, 0, &dst_r };
+#define B6MEMLDI atommem, &b6memldi_m
+#define B6MEMLDIS atommem, &b6memldis_m
+#define B6MEMLDR atommem, &b6memldr_m
+#define B6MEMSTI atommem, &b6memsti_m
+#define B6MEMSTIS atommem, &b6memstis_m
+#define B6MEMSTR atommem, &b6memstr_m
 
-static struct mem fmemldi_m = { "F", 0, &src1_r, &bimmldoff };
-static struct mem fmemldis_m = { "F", 0, &src1_r, &bimmldsoff };
-static struct mem fmemldr_m = { "F", 0, &src1_r, 0, &src2_r };
-#define FMEMLDI atommem, &fmemldi_m
-#define FMEMLDIS atommem, &fmemldis_m
-#define FMEMLDR atommem, &fmemldr_m
+static struct mem b7memldi_m = { "B7", 0, &src1_r, &bimmldoff };
+static struct mem b7memldis_m = { "B7", 0, &src1_r, &bimmldsoff };
+static struct mem b7memldr_m = { "B7", 0, &src1_r, 0, &src2_r };
+static struct mem b7memsti_m = { "B7", 0, &src1_r, &bimmstoff };
+static struct mem b7memstis_m = { "B7", 0, &src1_r, &bimmstsoff };
+static struct mem b7memstr_m = { "B7", 0, &src1_r, 0, &dst_r };
+#define B7MEMLDI atommem, &b7memldi_m
+#define B7MEMLDIS atommem, &b7memldis_m
+#define B7MEMLDR atommem, &b7memldr_m
+#define B7MEMSTI atommem, &b7memsti_m
+#define B7MEMSTIS atommem, &b7memstis_m
+#define B7MEMSTR atommem, &b7memstr_m
 
-static struct mem gmemldi_m = { "G", 0, &src1_r, &bimmldoff };
-static struct mem gmemldis_m = { "G", 0, &src1_r, &bimmldsoff };
-static struct mem gmemldr_m = { "G", 0, &src1_r, 0, &src2_r };
-#define GMEMLDI atommem, &gmemldi_m
-#define GMEMLDIS atommem, &gmemldis_m
-#define GMEMLDR atommem, &gmemldr_m
+static struct mem i1memldi_m = { "I1", 0, &src1_r, &bimmldoff };
+static struct mem i1memldis_m = { "I1", 0, &src1_r, &bimmldsoff };
+static struct mem i1memldr_m = { "I1", 0, &src1_r, 0, &src2_r };
+#define I1MEMLDI atommem, &i1memldi_m
+#define I1MEMLDIS atommem, &i1memldis_m
+#define I1MEMLDR atommem, &i1memldr_m
+
+static struct mem o2memsti_m = { "O2", 0, &src1_r, &bimmstoff };
+static struct mem o2memstis_m = { "O2", 0, &src1_r, &bimmstsoff };
+static struct mem o2memstr_m = { "O2", 0, &src1_r, 0, &dst_r };
+#define O2MEMSTI atommem, &o2memsti_m
+#define O2MEMSTIS atommem, &o2memstis_m
+#define O2MEMSTR atommem, &o2memstr_m
+
+static struct mem o5memsti_m = { "O5", 0, &src1_r, &bimmstoff };
+static struct mem o5memstis_m = { "O5", 0, &src1_r, &bimmstsoff };
+static struct mem o5memstr_m = { "O5", 0, &src1_r, 0, &dst_r };
+#define O5MEMSTI atommem, &o5memsti_m
+#define O5MEMSTIS atommem, &o5memstis_m
+#define O5MEMSTR atommem, &o5memstr_m
+
+static struct mem i4memldi_m = { "I4", 0, &src1_r, &bimmldoff };
+static struct mem i4memldis_m = { "I4", 0, &src1_r, &bimmldsoff };
+static struct mem i4memldr_m = { "I4", 0, &src1_r, 0, &src2_r };
+#define I4MEMLDI atommem, &i4memldi_m
+#define I4MEMLDIS atommem, &i4memldis_m
+#define I4MEMLDR atommem, &i4memldr_m
 
 static struct insn tabp[] = {
 	{ 0x00f00000, 0x00f00000 },
@@ -262,36 +289,38 @@ static struct insn tabovr[] = {
     { 0x14000081, 0x1c0000ff, N("ld"), DST, DMEMLDR },
     { 0x1c000081, 0x3c0000ff, N("ld"), DST, DMEMLDI },
     { 0x3c000081, 0x3c0000ff, N("ld"), DST, DMEMLDIS },
-    { 0x14000083, 0x1c0000ff, U("o83"), DST, FMEMLDR },
-    { 0x1c000083, 0x3c0000ff, U("o83"), DST, FMEMLDI },
-    { 0x3c000083, 0x3c0000ff, U("o83"), DST, FMEMLDIS },
-    { 0x1c000084, 0x3c0000ff, U("o84"), DMEMSTI, SRC2 },
-    { 0x3c000084, 0x3c0000ff, U("o84"), DMEMSTIS, SRC2 },
-    { 0x14000084, 0x1c0000ff, U("o84"), DMEMSTR, SRC2 }, // store?
-    { 0x14000089, 0x1c0000ff, U("o89"), DST, GMEMLDR },
-    { 0x1c000089, 0x3c0000ff, U("o89"), DST, GMEMLDI },
-    { 0x3c000089, 0x3c0000ff, U("o89"), DST, GMEMLDIS },
-    { 0x1c00008a, 0x3c0000ff, U("o8a"), DMEMSTI, SRC2 }, // store?
-    { 0x3c00008a, 0x3c0000ff, U("o8a"), DMEMSTIS, SRC2 },
-    { 0x1400008a, 0x1c0000ff, U("o8a"), DMEMSTR, SRC2 },
-    { 0x1c00008c, 0x3c0000ff, U("o8c"), DMEMSTI, SRC2 }, // store? space really unknown
-    { 0x3c00008c, 0x3c0000ff, U("o8c"), DMEMSTIS, SRC2 },
-    { 0x3400008c, 0x1c0000ff, U("o8c"), DMEMSTR, SRC2 },
-    { 0x1400008d, 0x140000ff, U("o8d"), DST }, // load?
-    { 0x1c00008e, 0x3c0000ff, N("iowr"), EMEMSTI, SRC2 },
-    { 0x3c00008e, 0x3c0000ff, N("iowr"), EMEMSTIS, SRC2 },
-    { 0x1400008e, 0x1c0000ff, N("iowr"), EMEMSTR, SRC2 },
-    { 0x1400008f, 0x1c0000ff, N("iord"), DST, EMEMLDR },
-    { 0x1c00008f, 0x3c0000ff, N("iord"), DST, EMEMLDI },
-    { 0x3c00008f, 0x3c0000ff, N("iord"), DST, EMEMLDIS },
+    { 0x14000083, 0x1c0000ff, N("ld1"), DST, I1MEMLDR },
+    { 0x1c000083, 0x3c0000ff, N("ld1"), DST, I1MEMLDI },
+    { 0x3c000083, 0x3c0000ff, N("ld1"), DST, I1MEMLDIS },
+    { 0x1c000084, 0x3c0000ff, N("st2"), O2MEMSTI, SRC2 },
+    { 0x3c000084, 0x3c0000ff, N("st2"), O2MEMSTIS, SRC2 },
+    { 0x14000084, 0x1c0000ff, N("st2"), O2MEMSTR, SRC2 },
+    { 0x14000089, 0x1c0000ff, N("ld4"), DST, I4MEMLDR },
+    { 0x1c000089, 0x3c0000ff, N("ld4"), DST, I4MEMLDI },
+    { 0x3c000089, 0x3c0000ff, N("ld4"), DST, I4MEMLDIS },
+    { 0x1c00008a, 0x3c0000ff, N("st5"), O5MEMSTI, SRC2 },
+    { 0x3c00008a, 0x3c0000ff, N("st5"), O5MEMSTIS, SRC2 },
+    { 0x1400008a, 0x1c0000ff, N("st5"), O5MEMSTR, SRC2 },
+    { 0x1c00008c, 0x3c0000ff, N("st6"), B6MEMSTI, SRC2 },
+    { 0x3c00008c, 0x3c0000ff, N("st6"), B6MEMSTIS, SRC2 },
+    { 0x3400008c, 0x1c0000ff, N("st6"), B6MEMSTR, SRC2 },
+    { 0x1400008d, 0x1c0000ff, N("ld6"), DST, B6MEMLDR },
+    { 0x1c00008d, 0x3c0000ff, N("ld6"), DST, B6MEMLDI },
+    { 0x3c00008d, 0x3c0000ff, N("ld6"), DST, B6MEMLDIS },
+    { 0x1c00008e, 0x3c0000ff, N("st7"), B7MEMSTI, SRC2 },
+    { 0x3c00008e, 0x3c0000ff, N("st7"), B7MEMSTIS, SRC2 },
+    { 0x1400008e, 0x1c0000ff, N("st7"), B7MEMSTR, SRC2 },
+    { 0x1400008f, 0x1c0000ff, N("ld7"), DST, B7MEMLDR },
+    { 0x1c00008f, 0x3c0000ff, N("ld7"), DST, B7MEMLDI },
+    { 0x3c00008f, 0x3c0000ff, N("ld7"), DST, B7MEMLDIS },
 
     // arithmetic subsystem block
     { 0x140000a0, 0x140000ff, N("mul"), SRC1, T(arithsrc2) },
     { 0x140000a1, 0x140000ff, N("muls"), SRC1, T(arithsrc2) },
     { 0x140000a2, 0x140000ff, N("shift"), T(arithsrc2) },
-    { 0x140000a4, 0x140000ff, U("oa4"), T(src2) },
-    { 0x140000a8, 0x140000ff, U("oa8"), T(src2) },
-    { 0x140000ac, 0x140000ff, U("oac"), T(src2) },
+    { 0x140000a4, 0x140000ff, U("oa4"), T(src2) }, /* VC1 */
+    { 0x140000a8, 0x140000ff, U("oa8"), T(src2) }, /* VC1 */
+    { 0x140000ac, 0x140000ff, U("oac"), T(src2) }, /* 263 */
     
     { 0, 0, OOPS },
 };
