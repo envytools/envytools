@@ -519,7 +519,6 @@ int parse_args(int argc, char **argv) {
 int vbios_read(const char *filename, uint8_t **vbios, unsigned int *length)
 {
 	FILE * fd_bios;
-	int i;
 
 	*vbios = NULL;
 	*length = 0;
@@ -556,6 +555,7 @@ int vbios_read(const char *filename, uint8_t **vbios, unsigned int *length)
 		perror("fclose");
 		return 1;
 	}
+	return 0;
 }
 
 const char * mem_type(uint8_t version, uint16_t start)
@@ -769,7 +769,7 @@ int main(int argc, char **argv) {
 		printf ("\n");
 	}
 	if (bios->hwsq_offset) {
-		uint8_t entry_count, bytes_to_write, i, e;
+		uint8_t entry_count, bytes_to_write, i;
 
 		bios->hwsq_offset += 4;
 
