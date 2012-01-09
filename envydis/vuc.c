@@ -166,19 +166,19 @@ static struct mem b7memstr_m = { "B7", 0, &src1_r, 0, &dst_r };
 #define B7MEMSTIS atommem, &b7memstis_m
 #define B7MEMSTR atommem, &b7memstr_m
 
-static struct mem i1memldi_m = { "I1", 0, &src1_r, &bimmldoff };
-static struct mem i1memldis_m = { "I1", 0, &src1_r, &bimmldsoff };
-static struct mem i1memldr_m = { "I1", 0, &src1_r, 0, &src2_r };
-#define I1MEMLDI atommem, &i1memldi_m
-#define I1MEMLDIS atommem, &i1memldis_m
-#define I1MEMLDR atommem, &i1memldr_m
+static struct mem pwtldi_m = { "PWT", 0, &src1_r, &bimmldoff };
+static struct mem pwtldis_m = { "PWT", 0, &src1_r, &bimmldsoff };
+static struct mem pwtldr_m = { "PWT", 0, &src1_r, 0, &src2_r };
+#define PWTLDI atommem, &pwtldi_m
+#define PWTLDIS atommem, &pwtldis_m
+#define PWTLDR atommem, &pwtldr_m
 
-static struct mem o2memsti_m = { "O2", 0, &src1_r, &bimmstoff };
-static struct mem o2memstis_m = { "O2", 0, &src1_r, &bimmstsoff };
-static struct mem o2memstr_m = { "O2", 0, &src1_r, 0, &dst_r };
-#define O2MEMSTI atommem, &o2memsti_m
-#define O2MEMSTIS atommem, &o2memstis_m
-#define O2MEMSTR atommem, &o2memstr_m
+static struct mem vpsti_m = { "VP", 0, &src1_r, &bimmstoff };
+static struct mem vpstis_m = { "VP", 0, &src1_r, &bimmstsoff };
+static struct mem vpstr_m = { "VP", 0, &src1_r, 0, &dst_r };
+#define VPSTI atommem, &vpsti_m
+#define VPSTIS atommem, &vpstis_m
+#define VPSTR atommem, &vpstr_m
 
 static struct mem o5memsti_m = { "O5", 0, &src1_r, &bimmstoff };
 static struct mem o5memstis_m = { "O5", 0, &src1_r, &bimmstsoff };
@@ -289,12 +289,12 @@ static struct insn tabovr[] = {
     { 0x14000081, 0x1c0000ff, N("ld"), DST, DMEMLDR },
     { 0x1c000081, 0x3c0000ff, N("ld"), DST, DMEMLDI },
     { 0x3c000081, 0x3c0000ff, N("ld"), DST, DMEMLDIS },
-    { 0x14000083, 0x1c0000ff, N("ld1"), DST, I1MEMLDR },
-    { 0x1c000083, 0x3c0000ff, N("ld1"), DST, I1MEMLDI },
-    { 0x3c000083, 0x3c0000ff, N("ld1"), DST, I1MEMLDIS },
-    { 0x1c000084, 0x3c0000ff, N("st2"), O2MEMSTI, SRC2 },
-    { 0x3c000084, 0x3c0000ff, N("st2"), O2MEMSTIS, SRC2 },
-    { 0x14000084, 0x1c0000ff, N("st2"), O2MEMSTR, SRC2 },
+    { 0x14000083, 0x1c0000ff, N("ld"), DST, PWTLDR },
+    { 0x1c000083, 0x3c0000ff, N("ld"), DST, PWTLDI },
+    { 0x3c000083, 0x3c0000ff, N("ld"), DST, PWTLDIS },
+    { 0x1c000084, 0x3c0000ff, N("st"), VPSTI, SRC2 },
+    { 0x3c000084, 0x3c0000ff, N("st"), VPSTIS, SRC2 },
+    { 0x14000084, 0x1c0000ff, N("st"), VPSTR, SRC2 },
     { 0x14000089, 0x1c0000ff, N("ld4"), DST, I4MEMLDR },
     { 0x1c000089, 0x3c0000ff, N("ld4"), DST, I4MEMLDI },
     { 0x3c000089, 0x3c0000ff, N("ld4"), DST, I4MEMLDIS },

@@ -188,10 +188,20 @@ oriented. There are 3 ISA register files:
    - $sr32-$sr42: ??? affected by $sr3, unko21, read only [XXX]
    - $sr48-$sr58: ??? affected by writing $sr0 and $sr1, unko22, read only [XXX]
 
-Address spaces
-    D[] - data memory address space (access via ld/st)
-    E[] - io address space (access via iord/iowr)
-    Probably at least 3 more address spaces (3 loads, 3 writes).
+There are 7 address spaces the vµc can access:
+    D[] - user data, word-addressed, 0x800 16-bit words long, loads and stores
+          are in word units.
+    PWT[] - pred weight table data, read-only. This space is filled when
+            a packet of type 4 is read from the MBRING. Byte-addressed, 0x200
+	    bytes long, loads are in byte units.
+    VP[] - VPRING output data, write-only. Data stored here will be written to
+            VPRING_MBINFO and VPRING_MV when corresponding commands are invoked.
+	    Byte-addressed, 0x400 bytes long. Stores are in byte or word units
+	    depending on the address.
+    I4[] - ??? read-only [XXX]
+    O5[] - ??? write-only [XXX]
+    B6[] - io address space? [XXX]
+    B7[] - io address space? [XXX]
 
 
 Opcode format:
