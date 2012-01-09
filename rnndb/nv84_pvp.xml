@@ -366,6 +366,7 @@
 				<value value="0" name="NONE"/>
 				<value value="1" name="STREAM"/>
 				<value value="2" name="MBRING"/>
+				<value value="3" name="VPRING"/>
 				<value value="4" name="MVSURF"/>
 			</bitfield>
 		</reg32>
