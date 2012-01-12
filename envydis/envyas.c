@@ -178,7 +178,7 @@ int donum (struct section *s, struct line *line, struct disctx *ctx, int wren) {
 		for (i = 0; i < line->atomsnum; i++) {
 			ull num = calc(line->atoms[i], ctx);
 			if ((line->str[1] == 'u' && bits != 64 && num >= (1ull << bits))
-				|| (line->str[1] == 's' && bits != 64 && num >= (1ull << bits - 1) && num < (-1ull << bits - 1))) {
+				|| (line->str[1] == 's' && bits != 64 && num >= (1ull << (bits - 1)) && num < (-1ull << (bits - 1)))) {
 				fprintf (stderr, "Argument %d too large for %s\n", i, line->str);
 				exit(1);
 			}
@@ -520,7 +520,6 @@ int main(int argc, char **argv) {
 			envyas_ofmt = OFMT_HEX32;
 	}
 	int c;
-	unsigned base = 0, skip = 0, limit = 0;
 	const char *varname = 0;
 	while ((c = getopt (argc, argv, "vgfpcsam:V:o:wi")) != -1)
 		switch (c) {
