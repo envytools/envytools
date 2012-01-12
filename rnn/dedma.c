@@ -332,7 +332,10 @@ configure(struct state *s, int argc, char *argv[], char **path,
 			if (i + 1 >= argc)
 				goto fail;
 
-			s->chipset = strtoul(argv[++i], NULL, 16);
+			if (!strncasecmp(argv[++i], "NV", 2))
+				s->chipset = strtoul(argv[i] + 2, NULL, 16);
+			else
+				s->chipset = strtoul(argv[i], NULL, 16);
 
 		} else if (!strcmp(argv[i], "-o")) {
 			if (i + 2 >= argc || *nobj == MAX_OBJECTS)
