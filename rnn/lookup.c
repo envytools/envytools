@@ -75,8 +75,11 @@ int main(int argc, char **argv) {
 				mode = 'd';
 				name = strdup(optarg);
 				break;
-			case  'a':
-				variant = strdup(optarg);
+			case 'a':
+				if (!strncasecmp(optarg, "NV", 2))
+					variant = strdup(optarg);
+				else
+					vasprintf(&variant, "NV%s", optarg);
 				break;
 			case 'c':
 				colors = 0;
