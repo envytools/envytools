@@ -8,7 +8,12 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 	<array name="PTHERM" offset="0x00020000" stride="0x1000" length="1" variants="NV50-">
-		<reg32 offset="0x008" name="SENSOR_RAW"/>
+		<reg32 offset="0x008" name="SENSOR_RAW">
+			<bitfield pos="31" name="ENABLE"/>
+			<bitfield pos="30" name="UNK30"/>
+			<bitfield low="16" high="21" name="UNK21"/>
+			<bitfield low="0" high="15" name="RAW_VALUE"/>
+		</reg32>
 		<reg32 offset="0x400" name="SENSOR_CALIBRATED" variants="NV84-"/>
 	</array>
 </domain>
