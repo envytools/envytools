@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
 			fprintf (stderr, "No cards found.\n");
 		return 1;
 	}
-	uint32_t a, b;
+	uint32_t a;
 	if (optind >= argc) {
 		fprintf (stderr, "No address specified.\n");
 		return 1;
