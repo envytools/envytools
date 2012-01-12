@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
 		uint32_t z[4];
 		int s = 0;
 		for (i = 0; i < 16 && i < b; i+=4)
-			if (z[i/4] = nva_rd32(cnum, a+i)) s = 1;
+			if ((z[i/4] = nva_rd32(cnum, a+i))) s = 1;
 		if (s) {
 			ls = 1;
 			printf ("%08x:", a);

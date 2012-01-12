@@ -57,12 +57,12 @@ int main(int argc, char **argv) {
 		sscanf (argv[optind + 1], "%x", &b);
 	int ls = 1;
 	while (b > 0) {
-		uint32_t selector = (a+i)|0xffc;
+		uint32_t selector = a|0xffc;
 		uint32_t z[0x40];
 		int s = 0, j;
 		for (i = 0; i < 0x40; i++) {
 			nva_wr32(cnum, selector, i);
-			if (z[i] = nva_rd32(cnum, a)) s |= 1 << (i/4);
+			if ((z[i] = nva_rd32(cnum, a))) s |= 1 << (i/4);
 		}
 		nva_wr32(cnum, selector, 0);
 		for (j = 0; j < 0x10; ++j) {
