@@ -33,6 +33,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/time.h>
+#include <sys/mount.h>
+#include <sys/wait.h>
 #include <errno.h>
 
 #include "nva.h"
@@ -157,7 +159,7 @@ upclock_card(Display *dpy)
 	} while ( tmp != NV_CTRL_GPU_CURRENT_PERFORMANCE_MODE_MAXPERF && (start_time + 2) < get_time);
 
 	kill(pid, SIGTERM);
-	waitpid(pid, NULL);
+	waitpid(pid, NULL, 0);
 
 	return 0;
 }
@@ -209,7 +211,7 @@ static int
 force_timing_changes(uint8_t wanted_perflvl, int mmiotrace)
 {
 	Display *dpy = NULL;
-	int ret, i = 0;
+	int ret = 0, i = 0;
 
 	/* wait for X to come up */
 	do
@@ -299,9 +301,9 @@ dump_timings(struct nvamemtiming_conf *conf, FILE* outf,
 	static uint32_t ref_val4[0x10] = { 0 };
 	static int ref_exist = 0;
 	uint8_t *vbios_entry = conf->vbios.data + conf->vbios.timing_entry_offset;
-	int i, r;
+	int i;
 
-	fprintf(outf, "timing entry [%u/%zu]: ", progression, conf->vbios.timing_entry_length);
+	fprintf(outf, "timing entry [%u/%u]: ", progression, conf->vbios.timing_entry_length);
 	for (i = 0; i < conf->vbios.timing_entry_length; i++) {
 		if (i != progression - 1)
 			fprintf(outf, "%02x ", vbios_entry[i]);
@@ -460,7 +462,7 @@ deep_dump(struct nvamemtiming_conf *conf)
 		} else if (timing_value_types[i] == BITFIELD) {
 			iterate_bitfield(conf, outf, i, COLOR);
 		} else if (timing_value_types[i] == EMPTY) {
-			fprintf(outf, "timing entry [%u/%zu] is supposed empty\n\n",
+			fprintf(outf, "timing entry [%u/%u] is supposed empty\n\n",
 				i + 1, conf->vbios.timing_entry_length);
 		}
 
@@ -519,7 +521,7 @@ shallow_dump(struct nvamemtiming_conf *conf)
 		} else if (timing_value_types[i] == BITFIELD) {
 			iterate_bitfield(conf, outf, i, COLOR);
 		} else if (timing_value_types[i] == EMPTY) {
-			fprintf(outf, "timing entry [%u/%zu] is supposed empty\n\n",
+			fprintf(outf, "timing entry [%u/%u] is supposed empty\n\n",
 				i + 1, conf->vbios.timing_entry_length);
 		}
 
@@ -534,7 +536,6 @@ shallow_dump(struct nvamemtiming_conf *conf)
 int bitfield_check(struct nvamemtiming_conf *conf)
 {
 	char outfile[21];
-	int i;
 
 	snprintf(outfile, 20, "entry_b_%i", conf->bitfield.index);
 
@@ -558,7 +559,6 @@ int bitfield_check(struct nvamemtiming_conf *conf)
 int manual_check(struct nvamemtiming_conf *conf)
 {
 	char outfile[21];
-	int i;
 
 	snprintf(outfile, 20, "entry_%i_%i", conf->manual.index, conf->manual.value);
 
