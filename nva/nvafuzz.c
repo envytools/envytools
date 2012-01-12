@@ -38,6 +38,12 @@ uint32_t proper_rand(int x) {
 	return res;
 }
 
+static void usage(int error_code)
+{
+	fprintf(stderr, "\nUsage: nvafuzz [ -c card_number ] address\n");
+	exit(error_code);
+}
+
 int main(int argc, char **argv) {
 	if (nva_init()) {
 		fprintf (stderr, "PCI init failure!\n");
@@ -45,15 +51,15 @@ int main(int argc, char **argv) {
 	}
 	int c;
 	int cnum =0;
-	int alias = 0;
-	while ((c = getopt (argc, argv, "ac:")) != -1)
+	while ((c = getopt (argc, argv, "hc:")) != -1)
 		switch (c) {
 			case 'c':
 				sscanf(optarg, "%d", &cnum);
 				break;
-			case 'a':
-				alias = 1;
-				break;
+			case 'h':
+				usage(0);
+			default:
+				usage(1);
 		}
 	if (cnum >= nva_cardsnum) {
 		if (nva_cardsnum)
@@ -62,7 +68,7 @@ int main(int argc, char **argv) {
 			fprintf (stderr, "No cards found.\n");
 		return 1;
 	}
-	int32_t a, b = 4, i;
+	int32_t a, b = 4;
 	if (optind >= argc) {
 		fprintf (stderr, "No address specified.\n");
 		return 1;
