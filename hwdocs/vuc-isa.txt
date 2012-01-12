@@ -54,7 +54,7 @@ oriented. There are 3 ISA register files:
    - $sr8/$pc: address of currently executed instruction
    - $sr9: ??? values 0, 1, 3, may be related to upload/execution order [XXX]
    - $sr10/$cstop: aliases call stack top? [XXX]
-   - $sr11: ??? seems to be another code address [XXX]
+   - $sr11/$rpitab: D[] address of refidx -> dpb index translation table
    - $sr12/$arthi: Arithmetic result high word register
    - $sr13/$artlo: Arithmetic result low word register
    - $sr14/$pred: predicates - aliases the $p register file, bit X corresponds
@@ -66,8 +66,10 @@ oriented. There are 3 ISA register files:
    - $sr19/$mvyl1: sign-extended mvd_l1[$spidx][1] [input]
    - $sr20/$refl0: ref_idx_l0[$spidx>>2] [input]
    - $sr21/$refl1: ref_idx_l1[$spidx>>2] [input]
-   - $sr22-$sr23: ??? modified by $sr16 [XXX]
-   - $sr22-$sr23: ??? related to orsetreg's unknown bits, regardless of result
+   - $sr22/$rpil0: dpb index of L0 reference picture for $spidx-selected
+     partition
+   - $sr23/$rpil1: dpb index of L1 reference picture for $spidx-selected
+     partition
    - $sr24/$mbflags:
        bit 0: mb_field_decoding_flag [RW]
        bit 1: is intra macroblock [RO]
