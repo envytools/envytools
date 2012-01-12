@@ -69,7 +69,7 @@ The vµc registers are located in PBSP XLMI space at addresses 0x08000:0x10000
 0b400/1032d0: VPRING_TRIGGER - flush/resume triggers the for VPRINGs
 0b500/1032d4: INTR - interrupt status
 0b600/1032d8: INTR_EN - interrupt enable mask
-0b700/1032dc: ??? [XXX]
+0b700/1032dc: VPRING_ENABLE - enables VPRING access
 0b800/1032e0: MVSURF_IN_OFFSET - the offset of input MVSURF
 0b900/1032e4: MVSURF_IN_PARAM - the parameters of input MVSURF
 0ba00/1032e8: MVSURF_IN_LEFT - the macroblocks left in current line and lines

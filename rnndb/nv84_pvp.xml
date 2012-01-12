@@ -320,7 +320,7 @@
 		</bitset>
 		<reg32 offset="0x0d4" name="INTR" type="nv84_pbsp_vuc_intr"/>
 		<reg32 offset="0x0d8" name="INTR_EN" type="nv84_pbsp_vuc_intr"/>
-		<reg32 offset="0x0dc" name="UNK0DC"/>
+		<reg32 offset="0x0dc" name="VPRING_ENABLE"/>
 		<reg32 offset="0x0e0" name="MVSURF_IN_OFFSET"/>
 		<reg32 offset="0x0e4" name="MVSURF_IN_PARM">
 			<bitfield low="0" high="7" name="WIDTH"/>
