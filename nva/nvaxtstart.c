@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
         fprintf(stderr, "Uploading file %s.\n", argv[optind]);
     }
     
-    int32_t a, i;
+    int32_t i;
 	nva_wr32(cnum, 0x200, 0x40110011);
 	nva_wr32(cnum, 0x200, 0xffffffff);
 	usleep(1000);

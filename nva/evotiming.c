@@ -102,4 +102,5 @@ int main(int argc, char **argv) {
 	};
 
 	printf("%d evo 0x80 commands in 1 sec\n", i);
+	return 0;
 }

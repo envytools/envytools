@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
 			fprintf (stderr, "No cards found.\n");
 		return 1;
 	}
-	int32_t a, b = 1, i;
+	int32_t a, b = 1;
 	if (optind >= argc) {
 		fprintf (stderr, "No address specified.\n");
 		return 1;
@@ -51,7 +51,6 @@ int main(int argc, char **argv) {
 	if (optind + 1 < argc)
 		sscanf (argv[optind + 1], "%x", &b);
 	nva_wr32(cnum, 0x1700, 0x30);
-	int ls = 1;
 	for (;b > 0; b--, a++) {
 		printf("%02x: ", a);
 		uint32_t status;

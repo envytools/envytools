@@ -46,7 +46,7 @@ int nva_init() {
 	}
 
 	struct pci_device *dev;
-	while (dev = pci_device_next(it)) {
+	while ((dev = pci_device_next(it))) {
 		struct nva_card c = { 0 };
 		ret = pci_device_probe(dev);
 		if (ret) {
