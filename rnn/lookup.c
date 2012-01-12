@@ -79,7 +79,7 @@ int main(int argc, char **argv) {
 				if (!strncasecmp(optarg, "NV", 2))
 					variant = strdup(optarg);
 				else
-					vasprintf(&variant, "NV%s", optarg);
+					asprintf(&variant, "NV%s", optarg);
 				break;
 			case 'c':
 				colors = 0;
