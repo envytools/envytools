@@ -1100,7 +1100,6 @@ int main(int argc, char **argv) {
 	if (ram_type_tbl_ptr) {
 		uint8_t version, entry_count = 0, entry_length = 0;
 		uint16_t start = ram_type_tbl_ptr;
-		uint8_t ram_type;
 		uint8_t ram_cfg = strap?(strap & 0x1c) >> 2:0xff;
 		int i;
 		version = bios->data[start];
@@ -1110,7 +1109,6 @@ int main(int argc, char **argv) {
 		printf("Ram type table at %x: Version %x, %u entries\n", start, version, entry_count);
 		start += bios->data[start+1];
 		if(version == 0x10) {
-			ram_type = bios->data[start + (ram_cfg*entry_length)] & 0x0f;
 			printf("Detected ram type: %s\n",
 			       mem_type(version, start + (ram_cfg*entry_length)));
 		}
@@ -1278,10 +1276,10 @@ int main(int argc, char **argv) {
 					hub07 = (le16(start+subent(11)) & 0xfff);
 
 					printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Hub01 %dMHz "
-						"Hub06 %dMHz Hub07 %dMHz ROP %dMHz VDec %dMHz Daemon %dMHz "
+						"Hub06 %dMHz Hub07 %dMHz ROP %dMHz VDec %dMHz Daemon %dMHz Copy %dMHz"
 						"Voltage entry %d Timing %d PCIe link width %d --\n",
 						id, core, memclk, shader, hub01, hub06, hub07,
-						rop, vdec, daemon, voltage, timing_id, pcie_width );
+						rop, vdec, daemon, copy, voltage, timing_id, pcie_width );
 				} else {
 					core = (le16(start+subent(0)) & 0xfff);
 					shader = (le16(start+subent(1)) & 0xfff);
