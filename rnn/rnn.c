@@ -80,7 +80,6 @@ resolve_using_path(char *filename, char *buf, unsigned buf_len)
 
 	} while (*rnn_path);
 
-out:
 	strncpy(buf, filename, buf_len - 1);
 	buf[buf_len - 1] = 0;
 }

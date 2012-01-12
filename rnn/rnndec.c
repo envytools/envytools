@@ -197,17 +197,20 @@ char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64
 				asprintf (&res, "%sTRUE%s", ctx->colors->cbool, ctx->colors->cend);
 				return res;
 			}
-		case RNN_TTYPE_FLOAT:
+		case RNN_TTYPE_FLOAT: {
+			union { uint64_t i; float f; double d; } val;
+			val.i = value;
 			if (width == 64)
 				asprintf(&res, "%s%f%s", ctx->colors->cimm,
-					 *(double *)&value, ctx->colors->cend);
+					val.d, ctx->colors->cend);
 			else if (width == 32)
 				asprintf(&res, "%s%f%s", ctx->colors->cimm,
-					 *(float *)&value, ctx->colors->cend);
+					val.f, ctx->colors->cend);
 			else
 				goto failhex;
 
 			return res;
+		}
 		failhex:
 		default:
 			asprintf (&res, "%s%#"PRIx64"%s", ctx->colors->cerr, value, ctx->colors->cend);
