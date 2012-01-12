@@ -88,7 +88,6 @@ int vbios_upload_pramin(int cnum, uint8_t *vbios, int length)
 
 	ret = EOK;
 
-out:
 	if (nva_cards[cnum].card_type >= 0x50)
 		nva_wr32(cnum, 0x1700, old_bar0_pramin);
 
@@ -98,7 +97,6 @@ out:
 int vbios_read(const char *filename, uint8_t **vbios, unsigned int *length)
 {
 	FILE * fd_bios;
-	int i;
 
 	if (!vbios || !length)
 		return EARG;
@@ -165,6 +163,8 @@ int main(int argc, char **argv) {
 			case 'c':
 				sscanf(optarg, "%d", &cnum);
 				break;
+			default:
+				usage(1);
 		}
 	if (cnum >= nva_cardsnum) {
 		if (nva_cardsnum)
