@@ -36,8 +36,6 @@ static struct bitfield imm16off = { 8, 16 };
 #define IMM16 atomimm, &imm16off
 static struct bitfield imm32off = { 8, 32 };
 #define IMM32 atomimm, &imm32off
-static struct bitfield maskoff = { 8, 8 };
-#define EVMASK atomimm, &maskoff
 static struct bitfield flagoff = { 0, 5 };
 #define FLAG atomimm, &flagoff
 static struct bitfield waitoff = { 0, 2 };
