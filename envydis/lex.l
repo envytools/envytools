@@ -22,6 +22,9 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+%option nounput
+%option noinput
+
 %{
 #include "envyas.h"
 #include "parse.h"
