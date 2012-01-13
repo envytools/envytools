@@ -77,7 +77,7 @@ static struct sreg sreg_sr[] = {
 	{ 6, "stat" },
 	{ 7, "parm" },
 	{ 8, "pc" },
-	/* 9 */
+	{ 9, "cspos" },
 	{ 10, "cstop" },
 	{ 11, "rpitab" },
 	{ 12, "arthi" },

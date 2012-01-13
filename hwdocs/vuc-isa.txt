@@ -320,8 +320,11 @@ The operands and their encodings are:
  - $sr7/$parm: sequence/picture/slice parameters required by vµc hardware
    [see vuc.txt]
  - $sr8/$pc: address of currently executed instruction
- - $sr9: ??? values 0, 1, 3, may be related to upload/execution order [XXX]
- - $sr10/$cstop: aliases call stack top? [XXX]
+ - $sr9/$cspos: call stack position, 0-8. Equal to the number of used entries
+   on the stack.
+ - $sr10/$cstop: call stack top. Writing to this register causes the written
+   value to be pushed onto the stack, reading this register pops a value off
+   the stack and returns it.
  - $sr11/$rpitab: D[] address of refidx -> dpb index translation table
  - $sr12/$arthi: Arithmetic result high word register
  - $sr13/$artlo: Arithmetic result low word register
