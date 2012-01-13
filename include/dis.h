@@ -425,4 +425,6 @@ const struct disisa *ed_getisa(const char *name);
 void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, struct ed2v_variant *variant, int quiet, struct label *labels, int labelsnum, const struct ed2a_colors *cols);
 void printexpr(FILE *out, const struct expr *expr, int lvl, const struct ed2a_colors *cols);
 
+void convert_iop(struct line *line, struct ed2a_iop *iop);
+
 #endif

@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
 		uint8_t z[16];
 		int s = 0;
 		for (i = 0; i < 16 && i < b; i++)
-			if (z[i] = nva_rd8(cnum, a+i)) s = 1;
+			if ((z[i] = nva_rd8(cnum, a+i))) s = 1;
 		if (s) {
 			ls = 1;
 			printf ("%08x:", a);

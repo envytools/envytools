@@ -87,11 +87,10 @@ int ed2v_add_feature(struct ed2v_variant *var, const char *feature) {
 }
 
 int ed2v_set_mode_i(struct ed2v_variant *var, int mode) {
-	int i;
 	struct ed2i_mode *m = &var->isa->modes[mode];
 	assert(mode >= 0 && mode < var->isa->modesnum);
 	if (!ed2_mask_contains(var->fmask, m->fmask, var->isa->featuresnum)) {
-		fprintf (stderr, "%s feature requirements not met\n", mode);
+		fprintf (stderr, "%i feature requirements not met\n", mode);
 		return -1;
 	}
 	var->mode[m->modeset] = mode;

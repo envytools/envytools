@@ -70,6 +70,7 @@ uint16_t disp_script_tbl_ptr;
 
 uint8_t ram_restrict_group_count;
 uint16_t ram_restrict_tbl_ptr;
+uint16_t ram_type_tbl_ptr;
 
 uint16_t pll_limit_tbl_ptr;
 
@@ -518,7 +519,6 @@ int parse_args(int argc, char **argv) {
 int vbios_read(const char *filename, uint8_t **vbios, unsigned int *length)
 {
 	FILE * fd_bios;
-	int i;
 
 	*vbios = NULL;
 	*length = 0;
@@ -554,6 +554,32 @@ int vbios_read(const char *filename, uint8_t **vbios, unsigned int *length)
 		free(*vbios);
 		perror("fclose");
 		return 1;
+	}
+	return 0;
+}
+
+const char * mem_type(uint8_t version, uint16_t start)
+{
+	uint8_t ram_type = bios->data[start] & 0x0f;
+
+	if (version != 0x10)
+		return "unknown table version (%x)\n";
+
+	switch (ram_type) {
+	case 0:
+		return "DDR2";
+		break;
+	case 1:
+		return "DDR3";
+		break;
+	case 2:
+		return "GDDR3";
+		break;
+	case 3:
+		return "GDDR5";
+		break;
+	default:
+		return "Unknown ram type";
 	}
 }
 
@@ -648,6 +674,7 @@ int main(int argc, char **argv) {
 						if (elen >= 3) {
 							ram_restrict_group_count = bios->data[eoff];
 							ram_restrict_tbl_ptr = le16(eoff+1);
+							ram_type_tbl_ptr = le16(eoff+3);
 						}
 					}
 
@@ -744,9 +771,8 @@ int main(int argc, char **argv) {
 		printf ("\n");
 	}
 	if (bios->hwsq_offset) {
-		uint8_t entry_count, bytes_to_write, i, e;
+		uint8_t entry_count, bytes_to_write, i;
 		const struct disisa *hwsq_isa = ed_getisa("hwsq");
-		struct ed2v_variant *hwsq_var_nv17 = ed2v_new_variant(hwsq_isa->ed2, "nv17");
 		struct ed2v_variant *hwsq_var_nv41 = ed2v_new_variant(hwsq_isa->ed2, "nv41");
 
 		bios->hwsq_offset += 4;
@@ -856,8 +882,6 @@ int main(int argc, char **argv) {
 		}
 		printf("\n");
 	}
-
-
 
 	if (pll_limit_tbl_ptr) {
 		uint8_t ver = bios->data[pll_limit_tbl_ptr];
@@ -1077,6 +1101,36 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
+	if (ram_type_tbl_ptr) {
+		uint8_t version, entry_count = 0, entry_length = 0;
+		uint16_t start = ram_type_tbl_ptr;
+		uint8_t ram_cfg = strap?(strap & 0x1c) >> 2:0xff;
+		int i;
+		version = bios->data[start];
+		entry_count = bios->data[start+3];
+		entry_length = bios->data[start+2];
+
+		printf("Ram type table at %x: Version %x, %u entries\n", start, version, entry_count);
+		start += bios->data[start+1];
+		if(version == 0x10) {
+			printf("Detected ram type: %s\n",
+			       mem_type(version, start + (ram_cfg*entry_length)));
+		}
+		printf("\n");
+
+		for (i = 0; i < entry_count; i++) {
+			if(i == ram_cfg) {
+				printf("*");
+			} else {
+				printf(" ");
+			}
+			printcmd(start, entry_length);
+			printf("Ram type: %s\n", mem_type(version, start));
+			start += entry_length;
+		}
+
+		printf("\n");
+	}
 #define subent(n) (subentry_offset + ((n) * subentry_size))
 	if (pm_mode_tbl_ptr) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
@@ -1226,10 +1280,10 @@ int main(int argc, char **argv) {
 					hub07 = (le16(start+subent(11)) & 0xfff);
 
 					printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Hub01 %dMHz "
-						"Hub06 %dMHz Hub07 %dMHz ROP %dMHz VDec %dMHz Daemon %dMHz "
+						"Hub06 %dMHz Hub07 %dMHz ROP %dMHz VDec %dMHz Daemon %dMHz Copy %dMHz"
 						"Voltage entry %d Timing %d PCIe link width %d --\n",
 						id, core, memclk, shader, hub01, hub06, hub07,
-						rop, vdec, daemon, voltage, timing_id, pcie_width );
+						rop, vdec, daemon, copy, voltage, timing_id, pcie_width );
 				} else {
 					core = (le16(start+subent(0)) & 0xfff);
 					shader = (le16(start+subent(1)) & 0xfff);

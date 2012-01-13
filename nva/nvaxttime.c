@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
 			fprintf (stderr, "No cards found.\n");
 		return 1;
 	}
-	int32_t a, i;
+	int32_t i;
 	nva_wr32(cnum, 0x200, 0x40110011);
 	nva_wr32(cnum, 0x200, 0xffffffff);
 	usleep(1000);
@@ -213,7 +213,7 @@ int main(int argc, char **argv) {
 	nva_wr32(cnum, 0xc0208c, 1);
 	usleep(1000);
 	struct timeval start, end;
-	uint64_t t_start, t_end;
+	uint64_t t_start;
 	/* Save the current values */
 	do
 	{

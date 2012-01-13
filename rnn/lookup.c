@@ -24,6 +24,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#define _GNU_SOURCE // for asprintf
 #include "rnn.h"
 #include "rnndec.h"
 #include <stdio.h>
@@ -75,8 +76,11 @@ int main(int argc, char **argv) {
 				mode = 'd';
 				name = strdup(optarg);
 				break;
-			case  'a':
-				variant = strdup(optarg);
+			case 'a':
+				if (!strncasecmp(optarg, "NV", 2))
+					variant = strdup(optarg);
+				else
+					asprintf(&variant, "NV%s", optarg);
 				break;
 			case 'c':
 				colors = 0;

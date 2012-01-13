@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <getopt.h>
 #include <signal.h>
+#include <sys/time.h>
 
 #include "nva.h"
 #include "nvamemtiming.h"
@@ -81,7 +82,7 @@ int read_timings(struct nvamemtiming_conf *conf)
 
 int parse_cmd_line(int argc, char **argv, struct nvamemtiming_conf *conf)
 {
-	int c;
+	int c, val;
 
 	conf->cnum = 0;
 	conf->mmiotrace = false;
@@ -96,38 +97,45 @@ int parse_cmd_line(int argc, char **argv, struct nvamemtiming_conf *conf)
 				if (conf->mode != MODE_AUTO && conf->mode != MODE_MANUAL)
 					usage(argc, argv);
 				conf->mode = MODE_MANUAL;
-				sscanf(optarg, "%d", &conf->manual.index);
+				sscanf(optarg, "%d", &val);
+				conf->manual.index = val;
 				break;
 			case 'v':
 				if (conf->mode != MODE_AUTO && conf->mode != MODE_MANUAL)
 					usage(argc, argv);
 				conf->mode = MODE_MANUAL;
-				sscanf(optarg, "%d", &conf->manual.value);
+				sscanf(optarg, "%d", &val);
+				conf->manual.value = val;
 				break;
 			case 'd':
 				if (conf->mode != MODE_AUTO)
 					usage(argc, argv);
 				conf->mode = MODE_DEEP;
-				sscanf(optarg, "%d", &conf->deep.entry);
+				sscanf(optarg, "%d", &val);
+				conf->deep.entry = val;
 				break;
 			case 'b':
 				if (conf->mode != MODE_AUTO)
 					usage(argc, argv);
 				conf->mode = MODE_BITFIELD;
-				sscanf(optarg, "%d", &conf->bitfield.index);
+				sscanf(optarg, "%d", &val);
+				conf->bitfield.index = val;
 				break;
 			case 's':
 				if (conf->mode != MODE_AUTO)
 					usage(argc, argv);
-				sscanf(optarg, "%d", &conf->range.start);
+				sscanf(optarg, "%d", &val);
+				conf->range.start = val;
 				break;
 			case 'f':
 				if (conf->mode != MODE_AUTO)
 					usage(argc, argv);
-				sscanf(optarg, "%d", &conf->range.end);
+				sscanf(optarg, "%d", &val);
+				conf->range.end = val;
 				break;
 			case 'c':
-				sscanf(optarg, "%d", &conf->cnum);
+				sscanf(optarg, "%d", &val);
+				conf->cnum = val;
 				break;
 			case 't':
 				conf->mmiotrace = true;
@@ -147,7 +155,7 @@ int parse_cmd_line(int argc, char **argv, struct nvamemtiming_conf *conf)
 		usage(argc, argv);
 
 	conf->vbios.file = argv[optind];
-	sscanf(argv[optind + 1], "%x", &conf->vbios.timing_table_offset);
+	sscanf(argv[optind + 1], "%hx", &conf->vbios.timing_table_offset);
 	conf->timing.entry = atoi(argv[optind + 2]);
 	conf->timing.perflvl = atoi(argv[optind + 3]);
 
@@ -206,7 +214,7 @@ int main(int argc, char** argv)
 	gettimeofday(&tv, NULL);
 	total_time = tv.tv_sec - start_time;
 
-	printf("The run tested %i configurations in %i:%i:%is\n",
+	printf("The run tested %i configurations in %li:%li:%lis\n",
 	       conf.counter,
 	       total_time / 3600,
 	       (total_time % 3600) / 60,

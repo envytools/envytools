@@ -247,7 +247,6 @@ int main(int argc, char **argv) {
 	struct ed2v_variant *ctx_var_nv40 = ed2v_new_variant(ctx_isa->ed2, "nv40");
 	struct ed2v_variant *ctx_var_nv50 = ed2v_new_variant(ctx_isa->ed2, "nv50");
 	const struct disisa *hwsq_isa = ed_getisa("hwsq");
-	struct ed2v_variant *hwsq_var_nv17 = ed2v_new_variant(hwsq_isa->ed2, "nv17");
 	struct ed2v_variant *hwsq_var_nv41 = ed2v_new_variant(hwsq_isa->ed2, "nv41");
 	const struct ed2a_colors *discolors = &ed2a_def_colors;
 	while (1) {

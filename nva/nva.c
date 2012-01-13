@@ -46,7 +46,7 @@ int nva_init() {
 	}
 
 	struct pci_device *dev;
-	while (dev = pci_device_next(it)) {
+	while ((dev = pci_device_next(it))) {
 		struct nva_card c = { 0 };
 		ret = pci_device_probe(dev);
 		if (ret) {
@@ -65,7 +65,7 @@ int nva_init() {
 		return -1;
 	}
 
-	while (dev = pci_device_next(it)) {
+	while ((dev = pci_device_next(it))) {
 		struct nva_card c = { 0 };
 		ret = pci_device_probe(dev);
 		if (ret) {
@@ -109,7 +109,7 @@ int nva_init() {
 		else if (nva_cards[i].chipset < 0x40)
 			nva_cards[i].card_type = 0x30;
 		else if (nva_cards[i].chipset < 0x50 ||
-			nva_cards[i].chipset & 0xf0 == 0x60)
+			(nva_cards[i].chipset & 0xf0) == 0x60)
 			nva_cards[i].card_type = 0x40;
 		else if (nva_cards[i].chipset < 0xc0)
 			nva_cards[i].card_type = 0x50;

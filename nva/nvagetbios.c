@@ -118,6 +118,7 @@ static int nv_ckbios(const uint8_t *data, int *length)
 		if (length)
 			*length += vbios2_len;
 	}
+	return ret;
 }
 
 /* vbios should at least be NV_PROM_SIZE bytes long */
@@ -132,7 +133,7 @@ int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 
 	int32_t prom_offset;
 	int32_t prom_size;
-	int32_t pbus_offset;
+	int32_t pbus_offset = 0;
 
 	if (nva_cards[cnum].chipset < 0x04) {
 		prom_offset = 0x110000;
@@ -157,7 +158,6 @@ int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 		vbios[i] = nva_rd8(cnum, prom_offset + i);
 
 	ret = nv_ckbios(vbios, length);
-out:
 	if (nva_cards[cnum].chipset >= 0x04) {
 		nva_wr32(cnum, pbus_offset + 0x50, pci_cfg_50);
 	}
@@ -194,7 +194,6 @@ int vbios_extract_pramin(int cnum, uint8_t *vbios, int *length)
 		vbios[i] = nva_rd8(cnum, NV_PRAMIN_OFFSET + i);
 
 	ret = nv_ckbios(vbios, length);
-out:
 	if (nva_cards[cnum].card_type >= 0x50)
 		nva_wr32(cnum, 0x1700, old_bar0_pramin);
 
@@ -268,24 +267,5 @@ int main(int argc, char **argv) {
 		fwrite(vbios, 1, length, stdout);
 	}
 
-/*
-	switch (result) {
-		case EOK:
-			fprintf(stderr, "Extraction done. Valid checksum.\n");
-			break;
-		case EUNK:
-			fprintf(stderr, "An unknown error hapenned.\n");
-			break;
-		case ECRC:
-			fprintf(stderr, "Invalid checksum. Broken vbios or broken retrieval method?\n");
-			break;
-		case ESIG:
-			fprintf(stderr, "Invalid signature. You may want to try another retrieval method.\n");
-			break;
-		case ECARD:
-			fprintf(stderr, "Method not supported by this card. Try another retrieval method.\n");
-			break;
-	}
-*/
-	return 0;
+	return result != EOK;
 }

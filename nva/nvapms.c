@@ -90,7 +90,6 @@ void timing_pms_waits(int cnum)
 	struct pms_ucode _pms, *pms=&_pms;
 	ptime_t exec_time;
 	int instr, i;
-	u32 ptimer_div;
 
 	printf("Timing PMS wait instructions:\n");
 
@@ -104,7 +103,7 @@ void timing_pms_waits(int cnum)
 			pms_unkn(pms, instr);
 		pms_fini(pms);
 		exec_time = pms_launch(cnum, pms, NULL);
-		printf("	Instr. 0x0%x: 0x%x PTIMER cycles\n", instr, exec_time/250);
+		printf("	Instr. 0x0%x: 0x%Lx PTIMER cycles\n", instr, exec_time/250);
 	}
 
 	/* Restore PTIMER */
@@ -112,10 +111,6 @@ void timing_pms_waits(int cnum)
 }
 
 int main(int argc, char **argv) {
-	struct pms_ucode _pms, *pms=&_pms;
-	ptime_t exec_time;
-	int i;
-
 	if (nva_init()) {
 		fprintf (stderr, "PCI init failure!\n");
 		return 1;

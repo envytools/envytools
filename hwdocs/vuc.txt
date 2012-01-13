@@ -1,685 +1,99 @@
-This document describes vµc ISA as found on VP2 and VP3.
+= Introduction =
 
-Address spaces
-    D[] - data memory address space (access via ld/st)
-    E[] - io address space (access via iord/iowr)
-    Probably at least 3 more address spaces (3 loads, 3 writes).
+vµc is a microprocessor unit used as the second stage of the VP2 [in H.264
+mode only], VP3 and VP4 video decoding pipelines. The same name is also used
+to refer to the instruction set of this microprocessor. vµc's task is to read
+decoded bitstream data written by BSP into the MBRING structure, do any
+required calculations on this data, then construct instructions for the VP
+stage regarding processing of the incoming macroblocks. The work required of
+vµc is dependent on the codec and may include eg. motion vector derivation,
+calculating quantization parameters, converting macroblock type to prediction
+modes, etc.
 
+On VP2, the vµc is located inside the PBSP engine [see vp2-pbsp.txt]. On VP3
+and VP4, it is located inside the PVP engine [see fuc-vp.txt].
 
-Opcode format:
-    0x14000000 - if not set, base instruction. If set, override instruction
-    
-    Base instruction format:
-    bits 0-4 select instruction
-    bits 5-7 select predicate mode: 
-        bits 0-1 defines base mode:
-            0b00: p &= X
-            0b01: p |= X
-            0b10: p = X
-            0b11: do not modify predicate
-        bit 2 negates instruction output value (X = ~X)
-    bit 26 selects source operand 1: 0 is $rX, 1 is $srX
-    bit 28 selects destination operand: 0 means $rX, 1 means $srX
-    
-    Override instruction format:
-    bits 0-7 select the instruction
-    bts 26, 28: always 1
-    
-    Common remainder:
-    8-11 operand
-    12-15 operand
-    16-19 operand
-    20-23:
-        predicated: selecting predicate
-        non-predicated: destination predicate or extra immediate bits
-    24-25 are extra 2 bits for immediates, or additional $sr number bits
-    27 selects source operand 2: 0 is $rX, 1 is immediate
-    29: 0 for unpredicated insns, 1 for predicated insns
-    
-    only vp2:
-    30-39: unknown purpose and are usually 0x3ff
-    if all instructions have:
-    0x000: all ok
-    0x3fe: nothing runs
-    0x3fd: nothing runs
-    ...
-    0x3f5: runs
-    
-    going up from 0x3f0, things stop running at 0x3f7
+The vµc unit is made of the following subunits:
+
+ - the vµc microcprocessor - oversees everything and does the calculations
+   that are not performance-sensitive enough to be done in hardware
+ - MBRING input and parsing circuitry - reads bitstream data parsed by the BSP
+ - MVSURF input and output circuitry - the MVSURF is a storage buffer attached
+   to all reference pictures in H.264 and to P pictures in VC-1, MPEG-4. It
+   stores the motion vectors and other data used for direct prediction in B
+   pictures. There are two MVSURFs that can be used: the output MVSURF that
+   will store the data of the current picture, and the input MVSURF that
+   should store the data for the first picture in L1 list [H.264] or the
+   last P picture [other codecs]
+ - VPRINGs output circuitry [VP2 only] - the VPRINGs are ring buffers filled
+   by vµc with instructions for various VP subunits. There are three VPRINGs:
+   VPRING_MBINFO used for prediction modes, transform modes and other misc
+   information about the macroblock, VPRING_MV used for the motion vectors,
+   and VPRING_COEFF used for transform coefficients.
+ - direct VP connection [VP3, VP4 only] - the VP3+ vµc is directly connected
+   to the VP engine, instead of relying on ring buffers in memory.
 
 
-XXX: Find signedness of instructions
-TODO: Find out exact immediate sizes in most instructions
-XXX: Verify remaining delays
+== The MMIO registers - VP2 ==
+
+The vµc registers are located in PBSP XLMI space at addresses 0x08000:0x10000
+[BAR0 addresses 0x103200:0x103400]. They are:
+
+08000:0a000/103200:103280: DATA - vµc microprocessor data space
+0a000/103280: ICNT - executed instructions counter, aliased to vµc special
+              register $sr15 [$icnt]
+0a100/103284: WDCNT - watchdog count - when ICNT reaches WDCNT value and WDCNT
+              is not equal to 0xffff, a watchdog interrupt is raised
+0a200/103288: CODE_CONTROL - code upload/download and execution control
+0a300/10328c: CODE_WINDOW - code upload/download window
+0a400/103290: H2V - a scratch register to pass data from host to vµc, aliased
+              to vµc special register $sr4 [$h2v]
+0a500/103294: V2H - a scratch register to pass data from vµc to host, aliased
+              to vµc special register $sr5 [$v2h]
+0a600/103298: PARM - sequence/picture/slice parameters required by vµc
+              hardware, aliased to vµc special register $sr7 [$parm]
+0a700/10329c: PC - the address of instruction currently executed by the
+              microprocessor, aliased to vµc special register $sr8 [$pc]
+0a800/1032a0: VPRING_COEFF.OFFSET - the VPRING_COEFF offset
+0a900/1032a4: VPRING_COEFF.HALT_POS - the VPRING_COEFF halt position
+0aa00/1032a8: VPRING_COEFF.WRITE_POS - the VPRING_COEFF write position
+0ab00/1032ac: VPRING_COEFF.SIZE - the VPRING_COEFF size
+0ac00/1032b0: VPRING_MV.OFFSET - the VPRING_MV offset
+0ad00/1032b4: VPRING_MV.HALT_POS - the VPRING_MV halt position
+0ae00/1032b8: VPRING_MV.WRITE_POS - the VPRING_MV write position
+0af00/1032bc: VPRING_MV.SIZE - the VPRING_MV size
+0b000/1032c0: VPRING_MBINFO.OFFSET - the VPRING_MBINFO offset
+0b100/1032c4: VPRING_MBINFO.HALT_POS - the VPRING_MBINFO halt position
+0b200/1032c8: VPRING_MBINFO.WRITE_POS - the VPRING_MBINFO write position
+0b300/1032cc: VPRING_MBINFO.SIZE - the VPRING_MBINFO size
+0b400/1032d0: VPRING_TRIGGER - flush/resume triggers the for VPRINGs
+0b500/1032d4: INTR - interrupt status
+0b600/1032d8: INTR_EN - interrupt enable mask
+0b700/1032dc: VPRING_ENABLE - enables VPRING access
+0b800/1032e0: MVSURF_IN_OFFSET - the offset of input MVSURF
+0b900/1032e4: MVSURF_IN_PARAM - the parameters of input MVSURF
+0ba00/1032e8: MVSURF_IN_LEFT - the macroblocks left in current line and lines
+              left in the surface for input MVSURF
+0bb00/1032ec: MVSURF_IN_POS - current position in input MVSURF
+0bc00/1032f0: MVSURF_OUT_OFFSET - the offset of output MVSURF
+0bd00/1032f4: MVSURF_OUT_PARAM - the parameters of output MVSURF
+0be00/1032f8: MVSURF_OUT_LEFT - the macroblocks left in current line and lines
+              left in the surface for output MVSURF
+0bf00/1032fc: MVSURF_OUT_POS - current position in output MVSURF
+0c000/103300: MBRING_OFFSET - the MBRING offset
+0c100/103304: MBRING_SIZE - the MBRING size
+0c200/103308: MBRING_READ_POS - the MBRING read position
+0c300/10330c: MBRING_READ_AVAIL - the bytes left to read in MBRING
 
 
-== Instructions ==
-= Predicated execution =
-All instructions can be conditionally executed depending on predicate state.
+== The MMIO registers - VP3/VP4 ==
 
-    Syntax:
-    [pred] insn ...
-    
-    Example:
-    $p1 mov $r1 10
+The vµc registers are located in PVP fµc IO space at addresses 0x10000:0x14000
+[BAR0 addresses 0x085400:0x085500]. They are:
 
-This instruction would be executed only if predicate $p0 is set.
-There are some exceptions to this rule: if an instruction was never seen predicated with the blob, if it's difficult to figure out opcode format, or if it's pointless to run it predicated, there might be no predicated version in envydis (noted where applicable).
-
-= Reference =
-Instructions are separated into 2 sections: "base" instructions and "override" instructions. The name is not meaningful and its only reason is that "base" instructions have shorter selectors.
-
-Reference format:
-    "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "~a" signifies bitwise negation of a, ":" means composition of bits into a single "variable". ceil(), floor() and rand() are sign-aware, assume values to be of infinite precision. All signed values are noted when applicable/known.
-    REG is any register, GPREG is general purpose register ($rX), SRREG is $srX, PRED is predicate ($pX), IMMX is immediate of X bits length.
+[XXX: list me]
 
 
-** Base instructions **
-Base instructions can take $srX registers as source and destination, but not at the same time. They are usually arithmetic operations taking registers as source and registers or predicate as destination.
+== The vµc ISA ==
 
-* Setting predicates *
-All base instructions have the ability to set a predicate. The value is defined by the instruction, but the way it is applied is general for all instructions. It can be combined with predicated execution and both predicates can be different.
-Again, envydis might not support it if the result is particularly useless or difficult to figure out. Notable exceptions: mov, slct.
-
-    Syntax:
-    insn [[mode] predicate] [operands ...]
-    
-Supported predicate setting modes:
-    * none: no predicate will be set.
-        [[mode] predicate] is omitted.
-        Example: add $r1 $r2 3
-        
-    * identity: predicate will be set normally.
-        [mode] is omitted.
-        Example: btest $p2 $r3 3
-        Predicate $p2 will be set to 1 if bit 3 in $r3 is set, and set to 0 otherwise.
-        
-    * and: predicate will be ANDed with its previous value.
-        [mode] is "pand".
-        Example: shl pand $p3 $r6 $r4 5
-        Predicate $p3 will be cleared if shifted out bit is 0.
-        
-    * or: predicate will be ORed with its previous value.
-        [mode] is "por".
-        Example: shr por $p6 $r6 $r7 8
-        Predicate will be set if shifted out bit is 1.
-    
-    * not: reverses instruction predicate output.
-        [mode] is "pnot".
-        Example: btest not $p2 $r3 3
-        Predicate $p2 will be set to 1 if bit 3 in $r3 is cleared, and set to 0 otherwise.
-        
-    * andn: previous value of predicate will be ANDed with negation of new value.
-        [mode] is "pandn".
-        Example: shl pandn $p3 $r5 $r4 5
-        Predicate $p3 will be cleared if shifted out bit is 1.
-        
-    * orn: previous value of predicate will be ORed with negation of new value
-        [mode] is "porn".
-        Example: shr $p6 $r8 $r7 8
-        Predicate will be set if shifted out bit is 0.
-
-Some instructions don't affect anything else but predicate. In their case, the transformation might still be set to "none", but they will just have no effect.
-        
-Note: the [[mode] predicate] section is shortened to PDST below. PDST is then the untransformed predicate value (as with identity mode). It may be omitted in the format where not particularly useful.
-   
-* Instructions *
-
-* Comparison:
-    0x08: [setsg PDST SRC1 SRC2]
-          setsg PRED REG GPREG
-          setsg PRED REG IMM6
-            PDST := SRC1 > SRC2
-        Delay: immediate
-    
-    0x09: [setsl PDST SRC1 SRC2]
-          setsl PRED REG GPREG
-          setsl PRED REG IMM6
-            PDST := SRC1 < SRC2
-        Delay: immediate
-    
-    0x0a: [setse PDST SRC1 SRC2]
-          setse PRED REG GPREG
-          setse PRED REG IMM6
-            PDST := SRC1 == SRC2
-        Delay: immediate
-        
-    0x0b: [setsle PDST SRC1 SRC2]
-          setsle PRED REG GPREG
-          setsle PRED REG IMM6
-            PDST := SRC1 <= SRC2
-        Delay: immediate
-
-        
-* Arithmetic
-    0x00: [slct DST SRC1 SRC2 SRC3]
-          slct REG PRED GPREG GPREG
-          slct GPREG PRED REG GPREG
-          slct REG PRED GPREG IMM6
-          slct GPREG PRED REG IMM6
-            if SRC1
-                DST := SRC2
-            else
-                DST := SRC3
-            endif
-            PDST := DST & 1
-        NOTE: PDST not supprted by envydis.
-        Delay: immediate
-
-    0x01: [mov DST SRC]
-          mov REG GPREG
-          mov GPREG IMM14
-          mov SRREG IMM12
-        Sets DST to value of SRC.
-            DST := SRC
-            PDST := DST & 1
-        NOTE: PDST not supported by envydis with immediate operands.
-        Delay: immediate
-         
-    0x04: [add DST SRC1 SRC2]
-          add REG GPREG GPREG
-          add GPREG REG GPREG
-          add REG GPREG IMM6
-          add GPREG REG IMM6
-        Assigns DST the value of SRC1 + SRC2. PDST is lowest bit of result.
-            DST := SRC1 + SRC2
-            PDST := DST & 1
-        TODO: Flags?
-        Delay: immediate
-    
-    0x05: [sub DST SRC1 SRC2]
-          sub REG GPREG GPREG
-          sub GPREG REG GPREG
-          sub REG GPREG IMM6
-          sub GPREG REG IMM6
-            DST := SRC1 - SRC2
-            PDST := DST & 1
-        TODO: Flags?
-        Delay: immediate
-        
-    0x06: [subr DST SRC1 SRC2]
-          subr REG GPREG GPREG
-          subr GPREG REG GPREG
-          subr REG GPREG IMM6
-          subr GPREG REG IMM6
-            DST := SRC2 - SRC1
-            PDST := DST & 1
-        TODO: Flags?
-        Only present on VP2
-        Delay: immediate
-        
-    0x0c: [minsz PDST DST SRC1 SRC2]
-          minsz PRED REG GPREG GPREG
-          minsz PRED GPREG REG GPREG
-          minsz PRED REG GPREG IMM6
-          minsz PRED GPREG REG IMM6
-        Signed minimum with a quirk.
-            signed SRC1, SRC2
-            if SRC1 > SRC2
-                DST := SRC2
-            else
-                DST := max(SRC1, 0)
-            endif
-            PDST := SRC1 > SRC2
-        Delay: immediate
-    
-    0x0d: [clampsex PDST DST SRC1 SRC2]
-          clampsex PRED REG GPREG GPREG
-          clampsex PRED GPREG REG GPREG
-          clampsex PRED REG GPREG IMM6
-          clampsex PRED GPREG REG IMM6
-        Clamp SRC1 to -2**SRC2..2**SRC2-1. If SRC1 is not in the interval, DST becomes the closer interval boundary. Otherwise DST becomes SRC1.
-        PDST states whether DST is different from SRC1
-            signed SRC1
-            if SRC1 < 0
-                DST := (-(2 ** SRC2)) | SRC1
-            else
-                DST := ((2 ** SRC1) - 1) & SRC1
-            end
-            PDST := DST == SRC1
-        Delay: immediate
-    
-    0x0e: [sex PDST DST SRC1 SRC2]
-          sex PRED REG GPREG GPREG
-          sex PRED GPREG REG GPREG
-          sex PRED REG GPREG IMM6
-          sex PRED GPREG REG IMM6
-        Sign extend all bits from SRC2 and higher (truncate SRC1 to SRC2 bits, then cast it back with sign to 16 bits).
-        PDST is 1 when DST is negative, 0 otherwise.
-            if SRC1 & (2 ** SRC2)
-                DST := (-(2 ** SRC2)) | SRC1
-            else
-                DST := ((2 ** SRC1) - 1) & SRC1
-            end
-            PDST := DST < 0
-        Delay: immediate
-    
-    
-    Unverified instructions (not present on vp2):
-    
-    0x6f: [div2s DST SRC]
-          div2s REG REG
-        Signed division by 2, round to 0
-            signed SRC
-            if SRC < 0
-                DST := ceil(SRC / 2)
-            else
-                DST := floor(SRC / 2)
-            endif
-        Not present on vp2
-    
-    0x66: [avgs DST SRC1 SRC2]
-          avgs REG REG GPREG
-          avgs REG REG IMM?
-        Signed average
-            signed SRC1, SRC2
-            DST := ceil((SRC1 + SRC2) / 2)
-        Present on vp3
-        Not present on vp2
-        Delay: immediate
-    
-    0x67: [avgu DST SRC1 SRC2]
-          avgu REG REG GPREG
-          avgu REG REG IMM?
-        Unsigned average
-            DST := ceil((SRC1 + SRC2) / 2)
-        Present on vp3
-        Not present on vp2
-        Delay: immediate
-        
-    0x7d: [min DST SRC1 SRC2]
-          min REG REG GPREG
-          min REG REG IMM?
-        Minimum.
-        XXX: signed?
-            DST := min(SRC1, SRC2)
-        Present on vp3
-        Not present on vp2?
-        Delay: immediate
-    
-    0x7e: [max DST SRC1 SRC2]
-          max REG REG GPREG
-          max REG REG IMM?
-        Maximum.
-        XXX: signed?
-            DST := max(SRC1, SRC2)
-        Present on vp3
-        Not present on vp2?
-        Delay: immediate
-        
-        
-* Bit manipulation:
-    0x10: [bset DST SRC1 SRC2]
-          bset REG GPREG GPREG
-          bset GPREG REG GPREG
-          bset REG GPREG IMM4
-          bset GPREG REG IMM4
-        Set bit SRC2 in SRC1.
-            DST := SRC1 | (1 << SRC1)
-            PDST := DST & 1
-        Delay: immediate
-    
-    0x11: [bclr DST SRC1 SRC2]
-          bclr REG GPREG GPREG
-          blcr GPREG REG GPREG
-          bclr REG GPREG IMM4
-          blcr GPREG REG IMM4
-        Clear bit SRC2 in SRC1.
-            DST := SRC1 & ~(1 << SRC1)
-            PDST := DST & 1
-        Delay: immediate
-
-    0x12: [btest PDST SRC1 SRC2]
-          btest PRED REG GPREG
-          btest PRED REG IMM6
-            PDST := (SRC1 >> SRC2) & 1
-        Delay: immediate
-
-    0x14: [rot8 DST SRC]
-          rot8 REG GPREG
-          rot8 GPREG REG
-        Swap bytes.
-            DST := ((SRC & 0xff) << 8) | (SRC >> 8)
-            PDST := DST & 1
-        Delay: immediate
-    
-    0x15: [shl PDST DST SRC1 SRC2]
-          shl PRED REG GPREG GPREG
-          shl PRED GPREG REG GPREG
-          shl PRED REG GPREG IMM4
-          shl PRED GPREG REG IMM4
-        Assigns DST value of SRC1 shifted left by SRC2 bits.
-        PDST carries the value of last shifted out bit.
-            DST := SRC1 << SRC2
-            PDST := ((SRC1 << SRC2) >> 32) & 1
-        Delay: immediate
-        
-    0x16: [shr PDST DST SRC1 SRC2]
-          shr PRED REG GPREG GPREG
-          shr PRED GPREG REG GPREG
-          shr PRED REG GPREG IMM4
-          shr PRED GPREG REG IMM4
-        Assigns DST value of SRC1 shifted right by SRC2 bits.
-        PDST carries the value of last shifted out bit.
-            DST := SRC1 >> SRC2
-            PDST := ((SRC1 >> SRC2) << 1) & 1
-        Delay: immediate
-    
-    0x17: [sar DST SRC1 SRC2]
-          shr PRED REG GPREG GPREG
-          shr PRED GPREG REG GPREG
-          shr PRED REG GPREG IMM4
-          shr PRED GPREG REG IMM4
-        Assigns DST value of SRC1 shifted right by SRC2 bits, preserving the sign bit.
-        PDST carries the value of last shifted out bit.
-            if SRC1 < 0
-                DST := (0xffff0000 | SRC1) >> SRC2
-            else
-                DST := SRC1 >> SRC2
-            endif
-            PDST := ((SRC1 >> SRC2) << 1) & 1
-        Delay: immediate
-        
-* Logical arithmetics:
-    0x08: [and DST SRC1 SRC2]
-          and REG GPREG GPREG
-          and GPREG REG GPREG
-          and REG GPREG IMM6
-          and GPREG REG IMM6
-            DST := SRC1 & SRC2
-            PDST := DST & 1
-        Delay: immediate
-    
-    0x09: [or DST SRC1 SRC2]
-          or REG GPREG GPREG
-          or GPREG REG GPREG
-          or REG GPREG IMM6
-          or GPREG REG IMM6
-            DST := SRC1 | SRC2
-            PDST := DST & 1
-        Delay: immediate
-    
-    0x0a: [xor DST SRC1 SRC2]
-          xor REG GPREG GPREG
-          xor GPREG REG GPREG
-          xor REG GPREG IMM6
-          xor GPREG REG IMM6
-            DST := SRC1 ^ SRC2
-            PDST := DST & 1
-        Delay: immediate
-    
-    0x0b: [not DST SRC]
-          not REG GPREG
-          not GPREG REG
-            DST := ~SRC
-            PDST := DST & 1
-        Delay: immediate
-
-        
-* Unknown:
-    0x1c: [PDST DST SRC1 SRC2]
-          PRED REG GPREG GPREG
-          PRED GPREG REG GPREG
-          PRED REG GPREG IMM6
-          PRED GPREG REG IMM6
-            if src2 == 8: dst := 4
-            if src2 == 9: dst := 0 + (src1 % 4) * 4
-            if src2 == 0xa: dst := 0x100 + src1 % 4
-            else: dst:= 0
-            if src2 == 0xa: pdst := 1
-            else: pdst := 0
-        Blob seems to use the predicate [5c]. 0x100 above is sometimes 0x200
-        Delay: immediate
-
-        
-** Override instructions **
-Known override instructions control machine state, access memory spaces, external components or perform operations on predicates.
-
-
-* Flow:
-    0x00: [bra TARGET]
-          bra IMM?
-        Branch to address.
-        Delay: 1 instruction
-    
-    0x02: [call TARGET]
-          call IMM?
-        XXX: stack and calling convention
-    0x03: [ret]
-          ret
-        TODO: delay (blob: 1)
-        XXX: stack and calling convention
-    0x43: [nop]
-          nop
-        Done!
-
-        
-* Predicate logical
-    0x40: [setand DST SRC1 SRC2]
-          setand PRED PRED PRED
-            DST := SRC1 & SRC2
-        Delay: immediate
-    
-    0x41: [setor DST SRC1 SRC2]
-          setor PRED PRED PRED
-            DST := SRC1 | SRC2
-        Delay: immediate
-    
-    0x42: [setne DST SRC1 SRC2]
-          setne PRED PRED PRED
-            DST := SRC1 ^ SRC2
-        Delay: immediate
-   
-    0x44: [setl DST SRC1 SRC2]
-          setl PRED PRED PRED
-            DST := SRC1 & ~SRC2
-            (DST := SRC1 < SRC2)
-        Delay: immediate
-    
-    0x45: [setge DST SRC1 SRC2]
-          setge PRED PRED PRED
-            DST := SRC1 | ~SRC2
-            (DST := SRC1 >= SRC2)
-        Delay: immediate
-    
-    0x46: [sete DST SRC1 SRC2]
-          sete PRED PRED PRED
-            DST := SRC1 == SRC2
-            (DST := ~(SRC1 ^ SRC2)
-        Delay: immediate
-
-    0x48: [setg DST SRC1 SRC2]
-          setg PRED PRED PRED
-            DST := SRC1 > SRC2
-            (DST := ~SRC1 & SRC2)
-        Delay: immediate
-    
-    0x49: [setle DST SRC1 SRC2]
-          setle PRED PRED PRED
-            DST := SRC1 <= SRC2
-            (DST := ~SRC1 | SRC2)
-        Delay: immediate
-    
-    0x4a: [sete DST SRC1 SRC2]
-          sete PRED PRED PRED
-            DST := SRC1 == SRC2
-            (DST := ~(SRC1 ^ SRC2)
-        Delay: immediate
-    
-    0x4c: [setnor DST SRC1 SRC2]
-          setnand PRED PRED PRED
-            DST := ~(SRC1 | SRC2)
-        Delay: TODO
-    
-    0x4d: [setnand DST SRC1 SRC2]
-          setnand PRED PRED PRED
-            DST := ~(SRC1 & SRC2)
-        Delay: TODO
-
-   
-* Memory
-    0x80: [st DST SRC]
-		  st MEM[IMM10] GPREG
-		  st MEM[GPREG] GPREG
-		  st MEM[GPREG + IMM10] GPREG
-		  st MEM[GPREG + GPREG] GPREG
-		Predicated exceptions:
-		  PRED st MEM[IMM6] GPREG
-		  PRED st MEM[GPREG + IMM6] GPREG
-        Store data into memory. If instruction is predicated, the immediate value will be shorter.
-            DST := SRC
-        Delay: immediate
-    
-    0x81: [ld DST SRC]
-          ld GPREG MEM[IMM10]
-          ld GPREG MEM[GPREG]
-          ld GPREG MEM[GPREG + IMM10]
-          ld GPREG MEM[GPREG + GPREG]
-        Predicated exceptions:
-          PRED ld GPREG MEM[IMM6]
-          PRED ld GPREG MEM[GPREG + IMM6]
-        Load data from memory MEM. If instruction is predicated, immediate is shorter.
-            DST := SRC
-        Delay: 2 * MOV. Value is being read immediately (or it seems so), delay applies to DST update.
-
-        
-* IO
-    0x8f: [iord DST SRC]
-          iord GPREG IO[IMM10]
-          iord GPREG IO[GPREG]
-          iord GPREG IO[GPREG + IMM10]
-          iord GPREG IO[GPREG + GPREG]
-        Predicated exceptions:
-          PRED iord GPREG IO[IMM6]
-          PRED iord GPREG IO[GPREG + IMM6]
-        Read data from IO address space - a copy of [ld] instruction. If predicated, immediate is shorter.
-        XXX: verify predicated forms
-            DST := SRC
-        Delay: 2 * MOV. Value is being read immediately (or it seems so), delay applies to DST update.
-    
-    0x8e: [iowr DST SRC]
-          iowr IO[IMM10] GPREG
-          iowr IO[GPREG] GPREG
-          iowr IO[GPREG + IMM10] GPREG
-        Predicated exceptions:
-          PRED iowr IO[IMM6] GPREG
-          PRED iowr IO[GPREG + IMM6] GPREG
-        Write data into IO address space. If instruction is predicated, the immediate value will be shorter.
-        XXX: verify all forms
-            DST := SRC
-        Delay: immediate
-        
-        
-* Arithmetic
-    0xa0: [mul SRC1 SRC2]
-          absmul GPREG GPREG
-            if SRC2 >= 2 ** 10
-                $arthi:$artlo := 0
-            else
-                $arthi:$artlo := SRC1 * SRC2
-            endif
-        Unsigned multiplication. SRC2 is 10 bit unsigned.
-        "Override" opcode.
-    
-    0xa1: [muls SRC1 SRC2]
-          muls GPREG GPREG
-            signed SRC1, SRC2
-            if SRC2 >= 2 ** 10 or SRC2 < -(2 ** 10)
-                $arthi:$artlo := 0
-            else
-                $arthi:$artlo := SRC1 * sex(SRC2, 10)
-            endif
-        Signed multiplication. SRC2 is 10 bit signed.
-        "Override" opcode.
-        Delay: ???
-    
-    0xa2: [shift SRC]
-          shift GPREG
-          shift IMM4
-            if SRC >= 2 ** 10
-                SHIFT := 1
-            else
-                SHIFT := SRC + 1
-            endif
-            $arthi:artlo := $arthi:$artlo >> SHIFT
-        Shift. XXX: verify what happens if SRC exceeds limit, check signedness.
-        Delay: ???
-    
-
-* Unknown
-    0x83: I/O? Memory load type
-        Memory space unknown, labeled F.
-        Composed of 8-byte structures.
-        XXX: address space size
-        Delay: 2 * MOV
-    
-    0x89: I/O? Memory load type
-        Memory space unknown, labeled G.
-        Composed of 8-byte structures.
-        XXX: address space size
-        Delay: 2 * MOV
-    
-    0x84: I/O? Memory store type.
-          [8:12]: (0, 2, 3, 4, 5)
-          [16:20]: all
-          [20:24]: (0, 1, 2)
-          [25]: 1, 0 # extra 1
-          [26:]: const
-
-    0x8d: I/O? Memory load type.
-        Always yields 2. Only used in h264, only in the form of 0x1c05008d.
-        Blob ORs it with [$sr28|$sr29] ored with [0x8|0x4], then writes to E[2].
-        Delay: 2 * MOV
-        
-        
-    0x04: I/O?
-        Version 0x34f00004 stops execution. I/O wait? Reads from $sr6 afterwards, always preceded by unk20
-    0x05: I/O?
-        Usage: alternated with $sr6 writes.
-    0x24: I/O
-        no params (?)
-        First run: change $sr16-$sr21, $sr24 and $sr27-$sr31.
-        Consecutive runs: change $sr16-$sr24 and $sr27-$sr31 ($sr22, $sr23 == 1).
-        XXX: delay (blob: 5)
-        
-    0xa4, 0xa8, 0xac: Only after multiplication. 2, 2 or 1, plenty delay (blob).
-    
-
-Registers:
-- 16-bit:
-    $r0 - hardwired 0
-    $r1-$r15 - general purpose
-- 1-bit predicate:
-    $p0 - general purpose
-    $p1 (envydis: $np0) - read only, value: ~p0
-    $p2-$p14 - general purpose
-    $p15 - hardwired to 1
-- 64 × 16-bit special registers
-    $sr8 ($pc): PC
-    $sr12 ($arthi): Arithmetic result high word register
-    $sr13 ($artlo): Arithmetic result low word register
-    $sr14 ($pred): predicate bitfield ($p0 == $pred[0])
-    $sr15 ($cnt): cycle counter (?: check nops, effect of delays)
-    
-    Unknown:
-    $sr0: controls $sr48-$sr58 (bits 0-6 when set separately)
-    $sr1: similar to $sr0 (bits 0-4, probably more)
-    $sr2: bits 0-3 affect registers $sr16-$sr24
-    $sr3: bits 0-4 affect $sr32-$sr42
-    $sr6: writing 0x8000 alternates values between 0x8103 and 0
-    $sr9: values 0, 1, 3, may be related to upload/execution order
-    $sr10: usually 0, but may be different (negative) after reupload
-    $sr16: modifies $sr17-$sr24, $sr27-$sr31
-    $sr17-$sr24: modified by $sr16
-    $sr22-$sr24: related to orsetreg's unknown bits, regardless of result
-    $sr27-$sr31: modified by $sr16
-    $sr32-$sr42: affected by $sr3
-    $sr48-$sr58: affected by writing $sr0 and $sr1
-    
-    
-    $sr4, $sr9, $sr12-$sr15, $sr27: nonzero
-    No change on write:
-    $sr4, $sr8-$sr10, $sr12-$sr15, $sr32+
-    No side effects on read/write:
-    $sr5, $sr28, $sr31 over all bits
-    
+The vµc ISA is described in vuc-isa.txt.

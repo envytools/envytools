@@ -23,6 +23,7 @@
  */
 
 #include "bios.h"
+#include <string.h>
 
 static int parse_pcir (struct envy_bios *bios) {
 	bios->length = bios->origlength;
@@ -138,6 +139,9 @@ int envy_bios_parse (struct envy_bios *bios) {
 		return -EINVAL;
 	vendor = bios->parts[0].pcir_vendor;
 	device = bios->parts[0].pcir_device;
+	const uint8_t bmpsig[5] = "\xff\x7f""NV\0";
+	const uint8_t bitsig[5] = "\xff\xb8""BIT";
+	const uint8_t hwsqsig[4] = "HWSQ";
 	switch(vendor) {
 	case 0x12d2: /* SGS + nvidia */
 		if (device == 0x18 || device == 0x19) {
@@ -146,18 +150,18 @@ int envy_bios_parse (struct envy_bios *bios) {
 			ENVY_BIOS_ERR("Unknown SGS/NVidia pciid %04x\n", device);
 			break;
 		}
-		bios->bmp_offset = find_string(bios, "\xff\x7fNV\0", 5);
+		bios->bmp_offset = find_string(bios, bmpsig, 5);
 		if (!bios->bmp_offset) {
-			ENVY_BIOS_ERR("BMP not found\n", device);
+			ENVY_BIOS_ERR("BMP not found\n");
 			break;
 		}
 		parse_bmp_nv03(bios);
 		break;
 	case 0x10de:
 		bios->type = ENVY_BIOS_TYPE_NV04;
-		bios->bmp_offset = find_string(bios, "\xff\x7f""NV\0", 5);
-		bios->bit_offset = find_string(bios, "\xff\xb8""BIT", 5);
-		bios->hwsq_offset = find_string(bios, "HWSQ", 4);
+		bios->bmp_offset = find_string(bios, bmpsig, 5);
+		bios->bit_offset = find_string(bios, bitsig, 5);
+		bios->hwsq_offset = find_string(bios, hwsqsig, 4);
 		bios_u16(bios, 0x36, &bios->dcb_offset);
 		break;
 	}

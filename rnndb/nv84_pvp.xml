@@ -258,9 +258,9 @@
 		</reg32>
 		<reg32 offset="0x44" name="STREAM_OFFSET" stride="8" length="8"/>
 		<reg32 offset="0x80" name="STREAM_BITPOS"/> <!-- write starts the stream input engine -->
-		<reg32 offset="0x100" name="MBRING_ADDR"/>
-		<reg32 offset="0x104" name="MBRING_GET"/>
-		<reg32 offset="0x108" name="MBRING_PUT"/>
+		<reg32 offset="0x100" name="MBRING_OFFSET"/>
+		<reg32 offset="0x104" name="MBRING_HALT_POST"/>
+		<reg32 offset="0x108" name="MBRING_WRITE_POS"/>
 		<reg32 offset="0x10c" name="MBRING_SIZE"/>
 		<reg32 offset="0x110" name="MBRING_TRIGGER">
 			<bitfield pos="0" name="FLUSH"/>
@@ -270,21 +270,88 @@
 	</array>
 	<array offset="0x200" name="VUC" stride="0x200">
 		<reg32 offset="0x000" name="DATA" length="32"/> <!-- indexed like fµc, but only one word per index, instead of two -->
+		<reg32 offset="0x080" name="ICNT"/>
+		<reg32 offset="0x084" name="WDCNT"/>
 		<reg32 offset="0x088" name="CODE_CONTROL">
-			<bitfield low="0" high="10" name="IP"/>
+			<bitfield low="0" high="10" name="ADDR"/>
 			<bitfield pos="16" name="PAUSE"/>
 		</reg32>
-		<reg32 offset="0x08c" name="CODE"/>
+		<reg32 offset="0x08c" name="CODE_WINDOW"/>
+		<reg32 offset="0x090" name="H2V"/>
+		<reg32 offset="0x094" name="V2H"/>
+		<reg32 offset="0x098" name="PARM">
+			<bitfield low="0" high="6" name="WIDTH"/>
+			<bitfield pos="8" name="MBAFF_FRAME_FLAG"/>
+			<bitfield low="9" high="10" name="SLICE_TYPE"/>
+			<bitfield pos="11" name="CHROMA_FORMAT_IDC"/>
+			<bitfield pos="12" name="DIRECT_8X8_INFERENCE_FLAG"/>
+		</reg32>
+		<reg32 offset="0x09c" name="PC"/>
+		<group name="nv84_pbsp_vuc_vpring">
+			<reg32 offset="0x0" name="OFFSET"/>
+			<reg32 offset="0x4" name="HALT_POS"/>
+			<reg32 offset="0x8" name="WRITE_POS"/>
+			<reg32 offset="0xc" name="SIZE"/>
+		</group>
+		<array offset="0x0a0" name="VPRING_COEFF" stride="0x10">
+			<use-group name="nv84_pbsp_vuc_vpring"/>
+		</array>
+		<array offset="0x0b0" name="VPRING_MV" stride="0x10">
+			<use-group name="nv84_pbsp_vuc_vpring"/>
+		</array>
+		<array offset="0x0c0" name="VPRING_MBINFO" stride="0x10">
+			<use-group name="nv84_pbsp_vuc_vpring"/>
+		</array>
+		<reg32 offset="0x0d0" name="VPRING_TRIGGER">
+			<bitfield pos="0" name="COEFF_FLUSH"/>
+			<bitfield pos="1" name="MV_FLUSH"/>
+			<bitfield pos="2" name="MBINFO_FLUSH"/>
+			<bitfield pos="4" name="COEFF_RESUME"/>
+			<bitfield pos="5" name="MV_RESUME"/>
+			<bitfield pos="6" name="MBINFO_RESUME"/>
+		</reg32>
 		<bitset name="nv84_pbsp_vuc_intr" inline="yes">
-			<bitfield pos="0" name="UNK0"/>
-			<bitfield pos="1" name="UNK1"/>
-			<bitfield pos="2" name="UNK2"/>
-			<bitfield pos="3" name="UNK3"/>
-			<bitfield pos="4" name="UNK4"/>
-			<bitfield pos="5" name="UNK5"/>
+			<bitfield pos="0" name="VPRING_COEFF_HALT"/>
+			<bitfield pos="1" name="VPRING_MV_HALT"/>
+			<bitfield pos="2" name="VPRING_MBINFO_HALT"/>
+			<bitfield pos="3" name="WATCHDOG"/>
+			<bitfield pos="4" name="MBRING_READ_DONE"/>
+			<bitfield pos="5" name="V2H"/>
 		</bitset>
 		<reg32 offset="0x0d4" name="INTR" type="nv84_pbsp_vuc_intr"/>
 		<reg32 offset="0x0d8" name="INTR_EN" type="nv84_pbsp_vuc_intr"/>
+		<reg32 offset="0x0dc" name="VPRING_ENABLE"/>
+		<reg32 offset="0x0e0" name="MVSURF_IN_OFFSET"/>
+		<reg32 offset="0x0e4" name="MVSURF_IN_PARM">
+			<bitfield low="0" high="7" name="WIDTH"/>
+			<bitfield pos="8" name="PROG_FRAME"/> <!-- !field_pic_flag && !mbaff_frame_flag -->
+		</reg32>
+		<reg32 offset="0x0e8" name="MVSURF_IN_LEFT">
+			<bitfield low="0" high="7" name="X"/>
+			<bitfield low="8" high="15" name="Y"/>
+		</reg32>
+		<reg32 offset="0x0ec" name="MVSURF_IN_POS">
+			<bitfield low="0" high="11" name="IDX"/>
+			<bitfield pos="12" name="FIELD"/>
+		</reg32>
+		<reg32 offset="0x0f0" name="MVSURF_OUT_OFFSET"/>
+		<reg32 offset="0x0f4" name="MVSURF_OUT_PARM">
+			<bitfield low="0" high="7" name="WIDTH"/>
+			<bitfield pos="8" name="MBAFF_FRAME_FLAG"/>
+			<bitfield pos="9" name="FIELD_PIC_FLAG"/>
+		</reg32>
+		<reg32 offset="0x0f8" name="MVSURF_OUT_LEFT">
+			<bitfield low="0" high="7" name="X"/>
+			<bitfield low="8" high="15" name="Y"/>
+		</reg32>
+		<reg32 offset="0x0fc" name="MVSURF_OUT_POS">
+			<bitfield low="0" high="12" name="IDX"/>
+			<bitfield pos="13" name="UNK13"/>
+		</reg32>
+		<reg32 offset="0x100" name="MBRING_OFFSET"/>
+		<reg32 offset="0x104" name="MBRING_SIZE"/>
+		<reg32 offset="0x108" name="MBRING_READ_POS"/>
+		<reg32 offset="0x10c" name="MBRING_READ_AVAIL"/>
 	</array>
 	<array offset="0x400" name="MEMIF" stride="0x200">
 		<reg32 offset="0x000" name="STATUS">
@@ -299,6 +366,8 @@
 				<value value="0" name="NONE"/>
 				<value value="1" name="STREAM"/>
 				<value value="2" name="MBRING"/>
+				<value value="3" name="VPRING"/>
+				<value value="4" name="MVSURF"/>
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x004" name="FAULT_ADDRESS"/>
@@ -309,12 +378,12 @@
 		<reg32 offset="0x020" name="STREAM_BASE" shr="8"/>
 		<reg32 offset="0x024" name="STREAM_TARGET" type="nv84_vp2_target"/>
 		<reg32 offset="0x028" name="STREAM_LIMIT" shr="8"/>
-		<reg32 offset="0x030" name="MBDATA_BASE" shr="8"/> <!-- goes to VP -->
-		<reg32 offset="0x034" name="MBDATA_TARGET" type="nv84_vp2_target"/>
-		<reg32 offset="0x038" name="MBDATA_LIMIT" shr="8"/>
-		<reg32 offset="0x040" name="UNK440_BASE" shr="8"/>
-		<reg32 offset="0x044" name="UNK440_TARGET" type="nv84_vp2_target"/>
-		<reg32 offset="0x048" name="UNK440_LIMIT" shr="8"/>
+		<reg32 offset="0x030" name="VPRING_BASE" shr="8"/>
+		<reg32 offset="0x034" name="VPRING_TARGET" type="nv84_vp2_target"/>
+		<reg32 offset="0x038" name="VPRING_LIMIT" shr="8"/>
+		<reg32 offset="0x040" name="MVSURF_BASE" shr="8"/>
+		<reg32 offset="0x044" name="MVSURF_TARGET" type="nv84_vp2_target"/>
+		<reg32 offset="0x048" name="MVSURF_LIMIT" shr="8"/>
 		<reg32 offset="0x050" name="MBRING_BASE" shr="8"/>
 		<reg32 offset="0x054" name="MBRING_TARGET" type="nv84_vp2_target"/>
 		<reg32 offset="0x058" name="MBRING_LIMIT" shr="8"/>

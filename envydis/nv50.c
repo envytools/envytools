@@ -344,10 +344,6 @@ static struct sreg areg_sr[] = {
 	{ 0, 0, SR_ZERO },
 	{ -1 },
 };
-static struct sreg oreg_sr[] = {
-	{ 127, 0, SR_DISCARD },
-	{ -1 },
-};
 static struct sreg sreg_sr[] = {
 	{ 0, "physid" },
 	{ 1, "clock" },
@@ -748,12 +744,6 @@ static struct insn tabaddc0[] = {
 	{ 0x00400000, 0x10400000 },
 	{ 0x10000000, 0x10400000 },
 	{ 0x10400000, 0x10400000, C0 },
-	{ 0, 0, OOPS }
-};
-
-static struct insn tabas[] = {
-	{ 0x00000000, 0x00008000, T(sm1sat), N("b16"), SHDST, T(ssh), T(sch) },
-	{ 0x00008000, 0x00008000, T(sm1sat), N("b32"), SDST, T(ssw), T(scw) },
 	{ 0, 0, OOPS }
 };
 

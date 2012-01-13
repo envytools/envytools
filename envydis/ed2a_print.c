@@ -163,6 +163,7 @@ void ed2a_print_expr(struct ed2a_expr *expr, FILE *ofile, const struct ed2a_colo
 		case ED2A_SWZ_LH:
 			s = "LH";
 			break;
+		default: assert(0);
 		}
 		if (s && maxswz < strlen(s)) {
 			for (i = 0; i < expr->swz->elemsnum; i++)
@@ -221,6 +222,7 @@ void ed2a_print_expr(struct ed2a_expr *expr, FILE *ofile, const struct ed2a_colo
 			case ED2A_ET_MEMPRED:
 				fprintf(ofile, "%s-=", col->mem);
 				break;
+			default: assert(0);
 			}
 			ed2a_print_expr(expr->e2, ofile, col, 0);
 		}

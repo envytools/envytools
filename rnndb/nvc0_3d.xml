@@ -478,7 +478,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1110" name="UNK1110" type="boolean"/>
 		<reg32 offset="0x1114" name="WRCACHE_FLUSH"/> <!-- XXX: check -->
-		<reg32 offset="0x1118" name="VERTEX_ID_BASE" type="uint"/>
+		<reg32 offset="0x1118" name="VERTEX_ID_BASE" type="uint">
+			<doc>Seems broken: when used in VERTEX_DATA mode, the value is always that
+			for the last vertex of a primitive.</doc>
+		</reg32>
 		<reg32 offset="0x1120" name="VTX_ATTR_MASK_UNK0DD0_ALT" length="4"/>
 		<reg32 offset="0x1140" name="UNK1140">
 			<doc>0 or 0x10.</doc>
@@ -824,9 +827,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="29" name="UNK29"/>
 			<bitfield pos="30" name="UNK30"/>
 		</reg32>
-		<reg32 offset="0x161c" name="UNK161C">
-			<bitfield pos="0" name="UNK0"/>
-			<bitfield low="4" high="11" name="UNK4"/>
+		<reg32 offset="0x161c" name="VERTEX_ID_REPLACE">
+			<bitfield pos="0" name="ENABLE" type="boolean"/>
+			<bitfield low="4" high="11" name="SOURCE" type="uint"/>
+			<doc>Take value from VP input a[SOURCE * 4] and stuff it into a[0x2fc].</doc>
 		</reg32>
 		<reg32 offset="0x1620" name="UNK1620"/>
 		<reg32 offset="0x1624" name="UNK1624"/>

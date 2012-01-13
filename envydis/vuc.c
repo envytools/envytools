@@ -36,8 +36,10 @@
  */
 
 static struct bitfield ctargoff = { 8, 11 };
+static struct bitfield rbrtargoff = { 34, 6, .pcrel = 1 };
 #define BTARG atombtarg, &ctargoff
 #define CTARG atomctarg, &ctargoff
+#define RBRTARG atombtarg, &rbrtargoff
 
 static struct bitfield imm4off = { 12, 4 };
 static struct bitfield imm6off = { { 12, 4, 24, 2 } };
@@ -66,11 +68,34 @@ static struct sreg pred_sr[] = {
 	{ -1 },
 };
 static struct sreg sreg_sr[] = {
+    { 2, "spidx" },
+    { 4, "h2v" },
+    { 5, "v2h" },
+    { 6, "stat" },
+    { 7, "parm" },
     { 8, "pc" },
+    { 10, "cstop" },
+    { 11, "rpitab" },
     { 12, "arthi" },
     { 13, "artlo" },
     { 14, "pred" },
-    { 15, "icount" },
+    { 15, "icnt" },
+    { 16, "mvxl0" },
+    { 17, "mvyl0" },
+    { 18, "mvxl1" },
+    { 19, "mvyl1" },
+    { 20, "refl0" },
+    { 21, "refl1" },
+    { 22, "rpil0" },
+    { 23, "rpil1" },
+    { 24, "mbflags" },
+    { 25, "qpy" },
+    { 26, "qpc" },
+    { 27, "mbpart" },
+    { 28, "mbxy" },
+    { 29, "mbaddr" },
+    { 30, "mbtype" },
+    { 31, "submbtype" },
     { -1 },
 };
 
@@ -83,6 +108,7 @@ static struct bitfield psrc1_bf = { 8, 4 };
 static struct bitfield psrc2_bf = { 12, 4 };
 static struct bitfield pdst_bf = { 16, 4 };
 static struct bitfield pred_bf = { 20, 4 };
+static struct bitfield rbrpred_bf = { 30, 3, .addend = 8 };
 static struct reg src1_r = { &src1_bf, "r", .specials = reg_sr };
 static struct reg src2_r = { &src2_bf, "r", .specials = reg_sr };
 static struct reg dst_r = { &dst_bf, "r", .specials = reg_sr };
@@ -92,6 +118,7 @@ static struct reg psrc1_r = { &psrc1_bf, "p", .cool = 1, .specials = pred_sr };
 static struct reg psrc2_r = { &psrc2_bf, "p", .cool = 1, .specials = pred_sr };
 static struct reg pdst_r = { &pdst_bf, "p", .cool = 1, .specials = pred_sr };
 static struct reg pred_r = { &pred_bf, "p", .cool = 1, .specials = pred_sr };
+static struct reg rbrpred_r = { &rbrpred_bf, "p", .cool = 1, .specials = pred_sr };
 #define SRC1 atomreg, &src1_r
 #define SRC2 atomreg, &src2_r
 #define DST atomreg, &dst_r
@@ -101,6 +128,7 @@ static struct reg pred_r = { &pred_bf, "p", .cool = 1, .specials = pred_sr };
 #define PSRC2 atomreg, &psrc2_r
 #define PDST atomreg, &pdst_r
 #define PRED atomreg, &pred_r
+#define RBRPRED atomreg, &rbrpred_r
 
 static struct mem dmemldi_m = { "D", 0, &src1_r, &bimmldoff };
 static struct mem dmemldis_m = { "D", 0, &src1_r, &bimmldsoff };
@@ -115,32 +143,59 @@ static struct mem dmemstr_m = { "D", 0, &src1_r, 0, &dst_r };
 #define DMEMSTIS atommem, &dmemstis_m
 #define DMEMSTR atommem, &dmemstr_m
 
-static struct mem ememldi_m = { "E", 0, &src1_r, &bimmldoff };
-static struct mem ememldis_m = { "E", 0, &src1_r, &bimmldsoff };
-static struct mem ememldr_m = { "E", 0, &src1_r, 0, &src2_r };
-static struct mem ememsti_m = { "E", 0, &src1_r, &bimmstoff };
-static struct mem ememstis_m = { "E", 0, &src1_r, &bimmstsoff };
-static struct mem ememstr_m = { "E", 0, &src1_r, 0, &dst_r };
-#define EMEMLDI atommem, &ememldi_m
-#define EMEMLDIS atommem, &ememldis_m
-#define EMEMLDR atommem, &ememldr_m
-#define EMEMSTI atommem, &ememsti_m
-#define EMEMSTIS atommem, &ememstis_m
-#define EMEMSTR atommem, &ememstr_m
+static struct mem b6memldi_m = { "B6", 0, &src1_r, &bimmldoff };
+static struct mem b6memldis_m = { "B6", 0, &src1_r, &bimmldsoff };
+static struct mem b6memldr_m = { "B6", 0, &src1_r, 0, &src2_r };
+static struct mem b6memsti_m = { "B6", 0, &src1_r, &bimmstoff };
+static struct mem b6memstis_m = { "B6", 0, &src1_r, &bimmstsoff };
+static struct mem b6memstr_m = { "B6", 0, &src1_r, 0, &dst_r };
+#define B6MEMLDI atommem, &b6memldi_m
+#define B6MEMLDIS atommem, &b6memldis_m
+#define B6MEMLDR atommem, &b6memldr_m
+#define B6MEMSTI atommem, &b6memsti_m
+#define B6MEMSTIS atommem, &b6memstis_m
+#define B6MEMSTR atommem, &b6memstr_m
 
-static struct mem fmemldi_m = { "F", 0, &src1_r, &bimmldoff };
-static struct mem fmemldis_m = { "F", 0, &src1_r, &bimmldsoff };
-static struct mem fmemldr_m = { "F", 0, &src1_r, 0, &src2_r };
-#define FMEMLDI atommem, &fmemldi_m
-#define FMEMLDIS atommem, &fmemldis_m
-#define FMEMLDR atommem, &fmemldr_m
+static struct mem b7memldi_m = { "B7", 0, &src1_r, &bimmldoff };
+static struct mem b7memldis_m = { "B7", 0, &src1_r, &bimmldsoff };
+static struct mem b7memldr_m = { "B7", 0, &src1_r, 0, &src2_r };
+static struct mem b7memsti_m = { "B7", 0, &src1_r, &bimmstoff };
+static struct mem b7memstis_m = { "B7", 0, &src1_r, &bimmstsoff };
+static struct mem b7memstr_m = { "B7", 0, &src1_r, 0, &dst_r };
+#define B7MEMLDI atommem, &b7memldi_m
+#define B7MEMLDIS atommem, &b7memldis_m
+#define B7MEMLDR atommem, &b7memldr_m
+#define B7MEMSTI atommem, &b7memsti_m
+#define B7MEMSTIS atommem, &b7memstis_m
+#define B7MEMSTR atommem, &b7memstr_m
 
-static struct mem gmemldi_m = { "G", 0, &src1_r, &bimmldoff };
-static struct mem gmemldis_m = { "G", 0, &src1_r, &bimmldsoff };
-static struct mem gmemldr_m = { "G", 0, &src1_r, 0, &src2_r };
-#define GMEMLDI atommem, &gmemldi_m
-#define GMEMLDIS atommem, &gmemldis_m
-#define GMEMLDR atommem, &gmemldr_m
+static struct mem pwtldi_m = { "PWT", 0, &src1_r, &bimmldoff };
+static struct mem pwtldis_m = { "PWT", 0, &src1_r, &bimmldsoff };
+static struct mem pwtldr_m = { "PWT", 0, &src1_r, 0, &src2_r };
+#define PWTLDI atommem, &pwtldi_m
+#define PWTLDIS atommem, &pwtldis_m
+#define PWTLDR atommem, &pwtldr_m
+
+static struct mem vpsti_m = { "VP", 0, &src1_r, &bimmstoff };
+static struct mem vpstis_m = { "VP", 0, &src1_r, &bimmstsoff };
+static struct mem vpstr_m = { "VP", 0, &src1_r, 0, &dst_r };
+#define VPSTI atommem, &vpsti_m
+#define VPSTIS atommem, &vpstis_m
+#define VPSTR atommem, &vpstr_m
+
+static struct mem o5memsti_m = { "O5", 0, &src1_r, &bimmstoff };
+static struct mem o5memstis_m = { "O5", 0, &src1_r, &bimmstsoff };
+static struct mem o5memstr_m = { "O5", 0, &src1_r, 0, &dst_r };
+#define O5MEMSTI atommem, &o5memsti_m
+#define O5MEMSTIS atommem, &o5memstis_m
+#define O5MEMSTR atommem, &o5memstr_m
+
+static struct mem i4memldi_m = { "I4", 0, &src1_r, &bimmldoff };
+static struct mem i4memldis_m = { "I4", 0, &src1_r, &bimmldsoff };
+static struct mem i4memldr_m = { "I4", 0, &src1_r, 0, &src2_r };
+#define I4MEMLDI atommem, &i4memldi_m
+#define I4MEMLDIS atommem, &i4memldis_m
+#define I4MEMLDR atommem, &i4memldr_m
 
 static struct insn tabp[] = {
 	{ 0x00f00000, 0x00f00000 },
@@ -170,7 +225,7 @@ static struct insn tabsrc2[] = {
 
 static struct insn tabarithsrc2[] = {
     { 0x00000000, 0x08000000, SRC2 },
-    { 0x08000000, 0x08000000, IMM4 },
+    { 0x08000000, 0x08000000, IMM6 },
     { 0, 0, OOPS },
 };
 
@@ -198,22 +253,22 @@ static struct insn tabovr[] = {
     { 0x3c000000, 0x3c0000ff, N("bra"), BTARG },
     { 0x3c000002, 0x3c0000ff, N("call"), CTARG },
     { 0x34000003, 0x3c0000ff, N("ret") },
-    { 0x14000004, 0x140000ff, U("o04") },
-    { 0x14000005, 0x140000ff, U("o05"), T(src2) },
+    { 0x14000004, 0x140000ff, N("sleep") },	/* halt everything until there's work to do */
+    { 0x14000005, 0x140000ff, N("wstc"), T(src2) },	/* do nothing until bit #SRC2 of $stat is clear */
     { 0x14000006, 0x140000ff, U("o06"), T(src2) },
 
-    { 0x14000020, 0x140000ff, U("o20") },
-    { 0x14000021, 0x140000ff, U("o21") },
-    { 0x14000022, 0x140000ff, U("o22") },
-
-    { 0x14000024, 0x140000ff, U("o24") },
-    { 0x14000025, 0x140000ff, U("o25") },
-    { 0x14000026, 0x140000ff, U("o26") },
-    { 0x14000028, 0x140000ff, U("o28") },
-    { 0x14000029, 0x140000ff, U("o29") },
-    { 0x1400002a, 0x140000ff, U("o2a") },
-    { 0x1400002b, 0x140000ff, U("o2b") },
-    { 0x1400002c, 0x140000ff, U("o2c") },
+    { 0x14000020, 0x140000ff, N("clicnt") },	/* reset $icnt to 0 */
+    { 0x14000021, 0x140000ff, U("o21") }, /* ADV */
+    { 0x14000022, 0x140000ff, U("o22") }, /* ADV */
+    { 0x14000023, 0x140000ff, U("o23") }, /* VP2 */
+    { 0x14000024, 0x140000ff, N("mbiread") },	/* read data for current macroblock into registers/memory */
+    { 0x14000025, 0x140000ff, U("o25") }, /* ANEW */
+    { 0x14000026, 0x140000ff, U("o26") }, /* ANEW */
+    { 0x14000028, 0x140000ff, N("mbinext") },	/* advance input to the next macroblock */
+    { 0x14000029, 0x140000ff, N("mvsread") },	/* read data for current macroblock/macroblock pair from input MVSURF */
+    { 0x1400002a, 0x140000ff, N("mvswrite") },	/* write data for current macroblock/macroblock pair to output MVSURF */
+    { 0x1400002b, 0x140000ff, U("o2b") }, /* ADV */
+    { 0x1400002c, 0x140000ff, U("o2c") }, /* ANEW */
     
     { 0x14000040, 0x1c0000ff, N("setand"), T(pdst), PSRC1, PSRC2 },
     { 0x14000041, 0x1c0000ff, N("setor"), T(pdst), PSRC1, PSRC2 },
@@ -237,36 +292,38 @@ static struct insn tabovr[] = {
     { 0x14000081, 0x1c0000ff, N("ld"), DST, DMEMLDR },
     { 0x1c000081, 0x3c0000ff, N("ld"), DST, DMEMLDI },
     { 0x3c000081, 0x3c0000ff, N("ld"), DST, DMEMLDIS },
-    { 0x14000083, 0x1c0000ff, U("o83"), DST, FMEMLDR },
-    { 0x1c000083, 0x3c0000ff, U("o83"), DST, FMEMLDI },
-    { 0x3c000083, 0x3c0000ff, U("o83"), DST, FMEMLDIS },
-    { 0x1c000084, 0x3c0000ff, U("o84"), DMEMSTI, SRC2 },
-    { 0x3c000084, 0x3c0000ff, U("o84"), DMEMSTIS, SRC2 },
-    { 0x14000084, 0x1c0000ff, U("o84"), DMEMSTR, SRC2 }, // store?
-    { 0x14000089, 0x1c0000ff, U("o89"), DST, GMEMLDR },
-    { 0x1c000089, 0x3c0000ff, U("o89"), DST, GMEMLDI },
-    { 0x3c000089, 0x3c0000ff, U("o89"), DST, GMEMLDIS },
-    { 0x1c00008a, 0x3c0000ff, U("o8a"), DMEMSTI, SRC2 }, // store?
-    { 0x3c00008a, 0x3c0000ff, U("o8a"), DMEMSTIS, SRC2 },
-    { 0x1400008a, 0x1c0000ff, U("o8a"), DMEMSTR, SRC2 },
-    { 0x1c00008c, 0x3c0000ff, U("o8c"), DMEMSTI, SRC2 }, // store? space really unknown
-    { 0x3c00008c, 0x3c0000ff, U("o8c"), DMEMSTIS, SRC2 },
-    { 0x3400008c, 0x1c0000ff, U("o8c"), DMEMSTR, SRC2 },
-    { 0x1400008d, 0x140000ff, U("o8d"), DST }, // load?
-    { 0x1c00008e, 0x3c0000ff, N("iowr"), EMEMSTI, SRC2 },
-    { 0x3c00008e, 0x3c0000ff, N("iowr"), EMEMSTIS, SRC2 },
-    { 0x1400008e, 0x1c0000ff, N("iowr"), EMEMSTR, SRC2 },
-    { 0x1400008f, 0x1c0000ff, N("iord"), DST, EMEMLDR },
-    { 0x1c00008f, 0x3c0000ff, N("iord"), DST, EMEMLDI },
-    { 0x3c00008f, 0x3c0000ff, N("iord"), DST, EMEMLDIS },
+    { 0x14000083, 0x1c0000ff, N("ld"), DST, PWTLDR },
+    { 0x1c000083, 0x3c0000ff, N("ld"), DST, PWTLDI },
+    { 0x3c000083, 0x3c0000ff, N("ld"), DST, PWTLDIS },
+    { 0x1c000084, 0x3c0000ff, N("st"), VPSTI, SRC2 },
+    { 0x3c000084, 0x3c0000ff, N("st"), VPSTIS, SRC2 },
+    { 0x14000084, 0x1c0000ff, N("st"), VPSTR, SRC2 },
+    { 0x14000089, 0x1c0000ff, N("ld4"), DST, I4MEMLDR },
+    { 0x1c000089, 0x3c0000ff, N("ld4"), DST, I4MEMLDI },
+    { 0x3c000089, 0x3c0000ff, N("ld4"), DST, I4MEMLDIS },
+    { 0x1c00008a, 0x3c0000ff, N("st5"), O5MEMSTI, SRC2 },
+    { 0x3c00008a, 0x3c0000ff, N("st5"), O5MEMSTIS, SRC2 },
+    { 0x1400008a, 0x1c0000ff, N("st5"), O5MEMSTR, SRC2 },
+    { 0x1c00008c, 0x3c0000ff, N("st6"), B6MEMSTI, SRC2 },
+    { 0x3c00008c, 0x3c0000ff, N("st6"), B6MEMSTIS, SRC2 },
+    { 0x3400008c, 0x1c0000ff, N("st6"), B6MEMSTR, SRC2 },
+    { 0x1400008d, 0x1c0000ff, N("ld6"), DST, B6MEMLDR },
+    { 0x1c00008d, 0x3c0000ff, N("ld6"), DST, B6MEMLDI },
+    { 0x3c00008d, 0x3c0000ff, N("ld6"), DST, B6MEMLDIS },
+    { 0x1c00008e, 0x3c0000ff, N("st7"), B7MEMSTI, SRC2 },
+    { 0x3c00008e, 0x3c0000ff, N("st7"), B7MEMSTIS, SRC2 },
+    { 0x1400008e, 0x1c0000ff, N("st7"), B7MEMSTR, SRC2 },
+    { 0x1400008f, 0x1c0000ff, N("ld7"), DST, B7MEMLDR },
+    { 0x1c00008f, 0x3c0000ff, N("ld7"), DST, B7MEMLDI },
+    { 0x3c00008f, 0x3c0000ff, N("ld7"), DST, B7MEMLDIS },
 
     // arithmetic subsystem block
     { 0x140000a0, 0x140000ff, N("mul"), SRC1, T(arithsrc2) },
     { 0x140000a1, 0x140000ff, N("muls"), SRC1, T(arithsrc2) },
     { 0x140000a2, 0x140000ff, N("shift"), T(arithsrc2) },
-    { 0x140000a4, 0x140000ff, U("oa4"), T(src2) },
-    { 0x140000a8, 0x140000ff, U("oa8"), T(src2) },
-    { 0x140000ac, 0x140000ff, U("oac"), T(src2) },
+    { 0x140000a4, 0x140000ff, U("oa4"), T(src2) }, /* VC1 */
+    { 0x140000a8, 0x140000ff, U("oa8"), T(src2) }, /* VC1 */
+    { 0x140000ac, 0x140000ff, U("oac"), T(src2) }, /* 263 */
     
     { 0, 0, OOPS },
 };
@@ -316,7 +373,7 @@ static struct insn tabm[] = {
     { 0x00000019, 0x0000001f, N("or"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := even
     { 0x0000001a, 0x0000001f, N("xor"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := odd
     { 0x0000001b, 0x0000001f, N("not"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := odd
-    { 0x0000001c, 0x0000001f, U("1c"), T(pmod), T(dst), T(src1), T(src2) },
+    { 0x0000001c, 0x0000001f, N("lut"), T(pmod), T(dst), T(src1), T(src2) }, /* 264, VC1 */
      
      
     // Opcodes with flag bits not verified
@@ -329,13 +386,20 @@ static struct insn tabm[] = {
 	{ 0, 0, OOPS },
 };
 
-static struct insn tabroot[] = {
-	{ 0x34000043, 0x3c0000ff, OP32, N("nop") },
-	{ 0x14000000, 0x34000000, OP32, T(ovr) },
-    { 0x34000000, 0x34000000, OP32, T(p), T(ovr) },
-	{ 0x00000000, 0x20000000, OP32, T(m) },
-	{ 0x20000000, 0x20000000, OP32, T(p), T(m) },
+static struct insn tabops[] = {
+	{ 0x34000043, 0x3c0000ff, N("nop") },
+	{ 0x14000000, 0x34000000, T(ovr) },
+    { 0x34000000, 0x34000000, T(p), T(ovr) },
+	{ 0x00000000, 0x20000000, T(m) },
+	{ 0x20000000, 0x20000000, T(p), T(m) },
+	{ 0, 0, OOPS },
+};
 
+static struct insn tabroot[] = {
+	{ 0, 0, OP64, T(ops), .fmask = F_VP3 },
+	{ 0xffc0000000ull, 0xffc0000000ull, OP64, T(ops), .fmask = F_VP2 },
+	{ 0x0000000000ull, 0x0200000000ull, OP64, RBRPRED, N("rbra"), RBRTARG, T(ops), .fmask = F_VP2 },
+	{ 0x0200000000ull, 0x0200000000ull, OP64, N("not"), RBRPRED, N("rbra"), RBRTARG, T(ops), .fmask =F_VP2 },
 	{ 0, 0, OOPS },
 };
 

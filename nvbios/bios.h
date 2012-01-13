@@ -84,6 +84,7 @@ struct envy_bios {
 
 static inline int bios_u8(struct envy_bios *bios, unsigned int offs, uint8_t *res) {
 	if (offs >= bios->length) {
+		*res = 0;
 		ENVY_BIOS_ERR("requested OOB u8 at 0x%04x\n", offs);
 		return -EFAULT;
 	}
@@ -93,6 +94,7 @@ static inline int bios_u8(struct envy_bios *bios, unsigned int offs, uint8_t *re
 
 static inline int bios_u16(struct envy_bios *bios, unsigned int offs, uint16_t *res) {
 	if (offs+1 >= bios->length) {
+		*res = 0;
 		ENVY_BIOS_ERR("requested OOB u16 at 0x%04x\n", offs);
 		return -EFAULT;
 	}
@@ -102,6 +104,7 @@ static inline int bios_u16(struct envy_bios *bios, unsigned int offs, uint16_t *
 
 static inline int bios_u32(struct envy_bios *bios, unsigned int offs, uint32_t *res) {
 	if (offs+3 >= bios->length) {
+		*res = 0;
 		ENVY_BIOS_ERR("requested OOB u32 at 0x%04x\n", offs);
 		return -EFAULT;
 	}

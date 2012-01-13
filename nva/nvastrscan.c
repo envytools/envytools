@@ -227,7 +227,7 @@ int main(int argc, char **argv){
 			int pos = -1;
 			int l;
 			int ctr = 0;
-			int try;
+//			int try;
 			for (l = 1; l < 0x14; l++) {
 //				try = 0;
 //respin:

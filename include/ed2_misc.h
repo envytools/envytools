@@ -67,7 +67,7 @@ void ed2_mask_or(uint32_t *dmask, uint32_t *smask, int size);
 int ed2_mask_or_r(uint32_t *dmask, uint32_t *smask, int size);
 
 int ed2_mask_intersect(uint32_t *a, uint32_t *b, int size);
-
+int ed2_mask_contains(uint32_t *a, uint32_t *b, int size);
 void ed2_mask_print(FILE *out, uint32_t *mask, int size);
 
 char *ed2_str_deescape(char *str, uint64_t *len);

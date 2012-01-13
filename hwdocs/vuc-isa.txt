@@ -1,0 +1,917 @@
+= Introduction =
+
+This file deals with description of the ISA used by the vµc microprocessor,
+which is described in vuc.txt.
+
+The microprocessor registers, instructions and memory spaces are mostly 16-bit
+oriented. There are 3 ISA register files:
+
+ - $r0-$r15, 16-bit general-purpose registers, for arithmetic and addressing
+   - $r0: read-only and hardwired to 0
+   - $r1-$r15: read/write
+ - $p0-$p15, 1-bit predicate registers, for conditional execution
+   - $p0: read/write
+   - $p1: read only and hardwired to !$p0
+   - $p2-$p14: read/write
+   - $p15: read-only and hardwired to 1
+ - $sr0-$sr63, 16-bit special registers [XXX: the following information may
+   only be valid for H.264 mode for now]
+   - $sr0: ??? controls $sr48-$sr58 (bits 0-6 when set separately) [XXX]
+   - $sr1: ??? similar to $sr0 (bits 0-4, probably more) [XXX]
+   - $sr2/$spidx: partition and subpartition index, used to select which
+     [sub]partitions some other special registers access:
+       bits 0-1: subpartition index
+       bits 2-3: partition index
+       Note that, for indexing purposes, each partition index is considered
+       to refer to an 8x8 block, and each subpartition index to 4x4 block. If
+       partition/subpartition size is bigger than that, the indices will
+       alias. Thus, for 16x8 partitioning mode, $spidx equal to 0-7 wil select
+       the top partition, $spidx equal to 8-15 will select the bottom one. For
+       8x16 partitioning, $spidx equal to 0-3 and 8-11 will select the left
+       partition, 4-7 and 12-15 will select the right partition.
+   - $sr3: ??? bits 0-4 affect $sr32-$sr42 [XXX]
+   - $sr4/$h2v: a scratch register to pass data from host to vµc [see vuc.txt]
+   - $sr5/$v2h: a scratch register to pass data from vµc to host [see vuc.txt]
+   - $sr6/$stat: some sort of control/status reg, writing 0x8000 alternates
+     values between 0x8103 and 0 [XXX]
+       bit 0: ??? [XXX]
+       bit 1: ??? [XXX]
+       bit 2: ??? [XXX]
+       bit 3: ??? [XXX]
+       bit 8: ??? [XXX]
+       bit 10: macroblock input available - set whenever there's a complete
+         macroblock available from MBRING, cleared when mbinext instruction
+	 skips past the last currently available macroblock. Will break out
+	 of sleep instruction when set.
+       bit 11: $h2v modified - set when host writes H2V, cleared when $h2v
+         is read by vµc, will break out of sleep instruction when set.
+       bit 12: watchdog hit - set 1 cycle after $icnt reaches WDCNT and it's
+         not equal to 0xffff, cleared when $icnt or WDCNT is modified in any
+	 way.
+       bit 15: ??? [XXX]
+   - $sr7/$parm: sequence/picture/slice parameters required by vµc hardware
+     [see vuc.txt]
+   - $sr8/$pc: address of currently executed instruction
+   - $sr9: ??? values 0, 1, 3, may be related to upload/execution order [XXX]
+   - $sr10/$cstop: aliases call stack top? [XXX]
+   - $sr11/$rpitab: D[] address of refidx -> dpb index translation table
+   - $sr12/$arthi: Arithmetic result high word register
+   - $sr13/$artlo: Arithmetic result low word register
+   - $sr14/$pred: predicates - aliases the $p register file, bit X corresponds
+     to $pX register
+   - $sr15/$icnt: instruction/cycle counter (?: check nops, effect of delays)
+   - $sr16/$mvxl0: sign-extended mvd_l0[$spidx][0] [input]
+   - $sr17/$mvyl0: sign-extended mvd_l0[$spidx][1] [input]
+   - $sr18/$mvxl1: sign-extended mvd_l1[$spidx][0] [input]
+   - $sr19/$mvyl1: sign-extended mvd_l1[$spidx][1] [input]
+   - $sr20/$refl0: ref_idx_l0[$spidx>>2] [input]
+   - $sr21/$refl1: ref_idx_l1[$spidx>>2] [input]
+   - $sr22/$rpil0: dpb index of L0 reference picture for $spidx-selected
+     partition
+   - $sr23/$rpil1: dpb index of L1 reference picture for $spidx-selected
+     partition
+   - $sr24/$mbflags:
+       bit 0: mb_field_decoding_flag [RW]
+       bit 1: is intra macroblock [RO]
+       bit 2: is I_NxN macroblock [RO]
+       bit 3: transform_size_8x8_flag [RW]
+       bit 4: ??? [XXX]
+       bit 5: is I_16x16 macroblock [RO]
+       bit 6: partition selected by $spidx uses L0 or Bi prediction [RO]
+       bit 7: partition selected by $spidx uses L1 or Bi prediction [RO]
+       bit 8: mb_field_decoding_flag for next macroblock [only valid if $sr6
+              bit 10 is set] [RO]
+       bit 9: mb_skip_flag for next macroblock [only valid if $sr6 bit 10 is
+              set] [RO]
+       bit 10: partition selected by $spidx uses Direct prediction [RO]
+       bit 11: any partition of macroblock uses Direct prediction [RO]
+       bit 12: is I_PCM macroblock [RO]
+       bit 13: is P_SKIP macroblock [RO]
+   - $sr25/$qpy:
+       bits 0-5: mb_qp_delta [input] / QPy [output] [H.264]
+       bits 0-5: quantiser_scale_code [input and output] [MPEG1/MPEG2]
+       bits 8-11: intra_chroma_pred_mode, values:
+         0: DC [input], DC_??? [output] [XXX]
+	 1: horizontal [input, output]
+	 2: vertical [input, output]
+	 3: plane [input, output]
+	 4: DC_??? [output]
+	 5: DC_??? [output]
+	 6: DC_??? [output]
+	 7: DC_??? [output]
+	 8: DC_??? [output]
+	 9: DC_??? [output]
+	 0xa: DC_??? [output]
+   - $sr26/$qpc:
+       bits 0-5: QPc for Cb [output] [H.264]
+       bits 8-13: QPc for Cr [output] [H.264]
+   - $sr27/$mbpart:
+       bits 0-1: macroblock partitioning type
+         0: 16x16
+         1: 16x8
+         2: 8x16
+         3: 8x8
+       bits 2-3: partition 0 subpartitioning type
+       bits 4-5: partition 0 subpartitioning type
+       bits 6-7: partition 0 subpartitioning type
+       bits 8-9: partition 0 subpartitioning type
+         0: 8x8
+         1: 8x4
+         2: 4x8
+         3: 4x4
+   - $sr28/$mbxy:
+       bits 0-7: macroblock Y position
+       bits 8-15: macroblock X position
+   - $sr29/$mbaddr:
+       bits 0-12: macroblock address
+       bit 15: first macroblock in slice flag
+   - $sr30/$mbtype: macroblock type, for H.264:
+       0x00: I_NxN
+       0x01: I_16x16_0_0_0
+       0x02: I_16x16_1_0_0
+       0x03: I_16x16_2_0_0
+       0x04: I_16x16_3_0_0
+       0x05: I_16x16_0_1_0
+       0x06: I_16x16_1_1_0
+       0x07: I_16x16_2_1_0
+       0x08: I_16x16_3_1_0
+       0x09: I_16x16_0_2_0
+       0x0a: I_16x16_1_2_0
+       0x0b: I_16x16_2_2_0
+       0x0c: I_16x16_3_2_0
+       0x0d: I_16x16_0_0_1
+       0x0e: I_16x16_1_0_1
+       0x0f: I_16x16_2_0_1
+       0x10: I_16x16_3_0_1
+       0x11: I_16x16_0_1_1
+       0x12: I_16x16_1_1_1
+       0x13: I_16x16_2_1_1
+       0x14: I_16x16_3_1_1
+       0x15: I_16x16_0_2_1
+       0x16: I_16x16_1_2_1
+       0x17: I_16x16_2_2_1
+       0x18: I_16x16_3_2_1
+       0x19: I_PCM
+       0x20: P_L0_16x16
+       0x21: P_L0_L0_16x8
+       0x22: P_L0_L0_8x16
+       0x23: P_8x8
+       0x24: P_8x8ref0
+       0x40: B_Direct_16x16
+       0x41: B_L0_16x16
+       0x42: B_L1_16x16
+       0x43: B_Bi_16x16
+       0x44: B_L0_L0_16x8
+       0x45: B_L0_L0_8x16
+       0x46: B_L1_L1_16x8
+       0x47: B_L1_L1_8x16
+       0x48: B_L0_L1_16x8
+       0x49: B_L0_L1_8x16
+       0x4a: B_L1_L0_16x8
+       0x4b: B_L1_L0_8x16
+       0x4c: B_L0_Bi_16x8
+       0x4d: B_L0_Bi_8x16
+       0x4e: B_L1_Bi_16x8
+       0x4f: B_L1_Bi_8x16
+       0x50: B_Bi_L0_16x8
+       0x51: B_Bi_L0_8x16
+       0x52: B_Bi_L1_16x8
+       0x53: B_Bi_L1_8x16
+       0x54: B_Bi_Bi_16x8
+       0x55: B_Bi_Bi_8x16
+       0x56: B_8x8
+       0x7e: B_SKIP
+       0x7f: P_SKIP
+   - $sr31/$submbtype:
+       bits 0-3: sub_mb_type[0]
+       bits 4-7: sub_mb_type[1]
+       bits 8-11: sub_mb_type[2]
+       bits 12-15: sub_mb_type[3]
+   - $sr32-$sr42: ??? affected by $sr3, unko21, read only [XXX]
+   - $sr48-$sr58: ??? affected by writing $sr0 and $sr1, unko22, read only [XXX]
+
+There are 7 address spaces the vµc can access:
+    D[] - user data, word-addressed, 0x800 16-bit words long, loads and stores
+          are in word units.
+    PWT[] - pred weight table data, read-only. This space is filled when
+            a packet of type 4 is read from the MBRING. Byte-addressed, 0x200
+	    bytes long, loads are in byte units.
+    VP[] - VPRING output data, write-only. Data stored here will be written to
+            VPRING_MBINFO and VPRING_MV when corresponding commands are invoked.
+	    Byte-addressed, 0x400 bytes long. Stores are in byte or word units
+	    depending on the address.
+    I4[] - ??? read-only [XXX]
+    O5[] - ??? write-only [XXX]
+    B6[] - io address space? [XXX]
+    B7[] - io address space? [XXX]
+
+
+Opcode format:
+    0x14000000 - if not set, base instruction. If set, override instruction
+    
+    Base instruction format:
+    bits 0-4 select instruction
+    bits 5-7 select predicate mode: 
+        bits 0-1 defines base mode:
+            0b00: p &= X
+            0b01: p |= X
+            0b10: p = X
+            0b11: do not modify predicate
+        bit 2 negates instruction output value (X = ~X)
+    bit 26 selects source operand 1: 0 is $rX, 1 is $srX
+    bit 28 selects destination operand: 0 means $rX, 1 means $srX
+    
+    Override instruction format:
+    bits 0-7 select the instruction
+    bts 26, 28: always 1
+    
+    Common remainder:
+    8-11 operand
+    12-15 operand
+    16-19 operand
+    20-23:
+        predicated: selecting predicate
+        non-predicated: destination predicate or extra immediate bits
+    24-25 are extra 2 bits for immediates, or additional $sr number bits
+    27 selects source operand 2: 0 is $rX, 1 is immediate
+    29: 0 for unpredicated insns, 1 for predicated insns
+    
+    only vp2:
+    30-39: unknown purpose and are usually 0x3ff
+    if all instructions have:
+    0x000: all ok
+    0x3fe: nothing runs
+    0x3fd: nothing runs
+    ...
+    0x3f5: runs
+    
+    going up from 0x3f0, things stop running at 0x3f7
+
+
+XXX: Find signedness of instructions
+TODO: Find out exact immediate sizes in most instructions
+XXX: Verify remaining delays
+
+
+== Instructions ==
+= Predicated execution =
+All instructions can be conditionally executed depending on predicate state.
+
+    Syntax:
+    [pred] insn ...
+    
+    Example:
+    $p1 mov $r1 10
+
+This instruction would be executed only if predicate $p0 is set.
+There are some exceptions to this rule: if an instruction was never seen predicated with the blob, if it's difficult to figure out opcode format, or if it's pointless to run it predicated, there might be no predicated version in envydis (noted where applicable).
+
+= Reference =
+Instructions are separated into 2 sections: "base" instructions and "override" instructions. The name is not meaningful and its only reason is that "base" instructions have shorter selectors.
+
+Reference format:
+    "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "~a" signifies bitwise negation of a, ":" means composition of bits into a single "variable". ceil(), floor() and rand() are sign-aware, assume values to be of infinite precision. All signed values are noted when applicable/known.
+    REG is any register, GPREG is general purpose register ($rX), SRREG is $srX, PRED is predicate ($pX), IMMX is immediate of X bits length.
+
+
+** Base instructions **
+Base instructions can take $srX registers as source and destination, but not at the same time. They are usually arithmetic operations taking registers as source and registers or predicate as destination.
+
+* Setting predicates *
+All base instructions have the ability to set a predicate. The value is defined by the instruction, but the way it is applied is general for all instructions. It can be combined with predicated execution and both predicates can be different.
+Again, envydis might not support it if the result is particularly useless or difficult to figure out. Notable exceptions: mov, slct.
+
+    Syntax:
+    insn [[mode] predicate] [operands ...]
+    
+Supported predicate setting modes:
+    * none: no predicate will be set.
+        [[mode] predicate] is omitted.
+        Example: add $r1 $r2 3
+        
+    * identity: predicate will be set normally.
+        [mode] is omitted.
+        Example: btest $p2 $r3 3
+        Predicate $p2 will be set to 1 if bit 3 in $r3 is set, and set to 0 otherwise.
+        
+    * and: predicate will be ANDed with its previous value.
+        [mode] is "pand".
+        Example: shl pand $p3 $r6 $r4 5
+        Predicate $p3 will be cleared if shifted out bit is 0.
+        
+    * or: predicate will be ORed with its previous value.
+        [mode] is "por".
+        Example: shr por $p6 $r6 $r7 8
+        Predicate will be set if shifted out bit is 1.
+    
+    * not: reverses instruction predicate output.
+        [mode] is "pnot".
+        Example: btest not $p2 $r3 3
+        Predicate $p2 will be set to 1 if bit 3 in $r3 is cleared, and set to 0 otherwise.
+        
+    * andn: previous value of predicate will be ANDed with negation of new value.
+        [mode] is "pandn".
+        Example: shl pandn $p3 $r5 $r4 5
+        Predicate $p3 will be cleared if shifted out bit is 1.
+        
+    * orn: previous value of predicate will be ORed with negation of new value
+        [mode] is "porn".
+        Example: shr $p6 $r8 $r7 8
+        Predicate will be set if shifted out bit is 0.
+
+Some instructions don't affect anything else but predicate. In their case, the transformation might still be set to "none", but they will just have no effect.
+        
+Note: the [[mode] predicate] section is shortened to PDST below. PDST is then the untransformed predicate value (as with identity mode). It may be omitted in the format where not particularly useful.
+   
+* Instructions *
+
+* Comparison:
+    0x08: [setsg PDST SRC1 SRC2]
+          setsg PRED REG GPREG
+          setsg PRED REG IMM6
+            PDST := SRC1 > SRC2
+        Delay: immediate
+    
+    0x09: [setsl PDST SRC1 SRC2]
+          setsl PRED REG GPREG
+          setsl PRED REG IMM6
+            PDST := SRC1 < SRC2
+        Delay: immediate
+    
+    0x0a: [setse PDST SRC1 SRC2]
+          setse PRED REG GPREG
+          setse PRED REG IMM6
+            PDST := SRC1 == SRC2
+        Delay: immediate
+        
+    0x0b: [setsle PDST SRC1 SRC2]
+          setsle PRED REG GPREG
+          setsle PRED REG IMM6
+            PDST := SRC1 <= SRC2
+        Delay: immediate
+
+        
+* Arithmetic
+    0x00: [slct DST SRC1 SRC2 SRC3]
+          slct REG PRED GPREG GPREG
+          slct GPREG PRED REG GPREG
+          slct REG PRED GPREG IMM6
+          slct GPREG PRED REG IMM6
+            if SRC1
+                DST := SRC2
+            else
+                DST := SRC3
+            endif
+            PDST := DST & 1
+        NOTE: PDST not supprted by envydis.
+        Delay: immediate
+
+    0x01: [mov DST SRC]
+          mov REG GPREG
+          mov GPREG IMM14
+          mov SRREG IMM12
+        Sets DST to value of SRC.
+            DST := SRC
+            PDST := DST & 1
+        NOTE: PDST not supported by envydis with immediate operands.
+        Delay: immediate
+         
+    0x04: [add DST SRC1 SRC2]
+          add REG GPREG GPREG
+          add GPREG REG GPREG
+          add REG GPREG IMM6
+          add GPREG REG IMM6
+        Assigns DST the value of SRC1 + SRC2. PDST is lowest bit of result.
+            DST := SRC1 + SRC2
+            PDST := DST & 1
+        TODO: Flags?
+        Delay: immediate
+    
+    0x05: [sub DST SRC1 SRC2]
+          sub REG GPREG GPREG
+          sub GPREG REG GPREG
+          sub REG GPREG IMM6
+          sub GPREG REG IMM6
+            DST := SRC1 - SRC2
+            PDST := DST & 1
+        TODO: Flags?
+        Delay: immediate
+        
+    0x06: [subr DST SRC1 SRC2]
+          subr REG GPREG GPREG
+          subr GPREG REG GPREG
+          subr REG GPREG IMM6
+          subr GPREG REG IMM6
+            DST := SRC2 - SRC1
+            PDST := DST & 1
+        TODO: Flags?
+        Only present on VP2
+        Delay: immediate
+        
+    0x0c: [minsz PDST DST SRC1 SRC2]
+          minsz PRED REG GPREG GPREG
+          minsz PRED GPREG REG GPREG
+          minsz PRED REG GPREG IMM6
+          minsz PRED GPREG REG IMM6
+        Signed minimum with a quirk.
+            signed SRC1, SRC2
+            if SRC1 > SRC2
+                DST := SRC2
+            else
+                DST := max(SRC1, 0)
+            endif
+            PDST := SRC1 > SRC2
+        Delay: immediate
+    
+    0x0d: [clampsex PDST DST SRC1 SRC2]
+          clampsex PRED REG GPREG GPREG
+          clampsex PRED GPREG REG GPREG
+          clampsex PRED REG GPREG IMM6
+          clampsex PRED GPREG REG IMM6
+        Clamp SRC1 to -2**SRC2..2**SRC2-1. If SRC1 is not in the interval, DST becomes the closer interval boundary. Otherwise DST becomes SRC1.
+        PDST states whether DST is different from SRC1
+            signed SRC1
+            if SRC1 < 0
+                DST := (-(2 ** SRC2)) | SRC1
+            else
+                DST := ((2 ** SRC1) - 1) & SRC1
+            end
+            PDST := DST == SRC1
+        Delay: immediate
+    
+    0x0e: [sex PDST DST SRC1 SRC2]
+          sex PRED REG GPREG GPREG
+          sex PRED GPREG REG GPREG
+          sex PRED REG GPREG IMM6
+          sex PRED GPREG REG IMM6
+        Sign extend all bits from SRC2 and higher (truncate SRC1 to SRC2 bits, then cast it back with sign to 16 bits).
+        PDST is 1 when DST is negative, 0 otherwise.
+            if SRC1 & (2 ** SRC2)
+                DST := (-(2 ** SRC2)) | SRC1
+            else
+                DST := ((2 ** SRC1) - 1) & SRC1
+            end
+            PDST := DST < 0
+        Delay: immediate
+    
+    
+    Unverified instructions (not present on vp2):
+    
+    0x6f: [div2s DST SRC]
+          div2s REG REG
+        Signed division by 2, round to 0
+            signed SRC
+            if SRC < 0
+                DST := ceil(SRC / 2)
+            else
+                DST := floor(SRC / 2)
+            endif
+        Not present on vp2
+    
+    0x66: [avgs DST SRC1 SRC2]
+          avgs REG REG GPREG
+          avgs REG REG IMM?
+        Signed average
+            signed SRC1, SRC2
+            DST := ceil((SRC1 + SRC2) / 2)
+        Present on vp3
+        Not present on vp2
+        Delay: immediate
+    
+    0x67: [avgu DST SRC1 SRC2]
+          avgu REG REG GPREG
+          avgu REG REG IMM?
+        Unsigned average
+            DST := ceil((SRC1 + SRC2) / 2)
+        Present on vp3
+        Not present on vp2
+        Delay: immediate
+        
+    0x7d: [min DST SRC1 SRC2]
+          min REG REG GPREG
+          min REG REG IMM?
+        Minimum.
+        XXX: signed?
+            DST := min(SRC1, SRC2)
+        Present on vp3
+        Not present on vp2?
+        Delay: immediate
+    
+    0x7e: [max DST SRC1 SRC2]
+          max REG REG GPREG
+          max REG REG IMM?
+        Maximum.
+        XXX: signed?
+            DST := max(SRC1, SRC2)
+        Present on vp3
+        Not present on vp2?
+        Delay: immediate
+        
+        
+* Bit manipulation:
+    0x10: [bset DST SRC1 SRC2]
+          bset REG GPREG GPREG
+          bset GPREG REG GPREG
+          bset REG GPREG IMM4
+          bset GPREG REG IMM4
+        Set bit SRC2 in SRC1.
+            DST := SRC1 | (1 << SRC1)
+            PDST := DST & 1
+        Delay: immediate
+    
+    0x11: [bclr DST SRC1 SRC2]
+          bclr REG GPREG GPREG
+          blcr GPREG REG GPREG
+          bclr REG GPREG IMM4
+          blcr GPREG REG IMM4
+        Clear bit SRC2 in SRC1.
+            DST := SRC1 & ~(1 << SRC1)
+            PDST := DST & 1
+        Delay: immediate
+
+    0x12: [btest PDST SRC1 SRC2]
+          btest PRED REG GPREG
+          btest PRED REG IMM6
+            PDST := (SRC1 >> SRC2) & 1
+        Delay: immediate
+
+    0x14: [rot8 DST SRC]
+          rot8 REG GPREG
+          rot8 GPREG REG
+        Swap bytes.
+            DST := ((SRC & 0xff) << 8) | (SRC >> 8)
+            PDST := DST & 1
+        Delay: immediate
+    
+    0x15: [shl PDST DST SRC1 SRC2]
+          shl PRED REG GPREG GPREG
+          shl PRED GPREG REG GPREG
+          shl PRED REG GPREG IMM4
+          shl PRED GPREG REG IMM4
+        Assigns DST value of SRC1 shifted left by SRC2 bits.
+        PDST carries the value of last shifted out bit.
+            DST := SRC1 << SRC2
+            PDST := ((SRC1 << SRC2) >> 32) & 1
+        Delay: immediate
+        
+    0x16: [shr PDST DST SRC1 SRC2]
+          shr PRED REG GPREG GPREG
+          shr PRED GPREG REG GPREG
+          shr PRED REG GPREG IMM4
+          shr PRED GPREG REG IMM4
+        Assigns DST value of SRC1 shifted right by SRC2 bits.
+        PDST carries the value of last shifted out bit.
+            DST := SRC1 >> SRC2
+            PDST := ((SRC1 >> SRC2) << 1) & 1
+        Delay: immediate
+    
+    0x17: [sar DST SRC1 SRC2]
+          shr PRED REG GPREG GPREG
+          shr PRED GPREG REG GPREG
+          shr PRED REG GPREG IMM4
+          shr PRED GPREG REG IMM4
+        Assigns DST value of SRC1 shifted right by SRC2 bits, preserving the sign bit.
+        PDST carries the value of last shifted out bit.
+            if SRC1 < 0
+                DST := (0xffff0000 | SRC1) >> SRC2
+            else
+                DST := SRC1 >> SRC2
+            endif
+            PDST := ((SRC1 >> SRC2) << 1) & 1
+        Delay: immediate
+        
+* Logical arithmetics:
+    0x08: [and DST SRC1 SRC2]
+          and REG GPREG GPREG
+          and GPREG REG GPREG
+          and REG GPREG IMM6
+          and GPREG REG IMM6
+            DST := SRC1 & SRC2
+            PDST := DST & 1
+        Delay: immediate
+    
+    0x09: [or DST SRC1 SRC2]
+          or REG GPREG GPREG
+          or GPREG REG GPREG
+          or REG GPREG IMM6
+          or GPREG REG IMM6
+            DST := SRC1 | SRC2
+            PDST := DST & 1
+        Delay: immediate
+    
+    0x0a: [xor DST SRC1 SRC2]
+          xor REG GPREG GPREG
+          xor GPREG REG GPREG
+          xor REG GPREG IMM6
+          xor GPREG REG IMM6
+            DST := SRC1 ^ SRC2
+            PDST := DST & 1
+        Delay: immediate
+    
+    0x0b: [not DST SRC]
+          not REG GPREG
+          not GPREG REG
+            DST := ~SRC
+            PDST := DST & 1
+        Delay: immediate
+
+        
+* Lookup table:
+    0x1c: [lut PDST DST SRC1 SRC2]
+          lut PRED REG GPREG GPREG
+          lut PRED GPREG REG GPREG
+          lut PRED REG GPREG IMM6
+          lut PRED GPREG REG IMM6
+	Loads DST with a value of lookup table selected by SRC2 at index selected by SRC1. Table selection is 4-bit.
+	Table 0: mvx, index is 1-bit. if index is 0, returns $mvxl0[$spidx], otherwise $mvxl1[$spidx]
+	Table 1: mvy, index is 1-bit. if index is 0, returns $mvyl0[$spidx], otherwise $mvyl1[$spidx]
+	Table 2: ref, index is 1-bit. if index is 0, returns $refl0[$spidx], otherwise $refl1[$spidx]
+	Table 3: s22, index is 1-bit. if index is 0, returns $sr22[$spidx], otherwise $sr23[$spidx]
+	Table 4: mvxns, index is 1-bit. if $mbtype is 0x7f [P_SKIP], returns 0, otherwise same as mvx
+	Table 5: mvyns, index is 1-bit. if $mbtype is 0x7f [P_SKIP], returns 0, otherwise same as mvy
+	Table 6: refns, index is 1-bit. if $mbtype is 0x7f [P_SKIP], returns 0, otherwise same as ref
+	Table 7: s22ns, index is 1-bit. if $mbtype is 0x7f [P_SKIP], returns 0, otherwise same as s22
+	Table 8: pcnt, index is 3-bit. If index is 0-3, returns subpartition count of given partition index. Otherwise, returns partition count of the macroblock.
+	Table 9: spidx, indexing is two-dimensional, with first index being 2-bit and taken from bits 0-1 of SRC2, second index being 2-bit and taken from bits 8-9 of SRC2. the first index signifies partition index, while the second signifies a subpartition index. If partition index is less than pcnt[4] and subpartition index is less than subpcnt[partidx], returns $spidx value corresponding to given partition index. Otherwise returns junk.
+	Table 0xa: pnext, indexing is two-dimensional, with first index being 3-bit and taken from bits 0-2 of SRC2, second index being 2-bit and taken from bits 8-9 of SRC2. the first index signifies partition index, while the second signifies a subpartition index. If partition index is less than pcnt[4], returns two-part index of the next subpartition in this partition, or the first subpartition of the next partition in macroblock if already at last subpartition, or pcnt[4] if already at last subpartition of last partition. The returned index is in the same format as input index. Additionally, predicate output is set if the transition was to the next subpartition within a partition, cleared if the transition was between partitions or out of the last partition.
+	Table 0xb: pmode, index is 2-bit. If index is less then pcnt[4] and $mbtype is inter-predicted, returns inter prediction mode used for the given partition index, otherwise returns 0. The prediction modes are: 0 for direct prediction, 1 for L0 prediction, 2 for L1 prediction, 3 for Bi prediction.
+	Tables 0xc-0xf: unused, always return 0.
+	    switch (SRC2 & 0xf) {
+		    case 0: r = (SRC1&1 ? $mvxl1 : $mvxl0); break;
+		    case 1: r = (SRC1&1 ? $mvyl1 : $mvyl0); break;
+		    case 2: r = (SRC1&1 ? $refl1 : $refl0); break;
+		    case 3: r = (SRC1&1 ? $sr23 : $sr22); break;
+		    case 4: if ($mbtype == 0x7f) r = 0; else r = (SRC1&1 ? $mvxl1 : $mvxl0); break;
+		    case 5: if ($mbtype == 0x7f) r = 0; else r = (SRC1&1 ? $mvyl1 : $mvyl0); break;
+		    case 6: if ($mbtype == 0x7f) r = 0; else r = (SRC1&1 ? $refl1 : $refl0); break;
+		    case 7: if ($mbtype == 0x7f) r = 0; else r = (SRC1&1 ? $sr23 : $sr22); break;
+		    case 8:
+			    if ((SRC2&7) < 4) {
+				    if (mbpartcnt($mbtype) < 4)
+					    r = 1;
+				    else if ($mbtype == 0 || $mbtype == 0x19) /* I_NxN or I_PCM */
+					    r = ($mbflags[3:3] ? 1 : 4); /* transform_size_8x8_flag */
+				    else
+					    r = submbpartcnt(($submbtype >> ((SRC2 & 3) * 4)) & 0xf);
+			    } else {
+				    r = mbpartcnt($mbtype);
+			    }
+			    break;
+		    case 9:
+			    if (mbpartmode($mbtype) == 16x8)
+				    r = (SRC2 & 1) << 3;
+			    else
+				    r = (SRC2 & 3) << 2;
+			    if (submbpartmode($submbtype >> ((r >> 2) * 4)) == 8x4)
+				    r |= (SRC2 >> 8 & 1) << 1;
+			    else
+				    r |= (SRC2 >> 8 & 3);
+			    break;
+		    case 0xa:
+			    if ((SRC2&7) < 4) {
+				    if (mbpartcnt($mbtype) < 4)
+					    c = 1;
+				    else if ($mbtype == 0 || $mbtype == 0x19) /* I_NxN or I_PCM */
+					    c = ($mbflags[3:3] ? 1 : 4); /* transform_size_8x8_flag */
+				    else
+					    c = submbpartcnt(($submbtype >> ((SRC2 & 3) * 4)) & 0xf);
+			    } else {
+				    c = mbpartcnt($mbtype);
+			    }
+			    sp = SRC2 >> 8 & 3;
+			    p = SRC2 & 3;
+			    sp++;
+			    if (sp >= c) {
+				    p++;
+				    sp = 0;
+			    }
+			    r = sp << 8 | p;
+			    break;
+		    case 0xb:
+			    r = submbpredmode(SRC2 & 3);
+			    break;
+		    default:
+			    r = 0;
+			    break;
+	    }
+	    DST = r;
+	    if ((SRC2 & 0xf) == 0xa)
+		    PDST = (r >> 8 & 3) != 0;
+	    else
+		    PDST = r & 1;
+        Blob seems to use the predicate [5c]. 0x100 above is sometimes 0x200
+        Delay: immediate
+
+        
+** Override instructions **
+Known override instructions control machine state, access memory spaces, external components or perform operations on predicates.
+
+
+* Flow:
+    0x00: [bra TARGET]
+          bra IMM?
+        Branch to address.
+        Delay: 1 instruction
+    
+    0x02: [call TARGET]
+          call IMM?
+        XXX: stack and calling convention
+    0x03: [ret]
+          ret
+        TODO: delay (blob: 1)
+        XXX: stack and calling convention
+    0x43: [nop]
+          nop
+        Done!
+
+        
+* Predicate logical
+    0x40: [setand DST SRC1 SRC2]
+          setand PRED PRED PRED
+            DST := SRC1 & SRC2
+        Delay: immediate
+    
+    0x41: [setor DST SRC1 SRC2]
+          setor PRED PRED PRED
+            DST := SRC1 | SRC2
+        Delay: immediate
+    
+    0x42: [setne DST SRC1 SRC2]
+          setne PRED PRED PRED
+            DST := SRC1 ^ SRC2
+        Delay: immediate
+   
+    0x44: [setl DST SRC1 SRC2]
+          setl PRED PRED PRED
+            DST := SRC1 & ~SRC2
+            (DST := SRC1 < SRC2)
+        Delay: immediate
+    
+    0x45: [setge DST SRC1 SRC2]
+          setge PRED PRED PRED
+            DST := SRC1 | ~SRC2
+            (DST := SRC1 >= SRC2)
+        Delay: immediate
+    
+    0x46: [sete DST SRC1 SRC2]
+          sete PRED PRED PRED
+            DST := SRC1 == SRC2
+            (DST := ~(SRC1 ^ SRC2)
+        Delay: immediate
+
+    0x48: [setg DST SRC1 SRC2]
+          setg PRED PRED PRED
+            DST := SRC1 > SRC2
+            (DST := ~SRC1 & SRC2)
+        Delay: immediate
+    
+    0x49: [setle DST SRC1 SRC2]
+          setle PRED PRED PRED
+            DST := SRC1 <= SRC2
+            (DST := ~SRC1 | SRC2)
+        Delay: immediate
+    
+    0x4a: [sete DST SRC1 SRC2]
+          sete PRED PRED PRED
+            DST := SRC1 == SRC2
+            (DST := ~(SRC1 ^ SRC2)
+        Delay: immediate
+    
+    0x4c: [setnor DST SRC1 SRC2]
+          setnand PRED PRED PRED
+            DST := ~(SRC1 | SRC2)
+        Delay: TODO
+    
+    0x4d: [setnand DST SRC1 SRC2]
+          setnand PRED PRED PRED
+            DST := ~(SRC1 & SRC2)
+        Delay: TODO
+
+   
+* Memory
+    0x80: [st DST SRC]
+		  st MEM[IMM10] GPREG
+		  st MEM[GPREG] GPREG
+		  st MEM[GPREG + IMM10] GPREG
+		  st MEM[GPREG + GPREG] GPREG
+		Predicated exceptions:
+		  PRED st MEM[IMM6] GPREG
+		  PRED st MEM[GPREG + IMM6] GPREG
+        Store data into memory. If instruction is predicated, the immediate value will be shorter.
+            DST := SRC
+        Delay: immediate
+    
+    0x81: [ld DST SRC]
+          ld GPREG MEM[IMM10]
+          ld GPREG MEM[GPREG]
+          ld GPREG MEM[GPREG + IMM10]
+          ld GPREG MEM[GPREG + GPREG]
+        Predicated exceptions:
+          PRED ld GPREG MEM[IMM6]
+          PRED ld GPREG MEM[GPREG + IMM6]
+        Load data from memory MEM. If instruction is predicated, immediate is shorter.
+            DST := SRC
+        Delay: 2 * MOV. Value is being read immediately (or it seems so), delay applies to DST update.
+
+        
+* IO
+    0x8f: [iord DST SRC]
+          iord GPREG IO[IMM10]
+          iord GPREG IO[GPREG]
+          iord GPREG IO[GPREG + IMM10]
+          iord GPREG IO[GPREG + GPREG]
+        Predicated exceptions:
+          PRED iord GPREG IO[IMM6]
+          PRED iord GPREG IO[GPREG + IMM6]
+        Read data from IO address space - a copy of [ld] instruction. If predicated, immediate is shorter.
+        XXX: verify predicated forms
+            DST := SRC
+        Delay: 2 * MOV. Value is being read immediately (or it seems so), delay applies to DST update.
+    
+    0x8e: [iowr DST SRC]
+          iowr IO[IMM10] GPREG
+          iowr IO[GPREG] GPREG
+          iowr IO[GPREG + IMM10] GPREG
+        Predicated exceptions:
+          PRED iowr IO[IMM6] GPREG
+          PRED iowr IO[GPREG + IMM6] GPREG
+        Write data into IO address space. If instruction is predicated, the immediate value will be shorter.
+        XXX: verify all forms
+            DST := SRC
+        Delay: immediate
+        
+        
+* Arithmetic
+    0xa0: [mul SRC1 SRC2]
+          absmul GPREG GPREG
+            if SRC2 >= 2 ** 10
+                $arthi:$artlo := 0
+            else
+                $arthi:$artlo := SRC1 * SRC2
+            endif
+        Unsigned multiplication. SRC2 is 10 bit unsigned.
+        "Override" opcode.
+    
+    0xa1: [muls SRC1 SRC2]
+          muls GPREG GPREG
+            signed SRC1, SRC2
+            if SRC2 >= 2 ** 10 or SRC2 < -(2 ** 10)
+                $arthi:$artlo := 0
+            else
+                $arthi:$artlo := SRC1 * sex(SRC2, 10)
+            endif
+        Signed multiplication. SRC2 is 10 bit signed.
+        "Override" opcode.
+        Delay: ???
+    
+    0xa2: [shift SRC]
+          shift GPREG
+          shift IMM4
+            if SRC >= 2 ** 10
+                SHIFT := 1
+            else
+                SHIFT := SRC + 1
+            endif
+            $arthi:artlo := $arthi:$artlo >> SHIFT
+        Shift. XXX: verify what happens if SRC exceeds limit, check signedness.
+        Delay: ???
+    
+
+* Unknown
+    0x83: I/O? Memory load type
+        Memory space unknown, labeled F.
+        Composed of 8-byte structures.
+        XXX: address space size
+        Delay: 2 * MOV
+    
+    0x89: I/O? Memory load type
+        Memory space unknown, labeled G.
+        Composed of 8-byte structures.
+        XXX: address space size
+        Delay: 2 * MOV
+    
+    0x84: I/O? Memory store type.
+          [8:12]: (0, 2, 3, 4, 5)
+          [16:20]: all
+          [20:24]: (0, 1, 2)
+          [25]: 1, 0 # extra 1
+          [26:]: const
+
+    0x8d: I/O? Memory load type.
+        Always yields 2. Only used in h264, only in the form of 0x1c05008d.
+        Blob ORs it with [$sr28|$sr29] ored with [0x8|0x4], then writes to E[2].
+        Delay: 2 * MOV
+        
+        
+    0x04: I/O?
+        Version 0x34f00004 stops execution. I/O wait? Reads from $sr6 afterwards, always preceded by unk20
+    0x05: I/O?
+        Usage: alternated with $sr6 writes.
+    0x24: I/O
+        no params (?)
+        First run: change $sr16-$sr21, $sr24 and $sr27-$sr31.
+        Consecutive runs: change $sr16-$sr24 and $sr27-$sr31 ($sr22, $sr23 == 1).
+        XXX: delay (blob: 5)
+        
+    0xa4, 0xa8, 0xac: Only after multiplication. 2, 2 or 1, plenty delay (blob).
+

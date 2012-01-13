@@ -40,7 +40,7 @@ struct bitstream {
 	int bytepos;
 	int zero_bytes;
 	enum vs_type {
-		VS_MPEG12,
+		VS_H262,
 		VS_H264,
 	} type;
 	int hasbyte;
@@ -61,6 +61,7 @@ struct vs_vlc_val {
 int vs_ue(struct bitstream *str, uint32_t *val);
 int vs_se(struct bitstream *str, int32_t *val);
 int vs_u(struct bitstream *str, uint32_t *val, int size);
+int vs_mark(struct bitstream *str, uint32_t val, int size);
 int vs_vlc(struct bitstream *str, uint32_t *val, const struct vs_vlc_val *tab);
 int vs_start(struct bitstream *str, uint32_t *val);
 int vs_align_byte(struct bitstream *str, enum vs_align_byte_mode mode);

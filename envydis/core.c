@@ -144,6 +144,7 @@ struct matches *atomtab APROTO {
 		for (i = 0; i < 16; i++)
 			if (tab->atoms[i].fun)
 				tab->atoms[i].fun (ctx, a, m, tab->atoms[i].arg, 0);
+		return NULL;
 	} else {
 		struct matches *res = emptymatches();
 		int i;
@@ -169,6 +170,7 @@ int op64len[] = { 8 };
 struct matches *atomopl APROTO {
 	if (!ctx->reverse) {
 		ctx->oplen = *(int*)v;
+		return NULL;
 	} else {
 		struct matches *res = alwaysmatches(spos);
 		res->m[0].oplen = *(int*)v;
@@ -179,6 +181,7 @@ struct matches *atomopl APROTO {
 struct matches *atomendmark APROTO {
 	if (!ctx->reverse) {
 		ctx->endmark = 1;
+		return NULL;
 	} else {
 		struct matches *res = alwaysmatches(spos);
 		return res;
@@ -189,6 +192,7 @@ struct matches *atomsestart APROTO {
 	if (!ctx->reverse) {
 		struct expr *expr = makeex(EXPR_SESTART);
 		ADDARRAY(ctx->atoms, expr);
+		return NULL;
 	} else {
 		struct expr *e = ctx->line->atoms[spos];
 		if (e->type == EXPR_SESTART)
@@ -202,6 +206,7 @@ struct matches *atomseend APROTO {
 	if (!ctx->reverse) {
 		struct expr *expr = makeex(EXPR_SEEND);
 		ADDARRAY(ctx->atoms, expr);
+		return NULL;
 	} else {
 		struct expr *e = ctx->line->atoms[spos];
 		if (e->type == EXPR_SEEND)
@@ -226,6 +231,7 @@ struct matches *atomname APROTO {
 		struct expr *expr = makeex(EXPR_ID);
 		expr->str = v;
 		ADDARRAY(ctx->atoms, expr);
+		return NULL;
 	} else {
 		return matchid(ctx, spos, v);
 	}
@@ -237,6 +243,7 @@ struct matches *atomcmd APROTO {
 		expr->str = v;
 		expr->special = 1;
 		ADDARRAY(ctx->atoms, expr);
+		return NULL;
 	} else {
 		return matchid(ctx, spos, v);
 	}
@@ -249,6 +256,7 @@ struct matches *atomunk APROTO {
 	expr->str = v;
 	expr->special = 2;
 	ADDARRAY(ctx->atoms, expr);
+	return NULL;
 }
 
 int setsbf (struct match *res, int pos, int len, ull num) {
@@ -341,6 +349,7 @@ struct matches *atomimm APROTO {
 	struct expr *expr = makeex(EXPR_NUM);
 	expr->num1 = GETBF(bf);
 	ADDARRAY(ctx->atoms, expr);
+	return NULL;
 }
 
 struct matches *atomctarg APROTO {
@@ -361,9 +370,10 @@ struct matches *atomctarg APROTO {
 			expr->str = strdup(ctx->labels[i].name);
 			expr->special = 2;
 			ADDARRAY(ctx->atoms, expr);
-			return;
+			return NULL;
 		}
 	}
+	return NULL;
 }
 
 struct matches *atombtarg APROTO {
@@ -382,9 +392,10 @@ struct matches *atombtarg APROTO {
 			expr->str = strdup(ctx->labels[i].name);
 			expr->special = 2;
 			ADDARRAY(ctx->atoms, expr);
-			return;
+			return NULL;
 		}
 	}
+	return NULL;
 }
 
 struct matches *atomign APROTO {
@@ -392,6 +403,7 @@ struct matches *atomign APROTO {
 		return alwaysmatches(spos);
 	const int *n = v;
 	(void)BF(n[0], n[1]);
+	return NULL;
 }
 
 int matchreg (struct match *res, const struct reg *reg, const struct expr *expr, struct disctx *ctx) {
@@ -453,14 +465,14 @@ int matchshreg (struct match *res, const struct reg *reg, const struct expr *exp
 			expr = expr->expr1;
 		} else if (expr->type == EXPR_MUL && expr->expr2->type == EXPR_NUM) {
 			ull num = expr->expr2->num1;
-			if (!num || (num & num-1))
+			if (!num || (num & (num-1)))
 				return 0;
 			while (num != 1)
 				num >>= 1, sh++;
 			expr = expr->expr1;
 		} else if (expr->type == EXPR_MUL && expr->expr1->type == EXPR_NUM) {
 			ull num = expr->expr1->num1;
-			if (!num || (num & num-1))
+			if (!num || (num & (num-1)))
 				return 0;
 			while (num != 1)
 				num >>= 1, sh++;
@@ -543,6 +555,7 @@ struct matches *atomreg APROTO {
 	struct expr *expr = printreg(ctx, a, m, reg);
 	if (!expr) expr = makeex(EXPR_NUM);
 	ADDARRAY(ctx->atoms, expr);
+	return NULL;
 }
 
 struct matches *atomdiscard APROTO {
@@ -557,6 +570,7 @@ struct matches *atomdiscard APROTO {
 	}
 	struct expr *expr = makeex(EXPR_DISCARD);
 	ADDARRAY(ctx->atoms, expr);
+	return NULL;
 }
 
 int addexpr (const struct expr **iex, const struct expr *expr, int flip) {
@@ -661,7 +675,7 @@ struct matches *atommem APROTO {
 			ull ptr = expr->expr1->num1;
 			mark(ctx, ptr, 0x10);
 			if (ptr < ctx->codebase || ptr > ctx->codebase + ctx->codesz)
-				return;
+				return 0;
 			uint32_t num = 0;
 			int j;
 			for (j = 0; j < 4; j++)
@@ -671,6 +685,7 @@ struct matches *atommem APROTO {
 			expr->special = 3;
 			ADDARRAY(ctx->atoms, expr);
 		}
+		return NULL;
 	} else {
 		if (spos == ctx->line->atomsnum)
 			return 0;
@@ -783,6 +798,7 @@ struct matches *atomvec APROTO {
 			}
 		}
 		ADDARRAY(ctx->atoms, expr);
+		return NULL;
 	} else {
 		if (spos == ctx->line->atomsnum)
 			return 0;
@@ -839,6 +855,7 @@ struct matches *atombf APROTO {
 		expr->num1 = GETBF(&bf[0]);
 		expr->num2 = expr->num1 + GETBF(&bf[1]);
 		ADDARRAY(ctx->atoms, expr);
+		return NULL;
 	} else {
 		if (spos == ctx->line->atomsnum)
 			return 0;

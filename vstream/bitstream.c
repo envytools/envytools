@@ -30,7 +30,7 @@
 int vs_byte(struct bitstream *str) {
 	if (str->dir == VS_ENCODE) {
 		switch (str->type) {
-			case VS_MPEG12:
+			case VS_H262:
 				if (str->curbyte < 2 && str->zero_bytes >= 2) {
 					fprintf(stderr, "00 00 0%d emitted!\n", str->curbyte);
 					return 1;
@@ -59,7 +59,7 @@ int vs_byte(struct bitstream *str) {
 		}
 		str->curbyte = str->bytes[str->bytepos++];
 		switch (str->type) {
-			case VS_MPEG12:
+			case VS_H262:
 				if (str->curbyte < 2 && str->zero_bytes >= 2) {
 					fprintf(stderr, "00 00 0%d read in a NAL!\n", str->curbyte);
 					return 1;
@@ -339,7 +339,7 @@ int vs_align_byte(struct bitstream *str, enum vs_align_byte_mode mode) {
 int vs_end(struct bitstream *str) {
 	uint32_t one = 1;
 	switch (str->type) {
-		case VS_MPEG12:
+		case VS_H262:
 			return vs_align_byte(str, VS_ALIGN_0);
 		case VS_H264:
 			if (vs_u(str, &one, 1))
@@ -379,7 +379,11 @@ int vs_has_more_data(struct bitstream *str) {
 			if (byte != (1 << str->bitpos))
 				return 1;
 			break;
-		case VS_MPEG12:
+		case VS_H262:
+			byte = str->curbyte;
+			byte &= (1 << (str->bitpos+1)) - 1;
+			if (str->hasbyte && byte)
+				return 1;
 			break;
 	}
 	offs += str->bytepos;
@@ -410,6 +414,16 @@ struct bitstream *vs_new_decode(enum vs_type type, uint8_t *bytes, int bytesnum)
 	res->bytesnum = bytesnum;
 	res->bitpos = 7;
 	return res;
+}
+
+int vs_mark(struct bitstream *str, uint32_t val, int size) {
+	uint32_t tmp = val;
+	if (vs_u(str, &tmp, size)) return 1;
+	if (tmp != val) {
+		fprintf(stderr, "Marker value invalid: %d vs %d\n", tmp, val);
+		return 1;
+	}
+	return 0;
 }
 
 int vs_infer(struct bitstream *str, uint32_t *val, uint32_t ival) {

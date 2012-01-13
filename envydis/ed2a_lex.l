@@ -37,6 +37,8 @@
 %option prefix="ed2a_"
 %option header-file="ed2a_lex.h"
 %option extra-type="struct ed2_lex_intern"
+%option noinput
+%option nounput
 
 %s normal
 %x ncomment

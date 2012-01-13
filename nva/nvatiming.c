@@ -256,7 +256,7 @@ u64 crystal_type(unsigned int card)
 
 void time_ptimer(unsigned int card)
 {
-	ptime_t ptimer_boot, ptimer_default, ptimer_max, ptimer_calibrated;
+	ptime_t ptimer_boot, ptimer_default, ptimer_max;
 
 	/* Save the current values */
 	u32 r9200 = nva_rd32(card, 0x9200);
@@ -296,7 +296,7 @@ void time_ptimer(unsigned int card)
 void time_fuc_engine_periodic (unsigned int card, const char *fuc_engine_name, u32 fucengine)
 {
 	struct timeval start, end;
-	ptime_t t_start, t_end;
+	ptime_t t_start;
 
 	/* Save the current values */
 	u32 r24 = nva_rd32(card, fucengine + 0x24);
@@ -326,7 +326,7 @@ void time_fuc_engine_periodic (unsigned int card, const char *fuc_engine_name, u
 void time_fuc_engine_watchdog (unsigned int card, const char *fuc_engine_name, u32 fucengine)
 {
 	struct timeval start, end;
-	ptime_t t_start, t_end;
+	ptime_t t_start;
 
 	/* Save the current values */
 	u32 r34 = nva_rd32(card, fucengine + 0x34);

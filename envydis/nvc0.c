@@ -263,7 +263,6 @@ static struct bitfield saddr_cnt = { { 0x2c, 2 }, .addend = 1 };
 static struct bitfield asrc_cnt = { { 5, 2 }, .addend = 1 };
 static struct bitfield asrcs_cnt = { { 6, 2 }, .addend = 1 };
 static struct vec tdst_v = { "r", &dst_bf, &cnt4, &tdst_mask };
-static struct vec tsrc10_v = { "r", &src1_bf, &cnt0, 0 };
 static struct vec tsrc11_v = { "r", &src1_bf, &cnt1, 0 };
 static struct vec tsrc12_v = { "r", &src1_bf, &cnt2, 0 };
 static struct vec tsrc13_v = { "r", &src1_bf, &cnt3, 0 };
@@ -279,7 +278,6 @@ static struct vec adst_v = { "r", &dst_bf, &asrc_cnt, 0 };
 static struct vec asrcs_v = { "r", &src2_bf, &asrcs_cnt, 0 };
 static struct vec adsts_v = { "r", &dst_bf, &asrcs_cnt, 0 };
 #define TDST atomvec, &tdst_v
-#define TSRC10 atomvec, &tsrc10_v
 #define TSRC11 atomvec, &tsrc11_v
 #define TSRC12 atomvec, &tsrc12_v
 #define TSRC13 atomvec, &tsrc13_v
@@ -812,12 +810,6 @@ static struct insn tabis3[] = {
 	{ 0x0000400000000000ull, 0x0000c00000000000ull, SRC3 },
 	{ 0x0000800000000000ull, 0x0000c00000000000ull, CONST },
 	{ 0x0000c00000000000ull, 0x0000c00000000000ull, SRC3 },
-	{ 0, 0, OOPS },
-};
-
-static struct insn tabcs2[] = {
-	{ 0x0000000000000000ull, 0x0000c00000000000ull, SRC2 },
-	{ 0x0000400000000000ull, 0x0000c00000000000ull, CONST },
 	{ 0, 0, OOPS },
 };
 
