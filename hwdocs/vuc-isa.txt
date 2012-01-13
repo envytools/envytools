@@ -1,3 +1,11 @@
+TOC
+
+0. Intruduction
+1. The opcode format 
+2. Special registers
+3. Instruction reference
+
+
 = Introduction =
 
 This file deals with description of the ISA used by the vµc microprocessor,
@@ -14,84 +22,344 @@ oriented. There are 3 ISA register files:
    - $p1: read only and hardwired to !$p0
    - $p2-$p14: read/write
    - $p15: read-only and hardwired to 1
- - $sr0-$sr63, 16-bit special registers [XXX: the following information may
-   only be valid for H.264 mode for now]
-   - $sr0: ??? controls $sr48-$sr58 (bits 0-6 when set separately) [XXX]
-   - $sr1: ??? similar to $sr0 (bits 0-4, probably more) [XXX]
-   - $sr2/$spidx: partition and subpartition index, used to select which
-     [sub]partitions some other special registers access:
-       bits 0-1: subpartition index
-       bits 2-3: partition index
-       Note that, for indexing purposes, each partition index is considered
-       to refer to an 8x8 block, and each subpartition index to 4x4 block. If
-       partition/subpartition size is bigger than that, the indices will
-       alias. Thus, for 16x8 partitioning mode, $spidx equal to 0-7 wil select
-       the top partition, $spidx equal to 8-15 will select the bottom one. For
-       8x16 partitioning, $spidx equal to 0-3 and 8-11 will select the left
-       partition, 4-7 and 12-15 will select the right partition.
-   - $sr3: ??? bits 0-4 affect $sr32-$sr42 [XXX]
-   - $sr4/$h2v: a scratch register to pass data from host to vµc [see vuc.txt]
-   - $sr5/$v2h: a scratch register to pass data from vµc to host [see vuc.txt]
-   - $sr6/$stat: some sort of control/status reg, writing 0x8000 alternates
-     values between 0x8103 and 0 [XXX]
-       bit 0: ??? [XXX]
-       bit 1: ??? [XXX]
-       bit 2: ??? [XXX]
-       bit 3: ??? [XXX]
-       bit 8: ??? [XXX]
-       bit 10: macroblock input available - set whenever there's a complete
-         macroblock available from MBRING, cleared when mbinext instruction
+ - $sr0-$sr63, 16-bit special registers - see below for a list
+
+There are 7 address spaces the vµc can access:
+ - D[] - user data, word-addressed, 0x800 16-bit words long, loads and stores
+         are in word units.
+ - PWT[] - pred weight table data, read-only. This space is filled when
+           a packet of type 4 is read from the MBRING. Byte-addressed, 0x200
+	   bytes long, loads are in byte units.
+ - VP[] - VPRING output data, write-only. Data stored here will be written to
+          VPRING_MBINFO and VPRING_MV when corresponding commands are invoked.
+	  Byte-addressed, 0x400 bytes long. Stores are in byte or word units
+	  depending on the address.
+ - I4[] - ??? read-only [XXX]
+ - O5[] - ??? write-only [XXX]
+ - B6[] - io address space? [XXX]
+ - B7[] - io address space? [XXX]
+
+The vµc code resides in the code space, separate from the above spaces. The
+code space is a dedicated SRAM of 0x800 instruction words. An instruction word
+consists of 40 bits on VP2, 30 bits on VP3.
+
+The vµc lacks interlocks - on every cycle when vµc microcprocessor is active
+and not sleeping/waiting, one instruction begins execution. Most instructions
+finish in one cycle. However, when an instruction takes more than one cycle to
+finish, vµc will continue to fetch and execute subsequent instructions even
+if they have dependencies on the current instruction - it is thus required to
+manually insert nops in the code or schedule instructions to avoid such
+situations.
+
+The branch instructions take two cycles to finish - the instruction after the
+jump [the delay slot] is executed regardless of whether the jump is taken or
+not.
+
+= The opcode format =
+
+The opcode bits are:
+
+ 0-4: opcode selection [OP]
+ 5-6, base opcodes: predicate output mode [POM]
+   00: $p &= predicate output
+   01: $p |= predicate output
+   10: $p = predicate output
+   11: predicate output discarded
+ 7, base opcodes: predicate output negation flag [PON]
+ 5-7, special opcodes: special opcode class selection [OC]
+   000: control flow
+   001: io control
+   010: predicate manipulation
+   100: load/store
+   101: multiplication
+ 8-11: source 1 [SRC1]
+ 12-15: source 2 [SRC2]
+ 16-19: destionation [DST]
+ 8-18: branch target [BTARG]
+ 20-23: predicate [PRED]
+ 24-25: extra bits for immediate and $sr [EXT]
+ 26: opcode type 0 [OT0] 
+ 27: source 2 immediate flag [IMMF]
+ 28: opcode type 1 [OT1] 
+ 29: predicate enable flag [PE]
+ 30-32: relative branch predicate [RBP] - VP2 only
+ 33: relative branch predicate negation flag [RBN] - VP2 only
+ 34-39: relative branch target [RBT] - VP2 only
+
+On VP2, a single instruction word holds two instruction slots - the normal
+instruction slot in bits 0-29, and the relative branch instruction slot in
+bits 30-39. When the instruction is executed, both instruction slots are
+executed simultanously and independently.
+
+The relative branch slot can hold only one type of instruction, which is the
+relative branch. The main slot can hold all other types of instructions.
+
+On VP3+, the relative branch slot no longer exists, and the main slot makes up
+the whole instruction word.
+
+There are two major types of opcodes that can be stored in the main slot: base
+opcodes and special opcodes. The type of instruction in the main slot is
+determined by OT0 and OT1 bits:
+
+ - OT0 = 0, OT1 = 0: base opcode, $r destination, $r source 1
+ - OT0 = 1, OT1 = 0: base opcode, $r destination, $sr source 1
+ - OT0 = 0, OT1 = 1: base opcode, $sr destination, $r source 1
+ - OT0 = 1, OT1 = 1: special opcode
+
+For base opcodes, the OP bits determine the final opcode:
+
+ - 00000: slct		[slct form]
+ - 00001: mov		[mov form]
+ - 00100: add		[binary form]
+ - 00101: sub 		[binary form]
+ - 00110: subr 		[binary form] 		[VP2 only]
+ - 00110: avgs 		[binary form] 		[VP3+ only]
+ - 00111: avgu 		[binary form] 		[VP3+ only]
+ - 01000: setgt 	[set form]
+ - 01001: setlt 	[set form]
+ - 01010: seteq 	[set form]
+ - 01011: setlep 	[set form]
+ - 01100: clamplep 	[binary form]
+ - 01101: clamps 	[binary form]
+ - 01110: sex 		[binary form]
+ - 01111: setzero 	[set form] 		[VP2 only]
+ - 01111: div2s 	[unary form]		[VP3+ only]
+ - 10000: bset 		[binary form]
+ - 10001: bclr 		[binary form]
+ - 10010: btest 	[set form]
+ - 10100: rot8 		[unary form]
+ - 10101: shl 		[binary form]
+ - 10110: shr 		[binary form]
+ - 10111: sar 		[binary form]
+ - 11000: and 		[binary form]
+ - 11001: or 		[binary form]
+ - 11010: xor 		[binary form]
+ - 11011: not		[unary form]
+ - 11100: lut 		[binary form]
+ - 11101: min 		[binary form] 		[VP3+ only]
+ - 11110: max 		[binary form] 		[VP3+ only]
+
+For special opcodes, the OC bits determine the opcode class, and OP bits
+further determine the opcode inside that class. The classes and opcodes are:
+
+ - OC 000: control flow
+  - 00000: bra		[branch form]
+  - 00010: call		[branch form]
+  - 00011: ret		[simple form]
+  - 00100: sleep	[simple form]
+  - 00101: wstc		[immediate form]
+  - 00110: ??? [XXX]	[immediate form]
+ - OC 001: io control
+  - 00000: clicnt	[simple form]
+  - 00001: ??? [XXX]	[simple form]
+  - 00010: ??? [XXX]	[simple form]
+  - 00011: ??? [XXX]	[simple form]
+  - 00100: mbiread	[simple form]
+  - 00101: ??? [XXX]	[simple form]
+  - 00110: ??? [XXX]	[simple form]
+  - 01000: mbinext	[simple form]
+  - 01001: mvsread	[simple form]
+  - 01010: mvswrite	[simple form]
+  - 01011: ??? [XXX]	[simple form]
+  - 01100: ??? [XXX]	[simple form]
+ - OC 010: predicate manipulation
+  - xxx00: and		[predicate form]
+  - xxx01: or		[predicate form]
+  - xxx10: xor		[predicate form]
+  - xxx11: nop		[simple form]
+ - OC 100: load/store
+  - xxxx0: st		[store form]
+  - xxxx1: ld		[load form]
+ - OC 101: multiplication
+  - 00000: umul		[mul form]
+  - 00001: smul		[mul form]
+  - 00010: srnd		[srnd form]
+  - 00100: ??? [XXX]	[srnd form]
+  - 01000: ??? [XXX]	[srnd form]
+  - 01100: ??? [XXX]	[srnd form]
+
+All main slot opcodes can be predicated by an arbitrary $p register. The PE
+bit enables predication. If PE bit is 1, the main slot instruction will only
+have an effect if the $p register selected by PRED field has value 1. Note
+that PE bit also has an effect on instruction format - longer immediates are
+allowed, and the predicate destination field changes.
+
+Note that, for some formats, opcode fields may be used for multiple purposes.
+For example, mov instruction with PE=1 and IMMF=1 uses PRED bitfield both as
+the predicate selector and as the middle part of the immediate operand. Such
+formats should be avoided unless it can be somehow guaranteed that the value
+in the field will fit all purposes it's used for.
+
+The base opcodes have the following operands:
+
+ - binary form:	pdst, dst, src1, src2
+ - unary form:	pdst, dst, src1
+ - set form:	pdst, src1, src2
+ - slct form:	pdst, dst, pred, src1, src2
+ - mov form:	pdst, dst, lsrc
+
+The operands and their encodings are:
+ - pdst: predicate destination - this operand is special, as it can be used
+   in several modes. First, the instruction generates a boolean predicate
+   result. Then, if PON bit is set, this output is negated. Finally, it is
+   stored to a $p register in one of 4 modes:
+   - POM = 00: $p &= output
+   - POM = 01: $p |= output
+   - POM = 10: $p = output
+   - POM = 11: output is discarded
+   The $p output register is:
+   - PE = 0: $p register selected by PRED field
+   - PE = 1: $p register selected by DST field
+ - dst: main destination
+   - OT0 = 1 or OT1 = 0: $r register selected by DST field
+   - OT0 = 0 and OT1 = 1: $sr register selected by DST [low bits] and EXT
+     [high bits] fields
+ - pred - predicate source
+   - all cases: $p register selected by PRED field [XXX]
+ - src1: first source
+   - OT0 = 0 or OT1 = 1: $r register selected by SRC1 field,
+   - OT0 = 1 and OT1 = 0: $sr register selected by SRC1 [low bits] and EXT
+     [high bits] fields.
+ - src2: second source
+   - IMMF = 0: $r register selected by SRC2 field
+   - IMMF = 1 and OT0 = OT1:. zero-extended 6-bit immediate value stored in
+     SRC2 [low bits] and EXT [high bits] fields.
+   - IMMF = 1 and OT0 != OT1: zero-extended 4-bit immediate value stored in
+     SRC2 field.
+ - lsrc: long source
+   - IMMF = 0: $r register selected by SRC2 field
+   - IMMF = 1 and OT1 = 0:. zero-extended 14-bit immediate value stored in
+     SRC1 [low bits], SRC2 [low middle bits], PRED [high middle bits] and EXT
+     [high bits] fields.
+   - IMMF = 1 and OT1 = 1:. zero-extended 12-bit immediate value stored in
+     SRC1 [low bits], SRC2 [middle bits] and PRED [high bits] fields
+
+The special opcodes have the following operands:
+ - simple form:		[none]
+ - immediate form:	imm4 [XXX]
+ - branch form:		btarg [XXX]
+ - predicate form:	spdst, psrc1, psrc2
+ - store form:		space[src1 + stoff], src2
+ - load form:		dst, space[src1 + ldoff]
+ - mul form:		src1, src2
+ - srnd form:		src2
+
+The operands and their encodings are:
+ - src1, src2, dst: like for base opcodes
+ - imm4: 4-bit immediate
+   - all cases: 4-bit immediate stored in SRC2 field [XXX]
+ - btarg: code address
+   - all cases: 11-bit immediate stored in BTARG field
+ - spdst: predicate destination [XXX]
+   - PE = 0: $p register selected by PRED field [XXX]
+   - PE = 1: $p register selected by DST field
+ - psrc1: predicate source 1, optionally negated
+   - all cases: $p register selected by SRC1 field, negated if bit 3 of OP
+     field is set
+ - psrc2: predicate source 2, optionally negated
+   - all cases: $p register selected by SRC2 field, negated if bit 2 of OP
+     field is set
+ - space: memory space selection, OP field bits 1-4:
+   - 0000: D[]
+   - 0001: PWT[] - ld only
+   - 0010: VP[] - st only
+   - 0100: I4[] - ld only
+   - 0101: O5[] - st only
+   - 0110: B6[]
+   - 0111: B7[]
+ - stoff: store offset
+   - IMMF = 0: $r register selected by DST field
+   - IMMF = 1, PE = 0: 10-bit zero-extended immediate stored in DST [low
+     bits], PRED [middle bits] and EXT [high bits] fields
+   - IMMF = 1, PE = 1: 6-bit zero-extended immediate stored in DST [low
+     bits] and EXT [high bits] fields
+ - ldoff: load offset
+   - IMMF = 0: $r register selected by SRC2 field
+   - IMMF = 1, PE = 0: 10-bit zero-extended immediate stored in SRC2 [low
+     bits], PRED [middle bits] and EXT [high bits] fields
+   - IMMF = 1, PE = 1: 6-bit zero-extended immediate stored in SRC2 [low
+     bits] and EXT [high bits] fields
+
+
+= Special register list =
+
+[XXX: the following information may only be valid for H.264 mode for now]
+ - $sr0: ??? controls $sr48-$sr58 (bits 0-6 when set separately) [XXX]
+ - $sr1: ??? similar to $sr0 (bits 0-4, probably more) [XXX]
+ - $sr2/$spidx: partition and subpartition index, used to select which
+   [sub]partitions some other special registers access:
+     bits 0-1: subpartition index
+     bits 2-3: partition index
+     Note that, for indexing purposes, each partition index is considered
+     to refer to an 8x8 block, and each subpartition index to 4x4 block. If
+     partition/subpartition size is bigger than that, the indices will
+     alias. Thus, for 16x8 partitioning mode, $spidx equal to 0-7 wil select
+     the top partition, $spidx equal to 8-15 will select the bottom one. For
+     8x16 partitioning, $spidx equal to 0-3 and 8-11 will select the left
+     partition, 4-7 and 12-15 will select the right partition.
+ - $sr3: ??? bits 0-4 affect $sr32-$sr42 [XXX]
+ - $sr4/$h2v: a scratch register to pass data from host to vµc [see vuc.txt]
+ - $sr5/$v2h: a scratch register to pass data from vµc to host [see vuc.txt]
+ - $sr6/$stat: some sort of control/status reg, writing 0x8000 alternates
+   values between 0x8103 and 0 [XXX]
+     bit 0: ??? [XXX]
+     bit 1: ??? [XXX]
+     bit 2: ??? [XXX]
+     bit 3: ??? [XXX]
+     bit 8: ??? [XXX]
+     bit 10: macroblock input available - set whenever there's a complete
+       macroblock available from MBRING, cleared when mbinext instruction
 	 skips past the last currently available macroblock. Will break out
 	 of sleep instruction when set.
-       bit 11: $h2v modified - set when host writes H2V, cleared when $h2v
-         is read by vµc, will break out of sleep instruction when set.
-       bit 12: watchdog hit - set 1 cycle after $icnt reaches WDCNT and it's
-         not equal to 0xffff, cleared when $icnt or WDCNT is modified in any
+     bit 11: $h2v modified - set when host writes H2V, cleared when $h2v
+       is read by vµc, will break out of sleep instruction when set.
+     bit 12: watchdog hit - set 1 cycle after $icnt reaches WDCNT and it's
+       not equal to 0xffff, cleared when $icnt or WDCNT is modified in any
 	 way.
-       bit 15: ??? [XXX]
-   - $sr7/$parm: sequence/picture/slice parameters required by vµc hardware
-     [see vuc.txt]
-   - $sr8/$pc: address of currently executed instruction
-   - $sr9: ??? values 0, 1, 3, may be related to upload/execution order [XXX]
-   - $sr10/$cstop: aliases call stack top? [XXX]
-   - $sr11/$rpitab: D[] address of refidx -> dpb index translation table
-   - $sr12/$arthi: Arithmetic result high word register
-   - $sr13/$artlo: Arithmetic result low word register
-   - $sr14/$pred: predicates - aliases the $p register file, bit X corresponds
-     to $pX register
-   - $sr15/$icnt: instruction/cycle counter (?: check nops, effect of delays)
-   - $sr16/$mvxl0: sign-extended mvd_l0[$spidx][0] [input]
-   - $sr17/$mvyl0: sign-extended mvd_l0[$spidx][1] [input]
-   - $sr18/$mvxl1: sign-extended mvd_l1[$spidx][0] [input]
-   - $sr19/$mvyl1: sign-extended mvd_l1[$spidx][1] [input]
-   - $sr20/$refl0: ref_idx_l0[$spidx>>2] [input]
-   - $sr21/$refl1: ref_idx_l1[$spidx>>2] [input]
-   - $sr22/$rpil0: dpb index of L0 reference picture for $spidx-selected
-     partition
-   - $sr23/$rpil1: dpb index of L1 reference picture for $spidx-selected
-     partition
-   - $sr24/$mbflags:
-       bit 0: mb_field_decoding_flag [RW]
-       bit 1: is intra macroblock [RO]
-       bit 2: is I_NxN macroblock [RO]
-       bit 3: transform_size_8x8_flag [RW]
-       bit 4: ??? [XXX]
-       bit 5: is I_16x16 macroblock [RO]
-       bit 6: partition selected by $spidx uses L0 or Bi prediction [RO]
-       bit 7: partition selected by $spidx uses L1 or Bi prediction [RO]
-       bit 8: mb_field_decoding_flag for next macroblock [only valid if $sr6
-              bit 10 is set] [RO]
-       bit 9: mb_skip_flag for next macroblock [only valid if $sr6 bit 10 is
-              set] [RO]
-       bit 10: partition selected by $spidx uses Direct prediction [RO]
-       bit 11: any partition of macroblock uses Direct prediction [RO]
-       bit 12: is I_PCM macroblock [RO]
-       bit 13: is P_SKIP macroblock [RO]
-   - $sr25/$qpy:
-       bits 0-5: mb_qp_delta [input] / QPy [output] [H.264]
-       bits 0-5: quantiser_scale_code [input and output] [MPEG1/MPEG2]
-       bits 8-11: intra_chroma_pred_mode, values:
-         0: DC [input], DC_??? [output] [XXX]
+     bit 15: ??? [XXX]
+ - $sr7/$parm: sequence/picture/slice parameters required by vµc hardware
+   [see vuc.txt]
+ - $sr8/$pc: address of currently executed instruction
+ - $sr9: ??? values 0, 1, 3, may be related to upload/execution order [XXX]
+ - $sr10/$cstop: aliases call stack top? [XXX]
+ - $sr11/$rpitab: D[] address of refidx -> dpb index translation table
+ - $sr12/$arthi: Arithmetic result high word register
+ - $sr13/$artlo: Arithmetic result low word register
+ - $sr14/$pred: predicates - aliases the $p register file, bit X corresponds
+   to $pX register
+ - $sr15/$icnt: instruction/cycle counter (?: check nops, effect of delays)
+ - $sr16/$mvxl0: sign-extended mvd_l0[$spidx][0] [input]
+ - $sr17/$mvyl0: sign-extended mvd_l0[$spidx][1] [input]
+ - $sr18/$mvxl1: sign-extended mvd_l1[$spidx][0] [input]
+ - $sr19/$mvyl1: sign-extended mvd_l1[$spidx][1] [input]
+ - $sr20/$refl0: ref_idx_l0[$spidx>>2] [input]
+ - $sr21/$refl1: ref_idx_l1[$spidx>>2] [input]
+ - $sr22/$rpil0: dpb index of L0 reference picture for $spidx-selected
+   partition
+ - $sr23/$rpil1: dpb index of L1 reference picture for $spidx-selected
+   partition
+ - $sr24/$mbflags:
+     bit 0: mb_field_decoding_flag [RW]
+     bit 1: is intra macroblock [RO]
+     bit 2: is I_NxN macroblock [RO]
+     bit 3: transform_size_8x8_flag [RW]
+     bit 4: ??? [XXX]
+     bit 5: is I_16x16 macroblock [RO]
+     bit 6: partition selected by $spidx uses L0 or Bi prediction [RO]
+     bit 7: partition selected by $spidx uses L1 or Bi prediction [RO]
+     bit 8: mb_field_decoding_flag for next macroblock [only valid if $sr6
+            bit 10 is set] [RO]
+     bit 9: mb_skip_flag for next macroblock [only valid if $sr6 bit 10 is
+            set] [RO]
+     bit 10: partition selected by $spidx uses Direct prediction [RO]
+     bit 11: any partition of macroblock uses Direct prediction [RO]
+     bit 12: is I_PCM macroblock [RO]
+     bit 13: is P_SKIP macroblock [RO]
+ - $sr25/$qpy:
+     bits 0-5: mb_qp_delta [input] / QPy [output] [H.264]
+     bits 0-5: quantiser_scale_code [input and output] [MPEG1/MPEG2]
+     bits 8-11: intra_chroma_pred_mode, values:
+       0: DC [input], DC_??? [output] [XXX]
 	 1: horizontal [input, output]
 	 2: vertical [input, output]
 	 3: plane [input, output]
@@ -102,150 +370,94 @@ oriented. There are 3 ISA register files:
 	 8: DC_??? [output]
 	 9: DC_??? [output]
 	 0xa: DC_??? [output]
-   - $sr26/$qpc:
-       bits 0-5: QPc for Cb [output] [H.264]
-       bits 8-13: QPc for Cr [output] [H.264]
-   - $sr27/$mbpart:
-       bits 0-1: macroblock partitioning type
-         0: 16x16
-         1: 16x8
-         2: 8x16
-         3: 8x8
-       bits 2-3: partition 0 subpartitioning type
-       bits 4-5: partition 0 subpartitioning type
-       bits 6-7: partition 0 subpartitioning type
-       bits 8-9: partition 0 subpartitioning type
-         0: 8x8
-         1: 8x4
-         2: 4x8
-         3: 4x4
-   - $sr28/$mbxy:
-       bits 0-7: macroblock Y position
-       bits 8-15: macroblock X position
-   - $sr29/$mbaddr:
-       bits 0-12: macroblock address
-       bit 15: first macroblock in slice flag
-   - $sr30/$mbtype: macroblock type, for H.264:
-       0x00: I_NxN
-       0x01: I_16x16_0_0_0
-       0x02: I_16x16_1_0_0
-       0x03: I_16x16_2_0_0
-       0x04: I_16x16_3_0_0
-       0x05: I_16x16_0_1_0
-       0x06: I_16x16_1_1_0
-       0x07: I_16x16_2_1_0
-       0x08: I_16x16_3_1_0
-       0x09: I_16x16_0_2_0
-       0x0a: I_16x16_1_2_0
-       0x0b: I_16x16_2_2_0
-       0x0c: I_16x16_3_2_0
-       0x0d: I_16x16_0_0_1
-       0x0e: I_16x16_1_0_1
-       0x0f: I_16x16_2_0_1
-       0x10: I_16x16_3_0_1
-       0x11: I_16x16_0_1_1
-       0x12: I_16x16_1_1_1
-       0x13: I_16x16_2_1_1
-       0x14: I_16x16_3_1_1
-       0x15: I_16x16_0_2_1
-       0x16: I_16x16_1_2_1
-       0x17: I_16x16_2_2_1
-       0x18: I_16x16_3_2_1
-       0x19: I_PCM
-       0x20: P_L0_16x16
-       0x21: P_L0_L0_16x8
-       0x22: P_L0_L0_8x16
-       0x23: P_8x8
-       0x24: P_8x8ref0
-       0x40: B_Direct_16x16
-       0x41: B_L0_16x16
-       0x42: B_L1_16x16
-       0x43: B_Bi_16x16
-       0x44: B_L0_L0_16x8
-       0x45: B_L0_L0_8x16
-       0x46: B_L1_L1_16x8
-       0x47: B_L1_L1_8x16
-       0x48: B_L0_L1_16x8
-       0x49: B_L0_L1_8x16
-       0x4a: B_L1_L0_16x8
-       0x4b: B_L1_L0_8x16
-       0x4c: B_L0_Bi_16x8
-       0x4d: B_L0_Bi_8x16
-       0x4e: B_L1_Bi_16x8
-       0x4f: B_L1_Bi_8x16
-       0x50: B_Bi_L0_16x8
-       0x51: B_Bi_L0_8x16
-       0x52: B_Bi_L1_16x8
-       0x53: B_Bi_L1_8x16
-       0x54: B_Bi_Bi_16x8
-       0x55: B_Bi_Bi_8x16
-       0x56: B_8x8
-       0x7e: B_SKIP
-       0x7f: P_SKIP
-   - $sr31/$submbtype:
-       bits 0-3: sub_mb_type[0]
-       bits 4-7: sub_mb_type[1]
-       bits 8-11: sub_mb_type[2]
-       bits 12-15: sub_mb_type[3]
-   - $sr32-$sr42: ??? affected by $sr3, unko21, read only [XXX]
-   - $sr48-$sr58: ??? affected by writing $sr0 and $sr1, unko22, read only [XXX]
+ - $sr26/$qpc:
+     bits 0-5: QPc for Cb [output] [H.264]
+     bits 8-13: QPc for Cr [output] [H.264]
+ - $sr27/$mbpart:
+     bits 0-1: macroblock partitioning type
+       0: 16x16
+       1: 16x8
+       2: 8x16
+       3: 8x8
+     bits 2-3: partition 0 subpartitioning type
+     bits 4-5: partition 0 subpartitioning type
+     bits 6-7: partition 0 subpartitioning type
+     bits 8-9: partition 0 subpartitioning type
+       0: 8x8
+       1: 8x4
+       2: 4x8
+       3: 4x4
+ - $sr28/$mbxy:
+     bits 0-7: macroblock Y position
+     bits 8-15: macroblock X position
+ - $sr29/$mbaddr:
+     bits 0-12: macroblock address
+     bit 15: first macroblock in slice flag
+ - $sr30/$mbtype: macroblock type, for H.264:
+     0x00: I_NxN
+     0x01: I_16x16_0_0_0
+     0x02: I_16x16_1_0_0
+     0x03: I_16x16_2_0_0
+     0x04: I_16x16_3_0_0
+     0x05: I_16x16_0_1_0
+     0x06: I_16x16_1_1_0
+     0x07: I_16x16_2_1_0
+     0x08: I_16x16_3_1_0
+     0x09: I_16x16_0_2_0
+     0x0a: I_16x16_1_2_0
+     0x0b: I_16x16_2_2_0
+     0x0c: I_16x16_3_2_0
+     0x0d: I_16x16_0_0_1
+     0x0e: I_16x16_1_0_1
+     0x0f: I_16x16_2_0_1
+     0x10: I_16x16_3_0_1
+     0x11: I_16x16_0_1_1
+     0x12: I_16x16_1_1_1
+     0x13: I_16x16_2_1_1
+     0x14: I_16x16_3_1_1
+     0x15: I_16x16_0_2_1
+     0x16: I_16x16_1_2_1
+     0x17: I_16x16_2_2_1
+     0x18: I_16x16_3_2_1
+     0x19: I_PCM
+     0x20: P_L0_16x16
+     0x21: P_L0_L0_16x8
+     0x22: P_L0_L0_8x16
+     0x23: P_8x8
+     0x24: P_8x8ref0
+     0x40: B_Direct_16x16
+     0x41: B_L0_16x16
+     0x42: B_L1_16x16
+     0x43: B_Bi_16x16
+     0x44: B_L0_L0_16x8
+     0x45: B_L0_L0_8x16
+     0x46: B_L1_L1_16x8
+     0x47: B_L1_L1_8x16
+     0x48: B_L0_L1_16x8
+     0x49: B_L0_L1_8x16
+     0x4a: B_L1_L0_16x8
+     0x4b: B_L1_L0_8x16
+     0x4c: B_L0_Bi_16x8
+     0x4d: B_L0_Bi_8x16
+     0x4e: B_L1_Bi_16x8
+     0x4f: B_L1_Bi_8x16
+     0x50: B_Bi_L0_16x8
+     0x51: B_Bi_L0_8x16
+     0x52: B_Bi_L1_16x8
+     0x53: B_Bi_L1_8x16
+     0x54: B_Bi_Bi_16x8
+     0x55: B_Bi_Bi_8x16
+     0x56: B_8x8
+     0x7e: B_SKIP
+     0x7f: P_SKIP
+ - $sr31/$submbtype:
+     bits 0-3: sub_mb_type[0]
+     bits 4-7: sub_mb_type[1]
+     bits 8-11: sub_mb_type[2]
+     bits 12-15: sub_mb_type[3]
+ - $sr32-$sr42: ??? affected by $sr3, unko21, read only [XXX]
+ - $sr48-$sr58: ??? affected by writing $sr0 and $sr1, unko22, read only [XXX]
 
-There are 7 address spaces the vµc can access:
-    D[] - user data, word-addressed, 0x800 16-bit words long, loads and stores
-          are in word units.
-    PWT[] - pred weight table data, read-only. This space is filled when
-            a packet of type 4 is read from the MBRING. Byte-addressed, 0x200
-	    bytes long, loads are in byte units.
-    VP[] - VPRING output data, write-only. Data stored here will be written to
-            VPRING_MBINFO and VPRING_MV when corresponding commands are invoked.
-	    Byte-addressed, 0x400 bytes long. Stores are in byte or word units
-	    depending on the address.
-    I4[] - ??? read-only [XXX]
-    O5[] - ??? write-only [XXX]
-    B6[] - io address space? [XXX]
-    B7[] - io address space? [XXX]
-
-
-Opcode format:
-    0x14000000 - if not set, base instruction. If set, override instruction
-    
-    Base instruction format:
-    bits 0-4 select instruction
-    bits 5-7 select predicate mode: 
-        bits 0-1 defines base mode:
-            0b00: p &= X
-            0b01: p |= X
-            0b10: p = X
-            0b11: do not modify predicate
-        bit 2 negates instruction output value (X = ~X)
-    bit 26 selects source operand 1: 0 is $rX, 1 is $srX
-    bit 28 selects destination operand: 0 means $rX, 1 means $srX
-    
-    Override instruction format:
-    bits 0-7 select the instruction
-    bts 26, 28: always 1
-    
-    Common remainder:
-    8-11 operand
-    12-15 operand
-    16-19 operand
-    20-23:
-        predicated: selecting predicate
-        non-predicated: destination predicate or extra immediate bits
-    24-25 are extra 2 bits for immediates, or additional $sr number bits
-    27 selects source operand 2: 0 is $rX, 1 is immediate
-    29: 0 for unpredicated insns, 1 for predicated insns
-    
-    only vp2:
-    30-39: unknown purpose and are usually 0x3ff
-    if all instructions have:
-    0x000: all ok
-    0x3fe: nothing runs
-    0x3fd: nothing runs
-    ...
-    0x3f5: runs
-    
-    going up from 0x3f0, things stop running at 0x3f7
 
 
 XXX: Find signedness of instructions
