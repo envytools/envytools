@@ -401,7 +401,7 @@ the last macroblock in the parsed slice.
 Operation:
 	if (entropy_coding_mode_flag) {
 		cabac_init_ctx();
-		[XXX: does it also auto-align?]
+		byte_align();
 		cabac_init_engine();
 	}
 	mb_pos.first = 1;
