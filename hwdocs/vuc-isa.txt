@@ -50,6 +50,7 @@ finish, vµc will continue to fetch and execute subsequent instructions even
 if they have dependencies on the current instruction - it is thus required to
 manually insert nops in the code or schedule instructions to avoid such
 situations.
+It is possible that two instructions with different write delays will try to perform a register write in the same cycle (e.g. ld-nop-mov sequence). If the write destinations are different, both writes will happen as expected.
 
 The branch instructions take two cycles to finish - the instruction after the
 jump [the delay slot] is executed regardless of whether the jump is taken or
@@ -93,6 +94,7 @@ executed simultanously and independently.
 
 The relative branch slot can hold only one type of instruction, which is the
 relative branch. The main slot can hold all other types of instructions.
+It's possible to encode two different jumps in one opcode by utilising both the branch slot and the main instruction slot for a branch. The branch will take place if any of the two branch conditions match. If both branch conditions match, the actual branch executed is the one in the main slot.
 
 On VP3+, the relative branch slot no longer exists, and the main slot makes up
 the whole instruction word.
@@ -579,6 +581,7 @@ Note: the [[mode] predicate] section is shortened to PDST below. PDST is then th
             endif
             PDST := DST & 1
         NOTE: PDST not supprted by envydis.
+        NOTE: If $cstop is used as SRC2, then it counts as a read regardless of operation result.
         Delay: immediate
 
     0x01: [mov DST SRC]
