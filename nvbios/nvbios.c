@@ -41,6 +41,7 @@ uint8_t major_version, minor_version, micro_version, chip_version;
 uint32_t card_codename = 0;
 uint8_t tCWL = 0;
 uint32_t strap = 0;
+uint8_t chipset_family = 0;
 
 uint16_t bmpver = 0;
 uint8_t bmpver_min;
@@ -417,11 +418,30 @@ static void parse_bios_version(uint16_t offset)
 		card_codename = chip_version;
 	minor_version = bios->data[offset + 1];
 	micro_version = bios->data[offset + 0];
+
+	if (major_version <= 0x2 || major_version == 0x14)
+		chipset_family = 0x04;
+	else if (major_version < 0x5)
+		chipset_family = card_codename & 0xf0;
+	else if (major_version < 0x60)
+		chipset_family = 0x40;
+	else if (major_version < 0x70)
+		chipset_family = 0x50;
+	else if (major_version < 0x75)
+		if (card_codename > 0x10 && card_codename < 0x20)
+			chipset_family = 0x50;
+		else
+			chipset_family = 0xc0;
+	else if (major_version == 0x75)
+		chipset_family = 0xd0;
+
 	printf("Bios version %02x.%02x.%02x.%02x\n\n",
 		 bios->data[offset + 3], bios->data[offset + 2],
 		 bios->data[offset + 1], bios->data[offset]);
-	printf("Card codename %02x\n\n",
+	printf("Card codename %02x\n",
 		 card_codename);
+	printf("Card chipset family %02x\n\n",
+		 chipset_family);
 }
 
 int set_strap_from_string(const char* strap_s)
@@ -1263,7 +1283,17 @@ int main(int argc, char **argv) {
 				id = bios->data[start+0];
 				voltage = bios->data[start+2];
 
-				if (subentry_size == 4) {
+				if (chipset_family == 0x50) {
+					core = (le16(start+subent(0)) & 0xfff);
+					shader = (le16(start+subent(1)) & 0xfff);
+					memclk = (le16(start+subent(2)) & 0xfff);
+					vdec   = (le16(start+subent(3)) & 0xfff);
+					unka0 = (le16(start+subent(4)) & 0xfff);
+
+					printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Vdec %dMHz "
+						"Unka0 %dMHz Voltage entry %d Timing %d PCIe link width %d --\n",
+						id, core, memclk, shader, vdec, unka0, voltage, timing_id, pcie_width );
+				} else {
 					hub06 = (le16(start+subent(0)) & 0xfff);
 					hub01 = (le16(start+subent(1)) & 0xfff);
 					copy = (le16(start+subent(2)) & 0xfff);
@@ -1280,15 +1310,6 @@ int main(int argc, char **argv) {
 						"Voltage entry %d Timing %d PCIe link width %d --\n",
 						id, core, memclk, shader, hub01, hub06, hub07,
 						rop, vdec, daemon, copy, voltage, timing_id, pcie_width );
-				} else {
-					core = (le16(start+subent(0)) & 0xfff);
-					shader = (le16(start+subent(1)) & 0xfff);
-					memclk = (le16(start+subent(2)) & 0xfff);
-					unka0 = (le16(start+subent(3)) & 0xfff);
-
-					printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz "
-						"Unka0 %dMHz Voltage entry %d Timing %d PCIe link width %d --\n",
-						id, core, memclk, shader, unka0, voltage, timing_id, pcie_width );
 				}
 			}
 
@@ -1600,7 +1621,7 @@ int main(int argc, char **argv) {
 					printf("RON_PULL(Lo)\n");
 				}
 
-				if (card_codename < 0xc0) {
+				if (chipset_family < 0xc0) {
 					reg_100220 = (tRCD << 24 | tRAS << 16 | tRFC << 8 | tRC);
 					reg_100224 = ((tWR + 2 + (tCWL - 1)) << 24 |
 								(tUNK_18 ? tUNK_18 : 1) << 16 |
@@ -1608,7 +1629,7 @@ int main(int argc, char **argv) {
 
 					reg_100228 = ((tCWL - 1) << 24 | (tUNK_12 << 16) | tUNK_11 << 8 | tUNK_10);
 
-					if(card_codename < 0x50) {
+					if(chipset_family < 0x50) {
 						/* Don't know, don't care...
 						* don't touch the rest */
 						reg_100224 |= (tCL + 2 - (tCWL - 1));
