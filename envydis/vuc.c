@@ -340,14 +340,14 @@ static struct insn tabbop[] = {
 	{ 0x00000000, 0x0000001f, N("slct"), T(pmod), T(dst), T(pdst), T(src1), T(src2) },
 	{ 0x00000001, 0x0800001f, N("mov"), T(pmod), T(dst), T(src2) },
 	{ 0x18000001, 0x1800001f, N("mov"), T(pmod), SRDST, IMM12 },
-	{ 0x08000001, 0x1800001f, N("mov"), T(pmod), DST, IMM14 }, // overlap: in immediate form bits 9:12 of immediate are same as destination predicate
+	{ 0x08000001, 0x1800001f, N("mov"), T(pmod), DST, IMM14 },
 
 	/* addition */
-	{ 0x00000004, 0x0000001f, N("add"), T(pmod), T(dst), T(src1), T(src2) }, // set pred if result is odd
-	{ 0x00000005, 0x0000001f, N("sub"), T(pmod), T(dst), T(src1), T(src2) },// set pred if result is odd
-	{ 0x00000006, 0x0000001f, N("subr"), T(pmod), T(dst), T(src1), T(src2), .vartype = VP2 }, // set pred if result is odd
-	{ 0x00000006, 0x0000001f, N("avgs"), T(dst), T(src1), T(src2), .vartype = VP3 }, // (a+b)/2, rounding UP, signed
-	{ 0x00000007, 0x0000001f, N("avgu"), T(dst), T(src1), T(src2), .vartype = VP3 }, // (a+b)/2, rounding UP, unsigned
+	{ 0x00000004, 0x0000001f, N("add"), T(pmod), T(dst), T(src1), T(src2) },
+	{ 0x00000005, 0x0000001f, N("sub"), T(pmod), T(dst), T(src1), T(src2) },
+	{ 0x00000006, 0x0000001f, N("subr"), T(pmod), T(dst), T(src1), T(src2), .vartype = VP2 },
+	{ 0x00000006, 0x0000001f, N("avgs"), T(pmod), T(dst), T(src1), T(src2), .vartype = VP3 },
+	{ 0x00000007, 0x0000001f, N("avgu"), T(pmod), T(dst), T(src1), T(src2), .vartype = VP3 },
 
 	/* comparisons */
 	{ 0x00000008, 0x0000001f, N("setgt"), T(pmod), T(src1), T(src2) },
@@ -360,7 +360,7 @@ static struct insn tabbop[] = {
 	{ 0x0000000d, 0x0000001f, N("clamps"), T(pmod), T(dst), T(src1), T(src2) }, // clamp to -2^b..2^b-1, PRED := clamped
 	{ 0x0000000e, 0x0000001f, N("sex"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := sign bit
 	{ 0x0000000f, 0x0000001f, N("setzero"), T(pmod), T(src1), T(src2), .vartype = VP2 }, // PRED := both args are zero
-	{ 0x0000000f, 0x0000001f, N("div2s"), T(dst), T(src1), .vartype = VP3 }, // signed div by 2, round to 0. Not present on vp2?
+	{ 0x0000000f, 0x0000001f, N("div2s"), T(pmod), T(dst), T(src1), .vartype = VP3 }, // signed div by 2, round to 0. Not present on vp2?
 
 	/* bit manipulation */
 	{ 0x00000010, 0x0000001f, N("bset"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := odd

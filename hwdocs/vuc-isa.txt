@@ -477,7 +477,90 @@ TODO: Find out exact immediate sizes in most instructions
 XXX: Verify remaining delays
 
 
-== Instructions ==
+= Instructions =
+
+A note about execution times: the pseudocode starts on cycle 0. If execution
+of an instruction takes more than one cycle, a "cycle;" line in the pseudocode
+separates effects of the instruction that happen in distinct cycles. It is
+assumed that all reads done in a cycle by any instruction happen before all
+writes done in that cycle. Thus, if an instruction has an execution time of
+1 cycle, the very next instruction can already use its result. If an execution
+has execution time of 2 cycles, one other instruction has to be inserted after
+this instruction and any instruction that uses its result, and so on.
+
+
+== Data movement instructions: slct, mov ==
+
+mov sets the destination to the value of the only source. slct sets the
+destination to the value of one of the sources, as selected by a predicate.
+
+Instruction: slct pdst, dst, pred, src1, src2
+Opcode: base opcode, OP = 00000
+Operation:
+	result = (pred ? src1 : src2);
+	dst = result;
+	cycle;
+	pdst =  result & 1;
+Execution time: 1 cycle for dst write, 2 cycles for pdst write
+
+Instruction: mov pdst, dst, lsrc
+Opcode: base opcode, OP = 00001
+Operation:
+	result = lsrc;
+	dst = result;
+	cycle;
+	pdst = result & 1;
+Execution time: 1 cycle for dst write, 2 cycles for pdst write
+
+
+== Addition instructions: add, sub, subr, avgs, avgu ==
+
+add performs an addition of two 16-bit quantities, sub and subr perform
+substraction, subr with reversed order of operands. avgs and avgu compute
+signed and unsigned average of two sources, rounding up. If predicate output
+is used, the predicate is set to the lowest bit of the result.
+
+Instructions:
+	add pdst, dst, src1, src2	OP=00100
+	sub pdst, dst, src1, src2	OP=00101
+	subr pdst, dst, src1, src2	OP=00110 [VP2 only]
+	avgs pdst, dst, src1, src2	OP=00110 [VP3+ only]
+	avgu pdst, dst, src1, src2	OP=00111 [VP3+ only]
+Opcode: base opcode, OP as above
+Operation:
+	if (op == add) result = src1 + src2;
+	if (op == sub) result = src1 - src2;
+	if (op == subr) result = src2 - src1;
+	if (op == avgs) result = (SEX(src1, 17) + SEX(src2, 17) + 1) >> 1;
+	if (op == avgu) result = (src1 + src2 + 1) >> 1;
+	dst = result;
+	cycle;
+	pdst = result & 1;
+Execution time: 1 cycle for dst write, 2 cycles for pdst write
+
+
+== Comparison instructions: setgt, setlt, seteq, setlep ==
+
+setgt, setlt, seteq perform signed >, <, == comparison on two source operands
+and return the result as pdst. setlep returns 1 if SRC1 is in range [0, SRC2].
+All comparisons are signed 16-bit.
+
+Instructions:
+	setgt pdst, src1, src2		OP=01000
+	setlt pdst, src1, src2		OP=01001
+	seteq pdst, src1, src2		OP=01010
+	setlep pdst, src1, src2		OP=01011
+Opcode: base opcode, OP as above
+Operation:
+	if (op == setgt) result = (s16)src1 < (s16)src2;
+	if (op == setlt) result = (s16)src1 > (s16)src2;
+	if (op == seteq) result = (s16)src1 == (s16)src2;
+	if (op == setlep) result = (s16)src1 <= (s16)src2 && (s16)src1 >= 0;
+	cycle;
+	pdst = result;
+Execution time: 2 cycles
+
+
 = Predicated execution =
 All instructions can be conditionally executed depending on predicate state.
 
@@ -549,91 +632,7 @@ Note: the [[mode] predicate] section is shortened to PDST below. PDST is then th
    
 * Instructions *
 
-* Comparison:
-    0x08: [setsg PDST SRC1 SRC2]
-          setsg PRED REG GPREG
-          setsg PRED REG IMM6
-            PDST := SRC1 > SRC2
-        Delay: immediate
-    
-    0x09: [setsl PDST SRC1 SRC2]
-          setsl PRED REG GPREG
-          setsl PRED REG IMM6
-            PDST := SRC1 < SRC2
-        Delay: immediate
-    
-    0x0a: [setse PDST SRC1 SRC2]
-          setse PRED REG GPREG
-          setse PRED REG IMM6
-            PDST := SRC1 == SRC2
-        Delay: immediate
-        
-    0x0b: [setsle PDST SRC1 SRC2]
-          setsle PRED REG GPREG
-          setsle PRED REG IMM6
-            PDST := SRC1 <= SRC2
-        Delay: immediate
-
-        
 * Arithmetic
-    0x00: [slct DST SRC1 SRC2 SRC3]
-          slct REG PRED GPREG GPREG
-          slct GPREG PRED REG GPREG
-          slct REG PRED GPREG IMM6
-          slct GPREG PRED REG IMM6
-            if SRC1
-                DST := SRC2
-            else
-                DST := SRC3
-            endif
-            PDST := DST & 1
-        NOTE: PDST not supprted by envydis.
-        NOTE: If $cstop is used as SRC2, then it counts as a read regardless of
-        operation result.
-        Delay: immediate
-
-    0x01: [mov DST SRC]
-          mov REG GPREG
-          mov GPREG IMM14
-          mov SRREG IMM12
-        Sets DST to value of SRC.
-            DST := SRC
-            PDST := DST & 1
-        NOTE: PDST not supported by envydis with immediate operands.
-        Delay: immediate
-         
-    0x04: [add DST SRC1 SRC2]
-          add REG GPREG GPREG
-          add GPREG REG GPREG
-          add REG GPREG IMM6
-          add GPREG REG IMM6
-        Assigns DST the value of SRC1 + SRC2. PDST is lowest bit of result.
-            DST := SRC1 + SRC2
-            PDST := DST & 1
-        TODO: Flags?
-        Delay: immediate
-    
-    0x05: [sub DST SRC1 SRC2]
-          sub REG GPREG GPREG
-          sub GPREG REG GPREG
-          sub REG GPREG IMM6
-          sub GPREG REG IMM6
-            DST := SRC1 - SRC2
-            PDST := DST & 1
-        TODO: Flags?
-        Delay: immediate
-        
-    0x06: [subr DST SRC1 SRC2]
-          subr REG GPREG GPREG
-          subr GPREG REG GPREG
-          subr REG GPREG IMM6
-          subr GPREG REG IMM6
-            DST := SRC2 - SRC1
-            PDST := DST & 1
-        TODO: Flags?
-        Only present on VP2
-        Delay: immediate
-        
     0x0c: [minsz PDST DST SRC1 SRC2]
           minsz PRED REG GPREG GPREG
           minsz PRED GPREG REG GPREG
@@ -692,27 +691,9 @@ Note: the [[mode] predicate] section is shortened to PDST below. PDST is then th
             else
                 DST := floor(SRC / 2)
             endif
+	    PRED := DST < 0
         Not present on vp2
     
-    0x66: [avgs DST SRC1 SRC2]
-          avgs REG REG GPREG
-          avgs REG REG IMM?
-        Signed average
-            signed SRC1, SRC2
-            DST := ceil((SRC1 + SRC2) / 2)
-        Present on vp3
-        Not present on vp2
-        Delay: immediate
-    
-    0x67: [avgu DST SRC1 SRC2]
-          avgu REG REG GPREG
-          avgu REG REG IMM?
-        Unsigned average
-            DST := ceil((SRC1 + SRC2) / 2)
-        Present on vp3
-        Not present on vp2
-        Delay: immediate
-        
     0x7d: [min DST SRC1 SRC2]
           min REG REG GPREG
           min REG REG IMM?
