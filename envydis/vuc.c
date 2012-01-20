@@ -381,8 +381,8 @@ static struct insn tabbop[] = {
 
 	/* misc */
 	{ 0x0000001c, 0x0000001f, N("lut"), T(pmod), T(dst), T(src1), T(src2) }, /* 264, VC1 */
-	{ 0x0000001d, 0x0000001f, N("min"), T(dst), T(src1), T(src2), .vartype = VP3 },
-	{ 0x0000001e, 0x0000001f, N("max"), T(dst), T(src1), T(src2), .vartype = VP3 },
+	{ 0x0000001d, 0x0000001f, N("min"), T(pmod), T(dst), T(src1), T(src2), .vartype = VP3 },
+	{ 0x0000001e, 0x0000001f, N("max"), T(pmod), T(dst), T(src1), T(src2), .vartype = VP3 },
 	{ 0, 0, OOPS },
 };
 
