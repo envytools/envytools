@@ -302,6 +302,17 @@ set 5 [vdec]:
 0x4e-0x53: PPPP_USER_0-5 [fuc-perf.txt]
 0x9c-0xa1: PVP_USER_0-5 [fuc-perf.txt]
 
+=== NVA3 signals ===
+
+set 0 [host]:
+0xa3: PTIMER_TIME_B12 [ptimer.txt]
+
+set 1 [graph]:
+0xd5: CTXCTL flag 0x1c
+0xd6: CTXCTL flag 0x1d
+0xd7: CTXCTL flag 0x1e
+0xd8: CTXCTL flag 0x1f
+
 
 === NVA5 signals ===
 
