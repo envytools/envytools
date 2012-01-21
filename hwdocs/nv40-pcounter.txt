@@ -44,7 +44,7 @@ Some signals can be triggered manually, through the means of microcode. In this 
 * To choose between "continuous" and "pulse" on signals that support it:
     - fµc: use PM_MODE register
     - vp2: use either the PULSE command or the CLEAR/SET commands
-    
+
 * counter reset can be triggered by an arbitrary signal through the SPEC_SRC reg
 
 Internally, event counter is upped every time a relevant bit is set while the event occurs. In "pulse" mode, the bit is cleared immediately, while in "continuous" mode it's not. This bit can be manually manipulated.
@@ -76,7 +76,7 @@ In addition to plain signals, there exists a macrosignal mechanism. It allows to
 MSx_SRC sets the 4 signal sources for the logic function for a given macrosignal
 MSx_OP sets the logic function
 
-bitidx = signals[MSx_SRC[0]] | signals[MSx_SRC[1]] << 1 |signals[MSx_SRC[2]] << 2 | signals[MSx_SRC[3]] << 3 
+bitidx = signals[MSx_SRC[0]] | signals[MSx_SRC[1]] << 1 |signals[MSx_SRC[2]] << 2 | signals[MSx_SRC[3]] << 3
 macrosignal = MSx_OP >> bitidx & 1
 
 === NV40:NVC0 trailer signals ===
@@ -261,7 +261,7 @@ set 6 [vdec]:
 0x9c-0xa1: PVP USER
 0xa0 trailer base
 
-set 7: 
+set 7:
 0x07: something related to MAGIC_FLUSH + PFIFO memory read?
 0x22: 16 * PFIFO host DMAobj load
 0x23: 16 * PFIFO host DMAobj load
@@ -386,5 +386,12 @@ set 7:
 
 === NVA8 signals ===
 
+set 0 [host]:
+0xa3: PTIMER_TIME_B12 [ptimer.txt]
+
 set 1 [graph]:
 0xcb: PGRAPH_IDLE
+0xd5: CTXCTL flag 0x1c
+0xd6: CTXCTL flag 0x1d
+0xd7: CTXCTL flag 0x1e
+0xd8: CTXCTL flag 0x1f
