@@ -346,43 +346,43 @@ static struct insn tabbop[] = {
 	{ 0x00000004, 0x0000001f, N("add"), T(pmod), T(dst), T(src1), T(src2) },
 	{ 0x00000005, 0x0000001f, N("sub"), T(pmod), T(dst), T(src1), T(src2) },
 	{ 0x00000006, 0x0000001f, N("subr"), T(pmod), T(dst), T(src1), T(src2), .vartype = VP2 },
-	{ 0x00000006, 0x0000001f, N("avgs"), T(pmod), T(dst), T(src1), T(src2), .vartype = VP3 },
-	{ 0x00000007, 0x0000001f, N("avgu"), T(pmod), T(dst), T(src1), T(src2), .vartype = VP3 },
+	{ 0x00000006, 0x0000001f, N("avgs"), T(pmod), T(dst), T(src1), T(src2), .vartype = VP3P },
+	{ 0x00000007, 0x0000001f, N("avgu"), T(pmod), T(dst), T(src1), T(src2), .vartype = VP3P },
 
 	/* comparisons */
 	{ 0x00000008, 0x0000001f, N("setgt"), T(pmod), T(src1), T(src2) },
 	{ 0x00000009, 0x0000001f, N("setlt"), T(pmod), T(src1), T(src2) },
 	{ 0x0000000a, 0x0000001f, N("seteq"), T(pmod), T(src1), T(src2) },    
-	{ 0x0000000b, 0x0000001f, N("setlep"), T(pmod), T(src1), T(src2) }, /* SRC1 <= SRC2 && SRC1 >= 0 */
+	{ 0x0000000b, 0x0000001f, N("setlep"), T(pmod), T(src1), T(src2) },
 
 	/* clips, misc */
-	{ 0x0000000c, 0x0000001f, N("clamplep"), T(pmod), T(dst), T(src1), T(src2) }, // (a > b) ? b : max(a, 0), PRED := SRC1 > SRC2 || SRC1 < 0
-	{ 0x0000000d, 0x0000001f, N("clamps"), T(pmod), T(dst), T(src1), T(src2) }, // clamp to -2^b..2^b-1, PRED := clamped
-	{ 0x0000000e, 0x0000001f, N("sext"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := sign bit
-	{ 0x0000000f, 0x0000001f, N("setzero"), T(pmod), T(src1), T(src2), .vartype = VP2 }, // PRED := both args are zero
-	{ 0x0000000f, 0x0000001f, N("div2s"), T(pmod), T(dst), T(src1), .vartype = VP3 }, // signed div by 2, round to 0. Not present on vp2?
+	{ 0x0000000c, 0x0000001f, N("clamplep"), T(pmod), T(dst), T(src1), T(src2) },
+	{ 0x0000000d, 0x0000001f, N("clamps"), T(pmod), T(dst), T(src1), T(src2) },
+	{ 0x0000000e, 0x0000001f, N("sext"), T(pmod), T(dst), T(src1), T(src2) },
+	{ 0x0000000f, 0x0000001f, N("setzero"), T(pmod), T(src1), T(src2), .vartype = VP2 },
+	{ 0x0000000f, 0x0000001f, N("div2s"), T(pmod), T(dst), T(src1), .vartype = VP3 },
 
 	/* bit manipulation */
-	{ 0x00000010, 0x0000001f, N("bset"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := odd
-	{ 0x00000011, 0x0000001f, N("bclr"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := odd
+	{ 0x00000010, 0x0000001f, N("bset"), T(pmod), T(dst), T(src1), T(src2) },
+	{ 0x00000011, 0x0000001f, N("bclr"), T(pmod), T(dst), T(src1), T(src2) },
 	{ 0x00000012, 0x0000001f, N("btest"), T(pmod), T(dst), T(src1), T(src2) },
 
 	/* shifts */
-	{ 0x00000014, 0x0000001f, N("rot8"), T(pmod), T(dst), T(src1) }, // PRED := odd
-	{ 0x00000015, 0x0000001f, N("shl"), T(pmod), T(dst), T(src1), T(src2) }, // pdst becomes last bit shifted out
-	{ 0x00000016, 0x0000001f, N("shr"), T(pmod), T(dst), T(src1), T(src2) }, // pdst becomes last bit shifted out
-	{ 0x00000017, 0x0000001f, N("sar"), T(pmod), T(dst), T(src1), T(src2) }, // pdst becomes last bit shifted out
+	{ 0x00000014, 0x0000001f, N("rot8"), T(pmod), T(dst), T(src1) },
+	{ 0x00000015, 0x0000001f, N("shl"), T(pmod), T(dst), T(src1), T(src2) },
+	{ 0x00000016, 0x0000001f, N("shr"), T(pmod), T(dst), T(src1), T(src2) },
+	{ 0x00000017, 0x0000001f, N("sar"), T(pmod), T(dst), T(src1), T(src2) },
 
 	/* bitwise ops */
-	{ 0x00000018, 0x0000001f, N("and"), T(pmod), T(dst), T(src1), T(src2) }, /* PRED := odd */
-	{ 0x00000019, 0x0000001f, N("or"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := even
-	{ 0x0000001a, 0x0000001f, N("xor"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := odd
-	{ 0x0000001b, 0x0000001f, N("not"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := odd
+	{ 0x00000018, 0x0000001f, N("and"), T(pmod), T(dst), T(src1), T(src2) },
+	{ 0x00000019, 0x0000001f, N("or"), T(pmod), T(dst), T(src1), T(src2) },
+	{ 0x0000001a, 0x0000001f, N("xor"), T(pmod), T(dst), T(src1), T(src2) },
+	{ 0x0000001b, 0x0000001f, N("not"), T(pmod), T(dst), T(src1), T(src2) },
 
 	/* misc */
-	{ 0x0000001c, 0x0000001f, N("lut"), T(pmod), T(dst), T(src1), T(src2) }, /* 264, VC1 */
-	{ 0x0000001d, 0x0000001f, N("min"), T(pmod), T(dst), T(src1), T(src2), .vartype = VP3 },
-	{ 0x0000001e, 0x0000001f, N("max"), T(pmod), T(dst), T(src1), T(src2), .vartype = VP3 },
+	{ 0x0000001c, 0x0000001f, N("lut"), T(pmod), T(dst), T(src1), T(src2) },
+	{ 0x0000001d, 0x0000001f, N("min"), T(pmod), T(dst), T(src1), T(src2), .vartype = VP3P },
+	{ 0x0000001e, 0x0000001f, N("max"), T(pmod), T(dst), T(src1), T(src2), .vartype = VP3P },
 	{ 0, 0, OOPS },
 };
 

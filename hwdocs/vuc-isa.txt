@@ -117,36 +117,36 @@ determined by OT0 and OT1 bits:
 
 For base opcodes, the OP bits determine the final opcode:
 
- - 00000: slct		[slct form]
- - 00001: mov		[mov form]
- - 00100: add		[binary form]
- - 00101: sub 		[binary form]
- - 00110: subr 		[binary form] 		[VP2 only]
- - 00110: avgs 		[binary form] 		[VP3+ only]
- - 00111: avgu 		[binary form] 		[VP3+ only]
- - 01000: setgt 	[set form]
- - 01001: setlt 	[set form]
- - 01010: seteq 	[set form]
- - 01011: setlep 	[set form]
- - 01100: clamplep 	[binary form]
- - 01101: clamps 	[binary form]
- - 01110: sex 		[binary form]
- - 01111: setzero 	[set form] 		[VP2 only]
- - 01111: div2s 	[unary form]		[VP3+ only]
- - 10000: bset 		[binary form]
- - 10001: bclr 		[binary form]
- - 10010: btest 	[set form]
- - 10100: rot8 		[unary form]
- - 10101: shl 		[binary form]
- - 10110: shr 		[binary form]
- - 10111: sar 		[binary form]
- - 11000: and 		[binary form]
- - 11001: or 		[binary form]
- - 11010: xor 		[binary form]
- - 11011: not		[unary form]
- - 11100: lut 		[binary form]
- - 11101: min 		[binary form] 		[VP3+ only]
- - 11110: max 		[binary form] 		[VP3+ only]
+ - 00000: slct		[slct form]	select
+ - 00001: mov		[mov form]	move
+ - 00100: add		[binary form]	add
+ - 00101: sub 		[binary form]	substract
+ - 00110: subr 		[binary form] 	substract reverse	[VP2 only]
+ - 00110: avgs 		[binary form] 	average signed		[VP3+ only]
+ - 00111: avgu 		[binary form] 	average unsigned	[VP3+ only]
+ - 01000: setgt 	[set form]	set if greater than
+ - 01001: setlt 	[set form]	set if less than
+ - 01010: seteq 	[set form]	set if equal to
+ - 01011: setlep 	[set form]	set if less or equal and positive
+ - 01100: clamplep 	[binary form]	clamp to less or equal and positive
+ - 01101: clamps 	[binary form]	clamp signed
+ - 01110: sext 		[binary form]	sign extension
+ - 01111: setzero 	[set form] 	set if both zero	[VP2 only]
+ - 01111: div2s 	[unary form]	divide by 2 signed	[VP3+ only]
+ - 10000: bset 		[binary form]	bit set
+ - 10001: bclr 		[binary form]	bit clear
+ - 10010: btest 	[set form]	bit test
+ - 10100: hswap		[unary form]	swap reg halves
+ - 10101: shl 		[binary form]	shift left
+ - 10110: shr 		[binary form]	shift right
+ - 10111: sar 		[binary form]	shift arithmetic right
+ - 11000: and 		[binary form]	bitwise and
+ - 11001: or 		[binary form]	bitwise or
+ - 11010: xor 		[binary form]	bitwise xor
+ - 11011: not		[unary form]	bitwise not
+ - 11100: lut 		[binary form]	video LUT lookup
+ - 11101: min 		[binary form] 	minimum			[VP3+ only]
+ - 11110: max 		[binary form] 	maximum			[VP3+ only]
 
 For special opcodes, the OC bits determine the opcode class, and OP bits
 further determine the opcode inside that class. The classes and opcodes are:
@@ -488,6 +488,19 @@ writes done in that cycle. Thus, if an instruction has an execution time of
 has execution time of 2 cycles, one other instruction has to be inserted after
 this instruction and any instruction that uses its result, and so on.
 
+In the pseudocode, all intermediate computation results and temporary
+variables are assumed to be infinite-precision signed integers: non-negative
+integers are padded at the left with infinite number of 0 bits, while negative
+integers are padded with infinite number of 1 bits.
+
+When assigning a result to a finite-precision register, any extra bits are
+chopped off. When reading a value from a finite-precision register, it's
+padded with infinite number of 0 bits at the left by default. A sign-extension
+read, where the register value is padded with infinite number of copies of its
+MSB instead, is written as SEX(reg).
+
+Operators used in the pseudocode behave as in C.
+
 
 == Data movement instructions: slct, mov ==
 
@@ -500,8 +513,9 @@ Operation:
 	result = (pred ? src1 : src2);
 	dst = result;
 	cycle;
-	pdst =  result & 1;
+	pdst = result & 1;
 Execution time: 1 cycle for dst write, 2 cycles for pdst write
+Predicate output: LSB of normal result
 
 Instruction: mov pdst, dst, lsrc
 Opcode: base opcode, OP = 00001
@@ -511,6 +525,7 @@ Operation:
 	cycle;
 	pdst = result & 1;
 Execution time: 1 cycle for dst write, 2 cycles for pdst write
+Predicate output: LSB of normal result
 
 
 == Addition instructions: add, sub, subr, avgs, avgu ==
@@ -531,383 +546,454 @@ Operation:
 	if (op == add) result = src1 + src2;
 	if (op == sub) result = src1 - src2;
 	if (op == subr) result = src2 - src1;
-	if (op == avgs) result = (SEX(src1, 17) + SEX(src2, 17) + 1) >> 1;
+	if (op == avgs) result = (SEX(src1) + SEX(src2) + 1) >> 1;
 	if (op == avgu) result = (src1 + src2 + 1) >> 1;
 	dst = result;
 	cycle;
 	pdst = result & 1;
 Execution time: 1 cycle for dst write, 2 cycles for pdst write
+Predicate output: LSB of normal result
 
 
-== Comparison instructions: setgt, setlt, seteq, setlep ==
+== Comparison instructions: setgt, setlt, seteq, setlep, setzero ==
 
 setgt, setlt, seteq perform signed >, <, == comparison on two source operands
-and return the result as pdst. setlep returns 1 if SRC1 is in range [0, SRC2].
-All comparisons are signed 16-bit.
+and return the result as pdst. setlep returns 1 if src1 is in range [0, src2].
+All comparisons are signed 16-bit. setzero returns 1 if both src1 and src2 are
+equal to 0.
 
 Instructions:
 	setgt pdst, src1, src2		OP=01000
 	setlt pdst, src1, src2		OP=01001
 	seteq pdst, src1, src2		OP=01010
 	setlep pdst, src1, src2		OP=01011
+	setzero pdst, src1, src2	OP=01111 [VP2 only]
 Opcode: base opcode, OP as above
 Operation:
-	if (op == setgt) result = (s16)src1 < (s16)src2;
-	if (op == setlt) result = (s16)src1 > (s16)src2;
-	if (op == seteq) result = (s16)src1 == (s16)src2;
-	if (op == setlep) result = (s16)src1 <= (s16)src2 && (s16)src1 >= 0;
+	if (op == setgt) result = SEX(src1) < SEX(src2);
+	if (op == setlt) result = SEX(src1) > SEX(src2);
+	if (op == seteq) result = src1 == src2;
+	if (op == setlep) result = SEX(src1) <= SEX(src2) && SEX(src1) >= 0;
+	if (op == setzero) result = src1 == 0 && src2 == 0;
 	cycle;
 	pdst = result;
 Execution time: 2 cycles
+Predicate output: the comparison result
 
 
-= Predicated execution =
-All instructions can be conditionally executed depending on predicate state.
+== Clamping and sign extension instructions: clamplep, clamps, sext ==
 
-    Syntax:
-    [pred] insn ...
-    
-    Example:
-    $p1 mov $r1 10
+clamplep clamps src1 to [0, src2] range. clamps, like the xtensa instruction
+of the same name, clamps src1 to [-(1 << src2), (1 << src2) - 1] range, ie.
+to the set of (src2+1)-bit signed integers. sext, like the xteansa and fµc
+instructions of the same name, replaces bits src2 and up with a copy of bit
+src2, effectively doing a sign extension from a (src2+1)-bit signed number.
 
-This instruction would be executed only if predicate $p0 is set.
-There are some exceptions to this rule: if an instruction was never seen predicated with the blob, if it's difficult to figure out opcode format, or if it's pointless to run it predicated, there might be no predicated version in envydis (noted where applicable).
+Instructions:
+	clamplep pdst, dst, src1, src2	OP=01100
+	clamps pdst, dst, src1, src2	OP=01101
+	sext pdst, dst, src1, src2	OP=01110
+Opcode: base opcode, OP as above
+Operation:
+	if (op == clamplep) {
+		result = src1;
+		presult = 0;
+		if (SEX(src1) < 0) {
+			presult = 1;
+			result = 0;
+		}
+		if (SEX(src1) > SEX(src2)) {
+			presult = 1;
+			result = src2;
+		}
+	}
+	if (op == clamps) {
+		bit = src2 & 0xf;
+		result = src1;
+		presult = 0;
+		if (SEX(src1) < -(1 << bit)) {
+			result = -(1 << bit);
+			presult = 1;
+		}
+		if (SEX(src1) > (1 << bit) - 1) {
+			result = (1 << bit) - 1;
+			presult = 1;
+		}
+	}
+	if (op == sext) {
+		bit = src2 & 0xf;
+		presult = src1 >> bit & 1;
+		if (presult)
+			result = jrc1 | -(1 << bit);
+		else
+			result = src1 & ((1 << bit) - 1);
+	}
+	dst = result;
+	cycle;
+	pdst = presult;
+Execution time: 1 cycle for dst write, 2 cycles for pdst write
+Predicate output:
+	clamplep, clamps: 1 if clamping happened
+	sext: 1 if result < 0
 
-= Reference =
-Instructions are separated into 2 sections: "base" instructions and "override" instructions. The name is not meaningful and its only reason is that "base" instructions have shorter selectors.
 
-Reference format:
-    "a ^ b" signifies bitwise XOR, "a ** b" signifies "a to the power of b", "~a" signifies bitwise negation of a, ":" means composition of bits into a single "variable". ceil(), floor() and rand() are sign-aware, assume values to be of infinite precision. All signed values are noted when applicable/known.
-    REG is any register, GPREG is general purpose register ($rX), SRREG is $srX, PRED is predicate ($pX), IMMX is immediate of X bits length.
+== Division by 2 instruction: div2s ==
+
+div2s divides a signed number by 2, rounding to 0.
+
+Instructions:
+	div2s pdst, dst, src1		OP=01111 [VP3+ only]
+Opcode: base opcode, OP as above
+Operation:
+	if (SEX(src1) < 0) {
+		result = (SEX(src1) + 1) >> 1;
+	} else {
+		result = src1 >> 1;
+	}
+	dst = result;
+	cycle;
+	pdst = result < 0;
+Execution time: 1 cycle for dst write, 2 cycles for pdst write
+Predicate output: 1 if result is negative
 
 
-** Base instructions **
-Base instructions can take $srX registers as source and destination, but not at the same time. They are usually arithmetic operations taking registers as source and registers or predicate as destination.
+== Bit manipulation instructions: bset, bclr, btest ==
 
-* Setting predicates *
-All base instructions have the ability to set a predicate. The value is defined by the instruction, but the way it is applied is general for all instructions. It can be combined with predicated execution and both predicates can be different.
-Again, envydis might not support it if the result is particularly useless or difficult to figure out. Notable exceptions: mov, slct.
+bset and bclr set or clear a single bit in a value. btest copies a selected
+bit to a $p register.
 
-    Syntax:
-    insn [[mode] predicate] [operands ...]
-    
-Supported predicate setting modes:
-    * none: no predicate will be set.
-        [[mode] predicate] is omitted.
-        Example: add $r1 $r2 3
-        
-    * identity: predicate will be set normally.
-        [mode] is omitted.
-        Example: btest $p2 $r3 3
-        Predicate $p2 will be set to 1 if bit 3 in $r3 is set, and set to 0 otherwise.
-        
-    * and: predicate will be ANDed with its previous value.
-        [mode] is "pand".
-        Example: shl pand $p3 $r6 $r4 5
-        Predicate $p3 will be cleared if shifted out bit is 0.
-        
-    * or: predicate will be ORed with its previous value.
-        [mode] is "por".
-        Example: shr por $p6 $r6 $r7 8
-        Predicate will be set if shifted out bit is 1.
-    
-    * not: reverses instruction predicate output.
-        [mode] is "pnot".
-        Example: btest not $p2 $r3 3
-        Predicate $p2 will be set to 1 if bit 3 in $r3 is cleared, and set to 0 otherwise.
-        
-    * andn: previous value of predicate will be ANDed with negation of new value.
-        [mode] is "pandn".
-        Example: shl pandn $p3 $r5 $r4 5
-        Predicate $p3 will be cleared if shifted out bit is 1.
-        
-    * orn: previous value of predicate will be ORed with negation of new value
-        [mode] is "porn".
-        Example: shr $p6 $r8 $r7 8
-        Predicate will be set if shifted out bit is 0.
+Instructions:
+	bset pdst, dst, src1, src2	OP=10000
+	bclr pdst, dst, src1, src2	OP=10001
+	btest pdst, src1, src2		OP=10010
+Opcode: base opcode, OP as above
+Operation:
+	bit = src2 & 0xf;
+	if (op == bset) {
+		result = src1 | 1 << bit;
+		presult = result & 1;
+		dst = result;
+	}
+	if (op == bclr) {
+		dst = result = src1 & ~(1 << bit)
+		presult = result & 1;
+		dst = result;
+	}
+	if (op == btest) {
+		presult = src1 >> bit & 1;
+	}
+	cycle;
+	pdst = presult;
+Execution time:
+	bset, bclr: 1 cycle for dst write, 2 cycles for pdst write
+	btest: 2 cycles
+Predicate output:
+	bset, bclr: bit 0 of the result
+	btest: the selected bit
 
-Some instructions don't affect anything else but predicate. In their case, the transformation might still be set to "none", but they will just have no effect.
-        
-Note: the [[mode] predicate] section is shortened to PDST below. PDST is then the untransformed predicate value (as with identity mode). It may be omitted in the format where not particularly useful.
-   
-* Instructions *
 
-* Arithmetic
-    0x0c: [minsz PDST DST SRC1 SRC2]
-          minsz PRED REG GPREG GPREG
-          minsz PRED GPREG REG GPREG
-          minsz PRED REG GPREG IMM6
-          minsz PRED GPREG REG IMM6
-        Signed minimum with a quirk.
-            signed SRC1, SRC2
-            if SRC1 > SRC2
-                DST := SRC2
-            else
-                DST := max(SRC1, 0)
-            endif
-            PDST := SRC1 > SRC2
-        Delay: immediate
-    
-    0x0d: [clampsex PDST DST SRC1 SRC2]
-          clampsex PRED REG GPREG GPREG
-          clampsex PRED GPREG REG GPREG
-          clampsex PRED REG GPREG IMM6
-          clampsex PRED GPREG REG IMM6
-        Clamp SRC1 to -2**SRC2..2**SRC2-1. If SRC1 is not in the interval, DST becomes the closer interval boundary. Otherwise DST becomes SRC1.
-        PDST states whether DST is different from SRC1
-            signed SRC1
-            if SRC1 < 0
-                DST := (-(2 ** SRC2)) | SRC1
-            else
-                DST := ((2 ** SRC1) - 1) & SRC1
-            end
-            PDST := DST == SRC1
-        Delay: immediate
-    
-    0x0e: [sex PDST DST SRC1 SRC2]
-          sex PRED REG GPREG GPREG
-          sex PRED GPREG REG GPREG
-          sex PRED REG GPREG IMM6
-          sex PRED GPREG REG IMM6
-        Sign extend all bits from SRC2 and higher (truncate SRC1 to SRC2 bits, then cast it back with sign to 16 bits).
-        PDST is 1 when DST is negative, 0 otherwise.
-            if SRC1 & (2 ** SRC2)
-                DST := (-(2 ** SRC2)) | SRC1
-            else
-                DST := ((2 ** SRC1) - 1) & SRC1
-            end
-            PDST := DST < 0
-        Delay: immediate
-    
-    
-    Unverified instructions (not present on vp2):
-    
-    0x6f: [div2s DST SRC]
-          div2s REG REG
-        Signed division by 2, round to 0
-            signed SRC
-            if SRC < 0
-                DST := ceil(SRC / 2)
-            else
-                DST := floor(SRC / 2)
-            endif
-	    PRED := DST < 0
-        Not present on vp2
-    
-    0x7d: [min DST SRC1 SRC2]
-          min REG REG GPREG
-          min REG REG IMM?
-        Minimum.
-        XXX: signed?
-            DST := min(SRC1, SRC2)
-        Present on vp3
-        Not present on vp2?
-        Delay: immediate
-    
-    0x7e: [max DST SRC1 SRC2]
-          max REG REG GPREG
-          max REG REG IMM?
-        Maximum.
-        XXX: signed?
-            DST := max(SRC1, SRC2)
-        Present on vp3
-        Not present on vp2?
-        Delay: immediate
-        
-        
-* Bit manipulation:
-    0x10: [bset DST SRC1 SRC2]
-          bset REG GPREG GPREG
-          bset GPREG REG GPREG
-          bset REG GPREG IMM4
-          bset GPREG REG IMM4
-        Set bit SRC2 in SRC1.
-            DST := SRC1 | (1 << SRC1)
-            PDST := DST & 1
-        Delay: immediate
-    
-    0x11: [bclr DST SRC1 SRC2]
-          bclr REG GPREG GPREG
-          blcr GPREG REG GPREG
-          bclr REG GPREG IMM4
-          blcr GPREG REG IMM4
-        Clear bit SRC2 in SRC1.
-            DST := SRC1 & ~(1 << SRC1)
-            PDST := DST & 1
-        Delay: immediate
+== Swapping reg halves: hswap ==
 
-    0x12: [btest PDST SRC1 SRC2]
-          btest PRED REG GPREG
-          btest PRED REG IMM6
-            PDST := (SRC1 >> SRC2) & 1
-        Delay: immediate
+hswap, like the fµc instruction of the same name, rotates a value by half its
+size, which is always 8 bits for vµc.
 
-    0x14: [rot8 DST SRC]
-          rot8 REG GPREG
-          rot8 GPREG REG
-        Swap bytes.
-            DST := ((SRC & 0xff) << 8) | (SRC >> 8)
-            PDST := DST & 1
-        Delay: immediate
-    
-    0x15: [shl PDST DST SRC1 SRC2]
-          shl PRED REG GPREG GPREG
-          shl PRED GPREG REG GPREG
-          shl PRED REG GPREG IMM4
-          shl PRED GPREG REG IMM4
-        Assigns DST value of SRC1 shifted left by SRC2 bits.
-        PDST carries the value of last shifted out bit.
-            DST := SRC1 << SRC2
-            PDST := ((SRC1 << SRC2) >> 32) & 1
-        Delay: immediate
-        
-    0x16: [shr PDST DST SRC1 SRC2]
-          shr PRED REG GPREG GPREG
-          shr PRED GPREG REG GPREG
-          shr PRED REG GPREG IMM4
-          shr PRED GPREG REG IMM4
-        Assigns DST value of SRC1 shifted right by SRC2 bits.
-        PDST carries the value of last shifted out bit.
-            DST := SRC1 >> SRC2
-            PDST := ((SRC1 >> SRC2) << 1) & 1
-        Delay: immediate
-    
-    0x17: [sar DST SRC1 SRC2]
-          shr PRED REG GPREG GPREG
-          shr PRED GPREG REG GPREG
-          shr PRED REG GPREG IMM4
-          shr PRED GPREG REG IMM4
-        Assigns DST value of SRC1 shifted right by SRC2 bits, preserving the sign bit.
-        PDST carries the value of last shifted out bit.
-            if SRC1 < 0
-                DST := (0xffff0000 | SRC1) >> SRC2
-            else
-                DST := SRC1 >> SRC2
-            endif
-            PDST := ((SRC1 >> SRC2) << 1) & 1
-        Delay: immediate
-        
-* Logical arithmetics:
-    0x08: [and DST SRC1 SRC2]
-          and REG GPREG GPREG
-          and GPREG REG GPREG
-          and REG GPREG IMM6
-          and GPREG REG IMM6
-            DST := SRC1 & SRC2
-            PDST := DST & 1
-        Delay: immediate
-    
-    0x09: [or DST SRC1 SRC2]
-          or REG GPREG GPREG
-          or GPREG REG GPREG
-          or REG GPREG IMM6
-          or GPREG REG IMM6
-            DST := SRC1 | SRC2
-            PDST := DST & 1
-        Delay: immediate
-    
-    0x0a: [xor DST SRC1 SRC2]
-          xor REG GPREG GPREG
-          xor GPREG REG GPREG
-          xor REG GPREG IMM6
-          xor GPREG REG IMM6
-            DST := SRC1 ^ SRC2
-            PDST := DST & 1
-        Delay: immediate
-    
-    0x0b: [not DST SRC]
-          not REG GPREG
-          not GPREG REG
-            DST := ~SRC
-            PDST := DST & 1
-        Delay: immediate
+Instructions:
+	hswap pdst, dst, src1		OP=10100
+Opcode: base opcode, OP as above
+Operation:
+	result = src1 >> 8 | src1 << 8;
+	dst = result;
+	cycle;
+	pdst = result & 1;
+Execution time: 1 cycle for dst write, 2 cycles for pdst write
+Predicate output: bit 0 of the result
 
-        
-* Lookup table:
-    0x1c: [lut PDST DST SRC1 SRC2]
-          lut PRED REG GPREG GPREG
-          lut PRED GPREG REG GPREG
-          lut PRED REG GPREG IMM6
-          lut PRED GPREG REG IMM6
-	Loads DST with a value of lookup table selected by SRC2 at index selected by SRC1. Table selection is 4-bit.
-	Table 0: mvx, index is 1-bit. if index is 0, returns $mvxl0[$spidx], otherwise $mvxl1[$spidx]
-	Table 1: mvy, index is 1-bit. if index is 0, returns $mvyl0[$spidx], otherwise $mvyl1[$spidx]
-	Table 2: ref, index is 1-bit. if index is 0, returns $refl0[$spidx], otherwise $refl1[$spidx]
-	Table 3: s22, index is 1-bit. if index is 0, returns $sr22[$spidx], otherwise $sr23[$spidx]
-	Table 4: mvxns, index is 1-bit. if $mbtype is 0x7f [P_SKIP], returns 0, otherwise same as mvx
-	Table 5: mvyns, index is 1-bit. if $mbtype is 0x7f [P_SKIP], returns 0, otherwise same as mvy
-	Table 6: refns, index is 1-bit. if $mbtype is 0x7f [P_SKIP], returns 0, otherwise same as ref
-	Table 7: s22ns, index is 1-bit. if $mbtype is 0x7f [P_SKIP], returns 0, otherwise same as s22
-	Table 8: pcnt, index is 3-bit. If index is 0-3, returns subpartition count of given partition index. Otherwise, returns partition count of the macroblock.
-	Table 9: spidx, indexing is two-dimensional, with first index being 2-bit and taken from bits 0-1 of SRC2, second index being 2-bit and taken from bits 8-9 of SRC2. the first index signifies partition index, while the second signifies a subpartition index. If partition index is less than pcnt[4] and subpartition index is less than subpcnt[partidx], returns $spidx value corresponding to given partition index. Otherwise returns junk.
-	Table 0xa: pnext, indexing is two-dimensional, with first index being 3-bit and taken from bits 0-2 of SRC2, second index being 2-bit and taken from bits 8-9 of SRC2. the first index signifies partition index, while the second signifies a subpartition index. If partition index is less than pcnt[4], returns two-part index of the next subpartition in this partition, or the first subpartition of the next partition in macroblock if already at last subpartition, or pcnt[4] if already at last subpartition of last partition. The returned index is in the same format as input index. Additionally, predicate output is set if the transition was to the next subpartition within a partition, cleared if the transition was between partitions or out of the last partition.
-	Table 0xb: pmode, index is 2-bit. If index is less then pcnt[4] and $mbtype is inter-predicted, returns inter prediction mode used for the given partition index, otherwise returns 0. The prediction modes are: 0 for direct prediction, 1 for L0 prediction, 2 for L1 prediction, 3 for Bi prediction.
-	Tables 0xc-0xf: unused, always return 0.
-	    switch (SRC2 & 0xf) {
-		    case 0: r = (SRC1&1 ? $mvxl1 : $mvxl0); break;
-		    case 1: r = (SRC1&1 ? $mvyl1 : $mvyl0); break;
-		    case 2: r = (SRC1&1 ? $refl1 : $refl0); break;
-		    case 3: r = (SRC1&1 ? $sr23 : $sr22); break;
-		    case 4: if ($mbtype == 0x7f) r = 0; else r = (SRC1&1 ? $mvxl1 : $mvxl0); break;
-		    case 5: if ($mbtype == 0x7f) r = 0; else r = (SRC1&1 ? $mvyl1 : $mvyl0); break;
-		    case 6: if ($mbtype == 0x7f) r = 0; else r = (SRC1&1 ? $refl1 : $refl0); break;
-		    case 7: if ($mbtype == 0x7f) r = 0; else r = (SRC1&1 ? $sr23 : $sr22); break;
-		    case 8:
-			    if ((SRC2&7) < 4) {
-				    if (mbpartcnt($mbtype) < 4)
-					    r = 1;
-				    else if ($mbtype == 0 || $mbtype == 0x19) /* I_NxN or I_PCM */
-					    r = ($mbflags[3:3] ? 1 : 4); /* transform_size_8x8_flag */
-				    else
-					    r = submbpartcnt(($submbtype >> ((SRC2 & 3) * 4)) & 0xf);
-			    } else {
-				    r = mbpartcnt($mbtype);
-			    }
-			    break;
-		    case 9:
-			    if (mbpartmode($mbtype) == 16x8)
-				    r = (SRC2 & 1) << 3;
-			    else
-				    r = (SRC2 & 3) << 2;
-			    if (submbpartmode($submbtype >> ((r >> 2) * 4)) == 8x4)
-				    r |= (SRC2 >> 8 & 1) << 1;
-			    else
-				    r |= (SRC2 >> 8 & 3);
-			    break;
-		    case 0xa:
-			    if ((SRC2&7) < 4) {
-				    if (mbpartcnt($mbtype) < 4)
-					    c = 1;
-				    else if ($mbtype == 0 || $mbtype == 0x19) /* I_NxN or I_PCM */
-					    c = ($mbflags[3:3] ? 1 : 4); /* transform_size_8x8_flag */
-				    else
-					    c = submbpartcnt(($submbtype >> ((SRC2 & 3) * 4)) & 0xf);
-			    } else {
-				    c = mbpartcnt($mbtype);
-			    }
-			    sp = SRC2 >> 8 & 3;
-			    p = SRC2 & 3;
-			    sp++;
-			    if (sp >= c) {
-				    p++;
-				    sp = 0;
-			    }
-			    r = sp << 8 | p;
-			    break;
-		    case 0xb:
-			    r = submbpredmode(SRC2 & 3);
-			    break;
-		    default:
-			    r = 0;
-			    break;
-	    }
-	    DST = r;
-	    if ((SRC2 & 0xf) == 0xa)
-		    PDST = (r >> 8 & 3) != 0;
-	    else
-		    PDST = r & 1;
-        Blob seems to use the predicate [5c]. 0x100 above is sometimes 0x200
-        Delay: immediate
+
+== Shift instructions: shl, shr, sar ==
+
+shl does a left shift, shr does a logical right shift, sar does an arithmetic
+right shift.
+
+Instructions:
+	shl pdst, dst, src1, src2	OP=10101
+	shr pdst, dst, src1, src2	OP=10110
+	sar pdst, dst, src1, src2	OP=10111
+Opcode: base opcode, OP as above
+Operation:
+	shift = src2 & 0xf;
+	if (op == shl) {
+		result = src1 << shift;
+		presult = result >> 16 & 1;
+	}
+	if (op == shr) {
+		result = src1 >> shift;
+		if (shift != 0) {
+			presult = presult = src1 >> (shift - 1) & 1;
+		} else {
+			presult = 0;
+		}
+	}
+	if (op == sar) {
+		result = SEX(src1) >> shift;
+		if (shift != 0) {
+			presult = presult = src1 >> (shift - 1) & 1;
+		} else {
+			presult = 0;
+		}
+	}
+	dst = result;
+	cycle;
+	pdst = presult;
+Execution time: 1 cycle for dst write, 2 cycles for pdst write
+Predicate output: the last bit shifted out
+
+
+== Bitwise instructions: and, or, xor, not ==
+
+No comment.
+
+Instructions:
+	and pdst, dst, src1, src2	OP=11000
+	or pdst, dst, src1, src2	OP=11001
+	xor pdst, dst, src1, src2	OP=11010
+	not pdst, dst, src1		OP=11011
+Opcode: base opcode, OP as above
+Operation:
+	if (op == and) result = src1 & src2;
+	if (op == or) result = src1 | src2;
+	if (op == xor) result = src1 ^ src2;
+	if (op == not) result = ~src1;
+	dst = result;
+	cycle;
+	pdst = result & 1;
+Execution time: 1 cycle for dst write, 2 cycles for pdst write
+Predicate output: bit 0 of the result
+
+
+== Table lookup: lut ==
+
+Performs a lookup of src1 in the lookup table selected by low 4 bits of src2.
+The tables are codec-specific and generated by hardware from the current
+contents of the video special registers.
+
+[XXX: recheck this instruction on VP3 and other codecs]
+
+Tables 0-3 are an alternate way of accessing H.264 inter prediction registers
+[$sr16-$sr23]. The table index is 1-bit. Index 0 selects the l0 register,
+index 1 selects the l1 register. Table 0 is $mvxl* registers, 1 is $mvyl*, 2
+is $refl*, 3 is $rpil*.
+
+Tables 4-7 behave like tables 0-3, except the lookup returns 0 if $mbtype is
+equal to 0x7f [P_SKIP].
+
+Table 8, known as pcnt, is used to look up partition and subpartition counts.
+The index is 3-bit. Indices 0-3 return the subpartition count of corresponding
+partition, while indices 4-7 return the partition count of the macroblock.
+
+Tables 9 and 10 are indexed in a special manner: the index selects a partition
+and a subpartition. Bits 0-7 of the index are partition index, bits 8-15 of
+the index are subpartition index. The partition and subpartition indices
+bahave as in the H.264 spec: valid indices are 0, 0-1, or 0-3 depending on the
+partitioning/subpartitioning mode.
+
+Table 9, known as spidx, translates indices of the form given above into
+$spidx values. If both partition and subpartition index are valid for the
+current partitioning and subpartitioning mode, the value returned is the value
+that has to be poked into $spidx to access the selected [sub]partition.
+Otherwise, junk may be returned.
+
+Table 10, known as pnext, advances the partition/subpartition index to the
+next valid subpartition or partition. The returned value is an index in the
+same format as the input index. Additionally, the predicate output is set
+if the partition index was not incremented [transition to the next
+subpartition of a partition], cleared if the partition index was incremented
+[transition to the first subpartition of the next partition].
+
+Table 11, known as pmode, returns the inter prediction mode for a given
+partition. The index is 2-bit and selects the partition. If index is less then
+pcnt[4] and $mbtype is inter-predicted, returns inter prediction mode,
+otherwise returns 0. The prediction modes are:
+ 0 direct
+ 1 L0
+ 2 L1
+ 3 Bi
+
+Tables 12-15 are unused and always return 0. [XXX: 12 used for VC-1 on VP3]
+
+Instructions:
+	lut pdst, dst, src1, src2	OP=11100
+Opcode: base opcode, OP as above
+Operation:
+	/* helper functions */
+	int pcnt() {
+		switch ($mbtype) {
+			case 0:		/* I_NxN */
+			case 0x19:	/* I_PCM */
+				return 4;
+			case 1..0x18:	/* I_16x16_* */
+				return 1;
+			case 0x20:	/* P_L0_16x16 */
+				return 1;
+			case 0x21:	/* P_L0_L0_16x8 */
+			case 0x22:	/* P_L0_L0_8x16 */
+				return 2;
+			case 0x23:	/* P_8x8 */
+			case 0x24:	/* P_8x8ref0 */
+				return 4;
+			case 0x40:	/* B_Direct_16x16 */
+			case 0x41:	/* B_L0_16x16 */
+			case 0x42:	/* B_L1_16x16 */
+			case 0x43:	/* B_Bi_16x16 */
+				return 1;
+			case 0x44:	/* B_L0_L0_16x8 */
+			case 0x45:	/* B_L0_L0_8x16 */
+			case 0x46:	/* B_L1_L1_16x8 */
+			case 0x47:	/* B_L1_L1_8x16 */
+			case 0x48:	/* B_L0_L1_16x8 */
+			case 0x49:	/* B_L0_L1_8x16 */
+			case 0x4a:	/* B_L1_L0_16x8 */
+			case 0x4b:	/* B_L1_L0_8x16 */
+			case 0x4c:	/* B_L0_Bi_16x8 */
+			case 0x4d:	/* B_L0_Bi_8x16 */
+			case 0x4e:	/* B_L1_Bi_16x8 */
+			case 0x4f:	/* B_L1_Bi_8x16 */
+			case 0x50:	/* B_Bi_L0_16x8 */
+			case 0x51:	/* B_Bi_L0_8x16 */
+			case 0x52:	/* B_Bi_L1_16x8 */
+			case 0x53:	/* B_Bi_L1_8x16 */
+			case 0x54:	/* B_Bi_Bi_16x8 */
+			case 0x55:	/* B_Bi_Bi_8x16 */
+				return 2;
+			case 0x56:	/* B_8x8 */
+				return 4;
+			case 0x7e:	/* B_SKIP */
+				return 4;
+			case 0x7f:	/* P_SKIP */
+				return 1;
+			/* in other cases returns junk */
+		}
+	}
+	int spcnt(int idx) {
+		if (pcnt() < 4) {
+			return 1;
+		} else if ($mbtype == 0 || $mbtype == 0x19) { /* I_NxN or I_PCM */
+			return ($mbflags[3:3] ? 1 : 4); /* transform_size_8x8_flag */
+		} else {
+			smt = $submbtype >> (idx * 4)) & 0xf;
+			/* XXX */
+		}
+	}
+	int mbpartmode_16x8() {
+		switch ($mbtype) {
+			case 0x21: /* P_L0_L0_16x8 */
+			case 0x44: /* B_L0_L0_16x8 */
+			case 0x46: /* B_L1_L1_16x8 */
+			case 0x48: /* B_L0_L1_16x8 */
+			case 0x4a: /* B_L1_L0_16x8 */
+			case 0x4c: /* B_L0_Bi_16x8 */
+			case 0x4e: /* B_L1_Bi_16x8 */
+			case 0x50: /* B_Bi_L0_16x8 */
+			case 0x52: /* B_Bi_L1_16x8 */
+			case 0x54: /* B_Bi_Bi_16x8 */
+				return 1;
+			default:
+				return 0;
+		}
+	}
+	int submbpartmode_8x4(int idx) {
+		smt = $submbtype >> (idx * 4) & 0xf;
+		switch(submbtype) {
+			/* XXX */
+		}
+	}
+	int mbpartpredmode(int idx) {
+		/* XXX */
+	}
+	/* end of helper functions */
+	table = src2 & 0xf;
+	if (table < 8) {
+		which = src1 & 1;
+		switch (table & 3) {
+			case 0: result = (which ? $mvxl1 : $mvxl0); break;
+			case 1: result = (which ? $mvyl1 : $mvyl0); break;
+			case 2: result = (which ? $refl1 : $refl0); break;
+			case 3: result = (which ? $rpil1 : $rpil0); break;
+		}
+		if ((table & 4) && $mbtype == 0x7f)
+			result = 0;
+		presult = result & 1;
+	} else if (table == 8) {	/* pcnt */
+		idx = src1 & 7;
+		if (idx < 4) {
+			result = spcnt(idx);
+		} else {
+			result = pcnt();
+		}
+	} else if (table == 9 || table == 10) {
+		pidx = src1 & 7;
+		sidx = src1 >> 8 & 3;
+		if (table == 9) {	/* spidx */
+			if (mbpartmode_16x8())
+				resp = (pidx & 1) << 1;
+			else
+				resp = (pidx & 3);
+			if (submbpartmode_8x4(resp >> 2))
+				ress = (sidx & 1) << 1;
+			else
+				ress = (sidx & 3);
+			result = resp << 2 | ress;
+			presult = result & 1;
+		} else {		/* pnext */
+			if (pidx < 4) {
+				c = spcnt(idx);
+			} else {
+				c = pcnt();
+			}
+			ress = sidx + 1;
+			if (ress >= c) {
+				resp = (pidx & 3) + 1;
+				ress = 0;
+			} else {
+				resp = pidx & 3;
+			}
+			result = ress << 8 | resp;
+			presult = ress != 0;
+		}
+	} else if (table == 10) {	/* pmode */
+		result = mbpartpredmode(src1 & 3);
+		presult = result & 1;
+	} else {
+		result = 0;
+		presult = 0;
+	}
+	dst = result;
+	cycle;
+	pdst = presult;
+Execution time: 1 cycle for dst write, 2 cycles for pdst write
+Predicate output:
+	Tables 0-9 and 11-15: bit 0 of the result
+	Table 10: 1 if transition to next subpartition in a partition, 0 if
+	          transition to next partition
+
+
+== Minmax instructions: min, max ==
+
+These instructions perform the signed min/max operations.
+
+Instructions:
+	min pdst, dst, src1, src2	OP=11101 [VP3+ only]
+	max pdst, dst, src1, src2	OP=11110 [VP3+ only]
+Opcode: base opcode, OP as above
+Operation:
+	if (op == min) which = (SEX(src2) < SEX(src1));
+	if (op == max) which = (SEX(src2) >= SEX(src1));
+	dst = (which ? src2 : src1);
+	cycle;
+	pdst = which;
+Execution time: 1 cycle for dst write, 2 cycles for pdst write
+Predicate output: 0 if src1 is selected as the result, 1 if src2 is selected
+
+
 
         
 ** Override instructions **
