@@ -152,40 +152,40 @@ For special opcodes, the OC bits determine the opcode class, and OP bits
 further determine the opcode inside that class. The classes and opcodes are:
 
  - OC 000: control flow
-  - 00000: bra		[branch form]
-  - 00010: call		[branch form]
-  - 00011: ret		[simple form]
-  - 00100: sleep	[simple form]
-  - 00101: wstc		[immediate form]
+  - 00000: bra		[branch form]		branch
+  - 00010: call		[branch form]		call
+  - 00011: ret		[simple form]		return
+  - 00100: sleep	[simple form]		sleep
+  - 00101: wstc		[immediate form]	wait for status bit clear
   - 00110: ??? [XXX]	[immediate form]
  - OC 001: io control
-  - 00000: clicnt	[simple form]
+  - 00000: clicnt	[simple form]		clear instruction counter
   - 00001: ??? [XXX]	[simple form]
   - 00010: ??? [XXX]	[simple form]
   - 00011: ??? [XXX]	[simple form]
-  - 00100: mbiread	[simple form]
+  - 00100: mbiread	[simple form]		macroblock input read
   - 00101: ??? [XXX]	[simple form]
   - 00110: ??? [XXX]	[simple form]
-  - 01000: mbinext	[simple form]
-  - 01001: mvsread	[simple form]
-  - 01010: mvswrite	[simple form]
+  - 01000: mbinext	[simple form]		macroblock input next
+  - 01001: mvsread	[simple form]		MVSURF read
+  - 01010: mvswrite	[simple form]		MVSURF write
   - 01011: ??? [XXX]	[simple form]
   - 01100: ??? [XXX]	[simple form]
  - OC 010: predicate manipulation
-  - xxx00: and		[predicate form]
-  - xxx01: or		[predicate form]
-  - xxx10: xor		[predicate form]
-  - xxx11: nop		[simple form]
+  - xxx00: and		[predicate form]	and
+  - xxx01: or		[predicate form]	or
+  - xxx10: xor		[predicate form]	xor
+  - xxx11: nop		[simple form]		no operation
  - OC 100: load/store
-  - xxxx0: st		[store form]
-  - xxxx1: ld		[load form]
- - OC 101: multiplication
-  - 00000: umul		[mul form]
-  - 00001: smul		[mul form]
-  - 00010: srnd		[srnd form]
-  - 00100: ??? [XXX]	[srnd form]
-  - 01000: ??? [XXX]	[srnd form]
-  - 01100: ??? [XXX]	[srnd form]
+  - xxxx0: st		[store form]		store
+  - xxxx1: ld		[load form]		load
+ - OC 101: long arithmetic
+  - 00000: lmulu	[long binary form]	long multiply unsigned
+  - 00001: lmuls	[long binary form]	long multiply signed
+  - 00010: lsrr		[long unary form]	long shift right with round
+  - 00100: ladd		[long unary form]	[VP3+ only]
+  - 01000: lsar		[long unary form]	[VP3+ only]
+  - 01100: ldivu	[long unary form]	[VP4 only]
 
 All main slot opcodes can be predicated by an arbitrary $p register. The PE
 bit enables predication. If PE bit is 1, the main slot instruction will only
@@ -250,8 +250,8 @@ The special opcodes have the following operands:
  - predicate form:	spdst, psrc1, psrc2
  - store form:		space[src1 + stoff], src2
  - load form:		dst, space[src1 + ldoff]
- - mul form:		src1, src2
- - srnd form:		src2
+ - long binary form:	src1, src2
+ - long unary form:	src2
 
 The operands and their encodings are:
  - src1, src2, dst: like for base opcodes
@@ -335,8 +335,8 @@ The operands and their encodings are:
    value to be pushed onto the stack, reading this register pops a value off
    the stack and returns it.
  - $sr11/$rpitab: D[] address of refidx -> dpb index translation table
- - $sr12/$arthi: Arithmetic result high word register
- - $sr13/$artlo: Arithmetic result low word register
+ - $sr12/$lhi: long arithmetic high word register - RO on VP2, RW on VP3+
+ - $sr13/$llo: long arithmetic low word register - RO on VP2, RW on VP3+
  - $sr14/$pred: predicates - aliases the $p register file, bit X corresponds
    to $pX register
  - $sr15/$icnt: instruction/cycle counter (?: check nops, effect of delays)
@@ -994,6 +994,65 @@ Execution time: 1 cycle for dst write, 2 cycles for pdst write
 Predicate output: 0 if src1 is selected as the result, 1 if src2 is selected
 
 
+== Long multiplication instructions: lmulu, lmuls ==
+
+These instructions perform signed and unsigned 16x11 -> 32 bit multiplication.
+src1 holds the 16-bit source, while low 11 bits of src2 hold the 11-bit
+source. The result is written to $lhi:$llo.
+
+Instructions:
+	lmulu src1, src2		OP=00000
+	lmuls src1, src2		OP=00001
+Opcode: special opcode with OC=101, OP as above
+Operation:
+	if (op == umul) {
+		result = src1 * (src2 & 0x7ff);
+	if (op == smul) {
+		/* sign extension from 11-bit number */
+		s2 = src2 & 0x7ff;
+		if (s2 & 0x400)
+			s2 -= 0x800;
+		result = SEX(src1) * s2;
+	}
+	/* XXX: delay */
+	$llo = result;
+	$lhi = result >> 16;
+Execution time: XXX
+
+
+== Long arithmetic unary instructions: lsrr, ladd, lsar, ldivu ==
+
+These instruction operate on the 32-bit quantity in $lhi:$llo. ladd adds
+a signed 16-bit quantity to it. lsar shifts it right arithmetically by
+a given amount. ldivu does an unsigned 32/16 -> 32 division. lsrr divides
+it by 2^(src2 + 1), rounding to nearest with ties rounded up.
+
+Instructions:
+	lsrr src2		OP=00010
+	ladd src2		OP=00100 [VP3+ only]
+	lsar src2		OP=01000 [VP3+ only]
+	ldivu src2		OP=01100 [VP4 only]
+Opcode: special opcode with OC=101, OP as above
+Operation:
+	val = SEX($lhi) << 16 | $llo;
+	if (op == lsrr) {
+		bit = src2 & 0x1f;
+		val += 1 << bit;
+		val >>= (bit + 1);
+	}
+	if (op == ladd) val += SEX(src2);
+	if (op == lsar) val >>= src2 & 0x1f;
+	if (op == ldivu)
+		val &= 0xffffffff;
+		if (src2)
+			val /= src2;
+		else
+			val = 0xffffffff;
+	}
+	/* XXX: delay */
+	$llo = val;
+	$lhi = val >> 16;
+Execution time: XXX
 
         
 ** Override instructions **
@@ -1134,42 +1193,6 @@ Known override instructions control machine state, access memory spaces, externa
         Delay: immediate
         
         
-* Arithmetic
-    0xa0: [mul SRC1 SRC2]
-          absmul GPREG GPREG
-            if SRC2 >= 2 ** 10
-                $arthi:$artlo := 0
-            else
-                $arthi:$artlo := SRC1 * SRC2
-            endif
-        Unsigned multiplication. SRC2 is 10 bit unsigned.
-        "Override" opcode.
-    
-    0xa1: [muls SRC1 SRC2]
-          muls GPREG GPREG
-            signed SRC1, SRC2
-            if SRC2 >= 2 ** 10 or SRC2 < -(2 ** 10)
-                $arthi:$artlo := 0
-            else
-                $arthi:$artlo := SRC1 * sex(SRC2, 10)
-            endif
-        Signed multiplication. SRC2 is 10 bit signed.
-        "Override" opcode.
-        Delay: ???
-    
-    0xa2: [shift SRC]
-          shift GPREG
-          shift IMM4
-            if SRC >= 2 ** 10
-                SHIFT := 1
-            else
-                SHIFT := SRC + 1
-            endif
-            $arthi:artlo := $arthi:$artlo >> SHIFT
-        Shift. XXX: verify what happens if SRC exceeds limit, check signedness.
-        Delay: ???
-    
-
 * Unknown
     0x83: I/O? Memory load type
         Memory space unknown, labeled F.

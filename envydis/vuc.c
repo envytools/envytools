@@ -27,6 +27,8 @@
 
 #define VP2 1
 #define VP3 2
+#define VP4 4
+#define VP3P VP3|VP4
 
 /*
  * Code target field
@@ -80,8 +82,8 @@ static struct sreg sreg_sr[] = {
 	{ 9, "cspos" },
 	{ 10, "cstop" },
 	{ 11, "rpitab" },
-	{ 12, "arthi" },
-	{ 13, "artlo" },
+	{ 12, "lhi" },
+	{ 13, "llo" },
 	{ 14, "pred" },
 	{ 15, "icnt" },
 	{ 16, "mvxl0" },
@@ -325,12 +327,12 @@ static struct insn tabsop[] = {
 	{ 0x2800008f, 0x280000ff, N("ld7"), DST, B7MEMLDIS },
 
 	/* long arithmetic block */
-	{ 0x000000a0, 0x000000ff, N("umul"), SRC1, T(arithsrc2) },
-	{ 0x000000a1, 0x000000ff, N("smul"), SRC1, T(arithsrc2) },
-	{ 0x000000a2, 0x000000ff, N("srnd"), T(arithsrc2) },
-	{ 0x000000a4, 0x000000ff, U("oa4"), T(arithsrc2) }, /* VC1 */
-	{ 0x000000a8, 0x000000ff, U("oa8"), T(arithsrc2) }, /* VC1 */
-	{ 0x000000ac, 0x000000ff, U("oac"), T(arithsrc2) }, /* 263 */
+	{ 0x000000a0, 0x000000ff, N("lmulu"), SRC1, T(arithsrc2) },
+	{ 0x000000a1, 0x000000ff, N("lmuls"), SRC1, T(arithsrc2) },
+	{ 0x000000a2, 0x000000ff, N("lsrnd"), T(arithsrc2) },
+	{ 0x000000a4, 0x000000ff, N("ladd"), T(arithsrc2), .vartype = VP3P },
+	{ 0x000000a8, 0x000000ff, N("lsar"), T(arithsrc2), .vartype = VP3P },
+	{ 0x000000ac, 0x000000ff, N("ldivu"), T(arithsrc2), .vartype = VP4 },
 
 	{ 0, 0, OOPS },
 };
@@ -360,7 +362,7 @@ static struct insn tabbop[] = {
 	{ 0x0000000d, 0x0000001f, N("clamps"), T(pmod), T(dst), T(src1), T(src2) },
 	{ 0x0000000e, 0x0000001f, N("sext"), T(pmod), T(dst), T(src1), T(src2) },
 	{ 0x0000000f, 0x0000001f, N("setzero"), T(pmod), T(src1), T(src2), .vartype = VP2 },
-	{ 0x0000000f, 0x0000001f, N("div2s"), T(pmod), T(dst), T(src1), .vartype = VP3 },
+	{ 0x0000000f, 0x0000001f, N("div2s"), T(pmod), T(dst), T(src1), .vartype = VP3P },
 
 	/* bit manipulation */
 	{ 0x00000010, 0x0000001f, N("bset"), T(pmod), T(dst), T(src1), T(src2) },
@@ -402,7 +404,7 @@ static struct insn tabop[] = {
 };
 
 static struct insn tabroot[] = {
-	{ 0, 0, OP64, T(op), .vartype = VP3 },
+	{ 0, 0, OP64, T(op), .vartype = VP3P },
 	{ 0xffc0000000ull, 0xffc0000000ull, OP64, T(op), .vartype = VP2 },
 	{ 0x0000000000ull, 0x0200000000ull, OP64, RBRPRED, N("rbra"), RBRTARG, T(op), .vartype = VP2 },
 	{ 0x0200000000ull, 0x0200000000ull, OP64, N("not"), RBRPRED, N("rbra"), RBRTARG, T(op), .vartype = VP2 },
@@ -412,6 +414,7 @@ static struct insn tabroot[] = {
 static const struct disvariant vuc_vars[] = {
     "vp2", VP2,
     "vp3", VP3,
+    "vp4", VP4,
 };
 
 const struct disisa vuc_isa_s = {
