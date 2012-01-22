@@ -1,7 +1,7 @@
 TOC
 
 0. Intruduction
-1. The opcode format 
+1. The opcode format
 2. Special registers
 3. Instruction reference
 
@@ -43,6 +43,9 @@ The vµc code resides in the code space, separate from the above spaces. The
 code space is a dedicated SRAM of 0x800 instruction words. An instruction word
 consists of 40 bits on VP2, 30 bits on VP3.
 
+
+= The delays =
+
 The vµc lacks interlocks - on every cycle when vµc microcprocessor is active
 and not sleeping/waiting, one instruction begins execution. Most instructions
 finish in one cycle. However, when an instruction takes more than one cycle to
@@ -50,6 +53,73 @@ finish, vµc will continue to fetch and execute subsequent instructions even
 if they have dependencies on the current instruction - it is thus required to
 manually insert nops in the code or schedule instructions to avoid such
 situations.
+
+An X-cycle instruction happens in three phases:
+ - cycle 0: source read - the inputs to the instruction are gathered
+ - cycles 0..(X-1): result computation -
+ - cycle X: destination writeout - the results are stored into the destination
+   registers
+
+For example, add $r1 $r2 $r3 is a 1-cycle instruction. On cycle 0, the sources
+are read and the result is computed. On cycle 1, in parallel with executing
+the next instruction, the result is written out to $r1.
+
+The extra cycle for destination writeout means that, in general, it's required
+to have at least 1 unrelated instruction between writing a register and reading
+it. However, vµc implements store-to-load forwarding for some common cases -
+the result value, which is already known on cycle (X-1), is transferred
+directly into the next instruction, if there's a match betwen the next
+instruction's source register index and current instruction's destination
+register index. Load-to-store forwarding happens in the following situations:
+
+ - all $r register reads and writes
+ - all $p register reads and writes, except by accessing them through $pred
+   special register
+ - $lhi/$llo register reads and writes done implicitely by long arithmetic
+   instructions
+
+Load-to-store forwarding does NOT happen in the following situations:
+
+ - $sr register reads and writes
+
+Example 1:
+	add $r1 $r2 $r3
+	add $r4 $r1 $r5
+	no delay needed, load-to-store forwarding happens:
+	cycle 0: $r2 and $r3 read, $r2+$r3 computed
+	cycle 1: $r5 read, previous result read due to l-t-s forwarding match
+		 for $r1, prev+$r5 computed, previous result written to $r1
+	cycle 2: next instruction begins execution, insn 1 result written to
+		 $r5
+
+Example 2 [missing delay]:
+	add $mvxl0 $r2 $r3
+	add $r4 $mvxl0 $r5
+	delay needed, but not supplied - load-to-store forwarding doesn't
+	happen and old value is read:
+	cycle 0: $r2 and $r3 read, $r2+$r3 computed
+	cycle 1: $mvxl0 and $r5 read, $mvxl0+$r5 computed, previous result
+		 written to $mvxl0
+	cycle 2: next instruction begins execution, insn 1 result written to
+		 $r5
+	Code is equivalent to:
+		$r4 = $mvxl0 + $r5;
+		$mvxl0 = $r2 + $r3;
+
+Example 3 [proper delay]:
+	add $mvxl0 $r2 $r3
+	nop
+	add $r4 $mvxl0 $r5
+	delay needed and supplied:
+	cycle 0: $r2 and $r3 read, $r2+$r3 computed
+	cycle 1: nop executes, previous result written to $mvxl0
+	cycle 2: new $mvxl0 and $r5 read, $mvxl0+$r5 computed
+	cycle 3: next instruction begins execution, insn 2 result written to
+		 $r5
+	Code is equivalent to:
+		$mvxl0 = $r2 + $r3;
+		$r4 = $mvxl0 + $r5;
+
 It is possible that two instructions with different write delays will try to
 perform a register write in the same cycle (e.g. ld-nop-mov sequence). If the
 write destinations are different, both writes will happen as expected. If the
@@ -59,6 +129,7 @@ write.
 The branch instructions take two cycles to finish - the instruction after the
 jump [the delay slot] is executed regardless of whether the jump is taken or
 not.
+
 
 = The opcode format =
 
@@ -83,9 +154,9 @@ The opcode bits are:
  8-18: branch target [BTARG]
  20-23: predicate [PRED]
  24-25: extra bits for immediate and $sr [EXT]
- 26: opcode type 0 [OT0] 
+ 26: opcode type 0 [OT0]
  27: source 2 immediate flag [IMMF]
- 28: opcode type 1 [OT1] 
+ 28: opcode type 1 [OT1]
  29: predicate enable flag [PE]
  30-32: relative branch predicate [RBP] - VP2 only
  33: relative branch predicate negation flag [RBN] - VP2 only
@@ -514,7 +585,7 @@ Operation:
 	dst = result;
 	cycle;
 	pdst = result & 1;
-Execution time: 1 cycle for dst write, 2 cycles for pdst write
+Execution time: 1 cycle
 Predicate output: LSB of normal result
 
 Instruction: mov pdst, dst, lsrc
@@ -524,7 +595,7 @@ Operation:
 	dst = result;
 	cycle;
 	pdst = result & 1;
-Execution time: 1 cycle for dst write, 2 cycles for pdst write
+Execution time: 1 cycle
 Predicate output: LSB of normal result
 
 
@@ -551,7 +622,7 @@ Operation:
 	dst = result;
 	cycle;
 	pdst = result & 1;
-Execution time: 1 cycle for dst write, 2 cycles for pdst write
+Execution time: 1 cycle
 Predicate output: LSB of normal result
 
 
@@ -577,7 +648,7 @@ Operation:
 	if (op == setzero) result = src1 == 0 && src2 == 0;
 	cycle;
 	pdst = result;
-Execution time: 2 cycles
+Execution time: 1 cycle
 Predicate output: the comparison result
 
 
@@ -631,7 +702,7 @@ Operation:
 	dst = result;
 	cycle;
 	pdst = presult;
-Execution time: 1 cycle for dst write, 2 cycles for pdst write
+Execution time: 1 cycle
 Predicate output:
 	clamplep, clamps: 1 if clamping happened
 	sext: 1 if result < 0
@@ -653,7 +724,7 @@ Operation:
 	dst = result;
 	cycle;
 	pdst = result < 0;
-Execution time: 1 cycle for dst write, 2 cycles for pdst write
+Execution time: 1 cycle
 Predicate output: 1 if result is negative
 
 
@@ -684,9 +755,7 @@ Operation:
 	}
 	cycle;
 	pdst = presult;
-Execution time:
-	bset, bclr: 1 cycle for dst write, 2 cycles for pdst write
-	btest: 2 cycles
+Execution time: 1 cycle
 Predicate output:
 	bset, bclr: bit 0 of the result
 	btest: the selected bit
@@ -705,7 +774,7 @@ Operation:
 	dst = result;
 	cycle;
 	pdst = result & 1;
-Execution time: 1 cycle for dst write, 2 cycles for pdst write
+Execution time: 1 cycle
 Predicate output: bit 0 of the result
 
 
@@ -744,7 +813,7 @@ Operation:
 	dst = result;
 	cycle;
 	pdst = presult;
-Execution time: 1 cycle for dst write, 2 cycles for pdst write
+Execution time: 1 cycle
 Predicate output: the last bit shifted out
 
 
@@ -766,7 +835,7 @@ Operation:
 	dst = result;
 	cycle;
 	pdst = result & 1;
-Execution time: 1 cycle for dst write, 2 cycles for pdst write
+Execution time: 1 cycle
 Predicate output: bit 0 of the result
 
 
@@ -969,11 +1038,11 @@ Operation:
 	dst = result;
 	cycle;
 	pdst = presult;
-Execution time: 1 cycle for dst write, 2 cycles for pdst write
+Execution time: 1 cycle
 Predicate output:
 	Tables 0-9 and 11-15: bit 0 of the result
 	Table 10: 1 if transition to next subpartition in a partition, 0 if
-	          transition to next partition
+		  transition to next partition
 
 
 == Minmax instructions: min, max ==
@@ -990,7 +1059,7 @@ Operation:
 	dst = (which ? src2 : src1);
 	cycle;
 	pdst = which;
-Execution time: 1 cycle for dst write, 2 cycles for pdst write
+Execution time: 1 cycle
 Predicate output: 0 if src1 is selected as the result, 1 if src2 is selected
 
 
