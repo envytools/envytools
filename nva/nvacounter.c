@@ -257,15 +257,31 @@ void find_pgraphIdle_and_interrupt(int cnum)
 
 	uint32_t r_400500, r_400808, r_40013c;
 
+	printf("<PGRAPH_IDLE/INTERRUPT> /!\\ no drivers should be loaded!\n");
+
+	/* safety check:  */
+	if (nva_rd32(cnum, 0x140) == 1) {
+		printf("You shouldn't run this tool while a driver is running\n");
+		goto error;
+	}
+
+	/* reboot PGRAPH */
+	nva_mask(cnum, 0x200, 0x00201000, 0x00000000);
+	nva_mask(cnum, 0x200, 0x00201000, 0x00201000);
+
 	r_400500 =  nva_rd32(cnum, 0x400500);
 	r_400808 = nva_rd32(cnum, 0x400808);
 	r_40013c = nva_rd32(cnum, 0x40013c);
 
+	/* generate an illegal method IRQ
+	 * that will pull the PGRAP_IDLE signal down and the PGRAPH_INTERRUPT up
+	 *
+	 * neither nouveau or nvidia should be loaded as they would ack the interrupt
+	 * straight away.
+	 */
 	nva_wr32(cnum, 0x400500, 0x10001);
 	nva_wr32(cnum, 0x400808, 0xa00000fc);
 	nva_wr32(cnum, 0x40013c, 0xffffffff);
-
-	printf("<PGRAPH_IDLE/INTERRUPT>\n");
 
 	poll_signals(cnum, signals_idle);
 	diffs = signals_compare(signals_ref, signals_idle);
@@ -292,13 +308,15 @@ void find_pgraphIdle_and_interrupt(int cnum)
 	} else
 		printf("Not found. Please re-run when the GPU is idle.\n");
 
+	/* restore our mess */
 	nva_wr32(cnum, 0x400500, r_400500);
 	nva_wr32(cnum, 0x400808, r_400808);
 	nva_wr32(cnum, 0x40013c, r_40013c);
 
-	/* ACK all the PGRAPH interrupts */
+	/* ACK all PGRAPH's interrupts */
 	nva_wr32(cnum, 0x400100, 0xffffffff);
 
+error:
 	printf("</PGRAPH_IDLE/INTERRUPT>\n\n");
 }
 
