@@ -358,7 +358,7 @@ static struct insn tabbop[] = {
 	/* clips, misc */
 	{ 0x0000000c, 0x0000001f, N("clamplep"), T(pmod), T(dst), T(src1), T(src2) }, // (a > b) ? b : max(a, 0), PRED := SRC1 > SRC2 || SRC1 < 0
 	{ 0x0000000d, 0x0000001f, N("clamps"), T(pmod), T(dst), T(src1), T(src2) }, // clamp to -2^b..2^b-1, PRED := clamped
-	{ 0x0000000e, 0x0000001f, N("sex"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := sign bit
+	{ 0x0000000e, 0x0000001f, N("sext"), T(pmod), T(dst), T(src1), T(src2) }, // PRED := sign bit
 	{ 0x0000000f, 0x0000001f, N("setzero"), T(pmod), T(src1), T(src2), .vartype = VP2 }, // PRED := both args are zero
 	{ 0x0000000f, 0x0000001f, N("div2s"), T(pmod), T(dst), T(src1), .vartype = VP3 }, // signed div by 2, round to 0. Not present on vp2?
 
