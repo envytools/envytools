@@ -262,7 +262,7 @@ void find_pgraphIdle_and_interrupt(int cnum)
 	r_40013c = nva_rd32(cnum, 0x40013c);
 
 	nva_wr32(cnum, 0x400500, 0x10001);
-	nva_wr32(cnum, 0x400808, 0xa000fffc);
+	nva_wr32(cnum, 0x400808, 0xa00000fc);
 	nva_wr32(cnum, 0x40013c, 0xffffffff);
 
 	printf("<PGRAPH_IDLE/INTERRUPT>\n");
@@ -270,7 +270,7 @@ void find_pgraphIdle_and_interrupt(int cnum)
 	poll_signals(cnum, signals_idle);
 	diffs = signals_compare(signals_ref, signals_idle);
 
-	if (diffs.diff_count > 2) {
+	if (diffs.diff_count >= 1) {
 		for (i = 0; i < diffs.diff_count; i++) {
 			uint8_t set, signal;
 
