@@ -39,8 +39,11 @@ struct bitstream {
 	int bitpos;
 	int bytepos;
 	int zero_bytes;
+	int zero_bits;
 	enum vs_type {
+		VS_H261,
 		VS_H262,
+		VS_H263,
 		VS_H264,
 	} type;
 	int hasbyte;

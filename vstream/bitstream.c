@@ -43,6 +43,10 @@ int vs_byte(struct bitstream *str) {
 					str->zero_bytes = 0;
 				}
 				break;
+			case VS_H261:
+			case VS_H263:
+				/* start codes not byte-oriented in these */
+				break;
 			default:
 				abort();
 		}
@@ -88,6 +92,10 @@ int vs_byte(struct bitstream *str) {
 					}
 				}
 				break;
+			case VS_H261:
+			case VS_H263:
+				/* start codes not byte-oriented in these */
+				break;
 			default:
 				abort();
 		}
@@ -101,38 +109,63 @@ int vs_byte(struct bitstream *str) {
 	return 0;
 }
 
+int vs_bit(struct bitstream *str, uint32_t *val) {
+	if (str->dir == VS_ENCODE) {
+		str->curbyte |= *val << str->bitpos;
+		if (!str->bitpos) {
+			if (vs_byte(str))
+				return 1;
+		} else {
+			str->bitpos--;
+		}
+	} else {
+		if (!str->hasbyte) {
+			if (vs_byte(str))
+				return 1;
+		}
+		*val = str->curbyte >> str->bitpos & 1;
+		if (!str->bitpos) {
+			str->hasbyte = 0;
+			str->bitpos = 7;
+		} else {
+			str->bitpos--;
+		}
+	}
+	if (!*val) {
+		str->zero_bits++;
+	} else {
+		str->zero_bits = 0;
+	}
+	return 0;
+}
+
 int vs_u(struct bitstream *str, uint32_t *val, int size) {
 	int i;
-	if (str->dir == VS_ENCODE) {
-		for (i = 0; i < size; i++) {
-			int bit = *val >> (size - 1 - i) & 1;
-			str->curbyte |= bit << str->bitpos;
-			if (!str->bitpos) {
-				if (vs_byte(str))
-					return 1;
-			} else {
-				str->bitpos--;
-			}
-		}
-		return 0;
-	} else {
+	int bit;
+	if (str->dir == VS_DECODE)
 		*val = 0;
-		for (i = 0; i < size; i++) {
-			if (!str->hasbyte) {
-				if (vs_byte(str))
+	for (i = 0; i < size; i++) {
+		bit = *val >> (size - 1 - i) & 1;
+		if (vs_bit(str, &bit)) return 1;
+		*val |= bit << (size - 1 - i);
+		switch (str->type) {
+			case VS_H261:
+				if (str->zero_bits >= 15) {
+					fprintf(stderr, "Too many zero bits in a row\n");
 					return 1;
-			}
-			int bit = str->curbyte >> str->bitpos & 1;
-			*val |= bit << (size - 1 - i);
-			if (!str->bitpos) {
-				str->hasbyte = 0;
-				str->bitpos = 7;
-			} else {
-				str->bitpos--;
-			}
+				}
+				break;
+			case VS_H263:
+				if (str->zero_bits >= 16) {
+					fprintf(stderr, "Too many zero bits in a row\n");
+					return 1;
+				}
+				break;
+			default:
+				break;
 		}
-		return 0;
 	}
+	return 0;
 }
 
 int vs_ue(struct bitstream *str, uint32_t *val) {
@@ -239,40 +272,59 @@ int vs_vlc(struct bitstream *str, uint32_t *val, const struct vs_vlc_val *tab) {
 }
 
 int vs_start(struct bitstream *str, uint32_t *val) {
-	if (str->bitpos != 7) {
-		fprintf (stderr, "Start code attempted at non-bytealigned position\n");
-		return 1;
-	}
-	if (str->dir == VS_ENCODE) {
-		ADDARRAY(str->bytes, 0);
-		ADDARRAY(str->bytes, 0);
-		ADDARRAY(str->bytes, 1);
-		ADDARRAY(str->bytes, *val);
+	if (str->type == VS_H261 || str->type == VS_H263) {
+		int nzbit = (str->type == VS_H261 ? 15 : 16);
+		int nsbit = (str->type == VS_H261 ? 4 : 5);
+		int bit = 0;
+		while (str->zero_bits < nzbit) {
+			if (vs_bit(str, &bit)) return 1;
+			if (bit != 0) {
+				fprintf(stderr, "Found premature 1 bit when searching for a start code!\n");
+				return 1;
+			}
+		}
+		while (bit == 0) {
+			bit = 1;
+			if (vs_bit(str, &bit)) return 1;
+		}
+		if (vs_u(str, val, nsbit)) return 1;
+		return 0;
 	} else {
-		str->zero_bytes--;
-		do {
-			str->zero_bytes++;
+		if (str->bitpos != 7) {
+			fprintf (stderr, "Start code attempted at non-bytealigned position\n");
+			return 1;
+		}
+		if (str->dir == VS_ENCODE) {
+			ADDARRAY(str->bytes, 0);
+			ADDARRAY(str->bytes, 0);
+			ADDARRAY(str->bytes, 1);
+			ADDARRAY(str->bytes, *val);
+		} else {
+			str->zero_bytes--;
+			do {
+				str->zero_bytes++;
+				if (str->bytepos >= str->bytesnum) {
+					fprintf(stderr, "End of bitstream when searching for a start code!\n");
+					return 1;
+				}
+				str->curbyte = str->bytes[str->bytepos++];
+			} while (str->curbyte == 0);
+			if (str->curbyte != 1) {
+				fprintf(stderr, "Found byte %08x when searching for a start code!\n", str->curbyte);
+				return 1;
+			}
+			if (str->zero_bytes < 2) {
+				fprintf(stderr, "Found premature byte %08x when searching for a start code!\n", str->curbyte);
+				return 1;
+			}
 			if (str->bytepos >= str->bytesnum) {
 				fprintf(stderr, "End of bitstream when searching for a start code!\n");
 				return 1;
 			}
 			str->curbyte = str->bytes[str->bytepos++];
-		} while (str->curbyte == 0);
-		if (str->curbyte != 1) {
-			fprintf(stderr, "Found byte %08x when searching for a start code!\n", str->curbyte);
-			return 1;
+			str->zero_bytes = 0;
+			*val = str->curbyte;
 		}
-		if (str->zero_bytes < 2) {
-			fprintf(stderr, "Found premature byte %08x when searching for a start code!\n", str->curbyte);
-			return 1;
-		}
-		if (str->bytepos >= str->bytesnum) {
-			fprintf(stderr, "End of bitstream when searching for a start code!\n");
-			return 1;
-		}
-		str->curbyte = str->bytes[str->bytepos++];
-		str->zero_bytes = 0;
-		*val = str->curbyte;
 	}
 	return 0;
 }
@@ -282,20 +334,32 @@ int vs_search_start(struct bitstream *str) {
 		fprintf (stderr, "vs_search_start called in encode mode!\n");
 		return -1;
 	}
-	str->hasbyte = 0;
-	str->bitpos = 7;
-	while (1) {
-		if (str->bytepos >= str->bytesnum)
-			return 0;
-		if (str->zero_bytes == 2 && str->bytes[str->bytepos] == 1)
-			return 1;
-		if (str->bytes[str->bytepos] == 0) {
-			if (str->zero_bytes != 2)
-				str->zero_bytes++;
-		} else {
-			str->zero_bytes = 0;
+	if (str->type == VS_H261 || str->type == VS_H263) {
+		int nzbit = (str->type == VS_H261 ? 15 : 16);
+		while (1) {
+			int bit;
+			if (!str->hasbyte && str->bytepos >= str->bytesnum)
+				return 0;
+			if (str->zero_bits >= nzbit)
+				return 1;
+			if (vs_bit(str, &bit)) return 0;
 		}
-		str->bytepos++;
+	} else {
+		str->hasbyte = 0;
+		str->bitpos = 7;
+		while (1) {
+			if (str->bytepos >= str->bytesnum)
+				return 0;
+			if (str->zero_bytes == 2 && str->bytes[str->bytepos] == 1)
+				return 1;
+			if (str->bytes[str->bytepos] == 0) {
+				if (str->zero_bytes != 2)
+					str->zero_bytes++;
+			} else {
+				str->zero_bytes = 0;
+			}
+			str->bytepos++;
+		}
 	}
 }
 
@@ -385,6 +449,8 @@ int vs_has_more_data(struct bitstream *str) {
 			if (str->hasbyte && byte)
 				return 1;
 			break;
+		default:
+			abort();
 	}
 	offs += str->bytepos;
 	if (offs < str->bytesnum && str->bytes[offs])
