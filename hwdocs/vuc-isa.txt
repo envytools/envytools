@@ -254,9 +254,9 @@ further determine the opcode inside that class. The classes and opcodes are:
   - 00000: lmulu	[long binary form]	long multiply unsigned
   - 00001: lmuls	[long binary form]	long multiply signed
   - 00010: lsrr		[long unary form]	long shift right with round
-  - 00100: ladd		[long unary form]	[VP3+ only]
-  - 01000: lsar		[long unary form]	[VP3+ only]
-  - 01100: ldivu	[long unary form]	[VP4 only]
+  - 00100: ladd		[long unary form]	long add			[VP3+ only]
+  - 01000: lsar		[long unary form]	long shift right arithmetic	[VP3+ only]
+  - 01100: ldivu	[long unary form]	long divide unsigned		[VP4 only]
 
 All main slot opcodes can be predicated by an arbitrary $p register. The PE
 bit enables predication. If PE bit is 1, the main slot instruction will only
@@ -550,15 +550,6 @@ XXX: Verify remaining delays
 
 = Instructions =
 
-A note about execution times: the pseudocode starts on cycle 0. If execution
-of an instruction takes more than one cycle, a "cycle;" line in the pseudocode
-separates effects of the instruction that happen in distinct cycles. It is
-assumed that all reads done in a cycle by any instruction happen before all
-writes done in that cycle. Thus, if an instruction has an execution time of
-1 cycle, the very next instruction can already use its result. If an execution
-has execution time of 2 cycles, one other instruction has to be inserted after
-this instruction and any instruction that uses its result, and so on.
-
 In the pseudocode, all intermediate computation results and temporary
 variables are assumed to be infinite-precision signed integers: non-negative
 integers are padded at the left with infinite number of 0 bits, while negative
@@ -583,7 +574,6 @@ Opcode: base opcode, OP = 00000
 Operation:
 	result = (pred ? src1 : src2);
 	dst = result;
-	cycle;
 	pdst = result & 1;
 Execution time: 1 cycle
 Predicate output: LSB of normal result
@@ -593,7 +583,6 @@ Opcode: base opcode, OP = 00001
 Operation:
 	result = lsrc;
 	dst = result;
-	cycle;
 	pdst = result & 1;
 Execution time: 1 cycle
 Predicate output: LSB of normal result
@@ -620,7 +609,6 @@ Operation:
 	if (op == avgs) result = (SEX(src1) + SEX(src2) + 1) >> 1;
 	if (op == avgu) result = (src1 + src2 + 1) >> 1;
 	dst = result;
-	cycle;
 	pdst = result & 1;
 Execution time: 1 cycle
 Predicate output: LSB of normal result
@@ -646,7 +634,6 @@ Operation:
 	if (op == seteq) result = src1 == src2;
 	if (op == setlep) result = SEX(src1) <= SEX(src2) && SEX(src1) >= 0;
 	if (op == setzero) result = src1 == 0 && src2 == 0;
-	cycle;
 	pdst = result;
 Execution time: 1 cycle
 Predicate output: the comparison result
@@ -700,7 +687,6 @@ Operation:
 			result = src1 & ((1 << bit) - 1);
 	}
 	dst = result;
-	cycle;
 	pdst = presult;
 Execution time: 1 cycle
 Predicate output:
@@ -722,7 +708,6 @@ Operation:
 		result = src1 >> 1;
 	}
 	dst = result;
-	cycle;
 	pdst = result < 0;
 Execution time: 1 cycle
 Predicate output: 1 if result is negative
@@ -753,7 +738,6 @@ Operation:
 	if (op == btest) {
 		presult = src1 >> bit & 1;
 	}
-	cycle;
 	pdst = presult;
 Execution time: 1 cycle
 Predicate output:
@@ -772,7 +756,6 @@ Opcode: base opcode, OP as above
 Operation:
 	result = src1 >> 8 | src1 << 8;
 	dst = result;
-	cycle;
 	pdst = result & 1;
 Execution time: 1 cycle
 Predicate output: bit 0 of the result
@@ -811,7 +794,6 @@ Operation:
 		}
 	}
 	dst = result;
-	cycle;
 	pdst = presult;
 Execution time: 1 cycle
 Predicate output: the last bit shifted out
@@ -833,7 +815,6 @@ Operation:
 	if (op == xor) result = src1 ^ src2;
 	if (op == not) result = ~src1;
 	dst = result;
-	cycle;
 	pdst = result & 1;
 Execution time: 1 cycle
 Predicate output: bit 0 of the result
@@ -1036,7 +1017,6 @@ Operation:
 		presult = 0;
 	}
 	dst = result;
-	cycle;
 	pdst = presult;
 Execution time: 1 cycle
 Predicate output:
@@ -1057,10 +1037,40 @@ Operation:
 	if (op == min) which = (SEX(src2) < SEX(src1));
 	if (op == max) which = (SEX(src2) >= SEX(src1));
 	dst = (which ? src2 : src1);
-	cycle;
 	pdst = which;
 Execution time: 1 cycle
 Predicate output: 0 if src1 is selected as the result, 1 if src2 is selected
+
+
+== Predicate instructions: and, or, xor ==
+
+These instruction perform the corresponding logical ops on $p registers. Note
+that one of both inputs can be negates, as mentioned in psrc1/psrc2 operand
+description.
+
+Instructions:
+	and spdst, psrc1, psrc2		OP=xxx00
+	or spdst, psrc1, psrc2		OP=xxx01
+	xor spdst, psrc1, psrc2		OP=xxx10
+Opcode: special opcode with OC=010, OP as above. Note that bits 2 and 3 of OP
+        are used for psrc1 and psrc2 negation flags.
+Operation:
+	if (op == and) spdst = psrc1 & psrc2;
+	if (op == or) spdst = psrc1 | psrc2;
+	if (op == xor) spdst = psrc1 ^ psrc2;
+Execution time: 1 cycle
+
+
+== No operation: nop ==
+
+Does nothing.
+
+Instructions:
+	nop				OP=xxx11
+Opcode: special opcode with OC=010, OP as above.
+Operation:
+	/* nothing */
+Execution time: 1 cycle
 
 
 == Long multiplication instructions: lmulu, lmuls ==
@@ -1083,7 +1093,6 @@ Operation:
 			s2 -= 0x800;
 		result = SEX(src1) * s2;
 	}
-	/* XXX: delay */
 	$llo = result;
 	$lhi = result >> 16;
 Execution time: XXX
@@ -1118,7 +1127,6 @@ Operation:
 		else
 			val = 0xffffffff;
 	}
-	/* XXX: delay */
 	$llo = val;
 	$lhi = val >> 16;
 Execution time: XXX
@@ -1141,73 +1149,6 @@ Known override instructions control machine state, access memory spaces, externa
           ret
         TODO: delay (blob: 1)
         XXX: stack and calling convention
-    0x43: [nop]
-          nop
-        Done!
-
-        
-* Predicate logical
-    0x40: [setand DST SRC1 SRC2]
-          setand PRED PRED PRED
-            DST := SRC1 & SRC2
-        Delay: immediate
-    
-    0x41: [setor DST SRC1 SRC2]
-          setor PRED PRED PRED
-            DST := SRC1 | SRC2
-        Delay: immediate
-    
-    0x42: [setne DST SRC1 SRC2]
-          setne PRED PRED PRED
-            DST := SRC1 ^ SRC2
-        Delay: immediate
-   
-    0x44: [setl DST SRC1 SRC2]
-          setl PRED PRED PRED
-            DST := SRC1 & ~SRC2
-            (DST := SRC1 < SRC2)
-        Delay: immediate
-    
-    0x45: [setge DST SRC1 SRC2]
-          setge PRED PRED PRED
-            DST := SRC1 | ~SRC2
-            (DST := SRC1 >= SRC2)
-        Delay: immediate
-    
-    0x46: [sete DST SRC1 SRC2]
-          sete PRED PRED PRED
-            DST := SRC1 == SRC2
-            (DST := ~(SRC1 ^ SRC2)
-        Delay: immediate
-
-    0x48: [setg DST SRC1 SRC2]
-          setg PRED PRED PRED
-            DST := SRC1 > SRC2
-            (DST := ~SRC1 & SRC2)
-        Delay: immediate
-    
-    0x49: [setle DST SRC1 SRC2]
-          setle PRED PRED PRED
-            DST := SRC1 <= SRC2
-            (DST := ~SRC1 | SRC2)
-        Delay: immediate
-    
-    0x4a: [sete DST SRC1 SRC2]
-          sete PRED PRED PRED
-            DST := SRC1 == SRC2
-            (DST := ~(SRC1 ^ SRC2)
-        Delay: immediate
-    
-    0x4c: [setnor DST SRC1 SRC2]
-          setnand PRED PRED PRED
-            DST := ~(SRC1 | SRC2)
-        Delay: TODO
-    
-    0x4d: [setnand DST SRC1 SRC2]
-          setnand PRED PRED PRED
-            DST := ~(SRC1 & SRC2)
-        Delay: TODO
-
    
 * Memory
     0x80: [st DST SRC]
@@ -1297,6 +1238,3 @@ Known override instructions control machine state, access memory spaces, externa
         First run: change $sr16-$sr21, $sr24 and $sr27-$sr31.
         Consecutive runs: change $sr16-$sr24 and $sr27-$sr31 ($sr22, $sr23 == 1).
         XXX: delay (blob: 5)
-        
-    0xa4, 0xa8, 0xac: Only after multiplication. 2, 2 or 1, plenty delay (blob).
-
