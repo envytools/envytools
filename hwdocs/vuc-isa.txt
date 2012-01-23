@@ -70,7 +70,7 @@ it. However, vµc implements store-to-load forwarding for some common cases -
 the result value, which is already known on cycle (X-1), is transferred
 directly into the next instruction, if there's a match betwen the next
 instruction's source register index and current instruction's destination
-register index. Load-to-store forwarding happens in the following situations:
+register index. Store-to-load forwarding happens in the following situations:
 
  - all $r register reads and writes
  - all $p register reads and writes, except by accessing them through $pred
@@ -78,14 +78,14 @@ register index. Load-to-store forwarding happens in the following situations:
  - $lhi/$llo register reads and writes done implicitely by long arithmetic
    instructions
 
-Load-to-store forwarding does NOT happen in the following situations:
+Store-to-load forwarding does NOT happen in the following situations:
 
  - $sr register reads and writes
 
 Example 1:
 	add $r1 $r2 $r3
 	add $r4 $r1 $r5
-	no delay needed, load-to-store forwarding happens:
+	no delay needed, store-to-load forwarding happens:
 	cycle 0: $r2 and $r3 read, $r2+$r3 computed
 	cycle 1: $r5 read, previous result read due to l-t-s forwarding match
 		 for $r1, prev+$r5 computed, previous result written to $r1
@@ -95,7 +95,7 @@ Example 1:
 Example 2 [missing delay]:
 	add $mvxl0 $r2 $r3
 	add $r4 $mvxl0 $r5
-	delay needed, but not supplied - load-to-store forwarding doesn't
+	delay needed, but not supplied - store-to-load forwarding doesn't
 	happen and old value is read:
 	cycle 0: $r2 and $r3 read, $r2+$r3 computed
 	cycle 1: $mvxl0 and $r5 read, $mvxl0+$r5 computed, previous result
@@ -119,6 +119,11 @@ Example 3 [proper delay]:
 	Code is equivalent to:
 		$mvxl0 = $r2 + $r3;
 		$r4 = $mvxl0 + $r5;
+
+Since long-running instructions use execution units during their execution,
+it's usually forbidden to launch other instructions using the same execution
+units until the first instruction is finished. When such execution unit
+conflict happens, the old instruction is aborted.
 
 It is possible that two instructions with different write delays will try to
 perform a register write in the same cycle (e.g. ld-nop-mov sequence). If the
@@ -1095,7 +1100,8 @@ Operation:
 	}
 	$llo = result;
 	$lhi = result >> 16;
-Execution time: XXX
+Execution time: 3 cycles
+Execution unit conflicts: lmulu, lmuls, lsrr, ladd, lsar, ldivu
 
 
 == Long arithmetic unary instructions: lsrr, ladd, lsar, ldivu ==
@@ -1129,7 +1135,12 @@ Operation:
 	}
 	$llo = val;
 	$lhi = val >> 16;
-Execution time: XXX
+Execution time:
+	lsrr: 1 cycle
+	ladd: 1 cycle
+	lsar: 1 cycle
+	ldivu: 34 cycles
+Execution unit conflicts: lmulu, lmuls, lsrr, ladd, lsar, ldivu
 
         
 ** Override instructions **

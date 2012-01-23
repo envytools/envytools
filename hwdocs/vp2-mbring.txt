@@ -53,7 +53,7 @@ Packet has 3 payload words when macroblock is skipped, 6 when it's not
 skipped. This packet type is present for all macroblocks. The mb_type
 and sub_mb_type values correspond to values used in CAVLC mode for current
 slice_type - thus for example I_NxN is mb_type 0 when decoding I slices,
-mb_type 5 when decodingr P slices. For I_NxN macroblocks encoded in 4x4
+mb_type 5 when decoding P slices. For I_NxN macroblocks encoded in 4x4
 transform mode, rem_intra_pred_mode[i] and pred_intra_pred_mode_flag[i]
 correspond to rem_intra4x4_pred_mode[i] and pred_intra4x4_pred_mode_flag[i]
 for i = 0..15. For I_NxN macroblocks encoded in 8x8 transform mode,
