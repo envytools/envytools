@@ -273,12 +273,23 @@
 			<!-- ... -->
 		</reg32>
 		<reg32 offset="0x5c" name="PC"/>
+		<reg32 offset="0x68" name="BUSY">
+			<bitfield pos="0" name="UC"/>
+			<bitfield pos="1" name="MBRING"/>
+			<bitfield pos="2" name="MVSURF_OUT"/>
+			<bitfield pos="3" name="MVSURF_IN"/>
+			<bitfield pos="4" name="UNK_STAT0"/>
+			<bitfield pos="5" name="UNK_STAT1"/>
+			<bitfield pos="6" name="UNK_STAT2"/>
+			<bitfield pos="7" name="UNK_STAT"/>
+		</reg32>
 		<reg32 offset="0x70" name="INTR" type="nv98_pvp_vuc_intr"/>
 		<reg32 offset="0x74" name="INTR_EN" type="nv98_pvp_vuc_intr"/>
 		<reg32 offset="0xa0" name="MBRING_ADDR" shr="8"/>
 		<reg32 offset="0xa4" name="MBRING_SIZE"/>
 		<reg32 offset="0xa8" name="MBRING_GET"/>
 		<reg32 offset="0xac" name="MBRING_AVAIL"/> <!-- yes, really. -->
+		<reg32 offset="0xbc" name="STAT"/> <!-- aliases $stat -->
 	</array>
 	<array offset="0x500" name="TRANS" stride="0x80">
 		<reg32 offset="0x00" name="CODE_SELECT" length="4">
