@@ -110,9 +110,6 @@ static struct bitfield srsrc_bf = { 8, 4, 24, 2 };
 static struct bitfield src2_bf = { 12, 4 };
 static struct bitfield dst_bf = { 16, 4 };
 static struct bitfield srdst_bf = { 16, 4, 24, 2 };
-static struct bitfield psrc1_bf = { 8, 4 };
-static struct bitfield psrc2_bf = { 12, 4 };
-static struct bitfield pdst_bf = { 16, 4 };
 static struct bitfield pred_bf = { 20, 4 };
 static struct bitfield rbrpred_bf = { 30, 3, .addend = 8 };
 static struct reg src1_r = { &src1_bf, "r", .specials = reg_sr };
@@ -120,9 +117,9 @@ static struct reg src2_r = { &src2_bf, "r", .specials = reg_sr };
 static struct reg dst_r = { &dst_bf, "r", .specials = reg_sr };
 static struct reg srdst_r = { &srdst_bf, "sr", .specials = sreg_sr, .always_special = 1 };
 static struct reg srsrc_r = { &srsrc_bf, "sr", .specials = sreg_sr, .always_special = 1 };
-static struct reg psrc1_r = { &psrc1_bf, "p", .cool = 1, .specials = pred_sr };
-static struct reg psrc2_r = { &psrc2_bf, "p", .cool = 1, .specials = pred_sr };
-static struct reg pdst_r = { &pdst_bf, "p", .cool = 1, .specials = pred_sr };
+static struct reg psrc1_r = { &src1_bf, "p", .cool = 1, .specials = pred_sr };
+static struct reg psrc2_r = { &src2_bf, "p", .cool = 1, .specials = pred_sr };
+static struct reg pdst_r = { &dst_bf, "p", .cool = 1, .specials = pred_sr };
 static struct reg pred_r = { &pred_bf, "p", .cool = 1, .specials = pred_sr };
 static struct reg rbrpred_r = { &rbrpred_bf, "p", .cool = 1, .specials = pred_sr };
 #define SRC1 atomreg, &src1_r
@@ -208,16 +205,17 @@ static struct insn tabp[] = {
 	{ 0, 0, PRED },
 };
 
-// tabdst and tabsrc1 are used only with base instructions
 static struct insn tabdst[] = {
 	{ 0x00000000, 0x10000000, DST },
-	{ 0x10000000, 0x14000000, SRDST }, // only one of dst, src1 can be $sr
+	{ 0x10000000, 0x14000000, SRDST },
+	{ 0x14000000, 0x14000000, DST },
 	{ 0, 0, OOPS },
 };
 
 static struct insn tabsrc1[] = {
 	{ 0x00000000, 0x04000000, SRC1 },
-	{ 0x04000000, 0x14000000, SRSRC }, // only one of dst, src1 can be $sr
+	{ 0x04000000, 0x14000000, SRSRC },
+	{ 0x14000000, 0x14000000, SRC1 },
 	{ 0, 0, OOPS },
 };
 
@@ -225,31 +223,32 @@ static struct insn tabsrc2[] = {
 	{ 0x00000000, 0x08000000, SRC2 },
 	{ 0x08000000, 0x1c000000, IMM6 },
 	{ 0x18000000, 0x1c000000, IMM4 },
-	{ 0x0c000000, 0x0c000000, IMM4 },
+	{ 0x0c000000, 0x1c000000, IMM4 },
+	{ 0x1c000000, 0x1c000000, IMM6 },
 	{ 0, 0, OOPS },
 };
 
-static struct insn tabarithsrc2[] = {
-    { 0x00000000, 0x08000000, SRC2 },
-    { 0x08000000, 0x08000000, IMM6 },
-    { 0, 0, OOPS },
+static struct insn tablsrc[] = {
+	{ 0x00000000, 0x08000000, SRC2 },
+	{ 0x08000000, 0x18000000, IMM14 },
+	{ 0x18000000, 0x18000000, IMM12 },
+	{ 0, 0, OOPS },
 };
 
-// Tables describing parameters for "set" functions
+static struct insn tabspdst[] = {
+	{ 0x20000000, 0x20000000, PDST },
+	{ 0x00000000, 0x20000000, PRED },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabpdst[] = {
-    { 0x20000000, 0x20000000, PDST },
-    { 0x00000000, 0x20000000, PRED },
-    { 0, 0, OOPS },
-};
-
-static struct insn tabpmod[] = {
-	{ 0x00000000, 0x000000e0, N("pand"), T(pdst) },
-	{ 0x00000020, 0x000000e0, N("por"), T(pdst) },
-	{ 0x00000040, 0x000000e0, T(pdst) },
+	{ 0x00000000, 0x000000e0, N("pand"), T(spdst) },
+	{ 0x00000020, 0x000000e0, N("por"), T(spdst) },
+	{ 0x00000040, 0x000000e0, T(spdst) },
 	{ 0x00000060, 0x00000060 }, // don't modify predicate
-	{ 0x00000080, 0x000000e0, N("pandn"), T(pdst) },
-	{ 0x000000a0, 0x000000e0, N("porn"), T(pdst) },
-	{ 0x000000c0, 0x000000e0, N("pnot"), T(pdst) },
+	{ 0x00000080, 0x000000e0, N("pandn"), T(spdst) },
+	{ 0x000000a0, 0x000000e0, N("porn"), T(spdst) },
+	{ 0x000000c0, 0x000000e0, N("pnot"), T(spdst) },
 	{ 0, 0, OOPS },
 };
 
@@ -289,9 +288,9 @@ static struct insn tabsop[] = {
 	{ 0x0000002c, 0x000000ff, U("o2c") }, /* ANEW */
 
 	/* predicate block */
-	{ 0x00000040, 0x000000e3, N("and"), T(pdst), T(pnot1), PSRC1, T(pnot2), PSRC2 },
-	{ 0x00000041, 0x000000e3, N("or"), T(pdst), T(pnot1), PSRC1, T(pnot2), PSRC2 },
-	{ 0x00000042, 0x000000e3, N("xor"), T(pdst), T(pnot1), PSRC1, T(pnot2), PSRC2 },
+	{ 0x00000040, 0x000000e3, N("and"), T(spdst), T(pnot1), PSRC1, T(pnot2), PSRC2 },
+	{ 0x00000041, 0x000000e3, N("or"), T(spdst), T(pnot1), PSRC1, T(pnot2), PSRC2 },
+	{ 0x00000042, 0x000000e3, N("xor"), T(spdst), T(pnot1), PSRC1, T(pnot2), PSRC2 },
 	{ 0x00000043, 0x000000e3, N("nop") },
 
 	/* memory block */
@@ -327,64 +326,62 @@ static struct insn tabsop[] = {
 	{ 0x2800008f, 0x280000ff, N("ld7"), DST, B7MEMLDIS },
 
 	/* long arithmetic block */
-	{ 0x000000a0, 0x000000ff, N("lmulu"), SRC1, T(arithsrc2) },
-	{ 0x000000a1, 0x000000ff, N("lmuls"), SRC1, T(arithsrc2) },
-	{ 0x000000a2, 0x000000ff, N("lsrnd"), T(arithsrc2) },
-	{ 0x000000a4, 0x000000ff, N("ladd"), T(arithsrc2), .vartype = VP3P },
-	{ 0x000000a8, 0x000000ff, N("lsar"), T(arithsrc2), .vartype = VP3P },
-	{ 0x000000ac, 0x000000ff, N("ldivu"), T(arithsrc2), .vartype = VP4 },
+	{ 0x000000a0, 0x000000ff, N("lmulu"), T(src1), T(src2) },
+	{ 0x000000a1, 0x000000ff, N("lmuls"), T(src1), T(src2) },
+	{ 0x000000a2, 0x000000ff, N("lsrnd"), T(src2) },
+	{ 0x000000a4, 0x000000ff, N("ladd"), T(src2), .vartype = VP3P },
+	{ 0x000000a8, 0x000000ff, N("lsar"), T(src2), .vartype = VP3P },
+	{ 0x000000ac, 0x000000ff, N("ldivu"), T(src2), .vartype = VP4 },
 
 	{ 0, 0, OOPS },
 };
 
 static struct insn tabbop[] = {
 	/* data transfer */
-	{ 0x00000000, 0x0000001f, N("slct"), T(pmod), T(dst), T(pdst), T(src1), T(src2) },
-	{ 0x00000001, 0x0800001f, N("mov"), T(pmod), T(dst), T(src2) },
-	{ 0x18000001, 0x1800001f, N("mov"), T(pmod), SRDST, IMM12 },
-	{ 0x08000001, 0x1800001f, N("mov"), T(pmod), DST, IMM14 },
+	{ 0x00000000, 0x0000001f, N("slct"), T(pdst), T(dst), PRED, T(src1), T(src2) },
+	{ 0x00000001, 0x0000001f, N("mov"), T(pdst), T(dst), T(lsrc) },
 
 	/* addition */
-	{ 0x00000004, 0x0000001f, N("add"), T(pmod), T(dst), T(src1), T(src2) },
-	{ 0x00000005, 0x0000001f, N("sub"), T(pmod), T(dst), T(src1), T(src2) },
-	{ 0x00000006, 0x0000001f, N("subr"), T(pmod), T(dst), T(src1), T(src2), .vartype = VP2 },
-	{ 0x00000006, 0x0000001f, N("avgs"), T(pmod), T(dst), T(src1), T(src2), .vartype = VP3P },
-	{ 0x00000007, 0x0000001f, N("avgu"), T(pmod), T(dst), T(src1), T(src2), .vartype = VP3P },
+	{ 0x00000004, 0x0000001f, N("add"), T(pdst), T(dst), T(src1), T(src2) },
+	{ 0x00000005, 0x0000001f, N("sub"), T(pdst), T(dst), T(src1), T(src2) },
+	{ 0x00000006, 0x0000001f, N("subr"), T(pdst), T(dst), T(src1), T(src2), .vartype = VP2 },
+	{ 0x00000006, 0x0000001f, N("avgs"), T(pdst), T(dst), T(src1), T(src2), .vartype = VP3P },
+	{ 0x00000007, 0x0000001f, N("avgu"), T(pdst), T(dst), T(src1), T(src2), .vartype = VP3P },
 
 	/* comparisons */
-	{ 0x00000008, 0x0000001f, N("setgt"), T(pmod), T(src1), T(src2) },
-	{ 0x00000009, 0x0000001f, N("setlt"), T(pmod), T(src1), T(src2) },
-	{ 0x0000000a, 0x0000001f, N("seteq"), T(pmod), T(src1), T(src2) },    
-	{ 0x0000000b, 0x0000001f, N("setlep"), T(pmod), T(src1), T(src2) },
+	{ 0x00000008, 0x0000001f, N("setgt"), T(pdst), T(src1), T(src2) },
+	{ 0x00000009, 0x0000001f, N("setlt"), T(pdst), T(src1), T(src2) },
+	{ 0x0000000a, 0x0000001f, N("seteq"), T(pdst), T(src1), T(src2) },    
+	{ 0x0000000b, 0x0000001f, N("setlep"), T(pdst), T(src1), T(src2) },
 
 	/* clips, misc */
-	{ 0x0000000c, 0x0000001f, N("clamplep"), T(pmod), T(dst), T(src1), T(src2) },
-	{ 0x0000000d, 0x0000001f, N("clamps"), T(pmod), T(dst), T(src1), T(src2) },
-	{ 0x0000000e, 0x0000001f, N("sext"), T(pmod), T(dst), T(src1), T(src2) },
-	{ 0x0000000f, 0x0000001f, N("setzero"), T(pmod), T(src1), T(src2), .vartype = VP2 },
-	{ 0x0000000f, 0x0000001f, N("div2s"), T(pmod), T(dst), T(src1), .vartype = VP3P },
+	{ 0x0000000c, 0x0000001f, N("clamplep"), T(pdst), T(dst), T(src1), T(src2) },
+	{ 0x0000000d, 0x0000001f, N("clamps"), T(pdst), T(dst), T(src1), T(src2) },
+	{ 0x0000000e, 0x0000001f, N("sext"), T(pdst), T(dst), T(src1), T(src2) },
+	{ 0x0000000f, 0x0000001f, N("setzero"), T(pdst), T(src1), T(src2), .vartype = VP2 },
+	{ 0x0000000f, 0x0000001f, N("div2s"), T(pdst), T(dst), T(src1), .vartype = VP3P },
 
 	/* bit manipulation */
-	{ 0x00000010, 0x0000001f, N("bset"), T(pmod), T(dst), T(src1), T(src2) },
-	{ 0x00000011, 0x0000001f, N("bclr"), T(pmod), T(dst), T(src1), T(src2) },
-	{ 0x00000012, 0x0000001f, N("btest"), T(pmod), T(src1), T(src2) },
+	{ 0x00000010, 0x0000001f, N("bset"), T(pdst), T(dst), T(src1), T(src2) },
+	{ 0x00000011, 0x0000001f, N("bclr"), T(pdst), T(dst), T(src1), T(src2) },
+	{ 0x00000012, 0x0000001f, N("btest"), T(pdst), T(src1), T(src2) },
 
 	/* shifts */
-	{ 0x00000014, 0x0000001f, N("rot8"), T(pmod), T(dst), T(src1) },
-	{ 0x00000015, 0x0000001f, N("shl"), T(pmod), T(dst), T(src1), T(src2) },
-	{ 0x00000016, 0x0000001f, N("shr"), T(pmod), T(dst), T(src1), T(src2) },
-	{ 0x00000017, 0x0000001f, N("sar"), T(pmod), T(dst), T(src1), T(src2) },
+	{ 0x00000014, 0x0000001f, N("rot8"), T(pdst), T(dst), T(src1) },
+	{ 0x00000015, 0x0000001f, N("shl"), T(pdst), T(dst), T(src1), T(src2) },
+	{ 0x00000016, 0x0000001f, N("shr"), T(pdst), T(dst), T(src1), T(src2) },
+	{ 0x00000017, 0x0000001f, N("sar"), T(pdst), T(dst), T(src1), T(src2) },
 
 	/* bitwise ops */
-	{ 0x00000018, 0x0000001f, N("and"), T(pmod), T(dst), T(src1), T(src2) },
-	{ 0x00000019, 0x0000001f, N("or"), T(pmod), T(dst), T(src1), T(src2) },
-	{ 0x0000001a, 0x0000001f, N("xor"), T(pmod), T(dst), T(src1), T(src2) },
-	{ 0x0000001b, 0x0000001f, N("not"), T(pmod), T(dst), T(src1), T(src2) },
+	{ 0x00000018, 0x0000001f, N("and"), T(pdst), T(dst), T(src1), T(src2) },
+	{ 0x00000019, 0x0000001f, N("or"), T(pdst), T(dst), T(src1), T(src2) },
+	{ 0x0000001a, 0x0000001f, N("xor"), T(pdst), T(dst), T(src1), T(src2) },
+	{ 0x0000001b, 0x0000001f, N("not"), T(pdst), T(dst), T(src1), T(src2) },
 
 	/* misc */
-	{ 0x0000001c, 0x0000001f, N("lut"), T(pmod), T(dst), T(src1), T(src2) },
-	{ 0x0000001d, 0x0000001f, N("min"), T(pmod), T(dst), T(src1), T(src2), .vartype = VP3P },
-	{ 0x0000001e, 0x0000001f, N("max"), T(pmod), T(dst), T(src1), T(src2), .vartype = VP3P },
+	{ 0x0000001c, 0x0000001f, N("lut"), T(pdst), T(dst), T(src1), T(src2) },
+	{ 0x0000001d, 0x0000001f, N("min"), T(pdst), T(dst), T(src1), T(src2), .vartype = VP3P },
+	{ 0x0000001e, 0x0000001f, N("max"), T(pdst), T(dst), T(src1), T(src2), .vartype = VP3P },
 	{ 0, 0, OOPS },
 };
 
@@ -397,7 +394,6 @@ static struct insn tabopnp[] = {
 };
 
 static struct insn tabop[] = {
-	{ 0x34000043, 0x3c0000ff, N("nop") },
 	{ 0x00000000, 0x20000000, T(opnp) },
 	{ 0x20000000, 0x20000000, T(p), T(opnp) },
 	{ 0, 0, OOPS },

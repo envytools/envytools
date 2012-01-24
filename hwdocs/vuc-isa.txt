@@ -300,7 +300,7 @@ The operands and their encodings are:
    - OT0 = 0 and OT1 = 1: $sr register selected by DST [low bits] and EXT
      [high bits] fields
  - pred - predicate source
-   - all cases: $p register selected by PRED field [XXX]
+   - all cases: $p register selected by PRED field
  - src1: first source
    - OT0 = 0 or OT1 = 1: $r register selected by SRC1 field,
    - OT0 = 1 and OT1 = 0: $sr register selected by SRC1 [low bits] and EXT
@@ -335,8 +335,8 @@ The operands and their encodings are:
    - all cases: 4-bit immediate stored in SRC2 field [XXX]
  - btarg: code address
    - all cases: 11-bit immediate stored in BTARG field
- - spdst: predicate destination [XXX]
-   - PE = 0: $p register selected by PRED field [XXX]
+ - spdst: predicate destination
+   - PE = 0: $p register selected by PRED field
    - PE = 1: $p register selected by DST field
  - psrc1: predicate source 1, optionally negated
    - all cases: $p register selected by SRC1 field, negated if bit 3 of OP
