@@ -181,7 +181,7 @@ static struct mem pwtldr_m = { "PWT", 0, &src1_r, 0, &src2_r };
 
 static struct mem vpsti_m = { "VP", 0, &src1_r, &bimmstoff };
 static struct mem vpstis_m = { "VP", 0, &src1_r, &bimmstsoff };
-static struct mem vpstr_m = { "VP", 0, &src1_r, 0, &dst_r };
+static struct mem vpstr_m = { "VP", 0, &dst_r, 0, &src1_r, 1 };
 #define VPSTI atommem, &vpsti_m
 #define VPSTIS atommem, &vpstis_m
 #define VPSTR atommem, &vpstr_m

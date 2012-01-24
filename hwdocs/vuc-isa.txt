@@ -324,8 +324,8 @@ The special opcodes have the following operands:
  - immediate form:	imm4 [XXX]
  - branch form:		btarg [XXX]
  - predicate form:	spdst, psrc1, psrc2
- - store form:		space[src1 + stoff], src2
- - load form:		dst, space[src1 + ldoff]
+ - store form:		space[src1 + stoff], src2	[XXX: wrong for non-D[]]
+ - load form:		dst, space[src1 + ldoff]	[XXX: wrong for non-D[]]
  - long binary form:	src1, src2
  - long unary form:	src2
 
