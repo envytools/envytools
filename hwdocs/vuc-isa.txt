@@ -369,8 +369,9 @@ The operands and their encodings are:
 = Special register list =
 
 [XXX: the following information may only be valid for H.264 mode for now]
- - $sr0: ??? controls $sr48-$sr58 (bits 0-6 when set separately) [XXX]
- - $sr1: ??? similar to $sr0 (bits 0-4, probably more) [XXX]
+ - $sr0: ??? controls $sr48-$sr58 (bits 0-6 when set separately) [XXX] [VP2
+   only]
+ - $sr1: ??? similar to $sr0 (bits 0-4, probably more) [XXX] [VP2 only]
  - $sr2/$spidx: partition and subpartition index, used to select which
    [sub]partitions some other special registers access:
      bits 0-1: subpartition index
@@ -382,7 +383,8 @@ The operands and their encodings are:
      the top partition, $spidx equal to 8-15 will select the bottom one. For
      8x16 partitioning, $spidx equal to 0-3 and 8-11 will select the left
      partition, 4-7 and 12-15 will select the right partition.
- - $sr3: ??? bits 0-4 affect $sr32-$sr42 [XXX]
+ - $sr3: ??? bits 0-4 affect $sr32-$sr42 [XXX] [VP2 only]
+ - $sr3: ??? [XXX] [VP3+ only]
  - $sr4/$h2v: a scratch register to pass data from host to vµc [see vuc.txt]
  - $sr5/$v2h: a scratch register to pass data from vµc to host [see vuc.txt]
  - $sr6/$stat: some sort of control/status reg, writing 0x8000 alternates
@@ -410,7 +412,8 @@ The operands and their encodings are:
  - $sr10/$cstop: call stack top. Writing to this register causes the written
    value to be pushed onto the stack, reading this register pops a value off
    the stack and returns it.
- - $sr11/$rpitab: D[] address of refidx -> dpb index translation table
+ - $sr11/$rpitab: D[] address of refidx -> dpb index translation table [VP2
+   only]
  - $sr12/$lhi: long arithmetic high word register - RO on VP2, RW on VP3+
  - $sr13/$llo: long arithmetic low word register - RO on VP2, RW on VP3+
  - $sr14/$pred: predicates - aliases the $p register file, bit X corresponds
@@ -538,12 +541,14 @@ The operands and their encodings are:
      0x56: B_8x8
      0x7e: B_SKIP
      0x7f: P_SKIP
- - $sr31/$submbtype:
+ - $sr31/$submbtype: [VP2 only]
      bits 0-3: sub_mb_type[0]
      bits 4-7: sub_mb_type[1]
      bits 8-11: sub_mb_type[2]
      bits 12-15: sub_mb_type[3]
- - $sr32-$sr42: ??? affected by $sr3, unko21, read only [XXX]
+ - $sr31: ??? [XXX] [VP3+ only]
+ - $sr32-$sr40: ??? affected by $sr3, unko21, read only [XXX]
+ - $sr41-$sr42: ??? affected by $sr3, unko21, read only [XXX] [VP2 only]
  - $sr48-$sr58: ??? affected by writing $sr0 and $sr1, unko22, read only [XXX]
 
 

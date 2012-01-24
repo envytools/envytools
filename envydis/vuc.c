@@ -81,7 +81,7 @@ static struct sreg sreg_sr[] = {
 	{ 8, "pc" },
 	{ 9, "cspos" },
 	{ 10, "cstop" },
-	{ 11, "rpitab" },
+	{ 11, "rpitab", .vartype = VP2 },
 	{ 12, "lhi" },
 	{ 13, "llo" },
 	{ 14, "pred" },
@@ -101,7 +101,7 @@ static struct sreg sreg_sr[] = {
 	{ 28, "mbxy" },
 	{ 29, "mbaddr" },
 	{ 30, "mbtype" },
-	{ 31, "submbtype" },
+	{ 31, "submbtype", .vartype = VP2 },
 	{ -1 },
 };
 
