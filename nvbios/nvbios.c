@@ -41,6 +41,7 @@ uint8_t major_version, minor_version, micro_version, chip_version;
 uint32_t card_codename = 0;
 uint8_t tCWL = 0;
 uint32_t strap = 0;
+uint8_t chipset_family = 0;
 
 uint16_t bmpver = 0;
 uint8_t bmpver_min;
@@ -117,6 +118,83 @@ uint32_t le32 (uint16_t off) {
 
 uint16_t le16 (uint16_t off) {
 	return bios->data[off] | bios->data[off+1] << 8;
+}
+
+uint8_t parse_memtm_mapping_entry(uint16_t pos, uint16_t len, uint16_t hdr_pos)
+{
+	if(len < 4) {
+		printf("Unknown timing mapping entry length: %u\n", len);
+		return 0xff;
+	}
+	if(bios->data[pos+1] != 0xff) {
+		printf(" Timing: %u\n", bios->data[pos+1]);
+	} else {
+		printf(" Timing: none/boot\n");
+	}
+
+	if(p_tbls_ver == 1) {
+		/* XXX: This test is wrong. RE! */
+		if(bios->data[pos+3] & 0x02 && len >= 10) {
+			printf(" Feature unk0 enabled\n");
+			printf("   10053c: 0x00000000\n");
+			printf("   1005a0: 0x00%02hhx%02hhx%02hhx\n",
+				bios->data[pos+7], bios->data[pos+6],
+				bios->data[pos+5]);
+			printf("   1005a4: 0x0000%02hhx%02hhx\n",
+				bios->data[pos+9],
+				bios->data[pos+8]);
+		} else {
+			printf(" Feature unk0 disabled\n");
+			printf("   10053c: 0x00001000");
+		}
+	}
+
+	if(p_tbls_ver == 2) {
+		printf(" DLL: ");
+		if(bios->data[pos+2] & 0x40) {
+			printf("disabled\n");
+		} else {
+			printf("enabled\n");
+		}
+
+		if(bios->data[hdr_pos+4] & 0x08 && len >= 10) {
+			printf(" Feature unk0 enabled\n");
+			if(card_codename < 0xC0) {
+				printf("   10053c: 0x00000000\n");
+				printf("   1005a0: 0x00%02hhx%02hhx%02hhx\n",
+						bios->data[pos+6], bios->data[pos+5],
+						bios->data[pos+5]);
+				printf("   1005a4: 0x0000%02hhx%02hhx\n",
+						bios->data[pos+8],
+						bios->data[pos+7]);
+				printf("   10f804: 0x80%02hhx00%02hhx\n",
+						bios->data[pos+9] & 0xf0,
+						bios->data[pos+9] & 0x0f);
+			} else {
+				printf("   10f658: 0x00%02hhx%02hhx%02hhx\n",
+						bios->data[pos+6], bios->data[pos+5],
+						bios->data[pos+5]);
+				printf("   10f660: 0x0000%02hhx%02hhx\n",
+						bios->data[pos+8],
+						bios->data[pos+7]);
+				printf("   10f668: 0x80%02hhx00%02hhx\n",
+						bios->data[pos+9] & 0xf0,
+						bios->data[pos+9] & 0x0f);
+			}
+		} else {
+			printf(" Feature unk0 disabled\n");
+			if(card_codename < 0xC0) {
+				printf("   10053c: 0x00001000\n");
+				printf("   10f804: 0x00?0000?\n");
+			} else {
+				printf("   10f668: 0x00?0000?\n");
+			}
+		}
+	}
+
+	printf("\n");
+
+	return bios->data[pos+1];
 }
 
 void printscript (uint16_t soff) {
@@ -417,11 +495,30 @@ static void parse_bios_version(uint16_t offset)
 		card_codename = chip_version;
 	minor_version = bios->data[offset + 1];
 	micro_version = bios->data[offset + 0];
+
+	if (major_version <= 0x2 || major_version == 0x14)
+		chipset_family = 0x04;
+	else if (major_version < 0x5)
+		chipset_family = card_codename & 0xf0;
+	else if (major_version < 0x60)
+		chipset_family = 0x40;
+	else if (major_version < 0x70)
+		chipset_family = 0x50;
+	else if (major_version < 0x75)
+		if (card_codename > 0x10 && card_codename < 0x20)
+			chipset_family = 0x50;
+		else
+			chipset_family = 0xc0;
+	else if (major_version == 0x75)
+		chipset_family = 0xd0;
+
 	printf("Bios version %02x.%02x.%02x.%02x\n\n",
 		 bios->data[offset + 3], bios->data[offset + 2],
 		 bios->data[offset + 1], bios->data[offset]);
-	printf("Card codename %02x\n\n",
+	printf("Card codename %02x\n",
 		 card_codename);
+	printf("Card chipset family %02x\n\n",
+		 chipset_family);
 }
 
 int set_strap_from_string(const char* strap_s)
@@ -1205,16 +1302,6 @@ int main(int argc, char **argv) {
 				pcie_width = bios->data[start+28];
 			}
 
-			if (version > 0x15 && version < 0x40) {
-				uint16_t extra_start = start + mode_info_length;
-				uint16_t timing_extra_data = extra_start+(ram_cfg*extra_data_length);
-
-				if (ram_cfg < extra_data_count)
-					timing_id = bios->data[timing_extra_data+1];
-			} else if (version == 0x40 && ram_cfg < subentry_count) {
-				timing_id = bios->data[start+subent(ram_cfg)+1];
-			}
-
 			/* Old BIOS' might give rounding errors! */
 			if (version == 0x12 || version == 0x13 || version == 0x15) {
 				id = bios->data[start+0];
@@ -1267,7 +1354,17 @@ int main(int argc, char **argv) {
 				id = bios->data[start+0];
 				voltage = bios->data[start+2];
 
-				if (subentry_size == 4) {
+				if (chipset_family == 0x50) {
+					core = (le16(start+subent(0)) & 0xfff);
+					shader = (le16(start+subent(1)) & 0xfff);
+					memclk = (le16(start+subent(2)) & 0xfff);
+					vdec   = (le16(start+subent(3)) & 0xfff);
+					unka0 = (le16(start+subent(4)) & 0xfff);
+
+					printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Vdec %dMHz "
+						"Unka0 %dMHz Voltage entry %d PCIe link width %d --\n",
+						id, core, memclk, shader, vdec, unka0, voltage, pcie_width );
+				} else {
 					hub06 = (le16(start+subent(0)) & 0xfff);
 					hub01 = (le16(start+subent(1)) & 0xfff);
 					copy = (le16(start+subent(2)) & 0xfff);
@@ -1281,19 +1378,22 @@ int main(int argc, char **argv) {
 
 					printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Hub01 %dMHz "
 						"Hub06 %dMHz Hub07 %dMHz ROP %dMHz VDec %dMHz Daemon %dMHz Copy %dMHz"
-						"Voltage entry %d Timing %d PCIe link width %d --\n",
+						"Voltage entry %d PCIe link width %d --\n",
 						id, core, memclk, shader, hub01, hub06, hub07,
-						rop, vdec, daemon, copy, voltage, timing_id, pcie_width );
-				} else {
-					core = (le16(start+subent(0)) & 0xfff);
-					shader = (le16(start+subent(1)) & 0xfff);
-					memclk = (le16(start+subent(2)) & 0xfff);
-					unka0 = (le16(start+subent(3)) & 0xfff);
-
-					printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz "
-						"Unka0 %dMHz Voltage entry %d Timing %d PCIe link width %d --\n",
-						id, core, memclk, shader, unka0, voltage, timing_id, pcie_width );
+						rop, vdec, daemon, copy, voltage, pcie_width );
 				}
+			}
+
+			if (version > 0x15 && version < 0x40) {
+				uint16_t extra_start = start + mode_info_length;
+				uint16_t timing_extra_data = extra_start+(ram_cfg*extra_data_length);
+				timing_id = parse_memtm_mapping_entry(timing_extra_data, extra_data_length, 0);
+				if (ram_cfg < extra_data_count)
+					timing_id = bios->data[timing_extra_data+1];
+			} else if (version == 0x40 && ram_cfg < subentry_count) {
+				// Get the timing from somewhere else
+				// timing_id = bios->data[start+subent(ram_cfg)+1];
+				timing_id = 0xff;
 			}
 
 			if (mode_info_length > 20) {
@@ -1585,26 +1685,11 @@ int main(int argc, char **argv) {
 				printf("       : RC(%02d), RFC(%02d), RAS(%02d), RCD(%02d)\n\n",
 					tRC, tRFC, tRAS, tRCD);
 				/** First parse RAM_FT1 */
-				printf("RAM FT   : ");
-				if(tRAM_FT1 & 0x1) {
-					printf("ODT(ZQ/4) | ");
-				} else {
-					printf("ODT(Off) | ");
-				}
+				printf("RAM FT:");
+				printf(" ODT(%hhx)", tRAM_FT1 & 0xf);
+				printf(" DRIVE_STRENGTH(%hhx)\n", (tRAM_FT1 & 0xf0) >> 4);
 
-				if(tRAM_FT1 & 0x2) {
-					printf("DLL(Off) | ");
-				} else {
-					printf("DLL(On) | ");
-				}
-
-				if(tRAM_FT1 & 0x4) {
-					printf("RON_PULL(Hi)\n");
-				} else {
-					printf("RON_PULL(Lo)\n");
-				}
-
-				if (card_codename < 0xc0) {
+				if (chipset_family < 0xc0) {
 					reg_100220 = (tRCD << 24 | tRAS << 16 | tRFC << 8 | tRC);
 					reg_100224 = ((tWR + 2 + (tCWL - 1)) << 24 |
 								(tUNK_18 ? tUNK_18 : 1) << 16 |
@@ -1612,7 +1697,7 @@ int main(int argc, char **argv) {
 
 					reg_100228 = ((tCWL - 1) << 24 | (tUNK_12 << 16) | tUNK_11 << 8 | tUNK_10);
 
-					if(card_codename < 0x50) {
+					if(chipset_family < 0x50) {
 						/* Don't know, don't care...
 						* don't touch the rest */
 						reg_100224 |= (tCL + 2 - (tCWL - 1));
@@ -1687,9 +1772,9 @@ int main(int argc, char **argv) {
 				header_length = 0;
 		uint16_t start = timings_map_tbl_ptr;
 		uint16_t clock_low = 0, clock_hi = 0;
+		uint16_t entry;
 		int j;
 		uint8_t ram_cfg = strap?(strap & 0x1c) >> 2:0xff;
-		uint8_t timing;
 
 		version = bios->data[start];
 		if (version == 0x10) {
@@ -1709,9 +1794,11 @@ int main(int argc, char **argv) {
 		for(i = 0; i < entry_count; i++) {
 			clock_low = le16(start);
 			clock_hi = le16(start+2);
-			timing = bios->data[start+entry_length+(ram_cfg*xinfo_length)+1];
 
-			printf("Entry %d: %d MHz - %d MHz, Timing %i\n",i, clock_low, clock_hi, timing);
+			printf("Entry %d: %d MHz - %d MHz\n",i, clock_low, clock_hi);
+			entry = start+entry_length+(ram_cfg*xinfo_length);
+			parse_memtm_mapping_entry(entry, xinfo_length, start);
+
 			printcmd(start, entry_length>0?entry_length:10);
 			start += entry_length;
 			for(j = 0; j < xinfo_count; j++) {

@@ -257,7 +257,11 @@
 			<bitfield pos="28" name="ENABLE"/>
 		</reg32>
 		<reg32 offset="0x44" name="STREAM_OFFSET" stride="8" length="8"/>
-		<reg32 offset="0x80" name="STREAM_BITPOS"/> <!-- write starts the stream input engine -->
+		<!-- write starts the stream input engine -->
+		<reg32 offset="0x80" name="STREAM_POS">
+			<bitfield low="0" high="2" name="BUFFER_IDX"/>
+			<bitfield low="3" high="30" name="BUFFER_POS"/>
+		</reg32>
 		<reg32 offset="0x100" name="MBRING_OFFSET"/>
 		<reg32 offset="0x104" name="MBRING_HALT_POST"/>
 		<reg32 offset="0x108" name="MBRING_WRITE_POS"/>

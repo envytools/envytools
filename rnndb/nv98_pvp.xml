@@ -258,13 +258,13 @@
 		<reg32 offset="0x48" name="ICNT"/>
 		<reg32 offset="0x4c" name="WDCNT"/>
 		<bitset name="nv98_pvp_vuc_intr"> <!-- fuc intr 10 -->
-			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="0" name="WATCHDOG"/>
 			<bitfield pos="1" name="UNK1"/>
-			<bitfield pos="2" name="UNK2"/>
+			<bitfield pos="2" name="V2H"/>
 			<bitfield pos="3" name="UNK3"/>
 			<bitfield pos="4" name="UNK4"/>
-			<bitfield pos="5" name="UNK5"/>
-			<bitfield pos="6" name="UNK6"/>
+			<bitfield pos="5" name="UNK5" variants="NVA3-"/>
+			<bitfield pos="6" name="UNK6" variants="NVA3-"/>
 		</bitset>
 		<reg32 offset="0x50" name="H2V"/>
 		<reg32 offset="0x54" name="V2H"/>
@@ -272,6 +272,7 @@
 			<bitfield low="0" high="2" name="MODE" type="vp3_mode"/>
 			<!-- ... -->
 		</reg32>
+		<reg32 offset="0x5c" name="PC"/>
 		<reg32 offset="0x70" name="INTR" type="nv98_pvp_vuc_intr"/>
 		<reg32 offset="0x74" name="INTR_EN" type="nv98_pvp_vuc_intr"/>
 		<reg32 offset="0xa0" name="MBRING_ADDR" shr="8"/>

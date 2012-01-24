@@ -321,12 +321,12 @@ Operation:
 	DST = s1 * s2;
 
 
-Sign extension: sex
+Sign extension: sext
 
 Does a sign-extension of low X bits of a value.
 
 Insns [unsized]:
-  [2] sex - Sign-extend
+  [2] sext - Sign-extend
 
 Operands [DST, SRC1, SRC2]:
   [c0] R1, R2, I8

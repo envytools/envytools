@@ -407,7 +407,7 @@ static struct insn tabm[] = {
 
 	{ 0x000000c0, 0x000000ff, OP24, N("mulu"), REG1, REG2, IMM8 },
 	{ 0x000000c1, 0x000000ff, OP24, N("muls"), REG1, REG2, IMM8S },
-	{ 0x000000c2, 0x000000ff, OP24, N("sex"), REG1, REG2, IMM8 },
+	{ 0x000000c2, 0x000000ff, OP24, N("sext"), REG1, REG2, IMM8 },
 	{ 0x000000c3, 0x000000ff, OP24, N("extrs"), REG1, REG2, BITF8, .fmask = F_FUC3P },
 	{ 0x000000c4, 0x000000ff, OP24, N("and"), REG1, REG2, IMM8 },
 	{ 0x000000c5, 0x000000ff, OP24, N("or"), REG1, REG2, IMM8 },
@@ -439,7 +439,7 @@ static struct insn tabm[] = {
 
 	{ 0x000000f0, 0x00000ffe, T(ol0), N("mulu"), REG2, T(i) },
 	{ 0x000001f0, 0x00000ffe, T(ol0), N("muls"), REG2, T(is) },
-	{ 0x000002f0, 0x00000fff, T(ol0), N("sex"), REG2, T(i) },
+	{ 0x000002f0, 0x00000fff, T(ol0), N("sext"), REG2, T(i) },
 	{ 0x000003f0, 0x00000ffe, T(ol0), N("sethi"), REG2, T(ih) },
 	{ 0x000004f0, 0x00000ffe, T(ol0), N("and"), REG2, T(i) },
 	{ 0x000005f0, 0x00000ffe, T(ol0), N("or"), REG2, T(i) },
@@ -534,7 +534,7 @@ static struct insn tabm[] = {
 
 	{ 0x000000fd, 0x000f00ff, OP24, N("mulu"), REG2, REG1 },
 	{ 0x000100fd, 0x000f00ff, OP24, N("muls"), REG2, REG1 },
-	{ 0x000200fd, 0x000f00ff, OP24, N("sex"), REG2, REG1 },
+	{ 0x000200fd, 0x000f00ff, OP24, N("sext"), REG2, REG1 },
 	{ 0x000400fd, 0x000f00ff, OP24, N("and"), REG2, REG1 },
 	{ 0x000500fd, 0x000f00ff, OP24, N("or"), REG2, REG1 },
 	{ 0x000600fd, 0x000f00ff, OP24, N("xor"), REG2, REG1 },
@@ -552,7 +552,7 @@ static struct insn tabm[] = {
 
 	{ 0x000000ff, 0x000f00ff, OP24, N("mulu"), REG3, REG2, REG1 },
 	{ 0x000100ff, 0x000f00ff, OP24, N("muls"), REG3, REG2, REG1 },
-	{ 0x000200ff, 0x000f00ff, OP24, N("sex"), REG3, REG2, REG1 },
+	{ 0x000200ff, 0x000f00ff, OP24, N("sext"), REG3, REG2, REG1 },
 	{ 0x000300ff, 0x000f00ff, OP24, N("extrs"), REG3, REG2, REG1, .fmask = F_FUC3P },
 	{ 0x000400ff, 0x000f00ff, OP24, N("and"), REG3, REG2, REG1 },
 	{ 0x000500ff, 0x000f00ff, OP24, N("or"), REG3, REG2, REG1 },

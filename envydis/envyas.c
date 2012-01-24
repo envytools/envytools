@@ -25,6 +25,7 @@
 #include "dis.h"
 #include <ctype.h>
 #include <libgen.h>
+#include <inttypes.h>
 
 static const struct disisa *envyas_isa = 0;
 
@@ -34,8 +35,10 @@ enum {
 	OFMT_RAW,
 	OFMT_HEX8,
 	OFMT_HEX32,
+	OFMT_HEX64,
 	OFMT_CHEX8,
 	OFMT_CHEX32,
+	OFMT_CHEX64,
 } envyas_ofmt = OFMT_HEX8;
 
 struct ed2v_variant *envyas_variant;
@@ -471,37 +474,41 @@ int envyas_process(struct file *file) {
 			if (envyas_ofmt == OFMT_CHEX32) {
 				fprintf (outfile, "uint32_t %s[] = {\n", sections[i].name);
 			}
-			if (envyas_ofmt == OFMT_CHEX32 || envyas_ofmt == OFMT_HEX32) {
-				for (j = 0; j < sections[i].pos; j+=4) {
-					uint32_t val;
-					val = sections[i].code[j] | sections[i].code[j+1] << 8 | sections[i].code[j+2] << 16 | sections[i].code[j+3] << 24;
-					if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32) {
-						int k;
-						for (k = 0; k < 4; k++) {
-							int l = find_label(ctx, &sections[i], j + k, -1);
-							while (l >= 0) {
-								fprintf(outfile, "/* 0x%04x: %s */\n", j + k, ctx->labels[l].name);
-								l = find_label(ctx, &sections[i], j + k, l + 1);
-							}
-						}
-						fprintf (outfile, "\t");
-					}
-					fprintf (outfile, "0x%08x,\n", val);
-				}
+			if (envyas_ofmt == OFMT_CHEX64) {
+				fprintf (outfile, "uint64_t %s[] = {\n", sections[i].name);
+			}
+			int step;
+			if (envyas_ofmt == OFMT_CHEX64 || envyas_ofmt == OFMT_HEX64) {
+				step = 8;
+			} else if (envyas_ofmt == OFMT_CHEX32 || envyas_ofmt == OFMT_HEX32) {
+				step = 4;
 			} else {
-				for (j = 0; j < sections[i].pos; j++) {
-					if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32) {
-						int l = find_label(ctx, &sections[i], j, -1);
+				step = 1;
+			}
+			for (j = 0; j < sections[i].pos; j+=step) {
+				uint64_t val = 0;
+				int k;
+				if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32 || envyas_ofmt == OFMT_CHEX64) {
+					for (k = 0; k < step; k++) {
+						int l = find_label(ctx, &sections[i], j + k, -1);
 						while (l >= 0) {
-							fprintf(outfile, "/* 0x%04x: %s */\n", j, ctx->labels[l].name);
-							l = find_label(ctx, &sections[i], j, l + 1);
+							fprintf(outfile, "/* 0x%04x: %s */\n", j + k, ctx->labels[l].name);
+							l = find_label(ctx, &sections[i], j + k, l + 1);
 						}
-						fprintf (outfile, "\t");
 					}
-					fprintf (outfile, "0x%02x,\n", sections[i].code[j]);
+					fprintf (outfile, "\t");
+				}
+				for (k = 0; k < step; k++)
+					val |= (uint64_t)sections[i].code[j + k] << (k * 8);
+				if (envyas_ofmt == OFMT_CHEX64 || envyas_ofmt == OFMT_HEX64) {
+					fprintf (outfile, "0x%016"PRIx64",\n", val);
+				} else if (envyas_ofmt == OFMT_CHEX32 || envyas_ofmt == OFMT_HEX32) {
+					fprintf (outfile, "0x%08"PRIx64",\n", val);
+				} else {
+					fprintf (outfile, "0x%02"PRIx64",\n", val);
 				}
 			}
-			if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32) {
+			if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32 || envyas_ofmt == OFMT_CHEX64) {
 				fprintf (outfile, "};\n");
 				if (i != sectionsnum - 1)
 					fprintf(outfile, "\n");
@@ -523,10 +530,12 @@ int main(int argc, char **argv) {
 	int c;
 	const char *varname = 0;
 	const char *modename = 0;
-	while ((c = getopt (argc, argv, "am:V:O:o:wi")) != -1)
+	while ((c = getopt (argc, argv, "am:V:O:o:wWi")) != -1)
 		switch (c) {
 			case 'a':
-				if (envyas_ofmt == OFMT_HEX32)
+				if (envyas_ofmt == OFMT_HEX64)
+					envyas_ofmt = OFMT_CHEX64;
+				else if (envyas_ofmt == OFMT_HEX32)
 					envyas_ofmt = OFMT_CHEX32;
 				else
 					envyas_ofmt = OFMT_CHEX8;
@@ -536,6 +545,12 @@ int main(int argc, char **argv) {
 					envyas_ofmt = OFMT_CHEX32;
 				else
 					envyas_ofmt = OFMT_HEX32;
+				break;
+			case 'W':
+				if (envyas_ofmt == OFMT_CHEX8)
+					envyas_ofmt = OFMT_CHEX64;
+				else
+					envyas_ofmt = OFMT_HEX64;
 				break;
 			case 'i':
 				envyas_ofmt = OFMT_RAW;

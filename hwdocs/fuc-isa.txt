@@ -139,7 +139,7 @@ Unsized
 -----------------------------------------------------------------------------------------
  mulu    |A   | 0|  | 0| 0| 0|  |  |  |  |  |  |  | 0|  | 0| U |-    |-    | unsigned 16x16 -> 32 multiply
  muls    |A   | 1|  | 1| 1| 1|  |  |  |  |  |  |  | 1|  | 1| S |-    |-    | signed 16x16 -> 32 multiply
- sex     |A   | 2|  |  | 2|  |  |  |  |  |  |  |  | 2|  | 2| U |SZ   |SZ   | sign extend
+ sext    |A   | 2|  |  | 2|  |  |  |  |  |  |  |  | 2|  | 2| U |SZ   |SZ   | sign extend
  extrs   |A+  | 3|  | 3|  |  |  |  |  |  |  |  |  |  |  | 3| U | N/A |SZ   | extract signed bitfield
  sethi   |A   |  |  |  | 3| 3|  |  |  |  |  |  |  |  |  |  | H |-    |-    | set high 16 bits
  and     |A   | 4|  | 4| 4| 4|  |  |  |  |  |  |  | 4|  | 4| U |-    |COSZ | bitwise and

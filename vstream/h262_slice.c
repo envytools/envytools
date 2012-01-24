@@ -227,7 +227,6 @@ int h262_infer_vectors(struct bitstream *str, struct h262_seqparm *seqparm, stru
 }
 
 static const struct vs_vlc_val cbp_vlc[] = {
-
 	{ 0x0f, 3, 1,1,1 },
 	{ 0x08, 4, 1,1,0,1 },
 	{ 0x04, 4, 1,1,0,0 },
@@ -472,6 +471,7 @@ static const struct vs_vlc_val block_vlc[] = {
 	{ 0x1e001, 16, 0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0 },
 	{ 0x1f001, 16, 0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1 },
 	{ 0xfffff,  6, 0,0,0,0,0,1 },
+	{ 0 },
 };
 
 static const struct vs_vlc_val block_0_vlc[] = {
@@ -587,6 +587,7 @@ static const struct vs_vlc_val block_0_vlc[] = {
 	{ 0x1e001, 16, 0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0 },
 	{ 0x1f001, 16, 0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1 },
 	{ 0xfffff,  6, 0,0,0,0,0,1 },
+	{ 0 },
 };
 
 static const struct vs_vlc_val block_intra_vlc[] = {
@@ -703,6 +704,7 @@ static const struct vs_vlc_val block_intra_vlc[] = {
 	{ 0x1e001, 16, 0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,0 },
 	{ 0x1f001, 16, 0,0,0,0,0,0,0,0,0,0,0,1,1,0,1,1 },
 	{ 0xfffff,  6, 0,0,0,0,0,1 },
+	{ 0 },
 };
 
 int h262_block(struct bitstream *str, struct h262_seqparm *seqparm, struct h262_picparm *picparm, int32_t *block, int intra, int chroma) {
