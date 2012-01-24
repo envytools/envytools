@@ -367,7 +367,7 @@ static struct insn tabbop[] = {
 	{ 0x00000012, 0x0000001f, N("btest"), T(pdst), T(src1), T(src2) },
 
 	/* shifts */
-	{ 0x00000014, 0x0000001f, N("rot8"), T(pdst), T(dst), T(src1) },
+	{ 0x00000014, 0x0000001f, N("hswap"), T(pdst), T(dst), T(src1) },
 	{ 0x00000015, 0x0000001f, N("shl"), T(pdst), T(dst), T(src1), T(src2) },
 	{ 0x00000016, 0x0000001f, N("shr"), T(pdst), T(dst), T(src1), T(src2) },
 	{ 0x00000017, 0x0000001f, N("sar"), T(pdst), T(dst), T(src1), T(src2) },
