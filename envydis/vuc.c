@@ -367,7 +367,7 @@ static struct insn tabbop[] = {
 	/* bit manipulation */
 	{ 0x00000010, 0x0000001f, N("bset"), T(pmod), T(dst), T(src1), T(src2) },
 	{ 0x00000011, 0x0000001f, N("bclr"), T(pmod), T(dst), T(src1), T(src2) },
-	{ 0x00000012, 0x0000001f, N("btest"), T(pmod), T(dst), T(src1), T(src2) },
+	{ 0x00000012, 0x0000001f, N("btest"), T(pmod), T(src1), T(src2) },
 
 	/* shifts */
 	{ 0x00000014, 0x0000001f, N("rot8"), T(pmod), T(dst), T(src1) },
@@ -412,9 +412,9 @@ static struct insn tabroot[] = {
 };
 
 static const struct disvariant vuc_vars[] = {
-    "vp2", VP2,
-    "vp3", VP3,
-    "vp4", VP4,
+	"vp2", VP2,
+	"vp3", VP3,
+	"vp4", VP4,
 };
 
 const struct disisa vuc_isa_s = {
@@ -422,6 +422,6 @@ const struct disisa vuc_isa_s = {
 	8,
 	8,
 	8,
-    .vars = vuc_vars,
-    .varsnum = sizeof vuc_vars / sizeof *vuc_vars,
+	.vars = vuc_vars,
+	.varsnum = sizeof vuc_vars / sizeof *vuc_vars,
 };
