@@ -179,7 +179,7 @@
 			</stripe>
 
 			<reg32 offset="0x1698" name="VERTEX_FOG_1F" type="float"/>
-			<reg32 offset="0x16bc" name="EDGEFLAG_ENABLE" type="boolean"/>
+			<reg32 offset="0x16bc" name="EDGEFLAG" type="boolean"/>
 
 			<stripe offset="0x1a00" name="VERTEX_ATTR_4F" length="16" stride="16">
 				<use-group name="xyzw-float"/>

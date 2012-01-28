@@ -926,7 +926,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield pos="1" name="UNK1" variants="NVA0_3D-"/>
 		</reg32>
-		<reg32 offset="0x15e4" name="EDGEFLAG_ENABLE" type="boolean"/>
+		<reg32 offset="0x15e4" name="EDGEFLAG" type="boolean"/>
 		<reg32 offset="0x15e8" name="VB_ELEMENT_U32" type="int"/>
 		<reg32 offset="0x15ec" name="VB_ELEMENT_U16_SETUP">
 			<bitfield name="OFFSET" high="31" low="30"/>
