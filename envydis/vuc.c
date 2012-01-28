@@ -186,19 +186,19 @@ static struct mem vpstr_m = { "VP", 0, &dst_r, 0, &src1_r, 1 };
 #define VPSTIS atommem, &vpstis_m
 #define VPSTR atommem, &vpstr_m
 
-static struct mem o5memsti_m = { "O5", 0, &src1_r, &bimmstoff };
-static struct mem o5memstis_m = { "O5", 0, &src1_r, &bimmstsoff };
-static struct mem o5memstr_m = { "O5", 0, &src1_r, 0, &dst_r };
-#define O5MEMSTI atommem, &o5memsti_m
-#define O5MEMSTIS atommem, &o5memstis_m
-#define O5MEMSTR atommem, &o5memstr_m
+static struct mem mvsomemsti_m = { "MVSO", 0, &src1_r, &bimmstoff };
+static struct mem mvsomemstis_m = { "MVSO", 0, &src1_r, &bimmstsoff };
+static struct mem mvsomemstr_m = { "MVSO", 0, &src1_r, 0, &dst_r };
+#define MVSOMEMSTI atommem, &mvsomemsti_m
+#define MVSOMEMSTIS atommem, &mvsomemstis_m
+#define MVSOMEMSTR atommem, &mvsomemstr_m
 
-static struct mem i4memldi_m = { "I4", 0, &src1_r, &bimmldoff };
-static struct mem i4memldis_m = { "I4", 0, &src1_r, &bimmldsoff };
-static struct mem i4memldr_m = { "I4", 0, &src1_r, 0, &src2_r };
-#define I4MEMLDI atommem, &i4memldi_m
-#define I4MEMLDIS atommem, &i4memldis_m
-#define I4MEMLDR atommem, &i4memldr_m
+static struct mem mvsimemldi_m = { "MVSI", 0, &src1_r, &bimmldoff };
+static struct mem mvsimemldis_m = { "MVSI", 0, &src1_r, &bimmldsoff };
+static struct mem mvsimemldr_m = { "MVSI", 0, &src1_r, 0, &src2_r };
+#define MVSIMEMLDI atommem, &mvsimemldi_m
+#define MVSIMEMLDIS atommem, &mvsimemldis_m
+#define MVSIMEMLDR atommem, &mvsimemldr_m
 
 static struct insn tabp[] = {
 	{ 0x00f00000, 0x00f00000 },
@@ -306,12 +306,12 @@ static struct insn tabsop[] = {
 	{ 0x00000084, 0x080000ff, N("st"), VPSTR, SRC2 },
 	{ 0x08000084, 0x280000ff, N("st"), VPSTI, SRC2 },
 	{ 0x28000084, 0x280000ff, N("st"), VPSTIS, SRC2 },
-	{ 0x00000089, 0x080000ff, N("ld4"), DST, I4MEMLDR },
-	{ 0x08000089, 0x280000ff, N("ld4"), DST, I4MEMLDI },
-	{ 0x28000089, 0x280000ff, N("ld4"), DST, I4MEMLDIS },
-	{ 0x0000008a, 0x080000ff, N("st5"), O5MEMSTR, SRC2 },
-	{ 0x0800008a, 0x280000ff, N("st5"), O5MEMSTI, SRC2 },
-	{ 0x2800008a, 0x280000ff, N("st5"), O5MEMSTIS, SRC2 },
+	{ 0x00000089, 0x080000ff, N("ld"), DST, MVSIMEMLDR },
+	{ 0x08000089, 0x280000ff, N("ld"), DST, MVSIMEMLDI },
+	{ 0x28000089, 0x280000ff, N("ld"), DST, MVSIMEMLDIS },
+	{ 0x0000008a, 0x080000ff, N("st"), MVSOMEMSTR, SRC2 },
+	{ 0x0800008a, 0x280000ff, N("st"), MVSOMEMSTI, SRC2 },
+	{ 0x2800008a, 0x280000ff, N("st"), MVSOMEMSTIS, SRC2 },
 	{ 0x0000008c, 0x080000ff, N("st6"), B6MEMSTR, SRC2 },
 	{ 0x0800008c, 0x280000ff, N("st6"), B6MEMSTI, SRC2 },
 	{ 0x2800008c, 0x280000ff, N("st6"), B6MEMSTIS, SRC2 },

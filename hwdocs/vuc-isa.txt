@@ -34,8 +34,12 @@ There are 7 address spaces the vµc can access:
           VPRING_DEBLOCK and VPRING_CTRL when corresponding commands are
 	  invoked. Byte-addressed, 0x400 bytes long. Stores are in byte or
 	  word units depending on the address.
- - I4[] - ??? read-only [XXX]
- - O5[] - ??? write-only [XXX]
+ - MVSI[] - MVSURF input data, read-only. Filled with data from the input
+            MVSURF when mvsread opcode is executed. Word-addressed, 0x100
+	    words long, loads are in word units.
+ - MVSO[] - MVSURF output data, write-only. Data stored here will be written
+            to the output MVSURF when mvswrite opcode is executed.
+	    Word-addressed, 0x80 words long, stores are in word units.
  - B6[] - io address space? [XXX]
  - B7[] - io address space? [XXX]
 
@@ -348,8 +352,8 @@ The operands and their encodings are:
    - 0000: D[]
    - 0001: PWT[] - ld only
    - 0010: VP[] - st only
-   - 0100: I4[] - ld only
-   - 0101: O5[] - st only
+   - 0100: MVSI[] - ld only
+   - 0101: MVSO[] - st only
    - 0110: B6[]
    - 0111: B7[]
  - stoff: store offset
