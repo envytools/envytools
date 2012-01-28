@@ -328,7 +328,7 @@ static struct insn tabsop[] = {
 	/* long arithmetic block */
 	{ 0x000000a0, 0x000000ff, N("lmulu"), T(src1), T(src2) },
 	{ 0x000000a1, 0x000000ff, N("lmuls"), T(src1), T(src2) },
-	{ 0x000000a2, 0x000000ff, N("lsrnd"), T(src2) },
+	{ 0x000000a2, 0x000000ff, N("lsrr"), T(src2) },
 	{ 0x000000a4, 0x000000ff, N("ladd"), T(src2), .vartype = VP3P },
 	{ 0x000000a8, 0x000000ff, N("lsar"), T(src2), .vartype = VP3P },
 	{ 0x000000ac, 0x000000ff, N("ldivu"), T(src2), .vartype = VP4 },
