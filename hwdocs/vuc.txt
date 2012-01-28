@@ -27,9 +27,9 @@ The vµc unit is made of the following subunits:
    last P picture [other codecs]
  - VPRINGs output circuitry [VP2 only] - the VPRINGs are ring buffers filled
    by vµc with instructions for various VP subunits. There are three VPRINGs:
-   VPRING_MBINFO used for prediction modes, transform modes and other misc
-   information about the macroblock, VPRING_MV used for the motion vectors,
-   and VPRING_COEFF used for transform coefficients.
+   VPRING_DEBLOCK used for deblocking commands, VPRIND_RESIDUAL used for the
+   residual transform coefficients, and VPRINT_CTRL used for the motion
+   vectors and other control data.
  - direct VP connection [VP3, VP4 only] - the VP3+ vµc is directly connected
    to the VP engine, instead of relying on ring buffers in memory.
 
@@ -54,18 +54,18 @@ The vµc registers are located in PBSP XLMI space at addresses 0x08000:0x10000
               hardware, aliased to vµc special register $sr7 [$parm]
 0a700/10329c: PC - the address of instruction currently executed by the
               microprocessor, aliased to vµc special register $sr8 [$pc]
-0a800/1032a0: VPRING_COEFF.OFFSET - the VPRING_COEFF offset
-0a900/1032a4: VPRING_COEFF.HALT_POS - the VPRING_COEFF halt position
-0aa00/1032a8: VPRING_COEFF.WRITE_POS - the VPRING_COEFF write position
-0ab00/1032ac: VPRING_COEFF.SIZE - the VPRING_COEFF size
-0ac00/1032b0: VPRING_MV.OFFSET - the VPRING_MV offset
-0ad00/1032b4: VPRING_MV.HALT_POS - the VPRING_MV halt position
-0ae00/1032b8: VPRING_MV.WRITE_POS - the VPRING_MV write position
-0af00/1032bc: VPRING_MV.SIZE - the VPRING_MV size
-0b000/1032c0: VPRING_MBINFO.OFFSET - the VPRING_MBINFO offset
-0b100/1032c4: VPRING_MBINFO.HALT_POS - the VPRING_MBINFO halt position
-0b200/1032c8: VPRING_MBINFO.WRITE_POS - the VPRING_MBINFO write position
-0b300/1032cc: VPRING_MBINFO.SIZE - the VPRING_MBINFO size
+0a800/1032a0: VPRING_RESIDUAL.OFFSET - the VPRING_RESIDUAL offset
+0a900/1032a4: VPRING_RESIDUAL.HALT_POS - the VPRING_RESIDUAL halt position
+0aa00/1032a8: VPRING_RESIDUAL.WRITE_POS - the VPRING_RESIDUAL write position
+0ab00/1032ac: VPRING_RESIDUAL.SIZE - the VPRING_RESIDUAL size
+0ac00/1032b0: VPRING_CTRL.OFFSET - the VPRING_CTRL offset
+0ad00/1032b4: VPRING_CTRL.HALT_POS - the VPRING_CTRL halt position
+0ae00/1032b8: VPRING_CTRL.WRITE_POS - the VPRING_CTRL write position
+0af00/1032bc: VPRING_CTRL.SIZE - the VPRING_CTRL size
+0b000/1032c0: VPRING_DEBLOCK.OFFSET - the VPRING_DEBLOCK offset
+0b100/1032c4: VPRING_DEBLOCK.HALT_POS - the VPRING_DEBLOCK halt position
+0b200/1032c8: VPRING_DEBLOCK.WRITE_POS - the VPRING_DEBLOCK write position
+0b300/1032cc: VPRING_DEBLOCK.SIZE - the VPRING_DEBLOCK size
 0b400/1032d0: VPRING_TRIGGER - flush/resume triggers the for VPRINGs
 0b500/1032d4: INTR - interrupt status
 0b600/1032d8: INTR_EN - interrupt enable mask

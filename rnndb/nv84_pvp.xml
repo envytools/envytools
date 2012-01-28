@@ -297,27 +297,27 @@
 			<reg32 offset="0x8" name="WRITE_POS"/>
 			<reg32 offset="0xc" name="SIZE"/>
 		</group>
-		<array offset="0x0a0" name="VPRING_COEFF" stride="0x10">
+		<array offset="0x0a0" name="VPRING_RESIDUAL" stride="0x10">
 			<use-group name="nv84_pbsp_vuc_vpring"/>
 		</array>
-		<array offset="0x0b0" name="VPRING_MV" stride="0x10">
+		<array offset="0x0b0" name="VPRING_CTRL" stride="0x10">
 			<use-group name="nv84_pbsp_vuc_vpring"/>
 		</array>
-		<array offset="0x0c0" name="VPRING_MBINFO" stride="0x10">
+		<array offset="0x0c0" name="VPRING_DEBLOCK" stride="0x10">
 			<use-group name="nv84_pbsp_vuc_vpring"/>
 		</array>
 		<reg32 offset="0x0d0" name="VPRING_TRIGGER">
-			<bitfield pos="0" name="COEFF_FLUSH"/>
-			<bitfield pos="1" name="MV_FLUSH"/>
-			<bitfield pos="2" name="MBINFO_FLUSH"/>
-			<bitfield pos="4" name="COEFF_RESUME"/>
-			<bitfield pos="5" name="MV_RESUME"/>
-			<bitfield pos="6" name="MBINFO_RESUME"/>
+			<bitfield pos="0" name="RESIDUAL_FLUSH"/>
+			<bitfield pos="1" name="CTRL_FLUSH"/>
+			<bitfield pos="2" name="DEBLOCK_FLUSH"/>
+			<bitfield pos="4" name="RESIDUAL_RESUME"/>
+			<bitfield pos="5" name="CTRL_RESUME"/>
+			<bitfield pos="6" name="DEBLOCK_RESUME"/>
 		</reg32>
 		<bitset name="nv84_pbsp_vuc_intr" inline="yes">
-			<bitfield pos="0" name="VPRING_COEFF_HALT"/>
-			<bitfield pos="1" name="VPRING_MV_HALT"/>
-			<bitfield pos="2" name="VPRING_MBINFO_HALT"/>
+			<bitfield pos="0" name="VPRING_RESIDUAL_HALT"/>
+			<bitfield pos="1" name="VPRING_CTRL_HALT"/>
+			<bitfield pos="2" name="VPRING_DEBLOCK_HALT"/>
 			<bitfield pos="3" name="WATCHDOG"/>
 			<bitfield pos="4" name="MBRING_READ_DONE"/>
 			<bitfield pos="5" name="V2H"/>
