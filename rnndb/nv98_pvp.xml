@@ -291,7 +291,12 @@
 		<reg32 offset="0xa4" name="MBRING_SIZE"/>
 		<reg32 offset="0xa8" name="MBRING_GET"/>
 		<reg32 offset="0xac" name="MBRING_AVAIL"/> <!-- yes, really. -->
+		<reg32 offset="0xb0" name="UNKB0"/>
+		<reg32 offset="0xb4" name="UNKB4"/>
+		<reg32 offset="0xb8" name="UNKB8"/>
 		<reg32 offset="0xbc" name="STAT"/> <!-- aliases $stat -->
+		<reg32 offset="0xc0" name="UNKC0"/>
+		<reg32 offset="0xc4" name="UNKC4"/>
 	</array>
 	<array offset="0x500" name="TRANS" stride="0x80">
 		<reg32 offset="0x00" name="CODE_SELECT" length="4">
