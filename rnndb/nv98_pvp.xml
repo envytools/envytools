@@ -270,6 +270,8 @@
 		<reg32 offset="0x54" name="V2H"/>
 		<reg32 offset="0x58" name="PARM">
 			<bitfield low="0" high="2" name="MODE" type="vp3_mode"/>
+			<bitfield pos="8" name="H264_MBAFF_FRAME_FLAG"/>
+			<bitfield low="9" high="10" name="H264_SLICE_TYPE"/>
 			<!-- ... -->
 		</reg32>
 		<reg32 offset="0x5c" name="PC"/>
