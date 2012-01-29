@@ -273,6 +273,8 @@
 			<!-- ... -->
 		</reg32>
 		<reg32 offset="0x5c" name="PC"/>
+		<reg32 offset="0x60" name="RPITAB_DATA_ADDR"/>
+		<reg32 offset="0x64" name="REFTAB_DATA_ADDR" shr="1"/>
 		<reg32 offset="0x68" name="BUSY">
 			<bitfield pos="0" name="UC"/>
 			<bitfield pos="1" name="MBRING"/>
