@@ -138,7 +138,7 @@ static struct mem dmemldis_m = { "D", 0, &src1_r, &bimmldsoff };
 static struct mem dmemldr_m = { "D", 0, &src1_r, 0, &src2_r };
 static struct mem dmemsti_m = { "D", 0, &src1_r, &bimmstoff };
 static struct mem dmemstis_m = { "D", 0, &src1_r, &bimmstsoff };
-static struct mem dmemstr_m = { "D", 0, &src1_r, 0, &dst_r };
+static struct mem dmemstr_m = { "D", 0, &dst_r, 0, &src1_r, 1 };
 #define DMEMLDI atommem, &dmemldi_m
 #define DMEMLDIS atommem, &dmemldis_m
 #define DMEMLDR atommem, &dmemldr_m
@@ -151,7 +151,7 @@ static struct mem b6memldis_m = { "B6", 0, &src1_r, &bimmldsoff };
 static struct mem b6memldr_m = { "B6", 0, &src1_r, 0, &src2_r };
 static struct mem b6memsti_m = { "B6", 0, &src1_r, &bimmstoff };
 static struct mem b6memstis_m = { "B6", 0, &src1_r, &bimmstsoff };
-static struct mem b6memstr_m = { "B6", 0, &src1_r, 0, &dst_r };
+static struct mem b6memstr_m = { "B6", 0, &dst_r, 0, &src1_r, 1 };
 #define B6MEMLDI atommem, &b6memldi_m
 #define B6MEMLDIS atommem, &b6memldis_m
 #define B6MEMLDR atommem, &b6memldr_m
@@ -164,7 +164,7 @@ static struct mem b7memldis_m = { "B7", 0, &src1_r, &bimmldsoff };
 static struct mem b7memldr_m = { "B7", 0, &src1_r, 0, &src2_r };
 static struct mem b7memsti_m = { "B7", 0, &src1_r, &bimmstoff };
 static struct mem b7memstis_m = { "B7", 0, &src1_r, &bimmstsoff };
-static struct mem b7memstr_m = { "B7", 0, &src1_r, 0, &dst_r };
+static struct mem b7memstr_m = { "B7", 0, &dst_r, 0, &src1_r, 1 };
 #define B7MEMLDI atommem, &b7memldi_m
 #define B7MEMLDIS atommem, &b7memldis_m
 #define B7MEMLDR atommem, &b7memldr_m

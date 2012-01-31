@@ -328,8 +328,10 @@ The special opcodes have the following operands:
  - immediate form:	imm4 [XXX]
  - branch form:		btarg [XXX]
  - predicate form:	spdst, psrc1, psrc2
- - store form:		space[src1 + stoff], src2	[XXX: wrong for non-D[]]
- - load form:		dst, space[src1 + ldoff]	[XXX: wrong for non-D[]]
+ - store form:		space[dst + src1 * 2], src2	[if IMMF is 0]
+ - store form:		space[src1 + stoff], src2	[if IMMF is 1]
+ - load form:		dst, space[src1 + ldoff]	[if IMMF is 0]
+ - load form:		dst, space[src1 + src2]		[if IMMF is 1]
  - long binary form:	src1, src2
  - long unary form:	src2
 
@@ -357,17 +359,15 @@ The operands and their encodings are:
    - 0110: B6[]
    - 0111: B7[]
  - stoff: store offset
-   - IMMF = 0: $r register selected by DST field
-   - IMMF = 1, PE = 0: 10-bit zero-extended immediate stored in DST [low
-     bits], PRED [middle bits] and EXT [high bits] fields
-   - IMMF = 1, PE = 1: 6-bit zero-extended immediate stored in DST [low
-     bits] and EXT [high bits] fields
+   - PE = 0: 10-bit zero-extended immediate stored in DST [low bits], PRED
+     [middle bits] and EXT [high bits] fields
+   - PE = 1: 6-bit zero-extended immediate stored in DST [low bits] and EXT
+     [high bits] fields
  - ldoff: load offset
-   - IMMF = 0: $r register selected by SRC2 field
-   - IMMF = 1, PE = 0: 10-bit zero-extended immediate stored in SRC2 [low
-     bits], PRED [middle bits] and EXT [high bits] fields
-   - IMMF = 1, PE = 1: 6-bit zero-extended immediate stored in SRC2 [low
-     bits] and EXT [high bits] fields
+   - PE = 0: 10-bit zero-extended immediate stored in SRC2 [low bits], PRED
+     [middle bits] and EXT [high bits] fields
+   - PE = 1: 6-bit zero-extended immediate stored in SRC2 [low bits] and EXT
+     [high bits] fields
 
 
 = Special register list =
