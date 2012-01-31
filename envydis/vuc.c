@@ -188,7 +188,7 @@ static struct mem vpstr_m = { "VP", 0, &dst_r, 0, &src1_r, 1 };
 
 static struct mem mvsomemsti_m = { "MVSO", 0, &src1_r, &bimmstoff };
 static struct mem mvsomemstis_m = { "MVSO", 0, &src1_r, &bimmstsoff };
-static struct mem mvsomemstr_m = { "MVSO", 0, &src1_r, 0, &dst_r };
+static struct mem mvsomemstr_m = { "MVSO", 0, &dst_r, 0, &src1_r, 1 };
 #define MVSOMEMSTI atommem, &mvsomemsti_m
 #define MVSOMEMSTIS atommem, &mvsomemstis_m
 #define MVSOMEMSTR atommem, &mvsomemstr_m
