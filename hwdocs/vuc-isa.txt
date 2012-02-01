@@ -296,7 +296,7 @@ further determine the opcode inside that class. The classes and opcodes are:
   - 00011: ret		[simple form]		return
   - 00100: sleep	[simple form]		sleep
   - 00101: wstc		[immediate form]	wait for status bit clear
-  - 00110: ??? [XXX]	[immediate form]
+  - 00110: wsts		[immediate form]	wait for status bit set
  - OC 001: io control
   - 00000: clicnt	[simple form]		clear instruction counter
   - 00001: ??? [XXX]	[simple form]
@@ -384,8 +384,8 @@ The operands and their encodings are:
 
 The special opcodes have the following operands:
  - simple form:		[none]
- - immediate form:	imm4 [XXX]
- - branch form:		btarg [XXX]
+ - immediate form:	imm4
+ - branch form:		btarg
  - predicate form:	spdst, psrc1, psrc2
  - store form:		space[dst + src1 * 2], src2	[if IMMF is 0]
  - store form:		space[src1 + stoff], src2	[if IMMF is 1]
@@ -397,7 +397,7 @@ The special opcodes have the following operands:
 The operands and their encodings are:
  - src1, src2, dst: like for base opcodes
  - imm4: 4-bit immediate
-   - all cases: 4-bit immediate stored in SRC2 field [XXX]
+   - all cases: 4-bit immediate stored in SRC2 field
  - btarg: code address
    - all cases: 11-bit immediate stored in BTARG field
  - spdst: predicate destination
@@ -1123,8 +1123,6 @@ Known override instructions control machine state, access memory spaces, externa
         
     0x04: I/O?
         Version 0x34f00004 stops execution. I/O wait? Reads from $sr6 afterwards, always preceded by unk20
-    0x05: I/O?
-        Usage: alternated with $sr6 writes.
     0x24: I/O
         no params (?)
         First run: change $sr16-$sr21, $sr24 and $sr27-$sr31.
@@ -1132,7 +1130,7 @@ Known override instructions control machine state, access memory spaces, externa
         XXX: delay (blob: 5)
 
 
-== The scratch special registers ==
+= The scratch special registers =
 
 The vµc has two 16-bit scratch registers that may be used for communication
 between vµc and the host [xtensa/fµc code counts at the host in this case].
@@ -1164,7 +1162,7 @@ BAR0 0x085454 / I[0x11500]: V2H [VP3+]
   A read-only alias of $v2h.
 
 
-== The $stat special register ==
+= The $stat special register =
 
 Every bit in this register performs a different function. All of them can be
 read. For the ones that can be written, value 0 serves as a noop, while value
@@ -1191,10 +1189,10 @@ $sr6/$stat: Control and status register.
   bit 13 [VP4+?]: ??? [XXX]
   bit 15: user-controlled PCOUNTER signal		[vuc-pm.txt]
 
-Two special instructions are available that read $stat implicitely. sleep
+Three special instructions are available that read $stat implicitely. sleep
 instruction switches to a low-power sleep mode until bit 10 or bit 11 is set.
-wstc instruction does a busy-wait until a selected bit in $stat goes to 0.
-[XXX: unknown op 6]
+wstc instruction does a busy-wait until a selected bit in $stat goes to 0,
+wsts likewise waits until a selected bit goes to 1.
 
 On VP3+, a read-only alias of $stat is available in the MMIO space:
 
@@ -1202,7 +1200,38 @@ BAR0 0x0854bc / I[0x12f00]: STAT
   Aliases $stat vµc register, read only.
 
 
-== Misc special registers ==
+== Sleep instruction: sleep ==
+
+This instruction waits until a full macroblock has been read from the MBRING
+[ie. $stat bit 10 is set] or host writes $h2v register [ie. $stat bit 11 is
+set]. While this instruction is waiting, vµc microprocessor goes into a low
+power mode, and sends 0 on its "busy" signal, thus counting as idle.
+
+Instructions:
+	sleep			OP=00100
+Opcode: special opcode with OC=001, OP as above
+Operation:
+	while (!($stat & 0xc00)) idle();
+Execution time: as long as necessary, at least 1 cycle, blocks subsequent
+	instructions until finished
+
+
+== Wait for status bit instructions: wstc, wsts ==
+
+These instructions wait for a given $stat bit to become 0 [wstc] or 1 [wsts].
+Execution of all subsequent instructions is delayed until this happens.
+
+Instructions:
+	wstc imm4		OP=00101
+	wsts imm4		OP=00110
+Opcode: special opcode with OC=001, OP as above
+Operation:
+	while (($stat >> imm4 & 1) != (op == wsts));
+Execution time: as long as necessary, at least 1 cycle, blocks subsequent
+	instructions until finished
+
+
+= Misc special registers =
 
 This section describes various special registers that don't fit anywhere else.
 

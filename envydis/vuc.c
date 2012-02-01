@@ -223,6 +223,12 @@ static struct mem mvsimemldr_m = { "MVSI", 0, &src1_r, 0, &src2_r };
 #define MVSIMEMLDIS atommem, &mvsimemldis_m
 #define MVSIMEMLDR atommem, &mvsimemldr_m
 
+static struct insn tabignimmf[] = {
+	{ 0x00000000, 0x08000000 },
+	{ 0x08000000, 0x08000000 },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabp[] = {
 	{ 0x00f00000, 0x00f00000 },
 	{ 0, 0, PRED },
@@ -289,12 +295,12 @@ static struct insn tabpnot2[] = {
 
 static struct insn tabsop[] = {
 	/* control flow block */
-	{ 0x28000000, 0x280000ff, N("bra"), BTARG },
-	{ 0x28000002, 0x280000ff, N("call"), CTARG },
-	{ 0x20000003, 0x200000ff, N("ret") },
-	{ 0x00000004, 0x000000ff, N("sleep") },	/* halt everything until there's work to do */
-	{ 0x00000005, 0x000000ff, N("wstc"), T(src2) },	/* do nothing until bit #SRC2 of $stat is clear */
-	{ 0x00000006, 0x000000ff, U("o06"), T(src2) },
+	{ 0x00000000, 0x000000ff, N("bra"), T(ignimmf), BTARG },
+	{ 0x00000002, 0x000000ff, N("call"), T(ignimmf), CTARG },
+	{ 0x00000003, 0x000000ff, N("ret") },
+	{ 0x00000004, 0x000000ff, N("sleep") },
+	{ 0x00000005, 0x000000ff, N("wstc"), T(ignimmf), IMM4 },
+	{ 0x00000006, 0x000000ff, U("wsts"), T(ignimmf), IMM4 },
 
 	/* special functions block */
 	{ 0x00000020, 0x000000ff, N("clicnt") },	/* reset $icnt to 0 */
