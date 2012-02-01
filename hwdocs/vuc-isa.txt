@@ -1,9 +1,12 @@
 TOC
 
 0. Intruduction
-1. The opcode format
-2. Special registers
+1. The delays
+2. The opcode format
 3. Instruction reference
+4. The scratch special registers
+5. The $stat register
+6. Misc special registers
 
 
 = Introduction =
@@ -557,12 +560,7 @@ The operands and their encodings are:
 
 
 
-XXX: Find signedness of instructions
-TODO: Find out exact immediate sizes in most instructions
-XXX: Verify remaining delays
-
-
-= Instructions =
+= Instruction reference =
 
 In the pseudocode, all intermediate computation results and temporary
 variables are assumed to be infinite-precision signed integers: non-negative
@@ -1263,3 +1261,101 @@ Known override instructions control machine state, access memory spaces, externa
         First run: change $sr16-$sr21, $sr24 and $sr27-$sr31.
         Consecutive runs: change $sr16-$sr24 and $sr27-$sr31 ($sr22, $sr23 == 1).
         XXX: delay (blob: 5)
+
+
+== The scratch special registers ==
+
+The vµc has two 16-bit scratch registers that may be used for communication
+between vµc and the host [xtensa/fµc code counts at the host in this case].
+One of them is for host -> vµc direction, the other for vµc -> host.
+
+The host -> vµc register is called $h2v. It's RW on the host side, RO on vµc
+side. Writing this register causes bit 11 of $stat register to light up and
+stay up until $h2v is read on vµc side.
+
+$sr4/$h2v: host->vµc 16-bit scratch register. Reading this register will
+clear bit 11 of $stat. This register is read-only.
+
+BAR0 0x103290 / XLMI 0x0a400: H2V [VP2]
+BAR0 0x085450 / I[0x11400]: H2V [VP3+]
+  A read-write alias of $h2v. Does not clear $stat bit 11 when read. Writing
+  sets bit 11 of $stat
+
+$stat bit 11: $h2v write pending. This bit is set when H2V is written by host,
+cleared when $h2v is read by vµc.
+
+The vµc -> host register is called $v2h. It's RW on the vµc side, RO on host
+side. Writing this register causes an interrupt to be triggered.
+
+$sr5/$v2h: vµc->host 16-bit scratch register, read-write. Writing this
+register will trigger V2H vµc interrupt.
+
+BAR0 0x103294 / XLMI 0x0a500: V2H [VP2]
+BAR0 0x085454 / I[0x11500]: V2H [VP3+]
+  A read-only alias of $v2h.
+
+
+== The $stat special register ==
+
+Every bit in this register performs a different function. All of them can be
+read. For the ones that can be written, value 0 serves as a noop, while value
+1 triggers some operation.
+
+$sr6/$stat: Control and status register.
+  bit 0 [VP2]: VPRING_DEBLOCK buffer 0 write trigger	[vuc-vpring.txt]
+  bit 1 [VP2]: VPRING_DEBLOCK buffer 1 write trigger	[vuc-vpring.txt]
+  bit 2 [VP2]: VPRING_CTRL buffer 0 write trigger	[vuc-vpring.txt]
+  bit 3 [VP2]: VPRING_CTRL buffer 1 write trigger	[vuc-vpring.txt]
+  bit 0 [VP3+]: ??? [XXX]
+  bit 1 [VP3+]: ??? [XXX]
+  bit 2 [VP3+]: ??? [XXX]
+  bit 3 [VP3+]: ??? [XXX]
+  bit 4: ??? [XXX]
+  bit 5: ??? related to MVSURF_IN [XXX]			[vuc-mvsurf.txt]
+  bit 6: MVSURF_OUT full status				[vuc-mvsurf.txt]
+  bit 7: ??? [XXX]
+  bit 8: ??? [XXX]
+  bit 9: ??? [XXX]
+  bit 10: macroblock input available			[vuc-vreg.txt]
+  bit 11: $h2v write pending				[vuc-isa.txt]
+  bit 12: watchdog triggered				[vuc-isa.txt]
+  bit 13 [VP4+?]: ??? [XXX]
+  bit 15: user-controlled PCOUNTER signal		[vuc-pm.txt]
+
+Two special instructions are available that read $stat implicitely. sleep
+instruction switches to a low-power sleep mode until bit 10 or bit 11 is set.
+wstc instruction does a busy-wait until a selected bit in $stat goes to 0.
+[XXX: unknown op 6]
+
+On VP3+, a read-only alias of $stat is available in the MMIO space:
+
+BAR0 0x0854bc / I[0x12f00]: STAT
+  Aliases $stat vµc register, read only.
+
+
+== Misc special registers ==
+
+This section describes various special registers that don't fit anywhere else.
+
+$sr8/$pc: The program counter. When read, always returns the address of the
+instruction doing the read.
+
+BAR0 0x10329c / XLMI 0x0a700: PC [VP2]
+BAR0 0x08545c / I[0x11700]: PC [VP3+]
+  A host-accessible alias of $pc. Shows the address of currently executing
+  instruction.
+
+$sr12/$lhi: long arithmetic high word register
+$sr13/$llo: long arithmetic low word register
+
+These two registers together make a 32-bit quantity used in long arithmetic
+operations - see the documentation of long arithmetic instructions for
+details. These registers may be read after long arithmetic instructions to
+get their results. On VP3+, these registers may be written manually, on VP2
+they're read-only and only modifiable by long arithmetic instructions.
+
+$sr14/$pred: predicate register file alias
+
+This register aliases the $p register file - bit X corresponds to $pX. The
+bits behave like the corresponding $p registers - bit 15 is read-only and
+always 1, while bit 1 is read-only and is always the negation of bit 0.

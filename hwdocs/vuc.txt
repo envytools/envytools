@@ -46,14 +46,11 @@ The vµc registers are located in PBSP XLMI space at addresses 0x08000:0x10000
               is not equal to 0xffff, a watchdog interrupt is raised
 0a200/103288: CODE_CONTROL - code upload/download and execution control
 0a300/10328c: CODE_WINDOW - code upload/download window
-0a400/103290: H2V - a scratch register to pass data from host to vµc, aliased
-              to vµc special register $sr4 [$h2v]
-0a500/103294: V2H - a scratch register to pass data from vµc to host, aliased
-              to vµc special register $sr5 [$v2h]
+0a400/103290: H2V - host to vµc scratch register	[vuc-isa.txt]
+0a500/103294: V2H - vµc to host scratch register	[vuc-isa.txt]
 0a600/103298: PARM - sequence/picture/slice parameters required by vµc
               hardware, aliased to vµc special register $sr7 [$parm]
-0a700/10329c: PC - the address of instruction currently executed by the
-              microprocessor, aliased to vµc special register $sr8 [$pc]
+0a700/10329c: PC - program counter			[vuc-isa.txt]
 0a800/1032a0: VPRING_RESIDUAL.OFFSET - the VPRING_RESIDUAL offset
 0a900/1032a4: VPRING_RESIDUAL.HALT_POS - the VPRING_RESIDUAL halt position
 0aa00/1032a8: VPRING_RESIDUAL.WRITE_POS - the VPRING_RESIDUAL write position
