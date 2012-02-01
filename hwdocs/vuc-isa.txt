@@ -3,10 +3,12 @@ TOC
 0. Intruduction
 1. The delays
 2. The opcode format
-3. Instruction reference
-4. The scratch special registers
-5. The $stat register
-6. Misc special registers
+3. The code space and execution control
+4. The data space
+5. Instruction reference
+6. The scratch special registers
+7. The $stat register
+8. Misc special registers
 
 
 = Introduction =
@@ -427,6 +429,50 @@ The operands and their encodings are:
      [middle bits] and EXT [high bits] fields
    - PE = 1: 6-bit zero-extended immediate stored in SRC2 [low bits] and EXT
      [high bits] fields
+
+
+= The code space and execution control =
+
+The vµc executes instructions from dedicated code SRAM. The code SRAM is made
+of 0x800 cells, with each cell holding one opcode. Thus, a cell is 40 bits
+wide on VP2, 30 bits wide on VP3+. The code space is addressed in opcode
+units, with addresses 0-0x7ff. The only way to access the code space other
+than via executing instructions from it is through the code port:
+
+BAR0 0x103288 / XLMI 0x0a200: CODE_CONTROL [VP2]
+BAR0 0x085440 / I[0x11000]: CODE_CONTROL [VP3+]
+  bits 0-10: ADDR, cell address to access by CODE_WINDOW
+  bit 16: STATE, code execution control: 0 - code is being executed,
+    CODE_WINDOW doesn't work, 1 - microprocessor is halted, CODE_WINDOW is
+    enabled
+
+BAR0 0x10328c / XLMI 0x0a300: CODE_WINDOW [VP2]
+BAR0 0x085444 / I[0x11100]: CODE_WINDOW [VP3+]
+  Accesses the code space - see below
+
+On VP3+, reading or writing the CODE_WINDOW register will cause a read/write
+of the code space cell selected by ADDR, with the cell value taken from /
+appearing at bits 0-29 of CODE_WINDOW. ADDR is auto-incremented by 1 with each
+access.
+
+On VP2, since code space cells are 40 bits long, accessing a cell requires two
+accesses to CODE_WINDOW. The cell is divided into 32-bit low part and 8-bit
+high part. There is an invisible 1-bit flipflop that selects whether the high
+part or the low part will be accessed next. The low part is accessed first,
+then the high part. Writing CODE_CONTROL will reset the flipflop to the low
+part. Accessing CODE_WINDOW with the flipflop set to the low part will access
+the low part, then switch the flipflop to the high part. Accessing CODE_WINDOW
+with the flipflop set to the high part will access the high part [through bits
+0-7 of CODE_WINDOW], switch the flipflop to the low part, and auto-increment
+ADDR by 1. In addition, writes through CODE_WINDOW are buffered - writing the
+low part writes a shadow register, writing the high part assembles it with the
+current shadow register value and writes the concatenated result to the code
+space.
+
+The STATE bit is used to control vµc execution. This bit is set to 1 when the
+vµc is reset. When this bit is changed from 1 to 0, the vµc starts executing
+instructions starting from code address 0. When this bit is changed from 1 to
+0, the vµc execution is halted.
 
 
 = Instruction reference =

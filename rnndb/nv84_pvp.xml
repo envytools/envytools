@@ -278,7 +278,10 @@
 		<reg32 offset="0x084" name="WDCNT"/>
 		<reg32 offset="0x088" name="CODE_CONTROL">
 			<bitfield low="0" high="10" name="ADDR"/>
-			<bitfield pos="16" name="PAUSE"/>
+			<bitfield pos="16" name="STATE">
+				<value value="0" name="EXECUTING"/>
+				<value value="1" name="HALTED"/>
+			</bitfield>
 		</reg32>
 		<reg32 offset="0x08c" name="CODE_WINDOW"/>
 		<reg32 offset="0x090" name="H2V"/>

@@ -251,10 +251,13 @@
 	<array offset="0x400" name="VUC" stride="0x100">
 		<reg32 offset="0x00" name="DATA" length="16"/> <!-- indexed -->
 		<reg32 offset="0x40" name="CODE_CONTROL">
-			<bitfield low="0" high="10" name="IP"/>
-			<bitfield pos="16" name="PAUSE"/>
+			<bitfield low="0" high="10" name="ADDR"/>
+			<bitfield pos="16" name="STATE">
+				<value value="0" name="EXECUTING"/>
+				<value value="1" name="HALTED"/>
+			</bitfield>
 		</reg32>
-		<reg32 offset="0x44" name="CODE"/>
+		<reg32 offset="0x44" name="CODE_WINDOW"/>
 		<reg32 offset="0x48" name="ICNT"/>
 		<reg32 offset="0x4c" name="WDCNT"/>
 		<bitset name="nv98_pvp_vuc_intr"> <!-- fuc intr 10 -->

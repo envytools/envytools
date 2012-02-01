@@ -44,8 +44,8 @@ The vµc registers are located in PBSP XLMI space at addresses 0x08000:0x10000
               register $sr15 [$icnt]
 0a100/103284: WDCNT - watchdog count - when ICNT reaches WDCNT value and WDCNT
               is not equal to 0xffff, a watchdog interrupt is raised
-0a200/103288: CODE_CONTROL - code upload/download and execution control
-0a300/10328c: CODE_WINDOW - code upload/download window
+0a200/103288: CODE_CONTROL - code execution control	[vuc-isa.txt]
+0a300/10328c: CODE_WINDOW - code access window		[vuc-isa.txt]
 0a400/103290: H2V - host to vµc scratch register	[vuc-isa.txt]
 0a500/103294: V2H - vµc to host scratch register	[vuc-isa.txt]
 0a600/103298: PARM - sequence/picture/slice parameters required by vµc
@@ -87,8 +87,8 @@ The vµc registers are located in PVP fµc IO space at addresses 0x10000:0x14000
 [BAR0 addresses 0x085400:0x085500]. They are:
 
 10000:11000/085400:085440: DATA - vµc microprocessor data space
-11000/085440: CODE_CONTROL - code upload/download and execution control
-11100/085444: CODE_WINDOW - code upload/download window
+11000/085440: CODE_CONTROL - code execution control	[vuc-isa.txt]
+11100/085444: CODE_WINDOW - code access window		[vuc-isa.txt]
 11200/085448: ICNT - executed instructions counter, aliased to vµc special
               register $sr15 [$icnt]
 11300/08544c: WDCNT - watchdog count - when ICNT reaches WDCNT value and WDCNT
