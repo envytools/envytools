@@ -395,6 +395,19 @@
 
 		<array name="DAC" offset="0xa000" stride="0x800" length="3">
 
+			<enum name="nv50_dac_tv_output_mode">
+				<value value="0" name="OFF"/>
+				<value value="1" name="COMPOSITE"/>
+				<value value="2" name="LUMINANCE"/>
+				<value value="3" name="CHROMA"/>
+
+				<!-- these just seem to alias the former values -->
+				<value value="4" name="LUMINANCE1"/>
+				<value value="5" name="CHROMA1"/>
+				<value value="6" name="CHROMA2"/>
+				<value value="7" name="LUMINANCE2"/>
+			</enum>
+
 			<!-- R/O status register of unknown purpose -->
 			<reg32 name="UNK_STATUS" offset="0x0"/>
 
@@ -411,8 +424,14 @@
 				Names are given according to component output mapping
 				No effect on VGA output -->
 			<reg32 name="TV_OUTPUT_MODE_CTL" offset="0x8">
+
+				<!-- Pr/Com1 cable (red), S-video chroma -->
 				<bitfield name="RED"   low="0" high="2" type="nv50_dac_tv_output_mode"/>
+
+				<!-- Y cable (green), S-video luma -->
 				<bitfield name="GREEN" low="3" high="5" type="nv50_dac_tv_output_mode"/>
+
+				<!-- Pb/Com2, composite, (blue cable) -->
 				<bitfield name="BLUE"  low="6" high="8" type="nv50_dac_tv_output_mode"/>
 			</reg32>
 
