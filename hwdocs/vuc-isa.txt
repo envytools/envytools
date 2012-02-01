@@ -1151,7 +1151,12 @@ Execution time:
 	ldivu: 34 cycles
 Execution unit conflicts: lmulu, lmuls, lsrr, ladd, lsar, ldivu
 
-        
+
+== MVSURF instructions: mvsread, mvswrite ==
+
+See vuc-mvsurf.txt for description.
+
+
 ** Override instructions **
 Known override instructions control machine state, access memory spaces, external components or perform operations on predicates.
 

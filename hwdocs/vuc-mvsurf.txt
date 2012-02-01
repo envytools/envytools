@@ -1,0 +1,130 @@
+= Introduction =
+
+H.264, VC-1 and MPEG4 all support "direct" prediction mode where the forward
+and backward motion vectors for a macroblock are calculated from co-located
+motion vector from the reference picture and relative ordering of the
+pictures. To implement it in vµc, intermediate storage of motion vectors and
+some related data is required. This storage is called MVSURF.
+
+A single MVSURF object stores data for a single frame, or for two fields. Each
+macroblock takes 0x40 bytes in the MVSURF. The macroblocks in MVSURF are
+first grouped into macroblock pairs, just like in H.264 MBAFF frames. If the
+MVSURF corresponds to a single field, one macroblock of each pair is just left
+unused. The pairs are then stored in the MVSURF ordered first by X coordinate,
+then by Y coordinate, with no gaps.
+
+The vµc has two MVSURF access ports: MVSURF_IN for reading the MVSURF of
+a reference picture [first picture in L1 list for H.264, the most recent I
+or P picture for VC-1 and MPEG4], MVSURF_OUT for writing the MVSURF of the
+current picture. Usage of both ports is optional - if there's no reason to
+use one of them [MVSURF_IN in non-B picture, or MVSURF_OUT in non-reference
+picture], it can just be ignored.
+
+Both MVSURF_IN and MVSURF_OUT have to be set up via MMIO registers before use.
+To write data to MVSURF_OUT, it first has to be stored by the vµc into MVSO[]
+memory space, then the mvswrite instruction executed [while making sure the
+previous mvswrite instruction, if any, has already completed]. Reading
+MVSURF_IN is done by executing the mvsread instruction, waiting for its
+completion, then reading the MVSI[] memory space [or letting it be read
+implicitly by the vµc fixed-function hardware].
+
+Note that MVSURF_OUT writes in units of macroblocks, while NVSURF_IN reads in
+units of macroblock pairs - see details below.
+
+A single MVSURF entry, corresponding to a single macroblock, consists of:
+
+ - for the whole macroblock:
+   - frame/field flag [1 bit]: for H.264, 1 if mb_field_decoding_flag set or
+     in a field picture; for MPEG4, 1 if field-predicted macroblock
+   - inter/intra flag [1 bit]: 1 for intra macroblocks
+ - for each partition:
+   - RPI [5 bits]: the persistent id of the reference picture used for this
+     subpartition and the top/bottom field selector, if applicable - same as
+     the $rpil0/$rpil1 value.
+ - for each subpartition of each partition:
+   - X component of motion vector [14 bits]
+   - Y component of motion vector [12 bits]
+   - zero flag [1 bit]: set if both components of motion vector are in -1..1
+     range and refIdx [not RPI] is 0 - partial term used in H.264 colZeroFlag
+     computation
+
+For H.264, the RPI and motion vector are from the partition's L0 prediction
+if present, L1 otherwise. Since vµc was originally designed for H.264,
+a macroblock is always considered to be made of 4 partitions, which in turn
+are made of 4 subpartitions each - if macroblock is more coarsely
+subdivided, each piece of data is duplicated for all covered 8x8 partitions
+and 4x4 subpartitions. Partitions and subpartitions are indexed in the same
+way as for $spidx.
+
+
+== MVSURF format ==
+
+A single macroblock is represented by 0x10 32-bit LE words in MVSURF. Each
+word has the following format [i refers to word index, 0-15]:
+
+ - bits 0-13, each word: X component of motion vector for subpartition i.
+ - bits 14-25, each word: Y component of motion vector for subpartition i.
+ - bits 26-30, word 0, 4, 8, 12: RPI for partition i>>2.
+ - bit 26, word 1, 5, 9, 13: zero flag for subpartition i-1
+ - bit 27, word 1, 5, 9, 13: zero flag for subpartition i
+ - bit 28, word 1, 5, 9, 13: zero flag for subpartition i+1
+ - bit 29, word 1, 5, 9, 13: zero flag for subpartition i+2
+ - bit 26, word 15: frame/field flag for the macroblock
+ - bit 27, word 15: inter/intra flag for the macroblock
+
+
+== MVSURF setup registers ==
+
+
+[XXX: write me]
+
+
+== MVSO address space ==
+
+MVSO[] is a write-only memory space consisting of 0x80 16-bit cells. Every
+address in range 0-0x7f corresponds to one cell. However, not all cells and
+not all bits of each cell are actually used. The usable cells are:
+
+ - MVSO[i * 8 + 0], i in 0..15: X component of motion vector for subpartition i
+ - MVSO[i * 8 + 1], i in 0..15: Y component of motion vector for subpartition i
+ - MVSO[i * 0x20 + j * 8 + 2], i in 0..3, j in 0..3: RPI of partition i, j is
+   ignored.
+ - MVSO[i * 8 + 3], i in 0..15: the "zero flag" for subpartition i
+ - MVSO[i * 0x20 + 4], i in 0..15: macroblock flags, i is ignored
+    - bit 0: frame/field flag
+    - bit 1: inter/intra flag
+ - MVSO[i * 0x20 + 5], i in 0..15: macroblock partitioning schema, same
+   format as $mbpart register, i is ignored [10 bits used]
+
+If the address of some cell has some ignored fields, writing to any two
+addresses with only the ignored fields differing will actually access the
+same cell.
+
+
+== MVSI address space ==
+
+[XXX: write me]
+
+
+== Writing MVSURF: mvswrite ==
+
+[XXX: write me]
+
+Instructions:
+	mvswrite
+Opcode: special opcode, OP=01010, OPC=001
+Operation:
+	mvswrite();
+Execution time: [XXX: check me]
+
+
+== Reading MVSURF: mvsread ==
+
+[XXX: write me]
+
+Instructions:
+	mvsread
+Opcode: special opcode, OP=01001, OPC=001
+Operation:
+	mvsread();
+Execution time: [XXX: check me]
