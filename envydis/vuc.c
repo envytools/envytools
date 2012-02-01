@@ -70,10 +70,11 @@ static struct sreg pred_sr[] = {
 	{ -1 },
 };
 static struct sreg sreg_sr[] = {
-	/* 0 */
-	/* 1 */
+	{ 0, "baddr", .vartype = VP2 },
+	{ 1, "bsel", .vartype = VP2 },
 	{ 2, "spidx" },
-	/* 3 */
+	{ 3, "asel", .vartype = VP2 },
+	{ 3, "absel", .vartype = VP3P },
 	{ 4, "h2v" },
 	{ 5, "v2h" },
 	{ 6, "stat" },
@@ -102,6 +103,28 @@ static struct sreg sreg_sr[] = {
 	{ 29, "mbaddr" },
 	{ 30, "mbtype" },
 	{ 31, "submbtype", .vartype = VP2 },
+	{ 32, "amvxl0" },
+	{ 33, "amvyl0" },
+	{ 34, "amvxl1" },
+	{ 35, "amvyl1" },
+	{ 36, "arefl0" },
+	{ 37, "arefl1" },
+	{ 38, "arpil0" },
+	{ 39, "arpil1" },
+	{ 40, "ambflags" },
+	{ 41, "aqpy", .vartype = VP2 },
+	{ 42, "aqpc", .vartype = VP2 },
+	{ 48, "bmvxl0" },
+	{ 49, "bmvyl0" },
+	{ 50, "bmvxl1" },
+	{ 51, "bmvyl1" },
+	{ 52, "brefl0" },
+	{ 53, "brefl1" },
+	{ 54, "brpil0" },
+	{ 55, "brpil1" },
+	{ 56, "bmbflags" },
+	{ 57, "bqpy" },
+	{ 58, "bqpc" },
 	{ -1 },
 };
 
