@@ -394,6 +394,10 @@
 		</array>
 
 		<array name="DAC" offset="0xa000" stride="0x800" length="3">
+
+			<!-- R/O status register of unknown purpose -->
+			<reg32 name="UNK_STATUS" offset="0x0"/>
+
 			<reg32 name="DPMS_CTRL" offset="0x4">
 				<bitfield name="HSYNC_OFF" pos="0"/>
 				<bitfield name="VSYNC_OFF" pos="2"/>
@@ -401,9 +405,25 @@
 				<bitfield name="OFF" pos="6"/>
 				<bitfield name="PENDING" pos="31"/>
 			</reg32>
+
+
+			<!-- these are 3 arbitary outputs on universal connector.
+				Names are given according to component output mapping
+				No effect on VGA output -->
+			<reg32 name="TV_OUTPUT_MODE_CTL" offset="0x8">
+				<bitfield name="RED"   low="0" high="2" type="nv50_dac_tv_output_mode"/>
+				<bitfield name="GREEN" low="3" high="5" type="nv50_dac_tv_output_mode"/>
+				<bitfield name="BLUE"  low="6" high="8" type="nv50_dac_tv_output_mode"/>
+			</reg32>
+
 			<reg32 name="LOAD_CTRL" offset="0xC">
+				<bitfield low="0" high="10" name="LOAD_PATTERN"/>
+
 				<bitfield name="ACTIVE" pos="20"/>
+
+				<!-- each bit for each of REG/GREEN/BLUE output lines for Pr/Com1, Y, Pb/Comp2 -->
 				<bitfield name="PRESENT" high="29" low="27"/>
+
 				<bitfield name="DONE" pos="31">
 					<doc>
 					You have to wait for this before proceeding.
@@ -411,9 +431,28 @@
 					</doc>
 				</bitfield>
 			</reg32>
-			<reg32 name="CLK_CTRL1" offset="0x10">
+
+			<reg32 name="MISC_CTRL" offset="0x10">
+
+				<!-- set on VGA dac, clear on TV dac, seems to do nothing -->
+				<bitfield name="TV_DISABLE_UNK" pos="0"/>
+
+				<!-- disables/blanks VGA output lines of a DAC. used on TV dac
+					if set, breaks load detection -->
+				<bitfield name="VGA_DISABLE" pos="1"/>
+
+				<!-- some status of connection, need to recheck -->
 				<bitfield name="CONNECTED" high="10" low="9"/>
+
+				<!-- changes all the time -->
+				<bitfield name="VBLANK_STATUS" high="30" low="28"/>
+
+				<!-- disables the DAC -->
+				<bitfield name="DISABLED" pos="31"/>
 			</reg32>
+
+			<!-- appears to affect brightness slightly. probably a default voltage knob or so -->
+			<reg32 name="TV_UNK1" offset="0x68"/>
 		</array>
 
 		<array name="SOR" offset="0xc000" stride="0x800" length="4">
