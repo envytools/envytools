@@ -328,7 +328,7 @@
 		<reg32 offset="0x0e0" name="MVSURF_IN_OFFSET"/>
 		<reg32 offset="0x0e4" name="MVSURF_IN_PARM">
 			<bitfield low="0" high="7" name="WIDTH"/>
-			<bitfield pos="8" name="PROG_FRAME"/> <!-- !field_pic_flag && !mbaff_frame_flag -->
+			<bitfield pos="8" name="PROG_FRAME"/>
 		</reg32>
 		<reg32 offset="0x0e8" name="MVSURF_IN_LEFT">
 			<bitfield low="0" high="7" name="X"/>
@@ -349,8 +349,8 @@
 			<bitfield low="8" high="15" name="Y"/>
 		</reg32>
 		<reg32 offset="0x0fc" name="MVSURF_OUT_POS">
-			<bitfield low="0" high="12" name="IDX"/>
-			<bitfield pos="13" name="UNK13"/>
+			<bitfield low="0" high="12" name="MBADDR"/>
+			<bitfield pos="13" name="PASS_ODD"/>
 		</reg32>
 		<reg32 offset="0x100" name="MBRING_OFFSET"/>
 		<reg32 offset="0x104" name="MBRING_SIZE"/>

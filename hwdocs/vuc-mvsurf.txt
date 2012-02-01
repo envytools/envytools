@@ -73,8 +73,89 @@ word has the following format [i refers to word index, 0-15]:
  - bit 27, word 15: inter/intra flag for the macroblock
 
 
-== MVSURF setup registers ==
+== MVSURF_OUT setup ==
 
+The MVSURF_OUT has three different output modes:
+
+ - field picture output mode: each write writes one MVSURF macroblock and
+   skips one MVSURF macroblock, each line is passed once
+ - MBAFF frame picture output mode: each write writes one MVSURF macroblock,
+   each line is passed once
+ - non-MBAFF frame picture output mode: each write writes one MVSURF
+   macroblock and skips one macroblock, each line is passed twice, with first
+   pass writing even-numbered macroblocks, second pass writing odd-numbered
+   macroblocks
+
+#===#===#===#
+|   |   |   |  field: 0, 2, 4, 6, 8, 10 or 1, 3, 5, 7, 9, 11
+| 0 | 2 | 4 |
+|   |   |   |  MBAFF frame: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
++---+---+---+
+|   |   |   |  non-MBAFF frame: 0, 2, 4, 1, 3, 5, 6, 8, 10, 7, 9, 11
+| 1 | 3 | 5 |
+|   |   |   |
+#===#===#===#
+|   |   |   |
+| 6 | 8 |10 |
+|   |   |   |
++---+---+---+
+|   |   |   |
+| 7 | 9 |11 |
+|   |   |   |
+#===#===#===#
+
+The following registers control MVSURF_OUT behavior:
+
+BAR0 0x1032f0 / XLMI 0x0bc00: MVSURF_OUT_OFFSET [VP2]
+  The offset of MVSURF_OUT from the start of the MEMIF MVSURF port. The offset
+  is in bytes and has to be divisible by 0x40.
+
+BAR0 0x085490 / I[0x12400]: MVSURF_OUT_ADDR [VP3+]
+  The address of MVSURF_OUT in fµc target [XXX: determine target], shifted
+  right by 8 bits.
+
+BAR0 0x1032f4 / XLMI 0x0bd00: MVSURF_OUT_PARM [VP2]
+BAR0 0x085494 / I[0x12500]: MVSURF_OUT_PARM [VP3+]
+  bits 0-7: WIDTH, length of a single pass in writable macroblocks
+  bit 8: MBAFF_FRAME_FLAG, 1 if MBAFF frame picture mode enabled
+  bit 9: FIELD_PIC_FLAG, 1 if field picture mode enabled
+
+If neither bit 8 nor 9 is set, non-MBAFF frame picture mode is used. Bit 8 and
+bit 9 shouldn't be set at the same time.
+
+BAR0 0x1032f8 / XLMI 0x0be00: MVSURF_OUT_LEFT [VP2]
+BAR0 0x085498 / I[0x12600]: MVSURF_OUT_LEFT [VP3+]
+  bits 0-7: X, the number of writable macroblocks left in the current pass
+  bits 8-15: Y, the number of passes left, including the current pass
+
+BAR0 0x1032fc / XLMI 0x0bf00: MVSURF_OUT_POS [VP2]
+BAR0 0x08549c / I[0x12700]: MVSURF_OUT_POS [VP3+]
+  bits 0-12: MBADDR, the index of the current macroblock from the start of
+    MVSURF.
+  bit 13: PASS_ODD, 1 if the current pass is odd-numbered pass
+
+All of these registers are RW by the host. LEFT and POS registers are also
+modified by the hardware when it writes macroblocks.
+
+The whole write operation is divided into so-called "passes", which correspond
+to a line of macroblocks [field, non-MBAFF frame] or half a line [MBAFF
+frame]. When a macroblock is written to the MVSURF, it's written at the
+position indicated by POS.MBADDR, LEFT.X is decremented by 1, and POS.MBADDR
+is incremented by 1 [MBAFF frame] or 2 [field, non-MBAFF frame]. If this
+causes LEFT.X to drop to 0, a new pass is started, as follows:
+
+ - LEFT.X is reset to PARM.WIDTH
+ - LEFT.Y is decreased by 1
+ - POS.PASS_ODD is flipped
+ - if non-MBAFF frame picture mode is in use:
+   - if PASS_ODD is 1, POS.MBADDR is decremented by WIDTH * 2 and bit 0 is set
+     to 1
+   - otherwise [PASS_ODD is 0], POS.MBADDR bit 0 is set to 0
+
+When either LEFT.X or LEFT.Y is 0, writes to MVSURF_OUT are ignored.
+
+
+== MVSURF_IN setup ==
 
 [XXX: write me]
 

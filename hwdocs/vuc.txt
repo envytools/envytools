@@ -67,16 +67,14 @@ The vµc registers are located in PBSP XLMI space at addresses 0x08000:0x10000
 0b500/1032d4: INTR - interrupt status
 0b600/1032d8: INTR_EN - interrupt enable mask
 0b700/1032dc: VPRING_ENABLE - enables VPRING access
-0b800/1032e0: MVSURF_IN_OFFSET - the offset of input MVSURF
-0b900/1032e4: MVSURF_IN_PARAM - the parameters of input MVSURF
-0ba00/1032e8: MVSURF_IN_LEFT - the macroblocks left in current line and lines
-              left in the surface for input MVSURF
-0bb00/1032ec: MVSURF_IN_POS - current position in input MVSURF
-0bc00/1032f0: MVSURF_OUT_OFFSET - the offset of output MVSURF
-0bd00/1032f4: MVSURF_OUT_PARAM - the parameters of output MVSURF
-0be00/1032f8: MVSURF_OUT_LEFT - the macroblocks left in current line and lines
-              left in the surface for output MVSURF
-0bf00/1032fc: MVSURF_OUT_POS - current position in output MVSURF
+0b800/1032e0: MVSURF_IN_OFFSET - MVSURF_IN offset	[vuc-mvsurf.txt]
+0b900/1032e4: MVSURF_IN_PARM - MVSURF_IN parameters	[vuc-mvsurf.txt]
+0ba00/1032e8: MVSURF_IN_LEFT - MVSURF_IN data left	[vuc-mvsurf.txt]
+0bb00/1032ec: MVSURF_IN_POS - MVSURF_IN position	[vuc-mvsurf.txt]
+0bc00/1032f0: MVSURF_OUT_OFFSET - MVSURF_OUT offset	[vuc-mvsurf.txt]
+0bd00/1032f4: MVSURF_OUT_PARM - MVSURF_OUT parameters	[vuc-mvsurf.txt]
+0be00/1032f8: MVSURF_OUT_LEFT - MVSURF_OUT space left	[vuc-mvsurf.txt]
+0bf00/1032fc: MVSURF_OUT_POS - MVSURF_OUT position	[vuc-mvsurf.txt]
 0c000/103300: MBRING_OFFSET - the MBRING offset
 0c100/103304: MBRING_SIZE - the MBRING size
 0c200/103308: MBRING_READ_POS - the MBRING read position
@@ -105,16 +103,14 @@ The vµc registers are located in PVP fµc IO space at addresses 0x10000:0x14000
 11a00/085468: BUSY - a status reg showing which subunits of vµc are busy
 11c00/085470: INTR - interrupt status
 11d00/085474: INTR_EN - interrupt enable mask
-12000/085480: MVSURF_IN_OFFSET - the offset of input MVSURF
-12100/085484: MVSURF_IN_PARAM - the parameters of input MVSURF
-12200/085488: MVSURF_IN_LEFT - the macroblocks left in current line and lines
-              left in the surface for input MVSURF
-12300/08548c: MVSURF_IN_POS - current position in input MVSURF
-12400/085490: MVSURF_OUT_OFFSET - the offset of output MVSURF
-12500/085494: MVSURF_OUT_PARAM - the parameters of output MVSURF
-12600/085498: MVSURF_OUT_LEFT - the macroblocks left in current line and lines
-              left in the surface for output MVSURF
-12700/08549c: MVSURF_OUT_POS - current position in output MVSURF
+12000/085480: MVSURF_IN_ADDR - MVSURF_IN address	[vuc-mvsurf.txt]
+12100/085484: MVSURF_IN_PARM - MVSURF_IN parameters	[vuc-mvsurf.txt]
+12200/085488: MVSURF_IN_LEFT - MVSURF_IN data left	[vuc-mvsurf.txt]
+12300/08548c: MVSURF_IN_POS - MVSURF_IN position	[vuc-mvsurf.txt]
+12400/085490: MVSURF_OUT_ADDR - MVSURF_OUT address	[vuc-mvsurf.txt]
+12500/085494: MVSURF_OUT_PARM - MVSURF_OUT parameters	[vuc-mvsurf.txt]
+12600/085498: MVSURF_OUT_LEFT - MVSURF_OUT space left	[vuc-mvsurf.txt]
+12700/08549c: MVSURF_OUT_POS - MVSURF_OUT position	[vuc-mvsurf.txt]
 12800/0854a0: MBRING_OFFSET - the MBRING offset
 12900/0854a4: MBRING_SIZE - the MBRING size
 12a00/0854a8: MBRING_READ_POS - the MBRING read position
