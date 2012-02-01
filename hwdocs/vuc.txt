@@ -88,7 +88,43 @@ The vµc registers are located in PBSP XLMI space at addresses 0x08000:0x10000
 The vµc registers are located in PVP fµc IO space at addresses 0x10000:0x14000
 [BAR0 addresses 0x085400:0x085500]. They are:
 
-[XXX: list me]
+10000:11000/085400:085440: DATA - vµc microprocessor data space
+11000/085440: CODE_CONTROL - code upload/download and execution control
+11100/085444: CODE_WINDOW - code upload/download window
+11200/085448: ICNT - executed instructions counter, aliased to vµc special
+              register $sr15 [$icnt]
+11300/08544c: WDCNT - watchdog count - when ICNT reaches WDCNT value and WDCNT
+              is not equal to 0xffff, a watchdog interrupt is raised
+11400/085450: H2V - host to vµc scratch register	[vuc-isa.txt]
+11500/085454: V2H - vµc to host scratch register	[vuc-isa.txt]
+11600/085458: PARM - sequence/picture/slice parameters required by vµc
+              hardware, aliased to vµc special register $sr7 [$parm]
+11700/08545c: PC - program counter			[vuc-isa.txt]
+11800/085460: RPITAB - the address of refidx -> RPI translation table
+11900/085464: REFTAB - the address of RPI -> VM address translation table
+11a00/085468: BUSY - a status reg showing which subunits of vµc are busy
+11c00/085470: INTR - interrupt status
+11d00/085474: INTR_EN - interrupt enable mask
+12000/085480: MVSURF_IN_OFFSET - the offset of input MVSURF
+12100/085484: MVSURF_IN_PARAM - the parameters of input MVSURF
+12200/085488: MVSURF_IN_LEFT - the macroblocks left in current line and lines
+              left in the surface for input MVSURF
+12300/08548c: MVSURF_IN_POS - current position in input MVSURF
+12400/085490: MVSURF_OUT_OFFSET - the offset of output MVSURF
+12500/085494: MVSURF_OUT_PARAM - the parameters of output MVSURF
+12600/085498: MVSURF_OUT_LEFT - the macroblocks left in current line and lines
+              left in the surface for output MVSURF
+12700/08549c: MVSURF_OUT_POS - current position in output MVSURF
+12800/0854a0: MBRING_OFFSET - the MBRING offset
+12900/0854a4: MBRING_SIZE - the MBRING size
+12a00/0854a8: MBRING_READ_POS - the MBRING read position
+12b00/0854ac: MBRING_READ_AVAIL - the bytes left to read in MBRING
+12c00/0854b0: ??? [XXX]
+12d00/0854b4: ??? [XXX]
+12e00/0854b8: ??? [XXX]
+12f00/0854bc: STAT - control/status register		[vuc-isa.txt]
+13000/0854c0: ??? [XXX]
+13100/0854c4: ??? [XXX]
 
 
 == The vµc ISA ==
