@@ -193,12 +193,15 @@ Set 1 [graph]:
 0xd5: CTXCTL flag 0x1e
 0xd6: CTXCTL flag 0x1f
 
-set 5 [misc core]:
+set 5 [xtensa]:
 0x00-0x07: PBSP_USER_0-7
 0x08-0x0f: PVP_USER_0-7
+0x34: PBSP VUC IDLE
+0x36: PBSP VUC SLEEP
+0x3a: PBSP VUC USER
 0x60 trailer base
 
-set 6 [vdec]:
+set 6 [VP]:
 0x00-0x07: PVP_USER_0-7
 0xa0 trailer base
 
@@ -267,6 +270,7 @@ set 6 [vdec]:
 0x4d: PPPP WRCACHE_FLUSH
 0x4e-0x53: PPPP USER
 0x5d: PVP VUC idle
+0x60: PVP VUC USER
 0x90: PVP idle
 0x93: PVP $ta
 0x9a: PVP PM_TRIGGER

@@ -407,7 +407,7 @@ The operands and their encodings are:
      bit 12: watchdog hit - set 1 cycle after $icnt reaches WDCNT and it's
        not equal to 0xffff, cleared when $icnt or WDCNT is modified in any
 	 way.
-     bit 15: ??? [XXX]
+     bit 15: PCOUNTER signal output VUC_USER - writing 1 toggles this bit
  - $sr7/$parm: sequence/picture/slice parameters required by vµc hardware
    [see vuc.txt]
  - $sr8/$pc: address of currently executed instruction
