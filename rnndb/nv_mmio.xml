@@ -88,13 +88,16 @@
 <!-- 082000 - 082fff ??? -->
 
 <!-- 084000 - 084fff PBSP -->
+<import file="nv98_pbsp.xml" />
+
+<!-- 085000 - 085fff PVP -->
 <import file="nv98_pvp.xml" />
 
-<!-- 085000 - 085fff PVP covered in nv98_pvp.xml -->
+<!-- 086000 - 086fff PPPP -->
+<import file="nv98_pppp.xml" />
 
-<!-- 086000 - 086fff PPPP covered in nv98_pvp.xml -->
-
-<!-- 087000 - 087fff PCRYPT covered in nv98_pvp.xml -->
+<!-- 087000 - 087fff PCRYPT -->
+<import file="nv98_pcrypt.xml" />
 
 <!-- 088000 - 088fff PBUS_PCI covered in nv_pbus.xml -->
 
