@@ -78,6 +78,7 @@ Common registers [present on all engines]:
 070/01c00  FIFO_OCCUPIED	FIFO commands available	[fuc-fifo.txt]
 074/01d00  FIFO_ACK		FIFO command ack	[fuc-fifo.txt]
 078/01e00  FIFO_LIMIT		FIFO size		[fuc-fifo.txt]
+07c/01f00  SUBENGINE_RESET	reset subengines	[fuc-io.txt]
 080/02000  SCRATCH2		scratch register	[fuc-io.txt]
 084/02100  SCRATCH3		scratch register	[fuc-io.txt]
 088/02200  PM_TRIGGER		perfmon triggers	[fuc-pm.txt]
@@ -205,6 +206,12 @@ MMIO 0x05c / I[0x01700]: STATUS_MASK
   A bitmask of nonexistent status bits. Each of bits 0-15 is set to 0 if
   corresponding STATUS line is tied to anything in this particular engine, 1
   if it's unused. [?]
+
+MMIO 0x07c / I[0x01f00]: SUBENGINE_RESET
+  When written with value 1, resets all subengines that this fµc engine
+  controls - that is, everything in IO space addresses 0x10000:0x20000. Note
+  that this includes the memory interface - using this register while an xfer
+  is in progress is ill-advised.
 
 MMIO 0x088 / I[0x02200]: MISC_TRIGGER
   A WO "trigger" register for various things. write 1 to a bit to trigger

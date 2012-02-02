@@ -82,6 +82,7 @@
 	<reg32 offset="0x078" name="FIFO_LIMIT">
 		<doc>Up to 0x10</doc>
 	</reg32>
+	<reg32 offset="0x07c" name="SUBENGINE_RESET"/>
 
 	<reg32 offset="0x088" name="PM_SIGNAL">
 		<bitfield pos="0" name="0"/>
