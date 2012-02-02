@@ -154,6 +154,15 @@ causes LEFT.X to drop to 0, a new pass is started, as follows:
 
 When either LEFT.X or LEFT.Y is 0, writes to MVSURF_OUT are ignored.
 
+The MVSURF_OUT port has an output buffer of about 6 macroblocks - mvswrite
+will queue data into that buffer, and it'll auto-flush as MEMIF bandwidth
+allows. To determine whether the buffer is full [ie. if it's safe to queue
+any more data with mvswrite], use $stat bit 6:
+
+$stat bit 6: MVSURF_OUT buffer full - no more space is available currently
+for writes, mvswrite instruction will be ignored and shouldn't be attempted
+until this bit drops to 0 [when MEMIF accepts more data].
+
 
 == MVSURF_IN setup ==
 
@@ -189,14 +198,55 @@ same cell.
 
 == Writing MVSURF: mvswrite ==
 
-[XXX: write me]
+Data is sent to MVSURF_OUT via the mvswrite instruction. A single invocation
+of mvswrite writes a single macroblock. The data is gathered from MVSO[]
+space. mvswrite is aware of macroblock partitioning and will use the
+partitioning schema to gather data from the right cells of MVSO[] - for
+instance, if 16x8 macroblock partitioning is used, only subpartitions 0 and 8
+are used, and their data is duplicated for all 8x8/4x4 blocks they cover.
+
+This instruction should not be used if MVSURF_OUT output buffer is currently
+full - the code should execute a wstc instruction on $stat bit 6 beforehand.
+
+Note that this instruction takes 17 cycles to gather the data from MVSO[]
+space - in that time, MVSO[] contents shouldn't be modified. On cycles 1-16
+of execution, $stat bit 7 will be lit up:
+
+$stat bit 7: mvswrite MVSO[] data gathering in progress - this bit is set at
+the end of cycle 1 of mvswrite execution, cleared at the end of cycle 16 of
+mvswrite execution, ie. when it's safe to modify MVSO[]. Note that this means
+that the instruction right after mvswrite will still read 0 in this bit - to
+wait for mvswrite completion, use mvswrite; nop; wstc 7 sequence. This bit
+going back to 0 doesn't mean that MVSURF write is complete - it merely means
+that data has been gathered and queued for a write through the MEMIF.
 
 Instructions:
 	mvswrite
 Opcode: special opcode, OP=01010, OPC=001
 Operation:
-	mvswrite();
-Execution time: [XXX: check me]
+	b32 tmp[0x10] = { 0 };
+	b2 partlut[4] = { 0, 2, 1, 3 };
+	b10 mbpart = MVSO[5];
+	for (i = 0; i < 0x10; i++) {
+		pidx = i >> 2;
+		pmask = partlut[mbpart & 3];
+		spmask = pmask << 2 | partlut[mbpart >> (pidx * 2 + 2) & 3];
+		mpidx = pidx & pmask;
+		mspidx = i & spmask;
+		tmp[i] |= MVSO[mspidx * 8 + 0] | MVSO[mspidx * 8 + 1] << 14;
+		tmp[(i & 0xc) | 1] |= MVSO[mspidx * 8 + 3] << (26 + (i & 3));
+	}
+	for (i = 0; i < 4; i++) {
+		pidx = i >> 2;
+		pmask = partlut[mbpart & 3];
+		mpidx = pidx & pmask;
+		tmp[i * 4] |= MVSO[mpidx * 0x20 + 2] << 26;
+	}
+	tmp[0xf] |= MVSO[4] << 26;
+	MVSURF_OUT.write(tmp);
+Execution time: 17 cycles [submission to MVSURF_OUT port only, doesn't include
+        the time needed by MVSURF_OUT to actually flush the data to memory]
+Execution unit conflicts: mvswrite
 
 
 == Reading MVSURF: mvsread ==

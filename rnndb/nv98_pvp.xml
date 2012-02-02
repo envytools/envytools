@@ -317,7 +317,7 @@
 		</reg32>
 		<reg32 offset="0x9c" name="MVSURF_OUT_POS">
 			<bitfield low="0" high="12" name="MBADDR"/>
-			<bitfield pos="13" name="PASS" type="uint"/>
+			<bitfield pos="13" name="PASS_ODD"/>
 		</reg32>
 		<reg32 offset="0xa0" name="MBRING_ADDR" shr="8"/>
 		<reg32 offset="0xa4" name="MBRING_SIZE"/>

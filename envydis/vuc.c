@@ -300,7 +300,7 @@ static struct insn tabsop[] = {
 	{ 0x00000003, 0x000000ff, N("ret") },
 	{ 0x00000004, 0x000000ff, N("sleep") },
 	{ 0x00000005, 0x000000ff, N("wstc"), T(ignimmf), IMM4 },
-	{ 0x00000006, 0x000000ff, U("wsts"), T(ignimmf), IMM4 },
+	{ 0x00000006, 0x000000ff, N("wsts"), T(ignimmf), IMM4 },
 
 	/* special functions block */
 	{ 0x00000020, 0x000000ff, N("clicnt") },	/* reset $icnt to 0 */

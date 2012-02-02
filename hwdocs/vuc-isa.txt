@@ -1226,7 +1226,7 @@ $sr6/$stat: Control and status register.
   bit 4: ??? [XXX]
   bit 5: ??? related to MVSURF_IN [XXX]			[vuc-mvsurf.txt]
   bit 6: MVSURF_OUT full status				[vuc-mvsurf.txt]
-  bit 7: ??? [XXX]
+  bit 7: mvswrite busy status				[vuc-mvsurf.txt]
   bit 8: ??? [XXX]
   bit 9: ??? [XXX]
   bit 10: macroblock input available			[vuc-vreg.txt]
