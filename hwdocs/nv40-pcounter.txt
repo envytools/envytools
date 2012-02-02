@@ -205,6 +205,19 @@ set 6 [VP]:
 0x00-0x07: PVP_USER_0-7
 0xa0 trailer base
 
+=== NV96 signals ===
+
+set 0 [host]:
+0x37: PTIMER_TIME_B12 [ptimer.txt]
+
+set 1 [graph]:
+0xbd: PGRAPH_IDLE
+0xbf: PGRAPH_INTR_PENDING
+0xc7: CTXCTL flag 0x1c
+0xc8: CTXCTL flag 0x1d
+0xc9: CTXCTL flag 0x1e
+0xca: CTXCTL flag 0x1f
+
 
 === NV98 signals ===
 
@@ -421,7 +434,7 @@ set 0 [host]:
 
 set 1 [graph]:
 0xcb: PGRAPH_IDLE
-0xcd: PGRAPH_INTR_PENDING <-- educated guess
+0xcd: PGRAPH_INTR_PENDING
 0xd5: CTXCTL flag 0x1c
 0xd6: CTXCTL flag 0x1d
 0xd7: CTXCTL flag 0x1e
