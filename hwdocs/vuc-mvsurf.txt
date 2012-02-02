@@ -213,12 +213,15 @@ space - in that time, MVSO[] contents shouldn't be modified. On cycles 1-16
 of execution, $stat bit 7 will be lit up:
 
 $stat bit 7: mvswrite MVSO[] data gathering in progress - this bit is set at
-the end of cycle 1 of mvswrite execution, cleared at the end of cycle 16 of
+the end of cycle 1 of mvswrite execution, cleared at the end of cycle 17 of
 mvswrite execution, ie. when it's safe to modify MVSO[]. Note that this means
 that the instruction right after mvswrite will still read 0 in this bit - to
 wait for mvswrite completion, use mvswrite; nop; wstc 7 sequence. This bit
 going back to 0 doesn't mean that MVSURF write is complete - it merely means
 that data has been gathered and queued for a write through the MEMIF.
+
+If execution of this instruction causes the MVSURF_OUT buffer to become full,
+bit 6 of $stat is set to 1 on the same cycle as bit 7.
 
 Instructions:
 	mvswrite
@@ -244,7 +247,7 @@ Operation:
 	}
 	tmp[0xf] |= MVSO[4] << 26;
 	MVSURF_OUT.write(tmp);
-Execution time: 17 cycles [submission to MVSURF_OUT port only, doesn't include
+Execution time: 18 cycles [submission to MVSURF_OUT port only, doesn't include
         the time needed by MVSURF_OUT to actually flush the data to memory]
 Execution unit conflicts: mvswrite
 
