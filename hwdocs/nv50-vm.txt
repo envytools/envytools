@@ -1,4 +1,19 @@
-Introduction
+TOC
+
+0. Introduction
+1. VM users
+2. Channels
+3. DMA objects
+4. Page tables
+5. TLB flushes
+6. User vs supervisor accesses
+7. Storage types
+8. Compression modes
+9. VM faults
+10. BAR1, BAR3, and the PEEPHOLE
+
+
+= Introduction =
 
 nv50 generation cards feature an MMU that translates user-visible logical
 addresses to physical ones. The translation has two levels: DMA objects,
@@ -55,7 +70,7 @@ data is stored, and fault condition is reported to the requesting engine.
 Consequences of a faulted access depend on the engine.
 
 
-VM users
+= VM users =
 
 VM is used by several clients, which are identified by VM client id:
 
@@ -151,7 +166,7 @@ ids depends on both engine and client id. The DMA slots are
  - e/11/0-7: PDAEMON fuc targets 0-7 [nva3:]
 
 
-Channels
+= Channels =
 
 All VM accesses are done on behalf of some "channel". A VM channel is just
 a memory structure that contains the DMA objects and page directory. VM
@@ -191,7 +206,7 @@ The channel objects are specified by 16-bit offsets from start of the channel
 structure in 0x10-byte units.
 
 
-DMA objects
+= DMA objects =
 
 The only channel object type that VM subsystem cares about is DMA objects.
 DMA objects represent contiguous segments of either virtual or physical
@@ -304,7 +319,7 @@ selector | address | cards | engine
  0x000c  | 0x000c0 | NVA3- | PCOPY
 
 
-Page tables
+= Page tables =
 
 If paged DMA object is used, the virtual address is further looked up in page
 tables. The page tables are two-level. Top level is 0x800-entry page
@@ -376,7 +391,7 @@ block should be identical]. The starting physical address need not be aligned
 to contig block size, but virtual address has to be.
 
 
-TLB flushes
+= TLB flushes =
 
 The page table contents are cached in per-engine TLBs. To flush TLB contents,
 the TLB flush register 0x100c80 should be used:
@@ -392,26 +407,26 @@ result in a lockup if PGRAPH TLB flush is initiated while PGRAPH is running,
 see nv50-pgraph.txt for details.
 
 
-User vs supervisor accesses
+= User vs supervisor accesses =
 
 [XXX: write me]
 
 
-Storage types
+= Storage types =
 
 [XXX: write me]
 
 
-Compression modes
+= Compression modes =
 
 [XXX: write me]
 
 
-VM faults
+= VM faults =
 
 [XXX: write me]
 
 
-BAR1, BAR3, and the PEEPHOLE
+= BAR1, BAR3, and the PEEPHOLE =
 
 [XXX: write me]

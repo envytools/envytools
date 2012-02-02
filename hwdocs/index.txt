@@ -81,3 +81,18 @@ fuc engines:
 [     ] fuc-vp.txt - fuc-based PVP engine
 [     ] fuc-ppp.txt - fuc-based PPPP engine
 [     ] fuc-copy.txt - PCOPY engine
+
+
+VP2/VP3/VP4/VP5 video decoding:
+[     ] vp2.txt - Overview of VP2 hardware
+[*    ] vp2-xtensa.txt - VP2 xtensa processors
+[     ] vp2-pbsp.txt - Overview of VP2 PBSP engine
+[**   ] vp2-bsp.txt - VP2 BSP parser engine	[XXX: extend to cover VP3/VP4/VP5]
+[**** ] vp2-mbring.txt - VP2 MBRING format	[XXX: merge with vp3-mbring.txt]
+[**   ] vp3-mbring.txt - VP3 MBRING format
+[***  ] vuc.txt -  Overview of VP2/VP3/VP4 vµc hardware
+[**** ] vuc-isa.txt - VP2/VP3/VP4 vµc ISA
+[***  ] vuc-mvsurf.txt - VP2/VP3/VP4 vµc MVSURF
+[**   ] vuc-vreg.txt - VP2/VP3/VP4 vµc video registers
+[     ] vuc-vpring.txt - VP2 vµc output
+[     ] vuc-perf.txt - vµc performance monitoring signals

@@ -1,4 +1,20 @@
-Introduction
+TOC
+
+0. Introduction
+1. Pusher state
+2. Errors
+3. Channel control area
+4. NV04-style mode
+5. IB mode
+6. The commands
+6.1. NV04 method submission commands
+6.2. NV04 control flow commands
+6.3. NV04 SLI conditional command
+6.4. NVC0 commands
+7. The pusher pseudocode - pre-NVC0
+
+
+= Introduction =
 
 There are two modes of DMA command submission: The NV04-style DMA mode and IB
 mode.
@@ -20,7 +36,7 @@ executed. For most commands, the execution consists of storing methods into
 CACHE for execution by the puller.
 
 
-Pusher state
+= Pusher state =
 
 The following data makes up the DMA pusher state:
 
@@ -65,7 +81,7 @@ and is normally set just once, on channel setup. [O] means that state only
 applies to NV04-style mode, [I] only IB mode.
 
 
-Errors
+= Errors =
 
 On pre-NVC0, whenever the DMA pusher encounters problems, it'll raise a
 DMA_PUSHER error. There are 6 types of DMA_PUSHER errors:
@@ -89,7 +105,8 @@ troubleshooting:
 
 [XXX: determine what happens on NVC0 on all imaginable error conditions]
 
-Channel control area
+
+= Channel control area =
 
 The channel control area is used to tell card about submitted pushbuffers.
 The area is at least 0x1000 bytes long, though it can be longer depending
@@ -142,7 +159,7 @@ areas are accessed through selectable addresses in BAR1 and are backed by VRAM
 or host memory - see nvc0-pfifo.txt for more details.
 
 
-NV04-style mode
+= NV04-style mode =
 
 In NV04-style mode, whenever dma_get != dma_put, the card read a 32-bit word
 from the pushbuffer at the address specified by dma_get, increments dma_get
@@ -184,7 +201,7 @@ The usual way to use NV04-style mode is:
    4. Set DMA_PUT to point right after the last word of commands you wrote.
 
 
-IB mode
+= IB mode =
 
 NV04-style mode, while fairly flexible, can only jump between parts of
 pushbuffer between commands. IB mode decouples flow control from the command
@@ -263,7 +280,14 @@ If none of the forms matches, or if the one that matches cannot be used in
 current mode, the INVALID_CMD DMA_PUSHER error is raised.
 
 
-Pre-NVC0 method submission commands
+= The commands =
+
+There are two command formats the DMA pusher can use: NV04 format and NVC0
+format. All cards support the NV04 format, while only NVC0+ cards support
+the NVC0 format.
+
+
+== NV04 method submission commands ==
 
 000CCCCCCCCCCC00SSSMMMMMMMMMMM00 - increasing methods		[NV04+]
 010CCCCCCCCCCC00SSSMMMMMMMMMMM00 - non-increasing methods	[NV10+]
@@ -292,7 +316,7 @@ INVALID_MTHD.
 [XXX: check pusher reaction on ACQUIRE submission: pause?]
 
 
-NV04-style control flow commands
+== NV04 control flow commands ==
 
 001JJJJJJJJJJJJJJJJJJJJJJJJJJJ00 - old jump	[NV04+]
 JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ01 - jump		[NV11+]
@@ -317,7 +341,7 @@ subr_active isn't set, it instead raises DMA_PUSHER error of type
 RET_SUBR_INACTIVE.
 
 
-Pre-NVC0 SLI conditional command
+== NV04 SLI conditional command ==
 
 0000000000000001MMMMMMMMMMMMXX00 - SLI conditional	[NV40+]
 
@@ -343,9 +367,9 @@ channel.
 The XX bits in the command are ignored.
 
 
-The commands - NVC0 format
+== NVC0 commands ==
 
-NVC0 follows the same idea, but uses all-new command encoding.
+NVC0 format follows the same idea, but uses all-new command encoding.
 
 00000000000000000000MMMMMMMMMMMM - SLI conditional
 0010CCCCCCCCCCCCSSS0MMMMMMMMMMMM - increasing methods
@@ -369,7 +393,7 @@ into CACHE as usual, puller will complain about them instead when it tries to
 execute them.
 
 
-The pusher pseudocode - pre-NVC0
+= The pusher pseudocode - pre-NVC0 =
 
 while(1) {
 	if (dma_get != dma_put) {

@@ -1,4 +1,10 @@
-Introduction
+TOC
+
+0. Introduction
+1. Overall operation
+
+
+= Introduction =
 
 Commands to most of the engines are sent through a special engine caled PFIFO.
 PFIFO maintains multiple fully independent command queues, known as "channels"
@@ -71,7 +77,7 @@ nvc0-pfifo.txt.
 Note: NVC0 information can still be very incomplete / not exactly true.
 
 
-Overall operation
+= Overall operation =
 
 The PFIFO can be split into roughly 4 pieces:
 

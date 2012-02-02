@@ -1,5 +1,3 @@
-Introduction
-
 This file lists FIFO object classes recognised in hardware by the card. The
 list does not include classes that are never put into actual objects [ie.
 software objects], nor classes that are put into objects, but never checked,

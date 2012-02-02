@@ -1,4 +1,14 @@
-Introduction
+TOC
+
+0. Introduction
+1. MMIO register list
+2. Straps readout/override registers
+3. NV03 family straps
+4. NV04-NV40 families straps
+5. NV50 and NVC0 families straps sets
+
+
+= Introduction =
 
 The nvidia GPU chips are used in multiple cards from multiple manufacturers.
 Thus, the a single GPU can end up in many different configurations, with
@@ -39,7 +49,7 @@ On NV03:NV04 cards, the PSTRAPS area is also home to an unrelated register
 controlling ROM timings.
 
 
-MMIO register list
+= MMIO register list =
 
 no annotation - available on all NV03+ cards
 [1] - available on NV03:NV04 only
@@ -62,7 +72,7 @@ no annotation - available on all NV03+ cards
 101200[1] ROM_TIMINGS		ROM timing configuration [see prom.txt]
 
 
-Straps readout/override registers
+= Straps readout/override registers =
 
 MMIO 0x101000: STRAPS0_PRIMARY
 MMIO 0x10100c: STRAPS1_PRIMARY [NV18:NV20 and NV25+ only]
@@ -93,7 +103,7 @@ MMIO 0x10103c: STRAPS2_SECONDARY [NVD9+ only]
 This register is always writable and not affected by override enable.
 
 
-NV03 family straps
+= NV03 family straps =
 
 bit 0: if set, PCI 66MHz mode is supported
 bit 1: if 0, this GPU is part of a motherboard and ROMless, subsystem device
@@ -114,7 +124,7 @@ bit 9 [original NV03]: PCI version: 0 PCI 2.0, 1 PCI 2.1.
 bit 9 [NV03T]: if set, AGP x2 is supported
 
 
-NV04-NV40 families straps
+= NV04-NV40 families straps =
 
 set 0:
 bit 0: if 0, PCI AD lines have reversed polarity, if 1 normal
@@ -165,7 +175,7 @@ bit 4: pci device class
 bits 5-30: ?
 
 
-NV50 and NVC0 families straps sets
+= NV50 and NVC0 families straps sets =
 
 set 0:
 bit 0: ?

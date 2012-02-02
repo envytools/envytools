@@ -1,3 +1,15 @@
+TOC
+
+0. Introduction
+1. MVSURF format
+2. MVSURF_OUT setup
+3. MVSURF_IN setup
+4. MVSO[] address space
+5. MVSI[] address space
+6. Writing MVSURF: mvswrite
+7. Reading MVSURF: mvsread
+
+
 = Introduction =
 
 H.264, VC-1 and MPEG4 all support "direct" prediction mode where the forward
@@ -57,7 +69,7 @@ and 4x4 subpartitions. Partitions and subpartitions are indexed in the same
 way as for $spidx.
 
 
-== MVSURF format ==
+= MVSURF format =
 
 A single macroblock is represented by 0x10 32-bit LE words in MVSURF. Each
 word has the following format [i refers to word index, 0-15]:
@@ -73,7 +85,7 @@ word has the following format [i refers to word index, 0-15]:
  - bit 27, word 15: inter/intra flag for the macroblock
 
 
-== MVSURF_OUT setup ==
+= MVSURF_OUT setup =
 
 The MVSURF_OUT has three different output modes:
 
@@ -164,12 +176,12 @@ for writes, mvswrite instruction will be ignored and shouldn't be attempted
 until this bit drops to 0 [when MEMIF accepts more data].
 
 
-== MVSURF_IN setup ==
+= MVSURF_IN setup =
 
 [XXX: write me]
 
 
-== MVSO address space ==
+= MVSO[] address space =
 
 MVSO[] is a write-only memory space consisting of 0x80 16-bit cells. Every
 address in range 0-0x7f corresponds to one cell. However, not all cells and
@@ -191,12 +203,12 @@ addresses with only the ignored fields differing will actually access the
 same cell.
 
 
-== MVSI address space ==
+= MVSI[] address space =
 
 [XXX: write me]
 
 
-== Writing MVSURF: mvswrite ==
+= Writing MVSURF: mvswrite =
 
 Data is sent to MVSURF_OUT via the mvswrite instruction. A single invocation
 of mvswrite writes a single macroblock. The data is gathered from MVSO[]
@@ -252,7 +264,7 @@ Execution time: 18 cycles [submission to MVSURF_OUT port only, doesn't include
 Execution unit conflicts: mvswrite
 
 
-== Reading MVSURF: mvsread ==
+= Reading MVSURF: mvsread =
 
 [XXX: write me]
 

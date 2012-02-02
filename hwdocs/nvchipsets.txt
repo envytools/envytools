@@ -1,4 +1,19 @@
-Introduction
+TOC
+
+0. Introduction
+1. The card families
+1.1. NV01 family: NV01
+1.2. NV03 family: NV03, NV03T
+1.3. NV04 family: NV04, NV05
+1.4. NV10 family: NV10, NV15, NV1A, NV11, NV17, NV1F, NV18
+1.5. NV20 family: NV20, NV2A, NV25, NV28
+1.6. NV30 family: NV30, NV35, NV31, NV36, NV34
+1.7. NV40 family
+1.8. NV50 family
+1.9. NVC0 family
+
+
+= Introduction =
 
 Each nvidia GPU has several identifying numbers that can be used to determine
 supported features, the engines it contains, and the register set. The most
@@ -32,7 +47,7 @@ listed in this file, the following shorthands are used:
 124X*: PCI device ids 0x1240-0x127X, choosable by straps
 
 
-The card families
+= The card families =
 
 The chipsets can roughly be grouped into 9 families: NV01, NV03, NV04, NV10,
 NV20, NV30, NV40, NV50, NVC0. This aligns with big revisions of PGRAPH, the
@@ -81,7 +96,7 @@ as sorted in the preceding list. For example, NVA0:NVA8 means chipsets NVA0,
 NVAA, NVAC, NVA3, NVA5. NV20:NV30 effectively means all NV20 family cards.
 
 
-NV01 family: NV01
+== NV01 family: NV01 ==
 
 The first nvidia GPU. It has semi-legendary status, as it's very rare and hard
 to get. Information is mostly guesswork from ancient xfree86 driver. The GPU
@@ -121,7 +136,7 @@ pci vendor id of 0x12d2. The pci device ids are 0x0008 and 0x0009. The device
 id of NV02 was supposed to be 0x0010.
 
 
-NV03 family: NV03, NV03T
+== NV03 family: NV03, NV03T ==
 
 The first [moderately] sane GPUs from nvidia, and also the first to use AGP
 bus. There are two chips in this family, and confusingly both use chipset id
@@ -186,7 +201,7 @@ The MMIO ranges are:
 800000:1000000 USER - PFIFO MMIO submission area [fifo-pio.txt]
 
 
-NV04 family: NV04, NV05
+== NV04 family: NV04, NV05 ==
 
 Improved and somewhat redesigned NV03. Notable changes:
 
@@ -236,7 +251,7 @@ The MMIO ranges are:
 800000:1000000 USER - PFIFO MMIO and DMA submission area [fifo-pio.txt, fifo-dma-pusher.txt]
 
 
-NV10 family: NV10, NV15, NV1A, NV11, NV17, NV1F, NV18
+== NV10 family: NV10, NV15, NV1A, NV11, NV17, NV1F, NV18 ==
 
 The notable changes in this generation are:
 
@@ -322,7 +337,7 @@ The MMIO ranges for NV10, NV20 and NV30 families are:
 800000:1000000 USER - PFIFO MMIO and DMA submission area [fifo-pio.txt, fifo-dma-pusher.txt]
 
 
-NV20 family: NV20, NV2A, NV25, NV28
+== NV20 family: NV20, NV2A, NV25, NV28 ==
 
 The first cards of this family were actually developed before NV17, so they
 miss out on several features introduced in NV17. The first card to merge NV20
@@ -365,7 +380,7 @@ The pci vendor id is 0x10de, the pci device ids are:
 For MMIO ranges, see NV10 family's list.
 
 
-NV30 family: NV30, NV35, NV31, NV36, NV34
+== NV30 family: NV30, NV35, NV31, NV36, NV34 ==
 
 The infamous GeForce FX series. Notable changes:
 
@@ -419,7 +434,7 @@ The pci vendor id is 0x10de, the pci device ids are:
 For MMIO ranges, see NV10 family's list.
 
 
-NV40 family
+== NV40 family ==
 
 This family was the first to feature PCIE cards, and many fundamental areas
 got significant changes, which later paved the way for NV50. It is also the
@@ -555,7 +570,7 @@ The MMIO ranges for NV40 family are:
 c00000:1000000 NEW_USER - PFIFO DMA submission area [fifo-dma-pusher.txt]
 
 
-NV50 family
+== NV50 family ==
 
 The card where they redesigned everything. The most significant change was the
 redesigned memory subsystem, complete with a paging MMU [see nv50-vm.txt,
@@ -696,7 +711,7 @@ The MMIO ranges for NV50 family are:
 c00000:1000000 NEW_USER - PFIFO DMA submission area [fifo-dma-pusher.txt]
 
 
-NVC0 family
+== NVC0 family ==
 
 The card where they redesigned everything again.
 

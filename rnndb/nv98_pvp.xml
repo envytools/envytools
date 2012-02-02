@@ -263,7 +263,7 @@
 		<bitset name="nv98_pvp_vuc_intr"> <!-- fuc intr 10 -->
 			<bitfield pos="0" name="WATCHDOG"/>
 			<bitfield pos="1" name="UNK1"/>
-			<bitfield pos="2" name="V2H"/>
+			<bitfield pos="2" name="V2H" variants="NV98:NVD9"/>
 			<bitfield pos="3" name="UNK3"/>
 			<bitfield pos="4" name="UNK4"/>
 			<bitfield pos="5" name="UNK5" variants="NVA3-"/>

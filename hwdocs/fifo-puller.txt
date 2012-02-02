@@ -1,4 +1,19 @@
-Introduction
+TOC
+
+0. Introduction
+1. RAMHT and the FIFO objects
+1.1. NV04:NVC0
+1.2. NV03
+1.3. NV01
+2. Puller state
+3. Engine objects
+4. Puller builtin methods
+4.1. Syncing with host: reference counter
+4.2. Semaphores
+4.3. Misc puller methods
+
+
+= Introduction =
 
 PFIFO puller's job is taking methods out of the CACHE and delivering them to
 the right place for execution, or executing them directly.
@@ -43,7 +58,7 @@ Methods marked as [O] take object handles as parameters, and are thus looked
 up in RAMHT before further processing.
 
 
-RAMHT and the FIFO objects - NV04:NVC0
+= RAMHT and the FIFO objects =
 
 As has been already mentioned, each channel has 8 "subchannels" which can be
 bound to engine objects. On pre-NVC0 cards, these objects and DMA objects
@@ -54,6 +69,9 @@ The RAMHT is a big hash table that associates arbitrary 32-bit handles with
 FIFO objects and engine ids. Whenever a method is mentioned to take an object
 handle, it means the parameter is looked up in RAMHT. When such lookup fails
 to find a match, a CACHE_ERROR(NO_HASH) error is raised.
+
+
+== NV04:NVC0 ==
 
 Internally, a FIFO object is a [usually small] block of data residing in
 "instance memory". The instance memory is RAMIN for pre-nv50 cards, and the
@@ -83,7 +101,7 @@ For more information on DMA objects, see nv03-dmaobj.txt, nv04-dmaobj.txt,
 or nv50-vm.txt.
 
 
-RAMHT and the FIFO objects - NV03
+== NV03 ==
 
 NV03 also has RAMHT, but it's only used for engine objects. While NV03 has DMA
 objects, they have to be bound manually by the kernel. Thus, they're not
@@ -95,12 +113,12 @@ NV03 also doesn't use object classes - the object type is instead a 7-bit
 number encoded in RAMHT along with engine id and object address.
 
 
-RAMHT and the FIFO objects - NV01
+== NV01 ==
 
 You don't want to know how NV01 RAMHT works.
 
 
-Puller state
+= Puller state =
 
 type   | name               | cards | description
 ----------------------------------------------------------------------------
@@ -124,7 +142,7 @@ bool   | acquire_mode       | NV84+ | semaphore acquire mode
 NVC0 state is likely incomplete.
 
 
-Engine objects
+= Engine objects =
 
 The main purpose of the puller is relaying methods to the engines. First,
 an engine object has to be bound to a subchannel using method 0. Then, all
@@ -273,7 +291,9 @@ mthd 0x0100-0x3ffc / 0x040-0xfff: [forwarded to engine]
 [XXX: verify all of the pseudocode...]
 
 
-Syncing with host: reference counter
+= Puller builtin methods =
+
+== Syncing with host: reference counter ==
 
 NV10 introduced a "reference counter". It's a per-channel 32-bit register that
 is writable by the puller and readable through the channel control area [see
@@ -293,7 +313,7 @@ mthd 0x0050 / 0x014: REF_CNT [NV10:]
 	ref = param;
 
 
-Semaphores
+== Semaphores ==
 
 NV11 PFIFO introduced a concept of "semaphores". A semaphore is a 32-bit word
 located in memory. NV84 also introduced "long" semaphores, which are 4-word
@@ -522,7 +542,7 @@ mthd 0x001c / 0x007: SEMAPHORE_TRIGGER [NV84:]
 	}
 
 
-Misc special puller methods
+== Misc puller methods ==
 
 NV40 introduced the YIELD method which, if there are any other busy channels
 at the moment, will cause PFIFO to switch to another channel immediately,

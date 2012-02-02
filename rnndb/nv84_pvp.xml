@@ -313,9 +313,9 @@
 			<bitfield pos="0" name="RESIDUAL_FLUSH"/>
 			<bitfield pos="1" name="CTRL_FLUSH"/>
 			<bitfield pos="2" name="DEBLOCK_FLUSH"/>
-			<bitfield pos="4" name="RESIDUAL_RESUME"/>
-			<bitfield pos="5" name="CTRL_RESUME"/>
-			<bitfield pos="6" name="DEBLOCK_RESUME"/>
+			<bitfield pos="4" name="RESIDUAL_RESET"/>
+			<bitfield pos="5" name="CTRL_RESET"/>
+			<bitfield pos="6" name="DEBLOCK_RESET"/>
 		</reg32>
 		<bitset name="nv84_pbsp_vuc_intr" inline="yes">
 			<bitfield pos="0" name="VPRING_RESIDUAL_HALT"/>

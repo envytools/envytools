@@ -1,4 +1,17 @@
-Introduction
+TOC
+
+0. Introduction
+1. MMIO registers
+2. Code space
+3. Opcodes
+4. Script execution
+5. PTIMER wait opcodes
+6. Flags
+7. MMIO poke opcodes
+8. Event wait opcodes
+
+
+= Introduction =
 
 HWSQ is a very limitted programmable "microcontroller" present on NV17:NV20
 and NV25:NVC0 cards. Its capabilities include: setting/clearing several
@@ -12,10 +25,9 @@ execute a very simple preconfigured series of commands from start to finish.
 HWSQ registers reside inside of PBUS MMIO area [see pbus.txt].
 
 
-MMIO registers
+= MMIO registers =
 
 no annotation - NV17:NVC0
-
 [1] NV17:NV41
 [2] NV41:NV50
 [3] NV50:NVC0
@@ -37,7 +49,7 @@ no annotation - NV17:NVC0
 080000:080200[4] NEW_CODE
 
 
-Code space
+= Code space =
 
 The HWSQ commands are stored in dedicated code RAM. The code RAM is 0x40
 bytes long on NV17:NV41 cards, 0x80 bytes long on NV41:NV50, 0x100 bytes long
@@ -64,7 +76,7 @@ MMIO 0x80000 + [0..0x7f] * 4: NEW_CODE [NV92:NVC0]
   0-7, 8-15, 16-23, 24-31 respectively.
 
 
-Opcodes
+= Opcodes =
 
 The HWSQ opcodes are variable-length, most are a single byte. The first byte
 determines the length of the opcode. The valid opcodes [or their first bytes]
@@ -82,7 +94,7 @@ are:
  - 0xe2: data - sets MMIO data [5 bytes] [NV41+ only]
 
 
-Script execution
+= Script execution =
 
 HWSQ execution has to be started manually by the host every time the script
 is to be executed. The execution can begin at arbitrary point and continues
@@ -145,7 +157,7 @@ is needed to clear the unknown opcode condition and actually abort the
 execution.
 
 
-PTIMER wait opcodes
+= PTIMER wait opcodes =
 
 The PTIMER wait opcodes are used to insert constant delays into a script. The
 delays are selectable by a simple encoding style, and are counted in PTIMER
@@ -164,7 +176,7 @@ Opcode: 0x00-0x3f - wait #wait_length shl #(wait_shift * 2)
   to (wait_length << (wait_shift * 2)) µs.
 
 
-Flags
+= Flags =
 
 The main purpose of HWSQ on pre-NV41 chipsets is to twiddle various bits in
 registers all around the card. They're called "HWSQ flags". There are 32
@@ -221,7 +233,7 @@ The known flags are:
 31: 1084 b27
 
 
-MMIO poke opcodes
+= MMIO poke opcodes =
 
 On NV41+ cards, HWSQ can write arbitrary values to arbitrary MMIO addresses.
 This is done in two parts: first, the data value has to be set with one of
@@ -263,6 +275,6 @@ HWSQ MMIO access has to be enabled. This is done by setting bit 3 of
 PBUS.DEBUG_6 [0x1098] register to 1 [see pbus.txt for details].
 
 
-Event wait opcodes
+= Event wait opcodes =
 
 [XXX: write me]

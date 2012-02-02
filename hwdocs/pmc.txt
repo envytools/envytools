@@ -1,4 +1,15 @@
-Introduction
+TOC
+
+0. Introduction
+1. MMIO register list
+2. Card identification
+3. Endian switch
+4. Engine enables
+5. Interrupts
+6. VRAM hidden area
+
+
+= Introduction =
 
 PMC is the "master control" engine of the card. Its purpose is to provide
 card identication, manage enable/disable bits of other engines, and handle
@@ -46,7 +57,7 @@ no annotation - available on all cards
 000a00[4] NEW_ID		card identification
 
 
-Card identification
+= Card identification =
 
 The main register used to identify the card is the ID register. However,
 the ID register has different formats depending on the chipset family:
@@ -103,7 +114,7 @@ MMIO 0x000a00: NEW_ID
   bits 20-27: chipset id
 
 
-Endian switch
+= Endian switch =
 
 PMC also contains the endian switch register. The endian switch can be set to
 either little or big endian, and affects all accesses to BAR0 and, if present,
@@ -130,7 +141,7 @@ The MMIO areas containing aliases of 8-bit VGA registers are unaffected by
 this switch, despite being in BAR0.
 
 
-Engine enables
+= Engine enables =
 
 PMC contains the main engine enable register, which is used to turn whole
 engines on and off:
@@ -249,7 +260,7 @@ MMIO 0x00020c: ??? [NVC4-]
 [XXX: RE these two]
 
 
-Interrupts
+= Interrupts =
 
 Another thing that PMC handles is the top-level interrupt routing. On cards
 earlier than NVA3, PMC gets interrupt lines from all interested engines on
@@ -400,7 +411,7 @@ For NVC0+:
 [XXX: unknowns]
 
 
-VRAM hidden area
+= VRAM hidden area =
 
 NV17/NV20 added a feature to disable host reads through selected range of
 VRAM. The registers are:
