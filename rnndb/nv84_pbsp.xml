@@ -187,15 +187,15 @@
 		<reg32 offset="0x0e0" name="MVSURF_IN_OFFSET"/>
 		<reg32 offset="0x0e4" name="MVSURF_IN_PARM">
 			<bitfield low="0" high="7" name="WIDTH"/>
-			<bitfield pos="8" name="PROG_FRAME"/>
+			<bitfield pos="8" name="PROGRESSIVE"/>
 		</reg32>
 		<reg32 offset="0x0e8" name="MVSURF_IN_LEFT">
 			<bitfield low="0" high="7" name="X"/>
 			<bitfield low="8" high="15" name="Y"/>
 		</reg32>
 		<reg32 offset="0x0ec" name="MVSURF_IN_POS">
-			<bitfield low="0" high="11" name="IDX"/>
-			<bitfield pos="12" name="FIELD"/>
+			<bitfield low="0" high="11" name="MBPADDR"/>
+			<bitfield pos="12" name="PASS" type="uint"/>
 		</reg32>
 		<reg32 offset="0x0f0" name="MVSURF_OUT_OFFSET"/>
 		<reg32 offset="0x0f4" name="MVSURF_OUT_PARM">
