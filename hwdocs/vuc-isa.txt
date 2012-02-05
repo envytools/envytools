@@ -1048,7 +1048,8 @@ $sr6/$stat: Control and status register.
   bit 11: $h2v write pending				[vuc-isa.txt]
   bit 12: watchdog triggered				[vuc-isa.txt]
   bit 13 [VP4+?]: ??? [XXX]
-  bit 15: user-controlled PCOUNTER signal		[vuc-perf.txt]
+  bit 14: user-controlled pulse PCOUNTER signal		[vuc-perf.txt]
+  bit 15: user-controlled continuousPCOUNTER signal	[vuc-perf.txt]
 
 Three special instructions are available that read $stat implicitely. sleep
 instruction switches to a low-power sleep mode until bit 10 or bit 11 is set.
