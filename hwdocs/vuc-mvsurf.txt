@@ -123,8 +123,7 @@ BAR0 0x1032f0 / XLMI 0x0bc00: MVSURF_OUT_OFFSET [VP2]
   is in bytes and has to be divisible by 0x40.
 
 BAR0 0x085490 / I[0x12400]: MVSURF_OUT_ADDR [VP3+]
-  The address of MVSURF_OUT in fµc target [XXX: determine target], shifted
-  right by 8 bits.
+  The address of MVSURF_OUT in fµc target #2, shifted right by 8 bits.
 
 BAR0 0x1032f4 / XLMI 0x0bd00: MVSURF_OUT_PARM [VP2]
 BAR0 0x085494 / I[0x12500]: MVSURF_OUT_PARM [VP3+]
@@ -210,8 +209,7 @@ BAR0 0x1032e0 / XLMI 0x0b800: MVSURF_IN_OFFSET [VP2]
   is in bytes and has to be divisible by 0x40.
 
 BAR0 0x085480 / I[0x12000]: MVSURF_IN_ADDR [VP3+]
-  The address of MVSURF_IN in fµc target [XXX: determine target], shifted
-  right by 8 bits.
+  The address of MVSURF_IN in fµc target #2, shifted right by 8 bits.
 
 BAR0 0x1032e4 / XLMI 0x0b900: MVSURF_IN_PARM [VP2]
 BAR0 0x085484 / I[0x12100]: MVSURF_IN_PARM [VP3+]
