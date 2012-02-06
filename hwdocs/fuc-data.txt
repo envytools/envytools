@@ -1,4 +1,16 @@
-Introduction
+TOC
+
+0. Introduction
+1. Pseudocode conventions
+2. Load: ld
+3. Store: st
+4. Push onto stack: push
+5. Pop from stack: pop
+6. Adjust stack pointer: add
+7. Accessing data segment through IO
+
+
+= Introduction =
 
 Data segment of the fuc is inside the microcontroller itself. Its size can
 be determined by looking at UC_CAPS register, bits 9-16 shifted left by 8
@@ -16,7 +28,7 @@ higher than what's needed to span the data space are forced to 0.
 Multi-byte quantities are stored as little-endian.
 
 
-Pseudocode conventions
+= Pseudocode conventions =
 
 sz, for sized instructions, is the selected size of operation: 8, 16, or 32.
 
@@ -62,95 +74,92 @@ void ST(size, addr, val) {
 }
 
 
-Load: ld
+= Load: ld =
 
 Loads 8-bit, 16-bit or 32-bit quantity from data segment to register.
 
-Insns [sized]:
-  ld - Load a value from data segment.
-
-Operands [DST, BASE, IDX]:
-  [10/8] R1, R2, I8
-  [34/0] R2, $sp, I8
-  [3a/0] R2, $sp, R1
-  [3c/8] R3, R2, R1
-
-Immediates are zero-extended.
-
+Instructions:
+	ld - Load a value from data segment.
+Instruction class: sized
+Operands: DST, BASE, IDX
+Forms:
+	R1, R2, I8				opcode = 10, subopcode = 8
+	R2, $sp, I8				opcode = 34, subopcode = 0
+	R2, $sp, R1				opcode = 3a, subopcode = 0
+	R3, R2, R1				opcode = 3c, subopcode = 8
+Immediates: zero-extended
 Operation:
 	DST = LD(sz, BASE + IDX * (sz/8));
 
 
-Stores: st
+= Store: st =
 
 Stores 8-bit, 16-bit or 32-bit quantity from register to data segment.
 
-Insns [sized]:
-  st - Store a value to data segment.
-
-Operands [BASE, IDX, SRC]:
-  [00/0] R2, I8, R1
-  [30/1] $sp, I8, R2
-  [38/1] R2, 0, R1
-  [38/1] $sp, R1, R2
-
-Immediates are zero-extended.
-
+Instructions:
+	st - Store a value to data segment.
+Instruction class: sized
+Operands: BASE, IDX, SRC
+Forms:
+	R2, I8, R1				opcode = 00, subopcode = 0
+	$sp, I8, R2				opcode = 30, subopcode = 1
+	R2, 0, R1				opcode = 38, subopcode = 1
+	$sp, R1, R2				opcode = 38, subopcode = 1
+Immediates: zero-extended
 Operation:
 	ST(sz, BASE + IDX * (sz/8), SRC);
 
 
-Push to stack: push
+= Push onto stack: push =
 
 Decrements $sp by 4, then stores a 32-bit value at top of the stack.
 
-Insns [unsized]:
-  [0] push - Push a value onto stack
-
-Operands [SRC]:
-  [f9] R2
-
+Instructions:
+	push - Push a value onto stack		subopcode = 0
+Instruction class: unsized
+Operands: SRC
+Forms:
+	R2					opcode = f9
 Operation:
 	$sp -= 4;
 	ST(32, $sp, SRC);
 
 
-Pop from stack: pop
+= Pop from stack: pop =
 
 Loads 32-bit value from top of the stack, then incrments $sp by 4.
 
-Insns [unsized]:
-  [0] pop - Pops a value from the stack
-
-Operands [DST]:
-  [fc] R2
-
+Instructions:
+	pop - Pops a value from the stack	subopcode = 0
+Instruction class: unsized
+Operands: DST
+Forms:
+	R2					opcode = f2
 Operation:
 	DST = LD(32, $sp);
 	$sp += 4;
 
 
-Adjust stack pointer: add
+= Adjust stack pointer: add =
 
 Adds a value to the stack pointer
 
-Insns [unsized]:
-  add - Add a value to the stack pointer.
-
-Operands [DST, SRC]:
-  [f4/30] $sp, I8
-  [f5/30] $sp, I16
-  [f9/1] $sp, R2
-
-Immediates are sign-extended.
-
+Instructions:
+	add - Add a value to the stack pointer.
+Instruction class: unsized
+Operands: DST, SRC
+Forms:
+	$sp, I8				opcode = f4, subopcode = 30
+	$sp, I16			opcode = f5, subopcode = 30
+	$sp, R2				opcode = f9, subopcode = 1
+Immediates: sign-extended
 Operation:
 	$sp += SRC;
 
 
-Accessing data segment through IO
+= Accessing data segment through IO =
 
-On NVA3+, the data segment is accessible through normal IO space through
+On v3+, the data segment is accessible through normal IO space through
 index/data reg pairs. The number of available index/data pairs is accessible
 by UC_CAPS2 register [see fuc-ctrl.txt]. This number is equal to 4 on PDAEMON,
 1 on other engines:
@@ -169,5 +178,5 @@ MMIO 0x1c4 + i * 8 / I[0x07100 + i * 0x200]: DATA
 
 i should be less than DATA_PORTS value from UC_CAPS2 register.
 
-On pre-NVA3, the data segment is instead accessible through the high fuc MMIO
-range, see fuc-io.txt for details.
+On v0, the data segment is instead accessible through the high fuc MMIO range,
+see fuc-io.txt for details.

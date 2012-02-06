@@ -175,7 +175,7 @@ For each macroblock, the following data is stored:
  - transform_size_8x8_flag
  - intra_chroma_pred_mode
  - ref_idx_lX[i]
- - mvd_lX[i][j] 
+ - mvd_lX[i][j]
  - coded_block_flag for each block
  - total_coeffs for each luma 4x4 / luma AC block
 [XXX: and availability status?]

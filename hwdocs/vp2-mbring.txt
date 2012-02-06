@@ -84,7 +84,7 @@ Header word:
 
 Second header word:
   bit i = bit 4 of ref_idx[i]
- 
+
 Motion vector word i:
   bits 0-12: mvd[i] Y coord
   bits 13-27: mvd[i] X coord

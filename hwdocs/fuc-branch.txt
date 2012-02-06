@@ -1,4 +1,14 @@
-Introduction
+TOC
+
+0. Introduction
+1. Pseudocode conventions
+2. Conditional branch: bra
+3. Unconditional branch: bra
+4. Subroutine call: call
+5. Subroutine return: ret
+
+
+= Introduction =
 
 The flow control instructions on fuc include conditional relative branches,
 unconditional absolute branches, absolute calls, and returns. Calls use the
@@ -19,7 +29,7 @@ Address of the current instruction is always available through the read-only
 $pc special register.
 
 
-Pseudocode conventions
+= Pseudocode conventions =
 
 $pc is usually automatically incremented by opcode length after each
 instruction - documentation for other kinds of instructions doesn't mention
@@ -28,37 +38,38 @@ of instructions, all effects on $pc are mentioned explicitely in this file.
 
 oplen is the length of the currently executed instruction in bytes.
 
+See also conventions from fuc-arith.txt and fuc-data.txt.
 
-Conditional branch: bra
+
+= Conditional branch: bra =
 
 Branches to a given location if the condition evaluates to true. Target is
 $pc-relative.
 
-Insns [unsized]:
-  [00+X] bra $pX - Branch if predicate true
-  [08] bra c - Branch if carry
-  [09] bra o - Branch if overflow
-  [0a] bra s - Branch if signed
-  [0b] bra z / bra e - Branch if zero / equal
-  [0c] bra a - Branch if above
-  [0d] bra na - Branch if not above
-  [0e] bra - Branch always
-  [10+X] bra not $pX - Branch if predicate false
-  [18] bra nc - Branch if not carry
-  [19] bra no - Branch if not overflow
-  [1a] bra ns - Branch if not signed
-  [1b] bra nz / bra ne - Branch if not zero / not equal
-  [1c] bra g - Branch if greater [NVA3+]
-  [1d] bra le - Branch if less or equal [NVA3+]
-  [1e] bra l - Branch if less [NVA3+]
-  [1f] bra ge - Branch if greater or equal [NVA3+]
-
-Operands [DIFF]:
-  [f4] I8
-  [f5] I16
-
-Immediates are sign-extended.
-
+Instructions:
+	bra $pX - if predicate true		subopcode = 00+X
+	bra c - if carry			subopcode = 08
+	bra o - if overflow			subopcode = 09
+	bra s - if signed			subopcode = 0a
+	bra z / bra e - if zero / equal		subopcode = 0b
+	bra a - if above			subopcode = 0c
+	bra na - if not above			subopcode = 0d
+	bra - always				subopcode = 0e
+	bra not $pX - if predicate false	subopcode = 10+X
+	bra nc - if not carry			subopcode = 18
+	bra no - if not overflow		subopcode = 19
+	bra ns - if not signed			subopcode = 1a
+	bra nz / bra ne - if not zero / equal	subopcode = 1b
+	bra g - if greater			subopcode = 1c [v3+ only]
+	bra le - if less or equal		subopcode = 1d [v3+ only]
+	bra l - if less				subopcode = 1e [v3+ only]
+	bra ge - if greater or equal		subopcode = 1f [v3+ only]
+Instruction class: unsized
+Operands: DIFF
+Forms:
+	I8					opcode = f4
+	I16					opcode = f5
+Immediates: sign-extended
 Operation:
 	switch (cc) {
 		case $pX: // $p0..$p7
@@ -119,56 +130,54 @@ Operation:
 		$pc = $pc + oplen;
 
 
-Unconditional branch: bra
+= Unconditional branch: bra =
 
 Branches to the target. Target is specified as absolute address. Yes, the
 immediate forms are pretty much redundant with the relative branch form.
 
-Insns [unsized]:
-  bra - Branch
-
-Operands [TRG]:
-  [f4/20] I8
-  [f5/20] I16
-  [f9/4] R2
-
-Immediates are zero-extended.
-
+Instructions:
+	bra - branch
+Instruction class: unsized
+Operands: TRG
+Forms:
+	I8				opcode = f4, subopcode = 20
+	I16				opcode = f5, subopcode = 20
+	R2				opcode = f9, subopcode = 4
+Immediates: zero-extended
 Operation:
 	$pc = TRG;
 
 
-Subroutine call: call
+= Subroutine call: call =
 
 Pushes return address onto stack and branches to the target. Target is
 specified as absolute address.
 
-Insns [unsized]:
-  call - Call a subroutine
-
-Operands [TRG]:
-  [f4/21] I8
-  [f5/21] I16
-  [f9/5] R2
-
-Immediates are zero-extended.
-
+Instructions:
+	call - Call a subroutine
+Instruction class: unsized
+Operands: TRG
+Forms:
+	I8				opcode = f4, subopcode = 21
+	I16				opcode = f5, subopcode = 21
+	R2				opcode = f9, subopcode = 5
+Immediates: zero-extended
 Operation:
 	$sp -= 4;
 	ST(32, $sp, $pc + oplen);
 	$pc = TRG;
 
 
-Subroutine return: ret
+= Subroutine return: ret =
 
 Returns from a previous call.
 
-Insns [unsized]:
-  ret - Return from a subroutine
-
-Operands [-]:
-  [f8/0]
-
+Instructions:
+	ret - Return from a subroutine
+Instruction class: unsized
+Operands: -
+Forms:
+	[no operands]			opcode = f8, subopcode = 0
 Operation:
 	$pc = LD(32, $sp);
 	$sp += 4;

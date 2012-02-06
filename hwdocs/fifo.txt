@@ -30,7 +30,7 @@ The engines that PFIFO controls are:
 
 idx|   name   |   cards   | description
 ------------------------------------------------------------------------------
- 0 |          |           | Not really an engine, causes interrupt for each 
+ 0 |          |           | Not really an engine, causes interrupt for each
  / | SOFTWARE |    all    | command, can be used to execute driver functions
 1f |          |           | in sync with other commands.
 ------------------------------------------------------------------------------

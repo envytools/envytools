@@ -33,7 +33,7 @@ The macro block header contains 4 data words:
 
 type 01: Motion vector
 [XXX: Verify whether X or Y is in the lowest 16 bits. I assume X]
-The motion vector has a length of 4 data words, and contains a total of 
+The motion vector has a length of 4 data words, and contains a total of
 8 PMVs with a size of 16 bits each. The motion vectors are likely
 encoded in order of the spec with PMV[r][s][t].
 

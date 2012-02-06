@@ -1,4 +1,16 @@
-Introduction
+TOC
+
+0. Introduction
+1. IO register list
+2. Scratch registers
+3. Engine status and control registers
+4. PCOUNTER signal control registers
+5. v0 code/data upload registers
+6. IO space writes: iowr, iowrs
+7. IO space reads: iord
+
+
+= Introduction =
 
 Every fuc engine has an associated IO space. The space consists of 32-bit IO
 registers, and is accessible in two ways:
@@ -41,9 +53,9 @@ PGRAPH.CTXCTL		409000
 PGRAPH.TP[i].CTXCTL	502000 + i * 0x8000
 
 
-A reference list of addresses
+= IO register list =
 
-+ means NVA3+ only register.
++ means v3+ only register.
 S means secret register. [see fuc-crypt.txt]
 
 host/I[] address / name / file
@@ -186,15 +198,16 @@ d00/34000:d40/35000[s]  ???	???			[fuc-crypt.txt]
 [XXX: PUNK627]
 
 
-Misc registers
-
-A few registers that don't fit in any other file are described here.
+= Scratch registers =
 
 MMIO 0x040 / I[0x01000]: SCRATCH0
 MMIO 0x044 / I[0x01100]: SCRATCH1
 MMIO 0x080 / I[0x02000]: SCRATCH2
 MMIO 0x084 / I[0x02100]: SCRATCH3
   Scratch 32-bit registers, meant for host <-> fuc communication.
+
+
+= Engine status and control registers =
 
 MMIO 0x04c / I[0x01300]: STATUS
   Status of various parts of the engine. For each bit, 1 means busy, 0 means
@@ -214,12 +227,18 @@ MMIO 0x07c / I[0x01f00]: SUBENGINE_RESET
   that this includes the memory interface - using this register while an xfer
   is in progress is ill-advised.
 
+
+= PCOUNTER signal control registers =
+
 MMIO 0x088 / I[0x02200]: MISC_TRIGGER
   A WO "trigger" register for various things. write 1 to a bit to trigger
   the relevant event, 0 to do nothing.
   bits 0-15: ??? [perf counters?]
   bit 16: WRCACHE_FLUSH
   bit 17: ??? [PM_TRIGGER?]
+
+
+= v0 code/data upload registers =
 
 MMIO 0xff4: UPLOAD
   The data to upload, see below
@@ -231,10 +250,11 @@ MMIO 0xff8: UPLOAD_ADDR
   bit 28: secret flag - secret engines only [see fuc-crypt.txt]
   bit 29: code busy [RO]
 
-This pair of registers can be used on NV98 to read/write code and data
+This pair of registers can be used on v0 to read/write code and data
 segments. It's quite fragile and should only be used when no xfers are active.
-bit 24 of UPLOAD_ADDR is set when this is the case. On NVA3+, this pair
-should be avoided in favor of the new-style access via CODE and DATA ports.
+bit 24 of UPLOAD_ADDR is set when this is the case. On v3+, this pair is
+broken and should be avoided in favor of the new-style access via CODE and
+DATA ports [see fuc-vm.txt and fuc-data.txt].
 
 To write data, poke address to UPLOAD_ADDR, then poke the data words to
 UPLOAD. The address will auto-increment as words are uploaded.
@@ -243,9 +263,9 @@ To read data or code, poke address + readback flag to UPLOAD_ADDR, then read
 the word from UPLOAD. This only works for a single word, and you need to poke
 UPLOAD_ADDR again for each subsequent word.
 
-On NV98, code segment is organised in 0x100-byte pages. On secretful engines,
-each page can be secret or not. Reading from secret pages doesn't work and
-you just get 0. Writing code segment can only be done in aligned page units.
+The code segment is organised in 0x100-byte pages. On secretful engines, each
+page can be secret or not. Reading from secret pages doesn't work and you just
+get 0. Writing code segment can only be done in aligned page units.
 
 To write a code page, write start address of the page + secret flag [if
 needed] to UPLOAD_ADDR, then poke multiple of 0x40 words to UPLOAD. The
@@ -253,22 +273,23 @@ address will autoincrement. The process cannot be interrupted except between
 pages. The "code busy" flag in UPLOAD_ADDR will be lit when this is the case.
 
 
-IO space writes: iowr, iowrs
+= IO space writes: iowr, iowrs =
 
 Writes a word to IO space. iowr does asynchronous writes [queues the write,
 but doesn't wait for completion], iowrs does synchrnous write [write is
-guaranteed to complete before executing next instruction]. On pre-NVA3 cards,
+guaranteed to complete before executing next instruction]. On v0 cards,
 iowrs doesn't exist and synchronisation can instead be done by re-reading
 the relevant register.
 
-Insns [unsized]:
-  [0] iowr - Async IO space write
-  [1] iowrs - Sync IO space write [NVA3+]
-
-Operands [BASE, IDX, SRC]:
-  [d0] R2, I8, R1
-  [fa] R2, 0, R1
-
+Instructions:
+	iowr - Asynchronous IO space write	subopcode = 0
+	iowrs - Synchronous IO space write	subopcode = 1 [v3+ only]
+Instruction class: unsized
+Operands: BASE, IDX, SRC
+Forms:
+	R2, I8, R1				opcode = d0
+	R2, 0, R1				opcode = fa
+Immediates: zero-extended
 Operation:
 	if (op == iowr)
 		IOWR(BASE + IDX * 4, SRC);
@@ -276,22 +297,22 @@ Operation:
 		IOWRS(BASE + IDX * 4, SRC);
 
 
-IO space reads: iord
+= IO space reads: iord =
 
 Reads a word from IO space.
 
-Insns [unsized]:
-  [e] ??? [NVA3+]
-  [f] iord - IO space read
-
-Operands [DST, BASE, IDX]:
-  [c0] R1, R2, I8
-  [ff] R3, R2, R1
-
+Instructions:
+	???					subopcode = e [v3+ only]
+	iord - IO space read			subopcode = f
+Instruction class: unsized
+Operands: DST, BASE, IDX
+Forms:
+	R1, R2, I8				subopcode = c0
+	R3, R2, R1				subopcode = ff
+Immediates: zero-extended
 Operation:
 	if (op == iord)
 		DST = IORD(BASE + IDX * 4);
 	else
 		???;
-
-XXX: subop e
+[XXX: subop e]

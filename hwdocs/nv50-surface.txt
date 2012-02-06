@@ -118,9 +118,9 @@ The attributes defining a tiled surface are:
 
  - address: 40-bit VM address, aligned to roptile size [0x100 bytes on
    nv50:nvc0, 0x200 bytes on nvc0]
- - tile size x: 0-5, log2 of roptiles per bigtile in x dimension 
- - tile size y: 0-5, log2 of roptiles per bigtile in y dimension 
- - tile size z: 0-5, log2 of roptiles per bigtile in z dimension 
+ - tile size x: 0-5, log2 of roptiles per bigtile in x dimension
+ - tile size y: 0-5, log2 of roptiles per bigtile in y dimension
+ - tile size z: 0-5, log2 of roptiles per bigtile in z dimension
  - element size: implied by format, or defaulting to 1 if the binding point
    is byte-oriented
  - width: surface width [size in x dimension] in elements
@@ -893,7 +893,7 @@ types:
    non-0 storage types
  - large scale [LSR] - large blocks of memory rearranged, based on internal
    VRAM geometry. Bounduaries between VRAM areas using NONE/SSR and LSR need
-   to be properly aligned in physical space to prevent conflicts.   
+   to be properly aligned in physical space to prevent conflicts.
 
 Long range reordering is described in detail in nv50-vram.txt.
 

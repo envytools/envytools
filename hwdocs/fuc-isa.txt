@@ -9,7 +9,8 @@ S - secret stuff				[fuc-crypt.txt]
 T - traps and interrupts			[fuc-intr.txt]
 V - virtual memory				[fuc-vm.txt]
 X - external xfers				[fuc-xfer.txt]
-+ - NVA3+ only insn
+3 - v3+ only insn
+4 - v4+ only insn
 
 Registers
 
@@ -29,7 +30,7 @@ num | type | name      | description
  9  |  S   | $cx       | crypt xfer mode
  a  |  S   | $cauth    | crypt auth code selection
  b  |  X   | $xtargets | xfer port selection
- c  |  T+  | $tstatus  | trap status
+ c  |  T3  | $tstatus  | trap status
 
 $flags is split into the following bitfields:
 
@@ -108,88 +109,88 @@ Instructions
 
 Sized
 
- insn    |type|0x|1x|2x|30|31|34|36|37|38|39|3a|3b|3c|3d|imm|flg98|flgA3| description
---------------------------------------------------------------------------------------
- st      |D   | 0|  |  |  |  |  |  |  | 0|  |  |  |  |  | U |-    |-    | store
- st [sp] |D   |  |  |  | 1|  |  |  |  | 1|  |  |  |  |  | U |-    |-    | store
- cmpu    |A   |  |  |  | 4| 4|  |  |  | 4|  |  |  |  |  | U |CZ   |CZ   | unsigned compare
- cmps    |A   |  |  |  | 5| 5|  |  |  | 5|  |  |  |  |  | S |CZ   |CZ   | signed compare
- cmp     |A+  |  |  |  | 6| 6|  |  |  | 6|  |  |  |  |  | S |N/A  |COSZ | compare
- add     |A   |  | 0| 0|  |  |  | 0| 0|  |  |  | 0| 0|  | U |COSZ |COSZ | add
- adc     |A   |  | 1| 1|  |  |  | 1| 1|  |  |  | 1| 1|  | U |COSZ |COSZ | add with carry
- sub     |A   |  | 2| 2|  |  |  | 2| 2|  |  |  | 2| 2|  | U |COSZ |COSZ | substract
- sbb     |A   |  | 3| 3|  |  |  | 3| 3|  |  |  | 3| 3|  | U |COSZ |COSZ | substract with borrow
- shl     |A   |  | 4|  |  |  |  | 4|  |  |  |  | 4| 4|  | U |C    |COSZ | shift left
- shr     |A   |  | 5|  |  |  |  | 5|  |  |  |  | 5| 5|  | U |C    |COSZ | shift right
- sar     |A   |  | 7|  |  |  |  | 7|  |  |  |  | 7| 7|  | U |C    |COSZ | shift right with sign
- ld      |D   |  | 8|  |  |  |  |  |  |  |  |  |  | 8|  | U |-    |-    | load
- shlc    |A   |  | c|  |  |  |  | c|  |  |  |  | c| c|  | U |C    |COSZ | shift left with carry
- shrc    |A   |  | d|  |  |  |  | d|  |  |  |  | d| d|  | U |C    |COSZ | shift right with carry
- ld [sp] |D   |  |  |  |  |  | 0|  |  |  |  | 0|  |  |  | U |-    |-    | load
- not     |A   |  |  |  |  |  |  |  |  |  | 0|  |  |  | 0|   |OSZ  |OSZ  | bitwise not
- neg     |A   |  |  |  |  |  |  |  |  |  | 1|  |  |  | 1|   |OSZ  |OSZ  | sign negation
- mov     |A   |  |  |  |  |  |  |  |  |  | 2|  |  |  | 2|   |OSZ  |-    | move
- hswap   |A   |  |  |  |  |  |  |  |  |  | 3|  |  |  | 3|   |OSZ  |OSZ  | swap halves
- clear   |A   |  |  |  |  |  |  |  |  |  |  |  |  |  | 4|   |-    |-    | set to 0
- setf    |A+  |  |  |  |  |  |  |  |  |  |  |  |  |  | 5|   |N/A  |OSZ  | set flags from value
+ insn    |type|0x|1x|2x|30|31|34|36|37|38|39|3a|3b|3c|3d|imm|flg0|flg3+| description
+-------------------------------------------------------------------------------------
+ st      |D   | 0|  |  |  |  |  |  |  | 0|  |  |  |  |  | U |-   |-    | store
+ st [sp] |D   |  |  |  | 1|  |  |  |  | 1|  |  |  |  |  | U |-   |-    | store
+ cmpu    |A   |  |  |  | 4| 4|  |  |  | 4|  |  |  |  |  | U |CZ  |CZ   | unsigned compare
+ cmps    |A   |  |  |  | 5| 5|  |  |  | 5|  |  |  |  |  | S |CZ  |CZ   | signed compare
+ cmp     |A3  |  |  |  | 6| 6|  |  |  | 6|  |  |  |  |  | S |N/A |COSZ | compare
+ add     |A   |  | 0| 0|  |  |  | 0| 0|  |  |  | 0| 0|  | U |COSZ|COSZ | add
+ adc     |A   |  | 1| 1|  |  |  | 1| 1|  |  |  | 1| 1|  | U |COSZ|COSZ | add with carry
+ sub     |A   |  | 2| 2|  |  |  | 2| 2|  |  |  | 2| 2|  | U |COSZ|COSZ | substract
+ sbb     |A   |  | 3| 3|  |  |  | 3| 3|  |  |  | 3| 3|  | U |COSZ|COSZ | substract with borrow
+ shl     |A   |  | 4|  |  |  |  | 4|  |  |  |  | 4| 4|  | U |C   |COSZ | shift left
+ shr     |A   |  | 5|  |  |  |  | 5|  |  |  |  | 5| 5|  | U |C   |COSZ | shift right
+ sar     |A   |  | 7|  |  |  |  | 7|  |  |  |  | 7| 7|  | U |C   |COSZ | shift right with sign
+ ld      |D   |  | 8|  |  |  |  |  |  |  |  |  |  | 8|  | U |-   |-    | load
+ shlc    |A   |  | c|  |  |  |  | c|  |  |  |  | c| c|  | U |C   |COSZ | shift left with carry
+ shrc    |A   |  | d|  |  |  |  | d|  |  |  |  | d| d|  | U |C   |COSZ | shift right with carry
+ ld [sp] |D   |  |  |  |  |  | 0|  |  |  |  | 0|  |  |  | U |-   |-    | load
+ not     |A   |  |  |  |  |  |  |  |  |  | 0|  |  |  | 0|   |OSZ |OSZ  | bitwise not
+ neg     |A   |  |  |  |  |  |  |  |  |  | 1|  |  |  | 1|   |OSZ |OSZ  | sign negation
+ mov     |A   |  |  |  |  |  |  |  |  |  | 2|  |  |  | 2|   |OSZ |-    | move
+ hswap   |A   |  |  |  |  |  |  |  |  |  | 3|  |  |  | 3|   |OSZ |OSZ  | swap halves
+ clear   |A   |  |  |  |  |  |  |  |  |  |  |  |  |  | 4|   |-   |-    | set to 0
+ setf    |A3  |  |  |  |  |  |  |  |  |  |  |  |  |  | 5|   |N/A |OSZ  | set flags from value
 
 Unsized
 
- insn    |type|cx|dx|ex|f0|f1|f2|f4|f5|f8|f9|fa|fc|fd|fe|ff|imm|flg98|flgA3| description
------------------------------------------------------------------------------------------
- mulu    |A   | 0|  | 0| 0| 0|  |  |  |  |  |  |  | 0|  | 0| U |-    |-    | unsigned 16x16 -> 32 multiply
- muls    |A   | 1|  | 1| 1| 1|  |  |  |  |  |  |  | 1|  | 1| S |-    |-    | signed 16x16 -> 32 multiply
- sext    |A   | 2|  |  | 2|  |  |  |  |  |  |  |  | 2|  | 2| U |SZ   |SZ   | sign extend
- extrs   |A+  | 3|  | 3|  |  |  |  |  |  |  |  |  |  |  | 3| U | N/A |SZ   | extract signed bitfield
- sethi   |A   |  |  |  | 3| 3|  |  |  |  |  |  |  |  |  |  | H |-    |-    | set high 16 bits
- and     |A   | 4|  | 4| 4| 4|  |  |  |  |  |  |  | 4|  | 4| U |-    |COSZ | bitwise and
- or      |A   | 5|  | 5| 5| 5|  |  |  |  |  |  |  | 5|  | 5| U |-    |COSZ | bitwise or
- xor     |A   | 6|  | 6| 6| 6|  |  |  |  |  |  |  | 6|  | 6| U |-    |COSZ | bitwise xor
- extr    |A+  | 7|  | 7|  |  |  |  |  |  |  |  |  |  |  | 7| U | N/A |SZ   | extract bitfield
- mov     |A   |  |  |  | 7| 7|  |  |  |  |  |  |  |  |  |  | S |-    |-    | move
- xbit    |A   | 8|  |  |  |  |  |  |  |  |  |  |  |  |  | 8| U |-    |SZ   | extract single bit
- bset    |A   |  |  |  | 9|  |  |  |  |  |  |  |  | 9|  |  | U |-    |-    | set single bit
- bclr    |A   |  |  |  | a|  |  |  |  |  |  |  |  | a|  |  | U |-    |-    | clear single bit
- btgl    |A   |  |  |  | b|  |  |  |  |  |  |  |  | b|  |  | U |-    |-    | toggle single bit
- ins     |A+  | b|  | b|  |  |  |  |  |  |  |  |  |  |  |  | U | N/A |-    | insert bitfield
- xbit[fl]|A   |  |  |  | c|  |  |  |  |  |  |  |  |  | c|  | U |-    |SZ   | extract single bit
- div     |A+  | c|  | c|  |  |  |  |  |  |  |  |  |  |  | c| U | N/A |-    | divide
- mod     |A+  | d|  | d|  |  |  |  |  |  |  |  |  |  |  | d| U | N/A |-    | modulus
- ???     |I   | e|  |  |  |  |  |  |  |  |  |  |  |  |  | e| U |-    |-    | ??? IO port
- iord    |I   | f|  |  |  |  |  |  |  |  |  |  |  |  |  | f| U |-    |-    | read IO port
- iowr    |I   |  | 0|  |  |  |  |  |  |  |  | 0|  |  |  |  | U |-    |-    | write IO port asynchronous
- iowrs   |I+  |  | 1|  |  |  |  |  |  |  |  | 1|  |  |  |  | U | N/A |-    | write IO port synchronous
- xcld    |X   |  |  |  |  |  |  |  |  |  |  | 4|  |  |  |  |   |-    |-    | code xfer to fuc
- xdld    |X   |  |  |  |  |  |  |  |  |  |  | 5|  |  |  |  |   |-    |-    | data xfer to fuc
- xdst    |X   |  |  |  |  |  |  |  |  |  |  | 6|  |  |  |  |   |-    |-    | data xfer from fuc
- setp    |A   |  |  |  |  |  | 8|  |  |  |  | 8|  |  |  |  |   |-    |-    | set predicate
- ccmd    |S   |  |  |  |  |  | c|3c|3c|  |  |  |  |  |  |  |   |-    |-    | crypto coprocessor command
- bra [r] |B   |  |  |  |  |  |  |0x|0x|  |  |  |  |  |  |  | S |-    |-    | branch relative conditional
- bra [r] |B   |  |  |  |  |  |  |1x|1x|  |  |  |  |  |  |  | S |-    |-    | branch relative conditional
- bra     |B   |  |  |  |  |  |  |20|20|  | 4|  |  |  |  |  | U |-    |-    | branch absolute
- call    |B   |  |  |  |  |  |  |21|21|  | 5|  |  |  |  |  | U |-    |-    | call subroutine
- sleep   |C   |  |  |  |  |  |  |28|  |  |  |  |  |  |  |  | U |-    |-    | sleep until interrupt
- add [sp]|D   |  |  |  |  |  |  |30|30|  | 1|  |  |  |  |  | S |-    |-    | add to stack pointer
- bset[fl]|A   |  |  |  |  |  |  |31|  |  | 9|  |  |  |  |  | U |-    |-    | set single bit
- bclr[fl]|A   |  |  |  |  |  |  |32|  |  | a|  |  |  |  |  | U |-    |-    | clear single bit
- btgl[fl]|A   |  |  |  |  |  |  |33|  |  | b|  |  |  |  |  | U |-    |-    | toggle single bit
- ret     |B   |  |  |  |  |  |  |  |  | 0|  |  |  |  |  |  |   |-    |-    | return from subroutine
- iret    |T   |  |  |  |  |  |  |  |  | 1|  |  |  |  |  |  |   |-    |-    | return from interrupt handler
- exit    |C   |  |  |  |  |  |  |  |  | 2|  |  |  |  |  |  |   |-    |-    | halt microcontroller
- xdwait  |X   |  |  |  |  |  |  |  |  | 3|  |  |  |  |  |  |   |-    |-    | wait for data xfer
- ???     |?   |  |  |  |  |  |  |  |  | 6|  |  |  |  |  |  |   |-    |-    |
- xcwait  |X   |  |  |  |  |  |  |  |  | 7|  |  |  |  |  |  |   |-    |-    | wait for code xfer
- trap 0  |T+  |  |  |  |  |  |  |  |  | 8|  |  |  |  |  |  |   | N/A |-    | trigger software trap
- trap 1  |T+  |  |  |  |  |  |  |  |  | 9|  |  |  |  |  |  |   | N/A |-    | trigger software trap
- trap 2  |T+  |  |  |  |  |  |  |  |  | a|  |  |  |  |  |  |   | N/A |-    | trigger software trap
- trap 3  |T+  |  |  |  |  |  |  |  |  | b|  |  |  |  |  |  |   | N/A |-    | trigger software trap
- push    |D   |  |  |  |  |  |  |  |  |  | 0|  |  |  |  |  |   |-    |-    | push onto stack
- itlb    |V+  |  |  |  |  |  |  |  |  |  | 8|  |  |  |  |  |   | N/A |-    | drop TLB entry
- pop     |D   |  |  |  |  |  |  |  |  |  |  |  | 0|  |  |  |   |-    |-    | pop from stack
- mov[>sr]|C   |  |  |  |  |  |  |  |  |  |  |  |  |  | 0|  |   |-    |-    | move to special register
- mov[<sr]|C   |  |  |  |  |  |  |  |  |  |  |  |  |  | 1|  |   |-    |-    | move from special register
- ptlb    |V+  |  |  |  |  |  |  |  |  |  |  |  |  |  | 2|  |   | N/A |-    | lookup TLB by phys address
- vtlb    |V+  |  |  |  |  |  |  |  |  |  |  |  |  |  | 3|  |   | N/A |-    | lookup TLB by virt address
+ insn    |type|cx|dx|ex|f0|f1|f2|f4|f5|f8|f9|fa|fc|fd|fe|ff|imm|flg0|flg3+| description
+----------------------------------------------------------------------------------------
+ mulu    |A   | 0|  | 0| 0| 0|  |  |  |  |  |  |  | 0|  | 0| U |-   |-    | unsigned 16x16 -> 32 multiply
+ muls    |A   | 1|  | 1| 1| 1|  |  |  |  |  |  |  | 1|  | 1| S |-   |-    | signed 16x16 -> 32 multiply
+ sext    |A   | 2|  |  | 2|  |  |  |  |  |  |  |  | 2|  | 2| U |SZ  |SZ   | sign extend
+ extrs   |A3  | 3|  | 3|  |  |  |  |  |  |  |  |  |  |  | 3| U |N/A |SZ   | extract signed bitfield
+ sethi   |A   |  |  |  | 3| 3|  |  |  |  |  |  |  |  |  |  | H |-   |-    | set high 16 bits
+ and     |A   | 4|  | 4| 4| 4|  |  |  |  |  |  |  | 4|  | 4| U |-   |COSZ | bitwise and
+ or      |A   | 5|  | 5| 5| 5|  |  |  |  |  |  |  | 5|  | 5| U |-   |COSZ | bitwise or
+ xor     |A   | 6|  | 6| 6| 6|  |  |  |  |  |  |  | 6|  | 6| U |-   |COSZ | bitwise xor
+ extr    |A3  | 7|  | 7|  |  |  |  |  |  |  |  |  |  |  | 7| U |N/A |SZ   | extract bitfield
+ mov     |A   |  |  |  | 7| 7|  |  |  |  |  |  |  |  |  |  | S |-   |-    | move
+ xbit    |A   | 8|  |  |  |  |  |  |  |  |  |  |  |  |  | 8| U |-   |SZ   | extract single bit
+ bset    |A   |  |  |  | 9|  |  |  |  |  |  |  |  | 9|  |  | U |-   |-    | set single bit
+ bclr    |A   |  |  |  | a|  |  |  |  |  |  |  |  | a|  |  | U |-   |-    | clear single bit
+ btgl    |A   |  |  |  | b|  |  |  |  |  |  |  |  | b|  |  | U |-   |-    | toggle single bit
+ ins     |A3  | b|  | b|  |  |  |  |  |  |  |  |  |  |  |  | U |N/A |-    | insert bitfield
+ xbit[fl]|A   |  |  |  | c|  |  |  |  |  |  |  |  |  | c|  | U |-   |SZ   | extract single bit
+ div     |A3  | c|  | c|  |  |  |  |  |  |  |  |  |  |  | c| U |N/A |-    | divide
+ mod     |A3  | d|  | d|  |  |  |  |  |  |  |  |  |  |  | d| U |N/A |-    | modulus
+ ???     |I   | e|  |  |  |  |  |  |  |  |  |  |  |  |  | e| U |-   |-    | ??? IO port
+ iord    |I   | f|  |  |  |  |  |  |  |  |  |  |  |  |  | f| U |-   |-    | read IO port
+ iowr    |I   |  | 0|  |  |  |  |  |  |  |  | 0|  |  |  |  | U |-   |-    | write IO port asynchronous
+ iowrs   |I3  |  | 1|  |  |  |  |  |  |  |  | 1|  |  |  |  | U |N/A |-    | write IO port synchronous
+ xcld    |X   |  |  |  |  |  |  |  |  |  |  | 4|  |  |  |  |   |-   |-    | code xfer to fuc
+ xdld    |X   |  |  |  |  |  |  |  |  |  |  | 5|  |  |  |  |   |-   |-    | data xfer to fuc
+ xdst    |X   |  |  |  |  |  |  |  |  |  |  | 6|  |  |  |  |   |-   |-    | data xfer from fuc
+ setp    |A   |  |  |  |  |  | 8|  |  |  |  | 8|  |  |  |  |   |-   |-    | set predicate
+ ccmd    |S   |  |  |  |  |  | c|3c|3c|  |  |  |  |  |  |  |   |-   |-    | crypto coprocessor command
+ bra [r] |B   |  |  |  |  |  |  |0x|0x|  |  |  |  |  |  |  | S |-   |-    | branch relative conditional
+ bra [r] |B   |  |  |  |  |  |  |1x|1x|  |  |  |  |  |  |  | S |-   |-    | branch relative conditional
+ bra     |B   |  |  |  |  |  |  |20|20|  | 4|  |  |  |  |  | U |-   |-    | branch absolute
+ call    |B   |  |  |  |  |  |  |21|21|  | 5|  |  |  |  |  | U |-   |-    | call subroutine
+ sleep   |C   |  |  |  |  |  |  |28|  |  |  |  |  |  |  |  | U |-   |-    | sleep until interrupt
+ add [sp]|D   |  |  |  |  |  |  |30|30|  | 1|  |  |  |  |  | S |-   |-    | add to stack pointer
+ bset[fl]|A   |  |  |  |  |  |  |31|  |  | 9|  |  |  |  |  | U |-   |-    | set single bit
+ bclr[fl]|A   |  |  |  |  |  |  |32|  |  | a|  |  |  |  |  | U |-   |-    | clear single bit
+ btgl[fl]|A   |  |  |  |  |  |  |33|  |  | b|  |  |  |  |  | U |-   |-    | toggle single bit
+ ret     |B   |  |  |  |  |  |  |  |  | 0|  |  |  |  |  |  |   |-   |-    | return from subroutine
+ iret    |T   |  |  |  |  |  |  |  |  | 1|  |  |  |  |  |  |   |-   |-    | return from interrupt handler
+ exit    |C   |  |  |  |  |  |  |  |  | 2|  |  |  |  |  |  |   |-   |-    | halt microcontroller
+ xdwait  |X   |  |  |  |  |  |  |  |  | 3|  |  |  |  |  |  |   |-   |-    | wait for data xfer
+ ???     |?   |  |  |  |  |  |  |  |  | 6|  |  |  |  |  |  |   |-   |-    |
+ xcwait  |X   |  |  |  |  |  |  |  |  | 7|  |  |  |  |  |  |   |-   |-    | wait for code xfer
+ trap 0  |T3  |  |  |  |  |  |  |  |  | 8|  |  |  |  |  |  |   |N/A |-    | trigger software trap
+ trap 1  |T3  |  |  |  |  |  |  |  |  | 9|  |  |  |  |  |  |   |N/A |-    | trigger software trap
+ trap 2  |T3  |  |  |  |  |  |  |  |  | a|  |  |  |  |  |  |   |N/A |-    | trigger software trap
+ trap 3  |T3  |  |  |  |  |  |  |  |  | b|  |  |  |  |  |  |   |N/A |-    | trigger software trap
+ push    |D   |  |  |  |  |  |  |  |  |  | 0|  |  |  |  |  |   |-   |-    | push onto stack
+ itlb    |V3  |  |  |  |  |  |  |  |  |  | 8|  |  |  |  |  |   |N/A |-    | drop TLB entry
+ pop     |D   |  |  |  |  |  |  |  |  |  |  |  | 0|  |  |  |   |-   |-    | pop from stack
+ mov[>sr]|C   |  |  |  |  |  |  |  |  |  |  |  |  |  | 0|  |   |-   |-    | move to special register
+ mov[<sr]|C   |  |  |  |  |  |  |  |  |  |  |  |  |  | 1|  |   |-   |-    | move from special register
+ ptlb    |V3  |  |  |  |  |  |  |  |  |  |  |  |  |  | 2|  |   |N/A |-    | lookup TLB by phys address
+ vtlb    |V3  |  |  |  |  |  |  |  |  |  |  |  |  |  | 3|  |   |N/A |-    | lookup TLB by virt address
 
 Code segment
 

@@ -65,7 +65,7 @@ the ID register has different formats depending on the chipset family:
 MMIO 0x000000: ID [NV01:NV04]
   bits 0-3: minor revision
   bits 4-7: major revision
-    These two bitfields together are also visible as PCI revision. For 
+    These two bitfields together are also visible as PCI revision. For
     NV03, revisions equal or higher than 0x20 mean NV03T.
   bits 8-11: implementation - always 1 except on NV02
   bits 12-15: always 0

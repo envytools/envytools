@@ -1,4 +1,13 @@
-Introduction
+TOC
+
+0. Introduction
+1. Submitting xfer requests: xcld, xdld, xdst
+2. Waiting for xfer completion: xcwait, xdwait
+3. Submitting xfer requests via IO space
+4. xfer queue status registers
+
+
+= Introduction =
 
 The fuc has a builtin DMA controller that allows running asynchronous copies
 beteween fuc data/code segments and external memory.
@@ -55,7 +64,7 @@ See nvc0-ctxctl-memif.txt for NVC0 PGRAPH fucs, fuc-memif.txt for the other
 engines.
 
 
-Submitting xfer requests: xcld, xdld, xdst
+= Submitting xfer requests: xcld, xdld, xdst =
 
 These instruction submit xfer requests of the relevant type. ext_base
 and port are taken from $xdbase/$xcbase and $xtargets special registers.
@@ -63,14 +72,14 @@ ext_offset is taken from first operand, local_address is taken from low 16
 bits of second operand, and size [for data xfers] is taken from bits 16-18
 of the second operand. Secret flag is taken from $cauth bit 16.
 
-Insns [unsized]:
-  [4] xcld - code load
-  [5] xdld - data load
-  [6] xdst - data store
-
-Operands [SRC1, SRC2]:
-  [fa] R2, R1
-
+Instructions:
+	xcld - code load			subopcode = 4
+	xdld - data load			subopcode = 5
+	xdst - data store			subopcode = 6
+Instruction class: unsized
+Operands: SRC1, SRC2
+Forms:
+	R2, R1					opcode = fa
 Operation:
 	if (op == xcld)
 		XFER(mode=code_load, port=$xtargets[0:2], ext_base=$xcbase,
@@ -86,17 +95,17 @@ Operation:
 		       	size=(SRC2>>16));
 
 
-Waiting for xfer completion: xcwait, xdwait
+= Waiting for xfer completion: xcwait, xdwait =
 
 These instructions wait until all xfers of the relevant type have finished.
 
-Insns [unsized]:
-  [3] xdwait - wait for all data loads/stores to finish
-  [7] xcwait - wait for all code loads to finish
-
-Operands [-]:
-  [f8]
-
+Instructions:
+	xdwait - wait for all data loads/stores to finish	subopcode = 3
+	xcwait - wait for all code loads to finish		subopcode = 7
+Instruction class: unsized
+Operands: -
+Forms:
+	[no operands]				opcode = f8
 Operation:
 	if (op == xcwait)
 		while (XFER_ACTIVE(mode=code_load));
@@ -104,7 +113,7 @@ Operation:
 		while (XFER_ACTIVE(mode=data_load) || XFER_ACTIVE(mode=data_store));
 
 
-Submitting xfer requests via IO space
+= Submitting xfer requests via IO space =
 
 There are 4 IO registers that can be used to manually submit xfer reuqests.
 The request is sent out by writing XFER_CTRL register, other registers have
@@ -138,7 +147,7 @@ MMIO 0x11c / I[0x04700]: XFER_EXT_OFFSET
 [XXX: how to wait for xfer finish using only IO?]
 
 
-xfer queue status registers
+= xfer queue status registers =
 
 The status of the xfer queue can be read out through an IO register:
 

@@ -1,7 +1,18 @@
-Introduction
+TOC
 
-On NVA3+ cards, the fuc code segment uses primitive paging/VM via simple
-reverse page table. The page size is 0x100 bytes.
+0. Introduction
+1. TLB operations: PTLB, VTLB, ITLB
+1.1. Executing TLB operations through IO
+1.2. TLB readout instructions: ptlb, vtlb
+1.3. TLB invalidation instruction: itlb
+2. VM usage on code execution
+3. Code upload and peeking
+
+
+= Introduction =
+
+On v3+, the fuc code segment uses primitive paging/VM via simple reverse page
+table. The page size is 0x100 bytes.
 
 The physical<->virtual address mapping information is stored in hidden
 TLB memory. There is one TLB cell for each physical code page, and it
@@ -36,7 +47,7 @@ We'll denote the flags of TLB entry of physical page i as TLB[i].flags,
 and the virtual page index as TLB[i].virt.
 
 
-TLB operations: PTLB, VTLB, ITLB.
+= TLB operations: PTLB, VTLB, ITLB =
 
 These operations take 24-bit parameters, and except for ITLB return a 32-bit
 result. They can be called from fuc microcode as instructions, or through IO
@@ -95,7 +106,7 @@ b32 VTLB(b24 virtaddr) {
 }
 
 
-Executing TLB operations through IO
+== Executing TLB operations through IO ==
 
 The three *TLB operations can be executed by poking TLB_CMD register. For PTLB
 and VTLB, the result will then be visible in TLB_CMD_RES register:
@@ -113,18 +124,18 @@ MMIO 0x144 / I[0x05100]: TLB_CMD_RES
   through TLB_CMD.
 
 
-TLB readout: ptlb, vtlb
+== TLB readout instructions: ptlb, vtlb ==
 
 These instructions run the corresponding TLB readout commands and return
 their results.
 
-Insns [unsized]:
-  [2] ptlb - run PTLB operation
-  [3] vtlb - run VTLB operation
-
-Operands [DST, SRC]:
-  [fe] R1, R2
-
+Instructions:
+	ptlb - run PTLB operation		subopcode = 2 [v3+ only]
+	vtlb - run VTLB operation		subopcode = 3 [v3+ only]
+Instruction class: unsized
+Operands: DST, SRC
+Forms:
+	R1, R2					opcode = fe
 Operation:
 	if (op == ptlb)
 		DST = PTLB(SRC);
@@ -132,21 +143,21 @@ Operation:
 		DST = VTLB(SRC);
 
 
-TLB invalidation: itlb
+== TLB invalidation instruction: itlb ==
 
 This instructions runs the ITLB command.
 
-Insns [unsized]:
-  [8] itlb - run ITLB operation
-
-Operands [SRC]:
-  [f9] R2
-
+Instructions:
+	itlb - run ITLB operation		subopcode = 8 [v3+ only]
+Instruction class: unsized
+Operands: SRC
+Forms:
+	R2					opcode = f9
 Operation:
 	ITLB(SRC);
 
 
-VM usage on code execution
+= VM usage on code execution =
 
 Whenever instruction fetch is attempted, the VTLB operation is done on fetch
 address. If it returns no-hit or multihit error, a trap is generated and the
@@ -160,7 +171,7 @@ In this case, a switch to authenticated mode is attempted - see fuc-crypt.txt
 for details.
 
 
-Code upload and peeking
+= Code upload and peeking =
 
 Code can be uploaded in two ways: direct upload via a window in IO space, or
 by an xfer [see fuc-xfer.txt]. The IO registers relevant are:

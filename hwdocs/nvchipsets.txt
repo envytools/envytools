@@ -351,7 +351,7 @@ NV20:
  - RAMIN reversal unit bumped to 0x40 bytes
  - 3d engine extensions:
   - programmable vertex shader support
-  - D3D8, shader model 1.1 
+  - D3D8, shader model 1.1
  - PGRAPH automatic context switching
 NV25:
  - a merge of NV17 and NV20: has dual-head, PTV, ZCULL, ...
