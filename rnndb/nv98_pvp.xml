@@ -19,7 +19,7 @@
 
 <array name="PVP" offset="0x85000" stride="0x1000" length="1" variants="NV98 NVAA-">
 	<use-group name="nv98_fucbase"/>
-	<use-group name="nv98_fuc_targets"/>
+	<use-group name="nv98_fuc_memif"/>
 	<array offset="0x400" name="VUC" stride="0x100">
 		<reg32 offset="0x00" name="DATA" length="16"/> <!-- indexed -->
 		<reg32 offset="0x40" name="CODE_CONTROL">
@@ -32,7 +32,7 @@
 		<reg32 offset="0x44" name="CODE_WINDOW"/>
 		<reg32 offset="0x48" name="ICNT"/>
 		<reg32 offset="0x4c" name="WDCNT"/>
-		<bitset name="nv98_pvp_vuc_intr"> <!-- fuc intr 10 -->
+		<bitset name="nv98_pvp_vuc_intr" inline="yes"> <!-- fuc intr 10 -->
 			<bitfield pos="0" name="WATCHDOG"/>
 			<bitfield pos="1" name="UNK1"/>
 			<bitfield pos="2" name="V2H" variants="NV98:NVD9"/>

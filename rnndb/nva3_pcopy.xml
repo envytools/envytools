@@ -11,7 +11,7 @@
 
 <group name="nva3_pcopy">
 	<use-group name="nv98_fucbase"/>
-	<use-group name="nv98_fuc_targets"/>
+	<use-group name="nv98_fuc_memif"/>
 	<array offset="0x800" name="COPY" stride="0x100" length="1">
 		<reg32 offset="0x00" name="CTRL">
 			<bitfield pos="0" name="TRIGGER"/>
@@ -39,8 +39,8 @@
 				<value value="1" name="64"/>
 			</bitfield>
 			<bitfield pos="19" name="UNK19"/>
-			<bitfield low="26" high="28" name="SRC_TARGET"/>
-			<bitfield low="29" high="31" name="DST_TARGET"/>
+			<bitfield low="26" high="28" name="SRC_PORT"/>
+			<bitfield low="29" high="31" name="DST_PORT"/>
 		</reg32>
 		<reg32 offset="0x04" name="YCNT"/>
 		<reg32 offset="0x08" name="SRC_ADDRESS_LOW"/>

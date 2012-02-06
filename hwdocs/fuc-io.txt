@@ -141,7 +141,7 @@ Engine-specific ranges:
 [p] - PPPP engine only
 [c] - PCOPY engines only
 
-600/18000:640/19000[f]  EXTMEM	memory interface	[fuc-fifo-extmem.txt]
+600/18000:640/19000[f]  MEMIF	memory interface	[fuc-memif.txt]
 
 400/10000:480/12000[b]  BSP	bitstream processor	[fuc-bsp.txt]
 480/12000:500/14000[b]  STREAM	bitstream input		[fuc-bsp.txt]

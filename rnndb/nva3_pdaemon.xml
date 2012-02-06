@@ -27,7 +27,7 @@
 	</reg32>
 	<reg32 offset="0x4c8" name="RFIFO_PUT"/>
 	<reg32 offset="0x4cc" name="RFIFO_GET"/>
-	<use-group name="nv98_fuc_targets"/>
+	<use-group name="nv98_fuc_memif"/>
 </array>
 
 </domain>

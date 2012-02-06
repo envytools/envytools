@@ -28,7 +28,7 @@ num | type | name      | description
  8  |  AT  | $flags    | misc flags
  9  |  S   | $cx       | crypt xfer mode
  a  |  S   | $cauth    | crypt auth code selection
- b  |  X   | $xtargets | xfer target selection
+ b  |  X   | $xtargets | xfer port selection
  c  |  T+  | $tstatus  | trap status
 
 $flags is split into the following bitfields:

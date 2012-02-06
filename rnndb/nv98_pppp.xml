@@ -11,7 +11,7 @@
 
 <array name="PPPP" offset="0x86000" stride="0x1000" length="1" variants="NV98 NVAA-">
 	<use-group name="nv98_fucbase"/>
-	<use-group name="nv98_fuc_targets"/>
+	<use-group name="nv98_fuc_memif"/>
 	<array offset="0x400" stride="0x80" length="1" name="PIN">
 		<reg32 offset="0x00" name="UNK00"/>
 		<reg32 offset="0x04" name="DIMS">
