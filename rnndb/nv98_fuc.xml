@@ -252,6 +252,25 @@
 			<bitfield low="8" high="9" name="UNK8"/>
 			<bitfield low="12" high="15" name="UNK12"/>
 		</reg32>
+		<reg32 offset="0x20" name="CHANNEL" access="r" type="nv50_channel"/>
+		<reg32 offset="0x24" name="CTRL">
+			<bitfield pos="0" name="UNK0_RO"/>
+			<bitfield pos="1" name="DISABLE_ALL_TRIGGER"/>
+			<bitfield pos="2" name="DEACTIVATE_TRIGGER"/>
+			<bitfield pos="4" name="UNK4_RW"/>
+			<bitfield pos="7" name="IGNORE_ACTIVATION" variants="NVC0-"/> <!-- XXX: on some engines only: NVC0+ PCOPY0, NVD9+ everything -->
+			<bitfield pos="8" name="UNK8_RO"/>
+			<bitfield pos="9" name="UNK9_RO"/>
+			<bitfield pos="10" name="UNK10_RO"/>
+			<bitfield low="16" high="19" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x28" name="STAT">
+			<!-- ... -->
+		</reg32>
+		<reg32 offset="0x2c" name="UNK2C" variants="NVA3-"/>
+		<!-- XXX: VP3 PVP has 4 unrelated [PVP-specific] registers here that got moved elsewhere on VP4+ -->
+		<reg32 offset="0x30" name="UNK30" stride="8" length="2" variants="NVC0-"/>
+		<reg32 offset="0x34" name="UNK34" stride="8" length="2" variants="NVC0-"/>
 	</array>
 </group>
 
