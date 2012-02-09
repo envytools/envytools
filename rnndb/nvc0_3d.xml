@@ -46,7 +46,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>0x013fffff, scan pending</doc>
 		</reg32>
 		<reg32 offset="0x020c" name="LINE_WIDTH_SEPARATE" type="boolean"/>
-		<reg32 offset="0x0210" name="EARLY_FRAGMENT_TESTS" type="boolean"/>
+		<reg32 offset="0x0210" name="FORCE_EARLY_FRAGMENT_TESTS" type="boolean">
+			<doc>If false, early tests are enabled only when possible, i.e.
+			no alpha test, no discard, no g[] access, no depth export, ...
+			</doc>
+		</reg32>
 		<reg32 offset="0x0214" name="UNK214">
 			<doc>0x9fffffff, scan pending</doc>
 		</reg32>
