@@ -28,6 +28,7 @@
 	<value value="0x0b" name="PVP"/>
 	<value value="0x0c" name="PPPP"/>
 	<value value="0x0d" name="PBSP"/>
+	<value value="0x10" name="IDXFETCH"/>
 	<value value="0x11" name="PCOUNTER"/>
 	<value value="0x12" name="PDAEMON"/>
 	<value value="0x14" name="CCACHE"/>
@@ -35,8 +36,18 @@
 </enum>
 
 <enum name="NVC0_VM_GPCCLIENT">
-	<value value="0x00" name="L1"/>
-	<value value="0x01" name="TEX"/>
+	<value value="0x00" name="TP0_L1"/>
+	<value value="0x01" name="TP0_TEX"/>
+	<value value="0x02" name="TP0_POLY"/>
+	<value value="0x04" name="TP1_L1"/>
+	<value value="0x05" name="TP1_TEX"/>
+	<value value="0x05" name="TP1_POLY"/>
+	<value value="0x06" name="TP2_L1"/>
+	<value value="0x07" name="TP2_TEX"/>
+	<value value="0x08" name="TP2_POLY"/>
+	<value value="0x09" name="TP3_L1"/>
+	<value value="0x0a" name="TP3_TEX"/>
+	<value value="0x0b" name="TP3_POLY"/>
 	<value value="0x0c" name="ESETUP"/>
 	<value value="0x0d" name="CCACHE"/>
 	<value value="0x0e" name="CTXCTL"/>
