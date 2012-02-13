@@ -1188,8 +1188,9 @@ static const struct {
 	"hwsq", &hwsq_isa_s,
 	"vp2", &vp2_isa_s,
 	"vuc", &vuc_isa_s,
-    "vµc", &vuc_isa_s,
+	"vµc", &vuc_isa_s,
 	"macro", &macro_isa_s,
+	"vp1", &vp1_isa_s,
 };
 
 const struct disisa *ed_getisa(const char *name) {

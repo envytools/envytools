@@ -24,6 +24,7 @@ hexadecimal numbers representing the bytes to disassemble. The options are:
      [*** ] vp2: video processor 2 [nv84-gen] code, an xtensa variant
      [*   ] vuc: video processor 2/3 master/mocomp microcode
      [****] macro: nvc0 PGRAPH macro method ISA
+     [*   ] vp1: video processor 1 [nv41-gen] code
      Where the quality level is:
      [    ]: Bare beginnings
      [*   ]: Knows a few instructions
