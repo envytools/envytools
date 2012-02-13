@@ -61,9 +61,8 @@
 <!-- 00e000 - 00efff PNVIO -->
 <import file="nv50_pnvio.xml" />
 
-<!-- 00f000 - 00ffff PVP covered in nv40_pvpe.xml -->
-
 <!-- 00f000 - 00ffff PVP -->
+<import file="nv41_pvp.xml" />
 <import file="nv84_pvp.xml" />
 
 <!-- 020000 - 020fff PTHERM -->
