@@ -40,12 +40,12 @@
 	<reg32 offset="0x118" name="FIFO_ERR_DATA"/>
 </array>
 
-<array name="PVP" offset="0xf000" stride="0x1000" length="1" variants="NV40:NV84">
+<array name="PVP" offset="0xf000" stride="0x1000" length="1" variants="NV41:NV84">
 	<bitset name="pvp_intr" inline="yes">
 		<bitfield pos="0" name="UNK0"/>
 		<bitfield pos="4" name="UNK4"/>
 		<bitfield pos="8" name="UNK8"/>
-		<bitfield pos="12" name="FIFO"/>
+		<bitfield pos="12" name="EXIT_ERR"/>
 		<bitfield pos="16" name="UNK16"/>
 		<bitfield pos="20" name="UNK20"/>
 		<bitfield pos="24" name="UNK24"/>
@@ -54,18 +54,30 @@
 	<reg32 offset="0x404" name="INTR_EN" type="pvp_intr"/>
 	<reg32 offset="0x408" name="CHANNEL_UNK"/>
 	<reg32 offset="0x414" name="CHANNEL_CUR"/>
+	<reg32 offset="0x424" name="EXIT_CODE"/>
 	<reg32 offset="0x428" name="FIFO_ERR_MTHD"/>
 	<reg32 offset="0x42c" name="FIFO_ERR_DATA"/>
 	<reg32 offset="0x43c" name="STATUS"/>
-	<reg32 offset="0x464" name="UCODE_UNK2_ADDR">
+	<reg32 offset="0x440" name="UNK_LAST_READ"/>
+	<reg32 offset="0x444" name="UNK_LAST_WRITE"/>
+	<reg32 offset="0x464" name="UCODE_CHSW_ADDR">
 		<bitfield low="0" high="1" name="UNK0"/>
 		<bitfield low="5" high="31" name="INSTANCE" shr="5"/>
 	</reg32>
-	<reg32 offset="0x46c" name="UCODE_UNK1_ADDR">
+	<reg32 offset="0x468" name="UCODE_UNK468_ADDR">
 		<bitfield low="0" high="1" name="UNK0"/>
 		<bitfield low="5" high="31" name="INSTANCE" shr="5"/>
 	</reg32>
-	<reg32 offset="0x498" name="UCODE_UNK0_ADDR">
+	<reg32 offset="0x46c" name="UCODE_MTHD_ADDR">
+		<bitfield low="0" high="1" name="UNK0"/>
+		<bitfield low="5" high="31" name="INSTANCE" shr="5"/>
+	</reg32>
+	<reg32 offset="0x478" name="CLOCK"/>
+	<reg32 offset="0x498" name="UCODE_UNK498_ADDR" variants="NV41:NV50">
+		<bitfield low="0" high="1" name="UNK0"/>
+		<bitfield low="5" high="31" name="INSTANCE" shr="5"/>
+	</reg32>
+	<reg32 offset="0x4c8" name="UCODE_UNK4C8_ADDR" variants="NV50-">
 		<bitfield low="0" high="1" name="UNK0"/>
 		<bitfield low="5" high="31" name="INSTANCE" shr="5"/>
 	</reg32>
