@@ -22,7 +22,9 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <pciaccess.h>
 #include <sys/time.h>
+#include <time.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <getopt.h>
@@ -30,7 +32,15 @@
 #include "rnn.h"
 
 #define SIGNALS_LENGTH 0x100
+#define SIGNAL_VALUE(_signal, _set, _index) ((_signal)[(_set) * (0x20 * 8) + (_index)])
 uint8_t signals_ref[SIGNALS_LENGTH * 8]; // reserve an octet for each bit of the a800 range
+
+uint64_t get_current_time_us()
+{
+        struct timespec ts;
+	clock_gettime(CLOCK_MONOTONIC, &ts);
+	return ts.tv_sec + (ts.tv_nsec / 1000);
+}
 
 void poll_signals(int cnum, uint8_t *signals)
 {
@@ -50,6 +60,57 @@ void poll_signals(int cnum, uint8_t *signals)
 	}
 }
 
+void nv40_start_monitoring(int cnum, int set, int s1, int s2, int s3, int s4)
+{
+	nva_wr32(cnum, 0xa7c0 + set * 4, 0x1);
+	nva_wr32(cnum, 0xa500 + set * 4, 0);
+	nva_wr32(cnum, 0xa520 + set * 4, 0);
+
+	nva_wr32(cnum, 0xa400 + set * 4, s1);
+	nva_wr32(cnum, 0xa440 + set * 4, s2);
+	nva_wr32(cnum, 0xa480 + set * 4, s3);
+	nva_wr32(cnum, 0xa4c0 + set * 4, s4);
+
+	nva_wr32(cnum, 0xa420 + set * 4, 0xaaaa);
+	nva_wr32(cnum, 0xa460 + set * 4, 0xaaaa);
+	nva_wr32(cnum, 0xa4a0 + set * 4, 0xaaaa);
+	nva_wr32(cnum, 0xa4e0 + set * 4, 0xaaaa);
+
+	/* reset the counters */
+	nva_mask(cnum, 0x400084, 0x20, 0x20);
+}
+
+void nv40_stop_monitoring(int cnum, int set, uint8_t *signals, uint32_t *real_signals, uint32_t *cycles)
+{
+	uint32_t cycles_cnt, s[4];
+	uint8_t w_s[4];
+	int i;
+
+	/* readout */
+	nva_mask(cnum, 0x400084, 0x0, 0x20);
+
+	w_s[0] = nva_rd32(cnum, 0xa400 + set * 4);
+	w_s[1] = nva_rd32(cnum, 0xa440 + set * 4);
+	w_s[2] = nva_rd32(cnum, 0xa480 + set * 4);
+	w_s[3] = nva_rd32(cnum, 0xa4c0 + set * 4);
+
+	cycles_cnt = nva_rd32(cnum, 0xa600 + set * 4);
+	s[0] = nva_rd32(cnum, 0xa700 + set * 4);
+	s[1] = nva_rd32(cnum, 0xa6c0 + set * 4);
+	s[2] = nva_rd32(cnum, 0xa680 + set * 4);
+	s[3] = nva_rd32(cnum, 0xa740 + set * 4);
+
+	for (i = 0; i < 4; i++) {
+		if (signals)
+			SIGNAL_VALUE(signals, set, w_s[i]) = s[i] * 100 / cycles_cnt;
+		if (real_signals)
+			SIGNAL_VALUE(real_signals, set, w_s[i]) = s[i];
+		if (cycles)
+			SIGNAL_VALUE(cycles, set, w_s[i]) = cycles_cnt;
+	}
+}
+
+
 void print_poll_data(const char *name, uint8_t *signals)
 {
 	int i, s;
@@ -61,7 +122,7 @@ void print_poll_data(const char *name, uint8_t *signals)
 			if (i % 0x10 == 0)
 				printf("\n0x%02x: ", i % (0x20 * 8));
 
-			printf("%.3i ", signals[s * (0x20 * 8) + i]);
+			printf("%.3i ", SIGNAL_VALUE(signals, s, i));
 
 			if (i != 0 && i % (SIGNALS_LENGTH) == 0)
 				printf("\n\n");
@@ -237,16 +298,115 @@ void find_ptimer_b12(int cnum)
 				if (diffs.differences[i].change == ZERO_TO_ONE)
 					printf("PTIMER_B12: Set %u, signal 0x%.2x\n", set, signal);
 			} else {
-				printf("Unexepected difference: ");
+				printf("Unexpected difference: ");
 				print_difference(diffs.differences[i]);
 			}
 		}
 	} else
-		printf("Not found. Please re-run when the GPU is idle.\n");
+		printf("Not found.\n");
 
 	signals_comparaison_free(diffs);
 
 	printf("</PTIMER_B12>\n\n");
+}
+
+void find_pcounter_generated_noise(int cnum)
+{
+	uint32_t signals_real[0x100 * 8] = { 0 };
+	int i;
+
+	printf("<PCOUNTER_FLIPPING_NOISE> /!\\ no drivers should be loaded!\n");
+
+	/* bare minimum activity  */
+	for (i = 0; i < 0xff; i+=4) {
+		nv40_start_monitoring(cnum, 0, i, i+1, i+2, i+3);
+		nv40_stop_monitoring(cnum, 0, NULL, signals_real, NULL);
+	}
+
+	for (i = 0; i < 0xff; i++) {
+		uint32_t val = SIGNAL_VALUE(signals_real, 0, i);
+		if (val > 0 && val < 10)
+			printf("Unknown: Set %u, signal 0x%x = %u\n", 0, i, val);
+	}
+
+	printf("</PCOUNTER_FLIPPING_NOISE>\n\n");
+}
+
+void find_mmio_read_write(int cnum, uint32_t reg, const char *engine)
+{
+	uint32_t signals_real[0x100 * 8] = { 0 };
+	uint32_t reg_val;
+	int i, e;
+
+	printf("<%s (1000 rd, 500 wr @ 0x%x)> /!\\ no drivers should be loaded!\n", engine, reg);
+
+	/* let's create some activity  */
+	for (i = 0; i < 0xff; i+=4) {
+		nv40_start_monitoring(cnum, 0, i, i+1, i+2, i+3);
+		for (e = 0; e < 1000; e++)
+			reg_val = nva_rd32(cnum, reg);
+		for (e = 0; e < 500; e++)
+			nva_wr32(cnum, reg, reg_val);
+		nv40_stop_monitoring(cnum, 0, NULL, signals_real, NULL);
+	}
+
+	for (i = 0; i < 0xff; i++) {
+		uint32_t val = SIGNAL_VALUE(signals_real, 0, i);
+		if (val == 501)
+			printf("%s_WR: Set %u, signal 0x%x = %u\n", engine, 0, i, val);
+		else if (val == 1001)
+			printf("%s_RD: Set %u, signal 0x%x = %u\n", engine, 0, i, val);
+		else if (val == 1502)
+			printf("%s_TRANS: Set %u, signal 0x%x = %u\n", engine, 0, i, val);
+		else if (val == 3003)
+			printf("%s_3_RD: Set %u, signal 0x%x = %u\n", engine, 0, i, val);
+		else if (val >= 10 && val < 3100)
+			printf("Unknown: Set %u, signal 0x%x = %u\n", 0, i, val);
+	}
+
+	printf("</%s>\n\n", engine);
+}
+
+void find_host_mem_read_write(int cnum)
+{
+	uint32_t signals_real[0x100 * 8] = { 0 };
+	struct pci_device *dev = nva_cards[cnum].pci;
+	volatile uint8_t *bar1, val;
+	int ret, i, e;
+
+	ret = pci_device_map_range(dev, dev->regions[1].base_addr, dev->regions[1].size, PCI_DEV_MAP_FLAG_WRITABLE, (void**)&bar1);
+	if (ret) {
+		printf("HOST_MEM: Failed to mmap bar1. aborting.\n");
+		return;
+	}
+
+	printf("<HOST_MEM (1000 rd, 500 wr @bar1[0])> /!\\ no drivers should be loaded!\n");
+
+	/* let's create some activity  */
+	for (i = 0; i < 0xff; i+=4) {
+		nv40_start_monitoring(cnum, 0, i, i+1, i+2, i+3);
+		for (e = 0; e < 1000; e++)
+			val = bar1[0];
+		for (e = 0; e < 500; e++)
+			bar1[0] = val;
+		nv40_stop_monitoring(cnum, 0, NULL, signals_real, NULL);
+	}
+
+	for (i = 0; i < 0xff; i++) {
+		uint32_t val = SIGNAL_VALUE(signals_real, 0, i);
+		if (val == 500)
+			printf("HOST_MEM_WR: Set %u, signal 0x%x = %u\n", 0, i, val);
+		else if (val == 1000)
+			printf("HOST_MEM_RD: Set %u, signal 0x%x = %u\n", 0, i, val);
+		else if (val == 1500)
+			printf("HOST_MEM_TRANS: Set %u, signal 0x%x = %u\n", 0, i, val);
+		else if (val == 3000)
+			printf("HOST_MEM_3_RD: Set %u, signal 0x%x = %u\n", 0, i, val);
+		else if (val >= 1 && val < 3100)
+			printf("Unknown: Set %u, signal 0x%x = %u\n", 0, i, val);
+	}
+
+	printf("</HOST_MEM>\n\n");
 }
 
 void find_pgraphIdle_and_interrupt(int cnum)
@@ -299,7 +459,7 @@ void find_pgraphIdle_and_interrupt(int cnum)
 				else if (diffs.differences[i].change == ZERO_TO_ONE)
 					printf("PGRAPH_INTERRUPT: Set %u, signal 0x%.2x\n", set, signal);
 			} else {
-				printf("Unexepected difference: ");
+				printf("Unexpected difference: ");
 				print_difference(diffs.differences[i]);
 			}
 		}
@@ -350,7 +510,7 @@ void find_ctxCtlFlags(int cnum)
 					if (diffs.differences[i].change == ZERO_TO_ONE)
 						printf("CTXCTL flag 0x%.2x: Set %u, signal 0x%.2x\n", bit, set, signal);
 				} else {
-					printf("Unexepected difference: ");
+					printf("Unexpected difference: ");
 					print_difference(diffs.differences[i]);
 				}
 			}
@@ -405,6 +565,12 @@ int main(int argc, char **argv)
 
 	poll_signals(cnum, signals_ref);
 	find_ptimer_b12(cnum);
+	find_pcounter_generated_noise(cnum);
+	find_host_mem_read_write(cnum);
+	find_mmio_read_write(cnum, 0x200, "MMIO");
+	find_mmio_read_write(cnum, 0x2210, "MMIO_PFIFO");
+	find_mmio_read_write(cnum, 0x610384, "MMIO_PDISPLAY");
+	find_mmio_read_write(cnum, 0x6666, "MMIO_INVALID");
 	find_pgraphIdle_and_interrupt(cnum);
 	find_ctxCtlFlags(cnum);
 
