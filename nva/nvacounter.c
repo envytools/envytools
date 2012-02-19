@@ -310,58 +310,72 @@ void find_ptimer_b12(int cnum)
 	printf("</PTIMER_B12>\n\n");
 }
 
-void find_pcounter_generated_noise(int cnum)
+void print_counter_value(const char *name, char *subname, int set,
+			 int signal, uint32_t val, uint32_t cycles)
+{
+	printf("%s_%s: Set %u, signal 0x%x: %u/%u --> %.03f%%\n",
+		name, subname,
+		set, signal, val, cycles,
+		val * 100.0 / cycles);
+}
+
+void find_counter_noise(int cnum)
 {
 	uint32_t signals_real[0x100 * 8] = { 0 };
+	uint32_t signals_real_cycles[0x100 * 8] = { 0 };
 	int i;
 
-	printf("<PCOUNTER_FLIPPING_NOISE> /!\\ no drivers should be loaded!\n");
+	printf("<PCOUNTER_NOISE: 1ms wait> /!\\ no drivers should be loaded!\n");
 
 	/* bare minimum activity  */
 	for (i = 0; i < 0xff; i+=4) {
 		nv40_start_monitoring(cnum, 0, i, i+1, i+2, i+3);
-		nv40_stop_monitoring(cnum, 0, NULL, signals_real, NULL);
+		usleep(1000);
+		nv40_stop_monitoring(cnum, 0, NULL, signals_real, signals_real_cycles);
 	}
 
 	for (i = 0; i < 0xff; i++) {
 		uint32_t val = SIGNAL_VALUE(signals_real, 0, i);
-		if (val > 0 && val < 10)
-			printf("Unknown: Set %u, signal 0x%x = %u\n", 0, i, val);
+		uint32_t cycles = SIGNAL_VALUE(signals_real_cycles, 0, i);
+		if (val > 0)
+			print_counter_value("NOISE", "UNK", 0, i, val, cycles);
 	}
 
-	printf("</PCOUNTER_FLIPPING_NOISE>\n\n");
+	printf("</PCOUNTER_NOISE>\n\n");
 }
 
 void find_mmio_read_write(int cnum, uint32_t reg, const char *engine)
 {
 	uint32_t signals_real[0x100 * 8] = { 0 };
+	uint32_t signals_real_cycles[0x100 * 8] = { 0 };
 	uint32_t reg_val;
 	int i, e;
 
-	printf("<%s (1000 rd, 500 wr @ 0x%x)> /!\\ no drivers should be loaded!\n", engine, reg);
+	printf("<%s (1000 rd, 200 wr @ 0x%x)> /!\\ no drivers should be loaded!\n", engine, reg);
 
 	/* let's create some activity  */
 	for (i = 0; i < 0xff; i+=4) {
 		nv40_start_monitoring(cnum, 0, i, i+1, i+2, i+3);
 		for (e = 0; e < 1000; e++)
 			reg_val = nva_rd32(cnum, reg);
-		for (e = 0; e < 500; e++)
+		for (e = 0; e < 200; e++)
 			nva_wr32(cnum, reg, reg_val);
-		nv40_stop_monitoring(cnum, 0, NULL, signals_real, NULL);
+		nv40_stop_monitoring(cnum, 0, NULL, signals_real, signals_real_cycles);
 	}
 
 	for (i = 0; i < 0xff; i++) {
 		uint32_t val = SIGNAL_VALUE(signals_real, 0, i);
-		if (val == 501)
-			printf("%s_WR: Set %u, signal 0x%x = %u\n", engine, 0, i, val);
+		uint32_t cycles = SIGNAL_VALUE(signals_real_cycles, 0, i);
+		if (val == 201)
+			print_counter_value(engine, "WR", 0, i, val, cycles);
 		else if (val == 1001)
-			printf("%s_RD: Set %u, signal 0x%x = %u\n", engine, 0, i, val);
-		else if (val == 1502)
-			printf("%s_TRANS: Set %u, signal 0x%x = %u\n", engine, 0, i, val);
+			print_counter_value(engine, "RD", 0, i, val, cycles);
+		else if (val == 1202)
+			print_counter_value(engine, "TRANS", 0, i, val, cycles);
 		else if (val == 3003)
-			printf("%s_3_RD: Set %u, signal 0x%x = %u\n", engine, 0, i, val);
-		else if (val >= 10 && val < 3100)
-			printf("Unknown: Set %u, signal 0x%x = %u\n", 0, i, val);
+			print_counter_value(engine, "3_RD", 0, i, val, cycles);
+		else if (val >= 10 && val < 10000)
+			print_counter_value("UNK", "", 0, i, val, cycles);
 	}
 
 	printf("</%s>\n\n", engine);
@@ -370,6 +384,7 @@ void find_mmio_read_write(int cnum, uint32_t reg, const char *engine)
 void find_host_mem_read_write(int cnum)
 {
 	uint32_t signals_real[0x100 * 8] = { 0 };
+	uint32_t signals_real_cycles[0x100 * 8] = { 0 };
 	struct pci_device *dev = nva_cards[cnum].pci;
 	volatile uint8_t *bar1, val;
 	int ret, i, e;
@@ -380,30 +395,31 @@ void find_host_mem_read_write(int cnum)
 		return;
 	}
 
-	printf("<HOST_MEM (1000 rd, 500 wr @bar1[0])> /!\\ no drivers should be loaded!\n");
+	printf("<HOST_MEM (1000 rd, 200 wr @bar1[0])> /!\\ no drivers should be loaded!\n");
 
 	/* let's create some activity  */
 	for (i = 0; i < 0xff; i+=4) {
 		nv40_start_monitoring(cnum, 0, i, i+1, i+2, i+3);
 		for (e = 0; e < 1000; e++)
 			val = bar1[0];
-		for (e = 0; e < 500; e++)
+		for (e = 0; e < 200; e++)
 			bar1[0] = val;
-		nv40_stop_monitoring(cnum, 0, NULL, signals_real, NULL);
+		nv40_stop_monitoring(cnum, 0, NULL, signals_real, signals_real_cycles);
 	}
 
 	for (i = 0; i < 0xff; i++) {
 		uint32_t val = SIGNAL_VALUE(signals_real, 0, i);
-		if (val == 500)
-			printf("HOST_MEM_WR: Set %u, signal 0x%x = %u\n", 0, i, val);
+		uint32_t cycles = SIGNAL_VALUE(signals_real_cycles, 0, i);
+		if (val == 200)
+			print_counter_value("HOST_MEM", "WR", 0, i, val, cycles);
 		else if (val == 1000)
-			printf("HOST_MEM_RD: Set %u, signal 0x%x = %u\n", 0, i, val);
-		else if (val == 1500)
-			printf("HOST_MEM_TRANS: Set %u, signal 0x%x = %u\n", 0, i, val);
+			print_counter_value("HOST_MEM", "RD", 0, i, val, cycles);
+		else if (val == 1200)
+			print_counter_value("HOST_MEM", "TRANS", 0, i, val, cycles);
 		else if (val == 3000)
-			printf("HOST_MEM_3_RD: Set %u, signal 0x%x = %u\n", 0, i, val);
-		else if (val >= 1 && val < 3100)
-			printf("Unknown: Set %u, signal 0x%x = %u\n", 0, i, val);
+			print_counter_value("HOST_MEM", "3_RD", 0, i, val, cycles);
+		else if (val >= 10 && val < 10000)
+			print_counter_value("UNK", "", 0, i, val, cycles);
 	}
 
 	printf("</HOST_MEM>\n\n");
@@ -564,8 +580,8 @@ int main(int argc, char **argv)
 	printf("Chipset nv%x:\n\n", nva_cards[cnum].chipset);
 
 	poll_signals(cnum, signals_ref);
+	find_counter_noise(cnum);
 	find_ptimer_b12(cnum);
-	find_pcounter_generated_noise(cnum);
 	find_host_mem_read_write(cnum);
 	find_mmio_read_write(cnum, 0x200, "MMIO");
 	find_mmio_read_write(cnum, 0x2210, "MMIO_PFIFO");
