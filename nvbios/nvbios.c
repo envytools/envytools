@@ -950,26 +950,106 @@ int main(int argc, char **argv) {
 		printf ("GPIO table %d.%d at %x\n", gpiover >> 4, gpiover&0xf, gpiooffset);
 		printhex(gpiooffset, gpiohlen);
 
+		const uint32_t nv50_gpio_reg[4] = { 0xe104, 0xe108, 0xe280, 0xe284 };
 		uint16_t soff = gpiooffset + gpiohlen;
+		uint8_t tag, line, logic0, logic1, defs, unk0, unk1;
 		for (i = 0; i < gpioentries; i++) {
 			if (dcbver < 0x40) {
 				uint16_t entry = le16(soff);
-				if (((entry & 0x07e0) >> 5) == 0x3f)
-					printf("-- invalid entry --\n");
-				else
-					printf("-- entry %04x, tag %02x, line %02x, invert %02x --\n", entry,
-						(entry & 0x07e0) >> 5, (entry & 0x001f), ((entry & 0xf800) >> 11) != 4);
-				printhex(soff, gpiorlen);
+
+				line = (entry & 0x001f) >> 0;
+				tag = (entry & 0x07e0) >> 5;
+				logic0 = (entry & 0x1800) >> 11;
+				logic1 = (entry & 0x6000) >> 13;
+			} else if (dcbver < 0x41) {
+				uint16_t entry = soff;
+
+				line = bios->data[entry + 0] & 0x1f;
+				tag = bios->data[entry + 1];
+				defs = !!(bios->data[entry + 3] & 0x01);
+				unk0 = !!(bios->data[entry + 3] & 0x02);
+				unk1 = !!(bios->data[entry + 3] & 0x04);
+				logic0 = (bios->data[entry + 3] & 0x18) >> 3;
+				logic1 = (bios->data[entry + 3] & 0x60) >> 5;
 			} else {
-				uint32_t entry = le32(soff);
-				if (((entry & 0x0000ff00) >> 8) == 0xff)
-					printf("-- invalid entry --\n");
-				else
-					printf("-- entry %04x, tag %02x, line %02x, state(def) %02x, state(0) %02x, state(1) %02x --\n",
-						entry, (entry & 0x0000ff00) >> 8, (entry & 0x0000001f) >> 0, (entry & 0x01000000) >> 24,
-						(entry & 0x18000000) >> 27, (entry & 0x60000000) >> 29);
-				printhex(soff, gpiorlen);
+				uint16_t entry = soff;
+
+				line = bios->data[entry + 0] & 0x3f;
+				tag = bios->data[entry + 1];
+				defs = !!(bios->data[entry + 0] & 0x80);
+				unk0 = bios->data[entry + 2];
+				unk1 = bios->data[entry + 3] & 0x1f;
+				logic0 = (bios->data[entry + 4] & 0x30) >> 4;
+				logic1 = (bios->data[entry + 4] & 0xc0) >> 6;
 			}
+			char* tag_name;
+			int nr_tags, j;
+
+			struct tag_info {
+				uint8_t	id;
+				char		name[15];
+			} tags[] = {
+				{ 0x01, "PANEL_PWR"},
+				{ 0x0c, "TVDAC0"},
+				{ 0x2d, "TVDAC1"},
+				{ 0x09, "FAN_PWM"},
+				{ 0x3d, "FAN_SENSE"},
+				{ 0x04, "VID"},
+				{ 0x05, "VID"},
+				{ 0x06, "VID"},
+				{ 0x1a, "VID"},
+				{ 0x73, "VID"},
+				{ 0x07, "HPD"},
+				{ 0x08, "HPD"},
+				{ 0x51, "HPD"},
+				{ 0x52, "HPD"},
+				{ 0x5e, "HPD"},
+				{ 0x5f, "HPD"},
+				{ 0x60, "HPD"},
+/*				{ 0x3f, "UNUSED"} */
+				{ 0xff, "UNUSED"}
+			};
+			nr_tags = sizeof(tags)/sizeof(tags[0]);
+
+			for (j = 0; j < nr_tags; j++) {
+				if (tags[j].id == tag) {
+					tag_name = tags[j].name;
+					break;
+				} else
+				if (tags[j].id == 0xff) {
+					tag_name = "??";
+					break;
+				}
+			}
+
+			if (dcbver < 0x40) {
+				if (tag == 0x3f) {
+					printf("-- invalid entry --\n");
+				} else {
+					printf("-- tag %02x(%s), line %02x, logic(0) %x, logic(1) %x --\n",
+							tag, tag_name, line, logic0, logic1);
+				}
+			} else if (dcbver < 0x41) {
+				if (tag == 0xff) {
+					printf("-- invalid entry --\n");
+				} else {
+					printf("-- tag %02x(%s), line %02x, logic(0) %x, logic(1) %x, def %x, unk0 %x, unk1 %x--\n",
+							tag, tag_name, line, logic0, logic1, defs, unk0, unk1);
+					printf("-- GPIO register 0x%x, shift 0x%x --\n",
+							nv50_gpio_reg[line >> 3], (line & 7) << 2);
+				}
+			} else {
+				if (tag == 0xff) {
+					printf("-- invalid entry --\n");
+				} else {
+					printf("-- tag %02x(%s), line %02x, logic(0) %x, logic(1) %x, def %x, unk0 %x, unk1 %x--\n",
+							tag, tag_name, line, logic0, logic1, defs, unk0, unk1);
+					printf("-- GPIO register 0x%x --\n", 0x00d610 + (line * 4));
+				}
+			}
+
+			printhex(soff, gpiorlen);
+
 			soff += gpiorlen;
 			printf("\n");
 		}
@@ -1458,6 +1538,10 @@ int main(int argc, char **argv) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0, mask = 0;
 		uint16_t start = voltage_tbl_ptr;
+		uint8_t shift = 0;
+		const int vidtag[] =  { 0x04, 0x05, 0x06, 0x1a, 0x73 };
+		int nr_vidtag = sizeof(vidtag) / sizeof(vidtag[0]);
+
 
 		version = bios->data[start+0];
 		if (version == 0x10 || version == 0x12) {
@@ -1475,6 +1559,7 @@ int main(int argc, char **argv) {
 			entry_length = bios->data[start+2];
 			header_length = bios->data[start+1];
 			mask = bios->data[start+4];
+			shift = 2;
 		} else if (version == 0x40) {
 			header_length = bios->data[start+1];
 			entry_length = bios->data[start+2];
@@ -1495,10 +1580,21 @@ int main(int argc, char **argv) {
 			for (i=0; i < entry_count; i++) {
 				uint32_t id, label;
 
-				id = bios->data[start+1];
+				id = bios->data[start+1] >> shift;
 				label = bios->data[start+0] * 10000;
 
-				printf ("-- ID = %x, voltage = %u µV --\n", id, label);
+				printf ("-- Vid = %x, voltage = %u µV --\n", id, label);
+
+				/* List the gpio tags assosiated with each voltage id */
+				int j;
+				for (j = 0; j < nr_vidtag; j++) {
+					if (!(mask & (1 << j))) {
+					/*	printf("-- Voltage unused/overridden by voltage mask --\n");*/
+						continue;
+	 				}
+					printf("-- GPIO tag %x(VID) data (logic %d) --\n", vidtag[j], (!!(id & (1 << j))));
+				}
+
 				if (entry_length > 20) {
 					printcmd(start, 20); printf("\n");
 					printcmd(start + 20, entry_length - 20);
@@ -1521,6 +1617,16 @@ int main(int argc, char **argv) {
 			for (i = 0; i < nr_label; i++) {
 				printf("-- Vid %d, voltage %d µV --\n", i, volt_uv);
 				volt_uv += step_uv;
+				/* List the gpio tags assosiated with each voltage id */
+				int j;
+				for (j = 0; j < nr_vidtag; j++) {
+					if (!(mask & (1 << j))) {
+					/*	printf("-- Voltage unused/overridden by voltage mask --\n");*/
+						continue;
+	 				}
+					printf("-- GPIO tag %x(VID) data (logic %d) --\n", vidtag[j], (!!(i & (1 << j))));
+				}
+				printf("\n");
 			}
 
 //			printf ("-- Voltage range = %u-%u µV, step = %u µV--\n",
