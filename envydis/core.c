@@ -302,7 +302,7 @@ int setbfe (struct match *res, const struct bitfield *bf, const struct expr *exp
 		res->nrelocs++;
 		return 1;
 	}
-	ull num = expr->num1 - bf->addend;
+	ull num = (expr->num1 - bf->addend) ^ bf->xorend;
 	if (bf->lut) {
 		int max = 1 << (bf->sbf[0].len + bf->sbf[1].len);
 		int j = 0;
@@ -912,6 +912,7 @@ ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx) {
 		// <3 xtensa.
 		res += (ctx->pos + bf->pospreadd) & -(1ull << bf->shr);
 	}
+	res ^= bf->xorend;
 	res += bf->addend;
 	return res;
 }

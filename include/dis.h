@@ -140,6 +140,7 @@ struct bitfield {
 	} mode;
 	int shr;
 	int pcrel;
+	ull xorend;
 	ull addend;
 	ull pospreadd; // <3 xtensa...
 	ull *lut;
