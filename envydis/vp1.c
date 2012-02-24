@@ -75,6 +75,7 @@ static struct bitfield src2x_bf = { { 9, 5 }, .xorend = 1 };
 static struct bitfield csrcp_bf = { 3, 2 };
 static struct bitfield cdst_bf = { 0, 2 };
 static struct bitfield mcdst_bf = { 0, 3 };
+static struct bitfield ignall_bf = { 0, 24 };
 static struct reg adst_r = { &dst_bf, "a", .specials = areg_sr };
 static struct reg rdst_r = { &dst_bf, "r" };
 static struct reg vdst_r = { &dst_bf, "v" };
@@ -120,6 +121,7 @@ static struct reg cdst_r = { &cdst_bf, "c" };
 #define CDST atomreg, &cdst_r
 #define IGNCE atomign, &cdst_bf
 #define IGNCD atomign, &mcdst_bf
+#define IGNALL atomign, &ignall_bf
 
 F1(intr, 16, N("intr"))
 
@@ -145,6 +147,26 @@ static struct insn tabslctop[] = {
 	{ 0, 0, OOPS }
 };
 
+static struct insn tabpred[] = {
+	{ 0x00000000, 0x000001e0, CSRCP, N("sf") },
+	{ 0x00000020, 0x000001e0, CSRCP, N("zf") },
+	{ 0x00000040, 0x000001e0, CSRCP, U("2") },
+	{ 0x00000060, 0x000001e0, CSRCP, U("3") },
+	{ 0x00000080, 0x000001e0, CSRCP, U("4") },
+	{ 0x000000a0, 0x000001e0, CSRCP, U("5") },
+	{ 0x000000c0, 0x000001e0, CSRCP, U("6") },
+	{ 0x000000e0, 0x000001e0, CSRCP, U("7") },
+	{ 0x00000100, 0x000001e0, CSRCP, U("8") },
+	{ 0x00000120, 0x000001e0, CSRCP, U("9") },
+	{ 0x00000140, 0x000001e0, CSRCP, U("10") },
+	{ 0x00000160, 0x000001e0, CSRCP, U("11") },
+	{ 0x00000180, 0x000001e0, CSRCP, U("12") },
+	{ 0x000001a0, 0x000001e0, CSRCP, U("13") },
+	{ 0x000001c0, 0x000001e0, CSRCP, N("false") },
+	{ 0x000001e0, 0x000001e0, CSRCP, N("true") },
+	{ 0, 0, OOPS }
+};
+
 static struct insn tabm[] = {
 	{ 0x41000000, 0xff000000, N("mul"), ADST, T(mcdst), ASRC1, T(slctop) },
 	{ 0x42000008, 0xff000078, N("nor"), ADST, T(mcdst), ASRC1, ASRC2 },
@@ -162,7 +184,7 @@ static struct insn tabm[] = {
 	{ 0x4d000000, 0xff000000, N("sub"), ADST, T(mcdst), ASRC1, T(slctop) },
 	{ 0x4e000000, 0xff000000, N("sar"), ADST, T(mcdst), ASRC1, T(slctop) },
 	{ 0x5e000000, 0xff000000, N("shr"), ADST, T(mcdst), ASRC1, T(slctop) },
-	{ 0x4fffffff, 0xffffffff, N("nop4") },
+	{ 0x4f000000, 0xff000000, N("anop"), IGNALL },
 	{ 0x40000000, 0xe0000000, OOPS, ADST, T(mcdst), ASRC1, T(slctop) },
 	{ 0x61000000, 0xff000000, N("mul"), ADST, T(mcdst), ASRC1, AIMM },
 	{ 0x62000000, 0xff000000, N("and"), ADST, T(mcdst), ASRC1, AIMM },
@@ -192,15 +214,18 @@ static struct insn tabm[] = {
 	{ 0x75000000, 0xff000000, N("sethi"), ADST, AIMMH },
 	{ 0x7e000000, 0xff000000, N("shr"), ADST, T(mcdst), ASRC1, AIMM },
 	{ 0x60000000, 0xe0000000, OOPS, ADST, T(mcdst), ASRC1, AIMM },
-	{ 0xbf000007, 0xffffffff, N("nopb") },
-	{ 0xdf000007, 0xffffffff, N("nopd") },
-	{ 0xe0000000, 0xff000000, N("bra0"), BTARG },
+	{ 0xbf000000, 0xff000000, N("vnop"), IGNALL },
+	{ 0xdf000000, 0xff000000, N("snop"), IGNALL },
+	{ 0xe00001e0, 0xff0001f8, N("bra"), T(mcdst), BTARG },
+	{ 0xe0000000, 0xff000000, N("bra"), T(mcdst), T(pred), BTARG },
 	{ 0xe1000000, 0xff000000, N("bra1"), BTARG },
-	{ 0xe2000000, 0xff000000, N("bra2"), BTARG },
-	{ 0xe4000000, 0xff000000, N("bra4"), BTARG },
+	{ 0xe2000000, 0xff000000, N("bra"), T(mcdst), N("not"), T(pred), BTARG },
+	{ 0xe40001e0, 0xff0001f8, N("call"), T(mcdst), BTARG },
+	{ 0xe4000000, 0xff000000, N("call"), T(mcdst), T(pred), BTARG },
+	{ 0xe6000000, 0xff000000, N("call"), T(mcdst), N("not"), T(pred), BTARG },
+	{ 0xe8000000, 0xff000000, N("ret"), T(mcdst), IGNALL },
 	{ 0xeaf80000, 0xffff0000, N("abra"), ABTARG },
-	{ 0xef0001ff, 0xffffffff, N("nope") },
-	{ 0xefffffff, 0xffffffff, U("end") },
+	{ 0xef000000, 0xff000000, N("bnop"), IGNALL },
 	{ 0xfff80000, 0xfff80000, N("exit"), T(intr), EXITC },
 	{ 0, 0, OOPS },
 };
