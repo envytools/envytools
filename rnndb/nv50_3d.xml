@@ -46,6 +46,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <domain name="NV01_SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NV50_3D-NVAF_3D">
+
+		<!-- NOTE: NV50_3D_CYLINDRICAL_WRAP doesn't exit, it has to be done in a GP -->
+
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0184" name="DMA_ZETA" type="object"/>
 		<reg32 offset="0x0188" name="DMA_QUERY" type="object"/> <!-- also used for COND -->

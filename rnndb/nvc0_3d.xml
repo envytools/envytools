@@ -38,6 +38,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <domain name="NV01_SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NVC0_3D-NVC8_3D">
+
+		<!-- NOTE: NVC0_3D_CYLINDRICAL_WRAP doesn't exit, it has to be done in a GP -->
+
 		<reg32 offset="0x0200" name="UNK200"/>
 		<reg32 offset="0x0204" name="UNK204">
 			<doc>0-0x13 or 0x1f</doc>
