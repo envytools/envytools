@@ -39,6 +39,7 @@ static struct bitfield compoff = { 3, 2 };
 static struct bitfield logopoff = { 3, 4 };
 #define ABTARG atombtarg, &abtargoff
 #define BTARG atombtarg, &btargoff
+#define CTARG atomctarg, &btargoff
 #define EXITC atomimm, &exitcoff
 #define AIMM atomimm, &aimmoff
 #define AIMML atomimm, &aimmloff
@@ -180,6 +181,8 @@ static struct insn tabm[] = {
 	{ 0x42000068, 0xff000078, N("or"), ADST, T(mcdst), ASRC1, N("not"), ASRC2 },
 	{ 0x42000070, 0xff000078, N("or"), ADST, T(mcdst), ASRC1, ASRC2 },
 	{ 0x42000000, 0xff000000, N("logop"), ADST, T(mcdst), ASRC1, ASRC2, LOGOP },
+	{ 0x48000000, 0xff000000, N("min"), ADST, T(mcdst), ASRC1, T(slctop) },
+	{ 0x49000000, 0xff000000, N("max"), ADST, T(mcdst), ASRC1, T(slctop) },
 	{ 0x4c000000, 0xff000000, N("add"), ADST, T(mcdst), ASRC1, T(slctop) },
 	{ 0x4d000000, 0xff000000, N("sub"), ADST, T(mcdst), ASRC1, T(slctop) },
 	{ 0x4e000000, 0xff000000, N("sar"), ADST, T(mcdst), ASRC1, T(slctop) },
@@ -220,9 +223,9 @@ static struct insn tabm[] = {
 	{ 0xe0000000, 0xff000000, N("bra"), T(mcdst), T(pred), BTARG },
 	{ 0xe1000000, 0xff000000, N("bra1"), BTARG },
 	{ 0xe2000000, 0xff000000, N("bra"), T(mcdst), N("not"), T(pred), BTARG },
-	{ 0xe40001e0, 0xff0001f8, N("call"), T(mcdst), BTARG },
-	{ 0xe4000000, 0xff000000, N("call"), T(mcdst), T(pred), BTARG },
-	{ 0xe6000000, 0xff000000, N("call"), T(mcdst), N("not"), T(pred), BTARG },
+	{ 0xe40001e0, 0xff0001f8, N("call"), T(mcdst), CTARG },
+	{ 0xe4000000, 0xff000000, N("call"), T(mcdst), T(pred), CTARG },
+	{ 0xe6000000, 0xff000000, N("call"), T(mcdst), N("not"), T(pred), CTARG },
 	{ 0xe8000000, 0xff000000, N("ret"), T(mcdst), IGNALL },
 	{ 0xeaf80000, 0xffff0000, N("abra"), ABTARG },
 	{ 0xef000000, 0xff000000, N("bnop"), IGNALL },

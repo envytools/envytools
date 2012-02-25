@@ -999,7 +999,8 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 	int active = 0;
 	int skip = 0, nonzero = 0;
 	while (cur < num) {
-		if (ctx->names[cur / isa->posunit]) {
+		int mark = (cur % isa->posunit ? 0 : ctx->marks[cur / isa->posunit]);
+		if (!(cur % isa->posunit) && ctx->names[cur / isa->posunit]) {
 			if (skip) {
 				if (nonzero)
 					fprintf(out, "%s[%x bytes skipped]\n", cunk, skip);
@@ -1008,16 +1009,16 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 				skip = 0;
 				nonzero = 0;
 			}
-			if (ctx->marks[cur / isa->posunit] & 0x30)
+			if (mark & 0x30)
 				fprintf (out, "%s%s:\n", cnorm, ctx->names[cur / isa->posunit]);
-			else if (ctx->marks[cur / isa->posunit] & 2)
+			else if (mark & 2)
 				fprintf (out, "\n%s%s:\n", cctarg, ctx->names[cur / isa->posunit]);
-			else if (ctx->marks[cur / isa->posunit] & 1)
+			else if (mark & 1)
 				fprintf (out, "%s%s:\n", cbtarg, ctx->names[cur / isa->posunit]);
 			else
 				fprintf (out, "%s%s:\n", cnorm, ctx->names[cur / isa->posunit]);
 		}
-		if (ctx->marks[cur / isa->posunit] & 0x30) {
+		if (mark & 0x30) {
 			if (skip) {
 				if (nonzero)
 					fprintf(out, "%s[%x bytes skipped]\n", cunk, skip);
@@ -1027,7 +1028,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 				nonzero = 0;
 			}
 			fprintf (out, "%s%08x:%s", cnum, cur / isa->posunit + start, cnorm);
-			if (ctx->marks[cur / isa->posunit] & 0x10) {
+			if (mark & 0x10) {
 				uint32_t val = 0;
 				for (i = 0; i < 4 && cur + i < num; i++) {
 					val |= code[cur + i] << i*8;
@@ -1058,7 +1059,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 			}
 			continue;
 		}
-		if (!active && ctx->marks[cur / isa->posunit] & 7)
+		if (!active && mark & 7)
 			active = 1;
 		if (!active && labels) {
 			if (code[cur])
@@ -1085,12 +1086,12 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 		ctx->endmark = 0;
 		atomtab (ctx, a, m, isa->troot, 0);
 
-		if (ctx->endmark || ctx->marks[cur / isa->posunit] & 4)
+		if (ctx->endmark || mark & 4)
 			active = 0;
 
-		if (ctx->marks[cur / isa->posunit] & 2 && !ctx->names[cur / isa->posunit])
+		if (mark & 2 && !ctx->names[cur / isa->posunit])
 			fprintf (out, "\n");
-		switch (ctx->marks[cur / isa->posunit] & 3) {
+		switch (mark & 3) {
 			case 0:
 				if (!quiet)
 					fprintf (out, "%s%08x:%s", cnorm, cur / isa->posunit + start, cnorm);
@@ -1119,16 +1120,16 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 			}
 			fprintf (out, "  ");
 
-			if (ctx->marks[cur / isa->posunit] & 2)
+			if (mark & 2)
 				fprintf (out, "%sC", cctarg);
 			else
 				fprintf (out, " ");
-			if (ctx->marks[cur / isa->posunit] & 1)
+			if (mark & 1)
 				fprintf (out, "%sB", cbtarg);
 			else
 				fprintf (out, " ");
 		} else if (quiet == 1) {
-			if (ctx->marks[cur / isa->posunit])
+			if (mark)
 				fprintf (out, "\n");
 		}
 
