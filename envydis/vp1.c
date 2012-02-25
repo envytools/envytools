@@ -52,6 +52,10 @@ static struct bitfield logopoff = { 3, 4 };
  */
 
 static struct sreg sreg_sr[] = {
+	{ 96, "l0" },
+	{ 97, "l1" },
+	{ 98, "l2" },
+	{ 99, "l3" },
 	{ -1 },
 };
 static struct sreg areg_sr[] = {
@@ -61,6 +65,7 @@ static struct sreg areg_sr[] = {
 static struct bitfield dst_bf = { 19, 5 };
 static struct bitfield ydst_bf = { 19, 4 };
 static struct bitfield ddst_bf = { 19, 3 };
+static struct bitfield cdst_bf = { 19, 2 };
 static struct bitfield zdst_bf = { 19, 1 };
 static struct bitfield src1_bf = { 14, 5 };
 static struct bitfield xdst_bf = { 19, 5, 3, 1 };
@@ -74,13 +79,15 @@ static struct bitfield srsrc1_bf = { 14, 5, 3, 2 };
 static struct bitfield src2_bf = { 9, 5 };
 static struct bitfield src2x_bf = { { 9, 5 }, .xorend = 1 };
 static struct bitfield csrcp_bf = { 3, 2 };
-static struct bitfield cdst_bf = { 0, 2 };
+static struct bitfield cdstp_bf = { 0, 2 };
 static struct bitfield mcdst_bf = { 0, 3 };
 static struct bitfield ignall_bf = { 0, 24 };
 static struct reg adst_r = { &dst_bf, "a", .specials = areg_sr };
 static struct reg rdst_r = { &dst_bf, "r" };
 static struct reg vdst_r = { &dst_bf, "v" };
 static struct reg ddst_r = { &ddst_bf, "d" };
+static struct reg cdst_r = { &cdst_bf, "c" };
+static struct reg ldst_r = { &cdst_bf, "l" };
 static struct reg xdst_r = { &xdst_bf, "x" };
 static struct reg ydst_r = { &ydst_bf, "y" };
 static struct reg zdst_r = { &zdst_bf, "z" };
@@ -97,12 +104,16 @@ static struct reg ysrc1_r = { &ysrc1_bf, "y" };
 static struct reg zsrc1_r = { &zsrc1_bf, "z" };
 static struct reg srsrc1_r = { &srsrc1_bf, "sr", .specials = sreg_sr, .always_special = 1 };
 static struct reg csrcp_r = { &csrcp_bf, "c" };
-static struct reg cdst_r = { &cdst_bf, "c" };
+static struct reg lsrcl_r = { &csrcp_bf, "l" };
+static struct reg cdstp_r = { &cdstp_bf, "c" };
+static struct reg ldstl_r = { &cdstp_bf, "l" };
 
 #define ADST atomreg, &adst_r
 #define RDST atomreg, &rdst_r
 #define VDST atomreg, &vdst_r
 #define DDST atomreg, &ddst_r
+#define CDST atomreg, &cdst_r
+#define LDST atomreg, &ldst_r
 #define XDST atomreg, &xdst_r
 #define YDST atomreg, &ydst_r
 #define ZDST atomreg, &zdst_r
@@ -119,14 +130,17 @@ static struct reg cdst_r = { &cdst_bf, "c" };
 #define ASRC2 atomreg, &asrc2_r
 #define ASRC2X atomreg, &asrc2x_r
 #define CSRCP atomreg, &csrcp_r
-#define CDST atomreg, &cdst_r
+#define CDSTP atomreg, &cdstp_r
+#define LSRCL atomreg, &lsrcl_r
+#define LDSTL atomreg, &ldstl_r
 #define IGNCE atomign, &cdst_bf
 #define IGNCD atomign, &mcdst_bf
 #define IGNALL atomign, &ignall_bf
+#define IGNDST atomign, &dst_bf
 
 F1(intr, 16, N("intr"))
 
-F(mcdst, 2, CDST, IGNCE);
+F(mcdst, 2, CDSTP, IGNCE);
 
 static struct insn tabslctop[] = {
 	{ 0x00000000, 0x000001e0, SESTART, N("slct"), CSRCP, N("sf"), ASRC2, ASRC2X, SEEND },
@@ -142,7 +156,7 @@ static struct insn tabslctop[] = {
 	{ 0x00000140, 0x000001e0, SESTART, N("slct"), CSRCP, U("10"), ASRC2, ASRC2X, SEEND },
 	{ 0x00000160, 0x000001e0, SESTART, N("slct"), CSRCP, U("11"), ASRC2, ASRC2X, SEEND },
 	{ 0x00000180, 0x000001e0, SESTART, N("slct"), CSRCP, U("12"), ASRC2, ASRC2X, SEEND },
-	{ 0x000001a0, 0x000001e0, SESTART, N("slct"), CSRCP, U("13"), ASRC2, ASRC2X, SEEND },
+	{ 0x000001a0, 0x000001e0, SESTART, N("slct"), CSRCP, N("lz"), ASRC2, ASRC2X, SEEND },
 	{ 0x000001c0, 0x000001e0, ASRC2 },
 	{ 0x000001e0, 0x000001e0, ASRC2X },
 	{ 0, 0, OOPS }
@@ -162,7 +176,7 @@ static struct insn tabpred[] = {
 	{ 0x00000140, 0x000001e0, CSRCP, U("10") },
 	{ 0x00000160, 0x000001e0, CSRCP, U("11") },
 	{ 0x00000180, 0x000001e0, CSRCP, U("12") },
-	{ 0x000001a0, 0x000001e0, CSRCP, U("13") },
+	{ 0x000001a0, 0x000001e0, CSRCP, N("lz") },
 	{ 0x000001c0, 0x000001e0, CSRCP, N("false") },
 	{ 0x000001e0, 0x000001e0, CSRCP, N("true") },
 	{ 0, 0, OOPS }
@@ -221,15 +235,21 @@ static struct insn tabm[] = {
 	{ 0xdf000000, 0xff000000, N("snop"), IGNALL },
 	{ 0xe00001e0, 0xff0001f8, N("bra"), T(mcdst), BTARG },
 	{ 0xe0000000, 0xff000000, N("bra"), T(mcdst), T(pred), BTARG },
-	{ 0xe1000000, 0xff000000, N("bra1"), BTARG },
+	{ 0xe10001e0, 0xff0001f8, N("bra"), N("loop"), LDSTL, T(mcdst), LSRCL, BTARG },
+	{ 0xe1000000, 0xff000000, N("bra"), N("loop"), LDSTL, T(mcdst), LSRCL, T(pred), BTARG },
 	{ 0xe2000000, 0xff000000, N("bra"), T(mcdst), N("not"), T(pred), BTARG },
+	{ 0xe3000000, 0xff000000, N("bra"), N("loop"), LDSTL, T(mcdst), LSRCL, N("not"), T(pred), BTARG },
 	{ 0xe40001e0, 0xff0001f8, N("call"), T(mcdst), CTARG },
 	{ 0xe4000000, 0xff000000, N("call"), T(mcdst), T(pred), CTARG },
+	{ 0xe50001e0, 0xff0001f8, N("call"), N("loop"), LDSTL, T(mcdst), LSRCL, BTARG },
+	{ 0xe5000000, 0xff000000, N("call"), N("loop"), LDSTL, T(mcdst), LSRCL, T(pred), BTARG },
 	{ 0xe6000000, 0xff000000, N("call"), T(mcdst), N("not"), T(pred), CTARG },
+	{ 0xe7000000, 0xff000000, N("call"), N("loop"), LDSTL, T(mcdst), LSRCL, N("not"), T(pred), BTARG },
 	{ 0xe8000000, 0xff000000, N("ret"), T(mcdst), IGNALL },
-	{ 0xeaf80000, 0xffff0000, N("abra"), ABTARG },
+	{ 0xea000000, 0xff000000, N("abra"), IGNDST, ABTARG },
 	{ 0xef000000, 0xff000000, N("bnop"), IGNALL },
-	{ 0xfff80000, 0xfff80000, N("exit"), T(intr), EXITC },
+	{ 0xf0000000, 0xff000000, N("mov"), LDST, CDST, EXITC },
+	{ 0xff000000, 0xff000000, N("exit"), IGNDST, T(intr), EXITC },
 	{ 0, 0, OOPS },
 };
 
