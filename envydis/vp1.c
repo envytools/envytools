@@ -133,7 +133,7 @@ static struct reg ldstl_r = { &cdstp_bf, "l" };
 #define CDSTP atomreg, &cdstp_r
 #define LSRCL atomreg, &lsrcl_r
 #define LDSTL atomreg, &ldstl_r
-#define IGNCE atomign, &cdst_bf
+#define IGNCE atomign, &cdstp_bf
 #define IGNCD atomign, &mcdst_bf
 #define IGNALL atomign, &ignall_bf
 #define IGNDST atomign, &dst_bf
