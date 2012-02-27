@@ -52,6 +52,7 @@ static struct bitfield logopoff = { 3, 4 };
  */
 
 static struct sreg sreg_sr[] = {
+	{ 30, "tick" },
 	{ 96, "l0" },
 	{ 97, "l1" },
 	{ 98, "l2" },
