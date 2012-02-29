@@ -34,9 +34,17 @@
 		<bitfield pos="17" name="UNK17"/><!-- default 1 -->
 		<bitfield pos="26" name="LMEM_ENABLE"/>
 	</reg32>
-	<reg32 offset="0x04" name="LMEM_ALLOC" type="uint"/>
-	<reg32 offset="0x08" name="2"/>
-	<reg32 offset="0x0c" name="3"/>
+	<reg32 offset="0x04" name="LMEM_POS_ALLOC" type="uint" max="0xffffff">
+		<doc>Aligned to 0x10.</doc>
+	</reg32>
+	<reg32 offset="0x08" name="LMEM_NEG_ALLOC" type="uint" max="0xffffff">
+		<doc>Aligned to 0x10.</doc>
+	</reg32>
+	<reg32 offset="0x0c" name="WARP_CSTACK_SIZE" type="uint" max="0x1fffff">
+		<doc>Aligned to 0x200. Maximum depends on NVC0_3D_TEMP_SIZE.
+		48 slots for each 0x200 bytes.
+		If this is 0, only the 16 on-chip slots are available.</doc>
+	</reg32>
 	<reg32 offset="0x10" name="4">
 		<bitfield high="19" low="12" name="UNK12"/><!-- ? default 0xff -->
 	</reg32>
@@ -76,11 +84,15 @@
 		<bitfield pos="26" name="LMEM_ENABLE"/>
 		<bitfield high="31" low="28" name="UNK28"/><!-- default 0x1, 0xf for point output -->
 	</reg32>
-	<reg32 offset="0x04" name="LMEM_ALLOC" type="uint"/>
+	<reg32 offset="0x04" name="1">
+		<bitfield high="23" low="0" name="LMEM_POS_ALLOC" type="uint"/>
+	</reg32>
 	<reg32 offset="0x08" name="2">
+		<bitfield high="23" low="0" name="LMEM_NEG_ALLOC" type="uint"/>
 		<bitfield high="29" low="24" name="INVOCATIONS" type="uint" max="32"/>
 	</reg32>
 	<reg32 offset="0x0c" name="3">
+		<bitfield high="20" low="0" name="WARP_CSTACK_SIZE" type="uint"/>
 		<bitfield high="26" low="24" name="OUTPUT_PRIM">
 			<value value="1" name="POINTS"/>
 			<value value="6" name="LINE_STRIP"/>
@@ -124,9 +136,9 @@
 		<bitfield pos="17" name="UNK17"/><!-- default 1 -->
 		<bitfield pos="26" name="LMEM_ENABLE"/>
 	</reg32>
-	<reg32 offset="0x04" name="LMEM_ALLOC" type="uint"/>
-	<reg32 offset="0x08" name="2"/>
-	<reg32 offset="0x0c" name="3"/>
+	<reg32 offset="0x04" name="LMEM_POS_ALLOC" type="uint" max="0xffffff"/>
+	<reg32 offset="0x08" name="LMEM_NEG_ALLOC" type="uint" max="0xffffff"/>
+	<reg32 offset="0x0c" name="WARP_CSTACK_SIZE" type="uint" max="0x1fffff"/>
 	<reg32 offset="0x10" name="4"/>
 	<reg32 offset="0x14" name="INPUT_EN_0">
 		<bitfield high="31" low="28" name="WPOS"/>
