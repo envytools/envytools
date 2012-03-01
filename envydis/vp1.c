@@ -31,7 +31,7 @@
 
 static struct bitfield abtargoff = { 0, 16 };
 static struct bitfield btargoff = { { 9, 15 }, BF_SIGNED, .pcrel = 1 };
-static struct bitfield exitcoff = { 0, 16 };
+static struct bitfield imm16off = { 0, 16 };
 static struct bitfield immoff = { { 3, 11 }, BF_SIGNED };
 static struct bitfield immloff = { { 0, 19 }, BF_SIGNED };
 static struct bitfield immhoff = { { 0, 16 }, .shr = 16 };
@@ -40,7 +40,7 @@ static struct bitfield logopoff = { 3, 4 };
 #define ABTARG atombtarg, &abtargoff
 #define BTARG atombtarg, &btargoff
 #define CTARG atomctarg, &btargoff
-#define EXITC atomimm, &exitcoff
+#define IMM16 atomimm, &imm16off
 #define IMM atomimm, &immoff
 #define IMML atomimm, &immloff
 #define IMMH atomimm, &immhoff
@@ -143,10 +143,36 @@ static struct reg ldstl_r = { &cdstp_bf, "l" };
 #define IGNCD atomign, &mcdst_bf
 #define IGNALL atomign, &ignall_bf
 #define IGNDST atomign, &dst_bf
+#define IGNSRC1 atomign, &src1_bf
+
+static struct mem memspi_m = { "", 0, &asrc1_r, &immoff, .postincr = 1 };
+static struct mem memdpi_m = { "", 0, &adst_r, &immoff, .postincr = 1 };
+#define MEMSPI atommem, &memspi_m
+#define MEMDPI atommem, &memdpi_m
 
 F1(intr, 16, N("intr"))
 
 F(mcdst, 2, CDSTP, IGNCE);
+
+static struct insn tabaslctop[] = {
+	{ 0x00000000, 0x000001e0, SESTART, N("slct"), CSRCP, N("sf"), ASRC2, ASRC2X, SEEND },
+	{ 0x00000020, 0x000001e0, SESTART, N("slct"), CSRCP, N("zf"), ASRC2, ASRC2X, SEEND },
+	{ 0x00000040, 0x000001e0, SESTART, N("slct"), CSRCP, U("2"), ASRC2, ASRC2X, SEEND },
+	{ 0x00000060, 0x000001e0, SESTART, N("slct"), CSRCP, U("3"), ASRC2, ASRC2X, SEEND },
+	{ 0x00000080, 0x000001e0, SESTART, N("slct"), CSRCP, U("4"), ASRC2, ASRC1, SEEND },
+	{ 0x000000a0, 0x000001e0, SESTART, N("slct"), CSRCP, U("5"), ASRC2, ASRC2X, SEEND },
+	{ 0x000000c0, 0x000001e0, SESTART, N("slct"), CSRCP, U("6"), ASRC2, ASRC2X, SEEND },
+	{ 0x000000e0, 0x000001e0, SESTART, N("slct"), CSRCP, U("7"), ASRC2, ASRC2X, SEEND },
+	{ 0x00000100, 0x000001e0, SESTART, N("slct"), CSRCP, N("asf"), ASRC2, ASRC2X, SEEND },
+	{ 0x00000120, 0x000001e0, SESTART, N("slct"), CSRCP, N("azf"), ASRC2, ASRC2X, SEEND },
+	{ 0x00000140, 0x000001e0, SESTART, N("slct"), CSRCP, N("alf"), ASRC2, ASRC2X, SEEND },
+	{ 0x00000160, 0x000001e0, SESTART, N("slct"), CSRCP, U("11"), ASRC2, ASRC2X, SEEND },
+	{ 0x00000180, 0x000001e0, SESTART, N("slct"), CSRCP, U("12"), ASRC2, ASRC2X, SEEND },
+	{ 0x000001a0, 0x000001e0, SESTART, N("slct"), CSRCP, N("lzf"), ASRC2, ASRC2X, SEEND },
+	{ 0x000001c0, 0x000001e0, ASRC2 },
+	{ 0x000001e0, 0x000001e0, ASRC2X },
+	{ 0, 0, OOPS }
+};
 
 static struct insn tabslctop[] = {
 	{ 0x00000000, 0x000001e0, SESTART, N("slct"), CSRCP, N("sf"), RSRC2, RSRC2X, SEEND },
@@ -157,12 +183,12 @@ static struct insn tabslctop[] = {
 	{ 0x000000a0, 0x000001e0, SESTART, N("slct"), CSRCP, U("5"), RSRC2, RSRC2X, SEEND },
 	{ 0x000000c0, 0x000001e0, SESTART, N("slct"), CSRCP, U("6"), RSRC2, RSRC2X, SEEND },
 	{ 0x000000e0, 0x000001e0, SESTART, N("slct"), CSRCP, U("7"), RSRC2, RSRC2X, SEEND },
-	{ 0x00000100, 0x000001e0, SESTART, N("slct"), CSRCP, U("8"), RSRC2, RSRC2X, SEEND },
-	{ 0x00000120, 0x000001e0, SESTART, N("slct"), CSRCP, U("9"), RSRC2, RSRC2X, SEEND },
-	{ 0x00000140, 0x000001e0, SESTART, N("slct"), CSRCP, U("10"), RSRC2, RSRC2X, SEEND },
+	{ 0x00000100, 0x000001e0, SESTART, N("slct"), CSRCP, N("asf"), RSRC2, RSRC2X, SEEND },
+	{ 0x00000120, 0x000001e0, SESTART, N("slct"), CSRCP, N("azf"), RSRC2, RSRC2X, SEEND },
+	{ 0x00000140, 0x000001e0, SESTART, N("slct"), CSRCP, N("alf"), RSRC2, RSRC2X, SEEND },
 	{ 0x00000160, 0x000001e0, SESTART, N("slct"), CSRCP, U("11"), RSRC2, RSRC2X, SEEND },
 	{ 0x00000180, 0x000001e0, SESTART, N("slct"), CSRCP, U("12"), RSRC2, RSRC2X, SEEND },
-	{ 0x000001a0, 0x000001e0, SESTART, N("slct"), CSRCP, N("lz"), RSRC2, RSRC2X, SEEND },
+	{ 0x000001a0, 0x000001e0, SESTART, N("slct"), CSRCP, N("lzf"), RSRC2, RSRC2X, SEEND },
 	{ 0x000001c0, 0x000001e0, RSRC2 },
 	{ 0x000001e0, 0x000001e0, RSRC2X },
 	{ 0, 0, OOPS }
@@ -177,12 +203,12 @@ static struct insn tabpred[] = {
 	{ 0x000000a0, 0x000001e0, CSRCP, U("5") },
 	{ 0x000000c0, 0x000001e0, CSRCP, U("6") },
 	{ 0x000000e0, 0x000001e0, CSRCP, U("7") },
-	{ 0x00000100, 0x000001e0, CSRCP, U("8") },
-	{ 0x00000120, 0x000001e0, CSRCP, U("9") },
-	{ 0x00000140, 0x000001e0, CSRCP, U("10") },
+	{ 0x00000100, 0x000001e0, CSRCP, N("asf") },
+	{ 0x00000120, 0x000001e0, CSRCP, N("azf") },
+	{ 0x00000140, 0x000001e0, CSRCP, N("alf") },
 	{ 0x00000160, 0x000001e0, CSRCP, U("11") },
 	{ 0x00000180, 0x000001e0, CSRCP, U("12") },
-	{ 0x000001a0, 0x000001e0, CSRCP, N("lz") },
+	{ 0x000001a0, 0x000001e0, CSRCP, N("lzf") },
 	{ 0x000001c0, 0x000001e0, CSRCP, N("false") },
 	{ 0x000001e0, 0x000001e0, CSRCP, N("true") },
 	{ 0, 0, OOPS }
@@ -238,6 +264,25 @@ static struct insn tabm[] = {
 	{ 0x7e000000, 0xff000000, N("shr"), RDST, T(mcdst), RSRC1, IMM },
 	{ 0x60000000, 0xe0000000, OOPS, RDST, T(mcdst), RSRC1, IMM },
 	{ 0xbf000000, 0xff000000, N("vnop"), IGNALL },
+	{ 0xca000000, 0xff000000, N("hadd"), ADST, T(mcdst), T(aslctop), IGNSRC1 },
+	{ 0xcb000000, 0xff000000, N("add"), ADST, T(mcdst), ASRC1, T(aslctop) },
+	{ 0xcc000000, 0xff000000, N("setlo"), ADST, IMM16 },
+	{ 0xcd000000, 0xff000000, N("sethi"), ADST, IMMH },
+	{ 0xd0000000, 0xff000000, N("ld"), VDST, MEMSPI, T(mcdst) },
+	{ 0xd2000000, 0xff000000, N("ld"), RDST, MEMSPI, T(mcdst) },
+	{ 0xd3000008, 0xff000078, N("nor"), ADST, T(mcdst), ASRC1, ASRC2 },
+	{ 0xd3000010, 0xff000078, N("and"), ADST, T(mcdst), N("not"), ASRC1, ASRC2 },
+	{ 0xd3000020, 0xff000078, N("and"), ADST, T(mcdst), ASRC1, N("not"), ASRC2 },
+	{ 0xd3000030, 0xff000078, N("xor"), ADST, T(mcdst), ASRC1, ASRC2 },
+	{ 0xd3000038, 0xff000078, N("nand"), ADST, T(mcdst), ASRC1, ASRC2 },
+	{ 0xd3000040, 0xff000078, N("and"), ADST, T(mcdst), ASRC1, ASRC2 },
+	{ 0xd3000048, 0xff000078, N("nxor"), ADST, T(mcdst), ASRC1, ASRC2 },
+	{ 0xd3000058, 0xff000078, N("or"), ADST, T(mcdst), N("not"), ASRC1, ASRC2 },
+	{ 0xd3000068, 0xff000078, N("or"), ADST, T(mcdst), ASRC1, N("not"), ASRC2 },
+	{ 0xd3000070, 0xff000078, N("or"), ADST, T(mcdst), ASRC1, ASRC2 },
+	{ 0xd3000000, 0xff000000, N("logop"), ADST, T(mcdst), ASRC1, ASRC2, LOGOP },
+	{ 0xd4000000, 0xff000000, N("st"), MEMDPI, T(mcdst), VSRC1 },
+	{ 0xd6000000, 0xff000000, N("st"), MEMDPI, T(mcdst), RSRC1 },
 	{ 0xdf000000, 0xff000000, N("anop"), IGNALL },
 	{ 0xe00001e0, 0xff0001f8, N("bra"), T(mcdst), BTARG },
 	{ 0xe0000000, 0xff000000, N("bra"), T(mcdst), T(pred), BTARG },
@@ -254,8 +299,8 @@ static struct insn tabm[] = {
 	{ 0xe8000000, 0xff000000, N("ret"), T(mcdst), IGNALL },
 	{ 0xea000000, 0xff000000, N("abra"), IGNDST, ABTARG },
 	{ 0xef000000, 0xff000000, N("bnop"), IGNALL },
-	{ 0xf0000000, 0xff000000, N("mov"), LDST, CDST, EXITC },
-	{ 0xff000000, 0xff000000, N("exit"), IGNDST, T(intr), EXITC },
+	{ 0xf0000000, 0xff000000, N("mov"), LDST, CDST, IMM16 },
+	{ 0xff000000, 0xff000000, N("exit"), IGNDST, T(intr), IMM16 },
 	{ 0, 0, OOPS },
 };
 
