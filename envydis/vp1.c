@@ -35,8 +35,11 @@ static struct bitfield imm16off = { 0, 16 };
 static struct bitfield immoff = { { 3, 11 }, BF_SIGNED };
 static struct bitfield immloff = { { 0, 19 }, BF_SIGNED };
 static struct bitfield immhoff = { { 0, 16 }, .shr = 16 };
+static struct bitfield xdimmoff = { { 0, 13 } };
 static struct bitfield compoff = { 3, 2 };
 static struct bitfield logopoff = { 3, 4 };
+static struct bitfield baruoff = { 3, 2 };
+static struct bitfield barwoff = { 20, 2 };
 #define ABTARG atombtarg, &abtargoff
 #define BTARG atombtarg, &btargoff
 #define CTARG atomctarg, &btargoff
@@ -44,8 +47,11 @@ static struct bitfield logopoff = { 3, 4 };
 #define IMM atomimm, &immoff
 #define IMML atomimm, &immloff
 #define IMMH atomimm, &immhoff
+#define XDIMM atomimm, &xdimmoff
 #define COMP atomimm, &compoff
 #define LOGOP atomimm, &logopoff
+#define BARU atomimm, &baruoff
+#define BARW atomimm, &barwoff
 
 /*
  * Register fields
@@ -65,11 +71,13 @@ static struct sreg rreg_sr[] = {
 	{ -1 },
 };
 static struct bitfield dst_bf = { 19, 5 };
+static struct bitfield dstx_bf = { 19, 5, .xorend = 1 };
 static struct bitfield ydst_bf = { 19, 4 };
 static struct bitfield ddst_bf = { 19, 3 };
 static struct bitfield cdst_bf = { 19, 2 };
 static struct bitfield zdst_bf = { 19, 1 };
 static struct bitfield src1_bf = { 14, 5 };
+static struct bitfield src1x_bf = { 14, 5, .xorend = 1 };
 static struct bitfield xdst_bf = { 19, 5, 3, 1 };
 static struct bitfield srdst_bf = { 19, 5, 3, 2 };
 static struct bitfield ysrc1_bf = { 14, 4 };
@@ -94,9 +102,11 @@ static struct reg xdst_r = { &xdst_bf, "x" };
 static struct reg ydst_r = { &ydst_bf, "y" };
 static struct reg zdst_r = { &zdst_bf, "z" };
 static struct reg srdst_r = { &srdst_bf, "sr", .specials = sreg_sr, .always_special = 1 };
+static struct reg adstx_r = { &dstx_bf, "a" };
 static struct reg asrc1_r = { &src1_bf, "a" };
 static struct reg asrc2_r = { &src2_bf, "a" };
 static struct reg rsrc2_r = { &src2_bf, "r", .specials = rreg_sr };
+static struct reg asrc1x_r = { &src1x_bf, "a" };
 static struct reg asrc2x_r = { &src2x_bf, "a" };
 static struct reg rsrc2x_r = { &src2x_bf, "r", .specials = rreg_sr };
 static struct reg rsrc1_r = { &src1_bf, "r", .specials = rreg_sr };
@@ -122,6 +132,7 @@ static struct reg ldstl_r = { &cdstp_bf, "l" };
 #define YDST atomreg, &ydst_r
 #define ZDST atomreg, &zdst_r
 #define SRDST atomreg, &srdst_r
+#define ADSTX atomreg, &adstx_r
 #define ASRC1 atomreg, &asrc1_r
 #define RSRC1 atomreg, &rsrc1_r
 #define VSRC1 atomreg, &vsrc1_r
@@ -131,6 +142,7 @@ static struct reg ldstl_r = { &cdstp_bf, "l" };
 #define YSRC1 atomreg, &ysrc1_r
 #define ZSRC1 atomreg, &zsrc1_r
 #define SRSRC1 atomreg, &srsrc1_r
+#define ASRC1X atomreg, &asrc1x_r
 #define ASRC2 atomreg, &asrc2_r
 #define RSRC2 atomreg, &rsrc2_r
 #define ASRC2X atomreg, &asrc2x_r
@@ -145,14 +157,23 @@ static struct reg ldstl_r = { &cdstp_bf, "l" };
 #define IGNDST atomign, &dst_bf
 #define IGNSRC1 atomign, &src1_bf
 
+static struct mem memsi_m = { "", 0, &asrc1_r, &immoff };
+static struct mem memdi_m = { "", 0, &adst_r, &immoff };
 static struct mem memspi_m = { "", 0, &asrc1_r, &immoff, .postincr = 1 };
 static struct mem memdpi_m = { "", 0, &adst_r, &immoff, .postincr = 1 };
+#define MEMSI atommem, &memsi_m
+#define MEMDI atommem, &memdi_m
 #define MEMSPI atommem, &memspi_m
 #define MEMDPI atommem, &memdpi_m
 
 F1(intr, 16, N("intr"))
 
 F(mcdst, 2, CDSTP, IGNCE);
+
+F(xdimm, 13, XDIMM, );
+
+F(barldsti, 19, N("st"), N("ld"));
+F(barldstr, 0, N("st"), N("ld"));
 
 static struct insn tabaslctop[] = {
 	{ 0x00000000, 0x000001e0, SESTART, N("slct"), CSRCP, N("sf"), ASRC2, ASRC2X, SEEND },
@@ -264,11 +285,18 @@ static struct insn tabm[] = {
 	{ 0x7e000000, 0xff000000, N("shr"), RDST, T(mcdst), RSRC1, IMM },
 	{ 0x60000000, 0xe0000000, OOPS, RDST, T(mcdst), RSRC1, IMM },
 	{ 0xbf000000, 0xff000000, N("vnop"), IGNALL },
+	{ 0xc3000000, 0xff000000, N("xdld"), ADST, ASRC1, ASRC1X, T(xdimm) },
+	{ 0xc7000000, 0xff000000, N("xdst"), ADST, ADSTX, ASRC1, T(xdimm) },
 	{ 0xca000000, 0xff000000, N("hadd"), ADST, T(mcdst), T(aslctop), IGNSRC1 },
 	{ 0xcb000000, 0xff000000, N("add"), ADST, T(mcdst), ASRC1, T(aslctop) },
 	{ 0xcc000000, 0xff000000, N("setlo"), ADST, IMM16 },
 	{ 0xcd000000, 0xff000000, N("sethi"), ADST, IMMH },
+	{ 0xce000000, 0xff010000, N("xdbar"), T(barldsti), BARW, BARU },
+	{ 0xce010000, 0xff010000, N("xdbar"), T(barldstr), ADST, BARU },
+	{ 0xcf000000, 0xff010000, N("xdwait"), T(barldsti), BARW, BARU },
+	{ 0xcf010000, 0xff010000, N("xdwait"), T(barldstr), ADST, BARU },
 	{ 0xd0000000, 0xff000000, N("ld"), VDST, MEMSPI, T(mcdst) },
+	{ 0xd1000000, 0xff000000, N("ld"), VDST, N("vert"), MEMSPI, T(mcdst) },
 	{ 0xd2000000, 0xff000000, N("ld"), RDST, MEMSPI, T(mcdst) },
 	{ 0xd3000008, 0xff000078, N("nor"), ADST, T(mcdst), ASRC1, ASRC2 },
 	{ 0xd3000010, 0xff000078, N("and"), ADST, T(mcdst), N("not"), ASRC1, ASRC2 },
@@ -282,7 +310,14 @@ static struct insn tabm[] = {
 	{ 0xd3000070, 0xff000078, N("or"), ADST, T(mcdst), ASRC1, ASRC2 },
 	{ 0xd3000000, 0xff000000, N("logop"), ADST, T(mcdst), ASRC1, ASRC2, LOGOP },
 	{ 0xd4000000, 0xff000000, N("st"), MEMDPI, T(mcdst), VSRC1 },
+	{ 0xd5000000, 0xff000000, N("st"), N("vert"), MEMDPI, T(mcdst), VSRC1 },
 	{ 0xd6000000, 0xff000000, N("st"), MEMDPI, T(mcdst), RSRC1 },
+	{ 0xd8000000, 0xff000000, N("ld"), VDST, MEMSI, T(mcdst) },
+	{ 0xd9000000, 0xff000000, N("ld"), VDST, N("vert"), MEMSI, T(mcdst) },
+	{ 0xda000000, 0xff000000, N("ld"), RDST, MEMSI, T(mcdst) },
+	{ 0xdc000000, 0xff000000, N("st"), MEMDI, T(mcdst), VSRC1 },
+	{ 0xdd000000, 0xff000000, N("st"), N("vert"), MEMDI, T(mcdst), VSRC1 },
+	{ 0xde000000, 0xff000000, N("st"), MEMDI, T(mcdst), RSRC1 },
 	{ 0xdf000000, 0xff000000, N("anop"), IGNALL },
 	{ 0xe00001e0, 0xff0001f8, N("bra"), T(mcdst), BTARG },
 	{ 0xe0000000, 0xff000000, N("bra"), T(mcdst), T(pred), BTARG },
