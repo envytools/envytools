@@ -1378,6 +1378,18 @@ int main(int argc, char **argv) {
 				pcie_width = bios->data[start+28];
 			}
 
+			if (version > 0x15 && version < 0x40) {
+				uint16_t extra_start = start + mode_info_length;
+				uint16_t timing_extra_data = extra_start+(ram_cfg*extra_data_length);
+				timing_id = parse_memtm_mapping_entry(timing_extra_data, extra_data_length, 0);
+				if (ram_cfg < extra_data_count)
+					timing_id = bios->data[timing_extra_data+1];
+			} else if (version == 0x40 && ram_cfg < subentry_count) {
+				// Get the timing from somewhere else
+				// timing_id = bios->data[start+subent(ram_cfg)+1];
+				timing_id = 0xff;
+			}
+
 			/* Old BIOS' might give rounding errors! */
 			if (version == 0x12 || version == 0x13 || version == 0x15) {
 				id = bios->data[start+0];
@@ -1458,18 +1470,6 @@ int main(int argc, char **argv) {
 						id, core, memclk, shader, hub01, hub06, hub07,
 						rop, vdec, daemon, copy, voltage, pcie_width );
 				}
-			}
-
-			if (version > 0x15 && version < 0x40) {
-				uint16_t extra_start = start + mode_info_length;
-				uint16_t timing_extra_data = extra_start+(ram_cfg*extra_data_length);
-				timing_id = parse_memtm_mapping_entry(timing_extra_data, extra_data_length, 0);
-				if (ram_cfg < extra_data_count)
-					timing_id = bios->data[timing_extra_data+1];
-			} else if (version == 0x40 && ram_cfg < subentry_count) {
-				// Get the timing from somewhere else
-				// timing_id = bios->data[start+subent(ram_cfg)+1];
-				timing_id = 0xff;
 			}
 
 			if (mode_info_length > 20) {
