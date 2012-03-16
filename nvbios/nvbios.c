@@ -136,25 +136,10 @@ uint8_t parse_memtm_mapping_entry(uint16_t pos, uint16_t len, uint16_t hdr_pos)
 
 	if(p_tbls_ver == 1) {
 		uint8_t c = bios->data[pos+3];
-		/*printf(" 100714: ??????%i?\n", 2 * !(bios->data[pos+3] & 0x8));
-		printf(" 10071c: ?????%i??", !!(bios->data[pos+3] & 0x1));*/
-		printf(" 100710: (r & 0x101) | 0x%x | 0x%x\n", (c & 0x2) ? 0x100 : 0, (c & 0x8) ? 0 : 1);
+		printf(" 100710: (r & 0x101) | 0x%x | 0x%x\n",
+		       (c & 0x2) ? 0x100 : 0, (c & 0x8) ? 0 : 1);
 		printf(" 100714: (r & 0x20) | 0x%x\n", (c & 0x8) ? 0 : 0x20);
 		printf(" 10071c: (r & 0x100) | 0x%x", (c & 0x1) ? 0x100 : 0);
-
-		/* XXX: This test is wrong. RE! */
-		/*if(bios->data[pos+3] & 0x02 && len >= 10) {
-			printf(" Feature unk0 enabled\n");
-			printf("   1005a0: 0x00%02hhx%02hhx%02hhx\n",
-				bios->data[pos+7], bios->data[pos+6],
-				bios->data[pos+5]);
-			printf("   1005a4: 0x0000%02hhx%02hhx\n",
-				bios->data[pos+9],
-				bios->data[pos+8]);
-		} else {
-			printf(" Feature unk0 disabled\n");
-			printf("   10053c: 0x00001000");
-		}*/
 	}
 
 	if(p_tbls_ver == 2) {
@@ -1363,13 +1348,11 @@ int main(int argc, char **argv) {
 			printf("Unknown PM major version %x\n", major_version);
 		}
 
-		start += header_length;
-
 		printf ("PM_Mode table at %x. Version %x. RamCFG %x. Info_length %i.\n",
 			pm_mode_tbl_ptr, version, ram_cfg, mode_info_length
 		);
 
-		if (version < 0x40)
+		if (version > 0x20 && version < 0x40)
 			printf("PWM_div 0x%x, ", le16(start+6));
 
 
@@ -1383,6 +1366,8 @@ int main(int argc, char **argv) {
 		printf("Header:\n");
 		printcmd(pm_mode_tbl_ptr, header_length>0?header_length:10);
 		printf ("\n");
+
+		start += header_length;
 
 		printf("%i performance levels\n", entry_count);
 		for (i=0; i < entry_count; i++) {
@@ -1457,7 +1442,7 @@ int main(int argc, char **argv) {
 				dom6 = le16(start+20);
 				memscript = le16(start+2);
 
-				printf(" 10053c: %.8x\n", memclk >= 348 ? 0x1000 : 0);
+				printf(" 10053c: 0x%.8x", memclk >= 348 ? 0x1000 : 0);
 				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Vdec %dMHz "
 					"Dom6 %dMHz Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
 					id, core, memclk, shader, vdec, dom6, voltage, timing_id, fan, pcie_width );
@@ -1526,7 +1511,7 @@ int main(int argc, char **argv) {
 					printf("\n");
 				}
 			}
-			printf("\n");
+			printf("\n\n");
 
 			start += entry_length;
 		}
