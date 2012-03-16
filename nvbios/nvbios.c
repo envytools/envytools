@@ -42,6 +42,7 @@ uint32_t card_codename = 0;
 uint8_t tCWL = 0;
 uint32_t strap = 0;
 uint8_t chipset_family = 0;
+uint16_t script_print = 0;
 
 uint16_t bmpver = 0;
 uint8_t bmpver_min;
@@ -96,6 +97,7 @@ int usage(char* name) {
 	printf("  -c XX : override card generation\n");
 	printf("  -m XX : set tCWL (for timing entry size < 20)\n");
 	printf("  -s XX : set the trap register\n");
+	printf("  -i XXXX : print init script at XXXX and exit");
 	return 1;
 }
 
@@ -611,6 +613,13 @@ int parse_args(int argc, char **argv) {
 			} else {
 				return usage(argv[0]);
 			}
+		} else if (!strncmp(argv[i], "-i", 2)) {
+			i++;
+			if (i < argc) {
+				sscanf(argv[i],"%4hx",&script_print);
+			} else {
+				return usage(argv[0]);
+			}
 		} else {
 			fprintf(stderr, "Unknown parameter '%s'\n", argv[i]);
 		}
@@ -739,6 +748,7 @@ int main(int argc, char **argv) {
 			voltage_tbl_ptr = le16(bios->bmp_offset + 152);
 		}
 	}
+
 	if (bios->bit_offset) {
 		int maxentry = bios->data[bios->bit_offset+10];
 		printf ("BIT at %x, %x entries\n", bios->bit_offset, maxentry);
@@ -826,6 +836,12 @@ int main(int argc, char **argv) {
 			printf ("\n");
 		}
 	}
+
+	if(script_print != 0) {
+		printscript(script_print);
+		exit(0);
+	}
+
 	if (bios->dcb_offset) {
 		dcbver = bios->data[bios->dcb_offset];
 		uint16_t coff = 4;
