@@ -1370,7 +1370,7 @@ int main(int argc, char **argv) {
 
 		printf("%i performance levels\n", entry_count);
 		for (i=0; i < entry_count; i++) {
-			uint16_t id, fan, voltage;
+			uint16_t id, fan, voltage, memscript;
 			uint16_t core, shader = 0, memclk, vdec = 0;
 			uint8_t pcie_width = 0xff;
 			uint8_t timing_id = 0xff;
@@ -1439,11 +1439,17 @@ int main(int argc, char **argv) {
 				memclk = le16(start+12);
 				vdec = le16(start+16);
 				dom6 = le16(start+20);
+				memscript = le16(start+2);
 
 				printf(" 10053c: %.8x\n", memclk >= 348 ? 0x1000 : 0);
 				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Vdec %dMHz "
 					"Dom6 %dMHz Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
 					id, core, memclk, shader, vdec, dom6, voltage, timing_id, fan, pcie_width );
+				if(memscript > 0) {
+					printf("Memory reclock script:\n");
+					printscript(memscript);
+					printf("\n");
+				}
 			} else if (version == 0x40) {
 				uint16_t hub01 = 0, hub06 = 0, copy = 0, rop = 0, daemon = 0, hub07 = 0, unka0 = 0;
 				id = bios->data[start+0];
