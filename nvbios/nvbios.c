@@ -97,7 +97,7 @@ int usage(char* name) {
 	printf("  -c XX : override card generation\n");
 	printf("  -m XX : set tCWL (for timing entry size < 20)\n");
 	printf("  -s XX : set the trap register\n");
-	printf("  -i XXXX : print init script at XXXX and exit");
+	printf("  -i XXXX : print init script at XXXX and exit\n");
 	return 1;
 }
 
