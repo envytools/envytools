@@ -11,6 +11,7 @@ TOC
 1.7. NV40 family
 1.8. NV50 family
 1.9. NVC0 family
+1.10. NVE4 family
 
 
 = Introduction =
@@ -89,6 +90,7 @@ is:
    - NVA0 subfamily: NVA0, NVAA, NVAC
    - NVA3 subfamily: NVA3, NVA5, NVA8, NVAF
  - NVC0 family: NVC0, NVC4, NVC3, NVCE, NVCF, NVC1, NVC8, NVD9
+ - NVE4 family: NVE4
 
 Whenever a range of cards is mentioned in the documentation, it's written as
 "NVxx:NVyy". This is left-inclusive, right-noninclusive range of chipset ids
@@ -818,3 +820,8 @@ The MMIO ranges for NVC0 family are:
 640000:650000 DISPLAY_USER - DMA submission to PDISPLAY [pdisplay.txt]
 700000:800000 PMEM - indirect VRAM/host memory access [nvc0-memory.txt]
 
+== NVE4 family ==
+
+Here there be dragons.
+
+118X* NVE4
