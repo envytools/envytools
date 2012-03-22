@@ -27,6 +27,9 @@
 
 #include "dis-intern.h"
 
+#define NVC0 0x01
+#define NVE4 0x02
+
 /*
  * Registers:
  *
@@ -2078,10 +2081,17 @@ static struct insn tabroot[] = {
 	{ 0, 0, OOPS },
 };
 
+static const struct disvariant nvc0_vars[] = {
+	"nvc0", NVC0,
+	"nve4", NVE4,
+};
+
 const struct disisa nvc0_isa_s = {
 	tabroot,
 	8,
 	4,
 	1,
 	.i_need_nv50as_hack = 1,
+	.vars = nvc0_vars,
+	.varsnum = sizeof nvc0_vars / sizeof *nvc0_vars
 };
