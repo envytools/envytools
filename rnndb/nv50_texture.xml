@@ -187,6 +187,7 @@
 		<bitfield high="1" low="0" name="MAGF" type="nv50_tsc_filter" />
 		<bitfield high="5" low="4" name="MINF" type="nv50_tsc_filter" />
 		<bitfield high="7" low="6" name="MIPF" type="nv50_tsc_mipfilter" />
+		<bitfield pos="9" name="CUBE_SEAMLESS" type="boolean" variants="NVE4-"/>
 		<bitfield high="24" low="12" name="LOD_BIAS">
 			<doc>Fixed-point signed 1.4.8</doc>
 		</bitfield>
