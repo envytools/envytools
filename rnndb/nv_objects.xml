@@ -21,5 +21,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nvc0_3d.xml" />
 <import file="nvc0_compute.xml" />
 <import file="blob_nvc0_pcopy.xml" />
+<import file="nve4_p2mf.xml" />
 
 </database>

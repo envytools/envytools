@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nv_object.xml"/>
+
+<domain name="NV01_SUBCHAN" bare="yes">
+	<stripe prefix="obj-class" variants="NVE4_P2MF">
+		<doc>Push(buffer) To Memory Format, a cut back M2MF.
+		Use PCOPY for the missing functionality.
+		</doc>
+		<reg32 offset="0x0180" name="LINE_LENGTH_IN" type="uint"/>
+		<reg32 offset="0x0184" name="LINE_COUNT" type="uint"/>
+		<reg32 offset="0x0188" name="DST_ADDRESS_HIGH"/>
+		<reg32 offset="0x018c" name="DST_ADDRESS_LOW"/>
+		<reg32 offset="0x0194" name="DST_TILE_MODE"/>
+		<reg32 offset="0x0198" name="DST_PITCH" type="uint">
+			<doc>For tiled mode, this is the line length, not aligned to tile pitch.</doc>
+		</reg32>
+		<reg32 offset="0x019c" name="DST_HEIGHT" type="uint"/>
+		<reg32 offset="0x01a0" name="DST_DEPTH" type="uint"/>
+		<reg32 offset="0x01a4" name="DST_Z" type="uint"/>
+		<reg32 offset="0x01a8" name="DST_X" type="uint">
+			<doc>In bytes.</doc>
+		</reg32>
+		<reg32 offset="0x01ac" name="DST_Y" type="uint"/>
+		<reg32 offset="0x01b0" name="EXEC">
+			<bitfield name="LINEAR" pos="0" type="boolean"/>
+			<bitfield name="UNK12" pos="12"/>
+		</reg32>
+		<reg32 offset="0x01b4" name="DATA"/>
+	</stripe>
+</domain>
+
+</database>
