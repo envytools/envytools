@@ -120,6 +120,7 @@
 	<reg32 offset="0x108" name="CAPS">
 		<bitfield low="0" high="8" name="CODE_SIZE" shr="8"/>
 		<bitfield low="9" high="16" name="DATA_SIZE" shr="8"/>
+		<bitfield low="26" high="31" name="XFER_SLOTS"/>
 	</reg32>
 
 	<reg32 offset="0x10c" name="UC_BLOCK_ON_FIFO"/>
