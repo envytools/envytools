@@ -191,6 +191,7 @@
 		<bitfield high="24" low="12" name="LOD_BIAS">
 			<doc>Fixed-point signed 1.4.8</doc>
 		</bitfield>
+		<bitfield pos="25" name="FORCE_NONNORMALIZED_COORDS" type="boolean" variants="NVE4-"/>
 		<value value="0x10000000" name="UNKN_ANISO_15" />
 		<value value="0x18000000" name="UNKN_ANISO_35" />
 	</reg32>
