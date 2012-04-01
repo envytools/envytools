@@ -163,7 +163,7 @@ parse_valgrind(struct state *s)
 			add_object(s, val[0], val[1]);
 	}
 
-	for (i = 0; i == 0 || c[i - 1] == ','; i++) {
+	for (i = 0; i <= 3 && (i == 0 || c[i - 1] == ','); i++) {
 		e.addr = addr;
 		e.val = val[i];
 		add_ent(s, &e);
