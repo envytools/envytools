@@ -13,13 +13,13 @@
 	<use-group name="nv98_fucbase"/>
 	<reg32 offset="0x4a0" name="FIFO_PUT" length="4"/>
 	<reg32 offset="0x4b0" name="FIFO_GET" length="4"/>
-	<reg32 offset="0x4c0" name="FIFO_PENDING">
+	<reg32 offset="0x4c0" name="FIFO_INTR">
 		<bitfield pos="0" name="0"/>
 		<bitfield pos="1" name="1"/>
 		<bitfield pos="2" name="2"/>
 		<bitfield pos="3" name="3"/>
 	</reg32>
-	<reg32 offset="0x4c4" name="FIFO_UNK4C4">
+	<reg32 offset="0x4c4" name="FIFO_INTR_EN">
 		<bitfield pos="0" name="0"/>
 		<bitfield pos="1" name="1"/>
 		<bitfield pos="2" name="2"/>
@@ -28,6 +28,12 @@
 	<reg32 offset="0x4c8" name="RFIFO_PUT"/>
 	<reg32 offset="0x4cc" name="RFIFO_GET"/>
 	<use-group name="nv98_fuc_memif"/>
+	<reg32 offset="0x688" name="INTR11">
+		<bitfield pos="1" name="FIFO">
+			<doc>Consult 4c4</doc>
+		</bitfield>
+		<!-- XXX: many more bits... -->
+	</reg32>
 </array>
 
 </domain>
