@@ -37,7 +37,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 </enum>
 
 <domain name="NV01_SUBCHAN" bare="yes">
-	<stripe prefix="obj-class" variants="NVC0_3D-NVC8_3D">
+	<stripe prefix="obj-class" variants="NVC0_3D-NVE4_3D">
 
 		<!-- NOTE: NVC0_3D_CYLINDRICAL_WRAP doesn't exit, it has to be done in a GP -->
 
@@ -112,6 +112,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x0308" name="CACHE_SPLIT">
 			<value value="1" name="16K_SHARED_48K_L1" variants="NVC1_3D-"/>
+			<value value="2" name="32K_SHARED_32K_L1" variants="NVE4_3D-"/>
 			<value value="3" name="48K_SHARED_16K_L1"/>
 		</reg32>
 		<reg32 offset="0x030c" name="UNK030C">
@@ -1128,7 +1129,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<doc>Only 0. Some kind of flush?</doc>
 			</reg32>
 		</stripe>
-		<reg32 offset="0x2200" name="TEX_LIMITS" length="5" stride="16">
+		<reg32 offset="0x2200" name="TEX_LIMITS" length="5" stride="16" variants="NVC0_3D:NVE4_3D">
 			<bitfield name="SAMPLERS_LOG2" high="3" low="0" type="uint" min="0" max="4"/>
 			<bitfield name="TEXTURES_LOG2" high="7" low="4" type="uint" min="0" max="7"/>
 		</reg32>
@@ -1144,22 +1145,22 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x2388" name="CB_ADDRESS_LOW"/>
 		<reg32 offset="0x238c" name="CB_POS"/>
 		<reg32 offset="0x2390" name="CB_DATA" length="16"/>
-		<reg32 offset="0x2400" name="BIND_TSC" length="5" stride="32">
+		<reg32 offset="0x2400" name="BIND_TSC" length="5" stride="32" variants="NVC0_3D:NVE4_3D">
 		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
 		  <bitfield name="SAMPLER" high="11" low="4" type="uint"/>
 		  <bitfield name="TSC" high="24" low="12" type="uint"/>
 		</reg32>
-		<reg32 offset="0x2404" name="BIND_TIC" length="5" stride="32">
+		<reg32 offset="0x2404" name="BIND_TIC" length="5" stride="32" variants="NVC0_3D:NVE4_3D">
 		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
 		  <bitfield name="TEXTURE" high="8" low="1" type="uint"/>
 		  <bitfield name="TIC" high="30" low="9" type="uint"/>
 		</reg32>
-		<reg32 offset="0x2408" name="BIND_TSC2" length="5" stride="32">
+		<reg32 offset="0x2408" name="BIND_TSC2" length="5" stride="32" variants="NVC0_3D:NVE4_3D">
 		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
 		  <bitfield name="SAMPLER" pos="4" type="uint"/>
 		  <bitfield name="TSC" high="24" low="12" type="uint"/>
 		</reg32>
-		<reg32 offset="0x240c" name="BIND_TIC2" length="5" stride="32">
+		<reg32 offset="0x240c" name="BIND_TIC2" length="5" stride="32" variants="NVC0_3D:NVE4_3D">
 		  <bitfield name="ACTIVE" pos="0" type="boolean"/>
 		  <bitfield name="TEXTURE" pos="1" type="uint"/>
 		  <bitfield name="TIC" high="30" low="9" type="uint"/>
@@ -1185,6 +1186,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Only 0. Some kind of flush?</doc>
 		</reg32>
 		<reg32 offset="0x2600" name="VERT_COLOR_CLAMP_EN" type="boolean"/>
+		<reg32 offset="0x2608" name="TEX_CB_INDEX" type="uint" min="0" max="16" variants="NVE4_3D-"/>
 		<stripe offset="0x2700" name="IMAGE" length="8" stride="0x20">
 			<reg32 offset="0x00" name="ADDRESS_HIGH"/>
 			<reg32 offset="0x04" name="ADDRESS_LOW"/>

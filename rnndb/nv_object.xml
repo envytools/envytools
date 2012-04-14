@@ -161,7 +161,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<!-- M2MF -->
 	<value value="0x0039" name="NV03_M2MF" variants="NV03:NV50"/>
 	<value value="0x5039" name="NV50_M2MF" variants="NV50:NVC0"/>
-	<value value="0x9039" name="NVC0_M2MF" variants="NVC0-"/>
+	<value value="0x9039" name="NVC0_M2MF" variants="NVC0:NVE4"/>
+
+	<value value="0xa040" name="NVE4_P2MF" variants="NVE4-"/>
 
 	<!-- old-style pre-nv20 3D objects -->
 	<value value="0x005a" name="NV03_SURFACE_COLOR" variants="NV03:NV50"/>
@@ -195,9 +197,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x8397" name="NVA0_3D" variants="NVA0:NVA3"/>
 	<value value="0x8597" name="NVA3_3D" variants="NVA3:NVAF"/>
 	<value value="0x8697" name="NVAF_3D" variants="NVAF:NVC0"/>
-	<value value="0x9097" name="NVC0_3D" variants="NVC0-"/>
+	<value value="0x9097" name="NVC0_3D" variants="NVC0:NVE4"/>
 	<value value="0x9197" name="NVC1_3D" variants="NVC1"/>
-	<value value="0x9297" name="NVC8_3D" variants="NVC8 NVD9-"/>
+	<value value="0x9297" name="NVC8_3D" variants="NVC8 NVD9"/>
+	<value value="0xa097" name="NVE4_3D" variants="NVE4-"/>
 
 	<!-- nv50+ non-3D objects -->
 	<value value="0x502d" name="NV50_2D" variants="NV50:NVC0"/>
@@ -205,15 +208,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 	<value value="0x50c0" name="NV50_COMPUTE" variants="NV50:NVC0"/>
 	<value value="0x85c0" name="NVA3_COMPUTE" variants="NVA3:NVC0"/>
-	<value value="0x90c0" name="NVC0_COMPUTE" variants="NVC0-"/>
-	<value value="0x92c0" name="NVC8_COMPUTE" variants="NVC8 NVD9-"/>
+	<value value="0x90c0" name="NVC0_COMPUTE" variants="NVC0:NVE4"/>
+	<value value="0x92c0" name="NVC8_COMPUTE" variants="NVC8 NVD9"/>
+	<value value="0xa0c0" name="NVE4_COMPUTE" variants="NVE4-"/>
 
 	<value value="0x74c1" name="NV84_CRYPT" variants="NV84:NV98 NVA0"/>
 	
 	<value value="0x90b8" name="BLOB_NVC0_PCOPY1" variants="NVC0"/>
 	<value value="0x90b5" name="BLOB_NVC0_PCOPY0" variants="NVC0"/>
-
-	<value value="0xa040" name="NVE4_P2MF" variants="NVC0-"/>
 
 	<!-- MPEG -->
 	<value value="0x3174" name="NV31_MPEG" variants="NV31:NV84"/>
