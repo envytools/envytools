@@ -118,6 +118,8 @@ Operation:
 	ST(32, $sp, $pc);
 	$flags.is0 = $flags.ie0;
 	$flags.is1 = $flags.ie1;
+	$flags.ie0 = 0;
+	$flags.ie1 = 0;
 	if (vector 0)
 		$pc = $iv0;
 	else
