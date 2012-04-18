@@ -1653,6 +1653,8 @@ int main(int argc, char **argv) {
 		uint8_t header_length = 0;
 		uint16_t start = temperature_tbl_ptr;
 
+		uint8_t fan_speed_tbl[] = { 0, 0, 25, 0, 40, 0, 50, 0, 75, 0, 85, 0, 100, 0, 100, 0 };
+
 		version = bios->data[start+0];
 		header_length = bios->data[start+1];
 		entry_length = bios->data[start+2];
@@ -1672,6 +1674,8 @@ int main(int argc, char **argv) {
 			uint16_t data = le16((start+i*entry_length)+1);
 			uint16_t temp = (data & 0x0ff0) >> 4;
 			uint16_t type = (data & 0xf00f);
+			uint8_t fan_speed = fan_speed_tbl[(type >> 12) & 0xf];
+			uint8_t hysteresis = type & 0xf;
 			const char *type_s = NULL, *threshold = NULL;
 			const char *correction_target = NULL;
 			uint16_t correction_value = 0;
@@ -1689,7 +1693,7 @@ int main(int argc, char **argv) {
 
 			/* fan */
 			fan_min = data & 0xff;
-			fan_max= (data & 0xff00) >> 8;
+			fan_max = (data & 0xff00) >> 8;
 
 			correction_value = data;
 			if (id == 0x1) {
@@ -1724,7 +1728,7 @@ int main(int argc, char **argv) {
 				else
 					printf("id = 0x%x, data = 0x%x", id, data);
 			} else if (id == 0x24)
-				printf ("-- bump fan speed when at %i°C type 0x%x", temp, type);
+				printf ("-- bump fan speed to %i%% when at %i°C hysteresis %i°C", fan_speed, temp, hysteresis);
 			else if (id == 0x26)
 					printf("-- pwm frequency %i", data);
 			else
