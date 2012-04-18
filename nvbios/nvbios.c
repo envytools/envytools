@@ -1714,25 +1714,29 @@ int main(int argc, char **argv) {
 						id, data);
 
 			if (id == 0xff)
-				printf("--disabled");
+				printf("	-- disabled");
 			else if (id == 0x0)
-				printf ("-- new section type %i", data);
+				printf ("	-- new section type %i", data);
 			else if (threshold)
-				printf ("-- %s %s temperature is %i°C", threshold, type_s, temp);
-			else if (id == 0x1 || (id >= 0x10 && id <= 0x13) || id == 0x22) {
-				printf ("-- temp/fan management: ");
+				printf ("	-- %s %s temperature is %i°C", threshold, type_s, temp);
+			else if (id == 0x1 || (id >= 0x10 && id <= 0x13)) {
+				printf ("	-- temp management: ");
 				if (correction_target)
 					printf("%s = %i", correction_target, correction_value);
-				else if (id == 0x22)
-					printf("fan_min = %i, fan_max = %i", fan_min, fan_max);
 				else
 					printf("id = 0x%x, data = 0x%x", id, data);
-			} else if (id == 0x24)
-				printf ("-- bump fan speed to %i%% when at %i°C hysteresis %i°C", fan_speed, temp, hysteresis);
+			} else if (id == 0x22)
+				printf ("	-- fan_min = %i, fan_max = %i", fan_min, fan_max);
+			else if (id == 0x24)
+				printf ("	-- bump fan speed to %i%% when at %i°C hysteresis %i°C", fan_speed, temp, hysteresis);
 			else if (id == 0x26)
-					printf("-- pwm frequency %i", data);
+					printf("	-- pwm frequency %i", data);
+			else if (id == 0x3b)
+				printf ("	-- fan bump periodicity %i ms", data);
+			else if (id == 0x3c)
+				printf ("	-- fan slow down periodicity %i ms", data);
 			else
-				printf ("Unknown (temp ?= %i°C, type ?= 0x%x)", temp, type);
+				printf ("	-- unknown (temp ?= %i°C, type ?= 0x%x)", temp, type);
 
 			printf("\n");
 		}
