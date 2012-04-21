@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml"/>
+<import file="nv_object.xml"/>
+<import file="nv50_defs.xml"/>
+
+<domain name="NV01_SUBCHAN" bare="yes">
+	<stripe prefix="obj-class" variants="NVC0_COMPUTE-NVE4_COMPUTE">
+		<reg32 offset="0x0180" name="UPLOAD_SIZE"/>
+		<reg32 offset="0x0184" name="UPLOAD_UNK0184"/>
+		<reg32 offset="0x0188" name="UPLOAD_ADDRESS_HIGH"/>
+		<reg32 offset="0x018c" name="UPLOAD_ADDRESS_LOW"/>
+		<reg32 offset="0x01b0" name="UPLOAD_EXEC"/>
+		<reg32 offset="0x01b4" name="UPLOAD_DATA"/>
+		<reg32 offset="0x0214" name="SHARED_BASE">
+			<doc>32 bit address, not shifted. Contents of $sbase register.</doc>
+		</reg32>
+		<reg32 offset="0x02b4" name="LAUNCH_DESC_ADDRESS" shr="8"/>
+		<reg32 offset="0x02bc" name="LAUNCH"/>
+		<reg32 offset="0x02e4" name="UNK02E4"/>
+		<reg32 offset="0x02e8" name="UNK02E8"/>
+		<reg32 offset="0x02ec" name="UNK02EC"/>
+		<reg32 offset="0x02f0" name="UNK02F0"/>
+		<reg32 offset="0x02f4" name="UNK02F4"/>
+		<reg32 offset="0x02f8" name="UNK02F8"/>
+		<reg32 offset="0x0310" name="UNK0310"/>
+		<reg32 offset="0x077c" name="LOCAL_BASE"/><!-- 32 bit address, not shifted, appears in $lbase -->
+		<reg32 offset="0x0790" name="TEMP_ADDRESS_HIGH"/>
+		<reg32 offset="0x0794" name="TEMP_ADDRESS_LOW"/>
+		<reg32 offset="0x155c" name="TSC_ADDRESS_HIGH"/>
+		<reg32 offset="0x1560" name="TSC_ADDRESS_LOW"/>
+		<reg32 offset="0x1564" name="TSC_LIMIT"/>
+		<reg32 offset="0x1574" name="TIC_ADDRESS_HIGH"/>
+		<reg32 offset="0x1578" name="TIC_ADDRESS_LOW"/>
+		<reg32 offset="0x157c" name="TIC_LIMIT"/>
+		<reg32 offset="0x1608" name="CODE_ADDRESS_HIGH"/>
+		<reg32 offset="0x160c" name="CODE_ADDRESS_LOW"/>
+		<reg32 offset="0x1698" name="FLUSH">
+			<bitfield pos="0" name="CODE"/>
+			<bitfield pos="4" name="GLOBAL"/>
+			<bitfield pos="8" name="UNK8"/>
+			<bitfield pos="12" name="CB"/>
+		</reg32>
+		<reg32 offset="0x1b00" name="QUERY_ADDRESS_HIGH"/>
+		<reg32 offset="0x1b04" name="QUERY_ADDRESS_LOW"/>
+		<reg32 offset="0x1b08" name="QUERY_SEQUENCE"/>
+		<reg32 offset="0x1b0c" name="QUERY_GET">
+			<bitfield low="0" high="1" name="MODE">
+				<value value="0" name="WRITE"/>
+				<value value="3" name="WRITE_INTR_UNK1"/>
+			</bitfield>
+			<bitfield pos="20" name="INTR"/>
+			<bitfield pos="28" name="SHORT"/>
+		</reg32>
+		<reg32 offset="0x2608" name="TEX_CB_INDEX"/>
+		<reg32 offset="0x260c" name="UNK260c"/>
+	</stripe>
+</domain>
+
+<domain name="NVE4_COMPUTE_LAUNCH_DESC" size="0x100">
+	<reg32 offset="0x20" name="PROG_START">
+		<doc>Byte offset from CODE_ADDRESS.</doc>
+	</reg32>
+	<reg32 offset="0x30" name="12">
+		<bitfield high="31" low="16" name="BLOCKDIM_X"/>
+	</reg32>
+	<reg32 offset="0x34" name="GRIDDIM_YZ">
+		<bitfield high="15" low="0" name="Y"/>
+		<bitfield high="31" low="16" name="Z"/>
+	</reg32>
+	<reg32 offset="0x48" name="18">
+		<bitfield high="31" low="16" name="BLOCKDIM_X"/>
+	</reg32>
+	<reg32 offset="0x4c" name="BLOCKDIM_YZ">
+		<bitfield high="15" low="0" name="Y"/>
+		<bitfield high="31" low="16" name="Z"/>
+	</reg32>
+	<reg32 offset="0x74" name="CB_ADDRESS_LOW" length="16" stride="8"/>
+	<reg32 offset="0x78" name="CB_ADDRESS_HIGH" length="16" stride="8"/>
+</domain>
+
+</database>
