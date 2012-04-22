@@ -27,9 +27,9 @@
 
 <array name="PFIFO" offset="0x2000" stride="0x2000" length="1" variants="NVC0-">
 	<bitset name="nvc0_pfifo_intr" inline="yes">
-		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="0" name="INVALID_ENGINE"/> <!-- NVE4: poke engine id >6 to chan table -->
 		<bitfield pos="4" name="UNK4"/>
-		<bitfield pos="8" name="UNK8"/>
+		<bitfield pos="8" name="PLAYLIST"/>
 		<bitfield pos="16" name="UNK16"/>
 		<bitfield pos="23" name="UNK23"/>
 		<bitfield pos="24" name="UNK24"/>
@@ -83,6 +83,10 @@
 	</reg32>
 	<reg32 offset="0x528" name="INTR_EN_UNK1" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x530" name="INTR_UNK530" type="nvc0_pfifo_intr"/>
+	<reg32 offset="0x54c" name="PLAYLIST_INTR">
+		<value value="1" name="UNK1"/>
+		<value value="0x19" name="ENGINE_MISMATCH" variants="NVE4-"/>
+	</reg32>
 	<reg32 offset="0x59c" name="VM_FAULT_SOURCE">
 		<bitfield pos="0" name="PGRAPH"/>
 		<bitfield pos="3" name="PEEPHOLE"/>
