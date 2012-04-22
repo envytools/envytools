@@ -43,46 +43,23 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x41c" name="Y_COUNT"/>
 		<reg32 offset="0x700" name="CONST0"/>
 		<reg32 offset="0x704" name="CONST1"/>
+		<enum name="nve4_copy_swz" inline="yes">
+			<value value="0" name="SRC0"/>
+			<value value="1" name="SRC1"/>
+			<value value="2" name="SRC2"/>
+			<value value="3" name="SRC3"/>
+			<value value="4" name="CONST0"/>
+			<value value="5" name="CONST1"/>
+			<value value="6" name="ZERO"/>
+		</enum>
 		<reg32 offset="0x708" name="SWIZZLE">
-			<bitfield low="0" high="3" name="COMPONENT0">
-				<value value="0" name="SRC0"/>
-				<value value="1" name="SRC1"/>
-				<value value="2" name="SRC2"/>
-				<value value="3" name="SRC3"/>
-				<value value="4" name="CONST0"/>
-				<value value="5" name="CONST1"/>
-				<value value="6" name="ZERO"/>
-			</bitfield>
-			<bitfield low="4" high="7" name="COMPONENT1">
-				<value value="0" name="SRC0"/>
-				<value value="1" name="SRC1"/>
-				<value value="2" name="SRC2"/>
-				<value value="3" name="SRC3"/>
-				<value value="4" name="CONST0"/>
-				<value value="5" name="CONST1"/>
-				<value value="6" name="ZERO"/>
-			</bitfield>
-			<bitfield low="8" high="11" name="COMPONENT2">
-				<value value="0" name="SRC0"/>
-				<value value="1" name="SRC1"/>
-				<value value="2" name="SRC2"/>
-				<value value="3" name="SRC3"/>
-				<value value="4" name="CONST0"/>
-				<value value="5" name="CONST1"/>
-				<value value="6" name="ZERO"/>
-			</bitfield>
-			<bitfield low="12" high="15" name="COMPONENT3">
-				<value value="0" name="SRC0"/>
-				<value value="1" name="SRC1"/>
-				<value value="2" name="SRC2"/>
-				<value value="3" name="SRC3"/>
-				<value value="4" name="CONST0"/>
-				<value value="5" name="CONST1"/>
-				<value value="6" name="ZERO"/>
-			</bitfield>
-			<bitfield low="16" high="17" name="COMPONENT_SIZE"/>
-			<bitfield low="20" high="22" name="SRC_NUM_COMPONENTS"/>
-			<bitfield low="24" high="26" name="DST_NUM_COMPONENTS"/>
+			<bitfield low="0" high="3" name="COMPONENT0" type="nve4_copy_swz"/>
+			<bitfield low="4" high="7" name="COMPONENT1" type="nve4_copy_swz"/>
+			<bitfield low="8" high="11" name="COMPONENT2" type="nve4_copy_swz"/>
+			<bitfield low="12" high="15" name="COMPONENT3" type="nve4_copy_swz"/>
+			<bitfield low="16" high="17" name="COMPONENT_SIZE_M1"/>
+			<bitfield low="20" high="22" name="SRC_NUM_COMPONENTS_M1"/>
+			<bitfield low="24" high="26" name="DST_NUM_COMPONENTS_M1"/>
 		</reg32>
 		<reg32 offset="0x70c" name="DST_TILE_MODE"/>
 		<reg32 offset="0x710" name="DST_SIZE_X"/>
