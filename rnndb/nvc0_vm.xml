@@ -7,7 +7,9 @@
 	<value value="0x03" name="PEEPHOLE"/>
 	<value value="0x04" name="BAR1"/>
 	<value value="0x05" name="BAR3"/>
-	<value value="0x07" name="PFIFO"/>
+	<value value="0x07" name="PSUBFIFO0"/>
+	<value value="0x08" name="PSUBFIFO1"/>
+	<value value="0x09" name="PSUBFIFO2"/>
 	<value value="0x10" name="PBSP"/>
 	<value value="0x11" name="PPPP"/>
 	<value value="0x13" name="PCOUNTER"/>
