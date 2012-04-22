@@ -263,6 +263,50 @@
 	</reg32>
 
 	<reg32 offset="0x13c" name="INTR_HALT_MASK" type="nvc0_psubfifo_intr"/>
+
+	<bitset name="nvc0_psubfifo_intr" inline="yes">
+		<bitfield pos="3" name="ILLEGAL_MTHD"/>
+		<bitfield pos="4" name="ILLEGAL_CLASS"/>
+	</bitset>
+	<reg32 offset="0x148" name="COPY_INTR" type="nvc0_psubfifo_copy_intr" variants="NVE4-"/>
+	<reg32 offset="0x14c" name="COPY_INTR_EN" type="nvc0_psubfifo_copy_intr" variants="NVE4-"/>
+	<reg32 offset="0x150" name="COPY_MTHD" variants="NVE4-"/>
+	<reg32 offset="0x154" name="COPY_DATA" variants="NVE4-"/>
+
+	<array offset="0x200" length="1" stride="0x80" name="COPY_STATE" variants="NVE4-">
+		<reg32 offset="0x00" name="QUERY_ADDRESS_HIGH"/>
+		<reg32 offset="0x04" name="QUERY_ADDRESS_LOW"/>
+		<reg32 offset="0x08" name="QUERY_SEQUENCE"/>
+		<reg32 offset="0x0c" name="COND_ADDRESS_HIGH"/>
+		<reg32 offset="0x10" name="COND_ADDRESS_LOW"/>
+		<reg32 offset="0x14" name="COND_ENABLE"/>
+		<reg32 offset="0x18" name="UNK260"/>
+		<reg32 offset="0x1c" name="UNK264"/>
+		<reg32 offset="0x20" name="SRC_ADDRESS_HIGH"/>
+		<reg32 offset="0x24" name="SRC_ADDRESS_LOW"/>
+		<reg32 offset="0x28" name="DST_ADDRESS_HIGH"/>
+		<reg32 offset="0x2c" name="DST_ADDRESS_LOW"/>
+		<reg32 offset="0x30" name="SRC_PITCH"/>
+		<reg32 offset="0x34" name="DST_PITCH"/>
+		<reg32 offset="0x38" name="X_COUNT"/>
+		<reg32 offset="0x3c" name="Y_COUNT"/>
+		<reg32 offset="0x40" name="SRC_TILE_MODE"/>
+		<reg32 offset="0x44" name="SRC_SIZE_X"/>
+		<reg32 offset="0x48" name="SRC_SIZE_Y"/>
+		<reg32 offset="0x4c" name="SRC_SIZE_Z"/>
+		<reg32 offset="0x50" name="SRC_POS_Z"/>
+		<reg32 offset="0x54" name="SRC_POS_XY">
+		<reg32 offset="0x58" name="DST_TILE_MODE"/>
+		<reg32 offset="0x5c" name="DST_SIZE_X"/>
+		<reg32 offset="0x60" name="DST_SIZE_Y"/>
+		<reg32 offset="0x64" name="DST_SIZE_Z"/>
+		<reg32 offset="0x68" name="DST_POS_Z"/>
+		<reg32 offset="0x6c" name="DST_POS_XY">
+		<reg32 offset="0x70" name="EXEC"/>
+		<reg32 offset="0x74" name="CONST0"/>
+		<reg32 offset="0x78" name="CONST1"/>
+		<reg32 offset="0x7c" name="SWIZZLE">
+	</array>
 </array>
 
 </domain>

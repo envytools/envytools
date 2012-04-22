@@ -6,21 +6,17 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nvchipsets.xml"/>
 <import file="nv_object.xml"/>
 <domain name="NV01_SUBCHAN" bare="yes">
-	<stripe prefix="obj-class" variants="BLOB_NVC0_PCOPY1 BLOB_NVC0_PCOPY0">
+	<stripe prefix="obj-class" variants="NVE4_COPY">
 		<reg32 offset="0x100" name="NOP"/>
 		<reg32 offset="0x140" name="PM_TRIGGER"/>
-		<reg32 offset="0x200" name="MODE"/>
-			<doc>must be set before touching any other method. the only useful setting is 1.</doc>	<!-- it does? blob doesn't touch it at all -->
-		<reg32 offset="0x204" name="WATCHDOG"/>
-			<doc>if non-zero, PCOPY will raise an error if a single EXEC invocation takes more than this many main engine cycles</doc>
 		<reg32 offset="0x240" name="QUERY_ADDRESS_HIGH"/>
 		<reg32 offset="0x244" name="QUERY_ADDRESS_LOW"/>
 		<reg32 offset="0x248" name="QUERY_COUNTER"/>
-		<reg32 offset="0x250" name="UNK0x250"/>
-			<doc>sets targets modes</doc>
 		<reg32 offset="0x254" name="COND_ADDRESS_HIGH"/>
 		<reg32 offset="0x258" name="COND_ADDRESS_LOW"/>
 		<reg32 offset="0x25c" name="COND_MODE"/>
+		<reg32 offset="0x260" name="UNK260"/>
+		<reg32 offset="0x264" name="UNK264"/>
 		<reg32 offset="0x300" name="EXEC">
 			<bitfield pos="0" name="QUERY_WRITE"/>
 			<bitfield pos="1" name="UNK1"/>
