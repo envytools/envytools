@@ -81,6 +81,16 @@
 		<bitfield low="0" high="11" name="LEN"/>
 		<bitfield pos="20" name="UNK20"/> <!-- busy? -->
 	</reg32>
+	<reg32 offset="0x310" name="ENG_RAMFC_UNKF8" length="16">
+		<bitfield low="0" high-="7" name="UNK0"/>
+		<bitfield low="12" high-="15" name="UNK12"/>
+		<bitfield pos="28" name="UNK20"/>
+	</reg32>
+	<reg32 offset="0x350" name="ENG_RAMFC_UNKFC" length="16">
+		<bitfield low="0" high-="7" name="UNK0"/>
+		<bitfield low="12" high-="15" name="UNK12"/>
+		<bitfield pos="28" name="UNK20"/>
+	</reg32>
 	<reg32 offset="0x390" name="SUBFIFO_ENG_MASK" length="3" variants="NVE4-">
 		<doc>One for each SUBFIFO, has a mask of handled engines</doc>
 	</reg32>
@@ -88,6 +98,7 @@
 	<reg32 offset="0x530" name="INTR_UNK530" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x54c" name="PLAYLIST_INTR">
 		<value value="1" name="UNK1"/>
+		<value value="0xa" name="ENGINE_TIMEOUT"/>
 		<value value="0x19" name="ENGINE_MISMATCH" variants="NVE4-"/>
 	</reg32>
 	<reg32 offset="0x59c" name="VM_FAULT_SOURCE">
