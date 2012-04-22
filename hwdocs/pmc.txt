@@ -227,7 +227,10 @@ On NVC0+, the bits are:
   15: PBSP [fuc-bsp.txt]
   16: PTIMER [ptimer.txt]
   17: PVP [fuc-vp.txt]
+  18: PVENC [NVE4-] [fuc-venc.txt]
   20: PBFB [nvc0-pbfb.txt]
+  21: PCOPY[2] [NVE4-] [fuc-copy.txt]
+  26: ??? [NVE4-]
   27: ???
   28: PCOUNTER [pcounter.txt]
   29: PFFB [nvc0-pffb.txt]
