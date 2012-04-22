@@ -67,6 +67,7 @@
 		<bitfield low="0" high="11" name="LEN"/>
 		<bitfield pos="20" name="UNK20"/> <!-- busy? -->
 	</reg32>
+	<reg32 offset="0x528" name="INTR_EN_UNK1" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x59c" name="VM_FAULT_SOURCE">
 		<bitfield pos="0" name="PGRAPH"/>
 		<bitfield pos="3" name="PEEPHOLE"/>
