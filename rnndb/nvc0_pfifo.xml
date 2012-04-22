@@ -36,13 +36,13 @@
 	</bitset>
 	<reg32 offset="0x100" name="INTR" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x140" name="INTR_EN" type="nvc0_pfifo_intr"/>
-	<reg32 offset="0x200" name="ENABLE"/>
-	<reg32 offset="0x204" name="SUBFIFO_ENABLE">
+	<reg32 offset="0x200" name="ENABLE" variants="NVC0:NVE4"/>
+	<reg32 offset="0x204" name="SUBFIFO_ENABLE" variants="NVC0:NVE4">
 		<bitfield pos="0" name="0"/>
 		<bitfield pos="1" name="1"/>
 		<bitfield pos="2" name="2"/>
 	</reg32>
-	<reg32 offset="0x208" name="ENG_SUBFIFO_MASK" length="6">
+	<reg32 offset="0x208" name="ENG_SUBFIFO_MASK" length="6" variants="NVC0:NVE4">
 		<doc>If bit x of reg y is 0, then engine y can be used by subfifo x,
 		if it's 1 then it cannot.</doc>
 	</reg32>
@@ -110,7 +110,7 @@
 			<bitfield low="24" high="28" name="GPCID"/>
 		</reg32>
 	</array>
-	<array offset="0x1000" name="CHAN_TABLE" length="128" stride="8">
+	<array offset="0x1000" name="CHAN_TABLE" length="128" stride="8" variants="NVC0:NVE4">
 		<reg32 offset="0" name="CHAN">
 			<bitfield low="0" high="29" name="INST" type="nv50_channel"/>
 			<bitfield pos="30" name="UNK30"/>
