@@ -55,6 +55,7 @@
 			<bitfield pos="4" name="PMEDIA" variants="NV03-"/>
 			<bitfield pos="5" name="PCOPY0" variants="NVC0-"/>
 			<bitfield pos="6" name="PCOPY1" variants="NVC0-"/>
+			<bitfield pos="7" name="PCOPY2" variants="NVE4-"/>
 			<bitfield pos="8" name="PFIFO" />
 			<bitfield pos="9" name="UNK9" variants="NVA3-" />
 			<bitfield pos="11" name="UNK11" variants="NVA3:NVC0" />
@@ -68,10 +69,12 @@
 			<bitfield pos="16" name="PRM" variants="NV01"/>
 			<bitfield pos="16" name="PVIDEO" variants="NV03:NV50"/>
 			<bitfield pos="16" name="UNK16" variants="NVA3:NVC0" />
+			<bitfield pos="16" name="PVENC" variants="NVE4-" />
 			<bitfield pos="17" name="PVP" variants="NV40-"/>
 			<bitfield pos="18" name="PDAEMON" variants="NVA3:NVC0"/>
 			<bitfield pos="18" name="PTHERM" variants="NVC0-"/>
 			<bitfield pos="19" name="UNK19" variants="NVA3:NVC0" />
+			<bitfield pos="19" name="UNK19" variants="NVD9-" />
 			<bitfield pos="20" name="PTIMER" />
 			<bitfield pos="21" name="PNVIO" variants="NV50-"/>
 			<bitfield pos="22" name="PCOPY" variants="NVA3:NVC0"/>

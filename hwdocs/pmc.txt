@@ -393,13 +393,16 @@ For NVC0+:
 4: PMEDIA [pmedia.txt]
 5: PCOPY[0] [fuc-copy.txt] - has separate UNK1 line
 6: PCOPY[1] [fuc-copy.txt] - has separate UNK1 line
+7: PCOPY[2] [NVE4-] [fuc-copy.txt] - has separate UNK1 line
 8: PFIFO [nvc0-pfifo.txt]
 9: ???
 12: PGRAPH [nvc0-pgraph.txt] - has separate UNK1 line
 13: PBFB [nvc0-pbfb.txt]
 15: PBSP [fuc-bsp.txt] - has separate UNK1 line
+16: PVENC [NVE4-] [fuc-venc.txt] - has separate UNK1 line
 17: PVP [fuc-vp.txt] - has separate UNK1 line
 18: PTHERM [ptherm.txt]
+19: ??? [NVD9-]
 20: PTIMER [ptimer.txt]
 21: PNVIO's GPIO interrupts [pnvio.txt]
 23: ???
