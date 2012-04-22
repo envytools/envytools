@@ -81,6 +81,9 @@
 		<bitfield low="0" high="11" name="LEN"/>
 		<bitfield pos="20" name="UNK20"/> <!-- busy? -->
 	</reg32>
+	<reg32 offset="0x390" name="SUBFIFO_ENG_MASK" length="3" variants="NVE4-">
+		<doc>One for each SUBFIFO, has a mask of handled engines</doc>
+	</reg32>
 	<reg32 offset="0x528" name="INTR_EN_UNK1" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x530" name="INTR_UNK530" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x54c" name="PLAYLIST_INTR">
