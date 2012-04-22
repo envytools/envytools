@@ -9,10 +9,10 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<group name="nva3_pcopy">
-	<use-group name="nv98_fucbase"/>
-	<use-group name="nv98_fuc_memif"/>
-	<array offset="0x800" name="COPY" stride="0x100" length="1">
+<group name="nva3_pcopy_base">
+	<reg32 offset="0x640" name="UNK640"/>
+	<reg32 offset="0x650" name="UNK650" variants="NVE4-"/>
+	<array offset="0x800" name="COPY" stride="0x200" length="1">
 		<reg32 offset="0x00" name="CTRL">
 			<bitfield pos="0" name="TRIGGER"/>
 			<bitfield low="1" high="5" name="UNK1"/>
@@ -39,6 +39,8 @@
 				<value value="1" name="64"/>
 			</bitfield>
 			<bitfield pos="19" name="UNK19"/>
+			<bitfield pos="20" name="UNK20"/>
+			<bitfield low="21" high="23" name="UNK21" variants="NVE4-"/>
 			<bitfield low="26" high="28" name="SRC_PORT"/>
 			<bitfield low="29" high="31" name="DST_PORT"/>
 		</reg32>
@@ -135,16 +137,45 @@
 			<bitfield low="24" high="31" name="3" type="nva3_pcopy_swizzle"/>
 		</reg32>
 		<reg32 offset="0x44" name="SWIZZLE_CONST" length="2"/>
-		<reg32 offset="0x4c" name="UNK4C"/>
+		<reg32 offset="0x4c" name="UNK4C" variants="NVA3:NVE4"/>
+		<reg32 offset="0x4c" name="UNK4C" variants="NVE4-"/>
+		<reg32 offset="0x50" name="UNK50" length="3" variants="NVE4-"/>
+		<reg32 offset="0x7c" name="UNK7C" variants="NVA3:NVE4"/>
+		
+		<bitset name="nva3_copy_intr" inline="yes">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="1" name="UNK1"/>
+			<bitfield pos="2" name="CTRL" variants="NVE4-"/>
+		</bitset>
+		<reg32 offset="0x104" name="INTR_EN" type="nva3_copy_intr"/>
+		<reg32 offset="0x108" name="INTR" type="nva3_copy_intr"/>
 	</array>
 </group>
 
 <array name="PCOPY" offset="0x104000" stride="0x1000" length="1" variants="NVA3:NVC0">
-	<use-group name="nva3_pcopy"/>
+	<use-group name="nv98_fucbase"/>
+	<use-group name="nv98_fuc_memif"/>
+	<use-group name="nva3_pcopy_base"/>
 </array>
 
 <array name="PCOPY" offset="0x104000" stride="0x1000" length="2" variants="NVC0:NVE4">
-	<use-group name="nva3_pcopy"/>
+	<use-group name="nv98_fucbase"/>
+	<use-group name="nv98_fuc_memif"/>
+	<use-group name="nva3_pcopy_base"/>
+</array>
+
+<array name="PCOPY" offset="0x104000" stride="0x1000" length="3" variants="NVE4-">
+	<use-group name="nva3_pcopy_base"/>
+	<array offset="0xf00" name="CTRL" length="1" stride="0x20">
+		<reg32 offset="0x00" name="UNK00"/>
+		<reg32 offset="0x04" name="UNK04"/>
+		<reg32 offset="0x08" name="UNK08"/>
+		<reg32 offset="0x0c" name="UNK0C"/>
+		<reg32 offset="0x10" name="UNK10"/>
+		<reg32 offset="0x14" name="UNK14"/>
+		<reg32 offset="0x18" name="UNK18"/>
+		<reg32 offset="0x1c" name="UNK1C"/>
+	</array>
 </array>
 
 </domain>

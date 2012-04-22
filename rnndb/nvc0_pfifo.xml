@@ -264,7 +264,7 @@
 
 	<reg32 offset="0x13c" name="INTR_HALT_MASK" type="nvc0_psubfifo_intr"/>
 
-	<bitset name="nvc0_psubfifo_intr" inline="yes">
+	<bitset name="nvc0_psubfifo_copy_intr" inline="yes">
 		<bitfield pos="3" name="ILLEGAL_MTHD"/>
 		<bitfield pos="4" name="ILLEGAL_CLASS"/>
 	</bitset>
@@ -273,6 +273,7 @@
 	<reg32 offset="0x150" name="COPY_MTHD" variants="NVE4-"/>
 	<reg32 offset="0x154" name="COPY_DATA" variants="NVE4-"/>
 
+	<!-- saved in RAMFC, offset 0x100 -->
 	<array offset="0x200" length="1" stride="0x80" name="COPY_STATE" variants="NVE4-">
 		<reg32 offset="0x00" name="QUERY_ADDRESS_HIGH"/>
 		<reg32 offset="0x04" name="QUERY_ADDRESS_LOW"/>
