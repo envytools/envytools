@@ -111,6 +111,7 @@
 			<bitfield low="24" high="28" name="GPCID"/>
 		</reg32>
 	</array>
+	<reg32 offset="0xa00" name="INTR30_UNK"/>
 	<array offset="0x1000" name="CHAN_TABLE" length="128" stride="8" variants="NVC0:NVE4">
 		<reg32 offset="0" name="CHAN">
 			<bitfield low="0" high="29" name="INST" type="nv50_channel"/>
