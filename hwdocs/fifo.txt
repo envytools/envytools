@@ -67,6 +67,8 @@ idx|   name   |   cards   | description
 4,5| PCOPY    | NVA3:.... | point A to point B. Comes in two copies on NVC0+.
    |          |           | [see fuc-fifo.txt, fuc-copy.txt]
 ------------------------------------------------------------------------------
+-/6| PVENC    | NVE4:.... | fuc-microcoded H.264 encoding engine [fuc-venc.txt]
+------------------------------------------------------------------------------
 idx is the FIFO engine id. The first number is the id for pre-nvc0 cards, the
 second is for nvc0+ cards.
 

@@ -17,12 +17,8 @@
 	<value value="3" name="PBSP"/>
 	<value value="4" name="PCOPY0"/>
 	<value value="5" name="PCOPY1"/>
-	<value value="0x1f" name="NONE"/>
-</enum>
-
-<enum name="nve4_pfifo_engine" inline="yes">
-	<value value="0" name="PGRAPH"/>
-	<!-- ... -->
+	<value value="6" name="PVENC"/>
+	<value value="0x1f" name="NONE" variants="NVC0:NVE4"/>
 </enum>
 
 <array name="PFIFO" offset="0x2000" stride="0x2000" length="1" variants="NVC0-">
@@ -63,7 +59,7 @@
 	<reg32 offset="0x274" name="PLAYLIST_WR_LEN">
 		<bitfield low="0" high="11" name="LEN"/>
 		<bitfield low="20" high="24" name="UNK20" variants="NVC0:NVE4"/>
-		<bitfield low="20" high="23" name="ENG" variants="NVE4-" type="nve4_pfifo_engine"/>
+		<bitfield low="20" high="23" name="ENG" variants="NVE4-" type="nvc0_pfifo_engine"/>
 	</reg32>
 	<reg32 offset="0x278" name="PLAYLIST_RD" variants="NVC0:NVE4">
 		<bitfield high="27" low="0" name="ADDRESS" shr="12"/>
