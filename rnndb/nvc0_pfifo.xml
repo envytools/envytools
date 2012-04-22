@@ -93,7 +93,7 @@
 	<reg32 offset="0x528" name="INTR_EN_UNK1" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x530" name="INTR_UNK530" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x54c" name="PLAYLIST_INTR">
-		<value value="1" name="UNK1"/>
+		<value value="1" name="INACTIVE_CHANNEL"/>
 		<value value="0xa" name="ENGINE_TIMEOUT"/>
 		<value value="0x19" name="ENGINE_MISMATCH" variants="NVE4-"/>
 	</reg32>
@@ -118,7 +118,7 @@
 		<bitfield pos="5" name="PCOPY1"/>
 	</reg32>
 	<reg32 offset="0x634" name="KICK_CHID"/> <!-- wtf is thisexactly? -->
-	<reg32 offset="0x7d0" name="ENG_CH" length="6">
+	<reg32 offset="0x7d0" name="ENG_CH" length="6" variants="NVC0:NVE4">
 		<bitfield low="0" high="6" name="CHID"/>
 		<bitfield pos="8" name="ACTIVE"/>
 	</reg32>
@@ -258,13 +258,16 @@
 	<reg32 offset="0x118" name="CMD_SHADOW"/>
 
 	<reg32 offset="0x120" name="CH">
-		<bitfield low="0" high="6" name="CHID"/>
-		<bitfield pos="8" name="ACTIVE"/>
+		<bitfield low="0" high="6" name="CHID" variants="NVC0:NVE4"/>
+		<bitfield pos="8" name="ACTIVE" variants="NVC0:NVE4"/>
+		<bitfield low="0" high="11" name="CHID" variants="NVE4-"/>
+		<bitfield pos="13" name="ACTIVE" variants="NVE4-"/>
 	</reg32>
 
 	<reg32 offset="0x13c" name="INTR_HALT_MASK" type="nvc0_psubfifo_intr"/>
 
 	<bitset name="nvc0_psubfifo_copy_intr" inline="yes">
+		<bitfield pos="2" name="ILLEGAL_VALUE"/>
 		<bitfield pos="3" name="ILLEGAL_MTHD"/>
 		<bitfield pos="4" name="ILLEGAL_CLASS"/>
 	</bitset>
