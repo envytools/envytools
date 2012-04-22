@@ -327,6 +327,8 @@ int main(int argc, char **argv) {
 								cc->arch = 5;
 								break;
 							case 0xc0:
+							case 0xd0:
+							case 0xe0:
 								cc->arch = 6;
 								break;
 						}
