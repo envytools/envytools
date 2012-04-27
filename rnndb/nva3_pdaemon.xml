@@ -59,6 +59,14 @@
 		</bitfield>
 		<!-- XXX: many more bits... -->
 	</reg32>
+	<bitset name="nva3_pdaemon_intr13_0" inline="yes">
+	</bitset>
+	<bitset name="nva3_pdaemon_intr13_1" inline="yes">
+	</bitset>
+	<reg32 offset="0x7cc" name="INTR13_0" type="nva3_pdaemon_intr13_0"/>
+	<reg32 offset="0x7d0" name="INTR13_1" type="nva3_pdaemon_intr13_1"/>
+	<reg32 offset="0x7d4" name="INTR13_0_EN" type="nva3_pdaemon_intr13_0"/>
+	<reg32 offset="0x7d8" name="INTR13_1_EN" type="nva3_pdaemon_intr13_1"/>
 </array>
 
 </domain>
