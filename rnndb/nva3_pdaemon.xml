@@ -43,8 +43,8 @@
 		<bitfield pos="0" name="0"/>
 	</reg32>
 	<use-group name="nv98_fuc_memif"/>
-	<reg32 offset="0x580" name="TOKEN_UNK580" length="16">
-		<doc>Write tokens here, write 0 when done</doc>
+	<reg32 offset="0x580" name="MUTEX_TOKEN" length="16">
+		<doc>Write a token here to lock, read and check if equal to see if lock succeeded, write 0 to unlock. This reg will refuse non-0 writes if already non-0.</doc>
 	</reg32>
 	<reg32 offset="0x5c0" name="PTIMER_UNSHIFTED_LOW">
 		<doc>Returns PTIMER time, but without the 5-bit left shift.</doc>
