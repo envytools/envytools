@@ -99,6 +99,7 @@
 		<bitfield pos="3" name="COUNTER1_ALL"/>
 		<bitfield pos="4" name="COUNTER0_ALL"/>
 	</reg32>
+	<reg32 offset="0x5d0" name="DSCRATCH" length="4"/>
 	<use-group name="nv98_fuc_memif"/>
 	<reg32 offset="0x680" name="INTR14" type="nva3_pdaemon_intr14"/>
 	<reg32 offset="0x684" name="INTR14_EN" type="nva3_pdaemon_intr14"/>
