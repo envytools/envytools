@@ -299,13 +299,13 @@
 		<reg32 offset="0x48" name="SRC_SIZE_Y"/>
 		<reg32 offset="0x4c" name="SRC_SIZE_Z"/>
 		<reg32 offset="0x50" name="SRC_POS_Z"/>
-		<reg32 offset="0x54" name="SRC_POS_XY">
+		<reg32 offset="0x54" name="SRC_POS_XY"/>
 		<reg32 offset="0x58" name="DST_TILE_MODE"/>
 		<reg32 offset="0x5c" name="DST_SIZE_X"/>
 		<reg32 offset="0x60" name="DST_SIZE_Y"/>
 		<reg32 offset="0x64" name="DST_SIZE_Z"/>
 		<reg32 offset="0x68" name="DST_POS_Z"/>
-		<reg32 offset="0x6c" name="DST_POS_XY">
+		<reg32 offset="0x6c" name="DST_POS_XY"/>
 		<reg32 offset="0x70" name="EXEC"/>
 		<reg32 offset="0x74" name="CONST0"/>
 		<reg32 offset="0x78" name="CONST1"/>
