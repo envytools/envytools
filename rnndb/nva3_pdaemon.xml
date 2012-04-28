@@ -16,6 +16,7 @@
 		<bitfield pos="9" name="VM_FAULT" variants="NVA3:NVC0"/>
 		<bitfield pos="10" name="PMC_INT"/>
 		<bitfield pos="11" name="INTR11"/> <!-- 688 -->
+		<bitfield pos="12" name="THERM"/> <!-- ? -->
 		<bitfield pos="13" name="SIGNAL"/> <!-- 7cc+ -->
 		<bitfield pos="14" name="INTR14"/> <!-- 680 -->
 	</bitset>
