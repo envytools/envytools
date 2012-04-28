@@ -56,7 +56,32 @@
 	<reg32 offset="0x4d8" name="ISCRATCH_INTR_EN">
 		<bitfield pos="0" name="0"/>
 	</reg32>
-	<use-group name="nv98_fuc_memif"/>
+	<bitset name="nva3_pdaemon_counter_signals" inline="yes">
+		<bitfield pos="4" name="PBSP_IDLE"/>
+		<bitfield pos="5" name="PVP_IDLE"/>
+		<bitfield pos="6" name="PPPP_IDLE"/>
+		<bitfield pos="19" name="PCOPY_IDLE"/>
+	</bitset>
+	<reg32 offset="0x500" name="COUNTER_SIGNALS" type="nva3_pdaemon_counter_signals"/>
+	<reg32 offset="0x504" name="COUNTER_MASK" stride="0x10" length="4" type="nva3_pdaemon_counter_signals" variants="NVA3:NVC0"/>
+	<reg32 offset="0x508" name="COUNTER_COUNT" stride="0x10" length="4" variants="NVA3:NVC0">
+		<bitfield low="0" high="30" name="COUNT"/>
+		<bitfield pos="31" name="CLEAR_TRIGGET"/>
+	</reg32>
+	<reg32 offset="0x50c" name="COUNTER_MODE" stride="0x10" length="4" variants="NVA3:NVC0">
+		<bitfield pos="0" name="INCR_IF_ALL"/>
+		<bitfield pos="1" name="INCR_IF_NOT_ALL"/>
+	</reg32>
+	<reg32 offset="0x504" name="COUNTER_MASK" stride="0x10" length="8" type="nva3_pdaemon_counter_signals" variants="NVC0-"/>
+	<reg32 offset="0x508" name="COUNTER_COUNT" stride="0x10" length="8" variants="NVC0-">
+		<bitfield low="0" high="30" name="COUNT"/>
+		<bitfield pos="31" name="CLEAR_TRIGGET"/>
+	</reg32>
+	<reg32 offset="0x50c" name="COUNTER_MODE" stride="0x10" length="8" variants="NVC0-">
+		<bitfield pos="0" name="INCR_IF_ALL"/>
+		<bitfield pos="1" name="INCR_IF_NOT_ALL"/>
+		<bitfield pos="2" name="UNK4" variants="NVD9-"/>
+	</reg32>
 	<reg32 offset="0x580" name="MUTEX_TOKEN" length="16">
 		<doc>Write a token here to lock, read and check if equal to see if lock succeeded, write 0 to unlock. This reg will refuse non-0 writes if already non-0.</doc>
 	</reg32>
@@ -67,6 +92,14 @@
 	<bitset name="nva3_pdaemon_intr14" inline="yes">
 		<bitfield pos="8" name="UNK8"/>
 	</bitset>
+	<reg32 offset="0x5c8" name="UNK5C8">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="1" name="COUNTER3_ALL"/>
+		<bitfield pos="2" name="COUNTER2_ALL"/>
+		<bitfield pos="3" name="COUNTER1_ALL"/>
+		<bitfield pos="4" name="COUNTER0_ALL"/>
+	</reg32>
+	<use-group name="nv98_fuc_memif"/>
 	<reg32 offset="0x680" name="INTR14" type="nva3_pdaemon_intr14"/>
 	<reg32 offset="0x684" name="INTR14_EN" type="nva3_pdaemon_intr14"/>
 	<reg32 offset="0x688" name="INTR11">
