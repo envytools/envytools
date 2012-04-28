@@ -50,6 +50,11 @@
 		<doc>Returns PTIMER time, but without the 5-bit left shift.</doc>
 	</reg32>
 	<reg32 offset="0x5c4" name="PTIMER_UNSHIFTED_HIGH"/>
+	<bitset name="nva3_pdaemon_intr14" inline="yes">
+		<bitfield pos="8" name="UNK8"/>
+	</bitset>
+	<reg32 offset="0x680" name="INTR14" type="nva3_pdaemon_intr14"/>
+	<reg32 offset="0x684" name="INTR14_EN" type="nva3_pdaemon_intr14"/>
 	<reg32 offset="0x688" name="INTR11">
 		<bitfield pos="0" name="ISCRATCH">
 			<doc>Consult 4d4</doc>
