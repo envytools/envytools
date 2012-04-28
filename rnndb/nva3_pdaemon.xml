@@ -117,8 +117,8 @@
 		</bitfield>
 		<!-- XXX: many more bits... -->
 	</reg32>
-	<reg32 offset="0x7a0" name="MMIO_ADDR" variants="NVA3:NVC0"/>
-	<reg32 offset="0x7a0" name="MMIO_ADDR" variants="NVC0-">
+	<reg32 offset="0x7a0" name="MMIO_ADDR" variants="NVA3:NVD9"/>
+	<reg32 offset="0x7a0" name="MMIO_ADDR" variants="NVD9-">
 		<bitfield low="0" high="25" name="ADDR"/>
 		<bitfield pos="27" name="ACCESS_POINT">
 			<value value="0" name="ROOT"/>
@@ -138,13 +138,15 @@
 		<bitfield pos="14" name="FAULT"/>
 		<bitfield pos="16" name="TRIGGER"/>
 	</reg32>
-	<reg32 offset="0x7b0" name="MMIO_ERR" variants="NVA3:NVC0">
+	<reg32 offset="0x7b0" name="MMIO_ERR" variants="NVA3:NVD9">
 		<bitfield pos="0" name="TIMEOUT"/>
 		<bitfield pos="1" name="CMD_WHILE_BUSY"/>
 		<bitfield pos="2" name="WRITE"/>
-		<bitfield low="3" high="31" name="ADDR"/>
+		<bitfield low="3" high="31" name="ADDR" variants="NVA3:NVC0"/>
+		<bitfield low="3" high="30" name="ADDR" variants="NVC0:NVD9"/>
+		<bitfield pos="31" name="FAULT" variants="NVC0:NVD9"/>
 	</reg32>
-	<reg32 offset="0x7b0" name="MMIO_ERR" variants="NVC0-">
+	<reg32 offset="0x7b0" name="MMIO_ERR" variants="NVD9-">
 		<bitfield pos="0" name="TIMEOUT_ROOT"/>
 		<bitfield pos="1" name="TIMEOUT_IBUS"/>
 		<bitfield pos="2" name="CMD_WHILE_BUSY"/>
