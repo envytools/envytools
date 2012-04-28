@@ -72,6 +72,7 @@
 		</bitfield>
 		<!-- XXX: many more bits... -->
 	</reg32>
+	<reg32 offset="0x7c0" name="UNK7C0"/>
 	<bitset name="nva3_pdaemon_signal" inline="yes">
 	</bitset>
 	<reg32 offset="0x7c4" name="SIGNAL_STATUS" type="nva3_pdaemon_signal"/>
@@ -79,6 +80,8 @@
 	<reg32 offset="0x7d0" name="SIGNAL_FALL_INTR" type="nva3_pdaemon_signal"/>
 	<reg32 offset="0x7d4" name="SIGNAL_RISE_INTR_EN" type="nva3_pdaemon_signal"/>
 	<reg32 offset="0x7d8" name="SIGNAL_FALL_INTR_EN" type="nva3_pdaemon_signal"/>
+	<reg32 offset="0x7e0" name="UNK7C0_SET"/>
+	<reg32 offset="0x7e4" name="UNK7C0_CLEAR"/>
 </array>
 
 </domain>
