@@ -13,6 +13,11 @@
 		<bitfield low="16" high="21" name="UNK21"/>
 		<bitfield low="0" high="15" name="RAW_VALUE"/>
 	</reg32>
+	<reg32 offset="0x0fc" name="INTR_DISPATCH" variants="NVA3-">
+		<doc>One bit per interrupt, 0 selects delivery to PMC line 19, 1 selects delivery
+		to PDAEMON fµc interrupt 12</doc>
+	</reg32>
+	<reg32 offset="0x100" name="INTR"/>
 	<reg32 offset="0x400" name="SENSOR_CALIBRATED" variants="NV84-"/>
 </group>
 
