@@ -163,6 +163,27 @@
 		<bitfield pos="0" name="ERR"/>
 	</reg32>
 	<bitset name="nva3_pdaemon_signal" inline="yes">
+		<bitfield pos="8" name="I2C_3_SCL"/>
+		<bitfield pos="9" name="I2C_3_SDA"/>
+
+		<bitfield pos="12" name="I2C_0_SCL"/>
+		<bitfield pos="13" name="I2C_0_SDA"/>
+		<bitfield pos="14" name="I2C_1_SCL"/>
+		<bitfield pos="15" name="I2C_1_SDA"/>
+		<bitfield pos="16" name="I2C_2_SCL"/>
+		<bitfield pos="17" name="I2C_2_SDA"/>
+		<bitfield pos="18" name="I2C_4_SCL"/>
+		<bitfield pos="19" name="I2C_4_SDA"/>
+		<bitfield pos="20" name="I2C_5_SCL"/>
+		<bitfield pos="21" name="I2C_5_SDA"/>
+		<bitfield pos="22" name="I2C_6_SCL"/>
+		<bitfield pos="23" name="I2C_6_SDA"/>
+		<bitfield pos="24" name="I2C_7_SCL"/>
+		<bitfield pos="25" name="I2C_7_SDA"/>
+		<bitfield pos="26" name="I2C_8_SCL"/>
+		<bitfield pos="27" name="I2C_8_SDA"/>
+		<bitfield pos="28" name="I2C_9_SCL"/>
+		<bitfield pos="29" name="I2C_9_SDA"/>
 	</bitset>
 	<bitset name="nva3_pdaemon_signal2" inline="yes">
 	</bitset>
