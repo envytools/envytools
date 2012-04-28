@@ -20,6 +20,10 @@
 		<bitfield pos="14" name="INTR14"/> <!-- 680 -->
 	</bitset>
 	<use-group name="nv98_fucbase"/>
+	<reg32 offset="0x47c" name="CHANNEL_SETUP">
+		<bitfield name="CHAN" high="29" low="0" type="nv50_channel"/>
+		<bitfield name="VALID" pos="30"/>
+	</reg32>
 	<reg32 offset="0x488" name="TOKEN_ALLOC">
 		<doc>Valid tokens are 8-0xfe. Read allocates a free token and marks it as used.</doc>
 	</reg32>
