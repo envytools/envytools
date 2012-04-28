@@ -17,7 +17,8 @@
 		<doc>One bit per interrupt, 0 selects delivery to PMC line 19, 1 selects delivery
 		to PDAEMON fµc interrupt 12</doc>
 	</reg32>
-	<reg32 offset="0x100" name="INTR"/>
+	<reg32 offset="0x100" name="INTR"/> <!-- XXX: has something to do with PBUS interrupt 16? -->
+	<reg32 offset="0x134" name="INTR_EN" variants="NVA3-"/>
 	<reg32 offset="0x400" name="SENSOR_CALIBRATED" variants="NV84-"/>
 </group>
 
