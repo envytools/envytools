@@ -6,6 +6,7 @@
 
 <import file="nvchipsets.xml" />
 <import file="nv98_fuc.xml" />
+<import file="nv50_ptherm.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
@@ -89,6 +90,9 @@
 	<reg32 offset="0x7f0" name="SIGNAL2_FALL_INTR" type="nva3_pdaemon_signal" variants="NVC0-"/>
 	<reg32 offset="0x7f4" name="SIGNAL2_RISE_INTR_EN" type="nva3_pdaemon_signal" variants="NVC0-"/>
 	<reg32 offset="0x7f8" name="SIGNAL2_FALL_INTR_EN" type="nva3_pdaemon_signal" variants="NVC0-"/>
+	<array offset="0x800" name="THERM" stride="0x700" length="1" variants="NVA3:NVD9">
+		<use-group name="nv50_therm"/>
+	</array>
 </array>
 
 </domain>
