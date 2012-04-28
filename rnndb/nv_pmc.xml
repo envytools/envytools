@@ -73,7 +73,7 @@
 			<bitfield pos="17" name="PVP" variants="NV40-"/>
 			<bitfield pos="18" name="PDAEMON" variants="NVA3:NVC0"/>
 			<bitfield pos="18" name="PTHERM" variants="NVC0-"/>
-			<bitfield pos="19" name="UNK19" variants="NVA3:NVC0" />
+			<bitfield pos="19" name="PTHERM" variants="NVA3:NVC0" />
 			<bitfield pos="19" name="UNK19" variants="NVD9-" />
 			<bitfield pos="20" name="PTIMER" />
 			<bitfield pos="21" name="PNVIO" variants="NV50-"/>

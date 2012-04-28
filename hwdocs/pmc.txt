@@ -375,7 +375,7 @@ For NV50:NVC0:
 16: ??? [NVA3?-]
 17: PVP [vp1.txt, vp2.txt, fuc-vp.txt] [XXX: check this]
 18: PDAEMON [pdaemon.txt] [NVA3-]
-19: ??? [NVA3?-]
+19: PTHERM [ptherm.txt]
 20: PTIMER [ptimer.txt]
 21: PNVIO's GPIO interrupts [pnvio.txt]
 22: PCOPY [fuc-copy.txt]
