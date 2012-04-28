@@ -74,6 +74,9 @@
 		<bitfield pos="4" name="MMIO">
 			<doc>Consult 7b4</doc>
 		</bitfield>
+		<bitfield pos="5" name="UNK5">
+			<doc>Consult 69c</doc>
+		</bitfield>
 		<!-- XXX: many more bits... -->
 	</reg32>
 	<reg32 offset="0x7a0" name="MMIO_ADDR" variants="NVA3:NVC0"/>
