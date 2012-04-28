@@ -162,18 +162,20 @@
 	<reg32 offset="0x7b8" name="MMIO_INTR_EN">
 		<bitfield pos="0" name="ERR"/>
 	</reg32>
-	<reg32 offset="0x7c0" name="UNK7C0"/>
 	<bitset name="nva3_pdaemon_signal" inline="yes">
 	</bitset>
 	<bitset name="nva3_pdaemon_signal2" inline="yes">
 	</bitset>
+	<reg32 offset="0x7c0" name="SIGOUT" type="nva3_pdaemon_signal"/>
 	<reg32 offset="0x7c4" name="SIGNAL_STATUS" type="nva3_pdaemon_signal"/>
+	<reg32 offset="0x7c8" name="UNK7C8"/>
 	<reg32 offset="0x7cc" name="SIGNAL_RISE_INTR" type="nva3_pdaemon_signal"/>
 	<reg32 offset="0x7d0" name="SIGNAL_FALL_INTR" type="nva3_pdaemon_signal"/>
 	<reg32 offset="0x7d4" name="SIGNAL_RISE_INTR_EN" type="nva3_pdaemon_signal"/>
 	<reg32 offset="0x7d8" name="SIGNAL_FALL_INTR_EN" type="nva3_pdaemon_signal"/>
-	<reg32 offset="0x7e0" name="UNK7C0_SET"/>
-	<reg32 offset="0x7e4" name="UNK7C0_CLEAR"/>
+
+	<reg32 offset="0x7e0" name="SIGOUT_SET" type="nva3_pdaemon_signal"/>
+	<reg32 offset="0x7e4" name="SIGOUT_CLEAR" type="nva3_pdaemon_signal"/>
 	<reg32 offset="0x7e8" name="SIGNAL2_STATUS" type="nva3_pdaemon_signal" variants="NVC0-"/>
 	<reg32 offset="0x7ec" name="SIGNAL2_RISE_INTR" type="nva3_pdaemon_signal" variants="NVC0-"/>
 	<reg32 offset="0x7f0" name="SIGNAL2_FALL_INTR" type="nva3_pdaemon_signal" variants="NVC0-"/>
