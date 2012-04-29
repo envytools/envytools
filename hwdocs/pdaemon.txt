@@ -1,6 +1,25 @@
-= PDAEMON =
+TOC
+
+0. Introduction
+1. fµc parameters
+2. IO space
+3. Host <-> PDAEMON communication
+3.1. Submitting commands to PDAEMON: FIFO
+3.2. Submitting commands to host: RFIFO
+3.3. Interrupting scratch register: ISCRATCH
+3.4. Scratch registers: DSCRATCH
+4. Counters
+5. Accessing the whole MMIO range
+
+
+= Introduction =
 
 PDAEMON is a fuc-engine that got introduced on nva3.
+
+[XXX: add a proper introduction]
+
+
+= fµc parameters =
 
 Present on:
 	d0: NVA3:NVC0
@@ -43,24 +62,47 @@ Version 4 unknown bits: 27, 29, 30, 31
 
 [XXX: describe PDAEMON]
 
-XXX: Add a proper introduction
 
-== IO space ==
+= IO space =
 
 On nva3-d9, IO-space addresses are indexed.
 However, nvd9+ IO-space addresses aren't.
 
 XXX: Be less concise
 
-== Host <-> PDAEMON communication: FIFO/RFIFO ==
+
+= Host <-> PDAEMON communication =
+
+There are 4 PDAEMON-specific channels that can be used for communication
+between the host and PDAEMON: FIFO, RFIFO, ISCRATCH, DSCRATCH.
+
+
+== Submitting commands to PDAEMON: FIFO ==
 
 XXX: TODO
 
-== Counters ==
+
+== Submitting commands to host: RFIFO ==
 
 XXX: TODO
 
-== Accessing the whole MMIO range ==
+
+== Interrupting scratch register: ISCRATCH ==
+
+XXX: TODO
+
+
+== Scratch registers: DSCRATCH ==
+
+XXX: TODO
+
+
+= Counters =
+
+XXX: TODO
+
+
+= Accessing the whole MMIO range =
 
 PDAEMON can access the whole MMIO range through the IO space.
 
@@ -150,12 +192,12 @@ MMIO 0x7b0 / I[0x1ec00] : MMIO_ERR
   bit 30: FAULT_ROOT
   bit 31: FAULT_IBUS
 
-MMIO 0x7b4 / I[0x1ee00] : MMIO_INTR
+MMIO 0x7b4 / I[0x1ed00] : MMIO_INTR
   Specifies which MMIO interrupts are active. Clear the associated bit to ACK.
   bit 0: ERR
     Clearing this bit will also clear MMIO_ERR on nva3-d9.
 
-MMIO 0x7b4 / I[0x1ee00] : MMIO_INTR_EN
+MMIO 0x7b8 / I[0x1ee00] : MMIO_INTR_EN
   Specifies which MMIO interrupts are enabled. Interrupts will be fired on
   line 11 [fuc-intr.txt].
   bit 0: ERR
