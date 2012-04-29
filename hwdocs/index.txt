@@ -33,6 +33,7 @@ Misc GPU units
 [**   ] hwsq.txt - HWSQ scripts on PBUS engine
 [***  ] pstraps.txt - PSTRAPS unit, straps readout and override
 [**** ] ptimer.txt - PTIMER engine, clock setup, readout, and alarms
+[*    ] punk1c3.txt - PUNK1C3 engine
 
 
 Memory access and structure
@@ -60,6 +61,10 @@ PGRAPH, user perspective
 [     ] nv50-texture.txt - NV50 and NVC0 texturing
 [     ] nv50-cuda-isa.txt - NV50 CUDA/shader ISA overview
 [     ] nvc0-cuda-isa.txt - NVC0 CUDA/shader ISA overview
+
+
+PGRAPH, kernel perspective
+[*    ] nvc0-ctxctl.txt - the NVC0 context switching microcoded engines
 
 
 fuc engines:
@@ -102,3 +107,11 @@ Other FIFO engines:
 [*    ] pcopy.txt - PCOPY copying engine
 [*    ] punk1c1.txt - PUNK1C1 engine
 [*    ] pvenc.txt - PVENC H.264 encoding engine
+
+
+Power management:
+[*    ] pdaemon.txt - PDAEMON card monitoring engine
+
+
+Display subsystem:
+[*    ] pdisp-daemon.txt - PDISP's monitoring engine

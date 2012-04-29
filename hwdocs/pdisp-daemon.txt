@@ -1,0 +1,22 @@
+Present on:
+	d2: NVD9:NVE4
+	d3: NVE4+
+BAR0 address: 0x627000
+PMC interrupt line: ???
+PMC enable bit: 30 [all of PDISPLAY]
+Version: 4
+Code segment size: 0x4000
+Data segment size: 0x2000
+Fifo size: 3
+Xfer slots: 8
+Secretful: no
+Code TLB index bits: 8
+Code ports: 1
+Data ports: 4
+Version 4 unknown bits: 27, 28, 29, 31
+
+[XXX: IO regs]
+[XXX: interrupts]
+[XXX: status bits]
+
+[XXX: describe PDISPLAY.DAEMON]

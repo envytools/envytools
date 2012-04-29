@@ -2,6 +2,47 @@
 
 PDAEMON is a fuc-engine that got introduced on nva3.
 
+Present on:
+	d0: NVA3:NVC0
+	d1: NVC0:NVD9
+	d2: NVD9:NVE4
+	d3: NVE4+
+BAR0 address: 0x10a000
+PMC interrupt line:
+	d0: 18
+	d1+: 24
+PMC enable bit:
+	d0: none, use reg 0x22210 instead
+	d1+: 13
+Version:
+	d0,d1: 3
+	d2,d3: 4
+Code segment size:
+	d0: 0x4000
+	d1+: 0x6000
+Data segment size:
+	d0: 0x3000
+	d1+: 0x6000
+Fifo size:
+	d0: 0x10
+	d1+: 3
+Xfer slots:
+	d0,d1: 8
+	d2,d3: 0x10
+Secretful: no
+Code TLB index bits:
+	d0,d1: 8
+	d2,d3: 9
+Code ports: 1
+Data ports: 4
+Version 4 unknown bits: 27, 29, 30, 31
+
+[XXX: IO regs]
+[XXX: interrupts]
+[XXX: status bits]
+
+[XXX: describe PDAEMON]
+
 XXX: Add a proper introduction
 
 == IO space ==
