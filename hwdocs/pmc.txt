@@ -188,16 +188,16 @@ On NV04:NV50, the bits are:
 On NV50:NVC0, the bits are:
   0: ??? - alleged to be related to I2C
   1: VPE [vpe.txt] and PVP [vp1.txt, vp2.txt] [NV50:NV98 and NVA0]
-  1: PPPP [fuc-ppp.txt] [NV98 and NVAA-]
+  1: PPPP [vp3-pppp.txt] [NV98 and NVAA-]
   4: PMEDIA [pmedia.txt]
   8: PFIFO [nv50-pfifo.txt]
   12: PGRAPH [nv50-pgraph.txt]
   13: PCOPY [fuc-copy.txt] [NVA3-]
-  14: PCRYPT [crypt.txt, fuc-crypt.txt] [NV84:NVA3]
+  14: PCRYPT [crypt.txt, vp3-pcrypt.txt] [NV84:NVA3]
   14: PUNK1C1 [NVAF]
-  15: PBSP [vp2.txt, fuc-bsp.txt] [NV84-]
+  15: PBSP [vp2.txt, vp3-pbsp.txt] [NV84-]
   16: PTIMER [ptimer.txt]
-  17: PVP [fuc-vp.txt] [NV98 and NVAA-]
+  17: PVP [vp3-pvp.txt] [NV98 and NVAA-]
   20: PFB [nv50-pfb.txt]
   21: PGRAPH CHSW [NV84-] [nv50-pfifo.txt]
   22: PMPEG CHSW [NV84-]
@@ -214,7 +214,7 @@ On NV50:NVC0, the bits are:
 
 On NVC0+, the bits are:
   0: ??? - alleged to be related to I2C
-  1: PPPP [fuc-ppp.txt]
+  1: PPPP [vp3-pppp.txt]
   2: PXBAR [nvc0-pxbar.txt]
   3: PMFB [nvc0-pmfb.txt]
   4: PMEDIA [pmedia.txt]
@@ -224,9 +224,9 @@ On NVC0+, the bits are:
   8: PFIFO [nvc0-pfifo.txt]
   12: PGRAPH [nvc0-pgraph.txt]
   13: PDAEMON [pdaemon.txt]
-  15: PBSP [fuc-bsp.txt]
+  15: PBSP [vp3-pbsp.txt]
   16: PTIMER [ptimer.txt]
-  17: PVP [fuc-vp.txt]
+  17: PVP [vp3-pvp.txt]
   18: PVENC [NVE4-] [pvenc.txt]
   20: PBFB [nvc0-pbfb.txt]
   21: PCOPY[2] [NVE4-] [fuc-copy.txt]
@@ -362,18 +362,18 @@ For NV04:NV50:
 For NV50:NVC0:
 
 0: VPE [vpe.txt] [NV50:NV98 and NVA0]
-0: PPPP [fuc-ppp.txt] [NV98 and NVAA-]
+0: PPPP [vp3-pppp.txt] [NV98 and NVAA-]
 4: PMEDIA [pmedia.txt]
 8: PFIFO [nv50-pfifo.txt] - has separate UNK1 line on NVA3+
 9: ??? [NVA3?-]
 11: ??? [NVA3?-]
 12: PGRAPH [nv50-pgraph.txt]
 13: ??? [NVA3?-]
-14: PCRYPT [crypt.txt, fuc-crypt.txt] [NV84:NVA3]
+14: PCRYPT [crypt.txt, vp3-pcrypt.txt] [NV84:NVA3]
 14: PUNK1C1 [NV84:NVA3]
-15: PBSP [vp2.txt, fuc-bsp.txt] [NV84-]
+15: PBSP [vp2.txt, vp3-pbsp.txt] [NV84-]
 16: ??? [NVA3?-]
-17: PVP [vp1.txt, vp2.txt, fuc-vp.txt] [XXX: check this]
+17: PVP [vp1.txt, vp2.txt, vp3-pvp.txt] [XXX: check this]
 18: PDAEMON [pdaemon.txt] [NVA3-]
 19: PTHERM [ptherm.txt]
 20: PTIMER [ptimer.txt]
@@ -389,7 +389,7 @@ earlier, but we only know them from bitscanning the INTR_MASK regs. on NVA3+.]
 
 For NVC0+:
 
-0: PPPP [fuc-ppp.txt] - has separate UNK1 line
+0: PPPP [vp3-pppp.txt] - has separate UNK1 line
 4: PMEDIA [pmedia.txt]
 5: PCOPY[0] [fuc-copy.txt] - has separate UNK1 line
 6: PCOPY[1] [fuc-copy.txt] - has separate UNK1 line
@@ -398,9 +398,9 @@ For NVC0+:
 9: ???
 12: PGRAPH [nvc0-pgraph.txt] - has separate UNK1 line
 13: PBFB [nvc0-pbfb.txt]
-15: PBSP [fuc-bsp.txt] - has separate UNK1 line
+15: PBSP [vp3-pbsp.txt] - has separate UNK1 line
 16: PVENC [NVE4-] [pvenc.txt] - has separate UNK1 line
-17: PVP [fuc-vp.txt] - has separate UNK1 line
+17: PVP [vp3-pvp.txt] - has separate UNK1 line
 18: PTHERM [ptherm.txt]
 19: ??? [NVD9-]
 20: PTIMER [ptimer.txt]

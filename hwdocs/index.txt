@@ -63,7 +63,7 @@ PGRAPH, user perspective
 
 
 fuc engines:
-[     ] fuc.txt - Introductory documentation about fuc
+[**   ] fuc.txt - Introductory documentation about fuc
 [*****] fuc-arith.txt - fuc arithmetic instructions
 [*****] fuc-branch.txt - fuc branching instructions
 [*****] fuc-data.txt - fuc data space
@@ -74,12 +74,9 @@ fuc engines:
 [**** ] fuc-timer.txt - fuc timers and clocks
 [**** ] fuc-vm.txt - fuc code space and virtual memory
 [**** ] fuc-xfer.txt - fuc coda/data xfers to/from external memory
-[     ] fuc-crypt.txt - fuc crypt coprocessor and PCRYPT engine
+[     ] fuc-crypt.txt - fuc crypt coprocessor
 [     ] fuc-perf.txt - fuc performance monitoring signals
 [     ] fuc-fifo.txt - fuc interaction with PFIFO
-[     ] fuc-bsp.txt - fuc-based PBSP engine
-[     ] fuc-vp.txt - fuc-based PVP engine
-[     ] fuc-ppp.txt - fuc-based PPPP engine
 [     ] fuc-copy.txt - PCOPY engine
 
 
@@ -96,3 +93,10 @@ VP2/VP3/VP4/VP5 video decoding:
 [**   ] vuc-vreg.txt - VP2/VP3/VP4 vµc video registers
 [     ] vuc-vpring.txt - VP2 vµc output
 [     ] vuc-perf.txt - vµc performance monitoring signals
+[*    ] vp3-pbsp.txt - fuc-based PBSP engine
+[*    ] vp3-pvp.txt - fuc-based PVP engine
+[*    ] vp3-pppp.txt - fuc-based PPPP engine
+
+
+Other FIFO engines:
+[*    ] vp3-pcrypt.txt - fuc-based PCRYPT engine

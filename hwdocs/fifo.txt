@@ -53,13 +53,13 @@ idx|   name   |   cards   | description
 ------------------------------------------------------------------------------
 2/2| PPPP     |           | VP3 fuc-microcoded video decoding engines: picture
 --------------|           | post-processor, video processor, bitstream
-4/1| PVP      | NV98:.... | processor. [see fuc-fifo.txt, fuc-bsp.txt,
---------------|           | fuc-vp.txt, fuc-ppp.txt]
+4/1| PVP      | NV98:.... | processor. [see vp3-pbsp.txt, vp3-pvp.txt,
+--------------|           | vp3-pppp.txt]
 6/3| PBSP     |           |
 ------------------------------------------------------------------------------
    |          |           | fuc-microcoded engine with AES crypto coprocessor.
 5/-| PCRYPT   | NV98:NVA3 | On NVA3+, the crypto powers were instead merged
-   |          |           | into PVP. [see fuc-fifo.txt, fuc-crypt.txt]
+   |          |           | into PVP. [see vp3-pcrypt.txt]
 ------------------------------------------------------------------------------
 5/-| PUNK1C1  | NVAF:NVC0 | fuc-microcoded engine of unknown purpose
 ------------------------------------------------------------------------------

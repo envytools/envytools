@@ -1,0 +1,39 @@
+Present on:
+	VP3: NV98, NVAA, NVAC
+	VP4: NVA3:NVD9
+	VP5: NVD9+
+BAR0 address: 0x086000
+PMC interrupt line: 0
+PMC enable bit: 1
+Version:
+	VP3: 0
+	VP4: 3
+	VP5: 4
+Code segment size: 0xa00
+Data segment size: 0x800
+Fifo size: 0x10
+Xfer slots: 8
+Secretful: no
+Code TLB index bits: 6
+Code ports: 1
+Data ports: 1
+Version 4 unknown bits: 31
+
+The IO registers:
+
+400/10000:480/12000 PIN		picture input		[vp3-pppp.txt]
+480/12000:500/14000 ???		???			[vp3-pppp.txt]
+500/14000:5c0/17000 H264	H.264 postprocessing	[vp3-pppp.txt]
+5c0/17000:600/18000 VC1		VC-1 postprocessing	[vp3-pppp.txt]
+600/18000:640/19000 MEMIF	memory interface	[fuc-memif.txt]
+640/19000:680/1a000 POUT	picture output		[vp3-pppp.txt]
+680/1a000:700/1c000 ???		???			[vp3-pppp.txt]
+700/1c000:740/1d000 ???		???			[vp3-pppp.txt]
+740/1d000:780/1e000 JOE		???			[vp3-pppp.txt]
+780/1e000:7c0/1f000 ???		???			[vp3-pppp.txt]
+
+[XXX: MEMIF ports]
+[XXX: interrupts]
+[XXX: status bits]
+
+[XXX: describe PPPP]
