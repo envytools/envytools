@@ -69,8 +69,8 @@
 			<value value="0x27" name="RGTC1" />
 			<value value="0x28" name="RGTC2" />
 			<value value="0x29" name="S8_Z24"/>
-			<value value="0x2a" name="Z24_S8"/>
-			<value value="0x2b" name="Z24_X8"/>
+			<value value="0x2a" name="Z24_X8"/>
+			<value value="0x2b" name="Z24_S8"/>
 			<value value="0x2c" name="Z24_C8_MS4_CS4"/>
 			<value value="0x2d" name="Z24_C8_MS8_CS8"/>
 			<value value="0x2e" name="Z24_C8_MS4_CS12"/>
