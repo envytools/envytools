@@ -192,7 +192,7 @@ On NV50:NVC0, the bits are:
   4: PMEDIA [pmedia.txt]
   8: PFIFO [nv50-pfifo.txt]
   12: PGRAPH [nv50-pgraph.txt]
-  13: PCOPY [fuc-copy.txt] [NVA3-]
+  13: PCOPY [pcopy.txt] [NVA3-]
   14: PCRYPT [crypt.txt, vp3-pcrypt.txt] [NV84:NVA3]
   14: PUNK1C1 [NVAF]
   15: PBSP [vp2.txt, vp3-pbsp.txt] [NV84-]
@@ -219,8 +219,8 @@ On NVC0+, the bits are:
   3: PMFB [nvc0-pmfb.txt]
   4: PMEDIA [pmedia.txt]
   5: PIBUS [pibus.txt]
-  6: PCOPY[0] [fuc-copy.txt]
-  7: PCOPY[1] [fuc-copy.txt]
+  6: PCOPY[0] [pcopy.txt]
+  7: PCOPY[1] [pcopy.txt]
   8: PFIFO [nvc0-pfifo.txt]
   12: PGRAPH [nvc0-pgraph.txt]
   13: PDAEMON [pdaemon.txt]
@@ -229,7 +229,7 @@ On NVC0+, the bits are:
   17: PVP [vp3-pvp.txt]
   18: PVENC [NVE4-] [pvenc.txt]
   20: PBFB [nvc0-pbfb.txt]
-  21: PCOPY[2] [NVE4-] [fuc-copy.txt]
+  21: PCOPY[2] [NVE4-] [pcopy.txt]
   26: ??? [NVE4-]
   27: ???
   28: PCOUNTER [pcounter.txt]
@@ -378,7 +378,7 @@ For NV50:NVC0:
 19: PTHERM [ptherm.txt]
 20: PTIMER [ptimer.txt]
 21: PNVIO's GPIO interrupts [pnvio.txt]
-22: PCOPY [fuc-copy.txt]
+22: PCOPY [pcopy.txt]
 26: PDISPLAY [pdisplay.txt]
 27: ??? [NVA3?-]
 28: PBUS [pbus.txt]
@@ -391,9 +391,9 @@ For NVC0+:
 
 0: PPPP [vp3-pppp.txt] - has separate UNK1 line
 4: PMEDIA [pmedia.txt]
-5: PCOPY[0] [fuc-copy.txt] - has separate UNK1 line
-6: PCOPY[1] [fuc-copy.txt] - has separate UNK1 line
-7: PCOPY[2] [NVE4-] [fuc-copy.txt] - has separate UNK1 line
+5: PCOPY[0] [pcopy.txt] - has separate UNK1 line
+6: PCOPY[1] [pcopy.txt] - has separate UNK1 line
+7: PCOPY[2] [NVE4-] [pcopy.txt] - has separate UNK1 line
 8: PFIFO [nvc0-pfifo.txt]
 9: ???
 12: PGRAPH [nvc0-pgraph.txt] - has separate UNK1 line

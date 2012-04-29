@@ -77,7 +77,6 @@ fuc engines:
 [     ] fuc-crypt.txt - fuc crypt coprocessor
 [     ] fuc-perf.txt - fuc performance monitoring signals
 [     ] fuc-fifo.txt - fuc interaction with PFIFO
-[     ] fuc-copy.txt - PCOPY engine
 
 
 VP2/VP3/VP4/VP5 video decoding:
@@ -100,3 +99,6 @@ VP2/VP3/VP4/VP5 video decoding:
 
 Other FIFO engines:
 [*    ] vp3-pcrypt.txt - fuc-based PCRYPT engine
+[*    ] pcopy.txt - PCOPY copying engine
+[*    ] punk1c1.txt - PUNK1C1 engine
+[*    ] pvenc.txt - PVENC H.264 encoding engine

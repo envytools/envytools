@@ -64,8 +64,8 @@ idx|   name   |   cards   | description
 5/-| PUNK1C1  | NVAF:NVC0 | fuc-microcoded engine of unknown purpose
 ------------------------------------------------------------------------------
 3/ |          |           | fuc-microcoded engine, meant to copy stuff from
-4,5| PCOPY    | NVA3:.... | point A to point B. Comes in two copies on NVC0+.
-   |          |           | [see fuc-fifo.txt, fuc-copy.txt]
+4,5| PCOPY    | NVA3:.... | point A to point B. Comes in two copies on NVC0+,
+   |          |           | three copies on NVE4+ [see pcopy.txt]
 ------------------------------------------------------------------------------
 -/6| PVENC    | NVE4:.... | fuc-microcoded H.264 encoding engine [pvenc.txt]
 ------------------------------------------------------------------------------
