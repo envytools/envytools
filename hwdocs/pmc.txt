@@ -227,7 +227,7 @@ On NVC0+, the bits are:
   15: PBSP [fuc-bsp.txt]
   16: PTIMER [ptimer.txt]
   17: PVP [fuc-vp.txt]
-  18: PVENC [NVE4-] [fuc-venc.txt]
+  18: PVENC [NVE4-] [pvenc.txt]
   20: PBFB [nvc0-pbfb.txt]
   21: PCOPY[2] [NVE4-] [fuc-copy.txt]
   26: ??? [NVE4-]
@@ -399,7 +399,7 @@ For NVC0+:
 12: PGRAPH [nvc0-pgraph.txt] - has separate UNK1 line
 13: PBFB [nvc0-pbfb.txt]
 15: PBSP [fuc-bsp.txt] - has separate UNK1 line
-16: PVENC [NVE4-] [fuc-venc.txt] - has separate UNK1 line
+16: PVENC [NVE4-] [pvenc.txt] - has separate UNK1 line
 17: PVP [fuc-vp.txt] - has separate UNK1 line
 18: PTHERM [ptherm.txt]
 19: ??? [NVD9-]
