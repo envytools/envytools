@@ -124,7 +124,7 @@ static void print_nv03_init_script(struct envy_bios *bios, FILE *out) {
 			return;
 		}
 		switch (op) {
-		case 0x6e:
+		case 0x6e:	/* NV01+ */
 			len = 13;
 			err |= bios_u32(bios, offset+1, &arg32_0);
 			err |= bios_u32(bios, offset+5, &arg32_1);
@@ -136,7 +136,7 @@ static void print_nv03_init_script(struct envy_bios *bios, FILE *out) {
 			dump_hex_script(bios, out, offset, len);
 			fprintf(out, "\tMMIO_MASK 0x%06x &= 0x%08x |= 0x%08x\n", arg32_0, arg32_1, arg32_2);
 			break;
-		case 0x7a:
+		case 0x7a:	/* NV03+ */
 			len = 9;
 			err |= bios_u32(bios, offset+1, &arg32_0);
 			err |= bios_u32(bios, offset+5, &arg32_1);
@@ -147,7 +147,7 @@ static void print_nv03_init_script(struct envy_bios *bios, FILE *out) {
 			dump_hex_script(bios, out, offset, len);
 			fprintf(out, "\tMMIO_WR 0x%06x <= 0x%08x\n", arg32_0, arg32_1);
 			break;
-		case 0x77:
+		case 0x77:	/* NV03+ */
 			len = 7;
 			err |= bios_u32(bios, offset+1, &arg32_0);
 			err |= bios_u16(bios, offset+5, &arg16_0);
@@ -158,7 +158,7 @@ static void print_nv03_init_script(struct envy_bios *bios, FILE *out) {
 			dump_hex_script(bios, out, offset, len);
 			fprintf(out, "\tMMIO_WR16 0x%06x <= 0x%04x\n", arg32_0, arg16_0);
 			break;
-		case 0x79:
+		case 0x79:	/* NV03+ */
 			len = 13;
 			err |= bios_u32(bios, offset+1, &arg32_0);
 			err |= bios_u32(bios, offset+5, &arg32_1);
@@ -170,7 +170,7 @@ static void print_nv03_init_script(struct envy_bios *bios, FILE *out) {
 			dump_hex_script(bios, out, offset, len);
 			fprintf(out, "\tMMIO_WR_CRYSTAL %06x <= %08x / %08x\n", arg32_0, arg32_1, arg32_2);
 			break;
-		case 0x74:
+		case 0x74:	/* NV03+ */
 			len = 3;
 			err |= bios_u16(bios, offset+1, &arg16_0);
 			if (err) {
@@ -180,7 +180,7 @@ static void print_nv03_init_script(struct envy_bios *bios, FILE *out) {
 			dump_hex_script(bios, out, offset, len);
 			fprintf(out, "\tUSLEEP %d\n", arg16_0);
 			break;
-		case 0x69:
+		case 0x69:	/* NV03+ */
 			len = 5;
 			err |= bios_u16(bios, offset+1, &arg16_0);
 			err |= bios_u8(bios, offset+3, &arg8_0);
@@ -192,7 +192,7 @@ static void print_nv03_init_script(struct envy_bios *bios, FILE *out) {
 			dump_hex_script(bios, out, offset, len);
 			fprintf(out, "\tIO_MASK 0x%04x &= 0x%02x |= 0x%02x\n", arg16_0, arg8_0, arg8_1);
 			break;
-		case 0x78:
+		case 0x78:	/* NV03+ */
 			len = 6;
 			err |= bios_u16(bios, offset+1, &arg16_0);
 			err |= bios_u8(bios, offset+3, &arg8_0);
@@ -205,7 +205,7 @@ static void print_nv03_init_script(struct envy_bios *bios, FILE *out) {
 			dump_hex_script(bios, out, offset, len);
 			fprintf(out, "\tIOIDX_MASK 0x%04x[0x%02x] &= 0x%02x |= 0x%02x\n", arg16_0, arg8_0, arg8_1, arg8_2);
 			break;
-		case 0x6d:
+		case 0x6d:	/* NV03+ */
 			len = 2;
 			err |= bios_u8(bios, offset+1, &arg8_0);
 			if (err) {
@@ -215,7 +215,7 @@ static void print_nv03_init_script(struct envy_bios *bios, FILE *out) {
 			dump_hex_script(bios, out, offset, len);
 			fprintf(out, "\tIF_MEM_SIZE 0x%02x\n", arg8_0);
 			break;
-		case 0x73:
+		case 0x73:	/* NV03+ */
 			len = 9;
 			err |= bios_u32(bios, offset+1, &arg32_0);
 			err |= bios_u32(bios, offset+5, &arg32_1);
@@ -226,21 +226,44 @@ static void print_nv03_init_script(struct envy_bios *bios, FILE *out) {
 			dump_hex_script(bios, out, offset, len);
 			fprintf(out, "\tIF_STRAPS & %08x == %08x\n", arg32_0, arg32_1);
 			break;
-		case 0x72:
+		case 0x72:	/* NV03+ */
 			len = 1;
 			dump_hex_script(bios, out, offset, len);
 			fprintf(out, "\tRESUME\n");
 			break;
-		case 0x63:
+		case 0x63:	/* NV03+ */
 			len = 1;
 			dump_hex_script(bios, out, offset, len);
 			fprintf(out, "\tCOMPUTE_MEM\n");
 			break;
-		case 0x71:
+		case 0x71:	/* NV01+ */
 			len = 1;
 			dump_hex_script(bios, out, offset, len);
 			fprintf(out, "\tQUIT\n");
 			return;
+		case 0x70:	/* NV01:NV03 */
+			len = 7;
+			err |= bios_u16(bios, offset+1, &arg16_0);
+			err |= bios_u32(bios, offset+3, &arg32_0);
+			if (err) {
+				ENVY_BIOS_ERR("Init script out of bounds!\n");
+				return;
+			}
+			dump_hex_script(bios, out, offset, len);
+			fprintf(out, "\tDAC_WR4 0x%04x <= 0x%08x\n", arg16_0, arg32_0);
+			break;
+		case 0x64:	/* NV01+ */
+			len = 5;
+			err |= bios_u16(bios, offset+1, &arg16_0);
+			err |= bios_u8(bios, offset+3, &arg8_0);
+			err |= bios_u8(bios, offset+4, &arg8_1);
+			if (err) {
+				ENVY_BIOS_ERR("Init script out of bounds!\n");
+				return;
+			}
+			dump_hex_script(bios, out, offset, len);
+			fprintf(out, "\tDAC_MASK 0x%04x &= 0x%02x |= 0x%02x\n", arg16_0, arg8_0, arg8_1);
+			break;
 		default:
 			len = 1;
 			dump_hex_script(bios, out, offset, len);
