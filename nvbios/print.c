@@ -108,8 +108,7 @@ static void print_bmp_nv03(struct envy_bios *bios, FILE *out) {
 	fprintf(out, "init script pointer: 0x%x\n", bios->init_script);
 }
 
-static void print_nv01_init_script(struct envy_bios *bios, FILE *out) {
-	unsigned offset = bios->init_script;
+static void print_nv01_init_script(struct envy_bios *bios, FILE *out, unsigned offset) {
 	unsigned len;
 	uint8_t op;
 	uint8_t arg8_0, arg8_1, arg8_2;
@@ -250,7 +249,7 @@ static void print_nv01_init_script(struct envy_bios *bios, FILE *out) {
 				return;
 			}
 			dump_hex_script(bios, out, offset, len);
-			fprintf(out, "\tDAC_WR4 0x%04x <= 0x%08x\n", arg16_0, arg32_0);
+			fprintf(out, "\tDAC_PLL 0x%04x <= 0x%08x\n", arg16_0, arg32_0);
 			break;
 		case 0x64:	/* NV01:NV03 */
 			len = 5;
@@ -264,9 +263,15 @@ static void print_nv01_init_script(struct envy_bios *bios, FILE *out) {
 			dump_hex_script(bios, out, offset, len);
 			fprintf(out, "\tDAC_MASK 0x%04x &= 0x%02x |= 0x%02x\n", arg16_0, arg8_0, arg8_1);
 			break;
+		case 0xff:	/* NV01:NV03 */
+			len = 1;
+			dump_hex_script(bios, out, offset, len);
+			fprintf(out, "\tQUIT\n");
+			return;
 		default:
 			len = 1;
 			dump_hex_script(bios, out, offset, len);
+			fprintf(out, "\n");
 			ENVY_BIOS_ERR("Unknown op 0x%02x in init script!\n", op);
 			return;
 		}
@@ -283,15 +288,31 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 		break;
 	case ENVY_BIOS_TYPE_NV01:
 		fprintf(out, "BIOS type: NV01\n");
-		if (bios->init_script && (mask & ENVY_BIOS_PRINT_SCRIPTS))
-			print_nv01_init_script(bios, out);
+		if (mask & ENVY_BIOS_PRINT_SCRIPTS) {
+			/* XXX: how to find these properly? */
+			fprintf(out, "\nPre-mem scripts:\n");
+			print_nv01_init_script(bios, out, 0x17bc);
+			print_nv01_init_script(bios, out, 0x17a2);
+			print_nv01_init_script(bios, out, 0x18f4);
+			fprintf(out, "\n1MB script:\n");
+			print_nv01_init_script(bios, out, 0x199a);
+			fprintf(out, "\n2MB script:\n");
+			print_nv01_init_script(bios, out, 0x19db);
+			fprintf(out, "\n4MB script:\n");
+			print_nv01_init_script(bios, out, 0x1a1c);
+			fprintf(out, "\nPost-mem scripts:\n");
+			print_nv01_init_script(bios, out, 0x198d);
+			print_nv01_init_script(bios, out, 0x1929);
+			fprintf(out, "\nUnknown scripts:\n");
+			print_nv01_init_script(bios, out, 0x184f);
+		}
 		break;
 	case ENVY_BIOS_TYPE_NV03:
 		fprintf(out, "BIOS type: NV03\n");
 		if (bios->bmp_length && (mask & ENVY_BIOS_PRINT_BMP_BIT))
 			print_bmp_nv03(bios, out);
 		if (bios->init_script && (mask & ENVY_BIOS_PRINT_SCRIPTS))
-			print_nv01_init_script(bios, out);
+			print_nv01_init_script(bios, out, bios->init_script);
 		break;
 	case ENVY_BIOS_TYPE_NV04:
 		fprintf(out, "BIOS type: NV04\n");

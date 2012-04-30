@@ -146,7 +146,6 @@ int envy_bios_parse (struct envy_bios *bios) {
 	case 0x104a: /* SGS */
 		if (device == 0x08 || device == 0x09) {
 			bios->type = ENVY_BIOS_TYPE_NV01;
-			bios->init_script = 0x17bc; /* XXX */
 		} else {
 			ENVY_BIOS_ERR("Unknown SGS pciid %04x\n", device);
 			break;
