@@ -7,7 +7,7 @@ The canonical repo is at: http://github.com/pathscale/envytools/
 
 Subdirectories:
 
- - hwdocs: plan-text documentation of the GPUs
+ - hwdocs: plain-text documentation of the GPUs
  - envydis: Disassembler and for various ISAs found on nvidia GPUs
  - ed2: Upcoming rewrite of envydis, with lots of new features planned
  - rnn: Tools and libraries for the rules-ng-ng XML register database format
