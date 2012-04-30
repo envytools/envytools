@@ -180,7 +180,7 @@
 			<value value="1" name="HREF"/>
 		</bitfield>
 
-		<bitfield pos="23" name="UNK23" variants="NV86:NV98"/>
+		<bitfield pos="23" name="UNK23" variants="NV86:NVA0"/>
 
 		<bitfield pos="24" name="XTCLK_1" variants="NV84-">
 			<doc>Selects XTCLK postdivider, and the clock if XTCLK/VDCLK is set to XTCLK_1</doc>
