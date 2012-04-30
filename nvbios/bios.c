@@ -143,6 +143,15 @@ int envy_bios_parse (struct envy_bios *bios) {
 	const uint8_t bitsig[5] = "\xff\xb8""BIT";
 	const uint8_t hwsqsig[4] = "HWSQ";
 	switch(vendor) {
+	case 0x104a: /* SGS */
+		if (device == 0x08 || device == 0x09) {
+			bios->type = ENVY_BIOS_TYPE_NV01;
+			bios->init_script = 0x17bc; /* XXX */
+		} else {
+			ENVY_BIOS_ERR("Unknown SGS pciid %04x\n", device);
+			break;
+		}
+		break;
 	case 0x12d2: /* SGS + nvidia */
 		if (device == 0x18 || device == 0x19) {
 			bios->type = ENVY_BIOS_TYPE_NV03;
@@ -157,7 +166,7 @@ int envy_bios_parse (struct envy_bios *bios) {
 		}
 		parse_bmp_nv03(bios);
 		break;
-	case 0x10de:
+	case 0x10de: /* nvidia */
 		bios->type = ENVY_BIOS_TYPE_NV04;
 		bios->bmp_offset = find_string(bios, bmpsig, 5);
 		bios->bit_offset = find_string(bios, bitsig, 5);

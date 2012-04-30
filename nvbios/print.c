@@ -108,7 +108,7 @@ static void print_bmp_nv03(struct envy_bios *bios, FILE *out) {
 	fprintf(out, "init script pointer: 0x%x\n", bios->init_script);
 }
 
-static void print_nv03_init_script(struct envy_bios *bios, FILE *out) {
+static void print_nv01_init_script(struct envy_bios *bios, FILE *out) {
 	unsigned offset = bios->init_script;
 	unsigned len;
 	uint8_t op;
@@ -252,7 +252,7 @@ static void print_nv03_init_script(struct envy_bios *bios, FILE *out) {
 			dump_hex_script(bios, out, offset, len);
 			fprintf(out, "\tDAC_WR4 0x%04x <= 0x%08x\n", arg16_0, arg32_0);
 			break;
-		case 0x64:	/* NV01+ */
+		case 0x64:	/* NV01:NV03 */
 			len = 5;
 			err |= bios_u16(bios, offset+1, &arg16_0);
 			err |= bios_u8(bios, offset+3, &arg8_0);
@@ -281,12 +281,17 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 	case ENVY_BIOS_TYPE_UNKNOWN:
 		fprintf(out, "BIOS type: UNKNOWN!\n");
 		break;
+	case ENVY_BIOS_TYPE_NV01:
+		fprintf(out, "BIOS type: NV01\n");
+		if (bios->init_script && (mask & ENVY_BIOS_PRINT_SCRIPTS))
+			print_nv01_init_script(bios, out);
+		break;
 	case ENVY_BIOS_TYPE_NV03:
 		fprintf(out, "BIOS type: NV03\n");
 		if (bios->bmp_length && (mask & ENVY_BIOS_PRINT_BMP_BIT))
 			print_bmp_nv03(bios, out);
 		if (bios->init_script && (mask & ENVY_BIOS_PRINT_SCRIPTS))
-			print_nv03_init_script(bios, out);
+			print_nv01_init_script(bios, out);
 		break;
 	case ENVY_BIOS_TYPE_NV04:
 		fprintf(out, "BIOS type: NV04\n");

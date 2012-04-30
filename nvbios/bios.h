@@ -51,6 +51,7 @@ struct envy_bios_part {
 
 enum envy_bios_type {
 	ENVY_BIOS_TYPE_UNKNOWN = 0,
+	ENVY_BIOS_TYPE_NV01,
 	ENVY_BIOS_TYPE_NV03,
 	ENVY_BIOS_TYPE_NV04,
 };
