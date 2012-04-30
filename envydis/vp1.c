@@ -157,10 +157,14 @@ static struct reg ldstl_r = { &cdstp_bf, "l" };
 #define IGNDST atomign, &dst_bf
 #define IGNSRC1 atomign, &src1_bf
 
+static struct mem memsr_m = { "", 0, &asrc1_r, 0, &asrc2_r, .postincr = 1 };
+static struct mem memdr_m = { "", 0, &adst_r, 0, &asrc2_r, .postincr = 1 };
 static struct mem memsi_m = { "", 0, &asrc1_r, &immoff };
 static struct mem memdi_m = { "", 0, &adst_r, &immoff };
 static struct mem memspi_m = { "", 0, &asrc1_r, &immoff, .postincr = 1 };
 static struct mem memdpi_m = { "", 0, &adst_r, &immoff, .postincr = 1 };
+#define MEMSR atommem, &memsr_m
+#define MEMDR atommem, &memdr_m
 #define MEMSI atommem, &memsi_m
 #define MEMDI atommem, &memdi_m
 #define MEMSPI atommem, &memspi_m
@@ -285,7 +289,13 @@ static struct insn tabm[] = {
 	{ 0x7e000000, 0xff000000, N("shr"), RDST, T(mcdst), RSRC1, IMM },
 	{ 0x60000000, 0xe0000000, OOPS, RDST, T(mcdst), RSRC1, IMM },
 	{ 0xbf000000, 0xff000000, N("vnop"), IGNALL },
+	{ 0xc00001c0, 0xff0001f8, N("ld"), VDST, MEMSR, T(mcdst) },
+	{ 0xc10001c0, 0xff0001f8, N("ld"), VDST, N("vert"), MEMSR, T(mcdst) },
+	{ 0xc20001c0, 0xff0001f8, N("ld"), RDST, MEMSR, T(mcdst) },
 	{ 0xc3000000, 0xff000000, N("xdld"), ADST, ASRC1, ASRC1X, T(xdimm) },
+	{ 0xc40001c0, 0xff0001f8, N("st"), MEMDR, T(mcdst), VSRC1 },
+	{ 0xc50001c0, 0xff0001f8, N("st"), N("vert"), MEMDR, T(mcdst), VSRC1 },
+	{ 0xc60001c0, 0xff0001f8, N("st"), MEMDR, T(mcdst), RSRC1 },
 	{ 0xc7000000, 0xff000000, N("xdst"), ADST, ADSTX, ASRC1, T(xdimm) },
 	{ 0xca000000, 0xff000000, N("hadd"), ADST, T(mcdst), T(aslctop), IGNSRC1 },
 	{ 0xcb000000, 0xff000000, N("add"), ADST, T(mcdst), ASRC1, T(aslctop) },
