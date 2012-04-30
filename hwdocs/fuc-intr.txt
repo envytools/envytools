@@ -9,8 +9,9 @@ TOC
 
 fuc has interrupt support. There are 16 interrupt lines on each engine, and
 two interrupt vectors on the microprocessor. Each of the interrupt lines can
-be independently routed to uc vector 0, uc vector 1, host irq, or ignored.
-The lines can be triggered by hw events, or by user.
+be independently routed to one of the microprocessor vectors, or to the PMC
+interrupt line, if the engine has one. The lines can be individually masked
+as well. They can be triggered by hw events, or by the user.
 
 The lines are:
 
@@ -19,7 +20,7 @@ The lines are:
   2 [L]: FIFO data available	[fuc-fifo.txt]
   3 [E]: PFIFO channel switch	[fuc-fifo.txt]
   4 [E]: uc halted		[fuc-ctrl.txt]
-  5 [E]: ??? [related to fuc+0x0a4]
+  5 [E]: ??? [related to fuc+0x0a4] [XXX]
   6-7 [E]: scratch [unused by hw, user-defined]
   8-9 [E by default]: engine-specific
   10-15 [L by default]: engine-specific
@@ -71,23 +72,9 @@ together to find its routing testination:
   2: fuc vector 1
   3: PMC UNK1 line [NVC0+ only]
 
-If any interrupt set for PMC irq delivery is active and unmasked, the
-corresponding PMC interrupt input line is active. The corresponding PMC lines
-are:
-
-  PBSP			15
-  PVP			17
-  PPPP			0
-  PCRYPT		14
-  PUNK1C1		14
-  PCOPY	pre-NVC0	22
-  PCOPY[0] NVC0+	5
-  PCOPY[1] NVC0+	6
-  PDAEMON pre-NVC0	18
-  PDAEMON NVC0+		24
-  PGRAPH HUB CTXCTL	[unconnected]
-  PGRAPH GPC CTXCTL	[unconnected]
-  PDISPLAY		???
+If the engine has a PMC interrupt line and any interrupt set for PMC irq
+delivery is active and unmasked, the corresponding PMC interrupt input line
+is active.
 
 fuc interrupt and trap delivery is controlled by $iv0, $iv1, $tv, $tstatus
 registers and ie0, ie1, is0, is1, ta $flags bits. Traps behave like
