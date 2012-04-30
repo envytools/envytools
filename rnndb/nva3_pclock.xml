@@ -90,7 +90,7 @@
 	<reg32 name="VDCLK" offset="0x1a4" type="nva3_pll_src"/>
 	<reg32 name="CLK36" offset="0x1b0" type="nva3_pll_src"/>
 	<reg32 name="DCLK" offset="0x1b4" type="nva3_pll_src"/>
-	<reg32 name="CLK39" offset="0x1bc" type="nva3_pll_src"/>
+	<reg32 name="ACLK" offset="0x1bc" type="nva3_pll_src"/>
 
 	<reg32 offset="0x200" name="NVPLL_CTRL" type="nva3_nvpll_ctrl"/>
 	<reg32 offset="0x204" name="NVPLL_COEF" type="nva3_pll_coef"/>

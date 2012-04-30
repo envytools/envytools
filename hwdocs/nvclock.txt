@@ -85,7 +85,7 @@ NVA3:NVC0 cards have the following clocks:
  - vdec clock [clock #33]: used to clock the fuc video decoding engines
  - unknown clock #36
  - daemon clock [clock #37]: used to clock PDAEMON
- - unknown clock #39
+ - audio clock [clock #39]: used to clock PCODEC
 
 The root clocks are set up in PNVIO area [see pnvio.txt], VPLLs are set up in
 PDISPLAY area [see pdisplay.txt], and the other clocks are set up in PCLOCK
