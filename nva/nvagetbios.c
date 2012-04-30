@@ -32,8 +32,9 @@
 
 #define NV_PRAMIN_OFFSET            0x00700000
 #define NV_PROM_OFFSET              0x00300000
+#define NV01_PROM_SIZE              0x00010000
 #define NV03_PROM_SIZE              0x00010000
-#define NV_PROM_SIZE                0x00020000
+#define NV_PROM_SIZE                0x00100000
 
 #define EOK 1
 #define EUNK 0
@@ -135,7 +136,10 @@ int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 	int32_t prom_size;
 	int32_t pbus_offset = 0;
 
-	if (nva_cards[cnum].chipset < 0x04) {
+	if (nva_cards[cnum].chipset < 0x03) {
+		prom_offset = 0x610000;
+		prom_size = NV01_PROM_SIZE;
+	} else if (nva_cards[cnum].chipset < 0x04) {
 		prom_offset = 0x110000;
 		prom_size = NV03_PROM_SIZE;
 	} else {
