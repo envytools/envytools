@@ -123,6 +123,7 @@ include at least:
 600000:601000 PFB - VRAM and video output control - NV01 specific
 602000:603000 PRAM - priviledgd RAM control - NV01 specific
 609000:60a000 PDAC - DAC control - NV01 specific
+610000:618000 PROM - ROM access window [nvbios.txt]
 640000:648000 PRAMHT - RAMHT access - NV01 specific
 648000:650000 PRAMFC - RAMFC access - NV01 specific
 6c0000:6c8000 PRM - VGA compatibility control - NV01 specific
