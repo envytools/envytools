@@ -87,7 +87,7 @@ static int nv_checksignature(const uint8_t *data)
 
 static int nv_ckbios(const uint8_t *data, int *length)
 {
-	uint16_t pcir_ptr;
+	uint16_t pcir_ptr, pcir_ptr2;
 	uint32_t ret = EUNK;
 	int vbios_len, vbios2_len;
 
@@ -95,13 +95,11 @@ static int nv_ckbios(const uint8_t *data, int *length)
 	if (ret != EOK)
 		return ret;
 
-	vbios_len = data[2] * 512;
+	pcir_ptr = data[0x18] | data[0x19] << 8;
+	vbios_len = data[pcir_ptr + 0x10] * 512 + data[pcir_ptr + 0x11] * 512 * 256;
 	ret = nv_cksum(data, vbios_len);
-
 	if (length)
 		*length = vbios_len;
-
-	pcir_ptr = data[0x18] | data[0x19] << 8;
 
 	/* Check for a second vbios */
 	if (!(data[pcir_ptr + 0x15] & 0x80)) {
@@ -112,7 +110,8 @@ static int nv_ckbios(const uint8_t *data, int *length)
 		if (ret != EOK)
 			return ret;
 
-		vbios2_len = data[vbios_len + 2] * 512;
+		pcir_ptr2 = data[vbios_len + 0x18] | data[vbios_len + 0x19] << 8;
+		vbios2_len = data[vbios_len + pcir_ptr2 + 0x10] * 512 + data[vbios_len + pcir_ptr2 + 0x11] * 512 * 256;
 
 		ret = nv_cksum(data + vbios_len, vbios2_len);
 
