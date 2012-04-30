@@ -18,6 +18,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nv50_compute.xml" />
 <import file="nv84_crypt.xml" />
 <import file="nv31_mpeg.xml" />
+<import file="nv40_me.xml" />
 <import file="nvc0_3d.xml" />
 <import file="nvc0_compute.xml" />
 <import file="nve4_compute.xml" />

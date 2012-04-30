@@ -41,7 +41,7 @@ idx|   name   |   cards   | description
 2/-| PMPEG    | NV31:NV98 | The PFIFO interface to VPE MPEG2 decoding engine.
    |          |           | [see vpe.txt]
 ------------------------------------------------------------------------------
-3/-| PMSRCH   | NV40:NV84 | ??? probably some other video decoding engine.
+3/-| PME      | NV40:NV84 | VPE motion estimation engine [see vpe.txt]
 ------------------------------------------------------------------------------
 4/-| PVP      | NV41:NV84 | VP1 microcoded video processor. [see vp1.txt]
 ------------------------------------------------------------------------------

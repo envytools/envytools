@@ -219,6 +219,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<!-- MPEG -->
 	<value value="0x3174" name="NV31_MPEG" variants="NV31:NV84"/>
 	<value value="0x8274" name="NV84_MPEG" variants="NV84:NV98 NVA0"/>
+	<value value="0x4075" name="NV40_ME" variants="NV40:NV84"/>
 </enum>
 
 <domain name="NV01_SUBCHAN" bare="yes" size="0x8000">

@@ -49,9 +49,10 @@
 <import file="nv10_pcounter.xml" />
 <import file="nv40_pcounter.xml" />
 
-<!-- 00b000 - 00bfff PVPE/PMPEG/PMSRCH -->
+<!-- 00b000 - 00bfff PVPE/PMPEG/PME -->
 <import file="nv17_pmpeg.xml" />
 <import file="nv40_pvpe.xml" />
+<import file="nv40_pme.xml" />
 
 <!-- 00c000 - 00cfff PCONTROL covered in nv40_pclock.xml, nv50_pclock.xml, nva3_pclock.xml -->
 

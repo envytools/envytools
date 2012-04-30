@@ -8,7 +8,7 @@
 	<value value="4" name="PEEPHOLE"/>
 	<value value="5" name="PFIFO"/>
 	<value value="6" name="BAR"/>
-	<value value="7" name="PMSRCH" variants="NV50:NV84"/>
+	<value value="7" name="PME" variants="NV50:NV84"/>
 	<value value="8" name="PMPEG" variants="NV50:NV98 NVA0"/>
 	<value value="8" name="PPPP" variants="NV98 NVAA-"/>
 	<value value="9" name="PBSP" variants="NV84-"/>

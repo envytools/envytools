@@ -68,15 +68,39 @@
 	<reg32 offset="0x138" name="FIFO_ERR_DATA" variants="NV31-"/>
 	<reg32 offset="0x150" name="UNK250" variants="NV31-"/> <!-- RO 12 -->
 	<reg32 offset="0x200" name="CONFIG"> <!-- 10000/ffffffff on pre-NV31, 30200/ffffffff on NV31+, ... -->
+		<!-- variants tested on: NV17, NV31, NV40, NV42, NV44, NV50, NVA0 -->
+		<bitfield pos="0" name="UNK0" variants="NV31-"/>
+		<bitfield pos="6" name="UNK6" variants="NV44-"/>
+		<bitfield pos="7" name="UNK7" variants="NV44-"/>
 		<bitfield pos="8" name="ERROR_CHECK"/>
-		<bitfield pos="16" name="CMD_TARGET">
+		<bitfield pos="9" name="UNK9" variants="NV31-"/>
+		<bitfield pos="10" name="UNK10" variants="NV31-"/>
+		<bitfield pos="11" name="UNK11" variants="NV31-"/>
+		<bitfield pos="12" name="UNK12" variants="NV31-"/>
+		<bitfield pos="13" name="UNK13" variants="NV84-"/>
+		<bitfield pos="14" name="UNK14" variants="NV50-"/>
+		<bitfield pos="15" name="UNK15" variants="NV40-"/>
+		<bitfield pos="16" name="CMD_TARGET" variants="NV17:NV40">
 			<value value="0" name="VRAM"/>
 			<value value="1" name="AGP"/> <!-- or PCI? -->
 		</bitfield>
+		<bitfield pos="17" name="DATA_TARGET" variants="NV31:NV40">
+			<value value="0" name="VRAM"/>
+			<value value="1" name="AGP"/> <!-- or PCI? -->
+		</bitfield>
+		<bitfield low="16" high="17" name="CMD_TARGET" variants="NV40:NV50"/>
+		<bitfield low="18" high="19" name="DATA_TARGET" variants="NV40:NV50"/>
 		<bitfield pos="20" name="ENDIAN">
 			<value value="0" name="LITTLE"/>
 			<value value="1" name="BIG"/>
 		</bitfield>
+		<bitfield pos="21" name="UNK21" variants="NV31-"/>
+		<bitfield pos="22" name="UNK22" variants="NV44-"/>
+		<bitfield pos="23" name="UNK23" variants="NV44-"/>
+		<bitfield pos="24" name="UNK24" variants="NV44-"/>
+		<bitfield pos="25" name="UNK25" variants="NV44:NV50"/>
+		<bitfield pos="25" name="UNK25" variants="NV84-"/>
+		<bitfield pos="26" name="UNK26" variants="NV44:NV50"/>
 	</reg32>
 	<reg32 offset="0x208" name="UNK208" variants="NV31-"/> <!-- ffffffff -->
 	<reg32 offset="0x210" name="UNK310"/> <!-- 1f/1f/0 -->

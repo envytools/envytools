@@ -18,7 +18,7 @@
 	<value value="0" name="SOFTWARE"/>
 	<value value="1" name="PGRAPH"/>
 	<value value="2" name="PMPEG" variants="NV31-"/>
-	<value value="3" name="PMSRCH" variants="NV40-"/>
+	<value value="3" name="PME" variants="NV40-"/>
 	<value value="4" name="PVP" variants="NV41-"/>
 </enum>
 
@@ -722,7 +722,7 @@
 				<doc>RO, reads as 3.</doc>
 			</reg32>
 			<reg32 offset="0x10c" name="MPEGCTX_INST" variants="NV41-"/>
-			<reg32 offset="0x110" name="MSRCHCTX_INST" variants="NV41-"/>
+			<reg32 offset="0x110" name="MECTX_INST" variants="NV41-"/>
 			<reg32 offset="0x114" name="VPCTX_INST" variants="NV41-"/>
 
 			<reg32 offset="0x100" name="ADDR" stride="0x8" length="32" variants="NV01:NV03T">

@@ -12,7 +12,7 @@
 	<value value="1" name="PGRAPH"/>
 	<value value="2" name="PMPEG" variants="NV50:NV98 NVA0"/>
 	<value value="2" name="PPPP" variants="NV98 NVAA-"/>
-	<value value="3" name="PMSRCH" variants="NV50"/>
+	<value value="3" name="PME" variants="NV50"/>
 	<value value="3" name="PCOPY" variants="NVA3-"/>
 	<value value="4" name="PVP" variants="NV50"/>
 	<value value="5" name="PCRYPT" variants="NV84:NVA3"/>
@@ -73,7 +73,7 @@
 			<bitfield low="0" high="3" name="PGRAPH"/>
 			<bitfield low="4" high="7" name="PMPEG" variants="NV50:NV98 NVA0"/>
 			<bitfield low="4" high="7" name="PPPP" variants="NV98 NVAA-"/>
-			<bitfield low="8" high="11" name="PMSRCH" variants="NV50"/>
+			<bitfield low="8" high="11" name="PME" variants="NV50"/>
 			<bitfield low="8" high="11" name="UNUSED2" variants="NV84:NVA3"/>
 			<bitfield low="8" high="11" name="PCOPY" variants="NVA3-"/>
 			<bitfield low="12" high="15" name="PVP"/>
@@ -178,7 +178,7 @@
 			<bitfield pos="0" name="PGRAPH"/>
 			<bitfield pos="1" name="PMPEG" variants="NV50:NV98 NVA0"/>
 			<bitfield pos="1" name="PPPP" variants="NV98 NVAA-"/>
-			<bitfield pos="2" name="PMSRCH" variants="NV50"/>
+			<bitfield pos="2" name="PME" variants="NV50"/>
 			<bitfield pos="2" name="UNUSED2" variants="NV84:NVA3"/>
 			<bitfield pos="2" name="PCOPY" variants="NVA3-"/>
 			<bitfield pos="3" name="PVP"/>

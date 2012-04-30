@@ -78,7 +78,7 @@ VM is used by several clients, which are identified by VM client id:
  - 3: DISPATCH: PGRAPH context save/restore, NOTIFY, QUERY, COND, and m2mf.
  - 4: PFIFO_WRITE: non-blocking write accesses by PFIFO, for FIFOs and BARs
  - 5: CCACHE: PGRAPH c[], code, TIC, and TSC accesses
- - 6: PVPE: VM front-end for PMPEG + PMSRCH [nv50 only] + PVP [nv50 only] [nv50:nv98]
+ - 6: PVPE: VM front-end for PMPEG + PME [nv50 only] + PVP [nv50 only] [nv50:nv98]
  - 6: PPPP [nv98-]
  - 7: CLIPID: PGRAPH window clip id reads/writes
  - 8: PFIFO_READ: reads by PFIFO, for FIFOs and BARs
@@ -102,7 +102,7 @@ to be part of several VM engines. The engines are:
  - 4: PEEPHOLE: PFIFO_WRITE + PFIFO_READ
  - 5: PFIFO: PFIFO_WRITE + PFIFO_READ
  - 6: BAR: PFIFO_WRITE + PFIFO_READ
- - 7: PMSRCH: PVPE [nv50:nv84]
+ - 7: PME: PVPE [nv50:nv84]
  - 8: PMPEG: PVPE [nv50:nv98]
  - 8: PPPP: PPPP [nv98-]
  - 9: PBSP: PBSP [nv84-]
@@ -147,9 +147,11 @@ ids depends on both engine and client id. The DMA slots are
  - 5/4/1: FIFO semaphore write
  - 5/8/1: FIFO semaphore read
  - c/8/1: FIFO background semaphore read
+ - 1/6/8: PVP context [nv50]
 [XXX 1/* pre-nv84]
+ - 7/6/4: PME context [nv50]
 [XXX 7/*]
-[XXX 8/* pre-nv98]
+[XXX 8/* pre-nv98 - PMPEG]
 [XXX b/*]
  - 1/c/0-f: PVP DMA ports 0-0xf [nv84:nv98]
  - 9/d/0-f: PBSP DMA ports 0-0xf [nv84:nv98]
@@ -302,7 +304,7 @@ selector | address | engine
 ----------------------------
  0x0020  | 0x00200 | PGRAPH
  0x0022  | 0x00220 | PVP
- 0x0024  | 0x00240 | PMSRCH
+ 0x0024  | 0x00240 | PME
  0x0026  | 0x00260 | PMPEG
 
 On nv84+ cards, they are:

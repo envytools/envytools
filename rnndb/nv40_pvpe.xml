@@ -18,28 +18,6 @@
 	<bitfield pos="31" name="VALID"/>
 </bitset>
 
-<array name="PMSRCH" offset="0xb800" stride="0x800" length="1" variants="NV40:NV84">
-	<bitset name="pmsrch_intr" inline="yes">
-		<bitfield pos="4" name="UNK4" variants="NV50-"/>
-		<bitfield pos="8" name="UNK8" variants="NV44-"/>
-		<bitfield pos="16" name="UNK16"/>
-		<bitfield pos="24" name="FIFO"/>
-	</bitset>
-	<reg32 offset="0x000" name="INTR" type="pmsrch_intr"/>
-	<reg32 offset="0x040" name="INTR_EN" type="pmsrch_intr"/>
-	<reg32 offset="0x048" name="STATUS"/>
-	<reg32 offset="0x058" name="UNK58"/>
-	<reg32 offset="0x05c" name="CHANNEL_CUR"/>
-	<reg32 offset="0x060" name="ENABLE"/>
-	<reg32 offset="0x110" name="FIFO_ERR">
-		<bitfield pos="0" name="CLEAR"/>
-		<bitfield pos="4" name="ILLEGAL_MTHD"/>
-		<bitfield pos="5" name="ILLEGAL_VALUE"/>
-	</reg32>
-	<reg32 offset="0x114" name="FIFO_ERR_MTHD"/>
-	<reg32 offset="0x118" name="FIFO_ERR_DATA"/>
-</array>
-
 </domain>
 
 </database>
