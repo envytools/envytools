@@ -8,18 +8,6 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-	<stripe offset="0x100000" name="PDMA" stride="0x1000" length="1" variants="NV01">
-		<reg32 offset="0x810" name="GR_CHANNEL">
-			<bitfield pos="0" name="ACCESS">
-				<value value="0" name="DISABLED"/>
-				<value value="1" name="ENABLED"/>
-			</bitfield>
-		</reg32>
-		<reg32 offset="0x880" name="GR_INSTANCE">
-			<bitfield high="15" low="0" name="ID"/>
-		</reg32>
-	</stripe>
-
 	<stripe offset="0x600000" name="PFB" stride="0x1000" length="1" variants="NV01">
 		<reg32 offset="0x000" name="BOOT_0">
 			<bitfield high="1" low="0" name="RAM_AMOUNT"/>
