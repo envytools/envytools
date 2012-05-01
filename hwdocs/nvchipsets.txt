@@ -121,15 +121,20 @@ include at least:
 101000:102000 PTIMER - time measurement and time-based alarms [ptimer.txt]
 400000:401000 PGRAPH - accelerated drawing engine
 600000:601000 PFB - VRAM and video output control - NV01 specific
-602000:603000 PRAM - priviledgd RAM control - NV01 specific
+602000:603000 PRAM - priviledgd RAM control [nv01-memory.txt]
+604000:605000 ???
+605000:606000 ???
+606000:607000 ???
 608000:609000 PSTRAPS - straps readout / override [pstraps.txt]
 609000:60a000 PDAC - DAC control - NV01 specific
 60a000:60b000 PEEPROM - configuration EEPROM access [peeprom.txt]
 610000:618000 PROM - ROM access window [nvbios.txt]
 618000:620000 PALT - external memory access window [nv01-memory.txt]
-640000:648000 PRAMHT - RAMHT access - NV01 specific
-648000:650000 PRAMFC - RAMFC access - NV01 specific
+640000:648000 PRAMHT - RAMHT access [nv01-memory.txt]
+648000:64c000 PRAMFC - RAMFC access [nv01-memory.txt]
+650000:654000 PRAMRO - RAMRO access [nv01-memory.txt]
 6c0000:6c8000 PRM - VGA compatibility control - NV01 specific
+700000:800000 PRAMIN - RAMIN access [nv01-memory.txt]
 800000:1000000 USER - PFIFO MMIO submission area [fifo-pio.txt]
 1000000:2000000 FB - VRAM access area [nv01-memory.txt]
 

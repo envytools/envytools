@@ -194,6 +194,9 @@
 <!-- 600000 - 67ffff PCRTC/PRMCIO -->
 <import file="nv03_pcrtc.xml" />
 
+<!-- 602000 - 602fff PRAM -->
+<import file="nv01_pram.xml" />
+
 <!-- 608000 - 608fff PSTRAPS covered in nv_pstraps.xml -->
 
 <!-- 60a000 - 60afff PEEPROM -->
@@ -210,6 +213,12 @@
 
 <!-- 610000 - 6bffff PDISPLAY -->
 <import file="nv50_pdisp.xml" />
+
+<!-- 640000 - 647fff PRAMHT covered in nv01_pram.xml -->
+
+<!-- 648000 - 64bfff PRAMFC covered in nv01_pram.xml -->
+
+<!-- 650000 - 653fff PRAMRO covered in nv01_pram.xml -->
 
 <!-- 700000 - 7fffff PRAMIN / PMEM covered above -->
 

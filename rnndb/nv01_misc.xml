@@ -8,23 +8,6 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-	<stripe offset="0x602000" name="PRAM" stride="0x1000" length="1" variants="NV01">
-		<reg32 offset="0x200" name="CONFIG_0">
-			<bitfield high="1" low="0" name="SIZE">
-				<value value="0" name="12KB"/>
-				<value value="1" name="20KB"/>
-				<value value="2" name="36KB"/>
-				<value value="3" name="68KB"/>
-			</bitfield>
-		</reg32>
-		<array offset="0x400" name="VIRTUAL" stride="4" length="128"/>
-		<reg32 offset="0x600" name="PHYSICAL">
-			<bitfield high="15" low="0" name="INSTANCE"/>
-			<bitfield high="22" low="16" name="DEVICE"/>
-			<bitfield pos="24" name="FREE_LIE"/>
-		</reg32>
-	</stripe>
-
 	<stripe offset="0x609000" name="PDAC" stride="0x1000" length="1" variants="NV01">
 		<reg32 offset="0x000" name="WRITE_PALETTE"/>
 		<reg32 offset="0x004" name="COLOUR_DATA"/>
@@ -97,10 +80,6 @@
 			</array>
 		</domain>
 	</stripe>
-
-	<array offset="0x640000" name="PRAMHT" stride="0x8" length="0x1000" variants="NV01"/> <!-- guess -->
-
-	<array offset="0x648000" name="PRAMFC" stride="0x80" length="128" variants="NV01"/>
 
 	<stripe offset="0x6c0000" name="PRM" stride="0x8000" length="1" variants="NV01">
 		<reg32 offset="0x200" name="CONFIG_0">
