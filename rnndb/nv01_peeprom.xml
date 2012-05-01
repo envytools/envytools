@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+<array offset="0x60a000" name="PEEPROM" stride="0x1000" length="1" variants="NV01">
+	<reg32 offset="0x400" name="PORT">
+		<bitfield low="0" high="7" name="DATA"/>
+		<bitfield low="8" high="14" name="ADDR"/>
+		<bitfield pos="24" name="WRITE_TRIGGER"/>
+		<bitfield pos="25" name="READ_TRIGGER"/>
+		<bitfield pos="28" name="BUSY"/>
+	</reg32>
+</array>
+
+</domain>
+
+</database>

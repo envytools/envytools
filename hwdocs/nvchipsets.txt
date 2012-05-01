@@ -124,6 +124,7 @@ include at least:
 602000:603000 PRAM - priviledgd RAM control - NV01 specific
 608000:609000 PSTRAPS - straps readout / override [pstraps.txt]
 609000:60a000 PDAC - DAC control - NV01 specific
+60a000:60b000 PEEPROM - configuration EEPROM access [peeprom.txt]
 610000:618000 PROM - ROM access window [nvbios.txt]
 618000:620000 PALT - external memory access window [nv01-memory.txt]
 640000:648000 PRAMHT - RAMHT access - NV01 specific

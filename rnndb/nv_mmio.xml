@@ -188,6 +188,9 @@
 
 <!-- 608000 - 608fff PSTRAPS covered in nv_pstraps.xml -->
 
+<!-- 60a000 - 60afff PEEPROM -->
+<import file="nv01_pdac.xml" />
+
 <!-- 680000 - 6fffff PRAMDAC/PRMDIO -->
 <import file="nv03_pramdac.xml" />
 
