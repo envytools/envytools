@@ -8,6 +8,23 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
+<bitset name="nv01_straps" inline="yes">
+	<bitfield low="0" high="1" name="FB_TYPE">
+		<value value="0" name="VRAM"/>
+		<value value="3" name="DRAM"/>
+	</bitfield>
+	<bitfield low="2" high="3" name="BOARD_TYPE">
+		<value value="0" name="MOTHERBOARD"/>
+		<value value="1" name="ADAPTER_1"/>
+		<value value="2" name="ADAPTER_2"/>
+		<value value="3" name="ADAPTER_3"/>
+	</bitfield>
+	<bitfield pos="4" name="BUS_TYPE">
+		<value value="0" name="PCI"/>
+		<value value="1" name="VL"/>
+	</bitfield>
+</bitset>
+
 <bitset name="nv03_straps" inline="yes">
 	<bitfield pos="0" name="PCI_66MHZ"/>
 	<bitfield pos="1" name="PCI_SUB_BIOS"/>
@@ -126,6 +143,10 @@
 
 <bitset name="nvd9_straps2" inline="yes">
 </bitset>
+
+<array offset="0x608000" name="PSTRAPS" stride="0x1000" length="1" variants="NV01:NV03">
+	<reg32 offset="0" name="STRAPS" type="nv01_straps" access="r"/>
+</array>
 
 <array offset="0x101000" name="PSTRAPS" stride="0x1000" length="1" variants="NV03-">
 	<reg32 offset="0x000" name="STRAPS" variants="NV03:NV18 NV20:NV25">

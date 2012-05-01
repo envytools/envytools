@@ -2,10 +2,11 @@ TOC
 
 0. Introduction
 1. MMIO register list
-2. Straps readout/override registers
-3. NV03 family straps
-4. NV04-NV40 families straps
-5. NV50 and NVC0 families straps sets
+2. NV01 straps
+3. NV03 straps readout/override registers
+4. NV03 family straps
+5. NV04-NV40 families straps
+6. NV50 and NVC0 families straps sets
 
 
 = Introduction =
@@ -22,9 +23,9 @@ this read is used as the "straps" value and is used to configure many aspects
 of GPU operation. Some of the straps are not used by the GPU itself, but are
 intended for use by the BIOS or the driver.
 
-NV03 has 10 straps bits. NV04 bumped this count to 16 straps bits, and allowed
-the driver to override the straps value at runtime. NV11 bumped the count to
-22 bits, NV20 bumped it to 31 bits.
+NV01 has 5 straps bits, NV03 has 10 bits. NV04 bumped this count to 16 straps
+bits, and allowed the driver to override the straps value at runtime. NV11
+bumped the count to 22 bits, NV20 bumped it to 31 bits.
 
 NV18 introduced a second set of 31 straps, and added another override
 mechanism. Each straps set now consists of 2 31-bit values: primary and
@@ -39,17 +40,23 @@ When effective straps value changes for any reason, the changes value starts
 being used by the card immediately.
 
 The straps can be read or overriden by accessing the PSTRAPS area of MMIO,
-which resides at addresses 0x101000-0x101fff in BAR0. It's also known as
-PEXTDEV by nvidia.
+which resides at addresses 0x608000-0x608fff [NV01] or 0x101000-0x101fff
+[NV03+] in BAR0. It's also known as PEXTDEV by nvidia.
 
 On NV03:NV17, PSTRAPS is enabled by PMC.ENABLE bit 20 [PFB], on later cards
-it's unaffected by PMC.ENABLE [see pmc.txt].
+and on NV01 it's unaffected by PMC.ENABLE [see pmc.txt].
 
 On NV03:NV04 cards, the PSTRAPS area is also home to an unrelated register
 controlling ROM timings.
 
 
 = MMIO register list =
+
+NV01 registers:
+
+608000 STRAPS			straps value
+
+NV03+ registers:
 
 no annotation - available on all NV03+ cards
 [1] - available on NV03:NV04 only
@@ -72,7 +79,25 @@ no annotation - available on all NV03+ cards
 101200[1] ROM_TIMINGS		ROM timing configuration [see prom.txt]
 
 
-= Straps readout/override registers =
+= NV01 straps =
+
+On NV01, all straps bits are available in a single register:
+
+MMIO 0x608000: STRAPS
+  bits 0-1: memory type
+    0 - VRAM
+    3 - DRAM
+  bits 2-3: board type
+    0 - motherboard
+    1 - adapter #1 [normal add-on cards use this value]
+    2 - adapter #2
+    3 - adapter #3
+  bit 4: bus type
+    0 - PCI
+    1 - VESA local bus
+
+
+= NV03+ straps readout/override registers =
 
 MMIO 0x101000: STRAPS0_PRIMARY
 MMIO 0x10100c: STRAPS1_PRIMARY [NV18:NV20 and NV25+ only]
