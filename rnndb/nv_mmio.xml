@@ -199,6 +199,9 @@
 
 <!-- 608000 - 608fff PSTRAPS covered in nv_pstraps.xml -->
 
+<!-- 609000 - 609fff PDAC -->
+<import file="nv01_pdac.xml" />
+
 <!-- 60a000 - 60afff PEEPROM -->
 <import file="nv01_pdac.xml" />
 
@@ -220,12 +223,15 @@
 
 <!-- 650000 - 653fff PRAMRO covered in nv01_pram.xml -->
 
+<!-- 6c0000 - 6c7fff PRM -->
+<import file="nv01_prm.xml" />
+
+<!-- 6d0000 - 6d0fff PRMIO covered in nv01_prm.xml -->
+
 <!-- 700000 - 7fffff PRAMIN / PMEM covered above -->
 
 <!-- 800000 - ffffff USER covered in nv_pfifo.xml -->
 
 <!-- 1000000 - 1ffffff FB covered in nv01_pfb.xml -->
-<!-- and NV01 crap, which doesn't fit in the above ordering... -->
-<import file="nv01_misc.xml" />
 
 </database>

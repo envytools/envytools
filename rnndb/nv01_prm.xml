@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+<array offset="0x6c0000" name="PRM" stride="0x8000" length="1" variants="NV01">
+	<reg32 offset="0x080" name="UNK80">
+		<bitfield pos="0" name="ATC_FLIP_FLOP"/>
+		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="12" name="UNK12"/>
+		<bitfield pos="16" name="UNK16"/>
+		<bitfield pos="20" name="UNK20"/>
+		<bitfield pos="28" name="UNK28"/>
+	</reg32>
+	<reg32 offset="0x100" name="INTR">
+		<bitfield pos="12" name="UNK12"/>
+		<bitfield pos="16" name="UNK16"/>
+		<bitfield pos="20" name="UNK20"/>
+	</reg32>
+	<reg32 offset="0x140" name="INTR_EN">
+		<bitfield pos="12" name="UNK12"/>
+		<bitfield pos="16" name="UNK16"/>
+		<bitfield pos="20" name="UNK20"/>
+	</reg32>
+	<reg32 offset="0x200" name="CONFIG_0">
+		<bitfield pos="0" name="TEXT"/>
+		<bitfield pos="4" name="DAC_WIDTH">
+			<value value="0" name="BITS_8"/>
+			<value value="1" name="BITS_6"/>
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x400" name="UNK400">
+		<bitfield low="0" high="7" name="UNK0"/>
+		<bitfield pos="8" name="UNK8"/>
+		<bitfield pos="12" name="UNK12"/>
+		<bitfield pos="16" name="UNK16"/>
+		<bitfield pos="20" name="UNK20"/>
+		<bitfield pos="24" name="UNK24"/>
+	</reg32>
+	<reg32 offset="0x1f00" name="TRACE">
+		<bitfield low="0" high="1" name="UNK0"/>
+		<bitfield pos="4" name="UNK4_STICKY"/>
+		<bitfield pos="5" name="UNK5_STICKY"/>
+		<bitfield low="8" high="9" name="UNK8"/>
+	</reg32>
+	<reg32 offset="0x1f10" name="UNK1F10"/>
+	<reg32 offset="0x1f20" name="UNK1F20"/>
+	<reg32 offset="0x1f24" name="UNK1F24"/>
+</array>
+
+<array name="PRMIO" offset="0x6d0000" stride="0x1000" length="1" variants="NV01">
+	<use-group name="nv_vga_vio"/>
+	<use-group name="nv_vga_cio"/>
+	<use-group name="nv_vga_dio"/>
+</array>
+
+</domain>
+
+</database>

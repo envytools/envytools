@@ -134,6 +134,7 @@ include at least:
 648000:64c000 PRAMFC - RAMFC access [nv01-memory.txt]
 650000:654000 PRAMRO - RAMRO access [nv01-memory.txt]
 6c0000:6c8000 PRM - VGA compatibility control - NV01 specific
+6d0000:6d1000 PRMIO - VGA IO port access
 700000:800000 PRAMIN - RAMIN access [nv01-memory.txt]
 800000:1000000 USER - PFIFO MMIO submission area [fifo-pio.txt]
 1000000:2000000 FB - VRAM access area [nv01-memory.txt]
