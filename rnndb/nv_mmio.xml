@@ -12,6 +12,7 @@
 	</array>
 
 	<reg8 offset="0x610000" name="PROM" length="0x8000" variants="NV01:NV03" />
+	<reg8 offset="0x618000" name="PALT" length="0x8000" variants="NV01:NV03" />
 
 	<reg8 offset="0x110000" name="PROM" length="0x10000" variants="NV03:NV04" />
 
@@ -191,6 +192,10 @@
 <import file="nv03_pramdac.xml" />
 
 <!-- 601000 - 601fff PRMIO covered in nv50_pdisplay.xml -->
+
+<!-- 610000 - 617fff PROM covered above -->
+
+<!-- 618000 - 61ffff PALT covered above -->
 
 <!-- 610000 - 6bffff PDISPLAY -->
 <import file="nv50_pdisp.xml" />
