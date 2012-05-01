@@ -8,54 +8,6 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-	<stripe offset="0x600000" name="PFB" stride="0x1000" length="1" variants="NV01">
-		<reg32 offset="0x000" name="BOOT_0">
-			<bitfield high="1" low="0" name="RAM_AMOUNT"/>
-		</reg32>
-		<reg32 offset="0x0c0" name="GREEN_0">
-			<bitfield high="1" low="0" name="LEVEL">
-				<value value="0" name="VIDEO_ENABLED"/>
-				<value value="1" name="VIDEO_DISABLED"/>
-				<value value="2" name="TIMING_DISABLED"/>
-				<value value="3" name="MEMORY_DISABLED"/>
-			</bitfield>
-			<bitfield high="17" low="16" name="POLAR_HSYNC">
-				<value value="0" name="HIGH"/>
-				<value value="1" name="LOW"/>
-				<value value="2" name="POSITIVE"/>
-				<value value="3" name="NEGATIVE"/>
-			</bitfield>
-			<bitfield high="21" low="20" name="POLAR_VSYNC">
-				<value value="0" name="HIGH"/>
-				<value value="1" name="LOW"/>
-				<value value="2" name="POSITIVE"/>
-				<value value="3" name="NEGATIVE"/>
-			</bitfield>
-			<bitfield pos="24" name="POLAR_CSYNC">
-				<value value="0" name="DISABLED"/>
-				<value value="1" name="ENABLED"/>
-			</bitfield>
-		</reg32>
-		<reg32 offset="0x200" name="CONFIG_0">
-			<bitfield pos="0" name="VERTICAL">
-				<brief>1 during blank</brief>
-			</bitfield>
-			<bitfield high="6" low="4" name="RESOLUTION"/>
-			<bitfield high="9" low="8" name="PIXEL_DEPTH"/>
-			<bitfield pos="20" name="SCANLINE"/>
-			<bitfield high="26" low="24" name="PCLK_VCLK_RATIO"/>
-		</reg32>
-		<reg32 offset="0x400" name="START"/>
-		<reg32 offset="0x500" name="HOR_FRONT_PORCH"/>
-		<reg32 offset="0x510" name="HOR_SYNC_WIDTH"/>
-		<reg32 offset="0x520" name="HOR_BACK_PORCH"/>
-		<reg32 offset="0x530" name="HOR_DISP_WIDTH"/>
-		<reg32 offset="0x540" name="VER_FRONT_PORCH"/>
-		<reg32 offset="0x550" name="VER_SYNC_WIDTH"/>
-		<reg32 offset="0x560" name="VER_BACK_PORCH"/>
-		<reg32 offset="0x570" name="VER_DISP_WIDTH"/>
-	</stripe>
-
 	<stripe offset="0x602000" name="PRAM" stride="0x1000" length="1" variants="NV01">
 		<reg32 offset="0x200" name="CONFIG_0">
 			<bitfield high="1" low="0" name="SIZE">

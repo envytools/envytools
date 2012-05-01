@@ -188,6 +188,9 @@
 <import file="nv50_pgraph.xml" />
 <import file="nvc0_pgraph.xml" />
 
+<!-- 600000 - 600fff PFB -->
+<import file="nv01_pfb.xml" />
+
 <!-- 600000 - 67ffff PCRTC/PRMCIO -->
 <import file="nv03_pcrtc.xml" />
 
@@ -212,6 +215,7 @@
 
 <!-- 800000 - ffffff USER covered in nv_pfifo.xml -->
 
+<!-- 1000000 - 1ffffff FB covered in nv01_pfb.xml -->
 <!-- and NV01 crap, which doesn't fit in the above ordering... -->
 <import file="nv01_misc.xml" />
 

@@ -131,6 +131,7 @@ include at least:
 648000:650000 PRAMFC - RAMFC access - NV01 specific
 6c0000:6c8000 PRM - VGA compatibility control - NV01 specific
 800000:1000000 USER - PFIFO MMIO submission area [fifo-pio.txt]
+1000000:2000000 FB - VRAM access area [nv01-memory.txt]
 
 There's also NV02, which has even more legendary status. It was supposed to be
 another card based on quadratic surfaces, but it got stuck in development hell
