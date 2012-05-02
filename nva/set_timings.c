@@ -88,7 +88,7 @@ static void
 mmiotrace_start(int entry)
 {
 	int ret;
-
+#ifdef __linux__
 	ret = mount("debugfs", "/sys/kernel/debug", "debugfs", 0, 0);
 	if (ret)
 		fprintf(stderr, "mounting debugfs returned error %i: %s\n", ret, strerror(ret));
@@ -112,15 +112,21 @@ mmiotrace_start(int entry)
 	}
 
 	printf("mmiotrace started\n");
+#else
+	ret = ENOSYS;
+	fprintf(stderr, "debugfs is not available on this platform %i: %s\n", ret, strerror(ret));
+#endif
 }
 
 static void
 mmiotrace_stop()
 {
+#ifdef __linux__
 	if (write_to_file("/sys/kernel/debug/tracing/current_tracer", "nop"))
 		fprintf(stderr, "Copying the trace to a file failed\n");
 
 	printf("mmiotrace stopped\n");
+#endif
 }
 
 static int
