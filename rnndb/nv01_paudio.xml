@@ -10,7 +10,7 @@
 
 <array offset="0x300000" name="PAUDIO" stride="0x1000" length="1" variants="NV01">
 	<reg32 offset="0x080" name="UNK080">
-		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="0" name="AD1848_ENABLE"/> <!-- if 0, AD1848 is put to low-power mode -->
 		<bitfield pos="4" name="UNK4"/>
 		<bitfield pos="8" name="UNK8"/>
 	</reg32>
