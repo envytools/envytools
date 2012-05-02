@@ -7,6 +7,7 @@ pkg_check_modules(PC_X11 x11)
 pkg_check_modules(PC_XEXT xext)
 
 include_directories(${PC_PCIACCESS_INCLUDE_DIRS} ../include)
+link_directories(${PC_PCIACCESS_LIBRARY_DIRS})
 
 add_library(nva nva.c)
 add_executable(nvalist nvalist.c)
