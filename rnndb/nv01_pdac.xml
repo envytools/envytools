@@ -54,6 +54,10 @@
 	<reg8 offset="0x11" name="MPLL_N_PARAM"/>
 	<reg8 offset="0x12" name="MPLL_O_PARAM"/>
 	<reg8 offset="0x13" name="MPLL_P_PARAM"/>
+	<reg8 offset="0x14" name="APLL_M_PARAM"/>
+	<reg8 offset="0x15" name="APLL_N_PARAM"/>
+	<reg8 offset="0x16" name="APLL_O_PARAM"/>
+	<reg8 offset="0x17" name="APLL_P_PARAM"/>
 	<reg8 offset="0x18" name="VPLL_M_PARAM"/>
 	<reg8 offset="0x19" name="VPLL_N_PARAM"/>
 	<reg8 offset="0x1a" name="VPLL_O_PARAM"/>
