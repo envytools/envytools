@@ -180,6 +180,9 @@
 
 <!-- 2ff000 - 2fffff PBRIDGE_PCI covered in nv_pbus.xml -->
 
+<!-- 300000 - 300fff PAUDIO -->
+<import file="nv01_paudio.xml" />
+
 <!-- 300000 - 3fffff PROM covered above -->
 
 <!-- 400000 - 5fffff PGRAPH -->
