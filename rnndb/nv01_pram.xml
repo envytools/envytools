@@ -16,7 +16,7 @@
 		<value value="3" name="68KB"/>
 	</reg32>
 	<!-- XXX: wtf? -->
-	<array offset="0x400" name="VIRTUAL" stride="4" length="128" access="w"/>
+	<reg32 offset="0x400" name="VIRTUAL" length="128" access="w"/>
 	<reg32 offset="0x600" name="PHYSICAL" access="r">
 		<bitfield high="15" low="0" name="INSTANCE"/>
 		<bitfield high="22" low="16" name="DEVICE"/>
