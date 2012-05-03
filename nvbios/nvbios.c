@@ -1652,6 +1652,7 @@ int main(int argc, char **argv) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0;
 		uint16_t start = temperature_tbl_ptr;
+		uint8_t cur_section = -1;
 
 		uint8_t fan_speed_tbl[] = { 0, 0, 25, 0, 40, 0, 50, 0, 75, 0, 85, 0, 100, 0, 100, 0 };
 
@@ -1676,12 +1677,15 @@ int main(int argc, char **argv) {
 			uint16_t type = (data & 0xf00f);
 			uint8_t fan_speed = fan_speed_tbl[(type >> 12) & 0xf];
 			uint8_t hysteresis = type & 0xf;
-			const char *type_s = NULL, *threshold = NULL;
+			const char *section_s = NULL, *threshold = NULL;
 			const char *correction_target = NULL;
 			uint16_t correction_value = 0;
-			uint16_t fan_min, fan_max;
+			uint16_t byte_low, byte_high;
 
-			type_s = (type == 0xa000?"ambient":"core");
+			if (id == 0x0)
+				cur_section = data;
+
+			section_s = (cur_section == 0?"core":"ambient");
 
 			/* Temperatures */
 			if (id == 0x4)
@@ -1692,8 +1696,8 @@ int main(int argc, char **argv) {
 				threshold = "fan boost";
 
 			/* fan */
-			fan_min = data & 0xff;
-			fan_max = (data & 0xff00) >> 8;
+			byte_low = data & 0xff;
+			byte_high = (data & 0xff00) >> 8;
 
 			correction_value = data;
 			if (id == 0x1) {
@@ -1716,9 +1720,9 @@ int main(int argc, char **argv) {
 			if (id == 0xff)
 				printf("	-- disabled");
 			else if (id == 0x0)
-				printf ("	-- new section type %i", data);
+				printf ("	-- new section type %i -> %s", data, section_s);
 			else if (threshold)
-				printf ("	-- %s %s temperature is %i°C", threshold, type_s, temp);
+				printf ("	-- %s %s temperature is %i°C", threshold, section_s, temp);
 			else if (id == 0x1 || (id >= 0x10 && id <= 0x13)) {
 				printf ("	-- temp management: ");
 				if (correction_target)
@@ -1726,15 +1730,19 @@ int main(int argc, char **argv) {
 				else
 					printf("id = 0x%x, data = 0x%x", id, data);
 			} else if (id == 0x22)
-				printf ("	-- fan_min = %i, fan_max = %i", fan_min, fan_max);
+				printf ("	-- fan_min = %i, fan_max = %i", byte_low, byte_high);
 			else if (id == 0x24)
 				printf ("	-- bump fan speed to %i%% when at %i°C hysteresis %i°C", fan_speed, temp, hysteresis);
+			else if (id == 0x25)
+				printf ("	-- bump fan speed to %i%%", data);
 			else if (id == 0x26)
 					printf("	-- pwm frequency %i", data);
 			else if (id == 0x3b)
 				printf ("	-- fan bump periodicity %i ms", data);
 			else if (id == 0x3c)
 				printf ("	-- fan slow down periodicity %i ms", data);
+			else if (id == 0x46)
+				printf ("	-- fan_start_temp_min = %i°C, fan_max_temp = %i°C", byte_low, byte_high);
 			else
 				printf ("	-- unknown (temp ?= %i°C, type ?= 0x%x)", temp, type);
 
