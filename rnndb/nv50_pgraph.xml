@@ -93,6 +93,9 @@
 	<value value="0x23" name="XY_OUT_OF_BOUNDS"> <!-- m2mf at least. 2d too? -->
 		<brief>Your x/y coords exceed the size of your surface.</brief>
 	</value>
+	<value value="0x24" name="VP_ZERO_INPUTS">
+		<brief>You tried to submit vertices with VP input mask (VP_ATTR_EN) set to 0.</brief>
+	</value>
 	<value value="0x27" name="CP_MORE_PARAMS_THAN_SHARED">
 		<brief>You tried to launch block with more params than allocated s[] space.</brief>
 	</value>
