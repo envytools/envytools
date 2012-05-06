@@ -206,8 +206,8 @@
 		optimisation, they can be submitted in pairs if both go to the same method, or if they go
 		to sequential two methods.
 		</doc>
-		<reg32 offset="0x040" name="DELAY" variants="NV03-">
-			<bitfield high="7" low="0" name="WAIT_RETRY" variants="NV03:NV04"/>
+		<reg32 offset="0x040" name="DELAY">
+			<bitfield high="7" low="0" name="WAIT_RETRY" variants="NV01:NV04"/>
 			<bitfield high="9" low="0" name="WAIT_RETRY" variants="NV04-"/>
 			<bitfield high="31" low="28" name="UNK28" variants="NV40-"/>
 		</reg32>
@@ -244,7 +244,7 @@
 			<bitfield pos="28" name="ACTIVE"/>
 			<bitfield pos="29" name="ENABLE"/>
 		</reg32>
-		<reg32 offset="0x080" name="DEBUG_0" variants="NV03-" access="r">
+		<reg32 offset="0x080" name="DEBUG_0" access="r">
 			<!-- XXX: this is getting more suspicious with each hw gen. -->
 			<bitfield pos="0" name="CACHE_ERROR0"/>
 			<bitfield pos="4" name="CACHE_ERROR1"/>
@@ -284,7 +284,7 @@
 			<bitfield pos="24" name="ACQUIRE_TIMEOUT" variants="NV11-" /> <!-- XXX: make sure. Also check on NV40. -->
 		</reg32>
 		<reg32 offset="0x200" name="CONFIG" variants="NV01:NV04">
-			<bitfield high="1" low="0" name="FREE_LIE" variants="NV01">
+			<bitfield high="1" low="0" name="FREE_LIE" variants="NV01:NV03">
 				<value value="0" name="DISABLED"/>
 				<value value="1" name="252_BYTES"/>
 				<value value="2" name="508_BYTES"/>
@@ -467,6 +467,7 @@
 			<bitfield high="4" low="0" name="CHID" variants="NV10:NV40"/>
 			<bitfield high="8" low="0" name="CHID" variants="NV40-"/>
 			<bitfield pos="24" name="SWITCH_AVAILABLE"/>
+			<!-- XXX: NV01 has something at 28 -->
 		</reg32>
 
 		<array offset="0x1000" length="1" stride="0x200" name="CACHE0">
@@ -480,7 +481,7 @@
 				<bitfield high="8" low="0" name="CHID" variants="NV40-"/>
 			</reg32>
 			<reg32 offset="0x010" name="PUT" variants="NV03-"/>
-			<reg32 offset="0x010" name="PUSH1" variants="NV01">
+			<reg32 offset="0x010" name="PUSH1" variants="NV01:NV03">
 				<bitfield high="6" low="0" name="CHID"/>
 			</reg32>
 			<reg32 offset="0x014" name="STATUS" variants="NV03-">
@@ -488,7 +489,12 @@
 				<bitfield pos="4" name="EMPTY"/>
 				<bitfield pos="8" name="FULL"/>
 			</reg32>
-			<reg32 offset="0x030" name="PUT" variants="NV01"/>
+			<reg32 offset="0x020" name="STATUS" variants="NV01:NV03">
+				<bitfield pos="0" name="RANOUT"/>
+				<bitfield pos="4" name="EMPTY"/>
+				<bitfield pos="8" name="FULL"/>
+			</reg32>
+			<reg32 offset="0x030" name="PUT" variants="NV01:NV03"/>
 			<reg32 offset="0x040" name="PULL0" variants="NV01:NV04">
 				<bitfield pos="0" name="ACCESS"/>
 				<bitfield pos="4" name="HASH_FAILED"/>
@@ -500,7 +506,7 @@
 				<bitfield pos="8" name="DEVICE_SOFTWARE"/>
 				<bitfield pos="12" name="HASH_BUSY"/>
 			</reg32>
-			<reg32 offset="0x050" name="PULL1" variants="NV01:NV04">
+			<reg32 offset="0x050" name="PULL1" variants="NV01:NV03">
 				<bitfield pos="8" name="OBJECT">
 					<value value="0" name="UNCHANGED"/>
 					<value value="1" name="CHANGED"/>
@@ -516,7 +522,11 @@
 				<bitfield pos="24" name="VALID" variants="NV40-"/>
 			</reg32>
 			<reg32 offset="0x070" name="GET"/>
-			<reg32 offset="0x080" name="CTX" variants="NV01:NV04"/>
+			<reg32 offset="0x080" name="CTX" variants="NV01:NV04">
+				<bitfield low="0" high="15" name="ENGDATA"/>
+				<bitfield low="16" high="22" name="ADDR" shr="16"/>
+				<bitfield pos="23" name="UNK23" variants="NV03:NV04"/>
+			</reg32>
 			<reg32 offset="0x080" name="ENGINE" variants="NV04-">
 				<bitfield high="3" low="0" name="0" type="nv04_pfifo_engine"/>
 				<bitfield high="7" low="4" name="0" type="nv04_pfifo_engine"/>
@@ -547,7 +557,7 @@
 				<bitfield pos="16" name="MODE" variants="NV40-" type="nv04_pfifo_channel_mode"/>
 			</reg32>
 			<reg32 offset="0x010" name="PUT" variants="NV03-"/>
-			<reg32 offset="0x010" name="PUSH1" variants="NV01">
+			<reg32 offset="0x010" name="PUSH1" variants="NV01:NV03">
 				<bitfield high="6" low="0" name="CHID"/>
 			</reg32>
 			<reg32 offset="0x014" name="STATUS" variants="NV03-">
@@ -562,6 +572,11 @@
 				<bitfield pos="30" name="ERROR">
 					<!-- XXX: what are NV03 values? -->
 				</bitfield>
+			</reg32>
+			<reg32 offset="0x020" name="STATUS" variants="NV01:NV03">
+				<bitfield pos="0" name="RANOUT"/>
+				<bitfield pos="4" name="EMPTY"/>
+				<bitfield pos="8" name="FULL"/>
 			</reg32>
 			<reg32 offset="0x020" name="DMA_PUSH" variants="NV03:NV04"/>
 			<reg32 offset="0x024" name="DMA_COUNT" variants="NV03:NV04"/>
@@ -650,12 +665,12 @@
 				</bitfield>
 			</reg32>
 			<reg32 offset="0x050" name="PULL1" variants="NV01:NV04">
-				<bitfield high="2" low="0" name="SUBCHANNEL"/>
+				<bitfield high="2" low="0" name="SUBCHANNEL" variants="NV01:NV03"/>
 				<bitfield pos="4" name="CTX">
 					<value value="0" name="CLEAN"/>
 					<value value="1" name="DIRTY"/>
 				</bitfield>
-				<bitfield pos="8" name="OBJECT">
+				<bitfield pos="8" name="OBJECT" variants="NV01:NV03">
 					<value value="0" name="UNCHANGED"/>
 					<value value="1" name="CHANGED"/>
 				</bitfield>
@@ -686,7 +701,12 @@
 				<bitfield high="31" low="12" name="PAGE" shr="12"/>
 			</reg32>
 			<reg32 offset="0x070" name="GET"/>
-			<reg32 offset="0x080" name="CTX" stride="0x10" length="8" variants="NV01:NV04"/>
+			<reg32 offset="0x080" name="CTX" stride="0x10" length="8" variants="NV01:NV04">
+				<bitfield low="0" high="15" name="ENGDATA"/>
+				<bitfield low="16" high="22" name="ADDR" shr="16"/>
+				<bitfield pos="23" name="UNK23" variants="NV03:NV04"/>
+				<bitfield pos="24" name="FREE_LIE" variants="NV01:NV03"/>
+			</reg32>
 			<reg32 offset="0x080" name="ENGINE" variants="NV04-">
 				<bitfield high="3" low="0" name="0" type="nv04_pfifo_engine"/>
 				<bitfield high="7" low="4" name="0" type="nv04_pfifo_engine"/>
