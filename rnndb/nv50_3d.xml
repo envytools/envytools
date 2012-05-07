@@ -1255,7 +1255,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1a88" name="STRMOUT_NUM_ATTRIBS" length="4" stride="16" type="uint" max="0x40"/>
 		<reg32 offset="0x1a8c" name="STRMOUT_OFFSET_LIMIT" length="4" stride="16" variants="NVA0_3D-"/>
 		<reg32 offset="0x1ac0" name="VERTEX_ARRAY_ATTRIB" length="16">
-			<bitfield name="BUFFER" high="3" low="0" type="int"/>
+			<bitfield name="BUFFER" high="3" low="0" type="uint"/>
 			<bitfield name="CONST" pos="4" type="boolean"/><!-- use latest VTX_ATTR_* -->
 			<bitfield name="OFFSET" high="18" low="5" type="int"/>
 			<bitfield name="FORMAT" high="24" low="19" type="nv50_vtxelt_format"/>
