@@ -59,6 +59,10 @@
 	<bitfield low="8" high="15" name="N"/>
 </bitset>
 
+<bitset name="nv50_fan_div" inline="yes">
+	<bitfield low="0" high="2" name="P"/>
+</bitset>
+
 <bitset name="nv50_div" inline="yes">
 	<bitfield low="0" high="2" name="DOM6_P" variants="NV84-"/>
 	<bitfield low="8" high="10" name="VDEC_P" variants="NV84-"/>
@@ -82,6 +86,7 @@
 	<reg32 offset="0x034" name="XTPLL_COEF" variants="NV84:NV98 NVA0" type="nv50_pll_coef"/>
 	<reg32 offset="0x088" name="UNK88_PLL_CTRL" variants="NVA0" type="nv50_mpll_ctrl"/>
 	<reg32 offset="0x08c" name="UNK88_PLL_COEF" variants="NVA0" type="nv50_pll_coef"/>
+	<reg32 offset="0x10c" name="FAN_DIV" variants="NV50:NVA0" type="nv50_fan_div"/>
 	<reg32 offset="0x700" name="DIV" variants="NV50:NV92 NV98:NVAA" type="nv50_div"/>
 	<reg32 offset="0x800" name="DIV" variants="NV92:NV98" type="nv50_div"/>
 </array>
@@ -180,7 +185,10 @@
 			<value value="1" name="HREF"/>
 		</bitfield>
 
-		<bitfield pos="23" name="UNK23" variants="NV86:NVA0"/>
+		<bitfield pos="23" name="FAN_REF" variants="NV86:NVA0">
+			<value value="0" name="CRYSTAL_DIV_20"/>
+			<value value="1" name="HREF_DIV_9.6"/>
+		</bitfield>
 
 		<bitfield pos="24" name="XTCLK_1" variants="NV84-">
 			<doc>Selects XTCLK postdivider, and the clock if XTCLK/VDCLK is set to XTCLK_1</doc>

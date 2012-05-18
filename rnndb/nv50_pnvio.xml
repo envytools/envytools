@@ -122,6 +122,11 @@
 				<bitfield low="0" high="23" name="DIVISOR"/>
 			</reg32>
 			<reg32 name="DUTY" offset="4">
+				<doc>
+					e120's scan is 03ffffff compared to e118's that is 00ffffff
+					Bit 01000000 seems to require both the bit 31 trigger
+					*and* writing to duty again to make the write count.
+				</doc>
 				<bitfield low="0" high="23" name="DUTY"/>
 				<bitfield pos="31" name="WR_TRIGGER"/>
 			</reg32>
