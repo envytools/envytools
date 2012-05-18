@@ -960,6 +960,7 @@ int main(int argc, char **argv) {
 		const uint32_t nv50_gpio_reg[4] = { 0xe104, 0xe108, 0xe280, 0xe284 };
 		uint16_t soff = gpiooffset + gpiohlen;
 		uint8_t tag, line, logic0, logic1, defs, unk0, unk1;
+		char *param0_name = "??";
 		for (i = 0; i < gpioentries; i++) {
 			if (dcbver < 0x40) {
 				uint16_t entry = le16(soff);
@@ -968,6 +969,14 @@ int main(int argc, char **argv) {
 				tag = (entry & 0x07e0) >> 5;
 				logic0 = (entry & 0x1800) >> 11;
 				logic1 = (entry & 0x6000) >> 13;
+				unk0 = !!(entry & 0x8000);
+
+				if (tag == 0x2 || tag == 0x9) {
+					if (!unk0)
+						param0_name = "TOGGLE";
+					else
+						param0_name = "PWM";
+				}
 			} else if (dcbver < 0x41) {
 				uint16_t entry = soff;
 
@@ -994,7 +1003,7 @@ int main(int argc, char **argv) {
 
 			struct tag_info {
 				uint8_t	id;
-				char		name[15];
+				char		name[21];
 			} tags[] = {
 				{ 0x01, "PANEL_PWR"},
 				{ 0x0c, "TVDAC0"},
@@ -1033,14 +1042,14 @@ int main(int argc, char **argv) {
 				if (tag == 0x3f) {
 					printf("-- invalid entry --\n");
 				} else {
-					printf("-- tag %02x(%s), line %02x, logic(0) %x, logic(1) %x --\n",
-							tag, tag_name, line, logic0, logic1);
+					printf("-- tag %02x(%s), line %02x, logic(0) %x, logic(1) %x unk0 %x(%s) --\n",
+							tag, tag_name, line, logic0, logic1, unk0, param0_name);
 				}
 			} else if (dcbver < 0x41) {
 				if (tag == 0xff) {
 					printf("-- invalid entry --\n");
 				} else {
-					printf("-- tag %02x(%s), line %02x, logic(0) %x, logic(1) %x, def %x, unk0 %x, unk1 %x--\n",
+					printf("-- tag %02x(%s), line %02x, logic(0) %x, logic(1) %x, def %x, unk0 %x, unk1 %x --\n",
 							tag, tag_name, line, logic0, logic1, defs, unk0, unk1);
 					printf("-- GPIO register 0x%x, shift 0x%x --\n",
 							nv50_gpio_reg[line >> 3], (line & 7) << 2);
@@ -1049,7 +1058,7 @@ int main(int argc, char **argv) {
 				if (tag == 0xff) {
 					printf("-- invalid entry --\n");
 				} else {
-					printf("-- tag %02x(%s), line %02x, logic(0) %x, logic(1) %x, def %x, unk0 %x, unk1 %x--\n",
+					printf("-- tag %02x(%s), line %02x, logic(0) %x, logic(1) %x, def %x, unk0 %x, unk1 %x --\n",
 							tag, tag_name, line, logic0, logic1, defs, unk0, unk1);
 					printf("-- GPIO register 0x%x --\n", 0x00d610 + (line * 4));
 				}
