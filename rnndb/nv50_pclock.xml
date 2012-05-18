@@ -186,8 +186,12 @@
 		</bitfield>
 
 		<bitfield pos="23" name="FAN_REF" variants="NV86:NVA0">
-			<value value="0" name="CRYSTAL_DIV_20"/>
-			<value value="1" name="HREF_DIV_9.6"/>
+			<value value="0" name="CRYSTAL">
+				<doc>We get this clock divided by 20 usually</doc>
+			</value>
+			<value value="1" name="HREF">
+				<doc>We get this clock divided by 2.4 usually</doc>
+			</value>
 		</bitfield>
 
 		<bitfield pos="24" name="XTCLK_1" variants="NV84-">
