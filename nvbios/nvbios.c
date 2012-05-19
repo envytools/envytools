@@ -1005,7 +1005,9 @@ int main(int argc, char **argv) {
 				uint8_t	id;
 				char		name[21];
 			} tags[] = {
+				{ 0x00, "PANEL_BACKLIGHT_ON"},
 				{ 0x01, "PANEL_PWR"},
+				{ 0x21, "PANEL_BACKLIGHT_LEVEL"},
 				{ 0x0c, "TVDAC0"},
 				{ 0x2d, "TVDAC1"},
 				{ 0x09, "FAN_PWM"},
