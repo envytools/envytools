@@ -129,15 +129,34 @@ struct envy_bios_gpio_entry {
 	uint8_t unk41_4;
 };
 
+struct envy_bios_subgunk {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+};
+
+struct envy_bios_gunk {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+	struct envy_bios_subgunk *entries;
+};
+
 struct envy_bios_gpio {
 	uint16_t offset;
-	uint16_t unk40offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
 	uint8_t entriesnum;
 	uint8_t rlen;
 	struct envy_bios_gpio_entry *entries;
+	struct envy_bios_gunk gunk;
 };
 
 struct envy_bios {

@@ -24,6 +24,8 @@
 
 #include "bios.h"
 
+int envy_bios_parse_gunk (struct envy_bios *bios);
+
 int envy_bios_parse_gpio (struct envy_bios *bios) {
 	struct envy_bios_gpio *gpio = &bios->gpio;
 	int err = 0;
@@ -69,9 +71,11 @@ int envy_bios_parse_gpio (struct envy_bios *bios) {
 		ENVY_BIOS_WARN("GPIO table record longer than expected [%d > %d]\n", gpio->rlen, wantrlen);
 	}
 	if (gpio->version >= 0x40) {
-		err |= bios_u16(bios, gpio->offset+4, &gpio->unk40offset);
+		err |= bios_u16(bios, gpio->offset+4, &gpio->gunk.offset);
 		if (err)
 			return -EFAULT;
+		if (envy_bios_parse_gunk(bios))
+			ENVY_BIOS_ERR("Failed to parse GUNK table at %04x version %x.%x\n", bios->gpio.gunk.offset, bios->gpio.gunk.version >> 4, bios->gpio.gunk.version & 0xf);
 	}
 	gpio->entries = calloc(gpio->entriesnum, sizeof *gpio->entries);
 	if (!gpio->entries)
@@ -166,6 +170,8 @@ static struct enum_val gpio_spec41[] = {
 	{ 0 },
 };
 
+void envy_bios_print_gunk (struct envy_bios *bios, FILE *out);
+
 void envy_bios_print_gpio (struct envy_bios *bios, FILE *out) {
 	struct envy_bios_gpio *gpio = &bios->gpio;
 	if (!bios->gpio.offset)
@@ -226,10 +232,144 @@ void envy_bios_print_gpio (struct envy_bios *bios, FILE *out) {
 		envy_bios_dump_hex(bios, out, eoff, gpio->rlen);
 	}
 	fprintf(out, "\n");
-	if (bios->gpio.version >= 0x40) {
-		fprintf(out, "Unknown pointer: %04x\n", bios->gpio.unk40offset);
-		/* XXX */
-		envy_bios_dump_hex(bios, out, bios->gpio.unk40offset, 0x100);
-	}
+	if (bios->gpio.version >= 0x40)
+		envy_bios_print_gunk(bios, out);
 	fprintf(out, "\n");
+}
+
+int envy_bios_parse_subgunk (struct envy_bios *bios, struct envy_bios_subgunk *subgunk) {
+	if (!subgunk->offset)
+		return 0;
+	int err = 0;
+	err |= bios_u8(bios, subgunk->offset, &subgunk->version);
+	err |= bios_u8(bios, subgunk->offset+1, &subgunk->hlen);
+	err |= bios_u8(bios, subgunk->offset+2, &subgunk->entriesnum);
+	err |= bios_u8(bios, subgunk->offset+3, &subgunk->rlen);
+	if (err)
+		return -EFAULT;
+	int wanthlen = 0;
+	int wantrlen = 0;
+	switch (subgunk->version) {
+		case 0x40:
+			wanthlen = 7;
+			wantrlen = 2;
+			break;
+		default:
+			ENVY_BIOS_ERR("Unknown SUBGUNK table version %x.%x\n", subgunk->version >> 4, subgunk->version & 0xf);
+			return -EINVAL;
+	}
+	if (subgunk->hlen < wanthlen) {
+		ENVY_BIOS_ERR("GUNK table header too short [%d < %d]\n", subgunk->hlen, wanthlen);
+		return -EINVAL;
+	}
+	if (subgunk->rlen < wantrlen) {
+		ENVY_BIOS_ERR("GUNK table record too short [%d < %d]\n", subgunk->rlen, wantrlen);
+		return -EINVAL;
+	}
+	if (subgunk->hlen > wanthlen) {
+		ENVY_BIOS_WARN("GUNK table header longer than expected [%d > %d]\n", subgunk->hlen, wanthlen);
+	}
+	if (subgunk->rlen > wantrlen) {
+		ENVY_BIOS_WARN("GUNK table record longer than expected [%d > %d]\n", subgunk->rlen, wantrlen);
+	}
+	/* XXX */
+	/*
+	subgunk->entries = calloc(gunk->entriesnum, sizeof *gunk->entries);
+	if (!subgunk->entries)
+		return -ENOMEM;
+		*/
+	int i;
+	for (i = 0; i < subgunk->entriesnum; i++) {
+		uint16_t eoff = subgunk->offset + subgunk->hlen + subgunk->rlen * i;
+//		struct envy_bios_subgunk *subgunk = &subgunk->entries[i];
+		/* XXX */
+	}
+	subgunk->valid = 1;
+	return 0;
+}
+
+int envy_bios_parse_gunk (struct envy_bios *bios) {
+	struct envy_bios_gunk *gunk = &bios->gpio.gunk;
+	int err = 0;
+	if (!gunk->offset)
+		return 0;
+	err |= bios_u8(bios, gunk->offset, &gunk->version);
+	err |= bios_u8(bios, gunk->offset+1, &gunk->hlen);
+	err |= bios_u8(bios, gunk->offset+2, &gunk->entriesnum);
+	err |= bios_u8(bios, gunk->offset+3, &gunk->rlen);
+	if (err)
+		return -EFAULT;
+	int wanthlen = 0;
+	int wantrlen = 0;
+	switch (gunk->version) {
+		case 0x40:
+			wanthlen = 4;
+			wantrlen = 2;
+			break;
+		default:
+			ENVY_BIOS_ERR("Unknown GUNK table version %x.%x\n", gunk->version >> 4, gunk->version & 0xf);
+			return -EINVAL;
+	}
+	if (gunk->hlen < wanthlen) {
+		ENVY_BIOS_ERR("GUNK table header too short [%d < %d]\n", gunk->hlen, wanthlen);
+		return -EINVAL;
+	}
+	if (gunk->rlen < wantrlen) {
+		ENVY_BIOS_ERR("GUNK table record too short [%d < %d]\n", gunk->rlen, wantrlen);
+		return -EINVAL;
+	}
+	if (gunk->hlen > wanthlen) {
+		ENVY_BIOS_WARN("GUNK table header longer than expected [%d > %d]\n", gunk->hlen, wanthlen);
+	}
+	if (gunk->rlen > wantrlen) {
+		ENVY_BIOS_WARN("GUNK table record longer than expected [%d > %d]\n", gunk->rlen, wantrlen);
+	}
+	gunk->entries = calloc(gunk->entriesnum, sizeof *gunk->entries);
+	if (!gunk->entries)
+		return -ENOMEM;
+	int i;
+	for (i = 0; i < gunk->entriesnum; i++) {
+		uint16_t eoff = gunk->offset + gunk->hlen + gunk->rlen * i;
+		struct envy_bios_subgunk *subgunk = &gunk->entries[i];
+		err |= bios_u16(bios, eoff, &subgunk->offset);
+		if (err)
+			return -EFAULT;
+		if (envy_bios_parse_subgunk(bios, subgunk))
+			ENVY_BIOS_ERR("Failed to parse SUBGUNK table at %04x version %x.%x\n", subgunk->offset, subgunk->version >> 4, subgunk->version & 0xf);
+	}
+	gunk->valid = 1;
+	return 0;
+}
+
+void envy_bios_print_subgunk (struct envy_bios *bios, FILE *out, struct envy_bios_subgunk *subgunk, int idx) {
+	if (!subgunk->offset)
+		return;
+	if (!subgunk->valid) {
+		fprintf(out, "Failed to parse SUBGUNK table at %04x version %x.%x\n\n", subgunk->offset, subgunk->version >> 4, subgunk->version & 0xf);
+		return;
+	}
+	fprintf(out, "SUBGUNK table %d at %04x version %x.%x\n", idx, subgunk->offset, subgunk->version >> 4, subgunk->version & 0xf);
+	envy_bios_dump_hex(bios, out, subgunk->offset, subgunk->hlen);
+	int i;
+	for (i = 0; i < subgunk->entriesnum; i++) {
+		uint16_t eoff = subgunk->offset + subgunk->hlen + subgunk->rlen * i;
+		envy_bios_dump_hex(bios, out, eoff, subgunk->rlen);
+	}
+	printf("\n");
+}
+
+void envy_bios_print_gunk (struct envy_bios *bios, FILE *out) {
+	struct envy_bios_gunk *gunk = &bios->gpio.gunk;
+	if (!gunk->offset)
+		return;
+	if (!gunk->valid) {
+		fprintf(out, "Failed to parse GUNK table at %04x version %x.%x\n\n", gunk->offset, gunk->version >> 4, gunk->version & 0xf);
+		return;
+	}
+	fprintf(out, "GUNK table at %04x version %x.%x, %d subtables\n", gunk->offset, gunk->version >> 4, gunk->version & 0xf, gunk->entriesnum);
+	envy_bios_dump_hex(bios, out, gunk->offset, gunk->hlen + gunk->entriesnum * gunk->rlen);
+	printf("\n");
+	int i;
+	for (i = 0; i < gunk->entriesnum; i++)
+		envy_bios_print_subgunk(bios, out, &gunk->entries[i], i);
 }
