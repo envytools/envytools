@@ -87,7 +87,7 @@
 	<reg32 offset="0x034" name="XTPLL_COEF" variants="NV84:NV98 NVA0" type="nv50_pll_coef"/>
 	<reg32 offset="0x088" name="UNK88_PLL_CTRL" variants="NVA0" type="nv50_mpll_ctrl"/>
 	<reg32 offset="0x08c" name="UNK88_PLL_COEF" variants="NVA0" type="nv50_pll_coef"/>
-	<reg32 offset="0x10c" name="FAN_DIV" variants="NV50:NVA0" type="nv50_fan_div"/>
+	<reg32 offset="0x10c" name="PWM_DIV" variants="NV84:NV94" type="nv50_fan_div"/>
 	<reg32 offset="0x600" name="DIV" variants="NVAA:NVA3" type="nv50_div"/>
 	<reg32 offset="0x700" name="DIV" variants="NV50:NV92 NV98:NVAA" type="nv50_div"/>
 	<reg32 offset="0x800" name="DIV" variants="NV92:NV98" type="nv50_div"/>
@@ -187,13 +187,9 @@
 			<value value="1" name="HREF"/>
 		</bitfield>
 
-		<bitfield pos="23" name="FAN_REF" variants="NV86:NVA0">
-			<value value="0" name="CRYSTAL">
-				<doc>We get this clock divided by 20 usually</doc>
-			</value>
-			<value value="1" name="HREF">
-				<doc>We get this clock divided by 2.4 usually</doc>
-			</value>
+		<bitfield pos="23" name="PWM" variants="NV84:NVA0 NVAA-">
+			<value value="0" name="CRYSTAL"/>
+			<value value="1" name="HCLK_M_3"/>
 		</bitfield>
 
 		<bitfield pos="24" name="XTCLK_1" variants="NV84-">
