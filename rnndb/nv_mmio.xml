@@ -62,6 +62,8 @@
 <!-- 00d000 - 00dfff PTV -->
 <import file="nv17_ptv.xml" />
 
+<!-- 00d000 - 00dfff PGPIO covered in nv50_pnvio.xml -->
+
 <!-- 00e000 - 00efff PNVIO -->
 <import file="nv50_pnvio.xml" />
 

@@ -51,10 +51,10 @@
 	</enum>
 
 	<bitset name="nv50_gpio" inline="yes">
-		<bitfield pos="0" name="WR_VAL"/>
-		<bitfield pos="1" name="WR_EN"/>
-		<bitfield pos="2" name="RD_VAL"/>
-		<bitfield pos="3" name="UNK3"/>
+		<bitfield pos="0" name="OUT"/>
+		<bitfield pos="1" name="OE"/>
+		<bitfield pos="2" name="IN"/>
+		<bitfield pos="3" name="OUT_NEG"/> <!-- if set, OUT or DISPLAY/NVIO control OUT will be flipped -->
 	</bitset>
 
 	<group name="nv50_pnvio_i2c">
@@ -70,7 +70,30 @@
 		</reg32>
 	</group>
 
-	<array name="PNVIO" offset="0x0000E000" stride="0x1000" length="1" variants="NV50-">
+	<array name="PGPIO" offset="0x0000d000" stride="0x1000" length="1" variants="NVD9-">
+		<array offset="0x000" name="I2C" stride="0x20" length="10">
+			<use-group name="nv50_pnvio_i2c"/>
+			<reg32 offset="0x18" name="UNK18"/>
+		</array>
+		<reg32 offset="0x600" name="UNK600"/>
+		<reg32 offset="0x604" name="GPIO_OUT_TRIGGER"/> <!-- write 1 to make OUT, OE, OUT_NEG changes happen -->
+		<reg32 offset="0x608" name="UNK608"/>
+		<reg32 offset="0x610" name="GPIO" length="0x20">
+			<bitfield low="0" high="4" name="IDX"/> <!-- used at least for DISPLAY_CONTROL -->
+			<bitfield pos="5" name="UNK5"/>
+			<bitfield pos="6" name="UNK6"/>
+			<bitfield pos="7" name="DISPLAY_CONTROL"/>
+			<bitfield pos="12" name="OUT"/>
+			<bitfield pos="13" name="OE"/>
+			<bitfield pos="14" name="IN"/>
+			<bitfield pos="15" name="OUT_NEG"/> <!-- if set, OUT or DISPLAY/NVIO control OUT will be flipped -->
+			<bitfield pos="16" name="UNK16"/>
+			<bitfield pos="17" name="UNK17"/>
+			<bitfield pos="18" name="UNK18"/>
+		</reg32>
+	</array>
+
+	<array name="PNVIO" offset="0x0000e000" stride="0x1000" length="1" variants="NV50-">
 		<doc>
 		Anything here that concerns i2c port > 1 is based on extrapolation.
 		</doc>
@@ -82,21 +105,19 @@
 			<bitfield low="0" high="15" name="PLUG_MASK_0" />
 			<bitfield low="16" high="31" name="UNPLUG_MASK_0" />
 		</reg32>
-		<reg32 name="GPIO_INTR_EN_1" offset="0x70">
+		<reg32 name="GPIO_INTR_EN_1" offset="0x70" variants="NV94-">
 			<bitfield low="0" high="15" name="PLUG_MASK_16" />
 			<bitfield low="16" high="31" name="UNPLUG_MASK_16" />
 		</reg32>
-		<reg32 name="GPIO_INTR_1" offset="0x74">
+		<reg32 name="GPIO_INTR_1" offset="0x74" variants="NV94-">
 			<bitfield low="0" high="15" name="PLUG_MASK_16" />
 			<bitfield low="16" high="31" name="UNPLUG_MASK_16" />
 		</reg32>
-		<reg32 name="GPIO_CTL_0" offset="0x100">
-			<doc>Some sort of control for the GPIOs. Two bits for each GPIO.
-			Written according to a table in BIOS.</doc>
-			<bitfield low="0" high="15" name="UNK1_MASK_0"/>
-			<bitfield low="16" high="31" name="UNK2_MASK_0"/>
+		<reg32 name="GPIO_CTL_0" offset="0x100" variants="NV50:NVD9">
+			<bitfield low="0" high="15" name="NVIO_CONTROL_MASK"/>
+			<bitfield low="16" high="31" name="DISPLAY_CONTROL_MASK"/>
 		</reg32>
-		<reg32 name="GPIO_0" offset="0x104">
+		<reg32 name="GPIO_0" offset="0x104" variants="NV50:NVD9">
 			<bitfield low="0" high="3" name="0" type="nv50_gpio"/>
 			<bitfield low="4" high="7" name="1" type="nv50_gpio"/>
 			<bitfield low="8" high="11" name="2" type="nv50_gpio"/>
@@ -106,7 +127,7 @@
 			<bitfield low="24" high="27" name="6" type="nv50_gpio"/>
 			<bitfield low="28" high="31" name="7" type="nv50_gpio"/>
 		</reg32>
-		<reg32 name="GPIO_1" offset="0x108">
+		<reg32 name="GPIO_1" offset="0x108" variants="NV50:NVD9">
 			<bitfield low="0" high="3" name="8" type="nv50_gpio"/>
 			<bitfield low="4" high="7" name="9" type="nv50_gpio"/>
 			<bitfield low="8" high="11" name="10" type="nv50_gpio"/>
@@ -116,6 +137,8 @@
 			<bitfield low="24" high="27" name="14" type="nv50_gpio"/>
 			<bitfield low="28" high="31" name="15" type="nv50_gpio"/>
 		</reg32>
+		<reg32 offset="0x10c" name="GPIO_MASK_UNK10C" variants="NV50:NVD9"/>
+		<reg32 offset="0x110" name="GPIO_MASK_UNK110" variants="NV50:NVD9"/>
 
 		<array name="PWM" offset="0x114" stride="8" length="2">
 			<reg32 name="DIVISOR" offset="0">
@@ -132,20 +155,20 @@
 			</reg32>
 		</array>
 
-		<array name="I2C_PORT_0" offset="0x124" length="1" stride="0x18">
+		<array name="I2C_PORT_0" offset="0x124" length="1" stride="0x18" variants="NV50:NVD9">
 			<use-group name="nv50_pnvio_i2c"/>
 		</array>
-		<array name="I2C_PORT_1" offset="0x13c" length="1" stride="0x18">
+		<array name="I2C_PORT_1" offset="0x13c" length="1" stride="0x18" variants="NV50:NVD9">
 			<use-group name="nv50_pnvio_i2c"/>
 		</array>
-		<array name="I2C_PORT_2" offset="0x154" length="1" stride="0x18">
+		<array name="I2C_PORT_2" offset="0x154" length="1" stride="0x18" variants="NV50:NVD9">
 			<use-group name="nv50_pnvio_i2c"/>
 		</array>
-		<array name="I2C_PORT_3" offset="0x16c" length="1" stride="0x18">
+		<array name="I2C_PORT_3" offset="0x16c" length="1" stride="0x18" variants="NV50:NVD9">
 			<use-group name="nv50_pnvio_i2c"/>
 		</array>
 
-		<reg32 name="CLOCK_SOURCE" offset="0x18c" variants="NV50:NVC0"> <!-- XXX: more variants? -->
+		<reg32 name="CLOCK_SOURCE" offset="0x18c" variants="NV50-">
 			<!-- XXX: figure out how much of this applies to cards other than nv50 -->
 			<doc>XTPLL is always linked to SOURCE_PLL2</doc>
 			<bitfield pos="0" name="RPLL1">
@@ -177,14 +200,14 @@
 			<bitfield pos="20" name="UNK20" variants="NV84-"/>
 		</reg32>
 
-		<array name="I2C_PORT_4" offset="0x240" length="1" stride="0x18" variants="NV84-">
+		<array name="I2C_PORT_4" offset="0x240" length="1" stride="0x18" variants="NV84:NVD9">
 			<use-group name="nv50_pnvio_i2c"/>
 		</array>
-		<array name="I2C_PORT_5" offset="0x258" length="1" stride="0x18" variants="NV84-">
+		<array name="I2C_PORT_5" offset="0x258" length="1" stride="0x18" variants="NV84:NVD9">
 			<use-group name="nv50_pnvio_i2c"/>
 		</array>
 
-		<reg32 name="GPIO_2" offset="0x280">
+		<reg32 name="GPIO_2" offset="0x280" variants="NV94:NVD9">
 			<bitfield low="0" high="3" name="16" type="nv50_gpio"/>
 			<bitfield low="4" high="7" name="17" type="nv50_gpio"/>
 			<bitfield low="8" high="11" name="18" type="nv50_gpio"/>
@@ -194,7 +217,7 @@
 			<bitfield low="24" high="27" name="22" type="nv50_gpio"/>
 			<bitfield low="28" high="31" name="23" type="nv50_gpio"/>
 		</reg32>
-		<reg32 name="GPIO_3" offset="0x284">
+		<reg32 name="GPIO_3" offset="0x284" variants="NV94:NVD9">
 			<bitfield low="0" high="3" name="24" type="nv50_gpio"/>
 			<bitfield low="4" high="7" name="25" type="nv50_gpio"/>
 			<bitfield low="8" high="11" name="26" type="nv50_gpio"/>
@@ -204,18 +227,18 @@
 			<bitfield low="24" high="27" name="30" type="nv50_gpio"/>
 			<bitfield low="28" high="31" name="31" type="nv50_gpio"/>
 		</reg32>
-		<reg32 name="GPIO_CTL_1" offset="0x28c">
+		<reg32 name="GPIO_CTL_1" offset="0x28c" variants="NV94:NVD9">
 			<doc>like e100, but for GPIOs 16-31.</doc>
-			<bitfield low="0" high="15" name="UNK1_MASK_16"/>
-			<bitfield low="16" high="31" name="UNK2_MASK_16"/>
+			<bitfield low="0" high="15" name="NVIO_CONTROL_MASK"/>
+			<bitfield low="16" high="31" name="DISPLAY_CONTROL_MASK"/>
 		</reg32>
 
-		<reg32 offset="0xe338" name="I2C_PORT_0_UNK18" variants="NVA3-"/>
-		<reg32 offset="0xe350" name="I2C_PORT_1_UNK18" variants="NVA3-"/>
-		<reg32 offset="0xe368" name="I2C_PORT_2_UNK18" variants="NVA3-"/>
-		<reg32 offset="0xe380" name="I2C_PORT_3_UNK18" variants="NVA3-"/>
-		<reg32 offset="0xe398" name="I2C_PORT_4_UNK18" variants="NVA3-"/>
-		<reg32 offset="0xe3b0" name="I2C_PORT_5_UNK18" variants="NVA3-"/>
+		<reg32 offset="0xe338" name="I2C_PORT_0_UNK18" variants="NVA3:NVD9"/>
+		<reg32 offset="0xe350" name="I2C_PORT_1_UNK18" variants="NVA3:NVD9"/>
+		<reg32 offset="0xe368" name="I2C_PORT_2_UNK18" variants="NVA3:NVD9"/>
+		<reg32 offset="0xe380" name="I2C_PORT_3_UNK18" variants="NVA3:NVD9"/>
+		<reg32 offset="0xe398" name="I2C_PORT_4_UNK18" variants="NVA3:NVD9"/>
+		<reg32 offset="0xe3b0" name="I2C_PORT_5_UNK18" variants="NVA3:NVD9"/>
 
 		<array name="AUXCH" offset="0x4c0" length="4" stride="0x50">
 			<reg32 name="DATA_OUT" offset="0x00" length="4"/>
@@ -243,19 +266,19 @@
 			<reg32 name="SETUP" offset="0x40"/>
 		</array>
 
-		<array name="I2C_PORT_6" offset="0x750" length="1" stride="0x1c" variants="NVA3-">
+		<array name="I2C_PORT_6" offset="0x750" length="1" stride="0x1c" variants="NVA3:NVD9">
 			<use-group name="nv50_pnvio_i2c"/>
 			<reg32 offset="0x18" name="UNK18"/>
 		</array>
-		<array name="I2C_PORT_7" offset="0x750" length="1" stride="0x1c" variants="NVA3-">
+		<array name="I2C_PORT_7" offset="0x750" length="1" stride="0x1c" variants="NVA3:NVD9">
 			<use-group name="nv50_pnvio_i2c"/>
 			<reg32 offset="0x18" name="UNK18"/>
 		</array>
-		<array name="I2C_PORT_8" offset="0x750" length="1" stride="0x1c" variants="NVA3-">
+		<array name="I2C_PORT_8" offset="0x750" length="1" stride="0x1c" variants="NVA3:NVD9">
 			<use-group name="nv50_pnvio_i2c"/>
 			<reg32 offset="0x18" name="UNK18"/>
 		</array>
-		<array name="I2C_PORT_9" offset="0x750" length="1" stride="0x1c" variants="NVA3-">
+		<array name="I2C_PORT_9" offset="0x750" length="1" stride="0x1c" variants="NVA3:NVD9">
 			<use-group name="nv50_pnvio_i2c"/>
 			<reg32 offset="0x18" name="UNK18"/>
 		</array>
