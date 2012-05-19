@@ -48,7 +48,6 @@ uint16_t bmpver = 0;
 uint8_t bmpver_min;
 uint8_t bmpver_maj;
 uint32_t i2coffset = 0;
-uint32_t gpiooffset = 0;
 uint8_t dcbver, dcbhlen, dcbrlen, dcbentries;
 uint8_t i2cver, i2chlen, i2crlen, i2centries, i2cd0, i2cd1;
 uint8_t gpiover, gpiohlen, gpiorlen, gpioentries;
@@ -836,7 +835,7 @@ int main(int argc, char **argv) {
 			dcbentries = bios->data[bios->dcb_offset+2];
 			dcbrlen = bios->data[bios->dcb_offset+3];
 			i2coffset = le16(bios->dcb_offset+4);
-			gpiooffset = le16(bios->dcb_offset+10);
+			bios->gpio.offset = le16(bios->dcb_offset+10);
 		} else if (dcbver >= 0x20) {
 			dcbhlen = 8;
 			dcbentries = 16;
@@ -949,127 +948,9 @@ int main(int argc, char **argv) {
 		printf ("\n");
 	}
 
-	if (gpiooffset) {
-		gpiover = bios->data[gpiooffset];
-		gpiohlen = bios->data[gpiooffset+1];
-		gpioentries = bios->data[gpiooffset+2];
-		gpiorlen = bios->data[gpiooffset+3];
-		printf ("GPIO table %d.%d at %x\n", gpiover >> 4, gpiover&0xf, gpiooffset);
-		printhex(gpiooffset, gpiohlen);
-
-		const uint32_t nv50_gpio_reg[4] = { 0xe104, 0xe108, 0xe280, 0xe284 };
-		uint16_t soff = gpiooffset + gpiohlen;
-		uint8_t tag, line, logic0, logic1, defs, unk0, unk1;
-		char *param0_name = "??";
-		for (i = 0; i < gpioentries; i++) {
-			if (dcbver < 0x40) {
-				uint16_t entry = le16(soff);
-
-				line = (entry & 0x001f) >> 0;
-				tag = (entry & 0x07e0) >> 5;
-				logic0 = (entry & 0x1800) >> 11;
-				logic1 = (entry & 0x6000) >> 13;
-				unk0 = !!(entry & 0x8000);
-
-				if (tag == 0x2 || tag == 0x9) {
-					if (!unk0)
-						param0_name = "TOGGLE";
-					else
-						param0_name = "PWM";
-				}
-			} else if (dcbver < 0x41) {
-				uint16_t entry = soff;
-
-				line = bios->data[entry + 0] & 0x1f;
-				tag = bios->data[entry + 1];
-				defs = !!(bios->data[entry + 3] & 0x01);
-				unk0 = !!(bios->data[entry + 3] & 0x02);
-				unk1 = !!(bios->data[entry + 3] & 0x04);
-				logic0 = (bios->data[entry + 3] & 0x18) >> 3;
-				logic1 = (bios->data[entry + 3] & 0x60) >> 5;
-			} else {
-				uint16_t entry = soff;
-
-				line = bios->data[entry + 0] & 0x3f;
-				tag = bios->data[entry + 1];
-				defs = !!(bios->data[entry + 0] & 0x80);
-				unk0 = bios->data[entry + 2];
-				unk1 = bios->data[entry + 3] & 0x1f;
-				logic0 = (bios->data[entry + 4] & 0x30) >> 4;
-				logic1 = (bios->data[entry + 4] & 0xc0) >> 6;
-			}
-			char* tag_name = "??";
-			int nr_tags, j;
-
-			struct tag_info {
-				uint8_t	id;
-				char		name[21];
-			} tags[] = {
-				{ 0x00, "PANEL_BACKLIGHT_ON"},
-				{ 0x01, "PANEL_PWR"},
-				{ 0x21, "PANEL_BACKLIGHT_LEVEL"},
-				{ 0x0c, "TVDAC0"},
-				{ 0x2d, "TVDAC1"},
-				{ 0x09, "FAN_PWM"},
-				{ 0x3d, "FAN_SENSE"},
-				{ 0x04, "VID_0"},
-				{ 0x05, "VID_1"},
-				{ 0x06, "VID_2"},
-				{ 0x1a, "VID_3"},
-				{ 0x73, "VID_4"},
-				{ 0x07, "HPD_0"},
-				{ 0x08, "HPD_1"},
-				{ 0x51, "HPD_2"},
-				{ 0x52, "HPD_3"},
-				{ 0x5e, "HPD_4"},
-				{ 0x5f, "HPD_5"},
-				{ 0x60, "HPD_6"},
-/*				{ 0x3f, "UNUSED"} */
-				{ 0x4c, "ATX_POWER"}, /* clear if everything is alright */
-				{ 0xff, "UNUSED"}
-			};
-			nr_tags = sizeof(tags)/sizeof(tags[0]);
-
-			for (j = 0; j < nr_tags; j++) {
-				if (tags[j].id == tag) {
-					tag_name = tags[j].name;
-					break;
-				}
-			}
-
-			if (dcbver < 0x40) {
-				if (tag == 0x3f) {
-					printf("-- invalid entry --\n");
-				} else {
-					printf("-- tag %02x(%s), line %02x, logic(0) %x, logic(1) %x unk0 %x(%s) --\n",
-							tag, tag_name, line, logic0, logic1, unk0, param0_name);
-				}
-			} else if (dcbver < 0x41) {
-				if (tag == 0xff) {
-					printf("-- invalid entry --\n");
-				} else {
-					printf("-- tag %02x(%s), line %02x, logic(0) %x, logic(1) %x, def %x, unk0 %x, unk1 %x --\n",
-							tag, tag_name, line, logic0, logic1, defs, unk0, unk1);
-					printf("-- GPIO register 0x%x, shift 0x%x --\n",
-							nv50_gpio_reg[line >> 3], (line & 7) << 2);
-				}
-			} else {
-				if (tag == 0xff) {
-					printf("-- invalid entry --\n");
-				} else {
-					printf("-- tag %02x(%s), line %02x, logic(0) %x, logic(1) %x, def %x, unk0 %x, unk1 %x --\n",
-							tag, tag_name, line, logic0, logic1, defs, unk0, unk1);
-					printf("-- GPIO register 0x%x --\n", 0x00d610 + (line * 4));
-				}
-			}
-
-			printhex(soff, gpiorlen);
-
-			soff += gpiorlen;
-			printf("\n");
-		}
-		printf("\n");
-	}
+	if (envy_bios_parse_gpio(bios))
+		ENVY_BIOS_ERR("Failed to parse GPIO table at %04x version %x.%x\n", bios->gpio.offset, bios->gpio.version >> 4, bios->gpio.version & 0xf);
+	envy_bios_print_gpio(bios, stdout);
 
 	if (pll_limit_tbl_ptr) {
 		uint8_t ver = bios->data[pll_limit_tbl_ptr];

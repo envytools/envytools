@@ -175,3 +175,11 @@ int envy_bios_parse (struct envy_bios *bios) {
 	}
 	return 0;
 }
+
+const char *find_enum(struct enum_val *evals, int val) {
+	int i;
+	for (i = 0; evals[i].str; i++)
+		if (val == evals[i].val)
+			return evals[i].str;
+	return "???";
+}
