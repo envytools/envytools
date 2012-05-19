@@ -998,7 +998,7 @@ int main(int argc, char **argv) {
 				logic0 = (bios->data[entry + 4] & 0x30) >> 4;
 				logic1 = (bios->data[entry + 4] & 0xc0) >> 6;
 			}
-			char* tag_name;
+			char* tag_name = "??";
 			int nr_tags, j;
 
 			struct tag_info {
@@ -1023,6 +1023,7 @@ int main(int argc, char **argv) {
 				{ 0x5f, "HPD_5"},
 				{ 0x60, "HPD_6"},
 /*				{ 0x3f, "UNUSED"} */
+				{ 0x4c, "ATX_POWER"}, /* clear if everything is alright */
 				{ 0xff, "UNUSED"}
 			};
 			nr_tags = sizeof(tags)/sizeof(tags[0]);
@@ -1030,10 +1031,6 @@ int main(int argc, char **argv) {
 			for (j = 0; j < nr_tags; j++) {
 				if (tags[j].id == tag) {
 					tag_name = tags[j].name;
-					break;
-				} else
-				if (tags[j].id == 0xff) {
-					tag_name = "??";
 					break;
 				}
 			}
