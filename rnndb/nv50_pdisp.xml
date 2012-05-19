@@ -273,7 +273,7 @@
 			<reg32 offset="0x0380" name="UNK380" stride="0x800" length="3"/>
 		</array>
 
-		<array offset="0x6000" name="CRTC_STAT" stride="0x800" length="2">
+		<stripe offset="0x6000" name="CRTC_STAT" stride="0x800" length="2">
 			<reg32 name="VERT" offset="0x340">
 				<bitfield low="0" high="15" name="VLINE"/>
 				<bitfield low="16" high="31" name="VBLANK_COUNT"/>
@@ -281,13 +281,15 @@
 			<reg32 name="HORZ" offset="0x344">
 				<bitfield low="0" high="15" name="HLINE"/>
 			</reg32>
-		</array>
+		</stripe>
 
-		<array offset="0x6500" name="HDMI" stride="0x800" length="2" variants="NV50:NVA3">
+		<stripe offset="0x6500" name="HDMI" stride="0x800" length="2" variants="NV84:NVA3">
 			<use-group name="NV_HDMI"/>
-		</array>
+		</stripe>
 
-		<array offset="0x7300" name="AUDIO" stride="0x100" length="1">
+		<!-- start of area controlled by "display back" clock -->
+
+		<array offset="0x7300" name="AUDIO" stride="0x100" length="1" variants="NV84-">
 			<reg32 offset="0x000" name="DEBUG0"/>
 			<reg32 offset="0x004" name="DEBUG1"/>
 			<reg32 offset="0x008" name="DEBUG2"/>
@@ -317,7 +319,13 @@
 				<bitfield pos="28" name="LOOKUP_ENABLE"/>
 			</reg32>
 			<reg32 offset="0x04c" name="UNK04C" length="7"/> <!-- nvidia write at same time as FS -->
+			<!-- XXX: 0x80+ is something different and NV94?+ only? -->
 			<reg32 offset="0x0e0" name="UNK0E0" length="7"/> <!-- nvidia write at same time as FS -->
+		</array>
+		<array offset="0x7400" name="HDCP" stride="0x100" length="1" variants="NV84-">
+		</array>
+
+		<array offset="0x8000" name="UNK8000" stride="0x1000" length="1">
 		</array>
 
 		<array offset="0x9000" name="VGA" stride="0x1000" length="1">
@@ -474,7 +482,7 @@
 			<reg32 name="TV_UNK1" offset="0x68"/>
 		</array>
 
-		<array name="SOR" offset="0xc000" stride="0x800" length="4">
+		<group name="nv50_sor">
 			<reg32 offset="0x000" name="CAP"/>
 			<reg32 offset="0x004" name="PWR">
 				<bitfield pos="0" name="NORMAL_STATE">
@@ -523,6 +531,20 @@
 			<array offset="0x500" name="HDMI" variants="NVA3-" stride="0x800" length="1">
 				<use-group name="NV_HDMI"/>
 			</array>
+		</group>
+
+		<array name="SOR" offset="0xc000" stride="0x800" length="2" variants="NV50:NV94 NVA0">
+			<use-group name="nv50_sor"/>
+		</array>
+		<array name="SOR" offset="0xc000" stride="0x800" length="3" variants="NV94:NVA0 NVAA:NVA3">
+			<use-group name="nv50_sor"/>
+		</array>
+		<array name="SOR" offset="0xc000" stride="0x800" length="4" variants="NVA3-">
+			<use-group name="nv50_sor"/>
+		</array>
+		<array offset="0xe000" name="EXT" stride="0x800" length="3">
+		</array>
+		<array name="UNK24900" offset="0x14900" stride="0x100" length="1" variants="NVA3-">
 		</array>
 		<array name="DAEMON" offset="0x17000" stride="0x1000" length="1" variants="NVD9-">
 			<use-group name="nv98_fucbase"/>
