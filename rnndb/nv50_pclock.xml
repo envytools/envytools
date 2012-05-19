@@ -64,9 +64,10 @@
 </bitset>
 
 <bitset name="nv50_div" inline="yes">
-	<bitfield low="0" high="2" name="DOM6_P" variants="NV84-"/>
+	<bitfield low="0" high="2" name="DOM6_P" variants="NV84:NVA0"/>
+	<bitfield low="4" high="6" name="UNK4" variants="NV84:NV94 NVA0"/>
 	<bitfield low="8" high="10" name="VDEC_P" variants="NV84-"/>
-	<bitfield pos="31" name="UNK31"/>
+	<bitfield pos="31" name="UNK31" variants="NV50:NVAA"/>
 </bitset>
 
 <array offset="0x4000" name="PCLOCK" stride="0x1000" variants="NV50:NVA3" length="1">
@@ -87,6 +88,7 @@
 	<reg32 offset="0x088" name="UNK88_PLL_CTRL" variants="NVA0" type="nv50_mpll_ctrl"/>
 	<reg32 offset="0x08c" name="UNK88_PLL_COEF" variants="NVA0" type="nv50_pll_coef"/>
 	<reg32 offset="0x10c" name="FAN_DIV" variants="NV50:NVA0" type="nv50_fan_div"/>
+	<reg32 offset="0x600" name="DIV" variants="NVAA:NVA3" type="nv50_div"/>
 	<reg32 offset="0x700" name="DIV" variants="NV50:NV92 NV98:NVAA" type="nv50_div"/>
 	<reg32 offset="0x800" name="DIV" variants="NV92:NV98" type="nv50_div"/>
 </array>
