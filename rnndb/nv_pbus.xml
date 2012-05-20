@@ -83,6 +83,9 @@
 			<bitfield low="0" high="5" name="UNK0"/>
 			<bitfield low="6" high="7" name="UNK1"/>
 		</reg32>
+		<reg32 offset="0x200" name="ROM_TIMINGS" variants="NV30:NV50">
+			<!-- ... -->
+		</reg32>
 
 		<stripe offset="0x300" name="HWSQ" variants="NV17:NV20 NV25:NVC0">
 			<reg32 offset="0x004" name="ENTRY_POINT">

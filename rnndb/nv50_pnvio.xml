@@ -200,6 +200,10 @@
 			<bitfield pos="20" name="UNK20" variants="NV84-"/>
 		</reg32>
 
+		<reg32 offset="0x200" name="ROM_TIMINGS">
+			<!-- ... -->
+		</reg32>
+
 		<array name="I2C_PORT_4" offset="0x240" length="1" stride="0x18" variants="NV84:NVD9">
 			<use-group name="nv50_pnvio_i2c"/>
 		</array>
