@@ -44,6 +44,10 @@ int envy_bios_parse_gpio (struct envy_bios *bios) {
 			wanthlen = 4;
 			wantrlen = 2;
 			break;
+		case 0x31:
+			wanthlen = 6;
+			wantrlen = 2;
+			break;
 		case 0x40:
 			wanthlen = 6;
 			wantrlen = 4;
@@ -70,7 +74,7 @@ int envy_bios_parse_gpio (struct envy_bios *bios) {
 	if (gpio->rlen > wantrlen) {
 		ENVY_BIOS_WARN("GPIO table record longer than expected [%d > %d]\n", gpio->rlen, wantrlen);
 	}
-	if (gpio->version >= 0x40) {
+	if (gpio->version >= 0x31) {
 		err |= bios_u16(bios, gpio->offset+4, &gpio->gunk.offset);
 		if (err)
 			return -EFAULT;
@@ -94,6 +98,7 @@ int envy_bios_parse_gpio (struct envy_bios *bios) {
 		uint16_t val;
 		switch (gpio->version) {
 			case 0x30:
+			case 0x31:
 				val = bytes[0] | bytes[1] << 8;
 				entry->line = val & 0x1f;
 				entry->tag = val >> 5 & 0x3f;
@@ -232,7 +237,7 @@ void envy_bios_print_gpio (struct envy_bios *bios, FILE *out) {
 		envy_bios_dump_hex(bios, out, eoff, gpio->rlen);
 	}
 	fprintf(out, "\n");
-	if (bios->gpio.version >= 0x40)
+	if (bios->gpio.version >= 0x31)
 		envy_bios_print_gunk(bios, out);
 	fprintf(out, "\n");
 }
@@ -249,28 +254,41 @@ int envy_bios_parse_subgunk (struct envy_bios *bios, struct envy_bios_subgunk *s
 		return -EFAULT;
 	int wanthlen = 0;
 	int wantrlen = 0;
+	if (subgunk->version != bios->gpio.gunk.version)
+		ENVY_BIOS_WARN("SUBGUNK version mismatch with GUNK\n");
 	switch (subgunk->version) {
-		case 0x40:
+		case 0x30:
 			wanthlen = 7;
 			wantrlen = 2;
+			break;
+		case 0x40:
+			wanthlen = 7;
+			if (bios->gpio.version == 0x41)
+				wantrlen = 5;
+			else if (subgunk->rlen == 4)
+				wantrlen = 4;
+			else {
+				ENVY_BIOS_WARN("SUBGUNK version 4.0 with 2-byte entries!\n");
+				wantrlen = 2; /* XXX: HACK HACK HACK */
+			}
 			break;
 		default:
 			ENVY_BIOS_ERR("Unknown SUBGUNK table version %x.%x\n", subgunk->version >> 4, subgunk->version & 0xf);
 			return -EINVAL;
 	}
 	if (subgunk->hlen < wanthlen) {
-		ENVY_BIOS_ERR("GUNK table header too short [%d < %d]\n", subgunk->hlen, wanthlen);
+		ENVY_BIOS_ERR("SUBGUNK table header too short [%d < %d]\n", subgunk->hlen, wanthlen);
 		return -EINVAL;
 	}
 	if (subgunk->rlen < wantrlen) {
-		ENVY_BIOS_ERR("GUNK table record too short [%d < %d]\n", subgunk->rlen, wantrlen);
+		ENVY_BIOS_ERR("SUBGUNK table record too short [%d < %d]\n", subgunk->rlen, wantrlen);
 		return -EINVAL;
 	}
 	if (subgunk->hlen > wanthlen) {
-		ENVY_BIOS_WARN("GUNK table header longer than expected [%d > %d]\n", subgunk->hlen, wanthlen);
+		ENVY_BIOS_WARN("SUBGUNK table header longer than expected [%d > %d]\n", subgunk->hlen, wanthlen);
 	}
 	if (subgunk->rlen > wantrlen) {
-		ENVY_BIOS_WARN("GUNK table record longer than expected [%d > %d]\n", subgunk->rlen, wantrlen);
+		ENVY_BIOS_WARN("SUBGUNK table record longer than expected [%d > %d]\n", subgunk->rlen, wantrlen);
 	}
 	/* XXX */
 	/*
@@ -301,7 +319,10 @@ int envy_bios_parse_gunk (struct envy_bios *bios) {
 		return -EFAULT;
 	int wanthlen = 0;
 	int wantrlen = 0;
+	if (gunk->version != (bios->gpio.version & 0xf0))
+		ENVY_BIOS_WARN("GUNK version mismatch with GPIO\n");
 	switch (gunk->version) {
+		case 0x30:
 		case 0x40:
 			wanthlen = 4;
 			wantrlen = 2;
