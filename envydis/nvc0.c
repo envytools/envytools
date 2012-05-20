@@ -78,6 +78,7 @@ static struct bitfield dimmoff = { { 0x1a, 20 }, BF_UNSIGNED, 44 };
 static struct bitfield limmoff = { { 0x1a, 32 }, .wrapok = 1 };
 static struct bitfield vimmoff = { 0x1a, 16 };
 static struct bitfield v4immoff = { 0x1a, 8 };
+static struct bitfield suimmoff = { { 0x31, 6 }, BF_SIGNED };
 static struct bitfield immsoff = { { 0x14, 12 }, BF_SIGNED };
 static struct bitfield fimmsoff = { { 0x14, 12 }, BF_UNSIGNED, 20 };
 static struct bitfield simmsoff = { { 0x1a, 6, 8, 2 }, BF_SIGNED };
@@ -96,6 +97,7 @@ static struct bitfield hnumoff = { 0x38, 1 };
 #define LIMM atomimm, &limmoff
 #define VIMM atomimm, &vimmoff
 #define V4IMM atomimm, &v4immoff
+#define SUIMM atomimm, &suimmoff
 #define IMMS atomimm, &immsoff
 #define FIMMS atomimm, &fimmsoff
 #define SIMMS atomimm, &simmsoff
@@ -182,6 +184,7 @@ static struct bitfield pdstn_bf = { 0x0e, 3 };
 static struct bitfield pdst2_bf = { 0x36, 3 };
 static struct bitfield pdst3_bf = { 0x35, 3 }; // ...the hell?
 static struct bitfield pdst4_bf = { 0x32, 3 }; // yay.
+static struct bitfield pdst5_bf = { 0x37, 3 }; // erm.
 static struct bitfield pdstl_bf = { 8, 2, 0x3a, 1 }; // argh...
 static struct bitfield tex_bf = { 0x20, 8 };
 static struct bitfield samp_bf = { 0x28, 5 };
@@ -211,6 +214,7 @@ static struct reg pdstn_r = { &pdstn_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdst2_r = { &pdst2_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdst3_r = { &pdst3_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdst4_r = { &pdst4_bf, "p", .specials = pred_sr, .cool = 1 };
+static struct reg pdst5_r = { &pdst5_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdstl_r = { &pdstl_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg tex_r = { &tex_bf, "t", .cool = 1 };
 static struct reg samp_r = { &samp_bf, "s", .cool = 1 };
@@ -244,6 +248,7 @@ static struct reg lduld_dst2q_r = { &lduld_dst2_bf, "r", "q" };
 #define PDST2 atomreg, &pdst2_r
 #define PDST3 atomreg, &pdst3_r
 #define PDST4 atomreg, &pdst4_r
+#define PDST5 atomreg, &pdst5_r
 #define PDSTL atomreg, &pdstl_r
 #define TEX atomreg, &tex_r
 #define SAMP atomreg, &samp_r
@@ -895,6 +900,7 @@ F1(acin7, 7, CC)
 F(us32_5, 5, N("u32"), N("s32"))
 F(us32_7, 7, N("u32"), N("s32"))
 F(us32_6, 6, N("u32"), N("s32"))
+F(us32_9, 9, N("u32"), N("s32"))
 F(us32_c, 0xc, N("u32"), N("s32"))
 F(us32_d, 0xd, N("u32"), N("s32"))
 F(us32_18, 0x18, N("u32"), N("s32"))
@@ -930,6 +936,27 @@ F1(restart, 0x6, N("restart"))
 F(dtex, 0x2d, N("dfp"), N("dall"))
 F(dquadop, 0x9, N("dfp"), N("dall"))
 F(ltex, 9, N("all"), N("live"))
+
+F(sucdim, 0x30, N("1d"), N("2d"))
+
+static struct insn tabsucm[] = {
+	{ 0x0000000000000000ull, 0x00000000000001e0ull, N("sd"), N("r1") }, // probably
+	{ 0x0000000000000020ull, 0x00000000000001e0ull, N("sd"), N("r2") },
+	{ 0x0000000000000040ull, 0x00000000000001e0ull, N("sd"), N("r4") },
+	{ 0x0000000000000060ull, 0x00000000000001e0ull, N("sd"), N("r8") },
+	{ 0x0000000000000080ull, 0x00000000000001e0ull, N("sd"), N("r16") },
+	{ 0x00000000000000a0ull, 0x00000000000001e0ull, N("pl"), N("r1") },
+	{ 0x00000000000000c0ull, 0x00000000000001e0ull, N("pl"), N("r2") },
+	{ 0x00000000000000e0ull, 0x00000000000001e0ull, N("pl"), N("r4") },
+	{ 0x0000000000000100ull, 0x00000000000001e0ull, N("pl"), N("r8") },
+	{ 0x0000000000000120ull, 0x00000000000001e0ull, N("pl"), N("r16") },
+	{ 0x0000000000000140ull, 0x00000000000001e0ull, N("bl"), N("r1") },
+	{ 0x0000000000000160ull, 0x00000000000001e0ull, N("bl"), N("r2") },
+	{ 0x0000000000000180ull, 0x00000000000001e0ull, N("bl"), N("r4") },
+	{ 0x00000000000001a0ull, 0x00000000000001e0ull, N("bl"), N("r8") },
+	{ 0x00000000000001c0ull, 0x00000000000001e0ull, N("bl"), N("r16") },
+	{ 0, 0, OOPS },
+};
 
 static struct insn tabcctlop[] = {
 	{ 0x0000000000000000ull, 0x00000000000003e0ull, N("query1") },
@@ -1674,6 +1701,7 @@ static struct insn tabm[] = {
 	{ 0x5000000000000044ull, 0xfc000000000000e7ull, N("bar"), N("or"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
 	{ 0x5000000000000084ull, 0xfc000000000000e7ull, N("bar"), N("arrive"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
 	{ 0x5400000000000004ull, 0xfc00000000000007ull, N("popc"), DST, T(not9), SRC1, T(not8), T(is2) }, // XXX: popc(SRC1 & SRC2)? insane idea, but I don't have any better
+	{ 0x5800000000000004ull, 0xfc00000000000007ull, N("suclamp"), T(sucdim), T(us32_9), T(sucm), PDST5, DST, SRC1, T(is2), SUIMM, .vartype = NVE4 }, // src0+suimm coord, src1 limit
 	{ 0x8000000000000004ull, 0xfc00000000000187ull, N("vadd4"), T(sat9), T(v4dst), T(v4dmask), T(us8_39), DST, T(acout30), T(v4src1), T(us8_6), SRC1, T(v4src2), T(us8_5), T(v4s2), SRC3  },
 	{ 0x8000000000000084ull, 0xfc00000000000187ull, N("vsub4"), T(sat9), T(v4dst), T(v4dmask), T(us8_39), DST, T(acout30), T(v4src1), T(us8_6), SRC1, T(v4src2), T(us8_5), T(v4s2), SRC3  },
 	{ 0x8000000000000104ull, 0xfc00000000000187ull, N("vsubr4"), T(sat9), T(v4dst), T(v4dmask), T(us8_39), DST, T(acout30), T(v4src1), T(us8_6), SRC1, T(v4src2), T(us8_5), T(v4s2), SRC3  },
