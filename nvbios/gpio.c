@@ -161,11 +161,16 @@ static struct enum_val gpio_tags[] = {
 	{ ENVY_BIOS_GPIO_HPD_5,			"HPD_5" },
 	{ ENVY_BIOS_GPIO_HPD_6,			"HPD_6" },
 	{ ENVY_BIOS_GPIO_ATX_POWER_BAD,		"ATX_POWER_BAD" },
+	{ ENVY_BIOS_GPIO_SLI_SENSE_0,		"SLI_SENSE_0" },
+	{ ENVY_BIOS_GPIO_SLI_SENSE_1,		"SLI_SENSE_1" },
+	{ ENVY_BIOS_GPIO_SLI_SENSE_1_ALT,	"SLI_SENSE_1_ALT" },
 	{ ENVY_BIOS_GPIO_UNUSED,		"UNUSED" },
 	{ 0 }
 };
 
 static struct enum_val gpio_spec41[] = {
+	{ 0x40, "SLI_SENSE_0" },
+	{ 0x41, "SLI_SENSE_1" },
 	/* 0x48 seen - tag 0x0f */
 	/* 0x58 seen - tag 0x23 */
 	{ 0x5c, "NVIO_PWM0" },

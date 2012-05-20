@@ -92,14 +92,15 @@ enum envy_bios_gpio_tag {
 
 	ENVY_BIOS_GPIO_FAN_SENSE		= 0x3d,
 
-	/* 0x40 seen, input [NV50, NV92, NVA0, NVC0], SPEC NVIO -- uses unk40_0 */
-	/* 0x41 seen, input [NV92, NVA0, NVC0], SPEC NVIO -- uses unk40_0 */
+	ENVY_BIOS_GPIO_SLI_SENSE_0		= 0x40, /* XXX: uses unk40_0, unk41_4, unk41_line */
+	ENVY_BIOS_GPIO_SLI_SENSE_1		= 0x41, /* XXX: uses unk40_0, unk41_4, unk41_line */
 	/* 0x42 seen, input [NV50, NV92, NVA0, NVC0], SPEC NVIO -- uses unk40_0, unk40_2 */
 	/* 0x43 seen, output [NV50, NVA0], SPEC NVIO [or not] */
-	/* 0x44 seen, input [NV50], SPEC NVIO */
+	ENVY_BIOS_GPIO_SLI_SENSE_1_ALT		= 0x44, /* used on NV50 instead of 0x41 for some reason */
 
 	/* 0x49 seen, input [NVD9], unk41_line used */
-
+	/* 0x4a related to DP */
+	/* 0x4b related to DP */
 	ENVY_BIOS_GPIO_ATX_POWER_BAD		= 0x4c,
 
 	ENVY_BIOS_GPIO_HPD_2			= 0x51,
@@ -126,7 +127,7 @@ struct envy_bios_gpio_entry {
 	uint8_t spec41;
 	uint8_t unk41_3_0;
 	uint8_t unk41_3_1;
-	uint8_t unk41_4;
+	uint8_t unk41_4; /* same thing as unk40_0 probably... */
 };
 
 struct envy_bios_subgunk {
