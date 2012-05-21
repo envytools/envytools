@@ -73,6 +73,7 @@
 
 <!-- 020000 - 020fff PTHERM -->
 <import file="nv50_ptherm.xml" />
+<import file="nv84_ptherm.xml" />
 
 <!-- 021000 - 021fff ??? -->
 <import file="nv50_punk021.xml" />
