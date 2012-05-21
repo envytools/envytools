@@ -56,6 +56,7 @@
 
 		</reg32>
 		<reg32 offset="0x100" name="INTR">
+			<bitfield pos="0" name="BUS_ERROR" variants="NV04:NV50"/>
 			<bitfield pos="3" name="MMIO_FAULT" variants="NV41-"/>
 			<bitfield pos="26" name="USER" variants="NV50-" />
 			<bitfield pos="28" name="USER2" variants="NVC0-" />
