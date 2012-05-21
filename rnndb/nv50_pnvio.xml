@@ -114,6 +114,13 @@
 			<bitfield pos="17" name="UNK17"/>
 			<bitfield pos="18" name="UNK18"/>
 		</reg32>
+		<reg32 offset="0x740" name="SPECIAL_IN" length="0x18">
+			<bitfield low="0" high="4" name="GPIO_IDX"/>
+			<bitfield low="5" high="7" name="UNK5"/>
+			<bitfield pos="8" name="UNK8"/>
+			<bitfield pos="9" name="UNK9"/>
+			<bitfield pos="10" name="UNK10"/>
+		</reg32>
 	</array>
 
 	<array name="PNVIO" offset="0x0000e000" stride="0x1000" length="1" variants="NV50-">
