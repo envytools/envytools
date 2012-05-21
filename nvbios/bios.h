@@ -68,49 +68,75 @@ enum envy_bios_gpio_tag {
 	ENVY_BIOS_GPIO_FAN_CONTROL		= 0x09,
 
 	ENVY_BIOS_GPIO_TVDAC_0			= 0x0c,
-	/* 0x0d seen, input [NV40] */
+	/* 0x0d seen, neg input [NV40, NV44, NV46, NV4A, NV4E] */
 
-	/* 0x0f seen, output [NV50], SPEC NVIO, uses unk40_0 and unk41_4 */
+	/* 0x0f seen, output [NV50, NVA0, NV98, NVA5, NVA8, NV86, NVD9], SPEC NVIO, uses unk40_0 and unk41_4 */
+	ENVY_BIOS_GPIO_ATX_POWER_BAD		= 0x10,
+	/* 0x11 seen, neg input [NV40, NV42, NV43, NV46, NV47, NV49, NV50, NV84, NV86, NV92, NV94, NV96, NVA0, NVA5, NVC0], SPEC NVIO [or not] */
+	/* 0x12 seen, input [NV40, NV42, NV47, NV50] */
 
-	/* 0x11 seen, neg input [NV40, NV50, NVA0], SPEC NVIO [or not] */
-	/* 0x12 seen, input [NV40, NV50] */
-
-	/* 0x18 seen, output [NVA5, NVC0] */
-
+	/* 0x18 seen, output [NV92, NV94, NV98, NVA3, NVA5, NVA8, NVC0, NVC1, NVC3, NVC4, NVC8, NVCE, NVCF, NVE4] */
+	/* 0x19 seen, output [NV92, NV96] */
 	ENVY_BIOS_GPIO_VID_3			= 0x1a,
 
 	ENVY_BIOS_GPIO_PANEL_BACKLIGHT_LEVEL	= 0x21,
+	/* 0x22 seen, input [NV47, NV49, NV4B, NV84, NV86, NV92 */
+	/* 0x23 seen, output [NV84, NV86, NV92, NV94, NV96, NV98, NVA3, NVA5, NVA8, NVC1, NVC4, NVC3, NVC8, NVCE, NVCF, NVD9], SPEC NVIO... and as input on NVD9 with unk41_line used */
 
-	/* 0x23 seen, output [NV84, NV86 laptop, NVA5], SPEC NVIO... and as input on NVD9 with unk41_line used */
+	/* 0x25 seen, input [NV46, NV49, NV84, NV86] */
 
-	/* 0x29 seen, input [NV50] */
+	/* 0x28 seen, output [NV84, NV86] */
+	/* 0x29 seen, input [NV42, NV47, NV49, NV50, NVA0, NVC0] */
 
+	/* 0x2b seen, neg input [NV86, NV92, NV94, NV96, NV98, NVA3, NVA5, NVCE] */
+	/* 0x2c seen, output [NV4B] */
 	ENVY_BIOS_GPIO_TVDAC_1			= 0x2d,
-	/* 0x2e seen, output neg [NV86 laptop, NVC0], related to mem reclocking */
+	/* 0x2e seen, output neg [lotsa NV84+ cards], related to mem reclocking... also used as a SPEC NVIO input on nv50 */
 
-	/* 0x30 seen, output or neg input [NVA0, NVC0], *twice* */
+	/* 0x30 seen, output or neg input [NVA0, NVC0], *twice*... and sometimes in lots of copies */
+
+	/* 0x34 seen, neg input [NV96, NVA5, NVA8, NVE4] SPEC NVIO on NV96, uses unk41_line */
 
 	ENVY_BIOS_GPIO_FAN_SENSE		= 0x3d,
 
 	ENVY_BIOS_GPIO_SLI_SENSE_0		= 0x40, /* XXX: uses unk40_0, unk41_4, unk41_line */
 	ENVY_BIOS_GPIO_SLI_SENSE_1		= 0x41, /* XXX: uses unk40_0, unk41_4, unk41_line */
 	/* 0x42 seen, input [NV50, NV92, NVA0, NVC0], SPEC NVIO -- uses unk40_0, unk40_2 */
-	/* 0x43 seen, output [NV50, NVA0], SPEC NVIO [or not] */
+	/* 0x43 seen, output [NV50, NVA0], SPEC NVIO [or not]... not seen on NVC0+ */
 	ENVY_BIOS_GPIO_SLI_SENSE_1_ALT		= 0x44, /* used on NV50 instead of 0x41 for some reason */
 
-	/* 0x49 seen, input [NVD9], unk41_line used */
-	/* 0x4a related to DP */
-	/* 0x4b related to DP */
-	ENVY_BIOS_GPIO_ATX_POWER_BAD		= 0x4c,
+	/* 0x49 seen, output [NV98, NVA3, NVA8, NVCE] or input [NVD9], unk41_line used... related to PWM? */
+	/* 0x4a seen, input related to DP */
+	/* 0x4b seen, input related to DP */
+	ENVY_BIOS_GPIO_ATX_POWER_BAD_ALT	= 0x4c,
+	/* 0x4d seen, neg input [NV84, NV86] */
 
 	ENVY_BIOS_GPIO_HPD_2			= 0x51,
 	ENVY_BIOS_GPIO_HPD_3			= 0x52,
+	/* 0x53 seen, neg input [NV96] */
+
+	/* 0x56 seen, output [NV92, NVA0] */
+
+	/* 0x5a seen, neg output [NV96], related to 0x5c? */
+
+	/* 0x5c seen, neg output [NV94, NV96, NV98] */
 
 	ENVY_BIOS_GPIO_HPD_4			= 0x5e,
 	ENVY_BIOS_GPIO_HPD_5			= 0x5f,
 	ENVY_BIOS_GPIO_HPD_6			= 0x60,
 
+	/* 0x6a seen, output [NVAC] */
+
+	/* 0x6c, 0x6d, 0x6e seen, output [NVCE] */
+	/* 0x6f seen, input [NVA5, NVA8] SPEC NVIO */
+
 	ENVY_BIOS_GPIO_VID_4			= 0x73,
+
+	/* 0x78 seen, output [NVC0, NVC3, NVC4, NVC8, NVCE, NVCF, NVE4 */
+	/* 0x79 seen, neg input [NVC0, NVE4], uses unk41_line */
+	/* 0x7a seen, open-collector output [NVE4] */
+
+	/* 0x83 seen, input [NVE4], SPEC - connected to PWM??? */
 
 	ENVY_BIOS_GPIO_UNUSED			= 0xff,
 };
