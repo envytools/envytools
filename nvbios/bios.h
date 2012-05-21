@@ -150,8 +150,8 @@ struct envy_bios_gpio_entry {
 	uint8_t unk40_2;
 	uint8_t def;
 	uint8_t mode;
-	uint8_t spec41;
-	uint8_t unk41_3_0;
+	uint8_t spec_out;
+	uint8_t spec_in;
 	uint8_t unk41_3_1;
 	uint8_t unk41_4; /* same thing as unk40_0 probably... */
 };

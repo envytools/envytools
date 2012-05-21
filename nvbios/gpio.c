@@ -124,8 +124,8 @@ int envy_bios_parse_gpio (struct envy_bios *bios) {
 				entry->unk40_0 = bytes[0] >> 5 & 3;
 				entry->def = bytes[0] >> 7 & 1;
 				entry->tag = bytes[1];
-				entry->spec41 = bytes[2];
-				entry->unk41_3_0 = bytes[3] & 0x1f;
+				entry->spec_out = bytes[2];
+				entry->spec_in = bytes[3] & 0x1f;
 				entry->unk41_3_1 = bytes[3] >> 5 & 3;
 				entry->param = bytes[3] >> 7 & 1;
 				entry->unk41_4 = bytes[4] & 0xf;
@@ -169,10 +169,11 @@ static struct enum_val gpio_tags[] = {
 	{ 0 }
 };
 
-static struct enum_val gpio_spec41[] = {
+static struct enum_val gpio_spec_out[] = {
 	{ 0x40, "NVIO_SLI_SENSE_0" },
 	{ 0x41, "NVIO_SLI_SENSE_1" },
 	/* 0x48 seen - tag 0x0f */
+	/* 0x50 seen - tag 0x42 */
 	/* 0x58 seen - tag 0x23 */
 	{ 0x59, "NVIO_PWM1" },
 	{ 0x5c, "NVIO_PWM0" },
@@ -188,6 +189,24 @@ static struct enum_val gpio_spec41[] = {
 	{ 0x80,	"SOR3_PANEL_BACKLIGHT_LEVEL" },
 	{ 0x81,	"SOR3_PANEL_POWER" },
 	{ 0x82,	"SOR3_PANEL_BACKLIGHT_ON" },
+	{ 0 },
+};
+
+static struct enum_val gpio_spec_in[] = {
+	{ 0x00, "NVIO_HPD_0" },
+	{ 0x01, "NVIO_HPD_1" },
+	{ 0x02, "NVIO_HPD_2" },
+	{ 0x03, "NVIO_HPD_3" },
+
+	{ 0x08, "NVIO_SLI_SENSE_0" },
+	{ 0x09, "NVIO_SLI_SENSE_1" },
+
+	/* 0x10 seen - tag 0x42 */
+
+	/* 0x14 seen - tag 0x23 */
+	/* 0x15 seen - tags 0x34, 0x49 */
+	/* 0x16 seen - tag 0x79 */
+	{ 0x17, "NVIO_FAN_SENSE" },
 	{ 0 },
 };
 
@@ -208,7 +227,8 @@ void envy_bios_print_gpio (struct envy_bios *bios, FILE *out) {
 		uint16_t eoff = gpio->offset + gpio->hlen + gpio->rlen * i;
 		struct envy_bios_gpio_entry *entry = &gpio->entries[i];
 		const char *tagname = find_enum(gpio_tags, entry->tag);
-		const char *specname = find_enum(gpio_spec41, entry->spec41);
+		const char *spec_out = find_enum(gpio_spec_out, entry->spec_out);
+		const char *spec_in = find_enum(gpio_spec_in, entry->spec_in-1);
 		fprintf(out, "GPIO %d:", i);
 		fprintf(out, " line %d", entry->line);
 		fprintf(out, " tag 0x%02x [%s]", entry->tag, tagname);
@@ -243,12 +263,12 @@ void envy_bios_print_gpio (struct envy_bios *bios, FILE *out) {
 			fprintf(out, " unk40_0 %d", entry->unk40_0);
 		if (entry->unk40_2)
 			fprintf(out, " unk40_2 0x%02x", entry->unk40_2);
-		if (entry->spec41)
-			fprintf(out, " SPEC 0x%02x [%s]", entry->spec41, specname);
+		if (entry->spec_out)
+			fprintf(out, " SPEC_OUT 0x%02x [%s]", entry->spec_out, spec_out);
 		if (gpio->version == 0x41 && entry->unk41_4 != 15)
 			fprintf(out, " unk41_4 %d", entry->unk41_4);
-		if (entry->unk41_3_0)
-			fprintf(out, " unk41_line %d", entry->unk41_3_0 + 11);
+		if (entry->spec_in)
+			fprintf(out, " SPEC_IN 0x%02x [%s]", entry->spec_in-1, spec_in);
 		if (entry->unk41_3_1)
 			fprintf(out, " unk41_3_1 %d", entry->unk41_3_1);
 		printf("\n");
