@@ -224,7 +224,7 @@ void envy_bios_print_gpio (struct envy_bios *bios, FILE *out) {
 			fprintf(out, " LOG %d/%d", entry->log[0], entry->log[1]);
 		}
 		if (gpio->version >= 0x40)
-			fprintf(out, " DEF %d\n", entry->def);
+			fprintf(out, " DEF %d", entry->def);
 		if (entry->mode == 0) {
 		} else if (entry->mode == 1) {
 			fprintf(out, " SPEC NVIO");
