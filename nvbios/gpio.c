@@ -170,8 +170,8 @@ static struct enum_val gpio_tags[] = {
 };
 
 static struct enum_val gpio_spec41[] = {
-	{ 0x40, "SLI_SENSE_0" },
-	{ 0x41, "SLI_SENSE_1" },
+	{ 0x40, "NVIO_SLI_SENSE_0" },
+	{ 0x41, "NVIO_SLI_SENSE_1" },
 	/* 0x48 seen - tag 0x0f */
 	/* 0x58 seen - tag 0x23 */
 	{ 0x59, "NVIO_PWM1" },

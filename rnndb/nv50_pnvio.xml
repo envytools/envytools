@@ -79,10 +79,33 @@
 		<reg32 offset="0x604" name="GPIO_OUT_TRIGGER"/> <!-- write 1 to make OUT, OE, OUT_NEG changes happen -->
 		<reg32 offset="0x608" name="UNK608"/>
 		<reg32 offset="0x610" name="GPIO" length="0x20">
-			<bitfield low="0" high="4" name="IDX"/> <!-- used at least for DISPLAY_CONTROL -->
+			<bitfield low="0" high="4" name="SPECIAL_IDX">
+				<!-- XXX: this is also used for something with NORMAL -->
+				<value value="0x00" name="NVIO_SLI_SENSE_0"/>
+				<value value="0x01" name="NVIO_SLI_SENSE_1"/>
+				<value value="0x08" name="NVIO_UNK_TAG0F"/>
+				<value value="0x18" name="NVIO_UNK_TAG23"/>
+				<value value="0x19" name="NVIO_PWM_1"/>
+				<value value="0x1c" name="NVIO_PWM_0"/>
+				<value value="0x00" name="SOR0_PANEL_BACKLIGHT_LEVEL"/>
+				<value value="0x01" name="SOR0_PANEL_POWER"/>
+				<value value="0x02" name="SOR0_PANEL_BACKLIGHT_ON"/>
+				<value value="0x04" name="SOR1_PANEL_BACKLIGHT_LEVEL"/>
+				<value value="0x05" name="SOR1_PANEL_POWER"/>
+				<value value="0x06" name="SOR1_PANEL_BACKLIGHT_ON"/>
+				<value value="0x08" name="SOR2_PANEL_BACKLIGHT_LEVEL"/>
+				<value value="0x09" name="SOR2_PANEL_POWER"/>
+				<value value="0x0a" name="SOR2_PANEL_BACKLIGHT_ON"/>
+				<value value="0x0c" name="SOR3_PANEL_BACKLIGHT_LEVEL"/>
+				<value value="0x0d" name="SOR3_PANEL_POWER"/>
+				<value value="0x0e" name="SOR3_PANEL_BACKLIGHT_ON"/>
+			</bitfield>
 			<bitfield pos="5" name="UNK5"/>
-			<bitfield pos="6" name="UNK6"/>
-			<bitfield pos="7" name="DISPLAY_CONTROL"/>
+			<bitfield low="6" high="7" name="MODE">
+				<value value="0" name="NORMAL"/>
+				<value value="1" name="SPECIAL_NVIO"/>
+				<value value="2" name="SPECIAL_SOR"/>
+			</bitfield>
 			<bitfield pos="12" name="OUT"/>
 			<bitfield pos="13" name="OE"/>
 			<bitfield pos="14" name="IN"/>
@@ -113,9 +136,9 @@
 			<bitfield low="0" high="15" name="PLUG_MASK_16" />
 			<bitfield low="16" high="31" name="UNPLUG_MASK_16" />
 		</reg32>
-		<reg32 name="GPIO_CTL_0" offset="0x100" variants="NV50:NVD9">
-			<bitfield low="0" high="15" name="NVIO_CONTROL_MASK"/>
-			<bitfield low="16" high="31" name="DISPLAY_CONTROL_MASK"/>
+		<reg32 name="GPIO_MODE_0" offset="0x100" variants="NV50:NVD9">
+			<bitfield low="0" high="15" name="SPECIAL_NVIO_MASK"/>
+			<bitfield low="16" high="31" name="SPECIAL_SOR_MASK"/>
 		</reg32>
 		<reg32 name="GPIO_0" offset="0x104" variants="NV50:NVD9">
 			<bitfield low="0" high="3" name="0" type="nv50_gpio"/>
@@ -231,10 +254,10 @@
 			<bitfield low="24" high="27" name="30" type="nv50_gpio"/>
 			<bitfield low="28" high="31" name="31" type="nv50_gpio"/>
 		</reg32>
-		<reg32 name="GPIO_CTL_1" offset="0x28c" variants="NV94:NVD9">
+		<reg32 name="GPIO_MODE_1" offset="0x28c" variants="NV94:NVD9">
 			<doc>like e100, but for GPIOs 16-31.</doc>
-			<bitfield low="0" high="15" name="NVIO_CONTROL_MASK"/>
-			<bitfield low="16" high="31" name="DISPLAY_CONTROL_MASK"/>
+			<bitfield low="0" high="15" name="SPECIAL_NVIO_MASK"/>
+			<bitfield low="16" high="31" name="SPECIAL_SOR_MASK"/>
 		</reg32>
 
 		<reg32 offset="0xe338" name="I2C_PORT_0_UNK18" variants="NVA3:NVD9"/>
