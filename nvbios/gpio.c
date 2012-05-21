@@ -174,10 +174,20 @@ static struct enum_val gpio_spec41[] = {
 	{ 0x41, "SLI_SENSE_1" },
 	/* 0x48 seen - tag 0x0f */
 	/* 0x58 seen - tag 0x23 */
+	{ 0x59, "NVIO_PWM1" },
 	{ 0x5c, "NVIO_PWM0" },
 	{ 0x80,	"SOR0_PANEL_BACKLIGHT_LEVEL" },
 	{ 0x81,	"SOR0_PANEL_POWER" },
 	{ 0x82,	"SOR0_PANEL_BACKLIGHT_ON" },
+	{ 0x84,	"SOR1_PANEL_BACKLIGHT_LEVEL" },
+	{ 0x85,	"SOR1_PANEL_POWER" },
+	{ 0x86,	"SOR1_PANEL_BACKLIGHT_ON" },
+	{ 0x80,	"SOR2_PANEL_BACKLIGHT_LEVEL" },
+	{ 0x81,	"SOR2_PANEL_POWER" },
+	{ 0x82,	"SOR2_PANEL_BACKLIGHT_ON" },
+	{ 0x80,	"SOR3_PANEL_BACKLIGHT_LEVEL" },
+	{ 0x81,	"SOR3_PANEL_POWER" },
+	{ 0x82,	"SOR3_PANEL_BACKLIGHT_ON" },
 	{ 0 },
 };
 
