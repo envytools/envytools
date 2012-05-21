@@ -117,9 +117,9 @@
 		<reg32 offset="0x740" name="SPECIAL_IN" length="0x18">
 			<bitfield low="0" high="4" name="GPIO_IDX"/>
 			<bitfield low="5" high="7" name="UNK5"/>
-			<bitfield pos="8" name="UNK8"/>
-			<bitfield pos="9" name="UNK9"/>
-			<bitfield pos="10" name="UNK10"/>
+			<bitfield pos="8" name="NEG"/> <!-- will be negated before use -->
+			<bitfield pos="9" name="STATUS"/> <!-- peek at the GPIO value before negation, only works on some INs: 0-3, 8-0xa, 0x10-0x11, 0x14-0x16 -->
+			<bitfield pos="10" name="UNK10"/> <!-- not present on 0x17 -->
 		</reg32>
 	</array>
 
