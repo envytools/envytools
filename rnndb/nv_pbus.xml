@@ -146,6 +146,12 @@
 			<bitfield pos="7" name="DYNAMIC_CLOCK_GATING"/>
 		</reg32>
 
+		<reg32 offset="0x540" name="HWUNITS_0" variants="NV40:NV50">
+			<bitfield low="0" high="7" name="PIXEL_MASK"/>
+			<bitfield low="8" high="15" name="VERTEX_MASK"/>
+			<!-- XXX: 16+ -->
+		</reg32>
+
 		<reg32 offset="0x540" name="HWUNITS_0" variants="NV50:NVC0">
 			<bitfield low="0" high="15" name="TP_MASK">
 				<doc>Selects which TPs are enabled</doc>
