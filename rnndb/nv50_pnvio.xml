@@ -339,15 +339,15 @@
 			<use-group name="nv84_pnvio_i2c"/>
 			<reg32 offset="0x18" name="UNK18"/>
 		</array>
-		<array name="I2C_PORT_7" offset="0x750" length="1" stride="0x1c" variants="NVA3:NVD9">
+		<array name="I2C_PORT_7" offset="0x76c" length="1" stride="0x1c" variants="NVA3:NVD9">
 			<use-group name="nv84_pnvio_i2c"/>
 			<reg32 offset="0x18" name="UNK18"/>
 		</array>
-		<array name="I2C_PORT_8" offset="0x750" length="1" stride="0x1c" variants="NVA3:NVD9">
+		<array name="I2C_PORT_8" offset="0x788" length="1" stride="0x1c" variants="NVA3:NVD9">
 			<use-group name="nv84_pnvio_i2c"/>
 			<reg32 offset="0x18" name="UNK18"/>
 		</array>
-		<array name="I2C_PORT_9" offset="0x750" length="1" stride="0x1c" variants="NVA3:NVD9">
+		<array name="I2C_PORT_9" offset="0x7a4" length="1" stride="0x1c" variants="NVA3:NVD9">
 			<use-group name="nv84_pnvio_i2c"/>
 			<reg32 offset="0x18" name="UNK18"/>
 		</array>
