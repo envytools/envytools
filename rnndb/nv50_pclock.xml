@@ -73,20 +73,20 @@
 <array offset="0x4000" name="PCLOCK" stride="0x1000" variants="NV50:NVA3" length="1">
 	<reg32 offset="0x000" name="NVIO_PLL_CTRL" variants="NV50 NVA0" type="nv50_nviopll_ctrl"/>
 	<reg32 offset="0x004" name="NVIO_PLL_COEF" variants="NV50 NVA0" type="nv50_pll_coef"/>
-	<reg32 offset="0x008" name="MPLL_CTRL" variants="NV50:NVAA" type="nv50_mpll_ctrl"/>
-	<reg32 offset="0x00c" name="MPLL_COEF" variants="NV50:NVAA" type="nv50_pll_coef"/>
-	<reg32 offset="0x010" name="UNK10_PLL_CTRL" variants="NV50 NVA0" type="nv50_mpll_ctrl"/>
-	<reg32 offset="0x014" name="UNK10_PLL_COEF" variants="NV50 NVA0" type="nv50_pll_coef"/>
-	<reg32 offset="0x018" name="UNK18_PLL_CTRL" variants="NV50 NV92 NVA0" type="nv50_mpll_ctrl"/>
-	<reg32 offset="0x01c" name="UNK18_PLL_COEF" variants="NV50 NV92 NVA0" type="nv50_pll_coef"/>
+	<reg32 offset="0x008" name="MPLL0_CTRL" variants="NV50:NVAA" type="nv50_mpll_ctrl"/>
+	<reg32 offset="0x00c" name="MPLL0_COEF" variants="NV50:NVAA" type="nv50_pll_coef"/>
+	<reg32 offset="0x010" name="MPLL1_CTRL" variants="NV50 NVA0" type="nv50_mpll_ctrl"/>
+	<reg32 offset="0x014" name="MPLL1_COEF" variants="NV50 NVA0" type="nv50_pll_coef"/>
+	<reg32 offset="0x018" name="MPLL2_CTRL" variants="NV50 NV92 NVA0" type="nv50_mpll_ctrl"/>
+	<reg32 offset="0x01c" name="MPLL2_COEF" variants="NV50 NV92 NVA0" type="nv50_pll_coef"/>
 	<reg32 offset="0x020" name="SPLL_CTRL" type="nv50_spll_ctrl"/>
 	<reg32 offset="0x024" name="SPLL_COEF" type="nv50_pll_coef"/>
 	<reg32 offset="0x028" name="NVPLL_CTRL" type="nv50_nvpll_ctrl"/>
 	<reg32 offset="0x02c" name="NVPLL_COEF" type="nv50_pll_coef"/>
 	<reg32 offset="0x030" name="XTPLL_CTRL" variants="NV84:NV98 NVA0" type="nv50_nvpll_ctrl"/>
 	<reg32 offset="0x034" name="XTPLL_COEF" variants="NV84:NV98 NVA0" type="nv50_pll_coef"/>
-	<reg32 offset="0x088" name="UNK88_PLL_CTRL" variants="NVA0" type="nv50_mpll_ctrl"/>
-	<reg32 offset="0x08c" name="UNK88_PLL_COEF" variants="NVA0" type="nv50_pll_coef"/>
+	<reg32 offset="0x088" name="MPLL3_CTRL" variants="NVA0" type="nv50_mpll_ctrl"/>
+	<reg32 offset="0x08c" name="MPLL3_COEF" variants="NVA0" type="nv50_pll_coef"/>
 	<reg32 offset="0x10c" name="PWM_DIV" variants="NV84:NV94" type="nv50_fan_div"/>
 	<reg32 offset="0x600" name="DIV" variants="NVAA:NVA3" type="nv50_div"/>
 	<reg32 offset="0x700" name="DIV" variants="NV50:NV92 NV98:NVAA" type="nv50_div"/>
