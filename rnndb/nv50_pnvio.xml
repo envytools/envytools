@@ -67,10 +67,32 @@
 	</bitset>
 
 	<group name="nv50_pnvio_i2c">
-		<reg32 offset="0x00" name="UNK00"/>
-		<reg32 offset="0x04" name="UNK04"/>
-		<reg32 offset="0x08" name="UNK08"/>
-		<reg32 offset="0x0c" name="UNK0c"/>
+		<reg32 offset="0x00" name="CTRL">
+			<bitfield low="0" high="3" name="PROTOCOL"> <!-- write something non-0 here to start a transaction, this field is write-only -->
+				<value value="1" name="RECEIVE"/>
+				<value value="2" name="SEND"/>
+				<value value="3" name="QUICK_W"/>
+				<value value="4" name="QUICK_R"/>
+				<value value="7" name="WRITE"/>
+				<value value="8" name="READ"/>
+				<!-- XXX: check these -->
+				<value value="9" name="START"/>
+				<value value="0xa" name="STOP"/>
+				<!-- XXX: there are more -->
+			</bitfield>
+			<!-- XXX: there are more RO bits here -->
+			<bitfield pos="5" name="NACK"/>
+			<bitfield pos="6" name="BUSY"/>
+			<bitfield pos="7" name="RDY"/>
+		</reg32>
+		<reg32 offset="0x04" name="PARAM">
+			<bitfield low="1" high="10" name="ADDR" shr="1"/>
+			<bitfield pos="12" name="ADDR_LONG"/>
+			<bitfield low="13" high="14" name="BYTES_M1"/>
+			<bitfield low="16" high="23" name="CMD"/>
+		</reg32>
+		<reg32 offset="0x08" name="UNK08"/> <!-- selects clock? -->
+		<reg32 offset="0x0c" name="DATA"/> <!-- lower bytes sent/received first -->
 		<reg32 offset="0x10" name="UNK10"/>
 		<reg32 offset="0x14" name="BITBANG" type="nv50_pnvio_i2c_bitbang"/>
 	</group>
