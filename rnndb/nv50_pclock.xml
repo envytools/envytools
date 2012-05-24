@@ -85,6 +85,69 @@
 	<reg32 offset="0x02c" name="NVPLL_COEF" type="nv50_pll_coef"/>
 	<reg32 offset="0x030" name="XTPLL_CTRL" variants="NV84:NV98 NVA0" type="nv50_nvpll_ctrl"/>
 	<reg32 offset="0x034" name="XTPLL_COEF" variants="NV84:NV98 NVA0" type="nv50_pll_coef"/>
+	<bitset name="nv84_nvpll_post" inline="yes">
+		<bitfield low="0" high="8" name="UNK0"/>
+		<bitfield low="16" high="19" name="DIV">
+			<value value="0" name="OFF"/>
+			<value value="1" name="1"/>
+			<value value="2" name="2"/>
+			<value value="3" name="3"/>
+			<value value="4" name="4"/>
+			<value value="5" name="5"/>
+			<value value="6" name="6"/>
+			<value value="7" name="7"/>
+			<value value="8" name="8"/>
+			<value value="9" name="10"/>
+			<value value="0xa" name="14"/>
+		</bitfield>
+		<bitfield low="20" high="23" name="UNK20"/>
+		<bitfield low="24" high="25" name="UNK24"/>
+		<bitfield pos="27" name="UNK27"/>
+		<bitfield low="28" high="29" name="UNK28"/>
+		<bitfield pos="31" name="UNK31"/>
+	</bitset>
+	<bitset name="nv84_spll_post" inline="yes">
+		<bitfield low="0" high="8" name="UNK0"/>
+		<bitfield low="16" high="18" name="DIV_LOG2"/>
+		<bitfield pos="20" name="UNK20"/>
+		<bitfield low="24" high="25" name="UNK24"/>
+		<bitfield pos="27" name="UNK27"/>
+		<bitfield low="28" high="31" name="UNK28"/> <!-- XXX: bit 31 is not present on all cards? -->
+	</bitset>
+	<reg32 offset="0x040" name="NVPLL_POST" variants="NV84:NVA3" type="nv84_nvpll_post"/>
+	<reg32 offset="0x044" name="XTPLL_POST" variants="NV84:NV98 NVA0" type="nv84_nvpll_post"/>
+	<reg32 offset="0x048" name="NVIO_PLL_POST" variants="NVA0" type="nv84_spll_post"/>
+	<bitset name="nv84_mpll_post_a" inline="yes">
+		<bitfield low="0" high="8" name="UNK0"/>
+		<bitfield low="16" high="19" name="DIV">
+			<value value="0" name="OFF"/>
+			<value value="1" name="1"/>
+			<value value="2" name="2"/>
+			<value value="3" name="3"/>
+			<value value="4" name="4"/>
+			<value value="5" name="5"/>
+			<value value="6" name="6"/>
+			<value value="7" name="7"/>
+			<value value="8" name="8"/>
+			<value value="9" name="10"/>
+			<value value="0xa" name="14"/>
+		</bitfield>
+		<bitfield pos="20" name="UNK20"/>
+		<bitfield low="23" high="31" name="UNK23"/> <!-- XXX: bit 31 is not present on all cards? -->
+	</bitset>
+	<bitset name="nv84_mpll_post_b" inline="yes">
+		<bitfield low="0" high="7" name="UNK0"/>
+		<bitfield low="16" high="18" name="UNK16"/>
+	</bitset>
+	<reg32 offset="0x050" name="MPLL0_POST_A" variants="NV84:NVAA" type="nv84_mpll_post_a"/>
+	<reg32 offset="0x054" name="MPLL0_POST_B" variants="NV84:NVAA" type="nv84_mpll_post_b"/>
+	<reg32 offset="0x058" name="MPLL1_POST_A" variants="NVA0" type="nv84_mpll_post_a"/>
+	<reg32 offset="0x05c" name="MPLL1_POST_B" variants="NVA0" type="nv84_mpll_post_b"/>
+	<reg32 offset="0x060" name="MPLL2_POST_A" variants="NV92 NVA0" type="nv84_mpll_post_a"/>
+	<reg32 offset="0x064" name="MPLL2_POST_B" variants="NV92 NVA0" type="nv84_mpll_post_b"/> <!-- XXX: verify NV92 -->
+	<reg32 offset="0x068" name="MPLL3_POST_A" variants="NVA0" type="nv84_mpll_post_a"/>
+	<reg32 offset="0x06c" name="MPLL3_POST_B" variants="NVA0" type="nv84_mpll_post_b"/>
+	<reg32 offset="0x070" name="SPLL_POST" variants="NV84:NVA3" type="nv84_spll_post"/>
 	<reg32 offset="0x088" name="MPLL3_CTRL" variants="NVA0" type="nv50_mpll_ctrl"/>
 	<reg32 offset="0x08c" name="MPLL3_COEF" variants="NVA0" type="nv50_pll_coef"/>
 	<reg32 offset="0x10c" name="PWM_DIV" variants="NV84:NV94" type="nv50_fan_div"/>
