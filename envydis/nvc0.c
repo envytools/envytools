@@ -84,6 +84,7 @@ static struct bitfield fimmsoff = { { 0x14, 12 }, BF_UNSIGNED, 20 };
 static struct bitfield simmsoff = { { 0x1a, 6, 8, 2 }, BF_SIGNED };
 static struct bitfield shcntoff = { 5, 5 };
 static struct bitfield shcntsoff = { 0x1a, 5 };
+static struct bitfield texbaroff = { 0x1a, 6 };
 static struct bitfield bnumoff = { 0x37, 2 };
 static struct bitfield hnumoff = { 0x38, 1 };
 #define BAR atomimm, &baroff
@@ -105,6 +106,7 @@ static struct bitfield hnumoff = { 0x38, 1 };
 #define SHCNTS atomimm, &shcntsoff
 #define BNUM atomimm, &bnumoff
 #define HNUM atomimm, &hnumoff
+#define TEXBARIMM atomimm, &texbaroff
 
 /*
  * Register fields
@@ -1789,7 +1791,7 @@ static struct insn tabm[] = {
 	{ 0xc000000000000006ull, 0xf000000000000007ull, N("texquery"), T(texm), T(ltex), TDST, T(texquery), T(texi), TEX, SAMP, SRC1, SRC2 },
 	{ 0xd000000000000006ull, 0xf000000000000007ull, N("texcsaa"), T(texm), T(texf), TDST, TEX, SAMP, TSRC13 },
 	{ 0xe000000000000006ull, 0xf000000000000007ull, N("texgrad"), T(texm), T(texoff), T(ltex), TDST, T(text), T(texi), TEX, SAMP, T(texgrsrc1), T(texgrsrc2) },
-	{ 0xf000000000000006ull, 0xf000000000000007ull, N("texbar"), T(cc), .vartype = NVE4 },
+	{ 0xf000000000000006ull, 0xf000000000000007ull, N("texbar"), T(cc), TEXBARIMM, .vartype = NVE4 }, // imm = max outstanding texes after barrier
 	{ 0x0000000000000006ull, 0x0000000000000007ull, OOPS, T(texf), TDST, TEX, SAMP, SRC1, SRC2 },
 
 
