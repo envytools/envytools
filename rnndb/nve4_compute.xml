@@ -109,6 +109,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<bitfield high="31" low="16" name="Z"/>
 	</reg32>
 	<reg32 offset="0x50" name="20">
+		<bitfield high="7" low="0" name="CB_VALID">
+			<doc>Bitmask to enable c0[] to c7[]. Yes, there are only 8.
+			c8[] is treated as c0[]. Size in CB_CONFIG_1 should be > 0
+			if CB is valid.</doc>
+		</bitfield>
 		<bitfield high="30" low="29" name="CACHE_SPLIT">
 			<value value="1" name="16K_SHARED_48K_L1"/>
 			<value value="2" name="32K_SHARED_32K_L1"/>
