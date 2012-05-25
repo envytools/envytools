@@ -87,6 +87,13 @@ static struct bitfield shcntsoff = { 0x1a, 5 };
 static struct bitfield texbaroff = { 0x1a, 6 };
 static struct bitfield bnumoff = { 0x37, 2 };
 static struct bitfield hnumoff = { 0x38, 1 };
+static struct bitfield schedval0 = { 0x04, 8 };
+static struct bitfield schedval1 = { 0x0c, 8 };
+static struct bitfield schedval2 = { 0x14, 8 };
+static struct bitfield schedval3 = { 0x1c, 8 };
+static struct bitfield schedval4 = { 0x24, 8 };
+static struct bitfield schedval5 = { 0x2c, 8 };
+static struct bitfield schedval6 = { 0x34, 8 };
 #define BAR atomimm, &baroff
 #define PM atomimm, &pmoff
 #define TCNT atomimm, &tcntoff
@@ -107,6 +114,7 @@ static struct bitfield hnumoff = { 0x38, 1 };
 #define BNUM atomimm, &bnumoff
 #define HNUM atomimm, &hnumoff
 #define TEXBARIMM atomimm, &texbaroff
+#define SCHED(n) atomimm, &schedval##n
 
 /*
  * Register fields
@@ -1827,6 +1835,7 @@ static struct insn tabc[] = {
 	{ 0x0800000000004007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), T(lim), FCONST },
 	{ 0x1000000000000007ull, 0xf800000000004007ull, N("call"), T(lim), N("abs"), ACTARG },
 	{ 0x1000000000004007ull, 0xf800000000004007ull, N("call"), T(lim), FCONSTNR },
+	{ 0x2000000000000007ull, 0xf000000000000007ull, N("sched"), SCHED(0), SCHED(1), SCHED(2), SCHED(3), SCHED(4), SCHED(5), SCHED(6), .vartype = NVE4 },
 	{ 0x4000000000000007ull, 0xf800000000000007ull, T(p), T(cc), N("bra"), T(lim), T(brawarp), T(btarg) },
 	{ 0x4800000000000007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), T(lim), SRC1, NTARG },
 	{ 0x4800000000004007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), T(lim), N("pcrel"), FCONST },
