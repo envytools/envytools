@@ -81,10 +81,10 @@ VdpPresentationQueueTargetCreateX11 * vdp_presentation_queue_target_create_x11;
 
 static void load_vdpau(VdpDevice dev);
 
-static const int output_width = 1440;
-static const int output_height = 900;
-static const int input_width = 1440;
-static const int input_height = 900;
+static const int output_width = 0x400;
+static const int output_height = 0x240;
+static const int input_width = 0x200;
+static const int input_height = 0x120;
 
 VdpDevice dev;
 static uint32_t cnum = 0;
@@ -106,7 +106,7 @@ static int open_map(void)
 	return 1;
 }
 
-#define ok(a) do { ret = a; if (ret != VDP_STATUS_OK) { fprintf(stderr, "%s\n", vdp_get_error_string(ret)); exit(1); } } while (0)
+#define ok(a) do { ret = a; if (ret != VDP_STATUS_OK) { fprintf(stderr, "%s:%u %s\n", __FUNCTION__, __LINE__, vdp_get_error_string(ret)); exit(1); } } while (0)
 
 struct snap {
 	uint32_t bsp[0x180/4]; // IO registers 0x400...0x580, ignoring indexed bucket at 580..590
@@ -126,10 +126,10 @@ struct fuzz {
 	int template_idx;
 };
 
-static void memcpy4(void *out, uint32_t in, uint32_t size)
+static void memcpy4(uint32_t *out, uint32_t in, uint32_t size)
 {
-	for (size /= 4; size; size--, in += 4, out += 4)
-		*(uint32_t*)out = nva_rd32(cnum, in);
+	for (size /= 4; size; size--, in += 4, ++out)
+		*out = nva_rd32(cnum, in);
 }
 
 static void clear_data(void)
@@ -209,27 +209,136 @@ static void compare_data(struct snap *cur, struct snap *ref, struct fuzz *f, uin
 	}
 }
 
+static void fill_mpeg_picparm(const VdpPictureInfoMPEG1Or2 *in, struct h262_picparm *pp)
+{
+	int i;
+	pp->picture_structure = in->picture_structure;
+	pp->picture_coding_type = in->picture_coding_type;
+	pp->intra_dc_precision = in->intra_dc_precision;
+	pp->frame_pred_frame_dct = in->frame_pred_frame_dct;
+	pp->concealment_motion_vectors = in->concealment_motion_vectors;
+	pp->intra_vlc_format = in->intra_vlc_format;
+	pp->alternate_scan = in->alternate_scan;
+	pp->q_scale_type = in->q_scale_type;
+	pp->top_field_first = in->top_field_first;
+	pp->full_pel_forward_vector = in->full_pel_forward_vector;
+	pp->full_pel_backward_vector = in->full_pel_backward_vector;
+	pp->f_code[0][0] = in->f_code[0][0];
+	pp->f_code[0][1] = in->f_code[0][1];
+	pp->f_code[1][0] = in->f_code[1][0];
+	pp->f_code[1][1] = in->f_code[1][1];
+	pp->pic_width_in_mbs = input_width / 16;
+	pp->pic_height_in_mbs = input_height / 16;
+	pp->pic_size_in_mbs = pp->pic_width_in_mbs * pp->pic_height_in_mbs;
+	for (i = 0; i < 64; ++i) {
+		pp->intra_quantiser_matrix[i] = in->intra_quantizer_matrix[i];
+		pp->non_intra_quantiser_matrix[i] = in->non_intra_quantizer_matrix[i];
+	}
+}
+
+static void fill_mpeg_mb(const struct h262_picparm *pp, const struct h262_slice *slice, struct h262_macroblock *mb)
+{
+	int vfs = pp->picture_structure == H262_PIC_STRUCT_FIELD_BOTTOM;
+	if (pp->picture_structure == H262_PIC_STRUCT_FRAME &&
+	    !pp->frame_pred_frame_dct &&
+	    (mb->macroblock_intra || mb->macroblock_pattern))
+		mb->dct_type = 1; // field decoding
+	else
+		mb->dct_type = 0;
+	mb->quantiser_scale_code = slice->quantiser_scale_code;
+	switch (pp->picture_coding_type) {
+	case H262_PIC_TYPE_I:
+	case H262_PIC_TYPE_D:
+		mb->macroblock_intra = 1;
+		mb->coded_block_pattern = 0x3f;
+		mb->block[0][0] = 0x80;
+		mb->block[1][0] = 0x80;
+		mb->block[2][0] = 0x80;
+		mb->block[3][0] = 0x80;
+		mb->block[4][0] = 0x80;
+		mb->block[5][0] = 0x80;
+		break;
+	// Because motion vectors are fun
+	case H262_PIC_TYPE_B:
+		mb->macroblock_motion_backward = 1;
+	case H262_PIC_TYPE_P:
+		mb->macroblock_motion_forward = 1;
+		break;
+	}
+
+	if (pp->picture_structure == H262_PIC_STRUCT_FRAME)
+		mb->frame_motion_type = H262_FRAME_MOTION_FRAME;
+	else
+		mb->field_motion_type = H262_FIELD_MOTION_FIELD;
+
+	mb->motion_vertical_field_select[0][0] = vfs;
+	mb->motion_vertical_field_select[0][1] = vfs;
+	mb->motion_vertical_field_select[1][0] = vfs;
+	mb->motion_vertical_field_select[1][1] = vfs;
+}
+
+static void generate_mpeg(const VdpPictureInfoMPEG1Or2 *info, int mpeg2, const void **byte, uint32_t *len)
+{
+	struct bitstream *str = vs_new_encode(VS_H262);
+	struct h262_seqparm seqparm;
+	struct h262_picparm pp;
+	uint32_t x, y, val = H262_START_CODE_SLICE_BASE;
+	struct h262_macroblock *mbs;
+	struct h262_slice slice;
+
+	seqparm.is_ext = mpeg2;
+	seqparm.chroma_format = 1; // 420
+	pp.is_ext = mpeg2;
+	fill_mpeg_picparm(info, &pp);
+	mbs = calloc(sizeof(*mbs), pp.pic_size_in_mbs);
+
+	slice.slice_vertical_position = val;
+	slice.quantiser_scale_code = 1;
+	slice.intra_slice_flag = 0;
+	slice.first_mb_in_slice = 0;
+	slice.last_mb_in_slice = pp.pic_width_in_mbs;
+	slice.mbs = mbs;
+
+	for (x = 0; x < pp.pic_size_in_mbs; ++x)
+		fill_mpeg_mb(&pp, &slice, &mbs[x]);
+
+	for (y = 0; y < pp.pic_size_in_mbs; y += pp.pic_width_in_mbs, ++val) {
+		vs_start(str, &val);
+		if (h262_slice(str, &seqparm, &pp, &slice)) {
+			fprintf(stderr, "Failed to encode slice!\n");
+			return;
+		}
+	}
+	vs_end(str);
+	*byte = str->bytes;
+	*len = str->bytesnum;
+	free(mbs);
+	free(str);
+}
+
 static void action_mpeg(VdpDecoder dec, VdpVideoSurface surf, VdpPictureInfoMPEG1Or2 *info, struct snap *ref,
 struct fuzz *f, uint32_t oldval, uint32_t newval)
 {
-	struct snap cur;
 	VdpStatus ret;
-	uint8_t y[input_width][input_height];
-	uint8_t cbcr[input_width][input_height/2+1];
-	void *data[2] = { y, cbcr };
-	uint32_t pitches[2] = { input_width, input_width };
+	uint8_t *y = calloc(input_height, input_width);
+	uint8_t *cbcr = calloc(input_height/2, input_width);
+	void *data[3] = { y, cbcr };
+	uint32_t pitches[3] = { input_width, input_width };
 
-	VdpBitstreamBuffer buffer = {
-	  .struct_version = VDP_BITSTREAM_BUFFER_VERSION,
-	  .bitstream = 0,
-	  .bitstream_bytes = 0//sizeof(swan)
-	};
+	VdpBitstreamBuffer buffer;
+	buffer.struct_version = VDP_BITSTREAM_BUFFER_VERSION;
+	generate_mpeg(info, 1, &buffer.bitstream, &buffer.bitstream_bytes);
 
 	ok(vdp_decoder_render(dec, surf, (void*)info, 1, &buffer));
+	free((void*)buffer.bitstream);
 	ok(vdp_video_surface_get_bits_y_cb_cr(surf, VDP_YCBCR_FORMAT_NV12, data, pitches));
+	free(y);
+	free(cbcr);
 	if (f) {
-		save_data(&cur);
-		compare_data(ref, &cur, f, oldval, newval);
+		struct snap *cur = calloc(1, sizeof(*cur));
+		save_data(cur);
+		compare_data(ref, cur, f, oldval, newval);
+		free(cur);
 	} else
 		save_data(ref);
 }
@@ -240,10 +349,17 @@ static void fuzz_mpeg(VdpVideoMixer mix, VdpVideoSurface *surf, VdpOutputSurface
 	uint32_t i, j;
 	VdpDecoder dec;
 	VdpStatus ret;
-	struct snap ref[1];
+	struct snap *ref = calloc(ARRAY_SIZE(template), sizeof(*ref));
+
+	for (i = 0; i < ARRAY_SIZE(template); ++i) {
+		template[i].f_code[0][0] = 0xf;
+		template[i].f_code[0][1] = 0xf;
+		template[i].f_code[1][0] = 0xf;
+		template[i].f_code[1][1] = 0xf;
+	}
 
 	struct fuzz fuzzy[] = {
-	  { 8, 4, "slice_count", 4, { 1, 512 } },
+	  { 8, 4, "slice_count", 1, { input_height / 16 + 1 } },
 	  { 12, 1, "picture_structure", 0, { 1, 3 } },
 	  { 13, 1, "picture_coding_type", 0, { 1, 4 } },
 	  { 14, 1, "intra_dc_precision", 0, { 0, 3 } },
@@ -264,7 +380,7 @@ static void fuzz_mpeg(VdpVideoMixer mix, VdpVideoSurface *surf, VdpOutputSurface
 	clear_data();
 	// Render first, then retrieve bits to force serialization
 	for (i = 0; i < ARRAY_SIZE(template); ++i)
-		action_mpeg(dec, surf[0], template+i, ref+i, NULL, 0, 0);
+		action_mpeg(dec, surf[0], &template[i], ref+i, NULL, 0, 0);
 
 	for (i = 0; i < ARRAY_SIZE(fuzzy); ++i) {
 		int oldval = 0, tidx = fuzzy[i].template_idx;
@@ -273,17 +389,17 @@ static void fuzz_mpeg(VdpVideoMixer mix, VdpVideoSurface *surf, VdpOutputSurface
 		if (fuzzy[i].single_values) {
 			for (j = 0; j < fuzzy[i].single_values; ++j) {
 				memcpy((char*)&info + fuzzy[i].offset, &fuzzy[i].values[j], fuzzy[i].size_bytes);
-				action_mpeg(dec, surf[0], &info, &ref[tidx], fuzzy+i, oldval, fuzzy[i].values[j]);
+				action_mpeg(dec, surf[0], &info, &ref[tidx], &fuzzy[i], oldval, fuzzy[i].values[j]);
 			}
 		} else {
 			for (j = fuzzy[i].values[0]; j <= fuzzy[i].values[1]; ++j) {
 				memcpy((char*)&info + fuzzy[i].offset, &j, fuzzy[i].size_bytes);
-				action_mpeg(dec, surf[0], &info, &ref[tidx], fuzzy+i, oldval, j);
+				action_mpeg(dec, surf[0], &info, &ref[tidx], &fuzzy[i], oldval, j);
 			}
 		}
 	}
 	fprintf(stderr, "Done, destroying renderer\n");
-
+	free(ref);
 	vdp_decoder_destroy(dec);
 }
 
@@ -310,6 +426,9 @@ int main(int argc, char *argv[]) {
       &input_height
    };
 
+   if (!open_map())
+      return 1;
+
    display = XOpenDisplay(NULL);
    root = XDefaultRootWindow(display);
    window = XCreateSimpleWindow(display, root, 0, 0, output_width, output_height, 0, 0, 0);
@@ -333,9 +452,6 @@ int main(int argc, char *argv[]) {
    }
    ok(vdp_video_mixer_create(dev, ARRAY_SIZE(mixer_features), mixer_features,
                              ARRAY_SIZE(mixer_parameters), mixer_parameters, mixer_values, &mixer));
-
-   if (!open_map())
-      return 1;
 
    fuzz_mpeg(mixer, surf, osurf);
 

@@ -39,6 +39,6 @@ install(TARGETS vstest vstream deh261 deh262 deh264 test264
 if (PC_PCIACCESS_FOUND AND PC_X11_FOUND AND PC_VDPAU_FOUND)
 	link_directories(${PC_PCIACCESS_LIBRARY_DIRS} ${PC_X11_LIBRARY_DIRS} ${PC_VDPAU_LIBRARY_DIRS})
 	add_executable(vdpow vdpow.c)
-	target_link_libraries(vdpow vstream nva ${PC_PCIACCESS_LIBRARIES} ${PC_X11_LIBRARIES}  ${PC_VDPAU_LIBRARIES})
+	target_link_libraries(vdpow vstream nva ${PC_PCIACCESS_LIBRARIES} ${PC_X11_LIBRARIES}  ${PC_VDPAU_LIBRARIES} pthread)
 	install(TARGETS vdpow RUNTIME DESTINATION bin)
 endif (PC_PCIACCESS_FOUND AND PC_X11_FOUND AND PC_VDPAU_FOUND)
