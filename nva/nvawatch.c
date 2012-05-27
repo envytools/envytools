@@ -33,7 +33,7 @@ int32_t a;
 static const int SZ = 1024 * 1024;
 
 uint32_t queue[1024 * 1024];
-int get = 0, put = 0;
+volatile int get = 0, put = 0;
 
 void *watchfun(void *x) {
 	uint32_t val = nva_rd32(cnum, a);
