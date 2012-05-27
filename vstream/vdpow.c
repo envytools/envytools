@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <stdlib.h>
+#include <time.h>
 #include <sys/time.h>
 #include <X11/Xlib.h>
 #include <vdpau/vdpau.h>
@@ -9,6 +10,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <errno.h>
 #include <string.h>
 #include "nva.h"
 #include "vstream.h"
@@ -81,10 +83,10 @@ VdpPresentationQueueTargetCreateX11 * vdp_presentation_queue_target_create_x11;
 
 static void load_vdpau(VdpDevice dev);
 
-static const int output_width = 0x400;
-static const int output_height = 0x240;
-static const int input_width = 0x200;
-static const int input_height = 0x120;
+static const int input_width = 1440;
+static const int input_height = 1152;
+static const int output_width = 1440;
+static const int output_height = 1152;
 
 VdpDevice dev;
 static uint32_t cnum = 0;
@@ -106,9 +108,10 @@ static int open_map(void)
 	return 1;
 }
 
-#define ok(a) do { ret = a; if (ret != VDP_STATUS_OK) { fprintf(stderr, "%s:%u %s\n", __FUNCTION__, __LINE__, vdp_get_error_string(ret)); exit(1); } } while (0)
+#define ok(a) do { ret = a; if (ret != VDP_STATUS_OK) { fprintf(stderr, "%s:%u %u %s\n", __FUNCTION__, __LINE__, ret, vdp_get_error_string(ret)); exit(1); } } while (0)
 
 struct snap {
+	uint32_t bsp_done, data_done, pvp_done, tries;
 	uint32_t bsp[0x180/4]; // IO registers 0x400...0x580, ignoring indexed bucket at 580..590
 	uint16_t dump[2048]; // PVP data section (400/440 indexed io)
 	uint32_t pvp[0x3c0/4]; // PVP registers 0x440...0x800
@@ -126,11 +129,13 @@ struct fuzz {
 	int template_idx;
 };
 
+#if 0
 static void memcpy4(uint32_t *out, uint32_t in, uint32_t size)
 {
 	for (size /= 4; size; size--, in += 4, ++out)
 		*out = nva_rd32(cnum, in);
 }
+#endif
 
 static void clear_data(void)
 {
@@ -150,18 +155,59 @@ static void clear_data(void)
 #endif
 }
 
-static void save_data(struct snap *cur)
+static uint64_t gettime(void)
+{
+	struct timespec ts;
+	clock_gettime(CLOCK_REALTIME, &ts);
+	return ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+}
+
+static int save_data(struct snap *cur)
 {
 	uint32_t *dump = (uint32_t*)cur->dump;
-	uint32_t i, j;
-	memcpy4(cur->bsp, 0x84400, sizeof(cur->bsp));
-	for (i = 0; i < 0x40; ++i) {
-		nva_wr32(cnum, 0x85ffc, i);
-		for (j = 0; j < 0x40; j += 4)
-			dump[i + j * 0x10] = nva_rd32(cnum, 0x85400 + j);
+	++cur->tries;
+	if (cur->bsp_done < ARRAY_SIZE(cur->bsp)) {
+		uint64_t start = gettime();
+		while (!nva_rd32(cnum, 0x84400))
+			if (gettime() - start >= 1000)
+				return -EIO;
+		for (; cur->bsp_done < ARRAY_SIZE(cur->bsp); ++cur->bsp_done) {
+			cur->bsp[cur->bsp_done] = nva_rd32(cnum, 0x84400 + cur->bsp_done * 4);
+			if (!nva_rd32(cnum, 0x84400))
+				return -EAGAIN;
+		}
 	}
-	nva_wr32(cnum, 0x85ffc, 0);
-	memcpy4(cur->pvp, 0x85440, sizeof(cur->pvp));
+	if (cur->data_done < 0x40) {
+		uint64_t start = gettime();
+		while (!nva_rd32(cnum, 0x856a8))
+			if (gettime() - start >= 1000)
+				return -EIO;
+
+		for (; cur->data_done < 0x40; ++cur->data_done) {
+			uint32_t j;
+			nva_wr32(cnum, 0x85ffc, cur->data_done);
+			for (j = 0; j < 0x40; j += 4)
+				dump[cur->data_done + j * 0x10] = nva_rd32(cnum, 0x85400 + j);
+			if (!nva_rd32(cnum, 0x856a8))
+				return -EAGAIN;
+		}
+		nva_wr32(cnum, 0x85ffc, 0);
+		goto skipspin;
+	}
+	if (cur->data_done == 0x40) {
+		uint64_t start = gettime();
+		while (!nva_rd32(cnum, 0x856a8))
+			if (gettime() - start >= 1000)
+				return -EIO;
+
+skipspin:
+		for (; cur->pvp_done < ARRAY_SIZE(cur->pvp); ++cur->pvp_done) {
+			cur->pvp[cur->pvp_done] = nva_rd32(cnum, 0x85440 + cur->pvp_done * 4);
+			if (!nva_rd32(cnum, 0x856a8))
+				return -EAGAIN;
+		}
+	}
+	return 0;
 }
 
 static int blacklist_bsp(uint32_t idx) {
@@ -171,6 +217,7 @@ static int blacklist_bsp(uint32_t idx) {
 static int blacklist_vuc(uint32_t idx) {
 	switch (idx) {
 	case 52 ... 244: // Presumably addresses for Y Cb Cr
+	case 1536 ... 2047: // Trash?
 		return 1;
 	default:
 		return 0;
@@ -188,7 +235,7 @@ static int blacklist_pvp(uint32_t idx) {
 	}
 }
 
-static void compare_data(struct snap *cur, struct snap *ref, struct fuzz *f, uint32_t oldval, uint32_t newval)
+static void compare_data(struct snap *ref, struct snap *cur, struct fuzz *f, uint32_t oldval, uint32_t newval)
 {
 	uint32_t i, idx;
 	fprintf(stderr, "Delta for %s %u -> %u\n", f->name, oldval, newval);
@@ -231,8 +278,8 @@ static void fill_mpeg_picparm(const VdpPictureInfoMPEG1Or2 *in, struct h262_picp
 	pp->pic_height_in_mbs = input_height / 16;
 	pp->pic_size_in_mbs = pp->pic_width_in_mbs * pp->pic_height_in_mbs;
 	for (i = 0; i < 64; ++i) {
-		pp->intra_quantiser_matrix[i] = in->intra_quantizer_matrix[i];
-		pp->non_intra_quantiser_matrix[i] = in->non_intra_quantizer_matrix[i];
+		pp->intra_quantiser_matrix[i] = i * 4;
+		pp->non_intra_quantiser_matrix[i] = i * 4;
 	}
 }
 
@@ -303,6 +350,7 @@ static void generate_mpeg(const VdpPictureInfoMPEG1Or2 *info, int mpeg2, const v
 		fill_mpeg_mb(&pp, &slice, &mbs[x]);
 
 	for (y = 0; y < pp.pic_size_in_mbs; y += pp.pic_width_in_mbs, ++val) {
+		vs_align_byte(str, VS_ALIGN_0);
 		vs_start(str, &val);
 		if (h262_slice(str, &seqparm, &pp, &slice)) {
 			fprintf(stderr, "Failed to encode slice!\n");
@@ -324,28 +372,35 @@ struct fuzz *f, uint32_t oldval, uint32_t newval)
 	uint8_t *cbcr = calloc(input_height/2, input_width);
 	void *data[3] = { y, cbcr };
 	uint32_t pitches[3] = { input_width, input_width };
+	struct snap *cur = f ? calloc(1, sizeof(*cur)) : ref;
+	int save = 0;
 
 	VdpBitstreamBuffer buffer;
 	buffer.struct_version = VDP_BITSTREAM_BUFFER_VERSION;
 	generate_mpeg(info, 1, &buffer.bitstream, &buffer.bitstream_bytes);
 
-	ok(vdp_decoder_render(dec, surf, (void*)info, 1, &buffer));
+	do {
+		if (save)
+			ok(vdp_video_surface_get_bits_y_cb_cr(surf, VDP_YCBCR_FORMAT_NV12, data, pitches));
+		ok(vdp_decoder_render(dec, surf, (void*)info, 1, &buffer));
+	} while ((save = save_data(cur)) == -EAGAIN);
+
 	free((void*)buffer.bitstream);
 	ok(vdp_video_surface_get_bits_y_cb_cr(surf, VDP_YCBCR_FORMAT_NV12, data, pitches));
 	free(y);
 	free(cbcr);
+	if (save < 0)
+		return;
+	fprintf(stderr, "Took %u retries\n", cur->tries - 1);
 	if (f) {
-		struct snap *cur = calloc(1, sizeof(*cur));
-		save_data(cur);
 		compare_data(ref, cur, f, oldval, newval);
 		free(cur);
-	} else
-		save_data(ref);
+	}
 }
 
 static void fuzz_mpeg(VdpVideoMixer mix, VdpVideoSurface *surf, VdpOutputSurface *osurf)
 {
-	VdpPictureInfoMPEG1Or2 info, template[1] = { { surf[1], surf[2], 0x44, 1, 1 } }; // Empty top field B frame
+	VdpPictureInfoMPEG1Or2 info, template[1] = { { surf[1], surf[2], input_height/16, 1, 1 } }; // Empty top field B frame
 	uint32_t i, j;
 	VdpDecoder dec;
 	VdpStatus ret;
@@ -373,8 +428,8 @@ static void fuzz_mpeg(VdpVideoMixer mix, VdpVideoSurface *surf, VdpOutputSurface
 	  { 22, 1, "full_pel_backward_vector", 0, { 0, 1 } },
 	};
 
-	ok(vdp_decoder_create(dev, VDP_DECODER_PROFILE_MPEG1, input_width, input_height, 2, &dec));
-	vdp_decoder_destroy(dec);
+//	ok(vdp_decoder_create(dev, VDP_DECODER_PROFILE_MPEG1, input_width, input_height, 2, &dec));
+//	vdp_decoder_destroy(dec);
 	ok(vdp_decoder_create(dev, VDP_DECODER_PROFILE_MPEG2_MAIN, input_width, input_height, 2, &dec));
 
 	clear_data();
@@ -429,15 +484,15 @@ int main(int argc, char *argv[]) {
    if (!open_map())
       return 1;
 
+   /* This requires libvdpau_trace, which is available in libvdpau.git */
+   //setenv("VDPAU_TRACE", "1", 0);
+
    display = XOpenDisplay(NULL);
    root = XDefaultRootWindow(display);
    window = XCreateSimpleWindow(display, root, 0, 0, output_width, output_height, 0, 0, 0);
    XSelectInput(display, window, ExposureMask | KeyPressMask);
    XMapWindow(display, window);
    XSync(display, 0);
-
-   /* This requires libvdpau_trace, which is available in libvdpau.git */
-   //setenv("VDPAU_TRACE", "255", 0);
 
    ret = vdp_device_create_x11(display, 0, &dev, &vdp_get_proc_address);
    assert(ret == VDP_STATUS_OK);
