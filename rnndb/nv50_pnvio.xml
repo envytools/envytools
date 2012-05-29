@@ -93,7 +93,10 @@
 		</reg32>
 		<reg32 offset="0x08" name="UNK08"/> <!-- selects clock? -->
 		<reg32 offset="0x0c" name="DATA"/> <!-- lower bytes sent/received first -->
-		<reg32 offset="0x10" name="UNK10"/>
+		<reg32 offset="0x10" name="RETRY">
+			<bitfield low="0" high="23" name="DELAY"/>
+			<bitfield pos="24" name="ENABLE"/>
+		</reg32>
 		<reg32 offset="0x14" name="BITBANG" type="nv50_pnvio_i2c_bitbang"/>
 	</group>
 
