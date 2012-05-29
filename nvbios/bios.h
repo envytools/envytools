@@ -72,7 +72,7 @@ enum envy_bios_gpio_tag {
 
 	/* 0x0f seen, output [NV50, NVA0, NV98, NVA5, NVA8, NV86, NVD9], SPEC NVIO, uses unk40_0 and unk41_4 */
 	ENVY_BIOS_GPIO_ATX_POWER_BAD		= 0x10,
-	/* 0x11 seen, neg input [NV40, NV42, NV43, NV46, NV47, NV49, NV50, NV84, NV86, NV92, NV94, NV96, NVA0, NVA5, NVC0], SPEC NVIO [or not] */
+	ENVY_BIOS_GPIO_THERM_ALERT		= 0x11, /* eg. ADT7473 THERM* input [pin 9] */
 	/* 0x12 seen, input [NV40, NV42, NV47, NV50] */
 
 	/* 0x18 seen, output [NV92, NV94, NV98, NVA3, NVA5, NVA8, NVC0, NVC1, NVC3, NVC4, NVC8, NVCE, NVCF, NVE4] */
