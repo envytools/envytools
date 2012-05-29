@@ -33,15 +33,33 @@ int32_t a;
 static const int SZ = 1024 * 1024;
 
 uint32_t queue[1024 * 1024];
+uint32_t tqueue[1024 * 1024];
 volatile int get = 0, put = 0;
 
 void *watchfun(void *x) {
 	uint32_t val = nva_rd32(cnum, a);
-	printf ("%08x\n", val);
+	queue[put] = val;
+	put = (put + 1) % SZ;
 	while (1) {
 		uint32_t nval = nva_rd32(cnum, a);
 		if (nval != val) {
 			queue[put] = nval;
+			put = (put + 1) % SZ;
+		}
+		val = nval;
+	}
+}
+
+void *twatchfun(void *x) {
+	uint32_t val = nva_rd32(cnum, a);
+	queue[put] = val;
+	tqueue[put] = nva_rd32(cnum, 0x9400);
+	put = (put + 1) % SZ;
+	while (1) {
+		uint32_t nval = nva_rd32(cnum, a);
+		if (nval != val) {
+			queue[put] = nval;
+			tqueue[put] = nva_rd32(cnum, 0x9400);
 			put = (put + 1) % SZ;
 		}
 		val = nval;
@@ -54,8 +72,12 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 	int c;
-	while ((c = getopt (argc, argv, "c:")) != -1)
+	int wanttime = 0;
+	while ((c = getopt (argc, argv, "tc:")) != -1)
 		switch (c) {
+			case 't':
+				wanttime = 1;
+				break;
 			case 'c':
 				sscanf(optarg, "%d", &cnum);
 				break;
@@ -73,11 +95,16 @@ int main(int argc, char **argv) {
 	}
 	sscanf (argv[optind], "%x", &a);
 	pthread_t thr;
-	pthread_create(&thr, 0, watchfun, 0);
+	pthread_create(&thr, 0, wanttime ? twatchfun : watchfun, 0);
+	uint32_t ptime = 0;
 	while (1) {
 		while (get == put)
 			pthread_yield();
-		printf("%08x\n", queue[get]);
+		if (wanttime)
+			printf("%08x[+%d]: %08x\n", tqueue[get], tqueue[get]-ptime, queue[get]);
+		else
+			printf("%08x\n", queue[get]);
+		ptime = tqueue[get];
 		get = (get + 1) % SZ;
 	}
 }
