@@ -186,6 +186,51 @@ struct envy_bios_gpio {
 	struct envy_bios_gunk gunk;
 };
 
+struct envy_bios_dunk0c {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+};
+
+struct envy_bios_dunk0e {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+};
+
+struct envy_bios_dunk10 {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+};
+
+struct envy_bios_dunk12 {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+};
+
+struct envy_bios_dunk14 {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+};
+
 struct envy_bios {
 	uint8_t *data;
 	unsigned int length;
@@ -213,6 +258,11 @@ struct envy_bios {
 	uint16_t dcb_offset;
 
 	struct envy_bios_gpio gpio;
+	struct envy_bios_dunk0c dunk0c;
+	struct envy_bios_dunk0e dunk0e;
+	struct envy_bios_dunk10 dunk10;
+	struct envy_bios_dunk12 dunk12;
+	struct envy_bios_dunk14 dunk14;
 };
 
 static inline int bios_u8(struct envy_bios *bios, unsigned int offs, uint8_t *res) {
@@ -257,6 +307,16 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask);
 
 int envy_bios_parse_gpio (struct envy_bios *bios);
 void envy_bios_print_gpio (struct envy_bios *bios, FILE *out);
+int envy_bios_parse_dunk0c (struct envy_bios *bios);
+void envy_bios_print_dunk0c (struct envy_bios *bios, FILE *out);
+int envy_bios_parse_dunk0e (struct envy_bios *bios);
+void envy_bios_print_dunk0e (struct envy_bios *bios, FILE *out);
+int envy_bios_parse_dunk10 (struct envy_bios *bios);
+void envy_bios_print_dunk10 (struct envy_bios *bios, FILE *out);
+int envy_bios_parse_dunk12 (struct envy_bios *bios);
+void envy_bios_print_dunk12 (struct envy_bios *bios, FILE *out);
+int envy_bios_parse_dunk14 (struct envy_bios *bios);
+void envy_bios_print_dunk14 (struct envy_bios *bios, FILE *out);
 
 struct enum_val {
 	int val;

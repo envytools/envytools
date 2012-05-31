@@ -836,6 +836,11 @@ int main(int argc, char **argv) {
 			dcbrlen = bios->data[bios->dcb_offset+3];
 			i2coffset = le16(bios->dcb_offset+4);
 			bios->gpio.offset = le16(bios->dcb_offset+10);
+			bios->dunk0c.offset = le16(bios->dcb_offset+12);
+			bios->dunk0e.offset = le16(bios->dcb_offset+14);
+			bios->dunk10.offset = le16(bios->dcb_offset+16);
+			bios->dunk12.offset = le16(bios->dcb_offset+18);
+			bios->dunk14.offset = le16(bios->dcb_offset+20);
 		} else if (dcbver >= 0x20) {
 			dcbhlen = 8;
 			dcbentries = 16;
@@ -951,6 +956,26 @@ int main(int argc, char **argv) {
 	if (envy_bios_parse_gpio(bios))
 		ENVY_BIOS_ERR("Failed to parse GPIO table at %04x version %x.%x\n", bios->gpio.offset, bios->gpio.version >> 4, bios->gpio.version & 0xf);
 	envy_bios_print_gpio(bios, stdout);
+
+	if (envy_bios_parse_dunk0c(bios))
+		ENVY_BIOS_ERR("Failed to parse DUNK0C table at %04x version %x.%x\n", bios->dunk0c.offset, bios->dunk0c.version >> 4, bios->dunk0c.version & 0xf);
+	envy_bios_print_dunk0c(bios, stdout);
+
+	if (envy_bios_parse_dunk0e(bios))
+		ENVY_BIOS_ERR("Failed to parse DUNK0E table at %04x version %x.%x\n", bios->dunk0e.offset, bios->dunk0e.version >> 4, bios->dunk0e.version & 0xf);
+	envy_bios_print_dunk0e(bios, stdout);
+
+	if (envy_bios_parse_dunk10(bios))
+		ENVY_BIOS_ERR("Failed to parse DUNK10 table at %04x version %x.%x\n", bios->dunk10.offset, bios->dunk10.version >> 4, bios->dunk10.version & 0xf);
+	envy_bios_print_dunk10(bios, stdout);
+
+	if (envy_bios_parse_dunk12(bios))
+		ENVY_BIOS_ERR("Failed to parse DUNK12 table at %04x version %x.%x\n", bios->dunk12.offset, bios->dunk12.version >> 4, bios->dunk12.version & 0xf);
+	envy_bios_print_dunk12(bios, stdout);
+
+	if (envy_bios_parse_dunk14(bios))
+		ENVY_BIOS_ERR("Failed to parse DUNK14 table at %04x version %x.%x\n", bios->dunk14.offset, bios->dunk14.version >> 4, bios->dunk14.version & 0xf);
+	envy_bios_print_dunk14(bios, stdout);
 
 	if (pll_limit_tbl_ptr) {
 		uint8_t ver = bios->data[pll_limit_tbl_ptr];
