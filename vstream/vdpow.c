@@ -137,21 +137,28 @@ static void memcpy4(uint32_t *out, uint32_t in, uint32_t size)
 }
 #endif
 
+#define BSP(x) (0x84000 + (x))
+#define BSP_OFS(x) BSP(0x400 + (x))
+
+#define PVP(x) (0x85000 + (x))
+#define PVP_OFS(x) PVP(0x440 + (x))
+#define VUC(x) PVP(0x400 + (x % 0x40))
+
 static void clear_data(void)
 {
 #if 0 // Crashes
 	int i, j;
 	for (i = 0; i < sizeof(((struct snap*)0)->bsp); i += 4)
-		nva_wr32(cnum, 0x84400 + i, 0);
+		nva_wr32(cnum, BSP_OFS(i), 0);
 	for (i = 0; i < 0x40; ++i) {
-		nva_wr32(cnum, 0x85ffc, i);
+		nva_wr32(cnum, PVP(0xffc), i);
 		for (j = 0; j < 0x40; j += 4)
-			nva_wr32(cnum, 0x85440 + j, 0);
+			nva_wr32(cnum, VUC(j), 0);
 	}
-	nva_wr32(cnum, 0x85ffc, 0);
+	nva_wr32(cnum, PVP(0xffc), 0);
 	  
 	for (i = 0; i < sizeof(((struct snap*)0)->pvp); i += 4)
-		nva_wr32(cnum, 0x85440 + i, 0);
+		nva_wr32(cnum, PVP_OFS(i), 0);
 #endif
 }
 
@@ -162,77 +169,90 @@ static uint64_t gettime(void)
 	return ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
 }
 
+static uint32_t mask_bsp(uint32_t idx) {
+	switch (idx & 0xfff) {
+	default:
+		return 0U;
+	}
+}
+
+static uint32_t mask_vuc(uint32_t idx) {
+	switch (idx * 2) {
+	case 52 ... 243: // Presumably addresses for Y Cb Cr
+	case 1536 ... 2047: // Trash?
+		return 0U;
+	default:
+		return ~0U;
+	}
+}
+
+static uint32_t mask_pvp(uint32_t idx) {
+	switch (idx & 0xfff) {
+	case 0x4a0:
+	case 0x500:
+	case 0x688 ... 0x69c:
+		return 0U;
+	default:
+		return ~0U;
+	}
+}
+
 static int save_data(struct snap *cur)
 {
-	uint32_t *dump = (uint32_t*)cur->dump;
+	uint32_t addr, mask, *dump = (uint32_t*)cur->dump;
 	++cur->tries;
 	if (cur->bsp_done < ARRAY_SIZE(cur->bsp)) {
 		uint64_t start = gettime();
-		while (!nva_rd32(cnum, 0x84400))
+		while (!nva_rd32(cnum, BSP(0x400)))
 			if (gettime() - start >= 1000)
 				return -EIO;
 		for (; cur->bsp_done < ARRAY_SIZE(cur->bsp); ++cur->bsp_done) {
-			cur->bsp[cur->bsp_done] = nva_rd32(cnum, 0x84400 + cur->bsp_done * 4);
-			if (!nva_rd32(cnum, 0x84400))
+			addr = BSP_OFS(cur->bsp_done * 4);
+			if (!(mask = mask_bsp(addr)))
+				continue;
+			cur->bsp[cur->bsp_done] = nva_rd32(cnum, addr) & mask;
+			if (!nva_rd32(cnum, BSP(0x400)))
 				return -EAGAIN;
 		}
 	}
 	if (cur->data_done < 0x40) {
 		uint64_t start = gettime();
-		while (!nva_rd32(cnum, 0x856a8))
+		while (!nva_rd32(cnum, PVP(0x6a8)))
 			if (gettime() - start >= 1000)
 				return -EIO;
 
 		for (; cur->data_done < 0x40; ++cur->data_done) {
 			uint32_t j;
-			nva_wr32(cnum, 0x85ffc, cur->data_done);
-			for (j = 0; j < 0x40; j += 4)
-				dump[cur->data_done + j * 0x10] = nva_rd32(cnum, 0x85400 + j);
-			if (!nva_rd32(cnum, 0x856a8))
+			nva_wr32(cnum, PVP(0xffc), cur->data_done);
+			for (j = 0; j < 0x40; j += 4) {
+				addr = cur->data_done + j * 0x10;
+				if (!(mask = mask_vuc(addr * 2)))
+					continue;
+				dump[cur->data_done + j * 0x10] = nva_rd32(cnum, VUC(j)) & mask;
+			}
+			if (!nva_rd32(cnum, PVP(0x6a8)))
 				return -EAGAIN;
 		}
-		nva_wr32(cnum, 0x85ffc, 0);
+		nva_wr32(cnum, PVP(0xffc), 0);
 		goto skipspin;
 	}
 	if (cur->data_done == 0x40) {
 		uint64_t start = gettime();
-		while (!nva_rd32(cnum, 0x856a8))
+		while (!nva_rd32(cnum, PVP(0x6a8)))
 			if (gettime() - start >= 1000)
 				return -EIO;
 
 skipspin:
 		for (; cur->pvp_done < ARRAY_SIZE(cur->pvp); ++cur->pvp_done) {
-			cur->pvp[cur->pvp_done] = nva_rd32(cnum, 0x85440 + cur->pvp_done * 4);
-			if (!nva_rd32(cnum, 0x856a8))
+			addr = PVP_OFS(cur->pvp_done * 4);
+			if (!(mask = mask_pvp(addr)))
+				continue;
+			cur->pvp[cur->pvp_done] = nva_rd32(cnum, addr) & mask;
+			if (!nva_rd32(cnum, PVP(0x6a8)))
 				return -EAGAIN;
 		}
 	}
 	return 0;
-}
-
-static int blacklist_bsp(uint32_t idx) {
-	return 0;
-}
-
-static int blacklist_vuc(uint32_t idx) {
-	switch (idx) {
-	case 52 ... 244: // Presumably addresses for Y Cb Cr
-	case 1536 ... 2047: // Trash?
-		return 1;
-	default:
-		return 0;
-	}
-}
-
-static int blacklist_pvp(uint32_t idx) {
-	switch (idx) {
-	case 0x4a0:
-	case 0x500:
-	case 0x688 ... 0x69c:
-		return 1;
-	default:
-		return 0;
-	}
 }
 
 static void compare_data(struct snap *ref, struct snap *cur, struct fuzz *f, uint32_t oldval, uint32_t newval)
@@ -240,18 +260,18 @@ static void compare_data(struct snap *ref, struct snap *cur, struct fuzz *f, uin
 	uint32_t i, idx;
 	fprintf(stderr, "Delta for %s %u -> %u\n", f->name, oldval, newval);
 	for (i = 0; i < ARRAY_SIZE(cur->bsp); ++i) {
-		idx = 0x400 + i * 4;
-		if (ref->bsp[i] != cur->bsp[i] && !blacklist_bsp(idx))
+		idx = BSP_OFS(i * 4) & 0xfff;
+		if (ref->bsp[i] != cur->bsp[i])
 			fprintf(stderr, "BSP.%x = %x -> %x\n", idx, ref->bsp[i], cur->bsp[i]);
 	}
 
 	for (i = 0; i < ARRAY_SIZE(cur->dump); ++i) {
-		if (ref->dump[i] != cur->dump[i] && !blacklist_vuc(i))
+		if (ref->dump[i] != cur->dump[i])
 			fprintf(stderr, "PVP.VUC[%i] = %x -> %x\n", i, ref->dump[i], cur->dump[i]);
 	}
 	for (i = 0; i < ARRAY_SIZE(cur->pvp); ++i) {
-		idx = 0x440 + i * 4;
-		if (ref->pvp[i] != cur->pvp[i] && !blacklist_pvp(idx))
+		idx = PVP_OFS(i * 4) & 0xfff;
+		if (ref->pvp[i] != cur->pvp[i])
 			fprintf(stderr, "PVP.%x = %x -> %x\n", idx, ref->pvp[i], cur->pvp[i]);
 	}
 }
