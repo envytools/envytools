@@ -166,27 +166,50 @@ static uint64_t gettime(void)
 {
 	struct timespec ts;
 	clock_gettime(CLOCK_REALTIME, &ts);
-	return ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
+	return ts.tv_sec * 1000 + ts.tv_nsec / 1000000ULL;
 }
 
-static uint32_t mask_bsp(uint32_t idx) {
+static uint32_t mask_bsp(enum vs_type codec, uint32_t idx) {
 	switch (idx & 0xfff) {
-	default:
-		return 0U;
-	}
-}
+	case 0x420:
+		if (codec == VS_H262)
+			return ~0x01fffffc; // Clear MB_IDX|SLICE_START_LINE
+		else if (codec == VS_H264)
+			return ~0x00007ffc; // Clear SLICE_IDX
+		else
+			return ~0U;
 
-static uint32_t mask_vuc(uint32_t idx) {
-	switch (idx * 2) {
-	case 52 ... 243: // Presumably addresses for Y Cb Cr
-	case 1536 ... 2047: // Trash?
-		return 0U;
+	case 0x424:
+	case 0x440:
+		return ~0x1fffffff; // Top bits undocumented?
+
+	case 0x448: // BSP.STATUS
+	case 0x454: // BSP.INTR
+	case 0x480 ... 0x4c4: // stream setup
+	case 0x500 ... 0x510: // mbring setup
+		return 0;
+
 	default:
 		return ~0U;
 	}
 }
 
-static uint32_t mask_pvp(uint32_t idx) {
+static uint32_t mask_vuc(enum vs_type codec, uint32_t idx) {
+	switch (codec) {
+	case VS_H262:
+		switch (idx) {
+		case 52 ... 243: // Presumably addresses for Y Cb Cr
+		case 246 ... 2047: // Trash?
+			return 0U;
+		default:
+			return ~0U;
+		}
+	default:
+		return ~0U;
+	}
+}
+
+static uint32_t mask_pvp(enum vs_type codec, uint32_t idx) {
 	switch (idx & 0xfff) {
 	case 0x4a0:
 	case 0x500:
@@ -197,40 +220,49 @@ static uint32_t mask_pvp(uint32_t idx) {
 	}
 }
 
-static int save_data(struct snap *cur)
+/* registers we use to detect work being done */
+#define WORK_BSP BSP(0x420)
+#define WORK_PVP PVP(0x4b0) /*0x608->only works on VP5*/
+
+static int save_data(enum vs_type codec, struct snap *cur)
 {
 	uint32_t addr, mask, *dump = (uint32_t*)cur->dump;
 	++cur->tries;
 	if (cur->bsp_done < ARRAY_SIZE(cur->bsp)) {
 		uint64_t start = gettime();
-		while (!nva_rd32(cnum, BSP(0x400)))
-			if (gettime() - start >= 1000)
+		while (!nva_rd32(cnum, WORK_BSP))
+			if (gettime() - start >= 100) {
+				fprintf(stderr, "Timeout in bsp!\n");
 				return -EIO;
+			}
 		for (; cur->bsp_done < ARRAY_SIZE(cur->bsp); ++cur->bsp_done) {
 			addr = BSP_OFS(cur->bsp_done * 4);
-			if (!(mask = mask_bsp(addr)))
+			if (!(mask = mask_bsp(codec, addr)))
 				continue;
 			cur->bsp[cur->bsp_done] = nva_rd32(cnum, addr) & mask;
-			if (!nva_rd32(cnum, BSP(0x400)))
+			if (!nva_rd32(cnum, WORK_BSP))
 				return -EAGAIN;
 		}
+		return -EAGAIN;
 	}
 	if (cur->data_done < 0x40) {
 		uint64_t start = gettime();
-		while (!nva_rd32(cnum, PVP(0x6a8)))
-			if (gettime() - start >= 1000)
+		while (!nva_rd32(cnum, WORK_PVP))
+			if (gettime() - start >= 100) {
+				fprintf(stderr, "Timeout in vp!\n");
 				return -EIO;
+			}
 
 		for (; cur->data_done < 0x40; ++cur->data_done) {
 			uint32_t j;
 			nva_wr32(cnum, PVP(0xffc), cur->data_done);
 			for (j = 0; j < 0x40; j += 4) {
 				addr = cur->data_done + j * 0x10;
-				if (!(mask = mask_vuc(addr * 2)))
+				if (!(mask = mask_vuc(codec, addr * 2)))
 					continue;
-				dump[cur->data_done + j * 0x10] = nva_rd32(cnum, VUC(j)) & mask;
+				dump[addr] = nva_rd32(cnum, VUC(j)) & mask;
 			}
-			if (!nva_rd32(cnum, PVP(0x6a8)))
+			if (!nva_rd32(cnum, WORK_PVP))
 				return -EAGAIN;
 		}
 		nva_wr32(cnum, PVP(0xffc), 0);
@@ -238,17 +270,17 @@ static int save_data(struct snap *cur)
 	}
 	if (cur->data_done == 0x40) {
 		uint64_t start = gettime();
-		while (!nva_rd32(cnum, PVP(0x6a8)))
-			if (gettime() - start >= 1000)
+		while (!nva_rd32(cnum, WORK_PVP))
+			if (gettime() - start >= 100)
 				return -EIO;
 
 skipspin:
 		for (; cur->pvp_done < ARRAY_SIZE(cur->pvp); ++cur->pvp_done) {
 			addr = PVP_OFS(cur->pvp_done * 4);
-			if (!(mask = mask_pvp(addr)))
+			if (!(mask = mask_pvp(codec, addr)))
 				continue;
 			cur->pvp[cur->pvp_done] = nva_rd32(cnum, addr) & mask;
-			if (!nva_rd32(cnum, PVP(0x6a8)))
+			if (!nva_rd32(cnum, WORK_PVP))
 				return -EAGAIN;
 		}
 	}
@@ -393,7 +425,7 @@ struct fuzz *f, uint32_t oldval, uint32_t newval)
 	void *data[3] = { y, cbcr };
 	uint32_t pitches[3] = { input_width, input_width };
 	struct snap *cur = f ? calloc(1, sizeof(*cur)) : ref;
-	int save = 0;
+	int save = 0, failed_tries = 0;
 
 	VdpBitstreamBuffer buffer;
 	buffer.struct_version = VDP_BITSTREAM_BUFFER_VERSION;
@@ -403,15 +435,22 @@ struct fuzz *f, uint32_t oldval, uint32_t newval)
 		if (save)
 			ok(vdp_video_surface_get_bits_y_cb_cr(surf, VDP_YCBCR_FORMAT_NV12, data, pitches));
 		ok(vdp_decoder_render(dec, surf, (void*)info, 1, &buffer));
-	} while ((save = save_data(cur)) == -EAGAIN);
+	} while ((save = save_data(VS_H262, cur)) == -EAGAIN || (save == -EIO && ++failed_tries < 3));
 
 	free((void*)buffer.bitstream);
 	ok(vdp_video_surface_get_bits_y_cb_cr(surf, VDP_YCBCR_FORMAT_NV12, data, pitches));
 	free(y);
 	free(cbcr);
-	if (save < 0)
+	if (save < 0) {
+		if (!f || oldval == newval) {
+			// Reference streams shouldn't be failing
+			assert(!!!"WTF?");
+			return;
+		}
+		fprintf(stderr, "Failed on %s %u->%u, stream was likely invalid\n", f->name, oldval, newval);
+		free(cur);
 		return;
-	fprintf(stderr, "Took %u retries\n", cur->tries - 1);
+	}
 	if (f) {
 		compare_data(ref, cur, f, oldval, newval);
 		free(cur);
@@ -455,11 +494,11 @@ static void fuzz_mpeg(VdpVideoMixer mix, VdpVideoSurface *surf, VdpOutputSurface
 	clear_data();
 	// Render first, then retrieve bits to force serialization
 	for (i = 0; i < ARRAY_SIZE(template); ++i)
-		action_mpeg(dec, surf[0], &template[i], ref+i, NULL, 0, 0);
+		action_mpeg(dec, surf[0], &template[i], &ref[i], NULL, 0, 0);
 
 	for (i = 0; i < ARRAY_SIZE(fuzzy); ++i) {
 		int oldval = 0, tidx = fuzzy[i].template_idx;
-		memcpy(&info, &template[tidx], sizeof(*template));
+		memcpy(&info, &template[tidx], sizeof(template[0]));
 		memcpy(&oldval, (char*)&template[tidx] + fuzzy[i].offset, fuzzy[i].size_bytes);
 		if (fuzzy[i].single_values) {
 			for (j = 0; j < fuzzy[i].single_values; ++j) {
