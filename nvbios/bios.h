@@ -142,6 +142,7 @@ enum envy_bios_gpio_tag {
 };
 
 struct envy_bios_gpio_entry {
+	uint16_t offset;
 	uint8_t tag;
 	uint8_t line;
 	uint8_t log[2];
@@ -213,13 +214,41 @@ struct envy_bios_dunk10 {
 	uint8_t rlen;
 };
 
-struct envy_bios_dunk12 {
+enum envy_bios_extdev_type {
+	/* 0x02 seen, at address 0x98 */
+	/* 0x04 seen, at address 0x98 */
+	/* 0x40 seen, at address 0xe0 - NV40 voltage regulator? */
+	ENVY_BIOS_EXTDEV_PX3540		= 0x41,
+	/* 0x42 seen, at address 0xe0 and 0xe6 - NVA0 voltage regulator? */
+	/* 0x43 seen, at address 0x60 */
+	/* 0x48 seen, at address 0x60, 0xe0 and 0xe2 */
+	/* 0x4c seen, at address 0x90, 0x92, 0x94 */
+	/* 0x50 seen, at address 0xca */
+	ENVY_BIOS_EXTDEV_ADT7473	= 0x70,
+	ENVY_BIOS_EXTDEV_HDCP_EEPROM	= 0x90,
+	/* 0xa0 seen, at address 0xa8 */
+	ENVY_BIOS_EXTDEV_UNUSED		= 0xff,
+};
+
+struct envy_bios_extdev_entry {
+	uint16_t offset;
+	uint8_t type;
+	uint8_t addr;
+	uint8_t bus;
+	uint8_t unk02_0;
+	uint8_t unk02_5;
+	uint8_t unk03;
+};
+
+struct envy_bios_extdev {
 	uint16_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
 	uint8_t entriesnum;
 	uint8_t rlen;
+	uint8_t unk04;
+	struct envy_bios_extdev_entry *entries;
 };
 
 struct envy_bios_dunk14 {
@@ -261,7 +290,7 @@ struct envy_bios {
 	struct envy_bios_dunk0c dunk0c;
 	struct envy_bios_dunk0e dunk0e;
 	struct envy_bios_dunk10 dunk10;
-	struct envy_bios_dunk12 dunk12;
+	struct envy_bios_extdev extdev;
 	struct envy_bios_dunk14 dunk14;
 };
 
@@ -313,8 +342,8 @@ int envy_bios_parse_dunk0e (struct envy_bios *bios);
 void envy_bios_print_dunk0e (struct envy_bios *bios, FILE *out);
 int envy_bios_parse_dunk10 (struct envy_bios *bios);
 void envy_bios_print_dunk10 (struct envy_bios *bios, FILE *out);
-int envy_bios_parse_dunk12 (struct envy_bios *bios);
-void envy_bios_print_dunk12 (struct envy_bios *bios, FILE *out);
+int envy_bios_parse_extdev (struct envy_bios *bios);
+void envy_bios_print_extdev (struct envy_bios *bios, FILE *out);
 int envy_bios_parse_dunk14 (struct envy_bios *bios);
 void envy_bios_print_dunk14 (struct envy_bios *bios, FILE *out);
 

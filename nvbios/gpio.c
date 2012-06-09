@@ -86,12 +86,12 @@ int envy_bios_parse_gpio (struct envy_bios *bios) {
 		return -ENOMEM;
 	int i;
 	for (i = 0; i < gpio->entriesnum; i++) {
-		uint16_t eoff = gpio->offset + gpio->hlen + gpio->rlen * i;
 		struct envy_bios_gpio_entry *entry = &gpio->entries[i];
+		entry->offset = gpio->offset + gpio->hlen + gpio->rlen * i;
 		uint8_t bytes[5];
 		int j;
 		for (j = 0; j < 5 && j < gpio->rlen; j++) {
-			err |= bios_u8(bios, eoff+j, &bytes[j]);
+			err |= bios_u8(bios, entry->offset+j, &bytes[j]);
 			if (err)
 				return -EFAULT;
 		}
@@ -225,7 +225,6 @@ void envy_bios_print_gpio (struct envy_bios *bios, FILE *out) {
 	envy_bios_dump_hex(bios, out, bios->gpio.offset, bios->gpio.hlen);
 	int i;
 	for (i = 0; i < gpio->entriesnum; i++) {
-		uint16_t eoff = gpio->offset + gpio->hlen + gpio->rlen * i;
 		struct envy_bios_gpio_entry *entry = &gpio->entries[i];
 		const char *tagname = find_enum(gpio_tags, entry->tag);
 		const char *spec_out = find_enum(gpio_spec_out, entry->spec_out);
@@ -272,8 +271,8 @@ void envy_bios_print_gpio (struct envy_bios *bios, FILE *out) {
 			fprintf(out, " SPEC_IN 0x%02x [%s]", entry->spec_in-1, spec_in);
 		if (entry->unk41_3_1)
 			fprintf(out, " unk41_3_1 %d", entry->unk41_3_1);
-		printf("\n");
-		envy_bios_dump_hex(bios, out, eoff, gpio->rlen);
+		fprintf(out, "\n");
+		envy_bios_dump_hex(bios, out, entry->offset, gpio->rlen);
 	}
 	fprintf(out, "\n");
 	if (bios->gpio.version >= 0x31)
@@ -415,7 +414,7 @@ void envy_bios_print_subgunk (struct envy_bios *bios, FILE *out, struct envy_bio
 		uint16_t eoff = subgunk->offset + subgunk->hlen + subgunk->rlen * i;
 		envy_bios_dump_hex(bios, out, eoff, subgunk->rlen);
 	}
-	printf("\n");
+	fprintf(out, "\n");
 }
 
 void envy_bios_print_gunk (struct envy_bios *bios, FILE *out) {
@@ -428,7 +427,7 @@ void envy_bios_print_gunk (struct envy_bios *bios, FILE *out) {
 	}
 	fprintf(out, "GUNK table at %04x version %x.%x, %d subtables\n", gunk->offset, gunk->version >> 4, gunk->version & 0xf, gunk->entriesnum);
 	envy_bios_dump_hex(bios, out, gunk->offset, gunk->hlen + gunk->entriesnum * gunk->rlen);
-	printf("\n");
+	fprintf(out, "\n");
 	int i;
 	for (i = 0; i < gunk->entriesnum; i++)
 		envy_bios_print_subgunk(bios, out, &gunk->entries[i], i);

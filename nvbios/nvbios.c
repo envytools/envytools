@@ -839,7 +839,7 @@ int main(int argc, char **argv) {
 			bios->dunk0c.offset = le16(bios->dcb_offset+12);
 			bios->dunk0e.offset = le16(bios->dcb_offset+14);
 			bios->dunk10.offset = le16(bios->dcb_offset+16);
-			bios->dunk12.offset = le16(bios->dcb_offset+18);
+			bios->extdev.offset = le16(bios->dcb_offset+18);
 			bios->dunk14.offset = le16(bios->dcb_offset+20);
 		} else if (dcbver >= 0x20) {
 			dcbhlen = 8;
@@ -969,9 +969,9 @@ int main(int argc, char **argv) {
 		ENVY_BIOS_ERR("Failed to parse DUNK10 table at %04x version %x.%x\n", bios->dunk10.offset, bios->dunk10.version >> 4, bios->dunk10.version & 0xf);
 	envy_bios_print_dunk10(bios, stdout);
 
-	if (envy_bios_parse_dunk12(bios))
-		ENVY_BIOS_ERR("Failed to parse DUNK12 table at %04x version %x.%x\n", bios->dunk12.offset, bios->dunk12.version >> 4, bios->dunk12.version & 0xf);
-	envy_bios_print_dunk12(bios, stdout);
+	if (envy_bios_parse_extdev(bios))
+		ENVY_BIOS_ERR("Failed to parse EXTDEV table at %04x version %x.%x\n", bios->extdev.offset, bios->extdev.version >> 4, bios->extdev.version & 0xf);
+	envy_bios_print_extdev(bios, stdout);
 
 	if (envy_bios_parse_dunk14(bios))
 		ENVY_BIOS_ERR("Failed to parse DUNK14 table at %04x version %x.%x\n", bios->dunk14.offset, bios->dunk14.version >> 4, bios->dunk14.version & 0xf);
