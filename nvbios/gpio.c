@@ -160,6 +160,8 @@ static struct enum_val gpio_tags[] = {
 	{ ENVY_BIOS_GPIO_HPD_4,			"HPD_4" },
 	{ ENVY_BIOS_GPIO_HPD_5,			"HPD_5" },
 	{ ENVY_BIOS_GPIO_HPD_6,			"HPD_6" },
+	{ ENVY_BIOS_GPIO_DP_EXT_0,		"DP_EXT_0" },
+	{ ENVY_BIOS_GPIO_DP_EXT_1,		"DP_EXT_1" },
 	{ ENVY_BIOS_GPIO_ATX_POWER_BAD,		"ATX_POWER_BAD" },
 	{ ENVY_BIOS_GPIO_ATX_POWER_BAD_ALT,	"ATX_POWER_BAD_ALT" },
 	{ ENVY_BIOS_GPIO_THERM_ALERT,		"THERM_ALERT" },
@@ -409,6 +411,7 @@ int envy_bios_parse_xpiodir (struct envy_bios *bios) {
 
 static struct enum_val xpio_types[] = {
 	{ ENVY_BIOS_XPIO_ADT7473,	"ADT7473" },
+	{ ENVY_BIOS_XPIO_PCA9536,	"PCA9536" },
 	{ ENVY_BIOS_XPIO_UNUSED,	"UNUSED" },
 	{ 0 },
 };

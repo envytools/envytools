@@ -106,8 +106,8 @@ enum envy_bios_gpio_tag {
 	ENVY_BIOS_GPIO_SLI_SENSE_1_ALT		= 0x44, /* used on NV50 instead of 0x41 for some reason */
 
 	/* 0x49 seen, output [NV98, NVA3, NVA8, NVCE] or input [NVD9], unk41_line used... related to PWM? */
-	/* 0x4a seen, input related to DP */
-	/* 0x4b seen, input related to DP */
+	ENVY_BIOS_GPIO_DP_EXT_0			= 0x4a,	/* XXX: figure out what this is... some input */
+	ENVY_BIOS_GPIO_DP_EXT_1			= 0x4b,
 	ENVY_BIOS_GPIO_ATX_POWER_BAD_ALT	= 0x4c,
 	/* 0x4d seen, neg input [NV84, NV86] */
 
@@ -159,7 +159,10 @@ struct envy_bios_gpio_entry {
 
 enum envy_bios_xpio_type {
 	ENVY_BIOS_XPIO_UNUSED	= 0x00,
+	/* 0x01 seen, address 0x40 */
 	ENVY_BIOS_XPIO_ADT7473	= 0x02,
+	ENVY_BIOS_XPIO_PCA9536	= 0x05,
+	/* 0x07 seen, address 0x92 */
 };
 
 struct envy_bios_xpio {
@@ -229,7 +232,7 @@ enum envy_bios_extdev_type {
 	/* 0x04 seen, at address 0x98 */
 	ENVY_BIOS_EXTDEV_VT1103M	= 0x40,
 	ENVY_BIOS_EXTDEV_PX3540		= 0x41,
-	/* 0x42 seen, at address 0xe0 and 0xe6 - NVA0 voltage regulator? */
+	ENVY_BIOS_EXTDEV_VT1105M	= 0x42, /* or close enough... */
 	/* 0x43 seen, at address 0x60 */
 	/* 0x48 seen, at address 0x60, 0xe0 and 0xe2 */
 	/* 0x4c seen, at address 0x90, 0x92, 0x94 */
@@ -261,13 +264,56 @@ struct envy_bios_extdev {
 	struct envy_bios_extdev_entry *entries;
 };
 
-struct envy_bios_dunk14 {
+enum envy_bios_conn_type {
+	/* VGA */
+	ENVY_BIOS_CONN_VGA			= 0x00,
+	/* TV */
+	ENVY_BIOS_CONN_COMPOSITE		= 0x10,
+	ENVY_BIOS_CONN_S_VIDEO			= 0x11,
+	ENVY_BIOS_CONN_S_VIDEO_COMPOSITE	= 0x12,	/* used on NV40 only - later cards have separate 0x10 and 0x11 entries instead */
+	ENVY_BIOS_CONN_RGB			= 0x13, /* ... or YCbCr? */
+	/* 0x17 seen, another type of TV */
+	/* DVI */
+	ENVY_BIOS_CONN_DVI_I			= 0x30,
+	ENVY_BIOS_CONN_DVI_D			= 0x31,
+	ENVY_BIOS_CONN_DMS59_0			= 0x38,
+	ENVY_BIOS_CONN_DMS59_1			= 0x39,
+	/* LVDS and DP */
+	ENVY_BIOS_CONN_LVDS			= 0x40,
+	ENVY_BIOS_CONN_LVDS_SPWG		= 0x41,
+	ENVY_BIOS_CONN_DP			= 0x46,
+	ENVY_BIOS_CONN_EDP			= 0x47,
+	/* ??? */
+	/* 0x54 and 0x55 seen - some crazy TMDS connector in use on Dell laptops */
+	/* HDMI... and DP? */
+	/* 0x60 seen, never connected to anything sensible, alleged to be HDMI by nouveau */
+	ENVY_BIOS_CONN_HDMI			= 0x61,
+	/* 0x62 seen, never connected to anything sensible */
+	ENVY_BIOS_CONN_DMS59_DP0		= 0x64,
+	ENVY_BIOS_CONN_DMS59_DP1		= 0x65,
+	ENVY_BIOS_CONN_UNUSED			= 0xff,
+};
+
+struct envy_bios_conn_entry {
+	uint16_t offset;
+	uint8_t type;
+	uint8_t tag;
+	int8_t hpd;
+	int8_t dp_ext;
+	uint8_t unk02_2;
+	uint8_t unk02_4; /* a bitmask [like hpd/dp_ext] of something to do with native DP [but not EDP] encoders */
+	uint8_t unk02_7; /* probably unused */
+	uint8_t unk03_3; /* probably unused */
+};
+
+struct envy_bios_conn {
 	uint16_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
 	uint8_t entriesnum;
 	uint8_t rlen;
+	struct envy_bios_conn_entry *entries;
 };
 
 struct envy_bios {
@@ -301,7 +347,7 @@ struct envy_bios {
 	struct envy_bios_dunk0e dunk0e;
 	struct envy_bios_dunk10 dunk10;
 	struct envy_bios_extdev extdev;
-	struct envy_bios_dunk14 dunk14;
+	struct envy_bios_conn conn;
 };
 
 static inline int bios_u8(struct envy_bios *bios, unsigned int offs, uint8_t *res) {
@@ -354,8 +400,8 @@ int envy_bios_parse_dunk10 (struct envy_bios *bios);
 void envy_bios_print_dunk10 (struct envy_bios *bios, FILE *out);
 int envy_bios_parse_extdev (struct envy_bios *bios);
 void envy_bios_print_extdev (struct envy_bios *bios, FILE *out);
-int envy_bios_parse_dunk14 (struct envy_bios *bios);
-void envy_bios_print_dunk14 (struct envy_bios *bios, FILE *out);
+int envy_bios_parse_conn (struct envy_bios *bios);
+void envy_bios_print_conn (struct envy_bios *bios, FILE *out);
 
 struct enum_val {
 	int val;
