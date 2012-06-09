@@ -24,7 +24,7 @@
 
 #include "bios.h"
 
-int envy_bios_parse_gunk (struct envy_bios *bios);
+int envy_bios_parse_xpiodir (struct envy_bios *bios);
 
 int envy_bios_parse_gpio (struct envy_bios *bios) {
 	struct envy_bios_gpio *gpio = &bios->gpio;
@@ -75,11 +75,11 @@ int envy_bios_parse_gpio (struct envy_bios *bios) {
 		ENVY_BIOS_WARN("GPIO table record longer than expected [%d > %d]\n", gpio->rlen, wantrlen);
 	}
 	if (gpio->version >= 0x31) {
-		err |= bios_u16(bios, gpio->offset+4, &gpio->gunk.offset);
+		err |= bios_u16(bios, gpio->offset+4, &gpio->xpiodir.offset);
 		if (err)
 			return -EFAULT;
-		if (envy_bios_parse_gunk(bios))
-			ENVY_BIOS_ERR("Failed to parse GUNK table at %04x version %x.%x\n", bios->gpio.gunk.offset, bios->gpio.gunk.version >> 4, bios->gpio.gunk.version & 0xf);
+		if (envy_bios_parse_xpiodir(bios))
+			ENVY_BIOS_ERR("Failed to parse XPIODIR table at %04x version %x.%x\n", bios->gpio.xpiodir.offset, bios->gpio.xpiodir.version >> 4, bios->gpio.xpiodir.version & 0xf);
 	}
 	gpio->entries = calloc(gpio->entriesnum, sizeof *gpio->entries);
 	if (!gpio->entries)
@@ -211,7 +211,7 @@ static struct enum_val gpio_spec_in[] = {
 	{ 0 },
 };
 
-void envy_bios_print_gunk (struct envy_bios *bios, FILE *out);
+void envy_bios_print_xpiodir (struct envy_bios *bios, FILE *out);
 
 void envy_bios_print_gpio (struct envy_bios *bios, FILE *out) {
 	struct envy_bios_gpio *gpio = &bios->gpio;
@@ -276,25 +276,32 @@ void envy_bios_print_gpio (struct envy_bios *bios, FILE *out) {
 	}
 	fprintf(out, "\n");
 	if (bios->gpio.version >= 0x31)
-		envy_bios_print_gunk(bios, out);
+		envy_bios_print_xpiodir(bios, out);
 	fprintf(out, "\n");
 }
 
-int envy_bios_parse_subgunk (struct envy_bios *bios, struct envy_bios_subgunk *subgunk) {
-	if (!subgunk->offset)
+int envy_bios_parse_xpio (struct envy_bios *bios, struct envy_bios_xpio *xpio) {
+	if (!xpio->offset)
 		return 0;
 	int err = 0;
-	err |= bios_u8(bios, subgunk->offset, &subgunk->version);
-	err |= bios_u8(bios, subgunk->offset+1, &subgunk->hlen);
-	err |= bios_u8(bios, subgunk->offset+2, &subgunk->entriesnum);
-	err |= bios_u8(bios, subgunk->offset+3, &subgunk->rlen);
+	uint8_t byte2;
+	err |= bios_u8(bios, xpio->offset, &xpio->version);
+	err |= bios_u8(bios, xpio->offset+1, &xpio->hlen);
+	err |= bios_u8(bios, xpio->offset+2, &xpio->entriesnum);
+	err |= bios_u8(bios, xpio->offset+3, &xpio->rlen);
+	err |= bios_u8(bios, xpio->offset+4, &xpio->type);
+	err |= bios_u8(bios, xpio->offset+5, &xpio->addr);
+	err |= bios_u8(bios, xpio->offset+6, &byte2);
 	if (err)
 		return -EFAULT;
+	xpio->unk02_0 = byte2 & 0xf;
+	xpio->bus = byte2 >> 4 & 1;
+	xpio->unk02_5 = byte2 >> 5;
 	int wanthlen = 0;
 	int wantrlen = 0;
-	if (subgunk->version != bios->gpio.gunk.version)
-		ENVY_BIOS_WARN("SUBGUNK version mismatch with GUNK\n");
-	switch (subgunk->version) {
+	if (xpio->version != bios->gpio.xpiodir.version)
+		ENVY_BIOS_WARN("XPIO version mismatch with XPIODIR\n");
+	switch (xpio->version) {
 		case 0x30:
 			wanthlen = 7;
 			wantrlen = 2;
@@ -303,132 +310,146 @@ int envy_bios_parse_subgunk (struct envy_bios *bios, struct envy_bios_subgunk *s
 			wanthlen = 7;
 			if (bios->gpio.version == 0x41)
 				wantrlen = 5;
-			else if (subgunk->rlen == 4)
+			else if (xpio->rlen == 4)
 				wantrlen = 4;
 			else {
-				ENVY_BIOS_WARN("SUBGUNK version 4.0 with 2-byte entries!\n");
+				ENVY_BIOS_WARN("XPIO version 4.0 with 2-byte entries!\n");
 				wantrlen = 2; /* XXX: HACK HACK HACK */
 			}
 			break;
 		default:
-			ENVY_BIOS_ERR("Unknown SUBGUNK table version %x.%x\n", subgunk->version >> 4, subgunk->version & 0xf);
+			ENVY_BIOS_ERR("Unknown XPIO table version %x.%x\n", xpio->version >> 4, xpio->version & 0xf);
 			return -EINVAL;
 	}
-	if (subgunk->hlen < wanthlen) {
-		ENVY_BIOS_ERR("SUBGUNK table header too short [%d < %d]\n", subgunk->hlen, wanthlen);
+	if (xpio->hlen < wanthlen) {
+		ENVY_BIOS_ERR("XPIO table header too short [%d < %d]\n", xpio->hlen, wanthlen);
 		return -EINVAL;
 	}
-	if (subgunk->rlen < wantrlen) {
-		ENVY_BIOS_ERR("SUBGUNK table record too short [%d < %d]\n", subgunk->rlen, wantrlen);
+	if (xpio->rlen < wantrlen) {
+		ENVY_BIOS_ERR("XPIO table record too short [%d < %d]\n", xpio->rlen, wantrlen);
 		return -EINVAL;
 	}
-	if (subgunk->hlen > wanthlen) {
-		ENVY_BIOS_WARN("SUBGUNK table header longer than expected [%d > %d]\n", subgunk->hlen, wanthlen);
+	if (xpio->hlen > wanthlen) {
+		ENVY_BIOS_WARN("XPIO table header longer than expected [%d > %d]\n", xpio->hlen, wanthlen);
 	}
-	if (subgunk->rlen > wantrlen) {
-		ENVY_BIOS_WARN("SUBGUNK table record longer than expected [%d > %d]\n", subgunk->rlen, wantrlen);
+	if (xpio->rlen > wantrlen) {
+		ENVY_BIOS_WARN("XPIO table record longer than expected [%d > %d]\n", xpio->rlen, wantrlen);
 	}
 	/* XXX */
 	/*
-	subgunk->entries = calloc(gunk->entriesnum, sizeof *gunk->entries);
-	if (!subgunk->entries)
+	xpio->entries = calloc(xpiodir->entriesnum, sizeof *xpiodir->entries);
+	if (!xpio->entries)
 		return -ENOMEM;
 		*/
 	int i;
-	for (i = 0; i < subgunk->entriesnum; i++) {
-		uint16_t eoff = subgunk->offset + subgunk->hlen + subgunk->rlen * i;
-//		struct envy_bios_subgunk *subgunk = &subgunk->entries[i];
+	for (i = 0; i < xpio->entriesnum; i++) {
+		uint16_t eoff = xpio->offset + xpio->hlen + xpio->rlen * i;
+//		struct envy_bios_xpio *xpio = &xpio->entries[i];
 		/* XXX */
 	}
-	subgunk->valid = 1;
+	xpio->valid = 1;
 	return 0;
 }
 
-int envy_bios_parse_gunk (struct envy_bios *bios) {
-	struct envy_bios_gunk *gunk = &bios->gpio.gunk;
+int envy_bios_parse_xpiodir (struct envy_bios *bios) {
+	struct envy_bios_xpiodir *xpiodir = &bios->gpio.xpiodir;
 	int err = 0;
-	if (!gunk->offset)
+	if (!xpiodir->offset)
 		return 0;
-	err |= bios_u8(bios, gunk->offset, &gunk->version);
-	err |= bios_u8(bios, gunk->offset+1, &gunk->hlen);
-	err |= bios_u8(bios, gunk->offset+2, &gunk->entriesnum);
-	err |= bios_u8(bios, gunk->offset+3, &gunk->rlen);
+	err |= bios_u8(bios, xpiodir->offset, &xpiodir->version);
+	err |= bios_u8(bios, xpiodir->offset+1, &xpiodir->hlen);
+	err |= bios_u8(bios, xpiodir->offset+2, &xpiodir->entriesnum);
+	err |= bios_u8(bios, xpiodir->offset+3, &xpiodir->rlen);
 	if (err)
 		return -EFAULT;
 	int wanthlen = 0;
 	int wantrlen = 0;
-	if (gunk->version != (bios->gpio.version & 0xf0))
-		ENVY_BIOS_WARN("GUNK version mismatch with GPIO\n");
-	switch (gunk->version) {
+	if (xpiodir->version != (bios->gpio.version & 0xf0))
+		ENVY_BIOS_WARN("XPIODIR version mismatch with GPIO\n");
+	switch (xpiodir->version) {
 		case 0x30:
 		case 0x40:
 			wanthlen = 4;
 			wantrlen = 2;
 			break;
 		default:
-			ENVY_BIOS_ERR("Unknown GUNK table version %x.%x\n", gunk->version >> 4, gunk->version & 0xf);
+			ENVY_BIOS_ERR("Unknown XPIODIR table version %x.%x\n", xpiodir->version >> 4, xpiodir->version & 0xf);
 			return -EINVAL;
 	}
-	if (gunk->hlen < wanthlen) {
-		ENVY_BIOS_ERR("GUNK table header too short [%d < %d]\n", gunk->hlen, wanthlen);
+	if (xpiodir->hlen < wanthlen) {
+		ENVY_BIOS_ERR("XPIODIR table header too short [%d < %d]\n", xpiodir->hlen, wanthlen);
 		return -EINVAL;
 	}
-	if (gunk->rlen < wantrlen) {
-		ENVY_BIOS_ERR("GUNK table record too short [%d < %d]\n", gunk->rlen, wantrlen);
+	if (xpiodir->rlen < wantrlen) {
+		ENVY_BIOS_ERR("XPIODIR table record too short [%d < %d]\n", xpiodir->rlen, wantrlen);
 		return -EINVAL;
 	}
-	if (gunk->hlen > wanthlen) {
-		ENVY_BIOS_WARN("GUNK table header longer than expected [%d > %d]\n", gunk->hlen, wanthlen);
+	if (xpiodir->hlen > wanthlen) {
+		ENVY_BIOS_WARN("XPIODIR table header longer than expected [%d > %d]\n", xpiodir->hlen, wanthlen);
 	}
-	if (gunk->rlen > wantrlen) {
-		ENVY_BIOS_WARN("GUNK table record longer than expected [%d > %d]\n", gunk->rlen, wantrlen);
+	if (xpiodir->rlen > wantrlen) {
+		ENVY_BIOS_WARN("XPIODIR table record longer than expected [%d > %d]\n", xpiodir->rlen, wantrlen);
 	}
-	gunk->entries = calloc(gunk->entriesnum, sizeof *gunk->entries);
-	if (!gunk->entries)
+	xpiodir->entries = calloc(xpiodir->entriesnum, sizeof *xpiodir->entries);
+	if (!xpiodir->entries)
 		return -ENOMEM;
 	int i;
-	for (i = 0; i < gunk->entriesnum; i++) {
-		uint16_t eoff = gunk->offset + gunk->hlen + gunk->rlen * i;
-		struct envy_bios_subgunk *subgunk = &gunk->entries[i];
-		err |= bios_u16(bios, eoff, &subgunk->offset);
+	for (i = 0; i < xpiodir->entriesnum; i++) {
+		uint16_t eoff = xpiodir->offset + xpiodir->hlen + xpiodir->rlen * i;
+		struct envy_bios_xpio *xpio = &xpiodir->entries[i];
+		err |= bios_u16(bios, eoff, &xpio->offset);
 		if (err)
 			return -EFAULT;
-		if (envy_bios_parse_subgunk(bios, subgunk))
-			ENVY_BIOS_ERR("Failed to parse SUBGUNK table at %04x version %x.%x\n", subgunk->offset, subgunk->version >> 4, subgunk->version & 0xf);
+		if (envy_bios_parse_xpio(bios, xpio))
+			ENVY_BIOS_ERR("Failed to parse XPIO table at %04x version %x.%x\n", xpio->offset, xpio->version >> 4, xpio->version & 0xf);
 	}
-	gunk->valid = 1;
+	xpiodir->valid = 1;
 	return 0;
 }
 
-void envy_bios_print_subgunk (struct envy_bios *bios, FILE *out, struct envy_bios_subgunk *subgunk, int idx) {
-	if (!subgunk->offset)
+static struct enum_val xpio_types[] = {
+	{ ENVY_BIOS_XPIO_ADT7473,	"ADT7473" },
+	{ ENVY_BIOS_XPIO_UNUSED,	"UNUSED" },
+	{ 0 },
+};
+
+void envy_bios_print_xpio (struct envy_bios *bios, FILE *out, struct envy_bios_xpio *xpio, int idx) {
+	if (!xpio->offset)
 		return;
-	if (!subgunk->valid) {
-		fprintf(out, "Failed to parse SUBGUNK table at %04x version %x.%x\n\n", subgunk->offset, subgunk->version >> 4, subgunk->version & 0xf);
+	if (!xpio->valid) {
+		fprintf(out, "Failed to parse XPIO table at %04x version %x.%x\n\n", xpio->offset, xpio->version >> 4, xpio->version & 0xf);
 		return;
 	}
-	fprintf(out, "SUBGUNK table %d at %04x version %x.%x\n", idx, subgunk->offset, subgunk->version >> 4, subgunk->version & 0xf);
-	envy_bios_dump_hex(bios, out, subgunk->offset, subgunk->hlen);
+	const char *typename = find_enum(xpio_types, xpio->type);
+	fprintf(out, "XPIO table %d at %04x version %x.%x", idx, xpio->offset, xpio->version >> 4, xpio->version & 0xf);
+	fprintf(out, " type 0x%02x [%s]", xpio->type, typename);
+	fprintf(out, " at 0x%02x defbus %d", xpio->addr, xpio->bus);
+	if (xpio->unk02_0)
+		fprintf(out, " unk02_0 %d", xpio->unk02_0);
+	if (xpio->unk02_5)
+		fprintf(out, " unk02_5 %d", xpio->unk02_5);
+	fprintf(out, "\n");
+	envy_bios_dump_hex(bios, out, xpio->offset, xpio->hlen);
 	int i;
-	for (i = 0; i < subgunk->entriesnum; i++) {
-		uint16_t eoff = subgunk->offset + subgunk->hlen + subgunk->rlen * i;
-		envy_bios_dump_hex(bios, out, eoff, subgunk->rlen);
+	for (i = 0; i < xpio->entriesnum; i++) {
+		uint16_t eoff = xpio->offset + xpio->hlen + xpio->rlen * i;
+		envy_bios_dump_hex(bios, out, eoff, xpio->rlen);
 	}
 	fprintf(out, "\n");
 }
 
-void envy_bios_print_gunk (struct envy_bios *bios, FILE *out) {
-	struct envy_bios_gunk *gunk = &bios->gpio.gunk;
-	if (!gunk->offset)
+void envy_bios_print_xpiodir (struct envy_bios *bios, FILE *out) {
+	struct envy_bios_xpiodir *xpiodir = &bios->gpio.xpiodir;
+	if (!xpiodir->offset)
 		return;
-	if (!gunk->valid) {
-		fprintf(out, "Failed to parse GUNK table at %04x version %x.%x\n\n", gunk->offset, gunk->version >> 4, gunk->version & 0xf);
+	if (!xpiodir->valid) {
+		fprintf(out, "Failed to parse XPIODIR table at %04x version %x.%x\n\n", xpiodir->offset, xpiodir->version >> 4, xpiodir->version & 0xf);
 		return;
 	}
-	fprintf(out, "GUNK table at %04x version %x.%x, %d subtables\n", gunk->offset, gunk->version >> 4, gunk->version & 0xf, gunk->entriesnum);
-	envy_bios_dump_hex(bios, out, gunk->offset, gunk->hlen + gunk->entriesnum * gunk->rlen);
+	fprintf(out, "XPIODIR table at %04x version %x.%x, %d subtables\n", xpiodir->offset, xpiodir->version >> 4, xpiodir->version & 0xf, xpiodir->entriesnum);
+	envy_bios_dump_hex(bios, out, xpiodir->offset, xpiodir->hlen + xpiodir->entriesnum * xpiodir->rlen);
 	fprintf(out, "\n");
 	int i;
-	for (i = 0; i < gunk->entriesnum; i++)
-		envy_bios_print_subgunk(bios, out, &gunk->entries[i], i);
+	for (i = 0; i < xpiodir->entriesnum; i++)
+		envy_bios_print_xpio(bios, out, &xpiodir->entries[i], i);
 }
