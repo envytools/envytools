@@ -85,6 +85,8 @@ int envy_bios_parse_extdev (struct envy_bios *bios) {
 }
 
 static struct enum_val extdev_types[] = {
+	{ ENVY_BIOS_EXTDEV_LM89,	"LM89" },
+	{ ENVY_BIOS_EXTDEV_VT1103M,	"VT1103M" },
 	{ ENVY_BIOS_EXTDEV_PX3540,	"PX3540" },
 	{ ENVY_BIOS_EXTDEV_ADT7473,	"ADT7473" },
 	{ ENVY_BIOS_EXTDEV_HDCP_EEPROM,	"HDCP_EEPROM" },

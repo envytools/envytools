@@ -215,9 +215,9 @@ struct envy_bios_dunk10 {
 };
 
 enum envy_bios_extdev_type {
-	/* 0x02 seen, at address 0x98 */
+	ENVY_BIOS_EXTDEV_LM89		= 0x02,
 	/* 0x04 seen, at address 0x98 */
-	/* 0x40 seen, at address 0xe0 - NV40 voltage regulator? */
+	ENVY_BIOS_EXTDEV_VT1103M	= 0x40,
 	ENVY_BIOS_EXTDEV_PX3540		= 0x41,
 	/* 0x42 seen, at address 0xe0 and 0xe6 - NVA0 voltage regulator? */
 	/* 0x43 seen, at address 0x60 */
