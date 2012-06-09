@@ -282,6 +282,15 @@
 			<bitfield pos="20" name="UNK20" variants="NV84-"/>
 		</reg32>
 
+		<reg32 offset="0x1b8" name="IBUF_ENABLE_0">
+			<doc>Enables input buffers for given pins. Output functionality is unaffected.</doc>
+			<bitfield low="0" high="15" name="GPIO_0_15"/> <!-- GPIO 0-15 -->
+			<bitfield low="16" high="19" name="I2C_0_3"/>
+			<bitfield low="20" high="25" name="UNK20"/>
+			<!-- XXX: more/different bitfields on NV84+ -->
+			<bitfield pos="31" name="OVERRIDE_ENABLE" variants="NV50:NV84"/> <!-- you have to poke 1 to this bit to force non-default value -->
+		</reg32>
+
 		<reg32 offset="0x200" name="ROM_TIMINGS">
 			<!-- ... -->
 		</reg32>
@@ -320,6 +329,13 @@
 			<bitfield low="20" high="23" name="29" type="nv50_gpio"/>
 			<bitfield low="24" high="27" name="30" type="nv50_gpio"/>
 			<bitfield low="28" high="31" name="31" type="nv50_gpio"/>
+		</reg32>
+		<reg32 offset="0x288" name="IBUF_ENABLE_1" variants="NV94:NVA3"> <!-- most likely a hw bug... the bitfield is different for writes and reads -->
+			<bitfield low="0" high="15" name="GPIO_16_31_RD"/>
+			<bitfield low="16" high="31" name="GPIO_16_31_WR"/>
+		</reg32>
+		<reg32 offset="0x288" name="IBUF_ENABLE_1" variants="NVA3:NVD9">
+			<bitfield low="16" high="31" name="GPIO_16_31"/>
 		</reg32>
 		<reg32 name="GPIO_MODE_1" offset="0x28c" variants="NV94:NVD9">
 			<doc>like e100, but for GPIOs 16-31.</doc>
