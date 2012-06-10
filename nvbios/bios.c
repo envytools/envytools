@@ -170,7 +170,7 @@ int envy_bios_parse (struct envy_bios *bios) {
 		bios->bmp_offset = find_string(bios, bmpsig, 5);
 		bios->bit_offset = find_string(bios, bitsig, 5);
 		bios->hwsq_offset = find_string(bios, hwsqsig, 4);
-		bios_u16(bios, 0x36, &bios->dcb_offset);
+		bios_u16(bios, 0x36, &bios->dcb.offset);
 		break;
 	}
 	return 0;

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 
 include_directories(../include)
 
-add_library(bios bios.c print.c dunk.c gpio.c extdev.c conn.c)
+add_library(bios bios.c print.c dunk.c i2c.c gpio.c extdev.c conn.c)
 
 add_executable(nvbios nvbios.c)
 

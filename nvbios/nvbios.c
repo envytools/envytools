@@ -48,10 +48,7 @@ uint16_t script_print = 0;
 uint16_t bmpver = 0;
 uint8_t bmpver_min;
 uint8_t bmpver_maj;
-uint32_t i2coffset = 0;
 uint8_t dcbver, dcbhlen, dcbrlen, dcbentries;
-uint8_t i2cver, i2chlen, i2crlen, i2centries, i2cd0, i2cd1;
-uint8_t gpiover, gpiohlen, gpiorlen, gpioentries;
 int maxcond = -1;
 int maxiocond = -1;
 int maxiofcond = -1;
@@ -844,43 +841,44 @@ int main(int argc, char **argv) {
 		exit(0);
 	}
 
-	if (bios->dcb_offset) {
-		dcbver = bios->data[bios->dcb_offset];
+	if (bios->dcb.offset) {
+		dcbver = bios->data[bios->dcb.offset];
 		uint16_t coff = 4;
 		if (printmask & ENVY_BIOS_PRINT_DCB)
-			printf ("DCB %d.%d at %x\n", dcbver >> 4, dcbver&0xf, bios->dcb_offset);
+			printf ("DCB %d.%d at %x\n", dcbver >> 4, dcbver&0xf, bios->dcb.offset);
+		bios->dcb.version = dcbver;
 		if (dcbver >= 0x30) {
-			dcbhlen = bios->data[bios->dcb_offset+1];
-			dcbentries = bios->data[bios->dcb_offset+2];
-			dcbrlen = bios->data[bios->dcb_offset+3];
-			i2coffset = le16(bios->dcb_offset+4);
-			bios->gpio.offset = le16(bios->dcb_offset+10);
-			bios->dunk0c.offset = le16(bios->dcb_offset+12);
-			bios->dunk0e.offset = le16(bios->dcb_offset+14);
-			bios->dunk10.offset = le16(bios->dcb_offset+16);
-			bios->extdev.offset = le16(bios->dcb_offset+18);
-			bios->conn.offset = le16(bios->dcb_offset+20);
+			dcbhlen = bios->data[bios->dcb.offset+1];
+			dcbentries = bios->data[bios->dcb.offset+2];
+			dcbrlen = bios->data[bios->dcb.offset+3];
+			bios->i2c.offset = le16(bios->dcb.offset+4);
+			bios->gpio.offset = le16(bios->dcb.offset+10);
+			bios->dunk0c.offset = le16(bios->dcb.offset+12);
+			bios->dunk0e.offset = le16(bios->dcb.offset+14);
+			bios->dunk10.offset = le16(bios->dcb.offset+16);
+			bios->extdev.offset = le16(bios->dcb.offset+18);
+			bios->conn.offset = le16(bios->dcb.offset+20);
 			if (dcbhlen >= 25)
-				bios->dunk17.offset = le16(bios->dcb_offset+23);
+				bios->dunk17.offset = le16(bios->dcb.offset+23);
 			if (dcbhlen >= 27)
-				bios->dunk19.offset = le16(bios->dcb_offset+25);
+				bios->dunk19.offset = le16(bios->dcb.offset+25);
 		} else if (dcbver >= 0x20) {
 			dcbhlen = 8;
 			dcbentries = 16;
 			dcbrlen = 8;
-			i2coffset = le16(bios->dcb_offset+2);
+			bios->i2c.offset = le16(bios->dcb.offset+2);
 		} else {
 			dcbhlen = 4;
 			dcbentries = 16;
 			dcbrlen = 10;
 			coff = 6;
-			i2coffset = le16(bios->dcb_offset+2);
+			bios->i2c.offset = le16(bios->dcb.offset+2);
 		}
 		if (printmask & ENVY_BIOS_PRINT_DCB) {
-			printhex(bios->dcb_offset, dcbhlen);
+			printhex(bios->dcb.offset, dcbhlen);
 			printf("\n");
 			for (i = 0; i < dcbentries; i++) {
-				uint16_t soff = bios->dcb_offset + dcbhlen + dcbrlen * i;
+				uint16_t soff = bios->dcb.offset + dcbhlen + dcbrlen * i;
 				uint32_t conn = le32(soff);
 				uint32_t conf = le32(soff + coff);
 				if (dcbver >= 0x20) {
@@ -922,61 +920,10 @@ int main(int argc, char **argv) {
 		}
 		printf ("\n");
 	}
-	if (i2coffset && (printmask & ENVY_BIOS_PRINT_I2C)) {
-		i2chlen = 0;
-		i2centries = 16;
-		i2crlen = 4;
-		if (dcbver >= 0x30) {
-			i2cver = bios->data[i2coffset];
-			i2chlen = bios->data[i2coffset+1];
-			i2centries = bios->data[i2coffset+2];
-			i2crlen = bios->data[i2coffset+3];
-			i2cd0 = bios->data[i2coffset+4] & 0xf;
-			i2cd1 = bios->data[i2coffset+4] >> 4;
-			printf ("I2C table %d.%d at %x, default entries %x %x\n", i2cver >> 4, i2cver&0xf, i2coffset, i2cd0, i2cd1);
-			printhex(i2coffset, i2chlen);
-		} else {
-			i2cver = dcbver;
-			printf ("I2C table at %x:\n", i2coffset);
-		}
-		printf ("\n");
-		for (i = 0; i < i2centries; i++) {
-			uint16_t off = i2coffset + i2chlen + i2crlen * i;
-			printf ("Entry %x: ", i);
-			if (bios->data[off+3] == 0xff)
-				printf ("invalid\n");
-			else {
-				uint8_t pt = 0;
-				uint8_t rd, wr;
-				if (i2cver >= 0x30)
-					pt = bios->data[off+3];
-				if (i2cver >= 0x14) {
-					wr = bios->data[off];
-					rd = bios->data[off+1];
-				} else {
-					wr = bios->data[off+3];
-					rd = bios->data[off+2];
-				}
-				switch (pt) {
-					case 0:
-						printf ("NV04-style wr %x rd %x\n", wr, rd);
-						break;
-					case 4:
-						printf ("NV4E-style %x\n", rd);
-						break;
-					case 5:
-						printf ("NV50-style %x\n", wr);
-						break;
-					default:
-						printf ("unknown type %x\n", pt);
-						break;
-				}
-			}
-			printhex (off, i2crlen);
-			printf ("\n");
-		}
-		printf ("\n");
-	}
+
+	if (envy_bios_parse_i2c(bios))
+		ENVY_BIOS_ERR("Failed to parse I2C table at %04x version %x.%x\n", bios->i2c.offset, bios->i2c.version >> 4, bios->i2c.version & 0xf);
+	envy_bios_print_i2c(bios, stdout, printmask);
 
 	if (envy_bios_parse_gpio(bios))
 		ENVY_BIOS_ERR("Failed to parse GPIO table at %04x version %x.%x\n", bios->gpio.offset, bios->gpio.version >> 4, bios->gpio.version & 0xf);

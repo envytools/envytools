@@ -56,6 +56,48 @@ enum envy_bios_type {
 	ENVY_BIOS_TYPE_NV04,
 };
 
+struct envy_bios_dcb {
+	uint16_t offset;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+};
+
+enum envy_bios_i2c_type {
+	ENVY_BIOS_I2C_VGACR = 0,
+	ENVY_BIOS_I2C_PCRTC = 4,
+	ENVY_BIOS_I2C_PNVIO = 5,
+	ENVY_BIOS_I2C_AUXCH = 6,
+	ENVY_BIOS_I2C_UNUSED = 0xff,
+};
+
+struct envy_bios_i2c_entry {
+	uint16_t offset;
+	uint8_t type;
+	uint8_t vgacr_wr;
+	uint8_t vgacr_rd;
+	uint8_t loc;
+	uint8_t unk00_4;
+	uint8_t addr;
+	uint8_t shared;
+	uint8_t sharedid;
+	uint8_t unk01_5;
+	uint8_t unk01;
+	uint8_t unk02;
+};
+
+struct envy_bios_i2c {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+	uint8_t def[2];
+	struct envy_bios_i2c_entry *entries;
+};
+
 enum envy_bios_gpio_tag {
 	ENVY_BIOS_GPIO_PANEL_BACKLIGHT_ON	= 0x00,
 	ENVY_BIOS_GPIO_PANEL_POWER		= 0x01,
@@ -358,8 +400,8 @@ struct envy_bios {
 
 	unsigned int hwsq_offset;
 
-	uint16_t dcb_offset;
-
+	struct envy_bios_dcb dcb;
+	struct envy_bios_i2c i2c;
 	struct envy_bios_gpio gpio;
 	struct envy_bios_dunk0c dunk0c;
 	struct envy_bios_dunk0e dunk0e;
@@ -421,6 +463,8 @@ int envy_bios_parse (struct envy_bios *bios);
 void envy_bios_dump_hex (struct envy_bios *bios, FILE *out, unsigned int start, unsigned int length, unsigned mask);
 void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask);
 
+int envy_bios_parse_i2c (struct envy_bios *bios);
+void envy_bios_print_i2c (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_gpio (struct envy_bios *bios);
 void envy_bios_print_gpio (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_dunk0c (struct envy_bios *bios);
