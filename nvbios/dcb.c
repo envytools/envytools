@@ -80,20 +80,20 @@ int envy_bios_parse_dunk0c (struct envy_bios *bios) {
 	return 0;
 }
 
-void envy_bios_print_dunk0c (struct envy_bios *bios, FILE *out) {
+void envy_bios_print_dunk0c (struct envy_bios *bios, FILE *out, unsigned mask) {
 	struct envy_bios_dunk0c *dunk0c = &bios->dunk0c;
-	if (!dunk0c->offset)
+	if (!dunk0c->offset || !(mask & ENVY_BIOS_PRINT_DUNK))
 		return;
 	if (!dunk0c->valid) {
 		fprintf(out, "Failed to parse DUNK0C table at %04x version %x.%x\n\n", dunk0c->offset, dunk0c->version >> 4, dunk0c->version & 0xf);
 		return;
 	}
 	fprintf(out, "DUNK0C table at %04x version %x.%x\n", dunk0c->offset, dunk0c->version >> 4, dunk0c->version & 0xf);
-	envy_bios_dump_hex(bios, out, dunk0c->offset, dunk0c->hlen);
+	envy_bios_dump_hex(bios, out, dunk0c->offset, dunk0c->hlen, mask);
 	int i;
 	for (i = 0; i < dunk0c->entriesnum; i++) {
 		uint16_t eoff = dunk0c->offset + dunk0c->hlen + dunk0c->rlen * i;
-		envy_bios_dump_hex(bios, out, eoff, dunk0c->rlen);
+		envy_bios_dump_hex(bios, out, eoff, dunk0c->rlen, mask);
 	}
 	printf("\n");
 }
@@ -159,20 +159,20 @@ int envy_bios_parse_dunk0e (struct envy_bios *bios) {
 	return 0;
 }
 
-void envy_bios_print_dunk0e (struct envy_bios *bios, FILE *out) {
+void envy_bios_print_dunk0e (struct envy_bios *bios, FILE *out, unsigned mask) {
 	struct envy_bios_dunk0e *dunk0e = &bios->dunk0e;
-	if (!dunk0e->offset)
+	if (!dunk0e->offset || !(mask & ENVY_BIOS_PRINT_DUNK))
 		return;
 	if (!dunk0e->valid) {
 		fprintf(out, "Failed to parse DUNK0E table at %04x version %x.%x\n\n", dunk0e->offset, dunk0e->version >> 4, dunk0e->version & 0xf);
 		return;
 	}
 	fprintf(out, "DUNK0E table at %04x version %x.%x\n", dunk0e->offset, dunk0e->version >> 4, dunk0e->version & 0xf);
-	envy_bios_dump_hex(bios, out, dunk0e->offset, dunk0e->hlen);
+	envy_bios_dump_hex(bios, out, dunk0e->offset, dunk0e->hlen, mask);
 	int i;
 	for (i = 0; i < dunk0e->entriesnum; i++) {
 		uint16_t eoff = dunk0e->offset + dunk0e->hlen + dunk0e->rlen * i;
-		envy_bios_dump_hex(bios, out, eoff, dunk0e->rlen);
+		envy_bios_dump_hex(bios, out, eoff, dunk0e->rlen, mask);
 	}
 	printf("\n");
 }
@@ -238,20 +238,20 @@ int envy_bios_parse_dunk10 (struct envy_bios *bios) {
 	return 0;
 }
 
-void envy_bios_print_dunk10 (struct envy_bios *bios, FILE *out) {
+void envy_bios_print_dunk10 (struct envy_bios *bios, FILE *out, unsigned mask) {
 	struct envy_bios_dunk10 *dunk10 = &bios->dunk10;
-	if (!dunk10->offset)
+	if (!dunk10->offset || !(mask & ENVY_BIOS_PRINT_DUNK))
 		return;
 	if (!dunk10->valid) {
 		fprintf(out, "Failed to parse DUNK10 table at %04x version %x.%x\n\n", dunk10->offset, dunk10->version >> 4, dunk10->version & 0xf);
 		return;
 	}
 	fprintf(out, "DUNK10 table at %04x version %x.%x\n", dunk10->offset, dunk10->version >> 4, dunk10->version & 0xf);
-	envy_bios_dump_hex(bios, out, dunk10->offset, dunk10->hlen);
+	envy_bios_dump_hex(bios, out, dunk10->offset, dunk10->hlen, mask);
 	int i;
 	for (i = 0; i < dunk10->entriesnum; i++) {
 		uint16_t eoff = dunk10->offset + dunk10->hlen + dunk10->rlen * i;
-		envy_bios_dump_hex(bios, out, eoff, dunk10->rlen);
+		envy_bios_dump_hex(bios, out, eoff, dunk10->rlen, mask);
 	}
 	printf("\n");
 }
@@ -312,20 +312,20 @@ int envy_bios_parse_dunk17 (struct envy_bios *bios) {
 	return 0;
 }
 
-void envy_bios_print_dunk17 (struct envy_bios *bios, FILE *out) {
+void envy_bios_print_dunk17 (struct envy_bios *bios, FILE *out, unsigned mask) {
 	struct envy_bios_dunk17 *dunk17 = &bios->dunk17;
-	if (!dunk17->offset)
+	if (!dunk17->offset || !(mask & ENVY_BIOS_PRINT_DUNK))
 		return;
 	if (!dunk17->valid) {
 		fprintf(out, "Failed to parse DUNK17 table at %04x version %x.%x\n\n", dunk17->offset, dunk17->version >> 4, dunk17->version & 0xf);
 		return;
 	}
 	fprintf(out, "DUNK17 table at %04x version %x.%x\n", dunk17->offset, dunk17->version >> 4, dunk17->version & 0xf);
-	envy_bios_dump_hex(bios, out, dunk17->offset, dunk17->hlen);
+	envy_bios_dump_hex(bios, out, dunk17->offset, dunk17->hlen, mask);
 	int i;
 	for (i = 0; i < dunk17->entriesnum; i++) {
 		uint16_t eoff = dunk17->offset + dunk17->hlen + dunk17->rlen * i;
-		envy_bios_dump_hex(bios, out, eoff, dunk17->rlen);
+		envy_bios_dump_hex(bios, out, eoff, dunk17->rlen, mask);
 	}
 	printf("\n");
 }
@@ -383,20 +383,20 @@ int envy_bios_parse_dunk19 (struct envy_bios *bios) {
 	return 0;
 }
 
-void envy_bios_print_dunk19 (struct envy_bios *bios, FILE *out) {
+void envy_bios_print_dunk19 (struct envy_bios *bios, FILE *out, unsigned mask) {
 	struct envy_bios_dunk19 *dunk19 = &bios->dunk19;
-	if (!dunk19->offset)
+	if (!dunk19->offset || !(mask & ENVY_BIOS_PRINT_DUNK))
 		return;
 	if (!dunk19->valid) {
 		fprintf(out, "Failed to parse DUNK19 table at %04x version %x.%x\n\n", dunk19->offset, dunk19->version >> 4, dunk19->version & 0xf);
 		return;
 	}
 	fprintf(out, "DUNK19 table at %04x version %x.%x\n", dunk19->offset, dunk19->version >> 4, dunk19->version & 0xf);
-	envy_bios_dump_hex(bios, out, dunk19->offset, dunk19->hlen);
+	envy_bios_dump_hex(bios, out, dunk19->offset, dunk19->hlen, mask);
 	int i;
 	for (i = 0; i < dunk19->entriesnum; i++) {
 		uint16_t eoff = dunk19->offset + dunk19->hlen + dunk19->rlen * i;
-		envy_bios_dump_hex(bios, out, eoff, dunk19->rlen);
+		envy_bios_dump_hex(bios, out, eoff, dunk19->rlen, mask);
 	}
 	printf("\n");
 }

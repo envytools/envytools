@@ -128,16 +128,16 @@ static struct enum_val conn_types[] = {
 	{ 0 },
 };
 
-void envy_bios_print_conn (struct envy_bios *bios, FILE *out) {
+void envy_bios_print_conn (struct envy_bios *bios, FILE *out, unsigned mask) {
 	struct envy_bios_conn *conn = &bios->conn;
-	if (!conn->offset)
+	if (!conn->offset || !(mask & ENVY_BIOS_PRINT_CONN))
 		return;
 	if (!conn->valid) {
 		fprintf(out, "Failed to parse CONN table at %04x version %x.%x\n\n", conn->offset, conn->version >> 4, conn->version & 0xf);
 		return;
 	}
 	fprintf(out, "CONN table at %04x version %x.%x\n", conn->offset, conn->version >> 4, conn->version & 0xf);
-	envy_bios_dump_hex(bios, out, conn->offset, conn->hlen);
+	envy_bios_dump_hex(bios, out, conn->offset, conn->hlen, mask);
 	int i;
 	for (i = 0; i < conn->entriesnum; i++) {
 		struct envy_bios_conn_entry *entry = &conn->entries[i];
@@ -157,7 +157,7 @@ void envy_bios_print_conn (struct envy_bios *bios, FILE *out) {
 		if (entry->unk03_3)
 			fprintf(out, " unk03_3 0x%02x", entry->unk03_3);
 		fprintf(out, "\n");
-		envy_bios_dump_hex(bios, out, entry->offset, conn->rlen);
+		envy_bios_dump_hex(bios, out, entry->offset, conn->rlen, mask);
 	}
 	fprintf(out, "\n");
 }

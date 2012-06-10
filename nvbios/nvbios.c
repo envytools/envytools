@@ -37,6 +37,7 @@
 #include <limits.h>
 
 struct envy_bios *bios;
+unsigned printmask = 0;
 uint8_t major_version, minor_version, micro_version, chip_version;
 uint32_t card_codename = 0;
 uint8_t tCWL = 0;
@@ -101,7 +102,7 @@ int usage(char* name) {
 }
 
 void printhex (uint32_t start, uint32_t length) {
-	envy_bios_dump_hex(bios, stdout, start, length);
+	envy_bios_dump_hex(bios, stdout, start, length, printmask);
 }
 
 void printcmd (uint16_t off, uint16_t length) {
@@ -633,10 +634,26 @@ const char * mem_type(uint8_t version, uint16_t start)
 	}
 }
 
+struct {
+	const char *name;
+	unsigned mask;
+} printmasks[] = {
+	"pcir",		ENVY_BIOS_PRINT_PCIR,
+	"bit",		ENVY_BIOS_PRINT_BMP_BIT,
+	"bmp",		ENVY_BIOS_PRINT_BMP_BIT,
+	"scripts",	ENVY_BIOS_PRINT_SCRIPTS,
+	"dcb",		ENVY_BIOS_PRINT_DCB,
+	"gpio",		ENVY_BIOS_PRINT_GPIO,
+	"i2c",		ENVY_BIOS_PRINT_I2C,
+	"extdev",	ENVY_BIOS_PRINT_EXTDEV,
+	"conn",		ENVY_BIOS_PRINT_CONN,
+	"dunk",		ENVY_BIOS_PRINT_DUNK,
+};
+
 int main(int argc, char **argv) {
 	int i;
 	int c;
-	while ((c = getopt (argc, argv, "c:m:s:i:")) != -1)
+	while ((c = getopt (argc, argv, "c:m:s:i:p:v")) != -1)
 		switch (c) {
 			case 'c':
 				sscanf(optarg,"%2x",&card_codename);
@@ -656,7 +673,19 @@ int main(int argc, char **argv) {
 			case 'i':
 				sscanf(optarg,"%4hx",&script_print);
 				break;
+			case 'v':
+				printmask |= ENVY_BIOS_PRINT_VERBOSE;
+				break;
+			case 'p':
+				for (i = 0; i < sizeof printmasks / sizeof *printmasks; i++) {
+					if (!strcmp(printmasks[i].name, optarg))
+						printmask |= printmasks[i].mask;
+				}
+				break;
 		}
+
+	if (!(printmask & ENVY_BIOS_PRINT_ALL))
+		printmask |= ENVY_BIOS_PRINT_ALL;
 
 	if (optind >= argc) {
 		return usage(argv[0]);
@@ -683,7 +712,7 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "Failed to parse BIOS\n");
 		return 1;
 	}
-	envy_bios_print(bios, stdout, ENVY_BIOS_PRINT_ALL);
+	envy_bios_print(bios, stdout, printmask);
 
 	if (bios->bmp_offset && bios->type == ENVY_BIOS_TYPE_NV04) {
 		bmpver_maj = bios->data[bios->bmp_offset+5];
@@ -934,35 +963,35 @@ int main(int argc, char **argv) {
 
 	if (envy_bios_parse_gpio(bios))
 		ENVY_BIOS_ERR("Failed to parse GPIO table at %04x version %x.%x\n", bios->gpio.offset, bios->gpio.version >> 4, bios->gpio.version & 0xf);
-	envy_bios_print_gpio(bios, stdout);
+	envy_bios_print_gpio(bios, stdout, printmask);
 
 	if (envy_bios_parse_dunk0c(bios))
 		ENVY_BIOS_ERR("Failed to parse DUNK0C table at %04x version %x.%x\n", bios->dunk0c.offset, bios->dunk0c.version >> 4, bios->dunk0c.version & 0xf);
-	envy_bios_print_dunk0c(bios, stdout);
+	envy_bios_print_dunk0c(bios, stdout, printmask);
 
 	if (envy_bios_parse_dunk0e(bios))
 		ENVY_BIOS_ERR("Failed to parse DUNK0E table at %04x version %x.%x\n", bios->dunk0e.offset, bios->dunk0e.version >> 4, bios->dunk0e.version & 0xf);
-	envy_bios_print_dunk0e(bios, stdout);
+	envy_bios_print_dunk0e(bios, stdout, printmask);
 
 	if (envy_bios_parse_dunk10(bios))
 		ENVY_BIOS_ERR("Failed to parse DUNK10 table at %04x version %x.%x\n", bios->dunk10.offset, bios->dunk10.version >> 4, bios->dunk10.version & 0xf);
-	envy_bios_print_dunk10(bios, stdout);
+	envy_bios_print_dunk10(bios, stdout, printmask);
 
 	if (envy_bios_parse_extdev(bios))
 		ENVY_BIOS_ERR("Failed to parse EXTDEV table at %04x version %x.%x\n", bios->extdev.offset, bios->extdev.version >> 4, bios->extdev.version & 0xf);
-	envy_bios_print_extdev(bios, stdout);
+	envy_bios_print_extdev(bios, stdout, printmask);
 
 	if (envy_bios_parse_conn(bios))
 		ENVY_BIOS_ERR("Failed to parse CONN table at %04x version %x.%x\n", bios->conn.offset, bios->conn.version >> 4, bios->conn.version & 0xf);
-	envy_bios_print_conn(bios, stdout);
+	envy_bios_print_conn(bios, stdout, printmask);
 
 	if (envy_bios_parse_dunk17(bios))
 		ENVY_BIOS_ERR("Failed to parse DUNK17 table at %04x version %x.%x\n", bios->dunk17.offset, bios->dunk17.version >> 4, bios->dunk17.version & 0xf);
-	envy_bios_print_dunk17(bios, stdout);
+	envy_bios_print_dunk17(bios, stdout, printmask);
 
 	if (envy_bios_parse_dunk19(bios))
 		ENVY_BIOS_ERR("Failed to parse DUNK19 table at %04x version %x.%x\n", bios->dunk19.offset, bios->dunk19.version >> 4, bios->dunk19.version & 0xf);
-	envy_bios_print_dunk19(bios, stdout);
+	envy_bios_print_dunk19(bios, stdout, printmask);
 
 	if (pll_limit_tbl_ptr) {
 		uint8_t ver = bios->data[pll_limit_tbl_ptr];

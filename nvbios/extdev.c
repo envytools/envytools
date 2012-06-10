@@ -95,9 +95,9 @@ static struct enum_val extdev_types[] = {
 	{ 0 },
 };
 
-void envy_bios_print_extdev (struct envy_bios *bios, FILE *out) {
+void envy_bios_print_extdev (struct envy_bios *bios, FILE *out, unsigned mask) {
 	struct envy_bios_extdev *extdev = &bios->extdev;
-	if (!extdev->offset)
+	if (!extdev->offset || !(mask & ENVY_BIOS_PRINT_EXTDEV))
 		return;
 	if (!extdev->valid) {
 		fprintf(out, "Failed to parse EXTDEV table at %04x version %x.%x\n\n", extdev->offset, extdev->version >> 4, extdev->version & 0xf);
@@ -107,7 +107,7 @@ void envy_bios_print_extdev (struct envy_bios *bios, FILE *out) {
 	if (extdev->hlen > 4)
 		fprintf(out, " unk04 %02x", extdev->unk04);
 	fprintf(out, "\n");
-	envy_bios_dump_hex(bios, out, extdev->offset, extdev->hlen);
+	envy_bios_dump_hex(bios, out, extdev->offset, extdev->hlen, mask);
 	int i;
 	for (i = 0; i < extdev->entriesnum; i++) {
 		struct envy_bios_extdev_entry *entry = &extdev->entries[i];
@@ -122,7 +122,7 @@ void envy_bios_print_extdev (struct envy_bios *bios, FILE *out) {
 		if (entry->unk03)
 			fprintf(out, " unk03 0x%02x", entry->unk03);
 		fprintf(out, "\n");
-		envy_bios_dump_hex(bios, out, entry->offset, extdev->rlen);
+		envy_bios_dump_hex(bios, out, entry->offset, extdev->rlen, mask);
 	}
 	fprintf(out, "\n");
 }

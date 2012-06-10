@@ -51,7 +51,7 @@ void dump_hex_script (struct envy_bios *bios, FILE *out, unsigned int start, uns
 	}
 }
 
-void envy_bios_dump_hex (struct envy_bios *bios, FILE *out, unsigned int start, unsigned int length) {
+void envy_bios_dump_hex (struct envy_bios *bios, FILE *out, unsigned int start, unsigned int length, unsigned mask) {
 	if (start + length > bios->length) {
 		fprintf(out, "ERR: Cannot dump 0x%x bytes at 0x%x: OOB\n", length, start);
 		if (start < bios->length) {
@@ -60,34 +60,37 @@ void envy_bios_dump_hex (struct envy_bios *bios, FILE *out, unsigned int start, 
 			return;
 		}
 	}
-	while (length) {
-		unsigned int i, len = length;
-		if (len > 16) len = 16;
-		fprintf (out, "%04x:", start);
-		for (i = 0; i < len; i++)
-			fprintf(out, " %02x", bios->data[start+i]);
-		fprintf(out, "\n");
-		start += len;
-		length -= len;
-	}
+	if (mask & ENVY_BIOS_PRINT_VERBOSE)
+		while (length) {
+			unsigned int i, len = length;
+			if (len > 16) len = 16;
+			fprintf (out, "%04x:", start);
+			for (i = 0; i < len; i++)
+				fprintf(out, " %02x", bios->data[start+i]);
+			fprintf(out, "\n");
+			start += len;
+			length -= len;
+		}
 }
 
-static void print_pcir(struct envy_bios *bios, FILE *out) {
+static void print_pcir(struct envy_bios *bios, FILE *out, unsigned mask) {
 	int i;
+	if (!(mask & ENVY_BIOS_PRINT_PCIR))
+		return;
 	fprintf(out, "BIOS size 0x%x [orig: 0x%x], %d valid parts:\n", bios->length, bios->origlength, bios->partsnum);
 	for (i = 0; i < bios->partsnum; i++) {
 		fprintf(out, "\n");
 		if (bios->parts[i].pcir_code_type == 0) {
 			fprintf(out, "BIOS part %d at 0x%x size 0x%x [init: 0x%x]. Sig:\n", i, bios->parts[i].start, bios->parts[i].length, bios->parts[i].init_length);
-			envy_bios_dump_hex(bios, out, bios->parts[i].start, 3);
+			envy_bios_dump_hex(bios, out, bios->parts[i].start, 3, mask);
 			if (!bios->parts[i].chksum_pass)
 				fprintf(out, "WARN: checksum fail\n");
 		} else {
 			fprintf(out, "BIOS part %d at 0x%x size 0x%x. Sig:\n", i, bios->parts[i].start, bios->parts[i].length);
-			envy_bios_dump_hex(bios, out, bios->parts[i].start, 2);
+			envy_bios_dump_hex(bios, out, bios->parts[i].start, 2, mask);
 		}
 		fprintf(out, "PCIR [rev 0x%02x]:\n", bios->parts[i].pcir_rev);
-		envy_bios_dump_hex(bios, out, bios->parts[i].start + bios->parts[i].pcir_offset, bios->parts[i].pcir_len);
+		envy_bios_dump_hex(bios, out, bios->parts[i].start + bios->parts[i].pcir_offset, bios->parts[i].pcir_len, mask);
 		fprintf(out, "PCI device: %04x:%04x, class %02x%02x%02x\n", bios->parts[i].pcir_vendor, bios->parts[i].pcir_device, bios->parts[i].pcir_class[2], bios->parts[i].pcir_class[1], bios->parts[i].pcir_class[0]);
 		if (bios->parts[i].pcir_vpd)
 			fprintf(out, "VPD: %x\n", bios->parts[i].pcir_vpd);
@@ -99,22 +102,26 @@ static void print_pcir(struct envy_bios *bios, FILE *out) {
 	fprintf(out, "\n");
 }
 
-static void print_bmp_nv03(struct envy_bios *bios, FILE *out) {
+static void print_bmp_nv03(struct envy_bios *bios, FILE *out, unsigned mask) {
+	if (!(mask & ENVY_BIOS_PRINT_BMP_BIT) || !bios->bmp_length)
+		return;
 	fprintf(out, "\n");
 	fprintf(out, "BMP %02x.%02x at 0x%x\n", bios->bmp_ver_major, bios->bmp_ver_minor, bios->bmp_offset);
-	envy_bios_dump_hex(bios, out, bios->bmp_offset, bios->bmp_length);
+	envy_bios_dump_hex(bios, out, bios->bmp_offset, bios->bmp_length, mask);
 	fprintf(out, "x86 mode pointer: 0x%x\n", bios->mode_x86);
 	fprintf(out, "x86 init pointer: 0x%x\n", bios->init_x86);
 	fprintf(out, "init script pointer: 0x%x\n", bios->init_script);
 }
 
-static void print_nv01_init_script(struct envy_bios *bios, FILE *out, unsigned offset) {
+static void print_nv01_init_script(struct envy_bios *bios, FILE *out, unsigned offset, unsigned mask) {
 	unsigned len;
 	uint8_t op;
 	uint8_t arg8_0, arg8_1, arg8_2;
 	uint16_t arg16_0;
 	uint32_t arg32_0, arg32_1, arg32_2;
 	int err = 0;
+	if (!(mask & ENVY_BIOS_PRINT_SCRIPTS))
+		return;
 	fprintf(out, "\n");
 	fprintf(out, "Init script at 0x%x:\n", offset);
 	while (1) {
@@ -280,8 +287,7 @@ static void print_nv01_init_script(struct envy_bios *bios, FILE *out, unsigned o
 }
 
 void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
-	if (mask & ENVY_BIOS_PRINT_PCIR)
-		print_pcir(bios, out);
+	print_pcir(bios, out, mask);
 	switch (bios->type) {
 	case ENVY_BIOS_TYPE_UNKNOWN:
 		fprintf(out, "BIOS type: UNKNOWN!\n");
@@ -291,28 +297,27 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 		if (mask & ENVY_BIOS_PRINT_SCRIPTS) {
 			/* XXX: how to find these properly? */
 			fprintf(out, "\nPre-mem scripts:\n");
-			print_nv01_init_script(bios, out, 0x17bc);
-			print_nv01_init_script(bios, out, 0x17a2);
-			print_nv01_init_script(bios, out, 0x18f4);
+			print_nv01_init_script(bios, out, 0x17bc, mask);
+			print_nv01_init_script(bios, out, 0x17a2, mask);
+			print_nv01_init_script(bios, out, 0x18f4, mask);
 			fprintf(out, "\n1MB script:\n");
-			print_nv01_init_script(bios, out, 0x199a);
+			print_nv01_init_script(bios, out, 0x199a, mask);
 			fprintf(out, "\n2MB script:\n");
-			print_nv01_init_script(bios, out, 0x19db);
+			print_nv01_init_script(bios, out, 0x19db, mask);
 			fprintf(out, "\n4MB script:\n");
-			print_nv01_init_script(bios, out, 0x1a1c);
+			print_nv01_init_script(bios, out, 0x1a1c, mask);
 			fprintf(out, "\nPost-mem scripts:\n");
-			print_nv01_init_script(bios, out, 0x198d);
-			print_nv01_init_script(bios, out, 0x1929);
+			print_nv01_init_script(bios, out, 0x198d, mask);
+			print_nv01_init_script(bios, out, 0x1929, mask);
 			fprintf(out, "\nUnknown scripts:\n");
-			print_nv01_init_script(bios, out, 0x184f);
+			print_nv01_init_script(bios, out, 0x184f, mask);
 		}
 		break;
 	case ENVY_BIOS_TYPE_NV03:
 		fprintf(out, "BIOS type: NV03\n");
-		if (bios->bmp_length && (mask & ENVY_BIOS_PRINT_BMP_BIT))
-			print_bmp_nv03(bios, out);
-		if (bios->init_script && (mask & ENVY_BIOS_PRINT_SCRIPTS))
-			print_nv01_init_script(bios, out, bios->init_script);
+		print_bmp_nv03(bios, out, mask);
+		if (bios->init_script)
+			print_nv01_init_script(bios, out, bios->init_script, mask);
 		break;
 	case ENVY_BIOS_TYPE_NV04:
 		fprintf(out, "BIOS type: NV04\n");

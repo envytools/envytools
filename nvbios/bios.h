@@ -403,29 +403,35 @@ static inline int bios_u32(struct envy_bios *bios, unsigned int offs, uint32_t *
 #define ENVY_BIOS_PRINT_PCIR	0x00000001
 #define ENVY_BIOS_PRINT_BMP_BIT	0x00000002
 #define ENVY_BIOS_PRINT_SCRIPTS	0x00000004
-#define ENVY_BIOS_PRINT_GPIO	0x00000008
-#define ENVY_BIOS_PRINT_ALL	0xffffffff
+#define ENVY_BIOS_PRINT_DCB	0x00010000
+#define ENVY_BIOS_PRINT_GPIO	0x00020000
+#define ENVY_BIOS_PRINT_I2C	0x00040000
+#define ENVY_BIOS_PRINT_EXTDEV	0x00080000
+#define ENVY_BIOS_PRINT_CONN	0x00100000
+#define ENVY_BIOS_PRINT_DUNK	0x00200000
+#define ENVY_BIOS_PRINT_ALL	0x7fffffff
+#define ENVY_BIOS_PRINT_VERBOSE	0x80000000
 
 int envy_bios_parse (struct envy_bios *bios);
-void envy_bios_dump_hex (struct envy_bios *bios, FILE *out, unsigned int start, unsigned int length);
+void envy_bios_dump_hex (struct envy_bios *bios, FILE *out, unsigned int start, unsigned int length, unsigned mask);
 void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask);
 
 int envy_bios_parse_gpio (struct envy_bios *bios);
-void envy_bios_print_gpio (struct envy_bios *bios, FILE *out);
+void envy_bios_print_gpio (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_dunk0c (struct envy_bios *bios);
-void envy_bios_print_dunk0c (struct envy_bios *bios, FILE *out);
+void envy_bios_print_dunk0c (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_dunk0e (struct envy_bios *bios);
-void envy_bios_print_dunk0e (struct envy_bios *bios, FILE *out);
+void envy_bios_print_dunk0e (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_dunk10 (struct envy_bios *bios);
-void envy_bios_print_dunk10 (struct envy_bios *bios, FILE *out);
+void envy_bios_print_dunk10 (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_extdev (struct envy_bios *bios);
-void envy_bios_print_extdev (struct envy_bios *bios, FILE *out);
+void envy_bios_print_extdev (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_conn (struct envy_bios *bios);
-void envy_bios_print_conn (struct envy_bios *bios, FILE *out);
+void envy_bios_print_conn (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_dunk17 (struct envy_bios *bios);
-void envy_bios_print_dunk17 (struct envy_bios *bios, FILE *out);
+void envy_bios_print_dunk17 (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_dunk19 (struct envy_bios *bios);
-void envy_bios_print_dunk19 (struct envy_bios *bios, FILE *out);
+void envy_bios_print_dunk19 (struct envy_bios *bios, FILE *out, unsigned mask);
 
 struct enum_val {
 	int val;

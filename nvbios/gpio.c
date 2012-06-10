@@ -214,18 +214,18 @@ static struct enum_val gpio_spec_in[] = {
 	{ 0 },
 };
 
-void envy_bios_print_xpiodir (struct envy_bios *bios, FILE *out);
+void envy_bios_print_xpiodir (struct envy_bios *bios, FILE *out, unsigned mask);
 
-void envy_bios_print_gpio (struct envy_bios *bios, FILE *out) {
+void envy_bios_print_gpio (struct envy_bios *bios, FILE *out, unsigned mask) {
 	struct envy_bios_gpio *gpio = &bios->gpio;
-	if (!bios->gpio.offset)
+	if (!bios->gpio.offset || !(mask & ENVY_BIOS_PRINT_GPIO))
 		return;
 	if (!bios->gpio.valid) {
 		fprintf(out, "Failed to parse GPIO table at %04x version %x.%x\n\n", bios->gpio.offset, bios->gpio.version >> 4, bios->gpio.version & 0xf);
 		return;
 	}
 	fprintf(out, "GPIO table at %04x version %x.%x\n", bios->gpio.offset, bios->gpio.version >> 4, bios->gpio.version & 0xf);
-	envy_bios_dump_hex(bios, out, bios->gpio.offset, bios->gpio.hlen);
+	envy_bios_dump_hex(bios, out, bios->gpio.offset, bios->gpio.hlen, mask);
 	int i;
 	for (i = 0; i < gpio->entriesnum; i++) {
 		struct envy_bios_gpio_entry *entry = &gpio->entries[i];
@@ -275,11 +275,11 @@ void envy_bios_print_gpio (struct envy_bios *bios, FILE *out) {
 		if (entry->unk41_3_1)
 			fprintf(out, " unk41_3_1 %d", entry->unk41_3_1);
 		fprintf(out, "\n");
-		envy_bios_dump_hex(bios, out, entry->offset, gpio->rlen);
+		envy_bios_dump_hex(bios, out, entry->offset, gpio->rlen, mask);
 	}
 	fprintf(out, "\n");
 	if (bios->gpio.version >= 0x31)
-		envy_bios_print_xpiodir(bios, out);
+		envy_bios_print_xpiodir(bios, out, mask);
 	fprintf(out, "\n");
 }
 
@@ -417,7 +417,7 @@ static struct enum_val xpio_types[] = {
 	{ 0 },
 };
 
-void envy_bios_print_xpio (struct envy_bios *bios, FILE *out, struct envy_bios_xpio *xpio, int idx) {
+void envy_bios_print_xpio (struct envy_bios *bios, FILE *out, struct envy_bios_xpio *xpio, int idx, unsigned mask) {
 	if (!xpio->offset)
 		return;
 	if (!xpio->valid) {
@@ -433,16 +433,16 @@ void envy_bios_print_xpio (struct envy_bios *bios, FILE *out, struct envy_bios_x
 	if (xpio->unk02_5)
 		fprintf(out, " unk02_5 %d", xpio->unk02_5);
 	fprintf(out, "\n");
-	envy_bios_dump_hex(bios, out, xpio->offset, xpio->hlen);
+	envy_bios_dump_hex(bios, out, xpio->offset, xpio->hlen, mask);
 	int i;
 	for (i = 0; i < xpio->entriesnum; i++) {
 		uint16_t eoff = xpio->offset + xpio->hlen + xpio->rlen * i;
-		envy_bios_dump_hex(bios, out, eoff, xpio->rlen);
+		envy_bios_dump_hex(bios, out, eoff, xpio->rlen, mask);
 	}
 	fprintf(out, "\n");
 }
 
-void envy_bios_print_xpiodir (struct envy_bios *bios, FILE *out) {
+void envy_bios_print_xpiodir (struct envy_bios *bios, FILE *out, unsigned mask) {
 	struct envy_bios_xpiodir *xpiodir = &bios->gpio.xpiodir;
 	if (!xpiodir->offset)
 		return;
@@ -451,9 +451,9 @@ void envy_bios_print_xpiodir (struct envy_bios *bios, FILE *out) {
 		return;
 	}
 	fprintf(out, "XPIODIR table at %04x version %x.%x, %d subtables\n", xpiodir->offset, xpiodir->version >> 4, xpiodir->version & 0xf, xpiodir->entriesnum);
-	envy_bios_dump_hex(bios, out, xpiodir->offset, xpiodir->hlen + xpiodir->entriesnum * xpiodir->rlen);
+	envy_bios_dump_hex(bios, out, xpiodir->offset, xpiodir->hlen + xpiodir->entriesnum * xpiodir->rlen, mask);
 	fprintf(out, "\n");
 	int i;
 	for (i = 0; i < xpiodir->entriesnum; i++)
-		envy_bios_print_xpio(bios, out, &xpiodir->entries[i], i);
+		envy_bios_print_xpio(bios, out, &xpiodir->entries[i], i, mask);
 }
