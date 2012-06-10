@@ -81,7 +81,7 @@ enum envy_bios_gpio_tag {
 
 	ENVY_BIOS_GPIO_PANEL_BACKLIGHT_LEVEL	= 0x21,
 	/* 0x22 seen, input [NV47, NV49, NV4B, NV84, NV86, NV92 */
-	/* 0x23 seen, output [NV84, NV86, NV92, NV94, NV96, NV98, NVA3, NVA5, NVA8, NVC1, NVC4, NVC3, NVC8, NVCE, NVCF, NVD9], SPEC NVIO... and as input on NVD9 with unk41_line used */
+	ENVY_BIOS_GPIO_THERM_SHUTDOWN		= 0x23,	/* XXX: is input sometimes, and even has NVD9+ SPEC_IN? */
 
 	/* 0x25 seen, input [NV46, NV49, NV84, NV86] */
 

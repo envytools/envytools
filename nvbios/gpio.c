@@ -165,6 +165,7 @@ static struct enum_val gpio_tags[] = {
 	{ ENVY_BIOS_GPIO_ATX_POWER_BAD,		"ATX_POWER_BAD" },
 	{ ENVY_BIOS_GPIO_ATX_POWER_BAD_ALT,	"ATX_POWER_BAD_ALT" },
 	{ ENVY_BIOS_GPIO_THERM_ALERT,		"THERM_ALERT" },
+	{ ENVY_BIOS_GPIO_THERM_SHUTDOWN,	"THERM_SHUTDOWN" },
 	{ ENVY_BIOS_GPIO_SLI_SENSE_0,		"SLI_SENSE_0" },
 	{ ENVY_BIOS_GPIO_SLI_SENSE_1,		"SLI_SENSE_1" },
 	{ ENVY_BIOS_GPIO_SLI_SENSE_1_ALT,	"SLI_SENSE_1_ALT" },
@@ -177,7 +178,7 @@ static struct enum_val gpio_spec_out[] = {
 	{ 0x41, "NVIO_SLI_SENSE_1" },
 	/* 0x48 seen - tag 0x0f */
 	/* 0x50 seen - tag 0x42 */
-	/* 0x58 seen - tag 0x23 */
+	{ 0x58, "NVIO_THERM_SHUTDOWN" },
 	{ 0x59, "NVIO_PWM1" },
 	{ 0x5c, "NVIO_PWM0" },
 	{ 0x80,	"SOR0_PANEL_BACKLIGHT_LEVEL" },
@@ -206,7 +207,7 @@ static struct enum_val gpio_spec_in[] = {
 
 	/* 0x10 seen - tag 0x42 */
 
-	/* 0x14 seen - tag 0x23 */
+	{ 0x14, "NVIO_THERM_SHUTDOWN" },	/* XXX: wtf is this supposed to do? */
 	/* 0x15 seen - tags 0x34, 0x49 */
 	/* 0x16 seen - tag 0x79 */
 	{ 0x17, "NVIO_FAN_SENSE" },
