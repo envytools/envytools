@@ -546,70 +546,24 @@ int set_strap_from_file(const char *path)
 	return 1;
 }
 
-void find_strap(int argc, char **argv) {
+void find_strap(char *filename) {
 	char *path;
 	const char * strap_filename = "strap_peek";
-	const char *pos = strrchr(argv[1], '/');
+	const char *pos = strrchr(filename, '/');
 	if (pos == NULL)
-		pos = argv[1];
+		pos = filename;
 	else
 		pos++;
-	int base_length = pos-argv[1];
+	int base_length = pos-filename;
 
 	path = (char*) malloc(base_length + strlen(strap_filename)+1);
-	strncpy(path, argv[1], base_length);
+	strncpy(path, filename, base_length);
 	strncpy(path+base_length, strap_filename, strlen(strap_filename));
 
 	if(!set_strap_from_file(path))
 		printf("Strap register found in '%s'\n", path);
 
 	free(path);
-}
-
-int parse_args(int argc, char **argv) {
-	int i;
-
-	for(i = 2; i < argc; i++) {
-		if (!strncmp(argv[i],"-c",2)) {
-			i++;
-			if(i < argc) {
-				sscanf(argv[i],"%2x",&card_codename);
-				printf("Card generation forced to nv%2x\n", card_codename);
-			} else {
-				return usage(argv[0]);
-			}
-		} else if (!strncmp(argv[i],"-m",2)) {
-			i++;
-			if(i < argc) {
-				sscanf(argv[i],"%2hhx",&tCWL);
-				printf("tCWL set to %2hhx\n", tCWL);
-			} else {
-				return usage(argv[0]);
-			}
-		} else if (!strncmp(argv[i],"-s",2)) {
-			i++;
-			if (i < argc) {
-				if (!strncmp(argv[i],"0x",2)) {
-					set_strap_from_string(argv[i]+2);
-				} else {
-					set_strap_from_file(argv[i]);
-				}
-			} else {
-				return usage(argv[0]);
-			}
-		} else if (!strncmp(argv[i], "-i", 2)) {
-			i++;
-			if (i < argc) {
-				sscanf(argv[i],"%4hx",&script_print);
-			} else {
-				return usage(argv[0]);
-			}
-		} else {
-			fprintf(stderr, "Unknown parameter '%s'\n", argv[i]);
-		}
-	}
-
-	return 0;
 }
 
 int vbios_read(const char *filename, uint8_t **vbios, unsigned int *length)
@@ -681,7 +635,30 @@ const char * mem_type(uint8_t version, uint16_t start)
 
 int main(int argc, char **argv) {
 	int i;
-	if (argc < 2) {
+	int c;
+	while ((c = getopt (argc, argv, "c:m:s:i:")) != -1)
+		switch (c) {
+			case 'c':
+				sscanf(optarg,"%2x",&card_codename);
+				printf("Card generation forced to nv%2x\n", card_codename);
+				break;
+			case 'm':
+				sscanf(optarg,"%2hhx",&tCWL);
+				printf("tCWL set to %2hhx\n", tCWL);
+				break;
+			case 's':
+				if (!strncmp(optarg,"0x",2)) {
+					set_strap_from_string(optarg+2);
+				} else {
+					set_strap_from_file(optarg);
+				}
+				break;
+			case 'i':
+				sscanf(optarg,"%4hx",&script_print);
+				break;
+		}
+
+	if (optind >= argc) {
 		return usage(argv[0]);
 	}
 
@@ -691,15 +668,13 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
-	parse_args(argc, argv);
-
 	if (strap == 0) {
-		find_strap(argc, argv);
+		find_strap(argv[optind]);
 		if (strap == 0)
 			fprintf(stderr, "warning: No strap specified\n");
 	}
 
-	if (vbios_read(argv[1], &bios->data, &bios->origlength)) {
+	if (vbios_read(argv[optind], &bios->data, &bios->origlength)) {
 		fprintf(stderr, "Failed to read VBIOS!\n");
 		return 1;
 	}
