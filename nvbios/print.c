@@ -290,10 +290,12 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 	print_pcir(bios, out, mask);
 	switch (bios->type) {
 	case ENVY_BIOS_TYPE_UNKNOWN:
-		fprintf(out, "BIOS type: UNKNOWN!\n");
+		if (mask & ENVY_BIOS_PRINT_VERSION)
+			fprintf(out, "BIOS type: UNKNOWN!\n");
 		break;
 	case ENVY_BIOS_TYPE_NV01:
-		fprintf(out, "BIOS type: NV01\n");
+		if (mask & ENVY_BIOS_PRINT_VERSION)
+			fprintf(out, "BIOS type: NV01\n");
 		if (mask & ENVY_BIOS_PRINT_SCRIPTS) {
 			/* XXX: how to find these properly? */
 			fprintf(out, "\nPre-mem scripts:\n");
@@ -314,13 +316,15 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 		}
 		break;
 	case ENVY_BIOS_TYPE_NV03:
-		fprintf(out, "BIOS type: NV03\n");
+		if (mask & ENVY_BIOS_PRINT_VERSION)
+			fprintf(out, "BIOS type: NV03\n");
 		print_bmp_nv03(bios, out, mask);
 		if (bios->init_script)
 			print_nv01_init_script(bios, out, bios->init_script, mask);
 		break;
 	case ENVY_BIOS_TYPE_NV04:
-		fprintf(out, "BIOS type: NV04\n");
+		if (mask & ENVY_BIOS_PRINT_VERSION)
+			fprintf(out, "BIOS type: NV04\n");
 		break;
 	}
 }

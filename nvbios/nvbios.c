@@ -505,6 +505,7 @@ static void parse_bios_version(uint16_t offset)
 	else if (major_version == 0x75)
 		chipset_family = 0xd0;
 
+	if (printmask & ENVY_BIOS_PRINT_BMP_BIT) {
 	printf("Bios version %02x.%02x.%02x.%02x\n\n",
 		 bios->data[offset + 3], bios->data[offset + 2],
 		 bios->data[offset + 1], bios->data[offset]);
@@ -512,6 +513,7 @@ static void parse_bios_version(uint16_t offset)
 		 card_codename);
 	printf("Card chipset family %02x\n\n",
 		 chipset_family);
+	}
 }
 
 int set_strap_from_string(const char* strap_s)
@@ -642,6 +644,10 @@ struct {
 	"bit",		ENVY_BIOS_PRINT_BMP_BIT,
 	"bmp",		ENVY_BIOS_PRINT_BMP_BIT,
 	"scripts",	ENVY_BIOS_PRINT_SCRIPTS,
+	"hwsq",		ENVY_BIOS_PRINT_HWSQ,
+	"pll",		ENVY_BIOS_PRINT_PLL,
+	"ram",		ENVY_BIOS_PRINT_RAM,
+	"perf",		ENVY_BIOS_PRINT_PERF,
 	"dcb",		ENVY_BIOS_PRINT_DCB,
 	"gpio",		ENVY_BIOS_PRINT_GPIO,
 	"i2c",		ENVY_BIOS_PRINT_I2C,
@@ -739,16 +745,20 @@ int main(int argc, char **argv) {
 
 	if (bios->bit_offset) {
 		int maxentry = bios->data[bios->bit_offset+10];
-		printf ("BIT at %x, %x entries\n", bios->bit_offset, maxentry);
-		printf ("\n");
-		printhex(bios->bit_offset, 12);
+		if (printmask & ENVY_BIOS_PRINT_BMP_BIT) {
+			printf ("BIT at %x, %x entries\n", bios->bit_offset, maxentry);
+			printf ("\n");
+			printhex(bios->bit_offset, 12);
+		}
 		for (i = 0; i < maxentry; i++) {
 			uint32_t off = bios->bit_offset + 12 + i*6;
 			uint8_t version = bios->data[off+1];
 			uint16_t elen = le16(off+2);
 			uint16_t eoff = le16(off+4);
-			printf ("BIT table '%c' version %d at %04x length %04x\n", bios->data[off], version, eoff, elen);
+			if (printmask & ENVY_BIOS_PRINT_BMP_BIT) {
+				printf ("BIT table '%c' version %d at %04x length %04x\n", bios->data[off], version, eoff, elen);
 				printhex(eoff, elen);
+			}
 			switch (bios->data[off]) {
 				case 'I':
 					init_script_tbl_ptr = le32(eoff);
@@ -777,18 +787,20 @@ int main(int argc, char **argv) {
 						}
 					}
 
-					if (elen >= 7)
-						printf("M.tbl_05 at %x\n", le16(eoff+5));
-					if (elen >= 9)
-						printf("M.tbl_07 at %x\n", le16(eoff+7));
-					if (elen >= 0xb)
-						printf("M.tbl_09 at %x\n", le16(eoff+9));
-					if (elen >= 0xd)
-						printf("M.tbl_0b at %x\n", le16(eoff+0xb));
-					if (elen >= 0xf)
-						printf("M.tbl_0c at %x\n", le16(eoff+0xd));
-					if (elen >= 0x11)
-						printf("M.tbl_0d at %x\n", le16(eoff+0xf));
+					if (printmask & ENVY_BIOS_PRINT_BMP_BIT) {
+						if (elen >= 7)
+							printf("M.tbl_05 at %x\n", le16(eoff+5));
+						if (elen >= 9)
+							printf("M.tbl_07 at %x\n", le16(eoff+7));
+						if (elen >= 0xb)
+							printf("M.tbl_09 at %x\n", le16(eoff+9));
+						if (elen >= 0xd)
+							printf("M.tbl_0b at %x\n", le16(eoff+0xb));
+						if (elen >= 0xf)
+							printf("M.tbl_0c at %x\n", le16(eoff+0xd));
+						if (elen >= 0x11)
+							printf("M.tbl_0d at %x\n", le16(eoff+0xf));
+					}
 					break;
 				case 'C':
 					pll_limit_tbl_ptr = le16(eoff + 8);
@@ -797,7 +809,8 @@ int main(int argc, char **argv) {
 					disp_script_tbl_ptr = le16(eoff);
 					break;
 				case 'P':
-					printf("Bit P table version %x\n", version);
+					if (printmask & ENVY_BIOS_PRINT_BMP_BIT)
+						printf("Bit P table version %x\n", version);
 
 					p_tbls_ver = version;
 					pm_mode_tbl_ptr = le16(eoff + 0);
@@ -821,7 +834,8 @@ int main(int argc, char **argv) {
 					parse_bios_version(eoff);
 					break;
 			}
-			printf ("\n");
+			if (printmask & ENVY_BIOS_PRINT_BMP_BIT)
+				printf ("\n");
 		}
 	}
 
@@ -833,7 +847,8 @@ int main(int argc, char **argv) {
 	if (bios->dcb_offset) {
 		dcbver = bios->data[bios->dcb_offset];
 		uint16_t coff = 4;
-		printf ("DCB %d.%d at %x\n", dcbver >> 4, dcbver&0xf, bios->dcb_offset);
+		if (printmask & ENVY_BIOS_PRINT_DCB)
+			printf ("DCB %d.%d at %x\n", dcbver >> 4, dcbver&0xf, bios->dcb_offset);
 		if (dcbver >= 0x30) {
 			dcbhlen = bios->data[bios->dcb_offset+1];
 			dcbentries = bios->data[bios->dcb_offset+2];
@@ -861,30 +876,32 @@ int main(int argc, char **argv) {
 			coff = 6;
 			i2coffset = le16(bios->dcb_offset+2);
 		}
-		printhex(bios->dcb_offset, dcbhlen);
-		printf("\n");
-		for (i = 0; i < dcbentries; i++) {
-			uint16_t soff = bios->dcb_offset + dcbhlen + dcbrlen * i;
-			uint32_t conn = le32(soff);
-			uint32_t conf = le32(soff + coff);
-			if (dcbver >= 0x20) {
-				int type = conn & 0xf;
-				int i2c = conn >> 4 & 0xf;
-				int heads = conn >> 8 & 0xf;
-				int connector = conn >> 12 & 0xf;
-				int bus = conn >> 16 & 0xf;
-				int loc = conn >> 20 & 3;
-				int or = conn >> 24 & 0xf;
-				char *types[] = { "ANALOG", "TV", "TMDS", "LVDS", "???", "???", "DP", "???",
-							"???", "???", "???", "???", "???", "???", "???", "???" };
-				printf ("Type %x [%s] I2C %d heads %x connector %d bus %d loc %d or %x conf %x\n", type, types[type], i2c, heads, connector, bus, loc, or, conf);
-			}
-			printhex (soff, dcbrlen);
+		if (printmask & ENVY_BIOS_PRINT_DCB) {
+			printhex(bios->dcb_offset, dcbhlen);
 			printf("\n");
+			for (i = 0; i < dcbentries; i++) {
+				uint16_t soff = bios->dcb_offset + dcbhlen + dcbrlen * i;
+				uint32_t conn = le32(soff);
+				uint32_t conf = le32(soff + coff);
+				if (dcbver >= 0x20) {
+					int type = conn & 0xf;
+					int i2c = conn >> 4 & 0xf;
+					int heads = conn >> 8 & 0xf;
+					int connector = conn >> 12 & 0xf;
+					int bus = conn >> 16 & 0xf;
+					int loc = conn >> 20 & 3;
+					int or = conn >> 24 & 0xf;
+					char *types[] = { "ANALOG", "TV", "TMDS", "LVDS", "???", "???", "DP", "???",
+								"???", "???", "???", "???", "???", "???", "???", "???" };
+					printf ("Type %x [%s] I2C %d heads %x connector %d bus %d loc %d or %x conf %x\n", type, types[type], i2c, heads, connector, bus, loc, or, conf);
+				}
+				printhex (soff, dcbrlen);
+				printf("\n");
+			}
+			printf ("\n");
 		}
-		printf ("\n");
 	}
-	if (bios->hwsq_offset) {
+	if (bios->hwsq_offset && (printmask & ENVY_BIOS_PRINT_HWSQ)) {
 		uint8_t entry_count, bytes_to_write, i;
 
 		bios->hwsq_offset += 4;
@@ -905,7 +922,7 @@ int main(int argc, char **argv) {
 		}
 		printf ("\n");
 	}
-	if (i2coffset) {
+	if (i2coffset && (printmask & ENVY_BIOS_PRINT_I2C)) {
 		i2chlen = 0;
 		i2centries = 16;
 		i2crlen = 4;
@@ -993,7 +1010,7 @@ int main(int argc, char **argv) {
 		ENVY_BIOS_ERR("Failed to parse DUNK19 table at %04x version %x.%x\n", bios->dunk19.offset, bios->dunk19.version >> 4, bios->dunk19.version & 0xf);
 	envy_bios_print_dunk19(bios, stdout, printmask);
 
-	if (pll_limit_tbl_ptr) {
+	if (pll_limit_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PLL)) {
 		uint8_t ver = bios->data[pll_limit_tbl_ptr];
 		uint8_t hlen = 0, rlen = 0, entries = 0;
 		printf ("PLL limits table at %x, version %x\n", pll_limit_tbl_ptr, ver);
@@ -1117,7 +1134,7 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
-	if (init_script_tbl_ptr) {
+	if (init_script_tbl_ptr && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
 		i = 0;
 		uint16_t off = init_script_tbl_ptr;
 		uint16_t soff;
@@ -1131,7 +1148,7 @@ int main(int argc, char **argv) {
 
 	int subspos = 0, callspos = 0;
 	int ssdone = 0;
-	while (!ssdone || subspos < subsnum || callspos < callsnum) {
+	while ((!ssdone || subspos < subsnum || callspos < callsnum) && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
 		if (callspos < callsnum) {
 			uint16_t soff = calls[callspos++];
 			printf ("Subroutine at %x:\n", soff);
@@ -1153,7 +1170,7 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	if (disp_script_tbl_ptr) {
+	if (disp_script_tbl_ptr && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
 		uint8_t ver = bios->data[disp_script_tbl_ptr];
 		uint8_t hlen = bios->data[disp_script_tbl_ptr+1];
 		uint8_t rlen = bios->data[disp_script_tbl_ptr+2];
@@ -1175,7 +1192,7 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
-	if (condition_tbl_ptr) {
+	if (condition_tbl_ptr && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
 		printf ("Condition table at %x: %d conditions:\n", condition_tbl_ptr, maxcond+1);
 		for (i = 0; i <= maxcond; i++) {
 			printcmd(condition_tbl_ptr + 12 * i, 12);
@@ -1187,7 +1204,7 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
-	if (macro_index_tbl_ptr) {
+	if (macro_index_tbl_ptr && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
 		printf ("Macro index table at %x: %d macro indices:\n", macro_index_tbl_ptr, maxmi+1);
 		for (i = 0; i <= maxmi; i++) {
 			printcmd(macro_index_tbl_ptr + 2 * i, 2);
@@ -1200,7 +1217,7 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
-	if (macro_tbl_ptr) {
+	if (macro_tbl_ptr && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
 		printf ("Macro table at %x: %d macros:\n", macro_tbl_ptr, maxmac+1);
 		for (i = 0; i <= maxmac; i++) {
 			printcmd(macro_tbl_ptr + 8 * i, 8);
@@ -1211,7 +1228,7 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
-	if (ram_type_tbl_ptr) {
+	if (ram_type_tbl_ptr && (printmask & ENVY_BIOS_PRINT_RAM)) {
 		uint8_t version, entry_count = 0, entry_length = 0;
 		uint16_t start = ram_type_tbl_ptr;
 		uint8_t ram_cfg = strap?(strap & 0x1c) >> 2:0xff;
@@ -1242,7 +1259,7 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 #define subent(n) (subentry_offset + ((n) * subentry_size))
-	if (pm_mode_tbl_ptr) {
+	if (pm_mode_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t mode_info_length = 0, header_length = 0;
 		uint8_t extra_data_length = 8, extra_data_count = 0;
@@ -1448,7 +1465,7 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
-	if (voltage_map_tbl_ptr) {
+	if (voltage_map_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0;
 		uint16_t start = voltage_map_tbl_ptr;
@@ -1478,7 +1495,7 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
-	if (voltage_tbl_ptr) {
+	if (voltage_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0, mask = 0;
 		uint16_t start = voltage_tbl_ptr;
@@ -1578,7 +1595,7 @@ int main(int argc, char **argv) {
 		}
 		printf("\n");
 	}
-	if (temperature_tbl_ptr) {
+	if (temperature_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0;
 		uint16_t start = temperature_tbl_ptr;
@@ -1680,7 +1697,7 @@ int main(int argc, char **argv) {
 		}
 		printf("\n");
 	}
-	if (timings_tbl_ptr) {
+	if (timings_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0;
 		uint16_t start = timings_tbl_ptr;
@@ -1827,7 +1844,7 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	if(timings_map_tbl_ptr) {
+	if(timings_map_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		/* Mapping timings to clockspeeds since 2009 */
 		uint8_t 	version = 0, entry_count = 0, entry_length = 0,
 				xinfo_count = 0, xinfo_length = 0,
@@ -1878,7 +1895,7 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
-	if(pm_unknown_tbl_ptr) {
+	if(pm_unknown_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t 	version = 0, entry_count = 0, entry_length = 0,
 				header_length = 0;
 		uint16_t start = pm_unknown_tbl_ptr;
