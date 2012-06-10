@@ -841,6 +841,10 @@ int main(int argc, char **argv) {
 			bios->dunk10.offset = le16(bios->dcb_offset+16);
 			bios->extdev.offset = le16(bios->dcb_offset+18);
 			bios->conn.offset = le16(bios->dcb_offset+20);
+			if (dcbhlen >= 25)
+				bios->dunk17.offset = le16(bios->dcb_offset+23);
+			if (dcbhlen >= 27)
+				bios->dunk19.offset = le16(bios->dcb_offset+25);
 		} else if (dcbver >= 0x20) {
 			dcbhlen = 8;
 			dcbentries = 16;
@@ -976,6 +980,14 @@ int main(int argc, char **argv) {
 	if (envy_bios_parse_conn(bios))
 		ENVY_BIOS_ERR("Failed to parse CONN table at %04x version %x.%x\n", bios->conn.offset, bios->conn.version >> 4, bios->conn.version & 0xf);
 	envy_bios_print_conn(bios, stdout);
+
+	if (envy_bios_parse_dunk17(bios))
+		ENVY_BIOS_ERR("Failed to parse DUNK17 table at %04x version %x.%x\n", bios->dunk17.offset, bios->dunk17.version >> 4, bios->dunk17.version & 0xf);
+	envy_bios_print_dunk17(bios, stdout);
+
+	if (envy_bios_parse_dunk19(bios))
+		ENVY_BIOS_ERR("Failed to parse DUNK19 table at %04x version %x.%x\n", bios->dunk19.offset, bios->dunk19.version >> 4, bios->dunk19.version & 0xf);
+	envy_bios_print_dunk19(bios, stdout);
 
 	if (pll_limit_tbl_ptr) {
 		uint8_t ver = bios->data[pll_limit_tbl_ptr];

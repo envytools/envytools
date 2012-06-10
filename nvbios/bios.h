@@ -316,6 +316,24 @@ struct envy_bios_conn {
 	struct envy_bios_conn_entry *entries;
 };
 
+struct envy_bios_dunk17 {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+};
+
+struct envy_bios_dunk19 {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+};
+
 struct envy_bios {
 	uint8_t *data;
 	unsigned int length;
@@ -348,6 +366,8 @@ struct envy_bios {
 	struct envy_bios_dunk10 dunk10;
 	struct envy_bios_extdev extdev;
 	struct envy_bios_conn conn;
+	struct envy_bios_dunk17 dunk17;
+	struct envy_bios_dunk19 dunk19;
 };
 
 static inline int bios_u8(struct envy_bios *bios, unsigned int offs, uint8_t *res) {
@@ -402,6 +422,10 @@ int envy_bios_parse_extdev (struct envy_bios *bios);
 void envy_bios_print_extdev (struct envy_bios *bios, FILE *out);
 int envy_bios_parse_conn (struct envy_bios *bios);
 void envy_bios_print_conn (struct envy_bios *bios, FILE *out);
+int envy_bios_parse_dunk17 (struct envy_bios *bios);
+void envy_bios_print_dunk17 (struct envy_bios *bios, FILE *out);
+int envy_bios_parse_dunk19 (struct envy_bios *bios);
+void envy_bios_print_dunk19 (struct envy_bios *bios, FILE *out);
 
 struct enum_val {
 	int val;

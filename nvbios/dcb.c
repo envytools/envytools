@@ -201,6 +201,8 @@ int envy_bios_parse_dunk10 (struct envy_bios *bios) {
 		case 0x41:
 			wanthlen = 5;
 			wantrlen = 1;
+			if (dunk10->rlen == 2)
+				wantrlen = 2;
 			break;
 		default:
 			ENVY_BIOS_ERR("Unknown DUNK10 table version %x.%x\n", dunk10->version >> 4, dunk10->version & 0xf);
@@ -250,6 +252,151 @@ void envy_bios_print_dunk10 (struct envy_bios *bios, FILE *out) {
 	for (i = 0; i < dunk10->entriesnum; i++) {
 		uint16_t eoff = dunk10->offset + dunk10->hlen + dunk10->rlen * i;
 		envy_bios_dump_hex(bios, out, eoff, dunk10->rlen);
+	}
+	printf("\n");
+}
+
+
+int envy_bios_parse_dunk17 (struct envy_bios *bios) {
+	struct envy_bios_dunk17 *dunk17 = &bios->dunk17;
+	if (!dunk17->offset)
+		return 0;
+	int err = 0;
+	err |= bios_u8(bios, dunk17->offset, &dunk17->version);
+	err |= bios_u8(bios, dunk17->offset+1, &dunk17->hlen);
+	err |= bios_u8(bios, dunk17->offset+2, &dunk17->entriesnum);
+	err |= bios_u8(bios, dunk17->offset+3, &dunk17->rlen);
+	if (err)
+		return -EFAULT;
+	int wanthlen = 0;
+	int wantrlen = 0;
+	switch (dunk17->version) {
+		case 0x10:
+		case 0x11:
+			wanthlen = 4;
+			if (dunk17->hlen >= 10)
+				wanthlen = 10;
+			wantrlen = 2;
+			break;
+		default:
+			ENVY_BIOS_ERR("Unknown DUNK17 table version %x.%x\n", dunk17->version >> 4, dunk17->version & 0xf);
+			return -EINVAL;
+	}
+	if (dunk17->hlen < wanthlen) {
+		ENVY_BIOS_ERR("DUNK17 table header too short [%d < %d]\n", dunk17->hlen, wanthlen);
+		return -EINVAL;
+	}
+	if (dunk17->rlen < wantrlen) {
+		ENVY_BIOS_ERR("DUNK17 table record too short [%d < %d]\n", dunk17->rlen, wantrlen);
+		return -EINVAL;
+	}
+	if (dunk17->hlen > wanthlen) {
+		ENVY_BIOS_WARN("DUNK17 table header longer than expected [%d > %d]\n", dunk17->hlen, wanthlen);
+	}
+	if (dunk17->rlen > wantrlen) {
+		ENVY_BIOS_WARN("DUNK17 table record longer than expected [%d > %d]\n", dunk17->rlen, wantrlen);
+	}
+	/* XXX */
+	/*
+	dunk17->entries = calloc(gunk->entriesnum, sizeof *gunk->entries);
+	if (!dunk17->entries)
+		return -ENOMEM;
+		*/
+	int i;
+	for (i = 0; i < dunk17->entriesnum; i++) {
+		uint16_t eoff = dunk17->offset + dunk17->hlen + dunk17->rlen * i;
+//		struct envy_bios_dunk17 *dunk17 = &dunk17->entries[i];
+		/* XXX */
+	}
+	dunk17->valid = 1;
+	return 0;
+}
+
+void envy_bios_print_dunk17 (struct envy_bios *bios, FILE *out) {
+	struct envy_bios_dunk17 *dunk17 = &bios->dunk17;
+	if (!dunk17->offset)
+		return;
+	if (!dunk17->valid) {
+		fprintf(out, "Failed to parse DUNK17 table at %04x version %x.%x\n\n", dunk17->offset, dunk17->version >> 4, dunk17->version & 0xf);
+		return;
+	}
+	fprintf(out, "DUNK17 table at %04x version %x.%x\n", dunk17->offset, dunk17->version >> 4, dunk17->version & 0xf);
+	envy_bios_dump_hex(bios, out, dunk17->offset, dunk17->hlen);
+	int i;
+	for (i = 0; i < dunk17->entriesnum; i++) {
+		uint16_t eoff = dunk17->offset + dunk17->hlen + dunk17->rlen * i;
+		envy_bios_dump_hex(bios, out, eoff, dunk17->rlen);
+	}
+	printf("\n");
+}
+
+
+int envy_bios_parse_dunk19 (struct envy_bios *bios) {
+	struct envy_bios_dunk19 *dunk19 = &bios->dunk19;
+	if (!dunk19->offset)
+		return 0;
+	int err = 0;
+	err |= bios_u8(bios, dunk19->offset, &dunk19->version);
+	err |= bios_u8(bios, dunk19->offset+1, &dunk19->hlen);
+	err |= bios_u8(bios, dunk19->offset+2, &dunk19->entriesnum);
+	err |= bios_u8(bios, dunk19->offset+3, &dunk19->rlen);
+	if (err)
+		return -EFAULT;
+	int wanthlen = 0;
+	int wantrlen = 0;
+	switch (dunk19->version) {
+		case 0x10:
+			wanthlen = 4;
+			wantrlen = 5;
+			break;
+		default:
+			ENVY_BIOS_ERR("Unknown DUNK19 table version %x.%x\n", dunk19->version >> 4, dunk19->version & 0xf);
+			return -EINVAL;
+	}
+	if (dunk19->hlen < wanthlen) {
+		ENVY_BIOS_ERR("DUNK19 table header too short [%d < %d]\n", dunk19->hlen, wanthlen);
+		return -EINVAL;
+	}
+	if (dunk19->rlen < wantrlen) {
+		ENVY_BIOS_ERR("DUNK19 table record too short [%d < %d]\n", dunk19->rlen, wantrlen);
+		return -EINVAL;
+	}
+	if (dunk19->hlen > wanthlen) {
+		ENVY_BIOS_WARN("DUNK19 table header longer than expected [%d > %d]\n", dunk19->hlen, wanthlen);
+	}
+	if (dunk19->rlen > wantrlen) {
+		ENVY_BIOS_WARN("DUNK19 table record longer than expected [%d > %d]\n", dunk19->rlen, wantrlen);
+	}
+	/* XXX */
+	/*
+	dunk19->entries = calloc(gunk->entriesnum, sizeof *gunk->entries);
+	if (!dunk19->entries)
+		return -ENOMEM;
+		*/
+	int i;
+	for (i = 0; i < dunk19->entriesnum; i++) {
+		uint16_t eoff = dunk19->offset + dunk19->hlen + dunk19->rlen * i;
+//		struct envy_bios_dunk19 *dunk19 = &dunk19->entries[i];
+		/* XXX */
+	}
+	dunk19->valid = 1;
+	return 0;
+}
+
+void envy_bios_print_dunk19 (struct envy_bios *bios, FILE *out) {
+	struct envy_bios_dunk19 *dunk19 = &bios->dunk19;
+	if (!dunk19->offset)
+		return;
+	if (!dunk19->valid) {
+		fprintf(out, "Failed to parse DUNK19 table at %04x version %x.%x\n\n", dunk19->offset, dunk19->version >> 4, dunk19->version & 0xf);
+		return;
+	}
+	fprintf(out, "DUNK19 table at %04x version %x.%x\n", dunk19->offset, dunk19->version >> 4, dunk19->version & 0xf);
+	envy_bios_dump_hex(bios, out, dunk19->offset, dunk19->hlen);
+	int i;
+	for (i = 0; i < dunk19->entriesnum; i++) {
+		uint16_t eoff = dunk19->offset + dunk19->hlen + dunk19->rlen * i;
+		envy_bios_dump_hex(bios, out, eoff, dunk19->rlen);
 	}
 	printf("\n");
 }
