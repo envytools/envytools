@@ -49,7 +49,9 @@ int envy_bios_parse_i2c (struct envy_bios *bios) {
 	if (err)
 		return -EFAULT;
 	switch (i2c->version) {
+		case 0x12:
 		case 0x14:
+		case 0x15:
 		case 0x20:
 		case 0x21:
 		case 0x22:
@@ -88,31 +90,39 @@ int envy_bios_parse_i2c (struct envy_bios *bios) {
 			if (err)
 				return -EFAULT;
 		}
-		entry->type = bytes[3];
-		entry->unk02 = bytes[2];
-		if (i2c->version == 0x14) {
-			if (entry->type != 0xff)
-				entry->type &= 7;
-			entry->unk02 = 0;
-		}
-		switch (entry->type) {
-			case ENVY_BIOS_I2C_VGACR:
-				entry->vgacr_wr = bytes[0];
-				entry->vgacr_rd = bytes[1];
-				break;
-			case ENVY_BIOS_I2C_PCRTC:
-				entry->loc = bytes[0] & 0xf;
-				entry->unk00_4 = bytes[0] >> 4;
-				entry->addr = bytes[1];
-				break;
-			case ENVY_BIOS_I2C_PNVIO:
-			case ENVY_BIOS_I2C_AUXCH:
-				entry->loc = bytes[0] & 0xf;
-				entry->unk00_4 = bytes[0] >> 4;
-				entry->shared = bytes[1] & 1;
-				entry->sharedid = bytes[1] >> 1 & 0xf;
-				entry->unk01_5 = bytes[1] >> 5;
-				break;
+		if (i2c->version == 0x12) {
+			entry->type = bytes[0] & 3;
+			if (entry->type == 3)
+				entry->type = 0xff;
+			entry->vgacr_wr = bytes[3];
+			entry->vgacr_rd = bytes[2];
+		} else {
+			entry->type = bytes[3];
+			entry->unk02 = bytes[2];
+			if (i2c->version < 0x20) {
+				if (entry->type != 0xff)
+					entry->type &= 7;
+				entry->unk02 = 0;
+			}
+			switch (entry->type) {
+				case ENVY_BIOS_I2C_VGACR:
+					entry->vgacr_wr = bytes[0];
+					entry->vgacr_rd = bytes[1];
+					break;
+				case ENVY_BIOS_I2C_PCRTC:
+					entry->loc = bytes[0] & 0xf;
+					entry->unk00_4 = bytes[0] >> 4;
+					entry->addr = bytes[1];
+					break;
+				case ENVY_BIOS_I2C_PNVIO:
+				case ENVY_BIOS_I2C_AUXCH:
+					entry->loc = bytes[0] & 0xf;
+					entry->unk00_4 = bytes[0] >> 4;
+					entry->shared = bytes[1] & 1;
+					entry->sharedid = bytes[1] >> 1 & 0xf;
+					entry->unk01_5 = bytes[1] >> 5;
+					break;
+			}
 		}
 	}
 	i2c->valid = 1;
