@@ -214,6 +214,21 @@ void printscript (uint16_t soff) {
 				printf ("REPEAT\t0x%02x\n", bios->data[soff+1]);
 				soff += 2;
 				break;
+			case 0x34:
+				printcmd (soff, 12);
+				printf ("IO_RESTRICT_PLL\tR[0x%06x] =PLL= (0x%04x[0x%02x] & 0x%02x) >> %d) IOFCOND 0x%02x [{\n", le32(soff+8), le16(soff+1), bios->data[soff+3], bios->data[soff+4], bios->data[soff+5], bios->data[soff+6]);
+				if (bios->data[soff+6] > maxiofcond && bios->data[soff+6] != 0xff)
+					maxiofcond = bios->data[soff+6];
+				cnt = bios->data[soff+7];
+				soff += 12;
+				while (cnt--) {
+					printcmd (soff, 2);
+					printf ("\t%dkHz\n", le16(soff));
+					soff += 2;
+				}
+				printcmd (soff, 0);
+				printf ("}]\n");
+				break;
 			case 0x36:
 				printcmd (soff, 1);
 				printf ("END_REPEAT\n");
@@ -221,7 +236,7 @@ void printscript (uint16_t soff) {
 				break;
 			case 0x37:
 				printcmd (soff, 11);
-				printf ("COPY\t0x%04x[0x%02x] & ~0x%02x |= (R[%06x] %s 0x%02x) & %08x\n",
+				printf ("COPY\t0x%04x[0x%02x] & ~0x%02x |= (R[0x%06x] %s 0x%02x) & %08x\n",
 						le16(soff+7), bios->data[soff+9], bios->data[soff+10], le32(soff+1), bios->data[soff+5]&0x80?"<<":">>",
 						bios->data[soff+5]&0x80?0x100-bios->data[soff+5]:bios->data[soff+5], bios->data[soff+6]);
 				soff += 11;
@@ -238,6 +253,20 @@ void printscript (uint16_t soff) {
 					maxiofcond = bios->data[soff+1];
 				soff += 2;
 				break;
+			case 0x49:
+				printcmd (soff, 9);
+				printf ("INDEX_ADDRESS_LATCHED\tR[0x%06x] : R[0x%06x]\n", le32(soff+1), le32(soff+5));
+				soff += 9;
+				printcmd (soff, 9);
+				printf ("\tCTRL &= 0x%08x |= 0x%08x\n", le32(soff), le32(soff+4));
+				cnt = bios->data[soff+8];
+				soff += 9;
+				while (cnt--) {
+					printcmd (soff, 2);
+					printf("\t[%02x] = %02x\n", bios->data[soff], bios->data[soff+1]);
+					soff += 2;
+				}
+				break;
 			case 0x4a:
 				printcmd (soff, 11);
 				printf ("IO_RESTRICT_PLL2\tR[0x%06x] =PLL= (0x%04x[0x%02x] & 0x%02x) >> %d) [{\n", le32(soff+7), le16(soff+1), bios->data[soff+3], bios->data[soff+4], bios->data[soff+5]);
@@ -245,11 +274,27 @@ void printscript (uint16_t soff) {
 				soff += 11;
 				while (cnt--) {
 					printcmd (soff, 4);
-					printf ("\t%08x\n", le32(soff));
+					printf ("\t%dkHz\n", le32(soff));
 					soff += 4;
 				}
 				printcmd (soff, 0);
 				printf ("}]\n");
+				break;
+			case 0x4b:
+				printcmd (soff, 9);
+				printf ("PLL2\tR[0x%06x] =PLL= %dkHz\n", le32(soff+1), le32(soff+5));
+				soff += 9;
+				break;
+			case 0x4c:
+				printcmd (soff, 4);
+				printf ("I2C_BYTE\tI2C[0x%02x][0x%02x]\n", bios->data[soff+1], bios->data[soff+2]);
+				cnt = bios->data[soff+3];
+				soff += 4;
+				while (cnt--) {
+					printcmd (soff, 3);
+					printf ("\t[0x%02x] &= 0x%02x |= 0x%02x\n", bios->data[soff], bios->data[soff+1], bios->data[soff+2]);
+					soff += 3;
+				}
 				break;
 			case 0x4d:
 				printcmd (soff, 4);
@@ -284,6 +329,17 @@ void printscript (uint16_t soff) {
 				printcmd (soff, 3);
 				printf ("ZM_CR\tC[0x%02x] = 0x%02x\n", bios->data[soff+1], bios->data[soff+2]);
 				soff += 3;
+				break;
+			case 0x54:
+				printcmd (soff, 2);
+				printf ("ZM_CR_GROUP\n");
+				cnt = bios->data[soff+1];
+				soff += 2;
+				while (cnt--) {
+					printcmd(soff, 2);
+					printf ("\t\tC[0x%02x] = %02x\n", bios->data[soff], bios->data[soff+1]);
+					soff += 2;
+				}
 				break;
 			case 0x56:
 				printcmd (soff, 3);
@@ -330,15 +386,40 @@ void printscript (uint16_t soff) {
 				printcmd (soff, 16);
 				printf ("\n");
 				printcmd (soff+16, 6);
-				printf ("COPY_NV_REG\tR[%06x] & ~0x%08x = (R[%06x] %s 0x%02x) & %08x ^ %08x\n",
+				printf ("COPY_NV_REG\tR[0x%06x] & ~0x%08x = (R[0x%06x] %s 0x%02x) & %08x ^ %08x\n",
 						le32(soff+14), le32(soff+18), le32(soff+1), bios->data[soff+5]&0x80?"<<":">>",
 						bios->data[soff+5]&0x80?0x100-bios->data[soff+5]:bios->data[soff+5], le32(soff+6), le32(soff+10));
 				soff += 22;
+				break;
+			case 0x62:
+				printcmd (soff, 5);
+				printf ("ZM_INDEX_IO\tI[0x%04x][%02x] = 0x%02x\n", le16(soff+1), bios->data[soff+3], bios->data[soff+4]);
+				soff += 5;
 				break;
 			case 0x63:
 				printcmd (soff, 1);
 				printf ("COMPUTE_MEM\n");
 				soff++;
+				break;
+			case 0x65:
+				printcmd (soff, 13);
+				printf ("RESET\tR[0x%06x] = 0x%08x, 0x%08x\n", le32(soff+1), le32(soff+5), le32(soff+9));
+				soff += 13;
+				break;
+			case 0x66:
+				printcmd (soff, 1);
+				printf ("CONFIGURE_MEM\n");
+				soff += 1;
+				break;
+			case 0x67:
+				printcmd (soff, 1);
+				printf ("CONFIGURE_CLOCK\n");
+				soff += 1;
+				break;
+			case 0x68:
+				printcmd (soff, 1);
+				printf ("CONFIGURE_PREINIT\n");
+				soff += 1;
 				break;
 			case 0x69:
 				printcmd (soff, 5);
@@ -396,6 +477,16 @@ void printscript (uint16_t soff) {
 					maxiocond = bios->data[soff+1];
 				soff += 2;
 				break;
+			case 0x78:
+				printcmd (soff, 6);
+				printf ("INDEX_IO\tI[0x%04x][%02x] &= 0x%02x |= 0x%02x\n", le16(soff+1), bios->data[soff+3], bios->data[soff+4], bios->data[soff+5]);
+				soff += 6;
+				break;
+			case 0x79:
+				printcmd (soff, 7);
+				printf ("PLL\tR[0x%06x] =PLL= %dkHz\n", le32(soff+1), le16(soff+5) * 10);
+				soff += 7;
+				break;
 			case 0x7a:
 				printcmd (soff, 9);
 				printf ("ZM_REG\tR[0x%06x] = 0x%08x\n", le32(soff+1), le32(soff+5));
@@ -450,6 +541,22 @@ void printscript (uint16_t soff) {
 				printcmd (soff, 9);
 				printf ("COPY_ZM_REG\tR[0x%06x] = R[0x%06x]\n", le32(soff+5), le32(soff+1));
 				soff += 9;
+				break;
+			case 0x91:
+				printcmd (soff, 7);
+				printf ("ZM_REG_GROUP\tR[0x%06x] =\n", le32(soff+1));
+				cnt = bios->data[soff+5];
+				soff += 6;
+				while (cnt--) {
+					printcmd (soff, 4);
+					printf ("\t\t%08x\n", le32(soff));
+					soff += 4;
+				}
+				break;
+			case 0x92:
+				printcmd (soff, 1);
+				printf ("UNK92\n");
+				soff++;
 				break;
 			case 0x97:
 				printcmd (soff, 13);
