@@ -974,6 +974,9 @@ int main(int argc, char **argv) {
 			dcbentries = 16;
 			dcbrlen = 8;
 			bios->i2c.offset = le16(bios->dcb.offset+2);
+			if (dcbver >= 0x22) {
+				bios->gpio.offset = le16(bios->dcb.offset-15);
+			}
 		} else {
 			dcbhlen = 4;
 			dcbentries = 16;

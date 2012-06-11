@@ -32,14 +32,24 @@ int envy_bios_parse_gpio (struct envy_bios *bios) {
 	if (!gpio->offset)
 		return 0;
 	err |= bios_u8(bios, gpio->offset, &gpio->version);
-	err |= bios_u8(bios, gpio->offset+1, &gpio->hlen);
-	err |= bios_u8(bios, gpio->offset+2, &gpio->entriesnum);
-	err |= bios_u8(bios, gpio->offset+3, &gpio->rlen);
+	if (gpio->version == 0x10) {
+		gpio->hlen = 3;
+		err |= bios_u8(bios, gpio->offset+1, &gpio->rlen);
+		err |= bios_u8(bios, gpio->offset+2, &gpio->entriesnum);
+	} else {
+		err |= bios_u8(bios, gpio->offset+1, &gpio->hlen);
+		err |= bios_u8(bios, gpio->offset+2, &gpio->entriesnum);
+		err |= bios_u8(bios, gpio->offset+3, &gpio->rlen);
+	}
 	if (err)
 		return -EFAULT;
 	int wanthlen = 0;
 	int wantrlen = 0;
 	switch (gpio->version) {
+		case 0x10:
+			wanthlen = 3;
+			wantrlen = 2;
+			break;
 		case 0x30:
 			wanthlen = 4;
 			wantrlen = 2;
@@ -97,6 +107,7 @@ int envy_bios_parse_gpio (struct envy_bios *bios) {
 		}
 		uint16_t val;
 		switch (gpio->version) {
+			case 0x10:
 			case 0x30:
 			case 0x31:
 				val = bytes[0] | bytes[1] << 8;
