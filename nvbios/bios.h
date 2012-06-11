@@ -242,6 +242,11 @@ struct envy_bios_gpio {
 	struct envy_bios_xpiodir xpiodir;
 };
 
+struct envy_bios_dunk0c_entry {
+	uint16_t offset;
+	uint8_t unk00;
+};
+
 struct envy_bios_dunk0c {
 	uint16_t offset;
 	uint8_t valid;
@@ -249,6 +254,7 @@ struct envy_bios_dunk0c {
 	uint8_t hlen;
 	uint8_t entriesnum;
 	uint8_t rlen;
+	struct envy_bios_dunk0c_entry *entries;
 };
 
 struct envy_bios_dunk0e {
@@ -256,8 +262,13 @@ struct envy_bios_dunk0e {
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
-	uint8_t entriesnum;
-	uint8_t rlen;
+	uint8_t unk02[10];
+};
+
+struct envy_bios_dunk10_entry {
+	uint16_t offset;
+	uint8_t unk00;
+	uint8_t unk01;
 };
 
 struct envy_bios_dunk10 {
@@ -267,6 +278,13 @@ struct envy_bios_dunk10 {
 	uint8_t hlen;
 	uint8_t entriesnum;
 	uint8_t rlen;
+	uint8_t unk04;
+	uint8_t unk05;
+	uint8_t unk06;
+	uint8_t unk07;
+	uint8_t unk08;
+	uint8_t unk09;
+	struct envy_bios_dunk10_entry *entries;
 };
 
 enum envy_bios_extdev_type {

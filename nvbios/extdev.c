@@ -33,6 +33,8 @@ int envy_bios_parse_extdev (struct envy_bios *bios) {
 	err |= bios_u8(bios, extdev->offset+1, &extdev->hlen);
 	err |= bios_u8(bios, extdev->offset+2, &extdev->entriesnum);
 	err |= bios_u8(bios, extdev->offset+3, &extdev->rlen);
+	if (extdev->hlen >= 5)
+		err |= bios_u8(bios, extdev->offset+4, &extdev->unk04);
 	if (err)
 		return -EFAULT;
 	int wanthlen = 4;
@@ -45,6 +47,8 @@ int envy_bios_parse_extdev (struct envy_bios *bios) {
 			ENVY_BIOS_ERR("Unknown EXTDEV table version %x.%x\n", extdev->version >> 4, extdev->version & 0xf);
 			return -EINVAL;
 	}
+	if (extdev->hlen >= 5)
+		wanthlen = 5;
 	if (extdev->hlen < wanthlen) {
 		ENVY_BIOS_ERR("EXTDEV table header too short [%d < %d]\n", extdev->hlen, wanthlen);
 		return -EINVAL;
@@ -53,7 +57,7 @@ int envy_bios_parse_extdev (struct envy_bios *bios) {
 		ENVY_BIOS_ERR("EXTDEV table record too short [%d < %d]\n", extdev->rlen, wantrlen);
 		return -EINVAL;
 	}
-	if (extdev->hlen > 5) { /* XXX: what's the extra byte for? */
+	if (extdev->hlen > wanthlen) {
 		ENVY_BIOS_WARN("EXTDEV table header longer than expected [%d > %d]\n", extdev->hlen, wanthlen);
 	}
 	if (extdev->rlen > wantrlen) {
@@ -105,7 +109,7 @@ void envy_bios_print_extdev (struct envy_bios *bios, FILE *out, unsigned mask) {
 	}
 	fprintf(out, "EXTDEV table at %04x version %x.%x", extdev->offset, extdev->version >> 4, extdev->version & 0xf);
 	if (extdev->hlen > 4)
-		fprintf(out, " unk04 %02x", extdev->unk04);
+		fprintf(out, " unk04 0x%02x", extdev->unk04);
 	fprintf(out, "\n");
 	envy_bios_dump_hex(bios, out, extdev->offset, extdev->hlen, mask);
 	int i;
