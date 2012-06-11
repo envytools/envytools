@@ -223,7 +223,7 @@ void printscript (uint16_t soff) {
 				soff += 12;
 				while (cnt--) {
 					printcmd (soff, 2);
-					printf ("\t%dkHz\n", le16(soff));
+					printf ("\t%dkHz\n", le16(soff) * 10);
 					soff += 2;
 				}
 				printcmd (soff, 0);
