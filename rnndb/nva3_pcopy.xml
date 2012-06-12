@@ -39,7 +39,7 @@
 				<value value="1" name="64"/>
 			</bitfield>
 			<bitfield pos="19" name="UNK19"/>
-			<bitfield pos="20" name="UNK20"/>
+			<bitfield pos="20" name="UNK20" variants="NVC0-"/>
 			<bitfield low="21" high="23" name="UNK21" variants="NVE4-"/>
 			<bitfield low="26" high="28" name="SRC_PORT"/>
 			<bitfield low="29" high="31" name="DST_PORT"/>
