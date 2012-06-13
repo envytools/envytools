@@ -94,6 +94,10 @@
 	<value value="0x49" name="Z32_MS4_LSR"/>
 	<value value="0x4a" name="Z32_MS8_LSR"/>
 
+	<value value="0x4b" name="TILED_24_LSR"/>
+	<value value="0x4c" name="TILED_24_MS4_LSR"/>
+	<value value="0x4d" name="TILED_24_MS8_LSR"/>
+
 	<value value="0x54" name="Z24_X8_S8_C8_X16_MS4_CS4"/>
 	<value value="0x55" name="Z24_X8_S8_C8_X16_MS4_CS12"/>
 	<value value="0x56" name="Z24_X8_S8_C8_X16_MS8_CS8"/>
