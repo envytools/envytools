@@ -1006,6 +1006,21 @@ storage type 0x46: TILED_24_MS8
   valid compression modes: NONE, SINGLE
   valid surface formats: texture format 8_8_8_X8 and corresponding color formats
   valid multisampling modes: MS8*
+storage type 0x4b: TILED_24_LSR
+  long range reordering: LSR
+  valid compression modes: NONE
+  valid surface formats: texture format 8_8_8_X8 and corresponding color formats
+  valid multisampling modes: any
+storage type 0x4c: TILED_24_MS4_LSR
+  long range reordering: LSR
+  valid compression modes: NONE, SINGLE
+  valid surface formats: texture format 8_8_8_X8 and corresponding color formats
+  valid multisampling modes: MS1, MS2*, MS4*
+storage type 0x4d: TILED_24_MS8_LSR
+  long range reordering: LSR
+  valid compression modes: NONE, SINGLE
+  valid surface formats: texture format 8_8_8_X8 and corresponding color formats
+  valid multisampling modes: MS8*
 
 [XXX]
 
