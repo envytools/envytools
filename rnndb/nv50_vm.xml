@@ -51,7 +51,7 @@
 	<value value="0xf" name="DMAOBJ_LIMIT"/>
 </enum>
 
-<enum name="NV50_STORAGE_TYPE">
+<enum name="NV50_STORAGE_TYPE" varset="chipset">
 	<value value="0x00" name="LINEAR"/>
 
 	<value value="0x10" name="S8_Z24_MS1"/>
@@ -110,15 +110,15 @@
 	<value value="0x65" name="Z32_S8_C8_X16_MS4_CS12"/>
 	<value value="0x66" name="Z32_S8_C8_X16_MS8_CS8"/>
 
-	<value value="0x68" name="Z16_MS1"/>
-	<value value="0x69" name="Z16_MS2"/>
-	<value value="0x6a" name="Z16_MS4"/>
-	<value value="0x6b" name="Z16_MS8"/>
+	<value value="0x68" name="Z16_MS1" variants="NVA0-"/>
+	<value value="0x69" name="Z16_MS2" variants="NVA0-"/>
+	<value value="0x6a" name="Z16_MS4" variants="NVA0-"/>
+	<value value="0x6b" name="Z16_MS8" variants="NVA0-"/>
 
-	<value value="0x6c" name="Z16_MS1_LSR"/>
-	<value value="0x6d" name="Z16_MS2_LSR"/>
-	<value value="0x6e" name="Z16_MS4_LSR"/>
-	<value value="0x6f" name="Z16_MS8_LSR"/>
+	<value value="0x6c" name="Z16_MS1_LSR" variants="NVA0-"/>
+	<value value="0x6d" name="Z16_MS2_LSR" variants="NVA0-"/>
+	<value value="0x6e" name="Z16_MS4_LSR" variants="NVA0-"/>
+	<value value="0x6f" name="Z16_MS8_LSR" variants="NVA0-"/>
 
 	<value value="0x70" name="TILED"/> <!-- any uncompressed < 128bpp -->
 
