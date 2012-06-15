@@ -474,6 +474,7 @@ static inline int bios_u32(struct envy_bios *bios, unsigned int offs, uint32_t *
 #define ENVY_BIOS_PRINT_EXTDEV	0x00080000
 #define ENVY_BIOS_PRINT_CONN	0x00100000
 #define ENVY_BIOS_PRINT_DUNK	0x00200000
+#define ENVY_BIOS_PRINT_DCB_ALL	0x003f0000
 #define ENVY_BIOS_PRINT_ALL	0x7fffffff
 #define ENVY_BIOS_PRINT_VERBOSE	0x80000000
 
