@@ -48,7 +48,6 @@ uint16_t script_print = 0;
 uint16_t bmpver = 0;
 uint8_t bmpver_min;
 uint8_t bmpver_maj;
-uint8_t dcbver, dcbhlen, dcbrlen, dcbentries;
 int maxcond = -1;
 int maxiocond = -1;
 int maxiofcond = -1;
@@ -949,67 +948,6 @@ int main(int argc, char **argv) {
 		exit(0);
 	}
 
-	if (bios->dcb.offset) {
-		dcbver = bios->data[bios->dcb.offset];
-		uint16_t coff = 4;
-		if (printmask & ENVY_BIOS_PRINT_DCB)
-			printf ("DCB %d.%d at %x\n", dcbver >> 4, dcbver&0xf, bios->dcb.offset);
-		bios->dcb.version = dcbver;
-		if (dcbver >= 0x30) {
-			dcbhlen = bios->data[bios->dcb.offset+1];
-			dcbentries = bios->data[bios->dcb.offset+2];
-			dcbrlen = bios->data[bios->dcb.offset+3];
-			bios->i2c.offset = le16(bios->dcb.offset+4);
-			bios->gpio.offset = le16(bios->dcb.offset+10);
-			bios->dunk0c.offset = le16(bios->dcb.offset+12);
-			bios->dunk0e.offset = le16(bios->dcb.offset+14);
-			bios->dunk10.offset = le16(bios->dcb.offset+16);
-			bios->extdev.offset = le16(bios->dcb.offset+18);
-			bios->conn.offset = le16(bios->dcb.offset+20);
-			if (dcbhlen >= 25)
-				bios->dunk17.offset = le16(bios->dcb.offset+23);
-			if (dcbhlen >= 27)
-				bios->dunk19.offset = le16(bios->dcb.offset+25);
-		} else if (dcbver >= 0x20) {
-			dcbhlen = 8;
-			dcbentries = 16;
-			dcbrlen = 8;
-			bios->i2c.offset = le16(bios->dcb.offset+2);
-			if (dcbver >= 0x22) {
-				bios->gpio.offset = le16(bios->dcb.offset-15);
-			}
-		} else {
-			dcbhlen = 4;
-			dcbentries = 16;
-			dcbrlen = 10;
-			coff = 6;
-			bios->i2c.offset = le16(bios->dcb.offset+2);
-		}
-		if (printmask & ENVY_BIOS_PRINT_DCB) {
-			printhex(bios->dcb.offset, dcbhlen);
-			printf("\n");
-			for (i = 0; i < dcbentries; i++) {
-				uint16_t soff = bios->dcb.offset + dcbhlen + dcbrlen * i;
-				uint32_t conn = le32(soff);
-				uint32_t conf = le32(soff + coff);
-				if (dcbver >= 0x20) {
-					int type = conn & 0xf;
-					int i2c = conn >> 4 & 0xf;
-					int heads = conn >> 8 & 0xf;
-					int connector = conn >> 12 & 0xf;
-					int bus = conn >> 16 & 0xf;
-					int loc = conn >> 20 & 3;
-					int or = conn >> 24 & 0xf;
-					char *types[] = { "ANALOG", "TV", "TMDS", "LVDS", "???", "???", "DP", "???",
-								"???", "???", "???", "???", "???", "???", "???", "???" };
-					printf ("Type %x [%s] I2C %d heads %x connector %d bus %d loc %d or %x conf %x\n", type, types[type], i2c, heads, connector, bus, loc, or, conf);
-				}
-				printhex (soff, dcbrlen);
-				printf("\n");
-			}
-			printf ("\n");
-		}
-	}
 	if (bios->hwsq_offset && (printmask & ENVY_BIOS_PRINT_HWSQ)) {
 		uint8_t entry_count, bytes_to_write, i;
 
@@ -1031,42 +969,6 @@ int main(int argc, char **argv) {
 		}
 		printf ("\n");
 	}
-
-	if (envy_bios_parse_i2c(bios))
-		ENVY_BIOS_ERR("Failed to parse I2C table at %04x version %x.%x\n", bios->i2c.offset, bios->i2c.version >> 4, bios->i2c.version & 0xf);
-	envy_bios_print_i2c(bios, stdout, printmask);
-
-	if (envy_bios_parse_gpio(bios))
-		ENVY_BIOS_ERR("Failed to parse GPIO table at %04x version %x.%x\n", bios->gpio.offset, bios->gpio.version >> 4, bios->gpio.version & 0xf);
-	envy_bios_print_gpio(bios, stdout, printmask);
-
-	if (envy_bios_parse_dunk0c(bios))
-		ENVY_BIOS_ERR("Failed to parse DUNK0C table at %04x version %x.%x\n", bios->dunk0c.offset, bios->dunk0c.version >> 4, bios->dunk0c.version & 0xf);
-	envy_bios_print_dunk0c(bios, stdout, printmask);
-
-	if (envy_bios_parse_dunk0e(bios))
-		ENVY_BIOS_ERR("Failed to parse DUNK0E table at %04x version %x.%x\n", bios->dunk0e.offset, bios->dunk0e.version >> 4, bios->dunk0e.version & 0xf);
-	envy_bios_print_dunk0e(bios, stdout, printmask);
-
-	if (envy_bios_parse_dunk10(bios))
-		ENVY_BIOS_ERR("Failed to parse DUNK10 table at %04x version %x.%x\n", bios->dunk10.offset, bios->dunk10.version >> 4, bios->dunk10.version & 0xf);
-	envy_bios_print_dunk10(bios, stdout, printmask);
-
-	if (envy_bios_parse_extdev(bios))
-		ENVY_BIOS_ERR("Failed to parse EXTDEV table at %04x version %x.%x\n", bios->extdev.offset, bios->extdev.version >> 4, bios->extdev.version & 0xf);
-	envy_bios_print_extdev(bios, stdout, printmask);
-
-	if (envy_bios_parse_conn(bios))
-		ENVY_BIOS_ERR("Failed to parse CONN table at %04x version %x.%x\n", bios->conn.offset, bios->conn.version >> 4, bios->conn.version & 0xf);
-	envy_bios_print_conn(bios, stdout, printmask);
-
-	if (envy_bios_parse_dunk17(bios))
-		ENVY_BIOS_ERR("Failed to parse DUNK17 table at %04x version %x.%x\n", bios->dunk17.offset, bios->dunk17.version >> 4, bios->dunk17.version & 0xf);
-	envy_bios_print_dunk17(bios, stdout, printmask);
-
-	if (envy_bios_parse_dunk19(bios))
-		ENVY_BIOS_ERR("Failed to parse DUNK19 table at %04x version %x.%x\n", bios->dunk19.offset, bios->dunk19.version >> 4, bios->dunk19.version & 0xf);
-	envy_bios_print_dunk19(bios, stdout, printmask);
 
 	if (pll_limit_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PLL)) {
 		uint8_t ver = bios->data[pll_limit_tbl_ptr];

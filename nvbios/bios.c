@@ -171,6 +171,8 @@ int envy_bios_parse (struct envy_bios *bios) {
 		bios->bit_offset = find_string(bios, bitsig, 5);
 		bios->hwsq_offset = find_string(bios, hwsqsig, 4);
 		bios_u16(bios, 0x36, &bios->dcb.offset);
+		if (envy_bios_parse_dcb(bios))
+			ENVY_BIOS_ERR("Failed to parse DCB table at %04x version %x.%x\n", bios->dcb.offset, bios->dcb.version >> 4, bios->dcb.version & 0xf);
 		break;
 	}
 	return 0;

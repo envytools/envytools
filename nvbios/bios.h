@@ -56,12 +56,67 @@ enum envy_bios_type {
 	ENVY_BIOS_TYPE_NV04,
 };
 
+enum envy_bios_dcb_type {
+	ENVY_BIOS_DCB_ANALOG = 0,
+	ENVY_BIOS_DCB_TV = 1,
+	ENVY_BIOS_DCB_TMDS = 2,
+	ENVY_BIOS_DCB_LVDS = 3,
+	/* 4 seen - parasite VGA encoder? */
+	/* 5 seen - parasite DVI-I encoder? */
+	ENVY_BIOS_DCB_DP = 6,
+	ENVY_BIOS_DCB_EOL = 14,
+	ENVY_BIOS_DCB_UNUSED = 15,
+};
+
+enum envy_bios_dcb_lvds_info {
+	ENVY_BIOS_DCB_LVDS_EDID_I2C = 0,
+	ENVY_BIOS_DCB_LVDS_STRAPS = 1,
+	ENVY_BIOS_DCB_LVDS_EDID_ACPI = 2,
+};
+
+struct envy_bios_dcb_entry {
+	uint16_t offset;
+	uint8_t type;
+	uint8_t i2c;
+	uint8_t heads;
+	uint8_t conn;
+	uint8_t unk00_4;
+	uint8_t unk01_4;
+	uint8_t conntag;
+	uint8_t loc;
+	uint8_t unk02_6; /* seen used */
+	uint8_t or;
+	uint8_t unk03_4;
+	/* generic */
+	uint8_t unk04;
+	uint8_t unk05;
+	uint8_t unk06;
+	uint8_t unk07;
+	/* analog */
+	uint32_t maxfreq;
+	/* LVDS */
+	uint8_t lvds_info;
+	uint8_t lvds_pscript; /* is that a mask on pre-2.2 or what? */ /* also present on eDP? */
+	/* also seen used: unk06 bit 0 */
+	/* TMDS */
+	uint8_t tmds_hdmi;
+	/* DP */
+	uint8_t dp_bw;
+	uint8_t dp_lanes;
+	/* LVDs/TMDS/DP */
+	uint8_t links;
+	uint8_t ext_addr;
+};
+
 struct envy_bios_dcb {
 	uint16_t offset;
+	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
 	uint8_t entriesnum;
 	uint8_t rlen;
+	uint8_t unk16;
+	struct envy_bios_dcb_entry *entries;
 };
 
 enum envy_bios_i2c_type {
@@ -482,6 +537,8 @@ int envy_bios_parse (struct envy_bios *bios);
 void envy_bios_dump_hex (struct envy_bios *bios, FILE *out, unsigned int start, unsigned int length, unsigned mask);
 void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask);
 
+int envy_bios_parse_dcb (struct envy_bios *bios);
+void envy_bios_print_dcb (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_i2c (struct envy_bios *bios);
 void envy_bios_print_i2c (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_gpio (struct envy_bios *bios);

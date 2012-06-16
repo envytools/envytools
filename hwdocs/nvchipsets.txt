@@ -328,7 +328,7 @@ The MMIO ranges for NV10, NV20 and NV30 families are:
 009000:00a000 PTIMER - time measurement and time-based alarms [ptimer.txt]
 00a000:00b000 PCOUNTER - performance monitoring counters [pcounter.txt]
 00b000:00c000 PVPE - MPEG2 decoding engine [NV17:NV20 and NV30+] [vpe.txt]
-00d000:00e000 PTV - TV encoder [NV17+, not on NV20] [ptv.txt]
+00d000:00e000 PTV - TV encoder [NV17:NV20 and NV30+] [ptv.txt]
 0a0000:0c0000 PRM - aliases VGA memory window [nvvga.txt]
 0c0000:0c1000 PRMVIO - aliases VGA sequencer and graphics controller registers [nvvga.txt]
 100000:101000 PFB - memory interface [not on NV1A, NV1F, NV2A] [nv10-pfb.txt]
@@ -366,8 +366,8 @@ NV20:
   - D3D8, shader model 1.1
  - PGRAPH automatic context switching
 NV25:
- - a merge of NV17 and NV20: has dual-head, PTV, ZCULL, ...
- - still no VPE
+ - a merge of NV17 and NV20: has dual-head, ZCULL, ...
+ - still no VPE and PTV
 NV28:
  - AGP x8 support
 
@@ -403,7 +403,7 @@ NV30:
   - programmable fragment shader support
   - D3D9, shader model 2.0
  - added PEEPHOLE indirect memory access
- - return of VPE
+ - return of VPE and PTV
  - new-style memory timings
 NV35:
  - 3d engine additions:

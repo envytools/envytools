@@ -325,6 +325,16 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 	case ENVY_BIOS_TYPE_NV04:
 		if (mask & ENVY_BIOS_PRINT_VERSION)
 			fprintf(out, "BIOS type: NV04\n");
+		envy_bios_print_dcb(bios, stdout, mask);
+		envy_bios_print_i2c(bios, stdout, mask);
+		envy_bios_print_gpio(bios, stdout, mask);
+		envy_bios_print_dunk0c(bios, stdout, mask);
+		envy_bios_print_dunk0e(bios, stdout, mask);
+		envy_bios_print_dunk10(bios, stdout, mask);
+		envy_bios_print_extdev(bios, stdout, mask);
+		envy_bios_print_conn(bios, stdout, mask);
+		envy_bios_print_dunk17(bios, stdout, mask);
+		envy_bios_print_dunk19(bios, stdout, mask);
 		break;
 	}
 }

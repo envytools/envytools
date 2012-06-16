@@ -147,8 +147,7 @@ void envy_bios_print_i2c (struct envy_bios *bios, FILE *out, unsigned mask) {
 		return;
 	}
 	fprintf(out, "I2C table at %04x version %x.%x", i2c->offset, i2c->version >> 4, i2c->version & 0xf);
-	if (i2c->version >= 0x30)
-		fprintf(out, " defaults %d %d", i2c->def[0], i2c->def[1]);
+	fprintf(out, " defaults %d %d", i2c->def[0], i2c->def[1]);
 	fprintf(out, "\n");
 	envy_bios_dump_hex(bios, out, i2c->offset, i2c->hlen, mask);
 	int i;
