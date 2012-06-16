@@ -828,10 +828,14 @@ int main(int argc, char **argv) {
 		bmpver_maj = bios->data[bios->bmp_offset+5];
 		bmpver_min = bios->data[bios->bmp_offset+6];
 		bmpver = bmpver_maj << 8 | bmpver_min;
-		printf ("BMP %02x.%02x at %x\n", bmpver_maj, bmpver_min, bios->bmp_offset);
-		printf ("\n");
+		if (printmask & ENVY_BIOS_PRINT_BMP_BIT) {
+			printf ("BMP %02x.%02x at %x\n", bmpver_maj, bmpver_min, bios->bmp_offset);
+			printf ("\n");
+		}
 		parse_bios_version(bios->bmp_offset + 10);
-		printhex(bios->bmp_offset, 256);
+		if (printmask & ENVY_BIOS_PRINT_BMP_BIT) {
+			printhex(bios->bmp_offset, 256);
+		}
 		if (bmpver >= 0x510) {
 			init_script_tbl_ptr = le32(bios->bmp_offset + 75);
 			macro_index_tbl_ptr = le32(bios->bmp_offset + 77);
