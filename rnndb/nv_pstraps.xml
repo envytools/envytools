@@ -101,6 +101,11 @@
 		<value value="0" name="16MB"/>
 		<value value="1" name="128MB"/>
 	</bitfield>
+	<bitfield low="29" high="30" name="ROM_TYPE" variants="NV17:NV20 NV25-">
+		<value value="0" name="PARALLEL"/>
+		<value value="1" name="SPI"/>
+		<value value="2" name="UNK2"/>
+	</bitfield>
 </bitset>
 
 <bitset name="nv17_straps1" inline="yes">

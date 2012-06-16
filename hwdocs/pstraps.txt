@@ -157,7 +157,6 @@ bit 1: if 0, this GPU is part of a motherboard and ROMless, subsystem device
        id will be initialised to 0x00000000 and should be written with a valid
        value by system bios. if 1, this is a standalone card and has ROM -
        subsystem will be read from 32-bit LE word at address 0x54 in the ROM
-       [XXX: check ROM address]
 bits 2-5: RAM config, for use by BIOS
 bit 6: crystal type bit 0
 bits 7-8: TV mode: 0 - SECAM, 1 - NTSC, 2 - PAL, 3 - disabled
@@ -183,7 +182,14 @@ bits 23-24 [NV17:NV20 and NV25:NV50]: BAR1 size
 	1: 128MB
 	2: 256MB
 	3: 512MB
-bits 23-30: ?
+bit 25 [NV17:NV20 and NV25:NV50]: BAR0 size [XXX: I'm almost sure it does something else too]
+	0: 16MB
+	1: 128MB
+bits 26-28: ?
+bits 29-30 [NV17:NV20 and NV25:NV50]: bios ROM type
+	0: parallel
+	1: serial [SPI]
+	2: ???
 
 crystal type is:
  0 - 13.500MHz
@@ -208,7 +214,6 @@ bit 1: if 0, this GPU is part of a motherboard and ROMless, subsystem device
        id will be initialised to 0x00000000 and should be written with a valid
        value by system bios. if 1, this is a standalone card and has ROM -
        subsystem will be read from 32-bit LE word at address 0x54 in the ROM
-       [XXX: check ROM address]
 bits 2-5: RAM config, for use by BIOS
 bit 6: crystal type bit 0
 bits 7-9: ?
