@@ -219,13 +219,15 @@ bit 1: if 0, this GPU is part of a motherboard and ROMless, subsystem device
        subsystem will be read from 32-bit LE word at address 0x54 in the ROM.
        Same applies to select/secondary values.
 bits 2-5: RAM config, for use by BIOS
-bit 6: crystal type bit 0
+bit 6: crystal type bit 0 [XXX: wtf?]
 bits 7-9: ?
 bits 10-13: DEVICE_ID, bits 0-3
 bits 14-15: BAR1 size, part 1
 bits 16-21: ?
-bit 22: crystal type bit 1
-bit 23: ?
+bits 22-23: bios ROM type
+	0: parallel
+	1: serial [SPI]
+	2: ???
 bits 24-27: flat panel config [used to select entry from fp mode table]
 bit 28: DEVICE_ID bit 4 [NV92-]
 bits 29-30: ?

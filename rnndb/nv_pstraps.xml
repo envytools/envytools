@@ -127,7 +127,11 @@
 		<value value="2" name="256MB"/>
 		<value value="3" name="512MB"/>
 	</bitfield>
-	<bitfield pos="22" name="CRYSTAL_1" type="hex"/>
+	<bitfield low="23" high="23" name="ROM_TYPE">
+		<value value="0" name="PARALLEL"/>
+		<value value="1" name="SPI"/>
+		<value value="2" name="UNK2"/>
+	</bitfield>
 	<bitfield low="24" high="27" name="FP_CONFIG"/>
 	<bitfield pos="28" name="DEVICE_ID_4" type="hex" variants="NV92-"/>
 </bitset>
