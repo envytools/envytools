@@ -322,13 +322,12 @@ int envy_bios_parse_xpio (struct envy_bios *bios, struct envy_bios_xpio *xpio) {
 			break;
 		case 0x40:
 			wanthlen = 7;
+			wantrlen = 4;
 			if (bios->gpio.version == 0x41)
 				wantrlen = 5;
-			else if (xpio->rlen == 4)
-				wantrlen = 4;
-			else {
+			else if (xpio->rlen == 2) {
 				ENVY_BIOS_WARN("XPIO version 4.0 with 2-byte entries!\n");
-				wantrlen = 2; /* XXX: HACK HACK HACK */
+				xpio->rlen = 4;
 			}
 			break;
 		default:
@@ -349,17 +348,60 @@ int envy_bios_parse_xpio (struct envy_bios *bios, struct envy_bios_xpio *xpio) {
 	if (xpio->rlen > wantrlen) {
 		ENVY_BIOS_WARN("XPIO table record longer than expected [%d > %d]\n", xpio->rlen, wantrlen);
 	}
-	/* XXX */
-	/*
-	xpio->entries = calloc(xpiodir->entriesnum, sizeof *xpiodir->entries);
+	xpio->entries = calloc(xpio->entriesnum, sizeof *xpio->entries);
 	if (!xpio->entries)
 		return -ENOMEM;
-		*/
 	int i;
 	for (i = 0; i < xpio->entriesnum; i++) {
-		uint16_t eoff = xpio->offset + xpio->hlen + xpio->rlen * i;
-//		struct envy_bios_xpio *xpio = &xpio->entries[i];
-		/* XXX */
+		struct envy_bios_gpio_entry *entry = &xpio->entries[i];
+		entry->offset = xpio->offset + xpio->hlen + xpio->rlen * i;
+		/* note: structure is the same as GPIO, but tags are different, and some fields don't make sense */
+		uint8_t bytes[5];
+		int j;
+		for (j = 0; j < 5 && j < xpio->rlen; j++) {
+			err |= bios_u8(bios, entry->offset+j, &bytes[j]);
+			if (err)
+				return -EFAULT;
+		}
+		uint16_t val;
+		/* because someone forgot to bump XPIO version number on 4.1... */
+		switch (bios->gpio.version) {
+			case 0x30:
+			case 0x31:
+				val = bytes[0] | bytes[1] << 8;
+				entry->line = val & 0x1f;
+				entry->tag = val >> 5 & 0x3f;
+				entry->log[0] = val >> 11 & 3;
+				entry->log[1] = val >> 13 & 3;
+				entry->param = val >> 15 & 1;
+				break;
+			case 0x40:
+				entry->line = bytes[0] & 0x1f;
+				entry->unk40_0 = bytes[0] >> 5 & 7;
+				entry->tag = bytes[1];
+				entry->unk40_2 = bytes[2];
+				entry->def = bytes[3] & 1;
+				entry->mode = bytes[3] >> 1 & 3;
+				entry->log[0] = bytes[3] >> 3 & 3;
+				entry->log[1] = bytes[3] >> 5 & 3;
+				entry->param = bytes[3] >> 7 & 1;
+				break;
+			case 0x41:
+				entry->line = bytes[0] & 0x1f;
+				entry->unk40_0 = bytes[0] >> 5 & 3;
+				entry->def = bytes[0] >> 7 & 1;
+				entry->tag = bytes[1];
+				entry->spec_out = bytes[2];
+				entry->spec_in = bytes[3] & 0x1f;
+				entry->unk41_3_1 = bytes[3] >> 5 & 3;
+				entry->param = bytes[3] >> 7 & 1;
+				entry->unk41_4 = bytes[4] & 0xf;
+				entry->log[0] = bytes[4] >> 4 & 3;
+				entry->log[1] = bytes[4] >> 6 & 3;
+				break;
+			default:
+				abort();
+		}
 	}
 	xpio->valid = 1;
 	return 0;
@@ -447,8 +489,44 @@ void envy_bios_print_xpio (struct envy_bios *bios, FILE *out, struct envy_bios_x
 	envy_bios_dump_hex(bios, out, xpio->offset, xpio->hlen, mask);
 	int i;
 	for (i = 0; i < xpio->entriesnum; i++) {
-		uint16_t eoff = xpio->offset + xpio->hlen + xpio->rlen * i;
-		envy_bios_dump_hex(bios, out, eoff, xpio->rlen, mask);
+		struct envy_bios_gpio_entry *entry = &xpio->entries[i];
+		fprintf(out, "XPIO %d:", i);
+		fprintf(out, " line %d", entry->line);
+		if (entry->tag)
+			fprintf(out, " tag 0x%02x", entry->tag);
+		else
+			fprintf(out, " UNUSED");
+		if (entry->log[0] == 0 && entry->log[1] == 1) {
+			fprintf(out, " OUT");
+		} else if (entry->log[0] == 1 && entry->log[1] == 0) {
+			fprintf(out, " OUT NEG");
+		} else if (entry->log[0] == 2 && entry->log[1] == 3) {
+			fprintf(out, " IN");
+		} else if (entry->log[0] == 3 && entry->log[1] == 2) {
+			fprintf(out, " IN NEG");
+		} else {
+			fprintf(out, " LOG %d/%d", entry->log[0], entry->log[1]);
+		}
+		if (bios->gpio.version >= 0x40)
+			fprintf(out, " DEF %d", entry->def);
+		if (entry->mode)
+			fprintf(out, " SPEC %d [???]", entry->mode);
+		if (entry->param)
+			fprintf(out, " param 1");
+		if (entry->unk40_0)
+			fprintf(out, " unk40_0 %d", entry->unk40_0);
+		if (entry->unk40_2)
+			fprintf(out, " unk40_2 0x%02x", entry->unk40_2);
+		if (entry->spec_out)
+			fprintf(out, " SPEC_OUT 0x%02x", entry->spec_out);
+		if (bios->gpio.version == 0x41 && entry->unk41_4 != 15)
+			fprintf(out, " unk41_4 %d", entry->unk41_4);
+		if (entry->spec_in)
+			fprintf(out, " SPEC_IN 0x%02x", entry->spec_in-1);
+		if (entry->unk41_3_1)
+			fprintf(out, " unk41_3_1 %d", entry->unk41_3_1);
+		fprintf(out, "\n");
+		envy_bios_dump_hex(bios, out, entry->offset, xpio->rlen, mask);
 	}
 	fprintf(out, "\n");
 }

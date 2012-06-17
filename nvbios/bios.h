@@ -285,6 +285,7 @@ struct envy_bios_xpio {
 	uint8_t bus;
 	uint8_t unk02_0;
 	uint8_t unk02_5;
+	struct envy_bios_gpio_entry *entries;
 };
 
 struct envy_bios_xpiodir {
