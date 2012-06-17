@@ -766,7 +766,7 @@ struct {
 int main(int argc, char **argv) {
 	int i;
 	int c;
-	while ((c = getopt (argc, argv, "c:m:s:i:p:v")) != -1)
+	while ((c = getopt (argc, argv, "c:m:s:i:p:vu")) != -1)
 		switch (c) {
 			case 'c':
 				sscanf(optarg,"%2x",&card_codename);
@@ -788,6 +788,9 @@ int main(int argc, char **argv) {
 				break;
 			case 'v':
 				printmask |= ENVY_BIOS_PRINT_VERBOSE;
+				break;
+			case 'u':
+				printmask |= ENVY_BIOS_PRINT_UNUSED;
 				break;
 			case 'p':
 				for (i = 0; i < sizeof printmasks / sizeof *printmasks; i++) {

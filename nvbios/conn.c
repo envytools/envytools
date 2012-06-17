@@ -141,22 +141,24 @@ void envy_bios_print_conn (struct envy_bios *bios, FILE *out, unsigned mask) {
 	int i;
 	for (i = 0; i < conn->entriesnum; i++) {
 		struct envy_bios_conn_entry *entry = &conn->entries[i];
-		const char *typename = find_enum(conn_types, entry->type);
-		fprintf(out, "CONN %d:", i);
-		fprintf(out, " type 0x%02x [%s] tag %d", entry->type, typename, entry->tag);
-		if (entry->hpd != -1)
-			fprintf(out, " HPD_%d", entry->hpd);
-		if (entry->dp_ext != -1)
-			fprintf(out, " DP_EXT_%d", entry->dp_ext);
-		if (entry->unk02_2)
-			fprintf(out, " unk02_2 0x%02x", entry->unk02_2);
-		if (entry->unk02_4)
-			fprintf(out, " unk02_4 0x%02x", entry->unk02_4);
-		if (entry->unk02_7)
-			fprintf(out, " unk02_7 0x%02x", entry->unk02_7);
-		if (entry->unk03_3)
-			fprintf(out, " unk03_3 0x%02x", entry->unk03_3);
-		fprintf(out, "\n");
+		if (entry->type != ENVY_BIOS_CONN_UNUSED || mask & ENVY_BIOS_PRINT_UNUSED) {
+			const char *typename = find_enum(conn_types, entry->type);
+			fprintf(out, "CONN %d:", i);
+			fprintf(out, " type 0x%02x [%s] tag %d", entry->type, typename, entry->tag);
+			if (entry->hpd != -1)
+				fprintf(out, " HPD_%d", entry->hpd);
+			if (entry->dp_ext != -1)
+				fprintf(out, " DP_EXT_%d", entry->dp_ext);
+			if (entry->unk02_2)
+				fprintf(out, " unk02_2 0x%02x", entry->unk02_2);
+			if (entry->unk02_4)
+				fprintf(out, " unk02_4 0x%02x", entry->unk02_4);
+			if (entry->unk02_7)
+				fprintf(out, " unk02_7 0x%02x", entry->unk02_7);
+			if (entry->unk03_3)
+				fprintf(out, " unk03_3 0x%02x", entry->unk03_3);
+			fprintf(out, "\n");
+		}
 		envy_bios_dump_hex(bios, out, entry->offset, conn->rlen, mask);
 	}
 	fprintf(out, "\n");

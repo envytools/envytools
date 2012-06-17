@@ -240,58 +240,59 @@ void envy_bios_print_gpio (struct envy_bios *bios, FILE *out, unsigned mask) {
 	int i;
 	for (i = 0; i < gpio->entriesnum; i++) {
 		struct envy_bios_gpio_entry *entry = &gpio->entries[i];
-		const char *tagname = find_enum(gpio_tags, entry->tag);
-		const char *spec_out = find_enum(gpio_spec_out, entry->spec_out);
-		const char *spec_in = find_enum(gpio_spec_in, entry->spec_in-1);
-		fprintf(out, "GPIO %d:", i);
-		fprintf(out, " line %d", entry->line);
-		fprintf(out, " tag 0x%02x [%s]", entry->tag, tagname);
-		if (entry->log[0] == 0 && entry->log[1] == 1) {
-			fprintf(out, " OUT");
-		} else if (entry->log[0] == 1 && entry->log[1] == 0) {
-			fprintf(out, " OUT NEG");
-		} else if (entry->log[0] == 2 && entry->log[1] == 3) {
-			fprintf(out, " IN");
-		} else if (entry->log[0] == 3 && entry->log[1] == 2) {
-			fprintf(out, " IN NEG");
-		} else {
-			fprintf(out, " LOG %d/%d", entry->log[0], entry->log[1]);
+		if (entry->tag != ENVY_BIOS_GPIO_UNUSED || mask & ENVY_BIOS_PRINT_UNUSED) {
+			const char *tagname = find_enum(gpio_tags, entry->tag);
+			const char *spec_out = find_enum(gpio_spec_out, entry->spec_out);
+			const char *spec_in = find_enum(gpio_spec_in, entry->spec_in-1);
+			fprintf(out, "GPIO %d:", i);
+			fprintf(out, " line %d", entry->line);
+			fprintf(out, " tag 0x%02x [%s]", entry->tag, tagname);
+			if (entry->log[0] == 0 && entry->log[1] == 1) {
+				fprintf(out, " OUT");
+			} else if (entry->log[0] == 1 && entry->log[1] == 0) {
+				fprintf(out, " OUT NEG");
+			} else if (entry->log[0] == 2 && entry->log[1] == 3) {
+				fprintf(out, " IN");
+			} else if (entry->log[0] == 3 && entry->log[1] == 2) {
+				fprintf(out, " IN NEG");
+			} else {
+				fprintf(out, " LOG %d/%d", entry->log[0], entry->log[1]);
+			}
+			if (gpio->version >= 0x40)
+				fprintf(out, " DEF %d", entry->def);
+			if (entry->mode == 0) {
+			} else if (entry->mode == 1) {
+				fprintf(out, " SPEC NVIO");
+			} else if (entry->mode == 2) {
+				fprintf(out, " SPEC SOR");
+			} else {
+				fprintf(out, " SPEC %d [???]", entry->mode);
+			}
+			if (entry->tag == ENVY_BIOS_GPIO_FAN_CONTROL
+				|| entry->tag == ENVY_BIOS_GPIO_PANEL_BACKLIGHT_LEVEL) {
+				fprintf(out, " %s", entry->param?"PWM":"TOGGLE");
+			} else if (entry->param) {
+				fprintf(out, " param 1");
+			}
+			if (entry->unk40_0)
+				fprintf(out, " unk40_0 %d", entry->unk40_0);
+			if (entry->unk40_2)
+				fprintf(out, " unk40_2 0x%02x", entry->unk40_2);
+			if (entry->spec_out)
+				fprintf(out, " SPEC_OUT 0x%02x [%s]", entry->spec_out, spec_out);
+			if (gpio->version == 0x41 && entry->unk41_4 != 15)
+				fprintf(out, " unk41_4 %d", entry->unk41_4);
+			if (entry->spec_in)
+				fprintf(out, " SPEC_IN 0x%02x [%s]", entry->spec_in-1, spec_in);
+			if (entry->unk41_3_1)
+				fprintf(out, " unk41_3_1 %d", entry->unk41_3_1);
+			fprintf(out, "\n");
 		}
-		if (gpio->version >= 0x40)
-			fprintf(out, " DEF %d", entry->def);
-		if (entry->mode == 0) {
-		} else if (entry->mode == 1) {
-			fprintf(out, " SPEC NVIO");
-		} else if (entry->mode == 2) {
-			fprintf(out, " SPEC SOR");
-		} else {
-			fprintf(out, " SPEC %d [???]", entry->mode);
-		}
-		if (entry->tag == ENVY_BIOS_GPIO_FAN_CONTROL
-			|| entry->tag == ENVY_BIOS_GPIO_PANEL_BACKLIGHT_LEVEL) {
-			fprintf(out, " %s", entry->param?"PWM":"TOGGLE");
-		} else if (entry->param) {
-			fprintf(out, " param 1");
-		}
-		if (entry->unk40_0)
-			fprintf(out, " unk40_0 %d", entry->unk40_0);
-		if (entry->unk40_2)
-			fprintf(out, " unk40_2 0x%02x", entry->unk40_2);
-		if (entry->spec_out)
-			fprintf(out, " SPEC_OUT 0x%02x [%s]", entry->spec_out, spec_out);
-		if (gpio->version == 0x41 && entry->unk41_4 != 15)
-			fprintf(out, " unk41_4 %d", entry->unk41_4);
-		if (entry->spec_in)
-			fprintf(out, " SPEC_IN 0x%02x [%s]", entry->spec_in-1, spec_in);
-		if (entry->unk41_3_1)
-			fprintf(out, " unk41_3_1 %d", entry->unk41_3_1);
-		fprintf(out, "\n");
 		envy_bios_dump_hex(bios, out, entry->offset, gpio->rlen, mask);
 	}
 	fprintf(out, "\n");
 	if (bios->gpio.version >= 0x31)
 		envy_bios_print_xpiodir(bios, out, mask);
-	fprintf(out, "\n");
 }
 
 int envy_bios_parse_xpio (struct envy_bios *bios, struct envy_bios_xpio *xpio) {
@@ -490,42 +491,44 @@ void envy_bios_print_xpio (struct envy_bios *bios, FILE *out, struct envy_bios_x
 	int i;
 	for (i = 0; i < xpio->entriesnum; i++) {
 		struct envy_bios_gpio_entry *entry = &xpio->entries[i];
-		fprintf(out, "XPIO %d:", i);
-		fprintf(out, " line %d", entry->line);
-		if (entry->tag)
-			fprintf(out, " tag 0x%02x", entry->tag);
-		else
-			fprintf(out, " UNUSED");
-		if (entry->log[0] == 0 && entry->log[1] == 1) {
-			fprintf(out, " OUT");
-		} else if (entry->log[0] == 1 && entry->log[1] == 0) {
-			fprintf(out, " OUT NEG");
-		} else if (entry->log[0] == 2 && entry->log[1] == 3) {
-			fprintf(out, " IN");
-		} else if (entry->log[0] == 3 && entry->log[1] == 2) {
-			fprintf(out, " IN NEG");
-		} else {
-			fprintf(out, " LOG %d/%d", entry->log[0], entry->log[1]);
+		if (entry->tag || mask & ENVY_BIOS_PRINT_UNUSED) {
+			fprintf(out, "XPIO %d:", i);
+			fprintf(out, " line %d", entry->line);
+			if (entry->tag)
+				fprintf(out, " tag 0x%02x", entry->tag);
+			else
+				fprintf(out, " UNUSED");
+			if (entry->log[0] == 0 && entry->log[1] == 1) {
+				fprintf(out, " OUT");
+			} else if (entry->log[0] == 1 && entry->log[1] == 0) {
+				fprintf(out, " OUT NEG");
+			} else if (entry->log[0] == 2 && entry->log[1] == 3) {
+				fprintf(out, " IN");
+			} else if (entry->log[0] == 3 && entry->log[1] == 2) {
+				fprintf(out, " IN NEG");
+			} else {
+				fprintf(out, " LOG %d/%d", entry->log[0], entry->log[1]);
+			}
+			if (bios->gpio.version >= 0x40)
+				fprintf(out, " DEF %d", entry->def);
+			if (entry->mode)
+				fprintf(out, " SPEC %d [???]", entry->mode);
+			if (entry->param)
+				fprintf(out, " param 1");
+			if (entry->unk40_0)
+				fprintf(out, " unk40_0 %d", entry->unk40_0);
+			if (entry->unk40_2)
+				fprintf(out, " unk40_2 0x%02x", entry->unk40_2);
+			if (entry->spec_out)
+				fprintf(out, " SPEC_OUT 0x%02x", entry->spec_out);
+			if (bios->gpio.version == 0x41 && entry->unk41_4 != 15)
+				fprintf(out, " unk41_4 %d", entry->unk41_4);
+			if (entry->spec_in)
+				fprintf(out, " SPEC_IN 0x%02x", entry->spec_in-1);
+			if (entry->unk41_3_1)
+				fprintf(out, " unk41_3_1 %d", entry->unk41_3_1);
+			fprintf(out, "\n");
 		}
-		if (bios->gpio.version >= 0x40)
-			fprintf(out, " DEF %d", entry->def);
-		if (entry->mode)
-			fprintf(out, " SPEC %d [???]", entry->mode);
-		if (entry->param)
-			fprintf(out, " param 1");
-		if (entry->unk40_0)
-			fprintf(out, " unk40_0 %d", entry->unk40_0);
-		if (entry->unk40_2)
-			fprintf(out, " unk40_2 0x%02x", entry->unk40_2);
-		if (entry->spec_out)
-			fprintf(out, " SPEC_OUT 0x%02x", entry->spec_out);
-		if (bios->gpio.version == 0x41 && entry->unk41_4 != 15)
-			fprintf(out, " unk41_4 %d", entry->unk41_4);
-		if (entry->spec_in)
-			fprintf(out, " SPEC_IN 0x%02x", entry->spec_in-1);
-		if (entry->unk41_3_1)
-			fprintf(out, " unk41_3_1 %d", entry->unk41_3_1);
-		fprintf(out, "\n");
 		envy_bios_dump_hex(bios, out, entry->offset, xpio->rlen, mask);
 	}
 	fprintf(out, "\n");

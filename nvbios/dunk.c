@@ -97,7 +97,9 @@ void envy_bios_print_dunk0c (struct envy_bios *bios, FILE *out, unsigned mask) {
 	int i;
 	for (i = 0; i < dunk0c->entriesnum; i++) {
 		struct envy_bios_dunk0c_entry *entry = &dunk0c->entries[i];
-		fprintf(out, "DUNK0C %d: unk00 0x%02x\n", i, entry->unk00);
+		if (entry->unk00 != 0x0f || mask & ENVY_BIOS_PRINT_UNUSED) {
+			fprintf(out, "DUNK0C %d: unk00 0x%02x\n", i, entry->unk00);
+		}
 		envy_bios_dump_hex(bios, out, entry->offset, dunk0c->rlen, mask);
 	}
 	fprintf(out, "\n");

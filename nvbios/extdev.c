@@ -115,17 +115,19 @@ void envy_bios_print_extdev (struct envy_bios *bios, FILE *out, unsigned mask) {
 	int i;
 	for (i = 0; i < extdev->entriesnum; i++) {
 		struct envy_bios_extdev_entry *entry = &extdev->entries[i];
-		const char *typename = find_enum(extdev_types, entry->type);
-		fprintf(out, "EXTDEV %d:", i);
-		fprintf(out, " type 0x%02x [%s]", entry->type, typename);
-		fprintf(out, " at 0x%02x defbus %d", entry->addr, entry->bus);
-		if (entry->unk02_0)
-			fprintf(out, " unk02_0 %d", entry->unk02_0);
-		if (entry->unk02_5)
-			fprintf(out, " unk02_5 %d", entry->unk02_5);
-		if (entry->unk03)
-			fprintf(out, " unk03 0x%02x", entry->unk03);
-		fprintf(out, "\n");
+		if (entry->type != ENVY_BIOS_EXTDEV_UNUSED || mask & ENVY_BIOS_PRINT_UNUSED) {
+			const char *typename = find_enum(extdev_types, entry->type);
+			fprintf(out, "EXTDEV %d:", i);
+			fprintf(out, " type 0x%02x [%s]", entry->type, typename);
+			fprintf(out, " at 0x%02x defbus %d", entry->addr, entry->bus);
+			if (entry->unk02_0)
+				fprintf(out, " unk02_0 %d", entry->unk02_0);
+			if (entry->unk02_5)
+				fprintf(out, " unk02_5 %d", entry->unk02_5);
+			if (entry->unk03)
+				fprintf(out, " unk03 0x%02x", entry->unk03);
+			fprintf(out, "\n");
+		}
 		envy_bios_dump_hex(bios, out, entry->offset, extdev->rlen, mask);
 	}
 	fprintf(out, "\n");

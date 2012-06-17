@@ -97,26 +97,28 @@ void envy_bios_print_mux (struct envy_bios *bios, FILE *out, unsigned mask) {
 	int i;
 	for (i = 0; i < mux->entriesnum; i++) {
 		struct envy_bios_mux_entry *entry = &mux->entries[i];
-		fprintf(out, "MUX %d:", i);
-		if (entry->idx != 0x1f)
-			fprintf(out, " DCB %d", entry->idx);
-		else
-			fprintf(out, " UNUSED");
-		int j;
-		for (j = 0; j < 4; j++) {
-			if (entry->sub_line[j] != 0x1f) {
-				const char *const subs[4] = {
-					"OUT",
-					"UNK1",
-					"HPD",
-					"DDC",
-				};
-				fprintf(out, " %s: %s line %d val %d", subs[j], entry->sub_loc[j]?"XPIO":"GPIO", entry->sub_line[j], entry->sub_val[j]);
-				if (entry->sub_unk7[j])
-					fprintf(out, " unk7 %d", entry->sub_unk7[j]);
+		if (entry->idx != 0x1f || mask & ENVY_BIOS_PRINT_UNUSED) {
+			fprintf(out, "MUX %d:", i);
+			if (entry->idx != 0x1f)
+				fprintf(out, " DCB %d", entry->idx);
+			else
+				fprintf(out, " UNUSED");
+			int j;
+			for (j = 0; j < 4; j++) {
+				if (entry->sub_line[j] != 0x1f) {
+					const char *const subs[4] = {
+						"OUT",
+						"UNK1",
+						"HPD",
+						"DDC",
+					};
+					fprintf(out, " %s: %s line %d val %d", subs[j], entry->sub_loc[j]?"XPIO":"GPIO", entry->sub_line[j], entry->sub_val[j]);
+					if (entry->sub_unk7[j])
+						fprintf(out, " unk7 %d", entry->sub_unk7[j]);
+				}
 			}
+			fprintf(out, "\n");
 		}
-		fprintf(out, "\n");
 		envy_bios_dump_hex(bios, out, entry->offset, mux->rlen, mask);
 	}
 	fprintf(out, "\n");

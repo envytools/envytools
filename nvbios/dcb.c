@@ -340,95 +340,97 @@ void envy_bios_print_dcb (struct envy_bios *bios, FILE *out, unsigned mask) {
 	int i;
 	for (i = 0; i < dcb->entriesnum; i++) {
 		struct envy_bios_dcb_entry *entry = &dcb->entries[i];
-		const char *typename = find_enum(dcb_types, entry->type);
-		const char *lvdsinfo = find_enum(dcb_lvds_info_types, entry->lvds_info);
-		fprintf(out, "DCB %d:", i);
-		if (dcb->version >= 0x14) {
-			fprintf(out, " type %d [%s]", entry->type, typename);
-			if (entry->type != ENVY_BIOS_DCB_EOL && entry->type != ENVY_BIOS_DCB_UNUSED) {
-				if (entry->i2c != 15)
-					fprintf(out, " I2C %d", entry->i2c);
-				int j;
-				if (entry->heads) {
-					fprintf(out, " heads");
-					for (j = 0; j < 4; j++)
-						if (entry->heads & 1 << j)
-							fprintf(out, " %d", j);
-				}
-				if (entry->unk00_4)
-					fprintf(out, " unk00_4 %d", entry->unk00_4);
-				if (dcb->version >= 0x30)
-					fprintf(out, " CONN %d [%02x]", entry->conn, bios->conn.entries[entry->conn].type);
-				else if (entry->unk01_4)
-					fprintf(out, " unk01_4 %d", entry->unk01_4);
-				fprintf(out, " conntag %d", entry->conntag);
-				switch (entry->loc) {
-					case 0:
-						fprintf(out, " LOCAL");
-						break;
-					case 1:
-						fprintf(out, " EXT %d", entry->ext_addr);
-						break;
-					default:
-						fprintf(out, " unk loc %d", entry->loc);
-						break;
-				}
-				if (entry->ext_addr && entry->loc != 1)
-					fprintf(out, " unk_ext_addr %d", entry->ext_addr);
-				if (entry->unk02_6)
-					fprintf(out, " unk02_6 %d", entry->unk02_6);
-				if (entry->or) {
-					fprintf(out, " OR");
-					for (j = 0; j < 4; j++)
-						if (entry->or & 1 << j)
-							fprintf(out, " %d", j);
-				}
-				if (entry->unk03_4)
-					fprintf(out, " unk03_4 %d", entry->unk03_4);
-				if ((entry->type == ENVY_BIOS_DCB_LVDS || entry->type == ENVY_BIOS_DCB_TMDS || entry->type == ENVY_BIOS_DCB_DP) && dcb->version >= 0x40) {
-					fprintf(out, " links");
-					for (j = 0; j < 2; j++)
-						if (entry->links & 1 << j)
-							fprintf(out, " %d", j);
-				}
-				if (entry->maxfreq)
-					fprintf(out, " maxfreq %dkHz", entry->maxfreq);
-				if (entry->tmds_hdmi)
-					fprintf(out, " HDMI");
-				if (entry->type == ENVY_BIOS_DCB_LVDS) {
-					fprintf(out, " INFO %s", lvdsinfo);
-					fprintf(out, " POWER %d", entry->lvds_pscript);
-				}
-				if (entry->type == ENVY_BIOS_DCB_DP) {
-					switch (entry->dp_bw) {
+		if (entry->type != ENVY_BIOS_DCB_UNUSED || mask & ENVY_BIOS_PRINT_UNUSED) {
+			fprintf(out, "DCB %d:", i);
+			if (dcb->version >= 0x14) {
+				const char *typename = find_enum(dcb_types, entry->type);
+				const char *lvdsinfo = find_enum(dcb_lvds_info_types, entry->lvds_info);
+				fprintf(out, " type %d [%s]", entry->type, typename);
+				if (entry->type != ENVY_BIOS_DCB_EOL && entry->type != ENVY_BIOS_DCB_UNUSED) {
+					if (entry->i2c != 15)
+						fprintf(out, " I2C %d", entry->i2c);
+					int j;
+					if (entry->heads) {
+						fprintf(out, " heads");
+						for (j = 0; j < 4; j++)
+							if (entry->heads & 1 << j)
+								fprintf(out, " %d", j);
+					}
+					if (entry->unk00_4)
+						fprintf(out, " unk00_4 %d", entry->unk00_4);
+					if (dcb->version >= 0x30)
+						fprintf(out, " CONN %d [%02x]", entry->conn, bios->conn.entries[entry->conn].type);
+					else if (entry->unk01_4)
+						fprintf(out, " unk01_4 %d", entry->unk01_4);
+					fprintf(out, " conntag %d", entry->conntag);
+					switch (entry->loc) {
 						case 0:
-							fprintf(out, " BW 162000");
+							fprintf(out, " LOCAL");
 							break;
 						case 1:
-							fprintf(out, " BW 270000");
+							fprintf(out, " EXT %d", entry->ext_addr);
 							break;
 						default:
-							fprintf(out, " BW UNK%d", entry->dp_bw);
+							fprintf(out, " unk loc %d", entry->loc);
 							break;
 					}
-					fprintf(out, " lanes");
-					for (j = 0; j < 4; j++)
-						if (entry->dp_lanes & 1 << j)
-							fprintf(out, " %d", j);
+					if (entry->ext_addr && entry->loc != 1)
+						fprintf(out, " unk_ext_addr %d", entry->ext_addr);
+					if (entry->unk02_6)
+						fprintf(out, " unk02_6 %d", entry->unk02_6);
+					if (entry->or) {
+						fprintf(out, " OR");
+						for (j = 0; j < 4; j++)
+							if (entry->or & 1 << j)
+								fprintf(out, " %d", j);
+					}
+					if (entry->unk03_4)
+						fprintf(out, " unk03_4 %d", entry->unk03_4);
+					if ((entry->type == ENVY_BIOS_DCB_LVDS || entry->type == ENVY_BIOS_DCB_TMDS || entry->type == ENVY_BIOS_DCB_DP) && dcb->version >= 0x40) {
+						fprintf(out, " links");
+						for (j = 0; j < 2; j++)
+							if (entry->links & 1 << j)
+								fprintf(out, " %d", j);
+					}
+					if (entry->maxfreq)
+						fprintf(out, " maxfreq %dkHz", entry->maxfreq);
+					if (entry->tmds_hdmi)
+						fprintf(out, " HDMI");
+					if (entry->type == ENVY_BIOS_DCB_LVDS) {
+						fprintf(out, " INFO %s", lvdsinfo);
+						fprintf(out, " POWER %d", entry->lvds_pscript);
+					}
+					if (entry->type == ENVY_BIOS_DCB_DP) {
+						switch (entry->dp_bw) {
+							case 0:
+								fprintf(out, " BW 162000");
+								break;
+							case 1:
+								fprintf(out, " BW 270000");
+								break;
+							default:
+								fprintf(out, " BW UNK%d", entry->dp_bw);
+								break;
+						}
+						fprintf(out, " lanes");
+						for (j = 0; j < 4; j++)
+							if (entry->dp_lanes & 1 << j)
+								fprintf(out, " %d", j);
+					}
+					if (entry->unk04)
+						fprintf(out, " unk04 0x%02x", entry->unk04);
+					if (entry->unk05)
+						fprintf(out, " unk05 0x%02x", entry->unk05);
+					if (entry->unk06)
+						fprintf(out, " unk06 0x%02x", entry->unk06);
+					if (entry->unk07)
+						fprintf(out, " unk07 0x%02x", entry->unk07);
 				}
-				if (entry->unk04)
-					fprintf(out, " unk04 0x%02x", entry->unk04);
-				if (entry->unk05)
-					fprintf(out, " unk05 0x%02x", entry->unk05);
-				if (entry->unk06)
-					fprintf(out, " unk06 0x%02x", entry->unk06);
-				if (entry->unk07)
-					fprintf(out, " unk07 0x%02x", entry->unk07);
+			} else {
+				/* XXX */
 			}
-		} else {
-			/* XXX */
+			fprintf(out, "\n");
 		}
-		fprintf(out, "\n");
 		envy_bios_dump_hex(bios, out, entry->offset, dcb->rlen, mask);
 	}
 	fprintf(out, "\n");

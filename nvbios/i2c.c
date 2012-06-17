@@ -153,40 +153,42 @@ void envy_bios_print_i2c (struct envy_bios *bios, FILE *out, unsigned mask) {
 	int i;
 	for (i = 0; i < i2c->entriesnum; i++) {
 		struct envy_bios_i2c_entry *entry = &i2c->entries[i];
-		const char *typename = find_enum(i2c_types, entry->type);
-		fprintf(out, "I2C %d:", i);
-		fprintf(out, " type 0x%02x [%s]", entry->type, typename);
-		switch (entry->type) {
-			case ENVY_BIOS_I2C_VGACR:
-				fprintf(out, " wr 0x%02x", entry->vgacr_wr);
-				fprintf(out, " rd 0x%02x", entry->vgacr_rd);
-				if (entry->unk02)
-					fprintf(out, " unk02 0x%02x", entry->unk02);
-				break;
-			case ENVY_BIOS_I2C_PCRTC:
-				fprintf(out, " loc %d", entry->loc);
-				if (entry->unk00_4)
-					fprintf(out, " unk00_4 %d", entry->unk00_4);
-				fprintf(out, " addr 0x%02x", entry->addr);
-				if (entry->unk02)
-					fprintf(out, " unk02 0x%02x", entry->unk02);
-				break;
-			case ENVY_BIOS_I2C_PNVIO:
-			case ENVY_BIOS_I2C_AUXCH:
-				fprintf(out, " loc %d", entry->loc);
-				if (entry->unk00_4)
-					fprintf(out, " unk00_4 %d", entry->unk00_4);
-				if (entry->shared)
-					fprintf(out, " shared %d", entry->sharedid);
-				else if (entry->sharedid)
-					fprintf(out, " unk01_1 %d", entry->sharedid);
-				if (entry->unk01_5)
-					fprintf(out, " unk01_5 %d", entry->unk01_5);
-				if (entry->unk02)
-					fprintf(out, " unk02 0x%02x", entry->unk02);
-				break;
+		if (entry->type != ENVY_BIOS_I2C_UNUSED || mask & ENVY_BIOS_PRINT_UNUSED) {
+			const char *typename = find_enum(i2c_types, entry->type);
+			fprintf(out, "I2C %d:", i);
+			fprintf(out, " type 0x%02x [%s]", entry->type, typename);
+			switch (entry->type) {
+				case ENVY_BIOS_I2C_VGACR:
+					fprintf(out, " wr 0x%02x", entry->vgacr_wr);
+					fprintf(out, " rd 0x%02x", entry->vgacr_rd);
+					if (entry->unk02)
+						fprintf(out, " unk02 0x%02x", entry->unk02);
+					break;
+				case ENVY_BIOS_I2C_PCRTC:
+					fprintf(out, " loc %d", entry->loc);
+					if (entry->unk00_4)
+						fprintf(out, " unk00_4 %d", entry->unk00_4);
+					fprintf(out, " addr 0x%02x", entry->addr);
+					if (entry->unk02)
+						fprintf(out, " unk02 0x%02x", entry->unk02);
+					break;
+				case ENVY_BIOS_I2C_PNVIO:
+				case ENVY_BIOS_I2C_AUXCH:
+					fprintf(out, " loc %d", entry->loc);
+					if (entry->unk00_4)
+						fprintf(out, " unk00_4 %d", entry->unk00_4);
+					if (entry->shared)
+						fprintf(out, " shared %d", entry->sharedid);
+					else if (entry->sharedid)
+						fprintf(out, " unk01_1 %d", entry->sharedid);
+					if (entry->unk01_5)
+						fprintf(out, " unk01_5 %d", entry->unk01_5);
+					if (entry->unk02)
+						fprintf(out, " unk02 0x%02x", entry->unk02);
+					break;
+			}
+			fprintf(out, "\n");
 		}
-		fprintf(out, "\n");
 		envy_bios_dump_hex(bios, out, entry->offset, i2c->rlen, mask);
 	}
 	fprintf(out, "\n");
