@@ -759,6 +759,7 @@ struct {
 	"i2c",		ENVY_BIOS_PRINT_I2C,
 	"extdev",	ENVY_BIOS_PRINT_EXTDEV,
 	"conn",		ENVY_BIOS_PRINT_CONN,
+	"mux",		ENVY_BIOS_PRINT_MUX,
 	"dunk",		ENVY_BIOS_PRINT_DUNK,
 };
 

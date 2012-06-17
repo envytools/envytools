@@ -101,7 +101,7 @@ int envy_bios_parse_dcb (struct envy_bios *bios) {
 			}
 			if (dcb->hlen >= 27) {
 				wanthlen = 27;
-				err |= bios_u16(bios, dcb->offset+25, &bios->dunk19.offset);
+				err |= bios_u16(bios, dcb->offset+25, &bios->mux.offset);
 			}
 			if (sig != 0x4edcbdcb) {
 				ENVY_BIOS_ERR("DCB sig mismatch\n");
@@ -234,8 +234,8 @@ int envy_bios_parse_dcb (struct envy_bios *bios) {
 		ENVY_BIOS_ERR("Failed to parse CONN table at %04x version %x.%x\n", bios->conn.offset, bios->conn.version >> 4, bios->conn.version & 0xf);
 	if (envy_bios_parse_dunk17(bios))
 		ENVY_BIOS_ERR("Failed to parse DUNK17 table at %04x version %x.%x\n", bios->dunk17.offset, bios->dunk17.version >> 4, bios->dunk17.version & 0xf);
-	if (envy_bios_parse_dunk19(bios))
-		ENVY_BIOS_ERR("Failed to parse DUNK19 table at %04x version %x.%x\n", bios->dunk19.offset, bios->dunk19.version >> 4, bios->dunk19.version & 0xf);
+	if (envy_bios_parse_mux(bios))
+		ENVY_BIOS_ERR("Failed to parse MUX table at %04x version %x.%x\n", bios->mux.offset, bios->mux.version >> 4, bios->mux.version & 0xf);
 	return 0;
 }
 

@@ -350,7 +350,7 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 		envy_bios_print_extdev(bios, stdout, mask);
 		envy_bios_print_conn(bios, stdout, mask);
 		envy_bios_print_dunk17(bios, stdout, mask);
-		envy_bios_print_dunk19(bios, stdout, mask);
+		envy_bios_print_mux(bios, stdout, mask);
 		break;
 	}
 }

@@ -440,13 +440,23 @@ struct envy_bios_dunk17 {
 	uint8_t rlen;
 };
 
-struct envy_bios_dunk19 {
+struct envy_bios_mux_entry {
+	uint16_t offset;
+	uint8_t idx;
+	uint8_t sub_loc[4];
+	uint8_t sub_line[4];
+	uint8_t sub_val[4];
+	uint8_t sub_unk7[4];
+};
+
+struct envy_bios_mux {
 	uint16_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
 	uint8_t entriesnum;
 	uint8_t rlen;
+	struct envy_bios_mux_entry *entries;
 };
 
 struct envy_bios {
@@ -490,7 +500,7 @@ struct envy_bios {
 	struct envy_bios_extdev extdev;
 	struct envy_bios_conn conn;
 	struct envy_bios_dunk17 dunk17;
-	struct envy_bios_dunk19 dunk19;
+	struct envy_bios_mux mux;
 };
 
 static inline int bios_u8(struct envy_bios *bios, unsigned int offs, uint8_t *res) {
@@ -537,7 +547,8 @@ static inline int bios_u32(struct envy_bios *bios, unsigned int offs, uint32_t *
 #define ENVY_BIOS_PRINT_I2C	0x00040000
 #define ENVY_BIOS_PRINT_EXTDEV	0x00080000
 #define ENVY_BIOS_PRINT_CONN	0x00100000
-#define ENVY_BIOS_PRINT_DUNK	0x00200000
+#define ENVY_BIOS_PRINT_MUX	0x00200000
+#define ENVY_BIOS_PRINT_DUNK	0x00400000
 #define ENVY_BIOS_PRINT_DCB_ALL	0x003f0000
 #define ENVY_BIOS_PRINT_ALL	0x7fffffff
 #define ENVY_BIOS_PRINT_VERBOSE	0x80000000
@@ -564,8 +575,8 @@ int envy_bios_parse_conn (struct envy_bios *bios);
 void envy_bios_print_conn (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_dunk17 (struct envy_bios *bios);
 void envy_bios_print_dunk17 (struct envy_bios *bios, FILE *out, unsigned mask);
-int envy_bios_parse_dunk19 (struct envy_bios *bios);
-void envy_bios_print_dunk19 (struct envy_bios *bios, FILE *out, unsigned mask);
+int envy_bios_parse_mux (struct envy_bios *bios);
+void envy_bios_print_mux (struct envy_bios *bios, FILE *out, unsigned mask);
 
 struct enum_val {
 	int val;
