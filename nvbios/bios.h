@@ -120,6 +120,14 @@ struct envy_bios_dcb {
 	uint8_t rdcb_version;
 	uint8_t rdcb_valid;
 	uint16_t rdcb_len;
+	uint8_t tvdac0_present;
+	uint8_t tvdac0_neg;
+	uint8_t tvdac0_line;
+	uint8_t rdcb_unk04_0;
+	uint8_t rdcb_unk05_2;
+	uint8_t rdcb_unk06[7];
+	uint8_t rdcb_unk0d;
+	uint8_t rdcb_unk10[13];
 };
 
 enum envy_bios_i2c_type {

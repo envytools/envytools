@@ -279,10 +279,31 @@ int envy_bios_parse_rdcb (struct envy_bios *bios) {
 			return -EINVAL;
 	}
 	err |= bios_u16(bios, dcb->offset - 3, &bios->dunk0c.offset);
+	uint8_t tv0, tv1;
+	int j;
+	err |= bios_u8(bios, dcb->offset - 5, &tv0);
+	err |= bios_u8(bios, dcb->offset - 4, &tv1);
+	dcb->tvdac0_present = tv0 & 1;
+	dcb->tvdac0_neg = tv0 >> 1 & 1;
+	dcb->tvdac0_line = tv1 >> 4;
+	dcb->rdcb_unk04_0 = tv1 & 0xf;
+	dcb->rdcb_unk05_2 = tv0 >> 2;
+	for (j = 0; j < 7; j++)
+		err |= bios_u8(bios, dcb->offset - 6 - j, &dcb->rdcb_unk06[j]);
+	if (dcb->rdcb_version >= 0x15) {
+		err |= bios_u8(bios, dcb->offset - 13, &dcb->rdcb_unk0d);
+		err |= bios_u16(bios, dcb->offset - 15, &bios->gpio.offset);
+		for (j = 0; j < 9; j++)
+			err |= bios_u8(bios, dcb->offset - 16 - j, &dcb->rdcb_unk10[j]);
+	}
+	if (dcb->rdcb_version >= 0x17) {
+		for (j = 9; j < 13; j++)
+			err |= bios_u8(bios, dcb->offset - 16 - j, &dcb->rdcb_unk10[j]);
+	}
+	if (err)
+		return -EFAULT;
 	if (dcb->rdcb_version < 0x16)
 		bios->odcb_offset = dcb->offset - dcb->rdcb_len - 0x80;
-	if (dcb->rdcb_version >= 0x15)
-		err |= bios_u16(bios, dcb->offset - 15, &bios->gpio.offset);
 	dcb->rdcb_valid = 1;
 	return 0;
 }
@@ -417,7 +438,28 @@ void envy_bios_print_dcb (struct envy_bios *bios, FILE *out, unsigned mask) {
 		fprintf(out, "\n");
 	}
 	if (dcb->rdcb_valid) {
-		fprintf(out, "RDCB table at %04x version %x.%x\n", dcb->offset, dcb->rdcb_version >> 4, dcb->rdcb_version & 0xf);
+		fprintf(out, "RDCB table at %04x version %x.%x", dcb->offset, dcb->rdcb_version >> 4, dcb->rdcb_version & 0xf);
+		if (dcb->tvdac0_present) {
+			fprintf(out, " TVDAC0 line %d", dcb->tvdac0_line);
+			if (dcb->tvdac0_neg)
+				fprintf(out, " NEG");
+		}
+		if (dcb->rdcb_unk04_0)
+			fprintf(out, " unk04_0 %d", dcb->rdcb_unk04_0);
+		if (dcb->rdcb_unk05_2)
+			fprintf(out, " unk05_2 %d", dcb->rdcb_unk05_2);
+		int j;
+		for (j = 0; j < 7; j++) {
+			if (dcb->rdcb_unk06[j])
+				fprintf(out, " unk%02x 0x%02x", j+6, dcb->rdcb_unk06[j]);
+		}
+		if (dcb->rdcb_unk0d)
+			fprintf(out, " unk0d 0x%02x", dcb->rdcb_unk0d);
+		for (j = 0; j < 13; j++) {
+			if (dcb->rdcb_unk10[j])
+				fprintf(out, " unk%02x 0x%02x", j+0x10, dcb->rdcb_unk10[j]);
+		}
+		fprintf(out, "\n");
 		envy_bios_dump_hex(bios, out, dcb->offset - dcb->rdcb_len, dcb->rdcb_len, mask);
 		fprintf(out, "\n");
 	}
