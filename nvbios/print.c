@@ -105,12 +105,12 @@ static void print_pcir(struct envy_bios *bios, FILE *out, unsigned mask) {
 static void print_bmp_nv03(struct envy_bios *bios, FILE *out, unsigned mask) {
 	if (!(mask & ENVY_BIOS_PRINT_BMP_BIT) || !bios->bmp_length)
 		return;
-	fprintf(out, "\n");
 	fprintf(out, "BMP %02x.%02x at 0x%x\n", bios->bmp_ver_major, bios->bmp_ver_minor, bios->bmp_offset);
 	envy_bios_dump_hex(bios, out, bios->bmp_offset, bios->bmp_length, mask);
 	fprintf(out, "x86 mode pointer: 0x%x\n", bios->mode_x86);
 	fprintf(out, "x86 init pointer: 0x%x\n", bios->init_x86);
 	fprintf(out, "init script pointer: 0x%x\n", bios->init_script);
+	fprintf(out, "\n");
 }
 
 static void print_nv01_init_script(struct envy_bios *bios, FILE *out, unsigned offset, unsigned mask) {
@@ -122,7 +122,6 @@ static void print_nv01_init_script(struct envy_bios *bios, FILE *out, unsigned o
 	int err = 0;
 	if (!(mask & ENVY_BIOS_PRINT_SCRIPTS))
 		return;
-	fprintf(out, "\n");
 	fprintf(out, "Init script at 0x%x:\n", offset);
 	while (1) {
 		if (bios_u8(bios, offset, &op)) {
@@ -246,6 +245,7 @@ static void print_nv01_init_script(struct envy_bios *bios, FILE *out, unsigned o
 			len = 1;
 			dump_hex_script(bios, out, offset, len);
 			fprintf(out, "\tQUIT\n");
+			fprintf(out, "\n");
 			return;
 		case 0x70:	/* NV01:NV03 */
 			len = 7;
@@ -274,6 +274,7 @@ static void print_nv01_init_script(struct envy_bios *bios, FILE *out, unsigned o
 			len = 1;
 			dump_hex_script(bios, out, offset, len);
 			fprintf(out, "\tQUIT\n");
+			fprintf(out, "\n");
 			return;
 		default:
 			len = 1;
@@ -291,40 +292,55 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 	switch (bios->type) {
 	case ENVY_BIOS_TYPE_UNKNOWN:
 		if (mask & ENVY_BIOS_PRINT_VERSION)
-			fprintf(out, "BIOS type: UNKNOWN!\n");
+			fprintf(out, "BIOS type: UNKNOWN!\n\n");
 		break;
 	case ENVY_BIOS_TYPE_NV01:
 		if (mask & ENVY_BIOS_PRINT_VERSION)
-			fprintf(out, "BIOS type: NV01\n");
+			fprintf(out, "BIOS type: NV01\n\n");
 		if (mask & ENVY_BIOS_PRINT_SCRIPTS) {
 			/* XXX: how to find these properly? */
-			fprintf(out, "\nPre-mem scripts:\n");
+			fprintf(out, "Pre-mem scripts:\n\n");
 			print_nv01_init_script(bios, out, 0x17bc, mask);
 			print_nv01_init_script(bios, out, 0x17a2, mask);
 			print_nv01_init_script(bios, out, 0x18f4, mask);
-			fprintf(out, "\n1MB script:\n");
+			fprintf(out, "1MB script:\n\n");
 			print_nv01_init_script(bios, out, 0x199a, mask);
-			fprintf(out, "\n2MB script:\n");
+			fprintf(out, "2MB script:\n\n");
 			print_nv01_init_script(bios, out, 0x19db, mask);
-			fprintf(out, "\n4MB script:\n");
+			fprintf(out, "4MB script:\n\n");
 			print_nv01_init_script(bios, out, 0x1a1c, mask);
-			fprintf(out, "\nPost-mem scripts:\n");
+			fprintf(out, "Post-mem scripts:\n\n");
 			print_nv01_init_script(bios, out, 0x198d, mask);
 			print_nv01_init_script(bios, out, 0x1929, mask);
-			fprintf(out, "\nUnknown scripts:\n");
+			fprintf(out, "Unknown scripts:\n\n");
 			print_nv01_init_script(bios, out, 0x184f, mask);
 		}
 		break;
 	case ENVY_BIOS_TYPE_NV03:
 		if (mask & ENVY_BIOS_PRINT_VERSION)
-			fprintf(out, "BIOS type: NV03\n");
+			fprintf(out, "BIOS type: NV03\n\n");
+		if (mask & ENVY_BIOS_PRINT_HWINFO) {
+			fprintf(out, "Subsystem id: %04x:%04x\n", bios->subsystem_vendor, bios->subsystem_device);
+			envy_bios_dump_hex(bios, out, 0x54, 4, mask);
+			fprintf(out, "\n");
+		}
 		print_bmp_nv03(bios, out, mask);
 		if (bios->init_script)
 			print_nv01_init_script(bios, out, bios->init_script, mask);
 		break;
 	case ENVY_BIOS_TYPE_NV04:
 		if (mask & ENVY_BIOS_PRINT_VERSION)
-			fprintf(out, "BIOS type: NV04\n");
+			fprintf(out, "BIOS type: NV04\n\n");
+		if (mask & ENVY_BIOS_PRINT_HWINFO) {
+			fprintf(out, "Subsystem id: %04x:%04x\n", bios->subsystem_vendor, bios->subsystem_device);
+			envy_bios_dump_hex(bios, out, 0x54, 4, mask);
+			if (bios->dcb.version >= 0x20) {
+				fprintf(out, "Straps 0: select 0x%08x value 0x%08x\n", bios->straps0_select, bios->straps0_value);
+				fprintf(out, "Straps 1: select 0x%08x value 0x%08x\n", bios->straps1_select, bios->straps1_value);
+				envy_bios_dump_hex(bios, out, 0x58, 0x10, mask);
+			}
+			fprintf(out, "\n");
+		}
 		envy_bios_print_dcb(bios, stdout, mask);
 		envy_bios_print_i2c(bios, stdout, mask);
 		envy_bios_print_gpio(bios, stdout, mask);

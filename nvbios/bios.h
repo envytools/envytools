@@ -460,6 +460,14 @@ struct envy_bios {
 
 	enum envy_bios_type type;
 
+	uint16_t subsystem_vendor;
+	uint16_t subsystem_device;
+
+	uint32_t straps0_select;
+	uint32_t straps0_value;
+	uint32_t straps1_select;
+	uint32_t straps1_value;
+
 	unsigned int bmp_offset;
 	unsigned int bmp_length;
 	uint8_t bmp_ver_major;
@@ -517,12 +525,13 @@ static inline int bios_u32(struct envy_bios *bios, unsigned int offs, uint32_t *
 
 #define ENVY_BIOS_PRINT_PCIR	0x00000001
 #define ENVY_BIOS_PRINT_VERSION	0x00000002
-#define ENVY_BIOS_PRINT_BMP_BIT	0x00000004
-#define ENVY_BIOS_PRINT_HWSQ	0x00000008
+#define ENVY_BIOS_PRINT_HWINFO	0x00000004
+#define ENVY_BIOS_PRINT_BMP_BIT	0x00000008
 #define ENVY_BIOS_PRINT_SCRIPTS	0x00000010
 #define ENVY_BIOS_PRINT_PLL	0x00000020
 #define ENVY_BIOS_PRINT_RAM	0x00000040
 #define ENVY_BIOS_PRINT_PERF	0x00000080
+#define ENVY_BIOS_PRINT_HWSQ	0x00000100
 #define ENVY_BIOS_PRINT_DCB	0x00010000
 #define ENVY_BIOS_PRINT_GPIO	0x00020000
 #define ENVY_BIOS_PRINT_I2C	0x00040000

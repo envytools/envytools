@@ -31,12 +31,14 @@ NV18 introduced a second set of 31 straps, and added another override
 mechanism. Each straps set now consists of 2 31-bit values: primary and
 secondary, and a 31-bit "select" mask that chooses which value is the source
 of a given bit in the "effective" value used internally by the card. Both
-primary and secondary value and select mask are set on reset from the board
-resistors, but can be modified later.
+primary and secondary value and select mask are set on reset from the BIOS
+in ROM, but can be modified later. Straps 0 select, straps 0 secondary,
+straps 1 select and straps 1 secondary are loaded from BIOS ROM offsets
+0x58, 0x5c, 0x60, 0x64, respectively.
 
 NVD9 introduced a third set.
 
-When effective straps value changes for any reason, the changes value starts
+When effective straps value changes for any reason, the changed value starts
 being used by the card immediately.
 
 The straps can be read or overriden by accessing the PSTRAPS area of MMIO,
@@ -156,7 +158,8 @@ bit 0: if 0, PCI AD lines have reversed polarity, if 1 normal
 bit 1: if 0, this GPU is part of a motherboard and ROMless, subsystem device
        id will be initialised to 0x00000000 and should be written with a valid
        value by system bios. if 1, this is a standalone card and has ROM -
-       subsystem will be read from 32-bit LE word at address 0x54 in the ROM
+       subsystem will be read from 32-bit LE word at address 0x54 in the ROM.
+       Same applies to select/secondary values.
 bits 2-5: RAM config, for use by BIOS
 bit 6: crystal type bit 0
 bits 7-8: TV mode: 0 - SECAM, 1 - NTSC, 2 - PAL, 3 - disabled
@@ -213,7 +216,8 @@ bit 0: ?
 bit 1: if 0, this GPU is part of a motherboard and ROMless, subsystem device
        id will be initialised to 0x00000000 and should be written with a valid
        value by system bios. if 1, this is a standalone card and has ROM -
-       subsystem will be read from 32-bit LE word at address 0x54 in the ROM
+       subsystem will be read from 32-bit LE word at address 0x54 in the ROM.
+       Same applies to select/secondary values.
 bits 2-5: RAM config, for use by BIOS
 bit 6: crystal type bit 0
 bits 7-9: ?

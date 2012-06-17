@@ -158,6 +158,8 @@ int envy_bios_parse (struct envy_bios *bios) {
 			ENVY_BIOS_ERR("Unknown SGS/NVidia pciid %04x\n", device);
 			break;
 		}
+		bios_u16(bios, 0x54, &bios->subsystem_vendor);
+		bios_u16(bios, 0x56, &bios->subsystem_device);
 		bios->bmp_offset = find_string(bios, bmpsig, 5);
 		if (!bios->bmp_offset) {
 			ENVY_BIOS_ERR("BMP not found\n");
@@ -171,8 +173,18 @@ int envy_bios_parse (struct envy_bios *bios) {
 		bios->bit_offset = find_string(bios, bitsig, 5);
 		bios->hwsq_offset = find_string(bios, hwsqsig, 4);
 		bios_u16(bios, 0x36, &bios->dcb.offset);
+		bios_u16(bios, 0x54, &bios->subsystem_vendor);
+		bios_u16(bios, 0x56, &bios->subsystem_device);
 		if (envy_bios_parse_dcb(bios))
 			ENVY_BIOS_ERR("Failed to parse DCB table at %04x version %x.%x\n", bios->dcb.offset, bios->dcb.version >> 4, bios->dcb.version & 0xf);
+		if (bios->dcb.version >= 0x20) {
+			/* XXX: should use chipset instead */
+			/* note: NV17 and NV1F don't actually have these registers, but the bioses I've seen include the [nop] values anyway */
+			bios_u32(bios, 0x58, &bios->straps0_select);
+			bios_u32(bios, 0x5c, &bios->straps0_value);
+			bios_u32(bios, 0x60, &bios->straps1_select);
+			bios_u32(bios, 0x64, &bios->straps1_value);
+		}
 		break;
 	}
 	return 0;

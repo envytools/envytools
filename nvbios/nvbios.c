@@ -744,6 +744,8 @@ struct {
 	unsigned mask;
 } printmasks[] = {
 	"pcir",		ENVY_BIOS_PRINT_PCIR,
+	"version",	ENVY_BIOS_PRINT_VERSION,
+	"hwinfo",	ENVY_BIOS_PRINT_HWINFO,
 	"bit",		ENVY_BIOS_PRINT_BMP_BIT,
 	"bmp",		ENVY_BIOS_PRINT_BMP_BIT,
 	"scripts",	ENVY_BIOS_PRINT_SCRIPTS,
