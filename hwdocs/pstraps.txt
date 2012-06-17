@@ -219,7 +219,9 @@ bit 1: if 0, this GPU is part of a motherboard and ROMless, subsystem device
        subsystem will be read from 32-bit LE word at address 0x54 in the ROM.
        Same applies to select/secondary values.
 bits 2-5: RAM config, for use by BIOS
-bit 6: crystal type bit 0 [XXX: wtf?]
+bit 6: crystal type
+	0: 27MHz
+	1: 25MHz
 bits 7-9: ?
 bits 10-13: DEVICE_ID, bits 0-3
 bits 14-15: BAR1 size, part 1
@@ -238,8 +240,8 @@ bit 4: pci device class
 	0: 0x030200 [3d controller]
 	1: 0x030000 [vga controller]
 bits 5-15: ?
-16: BAR5 enable
-17-19: BAR0 size
+bit 16: BAR5 enable
+bits 17-19: BAR0 size
 	0 16MB
 	1 32MB
 	2 64MB
@@ -248,8 +250,8 @@ bits 5-15: ?
 	5 512MB
 	6 1GB
 	7 2GB
-20-22 BAR1 size, part2
-23: BAR3 size
+bits 20-22 BAR1 size, part2
+bit 23: BAR3 size
 	0 BAR0 size * 2
 	1 BAR0 size
 24-30: ?
