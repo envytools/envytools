@@ -23,6 +23,9 @@
  */
 
 #include "bios.h"
+#include <string.h>
+
+int envy_bios_parse_rdcb (struct envy_bios *bios);
 
 int envy_bios_parse_dcb (struct envy_bios *bios) {
 	struct envy_bios_dcb *dcb = &bios->dcb;
@@ -38,11 +41,13 @@ int envy_bios_parse_dcb (struct envy_bios *bios) {
 	switch (dcb->version) {
 		case 0x10:
 		case 0x11:
-			/* XXX: the fuck? */
-			wanthlen = dcb->hlen = 8;
-			dcb->entriesnum = 15;
-			wantrlen = dcb->rlen = 8;
-			break;
+			/* old useless crap */
+			wanthlen = dcb->hlen = 0;
+			wantrlen = dcb->rlen = 0;
+			dcb->version = 0;
+			bios->odcb_offset = dcb->offset;
+			dcb->offset = 0;
+			return 0;
 		case 0x12:
 			wanthlen = dcb->hlen = 4;
 			dcb->entriesnum = 16;
@@ -51,6 +56,7 @@ int envy_bios_parse_dcb (struct envy_bios *bios) {
 			err |= bios_u16(bios, dcb->offset+2, &bios->i2c.offset);
 			bios->i2c.def[0] = defs & 0xf;
 			bios->i2c.def[1] = defs >> 4;
+			bios->odcb_offset = dcb->offset - 0x80;
 			break;
 		case 0x14:
 		case 0x15:
@@ -63,7 +69,6 @@ int envy_bios_parse_dcb (struct envy_bios *bios) {
 			bios->i2c.def[1] = defs >> 4;
 			break;
 		case 0x22:
-			err |= bios_u16(bios, dcb->offset-15, &bios->gpio.offset);
 		case 0x20:
 		case 0x21:
 			wanthlen = dcb->hlen = 8;
@@ -111,6 +116,19 @@ int envy_bios_parse_dcb (struct envy_bios *bios) {
 		default:
 			ENVY_BIOS_ERR("Unknown DCB table version %x.%x\n", dcb->version >> 4, dcb->version & 0xf);
 			return -EINVAL;
+	}
+	if (dcb->version >= 0x14 && dcb->version < 0x30) {
+		uint8_t dev_rec[7];
+		int j;
+		for (j = 0; j < 7; j++)
+			err |= bios_u8(bios, dcb->offset-7+j, &dev_rec[j]);
+		if (!err && !memcmp(dev_rec, "DEV_REC", 7)) {
+			bios->dev_rec_offset = dcb->offset - 7;
+			bios->odcb_offset = bios->dev_rec_offset - 0x80;
+		} else {
+			if (envy_bios_parse_rdcb(bios))
+				ENVY_BIOS_ERR("Failed to parse RDCB table at %04x version %x.%x\n", bios->dcb.offset, bios->dcb.rdcb_version >> 4, bios->dcb.rdcb_version & 0xf);
+		}
 	}
 	if (err)
 		return -EFAULT;
@@ -239,6 +257,36 @@ int envy_bios_parse_dcb (struct envy_bios *bios) {
 	return 0;
 }
 
+int envy_bios_parse_rdcb (struct envy_bios *bios) {
+	struct envy_bios_dcb *dcb = &bios->dcb;
+	int err = 0;
+	err |= bios_u8(bios, dcb->offset - 1, &dcb->rdcb_version);
+	if (err)
+		return -EFAULT;
+	switch (dcb->rdcb_version) {
+		case 0x11:
+			dcb->rdcb_len = 0xc;
+			break;
+		case 0x15:
+		case 0x16:
+			dcb->rdcb_len = 0x18;
+			break;
+		case 0x17:
+			dcb->rdcb_len = 0x1c;
+			break;
+		default:
+			ENVY_BIOS_ERR("Unknown RDCB table version %x.%x\n", dcb->rdcb_version >> 4, dcb->rdcb_version & 0xf);
+			return -EINVAL;
+	}
+	err |= bios_u16(bios, dcb->offset - 3, &bios->dunk0c.offset);
+	if (dcb->rdcb_version < 0x16)
+		bios->odcb_offset = dcb->offset - dcb->rdcb_len - 0x80;
+	if (dcb->rdcb_version >= 0x15)
+		err |= bios_u16(bios, dcb->offset - 15, &bios->gpio.offset);
+	dcb->rdcb_valid = 1;
+	return 0;
+}
+
 static struct enum_val dcb_types[] = {
 	{ ENVY_BIOS_DCB_ANALOG,	"ANALOG" },
 	{ ENVY_BIOS_DCB_TV,	"TV" },
@@ -363,4 +411,22 @@ void envy_bios_print_dcb (struct envy_bios *bios, FILE *out, unsigned mask) {
 		envy_bios_dump_hex(bios, out, entry->offset, dcb->rlen, mask);
 	}
 	fprintf(out, "\n");
+	if (bios->dev_rec_offset) {
+		fprintf(out, "DEV_REC at %04x\n", bios->dev_rec_offset);
+		envy_bios_dump_hex(bios, out, bios->dev_rec_offset, 7, mask);
+		fprintf(out, "\n");
+	}
+	if (dcb->rdcb_valid) {
+		fprintf(out, "RDCB table at %04x version %x.%x\n", dcb->offset, dcb->rdcb_version >> 4, dcb->rdcb_version & 0xf);
+		envy_bios_dump_hex(bios, out, dcb->offset - dcb->rdcb_len, dcb->rdcb_len, mask);
+		fprintf(out, "\n");
+	}
+}
+
+void envy_bios_print_odcb (struct envy_bios *bios, FILE *out, unsigned mask) {
+	if (bios->odcb_offset) {
+		fprintf(out, "ODCB table at %04x\n", bios->odcb_offset);
+		envy_bios_dump_hex(bios, out, bios->odcb_offset, 0x80, mask);
+		fprintf(out, "\n");
+	}
 }

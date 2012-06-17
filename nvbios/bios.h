@@ -117,6 +117,9 @@ struct envy_bios_dcb {
 	uint8_t rlen;
 	uint8_t unk16;
 	struct envy_bios_dcb_entry *entries;
+	uint8_t rdcb_version;
+	uint8_t rdcb_valid;
+	uint16_t rdcb_len;
 };
 
 enum envy_bios_i2c_type {
@@ -491,6 +494,8 @@ struct envy_bios {
 
 	unsigned int hwsq_offset;
 
+	unsigned int odcb_offset;
+	unsigned int dev_rec_offset;
 	struct envy_bios_dcb dcb;
 	struct envy_bios_i2c i2c;
 	struct envy_bios_gpio gpio;
@@ -549,7 +554,7 @@ static inline int bios_u32(struct envy_bios *bios, unsigned int offs, uint32_t *
 #define ENVY_BIOS_PRINT_CONN	0x00100000
 #define ENVY_BIOS_PRINT_MUX	0x00200000
 #define ENVY_BIOS_PRINT_DUNK	0x00400000
-#define ENVY_BIOS_PRINT_DCB_ALL	0x003f0000
+#define ENVY_BIOS_PRINT_DCB_ALL	0x007f0000
 #define ENVY_BIOS_PRINT_ALL	0x7fffffff
 #define ENVY_BIOS_PRINT_VERBOSE	0x80000000
 
@@ -559,6 +564,7 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask);
 
 int envy_bios_parse_dcb (struct envy_bios *bios);
 void envy_bios_print_dcb (struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_odcb (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_i2c (struct envy_bios *bios);
 void envy_bios_print_i2c (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_gpio (struct envy_bios *bios);

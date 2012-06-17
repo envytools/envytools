@@ -29,22 +29,27 @@ int envy_bios_parse_dunk0c (struct envy_bios *bios) {
 	if (!dunk0c->offset)
 		return 0;
 	int err = 0;
-	err |= bios_u8(bios, dunk0c->offset, &dunk0c->version);
-	err |= bios_u8(bios, dunk0c->offset+1, &dunk0c->hlen);
-	err |= bios_u8(bios, dunk0c->offset+2, &dunk0c->entriesnum);
-	err |= bios_u8(bios, dunk0c->offset+3, &dunk0c->rlen);
+	int wanthlen = 4;
+	int wantrlen = 1;
+	if (bios->dcb.version >= 0x30) {
+		err |= bios_u8(bios, dunk0c->offset, &dunk0c->version);
+		err |= bios_u8(bios, dunk0c->offset+1, &dunk0c->hlen);
+		err |= bios_u8(bios, dunk0c->offset+2, &dunk0c->entriesnum);
+		err |= bios_u8(bios, dunk0c->offset+3, &dunk0c->rlen);
+	} else {
+		dunk0c->version = bios->dcb.version;
+		wanthlen = dunk0c->hlen = 0;
+		dunk0c->entriesnum = 8;
+		dunk0c->rlen = 1;
+	}
 	if (err)
 		return -EFAULT;
-	int wanthlen = 0;
-	int wantrlen = 0;
 	switch (dunk0c->version) {
+		case 0x20:
+		case 0x21:
+		case 0x22:
 		case 0x30:
-			wanthlen = 4;
-			wantrlen = 1;
-			break;
 		case 0x40:
-			wanthlen = 4;
-			wantrlen = 1;
 			break;
 		default:
 			ENVY_BIOS_ERR("Unknown DUNK0C table version %x.%x\n", dunk0c->version >> 4, dunk0c->version & 0xf);
