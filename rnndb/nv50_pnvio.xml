@@ -340,6 +340,14 @@
 			<bitfield low="16" high="31" name="SPECIAL_SOR_MASK"/>
 		</reg32>
 
+		<reg32 offset="0x300" name="GPIO_SPEC_OPEN_COLLECTOR" variants="NV84:NVD9">
+			<!-- if a given bit is 0, NVIO spec output for a given line outputs 0 for 0, 1 for 1; if a given bit is 1, it outputs 0 for 0 and Hi-Z for 1 instead. -->
+			<bitfield pos="8" name="8"/>
+			<bitfield pos="9" name="9"/>
+			<bitfield pos="11" name="11"/>
+			<bitfield pos="14" name="14"/>
+		</reg32>
+
 		<reg32 offset="0x338" name="I2C_PORT_0_UNK18" variants="NV84:NVD9"/>
 		<reg32 offset="0x350" name="I2C_PORT_1_UNK18" variants="NV84:NVD9"/>
 		<reg32 offset="0x368" name="I2C_PORT_2_UNK18" variants="NV84:NVD9"/>
