@@ -114,9 +114,9 @@
 			<use-group name="nv84_pnvio_i2c"/>
 			<reg32 offset="0x18" name="UNK18"/>
 		</array>
-		<reg32 offset="0x600" name="UNK600"/>
+		<reg32 offset="0x600" name="GPIO_UNK600"/> <!-- 1/3f/0 -->
 		<reg32 offset="0x604" name="GPIO_OUT_TRIGGER"/> <!-- write 1 to make OUT, OE, OUT_NEG changes happen -->
-		<reg32 offset="0x608" name="UNK608"/>
+		<reg32 offset="0x608" name="GPIO_UNK608"/> <!-- 0/7f/0 -->
 		<reg32 offset="0x610" name="GPIO" length="0x20">
 			<bitfield low="0" high="4" name="SPECIAL_IDX">
 				<!-- XXX: this is also used for something with NORMAL -->
@@ -160,6 +160,7 @@
 			<bitfield pos="9" name="STATUS"/> <!-- peek at the GPIO value before negation, only works on some INs: 0-3, 8-0xa, 0x10-0x11, 0x14-0x16 -->
 			<bitfield pos="10" name="UNK10"/> <!-- not present on 0x17 -->
 		</reg32>
+		<reg32 offset="0x8d0" name="GPIO_UNK8D0"/> <!-- 5/7/0 -->
 	</array>
 
 	<array name="PNVIO" offset="0x00e000" stride="0x1000" length="1" variants="NV50-">
@@ -179,6 +180,9 @@
 			<bitfield low="0" high="15" name="PLUG_MASK_16" />
 			<bitfield low="16" high="31" name="UNPLUG_MASK_16" />
 		</reg32>
+
+		<reg32 offset="0x090" name="GPIO_UNK600"/> <!-- 0/7f/0 -->
+
 		<reg32 name="GPIO_MODE_0" offset="0x100" variants="NV50:NVD9">
 			<bitfield low="0" high="15" name="SPECIAL_NVIO_MASK"/>
 			<bitfield low="16" high="31" name="SPECIAL_SOR_MASK"/>
@@ -389,6 +393,8 @@
 			<reg32 name="TX_TIMEOUT" offset="0x3c"/>
 			<reg32 name="SETUP" offset="0x40"/>
 		</array>
+
+		<reg32 offset="0x740" name="GPIO_UNK8D0" variants="NV84:NVD9"/> <!-- 5/7/0 -->
 
 		<array name="I2C_PORT_6" offset="0x750" length="1" stride="0x1c" variants="NVA3:NVD9">
 			<use-group name="nv84_pnvio_i2c"/>
