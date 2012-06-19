@@ -183,7 +183,7 @@ enum envy_bios_gpio_tag {
 	ENVY_BIOS_GPIO_THERM_ALERT		= 0x11, /* eg. ADT7473 THERM* input [pin 9] */
 	/* 0x12 seen, input [NV40, NV42, NV47, NV50] */
 
-	/* 0x18 seen, output [NV92, NV94, NV98, NVA3, NVA5, NVA8, NVC0, NVC1, NVC3, NVC4, NVC8, NVCE, NVCF, NVE4] */
+	ENVY_BIOS_GPIO_MEM_VOLTAGE		= 0x18, /* at least GDDR5: 0 1.35V, 1 1.55V */
 	/* 0x19 seen, output [NV92, NV96] */
 	ENVY_BIOS_GPIO_VID_3			= 0x1a,
 
