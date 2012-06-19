@@ -310,7 +310,7 @@
 		<array name="I2C_PORT_4" offset="0x240" length="1" stride="0x18" variants="NV94:NVD9">
 			<use-group name="nv84_pnvio_i2c"/>
 		</array>
-		<array name="I2C_PORT_5" offset="0x258" length="1" stride="0x18" variants="NV94:NVD9">
+		<array name="I2C_PORT_5" offset="0x258" length="1" stride="0x20" variants="NV94:NVD9">
 			<!-- because fuck you, that's why. -->
 			<reg32 offset="0x00" name="UNK00"/>
 			<reg32 offset="0x04" name="UNK04"/>
