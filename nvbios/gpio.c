@@ -157,8 +157,8 @@ static struct enum_val gpio_tags[] = {
 	{ ENVY_BIOS_GPIO_PANEL_BACKLIGHT_LEVEL,	"PANEL_BACKLIGHT_LEVEL" },
 	{ ENVY_BIOS_GPIO_TVDAC_0,		"TVDAC_0" },
 	{ ENVY_BIOS_GPIO_TVDAC_1,		"TVDAC_1" },
-	{ ENVY_BIOS_GPIO_FAN_CONTROL,		"FAN_CONTROL" },
-	{ ENVY_BIOS_GPIO_FAN_SENSE,		"FAN_SENSE" },
+	{ ENVY_BIOS_GPIO_FAN_PWM,		"FAN_PWM" },
+	{ ENVY_BIOS_GPIO_FAN_TACH,		"FAN_TACH" },
 	{ ENVY_BIOS_GPIO_MEM_VOLTAGE,		"MEM_VOLTAGE" },
 	{ ENVY_BIOS_GPIO_VID_0,			"VID_0" },
 	{ ENVY_BIOS_GPIO_VID_1,			"VID_1" },
@@ -222,7 +222,7 @@ static struct enum_val gpio_spec_in[] = {
 	{ 0x14, "PTHERM_INPUT_0" },
 	{ 0x15, "PTHERM_INPUT_1" },
 	{ 0x16, "PTHERM_INPUT_2" },
-	{ 0x17, "NVIO_FAN_SENSE" },
+	{ 0x17, "NVIO_FAN_TACH" },
 	{ 0 },
 };
 
@@ -269,9 +269,9 @@ void envy_bios_print_gpio (struct envy_bios *bios, FILE *out, unsigned mask) {
 			} else {
 				fprintf(out, " SPEC %d [???]", entry->mode);
 			}
-			if (entry->tag == ENVY_BIOS_GPIO_FAN_CONTROL
+			if (entry->tag == ENVY_BIOS_GPIO_FAN_PWM
 				|| entry->tag == ENVY_BIOS_GPIO_PANEL_BACKLIGHT_LEVEL) {
-				fprintf(out, " %s", entry->param?"PWM":"TOGGLE");
+				fprintf(out, " %s", entry->param?"HW":"SW");
 			} else if (entry->param) {
 				fprintf(out, " param 1");
 			}

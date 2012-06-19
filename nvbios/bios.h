@@ -173,7 +173,7 @@ enum envy_bios_gpio_tag {
 	ENVY_BIOS_GPIO_VID_2			= 0x06,
 	ENVY_BIOS_GPIO_HPD_0			= 0x07,
 	ENVY_BIOS_GPIO_HPD_1			= 0x08,
-	ENVY_BIOS_GPIO_FAN_CONTROL		= 0x09,
+	ENVY_BIOS_GPIO_FAN_PWM			= 0x09,
 
 	ENVY_BIOS_GPIO_TVDAC_0			= 0x0c,
 	/* 0x0d seen, neg input [NV40, NV44, NV46, NV4A, NV4E] */
@@ -205,7 +205,7 @@ enum envy_bios_gpio_tag {
 
 	/* 0x34 seen, neg input [NV96, NVA5, NVA8, NVE4] SPEC NVIO on NV96, uses unk41_line */
 
-	ENVY_BIOS_GPIO_FAN_SENSE		= 0x3d,
+	ENVY_BIOS_GPIO_FAN_TACH			= 0x3d,
 
 	ENVY_BIOS_GPIO_SLI_SENSE_0		= 0x40, /* XXX: uses unk40_0, unk41_4, unk41_line */
 	ENVY_BIOS_GPIO_SLI_SENSE_1		= 0x41, /* XXX: uses unk40_0, unk41_4, unk41_line */
