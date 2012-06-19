@@ -191,8 +191,8 @@ static struct enum_val gpio_spec_out[] = {
 	/* 0x48 seen - tag 0x0f */
 	/* 0x50 seen - tag 0x42 */
 	{ 0x58, "NVIO_THERM_SHUTDOWN" },
-	{ 0x59, "NVIO_PWM1" },
-	{ 0x5c, "NVIO_PWM0" },
+	{ 0x59, "PWM_1" },
+	{ 0x5c, "PWM_0" },
 	{ 0x80,	"SOR0_PANEL_BACKLIGHT_LEVEL" },
 	{ 0x81,	"SOR0_PANEL_POWER" },
 	{ 0x82,	"SOR0_PANEL_BACKLIGHT_ON" },
@@ -209,19 +209,19 @@ static struct enum_val gpio_spec_out[] = {
 };
 
 static struct enum_val gpio_spec_in[] = {
-	{ 0x00, "NVIO_HPD_0" },
-	{ 0x01, "NVIO_HPD_1" },
-	{ 0x02, "NVIO_HPD_2" },
-	{ 0x03, "NVIO_HPD_3" },
+	{ 0x00, "AUXCH_HPD_0" },
+	{ 0x01, "AUXCH_HPD_1" },
+	{ 0x02, "AUXCH_HPD_2" },
+	{ 0x03, "AUXCH_HPD_3" },
 
 	{ 0x08, "NVIO_SLI_SENSE_0" },
 	{ 0x09, "NVIO_SLI_SENSE_1" },
 
 	/* 0x10 seen - tag 0x42 */
 
-	{ 0x14, "NVIO_THERM_SHUTDOWN" },	/* XXX: wtf is this supposed to do? */
-	/* 0x15 seen - tags 0x34, 0x49 */
-	/* 0x16 seen - tag 0x79 */
+	{ 0x14, "PTHERM_INPUT_0" },
+	{ 0x15, "PTHERM_INPUT_1" },
+	{ 0x16, "PTHERM_INPUT_2" },
 	{ 0x17, "NVIO_FAN_SENSE" },
 	{ 0 },
 };

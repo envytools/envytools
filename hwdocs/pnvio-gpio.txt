@@ -1,0 +1,121 @@
+
+
+= NV50 GPIO NVIO specials =
+
+This list applies to NV50.
+
+line	output		input
+0	PWM_0
+1	-
+2	-
+3		tag 0x42?
+4		SLI_SENSE_0?
+5	-
+6	-
+7			PTHERM_INPUT_0
+8			PTHERM_INPUT_2
+9	related to e1bc and PTHERM?
+10	-
+11		SLI_SENSE_1?
+12		tag 0x43?
+13		tag 0x0f?
+14	-
+
+
+= NV84 GPIO NVIO specials =
+
+This list applies to NV84:NV94.
+
+line	output		input
+0
+1
+2
+3
+4	PWM_0
+5
+6
+7
+8	THERM_SHUTDOWN?
+9	PWM_1
+10
+11		SLI_SENSE_0?
+12
+13		tag 0x0f?
+14		SLI_SENSE_1?
+
+
+= NV94 GPIO NVIO specials =
+
+This list applies to NV94:NVA3.
+
+line	output		input
+0
+1			AUXCH_HPD_0
+2
+3
+4	PWM_0
+5
+6
+7
+8	THERM_SHUTDOWN?	PTHERM_INPUT_0
+9	PWM_1		PTHERM_INPUT_1
+10
+11
+12			PTHERM_INPUT_2
+13
+14
+15			AUXCH_HPD_2
+16
+17
+18
+19
+20			AUXCH_HPD_1
+21			AUXCH_HPD_3
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+
+= NVA3 GPIO NVIO specials =
+
+This list applies to NVA3:NVD9.
+
+line	output		input
+0
+1			AUXCH_HPD_0
+2
+3		SLI_SENSE?
+4		FAN_TACH?
+5
+6
+7
+8	THERM_SHUTDOWN?	PTHERM_INPUT_0
+9	PWM_1		PTHERM_INPUT_1
+10
+11		SLI_SENSE?
+12			PTHERM_INPUT_2
+13
+14
+15			AUXCH_HPD_2
+16	PWM_0
+17
+18
+19			AUXCH_HPD_1
+20
+21			AUXCH_HPD_3
+22		tag 0x42?
+23		tag 0x0f?
+24
+25
+26
+27
+28
+29
+30
+31
