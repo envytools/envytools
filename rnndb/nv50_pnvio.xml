@@ -151,7 +151,7 @@
 			<bitfield pos="15" name="OUT_NEG"/> <!-- if set, OUT or DISPLAY/NVIO control OUT will be flipped -->
 			<bitfield pos="16" name="UNK16"/>
 			<bitfield pos="17" name="UNK17"/>
-			<bitfield pos="18" name="UNK18"/>
+			<bitfield pos="18" name="SPEC_OPEN_DRAIN"/>
 		</reg32>
 		<reg32 offset="0x740" name="SPECIAL_IN" length="0x18">
 			<bitfield low="0" high="4" name="GPIO_IDX"/>
@@ -340,7 +340,7 @@
 			<bitfield low="16" high="31" name="SPECIAL_SOR_MASK"/>
 		</reg32>
 
-		<reg32 offset="0x300" name="GPIO_SPEC_OPEN_COLLECTOR" variants="NV84:NVD9">
+		<reg32 offset="0x300" name="GPIO_SPEC_OPEN_DRAIN" variants="NV84:NVD9">
 			<!-- if a given bit is 0, NVIO spec output for a given line outputs 0 for 0, 1 for 1; if a given bit is 1, it outputs 0 for 0 and Hi-Z for 1 instead. -->
 			<bitfield pos="8" name="8"/>
 			<bitfield pos="9" name="9"/>
