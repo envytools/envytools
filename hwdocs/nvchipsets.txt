@@ -518,7 +518,7 @@ The pci ids:
 00f2 NV43 [faked by AGP bridge]
 00f3 NV43 [faked by AGP bridge]
 00f4 NV43 [faked by AGP bridge]
-00f5 NV47 [faked by AGP bridge]
+00f5 NV49 [faked by AGP bridge]
 00f6 NV43 [faked by AGP bridge]
 00f8 NV40/NV45 [faked by PCIE bridge]
 00f9 NV40/NV45 [faked by PCIE bridge]
@@ -668,6 +668,7 @@ The pci vendor id is 0x10de. The pci device ids are:
 0caX+ NVA3
 0a2X+ NVA5
 0a6X+ NVA8
+10cX+ NVA8
 08aX+ NVAF
 
 The MMIO ranges for NV50 family are:
