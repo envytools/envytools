@@ -91,7 +91,7 @@ line	output		input
 1			AUXCH_HPD_0
 2
 3		SLI_SENSE?
-4		FAN_TACH?
+4
 5
 6
 7
@@ -119,3 +119,4 @@ line	output		input
 29
 30
 31
+[any]			FAN_TACH

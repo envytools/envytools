@@ -396,6 +396,19 @@
 			<reg32 name="SETUP" offset="0x40"/>
 		</array>
 
+		<array offset="0x720" name="FAN_TACH" stride="0xc" variants="NVA3-">
+			<reg32 offset="0" name="CONFIG">
+				<bitfield pos="0" name="ENABLE"/>
+				<bitfield pos="1" name="CLEAR"/>
+				<bitfield low="16" high="20" name="GPIO_IDX" variants="NVA3:NVD9"/> <!-- on NVD9+, uses SPECIAL_IN #0x17 -->
+			</reg32>
+			<reg32 offset="4" name="PERIOD"/> <!-- in crystal cycles -->
+			<reg32 offset="8" name="COUNT">
+				<bitfield low="0" high="15" name="PREVIOUS"/> <!-- ie. last complete -->
+				<bitfield low="16" high="31" name="CURRENT"/> <!-- ie. the one in progress now -->
+			</reg32>
+		</array>
+
 		<reg32 offset="0x740" name="GPIO_UNK8D0" variants="NV84:NVD9"/> <!-- 5/7/0 -->
 
 		<array name="I2C_PORT_6" offset="0x750" length="1" stride="0x1c" variants="NVA3:NVD9">

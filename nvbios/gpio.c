@@ -222,7 +222,7 @@ static struct enum_val gpio_spec_in[] = {
 	{ 0x14, "PTHERM_INPUT_0" },
 	{ 0x15, "PTHERM_INPUT_1" },
 	{ 0x16, "PTHERM_INPUT_2" },
-	{ 0x17, "NVIO_FAN_TACH" },
+	{ 0x17, "FAN_TACH" },
 	{ 0 },
 };
 
