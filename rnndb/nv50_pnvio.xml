@@ -288,6 +288,15 @@
 			<bitfield pos="31" name="OVERRIDE_ENABLE" variants="NV50:NV84"/> <!-- you have to poke 1 to this bit to force non-default value -->
 		</reg32>
 
+		<reg32 offset="0x1f4" name="PTHERM_INPUT" variants="NV50:NVD9">
+			<bitfield pos="0" name="NEG_0"/>
+			<bitfield pos="1" name="NEG_2"/>
+			<bitfield pos="2" name="STATE_0"/>
+			<bitfield pos="3" name="STATE_2"/>
+			<bitfield pos="4" name="NEG_1" variants="NV84-"/>
+			<bitfield pos="5" name="STATE_1" variants="NV84-"/>
+		</reg32>
+
 		<reg32 offset="0x200" name="ROM_TIMINGS">
 			<!-- ... -->
 		</reg32>
