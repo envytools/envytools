@@ -109,7 +109,7 @@
 		<reg32 offset="0x14" name="BITBANG" type="nv50_pnvio_i2c_bitbang"/>
 	</group>
 
-	<array name="PGPIO" offset="0x0000d000" stride="0x1000" length="1" variants="NVD9-">
+	<array name="PGPIO" offset="0x00d000" stride="0x1000" length="1" variants="NVD9-">
 		<array offset="0x000" name="I2C" stride="0x20" length="10">
 			<use-group name="nv84_pnvio_i2c"/>
 			<reg32 offset="0x18" name="UNK18"/>
@@ -162,23 +162,20 @@
 		</reg32>
 	</array>
 
-	<array name="PNVIO" offset="0x0000e000" stride="0x1000" length="1" variants="NV50-">
-		<doc>
-		Anything here that concerns i2c port > 1 is based on extrapolation.
-		</doc>
-		<reg32 name="GPIO_INTR_EN_0" offset="0x50">
+	<array name="PNVIO" offset="0x00e000" stride="0x1000" length="1" variants="NV50-">
+		<reg32 offset="0x50" name="GPIO_INTR_EN_0">
 			<bitfield low="0" high="15" name="PLUG_MASK_0" />
 			<bitfield low="16" high="31" name="UNPLUG_MASK_0" />
 		</reg32>
-		<reg32 name="GPIO_INTR_0" offset="0x54">
+		<reg32 offset="0x54" name="GPIO_INTR_0">
 			<bitfield low="0" high="15" name="PLUG_MASK_0" />
 			<bitfield low="16" high="31" name="UNPLUG_MASK_0" />
 		</reg32>
-		<reg32 name="GPIO_INTR_EN_1" offset="0x70" variants="NV94-">
+		<reg32 offset="0x70" name="GPIO_INTR_EN_1" variants="NV94-">
 			<bitfield low="0" high="15" name="PLUG_MASK_16" />
 			<bitfield low="16" high="31" name="UNPLUG_MASK_16" />
 		</reg32>
-		<reg32 name="GPIO_INTR_1" offset="0x74" variants="NV94-">
+		<reg32 offset="0x74" name="GPIO_INTR_1" variants="NV94-">
 			<bitfield low="0" high="15" name="PLUG_MASK_16" />
 			<bitfield low="16" high="31" name="UNPLUG_MASK_16" />
 		</reg32>
@@ -334,7 +331,7 @@
 			<bitfield low="0" high="15" name="GPIO_16_31_RD"/>
 			<bitfield low="16" high="31" name="GPIO_16_31_WR"/>
 		</reg32>
-		<reg32 offset="0x288" name="IBUF_ENABLE_1" variants="NVA3:NVD9">
+		<reg32 offset="0x288" name="IBUF_ENABLE_1" variants="NVA3-">
 			<bitfield low="16" high="31" name="GPIO_16_31"/>
 		</reg32>
 		<reg32 name="GPIO_MODE_1" offset="0x28c" variants="NV94:NVD9">
@@ -343,12 +340,12 @@
 			<bitfield low="16" high="31" name="SPECIAL_SOR_MASK"/>
 		</reg32>
 
-		<reg32 offset="0xe338" name="I2C_PORT_0_UNK18" variants="NV84:NVD9"/>
-		<reg32 offset="0xe350" name="I2C_PORT_1_UNK18" variants="NV84:NVD9"/>
-		<reg32 offset="0xe368" name="I2C_PORT_2_UNK18" variants="NV84:NVD9"/>
-		<reg32 offset="0xe380" name="I2C_PORT_3_UNK18" variants="NV84:NVD9"/>
-		<reg32 offset="0xe398" name="I2C_PORT_4_UNK18" variants="NV84:NVD9"/>
-		<reg32 offset="0xe3b0" name="I2C_PORT_5_UNK18" variants="NV84:NVD9"/>
+		<reg32 offset="0x338" name="I2C_PORT_0_UNK18" variants="NV84:NVD9"/>
+		<reg32 offset="0x350" name="I2C_PORT_1_UNK18" variants="NV84:NVD9"/>
+		<reg32 offset="0x368" name="I2C_PORT_2_UNK18" variants="NV84:NVD9"/>
+		<reg32 offset="0x380" name="I2C_PORT_3_UNK18" variants="NV84:NVD9"/>
+		<reg32 offset="0x398" name="I2C_PORT_4_UNK18" variants="NV84:NVD9"/>
+		<reg32 offset="0x3b0" name="I2C_PORT_5_UNK18" variants="NV84:NVD9"/>
 
 		<array name="AUXCH" offset="0x4c0" length="4" stride="0x50" variants="NVA3-">
 			<reg32 name="DATA_OUT" offset="0x00" length="4"/>
