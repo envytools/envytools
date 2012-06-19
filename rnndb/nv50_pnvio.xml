@@ -305,10 +305,12 @@
 			<!-- ... -->
 		</reg32>
 
-		<array name="I2C_PORT_4" offset="0x240" length="1" stride="0x18" variants="NV84:NVD9">
+		<reg32 offset="0x234" name="GPIO_UNK608"/> <!-- 1/3f/0 -->
+
+		<array name="I2C_PORT_4" offset="0x240" length="1" stride="0x18" variants="NV94:NVD9">
 			<use-group name="nv84_pnvio_i2c"/>
 		</array>
-		<array name="I2C_PORT_5" offset="0x258" length="1" stride="0x18" variants="NV84:NVD9">
+		<array name="I2C_PORT_5" offset="0x258" length="1" stride="0x18" variants="NV94:NVD9">
 			<!-- because fuck you, that's why. -->
 			<reg32 offset="0x00" name="UNK00"/>
 			<reg32 offset="0x04" name="UNK04"/>
@@ -365,10 +367,10 @@
 		<reg32 offset="0x350" name="I2C_PORT_1_UNK18" variants="NV84:NVD9"/>
 		<reg32 offset="0x368" name="I2C_PORT_2_UNK18" variants="NV84:NVD9"/>
 		<reg32 offset="0x380" name="I2C_PORT_3_UNK18" variants="NV84:NVD9"/>
-		<reg32 offset="0x398" name="I2C_PORT_4_UNK18" variants="NV84:NVD9"/>
-		<reg32 offset="0x3b0" name="I2C_PORT_5_UNK18" variants="NV84:NVD9"/>
+		<reg32 offset="0x398" name="I2C_PORT_4_UNK18" variants="NV94:NVD9"/>
+		<reg32 offset="0x3b0" name="I2C_PORT_5_UNK18" variants="NV94:NVD9"/>
 
-		<array name="AUXCH" offset="0x4c0" length="4" stride="0x50" variants="NVA3-">
+		<array name="AUXCH" offset="0x4c0" length="4" stride="0x50" variants="NV94:NVA0 NVAA-">
 			<reg32 name="DATA_OUT" offset="0x00" length="4"/>
 			<reg32 name="DATA_IN" offset="0x10" length="4"/>
 			<reg32 name="ADDR" offset="0x20"/>
