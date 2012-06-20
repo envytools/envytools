@@ -169,7 +169,7 @@
 		- mclk_1: clocks memory on nv84-
 		- mclk: clocks memory on nv50
 		- vdclk: clocks video decoding
-		- dom6: probably clocks pdisp, verified by measuring rate of evo commands
+		- dom6: probably clocks pdisplay, verified by measuring rate of evo commands
 		</doc>
 		<bitfield low="0" high="1" name="NVCLK">
 			<doc>right shift is NVPLL.P1 if NVCLK_1 is 0, NVPLL.P2 if NVCLK_1 is 1. Gets post-multiplied by NVCLK_MUL.</doc>

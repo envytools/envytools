@@ -221,7 +221,7 @@
 <!-- 618000 - 61ffff PALT covered above -->
 
 <!-- 610000 - 6bffff PDISPLAY -->
-<import file="nv50_pdisp.xml" />
+<import file="nv50_pdisplay.xml" />
 
 <!-- 640000 - 647fff PRAMHT covered in nv01_pram.xml -->
 

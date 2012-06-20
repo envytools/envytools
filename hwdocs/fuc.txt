@@ -53,7 +53,7 @@ The fµc units present on nvidia cards are:
   - PCOPY1 [NVC0+]					[pcopy.txt]
  - The NVA3+ daemon engines:
   - PDAEMON [NVA3+]					[pdaemon.txt]
-  - PDISP.DAEMON [NVD9+]				[pdisp-daemon.txt]
+  - PDISPLAY.DAEMON [NVD9+]				[pdisplay-daemon.txt]
  - The NVC0 PGRAPH CTXCTL engines:
   - PGRAPH.CTXCTL					[nvc0-ctxctl.txt]
   - PGRAPH.GPC[*].CTXCTL				[nvc0-ctxctl.txt]

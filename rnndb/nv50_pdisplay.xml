@@ -77,7 +77,7 @@
 		<use-group name="nv_vga_cio"/>
 		<use-group name="nv_vga_dio"/>
 	</array>
-	<array name="PDISP" offset="0x610000" stride="0x20000" length="1" variants="NV50-">
+	<array name="PDISPLAY" offset="0x610000" stride="0x20000" length="1" variants="NV50-">
 
 		<stripe variants="NV50:NVD9">
 		<!-- XXX: update for NVD9+ -->

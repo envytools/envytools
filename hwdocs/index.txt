@@ -114,4 +114,4 @@ Power management:
 
 
 Display subsystem:
-[*    ] pdisp-daemon.txt - PDISP's monitoring engine
+[*    ] pdisplay-daemon.txt - PDISPLAY's monitoring engine
