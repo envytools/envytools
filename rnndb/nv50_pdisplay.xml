@@ -78,6 +78,26 @@
 		<use-group name="nv_vga_dio"/>
 	</array>
 	<array name="PDISPLAY" offset="0x610000" stride="0x20000" length="1" variants="NV50-">
+		<reg32 offset="0x0000" name="CAPS">
+			<bitfield low="0" high="15" name="VERSION">
+				<value value="0x0100" name="1_0"/> <!-- NV50 -->
+				<value value="0x0110" name="1_1"/> <!-- NV84, NV86, NV92 -->
+				<value value="0x0120" name="1_2"/> <!-- NVA0 -->
+				<value value="0x0140" name="1_4"/> <!-- NV94, NV96, NV98, NVAA, NVAC -->
+				<value value="0x0150" name="1_5"/> <!-- NVA3:NVD9 -->
+				<value value="0x0200" name="2_0"/> <!-- NVD9 -->
+				<value value="0x0210" name="2_1"/> <!-- NVE4 -->
+			</bitfield>
+			<bitfield low="16" high="31" name="CLASS">
+				<value value="0x507d" name="NV50_DISPLAY_MASTER"/>
+				<value value="0x827d" name="NV84_DISPLAY_MASTER"/>
+				<value value="0x837d" name="NVA0_DISPLAY_MASTER"/>
+				<value value="0x887d" name="NV94_DISPLAY_MASTER"/>
+				<value value="0x857d" name="NVA3_DISPLAY_MASTER"/>
+				<value value="0x907d" name="NVD9_DISPLAY_MASTER"/>
+				<value value="0x917d" name="NVE4_DISPLAY_MASTER"/>
+			</bitfield>
+		</reg32>
 
 		<stripe variants="NV50:NVD9">
 		<!-- XXX: update for NVD9+ -->
