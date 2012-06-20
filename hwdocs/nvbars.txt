@@ -40,7 +40,9 @@ Nvidia GPUs, like all PCI devices, have PCI configuration space. It contains:
 0x44-0x4f: PCI AGP capability [AGP cards only]
 0x50-0x53: ROM shadow enable flag - 0 to disable ROM shadow, disable video
            output, and use EEPROM for PCI ROM; 1 to enable ROM shadow and
-	   video output, using shadow copy in VRAM for PCI ROM.
+	   video output, using shadow copy in VRAM for PCI ROM. On NV04:NV50
+	   cards, enabling shadowing additionally disables PROM read/write
+	   circuitry.
 	   [XXX: wrong on NV03]
 	   [XXX: this register and possibly some others doesn't get written when
 	   poked through actual PCI config accesses - PBUS writes work fine]

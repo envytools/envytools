@@ -100,7 +100,7 @@
 		<reg32 offset="0x14" name="BITBANG" type="nv50_pnvio_i2c_bitbang"/>
 	</group>
 
-	<group name="nv84_pnvio_i2c">
+	<group name="nv94_pnvio_i2c">
 		<reg32 offset="0x00" name="UNK00"/>
 		<reg32 offset="0x04" name="UNK04"/>
 		<reg32 offset="0x08" name="UNK08"/>
@@ -111,7 +111,7 @@
 
 	<array name="PGPIO" offset="0x00d000" stride="0x1000" length="1" variants="NVD9-">
 		<array offset="0x000" name="I2C" stride="0x20" length="10">
-			<use-group name="nv84_pnvio_i2c"/>
+			<use-group name="nv94_pnvio_i2c"/>
 			<reg32 offset="0x18" name="UNK18"/>
 		</array>
 		<reg32 offset="0x600" name="GPIO_UNK600"/> <!-- 1/3f/0 -->
@@ -181,9 +181,10 @@
 			<bitfield low="16" high="31" name="UNPLUG_MASK_16" />
 		</reg32>
 
-		<reg32 offset="0x090" name="GPIO_UNK600"/> <!-- 0/7f/0 -->
+		<reg32 offset="0x090" name="GPIO_UNK600" variants="NV84:NVD9"/> <!-- 0/7f/0 -->
 
 		<reg32 name="GPIO_MODE_0" offset="0x100" variants="NV50:NVD9">
+			<!-- XXX: three unk bits on NV84:NV94 at 15-17 -->
 			<bitfield low="0" high="15" name="SPECIAL_NVIO_MASK"/>
 			<bitfield low="16" high="31" name="SPECIAL_SOR_MASK"/>
 		</reg32>
@@ -225,30 +226,30 @@
 			</reg32>
 		</array>
 
-		<array name="I2C_PORT_0" offset="0x124" length="1" stride="0x18" variants="NV50:NV84">
+		<array name="I2C_PORT_0" offset="0x124" length="1" stride="0x18" variants="NV50:NV94">
 			<use-group name="nv50_pnvio_i2c"/>
 		</array>
-		<array name="I2C_PORT_1" offset="0x13c" length="1" stride="0x18" variants="NV50:NV84">
+		<array name="I2C_PORT_1" offset="0x13c" length="1" stride="0x18" variants="NV50:NV94">
 			<use-group name="nv50_pnvio_i2c"/>
 		</array>
-		<array name="I2C_PORT_2" offset="0x154" length="1" stride="0x18" variants="NV50:NV84">
+		<array name="I2C_PORT_2" offset="0x154" length="1" stride="0x18" variants="NV50:NV94">
 			<use-group name="nv50_pnvio_i2c"/>
 		</array>
-		<array name="I2C_PORT_3" offset="0x16c" length="1" stride="0x18" variants="NV50:NV84">
+		<array name="I2C_PORT_3" offset="0x16c" length="1" stride="0x18" variants="NV50:NV94">
 			<use-group name="nv50_pnvio_i2c"/>
 		</array>
 
-		<array name="I2C_PORT_0" offset="0x124" length="1" stride="0x18" variants="NV84:NVD9">
-			<use-group name="nv84_pnvio_i2c"/>
+		<array name="I2C_PORT_0" offset="0x124" length="1" stride="0x18" variants="NV94:NVD9">
+			<use-group name="nv94_pnvio_i2c"/>
 		</array>
-		<array name="I2C_PORT_1" offset="0x13c" length="1" stride="0x18" variants="NV84:NVD9">
-			<use-group name="nv84_pnvio_i2c"/>
+		<array name="I2C_PORT_1" offset="0x13c" length="1" stride="0x18" variants="NV94:NVD9">
+			<use-group name="nv94_pnvio_i2c"/>
 		</array>
-		<array name="I2C_PORT_2" offset="0x154" length="1" stride="0x18" variants="NV84:NVD9">
-			<use-group name="nv84_pnvio_i2c"/>
+		<array name="I2C_PORT_2" offset="0x154" length="1" stride="0x18" variants="NV94:NVD9">
+			<use-group name="nv94_pnvio_i2c"/>
 		</array>
-		<array name="I2C_PORT_3" offset="0x16c" length="1" stride="0x18" variants="NV84:NVD9">
-			<use-group name="nv84_pnvio_i2c"/>
+		<array name="I2C_PORT_3" offset="0x16c" length="1" stride="0x18" variants="NV94:NVD9">
+			<use-group name="nv94_pnvio_i2c"/>
 		</array>
 
 		<reg32 name="CLOCK_SOURCE" offset="0x18c" variants="NV50-">
@@ -287,9 +288,13 @@
 			<doc>Enables input buffers for given pins. Output functionality is unaffected.</doc>
 			<bitfield low="0" high="15" name="GPIO_0_15"/> <!-- GPIO 0-15 -->
 			<bitfield low="16" high="19" name="I2C_0_3"/>
-			<bitfield low="20" high="25" name="UNK20"/>
-			<!-- XXX: more/different bitfields on NV84+ -->
-			<bitfield pos="31" name="OVERRIDE_ENABLE" variants="NV50:NV84"/> <!-- you have to poke 1 to this bit to force non-default value -->
+			<bitfield pos="20" name="I2C_5" variants="NV94-"/>
+			<bitfield pos="20" name="UNK20" variants="NV50:NV94"/>
+			<bitfield low="21" high="25" name="UNK21"/>
+			<bitfield pos="26" name="UNK26" variants="NV84-"/>
+			<bitfield low="27" high="30" name="UNK27" variants="NV94-"/>
+			<bitfield pos="31" name="OVERRIDE_ENABLE" variants="NV50:NV94"/> <!-- you have to poke 1 to this bit to force non-default value -->
+			<bitfield pos="31" name="UNK26" variants="NVA3-"/>
 		</reg32>
 
 		<reg32 offset="0x1f4" name="PTHERM_INPUT" variants="NV50:NVD9">
@@ -308,7 +313,7 @@
 		<reg32 offset="0x234" name="GPIO_UNK608"/> <!-- 1/3f/0 -->
 
 		<array name="I2C_PORT_4" offset="0x240" length="1" stride="0x18" variants="NV94:NVD9">
-			<use-group name="nv84_pnvio_i2c"/>
+			<use-group name="nv94_pnvio_i2c"/>
 		</array>
 		<array name="I2C_PORT_5" offset="0x258" length="1" stride="0x20" variants="NV94:NVD9">
 			<!-- because fuck you, that's why. -->
@@ -363,6 +368,8 @@
 			<bitfield pos="14" name="14"/>
 		</reg32>
 
+		<reg32 offset="0x308" name="UNK308" variants="NV84-"/>
+
 		<reg32 offset="0x338" name="I2C_PORT_0_UNK18" variants="NV84:NVD9"/>
 		<reg32 offset="0x350" name="I2C_PORT_1_UNK18" variants="NV84:NVD9"/>
 		<reg32 offset="0x368" name="I2C_PORT_2_UNK18" variants="NV84:NVD9"/>
@@ -409,22 +416,22 @@
 			</reg32>
 		</array>
 
-		<reg32 offset="0x740" name="GPIO_UNK8D0" variants="NV84:NVD9"/> <!-- 5/7/0 -->
+		<reg32 offset="0x740" name="GPIO_UNK8D0" variants="NV94:NVA0 NVAA:NVD9"/> <!-- 5/7/0 -->
 
 		<array name="I2C_PORT_6" offset="0x750" length="1" stride="0x1c" variants="NVA3:NVD9">
-			<use-group name="nv84_pnvio_i2c"/>
+			<use-group name="nv94_pnvio_i2c"/>
 			<reg32 offset="0x18" name="UNK18"/>
 		</array>
 		<array name="I2C_PORT_7" offset="0x76c" length="1" stride="0x1c" variants="NVA3:NVD9">
-			<use-group name="nv84_pnvio_i2c"/>
+			<use-group name="nv94_pnvio_i2c"/>
 			<reg32 offset="0x18" name="UNK18"/>
 		</array>
 		<array name="I2C_PORT_8" offset="0x788" length="1" stride="0x1c" variants="NVA3:NVD9">
-			<use-group name="nv84_pnvio_i2c"/>
+			<use-group name="nv94_pnvio_i2c"/>
 			<reg32 offset="0x18" name="UNK18"/>
 		</array>
 		<array name="I2C_PORT_9" offset="0x7a4" length="1" stride="0x1c" variants="NVA3:NVD9">
-			<use-group name="nv84_pnvio_i2c"/>
+			<use-group name="nv94_pnvio_i2c"/>
 			<reg32 offset="0x18" name="UNK18"/>
 		</array>
 

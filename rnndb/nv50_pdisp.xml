@@ -77,7 +77,10 @@
 		<use-group name="nv_vga_cio"/>
 		<use-group name="nv_vga_dio"/>
 	</array>
-	<array name="PDISP" offset="0x610000" stride="0x20000" length="1" variants="NV50:NVD9">
+	<array name="PDISP" offset="0x610000" stride="0x20000" length="1" variants="NV50-">
+
+		<stripe variants="NV50:NVD9">
+		<!-- XXX: update for NVD9+ -->
 
 		<reg32 offset="0x0010" name="OBJECTS"/>
 
@@ -233,6 +236,8 @@
 			<stripe offset="0x0" stride="0x4" length="2">
 				<reg32 name="DAC_VAL_MODE_CTRL2" offset="0x0" variants="NV92-"/>
 			</stripe>
+		</stripe>
+
 		</stripe>
 
 		<array offset="0x4000" name="CLOCK" stride="0x2000" length="1">
