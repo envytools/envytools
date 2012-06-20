@@ -426,8 +426,7 @@
 			<reg32 offset="0xffc" name="DEAD_CAFE"/>
 		</array>
 
-		<array name="DAC" offset="0xa000" stride="0x800" length="3">
-
+		<group name="nv50_dac">
 			<enum name="nv50_dac_tv_output_mode">
 				<value value="0" name="OFF"/>
 				<value value="1" name="COMPOSITE"/>
@@ -505,7 +504,7 @@
 
 			<!-- appears to affect brightness slightly. probably a default voltage knob or so -->
 			<reg32 name="TV_UNK1" offset="0x68"/>
-		</array>
+		</group>
 
 		<group name="nv50_sor">
 			<reg32 offset="0x000" name="CAP"/>
@@ -558,6 +557,16 @@
 			</array>
 		</group>
 
+		<group name="nv50_ext">
+		</group>
+
+		<array name="DAC" offset="0xa000" stride="0x800" length="3" variants="NV50:NVD9">
+			<use-group name="nv50_dac"/>
+		</array>
+		<array name="DAC" offset="0xa000" stride="0x800" length="4" variants="NVD9-">
+			<use-group name="nv50_dac"/>
+		</array>
+
 		<array name="SOR" offset="0xc000" stride="0x800" length="2" variants="NV50:NV94 NVA0">
 			<use-group name="nv50_sor"/>
 		</array>
@@ -567,8 +576,14 @@
 		<array name="SOR" offset="0xc000" stride="0x800" length="4" variants="NVA3-">
 			<use-group name="nv50_sor"/>
 		</array>
-		<array offset="0xe000" name="EXT" stride="0x800" length="3">
+
+		<array name="EXT" offset="0xe000" stride="0x800" length="3" variants="NV50:NVD9">
+			<use-group name="nv50_ext"/>
 		</array>
+		<array name="EXT" offset="0xe000" stride="0x800" length="4" variants="NVD9-">
+			<use-group name="nv50_ext"/>
+		</array>
+
 		<array name="UNK24900" offset="0x14900" stride="0x100" length="1" variants="NVA3-">
 		</array>
 		<array name="DAEMON" offset="0x17000" stride="0x1000" length="1" variants="NVD9-">
