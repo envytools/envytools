@@ -38,11 +38,8 @@
 
 struct envy_bios *bios;
 unsigned printmask = 0;
-uint8_t major_version, minor_version, micro_version, chip_version;
-uint32_t card_codename = 0;
 uint8_t tCWL = 0;
 uint32_t strap = 0;
-uint8_t chipset_family = 0;
 uint16_t script_print = 0;
 
 uint16_t bmpver = 0;
@@ -148,7 +145,7 @@ uint8_t parse_memtm_mapping_entry(uint16_t pos, uint16_t len, uint16_t hdr_pos)
 
 		if(bios->data[hdr_pos+4] & 0x08 && len >= 10) {
 			printf(" Feature unk0 enabled\n");
-			if(card_codename < 0xC0) {
+			if(bios->chipset < 0xC0) {
 				printf("   10053c: 0x00000000\n");
 				printf("   1005a0: 0x00%02hhx%02hhx%02hhx\n",
 						bios->data[pos+6], bios->data[pos+5],
@@ -172,7 +169,7 @@ uint8_t parse_memtm_mapping_entry(uint16_t pos, uint16_t len, uint16_t hdr_pos)
 			}
 		} else {
 			printf(" Feature unk0 disabled\n");
-			if(card_codename < 0xC0) {
+			if(bios->chipset < 0xC0) {
 				printf("   10053c: 0x00001000\n");
 				printf("   10f804: 0x00?0000?\n");
 			} else {
@@ -585,37 +582,15 @@ static void parse_bios_version(uint16_t offset)
 	 * offset + 3  (8 bits): Major version
 	 */
 
-	major_version = bios->data[offset + 3];
-	chip_version = bios->data[offset + 2];
-	if(card_codename <= 0)
-		card_codename = chip_version;
-	minor_version = bios->data[offset + 1];
-	micro_version = bios->data[offset + 0];
-
-	if (major_version <= 0x2 || major_version == 0x14)
-		chipset_family = 0x04;
-	else if (major_version < 0x5)
-		chipset_family = card_codename & 0xf0;
-	else if (major_version < 0x60)
-		chipset_family = 0x40;
-	else if (major_version < 0x70)
-		chipset_family = 0x50;
-	else if (major_version < 0x75)
-		if (card_codename > 0x10 && card_codename < 0x20)
-			chipset_family = 0x50;
-		else
-			chipset_family = 0xc0;
-	else if (major_version == 0x75)
-		chipset_family = 0xd0;
+	bios->info.version[0] = bios->data[offset + 3];
+	bios->info.version[1] = bios->data[offset + 2];
+	bios->info.version[2] = bios->data[offset + 1];
+	bios->info.version[3] = bios->data[offset + 0];
 
 	if (printmask & ENVY_BIOS_PRINT_BMP_BIT) {
 	printf("Bios version %02x.%02x.%02x.%02x\n\n",
 		 bios->data[offset + 3], bios->data[offset + 2],
 		 bios->data[offset + 1], bios->data[offset]);
-	printf("Card codename %02x\n",
-		 card_codename);
-	printf("Card chipset family %02x\n\n",
-		 chipset_family);
 	}
 }
 
@@ -748,6 +723,9 @@ struct {
 	"hwinfo",	ENVY_BIOS_PRINT_HWINFO,
 	"bit",		ENVY_BIOS_PRINT_BMP_BIT,
 	"bmp",		ENVY_BIOS_PRINT_BMP_BIT,
+	"info",		ENVY_BIOS_PRINT_INFO,
+	"dacload",	ENVY_BIOS_PRINT_DACLOAD,
+	"iunk",		ENVY_BIOS_PRINT_IUNK,
 	"scripts",	ENVY_BIOS_PRINT_SCRIPTS,
 	"hwsq",		ENVY_BIOS_PRINT_HWSQ,
 	"pll",		ENVY_BIOS_PRINT_PLL,
@@ -766,12 +744,8 @@ struct {
 int main(int argc, char **argv) {
 	int i;
 	int c;
-	while ((c = getopt (argc, argv, "c:m:s:i:p:vu")) != -1)
+	while ((c = getopt (argc, argv, "m:s:i:p:vu")) != -1)
 		switch (c) {
-			case 'c':
-				sscanf(optarg,"%2x",&card_codename);
-				printf("Card generation forced to nv%2x\n", card_codename);
-				break;
 			case 'm':
 				sscanf(optarg,"%2hhx",&tCWL);
 				printf("tCWL set to %2hhx\n", tCWL);
@@ -857,23 +831,11 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	if (bios->bit_offset) {
-		int maxentry = bios->data[bios->bit_offset+10];
-		if (printmask & ENVY_BIOS_PRINT_BMP_BIT) {
-			printf ("BIT at %x, %x entries\n", bios->bit_offset, maxentry);
-			printf ("\n");
-			printhex(bios->bit_offset, 12);
-		}
-		for (i = 0; i < maxentry; i++) {
-			uint32_t off = bios->bit_offset + 12 + i*6;
-			uint8_t version = bios->data[off+1];
-			uint16_t elen = le16(off+2);
-			uint16_t eoff = le16(off+4);
-			if (printmask & ENVY_BIOS_PRINT_BMP_BIT) {
-				printf ("BIT table '%c' version %d at %04x length %04x\n", bios->data[off], version, eoff, elen);
-				printhex(eoff, elen);
-			}
-			switch (bios->data[off]) {
+	if (bios->bit.offset) {
+		for (i = 0; i < bios->bit.entriesnum; i++) {
+			struct envy_bios_bit_entry *entry = &bios->bit.entries[i];
+			uint16_t eoff = entry->t_offset;
+			switch (entry->type) {
 				case 'I':
 					init_script_tbl_ptr = le32(eoff);
 					macro_index_tbl_ptr = le32(eoff+2);
@@ -882,19 +844,19 @@ int main(int argc, char **argv) {
 					io_condition_tbl_ptr = le32(eoff+8);
 					io_flag_condition_tbl_ptr = le32(eoff+10);
 					init_function_tbl_ptr = le32(eoff+12);
-					if (elen >= 16)
+					if (entry->t_len >= 16)
 						some_script_ptr = le32(eoff+14);
-					if (elen >= 18)
+					if (entry->t_len >= 18)
 						init96_tbl_ptr = le32(eoff+16);
 					break;
 				case 'M':
-					if (version == 1) {
-						if (elen >= 5) {
+					if (entry->version == 1) {
+						if (entry->t_len >= 5) {
 							ram_restrict_group_count = bios->data[eoff+2];
 							ram_restrict_tbl_ptr = le16(eoff+3);
 						}
-					} else if (version == 2) {
-						if (elen >= 3) {
+					} else if (entry->version == 2) {
+						if (entry->t_len >= 3) {
 							ram_restrict_group_count = bios->data[eoff];
 							ram_restrict_tbl_ptr = le16(eoff+1);
 							ram_type_tbl_ptr = le16(eoff+3);
@@ -902,17 +864,17 @@ int main(int argc, char **argv) {
 					}
 
 					if (printmask & ENVY_BIOS_PRINT_BMP_BIT) {
-						if (elen >= 7)
+						if (entry->t_len >= 7)
 							printf("M.tbl_05 at %x\n", le16(eoff+5));
-						if (elen >= 9)
+						if (entry->t_len >= 9)
 							printf("M.tbl_07 at %x\n", le16(eoff+7));
-						if (elen >= 0xb)
+						if (entry->t_len >= 0xb)
 							printf("M.tbl_09 at %x\n", le16(eoff+9));
-						if (elen >= 0xd)
+						if (entry->t_len >= 0xd)
 							printf("M.tbl_0b at %x\n", le16(eoff+0xb));
-						if (elen >= 0xf)
+						if (entry->t_len >= 0xf)
 							printf("M.tbl_0c at %x\n", le16(eoff+0xd));
-						if (elen >= 0x11)
+						if (entry->t_len >= 0x11)
 							printf("M.tbl_0d at %x\n", le16(eoff+0xf));
 					}
 					break;
@@ -924,32 +886,27 @@ int main(int argc, char **argv) {
 					break;
 				case 'P':
 					if (printmask & ENVY_BIOS_PRINT_BMP_BIT)
-						printf("Bit P table version %x\n", version);
+						printf("Bit P table version %x\n", entry->version);
 
-					p_tbls_ver = version;
+					p_tbls_ver = entry->version;
 					pm_mode_tbl_ptr = le16(eoff + 0);
-					if (version == 1) {
+					if (entry->version == 1) {
 						voltage_tbl_ptr = le16(eoff + 16);
 						temperature_tbl_ptr = le16(eoff + 12);
 						timings_tbl_ptr = le16(eoff + 4);
 						pm_unknown_tbl_ptr = le16(eoff + 21);
-					} else if (version == 2) {
+					} else if (entry->version == 2) {
 						voltage_tbl_ptr = le16(eoff + 12);
 						temperature_tbl_ptr = le16(eoff + 16);
 						timings_tbl_ptr = le16(eoff + 8);
 						timings_map_tbl_ptr = le16(eoff + 4);
 						pm_unknown_tbl_ptr = le16(eoff + 24);
-						if (elen >= 34)
+						if (entry->t_len >= 34)
 							voltage_map_tbl_ptr = le16(eoff + 32);
 					}
 
 					break;
-				case 'i':
-					parse_bios_version(eoff);
-					break;
 			}
-			if (printmask & ENVY_BIOS_PRINT_BMP_BIT)
-				printf ("\n");
 		}
 	}
 
@@ -1238,13 +1195,13 @@ int main(int argc, char **argv) {
 		uint8_t ram_cfg = strap?(strap & 0x1c) >> 2:0xff;
 		int e;
 
-		if (major_version == 0x4) {
+		if (bios->info.version[0] == 0x4) {
 			header_length = bios->data[start+0];
 			version = bios->data[start+1];
 			entry_length = bios->data[start+3];
 			entry_count = bios->data[start+2];
 			mode_info_length = entry_length;
-		} else if (major_version < 0x70) {
+		} else if (bios->info.version[0] < 0x70) {
 			version = bios->data[start+0];
 			header_length = bios->data[start+1];
 			entry_count = bios->data[start+2];
@@ -1252,7 +1209,7 @@ int main(int argc, char **argv) {
 			extra_data_count = bios->data[start+4];
 			extra_data_length = bios->data[start+5];
 			entry_length = mode_info_length + extra_data_count * extra_data_length;
-		} else if (major_version == 0x70 || major_version == 0x75) {
+		} else if ((bios->info.version[0] & 0xf0) == 0x70) {
 			version = bios->data[start+0];
 			header_length = bios->data[start+1];
 			subentry_offset = bios->data[start+2];
@@ -1262,7 +1219,7 @@ int main(int argc, char **argv) {
 			mode_info_length = subentry_offset;
 			entry_count = bios->data[start+5];
 		} else {
-			printf("Unknown PM major version %x\n", major_version);
+			printf("Unknown PM major version %x\n", bios->info.version[0]);
 		}
 
 		printf ("PM_Mode table at %x. Version %x. RamCFG %x. Info_length %i.\n",
@@ -1373,7 +1330,7 @@ int main(int argc, char **argv) {
 				id = bios->data[start+0];
 				voltage = bios->data[start+2];
 
-				if (chipset_family == 0x50) {
+				if (bios->chipset < 0xc0) {
 					core = (le16(start+subent(0)) & 0xfff);
 					shader = (le16(start+subent(1)) & 0xfff);
 					memclk = (le16(start+subent(2)) & 0xfff);
@@ -1738,7 +1695,7 @@ int main(int argc, char **argv) {
 				printf(" ODT(%hhx)", tRAM_FT1 & 0xf);
 				printf(" DRIVE_STRENGTH(%hhx)\n", (tRAM_FT1 & 0xf0) >> 4);
 
-				if (chipset_family < 0xc0) {
+				if (bios->chipset < 0xc0) {
 					reg_100220 = (tRCD << 24 | tRAS << 16 | tRFC << 8 | tRC);
 					reg_100224 = ((tWR + 2 + (tCWL - 1)) << 24 |
 								(tUNK_18 ? tUNK_18 : 1) << 16 |
@@ -1746,7 +1703,7 @@ int main(int argc, char **argv) {
 
 					reg_100228 = ((tCWL - 1) << 24 | (tUNK_12 << 16) | tUNK_11 << 8 | tUNK_10);
 
-					if(chipset_family < 0x50) {
+					if(bios->chipset < 0x50) {
 						/* Don't know, don't care...
 						* don't touch the rest */
 						reg_100224 |= (tCL + 2 - (tCWL - 1));

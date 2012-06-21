@@ -140,7 +140,7 @@ int envy_bios_parse (struct envy_bios *bios) {
 	vendor = bios->parts[0].pcir_vendor;
 	device = bios->parts[0].pcir_device;
 	const uint8_t bmpsig[5] = "\xff\x7f""NV\0";
-	const uint8_t bitsig[5] = "\xff\xb8""BIT";
+	const uint8_t bitsig[7] = "\xff\xb8""BIT\0\0";
 	const uint8_t hwsqsig[4] = "HWSQ";
 	switch(vendor) {
 	case 0x104a: /* SGS */
@@ -170,11 +170,13 @@ int envy_bios_parse (struct envy_bios *bios) {
 	case 0x10de: /* nvidia */
 		bios->type = ENVY_BIOS_TYPE_NV04;
 		bios->bmp_offset = find_string(bios, bmpsig, 5);
-		bios->bit_offset = find_string(bios, bitsig, 5);
+		bios->bit.offset = find_string(bios, bitsig, 7);
 		bios->hwsq_offset = find_string(bios, hwsqsig, 4);
 		bios_u16(bios, 0x36, &bios->dcb.offset);
 		bios_u16(bios, 0x54, &bios->subsystem_vendor);
 		bios_u16(bios, 0x56, &bios->subsystem_device);
+		if (envy_bios_parse_bit(bios))
+			ENVY_BIOS_ERR("Failed to parse BIT table at %04x version %d\n", bios->bit.offset, bios->bit.version);
 		if (envy_bios_parse_dcb(bios))
 			ENVY_BIOS_ERR("Failed to parse DCB table at %04x version %x.%x\n", bios->dcb.offset, bios->dcb.version >> 4, bios->dcb.version & 0xf);
 		if (bios->dcb.version >= 0x20) {

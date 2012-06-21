@@ -56,6 +56,75 @@ enum envy_bios_type {
 	ENVY_BIOS_TYPE_NV04,
 };
 
+struct envy_bios_bit_entry {
+	uint16_t offset;
+	uint8_t type;
+	uint8_t version;
+	uint16_t t_offset;
+	uint16_t t_len;
+	uint8_t is_unk;
+};
+
+struct envy_bios_bit {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+	struct envy_bios_bit_entry *entries;
+};
+
+struct envy_bios_info {
+	struct envy_bios_bit_entry *bit;
+	uint8_t valid;
+	uint8_t version[5];
+	uint16_t feature;
+	uint8_t unk07[6];
+	char date[9];
+	/* for BR02 cards - the PCI device id of the device behind the bridge */
+	uint16_t real_pcidev;
+	uint8_t unk19[8];
+	uint16_t unk21; /* XXX: another table pointer */
+	uint8_t unk23;
+	uint8_t unk24;
+	uint8_t unk25;
+	uint16_t unk26;
+	uint8_t unk28[8];
+	char unk30[13];
+	uint8_t unk3c[8];
+};
+
+struct envy_bios_dacload_entry {
+	uint16_t offset;
+	uint32_t val;
+};
+
+struct envy_bios_dacload {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+	struct envy_bios_dacload_entry *entries;
+};
+
+struct envy_bios_iunk21_entry {
+	uint16_t offset;
+	uint32_t val;
+};
+
+struct envy_bios_iunk21 {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+	struct envy_bios_iunk21_entry *entries;
+};
+
 enum envy_bios_dcb_type {
 	ENVY_BIOS_DCB_ANALOG = 0,
 	ENVY_BIOS_DCB_TV = 1,
@@ -481,6 +550,8 @@ struct envy_bios {
 	int broken_part;
 
 	enum envy_bios_type type;
+	int chipset;
+	char *chipset_name;
 
 	uint16_t subsystem_vendor;
 	uint16_t subsystem_device;
@@ -499,7 +570,11 @@ struct envy_bios {
 	uint16_t init_x86;
 	uint16_t init_script;
 
-	unsigned int bit_offset;
+	struct envy_bios_bit bit;
+
+	struct envy_bios_info info;
+	struct envy_bios_dacload dacload;
+	struct envy_bios_iunk21 iunk21;
 
 	unsigned int hwsq_offset;
 
@@ -547,15 +622,30 @@ static inline int bios_u32(struct envy_bios *bios, unsigned int offs, uint32_t *
 	return 0;
 }
 
+static inline int bios_string(struct envy_bios *bios, unsigned int offs, char *res, int len) {
+	if (offs+len-1 >= bios->length) {
+		ENVY_BIOS_ERR("requested OOB string at 0x%04x len 0x%04x\n", offs, len);
+		return -EFAULT;
+	}
+	int i;
+	for (i = 0; i < len; i++)
+		res[i] = bios->data[offs+i];
+	res[len] = 0;
+	return 0;
+}
+
 #define ENVY_BIOS_PRINT_PCIR	0x00000001
 #define ENVY_BIOS_PRINT_VERSION	0x00000002
 #define ENVY_BIOS_PRINT_HWINFO	0x00000004
 #define ENVY_BIOS_PRINT_BMP_BIT	0x00000008
-#define ENVY_BIOS_PRINT_SCRIPTS	0x00000010
-#define ENVY_BIOS_PRINT_PLL	0x00000020
-#define ENVY_BIOS_PRINT_RAM	0x00000040
-#define ENVY_BIOS_PRINT_PERF	0x00000080
-#define ENVY_BIOS_PRINT_HWSQ	0x00000100
+#define ENVY_BIOS_PRINT_INFO	0x00000010
+#define ENVY_BIOS_PRINT_DACLOAD	0x00000020
+#define ENVY_BIOS_PRINT_IUNK	0x00000040
+#define ENVY_BIOS_PRINT_SCRIPTS	0x00000080
+#define ENVY_BIOS_PRINT_PLL	0x00000100
+#define ENVY_BIOS_PRINT_RAM	0x00000200
+#define ENVY_BIOS_PRINT_PERF	0x00000400
+#define ENVY_BIOS_PRINT_HWSQ	0x00008000
 #define ENVY_BIOS_PRINT_DCB	0x00010000
 #define ENVY_BIOS_PRINT_GPIO	0x00020000
 #define ENVY_BIOS_PRINT_I2C	0x00040000
@@ -571,6 +661,16 @@ static inline int bios_u32(struct envy_bios *bios, unsigned int offs, uint32_t *
 int envy_bios_parse (struct envy_bios *bios);
 void envy_bios_dump_hex (struct envy_bios *bios, FILE *out, unsigned int start, unsigned int length, unsigned mask);
 void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask);
+
+int envy_bios_parse_bit (struct envy_bios *bios);
+void envy_bios_print_bit (struct envy_bios *bios, FILE *out, unsigned mask);
+
+int envy_bios_parse_bit_i (struct envy_bios *bios, struct envy_bios_bit_entry *bit);
+void envy_bios_print_info (struct envy_bios *bios, FILE *out, unsigned mask);
+int envy_bios_parse_dacload (struct envy_bios *bios);
+void envy_bios_print_dacload (struct envy_bios *bios, FILE *out, unsigned mask);
+int envy_bios_parse_iunk21 (struct envy_bios *bios);
+void envy_bios_print_iunk21 (struct envy_bios *bios, FILE *out, unsigned mask);
 
 int envy_bios_parse_dcb (struct envy_bios *bios);
 void envy_bios_print_dcb (struct envy_bios *bios, FILE *out, unsigned mask);
