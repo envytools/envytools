@@ -44,6 +44,7 @@ int envy_bios_parse_dunk0c (struct envy_bios *bios) {
 	}
 	if (err)
 		return -EFAULT;
+	envy_bios_block(bios, dunk0c->offset, dunk0c->hlen + dunk0c->rlen * dunk0c->entriesnum, "DUNK0C", -1);
 	switch (dunk0c->version) {
 		case 0x20:
 		case 0x21:
@@ -118,6 +119,7 @@ int envy_bios_parse_dunk0e (struct envy_bios *bios) {
 		err |= bios_u8(bios, dunk0e->offset+2+i, &dunk0e->unk02[i]);
 	if (err)
 		return -EFAULT;
+	envy_bios_block(bios, dunk0e->offset, dunk0e->hlen, "DUNK0E", -1);
 	int wanthlen = 0;
 	switch (dunk0e->version) {
 		case 0x30:
@@ -169,6 +171,7 @@ int envy_bios_parse_dunk10 (struct envy_bios *bios) {
 	err |= bios_u8(bios, dunk10->offset+3, &dunk10->rlen);
 	if (err)
 		return -EFAULT;
+	envy_bios_block(bios, dunk10->offset, dunk10->hlen + dunk10->rlen * dunk10->entriesnum, "DUNK10", -1);
 	int wanthlen = 0;
 	int wantrlen = 0;
 	switch (dunk10->version) {
@@ -268,6 +271,7 @@ int envy_bios_parse_dunk17 (struct envy_bios *bios) {
 	err |= bios_u8(bios, dunk17->offset+3, &dunk17->rlen);
 	if (err)
 		return -EFAULT;
+	envy_bios_block(bios, dunk17->offset, dunk17->hlen + dunk17->rlen * dunk17->entriesnum, "DUNK17", -1);
 	int wanthlen = 0;
 	int wantrlen = 0;
 	switch (dunk17->version) {
@@ -296,17 +300,13 @@ int envy_bios_parse_dunk17 (struct envy_bios *bios) {
 	if (dunk17->rlen > wantrlen) {
 		ENVY_BIOS_WARN("DUNK17 table record longer than expected [%d > %d]\n", dunk17->rlen, wantrlen);
 	}
-	/* XXX */
-	/*
-	dunk17->entries = calloc(gunk->entriesnum, sizeof *gunk->entries);
+	dunk17->entries = calloc(dunk17->entriesnum, sizeof *dunk17->entries);
 	if (!dunk17->entries)
 		return -ENOMEM;
-		*/
 	int i;
 	for (i = 0; i < dunk17->entriesnum; i++) {
-		uint16_t eoff = dunk17->offset + dunk17->hlen + dunk17->rlen * i;
-//		struct envy_bios_dunk17 *dunk17 = &dunk17->entries[i];
-		/* XXX */
+		struct envy_bios_dunk17_entry *entry = &dunk17->entries[i];
+		entry->offset = dunk17->offset + dunk17->hlen + dunk17->rlen * i;
 	}
 	dunk17->valid = 1;
 	return 0;
@@ -324,8 +324,8 @@ void envy_bios_print_dunk17 (struct envy_bios *bios, FILE *out, unsigned mask) {
 	envy_bios_dump_hex(bios, out, dunk17->offset, dunk17->hlen, mask);
 	int i;
 	for (i = 0; i < dunk17->entriesnum; i++) {
-		uint16_t eoff = dunk17->offset + dunk17->hlen + dunk17->rlen * i;
-		envy_bios_dump_hex(bios, out, eoff, dunk17->rlen, mask);
+		struct envy_bios_dunk17_entry *entry = &dunk17->entries[i];
+		envy_bios_dump_hex(bios, out, entry->offset, dunk17->rlen, mask);
 	}
-	printf("\n");
+	fprintf(out, "\n");
 }

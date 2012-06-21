@@ -37,6 +37,7 @@ int envy_bios_parse_extdev (struct envy_bios *bios) {
 		err |= bios_u8(bios, extdev->offset+4, &extdev->unk04);
 	if (err)
 		return -EFAULT;
+	envy_bios_block(bios, extdev->offset, extdev->hlen + extdev->rlen * extdev->entriesnum, "EXTDEV", -1);
 	int wanthlen = 4;
 	int wantrlen = 4;
 	switch (extdev->version) {

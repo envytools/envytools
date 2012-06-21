@@ -24,6 +24,7 @@
 
 #include "bios.h"
 #include <stdio.h>
+#include <string.h>
 
 void dump_hex_script (struct envy_bios *bios, FILE *out, unsigned int start, unsigned int length) {
 	int cnt = 0;
@@ -287,6 +288,16 @@ static void print_nv01_init_script(struct envy_bios *bios, FILE *out, unsigned o
 	}
 }
 
+static int block_cmp(const void *va, const void *vb) {
+	const struct envy_bios_block *a = va;
+	const struct envy_bios_block *b = vb;
+	if (a->start < b->start)
+		return -1;
+	if (a->start > b->start)
+		return 1;
+	return 0;
+}
+
 void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 	print_pcir(bios, out, mask);
 	switch (bios->type) {
@@ -345,6 +356,7 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 		envy_bios_print_info(bios, stdout, mask);
 		envy_bios_print_dacload(bios, stdout, mask);
 		envy_bios_print_iunk21(bios, stdout, mask);
+		envy_bios_print_bit_2(bios, stdout, mask);
 
 		envy_bios_print_dcb(bios, stdout, mask);
 		envy_bios_print_odcb(bios, stdout, mask);
@@ -358,5 +370,30 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 		envy_bios_print_dunk17(bios, stdout, mask);
 		envy_bios_print_mux(bios, stdout, mask);
 		break;
+	}
+	if (mask & ENVY_BIOS_PRINT_BLOCKS) {
+		qsort(bios->blocks, bios->blocksnum, sizeof *bios->blocks, block_cmp);
+		int i;
+		unsigned last = 0;
+		for (i = 0; i < bios->blocksnum; i++) {
+			unsigned start = bios->blocks[i].start;
+			unsigned end = start + bios->blocks[i].len;
+			if (start > last) {
+				fprintf(out, "%08x:%08x ???\n", last, start);
+			}
+			if (start < last) {
+				fprintf(out, "overlap detected!\n");
+			}
+			fprintf(out, "%08x:%08x %s", start, end, bios->blocks[i].name);
+			if (bios->blocks[i].idx != -1) {
+				if (!strcmp(bios->blocks[i].name, "BIT"))
+					fprintf(out, " '%c'", bios->blocks[i].idx);
+				else
+					fprintf(out, "[%d]", bios->blocks[i].idx);
+			}
+			fprintf(out, "\n");
+			last = end;
+		}
+		fprintf(out, "\n");
 	}
 }

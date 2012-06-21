@@ -35,6 +35,7 @@ int envy_bios_parse_iunk21 (struct envy_bios *bios) {
 	err |= bios_u8(bios, iunk21->offset+3, &iunk21->entriesnum);
 	if (err)
 		return -EFAULT;
+	envy_bios_block(bios, iunk21->offset, iunk21->hlen + iunk21->rlen * iunk21->entriesnum, "IUNK21", -1);
 	int wanthlen = 0;
 	int wantrlen = 0;
 	switch (iunk21->version) {

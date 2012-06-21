@@ -43,6 +43,7 @@ int envy_bios_parse_gpio (struct envy_bios *bios) {
 	}
 	if (err)
 		return -EFAULT;
+	envy_bios_block(bios, gpio->offset, gpio->hlen + gpio->rlen * gpio->entriesnum, "GPIO", -1);
 	int wanthlen = 0;
 	int wantrlen = 0;
 	switch (gpio->version) {
@@ -296,7 +297,7 @@ void envy_bios_print_gpio (struct envy_bios *bios, FILE *out, unsigned mask) {
 		envy_bios_print_xpiodir(bios, out, mask);
 }
 
-int envy_bios_parse_xpio (struct envy_bios *bios, struct envy_bios_xpio *xpio) {
+int envy_bios_parse_xpio (struct envy_bios *bios, struct envy_bios_xpio *xpio, int idx) {
 	if (!xpio->offset)
 		return 0;
 	int err = 0;
@@ -310,6 +311,7 @@ int envy_bios_parse_xpio (struct envy_bios *bios, struct envy_bios_xpio *xpio) {
 	err |= bios_u8(bios, xpio->offset+6, &byte2);
 	if (err)
 		return -EFAULT;
+	envy_bios_block(bios, xpio->offset, xpio->hlen + xpio->rlen * xpio->entriesnum, "XPIO", idx);
 	xpio->unk02_0 = byte2 & 0xf;
 	xpio->bus = byte2 >> 4 & 1;
 	xpio->unk02_5 = byte2 >> 5;
@@ -418,6 +420,7 @@ int envy_bios_parse_xpiodir (struct envy_bios *bios) {
 	err |= bios_u8(bios, xpiodir->offset+1, &xpiodir->hlen);
 	err |= bios_u8(bios, xpiodir->offset+2, &xpiodir->entriesnum);
 	err |= bios_u8(bios, xpiodir->offset+3, &xpiodir->rlen);
+	envy_bios_block(bios, xpiodir->offset, xpiodir->hlen + xpiodir->rlen * xpiodir->entriesnum, "XPIODIR", -1);
 	if (err)
 		return -EFAULT;
 	int wanthlen = 0;
@@ -458,7 +461,7 @@ int envy_bios_parse_xpiodir (struct envy_bios *bios) {
 		err |= bios_u16(bios, eoff, &xpio->offset);
 		if (err)
 			return -EFAULT;
-		if (envy_bios_parse_xpio(bios, xpio))
+		if (envy_bios_parse_xpio(bios, xpio, i))
 			ENVY_BIOS_ERR("Failed to parse XPIO table at %04x version %x.%x\n", xpio->offset, xpio->version >> 4, xpio->version & 0xf);
 	}
 	xpiodir->valid = 1;

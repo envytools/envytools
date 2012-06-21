@@ -23,6 +23,7 @@
  */
 
 #include "bios.h"
+#include "util.h"
 #include <string.h>
 
 static int parse_pcir (struct envy_bios *bios) {
@@ -59,6 +60,9 @@ broken_part:
 			goto broken_part;
 		if (curpos + pcir_ilen * 0x200 > bios->origlength)
 			goto broken_part;
+		envy_bios_block(bios, curpos, 3, "SIG", num);
+		envy_bios_block(bios, curpos+0x18, 2, "PCIR_PTR", num);
+		envy_bios_block(bios, curpos+pcir_offset, 0x18, "PCIR", num);
 		if (!(pcir_indi & 0x80))
 			next = 1;
 		curpos += pcir_ilen * 0x200;
@@ -125,8 +129,11 @@ static void parse_bmp_nv03(struct envy_bios *bios) {
 	bios->bmp_ver = bios->bmp_ver_major << 8 | bios->bmp_ver_minor;
 	if (bios->bmp_ver != 0x01)
 		ENVY_BIOS_WARN("NV03 BMP version not 0.1!\n");
-	if (!err)
+	if (!err) {
 		bios->bmp_length = 0xe;
+		envy_bios_block(bios, bios->bmp_offset, bios->bmp_length, "BMP", -1);
+	}
+	/* XXX: add block for init script */
 }
 
 int envy_bios_parse (struct envy_bios *bios) {
@@ -160,6 +167,7 @@ int envy_bios_parse (struct envy_bios *bios) {
 		}
 		bios_u16(bios, 0x54, &bios->subsystem_vendor);
 		bios_u16(bios, 0x56, &bios->subsystem_device);
+		envy_bios_block(bios, 0x54, 4, "HWINFO", -1);
 		bios->bmp_offset = find_string(bios, bmpsig, 5);
 		if (!bios->bmp_offset) {
 			ENVY_BIOS_ERR("BMP not found\n");
@@ -173,6 +181,7 @@ int envy_bios_parse (struct envy_bios *bios) {
 		bios->bit.offset = find_string(bios, bitsig, 7);
 		bios->hwsq_offset = find_string(bios, hwsqsig, 4);
 		bios_u16(bios, 0x36, &bios->dcb.offset);
+		envy_bios_block(bios, 0x36, 2, "DCB_PTR", -1);
 		bios_u16(bios, 0x54, &bios->subsystem_vendor);
 		bios_u16(bios, 0x56, &bios->subsystem_device);
 		if (envy_bios_parse_bit(bios))
@@ -186,6 +195,9 @@ int envy_bios_parse (struct envy_bios *bios) {
 			bios_u32(bios, 0x5c, &bios->straps0_value);
 			bios_u32(bios, 0x60, &bios->straps1_select);
 			bios_u32(bios, 0x64, &bios->straps1_value);
+			envy_bios_block(bios, 0x54, 0x14, "HWINFO", -1);
+		} else {
+			envy_bios_block(bios, 0x54, 4, "HWINFO", -1);
 		}
 		break;
 	}
@@ -198,4 +210,9 @@ const char *find_enum(struct enum_val *evals, int val) {
 		if (val == evals[i].val)
 			return evals[i].str;
 	return "???";
+}
+
+void envy_bios_block(struct envy_bios *bios, unsigned start, unsigned len, const char *name, int idx) {
+	struct envy_bios_block block = { start, len, name, idx };
+	ADDARRAY(bios->blocks, block);
 }

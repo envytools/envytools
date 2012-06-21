@@ -57,6 +57,7 @@ int envy_bios_parse_dcb (struct envy_bios *bios) {
 			bios->i2c.def[0] = defs & 0xf;
 			bios->i2c.def[1] = defs >> 4;
 			bios->odcb_offset = dcb->offset - 0x80;
+			envy_bios_block(bios, bios->odcb_offset, 0x80, "ODCB", -1);
 			break;
 		case 0x14:
 		case 0x15:
@@ -117,6 +118,7 @@ int envy_bios_parse_dcb (struct envy_bios *bios) {
 			ENVY_BIOS_ERR("Unknown DCB table version %x.%x\n", dcb->version >> 4, dcb->version & 0xf);
 			return -EINVAL;
 	}
+	envy_bios_block(bios, dcb->offset, dcb->hlen + dcb->rlen * dcb->entriesnum, "DCB", -1);
 	if (dcb->version >= 0x14 && dcb->version < 0x30) {
 		uint8_t dev_rec[7];
 		int j;
@@ -125,6 +127,8 @@ int envy_bios_parse_dcb (struct envy_bios *bios) {
 		if (!err && !memcmp(dev_rec, "DEV_REC", 7)) {
 			bios->dev_rec_offset = dcb->offset - 7;
 			bios->odcb_offset = bios->dev_rec_offset - 0x80;
+			envy_bios_block(bios, bios->dev_rec_offset, 7, "DEV_REC", -1);
+			envy_bios_block(bios, bios->odcb_offset, 0x80, "ODCB", -1);
 		} else {
 			if (envy_bios_parse_rdcb(bios))
 				ENVY_BIOS_ERR("Failed to parse RDCB table at %04x version %x.%x\n", bios->dcb.offset, bios->dcb.rdcb_version >> 4, bios->dcb.rdcb_version & 0xf);
@@ -302,8 +306,11 @@ int envy_bios_parse_rdcb (struct envy_bios *bios) {
 	}
 	if (err)
 		return -EFAULT;
-	if (dcb->rdcb_version < 0x16)
+	envy_bios_block(bios, dcb->offset - dcb->rdcb_len, dcb->rdcb_len, "RDCB", -1);
+	if (dcb->rdcb_version < 0x16) {
 		bios->odcb_offset = dcb->offset - dcb->rdcb_len - 0x80;
+		envy_bios_block(bios, bios->odcb_offset, 0x80, "ODCB", -1);
+	}
 	dcb->rdcb_valid = 1;
 	return 0;
 }

@@ -48,6 +48,7 @@ int envy_bios_parse_i2c (struct envy_bios *bios) {
 	}
 	if (err)
 		return -EFAULT;
+	envy_bios_block(bios, i2c->offset, i2c->hlen + i2c->rlen * i2c->entriesnum, "I2C", -1);
 	switch (i2c->version) {
 		case 0x12:
 		case 0x14:

@@ -744,7 +744,7 @@ struct {
 int main(int argc, char **argv) {
 	int i;
 	int c;
-	while ((c = getopt (argc, argv, "m:s:i:p:vu")) != -1)
+	while ((c = getopt (argc, argv, "m:s:i:p:vub")) != -1)
 		switch (c) {
 			case 'm':
 				sscanf(optarg,"%2hhx",&tCWL);
@@ -765,6 +765,9 @@ int main(int argc, char **argv) {
 				break;
 			case 'u':
 				printmask |= ENVY_BIOS_PRINT_UNUSED;
+				break;
+			case 'b':
+				printmask |= ENVY_BIOS_PRINT_BLOCKS;
 				break;
 			case 'p':
 				for (i = 0; i < sizeof printmasks / sizeof *printmasks; i++) {

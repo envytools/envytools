@@ -44,6 +44,7 @@ int envy_bios_parse_bit (struct envy_bios *bios) {
 	err |= bios_u8(bios, bit->offset+10, &bit->entriesnum);
 	if (err)
 		return -EFAULT;
+	envy_bios_block(bios, bit->offset, bit->hlen + bit->rlen * bit->entriesnum, "BIT", -1);
 	uint8_t checksum = 0;
 	int i;
 	for (i = 0; i < bit->hlen; i++) {
@@ -102,6 +103,8 @@ int envy_bios_parse_bit (struct envy_bios *bios) {
 					entry->is_unk = 0;
 			}
 		}
+		if (entry->type != 'b' && entry->t_len)
+			envy_bios_block(bios, entry->t_offset, entry->t_len, "BIT", entry->type);
 	}
 	bit->valid = 1;
 	return 0;

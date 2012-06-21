@@ -35,6 +35,7 @@ int envy_bios_parse_conn (struct envy_bios *bios) {
 	err |= bios_u8(bios, conn->offset+3, &conn->rlen);
 	if (err)
 		return -EFAULT;
+	envy_bios_block(bios, conn->offset, conn->hlen + conn->rlen * conn->entriesnum, "CONN", -1);
 	int wanthlen = 5;
 	int wantrlen = 4;
 	if (conn->rlen < 4)

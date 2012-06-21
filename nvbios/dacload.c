@@ -35,6 +35,7 @@ int envy_bios_parse_dacload (struct envy_bios *bios) {
 	err |= bios_u8(bios, dacload->offset+3, &dacload->entriesnum);
 	if (err)
 		return -EFAULT;
+	envy_bios_block(bios, dacload->offset, dacload->hlen + dacload->rlen * dacload->entriesnum, "DACLOAD", -1);
 	int wanthlen = 0;
 	int wantrlen = 0;
 	switch (dacload->version) {

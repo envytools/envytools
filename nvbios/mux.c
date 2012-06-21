@@ -35,6 +35,7 @@ int envy_bios_parse_mux (struct envy_bios *bios) {
 	err |= bios_u8(bios, mux->offset+3, &mux->rlen);
 	if (err)
 		return -EFAULT;
+	envy_bios_block(bios, mux->offset, mux->hlen + mux->rlen * mux->entriesnum, "MUX", -1);
 	int wanthlen = 0;
 	int wantrlen = 0;
 	switch (mux->version) {
