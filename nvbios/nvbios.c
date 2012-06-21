@@ -731,6 +731,7 @@ struct {
 	"pll",		ENVY_BIOS_PRINT_PLL,
 	"ram",		ENVY_BIOS_PRINT_RAM,
 	"perf",		ENVY_BIOS_PRINT_PERF,
+	"i2cscript",	ENVY_BIOS_PRINT_I2CSCRIPT,
 	"dcball",	ENVY_BIOS_PRINT_DCB_ALL,
 	"dcb",		ENVY_BIOS_PRINT_DCB,
 	"gpio",		ENVY_BIOS_PRINT_GPIO,

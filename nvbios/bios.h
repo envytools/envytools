@@ -125,6 +125,13 @@ struct envy_bios_iunk21 {
 	struct envy_bios_iunk21_entry *entries;
 };
 
+struct envy_bios_i2cscript {
+	struct envy_bios_bit_entry *bit;
+	uint8_t valid;
+	uint16_t unk00;
+	uint16_t script;
+};
+
 enum envy_bios_dcb_type {
 	ENVY_BIOS_DCB_ANALOG = 0,
 	ENVY_BIOS_DCB_TV = 1,
@@ -588,6 +595,8 @@ struct envy_bios {
 	struct envy_bios_dacload dacload;
 	struct envy_bios_iunk21 iunk21;
 
+	struct envy_bios_i2cscript i2cscript;
+
 	unsigned int hwsq_offset;
 
 	unsigned int odcb_offset;
@@ -650,31 +659,31 @@ static inline int bios_string(struct envy_bios *bios, unsigned int offs, char *r
 	return 0;
 }
 
-#define ENVY_BIOS_PRINT_PCIR	0x00000001
-#define ENVY_BIOS_PRINT_VERSION	0x00000002
-#define ENVY_BIOS_PRINT_HWINFO	0x00000004
-#define ENVY_BIOS_PRINT_BMP_BIT	0x00000008
-#define ENVY_BIOS_PRINT_INFO	0x00000010
-#define ENVY_BIOS_PRINT_DACLOAD	0x00000020
-#define ENVY_BIOS_PRINT_IUNK	0x00000040
-#define ENVY_BIOS_PRINT_SCRIPTS	0x00000080
-#define ENVY_BIOS_PRINT_PLL	0x00000100
-#define ENVY_BIOS_PRINT_RAM	0x00000200
-#define ENVY_BIOS_PRINT_PERF	0x00000400
-#define ENVY_BIOS_PRINT_BIT_2	0x00000800
-#define ENVY_BIOS_PRINT_HWSQ	0x00008000
-#define ENVY_BIOS_PRINT_DCB	0x00010000
-#define ENVY_BIOS_PRINT_GPIO	0x00020000
-#define ENVY_BIOS_PRINT_I2C	0x00040000
-#define ENVY_BIOS_PRINT_EXTDEV	0x00080000
-#define ENVY_BIOS_PRINT_CONN	0x00100000
-#define ENVY_BIOS_PRINT_MUX	0x00200000
-#define ENVY_BIOS_PRINT_DUNK	0x00400000
-#define ENVY_BIOS_PRINT_DCB_ALL	0x007f0000
-#define ENVY_BIOS_PRINT_ALL	0x1fffffff
-#define ENVY_BIOS_PRINT_BLOCKS	0x20000000
-#define ENVY_BIOS_PRINT_UNUSED	0x40000000
-#define ENVY_BIOS_PRINT_VERBOSE	0x80000000
+#define ENVY_BIOS_PRINT_PCIR		0x00000001
+#define ENVY_BIOS_PRINT_VERSION		0x00000002
+#define ENVY_BIOS_PRINT_HWINFO		0x00000004
+#define ENVY_BIOS_PRINT_BMP_BIT		0x00000008
+#define ENVY_BIOS_PRINT_INFO		0x00000010
+#define ENVY_BIOS_PRINT_DACLOAD		0x00000020
+#define ENVY_BIOS_PRINT_IUNK		0x00000040
+#define ENVY_BIOS_PRINT_SCRIPTS		0x00000080
+#define ENVY_BIOS_PRINT_PLL		0x00000100
+#define ENVY_BIOS_PRINT_RAM		0x00000200
+#define ENVY_BIOS_PRINT_PERF		0x00000400
+#define ENVY_BIOS_PRINT_I2CSCRIPT	0x00000800
+#define ENVY_BIOS_PRINT_HWSQ		0x00008000
+#define ENVY_BIOS_PRINT_DCB		0x00010000
+#define ENVY_BIOS_PRINT_GPIO		0x00020000
+#define ENVY_BIOS_PRINT_I2C		0x00040000
+#define ENVY_BIOS_PRINT_EXTDEV		0x00080000
+#define ENVY_BIOS_PRINT_CONN		0x00100000
+#define ENVY_BIOS_PRINT_MUX		0x00200000
+#define ENVY_BIOS_PRINT_DUNK		0x00400000
+#define ENVY_BIOS_PRINT_DCB_ALL		0x007f0000
+#define ENVY_BIOS_PRINT_ALL		0x1fffffff
+#define ENVY_BIOS_PRINT_BLOCKS		0x20000000
+#define ENVY_BIOS_PRINT_UNUSED		0x40000000
+#define ENVY_BIOS_PRINT_VERBOSE		0x80000000
 
 int envy_bios_parse (struct envy_bios *bios);
 void envy_bios_dump_hex (struct envy_bios *bios, FILE *out, unsigned int start, unsigned int length, unsigned mask);
@@ -689,6 +698,9 @@ int envy_bios_parse_dacload (struct envy_bios *bios);
 void envy_bios_print_dacload (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_iunk21 (struct envy_bios *bios);
 void envy_bios_print_iunk21 (struct envy_bios *bios, FILE *out, unsigned mask);
+
+int envy_bios_parse_bit_2 (struct envy_bios *bios, struct envy_bios_bit_entry *bit);
+void envy_bios_print_i2cscript (struct envy_bios *bios, FILE *out, unsigned mask);
 
 int envy_bios_parse_dcb (struct envy_bios *bios);
 void envy_bios_print_dcb (struct envy_bios *bios, FILE *out, unsigned mask);
