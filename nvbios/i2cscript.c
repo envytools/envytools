@@ -24,7 +24,6 @@
 
 #include "bios.h"
 
-
 int envy_bios_parse_bit_2 (struct envy_bios *bios, struct envy_bios_bit_entry *bit) {
 	struct envy_bios_i2cscript *i2cscript = &bios->i2cscript;
 	i2cscript->bit = bit;

@@ -31,6 +31,7 @@ static const struct {
 } bit_types[] = {
 	{ 'i', 2, envy_bios_parse_bit_i },
 	{ '2', 1, envy_bios_parse_bit_2 },
+	{ 'A', 1, envy_bios_parse_bit_A },
 	{ 0 },
 };
 

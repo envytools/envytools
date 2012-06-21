@@ -24,6 +24,30 @@
 
 #include "bios.h"
 
+int envy_bios_parse_bit_A (struct envy_bios *bios, struct envy_bios_bit_entry *bit) {
+	struct envy_bios_dacload *dacload = &bios->dacload;
+	dacload->bit = bit;
+	int wantlen = 3;
+	if (bit->t_len < wantlen) {
+		ENVY_BIOS_ERR("Analog load table too short: %d < %d\n", bit->t_len, wantlen);
+		return -EINVAL;
+	}
+	if (bit->t_len > wantlen)
+		ENVY_BIOS_WARN("Analog load table longer than expected: %d > %d\n", bit->t_len, wantlen);
+	if (dacload->valid) {
+		ENVY_BIOS_ERR("Found BIT analog table, but DACLOAD table already referenced from info table!\n");
+		return -EEXIST;
+	}
+	int err = 0;
+	err |= bios_u16(bios, bit->t_offset+0, &dacload->offset);
+	err |= bios_u8(bios, bit->t_offset+2, &dacload->unk02);
+	if (err)
+		return -EFAULT;
+	if (envy_bios_parse_dacload(bios))
+		ENVY_BIOS_ERR("Failed to parse DACLOAD table at %04x version %x.%x\n", bios->dacload.offset, bios->dacload.version >> 4, bios->dacload.version & 0xf);
+	return 0;
+}
+
 int envy_bios_parse_dacload (struct envy_bios *bios) {
 	struct envy_bios_dacload *dacload = &bios->dacload;
 	if (!dacload->offset)
@@ -79,7 +103,13 @@ int envy_bios_parse_dacload (struct envy_bios *bios) {
 
 void envy_bios_print_dacload (struct envy_bios *bios, FILE *out, unsigned mask) {
 	struct envy_bios_dacload *dacload = &bios->dacload;
-	if (!dacload->offset || !(mask & ENVY_BIOS_PRINT_DACLOAD))
+	if (!(mask & ENVY_BIOS_PRINT_DACLOAD))
+		return;
+	if (dacload->bit) {
+		fprintf(out, "BIT 'A' unk02 0x%02x\n", dacload->unk02);
+		envy_bios_dump_hex(bios, out, dacload->bit->t_offset, dacload->bit->t_len, mask);
+	}
+	if (!dacload->offset)
 		return;
 	if (!dacload->valid) {
 		fprintf(out, "Failed to parse DACLOAD table at %04x version %x.%x\n\n", dacload->offset, dacload->version >> 4, dacload->version & 0xf);

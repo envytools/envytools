@@ -24,7 +24,6 @@
 
 #include "bios.h"
 
-
 int envy_bios_parse_bit_i (struct envy_bios *bios, struct envy_bios_bit_entry *bit) {
 	struct envy_bios_info *info = &bios->info;
 	info->bit = bit;

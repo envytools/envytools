@@ -101,6 +101,8 @@ struct envy_bios_dacload_entry {
 };
 
 struct envy_bios_dacload {
+	struct envy_bios_bit_entry *bit;
+	uint8_t unk02;
 	uint16_t offset;
 	uint8_t valid;
 	uint8_t version;
@@ -694,6 +696,7 @@ void envy_bios_print_bit (struct envy_bios *bios, FILE *out, unsigned mask);
 
 int envy_bios_parse_bit_i (struct envy_bios *bios, struct envy_bios_bit_entry *bit);
 void envy_bios_print_info (struct envy_bios *bios, FILE *out, unsigned mask);
+int envy_bios_parse_bit_A (struct envy_bios *bios, struct envy_bios_bit_entry *bit);
 int envy_bios_parse_dacload (struct envy_bios *bios);
 void envy_bios_print_dacload (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_iunk21 (struct envy_bios *bios);
