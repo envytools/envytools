@@ -94,9 +94,15 @@ int envy_bios_parse_bit (struct envy_bios *bios) {
 		err |= bios_u16(bios, entry->offset+4, &entry->t_offset);
 		if (err)
 			return -EFAULT;
-		int j;
 		entry->is_unk = 1;
-		for (j = 0; bit_types[j].parse; j++) {
+		if (entry->type != 'b' && entry->t_len)
+			envy_bios_block(bios, entry->t_offset, entry->t_len, "BIT", entry->type);
+	}
+	int j;
+	/* iterate over BIT tables by type first - some types of tables have to be parsed before others, notably 'i'. */
+	for (j = 0; bit_types[j].parse; j++) {
+		for (i = 0; i < bit->entriesnum; i++) {
+			struct envy_bios_bit_entry *entry = &bit->entries[i];
 			if (entry->type == bit_types[j].type && entry->version == bit_types[j].version) {
 				if (bit_types[j].parse(bios, entry))
 					ENVY_BIOS_ERR("Failed to parse BIT table '%c' at %04x version %d\n", entry->type, entry->t_offset, entry->version);
@@ -104,8 +110,6 @@ int envy_bios_parse_bit (struct envy_bios *bios) {
 					entry->is_unk = 0;
 			}
 		}
-		if (entry->type != 'b' && entry->t_len)
-			envy_bios_block(bios, entry->t_offset, entry->t_len, "BIT", entry->type);
 	}
 	bit->valid = 1;
 	return 0;
