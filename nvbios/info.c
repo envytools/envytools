@@ -233,6 +233,10 @@ int envy_bios_parse_bit_i (struct envy_bios *bios, struct envy_bios_bit_entry *b
 			bios->chipset = 0xe4;
 			bios->chipset_name = "GK104";
 			break;
+		case 0x8007:
+			bios->chipset = 0xe7;
+			bios->chipset_name = "GK107";
+			break;
 	}
 	if (envy_bios_parse_dacload(bios))
 		ENVY_BIOS_ERR("Failed to parse DACLOAD table at %04x version %x.%x\n", bios->dacload.offset, bios->dacload.version >> 4, bios->dacload.version & 0xf);
