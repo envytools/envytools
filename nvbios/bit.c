@@ -24,14 +24,24 @@
 
 #include "bios.h"
 
+int envy_bios_parse_bit_empty (struct envy_bios *bios, struct envy_bios_bit_entry *bit) {
+	if (bit->t_len) {
+		ENVY_BIOS_ERR("BIT table '%c' not empty!\n", bit->type);
+		return -EINVAL;
+	}
+	return 0;
+}
+
 static const struct {
 	uint8_t type;
 	uint8_t version;
 	int (*parse) (struct envy_bios *bios, struct envy_bios_bit_entry *bit);
 } bit_types[] = {
-	{ 'i', 2, envy_bios_parse_bit_i },
-	{ '2', 1, envy_bios_parse_bit_2 },
-	{ 'A', 1, envy_bios_parse_bit_A },
+	{ 'i', 2, envy_bios_parse_bit_i },	/* Info */
+	{ '2', 1, envy_bios_parse_bit_2 },	/* i2c */
+	{ 'A', 1, envy_bios_parse_bit_A },	/* Analog */
+	{ 'N', 0, envy_bios_parse_bit_empty },	/* never seen non-empty */
+	{ 'c', 0, envy_bios_parse_bit_empty },	/* never seen non-empty */
 	{ 0 },
 };
 
