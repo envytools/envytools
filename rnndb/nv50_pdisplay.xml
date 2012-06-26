@@ -537,6 +537,12 @@
 			<reg32 offset="0x040" name="SEQ_INST" length="16"/>
 			<reg32 offset="0x080" name="PWM_DIV"/>
 			<reg32 offset="0x084" name="PWM_CTL">
+				<bitfield low="0" high="10" name="DUTY" variants="NV50:NVA3"/>
+				<bitfield low="0" high="23" name="DUTY" variants="NVA3-"/>
+				<bitfield pos="30" name="CLOCK_SELECT" variants="NVA3-">
+					<value value="0" name="UNK0"/>
+					<value value="1" name="UNK1"/>
+				</bitfield>
 				<bitfield pos="31" name="TRIGGER"/>
 			</reg32>
 			<array offset="0x100" name="LINK" stride="0x080" length="2">
