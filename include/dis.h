@@ -229,9 +229,7 @@ struct label {
 
 struct disctx {
 	const struct disisa *isa;
-	uint8_t *code8;
-	uint32_t *code32;
-	uint64_t *code64;
+	uint8_t *code;
 	int *marks;
 	const char **names;
 	uint32_t codebase;

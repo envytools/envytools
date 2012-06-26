@@ -686,7 +686,7 @@ struct matches *atommem APROTO {
 			uint32_t num = 0;
 			int j;
 			for (j = 0; j < 4; j++)
-				num |= ctx->code8[(ptr - ctx->codebase) * ctx->isa->posunit + j] << j*8;
+				num |= ctx->code[(ptr - ctx->codebase) * ctx->isa->posunit + j] << j*8;
 			expr = makeex(EXPR_NUM);
 			expr->num1 = num;
 			expr->special = 3;
@@ -929,7 +929,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 	struct disctx c = { 0 };
 	struct disctx *ctx = &c;
 	int cur = 0, i, j;
-	ctx->code8 = code;
+	ctx->code = code;
 	ctx->marks = calloc((num + isa->posunit - 1) / isa->posunit, sizeof *ctx->marks);
 	ctx->names = calloc((num + isa->posunit - 1) / isa->posunit, sizeof *ctx->names);
 	ctx->codebase = start;
