@@ -65,12 +65,21 @@
 	</bitset>
 
 	<bitset name="nv50_pnvio_i2c_bitbang" inline="yes">
-		<bitfield pos="0" name="CL"/>
-		<bitfield pos="1" name="DA"/>
-		<bitfield pos="2" name="MODE"> <!-- selects who controls the CL/DA output, input works regardless -->
+		<bitfield pos="0" name="SCL" variants="NV50:NVD9"/> <!-- inout -->
+		<bitfield pos="1" name="SDA" variants="NV50:NVD9"/>
+		<bitfield pos="0" name="SCL_OUT" variants="NVD9-"/>
+		<bitfield pos="1" name="SDA_OUT" variants="NVD9-"/>
+		<bitfield pos="2" name="MODE" variants="NV50:NVA3"> <!-- selects who controls the CL/DA output, input works regardless -->
 			<value value="0" name="HW"/>
 			<value value="1" name="BITBANG"/>
 		</bitfield>
+		<bitfield low="2" high="3" name="MODE" variants="NVA3-">
+			<value value="0" name="HW"/>
+			<value value="1" name="BITBANG"/>
+			<value value="2" name="DAEMON"/>
+		</bitfield>
+		<bitfield pos="4" name="SCL_IN" variants="NVD9-"/>
+		<bitfield pos="5" name="SDA_IN" variants="NVD9-"/>
 	</bitset>
 
 	<bitset name="nv50_pnvio_gpio_intr_0" inline="yes">
