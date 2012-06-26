@@ -185,6 +185,8 @@
 		<bitfield pos="28" name="I2C_9_SCL" variants="NVA3:NVD9"/>
 		<bitfield pos="29" name="I2C_9_SDA" variants="NVA3:NVD9"/>
 
+		<bitfield pos="8" name="PNVIO_INTR" variants="NVE4-"/> <!-- from PGPIO.INTR_DAEMON -->
+
 		<bitfield pos="10" name="I2C_0_SCL" variants="NVD9-"/>
 		<bitfield pos="11" name="I2C_1_SCL" variants="NVD9-"/>
 		<bitfield pos="12" name="I2C_2_SCL" variants="NVD9-"/>

@@ -16,6 +16,9 @@ Data ports: 4
 Version 4 unknown bits: 27, 28, 29, 31
 
 [XXX: IO regs]
+
+Interrupts:
+ 15: PNVIO DISPLAY_DAEMON-routed interrupt [NVE4-]
 [XXX: interrupts]
 [XXX: status bits]
 
