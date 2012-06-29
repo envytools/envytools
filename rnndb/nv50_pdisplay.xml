@@ -594,7 +594,7 @@
 		</array>
 		<array name="DAEMON" offset="0x17000" stride="0x1000" length="1" variants="NVD9-">
 			<use-group name="nv98_fucbase"/>
-			<use-group name="nv98_fuc_targets"/>
+			<use-group name="nv98_fuc_memif"/>
 		</array>
 
 	</array>
