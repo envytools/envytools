@@ -104,11 +104,12 @@ int main(int argc, char **argv) {
 			ls = 0;
 		}
 		if (slow) {
-			nva_rd32(cnum, 0);
-			nva_rd32(cnum, 0);
+			int j;
+			for (j = 0; j < 100; j++)
+				nva_rd32(cnum, 0);
 			usleep(10000);
-			nva_rd32(cnum, 0);
-			nva_rd32(cnum, 0);
+			for (j = 0; j < 100; j++)
+				nva_rd32(cnum, 0);
 		}
 	}
 	return 0;
