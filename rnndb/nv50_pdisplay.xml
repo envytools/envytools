@@ -77,7 +77,30 @@
 		<use-group name="nv_vga_cio"/>
 		<use-group name="nv_vga_dio"/>
 	</array>
-	<array name="PDISP" offset="0x610000" stride="0x20000" length="1" variants="NV50:NVD9">
+	<array name="PDISPLAY" offset="0x610000" stride="0x20000" length="1" variants="NV50-">
+		<reg32 offset="0x0000" name="CAPS">
+			<bitfield low="0" high="15" name="VERSION">
+				<value value="0x0100" name="1_0"/> <!-- NV50 -->
+				<value value="0x0110" name="1_1"/> <!-- NV84, NV86, NV92 -->
+				<value value="0x0120" name="1_2"/> <!-- NVA0 -->
+				<value value="0x0140" name="1_4"/> <!-- NV94, NV96, NV98, NVAA, NVAC -->
+				<value value="0x0150" name="1_5"/> <!-- NVA3:NVD9 -->
+				<value value="0x0200" name="2_0"/> <!-- NVD9 -->
+				<value value="0x0210" name="2_1"/> <!-- NVE4 -->
+			</bitfield>
+			<bitfield low="16" high="31" name="CLASS">
+				<value value="0x507d" name="NV50_DISPLAY_MASTER"/>
+				<value value="0x827d" name="NV84_DISPLAY_MASTER"/>
+				<value value="0x837d" name="NVA0_DISPLAY_MASTER"/>
+				<value value="0x887d" name="NV94_DISPLAY_MASTER"/>
+				<value value="0x857d" name="NVA3_DISPLAY_MASTER"/>
+				<value value="0x907d" name="NVD9_DISPLAY_MASTER"/>
+				<value value="0x917d" name="NVE4_DISPLAY_MASTER"/>
+			</bitfield>
+		</reg32>
+
+		<stripe variants="NV50:NVD9">
+		<!-- XXX: update for NVD9+ -->
 
 		<reg32 offset="0x0010" name="OBJECTS"/>
 
@@ -235,6 +258,8 @@
 			</stripe>
 		</stripe>
 
+		</stripe>
+
 		<array offset="0x4000" name="CLOCK" stride="0x2000" length="1">
 			<bitset name="nv50_vpll_s1" inline="yes">
 				<bitfield low="0" high="7" name="N1"/>
@@ -273,7 +298,7 @@
 			<reg32 offset="0x0380" name="UNK380" stride="0x800" length="3"/>
 		</array>
 
-		<array offset="0x6000" name="CRTC_STAT" stride="0x800" length="2">
+		<stripe offset="0x6000" name="CRTC_STAT" stride="0x800" length="2">
 			<reg32 name="VERT" offset="0x340">
 				<bitfield low="0" high="15" name="VLINE"/>
 				<bitfield low="16" high="31" name="VBLANK_COUNT"/>
@@ -281,13 +306,15 @@
 			<reg32 name="HORZ" offset="0x344">
 				<bitfield low="0" high="15" name="HLINE"/>
 			</reg32>
-		</array>
+		</stripe>
 
-		<array offset="0x6500" name="HDMI" stride="0x800" length="2" variants="NV50:NVA3">
+		<stripe offset="0x6500" name="HDMI" stride="0x800" length="2" variants="NV84:NVA3">
 			<use-group name="NV_HDMI"/>
-		</array>
+		</stripe>
 
-		<array offset="0x7300" name="AUDIO" stride="0x100" length="1">
+		<!-- start of area controlled by "display back" clock -->
+
+		<array offset="0x7300" name="AUDIO" stride="0x100" length="1" variants="NV84-">
 			<reg32 offset="0x000" name="DEBUG0"/>
 			<reg32 offset="0x004" name="DEBUG1"/>
 			<reg32 offset="0x008" name="DEBUG2"/>
@@ -317,7 +344,13 @@
 				<bitfield pos="28" name="LOOKUP_ENABLE"/>
 			</reg32>
 			<reg32 offset="0x04c" name="UNK04C" length="7"/> <!-- nvidia write at same time as FS -->
+			<!-- XXX: 0x80+ is something different and NV94?+ only? -->
 			<reg32 offset="0x0e0" name="UNK0E0" length="7"/> <!-- nvidia write at same time as FS -->
+		</array>
+		<array offset="0x7400" name="HDCP" stride="0x100" length="1" variants="NV84-">
+		</array>
+
+		<array offset="0x8000" name="UNK8000" stride="0x1000" length="1">
 		</array>
 
 		<array offset="0x9000" name="VGA" stride="0x1000" length="1">
@@ -393,7 +426,23 @@
 			<reg32 offset="0xffc" name="DEAD_CAFE"/>
 		</array>
 
-		<array name="DAC" offset="0xa000" stride="0x800" length="3">
+		<group name="nv50_dac">
+			<enum name="nv50_dac_tv_output_mode">
+				<value value="0" name="OFF"/>
+				<value value="1" name="COMPOSITE"/>
+				<value value="2" name="LUMINANCE"/>
+				<value value="3" name="CHROMA"/>
+
+				<!-- these just seem to alias the former values -->
+				<value value="4" name="LUMINANCE1"/>
+				<value value="5" name="CHROMA1"/>
+				<value value="6" name="CHROMA2"/>
+				<value value="7" name="LUMINANCE2"/>
+			</enum>
+
+			<!-- R/O status register of unknown purpose -->
+			<reg32 name="UNK_STATUS" offset="0x0"/>
+
 			<reg32 name="DPMS_CTRL" offset="0x4">
 				<bitfield name="HSYNC_OFF" pos="0"/>
 				<bitfield name="VSYNC_OFF" pos="2"/>
@@ -401,9 +450,31 @@
 				<bitfield name="OFF" pos="6"/>
 				<bitfield name="PENDING" pos="31"/>
 			</reg32>
+
+
+			<!-- these are 3 arbitary outputs on universal connector.
+				Names are given according to component output mapping
+				No effect on VGA output -->
+			<reg32 name="TV_OUTPUT_MODE_CTL" offset="0x8">
+
+				<!-- Pr/Com1 cable (red), S-video chroma -->
+				<bitfield name="RED"   low="0" high="2" type="nv50_dac_tv_output_mode"/>
+
+				<!-- Y cable (green), S-video luma -->
+				<bitfield name="GREEN" low="3" high="5" type="nv50_dac_tv_output_mode"/>
+
+				<!-- Pb/Com2, composite, (blue cable) -->
+				<bitfield name="BLUE"  low="6" high="8" type="nv50_dac_tv_output_mode"/>
+			</reg32>
+
 			<reg32 name="LOAD_CTRL" offset="0xC">
+				<bitfield low="0" high="10" name="LOAD_PATTERN"/>
+
 				<bitfield name="ACTIVE" pos="20"/>
+
+				<!-- each bit for each of REG/GREEN/BLUE output lines for Pr/Com1, Y, Pb/Comp2 -->
 				<bitfield name="PRESENT" high="29" low="27"/>
+
 				<bitfield name="DONE" pos="31">
 					<doc>
 					You have to wait for this before proceeding.
@@ -411,12 +482,31 @@
 					</doc>
 				</bitfield>
 			</reg32>
-			<reg32 name="CLK_CTRL1" offset="0x10">
-				<bitfield name="CONNECTED" high="10" low="9"/>
-			</reg32>
-		</array>
 
-		<array name="SOR" offset="0xc000" stride="0x800" length="4">
+			<reg32 name="MISC_CTRL" offset="0x10">
+
+				<!-- set on VGA dac, clear on TV dac, seems to do nothing -->
+				<bitfield name="TV_DISABLE_UNK" pos="0"/>
+
+				<!-- disables/blanks VGA output lines of a DAC. used on TV dac
+					if set, breaks load detection -->
+				<bitfield name="VGA_DISABLE" pos="1"/>
+
+				<!-- some status of connection, need to recheck -->
+				<bitfield name="CONNECTED" high="10" low="9"/>
+
+				<!-- changes all the time -->
+				<bitfield name="VBLANK_STATUS" high="30" low="28"/>
+
+				<!-- disables the DAC -->
+				<bitfield name="DISABLED" pos="31"/>
+			</reg32>
+
+			<!-- appears to affect brightness slightly. probably a default voltage knob or so -->
+			<reg32 name="TV_UNK1" offset="0x68"/>
+		</group>
+
+		<group name="nv50_sor">
 			<reg32 offset="0x000" name="CAP"/>
 			<reg32 offset="0x004" name="PWR">
 				<bitfield pos="0" name="NORMAL_STATE">
@@ -447,6 +537,12 @@
 			<reg32 offset="0x040" name="SEQ_INST" length="16"/>
 			<reg32 offset="0x080" name="PWM_DIV"/>
 			<reg32 offset="0x084" name="PWM_CTL">
+				<bitfield low="0" high="10" name="DUTY" variants="NV50:NVA3"/>
+				<bitfield low="0" high="23" name="DUTY" variants="NVA3-"/>
+				<bitfield pos="30" name="CLOCK_SELECT" variants="NVA3-">
+					<value value="0" name="UNK0"/>
+					<value value="1" name="UNK1"/>
+				</bitfield>
 				<bitfield pos="31" name="TRIGGER"/>
 			</reg32>
 			<array offset="0x100" name="LINK" stride="0x080" length="2">
@@ -465,10 +561,40 @@
 			<array offset="0x500" name="HDMI" variants="NVA3-" stride="0x800" length="1">
 				<use-group name="NV_HDMI"/>
 			</array>
+		</group>
+
+		<group name="nv50_ext">
+		</group>
+
+		<array name="DAC" offset="0xa000" stride="0x800" length="3" variants="NV50:NVD9">
+			<use-group name="nv50_dac"/>
+		</array>
+		<array name="DAC" offset="0xa000" stride="0x800" length="4" variants="NVD9-">
+			<use-group name="nv50_dac"/>
+		</array>
+
+		<array name="SOR" offset="0xc000" stride="0x800" length="2" variants="NV50:NV94 NVA0">
+			<use-group name="nv50_sor"/>
+		</array>
+		<array name="SOR" offset="0xc000" stride="0x800" length="3" variants="NV94:NVA0 NVAA:NVA3">
+			<use-group name="nv50_sor"/>
+		</array>
+		<array name="SOR" offset="0xc000" stride="0x800" length="4" variants="NVA3-">
+			<use-group name="nv50_sor"/>
+		</array>
+
+		<array name="EXT" offset="0xe000" stride="0x800" length="3" variants="NV50:NVD9">
+			<use-group name="nv50_ext"/>
+		</array>
+		<array name="EXT" offset="0xe000" stride="0x800" length="4" variants="NVD9-">
+			<use-group name="nv50_ext"/>
+		</array>
+
+		<array name="UNK24900" offset="0x14900" stride="0x100" length="1" variants="NVA3-">
 		</array>
 		<array name="DAEMON" offset="0x17000" stride="0x1000" length="1" variants="NVD9-">
 			<use-group name="nv98_fucbase"/>
-			<use-group name="nv98_fuc_targets"/>
+			<use-group name="nv98_fuc_memif"/>
 		</array>
 
 	</array>

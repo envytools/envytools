@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml"/>
+<import file="nv_object.xml"/>
+
+<domain name="NV01_SUBCHAN" bare="yes">
+	<stripe prefix="obj-class" variants="NV41_VP">
+		<reg32 offset="0x0100" name="NOP"/>
+		<reg32 offset="0x0180" name="DMA_VP" type="object" length="8"/>
+		<reg32 offset="0x0300" name="EXEC"/>
+		<reg32 offset="0x0304" name="EXEC_PARAM"/>
+		<reg32 offset="0x0400" name="PARAM" length="48"/>
+	</stripe>
+</domain>
+
+</database>
+

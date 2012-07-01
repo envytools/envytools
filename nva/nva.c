@@ -77,12 +77,33 @@ int nva_init() {
 	}
 	pci_iterator_destroy(it);
 
+	struct pci_id_match nv01_match = {0x104a, 0x0009, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0};
+	it = pci_id_match_iterator_create(&nv01_match);
+	if (!it) {
+		pci_system_cleanup();
+		return -1;
+	}
+
+	while ((dev = pci_device_next(it))) {
+		struct nva_card c = { 0 };
+		ret = pci_device_probe(dev);
+		if (ret) {
+			fprintf (stderr, "WARN: Can't probe %04x:%02x:%02x.%x\n", dev->domain, dev->bus, dev->dev, dev->func);
+			continue;
+		}
+		c.pci = dev;
+		ADDARRAY(nva_cards, c);
+	}
+	pci_iterator_destroy(it);
+
 	int i;
 	for (i = 0; i < nva_cardsnum; i++) {
 		dev = nva_cards[i].pci;
 		ret = pci_device_map_range(dev, dev->regions[0].base_addr, dev->regions[0].size, PCI_DEV_MAP_FLAG_WRITABLE, &nva_cards[i].bar0);
-		if (ret)
-			return -1;
+		if (ret) {
+			fprintf (stderr, "WARN: Can't probe %04x:%02x:%02x.%x\n", dev->domain, dev->bus, dev->dev, dev->func);
+			continue;
+		}
 		nva_cards[i].boot0 = nva_rd32(i, 0);
 		nva_cards[i].chipset = nva_cards[i].boot0 >> 20 & 0xff;
 		if (nva_cards[i].chipset < 0x10) {
@@ -97,6 +118,8 @@ int nva_init() {
 					nva_cards[i].is_nv03p = 1;
 			}
 		}
+		if (dev->vendor_id == 0x104a && dev->device_id == 0x0009)
+			nva_cards[i].chipset = 0x01;
 
 		if (nva_cards[i].chipset < 0x04)
 			nva_cards[i].card_type = nva_cards[i].chipset;

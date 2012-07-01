@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<group name="nv84_therm">
+	<reg32 offset="0x008" name="SENSOR_RAW">
+		<bitfield pos="31" name="ENABLE"/>
+		<bitfield pos="30" name="UNK30"/>
+		<bitfield low="16" high="21" name="UNK21"/>
+		<bitfield low="0" high="15" name="RAW_VALUE"/>
+	</reg32>
+	<reg32 offset="0x0fc" name="INTR_DISPATCH" variants="NVA3-">
+		<doc>One bit per interrupt, 0 selects delivery to PMC line 19, 1 selects delivery
+		to PDAEMON fµc interrupt 12</doc>
+	</reg32>
+	<reg32 offset="0x100" name="INTR"/> <!-- XXX: has something to do with PBUS interrupt 16? -->
+	<reg32 offset="0x134" name="INTR_EN" variants="NVA3-"/>
+	<reg32 offset="0x400" name="SENSOR_CALIBRATED" variants="NV84-"/>
+</group>
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+	<array name="PTHERM" offset="0x00020000" stride="0x1000" length="1" variants="NV84-">
+		<use-group name="nv84_therm"/>
+	</array>
+</domain>
+
+</database>

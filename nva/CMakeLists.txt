@@ -5,14 +5,19 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(PC_PCIACCESS pciaccess REQUIRED)
 pkg_check_modules(PC_X11 x11)
 pkg_check_modules(PC_XEXT xext)
+find_package (Threads)
 
 include_directories(${PC_PCIACCESS_INCLUDE_DIRS} ../include)
+link_directories(${PC_PCIACCESS_LIBRARY_DIRS})
 
 add_library(nva nva.c)
 add_executable(nvalist nvalist.c)
 add_executable(nvapeek nvapeek.c)
+add_executable(nvapeekstat nvapeekstat.c)
 add_executable(nvapeeki nvapeeki.c)
 add_executable(nvapoke nvapoke.c)
+add_executable(nvahammer nvahammer.c)
+add_executable(nvafill nvafill.c)
 add_executable(nvapeek8 nvapeek8.c)
 add_executable(nvapoke8 nvapoke8.c)
 add_executable(nvagetbios nvagetbios.c)
@@ -50,7 +55,10 @@ endif(PC_X11_FOUND AND PC_XEXT_FOUND)
 
 target_link_libraries(nvalist nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvapeek nva ${PC_PCIACCESS_LIBRARIES})
+target_link_libraries(nvapeekstat nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvapoke nva ${PC_PCIACCESS_LIBRARIES})
+target_link_libraries(nvahammer nva ${PC_PCIACCESS_LIBRARIES})
+target_link_libraries(nvafill nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvapeeki nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvapeek8 nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvapoke8 nva ${PC_PCIACCESS_LIBRARIES})
@@ -60,8 +68,8 @@ target_link_libraries(nvascan nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvatiming nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvapms nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvafuzz nva ${PC_PCIACCESS_LIBRARIES})
-target_link_libraries(nvawatch nva ${PC_PCIACCESS_LIBRARIES})
-target_link_libraries(nvacounter nva ${PC_PCIACCESS_LIBRARIES})
+target_link_libraries(nvawatch nva ${PC_PCIACCESS_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(nvacounter nva ${PC_PCIACCESS_LIBRARIES} rt)
 target_link_libraries(nvaevo nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvastrscan nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvaxttime nva ${PC_PCIACCESS_LIBRARIES})
@@ -80,6 +88,8 @@ install(TARGETS nva
 		nvalist
 		nvapeek
 		nvapoke
+		nvahammer
+		nvafill
 		nvapeeki
 		nvapeek8
 		nvapoke8

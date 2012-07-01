@@ -295,7 +295,7 @@ int setbfe (struct match *res, const struct bitfield *bf, const struct expr *exp
 		res->nrelocs++;
 		return 1;
 	}
-	ull num = expr->num1 - bf->addend;
+	ull num = (expr->num1 - bf->addend) ^ bf->xorend;
 	if (bf->lut) {
 		int max = 1 << (bf->sbf[0].len + bf->sbf[1].len);
 		int j = 0;
@@ -679,7 +679,7 @@ struct matches *atommem APROTO {
 			uint32_t num = 0;
 			int j;
 			for (j = 0; j < 4; j++)
-				num |= ctx->code8[(ptr - ctx->codebase) * ctx->isa->posunit + j] << j*8;
+				num |= ctx->code[(ptr - ctx->codebase) * ctx->isa->posunit + j] << j*8;
 			expr = makeex(EXPR_NUM);
 			expr->num1 = num;
 			expr->special = 3;
@@ -905,6 +905,7 @@ ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx) {
 		// <3 xtensa.
 		res += (ctx->pos + bf->pospreadd) & -(1ull << bf->shr);
 	}
+	res ^= bf->xorend;
 	res += bf->addend;
 	return res;
 }
@@ -921,7 +922,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 	struct disctx c = { 0 };
 	struct disctx *ctx = &c;
 	int cur = 0, i, j;
-	ctx->code8 = code;
+	ctx->code = code;
 	ctx->marks = calloc((num + isa->posunit - 1) / isa->posunit, sizeof *ctx->marks);
 	ctx->names = calloc((num + isa->posunit - 1) / isa->posunit, sizeof *ctx->names);
 	ctx->codebase = start;
@@ -990,7 +991,8 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 	int active = 0;
 	int skip = 0, nonzero = 0;
 	while (cur < num) {
-		if (ctx->names[cur / isa->posunit]) {
+		int mark = (cur % isa->posunit ? 0 : ctx->marks[cur / isa->posunit]);
+		if (!(cur % isa->posunit) && ctx->names[cur / isa->posunit]) {
 			if (skip) {
 				if (nonzero)
 					fprintf(out, "%s[%x bytes skipped]\n", cols->err, skip);
@@ -999,16 +1001,16 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 				skip = 0;
 				nonzero = 0;
 			}
-			if (ctx->marks[cur / isa->posunit] & 0x30)
+			if (mark & 0x30)
 				fprintf (out, "%s%s:\n", cols->reset, ctx->names[cur / isa->posunit]);
-			else if (ctx->marks[cur / isa->posunit] & 2)
+			else if (mark & 2)
 				fprintf (out, "\n%s%s:\n", cols->ctarg, ctx->names[cur / isa->posunit]);
-			else if (ctx->marks[cur / isa->posunit] & 1)
+			else if (mark & 1)
 				fprintf (out, "%s%s:\n", cols->btarg, ctx->names[cur / isa->posunit]);
 			else
 				fprintf (out, "%s%s:\n", cols->reset, ctx->names[cur / isa->posunit]);
 		}
-		if (ctx->marks[cur / isa->posunit] & 0x30) {
+		if (mark & 0x30) {
 			if (skip) {
 				if (nonzero)
 					fprintf(out, "%s[%x bytes skipped]\n", cols->err, skip);
@@ -1018,7 +1020,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 				nonzero = 0;
 			}
 			fprintf (out, "%s%08x:%s", cols->mem, cur / isa->posunit + start, cols->reset);
-			if (ctx->marks[cur / isa->posunit] & 0x10) {
+			if (mark & 0x10) {
 				uint32_t val = 0;
 				for (i = 0; i < 4 && cur + i < num; i++) {
 					val |= code[cur + i] << i*8;
@@ -1049,7 +1051,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 			}
 			continue;
 		}
-		if (!active && ctx->marks[cur / isa->posunit] & 7)
+		if (!active && mark & 7)
 			active = 1;
 		if (!active && labels) {
 			if (code[cur])
@@ -1076,12 +1078,12 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 		ctx->endmark = 0;
 		atomtab (ctx, a, m, isa->troot, 0);
 
-		if (ctx->endmark || ctx->marks[cur / isa->posunit] & 4)
+		if (ctx->endmark || mark & 4)
 			active = 0;
 
-		if (ctx->marks[cur / isa->posunit] & 2 && !ctx->names[cur / isa->posunit])
+		if (mark & 2 && !ctx->names[cur / isa->posunit])
 			fprintf (out, "\n");
-		switch (ctx->marks[cur / isa->posunit] & 3) {
+		switch (mark & 3) {
 			case 0:
 				if (!quiet)
 					fprintf (out, "%s%08x:%s", cols->reset, cur / isa->posunit + start, cols->reset);
@@ -1110,16 +1112,16 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 			}
 			fprintf (out, "  ");
 
-			if (ctx->marks[cur / isa->posunit] & 2)
+			if (mark & 2)
 				fprintf (out, "%sC", cols->ctarg);
 			else
 				fprintf (out, " ");
-			if (ctx->marks[cur / isa->posunit] & 1)
+			if (mark & 1)
 				fprintf (out, "%sB", cols->btarg);
 			else
 				fprintf (out, " ");
 		} else if (quiet == 1) {
-			if (ctx->marks[cur / isa->posunit])
+			if (mark)
 				fprintf (out, "\n");
 		}
 
@@ -1180,7 +1182,9 @@ static const struct {
 	"hwsq", &hwsq_isa_s,
 	"vp2", &vp2_isa_s,
 	"vuc", &vuc_isa_s,
+	"vµc", &vuc_isa_s,
 	"macro", &macro_isa_s,
+	"vp1", &vp1_isa_s,
 };
 
 const struct disisa *ed_getisa(const char *name) {

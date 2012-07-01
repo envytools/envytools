@@ -1,0 +1,5 @@
+FEATURE nvc0op "NVC0 family only opcodes" CONFLICT nve4op;
+FEATURE nve4op "NVE4 family only opcodes" CONFLICT nvc0op;
+
+VARIANT nvc0 "NVC0 family" FEATURE nvc0op;
+VARIANT nve4 "NVE4 family" FEATURE nve4op;

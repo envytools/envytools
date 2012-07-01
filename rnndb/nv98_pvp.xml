@@ -9,11 +9,6 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<group name="nv98_vpbase">
-	<use-group name="nv98_fucbase"/>
-	<use-group name="nv98_fuc_targets"/>
-</group>
-
 <enum name="vp3_mode" inline="yes">
 	<value value="0" name="MPEG1"/>
 	<value value="1" name="MPEG2"/>
@@ -22,245 +17,25 @@
 	<value value="4" name="MPEG4" variants="NVA3-"/>
 </enum>
 
-<array name="PBSP" offset="0x84000" stride="0x1000" length="1" variants="NV98 NVAA-">
-	<use-group name="nv98_vpbase"/>
-	<array offset="0x400" name="BSP" stride="0x80">
-		<reg32 offset="0x00" name="MODE">
-			<bitfield low="0" high="7" name="WIDTH_MB"/>
-			<bitfield low="8" high="15" name="HEIGHT_MB"/>
-			<!-- H@64 and MPEG12 -->
-			<bitfield low="16" high="17" name="PICTURE_STRUCTURE">
-				<value value="0" name="FRAME"/>
-				<value value="1" name="FIELD_TOP"/>
-				<value value="2" name="FIELD_BOTTOM"/>
-			</bitfield>
-			<!-- VC-1 -->
-			<bitfield pos="16" name="FIELD">
-				<value value="0" name="TOP"/>
-				<value value="1" name="BOTTOM"/>
-			</bitfield>
-			<bitfield pos="17" name="FIELD_IN_BITSTREAM">
-				<value value="0" name="FIRST"/>
-				<value value="1" name="SECOND"/>
-			</bitfield>
-			<bitfield low="18" high="19" name="PICTURE_CODING_TYPE">
-				<!-- not used by H264 -->
-				<value value="0" name="D"/> <!-- MPEG1 only -->
-				<value value="0" name="SKIPPED"/> <!-- VC-1 and MPEG4 only -->
-				<value value="1" name="I"/> <!-- also BI for VC-1 -->
-				<value value="2" name="P"/>
-				<value value="3" name="B"/>
-
-			</bitfield>
-			<bitfield low="20" high="22" name="MODE" type="vp3_mode"/>
-			<bitfield low="24" high="25" name="PROFILE"> <!-- VC-1 and MPEG4 only -->
-				<value value="0" name="VC1_SIMPLE"/>
-				<value value="1" name="VC1_MAIN"/>
-				<value value="2" name="VC1_ADVANCED"/>
-				<value value="0" name="MPEG4_SHORT_HEADER"/>
-				<value value="2" name="MPEG4_LONG_HEADER"/>
-			</bitfield>
-		</reg32>
-		<reg32 offset="0x04" name="PARM_H264">
-			<bitfield pos="0" name="ENTROPY_CODING_MODE_FLAG"/>
-			<bitfield pos="9" name="MB_ADAPTIVE_FRAME_FIELD_FLAG"/>
-			<bitfield low="12" high="16" name="NAL_UNIT_TYPE"/>
-			<bitfield pos="17" name="CONSTRAINED_INTRA_PRED"/>
-			<bitfield low="18" high="19" name="CABAC_INIT_IDC"/>
-			<bitfield pos="20" high="21" name="CHROMA_FORMAT_IDC"/>
-			<bitfield pos="22" name="DIRECT_8X8_INFERENCE_FLAG"/>
-			<bitfield pos="23" name="TRANSFORM_8X8_MODE_FLAG"/>
-		</reg32>
-		<reg32 offset="0x08" name="PARM_MPEG12">
-			<bitfield low="0" high="1" name="INTRA_DC_PRECISION"/>
-			<bitfield pos="2" name="FRAME_PRED_FRAME_DCT"/>
-			<bitfield pos="3" name="INTRA_VLC_FORMAT"/>
-			<bitfield pos="4" name="CONCEALMENT_MOTION_VECTORS"/>
-			<bitfield low="16" high="19" name="F_CODE_0"/>
-			<bitfield low="20" high="23" name="F_CODE_1"/>
-			<bitfield low="24" high="27" name="F_CODE_2"/>
-			<bitfield low="28" high="31" name="F_CODE_3"/>
-		</reg32>
-		<reg32 offset="0x0c" name="PARM_VC1_MPEG4_0">
-			<bitfield low="0" high="6" name="VC1_REFDIST"/>
-			<bitfield low="0" high="6" name="MPEG4_MB_Y" variants="NVA3-"/>
-			<bitfield pos="7" name="VC1_NUMREF"/>
-			<bitfield low="8" high="9" name="FCM">
-				<value value="0" name="FRAME_PROGRESSIVE"/> <!-- also MPEG4 non-interlaced -->
-				<value value="2" name="FRAME_INTERLACE"/> <!-- also MPEG4 interlaced -->
-				<value value="3" name="FIELD_INTERLACE"/>
-			</bitfield>
-			<bitfield low="10" high="11" name="VC1_REFDIST"/>
-			<bitfield pos="12" name="VC1_REFFIELD"/>
-			<bitfield pos="16" name="UNK16_BITPLANE"/> <!-- always set for MPEG4 -->
-			<bitfield low="24" high="31" name="MPEG4_MB_X" variants="NVA3-"/>
-		</reg32>
-		<reg32 offset="0x10" name="PARM_VC1_MPEG4_1">
-			<bitfield low="0" high="2" name="VC1_CBPTAB"/> <!-- or icbptab -->
-			<bitfield low="0" high="2" name="MPEG4_INTRA_DC_VLC_THR" variants="NVA3-"/> 
-			<bitfield low="4" high="6" name="VC1_MVTAB"/> <!-- or imvtab -->
-			<bitfield low="4" high="6" name="MPEG4_RESYNC_MARKER_ZEROS_M15" variants="NVA3-"/> <!-- this + 15 is number of 0 bits in resync_marker, set to 0 to disable resync_marker -->
-			<bitfield low="8" high="9" name="VC1_2MVBPTAB"/>
-			<bitfield low="10" high="11" name="VC1_4MVBPTAB"/>
-			<bitfield low="12" high="14" name="VC1_MBMODETAB"/>
-			<bitfield pos="16" name="VC1_TRANSDCTAB"/>
-			<bitfield pos="17" name="UNK17"/>
-			<enum name="pbsp_vc1_transacfrm" inline="yes">
-				<value value="0" name="HIGH_RATE"/> <!-- tables 219-232 -->
-				<value value="1" name="LOW_MOTION"/> <!-- tables 191-204 -->
-				<value value="2" name="HIGH_MOTION"/> <!-- tables 177-190 -->
-				<value value="3" name="MID_RATE"/> <!-- tables 205-218 -->
-			</enum>
-			<bitfield low="20" high="21" name="VC1_TRANSACFRM" type="pbsp_vc1_transacfrm"/> <!-- set to 3 for MPEG4 -->
-			<bitfield low="22" high="23" name="VC1_TRANSACFRM2" type="pbsp_vc1_transacfrm"/> <!-- set to 3 for MPEG4 -->
-		</reg32>
-		<reg32 offset="0x14" name="PARM_VC1_MPEG4_2">
-			<bitfield pos="0" name="VC1_DQUANT_INFRAME"/>
-			<bitfield pos="1" name="VC1_DQBILEVEL"/>
-			<bitfield low="2" high="3" name="VC1_DQPROFILE"/>
-			<bitfield low="4" high="5" name="VC1_DQBEDGE"/> <!-- dqsbedge or dqdbedge -->
-			<bitfield low="16" high="20" name="VC1_PQUANT"/>
-			<bitfield low="16" high="20" name="MPEG4_QUANT_SCALE" variants="NVA3-"/>
-			<bitfield low="24" high="28" name="VC1_ALTPQUANT"/>
-		</reg32>
-		<reg32 offset="0x18" name="PARM_VC1_MPEG4_3">
-			<bitfield pos="0" name="VC1_DMVRANGE_HORIZ_NOT_EXT"/> <!-- 1 if range *not* extended -->
-			<bitfield pos="1" name="VC1_DMVRANGE_VERT_NOT_EXT"/>
-			<bitfield low="2" high="3" name="VC1_MVRANGE"/> <!-- 0-3, in order of size -->
-			<bitfield low="4" high="5" name="VC1_MVMODE"> <!-- if mvmode == intensity compensation, mvmode2 instead -->
-				<value value="0" name="MIXED"/>
-				<value value="1" name="ONE"/>
-				<value value="2" name="ONE_HPEL"/>
-				<value value="3" name="ONE_HPEL_BILINEAR"/>
-			</bitfield>
-			<bitfield low="0" high="1" name="MPEG4_F_CODE_BW_M1_B01" variants="NVA3-"/> <!--  bits 0-1 of (f_code_bw - 1) -->
-			<bitfield low="2" high="3" name="MPEG4_F_CODE_FW_M1_B01" variants="NVA3-"/> <!--  bits 0-1 of (f_code_fw - 1) -->
-			<bitfield pos="4" name="MPEG4_F_CODE_BW_M1_B2" variants="NVA3-"/> <!--  bit 2 of (f_code_bw - 1) -->
-			<bitfield pos="5" name="MPEG4_F_CODE_FW_M1_B2" variants="NVA3-"/> <!--  bit 2 of (f_code_fw - 1) -->
-			<bitfield low="6" high="7" name="VC1_TTFRM"/>
-			<bitfield pos="8" name="VC1_TTMBF"/> <!-- set to 1 for MPEG4 -->
-			<bitfield pos="9" name="VC1_4MVSWITCH"/>
-			<bitfield pos="10" name="VC1_CONDOVER_ZERO"/>
-			<bitfield pos="11" name="VC1_SYNCMARKER"/> <!-- set this to 0 for B and BI, to syncmarker header flag for I and P -->
-		</reg32>
-		<reg32 offset="0x20" name="SLICE_PARM">
-			<!-- H264 only -->
-			<bitfield low="0" high="1" name="SLICE_TYPE">
-				<value value="0" name="P"/>
-				<value value="1" name="B"/>
-				<value value="2" name="I"/>
-			</bitfield>
-			<!-- MPEG12 only -->
-			<bitfield low="2" high="14" name="MB_IDX"/>
-			<!-- MPEG12 only -->
-			<bitfield low="15" high="24" name="SLICE_START_LINE"/>
-			<!-- H264 only -->
-			<bitfield low="2" high="14" name="SLICE_IDX"/> <!-- ??? -->
-			<!-- H264 only -->
-			<bitfield low="15" high="19" name="NUM_REF_IDX_L0_ACTIVE_MINUS1"/>
-			<bitfield low="20" high="24" name="NUM_REF_IDX_L1_ACTIVE_MINUS1"/>
-			<!-- quantiser_scale_code in MPEG12, sliceqpy in H264 -->
-			<bitfield low="25" high="30" name="QUANTISER"/>
-		</reg32>
-		<reg32 offset="0x24" name="UNK_POS" variants="NVA3-"><!-- absolute pos?? -->
-			<bitfield low="0" high="12" name="MB_IDX"/>
-			<bitfield low="13" high="20" name="MB_X"/>
-			<bitfield low="21" high="28" name="MB_Y"/>
-		</reg32>
-		<!-- only H264? -->
-		<reg32 offset="0x40" name="SLICE_POS">
-			<bitfield low="0" high="12" name="MB_IDX"/>
-			<bitfield low="13" high="20" name="MB_X"/>
-			<bitfield low="21" high="28" name="MB_Y"/>
-			<bitfield pos="29" name="UNK29"/> <!-- always 1 -->
-		</reg32>
-		<reg32 offset="0x44" name="COMMAND">
-			<bitfield low="0" high="4" name="CMD">
-				<value value="0" name="GET_UE"/> <!-- buggy? -->
-				<value value="1" name="GET_SE"/>
-				<value value="2" name="GETBITS"/>
-				<value value="3" name="NEXT_START_CODE"/>
-				<value value="4" name="ALIGN_BYTE"/>
-				<value value="11" name="PRED_WEIGHT_TABLE"/>
-				 <!-- MPEG12 macroblock() syntax element in a loop -->
-				<value value="12" name="MACROBLOCKS"/>
-				<value value="14" name="NEXTBITS"/>
-				<value value="17" name="BITPLANE"/> <!-- VC-1, param is plane index -->
-				<value value="18" name="UNK18_NOPARM_NORES"/> <!-- halt? -->
-			</bitfield>
-			<bitfield low="5" high="10" name="PARAM"/>
-		</reg32>
-		<reg32 offset="0x48" name="STATUS">
-			<bitfield pos="0" name="CMD"/>
-			<bitfield pos="1" name="UNK1"/>
-			<bitfield pos="2" name="UNK2"/> <!-- BSP2VP filler? -->
-			<bitfield pos="4" name="UNK4"/> <!-- BSP2VP writer? -->
-		</reg32>
-		<reg32 offset="0x4c" name="RESULT"/>
-		<bitset name="nv98_bsp_intr" inline="yes">
-			<bitfield pos="0" name="ERR_UNK0"/>
-			<bitfield pos="1" name="ERR_UNK1"/>
-			<bitfield pos="2" name="ERR_UNK2"/>
-			<bitfield pos="3" name="BSP2VP_FULL"/>
-			<bitfield pos="4" name="DONE"/>
-		</bitset>
-		<reg32 offset="0x50" name="INTR_EN" type="nv98_bsp_intr"/>
-		<reg32 offset="0x54" name="INTR" type="nv98_bsp_intr"/> <!-- fuc intr 10 -->
-		<reg32 offset="0x58" name="UNK58" variants="NVA3-"/><!-- errstat from ERR_UNK2 interrupt? Write 0 after reading -->
-		<reg32 offset="0x64" name="UNK64" variants="NVA3-"/><!-- MPEG4 writes 4 as part of recovery with resync_marker, and waits until it turns to 0 -->
-	</array>
-	<array offset="0x480" name="STREAM" stride="0x80">
-		<reg32 offset="0x00" name="STREAM_0" stride="8" length="4">
-			<bitfield low="0" high="23" name="LENGTH"/>
-			<bitfield low="24" high="31" name="ADDR_HI"/>
-		</reg32>
-		<reg32 offset="0x04" name="STREAM_1" stride="8" length="4">
-			<bitfield pos="0" name="ENABLE"/>
-			<bitfield pos="1" name="UNK1"/> <!-- set for crypto crap streams -->
-			<bitfield low="2" high="31" name="ADDR_LO"/>
-		</reg32>
-		<reg32 offset="0x40" name="STREAM_POSITION">
-			<bitfield low="0" high="26" name="BIT_POS" /><!-- linear increasing position, in bits rather than bytes -->
-			<bitfield low="27" high="28" name="STREAM_INDEX" />
-		</reg32>
-		<reg32 offset="0x44" name="RESET_TRIGGER"/><!-- write 1, read until you obtain 0 -->
-	</array>
-	<array offset="0x500" name="BSP2VP" stride="0x80">
-		<reg32 offset="0x00" name="MBRING_ADDR" shr="8"/>
-		<reg32 offset="0x04" name="MBRING_GET"/>
-		<reg32 offset="0x08" name="MBRING_PUT"/>
-		<reg32 offset="0x0c" name="MBRING_SIZE"/>
-		<reg32 offset="0x10" name="TRIGGER">
-			<bitfield pos="0" name="FLUSH"/>
-			<bitfield pos="1" name="RESET"/>
-		</reg32>
-		<!-- only in H264 -->
-		<reg32 offset="0x14" name="UNK14"/> <!-- ffffffff -->
-		<reg32 offset="0x18" name="UNK18"/> <!-- fff -->
-		<reg32 offset="0x1c" name="UNK1C"/> <!-- 1 -->
-
-		<reg32 offset="0x58" name="UNK58" variants="NVA3-"/>
-		<reg32 offset="0x5c" name="TOTAL_LENGTH" variants="NVA3-"/><!-- sum over STREAM_0[i].LENGTH -->
-		<reg32 offset="0x60" name="MB_TOTAL" variants="NVA3-"/>
-	</array>
-	<reg32 offset="0x580" name="BITPLANE_DATA" length="4" variants="NVA3-"/> <!-- indexed, needs to be saved/restored for mpeg4 -->
-</array>
-
 <array name="PVP" offset="0x85000" stride="0x1000" length="1" variants="NV98 NVAA-">
-	<use-group name="nv98_vpbase"/>
+	<use-group name="nv98_fucbase"/>
+	<use-group name="nv98_fuc_memif"/>
 	<array offset="0x400" name="VUC" stride="0x100">
 		<reg32 offset="0x00" name="DATA" length="16"/> <!-- indexed -->
 		<reg32 offset="0x40" name="CODE_CONTROL">
-			<bitfield low="0" high="10" name="IP"/>
-			<bitfield pos="16" name="PAUSE"/>
+			<bitfield low="0" high="10" name="ADDR"/>
+			<bitfield pos="16" name="STATE">
+				<value value="0" name="EXECUTING"/>
+				<value value="1" name="HALTED"/>
+			</bitfield>
 		</reg32>
-		<reg32 offset="0x44" name="CODE"/>
+		<reg32 offset="0x44" name="CODE_WINDOW"/>
 		<reg32 offset="0x48" name="ICNT"/>
 		<reg32 offset="0x4c" name="WDCNT"/>
-		<bitset name="nv98_pvp_vuc_intr"> <!-- fuc intr 10 -->
+		<bitset name="nv98_pvp_vuc_intr" inline="yes"> <!-- fuc intr 10 -->
 			<bitfield pos="0" name="WATCHDOG"/>
 			<bitfield pos="1" name="UNK1"/>
-			<bitfield pos="2" name="V2H"/>
+			<bitfield pos="2" name="V2H" variants="NV98:NVD9"/>
 			<bitfield pos="3" name="UNK3"/>
 			<bitfield pos="4" name="UNK4"/>
 			<bitfield pos="5" name="UNK5" variants="NVA3-"/>
@@ -270,15 +45,62 @@
 		<reg32 offset="0x54" name="V2H"/>
 		<reg32 offset="0x58" name="PARM">
 			<bitfield low="0" high="2" name="MODE" type="vp3_mode"/>
+			<bitfield pos="8" name="H264_MBAFF_FRAME_FLAG"/>
+			<bitfield low="9" high="10" name="H264_SLICE_TYPE"/>
 			<!-- ... -->
 		</reg32>
 		<reg32 offset="0x5c" name="PC"/>
+		<reg32 offset="0x60" name="RPITAB_DATA_ADDR"/>
+		<reg32 offset="0x64" name="REFTAB_DATA_ADDR" shr="1"/>
+		<reg32 offset="0x68" name="BUSY">
+			<bitfield pos="0" name="UC"/>
+			<bitfield pos="1" name="MBRING"/>
+			<bitfield pos="2" name="MVSURF_OUT"/>
+			<bitfield pos="3" name="MVSURF_IN"/>
+			<bitfield pos="4" name="UNK_STAT0"/>
+			<bitfield pos="5" name="UNK_STAT1"/>
+			<bitfield pos="6" name="UNK_STAT2"/>
+			<bitfield pos="7" name="UNK_STAT"/>
+		</reg32>
 		<reg32 offset="0x70" name="INTR" type="nv98_pvp_vuc_intr"/>
 		<reg32 offset="0x74" name="INTR_EN" type="nv98_pvp_vuc_intr"/>
+		<reg32 offset="0x80" name="MVSURF_IN_ADDR" shr="8"/>
+		<reg32 offset="0x84" name="MVSURF_IN_PARM">
+			<bitfield low="0" high="7" name="WIDTH"/>
+			<bitfield pos="8" name="PROGRESSIVE"/>
+		</reg32>
+		<reg32 offset="0x88" name="MVSURF_IN_LEFT">
+			<bitfield low="0" high="7" name="X"/>
+			<bitfield low="8" high="15" name="Y"/>
+		</reg32>
+		<reg32 offset="0x8c" name="MVSURF_IN_POS">
+			<bitfield low="0" high="11" name="MBPADDR"/>
+			<bitfield pos="12" name="PASS" type="uint"/>
+		</reg32>
+		<reg32 offset="0x90" name="MVSURF_OUT_ADDR" shr="8"/>
+		<reg32 offset="0x94" name="MVSURF_OUT_PARM">
+			<bitfield low="0" high="7" name="WIDTH"/>
+			<bitfield pos="8" name="MBAFF_FRAME_FLAG"/>
+			<bitfield pos="9" name="FIELD_PIC_FLAG"/>
+		</reg32>
+		<reg32 offset="0x98" name="MVSURF_OUT_LEFT">
+			<bitfield low="0" high="7" name="X"/>
+			<bitfield low="8" high="15" name="Y"/>
+		</reg32>
+		<reg32 offset="0x9c" name="MVSURF_OUT_POS">
+			<bitfield low="0" high="12" name="MBADDR"/>
+			<bitfield pos="13" name="PASS_ODD"/>
+		</reg32>
 		<reg32 offset="0xa0" name="MBRING_ADDR" shr="8"/>
 		<reg32 offset="0xa4" name="MBRING_SIZE"/>
 		<reg32 offset="0xa8" name="MBRING_GET"/>
 		<reg32 offset="0xac" name="MBRING_AVAIL"/> <!-- yes, really. -->
+		<reg32 offset="0xb0" name="UNKB0"/>
+		<reg32 offset="0xb4" name="UNKB4"/>
+		<reg32 offset="0xb8" name="UNKB8"/>
+		<reg32 offset="0xbc" name="STAT"/> <!-- aliases $stat -->
+		<reg32 offset="0xc0" name="UNKC0"/>
+		<reg32 offset="0xc4" name="UNKC4"/>
 	</array>
 	<array offset="0x500" name="TRANS" stride="0x80">
 		<reg32 offset="0x00" name="CODE_SELECT" length="4">
@@ -314,97 +136,6 @@
 		<reg32 offset="0x30" name="INTR" type="nv98_pvp_680_intr"/>
 		<reg32 offset="0x38" name="UNK38_HEIGHT"/>
 	</array>
-</array>
-
-<array name="PPPP" offset="0x86000" stride="0x1000" length="1" variants="NV98 NVAA-">
-	<use-group name="nv98_vpbase"/>
-	<array offset="0x400" stride="0x80" length="1" name="PIN">
-		<reg32 offset="0x00" name="UNK00"/>
-		<reg32 offset="0x04" name="DIMS">
-			<bitfield low="0" high="7" name="PIC_WIDTH" shr="4"/>
-			<bitfield low="8" high="15" name="PIC_HEIGHT" shr="4"/>
-			<bitfield low="16" high="23" name="SURF_WIDTH" shr="4"/>
-			<bitfield pos="24" name="UNK24"/> <!-- used only for VC-1 -->
-			<bitfield pos="28" name="UNK28"/> <!-- set for VC-1, clear for H.264 -->
-			<bitfield pos="29" name="UNK29"/>
-		</reg32>	<!-- for surface layout purposes -->
-		<reg32 offset="0x08" name="UNK08">
-			<bitfield low="0" high="2" name="UNK0"/>
-			<bitfield pos="4" name="POUT_TWO_FIELDS"/> <!-- ? -->
-		</reg32>
-		<reg32 offset="0x0c" name="SURF_ADDR" length="2" shr="8"/>
-		<reg32 offset="0x14" name="UNK14">
-			<bitfield pos="0" name="UNK0"/>
-			<bitfield pos="1" name="UNK1"/>
-			<bitfield low="28" high="31" name="UNK28"/>
-		</reg32>
-		<reg32 offset="0x18" name="INTR_ENABLE">
-			<bitfield pos="0" name="UNK0"/>
-			<bitfield pos="31" name="UNK31"/>
-		</reg32>
-		<reg32 offset="0x1c" name="INTR">
-			<bitfield pos="0" name="UNK0"/>
-		</reg32>
-		<reg32 offset="0x20" name="UNK20"/>
-		<reg32 offset="0x24" name="INTR_UNK"/>
-		<reg32 offset="0x28" name="Y_PUT" shr="4"/>
-	</array>
-	<array offset="0x500" stride="0xc0" name="H264">
-		<reg32 offset="0x00" name="INTR_UNK0"/>
-		<reg32 offset="0x04" name="INTR_UNK1"/>
-		<reg32 offset="0x08" name="INTR_UNK2"/>
-		<reg32 offset="0x0c" name="TRIGGER">
-			<bitfield pos="0" name="LUMA_TRIGGER"/>
-			<bitfield pos="4" name="CHROMA_TRIGGER"/>
-			<bitfield pos="8" name="UNK8"/>
-			<bitfield low="30" high="31" name="UNK30"/>
-		</reg32>
-
-		<!-- UNK10..1c and UNK40-UNK80 are all used together, or not at all, never seen it used so far -->
-		<reg32 offset="0x10" name="UNK10" />
-		<reg32 offset="0x14" name="UNK14" />
-		<reg32 offset="0x18" name="UNK18" />
-		<reg32 offset="0x1c" name="UNK1c" />
-		<reg32 offset="0x40" name="UNK40" stride="4" length="0x10"/><!-- a different program uploaded array for luma/chroma -->
-		<reg32 offset="0x80" name="UNK80" stride="4" length="0x10"/><!-- a different program uploaded array for luma/chroma -->
-	</array>
-	<array offset="0x5c0" stride="0x40" name="VC1">
-		<reg32 offset="0x00" name="INTR_UNK0"/>
-		<reg32 offset="0x04" name="INTR_UNK1"/>
-		<reg32 offset="0x08" name="INTR_UNK2"/>
-		<reg32 offset="0x0c" name="TRIGGER">
-			<bitfield pos="0" name="LUMA_TRIGGER"/>
-			<bitfield pos="4" name="CHROMA_TRIGGER"/>
-			<bitfield low="30" high="31" name="UNK30"/>
-		</reg32>
-		<reg32 offset="0x10" name="UNK10"> <!-- set separately for luma and chroma -->
-			<bitfield pos="0" name="UNK0"/>
-			<bitfield low="4" high="6" name="UNK4"/>
-		</reg32>
-		<reg32 offset="0x14" name="UNK14">
-			<bitfield pos="0" name="UNK0"/>
-			<bitfield low="4" high="8" name="PQUANT"/>
-		</reg32>
-	</array>
-	<array offset="0x640" stride="0x40" length="1" name="POUT">
-		<reg32 offset="0x00" name="INTR_UNK0"/>
-		<reg32 offset="0x04" name="INTR_UNK1"/>
-		<reg32 offset="0x08" name="INTR_UNK2"/>
-		<reg32 offset="0x0c" name="SURF_WIDTH" shr="4"/> <!-- for surface layout purposes -->
-		<reg32 offset="0x10" name="SURF_ADDR" length="2" shr="8"/>
-		<reg32 offset="0x18" name="UNK18"/> <!-- single bit -->
-	</array>
-	<array offset="0x680" length="0x20" stride="4" name="UNK680" /> <!-- saved to user buffer, linked to UNK700.. -->
-	<array offset="0x700" length="1" stride="0x40" name="UNK700">
-		<reg32 offset="0x00" name="UNK00"/><!-- some kind of trigger -->
-		<!-- UNK00 trigger: 0x11 is written before luma postproc, 0 is written after reading UNK680 array to user buffer, before chroma postproc, so luma only? -->
-		<reg32 offset="0x04" name="UNK04"/>
-		<reg32 offset="0x08" name="UNK08"/>
-	</array>
-</array>
-
-<array name="PCRYPT" offset="0x87000" stride="0x1000" length="1" variants="NV98 NVAA:NVA3">
-	<use-group name="nv98_vpbase"/>
 </array>
 
 </domain>

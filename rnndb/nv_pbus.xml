@@ -43,7 +43,7 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 	<array offset="0x1000" name="PBUS" stride="0x1000" length="1">
 		<reg32 offset="0x084" name="DEBUG_1" variants="NV17:NV20 NV25-">
-			<bitfield pos="11" name="PUNK021_READOUT_ENABLE" variants="NV50-NVC0"/>
+			<bitfield pos="11" name="PUNK021_READOUT_ENABLE" variants="NV50:NVC0"/>
 
 		</reg32>
 		<reg32 offset="0x098" name="DEBUG_6" variants="NV17:NV20 NV25-">
@@ -56,6 +56,7 @@
 
 		</reg32>
 		<reg32 offset="0x100" name="INTR">
+			<bitfield pos="0" name="BUS_ERROR" variants="NV04:NV50"/>
 			<bitfield pos="3" name="MMIO_FAULT" variants="NV41-"/>
 			<bitfield pos="26" name="USER" variants="NV50-" />
 			<bitfield pos="28" name="USER2" variants="NVC0-" />
@@ -82,6 +83,9 @@
 		<reg32 offset="0x200" name="ROM_TIMINGS" variants="NV10:NV30">
 			<bitfield low="0" high="5" name="UNK0"/>
 			<bitfield low="6" high="7" name="UNK1"/>
+		</reg32>
+		<reg32 offset="0x200" name="ROM_TIMINGS" variants="NV30:NV50">
+			<!-- ... -->
 		</reg32>
 
 		<stripe offset="0x300" name="HWSQ" variants="NV17:NV20 NV25:NVC0">
@@ -143,24 +147,37 @@
 			<bitfield pos="7" name="DYNAMIC_CLOCK_GATING"/>
 		</reg32>
 
-		<reg32 offset="0x540" name="PGRAPH_UNITS" variants="NV50:NVC0">
-			<doc>Enables PGRAPH engines that come in multiple copies.
-			</doc>
-			<bitfield high="15" low="0" name="TP_MASK">
+		<reg32 offset="0x540" name="HWUNITS_0" variants="NV40:NV50">
+			<bitfield low="0" high="7" name="PIXEL_MASK"/>
+			<bitfield low="8" high="15" name="VERTEX_MASK"/>
+			<!-- XXX: 16+ -->
+		</reg32>
+
+		<reg32 offset="0x540" name="HWUNITS_0" variants="NV50:NVC0">
+			<bitfield low="0" high="15" name="TP_MASK">
 				<doc>Selects which TPs are enabled</doc>
 			</bitfield>
-			<bitfield high="23" low="16" name="ROPC_MASK">
-				<doc>Selects which ROP clusters are enabled</doc>
+			<bitfield low="16" high="23" name="PART_MASK">
+				<doc>Selects which memory partitions are enabled</doc>
 			</bitfield>
-			<bitfield high="27" low="24" name="MP_MASK">
+			<bitfield low="24" high="27" name="MP_MASK">
 				<doc>Selects which MPs inside each TP are enabled</doc>
 			</bitfield>
-			<bitfield high="31" low="28" name="UNK_MASK">
-				<doc>Unknown, always starts as 0b1111. Not setting
-				bit 28 causes the card to die. Not setting bits
-				29-31 has no obvious effects.
-				</doc>
+			<bitfield pos="28" name="UNK28">
+				<doc>Not setting bit 28 causes the card to die.</doc>
 			</bitfield>
+			<bitfield pos="29" name="UNK29"/>
+			<bitfield pos="30" name="VDEC">
+				<doc>Selects whether video decoding engines (PMPEG, PMSRCH, PVP, VP2 and VP3 PBSP, PPPP, VP2 PCRYPT, but not VP3 PCRYPT nor VP4 PBSP) are enabled.</doc>
+			</bitfield>
+			<bitfield pos="31" name="UNK31"/>
+		</reg32>
+		<reg32 offset="0x54c" name="HWUNITS_1" variants="NV84:NVC0">
+			<bitfield pos="1" name="UNK1"/> <!-- enabling causes the card to change class 0x3000000 -> 0x48000 -->
+			<bitfield pos="2" name="PDISPLAY"/>
+			<bitfield pos="5" name="PBSP"/>
+			<bitfield pos="6" name="PCRYPT" variants="NV84:NVA3"/>
+			<bitfield pos="9" name="PCOPY" variants="NVA3-"/>
 		</reg32>
 		<reg32 offset="0x570" name="PEEPHOLE_ADDR" variants="NV30-NV50">
 			<doc>Virtual address to poke.</doc>

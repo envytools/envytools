@@ -127,6 +127,10 @@
 	<value value="0xd9" name="NVD9">
 		<brief>GF119: GeForce 410M/520M</brief>
 	</value>
+	<value value="0xe4" name="NVE4">
+		<brief>GK104: GeForce 680 GTX</brief>
+	</value>
+	<value value="0xe7" name="NVE7"/>
 </enum>
 
 </database>

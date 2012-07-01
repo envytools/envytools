@@ -68,6 +68,9 @@ int vbios_upload_pramin(int cnum, uint8_t *vbios, int length)
 		return ECARD;
 	}
 
+	/* Update the checksum */
+	chksum(vbios, length);
+
 	fprintf(stderr, "Attempt to upload the vbios to card %i (nv%02x) using PRAMIN\n",
 			cnum, nva_cards[cnum].chipset);
 
@@ -130,24 +133,23 @@ int vbios_read(const char *filename, uint8_t **vbios, unsigned int *length)
 	/* Set the right length */
 	*length = (*vbios)[2] * 512;
 
-	/* Update the checksum */
-	chksum(*vbios, *length);
-
 	return EOK;
 }
 
 void usage(int error_code)
 {
-	fprintf(stderr, "\nUsage: nvafakebios [-c card_number] vbios.rom\n");
+	fprintf(stderr, "\nUsage: nvafakebios [-c card_number] [-e offset:value] vbios.rom\n");
 	exit(error_code);
 }
 
 int main(int argc, char **argv) {
 	uint8_t *vbios = NULL;
 	unsigned int vbios_length = 0;
-	int c;
-	int cnum = 0;
-	int result = 0;
+	int c, i, cnum = 0, result = 0;
+
+	uint16_t offset[10] = { 0 };
+	uint16_t val[10] = { 0 };
+	int e = 0;
 
 	if (nva_init()) {
 		fprintf (stderr, "PCI init failure!\n");
@@ -155,13 +157,17 @@ int main(int argc, char **argv) {
 	}
 
 	/* Arguments parsing */
-	while ((c = getopt (argc, argv, "hc:")) != -1)
+	while ((c = getopt (argc, argv, "hc:e:")) != -1)
 		switch (c) {
 			case 'h':
 				usage(0);
 				break;
 			case 'c':
 				sscanf(optarg, "%d", &cnum);
+				break;
+			case 'e':
+				sscanf(optarg, "%hx:%hx", &offset[e], &val[e]);
+				e++;
 				break;
 			default:
 				usage(1);
@@ -183,6 +189,12 @@ int main(int argc, char **argv) {
 	result = vbios_read(argv[optind], &vbios, &vbios_length);
 	if (result != EOK)
 		goto out;
+
+	/* do the edits */
+	for (i = 0; i < e; i++) {
+		printf("Edit offset 0x%x from 0x%x to 0x%x\n", offset[i], vbios[offset[i]], val[i]);
+		vbios[offset[i]] = val[i];
+	}
 
 	/* Upload */
 	result = vbios_upload_pramin(cnum, vbios, vbios_length);

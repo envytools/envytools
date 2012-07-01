@@ -36,13 +36,17 @@ int main(int argc, char **argv) {
 	int c;
 	int cnum =0;
 	int alias = 0;
-	while ((c = getopt (argc, argv, "ac:")) != -1)
+	int slow = 0;
+	while ((c = getopt (argc, argv, "asc:")) != -1)
 		switch (c) {
 			case 'c':
 				sscanf(optarg, "%d", &cnum);
 				break;
 			case 'a':
 				alias = 1;
+				break;
+			case 's':
+				slow = 1;
 				break;
 		}
 	if (cnum >= nva_cardsnum) {
@@ -98,6 +102,14 @@ int main(int argc, char **argv) {
 			if (ls)
 				printf("...\n");
 			ls = 0;
+		}
+		if (slow) {
+			int j;
+			for (j = 0; j < 100; j++)
+				nva_rd32(cnum, 0);
+			usleep(10000);
+			for (j = 0; j < 100; j++)
+				nva_rd32(cnum, 0);
 		}
 	}
 	return 0;

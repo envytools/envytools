@@ -23,6 +23,7 @@
  */
 
 #include "bios.h"
+#include "util.h"
 #include <string.h>
 
 static int parse_pcir (struct envy_bios *bios) {
@@ -59,6 +60,9 @@ broken_part:
 			goto broken_part;
 		if (curpos + pcir_ilen * 0x200 > bios->origlength)
 			goto broken_part;
+		envy_bios_block(bios, curpos, 3, "SIG", num);
+		envy_bios_block(bios, curpos+0x18, 2, "PCIR_PTR", num);
+		envy_bios_block(bios, curpos+pcir_offset, 0x18, "PCIR", num);
 		if (!(pcir_indi & 0x80))
 			next = 1;
 		curpos += pcir_ilen * 0x200;
@@ -125,8 +129,11 @@ static void parse_bmp_nv03(struct envy_bios *bios) {
 	bios->bmp_ver = bios->bmp_ver_major << 8 | bios->bmp_ver_minor;
 	if (bios->bmp_ver != 0x01)
 		ENVY_BIOS_WARN("NV03 BMP version not 0.1!\n");
-	if (!err)
+	if (!err) {
 		bios->bmp_length = 0xe;
+		envy_bios_block(bios, bios->bmp_offset, bios->bmp_length, "BMP", -1);
+	}
+	/* XXX: add block for init script */
 }
 
 int envy_bios_parse (struct envy_bios *bios) {
@@ -140,9 +147,17 @@ int envy_bios_parse (struct envy_bios *bios) {
 	vendor = bios->parts[0].pcir_vendor;
 	device = bios->parts[0].pcir_device;
 	const uint8_t bmpsig[5] = "\xff\x7f""NV\0";
-	const uint8_t bitsig[5] = "\xff\xb8""BIT";
+	const uint8_t bitsig[7] = "\xff\xb8""BIT\0\0";
 	const uint8_t hwsqsig[4] = "HWSQ";
 	switch(vendor) {
+	case 0x104a: /* SGS */
+		if (device == 0x08 || device == 0x09) {
+			bios->type = ENVY_BIOS_TYPE_NV01;
+		} else {
+			ENVY_BIOS_ERR("Unknown SGS pciid %04x\n", device);
+			break;
+		}
+		break;
 	case 0x12d2: /* SGS + nvidia */
 		if (device == 0x18 || device == 0x19) {
 			bios->type = ENVY_BIOS_TYPE_NV03;
@@ -150,6 +165,9 @@ int envy_bios_parse (struct envy_bios *bios) {
 			ENVY_BIOS_ERR("Unknown SGS/NVidia pciid %04x\n", device);
 			break;
 		}
+		bios_u16(bios, 0x54, &bios->subsystem_vendor);
+		bios_u16(bios, 0x56, &bios->subsystem_device);
+		envy_bios_block(bios, 0x54, 4, "HWINFO", -1);
 		bios->bmp_offset = find_string(bios, bmpsig, 5);
 		if (!bios->bmp_offset) {
 			ENVY_BIOS_ERR("BMP not found\n");
@@ -157,13 +175,44 @@ int envy_bios_parse (struct envy_bios *bios) {
 		}
 		parse_bmp_nv03(bios);
 		break;
-	case 0x10de:
+	case 0x10de: /* nvidia */
 		bios->type = ENVY_BIOS_TYPE_NV04;
 		bios->bmp_offset = find_string(bios, bmpsig, 5);
-		bios->bit_offset = find_string(bios, bitsig, 5);
+		bios->bit.offset = find_string(bios, bitsig, 7);
 		bios->hwsq_offset = find_string(bios, hwsqsig, 4);
-		bios_u16(bios, 0x36, &bios->dcb_offset);
+		bios_u16(bios, 0x36, &bios->dcb.offset);
+		envy_bios_block(bios, 0x36, 2, "DCB_PTR", -1);
+		bios_u16(bios, 0x54, &bios->subsystem_vendor);
+		bios_u16(bios, 0x56, &bios->subsystem_device);
+		if (envy_bios_parse_bit(bios))
+			ENVY_BIOS_ERR("Failed to parse BIT table at %04x version %d\n", bios->bit.offset, bios->bit.version);
+		if (envy_bios_parse_dcb(bios))
+			ENVY_BIOS_ERR("Failed to parse DCB table at %04x version %x.%x\n", bios->dcb.offset, bios->dcb.version >> 4, bios->dcb.version & 0xf);
+		if (bios->dcb.version >= 0x20) {
+			/* XXX: should use chipset instead */
+			/* note: NV17 and NV1F don't actually have these registers, but the bioses I've seen include the [nop] values anyway */
+			bios_u32(bios, 0x58, &bios->straps0_select);
+			bios_u32(bios, 0x5c, &bios->straps0_value);
+			bios_u32(bios, 0x60, &bios->straps1_select);
+			bios_u32(bios, 0x64, &bios->straps1_value);
+			envy_bios_block(bios, 0x54, 0x14, "HWINFO", -1);
+		} else {
+			envy_bios_block(bios, 0x54, 4, "HWINFO", -1);
+		}
 		break;
 	}
 	return 0;
+}
+
+const char *find_enum(struct enum_val *evals, int val) {
+	int i;
+	for (i = 0; evals[i].str; i++)
+		if (val == evals[i].val)
+			return evals[i].str;
+	return "???";
+}
+
+void envy_bios_block(struct envy_bios *bios, unsigned start, unsigned len, const char *name, int idx) {
+	struct envy_bios_block block = { start, len, name, idx };
+	ADDARRAY(bios->blocks, block);
 }

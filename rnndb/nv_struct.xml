@@ -89,4 +89,13 @@
 	</stripe>
 </domain>
 
+<domain name="NV01_RAMFC">
+	<reg32 offset="0" name="CTX" length="8">
+		<bitfield low="0" high="15" name="ENGDATA"/>
+		<bitfield low="16" high="22" name="ADDR" shr="16"/>
+		<bitfield pos="24" name="FREE_LIE" variants="NV01:NV03"/>
+		<bitfield low="28" high="30" name="SUBCHANNEL"/> <!-- duplicated over all subchannels -->
+	</reg32>
+</domain>
+
 </database>

@@ -1,9 +1,17 @@
-Introduction
+TOC
+
+0. Introduction
+1. Returning form an interrupt: iret
+2. Software trap trigger: trap
+
+
+= Introduction =
 
 fuc has interrupt support. There are 16 interrupt lines on each engine, and
 two interrupt vectors on the microprocessor. Each of the interrupt lines can
-be independently routed to uc vector 0, uc vector 1, host irq, or ignored.
-The lines can be triggered by hw events, or by user.
+be independently routed to one of the microprocessor vectors, or to the PMC
+interrupt line, if the engine has one. The lines can be individually masked
+as well. They can be triggered by hw events, or by the user.
 
 The lines are:
 
@@ -12,7 +20,7 @@ The lines are:
   2 [L]: FIFO data available	[fuc-fifo.txt]
   3 [E]: PFIFO channel switch	[fuc-fifo.txt]
   4 [E]: uc halted		[fuc-ctrl.txt]
-  5 [E]: ??? [related to fuc+0x0a4]
+  5 [E]: ??? [related to fuc+0x0a4] [XXX]
   6-7 [E]: scratch [unused by hw, user-defined]
   8-9 [E by default]: engine-specific
   10-15 [L by default]: engine-specific
@@ -43,7 +51,7 @@ MMIO 0x018 / I[0x00600]: INTR_EN [status]
   handler isn't run if a given interrupt happens [but the INTR bit is still
   set and it'll run once INTR_EN bit is set again].
 
-MMIO 0x00c / I[0x00300]: INTR_MODE [NVA3+]
+MMIO 0x00c / I[0x00300]: INTR_MODE [v3+ only]
   Bits 0-15 are modes for the corresponding interrupt lines. 0 is edge
   trigered, 1 is level triggered.
 
@@ -52,7 +60,7 @@ MMIO 0x00c / I[0x00300]: INTR_MODE [NVA3+]
 
   This register is set to 0xfc04 on reset.
 
-[XXX: check edge/level distinction on NV98]
+[XXX: check edge/level distinction on v0]
 
 MMIO 0x01c / I[0x00700]: INTR_ROUTING
   Bits 0-15: bit 0 of interrupt routing selector, one for each interrupt line
@@ -64,23 +72,9 @@ together to find its routing testination:
   2: fuc vector 1
   3: PMC UNK1 line [NVC0+ only]
 
-If any interrupt set for PMC irq delivery is active and unmasked, the
-corresponding PMC interrupt input line is active. The corresponding PMC lines
-are:
-
-  PBSP			15
-  PVP			17
-  PPPP			0
-  PCRYPT		14
-  PUNK1C1		14
-  PCOPY	pre-NVC0	22
-  PCOPY[0] NVC0+	5
-  PCOPY[1] NVC0+	6
-  PDAEMON pre-NVC0	18
-  PDAEMON NVC0+		24
-  PGRAPH HUB CTXCTL	[unconnected]
-  PGRAPH GPC CTXCTL	[unconnected]
-  PDISPLAY		???
+If the engine has a PMC interrupt line and any interrupt set for PMC irq
+delivery is active and unmasked, the corresponding PMC interrupt input line
+is active.
 
 fuc interrupt and trap delivery is controlled by $iv0, $iv1, $tv, $tstatus
 registers and ie0, ie1, is0, is1, ta $flags bits. Traps behave like
@@ -89,11 +83,12 @@ interrupts, but are triggered by events inside the UC.
 $iv0 is address of interrupt vector 0. $iv1 is address of interrupt vector 1.
 $tv is address of trap vector. ieX are interrupt enable bits for corresponding
 vectors. isX are interrupt enable save bits. ta is trap active flag. $tstatus
-is NVA3+ and contains information about last trap. The bitfields of $tstatus
-are:
+is present on v3+ only and contains information about last trap. The bitfields
+of $tstatus are:
 
   bits 0-15: faulting $pc
   bits 20-23: trap reason
+[XXX: recheck on v4]
 
 The known trap reasons are:
 
@@ -110,6 +105,8 @@ Operation:
 	ST(32, $sp, $pc);
 	$flags.is0 = $flags.ie0;
 	$flags.is1 = $flags.ie1;
+	$flags.ie0 = 0;
+	$flags.ie1 = 0;
 	if (vector 0)
 		$pc = $iv0;
 	else
@@ -122,23 +119,23 @@ Operation:
 		EXIT; // see fuc-ctrl.txt
 	}
 	$flags.ta = 1;
-	if (NVA3+) // on pre-NVA3, there's only one possible trap reason anyway [8]
+	if (fuc_version != 0) // on v0, there's only one possible trap reason anyway [8]
 		$tstatus = $pc | reason << 20; // XXX: check page faults on page bounduaries
 	$sp -= 4;
 	ST(32, $sp, $pc);
 	$pc = $tv;
 
 
-Returning form an interrupt: iret
+= Returning form an interrupt: iret =
 
 Returns from an interrupt handler.
 
-Insns [unsized]:
-  iret - Return from an interrupt
-
-Operands [-]:
-  [f8/1]
-
+Instructions:
+	iret - Return from an interrupt
+Instruction class: unsized
+Operands: -
+Forms:
+	[no operands]			opcode = f8, subopcode = 1
 Operation:
 	$pc = LD(32, $sp);
 	$sp += 4;
@@ -146,19 +143,19 @@ Operation:
 	$flags.ie1 = $flags.is1;
 
 
-Software trap trigger: trap
+= Software trap trigger: trap =
 
 Triggers a software trap.
 
-Insns [unsized]:
-  [8] trap 0 - software trap #0 [NVA3+]
-  [9] trap 1 - software trap #1 [NVA3+]
-  [a] trap 2 - software trap #2 [NVA3+]
-  [b] trap 3 - software trap #3 [NVA3+]
-
-Operands [-]:
-  [f8]
-
+Instructions:
+	trap 0 - software trap #0		subopcode = 8 [v3+ only]
+	trap 1 - software trap #1		subopcode = 9 [v3+ only]
+	trap 2 - software trap #2		subopcode = a [v3+ only]
+	trap 3 - software trap #3		subopcode = b [v3+ only]
+Instruction class: unsized
+Operands: -
+Forms:
+	[no operands]				opcode = f8
 Operation:
 	if ($flags.ta) { // double trap?
 		EXIT; // see fuc-ctrl.txt

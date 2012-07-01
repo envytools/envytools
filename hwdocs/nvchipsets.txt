@@ -1,4 +1,19 @@
-Introduction
+TOC
+
+0. Introduction
+1. The card families
+1.1. NV01 family: NV01
+1.2. NV03 family: NV03, NV03T
+1.3. NV04 family: NV04, NV05
+1.4. NV10 family: NV10, NV15, NV1A, NV11, NV17, NV1F, NV18
+1.5. NV20 family: NV20, NV2A, NV25, NV28
+1.6. NV30 family: NV30, NV35, NV31, NV36, NV34
+1.7. NV40 family
+1.8. NV50 family
+1.9. NVC0 family
+
+
+= Introduction =
 
 Each nvidia GPU has several identifying numbers that can be used to determine
 supported features, the engines it contains, and the register set. The most
@@ -32,7 +47,7 @@ listed in this file, the following shorthands are used:
 124X*: PCI device ids 0x1240-0x127X, choosable by straps
 
 
-The card families
+= The card families =
 
 The chipsets can roughly be grouped into 9 families: NV01, NV03, NV04, NV10,
 NV20, NV30, NV40, NV50, NVC0. This aligns with big revisions of PGRAPH, the
@@ -73,7 +88,7 @@ is:
    - NV84 subfamily: NV84, NV86, NV92, NV94, NV96, NV98
    - NVA0 subfamily: NVA0, NVAA, NVAC
    - NVA3 subfamily: NVA3, NVA5, NVA8, NVAF
- - NVC0 family: NVC0, NVC4, NVC3, NVCE, NVCF, NVC1, NVC8, NVD9
+ - NVC0 family: NVC0, NVC4, NVC3, NVCE, NVCF, NVC1, NVC8, NVD9, NVE4, NVE7
 
 Whenever a range of cards is mentioned in the documentation, it's written as
 "NVxx:NVyy". This is left-inclusive, right-noninclusive range of chipset ids
@@ -81,7 +96,7 @@ as sorted in the preceding list. For example, NVA0:NVA8 means chipsets NVA0,
 NVAA, NVAC, NVA3, NVA5. NV20:NV30 effectively means all NV20 family cards.
 
 
-NV01 family: NV01
+== NV01 family: NV01 ==
 
 The first nvidia GPU. It has semi-legendary status, as it's very rare and hard
 to get. Information is mostly guesswork from ancient xfree86 driver. The GPU
@@ -102,14 +117,26 @@ include at least:
 002000:004000 PFIFO - MMIO-mapped FIFO submission to PGRAPH [nv01-pfifo.txt]
 100000:101000 PDMA - DMA submission to PGRAPH - NV01 specific
 101000:102000 PTIMER - time measurement and time-based alarms [ptimer.txt]
+300000:301000 PAUDIO - audio capture and playback device [paudio.txt]
 400000:401000 PGRAPH - accelerated drawing engine
 600000:601000 PFB - VRAM and video output control - NV01 specific
-602000:603000 PRAM - priviledgd RAM control - NV01 specific
+602000:603000 PRAM - priviledgd RAM control [nv01-memory.txt]
+604000:605000 ???
+605000:606000 ???
+606000:607000 ???
+608000:609000 PSTRAPS - straps readout / override [pstraps.txt]
 609000:60a000 PDAC - DAC control - NV01 specific
-640000:648000 PRAMHT - RAMHT access - NV01 specific
-648000:650000 PRAMFC - RAMFC access - NV01 specific
+60a000:60b000 PEEPROM - configuration EEPROM access [peeprom.txt]
+610000:618000 PROM - ROM access window [nvbios.txt]
+618000:620000 PALT - external memory access window [nv01-memory.txt]
+640000:648000 PRAMHT - RAMHT access [nv01-memory.txt]
+648000:64c000 PRAMFC - RAMFC access [nv01-memory.txt]
+650000:654000 PRAMRO - RAMRO access [nv01-memory.txt]
 6c0000:6c8000 PRM - VGA compatibility control - NV01 specific
+6d0000:6d1000 PRMIO - VGA IO port access
+700000:800000 PRAMIN - RAMIN access [nv01-memory.txt]
 800000:1000000 USER - PFIFO MMIO submission area [fifo-pio.txt]
+1000000:2000000 FB - VRAM access area [nv01-memory.txt]
 
 There's also NV02, which has even more legendary status. It was supposed to be
 another card based on quadratic surfaces, but it got stuck in development hell
@@ -121,7 +148,7 @@ pci vendor id of 0x12d2. The pci device ids are 0x0008 and 0x0009. The device
 id of NV02 was supposed to be 0x0010.
 
 
-NV03 family: NV03, NV03T
+== NV03 family: NV03, NV03T ==
 
 The first [moderately] sane GPUs from nvidia, and also the first to use AGP
 bus. There are two chips in this family, and confusingly both use chipset id
@@ -186,7 +213,7 @@ The MMIO ranges are:
 800000:1000000 USER - PFIFO MMIO submission area [fifo-pio.txt]
 
 
-NV04 family: NV04, NV05
+== NV04 family: NV04, NV05 ==
 
 Improved and somewhat redesigned NV03. Notable changes:
 
@@ -236,7 +263,7 @@ The MMIO ranges are:
 800000:1000000 USER - PFIFO MMIO and DMA submission area [fifo-pio.txt, fifo-dma-pusher.txt]
 
 
-NV10 family: NV10, NV15, NV1A, NV11, NV17, NV1F, NV18
+== NV10 family: NV10, NV15, NV1A, NV11, NV17, NV1F, NV18 ==
 
 The notable changes in this generation are:
 
@@ -301,7 +328,7 @@ The MMIO ranges for NV10, NV20 and NV30 families are:
 009000:00a000 PTIMER - time measurement and time-based alarms [ptimer.txt]
 00a000:00b000 PCOUNTER - performance monitoring counters [pcounter.txt]
 00b000:00c000 PVPE - MPEG2 decoding engine [NV17:NV20 and NV30+] [vpe.txt]
-00d000:00e000 PTV - TV encoder [NV17+, not on NV20] [ptv.txt]
+00d000:00e000 PTV - TV encoder [NV17:NV20 and NV30+] [ptv.txt]
 0a0000:0c0000 PRM - aliases VGA memory window [nvvga.txt]
 0c0000:0c1000 PRMVIO - aliases VGA sequencer and graphics controller registers [nvvga.txt]
 100000:101000 PFB - memory interface [not on NV1A, NV1F, NV2A] [nv10-pfb.txt]
@@ -322,7 +349,7 @@ The MMIO ranges for NV10, NV20 and NV30 families are:
 800000:1000000 USER - PFIFO MMIO and DMA submission area [fifo-pio.txt, fifo-dma-pusher.txt]
 
 
-NV20 family: NV20, NV2A, NV25, NV28
+== NV20 family: NV20, NV2A, NV25, NV28 ==
 
 The first cards of this family were actually developed before NV17, so they
 miss out on several features introduced in NV17. The first card to merge NV20
@@ -336,11 +363,11 @@ NV20:
  - RAMIN reversal unit bumped to 0x40 bytes
  - 3d engine extensions:
   - programmable vertex shader support
-  - D3D8, shader model 1.1 
+  - D3D8, shader model 1.1
  - PGRAPH automatic context switching
 NV25:
- - a merge of NV17 and NV20: has dual-head, PTV, ZCULL, ...
- - still no VPE
+ - a merge of NV17 and NV20: has dual-head, ZCULL, ...
+ - still no VPE and PTV
 NV28:
  - AGP x8 support
 
@@ -365,7 +392,7 @@ The pci vendor id is 0x10de, the pci device ids are:
 For MMIO ranges, see NV10 family's list.
 
 
-NV30 family: NV30, NV35, NV31, NV36, NV34
+== NV30 family: NV30, NV35, NV31, NV36, NV34 ==
 
 The infamous GeForce FX series. Notable changes:
 
@@ -376,7 +403,7 @@ NV30:
   - programmable fragment shader support
   - D3D9, shader model 2.0
  - added PEEPHOLE indirect memory access
- - return of VPE
+ - return of VPE and PTV
  - new-style memory timings
 NV35:
  - 3d engine additions:
@@ -419,7 +446,7 @@ The pci vendor id is 0x10de, the pci device ids are:
 For MMIO ranges, see NV10 family's list.
 
 
-NV40 family
+== NV40 family ==
 
 This family was the first to feature PCIE cards, and many fundamental areas
 got significant changes, which later paved the way for NV50. It is also the
@@ -491,7 +518,7 @@ The pci ids:
 00f2 NV43 [faked by AGP bridge]
 00f3 NV43 [faked by AGP bridge]
 00f4 NV43 [faked by AGP bridge]
-00f5 NV47 [faked by AGP bridge]
+00f5 NV49 [faked by AGP bridge]
 00f6 NV43 [faked by AGP bridge]
 00f8 NV40/NV45 [faked by PCIE bridge]
 00f9 NV40/NV45 [faked by PCIE bridge]
@@ -555,7 +582,7 @@ The MMIO ranges for NV40 family are:
 c00000:1000000 NEW_USER - PFIFO DMA submission area [fifo-dma-pusher.txt]
 
 
-NV50 family
+== NV50 family ==
 
 The card where they redesigned everything. The most significant change was the
 redesigned memory subsystem, complete with a paging MMU [see nv50-vm.txt,
@@ -586,7 +613,7 @@ NV84:
  - PEEPHOLE moved out of PBUS
  - PFIFO_BAR_FLUSH moved out of PFIFO
 NV98:
- - introduced VP3 video decoding engines, and the fuc microcode with them
+ - introduced VP3 video decoding engines, and the fµc microcode with them
  - got rid of VP2 video decoding
 NVA0:
  - developped in parallel with NV98
@@ -598,9 +625,9 @@ NVAA:
  - merged NVA0 and NV98 changes: has both VP3 and new PGRAPH
  - only CUDA ISA 1.2 now: fp64 support got cut out again
 NVA3:
- - a new revision of the fuc ISA
+ - a new revision of the fµc ISA
  - a revision to VP3 video decoding, known as VP4. Adds MPEG-4 ASP support.
- - added PDAEMON, a fuc engine meant to do card monitoring and power maanagement
+ - added PDAEMON, a fµc engine meant to do card monitoring and power maanagement
  - PGRAPH additions for D3D10.1 support
  - added HDA audio codec for HDMI sound support, on a separate PCI function
  - Added PCOPY, the dedicated copy engine
@@ -641,6 +668,7 @@ The pci vendor id is 0x10de. The pci device ids are:
 0caX+ NVA3
 0a2X+ NVA5
 0a6X+ NVA8
+10cX+ NVA8
 08aX+ NVAF
 
 The MMIO ranges for NV50 family are:
@@ -664,10 +692,10 @@ The MMIO ranges for NV50 family are:
 060000:070000 PEEPHOLE - indirect VM access [NV84-] [nv50-vm.txt]
 070000:080000 PFIFO_BAR_FLUSH - used to flush BAR writes [NV84-] [nv50-vm.txt]
 080000:081000 PBUS_PMS_NEWCODE - extended PMS code space [NV92-] [pbus.txt]
-084000:085000 PBSP - VP3 BSP engine [NV98, NVAA-] [fuc.txt, fuc-bsp.txt]
-085000:086000 PVP - VP3 video decoding engine [NV98, NVAA-] [fuc.txt, fuc-vp.txt]
-086000:087000 PPPP - VP3 video postprocessing engine [NV98, NVAA-] [fuc.txt, fuc-ppp.txt]
-087000:088000 PCRYPT - VP3 cryptographic engine [NV98, NVAA:NVA3] [fuc.txt, fuc-crypt.txt]
+084000:085000 PBSP - VP3 BSP engine [NV98, NVAA-] [vp3-pbsp.txt]
+085000:086000 PVP - VP3 video decoding engine [NV98, NVAA-] [vp3-pvp.txt]
+086000:087000 PPPP - VP3 video postprocessing engine [NV98, NVAA-] [vp3-pppp.txt]
+087000:088000 PCRYPT - VP3 cryptographic engine [NV98, NVAA:NVA3] [vp3-pcrypt.txt]
 088000:089000 PPCI - PCI config space access [pbus.txt]
 089000:08a000 ??? [NV84-]
 08a000:08b000 PCODEC_PCI - PCI config space access for the HDA codec function [NVA3-] [pcodec.txt]
@@ -675,28 +703,28 @@ The MMIO ranges for NV50 family are:
 0a0000:0c0000 PRM - aliases VGA memory window [nvvga.txt]
 100000:101000 PFB - memory interface and VM control [nv50-pfb.txt]
 101000:102000 PSTRAPS - straps readout / override [pstraps.txt]
-102000:103000 PCRYPT - VP2 cryptographic engine [NV84:NV98, NVA0] [crypt.txt]
+102000:103000 PCRYPT - VP2 cryptographic engine [NV84:NV98, NVA0] [pcrypt.txt]
 102000:103000 ??? - IGPs only [XXX]
 103000:104000 PBSP - VP2 BSP engine [NV84:NV98, NVA0] [vp2.txt]
-104000:105000 PCOPY - memory copy engine [NVA3-] [fuc.txt, fuc-copy.txt]
+104000:105000 PCOPY - memory copy engine [NVA3-] [pcopy.txt]
 108000:109000 PCODEC - the HDA codec doing HDMI audio [NVA3-] [pcodec.txt]
 109000:10a000 PFUSE - efuses storing secret stuff [NVA3-] [pfuse.txt]
-10a000:10b000 PDAEMON - a fuc engine used to run management code in background [NVA3-] [fuc.txt, pdaemon.txt]
+10a000:10b000 PDAEMON - a fµc engine used to run management code in background [NVA3-] [pdaemon.txt]
 [XXX: 10f000:112000 range on NVA3-]
-1c1000:1c2000 ??? - another fuc fifo engine [NVAF-]
+1c1000:1c2000 ??? - another fµc fifo engine [NVAF-] [punk1c1.txt]
 [XXX: did they finally kill off this one?]
 200000:201000 PMEDIA - mediaport [pmedia.txt]
 2ff000:300000 PBRIDGE_PCI - access to PCI config registers of the GPU's upstream PCIE bridge [NVAA, NVAC, NVAF] [pbus.txt]
 300000:400000 PROM - ROM access window [nvbios.txt]
 400000:410000 PGRAPH - accelerated 2d/3d drawing and CUDA engine [nv50-pgraph.txt]
 601000:602000 PRMIO - aliases VGA registers [nvvga.txt]
-610000:620000 PDISPLAY - the DMA FIFO controlled unified display engine [pdisplay.txt]
+610000:640000 PDISPLAY - the DMA FIFO controlled unified display engine [pdisplay.txt]
 640000:650000 DISPLAY_USER - DMA submission to PDISPLAY [pdisplay.txt]
 700000:800000 PMEM - indirect VRAM/host memory access [nv50-memory.txt]
 c00000:1000000 NEW_USER - PFIFO DMA submission area [fifo-dma-pusher.txt]
 
 
-NVC0 family
+== NVC0 family ==
 
 The card where they redesigned everything again.
 
@@ -706,7 +734,7 @@ NVC0:
    - split into a central HUB managing everything and several GPCs
      doing all actual work
    - GPCs further split into a common part and several MPs
-   - using fuc for context switching
+   - using fµc for context switching
    - D3D11 support
  - redesigned memory controller
    - split into three parts:
@@ -727,6 +755,20 @@ NVD9:
  - redesigned I2C bus interface
  - redesigned PDISPLAY
  - removed second PCOPY engine
+NVE4:
+ - redesigned PCOPY: the fµc controller is now gone, replaced with hardware
+   control logic, partially in PFIFO
+ - an additional PCOPY engine
+ - PFIFO redesign - a channel can now only access a single engine selected on
+   setup, with PCOPY2+PGRAPH considered as one engine
+ - PGRAPH changes:
+   - subchannel to object assignments are now fixed
+   - m2mf is gone and replaced by a new p2mf object that only does simple
+     upload, other m2mf functions are now PCOPY's responsibility instead
+   - the ISA requires explicit scheduling information now
+   - lots of setup has been moved from methods/registers into memory
+     structures
+   [XXX: figure out what else]
 
 Chipsets in NVC0 family [GPC count : MP count per GPC : ROPC count : memory partitions per ROPC]:
 
@@ -738,6 +780,8 @@ NVCF [GF116]: 1:4:3:1
 NVC1 [GF108]: 1:2:1:2
 NVC8 [GF110]: 4:4:6:1
 NVD9 [GF119]: 1:1:1:1
+NVE4 [GK104]: 4:2:4:1
+NVE7 [GK107]: ?:?:2:1
 
 The pci device ids are:
 
@@ -749,8 +793,10 @@ The pci device ids are:
 0deX+ NVC1
 108X+ NVC8
 104X* NVD9
+118X* NVE4
+0fcX* NVE7
 
-The MMIO ranges for NVC0 family are:
+The MMIO ranges for NVC0 and NVE4 families are:
 
 000000:001000 PMC - card master control [pmc.txt]
 001000:002000 PBUS - bus control [pbus.txt]
@@ -758,7 +804,7 @@ The MMIO ranges for NVC0 family are:
 007000:008000 PRMA - access to BAR0 from real mode [nvvga.txt]
 009000:00a000 PTIMER - time measurement and time-based alarms [ptimer.txt]
 00c000:00d000 ???
-00d000:00e000 PI2C - I2C buses [NVD9-] [pi2c.txt]
+00d000:00e000 PGPIO - GPIOs, I2C buses [NVD9-] [pnvio.txt]
 00e000:00f000 PNVIO - GPIOs, I2C buses, PWM fan control, and other external devices [pnvio.txt]
 020000:021000 PTHERM - thermal sensor [ptherm.txt]
 021000:022000 ???
@@ -767,20 +813,21 @@ The MMIO ranges for NVC0 family are:
 060000:070000 PEEPHOLE - indirect VM access [nvc0-vm.txt]
 070000:080000 PFIFO_BAR_FLUSH - used to flush BAR writes [nvc0-vm.txt]
 082000:083000 ???
-084000:085000 PBSP - VP3 BSP engine [fuc.txt, fuc-bsp.txt]
-085000:086000 PVP - VP3 video decoding engine [fuc.txt, fuc-vp.txt]
-086000:087000 PPPP - VP3 video postprocessing engine [fuc.txt, fuc-ppp.txt]
+084000:085000 PBSP - VP3 BSP engine [vp3-pbsp.txt]
+085000:086000 PVP - VP3 video decoding engine [vp3-pvp.txt]
+086000:087000 PPPP - VP3 video postprocessing engine [vp3-pppp.txt]
 088000:089000 PPCI - PCI config space access [pbus.txt]
 089000:08a000 ???
 08a000:08b000 PCODEC_PCI - PCI config space access for the HDA codec function [pcodec.txt]
 0a0000:0c0000 PRM - aliases VGA memory window [nvvga.txt]
 100000:101000 PFFB - front memory interface and VM control [nvc0-pffb.txt]
 101000:102000 PSTRAPS - straps readout / override [pstraps.txt]
-104000:105000 PCOPY0 - memory copy engine #1 [fuc.txt, fuc-copy.txt]
-105000:106000 PCOPY1 - memory copy engine #2 [fuc.txt, fuc-copy.txt]
+104000:105000 PCOPY0 - memory copy engine #1 [pcopy.txt]
+105000:106000 PCOPY1 - memory copy engine #2 [pcopy.txt]
+106000:107000 PCOPY2 - memory copy engine #3 [pcopy.txt]
 108000:109000 PCODEC - the HDA codec doing HDMI audio [pcodec.txt]
 109000:10a000 PFUSE - efuses storing secret stuff [pfuse.txt]
-10a000:10b000 PDAEMON - a fuc engine used to run management code in background [fuc.txt, pdaemon.txt]
+10a000:10b000 PDAEMON - a fµc engine used to run management code in background [pdaemon.txt]
 10c000:10f000 ???
 10f000:120000 PBFBs - memory controller backends [nvc0-pbfb.txt]
 120000:130000 PIBUS - deals with internal bus used to reach most other areas of MMIO [pibus.txt]
@@ -791,15 +838,15 @@ The MMIO ranges for NVC0 family are:
 140000:180000 PMFBs - middle memory controllers: compression and L2 cache [nvc0-pmfb.txt]
 180000:1c0000 PCOUNTER - performance monitoring counters [pcounter.txt]
 1c0000:1c1000 ???
-[XXX: PUNK1C1 on newer ones?]
-1c3000:1c4000 ??? some fµc engine, NVD9+ only
+1c2000:1c3000 PVENC - H.264 video encoding engine [NVE4-] [pvenc.txt]
+1c3000:1c4000 ??? some fµc engine, NVD9+ only [punk1c3.txt]
 [XXX: did they finally kill off this one?]
 200000:201000 PMEDIA - mediaport [pmedia.txt]
 300000:400000 PROM - ROM access window [nvbios.txt]
 400000:600000 PGRAPH - accelerated 2d/3d drawing and CUDA engine [nvc0-pgraph.txt]
 601000:602000 PRMIO - aliases VGA registers [nvvga.txt]
-610000:620000 PDISPLAY - the DMA FIFO controlled unified display engine [pdisplay.txt]
-[XXX: some newer nvc0s have something here?]
+610000:640000 PDISPLAY - the DMA FIFO controlled unified display engine [pdisplay.txt]
 640000:650000 DISPLAY_USER - DMA submission to PDISPLAY [pdisplay.txt]
+[XXX: NVD9/NVE4 new display stuff]
 700000:800000 PMEM - indirect VRAM/host memory access [nvc0-memory.txt]
-
+800000:808000 PFIFO_CHAN - PFIFO channel table [nvc0-pfifo.txt] [NVE4-]

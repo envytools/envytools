@@ -17,14 +17,15 @@
 	<value value="3" name="PBSP"/>
 	<value value="4" name="PCOPY0"/>
 	<value value="5" name="PCOPY1"/>
-	<value value="0x1f" name="NONE"/>
+	<value value="6" name="PVENC"/>
+	<value value="0x1f" name="NONE" variants="NVC0:NVE4"/>
 </enum>
 
 <array name="PFIFO" offset="0x2000" stride="0x2000" length="1" variants="NVC0-">
 	<bitset name="nvc0_pfifo_intr" inline="yes">
-		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="0" name="INVALID_ENGINE"/> <!-- NVE4: poke engine id >6 to chan table -->
 		<bitfield pos="4" name="UNK4"/>
-		<bitfield pos="8" name="UNK8"/>
+		<bitfield pos="8" name="PLAYLIST"/>
 		<bitfield pos="16" name="UNK16"/>
 		<bitfield pos="23" name="UNK23"/>
 		<bitfield pos="24" name="UNK24"/>
@@ -36,13 +37,13 @@
 	</bitset>
 	<reg32 offset="0x100" name="INTR" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x140" name="INTR_EN" type="nvc0_pfifo_intr"/>
-	<reg32 offset="0x200" name="ENABLE"/>
-	<reg32 offset="0x204" name="SUBFIFO_ENABLE">
+	<reg32 offset="0x200" name="ENABLE" variants="NVC0:NVE4"/>
+	<reg32 offset="0x204" name="SUBFIFO_ENABLE" variants="NVC0:NVE4">
 		<bitfield pos="0" name="0"/>
 		<bitfield pos="1" name="1"/>
 		<bitfield pos="2" name="2"/>
 	</reg32>
-	<reg32 offset="0x208" name="ENG_SUBFIFO_MASK" length="6">
+	<reg32 offset="0x208" name="ENG_SUBFIFO_MASK" length="6" variants="NVC0:NVE4">
 		<doc>If bit x of reg y is 0, then engine y can be used by subfifo x,
 		if it's 1 then it cannot.</doc>
 	</reg32>
@@ -57,15 +58,44 @@
 	</reg32>
 	<reg32 offset="0x274" name="PLAYLIST_WR_LEN">
 		<bitfield low="0" high="11" name="LEN"/>
-		<bitfield low="20" high="24" name="UNK20"/>
+		<bitfield low="20" high="24" name="UNK20" variants="NVC0:NVE4"/>
+		<bitfield low="20" high="23" name="ENG" variants="NVE4-" type="nvc0_pfifo_engine"/>
 	</reg32>
-	<reg32 offset="0x278" name="PLAYLIST_RD">
+	<reg32 offset="0x278" name="PLAYLIST_RD" variants="NVC0:NVE4">
 		<bitfield high="27" low="0" name="ADDRESS" shr="12"/>
 		<bitfield high="29" low="28" name="TARGET" type="nv50_mem_target"/>
 	</reg32>
-	<reg32 offset="0x27c" name="PLAYLIST_RD_LEN">
+	<reg32 offset="0x27c" name="PLAYLIST_RD_LEN" variants="NVC0:NVE4">
 		<bitfield low="0" high="11" name="LEN"/>
 		<bitfield pos="20" name="UNK20"/> <!-- busy? -->
+	</reg32>
+	<reg32 offset="0x280" name="PLAYLIST_RD" stride="8" length="7" variants="NVE4-">
+		<bitfield high="27" low="0" name="ADDRESS" shr="12"/>
+		<bitfield high="29" low="28" name="TARGET" type="nv50_mem_target"/>
+	</reg32>
+	<reg32 offset="0x284" name="PLAYLIST_RD_LEN" stride="8" length="7" variants="NVE4-">
+		<bitfield low="0" high="11" name="LEN"/>
+		<bitfield pos="20" name="UNK20"/> <!-- busy? -->
+	</reg32>
+	<reg32 offset="0x310" name="ENG_RAMFC_UNKF8" length="16">
+		<bitfield low="0" high="7" name="UNK0"/>
+		<bitfield low="12" high="15" name="UNK12"/>
+		<bitfield pos="28" name="UNK20"/>
+	</reg32>
+	<reg32 offset="0x350" name="ENG_RAMFC_UNKFC" length="16">
+		<bitfield low="0" high="7" name="UNK0"/>
+		<bitfield low="12" high="15" name="UNK12"/>
+		<bitfield pos="28" name="UNK20"/>
+	</reg32>
+	<reg32 offset="0x390" name="SUBFIFO_ENG_MASK" length="3" variants="NVE4-">
+		<doc>One for each SUBFIFO, has a mask of handled engines</doc>
+	</reg32>
+	<reg32 offset="0x528" name="INTR_EN_UNK1" type="nvc0_pfifo_intr"/>
+	<reg32 offset="0x530" name="INTR_UNK530" type="nvc0_pfifo_intr"/>
+	<reg32 offset="0x54c" name="PLAYLIST_INTR">
+		<value value="1" name="INACTIVE_CHANNEL"/>
+		<value value="0xa" name="ENGINE_TIMEOUT"/>
+		<value value="0x19" name="ENGINE_MISMATCH" variants="NVE4-"/>
 	</reg32>
 	<reg32 offset="0x59c" name="VM_FAULT_SOURCE">
 		<bitfield pos="0" name="PGRAPH"/>
@@ -88,7 +118,7 @@
 		<bitfield pos="5" name="PCOPY1"/>
 	</reg32>
 	<reg32 offset="0x634" name="KICK_CHID"/> <!-- wtf is thisexactly? -->
-	<reg32 offset="0x7d0" name="ENG_CH" length="6">
+	<reg32 offset="0x7d0" name="ENG_CH" length="6" variants="NVC0:NVE4">
 		<bitfield low="0" high="6" name="CHID"/>
 		<bitfield pos="8" name="ACTIVE"/>
 	</reg32>
@@ -110,7 +140,8 @@
 			<bitfield low="24" high="28" name="GPCID"/>
 		</reg32>
 	</array>
-	<array offset="0x1000" name="CHAN_TABLE" length="128" stride="8">
+	<reg32 offset="0xa00" name="INTR30_UNK"/>
+	<array offset="0x1000" name="CHAN_TABLE" length="128" stride="8" variants="NVC0:NVE4">
 		<reg32 offset="0" name="CHAN">
 			<bitfield low="0" high="29" name="INST" type="nv50_channel"/>
 			<bitfield pos="30" name="UNK30"/>
@@ -192,7 +223,7 @@
 	<reg32 offset="0x8c" name="PRECACHE_0"/>
 	<reg32 offset="0x90" name="PRECACHE_1"/>
 
-	<reg32 offset="0xa4" name="ENGINE" length="2">
+	<reg32 offset="0xa4" name="ENGINE" length="2" variants="NVC0:NVE4">
 		<bitfield low="0" high="4" name="0" type="nvc0_pfifo_engine"/>
 		<bitfield low="8" high="12" name="1" type="nvc0_pfifo_engine"/>
 		<bitfield low="16" high="20" name="2" type="nvc0_pfifo_engine"/>
@@ -227,11 +258,59 @@
 	<reg32 offset="0x118" name="CMD_SHADOW"/>
 
 	<reg32 offset="0x120" name="CH">
-		<bitfield low="0" high="6" name="CHID"/>
-		<bitfield pos="8" name="ACTIVE"/>
+		<bitfield low="0" high="6" name="CHID" variants="NVC0:NVE4"/>
+		<bitfield pos="8" name="ACTIVE" variants="NVC0:NVE4"/>
+		<bitfield low="0" high="11" name="CHID" variants="NVE4-"/>
+		<bitfield pos="13" name="ACTIVE" variants="NVE4-"/>
 	</reg32>
 
 	<reg32 offset="0x13c" name="INTR_HALT_MASK" type="nvc0_psubfifo_intr"/>
+
+	<bitset name="nvc0_psubfifo_copy_intr" inline="yes">
+		<bitfield pos="2" name="ILLEGAL_VALUE"/>
+		<bitfield pos="3" name="ILLEGAL_MTHD"/>
+		<bitfield pos="4" name="ILLEGAL_CLASS"/>
+	</bitset>
+	<reg32 offset="0x148" name="COPY_INTR" type="nvc0_psubfifo_copy_intr" variants="NVE4-"/>
+	<reg32 offset="0x14c" name="COPY_INTR_EN" type="nvc0_psubfifo_copy_intr" variants="NVE4-"/>
+	<reg32 offset="0x150" name="COPY_MTHD" variants="NVE4-"/>
+	<reg32 offset="0x154" name="COPY_DATA" variants="NVE4-"/>
+
+	<!-- saved in RAMFC, offset 0x100 -->
+	<array offset="0x200" length="1" stride="0x80" name="COPY_STATE" variants="NVE4-">
+		<reg32 offset="0x00" name="QUERY_ADDRESS_HIGH"/>
+		<reg32 offset="0x04" name="QUERY_ADDRESS_LOW"/>
+		<reg32 offset="0x08" name="QUERY_SEQUENCE"/>
+		<reg32 offset="0x0c" name="COND_ADDRESS_HIGH"/>
+		<reg32 offset="0x10" name="COND_ADDRESS_LOW"/>
+		<reg32 offset="0x14" name="COND_ENABLE"/>
+		<reg32 offset="0x18" name="UNK260"/>
+		<reg32 offset="0x1c" name="UNK264"/>
+		<reg32 offset="0x20" name="SRC_ADDRESS_HIGH"/>
+		<reg32 offset="0x24" name="SRC_ADDRESS_LOW"/>
+		<reg32 offset="0x28" name="DST_ADDRESS_HIGH"/>
+		<reg32 offset="0x2c" name="DST_ADDRESS_LOW"/>
+		<reg32 offset="0x30" name="SRC_PITCH"/>
+		<reg32 offset="0x34" name="DST_PITCH"/>
+		<reg32 offset="0x38" name="X_COUNT"/>
+		<reg32 offset="0x3c" name="Y_COUNT"/>
+		<reg32 offset="0x40" name="SRC_TILE_MODE"/>
+		<reg32 offset="0x44" name="SRC_SIZE_X"/>
+		<reg32 offset="0x48" name="SRC_SIZE_Y"/>
+		<reg32 offset="0x4c" name="SRC_SIZE_Z"/>
+		<reg32 offset="0x50" name="SRC_POS_Z"/>
+		<reg32 offset="0x54" name="SRC_POS_XY"/>
+		<reg32 offset="0x58" name="DST_TILE_MODE"/>
+		<reg32 offset="0x5c" name="DST_SIZE_X"/>
+		<reg32 offset="0x60" name="DST_SIZE_Y"/>
+		<reg32 offset="0x64" name="DST_SIZE_Z"/>
+		<reg32 offset="0x68" name="DST_POS_Z"/>
+		<reg32 offset="0x6c" name="DST_POS_XY"/>
+		<reg32 offset="0x70" name="EXEC"/>
+		<reg32 offset="0x74" name="CONST0"/>
+		<reg32 offset="0x78" name="CONST1"/>
+		<reg32 offset="0x7c" name="SWIZZLE"/>
+	</array>
 </array>
 
 </domain>

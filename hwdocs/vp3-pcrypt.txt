@@ -1,0 +1,18 @@
+Present on: NV98, NVAA, NVAC
+BAR0 address: 0x087000
+PMC interrupt line: 14
+PMC enable bit: 14
+Version: 0
+Code segment size: 0xa00
+Data segment size: 0x800
+Fifo size: 0x10
+Xfer slots: 8
+Secretful: yes
+
+The IO registers:
+
+600/18000:640/19000 MEMIF	memory interface	[fuc-memif.txt]
+800/20000:a00/28000 ???		???			[fuc-crypt.txt]
+c00/30000:c40/31000 ???		???			[fuc-crypt.txt]
+d00/34000:d40/35000 ???		???			[fuc-crypt.txt]
+

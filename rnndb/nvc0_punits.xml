@@ -9,12 +9,15 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <array name="PUNITS" offset="0x022400" stride="0x400" length="1" variants="NVC0-">
+	<reg32 offset="0x000" name="PUNK021_CONTROL">
+		<bitfield pos="11" name="PUNK021_READOUT_ENABLE"/>
+	</reg32>
 	<reg32 offset="0x030" name="DESIGN_GPC_COUNT"/>
 	<reg32 offset="0x034" name="DESIGN_TP_PER_GPC_COUNT"/>
 	<reg32 offset="0x038" name="DESIGN_PART_COUNT"/>
-	<reg32 offset="0x03c" name="DESIGN_MC_PER_PART_COUNT" variants="NVC1-"/>
+	<reg32 offset="0x03c" name="DESIGN_MC_COUNT" variants="NVC1-"/>
 	<reg32 offset="0x040" name="DESIGN_UNK_ZCULL_PER_GPC_COUNT" variants="NVC1-"/>
-	<reg32 offset="0x044" name="DESIGN_UNK5_COUNT" variants="NVD9-"/>
+	<reg32 offset="0x044" name="DESIGN_PCOPY_COUNT" variants="NVD9-"/> <!-- or spoon? -->
 	<reg32 offset="0x048" name="DESIGN_CRTC_COUNT" variants="NVD9-"/>
 	<reg32 offset="0x100" name="HW_MISC_DISABLE">
 		<bitfield pos="0" name="UNK0"/>

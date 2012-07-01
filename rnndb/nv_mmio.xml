@@ -11,9 +11,12 @@
 		<reg32 offset="0x210" name="PDAEMON_ENABLE" variants="NVA3-"/>
 	</array>
 
+	<reg8 offset="0x610000" name="PROM" length="0x8000" variants="NV01:NV03" />
+	<reg8 offset="0x618000" name="PALT" length="0x8000" variants="NV01:NV03" />
+
 	<reg8 offset="0x110000" name="PROM" length="0x10000" variants="NV03:NV04" />
 
-	<reg8 offset="0x300000" name="PROM" length="0x10000" variants="NV04-" />
+	<reg8 offset="0x300000" name="PROM" length="0x100000" variants="NV04-" />
 
 	<reg8 offset="0x700000" name="PRAMIN" length="0x100000" variants="NV04:NV50" />
 
@@ -49,25 +52,28 @@
 <import file="nv10_pcounter.xml" />
 <import file="nv40_pcounter.xml" />
 
-<!-- 00b000 - 00bfff PVPE/PMPEG/PMSRCH -->
+<!-- 00b000 - 00bfff PVPE/PMPEG/PME -->
 <import file="nv17_pmpeg.xml" />
 <import file="nv40_pvpe.xml" />
+<import file="nv40_pme.xml" />
 
 <!-- 00c000 - 00cfff PCONTROL covered in nv40_pclock.xml, nv50_pclock.xml, nva3_pclock.xml -->
 
 <!-- 00d000 - 00dfff PTV -->
 <import file="nv17_ptv.xml" />
 
+<!-- 00d000 - 00dfff PGPIO covered in nv50_pnvio.xml -->
+
 <!-- 00e000 - 00efff PNVIO -->
 <import file="nv50_pnvio.xml" />
 
-<!-- 00f000 - 00ffff PVP covered in nv40_pvpe.xml -->
-
 <!-- 00f000 - 00ffff PVP -->
+<import file="nv41_pvp.xml" />
 <import file="nv84_pvp.xml" />
 
 <!-- 020000 - 020fff PTHERM -->
 <import file="nv50_ptherm.xml" />
+<import file="nv84_ptherm.xml" />
 
 <!-- 021000 - 021fff ??? -->
 <import file="nv50_punk021.xml" />
@@ -88,13 +94,16 @@
 <!-- 082000 - 082fff ??? -->
 
 <!-- 084000 - 084fff PBSP -->
+<import file="nv98_pbsp.xml" />
+
+<!-- 085000 - 085fff PVP -->
 <import file="nv98_pvp.xml" />
 
-<!-- 085000 - 085fff PVP covered in nv98_pvp.xml -->
+<!-- 086000 - 086fff PPPP -->
+<import file="nv98_pppp.xml" />
 
-<!-- 086000 - 086fff PPPP covered in nv98_pvp.xml -->
-
-<!-- 087000 - 087fff PCRYPT covered in nv98_pvp.xml -->
+<!-- 087000 - 087fff PCRYPT -->
+<import file="nv98_pcrypt.xml" />
 
 <!-- 088000 - 088fff PBUS_PCI covered in nv_pbus.xml -->
 
@@ -111,6 +120,9 @@
 <!-- 0c0000 - 0cffff PRMVIO -->
 <import file="nv03_prmvio.xml" />
 
+<!-- 100000 - 100fff PDMA -->
+<import file="nv01_pdma.xml" />
+
 <!-- 100000 - 100fff PFB or PFFB -->
 <import file="nv03_pfb.xml" />
 <import file="nv10_pfb.xml" />
@@ -119,10 +131,13 @@
 <!-- 101000 - 101fff PSTRAPS -->
 <import file="nv_pstraps.xml" />
 
+<!-- 101000 - 101fff PTIMER covered in nv01_ptimer.xml -->
+
 <!-- 102000 - 102fff PCRYPT -->
 <import file="nv84_pcrypt.xml" />
 
-<!-- 103000 - 103fff PBSP covered in nv84_pvp.xml -->
+<!-- 103000 - 103fff PBSP -->
+<import file="nv84_pbsp.xml" />
 
 <!-- 104000 - 104fff PCOPY -->
 <!-- 105000 - 105fff PCOPY2 -->
@@ -168,6 +183,9 @@
 
 <!-- 2ff000 - 2fffff PBRIDGE_PCI covered in nv_pbus.xml -->
 
+<!-- 300000 - 300fff PAUDIO -->
+<import file="nv01_paudio.xml" />
+
 <!-- 300000 - 3fffff PROM covered above -->
 
 <!-- 400000 - 5fffff PGRAPH -->
@@ -176,22 +194,50 @@
 <import file="nv50_pgraph.xml" />
 <import file="nvc0_pgraph.xml" />
 
+<!-- 600000 - 600fff PFB -->
+<import file="nv01_pfb.xml" />
+
 <!-- 600000 - 67ffff PCRTC/PRMCIO -->
 <import file="nv03_pcrtc.xml" />
+
+<!-- 602000 - 602fff PRAM -->
+<import file="nv01_pram.xml" />
+
+<!-- 608000 - 608fff PSTRAPS covered in nv_pstraps.xml -->
+
+<!-- 609000 - 609fff PDAC -->
+<import file="nv01_pdac.xml" />
+
+<!-- 60a000 - 60afff PEEPROM -->
+<import file="nv01_peeprom.xml" />
 
 <!-- 680000 - 6fffff PRAMDAC/PRMDIO -->
 <import file="nv03_pramdac.xml" />
 
 <!-- 601000 - 601fff PRMIO covered in nv50_pdisplay.xml -->
 
+<!-- 610000 - 617fff PROM covered above -->
+
+<!-- 618000 - 61ffff PALT covered above -->
+
 <!-- 610000 - 6bffff PDISPLAY -->
-<import file="nv50_pdisp.xml" />
+<import file="nv50_pdisplay.xml" />
+
+<!-- 640000 - 647fff PRAMHT covered in nv01_pram.xml -->
+
+<!-- 648000 - 64bfff PRAMFC covered in nv01_pram.xml -->
+
+<!-- 650000 - 653fff PRAMRO covered in nv01_pram.xml -->
+
+<!-- 6c0000 - 6c7fff PRM -->
+<import file="nv01_prm.xml" />
+
+<!-- 6d0000 - 6d0fff PRMIO covered in nv01_prm.xml -->
 
 <!-- 700000 - 7fffff PRAMIN / PMEM covered above -->
 
 <!-- 800000 - ffffff USER covered in nv_pfifo.xml -->
 
-<!-- and NV01 crap, which doesn't fit in the above ordering... -->
-<import file="nv01_misc.xml" />
+<!-- 1000000 - 1ffffff FB covered in nv01_pfb.xml -->
 
 </database>

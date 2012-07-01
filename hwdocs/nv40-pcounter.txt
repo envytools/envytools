@@ -153,56 +153,6 @@ set 4 [mem]:
 0x1a: PFB 100008
 0x20 trailer base
 
-=== NV84 signals ===
-
-set 0 [host]:
-0x2c: PTIMER_TIME_B12 [ptimer.txt]
-
-set 1 [graph]:
-0xbd: PGRAPH_IDLE
-0xbf: PGRAPH_INTR_PENDING
-0xc7: CTXCTL flag 0x1c
-0xc8: CTXCTL flag 0x1d
-0xc9: CTXCTL flag 0x1e
-0xca: CTXCTL flag 0x1f
-
-=== NV86 signals ===
-
-set 0 [host]:
-0x2c: PTIMER_TIME_B12 [ptimer.txt]
-
-set 1 [graph]:
-0xbd: PGRAPH_IDLE
-0xbf: PGRAPH_INTR_PENDING
-0xc7: CTXCTL flag 0x1c
-0xc8: CTXCTL flag 0x1d
-0xc9: CTXCTL flag 0x1e
-0xca: CTXCTL flag 0x1f
-
-
-=== NVA0 signals ===
-
-set 0 [host]:
-0x3b: PTIMER_TIME_B12 [ptimer.txt]
-
-Set 1 [graph]:
-0xc9: PGRAPH_IDLE
-0xcb: PGRAPH_INTR_PENDING
-0xd3: CTXCTL flag 0x1c
-0xd4: CTXCTL flag 0x1d
-0xd5: CTXCTL flag 0x1e
-0xd6: CTXCTL flag 0x1f
-
-set 5 [misc core]:
-0x00-0x07: PBSP_USER_0-7
-0x08-0x0f: PVP_USER_0-7
-0x60 trailer base
-
-set 6 [vdec]:
-0x00-0x07: PVP_USER_0-7
-0xa0 trailer base
-
-
 === NV98 signals ===
 
 set 0 [host]:
@@ -237,42 +187,19 @@ set 2:
 0x36-0x37: ENG2D
 0x58: ZCULL
 0x60: ENG2D
-0xc0 trailer base
+0x80 trailer base
 
 set 3 [MPs]:
 0x20 trailer base
 
-set 4:
-0x40 trailer base
-
 set 5:
 0x37: PCRYPT PM_TRIGGER 2nd
-0xe0 trailer base
 0x38: PCRYPT WRCACHE_FLUSH 2nd
 0x3b: PCRYPT idle
 0x45: PCRYPT PM_TRIGGER
 0x46: PCRYPT WRCACHE_FLUSH
 0x47-0x4c: PCRYPT USER
 0x60 trailer base
-
-set 6 [vdec]:
-0x12: PBSP idle
-0x15: PBSP $ta
-0x1c: PBSP PM_TRIGGER
-0x1d: PBSP WRCACHE_FLUSH
-0x1e-0x23: PBSP USER
-0x42: PPPP idle
-0x45: PPPP $ta
-0x4c: PPPP PM_TRIGGER
-0x4d: PPPP WRCACHE_FLUSH
-0x4e-0x53: PPPP USER
-0x5d: PVP VUC idle
-0x90: PVP idle
-0x93: PVP $ta
-0x9a: PVP PM_TRIGGER
-0x9b: PVP WRCACHE_FLUSH
-0x9c-0xa1: PVP USER
-0xa0 trailer base
 
 set 7:
 0x07: something related to MAGIC_FLUSH + PFIFO memory read?
@@ -294,40 +221,27 @@ set 7:
 0xa0 trailer base
 
 
-=== NVAC signals ===
+== NVA0 signals ==
 
-set 0 [host]:
-0x53: PTIMER_TIME_B12 [ptimer.txt]
+set 0:
+0x05: host memory write
+0x0a: all PFIFO engines enabled and idle???
+0x29: ??? on for 10%
+0x2a: ??? on for 10%
+0x2b: pcie activity wakeups [long]?!?
+0x2c: pcie activity bursts?!?
+0x2e: host memory read
+0x30: 3x pcie read
+0x31: pcie read
+0x3b: PTIMER_TIME_B12
+0x3d: pcie transaction [r or w]
+0x3e: pcie write
 
-set 1 [graph]:
-0xc9: PGRAPH_IDLE
-0xcb: PGRAPH_INTR_PENDING
-0xd3: CTXCTL flag 0x1c
-0xd4: CTXCTL flag 0x1d
-0xd5: CTXCTL flag 0x1e
-0xd6: CTXCTL flag 0x1f
+
+== NVAC signals ==
 
 set 2:
 0xd4-0xd9: PCRYPT_USER_0-5 [fuc-perf.txt]
-
-set 5 [vdec]:
-0x1e-0x23: PBSP_USER_0-5 [fuc-perf.txt]
-0x4e-0x53: PPPP_USER_0-5 [fuc-perf.txt]
-0x9c-0xa1: PVP_USER_0-5 [fuc-perf.txt]
-
-=== NVA3 signals ===
-
-set 0 [host]:
-0xa3: PTIMER_TIME_B12 [ptimer.txt]
-
-set 1 [graph]
-0xcb: PGRAPH_IDLE
-0xcd: PGRAPH_INTR_PENDING
-0xd5: CTXCTL flag 0x1c
-0xd6: CTXCTL flag 0x1d
-0xd7: CTXCTL flag 0x1e
-0xd8: CTXCTL flag 0x1f
-
 
 === NVA5 signals ===
 
@@ -375,14 +289,6 @@ set 2:
 set 3 [MP]:
 0x20 trailer base
 
-set 4 [mem]:
-0x60 trailer base
-
-set 5:
-0x2d-0x32: PCOPY_USER_0-5 [fuc-perf.txt]
-0x4e-0x53: PDAEMON_USER_0-5 [fuc-perf.txt]
-0x60 trailer base
-
 set 6 [vdec]:
 0x17: PBSP FIFO idle
 0x18: PBSP idle
@@ -400,25 +306,187 @@ set 6 [vdec]:
 0x4c-0x51: PVP_USER_0-5 [fuc-perf.txt]
 0x54-0x58: PBSP
 0x5f-0x7e: PPPP
-0x88-0x8b: PVP [vuc?]
+0x88-0x8c: vµc
 0xa0-0xa4: PVP [xfrm? - 4c b3, b5]
 0xad-0xaf: PVP [580 - 4c b7]
 0xb6: PVP [680 - 4c b8]
 0xc0-0xc5: PBSP.CRYPT
 0xc0 trailer base
 
-set 7:
-0xe0 trailer base
 
-=== NVA8 signals ===
+= Known NV50 host signals =
 
-set 0 [host]:
-0xa3: PTIMER_TIME_B12 [ptimer.txt]
+These signals are always on set 0.
 
-set 1 [graph]:
-0xcb: PGRAPH_IDLE
-0xcd: PGRAPH_INTR_PENDING <-- educated guess
-0xd5: CTXCTL flag 0x1c
-0xd6: CTXCTL flag 0x1d
-0xd7: CTXCTL flag 0x1e
-0xd8: CTXCTL flag 0x1f
+signal           |50|84|86|92|94|96|98|a0|aa|ac|a3|a5|a8|af| documentation
+-----------------+--+--+--+--+--+--+--+--+--+--+--+--+--+--+---------------
+HOST_MEM_WR      |00|??|04|04|04|??|04|05|??|??|--|??|??|??| [XXX]
+HOST_MEM_RD      |1a|??|1f|2a|2a|??|2a|2e|??|??|96|??|??|??| [XXX]
+PBUS_PCIE_RD     |1d|??|22|??|2d|??|2d|31|??|??|99|99|??|??| [XXX]
+PTIMER_TIME_B12  |27|2c|2c|34|37|37|37|3b|??|53|a3|a3|a3|??| ptimer.txt
+PBUS_PCIE_TRANS  |29|??|2e|36|39|??|39|3d|??|??|a5|a5|??|??| [XXX]
+PBUS_PCIE_WR     |2a|??|2f|37|3a|??|3a|3e|??|??|a6|a6|??|??| [XXX]
+[trailer base]   |20|??|40|??|??|??|40|60|??|80|e0|e0|??|??| nv40-pcounter.txt
+
+
+= Known graph signals =
+
+These signals are always on set 1.
+
+signal           |50|84|86|92|94|96|98|a0|aa|ac|a3|a5|a8|af| documentation
+-----------------+--+--+--+--+--+--+--+--+--+--+--+--+--+--+---------------
+PGRAPH_IDLE      |c8|bd|bd|bd|bd|bd|bd|c9|??|c9|cb|cb|cb|??| nv50-pgraph.txt
+PGRAPH_INTR      |ca|bf|bf|bf|bf|bf|bf|cb|??|cb|cd|cd|cd|??| nv50-pgraph.txt
+CTXCTL_USER_0    |d2|c7|c7|c7|c7|c7|c7|d3|??|d3|d5|d5|d5|??| nv50-ctxctl.txt
+CTXCTL_USER_1    |d3|c8|c8|c8|c8|c8|c8|d4|??|d4|d6|d6|d6|??| nv50-ctxctl.txt
+CTXCTL_USER_2    |d4|c9|c9|c9|c9|c9|c9|d5|??|d5|d7|d7|d7|??| nv50-ctxctl.txt
+CTXCTL_USER_3    |d5|ca|ca|ca|ca|ca|ca|d6|??|d6|d8|d8|d8|??| nv50-ctxctl.txt
+[trailer base]   |e0|??|e0|??|??|??|e0|e0|??|e0|e0|e0|??|??| nv40-pcounter.txt
+
+
+= Known set 2 signals =
+
+These signals are always on set 2.
+
+signal           |50|84|86|92|94|96|98|a0|aa|ac|a3|a5|a8|af| documentation
+-----------------+--+--+--+--+--+--+--+--+--+--+--+--+--+--+---------------
+[trailer base]   |e0|??|80|??|??|??|80|e0|??|e0|c0|c0|??|??| nv40-pcounter.txt
+
+
+= Known memory signals =
+
+These signals are on set 4 if they're present. IGPs don't have this set.
+
+signal           |50|84|86|92|94|96|98|a0|a3|a5|a8| documentation
+-----------------+--+--+--+--+--+--+--+--+--+--+--+---------------
+[trailer base]   |20|??|40|??|??|??|40|60|60|60|??| nv40-pcounter.txt
+
+
+= Known VP2 set 5 signals =
+
+These signals are on set 5 if they're present. Only cards with VP2 have this
+set.
+
+signal           |84|86|92|94|96|a0| documentation
+-----------------+--+--+--+--+--+--+---------------
+PBSP_USER_0      |??|??|??|??|??|00| vp2.txt
+PBSP_USER_1      |??|??|??|??|??|01| vp2.txt
+PBSP_USER_2      |??|??|??|??|??|02| vp2.txt
+PBSP_USER_3      |??|??|??|??|??|03| vp2.txt
+PBSP_USER_4      |??|??|??|??|??|04| vp2.txt
+PBSP_USER_5      |??|??|??|??|??|05| vp2.txt
+PBSP_USER_6      |??|??|??|??|??|06| vp2.txt
+PBSP_USER_7      |??|??|??|??|??|07| vp2.txt
+PVP_USER_0       |??|??|??|??|??|08| vp2.txt
+PVP_USER_1       |??|??|??|??|??|09| vp2.txt
+PVP_USER_2       |??|??|??|??|??|0a| vp2.txt
+PVP_USER_3       |??|??|??|??|??|0b| vp2.txt
+PVP_USER_4       |??|??|??|??|??|0c| vp2.txt
+PVP_USER_5       |??|??|??|??|??|0d| vp2.txt
+PVP_USER_6       |??|??|??|??|??|0e| vp2.txt
+PVP_USER_7       |??|??|??|??|??|0f| vp2.txt
+VUC_IDLE         |??|??|??|??|??|34| vuc-perf.txt
+VUC_SLEEP        |??|??|??|??|??|36| vuc-perf.txt
+VUC_WATCHDOG     |??|??|??|??|??|38| vuc-perf.txt
+VUC_USER_PULSE   |??|??|??|??|??|39| vuc-perf.txt
+VUC_USER_CONT    |??|??|??|??|??|3a| vuc-perf.txt
+[trailer base]   |??|40|??|??|??|60| nv40-pcounter.txt
+
+
+= Known VP2 set 6 signals =
+
+These signals are on set 6 if they're present. Only cards with VP2 have this
+set.
+
+signal           |84|86|92|94|96|a0| documentation
+-----------------+--+--+--+--+--+--+---------------
+PVP_USER_0       |??|??|??|??|??|00| vp2.txt
+PVP_USER_1       |??|??|??|??|??|01| vp2.txt
+PVP_USER_2       |??|??|??|??|??|02| vp2.txt
+PVP_USER_3       |??|??|??|??|??|03| vp2.txt
+PVP_USER_4       |??|??|??|??|??|04| vp2.txt
+PVP_USER_5       |??|??|??|??|??|05| vp2.txt
+PVP_USER_6       |??|??|??|??|??|06| vp2.txt
+PVP_USER_7       |??|??|??|??|??|07| vp2.txt
+[trailer base]   |??|a0|??|??|??|a0| nv40-pcounter.txt
+
+
+= Known VP3/VP4 set 5 signals =
+
+If these signals are present, they're on set 5 on non-IGPs, set 4 on IGPs.
+Only cards with VP3/VP4 have this set.
+
+[XXX: this may not be the same set...]
+
+signal           |98|aa|ac|a3|a5|a8|af| documentation
+-----------------+--+--+--+--+--+--+--+---------------
+PCOPY_USER_0     |--|--|--|??|2d|??|??| fuc-perf.txt
+PCOPY_USER_1     |--|--|--|??|2e|??|??| fuc-perf.txt
+PCOPY_USER_2     |--|--|--|??|2f|??|??| fuc-perf.txt
+PCOPY_USER_3     |--|--|--|??|30|??|??| fuc-perf.txt
+PCOPY_USER_4     |--|--|--|??|31|??|??| fuc-perf.txt
+PCOPY_USER_5     |--|--|--|??|32|??|??| fuc-perf.txt
+PDAEMON_USER_0   |--|--|--|??|4e|??|??| fuc-perf.txt
+PDAEMON_USER_1   |--|--|--|??|4f|??|??| fuc-perf.txt
+PDAEMON_USER_2   |--|--|--|??|50|??|??| fuc-perf.txt
+PDAEMON_USER_3   |--|--|--|??|51|??|??| fuc-perf.txt
+PDAEMON_USER_4   |--|--|--|??|52|??|??| fuc-perf.txt
+PDAEMON_USER_5   |--|--|--|??|53|??|??| fuc-perf.txt
+[trailer base]   |60|??|00|60|60|??|??| nv40-pcounter.txt
+
+
+= Known VP3/VP4 set 6 signals =
+
+If these signals are present, they're on set 6 on non-IGPs, set 5 on IGPs.
+Only cards with VP3/VP4 have this set.
+
+signal           |98|aa|ac|a3|a5|a8|af| documentation
+-----------------+--+--+--+--+--+--+--+---------------
+PBSP_IDLE        |12|??|??|??|18|??|??| fuc-perf.txt
+PBSP_TA          |15|??|??|??|1b|??|??| fuc-perf.txt
+PBSP_PM_TRIGGER  |1c|??|??|??|22|??|??| fuc-perf.txt
+PBSP_WRCACHE_FL  |1d|??|??|??|23|??|??| fuc-perf.txt
+PBSP_USER_0      |1e|??|1e|??|24|??|??| fuc-perf.txt
+PBSP_USER_1      |1f|??|1f|??|25|??|??| fuc-perf.txt
+PBSP_USER_2      |20|??|20|??|26|??|??| fuc-perf.txt
+PBSP_USER_3      |21|??|21|??|27|??|??| fuc-perf.txt
+PBSP_USER_4      |22|??|22|??|28|??|??| fuc-perf.txt
+PBSP_USER_5      |23|??|23|??|29|??|??| fuc-perf.txt
+PPPP_IDLE        |42|??|??|??|2c|??|??| fuc-perf.txt
+PPPP_TA          |45|??|??|??|2f|??|??| fuc-perf.txt
+PPPP_PM_TRIGGER  |4c|??|??|??|36|??|??| fuc-perf.txt
+PPPP_WRCACHE_FL  |4d|??|??|??|37|??|??| fuc-perf.txt
+PPPP_USER_0      |4e|??|4e|??|38|??|??| fuc-perf.txt
+PPPP_USER_1      |4f|??|4f|??|39|??|??| fuc-perf.txt
+PPPP_USER_2      |50|??|50|??|3a|??|??| fuc-perf.txt
+PPPP_USER_3      |51|??|51|??|3b|??|??| fuc-perf.txt
+PPPP_USER_4      |52|??|52|??|3c|??|??| fuc-perf.txt
+PPPP_USER_5      |53|??|53|??|3d|??|??| fuc-perf.txt
+VUC_IDLE         |5d|??|??|??|88|??|??| vuc-perf.txt
+VUC_SLEEP        |5e|??|??|??|89|??|??| vuc-perf.txt
+VUC_WATCHDOG     |5f|??|??|??|8a|??|??| vuc-perf.txt
+VUC_USER_CONT    |60|??|??|??|8b|??|??| vuc-perf.txt
+VUC_USER_PULSE   |61|??|??|??|8c|??|??| vuc-perf.txt
+PVP_IDLE         |90|??|??|??|40|??|??| fuc-perf.txt
+PVP_TA           |93|??|??|??|43|??|??| fuc-perf.txt
+PVP_PM_TRIGGER   |9a|??|??|??|4a|??|??| fuc-perf.txt
+PVP_WRCACHE_FL   |9b|??|??|??|4b|??|??| fuc-perf.txt
+PVP_USER_0       |9c|??|9c|??|4c|??|??| fuc-perf.txt
+PVP_USER_1       |9d|??|9d|??|4d|??|??| fuc-perf.txt
+PVP_USER_2       |9e|??|9e|??|4e|??|??| fuc-perf.txt
+PVP_USER_3       |9f|??|9f|??|4f|??|??| fuc-perf.txt
+PVP_USER_4       |a0|??|a0|??|50|??|??| fuc-perf.txt
+PVP_USER_5       |a1|??|a1|??|51|??|??| fuc-perf.txt
+[trailer base]   |a0|??|a0|c0|c0|??|??| nv40-pcounter.txt
+
+
+= Known set 7 signals =
+
+These signals are on set 7 on non-IGPs, set 6 on IGPs. All NV84+ cards have
+this set.
+
+signal           |84|86|92|94|96|98|a0|aa|ac|a3|a5|a8|af| documentation
+-----------------+--+--+--+--+--+--+--+--+--+--+--+--+--+---------------
+[trailer base]   |??|c0|??|??|??|a0|80|??|a0|e0|e0|??|??| nv40-pcounter.txt
+
+

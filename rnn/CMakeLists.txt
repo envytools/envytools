@@ -3,7 +3,8 @@ cmake_minimum_required(VERSION 2.6)
 
 find_package(LibXml2 REQUIRED)
 
-include_directories(${LIBXML2_INCLUDE_DIR} ../include)
+find_path(LIBICONV_INCLUDE_DIR iconv.h)
+include_directories(${LIBXML2_INCLUDE_DIR} ${LIBICONV_INCLUDE_DIR} ../include)
 
 add_library(rnn rnn.c rnndec.c)
 

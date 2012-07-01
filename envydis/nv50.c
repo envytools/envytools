@@ -1374,8 +1374,8 @@ static struct insn tabl[] = {
 	// 8
 	{ 0x0000000080000000ull, 0x00070000f0000000ull, N("interp"), LDST, LVAR, .ptype = FP },
 	{ 0x0001000080000000ull, 0x00070000f0000000ull, N("interp"), LDST, N("cent"), LVAR, .ptype = FP },
-	{ 0x0002000080000000ull, 0x00070000f0000000ull, N("interp"), LDST, LVAR, LSRC, .ptype = FP },
-	{ 0x0003000080000000ull, 0x00070000f0000000ull, N("interp"), LDST, N("cent"), LVAR, LSRC, .ptype = FP },
+	{ 0x0002000080000000ull, 0x00070000f0000000ull, N("interp"), LDST, LVAR, T(m1neg), LSRC, .ptype = FP },
+	{ 0x0003000080000000ull, 0x00070000f0000000ull, N("interp"), LDST, N("cent"), LVAR, T(m1neg), LSRC, .ptype = FP },
 	{ 0x0004000080000000ull, 0x00070000f0000000ull, N("interp"), LDST, N("flat"), LVAR, .ptype = FP },
 
 	// 9

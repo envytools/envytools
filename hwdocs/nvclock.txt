@@ -73,20 +73,19 @@ NVA3:NVC0 cards have the following clocks:
 [XXX: how many are there exactly?]
  - host clock: clocks the host interface parts, like PFIFO
 [XXX: figure out where that one comes from]
- - memory clock [MPLL, clock #0/#16]: used to clock the VRAM, not present on IGPs
- - core clock [NVPLL, clock #1/#17]: clocks most of the card's logic
- - shader clock [SPLL, clock #2/#18]: clocks the CUDA multiprocessor / shader units
- - unknown clock #8/#24
- - unknown clock #9/#25
- - timer clock [TCLK, clock #20]: clocks the PTIMER circuitry
- - unknown clock #21
- - unknown clock #22
- - unknown clock #24
- - vdec clock [clock #25]: used to clock the fuc video decoding engines
- - unknown clock #28
- - daemon clock [clock #29]: used to clock PDAEMON
- - unknown clock #31
- - video clocks [VPLL1,VPLL2]: used to drive the video outputs
+ - core clock [NVPLL, clock #0/#16]: clocks most of the card's logic
+ - shader clock [SPLL, clock #1/#17]: clocks the CUDA multiprocessor / shader units
+ - memory clock [MPLL, clock #2/#18]: used to clock the VRAM, not present on IGPs
+ - video clock 1 [VPLL1, clock #8/#24]: used to drive the video outputs
+ - video clock 2 [VPLL2, clock #9/#25]: used to drive the video outputs
+ - timer clock [TCLK, clock #28]: clocks the PTIMER circuitry
+ - unknown clock #29
+ - unknown clock #30
+ - unknown clock #32
+ - vdec clock [clock #33]: used to clock the fuc video decoding engines
+ - unknown clock #36
+ - daemon clock [clock #37]: used to clock PDAEMON
+ - audio clock [clock #39]: used to clock PCODEC
 
 The root clocks are set up in PNVIO area [see pnvio.txt], VPLLs are set up in
 PDISPLAY area [see pdisplay.txt], and the other clocks are set up in PCLOCK

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml"/>
+<import file="nv_object.xml"/>
+
+<domain name="NV01_SUBCHAN" bare="yes">
+	<stripe prefix="obj-class" variants="NV40_ME">
+		<reg32 offset="0x0108" name="UNK108"/> <!-- 0 or 1 only? -->
+		<reg32 offset="0x0120" name="UNK120"/> <!-- ffffffff -->
+		<reg32 offset="0x0160" name="UNK160"/> <!-- ffc0ffc0 -->
+		<reg32 offset="0x0164" name="UNK164"/> <!-- fffefff0, both non-0 -->
+		<reg32 offset="0x0168" name="UNK168"/> <!-- fff0fff0, both non-0 -->
+		<reg32 offset="0x016c" name="UNK16C"/> <!-- fffefff0 -->
+		<reg32 offset="0x0170" name="UNK170"/> <!-- fffefff0 sort of -->
+		<reg32 offset="0x0174" name="UNK174"/> <!-- fffefff0 -->
+		<reg32 offset="0x0178" name="UNK178"/> <!-- fffffff8 -->
+		<reg32 offset="0x017c" name="UNK17C"/>
+		<reg32 offset="0x01b0" name="DMA_UNK1B0" type="object"/>
+		<reg32 offset="0x01b4" name="DMA_UNK1B4" type="object"/>
+		<reg32 offset="0x01c0" name="DMA_UNK1C0" type="object"/>
+		<reg32 offset="0x0200" name="UNK200"/> <!-- ffffffc0 -->
+		<reg32 offset="0x0204" name="UNK204"/> <!-- ffffffc0 -->
+		<reg32 offset="0x0208" name="UNK208"/> <!-- ffffffc0 -->
+		<reg32 offset="0x020c" name="UNK20C"/> <!-- ffffffc0 -->
+		<reg32 offset="0x0210" name="UNK210"/> <!-- ffffffc0 -->
+		<reg32 offset="0x0214" name="UNK214"/> <!-- ffffffc0 -->
+		<reg32 offset="0x0228" name="UNK228"/> <!-- fffffff8 -->
+		<reg32 offset="0x022c" name="UNK22C"/> <!-- fffffff8 -->
+	</stripe>
+</domain>
+
+</database>

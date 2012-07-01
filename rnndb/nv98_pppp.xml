@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+<import file="nv98_fuc.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+<array name="PPPP" offset="0x86000" stride="0x1000" length="1" variants="NV98 NVAA-">
+	<use-group name="nv98_fucbase"/>
+	<use-group name="nv98_fuc_memif"/>
+	<array offset="0x400" stride="0x80" length="1" name="PIN">
+		<reg32 offset="0x00" name="UNK00"/>
+		<reg32 offset="0x04" name="DIMS">
+			<bitfield low="0" high="7" name="PIC_WIDTH" shr="4"/>
+			<bitfield low="8" high="15" name="PIC_HEIGHT" shr="4"/>
+			<bitfield low="16" high="23" name="SURF_WIDTH" shr="4"/>
+			<bitfield pos="24" name="UNK24"/> <!-- used only for VC-1 -->
+			<bitfield pos="28" name="UNK28"/> <!-- set for VC-1, clear for H.264 -->
+			<bitfield pos="29" name="UNK29"/>
+		</reg32>	<!-- for surface layout purposes -->
+		<reg32 offset="0x08" name="UNK08">
+			<bitfield low="0" high="2" name="UNK0"/>
+			<bitfield pos="4" name="POUT_TWO_FIELDS"/> <!-- ? -->
+		</reg32>
+		<reg32 offset="0x0c" name="SURF_ADDR" length="2" shr="8"/>
+		<reg32 offset="0x14" name="UNK14">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="1" name="UNK1"/>
+			<bitfield low="28" high="31" name="UNK28"/>
+		</reg32>
+		<reg32 offset="0x18" name="INTR_ENABLE">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="31" name="UNK31"/>
+		</reg32>
+		<reg32 offset="0x1c" name="INTR">
+			<bitfield pos="0" name="UNK0"/>
+		</reg32>
+		<reg32 offset="0x20" name="UNK20"/>
+		<reg32 offset="0x24" name="INTR_UNK"/>
+		<reg32 offset="0x28" name="Y_PUT" shr="4"/>
+	</array>
+	<array offset="0x500" stride="0xc0" name="H264">
+		<reg32 offset="0x00" name="INTR_UNK0"/>
+		<reg32 offset="0x04" name="INTR_UNK1"/>
+		<reg32 offset="0x08" name="INTR_UNK2"/>
+		<reg32 offset="0x0c" name="TRIGGER">
+			<bitfield pos="0" name="LUMA_TRIGGER"/>
+			<bitfield pos="4" name="CHROMA_TRIGGER"/>
+			<bitfield pos="8" name="UNK8"/>
+			<bitfield low="30" high="31" name="UNK30"/>
+		</reg32>
+
+		<!-- UNK10..1c and UNK40-UNK80 are all used together, or not at all, never seen it used so far -->
+		<reg32 offset="0x10" name="UNK10" />
+		<reg32 offset="0x14" name="UNK14" />
+		<reg32 offset="0x18" name="UNK18" />
+		<reg32 offset="0x1c" name="UNK1c" />
+		<reg32 offset="0x40" name="UNK40" stride="4" length="0x10"/><!-- a different program uploaded array for luma/chroma -->
+		<reg32 offset="0x80" name="UNK80" stride="4" length="0x10"/><!-- a different program uploaded array for luma/chroma -->
+	</array>
+	<array offset="0x5c0" stride="0x40" name="VC1">
+		<reg32 offset="0x00" name="INTR_UNK0"/>
+		<reg32 offset="0x04" name="INTR_UNK1"/>
+		<reg32 offset="0x08" name="INTR_UNK2"/>
+		<reg32 offset="0x0c" name="TRIGGER">
+			<bitfield pos="0" name="LUMA_TRIGGER"/>
+			<bitfield pos="4" name="CHROMA_TRIGGER"/>
+			<bitfield low="30" high="31" name="UNK30"/>
+		</reg32>
+		<reg32 offset="0x10" name="UNK10"> <!-- set separately for luma and chroma -->
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield low="4" high="6" name="UNK4"/>
+		</reg32>
+		<reg32 offset="0x14" name="UNK14">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield low="4" high="8" name="PQUANT"/>
+		</reg32>
+	</array>
+	<array offset="0x640" stride="0x40" length="1" name="POUT">
+		<reg32 offset="0x00" name="INTR_UNK0"/>
+		<reg32 offset="0x04" name="INTR_UNK1"/>
+		<reg32 offset="0x08" name="INTR_UNK2"/>
+		<reg32 offset="0x0c" name="SURF_WIDTH" shr="4"/> <!-- for surface layout purposes -->
+		<reg32 offset="0x10" name="SURF_ADDR" length="2" shr="8"/>
+		<reg32 offset="0x18" name="UNK18"/> <!-- single bit -->
+	</array>
+	<array offset="0x680" length="0x20" stride="4" name="UNK680" /> <!-- saved to user buffer, linked to UNK700.. -->
+	<array offset="0x700" length="1" stride="0x40" name="UNK700">
+		<reg32 offset="0x00" name="UNK00"/><!-- some kind of trigger -->
+		<!-- UNK00 trigger: 0x11 is written before luma postproc, 0 is written after reading UNK680 array to user buffer, before chroma postproc, so luma only? -->
+		<reg32 offset="0x04" name="UNK04"/>
+		<reg32 offset="0x08" name="UNK08"/>
+	</array>
+</array>
+
+</domain>
+
+</database>

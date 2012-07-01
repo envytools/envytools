@@ -22,8 +22,8 @@
  * Authors: Ben Skeggs
  */
 
-#ifndef __NOUVEAU_PMS_H__
-#define __NOUVEAU_PMS_H__
+#ifndef NOUVEAU_PMS_H
+#define NOUVEAU_PMS_H
 
 struct pms_ucode {
 	u8 data[256];

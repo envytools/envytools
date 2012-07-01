@@ -1,4 +1,10 @@
-Introduction
+TOC
+
+0. Introduction
+1. Overall operation
+
+
+= Introduction =
 
 Commands to most of the engines are sent through a special engine caled PFIFO.
 PFIFO maintains multiple fully independent command queues, known as "channels"
@@ -24,7 +30,7 @@ The engines that PFIFO controls are:
 
 idx|   name   |   cards   | description
 ------------------------------------------------------------------------------
- 0 |          |           | Not really an engine, causes interrupt for each 
+ 0 |          |           | Not really an engine, causes interrupt for each
  / | SOFTWARE |    all    | command, can be used to execute driver functions
 1f |          |           | in sync with other commands.
 ------------------------------------------------------------------------------
@@ -35,7 +41,7 @@ idx|   name   |   cards   | description
 2/-| PMPEG    | NV31:NV98 | The PFIFO interface to VPE MPEG2 decoding engine.
    |          |           | [see vpe.txt]
 ------------------------------------------------------------------------------
-3/-| PMSRCH   | NV40:NV84 | ??? probably some other video decoding engine.
+3/-| PME      | NV40:NV84 | VPE motion estimation engine [see vpe.txt]
 ------------------------------------------------------------------------------
 4/-| PVP      | NV41:NV84 | VP1 microcoded video processor. [see vp1.txt]
 ------------------------------------------------------------------------------
@@ -47,19 +53,21 @@ idx|   name   |   cards   | description
 ------------------------------------------------------------------------------
 2/2| PPPP     |           | VP3 fuc-microcoded video decoding engines: picture
 --------------|           | post-processor, video processor, bitstream
-4/1| PVP      | NV98:.... | processor. [see fuc-fifo.txt, fuc-bsp.txt,
---------------|           | fuc-vp.txt, fuc-ppp.txt]
+4/1| PVP      | NV98:.... | processor. [see vp3-pbsp.txt, vp3-pvp.txt,
+--------------|           | vp3-pppp.txt]
 6/3| PBSP     |           |
 ------------------------------------------------------------------------------
    |          |           | fuc-microcoded engine with AES crypto coprocessor.
 5/-| PCRYPT   | NV98:NVA3 | On NVA3+, the crypto powers were instead merged
-   |          |           | into PVP. [see fuc-fifo.txt, fuc-crypt.txt]
+   |          |           | into PVP. [see vp3-pcrypt.txt]
 ------------------------------------------------------------------------------
 5/-| PUNK1C1  | NVAF:NVC0 | fuc-microcoded engine of unknown purpose
 ------------------------------------------------------------------------------
 3/ |          |           | fuc-microcoded engine, meant to copy stuff from
-4,5| PCOPY    | NVA3:.... | point A to point B. Comes in two copies on NVC0+.
-   |          |           | [see fuc-fifo.txt, fuc-copy.txt]
+4,5| PCOPY    | NVA3:.... | point A to point B. Comes in two copies on NVC0+,
+   |          |           | three copies on NVE4+ [see pcopy.txt]
+------------------------------------------------------------------------------
+-/6| PVENC    | NVE4:.... | fuc-microcoded H.264 encoding engine [pvenc.txt]
 ------------------------------------------------------------------------------
 idx is the FIFO engine id. The first number is the id for pre-nvc0 cards, the
 second is for nvc0+ cards.
@@ -71,7 +79,7 @@ nvc0-pfifo.txt.
 Note: NVC0 information can still be very incomplete / not exactly true.
 
 
-Overall operation
+= Overall operation =
 
 The PFIFO can be split into roughly 4 pieces:
 

@@ -8,6 +8,23 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
+<bitset name="nv01_straps" inline="yes">
+	<bitfield low="0" high="1" name="FB_TYPE">
+		<value value="0" name="VRAM"/>
+		<value value="3" name="DRAM"/>
+	</bitfield>
+	<bitfield low="2" high="3" name="BOARD_TYPE">
+		<value value="0" name="MOTHERBOARD"/>
+		<value value="1" name="ADAPTER_1"/>
+		<value value="2" name="ADAPTER_2"/>
+		<value value="3" name="ADAPTER_3"/>
+	</bitfield>
+	<bitfield pos="4" name="BUS_TYPE">
+		<value value="0" name="PCI"/>
+		<value value="1" name="VL"/>
+	</bitfield>
+</bitset>
+
 <bitset name="nv03_straps" inline="yes">
 	<bitfield pos="0" name="PCI_66MHZ"/>
 	<bitfield pos="1" name="PCI_SUB_BIOS"/>
@@ -84,6 +101,11 @@
 		<value value="0" name="16MB"/>
 		<value value="1" name="128MB"/>
 	</bitfield>
+	<bitfield low="29" high="30" name="ROM_TYPE" variants="NV17:NV20 NV25-">
+		<value value="0" name="PARALLEL"/>
+		<value value="1" name="SPI"/>
+		<value value="2" name="UNK2"/>
+	</bitfield>
 </bitset>
 
 <bitset name="nv17_straps1" inline="yes">
@@ -97,7 +119,7 @@
 <bitset name="nv50_straps0" inline="yes">
 	<bitfield pos="1" name="PCI_SUB_BIOS"/>
 	<bitfield low="2" high="5" name="RAMCFG"/>
-	<bitfield pos="6" name="CRYSTAL_0" type="hex"/>
+	<bitfield pos="6" name="CRYSTAL" type="hex"/>
 	<bitfield low="10" high="13" name="DEVICE_ID_0_3"/>
 	<bitfield low="14" high="15" name="BAR1_SIZE">
 		<value value="0" name="64MB"/>
@@ -105,7 +127,11 @@
 		<value value="2" name="256MB"/>
 		<value value="3" name="512MB"/>
 	</bitfield>
-	<bitfield pos="22" name="CRYSTAL_1" type="hex"/>
+	<bitfield low="23" high="23" name="ROM_TYPE">
+		<value value="0" name="PARALLEL"/>
+		<value value="1" name="SPI"/>
+		<value value="2" name="UNK2"/>
+	</bitfield>
 	<bitfield low="24" high="27" name="FP_CONFIG"/>
 	<bitfield pos="28" name="DEVICE_ID_4" type="hex" variants="NV92-"/>
 </bitset>
@@ -126,6 +152,10 @@
 
 <bitset name="nvd9_straps2" inline="yes">
 </bitset>
+
+<array offset="0x608000" name="PSTRAPS" stride="0x1000" length="1" variants="NV01:NV03">
+	<reg32 offset="0" name="STRAPS" type="nv01_straps" access="r"/>
+</array>
 
 <array offset="0x101000" name="PSTRAPS" stride="0x1000" length="1" variants="NV03-">
 	<reg32 offset="0x000" name="STRAPS" variants="NV03:NV18 NV20:NV25">

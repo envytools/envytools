@@ -69,6 +69,33 @@ ptime_t get_time(unsigned int card)
 	return ((((ptime_t)high2) << 32) | (ptime_t)low) >> 5;
 }
 
+void time_pwm_nv50(unsigned int cnum)
+{
+	int i;
+	for (i = 0; i < 2; i++) {
+		uint32_t a = 0xe114 + i * 8;
+		uint32_t b = a + 4;
+		uint32_t save0 = nva_rd32(cnum, a);
+		uint32_t save1 = nva_rd32(cnum, b);
+
+		struct timeval start, end;
+
+		nva_wr32(cnum, a, 0x200000);
+		nva_wr32(cnum, b, 0x80080000);
+		while (nva_rd32(cnum, b) & 0x80000000);
+		nva_wr32(cnum, b, 0x80080000);
+		while (nva_rd32(cnum, b) & 0x80000000);
+		gettimeofday(&start, NULL);
+		nva_wr32(cnum, b, 0x80080000);
+		while (nva_rd32(cnum, b) & 0x80000000);
+		gettimeofday(&end, NULL);
+		uint64_t td = (time_diff_us(start, end));
+		printf("PWM %d: %dHz\n", i, (int)(1000000ll * 0x200000 / td));
+		nva_wr32(cnum, a, save0);
+		nva_wr32(cnum, b, 0x80000000 | save1);
+	}
+}
+
 void time_pcounter_nv10(unsigned int cnum)
 {
 	printf ("Perf counter:\n");
@@ -394,6 +421,9 @@ int main(int argc, char **argv)
 
 	time_pgraph_dispatch_clock(cnum);
 	printf("\n");
+
+	if (card->card_type >= 0x50)
+		time_pwm_nv50(cnum);
 
 	if (card->card_type == 0xc0) {
 		time_pcounter_nvc0(cnum);

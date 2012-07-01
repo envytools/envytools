@@ -1,0 +1,44 @@
+Present on:
+	cv0 [1 engine]: NVA3:NVC0
+	cv1 [2 engines]: NVC0:NVE4
+	cv2 [3 engines]: NVE4+
+BAR0 address:
+	engine #0: 0x104000
+	engine #1: 0x105000
+	engine #2: 0x105000
+PMC interrupt line:
+	cv0: 22
+	cv1, engine #0: 5
+	cv1, engine #1: 6
+PMC enable bit:
+	cv0: 13
+	cv1, engine #0: 6
+	cv1, engine #0: 7
+Version:
+	cv0, cv1: 3
+	cv2: [none]
+Code segment size: 0x1200
+Data segment size: 0x800
+Fifo size: 0x10
+Xfer slots: 8
+Secretful: no
+Code TLB index bits:
+	cv0: 5
+	cv1: 7
+Code ports: 1
+Data ports: 1
+
+The IO registers:
+
+600/18000:640/19000 MEMIF	memory interface	[fuc-memif.txt]
+640/19000:680/1a000 ???		???			[fuc-copy.txt]
+800/20000:880/22000 COPY	copy engine		[fuc-copy.txt]
+900/24000:980/26000 ???		???			[fuc-copy.txt]
+
+Interrupts:
+	10: ???
+	11: ???
+[XXX: interrupts]
+[XXX: status bits]
+
+[XXX: describe PCOPY]

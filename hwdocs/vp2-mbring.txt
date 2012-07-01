@@ -1,3 +1,15 @@
+TOC
+
+0. Introduction
+1. Packet type 0: macroblock info
+2. Packet type 1: motion vectors
+3. Packet type 2: residual data
+4. Packet type 3: coded block mask
+5. Packet type 4: pred weight table
+
+
+= Introduction =
+
 An invocation of SLICE_DATA BSP command writes the decoded data into the
 MBRING. The MBRING is a ring buffer located in VM memory, made of 32-bit word
 oriented packets. Each packet starts with a header word, whose high 8 bits
@@ -16,7 +28,7 @@ An invocation of SLICE_DATA command writes the following packets, in order:
    - coded block mask [packet type 3] - if macroblock is not skipped
 
 
-Packet type 0: macroblock info
+= Packet type 0: macroblock info =
 
 Packet is made of a header word and 3 or 6 payload words.
 
@@ -62,7 +74,7 @@ rem_intra8x8_pred_mode[i] and pred_intra8x8_pred_mode_flag[i] for i = 0..3,
 and are unused for i = 4..15.
 
 
-Packet type 1: motion vectors
+= Packet type 1: motion vectors =
 
 Packet is made of two header words + 1 word for each motion vector.
 
@@ -72,7 +84,7 @@ Header word:
 
 Second header word:
   bit i = bit 4 of ref_idx[i]
- 
+
 Motion vector word i:
   bits 0-12: mvd[i] Y coord
   bits 13-27: mvd[i] X coord
@@ -85,7 +97,7 @@ macroblock/sub-macroblock partition size greater than 4x4 is used, its data
 is duplicated for all covered blocks.
 
 
-Packet type 2: residual data
+= Packet type 2: residual data =
 
 Packet is made of a header word + 1 halfword for each residual coefficient +
 0 or 1 halfwords of padding to the next multiple of word size
@@ -111,7 +123,7 @@ stored in packet type 3. If there are no non-zero coefficients in the whole
 macroblock, this packet is not present.
 
 
-Packet type 3: coded block mask
+= Packet type 3: coded block mask =
 
 Packet is made of a header word and a payload word.
 
@@ -152,7 +164,7 @@ This packet type is present for all non-skipped macroblocks, including I_PCM
 macroblocks - but its payload word is always equal to 0 for I_PCM.
 
 
-Packet type 4: pred weight table
+= Packet type 4: pred weight table =
 
 Packet is made of a header word and a variable number of table write requests,
 each request being two words long.

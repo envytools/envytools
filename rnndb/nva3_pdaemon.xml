@@ -6,20 +6,40 @@
 
 <import file="nvchipsets.xml" />
 <import file="nv98_fuc.xml" />
+<import file="nv84_ptherm.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <array name="PDAEMON" offset="0x10a000" stride="0x1000" length="1" variants="NVA3-">
+	<bitset name="NVA3_PDAEMON_INTR" varset="chipset">
+		<!-- 0..7 standard fµc -->
+		<bitfield pos="9" name="VM_FAULT" variants="NVA3:NVC0"/>
+		<bitfield pos="10" name="PMC_INT"/>
+		<bitfield pos="11" name="INTR11"/> <!-- 688 -->
+		<bitfield pos="12" name="THERM"/> <!-- ? -->
+		<bitfield pos="13" name="SIGNAL"/> <!-- 7cc+ -->
+		<bitfield pos="14" name="INTR14"/> <!-- 680 -->
+	</bitset>
 	<use-group name="nv98_fucbase"/>
+	<reg32 offset="0x47c" name="CHANNEL_SETUP">
+		<bitfield name="CHAN" high="29" low="0" type="nv50_channel"/>
+		<bitfield name="VALID" pos="30"/>
+	</reg32>
+	<reg32 offset="0x488" name="TOKEN_ALLOC">
+		<doc>Valid tokens are 8-0xfe. Read allocates a free token and marks it as used.</doc>
+	</reg32>
+	<reg32 offset="0x48c" name="TOKEN_FREE">
+		<doc>Write a token here to mark it as free for allocation.</doc>
+	</reg32>
 	<reg32 offset="0x4a0" name="FIFO_PUT" length="4"/>
 	<reg32 offset="0x4b0" name="FIFO_GET" length="4"/>
-	<reg32 offset="0x4c0" name="FIFO_PENDING">
+	<reg32 offset="0x4c0" name="FIFO_INTR">
 		<bitfield pos="0" name="0"/>
 		<bitfield pos="1" name="1"/>
 		<bitfield pos="2" name="2"/>
 		<bitfield pos="3" name="3"/>
 	</reg32>
-	<reg32 offset="0x4c4" name="FIFO_UNK4C4">
+	<reg32 offset="0x4c4" name="FIFO_INTR_EN">
 		<bitfield pos="0" name="0"/>
 		<bitfield pos="1" name="1"/>
 		<bitfield pos="2" name="2"/>
@@ -27,7 +47,187 @@
 	</reg32>
 	<reg32 offset="0x4c8" name="RFIFO_PUT"/>
 	<reg32 offset="0x4cc" name="RFIFO_GET"/>
-	<use-group name="nv98_fuc_targets"/>
+	<reg32 offset="0x4d0" name="ISCRATCH">
+		<doc>Any write here causes an ISCRATCH interrupt.</doc>
+	</reg32>
+	<reg32 offset="0x4d4" name="ISCRATCH_INTR">
+		<bitfield pos="0" name="0"/>
+	</reg32>
+	<reg32 offset="0x4d8" name="ISCRATCH_INTR_EN">
+		<bitfield pos="0" name="0"/>
+	</reg32>
+	<bitset name="nva3_pdaemon_counter_signals" inline="yes">
+		<bitfield pos="4" name="PBSP_IDLE"/>
+		<bitfield pos="5" name="PVP_IDLE"/>
+		<bitfield pos="6" name="PPPP_IDLE"/>
+		<bitfield pos="19" name="PCOPY_IDLE"/>
+	</bitset>
+	<reg32 offset="0x500" name="COUNTER_SIGNALS" type="nva3_pdaemon_counter_signals"/>
+	<reg32 offset="0x504" name="COUNTER_MASK" stride="0x10" length="4" type="nva3_pdaemon_counter_signals" variants="NVA3:NVC0"/>
+	<reg32 offset="0x508" name="COUNTER_COUNT" stride="0x10" length="4" variants="NVA3:NVC0">
+		<bitfield low="0" high="30" name="COUNT"/>
+		<bitfield pos="31" name="CLEAR_TRIGGET"/>
+	</reg32>
+	<reg32 offset="0x50c" name="COUNTER_MODE" stride="0x10" length="4" variants="NVA3:NVC0">
+		<bitfield pos="0" name="INCR_IF_ALL"/>
+		<bitfield pos="1" name="INCR_IF_NOT_ALL"/>
+	</reg32>
+	<reg32 offset="0x504" name="COUNTER_MASK" stride="0x10" length="8" type="nva3_pdaemon_counter_signals" variants="NVC0-"/>
+	<reg32 offset="0x508" name="COUNTER_COUNT" stride="0x10" length="8" variants="NVC0-">
+		<bitfield low="0" high="30" name="COUNT"/>
+		<bitfield pos="31" name="CLEAR_TRIGGET"/>
+	</reg32>
+	<reg32 offset="0x50c" name="COUNTER_MODE" stride="0x10" length="8" variants="NVC0-">
+		<bitfield pos="0" name="INCR_IF_ALL"/>
+		<bitfield pos="1" name="INCR_IF_NOT_ALL"/>
+		<bitfield pos="2" name="UNK4" variants="NVD9-"/>
+	</reg32>
+	<reg32 offset="0x580" name="MUTEX_TOKEN" length="16">
+		<doc>Write a token here to lock, read and check if equal to see if lock succeeded, write 0 to unlock. This reg will refuse non-0 writes if already non-0.</doc>
+	</reg32>
+	<reg32 offset="0x5c0" name="PTIMER_UNSHIFTED_LOW">
+		<doc>Returns PTIMER time, but without the 5-bit left shift.</doc>
+	</reg32>
+	<reg32 offset="0x5c4" name="PTIMER_UNSHIFTED_HIGH"/>
+	<bitset name="nva3_pdaemon_intr14" inline="yes">
+		<bitfield pos="8" name="UNK8"/>
+	</bitset>
+	<reg32 offset="0x5c8" name="UNK5C8">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="1" name="COUNTER3_ALL"/>
+		<bitfield pos="2" name="COUNTER2_ALL"/>
+		<bitfield pos="3" name="COUNTER1_ALL"/>
+		<bitfield pos="4" name="COUNTER0_ALL"/>
+	</reg32>
+	<reg32 offset="0x5d0" name="DSCRATCH" length="4"/>
+	<use-group name="nv98_fuc_memif"/>
+	<reg32 offset="0x680" name="INTR14" type="nva3_pdaemon_intr14"/>
+	<reg32 offset="0x684" name="INTR14_EN" type="nva3_pdaemon_intr14"/>
+	<reg32 offset="0x688" name="INTR11">
+		<bitfield pos="0" name="ISCRATCH">
+			<doc>Consult 4d4</doc>
+		</bitfield>
+		<bitfield pos="1" name="FIFO">
+			<doc>Consult 4c4</doc>
+		</bitfield>
+		<bitfield pos="4" name="MMIO">
+			<doc>Consult 7b4</doc>
+		</bitfield>
+		<bitfield pos="5" name="UNK5">
+			<doc>Consult 69c</doc>
+		</bitfield>
+		<!-- XXX: many more bits... -->
+	</reg32>
+	<reg32 offset="0x7a0" name="MMIO_ADDR" variants="NVA3:NVD9"/>
+	<reg32 offset="0x7a0" name="MMIO_ADDR" variants="NVD9-">
+		<bitfield low="0" high="25" name="ADDR"/>
+		<bitfield pos="27" name="ACCESS_POINT">
+			<value value="0" name="ROOT"/>
+			<value value="1" name="IBUS"/>
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x7a4" name="MMIO_VAL"/>
+	<reg32 offset="0x7a8" name="MMIO_TIMEOUT"/>
+	<reg32 offset="0x7ac" name="MMIO_CTRL">
+		<bitfield low="0" high="1" name="OP">
+			<value value="1" name="READ"/>
+			<value value="2" name="WRITE"/>
+		</bitfield>
+		<bitfield low="4" high="7" name="BYTE_MASK"/>
+		<bitfield pos="12" name="BUSY"/>
+		<bitfield pos="13" name="TIMEOUT"/>
+		<bitfield pos="14" name="FAULT"/>
+		<bitfield pos="16" name="TRIGGER"/>
+	</reg32>
+	<reg32 offset="0x7b0" name="MMIO_ERR" variants="NVA3:NVD9">
+		<bitfield pos="0" name="TIMEOUT"/>
+		<bitfield pos="1" name="CMD_WHILE_BUSY"/>
+		<bitfield pos="2" name="WRITE"/>
+		<bitfield low="3" high="31" name="ADDR" variants="NVA3:NVC0"/>
+		<bitfield low="3" high="30" name="ADDR" variants="NVC0:NVD9"/>
+		<bitfield pos="31" name="FAULT" variants="NVC0:NVD9"/>
+	</reg32>
+	<reg32 offset="0x7b0" name="MMIO_ERR" variants="NVD9-">
+		<bitfield pos="0" name="TIMEOUT_ROOT"/>
+		<bitfield pos="1" name="TIMEOUT_IBUS"/>
+		<bitfield pos="2" name="CMD_WHILE_BUSY"/>
+		<bitfield pos="3" name="WRITE"/>
+		<bitfield low="4" high="29" name="ADDR"/>
+		<bitfield pos="30" name="FAULT_ROOT"/>
+		<bitfield pos="31" name="FAULT_IBUS"/>
+	</reg32>
+	<reg32 offset="0x7b4" name="MMIO_INTR">
+		<bitfield pos="0" name="ERR"/>
+	</reg32>
+	<reg32 offset="0x7b8" name="MMIO_INTR_EN">
+		<bitfield pos="0" name="ERR"/>
+	</reg32>
+	<bitset name="nva3_pdaemon_signal" inline="yes">
+		<bitfield pos="8" name="I2C_3_SCL" variants="NVA3:NVD9"/>
+		<bitfield pos="9" name="I2C_3_SDA" variants="NVA3:NVD9"/>
+
+		<bitfield pos="12" name="I2C_0_SCL" variants="NVA3:NVD9"/>
+		<bitfield pos="13" name="I2C_0_SDA" variants="NVA3:NVD9"/>
+		<bitfield pos="14" name="I2C_1_SCL" variants="NVA3:NVD9"/>
+		<bitfield pos="15" name="I2C_1_SDA" variants="NVA3:NVD9"/>
+		<bitfield pos="16" name="I2C_2_SCL" variants="NVA3:NVD9"/>
+		<bitfield pos="17" name="I2C_2_SDA" variants="NVA3:NVD9"/>
+		<bitfield pos="18" name="I2C_4_SCL" variants="NVA3:NVD9"/>
+		<bitfield pos="19" name="I2C_4_SDA" variants="NVA3:NVD9"/>
+		<bitfield pos="20" name="I2C_5_SCL" variants="NVA3:NVD9"/>
+		<bitfield pos="21" name="I2C_5_SDA" variants="NVA3:NVD9"/>
+		<bitfield pos="22" name="I2C_6_SCL" variants="NVA3:NVD9"/>
+		<bitfield pos="23" name="I2C_6_SDA" variants="NVA3:NVD9"/>
+		<bitfield pos="24" name="I2C_7_SCL" variants="NVA3:NVD9"/>
+		<bitfield pos="25" name="I2C_7_SDA" variants="NVA3:NVD9"/>
+		<bitfield pos="26" name="I2C_8_SCL" variants="NVA3:NVD9"/>
+		<bitfield pos="27" name="I2C_8_SDA" variants="NVA3:NVD9"/>
+		<bitfield pos="28" name="I2C_9_SCL" variants="NVA3:NVD9"/>
+		<bitfield pos="29" name="I2C_9_SDA" variants="NVA3:NVD9"/>
+
+		<bitfield pos="8" name="PNVIO_INTR" variants="NVE4-"/> <!-- from PGPIO.INTR_DAEMON -->
+
+		<bitfield pos="10" name="I2C_0_SCL" variants="NVD9-"/>
+		<bitfield pos="11" name="I2C_1_SCL" variants="NVD9-"/>
+		<bitfield pos="12" name="I2C_2_SCL" variants="NVD9-"/>
+		<bitfield pos="13" name="I2C_3_SCL" variants="NVD9-"/>
+		<bitfield pos="14" name="I2C_4_SCL" variants="NVD9-"/>
+		<bitfield pos="15" name="I2C_5_SCL" variants="NVD9-"/>
+		<bitfield pos="16" name="I2C_6_SCL" variants="NVD9-"/>
+		<bitfield pos="17" name="I2C_7_SCL" variants="NVD9-"/>
+		<bitfield pos="18" name="I2C_8_SCL" variants="NVD9-"/>
+		<bitfield pos="19" name="I2C_9_SCL" variants="NVD9-"/>
+		<bitfield pos="20" name="I2C_0_SDA" variants="NVD9-"/>
+		<bitfield pos="21" name="I2C_1_SDA" variants="NVD9-"/>
+		<bitfield pos="22" name="I2C_2_SDA" variants="NVD9-"/>
+		<bitfield pos="23" name="I2C_3_SDA" variants="NVD9-"/>
+		<bitfield pos="24" name="I2C_4_SDA" variants="NVD9-"/>
+		<bitfield pos="25" name="I2C_5_SDA" variants="NVD9-"/>
+		<bitfield pos="26" name="I2C_6_SDA" variants="NVD9-"/>
+		<bitfield pos="27" name="I2C_7_SDA" variants="NVD9-"/>
+		<bitfield pos="28" name="I2C_8_SDA" variants="NVD9-"/>
+		<bitfield pos="29" name="I2C_9_SDA" variants="NVD9-"/>
+	</bitset>
+	<bitset name="nva3_pdaemon_signal2" inline="yes">
+	</bitset>
+	<reg32 offset="0x7c0" name="SIGOUT" type="nva3_pdaemon_signal"/>
+	<reg32 offset="0x7c4" name="SIGNAL_STATUS" type="nva3_pdaemon_signal"/>
+	<reg32 offset="0x7c8" name="UNK7C8"/>
+	<reg32 offset="0x7cc" name="SIGNAL_RISE_INTR" type="nva3_pdaemon_signal"/>
+	<reg32 offset="0x7d0" name="SIGNAL_FALL_INTR" type="nva3_pdaemon_signal"/>
+	<reg32 offset="0x7d4" name="SIGNAL_RISE_INTR_EN" type="nva3_pdaemon_signal"/>
+	<reg32 offset="0x7d8" name="SIGNAL_FALL_INTR_EN" type="nva3_pdaemon_signal"/>
+
+	<reg32 offset="0x7e0" name="SIGOUT_SET" type="nva3_pdaemon_signal"/>
+	<reg32 offset="0x7e4" name="SIGOUT_CLEAR" type="nva3_pdaemon_signal"/>
+	<reg32 offset="0x7e8" name="SIGNAL2_STATUS" type="nva3_pdaemon_signal" variants="NVC0-"/>
+	<reg32 offset="0x7ec" name="SIGNAL2_RISE_INTR" type="nva3_pdaemon_signal" variants="NVC0-"/>
+	<reg32 offset="0x7f0" name="SIGNAL2_FALL_INTR" type="nva3_pdaemon_signal" variants="NVC0-"/>
+	<reg32 offset="0x7f4" name="SIGNAL2_RISE_INTR_EN" type="nva3_pdaemon_signal" variants="NVC0-"/>
+	<reg32 offset="0x7f8" name="SIGNAL2_FALL_INTR_EN" type="nva3_pdaemon_signal" variants="NVC0-"/>
+	<array offset="0x800" name="THERM" stride="0x700" length="1" variants="NVA3:NVD9">
+		<use-group name="nv84_therm"/>
+	</array>
 </array>
 
 </domain>

@@ -1,4 +1,15 @@
-Introduction
+TOC
+
+0. Introduction
+1. MMIO register list
+2. NV01 straps
+3. NV03 straps readout/override registers
+4. NV03 family straps
+5. NV04-NV40 families straps
+6. NV50 and NVC0 families straps sets
+
+
+= Introduction =
 
 The nvidia GPU chips are used in multiple cards from multiple manufacturers.
 Thus, the a single GPU can end up in many different configurations, with
@@ -12,34 +23,42 @@ this read is used as the "straps" value and is used to configure many aspects
 of GPU operation. Some of the straps are not used by the GPU itself, but are
 intended for use by the BIOS or the driver.
 
-NV03 has 10 straps bits. NV04 bumped this count to 16 straps bits, and allowed
-the driver to override the straps value at runtime. NV11 bumped the count to
-22 bits, NV20 bumped it to 31 bits.
+NV01 has 5 straps bits, NV03 has 10 bits. NV04 bumped this count to 16 straps
+bits, and allowed the driver to override the straps value at runtime. NV11
+bumped the count to 22 bits, NV20 bumped it to 31 bits.
 
 NV18 introduced a second set of 31 straps, and added another override
 mechanism. Each straps set now consists of 2 31-bit values: primary and
 secondary, and a 31-bit "select" mask that chooses which value is the source
 of a given bit in the "effective" value used internally by the card. Both
-primary and secondary value and select mask are set on reset from the board
-resistors, but can be modified later.
+primary and secondary value and select mask are set on reset from the BIOS
+in ROM, but can be modified later. Straps 0 select, straps 0 secondary,
+straps 1 select and straps 1 secondary are loaded from BIOS ROM offsets
+0x58, 0x5c, 0x60, 0x64, respectively.
 
 NVD9 introduced a third set.
 
-When effective straps value changes for any reason, the changes value starts
+When effective straps value changes for any reason, the changed value starts
 being used by the card immediately.
 
 The straps can be read or overriden by accessing the PSTRAPS area of MMIO,
-which resides at addresses 0x101000-0x101fff in BAR0. It's also known as
-PEXTDEV by nvidia.
+which resides at addresses 0x608000-0x608fff [NV01] or 0x101000-0x101fff
+[NV03+] in BAR0. It's also known as PEXTDEV by nvidia.
 
 On NV03:NV17, PSTRAPS is enabled by PMC.ENABLE bit 20 [PFB], on later cards
-it's unaffected by PMC.ENABLE [see pmc.txt].
+and on NV01 it's unaffected by PMC.ENABLE [see pmc.txt].
 
 On NV03:NV04 cards, the PSTRAPS area is also home to an unrelated register
 controlling ROM timings.
 
 
-MMIO register list
+= MMIO register list =
+
+NV01 registers:
+
+608000 STRAPS			straps value
+
+NV03+ registers:
 
 no annotation - available on all NV03+ cards
 [1] - available on NV03:NV04 only
@@ -62,7 +81,25 @@ no annotation - available on all NV03+ cards
 101200[1] ROM_TIMINGS		ROM timing configuration [see prom.txt]
 
 
-Straps readout/override registers
+= NV01 straps =
+
+On NV01, all straps bits are available in a single register:
+
+MMIO 0x608000: STRAPS
+  bits 0-1: memory type
+    0 - VRAM
+    3 - DRAM
+  bits 2-3: board type
+    0 - motherboard
+    1 - adapter #1 [normal add-on cards use this value]
+    2 - adapter #2
+    3 - adapter #3
+  bit 4: bus type
+    0 - PCI
+    1 - VESA local bus
+
+
+= NV03+ straps readout/override registers =
 
 MMIO 0x101000: STRAPS0_PRIMARY
 MMIO 0x10100c: STRAPS1_PRIMARY [NV18:NV20 and NV25+ only]
@@ -93,7 +130,7 @@ MMIO 0x10103c: STRAPS2_SECONDARY [NVD9+ only]
 This register is always writable and not affected by override enable.
 
 
-NV03 family straps
+= NV03 family straps =
 
 bit 0: if set, PCI 66MHz mode is supported
 bit 1: if 0, this GPU is part of a motherboard and ROMless, subsystem device
@@ -114,15 +151,15 @@ bit 9 [original NV03]: PCI version: 0 PCI 2.0, 1 PCI 2.1.
 bit 9 [NV03T]: if set, AGP x2 is supported
 
 
-NV04-NV40 families straps
+= NV04-NV40 families straps =
 
 set 0:
 bit 0: if 0, PCI AD lines have reversed polarity, if 1 normal
 bit 1: if 0, this GPU is part of a motherboard and ROMless, subsystem device
        id will be initialised to 0x00000000 and should be written with a valid
        value by system bios. if 1, this is a standalone card and has ROM -
-       subsystem will be read from 32-bit LE word at address 0x54 in the ROM
-       [XXX: check ROM address]
+       subsystem will be read from 32-bit LE word at address 0x54 in the ROM.
+       Same applies to select/secondary values.
 bits 2-5: RAM config, for use by BIOS
 bit 6: crystal type bit 0
 bits 7-8: TV mode: 0 - SECAM, 1 - NTSC, 2 - PAL, 3 - disabled
@@ -148,7 +185,14 @@ bits 23-24 [NV17:NV20 and NV25:NV50]: BAR1 size
 	1: 128MB
 	2: 256MB
 	3: 512MB
-bits 23-30: ?
+bit 25 [NV17:NV20 and NV25:NV50]: BAR0 size [XXX: I'm almost sure it does something else too]
+	0: 16MB
+	1: 128MB
+bits 26-28: ?
+bits 29-30 [NV17:NV20 and NV25:NV50]: bios ROM type
+	0: parallel
+	1: serial [SPI]
+	2: ???
 
 crystal type is:
  0 - 13.500MHz
@@ -165,23 +209,27 @@ bit 4: pci device class
 bits 5-30: ?
 
 
-NV50 and NVC0 families straps sets
+= NV50 and NVC0 families straps sets =
 
 set 0:
 bit 0: ?
 bit 1: if 0, this GPU is part of a motherboard and ROMless, subsystem device
        id will be initialised to 0x00000000 and should be written with a valid
        value by system bios. if 1, this is a standalone card and has ROM -
-       subsystem will be read from 32-bit LE word at address 0x54 in the ROM
-       [XXX: check ROM address]
+       subsystem will be read from 32-bit LE word at address 0x54 in the ROM.
+       Same applies to select/secondary values.
 bits 2-5: RAM config, for use by BIOS
-bit 6: crystal type bit 0
+bit 6: crystal type
+	0: 27MHz
+	1: 25MHz
 bits 7-9: ?
 bits 10-13: DEVICE_ID, bits 0-3
 bits 14-15: BAR1 size, part 1
 bits 16-21: ?
-bit 22: crystal type bit 1
-bit 23: ?
+bits 22-23: bios ROM type
+	0: parallel
+	1: serial [SPI]
+	2: ???
 bits 24-27: flat panel config [used to select entry from fp mode table]
 bit 28: DEVICE_ID bit 4 [NV92-]
 bits 29-30: ?
@@ -192,8 +240,8 @@ bit 4: pci device class
 	0: 0x030200 [3d controller]
 	1: 0x030000 [vga controller]
 bits 5-15: ?
-16: BAR5 enable
-17-19: BAR0 size
+bit 16: BAR5 enable
+bits 17-19: BAR0 size
 	0 16MB
 	1 32MB
 	2 64MB
@@ -202,8 +250,8 @@ bits 5-15: ?
 	5 512MB
 	6 1GB
 	7 2GB
-20-22 BAR1 size, part2
-23: BAR3 size
+bits 20-22 BAR1 size, part2
+bit 23: BAR3 size
 	0 BAR0 size * 2
 	1 BAR0 size
 24-30: ?

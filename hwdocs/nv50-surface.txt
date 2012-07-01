@@ -1,4 +1,25 @@
-Introduction
+TOC
+
+0. Introduction
+1. Surface elements
+2. Linear surfaces
+3. Tiled surfaces
+4. Textures, mipmapping and arrays
+5. Multisampled surfaces
+6. Surface formats
+6.1. Simple color surface formats
+6.2. Shared exponent color format
+6.3. YUV color formats
+6.4. Zeta surface formats
+6.5. Compressed texture formats
+6.6. Bitmap surface format
+7. nv50 storage types
+7.1. Tiled color storage types
+7.2. Zeta storage types
+8. nvc0 storage types
+
+
+= Introduction =
 
 This file deals with nv50+ cards only. For older cards, see nv01-surface.txt.
 
@@ -40,7 +61,7 @@ its knowledge is needed to calculate address of a given element, or to
 calculate the memory size of a surface.
 
 
-Surface elements
+= Surface elements =
 
 A basic unit of surface is an "element", which can be 1, 2, 4, 8, or 16 bytes
 long. element type is vital in selecting the proper compressed storage type
@@ -55,7 +76,7 @@ element size is ignored, and the surface is treated as an array of bytes. That
 is, a 16x16 surface of 4-byte elements is treated as a 64x16 surface of bytes.
 
 
-Linear surfaces
+= Linear surfaces =
 
 A linear surface is a 2d array of elements, where each row is contiguous in
 memory, and each row starts at a fixed distance from start of the previous
@@ -85,7 +106,7 @@ Or, alternatively, the address of byte (x,y) is:
  address + pitch * y + x
 
 
-Tiled surfaces
+= Tiled surfaces =
 
 A tiled surface is a 3d array of elements, stored in memory in units called
 "tiles". There are two levels of tiling. The lower-level tile is called
@@ -97,9 +118,9 @@ The attributes defining a tiled surface are:
 
  - address: 40-bit VM address, aligned to roptile size [0x100 bytes on
    nv50:nvc0, 0x200 bytes on nvc0]
- - tile size x: 0-5, log2 of roptiles per bigtile in x dimension 
- - tile size y: 0-5, log2 of roptiles per bigtile in y dimension 
- - tile size z: 0-5, log2 of roptiles per bigtile in z dimension 
+ - tile size x: 0-5, log2 of roptiles per bigtile in x dimension
+ - tile size y: 0-5, log2 of roptiles per bigtile in y dimension
+ - tile size z: 0-5, log2 of roptiles per bigtile in z dimension
  - element size: implied by format, or defaulting to 1 if the binding point
    is byte-oriented
  - width: surface width [size in x dimension] in elements
@@ -304,7 +325,7 @@ V| 0|3000|3010|3020|3030||3100|3110|3120|3130|||3800|3810|3820|3830||3900|
  +--+----+----+----+----++----+----+----+----+++----+----+----+----++----+
 
 
-Textures, mipmapping and arrays
+= Textures, mipmapping and arrays =
 
 A texture on nv50/nvc0 can have one of 9 types:
 
@@ -365,7 +386,7 @@ stored sequentially:
 For more information about textures, see nv50-texture.txt
 
 
-Multisampled surfaces
+= Multisampled surfaces =
 
 Some surfaces are used as multisampled surfaces. This includes surfaces bound
 as color and zeta render targets when multisampling type is other than 1X, as
@@ -545,7 +566,7 @@ The chunks are assigned to samples ordered first by x coordinate of the
 sample, then by its y coordinate.
 
 
-Surface formats
+= Surface formats =
 
 A surface's format determines the type of information it stores in its
 elements, the element size, and the element layout. Not all binding points
@@ -588,7 +609,7 @@ The surface formats can be broadly divided into the following categories:
 [XXX: wtf is color format 0x1d?]
 
 
-Simple color surface formats
+== Simple color surface formats ==
 
 A simple color surface is a surface where each element corresponds directly to
 a sample, each sample has 4 components known as R, G, B, A [in that order], and
@@ -724,7 +745,7 @@ Element size 1:
 [XXX: clarify float encoding for weird sizes]
 
 
-Shared exponent color format
+== Shared exponent color format ==
 
 A shared exponent color format is like a simple color format, but there's
 an extra bitfield, called E, that's used as a shared exponent for C0-C2. The
@@ -735,7 +756,7 @@ Element size 4:
  - texture format 0x20: 9_9_9_E5
 
 
-YUV color formats
+== YUV color formats ==
 
 These formats are also similar to color formats. However, The components are
 conventionally called Y, U, V: C0 is known as U, C1 is known as Y, and C2 is
@@ -750,7 +771,7 @@ Element size 4:
 [XXX: verify I haven't screwed up the ordering here]
 
 
-Zeta surface formats
+== Zeta surface format ==
 
 A zeta surface, like a simple color surface, has one element per sample.
 It contains up to three components: the depth component [called Z], optionally
@@ -818,12 +839,12 @@ Element size 8:
 [XXX: figure out the MS8_CS24 formats]
 
 
-Compressed texture formats
+== Compressed texture formats ==
 
 [XXX: write me]
 
 
-Bitmap surface format
+== Bitmap surface format ==
 
 A bitmap surface has only one component, and the component has 1 bit per sample
 - that is, the component's value can be either 0 or 1 for each sample in the
@@ -845,7 +866,7 @@ Element size 8:
   - color format 0x1c: BITMAP
 
 
-nv50 storage types
+= nv50 storage types =
 
 On nv50, the storage type is made of two parts: the storage type itself, and
 the compression mode. The storage type is a 7-bit enum, the compression mode
@@ -872,7 +893,7 @@ types:
    non-0 storage types
  - large scale [LSR] - large blocks of memory rearranged, based on internal
    VRAM geometry. Bounduaries between VRAM areas using NONE/SSR and LSR need
-   to be properly aligned in physical space to prevent conflicts.   
+   to be properly aligned in physical space to prevent conflicts.
 
 Long range reordering is described in detail in nv50-vram.txt.
 
@@ -904,7 +925,7 @@ storage type 0x00: LINEAR
   a roptile is identical between the virtual and physical addresses.
 
 
-nv50 tiled color storage types
+== Tiled color storage types ==
 
 The following tiled color storage types exist:
 
@@ -985,15 +1006,30 @@ storage type 0x46: TILED_24_MS8
   valid compression modes: NONE, SINGLE
   valid surface formats: texture format 8_8_8_X8 and corresponding color formats
   valid multisampling modes: MS8*
+storage type 0x4b: TILED_24_LSR
+  long range reordering: LSR
+  valid compression modes: NONE
+  valid surface formats: texture format 8_8_8_X8 and corresponding color formats
+  valid multisampling modes: any
+storage type 0x4c: TILED_24_MS4_LSR
+  long range reordering: LSR
+  valid compression modes: NONE, SINGLE
+  valid surface formats: texture format 8_8_8_X8 and corresponding color formats
+  valid multisampling modes: MS1, MS2*, MS4*
+storage type 0x4d: TILED_24_MS8_LSR
+  long range reordering: LSR
+  valid compression modes: NONE, SINGLE
+  valid surface formats: texture format 8_8_8_X8 and corresponding color formats
+  valid multisampling modes: MS8*
 
 [XXX]
 
 
-nv50 zeta storage types
+== Zeta storage types ==
 
 [XXX: write me]
 
 
-nvc0 storage types
+= nvc0 storage types =
 
 [XXX: write me]

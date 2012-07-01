@@ -23,8 +23,8 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __UTIL_H__
-#define __UTIL_H__
+#ifndef UTIL_H
+#define UTIL_H
 
 #include <stdlib.h>
 

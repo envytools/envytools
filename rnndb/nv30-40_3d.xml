@@ -596,6 +596,8 @@
 			<bitfield pos="7" name="KIL" variants="NV40_3D-NV44_3D"/>
 			<bitfield low="24" high="31" name="TEMP_COUNT" type="int" variants="NV40_3D-NV44_3D"/>
 		</reg32>
+		<reg32 offset="0x1d6c" name="FENCE_OFFSET" variants="NV30_3D-NV44_3D"/>
+		<reg32 offset="0x1d70" name="FENCE_VALUE" variants="NV30_3D-NV44_3D"/>
 		<reg32 offset="0x1d78" name="DEPTH_CONTROL">
 			<bitfield low="4" high="7" name="CLAMP" type="boolean" variants="NV30_3D-NV35_3D"/>
 		</reg32>

@@ -112,7 +112,7 @@ int resolve (struct disctx *ctx, ull *val, struct match m, ull pos, struct ed2_l
 	for (i = 0; i < m.nrelocs; i++) {
 		ull val = calc(m.relocs[i].expr, ctx, loc);
 		const struct bitfield *bf = m.relocs[i].bf;
-		ull num = val - bf->addend;
+		ull num = (val - bf->addend) ^ bf->xorend;
 		if (bf->pcrel)
 			num -= (pos + bf->pospreadd) & -(1ull << bf->shr);
 		if (bf->lut) {

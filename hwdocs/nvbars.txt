@@ -1,4 +1,18 @@
-Nvidia GPU BARs, IO ports, and memory areas.
+TOC
+
+0. Nvidia GPU BARs, IO ports, and memory areas
+1. PCI/PCIE configuration space
+2. BAR0: MMIO registers
+3. BAR1: VRAM aperture
+4. BAR2/BAR3: RAMIN aperture
+5. BAR2: NV03 indirect memory access
+6. BAR5: NV50 indirect memory access
+7. BAR6: PCI ROM aperture
+8. INTA: the card interrupt
+9. Legacy VGA IO ports and memory
+
+
+= Nvidia GPU BARs, IO ports, and memory areas =
 
 The nvidia GPUs expose the following areas to the outside world through PCI:
 
@@ -17,7 +31,7 @@ The nvidia GPUs expose the following areas to the outside world through PCI:
 
 
 
-PCI/PCIE configuration space
+= PCI/PCIE configuration space =
 
 Nvidia GPUs, like all PCI devices, have PCI configuration space. It contains:
 
@@ -26,7 +40,9 @@ Nvidia GPUs, like all PCI devices, have PCI configuration space. It contains:
 0x44-0x4f: PCI AGP capability [AGP cards only]
 0x50-0x53: ROM shadow enable flag - 0 to disable ROM shadow, disable video
            output, and use EEPROM for PCI ROM; 1 to enable ROM shadow and
-	   video output, using shadow copy in VRAM for PCI ROM.
+	   video output, using shadow copy in VRAM for PCI ROM. On NV04:NV50
+	   cards, enabling shadowing additionally disables PROM read/write
+	   circuitry.
 	   [XXX: wrong on NV03]
 	   [XXX: this register and possibly some others doesn't get written when
 	   poked through actual PCI config accesses - PBUS writes work fine]
@@ -71,7 +87,7 @@ circuitry to work even when only VRAM is being accessed. The reason for this
 is currently unknown.
 
 
-BAR0: MMIO registers
+= BAR0: MMIO registers =
 
 This is the main control space of the card - all engines are controlled
 through it, and it contains alternate means to access most of the other
@@ -102,7 +118,7 @@ for engines that can be turned off, and master interrupt control. It's
 described in more detail in pmc.txt.
 
 
-BAR1: VRAM aperture
+= BAR1: VRAM aperture =
 
 This is an area of prefetchable memory that maps to the card's VRAM. On native
 PCIE cards, it uses 64-bit addressing, on native PCI/AGP ones it uses 32-bit
@@ -131,7 +147,7 @@ cards the BAR is guaranteed not to be smaller than VRAM. This means it's may
 be impossible to map all of the card's memory through the BAR on NV40+ cards.
 
 
-BAR2/BAR3: RAMIN aperture
+= BAR2/BAR3: RAMIN aperture =
 
 RAMIN is, on pre-NV50 cards, a special area at the end of VRAM that contains
 various control structures. RAMIN starts from end of VRAM and the addresses
@@ -154,7 +170,7 @@ memory on NVAA+. The size is at least 16MB and is set via straps
 [see pstraps.txt].
 
 
-BAR2: NV03 indirect memory access
+= BAR2: NV03 indirect memory access =
 
 An area of IO ports used to access BAR0 or BAR1 indirectly by real mode code
 that cannot map high memory addresses. Present only on NV03.
@@ -162,7 +178,7 @@ that cannot map high memory addresses. Present only on NV03.
 [XXX: RE it. or not.]
 
 
-BAR5: NV50 indirect memory access
+= BAR5: NV50 indirect memory access =
 
 An area of IO ports used to access BAR0, BAR1, and BAR3 indirectly by real
 mode code that cannot map high memory addresses. Present on NV50+ cards.
@@ -197,7 +213,7 @@ or VM space can be accessed this way. BAR3 addresses, on the other hand,
 are masked to low 24 bits even though the real BAR3 is larger.
 
 
-BAR6: PCI ROM aperture
+= BAR6: PCI ROM aperture =
 
 [XXX: figure out size]
 [XXX: figure out NV03]
@@ -215,7 +231,7 @@ shadow copy of BIOS. On pre-NV50 cards, the shadow BIOS is located at address
 PDISPLAY.VGA.ROM_WINDOW register - see pdisplay.txt for details.
 
 
-INTA: the card interrupt
+= INTA: the card interrupt =
 
 [XXX: MSI]
 
@@ -223,12 +239,13 @@ The GPU reports all interrupts through the PCI INTA line. The interrupt enable
 and status registers are located in PMC area - see pmc.txt.
 
 
-Legacy VGA IO ports: 0x3b0-0x3bb and 0x3c0-0x3df; legacy VGA memory: 0xa0000-0xbffff; legacy VGA ROM: 0xc0000-0xcffff
+= Legacy VGA IO ports and memory =
 
 The nvidia GPU cards are backwards compatible with VGA and expose the usual
-VGA ranges. The VGA ranges can however be disabled in PCI config space. The
-VGA registers and memory are still accessible through their aliases in BAR0,
-and disabling the legacy ranges has no effect on the operation of the card.
-The IO range contains an extra top-level register that allows indirect access
-to the MMIO area for use by real mode code, as well as many nvidia-specific
-extra registers in the VGA subunits. For details, see nvvga.txt
+VGA ranges: IO ports 0x3b0-0x3bb and 0x3c0-0x3df, memory at 0xa0000-0xbffff.
+The VGA ranges can however be disabled in PCI config space. The VGA registers
+and memory are still accessible through their aliases in BAR0, and disabling
+the legacy ranges has no effect on the operation of the card. The IO range
+contains an extra top-level register that allows indirect access to the MMIO
+area for use by real mode code, as well as many nvidia-specific extra
+registers in the VGA subunits. For details, see nvvga.txt

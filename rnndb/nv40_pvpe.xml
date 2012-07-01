@@ -18,59 +18,6 @@
 	<bitfield pos="31" name="VALID"/>
 </bitset>
 
-<array name="PMSRCH" offset="0xb800" stride="0x800" length="1" variants="NV40:NV84">
-	<bitset name="pmsrch_intr" inline="yes">
-		<bitfield pos="4" name="UNK4" variants="NV50-"/>
-		<bitfield pos="8" name="UNK8" variants="NV44-"/>
-		<bitfield pos="16" name="UNK16"/>
-		<bitfield pos="24" name="FIFO"/>
-	</bitset>
-	<reg32 offset="0x000" name="INTR" type="pmsrch_intr"/>
-	<reg32 offset="0x040" name="INTR_EN" type="pmsrch_intr"/>
-	<reg32 offset="0x048" name="STATUS"/>
-	<reg32 offset="0x058" name="UNK58"/>
-	<reg32 offset="0x05c" name="CHANNEL_CUR"/>
-	<reg32 offset="0x060" name="ENABLE"/>
-	<reg32 offset="0x110" name="FIFO_ERR">
-		<bitfield pos="0" name="CLEAR"/>
-		<bitfield pos="4" name="ILLEGAL_MTHD"/>
-		<bitfield pos="5" name="ILLEGAL_VALUE"/>
-	</reg32>
-	<reg32 offset="0x114" name="FIFO_ERR_MTHD"/>
-	<reg32 offset="0x118" name="FIFO_ERR_DATA"/>
-</array>
-
-<array name="PVP" offset="0xf000" stride="0x1000" length="1" variants="NV40:NV84">
-	<bitset name="pvp_intr" inline="yes">
-		<bitfield pos="0" name="UNK0"/>
-		<bitfield pos="4" name="UNK4"/>
-		<bitfield pos="8" name="UNK8"/>
-		<bitfield pos="12" name="FIFO"/>
-		<bitfield pos="16" name="UNK16"/>
-		<bitfield pos="20" name="UNK20"/>
-		<bitfield pos="24" name="UNK24"/>
-	</bitset>
-	<reg32 offset="0x400" name="INTR" type="pvp_intr"/>
-	<reg32 offset="0x404" name="INTR_EN" type="pvp_intr"/>
-	<reg32 offset="0x408" name="CHANNEL_UNK"/>
-	<reg32 offset="0x414" name="CHANNEL_CUR"/>
-	<reg32 offset="0x428" name="FIFO_ERR_MTHD"/>
-	<reg32 offset="0x42c" name="FIFO_ERR_DATA"/>
-	<reg32 offset="0x43c" name="STATUS"/>
-	<reg32 offset="0x464" name="UCODE_UNK2_ADDR">
-		<bitfield low="0" high="1" name="UNK0"/>
-		<bitfield low="5" high="31" name="INSTANCE" shr="5"/>
-	</reg32>
-	<reg32 offset="0x46c" name="UCODE_UNK1_ADDR">
-		<bitfield low="0" high="1" name="UNK0"/>
-		<bitfield low="5" high="31" name="INSTANCE" shr="5"/>
-	</reg32>
-	<reg32 offset="0x498" name="UCODE_UNK0_ADDR">
-		<bitfield low="0" high="1" name="UNK0"/>
-		<bitfield low="5" high="31" name="INSTANCE" shr="5"/>
-	</reg32>
-</array>
-
 </domain>
 
 </database>

@@ -1,4 +1,15 @@
-Introduction
+TOC
+
+0. Introduction
+1. MMIO register list
+2. Card identification
+3. Endian switch
+4. Engine enables
+5. Interrupts
+6. VRAM hidden area
+
+
+= Introduction =
 
 PMC is the "master control" engine of the card. Its purpose is to provide
 card identication, manage enable/disable bits of other engines, and handle
@@ -46,7 +57,7 @@ no annotation - available on all cards
 000a00[4] NEW_ID		card identification
 
 
-Card identification
+= Card identification =
 
 The main register used to identify the card is the ID register. However,
 the ID register has different formats depending on the chipset family:
@@ -54,7 +65,7 @@ the ID register has different formats depending on the chipset family:
 MMIO 0x000000: ID [NV01:NV04]
   bits 0-3: minor revision
   bits 4-7: major revision
-    These two bitfields together are also visible as PCI revision. For 
+    These two bitfields together are also visible as PCI revision. For
     NV03, revisions equal or higher than 0x20 mean NV03T.
   bits 8-11: implementation - always 1 except on NV02
   bits 12-15: always 0
@@ -103,7 +114,7 @@ MMIO 0x000a00: NEW_ID
   bits 20-27: chipset id
 
 
-Endian switch
+= Endian switch =
 
 PMC also contains the endian switch register. The endian switch can be set to
 either little or big endian, and affects all accesses to BAR0 and, if present,
@@ -130,7 +141,7 @@ The MMIO areas containing aliases of 8-bit VGA registers are unaffected by
 this switch, despite being in BAR0.
 
 
-Engine enables
+= Engine enables =
 
 PMC contains the main engine enable register, which is used to turn whole
 engines on and off:
@@ -177,16 +188,16 @@ On NV04:NV50, the bits are:
 On NV50:NVC0, the bits are:
   0: ??? - alleged to be related to I2C
   1: VPE [vpe.txt] and PVP [vp1.txt, vp2.txt] [NV50:NV98 and NVA0]
-  1: PPPP [fuc-ppp.txt] [NV98 and NVAA-]
+  1: PPPP [vp3-pppp.txt] [NV98 and NVAA-]
   4: PMEDIA [pmedia.txt]
   8: PFIFO [nv50-pfifo.txt]
   12: PGRAPH [nv50-pgraph.txt]
-  13: PCOPY [fuc-copy.txt] [NVA3-]
-  14: PCRYPT [crypt.txt, fuc-crypt.txt] [NV84:NVA3]
+  13: PCOPY [pcopy.txt] [NVA3-]
+  14: PCRYPT [crypt.txt, vp3-pcrypt.txt] [NV84:NVA3]
   14: PUNK1C1 [NVAF]
-  15: PBSP [vp2.txt, fuc-bsp.txt] [NV84-]
+  15: PBSP [vp2.txt, vp3-pbsp.txt] [NV84-]
   16: PTIMER [ptimer.txt]
-  17: PVP [fuc-vp.txt] [NV98 and NVAA-]
+  17: PVP [vp3-pvp.txt] [NV98 and NVAA-]
   20: PFB [nv50-pfb.txt]
   21: PGRAPH CHSW [NV84-] [nv50-pfifo.txt]
   22: PMPEG CHSW [NV84-]
@@ -203,20 +214,23 @@ On NV50:NVC0, the bits are:
 
 On NVC0+, the bits are:
   0: ??? - alleged to be related to I2C
-  1: PPPP [fuc-ppp.txt]
+  1: PPPP [vp3-pppp.txt]
   2: PXBAR [nvc0-pxbar.txt]
   3: PMFB [nvc0-pmfb.txt]
   4: PMEDIA [pmedia.txt]
   5: PIBUS [pibus.txt]
-  6: PCOPY[0] [fuc-copy.txt]
-  7: PCOPY[1] [fuc-copy.txt]
+  6: PCOPY[0] [pcopy.txt]
+  7: PCOPY[1] [pcopy.txt]
   8: PFIFO [nvc0-pfifo.txt]
   12: PGRAPH [nvc0-pgraph.txt]
   13: PDAEMON [pdaemon.txt]
-  15: PBSP [fuc-bsp.txt]
+  15: PBSP [vp3-pbsp.txt]
   16: PTIMER [ptimer.txt]
-  17: PVP [fuc-vp.txt]
+  17: PVP [vp3-pvp.txt]
+  18: PVENC [NVE4-] [pvenc.txt]
   20: PBFB [nvc0-pbfb.txt]
+  21: PCOPY[2] [NVE4-] [pcopy.txt]
+  26: ??? [NVE4-]
   27: ???
   28: PCOUNTER [pcounter.txt]
   29: PFFB [nvc0-pffb.txt]
@@ -249,7 +263,7 @@ MMIO 0x00020c: ??? [NVC4-]
 [XXX: RE these two]
 
 
-Interrupts
+= Interrupts =
 
 Another thing that PMC handles is the top-level interrupt routing. On cards
 earlier than NVA3, PMC gets interrupt lines from all interested engines on
@@ -348,23 +362,23 @@ For NV04:NV50:
 For NV50:NVC0:
 
 0: VPE [vpe.txt] [NV50:NV98 and NVA0]
-0: PPPP [fuc-ppp.txt] [NV98 and NVAA-]
+0: PPPP [vp3-pppp.txt] [NV98 and NVAA-]
 4: PMEDIA [pmedia.txt]
 8: PFIFO [nv50-pfifo.txt] - has separate UNK1 line on NVA3+
 9: ??? [NVA3?-]
 11: ??? [NVA3?-]
 12: PGRAPH [nv50-pgraph.txt]
 13: ??? [NVA3?-]
-14: PCRYPT [crypt.txt, fuc-crypt.txt] [NV84:NVA3]
+14: PCRYPT [crypt.txt, vp3-pcrypt.txt] [NV84:NVA3]
 14: PUNK1C1 [NV84:NVA3]
-15: PBSP [vp2.txt, fuc-bsp.txt] [NV84-]
+15: PBSP [vp2.txt, vp3-pbsp.txt] [NV84-]
 16: ??? [NVA3?-]
-17: PVP [vp1.txt, vp2.txt, fuc-vp.txt] [XXX: check this]
+17: PVP [vp1.txt, vp2.txt, vp3-pvp.txt] [XXX: check this]
 18: PDAEMON [pdaemon.txt] [NVA3-]
-19: ??? [NVA3?-]
+19: PTHERM [ptherm.txt]
 20: PTIMER [ptimer.txt]
 21: PNVIO's GPIO interrupts [pnvio.txt]
-22: PCOPY [fuc-copy.txt]
+22: PCOPY [pcopy.txt]
 26: PDISPLAY [pdisplay.txt]
 27: ??? [NVA3?-]
 28: PBUS [pbus.txt]
@@ -375,17 +389,20 @@ earlier, but we only know them from bitscanning the INTR_MASK regs. on NVA3+.]
 
 For NVC0+:
 
-0: PPPP [fuc-ppp.txt] - has separate UNK1 line
+0: PPPP [vp3-pppp.txt] - has separate UNK1 line
 4: PMEDIA [pmedia.txt]
-5: PCOPY[0] [fuc-copy.txt] - has separate UNK1 line
-6: PCOPY[1] [fuc-copy.txt] - has separate UNK1 line
+5: PCOPY[0] [pcopy.txt] - has separate UNK1 line
+6: PCOPY[1] [pcopy.txt] - has separate UNK1 line
+7: PCOPY[2] [NVE4-] [pcopy.txt] - has separate UNK1 line
 8: PFIFO [nvc0-pfifo.txt]
 9: ???
 12: PGRAPH [nvc0-pgraph.txt] - has separate UNK1 line
 13: PBFB [nvc0-pbfb.txt]
-15: PBSP [fuc-bsp.txt] - has separate UNK1 line
-17: PVP [fuc-vp.txt] - has separate UNK1 line
+15: PBSP [vp3-pbsp.txt] - has separate UNK1 line
+16: PVENC [NVE4-] [pvenc.txt] - has separate UNK1 line
+17: PVP [vp3-pvp.txt] - has separate UNK1 line
 18: PTHERM [ptherm.txt]
+19: ??? [NVD9-]
 20: PTIMER [ptimer.txt]
 21: PNVIO's GPIO interrupts [pnvio.txt]
 23: ???
@@ -400,7 +417,7 @@ For NVC0+:
 [XXX: unknowns]
 
 
-VRAM hidden area
+= VRAM hidden area =
 
 NV17/NV20 added a feature to disable host reads through selected range of
 VRAM. The registers are:

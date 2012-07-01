@@ -82,6 +82,7 @@
 	<reg32 offset="0x078" name="FIFO_LIMIT">
 		<doc>Up to 0x10</doc>
 	</reg32>
+	<reg32 offset="0x07c" name="SUBENGINE_RESET"/>
 
 	<reg32 offset="0x088" name="PM_SIGNAL">
 		<bitfield pos="0" name="0"/>
@@ -118,7 +119,9 @@
 
 	<reg32 offset="0x108" name="CAPS">
 		<bitfield low="0" high="8" name="CODE_SIZE" shr="8"/>
-		<bitfield low="9" high="16" name="DATA_SIZE" shr="8"/>
+		<bitfield low="9" high="17" name="DATA_SIZE" shr="8"/>
+		<bitfield low="18" high="25" name="FIFO_SIZE"/>
+		<bitfield low="26" high="31" name="XFER_SLOTS"/>
 	</reg32>
 
 	<reg32 offset="0x10c" name="UC_BLOCK_ON_FIFO"/>
@@ -141,7 +144,7 @@
 			<value value="5" name="128"/>
 			<value value="6" name="256"/>
 		</bitfield>
-		<bitfield low="12" high="14" name="TARGET"/>
+		<bitfield low="12" high="14" name="PORT"/>
 	</reg32>
 	<reg32 offset="0x11c" name="XFER_EXT_ADDR">
 		<doc>Also virtual address for code.</doc>
@@ -224,32 +227,53 @@
 	<reg32 offset="0xffc" name="HOST_IO_INDEX"/>
 </group>
 
-<group name="nv98_fuc_targets">
-	<reg32 offset="0x600" length="8" name="TARGET" variants="NV50:NVC0">
-		<doc>Note that target 7 is hardwired to point to context DMAobj.</doc>
-		<bitfield low="0" high="15" name="INST" shr="4"/>
-		<bitfield low="24" high="26" name="TYPE">
-			<value value="0" name="DMAOBJ"/>
-			<value value="4" name="VRAM"/>
-			<value value="5" name="SYSRAM"/>
-			<value value="6" name="SYSRAM_NO_SNOOP"/>
-		</bitfield>
-		<bitfield pos="30" name="VALID"/>
-		<bitfield pos="31" name="UNK31"/>
-	</reg32>
-	<reg32 offset="0x600" length="8" name="TARGET" variants="NVC0-">
-		<bitfield low="0" high="2" name="TYPE">
-			<value value="0" name="VM"/>
-			<value value="1" name="UNK1"/>
-			<value value="2" name="UNK2"/>
-			<value value="4" name="VRAM"/>
-			<value value="5" name="SYSRAM"/>
-			<value value="6" name="SYSRAM_NO_SNOOP"/>
-		</bitfield>
-		<bitfield low="4" high="5" name="UNK4"/>
-		<bitfield low="8" high="9" name="UNK8"/>
-		<bitfield low="12" high="15" name="UNK12"/>
-	</reg32>
+<group name="nv98_fuc_memif">
+	<array offset="0x600" length="1" stride="0x40" name="MEMIF">
+		<reg32 offset="0x00" length="8" name="PORT" variants="NV50:NVC0">
+			<doc>Note that port 7 is hardwired to point to context DMAobj.</doc>
+			<bitfield low="0" high="15" name="INST" shr="4"/>
+			<bitfield low="24" high="26" name="TYPE">
+				<value value="0" name="DMAOBJ"/>
+				<value value="4" name="VRAM"/>
+				<value value="5" name="SYSRAM"/>
+				<value value="6" name="SYSRAM_NO_SNOOP"/>
+			</bitfield>
+			<bitfield pos="30" name="ENABLE_REQ"/>
+			<bitfield pos="31" name="ENABLE_ACK"/>
+		</reg32>
+		<reg32 offset="0x00" length="8" name="PORT" variants="NVC0-">
+			<bitfield low="0" high="2" name="TYPE">
+				<value value="0" name="VM"/>
+				<value value="1" name="UNK1"/>
+				<value value="2" name="UNK2"/>
+				<value value="4" name="VRAM"/>
+				<value value="5" name="SYSRAM"/>
+				<value value="6" name="SYSRAM_NO_SNOOP"/>
+			</bitfield>
+			<bitfield low="4" high="5" name="UNK4"/>
+			<bitfield low="8" high="9" name="UNK8"/>
+			<bitfield low="12" high="15" name="UNK12"/>
+		</reg32>
+		<reg32 offset="0x20" name="CHANNEL" access="r" type="nv50_channel"/>
+		<reg32 offset="0x24" name="CTRL">
+			<bitfield pos="0" name="UNK0_RO"/>
+			<bitfield pos="1" name="DISABLE_ALL_TRIGGER"/>
+			<bitfield pos="2" name="DEACTIVATE_TRIGGER"/>
+			<bitfield pos="4" name="UNK4_RW"/>
+			<bitfield pos="7" name="IGNORE_ACTIVATION" variants="NVC0-"/> <!-- XXX: on some engines only: NVC0+ PCOPY0, NVD9+ everything -->
+			<bitfield pos="8" name="UNK8_RO"/>
+			<bitfield pos="9" name="UNK9_RO"/>
+			<bitfield pos="10" name="UNK10_RO"/>
+			<bitfield low="16" high="19" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x28" name="STAT">
+			<!-- ... -->
+		</reg32>
+		<reg32 offset="0x2c" name="UNK2C" variants="NVA3-"/>
+		<!-- XXX: VP3 PVP has 4 unrelated [PVP-specific] registers here that got moved elsewhere on VP4+ -->
+		<reg32 offset="0x30" name="UNK30" stride="8" length="2" variants="NVC0-"/>
+		<reg32 offset="0x34" name="UNK34" stride="8" length="2" variants="NVC0-"/>
+	</array>
 </group>
 
 </database>

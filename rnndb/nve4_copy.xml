@@ -6,21 +6,17 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nvchipsets.xml"/>
 <import file="nv_object.xml"/>
 <domain name="NV01_SUBCHAN" bare="yes">
-	<stripe prefix="obj-class" variants="BLOB_NVC0_PCOPY1 BLOB_NVC0_PCOPY0">
+	<stripe prefix="obj-class" variants="NVE4_COPY">
 		<reg32 offset="0x100" name="NOP"/>
 		<reg32 offset="0x140" name="PM_TRIGGER"/>
-		<reg32 offset="0x200" name="MODE"/>
-			<doc>must be set before touching any other method. the only useful setting is 1.</doc>	<!-- it does? blob doesn't touch it at all -->
-		<reg32 offset="0x204" name="WATCHDOG"/>
-			<doc>if non-zero, PCOPY will raise an error if a single EXEC invocation takes more than this many main engine cycles</doc>
 		<reg32 offset="0x240" name="QUERY_ADDRESS_HIGH"/>
 		<reg32 offset="0x244" name="QUERY_ADDRESS_LOW"/>
 		<reg32 offset="0x248" name="QUERY_COUNTER"/>
-		<reg32 offset="0x250" name="UNK0x250"/>
-			<doc>sets targets modes</doc>
 		<reg32 offset="0x254" name="COND_ADDRESS_HIGH"/>
 		<reg32 offset="0x258" name="COND_ADDRESS_LOW"/>
 		<reg32 offset="0x25c" name="COND_MODE"/>
+		<reg32 offset="0x260" name="UNK260"/>
+		<reg32 offset="0x264" name="UNK264"/>
 		<reg32 offset="0x300" name="EXEC">
 			<bitfield pos="0" name="QUERY_WRITE"/>
 			<bitfield pos="1" name="UNK1"/>
@@ -47,46 +43,23 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x41c" name="Y_COUNT"/>
 		<reg32 offset="0x700" name="CONST0"/>
 		<reg32 offset="0x704" name="CONST1"/>
+		<enum name="nve4_copy_swz" inline="yes">
+			<value value="0" name="SRC0"/>
+			<value value="1" name="SRC1"/>
+			<value value="2" name="SRC2"/>
+			<value value="3" name="SRC3"/>
+			<value value="4" name="CONST0"/>
+			<value value="5" name="CONST1"/>
+			<value value="6" name="ZERO"/>
+		</enum>
 		<reg32 offset="0x708" name="SWIZZLE">
-			<bitfield low="0" high="3" name="COMPONENT0">
-				<value value="0" name="SRC0"/>
-				<value value="1" name="SRC1"/>
-				<value value="2" name="SRC2"/>
-				<value value="3" name="SRC3"/>
-				<value value="4" name="CONST0"/>
-				<value value="5" name="CONST1"/>
-				<value value="6" name="ZERO"/>
-			</bitfield>
-			<bitfield low="4" high="7" name="COMPONENT1">
-				<value value="0" name="SRC0"/>
-				<value value="1" name="SRC1"/>
-				<value value="2" name="SRC2"/>
-				<value value="3" name="SRC3"/>
-				<value value="4" name="CONST0"/>
-				<value value="5" name="CONST1"/>
-				<value value="6" name="ZERO"/>
-			</bitfield>
-			<bitfield low="8" high="11" name="COMPONENT2">
-				<value value="0" name="SRC0"/>
-				<value value="1" name="SRC1"/>
-				<value value="2" name="SRC2"/>
-				<value value="3" name="SRC3"/>
-				<value value="4" name="CONST0"/>
-				<value value="5" name="CONST1"/>
-				<value value="6" name="ZERO"/>
-			</bitfield>
-			<bitfield low="12" high="15" name="COMPONENT3">
-				<value value="0" name="SRC0"/>
-				<value value="1" name="SRC1"/>
-				<value value="2" name="SRC2"/>
-				<value value="3" name="SRC3"/>
-				<value value="4" name="CONST0"/>
-				<value value="5" name="CONST1"/>
-				<value value="6" name="ZERO"/>
-			</bitfield>
-			<bitfield low="16" high="17" name="COMPONENT_SIZE"/>
-			<bitfield low="20" high="22" name="SRC_NUM_COMPONENTS"/>
-			<bitfield low="24" high="26" name="DST_NUM_COMPONENTS"/>
+			<bitfield low="0" high="3" name="COMPONENT0" type="nve4_copy_swz"/>
+			<bitfield low="4" high="7" name="COMPONENT1" type="nve4_copy_swz"/>
+			<bitfield low="8" high="11" name="COMPONENT2" type="nve4_copy_swz"/>
+			<bitfield low="12" high="15" name="COMPONENT3" type="nve4_copy_swz"/>
+			<bitfield low="16" high="17" name="COMPONENT_SIZE_M1"/>
+			<bitfield low="20" high="22" name="SRC_NUM_COMPONENTS_M1"/>
+			<bitfield low="24" high="26" name="DST_NUM_COMPONENTS_M1"/>
 		</reg32>
 		<reg32 offset="0x70c" name="DST_TILE_MODE"/>
 		<reg32 offset="0x710" name="DST_SIZE_X"/>

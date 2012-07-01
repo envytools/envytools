@@ -1,0 +1,31 @@
+Present on:
+	cc0: NVC0:NVE4
+	cc1: NVE4+
+BAR0 address:
+	HUB: 0x409000
+	GPC: 0x502000 + idx * 0x8000
+PMC interrupt line: ???
+PMC enable bit: 12 [all of PGRAPH]
+Version: 3
+Code segment size:
+	HUB, cc0: 0x4000
+	HUB, cc1: 0x5000
+	GPC, cc0: 0x2000
+	GPC, cc1: 0x2800
+Data segment size:
+	HUB: 0x1000
+	GPC: 0x800
+Fifo size:
+	HUB: 0x10
+	GPC: 8
+Xfer slots: 8
+Secretful: no
+Code TLB index bits: 8
+Code ports: 1
+Data ports: 1
+
+[XXX: IO regs]
+[XXX: interrupts]
+[XXX: status bits]
+
+[XXX: describe CTXCTL]

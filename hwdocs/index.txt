@@ -33,6 +33,7 @@ Misc GPU units
 [**   ] hwsq.txt - HWSQ scripts on PBUS engine
 [***  ] pstraps.txt - PSTRAPS unit, straps readout and override
 [**** ] ptimer.txt - PTIMER engine, clock setup, readout, and alarms
+[*    ] punk1c3.txt - PUNK1C3 engine
 
 
 Memory access and structure
@@ -62,8 +63,12 @@ PGRAPH, user perspective
 [     ] nvc0-cuda-isa.txt - NVC0 CUDA/shader ISA overview
 
 
+PGRAPH, kernel perspective
+[*    ] nvc0-ctxctl.txt - the NVC0 context switching microcoded engines
+
+
 fuc engines:
-[     ] fuc.txt - Introductory documentation about fuc
+[**   ] fuc.txt - Introductory documentation about fuc
 [*****] fuc-arith.txt - fuc arithmetic instructions
 [*****] fuc-branch.txt - fuc branching instructions
 [*****] fuc-data.txt - fuc data space
@@ -74,10 +79,39 @@ fuc engines:
 [**** ] fuc-timer.txt - fuc timers and clocks
 [**** ] fuc-vm.txt - fuc code space and virtual memory
 [**** ] fuc-xfer.txt - fuc coda/data xfers to/from external memory
-[     ] fuc-crypt.txt - fuc crypt coprocessor and PCRYPT engine
+[     ] fuc-crypt.txt - fuc crypt coprocessor
 [     ] fuc-perf.txt - fuc performance monitoring signals
 [     ] fuc-fifo.txt - fuc interaction with PFIFO
-[     ] fuc-bsp.txt - fuc-based PBSP engine
-[     ] fuc-vp.txt - fuc-based PVP engine
-[     ] fuc-ppp.txt - fuc-based PPPP engine
-[     ] fuc-copy.txt - PCOPY engine
+
+
+VP2/VP3/VP4/VP5 video decoding:
+[     ] vp2.txt - Overview of VP2 hardware
+[*    ] vp2-xtensa.txt - VP2 xtensa processors
+[     ] vp2-pbsp.txt - Overview of VP2 PBSP engine
+[**   ] vp2-bsp.txt - VP2 BSP parser engine	[XXX: extend to cover VP3/VP4/VP5]
+[**** ] vp2-mbring.txt - VP2 MBRING format	[XXX: merge with vp3-mbring.txt]
+[**   ] vp3-mbring.txt - VP3 MBRING format
+[***  ] vuc.txt -  Overview of VP2/VP3/VP4 vµc hardware
+[**** ] vuc-isa.txt - VP2/VP3/VP4 vµc ISA
+[***  ] vuc-mvsurf.txt - VP2/VP3/VP4 vµc MVSURF
+[**   ] vuc-vreg.txt - VP2/VP3/VP4 vµc video registers
+[     ] vuc-vpring.txt - VP2 vµc output
+[     ] vuc-perf.txt - vµc performance monitoring signals
+[*    ] vp3-pbsp.txt - fuc-based PBSP engine
+[*    ] vp3-pvp.txt - fuc-based PVP engine
+[*    ] vp3-pppp.txt - fuc-based PPPP engine
+
+
+Other FIFO engines:
+[*    ] vp3-pcrypt.txt - fuc-based PCRYPT engine
+[*    ] pcopy.txt - PCOPY copying engine
+[*    ] punk1c1.txt - PUNK1C1 engine
+[*    ] pvenc.txt - PVENC H.264 encoding engine
+
+
+Power management:
+[*    ] pdaemon.txt - PDAEMON card monitoring engine
+
+
+Display subsystem:
+[*    ] pdisplay-daemon.txt - PDISPLAY's monitoring engine

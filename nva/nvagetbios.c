@@ -32,8 +32,9 @@
 
 #define NV_PRAMIN_OFFSET            0x00700000
 #define NV_PROM_OFFSET              0x00300000
+#define NV01_PROM_SIZE              0x00010000
 #define NV03_PROM_SIZE              0x00010000
-#define NV_PROM_SIZE                0x00020000
+#define NV_PROM_SIZE                0x00100000
 
 #define EOK 1
 #define EUNK 0
@@ -86,7 +87,7 @@ static int nv_checksignature(const uint8_t *data)
 
 static int nv_ckbios(const uint8_t *data, int *length)
 {
-	uint16_t pcir_ptr;
+	uint16_t pcir_ptr, pcir_ptr2;
 	uint32_t ret = EUNK;
 	int vbios_len, vbios2_len;
 
@@ -94,13 +95,11 @@ static int nv_ckbios(const uint8_t *data, int *length)
 	if (ret != EOK)
 		return ret;
 
-	vbios_len = data[2] * 512;
+	pcir_ptr = data[0x18] | data[0x19] << 8;
+	vbios_len = data[pcir_ptr + 0x10] * 512 + data[pcir_ptr + 0x11] * 512 * 256;
 	ret = nv_cksum(data, vbios_len);
-
 	if (length)
 		*length = vbios_len;
-
-	pcir_ptr = data[0x18] | data[0x19] << 8;
 
 	/* Check for a second vbios */
 	if (!(data[pcir_ptr + 0x15] & 0x80)) {
@@ -111,7 +110,8 @@ static int nv_ckbios(const uint8_t *data, int *length)
 		if (ret != EOK)
 			return ret;
 
-		vbios2_len = data[vbios_len + 2] * 512;
+		pcir_ptr2 = data[vbios_len + 0x18] | data[vbios_len + 0x19] << 8;
+		vbios2_len = data[vbios_len + pcir_ptr2 + 0x10] * 512 + data[vbios_len + pcir_ptr2 + 0x11] * 512 * 256;
 
 		ret = nv_cksum(data + vbios_len, vbios2_len);
 
@@ -135,7 +135,10 @@ int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 	int32_t prom_size;
 	int32_t pbus_offset = 0;
 
-	if (nva_cards[cnum].chipset < 0x04) {
+	if (nva_cards[cnum].chipset < 0x03) {
+		prom_offset = 0x610000;
+		prom_size = NV01_PROM_SIZE;
+	} else if (nva_cards[cnum].chipset < 0x04) {
 		prom_offset = 0x110000;
 		prom_size = NV03_PROM_SIZE;
 	} else {

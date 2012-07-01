@@ -1,3 +1,29 @@
+TOC
+
+0. Introduction
+1. The registers
+2. Reset
+3. Parameter and position registers
+4. Internal state for context selection
+5. Interrupts
+6. Stream input
+7. MBRING output
+8. Command and status registers
+8.1. Command 0: GET_UE
+8.2. Command 1: GET_SE
+8.3. Command 2: GETBITS
+8.4. Command 3: NEXT_START_CODE
+8.5. Command 4: CABAC_START
+8.6. Command 5: MORE_RBSP_DATA
+8.7. Command 6: MB_SKIP_FLAG
+8.8. Command 7: END_OF_SLICE_FLAG
+8.9. Command 8: CABAC_INIT_CTX
+8.10. Command 9: MACROBLOCK_SKIP_MBFDF
+8.11. Command 0xa: MACROBLOCK_LAYER_MBFDF
+8.12. Command 0xb: PRED_WEIGHT_TABLE
+8.13. Command 0xc: SLICE_DATA
+
+
 = Introduction =
 
 The BSP is the first stage of the VP2 decoding pipeline. It is part of
@@ -45,7 +71,7 @@ The BSP keeps extensive hidden internal state, including:
  - already queued but not yet written MBRING output data
 
 
-== The registers ==
+= The registers =
 
 The BSP registers are located in PBSP XLMI space at addresses 0x00000:0x08000
 [BAR0 addresses 0x103000:0x103200]. They are:
@@ -74,7 +100,7 @@ The BSP registers are located in PBSP XLMI space at addresses 0x00000:0x08000
 04400/103110: TRIGGER - writing executes MBRING commands
 
 
-== Reset ==
+= Reset =
 
 The engine may be reset at any time by poking the RESET register.
 
@@ -84,7 +110,7 @@ BAR0 0x103028 / XLMI 0x00a00: RESET
   which is set to 0xffffffff.
 
 
-== Parameter and position registers ==
+= Parameter and position registers =
 
 The values of these registers are used by some of the BSP commands. PARM
 registers should be initialised with values derived from sequence parameters,
@@ -132,7 +158,7 @@ BAR0 0x103008 / XLMI 0x00200: MB_POS
     slice, 0 otherwise
 
 
-== Internal state for context selection ==
+= Internal state for context selection =
 
 Both CAVLC and CABAC sometimes use decoded data of previous macroblocks in the
 slice to determine the decoding algorithm for syntax elements of the current
@@ -149,7 +175,7 @@ For each macroblock, the following data is stored:
  - transform_size_8x8_flag
  - intra_chroma_pred_mode
  - ref_idx_lX[i]
- - mvd_lX[i][j] 
+ - mvd_lX[i][j]
  - coded_block_flag for each block
  - total_coeffs for each luma 4x4 / luma AC block
 [XXX: and availability status?]
@@ -159,29 +185,43 @@ indexed by macroblock address] is stored:
  - mb_qp_delta
 
 
-== Interrupts ==
+= Interrupts =
 
 [XXX: write me]
 
+BAR0 0x10301c / XLMI 0x00700: INTR_EN
+  bit 0: UNK_INPUT_1
+  bit 1: END_OF_STREAM
+  bit 2: UNK_INPUT_3
+  bit 3: MBRING_HALT
+  bit 4: SLICE_DATA_DONE
 
-== Stream input ==
+BAR0 0x103024 / XLMI 0x00900: INTR
+  bits 0-3: INPUT
+    0: no interrupt pending
+    1: UNK_INPUT_1
+    2: END_OF_STREAM
+    3: UNK_INPUT_3
+    4: SLICE_DATA_DONE
+  bit 4: MBRING_FULL
+
+
+= Stream input =
 
 [XXX: RE and write me]
 
 
-== MBRING output ==
+= MBRING output =
 
 [XXX: write me]
 
 
-== Command and status registers ==
+= Command and status registers =
 
 [XXX: write me]
 
 
-== The commands ==
-
-Command 0: GET_UE
+== Command 0: GET_UE ==
 
 Parameter: none
 Result: the decoded value of parsed bitfield, or 0xffffffff if out of range
@@ -204,7 +244,7 @@ Operation:
 	}
 
 
-Command 1: GET_SE
+== Command 1: GET_SE ==
 
 Parameter: none
 Result: the decoded value of parsed bitfield, or 0x80000000 if out of range
@@ -231,7 +271,7 @@ Operation:
 	}
 
 
-Command 2: GETBITS
+== Command 2: GETBITS ==
 
 Parameter: number of bits to read, or 0 to read 32 bits [5 bits]
 Result: the bits from the bitstream
@@ -243,7 +283,7 @@ Operation:
 	return getbits(n?n:32);
 
 
-Command 3: NEXT_START_CODE
+== Command 3: NEXT_START_CODE ==
 
 Parameter: none
 Result: the next start code found
@@ -260,7 +300,7 @@ Operation:
 	return getbits_raw(8);
 
 
-Command 4: CABAC_START
+== Command 4: CABAC_START ==
 
 Parameter: none
 Result: none
@@ -274,7 +314,7 @@ Oprtation:
 	cabac_init_engine();
 
 
-Command 5: MORE_RBSP_DATA
+== Command 5: MORE_RBSP_DATA ==
 
 Parameter: none
 Result: 1 if there's more data in RBSP, 0 otherwise
@@ -286,7 +326,7 @@ Operation:
 	return more_rbsp_data();
 
 
-Command 6: MB_SKIP_FLAG
+== Command 6: MB_SKIP_FLAG ==
 
 Parameter: none
 Result: value of parsed mb_skip_flag
@@ -298,7 +338,7 @@ Operation:
 	return cabac_mb_skip_flag();
 
 
-Command 7: END_OF_SLICE_FLAG
+== Command 7: END_OF_SLICE_FLAG ==
 
 Parameter: none
 Result: value of parsed end_of_slice_flag
@@ -309,7 +349,7 @@ Operation:
 	return cabac_terminate();
 
 
-Command 8: CABAC_INIT_CTX
+== Command 8: CABAC_INIT_CTX ==
 
 Parameter: none
 Result: none
@@ -322,7 +362,7 @@ Operation:
 	cabac_init_ctx();
 
 
-Command 9: MACROBLOCK_SKIP_MBFDF
+== Command 9: MACROBLOCK_SKIP_MBFDF ==
 
 Parameter: mb_field_decoding_flag presence [1 bit]
 Result: none
@@ -348,7 +388,7 @@ Operation:
 	mbring_emit_macroblock();
 
 
-Command 0xa: MACROBLOCK_LAYER_MBFDF
+== Command 0xa: MACROBLOCK_LAYER_MBFDF ==
 
 Parameter: mb_field_decoding_flag presence [1 bit]
 Result: none
@@ -373,7 +413,7 @@ Operation:
 	macroblock_layer();
 
 
-Command 0xb: PRED_WEIGHT_TABLE
+== Command 0xb: PRED_WEIGHT_TABLE ==
 
 Parameter: none
 Result: none
@@ -385,7 +425,7 @@ Operation:
 	XXX
 
 
-Command 0xc: SLICE_DATA
+== Command 0xc: SLICE_DATA ==
 
 Parameter: none
 Result: none

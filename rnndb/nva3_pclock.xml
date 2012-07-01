@@ -9,19 +9,17 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <bitset name="nva3_nvpll_ctrl" inline="yes">
-	<!-- clock source = PLL_CLK_SRC1.CLK0 -->
 	<bitfield pos="0" name="ENABLE"/>
 	<bitfield low="1" high="2" name="UNK1"/>
-	<bitfield pos="3" name="BYPASS"/> <!-- and use CLK_SRC2 instead of 1 -->
+	<bitfield pos="3" name="BYPASS"/> <!-- and use NVCLK -->
 	<bitfield low="4" high="6" name="UNK4"/>
 	<bitfield low="16" high="17" name="UNK16"/>
 </bitset>
 
 <bitset name="nva3_mpll_ctrl" inline="yes">
-	<!-- clock source = PLL_CLK_SRC1.CLK2 -->
 	<bitfield pos="0" name="ENABLE"/>
 	<bitfield low="1" high="2" name="UNK1"/>
-	<bitfield pos="3" name="BYPASS"/> <!-- and use CLK_SRC2 instead of 1 -->
+	<bitfield pos="3" name="BYPASS"/> <!-- and use MCLK -->
 	<bitfield low="4" high="6" name="UNK4"/>
 	<bitfield pos="9" name="UNK9"/>
 	<bitfield low="16" high="17" name="UNK16"/>
@@ -29,11 +27,10 @@
 </bitset>
 
 <bitset name="nva3_spll_ctrl" inline="yes">
-	<!-- clock source = PLL_CLK_SRC1.CLK1 -->
 	<doc>bit 16 sometimes is not writable and forced to 0</doc>
 	<bitfield pos="0" name="ENABLE"/>
 	<bitfield low="1" high="2" name="UNK1"/>
-	<bitfield pos="3" name="BYPASS"/> <!-- and use CLK_SRC2 instead of 1 -->
+	<bitfield pos="3" name="BYPASS"/> <!-- and use SCLK -->
 	<bitfield low="4" high="6" name="UNK4"/>
 	<bitfield low="16" high="17" name="UNK16"/>
 </bitset>
@@ -76,40 +73,29 @@
 	<reg32 offset="0x000" name="MPLL_CTRL" type="nva3_mpll_ctrl"/>
 	<reg32 offset="0x004" name="MPLL_COEF" type="nva3_pll_coef"/>
 
-	<array offset="0x120" name="PLL_CLK_SRC1" stride="0x40" length="1">
-		<reg32 name="CLK0" offset="0x00" type="nva3_pll_src"/>
-		<reg32 name="CLK1" offset="0x04" type="nva3_pll_src"/>
-		<reg32 name="CLK2" offset="0x08" type="nva3_pll_src"/>
-		<reg32 name="CLK8" offset="0x20" type="nva3_pll_src"/> <!-- related to PDISP CLOCK -->
-		<reg32 name="CLK9" offset="0x24" type="nva3_pll_src"/>
-	</array>
-	<array offset="0x160" name="PLL_CLK_SRC2" stride="0x40" length="1">
-		<reg32 name="CLK0" offset="0x00" type="nva3_pll_src"/>
-		<reg32 name="CLK1" offset="0x04" type="nva3_pll_src"/>
-		<reg32 name="CLK2" offset="0x08" type="nva3_pll_src"/>
-		<reg32 name="CLK8" offset="0x20" type="nva3_pll_src"/>
-		<reg32 name="CLK9" offset="0x24" type="nva3_pll_src"/>
-		<reg32 name="CLK12" offset="0x30" type="nva3_pll_src"/>
-		<reg32 name="CLK13" offset="0x34" type="nva3_pll_src"/>
-		<reg32 name="CLK14" offset="0x38" type="nva3_pll_src"/>
-	</array>
-	<array offset="0x1a0" name="PLL_CLK_SRC3" stride="0x20" length="1">
-		<reg32 name="CLK0" offset="0x00" type="nva3_pll_src"/>
-		<reg32 name="CLK1" offset="0x04" type="nva3_pll_src"/>
-		<reg32 name="CLK4" offset="0x10" type="nva3_pll_src"/>
-		<reg32 name="CLK5" offset="0x14" type="nva3_pll_src"/>
-		<reg32 name="CLK7" offset="0x1c" type="nva3_pll_src"/>
-	</array>
+	<reg32 name="NVPLL_SRC" offset="0x120" type="nva3_pll_src"/>
+	<reg32 name="SPLL_SRC" offset="0x124" type="nva3_pll_src"/>
+	<reg32 name="MPLL_SRC" offset="0x128" type="nva3_pll_src"/>
+	<reg32 name="VPLL1_SRC" offset="0x140" type="nva3_pll_src"/>
+	<reg32 name="VPLL2_SRC" offset="0x144" type="nva3_pll_src"/>
+	<reg32 name="NVCLK" offset="0x160" type="nva3_pll_src"/>
+	<reg32 name="SCLK" offset="0x164" type="nva3_pll_src"/>
+	<reg32 name="MCLK" offset="0x168" type="nva3_pll_src"/>
+	<reg32 name="VCLK1" offset="0x180" type="nva3_pll_src"/>
+	<reg32 name="VCLK2" offset="0x184" type="nva3_pll_src"/>
+	<reg32 name="TCLK" offset="0x190" type="nva3_pll_src"/>
+	<reg32 name="CLK13" offset="0x194" type="nva3_pll_src"/>
+	<reg32 name="CLK14" offset="0x198" type="nva3_pll_src"/>
+	<reg32 name="CLK32" offset="0x1a0" type="nva3_pll_src"/>
+	<reg32 name="VDCLK" offset="0x1a4" type="nva3_pll_src"/>
+	<reg32 name="CLK36" offset="0x1b0" type="nva3_pll_src"/>
+	<reg32 name="DCLK" offset="0x1b4" type="nva3_pll_src"/>
+	<reg32 name="ACLK" offset="0x1bc" type="nva3_pll_src"/>
 
 	<reg32 offset="0x200" name="NVPLL_CTRL" type="nva3_nvpll_ctrl"/>
 	<reg32 offset="0x204" name="NVPLL_COEF" type="nva3_pll_coef"/>
 	<reg32 offset="0x220" name="SPLL_CTRL" type="nva3_spll_ctrl"/>
 	<reg32 offset="0x224" name="SPLL_COEF" type="nva3_pll_coef"/>
-
-	<!-- UNKA0 has no PLL. It takes its source clock from PLL_CLK_SRC3.CLK0 -->
-	<!-- VDEC has no PLL. It takes its source clock from PLL_CLK_SRC3.CLK1 -->
-	<!-- PDAEMON has no PLL. It takes its source clock from PLL_CLK_SRC3.CLK5 -->
-	<!-- PCOPY has no PLL. It takes its source clock from NVPLL -->
 </array>
 
 <array offset="0xc000" name="PCONTROL" stride="0x1000" variants="NVA3:NVC0" length="1">

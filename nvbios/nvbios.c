@@ -37,20 +37,14 @@
 #include <limits.h>
 
 struct envy_bios *bios;
-uint8_t major_version, minor_version, micro_version, chip_version;
-uint32_t card_codename = 0;
+unsigned printmask = 0;
 uint8_t tCWL = 0;
 uint32_t strap = 0;
-uint8_t chipset_family = 0;
+uint16_t script_print = 0;
 
 uint16_t bmpver = 0;
 uint8_t bmpver_min;
 uint8_t bmpver_maj;
-uint32_t i2coffset = 0;
-uint32_t gpiooffset = 0;
-uint8_t dcbver, dcbhlen, dcbrlen, dcbentries;
-uint8_t i2cver, i2chlen, i2crlen, i2centries, i2cd0, i2cd1;
-uint8_t gpiover, gpiohlen, gpiorlen, gpioentries;
 int maxcond = -1;
 int maxiocond = -1;
 int maxiofcond = -1;
@@ -96,11 +90,12 @@ int usage(char* name) {
 	printf("  -c XX : override card generation\n");
 	printf("  -m XX : set tCWL (for timing entry size < 20)\n");
 	printf("  -s XX : set the trap register\n");
+	printf("  -i XXXX : print init script at XXXX and exit\n");
 	return 1;
 }
 
 void printhex (uint32_t start, uint32_t length) {
-	envy_bios_dump_hex(bios, stdout, start, length);
+	envy_bios_dump_hex(bios, stdout, start, length, printmask);
 }
 
 void printcmd (uint16_t off, uint16_t length) {
@@ -133,20 +128,11 @@ uint8_t parse_memtm_mapping_entry(uint16_t pos, uint16_t len, uint16_t hdr_pos)
 	}
 
 	if(p_tbls_ver == 1) {
-		/* XXX: This test is wrong. RE! */
-		if(bios->data[pos+3] & 0x02 && len >= 10) {
-			printf(" Feature unk0 enabled\n");
-			printf("   10053c: 0x00000000\n");
-			printf("   1005a0: 0x00%02hhx%02hhx%02hhx\n",
-				bios->data[pos+7], bios->data[pos+6],
-				bios->data[pos+5]);
-			printf("   1005a4: 0x0000%02hhx%02hhx\n",
-				bios->data[pos+9],
-				bios->data[pos+8]);
-		} else {
-			printf(" Feature unk0 disabled\n");
-			printf("   10053c: 0x00001000");
-		}
+		uint8_t c = bios->data[pos+3];
+		printf(" 100710: (r & 0x101) | 0x%x | 0x%x\n",
+		       (c & 0x2) ? 0x100 : 0, (c & 0x8) ? 0 : 1);
+		printf(" 100714: (r & 0x20) | 0x%x\n", (c & 0x8) ? 0 : 0x20);
+		printf(" 10071c: (r & 0x100) | 0x%x", (c & 0x1) ? 0x100 : 0);
 	}
 
 	if(p_tbls_ver == 2) {
@@ -159,7 +145,7 @@ uint8_t parse_memtm_mapping_entry(uint16_t pos, uint16_t len, uint16_t hdr_pos)
 
 		if(bios->data[hdr_pos+4] & 0x08 && len >= 10) {
 			printf(" Feature unk0 enabled\n");
-			if(card_codename < 0xC0) {
+			if(bios->chipset < 0xC0) {
 				printf("   10053c: 0x00000000\n");
 				printf("   1005a0: 0x00%02hhx%02hhx%02hhx\n",
 						bios->data[pos+6], bios->data[pos+5],
@@ -183,7 +169,7 @@ uint8_t parse_memtm_mapping_entry(uint16_t pos, uint16_t len, uint16_t hdr_pos)
 			}
 		} else {
 			printf(" Feature unk0 disabled\n");
-			if(card_codename < 0xC0) {
+			if(bios->chipset < 0xC0) {
 				printf("   10053c: 0x00001000\n");
 				printf("   10f804: 0x00?0000?\n");
 			} else {
@@ -224,6 +210,21 @@ void printscript (uint16_t soff) {
 				printf ("REPEAT\t0x%02x\n", bios->data[soff+1]);
 				soff += 2;
 				break;
+			case 0x34:
+				printcmd (soff, 12);
+				printf ("IO_RESTRICT_PLL\tR[0x%06x] =PLL= (0x%04x[0x%02x] & 0x%02x) >> %d) IOFCOND 0x%02x [{\n", le32(soff+8), le16(soff+1), bios->data[soff+3], bios->data[soff+4], bios->data[soff+5], bios->data[soff+6]);
+				if (bios->data[soff+6] > maxiofcond && bios->data[soff+6] != 0xff)
+					maxiofcond = bios->data[soff+6];
+				cnt = bios->data[soff+7];
+				soff += 12;
+				while (cnt--) {
+					printcmd (soff, 2);
+					printf ("\t%dkHz\n", le16(soff) * 10);
+					soff += 2;
+				}
+				printcmd (soff, 0);
+				printf ("}]\n");
+				break;
 			case 0x36:
 				printcmd (soff, 1);
 				printf ("END_REPEAT\n");
@@ -231,7 +232,7 @@ void printscript (uint16_t soff) {
 				break;
 			case 0x37:
 				printcmd (soff, 11);
-				printf ("COPY\t0x%04x[0x%02x] & ~0x%02x |= (R[%06x] %s 0x%02x) & %08x\n",
+				printf ("COPY\t0x%04x[0x%02x] & ~0x%02x |= (R[0x%06x] %s 0x%02x) & %08x\n",
 						le16(soff+7), bios->data[soff+9], bios->data[soff+10], le32(soff+1), bios->data[soff+5]&0x80?"<<":">>",
 						bios->data[soff+5]&0x80?0x100-bios->data[soff+5]:bios->data[soff+5], bios->data[soff+6]);
 				soff += 11;
@@ -248,6 +249,20 @@ void printscript (uint16_t soff) {
 					maxiofcond = bios->data[soff+1];
 				soff += 2;
 				break;
+			case 0x49:
+				printcmd (soff, 9);
+				printf ("INDEX_ADDRESS_LATCHED\tR[0x%06x] : R[0x%06x]\n", le32(soff+1), le32(soff+5));
+				soff += 9;
+				printcmd (soff, 9);
+				printf ("\tCTRL &= 0x%08x |= 0x%08x\n", le32(soff), le32(soff+4));
+				cnt = bios->data[soff+8];
+				soff += 9;
+				while (cnt--) {
+					printcmd (soff, 2);
+					printf("\t[%02x] = %02x\n", bios->data[soff], bios->data[soff+1]);
+					soff += 2;
+				}
+				break;
 			case 0x4a:
 				printcmd (soff, 11);
 				printf ("IO_RESTRICT_PLL2\tR[0x%06x] =PLL= (0x%04x[0x%02x] & 0x%02x) >> %d) [{\n", le32(soff+7), le16(soff+1), bios->data[soff+3], bios->data[soff+4], bios->data[soff+5]);
@@ -255,11 +270,27 @@ void printscript (uint16_t soff) {
 				soff += 11;
 				while (cnt--) {
 					printcmd (soff, 4);
-					printf ("\t%08x\n", le32(soff));
+					printf ("\t%dkHz\n", le32(soff));
 					soff += 4;
 				}
 				printcmd (soff, 0);
 				printf ("}]\n");
+				break;
+			case 0x4b:
+				printcmd (soff, 9);
+				printf ("PLL2\tR[0x%06x] =PLL= %dkHz\n", le32(soff+1), le32(soff+5));
+				soff += 9;
+				break;
+			case 0x4c:
+				printcmd (soff, 4);
+				printf ("I2C_BYTE\tI2C[0x%02x][0x%02x]\n", bios->data[soff+1], bios->data[soff+2]);
+				cnt = bios->data[soff+3];
+				soff += 4;
+				while (cnt--) {
+					printcmd (soff, 3);
+					printf ("\t[0x%02x] &= 0x%02x |= 0x%02x\n", bios->data[soff], bios->data[soff+1], bios->data[soff+2]);
+					soff += 3;
+				}
 				break;
 			case 0x4d:
 				printcmd (soff, 4);
@@ -294,6 +325,17 @@ void printscript (uint16_t soff) {
 				printcmd (soff, 3);
 				printf ("ZM_CR\tC[0x%02x] = 0x%02x\n", bios->data[soff+1], bios->data[soff+2]);
 				soff += 3;
+				break;
+			case 0x54:
+				printcmd (soff, 2);
+				printf ("ZM_CR_GROUP\n");
+				cnt = bios->data[soff+1];
+				soff += 2;
+				while (cnt--) {
+					printcmd(soff, 2);
+					printf ("\t\tC[0x%02x] = %02x\n", bios->data[soff], bios->data[soff+1]);
+					soff += 2;
+				}
 				break;
 			case 0x56:
 				printcmd (soff, 3);
@@ -340,15 +382,40 @@ void printscript (uint16_t soff) {
 				printcmd (soff, 16);
 				printf ("\n");
 				printcmd (soff+16, 6);
-				printf ("COPY_NV_REG\tR[%06x] & ~0x%08x = (R[%06x] %s 0x%02x) & %08x ^ %08x\n",
+				printf ("COPY_NV_REG\tR[0x%06x] & ~0x%08x = (R[0x%06x] %s 0x%02x) & %08x ^ %08x\n",
 						le32(soff+14), le32(soff+18), le32(soff+1), bios->data[soff+5]&0x80?"<<":">>",
 						bios->data[soff+5]&0x80?0x100-bios->data[soff+5]:bios->data[soff+5], le32(soff+6), le32(soff+10));
 				soff += 22;
+				break;
+			case 0x62:
+				printcmd (soff, 5);
+				printf ("ZM_INDEX_IO\tI[0x%04x][%02x] = 0x%02x\n", le16(soff+1), bios->data[soff+3], bios->data[soff+4]);
+				soff += 5;
 				break;
 			case 0x63:
 				printcmd (soff, 1);
 				printf ("COMPUTE_MEM\n");
 				soff++;
+				break;
+			case 0x65:
+				printcmd (soff, 13);
+				printf ("RESET\tR[0x%06x] = 0x%08x, 0x%08x\n", le32(soff+1), le32(soff+5), le32(soff+9));
+				soff += 13;
+				break;
+			case 0x66:
+				printcmd (soff, 1);
+				printf ("CONFIGURE_MEM\n");
+				soff += 1;
+				break;
+			case 0x67:
+				printcmd (soff, 1);
+				printf ("CONFIGURE_CLOCK\n");
+				soff += 1;
+				break;
+			case 0x68:
+				printcmd (soff, 1);
+				printf ("CONFIGURE_PREINIT\n");
+				soff += 1;
 				break;
 			case 0x69:
 				printcmd (soff, 5);
@@ -406,6 +473,16 @@ void printscript (uint16_t soff) {
 					maxiocond = bios->data[soff+1];
 				soff += 2;
 				break;
+			case 0x78:
+				printcmd (soff, 6);
+				printf ("INDEX_IO\tI[0x%04x][%02x] &= 0x%02x |= 0x%02x\n", le16(soff+1), bios->data[soff+3], bios->data[soff+4], bios->data[soff+5]);
+				soff += 6;
+				break;
+			case 0x79:
+				printcmd (soff, 7);
+				printf ("PLL\tR[0x%06x] =PLL= %dkHz\n", le32(soff+1), le16(soff+5) * 10);
+				soff += 7;
+				break;
 			case 0x7a:
 				printcmd (soff, 9);
 				printf ("ZM_REG\tR[0x%06x] = 0x%08x\n", le32(soff+1), le32(soff+5));
@@ -461,6 +538,22 @@ void printscript (uint16_t soff) {
 				printf ("COPY_ZM_REG\tR[0x%06x] = R[0x%06x]\n", le32(soff+5), le32(soff+1));
 				soff += 9;
 				break;
+			case 0x91:
+				printcmd (soff, 7);
+				printf ("ZM_REG_GROUP\tR[0x%06x] =\n", le32(soff+1));
+				cnt = bios->data[soff+5];
+				soff += 6;
+				while (cnt--) {
+					printcmd (soff, 4);
+					printf ("\t\t%08x\n", le32(soff));
+					soff += 4;
+				}
+				break;
+			case 0x92:
+				printcmd (soff, 1);
+				printf ("UNK92\n");
+				soff++;
+				break;
 			case 0x97:
 				printcmd (soff, 13);
 				printf ("ZM_MASK_ADD\tR[0x%06x] & ~0x%08x += 0x%08x\n", le32(soff+1), le32(soff+5), le32(soff+9));
@@ -489,36 +582,16 @@ static void parse_bios_version(uint16_t offset)
 	 * offset + 3  (8 bits): Major version
 	 */
 
-	major_version = bios->data[offset + 3];
-	chip_version = bios->data[offset + 2];
-	if(card_codename <= 0)
-		card_codename = chip_version;
-	minor_version = bios->data[offset + 1];
-	micro_version = bios->data[offset + 0];
+	bios->info.version[0] = bios->data[offset + 3];
+	bios->info.version[1] = bios->data[offset + 2];
+	bios->info.version[2] = bios->data[offset + 1];
+	bios->info.version[3] = bios->data[offset + 0];
 
-	if (major_version <= 0x2 || major_version == 0x14)
-		chipset_family = 0x04;
-	else if (major_version < 0x5)
-		chipset_family = card_codename & 0xf0;
-	else if (major_version < 0x60)
-		chipset_family = 0x40;
-	else if (major_version < 0x70)
-		chipset_family = 0x50;
-	else if (major_version < 0x75)
-		if (card_codename > 0x10 && card_codename < 0x20)
-			chipset_family = 0x50;
-		else
-			chipset_family = 0xc0;
-	else if (major_version == 0x75)
-		chipset_family = 0xd0;
-
+	if (printmask & ENVY_BIOS_PRINT_BMP_BIT) {
 	printf("Bios version %02x.%02x.%02x.%02x\n\n",
 		 bios->data[offset + 3], bios->data[offset + 2],
 		 bios->data[offset + 1], bios->data[offset]);
-	printf("Card codename %02x\n",
-		 card_codename);
-	printf("Card chipset family %02x\n\n",
-		 chipset_family);
+	}
 }
 
 int set_strap_from_string(const char* strap_s)
@@ -554,63 +627,24 @@ int set_strap_from_file(const char *path)
 	return 1;
 }
 
-void find_strap(int argc, char **argv) {
+void find_strap(char *filename) {
 	char *path;
 	const char * strap_filename = "strap_peek";
-	const char *pos = strrchr(argv[1], '/');
+	const char *pos = strrchr(filename, '/');
 	if (pos == NULL)
-		pos = argv[1];
+		pos = filename;
 	else
 		pos++;
-	int base_length = pos-argv[1];
+	int base_length = pos-filename;
 
 	path = (char*) malloc(base_length + strlen(strap_filename)+1);
-	strncpy(path, argv[1], base_length);
+	strncpy(path, filename, base_length);
 	strncpy(path+base_length, strap_filename, strlen(strap_filename));
 
 	if(!set_strap_from_file(path))
 		printf("Strap register found in '%s'\n", path);
 
 	free(path);
-}
-
-int parse_args(int argc, char **argv) {
-	int i;
-
-	for(i = 2; i < argc; i++) {
-		if (!strncmp(argv[i],"-c",2)) {
-			i++;
-			if(i < argc) {
-				sscanf(argv[i],"%2x",&card_codename);
-				printf("Card generation forced to nv%2x\n", card_codename);
-			} else {
-				return usage(argv[0]);
-			}
-		} else if (!strncmp(argv[i],"-m",2)) {
-			i++;
-			if(i < argc) {
-				sscanf(argv[i],"%2hhx",&tCWL);
-				printf("tCWL set to %2hhx\n", tCWL);
-			} else {
-				return usage(argv[0]);
-			}
-		} else if (!strncmp(argv[i],"-s",2)) {
-			i++;
-			if (i < argc) {
-				if (!strncmp(argv[i],"0x",2)) {
-					set_strap_from_string(argv[i]+2);
-				} else {
-					set_strap_from_file(argv[i]);
-				}
-			} else {
-				return usage(argv[0]);
-			}
-		} else {
-			fprintf(stderr, "Unknown parameter '%s'\n", argv[i]);
-		}
-	}
-
-	return 0;
 }
 
 int vbios_read(const char *filename, uint8_t **vbios, unsigned int *length)
@@ -680,9 +714,74 @@ const char * mem_type(uint8_t version, uint16_t start)
 	}
 }
 
+struct {
+	const char *name;
+	unsigned mask;
+} printmasks[] = {
+	"pcir",		ENVY_BIOS_PRINT_PCIR,
+	"version",	ENVY_BIOS_PRINT_VERSION,
+	"hwinfo",	ENVY_BIOS_PRINT_HWINFO,
+	"bit",		ENVY_BIOS_PRINT_BMP_BIT,
+	"bmp",		ENVY_BIOS_PRINT_BMP_BIT,
+	"info",		ENVY_BIOS_PRINT_INFO,
+	"dacload",	ENVY_BIOS_PRINT_DACLOAD,
+	"iunk",		ENVY_BIOS_PRINT_IUNK,
+	"scripts",	ENVY_BIOS_PRINT_SCRIPTS,
+	"hwsq",		ENVY_BIOS_PRINT_HWSQ,
+	"pll",		ENVY_BIOS_PRINT_PLL,
+	"ram",		ENVY_BIOS_PRINT_RAM,
+	"perf",		ENVY_BIOS_PRINT_PERF,
+	"i2cscript",	ENVY_BIOS_PRINT_I2CSCRIPT,
+	"dcball",	ENVY_BIOS_PRINT_DCB_ALL,
+	"dcb",		ENVY_BIOS_PRINT_DCB,
+	"gpio",		ENVY_BIOS_PRINT_GPIO,
+	"i2c",		ENVY_BIOS_PRINT_I2C,
+	"extdev",	ENVY_BIOS_PRINT_EXTDEV,
+	"conn",		ENVY_BIOS_PRINT_CONN,
+	"mux",		ENVY_BIOS_PRINT_MUX,
+	"dunk",		ENVY_BIOS_PRINT_DUNK,
+};
+
 int main(int argc, char **argv) {
 	int i;
-	if (argc < 2) {
+	int c;
+	while ((c = getopt (argc, argv, "m:s:i:p:vub")) != -1)
+		switch (c) {
+			case 'm':
+				sscanf(optarg,"%2hhx",&tCWL);
+				printf("tCWL set to %2hhx\n", tCWL);
+				break;
+			case 's':
+				if (!strncmp(optarg,"0x",2)) {
+					set_strap_from_string(optarg+2);
+				} else {
+					set_strap_from_file(optarg);
+				}
+				break;
+			case 'i':
+				sscanf(optarg,"%4hx",&script_print);
+				break;
+			case 'v':
+				printmask |= ENVY_BIOS_PRINT_VERBOSE;
+				break;
+			case 'u':
+				printmask |= ENVY_BIOS_PRINT_UNUSED;
+				break;
+			case 'b':
+				printmask |= ENVY_BIOS_PRINT_BLOCKS;
+				break;
+			case 'p':
+				for (i = 0; i < sizeof printmasks / sizeof *printmasks; i++) {
+					if (!strcmp(printmasks[i].name, optarg))
+						printmask |= printmasks[i].mask;
+				}
+				break;
+		}
+
+	if (!(printmask & ENVY_BIOS_PRINT_ALL))
+		printmask |= ENVY_BIOS_PRINT_ALL;
+
+	if (optind >= argc) {
 		return usage(argv[0]);
 	}
 
@@ -692,15 +791,13 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
-	parse_args(argc, argv);
-
 	if (strap == 0) {
-		find_strap(argc, argv);
+		find_strap(argv[optind]);
 		if (strap == 0)
 			fprintf(stderr, "warning: No strap specified\n");
 	}
 
-	if (vbios_read(argv[1], &bios->data, &bios->origlength)) {
+	if (vbios_read(argv[optind], &bios->data, &bios->origlength)) {
 		fprintf(stderr, "Failed to read VBIOS!\n");
 		return 1;
 	}
@@ -709,7 +806,7 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "Failed to parse BIOS\n");
 		return 1;
 	}
-	envy_bios_print(bios, stdout, ENVY_BIOS_PRINT_ALL);
+	envy_bios_print(bios, stdout, printmask);
 
 	const struct ed2a_colors *discolors = &ed2a_def_colors;
 
@@ -717,10 +814,14 @@ int main(int argc, char **argv) {
 		bmpver_maj = bios->data[bios->bmp_offset+5];
 		bmpver_min = bios->data[bios->bmp_offset+6];
 		bmpver = bmpver_maj << 8 | bmpver_min;
-		printf ("BMP %02x.%02x at %x\n", bmpver_maj, bmpver_min, bios->bmp_offset);
-		printf ("\n");
+		if (printmask & ENVY_BIOS_PRINT_BMP_BIT) {
+			printf ("BMP %02x.%02x at %x\n", bmpver_maj, bmpver_min, bios->bmp_offset);
+			printf ("\n");
+		}
 		parse_bios_version(bios->bmp_offset + 10);
-		printhex(bios->bmp_offset, 256);
+		if (printmask & ENVY_BIOS_PRINT_BMP_BIT) {
+			printhex(bios->bmp_offset, 256);
+		}
 		if (bmpver >= 0x510) {
 			init_script_tbl_ptr = le32(bios->bmp_offset + 75);
 			macro_index_tbl_ptr = le32(bios->bmp_offset + 77);
@@ -735,19 +836,12 @@ int main(int argc, char **argv) {
 			voltage_tbl_ptr = le16(bios->bmp_offset + 152);
 		}
 	}
-	if (bios->bit_offset) {
-		int maxentry = bios->data[bios->bit_offset+10];
-		printf ("BIT at %x, %x entries\n", bios->bit_offset, maxentry);
-		printf ("\n");
-		printhex(bios->bit_offset, 12);
-		for (i = 0; i < maxentry; i++) {
-			uint32_t off = bios->bit_offset + 12 + i*6;
-			uint8_t version = bios->data[off+1];
-			uint16_t elen = le16(off+2);
-			uint16_t eoff = le16(off+4);
-			printf ("BIT table '%c' version %d at %04x length %04x\n", bios->data[off], version, eoff, elen);
-				printhex(eoff, elen);
-			switch (bios->data[off]) {
+
+	if (bios->bit.offset) {
+		for (i = 0; i < bios->bit.entriesnum; i++) {
+			struct envy_bios_bit_entry *entry = &bios->bit.entries[i];
+			uint16_t eoff = entry->t_offset;
+			switch (entry->type) {
 				case 'I':
 					init_script_tbl_ptr = le32(eoff);
 					macro_index_tbl_ptr = le32(eoff+2);
@@ -756,37 +850,39 @@ int main(int argc, char **argv) {
 					io_condition_tbl_ptr = le32(eoff+8);
 					io_flag_condition_tbl_ptr = le32(eoff+10);
 					init_function_tbl_ptr = le32(eoff+12);
-					if (elen >= 16)
+					if (entry->t_len >= 16)
 						some_script_ptr = le32(eoff+14);
-					if (elen >= 18)
+					if (entry->t_len >= 18)
 						init96_tbl_ptr = le32(eoff+16);
 					break;
 				case 'M':
-					if (version == 1) {
-						if (elen >= 5) {
+					if (entry->version == 1) {
+						if (entry->t_len >= 5) {
 							ram_restrict_group_count = bios->data[eoff+2];
 							ram_restrict_tbl_ptr = le16(eoff+3);
 						}
-					} else if (version == 2) {
-						if (elen >= 3) {
+					} else if (entry->version == 2) {
+						if (entry->t_len >= 3) {
 							ram_restrict_group_count = bios->data[eoff];
 							ram_restrict_tbl_ptr = le16(eoff+1);
 							ram_type_tbl_ptr = le16(eoff+3);
 						}
 					}
 
-					if (elen >= 7)
-						printf("M.tbl_05 at %x\n", le16(eoff+5));
-					if (elen >= 9)
-						printf("M.tbl_07 at %x\n", le16(eoff+7));
-					if (elen >= 0xb)
-						printf("M.tbl_09 at %x\n", le16(eoff+9));
-					if (elen >= 0xd)
-						printf("M.tbl_0b at %x\n", le16(eoff+0xb));
-					if (elen >= 0xf)
-						printf("M.tbl_0c at %x\n", le16(eoff+0xd));
-					if (elen >= 0x11)
-						printf("M.tbl_0d at %x\n", le16(eoff+0xf));
+					if (printmask & ENVY_BIOS_PRINT_BMP_BIT) {
+						if (entry->t_len >= 7)
+							printf("M.tbl_05 at %x\n", le16(eoff+5));
+						if (entry->t_len >= 9)
+							printf("M.tbl_07 at %x\n", le16(eoff+7));
+						if (entry->t_len >= 0xb)
+							printf("M.tbl_09 at %x\n", le16(eoff+9));
+						if (entry->t_len >= 0xd)
+							printf("M.tbl_0b at %x\n", le16(eoff+0xb));
+						if (entry->t_len >= 0xf)
+							printf("M.tbl_0c at %x\n", le16(eoff+0xd));
+						if (entry->t_len >= 0x11)
+							printf("M.tbl_0d at %x\n", le16(eoff+0xf));
+					}
 					break;
 				case 'C':
 					pll_limit_tbl_ptr = le16(eoff + 8);
@@ -795,79 +891,37 @@ int main(int argc, char **argv) {
 					disp_script_tbl_ptr = le16(eoff);
 					break;
 				case 'P':
-					printf("Bit P table version %x\n", version);
+					if (printmask & ENVY_BIOS_PRINT_BMP_BIT)
+						printf("Bit P table version %x\n", entry->version);
 
-					p_tbls_ver = version;
+					p_tbls_ver = entry->version;
 					pm_mode_tbl_ptr = le16(eoff + 0);
-					if (version == 1) {
+					if (entry->version == 1) {
 						voltage_tbl_ptr = le16(eoff + 16);
 						temperature_tbl_ptr = le16(eoff + 12);
 						timings_tbl_ptr = le16(eoff + 4);
 						pm_unknown_tbl_ptr = le16(eoff + 21);
-					} else if (version == 2) {
+					} else if (entry->version == 2) {
 						voltage_tbl_ptr = le16(eoff + 12);
 						temperature_tbl_ptr = le16(eoff + 16);
 						timings_tbl_ptr = le16(eoff + 8);
 						timings_map_tbl_ptr = le16(eoff + 4);
 						pm_unknown_tbl_ptr = le16(eoff + 24);
-						if (elen >= 34)
+						if (entry->t_len >= 34)
 							voltage_map_tbl_ptr = le16(eoff + 32);
 					}
 
 					break;
-				case 'i':
-					parse_bios_version(eoff);
-					break;
 			}
-			printf ("\n");
 		}
 	}
-	if (bios->dcb_offset) {
-		dcbver = bios->data[bios->dcb_offset];
-		uint16_t coff = 4;
-		printf ("DCB %d.%d at %x\n", dcbver >> 4, dcbver&0xf, bios->dcb_offset);
-		if (dcbver >= 0x30) {
-			dcbhlen = bios->data[bios->dcb_offset+1];
-			dcbentries = bios->data[bios->dcb_offset+2];
-			dcbrlen = bios->data[bios->dcb_offset+3];
-			i2coffset = le16(bios->dcb_offset+4);
-			gpiooffset = le16(bios->dcb_offset+10);
-		} else if (dcbver >= 0x20) {
-			dcbhlen = 8;
-			dcbentries = 16;
-			dcbrlen = 8;
-			i2coffset = le16(bios->dcb_offset+2);
-		} else {
-			dcbhlen = 4;
-			dcbentries = 16;
-			dcbrlen = 10;
-			coff = 6;
-			i2coffset = le16(bios->dcb_offset+2);
-		}
-		printhex(bios->dcb_offset, dcbhlen);
-		printf("\n");
-		for (i = 0; i < dcbentries; i++) {
-			uint16_t soff = bios->dcb_offset + dcbhlen + dcbrlen * i;
-			uint32_t conn = le32(soff);
-			uint32_t conf = le32(soff + coff);
-			if (dcbver >= 0x20) {
-				int type = conn & 0xf;
-				int i2c = conn >> 4 & 0xf;
-				int heads = conn >> 8 & 0xf;
-				int connector = conn >> 12 & 0xf;
-				int bus = conn >> 16 & 0xf;
-				int loc = conn >> 20 & 3;
-				int or = conn >> 24 & 0xf;
-				char *types[] = { "ANALOG", "TV", "TMDS", "LVDS", "???", "???", "DP", "???",
-							"???", "???", "???", "???", "???", "???", "???", "???" };
-				printf ("Type %x [%s] I2C %d heads %x connector %d bus %d loc %d or %x conf %x\n", type, types[type], i2c, heads, connector, bus, loc, or, conf);
-			}
-			printhex (soff, dcbrlen);
-			printf("\n");
-		}
-		printf ("\n");
+
+	if(script_print != 0) {
+		printscript(script_print);
+		exit(0);
 	}
-	if (bios->hwsq_offset) {
+
+	if (bios->hwsq_offset && (printmask & ENVY_BIOS_PRINT_HWSQ)) {
 		uint8_t entry_count, bytes_to_write, i;
 		const struct disisa *hwsq_isa = ed_getisa("hwsq");
 		struct ed2v_variant *hwsq_var_nv41 = ed2v_new_variant(hwsq_isa->ed2, "nv41");
@@ -890,97 +944,8 @@ int main(int argc, char **argv) {
 		}
 		printf ("\n");
 	}
-	if (i2coffset) {
-		i2chlen = 0;
-		i2centries = 16;
-		i2crlen = 4;
-		if (dcbver >= 0x30) {
-			i2cver = bios->data[i2coffset];
-			i2chlen = bios->data[i2coffset+1];
-			i2centries = bios->data[i2coffset+2];
-			i2crlen = bios->data[i2coffset+3];
-			i2cd0 = bios->data[i2coffset+4] & 0xf;
-			i2cd1 = bios->data[i2coffset+4] >> 4;
-			printf ("I2C table %d.%d at %x, default entries %x %x\n", i2cver >> 4, i2cver&0xf, i2coffset, i2cd0, i2cd1);
-			printhex(i2coffset, i2chlen);
-		} else {
-			i2cver = dcbver;
-			printf ("I2C table at %x:\n", i2coffset);
-		}
-		printf ("\n");
-		for (i = 0; i < i2centries; i++) {
-			uint16_t off = i2coffset + i2chlen + i2crlen * i;
-			printf ("Entry %x: ", i);
-			if (bios->data[off+3] == 0xff)
-				printf ("invalid\n");
-			else {
-				uint8_t pt = 0;
-				uint8_t rd, wr;
-				if (i2cver >= 0x30)
-					pt = bios->data[off+3];
-				if (i2cver >= 0x14) {
-					wr = bios->data[off];
-					rd = bios->data[off+1];
-				} else {
-					wr = bios->data[off+3];
-					rd = bios->data[off+2];
-				}
-				switch (pt) {
-					case 0:
-						printf ("NV04-style wr %x rd %x\n", wr, rd);
-						break;
-					case 4:
-						printf ("NV4E-style %x\n", rd);
-						break;
-					case 5:
-						printf ("NV50-style %x\n", wr);
-						break;
-					default:
-						printf ("unknown type %x\n", pt);
-						break;
-				}
-			}
-			printhex (off, i2crlen);
-			printf ("\n");
-		}
-		printf ("\n");
-	}
 
-	if (gpiooffset) {
-		gpiover = bios->data[gpiooffset];
-		gpiohlen = bios->data[gpiooffset+1];
-		gpioentries = bios->data[gpiooffset+2];
-		gpiorlen = bios->data[gpiooffset+3];
-		printf ("GPIO table %d.%d at %x\n", gpiover >> 4, gpiover&0xf, gpiooffset);
-		printhex(gpiooffset, gpiohlen);
-
-		uint16_t soff = gpiooffset + gpiohlen;
-		for (i = 0; i < gpioentries; i++) {
-			if (dcbver < 0x40) {
-				uint16_t entry = le16(soff);
-				if (((entry & 0x07e0) >> 5) == 0x3f)
-					printf("-- invalid entry --\n");
-				else
-					printf("-- entry %04x, tag %02x, line %02x, invert %02x --\n", entry,
-						(entry & 0x07e0) >> 5, (entry & 0x001f), ((entry & 0xf800) >> 11) != 4);
-				printhex(soff, gpiorlen);
-			} else {
-				uint32_t entry = le32(soff);
-				if (((entry & 0x0000ff00) >> 8) == 0xff)
-					printf("-- invalid entry --\n");
-				else
-					printf("-- entry %04x, tag %02x, line %02x, state(def) %02x, state(0) %02x, state(1) %02x --\n",
-						entry, (entry & 0x0000ff00) >> 8, (entry & 0x0000001f) >> 0, (entry & 0x01000000) >> 24,
-						(entry & 0x18000000) >> 27, (entry & 0x60000000) >> 29);
-				printhex(soff, gpiorlen);
-			}
-			soff += gpiorlen;
-			printf("\n");
-		}
-		printf("\n");
-	}
-
-	if (pll_limit_tbl_ptr) {
+	if (pll_limit_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PLL)) {
 		uint8_t ver = bios->data[pll_limit_tbl_ptr];
 		uint8_t hlen = 0, rlen = 0, entries = 0;
 		printf ("PLL limits table at %x, version %x\n", pll_limit_tbl_ptr, ver);
@@ -1104,7 +1069,7 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
-	if (init_script_tbl_ptr) {
+	if (init_script_tbl_ptr && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
 		i = 0;
 		uint16_t off = init_script_tbl_ptr;
 		uint16_t soff;
@@ -1118,7 +1083,7 @@ int main(int argc, char **argv) {
 
 	int subspos = 0, callspos = 0;
 	int ssdone = 0;
-	while (!ssdone || subspos < subsnum || callspos < callsnum) {
+	while ((!ssdone || subspos < subsnum || callspos < callsnum) && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
 		if (callspos < callsnum) {
 			uint16_t soff = calls[callspos++];
 			printf ("Subroutine at %x:\n", soff);
@@ -1140,7 +1105,7 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	if (disp_script_tbl_ptr) {
+	if (disp_script_tbl_ptr && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
 		uint8_t ver = bios->data[disp_script_tbl_ptr];
 		uint8_t hlen = bios->data[disp_script_tbl_ptr+1];
 		uint8_t rlen = bios->data[disp_script_tbl_ptr+2];
@@ -1162,7 +1127,7 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
-	if (condition_tbl_ptr) {
+	if (condition_tbl_ptr && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
 		printf ("Condition table at %x: %d conditions:\n", condition_tbl_ptr, maxcond+1);
 		for (i = 0; i <= maxcond; i++) {
 			printcmd(condition_tbl_ptr + 12 * i, 12);
@@ -1174,7 +1139,7 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
-	if (macro_index_tbl_ptr) {
+	if (macro_index_tbl_ptr && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
 		printf ("Macro index table at %x: %d macro indices:\n", macro_index_tbl_ptr, maxmi+1);
 		for (i = 0; i <= maxmi; i++) {
 			printcmd(macro_index_tbl_ptr + 2 * i, 2);
@@ -1187,7 +1152,7 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
-	if (macro_tbl_ptr) {
+	if (macro_tbl_ptr && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
 		printf ("Macro table at %x: %d macros:\n", macro_tbl_ptr, maxmac+1);
 		for (i = 0; i <= maxmac; i++) {
 			printcmd(macro_tbl_ptr + 8 * i, 8);
@@ -1198,7 +1163,7 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
-	if (ram_type_tbl_ptr) {
+	if (ram_type_tbl_ptr && (printmask & ENVY_BIOS_PRINT_RAM)) {
 		uint8_t version, entry_count = 0, entry_length = 0;
 		uint16_t start = ram_type_tbl_ptr;
 		uint8_t ram_cfg = strap?(strap & 0x1c) >> 2:0xff;
@@ -1229,7 +1194,7 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 #define subent(n) (subentry_offset + ((n) * subentry_size))
-	if (pm_mode_tbl_ptr) {
+	if (pm_mode_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t mode_info_length = 0, header_length = 0;
 		uint8_t extra_data_length = 8, extra_data_count = 0;
@@ -1238,13 +1203,13 @@ int main(int argc, char **argv) {
 		uint8_t ram_cfg = strap?(strap & 0x1c) >> 2:0xff;
 		int e;
 
-		if (major_version == 0x4) {
+		if (bios->info.version[0] == 0x4) {
 			header_length = bios->data[start+0];
 			version = bios->data[start+1];
 			entry_length = bios->data[start+3];
 			entry_count = bios->data[start+2];
 			mode_info_length = entry_length;
-		} else if (major_version < 0x70) {
+		} else if (bios->info.version[0] < 0x70) {
 			version = bios->data[start+0];
 			header_length = bios->data[start+1];
 			entry_count = bios->data[start+2];
@@ -1252,7 +1217,7 @@ int main(int argc, char **argv) {
 			extra_data_count = bios->data[start+4];
 			extra_data_length = bios->data[start+5];
 			entry_length = mode_info_length + extra_data_count * extra_data_length;
-		} else if (major_version == 0x70 || major_version == 0x75) {
+		} else if ((bios->info.version[0] & 0xf0) == 0x70) {
 			version = bios->data[start+0];
 			header_length = bios->data[start+1];
 			subentry_offset = bios->data[start+2];
@@ -1262,16 +1227,14 @@ int main(int argc, char **argv) {
 			mode_info_length = subentry_offset;
 			entry_count = bios->data[start+5];
 		} else {
-			printf("Unknown PM major version %x\n", major_version);
+			printf("Unknown PM major version %x\n", bios->info.version[0]);
 		}
-
-		start += header_length;
 
 		printf ("PM_Mode table at %x. Version %x. RamCFG %x. Info_length %i.\n",
 			pm_mode_tbl_ptr, version, ram_cfg, mode_info_length
 		);
 
-		if (version < 0x40)
+		if (version > 0x20 && version < 0x40)
 			printf("PWM_div 0x%x, ", le16(start+6));
 
 
@@ -1286,9 +1249,11 @@ int main(int argc, char **argv) {
 		printcmd(pm_mode_tbl_ptr, header_length>0?header_length:10);
 		printf ("\n");
 
+		start += header_length;
+
 		printf("%i performance levels\n", entry_count);
 		for (i=0; i < entry_count; i++) {
-			uint16_t id, fan, voltage;
+			uint16_t id, fan, voltage, memscript;
 			uint16_t core, shader = 0, memclk, vdec = 0;
 			uint8_t pcie_width = 0xff;
 			uint8_t timing_id = 0xff;
@@ -1300,6 +1265,18 @@ int main(int argc, char **argv) {
 				* have PCI Express... so this value would be silly
 				*/
 				pcie_width = bios->data[start+28];
+			}
+
+			if (version > 0x15 && version < 0x40) {
+				uint16_t extra_start = start + mode_info_length;
+				uint16_t timing_extra_data = extra_start+(ram_cfg*extra_data_length);
+				timing_id = parse_memtm_mapping_entry(timing_extra_data, extra_data_length, 0);
+				if (ram_cfg < extra_data_count)
+					timing_id = bios->data[timing_extra_data+1];
+			} else if (version == 0x40 && ram_cfg < subentry_count) {
+				// Get the timing from somewhere else
+				// timing_id = bios->data[start+subent(ram_cfg)+1];
+				timing_id = 0xff;
 			}
 
 			/* Old BIOS' might give rounding errors! */
@@ -1345,16 +1322,23 @@ int main(int argc, char **argv) {
 				memclk = le16(start+12);
 				vdec = le16(start+16);
 				dom6 = le16(start+20);
+				memscript = le16(start+2);
 
+				printf(" 10053c: 0x%.8x", memclk >= 348 ? 0x1000 : 0);
 				printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Vdec %dMHz "
 					"Dom6 %dMHz Voltage %d[*10mV] Timing %d Fan %d PCIe link width %d --\n",
 					id, core, memclk, shader, vdec, dom6, voltage, timing_id, fan, pcie_width );
+				if(memscript > 0) {
+					printf("Memory reclock script:\n");
+					printscript(memscript);
+					printf("\n");
+				}
 			} else if (version == 0x40) {
 				uint16_t hub01 = 0, hub06 = 0, copy = 0, rop = 0, daemon = 0, hub07 = 0, unka0 = 0;
 				id = bios->data[start+0];
 				voltage = bios->data[start+2];
 
-				if (chipset_family == 0x50) {
+				if (bios->chipset < 0xc0) {
 					core = (le16(start+subent(0)) & 0xfff);
 					shader = (le16(start+subent(1)) & 0xfff);
 					memclk = (le16(start+subent(2)) & 0xfff);
@@ -1384,18 +1368,6 @@ int main(int argc, char **argv) {
 				}
 			}
 
-			if (version > 0x15 && version < 0x40) {
-				uint16_t extra_start = start + mode_info_length;
-				uint16_t timing_extra_data = extra_start+(ram_cfg*extra_data_length);
-				timing_id = parse_memtm_mapping_entry(timing_extra_data, extra_data_length, 0);
-				if (ram_cfg < extra_data_count)
-					timing_id = bios->data[timing_extra_data+1];
-			} else if (version == 0x40 && ram_cfg < subentry_count) {
-				// Get the timing from somewhere else
-				// timing_id = bios->data[start+subent(ram_cfg)+1];
-				timing_id = 0xff;
-			}
-
 			if (mode_info_length > 20) {
 				int i=0;
 				while (mode_info_length - i*20 > 20) {
@@ -1421,14 +1393,14 @@ int main(int argc, char **argv) {
 					printf("\n");
 				}
 			}
-			printf("\n");
+			printf("\n\n");
 
 			start += entry_length;
 		}
 		printf("\n");
 	}
 
-	if (voltage_map_tbl_ptr) {
+	if (voltage_map_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0;
 		uint16_t start = voltage_map_tbl_ptr;
@@ -1458,10 +1430,14 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
-	if (voltage_tbl_ptr) {
+	if (voltage_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0, mask = 0;
 		uint16_t start = voltage_tbl_ptr;
+		uint8_t shift = 0;
+		const int vidtag[] =  { 0x04, 0x05, 0x06, 0x1a, 0x73 };
+		int nr_vidtag = sizeof(vidtag) / sizeof(vidtag[0]);
+
 
 		version = bios->data[start+0];
 		if (version == 0x10 || version == 0x12) {
@@ -1479,6 +1455,7 @@ int main(int argc, char **argv) {
 			entry_length = bios->data[start+2];
 			header_length = bios->data[start+1];
 			mask = bios->data[start+4];
+			shift = 2;
 		} else if (version == 0x40) {
 			header_length = bios->data[start+1];
 			entry_length = bios->data[start+2];
@@ -1499,10 +1476,21 @@ int main(int argc, char **argv) {
 			for (i=0; i < entry_count; i++) {
 				uint32_t id, label;
 
-				id = bios->data[start+1];
+				id = bios->data[start+1] >> shift;
 				label = bios->data[start+0] * 10000;
 
-				printf ("-- ID = %x, voltage = %u µV --\n", id, label);
+				printf ("-- Vid = %x, voltage = %u µV --\n", id, label);
+
+				/* List the gpio tags assosiated with each voltage id */
+				int j;
+				for (j = 0; j < nr_vidtag; j++) {
+					if (!(mask & (1 << j))) {
+					/*	printf("-- Voltage unused/overridden by voltage mask --\n");*/
+						continue;
+	 				}
+					printf("-- GPIO tag %x(VID) data (logic %d) --\n", vidtag[j], (!!(id & (1 << j))));
+				}
+
 				if (entry_length > 20) {
 					printcmd(start, 20); printf("\n");
 					printcmd(start + 20, entry_length - 20);
@@ -1525,6 +1513,16 @@ int main(int argc, char **argv) {
 			for (i = 0; i < nr_label; i++) {
 				printf("-- Vid %d, voltage %d µV --\n", i, volt_uv);
 				volt_uv += step_uv;
+				/* List the gpio tags assosiated with each voltage id */
+				int j;
+				for (j = 0; j < nr_vidtag; j++) {
+					if (!(mask & (1 << j))) {
+					/*	printf("-- Voltage unused/overridden by voltage mask --\n");*/
+						continue;
+	 				}
+					printf("-- GPIO tag %x(VID) data (logic %d) --\n", vidtag[j], (!!(i & (1 << j))));
+				}
+				printf("\n");
 			}
 
 //			printf ("-- Voltage range = %u-%u µV, step = %u µV--\n",
@@ -1532,10 +1530,13 @@ int main(int argc, char **argv) {
 		}
 		printf("\n");
 	}
-	if (temperature_tbl_ptr) {
+	if (temperature_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0;
 		uint16_t start = temperature_tbl_ptr;
+		uint8_t cur_section = -1;
+
+		uint8_t fan_speed_tbl[] = { 0, 0, 25, 0, 40, 0, 50, 0, 75, 0, 85, 0, 100, 0, 100, 0 };
 
 		version = bios->data[start+0];
 		header_length = bios->data[start+1];
@@ -1556,12 +1557,17 @@ int main(int argc, char **argv) {
 			uint16_t data = le16((start+i*entry_length)+1);
 			uint16_t temp = (data & 0x0ff0) >> 4;
 			uint16_t type = (data & 0xf00f);
-			const char *type_s = NULL, *threshold = NULL;
+			uint8_t fan_speed = fan_speed_tbl[(type >> 12) & 0xf];
+			uint8_t hysteresis = type & 0xf;
+			const char *section_s = NULL, *threshold = NULL;
 			const char *correction_target = NULL;
 			uint16_t correction_value = 0;
-			uint16_t fan_min, fan_max;
+			uint16_t byte_low, byte_high;
 
-			type_s = (type == 0xa000?"ambient":"core");
+			if (id == 0x0)
+				cur_section = data;
+
+			section_s = (cur_section == 0?"core":"ambient");
 
 			/* Temperatures */
 			if (id == 0x4)
@@ -1572,8 +1578,8 @@ int main(int argc, char **argv) {
 				threshold = "fan boost";
 
 			/* fan */
-			fan_min = data & 0xff;
-			fan_max= (data & 0xff00) >> 8;
+			byte_low = data & 0xff;
+			byte_high = (data & 0xff00) >> 8;
 
 			correction_value = data;
 			if (id == 0x1) {
@@ -1594,31 +1600,39 @@ int main(int argc, char **argv) {
 						id, data);
 
 			if (id == 0xff)
-				printf("--disabled");
+				printf("	-- disabled");
 			else if (id == 0x0)
-				printf ("-- new section type %i", data);
+				printf ("	-- new section type %i -> %s", data, section_s);
 			else if (threshold)
-				printf ("-- %s %s temperature is %i°C", threshold, type_s, temp);
-			else if (id == 0x1 || (id >= 0x10 && id <= 0x13) || id == 0x22) {
-				printf ("-- temp/fan management: ");
+				printf ("	-- %s %s temperature is %i°C hysteresis %i°C", threshold, section_s, temp, hysteresis);
+			else if (id == 0x1 || (id >= 0x10 && id <= 0x13)) {
+				printf ("	-- temp management: ");
 				if (correction_target)
 					printf("%s = %i", correction_target, correction_value);
-				else if (id == 0x22)
-					printf("fan_min = %i, fan_max = %i", fan_min, fan_max);
 				else
 					printf("id = 0x%x, data = 0x%x", id, data);
-			} else if (id == 0x24)
-				printf ("-- bump fan speed when at %i°C type 0x%x", temp, type);
+			} else if (id == 0x22)
+				printf ("	-- fan_min = %i, fan_max = %i", byte_low, byte_high);
+			else if (id == 0x24)
+				printf ("	-- bump fan speed to %i%% when at %i°C hysteresis %i°C", fan_speed, temp, hysteresis);
+			else if (id == 0x25)
+				printf ("	-- bump fan speed to %i%%", data);
 			else if (id == 0x26)
-					printf("-- pwm frequency %i", data);
+				printf("	-- pwm frequency %i", data);
+			else if (id == 0x3b)
+				printf ("	-- fan bump (about 3 %%/s) periodicity %i ms", data);
+			else if (id == 0x3c)
+				printf ("	-- fan slow down periodicity %i ms", data);
+			else if (id == 0x46)
+				printf ("	-- Linear fan mode: fan_bump_temp_min = %i°C, fan_max_temp = %i°C", byte_low, byte_high);
 			else
-				printf ("Unknown (temp ?= %i°C, type ?= 0x%x)", temp, type);
+				printf ("	-- unknown (temp ?= %i°C, type ?= 0x%x)", temp, type);
 
 			printf("\n");
 		}
 		printf("\n");
 	}
-	if (timings_tbl_ptr) {
+	if (timings_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0;
 		uint16_t start = timings_tbl_ptr;
@@ -1689,7 +1703,7 @@ int main(int argc, char **argv) {
 				printf(" ODT(%hhx)", tRAM_FT1 & 0xf);
 				printf(" DRIVE_STRENGTH(%hhx)\n", (tRAM_FT1 & 0xf0) >> 4);
 
-				if (chipset_family < 0xc0) {
+				if (bios->chipset < 0xc0) {
 					reg_100220 = (tRCD << 24 | tRAS << 16 | tRFC << 8 | tRC);
 					reg_100224 = ((tWR + 2 + (tCWL - 1)) << 24 |
 								(tUNK_18 ? tUNK_18 : 1) << 16 |
@@ -1697,7 +1711,7 @@ int main(int argc, char **argv) {
 
 					reg_100228 = ((tCWL - 1) << 24 | (tUNK_12 << 16) | tUNK_11 << 8 | tUNK_10);
 
-					if(chipset_family < 0x50) {
+					if(bios->chipset < 0x50) {
 						/* Don't know, don't care...
 						* don't touch the rest */
 						reg_100224 |= (tCL + 2 - (tCWL - 1));
@@ -1765,7 +1779,7 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	if(timings_map_tbl_ptr) {
+	if(timings_map_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		/* Mapping timings to clockspeeds since 2009 */
 		uint8_t 	version = 0, entry_count = 0, entry_length = 0,
 				xinfo_count = 0, xinfo_length = 0,
@@ -1816,7 +1830,7 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
-	if(pm_unknown_tbl_ptr) {
+	if(pm_unknown_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t 	version = 0, entry_count = 0, entry_length = 0,
 				header_length = 0;
 		uint16_t start = pm_unknown_tbl_ptr;

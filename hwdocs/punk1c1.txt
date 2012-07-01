@@ -1,0 +1,20 @@
+Present on: NVAF
+BAR0 address: 0x1c1000
+PMC interrupt line: 14
+PMC enable bit: 14
+Version: 3
+Code segment size: 0x1000
+Data segment size: 0xb00
+Fifo size: 0x10
+Xfer slots: 8
+Secretful: no
+Code TLB index bits: 8
+Code ports: 1
+Data ports: 1
+
+[XXX: IO regs]
+[XXX: MEMIF ports]
+[XXX: interrupts]
+[XXX: status bits]
+
+[XXX: describe PUNK1C1]

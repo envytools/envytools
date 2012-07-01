@@ -1,4 +1,13 @@
-Introduction
+TOC
+
+0. Introduction
+1. fuc core clock
+2. Periodic timer
+3. PTIMER access
+4. Watchdog timer
+
+
+= Introduction =
 
 Time and timer-related registers are the same across each fuc engines, except
 PGRAPH CTXCTLs which lack PTIMER access.
@@ -13,7 +22,7 @@ Also note that the CTXCTLs have another watchdog timer on their own - see
 nvc0-pgraph-ctxctl.txt for more information.
 
 
-fuc core clock
+= fuc core clock =
 
 The periodic and watchdog timers are bound to the fuc engine's core clock. The
 source of that clock depends on the engine and card:
@@ -30,7 +39,7 @@ For more information about the clocks see nv50-pclock.txt, nva3-pclock.txt,
 nvc0-pclock.txt
 
 
-Periodic timer
+= Periodic timer =
 
 All fuc engines have a periodic timer. This timer generates periodic interrupts
 on line 0. The registers controlling this timer are:
@@ -61,7 +70,7 @@ Operation (after each clock source tick):
 	}
 
 
-PTIMER access
+= PTIMER access =
 
 The fuc engines other than PGRAPH's CTXCTLs have PTIMER's time registers
 aliased into their IO space. aliases are:
@@ -75,7 +84,7 @@ Both of these registers are read-only. See ptimer.txt for more information
 about PTIMER.
 
 
-Watchdog timer
+= Watchdog timer =
 
 Apart from a periodic timer, the fuc engines also have an independent one-shot
 timer, also called watchdog timer. It can be used to set up a single interrupt

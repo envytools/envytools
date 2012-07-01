@@ -206,7 +206,7 @@
 
 			<reg32 offset="0x0ce0" name="VERTEX_FOG_1F" type="float"/>
 			<reg32 offset="0x0ce4" name="VERTEX_WGH_1F" type="float"/>
-			<reg32 offset="0x0cec" name="EDGEFLAG_ENABLE" type="boolean"/>
+			<reg32 offset="0x0cec" name="EDGEFLAG" type="boolean"/>
 		</stripe>
 
 		<stripe>

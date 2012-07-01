@@ -1,0 +1,62 @@
+TOC
+
+0. Introduction
+
+
+= Introduction =
+
+fµc is a class of general-purpose microprocessor units, used in multiple
+instances on nvidia GPUs starting from NV98. Originally developed as the
+controlling logic for VP3 video decoding engines as a replacement for xtensa
+used on VP2, it was later used in many other places, whenever a microprocessor
+of some sort was needed.
+
+A single fµc unit is made of:
+
+ - the core microprocessor with its code and data SRAM [see fuc-proc.txt]
+ - an IO space containing control registers of all subunits, accessible from
+   the host as well as from the code running on the fµc microprocessor [see
+   fuc-io.txt]
+ - common support logic:
+   - interrupt controller [see fuc-intr.txt]
+   - periodic and watchdog timers [see fuc-timer.txt]
+   - scratch registers for communication with host [see fuc-io.txt]
+   - PCOUNTER signal output [see fuc-perf.txt]
+   - some unknown other stuff [XXX]
+ - optionally, FIFO interface logic, for fµc units used as PFIFO engines and
+   some others [see fuc-fifo.txt]
+ - optionally, common memory interface logic [see fuc-memif.txt]. However,
+   some engines have their own type of memory interface.
+ - optionally, a cryptographic AES coprocessor. A fµc unit with such
+   coprocessor is called a "secretful" unit. [see fuc-crypt.txt]
+ - any unit-specific logic the microprocessor is supposed to control
+
+The base fµc hardware comes in three different revisions:
+
+ - version 0: used on NV98, NVAA, NVAC
+ - version 3: used on NVA3+, adds a crude VM system for the code segment,
+   edge/level interrupt modes, new instructions [division, software traps,
+   bitfield manipulation, ...], and other features
+ - version 4: used on NVD9+ for some engines [others are still version 3]:
+   adds support for 24-bit code addressing and [XXX: figure out what else]
+
+The fµc units present on nvidia cards are:
+
+ - The VP3/VP4/VP5 engines [NV98 and NVAA+]:
+  - PBSP, the bitstream processor			[vp3-pbsp.txt]
+  - PVP, the video processor				[vp3-pvp.txt]
+  - PPPP, the video processor				[vp3-pppp.txt]
+ - The VP3 cryptographic engine [NV98, NVAA, NVAC]:
+  - PCRYPT, the cryptographic engine			[vp3-pcrypt.txt]
+ - The NVA3+ copy engines:
+  - PCOPY0 [NVA3+]					[pcopy.txt]
+  - PCOPY1 [NVC0+]					[pcopy.txt]
+ - The NVA3+ daemon engines:
+  - PDAEMON [NVA3+]					[pdaemon.txt]
+  - PDISPLAY.DAEMON [NVD9+]				[pdisplay-daemon.txt]
+ - The NVC0 PGRAPH CTXCTL engines:
+  - PGRAPH.CTXCTL					[nvc0-ctxctl.txt]
+  - PGRAPH.GPC[*].CTXCTL				[nvc0-ctxctl.txt]
+ - The unknown NVAF PUNK1C1 engine [XXX]		[punk1c1.txt]
+ - The unknown NVD9 PUNK1C3 engine [XXX]		[punk1c3.txt]
+ - The H.264 encodning engine, PVENC [NVE4+]		[pvenc.txt]
