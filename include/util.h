@@ -27,6 +27,7 @@
 #define UTIL_H
 
 #include <stdlib.h>
+#include <stdio.h>
 
 #define ADDARRAY(a, e) \
 	do { \
@@ -79,5 +80,7 @@ static inline int clog2(unsigned x) {
 		typeof (b) _b = (b);		\
 		_a > _b ? _a : _b;		\
 	})
+
+FILE *find_in_path(const char *name, const char *path, char **pfullname);
 
 #endif
