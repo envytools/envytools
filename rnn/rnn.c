@@ -38,52 +38,6 @@
 #include "rnn.h"
 #include "util.h"
 
-static int file_exists(const char * filename)
-{
-	FILE *file;
-
-    if ((file = fopen(filename, "r")) != 0)
-    {
-        fclose(file);
-        return 1;
-    }
-    return 0;
-}
-
-static void
-resolve_using_path(char *filename, char *buf, unsigned buf_len)
-{
-	const char *rnn_path = getenv("RNN_PATH");
-
-	if (!rnn_path)
-		rnn_path = "./rnndb:../rnndb";
-
-	do {
-		int tmp_len;
-
-		/* Find the base path */
-		const char *end_path = strchr(rnn_path, ':');
-		if (!end_path)
-			end_path = strchr(rnn_path, '\0');
-		tmp_len = min(end_path-rnn_path, buf_len-1);
-		strncpy(buf, rnn_path, tmp_len);
-
-		/* Check if the file exists in the current base path */
-		snprintf(buf+tmp_len, buf_len-tmp_len-1, "/%s", filename);
-		if (file_exists(buf))
-			return;
-
-		/* Go to the next basepath */
-		if (*end_path == ':')
-			end_path++;
-		rnn_path = end_path;
-
-	} while (*rnn_path);
-
-	strncpy(buf, filename, buf_len - 1);
-	buf[buf_len - 1] = 0;
-}
-
 static char *catstr (char *a, char *b) {
 	if (!a)
 		return b;
@@ -879,18 +833,28 @@ static int trytop (struct rnndb *db, char *file, xmlNode *node) {
 
 void rnn_parsefile (struct rnndb *db, char *file_orig) {
 	int i;
-	char *file = (char *) malloc(512);
+	char *fname;
+	const char *rnn_path = getenv("RNN_PATH");
 
-	resolve_using_path(file_orig, file, 512);
+	if (!rnn_path)
+		rnn_path = "./rnndb:../rnndb";
+
+	FILE *file = find_in_path(file_orig, rnn_path, &fname);
+	if (!file) {
+		fprintf (stderr, "%s: couldn't find database file. Please set the env var RNN_PATH.\n", file_orig);
+		db->estatus = 1;
+		return;
+	}
+	fclose(file);
 
 	for (i = 0; i < db->filesnum; i++)
-		if (!strcmp(db->files[i], file))
+		if (!strcmp(db->files[i], fname))
 			return;
 		
-	ADDARRAY(db->files, file);
-	xmlDocPtr doc = xmlParseFile(file);
+	ADDARRAY(db->files, fname);
+	xmlDocPtr doc = xmlParseFile(fname);
 	if (!doc) {
-		fprintf (stderr, "%s: couldn't open database file. Please set the env var RNN_PATH.\n", file);
+		fprintf (stderr, "%s: couldn't open database file. Please set the env var RNN_PATH.\n", fname);
 		db->estatus = 1;
 		return;
 	}
@@ -898,14 +862,14 @@ void rnn_parsefile (struct rnndb *db, char *file_orig) {
 	while (root) {
 		if (root->type != XML_ELEMENT_NODE) {
 		} else if (strcmp(root->name, "database")) {
-			fprintf (stderr, "%s:%d: wrong top-level tag <%s>\n", file, root->line, root->name);
+			fprintf (stderr, "%s:%d: wrong top-level tag <%s>\n", fname, root->line, root->name);
 			db->estatus = 1;
 		} else {
 			xmlNode *chain = root->children;
 			while (chain) {
 				if (chain->type != XML_ELEMENT_NODE) {
-				} else if (!trytop(db, file, chain) && !trydoc(db, file, chain)) {
-					fprintf (stderr, "%s:%d: wrong tag in database: <%s>\n", file, chain->line, chain->name);
+				} else if (!trytop(db, fname, chain) && !trydoc(db, fname, chain)) {
+					fprintf (stderr, "%s:%d: wrong tag in database: <%s>\n", fname, chain->line, chain->name);
 					db->estatus = 1;
 				}
 				chain = chain->next;

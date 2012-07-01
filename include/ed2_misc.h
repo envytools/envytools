@@ -79,8 +79,6 @@ struct ed2_astr {
 
 void ed2_free_strings(char **strs, int strsnum);
 
-FILE *ed2_find_file(const char *name, const char *path, char **pfullname);
-
 static inline int ed2_lg2ceil(unsigned num) {
 	int i = 0;
 	if (!num)
