@@ -274,7 +274,10 @@ software interrupts.
 
 NVA3 introduced fine-grained interrupt masking, as well as an option to route
 interrupts to PDAEMON. Aside from PCI interrupt and PDAEMON interrupt, there's
-also a third option to route interrupts to, but it's currently unknown.
+also a third option to route interrupts to, but it's currently unknown. In
+addition, the HOST interrupts have a new masking stage in PDAEMON
+[see pdaemon.txt] - as a side effect of that, powering off PDAEMON will
+disable host interrupt delivery.
 
 MMIO 0x000100: INTR_HOST
 MMIO 0x000104: INTR_UNK1 [NVA3-]

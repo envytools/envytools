@@ -113,11 +113,33 @@
 		<bitfield pos="4" name="MMIO">
 			<doc>Consult 7b4</doc>
 		</bitfield>
-		<bitfield pos="5" name="UNK5">
-			<doc>Consult 69c</doc>
+		<bitfield pos="5" name="IHM_ERR">
+			<doc>Consult 698+69c</doc>
+		</bitfield>
+		<bitfield pos="6" name="IHM_PLEASE_UNMASK">
+			<doc>No subinterrupts, no mask</doc>
 		</bitfield>
 		<!-- XXX: many more bits... -->
 	</reg32>
+
+	<!-- IHM: INTR_HOST mask -->
+	<reg32 offset="0x68c" name="IHM_TRIGGER">
+		<bitfield pos="0" name="PLEASE_UNMASK"/>
+		<bitfield pos="4" name="MASK"/>
+		<bitfield pos="12" name="UNMASK"/>
+	</reg32>
+	<reg32 offset="0x690" name="IHM_MASK_STATUS"/> <!-- 1 is masked, 0 is unmasked -->
+	<reg32 offset="0x694" name="IHM_TIMEOUT"/> <!-- in PDAEMON cycles -->
+	<reg32 offset="0x698" name="IHM_ERR_DETAIL">
+		<bitfield pos="0" name="TIMEOUT_WHILE_PLEASE_UNMASK"/>
+		<bitfield pos="4" name="PLEASE_UNMASK_WHILE_UNMASKED"/>
+		<bitfield pos="8" name="MASK_WHILE_MASKED"/>
+		<bitfield pos="12" name="UNMASK_WHILE_UNMASKED"/>
+	</reg32>
+	<reg32 offset="0x69c" name="IHM_ERR_INTR"/>
+	<reg32 offset="0x6a0" name="IHM_ERR_INTR_EN"/>
+	<reg32 offset="0x6a4" name="IHM_TIMEOUT_ENABLE"/>
+
 	<reg32 offset="0x7a0" name="MMIO_ADDR" variants="NVA3:NVD9"/>
 	<reg32 offset="0x7a0" name="MMIO_ADDR" variants="NVD9-">
 		<bitfield low="0" high="25" name="ADDR"/>
