@@ -23,7 +23,7 @@
  */
 
 #include "ed2i.h"
-#include "ed2_misc.h"
+#include "mask.h"
 #include <stdio.h>
 
 int main(int argc, char **argv) {
@@ -34,11 +34,11 @@ int main(int argc, char **argv) {
 		for (i = 0; i < isa->featuresnum; i++) {
 			printf ("Feature %s \"%s\"\n", isa->features[i].names[0], isa->features[i].description);
 			for (j = 0; j < isa->featuresnum; j++) {
-				if (ed2_mask_get(isa->features[i].ifmask, j) && j != i)
+				if (mask_get(isa->features[i].ifmask, j) && j != i)
 					printf ("\tImplies %s\n", isa->features[j].names[0]);
 			}
 			for (j = 0; j < isa->featuresnum; j++) {
-				if (ed2_mask_get(isa->features[i].cfmask, j))
+				if (mask_get(isa->features[i].cfmask, j))
 					printf ("\tConflicts with %s\n", isa->features[j].names[0]);
 			}
 		}
@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
 		for (i = 0; i < isa->variantsnum; i++) {
 			printf ("Variant %s \"%s\"\n", isa->variants[i].names[0], isa->variants[i].description);
 			for (j = 0; j < isa->featuresnum; j++) {
-				if (ed2_mask_get(isa->variants[i].fmask, j))
+				if (mask_get(isa->variants[i].fmask, j))
 					printf ("\tFeature %s\n", isa->features[j].names[0]);
 			}
 		}
@@ -59,7 +59,7 @@ int main(int argc, char **argv) {
 			for (k = ms->firstmode; k < ms->firstmode + ms->modesnum; k++) {
 				printf ("\t%s %s \"%s\"\n", (k == ms->defmode?"Default mode":"Mode"), isa->modes[k].names[0], isa->modes[k].description);
 				for (j = 0; j < isa->featuresnum; j++) {
-					if (ed2_mask_get(isa->modes[k].fmask, j))
+					if (mask_get(isa->modes[k].fmask, j))
 						printf ("\t\tRequired feature %s\n", isa->features[j].names[0]);
 				}
 			}
@@ -73,8 +73,8 @@ int main(int argc, char **argv) {
 				printf("\tValue %d: %s\n", j, of->enumvals[j]);
 			}
 		}
-		printf ("Defbits: "); ed2_mask_print(stdout, isa->opdefault, isa->opbits); printf("\n");
-		printf ("Defmask: "); ed2_mask_print(stdout, isa->opdefmask, isa->opbits); printf("\n");
+		printf ("Defbits: "); mask_print(stdout, isa->opdefault, isa->opbits); printf("\n");
+		printf ("Defmask: "); mask_print(stdout, isa->opdefmask, isa->opbits); printf("\n");
 		ed2i_del_isa(isa);
 	}
 	return 0;

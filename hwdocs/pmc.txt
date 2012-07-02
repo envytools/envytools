@@ -33,13 +33,13 @@ no annotation - available on all cards
 000004[1] ENDIAN		endian switch
 000008[3] BOOT_2		??? [more card identification?]
 000100    INTR_HOST		interrupt status - host
-000104[5] INTR_UNK1		interrupt status - ???
+000104[5] INTR_NMHOST		interrupt status - non-maskable host
 000108[5] INTR_DAEMON		interrupt status - PDAEMON
 000140    INTR_EN_HOST		interrupt enable - host
-000144[5] INTR_EN_UNK1		interrupt enable - ???
+000144[5] INTR_EN_NMHOST	interrupt enable - non-maskable host
 000148[5] INTR_EN_DAEMON	interrupt enable - PDAEMON
 000160    INTR_LN_HOST		interrupt line state - host
-000164[5] INTR_LN_UNK1		interrupt line state - ???
+000164[5] INTR_LN_NMHOST	interrupt line state - non-maskable host
 000168[5] INTR_LN_DAEMON	interrupt line state - PDAEMON
 000200    ENABLE		engine master enable
 000204[6] SUBFIFO_ENABLE	PSUBFIFO enables
@@ -52,7 +52,7 @@ no annotation - available on all cards
 000300[2] VRAM_HIDE_LOW		VRAM hidden area low address and enable
 000304[2] VRAM_HIDE_HIGH	VRAM hidden area high address
 000640[5] INTR_MASK_HOST	interrupt mask - host
-000644[5] INTR_MASK_UNK1	interrupt mask - ???
+000644[5] INTR_MASK_NMHOST	interrupt mask - non-maskable host
 000648[5] INTR_MASK_PDAEMON	interrupt mask - PDAEMON
 000a00[4] NEW_ID		card identification
 
@@ -273,21 +273,24 @@ register, but it only allows one to enable/disable all hardware or all
 software interrupts.
 
 NVA3 introduced fine-grained interrupt masking, as well as an option to route
-interrupts to PDAEMON. Aside from PCI interrupt and PDAEMON interrupt, there's
-also a third option to route interrupts to, but it's currently unknown.
+interrupts to PDAEMON. The HOST interrupts have a new masking stage in PDAEMON
+[see pdaemon.txt] - as a side effect of that, powering off PDAEMON will
+disable host interrupt delivery. A subset of interrupt types can also be
+routed to NMHOST destination, which is identical to HOST, but doesn't go
+through the PDAEMON masking circuitry.
 
 MMIO 0x000100: INTR_HOST
-MMIO 0x000104: INTR_UNK1 [NVA3-]
+MMIO 0x000104: INTR_NMHOST [NVA3-]
 MMIO 0x000108: INTR_DAEMON [NVA3-]
   Interrupt status. Bits 0-30 are hardware interrupts, bit 31 is software
   interrupt. 1 if the relevant input interrupt line is active and, for NVA3+
   chipsets, enabled in INTR_MASK_*. Bits 0-30 are read-only, bit 31 can be
   written to set/clear the software interrupt. Bit 31 can only be set to 1 if
-  software interrupts are enabled in INTR_MASK_*, except for UNK1 on NVC0+,
+  software interrupts are enabled in INTR_MASK_*, except for NMHOST on NVC0+,
   where it works even if masked.
 
 MMIO 0x000140: INTR_EN_HOST
-MMIO 0x000144: INTR_EN_UNK1 [NVA3-]
+MMIO 0x000144: INTR_EN_NMHOST [NVA3-]
 MMIO 0x000148: INTR_EN_DAEMON [NVA3-]
   bit 0: hardware interrupt enable - if 1, and any of bits 0-30 of INTR_* are
          active, the corresponding output interrupt line will be asserted.
@@ -295,31 +298,30 @@ MMIO 0x000148: INTR_EN_DAEMON [NVA3-]
          corresponding output interrupt line will be asserted.
 
 MMIO 0x000160: INTR_LN_HOST
-MMIO 0x000164: INTR_LN_UNK1 [NVA3-]
+MMIO 0x000164: INTR_LN_NMHOST [NVA3-]
 MMIO 0x000168: INTR_LN_DAEMON [NVA3-]
   Provides a way to peek at the status of corresponding output interrupt line.
   On NV01:NVC0, 0 if the output line is active, 1 if inactive. On NVC0+, 1 if
   active, 0 if inactive.
 
 MMIO 0x000640: INTR_MASK_HOST [NVA3-]
-MMIO 0x000644: INTR_MASK_UNK1 [NVA3-]
+MMIO 0x000644: INTR_MASK_NMHOST [NVA3-]
 MMIO 0x000648: INTR_MASK_DAEMON [NVA3-]
   Interrupt mask. If a bit is set to 0 here, it'll be masked off to always-0
   in the INTR_* register, otherwise it'll be connected to the corresponding
   input interrupt line. For HOST and DAEMON, all interrupts can be enabled.
-  For UNK1 on pre-NVC0 cards, only input line #8 [PFIFO] can be enabled, for
-  UNK1 on NVC0+ cards all interrupts but the software interrupt can be
+  For NMHOST on pre-NVC0 cards, only input line #8 [PFIFO] can be enabled, for
+  NMHOST on NVC0+ cards all interrupts but the software interrupt can be
   enabled - however in this case software interrupt works even without being
   enabled.
 
-The HOST output interrupt line corresponds to PCI INTA pin on the card. UNK1
-is unknown. DAEMON goes to PDAEMON's fuc interrupt line #10.
-[XXX: figure out the third destination]
-[XXX: anything special for MSI?]
+The HOST and NMHOST output interrupt lines are connected to the PCI INTA pin
+on the card. HOST goes through PDAEMON's HOST interrupt masking circuitry
+[IHM], while NMHOST doesn't. DAEMON goes to PDAEMON's fµc interrupt line #10.
 
 On pre-NVA3, each PMC interrupt input is a single 0/1 line. On NVA3+, some
 inputs have a single line for all three outputs, while some others have 2
-lines: one for HOST and DAEMON outputs, and one for UNK1 outuput.
+lines: one for HOST and DAEMON outputs, and one for NMHOST outuput.
 
 The input interrupts are, for NV01:
 
@@ -364,7 +366,7 @@ For NV50:NVC0:
 0: VPE [vpe.txt] [NV50:NV98 and NVA0]
 0: PPPP [vp3-pppp.txt] [NV98 and NVAA-]
 4: PMEDIA [pmedia.txt]
-8: PFIFO [nv50-pfifo.txt] - has separate UNK1 line on NVA3+
+8: PFIFO [nv50-pfifo.txt] - has separate NMHOST line on NVA3+
 9: ??? [NVA3?-]
 11: ??? [NVA3?-]
 12: PGRAPH [nv50-pgraph.txt]
@@ -389,18 +391,18 @@ earlier, but we only know them from bitscanning the INTR_MASK regs. on NVA3+.]
 
 For NVC0+:
 
-0: PPPP [vp3-pppp.txt] - has separate UNK1 line
+0: PPPP [vp3-pppp.txt] - has separate NMHOST line
 4: PMEDIA [pmedia.txt]
-5: PCOPY[0] [pcopy.txt] - has separate UNK1 line
-6: PCOPY[1] [pcopy.txt] - has separate UNK1 line
-7: PCOPY[2] [NVE4-] [pcopy.txt] - has separate UNK1 line
+5: PCOPY[0] [pcopy.txt] - has separate NMHOST line
+6: PCOPY[1] [pcopy.txt] - has separate NMHOST line
+7: PCOPY[2] [NVE4-] [pcopy.txt] - has separate NMHOST line
 8: PFIFO [nvc0-pfifo.txt]
 9: ???
-12: PGRAPH [nvc0-pgraph.txt] - has separate UNK1 line
+12: PGRAPH [nvc0-pgraph.txt] - has separate NMHOST line
 13: PBFB [nvc0-pbfb.txt]
-15: PBSP [vp3-pbsp.txt] - has separate UNK1 line
-16: PVENC [NVE4-] [pvenc.txt] - has separate UNK1 line
-17: PVP [vp3-pvp.txt] - has separate UNK1 line
+15: PBSP [vp3-pbsp.txt] - has separate NMHOST line
+16: PVENC [NVE4-] [pvenc.txt] - has separate NMHOST line
+17: PVP [vp3-pvp.txt] - has separate NMHOST line
 18: PTHERM [ptherm.txt]
 19: ??? [NVD9-]
 20: PTIMER [ptimer.txt]
@@ -410,7 +412,7 @@ For NVC0+:
 25: PMFB [nvc0-pmfb.txt]
 26: PDISPLAY [pdisplay.txt]
 27: PFFB [nvc0-pffb.txt]
-28: PBUS [pbus.txt] - has separate UNK1 line
+28: PBUS [pbus.txt] - has separate NMHOST line
 29: ???
 30: PIBUS [pibus.txt]
 31: software

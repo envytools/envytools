@@ -23,6 +23,8 @@
  */
 
 #include "ed2a.h"
+#include "util.h"
+#include <stdlib.h>
 #include <string.h>
 
 struct ed2a_expr *ed2a_make_expr(enum ed2a_etype type) {

@@ -22,32 +22,56 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef ED2V_H
-#define ED2V_H
-
-#include "ed2i.h"
 #include "mask.h"
 
-struct ed2v_variant {
-	struct ed2i_isa *isa;
-	uint32_t *fmask;
-	int *mode;
-};
+void mask_or(uint32_t *dmask, uint32_t *smask, int size) {
+	int rsize = MASK_SIZE(size);
+	int i;
+	for (i = 0; i < rsize; i++)
+		dmask[i] |= smask[i];
+}
+int mask_or_r(uint32_t *dmask, uint32_t *smask, int size) {
+	int rsize = MASK_SIZE(size);
+	int i;
+	int res = 0;
+	for (i = 0; i < rsize; i++) {
+		uint32_t n = dmask[i] | smask[i];
+		if (n != dmask[i])
+			res = 1;
+		dmask[i] = n;
+	}
+	return res;
+}
 
-static inline int ed2v_has_feature(struct ed2v_variant *var, int feature) {
-	return mask_get(var->fmask, feature);
-};
+int mask_intersect(uint32_t *a, uint32_t *b, int size) {
+	int rsize = MASK_SIZE(size);
+	int i;
+	for (i = 0; i < rsize; i++)
+		if (a[i] & b[i]) {
+			int j;
+			for (j = 0; j < MASK_CHUNK_SIZE; j++)
+				if (a[i] & b[i] & (uint32_t)1 << j)
+					return j;
+		}
+	return -1;
+}
 
-static inline int ed2v_get_mode(struct ed2v_variant *var, int modeset) {
-	return var->mode[modeset];
-};
+int mask_contains(uint32_t *a, uint32_t *b, int size) {
+	int rsize = MASK_SIZE(size);
+	int i;
+	for (i = 0; i < rsize; i++)
+		if ((a[i] & b[i]) != b[i]) {
+			return 0;
+		}
+	return 1;
+}
 
-struct ed2v_variant *ed2v_new_variant_i(struct ed2i_isa *isa, int variant);
-struct ed2v_variant *ed2v_new_variant(struct ed2i_isa *isa, const char *variant);
-void ed2v_del_variant(struct ed2v_variant *var);
-int ed2v_add_feature_i(struct ed2v_variant *var, int feature);
-int ed2v_add_feature(struct ed2v_variant *var, const char *feature);
-int ed2v_set_mode_i(struct ed2v_variant *var, int mode);
-int ed2v_set_mode(struct ed2v_variant *var, const char *mode);
-
-#endif
+void mask_print(FILE *out, uint32_t *mask, int size) {
+	int rsize = MASK_SIZE(size);
+	int i;
+	for (i = 0; i < rsize; i++) {
+		if (i)
+			fprintf(out, " ");
+		fprintf (out, "%08"PRIx32, mask[i]);
+	}
+}

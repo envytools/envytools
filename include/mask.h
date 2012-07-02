@@ -22,32 +22,41 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef ED2V_H
-#define ED2V_H
+#ifndef MASK_H
+#define MASK_H
 
-#include "ed2i.h"
-#include "mask.h"
+#include "util.h"
+#include <stdlib.h>
+#include <string.h>
+#include <inttypes.h>
 
-struct ed2v_variant {
-	struct ed2i_isa *isa;
-	uint32_t *fmask;
-	int *mode;
-};
+#define MASK_CHUNK_SIZE 32
+#define MASK_SIZE(num) CEILDIV((num), MASK_CHUNK_SIZE)
 
-static inline int ed2v_has_feature(struct ed2v_variant *var, int feature) {
-	return mask_get(var->fmask, feature);
-};
+static inline int mask_get(uint32_t *mask, int num) {
+	return (mask[num/32] >> (num % 32)) & 1;
+}
 
-static inline int ed2v_get_mode(struct ed2v_variant *var, int modeset) {
-	return var->mode[modeset];
-};
+static inline void mask_set(uint32_t *mask, int num) {
+	mask[num/32] |= 1 << (num % 32);
+}
 
-struct ed2v_variant *ed2v_new_variant_i(struct ed2i_isa *isa, int variant);
-struct ed2v_variant *ed2v_new_variant(struct ed2i_isa *isa, const char *variant);
-void ed2v_del_variant(struct ed2v_variant *var);
-int ed2v_add_feature_i(struct ed2v_variant *var, int feature);
-int ed2v_add_feature(struct ed2v_variant *var, const char *feature);
-int ed2v_set_mode_i(struct ed2v_variant *var, int mode);
-int ed2v_set_mode(struct ed2v_variant *var, const char *mode);
+static inline uint32_t *mask_new(int num) {
+	uint32_t *res = calloc(sizeof *res, MASK_SIZE(num));
+	return res;
+}
+
+static inline uint32_t *mask_dup(uint32_t *mask, int num) {
+	uint32_t *res = mask_new(num);
+	memcpy(res, mask, MASK_SIZE(num) * sizeof *res);
+	return res;
+}
+
+void mask_or(uint32_t *dmask, uint32_t *smask, int size);
+int mask_or_r(uint32_t *dmask, uint32_t *smask, int size);
+
+int mask_intersect(uint32_t *a, uint32_t *b, int size);
+int mask_contains(uint32_t *a, uint32_t *b, int size);
+void mask_print(FILE *out, uint32_t *mask, int size);
 
 #endif

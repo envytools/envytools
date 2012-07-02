@@ -24,6 +24,7 @@
 
 #include "ed2_misc.h"
 #include <string.h>
+#include <stdlib.h>
 #include <assert.h>
 
 static int gethex(char c) {
@@ -103,56 +104,4 @@ void ed2_free_strings(char **strs, int strsnum) {
 	for (i = 0; i < strsnum; i++)
 		free(strs[i]);
 	free(strs);
-}
-
-void ed2_mask_or(uint32_t *dmask, uint32_t *smask, int size) {
-	int rsize = ED2_MASK_SIZE(size);
-	int i;
-	for (i = 0; i < rsize; i++)
-		dmask[i] |= smask[i];
-}
-int ed2_mask_or_r(uint32_t *dmask, uint32_t *smask, int size) {
-	int rsize = ED2_MASK_SIZE(size);
-	int i;
-	int res = 0;
-	for (i = 0; i < rsize; i++) {
-		uint32_t n = dmask[i] | smask[i];
-		if (n != dmask[i])
-			res = 1;
-		dmask[i] = n;
-	}
-	return res;
-}
-
-int ed2_mask_intersect(uint32_t *a, uint32_t *b, int size) {
-	int rsize = ED2_MASK_SIZE(size);
-	int i;
-	for (i = 0; i < rsize; i++)
-		if (a[i] & b[i]) {
-			int j;
-			for (j = 0; j < ED2_MASK_CHUNK_SIZE; j++)
-				if (a[i] & b[i] & (uint32_t)1 << j)
-					return j;
-		}
-	return -1;
-}
-
-int ed2_mask_contains(uint32_t *a, uint32_t *b, int size) {
-	int rsize = ED2_MASK_SIZE(size);
-	int i;
-	for (i = 0; i < rsize; i++)
-		if ((a[i] & b[i]) != b[i]) {
-			return 0;
-		}
-	return 1;
-}
-
-void ed2_mask_print(FILE *out, uint32_t *mask, int size) {
-	int rsize = ED2_MASK_SIZE(size);
-	int i;
-	for (i = 0; i < rsize; i++) {
-		if (i)
-			fprintf(out, " ");
-		fprintf (out, "%08"PRIx32, mask[i]);
-	}
 }

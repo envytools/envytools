@@ -23,6 +23,7 @@
  */
 
 %{
+#include "util.h"
 #include "ed2_misc.h"
 #include "ed2_parse.h"
 #include "ed2i.h"
@@ -492,9 +493,9 @@ bitchunk:	T_WORD	{ $$ = calloc(sizeof *$$, 1); $$->name = $1; $$->from = $$->to 
 %%
 
 struct ed2i_isa *ed2i_read_isa (const char *isaname) {
-	FILE *file = ed2_find_file(isaname, getenv("ED2_PATH"), 0); 
+	FILE *file = find_in_path(isaname, getenv("ED2_PATH"), 0); 
 	if (!file)
-		file = ed2_find_file(isaname, ".:isadb:../isadb:envytools/isadb", 0);
+		file = find_in_path(isaname, ".:isadb:../isadb:envytools/isadb", 0);
 	if (!file) {
 		fprintf (stderr, "Cannot find ISA definition file for ISA %s.\n", isaname);
 		fprintf (stderr, "Please set ED2_PATH to point to the isadb directory from envytools.\n");

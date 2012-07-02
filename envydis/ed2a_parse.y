@@ -23,6 +23,7 @@
  */
 
 %{
+#include "util.h"
 #include "ed2_misc.h"
 #include "ed2_parse.h"
 #include "ed2a.h"

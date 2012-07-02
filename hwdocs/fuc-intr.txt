@@ -70,7 +70,7 @@ together to find its routing testination:
   0: fuc vector 0
   1: PMC HOST/DAEMON line
   2: fuc vector 1
-  3: PMC UNK1 line [NVC0+ only]
+  3: PMC NMHOST line [NVC0+ selected engines only]
 
 If the engine has a PMC interrupt line and any interrupt set for PMC irq
 delivery is active and unmasked, the corresponding PMC interrupt input line

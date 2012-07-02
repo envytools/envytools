@@ -23,6 +23,7 @@
  */
 
 #include "ed2_misc.h"
+#include "mask.h"
 #include "ed2i.h"
 #include <stdlib.h>
 
@@ -67,7 +68,7 @@ void ed2i_set_opfield_1(uint32_t *mask, struct ed2i_opfield *opf) {
 	/* XXX: unsuck? */
 	int i;
 	for (i = 0; i < opf->len; i++) {
-		ed2_mask_set(mask, opf->start + i);
+		mask_set(mask, opf->start + i);
 	}
 }
 
@@ -76,6 +77,6 @@ void ed2i_set_opfield_val(uint32_t *mask, struct ed2i_opfield *opf, uint64_t val
 	int i;
 	for (i = 0; i < opf->len; i++) {
 		if (i < 64 && ((val >> i) & 1))
-			ed2_mask_set(mask, opf->start + i);
+			mask_set(mask, opf->start + i);
 	}
 }

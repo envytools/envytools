@@ -16,8 +16,7 @@
 #include "vstream.h"
 #include "h262.h"
 #include "h264.h"
-
-#define ARRAY_SIZE(a) (sizeof(a)/sizeof(*a))
+#include "util.h"
 
 VdpGetProcAddress * vdp_get_proc_address;
 VdpGetErrorString * vdp_get_error_string;

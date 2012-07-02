@@ -23,6 +23,7 @@
  */
 
 #include "ed2i_pre.h"
+#include "mask.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -185,12 +186,12 @@ int ed2ip_put_sym(struct ed2i_isa *isa, char *name, int type, struct ed2_loc *lo
 }
 
 uint32_t *ed2ip_list_to_fmask(struct ed2i_isa *isa, char **names, int namesnum, struct ed2_loc *loc, int *pbroken) {
-	uint32_t *res = ed2_mask_new(isa->featuresnum);
+	uint32_t *res = mask_new(isa->featuresnum);
 	int i;
 	for (i = 0; i < namesnum; i++) {
 		int idx = ed2ip_transform_sym(isa, names[i], ED2I_ST_FEATURE, loc, pbroken);
 		if (idx != -1)
-			ed2_mask_set(res, idx);
+			mask_set(res, idx);
 	}
 	free(names);
 	return res;
@@ -199,8 +200,8 @@ uint32_t *ed2ip_list_to_fmask(struct ed2i_isa *isa, char **names, int namesnum, 
 void ed2ip_ifmask_closure(struct ed2i_isa *isa, uint32_t *fmask) {
 	int i;
 	for (i = 0; i < isa->featuresnum; i++) {
-		if (ed2_mask_get(fmask, i)) {
-			if (ed2_mask_or_r(fmask, isa->features[i].ifmask, isa->featuresnum)) {
+		if (mask_get(fmask, i)) {
+			if (mask_or_r(fmask, isa->features[i].ifmask, isa->featuresnum)) {
 				i = 0;
 			}
 		}
@@ -210,8 +211,8 @@ void ed2ip_ifmask_closure(struct ed2i_isa *isa, uint32_t *fmask) {
 void ed2ip_fmask_closure(struct ed2i_isa *isa, uint32_t *fmask) {
 	int i;
 	for (i = 0; i < isa->featuresnum; i++) {
-		if (ed2_mask_get(fmask, i)) {
-			ed2_mask_or(fmask, isa->features[i].ifmask, isa->featuresnum);
+		if (mask_get(fmask, i)) {
+			mask_or(fmask, isa->features[i].ifmask, isa->featuresnum);
 		}
 	}
 }
@@ -219,8 +220,8 @@ void ed2ip_fmask_closure(struct ed2i_isa *isa, uint32_t *fmask) {
 int ed2ip_fmask_conflicts(struct ed2i_isa *isa, uint32_t *fmask, struct ed2_loc *loc) {
 	int i;
 	for (i = 0; i < isa->featuresnum; i++) {
-		if (ed2_mask_get(fmask, i)) {
-			int idx = ed2_mask_intersect(fmask, isa->features[i].cfmask, isa->featuresnum);
+		if (mask_get(fmask, i)) {
+			int idx = mask_intersect(fmask, isa->features[i].cfmask, isa->featuresnum);
 			if (idx != -1) {
 				fprintf(stderr, ED2_LOC_FORMAT(*loc, "Conflicting features %s and %s\n"), isa->features[i].names[0], isa->features[idx].names[0]);
 				return 1;
@@ -250,22 +251,22 @@ int ed2ip_transform_features(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 	}
 	for (i = 0; i < isa->featuresnum; i++) {
 		/* every feature implies itself */
-		ed2_mask_set(isa->features[i].ifmask, i);
+		mask_set(isa->features[i].ifmask, i);
 		/* calculate full closure of implied features */
 		ed2ip_ifmask_closure(isa, isa->features[i].ifmask);
 		/* if i conflicts with j, j conflicts with i */
 		for (j = 0; j < isa->featuresnum; j++) {
-			if (ed2_mask_get(isa->features[i].cfmask, j))
-				ed2_mask_set(isa->features[j].cfmask, i);
+			if (mask_get(isa->features[i].cfmask, j))
+				mask_set(isa->features[j].cfmask, i);
 		}
 	}
 	for (i = 0; i < isa->featuresnum; i++) {
 		/* if i implies k, j implies l, and k conflicts with l, i conflicts with j */
 		for (j = 0; j < isa->featuresnum; j++) {
 			for (k = 0; k < isa->featuresnum; k++) {
-				if (ed2_mask_get(isa->features[i].ifmask, k) && ed2_mask_intersect(isa->features[k].cfmask, isa->features[j].ifmask, isa->featuresnum) != -1) {
-					ed2_mask_set(isa->features[i].cfmask, j);
-					ed2_mask_set(isa->features[j].cfmask, i);
+				if (mask_get(isa->features[i].ifmask, k) && mask_intersect(isa->features[k].cfmask, isa->features[j].ifmask, isa->featuresnum) != -1) {
+					mask_set(isa->features[i].cfmask, j);
+					mask_set(isa->features[j].cfmask, i);
 				}
 			}
 		}
@@ -398,8 +399,8 @@ int ed2ip_transform_opfields(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 		isa->opfields[i].start = isa->opbits;
 		isa->opbits += isa->opfields[i].len;
 	}
-	isa->opdefault = ed2_mask_new(isa->opbits);
-	isa->opdefmask = ed2_mask_new(isa->opbits);
+	isa->opdefault = mask_new(isa->opbits);
+	isa->opdefmask = mask_new(isa->opbits);
 	for (i = 0; i < isa->opfieldsnum; i++) {
 		if (preisa->opfields[i]->hasdef) {
 			ed2i_set_opfield_1(isa->opdefmask, &isa->opfields[i]);
