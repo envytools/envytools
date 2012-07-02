@@ -208,7 +208,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1b0c" name="QUERY_GET">
 			<bitfield low="0" high="1" name="MODE">
 				<value value="0" name="WRITE"/>
-				<value value="3" name="WRITE_INTR_UNK1"/>
+				<value value="3" name="WRITE_INTR_NMHOST"/>
 			</bitfield>
 			<bitfield pos="20" name="INTR"/>
 			<bitfield pos="28" name="SHORT"/>
