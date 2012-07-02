@@ -396,7 +396,7 @@ static const int cbpl[16][2] = {
 
 int h264_coded_block_pattern(struct bitstream *str, struct h264_cabac_context *cabac, uint32_t mb_type, int has_chroma, uint32_t *val) {
 	if (!cabac) {
-		uint32_t tmp;
+		uint32_t tmp = -1;
 		const int (*tab)[2];
 		int maxval;
 		int which;

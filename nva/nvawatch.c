@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <sched.h>
 
 int cnum = 0;
 int32_t a;
@@ -99,7 +100,7 @@ int main(int argc, char **argv) {
 	uint32_t ptime = 0;
 	while (1) {
 		while (get == put)
-			pthread_yield();
+			sched_yield();
 		if (wanttime)
 			printf("%08x[+%d]: %08x\n", tqueue[get], tqueue[get]-ptime, queue[get]);
 		else
