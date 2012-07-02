@@ -17,13 +17,25 @@
 		<bitfield pos="10" name="PMC_INT"/>
 		<bitfield pos="11" name="INTR11"/> <!-- 688 -->
 		<bitfield pos="12" name="THERM"/> <!-- ? -->
-		<bitfield pos="13" name="SIGNAL"/> <!-- 7cc+ -->
+		<bitfield pos="13" name="SIGNAL"/> <!-- 7cc+ and 7ec+ -->
 		<bitfield pos="14" name="INTR14"/> <!-- 680 -->
 	</bitset>
 	<use-group name="nv98_fucbase"/>
+
+	<reg32 offset="0x404" name="UNK404"/> <!-- ffff/ffffffff/0 -->
+	<reg32 offset="0x408" name="UNK408"/> <!-- 3/3/0 -->
+	<reg32 offset="0x420" name="UNK420"/> <!-- 0/1/0 -->
+	<reg32 offset="0x424" name="UNK424" variants="NVD9-"/> <!-- 0/1/0 -->
+
+	<!-- 430:47c unknown NVD9+ and NVE4+ regs -->
+
 	<reg32 offset="0x47c" name="CHANNEL_SETUP">
 		<bitfield name="CHAN" high="29" low="0" type="nv50_channel"/>
 		<bitfield name="VALID" pos="30"/>
+	</reg32>
+	<reg32 offset="0x484" name="UNK484">
+		<bitfield low="0" high="2" name="UNK0"/>
+		<bitfield low="8" high="15" name="UNK8"/>
 	</reg32>
 	<reg32 offset="0x488" name="TOKEN_ALLOC">
 		<doc>Valid tokens are 8-0xfe. Read allocates a free token and marks it as used.</doc>
@@ -31,6 +43,8 @@
 	<reg32 offset="0x48c" name="TOKEN_FREE">
 		<doc>Write a token here to mark it as free for allocation.</doc>
 	</reg32>
+	<reg32 offset="0x490" name="UNK490"/> <!-- 0/ffffffff/0 -->
+	<reg32 offset="0x494" name="UNK494"/> <!-- 842a3990/ffffffff/0 -->
 	<reg32 offset="0x4a0" name="FIFO_PUT" length="4"/>
 	<reg32 offset="0x4b0" name="FIFO_GET" length="4"/>
 	<reg32 offset="0x4c0" name="FIFO_INTR">
@@ -56,6 +70,22 @@
 	<reg32 offset="0x4d8" name="ISCRATCH_INTR_EN">
 		<bitfield pos="0" name="0"/>
 	</reg32>
+
+	<reg32 offset="0x4dc" name="UNK4DC"/> <!-- 0/ffffffff/0 -->
+	<reg32 offset="0x4e0" name="UNK4E0"/> <!-- 0/ffffffff/0 -->
+	<reg32 offset="0x4e4" name="UNK4E4"/> <!-- ffffffff/ffffffff/0 -->
+	<reg32 offset="0x4e8" name="UNK4E8">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="8" name="UNK8"/>
+	</reg32>
+	<reg32 offset="0x4f0" name="UNK4F0"/> <!-- NVA3 0/f/0 NVC0 0/1f/0 NVE4 0/3f/0 -->
+	<reg32 offset="0x4f8" name="UNK4F8">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="1" name="UNK1" variants="NVE4-"/>
+		<bitfield pos="4" name="UNK4"/>
+	</reg32>
+
 	<bitset name="nva3_pdaemon_counter_signals" inline="yes">
 		<bitfield pos="4" name="PBSP_IDLE"/>
 		<bitfield pos="5" name="PVP_IDLE"/>
@@ -100,7 +130,16 @@
 		<bitfield pos="4" name="COUNTER0_ALL"/>
 	</reg32>
 	<reg32 offset="0x5d0" name="DSCRATCH" length="4"/>
+
+	<reg32 offset="0x5f0" name="UNK5F0"/> <!-- 0/ffffffff/0 -->
+	<reg32 offset="0x5f4" name="UNK5F4"/> <!-- f/f/0 -->
+	<reg32 offset="0x5f8" name="UNK5F8" variants="NVE4-"/> <!-- 0/ffffffff/0 -->
+	<reg32 offset="0x5fc" name="UNK5FC" variants="NVE4-"/> <!-- 0/ffffffff/0 -->
+
 	<use-group name="nv98_fuc_memif"/>
+
+	<!-- 660:680 a handful of unknown regs -->
+
 	<reg32 offset="0x680" name="INTR14" type="nva3_pdaemon_intr14"/>
 	<reg32 offset="0x684" name="INTR14_EN" type="nva3_pdaemon_intr14"/>
 	<reg32 offset="0x688" name="INTR11">
@@ -110,6 +149,12 @@
 		<bitfield pos="1" name="FIFO">
 			<doc>Consult 4c4</doc>
 		</bitfield>
+		<bitfield pos="2" name="UNK2" variants="NVA3:NVE4">
+			<doc>Consult 700</doc>
+		</bitfield>
+		<bitfield pos="3" name="UNK3" variants="NVA3:NVE4">
+			<doc>Consult 704</doc>
+		</bitfield>
 		<bitfield pos="4" name="MMIO">
 			<doc>Consult 7b4</doc>
 		</bitfield>
@@ -118,6 +163,14 @@
 		</bitfield>
 		<bitfield pos="6" name="IHM_PLEASE_UNMASK">
 			<doc>No subinterrupts, no mask</doc>
+		</bitfield>
+
+		<bitfield pos="8" name="UNK8">
+			<doc>Consult 670</doc>
+		</bitfield>
+
+		<bitfield pos="13" name="UNK13" variants="NVD9-">
+			<doc>Consult 888</doc>
 		</bitfield>
 		<!-- XXX: many more bits... -->
 	</reg32>
@@ -139,6 +192,8 @@
 	<reg32 offset="0x69c" name="IHM_ERR_INTR"/>
 	<reg32 offset="0x6a0" name="IHM_ERR_INTR_EN"/>
 	<reg32 offset="0x6a4" name="IHM_TIMEOUT_ENABLE"/>
+
+	<!-- 6c0:7a0: lots of unknown probably FIFO engine related crap, different for NVA3:NVE4 and NVE4+ -->
 
 	<reg32 offset="0x7a0" name="MMIO_ADDR" variants="NVA3:NVD9"/>
 	<reg32 offset="0x7a0" name="MMIO_ADDR" variants="NVD9-">
@@ -184,6 +239,7 @@
 	<reg32 offset="0x7b8" name="MMIO_INTR_EN">
 		<bitfield pos="0" name="ERR"/>
 	</reg32>
+	<reg32 offset="0x7bc" name="UNK7BC" type="boolean"/> <!-- 1/1/0 -->
 	<bitset name="nva3_pdaemon_signal" inline="yes">
 		<bitfield pos="8" name="I2C_3_SCL" variants="NVA3:NVD9"/>
 		<bitfield pos="9" name="I2C_3_SDA" variants="NVA3:NVD9"/>
@@ -242,14 +298,15 @@
 
 	<reg32 offset="0x7e0" name="SIGOUT_SET" type="nva3_pdaemon_signal"/>
 	<reg32 offset="0x7e4" name="SIGOUT_CLEAR" type="nva3_pdaemon_signal"/>
-	<reg32 offset="0x7e8" name="SIGNAL2_STATUS" type="nva3_pdaemon_signal" variants="NVC0-"/>
-	<reg32 offset="0x7ec" name="SIGNAL2_RISE_INTR" type="nva3_pdaemon_signal" variants="NVC0-"/>
-	<reg32 offset="0x7f0" name="SIGNAL2_FALL_INTR" type="nva3_pdaemon_signal" variants="NVC0-"/>
-	<reg32 offset="0x7f4" name="SIGNAL2_RISE_INTR_EN" type="nva3_pdaemon_signal" variants="NVC0-"/>
-	<reg32 offset="0x7f8" name="SIGNAL2_FALL_INTR_EN" type="nva3_pdaemon_signal" variants="NVC0-"/>
+	<reg32 offset="0x7e8" name="SIGNAL2_STATUS" type="nva3_pdaemon_signal2" variants="NVC0-"/>
+	<reg32 offset="0x7ec" name="SIGNAL2_RISE_INTR" type="nva3_pdaemon_signal2" variants="NVC0-"/>
+	<reg32 offset="0x7f0" name="SIGNAL2_FALL_INTR" type="nva3_pdaemon_signal2" variants="NVC0-"/>
+	<reg32 offset="0x7f4" name="SIGNAL2_RISE_INTR_EN" type="nva3_pdaemon_signal2" variants="NVC0-"/>
+	<reg32 offset="0x7f8" name="SIGNAL2_FALL_INTR_EN" type="nva3_pdaemon_signal2" variants="NVC0-"/>
 	<array offset="0x800" name="THERM" stride="0x700" length="1" variants="NVA3:NVD9">
 		<use-group name="nv84_therm"/>
 	</array>
+	<!-- 800+: NVD9+ unknown crap -->
 </array>
 
 </domain>
