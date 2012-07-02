@@ -81,6 +81,8 @@ static inline int clog2(unsigned x) {
 		_a > _b ? _a : _b;		\
 	})
 
+#define CEILDIV(a, b) (((a) + (b) - 1)/(b))
+
 FILE *find_in_path(const char *name, const char *path, char **pfullname);
 
 #endif
