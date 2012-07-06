@@ -58,7 +58,7 @@ int varinfo_set_variant(struct varinfo *info, const char *variant) {
 	}
 	int i;
 	for (i = 0; i < info->data->featuresnum; i++) {
-		if (mask_get(info->fmask, i) && mask_intersect(info->data->features[i].cfmask, info->data->variants[data].fmask, info->data->featuresnum)) {
+		if (mask_get(info->fmask, i) && mask_intersect(info->data->features[i].cfmask, info->data->variants[data].fmask, info->data->featuresnum) != -1) {
 			fprintf(stderr, "variant %s conflicts with feature %s\n", info->data->variants[data].name, info->data->features[i].name);
 			return -1;
 		}
@@ -74,8 +74,9 @@ int varinfo_set_feature(struct varinfo *info, const char *feature) {
 		fprintf(stderr, "no feature %s\n", feature);
 		return -1;
 	}
-	if (mask_intersect(info->data->features[data].cfmask, info->fmask, info->data->featuresnum)) {
-		fprintf(stderr, "feature %s conflicts with already set features\n", info->data->features[data].name);
+	int cf;
+	if ((cf = mask_intersect(info->data->features[data].cfmask, info->fmask, info->data->featuresnum)) != -1) {
+		fprintf(stderr, "feature %s conflicts with already set feature %s\n", info->data->features[data].name, info->data->features[cf].name);
 		return -1;
 	}
 	mask_or(info->fmask, info->data->features[data].ifmask, info->data->featuresnum);
