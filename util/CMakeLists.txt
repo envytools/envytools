@@ -5,6 +5,6 @@ include_directories(../include)
 include_directories(.)
 
 add_library(envyutil
-	path.c mask.c hash.c symtab.c
+	path.c mask.c hash.c symtab.c colors.c
 	vardata.c varinfo.c varselect.c
 )
