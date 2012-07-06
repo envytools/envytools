@@ -24,11 +24,19 @@
 
 %{
 #include "envyas.h"
-int yylex (void);
-void yyerror (char const *err) {
-	fprintf (stderr, "%s\n", err);
+#include "yy.h"
+#include "envyas_parse.h"
+#include "envyas_lex.h"
+void envyas_error(YYLTYPE *loc, yyscan_t lex_state, const char *err) {
+	fprintf(stderr, LOC_FORMAT(*loc, "%s\n"), err);
 }
 %}
+
+%locations
+%define api.pure
+%name-prefix "envyas_"
+%lex-param { yyscan_t lex_state }
+%parse-param { yyscan_t lex_state }
 
 %union {
 	ull num;
@@ -136,3 +144,18 @@ vbody:	vbody expr { $$ = $1; ADDARRAY($$->vexprs, $2); }
 ;
 
 %%
+
+int envyas_exec(const char *filename, FILE *file) {
+	yyscan_t lex_state;
+	struct yy_lex_intern lex_extra;
+	lex_extra.line = 1;
+	lex_extra.pos = 1;
+	lex_extra.ws = 0;
+	lex_extra.file = filename;
+	lex_extra.nest = 0;
+	envyas_lex_init_extra(lex_extra, &lex_state);
+	envyas_set_in(file, lex_state);
+	int res = envyas_parse(lex_state);
+	envyas_lex_destroy(lex_state);
+	return res;
+}

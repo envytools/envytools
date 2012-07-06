@@ -579,8 +579,12 @@ int main(int argc, char **argv) {
 				envyas_outname = optarg;
 				break;
 		}
+	FILE *file = stdin;
+	const char *filename = "stdin";
 	if (optind < argc) {
-		if (!freopen(argv[optind], "r", stdin)) {
+		filename = argv[optind];
+		file = fopen(argv[optind], "r");
+		if (!file) {
 			perror(argv[optind]);
 			return 1;
 		}
@@ -607,5 +611,5 @@ int main(int argc, char **argv) {
 	for (i = 0; i < modenamesnum; i++)
 		if (varinfo_set_mode(envyas_varinfo, modenames[i]))
 			return 1;
-	return yyparse();
+	return envyas_exec(filename, file);
 }

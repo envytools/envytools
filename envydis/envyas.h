@@ -26,9 +26,8 @@
 #ifndef ENVYAS_H
 #define ENVYAS_H
 #include "dis.h"
-#include "rnn.h"
 
-int yyparse();
+int envyas_exec(const char *filename, FILE *file);
 int envyas_process(struct file *file);
 
 #endif
