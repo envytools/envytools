@@ -43,8 +43,15 @@ int main(int argc, char **argv) {
 	int labelsnum = 0;
 	int labelsmax = 0;
 	int w = 0, bin = 0, quiet = 0;
-	const char *varname = 0;
-	const char *modename = 0;
+	const char **varnames = 0;
+	int varnamesnum = 0;
+	int varnamesmax = 0;
+	const char **modenames = 0;
+	int modenamesnum = 0;
+	int modenamesmax = 0;
+	const char **featnames = 0;
+	int featnamesnum = 0;
+	int featnamesmax = 0;
 	const struct ed2a_colors *cols = &ed2a_def_colors;
 	argv[0] = basename(argv[0]);
 	int len = strlen(argv[0]);
@@ -56,7 +63,7 @@ int main(int argc, char **argv) {
 	}
 	int c;
 	unsigned base = 0, skip = 0, limit = 0;
-	while ((c = getopt (argc, argv, "b:d:l:m:V:O:wWinqu:M:")) != -1)
+	while ((c = getopt (argc, argv, "b:d:l:m:V:O:F:wWinqu:M:")) != -1)
 		switch (c) {
 			case 'b':
 				sscanf(optarg, "%x", &base);
@@ -90,10 +97,13 @@ int main(int argc, char **argv) {
 				}
 				break;
 			case 'V':
-				varname = optarg;
+				ADDARRAY(varnames, optarg);
 				break;
 			case 'O':
-				modename = optarg;
+				ADDARRAY(modenames, optarg);
+				break;
+			case 'F':
+				ADDARRAY(featnames, optarg);
 				break;
 			case 'M':
 				{
@@ -183,10 +193,15 @@ int main(int argc, char **argv) {
 	struct varinfo *var = varinfo_new(isa->vardata);
 	if (!var)
 		return 1;
-	if (varname)
-		if (varinfo_set_variant(var, varname));
-	if (modename)
-		if (varinfo_set_mode(var, modename))
+	int i;
+	for (i = 0; i < varnamesnum; i++)
+		if (varinfo_set_variant(var, varnames[i]))
+			return 1;
+	for (i = 0; i < featnamesnum; i++)
+		if (varinfo_set_feature(var, featnames[i]))
+			return 1;
+	for (i = 0; i < modenamesnum; i++)
+		if (varinfo_set_mode(var, modenames[i]))
 			return 1;
 	int num = 0;
 	int maxnum = 16;

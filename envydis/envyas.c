@@ -528,9 +528,16 @@ int main(int argc, char **argv) {
 			envyas_ofmt = OFMT_HEX32;
 	}
 	int c;
-	const char *varname = 0;
-	const char *modename = 0;
-	while ((c = getopt (argc, argv, "am:V:O:o:wWi")) != -1)
+	const char **varnames = 0;
+	int varnamesnum = 0;
+	int varnamesmax = 0;
+	const char **modenames = 0;
+	int modenamesnum = 0;
+	int modenamesmax = 0;
+	const char **featnames = 0;
+	int featnamesnum = 0;
+	int featnamesmax = 0;
+	while ((c = getopt (argc, argv, "am:V:O:F:o:wWi")) != -1)
 		switch (c) {
 			case 'a':
 				if (envyas_ofmt == OFMT_HEX64)
@@ -563,10 +570,13 @@ int main(int argc, char **argv) {
 				}
 				break;
 			case 'V':
-				varname = optarg;
+				ADDARRAY(varnames, optarg);
 				break;
 			case 'O':
-				modename = optarg;
+				ADDARRAY(modenames, optarg);
+				break;
+			case 'F':
+				ADDARRAY(featnames, optarg);
 				break;
 			case 'o':
 				envyas_outname = optarg;
@@ -595,10 +605,15 @@ int main(int argc, char **argv) {
 	envyas_varinfo = varinfo_new(envyas_isa->vardata);
 	if (!envyas_varinfo)
 		return 1;
-	if (varname)
-		if (varinfo_set_variant(envyas_varinfo, varname));
-	if (modename)
-		if (varinfo_set_mode(envyas_varinfo, modename))
+	int i;
+	for (i = 0; i < varnamesnum; i++)
+		if (varinfo_set_variant(envyas_varinfo, varnames[i]))
+			return 1;
+	for (i = 0; i < featnamesnum; i++)
+		if (varinfo_set_feature(envyas_varinfo, featnames[i]))
+			return 1;
+	for (i = 0; i < modenamesnum; i++)
+		if (varinfo_set_mode(envyas_varinfo, modenames[i]))
 			return 1;
 	struct file *file = calloc(sizeof *file, 1);
 	int i;
