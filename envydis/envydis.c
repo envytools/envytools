@@ -44,6 +44,7 @@ int main(int argc, char **argv) {
 	int labelsmax = 0;
 	int w = 0, bin = 0, quiet = 0;
 	const char *varname = 0;
+	const char *modename = 0;
 	argv[0] = basename(argv[0]);
 	int len = strlen(argv[0]);
 	if (len > 3 && !strcmp(argv[0] + len - 3, "dis")) {
@@ -52,28 +53,10 @@ int main(int argc, char **argv) {
 		if (isa && isa->opunit == 4)
 			w = 1;
 	}
-	int ptype = -1;
-	int vartype = -1;
 	int c;
 	unsigned base = 0, skip = 0, limit = 0;
-	while ((c = getopt (argc, argv, "vgfpcsb:d:l:m:V:wWinqu:M:")) != -1)
+	while ((c = getopt (argc, argv, "b:d:l:m:V:O:wWinqu:M:")) != -1)
 		switch (c) {
-			case 'v':
-				ptype = VP;
-				break;
-			case 'g':
-				ptype = GP;
-				break;
-			case 'f':
-			case 'p':
-				ptype = FP;
-				break;
-			case 'c':
-				ptype = CP;
-				break;
-			case 's':
-				ptype = VP|GP|FP;
-				break;
 			case 'b':
 				sscanf(optarg, "%x", &base);
 				break;
@@ -116,6 +99,9 @@ int main(int argc, char **argv) {
 				break;
 			case 'V':
 				varname = optarg;
+				break;
+			case 'O':
+				modename = optarg;
 				break;
 			case 'M':
 				{
@@ -202,13 +188,14 @@ int main(int argc, char **argv) {
 		fprintf (stderr, "No architecture specified!\n");
 		return 1;
 	}
-	if (varname) {
-		vartype = ed_getvariant(isa, varname);
-		if (!vartype) {
-			fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
+	struct varinfo *var = varinfo_new(isa->vardata);
+	if (!var)
+		return 1;
+	if (varname)
+		if (varinfo_set_variant(var, varname));
+	if (modename)
+		if (varinfo_set_mode(var, modename))
 			return 1;
-		}
-	}
 	int num = 0;
 	int maxnum = 16;
 	uint8_t *code = malloc (maxnum);
@@ -256,6 +243,6 @@ int main(int argc, char **argv) {
 	int cnt = num - skip;
 	if (limit && limit < cnt)
 		cnt = limit;
-	envydis (isa, stdout, code+skip, base, cnt, vartype, ptype, quiet, labels, labelsnum);
+	envydis (isa, stdout, code+skip, base, cnt, var, quiet, labels, labelsnum);
 	return 0;
 }

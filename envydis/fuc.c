@@ -25,12 +25,9 @@
 
 #include "dis-intern.h"
 
-#define NV98 1
-#define NVA3 2
-#define NVD9 4
-
-#define NVA3P (NVA3 | NVD9)
-#define NVD9P NVD9
+#define F_FUC0	1
+#define F_FUC3P	2
+#define F_PC24	4
 
 /*
  * Code target fields
@@ -63,7 +60,7 @@ static struct sreg sreg_sr[] = {
 	{ 9, "cx" },
 	{ 0xa, "cauth" },
 	{ 0xb, "xtargets" },
-	{ 0xc, "tstatus", .vartype = NVA3P },
+	{ 0xc, "tstatus", .fmask = F_FUC3P },
 	{ -1 },
 };
 static struct bitfield reg1_bf = { 8, 4 };
@@ -192,10 +189,10 @@ static struct insn tabp[] = {
 	{ 0x00001a00, 0x00001f00, N("ns") },
 	{ 0x00001b00, 0x00001f00, N("ne") },
 	{ 0x00001b00, 0x00001f00, N("nz") },
-	{ 0x00001c00, 0x00001f00, N("g"), .vartype = NVA3P },
-	{ 0x00001d00, 0x00001f00, N("le"), .vartype = NVA3P },
-	{ 0x00001e00, 0x00001f00, N("l"), .vartype = NVA3P },
-	{ 0x00001f00, 0x00001f00, N("ge"), .vartype = NVA3P },
+	{ 0x00001c00, 0x00001f00, N("g"), .fmask = F_FUC3P },
+	{ 0x00001d00, 0x00001f00, N("le"), .fmask = F_FUC3P },
+	{ 0x00001e00, 0x00001f00, N("l"), .fmask = F_FUC3P },
+	{ 0x00001f00, 0x00001f00, N("ge"), .fmask = F_FUC3P },
 	{ 0, 0, OOPS },
 };
 
@@ -331,7 +328,7 @@ static struct insn tabsi[] = {
 	{ 0x00000130, 0x00000f3f, T(ol0), N("st"), T(sz), T(datasp), REG2 },
 	{ 0x00000430, 0x00000f3e, T(ol0), N("cmpu"), T(sz), REG2, T(i) },
 	{ 0x00000530, 0x00000f3e, T(ol0), N("cmps"), T(sz), REG2, T(is) },
-	{ 0x00000630, 0x00000f3e, T(ol0), N("cmp"), T(sz), REG2, T(is), .vartype = NVA3P },
+	{ 0x00000630, 0x00000f3e, T(ol0), N("cmp"), T(sz), REG2, T(is), .fmask = F_FUC3P },
 	{ 0x00000030, 0x0000003e, T(ol0), OOPS, T(sz), REG2, T(i) },
 
 	{ 0x00000034, 0x00000f3f, OP24, N("ld"), T(sz), REG2, T(datasp) },
@@ -352,13 +349,13 @@ static struct insn tabsi[] = {
 	{ 0x00010038, 0x000f003f, OP24, N("st"), T(sz), T(dataspr), REG2 },
 	{ 0x00040038, 0x000f003f, OP24, N("cmpu"), T(sz), REG2, REG1 },
 	{ 0x00050038, 0x000f003f, OP24, N("cmps"), T(sz), REG2, REG1 },
-	{ 0x00060038, 0x000f003f, OP24, N("cmp"), T(sz), REG2, REG1, .vartype = NVA3P },
+	{ 0x00060038, 0x000f003f, OP24, N("cmp"), T(sz), REG2, REG1, .fmask = F_FUC3P },
 	{ 0x00000038, 0x0000003f, OP24, OOPS, T(sz), REG2, REG1 },
 
 	{ 0x00000039, 0x000f003f, OP24, N("not"), T(sz), REG1, REG2 },
 	{ 0x00010039, 0x000f003f, OP24, N("neg"), T(sz), REG1, REG2 },
-	{ 0x00020039, 0x000f003f, OP24, N("movf"), T(sz), REG1, REG2, .vartype = NV98 },
-	{ 0x00020039, 0x000f003f, OP24, N("mov"), T(sz), REG1, REG2, .vartype = NVA3P },
+	{ 0x00020039, 0x000f003f, OP24, N("movf"), T(sz), REG1, REG2, .fmask = F_FUC0 },
+	{ 0x00020039, 0x000f003f, OP24, N("mov"), T(sz), REG1, REG2, .fmask = F_FUC3P },
 	{ 0x00030039, 0x000f003f, OP24, N("hswap"), T(sz), REG1, REG2 },
 	{ 0x00000039, 0x0000003f, OP24, OOPS, T(sz), REG1, REG2 },
 
@@ -390,15 +387,15 @@ static struct insn tabsi[] = {
 	
 	{ 0x0000003d, 0x00000f3f, OP16, N("not"), T(sz), REG2 },
 	{ 0x0000013d, 0x00000f3f, OP16, N("neg"), T(sz), REG2 },
-	{ 0x0000023d, 0x00000f3f, OP16, N("movf"), T(sz), REG2, .vartype = NV98 },
-	{ 0x0000023d, 0x00000f3f, OP16, N("mov"), T(sz), REG2, .vartype = NVA3P },
+	{ 0x0000023d, 0x00000f3f, OP16, N("movf"), T(sz), REG2, .fmask = F_FUC0 },
+	{ 0x0000023d, 0x00000f3f, OP16, N("mov"), T(sz), REG2, .fmask = F_FUC3P },
 	{ 0x0000033d, 0x00000f3f, OP16, N("hswap"), T(sz), REG2 },
 	{ 0x0000043d, 0x00000f3f, OP16, N("clear"), T(sz), REG2 },
-	{ 0x0000053d, 0x00000f3f, OP16, N("setf"), T(sz), REG2, .vartype = NVA3P },
+	{ 0x0000053d, 0x00000f3f, OP16, N("setf"), T(sz), REG2, .fmask = F_FUC3P },
 	{ 0x0000003d, 0x0000003f, OP16, OOPS, T(sz), REG2 },
 
-	{ 0x0000003e, 0x000000ff, OP32, N("lbra"), LLBTARG, .vartype = NVD9P },
-	{ 0x0000007e, 0x000000ff, OP32, N("lcall"), LLCTARG, .vartype = NVD9P },
+	{ 0x0000003e, 0x000000ff, OP32, N("lbra"), LLBTARG, .fmask = F_PC24 },
+	{ 0x0000007e, 0x000000ff, OP32, N("lcall"), LLCTARG, .fmask = F_PC24 },
 
 	{ 0, 0, OOPS, T(sz) },
 };
@@ -411,33 +408,33 @@ static struct insn tabm[] = {
 	{ 0x000000c0, 0x000000ff, OP24, N("mulu"), REG1, REG2, IMM8 },
 	{ 0x000000c1, 0x000000ff, OP24, N("muls"), REG1, REG2, IMM8S },
 	{ 0x000000c2, 0x000000ff, OP24, N("sext"), REG1, REG2, IMM8 },
-	{ 0x000000c3, 0x000000ff, OP24, N("extrs"), REG1, REG2, BITF8, .vartype = NVA3P },
+	{ 0x000000c3, 0x000000ff, OP24, N("extrs"), REG1, REG2, BITF8, .fmask = F_FUC3P },
 	{ 0x000000c4, 0x000000ff, OP24, N("and"), REG1, REG2, IMM8 },
 	{ 0x000000c5, 0x000000ff, OP24, N("or"), REG1, REG2, IMM8 },
 	{ 0x000000c6, 0x000000ff, OP24, N("xor"), REG1, REG2, IMM8 },
-	{ 0x000000c7, 0x000000ff, OP24, N("extr"), REG1, REG2, BITF8, .vartype = NVA3P },
+	{ 0x000000c7, 0x000000ff, OP24, N("extr"), REG1, REG2, BITF8, .fmask = F_FUC3P },
 	{ 0x000000c8, 0x000000ff, OP24, N("xbit"), REG1, REG2, IMM8 },
-	{ 0x000000cb, 0x000000ff, OP24, N("ins"), REG1, REG2, BITF8, .vartype = NVA3P },
-	{ 0x000000cc, 0x000000ff, OP24, N("div"), REG1, REG2, IMM8, .vartype = NVA3P },
-	{ 0x000000cd, 0x000000ff, OP24, N("mod"), REG1, REG2, IMM8, .vartype = NVA3P },
+	{ 0x000000cb, 0x000000ff, OP24, N("ins"), REG1, REG2, BITF8, .fmask = F_FUC3P },
+	{ 0x000000cc, 0x000000ff, OP24, N("div"), REG1, REG2, IMM8, .fmask = F_FUC3P },
+	{ 0x000000cd, 0x000000ff, OP24, N("mod"), REG1, REG2, IMM8, .fmask = F_FUC3P },
 	{ 0x000000ce, 0x000000ff, OP24, U("ce"), REG1, IORI },
 	{ 0x000000cf, 0x000000ff, OP24, N("iord"), REG1, IORI },
 	{ 0x000000c0, 0x000000f0, OP24, OOPS, REG1, REG2, IMM8 },
 
 	{ 0x000000d0, 0x000000ff, OP24, N("iowr"), IORI, REG1 },
-	{ 0x000000d1, 0x000000ff, OP24, N("iowrs"), IORI, REG1, .vartype = NVA3P },
+	{ 0x000000d1, 0x000000ff, OP24, N("iowrs"), IORI, REG1, .fmask = F_FUC3P },
 	{ 0x000000d0, 0x000000f0, OP24, OOPS, REG1, REG2, IMM8 },
 
 	{ 0x000000e0, 0x000000ff, OP32, N("mulu"), REG1, REG2, IMM16 },
 	{ 0x000000e1, 0x000000ff, OP32, N("muls"), REG1, REG2, IMM16S },
-	{ 0x000000e3, 0x000000ff, OP32, N("extrs"), REG1, REG2, BITF16, .vartype = NVA3P },
+	{ 0x000000e3, 0x000000ff, OP32, N("extrs"), REG1, REG2, BITF16, .fmask = F_FUC3P },
 	{ 0x000000e4, 0x000000ff, OP32, N("and"), REG1, REG2, IMM16 },
 	{ 0x000000e5, 0x000000ff, OP32, N("or"), REG1, REG2, IMM16 },
 	{ 0x000000e6, 0x000000ff, OP32, N("xor"), REG1, REG2, IMM16 },
-	{ 0x000000e7, 0x000000ff, OP32, N("extr"), REG1, REG2, BITF16, .vartype = NVA3P },
-	{ 0x000000eb, 0x000000ff, OP32, N("ins"), REG1, REG2, BITF16, .vartype = NVA3P },
-	{ 0x000000ec, 0x000000ff, OP32, N("div"), REG1, REG2, IMM16, .vartype = NVA3P },
-	{ 0x000000ed, 0x000000ff, OP32, N("mod"), REG1, REG2, IMM16, .vartype = NVA3P },
+	{ 0x000000e7, 0x000000ff, OP32, N("extr"), REG1, REG2, BITF16, .fmask = F_FUC3P },
+	{ 0x000000eb, 0x000000ff, OP32, N("ins"), REG1, REG2, BITF16, .fmask = F_FUC3P },
+	{ 0x000000ec, 0x000000ff, OP32, N("div"), REG1, REG2, IMM16, .fmask = F_FUC3P },
+	{ 0x000000ed, 0x000000ff, OP32, N("mod"), REG1, REG2, IMM16, .fmask = F_FUC3P },
 	{ 0x000000e0, 0x000000f0, OP32, OOPS, REG1, REG2, IMM16 },
 
 	{ 0x000000f0, 0x00000ffe, T(ol0), N("mulu"), REG2, T(i) },
@@ -518,14 +515,14 @@ static struct insn tabm[] = {
 	{ 0x000001f9, 0x00000fff, OP16, N("add"), SP, REG2 },
 	{ 0x000004f9, 0x00000fff, OP16, N("bra"), REG2 },
 	{ 0x000005f9, 0x00000fff, OP16, N("call"), REG2 },
-	{ 0x000008f9, 0x00000fff, OP16, N("itlb"), REG2, .vartype = NVA3P },
+	{ 0x000008f9, 0x00000fff, OP16, N("itlb"), REG2, .fmask = F_FUC3P },
 	{ 0x000009f9, 0x00000fff, OP16, N("bset"), FLAGS, REG2 },
 	{ 0x00000af9, 0x00000fff, OP16, N("bclr"), FLAGS, REG2 },
 	{ 0x00000bf9, 0x00000fff, OP16, N("btgl"), FLAGS, REG2 },
 	{ 0x000000f9, 0x000000ff, OP16, OOPS, REG2 },
 
 	{ 0x000000fa, 0x000f00ff, OP24, N("iowr"), IOR, REG1 },
-	{ 0x000100fa, 0x000f00ff, OP24, N("iowrs"), IOR, REG1, .vartype = NVA3P },
+	{ 0x000100fa, 0x000f00ff, OP24, N("iowrs"), IOR, REG1, .fmask = F_FUC3P },
 	{ 0x000400fa, 0x000f00ff, OP24, N("xcld"), REG2, REG1 },
 	{ 0x000500fa, 0x000f00ff, OP24, N("xdld"), REG2, REG1 },
 	{ 0x000600fa, 0x000f00ff, OP24, N("xdst"), REG2, REG1 },
@@ -548,22 +545,22 @@ static struct insn tabm[] = {
 
 	{ 0x000000fe, 0x000f00ff, OP24, N("mov"), SREG1, REG2 },
 	{ 0x000100fe, 0x000f00ff, OP24, N("mov"), REG1, SREG2 },
-	{ 0x000200fe, 0x000f00ff, OP24, N("ptlb"), REG1, REG2, .vartype = NVA3P },
-	{ 0x000300fe, 0x000f00ff, OP24, N("vtlb"), REG1, REG2, .vartype = NVA3P },
+	{ 0x000200fe, 0x000f00ff, OP24, N("ptlb"), REG1, REG2, .fmask = F_FUC3P },
+	{ 0x000300fe, 0x000f00ff, OP24, N("vtlb"), REG1, REG2, .fmask = F_FUC3P },
 	{ 0x000c00fe, 0x000f00ff, OP24, N("xbit"), REG1, FLAGS, REG2 },
 	{ 0x000000fe, 0x000000ff, OP24, OOPS, REG1, REG2 },
 
 	{ 0x000000ff, 0x000f00ff, OP24, N("mulu"), REG3, REG2, REG1 },
 	{ 0x000100ff, 0x000f00ff, OP24, N("muls"), REG3, REG2, REG1 },
 	{ 0x000200ff, 0x000f00ff, OP24, N("sext"), REG3, REG2, REG1 },
-	{ 0x000300ff, 0x000f00ff, OP24, N("extrs"), REG3, REG2, REG1, .vartype = NVA3P },
+	{ 0x000300ff, 0x000f00ff, OP24, N("extrs"), REG3, REG2, REG1, .fmask = F_FUC3P },
 	{ 0x000400ff, 0x000f00ff, OP24, N("and"), REG3, REG2, REG1 },
 	{ 0x000500ff, 0x000f00ff, OP24, N("or"), REG3, REG2, REG1 },
 	{ 0x000600ff, 0x000f00ff, OP24, N("xor"), REG3, REG2, REG1 },
-	{ 0x000700ff, 0x000f00ff, OP24, N("extr"), REG3, REG2, REG1, .vartype = NVA3P },
+	{ 0x000700ff, 0x000f00ff, OP24, N("extr"), REG3, REG2, REG1, .fmask = F_FUC3P },
 	{ 0x000800ff, 0x000f00ff, OP24, N("xbit"), REG3, REG2, REG1 },
-	{ 0x000c00ff, 0x000f00ff, OP24, N("div"), REG3, REG2, REG1, .vartype = NVA3P },
-	{ 0x000d00ff, 0x000f00ff, OP24, N("mod"), REG3, REG2, REG1, .vartype = NVA3P },
+	{ 0x000c00ff, 0x000f00ff, OP24, N("div"), REG3, REG2, REG1, .fmask = F_FUC3P },
+	{ 0x000d00ff, 0x000f00ff, OP24, N("mod"), REG3, REG2, REG1, .fmask = F_FUC3P },
 	{ 0x000e00ff, 0x000f00ff, OP24, U("ff/e"), REG3, IORR },
 	{ 0x000f00ff, 0x000f00ff, OP24, N("iord"), REG3, IORR },
 	{ 0x000000ff, 0x000000ff, OP24, OOPS, REG3, REG2, REG1 },
@@ -571,23 +568,33 @@ static struct insn tabm[] = {
 	{ 0, 0, OOPS },
 };
 
-static const struct disvariant fuc_vars[] = {
-	"nv98", NV98,
-	"0", NV98,
-	"fuc0", NV98,
-	"nva3", NVA3,
-	"3", NVA3,
-	"fuc3", NVA3,
-	"nvd9", NVD9,
-	"4", NVD9,
-	"fuc4", NVD9,
-};
+static void fuc_prep(struct disisa *isa) {
+	isa->vardata = vardata_new("fuc");
+	int f_fuc0op = vardata_add_feature(isa->vardata, "fuc0op", "v0 exclusive opcodes");
+	int f_fuc3op = vardata_add_feature(isa->vardata, "fuc3op", "v3+ opcodes");
+	int f_pc24 = vardata_add_feature(isa->vardata, "pc24", "24-bit PC opcodes");
+	if (f_fuc0op == -1 || f_fuc3op == -1 || f_pc24 == -1)
+		abort();
+	int vs_fucver = vardata_add_varset(isa->vardata, "fucver", "fµc version");
+	if (vs_fucver == -1)
+		abort();
+	int v_fuc0 = vardata_add_variant(isa->vardata, "fuc0", "NV40:NV50", vs_fucver);
+	int v_fuc3 = vardata_add_variant(isa->vardata, "fuc3", "NV50:NVA0", vs_fucver);
+	int v_fuc4 = vardata_add_variant(isa->vardata, "fuc4", "NVA0:NVC0", vs_fucver);
+	if (v_fuc0 == -1 || v_fuc3 == -1 || v_fuc4 == -1)
+		abort();
+	vardata_variant_feature(isa->vardata, v_fuc0, f_fuc0op);
+	vardata_variant_feature(isa->vardata, v_fuc3, f_fuc3op);
+	vardata_variant_feature(isa->vardata, v_fuc4, f_fuc3op);
+	vardata_variant_feature(isa->vardata, v_fuc4, f_pc24);
+	if (!vardata_validate(isa->vardata))
+		abort();
+}
 
-const struct disisa fuc_isa_s = {
+struct disisa fuc_isa_s = {
 	tabm,
 	4,
 	1,
 	1,
-	.vars = fuc_vars,
-	.varsnum = sizeof fuc_vars / sizeof *fuc_vars,
+	.prep = fuc_prep,
 };

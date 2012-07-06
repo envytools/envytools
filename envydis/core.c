@@ -41,6 +41,10 @@ char *cbtarg = "\x1b[0;35m";	// pink: jump labels
 char *cctarg = "\x1b[1;37m";	// white: call labels
 char *cbctarg = "\x1b[1;35m";	// white: call and jump labels
 
+int var_ok(int fmask, int ptype, struct varinfo *varinfo) {
+	return (!fmask || (varinfo->fmask[0] & fmask) == fmask) && (!ptype || (varinfo->modes[0] != -1 && ptype & 1 << varinfo->modes[0]));
+}
+
 char *aprint(const char *format, ...) {
 	va_list va;
 	va_start(va, format);
@@ -145,7 +149,7 @@ struct matches *atomtab APROTO {
 	const struct insn *tab = v;
 	if (!ctx->reverse) {
 		int i;
-		while ((a[0]&tab->mask) != tab->val || (tab->vartype && !(tab->vartype & ctx->vartype)) || (tab->ptype && !(tab->ptype & ctx->ptype)))
+		while ((a[0]&tab->mask) != tab->val || !var_ok(tab->fmask, tab->ptype, ctx->varinfo))
 			tab++;
 		m[0] |= tab->mask;
 		for (i = 0; i < 16; i++)
@@ -156,13 +160,13 @@ struct matches *atomtab APROTO {
 		struct matches *res = emptymatches();
 		int i;
 		for (i = 0; ; i++) {
-			if ((!tab[i].vartype || tab[i].vartype & ctx->vartype) && (!tab[i].ptype || tab[i].ptype & ctx->ptype)) {
+			if (var_ok(tab[0].fmask, tab[0].ptype, ctx->varinfo)) {
 				struct match sm = { 0, .a = {tab[i].val}, .m = {tab[i].mask}, .lpos = spos };
 				struct matches *subm = tabdesc(ctx, sm, tab[i].atoms); 
 				if (subm)
 					res = catmatches(res, subm);
 			}
-			if (!tab[i].mask && !tab[i].vartype && !tab[i].ptype) break;
+			if (!tab[i].mask && !tab[i].fmask && !tab[i].ptype) break;
 		}
 		return res;
 	}
@@ -417,7 +421,7 @@ int matchreg (struct match *res, const struct reg *reg, const struct expr *expr,
 	if (reg->specials) {
 		int i = 0;
 		for (i = 0; reg->specials[i].num != -1; i++) {
-			if (reg->specials[i].vartype && !(reg->specials[i].vartype & ctx->vartype))
+			if (!var_ok(reg->specials[i].fmask, 0, ctx->varinfo))
 				continue;
 			switch (reg->specials[i].mode) {
 				case SR_NAMED:
@@ -502,7 +506,7 @@ static struct expr *printreg (struct disctx *ctx, ull *a, ull *m, const struct r
 	if (reg->specials) {
 		int i;
 		for (i = 0; reg->specials[i].num != -1; i++) {
-			if (reg->specials[i].vartype && !(reg->specials[i].vartype & ctx->vartype))
+			if (!var_ok(reg->specials[i].fmask, 0, ctx->varinfo))
 				continue;
 			if (num == reg->specials[i].num) {
 				switch (reg->specials[i].mode) {
@@ -924,7 +928,7 @@ ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx) {
  * FILE*.
  */
 
-void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int vartype, int ptype, int quiet, struct label *labels, int labelsnum)
+void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, struct varinfo *varinfo, int quiet, struct label *labels, int labelsnum)
 {
 	struct disctx c = { 0 };
 	struct disctx *ctx = &c;
@@ -934,8 +938,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 	ctx->names = calloc((num + isa->posunit - 1) / isa->posunit, sizeof *ctx->names);
 	ctx->codebase = start;
 	ctx->codesz = num;
-	ctx->vartype = vartype;
-	ctx->ptype = ptype;
+	ctx->varinfo = varinfo;
 	ctx->isa = isa;
 	ctx->labels = labels;
 	ctx->labelsnum = labelsnum;
@@ -1180,7 +1183,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 
 static const struct {
 	const char *name;
-	const struct disisa *isa;
+	struct disisa *isa;
 } isas[] = {
 	"nv50", &nv50_isa_s,
 	"nvc0", &nvc0_isa_s,
@@ -1198,15 +1201,14 @@ static const struct {
 const struct disisa *ed_getisa(const char *name) {
 	int i;
 	for (i = 0; i < sizeof isas / sizeof *isas; i++)
-		if (!strcmp(name, isas[i].name))
-			return isas[i].isa;
+		if (!strcmp(name, isas[i].name)) {
+			struct disisa *isa = isas[i].isa;
+			if (!isa->prepdone) {
+				if (isa->prep)
+					isa->prep(isa);
+				isa->prepdone = 1;
+			}
+			return isa;
+		}
 	return 0;
 };
-
-int ed_getvariant(const struct disisa *isa, const char *name) {
-	int i;
-	for (i = 0; i < isa->varsnum; i++)
-		if (!strcmp(name, isa->vars[i].name))
-			return isa->vars[i].vartype;
-	return 0;
-}

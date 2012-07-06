@@ -39,8 +39,7 @@ enum {
 	OFMT_CHEX64,
 } envyas_ofmt = OFMT_HEX8;
 
-int envyas_ptype = -1;
-int envyas_vartype = -1;
+struct varinfo *envyas_varinfo;
 
 char *envyas_outname = 0;
 
@@ -214,8 +213,7 @@ int envyas_process(struct file *file) {
 	struct disctx *ctx = &ctx_s;
 	ctx->reverse = 1;
 	ctx->isa = envyas_isa;
-	ctx->ptype = envyas_ptype;
-	ctx->vartype = envyas_vartype;
+	ctx->varinfo = envyas_varinfo;
 	struct matches *im = calloc(sizeof *im, file->linesnum);
 	for (i = 0; i < file->linesnum; i++) {
 		if (file->lines[i]->type == LINE_INSN) {
@@ -528,24 +526,9 @@ int main(int argc, char **argv) {
 	}
 	int c;
 	const char *varname = 0;
-	while ((c = getopt (argc, argv, "vgfpcsam:V:o:wWi")) != -1)
+	const char *modename = 0;
+	while ((c = getopt (argc, argv, "am:V:O:o:wWi")) != -1)
 		switch (c) {
-			case 'v':
-				envyas_ptype = VP;
-				break;
-			case 'g':
-				envyas_ptype = GP;
-				break;
-			case 'f':
-			case 'p':
-				envyas_ptype = FP;
-				break;
-			case 'c':
-				envyas_ptype = CP;
-				break;
-			case 's':
-				envyas_ptype = VP|GP|FP;
-				break;
 			case 'a':
 				if (envyas_ofmt == OFMT_HEX64)
 					envyas_ofmt = OFMT_CHEX64;
@@ -579,6 +562,9 @@ int main(int argc, char **argv) {
 			case 'V':
 				varname = optarg;
 				break;
+			case 'O':
+				modename = optarg;
+				break;
 			case 'o':
 				envyas_outname = optarg;
 				break;
@@ -598,12 +584,13 @@ int main(int argc, char **argv) {
 		fprintf (stderr, "No architecture specified!\n");
 		return 1;
 	}
-	if (varname) {
-		envyas_vartype = ed_getvariant(envyas_isa, varname);
-		if (!envyas_vartype) {
-			fprintf (stderr, "Unknown variant \"%s\"!\n", varname);
+	envyas_varinfo = varinfo_new(envyas_isa->vardata);
+	if (!envyas_varinfo)
+		return 1;
+	if (varname)
+		if (varinfo_set_variant(envyas_varinfo, varname));
+	if (modename)
+		if (varinfo_set_mode(envyas_varinfo, modename))
 			return 1;
-		}
-	}
 	return yyparse();
 }

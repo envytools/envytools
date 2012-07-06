@@ -25,8 +25,7 @@
 
 #include "dis-intern.h"
 
-#define NV17 1
-#define NV41 2
+#define F_NV41P	1
 
 /*
  * Immediate fields
@@ -64,28 +63,39 @@ static struct insn tabfl[] = {
 static struct insn tabm[] = {
 	{ 0x00, 0xff, OP8, N("nop") },
 	{ 0x00, 0xc0, OP8, N("wait"), WAIT, N("shl"), WAITS },
-	{ 0x40, 0xff, OP24, N("addrlo"), IMM16, .vartype = NV41 },
-	{ 0x42, 0xff, OP24, N("datalo"), IMM16, .vartype = NV41 },
-	{ 0x5f, 0xff, OP24, N("ewait"), T(evmask), T(event), .vartype = NV41 },
+	{ 0x40, 0xff, OP24, N("addrlo"), IMM16, .fmask = F_NV41P },
+	{ 0x42, 0xff, OP24, N("datalo"), IMM16, .fmask = F_NV41P },
+	{ 0x5f, 0xff, OP24, N("ewait"), T(evmask), T(event), .fmask = F_NV41P },
 	{ 0x7f, 0xff, OP8, N("exit") },
 	{ 0x80, 0xe0, OP8, N("unset"), T(fl) }, 
 	{ 0xa0, 0xe0, OP8, N("set1"), T(fl) }, 
 	{ 0xc0, 0xe0, OP8, N("set0"), T(fl) }, 
-	{ 0xe0, 0xff, OP40, N("addr"), IMM32, .vartype = NV41 },
-	{ 0xe2, 0xff, OP40, N("data"), IMM32, .vartype = NV41 },
+	{ 0xe0, 0xff, OP40, N("addr"), IMM32, .fmask = F_NV41P },
+	{ 0xe2, 0xff, OP40, N("data"), IMM32, .fmask = F_NV41P },
 	{ 0, 0, OP8, OOPS },
 };
 
-static const struct disvariant hwsq_vars[] = {
-	"nv17", NV17,
-	"nv41", NV41,
-};
+static void hwsq_prep(struct disisa *isa) {
+	isa->vardata = vardata_new("hwsq");
+	int f_nv41op = vardata_add_feature(isa->vardata, "nv41op", "NV41+ opcodes");
+	if (f_nv41op == -1)
+		abort();
+	int vs_chipset = vardata_add_varset(isa->vardata, "chipset", "GPU chipset");
+	if (vs_chipset == -1)
+		abort();
+	int v_nv17 = vardata_add_variant(isa->vardata, "nv17", "NV17:NV41", vs_chipset);
+	int v_nv41 = vardata_add_variant(isa->vardata, "nv41", "NV41+", vs_chipset);
+	if (v_nv17 == -1 || v_nv41 == -1)
+		abort();
+	vardata_variant_feature(isa->vardata, v_nv41, f_nv41op);
+	if (!vardata_validate(isa->vardata))
+		abort();
+}
 
-const struct disisa hwsq_isa_s = {
+struct disisa hwsq_isa_s = {
 	tabm,
 	5,
 	1,
 	1,
-	.vars = hwsq_vars,
-	.varsnum = sizeof hwsq_vars / sizeof *hwsq_vars,
+	.prep = hwsq_prep,
 };

@@ -25,10 +25,9 @@
 
 #include "dis-intern.h"
 
-#define VP2 1
-#define VP3 2
-#define VP4 4
-#define VP3P VP3|VP4
+#define F_VP2 1
+#define F_VP3 2
+#define F_VP4 4
 
 /*
  * Code target field
@@ -70,11 +69,11 @@ static struct sreg pred_sr[] = {
 	{ -1 },
 };
 static struct sreg sreg_sr[] = {
-	{ 0, "baddr", .vartype = VP2 },
-	{ 1, "bsel", .vartype = VP2 },
+	{ 0, "baddr", .fmask = F_VP2 },
+	{ 1, "bsel", .fmask = F_VP2 },
 	{ 2, "spidx" },
-	{ 3, "asel", .vartype = VP2 },
-	{ 3, "absel", .vartype = VP3P },
+	{ 3, "asel", .fmask = F_VP2 },
+	{ 3, "absel", .fmask = F_VP3 },
 	{ 4, "h2v" },
 	{ 5, "v2h" },
 	{ 6, "stat" },
@@ -82,7 +81,7 @@ static struct sreg sreg_sr[] = {
 	{ 8, "pc" },
 	{ 9, "cspos" },
 	{ 10, "cstop" },
-	{ 11, "rpitab", .vartype = VP2 },
+	{ 11, "rpitab", .fmask = F_VP2 },
 	{ 12, "lhi" },
 	{ 13, "llo" },
 	{ 14, "pred" },
@@ -102,7 +101,7 @@ static struct sreg sreg_sr[] = {
 	{ 28, "mbxy" },
 	{ 29, "mbaddr" },
 	{ 30, "mbtype" },
-	{ 31, "submbtype", .vartype = VP2 },
+	{ 31, "submbtype", .fmask = F_VP2 },
 	{ 32, "amvxl0" },
 	{ 33, "amvyl0" },
 	{ 34, "amvxl1" },
@@ -112,8 +111,8 @@ static struct sreg sreg_sr[] = {
 	{ 38, "arpil0" },
 	{ 39, "arpil1" },
 	{ 40, "ambflags" },
-	{ 41, "aqpy", .vartype = VP2 },
-	{ 42, "aqpc", .vartype = VP2 },
+	{ 41, "aqpy", .fmask = F_VP2 },
+	{ 42, "aqpc", .fmask = F_VP2 },
 	{ 48, "bmvxl0" },
 	{ 49, "bmvyl0" },
 	{ 50, "bmvxl1" },
@@ -358,9 +357,9 @@ static struct insn tabsop[] = {
 	{ 0x000000a0, 0x000000ff, N("lmulu"), T(src1), T(src2) },
 	{ 0x000000a1, 0x000000ff, N("lmuls"), T(src1), T(src2) },
 	{ 0x000000a2, 0x000000ff, N("lsrr"), T(src2) },
-	{ 0x000000a4, 0x000000ff, N("ladd"), T(src2), .vartype = VP3P },
-	{ 0x000000a8, 0x000000ff, N("lsar"), T(src2), .vartype = VP3P },
-	{ 0x000000ac, 0x000000ff, N("ldivu"), T(src2), .vartype = VP4 },
+	{ 0x000000a4, 0x000000ff, N("ladd"), T(src2), .fmask = F_VP3 },
+	{ 0x000000a8, 0x000000ff, N("lsar"), T(src2), .fmask = F_VP3 },
+	{ 0x000000ac, 0x000000ff, N("ldivu"), T(src2), .fmask = F_VP4 },
 
 	{ 0, 0, OOPS },
 };
@@ -373,9 +372,9 @@ static struct insn tabbop[] = {
 	/* addition */
 	{ 0x00000004, 0x0000001f, N("add"), T(pdst), T(dst), T(src1), T(src2) },
 	{ 0x00000005, 0x0000001f, N("sub"), T(pdst), T(dst), T(src1), T(src2) },
-	{ 0x00000006, 0x0000001f, N("subr"), T(pdst), T(dst), T(src1), T(src2), .vartype = VP2 },
-	{ 0x00000006, 0x0000001f, N("avgs"), T(pdst), T(dst), T(src1), T(src2), .vartype = VP3P },
-	{ 0x00000007, 0x0000001f, N("avgu"), T(pdst), T(dst), T(src1), T(src2), .vartype = VP3P },
+	{ 0x00000006, 0x0000001f, N("subr"), T(pdst), T(dst), T(src1), T(src2), .fmask = F_VP2 },
+	{ 0x00000006, 0x0000001f, N("avgs"), T(pdst), T(dst), T(src1), T(src2), .fmask = F_VP3 },
+	{ 0x00000007, 0x0000001f, N("avgu"), T(pdst), T(dst), T(src1), T(src2), .fmask = F_VP3 },
 
 	/* comparisons */
 	{ 0x00000008, 0x0000001f, N("setgt"), T(pdst), T(src1), T(src2) },
@@ -387,8 +386,8 @@ static struct insn tabbop[] = {
 	{ 0x0000000c, 0x0000001f, N("clamplep"), T(pdst), T(dst), T(src1), T(src2) },
 	{ 0x0000000d, 0x0000001f, N("clamps"), T(pdst), T(dst), T(src1), T(src2) },
 	{ 0x0000000e, 0x0000001f, N("sext"), T(pdst), T(dst), T(src1), T(src2) },
-	{ 0x0000000f, 0x0000001f, N("setzero"), T(pdst), T(src1), T(src2), .vartype = VP2 },
-	{ 0x0000000f, 0x0000001f, N("div2s"), T(pdst), T(dst), T(src1), .vartype = VP3P },
+	{ 0x0000000f, 0x0000001f, N("setzero"), T(pdst), T(src1), T(src2), .fmask = F_VP2 },
+	{ 0x0000000f, 0x0000001f, N("div2s"), T(pdst), T(dst), T(src1), .fmask = F_VP3 },
 
 	/* bit manipulation */
 	{ 0x00000010, 0x0000001f, N("bset"), T(pdst), T(dst), T(src1), T(src2) },
@@ -409,8 +408,8 @@ static struct insn tabbop[] = {
 
 	/* misc */
 	{ 0x0000001c, 0x0000001f, N("lut"), T(pdst), T(dst), T(src1), T(src2) },
-	{ 0x0000001d, 0x0000001f, N("min"), T(pdst), T(dst), T(src1), T(src2), .vartype = VP3P },
-	{ 0x0000001e, 0x0000001f, N("max"), T(pdst), T(dst), T(src1), T(src2), .vartype = VP3P },
+	{ 0x0000001d, 0x0000001f, N("min"), T(pdst), T(dst), T(src1), T(src2), .fmask = F_VP3 },
+	{ 0x0000001e, 0x0000001f, N("max"), T(pdst), T(dst), T(src1), T(src2), .fmask = F_VP3 },
 	{ 0, 0, OOPS },
 };
 
@@ -429,24 +428,40 @@ static struct insn tabop[] = {
 };
 
 static struct insn tabroot[] = {
-	{ 0, 0, OP64, T(op), .vartype = VP3P },
-	{ 0xffc0000000ull, 0xffc0000000ull, OP64, T(op), .vartype = VP2 },
-	{ 0x0000000000ull, 0x0200000000ull, OP64, RBRPRED, N("rbra"), RBRTARG, T(op), .vartype = VP2 },
-	{ 0x0200000000ull, 0x0200000000ull, OP64, N("not"), RBRPRED, N("rbra"), RBRTARG, T(op), .vartype = VP2 },
+	{ 0, 0, OP64, T(op), .fmask = F_VP3 },
+	{ 0xffc0000000ull, 0xffc0000000ull, OP64, T(op), .fmask = F_VP2 },
+	{ 0x0000000000ull, 0x0200000000ull, OP64, RBRPRED, N("rbra"), RBRTARG, T(op), .fmask = F_VP2 },
+	{ 0x0200000000ull, 0x0200000000ull, OP64, N("not"), RBRPRED, N("rbra"), RBRTARG, T(op), .fmask = F_VP2 },
 	{ 0, 0, OOPS },
 };
 
-static const struct disvariant vuc_vars[] = {
-	"vp2", VP2,
-	"vp3", VP3,
-	"vp4", VP4,
-};
+static void vuc_prep(struct disisa *isa) {
+	isa->vardata = vardata_new("vuc");
+	int f_vp2op = vardata_add_feature(isa->vardata, "vp2op", "VP2 exclusive opcodes");
+	int f_vp3op = vardata_add_feature(isa->vardata, "vp3op", "VP3+ opcodes");
+	int f_vp4op = vardata_add_feature(isa->vardata, "vp4op", "VP4 opcodes");
+	if (f_vp2op == -1 || f_vp3op == -1 || f_vp4op == -1)
+		abort();
+	int vs_vp = vardata_add_varset(isa->vardata, "vp", "VP version");
+	if (vs_vp == -1)
+		abort();
+	int v_vp2 = vardata_add_variant(isa->vardata, "vp2", "VP2", vs_vp);
+	int v_vp3 = vardata_add_variant(isa->vardata, "vp3", "VP3", vs_vp);
+	int v_vp4 = vardata_add_variant(isa->vardata, "vp4", "VP4", vs_vp);
+	if (v_vp2 == -1 || v_vp3 == -1 || v_vp4 == -1)
+		abort();
+	vardata_variant_feature(isa->vardata, v_vp2, f_vp2op);
+	vardata_variant_feature(isa->vardata, v_vp3, f_vp3op);
+	vardata_variant_feature(isa->vardata, v_vp4, f_vp3op);
+	vardata_variant_feature(isa->vardata, v_vp4, f_vp4op);
+	if (!vardata_validate(isa->vardata))
+		abort();
+}
 
-const struct disisa vuc_isa_s = {
+struct disisa vuc_isa_s = {
 	tabroot,
 	8,
 	8,
 	8,
-	.vars = vuc_vars,
-	.varsnum = sizeof vuc_vars / sizeof *vuc_vars,
+	.prep = vuc_prep,
 };

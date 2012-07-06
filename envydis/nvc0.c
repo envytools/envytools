@@ -27,8 +27,8 @@
 
 #include "dis-intern.h"
 
-#define NVC0 0x01
-#define NVE4 0x02
+#define F_NVC0 1
+#define F_NVE4 2
 
 /*
  * Registers:
@@ -1735,8 +1735,8 @@ static struct insn tabm[] = {
 	{ 0x0000000000000002ull, 0x0000000000000007ull, OOPS, N("b32"), DST, SRC1, LIMM },
 
 
-	{ 0x0180000000000003ull, 0xf980000000000007ull, N("mad"), N("b32"), N("sd"), DST, T(acout30), SRC1, T(is2w3), T(is3), .vartype = NVE4 }, // ?
-	{ 0x0000000000000003ull, 0xf800000000000007ull, N("mad"), N("b32"), DST, T(acout30), T(imadp1), SRC1, T(imadp2), T(is2w3), T(imadp3), T(is3), .vartype = NVE4 },
+	{ 0x0180000000000003ull, 0xf980000000000007ull, N("mad"), N("b32"), N("sd"), DST, T(acout30), SRC1, T(is2w3), T(is3), .fmask = F_NVE4 }, // ?
+	{ 0x0000000000000003ull, 0xf800000000000007ull, N("mad"), N("b32"), DST, T(acout30), T(imadp1), SRC1, T(imadp2), T(is2w3), T(imadp3), T(is3), .fmask = F_NVE4 },
 	{ 0x0800000000000003ull, 0xf8000000000000c7ull, T(minmax), T(us32_5), DST, T(acout30), SRC1, T(is2) },
 	{ 0x0800000000000043ull, 0xf8000000000000c7ull, T(minmax), N("low"), T(us32_5), DST, T(acout30), SRC1, T(is2), CC },
 	{ 0x0800000000000083ull, 0xf8000000000000c7ull, T(minmax), N("med"), T(us32_5), DST, T(acout30), SRC1, T(is2), CC },
@@ -1793,9 +1793,9 @@ static struct insn tabm[] = {
 	{ 0x5000000000000044ull, 0xfc000000000000e7ull, N("bar"), N("or"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
 	{ 0x5000000000000084ull, 0xfc000000000000e7ull, N("bar"), N("arrive"), PDST3, DST, T(bar), T(tcnt), T(pnot3), PSRC3 },
 	{ 0x5400000000000004ull, 0xfc00000000000007ull, N("popc"), DST, T(not9), SRC1, T(not8), T(is2) }, // XXX: popc(SRC1 & SRC2)? insane idea, but I don't have any better
-	{ 0x5800000000000004ull, 0xfc00000000000007ull, N("suclamp"), T(sucdim), T(us32_9), T(sucm), PDST5, DST, SRC1, T(is2), SUIMM, .vartype = NVE4 }, // src0+suimm coord, src1 limit
-	{ 0x5c00000000000004ull, 0xfc00000000000007ull, N("subfm"), T(subfmdim), PDST5, DST, SRC1, T(is2w3), T(is3), .vartype = NVE4 },
-	{ 0x6000000000000004ull, 0xfc00000000000007ull, N("sueau"), DST, SRC1, T(is2w3), T(is3), .vartype = NVE4 },
+	{ 0x5800000000000004ull, 0xfc00000000000007ull, N("suclamp"), T(sucdim), T(us32_9), T(sucm), PDST5, DST, SRC1, T(is2), SUIMM, .fmask = F_NVE4 }, // src0+suimm coord, src1 limit
+	{ 0x5c00000000000004ull, 0xfc00000000000007ull, N("subfm"), T(subfmdim), PDST5, DST, SRC1, T(is2w3), T(is3), .fmask = F_NVE4 },
+	{ 0x6000000000000004ull, 0xfc00000000000007ull, N("sueau"), DST, SRC1, T(is2w3), T(is3), .fmask = F_NVE4 },
 	{ 0x8000000000000004ull, 0xfc00000000000187ull, N("vadd4"), T(sat9), T(v4dst), T(v4dmask), T(us8_39), DST, T(acout30), T(v4src1), T(us8_6), SRC1, T(v4src2), T(us8_5), T(v4s2), SRC3  },
 	{ 0x8000000000000084ull, 0xfc00000000000187ull, N("vsub4"), T(sat9), T(v4dst), T(v4dmask), T(us8_39), DST, T(acout30), T(v4src1), T(us8_6), SRC1, T(v4src2), T(us8_5), T(v4s2), SRC3  },
 	{ 0x8000000000000104ull, 0xfc00000000000187ull, N("vsubr4"), T(sat9), T(v4dst), T(v4dmask), T(us8_39), DST, T(acout30), T(v4src1), T(us8_6), SRC1, T(v4src2), T(us8_5), T(v4s2), SRC3  },
@@ -1858,13 +1858,13 @@ static struct insn tabm[] = {
 	{ 0xc900000000000005ull, 0xfd00000000000007ull, N("st"), T(ldstt), SHARED, T(ldstd) },
 	{ 0xcc00000000000005ull, 0xfc00000000000007ull, N("st"), N("unlock"), T(ldstt), SHARED, T(ldstd) },
 	{ 0xd000000000000005ull, 0xfc00000000000007ull, N("cctl"), T(cctlop), DST, LCMEM },
-	{ 0xd400000000000005ull, 0xfc00000000000007ull, N("suldgb"), T(ldstt), T(ldstd), T(lcop), T(sclamp2l), T(sugty), GLOBALDSU, T(sus2), T(sup), .vartype = NVE4 },
-	{ 0xd400400000000005ull, 0xfc00400000000007ull, N("suldb"), T(ldstt), T(ldstd), T(lcop), T(sclamp), SURF, SADDR, .vartype = NVC0 },
+	{ 0xd400000000000005ull, 0xfc00000000000007ull, N("suldgb"), T(ldstt), T(ldstd), T(lcop), T(sclamp2l), T(sugty), GLOBALDSU, T(sus2), T(sup), .fmask = F_NVE4 },
+	{ 0xd400400000000005ull, 0xfc00400000000007ull, N("suldb"), T(ldstt), T(ldstd), T(lcop), T(sclamp), SURF, SADDR, .fmask = F_NVC0 },
 	{ 0xd800400100000005ull, 0xfc00400100000007ull, N("suredp"), T(redop), T(sclamp), SURF, SADDR, DST },
-	{ 0xdc00000000000005ull, 0xffc0000000000007ull, N("sustgb"), T(ldstt), T(scop), T(sclamp2s), T(sugty), GLOBALDSU, T(sus2), T(ldstd), T(sup), .vartype = NVE4 },
-	{ 0xdc00000000000005ull, 0xfc00000000000007ull, N("sustgp"), T(scop), T(sclamp2s), T(sugty), GLOBALDSU, T(sus2), SUSTPSRC, T(sup), .vartype = NVE4 },
-	{ 0xdc00400000000005ull, 0xfc02400000000007ull, N("sustb"), T(ldstt), T(scop), T(sclamp), SURF, SADDR, T(ldstd), .vartype = NVC0 },
-	{ 0xdc02400000000005ull, 0xfc02400000000007ull, N("sustp"), T(scop), T(sclamp), SURF, SADDR, DST, .vartype = NVC0 },
+	{ 0xdc00000000000005ull, 0xffc0000000000007ull, N("sustgb"), T(ldstt), T(scop), T(sclamp2s), T(sugty), GLOBALDSU, T(sus2), T(ldstd), T(sup), .fmask = F_NVE4 },
+	{ 0xdc00000000000005ull, 0xfc00000000000007ull, N("sustgp"), T(scop), T(sclamp2s), T(sugty), GLOBALDSU, T(sus2), SUSTPSRC, T(sup), .fmask = F_NVE4 },
+	{ 0xdc00400000000005ull, 0xfc02400000000007ull, N("sustb"), T(ldstt), T(scop), T(sclamp), SURF, SADDR, T(ldstd), .fmask = F_NVC0 },
+	{ 0xdc02400000000005ull, 0xfc02400000000007ull, N("sustp"), T(scop), T(sclamp), SURF, SADDR, DST, .fmask = F_NVC0 },
 	{ 0xe000000000000005ull, 0xfc00000000000067ull, N("membar"), N("cta") },
 	{ 0xe000000000000025ull, 0xfc00000000000067ull, N("membar"), N("gl") },
 	{ 0xe000000000000045ull, 0xfc00000000000067ull, N("membar"), N("sys") },
@@ -1886,7 +1886,7 @@ static struct insn tabm[] = {
 	{ 0xc000000000000006ull, 0xf000000000000007ull, N("texquery"), T(texm), T(ltex), TDST, T(texquery), T(texi), TEX, SAMP, SRC1, SRC2 },
 	{ 0xd000000000000006ull, 0xf000000000000007ull, N("texcsaa"), T(texm), T(texf), TDST, TEX, SAMP, TSRC13 },
 	{ 0xe000000000000006ull, 0xf000000000000007ull, N("texgrad"), T(texm), T(texoff), T(ltex), TDST, T(text), T(texi), TEX, SAMP, T(texgrsrc1), T(texgrsrc2) },
-	{ 0xf000000000000006ull, 0xf000000000000007ull, N("texbar"), T(cc), TEXBARIMM, .vartype = NVE4 }, // imm = max outstanding texes after barrier
+	{ 0xf000000000000006ull, 0xf000000000000007ull, N("texbar"), T(cc), TEXBARIMM, .fmask = F_NVE4 }, // imm = max outstanding texes after barrier
 	{ 0x0000000000000006ull, 0x0000000000000007ull, OOPS, T(texf), TDST, TEX, SAMP, SRC1, SRC2 },
 
 
@@ -1922,7 +1922,7 @@ static struct insn tabc[] = {
 	{ 0x0800000000004007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), T(lim), FCONST },
 	{ 0x1000000000000007ull, 0xf800000000004007ull, N("call"), T(lim), N("abs"), ACTARG },
 	{ 0x1000000000004007ull, 0xf800000000004007ull, N("call"), T(lim), FCONSTNR },
-	{ 0x2000000000000007ull, 0xf000000000000007ull, N("sched"), SCHED(0), SCHED(1), SCHED(2), SCHED(3), SCHED(4), SCHED(5), SCHED(6), .vartype = NVE4 },
+	{ 0x2000000000000007ull, 0xf000000000000007ull, N("sched"), SCHED(0), SCHED(1), SCHED(2), SCHED(3), SCHED(4), SCHED(5), SCHED(6), .fmask = F_NVE4 },
 	{ 0x4000000000000007ull, 0xf800000000000007ull, T(p), T(cc), N("bra"), T(lim), T(brawarp), T(btarg) },
 	{ 0x4800000000000007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), T(lim), SRC1, NTARG },
 	{ 0x4800000000004007ull, 0xf800000000004007ull, T(p), T(cc), N("bra"), T(lim), N("pcrel"), FCONST },
@@ -2208,17 +2208,30 @@ static struct insn tabroot[] = {
 	{ 0, 0, OOPS },
 };
 
-static const struct disvariant nvc0_vars[] = {
-	"nvc0", NVC0,
-	"nve4", NVE4,
-};
+static void nvc0_prep(struct disisa *isa) {
+	isa->vardata = vardata_new("nvc0isa");
+	int f_nvc0op = vardata_add_feature(isa->vardata, "nvc0op", "NVC0 family exclusive opcodes");
+	int f_nve4op = vardata_add_feature(isa->vardata, "nve4op", "NVE4 family exclusive opcodes");
+	if (f_nvc0op == -1 || f_nve4op == -1)
+		abort();
+	int vs_chipset = vardata_add_varset(isa->vardata, "chipset", "GPU chipset");
+	if (vs_chipset == -1)
+		abort();
+	int v_nvc0 = vardata_add_variant(isa->vardata, "nvc0", "NVC0:NVE4", vs_chipset);
+	int v_nve4 = vardata_add_variant(isa->vardata, "nve4", "NVE4+", vs_chipset);
+	if (v_nvc0 == -1 || v_nve4 == -1)
+		abort();
+	vardata_variant_feature(isa->vardata, v_nvc0, f_nvc0op);
+	vardata_variant_feature(isa->vardata, v_nve4, f_nve4op);
+	if (!vardata_validate(isa->vardata))
+		abort();
+}
 
-const struct disisa nvc0_isa_s = {
+struct disisa nvc0_isa_s = {
 	tabroot,
 	8,
 	4,
 	1,
 	.i_need_nv50as_hack = 1,
-	.vars = nvc0_vars,
-	.varsnum = sizeof nvc0_vars / sizeof *nvc0_vars
+	.prep = nvc0_prep,
 };

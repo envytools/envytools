@@ -27,14 +27,14 @@
 
 #include "dis.h"
 
-extern const struct disisa nv50_isa_s;
-extern const struct disisa nvc0_isa_s;
-extern const struct disisa ctx_isa_s;
-extern const struct disisa fuc_isa_s;
-extern const struct disisa hwsq_isa_s;
-extern const struct disisa vp2_isa_s;
-extern const struct disisa vuc_isa_s;
-extern const struct disisa macro_isa_s;
-extern const struct disisa vp1_isa_s;
+extern struct disisa nv50_isa_s;
+extern struct disisa nvc0_isa_s;
+extern struct disisa ctx_isa_s;
+extern struct disisa fuc_isa_s;
+extern struct disisa hwsq_isa_s;
+extern struct disisa vp2_isa_s;
+extern struct disisa vuc_isa_s;
+extern struct disisa macro_isa_s;
+extern struct disisa vp1_isa_s;
 
 #endif

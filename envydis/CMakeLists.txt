@@ -16,6 +16,7 @@ add_library(envy core.c nv50.c nvc0.c ctx.c fuc.c hwsq.c vp2.c vuc.c macro.c vp1
 add_executable(envydis envydis.c)
 add_executable(envyas envyas.c ${FLEX_lex_OUTPUTS} ${BISON_parse_OUTPUTS})
 
+target_link_libraries(envy envyutil)
 target_link_libraries(envydis envy)
 target_link_libraries(envyas envy envyutil)
 

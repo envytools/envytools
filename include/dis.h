@@ -32,6 +32,7 @@
 #include <string.h>
 #include <unistd.h>
 #include "util.h"
+#include "var.h"
 
 extern char *cnorm;	// instruction code and misc stuff
 extern char *cname;	// instruction name and mods
@@ -156,7 +157,7 @@ struct sreg {
 		SR_ONE,
 		SR_DISCARD,
 	} mode;
-	int vartype;
+	int fmask;
 };
 
 struct reg {
@@ -197,7 +198,7 @@ struct insn {
 	ull val;
 	ull mask;
 	struct atom atoms[16];
-	int vartype;
+	int fmask;
 	int ptype;
 };
 
@@ -234,8 +235,7 @@ struct disctx {
 	const char **names;
 	uint32_t codebase;
 	uint32_t codesz;
-	int vartype;
-	int ptype;
+	struct varinfo *varinfo;
 	int oplen;
 	uint32_t pos;
 	int reverse;
@@ -251,19 +251,15 @@ struct disctx {
 	const char *cur_global_label;
 };
 
-struct disvariant {
-	const char *name;
-	int vartype;
-};
-
 struct disisa {
 	struct insn *troot;
 	int maxoplen;
 	int opunit;
 	int posunit;
 	int i_need_nv50as_hack;
-	const struct disvariant *vars;
-	int varsnum;
+	int prepdone;
+	void (*prep)(struct disisa *);
+	struct vardata *vardata;
 };
 
 struct file {
@@ -362,8 +358,8 @@ int setsbf (struct match *res, int pos, int len, ull num);
 	{ 0, 0, OOPS },\
 };
 #define F1V(n, v, f, b) static struct insn tab ## n[] = {\
-	{ 0,		1ull<<(f), .vartype = v },\
-	{ 1ull<<(f),	1ull<<(f), b, .vartype = v },\
+	{ 0,		1ull<<(f), .fmask = v },\
+	{ 1ull<<(f),	1ull<<(f), b, .fmask = v },\
 	{ 0, 0 },\
 };
 
@@ -424,16 +420,9 @@ struct matches *atombf APROTO;
 ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx);
 #define GETBF(bf) getbf(bf, a, m, ctx)
 
-
-#define VP 1
-#define GP 2
-#define FP 4
-#define CP 8
-
 const struct disisa *ed_getisa(const char *name);
-int ed_getvariant(const struct disisa *isa, const char *name);
 
-void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, int vartype, int ptype, int quiet, struct label *labels, int labelsnum);
+void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, struct varinfo *varinfo, int quiet, struct label *labels, int labelsnum);
 void printexpr(FILE *out, const struct expr *expr, int lvl);
 
 #endif
