@@ -616,7 +616,6 @@ int main(int argc, char **argv) {
 		if (varinfo_set_mode(envyas_varinfo, modenames[i]))
 			return 1;
 	struct file *file = calloc(sizeof *file, 1);
-	int i;
 	for (i = 0; i < file_ed2->insnsnum; i++) {
 		struct ed2a_insn *insn = file_ed2->insns[i];
 		if (insn->piecesnum != 1) {

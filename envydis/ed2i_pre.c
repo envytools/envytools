@@ -187,7 +187,11 @@ int ed2ip_transform_features(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 		if ((f1 = vardata_add_feature(isa->vardata, preisa->features[i]->names[0], preisa->features[i]->description)) == -1) {
 			fprintf (stderr, ED2_LOC_FORMAT(preisa->features[i]->loc, "Redefined symbol %s\n"), preisa->features[i]->names[0]);
 			broken = 1;
-		} else {
+		}
+	}
+	for (i = 0; i < preisa->featuresnum; i++) {
+		int f1 = symtab_get_td(isa->vardata->symtab, preisa->features[i]->names[0], VARDATA_ST_FEATURE);
+		if (f1 != -1) {
 			/* XXX names */
 			for (j = 0; j < preisa->features[i]->impliesnum; j++) {
 				int f2 = symtab_get_td(isa->vardata->symtab, preisa->features[i]->implies[j], VARDATA_ST_FEATURE);
