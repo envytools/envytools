@@ -6,5 +6,5 @@ include_directories(.)
 
 add_library(envyutil
 	path.c mask.c hash.c symtab.c
-	vardata.c varinfo.c
+	vardata.c varinfo.c varselect.c
 )

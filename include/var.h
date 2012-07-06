@@ -128,4 +128,21 @@ int varinfo_set_variant(struct varinfo *info, const char *variant);
 int varinfo_set_feature(struct varinfo *info, const char *feature);
 int varinfo_set_mode(struct varinfo *info, const char *mode);
 
+struct varselect {
+	struct vardata *data;
+	uint32_t *fmask;
+	uint32_t *msmask;
+	uint32_t *mmask;
+	uint32_t *vsmask;
+	uint32_t *vmask;
+};
+
+struct varselect *varselect_new(struct vardata *data);
+void varselect_del(struct varselect *select);
+void varselect_need_feature(struct varselect *select, int f);
+void varselect_need_mode(struct varselect *select, int m);
+void varselect_need_variant(struct varselect *select, int v);
+
+int varselect_match(struct varselect *select, struct varinfo *info);
+
 #endif
