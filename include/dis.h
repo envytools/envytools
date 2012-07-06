@@ -268,6 +268,7 @@ struct line {
 	struct expr **atoms;
 	int atomsnum;
 	int atomsmax;
+	struct envy_loc loc;
 };
 
 struct expr {

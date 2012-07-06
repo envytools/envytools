@@ -55,7 +55,7 @@ static char* expand_local_label(const char *local, const char *global) {
 	return full;
 }
 
-ull calc (const struct expr *expr, struct disctx *ctx) {
+ull calc (const struct expr *expr, struct disctx *ctx, struct envy_loc loc) {
 	int res;
 	ull x;
 	switch (expr->type) {
@@ -70,45 +70,45 @@ ull calc (const struct expr *expr, struct disctx *ctx) {
 			if (symtab_get(ctx->symtab, expr->str, 0, &res) != -1) {
 				return ctx->labels[res].val;
 			}
-			fprintf (stderr, "Undefined label \"%s\"\n", expr->str);
+			fprintf (stderr, LOC_FORMAT(loc, "Undefined label \"%s\"\n"), expr->str);
 			exit(1);
 		case EXPR_NEG:
-			return -calc(expr->expr1, ctx);
+			return -calc(expr->expr1, ctx, loc);
 		case EXPR_NOT:
-			return ~calc(expr->expr1, ctx);
+			return ~calc(expr->expr1, ctx, loc);
 		case EXPR_MUL:
-			return calc(expr->expr1, ctx) * calc(expr->expr2, ctx);
+			return calc(expr->expr1, ctx, loc) * calc(expr->expr2, ctx, loc);
 		case EXPR_DIV:
-			x = calc(expr->expr2, ctx);
+			x = calc(expr->expr2, ctx, loc);
 			if (x)
-				return calc(expr->expr1, ctx) / x;
+				return calc(expr->expr1, ctx, loc) / x;
 			else {
-				fprintf (stderr, "Division by 0\n");
+				fprintf (stderr, LOC_FORMAT(loc, "Division by 0\n"));
 				exit(1);
 			}
 		case EXPR_ADD:
-			return calc(expr->expr1, ctx) + calc(expr->expr2, ctx);
+			return calc(expr->expr1, ctx, loc) + calc(expr->expr2, ctx, loc);
 		case EXPR_SUB:
-			return calc(expr->expr1, ctx) - calc(expr->expr2, ctx);
+			return calc(expr->expr1, ctx, loc) - calc(expr->expr2, ctx, loc);
 		case EXPR_SHL:
-			return calc(expr->expr1, ctx) << calc(expr->expr2, ctx);
+			return calc(expr->expr1, ctx, loc) << calc(expr->expr2, ctx, loc);
 		case EXPR_SHR:
-			return calc(expr->expr1, ctx) >> calc(expr->expr2, ctx);
+			return calc(expr->expr1, ctx, loc) >> calc(expr->expr2, ctx, loc);
 		case EXPR_AND:
-			return calc(expr->expr1, ctx) & calc(expr->expr2, ctx);
+			return calc(expr->expr1, ctx, loc) & calc(expr->expr2, ctx, loc);
 		case EXPR_XOR:
-			return calc(expr->expr1, ctx) ^ calc(expr->expr2, ctx);
+			return calc(expr->expr1, ctx, loc) ^ calc(expr->expr2, ctx, loc);
 		case EXPR_OR:
-			return calc(expr->expr1, ctx) | calc(expr->expr2, ctx);
+			return calc(expr->expr1, ctx, loc) | calc(expr->expr2, ctx, loc);
 		default:
 			assert(0);
 	}
 }
 
-int resolve (struct disctx *ctx, ull *val, struct match m, ull pos) {
+int resolve (struct disctx *ctx, ull *val, struct match m, ull pos, struct envy_loc loc) {
 	int i;
 	for (i = 0; i < m.nrelocs; i++) {
-		ull val = calc(m.relocs[i].expr, ctx);
+		ull val = calc(m.relocs[i].expr, ctx, loc);
 		const struct bitfield *bf = m.relocs[i].bf;
 		ull num = (val - bf->addend) ^ bf->xorend;
 		if (bf->pcrel)
@@ -171,18 +171,18 @@ int donum (struct section *s, struct line *line, struct disctx *ctx, int wren) {
 	int i;
 	for (i = 0; i < line->atomsnum; i++)
 		if (!line->atoms[i]->isimm) {
-			fprintf (stderr, "Wrong arguments for %s\n", line->str);
+			fprintf (stderr, LOC_FORMAT(line->loc, "Wrong arguments for %s\n"), line->str);
 			exit(1);
 		}
 	if (wren) {
 		extend(s, bits/8 * line->atomsnum);
 		if (s->pos % (bits/8))
-			fprintf (stderr, "Warning: Unaligned data %s; section '%s', offset 0x%x\n", line->str, s->name, s->pos);
+			fprintf (stderr, LOC_FORMAT(line->loc, "Warning: Unaligned data %s; section '%s', offset 0x%x\n"), line->str, s->name, s->pos);
 		for (i = 0; i < line->atomsnum; i++) {
-			ull num = calc(line->atoms[i], ctx);
+			ull num = calc(line->atoms[i], ctx, line->loc);
 			if ((line->str[1] == 'u' && bits != 64 && num >= (1ull << bits))
 				|| (line->str[1] == 's' && bits != 64 && num >= (1ull << (bits - 1)) && num < (-1ull << (bits - 1)))) {
-				fprintf (stderr, "Argument %d too large for %s\n", i, line->str);
+				fprintf (stderr, LOC_FORMAT(line->loc, "Argument %d too large for %s\n"), i, line->str);
 				exit(1);
 			}
 			int j;
@@ -224,7 +224,7 @@ int envyas_process(struct file *file) {
 					ADDARRAY(im[i].m, m->m[j]);
 				}
 			if (!im[i].mnum) {
-				fprintf (stderr, "No match on insn %d!\n", i+1);
+				fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "No match\n"));
 				return 1;
 			}
 #if 0
@@ -273,7 +273,7 @@ int envyas_process(struct file *file) {
 						ctx->cur_global_label = file->lines[i]->str;
 
 					if (symtab_put(ctx->symtab, file->lines[i]->str, 0, ctx->labelsnum) == -1) {
-						fprintf (stderr, "Label %s redeclared!\n", file->lines[i]->str);
+						fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Label %s redeclared!\n"), file->lines[i]->str);
 						return 1;
 					}
 					struct label l = { file->lines[i]->str, sections[cursect].pos / ctx->isa->posunit + sections[cursect].base };
@@ -285,11 +285,11 @@ int envyas_process(struct file *file) {
 				case LINE_DIR:
 					if (!strcmp(file->lines[i]->str, ".section")) {
 						if (file->lines[i]->atomsnum > 2) {
-							fprintf (stderr, "Too many arguments for .section\n");
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Too many arguments for .section\n"));
 							return 1;
 						}
 						if (file->lines[i]->atoms[0]->type != EXPR_LABEL || (file->lines[i]->atomsnum == 2 && file->lines[i]->atoms[1]->type != EXPR_NUM)) {
-							fprintf (stderr, "Wrong arguments for .section\n");
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Wrong arguments for .section\n"));
 							return 1;
 						}
 						for (j = 0; j < sectionsnum; j++)
@@ -305,11 +305,11 @@ int envyas_process(struct file *file) {
 						cursect = j;
 					} else if (!strcmp(file->lines[i]->str, ".align")) {
 						if (file->lines[i]->atomsnum > 1) {
-							fprintf (stderr, "Too many arguments for .align\n");
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Too many arguments for .align\n"));
 							return 1;
 						}
 						if (file->lines[i]->atoms[0]->type != EXPR_NUM) {
-							fprintf (stderr, "Wrong arguments for .align\n");
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Wrong arguments for .align\n"));
 							return 1;
 						}
 						ull num = file->lines[i]->atoms[0]->num1;
@@ -318,26 +318,26 @@ int envyas_process(struct file *file) {
 						sections[cursect].pos *= num;
 					} else if (!strcmp(file->lines[i]->str, ".size")) {
 						if (file->lines[i]->atomsnum > 1) {
-							fprintf (stderr, "Too many arguments for .size\n");
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Too many arguments for .size\n"));
 							return 1;
 						}
 						if (file->lines[i]->atoms[0]->type != EXPR_NUM) {
-							fprintf (stderr, "Wrong arguments for .size\n");
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Wrong arguments for .size\n"));
 							return 1;
 						}
 						ull num = file->lines[i]->atoms[0]->num1;
 						if (sections[cursect].pos > num) {
-							fprintf (stderr, "Section '%s' exceeds .size by %llu bytes\n", sections[cursect].name, sections[cursect].pos - num);
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Section '%s' exceeds .size by %llu bytes\n"), sections[cursect].name, sections[cursect].pos - num);
 							return 1;
 						}
 						sections[cursect].pos = num;
 					} else if (!strcmp(file->lines[i]->str, ".skip")) {
 						if (file->lines[i]->atomsnum > 1) {
-							fprintf (stderr, "Too many arguments for .skip\n");
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Too many arguments for .skip\n"));
 							return 1;
 						}
 						if (file->lines[i]->atoms[0]->type != EXPR_NUM) {
-							fprintf (stderr, "Wrong arguments for .skip\n");
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Wrong arguments for .skip\n"));
 							return 1;
 						}
 						ull num = file->lines[i]->atoms[0]->num1;
@@ -346,7 +346,7 @@ int envyas_process(struct file *file) {
 						if (file->lines[i]->atomsnum != 2
 							|| file->lines[i]->atoms[0]->type != EXPR_LABEL
 							|| !file->lines[i]->atoms[1]->isimm) {
-							fprintf (stderr, "Wrong arguments for .equ\n");
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Wrong arguments for .equ\n"));
 							return 1;
 						}
 						if (file->lines[i]->atoms[0]->str[0] == '_' && file->lines[i]->atoms[0]->str[1] != '_') {
@@ -354,15 +354,15 @@ int envyas_process(struct file *file) {
 							free((void*)file->lines[i]->atoms[0]->str);
 							file->lines[i]->atoms[0]->str = full_label;
 						}
-						ull num = calc(file->lines[i]->atoms[1], ctx);
+						ull num = calc(file->lines[i]->atoms[1], ctx, file->lines[i]->loc);
 						if (symtab_put(ctx->symtab, file->lines[i]->atoms[0]->str, 0, ctx->labelsnum) == -1) {
-							fprintf (stderr, "Label %s redeclared!\n", file->lines[i]->atoms[0]->str);
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Label %s redeclared!\n"), file->lines[i]->atoms[0]->str);
 							return 1;
 						}
 						struct label l = { file->lines[i]->atoms[0]->str, num , /* Distinguish .equ labels from regular labels */ 1 };
 						ADDARRAY(ctx->labels, l);
 					} else if (!donum(&sections[cursect], file->lines[i], ctx, 0)) {
-						fprintf (stderr, "Unknown directive %s\n", file->lines[i]->str);
+						fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Unknown directive %s\n"), file->lines[i]->str);
 						return 1;
 					}
 					break;
@@ -376,12 +376,12 @@ int envyas_process(struct file *file) {
 		for (i = 0; i < file->linesnum; i++) {
 			switch (file->lines[i]->type) {
 				case LINE_INSN:
-					if (!resolve(ctx, val, im[i].m[0], sections[cursect].pos / ctx->isa->posunit + sections[cursect].base)) {
+					if (!resolve(ctx, val, im[i].m[0], sections[cursect].pos / ctx->isa->posunit + sections[cursect].base, file->lines[i]->loc)) {
 						sections[cursect].pos += im[i].m[0].oplen;
 						im[i].m++;
 						im[i].mnum--;
 						if (!im[i].mnum) {
-							fprintf (stderr, "Relocation failed on insn %d!\n", i+1);
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Relocaiton failed\n"));
 							return 1;
 						}
 						allok = 0;
@@ -428,7 +428,7 @@ int envyas_process(struct file *file) {
 						ull num = file->lines[i]->atoms[0]->num1;
 						ull oldpos = sections[cursect].pos;
 						if (sections[cursect].pos > num) {
-							fprintf (stderr, "Section '%s' exceeds .size by %llu bytes\n", sections[cursect].name, sections[cursect].pos - num);
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Section '%s' exceeds .size by %llu bytes\n"), sections[cursect].name, sections[cursect].pos - num);
 							return 1;
 						}
 						sections[cursect].pos = num;
@@ -445,7 +445,7 @@ int envyas_process(struct file *file) {
 					} else if (!strcmp(file->lines[i]->str, ".equ")) {
 						/* nothing to be done */
 					} else if (!donum(&sections[cursect], file->lines[i], ctx, 1)) {
-						fprintf (stderr, "Unknown directive %s\n", file->lines[i]->str);
+						fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Unknown directive %s\n"), file->lines[i]->str);
 						return 1;
 					}
 			}
@@ -579,12 +579,12 @@ int main(int argc, char **argv) {
 				envyas_outname = optarg;
 				break;
 		}
-	FILE *file = stdin;
+	FILE *ifile = stdin;
 	const char *filename = "stdin";
 	if (optind < argc) {
 		filename = argv[optind];
-		file = fopen(argv[optind], "r");
-		if (!file) {
+		ifile = fopen(argv[optind], "r");
+		if (!ifile) {
 			perror(argv[optind]);
 			return 1;
 		}
@@ -611,5 +611,5 @@ int main(int argc, char **argv) {
 	for (i = 0; i < modenamesnum; i++)
 		if (varinfo_set_mode(envyas_varinfo, modenames[i]))
 			return 1;
-	return envyas_exec(filename, file);
+	return envyas_exec(filename, ifile);
 }

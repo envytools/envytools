@@ -80,19 +80,19 @@ file:	file line { $$ = $1; if ($2) ADDARRAY($$->lines, $2); }
 |	/**/ { $$ = calloc(sizeof *$$, 1); }
 ;
 
-line:	T_ID ':' { $$ = calloc(sizeof *$$, 1); $$->type = LINE_LABEL; $$->str = $1; }
+line:	T_ID ':' { $$ = calloc(sizeof *$$, 1); $$->type = LINE_LABEL; $$->str = $1; $$->loc = @$; }
 |	insn ';'
-|	T_DIR insn ';' { $$ = $2; $$->str = $1; $$->type = LINE_DIR; }
+|	T_DIR insn ';' { $$ = $2; $$->str = $1; $$->type = LINE_DIR; $$->loc = @$; }
 |	';' { $$ = 0; }
 ;
 
-insn:	insn expr { $$ = $1; ADDARRAY($$->atoms, $2); }
-|	insn T_ID { $$ = $1; struct expr *e = makeex(EXPR_ID); e->str = $2; ADDARRAY($$->atoms, e); }
-|	insn '(' T_ID { $$ = $1;  ADDARRAY($$->atoms, makeex(EXPR_SESTART)); struct expr *e = makeex(EXPR_ID); e->str = $3; ADDARRAY($$->atoms, e); }
-|	insn ')' { $$ = $1;  ADDARRAY($$->atoms, makeex(EXPR_SEEND)); }
-|	expr { $$ = calloc(sizeof *$$, 1); $$->type = LINE_INSN; ADDARRAY($$->atoms, $1); }
-|	T_ID { $$ = calloc(sizeof *$$, 1); $$->type = LINE_INSN; struct expr *e = makeex(EXPR_ID); e->str = $1; ADDARRAY($$->atoms, e); }
-|	'(' T_ID { $$ = calloc(sizeof *$$, 1); $$->type = LINE_INSN; ADDARRAY($$->atoms, makeex(EXPR_SESTART)); struct expr *e = makeex(EXPR_ID); e->str = $2; ADDARRAY($$->atoms, e); }
+insn:	insn expr { $$ = $1; ADDARRAY($$->atoms, $2); $$->loc = @$; }
+|	insn T_ID { $$ = $1; struct expr *e = makeex(EXPR_ID); e->str = $2; ADDARRAY($$->atoms, e); $$->loc = @$; }
+|	insn '(' T_ID { $$ = $1;  ADDARRAY($$->atoms, makeex(EXPR_SESTART)); struct expr *e = makeex(EXPR_ID); e->str = $3; ADDARRAY($$->atoms, e); $$->loc = @$; }
+|	insn ')' { $$ = $1;  ADDARRAY($$->atoms, makeex(EXPR_SEEND)); $$->loc = @$; }
+|	expr { $$ = calloc(sizeof *$$, 1); $$->type = LINE_INSN; ADDARRAY($$->atoms, $1); $$->loc = @$; }
+|	T_ID { $$ = calloc(sizeof *$$, 1); $$->type = LINE_INSN; struct expr *e = makeex(EXPR_ID); e->str = $1; ADDARRAY($$->atoms, e); $$->loc = @$; }
+|	'(' T_ID { $$ = calloc(sizeof *$$, 1); $$->type = LINE_INSN; ADDARRAY($$->atoms, makeex(EXPR_SESTART)); struct expr *e = makeex(EXPR_ID); e->str = $2; ADDARRAY($$->atoms, e); $$->loc = @$; }
 ;
 
 expr:	expr T_PLUSPLUS expr0 { $$ = makebinex(EXPR_PIADD, $1, $3); }
