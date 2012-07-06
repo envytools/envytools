@@ -28,6 +28,7 @@
 #define F_FUC0	1
 #define F_FUC3P	2
 #define F_PC24	4
+#define F_CRYPT	8
 
 /*
  * Code target fields
@@ -57,8 +58,8 @@ static struct sreg sreg_sr[] = {
 	{ 6, "xcbase" },
 	{ 7, "xdbase" },
 	{ 8, "flags" },
-	{ 9, "cx" },
-	{ 0xa, "cauth" },
+	{ 9, "cx", .fmask = F_CRYPT },
+	{ 0xa, "cauth", .fmask = F_CRYPT },
 	{ 0xb, "xtargets" },
 	{ 0xc, "tstatus", .fmask = F_FUC3P },
 	{ -1 },
@@ -468,26 +469,26 @@ static struct insn tabm[] = {
 	 *  bits 10-14: bits 0-4 of immediate byte
 	 *  bit 15: always set.
 	 */
-	{ 0x00010cf2, 0x001f0fff, OP24, N("cimov"), REG2 },
-	{ 0x00020cf2, 0x001f0fff, OP24, N("cixsin"), REG2 },
-	{ 0x00030cf2, 0x001f0fff, OP24, N("cixsout"), REG2 },
-	{ 0x00050cf2, 0x001f0fff, OP24, N("cis0begin"), REG2 },
-	{ 0x00060cf2, 0x001f0fff, OP24, N("cis0exec"), REG2 },
-	{ 0x00070cf2, 0x001f0fff, OP24, N("cis1begin"), REG2 },
-	{ 0x00080cf2, 0x001f0fff, OP24, N("cis1exec"), REG2 },
-	{ 0x000b0cf2, 0x001f0fff, OP24, N("cixor"), REG2 },
-	{ 0x000c0cf2, 0x001f0fff, OP24, N("ciadd"), REG2 },
-	{ 0x000d0cf2, 0x001f0fff, OP24, N("ciand"), REG2 },
-	{ 0x000e0cf2, 0x001f0fff, OP24, N("cirev"), REG2 },
-	{ 0x000f0cf2, 0x001f0fff, OP24, N("ciprecmac"), REG2 },
-	{ 0x00100cf2, 0x001f0fff, OP24, N("cisecret"), REG2 },
-	{ 0x00110cf2, 0x001f0fff, OP24, N("cikeyreg"), REG2 },
-	{ 0x00120cf2, 0x001f0fff, OP24, N("cikexp"), REG2 },
-	{ 0x00130cf2, 0x001f0fff, OP24, N("cikrexp"), REG2 },
-	{ 0x00140cf2, 0x001f0fff, OP24, N("cienc"), REG2 },
-	{ 0x00150cf2, 0x001f0fff, OP24, N("cidec"), REG2 },
-	{ 0x00170cf2, 0x001f0fff, OP24, N("cisigenc"), REG2 },
-	{ 0x00000cf2, 0x00000fff, OP24, OOPS, REG2 },
+	{ 0x00010cf2, 0x001f0fff, OP24, N("cimov"), REG2, .fmask = F_CRYPT },
+	{ 0x00020cf2, 0x001f0fff, OP24, N("cixsin"), REG2, .fmask = F_CRYPT },
+	{ 0x00030cf2, 0x001f0fff, OP24, N("cixsout"), REG2, .fmask = F_CRYPT },
+	{ 0x00050cf2, 0x001f0fff, OP24, N("cis0begin"), REG2, .fmask = F_CRYPT },
+	{ 0x00060cf2, 0x001f0fff, OP24, N("cis0exec"), REG2, .fmask = F_CRYPT },
+	{ 0x00070cf2, 0x001f0fff, OP24, N("cis1begin"), REG2, .fmask = F_CRYPT },
+	{ 0x00080cf2, 0x001f0fff, OP24, N("cis1exec"), REG2, .fmask = F_CRYPT },
+	{ 0x000b0cf2, 0x001f0fff, OP24, N("cixor"), REG2, .fmask = F_CRYPT },
+	{ 0x000c0cf2, 0x001f0fff, OP24, N("ciadd"), REG2, .fmask = F_CRYPT },
+	{ 0x000d0cf2, 0x001f0fff, OP24, N("ciand"), REG2, .fmask = F_CRYPT },
+	{ 0x000e0cf2, 0x001f0fff, OP24, N("cirev"), REG2, .fmask = F_CRYPT },
+	{ 0x000f0cf2, 0x001f0fff, OP24, N("ciprecmac"), REG2, .fmask = F_CRYPT },
+	{ 0x00100cf2, 0x001f0fff, OP24, N("cisecret"), REG2, .fmask = F_CRYPT },
+	{ 0x00110cf2, 0x001f0fff, OP24, N("cikeyreg"), REG2, .fmask = F_CRYPT },
+	{ 0x00120cf2, 0x001f0fff, OP24, N("cikexp"), REG2, .fmask = F_CRYPT },
+	{ 0x00130cf2, 0x001f0fff, OP24, N("cikrexp"), REG2, .fmask = F_CRYPT },
+	{ 0x00140cf2, 0x001f0fff, OP24, N("cienc"), REG2, .fmask = F_CRYPT },
+	{ 0x00150cf2, 0x001f0fff, OP24, N("cidec"), REG2, .fmask = F_CRYPT },
+	{ 0x00170cf2, 0x001f0fff, OP24, N("cisigenc"), REG2, .fmask = F_CRYPT },
+	{ 0x00000cf2, 0x00000fff, OP24, OOPS, REG2, .fmask = F_CRYPT },
 	{ 0x000000f2, 0x000000ff, OP24, OOPS, REG2, IMM8 },
 
 	{ 0x000000f4, 0x000020fe, T(ol0), N("bra"), T(p), T(bt) },
@@ -498,8 +499,8 @@ static struct insn tabm[] = {
 	{ 0x000031f4, 0x00003fff, T(ol0), N("bset"), FLAGS, T(fl) },
 	{ 0x000032f4, 0x00003fff, T(ol0), N("bclr"), FLAGS, T(fl) },
 	{ 0x000033f4, 0x00003fff, T(ol0), N("btgl"), FLAGS, T(fl) },
-	{ 0x00003cf4, 0x00003fff, T(ol0), N("cxset"), IMM8 },
-	{ 0x00003cf5, 0x00003fff, T(ol0), T(cocmd) },
+	{ 0x00003cf4, 0x00003fff, T(ol0), N("cxset"), IMM8, .fmask = F_CRYPT },
+	{ 0x00003cf5, 0x00003fff, T(ol0), T(cocmd), .fmask = F_CRYPT },
 	{ 0x000000f4, 0x000000fe, T(ol0), OOPS, T(i) },
 
 	{ 0x000000f8, 0x00000fff, OP16, N("ret"), ENDMARK },
@@ -573,7 +574,8 @@ static void fuc_prep(struct disisa *isa) {
 	int f_fuc0op = vardata_add_feature(isa->vardata, "fuc0op", "v0 exclusive opcodes");
 	int f_fuc3op = vardata_add_feature(isa->vardata, "fuc3op", "v3+ opcodes");
 	int f_pc24 = vardata_add_feature(isa->vardata, "pc24", "24-bit PC opcodes");
-	if (f_fuc0op == -1 || f_fuc3op == -1 || f_pc24 == -1)
+	int f_crypt = vardata_add_feature(isa->vardata, "crypt", "Cryptographic coprocessor");
+	if (f_fuc0op == -1 || f_fuc3op == -1 || f_pc24 == -1 || f_crypt == -1)
 		abort();
 	int vs_fucver = vardata_add_varset(isa->vardata, "fucver", "fµc version");
 	if (vs_fucver == -1)
