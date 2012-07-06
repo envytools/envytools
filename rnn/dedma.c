@@ -112,7 +112,7 @@ static void
 pretty_method(struct state *s, struct ent *e, uint32_t x)
 {
 	struct rnndecaddrinfo *ai;
-	struct rnndeccolors *col = s->colors;
+	const struct envy_colors *col = s->colors;
 	struct dma *dma = &s->dma;
 	struct obj *obj = s->subchan[dma->subchan];
 	char *dec_obj = NULL;
@@ -121,11 +121,11 @@ pretty_method(struct state *s, struct ent *e, uint32_t x)
 
 	/* get an object name */
 	if (obj && obj->name)
-		asprintf(&dec_obj, "%s%s%s", col->cname,
-			 obj->name, col->cend);
+		asprintf(&dec_obj, "%s%s%s", col->rname,
+			 obj->name, col->reset);
 	else
-		asprintf(&dec_obj, "%sOBJ%X%s", col->cerr,
-			 (obj ? obj->class : 0), col->cend);
+		asprintf(&dec_obj, "%sOBJ%X%s", col->err,
+			 (obj ? obj->class : 0), col->reset);
 
 	/* get the method name and value */
 	if (obj) {
@@ -137,8 +137,8 @@ pretty_method(struct state *s, struct ent *e, uint32_t x)
 
 		free(ai);
 	} else {
-		asprintf(&dec_addr, "%s0x%x%s", col->cerr, dma->addr,
-			 col->cend);
+		asprintf(&dec_addr, "%s0x%x%s", col->err, dma->addr,
+			 col->reset);
 	}
 
 	/* write it */
@@ -328,7 +328,7 @@ configure(struct state *s, int argc, char *argv[], char **path,
 			s->op.flush = flush_raw;
 
 		} else if (!strcmp(argv[i], "-c")) {
-			s->colors = &rnndec_colorsterm;
+			s->colors = &envy_def_colors;
 
 		} else if (!strcmp(argv[i], "-m")) {
 			if (i + 1 >= argc)
@@ -370,7 +370,7 @@ configure(struct state *s, int argc, char *argv[], char **path,
 	if (!*path)
 		goto fail;
 	if (!s->colors)
-		s->colors = &rnndec_colorsnull;
+		s->colors = &envy_null_colors;
 	if (!s->op.flush)
 		s->op.flush = flush_dma;
 	s->filter.addr1 = ~0;

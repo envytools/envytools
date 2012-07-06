@@ -31,28 +31,10 @@
 #include <inttypes.h>
 #include "util.h"
 
-struct rnndeccolors rnndec_colorsterm = {
-	.ceval = "\033[35m",
-	.cimm = "\033[33m",
-	.cname = "\033[32m",
-	.cerr = "\033[31m",
-	.cbool = "\033[36m",
-	.cend = "\033[0m",
-};
-
-struct rnndeccolors rnndec_colorsnull = {
-	.ceval = "",
-	.cimm = "",
-	.cname = "",
-	.cerr = "",
-	.cbool = "",
-	.cend = "",
-};
-
 struct rnndeccontext *rnndec_newcontext(struct rnndb *db) {
 	struct rnndeccontext *res = calloc (sizeof *res, 1);
 	res->db = db;
-	res->colors = &rnndec_colorsnull;
+	res->colors = &envy_null_colors;
 	return res;
 }
 
@@ -118,7 +100,7 @@ char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64
 		doenum:
 			for (i = 0; i < valsnum; i++)
 				if (rnndec_varmatch(ctx, &vals[i]->varinfo) && vals[i]->valvalid && vals[i]->value == value) {
-					asprintf (&res, "%s%s%s", ctx->colors->ceval, vals[i]->name, ctx->colors->cend);
+					asprintf (&res, "%s%s%s", ctx->colors->eval, vals[i]->name, ctx->colors->reset);
 					return res;
 				}
 			goto failhex;
@@ -142,9 +124,9 @@ char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64
 						continue;
 					else if (sval == 1) {
 						if (!res)
-							asprintf (&res, "%s%s%s", ctx->colors->cbool, bitfields[i]->name, ctx->colors->cend);
+							asprintf (&res, "%s%s%s", ctx->colors->mod, bitfields[i]->name, ctx->colors->reset);
 						else {
-							asprintf (&tmp, "%s | %s%s%s", res, ctx->colors->cbool, bitfields[i]->name, ctx->colors->cend);
+							asprintf (&tmp, "%s | %s%s%s", res, ctx->colors->mod, bitfields[i]->name, ctx->colors->reset);
 							free(res);
 							res = tmp;
 						}
@@ -153,9 +135,9 @@ char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64
 				}
 				char *subval = rnndec_decodeval(ctx, &bitfields[i]->typeinfo, sval, bitfields[i]->high - bitfields[i]->low + 1);
 				if (!res)
-					asprintf (&res, "%s%s%s = %s", ctx->colors->cname, bitfields[i]->name, ctx->colors->cend, subval);
+					asprintf (&res, "%s%s%s = %s", ctx->colors->rname, bitfields[i]->name, ctx->colors->reset, subval);
 				else {
-					asprintf (&tmp, "%s | %s%s%s = %s", res, ctx->colors->cname, bitfields[i]->name, ctx->colors->cend, subval);
+					asprintf (&tmp, "%s | %s%s%s = %s", res, ctx->colors->rname, bitfields[i]->name, ctx->colors->reset, subval);
 					free(res);
 					res = tmp;
 				}
@@ -163,49 +145,49 @@ char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64
 			}
 			if (value & ~mask) {
 				if (!res)
-					asprintf (&res, "%s%#"PRIx64"%s", ctx->colors->cerr, value & ~mask, ctx->colors->cend);
+					asprintf (&res, "%s%#"PRIx64"%s", ctx->colors->err, value & ~mask, ctx->colors->reset);
 				else {
-					asprintf (&tmp, "%s | %s%#"PRIx64"%s", res, ctx->colors->cerr, value & ~mask, ctx->colors->cend);
+					asprintf (&tmp, "%s | %s%#"PRIx64"%s", res, ctx->colors->err, value & ~mask, ctx->colors->reset);
 					free(res);
 					res = tmp;
 				}
 			}
 			if (!res)
-				asprintf (&res, "%s0%s", ctx->colors->cimm, ctx->colors->cend);
+				asprintf (&res, "%s0%s", ctx->colors->num, ctx->colors->reset);
 			asprintf (&tmp, "{ %s }", res);
 			free(res);
 			return tmp;
 		case RNN_TTYPE_SPECTYPE:
 			return rnndec_decodeval(ctx, &ti->spectype->typeinfo, value, width);
 		case RNN_TTYPE_HEX:
-			asprintf (&res, "%s%#"PRIx64"%s", ctx->colors->cimm, value, ctx->colors->cend);
+			asprintf (&res, "%s%#"PRIx64"%s", ctx->colors->num, value, ctx->colors->reset);
 			return res;
 		case RNN_TTYPE_UINT:
-			asprintf (&res, "%s%"PRIu64"%s", ctx->colors->cimm, value, ctx->colors->cend);
+			asprintf (&res, "%s%"PRIu64"%s", ctx->colors->num, value, ctx->colors->reset);
 			return res;
 		case RNN_TTYPE_INT:
 			if (value & UINT64_C(1) << (width-1))
-				asprintf (&res, "%s-%"PRIi64"%s", ctx->colors->cimm, (UINT64_C(1) << width) - value, ctx->colors->cend);
+				asprintf (&res, "%s-%"PRIi64"%s", ctx->colors->num, (UINT64_C(1) << width) - value, ctx->colors->reset);
 			else
-				asprintf (&res, "%s%"PRIi64"%s", ctx->colors->cimm, value, ctx->colors->cend);
+				asprintf (&res, "%s%"PRIi64"%s", ctx->colors->num, value, ctx->colors->reset);
 			return res;
 		case RNN_TTYPE_BOOLEAN:
 			if (value == 0) {
-				asprintf (&res, "%sFALSE%s", ctx->colors->cbool, ctx->colors->cend);
+				asprintf (&res, "%sFALSE%s", ctx->colors->eval, ctx->colors->reset);
 				return res;
 			} else if (value == 1) {
-				asprintf (&res, "%sTRUE%s", ctx->colors->cbool, ctx->colors->cend);
+				asprintf (&res, "%sTRUE%s", ctx->colors->eval, ctx->colors->reset);
 				return res;
 			}
 		case RNN_TTYPE_FLOAT: {
 			union { uint64_t i; float f; double d; } val;
 			val.i = value;
 			if (width == 64)
-				asprintf(&res, "%s%f%s", ctx->colors->cimm,
-					val.d, ctx->colors->cend);
+				asprintf(&res, "%s%f%s", ctx->colors->num,
+					val.d, ctx->colors->reset);
 			else if (width == 32)
-				asprintf(&res, "%s%f%s", ctx->colors->cimm,
-					val.f, ctx->colors->cend);
+				asprintf(&res, "%s%f%s", ctx->colors->num,
+					val.f, ctx->colors->reset);
 			else
 				goto failhex;
 
@@ -213,7 +195,7 @@ char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64
 		}
 		failhex:
 		default:
-			asprintf (&res, "%s%#"PRIx64"%s", ctx->colors->cerr, value, ctx->colors->cend);
+			asprintf (&res, "%s%#"PRIx64"%s", ctx->colors->num, value, ctx->colors->reset);
 			return res;
 			break;
 	}
@@ -221,7 +203,7 @@ char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64
 
 static char *appendidx (struct rnndeccontext *ctx, char *name, uint64_t idx) {
 	char *res;
-	asprintf (&res, "%s[%s%#"PRIx64"%s]", name, ctx->colors->cimm, idx, ctx->colors->cend);
+	asprintf (&res, "%s[%s%#"PRIx64"%s]", name, ctx->colors->num, idx, ctx->colors->reset);
 	free (name);
 	return res;
 }
@@ -252,13 +234,13 @@ static struct rnndecaddrinfo *trymatch (struct rnndeccontext *ctx, struct rnndel
 				res = calloc (sizeof *res, 1);
 				res->typeinfo = &elems[i]->typeinfo;
 				res->width = elems[i]->width;
-				asprintf (&res->name, "%s%s%s", ctx->colors->cname, elems[i]->name, ctx->colors->cend);
+				asprintf (&res->name, "%s%s%s", ctx->colors->rname, elems[i]->name, ctx->colors->reset);
 				for (j = 0; j < indicesnum; j++)
 					res->name = appendidx(ctx, res->name, indices[j]);
 				if (elems[i]->length != 1)
 					res->name = appendidx(ctx, res->name, idx);
 				if (offset) {
-					asprintf (&tmp, "%s+%s%#"PRIx64"%s", res->name, ctx->colors->cerr, offset, ctx->colors->cend);
+					asprintf (&tmp, "%s+%s%#"PRIx64"%s", res->name, ctx->colors->err, offset, ctx->colors->reset);
 					free(res->name);
 					res->name = tmp;
 				}
@@ -282,7 +264,7 @@ static struct rnndecaddrinfo *trymatch (struct rnndeccontext *ctx, struct rnndel
 						continue;
 					if (!elems[i]->name)
 						return res;
-					asprintf (&name, "%s%s%s", ctx->colors->cname, elems[i]->name, ctx->colors->cend);
+					asprintf (&name, "%s%s%s", ctx->colors->rname, elems[i]->name, ctx->colors->reset);
 					for (j = 0; j < indicesnum; j++)
 						name = appendidx(ctx, name, indices[j]);
 					if (elems[i]->length != 1)
@@ -301,7 +283,7 @@ static struct rnndecaddrinfo *trymatch (struct rnndeccontext *ctx, struct rnndel
 				offset = (addr-elems[i]->offset)%elems[i]->stride;
 				if (elems[i]->length && idx >= elems[i]->length)
 					break;
-				asprintf (&name, "%s%s%s", ctx->colors->cname, elems[i]->name, ctx->colors->cend);
+				asprintf (&name, "%s%s%s", ctx->colors->rname, elems[i]->name, ctx->colors->reset);
 				for (j = 0; j < indicesnum; j++)
 					name = appendidx(ctx, name, indices[j]);
 				if (elems[i]->length != 1)
@@ -314,7 +296,7 @@ static struct rnndecaddrinfo *trymatch (struct rnndeccontext *ctx, struct rnndel
 					return res;
 				}
 				res = calloc (sizeof *res, 1);
-				asprintf (&tmp, "%s+%s%#"PRIx64"%s", name, ctx->colors->cerr, offset, ctx->colors->cend);
+				asprintf (&tmp, "%s+%s%#"PRIx64"%s", name, ctx->colors->err, offset, ctx->colors->reset);
 				free(name);
 				res->name = tmp;
 				return res;
@@ -330,6 +312,6 @@ struct rnndecaddrinfo *rnndec_decodeaddr(struct rnndeccontext *ctx, struct rnndo
 	if (res)
 		return res;
 	res = calloc (sizeof *res, 1);
-	asprintf (&res->name, "%s%#"PRIx64"%s", ctx->colors->cerr, addr, ctx->colors->cend);
+	asprintf (&res->name, "%s%#"PRIx64"%s", ctx->colors->err, addr, ctx->colors->reset);
 	return res;
 }

@@ -251,6 +251,7 @@ int main(int argc, char **argv) {
 	const struct disisa *hwsq_isa = ed_getisa("hwsq");
 	struct varinfo *hwsq_var_nv41 = varinfo_new(hwsq_isa->vardata);
 	varinfo_set_variant(hwsq_var_nv41, "nv41");
+	const struct envy_colors *colors = &envy_def_colors;
 	while (1) {
 		/* yes, static buffer. but mmiotrace lines are bound to have sane length anyway. */
 		if (!fgets(line, sizeof(line), fin))
@@ -271,7 +272,7 @@ int main(int argc, char **argv) {
 				nc.bar2 &= ~0xf;
 				nc.i2cip = -1;
 				nc.ctx = rnndec_newcontext(db);
-				nc.ctx->colors = &rnndec_colorsterm;
+				nc.ctx->colors = colors;
 				for (i = 0; i < 10; i++)
 					nc.i2cb[i].last = 7;
 				ADDARRAY(cctx, nc);
