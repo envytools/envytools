@@ -46,6 +46,7 @@ struct symtab {
 struct symtab *symtab_new();
 void symtab_del(struct symtab *tab);
 int symtab_get(struct symtab *tab, const char *name, int *ptype, int *pdata);
+int symtab_get_t(struct symtab *tab, const char *name, int type, int *pdata);
 int symtab_put(struct symtab *tab, const char *name, int type, int data);
 
 #endif
