@@ -28,6 +28,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <inttypes.h>
 
 #define ADDARRAY(a, e) \
 	do { \
@@ -82,6 +83,8 @@ static inline int clog2(unsigned x) {
 	})
 
 #define CEILDIV(a, b) (((a) + (b) - 1)/(b))
+
+uint32_t elf_hash(const char *str);
 
 FILE *find_in_path(const char *name, const char *path, char **pfullname);
 
