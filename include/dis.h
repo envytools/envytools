@@ -33,17 +33,7 @@
 #include <unistd.h>
 #include "util.h"
 #include "var.h"
-
-extern char *cnorm;	// instruction code and misc stuff
-extern char *cname;	// instruction name and mods
-extern char *creg0;	// $r registers
-extern char *creg1;	// other registers
-extern char *cmem;	// memory accesses
-extern char *cnum;	// numbers
-extern char *cunk;	// unknown stuff
-extern char *cbtarg;	// jump labels
-extern char *cctarg;	// call labels
-extern char *cbctarg;	// call and jump labels
+#include "colors.h"
 
 /*
  * Table format
@@ -422,7 +412,7 @@ ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx);
 
 const struct disisa *ed_getisa(const char *name);
 
-void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, struct varinfo *varinfo, int quiet, struct label *labels, int labelsnum);
-void printexpr(FILE *out, const struct expr *expr, int lvl);
+void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, struct varinfo *varinfo, int quiet, struct label *labels, int labelsnum, const struct envy_colors *cols);
+void printexpr(FILE *out, const struct expr *expr, int lvl, const struct envy_colors *cols);
 
 #endif

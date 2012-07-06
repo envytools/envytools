@@ -52,6 +52,7 @@ int main(int argc, char **argv) {
 	const char **featnames = 0;
 	int featnamesnum = 0;
 	int featnamesmax = 0;
+	const struct envy_colors *cols = &envy_def_colors;
 	argv[0] = basename(argv[0]);
 	int len = strlen(argv[0]);
 	if (len > 3 && !strcmp(argv[0] + len - 3, "dis")) {
@@ -86,16 +87,7 @@ int main(int argc, char **argv) {
 				quiet = 1;
 				break;
 			case 'n':
-				cnorm = "";
-				cname = "";
-				creg0 = "";
-				creg1 = "";
-				cmem = "";
-				cnum = "";
-				cunk = "";
-				cbtarg = "";
-				cctarg = "";
-				cbctarg = "";
+				cols = &envy_null_colors;
 				break;
 			case 'm':
 				isa = ed_getisa(optarg);
@@ -258,6 +250,6 @@ int main(int argc, char **argv) {
 	int cnt = num - skip;
 	if (limit && limit < cnt)
 		cnt = limit;
-	envydis (isa, stdout, code+skip, base, cnt, var, quiet, labels, labelsnum);
+	envydis (isa, stdout, code+skip, base, cnt, var, quiet, labels, labelsnum, cols);
 	return 0;
 }

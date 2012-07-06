@@ -808,6 +808,8 @@ int main(int argc, char **argv) {
 	}
 	envy_bios_print(bios, stdout, printmask);
 
+	const struct envy_colors *discolors = &envy_def_colors;
+
 	if (bios->bmp_offset && bios->type == ENVY_BIOS_TYPE_NV04) {
 		bmpver_maj = bios->data[bios->bmp_offset+5];
 		bmpver_min = bios->data[bios->bmp_offset+6];
@@ -938,7 +940,7 @@ int main(int argc, char **argv) {
 			//uint8_t bytes_written = 4;
 
 			printf("-- HWSQ entry %u at %x: sequencer control = %u\n", i, entry_offset, sequencer);
-			envydis(hwsq_isa, stdout, bios->data + entry_offset + 4, 0, bytes_to_write - 4, hwsq_var_nv41, 0, 0, 0);
+			envydis(hwsq_isa, stdout, bios->data + entry_offset + 4, 0, bytes_to_write - 4, hwsq_var_nv41, 0, 0, 0, discolors);
 			printf ("\n");
 		}
 		printf ("\n");

@@ -24,22 +24,22 @@
 
 #include "dis.h"
 
-void printexpr(FILE *out, const struct expr *expr, int lvl) {
+void printexpr(FILE *out, const struct expr *expr, int lvl, const struct envy_colors *cols) {
 	int i;
 	switch (expr->type) {
 		case EXPR_NUM:
 			switch (expr->special) {
 				case 1:
-					fprintf(out, "%s", cbtarg);
+					fprintf(out, "%s", cols->btarg);
 					break;
 				case 2:
-					fprintf(out, "%s", cctarg);
+					fprintf(out, "%s", cols->ctarg);
 					break;
 				case 3:
-					fprintf(out, "%s", cmem);
+					fprintf(out, "%s", cols->mem);
 					break;
 				default:
-					fprintf(out, "%s", cnum);
+					fprintf(out, "%s", cols->num);
 					break;
 			}
 			if (expr->num1 & 1ull << 63)
@@ -50,172 +50,172 @@ void printexpr(FILE *out, const struct expr *expr, int lvl) {
 		case EXPR_ID:
 			switch (expr->special) {
 				case 1:
-					fprintf(out, "%s%s", cnum, expr->str);
+					fprintf(out, "%s%s", cols->num, expr->str);
 					break;
 				case 2:
-					fprintf(out, "%s%s", cunk, expr->str);
+					fprintf(out, "%s%s", cols->err, expr->str);
 					break;
 				default:
-					fprintf(out, "%s%s", cname, expr->str);
+					fprintf(out, "%s%s", cols->iname, expr->str);
 					break;
 			}
 			return;
 		case EXPR_LABEL:
 			switch (expr->special) {
 				case 2:
-					fprintf(out, "%s#%s", cunk, expr->str);
+					fprintf(out, "%s#%s", cols->err, expr->str);
 					break;
 				default:
-					fprintf(out, "%s#%s", cnum, expr->str);
+					fprintf(out, "%s#%s", cols->num, expr->str);
 					break;
 			}
 			return;
 		case EXPR_REG:
 			switch (expr->special) {
 				case 1:
-					fprintf(out, "%s$%s", creg1, expr->str);
+					fprintf(out, "%s$%s", cols->regsp, expr->str);
 					break;
 				case 2:
-					fprintf(out, "%s$%s", cunk, expr->str);
+					fprintf(out, "%s$%s", cols->err, expr->str);
 					break;
 				default:
-					fprintf(out, "%s$%s", creg0, expr->str);
+					fprintf(out, "%s$%s", cols->reg, expr->str);
 					break;
 			}
 			return;
 		case EXPR_MEM:
 			if (expr->str)
-				fprintf(out, "%s%s[", cmem, expr->str);
-			printexpr(out, expr->expr1, 0);
+				fprintf(out, "%s%s[", cols->mem, expr->str);
+			printexpr(out, expr->expr1, 0, cols);
 			if (expr->str)
-				fprintf(out, "%s]", cmem);
+				fprintf(out, "%s]", cols->mem);
 			return;
 		case EXPR_VEC:
-			fprintf(out, "%s{", cnorm);
+			fprintf(out, "%s{", cols->sym);
 			for (i = 0; i < expr->vexprsnum; i++) {
 				fprintf(out, " ");
-				printexpr(out, expr->vexprs[i], 0);
+				printexpr(out, expr->vexprs[i], 0, cols);
 			}
-			fprintf(out, " %s}", cnorm);
+			fprintf(out, " %s}", cols->sym);
 			return;
 		case EXPR_DISCARD:
-			fprintf(out, "%s#", creg0);
+			fprintf(out, "%s#", cols->sym);
 			return;
 		case EXPR_BITFIELD:
-			fprintf(out, "%s%lld:%lld", cnum, expr->num1, expr->num2);
+			fprintf(out, "%s%lld:%lld", cols->num, expr->num1, expr->num2);
 			return;
 		case EXPR_NEG:
-			fprintf(out, "%s-", cmem);
-			printexpr(out, expr->expr1, 7);
+			fprintf(out, "%s-", cols->sym);
+			printexpr(out, expr->expr1, 7, cols);
 			return;
 		case EXPR_NOT:
-			fprintf(out, "%s~", cmem);
-			printexpr(out, expr->expr1, 7);
+			fprintf(out, "%s~", cols->sym);
+			printexpr(out, expr->expr1, 7, cols);
 			return;
 		case EXPR_MUL:
 			if (lvl >= 7)
-				fprintf(out, "%s(", cmem);
-			printexpr(out, expr->expr1, 6);
-			fprintf(out, "%s*", cmem);
-			printexpr(out, expr->expr2, 7);
+				fprintf(out, "%s(", cols->sym);
+			printexpr(out, expr->expr1, 6, cols);
+			fprintf(out, "%s*", cols->sym);
+			printexpr(out, expr->expr2, 7, cols);
 			if (lvl >= 7)
-				fprintf(out, "%s)", cmem);
+				fprintf(out, "%s)", cols->sym);
 			return;
 		case EXPR_DIV:
 			if (lvl >= 7)
-				fprintf(out, "%s(", cmem);
-			printexpr(out, expr->expr1, 6);
-			fprintf(out, "%s/", cmem);
-			printexpr(out, expr->expr2, 7);
+				fprintf(out, "%s(", cols->sym);
+			printexpr(out, expr->expr1, 6, cols);
+			fprintf(out, "%s/", cols->sym);
+			printexpr(out, expr->expr2, 7, cols);
 			if (lvl >= 7)
-				fprintf(out, "%s)", cmem);
+				fprintf(out, "%s)", cols->sym);
 			return;
 		case EXPR_ADD:
 			if (lvl >= 6)
-				fprintf(out, "%s(", cmem);
-			printexpr(out, expr->expr1, 5);
-			fprintf(out, "%s+", cmem);
-			printexpr(out, expr->expr2, 6);
+				fprintf(out, "%s(", cols->sym);
+			printexpr(out, expr->expr1, 5, cols);
+			fprintf(out, "%s+", cols->sym);
+			printexpr(out, expr->expr2, 6, cols);
 			if (lvl >= 6)
-				fprintf(out, "%s)", cmem);
+				fprintf(out, "%s)", cols->sym);
 			return;
 		case EXPR_SUB:
 			if (lvl >= 6)
-				fprintf(out, "%s(", cmem);
-			printexpr(out, expr->expr1, 5);
-			fprintf(out, "%s-", cmem);
-			printexpr(out, expr->expr2, 6);
+				fprintf(out, "%s(", cols->sym);
+			printexpr(out, expr->expr1, 5, cols);
+			fprintf(out, "%s-", cols->sym);
+			printexpr(out, expr->expr2, 6, cols);
 			if (lvl >= 6)
-				fprintf(out, "%s)", cmem);
+				fprintf(out, "%s)", cols->sym);
 			return;
 		case EXPR_SHL:
 			if (lvl >= 5)
-				fprintf(out, "%s(", cmem);
-			printexpr(out, expr->expr1, 4);
-			fprintf(out, "%s<<", cmem);
-			printexpr(out, expr->expr2, 5);
+				fprintf(out, "%s(", cols->sym);
+			printexpr(out, expr->expr1, 4, cols);
+			fprintf(out, "%s<<", cols->sym);
+			printexpr(out, expr->expr2, 5, cols);
 			if (lvl >= 5)
-				fprintf(out, "%s)", cmem);
+				fprintf(out, "%s)", cols->sym);
 			return;
 		case EXPR_SHR:
 			if (lvl >= 5)
-				fprintf(out, "%s(", cmem);
-			printexpr(out, expr->expr1, 4);
-			fprintf(out, "%s>>", cmem);
-			printexpr(out, expr->expr2, 5);
+				fprintf(out, "%s(", cols->sym);
+			printexpr(out, expr->expr1, 4, cols);
+			fprintf(out, "%s>>", cols->sym);
+			printexpr(out, expr->expr2, 5, cols);
 			if (lvl >= 5)
-				fprintf(out, "%s)", cmem);
+				fprintf(out, "%s)", cols->sym);
 			return;
 		case EXPR_AND:
 			if (lvl >= 4)
-				fprintf(out, "%s(", cmem);
-			printexpr(out, expr->expr1, 3);
-			fprintf(out, "%s&", cmem);
-			printexpr(out, expr->expr2, 4);
+				fprintf(out, "%s(", cols->sym);
+			printexpr(out, expr->expr1, 3, cols);
+			fprintf(out, "%s&", cols->sym);
+			printexpr(out, expr->expr2, 4, cols);
 			if (lvl >= 4)
-				fprintf(out, "%s)", cmem);
+				fprintf(out, "%s)", cols->sym);
 			return;
 		case EXPR_XOR:
 			if (lvl >= 3)
-				fprintf(out, "%s(", cmem);
-			printexpr(out, expr->expr1, 2);
-			fprintf(out, "%s^", cmem);
-			printexpr(out, expr->expr2, 3);
+				fprintf(out, "%s(", cols->sym);
+			printexpr(out, expr->expr1, 2, cols);
+			fprintf(out, "%s^", cols->sym);
+			printexpr(out, expr->expr2, 3, cols);
 			if (lvl >= 3)
-				fprintf(out, "%s)", cmem);
+				fprintf(out, "%s)", cols->sym);
 			return;
 		case EXPR_OR:
 			if (lvl >= 2)
-				fprintf(out, "%s(", cmem);
-			printexpr(out, expr->expr1, 1);
-			fprintf(out, "%s|", cmem);
-			printexpr(out, expr->expr2, 2);
+				fprintf(out, "%s(", cols->sym);
+			printexpr(out, expr->expr1, 1, cols);
+			fprintf(out, "%s|", cols->sym);
+			printexpr(out, expr->expr2, 2, cols);
 			if (lvl >= 2)
-				fprintf(out, "%s)", cmem);
+				fprintf(out, "%s)", cols->sym);
 			return;
 		case EXPR_PIADD:
 			if (lvl >= 1)
-				fprintf(out, "%s(", cmem);
-			printexpr(out, expr->expr1, 0);
-			fprintf(out, "%s++", cmem);
-			printexpr(out, expr->expr2, 1);
+				fprintf(out, "%s(", cols->sym);
+			printexpr(out, expr->expr1, 0, cols);
+			fprintf(out, "%s++", cols->sym);
+			printexpr(out, expr->expr2, 1, cols);
 			if (lvl >= 1)
-				fprintf(out, "%s)", cmem);
+				fprintf(out, "%s)", cols->sym);
 			return;
 		case EXPR_PISUB:
 			if (lvl >= 1)
-				fprintf(out, "%s(", cmem);
-			printexpr(out, expr->expr1, 0);
-			fprintf(out, "%s--", cmem);
-			printexpr(out, expr->expr2, 1);
+				fprintf(out, "%s(", cols->sym);
+			printexpr(out, expr->expr1, 0, cols);
+			fprintf(out, "%s--", cols->sym);
+			printexpr(out, expr->expr2, 1, cols);
 			if (lvl >= 1)
-				fprintf(out, "%s)", cmem);
+				fprintf(out, "%s)", cols->sym);
 			return;
 		case EXPR_SESTART:
-			fprintf(out, "%s(", cmem);
+			fprintf(out, "%s(", cols->sym);
 			return;
 		case EXPR_SEEND:
-			fprintf(out, "%s)", cmem);
+			fprintf(out, "%s)", cols->sym);
 			return;
 		default:
 			assert(0);
