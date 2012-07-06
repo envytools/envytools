@@ -78,7 +78,11 @@ int varselect_match(struct varselect *select, struct varinfo *info) {
 	for (i = 0; i < info->data->modesetsnum; i++) {
 		if (mask_get(select->msmask, i)) {
 			if (info->modes[i] == -1) {
-				fprintf(stderr, "Warning: don't know mode from modeset %s, assuming a match\n", info->data->modesets[i].name);
+				if (info->data->modesets[i].defmode == -1) {
+					fprintf(stderr, "Warning: don't know mode from modeset %s, assuming a match\n", info->data->modesets[i].name);
+				} else if (!mask_get(select->mmask, info->data->modesets[i].defmode)) {
+					return 0;
+				}
 			} else if (!mask_get(select->mmask, info->modes[i])) {
 				return 0;
 			}
