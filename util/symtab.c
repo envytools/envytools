@@ -65,6 +65,16 @@ int symtab_get(struct symtab *tab, const char *name, int *ptype, int *pdata) {
 	return -1;
 }
 
+int symtab_get_t(struct symtab *tab, const char *name, int type, int *pdata) {
+	int rtype;
+	int res = symtab_get(tab, name, &rtype, pdata);
+	if (res == -1)
+		return res;
+	if (rtype != type)
+		return -1;
+	return res;
+}
+
 int symtab_put(struct symtab *tab, const char *cname, int type, int data) {
 	if (symtab_get(tab, cname, 0, 0) != -1)
 		return -1;

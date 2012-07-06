@@ -62,7 +62,7 @@
 	<value value="2" name="PAGE_NOT_PRESENT"/>
 	<value value="3" name="VSPACE_LIMIT"/>
 	<value value="4" name="NO_CHANNEL"/>
-	<value value="5" name="PAGE_SYSTEM_ONLY"/>
+	<value value="5" name="PAGE_SUPERVISOR_ONLY"/>
 	<value value="6" name="PAGE_READ_ONLY"/>
 	<!-- ... -->
 	<value value="0xa" name="COMPRESSED_SYSRAM"/>
@@ -205,7 +205,7 @@
 
 <bitset name="NVC0_PTE">
 	<bitfield pos="0" name="PRESENT"/>
-	<bitfield pos="1" name="SYSTEM_ONLY"/>
+	<bitfield pos="1" name="SUPERVISOR_ONLY"/>
 	<bitfield pos="2" name="READ_ONLY"/>
 	<bitfield pos="3" name="ENCRYPTED"/> <!-- SYSRAM only -->
 	<bitfield low="4" high="31" name="ADDRESS" shr="12"/>
