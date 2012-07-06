@@ -91,7 +91,7 @@ struct state {
 
 	struct rnndb *db;
 	struct rnndomain *dom;
-	struct rnndeccolors *colors;
+	const struct envy_colors *colors;
 
 	struct filter filter;
 	struct cache cache;

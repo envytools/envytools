@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2010 Marcin Kościelnicki <koriakin@0x04.net>
+ * Copyright (C) 2012 Marcin Kościelnicki <koriakin@0x04.net>
  * All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
@@ -22,35 +22,27 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef RNNDEC_H
-#define RNNDEC_H
+#ifndef COLORS_H
+#define COLORS_H
 
-#include "rnn.h"
-#include "colors.h"
-
-struct rnndecvariant {
-	struct rnnenum *en;
-	int variant;
+struct envy_colors {
+	const char *reset;
+	const char *iname;	/* instruction name */
+	const char *rname;	/* register or bitfield name */
+	const char *mod;	/* instruction modifier */
+	const char *sym;	/* auxiliary char like { , + */
+	const char *reg;	/* ISA register */
+	const char *regsp;	/* special ISA register */
+	const char *num;	/* immediate number */
+	const char *mem;	/* memory reference */
+	const char *btarg;	/* branch target */
+	const char *ctarg;	/* call target */
+	const char *bctarg;	/* branch and call target */
+	const char *eval;	/* enum value */
+	const char *err;	/* error */
 };
 
-struct rnndeccontext {
-	struct rnndb *db;
-	struct rnndecvariant **vars;
-	int varsnum;
-	int varsmax;
-	const struct envy_colors *colors;
-};
-
-struct rnndecaddrinfo {
-	struct rnntypeinfo *typeinfo;
-	int width;
-	char *name;
-};
-
-struct rnndeccontext *rnndec_newcontext(struct rnndb *db);
-int rnndec_varadd(struct rnndeccontext *ctx, char *varset, char *variant);
-int rnndec_varmatch(struct rnndeccontext *ctx, struct rnnvarinfo *vi);
-char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64_t value, int width);
-struct rnndecaddrinfo *rnndec_decodeaddr(struct rnndeccontext *ctx, struct rnndomain *domain, uint64_t addr, int write);
+extern const struct envy_colors envy_null_colors;
+extern const struct envy_colors envy_def_colors;
 
 #endif

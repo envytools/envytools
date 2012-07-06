@@ -24,7 +24,7 @@
 
 #include "dis.h"
 
-void printexpr(FILE *out, const struct expr *expr, int lvl, const struct ed2a_colors *cols) {
+void printexpr(FILE *out, const struct expr *expr, int lvl, const struct envy_colors *cols) {
 	int i;
 	switch (expr->type) {
 		case EXPR_NUM:

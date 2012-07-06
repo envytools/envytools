@@ -35,6 +35,7 @@
 #include "var.h"
 #include "ed2a.h"
 #include "ed2i.h"
+#include "colors.h"
 
 /*
  * Table format
@@ -425,8 +426,8 @@ ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx);
 
 const struct disisa *ed_getisa(const char *name);
 
-void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, struct varinfo *varinfo, int quiet, struct label *labels, int labelsnum, const struct ed2a_colors *cols);
-void printexpr(FILE *out, const struct expr *expr, int lvl, const struct ed2a_colors *cols);
+void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, struct varinfo *varinfo, int quiet, struct label *labels, int labelsnum, const struct envy_colors *cols);
+void printexpr(FILE *out, const struct expr *expr, int lvl, const struct envy_colors *cols);
 
 void convert_iop(struct line *line, struct ed2a_iop *iop);
 

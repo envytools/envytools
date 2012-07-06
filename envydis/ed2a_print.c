@@ -26,37 +26,7 @@
 #include <assert.h>
 #include <string.h>
 
-const struct ed2a_colors ed2a_null_colors = {
-	.reset	= "",
-	.iname	= "",
-	.mod	= "",
-	.sym	= "",
-	.reg	= "",
-	.regsp	= "",
-	.num	= "",
-	.mem	= "",
-	.btarg	= "",
-	.ctarg	= "",
-	.bctarg	= "",
-	.err	= "",
-};
-
-const struct ed2a_colors ed2a_def_colors = {
-	.reset	= "\x1b[0m",
-	.iname	= "\x1b[0;32m",
-	.mod	= "\x1b[0;36m",
-	.sym	= "\x1b[0;36m",
-	.reg	= "\x1b[0;31m",
-	.regsp	= "\x1b[0;35m",
-	.num	= "\x1b[0;33m",
-	.mem	= "\x1b[0;35m",
-	.btarg	= "\x1b[0;35m",
-	.ctarg	= "\x1b[0;1;37m",
-	.bctarg	= "\x1b[0;1;35m",
-	.err	= "\x1b[0;1;31m",
-};
-
-void ed2a_print_file(struct ed2a_file *file, FILE *ofile, const struct ed2a_colors *col) {
+void ed2a_print_file(struct ed2a_file *file, FILE *ofile, const struct envy_colors *col) {
 	int i;
 	if (file->broken)
 		fprintf (ofile, "%s[broken file]\n", col->err);
@@ -65,7 +35,7 @@ void ed2a_print_file(struct ed2a_file *file, FILE *ofile, const struct ed2a_colo
 	}
 }
 
-void ed2a_print_insn(struct ed2a_insn *insn, FILE *ofile, const struct ed2a_colors *col) {
+void ed2a_print_insn(struct ed2a_insn *insn, FILE *ofile, const struct envy_colors *col) {
 	int i;
 	for (i = 0; i < insn->piecesnum; i++) {
 		if (i)
@@ -80,7 +50,7 @@ void ed2a_print_insn(struct ed2a_insn *insn, FILE *ofile, const struct ed2a_colo
 	}
 }
 
-void ed2a_print_ipiece(struct ed2a_ipiece *ipiece, FILE *ofile, const struct ed2a_colors *col) {
+void ed2a_print_ipiece(struct ed2a_ipiece *ipiece, FILE *ofile, const struct envy_colors *col) {
 	int i;
 	for (i = 0; i < ipiece->prefsnum; i++) {
 		ed2a_print_expr(ipiece->prefs[i], ofile, col, 0);
@@ -95,7 +65,7 @@ void ed2a_print_ipiece(struct ed2a_ipiece *ipiece, FILE *ofile, const struct ed2
 		fprintf(ofile, " %s%s", col->mod, ipiece->mods[i]);
 }
 
-void ed2a_print_iop(struct ed2a_iop *iop, FILE *ofile, const struct ed2a_colors *col) {
+void ed2a_print_iop(struct ed2a_iop *iop, FILE *ofile, const struct envy_colors *col) {
 	int i;
 	for (i = 0; i < iop->modsnum; i++)
 		fprintf(ofile, "%s%s ", col->mod, iop->mods[i]);
@@ -106,7 +76,7 @@ void ed2a_print_iop(struct ed2a_iop *iop, FILE *ofile, const struct ed2a_colors 
 	}
 }
 
-void ed2a_print_expr(struct ed2a_expr *expr, FILE *ofile, const struct ed2a_colors *col, int prio) {
+void ed2a_print_expr(struct ed2a_expr *expr, FILE *ofile, const struct envy_colors *col, int prio) {
 	int i;
 	const char *s;
 	switch (expr->type) {
@@ -301,6 +271,6 @@ void ed2a_print_expr(struct ed2a_expr *expr, FILE *ofile, const struct ed2a_colo
 	}
 }
 
-void ed2a_print_rvec(struct ed2a_rvec *rvec, FILE *ofile, const struct ed2a_colors *col);
-void ed2a_print_swz(struct ed2a_swz *swz, FILE *ofile, const struct ed2a_colors *col);
+void ed2a_print_rvec(struct ed2a_rvec *rvec, FILE *ofile, const struct envy_colors *col);
+void ed2a_print_swz(struct ed2a_swz *swz, FILE *ofile, const struct envy_colors *col);
 

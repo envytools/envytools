@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
 	rnn_prepdb (db);
 	vc = rnndec_newcontext(db);
 	if(colors)
-		vc->colors = &rnndec_colorsterm;
+		vc->colors = &envy_def_colors;
 
 	if (variant)
 		rnndec_varadd(vc, "chipset", variant);

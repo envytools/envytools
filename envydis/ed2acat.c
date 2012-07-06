@@ -30,7 +30,7 @@ void convert_ipiece(struct line *line, struct ed2a_ipiece *ipiece);
 static void fun (struct ed2a_insn *insn, void *parm) {
 	FILE *ofile = parm;
 	int i, j;
-	ed2a_print_insn(insn, ofile, &ed2a_def_colors);
+	ed2a_print_insn(insn, ofile, &envy_def_colors);
 	for (i = 0; i < insn->piecesnum; i++) {
 		struct line *line = calloc(sizeof *line, 1);
 		convert_ipiece(line, insn->pieces[i]);
@@ -42,7 +42,7 @@ static void fun (struct ed2a_insn *insn, void *parm) {
 				noblank = 1;
 			if (j && !noblank)
 				fprintf (ofile, " ");
-			printexpr(ofile, line->atoms[j], 0, &ed2a_def_colors);
+			printexpr(ofile, line->atoms[j], 0, &envy_def_colors);
 			noblank = (line->atoms[j]->type == EXPR_SESTART);
 		}
 		fprintf(ofile, "\n");

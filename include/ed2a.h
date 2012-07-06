@@ -26,6 +26,7 @@
 #define ED2A_ASM_H
 
 #include "ed2_misc.h"
+#include "colors.h"
 #include <stdio.h>
 
 struct ed2a_file {
@@ -149,29 +150,11 @@ void ed2a_del_expr(struct ed2a_expr *expr);
 void ed2a_del_rvec(struct ed2a_rvec *rvec);
 void ed2a_del_swz(struct ed2a_swz *swz);
 
-struct ed2a_colors {
-	const char *reset;
-	const char *iname;
-	const char *mod;
-	const char *sym;
-	const char *reg;
-	const char *regsp;
-	const char *num;
-	const char *mem;
-	const char *btarg;
-	const char *ctarg;
-	const char *bctarg;
-	const char *err;
-};
-
-extern const struct ed2a_colors ed2a_null_colors;
-extern const struct ed2a_colors ed2a_def_colors;
-
-void ed2a_print_file(struct ed2a_file *file, FILE *ofile, const struct ed2a_colors *col);
-void ed2a_print_insn(struct ed2a_insn *insn, FILE *ofile, const struct ed2a_colors *col);
-void ed2a_print_ipiece(struct ed2a_ipiece *ipiece, FILE *ofile, const struct ed2a_colors *col);
-void ed2a_print_iop(struct ed2a_iop *iop, FILE *ofile, const struct ed2a_colors *col);
-void ed2a_print_expr(struct ed2a_expr *expr, FILE *ofile, const struct ed2a_colors *col, int prio);
+void ed2a_print_file(struct ed2a_file *file, FILE *ofile, const struct envy_colors *col);
+void ed2a_print_insn(struct ed2a_insn *insn, FILE *ofile, const struct envy_colors *col);
+void ed2a_print_ipiece(struct ed2a_ipiece *ipiece, FILE *ofile, const struct envy_colors *col);
+void ed2a_print_iop(struct ed2a_iop *iop, FILE *ofile, const struct envy_colors *col);
+void ed2a_print_expr(struct ed2a_expr *expr, FILE *ofile, const struct envy_colors *col, int prio);
 
 struct ed2a_file *ed2a_read_file (FILE *file, const char *filename, void (*fun) (struct ed2a_insn *insn, void *parm), void *parm);
 

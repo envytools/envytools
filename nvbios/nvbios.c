@@ -808,7 +808,7 @@ int main(int argc, char **argv) {
 	}
 	envy_bios_print(bios, stdout, printmask);
 
-	const struct ed2a_colors *discolors = &ed2a_def_colors;
+	const struct envy_colors *discolors = &envy_def_colors;
 
 	if (bios->bmp_offset && bios->type == ENVY_BIOS_TYPE_NV04) {
 		bmpver_maj = bios->data[bios->bmp_offset+5];
