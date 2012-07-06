@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 void ed2i_del_isa(struct ed2i_isa *isa) {
-	ed2s_symtab_del(isa->symtab);
+	symtab_del(isa->symtab);
 	int i;
 	for (i = 0; i < isa->featuresnum; i++) {
 		ed2_free_strings(isa->features[i].names, isa->features[i].namesnum);

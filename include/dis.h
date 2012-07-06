@@ -234,6 +234,7 @@ struct disctx {
 	struct label *labels;
 	int labelsnum;
 	int labelsmax;
+	struct symtab *symtab;
 	struct expr **atoms;
 	int atomsnum;
 	int atomsmax;

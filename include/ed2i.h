@@ -25,7 +25,7 @@
 #ifndef ED2I_ISA_H
 #define ED2I_ISA_H
 
-#include "ed2s.h"
+#include "symtab.h"
 #include <stdio.h>
 
 enum ed2i_endian {
@@ -96,7 +96,7 @@ struct ed2i_isa {
 	int opbits;
 	uint32_t *opdefault;
 	uint32_t *opdefmask;
-	struct ed2s_symtab *symtab;
+	struct symtab *symtab;
 };
 
 void ed2i_del_isa(struct ed2i_isa *isa);

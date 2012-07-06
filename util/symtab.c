@@ -22,7 +22,7 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "ed2s.h"
+#include "symtab.h"
 #include "util.h"
 #include <stdlib.h>
 #include <string.h>
@@ -31,9 +31,9 @@
 static const int primes[] = { 127, 509, 2039, 8191, 32749, 131071, 524287, 2097143, 8388593, 33554393, 134217689, 268435456 };
 static const int numprimes = sizeof primes / sizeof *primes;
 
-struct ed2s_symtab *ed2s_symtab_new() {
+struct symtab *symtab_new() {
 	int i;
-	struct ed2s_symtab *res = calloc(sizeof *res, 1);
+	struct symtab *res = calloc(sizeof *res, 1);
 	res->bucketsnum = primes[0];
 	res->buckets = malloc(sizeof *res->buckets * res->bucketsnum);
 	for (i = 0; i < res->bucketsnum; i++)
@@ -41,7 +41,7 @@ struct ed2s_symtab *ed2s_symtab_new() {
 	return res;
 }
 
-void ed2s_symtab_del(struct ed2s_symtab *tab) {
+void symtab_del(struct symtab *tab) {
 	int i;
 	for (i = 0; i < tab->symsnum; i++)
 		free(tab->syms[i].name);
@@ -50,28 +50,32 @@ void ed2s_symtab_del(struct ed2s_symtab *tab) {
 	free(tab);
 }
 
-int ed2s_symtab_get(struct ed2s_symtab *tab, const char *name) {
+int symtab_get(struct symtab *tab, const char *name, int *ptype, int *pdata) {
 	int i = tab->buckets[elf_hash(name) % tab->bucketsnum];
 	while (i != -1) {
-		if (!strcmp(tab->syms[i].name, name))
+		if (!strcmp(tab->syms[i].name, name)) {
+			if (ptype)
+				*ptype = tab->syms[i].type;
+			if (pdata)
+				*pdata = tab->syms[i].data;
 			return i;
+		}
 		i = tab->syms[i].hchain;
 	}
 	return -1;
 }
 
-int ed2s_symtab_put(struct ed2s_symtab *tab, const char *cname) {
-	if (ed2s_symtab_get(tab, cname) != -1)
+int symtab_put(struct symtab *tab, const char *cname, int type, int data) {
+	if (symtab_get(tab, cname, 0, 0) != -1)
 		return -1;
 	char *name = strdup(cname);
-	struct ed2s_sym sym;
+	struct symtab_sym sym;
 	uint32_t hash = elf_hash(name);
 	int bucket = hash % tab->bucketsnum;
 	int res = tab->symsnum;
 	sym.name = name;
-	sym.type = -1;
-	sym.idata = -1;
-	sym.data = 0;
+	sym.type = type;
+	sym.data = data;
 	sym.hash = hash;
 	sym.hchain = tab->buckets[bucket];
 	tab->buckets[bucket] = res;
@@ -94,11 +98,4 @@ int ed2s_symtab_put(struct ed2s_symtab *tab, const char *cname) {
 		}
 	}
 	return res;
-}
-
-int ed2s_symtab_get_int(struct ed2s_symtab *tab, const char *name, int type) {
-	int idx = ed2s_symtab_get(tab, name);
-	if (idx == -1 || tab->syms[idx].type != type)
-		return -1;
-	return tab->syms[idx].idata;
 }

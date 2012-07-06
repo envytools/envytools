@@ -156,33 +156,31 @@ static const char *const typenames[] = {
 };
 
 int ed2ip_transform_sym(struct ed2i_isa *isa, char *name, int type, struct ed2_loc *loc, int *pbroken) {
-	int idx = ed2s_symtab_get(isa->symtab, name);
+	int stype, sdata;
+	int idx = symtab_get(isa->symtab, name, &stype, &sdata);
 	if (idx == -1) {
 		fprintf (stderr, ED2_LOC_FORMAT(*loc, "Undefined symbol %s\n"), name);
 		*pbroken |= 1;
 		free(name);
 		return -1;
-	} else if (isa->symtab->syms[idx].type != type) {
+	} else if (stype != type) {
 		fprintf (stderr, ED2_LOC_FORMAT(*loc, "Symbol %s is not a %s\n"), name, typenames[type]);
 		*pbroken |= 1;
 		free(name);
 		return -1;
 	} else {
 		free(name);
-		return isa->symtab->syms[idx].idata;
+		return sdata;
 	}
 }
 
-int ed2ip_put_sym(struct ed2i_isa *isa, char *name, int type, struct ed2_loc *loc, int idata) {
-	int idx = ed2s_symtab_put(isa->symtab, name);
+int ed2ip_put_sym(struct ed2i_isa *isa, char *name, int type, struct ed2_loc *loc, int data) {
+	int idx = symtab_put(isa->symtab, name, type, data);
 	if (idx == -1) {
 		fprintf (stderr, ED2_LOC_FORMAT(*loc, "Redefined symbol %s\n"), name);
 		return 1;
-	} else {
-		isa->symtab->syms[idx].type = type;
-		isa->symtab->syms[idx].idata = idata;
-		return 0;
 	}
+	return 0;
 }
 
 uint32_t *ed2ip_list_to_fmask(struct ed2i_isa *isa, char **names, int namesnum, struct ed2_loc *loc, int *pbroken) {
@@ -415,7 +413,7 @@ int ed2ip_transform_opfields(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 struct ed2i_isa *ed2ip_transform(struct ed2ip_isa *preisa) {
 	int broken = preisa->broken;
 	struct ed2i_isa *isa = calloc(sizeof *isa, 1);
-	isa->symtab = ed2s_symtab_new();
+	isa->symtab = symtab_new();
 	broken |= ed2ip_transform_features(preisa, isa);
 	broken |= ed2ip_transform_variants(preisa, isa);
 	broken |= ed2ip_transform_modesets(preisa, isa);

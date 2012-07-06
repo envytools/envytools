@@ -47,12 +47,12 @@ struct ed2v_variant *ed2v_new_variant_i(struct ed2i_isa *isa, int variant) {
 struct ed2v_variant *ed2v_new_variant(struct ed2i_isa *isa, const char *variant) {
 	if (!variant)
 		return ed2v_new_variant_i(isa, -1);
-	int idx = ed2s_symtab_get_int(isa->symtab, variant, ED2I_ST_VARIANT);
-	if (idx == -1) {
+	int stype, sdata;
+	if (symtab_get(isa->symtab, variant, &stype, &sdata) == -1 || stype != ED2I_ST_VARIANT) {
 		fprintf (stderr, "%s is not a variant name\n", variant);
 		return 0;
 	}
-	return ed2v_new_variant_i(isa, idx);
+	return ed2v_new_variant_i(isa, sdata);
 }
 
 void ed2v_del_variant(struct ed2v_variant *var) {
@@ -78,12 +78,12 @@ int ed2v_add_feature_i(struct ed2v_variant *var, int feature) {
 }
 
 int ed2v_add_feature(struct ed2v_variant *var, const char *feature) {
-	int idx = ed2s_symtab_get_int(var->isa->symtab, feature, ED2I_ST_FEATURE);
-	if (idx == -1) {
+	int stype, sdata;
+	if (symtab_get(var->isa->symtab, feature, &stype, &sdata) == -1 || stype != ED2I_ST_FEATURE) {
 		fprintf (stderr, "%s is not a feature name\n", feature);
 		return -1;
 	}
-	return ed2v_add_feature_i(var, idx);
+	return ed2v_add_feature_i(var, sdata);
 }
 
 int ed2v_set_mode_i(struct ed2v_variant *var, int mode) {
@@ -98,10 +98,10 @@ int ed2v_set_mode_i(struct ed2v_variant *var, int mode) {
 }
 
 int ed2v_set_mode(struct ed2v_variant *var, const char *mode) {
-	int idx = ed2s_symtab_get_int(var->isa->symtab, mode, ED2I_ST_MODE);
-	if (idx == -1) {
+	int stype, sdata;
+	if (symtab_get(var->isa->symtab, mode, &stype, &sdata) == -1 || stype != ED2I_ST_MODE) {
 		fprintf (stderr, "%s is not a mode name\n", mode);
 		return -1;
 	}
-	return ed2v_set_mode_i(var, idx);
+	return ed2v_set_mode_i(var, sdata);
 }

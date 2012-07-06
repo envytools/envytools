@@ -23,6 +23,7 @@
  */
 
 #include "dis.h"
+#include "symtab.h"
 #include <ctype.h>
 #include <libgen.h>
 #include <inttypes.h>
@@ -58,7 +59,7 @@ static char* expand_local_label(const char *local, const char *global) {
 }
 
 ull calc (const struct expr *expr, struct disctx *ctx, struct ed2_loc loc) {
-	int i;
+	int res;
 	ull x;
 	switch (expr->type) {
 		case EXPR_NUM:
@@ -69,9 +70,9 @@ ull calc (const struct expr *expr, struct disctx *ctx, struct ed2_loc loc) {
 				free((char *)expr->str);
 				((struct expr *)expr)->str = full_label;
 			}
-			for (i = 0; i < ctx->labelsnum; i++)
-				if (!strcmp(ctx->labels[i].name, expr->str))
-					return ctx->labels[i].val;
+			if (symtab_get(ctx->symtab, expr->str, 0, &res) != -1) {
+				return ctx->labels[res].val;
+			}
 			fprintf (stderr, ED2_LOC_FORMAT(loc, "Undefined label \"%s\"\n"), expr->str);
 			exit(1);
 		case EXPR_NEG:
@@ -242,7 +243,10 @@ int envyas_process(struct file *file) {
 	struct section *sections = 0;
 	int sectionsnum = 0;
 	int sectionsmax = 0;
+	ctx->symtab = symtab_new();
 	do {
+		symtab_del(ctx->symtab);
+		ctx->symtab = symtab_new();
 		allok = 1;
 		ctx->labelsnum = 0;
 		ctx->cur_global_label = NULL;
@@ -271,11 +275,9 @@ int envyas_process(struct file *file) {
 					else
 						ctx->cur_global_label = file->lines[i]->str;
 
-					for (j = 0; j < ctx->labelsnum; j++) {
-						if (!strcmp(ctx->labels[j].name, file->lines[i]->str)) {
-							fprintf (stderr, ED2_LOC_FORMAT(file->lines[i]->loc, "Label %s redeclared!\n"), file->lines[i]->str);
-							return 1;
-						}
+					if (symtab_put(ctx->symtab, file->lines[i]->str, 0, ctx->labelsnum) == -1) {
+						fprintf (stderr, ED2_LOC_FORMAT(file->lines[i]->loc, "Label %s redeclared!\n"), file->lines[i]->str);
+						return 1;
 					}
 					struct label l = { file->lines[i]->str, sections[cursect].pos / ctx->isa->posunit + sections[cursect].base };
 					if (sections[cursect].first_label < 0)
@@ -356,11 +358,9 @@ int envyas_process(struct file *file) {
 							file->lines[i]->atoms[0]->str = full_label;
 						}
 						ull num = calc(file->lines[i]->atoms[1], ctx, file->lines[i]->loc);
-						for (j = 0; j < ctx->labelsnum; j++) {
-							if (!strcmp(ctx->labels[j].name, file->lines[i]->atoms[0]->str)) {
-								fprintf (stderr, ED2_LOC_FORMAT(file->lines[i]->loc, "Label %s redeclared!\n"), file->lines[i]->atoms[0]->str);
-								return 1;
-							}
+						if (symtab_put(ctx->symtab, file->lines[i]->atoms[0]->str, 0, ctx->labelsnum) == -1) {
+							fprintf (stderr, ED2_LOC_FORMAT(file->lines[i]->loc, "Label %s redeclared!\n"), file->lines[i]->atoms[0]->str);
+							return 1;
 						}
 						struct label l = { file->lines[i]->atoms[0]->str, num , /* Distinguish .equ labels from regular labels */ 1 };
 						ADDARRAY(ctx->labels, l);

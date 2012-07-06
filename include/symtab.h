@@ -22,32 +22,30 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef ED2S_H
-#define ED2S_H
+#ifndef SYMTAB_H
+#define SYMTAB_H
 
-#include <stdint.h>
+#include <inttypes.h>
 
-struct ed2s_sym {
+struct symtab_sym {
 	char *name;
 	uint32_t hash;
 	int hchain;
 	int type;
-	void *data;
-	int idata;
+	int data;
 };
 
-struct ed2s_symtab {
-	struct ed2s_sym *syms;
+struct symtab {
+	struct symtab_sym *syms;
 	int symsnum;
 	int symsmax;
 	int *buckets;
 	int bucketsnum;
 };
 
-struct ed2s_symtab *ed2s_symtab_new();
-void ed2s_symtab_del(struct ed2s_symtab *tab);
-int ed2s_symtab_get(struct ed2s_symtab *tab, const char *name);
-int ed2s_symtab_put(struct ed2s_symtab *tab, const char *name);
-int ed2s_symtab_get_int(struct ed2s_symtab *tab, const char *name, int type);
+struct symtab *symtab_new();
+void symtab_del(struct symtab *tab);
+int symtab_get(struct symtab *tab, const char *name, int *ptype, int *pdata);
+int symtab_put(struct symtab *tab, const char *name, int type, int data);
 
 #endif
