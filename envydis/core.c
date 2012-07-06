@@ -26,10 +26,6 @@
 #include "dis-intern.h"
 #include <stdarg.h>
 
-/*
- * Color scheme
- */
-
 int var_ok(int fmask, int ptype, struct varinfo *varinfo) {
 	return (!fmask || (varinfo->fmask[0] & fmask) == fmask) && (!ptype || (varinfo->modes[0] != -1 && ptype & 1 << varinfo->modes[0]));
 }
@@ -1191,13 +1187,17 @@ const struct disisa *ed_getisa(const char *name) {
 	int i;
 	for (i = 0; i < sizeof isas / sizeof *isas; i++)
 		if (!strcmp(name, isas[i].name)) {
-			if (!isas[i].isa->ed2) {
+			struct disisa *isa = isas[i].isa;
+			if (!isa->prepdone) {
 				isas[i].isa->ed2 = ed2i_read_isa(isas[i].isa->ed2name);
 				if (!isas[i].isa->ed2)
 					return 0;
 				isas[i].isa->vardata = isas[i].isa->ed2->vardata;
+				if (isa->prep)
+					isa->prep(isa);
+				isa->prepdone = 1;
 			}
-			return isas[i].isa;
+			return isa;
 		}
 	return 0;
 };

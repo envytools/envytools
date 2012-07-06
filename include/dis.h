@@ -250,6 +250,8 @@ struct disisa {
 	int posunit;
 	int i_need_nv50as_hack;
 	struct ed2i_isa *ed2;
+	int prepdone;
+	void (*prep)(struct disisa *);
 	struct vardata *vardata;
 };
 

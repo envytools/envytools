@@ -28,7 +28,7 @@ add_executable(ed2acat ed2acat.c)
 add_executable(ed2ishow ed2ishow.c)
 
 target_link_libraries(ed2 envyutil)
-target_link_libraries(envy ed2)
+target_link_libraries(envy ed2 envyutil)
 target_link_libraries(envydis envy)
 target_link_libraries(envyas envy envyutil)
 target_link_libraries(ed2acat envy)
