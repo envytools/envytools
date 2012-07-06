@@ -115,4 +115,17 @@ void vardata_mode_require(struct vardata *data, int m, int f);
 int vardata_modeset_def(struct vardata *data, int ms, int m);
 int vardata_validate(struct vardata *data);
 
+struct varinfo {
+	struct vardata *data;
+	uint32_t *fmask;
+	int *variants;
+	int *modes;
+};
+
+struct varinfo *varinfo_new(struct vardata *data);
+void varinfo_del(struct varinfo *info);
+int varinfo_set_variant(struct varinfo *info, const char *variant);
+int varinfo_set_feature(struct varinfo *info, const char *feature);
+int varinfo_set_mode(struct varinfo *info, const char *mode);
+
 #endif
