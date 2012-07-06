@@ -27,8 +27,6 @@
 
 #include <stdint.h>
 
-uint32_t ed2s_elf_hash(const char *str);
-
 struct ed2s_sym {
 	char *name;
 	uint32_t hash;

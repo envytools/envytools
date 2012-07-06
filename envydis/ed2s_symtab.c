@@ -51,7 +51,7 @@ void ed2s_symtab_del(struct ed2s_symtab *tab) {
 }
 
 int ed2s_symtab_get(struct ed2s_symtab *tab, const char *name) {
-	int i = tab->buckets[ed2s_elf_hash(name) % tab->bucketsnum];
+	int i = tab->buckets[elf_hash(name) % tab->bucketsnum];
 	while (i != -1) {
 		if (!strcmp(tab->syms[i].name, name))
 			return i;
@@ -65,7 +65,7 @@ int ed2s_symtab_put(struct ed2s_symtab *tab, const char *cname) {
 		return -1;
 	char *name = strdup(cname);
 	struct ed2s_sym sym;
-	uint32_t hash = ed2s_elf_hash(name);
+	uint32_t hash = elf_hash(name);
 	int bucket = hash % tab->bucketsnum;
 	int res = tab->symsnum;
 	sym.name = name;

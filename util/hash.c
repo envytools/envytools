@@ -22,9 +22,9 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "ed2s.h"
+#include "util.h"
 
-uint32_t ed2s_elf_hash(const char *str) {
+uint32_t elf_hash(const char *str) {
 	const unsigned char *ustr = (const unsigned char *)str;
 	uint32_t h = 0;
 	while (*ustr) {
@@ -35,3 +35,4 @@ uint32_t ed2s_elf_hash(const char *str) {
 	}
 	return h;
 }
+
