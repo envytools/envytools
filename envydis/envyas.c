@@ -180,7 +180,7 @@ int donum (struct section *s, struct line *line, struct disctx *ctx, int wren) {
 	if (wren) {
 		extend(s, bits/8 * line->atomsnum);
 		if (s->pos % (bits/8))
-			fprintf (stderr, "Warning: Unaligned data %s; section '%s', offset 0x%x\n", line->str, s->name, s->pos);
+			fprintf (stderr, LOC_FORMAT(line->loc, "Warning: Unaligned data %s; section '%s', offset 0x%x\n"), line->str, s->name, s->pos);
 		for (i = 0; i < line->atomsnum; i++) {
 			ull num = calc(line->atoms[i], ctx, line->loc);
 			if ((line->str[0] == 'u' && bits != 64 && num >= (1ull << bits))
@@ -321,16 +321,16 @@ int envyas_process(struct file *file) {
 						sections[cursect].pos *= num;
 					} else if (!strcmp(file->lines[i]->str, "size")) {
 						if (file->lines[i]->atomsnum > 1) {
-							fprintf (stderr, "Too many arguments for .size\n");
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Too many arguments for .size\n"));
 							return 1;
 						}
 						if (file->lines[i]->atoms[0]->type != EXPR_NUM) {
-							fprintf (stderr, "Wrong arguments for .size\n");
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Wrong arguments for .size\n"));
 							return 1;
 						}
 						ull num = file->lines[i]->atoms[0]->num1;
 						if (sections[cursect].pos > num) {
-							fprintf (stderr, "Section '%s' exceeds .size by %llu bytes\n", sections[cursect].name, sections[cursect].pos - num);
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Section '%s' exceeds .size by %llu bytes\n"), sections[cursect].name, sections[cursect].pos - num);
 							return 1;
 						}
 						sections[cursect].pos = num;
@@ -431,7 +431,7 @@ int envyas_process(struct file *file) {
 						ull num = file->lines[i]->atoms[0]->num1;
 						ull oldpos = sections[cursect].pos;
 						if (sections[cursect].pos > num) {
-							fprintf (stderr, "Section '%s' exceeds .size by %llu bytes\n", sections[cursect].name, sections[cursect].pos - num);
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Section '%s' exceeds .size by %llu bytes\n"), sections[cursect].name, sections[cursect].pos - num);
 							return 1;
 						}
 						sections[cursect].pos = num;
