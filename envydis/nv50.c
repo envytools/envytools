@@ -1634,7 +1634,7 @@ static void nv50_prep(struct disisa *isa) {
 	int m_cp = vardata_add_mode(isa->vardata, "cp", "compute program", ms_ptype);
 	if (m_vp == -1 || m_gp == -1 || m_fp == -1 || m_cp == -1)
 		abort();
-	if (!vardata_validate(isa->vardata))
+	if (vardata_validate(isa->vardata))
 		abort();
 }
 

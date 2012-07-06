@@ -587,7 +587,7 @@ static void fuc_prep(struct disisa *isa) {
 	vardata_variant_feature(isa->vardata, v_fuc3, f_fuc3op);
 	vardata_variant_feature(isa->vardata, v_fuc4, f_fuc3op);
 	vardata_variant_feature(isa->vardata, v_fuc4, f_pc24);
-	if (!vardata_validate(isa->vardata))
+	if (vardata_validate(isa->vardata))
 		abort();
 }
 

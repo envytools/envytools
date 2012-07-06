@@ -454,7 +454,7 @@ static void vuc_prep(struct disisa *isa) {
 	vardata_variant_feature(isa->vardata, v_vp3, f_vp3op);
 	vardata_variant_feature(isa->vardata, v_vp4, f_vp3op);
 	vardata_variant_feature(isa->vardata, v_vp4, f_vp4op);
-	if (!vardata_validate(isa->vardata))
+	if (vardata_validate(isa->vardata))
 		abort();
 }
 

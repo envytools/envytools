@@ -2223,7 +2223,7 @@ static void nvc0_prep(struct disisa *isa) {
 		abort();
 	vardata_variant_feature(isa->vardata, v_nvc0, f_nvc0op);
 	vardata_variant_feature(isa->vardata, v_nve4, f_nve4op);
-	if (!vardata_validate(isa->vardata))
+	if (vardata_validate(isa->vardata))
 		abort();
 }
 

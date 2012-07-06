@@ -88,7 +88,7 @@ static void hwsq_prep(struct disisa *isa) {
 	if (v_nv17 == -1 || v_nv41 == -1)
 		abort();
 	vardata_variant_feature(isa->vardata, v_nv41, f_nv41op);
-	if (!vardata_validate(isa->vardata))
+	if (vardata_validate(isa->vardata))
 		abort();
 }
 

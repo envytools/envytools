@@ -282,7 +282,7 @@ static void ctx_prep(struct disisa *isa) {
 	vardata_variant_feature(isa->vardata, v_nv50, f_nv50op);
 	vardata_variant_feature(isa->vardata, v_nva0, f_nv50op);
 	vardata_variant_feature(isa->vardata, v_nva0, f_callret);
-	if (!vardata_validate(isa->vardata))
+	if (vardata_validate(isa->vardata))
 		abort();
 }
 
