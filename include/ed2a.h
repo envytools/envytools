@@ -25,7 +25,7 @@
 #ifndef ED2A_ASM_H
 #define ED2A_ASM_H
 
-#include "ed2_misc.h"
+#include "util.h"
 #include "colors.h"
 #include <stdio.h>
 
@@ -34,14 +34,14 @@ struct ed2a_file {
 	int insnsnum;
 	int insnsmax;
 	int broken;
-	struct ed2_loc loc;
+	struct envy_loc loc;
 };
 
 struct ed2a_insn {
 	struct ed2a_ipiece **pieces;
 	int piecesnum;
 	int piecesmax;
-	struct ed2_loc loc;
+	struct envy_loc loc;
 };
 
 struct ed2a_ipiece {
@@ -55,7 +55,7 @@ struct ed2a_ipiece {
 	char **mods;
 	int modsnum;
 	int modsmax;
-	struct ed2_loc loc;
+	struct envy_loc loc;
 };
 
 struct ed2a_iop {
@@ -65,7 +65,7 @@ struct ed2a_iop {
 	struct ed2a_expr **exprs;
 	int exprsnum;
 	int exprsmax;
-	struct ed2_loc loc;
+	struct envy_loc loc;
 };
 
 struct ed2a_expr {
@@ -99,7 +99,7 @@ struct ed2a_expr {
 	struct ed2a_ipiece *ipiece;
 	struct ed2a_rvec *rvec;
 	struct ed2a_swz *swz;
-	struct ed2_loc loc;
+	struct envy_loc loc;
 };
 
 struct ed2a_rvec {

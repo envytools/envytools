@@ -25,14 +25,14 @@
 %{
 #include "util.h"
 #include "ed2_misc.h"
-#include "ed2_parse.h"
+#include "yy.h"
 #include "ed2i.h"
 #include "ed2i_pre.h"
 #include "ed2i_parse.h"
 #include "ed2i_lex.h"
 #include <stdio.h>
 void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char const *err) {
-	fprintf (stderr, ED2_LOC_FORMAT(*loc, "%s\n"), err);
+	fprintf (stderr, LOC_FORMAT(*loc, "%s\n"), err);
 }
 
 %}
@@ -259,7 +259,7 @@ enumval:	T_WORD ';'	{ $$ = calloc(sizeof *$$, 1); $$->name = $1; }
 ;
 
 opfmods:	/**/	{ $$ = calloc(sizeof *$$, 1); }
-|		opfmods "DEFAULT" T_NUM	{ $$ = $1; if ($$->hasdef) { fprintf(stderr, ED2_LOC_FORMAT(@$, "Redefined default value\n")); /* XXX */ } $$->defval = $3; $$->hasdef = 1; }
+|		opfmods "DEFAULT" T_NUM	{ $$ = $1; if ($$->hasdef) { fprintf(stderr, LOC_FORMAT(@$, "Redefined default value\n")); /* XXX */ } $$->defval = $3; $$->hasdef = 1; }
 |		opfmods "BITS" '{' opfbitfields '}'	{ $$ = $1; fprintf(stderr, "OPFIELD BITS\n"); /*abort(); XXX */ }
 ;
 
@@ -502,7 +502,7 @@ struct ed2i_isa *ed2i_read_isa (const char *isaname) {
 		return 0;
 	}
 	yyscan_t lex_state;
-	struct ed2_lex_intern lex_extra;
+	struct yy_lex_intern lex_extra;
 	struct ed2i_isa *isa;
 	lex_extra.line = 1;
 	lex_extra.pos = 1;

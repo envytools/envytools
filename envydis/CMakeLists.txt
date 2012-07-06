@@ -20,7 +20,7 @@ add_library(envy core.c nv50.c nvc0.c ctx.c fuc.c hwsq.c vp2.c vuc.c macro.c vp1
 add_library(ed2
 	${FLEX_ed2a_lex_OUTPUTS} ${BISON_ed2a_parse_OUTPUTS} ed2a_funcs.c ed2a_print.c
 	${FLEX_ed2i_lex_OUTPUTS} ${BISON_ed2i_parse_OUTPUTS} ed2i_pre.c ed2i_funcs.c
-	ed2_misc.c ed2_parse.c)
+	ed2_misc.c)
 
 add_executable(envydis envydis.c)
 add_executable(envyas envyas.c)

@@ -24,7 +24,7 @@
 
 %{
 #include "ed2_misc.h"
-#include "ed2_parse.h"
+#include "yy.h"
 #include "ed2i.h"
 #include "ed2i_pre.h"
 #include "ed2i_parse.h"
@@ -37,7 +37,7 @@
 %option noyywrap
 %option prefix="ed2i_"
 %option header-file="ed2i_lex.h"
-%option extra-type="struct ed2_lex_intern"
+%option extra-type="struct yy_lex_intern"
 %option noinput
 %option nounput
 

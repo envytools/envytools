@@ -151,16 +151,16 @@ void ed2ip_del_isa(struct ed2ip_isa *isa) {
 static const char *const typenames[] = {
 };
 
-int ed2ip_transform_sym(struct ed2i_isa *isa, char *name, int type, struct ed2_loc *loc, int *pbroken) {
+int ed2ip_transform_sym(struct ed2i_isa *isa, char *name, int type, struct envy_loc *loc, int *pbroken) {
 	int stype, sdata;
 	int idx = symtab_get(isa->symtab, name, &stype, &sdata);
 	if (idx == -1) {
-		fprintf (stderr, ED2_LOC_FORMAT(*loc, "Undefined symbol %s\n"), name);
+		fprintf (stderr, LOC_FORMAT(*loc, "Undefined symbol %s\n"), name);
 		*pbroken |= 1;
 		free(name);
 		return -1;
 	} else if (stype != type) {
-		fprintf (stderr, ED2_LOC_FORMAT(*loc, "Symbol %s is not a %s\n"), name, typenames[type]);
+		fprintf (stderr, LOC_FORMAT(*loc, "Symbol %s is not a %s\n"), name, typenames[type]);
 		*pbroken |= 1;
 		free(name);
 		return -1;
@@ -170,10 +170,10 @@ int ed2ip_transform_sym(struct ed2i_isa *isa, char *name, int type, struct ed2_l
 	}
 }
 
-int ed2ip_put_sym(struct ed2i_isa *isa, char *name, int type, struct ed2_loc *loc, int data) {
+int ed2ip_put_sym(struct ed2i_isa *isa, char *name, int type, struct envy_loc *loc, int data) {
 	int idx = symtab_put(isa->symtab, name, type, data);
 	if (idx == -1) {
-		fprintf (stderr, ED2_LOC_FORMAT(*loc, "Redefined symbol %s\n"), name);
+		fprintf (stderr, LOC_FORMAT(*loc, "Redefined symbol %s\n"), name);
 		return 1;
 	}
 	return 0;
@@ -185,7 +185,7 @@ int ed2ip_transform_features(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 	for (i = 0; i < preisa->featuresnum; i++) {
 		int f1;
 		if ((f1 = vardata_add_feature(isa->vardata, preisa->features[i]->names[0], preisa->features[i]->description)) == -1) {
-			fprintf (stderr, ED2_LOC_FORMAT(preisa->features[i]->loc, "Redefined symbol %s\n"), preisa->features[i]->names[0]);
+			fprintf (stderr, LOC_FORMAT(preisa->features[i]->loc, "Redefined symbol %s\n"), preisa->features[i]->names[0]);
 			broken = 1;
 		}
 	}
@@ -196,7 +196,7 @@ int ed2ip_transform_features(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 			for (j = 0; j < preisa->features[i]->impliesnum; j++) {
 				int f2 = symtab_get_td(isa->vardata->symtab, preisa->features[i]->implies[j], VARDATA_ST_FEATURE);
 				if (f2 == -1) {
-					fprintf (stderr, ED2_LOC_FORMAT(preisa->features[i]->loc, "%s is not a feature name\n"), preisa->features[i]->implies[j]);
+					fprintf (stderr, LOC_FORMAT(preisa->features[i]->loc, "%s is not a feature name\n"), preisa->features[i]->implies[j]);
 					broken = 1;
 				} else {
 					vardata_feature_imply(isa->vardata, f1, f2);
@@ -205,7 +205,7 @@ int ed2ip_transform_features(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 			for (j = 0; j < preisa->features[i]->conflictsnum; j++) {
 				int f2 = symtab_get_td(isa->vardata->symtab, preisa->features[i]->conflicts[j], VARDATA_ST_FEATURE);
 				if (f2 == -1) {
-					fprintf (stderr, ED2_LOC_FORMAT(preisa->features[i]->loc, "%s is not a feature name\n"), preisa->features[i]->conflicts[j]);
+					fprintf (stderr, LOC_FORMAT(preisa->features[i]->loc, "%s is not a feature name\n"), preisa->features[i]->conflicts[j]);
 					broken = 1;
 				} else {
 					vardata_feature_conflict(isa->vardata, f1, f2);
@@ -230,14 +230,14 @@ int ed2ip_transform_variants(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 	for (i = 0; i < preisa->variantsnum; i++) {
 		int v;
 		if ((v = vardata_add_variant(isa->vardata, preisa->variants[i]->names[0], preisa->variants[i]->description, vs)) == -1) {
-			fprintf (stderr, ED2_LOC_FORMAT(preisa->variants[i]->loc, "Redefined symbol %s\n"), preisa->variants[i]->names[0]);
+			fprintf (stderr, LOC_FORMAT(preisa->variants[i]->loc, "Redefined symbol %s\n"), preisa->variants[i]->names[0]);
 			broken = 1;
 		} else {
 			/* XXX names */
 			for (j = 0; j < preisa->variants[i]->featuresnum; j++) {
 				int f = symtab_get_td(isa->vardata->symtab, preisa->variants[i]->features[j], VARDATA_ST_FEATURE);
 				if (f == -1) {
-					fprintf (stderr, ED2_LOC_FORMAT(preisa->variants[i]->loc, "%s is not a feature name\n"), preisa->variants[i]->features[j]);
+					fprintf (stderr, LOC_FORMAT(preisa->variants[i]->loc, "%s is not a feature name\n"), preisa->variants[i]->features[j]);
 					broken = 1;
 				} else {
 					vardata_variant_feature(isa->vardata, v, f);
@@ -257,7 +257,7 @@ int ed2ip_transform_modesets(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 		struct ed2ip_modeset *pms = preisa->modesets[i];
 		int ms;
 		if ((ms = vardata_add_modeset(isa->vardata, pms->names[0], pms->description)) == -1) {
-			fprintf (stderr, ED2_LOC_FORMAT(pms->loc, "Redefined symbol %s\n"), pms->names[0]);
+			fprintf (stderr, LOC_FORMAT(pms->loc, "Redefined symbol %s\n"), pms->names[0]);
 			broken = 1;
 		} else {
 			/* XXX names */
@@ -266,14 +266,14 @@ int ed2ip_transform_modesets(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 				struct ed2ip_mode *pm = pms->modes[j];
 				int m;
 				if ((m = vardata_add_mode(isa->vardata, pm->names[0], pm->description, ms)) == -1) {
-					fprintf (stderr, ED2_LOC_FORMAT(pm->loc, "Redefined symbol %s\n"), pm->names[0]);
+					fprintf (stderr, LOC_FORMAT(pm->loc, "Redefined symbol %s\n"), pm->names[0]);
 					broken = 1;
 				} else {
 					/* XXX names */
 					for (k = 0; k < pm->featuresnum; k++) {
 						int f = symtab_get_td(isa->vardata->symtab, pm->features[k], VARDATA_ST_FEATURE);
 						if (f == -1) {
-							fprintf (stderr, ED2_LOC_FORMAT(pm->loc, "%s is not a feature name\n"), pm->features[k]);
+							fprintf (stderr, LOC_FORMAT(pm->loc, "%s is not a feature name\n"), pm->features[k]);
 							broken = 1;
 						} else {
 							vardata_mode_require(isa->vardata, m, f);

@@ -58,7 +58,7 @@ static char* expand_local_label(const char *local, const char *global) {
 	return full;
 }
 
-ull calc (const struct expr *expr, struct disctx *ctx, struct ed2_loc loc) {
+ull calc (const struct expr *expr, struct disctx *ctx, struct envy_loc loc) {
 	int res;
 	ull x;
 	switch (expr->type) {
@@ -73,7 +73,7 @@ ull calc (const struct expr *expr, struct disctx *ctx, struct ed2_loc loc) {
 			if (symtab_get(ctx->symtab, expr->str, 0, &res) != -1) {
 				return ctx->labels[res].val;
 			}
-			fprintf (stderr, ED2_LOC_FORMAT(loc, "Undefined label \"%s\"\n"), expr->str);
+			fprintf (stderr, LOC_FORMAT(loc, "Undefined label \"%s\"\n"), expr->str);
 			exit(1);
 		case EXPR_NEG:
 			return -calc(expr->expr1, ctx, loc);
@@ -86,7 +86,7 @@ ull calc (const struct expr *expr, struct disctx *ctx, struct ed2_loc loc) {
 			if (x)
 				return calc(expr->expr1, ctx, loc) / x;
 			else {
-				fprintf (stderr, ED2_LOC_FORMAT(loc, "Division by 0\n"));
+				fprintf (stderr, LOC_FORMAT(loc, "Division by 0\n"));
 				exit(1);
 			}
 		case EXPR_ADD:
@@ -108,7 +108,7 @@ ull calc (const struct expr *expr, struct disctx *ctx, struct ed2_loc loc) {
 	}
 }
 
-int resolve (struct disctx *ctx, ull *val, struct match m, ull pos, struct ed2_loc loc) {
+int resolve (struct disctx *ctx, ull *val, struct match m, ull pos, struct envy_loc loc) {
 	int i;
 	for (i = 0; i < m.nrelocs; i++) {
 		ull val = calc(m.relocs[i].expr, ctx, loc);
@@ -174,7 +174,7 @@ int donum (struct section *s, struct line *line, struct disctx *ctx, int wren) {
 	int i;
 	for (i = 0; i < line->atomsnum; i++)
 		if (!line->atoms[i]->isimm) {
-			fprintf (stderr, ED2_LOC_FORMAT(line->loc, "Wrong arguments for %s\n"), line->str);
+			fprintf (stderr, LOC_FORMAT(line->loc, "Wrong arguments for %s\n"), line->str);
 			exit(1);
 		}
 	if (wren) {
@@ -185,7 +185,7 @@ int donum (struct section *s, struct line *line, struct disctx *ctx, int wren) {
 			ull num = calc(line->atoms[i], ctx, line->loc);
 			if ((line->str[0] == 'u' && bits != 64 && num >= (1ull << bits))
 				|| (line->str[0] == 's' && bits != 64 && num >= (1ull << (bits - 1)) && num < (-1ull << (bits - 1)))) {
-				fprintf (stderr, ED2_LOC_FORMAT(line->loc, "Argument %d too large for %s\n"), i, line->str);
+				fprintf (stderr, LOC_FORMAT(line->loc, "Argument %d too large for %s\n"), i, line->str);
 				exit(1);
 			}
 			int j;
@@ -227,7 +227,7 @@ int envyas_process(struct file *file) {
 					ADDARRAY(im[i].m, m->m[j]);
 				}
 			if (!im[i].mnum) {
-				fprintf (stderr, ED2_LOC_FORMAT(file->lines[i]->loc, "No match\n"));
+				fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "No match\n"));
 				return 1;
 			}
 #if 0
@@ -276,7 +276,7 @@ int envyas_process(struct file *file) {
 						ctx->cur_global_label = file->lines[i]->str;
 
 					if (symtab_put(ctx->symtab, file->lines[i]->str, 0, ctx->labelsnum) == -1) {
-						fprintf (stderr, ED2_LOC_FORMAT(file->lines[i]->loc, "Label %s redeclared!\n"), file->lines[i]->str);
+						fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Label %s redeclared!\n"), file->lines[i]->str);
 						return 1;
 					}
 					struct label l = { file->lines[i]->str, sections[cursect].pos / ctx->isa->posunit + sections[cursect].base };
@@ -288,11 +288,11 @@ int envyas_process(struct file *file) {
 				case LINE_DIR:
 					if (!strcmp(file->lines[i]->str, "section")) {
 						if (file->lines[i]->atomsnum > 2) {
-							fprintf (stderr, ED2_LOC_FORMAT(file->lines[i]->loc, "Too many arguments for .section\n"));
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Too many arguments for .section\n"));
 							return 1;
 						}
 						if (file->lines[i]->atoms[0]->type != EXPR_LABEL || (file->lines[i]->atomsnum == 2 && file->lines[i]->atoms[1]->type != EXPR_NUM)) {
-							fprintf (stderr, ED2_LOC_FORMAT(file->lines[i]->loc, "Wrong arguments for .section\n"));
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Wrong arguments for .section\n"));
 							return 1;
 						}
 						for (j = 0; j < sectionsnum; j++)
@@ -308,11 +308,11 @@ int envyas_process(struct file *file) {
 						cursect = j;
 					} else if (!strcmp(file->lines[i]->str, "align")) {
 						if (file->lines[i]->atomsnum > 1) {
-							fprintf (stderr, ED2_LOC_FORMAT(file->lines[i]->loc, "Too many arguments for .align\n"));
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Too many arguments for .align\n"));
 							return 1;
 						}
 						if (file->lines[i]->atoms[0]->type != EXPR_NUM) {
-							fprintf (stderr, ED2_LOC_FORMAT(file->lines[i]->loc, "Wrong arguments for .align\n"));
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Wrong arguments for .align\n"));
 							return 1;
 						}
 						ull num = file->lines[i]->atoms[0]->num1;
@@ -336,11 +336,11 @@ int envyas_process(struct file *file) {
 						sections[cursect].pos = num;
 					} else if (!strcmp(file->lines[i]->str, "skip")) {
 						if (file->lines[i]->atomsnum > 1) {
-							fprintf (stderr, ED2_LOC_FORMAT(file->lines[i]->loc, "Too many arguments for .skip\n"));
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Too many arguments for .skip\n"));
 							return 1;
 						}
 						if (file->lines[i]->atoms[0]->type != EXPR_NUM) {
-							fprintf (stderr, ED2_LOC_FORMAT(file->lines[i]->loc, "Wrong arguments for .skip\n"));
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Wrong arguments for .skip\n"));
 							return 1;
 						}
 						ull num = file->lines[i]->atoms[0]->num1;
@@ -349,7 +349,7 @@ int envyas_process(struct file *file) {
 						if (file->lines[i]->atomsnum != 2
 							|| file->lines[i]->atoms[0]->type != EXPR_LABEL
 							|| !file->lines[i]->atoms[1]->isimm) {
-							fprintf (stderr, ED2_LOC_FORMAT(file->lines[i]->loc, "Wrong arguments for .equ\n"));
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Wrong arguments for .equ\n"));
 							return 1;
 						}
 						if (file->lines[i]->atoms[0]->str[0] == '_' && file->lines[i]->atoms[0]->str[1] != '_') {
@@ -359,13 +359,13 @@ int envyas_process(struct file *file) {
 						}
 						ull num = calc(file->lines[i]->atoms[1], ctx, file->lines[i]->loc);
 						if (symtab_put(ctx->symtab, file->lines[i]->atoms[0]->str, 0, ctx->labelsnum) == -1) {
-							fprintf (stderr, ED2_LOC_FORMAT(file->lines[i]->loc, "Label %s redeclared!\n"), file->lines[i]->atoms[0]->str);
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Label %s redeclared!\n"), file->lines[i]->atoms[0]->str);
 							return 1;
 						}
 						struct label l = { file->lines[i]->atoms[0]->str, num , /* Distinguish .equ labels from regular labels */ 1 };
 						ADDARRAY(ctx->labels, l);
 					} else if (!donum(&sections[cursect], file->lines[i], ctx, 0)) {
-						fprintf (stderr, ED2_LOC_FORMAT(file->lines[i]->loc, "Unknown directive %s\n"), file->lines[i]->str);
+						fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Unknown directive %s\n"), file->lines[i]->str);
 						return 1;
 					}
 					break;
@@ -384,7 +384,7 @@ int envyas_process(struct file *file) {
 						im[i].m++;
 						im[i].mnum--;
 						if (!im[i].mnum) {
-							fprintf (stderr, ED2_LOC_FORMAT(file->lines[i]->loc, "Relocaiton failed\n"));
+							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Relocaiton failed\n"));
 							return 1;
 						}
 						allok = 0;
@@ -448,7 +448,7 @@ int envyas_process(struct file *file) {
 					} else if (!strcmp(file->lines[i]->str, "equ")) {
 						/* nothing to be done */
 					} else if (!donum(&sections[cursect], file->lines[i], ctx, 1)) {
-						fprintf (stderr, ED2_LOC_FORMAT(file->lines[i]->loc, "Unknown directive %s\n"), file->lines[i]->str);
+						fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Unknown directive %s\n"), file->lines[i]->str);
 						return 1;
 					}
 			}
@@ -583,21 +583,22 @@ int main(int argc, char **argv) {
 				break;
 		}
 	struct ed2a_file *file_ed2;
+	FILE *ifile = stdin;
+	const char *filename = "stdin";
 	if (optind < argc) {
-		FILE *ifile = fopen(argv[optind], "r");
+		filename = argv[optind];
+		ifile = fopen(argv[optind], "r");
 		if (!ifile) {
 			perror(argv[optind]);
 			return 1;
 		}
-		file_ed2 = ed2a_read_file(ifile, argv[optind], 0, 0);
 		optind++;
 		if (optind < argc) {
 			fprintf (stderr, "Too many parameters!\n");
 			return 1;
 		}
-	} else {
-		file_ed2 = ed2a_read_file(stdin, "stdin", 0, 0);
 	}
+	file_ed2 = ed2a_read_file(ifile, filename, 0, 0);
 	if (!envyas_isa) {
 		fprintf (stderr, "No architecture specified!\n");
 		return 1;

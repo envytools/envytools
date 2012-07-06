@@ -39,7 +39,7 @@ struct ed2ip_feature {
 	char **conflicts;
 	int conflictsnum;
 	int conflictsmax;
-	struct ed2_loc loc;
+	struct envy_loc loc;
 };
 
 struct ed2ip_variant {
@@ -50,7 +50,7 @@ struct ed2ip_variant {
 	char **features;
 	int featuresnum;
 	int featuresmax;
-	struct ed2_loc loc;
+	struct envy_loc loc;
 };
 
 struct ed2ip_modeset {
@@ -62,7 +62,7 @@ struct ed2ip_modeset {
 	struct ed2ip_mode **modes;
 	int modesnum;
 	int modesmax;
-	struct ed2_loc loc;
+	struct envy_loc loc;
 };
 
 struct ed2ip_mode {
@@ -74,7 +74,7 @@ struct ed2ip_mode {
 	int featuresnum;
 	int featuresmax;
 	int isdefault;
-	struct ed2_loc loc;
+	struct envy_loc loc;
 };
 
 struct ed2ip_bitchunk {
