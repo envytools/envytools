@@ -26,6 +26,7 @@
 
 #define F_NV40	1
 #define F_NV50	2
+#define F_CALLRET	4
 
 /*
  * PGRAPH registers of interest, NV50
@@ -242,8 +243,8 @@ static struct insn tabm[] = {
 	{ 0x200000, 0xf00000, N("lsr"), IMM },			// moves 20-bit immediate to scratch reg
 	{ 0x300000, 0xf00000, N("lsr2"), IMM },			// moves 20-bit immediate to 338
 	{ 0x400000, 0xfc0000, N("jmp"), T(pred), BTARG },		// jumps if condition true
-	{ 0x440000, 0xfc0000, N("call"), T(pred), CTARG, .fmask = F_NV50 },	// calls if condition true, NVAx only
-	{ 0x480000, 0xfc0000, N("ret"), T(pred), .fmask = F_NV50 },		// rets if condition true, NVAx only
+	{ 0x440000, 0xfc0000, N("call"), T(pred), CTARG, .fmask = F_CALLRET },	// calls if condition true
+	{ 0x480000, 0xfc0000, N("ret"), T(pred), .fmask = F_CALLRET },		// rets if condition true
 	{ 0x500000, 0xf00000, N("waitfor"), T(pred) },		// waits until condition true.
 	{ 0x600000, 0xf00000, N("cmd"), T(cmd5), .fmask = F_NV50 },		// runs a CMD.
 	{ 0x600000, 0xf00000, N("cmd"), T(cmd4), .fmask = F_NV40 },		// runs a CMD.
