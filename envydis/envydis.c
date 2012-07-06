@@ -180,11 +180,13 @@ int main(int argc, char **argv) {
 		fprintf (stderr, "No architecture specified!\n");
 		return 1;
 	}
-	struct ed2v_variant *var = ed2v_new_variant(isa->ed2, varname);
+	struct varinfo *var = varinfo_new(isa->vardata);
 	if (!var)
 		return 1;
+	if (varname)
+		if (varinfo_set_variant(var, varname));
 	if (modename)
-		if (ed2v_set_mode(var, modename))
+		if (varinfo_set_mode(var, modename))
 			return 1;
 	int num = 0;
 	int maxnum = 16;

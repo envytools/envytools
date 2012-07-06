@@ -26,45 +26,52 @@
 #include "mask.h"
 #include <stdio.h>
 
+void vardata_show(struct vardata *vardata) {
+	int i, j;
+	printf ("Features:\n");
+	for (i = 0; i < vardata->featuresnum; i++) {
+		printf ("Feature %s \"%s\"\n", vardata->features[i].name, vardata->features[i].description);
+		for (j = 0; j < vardata->featuresnum; j++) {
+			if (mask_get(vardata->features[i].ifmask, j) && j != i)
+				printf ("\tImplies %s\n", vardata->features[j].name);
+		}
+		for (j = 0; j < vardata->featuresnum; j++) {
+			if (mask_get(vardata->features[i].cfmask, j))
+				printf ("\tConflicts with %s\n", vardata->features[j].name);
+		}
+	}
+	printf ("\n");
+	printf ("Variants:\n");
+	for (i = 0; i < vardata->variantsnum; i++) {
+		printf ("Variant %s \"%s\"\n", vardata->variants[i].name, vardata->variants[i].description);
+		for (j = 0; j < vardata->featuresnum; j++) {
+			if (mask_get(vardata->variants[i].fmask, j))
+				printf ("\tFeature %s\n", vardata->features[j].name);
+		}
+	}
+	printf ("\n");
+	for (i = 0; i < vardata->modesetsnum; i++) {
+		struct vardata_modeset *ms = &vardata->modesets[i];
+		int k;
+		printf ("%s set %s \"%s\"\n", (1/*ms->isoptional*/?"Optional mode":"Mode"), ms->name, ms->description);
+		for (k = 0; k < vardata->modesnum; k++) {
+			if (vardata->modes[k].modeset == i) {
+				printf ("\t%s %s \"%s\"\n", (k == ms->defmode?"Default mode":"Mode"), vardata->modes[k].name, vardata->modes[k].description);
+				for (j = 0; j < vardata->featuresnum; j++) {
+					if (mask_get(vardata->modes[k].rfmask, j))
+						printf ("\t\tRequired feature %s\n", vardata->features[j].name);
+				}
+			}
+		}
+		printf ("\n");
+	}
+}
+
 int main(int argc, char **argv) {
 	struct ed2i_isa *isa = ed2i_read_isa(argv[1]);
 	if (isa) {
+		vardata_show(isa->vardata);
 		int i, j;
-		printf ("Features:\n");
-		for (i = 0; i < isa->featuresnum; i++) {
-			printf ("Feature %s \"%s\"\n", isa->features[i].names[0], isa->features[i].description);
-			for (j = 0; j < isa->featuresnum; j++) {
-				if (mask_get(isa->features[i].ifmask, j) && j != i)
-					printf ("\tImplies %s\n", isa->features[j].names[0]);
-			}
-			for (j = 0; j < isa->featuresnum; j++) {
-				if (mask_get(isa->features[i].cfmask, j))
-					printf ("\tConflicts with %s\n", isa->features[j].names[0]);
-			}
-		}
-		printf ("\n");
-		printf ("Variants:\n");
-		for (i = 0; i < isa->variantsnum; i++) {
-			printf ("Variant %s \"%s\"\n", isa->variants[i].names[0], isa->variants[i].description);
-			for (j = 0; j < isa->featuresnum; j++) {
-				if (mask_get(isa->variants[i].fmask, j))
-					printf ("\tFeature %s\n", isa->features[j].names[0]);
-			}
-		}
-		printf ("\n");
-		for (i = 0; i < isa->modesetsnum; i++) {
-			struct ed2i_modeset *ms = &isa->modesets[i];
-			int k;
-			printf ("%s set %s \"%s\"\n", (ms->isoptional?"Optional mode":"Mode"), ms->names[0], ms->description);
-			for (k = ms->firstmode; k < ms->firstmode + ms->modesnum; k++) {
-				printf ("\t%s %s \"%s\"\n", (k == ms->defmode?"Default mode":"Mode"), isa->modes[k].names[0], isa->modes[k].description);
-				for (j = 0; j < isa->featuresnum; j++) {
-					if (mask_get(isa->modes[k].fmask, j))
-						printf ("\t\tRequired feature %s\n", isa->features[j].names[0]);
-				}
-			}
-			printf ("\n");
-		}
 		printf("Opcode length %d bits, fields:\n", isa->opbits);
 		for (i = 0; i < isa->opfieldsnum; i++) {
 			struct ed2i_opfield *of = &isa->opfields[i];

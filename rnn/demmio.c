@@ -244,10 +244,13 @@ int main(int argc, char **argv) {
 	char line[1024];
 	int i;
 	const struct disisa *ctx_isa = ed_getisa("ctx");
-	struct ed2v_variant *ctx_var_nv40 = ed2v_new_variant(ctx_isa->ed2, "nv40");
-	struct ed2v_variant *ctx_var_nv50 = ed2v_new_variant(ctx_isa->ed2, "nv50");
+	struct varinfo *ctx_var_nv40 = varinfo_new(ctx_isa->vardata);
+	struct varinfo *ctx_var_nv50 = varinfo_new(ctx_isa->vardata);
+	varinfo_set_variant(ctx_var_nv40, "nv40");
+	varinfo_set_variant(ctx_var_nv50, "nv50");
 	const struct disisa *hwsq_isa = ed_getisa("hwsq");
-	struct ed2v_variant *hwsq_var_nv41 = ed2v_new_variant(hwsq_isa->ed2, "nv41");
+	struct varinfo *hwsq_var_nv41 = varinfo_new(hwsq_isa->vardata);
+	varinfo_set_variant(hwsq_var_nv41, "nv41");
 	const struct ed2a_colors *discolors = &ed2a_def_colors;
 	while (1) {
 		/* yes, static buffer. but mmiotrace lines are bound to have sane length anyway. */

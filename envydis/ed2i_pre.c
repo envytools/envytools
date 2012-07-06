@@ -149,10 +149,6 @@ void ed2ip_del_isa(struct ed2ip_isa *isa) {
 }
 
 static const char *const typenames[] = {
-	[ED2I_ST_FEATURE] = "feature",
-	[ED2I_ST_VARIANT] = "variant",
-	[ED2I_ST_MODESET] = "modeset",
-	[ED2I_ST_MODE] = "mode",
 };
 
 int ed2ip_transform_sym(struct ed2i_isa *isa, char *name, int type, struct ed2_loc *loc, int *pbroken) {
@@ -183,95 +179,36 @@ int ed2ip_put_sym(struct ed2i_isa *isa, char *name, int type, struct ed2_loc *lo
 	return 0;
 }
 
-uint32_t *ed2ip_list_to_fmask(struct ed2i_isa *isa, char **names, int namesnum, struct ed2_loc *loc, int *pbroken) {
-	uint32_t *res = mask_new(isa->featuresnum);
-	int i;
-	for (i = 0; i < namesnum; i++) {
-		int idx = ed2ip_transform_sym(isa, names[i], ED2I_ST_FEATURE, loc, pbroken);
-		if (idx != -1)
-			mask_set(res, idx);
-	}
-	free(names);
-	return res;
-}
-
-void ed2ip_ifmask_closure(struct ed2i_isa *isa, uint32_t *fmask) {
-	int i;
-	for (i = 0; i < isa->featuresnum; i++) {
-		if (mask_get(fmask, i)) {
-			if (mask_or_r(fmask, isa->features[i].ifmask, isa->featuresnum)) {
-				i = 0;
-			}
-		}
-	}
-}
-
-void ed2ip_fmask_closure(struct ed2i_isa *isa, uint32_t *fmask) {
-	int i;
-	for (i = 0; i < isa->featuresnum; i++) {
-		if (mask_get(fmask, i)) {
-			mask_or(fmask, isa->features[i].ifmask, isa->featuresnum);
-		}
-	}
-}
-
-int ed2ip_fmask_conflicts(struct ed2i_isa *isa, uint32_t *fmask, struct ed2_loc *loc) {
-	int i;
-	for (i = 0; i < isa->featuresnum; i++) {
-		if (mask_get(fmask, i)) {
-			int idx = mask_intersect(fmask, isa->features[i].cfmask, isa->featuresnum);
-			if (idx != -1) {
-				fprintf(stderr, ED2_LOC_FORMAT(*loc, "Conflicting features %s and %s\n"), isa->features[i].names[0], isa->features[idx].names[0]);
-				return 1;
-			}
-		}
-	}
-	return 0;
-}
-
 int ed2ip_transform_features(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
-	int i, j, k;
+	int i, j;
 	int broken = 0;
-	isa->featuresnum = preisa->featuresnum;
-	isa->features = calloc(sizeof *isa->features, isa->featuresnum);
-	for (i = 0; i < isa->featuresnum; i++) {
-		for (j = 0; j < preisa->features[i]->namesnum; j++) {
-			broken |= ed2ip_put_sym(isa, preisa->features[i]->names[j], ED2I_ST_FEATURE, &preisa->features[i]->loc, i);
-		}
-		isa->features[i].names = preisa->features[i]->names;
-		isa->features[i].namesnum = preisa->features[i]->namesnum;
-		isa->features[i].description = preisa->features[i]->description;
-	}
-	/* initialise both masks as written */
-	for (i = 0; i < isa->featuresnum; i++) {
-		isa->features[i].ifmask = ed2ip_list_to_fmask(isa, preisa->features[i]->implies, preisa->features[i]->impliesnum, &preisa->features[i]->loc, &broken);
-		isa->features[i].cfmask = ed2ip_list_to_fmask(isa, preisa->features[i]->conflicts, preisa->features[i]->conflictsnum, &preisa->features[i]->loc, &broken);
-	}
-	for (i = 0; i < isa->featuresnum; i++) {
-		/* every feature implies itself */
-		mask_set(isa->features[i].ifmask, i);
-		/* calculate full closure of implied features */
-		ed2ip_ifmask_closure(isa, isa->features[i].ifmask);
-		/* if i conflicts with j, j conflicts with i */
-		for (j = 0; j < isa->featuresnum; j++) {
-			if (mask_get(isa->features[i].cfmask, j))
-				mask_set(isa->features[j].cfmask, i);
-		}
-	}
-	for (i = 0; i < isa->featuresnum; i++) {
-		/* if i implies k, j implies l, and k conflicts with l, i conflicts with j */
-		for (j = 0; j < isa->featuresnum; j++) {
-			for (k = 0; k < isa->featuresnum; k++) {
-				if (mask_get(isa->features[i].ifmask, k) && mask_intersect(isa->features[k].cfmask, isa->features[j].ifmask, isa->featuresnum) != -1) {
-					mask_set(isa->features[i].cfmask, j);
-					mask_set(isa->features[j].cfmask, i);
+	for (i = 0; i < preisa->featuresnum; i++) {
+		int f1;
+		if ((f1 = vardata_add_feature(isa->vardata, preisa->features[i]->names[0], preisa->features[i]->description)) == -1) {
+			fprintf (stderr, ED2_LOC_FORMAT(preisa->features[i]->loc, "Redefined symbol %s\n"), preisa->features[i]->names[0]);
+			broken = 1;
+		} else {
+			/* XXX names */
+			for (j = 0; j < preisa->features[i]->impliesnum; j++) {
+				int f2 = symtab_get_td(isa->vardata->symtab, preisa->features[i]->implies[j], VARDATA_ST_FEATURE);
+				if (f2 == -1) {
+					fprintf (stderr, ED2_LOC_FORMAT(preisa->features[i]->loc, "%s is not a feature name\n"), preisa->features[i]->implies[j]);
+					broken = 1;
+				} else {
+					vardata_feature_imply(isa->vardata, f1, f2);
+				}
+			}
+			for (j = 0; j < preisa->features[i]->conflictsnum; j++) {
+				int f2 = symtab_get_td(isa->vardata->symtab, preisa->features[i]->conflicts[j], VARDATA_ST_FEATURE);
+				if (f2 == -1) {
+					fprintf (stderr, ED2_LOC_FORMAT(preisa->features[i]->loc, "%s is not a feature name\n"), preisa->features[i]->conflicts[j]);
+					broken = 1;
+				} else {
+					vardata_feature_conflict(isa->vardata, f1, f2);
 				}
 			}
 		}
-	}
-	for (i = 0; i < isa->featuresnum; i++) {
-		broken |= ed2ip_fmask_conflicts(isa, isa->features[i].ifmask, &preisa->features[i]->loc);
-		free(preisa->features[i]);
+		ed2ip_del_feature(preisa->features[i]);
 	}
 	free(preisa->features);
 	return broken;
@@ -280,20 +217,30 @@ int ed2ip_transform_features(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 int ed2ip_transform_variants(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 	int i, j;
 	int broken = 0;
-	isa->variantsnum = preisa->variantsnum;
-	isa->variants = calloc(sizeof *isa->variants, isa->variantsnum);
-	for (i = 0; i < isa->variantsnum; i++) {
-		for (j = 0; j < preisa->variants[i]->namesnum; j++) {
-			broken |= ed2ip_put_sym(isa, preisa->variants[i]->names[j], ED2I_ST_VARIANT, &preisa->variants[i]->loc, i);
+	int vs;
+	if (preisa->variantsnum) {
+		vs = vardata_add_varset(isa->vardata, "defvarset", "Default variant set");
+		if (vs == -1)
+			abort();
+	}
+	for (i = 0; i < preisa->variantsnum; i++) {
+		int v;
+		if ((v = vardata_add_variant(isa->vardata, preisa->variants[i]->names[0], preisa->variants[i]->description, vs)) == -1) {
+			fprintf (stderr, ED2_LOC_FORMAT(preisa->variants[i]->loc, "Redefined symbol %s\n"), preisa->variants[i]->names[0]);
+			broken = 1;
+		} else {
+			/* XXX names */
+			for (j = 0; j < preisa->variants[i]->featuresnum; j++) {
+				int f = symtab_get_td(isa->vardata->symtab, preisa->variants[i]->features[j], VARDATA_ST_FEATURE);
+				if (f == -1) {
+					fprintf (stderr, ED2_LOC_FORMAT(preisa->variants[i]->loc, "%s is not a feature name\n"), preisa->variants[i]->features[j]);
+					broken = 1;
+				} else {
+					vardata_variant_feature(isa->vardata, v, f);
+				}
+			}
 		}
-		isa->variants[i].names = preisa->variants[i]->names;
-		isa->variants[i].namesnum = preisa->variants[i]->namesnum;
-		isa->variants[i].description = preisa->variants[i]->description;
-
-		isa->variants[i].fmask = ed2ip_list_to_fmask(isa, preisa->variants[i]->features, preisa->variants[i]->featuresnum, &preisa->variants[i]->loc, &broken);
-		ed2ip_fmask_closure(isa, isa->variants[i].fmask);
-
-		free(preisa->variants[i]);
+		ed2ip_del_variant(preisa->variants[i]);
 	}
 	free(preisa->variants);
 	return broken;
@@ -302,55 +249,42 @@ int ed2ip_transform_variants(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 int ed2ip_transform_modesets(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 	int i, j, k;
 	int broken = 0;
-	isa->modesetsnum = preisa->modesetsnum;
-	isa->modesets = calloc(sizeof *isa->modesets, isa->modesetsnum);
-	int modesnum = 0;
-	for (i = 0; i < isa->modesetsnum; i++) {
-		for (j = 0; j < preisa->modesets[i]->namesnum; j++) {
-			broken |= ed2ip_put_sym(isa, preisa->modesets[i]->names[j], ED2I_ST_MODESET, &preisa->modesets[i]->loc, i);
-		}
-		isa->modesets[i].names = preisa->modesets[i]->names;
-		isa->modesets[i].namesnum = preisa->modesets[i]->namesnum;
-		isa->modesets[i].description = preisa->modesets[i]->description;
-		isa->modesets[i].isoptional = preisa->modesets[i]->isoptional;
-		isa->modesets[i].firstmode = modesnum;
-		isa->modesets[i].modesnum = preisa->modesets[i]->modesnum;
-		isa->modesets[i].defmode = -1;
-		modesnum += isa->modesets[i].modesnum;
-	}
-	isa->modesnum = modesnum;
-	isa->modes = calloc(sizeof *isa->modesets, isa->modesnum);
-	for (i = 0; i < isa->modesetsnum; i++) {
-		struct ed2ip_modeset *ms = preisa->modesets[i];
-		for (k = 0; k < ms->modesnum; k++) {
-			int kk = k + isa->modesets[i].firstmode;
-			for (j = 0; j < ms->modes[k]->namesnum; j++) {
-				broken |= ed2ip_put_sym(isa, ms->modes[k]->names[j], ED2I_ST_MODE, &ms->modes[k]->loc, kk);
-			}
-			isa->modes[kk].names = ms->modes[k]->names;
-			isa->modes[kk].namesnum = ms->modes[k]->namesnum;
-			isa->modes[kk].description = ms->modes[k]->description;
-
-			isa->modes[kk].fmask = ed2ip_list_to_fmask(isa, ms->modes[k]->features, ms->modes[k]->featuresnum, &ms->modes[k]->loc, &broken);
-			ed2ip_fmask_closure(isa, isa->modes[kk].fmask);
-
-			if (ms->modes[k]->isdefault) {
-				if (ms->modes[k]->featuresnum) {
-					fprintf (stderr, "Default mode %s has required features\n", isa->modes[kk].names[0]);
+	for (i = 0; i < preisa->modesetsnum; i++) {
+		struct ed2ip_modeset *pms = preisa->modesets[i];
+		int ms;
+		if ((ms = vardata_add_modeset(isa->vardata, pms->names[0], pms->description)) == -1) {
+			fprintf (stderr, ED2_LOC_FORMAT(pms->loc, "Redefined symbol %s\n"), pms->names[0]);
+			broken = 1;
+		} else {
+			/* XXX names */
+			/* XXX isoptional */
+			for (j = 0; j < pms->modesnum; j++) {
+				struct ed2ip_mode *pm = pms->modes[j];
+				int m;
+				if ((m = vardata_add_mode(isa->vardata, pm->names[0], pm->description, ms)) == -1) {
+					fprintf (stderr, ED2_LOC_FORMAT(pm->loc, "Redefined symbol %s\n"), pm->names[0]);
 					broken = 1;
-				}
-				if (isa->modesets[i].defmode == -1) {
-					isa->modesets[i].defmode = kk;
 				} else {
-					fprintf (stderr, "More than one default mode: %s and %s\n", isa->modes[isa->modesets[i].defmode].names[0], isa->modes[kk].names[0]);
-					broken = 1;
+					/* XXX names */
+					for (k = 0; k < pm->featuresnum; k++) {
+						int f = symtab_get_td(isa->vardata->symtab, pm->features[k], VARDATA_ST_FEATURE);
+						if (f == -1) {
+							fprintf (stderr, ED2_LOC_FORMAT(pm->loc, "%s is not a feature name\n"), pm->features[k]);
+							broken = 1;
+						} else {
+							vardata_mode_require(isa->vardata, m, f);
+						}
+					}
+					if (pm->isdefault) {
+						if (vardata_modeset_def(isa->vardata, ms, m)) {
+							fprintf (stderr, "More than one default mode: %s and %s\n", isa->vardata->modes[isa->vardata->modesets[ms].defmode].name, pm->names[0]);
+							broken = 1;
+						}
+					}
 				}
 			}
-
-			free(ms->modes[k]);
 		}
-		free(ms->modes);
-		free(ms);
+		ed2ip_del_modeset(pms);
 	}
 	free(preisa->modesets);
 	return broken;
@@ -414,9 +348,11 @@ struct ed2i_isa *ed2ip_transform(struct ed2ip_isa *preisa) {
 	int broken = preisa->broken;
 	struct ed2i_isa *isa = calloc(sizeof *isa, 1);
 	isa->symtab = symtab_new();
+	isa->vardata = vardata_new("isavar");
 	broken |= ed2ip_transform_features(preisa, isa);
 	broken |= ed2ip_transform_variants(preisa, isa);
 	broken |= ed2ip_transform_modesets(preisa, isa);
+	broken |= vardata_validate(isa->vardata);
 	broken |= ed2ip_transform_opfields(preisa, isa);
 	int i;
 	for (i = 0; i < preisa->seqsnum; i++)

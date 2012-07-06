@@ -924,7 +924,8 @@ int main(int argc, char **argv) {
 	if (bios->hwsq_offset && (printmask & ENVY_BIOS_PRINT_HWSQ)) {
 		uint8_t entry_count, bytes_to_write, i;
 		const struct disisa *hwsq_isa = ed_getisa("hwsq");
-		struct ed2v_variant *hwsq_var_nv41 = ed2v_new_variant(hwsq_isa->ed2, "nv41");
+		struct varinfo *hwsq_var_nv41 = varinfo_new(hwsq_isa->vardata);
+		varinfo_set_variant(hwsq_var_nv41, "nv41");
 
 		bios->hwsq_offset += 4;
 

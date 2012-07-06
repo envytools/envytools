@@ -42,7 +42,7 @@ enum {
 	OFMT_CHEX64,
 } envyas_ofmt = OFMT_HEX8;
 
-struct ed2v_variant *envyas_variant;
+struct varinfo *envyas_varinfo;
 
 char *envyas_outname = 0;
 
@@ -216,7 +216,7 @@ int envyas_process(struct file *file) {
 	struct disctx *ctx = &ctx_s;
 	ctx->reverse = 1;
 	ctx->isa = envyas_isa;
-	ctx->variant = envyas_variant;
+	ctx->varinfo = envyas_varinfo;
 	struct matches *im = calloc(sizeof *im, file->linesnum);
 	for (i = 0; i < file->linesnum; i++) {
 		if (file->lines[i]->type == LINE_INSN) {
@@ -592,11 +592,13 @@ int main(int argc, char **argv) {
 		fprintf (stderr, "No architecture specified!\n");
 		return 1;
 	}
-	envyas_variant = ed2v_new_variant(envyas_isa->ed2, varname);
-	if (!envyas_variant)
+	envyas_varinfo = varinfo_new(envyas_isa->vardata);
+	if (!envyas_varinfo)
 		return 1;
+	if (varname)
+		if (varinfo_set_variant(envyas_varinfo, varname));
 	if (modename)
-		if (ed2v_set_mode(envyas_variant, modename))
+		if (varinfo_set_mode(envyas_varinfo, modename))
 			return 1;
 	struct file *file = calloc(sizeof *file, 1);
 	int i;

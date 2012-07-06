@@ -30,8 +30,8 @@
  * Color scheme
  */
 
-int var_ok(int fmask, int ptype, struct ed2v_variant *var) {
-	return (!fmask || (var->fmask[0] & fmask) == fmask) && (!ptype || (var->mode[0] != -1 && ptype & 1 << var->mode[0]));
+int var_ok(int fmask, int ptype, struct varinfo *varinfo) {
+	return (!fmask || (varinfo->fmask[0] & fmask) == fmask) && (!ptype || (varinfo->modes[0] != -1 && ptype & 1 << varinfo->modes[0]));
 }
 
 char *aprint(const char *format, ...) {
@@ -138,7 +138,7 @@ struct matches *atomtab APROTO {
 	const struct insn *tab = v;
 	if (!ctx->reverse) {
 		int i;
-		while ((a[0]&tab->mask) != tab->val || !var_ok(tab->fmask, tab->ptype, ctx->variant))
+		while ((a[0]&tab->mask) != tab->val || !var_ok(tab->fmask, tab->ptype, ctx->varinfo))
 			tab++;
 		m[0] |= tab->mask;
 		for (i = 0; i < 16; i++)
@@ -149,7 +149,7 @@ struct matches *atomtab APROTO {
 		struct matches *res = emptymatches();
 		int i;
 		for (i = 0; ; i++) {
-			if (var_ok(tab[0].fmask, tab[0].ptype, ctx->variant)) {
+			if (var_ok(tab[0].fmask, tab[0].ptype, ctx->varinfo)) {
 				struct match sm = { 0, .a = {tab[i].val}, .m = {tab[i].mask}, .lpos = spos };
 				struct matches *subm = tabdesc(ctx, sm, tab[i].atoms); 
 				if (subm)
@@ -410,7 +410,7 @@ int matchreg (struct match *res, const struct reg *reg, const struct expr *expr,
 	if (reg->specials) {
 		int i = 0;
 		for (i = 0; reg->specials[i].num != -1; i++) {
-			if (!var_ok(reg->specials[i].fmask, 0, ctx->variant))
+			if (!var_ok(reg->specials[i].fmask, 0, ctx->varinfo))
 				continue;
 			switch (reg->specials[i].mode) {
 				case SR_NAMED:
@@ -495,7 +495,7 @@ static struct expr *printreg (struct disctx *ctx, ull *a, ull *m, const struct r
 	if (reg->specials) {
 		int i;
 		for (i = 0; reg->specials[i].num != -1; i++) {
-			if (!var_ok(reg->specials[i].fmask, 0, ctx->variant))
+			if (!var_ok(reg->specials[i].fmask, 0, ctx->varinfo))
 				continue;
 			if (num == reg->specials[i].num) {
 				switch (reg->specials[i].mode) {
@@ -917,7 +917,7 @@ ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx) {
  * FILE*.
  */
 
-void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, struct ed2v_variant *variant, int quiet, struct label *labels, int labelsnum, const struct ed2a_colors *cols)
+void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, struct varinfo *varinfo, int quiet, struct label *labels, int labelsnum, const struct ed2a_colors *cols)
 {
 	struct disctx c = { 0 };
 	struct disctx *ctx = &c;
@@ -927,7 +927,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 	ctx->names = calloc((num + isa->posunit - 1) / isa->posunit, sizeof *ctx->names);
 	ctx->codebase = start;
 	ctx->codesz = num;
-	ctx->variant = variant;
+	ctx->varinfo = varinfo;
 	ctx->isa = isa;
 	ctx->labels = labels;
 	ctx->labelsnum = labelsnum;
@@ -1191,10 +1191,12 @@ const struct disisa *ed_getisa(const char *name) {
 	int i;
 	for (i = 0; i < sizeof isas / sizeof *isas; i++)
 		if (!strcmp(name, isas[i].name)) {
-			if (!isas[i].isa->ed2)
+			if (!isas[i].isa->ed2) {
 				isas[i].isa->ed2 = ed2i_read_isa(isas[i].isa->ed2name);
-			if (!isas[i].isa->ed2)
-				return 0;
+				if (!isas[i].isa->ed2)
+					return 0;
+				isas[i].isa->vardata = isas[i].isa->ed2->vardata;
+			}
 			return isas[i].isa;
 		}
 	return 0;

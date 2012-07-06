@@ -26,52 +26,13 @@
 #define ED2I_ISA_H
 
 #include "symtab.h"
+#include "var.h"
 #include <stdio.h>
 
 enum ed2i_endian {
 	ED2I_ENDIAN_UNKNOWN,
 	ED2I_ENDIAN_LE,
 	ED2I_ENDIAN_BE,
-};
-
-enum {
-	ED2I_ST_FEATURE,
-	ED2I_ST_VARIANT,
-	ED2I_ST_MODESET,
-	ED2I_ST_MODE,
-};
-
-struct ed2i_feature {
-	char **names;
-	int namesnum;
-	char *description;
-	uint32_t *ifmask;
-	uint32_t *cfmask;
-};
-
-struct ed2i_variant {
-	char **names;
-	int namesnum;
-	char *description;
-	uint32_t *fmask;
-};
-
-struct ed2i_mode {
-	char **names;
-	int namesnum;
-	char *description;
-	uint32_t *fmask;
-	int modeset;
-};
-
-struct ed2i_modeset {
-	char **names;
-	int namesnum;
-	char *description;
-	int isoptional;	
-	int firstmode;
-	int modesnum;
-	int defmode;
 };
 
 struct ed2i_opfield {
@@ -83,14 +44,7 @@ struct ed2i_opfield {
 };
 
 struct ed2i_isa {
-	struct ed2i_feature *features;
-	int featuresnum;
-	struct ed2i_variant *variants;
-	int variantsnum;
-	struct ed2i_modeset *modesets;
-	int modesetsnum;
-	struct ed2i_mode *modes;
-	int modesnum;
+	struct vardata *vardata;
 	struct ed2i_opfield *opfields;
 	int opfieldsnum;
 	int opbits;
