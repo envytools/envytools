@@ -1,6 +1,7 @@
 envydis
 envyas
-lex.c
-parse.c
-parse.h
+envyas_lex.c
+envyas_lex.h
+envyas_parse.c
+envyas_parse.h
 libenvy.a
