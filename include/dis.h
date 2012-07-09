@@ -34,6 +34,7 @@
 #include "util.h"
 #include "var.h"
 #include "colors.h"
+#include "easm.h"
 
 /*
  * Table format
@@ -252,23 +253,10 @@ struct disisa {
 	struct vardata *vardata;
 };
 
-struct file {
-	struct line **lines;
-	int linesnum;
-	int linesmax;
-};
-
 struct line {
-	enum ltype {
-		LINE_INSN,
-		LINE_LABEL,
-		LINE_DIR,
-	} type;
-	char *str;
 	struct expr **atoms;
 	int atomsnum;
 	int atomsmax;
-	struct envy_loc loc;
 };
 
 struct expr {
@@ -311,6 +299,8 @@ struct expr {
 static inline struct expr *makeex(enum etype type) {
 	struct expr *res = calloc(sizeof(*res), 1);
 	res->type = type;
+	if (type == EXPR_LABEL || type == EXPR_NUM)
+		res->isimm = 1;
 	return res;
 }
 
@@ -415,5 +405,8 @@ const struct disisa *ed_getisa(const char *name);
 
 void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, struct varinfo *varinfo, int quiet, struct label *labels, int labelsnum, const struct envy_colors *cols);
 void printexpr(FILE *out, const struct expr *expr, int lvl, const struct envy_colors *cols);
+
+void convert_insn(struct line *line, struct easm_insn *insn);
+struct expr *convert_expr(struct easm_expr *expr);
 
 #endif
