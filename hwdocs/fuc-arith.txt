@@ -56,6 +56,17 @@ Compare two values, setting flags according to results of comparison. cmp
 sets the usual set of 4 flags. cmpu sets only c and z. cmps sets z normally,
 and sets c if SRC1 is less then SRC2 when treated as signed number.
 
+cmpu/cmps are the only comparison instructions available on fµc v0. Both of
+them set only the c and z flags, with cmps setting c flag in an unusual way
+to enable signed comparisons while using unsigned flags and condition codes.
+To do an unsigned comparison, use cmpu and the unsigned branch conditions
+[b/a/e]. To do a signed comparison, use cmps, also with unsigned branch
+conditions.
+
+The fµc v3+ new cmp instruction sets the full set of flags. To do an unsigned
+comparison on v3+, use cmp and the unsigned branch conditions. To do a signed
+comparison, use cmp and the signed branch conditions [l/g/e].
+
 Instructions:
 	cmpu - compare unsigned			subopcode = 4
 	cmps - compare signed			subopcode = 5
