@@ -32,7 +32,7 @@
 
 #define NV_PRAMIN_OFFSET            0x00700000
 #define NV_PROM_OFFSET              0x00300000
-#define NV01_PROM_SIZE              0x00010000
+#define NV01_PROM_SIZE              0x00008000
 #define NV03_PROM_SIZE              0x00010000
 #define NV_PROM_SIZE                0x00100000
 
@@ -85,7 +85,7 @@ static int nv_checksignature(const uint8_t *data)
 	return EOK;
 }
 
-static int nv_ckbios(const uint8_t *data, int *length)
+static int nv_ckbios(const uint8_t *data)
 {
 	uint16_t pcir_ptr, pcir_ptr2;
 	uint32_t ret = EUNK;
@@ -98,8 +98,6 @@ static int nv_ckbios(const uint8_t *data, int *length)
 	pcir_ptr = data[0x18] | data[0x19] << 8;
 	vbios_len = data[pcir_ptr + 0x10] * 512 + data[pcir_ptr + 0x11] * 512 * 256;
 	ret = nv_cksum(data, vbios_len);
-	if (length)
-		*length = vbios_len;
 
 	/* Check for a second vbios */
 	if (!(data[pcir_ptr + 0x15] & 0x80)) {
@@ -114,9 +112,6 @@ static int nv_ckbios(const uint8_t *data, int *length)
 		vbios2_len = data[vbios_len + pcir_ptr2 + 0x10] * 512 + data[vbios_len + pcir_ptr2 + 0x11] * 512 * 256;
 
 		ret = nv_cksum(data + vbios_len, vbios2_len);
-
-		if (length)
-			*length += vbios2_len;
 	}
 	return ret;
 }
@@ -160,10 +155,11 @@ int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 	for (i = 0; i < prom_size; i++)
 		vbios[i] = nva_rd8(cnum, prom_offset + i);
 
-	ret = nv_ckbios(vbios, length);
+	ret = nv_ckbios(vbios);
 	if (nva_cards[cnum].chipset >= 0x04) {
 		nva_wr32(cnum, pbus_offset + 0x50, pci_cfg_50);
 	}
+	*length = prom_size;
 	return ret;
 }
 
@@ -191,12 +187,15 @@ int vbios_extract_pramin(int cnum, uint8_t *vbios, int *length)
 
 		old_bar0_pramin = nva_rd32(cnum, 0x1700);
 		nva_wr32(cnum, 0x1700, vbios_vram >> 16);
+		*length = 0x20000;
+	} else {
+		*length = 0x10000;
 	}
 
-	for (i = 0; i < NV_PROM_SIZE; i++)
+	for (i = 0; i < *length; i++)
 		vbios[i] = nva_rd8(cnum, NV_PRAMIN_OFFSET + i);
 
-	ret = nv_ckbios(vbios, length);
+	ret = nv_ckbios(vbios);
 	if (nva_cards[cnum].card_type >= 0x50)
 		nva_wr32(cnum, 0x1700, old_bar0_pramin);
 
