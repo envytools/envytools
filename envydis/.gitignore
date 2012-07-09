@@ -4,4 +4,9 @@ envyas_lex.c
 envyas_lex.h
 envyas_parse.c
 envyas_parse.h
+easm_lex.c
+easm_lex.h
+easm_parse.c
+easm_parse.h
 libenvy.a
+libeasm.a
