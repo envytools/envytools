@@ -146,14 +146,14 @@ int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 		pci_cfg_50 = nva_rd32(cnum, pbus_offset + 0x50);
 		nva_wr32(cnum, pbus_offset + 0x50, 0);
 	}
-
+	
 	/* on some 6600GT/6800LE prom reads are messed up.  nvclock alleges a
 	 * a good read may be obtained by waiting or re-reading (cargocult: 5x)
 	 * each byte.  we'll hope pramin has something usable instead
 	 */
 
 	for (i = 0; i < prom_size; i++)
-		vbios[i] = nva_rd8(cnum, prom_offset + i);
+		vbios[i] = nva_rd32(cnum, prom_offset + (i & ~3)) >> (i & 3) * 8;
 
 	ret = nv_ckbios(vbios);
 	if (nva_cards[cnum].chipset >= 0x04) {
