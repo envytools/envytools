@@ -98,4 +98,9 @@ uint32_t elf_hash(const char *str);
 
 FILE *find_in_path(const char *name, const char *path, char **pfullname);
 
+struct astr {
+	char *str;
+	size_t len;
+};
+
 #endif

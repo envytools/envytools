@@ -59,4 +59,6 @@ struct yy_lex_intern {
 
 void yy_lex_common(struct yy_lex_intern *x, YYLTYPE *loc, const char *str);
 
+void yy_str_deescape(const char *str, struct astr *astr);
+
 #endif

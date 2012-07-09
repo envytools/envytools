@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Marcin Kościelnicki <koriakin@0x04.net>
+ * Copyright (C) 2011-2012 Marcin Kościelnicki <koriakin@0x04.net>
  * All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
@@ -23,6 +23,7 @@
  */
 
 #include "yy.h"
+#include <assert.h>
 
 void yy_lex_common(struct yy_lex_intern *x, YYLTYPE *loc, const char *str) {
 	int i;
@@ -39,4 +40,76 @@ void yy_lex_common(struct yy_lex_intern *x, YYLTYPE *loc, const char *str) {
 	loc->lend = x->line;
 	loc->cend = x->pos;
 	loc->file = x->file;
+}
+
+static int gethex(char c) {
+	if (c >= '0' && c <= '9')
+		return c - '0';
+	if (c >= 'a' && c <= 'f')
+		return c - 'a' + 0xa;
+	if (c >= 'A' && c <= 'F')
+		return c - 'A' + 0xa;
+	assert(0);
+}
+
+void yy_str_deescape(const char *str, struct astr *astr) {
+	int rlen = 0;
+	int i;
+	for (i = 0; str[i]; i++) {
+		if (str[i] == '\\') {
+			i++;
+			rlen++;
+			if (str[i] == 'x')
+				i += 2;
+		} else if (str[i] != '"') {
+			rlen++;
+		}
+	}
+	char *res = malloc (rlen + 1);
+	int j;
+	for (i = 0, j = 0; str[i]; i++) {
+		if (str[i] == '\\') {
+			i++;
+			switch (str[i]) {
+				case '\\':
+				case '\'':
+				case '\"':
+				case '\?':
+					res[j++] = str[i];
+					break;
+				case 'n':
+					res[j++] = '\n';
+					break;
+				case 'f':
+					res[j++] = '\f';
+					break;
+				case 't':
+					res[j++] = '\t';
+					break;
+				case 'a':
+					res[j++] = '\a';
+					break;
+				case 'v':
+					res[j++] = '\v';
+					break;
+				case 'r':
+					res[j++] = '\r';
+					break;
+				case 'x':
+					res[j++] = gethex(str[i+1]) << 4 | gethex(str[i+2]);
+					i += 2;
+					break;
+				default:
+					assert(0);
+			}
+			if (str[i] == 'x')
+				i += 2;
+		} else if (str[i] != '"') {
+			res[j++] = str[i];
+		}
+	}
+	res[j] = 0;
+	assert(j == rlen);
+	astr->len = rlen;
+	astr->str = res;
 }
