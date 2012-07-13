@@ -28,6 +28,13 @@ to be explicitely manipulated. See fuc-arith.txt for more details.
 Address of the current instruction is always available through the read-only
 $pc special register.
 
+When a branching instruction is taken, the execution time is either 4 or
+5 cycles. The execution time depends on the address of the next instruction to
+be executed. If this instruction can be loaded in one cycle (the instruction
+is contained in a single aligned 32-bit memory block in the code section),
+4 instructions will be necessary. If the instruction is split in two blocks,
+5 instructions will then be necessary.
+
 
 = Pseudocode conventions =
 
@@ -71,6 +78,7 @@ Instructions:
 	bra l - if signed less				subopcode = 1e [v3+ only]
 	bra ge - if signed greater or equal		subopcode = 1f [v3+ only]
 Instruction class: unsized
+Execuction time: 1 cycle if not taken, 4-5 cycles if taken
 Operands: DIFF
 Forms:
 	I8					opcode = f4
@@ -144,6 +152,7 @@ immediate forms are pretty much redundant with the relative branch form.
 Instructions:
 	bra - branch
 Instruction class: unsized
+Execuction time: 4-5 cycles
 Operands: TRG
 Forms:
 	I8				opcode = f4, subopcode = 20
@@ -162,6 +171,7 @@ specified as absolute address.
 Instructions:
 	call - Call a subroutine
 Instruction class: unsized
+Execuction time: 4-5 cycles
 Operands: TRG
 Forms:
 	I8				opcode = f4, subopcode = 21
@@ -181,6 +191,7 @@ Returns from a previous call.
 Instructions:
 	ret - Return from a subroutine
 Instruction class: unsized
+Execuction time: 5-6 cycles
 Operands: -
 Forms:
 	[no operands]			opcode = f8, subopcode = 0
