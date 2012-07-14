@@ -691,7 +691,7 @@ The MMIO ranges for NV50 family are:
 022000:022400 ???
 060000:070000 PEEPHOLE - indirect VM access [NV84-] [nv50-vm.txt]
 070000:080000 PFIFO_BAR_FLUSH - used to flush BAR writes [NV84-] [nv50-vm.txt]
-080000:081000 PBUS_PMS_NEWCODE - extended PMS code space [NV92-] [pbus.txt]
+080000:081000 PBUS_HWSQ_NEWCODE - extended HWSQ code space [NV92-] [hwsq.txt]
 084000:085000 PBSP - VP3 BSP engine [NV98, NVAA-] [vp3-pbsp.txt]
 085000:086000 PVP - VP3 video decoding engine [NV98, NVAA-] [vp3-pvp.txt]
 086000:087000 PPPP - VP3 video postprocessing engine [NV98, NVAA-] [vp3-pppp.txt]
