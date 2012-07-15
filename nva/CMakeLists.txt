@@ -41,6 +41,8 @@ add_executable(nvavucstart nvavucstart.c)
 add_executable(nvaupload nvaupload.c)
 add_executable(nvadownload nvadownload.c)
 add_executable(evotiming evotiming.c)
+add_executable(nv01dump nv01dump.c)
+add_executable(nv01post nv01post.c)
 
 if (PC_X11_FOUND AND PC_XEXT_FOUND)
 	add_executable(nvamemtiming nvamemtiming.c set_timings.c vbios_mgmt.c libXNVCtrl/NVCtrl.c)
@@ -83,6 +85,8 @@ target_link_libraries(nvaxtinsn nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvaupload nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvadownload nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(evotiming nva ${PC_PCIACCESS_LIBRARIES})
+target_link_libraries(nv01dump nva ${PC_PCIACCESS_LIBRARIES})
+target_link_libraries(nv01post nva ${PC_PCIACCESS_LIBRARIES})
 
 install(TARGETS nva
 		nvalist
@@ -113,6 +117,8 @@ install(TARGETS nva
 		nvaupload
 		nvadownload
 		evotiming
+		nv01dump
+		nv01post
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
 	ARCHIVE DESTINATION lib${LIB_SUFFIX})
