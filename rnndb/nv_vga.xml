@@ -285,7 +285,9 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-	<reg8 offset="0xa0000" name="PRM" length="0x20000" variants="NV03-" />
+	<reg8 offset="0xa0000" name="PRMFB" length="0x20000" variants="NV03-" />
+
+	<reg8 offset="0x6e0000" name="PRMFB" length="0x20000" variants="NV01:NV03" />
 
 	<group name="nv_vga_vio">
 		<reg8 offset="0x3c2" name="MISC_W" access="w"/>
