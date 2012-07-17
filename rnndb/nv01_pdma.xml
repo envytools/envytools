@@ -80,7 +80,7 @@
 		<reg32 offset="0x0b0" name="WRITE_FLUSH" access="w"/>
 		<reg32 offset="0x0f0" name="NOTIFY" access="w"/>
 		<reg32 offset="0x100" name="WRITE_BUF" length="8"/>
-	</aray>
+	</array>
 </array>
 
 </domain>
