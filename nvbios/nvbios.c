@@ -1002,8 +1002,8 @@ int main(int argc, char **argv) {
 						ref_clk = 25000;
 						break;
 					}
-				printf("-- log2P_max [%d](XXX: must be less than 8), log2P_bias [%d], ref_clk %dkHz --\n",
-					bios->data[soff+29], bios->data[soff+30], ref_clk);
+				printf("-- log2P_min [%d], log2P_max [%d](XXX: must be less than 8), log2P_bias [%d], ref_clk %dkHz --\n",
+					bios->data[soff+28], bios->data[soff+29], bios->data[soff+30], ref_clk);
 				printhex(soff, rlen);
 				printf("\n");
 			} else if (ver == 0x30) {
@@ -1044,8 +1044,8 @@ int main(int argc, char **argv) {
 							break;
 						}
 
-					printf("-- log2P_max [%d], log2P_bias [%d], ref_clk %dkHz --\n",
-						bios->data[rec_ptr+25], bios->data[rec_ptr+27], ref_clk);
+					printf("-- log2P_min [%d], log2P_max [%d], log2P_UNK [%d], log2P_bias [%d], ref_clk %dkHz --\n",
+						bios->data[rec_ptr+24], bios->data[rec_ptr+25], bios->data[rec_ptr+26], bios->data[rec_ptr+27], ref_clk);
 					printhex(rec_ptr, 32);
 					printf("\n");
 				}
