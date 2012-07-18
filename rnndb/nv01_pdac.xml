@@ -84,8 +84,8 @@
 		<bitfield pos="6" name="J1_A"/>
 		<bitfield pos="7" name="J1_B"/>
 	</bitset>
-	<reg8 offset="0x3a" name="GP_PIN_MODE" type="nv01_pdac_gp_pins"/> <!-- 0 if button, 1 if unconnected or analog -->
-	<reg8 offset="0x3b" name="GP_BUTTON_STATE" type="nv01_pdac_gp_pins"/>
+	<reg8 offset="0x3e" name="GP_PIN_MODE" type="nv01_pdac_gp_pins"/> <!-- 0 if button, 1 if unconnected or analog -->
+	<reg8 offset="0x3f" name="GP_BUTTON_STATE" type="nv01_pdac_gp_pins"/>
 
 	<array offset="0x40" name="GP_ANALOG" stride="2" length="8">
 		<reg8 offset="0" name="READOUT_LOW"/>
