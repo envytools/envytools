@@ -44,6 +44,7 @@
 		<bitfield high="2" low="0" name="PCLK_VCLK_RATIO"/>
 		<bitfield pos="3" name="VCLK_IMPEDANCE"/>
 	</reg8>
+	<reg8 offset="0x6" name="ID1"/> <!-- status of VGA connector ID1 pin -->
 	<reg8 offset="0x9" name="RGB_PAL_CTRL">
 		<bitfield pos="7" name="DAC_WIDTH">
 			<value value="0" name="BITS_8"/>
