@@ -72,6 +72,25 @@
 	<reg8 offset="0x23" name="CURSOR_X_POS_HI"/>
 	<reg8 offset="0x24" name="CURSOR_Y_POS_LO"/>
 	<reg8 offset="0x25" name="CURSOR_Y_POS_HI"/>
+
+	<bitset name="nv01_pdac_gp_pins" inline="yes">
+		<bitfield pos="0" name="J0_X"/>
+		<bitfield pos="1" name="J0_Y"/>
+		<bitfield pos="2" name="J1_X"/>
+		<bitfield pos="3" name="J1_Y"/>
+		<bitfield pos="4" name="J0_A"/>
+		<bitfield pos="5" name="J0_B"/>
+		<bitfield pos="6" name="J1_A"/>
+		<bitfield pos="7" name="J1_B"/>
+	</bitset>
+	<reg8 offset="0x3a" name="GP_PIN_MODE" type="nv01_pdac_gp_pins"/> <!-- 0 if button, 1 if unconnected or analog -->
+	<reg8 offset="0x3b" name="GP_BUTTON_STATE" type="nv01_pdac_gp_pins"/>
+
+	<array offset="0x40" name="GP_ANALOG" stride="2" length="8">
+		<reg8 offset="0" name="READOUT_LOW"/>
+		<reg8 offset="1" name="READOUT_HIGH"/>
+	</array>
+
 	<array offset="0x50" name="CURSOR_COLOUR" stride="0x4" length="3">
 		<reg8 offset="0x0" name="RED"/>
 		<reg8 offset="0x1" name="GREEN"/>
