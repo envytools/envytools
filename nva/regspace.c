@@ -25,7 +25,9 @@
 #include "nva.h"
 #include <stddef.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val) {
 	void *rawbase = 0;
@@ -316,5 +318,30 @@ char nva_rserrc(enum nva_err err) {
 			return 'M';
 		default:
 			abort();
+	}
+}
+
+void nva_rsprint(struct nva_regspace *regspace, enum nva_err err, uint64_t val) {
+	if (err) {
+		int k;
+		char ec = nva_rserrc(err);
+		printf(" ");
+		for (k = 0; k < regspace->regsz; k++)
+			printf("%c%c", ec, ec);
+	} else {
+		switch (regspace->regsz) {
+			case 1:
+				printf (" %02"PRIx64, val);
+				break;
+			case 2:
+				printf (" %04"PRIx64, val);
+				break;
+			case 4:
+				printf (" %08"PRIx64, val);
+				break;
+			case 8:
+				printf (" %016"PRIx64, val);
+				break;
+		}
 	}
 }

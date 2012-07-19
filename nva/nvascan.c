@@ -33,30 +33,50 @@ int main(int argc, char **argv) {
 		fprintf (stderr, "PCI init failure!\n");
 		return 1;
 	}
-	int c;
-	int cnum =0;
 	int alias = 0;
 	int slow = 0;
-	while ((c = getopt (argc, argv, "asc:")) != -1)
+	int c;
+	struct nva_regspace rs = { 0 };
+	while ((c = getopt (argc, argv, "asc:i:b:t:")) != -1)
 		switch (c) {
-			case 'c':
-				sscanf(optarg, "%d", &cnum);
-				break;
 			case 'a':
 				alias = 1;
 				break;
 			case 's':
 				slow = 1;
 				break;
+			case 'c':
+				sscanf(optarg, "%d", &rs.cnum);
+				break;
+			case 'i':
+				sscanf(optarg, "%d", &rs.idx);
+				break;
+			case 'b':
+				sscanf(optarg, "%d", &rs.regsz);
+				if (rs.regsz != 1 && rs.regsz != 2 && rs.regsz != 4 && rs.regsz != 8) {
+					fprintf (stderr, "Invalid size.\n");
+					return 1;
+				}
+				break;
+			case 't':
+				rs.type = nva_rstype(optarg);
+				if (rs.type == -1) {
+					fprintf (stderr, "Unknown register space.\n");
+					return 1;
+				}
+				break;
 		}
-	if (cnum >= nva_cardsnum) {
+	if (rs.cnum >= nva_cardsnum) {
 		if (nva_cardsnum)
 			fprintf (stderr, "No such card.\n");
 		else
 			fprintf (stderr, "No cards found.\n");
 		return 1;
 	}
-	int32_t a, b = 4, i;
+	rs.card = &nva_cards[rs.cnum];
+	if (rs.regsz == 0)
+		rs.regsz = nva_rsdefsz(&rs);
+	int32_t a, b = rs.regsz, i;
 	if (optind >= argc) {
 		fprintf (stderr, "No address specified.\n");
 		return 1;
@@ -65,38 +85,54 @@ int main(int argc, char **argv) {
 	if (optind + 1 < argc)
 		sscanf (argv[optind + 1], "%x", &b);
 	int ls = 1;
-	for (i = 0; i < b; i+=4) {
-		uint32_t x, y, z;
-		x = nva_rd32(cnum, a+i);
-		nva_wr32(cnum, a+i, -1);
-		y = nva_rd32(cnum, a+i);
-		nva_wr32(cnum, a+i, 0);
-		z = nva_rd32(cnum, a+i);
-		nva_wr32(cnum, a+i, x);
-		if (x || y || z) {
-			int cool = (x != y) || (y != z);
-			int isalias = 0, areg;
-			if (cool && alias) {
-				int j;
-				nva_wr32(cnum, a+i, -1);
-				for (j = 0; j < i; j+=4) {
-					uint32_t sv = nva_rd32(cnum, a+j);
-					nva_wr32(cnum, a+j, 0);
-					uint32_t ch = nva_rd32(cnum, a+i);
-					nva_wr32(cnum, a+j, sv);
-					if (ch == z) {
-						areg = a + j;
-						isalias = 1;
-						break;
+	for (i = 0; i < b; i+=rs.regsz) {
+		uint64_t x, y, z;
+		int ex = nva_rd(&rs, a+i, &x);
+		int ew, ey, ev, ez, eb;
+		if (!ex) {
+			ew = nva_wr(&rs, a+i, -1ll);
+			ey = nva_rd(&rs, a+i, &y);
+			ev = nva_wr(&rs, a+i, 0);
+			ez = nva_rd(&rs, a+i, &z);
+			eb = nva_wr(&rs, a+i, x);
+		}
+		if (ex || ey || ez || ey || ev || x || y || z) {
+			if (ex) {
+				printf ("%06x: %c\n", a+i, nva_rserrc(ex));
+			} else {
+				int cool = (x != y) || (y != z);
+				int isalias = 0, areg;
+				if (cool && alias) {
+					int j;
+					nva_wr(&rs, a+i, -1ll);
+					for (j = 0; j < i; j+=4) {
+						uint64_t sv;
+						uint64_t ch;
+						int es = nva_rd(&rs, a+j, &sv);
+						if (!es) {
+							es |= nva_wr(&rs, a+j, 0);
+							es |= nva_rd(&rs, a+i, &ch);
+							es |= nva_wr(&rs, a+j, sv);
+							if (ch == z && !es) {
+								areg = a + j;
+								isalias = 1;
+								break;
+							}
+						}
 					}
+					nva_wr(&rs, a+i, x);
 				}
-				nva_wr32(cnum, a+i, x);
+				printf ("%06x:", a+i);
+				nva_rsprint(&rs, ex, x);
+				nva_rsprint(&rs, ey, y);
+				nva_rsprint(&rs, ez, z);
+				if (cool)
+					printf(" *");
+				if (isalias) {
+					printf(" ALIASES %06x", areg);
+				}
+				printf("\n");
 			}
-			printf ("%06x: %08x %08x %08x%s", a+i, x, y, z, cool?" *":"");
-			if (isalias) {
-				printf(" ALIASES %06x", areg);
-			}
-			printf("\n");
 			ls = 1;
 		} else {
 			if (ls)
@@ -106,10 +142,10 @@ int main(int argc, char **argv) {
 		if (slow) {
 			int j;
 			for (j = 0; j < 100; j++)
-				nva_rd32(cnum, 0);
+				nva_rd32(rs.cnum, 0);
 			usleep(10000);
 			for (j = 0; j < 100; j++)
-				nva_rd32(cnum, 0);
+				nva_rd32(rs.cnum, 0);
 		}
 	}
 	return 0;

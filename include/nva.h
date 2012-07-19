@@ -101,5 +101,6 @@ enum nva_err {
 int nva_rstype(const char *name);
 int nva_rsdefsz(struct nva_regspace *regspace);
 char nva_rserrc(enum nva_err err);
+void nva_rsprint(struct nva_regspace *regspace, enum nva_err err, uint64_t val);
 
 #endif

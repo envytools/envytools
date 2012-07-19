@@ -25,7 +25,6 @@
 #include "nva.h"
 #include <stdio.h>
 #include <unistd.h>
-#include <inttypes.h>
 
 int main(int argc, char **argv) {
 	if (nva_init()) {
@@ -89,28 +88,7 @@ int main(int argc, char **argv) {
 			ls = 1;
 			printf ("%08x:", a);
 			for (i = j = 0; i < 16 && i < b; i+=rs.regsz, j++) {
-				if (e[j]) {
-					int k;
-					char ec = nva_rserrc(e[j]);
-					printf(" ");
-					for (k = 0; k < rs.regsz; k++)
-						printf("%c%c", ec, ec);
-				} else {
-					switch (rs.regsz) {
-						case 1:
-							printf (" %02"PRIx64, z[j]);
-							break;
-						case 2:
-							printf (" %04"PRIx64, z[j]);
-							break;
-						case 4:
-							printf (" %08"PRIx64, z[j]);
-							break;
-						case 8:
-							printf (" %016"PRIx64, z[j]);
-							break;
-					}
-				}
+				nva_rsprint(&rs, e[j], z[j]);
 			}
 			printf ("\n");
 		} else  {
