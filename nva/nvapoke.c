@@ -25,6 +25,7 @@
 #include "nva.h"
 #include <stdio.h>
 #include <unistd.h>
+#include <inttypes.h>
 
 int main(int argc, char **argv) {
 	if (nva_init()) {
@@ -32,21 +33,42 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 	int c;
-	int cnum =0;
-	while ((c = getopt (argc, argv, "c:")) != -1)
+	struct nva_regspace rs = { 0 };
+	while ((c = getopt (argc, argv, "c:i:b:t:")) != -1)
 		switch (c) {
 			case 'c':
-				sscanf(optarg, "%d", &cnum);
+				sscanf(optarg, "%d", &rs.cnum);
+				break;
+			case 'i':
+				sscanf(optarg, "%d", &rs.idx);
+				break;
+			case 'b':
+				sscanf(optarg, "%d", &rs.regsz);
+				if (rs.regsz != 1 && rs.regsz != 2 && rs.regsz != 4 && rs.regsz != 8) {
+					fprintf (stderr, "Invalid size.\n");
+					return 1;
+				}
+				break;
+			case 't':
+				rs.type = nva_rstype(optarg);
+				if (rs.type == -1) {
+					fprintf (stderr, "Unknown register space.\n");
+					return 1;
+				}
 				break;
 		}
-	if (cnum >= nva_cardsnum) {
+	if (rs.cnum >= nva_cardsnum) {
 		if (nva_cardsnum)
 			fprintf (stderr, "No such card.\n");
 		else
 			fprintf (stderr, "No cards found.\n");
 		return 1;
 	}
-	uint32_t a, b;
+	rs.card = &nva_cards[rs.cnum];
+	if (rs.regsz == 0)
+		rs.regsz = nva_rsdefsz(&rs);
+	uint32_t a;
+	uint64_t b;
 	if (optind >= argc) {
 		fprintf (stderr, "No address specified.\n");
 		return 1;
@@ -56,7 +78,9 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 	sscanf (argv[optind], "%x", &a);
-	sscanf (argv[optind + 1], "%x", &b);
-	nva_wr32(cnum, a, b);
+	sscanf (argv[optind + 1], "%"SCNx64, &b);
+	int e = nva_wr(&rs, a, b);
+	if (e)
+		printf("ERR %c\n", nva_rserrc(e));
 	return 0;
 }

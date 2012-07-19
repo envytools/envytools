@@ -104,6 +104,30 @@ int nva_init() {
 			fprintf (stderr, "WARN: Can't probe %04x:%02x:%02x.%x\n", dev->domain, dev->bus, dev->dev, dev->func);
 			continue;
 		}
+		nva_cards[i].bar0len = dev->regions[0].size;
+		if (dev->regions[1].size) {
+			nva_cards[i].hasbar1 = 1;
+			nva_cards[i].bar1len = dev->regions[1].size;
+			ret = pci_device_map_range(dev, dev->regions[1].base_addr, dev->regions[1].size, PCI_DEV_MAP_FLAG_WRITABLE, &nva_cards[i].bar1);
+			if (ret) {
+				nva_cards[i].bar1 = 0;
+			}
+		}
+		if (dev->regions[2].size) {
+			nva_cards[i].hasbar2 = 1;
+			nva_cards[i].bar2len = dev->regions[2].size;
+			ret = pci_device_map_range(dev, dev->regions[2].base_addr, dev->regions[2].size, PCI_DEV_MAP_FLAG_WRITABLE, &nva_cards[i].bar2);
+			if (ret) {
+				nva_cards[i].bar2 = 0;
+			}
+		} else if (dev->regions[3].size) {
+			nva_cards[i].hasbar2 = 1;
+			nva_cards[i].bar2len = dev->regions[3].size;
+			ret = pci_device_map_range(dev, dev->regions[3].base_addr, dev->regions[3].size, PCI_DEV_MAP_FLAG_WRITABLE, &nva_cards[i].bar2);
+			if (ret) {
+				nva_cards[i].bar2 = 0;
+			}
+		}
 		nva_cards[i].boot0 = nva_rd32(i, 0);
 		nva_cards[i].chipset = nva_cards[i].boot0 >> 20 & 0xff;
 		if (nva_cards[i].chipset < 0x10) {
