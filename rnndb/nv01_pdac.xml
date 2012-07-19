@@ -102,6 +102,21 @@
 			<reg8 name="LINE" offset="0x0" length="0x4"/>
 		</array>
 	</array>
+
+	<bitset name="nv01_pdac_saturn_pins" inline="yes">
+		<bitfield pos="0" name="DATA_0"/>
+		<bitfield pos="1" name="DATA_1"/>
+		<bitfield pos="2" name="DATA_2"/>
+		<bitfield pos="3" name="DATA_3"/>
+		<bitfield pos="4" name="SENSE"/>
+		<bitfield pos="5" name="SELECT_1"/>
+		<bitfield pos="6" name="SELECT_0"/>
+	</bitset>
+	<reg8 offset="0x300" name="SATURN_A_DATA" type="nv01_pdac_saturn_pins"/>
+	<reg8 offset="0x301" name="SATURN_A_MODE" type="nv01_pdac_saturn_pins"/> <!-- 0 is output, 1 is input -->
+	<reg8 offset="0x302" name="SATURN_B_DATA" type="nv01_pdac_saturn_pins"/>
+	<reg8 offset="0x303" name="SATURN_B_MODE" type="nv01_pdac_saturn_pins"/>
+
 	<array offset="0x500" name="CURSOR_READ" stride="0x80" length="2">
 		<array name="PLANE" offset="0x0" length="0x20" stride="4">
 			<reg8 name="LINE" offset="0x0" length="0x4"/>
