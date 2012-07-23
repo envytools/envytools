@@ -1191,6 +1191,10 @@ const struct disisa *ed_getisa(const char *name) {
 			if (!isa->prepdone) {
 				if (isa->prep)
 					isa->prep(isa);
+				if (!isa->vardata) {
+					isa->vardata = vardata_new("empty");
+					vardata_validate(isa->vardata);
+				}
 				isa->prepdone = 1;
 			}
 			return isa;
