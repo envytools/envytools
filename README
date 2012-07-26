@@ -8,26 +8,37 @@ The canonical repo is at: http://github.com/pathscale/envytools/
 Subdirectories:
 
  - hwdocs: plain-text documentation of the GPUs
- - envydis: Disassembler and for various ISAs found on nvidia GPUs
- - ed2: Upcoming rewrite of envydis, with lots of new features planned
+ - envydis: Disassembler and assembler for various ISAs found on nvidia GPUs
  - rnn: Tools and libraries for the rules-ng-ng XML register database format
  - rnndb: rnn database of nvidia MMIO registers, FIFO methods, and memory
    structures.
  - nvbios: Tools to decode the card description structures found in nvidia
    VBIOS
  - nva: Tools to directly access the GPU registers
- - envytest: Tests REd parts of the card to make sure they meet expectations
- - envyrm: Helper kernel module for envytest
+ - vstream: Tools to decode and encode raw video bitstreams
+ - vdpow: A tool aiding in VP3 reverse engineering
+ - util: Misc utility code shared between envytools modules
+
 
 = Building, installing =
 
-You'll need: cmake, libxml2, libxml2-dev, libpciaccess-dev, flex, bison
+Dependencies: cmake, libxml2, flex, bison
+Optional dependencies needed by nva: libpciaccess
+Optional dependencies needed by vdpow: vdpau, libx11
+
+If your distribution has -dev or -devel packages, you'll also need ones
+corresponding to the dependencies above.
 
 To build, use
 
- $ cmake -D CMAKE_INSTALL_PREFIX:PATH=/usr/local .
+ $ cmake .
  $ make
 
-To install, use
+To install [which is optional], use
 
  $ make install
+
+If you want to install to a non-default directory, you'll also need to pass
+it as an option to cmake before building, eg.:
+
+ $ cmake -D CMAKE_INSTALL_PREFIX:PATH=/usr/local .
