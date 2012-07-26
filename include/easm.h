@@ -183,4 +183,6 @@ void easm_print_sinsn(FILE *out, const struct envy_colors *cols, struct easm_sin
 void easm_print_subinsn(FILE *out, const struct envy_colors *cols, struct easm_subinsn *subinsn);
 void easm_print_insn(FILE *out, struct envy_colors *cols, struct easm_insn *insn);
 
+int easm_isimm(struct easm_expr *expr);
+
 #endif

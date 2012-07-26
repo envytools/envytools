@@ -186,12 +186,13 @@ struct matches *atomendmark APROTO {
 
 struct matches *atomsestart APROTO {
 	if (!ctx->reverse) {
-		struct expr *expr = makeex(EXPR_SESTART);
-		ADDARRAY(ctx->atoms, expr);
+		struct litem *li = calloc(sizeof *li, 1);
+		li->type = LITEM_SESTART;
+		ADDARRAY(ctx->atoms, li);
 		return NULL;
 	} else {
-		struct expr *e = ctx->line->atoms[spos];
-		if (e->type == EXPR_SESTART)
+		struct litem *li = ctx->line->atoms[spos];
+		if (li->type == LITEM_SESTART)
 			return alwaysmatches(spos+1);
 		else
 			return 0;
@@ -200,58 +201,60 @@ struct matches *atomsestart APROTO {
 
 struct matches *atomseend APROTO {
 	if (!ctx->reverse) {
-		struct expr *expr = makeex(EXPR_SEEND);
-		ADDARRAY(ctx->atoms, expr);
+		struct litem *li = calloc(sizeof *li, 1);
+		li->type = LITEM_SEEND;
+		ADDARRAY(ctx->atoms, li);
 		return NULL;
 	} else {
-		struct expr *e = ctx->line->atoms[spos];
-		if (e->type == EXPR_SEEND)
+		struct litem *li = ctx->line->atoms[spos];
+		if (li->type == LITEM_SEEND)
 			return alwaysmatches(spos+1);
 		else
 			return 0;
 	}
 }
 
-struct matches *matchid(struct disctx *ctx, int spos, const char *v) {
-	if (spos == ctx->line->atomsnum)
-		return 0;
-	struct expr *e = ctx->line->atoms[spos];
-	if (e->type == EXPR_ID && !strcmp(e->str, v))
-		return alwaysmatches(spos+1);
-	else
-		return 0;
-}
-
 struct matches *atomname APROTO {
 	if (!ctx->reverse) {
-		struct expr *expr = makeex(EXPR_ID);
-		expr->str = v;
-		ADDARRAY(ctx->atoms, expr);
+		struct litem *li = calloc(sizeof *li, 1);
+		li->type = LITEM_NAME;
+		li->str = strdup(v);
+		ADDARRAY(ctx->atoms, li);
 		return NULL;
 	} else {
-		return matchid(ctx, spos, v);
+		if (spos == ctx->line->atomsnum)
+			return 0;
+		struct litem *li = ctx->line->atoms[spos];
+		if (li->type == LITEM_NAME && !strcmp(li->str, v))
+			return alwaysmatches(spos+1);
+		else
+			return 0;
 	}
 }
 
 struct matches *atomcmd APROTO {
 	if (!ctx->reverse) {
-		struct expr *expr = makeex(EXPR_ID);
-		expr->str = v;
-		expr->special = 1;
-		ADDARRAY(ctx->atoms, expr);
+		struct litem *li = makeli(easm_expr_str(EASM_EXPR_LABEL, strdup(v)));
+		ADDARRAY(ctx->atoms, li);
 		return NULL;
 	} else {
-		return matchid(ctx, spos, v);
+		if (spos == ctx->line->atomsnum || ctx->line->atoms[spos]->type != LITEM_EXPR)
+			return 0;
+		struct easm_expr *e = ctx->line->atoms[spos]->expr;
+		if (e->type == EASM_EXPR_LABEL && !strcmp(e->str, v))
+			return alwaysmatches(spos+1);
+		else
+			return 0;
 	}
 }
 
 struct matches *atomunk APROTO {
 	if (ctx->reverse)
 		return 0;
-	struct expr *expr = makeex(EXPR_ID);
-	expr->str = v;
-	expr->special = 2;
-	ADDARRAY(ctx->atoms, expr);
+	struct litem *li = calloc(sizeof *li, 1);
+	li->type = LITEM_UNK;
+	li->str = strdup(v);
+	ADDARRAY(ctx->atoms, li);
 	return NULL;
 }
 
@@ -281,17 +284,17 @@ int setsbf (struct match *res, int pos, int len, ull num) {
 	return 1;
 }
 
-int setbfe (struct match *res, const struct bitfield *bf, const struct expr *expr) {
-	if (!expr->isimm)
+int setbfe (struct match *res, const struct bitfield *bf, struct easm_expr *expr) {
+	if (!easm_isimm(expr))
 		return 0;
-	if (expr->type != EXPR_NUM || bf->pcrel) {
+	if (expr->type != EASM_EXPR_NUM || bf->pcrel) {
 		assert (res->nrelocs != 8);
 		res->relocs[res->nrelocs].bf = bf;
 		res->relocs[res->nrelocs].expr = expr;
 		res->nrelocs++;
 		return 1;
 	}
-	ull num = (expr->num1 - bf->addend) ^ bf->xorend;
+	ull num = (expr->num - bf->addend) ^ bf->xorend;
 	if (bf->lut) {
 		int max = 1 << (bf->sbf[0].len + bf->sbf[1].len);
 		int j = 0;
@@ -310,26 +313,19 @@ int setbfe (struct match *res, const struct bitfield *bf, const struct expr *exp
 	ull totalsz = bf->shr + bf->sbf[0].len + bf->sbf[1].len;
 	if (bf->wrapok && totalsz < 64)
 		mask = (1ull << totalsz) - 1;
-	return (getbf(bf, res->a, res->m, 0) & mask) == (expr->num1 & mask);
+	return (getbf(bf, res->a, res->m, 0) & mask) == (expr->num & mask);
 }
 
 int setbf (struct match *res, const struct bitfield *bf, ull num) {
-	if (bf->pcrel) {
-		struct expr *e = makeex(EXPR_NUM);
-		e->num1 = num;
-		e->isimm = 1;
-		return setbfe(res, bf, e);
-	} else {
-		struct expr e = { .type = EXPR_NUM, .num1 = num, .isimm = 1 };
-		return setbfe(res, bf, &e);
-	}
+	struct easm_expr *e = easm_expr_num(EASM_EXPR_NUM, num);
+	return setbfe(res, bf, e);
 }
 
 struct matches *matchimm (struct disctx *ctx, const struct bitfield *bf, int spos) {
-	if (spos == ctx->line->atomsnum)
+	if (spos == ctx->line->atomsnum || ctx->line->atoms[spos]->type != LITEM_EXPR)
 		return 0;
 	struct matches *res = alwaysmatches(spos+1);
-	if (setbfe(res->m, bf, ctx->line->atoms[spos]))
+	if (setbfe(res->m, bf, ctx->line->atoms[spos]->expr))
 		return res;
 	else {
 		free(res->m);
@@ -342,9 +338,8 @@ struct matches *atomimm APROTO {
 	const struct bitfield *bf = v;
 	if (ctx->reverse)
 		return matchimm(ctx, bf, spos);
-	struct expr *expr = makeex(EXPR_NUM);
-	expr->num1 = GETBF(bf);
-	ADDARRAY(ctx->atoms, expr);
+	struct easm_expr *expr = easm_expr_num(EASM_EXPR_NUM, GETBF(bf));
+	ADDARRAY(ctx->atoms, makeli(expr));
 	return NULL;
 }
 
@@ -352,20 +347,18 @@ struct matches *atomctarg APROTO {
 	const struct bitfield *bf = v;
 	if (ctx->reverse)
 		return matchimm(ctx, bf, spos);
-	struct expr *expr = makeex(EXPR_NUM);
-	expr->num1 = GETBF(bf);
-	mark(ctx, expr->num1, 2);
-	if (is_nr_mark(ctx, expr->num1))
+	struct easm_expr *expr = easm_expr_num(EASM_EXPR_NUM, GETBF(bf));
+	mark(ctx, expr->num, 2);
+	if (is_nr_mark(ctx, expr->num))
 		ctx->endmark = 1;
-	expr->special = 2;
-	ADDARRAY(ctx->atoms, expr);
+	expr->special = EASM_SPEC_CTARG;
+	ADDARRAY(ctx->atoms, makeli(expr));
 	int i;
 	for (i = 0; i < ctx->labelsnum; i++) {
-		if (ctx->labels[i].val == expr->num1 && ctx->labels[i].name) {
-			struct expr *expr = makeex(EXPR_LABEL);
-			expr->str = strdup(ctx->labels[i].name);
-			expr->special = 2;
-			ADDARRAY(ctx->atoms, expr);
+		if (ctx->labels[i].val == expr->num && ctx->labels[i].name) {
+			struct easm_expr *expr = easm_expr_str(EASM_EXPR_LABEL, strdup(ctx->labels[i].name));
+			expr->special = EASM_SPEC_CTARG;
+			ADDARRAY(ctx->atoms, makeli(expr));
 			return NULL;
 		}
 	}
@@ -376,18 +369,16 @@ struct matches *atombtarg APROTO {
 	const struct bitfield *bf = v;
 	if (ctx->reverse)
 		return matchimm(ctx, bf, spos);
-	struct expr *expr = makeex(EXPR_NUM);
-	expr->num1 = GETBF(bf);
-	mark(ctx, expr->num1, 1);
-	expr->special = 1;
-	ADDARRAY(ctx->atoms, expr);
+	struct easm_expr *expr = easm_expr_num(EASM_EXPR_NUM, GETBF(bf));
+	mark(ctx, expr->num, 1);
+	expr->special = EASM_SPEC_BTARG;
+	ADDARRAY(ctx->atoms, makeli(expr));
 	int i;
 	for (i = 0; i < ctx->labelsnum; i++) {
-		if (ctx->labels[i].val == expr->num1 && ctx->labels[i].name) {
-			struct expr *expr = makeex(EXPR_LABEL);
-			expr->str = strdup(ctx->labels[i].name);
-			expr->special = 2;
-			ADDARRAY(ctx->atoms, expr);
+		if (ctx->labels[i].val == expr->num && ctx->labels[i].name) {
+			struct easm_expr *expr = easm_expr_str(EASM_EXPR_LABEL, strdup(ctx->labels[i].name));
+			expr->special = EASM_SPEC_BTARG;
+			ADDARRAY(ctx->atoms, makeli(expr));
 			return NULL;
 		}
 	}
@@ -402,7 +393,7 @@ struct matches *atomign APROTO {
 	return NULL;
 }
 
-int matchreg (struct match *res, const struct reg *reg, const struct expr *expr, struct disctx *ctx) {
+int matchreg (struct match *res, const struct reg *reg, const struct easm_expr *expr, struct disctx *ctx) {
 	if (reg->specials) {
 		int i = 0;
 		for (i = 0; reg->specials[i].num != -1; i++) {
@@ -410,25 +401,25 @@ int matchreg (struct match *res, const struct reg *reg, const struct expr *expr,
 				continue;
 			switch (reg->specials[i].mode) {
 				case SR_NAMED:
-					if (expr->type == EXPR_REG && !strcmp(expr->str, reg->specials[i].name))
+					if (expr->type == EASM_EXPR_REG && !strcmp(expr->str, reg->specials[i].name))
 						return setbf(res, reg->bf, reg->specials[i].num);
 					break;
 				case SR_ZERO:
-					if (expr->type == EXPR_NUM && expr->num1 == 0)
+					if (expr->type == EASM_EXPR_NUM && expr->num == 0)
 						return setbf(res, reg->bf, reg->specials[i].num);
 					break;
 				case SR_ONE:
-					if (expr->type == EXPR_NUM && expr->num1 == 1)
+					if (expr->type == EASM_EXPR_NUM && expr->num == 1)
 						return setbf(res, reg->bf, reg->specials[i].num);
 					break;
 				case SR_DISCARD:
-					if (expr->type == EXPR_DISCARD)
+					if (expr->type == EASM_EXPR_DISCARD)
 						return setbf(res, reg->bf, reg->specials[i].num);
 					break;
 			}
 		}
 	}
-	if (expr->type != EXPR_REG)
+	if (expr->type != EASM_EXPR_REG)
 		return 0;
 	if (strncmp(expr->str, reg->name, strlen(reg->name)))
 		return 0;
@@ -453,26 +444,26 @@ int matchreg (struct match *res, const struct reg *reg, const struct expr *expr,
 		return !num;
 }
 
-int matchshreg (struct match *res, const struct reg *reg, const struct expr *expr, int shl, struct disctx *ctx) {
+int matchshreg (struct match *res, const struct reg *reg, const struct easm_expr *expr, int shl, struct disctx *ctx) {
 	ull sh = 0;
 	while (1) {
-		if (expr->type == EXPR_SHL && expr->expr2->type == EXPR_NUM) {
-			sh += expr->expr2->num1;
-			expr = expr->expr1;
-		} else if (expr->type == EXPR_MUL && expr->expr2->type == EXPR_NUM) {
-			ull num = expr->expr2->num1;
+		if (expr->type == EASM_EXPR_SHL && expr->e2->type == EASM_EXPR_NUM) {
+			sh += expr->e2->num;
+			expr = expr->e1;
+		} else if (expr->type == EASM_EXPR_MUL && expr->e2->type == EASM_EXPR_NUM) {
+			ull num = expr->e2->num;
 			if (!num || (num & (num-1)))
 				return 0;
 			while (num != 1)
 				num >>= 1, sh++;
-			expr = expr->expr1;
-		} else if (expr->type == EXPR_MUL && expr->expr1->type == EXPR_NUM) {
-			ull num = expr->expr1->num1;
+			expr = expr->e1;
+		} else if (expr->type == EASM_EXPR_MUL && expr->e1->type == EASM_EXPR_NUM) {
+			ull num = expr->e1->num;
 			if (!num || (num & (num-1)))
 				return 0;
 			while (num != 1)
 				num >>= 1, sh++;
-			expr = expr->expr2;
+			expr = expr->e2;
 		} else {
 			break;
 		}
@@ -483,8 +474,8 @@ int matchshreg (struct match *res, const struct reg *reg, const struct expr *exp
 }
 
 // print reg if non-0, ignore otherwise. return 1 if printed anything.
-static struct expr *printreg (struct disctx *ctx, ull *a, ull *m, const struct reg *reg) {
-	struct expr *expr;
+static struct easm_expr *printreg (struct disctx *ctx, ull *a, ull *m, const struct reg *reg) {
+	struct easm_expr *expr;
 	ull num = 0;
 	if (reg->bf)
 		num = GETBF(reg->bf);
@@ -496,24 +487,19 @@ static struct expr *printreg (struct disctx *ctx, ull *a, ull *m, const struct r
 			if (num == reg->specials[i].num) {
 				switch (reg->specials[i].mode) {
 					case SR_NAMED:
-						expr = makeex(EXPR_REG);
-						expr->str = reg->specials[i].name;
-						expr->special = 1;
+						expr = easm_expr_str(EASM_EXPR_REG, strdup(reg->specials[i].name));
+						expr->special = EASM_SPEC_REGSP;
 						return expr;
 					case SR_ZERO:
 						return 0;
 					case SR_ONE:
-						expr = makeex(EXPR_NUM);
-						expr->num1 = 1;
-						return expr;
+						return easm_expr_num(EASM_EXPR_NUM, 1);
 					case SR_DISCARD:
-						expr = makeex(EXPR_DISCARD);
-						return expr;
+						return easm_expr_discard();
 				}
 			}
 		}
 	}
-	expr = makeex(EXPR_REG);
 	const char *suf = "";
 	if (reg->suffix)
 		suf = reg->suffix;
@@ -524,23 +510,27 @@ static struct expr *printreg (struct disctx *ctx, ull *a, ull *m, const struct r
 			suf = "l";
 		num >>= 1;
 	}
-	expr->special = reg->cool;
-	if (reg->always_special)
-		expr->special = 2;
+	char *str;
 	if (reg->bf)
-		expr->str = aprint("%s%lld%s", reg->name, num, suf);
+		str = aprint("%s%lld%s", reg->name, num, suf);
 	else
-		expr->str = aprint("%s%s", reg->name, suf);
+		str = aprint("%s%s", reg->name, suf);
+	expr = easm_expr_str(EASM_EXPR_REG, str);
+	if (reg->cool)
+		expr->special = EASM_SPEC_REGSP;
+	if (reg->always_special)
+		expr->special = EASM_SPEC_ERR;
 	return expr;
 }
 
 struct matches *atomreg APROTO {
 	const struct reg *reg = v;
 	if (ctx->reverse) {
-		if (spos == ctx->line->atomsnum)
+		if (spos == ctx->line->atomsnum || ctx->line->atoms[spos]->type != LITEM_EXPR)
 			return 0;
+		struct easm_expr *e = ctx->line->atoms[spos]->expr;
 		struct matches *res = alwaysmatches(spos+1);
-		if (matchreg(res->m, reg, ctx->line->atoms[spos], ctx))
+		if (matchreg(res->m, reg, e, ctx))
 			return res;
 		else {
 			free(res->m);
@@ -548,56 +538,52 @@ struct matches *atomreg APROTO {
 			return 0;
 		}
 	}
-	struct expr *expr = printreg(ctx, a, m, reg);
-	if (!expr) expr = makeex(EXPR_NUM);
-	ADDARRAY(ctx->atoms, expr);
+	struct easm_expr *expr = printreg(ctx, a, m, reg);
+	if (!expr) expr = easm_expr_num(EASM_EXPR_NUM, 0);
+	ADDARRAY(ctx->atoms, makeli(expr));
 	return NULL;
 }
 
 struct matches *atomdiscard APROTO {
 	if (ctx->reverse) {
-		if (spos == ctx->line->atomsnum)
+		if (spos == ctx->line->atomsnum || ctx->line->atoms[spos]->type != LITEM_EXPR)
 			return 0;
-		if (ctx->line->atoms[spos]->type == EXPR_DISCARD) {
+		struct easm_expr *e = ctx->line->atoms[spos]->expr;
+		if (e->type == EASM_EXPR_DISCARD) {
 			return alwaysmatches(spos+1);
 		} else {
 			return 0;
 		}
 	}
-	struct expr *expr = makeex(EXPR_DISCARD);
-	ADDARRAY(ctx->atoms, expr);
+	struct easm_expr *expr = easm_expr_discard();
+	ADDARRAY(ctx->atoms, makeli(expr));
 	return NULL;
 }
 
-int addexpr (const struct expr **iex, const struct expr *expr, int flip) {
+int addexpr (struct easm_expr **iex, struct easm_expr *expr, int flip) {
 	if (flip) {
 		if (!*iex)
-			*iex = makeunex(EXPR_NEG, expr);
+			*iex = easm_expr_un(EASM_EXPR_NEG, expr);
 		else
-			*iex = makebinex(EXPR_SUB, *iex, expr);
+			*iex = easm_expr_bin(EASM_EXPR_SUB, *iex, expr);
 	} else {
 		if (!*iex)
 			*iex = expr;
 		else
-			*iex = makebinex(EXPR_ADD, *iex, expr);
+			*iex = easm_expr_bin(EASM_EXPR_ADD, *iex, expr);
 	}
 	return 1;
 }
 
-int matchmemaddr(const struct expr **iex, const struct expr **niex1, const struct expr **niex2, const struct expr **piex, const struct expr *expr, int flip) {
-	if (expr->type == EXPR_PIADD || expr->type == EXPR_PISUB) {
-		if (flip || !expr->expr2->isimm)
-			return 0;
-		return matchmemaddr(iex, niex1, niex2, piex, expr->expr1, 0) && addexpr(piex, expr->expr2, expr->type == EXPR_PISUB);
-	}
-	if (expr->isimm)
+int matchmemaddr(struct easm_expr **iex, struct easm_expr **niex1, struct easm_expr **niex2, struct easm_expr *expr, int flip) {
+	if (easm_isimm(expr))
 		return addexpr(iex, expr, flip);
-	if (expr->type == EXPR_ADD)
-		return matchmemaddr(iex, niex1, niex2, piex, expr->expr1, flip) && matchmemaddr(iex, niex1, niex2, piex, expr->expr2, flip);
-	if (expr->type == EXPR_SUB)
-		return matchmemaddr(iex, niex1, niex2, piex, expr->expr1, flip) && matchmemaddr(iex, niex1, niex2, piex, expr->expr2, !flip);
-	if (expr->type == EXPR_NEG)
-		return matchmemaddr(iex, niex1, niex2, piex, expr->expr1, !flip);
+	if (expr->type == EASM_EXPR_ADD)
+		return matchmemaddr(iex, niex1, niex2, expr->e1, flip) && matchmemaddr(iex, niex1, niex2, expr->e2, flip);
+	if (expr->type == EASM_EXPR_SUB)
+		return matchmemaddr(iex, niex1, niex2, expr->e1, flip) && matchmemaddr(iex, niex1, niex2, expr->e2, !flip);
+	if (expr->type == EASM_EXPR_NEG)
+		return matchmemaddr(iex, niex1, niex2, expr->e1, !flip);
 	if (flip)
 		return 0;
 	if (niex1 && !*niex1)
@@ -612,63 +598,72 @@ int matchmemaddr(const struct expr **iex, const struct expr **niex1, const struc
 struct matches *atommem APROTO {
 	const struct mem *mem = v;
 	if (!ctx->reverse) {
-		struct expr *expr = 0;
+		int type = EASM_EXPR_MEM;
+		struct easm_expr *expr = 0;
+		struct easm_expr *pexpr = 0;
 		if (mem->reg)
 			expr = printreg(ctx, a, m, mem->reg);
 		if (mem->imm) {
 			ull imm = GETBF(mem->imm);
 			if (mem->postincr) {
-				if (!expr) expr = makeex(EXPR_NUM);
-				struct expr *sexpr = makeex(EXPR_NUM);
+				pexpr = easm_expr_num(EASM_EXPR_NUM, 0);
 				if (imm & 1ull << 63) {
-					sexpr->num1 = -imm;
-					expr = makebinex(EXPR_PISUB, expr, sexpr);
+					pexpr->num = -imm;
+					type = EASM_EXPR_MEMMM;
 				} else {
-					sexpr->num1 = imm;
-					expr = makebinex(EXPR_PIADD, expr, sexpr);
+					pexpr->num = imm;
+					type = EASM_EXPR_MEMPP;
 				}
 			} else if (imm) {
-				struct expr *sexpr = makeex(EXPR_NUM);
+				struct easm_expr *sexpr = easm_expr_num(EASM_EXPR_NUM, 0);
 				if (expr) {
 					if (imm & 1ull << 63) {
-						sexpr->num1 = -imm;
-						expr = makebinex(EXPR_SUB, expr, sexpr);
+						sexpr->num = -imm;
+						expr = easm_expr_bin(EASM_EXPR_SUB, expr, sexpr);
 					} else {
-						sexpr->num1 = imm;
-						expr = makebinex(EXPR_ADD, expr, sexpr);
+						sexpr->num = imm;
+						expr = easm_expr_bin(EASM_EXPR_ADD, expr, sexpr);
 					}
 				} else {
-					sexpr->num1 = imm;
+					sexpr->num = imm;
 					expr = sexpr;
 				}
 			}
 		}
 		if (mem->reg2) {
-			struct expr *sexpr = printreg(ctx, a, m, mem->reg2);
+			struct easm_expr *sexpr = printreg(ctx, a, m, mem->reg2);
 			if (sexpr) {
 				if (mem->reg2shr) {
-					struct expr *ssexpr = makeex(EXPR_NUM);
-					ssexpr->num1 = 1ull << mem->reg2shr;
-					sexpr = makebinex(EXPR_MUL, sexpr, ssexpr);
+					uint64_t num = 1ull << mem->reg2shr;
+					struct easm_expr *ssexpr = easm_expr_num(EASM_EXPR_NUM, num);
+					sexpr = easm_expr_bin(EASM_EXPR_MUL, sexpr, ssexpr);
 				}
 				if (expr)
-					expr = makebinex(EXPR_ADD, expr, sexpr);
+					expr = easm_expr_bin(EASM_EXPR_ADD, expr, sexpr);
 				else
 					expr = sexpr;
 			}
 		}
-		if (!expr) expr = makeex(EXPR_NUM);
+		if (!expr) expr = easm_expr_num(EASM_EXPR_NUM, 0);
+		struct easm_expr *oexpr = expr;
 		if (mem->name) {
-			struct expr *nex = makeex(EXPR_MEM);
-			nex->expr1 = expr;
-			nex->str = mem->name;
+			struct easm_expr *nex;
+			if (pexpr)
+				nex = easm_expr_bin(type, expr, pexpr);
+			else
+				nex = easm_expr_un(type, expr);
 			if (mem->idx)
 				nex->str = aprint("%s%lld", nex->str, GETBF(mem->idx));
+			else
+				nex->str = strdup(mem->name);
+			nex->mods = calloc(sizeof *nex->mods, 1);
 			expr = nex;
+		} else if (type != EASM_EXPR_MEM) {
+			abort();
 		}
-		ADDARRAY(ctx->atoms, expr);
-		if (mem->literal && expr->expr1->type == EXPR_NUM) {
-			ull ptr = expr->expr1->num1;
+		ADDARRAY(ctx->atoms, makeli(expr));
+		if (mem->literal && !pexpr && oexpr->type == EASM_EXPR_NUM) {
+			ull ptr = oexpr->num;
 			mark(ctx, ptr, 0x10);
 			if (ptr < ctx->codebase || ptr > ctx->codebase + ctx->codesz)
 				return 0;
@@ -676,22 +671,23 @@ struct matches *atommem APROTO {
 			int j;
 			for (j = 0; j < 4; j++)
 				num |= ctx->code[(ptr - ctx->codebase) * ctx->isa->posunit + j] << j*8;
-			expr = makeex(EXPR_NUM);
-			expr->num1 = num;
-			expr->special = 3;
-			ADDARRAY(ctx->atoms, expr);
+			expr = easm_expr_num(EASM_EXPR_NUM, num);
+			expr->special = EASM_SPEC_MEM;
+			ADDARRAY(ctx->atoms, makeli(expr));
 		}
 		return NULL;
 	} else {
-		if (spos == ctx->line->atomsnum)
+		if (spos == ctx->line->atomsnum || ctx->line->atoms[spos]->type != LITEM_EXPR)
 			return 0;
+		struct easm_expr *expr = ctx->line->atoms[spos]->expr;
+		struct easm_expr *pexpr = 0;
 		struct match res = { 0, .lpos = spos+1 };
-		const struct expr *expr = ctx->line->atoms[spos];
-		if (expr->type == EXPR_MEM && !mem->name)
+		int ismem = expr->type >= EASM_EXPR_MEM && expr->type <= EASM_EXPR_MEMME;
+		if (ismem && !mem->name)
 			return 0;
-		if (expr->type != EXPR_MEM && mem->name)
+		if (!ismem && mem->name)
 			return 0;
-		if (expr->type == EXPR_MEM) {
+		if (ismem) {
 			if (strncmp(expr->str, mem->name, strlen(mem->name)))
 				return 0;
 			if (mem->idx) {
@@ -708,21 +704,26 @@ struct matches *atommem APROTO {
 				if (strlen(expr->str) != strlen(mem->name))
 					return 0;
 			}
-			expr = expr->expr1;
+			if (expr->type == EASM_EXPR_MEMPP)
+				addexpr(&pexpr, expr->e2, 0);
+			else if (expr->type == EASM_EXPR_MEMMM)
+				addexpr(&pexpr, expr->e2, 1);
+			else if (expr->type != EASM_EXPR_MEM)
+				return 0;
+			expr = expr->e1;
 		}
-		const struct expr *iex = 0;
-		const struct expr *niex1 = 0;
-		const struct expr *niex2 = 0;
-		const struct expr *piex = 0;
-		matchmemaddr(&iex, &niex1, &niex2, &piex, expr, 0);
+		struct easm_expr *iex = 0;
+		struct easm_expr *niex1 = 0;
+		struct easm_expr *niex2 = 0;
+		matchmemaddr(&iex, &niex1, &niex2, expr, 0);
 		if (mem->imm) {
 			if (mem->postincr) {
-				if (!piex || iex)
+				if (!pexpr || iex)
 					return 0;
-				if (!setbfe(&res, mem->imm, piex))
+				if (!setbfe(&res, mem->imm, pexpr))
 					return 0;
 			} else {
-				if (piex)
+				if (pexpr)
 					return 0;
 				if (iex) {
 					if (!setbfe(&res, mem->imm, iex))
@@ -733,15 +734,14 @@ struct matches *atommem APROTO {
 				}
 			}
 		} else {
-			if (iex)
+			if (iex || pexpr)
 				return 0;
 		}
-		const static struct expr e0 = { .type = EXPR_NUM, .isimm = 1 };
 		if (mem->reg && mem->reg2) {
 			if (!niex1)
-				niex1 = &e0;
+				niex1 = easm_expr_num(EASM_EXPR_NUM, 0);
 			if (!niex2)
-				niex2 = &e0;
+				niex2 = easm_expr_num(EASM_EXPR_NUM, 0);
 			struct match sres = res;
 			if (!matchreg(&res, mem->reg, niex1, ctx) || !matchshreg(&res, mem->reg2, niex2, mem->reg2shr, ctx)) {
 				res = sres;
@@ -752,14 +752,14 @@ struct matches *atommem APROTO {
 			if (niex2)
 				return 0;
 			if (!niex1)
-				niex1 = &e0;
+				niex1 = easm_expr_num(EASM_EXPR_NUM, 0);
 			if (!matchreg(&res, mem->reg, niex1, ctx))
 				return 0;
 		} else if (mem->reg2) {
 			if (niex2)
 				return 0;
 			if (!niex1)
-				niex1 = &e0;
+				niex1 = easm_expr_num(EASM_EXPR_NUM, 0);
 			if (!matchshreg(&res, mem->reg2, niex1, mem->reg2shr, ctx))
 				return 0;
 		} else {
@@ -775,7 +775,7 @@ struct matches *atommem APROTO {
 struct matches *atomvec APROTO {
 	const struct vec *vec = v;
 	if (!ctx->reverse) {
-		struct expr *expr = makeex(EXPR_VEC);
+		struct easm_expr *expr = 0;
 		ull base = GETBF(vec->bf);
 		ull cnt = GETBF(vec->cnt);
 		ull mask = -1ull;
@@ -783,31 +783,46 @@ struct matches *atomvec APROTO {
 			mask = GETBF(vec->mask);
 		int k = 0, i;
 		for (i = 0; i < cnt; i++) {
+			struct easm_expr *sexpr;
 			if (mask & 1ull<<i) {
-				struct expr *sexpr = makeex(EXPR_REG);
-				sexpr->special = vec->cool;
-				sexpr->str = aprint("%s%lld", vec->name,  base + k++);
-				ADDARRAY(expr->vexprs, sexpr);
+				char *name = aprint("%s%lld", vec->name,  base + k++);
+				sexpr = easm_expr_str(EASM_EXPR_REG, name);
+				if (vec->cool)
+					sexpr->special = EASM_SPEC_REGSP;
 			} else {
-				struct expr *sexpr = makeex(EXPR_DISCARD);
-				ADDARRAY(expr->vexprs, sexpr);
+				sexpr = easm_expr_discard();
 			}
+			if (expr)
+				expr = easm_expr_bin(EASM_EXPR_VEC, expr, sexpr);
+			else
+				expr = sexpr;
 		}
-		ADDARRAY(ctx->atoms, expr);
+		ADDARRAY(ctx->atoms, makeli(expr));
 		return NULL;
 	} else {
-		if (spos == ctx->line->atomsnum)
+		if (spos == ctx->line->atomsnum || ctx->line->atoms[spos]->type != LITEM_EXPR)
 			return 0;
 		struct match res = { 0, .lpos = spos+1 };
-		const struct expr *expr = ctx->line->atoms[spos];
-		if (expr->type != EXPR_VEC)
-			return 0;
-		ull start = 0, cnt = expr->vexprsnum, mask = 0, cur = 0;
+		const struct easm_expr *expr = ctx->line->atoms[spos]->expr;
+		const struct easm_expr **vexprs = 0;
+		int vexprsnum = 0;
+		int vexprsmax = 0;
+		while (expr->type == EASM_EXPR_VEC) {
+			ADDARRAY(vexprs, expr->e2);
+			expr = expr->e1;
+		}
+		ADDARRAY(vexprs, expr);
 		int i;
+		for (i = 0; i < vexprsnum/2; i++) {
+			const struct easm_expr *tmp = vexprs[i];
+			vexprs[i] = vexprs[vexprsnum-1-i];
+			vexprs[vexprsnum-1-i] = tmp;
+		}
+		ull start = 0, cnt = vexprsnum, mask = 0, cur = 0;
 		for (i = 0; i < cnt; i++) {
-			const struct expr *e = expr->vexprs[i];
-			if (e->type == EXPR_DISCARD) {
-			} else if (e->type == EXPR_REG) {
+			const struct easm_expr *e = vexprs[i];
+			if (e->type == EASM_EXPR_DISCARD) {
+			} else if (e->type == EASM_EXPR_REG) {
 				if (strncmp(e->str, vec->name, strlen(vec->name)))
 					return 0;
 				char *end;
@@ -847,20 +862,22 @@ struct matches *atomvec APROTO {
 struct matches *atombf APROTO {
 	const struct bitfield *bf = v;
 	if (!ctx->reverse) {
-		struct expr *expr = makeex(EXPR_BITFIELD);
-		expr->num1 = GETBF(&bf[0]);
-		expr->num2 = expr->num1 + GETBF(&bf[1]);
-		ADDARRAY(ctx->atoms, expr);
+		uint64_t num1 = GETBF(&bf[0]);
+		uint64_t num2 = num1 + GETBF(&bf[1]);
+		struct easm_expr *expr = easm_expr_bin(EASM_EXPR_VEC,
+				easm_expr_num(EASM_EXPR_NUM, num1),
+				easm_expr_num(EASM_EXPR_NUM, num2));
+		ADDARRAY(ctx->atoms, makeli(expr));
 		return NULL;
 	} else {
-		if (spos == ctx->line->atomsnum)
+		if (spos == ctx->line->atomsnum || ctx->line->atoms[spos]->type != LITEM_EXPR)
 			return 0;
 		struct match res = { 0, .lpos = spos+1 };
-		const struct expr *expr = ctx->line->atoms[spos];
-		if (expr->type != EXPR_BITFIELD)
+		const struct easm_expr *expr = ctx->line->atoms[spos]->expr;
+		if (expr->type != EASM_EXPR_VEC || expr->e1->type != EASM_EXPR_NUM || expr->e2->type != EASM_EXPR_NUM)
 			return 0;
-		ull a = expr->num1;
-		ull b = expr->num2 - a;
+		uint64_t a = expr->e1->num;
+		uint64_t b = expr->e2->num - a;
 		if (!setbf(&res, &bf[0], a))
 			return 0;
 		if (!setbf(&res, &bf[1], b))
@@ -1124,12 +1141,28 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 		int noblank = 0;
 
 		for (i = 0; i < ctx->atomsnum; i++) {
-			if (ctx->atoms[i]->type == EXPR_SEEND)
+			if (ctx->atoms[i]->type == LITEM_SEEND)
 				noblank = 1;
 			if ((i || !quiet) && !noblank)
 				fprintf (out, " ");
-			printexpr(out, ctx->atoms[i], 0, cols);
-			noblank = (ctx->atoms[i]->type == EXPR_SESTART);
+			switch(ctx->atoms[i]->type) {
+				case LITEM_NAME:
+					fprintf(out, "%s%s%s", cols->iname, ctx->atoms[i]->str, cols->reset);
+					break;
+				case LITEM_UNK:
+					fprintf(out, "%s%s%s", cols->err, ctx->atoms[i]->str, cols->reset);
+					break;
+				case LITEM_SESTART:
+					fprintf(out, "%s(%s", cols->sym, cols->reset);
+					break;
+				case LITEM_SEEND:
+					fprintf(out, "%s)%s", cols->sym, cols->reset);
+					break;
+				case LITEM_EXPR:
+					easm_print_sexpr(out, cols, ctx->atoms[i]->expr, -1);
+					break;
+			}
+			noblank = (ctx->atoms[i]->type == LITEM_SESTART);
 		}
 
 		if (ctx->oplen) {

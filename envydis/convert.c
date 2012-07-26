@@ -30,9 +30,10 @@ void convert_expr_top(struct line *line, struct easm_expr *expr);
 void convert_mods(struct line *line, struct easm_mods *mods) {
 	int i;
 	for (i = 0; i < mods->modsnum; i++) {
-		struct expr *e = makeex(EXPR_ID);
-		e->str = mods->mods[i];
-		ADDARRAY(line->atoms, e);
+		struct litem *li = calloc(sizeof *li, 1);
+		li->type = LITEM_NAME;
+		li->str = mods->mods[i];
+		ADDARRAY(line->atoms, li);
 	}
 }
 
@@ -47,9 +48,10 @@ void convert_operand(struct line *line, struct easm_operand *operand) {
 
 void convert_sinsn(struct line *line, struct easm_sinsn *sinsn) {
 	int i;
-	struct expr *e = makeex(EXPR_ID);
-	e->str = sinsn->str;
-	ADDARRAY(line->atoms, e);
+	struct litem *li = calloc(sizeof *li, 1);
+	li->type = LITEM_NAME;
+	li->str = sinsn->str;
+	ADDARRAY(line->atoms, li);
 	for (i = 0; i < sinsn->operandsnum; i++) {
 		convert_operand(line, sinsn->operands[i]);
 	}
@@ -64,108 +66,17 @@ void convert_subinsn(struct line *line, struct easm_subinsn *subinsn) {
 	convert_sinsn(line, subinsn->sinsn);
 }
 
-void convert_vec(struct expr *vec, struct easm_expr *expr) {
-	if (expr->type == EASM_EXPR_VEC) {
-		convert_vec(vec, expr->e1);
-		convert_vec(vec, expr->e2);
-	} else {
-		struct expr *se = convert_expr(expr);
-		ADDARRAY(vec->vexprs, se);
-	}
-}
-
-struct expr *convert_expr(struct easm_expr *expr) {
-	struct expr *res;
-	switch (expr->type) {
-		case EASM_EXPR_ADD:
-			res = makebinex(EXPR_ADD, convert_expr(expr->e1), convert_expr(expr->e2));
-			break;
-		case EASM_EXPR_SUB:
-			res = makebinex(EXPR_SUB, convert_expr(expr->e1), convert_expr(expr->e2));
-			break;
-		case EASM_EXPR_MUL:
-			res = makebinex(EXPR_MUL, convert_expr(expr->e1), convert_expr(expr->e2));
-			break;
-		case EASM_EXPR_DIV:
-			res = makebinex(EXPR_DIV, convert_expr(expr->e1), convert_expr(expr->e2));
-			break;
-		case EASM_EXPR_SHL:
-			res = makebinex(EXPR_SHL, convert_expr(expr->e1), convert_expr(expr->e2));
-			break;
-		case EASM_EXPR_SHR:
-			res = makebinex(EXPR_SHR, convert_expr(expr->e1), convert_expr(expr->e2));
-			break;
-		case EASM_EXPR_OR:
-			res = makebinex(EXPR_OR, convert_expr(expr->e1), convert_expr(expr->e2));
-			break;
-		case EASM_EXPR_XOR:
-			res = makebinex(EXPR_XOR, convert_expr(expr->e1), convert_expr(expr->e2));
-			break;
-		case EASM_EXPR_AND:
-			res = makebinex(EXPR_AND, convert_expr(expr->e1), convert_expr(expr->e2));
-			break;
-		case EASM_EXPR_NEG:
-			res = makeunex(EXPR_NEG, convert_expr(expr->e1));
-			break;
-		case EASM_EXPR_NOT:
-			res = makeunex(EXPR_NOT, convert_expr(expr->e1));
-			break;
-		case EASM_EXPR_DISCARD:
-			res = makeex(EXPR_DISCARD);
-			break;
-		case EASM_EXPR_NUM:
-			res = makeex(EXPR_NUM);
-			res->num1 = expr->num;
-			res->isimm = 1;
-			break;
-		case EASM_EXPR_LABEL:
-			res = makeex(EXPR_LABEL);
-			res->str = expr->str;
-			res->isimm = 1;
-			break;
-		case EASM_EXPR_REG:
-			res = makeex(EXPR_REG);
-			res->str = expr->str;
-			break;
-		case EASM_EXPR_MEM:
-			res = makeex(EXPR_MEM);
-			res->str = expr->str;
-			res->expr1 = convert_expr(expr->e1);
-			break;
-		case EASM_EXPR_MEMPP:
-			res = makeex(EXPR_MEM);
-			res->str = expr->str;
-			res->expr1 = makebinex(EXPR_PIADD, convert_expr(expr->e1), convert_expr(expr->e2));
-			break;
-		case EASM_EXPR_MEMMM:
-			res = makeex(EXPR_MEM);
-			res->str = expr->str;
-			res->expr1 = makebinex(EXPR_PISUB, convert_expr(expr->e1), convert_expr(expr->e2));
-			break;
-		case EASM_EXPR_VEC:
-			if (expr->e1->type == EASM_EXPR_NUM && expr->e2->type == EASM_EXPR_NUM) {
-				res = makeex(EXPR_BITFIELD);
-				res->num1 = expr->e1->num;
-				res->num2 = expr->e2->num;
-
-			} else {
-				res = makeex(EXPR_VEC);
-				convert_vec(res, expr);
-			}
-			break;
-		default:
-			abort();
-	}
-	return res;
-}
-
 void convert_expr_top(struct line *line, struct easm_expr *expr) {
 	if (expr->type == EASM_EXPR_SINSN) {
-		ADDARRAY(line->atoms, makeex(EXPR_SESTART));
+		struct litem *ses = calloc(sizeof *ses, 1);
+		struct litem *see = calloc(sizeof *see, 1);
+		ses->type = LITEM_SESTART;
+		see->type = LITEM_SEEND;
+		ADDARRAY(line->atoms, ses);
 		convert_sinsn(line, expr->sinsn);
-		ADDARRAY(line->atoms, makeex(EXPR_SEEND));
+		ADDARRAY(line->atoms, see);
 	} else {
-		ADDARRAY(line->atoms, convert_expr(expr));
+		ADDARRAY(line->atoms, makeli(expr));
 	}
 }
 

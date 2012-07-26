@@ -164,3 +164,30 @@ void easm_del_file(struct easm_file *file) {
 	free(file->lines);
 	free(file);
 }
+
+int easm_isimm(struct easm_expr *expr) {
+	switch (expr->type) {
+		case EASM_EXPR_LOR:
+		case EASM_EXPR_LAND:
+		case EASM_EXPR_OR:
+		case EASM_EXPR_XOR:
+		case EASM_EXPR_AND:
+		case EASM_EXPR_SHL:
+		case EASM_EXPR_SHR:
+		case EASM_EXPR_ADD:
+		case EASM_EXPR_SUB:
+		case EASM_EXPR_MUL:
+		case EASM_EXPR_DIV:
+		case EASM_EXPR_MOD:
+			return easm_isimm(expr->e1) && easm_isimm(expr->e2);
+		case EASM_EXPR_NEG:
+		case EASM_EXPR_NOT:
+		case EASM_EXPR_LNOT:
+			return easm_isimm(expr->e1);
+		case EASM_EXPR_NUM:
+		case EASM_EXPR_LABEL:
+			return 1;
+		default:
+			return 0;
+	}
+}

@@ -56,51 +56,65 @@ static char* expand_local_label(const char *local, const char *global) {
 	return full;
 }
 
-ull calc (const struct expr *expr, struct disctx *ctx, struct envy_loc loc) {
+ull calc (struct easm_expr *expr, struct disctx *ctx, struct envy_loc loc) {
 	int res;
 	ull x;
 	switch (expr->type) {
-		case EXPR_NUM:
-			return expr->num1;
-		case EXPR_LABEL:
+		case EASM_EXPR_NUM:
+			return expr->num;
+		case EASM_EXPR_LABEL:
 			if (expr->str[0] == '_' && expr->str[1] != '_') {
-				const char *full_label = expand_local_label(expr->str, ctx->cur_global_label);
-				free((char *)expr->str);
-				((struct expr *)expr)->str = full_label;
+				char *full_label = expand_local_label(expr->str, ctx->cur_global_label);
+				free(expr->str);
+				expr->str = full_label;
 			}
 			if (symtab_get(ctx->symtab, expr->str, 0, &res) != -1) {
 				return ctx->labels[res].val;
 			}
 			fprintf (stderr, LOC_FORMAT(loc, "Undefined label \"%s\"\n"), expr->str);
 			exit(1);
-		case EXPR_NEG:
-			return -calc(expr->expr1, ctx, loc);
-		case EXPR_NOT:
-			return ~calc(expr->expr1, ctx, loc);
-		case EXPR_MUL:
-			return calc(expr->expr1, ctx, loc) * calc(expr->expr2, ctx, loc);
-		case EXPR_DIV:
-			x = calc(expr->expr2, ctx, loc);
+		case EASM_EXPR_NEG:
+			return -calc(expr->e1, ctx, loc);
+		case EASM_EXPR_NOT:
+			return ~calc(expr->e1, ctx, loc);
+		case EASM_EXPR_LNOT:
+			return !calc(expr->e1, ctx, loc);
+		case EASM_EXPR_MUL:
+			return calc(expr->e1, ctx, loc) * calc(expr->e2, ctx, loc);
+		case EASM_EXPR_DIV:
+			x = calc(expr->e2, ctx, loc);
 			if (x)
-				return calc(expr->expr1, ctx, loc) / x;
+				return calc(expr->e1, ctx, loc) / x;
 			else {
 				fprintf (stderr, LOC_FORMAT(loc, "Division by 0\n"));
 				exit(1);
 			}
-		case EXPR_ADD:
-			return calc(expr->expr1, ctx, loc) + calc(expr->expr2, ctx, loc);
-		case EXPR_SUB:
-			return calc(expr->expr1, ctx, loc) - calc(expr->expr2, ctx, loc);
-		case EXPR_SHL:
-			return calc(expr->expr1, ctx, loc) << calc(expr->expr2, ctx, loc);
-		case EXPR_SHR:
-			return calc(expr->expr1, ctx, loc) >> calc(expr->expr2, ctx, loc);
-		case EXPR_AND:
-			return calc(expr->expr1, ctx, loc) & calc(expr->expr2, ctx, loc);
-		case EXPR_XOR:
-			return calc(expr->expr1, ctx, loc) ^ calc(expr->expr2, ctx, loc);
-		case EXPR_OR:
-			return calc(expr->expr1, ctx, loc) | calc(expr->expr2, ctx, loc);
+		case EASM_EXPR_MOD:
+			x = calc(expr->e2, ctx, loc);
+			if (x)
+				return calc(expr->e1, ctx, loc) % x;
+			else {
+				fprintf (stderr, LOC_FORMAT(loc, "Division by 0\n"));
+				exit(1);
+			}
+		case EASM_EXPR_ADD:
+			return calc(expr->e1, ctx, loc) + calc(expr->e2, ctx, loc);
+		case EASM_EXPR_SUB:
+			return calc(expr->e1, ctx, loc) - calc(expr->e2, ctx, loc);
+		case EASM_EXPR_SHL:
+			return calc(expr->e1, ctx, loc) << calc(expr->e2, ctx, loc);
+		case EASM_EXPR_SHR:
+			return calc(expr->e1, ctx, loc) >> calc(expr->e2, ctx, loc);
+		case EASM_EXPR_AND:
+			return calc(expr->e1, ctx, loc) & calc(expr->e2, ctx, loc);
+		case EASM_EXPR_XOR:
+			return calc(expr->e1, ctx, loc) ^ calc(expr->e2, ctx, loc);
+		case EASM_EXPR_OR:
+			return calc(expr->e1, ctx, loc) | calc(expr->e2, ctx, loc);
+		case EASM_EXPR_LAND:
+			return calc(expr->e1, ctx, loc) && calc(expr->e2, ctx, loc);
+		case EASM_EXPR_LOR:
+			return calc(expr->e1, ctx, loc) || calc(expr->e2, ctx, loc);
 		default:
 			assert(0);
 	}
@@ -176,13 +190,12 @@ int donum (struct section *s, struct easm_directive *direct, struct disctx *ctx,
 			fprintf (stderr, LOC_FORMAT(direct->loc, "Warning: Unaligned data .%s; section '%s', offset 0x%x\n"), direct->str, s->name, s->pos);
 	}
 	for (i = 0; i < direct->paramsnum; i++) {
-		struct expr *expr = convert_expr(direct->params[i]);
-		if (!expr->isimm) {
+		if (!easm_isimm(direct->params[i])) {
 			fprintf (stderr, LOC_FORMAT(direct->loc, "Wrong arguments for .%s\n"), direct->str);
 			exit(1);
 		}
 		if (wren) {
-			ull num = calc(expr, ctx, direct->loc);
+			ull num = calc(direct->params[i], ctx, direct->loc);
 			if ((direct->str[0] == 'u' && bits != 64 && num >= (1ull << bits))
 				|| (direct->str[0] == 's' && bits != 64 && num >= (1ull << (bits - 1)) && num < (-1ull << (bits - 1)))) {
 				fprintf (stderr, LOC_FORMAT(direct->loc, "Argument %d too large for .%s\n"), i, direct->str);
@@ -348,10 +361,9 @@ int envyas_process(struct easm_file *file) {
 						ull num = direct->params[0]->num;
 						sections[cursect].pos += num;
 					} else if (!strcmp(direct->str, "equ")) {
-						struct expr *p2 = convert_expr(direct->params[1]);
 						if (direct->paramsnum != 2
 							|| direct->params[0]->type != EASM_EXPR_LABEL
-							|| !p2->isimm) {
+							|| !easm_isimm(direct->params[1])) {
 							fprintf (stderr, LOC_FORMAT(direct->loc, "Wrong arguments for .equ\n"));
 							return 1;
 						}
@@ -360,7 +372,7 @@ int envyas_process(struct easm_file *file) {
 							free((void*)direct->params[0]->str);
 							direct->params[0]->str = full_label;
 						}
-						ull num = calc(p2, ctx, direct->loc);
+						ull num = calc(direct->params[1], ctx, direct->loc);
 						if (symtab_put(ctx->symtab, direct->params[0]->str, 0, ctx->labelsnum) == -1) {
 							fprintf (stderr, LOC_FORMAT(direct->loc, "Label %s redeclared!\n"), direct->params[0]->str);
 							return 1;
