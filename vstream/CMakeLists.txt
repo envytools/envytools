@@ -3,11 +3,6 @@ cmake_minimum_required(VERSION 2.6)
 
 include_directories(../include)
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(PC_PCIACCESS pciaccess)
-pkg_check_modules(PC_X11 x11)
-pkg_check_modules(PC_VDPAU vdpau)
-
 include_directories(${PC_PCIACCESS_INCLUDE_DIRS} ${PC_X11_INCLUDE_DIRS} ${PC_VDPAU_INCLUDE_DIRS} ../include)
 
 add_library(vstream bitstream.c
@@ -31,14 +26,7 @@ target_link_libraries(deh262 vstream)
 target_link_libraries(deh264 vstream)
 target_link_libraries(test264 vstream)
 
-install(TARGETS vstest vstream deh261 deh262 deh264 test264
+install(TARGETS vstream deh261 deh262 deh264 test264
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
 	ARCHIVE DESTINATION lib${LIB_SUFFIX})
-
-if (PC_PCIACCESS_FOUND AND PC_X11_FOUND AND PC_VDPAU_FOUND)
-	link_directories(${PC_PCIACCESS_LIBRARY_DIRS} ${PC_X11_LIBRARY_DIRS} ${PC_VDPAU_LIBRARY_DIRS})
-	add_executable(vdpow vdpow.c)
-	target_link_libraries(vdpow vstream nva ${PC_PCIACCESS_LIBRARIES} ${PC_X11_LIBRARIES}  ${PC_VDPAU_LIBRARIES} rt pthread)
-	install(TARGETS vdpow RUNTIME DESTINATION bin)
-endif (PC_PCIACCESS_FOUND AND PC_X11_FOUND AND PC_VDPAU_FOUND)
