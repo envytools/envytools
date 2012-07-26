@@ -2,10 +2,12 @@ project(ENVYTOOLS C)
 cmake_minimum_required(VERSION 2.6)
 
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(PC_PCIACCESS pciaccess REQUIRED)
+pkg_check_modules(PC_PCIACCESS pciaccess)
 pkg_check_modules(PC_X11 x11)
 pkg_check_modules(PC_XEXT xext)
 find_package (Threads)
+
+if (PC_PCIACCESS_FOUND)
 
 include_directories(${PC_PCIACCESS_INCLUDE_DIRS} ../include)
 link_directories(${PC_PCIACCESS_LIBRARY_DIRS})
@@ -50,7 +52,7 @@ if (PC_X11_FOUND AND PC_XEXT_FOUND)
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
 	ARCHIVE DESTINATION lib${LIB_SUFFIX})
 else(PC_X11_FOUND AND PC_XEXT_FOUND)
-	message("Warning: nvamemtiming won't be build because of un-met dependencies (X11 and/or XEXT)")
+	message("Warning: nvamemtiming won't be built because of un-met dependencies (libx11 and/or libxext)")
 endif(PC_X11_FOUND AND PC_XEXT_FOUND)
 
 target_link_libraries(nvalist nva ${PC_PCIACCESS_LIBRARIES})
@@ -87,6 +89,7 @@ target_link_libraries(nv01post nva ${PC_PCIACCESS_LIBRARIES})
 install(TARGETS nva
 		nvalist
 		nvapeek
+		nvapeekstat
 		nvapoke
 		nvahammer
 		nvafill
@@ -98,6 +101,7 @@ install(TARGETS nva
 		nvapms
 		nvafuzz
 		nvawatch
+		nvacounter
 		nvaevo
 		nvastrscan
 		nvaxttime
@@ -116,3 +120,7 @@ install(TARGETS nva
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
 	ARCHIVE DESTINATION lib${LIB_SUFFIX})
+
+else(PC_PCIACCESS_FOUND)
+	message("Warning: nva won't be built because of un-met dependencies (pciaccess)")
+endif(PC_PCIACCESS_FOUND)
