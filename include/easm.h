@@ -26,6 +26,7 @@
 #define EASM_H
 
 #include "util.h"
+#include "colors.h"
 #include <stdio.h>
 
 struct easm_swizzle {
@@ -74,6 +75,14 @@ struct easm_expr {
 		EASM_EXPR_MEMPE,
 		EASM_EXPR_MEMME,
 	} type;
+	enum easm_expr_special {
+		EASM_SPEC_NONE,
+		EASM_SPEC_ERR,
+		EASM_SPEC_BTARG,
+		EASM_SPEC_CTARG,
+		EASM_SPEC_MEM,
+		EASM_SPEC_REGSP,
+	} special;
 	struct easm_expr *e1;
 	struct easm_expr *e2;
 	struct easm_sinsn *sinsn;
@@ -81,6 +90,7 @@ struct easm_expr {
 	int swizzlesnum;
 	int swizzlesmax;
 	uint64_t num;
+	int bitsize;
 	char *str;
 	struct astr astr;
 	struct easm_mods *mods;
@@ -164,5 +174,13 @@ void easm_del_line(struct easm_line *line);
 void easm_del_file(struct easm_file *file);
 
 int easm_read_file(FILE *file, const char *filename, struct easm_file **res);
+
+void easm_print_expr(FILE *out, const struct envy_colors *cols, struct easm_expr *expr, int lvl);
+void easm_print_sexpr(FILE *out, const struct envy_colors *cols, struct easm_expr *expr, int lvl);
+void easm_print_mods(FILE *out, const struct envy_colors *cols, struct easm_mods *mods, int spcafter);
+void easm_print_operand(FILE *out, const struct envy_colors *cols, struct easm_operand *operand);
+void easm_print_sinsn(FILE *out, const struct envy_colors *cols, struct easm_sinsn *sinsn);
+void easm_print_subinsn(FILE *out, const struct envy_colors *cols, struct easm_subinsn *subinsn);
+void easm_print_insn(FILE *out, struct envy_colors *cols, struct easm_insn *insn);
 
 #endif

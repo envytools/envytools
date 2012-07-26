@@ -14,7 +14,7 @@ include_directories(.)
 
 add_library(envy core.c nv50.c nvc0.c ctx.c fuc.c hwsq.c vp2.c vuc.c macro.c vp1.c print.c)
 
-add_library(easm easm.c ${FLEX_easm_lex_OUTPUTS} ${BISON_easm_parse_OUTPUTS})
+add_library(easm easm.c ${FLEX_easm_lex_OUTPUTS} ${BISON_easm_parse_OUTPUTS} easm_print.c)
 
 add_executable(envydis envydis.c)
 add_executable(envyas envyas.c convert.c)
