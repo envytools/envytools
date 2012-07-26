@@ -145,7 +145,7 @@ struct matches *atomtab APROTO {
 		struct matches *res = emptymatches();
 		int i;
 		for (i = 0; ; i++) {
-			if (var_ok(tab[0].fmask, tab[0].ptype, ctx->varinfo)) {
+			if (var_ok(tab[i].fmask, tab[i].ptype, ctx->varinfo)) {
 				struct match sm = { 0, .a = {tab[i].val}, .m = {tab[i].mask}, .lpos = spos };
 				struct matches *subm = tabdesc(ctx, sm, tab[i].atoms); 
 				if (subm)
