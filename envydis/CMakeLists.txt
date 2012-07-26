@@ -24,7 +24,7 @@ target_link_libraries(envy envyutil easm)
 target_link_libraries(envydis envy)
 target_link_libraries(envyas envy envyutil)
 
-install(TARGETS envydis envy envyas
+install(TARGETS envydis envy easm envyas
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
 	ARCHIVE DESTINATION lib${LIB_SUFFIX})
