@@ -25,6 +25,7 @@
 #ifndef NVA_H
 #define NVA_H
 #include <stdint.h>
+#include <stddef.h>
 
 struct nva_card {
 	struct pci_device *pci;
@@ -33,6 +34,13 @@ struct nva_card {
 	int card_type;
 	int is_nv03p;
 	void *bar0;
+	size_t bar0len;
+	int hasbar1;
+	void *bar1;
+	size_t bar1len;
+	int hasbar2;
+	void *bar2;
+	size_t bar2len;
 };
 
 int nva_init();
@@ -61,5 +69,38 @@ static inline uint32_t nva_mask(int cnum, uint32_t reg, uint32_t mask, uint32_t 
 	nva_wr32(cnum, reg, (tmp & ~mask) | val);
 	return tmp;
 }
+
+struct nva_regspace {
+	struct nva_card *card;
+	int cnum;
+	enum {
+		NVA_REGSPACE_BAR0,
+		NVA_REGSPACE_BAR1,
+		NVA_REGSPACE_BAR2,
+		NVA_REGSPACE_PDAC,
+		NVA_REGSPACE_VGA_CR,
+		NVA_REGSPACE_VGA_SR,
+		NVA_REGSPACE_VGA_AR,
+		NVA_REGSPACE_VGA_GR,
+	} type;
+	int regsz;
+	int idx;
+};
+
+int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val);
+int nva_rd(struct nva_regspace *regspace, uint32_t addr, uint64_t *val);
+
+enum nva_err {
+	NVA_ERR_SUCCESS,
+	NVA_ERR_RANGE,
+	NVA_ERR_REGSZ,
+	NVA_ERR_NOSPC,
+	NVA_ERR_MAP,
+};
+
+int nva_rstype(const char *name);
+int nva_rsdefsz(struct nva_regspace *regspace);
+char nva_rserrc(enum nva_err err);
+void nva_rsprint(struct nva_regspace *regspace, enum nva_err err, uint64_t val);
 
 #endif

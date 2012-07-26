@@ -56,11 +56,23 @@ Compare two values, setting flags according to results of comparison. cmp
 sets the usual set of 4 flags. cmpu sets only c and z. cmps sets z normally,
 and sets c if SRC1 is less then SRC2 when treated as signed number.
 
+cmpu/cmps are the only comparison instructions available on fµc v0. Both of
+them set only the c and z flags, with cmps setting c flag in an unusual way
+to enable signed comparisons while using unsigned flags and condition codes.
+To do an unsigned comparison, use cmpu and the unsigned branch conditions
+[b/a/e]. To do a signed comparison, use cmps, also with unsigned branch
+conditions.
+
+The fµc v3+ new cmp instruction sets the full set of flags. To do an unsigned
+comparison on v3+, use cmp and the unsigned branch conditions. To do a signed
+comparison, use cmp and the signed branch conditions [l/g/e].
+
 Instructions:
 	cmpu - compare unsigned			subopcode = 4
 	cmps - compare signed			subopcode = 5
 	cmp - compare				subopcode = 6 [v3+ only]
 Instruction class: sized
+Execution time: 1 cycle
 Operands: SRC1, SRC2
 Forms:
 	R2, I8					opcode = 30
@@ -96,6 +108,7 @@ Instructions:
 	sub - substract				subopcode = 2
 	sbb - substrace with borrow		subopcode = 3
 Instruction class: sized
+Execution time: 1 cycle
 Operands: DST, SRC1, SRC2
 Forms:
 	R1, R2, I8				opcode = 10
@@ -136,6 +149,7 @@ Instructions:
 	shlc - shift left with carry in		subopcode = c
 	shrc - shift right with carry in	subopcode = d
 Instruction class: sized
+Execution time: 1 cycle
 Operands: DST, SRC1, SRC2
 Forms:
 	R1, R2, I8				subopcode = 10
@@ -189,6 +203,7 @@ Instructions:
 	mov - move a value			subopcode = 2 [v3+ only]
 	hswap - Swap halves			subopcode = 3
 Instruction class: sized
+Execution time: 1 cycle
 Operands: DST, SRC
 Forms:
 	R1, R2					opcode = 39
@@ -226,6 +241,7 @@ Instructions
 	mov - Load an immediate			subopcode = 7
 	sethi - Set high bits			subopcode = 3
 Instruction class: unsized
+Execution time: 1 cycle
 Operands: DST, SRC
 Forms:
 	R2, I8					opcode = f0
@@ -261,6 +277,7 @@ Sets flags according to a value.
 Instructions:
 	setf - Set flags according to a value 	subopcode = 5 [v3+ only]
 Instruction class: sized
+Execution time: 1 cycle
 Operands: SRC
 Forms:
 	R2					opcode = 3d
@@ -308,6 +325,7 @@ Does a sign-extension of low X bits of a value.
 Instructions:
 	sext - Sign-extend			subopcode = 2
 Instruction class: unsized
+Execution time: 1 cycle
 Operands: DST, SRC1, SRC2
 Forms:
 	R1, R2, I8				opcode = c0
@@ -334,6 +352,7 @@ Instructions:
 	extrs - Extract signed bitfield		subopcode = 3 [v3+ only]
 	extr - Extract unsigned bitfield	subopcode = 7 [v3+ only]
 Instruction class: unsized
+Execution time: 1 cycle
 Operands: DST, SRC1, SRC2
 Forms:
 	R1, R2, I8				opcode = c0
@@ -359,6 +378,7 @@ Inserts a bitfield.
 Instructions:
 	ins - Insert a bitfield			subopcode = b [v3+ only]
 Instruction class: unsized
+Execution time: 1 cycle
 Operands: DST, SRC1, SRC2
 Forms:
 	R1, R2, I8				opcode = c0
@@ -383,6 +403,7 @@ Instructions:
 	or					subopcode = 5
 	xor					subopcode = 6
 Instruction class: unsized
+Execution time: 1 cycle
 Operands: DST, SRC1, SRC2
 Forms:
 	R1, R2, I8				opcode = c0
@@ -416,6 +437,7 @@ DST, and all other bits of DST are set to 0.
 Instructions:
 	xbit - Extract a bit
 Instruction class: unsized
+Execution time: 1 cycle
 Operands: DST, SRC1, SRC2
 Forms:
 	R1, R2, I8			opcode = c0, subopcode = 8
@@ -442,6 +464,7 @@ Instructions:
 	bclr - Clear a bit			sa = 2
 	btgl - Flip a bit			sa = 3
 Instruction class: unsized
+Execution time: 1 cycle
 Operands: DST, SRC
 Forms:
 	R2, I8				opcode = f0, subopcode = 8+sa
@@ -467,6 +490,7 @@ Instructions:
 	div - Divide				subopcode = c [v3+ only]
 	mod - Take modulus			subopcode = d [v3+ only]
 Instruction class: unsized
+Execution time: 30-33 cycles
 Operands: DST, SRC1, SRC2
 Forms:
 	R1, R2, I8				opcode = c0
@@ -492,6 +516,7 @@ Sets bit #SRC2 in $flags to bit 0 of SRC1.
 Instructions:
 	setp - Set predicate			subopcode = 8
 Instruction class: unsized
+Execution time: 1 cycle
 Operands: SRC1, SRC2
 Forms:
 	R2, I8					opcode = f2

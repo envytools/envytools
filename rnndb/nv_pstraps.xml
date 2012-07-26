@@ -127,7 +127,7 @@
 		<value value="2" name="256MB"/>
 		<value value="3" name="512MB"/>
 	</bitfield>
-	<bitfield low="23" high="23" name="ROM_TYPE">
+	<bitfield low="22" high="23" name="ROM_TYPE">
 		<value value="0" name="PARALLEL"/>
 		<value value="1" name="SPI"/>
 		<value value="2" name="UNK2"/>

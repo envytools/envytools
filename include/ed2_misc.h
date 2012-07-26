@@ -27,13 +27,6 @@
 
 #include <inttypes.h>
 
-char *ed2_str_deescape(char *str, uint64_t *len);
-
-struct ed2_astr {
-	char *str;
-	uint64_t len;
-};
-
 void ed2_free_strings(char **strs, int strsnum);
 
 static inline int ed2_lg2ceil(unsigned num) {

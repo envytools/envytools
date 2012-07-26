@@ -105,10 +105,10 @@
 "-"/[^-= \t]			{ if (yyextra.ws) { yyextra.ws = 0; return T_UMINUS; } else { yyextra.ws = 0; return '-'; } }
 "--"				{ yyextra.ws = 0; return T_MINUSMINUS; }
 "-="				{ yyextra.ws = 0; return T_MINUSEQ; }
-\[\"([^\\"]|\\[\\"'nrtafv]|\\x[0-9a-fA-F][0-9a-fA-F])*\"	{ yyextra.ws = 0; yylval->astr.str = ed2_str_deescape(yytext+1, &yylval->astr.len); return T_LBSTR; }
+\[\"([^\\"]|\\[\\"'nrtafv]|\\x[0-9a-fA-F][0-9a-fA-F])*\"	{ yyextra.ws = 0; yy_str_deescape(yytext+1, &yylval->astr); return T_LBSTR; }
 [[({]				{ yyextra.ws = 1; return yytext[0]; }
 [*=/+&|)}\]:;#.]		{ yyextra.ws = 0; return yytext[0]; }
-\"([^\\"]|\\[\\"'nrtafv]|\\x[0-9a-fA-F][0-9a-fA-F])*\"	{ yyextra.ws = 0; yylval->astr.str = ed2_str_deescape(yytext, &yylval->astr.len); return T_STR; }
+\"([^\\"]|\\[\\"'nrtafv]|\\x[0-9a-fA-F][0-9a-fA-F])*\"	{ yyextra.ws = 0; yy_str_deescape(yytext, &yylval->astr); return T_STR; }
 .				{ return T_ERR; }
 <ncomment>"+/"			{ yyextra.nest--; if (!yyextra.nest) BEGIN normal; }
 <ncomment>"/+"			{ yyextra.nest++; }

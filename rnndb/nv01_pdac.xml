@@ -44,6 +44,7 @@
 		<bitfield high="2" low="0" name="PCLK_VCLK_RATIO"/>
 		<bitfield pos="3" name="VCLK_IMPEDANCE"/>
 	</reg8>
+	<reg8 offset="0x6" name="ID1"/> <!-- status of VGA connector ID1 pin -->
 	<reg8 offset="0x9" name="RGB_PAL_CTRL">
 		<bitfield pos="7" name="DAC_WIDTH">
 			<value value="0" name="BITS_8"/>
@@ -72,6 +73,25 @@
 	<reg8 offset="0x23" name="CURSOR_X_POS_HI"/>
 	<reg8 offset="0x24" name="CURSOR_Y_POS_LO"/>
 	<reg8 offset="0x25" name="CURSOR_Y_POS_HI"/>
+
+	<bitset name="nv01_pdac_gp_pins" inline="yes">
+		<bitfield pos="0" name="J0_X"/>
+		<bitfield pos="1" name="J0_Y"/>
+		<bitfield pos="2" name="J1_X"/>
+		<bitfield pos="3" name="J1_Y"/>
+		<bitfield pos="4" name="J0_A"/>
+		<bitfield pos="5" name="J0_B"/>
+		<bitfield pos="6" name="J1_A"/>
+		<bitfield pos="7" name="J1_B"/>
+	</bitset>
+	<reg8 offset="0x3e" name="GP_PIN_MODE" type="nv01_pdac_gp_pins"/> <!-- 0 if button, 1 if unconnected or analog -->
+	<reg8 offset="0x3f" name="GP_BUTTON_STATE" type="nv01_pdac_gp_pins"/>
+
+	<array offset="0x40" name="GP_ANALOG" stride="2" length="8">
+		<reg8 offset="0" name="READOUT_LOW"/>
+		<reg8 offset="1" name="READOUT_HIGH"/>
+	</array>
+
 	<array offset="0x50" name="CURSOR_COLOUR" stride="0x4" length="3">
 		<reg8 offset="0x0" name="RED"/>
 		<reg8 offset="0x1" name="GREEN"/>
@@ -82,6 +102,21 @@
 			<reg8 name="LINE" offset="0x0" length="0x4"/>
 		</array>
 	</array>
+
+	<bitset name="nv01_pdac_saturn_pins" inline="yes">
+		<bitfield pos="0" name="DATA_0"/>
+		<bitfield pos="1" name="DATA_1"/>
+		<bitfield pos="2" name="DATA_2"/>
+		<bitfield pos="3" name="DATA_3"/>
+		<bitfield pos="4" name="SENSE"/>
+		<bitfield pos="5" name="SELECT_1"/>
+		<bitfield pos="6" name="SELECT_0"/>
+	</bitset>
+	<reg8 offset="0x300" name="SATURN_A_DATA" type="nv01_pdac_saturn_pins"/>
+	<reg8 offset="0x301" name="SATURN_A_MODE" type="nv01_pdac_saturn_pins"/> <!-- 0 is output, 1 is input -->
+	<reg8 offset="0x302" name="SATURN_B_DATA" type="nv01_pdac_saturn_pins"/>
+	<reg8 offset="0x303" name="SATURN_B_MODE" type="nv01_pdac_saturn_pins"/>
+
 	<array offset="0x500" name="CURSOR_READ" stride="0x80" length="2">
 		<array name="PLANE" offset="0x0" length="0x20" stride="4">
 			<reg8 name="LINE" offset="0x0" length="0x4"/>

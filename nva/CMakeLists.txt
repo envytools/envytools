@@ -10,7 +10,7 @@ find_package (Threads)
 include_directories(${PC_PCIACCESS_INCLUDE_DIRS} ../include)
 link_directories(${PC_PCIACCESS_LIBRARY_DIRS})
 
-add_library(nva nva.c)
+add_library(nva nva.c regspace.c)
 add_executable(nvalist nvalist.c)
 add_executable(nvapeek nvapeek.c)
 add_executable(nvapeekstat nvapeekstat.c)
@@ -18,8 +18,6 @@ add_executable(nvapeeki nvapeeki.c)
 add_executable(nvapoke nvapoke.c)
 add_executable(nvahammer nvahammer.c)
 add_executable(nvafill nvafill.c)
-add_executable(nvapeek8 nvapeek8.c)
-add_executable(nvapoke8 nvapoke8.c)
 add_executable(nvagetbios nvagetbios.c)
 add_executable(nvafakebios nvafakebios.c)
 add_executable(nvascan nvascan.c)
@@ -41,6 +39,8 @@ add_executable(nvavucstart nvavucstart.c)
 add_executable(nvaupload nvaupload.c)
 add_executable(nvadownload nvadownload.c)
 add_executable(evotiming evotiming.c)
+add_executable(nv01dump nv01dump.c)
+add_executable(nv01post nv01post.c)
 
 if (PC_X11_FOUND AND PC_XEXT_FOUND)
 	add_executable(nvamemtiming nvamemtiming.c set_timings.c vbios_mgmt.c libXNVCtrl/NVCtrl.c)
@@ -60,8 +60,6 @@ target_link_libraries(nvapoke nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvahammer nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvafill nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvapeeki nva ${PC_PCIACCESS_LIBRARIES})
-target_link_libraries(nvapeek8 nva ${PC_PCIACCESS_LIBRARIES})
-target_link_libraries(nvapoke8 nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvagetbios nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvafakebios nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvascan nva ${PC_PCIACCESS_LIBRARIES})
@@ -83,6 +81,8 @@ target_link_libraries(nvaxtinsn nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvaupload nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvadownload nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(evotiming nva ${PC_PCIACCESS_LIBRARIES})
+target_link_libraries(nv01dump nva ${PC_PCIACCESS_LIBRARIES})
+target_link_libraries(nv01post nva ${PC_PCIACCESS_LIBRARIES})
 
 install(TARGETS nva
 		nvalist
@@ -91,8 +91,6 @@ install(TARGETS nva
 		nvahammer
 		nvafill
 		nvapeeki
-		nvapeek8
-		nvapoke8
 		nvagetbios
 		nvafakebios
 		nvascan
@@ -113,6 +111,8 @@ install(TARGETS nva
 		nvaupload
 		nvadownload
 		evotiming
+		nv01dump
+		nv01post
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
 	ARCHIVE DESTINATION lib${LIB_SUFFIX})

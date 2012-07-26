@@ -23,116 +23,67 @@
  */
 
 #include "dis.h"
-#include "ed2a.h"
+#include "easm.h"
 
-void convert_expr_top(struct line *line, struct ed2a_expr *expr);
+void convert_expr_top(struct line *line, struct easm_expr *expr);
 
-void convert_iop(struct line *line, struct ed2a_iop *iop) {
+void convert_mods(struct line *line, struct easm_mods *mods) {
 	int i;
-	for (i = 0; i < iop->modsnum; i++) {
-		struct expr *e = makeex(EXPR_ID);
-		e->str = iop->mods[i];
-		ADDARRAY(line->atoms, e);
-	}
-	for (i = 0; i < iop->exprsnum; i++) {
-		convert_expr_top(line, iop->exprs[i]);
+	for (i = 0; i < mods->modsnum; i++) {
+		struct litem *li = calloc(sizeof *li, 1);
+		li->type = LITEM_NAME;
+		li->str = mods->mods[i];
+		ADDARRAY(line->atoms, li);
 	}
 }
 
-void convert_ipiece(struct line *line, struct ed2a_ipiece *ipiece) {
+void convert_operand(struct line *line, struct easm_operand *operand) {
 	int i;
-	for (i = 0; i < ipiece->prefsnum; i++) {
-		convert_expr_top(line, ipiece->prefs[i]);
-	}
-	struct expr *e = makeex(EXPR_ID);
-	e->str = ipiece->name;
-	ADDARRAY(line->atoms, e);
-	for (i = 0; i < ipiece->iopsnum; i++) {
-		convert_iop(line, ipiece->iops[i]);
-	}
-	for (i = 0; i < ipiece->modsnum; i++) {
-		struct expr *e = makeex(EXPR_ID);
-		e->str = ipiece->mods[i];
-		ADDARRAY(line->atoms, e);
+	convert_mods(line, operand->mods);
+	for (i = 0; i < operand->exprsnum; i++) {
+		/* XXX */
+		convert_expr_top(line, operand->exprs[i]);
 	}
 }
 
-struct expr *convert_expr(struct ed2a_expr *expr) {
-	struct expr *res;
+void convert_sinsn(struct line *line, struct easm_sinsn *sinsn) {
 	int i;
-	switch (expr->type) {
-		case ED2A_ET_PLUS:
-			res = makebinex(EXPR_ADD, convert_expr(expr->e1), convert_expr(expr->e2));
-			break;
-		case ED2A_ET_MINUS:
-			res = makebinex(EXPR_SUB, convert_expr(expr->e1), convert_expr(expr->e2));
-			break;
-		case ED2A_ET_MUL:
-			res = makebinex(EXPR_MUL, convert_expr(expr->e1), convert_expr(expr->e2));
-			break;
-		case ED2A_ET_UMINUS:
-			res = makeex(EXPR_NUM);
-			res->isimm = 1;
-			res = makebinex(EXPR_SUB, res, convert_expr(expr->e1));
-			break;
-		case ED2A_ET_DISCARD:
-			res = makeex(EXPR_DISCARD);
-			break;
-		case ED2A_ET_NUM:
-			res = makeex(EXPR_NUM);
-			res->num1 = expr->num;
-			res->isimm = 1;
-			break;
-		case ED2A_ET_NUM2:
-			res = makeex(EXPR_BITFIELD);
-			res->num1 = expr->num;
-			res->num2 = expr->num2;
-			break;
-		case ED2A_ET_LABEL:
-			res = makeex(EXPR_LABEL);
-			res->str = expr->str;
-			res->isimm = 1;
-			break;
-		case ED2A_ET_REG:
-			res = makeex(EXPR_REG);
-			res->str = expr->str;
-			break;
-		case ED2A_ET_MEM:
-			res = makeex(EXPR_MEM);
-			res->str = expr->str;
-			res->expr1 = convert_expr(expr->e1);
-			break;
-		case ED2A_ET_MEMPOSTI:
-			res = makeex(EXPR_MEM);
-			res->str = expr->str;
-			res->expr1 = makebinex(EXPR_PIADD, convert_expr(expr->e1), convert_expr(expr->e2));
-			break;
-		case ED2A_ET_MEMPOSTD:
-			res = makeex(EXPR_MEM);
-			res->str = expr->str;
-			res->expr1 = makebinex(EXPR_PISUB, convert_expr(expr->e1), convert_expr(expr->e2));
-			break;
-		case ED2A_ET_RVEC:
-			res = makeex(EXPR_VEC);
-			for (i = 0; i < expr->rvec->elemsnum; i++) {
-				struct expr *se = makeex(EXPR_REG);
-				se->str = expr->rvec->elems[i];
-				ADDARRAY(res->vexprs, se);
-			}
-			break;
-		default:
-			res = makeex(EXPR_ED2A);
+	struct litem *li = calloc(sizeof *li, 1);
+	li->type = LITEM_NAME;
+	li->str = sinsn->str;
+	ADDARRAY(line->atoms, li);
+	for (i = 0; i < sinsn->operandsnum; i++) {
+		convert_operand(line, sinsn->operands[i]);
 	}
-	res->ed2a = expr;
-	return res;
+	convert_mods(line, sinsn->mods);
 }
 
-void convert_expr_top(struct line *line, struct ed2a_expr *expr) {
-	if (expr->type == ED2A_ET_IPIECE) {
-		ADDARRAY(line->atoms, makeex(EXPR_SESTART));
-		convert_ipiece(line, expr->ipiece);
-		ADDARRAY(line->atoms, makeex(EXPR_SEEND));
+void convert_subinsn(struct line *line, struct easm_subinsn *subinsn) {
+	int i;
+	for (i = 0; i < subinsn->prefsnum; i++) {
+		convert_expr_top(line, subinsn->prefs[i]);
+	}
+	convert_sinsn(line, subinsn->sinsn);
+}
+
+void convert_expr_top(struct line *line, struct easm_expr *expr) {
+	if (expr->type == EASM_EXPR_SINSN) {
+		struct litem *ses = calloc(sizeof *ses, 1);
+		struct litem *see = calloc(sizeof *see, 1);
+		ses->type = LITEM_SESTART;
+		see->type = LITEM_SEEND;
+		ADDARRAY(line->atoms, ses);
+		convert_sinsn(line, expr->sinsn);
+		ADDARRAY(line->atoms, see);
 	} else {
-		ADDARRAY(line->atoms, convert_expr(expr));
+		ADDARRAY(line->atoms, makeli(expr));
+	}
+}
+
+void convert_insn(struct line *line, struct easm_insn *insn) {
+	int i;
+	for (i = 0; i < insn->subinsnsnum; i++) {
+		/* XXX */
+		convert_subinsn(line, insn->subinsns[i]);
 	}
 }

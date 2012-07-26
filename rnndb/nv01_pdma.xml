@@ -9,68 +9,78 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <array offset="0x100000" name="PDMA" stride="0x1000" length="1" variants="NV01">
+	<bitset name="nv01_pdma_intr" inline="yes">
+		<bitfield pos="0" name="NULL"/>
+		<bitfield pos="4" name="NOT_PRESENT"/>
+		<bitfield pos="8" name="ACCESS"/>
+		<bitfield pos="12" name="UNK12"/>
+	</bitset>
 	<reg32 offset="0x100" name="INTR_0">
 		<bitfield pos="12" name="UNK12"/>
 	</reg32>
-	<reg32 offset="0x108" name="INTR_1">
-		<bitfield pos="0" name="UNK0"/>
-		<bitfield pos="4" name="UNK4"/>
-		<bitfield pos="8" name="UNK8"/>
-		<bitfield pos="12" name="UNK12"/>
-	</reg32>
-	<reg32 offset="0x110" name="INTR_2">
-		<bitfield pos="0" name="UNK0"/>
-		<bitfield pos="4" name="UNK4"/>
-		<bitfield pos="8" name="UNK8"/>
-		<bitfield pos="12" name="UNK12"/>
-	</reg32>
+	<reg32 offset="0x108" name="INTR_AUDIO" type="nv01_pdma_intr"/>
+	<reg32 offset="0x110" name="INTR_GRAPH" type="nv01_pdma_intr"/>
 	<reg32 offset="0x140" name="INTR_0_EN">
 		<bitfield pos="12" name="UNK12"/>
 	</reg32>
-	<reg32 offset="0x148" name="INTR_1_EN">
-		<bitfield pos="0" name="UNK0"/>
-		<bitfield pos="4" name="UNK4"/>
-		<bitfield pos="8" name="UNK8"/>
-		<bitfield pos="12" name="UNK12"/>
-	</reg32>
-	<reg32 offset="0x150" name="INTR_2_EN">
-		<bitfield pos="0" name="UNK0"/>
-		<bitfield pos="4" name="UNK4"/>
-		<bitfield pos="8" name="UNK8"/>
-		<bitfield pos="12" name="UNK12"/>
-	</reg32>
+	<reg32 offset="0x148" name="INTR_AUDIO_EN" type="nv01_pdma_intr"/>
+	<reg32 offset="0x150" name="INTR_GRAPH_EN" type="nv01_pdma_intr"/>
+
 	<reg32 offset="0x440" name="UNK440"/> <!-- ffffffff -->
 	<reg32 offset="0x500" name="UNK500"/> <!-- ffffffff -->
 	<reg32 offset="0x580" name="UNK580" length="8"/> <!-- ffffffff -->
-	<reg32 offset="0x600" name="UNK600"/> <!-- 110fff -->
-	<reg32 offset="0x604" name="UNK604"/> <!-- ffffffff -->
-	<reg32 offset="0x608" name="UNK608"/> <!-- ffffffff -->
-	<reg32 offset="0x610" name="UNK610"/> <!-- 1 -->
-	<reg32 offset="0x618" name="UNK618"/> <!-- 1111 -->
-	<reg32 offset="0x620" name="UNK620"/> <!-- fffff000 -->
-	<reg32 offset="0x630" name="UNK630"/> <!-- ffffffff -->
-	<reg32 offset="0x640" name="UNK640"/> <!-- ffffffff -->
-	<reg32 offset="0x680" name="UNK680"/> <!-- ffff -->
-	<reg32 offset="0x690" name="UNK690"/>
-	<reg32 offset="0x700" name="UNK700" length="4"/> <!-- ffffffff -->
-	<reg32 offset="0x800" name="UNK800"/> <!-- 110fff -->
-	<reg32 offset="0x804" name="UNK804"/> <!-- ffffffff -->
-	<reg32 offset="0x808" name="UNK808"/> <!-- ffffffff -->
-	<reg32 offset="0x810" name="GR_CHANNEL"> <!-- 1 -->
-		<bitfield pos="0" name="ACCESS">
-			<value value="0" name="DISABLED"/>
-			<value value="1" name="ENABLED"/>
-		</bitfield>
-	</reg32>
-	<reg32 offset="0x818" name="UNK818"/> <!-- 1111 -->
-	<reg32 offset="0x820" name="UNK820"/> <!-- fffff000 -->
-	<reg32 offset="0x830" name="UNK830"/> <!-- ffffffff -->
-	<reg32 offset="0x840" name="UNK840"/> <!-- ffffffff -->
-	<reg32 offset="0x880" name="GR_INSTANCE"> <!-- ffff -->
-		<bitfield high="15" low="0" name="ID"/>
-	</reg32>
-	<reg32 offset="0x890" name="UNK890"/>
-	<reg32 offset="0x900" name="UNK900" length="8"/> <!-- ffffffff -->
+
+	<array offset="0x800" name="AUDIO" stride="0x200" length="1">
+		<reg32 offset="0x000" name="FLAGS"> <!-- word 0 of DMA object -->
+			<bitfield low="0" high="11" name="ADJUST"/>
+			<bitfield pos="16" name="PRESENT"/>
+			<bitfield pos="20" name="UNK20"/>
+		</reg32>
+		<reg32 offset="0x004" name="LIMIT"/> <!-- word 1 of DMA object -->
+		<reg32 offset="0x008" name="PTE"/> <!-- words 2+ of DMA object -->
+		<reg32 offset="0x010" name="ACCESS_EN"/>
+		<reg32 offset="0x018" name="VALID">
+			<bitfield pos="0" name="FLAGS_LIMIT"/>
+			<bitfield pos="4" name="ADDR"/>
+			<bitfield pos="8" name="PTE"/>
+			<bitfield pos="12" name="UNK12"/>
+		</reg32>
+		<reg32 offset="0x020" name="PTE_TAG"/>
+		<reg32 offset="0x030" name="ADDR_VIRT_ADJ"/>
+		<reg32 offset="0x040" name="ADDR_PHYS"/>
+		<reg32 offset="0x080" name="INST"/>
+		<reg32 offset="0x090" name="ADDR_VIRT_SET" access="w"/>
+		<reg32 offset="0x0a0" name="WRITE" access="w"/>
+		<reg32 offset="0x0b0" name="WRITE_FLUSH" access="w"/>
+		<reg32 offset="0x0f0" name="NOTIFY" access="w"/>
+		<reg32 offset="0x100" name="WRITE_BUF" length="4"/>
+	</array>
+
+	<array offset="0x800" name="GRAPH" stride="0x200" length="1">
+		<reg32 offset="0x000" name="FLAGS"> <!-- word 0 of DMA object -->
+			<bitfield low="0" high="11" name="ADJUST"/>
+			<bitfield pos="16" name="PRESENT"/>
+			<bitfield pos="20" name="UNK20"/>
+		</reg32>
+		<reg32 offset="0x004" name="LIMIT"/> <!-- word 1 of DMA object -->
+		<reg32 offset="0x008" name="PTE"/> <!-- words 2+ of DMA object -->
+		<reg32 offset="0x010" name="ACCESS_EN"/>
+		<reg32 offset="0x018" name="VALID">
+			<bitfield pos="0" name="FLAGS_LIMIT"/>
+			<bitfield pos="4" name="ADDR"/>
+			<bitfield pos="8" name="PTE"/>
+			<bitfield pos="12" name="UNK12"/>
+		</reg32>
+		<reg32 offset="0x020" name="PTE_TAG"/>
+		<reg32 offset="0x030" name="ADDR_VIRT_ADJ"/>
+		<reg32 offset="0x040" name="ADDR_PHYS"/>
+		<reg32 offset="0x080" name="INST"/>
+		<reg32 offset="0x090" name="ADDR_VIRT_SET" access="w"/>
+		<reg32 offset="0x0a0" name="WRITE" access="w"/>
+		<reg32 offset="0x0b0" name="WRITE_FLUSH" access="w"/>
+		<reg32 offset="0x0f0" name="NOTIFY" access="w"/>
+		<reg32 offset="0x100" name="WRITE_BUF" length="8"/>
+	</array>
 </array>
 
 </domain>

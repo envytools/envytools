@@ -47,7 +47,7 @@ void ed2i_error (YYLTYPE *loc, yyscan_t lex_state, struct ed2i_isa **isa, char c
 %union {
 	uint64_t num;
 	char *str;
-	struct ed2_astr astr;
+	struct astr astr;
 	struct {
 		char **strs;
 		int strsnum;

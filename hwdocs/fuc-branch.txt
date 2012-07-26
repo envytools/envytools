@@ -28,6 +28,13 @@ to be explicitely manipulated. See fuc-arith.txt for more details.
 Address of the current instruction is always available through the read-only
 $pc special register.
 
+When a branching instruction is taken, the execution time is either 4 or
+5 cycles. The execution time depends on the address of the next instruction to
+be executed. If this instruction can be loaded in one cycle (the instruction
+is contained in a single aligned 32-bit memory block in the code section),
+4 instructions will be necessary. If the instruction is split in two blocks,
+5 instructions will then be necessary.
+
 
 = Pseudocode conventions =
 
@@ -47,24 +54,31 @@ Branches to a given location if the condition evaluates to true. Target is
 $pc-relative.
 
 Instructions:
-	bra $pX - if predicate true		subopcode = 00+X
-	bra c - if carry			subopcode = 08
-	bra o - if overflow			subopcode = 09
-	bra s - if signed			subopcode = 0a
-	bra z / bra e - if zero / equal		subopcode = 0b
-	bra a - if above			subopcode = 0c
-	bra na - if not above			subopcode = 0d
-	bra - always				subopcode = 0e
-	bra not $pX - if predicate false	subopcode = 10+X
-	bra nc - if not carry			subopcode = 18
-	bra no - if not overflow		subopcode = 19
-	bra ns - if not signed			subopcode = 1a
-	bra nz / bra ne - if not zero / equal	subopcode = 1b
-	bra g - if greater			subopcode = 1c [v3+ only]
-	bra le - if less or equal		subopcode = 1d [v3+ only]
-	bra l - if less				subopcode = 1e [v3+ only]
-	bra ge - if greater or equal		subopcode = 1f [v3+ only]
+	bra $pX - if predicate true			subopcode = 00+X
+	bra c - if carry				subopcode = 08
+	bra b - if unsigned below			[alias for bra c]
+	bra o - if overflow				subopcode = 09
+	bra s - if sign set / negative			subopcode = 0a
+	bra z - if zero					subopcode = 0b
+	bra e - if equal				[alias for bra z]
+	bra a - if unsigned above			subopcode = 0c
+	bra na - if not unsigned above			subopcode = 0d
+	bra be - if unsigned below or equal		[alias for bra na]
+	bra - always					subopcode = 0e
+	bra not $pX - if predicate false		subopcode = 10+X
+	bra nc - if not carry				subopcode = 18
+	bra nb - if not unsigned below			[alias for bra nc]
+	bra ae - if unsigned above or equal		[alias for bra nc]
+	bra no - if not overflow			subopcode = 19
+	bra ns - if sign unset / positive		subopcode = 1a
+	bra nz - if not zero				subopcode = 1b
+	bra ne - if not equal				[alias for bra nz]
+	bra g - if signed greater			subopcode = 1c [v3+ only]
+	bra le - if signed less or equal		subopcode = 1d [v3+ only]
+	bra l - if signed less				subopcode = 1e [v3+ only]
+	bra ge - if signed greater or equal		subopcode = 1f [v3+ only]
 Instruction class: unsized
+Execution time: 1 cycle if not taken, 4-5 cycles if taken
 Operands: DIFF
 Forms:
 	I8					opcode = f4
@@ -138,6 +152,7 @@ immediate forms are pretty much redundant with the relative branch form.
 Instructions:
 	bra - branch
 Instruction class: unsized
+Execution time: 4-5 cycles
 Operands: TRG
 Forms:
 	I8				opcode = f4, subopcode = 20
@@ -156,6 +171,7 @@ specified as absolute address.
 Instructions:
 	call - Call a subroutine
 Instruction class: unsized
+Execution time: 4-5 cycles
 Operands: TRG
 Forms:
 	I8				opcode = f4, subopcode = 21
@@ -175,6 +191,7 @@ Returns from a previous call.
 Instructions:
 	ret - Return from a subroutine
 Instruction class: unsized
+Execution time: 5-6 cycles
 Operands: -
 Forms:
 	[no operands]			opcode = f8, subopcode = 0

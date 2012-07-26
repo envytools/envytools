@@ -33,9 +33,9 @@
 #include <unistd.h>
 #include "util.h"
 #include "var.h"
-#include "ed2a.h"
 #include "ed2i.h"
 #include "colors.h"
+#include "easm.h"
 
 /*
  * Table format
@@ -202,7 +202,7 @@ struct matches {
 
 struct reloc {
 	const struct bitfield *bf;
-	const struct expr *expr;
+	struct easm_expr *expr;
 };
 
 struct match {
@@ -236,7 +236,7 @@ struct disctx {
 	int labelsnum;
 	int labelsmax;
 	struct symtab *symtab;
-	struct expr **atoms;
+	struct litem **atoms;
 	int atomsnum;
 	int atomsmax;
 	int endmark;
@@ -256,94 +256,32 @@ struct disisa {
 	struct vardata *vardata;
 };
 
-struct file {
-	struct line **lines;
-	int linesnum;
-	int linesmax;
-};
-
 struct line {
-	enum ltype {
-		LINE_INSN,
-		LINE_LABEL,
-		LINE_DIR,
-	} type;
-	char *str;
-	struct expr **atoms;
+	struct litem **atoms;
 	int atomsnum;
 	int atomsmax;
-	struct envy_loc loc;
 };
 
-struct expr {
+struct litem {
 	enum etype {
-		EXPR_NUM,
-		EXPR_ID,
-		EXPR_LABEL,
-		EXPR_REG,
-		EXPR_MEM,
-		EXPR_VEC,
-		EXPR_DISCARD,
-		EXPR_BITFIELD,
-		EXPR_NEG,
-		EXPR_NOT,
-		EXPR_MUL,
-		EXPR_DIV,
-		EXPR_ADD,
-		EXPR_SUB,
-		EXPR_SHL,
-		EXPR_SHR,
-		EXPR_AND,
-		EXPR_XOR,
-		EXPR_OR,
-		EXPR_PIADD,
-		EXPR_PISUB,
-		EXPR_SESTART,
-		EXPR_SEEND,
-		EXPR_ED2A,
+		LITEM_NAME,
+		LITEM_UNK,
+		LITEM_EXPR,
+		LITEM_SESTART,
+		LITEM_SEEND,
 	} type;
 	const char *str;
-	ull num1, num2;
-	const struct expr *expr1;
-	const struct expr *expr2;
-	struct expr **vexprs;
-	int vexprsnum;
-	int vexprsmax;
-	int isimm;
-	int special;
-	struct ed2a_expr *ed2a;
+	struct easm_expr *expr;
 };
 
-static inline struct expr *makeex(enum etype type) {
-	struct expr *res = calloc(sizeof(*res), 1);
-	res->type = type;
-	return res;
-}
-
-static inline struct expr *makeed2a(struct ed2a_expr *ed2a) {
-	struct expr *res = calloc(sizeof(*res), 1);
-	res->type = EXPR_ED2A;
-	res->ed2a = ed2a;
-	return res;
-}
-
-static inline struct expr *makeunex(enum etype type, const struct expr *expr) {
-	struct expr *res = makeex(type);
-	res->expr1 = expr;
-	res->isimm = expr->isimm;
-	return res;
-}
-
-static inline struct expr *makebinex(enum etype type, const struct expr *expr1, const struct expr *expr2) {
-	struct expr *res = makeex(type);
-	res->expr1 = expr1;
-	res->expr2 = expr2;
-	if (type != EXPR_PIADD && type != EXPR_PISUB)
-		res->isimm = expr1->isimm && expr2->isimm;
-	return res;
-}
-
 int setsbf (struct match *res, int pos, int len, ull num);
+
+static inline struct litem *makeli(struct easm_expr *e) {
+	struct litem *li = calloc(sizeof *li, 1);
+	li->type = LITEM_EXPR;
+	li->expr = e;
+	return li;
+}
 
 /*
  * Makes a simple table for checking a single flag.
@@ -427,8 +365,7 @@ ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx);
 const struct disisa *ed_getisa(const char *name);
 
 void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, struct varinfo *varinfo, int quiet, struct label *labels, int labelsnum, const struct envy_colors *cols);
-void printexpr(FILE *out, const struct expr *expr, int lvl, const struct envy_colors *cols);
 
-void convert_iop(struct line *line, struct ed2a_iop *iop);
+void convert_insn(struct line *line, struct easm_insn *insn);
 
 #endif

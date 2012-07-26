@@ -114,7 +114,7 @@
 
 <!-- 090000 - 090fff PFIFO_CACHE1 covered in nv_pfifo.xml -->
 
-<!-- 0a0000 - 0bffff PRM -->
+<!-- 0a0000 - 0bffff PRMFB -->
 <import file="nv_vga.xml" />
 
 <!-- 0c0000 - 0cffff PRMVIO -->
@@ -233,6 +233,8 @@
 <import file="nv01_prm.xml" />
 
 <!-- 6d0000 - 6d0fff PRMIO covered in nv01_prm.xml -->
+
+<!-- 6e0000 - 6fffff PRMFB covered in nv_vga.xml -->
 
 <!-- 700000 - 7fffff PRAMIN / PMEM covered above -->
 

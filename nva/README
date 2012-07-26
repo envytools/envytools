@@ -1,0 +1,55 @@
+This directory contains tools used to manually poke or query the card
+registers.
+
+WARNING: these tools *can* and *will* hang your machine if you don't know
+what you're doing. Hardware destruction is likely also possible, although
+no incidents are known to have happened yet. In most cases it's also not
+recommended to use these tools while a driver is active for a given card.
+
+All programs except nvalist take an optional -c <card number> parameter.
+The valid card numbers are 0 .. (card count in system - 1). If -c is not
+specified, it defaults to 0. A list of cards with their numbers is given
+by the nvalist program.
+
+The programs are:
+
+nvalist: prints a list of cards
+
+nvapeek <address> [<byte count>]: reads 32-bit MMIO register at <address>.
+If byte count is also given, reads all registers in range [address, address
++ byte count).
+
+nvapeek8 <address> [<byte count>]: like nvapeek, but does 8-bit MMIO accesses
+
+nvapoke <address> <value>: writes a 32-bit <value> to the MMIO register at
+<address>.
+
+nvapoke8 <address> <value>: like nvapoke, but does 8-bit MMIO access
+
+nvawatch [-t] <address>: reads MMIO register at <address> in a loop, prints
+the value every time it changes. If -t is specified, prints a timestamp
+and diff from the previous timestamp before the value. Never quits, needs
+to be manually aborted.
+
+nvahammer <address> <value>: like nvapoke, but repeats the write in
+an infinite loop. Needs to be manually aborted.
+
+nvagetbios [-s <extraction method>]: extracts the card's VBIOS using the
+method given as parameter and writes it to stdout. Method can be PROM or
+PRAMIN. If method is not given, defaults to something sensible.
+
+nvafuzz <address> [<byte count>]: writes random values to a register or
+a register range in an infinite loop. Needs to be manually aborted.
+
+nvascan [-as] <address> [<byte count>]: for each register in a range:
+read it, write 0xffffffff, read it, write 0, read it, write back the
+original value. Helpful to see the valid values for registers. If -s option
+is passed, does a slow scan - waits and reads PMC.ID register between scans
+to recover from errors caused by invalid register accesses. If -a option
+is passed, does a cross-test on all registers in the range to detect aliased
+addresses [not particularly reliable].
+
+nvatiming: attempts to measure what frequency various units of the card are
+running at by using misc tricks.
+
+[XXX: document the remaining tools]

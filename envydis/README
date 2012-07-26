@@ -38,20 +38,56 @@ hexadecimal numbers representing the bytes to disassemble. The options are:
        nva0: NVA0 [aka compute capability 1.3]
        nvaa: NVAA, NVAC [aka compute capability 1.2]
        nva3: NVA3, NVA5, NVA8, NVAF [aka compute capability 1.2 + d3d10.1]
+     For nvc0:
+       nvc0: NVC0:NVE4 cards
+       nve4: NVE4+ cards
      For ctx:
-       nv40: NV40 generation cards
-       nv50: NV50 generation cards
+       nv40: NV40:NV50 cards
+       nv50: NV50:NVA0 cards
+       nva0: NVA0:NVC0 cards
+     For hwsq:
+       nv17: NV17:NV41 cards
+       nv41: NV41:NVC0 cards
      For fuc:
-       nv98: NV98, NVAA, NVAC
-       nva3: NVA3 and up
+       fuc0: fµc version 0 [NV98, NVAA, NVAC]
+       fuc3: fµc version 3 [NVA3 and up]
+       fuc4: fµc version 4 [NVD9 and up, selected engines only]
      For vuc:
-       vp2: NV84 generation cards
-       vp3: NV98
-  -v [nv50/nvc0 only] Disassemble vertex program ISA
-  -g [nv50/nvc0 only] Disassemble geometry program ISA
-  -f/-p [nv50/nvc0 only] Disassemble fragment program ISA
-  -c [nv50/nvc0 only] Disassemble compute program ISA
-  -s [nv50/nvc0 only] Disassemble vertex, geometry, or fragment program ISA
+       vp2: VP2 video processor [NV84:NV98, NVA0]
+       vp3: VP3 video processor [NV98, NVAA, NVAC]
+       vp4: VP4 video processor [NVA3:NVD9]
+  -F <feature> Enable optional ISA feature. Most of these are auto-selected
+     by -V option, but can also be specified manually. Can be used multiple
+     times to enable several features.
+     For nv50:
+       sm11: SM1.1 new opcodes [selected by nv84, nva0, nvaa, nva3]
+       sm12: SM1.2 new opcodes [selected by nva0, nvaa, nva3]
+       fp64: 64-bit floating point [selected by nva0]
+       d3d10_1: Direct3D 10.1 new features [selected by nva3]
+     For nvc0:
+       nvc0op: NVC0:NVE4 exclusive opcodes [selected by nvc0]
+       nve4op: NVE4+ exclusive opcodes [selected by nve4]
+     For ctx:
+       nv40op: NV40:NV50 exclusive opcodes [selected by nv40]
+       nv50op: NV50:NVC0 exclusive opcodes [selected by nv50, nva0]
+       callret: call/ret opcodes [selected by nva0]
+     For hwsq:
+       nv41op: NV41 new opcodes [selected by nv41]
+     For fuc:
+       fuc0op: fµc version 0 exclusive opcodes [selected by fuc0] 
+       fuc3op: fµc version 3+ exclusive opcodes [selected by fuc3, fuc4] 
+       pc24: 24-bit PC opcodes [selected by fuc4] 
+       crypt: Cryptographic coprocessor opcodes [has to be manually selected]
+     For vuc:
+       vp2op: VP2 exclusive opcodes [selected by vp2]
+       vp3op: VP3+ exclusive opcodes [selected by vp3, vp4]
+       vp4op: VP4 exclusive opcodes [selected by vp4]
+  -O <mode> Select processor mode.
+     For nv50:
+       vp: Vertex program
+       gp: Geometry program
+       fp: Fragment program
+       cp: Compute program
  output format
   -n Disable output coloring
   -q Disable printing address + opcodes.
