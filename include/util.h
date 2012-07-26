@@ -103,4 +103,6 @@ struct astr {
 	size_t len;
 };
 
+void print_escaped_astr(FILE *out, struct astr *astr);
+
 #endif
