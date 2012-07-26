@@ -88,7 +88,7 @@ int main(int argc, char **argv) {
 	for (i = 0; i < b; i+=rs.regsz) {
 		uint64_t x, y, z;
 		int ex = nva_rd(&rs, a+i, &x);
-		int ew, ey, ev, ez, eb;
+		int ew = 0, ey = 0, ev = 0, ez = 0, eb = 0;
 		if (!ex) {
 			ew = nva_wr(&rs, a+i, -1ll);
 			ey = nva_rd(&rs, a+i, &y);
@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
 			ez = nva_rd(&rs, a+i, &z);
 			eb = nva_wr(&rs, a+i, x);
 		}
-		if (ex || ey || ez || ey || ev || x || y || z) {
+		if (ex || ey || ez || ey || ev || eb || x || y || z) {
 			if (ex) {
 				printf ("%06x: %c\n", a+i, nva_rserrc(ex));
 			} else {
@@ -126,6 +126,8 @@ int main(int argc, char **argv) {
 				nva_rsprint(&rs, ex, x);
 				nva_rsprint(&rs, ey, y);
 				nva_rsprint(&rs, ez, z);
+				if (ew || ev || eb)
+					printf(" WERR");
 				if (cool)
 					printf(" *");
 				if (isalias) {
