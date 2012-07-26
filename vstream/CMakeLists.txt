@@ -1,6 +1,8 @@
 project(ENVYTOOLS C)
 cmake_minimum_required(VERSION 2.6)
 
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-missing-braces")
+
 include_directories(../include)
 
 include_directories(${PC_PCIACCESS_INCLUDE_DIRS} ${PC_X11_INCLUDE_DIRS} ${PC_VDPAU_INCLUDE_DIRS} ../include)
