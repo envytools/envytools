@@ -1,8 +1,6 @@
 project(ENVYTOOLS C)
 cmake_minimum_required(VERSION 2.6)
 
-include_directories(../include)
-
 add_library(envybios
 	bios.c print.c
 	bit.c info.c dacload.c iunk.c

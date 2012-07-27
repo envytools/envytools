@@ -4,6 +4,8 @@ enable_testing()
 
 SET(CMAKE_C_FLAGS "-g -O2 -Wall")
 
+include_directories(include)
+
 add_subdirectory(util)
 add_subdirectory(easm)
 add_subdirectory(nva)

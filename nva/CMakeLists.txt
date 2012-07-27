@@ -9,7 +9,7 @@ find_package (Threads)
 
 if (PC_PCIACCESS_FOUND)
 
-include_directories(${PC_PCIACCESS_INCLUDE_DIRS} ../include)
+include_directories(${PC_PCIACCESS_INCLUDE_DIRS})
 link_directories(${PC_PCIACCESS_LIBRARY_DIRS})
 
 add_library(nva nva.c regspace.c)

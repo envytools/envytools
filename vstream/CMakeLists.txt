@@ -3,8 +3,6 @@ cmake_minimum_required(VERSION 2.6)
 
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-missing-braces")
 
-include_directories(../include)
-
 add_library(vstream bitstream.c
 	h264.c h264_slice.c h264_residual.c h264_print.c
 	h264_cabac.c h264_cavlc.c h264_se.c

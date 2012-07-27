@@ -1,8 +1,6 @@
 project(ENVYTOOLS C)
 cmake_minimum_required(VERSION 2.6)
 
-include_directories(../include)
-
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(PC_PCIACCESS pciaccess)
 pkg_check_modules(PC_X11 x11)

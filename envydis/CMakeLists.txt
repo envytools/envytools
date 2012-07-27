@@ -3,8 +3,6 @@ cmake_minimum_required(VERSION 2.6)
 
 SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-missing-braces")
 
-include_directories(../include)
-
 add_library(envy core.c nv50.c nvc0.c ctx.c fuc.c hwsq.c vp2.c vuc.c macro.c vp1.c)
 
 add_executable(envydis envydis.c)

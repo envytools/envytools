@@ -1,8 +1,6 @@
 project(ENVYTOOLS C)
 cmake_minimum_required(VERSION 2.6)
 
-include_directories(../../include)
-
 add_executable(vstest vstest.c)
 add_executable(predtest predtest.c)
 add_executable(test264 test264.c)
