@@ -17,6 +17,7 @@ Subdirectories:
  - nva: Tools to directly access the GPU registers
  - vstream: Tools to decode and encode raw video bitstreams
  - vdpow: A tool aiding in VP3 reverse engineering
+ - easm: Utility code dealing with assembly language parsing & printing.
  - util: Misc utility code shared between envytools modules
 
 

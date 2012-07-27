@@ -1,0 +1,5 @@
+easm_lex.c
+easm_lex.h
+easm_parse.c
+easm_parse.h
+libeasm.a
