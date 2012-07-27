@@ -113,7 +113,7 @@ file:	/**/		{ $$ = calloc(sizeof *$$, 1); }
 line:	direct eol	{ $$ = calloc(sizeof *$$, 1); $$->loc = @$; $$->type = EASM_LINE_DIRECTIVE; $$->directive = $1; }
 line:	insn eol	{ $$ = calloc(sizeof *$$, 1); $$->loc = @$; $$->type = EASM_LINE_INSN; $$->insn = $1; }
 line:	T_WORDC		{ $$ = calloc(sizeof *$$, 1); $$->loc = @$; $$->type = EASM_LINE_LABEL; $$->lname = $1; }
-line:	'\n'		{ $$ = 0; }
+line:	eol		{ $$ = 0; }
 
 eol:	'\n'
 eol:	';'
