@@ -38,6 +38,7 @@ add_executable(nvaxtrsr nvaxtrsr.c)
 add_executable(nvaxtssr nvaxtssr.c)
 add_executable(nvaxtinsn nvaxtinsn.c)
 add_executable(nvavucstart nvavucstart.c)
+add_executable(nvafucstart nvafucstart.c)
 add_executable(nvaupload nvaupload.c)
 add_executable(nvadownload nvadownload.c)
 add_executable(evotiming evotiming.c)
@@ -79,6 +80,7 @@ target_link_libraries(nvaxtpoke nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvaxtrsr nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvaxtssr nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvavucstart nva ${PC_PCIACCESS_LIBRARIES})
+target_link_libraries(nvafucstart nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvaxtinsn nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvaupload nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvadownload nva ${PC_PCIACCESS_LIBRARIES})
@@ -112,6 +114,7 @@ install(TARGETS nva
 		nvaxtssr
 		nvaxtinsn
 		nvavucstart
+		nvafucstart
 		nvaupload
 		nvadownload
 		evotiming
