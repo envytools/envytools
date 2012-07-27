@@ -1,5 +1,6 @@
 project(ENVYTOOLS C)
 cmake_minimum_required(VERSION 2.6)
+enable_testing()
 
 SET(CMAKE_C_FLAGS "-g -O2 -Wall")
 
