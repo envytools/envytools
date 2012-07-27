@@ -107,14 +107,17 @@ static inline ull bf_(int s, int l, ull *a, ull *m) {
 
 #define MAXOPLEN (128/64)
 
+struct asctx;
 struct disctx;
 struct disisa;
 
-#define APROTO (struct disctx *ctx, ull *a, ull *m, const void *v, int spos)
+#define APROTO (struct asctx *ctx, const void *v, int spos)
+#define DPROTO (struct disctx *ctx, ull *a, ull *m, const void *v)
 
 struct matches;
 
 typedef struct matches *(*afun) APROTO;
+typedef void (*dfun) DPROTO;
 
 struct sbf {
 	int pos;
@@ -181,7 +184,8 @@ struct vec {
 };
 
 struct atom {
-	afun fun;
+	afun fun_as;
+	dfun fun_dis;
 	const void *arg;
 };
 
@@ -219,27 +223,35 @@ struct label {
 	unsigned size;
 };
 
-struct disctx {
+struct asctx {
 	const struct disisa *isa;
-	uint8_t *code;
-	int *marks;
-	const char **names;
-	uint32_t codebase;
-	uint32_t codesz;
 	struct varinfo *varinfo;
-	int oplen;
 	uint32_t pos;
-	int reverse;
 	struct line *line;
 	struct label *labels;
 	int labelsnum;
 	int labelsmax;
 	struct symtab *symtab;
+	const char *cur_global_label;
+};
+
+struct disctx {
+	const struct disisa *isa;
+	struct varinfo *varinfo;
+	uint8_t *code;
+	int *marks;
+	const char **names;
+	uint32_t codebase;
+	uint32_t codesz;
+	int oplen;
+	uint32_t pos;
+	struct label *labels;
+	int labelsnum;
+	int labelsmax;
 	struct litem **atoms;
 	int atomsnum;
 	int atomsmax;
 	int endmark;
-	const char *cur_global_label;
 };
 
 struct disisa {
@@ -302,62 +314,82 @@ static inline struct litem *makeli(struct easm_expr *e) {
 	{ 0, 0 },\
 };
 
-#define T(x) atomtab, tab ## x
-struct matches *atomtab APROTO;
+#define T(x) atomtab_a, atomtab_d, tab ## x
+struct matches *atomtab_a APROTO;
+void atomtab_d DPROTO;
 
-#define OP8 atomopl, op8len
-#define OP16 atomopl, op16len
-#define OP24 atomopl, op24len
-#define OP32 atomopl, op32len
-#define OP40 atomopl, op40len
-#define OP64 atomopl, op64len
+#define OP8 atomopl_a, atomopl_d, op8len
+#define OP16 atomopl_a, atomopl_d, op16len
+#define OP24 atomopl_a, atomopl_d, op24len
+#define OP32 atomopl_a, atomopl_d, op32len
+#define OP40 atomopl_a, atomopl_d, op40len
+#define OP64 atomopl_a, atomopl_d, op64len
 extern int op8len[];
 extern int op16len[];
 extern int op24len[];
 extern int op32len[];
 extern int op40len[];
 extern int op64len[];
-struct matches *atomopl APROTO;
+struct matches *atomopl_a APROTO;
+void atomopl_d DPROTO;
 
-struct matches *atomendmark APROTO;
-#define ENDMARK atomendmark, 0
+struct matches *atomnop_a APROTO;
+void atomendmark_d DPROTO;
+#define ENDMARK atomnop_a, atomendmark_d, 0
 
-struct matches *atomsestart APROTO;
-#define SESTART atomsestart, 0
+struct matches *atomsestart_a APROTO;
+void atomsestart_d DPROTO;
+#define SESTART atomsestart_a, atomsestart_d, 0
 
-struct matches *atomseend APROTO;
-#define SEEND atomseend, 0
+struct matches *atomseend_a APROTO;
+void atomseend_d DPROTO;
+#define SEEND atomseend_a, atomseend_d, 0
 
-#define N(x) atomname, x
-struct matches *atomname APROTO;
-#define C(x) atomcmd, x
-struct matches *atomcmd APROTO;
+#define N(x) atomname_a, atomname_d, x
+struct matches *atomname_a APROTO;
+void atomname_d DPROTO;
+#define C(x) atomcmd_a, atomcmd_d, x
+struct matches *atomcmd_a APROTO;
+void atomcmd_d DPROTO;
 
-#define U(x) atomunk, "unk" x
-struct matches *atomunk APROTO;
+#define U(x) atomunk_a, atomunk_d, "unk" x
+#define OOPS atomunk_a, atomunk_d, "???"
+struct matches *atomunk_a APROTO;
+void atomunk_d DPROTO;
 
-#define OOPS atomunk, "???"
-struct matches *atomunk APROTO;
+#define DISCARD atomdiscard_a, atomdiscard_d, 0
+struct matches *atomdiscard_a APROTO;
+void atomdiscard_d DPROTO;
 
-#define DISCARD atomdiscard, 0
-struct matches *atomdiscard APROTO;
+struct matches *atomimm_a APROTO;
+void atomimm_d DPROTO;
+void atomctarg_d DPROTO;
+void atombtarg_d DPROTO;
+#define atomimm atomimm_a, atomimm_d
+#define atombtarg atomimm_a, atombtarg_d
+#define atomctarg atomimm_a, atomctarg_d
 
-struct matches *atomimm APROTO;
-struct matches *atomctarg APROTO;
-struct matches *atombtarg APROTO;
+void atomign_d DPROTO;
+#define atomign atomnop_a, atomign_d
 
-struct matches *atomign APROTO;
+struct matches *atomreg_a APROTO;
+void atomreg_d DPROTO;
+#define atomreg atomreg_a, atomreg_d
 
-struct matches *atomreg APROTO;
+struct matches *atommem_a APROTO;
+void atommem_d DPROTO;
+#define atommem atommem_a, atommem_d
 
-struct matches *atommem APROTO;
+struct matches *atomvec_a APROTO;
+void atomvec_d DPROTO;
+#define atomvec atomvec_a, atomvec_d
 
-struct matches *atomvec APROTO;
+struct matches *atombf_a APROTO;
+void atombf_d DPROTO;
+#define atombf atombf_a, atombf_d
 
-struct matches *atombf APROTO;
-
-ull getbf(const struct bitfield *bf, ull *a, ull *m, struct disctx *ctx);
-#define GETBF(bf) getbf(bf, a, m, ctx)
+ull getbf(const struct bitfield *bf, ull *a, ull *m, ull cpos);
+#define GETBF(bf) getbf(bf, a, m, ctx->pos)
 
 const struct disisa *ed_getisa(const char *name);
 
