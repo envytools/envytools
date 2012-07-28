@@ -33,7 +33,6 @@
 %option reentrant
 %option noyywrap
 %option prefix="easm_"
-%option header-file="easm_lex.h"
 %option extra-type="struct yy_lex_intern"
 %option noinput
 %option nounput
