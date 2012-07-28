@@ -1,0 +1,1 @@
+#define RNN_DEF_PATH "${CMAKE_SOURCE_DIR}/rnndb:${CMAKE_INSTALL_PREFIX}/share/rnndb"

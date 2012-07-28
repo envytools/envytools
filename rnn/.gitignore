@@ -4,3 +4,4 @@ expand
 demmio
 dedma
 librnn.a
+rnn_path.h
