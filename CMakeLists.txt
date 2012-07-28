@@ -14,3 +14,8 @@ add_subdirectory(envydis)
 add_subdirectory(nvbios)
 add_subdirectory(vstream)
 add_subdirectory(vdpow)
+
+install(DIRECTORY include/ DESTINATION include/envytools)
+install(DIRECTORY rnndb DESTINATION share)
+install(DIRECTORY hwdocs DESTINATION share/doc/envytools)
+install(FILES README DESTINATION share/doc/envytools)
