@@ -10,6 +10,7 @@ find_path(LIBICONV_INCLUDE_DIR iconv.h)
 include_directories(${LIBXML2_INCLUDE_DIR} ${LIBICONV_INCLUDE_DIR})
 
 configure_file(rnn_path.h.in rnn_path.h ESCAPE_QUOTES)
+include_directories(${PROJECT_BINARY_DIR})
 
 add_library(rnn rnn.c rnndec.c)
 
