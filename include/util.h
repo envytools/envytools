@@ -56,13 +56,12 @@
 	})
 
 /* ceil(log2(x)) */
-static inline int clog2(unsigned x) {
-	unsigned y = 1;
+static inline int clog2(uint64_t x) {
+	if (!x)
+		return x;
 	int r = 0;
-	while (x > y) {
+	while (x - 1 > (1ull << r) - 1)
 		r++;
-		y <<= 1;
-	}
 	return r;
 }
 
