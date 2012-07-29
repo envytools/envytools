@@ -141,7 +141,7 @@ int vs_bit(struct bitstream *str, uint32_t *val) {
 
 int vs_u(struct bitstream *str, uint32_t *val, int size) {
 	int i;
-	int bit;
+	uint32_t bit;
 	if (str->dir == VS_DECODE)
 		*val = 0;
 	for (i = 0; i < size; i++) {
@@ -275,7 +275,7 @@ int vs_start(struct bitstream *str, uint32_t *val) {
 	if (str->type == VS_H261 || str->type == VS_H263) {
 		int nzbit = (str->type == VS_H261 ? 15 : 16);
 		int nsbit = (str->type == VS_H261 ? 4 : 5);
-		int bit = 0;
+		uint32_t bit = 0;
 		while (str->zero_bits < nzbit) {
 			if (vs_bit(str, &bit)) return 1;
 			if (bit != 0) {
@@ -337,7 +337,7 @@ int vs_search_start(struct bitstream *str) {
 	if (str->type == VS_H261 || str->type == VS_H263) {
 		int nzbit = (str->type == VS_H261 ? 15 : 16);
 		while (1) {
-			int bit;
+			uint32_t bit;
 			if (!str->hasbyte && str->bytepos >= str->bytesnum)
 				return 0;
 			if (str->zero_bits >= nzbit)

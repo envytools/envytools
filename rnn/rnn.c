@@ -36,16 +36,13 @@
 #include <ctype.h>
 #include <stdio.h>
 #include "rnn.h"
+#include "rnn_path.h"
 #include "util.h"
 
 static char *catstr (char *a, char *b) {
 	if (!a)
 		return b;
-	char *res = malloc (strlen(a) + strlen(b) + 2);
-	strcpy(res, a);
-	strcat(res, "_");
-	strcat(res, b);
-	return res;
+	return aprintf("%s_%s", a, b);
 }
 
 static int strdiff (const char *a, const char *b) {
@@ -837,7 +834,7 @@ void rnn_parsefile (struct rnndb *db, char *file_orig) {
 	const char *rnn_path = getenv("RNN_PATH");
 
 	if (!rnn_path)
-		rnn_path = "./rnndb:../rnndb";
+		rnn_path = RNN_DEF_PATH;
 
 	FILE *file = find_in_path(file_orig, rnn_path, &fname);
 	if (!file) {

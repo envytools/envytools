@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Marcin Kościelnicki <koriakin@0x04.net>
+ * Copyright (C) 2009-2011 Marcin Kościelnicki <koriakin@0x04.net>
  * All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
@@ -22,11 +22,17 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef ED2_MISC_H
-#define ED2_MISC_H
+#include "util.h"
+#include <stdarg.h>
 
-#include <inttypes.h>
-
-void ed2_free_strings(char **strs, int strsnum);
-
-#endif
+char *aprintf(const char *format, ...) {
+	va_list va;
+	va_start(va, format);
+	size_t sz = vsnprintf(0, 0, format, va);
+	va_end(va);
+	char *res = malloc(sz + 1);
+	va_start(va, format);
+	vsnprintf(res, sz + 1, format, va);
+	va_end(va);
+	return res;
+}

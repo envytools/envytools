@@ -306,7 +306,7 @@ int ed2ip_transform_opfields(struct ed2ip_isa *preisa, struct ed2i_isa *isa) {
 		int def = -1;
 		opf->name = popf->name;
 		if (popf->enumvalsnum) {
-			opf->len = ed2_lg2ceil(popf->enumvalsnum);
+			opf->len = clog2(popf->enumvalsnum);
 			opf->enumvalsnum = popf->enumvalsnum;
 			opf->enumvals = calloc(sizeof *opf->enumvals, opf->enumvalsnum);
 			for (j = 0; j < opf->enumvalsnum; j++) {

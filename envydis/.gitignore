@@ -6,9 +6,6 @@ ed2*_parse.c
 ed2*_parse.h
 ed2ishow
 libed2.a
-easm_lex.c
-easm_lex.h
-easm_parse.c
-easm_parse.h
+libed2.so
 libenvy.a
-libeasm.a
+libenvy.so

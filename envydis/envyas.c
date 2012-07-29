@@ -56,7 +56,7 @@ static char* expand_local_label(const char *local, const char *global) {
 	return full;
 }
 
-ull calc (struct easm_expr *expr, struct disctx *ctx, struct envy_loc loc) {
+ull calc (struct easm_expr *expr, struct asctx *ctx, struct envy_loc loc) {
 	int res;
 	ull x;
 	switch (expr->type) {
@@ -120,7 +120,7 @@ ull calc (struct easm_expr *expr, struct disctx *ctx, struct envy_loc loc) {
 	}
 }
 
-int resolve (struct disctx *ctx, ull *val, struct match m, ull pos, struct envy_loc loc) {
+int resolve (struct asctx *ctx, ull *val, struct match m, ull pos, struct envy_loc loc) {
 	int i;
 	for (i = 0; i < m.nrelocs; i++) {
 		ull val = calc(m.relocs[i].expr, ctx, loc);
@@ -147,7 +147,7 @@ int resolve (struct disctx *ctx, ull *val, struct match m, ull pos, struct envy_
 		ull totalsz = bf->shr + bf->sbf[0].len + bf->sbf[1].len;
 		if (bf->wrapok && totalsz < 64)
 			mask = (1ull << totalsz) - 1;
-		if ((getbf(bf, m.a, m.m, ctx) & mask) != (val & mask))
+		if ((getbf(bf, m.a, m.m, ctx->pos) & mask) != (val & mask))
 			return 0;
 	}
 	for (i = 0; i < MAXOPLEN; i++)
@@ -174,7 +174,7 @@ void extend(struct section *s, int add) {
 	}
 }
 
-int donum (struct section *s, struct easm_directive *direct, struct disctx *ctx, int wren) {
+int donum (struct section *s, struct easm_directive *direct, struct asctx *ctx, int wren) {
 	if (direct->str[0] != 'b' && direct->str[0] != 's' && direct->str[0] != 'u')
 		return 0;
 	char *end;
@@ -211,7 +211,7 @@ int donum (struct section *s, struct easm_directive *direct, struct disctx *ctx,
 	return 1;
 }
 
-int find_label(struct disctx *ctx, struct section *sect, int ofs, int start_at) {
+int find_label(struct asctx *ctx, struct section *sect, int ofs, int start_at) {
 	int i;
 	/* Doesn't have any labels */
 	if (sect->first_label == -1)
@@ -225,9 +225,8 @@ int find_label(struct disctx *ctx, struct section *sect, int ofs, int start_at) 
 
 int envyas_process(struct easm_file *file) {
 	int i, j;
-	struct disctx ctx_s = { 0 };
-	struct disctx *ctx = &ctx_s;
-	ctx->reverse = 1;
+	struct asctx ctx_s = { 0 };
+	struct asctx *ctx = &ctx_s;
 	ctx->isa = envyas_isa;
 	ctx->varinfo = envyas_varinfo;
 	struct matches *im = calloc(sizeof *im, file->linesnum);
@@ -235,7 +234,7 @@ int envyas_process(struct easm_file *file) {
 		if (file->lines[i]->type == EASM_LINE_INSN) {
 			ctx->line = calloc(sizeof *ctx->line, 1);
 			convert_insn(ctx->line, file->lines[i]->insn);
-			struct matches *m = atomtab(ctx, 0, 0, ctx->isa->troot, 0);
+			struct matches *m = atomtab_a(ctx, ctx->isa->troot, 0);
 			for (j = 0; j < m->mnum; j++)
 				if (m->m[j].lpos == ctx->line->atomsnum) {
 					ADDARRAY(im[i].m, m->m[j]);

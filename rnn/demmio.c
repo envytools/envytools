@@ -199,10 +199,10 @@ void doi2cw (struct cctx *cc, struct i2c_ctx *ctx, int byte) {
 
 FILE *open_input(char *filename) {
 	const char * const tab[][2] = {
-		".gz", "zcat",
-		".Z", "zcat",
-		".bz2", "bzcat",
-		".xz", "xzcat",
+		{ ".gz", "zcat" },
+		{ ".Z", "zcat" },
+		{ ".bz2", "bzcat" },
+		{ ".xz", "xzcat" },
 	};
 	int i;
 	int flen = strlen(filename);

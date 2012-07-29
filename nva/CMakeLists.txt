@@ -2,12 +2,14 @@ project(ENVYTOOLS C)
 cmake_minimum_required(VERSION 2.6)
 
 find_package(PkgConfig REQUIRED)
-pkg_check_modules(PC_PCIACCESS pciaccess REQUIRED)
+pkg_check_modules(PC_PCIACCESS pciaccess)
 pkg_check_modules(PC_X11 x11)
 pkg_check_modules(PC_XEXT xext)
 find_package (Threads)
 
-include_directories(${PC_PCIACCESS_INCLUDE_DIRS} ../include)
+if (PC_PCIACCESS_FOUND)
+
+include_directories(${PC_PCIACCESS_INCLUDE_DIRS})
 link_directories(${PC_PCIACCESS_LIBRARY_DIRS})
 
 add_library(nva nva.c regspace.c)
@@ -36,6 +38,7 @@ add_executable(nvaxtrsr nvaxtrsr.c)
 add_executable(nvaxtssr nvaxtssr.c)
 add_executable(nvaxtinsn nvaxtinsn.c)
 add_executable(nvavucstart nvavucstart.c)
+add_executable(nvafucstart nvafucstart.c)
 add_executable(nvaupload nvaupload.c)
 add_executable(nvadownload nvadownload.c)
 add_executable(evotiming evotiming.c)
@@ -50,7 +53,7 @@ if (PC_X11_FOUND AND PC_XEXT_FOUND)
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
 	ARCHIVE DESTINATION lib${LIB_SUFFIX})
 else(PC_X11_FOUND AND PC_XEXT_FOUND)
-	message("Warning: nvamemtiming won't be build because of un-met dependencies (X11 and/or XEXT)")
+	message("Warning: nvamemtiming won't be built because of un-met dependencies (libx11 and/or libxext)")
 endif(PC_X11_FOUND AND PC_XEXT_FOUND)
 
 target_link_libraries(nvalist nva ${PC_PCIACCESS_LIBRARIES})
@@ -77,6 +80,7 @@ target_link_libraries(nvaxtpoke nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvaxtrsr nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvaxtssr nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvavucstart nva ${PC_PCIACCESS_LIBRARIES})
+target_link_libraries(nvafucstart nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvaxtinsn nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvaupload nva ${PC_PCIACCESS_LIBRARIES})
 target_link_libraries(nvadownload nva ${PC_PCIACCESS_LIBRARIES})
@@ -87,6 +91,7 @@ target_link_libraries(nv01post nva ${PC_PCIACCESS_LIBRARIES})
 install(TARGETS nva
 		nvalist
 		nvapeek
+		nvapeekstat
 		nvapoke
 		nvahammer
 		nvafill
@@ -98,6 +103,7 @@ install(TARGETS nva
 		nvapms
 		nvafuzz
 		nvawatch
+		nvacounter
 		nvaevo
 		nvastrscan
 		nvaxttime
@@ -108,6 +114,7 @@ install(TARGETS nva
 		nvaxtssr
 		nvaxtinsn
 		nvavucstart
+		nvafucstart
 		nvaupload
 		nvadownload
 		evotiming
@@ -116,3 +123,9 @@ install(TARGETS nva
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
 	ARCHIVE DESTINATION lib${LIB_SUFFIX})
+
+install(FILES README DESTINATION share/doc/envytools RENAME README-nva)
+
+else(PC_PCIACCESS_FOUND)
+	message("Warning: nva won't be built because of un-met dependencies (pciaccess)")
+endif(PC_PCIACCESS_FOUND)

@@ -26,5 +26,9 @@ nvaupload
 nvadownload
 evotiming
 nvavucstart
+nvafucstart
 nvamemtiming
+nv01post
+nv01dump
 libnva.a
+libnva.so
