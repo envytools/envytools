@@ -29,9 +29,7 @@
 #include "ed2_misc.h"
 
 struct ed2ip_feature {
-	char **names;
-	int namesnum;
-	int namesmax;
+	char *name;
 	char *description;
 	char **implies;
 	int impliesnum;
@@ -43,9 +41,7 @@ struct ed2ip_feature {
 };
 
 struct ed2ip_variant {
-	char **names;
-	int namesnum;
-	int namesmax;
+	char *name;
 	char *description;
 	char **features;
 	int featuresnum;
@@ -54,9 +50,7 @@ struct ed2ip_variant {
 };
 
 struct ed2ip_modeset {
-	char **names;
-	int namesnum;
-	int namesmax;
+	char *name;
 	char *description;
 	int isoptional;
 	struct ed2ip_mode **modes;
@@ -66,9 +60,7 @@ struct ed2ip_modeset {
 };
 
 struct ed2ip_mode {
-	char **names;
-	int namesnum;
-	int namesmax;
+	char *name;
 	char *description;
 	char **features;
 	int featuresnum;

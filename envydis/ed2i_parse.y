@@ -196,7 +196,7 @@ file:	/**/		{ $$ = calloc(sizeof *$$, 1); }
 |	file error ';'	{ $$ = $1; $$->broken = 1; }
 ;
 
-feature:	"FEATURE" wordsnz description fmods ';'	{ $$ = $4; $$->loc = @$; $$->description = $3; $$->names = $2.strs; $$->namesnum = $2.strsnum; $$->namesmax = $2.strsmax; }
+feature:	"FEATURE" T_WORD description fmods ';'	{ $$ = $4; $$->loc = @$; $$->description = $3; $$->name = $2; }
 ;
 
 fmods:		/**/	{ $$ = calloc(sizeof *$$, 1); }
@@ -212,7 +212,7 @@ description:	/**/	{ $$ = 0; }
 |		strnn
 ;
 
-variant:	"VARIANT" wordsnz description vmods ';'	{ $$ = $4; $$->loc = @$; $$->description = $3; $$->names = $2.strs; $$->namesnum = $2.strsnum; $$->namesmax = $2.strsmax; }
+variant:	"VARIANT" T_WORD description vmods ';'	{ $$ = $4; $$->loc = @$; $$->description = $3; $$->name = $2; }
 ;
 
 vmods:		/**/	{ $$ = calloc(sizeof *$$, 1); }
@@ -220,7 +220,7 @@ vmods:		/**/	{ $$ = calloc(sizeof *$$, 1); }
 ;
 
 
-modeset:	"MODE" wordsnz description msmods '{' modes '}' ';' { $$ = $4; $$->names = $2.strs; $$->namesnum = $2.strsnum; $$->namesmax = $2.strsmax; $$->description = $3; $$->modes = $6->modes; $$->modesnum = $6->modesnum; $$->modesmax = $6->modesmax; free($6); }
+modeset:	"MODE" T_WORD description msmods '{' modes '}' ';' { $$ = $4; $$->name = $2; $$->description = $3; $$->modes = $6->modes; $$->modesnum = $6->modesnum; $$->modesmax = $6->modesmax; free($6); }
 ;
 
 modes:		modes mode { $$ = $1; ADDARRAY($$->modes, $2); }
@@ -231,7 +231,7 @@ msmods:		/**/	{ $$ = calloc(sizeof *$$, 1); }
 |		msmods "OPTIONAL" { $$ = $1; $$->isoptional = 1; }
 ;
 
-mode:		wordsnz description memods ';' { $$ = $3; $$->loc = @$; $$->description = $2; $$->names = $1.strs; $$->namesnum = $1.strsnum; $$->namesmax = $1.strsmax; }
+mode:		T_WORD description memods ';' { $$ = $3; $$->loc = @$; $$->description = $2; $$->name = $1; }
 ;
 
 memods:		/**/	{ $$ = calloc(sizeof *$$, 1); }
