@@ -42,11 +42,7 @@
 static char *catstr (char *a, char *b) {
 	if (!a)
 		return b;
-	char *res = malloc (strlen(a) + strlen(b) + 2);
-	strcpy(res, a);
-	strcat(res, "_");
-	strcat(res, b);
-	return res;
+	return aprintf("%s_%s", a, b);
 }
 
 static int strdiff (const char *a, const char *b) {

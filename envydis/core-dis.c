@@ -23,19 +23,6 @@
  */
 
 #include "dis.h"
-#include <stdarg.h>
-
-char *aprint(const char *format, ...) {
-	va_list va;
-	va_start(va, format);
-	size_t sz = vsnprintf(0, 0, format, va);
-	va_end(va);
-	char *res = malloc(sz + 1);
-	va_start(va, format);
-	vsnprintf(res, sz + 1, format, va);
-	va_end(va);
-	return res;
-}
 
 static void mark(struct disctx *ctx, uint32_t ptr, int m) {
 	if (ptr < ctx->codebase || ptr >= ctx->codebase + ctx->codesz / ctx->isa->posunit)
@@ -185,9 +172,9 @@ static struct easm_expr *printreg (struct disctx *ctx, ull *a, ull *m, const str
 	}
 	char *str;
 	if (reg->bf)
-		str = aprint("%s%lld%s", reg->name, num, suf);
+		str = aprintf("%s%lld%s", reg->name, num, suf);
 	else
-		str = aprint("%s%s", reg->name, suf);
+		str = aprintf("%s%s", reg->name, suf);
 	expr = easm_expr_str(EASM_EXPR_REG, str);
 	if (reg->cool)
 		expr->special = EASM_SPEC_REGSP;
@@ -265,7 +252,7 @@ void atommem_d DPROTO {
 		else
 			nex = easm_expr_un(type, expr);
 		if (mem->idx)
-			nex->str = aprint("%s%lld", nex->str, GETBF(mem->idx));
+			nex->str = aprintf("%s%lld", nex->str, GETBF(mem->idx));
 		else
 			nex->str = strdup(mem->name);
 		nex->mods = calloc(sizeof *nex->mods, 1);
@@ -301,7 +288,7 @@ void atomvec_d DPROTO {
 	for (i = 0; i < cnt; i++) {
 		struct easm_expr *sexpr;
 		if (mask & 1ull<<i) {
-			char *name = aprint("%s%lld", vec->name,  base + k++);
+			char *name = aprintf("%s%lld", vec->name,  base + k++);
 			sexpr = easm_expr_str(EASM_EXPR_REG, name);
 			if (vec->cool)
 				sexpr->special = EASM_SPEC_REGSP;
