@@ -292,6 +292,10 @@ static inline struct litem *makeli(struct easm_expr *e) {
 	return li;
 }
 
+static inline int var_ok(int fmask, int ptype, struct varinfo *varinfo) {
+	return (!fmask || (varinfo->fmask[0] & fmask) == fmask) && (!ptype || (varinfo->modes[0] != -1 && ptype & 1 << varinfo->modes[0]));
+}
+
 /*
  * Makes a simple table for checking a single flag.
  *
