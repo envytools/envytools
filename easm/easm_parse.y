@@ -51,6 +51,7 @@ void easm_error(YYLTYPE *loc, yyscan_t lex_state, struct easm_file **res, const 
 	struct easm_subinsn *subinsn;
 	struct easm_directive *direct;
 	struct easm_expr *expr;
+	struct easm_mod *mod;
 	struct easm_mods *mods;
 	struct easm_operand *operand;
 }
@@ -85,6 +86,7 @@ void easm_error(YYLTYPE *loc, yyscan_t lex_state, struct easm_file **res, const 
 %type <subinsn> subinsn prefs
 %type <direct> direct
 %type <expr> expr expr0 expr1 expr2 expr3 expr4 expr5 sexpr sexpr0 sexpr1 pexpr aexpr lswizzle membody
+%type <mod> mod
 %type <mods> mods
 %type <operand> operand
 
@@ -93,6 +95,7 @@ void easm_error(YYLTYPE *loc, yyscan_t lex_state, struct easm_file **res, const 
 %destructor { } <num>
 %destructor { free($$); } <str>
 %destructor { free($$.str); } <astr>
+%destructor { easm_del_mod($$); } <mod>
 %destructor { easm_del_mods($$); } <mods>
 %destructor { easm_del_operand($$); } <operand>
 %destructor { easm_del_expr($$); } <expr>
@@ -139,7 +142,9 @@ operands:	/**/		{ $$ = calloc(sizeof *$$, 1); }
 operand:	mods sexpr	{ $$ = calloc(sizeof *$$, 1); $$->loc = @$; $$->mods = $1; ADDARRAY($$->exprs, $2); }
 operand:	operand '|' sexpr	{ $$ = $1; $$->loc = @$; ADDARRAY($$->exprs, $3); }
 
-mods:	mods T_WORD		{ $$ = $1; ADDARRAY($$->mods, $2); $$->loc = @$; }
+mod:	T_WORD			{ $$ = calloc(sizeof *$$, 1); $$->str = $1; $$->loc = @$; }
+
+mods:	mods mod		{ $$ = $1; ADDARRAY($$->mods, $2); $$->loc = @$; }
 mods:	/**/			{ $$ = calloc(sizeof *$$, 1); $$->loc = @$; }
 
 expr:	expr ':' expr0		{ $$ = easm_expr_bin(EASM_EXPR_VEC, $1, $3); $$->loc = @$; }

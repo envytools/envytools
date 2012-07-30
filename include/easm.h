@@ -34,8 +34,14 @@ struct easm_swizzle {
 	uint64_t num;
 };
 
+struct easm_mod {
+	char *str;
+	int isunk;
+	struct envy_loc loc;
+};
+
 struct easm_mods {
-	char **mods;
+	struct easm_mod **mods;
 	int modsnum;
 	int modsmax;
 	struct envy_loc loc;
@@ -116,6 +122,7 @@ struct easm_operand {
 
 struct easm_sinsn {
 	char *str;
+	int isunk;
 	struct easm_mods *mods;
 	struct easm_operand **operands;
 	int operandsnum;
@@ -164,6 +171,7 @@ struct easm_expr *easm_expr_astr(struct astr astr);
 struct easm_expr *easm_expr_sinsn(struct easm_sinsn *sinsn);
 struct easm_expr *easm_expr_simple(enum easm_expr_type type);
 
+void easm_del_mod(struct easm_mod *mod);
 void easm_del_mods(struct easm_mods *mods);
 void easm_del_expr(struct easm_expr *expr);
 void easm_del_operand(struct easm_operand *operand);
@@ -178,11 +186,12 @@ int easm_read_file(FILE *file, const char *filename, struct easm_file **res);
 
 void easm_print_expr(FILE *out, const struct envy_colors *cols, struct easm_expr *expr, int lvl);
 void easm_print_sexpr(FILE *out, const struct envy_colors *cols, struct easm_expr *expr, int lvl);
+void easm_print_mod(FILE *out, const struct envy_colors *cols, struct easm_mod *mod);
 void easm_print_mods(FILE *out, const struct envy_colors *cols, struct easm_mods *mods, int spcafter);
 void easm_print_operand(FILE *out, const struct envy_colors *cols, struct easm_operand *operand);
 void easm_print_sinsn(FILE *out, const struct envy_colors *cols, struct easm_sinsn *sinsn);
 void easm_print_subinsn(FILE *out, const struct envy_colors *cols, struct easm_subinsn *subinsn);
-void easm_print_insn(FILE *out, struct envy_colors *cols, struct easm_insn *insn);
+void easm_print_insn(FILE *out, const struct envy_colors *cols, struct easm_insn *insn);
 
 int easm_isimm(struct easm_expr *expr);
 

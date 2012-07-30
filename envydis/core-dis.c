@@ -131,8 +131,9 @@ void atomcmd_d DPROTO {
 
 void atomunk_d DPROTO {
 	struct litem *li = calloc(sizeof *li, 1);
-	li->type = LITEM_UNK;
+	li->type = LITEM_NAME;
 	li->str = strdup(v);
+	li->isunk = 1;
 	ADDARRAY(ctx->atoms, li);
 }
 
@@ -407,12 +408,68 @@ struct dis_res {
 //	uint32_t align;
 //	uint32_t askip;
 	ull a[MAXOPLEN], m[MAXOPLEN];
-//	struct easm_insn *insn;
+	struct easm_insn *insn;
 	int endmark;
-	struct litem **atoms;
-	int atomsnum;
 //	uint32_t *umask;
 };
+
+static struct easm_sinsn *dis_parse_sinsn(struct disctx *ctx, int *spos);
+
+static struct easm_expr *dis_parse_expr(struct disctx *ctx, int *spos) {
+	if (*spos >= ctx->atomsnum)
+		abort();
+	if (ctx->atoms[*spos]->type == LITEM_EXPR)
+		return ctx->atoms[(*spos)++]->expr;
+	if (ctx->atoms[(*spos)++]->type != LITEM_SESTART)
+		abort();
+	struct easm_expr *res = easm_expr_sinsn(dis_parse_sinsn(ctx, spos));
+	if (ctx->atoms[(*spos)++]->type != LITEM_SEEND)
+		abort();
+	return res;
+}
+
+static struct easm_sinsn *dis_parse_sinsn(struct disctx *ctx, int *spos) {
+	struct easm_sinsn *res = calloc(sizeof *res, 1);
+	res->str = ctx->atoms[*spos]->str;
+	res->isunk = ctx->atoms[*spos]->isunk;
+	if (ctx->atoms[(*spos)++]->type != LITEM_NAME)
+		abort();
+	struct easm_mods *mods = calloc (sizeof *mods, 1);
+	while (*spos < ctx->atomsnum && ctx->atoms[*spos]->type != LITEM_SEEND) {
+		if (ctx->atoms[*spos]->type == LITEM_NAME) {
+			struct easm_mod *mod = calloc(sizeof *mod, 1);
+			mod->str = ctx->atoms[*spos]->str;
+			mod->isunk = ctx->atoms[*spos]->isunk;
+			ADDARRAY(mods->mods, mod);
+			(*spos)++;
+		} else {
+			struct easm_operand *op = calloc (sizeof *op, 1);
+			op->mods = mods;
+			mods = calloc (sizeof *mods, 1);
+			ADDARRAY(op->exprs, dis_parse_expr(ctx, spos));
+			ADDARRAY(res->operands, op);
+		}
+	}
+	res->mods = mods;
+	return res;
+}
+
+static struct easm_subinsn *dis_parse_subinsn(struct disctx *ctx, int *spos) {
+	struct easm_subinsn *res = calloc(sizeof *res, 1);
+	while (ctx->atoms[*spos]->type != LITEM_NAME)
+		ADDARRAY(res->prefs, dis_parse_expr(ctx, spos));
+	res->sinsn = dis_parse_sinsn(ctx, spos);
+	return res;
+}
+
+static struct easm_insn *dis_parse_insn(struct disctx *ctx) {
+	int spos = 0;
+	struct easm_insn *res = calloc(sizeof *res, 1);
+	ADDARRAY(res->subinsns, dis_parse_subinsn(ctx, &spos));
+	if (spos != ctx->atomsnum)
+		abort();
+	return res;
+}
 
 struct dis_res *do_dis(struct decoctx *deco, uint32_t cur, uint64_t pos) {
 	struct disctx c = { 0 };
@@ -437,8 +494,7 @@ struct dis_res *do_dis(struct decoctx *deco, uint32_t cur, uint64_t pos) {
 	res->endmark = ctx->endmark;
 	/* XXX unk status */
 	/* XXX unused status */
-	res->atoms = ctx->atoms;
-	res->atomsnum = ctx->atomsnum;
+	res->insn = dis_parse_insn(ctx);
 	return res;
 }
 
@@ -636,32 +692,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 				fprintf (out, "\n");
 		}
 
-		int noblank = 0;
-
-		for (i = 0; i < dres->atomsnum; i++) {
-			if (dres->atoms[i]->type == LITEM_SEEND)
-				noblank = 1;
-			if ((i || !quiet) && !noblank)
-				fprintf (out, " ");
-			switch(dres->atoms[i]->type) {
-				case LITEM_NAME:
-					fprintf(out, "%s%s%s", cols->iname, dres->atoms[i]->str, cols->reset);
-					break;
-				case LITEM_UNK:
-					fprintf(out, "%s%s%s", cols->err, dres->atoms[i]->str, cols->reset);
-					break;
-				case LITEM_SESTART:
-					fprintf(out, "%s(%s", cols->sym, cols->reset);
-					break;
-				case LITEM_SEEND:
-					fprintf(out, "%s)%s", cols->sym, cols->reset);
-					break;
-				case LITEM_EXPR:
-					easm_print_sexpr(out, cols, dres->atoms[i]->expr, -1);
-					break;
-			}
-			noblank = (dres->atoms[i]->type == LITEM_SESTART);
-		}
+		easm_print_insn(out, cols, dres->insn);
 
 		if (dres->status & DIS_STATUS_UNK_FORM) {
 			fprintf (out, " %s[unknown op length]%s", cols->err, cols->reset);

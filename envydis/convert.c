@@ -33,7 +33,7 @@ void convert_mods(struct line *line, struct easm_mods *mods) {
 	for (i = 0; i < mods->modsnum; i++) {
 		struct litem *li = calloc(sizeof *li, 1);
 		li->type = LITEM_NAME;
-		li->str = mods->mods[i];
+		li->str = mods->mods[i]->str;
 		ADDARRAY(line->atoms, li);
 	}
 }

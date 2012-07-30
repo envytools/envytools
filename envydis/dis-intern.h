@@ -175,12 +175,12 @@ struct insn {
 struct litem {
 	enum etype {
 		LITEM_NAME,
-		LITEM_UNK,
 		LITEM_EXPR,
 		LITEM_SESTART,
 		LITEM_SEEND,
 	} type;
-	const char *str;
+	char *str;
+	int isunk;
 	struct easm_expr *expr;
 };
 

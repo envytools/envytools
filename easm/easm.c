@@ -74,11 +74,18 @@ struct easm_expr *easm_expr_simple(enum easm_expr_type type) {
 	return res;
 }
 
+void easm_del_mod(struct easm_mod *mod) {
+	if (!mod)
+		return;
+	free(mod->str);
+	free(mod);
+}
+
 void easm_del_mods(struct easm_mods *mods) {
 	if (!mods) return;
 	int i;
 	for (i = 0; i < mods->modsnum; i++)
-		free(mods->mods[i]);
+		easm_del_mod(mods->mods[i]);
 	free(mods->mods);
 	free(mods);
 }

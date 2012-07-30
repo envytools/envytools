@@ -187,13 +187,21 @@ void easm_print_sexpr(FILE *out, const struct envy_colors *cols, struct easm_exp
 	}
 }
 
+void easm_print_mod(FILE *out, const struct envy_colors *cols, struct easm_mod *mod) {
+	if (mod->isunk)
+		fprintf(out, "%s%s%s", cols->err, mod->str, cols->reset);
+	else
+		fprintf(out, "%s%s%s", cols->mod, mod->str, cols->reset);
+}
+
 void easm_print_mods(FILE *out, const struct envy_colors *cols, struct easm_mods *mods, int spcafter) {
 	int i;
 	for (i = 0; i < mods->modsnum; i++) {
+		if (!spcafter)
+			fprintf(out, " ");
+		easm_print_mod(out, cols, mods->mods[i]);
 		if (spcafter)
-			fprintf(out, "%s%s%s ", cols->mod, mods->mods[i], cols->reset);
-		else
-			fprintf(out, " %s%s%s", cols->mod, mods->mods[i], cols->reset);
+			fprintf(out, " ");
 	}
 }
 
@@ -210,7 +218,10 @@ void easm_print_operand(FILE *out, const struct envy_colors *cols, struct easm_o
 
 void easm_print_sinsn(FILE *out, const struct envy_colors *cols, struct easm_sinsn *sinsn) {
 	int i;
-	fprintf(out, "%s%s%s", cols->iname, sinsn->str, cols->reset);
+	if (sinsn->isunk)
+		fprintf(out, "%s%s%s", cols->err, sinsn->str, cols->reset);
+	else
+		fprintf(out, "%s%s%s", cols->iname, sinsn->str, cols->reset);
 	for (i = 0; i < sinsn->operandsnum; i++) {
 		easm_print_operand(out, cols, sinsn->operands[i]);
 	}
@@ -226,7 +237,7 @@ void easm_print_subinsn(FILE *out, const struct envy_colors *cols, struct easm_s
 	easm_print_sinsn(out, cols, subinsn->sinsn);
 }
 
-void easm_print_insn(FILE *out, struct envy_colors *cols, struct easm_insn *insn) {
+void easm_print_insn(FILE *out, const struct envy_colors *cols, struct easm_insn *insn) {
 	int i;
 	for (i = 0; i < insn->subinsnsnum; i++) {
 		if (i)
