@@ -4,6 +4,6 @@ FEATURE pc24 "24-bit PC opcodes" IMPLIES fuc3op;
 
 FEATURE crypt "Cryptographic coprocessor";
 
-VARIANT fuc0 v0 nv98 "fuc v0" FEATURE fuc0op;
-VARIANT fuc3 v3 nva3 "fuc v3" FEATURE fuc3op;
-VARIANT fuc4 v4 nvd9 "fuc v4" FEATURE fuc3op pc24;
+VARIANT fuc0 "fuc v0" FEATURE fuc0op;
+VARIANT fuc3 "fuc v3" FEATURE fuc3op;
+VARIANT fuc4 "fuc v4" FEATURE fuc3op pc24;
