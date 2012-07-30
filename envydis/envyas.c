@@ -580,7 +580,7 @@ int main(int argc, char **argv) {
 			case 'm':
 				envyas_isa = ed_getisa(optarg);
 				if (!envyas_isa) {
-					fprintf (stderr, "Unknown architecure \"%s\"!\n", optarg);
+					fprintf (stderr, "Unknown architecture \"%s\"!\n", optarg);
 					return 1;
 				}
 				break;
