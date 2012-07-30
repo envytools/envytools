@@ -26,7 +26,7 @@
 #include "easm.h"
 #include <stdlib.h>
 
-struct disctx {
+struct decoctx {
 	const struct disisa *isa;
 	struct varinfo *varinfo;
 	uint8_t *code;
@@ -34,11 +34,17 @@ struct disctx {
 	const char **names;
 	uint32_t codebase;
 	uint32_t codesz;
-	int oplen;
-	uint32_t pos;
 	struct label *labels;
 	int labelsnum;
 	int labelsmax;
+};
+
+struct disctx {
+	struct decoctx *deco;
+	const struct disisa *isa;
+	struct varinfo *varinfo;
+	int oplen;
+	uint32_t pos;
 	struct litem **atoms;
 	int atomsnum;
 	int atomsmax;
@@ -68,13 +74,13 @@ static inline struct litem *makeli(struct easm_expr *e) {
 	return li;
 }
 
-static void mark(struct disctx *ctx, uint32_t ptr, int m) {
+static void mark(struct decoctx *ctx, uint32_t ptr, int m) {
 	if (ptr < ctx->codebase || ptr >= ctx->codebase + ctx->codesz / ctx->isa->posunit)
 		return;
 	ctx->marks[ptr - ctx->codebase] |= m;
 }
 
-static int is_nr_mark(struct disctx *ctx, uint32_t ptr) {
+static int is_nr_mark(struct decoctx *ctx, uint32_t ptr) {
 	if (ptr < ctx->codebase || ptr >= ctx->codebase + ctx->codesz / ctx->isa->posunit)
 		return 0;
 	return ctx->marks[ptr - ctx->codebase] & 0x40;
@@ -136,18 +142,11 @@ void atomimm_d DPROTO {
 	ADDARRAY(ctx->atoms, makeli(expr));
 }
 
-void atomctarg_d DPROTO {
-	const struct bitfield *bf = v;
-	struct easm_expr *expr = easm_expr_num(EASM_EXPR_NUM, GETBF(bf));
-	mark(ctx, expr->num, 2);
-	if (is_nr_mark(ctx, expr->num))
-		ctx->endmark = 1;
-	expr->special = EASM_SPEC_CTARG;
-	ADDARRAY(ctx->atoms, makeli(expr));
+void deco_label(struct disctx *ctx, uint64_t val) {
 	int i;
-	for (i = 0; i < ctx->labelsnum; i++) {
-		if (ctx->labels[i].val == expr->num && ctx->labels[i].name) {
-			struct easm_expr *expr = easm_expr_str(EASM_EXPR_LABEL, strdup(ctx->labels[i].name));
+	for (i = 0; i < ctx->deco->labelsnum; i++) {
+		if (ctx->deco->labels[i].val == val && ctx->deco->labels[i].name) {
+			struct easm_expr *expr = easm_expr_str(EASM_EXPR_LABEL, strdup(ctx->deco->labels[i].name));
 			expr->special = EASM_SPEC_CTARG;
 			ADDARRAY(ctx->atoms, makeli(expr));
 			return;
@@ -155,21 +154,24 @@ void atomctarg_d DPROTO {
 	}
 }
 
+void atomctarg_d DPROTO {
+	const struct bitfield *bf = v;
+	struct easm_expr *expr = easm_expr_num(EASM_EXPR_NUM, GETBF(bf));
+	mark(ctx->deco, expr->num, 2);
+	if (is_nr_mark(ctx->deco, expr->num))
+		ctx->endmark = 1;
+	expr->special = EASM_SPEC_CTARG;
+	ADDARRAY(ctx->atoms, makeli(expr));
+	deco_label(ctx, expr->num);
+}
+
 void atombtarg_d DPROTO {
 	const struct bitfield *bf = v;
 	struct easm_expr *expr = easm_expr_num(EASM_EXPR_NUM, GETBF(bf));
-	mark(ctx, expr->num, 1);
+	mark(ctx->deco, expr->num, 1);
 	expr->special = EASM_SPEC_BTARG;
 	ADDARRAY(ctx->atoms, makeli(expr));
-	int i;
-	for (i = 0; i < ctx->labelsnum; i++) {
-		if (ctx->labels[i].val == expr->num && ctx->labels[i].name) {
-			struct easm_expr *expr = easm_expr_str(EASM_EXPR_LABEL, strdup(ctx->labels[i].name));
-			expr->special = EASM_SPEC_BTARG;
-			ADDARRAY(ctx->atoms, makeli(expr));
-			return;
-		}
-	}
+	deco_label(ctx, expr->num);
 }
 
 void atomign_d DPROTO {
@@ -307,13 +309,13 @@ void atommem_d DPROTO {
 	ADDARRAY(ctx->atoms, makeli(expr));
 	if (mem->literal && !pexpr && oexpr->type == EASM_EXPR_NUM) {
 		ull ptr = oexpr->num;
-		mark(ctx, ptr, 0x10);
-		if (ptr < ctx->codebase || ptr > ctx->codebase + ctx->codesz)
+		mark(ctx->deco, ptr, 0x10);
+		if (ptr < ctx->deco->codebase || ptr > ctx->deco->codebase + ctx->deco->codesz)
 			return;
 		uint32_t num = 0;
 		int j;
 		for (j = 0; j < 4; j++)
-			num |= ctx->code[(ptr - ctx->codebase) * ctx->isa->posunit + j] << j*8;
+			num |= ctx->deco->code[(ptr - ctx->deco->codebase) * ctx->isa->posunit + j] << j*8;
 		expr = easm_expr_num(EASM_EXPR_NUM, num);
 		expr->special = EASM_SPEC_MEM;
 		ADDARRAY(ctx->atoms, makeli(expr));
@@ -392,6 +394,54 @@ ull getbf(const struct bitfield *bf, ull *a, ull *m, ull cpos) {
 	return res;
 }
 
+struct dis_res {
+	enum dis_status {
+		DIS_STATUS_OK = 0,
+		DIS_STATUS_EOF = 0x1,		/* EOF in the middle of an opcode */
+		DIS_STATUS_UNK_FORM = 0x2,		/* failed to determine instruction format - opcode length uncertain */
+		DIS_STATUS_UNK_INSN = 0x4,		/* failed to determine instruction name - unknown opcode or due to one of the above errors */
+		DIS_STATUS_UNK_OPERAND = 0x8,	/* failed to determine instruction operands */
+		DIS_STATUS_UNUSED_BITS = 0x10,	/* instruction decoded, but unused bitfields have non-default values */
+	} status;
+	uint32_t oplen;
+//	uint32_t align;
+//	uint32_t askip;
+	ull a[MAXOPLEN], m[MAXOPLEN];
+//	struct easm_insn *insn;
+	int endmark;
+	struct litem **atoms;
+	int atomsnum;
+//	uint32_t *umask;
+};
+
+struct dis_res *do_dis(struct decoctx *deco, uint32_t cur, uint64_t pos) {
+	struct disctx c = { 0 };
+	struct disctx *ctx = &c;
+	struct dis_res *res = calloc(sizeof *res, 1);
+	int i;
+	for (i = 0; i < MAXOPLEN*8 && cur + i < deco->codesz; i++) {
+		res->a[i/8] |= (ull)deco->code[cur + i] << (i&7)*8;
+	}
+	ctx->deco = deco;
+	ctx->isa = deco->isa;
+	ctx->varinfo = deco->varinfo;
+	ctx->pos = pos;
+	atomtab_d (ctx, res->a, res->m, deco->isa->troot);
+	res->oplen = ctx->oplen;
+	if (ctx->oplen + cur > deco->codesz)
+		res->status |= DIS_STATUS_EOF;
+	if (ctx->oplen == 0) {
+		res->status |= DIS_STATUS_UNK_FORM;
+		res->oplen = ctx->isa->opunit;
+	}
+	res->endmark = ctx->endmark;
+	/* XXX unk status */
+	/* XXX unused status */
+	res->atoms = ctx->atoms;
+	res->atomsnum = ctx->atomsnum;
+	return res;
+}
+
 /*
  * Disassembler driver
  *
@@ -401,8 +451,8 @@ ull getbf(const struct bitfield *bf, ull *a, ull *m, ull cpos) {
 
 void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, struct varinfo *varinfo, int quiet, struct label *labels, int labelsnum, const struct envy_colors *cols)
 {
-	struct disctx c = { 0 };
-	struct disctx *ctx = &c;
+	struct decoctx c = { 0 };
+	struct decoctx *ctx = &c;
 	int cur = 0, i, j;
 	ctx->code = code;
 	ctx->marks = calloc((num + isa->posunit - 1) / isa->posunit, sizeof *ctx->marks);
@@ -437,16 +487,9 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 					ctx->marks[cur / isa->posunit] |= 8;
 				}
 				if (active) {
-					ull a[MAXOPLEN] = {0}, m[MAXOPLEN] = {0};
-					for (i = 0; i < MAXOPLEN*8 && cur + i < num; i++) {
-						a[i/8] |= (ull)code[cur + i] << (i&7)*8;
-					}
-					ctx->oplen = 0;
-					ctx->pos = cur / isa->posunit + start;
-					ctx->endmark = 0;
-					atomtab_d (ctx, a, m, isa->troot);
-					if (ctx->oplen && !ctx->endmark && !(ctx->marks[cur / isa->posunit] & 4))
-						cur += ctx->oplen;
+					struct dis_res *dres = do_dis(ctx, cur, cur/isa->posunit + start);
+					if (dres->oplen && !dres->endmark && !(ctx->marks[cur / isa->posunit] & 4))
+						cur += dres->oplen;
 					else
 						active = 0;
 				} else {
@@ -456,15 +499,9 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 		} while (!done);
 	} else {
 		while (cur < num) {
-			ull a[MAXOPLEN] = {0}, m[MAXOPLEN] = {0};
-			for (i = 0; i < MAXOPLEN*8 && cur + i < num; i++) {
-				a[i/8] |= (ull)code[cur + i] << (i&7)*8;
-			}
-			ctx->oplen = 0;
-			ctx->pos = cur / isa->posunit + start;
-			atomtab_d (ctx, a, m, isa->troot);
-			if (ctx->oplen)
-				cur += ctx->oplen;
+			struct dis_res *dres = do_dis(ctx, cur, cur/isa->posunit + start);
+			if (dres->oplen)
+				cur += dres->oplen;
 			else
 				cur++;
 		}
@@ -550,17 +587,9 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 			skip = 0;
 			nonzero = 0;
 		}
-		ull a[MAXOPLEN] = {0}, m[MAXOPLEN] = {0};
-		for (i = 0; i < MAXOPLEN*8 && cur + i < num; i++) {
-			a[i/8] |= (ull)code[cur + i] << (i&7)*8;
-		}
-		ctx->oplen = 0;
-		ctx->pos = cur / isa->posunit + start;
-		ctx->atomsnum = 0;
-		ctx->endmark = 0;
-		atomtab_d (ctx, a, m, isa->troot);
+		struct dis_res *dres = do_dis(ctx, cur, cur / isa->posunit + start);
 
-		if (ctx->endmark || mark & 4)
+		if (dres->endmark || mark & 4)
 			active = 0;
 
 		if (mark & 2 && !ctx->names[cur / isa->posunit])
@@ -585,7 +614,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 			for (i = 0; i < isa->maxoplen; i += isa->opunit) {
 				fprintf (out, " ");
 				for (j = isa->opunit - 1; j >= 0; j--)
-					if (i+j && i+j >= ctx->oplen)
+					if (i+j && i+j >= dres->oplen)
 						fprintf (out, "  ");
 					else if (cur+i+j >= num)
 						fprintf (out, "%s??", cols->err);
@@ -609,17 +638,17 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 
 		int noblank = 0;
 
-		for (i = 0; i < ctx->atomsnum; i++) {
-			if (ctx->atoms[i]->type == LITEM_SEEND)
+		for (i = 0; i < dres->atomsnum; i++) {
+			if (dres->atoms[i]->type == LITEM_SEEND)
 				noblank = 1;
 			if ((i || !quiet) && !noblank)
 				fprintf (out, " ");
-			switch(ctx->atoms[i]->type) {
+			switch(dres->atoms[i]->type) {
 				case LITEM_NAME:
-					fprintf(out, "%s%s%s", cols->iname, ctx->atoms[i]->str, cols->reset);
+					fprintf(out, "%s%s%s", cols->iname, dres->atoms[i]->str, cols->reset);
 					break;
 				case LITEM_UNK:
-					fprintf(out, "%s%s%s", cols->err, ctx->atoms[i]->str, cols->reset);
+					fprintf(out, "%s%s%s", cols->err, dres->atoms[i]->str, cols->reset);
 					break;
 				case LITEM_SESTART:
 					fprintf(out, "%s(%s", cols->sym, cols->reset);
@@ -628,42 +657,41 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 					fprintf(out, "%s)%s", cols->sym, cols->reset);
 					break;
 				case LITEM_EXPR:
-					easm_print_sexpr(out, cols, ctx->atoms[i]->expr, -1);
+					easm_print_sexpr(out, cols, dres->atoms[i]->expr, -1);
 					break;
 			}
-			noblank = (ctx->atoms[i]->type == LITEM_SESTART);
+			noblank = (dres->atoms[i]->type == LITEM_SESTART);
 		}
 
-		if (ctx->oplen) {
+		if (dres->status & DIS_STATUS_UNK_FORM) {
+			fprintf (out, " %s[unknown op length]%s", cols->err, cols->reset);
+		} else {
 			int fl = 0;
-			for (i = ctx->oplen; i < MAXOPLEN * 8; i++)
-				a[i/8] &= ~(0xffull << (i & 7) * 8);
+			for (i = dres->oplen; i < MAXOPLEN * 8; i++)
+				dres->a[i/8] &= ~(0xffull << (i & 7) * 8);
 			for (i = 0; i < MAXOPLEN; i++) {
-				a[i] &= ~m[i];
-				if (a[i])
+				dres->a[i] &= ~dres->m[i];
+				if (dres->a[i])
 					fl = 1;
 			}
 			if (fl) {
 				fprintf (out, " %s[unknown:", cols->err);
-				for (i = 0; i < ctx->oplen || i == 0; i += isa->opunit) {
+				for (i = 0; i < dres->oplen || i == 0; i += isa->opunit) {
 					fprintf (out, " ");
 					for (j = isa->opunit - 1; j >= 0; j--)
 						if (cur+i+j >= num)
 							fprintf (out, "??");
 						else
-							fprintf (out, "%02llx", (a[(i+j)/8] >> ((i + j)&7) * 8) & 0xff);
+							fprintf (out, "%02llx", (dres->a[(i+j)/8] >> ((i + j)&7) * 8) & 0xff);
 				}
 				fprintf (out, "]");
 			}
-			if (cur + ctx->oplen > num) {
-				fprintf (out, " %s[incomplete]%s", cols->err, cols->reset);
-			}
-			cur += ctx->oplen;
-		} else {
-			fprintf (out, " %s[unknown op length]%s", cols->err, cols->reset);
-			cur++;
+		}
+		if (dres->status & DIS_STATUS_EOF) {
+			fprintf (out, " %s[incomplete]%s", cols->err, cols->reset);
 		}
 		fprintf (out, "%s\n", cols->reset);
+		cur += dres->oplen;
 	}
 	free(ctx->marks);
 }
