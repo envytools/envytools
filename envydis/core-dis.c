@@ -199,7 +199,7 @@ static struct easm_expr *printreg (struct disctx *ctx, ull *a, ull *m, const str
 					case SR_ONE:
 						return easm_expr_num(EASM_EXPR_NUM, 1);
 					case SR_DISCARD:
-						return easm_expr_discard();
+						return easm_expr_simple(EASM_EXPR_DISCARD);
 				}
 			}
 		}
@@ -235,7 +235,7 @@ void atomreg_d DPROTO {
 }
 
 void atomdiscard_d DPROTO {
-	struct easm_expr *expr = easm_expr_discard();
+	struct easm_expr *expr = easm_expr_simple(EASM_EXPR_DISCARD);
 	ADDARRAY(ctx->atoms, makeli(expr));
 }
 
@@ -337,7 +337,7 @@ void atomvec_d DPROTO {
 			if (vec->cool)
 				sexpr->special = EASM_SPEC_REGSP;
 		} else {
-			sexpr = easm_expr_discard();
+			sexpr = easm_expr_simple(EASM_EXPR_DISCARD);
 		}
 		if (expr)
 			expr = easm_expr_bin(EASM_EXPR_VEC, expr, sexpr);

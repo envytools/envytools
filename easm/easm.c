@@ -68,9 +68,9 @@ struct easm_expr *easm_expr_sinsn(struct easm_sinsn *sinsn) {
 	return res;
 }
 
-struct easm_expr *easm_expr_discard() {
+struct easm_expr *easm_expr_simple(enum easm_expr_type type) {
 	struct easm_expr *res = calloc(sizeof *res, 1);
-	res->type = EASM_EXPR_DISCARD;
+	res->type = type;
 	return res;
 }
 

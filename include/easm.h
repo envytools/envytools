@@ -74,6 +74,7 @@ struct easm_expr {
 		EASM_EXPR_MEMMM,
 		EASM_EXPR_MEMPE,
 		EASM_EXPR_MEMME,
+		EASM_EXPR_POS,
 	} type;
 	enum easm_expr_special {
 		EASM_SPEC_NONE,
@@ -161,7 +162,7 @@ struct easm_expr *easm_expr_num(enum easm_expr_type type, uint64_t num);
 struct easm_expr *easm_expr_str(enum easm_expr_type type, char *str);
 struct easm_expr *easm_expr_astr(struct astr astr);
 struct easm_expr *easm_expr_sinsn(struct easm_sinsn *sinsn);
-struct easm_expr *easm_expr_discard();
+struct easm_expr *easm_expr_simple(enum easm_expr_type type);
 
 void easm_del_mods(struct easm_mods *mods);
 void easm_del_expr(struct easm_expr *expr);

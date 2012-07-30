@@ -191,7 +191,7 @@ aexpr:	aexpr T_DOTWORD		{ $$ = easm_expr_un(EASM_EXPR_SWIZZLE, $1); ADDARRAY($$-
 aexpr:	aexpr T_DOTNUM		{ $$ = easm_expr_un(EASM_EXPR_SWIZZLE, $1); ADDARRAY($$->swizzles, ((struct easm_swizzle){0, $2})); $$->loc = @$; }
 aexpr:	lswizzle ')'		{ $$ = $1; $$->loc = @$; }
 aexpr:	'(' sinsn ')'		{ $$ = easm_expr_sinsn($2); $$->loc = @$; }
-aexpr:	'#'			{ $$ = easm_expr_discard(); $$->loc = @$; }
+aexpr:	'#'			{ $$ = easm_expr_simple(EASM_EXPR_DISCARD); $$->loc = @$; }
 aexpr:	T_STR			{ $$ = easm_expr_astr($1); $$->loc = @$; }
 
 lswizzle:	aexpr T_DOTLP	{ $$ = easm_expr_un(EASM_EXPR_SWIZZLE, $1); }

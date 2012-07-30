@@ -178,6 +178,8 @@ void easm_print_sexpr(FILE *out, const struct envy_colors *cols, struct easm_exp
 			easm_print_expr(out, cols, expr->e2, -1);
 		}
 		fprintf(out, "%s]%s", cols->mem, cols->reset);
+	} else if (expr->type == EASM_EXPR_POS) {
+		fprintf(out, "%s$%s", cols->sym, cols->reset);
 	} else {
 		fprintf(out, "%s(%s", cols->sym, cols->reset);
 		easm_print_expr(out, cols, expr, -1);
