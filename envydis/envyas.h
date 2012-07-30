@@ -22,34 +22,51 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef DIS_H
-#define DIS_H
+#ifndef ENVYAS_H
+#define ENVYAS_H
 
-#include "var.h"
-#include "colors.h"
-#include <inttypes.h>
-#include <stdio.h>
+#include "easm.h"
+#include "dis-intern.h"
 
-struct disisa {
-	struct insn *troot;
-	int maxoplen;
-	int opunit;
-	int posunit;
-	int i_need_nv50as_hack;
-	int prepdone;
-	void (*prep)(struct disisa *);
-	struct vardata *vardata;
+struct line {
+	struct litem **atoms;
+	int atomsnum;
+	int atomsmax;
 };
 
-struct label {
-	const char *name;
-	unsigned long long val;
-	int type;
-	unsigned size;
+struct reloc {
+	const struct bitfield *bf;
+	struct easm_expr *expr;
 };
 
-const struct disisa *ed_getisa(const char *name);
+struct match {
+	int oplen;
+	ull a[MAXOPLEN], m[MAXOPLEN];
+	int lpos;
+	struct reloc relocs[8];
+	int nrelocs;
+};
 
-void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, struct varinfo *varinfo, int quiet, struct label *labels, int labelsnum, const struct envy_colors *cols);
+struct matches {
+	struct match *m;
+	int mnum;
+	int mmax;
+};
+
+struct asctx {
+	const struct disisa *isa;
+	struct varinfo *varinfo;
+	uint32_t pos;
+	struct line *line;
+	struct label *labels;
+	int labelsnum;
+	int labelsmax;
+	struct symtab *symtab;
+	const char *cur_global_label;
+};
+
+int setsbf (struct match *res, int pos, int len, ull num);
+
+void convert_insn(struct line *line, struct easm_insn *insn);
 
 #endif

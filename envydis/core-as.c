@@ -22,7 +22,9 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "dis.h"
+#include "dis-intern.h"
+#include "envyas.h"
+#include <assert.h>
 
 struct matches *emptymatches() {
 	struct matches *res = calloc(sizeof *res, 1);

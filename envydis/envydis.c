@@ -24,7 +24,12 @@
  */
 
 #include "dis.h"
+#include "util.h"
+#include "var.h"
 #include <libgen.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
 
 /*
  * Options:
@@ -206,7 +211,7 @@ int main(int argc, char **argv) {
 	int num = 0;
 	int maxnum = 16;
 	uint8_t *code = malloc (maxnum);
-	ull t;
+	unsigned long long t;
 	if (bin) {
 		int c;
 		while ((c = getc(infile)) != EOF) {

@@ -26,6 +26,7 @@
  */
 
 #include "util.h"
+#include "var.h"
 #include "dis.h"
 #include "bios.h"
 #include <errno.h>
@@ -35,6 +36,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#include <unistd.h>
 
 struct envy_bios *bios;
 unsigned printmask = 0;

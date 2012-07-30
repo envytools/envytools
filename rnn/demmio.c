@@ -25,6 +25,7 @@
 
 #include "rnn.h"
 #include "rnndec.h"
+#include "var.h"
 #include "dis.h"
 #include "util.h"
 #include <stdio.h>

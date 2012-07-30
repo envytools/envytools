@@ -23,6 +23,7 @@
  */
 
 #include "dis.h"
+#include "envyas.h"
 #include "easm.h"
 
 void convert_expr_top(struct line *line, struct easm_expr *expr);
@@ -76,7 +77,10 @@ void convert_expr_top(struct line *line, struct easm_expr *expr) {
 		convert_sinsn(line, expr->sinsn);
 		ADDARRAY(line->atoms, see);
 	} else {
-		ADDARRAY(line->atoms, makeli(expr));
+		struct litem *li = calloc(sizeof *li, 1);
+		li->type = LITEM_EXPR;
+		li->expr = expr;
+		ADDARRAY(line->atoms, li);
 	}
 }
 

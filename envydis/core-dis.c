@@ -22,7 +22,51 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "dis.h"
+#include "dis-intern.h"
+#include "easm.h"
+#include <stdlib.h>
+
+struct disctx {
+	const struct disisa *isa;
+	struct varinfo *varinfo;
+	uint8_t *code;
+	int *marks;
+	const char **names;
+	uint32_t codebase;
+	uint32_t codesz;
+	int oplen;
+	uint32_t pos;
+	struct label *labels;
+	int labelsnum;
+	int labelsmax;
+	struct litem **atoms;
+	int atomsnum;
+	int atomsmax;
+	int endmark;
+};
+
+static inline ull bf_(int s, int l, ull *a, ull *m) {
+	int idx = s / 0x40;
+	int bit = s % 0x40;
+	ull res = 0;
+	ull m0 = (((1ull << l) - 1) << bit);
+	m[idx] |= m0;
+	res |= (a[idx] & m0) >> bit;
+	if (bit + l > 0x40) {
+		ull m1 = (((1ull << l) - 1) >> (0x40 - bit));
+		m[idx+1] |= m1;
+		res |= (a[idx+1] & m1) << (0x40 - bit);
+	}
+	return res;
+}
+#define BF(s, l) bf_(s, l, a, m)
+
+static inline struct litem *makeli(struct easm_expr *e) {
+	struct litem *li = calloc(sizeof *li, 1);
+	li->type = LITEM_EXPR;
+	li->expr = e;
+	return li;
+}
 
 static void mark(struct disctx *ctx, uint32_t ptr, int m) {
 	if (ptr < ctx->codebase || ptr >= ctx->codebase + ctx->codesz / ctx->isa->posunit)

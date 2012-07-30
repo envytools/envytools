@@ -23,10 +23,13 @@
  */
 
 #include "dis.h"
+#include "envyas.h"
 #include "symtab.h"
 #include <libgen.h>
-#include <inttypes.h>
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <assert.h>
 
 static const struct disisa *envyas_isa = 0;
 
