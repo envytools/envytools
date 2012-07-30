@@ -17,3 +17,5 @@ install(TARGETS envydis envy envyas
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
 	ARCHIVE DESTINATION lib${LIB_SUFFIX})
 install(FILES README DESTINATION share/doc/envytools RENAME README-envydis)
+
+add_subdirectory(test)
