@@ -38,6 +38,7 @@ const struct envy_colors envy_null_colors = {
 	.ctarg	= "",
 	.bctarg	= "",
 	.eval	= "",
+	.comm	= "",
 	.err	= "",
 };
 
@@ -55,5 +56,6 @@ const struct envy_colors envy_def_colors = {
 	.ctarg	= "\x1b[0;1;37m",
 	.bctarg	= "\x1b[0;1;35m",
 	.eval	= "\x1b[0;35m",
+	.comm	= "\x1b[0;34m",
 	.err	= "\x1b[0;1;31m",
 };

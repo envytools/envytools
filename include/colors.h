@@ -39,6 +39,7 @@ struct envy_colors {
 	const char *ctarg;	/* call target */
 	const char *bctarg;	/* branch and call target */
 	const char *eval;	/* enum value */
+	const char *comm;	/* comment */
 	const char *err;	/* error */
 };
 
