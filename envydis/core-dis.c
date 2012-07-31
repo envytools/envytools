@@ -493,6 +493,11 @@ static void dis_pp_expr(struct decoctx *deco, struct dis_res *dres, struct easm_
 			mark(deco, expr->num, 1);
 			expr->alabel = deco_label(deco, expr->num);
 		}
+		if (expr->num & 1ull << 63 && !expr->special) {
+			expr->type = EASM_EXPR_NEG;
+			expr->e1 = easm_expr_num(EASM_EXPR_NUM, -expr->num);
+			expr->num = 0;
+		}
 	}
 	if (expr->type == EASM_EXPR_MEM && expr->special == EASM_SPEC_LITERAL) {
 		ull ptr = expr->e1->num;
