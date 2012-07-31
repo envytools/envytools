@@ -174,6 +174,7 @@
 		<bitfield high="8" low="6" name="WRAPR" type="NV50_TSC_WRAP" />
 		<bitfield pos="9" name="SHADOW_COMPARE_ENABLE"/>
 		<bitfield high="12" low="10" name="SHADOW_COMPARE_FUNC"/>
+		<bitfield pos="13" name="SRGB_CONVERSION_ALLOWED" type="boolean"/>
 		<bitfield high="16" low="14" name="BOX_S">
 			<doc>For BITMAP_8X8 format. Width of the box filter in texels - 1.</doc>
 		</bitfield>
