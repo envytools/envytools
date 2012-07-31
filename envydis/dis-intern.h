@@ -110,11 +110,11 @@ struct bitfield {
 	} mode;
 	int shr;
 	int pcrel;
-	ull xorend;
 	ull addend;
 	ull pospreadd; // <3 xtensa...
 	ull *lut;
 	int wrapok;
+	ull xorend;
 };
 
 struct sreg {
