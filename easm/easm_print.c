@@ -66,6 +66,7 @@ void easm_print_sexpr(FILE *out, const struct envy_colors *cols, struct easm_exp
 	const char *scol = 0;
 	switch (expr->special) {
 		case EASM_SPEC_NONE:
+		case EASM_SPEC_LITERAL:
 			break;
 		case EASM_SPEC_ERR:
 			scol = cols->err;
@@ -75,9 +76,6 @@ void easm_print_sexpr(FILE *out, const struct envy_colors *cols, struct easm_exp
 			break;
 		case EASM_SPEC_CTARG:
 			scol = cols->ctarg;
-			break;
-		case EASM_SPEC_MEM:
-			scol = cols->mem;
 			break;
 		case EASM_SPEC_REGSP:
 			scol = cols->regsp;
@@ -120,6 +118,9 @@ void easm_print_sexpr(FILE *out, const struct envy_colors *cols, struct easm_exp
 		easm_print_sexpr(out, cols, expr->e1, 2);
 	} else if (expr->type == EASM_EXPR_NUM) {
 		fprintf(out, "%s0x%"PRIx64"%s", scol?scol:cols->num, expr->num, cols->reset);
+		if (expr->alabel) {
+			fprintf(out, " %s/*%s %s#%s%s %s*/%s", cols->comm, cols->reset, scol?scol:cols->num, expr->alabel, cols->reset, cols->comm, cols->reset);
+		}
 	} else if (expr->type == EASM_EXPR_REG) {
 		fprintf(out, "%s$%s%s", scol?scol:cols->reg, expr->str, cols->reset);
 	} else if (expr->type == EASM_EXPR_LABEL) {
@@ -178,6 +179,8 @@ void easm_print_sexpr(FILE *out, const struct envy_colors *cols, struct easm_exp
 			easm_print_expr(out, cols, expr->e2, -1);
 		}
 		fprintf(out, "%s]%s", cols->mem, cols->reset);
+		if (expr->special == EASM_SPEC_LITERAL)
+			fprintf(out, " %s/*%s %s0x%"PRIx64"%s %s*/%s", cols->comm, cols->reset, scol?scol:cols->num, expr->alit, cols->reset, cols->comm, cols->reset);
 	} else if (expr->type == EASM_EXPR_POS) {
 		fprintf(out, "%s$%s", cols->sym, cols->reset);
 	} else {

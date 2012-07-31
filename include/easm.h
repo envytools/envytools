@@ -87,7 +87,7 @@ struct easm_expr {
 		EASM_SPEC_ERR,
 		EASM_SPEC_BTARG,
 		EASM_SPEC_CTARG,
-		EASM_SPEC_MEM,
+		EASM_SPEC_LITERAL,
 		EASM_SPEC_REGSP,
 	} special;
 	struct easm_expr *e1;
@@ -102,6 +102,8 @@ struct easm_expr {
 	struct astr astr;
 	struct easm_mods *mods;
 	struct envy_loc loc;
+	char *alabel;
+	uint64_t alit;
 };
 
 struct easm_directive {

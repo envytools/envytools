@@ -26,21 +26,7 @@
 #include "easm.h"
 #include <stdlib.h>
 
-struct decoctx {
-	const struct disisa *isa;
-	struct varinfo *varinfo;
-	uint8_t *code;
-	int *marks;
-	const char **names;
-	uint32_t codebase;
-	uint32_t codesz;
-	struct label *labels;
-	int labelsnum;
-	int labelsmax;
-};
-
 struct disctx {
-	struct decoctx *deco;
 	const struct disisa *isa;
 	struct varinfo *varinfo;
 	int oplen;
@@ -72,18 +58,6 @@ static inline struct litem *makeli(struct easm_expr *e) {
 	li->type = LITEM_EXPR;
 	li->expr = e;
 	return li;
-}
-
-static void mark(struct decoctx *ctx, uint32_t ptr, int m) {
-	if (ptr < ctx->codebase || ptr >= ctx->codebase + ctx->codesz / ctx->isa->posunit)
-		return;
-	ctx->marks[ptr - ctx->codebase] |= m;
-}
-
-static int is_nr_mark(struct decoctx *ctx, uint32_t ptr) {
-	if (ptr < ctx->codebase || ptr >= ctx->codebase + ctx->codesz / ctx->isa->posunit)
-		return 0;
-	return ctx->marks[ptr - ctx->codebase] & 0x40;
 }
 
 void atomtab_d DPROTO {
@@ -143,36 +117,18 @@ void atomimm_d DPROTO {
 	ADDARRAY(ctx->atoms, makeli(expr));
 }
 
-void deco_label(struct disctx *ctx, uint64_t val) {
-	int i;
-	for (i = 0; i < ctx->deco->labelsnum; i++) {
-		if (ctx->deco->labels[i].val == val && ctx->deco->labels[i].name) {
-			struct easm_expr *expr = easm_expr_str(EASM_EXPR_LABEL, strdup(ctx->deco->labels[i].name));
-			expr->special = EASM_SPEC_CTARG;
-			ADDARRAY(ctx->atoms, makeli(expr));
-			return;
-		}
-	}
-}
-
 void atomctarg_d DPROTO {
 	const struct bitfield *bf = v;
 	struct easm_expr *expr = easm_expr_num(EASM_EXPR_NUM, GETBF(bf));
-	mark(ctx->deco, expr->num, 2);
-	if (is_nr_mark(ctx->deco, expr->num))
-		ctx->endmark = 1;
 	expr->special = EASM_SPEC_CTARG;
 	ADDARRAY(ctx->atoms, makeli(expr));
-	deco_label(ctx, expr->num);
 }
 
 void atombtarg_d DPROTO {
 	const struct bitfield *bf = v;
 	struct easm_expr *expr = easm_expr_num(EASM_EXPR_NUM, GETBF(bf));
-	mark(ctx->deco, expr->num, 1);
 	expr->special = EASM_SPEC_BTARG;
 	ADDARRAY(ctx->atoms, makeli(expr));
-	deco_label(ctx, expr->num);
 }
 
 void atomign_d DPROTO {
@@ -291,7 +247,6 @@ void atommem_d DPROTO {
 		}
 	}
 	if (!expr) expr = easm_expr_num(EASM_EXPR_NUM, 0);
-	struct easm_expr *oexpr = expr;
 	if (mem->name) {
 		struct easm_expr *nex;
 		if (pexpr)
@@ -307,20 +262,9 @@ void atommem_d DPROTO {
 	} else if (type != EASM_EXPR_MEM) {
 		abort();
 	}
+	if (mem->literal && expr->type == EASM_EXPR_MEM && expr->e1->type == EASM_EXPR_NUM)
+		expr->special = EASM_SPEC_LITERAL;
 	ADDARRAY(ctx->atoms, makeli(expr));
-	if (mem->literal && !pexpr && oexpr->type == EASM_EXPR_NUM) {
-		ull ptr = oexpr->num;
-		mark(ctx->deco, ptr, 0x10);
-		if (ptr < ctx->deco->codebase || ptr > ctx->deco->codebase + ctx->deco->codesz)
-			return;
-		uint32_t num = 0;
-		int j;
-		for (j = 0; j < 4; j++)
-			num |= ctx->deco->code[(ptr - ctx->deco->codebase) * ctx->isa->posunit + j] << j*8;
-		expr = easm_expr_num(EASM_EXPR_NUM, num);
-		expr->special = EASM_SPEC_MEM;
-		ADDARRAY(ctx->atoms, makeli(expr));
-	}
 }
 
 void atomvec_d DPROTO {
@@ -471,6 +415,19 @@ static struct easm_insn *dis_parse_insn(struct disctx *ctx) {
 	return res;
 }
 
+struct decoctx {
+	const struct disisa *isa;
+	struct varinfo *varinfo;
+	uint8_t *code;
+	int *marks;
+	const char **names;
+	uint32_t codebase;
+	uint32_t codesz;
+	struct label *labels;
+	int labelsnum;
+	int labelsmax;
+};
+
 struct dis_res *do_dis(struct decoctx *deco, uint32_t cur, uint64_t pos) {
 	struct disctx c = { 0 };
 	struct disctx *ctx = &c;
@@ -479,7 +436,6 @@ struct dis_res *do_dis(struct decoctx *deco, uint32_t cur, uint64_t pos) {
 	for (i = 0; i < MAXOPLEN*8 && cur + i < deco->codesz; i++) {
 		res->a[i/8] |= (ull)deco->code[cur + i] << (i&7)*8;
 	}
-	ctx->deco = deco;
 	ctx->isa = deco->isa;
 	ctx->varinfo = deco->varinfo;
 	ctx->pos = pos;
@@ -496,6 +452,85 @@ struct dis_res *do_dis(struct decoctx *deco, uint32_t cur, uint64_t pos) {
 	/* XXX unused status */
 	res->insn = dis_parse_insn(ctx);
 	return res;
+}
+
+static void mark(struct decoctx *ctx, uint32_t ptr, int m) {
+	if (ptr < ctx->codebase || ptr >= ctx->codebase + ctx->codesz / ctx->isa->posunit)
+		return;
+	ctx->marks[ptr - ctx->codebase] |= m;
+}
+
+static int is_nr_mark(struct decoctx *ctx, uint32_t ptr) {
+	if (ptr < ctx->codebase || ptr >= ctx->codebase + ctx->codesz / ctx->isa->posunit)
+		return 0;
+	return ctx->marks[ptr - ctx->codebase] & 0x40;
+}
+
+char *deco_label(struct decoctx *ctx, uint64_t val) {
+	int i;
+	for (i = 0; i < ctx->labelsnum; i++)
+		if (ctx->labels[i].val == val && ctx->labels[i].name)
+			return strdup(ctx->labels[i].name);
+	return 0;
+}
+
+static void dis_pp_sinsn(struct decoctx *deco, struct dis_res *dres, struct easm_sinsn *sinsn, uint64_t pos);
+
+static void dis_pp_expr(struct decoctx *deco, struct dis_res *dres, struct easm_expr *expr, uint64_t pos) {
+	if (expr->e1)
+		dis_pp_expr(deco, dres, expr->e1, pos);
+	if (expr->e2)
+		dis_pp_expr(deco, dres, expr->e2, pos);
+	if (expr->sinsn)
+		dis_pp_sinsn(deco, dres, expr->sinsn, pos);
+	if (expr->type == EASM_EXPR_NUM) {
+		if (expr->special == EASM_SPEC_CTARG) {
+			mark(deco, expr->num, 2);
+			expr->alabel = deco_label(deco, expr->num);
+			if (is_nr_mark(deco, expr->num))
+				dres->endmark = 1;
+		} else if (expr->special == EASM_SPEC_BTARG) {
+			mark(deco, expr->num, 1);
+			expr->alabel = deco_label(deco, expr->num);
+		}
+	}
+	if (expr->type == EASM_EXPR_MEM && expr->special == EASM_SPEC_LITERAL) {
+		ull ptr = expr->e1->num;
+		mark(deco, ptr, 0x10);
+		if (ptr < deco->codebase || ptr > deco->codebase + deco->codesz) {
+			expr->special = EASM_SPEC_NONE;
+		} else {
+			uint32_t num = 0;
+			int j;
+			for (j = 0; j < 4; j++)
+				num |= deco->code[(ptr - deco->codebase) * deco->isa->posunit + j] << j*8;
+			expr->alit = num;
+		}
+	}
+}
+
+static void dis_pp_sinsn(struct decoctx *deco, struct dis_res *dres, struct easm_sinsn *sinsn, uint64_t pos) {
+	int i, j;
+	for (i = 0; i < sinsn->operandsnum; i++)
+		for (j = 0; j < sinsn->operands[i]->exprsnum; j++)
+			dis_pp_expr(deco, dres, sinsn->operands[i]->exprs[j], pos);
+}
+
+static void dis_pp_subinsn(struct decoctx *deco, struct dis_res *dres, struct easm_subinsn *subinsn, uint64_t pos) {
+	int i;
+	for (i = 0; i < subinsn->prefsnum; i++)
+		dis_pp_expr(deco, dres, subinsn->prefs[i], pos);
+	dis_pp_sinsn(deco, dres, subinsn->sinsn, pos);
+}
+
+static void dis_pp_insn(struct decoctx *deco, struct dis_res *dres, struct easm_insn *insn, uint64_t pos) {
+	int i;
+	for (i = 0; i < insn->subinsnsnum; i++)
+		dis_pp_subinsn(deco, dres, insn->subinsns[i], pos);
+}
+
+void dis_dopp(struct decoctx *deco, struct dis_res *dres, uint64_t pos) {
+	dis_pp_insn(deco, dres, dres->insn, pos);
 }
 
 /*
@@ -544,6 +579,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 				}
 				if (active) {
 					struct dis_res *dres = do_dis(ctx, cur, cur/isa->posunit + start);
+					dis_dopp(ctx, dres, cur / isa->posunit + start);
 					if (dres->oplen && !dres->endmark && !(ctx->marks[cur / isa->posunit] & 4))
 						cur += dres->oplen;
 					else
@@ -556,6 +592,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 	} else {
 		while (cur < num) {
 			struct dis_res *dres = do_dis(ctx, cur, cur/isa->posunit + start);
+			dis_dopp(ctx, dres, cur / isa->posunit + start);
 			if (dres->oplen)
 				cur += dres->oplen;
 			else
@@ -644,6 +681,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 			nonzero = 0;
 		}
 		struct dis_res *dres = do_dis(ctx, cur, cur / isa->posunit + start);
+		dis_dopp(ctx, dres, cur / isa->posunit + start);
 
 		if (dres->endmark || mark & 4)
 			active = 0;
@@ -687,6 +725,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 				fprintf (out, "%sB", cols->btarg);
 			else
 				fprintf (out, " ");
+			fprintf(out, " ");
 		} else if (quiet == 1) {
 			if (mark)
 				fprintf (out, "\n");
