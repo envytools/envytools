@@ -339,16 +339,24 @@ ull getbf(const struct bitfield *bf, ull *a, ull *m, ull cpos) {
 	return res;
 }
 
+struct dis_op_chunk {
+	int len;
+	int isbe;
+};
+
 struct dis_res {
 	enum dis_status {
 		DIS_STATUS_OK = 0,
 		DIS_STATUS_EOF = 0x1,		/* EOF in the middle of an opcode */
-		DIS_STATUS_UNK_FORM = 0x2,		/* failed to determine instruction format - opcode length uncertain */
-		DIS_STATUS_UNK_INSN = 0x4,		/* failed to determine instruction name - unknown opcode or due to one of the above errors */
+		DIS_STATUS_UNK_FORM = 0x2,	/* failed to determine instruction format - opcode length uncertain */
+		DIS_STATUS_UNK_INSN = 0x4,	/* failed to determine instruction name - unknown opcode or due to one of the above errors */
 		DIS_STATUS_UNK_OPERAND = 0x8,	/* failed to determine instruction operands */
 		DIS_STATUS_UNUSED_BITS = 0x10,	/* instruction decoded, but unused bitfields have non-default values */
 	} status;
 	uint32_t oplen;
+	struct dis_op_chunk *chunks;
+	int chunksnum;
+	int chunksmax;
 //	uint32_t align;
 //	uint32_t askip;
 	ull a[MAXOPLEN], m[MAXOPLEN];
@@ -357,25 +365,27 @@ struct dis_res {
 //	uint32_t *umask;
 };
 
-static struct easm_sinsn *dis_parse_sinsn(struct disctx *ctx, int *spos);
+static struct easm_sinsn *dis_parse_sinsn(struct disctx *ctx, enum dis_status *status, int *spos);
 
-static struct easm_expr *dis_parse_expr(struct disctx *ctx, int *spos) {
+static struct easm_expr *dis_parse_expr(struct disctx *ctx, enum dis_status *status, int *spos) {
 	if (*spos >= ctx->atomsnum)
 		abort();
 	if (ctx->atoms[*spos]->type == LITEM_EXPR)
 		return ctx->atoms[(*spos)++]->expr;
 	if (ctx->atoms[(*spos)++]->type != LITEM_SESTART)
 		abort();
-	struct easm_expr *res = easm_expr_sinsn(dis_parse_sinsn(ctx, spos));
+	struct easm_expr *res = easm_expr_sinsn(dis_parse_sinsn(ctx, status, spos));
 	if (ctx->atoms[(*spos)++]->type != LITEM_SEEND)
 		abort();
 	return res;
 }
 
-static struct easm_sinsn *dis_parse_sinsn(struct disctx *ctx, int *spos) {
+static struct easm_sinsn *dis_parse_sinsn(struct disctx *ctx, enum dis_status *status, int *spos) {
 	struct easm_sinsn *res = calloc(sizeof *res, 1);
 	res->str = ctx->atoms[*spos]->str;
 	res->isunk = ctx->atoms[*spos]->isunk;
+	if (res->isunk)
+		*status |= DIS_STATUS_UNK_INSN;
 	if (ctx->atoms[(*spos)++]->type != LITEM_NAME)
 		abort();
 	struct easm_mods *mods = calloc (sizeof *mods, 1);
@@ -384,13 +394,15 @@ static struct easm_sinsn *dis_parse_sinsn(struct disctx *ctx, int *spos) {
 			struct easm_mod *mod = calloc(sizeof *mod, 1);
 			mod->str = ctx->atoms[*spos]->str;
 			mod->isunk = ctx->atoms[*spos]->isunk;
+			if (mod->isunk)
+				*status |= DIS_STATUS_UNK_OPERAND;
 			ADDARRAY(mods->mods, mod);
 			(*spos)++;
 		} else {
 			struct easm_operand *op = calloc (sizeof *op, 1);
 			op->mods = mods;
 			mods = calloc (sizeof *mods, 1);
-			ADDARRAY(op->exprs, dis_parse_expr(ctx, spos));
+			ADDARRAY(op->exprs, dis_parse_expr(ctx, status, spos));
 			ADDARRAY(res->operands, op);
 		}
 	}
@@ -398,18 +410,18 @@ static struct easm_sinsn *dis_parse_sinsn(struct disctx *ctx, int *spos) {
 	return res;
 }
 
-static struct easm_subinsn *dis_parse_subinsn(struct disctx *ctx, int *spos) {
+static struct easm_subinsn *dis_parse_subinsn(struct disctx *ctx, enum dis_status *status, int *spos) {
 	struct easm_subinsn *res = calloc(sizeof *res, 1);
 	while (ctx->atoms[*spos]->type != LITEM_NAME)
-		ADDARRAY(res->prefs, dis_parse_expr(ctx, spos));
-	res->sinsn = dis_parse_sinsn(ctx, spos);
+		ADDARRAY(res->prefs, dis_parse_expr(ctx, status, spos));
+	res->sinsn = dis_parse_sinsn(ctx, status, spos);
 	return res;
 }
 
-static struct easm_insn *dis_parse_insn(struct disctx *ctx) {
+static struct easm_insn *dis_parse_insn(struct disctx *ctx, enum dis_status *status) {
 	int spos = 0;
 	struct easm_insn *res = calloc(sizeof *res, 1);
-	ADDARRAY(res->subinsns, dis_parse_subinsn(ctx, &spos));
+	ADDARRAY(res->subinsns, dis_parse_subinsn(ctx, status, &spos));
 	if (spos != ctx->atomsnum)
 		abort();
 	return res;
@@ -448,9 +460,8 @@ struct dis_res *do_dis(struct decoctx *deco, uint32_t cur, uint64_t pos) {
 		res->oplen = ctx->isa->opunit;
 	}
 	res->endmark = ctx->endmark;
-	/* XXX unk status */
 	/* XXX unused status */
-	res->insn = dis_parse_insn(ctx);
+	res->insn = dis_parse_insn(ctx, &res->status);
 	return res;
 }
 
@@ -764,6 +775,12 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 		}
 		if (dres->status & DIS_STATUS_EOF) {
 			fprintf (out, " %s[incomplete]%s", cols->err, cols->reset);
+		}
+		if (dres->status & DIS_STATUS_UNK_INSN) {
+			fprintf (out, " %s[unknown instruction]%s", cols->err, cols->reset);
+		}
+		if (dres->status & DIS_STATUS_UNK_OPERAND) {
+			fprintf (out, " %s[unknown operand]%s", cols->err, cols->reset);
 		}
 		fprintf (out, "%s\n", cols->reset);
 		cur += dres->oplen;
