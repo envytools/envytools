@@ -89,7 +89,7 @@
 	</stripe>
 </domain>
 
-<domain name="NV01_RAMFC">
+<domain name="NV01_RAMFC" varset="chipset">
 	<reg32 offset="0" name="CTX" length="8">
 		<bitfield low="0" high="15" name="ENGDATA"/>
 		<bitfield low="16" high="22" name="ADDR" shr="16"/>
