@@ -3,6 +3,7 @@ lookup
 expand
 demmio
 dedma
+rnncheck
 librnn.a
 librnn.so
 rnn_path.h
