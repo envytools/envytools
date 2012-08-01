@@ -29,8 +29,8 @@
  * Immediate fields
  */
 
-static struct bitfield abtargoff = { 0, 16 };
-static struct bitfield btargoff = { { 9, 15 }, BF_SIGNED, .pcrel = 1 };
+static struct bitfield abtargoff = { 0, 16, .shr = 2 };
+static struct bitfield btargoff = { { 9, 15 }, BF_SIGNED, .shr = 2, .pcrel = 1 };
 static struct bitfield imm16off = { 0, 16 };
 static struct bitfield immoff = { { 3, 11 }, BF_SIGNED };
 static struct bitfield immloff = { { 0, 19 }, BF_SIGNED };
@@ -357,5 +357,5 @@ struct disisa vp1_isa_s = {
 	tabroot,
 	4,
 	4,
-	16,
+	4,
 };
