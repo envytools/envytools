@@ -85,6 +85,57 @@ struct matches *mergematches(struct match a, struct matches *b) {
 	return res;
 }
 
+static inline ull bf_(int s, int l, ull *a, ull *m) {
+	int idx = s / 0x40;
+	int bit = s % 0x40;
+	ull res = 0;
+	ull m0 = (((1ull << l) - 1) << bit);
+	m[idx] |= m0;
+	res |= (a[idx] & m0) >> bit;
+	if (bit + l > 0x40) {
+		ull m1 = (((1ull << l) - 1) >> (0x40 - bit));
+		m[idx+1] |= m1;
+		res |= (a[idx+1] & m1) << (0x40 - bit);
+	}
+	return res;
+}
+#define BF(s, l) bf_(s, l, a, m)
+
+ull getbf_as(const struct bitfield *bf, ull *a, ull *m, ull cpos) {
+	ull res = 0;
+	int pos = bf->shr;
+	int i;
+	for (i = 0; i < sizeof(bf->sbf) / sizeof(bf->sbf[0]); i++) {
+		res |= BF(bf->sbf[i].pos, bf->sbf[i].len) << pos;
+		pos += bf->sbf[i].len;
+	}
+	switch (bf->mode) {
+		case BF_UNSIGNED:
+			break;
+		case BF_SIGNED:
+			if (res & 1ull << (pos - 1))
+				res -= 1ull << pos;
+			break;
+		case BF_SLIGHTLY_SIGNED:
+			if (res & 1ull << (pos - 1) && res & 1ull << (pos - 2))
+				res -= 1ull << pos;
+			break;
+		case BF_ULTRASIGNED:
+			res -= 1ull << pos;
+			break;
+		case BF_LUT:
+			res = bf->lut[res];
+			break;
+	}
+	if (bf->pcrel) {
+		// <3 xtensa.
+		res += (cpos + bf->pospreadd) & -(1ull << bf->shr);
+	}
+	res ^= bf->xorend;
+	res += bf->addend;
+	return res;
+}
+
 int setsbf (struct match *res, int pos, int len, ull num) {
 	if (!len)
 		return 1;
@@ -140,7 +191,7 @@ static int setbfe (struct match *res, const struct bitfield *bf, struct easm_exp
 	ull totalsz = bf->shr + bf->sbf[0].len + bf->sbf[1].len;
 	if (bf->wrapok && totalsz < 64)
 		mask = (1ull << totalsz) - 1;
-	return (getbf(bf, res->a, res->m, 0) & mask) == (expr->num & mask);
+	return (getbf_as(bf, res->a, res->m, 0) & mask) == (expr->num & mask);
 }
 
 static int setbf (struct match *res, const struct bitfield *bf, ull num) {

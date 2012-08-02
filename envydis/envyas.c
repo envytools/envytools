@@ -160,7 +160,7 @@ int resolve (struct asctx *ctx, ull *val, struct match m, ull pos) {
 		ull totalsz = bf->shr + bf->sbf[0].len + bf->sbf[1].len;
 		if (bf->wrapok && totalsz < 64)
 			mask = (1ull << totalsz) - 1;
-		if ((getbf(bf, m.a, m.m, ctx->pos) & mask) != (val & mask))
+		if ((getbf_as(bf, m.a, m.m, ctx->pos) & mask) != (val & mask))
 			return 0;
 	}
 	for (i = 0; i < MAXOPLEN; i++)

@@ -30,7 +30,6 @@ struct disctx {
 	const struct disisa *isa;
 	struct varinfo *varinfo;
 	int oplen;
-	uint32_t pos;
 	struct litem **atoms;
 	int atomsnum;
 	int atomsmax;
@@ -53,7 +52,86 @@ static inline ull bf_(int s, int l, ull *a, ull *m) {
 }
 #define BF(s, l) bf_(s, l, a, m)
 
-#define GETBF(bf) getbf(bf, a, m, ctx->pos)
+ull getbf(const struct bitfield *bf, ull *a, ull *m) {
+	ull res = 0;
+	int pos = bf->shr;
+	int i;
+	for (i = 0; i < sizeof(bf->sbf) / sizeof(bf->sbf[0]); i++) {
+		res |= BF(bf->sbf[i].pos, bf->sbf[i].len) << pos;
+		pos += bf->sbf[i].len;
+	}
+	switch (bf->mode) {
+		case BF_UNSIGNED:
+			break;
+		case BF_SIGNED:
+			if (res & 1ull << (pos - 1))
+				res -= 1ull << pos;
+			break;
+		case BF_SLIGHTLY_SIGNED:
+			if (res & 1ull << (pos - 1) && res & 1ull << (pos - 2))
+				res -= 1ull << pos;
+			break;
+		case BF_ULTRASIGNED:
+			res -= 1ull << pos;
+			break;
+		case BF_LUT:
+			res = bf->lut[res];
+			break;
+	}
+	if (bf->pcrel)
+		abort();
+	res ^= bf->xorend;
+	res += bf->addend;
+	return res;
+}
+
+struct easm_expr *getrbf(const struct bitfield *bf, ull *a, ull *m) {
+	ull res = 0;
+	int pos = bf->shr;
+	int i;
+	for (i = 0; i < sizeof(bf->sbf) / sizeof(bf->sbf[0]); i++) {
+		res |= BF(bf->sbf[i].pos, bf->sbf[i].len) << pos;
+		pos += bf->sbf[i].len;
+	}
+	switch (bf->mode) {
+		case BF_UNSIGNED:
+			break;
+		case BF_SIGNED:
+			if (res & 1ull << (pos - 1))
+				res -= 1ull << pos;
+			break;
+		case BF_SLIGHTLY_SIGNED:
+			if (res & 1ull << (pos - 1) && res & 1ull << (pos - 2))
+				res -= 1ull << pos;
+			break;
+		case BF_ULTRASIGNED:
+			res -= 1ull << pos;
+			break;
+		case BF_LUT:
+			res = bf->lut[res];
+			break;
+	}
+	if (bf->pcrel) {
+		struct easm_expr *expr = easm_expr_simple(EASM_EXPR_POS);
+		if (bf->pospreadd)
+			expr = easm_expr_bin(EASM_EXPR_ADD, expr, easm_expr_num(EASM_EXPR_NUM, bf->pospreadd));
+		if (bf->shr)
+			expr = easm_expr_bin(EASM_EXPR_AND, expr, easm_expr_num(EASM_EXPR_NUM, -(1ull << bf->shr)));
+		expr = easm_expr_bin(EASM_EXPR_ADD, expr, easm_expr_num(EASM_EXPR_NUM, res));
+		if (bf->xorend)
+			expr = easm_expr_bin(EASM_EXPR_XOR, expr, easm_expr_num(EASM_EXPR_NUM, bf->xorend));
+		if (bf->addend)
+			expr = easm_expr_bin(EASM_EXPR_ADD, expr, easm_expr_num(EASM_EXPR_NUM, bf->addend));
+		return expr;
+	} else {
+		res ^= bf->xorend;
+		res += bf->addend;
+		return easm_expr_num(EASM_EXPR_NUM, res);
+	}
+}
+
+#define GETBF(bf) getbf(bf, a, m)
+#define GETRBF(bf) getrbf(bf, a, m)
 
 static inline struct litem *makeli(struct easm_expr *e) {
 	struct litem *li = calloc(sizeof *li, 1);
@@ -115,20 +193,20 @@ void atomunk_d DPROTO {
 
 void atomimm_d DPROTO {
 	const struct bitfield *bf = v;
-	struct easm_expr *expr = easm_expr_num(EASM_EXPR_NUM, GETBF(bf));
+	struct easm_expr *expr = GETRBF(bf);
 	ADDARRAY(ctx->atoms, makeli(expr));
 }
 
 void atomctarg_d DPROTO {
 	const struct bitfield *bf = v;
-	struct easm_expr *expr = easm_expr_num(EASM_EXPR_NUM, GETBF(bf));
+	struct easm_expr *expr = GETRBF(bf);
 	expr->special = EASM_SPEC_CTARG;
 	ADDARRAY(ctx->atoms, makeli(expr));
 }
 
 void atombtarg_d DPROTO {
 	const struct bitfield *bf = v;
-	struct easm_expr *expr = easm_expr_num(EASM_EXPR_NUM, GETBF(bf));
+	struct easm_expr *expr = GETRBF(bf);
 	expr->special = EASM_SPEC_BTARG;
 	ADDARRAY(ctx->atoms, makeli(expr));
 }
@@ -208,29 +286,15 @@ void atommem_d DPROTO {
 	if (mem->reg)
 		expr = printreg(ctx, a, m, mem->reg);
 	if (mem->imm) {
-		ull imm = GETBF(mem->imm);
+		struct easm_expr *imm = GETRBF(mem->imm);
 		if (mem->postincr) {
-			pexpr = easm_expr_num(EASM_EXPR_NUM, 0);
-			if (imm & 1ull << 63) {
-				pexpr->num = -imm;
-				type = EASM_EXPR_MEMMM;
-			} else {
-				pexpr->num = imm;
-				type = EASM_EXPR_MEMPP;
-			}
-		} else if (imm) {
-			struct easm_expr *sexpr = easm_expr_num(EASM_EXPR_NUM, 0);
+			type = EASM_EXPR_MEMPP;
+			pexpr = imm;
+		} else {
 			if (expr) {
-				if (imm & 1ull << 63) {
-					sexpr->num = -imm;
-					expr = easm_expr_bin(EASM_EXPR_SUB, expr, sexpr);
-				} else {
-					sexpr->num = imm;
-					expr = easm_expr_bin(EASM_EXPR_ADD, expr, sexpr);
-				}
+				expr = easm_expr_bin(EASM_EXPR_ADD, expr, imm);
 			} else {
-				sexpr->num = imm;
-				expr = sexpr;
+				expr = imm;
 			}
 		}
 	}
@@ -264,7 +328,7 @@ void atommem_d DPROTO {
 	} else if (type != EASM_EXPR_MEM) {
 		abort();
 	}
-	if (mem->literal && expr->type == EASM_EXPR_MEM && expr->e1->type == EASM_EXPR_NUM)
+	if (mem->literal && expr->type == EASM_EXPR_MEM)
 		expr->special = EASM_SPEC_LITERAL;
 	ADDARRAY(ctx->atoms, makeli(expr));
 }
@@ -304,41 +368,6 @@ void atombf_d DPROTO {
 			easm_expr_num(EASM_EXPR_NUM, num1),
 			easm_expr_num(EASM_EXPR_NUM, num2));
 	ADDARRAY(ctx->atoms, makeli(expr));
-}
-
-ull getbf(const struct bitfield *bf, ull *a, ull *m, ull cpos) {
-	ull res = 0;
-	int pos = bf->shr;
-	int i;
-	for (i = 0; i < sizeof(bf->sbf) / sizeof(bf->sbf[0]); i++) {
-		res |= BF(bf->sbf[i].pos, bf->sbf[i].len) << pos;
-		pos += bf->sbf[i].len;
-	}
-	switch (bf->mode) {
-		case BF_UNSIGNED:
-			break;
-		case BF_SIGNED:
-			if (res & 1ull << (pos - 1))
-				res -= 1ull << pos;
-			break;
-		case BF_SLIGHTLY_SIGNED:
-			if (res & 1ull << (pos - 1) && res & 1ull << (pos - 2))
-				res -= 1ull << pos;
-			break;
-		case BF_ULTRASIGNED:
-			res -= 1ull << pos;
-			break;
-		case BF_LUT:
-			res = bf->lut[res];
-			break;
-	}
-	if (bf->pcrel) {
-		// <3 xtensa.
-		res += (cpos + bf->pospreadd) & -(1ull << bf->shr);
-	}
-	res ^= bf->xorend;
-	res += bf->addend;
-	return res;
 }
 
 struct dis_op_chunk {
@@ -442,7 +471,7 @@ struct decoctx {
 	int labelsmax;
 };
 
-struct dis_res *do_dis(struct decoctx *deco, uint32_t cur, uint64_t pos) {
+struct dis_res *do_dis(struct decoctx *deco, uint32_t cur) {
 	struct disctx c = { 0 };
 	struct disctx *ctx = &c;
 	struct dis_res *res = calloc(sizeof *res, 1);
@@ -452,7 +481,6 @@ struct dis_res *do_dis(struct decoctx *deco, uint32_t cur, uint64_t pos) {
 	}
 	ctx->isa = deco->isa;
 	ctx->varinfo = deco->varinfo;
-	ctx->pos = pos;
 	atomtab_d (ctx, res->a, res->m, deco->isa->troot);
 	res->oplen = ctx->oplen;
 	if (ctx->oplen + cur > deco->codesz)
@@ -513,17 +541,37 @@ static void dis_pp_expr(struct decoctx *deco, struct dis_res *dres, struct easm_
 			expr->num = 0;
 		}
 	}
+	if (expr->type == EASM_EXPR_ADD && expr->e1->type == EASM_EXPR_NUM && expr->e1->num == 0) {
+		struct easm_expr *oe2 = expr->e2;
+		free(expr->e1);
+		*expr = *oe2;
+		free(oe2);
+	}
+	if ((expr->type == EASM_EXPR_ADD || expr->type == EASM_EXPR_SUB) && expr->e2->type == EASM_EXPR_NUM && expr->e2->num == 0) {
+		struct easm_expr *oe1 = expr->e1;
+		free(expr->e2);
+		*expr = *oe1;
+		free(oe1);
+	}
+	if (expr->type == EASM_EXPR_ADD && expr->e2->type == EASM_EXPR_NUM && expr->e2->num & 1ull << 63) {
+		expr->e2->num = -expr->e2->num;
+		expr->type = EASM_EXPR_SUB;
+	}
 	if (expr->type == EASM_EXPR_MEM && expr->special == EASM_SPEC_LITERAL) {
-		ull ptr = expr->e1->num;
-		mark(deco, ptr, 0x10);
-		if (ptr < deco->codebase || ptr > deco->codebase + deco->codesz) {
+		if (expr->e1->type != EASM_EXPR_NUM) {
 			expr->special = EASM_SPEC_NONE;
 		} else {
-			uint32_t num = 0;
-			int j;
-			for (j = 0; j < 4; j++)
-				num |= deco->code[(ptr - deco->codebase) * deco->isa->posunit + j] << j*8;
-			expr->alit = num;
+			ull ptr = expr->e1->num;
+			mark(deco, ptr, 0x10);
+			if (ptr < deco->codebase || ptr > deco->codebase + deco->codesz) {
+				expr->special = EASM_SPEC_NONE;
+			} else {
+				uint32_t num = 0;
+				int j;
+				for (j = 0; j < 4; j++)
+					num |= deco->code[(ptr - deco->codebase) * deco->isa->posunit + j] << j*8;
+				expr->alit = num;
+			}
 		}
 	}
 }
@@ -597,7 +645,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 					ctx->marks[cur / isa->posunit] |= 8;
 				}
 				if (active) {
-					struct dis_res *dres = do_dis(ctx, cur, cur/isa->posunit + start);
+					struct dis_res *dres = do_dis(ctx, cur);
 					dis_dopp(ctx, dres, cur / isa->posunit + start);
 					if (dres->oplen && !dres->endmark && !(ctx->marks[cur / isa->posunit] & 4))
 						cur += dres->oplen;
@@ -610,7 +658,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 		} while (!done);
 	} else {
 		while (cur < num) {
-			struct dis_res *dres = do_dis(ctx, cur, cur/isa->posunit + start);
+			struct dis_res *dres = do_dis(ctx, cur);
 			dis_dopp(ctx, dres, cur / isa->posunit + start);
 			if (dres->oplen)
 				cur += dres->oplen;
@@ -699,7 +747,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 			skip = 0;
 			nonzero = 0;
 		}
-		struct dis_res *dres = do_dis(ctx, cur, cur / isa->posunit + start);
+		struct dis_res *dres = do_dis(ctx, cur);
 		dis_dopp(ctx, dres, cur / isa->posunit + start);
 
 		if (dres->endmark || mark & 4)

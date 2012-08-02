@@ -280,8 +280,6 @@ struct matches *atombf_a APROTO;
 void atombf_d DPROTO;
 #define atombf atombf_a, atombf_d
 
-ull getbf(const struct bitfield *bf, ull *a, ull *m, ull cpos);
-
 static inline int var_ok(int fmask, int ptype, struct varinfo *varinfo) {
 	return (!fmask || (varinfo->fmask[0] & fmask) == fmask) && (!ptype || (varinfo->modes[0] != -1 && ptype & 1 << varinfo->modes[0]));
 }
