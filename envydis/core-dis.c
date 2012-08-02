@@ -318,7 +318,7 @@ void atommem_d DPROTO {
 		else
 			nex = easm_expr_un(type, expr);
 		if (mem->idx)
-			nex->str = aprintf("%s%lld", nex->str, GETBF(mem->idx));
+			nex->str = aprintf("%s%lld", mem->name, GETBF(mem->idx));
 		else
 			nex->str = strdup(mem->name);
 		nex->mods = calloc(sizeof *nex->mods, 1);
