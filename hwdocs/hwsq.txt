@@ -88,8 +88,8 @@ are:
  - 0x5f: ewait - waits for an event [3 bytes] [NV41+ only]
  - 0x7f: exit - finishes HWSQ execution [single byte]
  - 0x80-0x9f: unset - sets a flag to "don't touch" [single byte]
- - 0xa0-0xbf: set0 - sets a flag to "override to 0" [single byte]
- - 0xc0-0xdf: set1 - sets a flag to "override to 1" [single byte]
+ - 0xa0-0xbf: set1 - sets a flag to "override to 1" [single byte]
+ - 0xc0-0xdf: set0 - sets a flag to "override to 0" [single byte]
  - 0xe0: addr - sets MMIO address and executes MMIO write [5 bytes] [NV41+ only]
  - 0xe2: data - sets MMIO data [5 bytes] [NV41+ only]
 
@@ -207,13 +207,13 @@ Opcode: 0x80-0x9f - unset #flag
   bits 0-4: flag index
   Switches the selected flag to "unset" state.
 
-Opcode: 0xa0-0xbf - set0 #flag
-  bits 0-4: flag index
-  Switches the selected flag to "override to 0" state.
-
-Opcode: 0xc0-0xdf - set1 #flag
+Opcode: 0xa0-0xbf - set1 #flag
   bits 0-4: flag index
   Switches the selected flag to "override to 1" state.
+
+Opcode: 0xc0-0xdf - set0 #flag
+  bits 0-4: flag index
+  Switches the selected flag to "override to 0" state.
 
 The known flags are:
 
