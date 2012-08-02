@@ -32,12 +32,12 @@
 static struct bitfield bfsrcposoff = { 17, 5 };
 static struct bitfield bfszoff = { 22, 5 };
 static struct bitfield bfdstposoff = { 27, 5 };
-static struct bitfield mimmoff = { { 14, 18 }, BF_SIGNED };
-static struct bitfield btargoff = { { 14, 18 }, BF_SIGNED, .pcrel = 1 };
+static struct rbitfield mimmoff = { { 14, 18 }, BF_SIGNED };
+static struct rbitfield btargoff = { { 14, 18 }, BF_SIGNED, .pcrel = 1 };
 #define BFSRCPOS atomimm, &bfsrcposoff
 #define BFDSTPOS atomimm, &bfdstposoff
 #define BFSZ atomimm, &bfszoff
-#define MIMM atomimm, &mimmoff
+#define MIMM atomrimm, &mimmoff
 #define BTARG atombtarg, &btargoff
 
 /*

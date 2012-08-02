@@ -34,8 +34,8 @@
  * Code target fields
  */
 
-static struct bitfield pcrel16off = { { 16, 16 }, BF_SIGNED, .pcrel = 1, .wrapok = 1 };
-static struct bitfield pcrel8off = { { 16, 8 }, BF_SIGNED, .pcrel = 1 };
+static struct rbitfield pcrel16off = { { 16, 16 }, RBF_SIGNED, .pcrel = 1, .wrapok = 1 };
+static struct rbitfield pcrel8off = { { 16, 8 }, RBF_SIGNED, .pcrel = 1 };
 #define SBTARG atombtarg, &pcrel8off
 #define LBTARG atombtarg, &pcrel16off
 #define LABTARG atombtarg, &imm16woff
@@ -98,23 +98,23 @@ static struct reg flags_r = { 0, "flags", .cool = 1 };
  * Immediate fields
  */
 
-static struct bitfield imm16off = { 16, 16 };
-static struct bitfield imm8off = { 16, 8 };
-static struct bitfield imm16soff = { { 16, 16 }, BF_SIGNED };
-static struct bitfield imm8soff = { { 16, 8 }, BF_SIGNED };
-static struct bitfield imm16woff = { { 16, 16 }, .wrapok = 1 };
-static struct bitfield imm16hoff = { { 16, 16 }, BF_UNSIGNED, 16 };
-static struct bitfield imm8hoff = { { 16, 8 }, BF_UNSIGNED, 16 };
+static struct rbitfield imm16off = { 16, 16 };
+static struct rbitfield imm8off = { 16, 8 };
+static struct rbitfield imm16soff = { { 16, 16 }, RBF_SIGNED };
+static struct rbitfield imm8soff = { { 16, 8 }, RBF_SIGNED };
+static struct rbitfield imm16woff = { { 16, 16 }, .wrapok = 1 };
+static struct rbitfield imm16hoff = { { 16, 16 }, RBF_UNSIGNED, 16 };
+static struct rbitfield imm8hoff = { { 16, 8 }, RBF_UNSIGNED, 16 };
+static struct rbitfield imm24off = { 8, 24 };
 static struct bitfield strapoff = { 8, 2 };
 static struct bitfield cimm2off = { 20, 6 };
-static struct bitfield imm24off = { 8, 24 };
-#define IMM16 atomimm, &imm16off
-#define IMM8 atomimm, &imm8off
-#define IMM16S atomimm, &imm16soff
-#define IMM8S atomimm, &imm8soff
-#define IMM16W atomimm, &imm16woff
-#define IMM16H atomimm, &imm16hoff
-#define IMM8H atomimm, &imm8hoff
+#define IMM16 atomrimm, &imm16off
+#define IMM8 atomrimm, &imm8off
+#define IMM16S atomrimm, &imm16soff
+#define IMM8S atomrimm, &imm8soff
+#define IMM16W atomrimm, &imm16woff
+#define IMM16H atomrimm, &imm16hoff
+#define IMM8H atomrimm, &imm8hoff
 #define STRAP atomimm, &strapoff
 #define CIMM2 atomimm, &cimm2off
 
@@ -127,9 +127,9 @@ static struct bitfield bitf16bf[] = { { 16, 5 }, { 21, 5 }, };
  * Memory fields
  */
 
-static struct bitfield off8_bf = { { 16, 8 }, BF_UNSIGNED, 0 };
-static struct bitfield off16_bf = { { 16, 8 }, BF_UNSIGNED, 1 };
-static struct bitfield off32_bf = { { 16, 8 }, BF_UNSIGNED, 2 };
+static struct rbitfield off8_bf = { { 16, 8 }, RBF_UNSIGNED, 0 };
+static struct rbitfield off16_bf = { { 16, 8 }, RBF_UNSIGNED, 1 };
+static struct rbitfield off32_bf = { { 16, 8 }, RBF_UNSIGNED, 2 };
 static struct mem datar_m = { "D", 0, &reg2_r };
 static struct mem datari8_m = { "D", 0, &reg2_r, &off8_bf };
 static struct mem datari16_m = { "D", 0, &reg2_r, &off16_bf };

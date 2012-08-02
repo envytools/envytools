@@ -101,7 +101,38 @@ static inline ull bf_(int s, int l, ull *a, ull *m) {
 }
 #define BF(s, l) bf_(s, l, a, m)
 
-ull getbf_as(const struct bitfield *bf, ull *a, ull *m, ull cpos) {
+ull getrbf_as(const struct rbitfield *bf, ull *a, ull *m, ull cpos) {
+	ull res = 0;
+	int pos = bf->shr;
+	int i;
+	for (i = 0; i < sizeof(bf->sbf) / sizeof(bf->sbf[0]); i++) {
+		res |= BF(bf->sbf[i].pos, bf->sbf[i].len) << pos;
+		pos += bf->sbf[i].len;
+	}
+	switch (bf->mode) {
+		case RBF_UNSIGNED:
+			break;
+		case RBF_SIGNED:
+			if (res & 1ull << (pos - 1))
+				res -= 1ull << pos;
+			break;
+		case RBF_SLIGHTLY_SIGNED:
+			if (res & 1ull << (pos - 1) && res & 1ull << (pos - 2))
+				res -= 1ull << pos;
+			break;
+		case RBF_ULTRASIGNED:
+			res -= 1ull << pos;
+			break;
+	}
+	if (bf->pcrel) {
+		// <3 xtensa.
+		res += (cpos + bf->pospreadd) & -(1ull << bf->shr);
+	}
+	res += bf->addend;
+	return res;
+}
+
+ull getbf_as(const struct bitfield *bf, ull *a, ull *m) {
 	ull res = 0;
 	int pos = bf->shr;
 	int i;
@@ -126,10 +157,6 @@ ull getbf_as(const struct bitfield *bf, ull *a, ull *m, ull cpos) {
 		case BF_LUT:
 			res = bf->lut[res];
 			break;
-	}
-	if (bf->pcrel) {
-		// <3 xtensa.
-		res += (cpos + bf->pospreadd) & -(1ull << bf->shr);
 	}
 	res ^= bf->xorend;
 	res += bf->addend;
@@ -162,7 +189,7 @@ int setsbf (struct match *res, int pos, int len, ull num) {
 	return 1;
 }
 
-static int setbfe (struct match *res, const struct bitfield *bf, struct easm_expr *expr) {
+static int setrbf (struct match *res, const struct rbitfield *bf, struct easm_expr *expr) {
 	if (!easm_isimm(expr))
 		return 0;
 	if (expr->type != EASM_EXPR_NUM || bf->pcrel) {
@@ -172,7 +199,21 @@ static int setbfe (struct match *res, const struct bitfield *bf, struct easm_exp
 		res->nrelocs++;
 		return 1;
 	}
-	ull num = (expr->num - bf->addend) ^ bf->xorend;
+	ull num = expr->num - bf->addend;
+	num >>= bf->shr;
+	setsbf(res, bf->sbf[0].pos, bf->sbf[0].len, num);
+	num >>= bf->sbf[0].len;
+	setsbf(res, bf->sbf[1].pos, bf->sbf[1].len, num);
+	ull mask = ~0ull;
+	ull totalsz = bf->shr + bf->sbf[0].len + bf->sbf[1].len;
+	if (bf->wrapok && totalsz < 64)
+		mask = (1ull << totalsz) - 1;
+	return (getrbf_as(bf, res->a, res->m, 0) & mask) == (expr->num & mask);
+}
+
+static int setbf (struct match *res, const struct bitfield *bf, ull num) {
+	ull onum = num;
+	num = (num - bf->addend) ^ bf->xorend;
 	if (bf->lut) {
 		int max = 1 << (bf->sbf[0].len + bf->sbf[1].len);
 		int j = 0;
@@ -188,15 +229,7 @@ static int setbfe (struct match *res, const struct bitfield *bf, struct easm_exp
 	num >>= bf->sbf[0].len;
 	setsbf(res, bf->sbf[1].pos, bf->sbf[1].len, num);
 	ull mask = ~0ull;
-	ull totalsz = bf->shr + bf->sbf[0].len + bf->sbf[1].len;
-	if (bf->wrapok && totalsz < 64)
-		mask = (1ull << totalsz) - 1;
-	return (getbf_as(bf, res->a, res->m, 0) & mask) == (expr->num & mask);
-}
-
-static int setbf (struct match *res, const struct bitfield *bf, ull num) {
-	struct easm_expr *e = easm_expr_num(EASM_EXPR_NUM, num);
-	return setbfe(res, bf, e);
+	return (getbf_as(bf, res->a, res->m) & mask) == (onum & mask);
 }
 
 struct matches *tabdesc (struct iasctx *ctx, struct match m, const struct atom *atoms) {
@@ -291,7 +324,22 @@ struct matches *atomimm_a APROTO {
 	if (spos == ctx->atomsnum || ctx->atoms[spos]->type != LITEM_EXPR)
 		return 0;
 	struct matches *res = alwaysmatches(spos+1);
-	if (setbfe(res->m, bf, ctx->atoms[spos]->expr))
+	struct easm_expr *expr = ctx->atoms[spos]->expr;
+	if (expr->type == EASM_EXPR_NUM && setbf(res->m, bf, expr->num))
+		return res;
+	else {
+		free(res->m);
+		free(res);
+		return 0;
+	}
+}
+
+struct matches *atomrimm_a APROTO {
+	const struct rbitfield *bf = v;
+	if (spos == ctx->atomsnum || ctx->atoms[spos]->type != LITEM_EXPR)
+		return 0;
+	struct matches *res = alwaysmatches(spos+1);
+	if (setrbf(res->m, bf, ctx->atoms[spos]->expr))
 		return res;
 	else {
 		free(res->m);
@@ -490,16 +538,16 @@ struct matches *atommem_a APROTO {
 		if (mem->postincr) {
 			if (!pexpr || iex)
 				return 0;
-			if (!setbfe(&res, mem->imm, pexpr))
+			if (!setrbf(&res, mem->imm, pexpr))
 				return 0;
 		} else {
 			if (pexpr)
 				return 0;
 			if (iex) {
-				if (!setbfe(&res, mem->imm, iex))
+				if (!setrbf(&res, mem->imm, iex))
 					return 0;
 			} else {
-				if (!setbf(&res, mem->imm, 0))
+				if (!setrbf(&res, mem->imm, easm_expr_num(EASM_EXPR_NUM, 0)))
 					return 0;
 			}
 		}

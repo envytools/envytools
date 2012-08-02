@@ -99,6 +99,21 @@ struct sbf {
 	int len;
 };
 
+struct rbitfield {
+	struct sbf sbf[2];
+	enum {
+		RBF_UNSIGNED,
+		RBF_SIGNED,
+		RBF_SLIGHTLY_SIGNED,
+		RBF_ULTRASIGNED,
+	} mode;
+	int shr;
+	int pcrel;
+	ull addend;
+	ull pospreadd; // <3 xtensa...
+	int wrapok;
+};
+
 struct bitfield {
 	struct sbf sbf[2];
 	enum {
@@ -109,11 +124,8 @@ struct bitfield {
 		BF_LUT,
 	} mode;
 	int shr;
-	int pcrel;
 	ull addend;
-	ull pospreadd; // <3 xtensa...
 	ull *lut;
-	int wrapok;
 	ull xorend;
 };
 
@@ -143,7 +155,7 @@ struct mem {
 	const char *name;
 	const struct bitfield *idx;
 	const struct reg *reg;
-	const struct bitfield *imm;
+	const struct rbitfield *imm;
 	const struct reg *reg2;
 	int reg2shr;
 	int postincr; // nv50dis hack.
@@ -255,11 +267,15 @@ void atomdiscard_d DPROTO;
 
 struct matches *atomimm_a APROTO;
 void atomimm_d DPROTO;
+#define atomimm atomimm_a, atomimm_d
+
+struct matches *atomrimm_a APROTO;
+void atomrimm_d DPROTO;
 void atomctarg_d DPROTO;
 void atombtarg_d DPROTO;
-#define atomimm atomimm_a, atomimm_d
-#define atombtarg atomimm_a, atombtarg_d
-#define atomctarg atomimm_a, atomctarg_d
+#define atomrimm atomrimm_a, atomrimm_d
+#define atombtarg atomrimm_a, atombtarg_d
+#define atomctarg atomrimm_a, atomctarg_d
 
 void atomign_d DPROTO;
 #define atomign atomnop_a, atomign_d

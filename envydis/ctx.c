@@ -133,7 +133,7 @@
  * likes. Target is counted in 32-bit words from the start of microcode.
  */
 
-static struct bitfield ctargoff = { 8, 9 };
+static struct rbitfield ctargoff = { 8, 9 };
 #define BTARG atombtarg, &ctargoff
 #define CTARG atomctarg, &ctargoff
 
@@ -173,8 +173,8 @@ static struct bitfield cmdoff = { 0, 5 };
 
 // BF, offset shift, 'l'
 
-static struct bitfield pgmem4_imm = { { 0, 14 }, BF_UNSIGNED, 2 };
-static struct bitfield pgmem5_imm = { { 0, 16 }, BF_UNSIGNED, 2 };
+static struct rbitfield pgmem4_imm = { { 0, 14 }, RBF_UNSIGNED, 2 };
+static struct rbitfield pgmem5_imm = { { 0, 16 }, RBF_UNSIGNED, 2 };
 static struct mem pgmem4_m = { "G", 0, 0, &pgmem4_imm };
 static struct mem pgmem5_m = { "G", 0, 0, &pgmem5_imm };
 #define PGRAPH4 atommem, &pgmem4_m

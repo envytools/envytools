@@ -137,20 +137,10 @@ int resolve (struct asctx *ctx, ull *val, struct match m, ull pos) {
 	int i;
 	for (i = 0; i < m.nrelocs; i++) {
 		ull val = calc(m.relocs[i].expr, ctx);
-		const struct bitfield *bf = m.relocs[i].bf;
-		ull num = (val - bf->addend) ^ bf->xorend;
+		const struct rbitfield *bf = m.relocs[i].bf;
+		ull num = val - bf->addend;
 		if (bf->pcrel)
 			num -= (pos + bf->pospreadd) & -(1ull << bf->shr);
-		if (bf->lut) {
-			int max = 1 << (bf->sbf[0].len + bf->sbf[1].len);
-			int j = 0;
-			for (j = 0; j < max; j++)
-				if (bf->lut[j] == num)
-					break;
-			if (j == max)
-				return 0;
-			num = j;
-		}
 		num >>= bf->shr;
 		setsbf(&m, bf->sbf[0].pos, bf->sbf[0].len, num);
 		num >>= bf->sbf[0].len;
@@ -160,7 +150,7 @@ int resolve (struct asctx *ctx, ull *val, struct match m, ull pos) {
 		ull totalsz = bf->shr + bf->sbf[0].len + bf->sbf[1].len;
 		if (bf->wrapok && totalsz < 64)
 			mask = (1ull << totalsz) - 1;
-		if ((getbf_as(bf, m.a, m.m, ctx->pos) & mask) != (val & mask))
+		if ((getrbf_as(bf, m.a, m.m, ctx->pos) & mask) != (val & mask))
 			return 0;
 	}
 	for (i = 0; i < MAXOPLEN; i++)

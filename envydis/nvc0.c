@@ -50,16 +50,16 @@
  */
 
 
-static struct bitfield ctargoff = { { 26, 24 }, BF_SIGNED, .pcrel = 1, .addend = 8};
-static struct bitfield btargsoff = { { 0xe, 14 }, BF_SIGNED, 2, .pcrel = 1, .addend = 4};
-static struct bitfield ctargsoff = { { 6, 22 }, BF_SIGNED, 2, .pcrel = 1, .addend = 4};
-static struct bitfield actargoff = { 26, 32 };
+static struct rbitfield ctargoff = { { 26, 24 }, RBF_SIGNED, .pcrel = 1, .addend = 8};
+static struct rbitfield btargsoff = { { 0xe, 14 }, RBF_SIGNED, 2, .pcrel = 1, .addend = 4};
+static struct rbitfield ctargsoff = { { 6, 22 }, RBF_SIGNED, 2, .pcrel = 1, .addend = 4};
+static struct rbitfield actargoff = { 26, 32 };
 #define BTARG atombtarg, &ctargoff
 #define CTARG atomctarg, &ctargoff
-#define NTARG atomimm, &ctargoff
+#define NTARG atomrimm, &ctargoff
 #define ABTARG atombtarg, &actargoff
 #define ACTARG atomctarg, &actargoff
-#define ANTARG atomimm, &actargoff
+#define ANTARG atomrimm, &actargoff
 #define BTARGS atombtarg, &btargsoff
 #define CTARGS atomctarg, &ctargsoff
 
@@ -67,21 +67,36 @@ static struct bitfield actargoff = { 26, 32 };
  * Misc number fields
  */
 
+static struct rbitfield pmoff = { 0x1a, 16 };
+static struct rbitfield tcntoff = { 0x1a, 12 };
+static struct rbitfield bptoff = { 0x1a, 20 };
+static struct rbitfield bptsoff = { 7, 20 };
+static struct rbitfield immoff = { { 0x1a, 20 }, RBF_SIGNED };
+static struct rbitfield fimmoff = { { 0x1a, 20 }, RBF_UNSIGNED, 12 };
+static struct rbitfield dimmoff = { { 0x1a, 20 }, RBF_UNSIGNED, 44 };
+static struct rbitfield limmoff = { { 0x1a, 32 }, .wrapok = 1 };
+static struct rbitfield vimmoff = { 0x1a, 16 };
+static struct rbitfield v4immoff = { 0x1a, 8 };
+static struct rbitfield suimmoff = { { 0x31, 6 }, RBF_SIGNED };
+static struct rbitfield immsoff = { { 0x14, 12 }, RBF_SIGNED };
+static struct rbitfield fimmsoff = { { 0x14, 12 }, RBF_UNSIGNED, 20 };
+static struct rbitfield simmsoff = { { 0x1a, 6, 8, 2 }, RBF_SIGNED };
+#define PM atomrimm, &pmoff
+#define TCNT atomrimm, &tcntoff
+#define BPT atomrimm, &bptoff
+#define BPTS atomrimm, &bptsoff
+#define IMM atomrimm, &immoff
+#define FIMM atomrimm, &fimmoff
+#define DIMM atomrimm, &dimmoff
+#define LIMM atomrimm, &limmoff
+#define VIMM atomrimm, &vimmoff
+#define V4IMM atomrimm, &v4immoff
+#define SUIMM atomrimm, &suimmoff
+#define IMMS atomrimm, &immsoff
+#define FIMMS atomrimm, &fimmsoff
+#define SIMMS atomrimm, &simmsoff
+
 static struct bitfield baroff = { 0x14, 4 };
-static struct bitfield pmoff = { 0x1a, 16 };
-static struct bitfield tcntoff = { 0x1a, 12 };
-static struct bitfield bptoff = { 0x1a, 20 };
-static struct bitfield bptsoff = { 7, 20 };
-static struct bitfield immoff = { { 0x1a, 20 }, BF_SIGNED };
-static struct bitfield fimmoff = { { 0x1a, 20 }, BF_UNSIGNED, 12 };
-static struct bitfield dimmoff = { { 0x1a, 20 }, BF_UNSIGNED, 44 };
-static struct bitfield limmoff = { { 0x1a, 32 }, .wrapok = 1 };
-static struct bitfield vimmoff = { 0x1a, 16 };
-static struct bitfield v4immoff = { 0x1a, 8 };
-static struct bitfield suimmoff = { { 0x31, 6 }, BF_SIGNED };
-static struct bitfield immsoff = { { 0x14, 12 }, BF_SIGNED };
-static struct bitfield fimmsoff = { { 0x14, 12 }, BF_UNSIGNED, 20 };
-static struct bitfield simmsoff = { { 0x1a, 6, 8, 2 }, BF_SIGNED };
 static struct bitfield shcntoff = { 5, 5 };
 static struct bitfield shcntsoff = { 0x1a, 5 };
 static struct bitfield texbaroff = { 0x1a, 6 };
@@ -95,20 +110,6 @@ static struct bitfield schedval4 = { 0x24, 8 };
 static struct bitfield schedval5 = { 0x2c, 8 };
 static struct bitfield schedval6 = { 0x34, 8 };
 #define BAR atomimm, &baroff
-#define PM atomimm, &pmoff
-#define TCNT atomimm, &tcntoff
-#define BPT atomimm, &bptoff
-#define BPTS atomimm, &bptsoff
-#define IMM atomimm, &immoff
-#define FIMM atomimm, &fimmoff
-#define DIMM atomimm, &dimmoff
-#define LIMM atomimm, &limmoff
-#define VIMM atomimm, &vimmoff
-#define V4IMM atomimm, &v4immoff
-#define SUIMM atomimm, &suimmoff
-#define IMMS atomimm, &immsoff
-#define FIMMS atomimm, &fimmsoff
-#define SIMMS atomimm, &simmsoff
 #define SHCNT atomimm, &shcntoff
 #define SHCNTS atomimm, &shcntsoff
 #define BNUM atomimm, &bnumoff
@@ -318,39 +319,39 @@ static struct vec adsts_v = { "r", &dst_bf, &asrcs_cnt, 0 };
  * Memory fields
  */
 
-static struct bitfield gmem_imm = { { 0x1a, 32 }, BF_SIGNED };
-static struct bitfield gcmem_imm = { { 0x1c, 30 }, BF_SIGNED, 2 };
-static struct bitfield gamem_imm = { { 0x1a, 17, 0x37, 3 }, BF_SIGNED };
-static struct bitfield slmem_imm = { { 0x1a, 24 }, BF_SIGNED };
-static struct bitfield cmem_imm = { 0x1a, 16 };
-static struct bitfield fcmem_imm = { { 0x1a, 16 }, BF_SIGNED };
-static struct bitfield sucmem_imm = { { 0x1a, 14 }, BF_UNSIGNED, 2 };
-static struct bitfield amem_imm = { { 0x20, 10 } };
-static struct bitfield pix_imm = { { 0x1a, 8 }, BF_SIGNED };
-static struct bitfield as1mem_imm = { { 8, 2, 0x14, 6 }, BF_UNSIGNED, 2 };
-static struct bitfield as2mem_imm = { { 8, 2, 0x1a, 6 }, BF_UNSIGNED, 2 };
-static struct bitfield ss2mem_imm = { { 8, 2, 0x1a, 6 }, BF_SIGNED, 2 };
-static struct bitfield ss3mem_imm = { { 8, 2, 0x1a, 6 }, BF_SIGNED, 3 };
+static struct rbitfield gmem_imm = { { 0x1a, 32 }, RBF_SIGNED };
+static struct rbitfield gcmem_imm = { { 0x1c, 30 }, RBF_SIGNED, 2 };
+static struct rbitfield gamem_imm = { { 0x1a, 17, 0x37, 3 }, RBF_SIGNED };
+static struct rbitfield slmem_imm = { { 0x1a, 24 }, RBF_SIGNED };
+static struct rbitfield cmem_imm = { 0x1a, 16 };
+static struct rbitfield fcmem_imm = { { 0x1a, 16 }, RBF_SIGNED };
+static struct rbitfield sucmem_imm = { { 0x1a, 14 }, RBF_UNSIGNED, 2 };
+static struct rbitfield amem_imm = { { 0x20, 10 } };
+static struct rbitfield pix_imm = { { 0x1a, 8 }, RBF_SIGNED };
+static struct rbitfield as1mem_imm = { { 8, 2, 0x14, 6 }, RBF_UNSIGNED, 2 };
+static struct rbitfield as2mem_imm = { { 8, 2, 0x1a, 6 }, RBF_UNSIGNED, 2 };
+static struct rbitfield ss2mem_imm = { { 8, 2, 0x1a, 6 }, RBF_SIGNED, 2 };
+static struct rbitfield ss3mem_imm = { { 8, 2, 0x1a, 6 }, RBF_SIGNED, 3 };
 static struct bitfield cmem_idx = { 0x2a, 4 };
 static struct bitfield fcmem_idx = { 0x2a, 5 };
 static struct bitfield fcsmem_idx = { 0x5, 3 };
 static struct bitfield sucmem_idx = { 0x28, 4 };
-static struct bitfield sc1mem_imm = { { 0x14, 6 }, BF_UNSIGNED, 2 };
-static struct bitfield sc2mem_imm = { { 0x1a, 6 }, BF_UNSIGNED, 2 };
-static struct bitfield sc3mem_imm = { { 8, 6 }, BF_UNSIGNED, 2 };
+static struct rbitfield sc1mem_imm = { { 0x14, 6 }, RBF_UNSIGNED, 2 };
+static struct rbitfield sc2mem_imm = { { 0x1a, 6 }, RBF_UNSIGNED, 2 };
+static struct rbitfield sc3mem_imm = { { 8, 6 }, RBF_UNSIGNED, 2 };
 static struct bitfield sc0mem_idx = { 0 };
 static struct bitfield sc1mem_idx = { .addend = 1 };
 static struct bitfield sc16mem_idx = { .addend = 16 };
-static struct bitfield lduld_imm = { { 0x2b, 10 }, BF_SIGNED };
-static struct bitfield lduld2_imm = { { 5, 5, 0x26, 5 }, BF_SIGNED };
-static struct bitfield ldulds1_imm = { { 0x2b, 10 }, BF_SIGNED, 1 };
-static struct bitfield lduld2s1_imm = { { 5, 5, 0x26, 5 }, BF_SIGNED, 1 };
-static struct bitfield ldulds2_imm = { { 0x2b, 10 }, BF_SIGNED, 2 };
-static struct bitfield lduld2s2_imm = { { 5, 5, 0x26, 5 }, BF_SIGNED, 2 };
-static struct bitfield ldulds3_imm = { { 0x2b, 10 }, BF_SIGNED, 3 };
-static struct bitfield lduld2s3_imm = { { 5, 5, 0x26, 5 }, BF_SIGNED, 3 };
-static struct bitfield ldulds4_imm = { { 0x2b, 10 }, BF_SIGNED, 4 };
-static struct bitfield lduld2s4_imm = { { 5, 5, 0x26, 5 }, BF_SIGNED, 4 };
+static struct rbitfield lduld_imm = { { 0x2b, 10 }, RBF_SIGNED };
+static struct rbitfield lduld2_imm = { { 5, 5, 0x26, 5 }, RBF_SIGNED };
+static struct rbitfield ldulds1_imm = { { 0x2b, 10 }, RBF_SIGNED, 1 };
+static struct rbitfield lduld2s1_imm = { { 5, 5, 0x26, 5 }, RBF_SIGNED, 1 };
+static struct rbitfield ldulds2_imm = { { 0x2b, 10 }, RBF_SIGNED, 2 };
+static struct rbitfield lduld2s2_imm = { { 5, 5, 0x26, 5 }, RBF_SIGNED, 2 };
+static struct rbitfield ldulds3_imm = { { 0x2b, 10 }, RBF_SIGNED, 3 };
+static struct rbitfield lduld2s3_imm = { { 5, 5, 0x26, 5 }, RBF_SIGNED, 3 };
+static struct rbitfield ldulds4_imm = { { 0x2b, 10 }, RBF_SIGNED, 4 };
+static struct rbitfield lduld2s4_imm = { { 5, 5, 0x26, 5 }, RBF_SIGNED, 4 };
 static struct mem gmem_m = { "g", 0, &src1_r, &gmem_imm };
 static struct mem gdmem_m = { "g", 0, &src1d_r, &gmem_imm };
 static struct mem gdmemsu_m = { "g", 0, &src1d_r };

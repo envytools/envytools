@@ -36,24 +36,24 @@
  * likes. Target is counted in 32-bit words from the start of microcode.
  */
 
-static struct bitfield ctargoff = { 8, 11 };
-static struct bitfield rbrtargoff = { 34, 6, .pcrel = 1 };
+static struct rbitfield ctargoff = { 8, 11 };
+static struct rbitfield rbrtargoff = { 34, 6, .pcrel = 1 };
 #define BTARG atombtarg, &ctargoff
 #define CTARG atomctarg, &ctargoff
 #define RBRTARG atombtarg, &rbrtargoff
 
-static struct bitfield imm4off = { 12, 4 };
-static struct bitfield imm6off = { { 12, 4, 24, 2 } };
-static struct bitfield imm12off = { { 8, 8, 20, 4 } };
-static struct bitfield imm14off = { { 8, 8, 20, 6 } };
-static struct bitfield bimmldoff = { { 12, 4, 20, 6 } };
-static struct bitfield bimmldsoff = { { 12, 4, 24, 2 } };
-static struct bitfield bimmstoff = { 16, 10 };
-static struct bitfield bimmstsoff = { 16, 4, 24, 2 };
-#define IMM4 atomimm, &imm4off
-#define IMM6 atomimm, &imm6off
-#define IMM12 atomimm, &imm12off
-#define IMM14 atomimm, &imm14off
+static struct rbitfield imm4off = { 12, 4 };
+static struct rbitfield imm6off = { { 12, 4, 24, 2 } };
+static struct rbitfield imm12off = { { 8, 8, 20, 4 } };
+static struct rbitfield imm14off = { { 8, 8, 20, 6 } };
+static struct rbitfield bimmldoff = { { 12, 4, 20, 6 } };
+static struct rbitfield bimmldsoff = { { 12, 4, 24, 2 } };
+static struct rbitfield bimmstoff = { 16, 10 };
+static struct rbitfield bimmstsoff = { 16, 4, 24, 2 };
+#define IMM4 atomrimm, &imm4off
+#define IMM6 atomrimm, &imm6off
+#define IMM12 atomrimm, &imm12off
+#define IMM14 atomrimm, &imm14off
 
 /*
  * Register fields

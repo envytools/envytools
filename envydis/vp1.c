@@ -29,12 +29,12 @@
  * Immediate fields
  */
 
-static struct bitfield abtargoff = { 0, 16, .shr = 2 };
-static struct bitfield btargoff = { { 9, 15 }, BF_SIGNED, .shr = 2, .pcrel = 1 };
-static struct bitfield imm16off = { 0, 16 };
-static struct bitfield immoff = { { 3, 11 }, BF_SIGNED };
-static struct bitfield immloff = { { 0, 19 }, BF_SIGNED };
-static struct bitfield immhoff = { { 0, 16 }, .shr = 16 };
+static struct rbitfield abtargoff = { 0, 16, .shr = 2 };
+static struct rbitfield btargoff = { { 9, 15 }, BF_SIGNED, .shr = 2, .pcrel = 1 };
+static struct rbitfield imm16off = { 0, 16 };
+static struct rbitfield immoff = { { 3, 11 }, BF_SIGNED };
+static struct rbitfield immloff = { { 0, 19 }, BF_SIGNED };
+static struct rbitfield immhoff = { { 0, 16 }, .shr = 16 };
 static struct bitfield xdimmoff = { { 0, 13 } };
 static struct bitfield compoff = { 3, 2 };
 static struct bitfield logopoff = { 3, 4 };
@@ -43,10 +43,10 @@ static struct bitfield barwoff = { 20, 2 };
 #define ABTARG atombtarg, &abtargoff
 #define BTARG atombtarg, &btargoff
 #define CTARG atomctarg, &btargoff
-#define IMM16 atomimm, &imm16off
-#define IMM atomimm, &immoff
-#define IMML atomimm, &immloff
-#define IMMH atomimm, &immhoff
+#define IMM16 atomrimm, &imm16off
+#define IMM atomrimm, &immoff
+#define IMML atomrimm, &immloff
+#define IMMH atomrimm, &immhoff
 #define XDIMM atomimm, &xdimmoff
 #define COMP atomimm, &compoff
 #define LOGOP atomimm, &logopoff

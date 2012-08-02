@@ -239,7 +239,7 @@
  * addresses max out at 0xfffffc.
  */
 
-static struct bitfield ctargoff = { { 0xb, 16, 0x2e, 6 }, BF_UNSIGNED, 2 };
+static struct rbitfield ctargoff = { { 0xb, 16, 0x2e, 6 }, RBF_UNSIGNED, 2 };
 #define BTARG atombtarg, &ctargoff
 #define CTARG atomctarg, &ctargoff
 
@@ -254,21 +254,22 @@ static struct bitfield ctargoff = { { 0xb, 16, 0x2e, 6 }, BF_UNSIGNED, 2 };
  *  - HSHCNT: used in $a shift-by-immediate insn for shift amount
  */
 
-static struct bitfield immbf = { { 0x10, 6, 0x22, 26 }, .wrapok = 1 };
+static struct rbitfield immbf = { { 0x10, 6, 0x22, 26 }, .wrapok = 1 };
+static struct rbitfield offoff = { { 9, 16 }, .wrapok = 1 };
+#define IMM atomrimm, &immbf
+#define OFFS atomrimm, &offoff
+
 static struct bitfield pmoff = { 0xa, 4 };
 static struct bitfield baroff = { 0x15, 4 };
 static struct bitfield barmaskoff = { 9, 12 };
-static struct bitfield offoff = { { 9, 16 }, .wrapok = 1 };
 static struct bitfield shcntoff = { 0x10, 7 };
 static struct bitfield hshcntoff = { 0x10, 4 };
 static struct bitfield toffxoff = { { 0x38, 4 }, BF_SIGNED };
 static struct bitfield toffyoff = { { 0x34, 4 }, BF_SIGNED };
 static struct bitfield toffzoff = { { 0x30, 4 }, BF_SIGNED };
-#define IMM atomimm, &immbf
 #define PM atomimm, &pmoff
 #define BAR atomimm, &baroff
 #define BARMASK atomimm, &barmaskoff
-#define OFFS atomimm, &offoff
 #define SHCNT atomimm, &shcntoff
 #define HSHCNT atomimm, &hshcntoff
 #define TOFFX atomimm, &toffxoff
@@ -493,22 +494,22 @@ F1(mcdst, 0x26, CDST)
 
 // BF, offset shift, 'l', flags, const space num BF. flags: 1 supports $a, 2 supports full 3-bit $a, 4 supports autoincrement
 
-static struct bitfield fmem8_imm = { { 9, 16 }, BF_UNSIGNED, 0, .wrapok = 1 };
-static struct bitfield fmem16_imm = { { 9, 15 }, BF_UNSIGNED, 1, .wrapok = 1 };
-static struct bitfield fmem32_imm = { { 9, 14 }, BF_UNSIGNED, 2, .wrapok = 1 };
+static struct rbitfield fmem8_imm = { { 9, 16 }, RBF_UNSIGNED, 0, .wrapok = 1 };
+static struct rbitfield fmem16_imm = { { 9, 15 }, RBF_UNSIGNED, 1, .wrapok = 1 };
+static struct rbitfield fmem32_imm = { { 9, 14 }, RBF_UNSIGNED, 2, .wrapok = 1 };
 
-static struct bitfield ssmem8_imm = { { 9, 4 }, BF_UNSIGNED, 0 };
-static struct bitfield ssmem16_imm = { { 9, 4 }, BF_UNSIGNED, 1 };
-static struct bitfield ssmem32_imm = { { 9, 4 }, BF_UNSIGNED, 2 };
-static struct bitfield lsmem8_imm = { { 9, 5 }, BF_UNSIGNED, 0 };
-static struct bitfield lsmem16_imm = { { 9, 5 }, BF_UNSIGNED, 1 };
-static struct bitfield lsmem32_imm = { { 9, 5 }, BF_UNSIGNED, 2 };
-static struct bitfield ssmem8pi_imm = { { 9, 4 }, BF_SIGNED, 0 };
-static struct bitfield ssmem16pi_imm = { { 9, 4 }, BF_SIGNED, 1 };
-static struct bitfield ssmem32pi_imm = { { 9, 4 }, BF_SIGNED, 2 };
-static struct bitfield lsmem8pi_imm = { { 9, 5 }, BF_SIGNED, 0 };
-static struct bitfield lsmem16pi_imm = { { 9, 5 }, BF_SIGNED, 1 };
-static struct bitfield lsmem32pi_imm = { { 9, 5 }, BF_SIGNED, 2 };
+static struct rbitfield ssmem8_imm = { { 9, 4 }, RBF_UNSIGNED, 0 };
+static struct rbitfield ssmem16_imm = { { 9, 4 }, RBF_UNSIGNED, 1 };
+static struct rbitfield ssmem32_imm = { { 9, 4 }, RBF_UNSIGNED, 2 };
+static struct rbitfield lsmem8_imm = { { 9, 5 }, RBF_UNSIGNED, 0 };
+static struct rbitfield lsmem16_imm = { { 9, 5 }, RBF_UNSIGNED, 1 };
+static struct rbitfield lsmem32_imm = { { 9, 5 }, RBF_UNSIGNED, 2 };
+static struct rbitfield ssmem8pi_imm = { { 9, 4 }, RBF_SIGNED, 0 };
+static struct rbitfield ssmem16pi_imm = { { 9, 4 }, RBF_SIGNED, 1 };
+static struct rbitfield ssmem32pi_imm = { { 9, 4 }, RBF_SIGNED, 2 };
+static struct rbitfield lsmem8pi_imm = { { 9, 5 }, RBF_SIGNED, 0 };
+static struct rbitfield lsmem16pi_imm = { { 9, 5 }, RBF_SIGNED, 1 };
+static struct rbitfield lsmem32pi_imm = { { 9, 5 }, RBF_SIGNED, 2 };
 static struct mem ssmem8_m = { "s", 0, &sareg_r, &ssmem8_imm };
 static struct mem ssmem16_m = { "s", 0, &sareg_r, &ssmem16_imm };
 static struct mem ssmem32_m = { "s", 0, &sareg_r, &ssmem32_imm };
@@ -552,18 +553,18 @@ F(fs32, 0x19, FSHARED32, FSHARED32PI);
 // XXX: try postincr on remaining types
 static struct bitfield scmem_idx = { 0x15, 1 };
 static struct bitfield lcmem_idx = { 0x36, 4 };
-static struct bitfield scmem16_imm = { { 0x10, 5 }, BF_UNSIGNED, 1 };
-static struct bitfield scmem32_imm = { { 0x10, 5 }, BF_UNSIGNED, 2 };
-static struct bitfield scmem16pi_imm = { { 0x10, 5 }, BF_SIGNED, 1 };
-static struct bitfield scmem32pi_imm = { { 0x10, 5 }, BF_SIGNED, 2 };
-static struct bitfield l2cmem16_imm = { { 0x10, 7 }, BF_UNSIGNED, 1 };
-static struct bitfield l2cmem32_imm = { { 0x10, 7 }, BF_UNSIGNED, 2 };
-static struct bitfield l3cmem16_imm = { { 0x2e, 7 }, BF_UNSIGNED, 1 };
-static struct bitfield l3cmem32_imm = { { 0x2e, 7 }, BF_UNSIGNED, 2 };
-static struct bitfield l2cmem16pi_imm = { { 0x10, 7 }, BF_SIGNED, 1 };
-static struct bitfield l2cmem32pi_imm = { { 0x10, 7 }, BF_SIGNED, 2 };
-static struct bitfield l3cmem16pi_imm = { { 0x2e, 7 }, BF_SIGNED, 1 };
-static struct bitfield l3cmem32pi_imm = { { 0x2e, 7 }, BF_SIGNED, 2 };
+static struct rbitfield scmem16_imm = { { 0x10, 5 }, RBF_UNSIGNED, 1 };
+static struct rbitfield scmem32_imm = { { 0x10, 5 }, RBF_UNSIGNED, 2 };
+static struct rbitfield scmem16pi_imm = { { 0x10, 5 }, RBF_SIGNED, 1 };
+static struct rbitfield scmem32pi_imm = { { 0x10, 5 }, RBF_SIGNED, 2 };
+static struct rbitfield l2cmem16_imm = { { 0x10, 7 }, RBF_UNSIGNED, 1 };
+static struct rbitfield l2cmem32_imm = { { 0x10, 7 }, RBF_UNSIGNED, 2 };
+static struct rbitfield l3cmem16_imm = { { 0x2e, 7 }, RBF_UNSIGNED, 1 };
+static struct rbitfield l3cmem32_imm = { { 0x2e, 7 }, RBF_UNSIGNED, 2 };
+static struct rbitfield l2cmem16pi_imm = { { 0x10, 7 }, RBF_SIGNED, 1 };
+static struct rbitfield l2cmem32pi_imm = { { 0x10, 7 }, RBF_SIGNED, 2 };
+static struct rbitfield l3cmem16pi_imm = { { 0x2e, 7 }, RBF_SIGNED, 1 };
+static struct rbitfield l3cmem32pi_imm = { { 0x2e, 7 }, RBF_SIGNED, 2 };
 static struct mem scmem16_m = { "c", &scmem_idx, &sareg_r, &scmem16_imm };
 static struct mem scmem32_m = { "c", &scmem_idx, &sareg_r, &scmem32_imm };
 static struct mem scmem16pi_m = { "c", &scmem_idx, &sareg_r, &scmem16pi_imm, .postincr = 1 };
@@ -616,8 +617,8 @@ static struct mem lmempi_m = { "l", 0, &lareg_r, &fmem8_imm, .postincr = 1 };
 F(local, 0x19, LOCAL, LOCALPI);
 
 // XXX: try for postincr
-static struct bitfield samem_imm = { { 9, 6 }, BF_UNSIGNED, 2 };
-static struct bitfield lamem_imm = { { 9, 7 }, BF_UNSIGNED, 2 };
+static struct rbitfield samem_imm = { { 9, 6 }, RBF_UNSIGNED, 2 };
+static struct rbitfield lamem_imm = { { 9, 7 }, RBF_UNSIGNED, 2 };
 static struct mem samem_m = { "a", 0, 0, &samem_imm };
 static struct mem lamem_m = { "a", 0, 0, &lamem_imm };
 static struct mem famem_m = { "a", 0, &lareg_r, &lamem_imm };
@@ -630,7 +631,7 @@ static struct mem lpmem_m = { "p", 0, &lareg_r, &lamem_imm };
 #define LPRIM atommem, &lpmem_m
 
 // XXX: try for postincr
-static struct bitfield vmem_imm = { { 0x10, 8 }, BF_UNSIGNED, 2 };
+static struct rbitfield vmem_imm = { { 0x10, 8 }, RBF_UNSIGNED, 2 };
 static struct mem svmem_m = { "v", 0, &sareg_r, &vmem_imm };
 static struct mem lvmem_m = { "v", 0, &lareg_r, &vmem_imm };
 #define SVAR atommem, &svmem_m
@@ -643,8 +644,8 @@ static struct mem global2_m = { "g", &global2_idx, &lsrc_r };
 #define GLOBAL atommem, &global_m
 #define GLOBAL2 atommem, &global2_m
 
-static struct bitfield omem16_imm = { { 2, 7 }, .shr = 1 };
-static struct bitfield omem32_imm = { { 2, 7 }, .shr = 2 };
+static struct rbitfield omem16_imm = { { 2, 7 }, .shr = 1 };
+static struct rbitfield omem32_imm = { { 2, 7 }, .shr = 2 };
 static struct mem omem16_m = { "o", 0, 0, &omem16_imm };
 static struct mem omem32_m = { "o", 0, 0, &omem32_imm };
 static struct mem fomem32_m = { "o", 0, &lareg_r, &fmem32_imm };

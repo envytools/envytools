@@ -78,14 +78,12 @@ ull getbf(const struct bitfield *bf, ull *a, ull *m) {
 			res = bf->lut[res];
 			break;
 	}
-	if (bf->pcrel)
-		abort();
 	res ^= bf->xorend;
 	res += bf->addend;
 	return res;
 }
 
-struct easm_expr *getrbf(const struct bitfield *bf, ull *a, ull *m) {
+struct easm_expr *getrbf(const struct rbitfield *bf, ull *a, ull *m) {
 	ull res = 0;
 	int pos = bf->shr;
 	int i;
@@ -94,21 +92,18 @@ struct easm_expr *getrbf(const struct bitfield *bf, ull *a, ull *m) {
 		pos += bf->sbf[i].len;
 	}
 	switch (bf->mode) {
-		case BF_UNSIGNED:
+		case RBF_UNSIGNED:
 			break;
-		case BF_SIGNED:
+		case RBF_SIGNED:
 			if (res & 1ull << (pos - 1))
 				res -= 1ull << pos;
 			break;
-		case BF_SLIGHTLY_SIGNED:
+		case RBF_SLIGHTLY_SIGNED:
 			if (res & 1ull << (pos - 1) && res & 1ull << (pos - 2))
 				res -= 1ull << pos;
 			break;
-		case BF_ULTRASIGNED:
+		case RBF_ULTRASIGNED:
 			res -= 1ull << pos;
-			break;
-		case BF_LUT:
-			res = bf->lut[res];
 			break;
 	}
 	if (bf->pcrel) {
@@ -118,13 +113,10 @@ struct easm_expr *getrbf(const struct bitfield *bf, ull *a, ull *m) {
 		if (bf->shr)
 			expr = easm_expr_bin(EASM_EXPR_AND, expr, easm_expr_num(EASM_EXPR_NUM, -(1ull << bf->shr)));
 		expr = easm_expr_bin(EASM_EXPR_ADD, expr, easm_expr_num(EASM_EXPR_NUM, res));
-		if (bf->xorend)
-			expr = easm_expr_bin(EASM_EXPR_XOR, expr, easm_expr_num(EASM_EXPR_NUM, bf->xorend));
 		if (bf->addend)
 			expr = easm_expr_bin(EASM_EXPR_ADD, expr, easm_expr_num(EASM_EXPR_NUM, bf->addend));
 		return expr;
 	} else {
-		res ^= bf->xorend;
 		res += bf->addend;
 		return easm_expr_num(EASM_EXPR_NUM, res);
 	}
@@ -193,19 +185,25 @@ void atomunk_d DPROTO {
 
 void atomimm_d DPROTO {
 	const struct bitfield *bf = v;
+	struct easm_expr *expr = easm_expr_num(EASM_EXPR_NUM, GETBF(bf));
+	ADDARRAY(ctx->atoms, makeli(expr));
+}
+
+void atomrimm_d DPROTO {
+	const struct rbitfield *bf = v;
 	struct easm_expr *expr = GETRBF(bf);
 	ADDARRAY(ctx->atoms, makeli(expr));
 }
 
 void atomctarg_d DPROTO {
-	const struct bitfield *bf = v;
+	const struct rbitfield *bf = v;
 	struct easm_expr *expr = GETRBF(bf);
 	expr->special = EASM_SPEC_CTARG;
 	ADDARRAY(ctx->atoms, makeli(expr));
 }
 
 void atombtarg_d DPROTO {
-	const struct bitfield *bf = v;
+	const struct rbitfield *bf = v;
 	struct easm_expr *expr = GETRBF(bf);
 	expr->special = EASM_SPEC_BTARG;
 	ADDARRAY(ctx->atoms, makeli(expr));

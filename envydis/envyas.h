@@ -29,7 +29,7 @@
 #include "dis-intern.h"
 
 struct reloc {
-	const struct bitfield *bf;
+	const struct rbitfield *bf;
 	struct easm_expr *expr;
 };
 
@@ -49,7 +49,7 @@ struct matches {
 
 int setsbf (struct match *res, int pos, int len, ull num);
 
-ull getbf_as(const struct bitfield *bf, ull *a, ull *m, ull cpos);
+ull getrbf_as(const struct rbitfield *bf, ull *a, ull *m, ull cpos);
 
 struct matches *do_as(const struct disisa *isa, struct varinfo *varinfo, struct easm_insn *insn);
 

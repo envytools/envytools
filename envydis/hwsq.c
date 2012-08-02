@@ -31,10 +31,10 @@
  * Immediate fields
  */
 
-static struct bitfield imm16off = { 8, 16 };
-#define IMM16 atomimm, &imm16off
-static struct bitfield imm32off = { 8, 32 };
-#define IMM32 atomimm, &imm32off
+static struct rbitfield imm16off = { 8, 16 };
+#define IMM16 atomrimm, &imm16off
+static struct rbitfield imm32off = { 8, 32 };
+#define IMM32 atomrimm, &imm32off
 static struct bitfield flagoff = { 0, 5 };
 #define FLAG atomimm, &flagoff
 static struct bitfield waitoff = { 0, 2 };

@@ -43,12 +43,12 @@
  * Code target fields
  */
 
-static struct bitfield jtargoff = { { 6, 18 }, BF_SIGNED, 0, 1, 4 };
-static struct bitfield btarg8off = { { 16, 8 }, BF_SIGNED, 0, 1, 4 };
-static struct bitfield btarg12off = { { 12, 12 }, BF_SIGNED, 0, 1, 4 };
-static struct bitfield ltargoff = { { 16, 8 }, BF_UNSIGNED, 0, 1, 4 };
-static struct bitfield btarg6off = { { 12, 4, 4, 2 }, BF_UNSIGNED, 0, 1, 4 };
-static struct bitfield ctargoff = { { 6, 18 }, BF_SIGNED, 2, 1, 4 };
+static struct rbitfield jtargoff = { { 6, 18 }, BF_SIGNED, 0, 1, 4 };
+static struct rbitfield btarg8off = { { 16, 8 }, BF_SIGNED, 0, 1, 4 };
+static struct rbitfield btarg12off = { { 12, 12 }, BF_SIGNED, 0, 1, 4 };
+static struct rbitfield ltargoff = { { 16, 8 }, BF_UNSIGNED, 0, 1, 4 };
+static struct rbitfield btarg6off = { { 12, 4, 4, 2 }, BF_UNSIGNED, 0, 1, 4 };
+static struct rbitfield ctargoff = { { 6, 18 }, BF_SIGNED, 2, 1, 4 };
 #define JTARG atombtarg, &jtargoff
 #define BTARG8 atombtarg, &btarg8off
 #define BTARG12 atombtarg, &btarg12off
@@ -218,13 +218,13 @@ static struct bitfield sllioff = { { 4, 4, 20, 1 }, BF_LUT, .lut = sllilut };
  * Memory fields
  */
 
-static struct bitfield l32r_imm = { { 8, 16 }, BF_ULTRASIGNED, 2, .pcrel = 1, .pospreadd = 3 };
-static struct bitfield data32e_imm = { { 12, 4 }, BF_ULTRASIGNED, 2 };
-static struct bitfield data32n_imm = { { 12, 4 }, BF_UNSIGNED, 2 };
-static struct bitfield datacl_imm = { { 20, 4 }, BF_UNSIGNED, 4 };
-static struct bitfield data32_imm = { { 16, 8 }, BF_UNSIGNED, 2 };
-static struct bitfield data16_imm = { { 16, 8 }, BF_UNSIGNED, 1 };
-static struct bitfield data8_imm = { { 16, 8 }, BF_UNSIGNED, 0 };
+static struct rbitfield l32r_imm = { { 8, 16 }, BF_ULTRASIGNED, 2, .pcrel = 1, .pospreadd = 3 };
+static struct rbitfield data32e_imm = { { 12, 4 }, BF_ULTRASIGNED, 2 };
+static struct rbitfield data32n_imm = { { 12, 4 }, BF_UNSIGNED, 2 };
+static struct rbitfield datacl_imm = { { 20, 4 }, BF_UNSIGNED, 4 };
+static struct rbitfield data32_imm = { { 16, 8 }, BF_UNSIGNED, 2 };
+static struct rbitfield data16_imm = { { 16, 8 }, BF_UNSIGNED, 1 };
+static struct rbitfield data8_imm = { { 16, 8 }, BF_UNSIGNED, 0 };
 static struct mem l32r_m = { "", 0, 0, &l32r_imm, .literal = 1 };
 static struct mem data32e_m = { "", 0, &as_r, &data32e_imm };
 static struct mem data32n_m = { "", 0, &as_r, &data32n_imm };
