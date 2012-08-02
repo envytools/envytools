@@ -885,6 +885,14 @@ static struct insn tabis3[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabds3[] = {
+	{ 0x0000000000000000ull, 0x0000c00000000000ull, SRC3D },
+	{ 0x0000400000000000ull, 0x0000c00000000000ull, SRC3D },
+	{ 0x0000800000000000ull, 0x0000c00000000000ull, CONST },
+	{ 0x0000c00000000000ull, 0x0000c00000000000ull, SRC3D },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabfs2[] = {
 	{ 0x0000000000000000ull, 0x0000c00000000000ull, SRC2 },
 	{ 0x0000400000000000ull, 0x0000c00000000000ull, CONST },
@@ -902,6 +910,15 @@ static struct insn tabfs2w3[] = {
 
 static struct insn tabds2[] = {
 	{ 0x0000000000000000ull, 0x0000c00000000000ull, SRC2D },
+	{ 0x0000400000000000ull, 0x0000c00000000000ull, CONST },
+	{ 0x0000c00000000000ull, 0x0000c00000000000ull, DIMM },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabds2w3[] = {
+	{ 0x0000000000000000ull, 0x0000c00000000000ull, SRC2D },
+	{ 0x0000400000000000ull, 0x0000c00000000000ull, CONST },
+	{ 0x0000800000000000ull, 0x0000c00000000000ull, SRC3D },
 	{ 0x0000c00000000000ull, 0x0000c00000000000ull, DIMM },
 	{ 0, 0, OOPS },
 };
@@ -1718,7 +1735,7 @@ static struct insn tabm[] = {
 	{ 0x0800000000000001ull, 0xf800000000000007ull, T(minmax), N("f64"), DSTD, T(acout30), T(neg9), T(abs7), SRC1D, T(neg8), T(abs6), T(ds2) },
 	{ 0x1000000000000001ull, 0xf800000000000007ull, N("set"), T(setdt5), DST, T(acout30), T(setit), N("f64"), T(neg9), T(abs7), SRC1D, T(neg8), T(abs6), T(ds2), T(setlop) },
 	{ 0x1800000000000001ull, 0xf800000000000007ull, N("set"), PDST, PDSTN, T(setit), N("f64"), T(neg9), T(abs7), SRC1D, T(neg8), T(abs6), T(ds2), T(setlop) },
-	{ 0x2000000000000001ull, 0xf800000000000007ull, N("fma"), T(farm), N("f64"), DSTD, T(acout30), T(neg9), SRC1D, T(ds2), T(neg8), SRC3D },
+	{ 0x2000000000000001ull, 0xf800000000000007ull, N("fma"), T(farm), N("f64"), DSTD, T(acout30), T(neg9), SRC1D, T(ds2w3), T(neg8), T(ds3) },
 	{ 0x4800000000000001ull, 0xf800000000000007ull, N("add"), T(farm), N("f64"), DSTD, T(acout30), T(neg9), T(abs7), SRC1D, T(neg8), T(abs6), T(ds2) },
 	{ 0x5000000000000001ull, 0xf800000000000007ull, N("mul"), T(farm), T(neg9), N("f64"), DSTD, T(acout30), SRC1D, T(ds2) },
 	{ 0x0000000000000001ull, 0x0000000000000007ull, OOPS, T(farm), N("f64"), DSTD, SRC1D, T(ds2), SRC3D },
