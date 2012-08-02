@@ -53,6 +53,8 @@ static inline ull bf_(int s, int l, ull *a, ull *m) {
 }
 #define BF(s, l) bf_(s, l, a, m)
 
+#define GETBF(bf) getbf(bf, a, m, ctx->pos)
+
 static inline struct litem *makeli(struct easm_expr *e) {
 	struct litem *li = calloc(sizeof *li, 1);
 	li->type = LITEM_EXPR;

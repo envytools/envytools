@@ -26,6 +26,14 @@
 #include "envyas.h"
 #include <assert.h>
 
+struct iasctx {
+	const struct disisa *isa;
+	struct varinfo *varinfo;
+	struct litem **atoms;
+	int atomsnum;
+	int atomsmax;
+};
+
 struct matches *emptymatches() {
 	struct matches *res = calloc(sizeof *res, 1);
 	return res;
@@ -140,7 +148,7 @@ static int setbf (struct match *res, const struct bitfield *bf, ull num) {
 	return setbfe(res, bf, e);
 }
 
-struct matches *tabdesc (struct asctx *ctx, struct match m, const struct atom *atoms) {
+struct matches *tabdesc (struct iasctx *ctx, struct match m, const struct atom *atoms) {
 	if (!atoms->fun_as) {
 		struct matches *res = emptymatches();
 		ADDARRAY(res->m, m);
@@ -188,7 +196,7 @@ struct matches *atomopl_a APROTO {
 }
 
 struct matches *atomsestart_a APROTO {
-	struct litem *li = ctx->line->atoms[spos];
+	struct litem *li = ctx->atoms[spos];
 	if (li->type == LITEM_SESTART)
 		return alwaysmatches(spos+1);
 	else
@@ -196,7 +204,7 @@ struct matches *atomsestart_a APROTO {
 }
 
 struct matches *atomseend_a APROTO {
-	struct litem *li = ctx->line->atoms[spos];
+	struct litem *li = ctx->atoms[spos];
 	if (li->type == LITEM_SEEND)
 		return alwaysmatches(spos+1);
 	else
@@ -204,9 +212,9 @@ struct matches *atomseend_a APROTO {
 }
 
 struct matches *atomname_a APROTO {
-	if (spos == ctx->line->atomsnum)
+	if (spos == ctx->atomsnum)
 		return 0;
-	struct litem *li = ctx->line->atoms[spos];
+	struct litem *li = ctx->atoms[spos];
 	if (li->type == LITEM_NAME && !strcmp(li->str, v))
 		return alwaysmatches(spos+1);
 	else
@@ -214,9 +222,9 @@ struct matches *atomname_a APROTO {
 }
 
 struct matches *atomcmd_a APROTO {
-	if (spos == ctx->line->atomsnum || ctx->line->atoms[spos]->type != LITEM_EXPR)
+	if (spos == ctx->atomsnum || ctx->atoms[spos]->type != LITEM_EXPR)
 		return 0;
-	struct easm_expr *e = ctx->line->atoms[spos]->expr;
+	struct easm_expr *e = ctx->atoms[spos]->expr;
 	if (e->type == EASM_EXPR_LABEL && !strcmp(e->str, v))
 		return alwaysmatches(spos+1);
 	else
@@ -229,10 +237,10 @@ struct matches *atomunk_a APROTO {
 
 struct matches *atomimm_a APROTO {
 	const struct bitfield *bf = v;
-	if (spos == ctx->line->atomsnum || ctx->line->atoms[spos]->type != LITEM_EXPR)
+	if (spos == ctx->atomsnum || ctx->atoms[spos]->type != LITEM_EXPR)
 		return 0;
 	struct matches *res = alwaysmatches(spos+1);
-	if (setbfe(res->m, bf, ctx->line->atoms[spos]->expr))
+	if (setbfe(res->m, bf, ctx->atoms[spos]->expr))
 		return res;
 	else {
 		free(res->m);
@@ -245,7 +253,7 @@ struct matches *atomnop_a APROTO {
 	return alwaysmatches(spos);
 }
 
-int matchreg (struct match *res, const struct reg *reg, const struct easm_expr *expr, struct asctx *ctx) {
+int matchreg (struct match *res, const struct reg *reg, const struct easm_expr *expr, struct iasctx *ctx) {
 	if (reg->specials) {
 		int i = 0;
 		for (i = 0; reg->specials[i].num != -1; i++) {
@@ -296,7 +304,7 @@ int matchreg (struct match *res, const struct reg *reg, const struct easm_expr *
 		return !num;
 }
 
-int matchshreg (struct match *res, const struct reg *reg, const struct easm_expr *expr, int shl, struct asctx *ctx) {
+int matchshreg (struct match *res, const struct reg *reg, const struct easm_expr *expr, int shl, struct iasctx *ctx) {
 	ull sh = 0;
 	while (1) {
 		if (expr->type == EASM_EXPR_SHL && expr->e2->type == EASM_EXPR_NUM) {
@@ -327,9 +335,9 @@ int matchshreg (struct match *res, const struct reg *reg, const struct easm_expr
 
 struct matches *atomreg_a APROTO {
 	const struct reg *reg = v;
-	if (spos == ctx->line->atomsnum || ctx->line->atoms[spos]->type != LITEM_EXPR)
+	if (spos == ctx->atomsnum || ctx->atoms[spos]->type != LITEM_EXPR)
 		return 0;
-	struct easm_expr *e = ctx->line->atoms[spos]->expr;
+	struct easm_expr *e = ctx->atoms[spos]->expr;
 	struct matches *res = alwaysmatches(spos+1);
 	if (matchreg(res->m, reg, e, ctx))
 		return res;
@@ -341,9 +349,9 @@ struct matches *atomreg_a APROTO {
 }
 
 struct matches *atomdiscard_a APROTO {
-	if (spos == ctx->line->atomsnum || ctx->line->atoms[spos]->type != LITEM_EXPR)
+	if (spos == ctx->atomsnum || ctx->atoms[spos]->type != LITEM_EXPR)
 		return 0;
-	struct easm_expr *e = ctx->line->atoms[spos]->expr;
+	struct easm_expr *e = ctx->atoms[spos]->expr;
 	if (e->type == EASM_EXPR_DISCARD) {
 		return alwaysmatches(spos+1);
 	} else {
@@ -388,9 +396,9 @@ int matchmemaddr(struct easm_expr **iex, struct easm_expr **niex1, struct easm_e
 
 struct matches *atommem_a APROTO {
 	const struct mem *mem = v;
-	if (spos == ctx->line->atomsnum || ctx->line->atoms[spos]->type != LITEM_EXPR)
+	if (spos == ctx->atomsnum || ctx->atoms[spos]->type != LITEM_EXPR)
 		return 0;
-	struct easm_expr *expr = ctx->line->atoms[spos]->expr;
+	struct easm_expr *expr = ctx->atoms[spos]->expr;
 	struct easm_expr *pexpr = 0;
 	struct match res = { 0, .lpos = spos+1 };
 	int ismem = expr->type >= EASM_EXPR_MEM && expr->type <= EASM_EXPR_MEMME;
@@ -484,10 +492,10 @@ struct matches *atommem_a APROTO {
 
 struct matches *atomvec_a APROTO {
 	const struct vec *vec = v;
-	if (spos == ctx->line->atomsnum || ctx->line->atoms[spos]->type != LITEM_EXPR)
+	if (spos == ctx->atomsnum || ctx->atoms[spos]->type != LITEM_EXPR)
 		return 0;
 	struct match res = { 0, .lpos = spos+1 };
-	const struct easm_expr *expr = ctx->line->atoms[spos]->expr;
+	const struct easm_expr *expr = ctx->atoms[spos]->expr;
 	const struct easm_expr **vexprs = 0;
 	int vexprsnum = 0;
 	int vexprsmax = 0;
@@ -544,10 +552,10 @@ struct matches *atomvec_a APROTO {
 
 struct matches *atombf_a APROTO {
 	const struct bitfield *bf = v;
-	if (spos == ctx->line->atomsnum || ctx->line->atoms[spos]->type != LITEM_EXPR)
+	if (spos == ctx->atomsnum || ctx->atoms[spos]->type != LITEM_EXPR)
 		return 0;
 	struct match res = { 0, .lpos = spos+1 };
-	const struct easm_expr *expr = ctx->line->atoms[spos]->expr;
+	const struct easm_expr *expr = ctx->atoms[spos]->expr;
 	if (expr->type != EASM_EXPR_VEC || expr->e1->type != EASM_EXPR_NUM || expr->e2->type != EASM_EXPR_NUM)
 		return 0;
 	uint64_t a = expr->e1->num;
@@ -559,4 +567,84 @@ struct matches *atombf_a APROTO {
 	struct matches *rres = emptymatches();
 	ADDARRAY(rres->m, res);
 	return rres;
+}
+
+void convert_expr_top(struct iasctx *ctx, struct easm_expr *expr);
+
+void convert_mods(struct iasctx *ctx, struct easm_mods *mods) {
+	int i;
+	for (i = 0; i < mods->modsnum; i++) {
+		struct litem *li = calloc(sizeof *li, 1);
+		li->type = LITEM_NAME;
+		li->str = mods->mods[i]->str;
+		ADDARRAY(ctx->atoms, li);
+	}
+}
+
+void convert_operand(struct iasctx *ctx, struct easm_operand *operand) {
+	int i;
+	convert_mods(ctx, operand->mods);
+	for (i = 0; i < operand->exprsnum; i++) {
+		/* XXX */
+		convert_expr_top(ctx, operand->exprs[i]);
+	}
+}
+
+void convert_sinsn(struct iasctx *ctx, struct easm_sinsn *sinsn) {
+	int i;
+	struct litem *li = calloc(sizeof *li, 1);
+	li->type = LITEM_NAME;
+	li->str = sinsn->str;
+	ADDARRAY(ctx->atoms, li);
+	for (i = 0; i < sinsn->operandsnum; i++) {
+		convert_operand(ctx, sinsn->operands[i]);
+	}
+	convert_mods(ctx, sinsn->mods);
+}
+
+void convert_subinsn(struct iasctx *ctx, struct easm_subinsn *subinsn) {
+	int i;
+	for (i = 0; i < subinsn->prefsnum; i++) {
+		convert_expr_top(ctx, subinsn->prefs[i]);
+	}
+	convert_sinsn(ctx, subinsn->sinsn);
+}
+
+void convert_expr_top(struct iasctx *ctx, struct easm_expr *expr) {
+	if (expr->type == EASM_EXPR_SINSN) {
+		struct litem *ses = calloc(sizeof *ses, 1);
+		struct litem *see = calloc(sizeof *see, 1);
+		ses->type = LITEM_SESTART;
+		see->type = LITEM_SEEND;
+		ADDARRAY(ctx->atoms, ses);
+		convert_sinsn(ctx, expr->sinsn);
+		ADDARRAY(ctx->atoms, see);
+	} else {
+		struct litem *li = calloc(sizeof *li, 1);
+		li->type = LITEM_EXPR;
+		li->expr = expr;
+		ADDARRAY(ctx->atoms, li);
+	}
+}
+
+void convert_insn(struct iasctx *ctx, struct easm_insn *insn) {
+	int i;
+	for (i = 0; i < insn->subinsnsnum; i++) {
+		/* XXX */
+		convert_subinsn(ctx, insn->subinsns[i]);
+	}
+}
+
+struct matches *do_as(const struct disisa *isa, struct varinfo *varinfo, struct easm_insn *insn) {
+	struct matches *res = calloc(sizeof *res, 1);
+	struct iasctx c = { isa, varinfo };
+	struct iasctx *ctx = &c;
+	convert_insn(ctx, insn);
+	struct matches *m = atomtab_a(ctx, isa->troot, 0);
+	int i;
+	for (i = 0; i < m->mnum; i++)
+		if (m->m[i].lpos == ctx->atomsnum) {
+			ADDARRAY(res->m, m->m[i]);
+		}
+	return res;
 }

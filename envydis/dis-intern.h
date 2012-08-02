@@ -82,11 +82,11 @@ typedef unsigned long long ull;
 
 #define MAXOPLEN (128/64)
 
-struct asctx;
+struct iasctx;
 struct disctx;
 struct disisa;
 
-#define APROTO (struct asctx *ctx, const void *v, int spos)
+#define APROTO (struct iasctx *ctx, const void *v, int spos)
 #define DPROTO (struct disctx *ctx, ull *a, ull *m, const void *v)
 
 struct matches;
@@ -281,7 +281,6 @@ void atombf_d DPROTO;
 #define atombf atombf_a, atombf_d
 
 ull getbf(const struct bitfield *bf, ull *a, ull *m, ull cpos);
-#define GETBF(bf) getbf(bf, a, m, ctx->pos)
 
 static inline int var_ok(int fmask, int ptype, struct varinfo *varinfo) {
 	return (!fmask || (varinfo->fmask[0] & fmask) == fmask) && (!ptype || (varinfo->modes[0] != -1 && ptype & 1 << varinfo->modes[0]));

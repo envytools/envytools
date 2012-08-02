@@ -28,12 +28,6 @@
 #include "easm.h"
 #include "dis-intern.h"
 
-struct line {
-	struct litem **atoms;
-	int atomsnum;
-	int atomsmax;
-};
-
 struct reloc {
 	const struct bitfield *bf;
 	struct easm_expr *expr;
@@ -53,20 +47,8 @@ struct matches {
 	int mmax;
 };
 
-struct asctx {
-	const struct disisa *isa;
-	struct varinfo *varinfo;
-	uint32_t pos;
-	struct line *line;
-	struct label *labels;
-	int labelsnum;
-	int labelsmax;
-	struct symtab *symtab;
-	const char *cur_global_label;
-};
-
 int setsbf (struct match *res, int pos, int len, ull num);
 
-void convert_insn(struct line *line, struct easm_insn *insn);
+struct matches *do_as(const struct disisa *isa, struct varinfo *varinfo, struct easm_insn *insn);
 
 #endif

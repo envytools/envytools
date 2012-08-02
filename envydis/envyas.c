@@ -22,7 +22,6 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "dis.h"
 #include "envyas.h"
 #include "symtab.h"
 #include <libgen.h>
@@ -30,6 +29,17 @@
 #include <string.h>
 #include <unistd.h>
 #include <assert.h>
+
+struct asctx {
+	const struct disisa *isa;
+	struct varinfo *varinfo;
+	struct label *labels;
+	int labelsnum;
+	int labelsmax;
+	struct symtab *symtab;
+	const char *cur_global_label;
+	uint32_t pos;
+};
 
 static const struct disisa *envyas_isa = 0;
 
@@ -235,13 +245,7 @@ int envyas_process(struct easm_file *file) {
 	struct matches *im = calloc(sizeof *im, file->linesnum);
 	for (i = 0; i < file->linesnum; i++) {
 		if (file->lines[i]->type == EASM_LINE_INSN) {
-			ctx->line = calloc(sizeof *ctx->line, 1);
-			convert_insn(ctx->line, file->lines[i]->insn);
-			struct matches *m = atomtab_a(ctx, ctx->isa->troot, 0);
-			for (j = 0; j < m->mnum; j++)
-				if (m->m[j].lpos == ctx->line->atomsnum) {
-					ADDARRAY(im[i].m, m->m[j]);
-				}
+			im[i] = *do_as(ctx->isa, ctx->varinfo, file->lines[i]->insn);
 			if (!im[i].mnum) {
 				fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "No match\n"));
 				return 1;
