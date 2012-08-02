@@ -31,7 +31,8 @@
 <import file="nv_pbus.xml" />
 
 <!-- 002000 - 003fff PFIFO -->
-<import file="nv_pfifo.xml" />
+<import file="nv01_pfifo.xml" />
+<import file="nv04_pfifo.xml" />
 <import file="nv50_pfifo.xml" />
 <import file="nvc0_pfifo.xml" />
 
