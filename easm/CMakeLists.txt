@@ -8,7 +8,7 @@ flex_target(easm_lex easm_lex.l ${CMAKE_CURRENT_BINARY_DIR}/easm_lex.c COMPILE_F
 bison_target(easm_parse easm_parse.y ${CMAKE_CURRENT_BINARY_DIR}/easm_parse.c)
 add_flex_bison_dependency(easm_lex easm_parse)
 
-add_library(easm easm.c ${FLEX_easm_lex_OUTPUTS} ${BISON_easm_parse_OUTPUTS} easm_print.c)
+add_library(easm easm.c ${FLEX_easm_lex_OUTPUTS} ${BISON_easm_parse_OUTPUTS} easm_print.c easm_xfrm.c)
 
 target_link_libraries(easm envyutil)
 

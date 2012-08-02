@@ -197,4 +197,11 @@ void easm_print_insn(FILE *out, const struct envy_colors *cols, struct easm_insn
 
 int easm_isimm(struct easm_expr *expr);
 
+/* does const-folding of expression, returns 1 if folded to a simple EASM_EXPR_NUM, 0 otherwise */
+int easm_cfold_expr(struct easm_expr *expr);
+void easm_substpos_expr(struct easm_expr *expr, uint64_t val);
+
+void easm_cfold_insn(struct easm_insn *insn);
+void easm_substpos_insn(struct easm_insn *insn, uint64_t val);
+
 #endif
