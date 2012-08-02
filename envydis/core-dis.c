@@ -496,7 +496,8 @@ static void dis_pp_expr(struct decoctx *deco, struct dis_res *dres, struct easm_
 		dis_pp_expr(deco, dres, expr->e2, pos);
 	if (expr->sinsn)
 		dis_pp_sinsn(deco, dres, expr->sinsn, pos);
-	if (expr->type == EASM_EXPR_NUM) {
+	easm_substpos_expr(expr, pos);
+	if (easm_cfold_expr(expr)) {
 		if (expr->special == EASM_SPEC_CTARG) {
 			mark(deco, expr->num, 2);
 			expr->alabel = deco_label(deco, expr->num);
