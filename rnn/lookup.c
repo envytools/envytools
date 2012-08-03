@@ -48,7 +48,7 @@ int main(int argc, char **argv) {
 	char *file = "nv_mmio.xml";
 	char *name = "NV_MMIO";
 	char *variant = NULL;
-	char c, mode = 'd';
+	int c, mode = 'd';
 	uint64_t reg, colors=1, val = 0;
 	struct rnndeccontext *vc;
 
