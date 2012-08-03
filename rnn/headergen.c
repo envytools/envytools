@@ -270,6 +270,7 @@ int main(int argc, char **argv) {
 	rnn_prepdb (db);
 	for(i = 0; i < db->filesnum; ++i) {
 		char *dstname = malloc(strlen(db->files[i]) + 3);
+		char *pretty;
 		strcpy(dstname, db->files[i]);
 		strcat(dstname, ".h");
 		struct fout f = { db->files[i], fopen(dstname, "w") };
@@ -278,7 +279,12 @@ int main(int argc, char **argv) {
 			exit(1);
 		}
 		free(dstname);
-		f.guard = strdup(f.name);
+		pretty = strrchr(f.name, '/');
+		if (pretty)
+			pretty += 1;
+		else
+			pretty = f.name;
+		f.guard = strdup(pretty);
 		for (j = 0; j < strlen(f.guard); j++)
 			if (isalnum(f.guard[j]))
 				f.guard[j] = toupper(f.guard[j]);
