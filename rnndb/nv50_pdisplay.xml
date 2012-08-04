@@ -350,46 +350,57 @@
 		<array offset="0x7400" name="HDCP" stride="0x100" length="1" variants="NV84-">
 		</array>
 
-		<array offset="0x8000" name="UNK8000" stride="0x1000" length="1">
-		</array>
-
-		<array offset="0x9000" name="VGA" stride="0x1000" length="1">
-			<reg8 offset="0x000" name="MISC"/>
-			<reg8 offset="0x004" name="INP0"/>
-			<reg8 offset="0x008" name="INP1"/>
-			<reg8 offset="0x00c" name="FC"/>
-			<reg8 offset="0x010" name="VSE2"/>
-			<array offset="0x100" name="SR" stride="8" length="1">
+		<array offset="0x8000" name="VGA" stride="0x2000" length="1">
+			<array offset="0" name="PANEL" stride="0x800" length="2" variants="NV50:NVD9">
+				<reg32 offset="0x00" name="HORIZ_TOTAL_M1"/>
+				<reg32 offset="0x04" name="HORIZ_DISPLAY_M1"/>
+				<reg32 offset="0x08" name="HORIZ_WINDOW_START"/>
+				<reg32 offset="0x0c" name="HORIZ_WINDOW_END"/>
+				<reg32 offset="0x10" name="HORIZ_BLANK_START"/>
+				<reg32 offset="0x14" name="HORIZ_BLANK_END"/>
+				<reg32 offset="0x20" name="VERT_TOTAL_M1"/>
+				<reg32 offset="0x24" name="VERT_DISPLAY_M1"/>
+				<reg32 offset="0x28" name="VERT_WINDOW_START"/>
+				<reg32 offset="0x2c" name="VERT_WINDOW_END"/>
+				<reg32 offset="0x30" name="VERT_BLANK_START"/>
+				<reg32 offset="0x34" name="VERT_BLANK_END"/>
+			</array>
+			<reg8 offset="0x1000" name="MISC"/>
+			<reg8 offset="0x1004" name="INP0"/>
+			<reg8 offset="0x1008" name="INP1"/>
+			<reg8 offset="0x100c" name="FC"/>
+			<reg8 offset="0x1010" name="VSE2"/>
+			<array offset="0x1100" name="SR" stride="8" length="1">
 				<use-group name="vga_sr"/>
 			</array>
-			<reg8 offset="0x108" name="SRX"/>
-			<array offset="0x200" name="GR" stride="0x10" length="1">
+			<reg8 offset="0x1108" name="SRX"/>
+			<array offset="0x1200" name="GR" stride="0x10" length="1">
 				<use-group name="vga_gr"/>
 			</array>
-			<reg8 offset="0x210" name="GRX"/>
-			<array offset="0x300" name="AR" stride="0x20" length="1">
+			<reg8 offset="0x1210" name="GRX"/>
+			<array offset="0x1300" name="AR" stride="0x20" length="1">
 				<use-group name="vga_ar"/>
 			</array>
-			<reg8 offset="0x320" name="ARX" type="vga_arx"/>
-			<reg8 offset="0x321" name="AR_STATE">
+			<reg8 offset="0x1320" name="ARX" type="vga_arx"/>
+			<reg8 offset="0x1321" name="AR_STATE">
 				<bitfield pos="7" name="FLIPFLOP">
 					<value value="0" name="ARX"/>
 					<value value="1" name="AR"/>
 				</bitfield>
 			</reg8>
-			<array offset="0x400" name="CR" stride="0x100" length="1">
+			<array offset="0x1400" name="CR" stride="0x100" length="1">
 				<use-group name="vga_cr"/>
 			</array>
-			<reg8 offset="0x500" name="CRX"/>
+			<reg8 offset="0x1500" name="CRX"/>
 			<group name="nv50_pdisplay_vga_pal_color">
 				<reg8 offset="0" name="B"/>
 				<reg8 offset="1" name="G"/>
 				<reg8 offset="2" name="R"/>
 			</group>
-			<array offset="0x800" name="PAL" stride="4" length="0x100">
+			<array offset="0x1800" name="PAL" stride="4" length="0x100">
 				<use-group name="nv50_pdisplay_vga_pal_color"/>
 			</array>
-			<reg8 offset="0xc00" name="PAL_STATE">
+			<reg8 offset="0x1c00" name="PAL_STATE">
 				<bitfield high="1" low="0" name="COL">
 					<value value="1" name="R"/>
 					<value value="2" name="G"/>
@@ -400,12 +411,12 @@
 					<value value="1" name="READ"/>
 				</bitfield>
 			</reg8>
-			<reg8 offset="0xc02" name="PAL_MASK"/>
-			<reg8 offset="0xc03" name="PAL_IDX"/>
-			<array offset="0xc04" name="PAL_WR_SHADOW" stride="4" length="1">
+			<reg8 offset="0x1c02" name="PAL_MASK"/>
+			<reg8 offset="0x1c03" name="PAL_IDX"/>
+			<array offset="0x1c04" name="PAL_WR_SHADOW" stride="4" length="1">
 				<use-group name="nv50_pdisplay_vga_pal_color"/>
 			</array>
-			<reg32 offset="0xf00" name="RAM_WINDOW">
+			<reg32 offset="0x1f00" name="RAM_WINDOW">
 				<bitfield high="31" low="10" shr="18" name="BASE"/>
 				<bitfield pos="3" name="ENABLE"/>
 				<bitfield high="1" low="0" name="TARGET">
@@ -414,7 +425,7 @@
 					<value value="3" name="SYSRAM_NO_SNOOP"/> <!-- guess -->
 				</bitfield>
 			</reg32>
-			<reg32 offset="0xf04" name="ROM_WINDOW">
+			<reg32 offset="0x1f04" name="ROM_WINDOW">
 				<bitfield high="31" low="8" shr="16" name="BASE"/>
 				<bitfield pos="3" name="ENABLE"/>
 				<bitfield high="1" low="0" name="TARGET">
@@ -423,7 +434,7 @@
 					<value value="3" name="SYSRAM_NO_SNOOP"/> <!-- guess -->
 				</bitfield>
 			</reg32>
-			<reg32 offset="0xffc" name="DEAD_CAFE"/>
+			<reg32 offset="0x1ffc" name="DEAD_CAFE"/>
 		</array>
 
 		<group name="nv50_dac">

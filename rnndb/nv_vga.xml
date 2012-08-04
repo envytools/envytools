@@ -257,6 +257,33 @@
 		</bitfield>
 	</reg8>
 	<reg8 offset="0x26" name="ARX" type="vga_arx"/>
+	<array offset="0x60" name="PANEL" stride="0x20" length="1" variants="NV50-">
+		<reg8 offset="0x00" name="HORIZ_TOTAL_M1_LO"/>
+		<reg8 offset="0x01" name="HORIZ_TOTAL_M1_HI"/>
+		<reg8 offset="0x02" name="HORIZ_DISPLAY_M1_LO"/>
+		<reg8 offset="0x03" name="HORIZ_DISPLAY_M1_HI"/>
+		<reg8 offset="0x04" name="HORIZ_WINDOW_START_LO"/>
+		<reg8 offset="0x05" name="HORIZ_WINDOW_START_HI"/>
+		<reg8 offset="0x06" name="HORIZ_WINDOW_END_LO"/>
+		<reg8 offset="0x07" name="HORIZ_WINDOW_END_HI"/>
+		<reg8 offset="0x08" name="HORIZ_BLANK_START_LO"/>
+		<reg8 offset="0x09" name="HORIZ_BLANK_START_HI"/>
+		<reg8 offset="0x0a" name="HORIZ_BLANK_END_LO"/>
+		<reg8 offset="0x0b" name="HORIZ_BLANK_END_HI"/>
+		<reg8 offset="0x10" name="VERT_TOTAL_M1_LO"/>
+		<reg8 offset="0x11" name="VERT_TOTAL_M1_HI"/>
+		<reg8 offset="0x12" name="VERT_DISPLAY_M1_LO"/>
+		<reg8 offset="0x13" name="VERT_DISPLAY_M1_HI"/>
+		<reg8 offset="0x14" name="VERT_WINDOW_START_LO"/>
+		<reg8 offset="0x15" name="VERT_WINDOW_START_HI"/>
+		<reg8 offset="0x16" name="VERT_WINDOW_END_LO"/>
+		<reg8 offset="0x17" name="VERT_WINDOW_END_HI"/>
+		<reg8 offset="0x18" name="VERT_BLANK_START_LO"/>
+		<reg8 offset="0x19" name="VERT_BLANK_START_HI"/>
+		<reg8 offset="0x1a" name="VERT_BLANK_END_LO"/>
+		<reg8 offset="0x1b" name="VERT_BLANK_END_HI"/>
+		<reg8 offset="0x1f" name="IDX_SELECT"/> <!-- selects which set of above registers is accessed -->
+	</array>
 </group>
 
 <domain name="NV_AR" bare="yes" prefix="chipset">
