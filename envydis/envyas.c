@@ -39,11 +39,13 @@ struct asctx {
 	struct symtab *symtab;
 	const char *cur_global_label;
 	uint32_t pos;
+	struct section *sections;
+	int sectionsnum;
+	int sectionsmax;
+	struct matches *im;
 };
 
-static const struct disisa *envyas_isa = 0;
-
-enum {
+enum envyas_ofmt {
 	OFMT_RAW,
 	OFMT_HEX8,
 	OFMT_HEX32,
@@ -51,11 +53,7 @@ enum {
 	OFMT_CHEX8,
 	OFMT_CHEX32,
 	OFMT_CHEX64,
-} envyas_ofmt = OFMT_HEX8;
-
-struct varinfo *envyas_varinfo;
-
-char *envyas_outname = 0;
+};
 
 static char* expand_local_label(const char *local, const char *global) {
 	char *full = malloc((global ? strlen(global) : 0) + strlen(local) + 3);
@@ -226,33 +224,24 @@ int find_label(struct asctx *ctx, struct section *sect, int ofs, int start_at) {
 	return -1;
 }
 
-int envyas_process(struct easm_file *file) {
-	int i, j;
-	struct asctx ctx_s = { 0 };
-	struct asctx *ctx = &ctx_s;
-	ctx->isa = envyas_isa;
-	ctx->varinfo = envyas_varinfo;
-	struct matches *im = calloc(sizeof *im, file->linesnum);
+int envyas_process(struct asctx *ctx, struct easm_file *file) {
+	int i;
+	ctx->im = calloc(sizeof *ctx->im, file->linesnum);
 	for (i = 0; i < file->linesnum; i++) {
 		if (file->lines[i]->type == EASM_LINE_INSN) {
-			im[i] = *do_as(ctx->isa, ctx->varinfo, file->lines[i]->insn);
-			if (!im[i].mnum) {
+			ctx->im[i] = *do_as(ctx->isa, ctx->varinfo, file->lines[i]->insn);
+			if (!ctx->im[i].mnum) {
 				fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "No match\n"));
 				return 1;
 			}
-#if 0
-			if (im[i].mnum > 2 || (im[i].mnum == 2 && im[i].m[0].oplen == im[i].m[1].oplen)) {
-				fprintf (stderr, "warning: multiple matches on insn %d:\n", i+1);
-				for (j = 0; j < im[i].mnum; j++)
-					fprintf (stderr, "%d	%016llx	%016llx\n", im[i].m[j].oplen, im[i].m[j].a, im[i].m[j].m);
-			}
-#endif
 		}
 	}
+	return 0;
+}
+
+int envyas_layout(struct asctx *ctx, struct easm_file *file) {
+	int i, j;
 	int allok = 1;
-	struct section *sections = 0;
-	int sectionsnum = 0;
-	int sectionsmax = 0;
 	ctx->symtab = symtab_new();
 	do {
 		symtab_del(ctx->symtab);
@@ -260,22 +249,22 @@ int envyas_process(struct easm_file *file) {
 		allok = 1;
 		ctx->labelsnum = 0;
 		ctx->cur_global_label = NULL;
-		for (i = 0; i < sectionsnum; i++)
-			free(sections[i].code);
-		sectionsnum = 0;
+		for (i = 0; i < ctx->sectionsnum; i++)
+			free(ctx->sections[i].code);
+		ctx->sectionsnum = 0;
 		int cursect = 0;
 		struct section def = { "default" };
 		def.first_label = -1;
-		ADDARRAY(sections, def);
+		ADDARRAY(ctx->sections, def);
 		for (i = 0; i < file->linesnum; i++) {
 			struct easm_directive *direct = file->lines[i]->directive;
 			switch (file->lines[i]->type) {
 				case EASM_LINE_INSN:
 					if (ctx->isa->i_need_nv50as_hack) {
-						if (im[i].m[0].oplen == 8 && (sections[cursect].pos & 7))
-							sections[cursect].pos &= ~7ull, sections[cursect].pos += 8;
+						if (ctx->im[i].m[0].oplen == 8 && (ctx->sections[cursect].pos & 7))
+							ctx->sections[cursect].pos &= ~7ull, ctx->sections[cursect].pos += 8;
 					}
-					sections[cursect].pos += im[i].m[0].oplen;
+					ctx->sections[cursect].pos += ctx->im[i].m[0].oplen;
 					break;
 				case EASM_LINE_LABEL:
 					if (file->lines[i]->lname[0] == '_' && file->lines[i]->lname[1] != '_') {
@@ -290,10 +279,10 @@ int envyas_process(struct easm_file *file) {
 						fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Label %s redeclared!\n"), file->lines[i]->lname);
 						return 1;
 					}
-					struct label l = { file->lines[i]->lname, sections[cursect].pos / ctx->isa->posunit + sections[cursect].base };
-					if (sections[cursect].first_label < 0)
-						sections[cursect].first_label = ctx->labelsnum;
-					sections[cursect].last_label = ctx->labelsnum;
+					struct label l = { file->lines[i]->lname, ctx->sections[cursect].pos / ctx->isa->posunit + ctx->sections[cursect].base };
+					if (ctx->sections[cursect].first_label < 0)
+						ctx->sections[cursect].first_label = ctx->labelsnum;
+					ctx->sections[cursect].last_label = ctx->labelsnum;
 					ADDARRAY(ctx->labels, l);
 					break;
 				case EASM_LINE_DIRECTIVE:
@@ -306,15 +295,15 @@ int envyas_process(struct easm_file *file) {
 							fprintf (stderr, LOC_FORMAT(direct->loc, "Wrong arguments for .section\n"));
 							return 1;
 						}
-						for (j = 0; j < sectionsnum; j++)
-							if (!strcmp(sections[j].name, direct->params[0]->str))
+						for (j = 0; j < ctx->sectionsnum; j++)
+							if (!strcmp(ctx->sections[j].name, direct->params[0]->str))
 								break;
-						if (j == sectionsnum) {
+						if (j == ctx->sectionsnum) {
 							struct section s = { direct->params[0]->str };
 							s.first_label = -1;
 							if (direct->paramsnum == 2)
 								s.base = direct->params[1]->num;
-							ADDARRAY(sections, s);
+							ADDARRAY(ctx->sections, s);
 						}
 						cursect = j;
 					} else if (!strcmp(direct->str, "align")) {
@@ -327,9 +316,9 @@ int envyas_process(struct easm_file *file) {
 							return 1;
 						}
 						ull num = direct->params[0]->num;
-						sections[cursect].pos += num - 1;
-						sections[cursect].pos /= num;
-						sections[cursect].pos *= num;
+						ctx->sections[cursect].pos += num - 1;
+						ctx->sections[cursect].pos /= num;
+						ctx->sections[cursect].pos *= num;
 					} else if (!strcmp(direct->str, "size")) {
 						if (direct->paramsnum > 1) {
 							fprintf (stderr, LOC_FORMAT(direct->loc, "Too many arguments for .size\n"));
@@ -340,11 +329,11 @@ int envyas_process(struct easm_file *file) {
 							return 1;
 						}
 						ull num = direct->params[0]->num;
-						if (sections[cursect].pos > num) {
-							fprintf (stderr, LOC_FORMAT(direct->loc, "Section '%s' exceeds .size by %llu bytes\n"), sections[cursect].name, sections[cursect].pos - num);
+						if (ctx->sections[cursect].pos > num) {
+							fprintf (stderr, LOC_FORMAT(direct->loc, "Section '%s' exceeds .size by %llu bytes\n"), ctx->sections[cursect].name, ctx->sections[cursect].pos - num);
 							return 1;
 						}
-						sections[cursect].pos = num;
+						ctx->sections[cursect].pos = num;
 					} else if (!strcmp(direct->str, "skip")) {
 						if (direct->paramsnum > 1) {
 							fprintf (stderr, LOC_FORMAT(direct->loc, "Too many arguments for .skip\n"));
@@ -355,7 +344,7 @@ int envyas_process(struct easm_file *file) {
 							return 1;
 						}
 						ull num = direct->params[0]->num;
-						sections[cursect].pos += num;
+						ctx->sections[cursect].pos += num;
 					} else if (!strcmp(direct->str, "equ")) {
 						if (direct->paramsnum != 2
 							|| direct->params[0]->type != EASM_EXPR_LABEL
@@ -375,7 +364,7 @@ int envyas_process(struct easm_file *file) {
 						}
 						struct label l = { direct->params[0]->str, num , /* Distinguish .equ labels from regular labels */ 1 };
 						ADDARRAY(ctx->labels, l);
-					} else if (!donum(&sections[cursect], direct, ctx, 0)) {
+					} else if (!donum(&ctx->sections[cursect], direct, ctx, 0)) {
 						fprintf (stderr, LOC_FORMAT(direct->loc, "Unknown directive .%s\n"), direct->str);
 						return 1;
 					}
@@ -384,40 +373,40 @@ int envyas_process(struct easm_file *file) {
 		}
 		cursect = 0;
 		ctx->cur_global_label = NULL;
-		for (j = 0; j < sectionsnum; j++)
-			sections[j].pos = 0;
+		for (j = 0; j < ctx->sectionsnum; j++)
+			ctx->sections[j].pos = 0;
 		ull val[MAXOPLEN];
 		for (i = 0; i < file->linesnum; i++) {
 			struct easm_directive *direct = file->lines[i]->directive;
 			switch (file->lines[i]->type) {
 				case EASM_LINE_INSN:
-					if (!resolve(ctx, val, im[i].m[0], sections[cursect].pos / ctx->isa->posunit + sections[cursect].base)) {
-						sections[cursect].pos += im[i].m[0].oplen;
-						im[i].m++;
-						im[i].mnum--;
-						if (!im[i].mnum) {
+					if (!resolve(ctx, val, ctx->im[i].m[0], ctx->sections[cursect].pos / ctx->isa->posunit + ctx->sections[cursect].base)) {
+						ctx->sections[cursect].pos += ctx->im[i].m[0].oplen;
+						ctx->im[i].m++;
+						ctx->im[i].mnum--;
+						if (!ctx->im[i].mnum) {
 							fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Relocaiton failed\n"));
 							return 1;
 						}
 						allok = 0;
 					} else {
 						if (ctx->isa->i_need_nv50as_hack) {
-							if (im[i].m[0].oplen == 8 && (sections[cursect].pos & 7)) {
+							if (ctx->im[i].m[0].oplen == 8 && (ctx->sections[cursect].pos & 7)) {
 								j = i - 1;
 								while (j != -1ull && file->lines[j]->type == EASM_LINE_LABEL)
 									j--;
 								assert (j != -1ull && file->lines[j]->type == EASM_LINE_INSN);
-								if (im[j].m[0].oplen == 4) {
-									im[j].m++;
-									im[j].mnum--;
+								if (ctx->im[j].m[0].oplen == 4) {
+									ctx->im[j].m++;
+									ctx->im[j].mnum--;
 								}
 								allok = 0;
-								sections[cursect].pos &= ~7ull, sections[cursect].pos += 8;
+								ctx->sections[cursect].pos &= ~7ull, ctx->sections[cursect].pos += 8;
 							}
 						}
-						extend(&sections[cursect], im[i].m[0].oplen);
-						for (j = 0; j < im[i].m[0].oplen; j++)
-							sections[cursect].code[sections[cursect].pos++] = val[j>>3] >> (8*(j&7));
+						extend(&ctx->sections[cursect], ctx->im[i].m[0].oplen);
+						for (j = 0; j < ctx->im[i].m[0].oplen; j++)
+							ctx->sections[cursect].code[ctx->sections[cursect].pos++] = val[j>>3] >> (8*(j&7));
 					}
 					break;
 				case EASM_LINE_LABEL:
@@ -426,103 +415,106 @@ int envyas_process(struct easm_file *file) {
 					break;
 				case EASM_LINE_DIRECTIVE:
 					if (!strcmp(direct->str, "section")) {
-						for (j = 0; j < sectionsnum; j++)
-							if (!strcmp(sections[j].name, direct->params[0]->str))
+						for (j = 0; j < ctx->sectionsnum; j++)
+							if (!strcmp(ctx->sections[j].name, direct->params[0]->str))
 								break;
 						cursect = j;
 					} else if (!strcmp(direct->str, "align")) {
 						ull num = direct->params[0]->num;
-						ull oldpos = sections[cursect].pos;
-						sections[cursect].pos += num - 1;
-						sections[cursect].pos /= num;
-						sections[cursect].pos *= num;
-						extend(&sections[cursect], 0);
-						for (j = oldpos; j < sections[cursect].pos; j++)
-							sections[cursect].code[j] = 0;
+						ull oldpos = ctx->sections[cursect].pos;
+						ctx->sections[cursect].pos += num - 1;
+						ctx->sections[cursect].pos /= num;
+						ctx->sections[cursect].pos *= num;
+						extend(&ctx->sections[cursect], 0);
+						for (j = oldpos; j < ctx->sections[cursect].pos; j++)
+							ctx->sections[cursect].code[j] = 0;
 					} else if (!strcmp(direct->str, "size")) {
 						ull num = direct->params[0]->num;
-						ull oldpos = sections[cursect].pos;
-						if (sections[cursect].pos > num) {
-							fprintf (stderr, LOC_FORMAT(direct->loc, "Section '%s' exceeds .size by %llu bytes\n"), sections[cursect].name, sections[cursect].pos - num);
+						ull oldpos = ctx->sections[cursect].pos;
+						if (ctx->sections[cursect].pos > num) {
+							fprintf (stderr, LOC_FORMAT(direct->loc, "Section '%s' exceeds .size by %llu bytes\n"), ctx->sections[cursect].name, ctx->sections[cursect].pos - num);
 							return 1;
 						}
-						sections[cursect].pos = num;
-						extend(&sections[cursect], 0);
-						for (j = oldpos; j < sections[cursect].pos; j++)
-							sections[cursect].code[j] = 0;
+						ctx->sections[cursect].pos = num;
+						extend(&ctx->sections[cursect], 0);
+						for (j = oldpos; j < ctx->sections[cursect].pos; j++)
+							ctx->sections[cursect].code[j] = 0;
 					} else if (!strcmp(direct->str, "skip")) {
 						ull num = direct->params[0]->num;
-						ull oldpos = sections[cursect].pos;
-						sections[cursect].pos += num;
-						extend(&sections[cursect], 0);
-						for (j = oldpos; j < sections[cursect].pos; j++)
-							sections[cursect].code[j] = 0;
+						ull oldpos = ctx->sections[cursect].pos;
+						ctx->sections[cursect].pos += num;
+						extend(&ctx->sections[cursect], 0);
+						for (j = oldpos; j < ctx->sections[cursect].pos; j++)
+							ctx->sections[cursect].code[j] = 0;
 					} else if (!strcmp(direct->str, "equ")) {
 						/* nothing to be done */
-					} else if (!donum(&sections[cursect], direct, ctx, 1)) {
+					} else if (!donum(&ctx->sections[cursect], direct, ctx, 1)) {
 						fprintf (stderr, LOC_FORMAT(direct->loc, "Unknown directive .%s\n"), direct->str);
 						return 1;
 					}
 			}
 		}
 	} while (!allok);
+	return 0;
+}
+
+int envyas_output(struct asctx *ctx, enum envyas_ofmt ofmt, const char *outname) {
 	FILE *outfile = stdout;
-	if (envyas_outname) {
-		if (!(outfile = fopen(envyas_outname, "w"))) {
-			perror(envyas_outname);
+	int i, j, k;
+	if (outname) {
+		if (!(outfile = fopen(outname, "w"))) {
+			perror(outname);
 			return 1;
 		}
 	}
-
-	for (i = 0; i < sectionsnum; i++) {
-		if (!strcmp(sections[i].name, "default") && !sections[i].pos)
+	for (i = 0; i < ctx->sectionsnum; i++) {
+		if (!strcmp(ctx->sections[i].name, "default") && !ctx->sections[i].pos)
 			continue;
-		if (envyas_ofmt == OFMT_RAW)
-			fwrite (sections[i].code, 1, sections[i].pos, outfile);
+		if (ofmt == OFMT_RAW)
+			fwrite (ctx->sections[i].code, 1, ctx->sections[i].pos, outfile);
 		else {
-			if (envyas_ofmt == OFMT_CHEX8) {
-				fprintf (outfile, "uint8_t %s[] = {\n", sections[i].name);
+			if (ofmt == OFMT_CHEX8) {
+				fprintf (outfile, "uint8_t %s[] = {\n", ctx->sections[i].name);
 			}
-			if (envyas_ofmt == OFMT_CHEX32) {
-				fprintf (outfile, "uint32_t %s[] = {\n", sections[i].name);
+			if (ofmt == OFMT_CHEX32) {
+				fprintf (outfile, "uint32_t %s[] = {\n", ctx->sections[i].name);
 			}
-			if (envyas_ofmt == OFMT_CHEX64) {
-				fprintf (outfile, "uint64_t %s[] = {\n", sections[i].name);
+			if (ofmt == OFMT_CHEX64) {
+				fprintf (outfile, "uint64_t %s[] = {\n", ctx->sections[i].name);
 			}
 			int step;
-			if (envyas_ofmt == OFMT_CHEX64 || envyas_ofmt == OFMT_HEX64) {
+			if (ofmt == OFMT_CHEX64 || ofmt == OFMT_HEX64) {
 				step = 8;
-			} else if (envyas_ofmt == OFMT_CHEX32 || envyas_ofmt == OFMT_HEX32) {
+			} else if (ofmt == OFMT_CHEX32 || ofmt == OFMT_HEX32) {
 				step = 4;
 			} else {
 				step = 1;
 			}
-			for (j = 0; j < sections[i].pos; j+=step) {
+			for (j = 0; j < ctx->sections[i].pos; j+=step) {
 				uint64_t val = 0;
-				int k;
-				if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32 || envyas_ofmt == OFMT_CHEX64) {
+				if (ofmt == OFMT_CHEX8 || ofmt == OFMT_CHEX32 || ofmt == OFMT_CHEX64) {
 					for (k = 0; k < step; k++) {
-						int l = find_label(ctx, &sections[i], j + k, -1);
+						int l = find_label(ctx, &ctx->sections[i], j + k, -1);
 						while (l >= 0) {
 							fprintf(outfile, "/* 0x%04x: %s */\n", j + k, ctx->labels[l].name);
-							l = find_label(ctx, &sections[i], j + k, l + 1);
+							l = find_label(ctx, &ctx->sections[i], j + k, l + 1);
 						}
 					}
 					fprintf (outfile, "\t");
 				}
 				for (k = 0; k < step; k++)
-					val |= (uint64_t)sections[i].code[j + k] << (k * 8);
-				if (envyas_ofmt == OFMT_CHEX64 || envyas_ofmt == OFMT_HEX64) {
+					val |= (uint64_t)ctx->sections[i].code[j + k] << (k * 8);
+				if (ofmt == OFMT_CHEX64 || ofmt == OFMT_HEX64) {
 					fprintf (outfile, "0x%016"PRIx64",\n", val);
-				} else if (envyas_ofmt == OFMT_CHEX32 || envyas_ofmt == OFMT_HEX32) {
+				} else if (ofmt == OFMT_CHEX32 || ofmt == OFMT_HEX32) {
 					fprintf (outfile, "0x%08"PRIx64",\n", val);
 				} else {
 					fprintf (outfile, "0x%02"PRIx64",\n", val);
 				}
 			}
-			if (envyas_ofmt == OFMT_CHEX8 || envyas_ofmt == OFMT_CHEX32 || envyas_ofmt == OFMT_CHEX64) {
+			if (ofmt == OFMT_CHEX8 || ofmt == OFMT_CHEX32 || ofmt == OFMT_CHEX64) {
 				fprintf (outfile, "};\n");
-				if (i != sectionsnum - 1)
+				if (i != ctx->sectionsnum - 1)
 					fprintf(outfile, "\n");
 			}
 		}
@@ -531,13 +523,17 @@ int envyas_process(struct easm_file *file) {
 }
 
 int main(int argc, char **argv) {
+	struct asctx ctx_s = { 0 };
+	struct asctx *ctx = &ctx_s;
+	enum envyas_ofmt ofmt = OFMT_HEX8;
+	const char *outname = 0;
 	argv[0] = basename(argv[0]);
 	int len = strlen(argv[0]);
 	if (len > 2 && !strcmp(argv[0] + len - 2, "as")) {
 		argv[0][len-2] = 0;
-		envyas_isa = ed_getisa(argv[0]);
-		if (envyas_isa && envyas_isa->opunit == 4)
-			envyas_ofmt = OFMT_HEX32;
+		ctx->isa = ed_getisa(argv[0]);
+		if (ctx->isa && ctx->isa->opunit == 4)
+			ofmt = OFMT_HEX32;
 	}
 	int c;
 	const char **varnames = 0;
@@ -552,31 +548,31 @@ int main(int argc, char **argv) {
 	while ((c = getopt (argc, argv, "am:V:O:F:o:wWi")) != -1)
 		switch (c) {
 			case 'a':
-				if (envyas_ofmt == OFMT_HEX64)
-					envyas_ofmt = OFMT_CHEX64;
-				else if (envyas_ofmt == OFMT_HEX32)
-					envyas_ofmt = OFMT_CHEX32;
+				if (ofmt == OFMT_HEX64)
+					ofmt = OFMT_CHEX64;
+				else if (ofmt == OFMT_HEX32)
+					ofmt = OFMT_CHEX32;
 				else
-					envyas_ofmt = OFMT_CHEX8;
+					ofmt = OFMT_CHEX8;
 				break;
 			case 'w':
-				if (envyas_ofmt == OFMT_CHEX8)
-					envyas_ofmt = OFMT_CHEX32;
+				if (ofmt == OFMT_CHEX8)
+					ofmt = OFMT_CHEX32;
 				else
-					envyas_ofmt = OFMT_HEX32;
+					ofmt = OFMT_HEX32;
 				break;
 			case 'W':
-				if (envyas_ofmt == OFMT_CHEX8)
-					envyas_ofmt = OFMT_CHEX64;
+				if (ofmt == OFMT_CHEX8)
+					ofmt = OFMT_CHEX64;
 				else
-					envyas_ofmt = OFMT_HEX64;
+					ofmt = OFMT_HEX64;
 				break;
 			case 'i':
-				envyas_ofmt = OFMT_RAW;
+				ofmt = OFMT_RAW;
 				break;
 			case 'm':
-				envyas_isa = ed_getisa(optarg);
-				if (!envyas_isa) {
+				ctx->isa = ed_getisa(optarg);
+				if (!ctx->isa) {
 					fprintf (stderr, "Unknown architecture \"%s\"!\n", optarg);
 					return 1;
 				}
@@ -591,7 +587,7 @@ int main(int argc, char **argv) {
 				ADDARRAY(featnames, optarg);
 				break;
 			case 'o':
-				envyas_outname = optarg;
+				outname = optarg;
 				break;
 		}
 	FILE *ifile = stdin;
@@ -609,26 +605,32 @@ int main(int argc, char **argv) {
 			return 1;
 		}
 	}
-	if (!envyas_isa) {
+	if (!ctx->isa) {
 		fprintf (stderr, "No architecture specified!\n");
 		return 1;
 	}
-	envyas_varinfo = varinfo_new(envyas_isa->vardata);
-	if (!envyas_varinfo)
+	ctx->varinfo = varinfo_new(ctx->isa->vardata);
+	if (!ctx->varinfo)
 		return 1;
 	int i;
 	for (i = 0; i < varnamesnum; i++)
-		if (varinfo_set_variant(envyas_varinfo, varnames[i]))
+		if (varinfo_set_variant(ctx->varinfo, varnames[i]))
 			return 1;
 	for (i = 0; i < featnamesnum; i++)
-		if (varinfo_set_feature(envyas_varinfo, featnames[i]))
+		if (varinfo_set_feature(ctx->varinfo, featnames[i]))
 			return 1;
 	for (i = 0; i < modenamesnum; i++)
-		if (varinfo_set_mode(envyas_varinfo, modenames[i]))
+		if (varinfo_set_mode(ctx->varinfo, modenames[i]))
 			return 1;
 	struct easm_file *file;
 	int r = easm_read_file(ifile, filename, &file);
 	if (r)
 		return r;
-	return envyas_process(file);
+	if (envyas_process(ctx, file))
+		return 1;
+	if (envyas_layout(ctx, file))
+		return 1;
+	if (envyas_output(ctx, ofmt, outname))
+		return 1;
+	return 0;
 }
