@@ -50,6 +50,8 @@ struct label {
 
 const struct disisa *ed_getisa(const char *name);
 
+uint32_t ed_getcbsz(const struct disisa *isa, struct varinfo *varinfo);
+
 void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, struct varinfo *varinfo, int quiet, struct label *labels, int labelsnum, const struct envy_colors *cols);
 
 #endif

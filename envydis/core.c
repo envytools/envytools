@@ -67,3 +67,7 @@ const struct disisa *ed_getisa(const char *name) {
 		}
 	return 0;
 };
+
+uint32_t ed_getcbsz(const struct disisa *isa, struct varinfo *varinfo) {
+	return isa->posunit * 8;
+}
