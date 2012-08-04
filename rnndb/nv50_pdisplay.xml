@@ -607,7 +607,21 @@
 			<use-group name="nv98_fucbase"/>
 			<use-group name="nv98_fuc_memif"/>
 		</array>
-
+		<array offset="0x1e000" name="VGA_PANEL" stride="0x800" length="4" variants="NVD9-">
+			<reg32 offset="0x00" name="HORIZ_TOTAL_M1"/>
+			<reg32 offset="0x04" name="HORIZ_DISPLAY_M1"/>
+			<reg32 offset="0x08" name="HORIZ_WINDOW_START"/>
+			<reg32 offset="0x0c" name="HORIZ_WINDOW_END"/>
+			<reg32 offset="0x10" name="HORIZ_BLANK_START"/>
+			<reg32 offset="0x14" name="HORIZ_BLANK_END"/>
+			<reg32 offset="0x20" name="VERT_TOTAL_M1"/>
+			<reg32 offset="0x24" name="VERT_DISPLAY_M1"/>
+			<reg32 offset="0x28" name="VERT_WINDOW_START"/>
+			<reg32 offset="0x2c" name="VERT_WINDOW_END"/>
+			<reg32 offset="0x30" name="VERT_BLANK_START"/>
+			<reg32 offset="0x34" name="VERT_BLANK_END"/>
+			<reg32 offset="0x700" name="UNK700"/>
+		</array>
 	</array>
 
 	<array name="DISP_USER" offset="0x640000" stride="0x1000" length="5" variants="NV50:NVD9">
