@@ -57,6 +57,7 @@ int main(int argc, char **argv) {
 	const char **featnames = 0;
 	int featnamesnum = 0;
 	int featnamesmax = 0;
+	int wsz = 0;
 	const struct envy_colors *cols = &envy_def_colors;
 	argv[0] = basename(argv[0]);
 	int len = strlen(argv[0]);
@@ -68,7 +69,7 @@ int main(int argc, char **argv) {
 	}
 	int c;
 	unsigned base = 0, skip = 0, limit = 0;
-	while ((c = getopt (argc, argv, "b:d:l:m:V:O:F:wWinqu:M:")) != -1)
+	while ((c = getopt (argc, argv, "b:d:l:m:V:O:F:wWinqu:M:S:")) != -1)
 		switch (c) {
 			case 'b':
 				sscanf(optarg, "%x", &base);
@@ -78,6 +79,9 @@ int main(int argc, char **argv) {
 				break;
 			case 'l':
 				sscanf(optarg, "%x", &limit);
+				break;
+			case 'S':
+				sscanf(optarg, "%x", &wsz);
 				break;
 			case 'w':
 				w = 1;
@@ -208,45 +212,53 @@ int main(int argc, char **argv) {
 	for (i = 0; i < modenamesnum; i++)
 		if (varinfo_set_mode(var, modenames[i]))
 			return 1;
+	uint32_t cbsz = ed_getcbsz(isa, var);
+	if (!cbsz) {
+		fprintf(stderr, "Not enough variant info specified!\n");
+		return 1;
+	}
+	if (cbsz > 64 && !bin) {
+		fprintf(stderr, "Byte size too large for non-binary input!\n");
+		return 1;
+	}
 	int num = 0;
 	int maxnum = 16;
 	uint8_t *code = malloc (maxnum);
 	unsigned long long t;
 	if (bin) {
+		if (!wsz)
+			wsz = CEILDIV(cbsz, 8);
+		if (wsz < CEILDIV(cbsz, 8)) {
+			fprintf(stderr, "Stride too small!\n");
+			return 1;
+		}
+		int pos = 0;
 		int c;
 		while ((c = getc(infile)) != EOF) {
-			if (num + 3 >= maxnum) maxnum *= 2, code = realloc (code, maxnum);
-			code[num++] = c;
+			if (pos < CEILDIV(cbsz, 8)) {
+				if (num >= maxnum) maxnum *= 2, code = realloc (code, maxnum);
+				code[num++] = c;
+			}
+			pos++;
+			if (pos == wsz)
+				pos = 0;
 		}
 	} else {
+		if (wsz) {
+			fprintf(stderr, "Stride is meaningless in hex input mode!\n");
+			return 1;
+		}
+		wsz = CEILDIV(cbsz, 8);
+		if (cbsz == 8 && w == 1)
+			wsz = 4;
+		if (cbsz == 8 && w == 2)
+			wsz = 8;
 		while (!feof(infile) && fscanf (infile, "%llx", &t) == 1) {
-			if (num + 3 >= maxnum) maxnum *= 2, code = realloc (code, maxnum);
-			if (w == 2) {
+			if (num + wsz - 1 >= maxnum) maxnum *= 2, code = realloc (code, maxnum);
+			for (i = 0; i < wsz; i++) {
 				code[num++] = t & 0xff;
 				t >>= 8;
-				code[num++] = t & 0xff;
-				t >>= 8;
-				code[num++] = t & 0xff;
-				t >>= 8;
-				code[num++] = t & 0xff;
-				t >>= 8;
-				code[num++] = t & 0xff;
-				t >>= 8;
-				code[num++] = t & 0xff;
-				t >>= 8;
-				code[num++] = t & 0xff;
-				t >>= 8;
-				code[num++] = t & 0xff;
-			} else if (w) {
-				code[num++] = t & 0xff;
-				t >>= 8;
-				code[num++] = t & 0xff;
-				t >>= 8;
-				code[num++] = t & 0xff;
-				t >>= 8;
-				code[num++] = t & 0xff;
-			} else
-				code[num++] = t;
+			}
 			fscanf (infile, " ,");
 		}
 	}

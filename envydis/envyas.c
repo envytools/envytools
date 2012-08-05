@@ -458,7 +458,7 @@ int envyas_layout(struct asctx *ctx, struct easm_file *file) {
 	return 0;
 }
 
-int envyas_output(struct asctx *ctx, enum envyas_ofmt ofmt, const char *outname) {
+int envyas_output(struct asctx *ctx, enum envyas_ofmt ofmt, const char *outname, int stride) {
 	FILE *outfile = stdout;
 	int i, j, k;
 	if (outname) {
@@ -467,20 +467,35 @@ int envyas_output(struct asctx *ctx, enum envyas_ofmt ofmt, const char *outname)
 			return 1;
 		}
 	}
+	int cbsz = CEILDIV(ed_getcbsz(ctx->isa, ctx->varinfo), 8);
+	if (!stride)
+		stride = cbsz;
+	if (stride < cbsz) {
+		fprintf(stderr, "Stride smaller than code byte size!\n");
+		return 1;
+	}
 	for (i = 0; i < ctx->sectionsnum; i++) {
 		if (!strcmp(ctx->sections[i].name, "default") && !ctx->sections[i].pos)
 			continue;
-		if (ofmt == OFMT_RAW)
-			fwrite (ctx->sections[i].code, 1, ctx->sections[i].pos, outfile);
-		else {
+		if (ofmt == OFMT_RAW) {
+			for (j = 0; j < ctx->sections[i].pos; j += cbsz) {
+				fwrite (ctx->sections[i].code + j, 1, cbsz, outfile);
+				for (k = 0; k < stride-cbsz; k++)
+					fputc(0, stderr);
+			}
+		} else {
+			int ischex = 0;
 			if (ofmt == OFMT_CHEX8) {
 				fprintf (outfile, "uint8_t %s[] = {\n", ctx->sections[i].name);
+				ischex = 1;
 			}
 			if (ofmt == OFMT_CHEX32) {
 				fprintf (outfile, "uint32_t %s[] = {\n", ctx->sections[i].name);
+				ischex = 1;
 			}
 			if (ofmt == OFMT_CHEX64) {
 				fprintf (outfile, "uint64_t %s[] = {\n", ctx->sections[i].name);
+				ischex = 1;
 			}
 			int step;
 			if (ofmt == OFMT_CHEX64 || ofmt == OFMT_HEX64) {
@@ -489,6 +504,13 @@ int envyas_output(struct asctx *ctx, enum envyas_ofmt ofmt, const char *outname)
 				step = 4;
 			} else {
 				step = 1;
+			}
+			if (cbsz != 1) {
+				if (step < cbsz && ischex) {
+					fprintf(stderr, "Output format word too small to hold a full code byte!\n");
+					return 1;
+				}
+				step = cbsz;
 			}
 			for (j = 0; j < ctx->sections[i].pos; j+=step) {
 				uint64_t val = 0;
@@ -502,7 +524,7 @@ int envyas_output(struct asctx *ctx, enum envyas_ofmt ofmt, const char *outname)
 					}
 					fprintf (outfile, "\t");
 				}
-				for (k = 0; k < step; k++)
+				for (k = 0; k < step && j + k < ctx->sections[i].pos; k++)
 					val |= (uint64_t)ctx->sections[i].code[j + k] << (k * 8);
 				if (ofmt == OFMT_CHEX64 || ofmt == OFMT_HEX64) {
 					fprintf (outfile, "0x%016"PRIx64",\n", val);
@@ -512,7 +534,7 @@ int envyas_output(struct asctx *ctx, enum envyas_ofmt ofmt, const char *outname)
 					fprintf (outfile, "0x%02"PRIx64",\n", val);
 				}
 			}
-			if (ofmt == OFMT_CHEX8 || ofmt == OFMT_CHEX32 || ofmt == OFMT_CHEX64) {
+			if (ischex) {
 				fprintf (outfile, "};\n");
 				if (i != ctx->sectionsnum - 1)
 					fprintf(outfile, "\n");
@@ -527,6 +549,7 @@ int main(int argc, char **argv) {
 	struct asctx *ctx = &ctx_s;
 	enum envyas_ofmt ofmt = OFMT_HEX8;
 	const char *outname = 0;
+	int stride = 0;
 	argv[0] = basename(argv[0]);
 	int len = strlen(argv[0]);
 	if (len > 2 && !strcmp(argv[0] + len - 2, "as")) {
@@ -545,7 +568,7 @@ int main(int argc, char **argv) {
 	const char **featnames = 0;
 	int featnamesnum = 0;
 	int featnamesmax = 0;
-	while ((c = getopt (argc, argv, "am:V:O:F:o:wWi")) != -1)
+	while ((c = getopt (argc, argv, "am:V:O:F:o:wWiS:")) != -1)
 		switch (c) {
 			case 'a':
 				if (ofmt == OFMT_HEX64)
@@ -589,6 +612,9 @@ int main(int argc, char **argv) {
 			case 'o':
 				outname = optarg;
 				break;
+			case 'S':
+				sscanf(optarg, "%x", &stride);
+				break;
 		}
 	FILE *ifile = stdin;
 	const char *filename = "stdin";
@@ -630,7 +656,7 @@ int main(int argc, char **argv) {
 		return 1;
 	if (envyas_layout(ctx, file))
 		return 1;
-	if (envyas_output(ctx, ofmt, outname))
+	if (envyas_output(ctx, ofmt, outname, stride))
 		return 1;
 	return 0;
 }
