@@ -346,14 +346,14 @@
 			<reg32 offset="0x0b0" name="INTR_HOST_2_EN" type="nvd9_pdisplay_intr_2"/>
 			<reg32 offset="0x0b4" name="INTR_HOST_2_UNK8" type="nvd9_pdisplay_intr_2"/>
 			<reg32 offset="0x0b8" name="INTR_HOST_2_DISPATCH" type="nvd9_pdisplay_intr_2"/>
-			<reg34 offset="0x0bc" name="INTR_HOST_CRTC" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg34 offset="0x0c0" name="INTR_HOST_CRTC_EN" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg34 offset="0x0c4" name="INTR_HOST_CRTC_UNK8" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg34 offset="0x0c8" name="INTR_HOST_CRTC_DISPATCH" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg34 offset="0x0cc" name="INTR_HOST_4" type="nvd9_pdisplay_intr_4"/>
-			<reg34 offset="0x0d0" name="INTR_HOST_4_EN" type="nvd9_pdisplay_intr_4"/>
-			<reg34 offset="0x0d4" name="INTR_HOST_4_UNK8" type="nvd9_pdisplay_intr_4"/>
-			<reg34 offset="0x0d8" name="INTR_HOST_4_DISPATCH" type="nvd9_pdisplay_intr_4"/>
+			<reg32 offset="0x0bc" name="INTR_HOST_CRTC" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
+			<reg32 offset="0x0c0" name="INTR_HOST_CRTC_EN" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
+			<reg32 offset="0x0c4" name="INTR_HOST_CRTC_UNK8" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
+			<reg32 offset="0x0c8" name="INTR_HOST_CRTC_DISPATCH" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
+			<reg32 offset="0x0cc" name="INTR_HOST_4" type="nvd9_pdisplay_intr_4"/>
+			<reg32 offset="0x0d0" name="INTR_HOST_4_EN" type="nvd9_pdisplay_intr_4"/>
+			<reg32 offset="0x0d4" name="INTR_HOST_4_UNK8" type="nvd9_pdisplay_intr_4"/>
+			<reg32 offset="0x0d8" name="INTR_HOST_4_DISPATCH" type="nvd9_pdisplay_intr_4"/>
 
 			<!-- if a bit in REDIRECT_ONE_xxx is set, and the corresponding bit in DISPATCH is set, when given interrupt is triggered,
 			     it is delivered to xxx instead of the destination selected by DISPATCH regs, and the REDIRECT_ONE_xxx bit auto-clears -->
@@ -370,14 +370,14 @@
 			<reg32 offset="0x108" name="INTR_DAEMON_2_DISPATCH" type="nvd9_pdisplay_intr_2"/>
 			<reg32 offset="0x10c" name="INTR_DAEMON_2_REDIRECT_ONE_HOST" type="nvd9_pdisplay_intr_2"/>
 			<reg32 offset="0x110" name="INTR_DAEMON_2_REDIRECT_ONE_DISPLAY_DAEMON" type="nvd9_pdisplay_intr_2"/>
-			<reg34 offset="0x114" name="INTR_DAEMON_CRTC" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg34 offset="0x118" name="INTR_DAEMON_CRTC_DISPATCH" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg34 offset="0x11c" name="INTR_DAEMON_CRTC_REDIRECT_ONE_HOST" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg34 offset="0x120" name="INTR_DAEMON_CRTC_REDIRECT_ONE_DISPLAY_DAEMON" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg34 offset="0x124" name="INTR_DAEMON_4" type="nvd9_pdisplay_intr_4"/>
-			<reg34 offset="0x128" name="INTR_DAEMON_4_DISPATCH" type="nvd9_pdisplay_intr_4"/>
-			<reg34 offset="0x12c" name="INTR_DAEMON_4_REDIRECT_ONE_HOST" type="nvd9_pdisplay_intr_4"/>
-			<reg34 offset="0x130" name="INTR_DAEMON_4_REDIRECT_ONE_DISPLAY_DAEMON" type="nvd9_pdisplay_intr_4"/>
+			<reg32 offset="0x114" name="INTR_DAEMON_CRTC" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
+			<reg32 offset="0x118" name="INTR_DAEMON_CRTC_DISPATCH" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
+			<reg32 offset="0x11c" name="INTR_DAEMON_CRTC_REDIRECT_ONE_HOST" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
+			<reg32 offset="0x120" name="INTR_DAEMON_CRTC_REDIRECT_ONE_DISPLAY_DAEMON" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
+			<reg32 offset="0x124" name="INTR_DAEMON_4" type="nvd9_pdisplay_intr_4"/>
+			<reg32 offset="0x128" name="INTR_DAEMON_4_DISPATCH" type="nvd9_pdisplay_intr_4"/>
+			<reg32 offset="0x12c" name="INTR_DAEMON_4_REDIRECT_ONE_HOST" type="nvd9_pdisplay_intr_4"/>
+			<reg32 offset="0x130" name="INTR_DAEMON_4_REDIRECT_ONE_DISPLAY_DAEMON" type="nvd9_pdisplay_intr_4"/>
 
 			<reg32 offset="0x140" name="INTR_DISPLAY_DAEMON_SUMMARY" type="nvd9_pdisplay_intr_summary"/>
 			<reg32 offset="0x144" name="INTR_DISPLAY_DAEMON_FIFO_UNK0" type="nvd9_pdisplay_intr_fifo"/>
@@ -392,14 +392,14 @@
 			<reg32 offset="0x168" name="INTR_DISPLAY_DAEMON_2_DISPATCH" type="nvd9_pdisplay_intr_2"/>
 			<reg32 offset="0x16c" name="INTR_DISPLAY_DAEMON_2_REDIRECT_ONE_HOST" type="nvd9_pdisplay_intr_2"/>
 			<reg32 offset="0x170" name="INTR_DISPLAY_DAEMON_2_REDIRECT_ONE_DAEMON" type="nvd9_pdisplay_intr_2"/>
-			<reg34 offset="0x174" name="INTR_DISPLAY_DAEMON_CRTC" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg34 offset="0x178" name="INTR_DISPLAY_DAEMON_CRTC_DISPATCH" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg34 offset="0x17c" name="INTR_DISPLAY_DAEMON_CRTC_REDIRECT_ONE_HOST" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg34 offset="0x180" name="INTR_DISPLAY_DAEMON_CRTC_REDIRECT_ONE_DAEMON" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
-			<reg34 offset="0x184" name="INTR_DISPLAY_DAEMON_4" type="nvd9_pdisplay_intr_4"/>
-			<reg34 offset="0x188" name="INTR_DISPLAY_DAEMON_4_DISPATCH" type="nvd9_pdisplay_intr_4"/>
-			<reg34 offset="0x18c" name="INTR_DISPLAY_DAEMON_4_REDIRECT_ONE_HOST" type="nvd9_pdisplay_intr_4"/>
-			<reg34 offset="0x190" name="INTR_DISPLAY_DAEMON_4_REDIRECT_ONE_DAEMON" type="nvd9_pdisplay_intr_4"/>
+			<reg32 offset="0x174" name="INTR_DISPLAY_DAEMON_CRTC" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
+			<reg32 offset="0x178" name="INTR_DISPLAY_DAEMON_CRTC_DISPATCH" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
+			<reg32 offset="0x17c" name="INTR_DISPLAY_DAEMON_CRTC_REDIRECT_ONE_HOST" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
+			<reg32 offset="0x180" name="INTR_DISPLAY_DAEMON_CRTC_REDIRECT_ONE_DAEMON" stride="0x800" length="4" type="nvd9_pdisplay_intr_crtc"/>
+			<reg32 offset="0x184" name="INTR_DISPLAY_DAEMON_4" type="nvd9_pdisplay_intr_4"/>
+			<reg32 offset="0x188" name="INTR_DISPLAY_DAEMON_4_DISPATCH" type="nvd9_pdisplay_intr_4"/>
+			<reg32 offset="0x18c" name="INTR_DISPLAY_DAEMON_4_REDIRECT_ONE_HOST" type="nvd9_pdisplay_intr_4"/>
+			<reg32 offset="0x190" name="INTR_DISPLAY_DAEMON_4_REDIRECT_ONE_DAEMON" type="nvd9_pdisplay_intr_4"/>
 		</stripe>
 
 		<array offset="0x4000" name="CLOCK" stride="0x2000" length="1">
