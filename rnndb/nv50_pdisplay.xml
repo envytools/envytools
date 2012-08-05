@@ -311,9 +311,9 @@
 				<bitfield pos="2" name="CLK_UNK2"/>
 				<bitfield pos="8" name="UNK8"/>
 				<bitfield pos="8" name="UNK8"/>
-				<bitfield pos="28" name="UNK28"/> <!-- special? -->
-				<bitfield pos="29" name="UNK29"/> <!-- special? -->
-				<bitfield pos="31" name="UNK31"/>
+				<bitfield pos="28" name="UNK28"/> <!-- cannot be directed nor redirected to PDAEMON -->
+				<bitfield pos="29" name="UNK29"/> <!-- cannot be directed nor redirected to PDISPLAY.DAEMON -->
+				<bitfield pos="31" name="UNK31"/> <!-- has host_en set by default -->
 			</bitset>
 			<bitset name="nvd9_pdisplay_intr_crtc" inline="yes">
 				<!-- 0-1, 6-13, 16-17, 20-21, 24-25, 28-31; on NVE4 also 2 and 27 -->
