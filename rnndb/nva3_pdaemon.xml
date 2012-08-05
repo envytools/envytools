@@ -14,7 +14,7 @@
 	<bitset name="NVA3_PDAEMON_INTR" varset="chipset">
 		<!-- 0..7 standard fµc -->
 		<bitfield pos="9" name="VM_FAULT" variants="NVA3:NVC0"/>
-		<bitfield pos="10" name="PMC_INT"/>
+		<bitfield pos="10" name="PMC_INTR"/> <!-- from PMC.INTR_DAEMON -->
 		<bitfield pos="11" name="INTR11"/> <!-- 688 -->
 		<bitfield pos="12" name="THERM"/> <!-- ? -->
 		<bitfield pos="13" name="SIGNAL"/> <!-- 7cc+ and 7ec+ -->
@@ -285,6 +285,7 @@
 		<bitfield pos="27" name="I2C_7_SDA" variants="NVD9-"/>
 		<bitfield pos="28" name="I2C_8_SDA" variants="NVD9-"/>
 		<bitfield pos="29" name="I2C_9_SDA" variants="NVD9-"/>
+		<bitfield pos="30" name="PDISPLAY_INTR" variants="NVD9-"/> <!-- from PDISPLAY.INTR_DAEMON -->
 	</bitset>
 	<bitset name="nva3_pdaemon_signal2" inline="yes">
 	</bitset>

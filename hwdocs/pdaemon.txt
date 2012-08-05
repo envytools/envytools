@@ -57,6 +57,12 @@ Data ports: 4
 Version 4 unknown bits: 27, 29, 30, 31
 
 [XXX: IO regs]
+Interrupts:
+ 10: PMC_INTR
+ 11: INTR11
+ 12: THERM
+ 13: SIGNAL
+ 14: INTR14
 [XXX: interrupts]
 [XXX: status bits]
 
