@@ -317,7 +317,28 @@
 				<bitfield pos="31" name="UNK31"/> <!-- has host_en set by default -->
 			</bitset>
 			<bitset name="nvd9_pdisplay_intr_crtc" inline="yes">
-				<!-- 0-1, 6-13, 16-17, 20-21, 24-25, 28-31; on NVE4 also 2 and 27 -->
+				<bitfield pos="0" name="VBLANK"/>
+				<bitfield pos="1" name="UNK1"/>
+				<bitfield pos="2" name="UNK2" variants="NVE4-"/>
+				<bitfield pos="6" name="UNK6"/>
+				<bitfield pos="7" name="UNK7"/>
+				<bitfield pos="8" name="UNK8"/>
+				<bitfield pos="9" name="UNK9"/>
+				<bitfield pos="10" name="UNK10"/>
+				<bitfield pos="11" name="UNK11"/>
+				<bitfield pos="12" name="UNK12"/>
+				<bitfield pos="13" name="UNK13"/>
+				<bitfield pos="16" name="UNK16"/>
+				<bitfield pos="17" name="UNK17"/>
+				<bitfield pos="20" name="UNK20"/>
+				<bitfield pos="21" name="UNK21"/>
+				<bitfield pos="24" name="UNK24"/>
+				<bitfield pos="25" name="UNK25"/>
+				<bitfield pos="27" name="UNK27" variants="NVE4-"/>
+				<bitfield pos="28" name="UNK28"/>
+				<bitfield pos="29" name="UNK29"/>
+				<bitfield pos="30" name="UNK30"/>
+				<bitfield pos="31" name="UNK31"/>
 			</bitset>
 			<bitset name="nvd9_pdisplay_intr_4" inline="yes">
 				<!-- 0-7, 16-19 -->
