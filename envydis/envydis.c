@@ -265,6 +265,7 @@ int main(int argc, char **argv) {
 	if (num <= skip)
 		return 0;
 	int cnt = num - skip;
+	cnt /= ed_getcstride(isa, var);
 	if (limit && limit < cnt)
 		cnt = limit;
 	envydis (isa, stdout, code+skip, base, cnt, var, quiet, labels, labelsnum, cols);

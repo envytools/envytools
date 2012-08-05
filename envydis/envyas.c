@@ -242,6 +242,7 @@ int envyas_process(struct asctx *ctx, struct easm_file *file) {
 int envyas_layout(struct asctx *ctx, struct easm_file *file) {
 	int i, j;
 	int allok = 1;
+	int stride = ed_getcstride(ctx->isa, ctx->varinfo);
 	ctx->symtab = symtab_new();
 	do {
 		symtab_del(ctx->symtab);
@@ -279,7 +280,7 @@ int envyas_layout(struct asctx *ctx, struct easm_file *file) {
 						fprintf (stderr, LOC_FORMAT(file->lines[i]->loc, "Label %s redeclared!\n"), file->lines[i]->lname);
 						return 1;
 					}
-					struct label l = { file->lines[i]->lname, ctx->sections[cursect].pos / ctx->isa->posunit + ctx->sections[cursect].base };
+					struct label l = { file->lines[i]->lname, ctx->sections[cursect].pos / stride + ctx->sections[cursect].base };
 					if (ctx->sections[cursect].first_label < 0)
 						ctx->sections[cursect].first_label = ctx->labelsnum;
 					ctx->sections[cursect].last_label = ctx->labelsnum;
@@ -380,7 +381,7 @@ int envyas_layout(struct asctx *ctx, struct easm_file *file) {
 			struct easm_directive *direct = file->lines[i]->directive;
 			switch (file->lines[i]->type) {
 				case EASM_LINE_INSN:
-					if (!resolve(ctx, val, ctx->im[i].m[0], ctx->sections[cursect].pos / ctx->isa->posunit + ctx->sections[cursect].base)) {
+					if (!resolve(ctx, val, ctx->im[i].m[0], ctx->sections[cursect].pos / stride + ctx->sections[cursect].base)) {
 						ctx->sections[cursect].pos += ctx->im[i].m[0].oplen;
 						ctx->im[i].m++;
 						ctx->im[i].mnum--;
@@ -467,7 +468,7 @@ int envyas_output(struct asctx *ctx, enum envyas_ofmt ofmt, const char *outname,
 			return 1;
 		}
 	}
-	int cbsz = CEILDIV(ed_getcbsz(ctx->isa, ctx->varinfo), 8);
+	int cbsz = ed_getcstride(ctx->isa, ctx->varinfo);
 	if (!stride)
 		stride = cbsz;
 	if (stride < cbsz) {

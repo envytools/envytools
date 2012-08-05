@@ -460,8 +460,8 @@ static void vuc_prep(struct disisa *isa) {
 
 struct disisa vuc_isa_s = {
 	tabroot,
-	8,
-	8,
+	1,
+	1,
 	8,
 	.prep = vuc_prep,
 };

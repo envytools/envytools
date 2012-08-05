@@ -289,8 +289,8 @@ static void ctx_prep(struct disisa *isa) {
 
 struct disisa ctx_isa_s = {
 	tabroot,
-	4,
-	4,
+	1,
+	1,
 	4,
 	.prep = ctx_prep,
 };

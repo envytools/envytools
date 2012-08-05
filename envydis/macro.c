@@ -165,7 +165,7 @@ static struct insn tabroot[] = {
 
 struct disisa macro_isa_s = {
 	tabroot,
-	4,
-	4,
+	1,
+	1,
 	4,
 };

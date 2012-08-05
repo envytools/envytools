@@ -25,6 +25,7 @@
 #ifndef DIS_H
 #define DIS_H
 
+#include "util.h"
 #include "var.h"
 #include "colors.h"
 #include <inttypes.h>
@@ -51,6 +52,10 @@ struct label {
 const struct disisa *ed_getisa(const char *name);
 
 uint32_t ed_getcbsz(const struct disisa *isa, struct varinfo *varinfo);
+
+static inline int ed_getcstride(const struct disisa *isa, struct varinfo *varinfo) {
+	return CEILDIV(ed_getcbsz(isa, varinfo), 8);
+}
 
 void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start, int num, struct varinfo *varinfo, int quiet, struct label *labels, int labelsnum, const struct envy_colors *cols);
 

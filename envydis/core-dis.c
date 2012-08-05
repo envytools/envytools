@@ -474,16 +474,17 @@ struct dis_res *do_dis(struct decoctx *deco, uint32_t cur) {
 	struct disctx *ctx = &c;
 	struct dis_res *res = calloc(sizeof *res, 1);
 	int i;
-	for (i = 0; i < MAXOPLEN*8 && cur + i < deco->codesz; i++) {
-		res->a[i/8] |= (ull)deco->code[cur + i] << (i&7)*8;
+	int stride = ed_getcstride(deco->isa, deco->varinfo);
+	for (i = 0; i < MAXOPLEN*8 && cur + i/stride < deco->codesz; i++) {
+		res->a[i/8] |= (ull)deco->code[cur*stride + i] << (i&7)*8;
 	}
 	ctx->isa = deco->isa;
 	ctx->varinfo = deco->varinfo;
 	atomtab_d (ctx, res->a, res->m, deco->isa->troot);
-	res->oplen = ctx->oplen;
-	if (ctx->oplen + cur > deco->codesz)
+	res->oplen = ctx->oplen / stride; /* XXX */
+	if (res->oplen + cur > deco->codesz)
 		res->status |= DIS_STATUS_EOF;
-	if (ctx->oplen == 0) {
+	if (res->oplen == 0) {
 		res->status |= DIS_STATUS_UNK_FORM;
 		res->oplen = ctx->isa->opunit;
 	}
@@ -494,13 +495,13 @@ struct dis_res *do_dis(struct decoctx *deco, uint32_t cur) {
 }
 
 static void mark(struct decoctx *ctx, uint32_t ptr, int m) {
-	if (ptr < ctx->codebase || ptr >= ctx->codebase + ctx->codesz / ctx->isa->posunit)
+	if (ptr < ctx->codebase || ptr >= ctx->codebase + ctx->codesz)
 		return;
 	ctx->marks[ptr - ctx->codebase] |= m;
 }
 
 static int is_nr_mark(struct decoctx *ctx, uint32_t ptr) {
-	if (ptr < ctx->codebase || ptr >= ctx->codebase + ctx->codesz / ctx->isa->posunit)
+	if (ptr < ctx->codebase || ptr >= ctx->codebase + ctx->codesz)
 		return 0;
 	return ctx->marks[ptr - ctx->codebase] & 0x40;
 }
@@ -564,10 +565,12 @@ static void dis_pp_expr(struct decoctx *deco, struct dis_res *dres, struct easm_
 			if (ptr < deco->codebase || ptr > deco->codebase + deco->codesz) {
 				expr->special = EASM_SPEC_NONE;
 			} else {
+				if (ed_getcbsz(deco->isa, deco->varinfo) != 8)
+					abort();
 				uint32_t num = 0;
 				int j;
 				for (j = 0; j < 4; j++)
-					num |= deco->code[(ptr - deco->codebase) * deco->isa->posunit + j] << j*8;
+					num |= deco->code[ptr - deco->codebase + j] << j*8;
 				expr->alit = num;
 			}
 		}
@@ -611,14 +614,16 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 	struct decoctx *ctx = &c;
 	int cur = 0, i, j;
 	ctx->code = code;
-	ctx->marks = calloc((num + isa->posunit - 1) / isa->posunit, sizeof *ctx->marks);
-	ctx->names = calloc((num + isa->posunit - 1) / isa->posunit, sizeof *ctx->names);
-	ctx->codebase = start;
 	ctx->codesz = num;
+	ctx->marks = calloc(num, sizeof *ctx->marks);
+	ctx->names = calloc(num, sizeof *ctx->names);
+	ctx->codebase = start;
 	ctx->varinfo = varinfo;
 	ctx->isa = isa;
 	ctx->labels = labels;
 	ctx->labelsnum = labelsnum;
+	int stride = ed_getcstride(ctx->isa, ctx->varinfo);
+	int cbsz = ed_getcbsz(ctx->isa, ctx->varinfo);
 	if (labels) {
 		for (i = 0; i < labelsnum; i++) {
 			mark(ctx, labels[i].val, labels[i].type);
@@ -637,15 +642,15 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 			cur = 0;
 			int active = 0;
 			while (cur < num) {
-				if (!active && (ctx->marks[cur / isa->posunit] & 3) && !(ctx->marks[cur / isa->posunit] & 8)) {
+				if (!active && (ctx->marks[cur] & 3) && !(ctx->marks[cur] & 8)) {
 					done = 0;
 					active = 1;
-					ctx->marks[cur / isa->posunit] |= 8;
+					ctx->marks[cur] |= 8;
 				}
 				if (active) {
 					struct dis_res *dres = do_dis(ctx, cur);
-					dis_dopp(ctx, dres, cur / isa->posunit + start);
-					if (dres->oplen && !dres->endmark && !(ctx->marks[cur / isa->posunit] & 4))
+					dis_dopp(ctx, dres, cur + start);
+					if (dres->oplen && !dres->endmark && !(ctx->marks[cur] & 4))
 						cur += dres->oplen;
 					else
 						active = 0;
@@ -657,7 +662,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 	} else {
 		while (cur < num) {
 			struct dis_res *dres = do_dis(ctx, cur);
-			dis_dopp(ctx, dres, cur / isa->posunit + start);
+			dis_dopp(ctx, dres, cur + start);
 			if (dres->oplen)
 				cur += dres->oplen;
 			else
@@ -668,8 +673,8 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 	int active = 0;
 	int skip = 0, nonzero = 0;
 	while (cur < num) {
-		int mark = (cur % isa->posunit ? 0 : ctx->marks[cur / isa->posunit]);
-		if (!(cur % isa->posunit) && ctx->names[cur / isa->posunit]) {
+		int mark = ctx->marks[cur];
+		if (ctx->names[cur]) {
 			if (skip) {
 				if (nonzero)
 					fprintf(out, "%s[%x bytes skipped]\n", cols->err, skip);
@@ -679,13 +684,13 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 				nonzero = 0;
 			}
 			if (mark & 0x30)
-				fprintf (out, "%s%s:\n", cols->reset, ctx->names[cur / isa->posunit]);
+				fprintf (out, "%s%s:\n", cols->reset, ctx->names[cur]);
 			else if (mark & 2)
-				fprintf (out, "\n%s%s:\n", cols->ctarg, ctx->names[cur / isa->posunit]);
+				fprintf (out, "\n%s%s:\n", cols->ctarg, ctx->names[cur]);
 			else if (mark & 1)
-				fprintf (out, "%s%s:\n", cols->btarg, ctx->names[cur / isa->posunit]);
+				fprintf (out, "%s%s:\n", cols->btarg, ctx->names[cur]);
 			else
-				fprintf (out, "%s%s:\n", cols->reset, ctx->names[cur / isa->posunit]);
+				fprintf (out, "%s%s:\n", cols->reset, ctx->names[cur]);
 		}
 		if (mark & 0x30) {
 			if (skip) {
@@ -696,14 +701,16 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 				skip = 0;
 				nonzero = 0;
 			}
-			fprintf (out, "%s%08x:%s", cols->mem, cur / isa->posunit + start, cols->reset);
+			if (cbsz != 8)
+				abort();
+			fprintf (out, "%s%08x:%s", cols->mem, cur + start, cols->reset);
 			if (mark & 0x10) {
 				uint32_t val = 0;
 				for (i = 0; i < 4 && cur + i < num; i++) {
 					val |= code[cur + i] << i*8;
 				}
 				fprintf (out, " %s%08x\n", cols->num, val);
-				cur += 4 / isa->posunit;
+				cur += 4;
 			} else {
 				fprintf (out, " %s\"", cols->num);
 				while (code[cur]) {
@@ -731,8 +738,9 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 		if (!active && mark & 7)
 			active = 1;
 		if (!active && labels) {
-			if (code[cur])
-				nonzero = 1;
+			for (i = 0; i < stride; i++)
+				if (code[cur*stride+i])
+					nonzero = 1;
 			cur++;
 			skip++;
 			continue;
@@ -746,39 +754,40 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 			nonzero = 0;
 		}
 		struct dis_res *dres = do_dis(ctx, cur);
-		dis_dopp(ctx, dres, cur / isa->posunit + start);
+		dis_dopp(ctx, dres, cur + start);
 
 		if (dres->endmark || mark & 4)
 			active = 0;
 
-		if (mark & 2 && !ctx->names[cur / isa->posunit])
+		if (mark & 2 && !ctx->names[cur])
 			fprintf (out, "\n");
 		switch (mark & 3) {
 			case 0:
 				if (!quiet)
-					fprintf (out, "%s%08x:%s", cols->reset, cur / isa->posunit + start, cols->reset);
+					fprintf (out, "%s%08x:%s", cols->reset, cur + start, cols->reset);
 				break;
 			case 1:
-				fprintf (out, "%s%08x:%s", cols->btarg, cur / isa->posunit + start, cols->reset);
+				fprintf (out, "%s%08x:%s", cols->btarg, cur + start, cols->reset);
 				break;
 			case 2:
-				fprintf (out, "%s%08x:%s", cols->ctarg, cur / isa->posunit + start, cols->reset);
+				fprintf (out, "%s%08x:%s", cols->ctarg, cur + start, cols->reset);
 				break;
 			case 3:
-				fprintf (out, "%s%08x:%s", cols->bctarg, cur / isa->posunit + start, cols->reset);
+				fprintf (out, "%s%08x:%s", cols->bctarg, cur + start, cols->reset);
 				break;
 		}
 
 		if (!quiet) {
 			for (i = 0; i < isa->maxoplen; i += isa->opunit) {
 				fprintf (out, " ");
-				for (j = isa->opunit - 1; j >= 0; j--)
-					if (i+j && i+j >= dres->oplen)
+				for (j = isa->opunit*stride - 1; j >= 0; j--)
+					if (i+j/stride && i+j/stride >= dres->oplen) {
 						fprintf (out, "  ");
-					else if (cur+i+j >= num)
+					} else if (cur+i+j/stride >= num) {
 						fprintf (out, "%s??", cols->err);
-					else
-						fprintf (out, "%s%02x", cols->reset, code[cur + i + j]);
+					} else {
+						fprintf (out, "%s%02x", cols->reset, code[(cur + i)*stride + j]);
+					}
 			}
 			fprintf (out, "  ");
 
@@ -813,7 +822,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 				fprintf (out, " %s[unknown:", cols->err);
 				for (i = 0; i < dres->oplen || i == 0; i += isa->opunit) {
 					fprintf (out, " ");
-					for (j = isa->opunit - 1; j >= 0; j--)
+					for (j = isa->opunit*stride - 1; j >= 0; j--)
 						if (cur+i+j >= num)
 							fprintf (out, "??");
 						else
