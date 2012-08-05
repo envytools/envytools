@@ -649,6 +649,10 @@ int main(int argc, char **argv) {
 	for (i = 0; i < modenamesnum; i++)
 		if (varinfo_set_mode(ctx->varinfo, modenames[i]))
 			return 1;
+	if (!ed_getcbsz(ctx->isa, ctx->varinfo)) {
+		fprintf(stderr, "Not enough variant info specified!\n");
+		return 1;
+	}
 	struct easm_file *file;
 	int r = easm_read_file(ifile, filename, &file);
 	if (r)

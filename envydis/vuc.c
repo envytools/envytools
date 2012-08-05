@@ -458,10 +458,18 @@ static void vuc_prep(struct disisa *isa) {
 		abort();
 }
 
+static uint32_t vuc_getcbsz(const struct disisa *isa, struct varinfo *varinfo) {
+	if (mask_get(varinfo->fmask, 0))
+		return 40;
+	if (mask_get(varinfo->fmask, 1))
+		return 30;
+	return 0;
+}
+
 struct disisa vuc_isa_s = {
 	tabroot,
 	1,
 	1,
-	8,
 	.prep = vuc_prep,
+	.getcbsz = vuc_getcbsz,
 };

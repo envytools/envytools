@@ -40,6 +40,7 @@ struct disisa {
 	int prepdone;
 	void (*prep)(struct disisa *);
 	struct vardata *vardata;
+	uint32_t (*getcbsz)(const struct disisa *isa, struct varinfo *varinfo);
 };
 
 struct label {
