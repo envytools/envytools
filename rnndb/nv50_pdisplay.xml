@@ -280,6 +280,7 @@
 				<bitfield pos="0" name="FIFO_UNK0"/>
 				<bitfield pos="1" name="FIFO_ERR"/>
 				<bitfield pos="2" name="INTR_4"/>
+				<bitfield pos="8" name="DISPLAY_DAEMON"/> <!-- only on INTR_HOST_SUMMARY -->
 				<bitfield pos="20" name="INTR_2"/>
 				<bitfield pos="24" name="CRTC_0"/>
 				<bitfield pos="25" name="CRTC_1"/>
@@ -310,7 +311,7 @@
 				<bitfield pos="1" name="CLK_UNK1"/>
 				<bitfield pos="2" name="CLK_UNK2"/>
 				<bitfield pos="8" name="UNK8"/>
-				<bitfield pos="8" name="UNK8"/>
+				<bitfield pos="9" name="UNK9"/>
 				<bitfield pos="28" name="UNK28"/> <!-- cannot be directed nor redirected to PDAEMON -->
 				<bitfield pos="29" name="UNK29"/> <!-- cannot be directed nor redirected to PDISPLAY.DAEMON -->
 				<bitfield pos="31" name="UNK31"/> <!-- has host_en set by default -->

@@ -2,7 +2,8 @@ Present on:
 	d2: NVD9:NVE4
 	d3: NVE4+
 BAR0 address: 0x627000
-PMC interrupt line: ???
+PMC interrupt line: 26 [shared with the rest of PDISPLAY], also
+                    INTR_HOST_SUMMARY bit 8
 PMC enable bit: 30 [all of PDISPLAY]
 Version: 4
 Code segment size: 0x4000
@@ -19,6 +20,7 @@ Version 4 unknown bits: 27, 28, 29, 31
 
 Interrupts:
  12: PDISPLAY DISPLAY_DAEMON-routed interrupt
+ 13: FIFO?
  15: PNVIO DISPLAY_DAEMON-routed interrupt [NVE4-]
 [XXX: interrupts]
 [XXX: status bits]
