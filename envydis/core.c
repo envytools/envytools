@@ -25,12 +25,12 @@
 #include "dis.h"
 #include "dis-intern.h"
 
-int op8len[] = { 1 };
-int op16len[] = { 2 };
-int op24len[] = { 3 };
-int op32len[] = { 4 };
-int op40len[] = { 5 };
-int op64len[] = { 8 };
+int op1blen[] = { 1 };
+int op2blen[] = { 2 };
+int op3blen[] = { 3 };
+int op4blen[] = { 4 };
+int op5blen[] = { 5 };
+int op8blen[] = { 8 };
 
 static const struct {
 	const char *name;

@@ -409,8 +409,8 @@ static struct insn tabm[] = {
 };
 
 static struct insn tabroot[] = {
-	{ 0x00, 0x08, OP24, T(m) },
-	{ 0x08, 0x08, OP16, T(m) },
+	{ 0x00, 0x08, OP3B, T(m) },
+	{ 0x08, 0x08, OP2B, T(m) },
 	{ 0, 0, OOPS },
 };
 

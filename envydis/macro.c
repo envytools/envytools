@@ -160,7 +160,7 @@ static struct insn tabm[] = {
 };
 
 static struct insn tabroot[] = {
-	{ 0, 0, OP32, T(exit), T(m) },
+	{ 0, 0, OP1B, T(exit), T(m) },
 };
 
 struct disisa macro_isa_s = {

@@ -350,7 +350,7 @@ static struct insn tabm[] = {
 };
 
 static struct insn tabroot[] = {
-	{ 0, 0, OP32, T(m) },
+	{ 0, 0, OP1B, T(m) },
 };
 
 struct disisa vp1_isa_s = {

@@ -61,18 +61,18 @@ static struct insn tabfl[] = {
 };
 
 static struct insn tabm[] = {
-	{ 0x00, 0xff, OP8, N("nop") },
-	{ 0x00, 0xc0, OP8, N("wait"), WAIT, N("shl"), WAITS },
-	{ 0x40, 0xff, OP24, N("addrlo"), IMM16, .fmask = F_NV41P },
-	{ 0x42, 0xff, OP24, N("datalo"), IMM16, .fmask = F_NV41P },
-	{ 0x5f, 0xff, OP24, N("ewait"), T(evmask), T(event), .fmask = F_NV41P },
-	{ 0x7f, 0xff, OP8, N("exit") },
-	{ 0x80, 0xe0, OP8, N("unset"), T(fl) }, 
-	{ 0xa0, 0xe0, OP8, N("set1"), T(fl) }, 
-	{ 0xc0, 0xe0, OP8, N("set0"), T(fl) }, 
-	{ 0xe0, 0xff, OP40, N("addr"), IMM32, .fmask = F_NV41P },
-	{ 0xe2, 0xff, OP40, N("data"), IMM32, .fmask = F_NV41P },
-	{ 0, 0, OP8, OOPS },
+	{ 0x00, 0xff, OP1B, N("nop") },
+	{ 0x00, 0xc0, OP1B, N("wait"), WAIT, N("shl"), WAITS },
+	{ 0x40, 0xff, OP3B, N("addrlo"), IMM16, .fmask = F_NV41P },
+	{ 0x42, 0xff, OP3B, N("datalo"), IMM16, .fmask = F_NV41P },
+	{ 0x5f, 0xff, OP3B, N("ewait"), T(evmask), T(event), .fmask = F_NV41P },
+	{ 0x7f, 0xff, OP1B, N("exit") },
+	{ 0x80, 0xe0, OP1B, N("unset"), T(fl) }, 
+	{ 0xa0, 0xe0, OP1B, N("set1"), T(fl) }, 
+	{ 0xc0, 0xe0, OP1B, N("set0"), T(fl) }, 
+	{ 0xe0, 0xff, OP5B, N("addr"), IMM32, .fmask = F_NV41P },
+	{ 0xe2, 0xff, OP5B, N("data"), IMM32, .fmask = F_NV41P },
+	{ 0, 0, OP1B, OOPS },
 };
 
 static void hwsq_prep(struct disisa *isa) {

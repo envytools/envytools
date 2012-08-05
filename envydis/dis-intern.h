@@ -222,18 +222,18 @@ struct litem {
 struct matches *atomtab_a APROTO;
 void atomtab_d DPROTO;
 
-#define OP8 atomopl_a, atomopl_d, op8len
-#define OP16 atomopl_a, atomopl_d, op16len
-#define OP24 atomopl_a, atomopl_d, op24len
-#define OP32 atomopl_a, atomopl_d, op32len
-#define OP40 atomopl_a, atomopl_d, op40len
-#define OP64 atomopl_a, atomopl_d, op64len
-extern int op8len[];
-extern int op16len[];
-extern int op24len[];
-extern int op32len[];
-extern int op40len[];
-extern int op64len[];
+#define OP1B atomopl_a, atomopl_d, op1blen
+#define OP2B atomopl_a, atomopl_d, op2blen
+#define OP3B atomopl_a, atomopl_d, op3blen
+#define OP4B atomopl_a, atomopl_d, op4blen
+#define OP5B atomopl_a, atomopl_d, op5blen
+#define OP8B atomopl_a, atomopl_d, op8blen
+extern int op1blen[];
+extern int op2blen[];
+extern int op3blen[];
+extern int op4blen[];
+extern int op5blen[];
+extern int op8blen[];
 struct matches *atomopl_a APROTO;
 void atomopl_d DPROTO;
 

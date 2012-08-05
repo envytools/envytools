@@ -265,7 +265,7 @@ int envyas_layout(struct asctx *ctx, struct easm_file *file) {
 						if (ctx->im[i].m[0].oplen == 8 && (ctx->sections[cursect].pos & 7))
 							ctx->sections[cursect].pos &= ~7ull, ctx->sections[cursect].pos += 8;
 					}
-					ctx->sections[cursect].pos += ctx->im[i].m[0].oplen;
+					ctx->sections[cursect].pos += ctx->im[i].m[0].oplen * stride;
 					break;
 				case EASM_LINE_LABEL:
 					if (file->lines[i]->lname[0] == '_' && file->lines[i]->lname[1] != '_') {
@@ -382,7 +382,7 @@ int envyas_layout(struct asctx *ctx, struct easm_file *file) {
 			switch (file->lines[i]->type) {
 				case EASM_LINE_INSN:
 					if (!resolve(ctx, val, ctx->im[i].m[0], ctx->sections[cursect].pos / stride + ctx->sections[cursect].base)) {
-						ctx->sections[cursect].pos += ctx->im[i].m[0].oplen;
+						ctx->sections[cursect].pos += ctx->im[i].m[0].oplen * stride;
 						ctx->im[i].m++;
 						ctx->im[i].mnum--;
 						if (!ctx->im[i].mnum) {
@@ -405,8 +405,8 @@ int envyas_layout(struct asctx *ctx, struct easm_file *file) {
 								ctx->sections[cursect].pos &= ~7ull, ctx->sections[cursect].pos += 8;
 							}
 						}
-						extend(&ctx->sections[cursect], ctx->im[i].m[0].oplen);
-						for (j = 0; j < ctx->im[i].m[0].oplen; j++)
+						extend(&ctx->sections[cursect], ctx->im[i].m[0].oplen * stride);
+						for (j = 0; j < ctx->im[i].m[0].oplen * stride; j++)
 							ctx->sections[cursect].code[ctx->sections[cursect].pos++] = val[j>>3] >> (8*(j&7));
 					}
 					break;
@@ -482,7 +482,7 @@ int envyas_output(struct asctx *ctx, enum envyas_ofmt ofmt, const char *outname,
 			for (j = 0; j < ctx->sections[i].pos; j += cbsz) {
 				fwrite (ctx->sections[i].code + j, 1, cbsz, outfile);
 				for (k = 0; k < stride-cbsz; k++)
-					fputc(0, stderr);
+					fputc(0, outfile);
 			}
 		} else {
 			int ischex = 0;

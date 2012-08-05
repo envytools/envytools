@@ -428,10 +428,10 @@ static struct insn tabop[] = {
 };
 
 static struct insn tabroot[] = {
-	{ 0, 0, OP64, T(op), .fmask = F_VP3 },
-	{ 0xffc0000000ull, 0xffc0000000ull, OP64, T(op), .fmask = F_VP2 },
-	{ 0x0000000000ull, 0x0200000000ull, OP64, RBRPRED, N("rbra"), RBRTARG, T(op), .fmask = F_VP2 },
-	{ 0x0200000000ull, 0x0200000000ull, OP64, N("not"), RBRPRED, N("rbra"), RBRTARG, T(op), .fmask = F_VP2 },
+	{ 0, 0, OP1B, T(op), .fmask = F_VP3 },
+	{ 0xffc0000000ull, 0xffc0000000ull, OP1B, T(op), .fmask = F_VP2 },
+	{ 0x0000000000ull, 0x0200000000ull, OP1B, RBRPRED, N("rbra"), RBRTARG, T(op), .fmask = F_VP2 },
+	{ 0x0200000000ull, 0x0200000000ull, OP1B, N("not"), RBRPRED, N("rbra"), RBRTARG, T(op), .fmask = F_VP2 },
 	{ 0, 0, OOPS },
 };
 
