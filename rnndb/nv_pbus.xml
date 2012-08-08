@@ -7,6 +7,7 @@
 <import file="nvchipsets.xml" />
 <import file="nv50_defs.xml" />
 <import file="nv50_vm.xml" />
+<import file="nv_vga.xml" />
 <import file="pci.xml" />
 
 <group name="nv_pci">
@@ -130,6 +131,10 @@
 			<reg8 offset="0x100" name="CODE" length="0x40" variants="NV17:NV20 NV25:NV41"/>
 			<reg8 offset="0x100" name="CODE" length="0x80" variants="NV41:NV50"/>
 			<reg8 offset="0x100" name="CODE" length="0x100" variants="NV50:NVC0"/>
+		</stripe>
+
+		<stripe offset="0x380" name="VGA_UNK_STACK" variants="NV41:NV50">
+			<use-group name="vga_unk_stack"/>
 		</stripe>
 
 		<reg32 offset="0x530" name="UNK530" variants="NV50-">

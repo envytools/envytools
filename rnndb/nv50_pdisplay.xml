@@ -580,6 +580,9 @@
 			<array offset="0x1c04" name="PAL_WR_SHADOW" stride="4" length="1">
 				<use-group name="nv50_pdisplay_vga_pal_color"/>
 			</array>
+			<stripe offset="0x1e40" name="UNK_STACK">
+				<use-group name="vga_unk_stack"/>
+			</stripe>
 			<reg32 offset="0x1f00" name="RAM_WINDOW">
 				<bitfield high="31" low="10" shr="18" name="BASE"/>
 				<bitfield pos="3" name="ENABLE"/>
