@@ -82,6 +82,7 @@ struct nva_regspace {
 		NVA_REGSPACE_VGA_SR,
 		NVA_REGSPACE_VGA_AR,
 		NVA_REGSPACE_VGA_GR,
+		NVA_REGSPACE_VGA_ST,
 	} type;
 	int regsz;
 	int idx;

@@ -143,6 +143,20 @@ int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val) {
 				nva_wr8(regspace->cnum, vgabase + vgaio, idx);
 			}
 			return 0;
+		case NVA_REGSPACE_VGA_ST:
+			if (regspace->card->chipset < 0x41)
+				return NVA_ERR_NOSPC;
+			uint32_t vstbase = 0x1380;
+			if (regspace->card->card_type >= 0x50)
+				vstbase = 0x619e40;
+			uint32_t savepos = nva_rd32(regspace->cnum, vstbase+0xc);
+			uint32_t savecfg = nva_rd32(regspace->cnum, vstbase+0x8);
+			nva_wr32(regspace->cnum, vstbase+0xc, addr);
+			nva_wr32(regspace->cnum, vstbase+0x8, 0);
+			nva_wr32(regspace->cnum, vstbase+0x0, val);
+			nva_wr32(regspace->cnum, vstbase+0x8, savecfg);
+			nva_wr32(regspace->cnum, vstbase+0xc, savepos);
+			return 0;
 		default:
 			return NVA_ERR_NOSPC;
 	}
@@ -260,6 +274,20 @@ int nva_rd(struct nva_regspace *regspace, uint32_t addr, uint64_t *val) {
 				nva_wr8(regspace->cnum, vgabase + vgaio, idx);
 			}
 			return 0;
+		case NVA_REGSPACE_VGA_ST:
+			if (regspace->card->chipset < 0x41)
+				return NVA_ERR_NOSPC;
+			uint32_t vstbase = 0x1380;
+			if (regspace->card->card_type >= 0x50)
+				vstbase = 0x619e40;
+			uint32_t savepos = nva_rd32(regspace->cnum, vstbase+0xc);
+			uint32_t savecfg = nva_rd32(regspace->cnum, vstbase+0x8);
+			nva_wr32(regspace->cnum, vstbase+0xc, addr);
+			nva_wr32(regspace->cnum, vstbase+0x8, 0);
+			*val = nva_rd32(regspace->cnum, vstbase+0x0);
+			nva_wr32(regspace->cnum, vstbase+0x8, savecfg);
+			nva_wr32(regspace->cnum, vstbase+0xc, savepos);
+			return 0;
 		default:
 			return NVA_ERR_NOSPC;
 	}
@@ -292,6 +320,8 @@ int nva_rstype(const char *name) {
 		return NVA_REGSPACE_VGA_AR;
 	if (!strcmp(name, "cr"))
 		return NVA_REGSPACE_VGA_CR;
+	if (!strcmp(name, "vst"))
+		return NVA_REGSPACE_VGA_ST;
 	return -1;
 }
 
