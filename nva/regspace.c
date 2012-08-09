@@ -152,7 +152,7 @@ int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val) {
 			uint32_t savepos = nva_rd32(regspace->cnum, vstbase+0xc);
 			uint32_t savecfg = nva_rd32(regspace->cnum, vstbase+0x8);
 			nva_wr32(regspace->cnum, vstbase+0xc, addr);
-			nva_wr32(regspace->cnum, vstbase+0x8, 0);
+			nva_wr32(regspace->cnum, vstbase+0x8, 7);
 			nva_wr32(regspace->cnum, vstbase+0x0, val);
 			nva_wr32(regspace->cnum, vstbase+0x8, savecfg);
 			nva_wr32(regspace->cnum, vstbase+0xc, savepos);
@@ -282,8 +282,8 @@ int nva_rd(struct nva_regspace *regspace, uint32_t addr, uint64_t *val) {
 				vstbase = 0x619e40;
 			uint32_t savepos = nva_rd32(regspace->cnum, vstbase+0xc);
 			uint32_t savecfg = nva_rd32(regspace->cnum, vstbase+0x8);
-			nva_wr32(regspace->cnum, vstbase+0xc, addr);
-			nva_wr32(regspace->cnum, vstbase+0x8, 0);
+			nva_wr32(regspace->cnum, vstbase+0xc, addr+1);
+			nva_wr32(regspace->cnum, vstbase+0x8, 7);
 			*val = nva_rd32(regspace->cnum, vstbase+0x0);
 			nva_wr32(regspace->cnum, vstbase+0x8, savecfg);
 			nva_wr32(regspace->cnum, vstbase+0xc, savepos);
