@@ -41,22 +41,19 @@ static struct bitfield waitoff = { 0, 2 };
 #define WAIT atomimm, &waitoff
 static struct bitfield waitsoff = { 2, 4, .shr = 1 };
 #define WAITS atomimm, &waitsoff
-
-F1(vblank0, 8, N("vblank0"))
-F1(vblank1, 9, N("vblank1"))
-
-static struct insn tabevmask[] = {
-	{ 0, 0, T(vblank0), T(vblank1) },
-};
+static struct bitfield eventoff = { 8, 5 };
+#define EVENT atomimm, &eventoff
+static struct bitfield evaloff = { 16, 1 };
+#define EVAL atomimm, &evaloff
 
 static struct insn tabevent[] = {
-	{ 0x000000, 0xff0000, N("all0") },
-	{ 0x010000, 0xff0000, N("all1") },
-	{ 0, 0, OOPS },
+	{ 0x0100, 0xff00, C("CRTC0_VBLANK") },
+	{ 0x0300, 0xff00, C("CRTC1_VBLANK") },
+	{ 0, 0, EVENT },
 };
 
 static struct insn tabfl[] = {
-	{ 0x10, 0x1f, N("buspause") },
+	{ 0x10, 0x1f, C("BUS_PAUSE") },
 	{ 0, 0, FLAG },
 };
 
@@ -65,7 +62,7 @@ static struct insn tabm[] = {
 	{ 0x00, 0xc0, OP1B, N("wait"), WAIT, N("shl"), WAITS },
 	{ 0x40, 0xff, OP3B, N("addrlo"), IMM16, .fmask = F_NV41P },
 	{ 0x42, 0xff, OP3B, N("datalo"), IMM16, .fmask = F_NV41P },
-	{ 0x5f, 0xff, OP3B, N("ewait"), T(evmask), T(event), .fmask = F_NV41P },
+	{ 0x5f, 0xff, OP3B, N("ewait"), T(event), EVAL, .fmask = F_NV41P },
 	{ 0x7f, 0xff, OP1B, N("exit") },
 	{ 0x80, 0xe0, OP1B, N("unset"), T(fl) }, 
 	{ 0xa0, 0xe0, OP1B, N("set1"), T(fl) }, 

@@ -8,7 +8,7 @@ TOC
 5. PTIMER wait opcodes
 6. Flags
 7. MMIO poke opcodes
-8. Event wait opcodes
+8. Events
 
 
 = Introduction =
@@ -42,6 +42,7 @@ no annotation - NV17:NVC0
 001400:001440[1] CODE
 001400:001480[2] CODE
 001400:001500[3] CODE
+001578[2]        EVENTS
 080000:080200[4] NEW_CODE
 
 
@@ -271,6 +272,30 @@ HWSQ MMIO access has to be enabled. This is done by setting bit 3 of
 PBUS.DEBUG_6 [0x1098] register to 1 [see pbus.txt for details].
 
 
-= Event wait opcodes =
+= Events =
 
-[XXX: write me]
+On NV41+ cards, HWSQ can wait for certain events to happen [in addition to
+plain time-based waits from older cards]. An event is a 1-bit signal coming
+from some part of the GPU. There can be up to 32 events, depending on the GPU.
+The current state of all events can be read by the EVENTS register:
+
+MMIO 0x001578: EVENTS [NV41-]
+  bits 0-31: values of events 0-31.
+
+The events can be waited on from HWSQ scripts by using the ewait opcode. HWSQ
+can wait for both a 0 value and a 1 value on events.
+
+Opcode: 0x5f <e> <v> - ewait #event #value
+  This is a 3-byte opcode. First byte is the actual opcode, second byte
+  specifies the event to wait on, third byte specifies the value to wait on.
+  Delays next HWSQ opcode execution until given event has the given value.
+
+The known events are:
+
+[XXX: check on NV41:NV50]
+[XXX: figure out more events]
+0: ???
+1: CRTC0 vblank
+2: ???
+3: CRTC1 vblank
+4: ???
