@@ -355,22 +355,28 @@
 <group name="vga_unk_stack">
 	<reg32 offset="0x0" name="VAL"/>
 	<reg32 offset="0x4" name="CTRL">
-		<bitfield pos="0" name="INCSP_TRIGGER"/>
-		<bitfield pos="1" name="DECSP_TRIGGER"/>
+		<bitfield pos="0" name="PUSH_TRIGGER"/>
+		<bitfield pos="1" name="POP_TRIGGER"/>
 		<bitfield pos="4" name="EMPTY"/>
 		<bitfield pos="5" name="FULL"/>
 		<bitfield pos="6" name="OVERFLOW"/>
 		<bitfield pos="7" name="UNDERFLOW"/>
 	</reg32>
 	<reg32 offset="0x8" name="CONFIG">
-		<bitfield pos="0" name="WRITE_PUSH_ENABLE"/>
-		<bitfield pos="1" name="READ_POP_ENABLE"/>
-		<bitfield pos="2" name="READ_FROM">
-			<value value="0" name="SP"/>
-			<value value="1" name="SPM1"/>
+		<bitfield pos="0" name="PUSH_MODE">
+			<value value="0" name="MANUAL"/>
+			<value value="1" name="AUTO"/>
 		</bitfield>
-		<bitfield pos="6" name="OVERFLOW_CLEAR"/>
-		<bitfield pos="7" name="UNDERFLOW_CLEAR"/>
+		<bitfield pos="1" name="POP_MODE">
+			<value value="0" name="MANUAL"/>
+			<value value="1" name="AUTO"/>
+		</bitfield>
+		<bitfield pos="2" name="MANUAL_POP_MODE">
+			<value value="0" name="POP_READ"/>
+			<value value="1" name="READ_POP"/>
+		</bitfield>
+		<bitfield pos="6" name="OVERFLOW_CLEAR" variants="NV41:NV50"/>
+		<bitfield pos="7" name="UNDERFLOW_CLEAR" variants="NV41:NV50"/>
 	</reg32>
 	<reg32 offset="0xc" name="SP"/>
 </group>
