@@ -6,6 +6,15 @@
 
 <import file="nvchipsets.xml" />
 
+<bitset name="vga_stack_ctrl" inline="yes">
+	<bitfield pos="0" name="PUSH_TRIGGER"/>
+	<bitfield pos="1" name="POP_TRIGGER"/>
+	<bitfield pos="4" name="EMPTY"/>
+	<bitfield pos="5" name="FULL"/>
+	<bitfield pos="6" name="OVERFLOW"/>
+	<bitfield pos="7" name="UNDERFLOW"/>
+</bitset>
+
 <bitset name="vga_arx" inline="yes">
 	<bitfield low="0" high="4" name="INDEX"/>
 	<bitfield pos="5" name="PAL_ENABLE"/>
@@ -284,6 +293,12 @@
 		<reg8 offset="0x1b" name="VERT_BLANK_END_HI"/>
 		<reg8 offset="0x1f" name="IDX_SELECT"/> <!-- selects which set of above registers is accessed -->
 	</array>
+
+	<reg8 offset="0x90" name="STACK_VAL" variants="NV41:NV50"/>
+	<reg8 offset="0x91" name="STACK_CTRL" type="vga_stack_ctrl" variants="NV41:NV50"/>
+
+	<reg8 offset="0xa2" name="STACK_VAL" variants="NV50-"/>
+	<reg8 offset="0xa3" name="STACK_CTRL" type="vga_stack_ctrl" variants="NV50-"/>
 </group>
 
 <domain name="NV_AR" bare="yes" prefix="chipset">
@@ -354,14 +369,7 @@
 
 <group name="vga_unk_stack">
 	<reg32 offset="0x0" name="VAL"/>
-	<reg32 offset="0x4" name="CTRL">
-		<bitfield pos="0" name="PUSH_TRIGGER"/>
-		<bitfield pos="1" name="POP_TRIGGER"/>
-		<bitfield pos="4" name="EMPTY"/>
-		<bitfield pos="5" name="FULL"/>
-		<bitfield pos="6" name="OVERFLOW"/>
-		<bitfield pos="7" name="UNDERFLOW"/>
-	</reg32>
+	<reg32 offset="0x4" name="CTRL" type="vga_stack_ctrl"/>
 	<reg32 offset="0x8" name="CONFIG">
 		<bitfield pos="0" name="PUSH_MODE">
 			<value value="0" name="MANUAL"/>
