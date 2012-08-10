@@ -577,6 +577,8 @@ struct envy_bios {
 	uint16_t subsystem_vendor;
 	uint16_t subsystem_device;
 
+	uint8_t hwinfo_ext_valid;
+	uint16_t hwinfo_unk68;
 	uint32_t straps0_select;
 	uint32_t straps0_value;
 	uint32_t straps1_select;

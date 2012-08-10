@@ -345,10 +345,11 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 		if (mask & ENVY_BIOS_PRINT_HWINFO) {
 			fprintf(out, "Subsystem id: %04x:%04x\n", bios->subsystem_vendor, bios->subsystem_device);
 			envy_bios_dump_hex(bios, out, 0x54, 4, mask);
-			if (bios->dcb.version >= 0x20) {
+			if (bios->hwinfo_ext_valid) {
 				fprintf(out, "Straps 0: select 0x%08x value 0x%08x\n", bios->straps0_select, bios->straps0_value);
 				fprintf(out, "Straps 1: select 0x%08x value 0x%08x\n", bios->straps1_select, bios->straps1_value);
-				envy_bios_dump_hex(bios, out, 0x58, 0x10, mask);
+				fprintf(out, "HWINFO unk68: 0x%04x\n", bios->hwinfo_unk68);
+				envy_bios_dump_hex(bios, out, 0x58, 0x14, mask);
 			}
 			fprintf(out, "\n");
 		}

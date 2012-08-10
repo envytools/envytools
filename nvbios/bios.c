@@ -191,11 +191,30 @@ int envy_bios_parse (struct envy_bios *bios) {
 		if (bios->dcb.version >= 0x20) {
 			/* XXX: should use chipset instead */
 			/* note: NV17 and NV1F don't actually have these registers, but the bioses I've seen include the [nop] values anyway */
-			bios_u32(bios, 0x58, &bios->straps0_select);
-			bios_u32(bios, 0x5c, &bios->straps0_value);
-			bios_u32(bios, 0x60, &bios->straps1_select);
-			bios_u32(bios, 0x64, &bios->straps1_value);
-			envy_bios_block(bios, 0x54, 0x14, "HWINFO", -1);
+			int i;
+			uint8_t sum = 0;
+			for (i = 0x58; i <= 0x6b; i++) {
+				uint8_t byte;
+				bios_u8(bios, i, &byte);
+				sum += byte;
+			}
+			uint8_t sig;
+			bios_u8(bios, 0x6a, &sig);
+			if (sig != 0xa5) {
+				ENVY_BIOS_ERR("HWINFO ext sig mismatch [0x%02x]\n", sig);
+				envy_bios_block(bios, 0x54, 4, "HWINFO", -1);
+			} else if (sum) {
+				ENVY_BIOS_ERR("HWINFO ext checksum mismatch [0x%02x]\n", sum);
+				envy_bios_block(bios, 0x54, 4, "HWINFO", -1);
+			} else {
+				bios->hwinfo_ext_valid = 1;
+				bios_u32(bios, 0x58, &bios->straps0_select);
+				bios_u32(bios, 0x5c, &bios->straps0_value);
+				bios_u32(bios, 0x60, &bios->straps1_select);
+				bios_u32(bios, 0x64, &bios->straps1_value);
+				bios_u16(bios, 0x68, &bios->hwinfo_unk68);
+				envy_bios_block(bios, 0x54, 0x18, "HWINFO", -1);
+			}
 		} else {
 			envy_bios_block(bios, 0x54, 4, "HWINFO", -1);
 		}
