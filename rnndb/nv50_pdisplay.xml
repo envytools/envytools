@@ -584,7 +584,10 @@
 			<stripe offset="0x1e40" name="UNK_STACK">
 				<use-group name="vga_unk_stack"/>
 			</stripe>
-			<!-- 1e80 -->
+			<reg32 offset="0x1e80" name="MUTEX_TRYLOCK_A" length="2"/>
+			<reg32 offset="0x1e88" name="MUTEX_UNLOCK_A" length="2"/>
+			<reg32 offset="0x1e90" name="MUTEX_TRYLOCK_B" length="2"/>
+			<reg32 offset="0x1e98" name="MUTEX_UNLOCK_B" length="2"/>
 			<reg32 offset="0x1f00" name="RAM_WINDOW">
 				<bitfield high="31" low="10" shr="18" name="BASE"/>
 				<bitfield pos="3" name="ENABLE"/>
