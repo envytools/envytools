@@ -73,7 +73,7 @@
 		<reg32 offset="0x100" name="ENABLE">
 			<bitfield pos="0" name="PDISPLAY"/>
 			<bitfield pos="1" name="PGRAPH_DISPATCH"/>
-			<bitfield pos="2" name="PUNK021"/>
+			<bitfield pos="2" name="PFUSE"/>
 			<bitfield pos="3" name="PUNK0C8"/>
 			<bitfield pos="4" name="PKFUSE"/>
 			<bitfield pos="6" name="PUNK089"/>

@@ -44,7 +44,7 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 	<array offset="0x1000" name="PBUS" stride="0x1000" length="1">
 		<reg32 offset="0x084" name="DEBUG_1" variants="NV17:NV20 NV25-">
-			<bitfield pos="11" name="PUNK021_READOUT_ENABLE" variants="NV50:NVC0"/>
+			<bitfield pos="11" name="FUSE_READOUT_ENABLE" variants="NV50:NVC0"/>
 
 		</reg32>
 		<reg32 offset="0x098" name="DEBUG_6" variants="NV17:NV20 NV25-">

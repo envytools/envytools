@@ -178,7 +178,7 @@ c00000:1000000 NEW_USER - PFIFO DMA submission area [fifo-dma-pusher.txt]
 00f000:010000 PVP - VP2 xtensa video processing engine [NV84:NV98, NVA0] [vp2.txt]
 [XXX: some PCI config crap here, probably on PCIE NV40 and NVC0 too]
 020000:021000 PTHERM - thermal sensor [ptherm.txt]
-021000:022000 ???
+021000:022000 PFUSE - efuses storing not so secret stuff [pfuse.txt]
 022000:022400 ???
 060000:070000 PEEPHOLE - indirect VM access [NV84-] [nv50-vm.txt]
 070000:080000 PFIFO_BAR_FLUSH - used to flush BAR writes [NV84-] [nv50-vm.txt]
@@ -226,7 +226,7 @@ c00000:1000000 NEW_USER - PFIFO DMA submission area [fifo-dma-pusher.txt]
 00d000:00e000 PGPIO - GPIOs, I2C buses [NVD9-] [pnvio.txt]
 00e000:00f000 PNVIO - GPIOs, I2C buses, PWM fan control, and other external devices [pnvio.txt]
 020000:021000 PTHERM - thermal sensor [ptherm.txt]
-021000:022000 ???
+021000:022000 PFUSE - efuses storing not so secret stuff [pfuse.txt]
 022400:022800 PUNITS - control over enabled card units [punits.txt]
 040000:060000 PSUBFIFOs - individual SUBFIFOs of PFIFO [nvc0-pfifo.txt]
 060000:070000 PEEPHOLE - indirect VM access [nvc0-vm.txt]

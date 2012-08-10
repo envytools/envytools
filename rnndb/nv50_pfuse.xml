@@ -8,7 +8,9 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array name="PUNK021" offset="0x021000" stride="0x1000" length="1" variants="NV50-">
+<array name="PFUSE" offset="0x021000" stride="0x1000" length="1" variants="NV50-">
+	<reg32 offset="0x144" name="TP_DISABLE_MASK"/>
+	<reg32 offset="0x148" name="PART_DISABLE_MASK"/>
 </array>
 
 </domain>
