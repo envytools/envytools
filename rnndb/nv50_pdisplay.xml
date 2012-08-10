@@ -607,9 +607,16 @@
 				</bitfield>
 			</reg32>
 			<reg32 offset="0x1f20" name="UNK1F20"/> <!-- 0/fff/0 -->
-			<reg32 offset="0x1fc0" name="UNK1FC0"/> <!-- RO -->
-			<reg32 offset="0x1fc4" name="UNK1FC4"/> <!-- 0/10ffd/0.. method?!? -->
-			<reg32 offset="0x1fc8" name="UNK1FC8"/>
+			<reg32 offset="0x1fc0" name="MTHD_STATUS">
+				<bitfield pos="0" name="BUSY"/>
+			</reg32>
+			<reg32 offset="0x1fc4" name="MTHD_ADDR">
+				<bitfield pos="0" name="VALID"/> <!-- when unset, nothing is submitted on trigger -->
+				<bitfield low="2" high="11" name="MTHD" shr="2"/>
+				<bitfield pos="16" name="UNK16"/> <!-- when set, something is submitted, but doesn't work as expected -->
+				<bitfield pos="31" name="TRIGGER"/> <!-- when set, submits the method to master and auto-clears -->
+			</reg32>
+			<reg32 offset="0x1fc8" name="MTHD_DATA"/>
 			<reg32 offset="0x1fe0" name="UNK1FE0"/> <!-- 00600000/0fffffff/0 -->
 			<reg32 offset="0x1ffc" name="DEAD_CAFE"/>
 		</array>
