@@ -75,7 +75,7 @@
 			<bitfield pos="1" name="PGRAPH_DISPATCH"/>
 			<bitfield pos="2" name="PUNK021"/>
 			<bitfield pos="3" name="PUNK0C8"/>
-			<bitfield pos="4" name="PFUSE"/>
+			<bitfield pos="4" name="PKFUSE"/>
 			<bitfield pos="6" name="PUNK089"/>
 			<bitfield pos="7" name="PPCI_PUNK139"/>
 			<bitfield pos="9" name="PCOPY0"/>

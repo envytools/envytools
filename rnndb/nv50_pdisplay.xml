@@ -580,9 +580,11 @@
 			<array offset="0x1c04" name="PAL_WR_SHADOW" stride="4" length="1">
 				<use-group name="nv50_pdisplay_vga_pal_color"/>
 			</array>
+			<reg32 offset="0x1e00" name="UNK1E00" length="8"/>
 			<stripe offset="0x1e40" name="UNK_STACK">
 				<use-group name="vga_unk_stack"/>
 			</stripe>
+			<!-- 1e80 -->
 			<reg32 offset="0x1f00" name="RAM_WINDOW">
 				<bitfield high="31" low="10" shr="18" name="BASE"/>
 				<bitfield pos="3" name="ENABLE"/>
@@ -601,6 +603,11 @@
 					<value value="3" name="SYSRAM_NO_SNOOP"/> <!-- guess -->
 				</bitfield>
 			</reg32>
+			<reg32 offset="0x1f20" name="UNK1F20"/> <!-- 0/fff/0 -->
+			<reg32 offset="0x1fc0" name="UNK1FC0"/> <!-- RO -->
+			<reg32 offset="0x1fc4" name="UNK1FC4"/> <!-- 0/10ffd/0.. method?!? -->
+			<reg32 offset="0x1fc8" name="UNK1FC8"/>
+			<reg32 offset="0x1fe0" name="UNK1FE0"/> <!-- 00600000/0fffffff/0 -->
 			<reg32 offset="0x1ffc" name="DEAD_CAFE"/>
 		</array>
 

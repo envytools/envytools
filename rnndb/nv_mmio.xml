@@ -147,8 +147,8 @@
 <!-- 108000 - 109fff PCODEC -->
 <import file="nva3_pcodec.xml" />
 
-<!-- 109000 - 109fff PFUSE -->
-<import file="nva3_pfuse.xml" />
+<!-- 109000 - 109fff PKFUSE -->
+<import file="nva3_pkfuse.xml" />
 
 <!-- 10a000 - 10afff PDAEMON -->
 <import file="nva3_pdaemon.xml" />
