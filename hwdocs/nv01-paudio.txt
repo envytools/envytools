@@ -1,0 +1,10 @@
+TOC
+
+0. Introduction
+1. MMIO registers
+2. Control registers
+3. The codec
+4. DMA operation
+5. MIDI
+
+[XXX: write me]

@@ -20,23 +20,37 @@ Metafiles
 
 
 Hardware overview docs
-[     ] intro.txt - Overview of the nvidia GPU functionality
+[**   ] intro.txt - Overview of the nvidia GPU functionality
 [***  ] nvbars.txt - PCI BARs and other means of accessing the GPU
-[***  ] nvchipsets.txt - List and overview of all chipset variants, MMIO maps
+[***  ] nvchipsets.txt - List and overview of all chipset variants
 [**   ] nvclock.txt - List of clocks present on the GPUs
 [***  ] classes.txt - List and overview of object classes
+[***  ] mmio.txt - List and overview of MMIO ranges
 
 
 Misc GPU units
 [***  ] pmc.txt - PMC unit, interrupt routing, card ID, engine enables
 [     ] pbus.txt - PBUS engine and PCI config space
 [**   ] hwsq.txt - HWSQ scripts on PBUS engine
-[***  ] pstraps.txt - PSTRAPS unit, straps readout and override
 [**** ] ptimer.txt - PTIMER engine, clock setup, readout, and alarms
 [*    ] punk1c3.txt - PUNK1C3 engine
+[     ] prma.txt - retarded mode MMIO access engine
+[     ] nv01-paudio.txt - NV01 audio engine
+[     ] nv01-prm.txt - NV01 retarded mode engine
+
+
+GPU external device I/O units
+[***  ] pstraps.txt - PSTRAPS unit, straps readout and override
+[     ] prom.txt - BIOS ROM access engine
+[     ] pnvio.txt - NV50 IO engine
+[     ] pnvio-gpio.txt - NV50 GPIOs
+[     ] nv01-peeprom.txt - NV01 mystery EEPROM
 
 
 Memory access and structure
+[     ] nv01-vram.txt - NV01 VRAM structure and usage
+[     ] nv01-pdma.txt - NV01 PDMA engine and DMA objects
+[     ] nv03-vram.txt - NV03 VRAM structure and usage
 [***  ] nv50-surface.txt - NV50 and NVC0 surface overview, formats, and internal storage
 [**   ] nv50-vm.txt - NV50 virtual memory
 [     ] nvc0-vm.txt - NVC0 virtual memory
@@ -50,6 +64,10 @@ FIFO, user perspective
 [***  ] fifo-puller.txt - handling of submitted commands by FIFO
 
 
+PFIFO, kernel perspective
+[**   ] nv01-pfifo.txt - NV01 PFIFO engine
+
+
 PGRAPH, user perspective
 [     ] nv01-graph.txt - Overview of NV01:NV50 graph objects, functionality common between object classes
 [     ] nv50-graph.txt - Overview of NV50:NVC0 graph objects, functionality common between object classes
@@ -59,11 +77,12 @@ PGRAPH, user perspective
 [     ] nv01-2d.txt - NV01-style 2d engine objects
 [     ] nv50-2d.txt - NV50-style 2d engine objects
 [     ] nv50-texture.txt - NV50 and NVC0 texturing
-[     ] nv50-cuda-isa.txt - NV50 CUDA/shader ISA overview
+[**   ] nv50-cuda-isa.txt - NV50 CUDA/shader ISA overview
 [     ] nvc0-cuda-isa.txt - NVC0 CUDA/shader ISA overview
 
 
 PGRAPH, kernel perspective
+[     ] nv01-pgraph.txt - NV01 graphics engine
 [*    ] nvc0-ctxctl.txt - the NVC0 context switching microcoded engines
 
 
@@ -109,9 +128,19 @@ Other FIFO engines:
 [*    ] pvenc.txt - PVENC H.264 encoding engine
 
 
+Performance counters:
+[     ] nv10-pcounter.txt - NV10 PCOUNTER engine and signals
+[**   ] nv40-pcounter.txt - NV40 PCOUNTER engine and signals
+[     ] nvc0-pcounter.txt - NVC0 PCOUNTER engine and signals
+
+
 Power management:
 [*    ] pdaemon.txt - PDAEMON card monitoring engine
 
 
 Display subsystem:
+[     ] nv01-pfb.txt - NV01 native display engine
+[     ] nv01-pdac.txt - NV01 DAC and external devices control
 [*    ] pdisplay-daemon.txt - PDISPLAY's monitoring engine
+[*****] vga-mutex.txt - NV50 VGA mutexes
+[*****] vga-stack.txt - some VGA-related stack

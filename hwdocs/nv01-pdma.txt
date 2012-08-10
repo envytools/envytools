@@ -1,0 +1,8 @@
+TOC
+
+0. Introduction
+1. MMIO registers
+2. The DMA objects
+3. Operation
+
+[XXX: write me]

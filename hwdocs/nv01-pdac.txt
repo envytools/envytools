@@ -1,0 +1,12 @@
+TOC
+
+0. Introduction
+1. The MMIO registers
+2. The DAC registers
+3. Clocks
+4. Palette
+5. DAC config
+6. Joystick
+7. Saturn ports
+
+[XXX: write me]
