@@ -25,24 +25,24 @@ TOC
 300000:301000 PAUDIO - audio capture and playback device [nv01-paudio.txt]
 400000:401000 PGRAPH - accelerated drawing engine [nv01-pgraph.txt]
 600000:601000 PFB - VRAM and video output control [nv01-pfb.txt]
-602000:603000 PRAM - priviledgd RAM control [nv01-memory.txt]
-604000:605000 ???
+602000:603000 PRAM - priviledgd RAM control [nv01-vram.txt]
+604000:605000 ??? [nv01-vram.txt]
 605000:606000 PCHIPID - chip ID readout [nv01-peeprom.txt]
-606000:607000 ???
+606000:607000 ??? [nv01-vram.txt]
 608000:609000 PSTRAPS - straps readout / override [pstraps.txt]
 609000:60a000 PDAC - DAC control [nv01-pdac.txt]
 60a000:60b000 PEEPROM - configuration EEPROM access [nv01-peeprom.txt]
 610000:618000 PROM - ROM access window [prom.txt]
 618000:620000 PALT - external memory access window [prom.txt]
-640000:648000 PRAMHT - RAMHT access [nv01-memory.txt, nv01-pfifo.txt]
-648000:64c000 PRAMFC - RAMFC access [nv01-memory.txt, nv01-pfifo.txt]
-650000:654000 PRAMRO - RAMRO access [nv01-memory.txt, nv01-pfifo.txt]
+640000:648000 PRAMHT - RAMHT access [nv01-vram.txt, nv01-pfifo.txt]
+648000:64c000 PRAMFC - RAMFC access [nv01-vram.txt, nv01-pfifo.txt]
+650000:654000 PRAMRO - RAMRO access [nv01-vram.txt, nv01-pfifo.txt]
 6c0000:6c8000 PRM - VGA compatibility control - NV01 specific [nv01-prm.txt]
 6d0000:6d1000 PRMIO - VGA and ISA sound compat IO port access [nv01-prm.txt]
 6e0000:700000 PRMFB - aliases VGA memory window [nv01-prm.txt]
-700000:800000 PRAMIN - RAMIN access [nv01-memory.txt]
+700000:800000 PRAMIN - RAMIN access [nv01-vram.txt]
 800000:1000000 USER - PFIFO MMIO submission area [fifo-pio.txt]
-1000000:2000000 FB - VRAM access area [nv01-memory.txt]
+1000000:2000000 FB - VRAM access area [nv01-vram.txt]
 
 
 = NV03 MMIO map =

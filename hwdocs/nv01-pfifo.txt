@@ -136,7 +136,7 @@ object structure to access the DMA command buffer.
 [XXX: NV01 bug]
 
 On NV01, these three structures reside at fixed addresses in RAMIN, selected
-based on the PRAM size configuration [see nv01-memory.txt]. There are special
+based on the PRAM size configuration [see nv01-vram.txt]. There are special
 MMIO areas provided for easy access to them. On NV03, the structures can be
 located anywhere in the first 64kB of RAMIN, settable via the configuration
 registers:
