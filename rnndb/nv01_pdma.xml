@@ -29,15 +29,16 @@
 	<array offset="0x400" name="UNK0" stride="0x200" length="1">
 		<reg32 offset="0x000" name="UNK000" access="w"/> <!-- cleara 100, 020 could be alias -->
 		<reg32 offset="0x014" name="STATUS">
-			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="0" name="BUSY"/>
 		</reg32>
 		<reg32 offset="0x040" name="ADDR_PHYS"/>
 		<reg32 offset="0x044" name="UNK044" access="w"/> <!-- clears 40, 060 is alias -->
 		<reg32 offset="0x050" name="BUSY" access="r"/> <!-- not sure if right address, could be 10 -->
-		<reg32 offset="0x0b0" name="UNK0B0" access="w"/> <!-- sets high 16 bits of 100 -->
-		<reg32 offset="0x0c0" name="READ" access="w"/> <!-- canonical address could be d0, e0, f0 -->
-		<reg32 offset="0x100" name="UNK100"/> <!-- ffffffff -->
-		<reg32 offset="0x180" name="READ_BUF" length="8"/> <!-- ffffffff -->
+		<reg32 offset="0x0b0" name="WRITE" access="w"/>
+		<reg32 offset="0x0c0" name="READ" access="w"/>
+		<reg32 offset="0x0d0" name="READ_TO_MMIO" access="w"/> <!-- canonical address could be d0, e0, f0 -->
+		<reg32 offset="0x100" name="WRITE_BUF"/>
+		<reg32 offset="0x180" name="READ_BUF" length="8"/>
 	</array>
 
 	<array offset="0x800" name="AUDIO" stride="0x200" length="1">
@@ -58,7 +59,7 @@
 			<bitfield pos="4" name="INST_READ"/>
 			<bitfield pos="8" name="AUTO_FLUSH"/>
 			<bitfield pos="12" name="FLUSH"/>
-			<bitfield pos="16" name="UNK0D0"/>
+			<bitfield pos="16" name="READ"/>
 			<bitfield pos="20" name="NOTIFY"/>
 		</reg32>
 		<reg32 offset="0x018" name="VALID">
@@ -76,7 +77,7 @@
 		<reg32 offset="0x0a0" name="WRITE" access="w"/>
 		<reg32 offset="0x0b0" name="WRITE_FLUSH" access="w"/>
 		<reg32 offset="0x0c0" name="FLUSH" access="w"/>
-		<reg32 offset="0x0d0" name="UNK0D0" access="w"/>
+		<reg32 offset="0x0d0" name="READ_TO_MMIO" access="w"/>
 		<reg32 offset="0x0e0" name="INST_NOTIFY" access="w"/>
 		<reg32 offset="0x0f0" name="NOTIFY" access="w"/>
 		<reg32 offset="0x100" name="WRITE_BUF" length="4"/>
@@ -100,7 +101,7 @@
 			<bitfield pos="4" name="INST_READ"/>
 			<bitfield pos="8" name="AUTO_FLUSH"/>
 			<bitfield pos="12" name="FLUSH"/>
-			<bitfield pos="16" name="UNK0D0"/>
+			<bitfield pos="16" name="READ"/>
 			<bitfield pos="20" name="NOTIFY"/>
 		</reg32>
 		<reg32 offset="0x018" name="VALID">
@@ -118,7 +119,7 @@
 		<reg32 offset="0x0a0" name="WRITE" access="w"/>
 		<reg32 offset="0x0b0" name="WRITE_FLUSH" access="w"/>
 		<reg32 offset="0x0c0" name="FLUSH" access="w"/>
-		<reg32 offset="0x0d0" name="UNK0D0" access="w"/>
+		<reg32 offset="0x0d0" name="READ_TO_MMIO" access="w"/>
 		<reg32 offset="0x0e0" name="INST_NOTIFY" access="w"/>
 		<reg32 offset="0x0f0" name="NOTIFY" access="w"/>
 		<reg32 offset="0x100" name="WRITE_BUF" length="8"/>
