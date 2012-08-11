@@ -1,8 +1,63 @@
 TOC
 
 0. Introduction
-1. The MMIO registers
+1. MMIO registers
 2. EEPROM access
 3. EEPROM structure
 
-[XXX: write me]
+
+= Introduction =
+
+NV01 cards, in addition to the usual BIOS ROM, have a small Microwire EEPROM
+on board. The EEPROM is organised as 128 8-bit cells. Its purpose is unknown.
+
+The chipset has a Microwire master controller and can natively read and write
+the EEPROM. The controller is known as PEEPROM and its MMIO range is
+0x60a000:0x60b0000. It is not affected by any PMC.ENABLE bit.
+
+For details on the EEPROM itself, see the datasheet for Microchip 93C46A.
+
+Note that, for some reason, only addresses 0x10-0x7f can be accessed by the
+controller - others will always read as 0.
+
+
+= MMIO registers =
+
+There is only one MMIO register in PEEPROM range.
+
+60a400 PORT - EEPROM port control
+
+
+= EEPROM access =
+
+The EEPROM is accessed by reading and writing the PORT register:
+
+MMIO 0x60a400: PORT
+  bits 0-7: DATA - the data read or written
+  bits 8-14: ADDR - the address to read or write
+  bit 24: WRITE_TRIGGER - when written as 1, will cause DATA to be written
+          to the EEPROM at address ADDR. Does *not* auto-clear.
+  bit 25: READ_TRIGGER - when written as 1, will cause a byte to be read
+          from address ADDR into DATA. Does *not* auto-clear.
+  bit 28: BUSY [RO] - reads as 1 when an EEPROM operation is in progress.
+
+To read a byte:
+
+ - read PORT until BUSY is 0
+ - write PORT with ADDR set to the address to read, READ_TRIGGER set to 1,
+   other fields set to 0
+ - read PORT until BUSY is 0
+ - the DATA field now contains the byte that was read
+
+To write a byte:
+
+ - read PORT until BUSY is 0
+ - write PORT with ADDR set to the address to write, DATA set to the byte to
+   write, WRITE_TRIGGER set to 1, other fields set to 0
+ - if a wait for completion is desired, read PORT until BUSY is 0
+
+
+= EEPROM structure =
+
+How the fuck would I know?
+[XXX: figure it out one day]

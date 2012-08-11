@@ -44,7 +44,7 @@ GPU external device I/O units
 [     ] prom.txt - BIOS ROM access engine
 [     ] pnvio.txt - NV50 IO engine
 [     ] pnvio-gpio.txt - NV50 GPIOs
-[     ] nv01-peeprom.txt - NV01 mystery EEPROM
+[***  ] nv01-peeprom.txt - NV01 mystery EEPROM
 
 
 Memory access and structure
