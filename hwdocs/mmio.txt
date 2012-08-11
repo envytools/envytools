@@ -25,7 +25,7 @@ TOC
 300000:301000 PAUDIO - audio capture and playback device [nv01-paudio.txt]
 400000:401000 PGRAPH - accelerated drawing engine [nv01-pgraph.txt]
 600000:601000 PFB - VRAM and video output control [nv01-pfb.txt]
-602000:603000 PRAM - priviledgd RAM control [nv01-vram.txt]
+602000:603000 PRAM - RAMIN layout control [nv01-vram.txt]
 604000:605000 ??? [nv01-vram.txt]
 605000:606000 PCHIPID - chip ID readout [nv01-peeprom.txt]
 606000:607000 ??? [nv01-vram.txt]
