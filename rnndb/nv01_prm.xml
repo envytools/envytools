@@ -125,10 +125,9 @@
 	<reg8 offset="0x229" name="FM_DATA"/>
 	<reg8 offset="0x22a" name="SB_22A"/>
 	<reg8 offset="0x22b" name="SB_22B"/>
-	<reg8 offset="0x22c" name="SB_CMD"/>
-	<reg8 offset="0x22d" name="SB_22D"/>
-	<reg8 offset="0x22e" name="SB_22E"/>
-	<reg8 offset="0x22f" name="SB_22F"/>
+	<reg8 offset="0x22c" name="SB_CMD" access="w"/>
+	<reg8 offset="0x22c" name="SB_CSTATUS" access="r"/>
+	<reg8 offset="0x22e" name="SB_DSTATUS"/>
 
 	<reg8 offset="0x330" name="MPU_DATA" access="w"/>
 	<reg8 offset="0x330" name="MPU_STATUS" access="r"/>
