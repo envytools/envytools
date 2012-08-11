@@ -11,19 +11,19 @@
 <array offset="0x6c0000" name="PRM" stride="0x8000" length="1" variants="NV01">
 	<reg32 offset="0x080" name="UNK80">
 		<bitfield pos="0" name="ATC_FLIP_FLOP"/>
-		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="4" name="RENDER_PENDING"/>
 		<bitfield pos="12" name="UNK12"/>
 		<bitfield pos="16" name="UNK16"/>
 		<bitfield pos="20" name="UNK20"/>
 		<bitfield pos="28" name="UNK28"/>
 	</reg32>
 	<reg32 offset="0x100" name="INTR">
-		<bitfield pos="12" name="UNK12"/>
+		<bitfield pos="12" name="ALOG"/>
 		<bitfield pos="16" name="UNK16"/>
 		<bitfield pos="20" name="UNK20"/>
 	</reg32>
 	<reg32 offset="0x140" name="INTR_EN">
-		<bitfield pos="12" name="UNK12"/>
+		<bitfield pos="12" name="ALOG"/>
 		<bitfield pos="16" name="UNK16"/>
 		<bitfield pos="20" name="UNK20"/>
 	</reg32>
@@ -35,25 +35,115 @@
 		</bitfield>
 	</reg32>
 	<reg32 offset="0x400" name="UNK400">
-		<bitfield low="0" high="7" name="UNK0"/>
-		<bitfield pos="8" name="UNK8"/>
+		<bitfield low="0" high="7" name="MPU_STATUS"/>
+		<bitfield pos="8" name="MPU_WRITTEN"/>
 		<bitfield pos="12" name="UNK12"/>
-		<bitfield pos="16" name="UNK16"/>
+		<bitfield pos="16" name="MPU_READ"/>
 		<bitfield pos="20" name="UNK20"/>
 		<bitfield pos="24" name="UNK24"/>
 	</reg32>
-	<reg32 offset="0x1f00" name="TRACE">
-		<bitfield low="0" high="1" name="UNK0"/>
-		<bitfield pos="4" name="UNK4_STICKY"/>
-		<bitfield pos="5" name="UNK5_STICKY"/>
-		<bitfield low="8" high="9" name="UNK8"/>
+	<!-- FB+0xe0000, 0x4000 4-byte entries -->
+	<reg32 offset="0x1f00" name="ALOG">
+		<bitfield pos="0" name="IO_WRITE_LOG_EN"/>
+		<bitfield pos="1" name="IO_READ_LOG_EN"/>
+		<bitfield pos="4" name="IO_WRITE_LOGGED"/>
+		<bitfield pos="5" name="IO_READ_LOGGED"/>
+		<bitfield pos="8" name="MEM_WRITE_LOG_EN"/>
+		<bitfield pos="9" name="MEM_READ_LOG_EN"/>
+		<bitfield pos="12" name="MEM_WRITE_LOGGED"/>
+		<bitfield pos="13" name="MEM_READ_LOGGED"/>
 	</reg32>
-	<reg32 offset="0x1f10" name="UNK1F10"/>
-	<reg32 offset="0x1f20" name="UNK1F20"/>
-	<reg32 offset="0x1f24" name="UNK1F24"/>
+	<reg32 offset="0x1f10" name="ALOG_POS"/> <!-- in entries -->
+	<reg32 offset="0x1f20" name="ALOG_IGNORE_0">
+		<bitfield pos="0" name="PAL_WRITE"/>
+		<bitfield pos="1" name="PAL_READ"/>
+		<bitfield pos="4" name="GAME_PORT_WRITE"/>
+		<bitfield pos="5" name="GAME_PORT_READ"/>
+		<bitfield pos="8" name="MPU_WRITE"/>
+		<bitfield pos="9" name="MPU_READ"/>
+	</reg32>
+	<reg32 offset="0x1f24" name="ALOG_IGNORE_1">
+		<bitfield pos="0" name="FM_IDX_WRITE"/>
+		<bitfield pos="1" name="FM_IDX_READ"/>
+		<bitfield pos="4" name="FM_DAT_WRITE"/>
+		<bitfield pos="5" name="FM_DAT_READ"/>
+		<bitfield pos="8" name="SB_WRITE"/>
+		<bitfield pos="9" name="SB_READ"/>
+		<bitfield pos="16" name="SR_GR_WRITE"/>
+		<bitfield pos="17" name="SR_GR_READ"/>
+		<bitfield pos="20" name="CR_AR_WRITE"/>
+		<bitfield pos="21" name="CR_AR_READ"/>
+		<bitfield pos="24" name="VGA_MISC_WRITE"/>
+		<bitfield pos="25" name="VGA_MISC_READ"/>
+	</reg32>
 </array>
 
+<bitset name="NV01_RM_ACCESS_LOG_ENTRY">
+	<bitfield low="0" high="7" name="DATA"/>
+	<bitfield pos="14" name="TYPE">
+		<value value="0" name="WRITE"/>
+		<value value="1" name="READ"/>
+	</bitfield>
+	<bitfield pos="15" name="SPACE">
+		<value value="0" name="IO"/>
+		<value value="1" name="MEM"/>
+	</bitfield>
+	<bitfield low="16" high="31" name="ADDR"/>
+</bitset>
+
+<!-- FB+0xf0000 -->
+<domain name="NV01_RM_STATE">
+	<doc>VGA Regs not shadowed: SR2, SR3, SR4, AR10, CR09, CR0A, CR0C-CR0F, CR13, GR*</doc>
+	<array offset="0x000" name="SR" stride="0x8" length="1">
+		<use-group name="vga_sr"/>
+	</array>
+	<array offset="0x100" name="CR" stride="0x20" length="1">
+		<use-group name="vga_cr"/>
+	</array>
+	<array offset="0x200" name="AR" stride="0x20" length="1">
+		<use-group name="vga_ar"/>
+	</array>
+	<reg8 offset="0x300" name="MPU_DATA"/>
+	<reg8 offset="0x301" name="MPU_CMD"/>
+	<reg8 offset="0x304" name="SB_224"/>
+	<reg8 offset="0x305" name="SB_225"/>
+	<reg8 offset="0x306" name="SB_226"/>
+	<reg8 offset="0x307" name="SB_227"/>
+
+	<reg8 offset="0x30c" name="SB_CMD"/>
+
+	<reg8 offset="0x318" name="FM_STATUS"/>
+
+	<reg8 offset="0x31a" name="SB_22A"/>
+	<reg8 offset="0x400" name="FM" length="256"/>
+	<reg8 offset="0x500" name="SB_22B" length="256"/> <!-- indexed by FM_IDX?!? -->
+</domain>
+
 <array name="PRMIO" offset="0x6d0000" stride="0x1000" length="1" variants="NV01">
+	<reg8 offset="0x201" name="GAME_PORT"/>
+
+	<reg8 offset="0x224" name="SB_224"/>
+	<reg8 offset="0x225" name="SB_225"/>
+	<reg8 offset="0x226" name="SB_226"/>
+	<reg8 offset="0x227" name="SB_227"/>
+	<reg8 offset="0x228" name="FM_IDX" access="w"/>
+	<reg8 offset="0x228" name="FM_STATUS" access="r"/>
+	<reg8 offset="0x229" name="FM_DATA"/>
+	<reg8 offset="0x22a" name="SB_22A"/>
+	<reg8 offset="0x22b" name="SB_22B"/>
+	<reg8 offset="0x22c" name="SB_CMD"/>
+	<reg8 offset="0x22d" name="SB_22D"/>
+	<reg8 offset="0x22e" name="SB_22E"/>
+	<reg8 offset="0x22f" name="SB_22F"/>
+
+	<reg8 offset="0x330" name="MPU_DATA" access="w"/>
+	<reg8 offset="0x330" name="MPU_STATUS" access="r"/>
+	<reg8 offset="0x331" name="MPU_CMD"/>
+
+	<reg8 offset="0x388" name="FM_ALT_IDX" access="w"/>
+	<reg8 offset="0x388" name="FM_ALT_STATUS" access="r"/>
+	<reg8 offset="0x389" name="FM_ALT_DATA"/>
+
 	<use-group name="nv_vga_vio"/>
 	<use-group name="nv_vga_cio"/>
 	<use-group name="nv_vga_dio"/>
