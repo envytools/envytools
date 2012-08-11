@@ -133,7 +133,6 @@ The NV01/NV03 PFIFO uses three memory structures that reside in RAMIN:
 
 In addition to these, NV03 also uses the page table part of standard DMA
 object structure to access the DMA command buffer.
-[XXX: NV01 bug]
 
 On NV01, these three structures reside at fixed addresses in RAMIN, selected
 based on the PRAM size configuration [see nv01-vram.txt]. There are special
@@ -141,7 +140,7 @@ MMIO areas provided for easy access to them. On NV03, the structures can be
 located anywhere in the first 64kB of RAMIN, settable via the configuration
 registers:
 
-MMIO 0x002210: RAMHT
+MMIO 0x002210: RAMHT [NV03-]
   bits 12-15: bits 12-15 of RAMHT start address inside RAMIN
   bits 16-17: RAMHT size
     0: 0x1000 bytes
@@ -150,11 +149,11 @@ MMIO 0x002210: RAMHT
     3: 0x8000 bytes
   The RAMHT address always has to be 0x1000-byte aligned.
 
-MMIO 0x002214: RAMFC
+MMIO 0x002214: RAMFC [NV03-]
   bits 9-15: bits 9-15 of RAMFC start address inside RAMIN
   The RAMFC address always has to be 0x200-byte aligned.
 
-MMIO 0x002218: RAMRO
+MMIO 0x002218: RAMRO [NV03-]
   bits 9-15: bits 9-15 of RAMRO start address inside RAMIN
   bit 16: RAMRO size
     0: 0x200 bytes [64 entries]

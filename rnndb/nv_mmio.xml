@@ -194,6 +194,7 @@
 <import file="nv04_pgraph.xml" />
 <import file="nv50_pgraph.xml" />
 <import file="nvc0_pgraph.xml" />
+<import file="nv03_pdma.xml" />
 
 <!-- 600000 - 600fff PFB -->
 <import file="nv01_pfb.xml" />
