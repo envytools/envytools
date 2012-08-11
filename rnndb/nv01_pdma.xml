@@ -15,20 +15,30 @@
 		<bitfield pos="8" name="ACCESS"/>
 		<bitfield pos="12" name="UNK12"/>
 	</bitset>
-	<reg32 offset="0x100" name="INTR_0">
+	<reg32 offset="0x100" name="INTR_UNK0">
 		<bitfield pos="12" name="UNK12"/>
 	</reg32>
 	<reg32 offset="0x108" name="INTR_AUDIO" type="nv01_pdma_intr"/>
 	<reg32 offset="0x110" name="INTR_GRAPH" type="nv01_pdma_intr"/>
-	<reg32 offset="0x140" name="INTR_0_EN">
+	<reg32 offset="0x140" name="INTR_UNK0_EN">
 		<bitfield pos="12" name="UNK12"/>
 	</reg32>
 	<reg32 offset="0x148" name="INTR_AUDIO_EN" type="nv01_pdma_intr"/>
 	<reg32 offset="0x150" name="INTR_GRAPH_EN" type="nv01_pdma_intr"/>
 
-	<reg32 offset="0x440" name="UNK440"/> <!-- ffffffff -->
-	<reg32 offset="0x500" name="UNK500"/> <!-- ffffffff -->
-	<reg32 offset="0x580" name="UNK580" length="8"/> <!-- ffffffff -->
+	<array offset="0x400" name="UNK0" stride="0x200" length="1">
+		<reg32 offset="0x000" name="UNK000" access="w"/> <!-- cleara 100, 020 could be alias -->
+		<reg32 offset="0x014" name="STATUS">
+			<bitfield pos="0" name="UNK0"/>
+		</reg32>
+		<reg32 offset="0x040" name="ADDR_PHYS"/>
+		<reg32 offset="0x044" name="UNK044" access="w"/> <!-- clears 40, 060 is alias -->
+		<reg32 offset="0x050" name="BUSY" access="r"/> <!-- not sure if right address, could be 10 -->
+		<reg32 offset="0x0b0" name="UNK0B0" access="w"/> <!-- sets high 16 bits of 100 -->
+		<reg32 offset="0x0c0" name="READ" access="w"/> <!-- canonical address could be d0, e0, f0 -->
+		<reg32 offset="0x100" name="UNK100"/> <!-- ffffffff -->
+		<reg32 offset="0x180" name="READ_BUF" length="8"/> <!-- ffffffff -->
+	</array>
 
 	<array offset="0x800" name="AUDIO" stride="0x200" length="1">
 		<reg32 offset="0x000" name="FLAGS"> <!-- word 0 of DMA object -->
@@ -37,8 +47,20 @@
 			<bitfield pos="20" name="UNK20"/>
 		</reg32>
 		<reg32 offset="0x004" name="LIMIT"/> <!-- word 1 of DMA object -->
-		<reg32 offset="0x008" name="PTE"/> <!-- words 2+ of DMA object -->
+		<reg32 offset="0x008" name="PTE"> <!-- words 2+ of DMA object -->
+			<bitfield pos="0" name="PRESENT"/>
+			<bitfield pos="1" name="WRITE_OK"/>
+			<bitfield low="12" high="31" name="ADDR" shr="12"/>
+		</reg32>
 		<reg32 offset="0x010" name="ACCESS_EN"/>
+		<reg32 offset="0x014" name="STATUS" access="r">
+			<bitfield pos="0" name="WRITE_BUF"/>
+			<bitfield pos="4" name="INST_READ"/>
+			<bitfield pos="8" name="AUTO_FLUSH"/>
+			<bitfield pos="12" name="FLUSH"/>
+			<bitfield pos="16" name="UNK0D0"/>
+			<bitfield pos="20" name="NOTIFY"/>
+		</reg32>
 		<reg32 offset="0x018" name="VALID">
 			<bitfield pos="0" name="FLAGS_LIMIT"/>
 			<bitfield pos="4" name="ADDR"/>
@@ -48,10 +70,14 @@
 		<reg32 offset="0x020" name="PTE_TAG"/>
 		<reg32 offset="0x030" name="ADDR_VIRT_ADJ"/>
 		<reg32 offset="0x040" name="ADDR_PHYS"/>
+		<reg32 offset="0x050" name="UNK050" access="w"/>
 		<reg32 offset="0x080" name="INST"/>
 		<reg32 offset="0x090" name="ADDR_VIRT_SET" access="w"/>
 		<reg32 offset="0x0a0" name="WRITE" access="w"/>
 		<reg32 offset="0x0b0" name="WRITE_FLUSH" access="w"/>
+		<reg32 offset="0x0c0" name="FLUSH" access="w"/>
+		<reg32 offset="0x0d0" name="UNK0D0" access="w"/>
+		<reg32 offset="0x0e0" name="INST_NOTIFY" access="w"/>
 		<reg32 offset="0x0f0" name="NOTIFY" access="w"/>
 		<reg32 offset="0x100" name="WRITE_BUF" length="4"/>
 	</array>
@@ -63,8 +89,20 @@
 			<bitfield pos="20" name="UNK20"/>
 		</reg32>
 		<reg32 offset="0x004" name="LIMIT"/> <!-- word 1 of DMA object -->
-		<reg32 offset="0x008" name="PTE"/> <!-- words 2+ of DMA object -->
+		<reg32 offset="0x008" name="PTE"> <!-- words 2+ of DMA object -->
+			<bitfield pos="0" name="PRESENT"/>
+			<bitfield pos="1" name="WRITE_OK"/>
+			<bitfield low="12" high="31" name="ADDR" shr="12"/>
+		</reg32>
 		<reg32 offset="0x010" name="ACCESS_EN"/>
+		<reg32 offset="0x014" name="STATUS" access="r">
+			<bitfield pos="0" name="WRITE_BUF"/>
+			<bitfield pos="4" name="INST_READ"/>
+			<bitfield pos="8" name="AUTO_FLUSH"/>
+			<bitfield pos="12" name="FLUSH"/>
+			<bitfield pos="16" name="UNK0D0"/>
+			<bitfield pos="20" name="NOTIFY"/>
+		</reg32>
 		<reg32 offset="0x018" name="VALID">
 			<bitfield pos="0" name="FLAGS_LIMIT"/>
 			<bitfield pos="4" name="ADDR"/>
@@ -74,10 +112,14 @@
 		<reg32 offset="0x020" name="PTE_TAG"/>
 		<reg32 offset="0x030" name="ADDR_VIRT_ADJ"/>
 		<reg32 offset="0x040" name="ADDR_PHYS"/>
+		<reg32 offset="0x050" name="UNK050" access="w"/>
 		<reg32 offset="0x080" name="INST"/>
 		<reg32 offset="0x090" name="ADDR_VIRT_SET" access="w"/>
 		<reg32 offset="0x0a0" name="WRITE" access="w"/>
 		<reg32 offset="0x0b0" name="WRITE_FLUSH" access="w"/>
+		<reg32 offset="0x0c0" name="FLUSH" access="w"/>
+		<reg32 offset="0x0d0" name="UNK0D0" access="w"/>
+		<reg32 offset="0x0e0" name="INST_NOTIFY" access="w"/>
 		<reg32 offset="0x0f0" name="NOTIFY" access="w"/>
 		<reg32 offset="0x100" name="WRITE_BUF" length="8"/>
 	</array>
