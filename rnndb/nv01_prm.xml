@@ -94,15 +94,9 @@
 <!-- FB+0xf0000 -->
 <domain name="NV01_RM_STATE">
 	<doc>VGA Regs not shadowed: SR2, SR3, SR4, AR10, CR09, CR0A, CR0C-CR0F, CR13, GR*</doc>
-	<array offset="0x000" name="SR" stride="0x8" length="1">
-		<use-group name="vga_sr"/>
-	</array>
-	<array offset="0x100" name="CR" stride="0x20" length="1">
-		<use-group name="vga_cr"/>
-	</array>
-	<array offset="0x200" name="AR" stride="0x20" length="1">
-		<use-group name="vga_ar"/>
-	</array>
+	<reg8 offset="0x000" name="SR" length="8"/>
+	<reg8 offset="0x100" name="CR" length="0x20"/>
+	<reg8 offset="0x200" name="AR" length="0x20"/>
 	<reg8 offset="0x300" name="MPU_DATA"/>
 	<reg8 offset="0x301" name="MPU_CMD"/>
 	<reg8 offset="0x304" name="SB_224"/>
