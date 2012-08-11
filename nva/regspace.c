@@ -87,6 +87,17 @@ int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val) {
 			for (i = 0; i < regspace->regsz; i++)
 				nva_wr32(regspace->cnum, 0x609018, (val >> i * 8) & 0xff);
 			return 0;
+		case NVA_REGSPACE_EEPROM:
+			if (regspace->card->chipset != 0x01)
+				return NVA_ERR_NOSPC;
+			if (regspace->regsz != 1)
+				return NVA_ERR_REGSZ;
+			if (addr >= 0x80)
+				return NVA_ERR_RANGE;
+			while (nva_rd32(regspace->cnum, 0x60a400) & 0x10000000);
+			nva_wr32(regspace->cnum, 0x60a400, 0x1000000 | addr << 8 | (val & 0xff));
+			while (nva_rd32(regspace->cnum, 0x60a400) & 0x10000000);
+			return 0;
 		case NVA_REGSPACE_VGA_CR:
 			vgaio = 0x3d4;
 			if (addr >= 0x100)
@@ -146,6 +157,8 @@ int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val) {
 		case NVA_REGSPACE_VGA_ST:
 			if (regspace->card->chipset < 0x41)
 				return NVA_ERR_NOSPC;
+			if (regspace->regsz != 1)
+				return NVA_ERR_REGSZ;
 			uint32_t vstbase = 0x1380;
 			if (regspace->card->card_type >= 0x50)
 				vstbase = 0x619e40;
@@ -217,6 +230,18 @@ int nva_rd(struct nva_regspace *regspace, uint32_t addr, uint64_t *val) {
 			for (i = 0; i < regspace->regsz; i++)
 				*val |= (uint64_t)(nva_rd32(regspace->cnum, 0x609018) & 0xff) << i * 8;
 			return 0;
+		case NVA_REGSPACE_EEPROM:
+			if (regspace->card->chipset != 0x01)
+				return NVA_ERR_NOSPC;
+			if (regspace->regsz != 1)
+				return NVA_ERR_REGSZ;
+			if (addr >= 0x80)
+				return NVA_ERR_RANGE;
+			while (nva_rd32(regspace->cnum, 0x60a400) & 0x10000000);
+			nva_wr32(regspace->cnum, 0x60a400, 0x2000000 | addr << 8);
+			while (nva_rd32(regspace->cnum, 0x60a400) & 0x10000000);
+			*val = nva_rd32(regspace->cnum, 0x60a400) & 0xff;
+			return 0;
 		case NVA_REGSPACE_VGA_CR:
 			vgaio = 0x3d4;
 			if (addr >= 0x100)
@@ -277,6 +302,8 @@ int nva_rd(struct nva_regspace *regspace, uint32_t addr, uint64_t *val) {
 		case NVA_REGSPACE_VGA_ST:
 			if (regspace->card->chipset < 0x41)
 				return NVA_ERR_NOSPC;
+			if (regspace->regsz != 1)
+				return NVA_ERR_REGSZ;
 			uint32_t vstbase = 0x1380;
 			if (regspace->card->card_type >= 0x50)
 				vstbase = 0x619e40;
@@ -310,6 +337,8 @@ int nva_rstype(const char *name) {
 		return NVA_REGSPACE_BAR2;
 	if (!strcmp(name, "pdac"))
 		return NVA_REGSPACE_PDAC;
+	if (!strcmp(name, "eeprom"))
+		return NVA_REGSPACE_EEPROM;
 	if (!strcmp(name, "cr"))
 		return NVA_REGSPACE_VGA_CR;
 	if (!strcmp(name, "sr"))
