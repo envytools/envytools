@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+<array offset="0x605000" name="PCHIPID" stride="0x1000" length="1" variants="NV01">
+	<reg32 offset="0x400" name="ID" length="2"/>
+</array>
+
+</domain>
+
+</database>

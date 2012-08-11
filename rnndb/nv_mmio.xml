@@ -204,6 +204,9 @@
 <!-- 602000 - 602fff PRAM -->
 <import file="nv01_pram.xml" />
 
+<!-- 605000 - 605fff PCHIPID -->
+<import file="nv01_pchipid.xml" />
+
 <!-- 608000 - 608fff PSTRAPS covered in nv_pstraps.xml -->
 
 <!-- 609000 - 609fff PDAC -->

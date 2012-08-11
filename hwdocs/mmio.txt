@@ -27,7 +27,7 @@ TOC
 600000:601000 PFB - VRAM and video output control [nv01-pfb.txt]
 602000:603000 PRAM - priviledgd RAM control [nv01-memory.txt]
 604000:605000 ???
-605000:606000 ???
+605000:606000 PCHIPID - chip ID readout [nv01-peeprom.txt]
 606000:607000 ???
 608000:609000 PSTRAPS - straps readout / override [pstraps.txt]
 609000:60a000 PDAC - DAC control [nv01-pdac.txt]
