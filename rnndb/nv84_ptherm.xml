@@ -7,19 +7,152 @@
 <import file="nvchipsets.xml" />
 
 <group name="nv84_therm">
+	<reg32 offset="0x000" name="INTR_DIRECTION">
+		<!-- group direction bits together to shorten the output of this reg in lookup -->
+		<bitfield low="0" high="1" name="TEMP_THRESHOLD_0">
+			<value value="0" name="DISABLED"/>
+			<value value="1" name="RISING"/>
+			<value value="2" name="FALLING"/>
+			<value value="3" name="BOTH"/>
+		</bitfield>
+
+		<bitfield low="2" high="3" name="TEMP_THRESHOLD_1">
+			<value value="0" name="DISABLED"/>
+			<value value="1" name="RISING"/>
+			<value value="2" name="FALLING"/>
+			<value value="3" name="BOTH"/>
+		</bitfield>
+
+		<bitfield low="4" high="5" name="TEMP_THRESHOLD_2">
+			<value value="0" name="DISABLED"/>
+			<value value="1" name="RISING"/>
+			<value value="2" name="FALLING"/>
+			<value value="3" name="BOTH"/>
+		</bitfield>
+
+		<bitfield low="6" high="7" name="TEMP_THRESHOLD_3">
+			<value value="0" name="DISABLED"/>
+			<value value="1" name="RISING"/>
+			<value value="2" name="FALLING"/>
+			<value value="3" name="BOTH"/>
+		</bitfield>
+
+		<bitfield low="8" high="9" name="TEMP_THRESHOLD_4">
+			<value value="0" name="DISABLED"/>
+			<value value="1" name="RISING"/>
+			<value value="2" name="FALLING"/>
+			<value value="3" name="BOTH"/>
+		</bitfield>
+
+		<bitfield low="10" high="11" name="INPUT_0">
+			<value value="0" name="DISABLED"/>
+			<value value="1" name="RISING_EDGE"/>
+			<value value="2" name="FALLING_EDGE"/>
+			<value value="3" name="BOTH"/>
+		</bitfield>
+
+		<bitfield low="12" high="13" name="INPUT_1">
+			<value value="0" name="DISABLED"/>
+			<value value="1" name="RISING_EDGE"/>
+			<value value="2" name="FALLING_EDGE"/>
+			<value value="3" name="BOTH"/>
+		</bitfield>
+
+		<bitfield low="14" high="15" name="INPUT_2">
+			<value value="0" name="DISABLED"/>
+			<value value="1" name="RISING_EDGE"/>
+			<value value="2" name="FALLING_EDGE"/>
+			<value value="3" name="BOTH"/>
+		</bitfield>
+
+       <!-- this one is a guess, but it would make sense -->
+		<bitfield low="16" high="17" name="POWER_BUDGET">
+			<value value="0" name="DISABLED"/>
+			<value value="1" name="RISING_EDGE"/>
+			<value value="2" name="FALLING_EDGE"/>
+			<value value="3" name="BOTH"/>
+		</bitfield>
+
+		<!-- this part is RO and stores the state for the thresholds interrupts -->
+		<!-- I have no idea why thresholds 1 and 3 are inverted -->
+		<bitfield pos="20" name="TSH_0_STATE">
+			<value value="0" name="BELOW"/>
+			<value value="1" name="ABOVE"/>
+		</bitfield>
+		<bitfield pos="21" name="TSH_1_STATE">
+			<value value="0" name="ABOVE"/>
+			<value value="1" name="BELOW"/>
+		</bitfield>
+		<bitfield pos="22" name="TSH_2_STATE">
+			<value value="0" name="BELOW"/>
+			<value value="1" name="ABOVE"/>
+		</bitfield>
+		<bitfield pos="23" name="TSH_3_STATE">
+			<value value="0" name="ABOVE"/>
+			<value value="1" name="BELOW"/>
+		</bitfield>
+		<bitfield pos="24" name="TSH_4_STATE">
+			<value value="0" name="BELOW"/>
+			<value value="1" name="ABOVE"/>
+		</bitfield>
+		<bitfield pos="25" name="INPUT_0_STATE"> <!-- ALARM -->
+			<value value="0" name="LOW"/>
+			<value value="1" name="HIGH"/>
+		</bitfield>
+		<bitfield pos="26" name="INPUT_1_STATE"> <!-- ALERT : inverted ??? -->
+			<value value="0" name="LOW"/>
+			<value value="1" name="HIGH"/>
+		</bitfield>
+		<bitfield pos="27" name="INPUT_2_STATE"> <!-- POWER_FAIL -->
+			<value value="0" name="LOW"/>
+			<value value="1" name="HIGH"/>
+		</bitfield>
+		<!-- This one is a guess -->
+		<bitfield pos="27" name="POWER_BUDGET">
+			<value value="0" name="LOW"/>
+			<value value="1" name="HIGH"/>
+		</bitfield>
+	</reg32>
 	<reg32 offset="0x008" name="SENSOR_RAW">
 		<bitfield pos="31" name="ENABLE"/>
 		<bitfield pos="30" name="UNK30"/>
 		<bitfield low="16" high="21" name="UNK21"/>
 		<bitfield low="0" high="15" name="RAW_VALUE"/>
 	</reg32>
+	<reg32 offset="0x044" name="POWER_STUFF" />
 	<reg32 offset="0x0fc" name="INTR_DISPATCH" variants="NVA3-">
 		<doc>One bit per interrupt, 0 selects delivery to PMC line 19, 1 selects delivery
 		to PDAEMON fµc interrupt 12</doc>
 	</reg32>
-	<reg32 offset="0x100" name="INTR"/> <!-- XXX: has something to do with PBUS interrupt 16? -->
+	<reg32 offset="0x100" name="INTR"> <!-- XXX: has something to do with PBUS interrupt 16? -->
+		<bitfield pos="0" name="TEMP_THRESHOLD_3" />
+		<bitfield pos="1" name="TEMP_THRESHOLD_4" />
+		<bitfield pos="2" name="TEMP_THRESHOLD_0" />
+		<bitfield pos="3" name="TEMP_THRESHOLD_1" />
+		<bitfield pos="4" name="TEMP_THRESHOLD_2" />
+		<bitfield pos="5" name="INPUT_0" />
+		<bitfield pos="6" name="INPUT_1" />
+		<bitfield pos="7" name="INPUT_2" />
+		<bitfield pos="8" name="POWER_BUDGET" /> <!-- guess -->
+	</reg32>
 	<reg32 offset="0x134" name="INTR_EN" variants="NVA3-"/>
+
+       <!-- i2c-slave range -->
 	<reg32 offset="0x400" name="SENSOR_CALIBRATED" variants="NV84-"/>
+
+	<reg32 offset="0x414" name="TEMP_THRESHOLD_4" />
+	<reg32 offset="0x418" name="TEMP_THRESHOLD_3" />
+
+	<reg32 offset="0x444" name="SENSOR_CALIBRATED_LOW" />
+
+	<reg32 offset="0x480" name="TEMP_THRESHOLD_0" />
+	<reg32 offset="0x484" name="TEMP_THRESHOLD_0_HYST" />
+
+	<reg32 offset="0x4c0" name="TEMP_THRESHOLD_2" />
+	<reg32 offset="0x4c4" name="TEMP_THRESHOLD_1" />
+
+	<reg32 offset="0x4c8" name="SENSOR_CALIB" /> <!-- XXX: no idea how this works -->
+
 </group>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
