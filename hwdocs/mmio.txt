@@ -8,6 +8,7 @@ TOC
 5. NV40:NV50 MMIO map
 6. NV50:NVC0 MMIO map
 7. NVC0 MMIO map
+8. NVD9 MMIO errors
 
 
 = Introduction =
@@ -270,3 +271,15 @@ c00000:1000000 NEW_USER - PFIFO DMA submission area [fifo-dma-pusher.txt]
 [XXX: NVD9/NVE4 new display stuff]
 700000:800000 PMEM - indirect VRAM/host memory access [nvc0-memory.txt]
 800000:808000 PFIFO_CHAN - PFIFO channel table [nvc0-pfifo.txt] [NVE4-]
+
+
+= NVD9 MMIO errors =
+
+bad0011f: ROOT: nonexistent register [gives PBUS intr 3]
+
+bad0da1f: disabled subfifo [gives PBUS intr 1]
+
+badf1000: IBUS: nonexistent register [gives PBUS intr 2]
+badf1100: IBUS: nonexistent address [gives PBUS intr 2]
+badf1200: IBUS: disabled in PMC.ENABLE [gives PBUS intr 2]
+badf1300: IBUS: disabled in PIBUS [gives PBUS intr 2]
