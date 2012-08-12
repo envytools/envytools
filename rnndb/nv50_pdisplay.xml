@@ -314,7 +314,7 @@
 				<bitfield pos="9" name="UNK9"/>
 				<bitfield pos="28" name="UNK28"/> <!-- cannot be directed nor redirected to PDAEMON -->
 				<bitfield pos="29" name="UNK29"/> <!-- cannot be directed nor redirected to PDISPLAY.DAEMON -->
-				<bitfield pos="31" name="UNK31"/> <!-- has host_en set by default -->
+				<bitfield pos="31" name="MMIO_FAULT"/>
 			</bitset>
 			<bitset name="nvd9_pdisplay_intr_crtc" inline="yes">
 				<bitfield pos="0" name="VBLANK"/>
