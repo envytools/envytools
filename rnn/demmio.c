@@ -250,8 +250,12 @@ int main(int argc, char **argv) {
 	varinfo_set_variant(ctx_var_nv40, "nv40");
 	varinfo_set_variant(ctx_var_nv50, "nv50");
 	const struct disisa *hwsq_isa = ed_getisa("hwsq");
+	struct varinfo *hwsq_var_nv17 = varinfo_new(hwsq_isa->vardata);
 	struct varinfo *hwsq_var_nv41 = varinfo_new(hwsq_isa->vardata);
+	struct varinfo *hwsq_var_nv50 = varinfo_new(hwsq_isa->vardata);
+	varinfo_set_variant(hwsq_var_nv17, "nv17");
 	varinfo_set_variant(hwsq_var_nv41, "nv41");
+	varinfo_set_variant(hwsq_var_nv50, "nv50");
 	const struct envy_colors *colors = &envy_def_colors;
 	while (1) {
 		/* yes, static buffer. but mmiotrace lines are bound to have sane length anyway. */
@@ -298,7 +302,12 @@ int main(int argc, char **argv) {
 				if (cc->bar0 && addr >= cc->bar0 && addr < cc->bar0+cc->bar0l) {
 					addr -= cc->bar0;
 					if (cc->hwsqip && addr != cc->hwsqnext) {
-						envydis(hwsq_isa, stdout, cc->hwsq, 0, cc->hwsqnext & 0x3fc, hwsq_var_nv41, 0, 0, 0, colors);
+						struct varinfo *var = hwsq_var_nv17;
+						if (cc->chipset >= 0x41)
+							var = hwsq_var_nv41;
+						if (cc->arch == 5)
+							var = hwsq_var_nv50;
+						envydis(hwsq_isa, stdout, cc->hwsq, 0, cc->hwsqnext & 0x3fc, var, 0, 0, 0, colors);
 						cc->hwsqip = 0;
 					}
 					if (addr == 0 && !cc->chdone) {

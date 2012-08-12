@@ -26,6 +26,8 @@
 #include "dis-intern.h"
 
 #define F_NV41P	1
+#define F_NV17F	2
+#define F_NV41F	4
 
 /*
  * Immediate fields
@@ -47,13 +49,31 @@ static struct bitfield evaloff = { 16, 1 };
 #define EVAL atomimm, &evaloff
 
 static struct insn tabevent[] = {
+	{ 0x0000, 0xff00, C("FB_PAUSED") },
 	{ 0x0100, 0xff00, C("CRTC0_VBLANK") },
+	{ 0x0200, 0xff00, C("CRTC0_HBLANK") },
 	{ 0x0300, 0xff00, C("CRTC1_VBLANK") },
+	{ 0x0400, 0xff00, C("CRTC1_HBLANK") },
 	{ 0, 0, EVENT },
 };
 
 static struct insn tabfl[] = {
-	{ 0x10, 0x1f, C("BUS_PAUSE") },
+	{ 0x00, 0x1f, C("GPIO_0_OUT"), .fmask = F_NV17F },
+	{ 0x01, 0x1f, C("GPIO_0_OE"), .fmask = F_NV17F },
+	{ 0x02, 0x1f, C("GPIO_1_OUT"), .fmask = F_NV17F },
+	{ 0x03, 0x1f, C("GPIO_1_OE"), .fmask = F_NV17F },
+	{ 0x04, 0x1f, C("PRAMDAC0_UNK880_28"), .fmask = F_NV17F },
+	{ 0x05, 0x1f, C("PRAMDAC1_UNK880_28"), .fmask = F_NV17F },
+	{ 0x06, 0x1f, C("PRAMDAC0_UNK880_29"), .fmask = F_NV17F },
+	{ 0x07, 0x1f, C("PRAMDAC1_UNK880_29"), .fmask = F_NV17F },
+	{ 0x10, 0x1f, C("FB_PAUSE"), .fmask = F_NV41P },
+	{ 0x19, 0x1f, C("PWM_2_ENABLE"), .fmask = F_NV41F },
+	{ 0x1a, 0x1f, C("PWM_1_ENABLE"), .fmask = F_NV41F },
+	{ 0x1b, 0x1f, C("PWM_0_ENABLE"), .fmask = F_NV17F },
+	{ 0x1c, 0x1f, C("PBUS_DEBUG_1_UNK22"), .fmask = F_NV17F },
+	{ 0x1d, 0x1f, C("PBUS_DEBUG_1_UNK24"), .fmask = F_NV17F },
+	{ 0x1e, 0x1f, C("PBUS_DEBUG_1_UNK26"), .fmask = F_NV17F },
+	{ 0x1f, 0x1f, C("PBUS_DEBUG_1_UNK27"), .fmask = F_NV17F },
 	{ 0, 0, FLAG },
 };
 
@@ -74,17 +94,24 @@ static struct insn tabm[] = {
 
 static void hwsq_prep(struct disisa *isa) {
 	isa->vardata = vardata_new("hwsq");
-	int f_nv41op = vardata_add_feature(isa->vardata, "nv41op", "NV41+ opcodes");
-	if (f_nv41op == -1)
+	int f_nv41op = vardata_add_feature(isa->vardata, "nv41op", "NV41+ features");
+	int f_nv17f = vardata_add_feature(isa->vardata, "nv17f", "NV17:NV50 flags");
+	int f_nv41f = vardata_add_feature(isa->vardata, "nv41f", "NV41:NV50 flags");
+	if (f_nv41op == -1 || f_nv17f == -1 || f_nv41f == -1)
 		abort();
 	int vs_chipset = vardata_add_varset(isa->vardata, "chipset", "GPU chipset");
 	if (vs_chipset == -1)
 		abort();
 	int v_nv17 = vardata_add_variant(isa->vardata, "nv17", "NV17:NV41", vs_chipset);
-	int v_nv41 = vardata_add_variant(isa->vardata, "nv41", "NV41+", vs_chipset);
-	if (v_nv17 == -1 || v_nv41 == -1)
+	int v_nv41 = vardata_add_variant(isa->vardata, "nv41", "NV41:NV50", vs_chipset);
+	int v_nv50 = vardata_add_variant(isa->vardata, "nv50", "NV50+", vs_chipset);
+	if (v_nv17 == -1 || v_nv41 == -1 || v_nv50 == -1)
 		abort();
+	vardata_variant_feature(isa->vardata, v_nv17, f_nv17f);
+	vardata_variant_feature(isa->vardata, v_nv41, f_nv17f);
+	vardata_variant_feature(isa->vardata, v_nv41, f_nv41f);
 	vardata_variant_feature(isa->vardata, v_nv41, f_nv41op);
+	vardata_variant_feature(isa->vardata, v_nv50, f_nv41op);
 	if (vardata_validate(isa->vardata))
 		abort();
 }

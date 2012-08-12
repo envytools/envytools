@@ -47,7 +47,8 @@ hexadecimal numbers representing the bytes to disassemble. The options are:
        nva0: NVA0:NVC0 cards
      For hwsq:
        nv17: NV17:NV41 cards
-       nv41: NV41:NVC0 cards
+       nv41: NV41:NV50 cards
+       nv50: NV50:NVC0 cards
      For fuc:
        fuc0: fµc version 0 [NV98, NVAA, NVAC]
        fuc3: fµc version 3 [NVA3 and up]
@@ -72,7 +73,9 @@ hexadecimal numbers representing the bytes to disassemble. The options are:
        nv50op: NV50:NVC0 exclusive opcodes [selected by nv50, nva0]
        callret: call/ret opcodes [selected by nva0]
      For hwsq:
-       nv41op: NV41 new opcodes [selected by nv41]
+       nv17f: NV17:NV50 flags [selected by nv17, nv41]
+       nv41f: NV41:NV50 flags [selected by nv41]
+       nv41op: NV41 new opcodes [selected by nv41, nv50]
      For fuc:
        fuc0op: fµc version 0 exclusive opcodes [selected by fuc0] 
        fuc3op: fµc version 3+ exclusive opcodes [selected by fuc3, fuc4] 

@@ -48,8 +48,11 @@
 
 		</reg32>
 		<reg32 offset="0x098" name="DEBUG_6" variants="NV17:NV20 NV25-">
-			<bitfield pos="3" name="HWSQ_MMIO_ENABLE" variants="NV41:NVC0"/>
-
+			<bitfield pos="3" name="HWSQ_ENABLE" variants="NV17:NV20 NV25:NVC0"/>
+			<bitfield pos="4" name="HWSQ_OVERRIDE_MODE" variants="NV17:NV20 NV25:NVC0">
+				<value value="0" name="READ_NORMAL"/>
+				<value value="1" name="READ_OVERRIDE"/>
+			</bitfield>
 			<!-- enables clock gating of various engings. Actual gaing must be enabled
 			     on per engine basis, by setting its value in 1588/1590 to 1 -->
 			<bitfield pos="5" name="CLOCK_GATING_1588" variants="NV50-"/>
@@ -113,9 +116,33 @@
 				</bitfield>
 				<bitfield low="2" high="3" name="ENTRY_POINT"/>
 			</reg32>
-			<reg32 offset="0x010" name="FLAG" length="2">
-				<bitfield low="0" high="15" name="VALUE_MASK"/>
-				<bitfield low="16" high="31" name="OVERRIDE_MASK"/>
+			<bitset name="nv_pbus_hwsq_flag_0" inline="yes">
+				<bitfield pos="0" name="GPIO_0_OUT" variants="NV17:NV50"/>
+				<bitfield pos="1" name="GPIO_0_OE" variants="NV17:NV50"/>
+				<bitfield pos="2" name="GPIO_1_OUT" variants="NV17:NV50"/>
+				<bitfield pos="3" name="GPIO_1_OE" variants="NV17:NV50"/>
+				<bitfield pos="4" name="PRAMDAC0_UNK880_28" variants="NV17:NV50"/>
+				<bitfield pos="5" name="PRAMDAC1_UNK880_28" variants="NV17:NV50"/>
+				<bitfield pos="6" name="PRAMDAC0_UNK880_29" variants="NV17:NV50"/>
+				<bitfield pos="7" name="PRAMDAC1_UNK880_29" variants="NV17:NV50"/>
+			</bitset>
+			<bitset name="nv_pbus_hwsq_flag_1" inline="yes">
+				<bitfield pos="0" name="FB_PAUSE" variants="NV41:NVC0"/>
+				<bitfield pos="9" name="PWM_2_ENABLE" variants="NV41:NV50"/>
+				<bitfield pos="10" name="PWM_1_ENABLE" variants="NV41:NV50"/>
+				<bitfield pos="11" name="PWM_0_ENABLE" variants="NV17:NV50"/>
+				<bitfield pos="12" name="PBUS_DEBUG_1_UNK22" variants="NV17:NV50"/>
+				<bitfield pos="13" name="PBUS_DEBUG_1_UNK24" variants="NV17:NV50"/>
+				<bitfield pos="14" name="PBUS_DEBUG_1_UNK26" variants="NV17:NV50"/>
+				<bitfield pos="15" name="PBUS_DEBUG_1_UNK27" variants="NV17:NV50"/>
+			</bitset>
+			<reg32 offset="0x010" name="FLAG_0">
+				<bitfield low="0" high="15" name="VALUE" type="nv_pbus_hwsq_flag_0"/>
+				<bitfield low="16" high="31" name="OVERRIDE" type="nv_pbus_hwsq_flag_0"/>
+			</reg32>
+			<reg32 offset="0x014" name="FLAG_1">
+				<bitfield low="0" high="15" name="VALUE" type="nv_pbus_hwsq_flag_1"/>
+				<bitfield low="16" high="31" name="OVERRIDE" type="nv_pbus_hwsq_flag_1"/>
 			</reg32>
 			<reg32 offset="0x018" name="ENTRY_POINT_HIGH" variants="NV92-">
 				<bitfield pos="0" name="0"/>
@@ -188,11 +215,11 @@
 			Auto-increments ADDR on each access.</doc>
 		</reg32>
 		<reg32 offset="0x578" name="HWSQ_EVENTS" variants="NV41:NVC0">
-			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="0" name="FB_PAUSED"/>
 			<bitfield pos="1" name="CRTC0_VBLANK"/>
-			<bitfield pos="2" name="UNK2"/>
-			<bitfield pos="3" name="CRTC0_VBLANK"/>
-			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="2" name="CRTC0_HBLANK"/>
+			<bitfield pos="3" name="CRTC1_VBLANK"/>
+			<bitfield pos="4" name="CRTC1_HBLANK"/>
 		</reg32>
 		<reg32 offset="0x588" name="CLOCK_GATING_2" variants="NV17:NVC0">
 			<doc>Disable engines by stopping their clock.

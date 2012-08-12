@@ -9,6 +9,7 @@ TOC
 6. Flags
 7. MMIO poke opcodes
 8. Events
+9. Framebuffer pause feature
 
 
 = Introduction =
@@ -33,6 +34,8 @@ no annotation - NV17:NVC0
 [3] NV50:NVC0
 [4] NV92:NVC0
 
+001098 bit 3     HWSQ_ENABLE
+001098 bit 4     HWSQ_OVERRIDE_MODE
 001304           ENTRY_POINT
 001308           STATUS
 00130c           TRIGGER
@@ -212,22 +215,43 @@ Opcode: 0xc0-0xdf - set0 #flag
   bits 0-4: flag index
   Switches the selected flag to "override to 0" state.
 
+The flag behavior is additionally controlled by two bits in PBUS.DEBUG_6
+register:
+
+MMIO 0x001098 bit 3: HWSQ_ENABLE
+  When set to 1, flag overrides and MMIO accesses will work. When set to 0,
+  HWSQ programs will execute, but flag overrides will be ignored, and MMIO
+  accesses will hang until HWSQ_ENABLE is set to 1.
+
+MMIO 0x001098 bit 4: HWSQ_OVERRIDE_MODE
+  Selects the value that will be returned when reading register bits
+  overriden by HWSQ flags. Values:
+    0: READ_NORMAL - the value read from the overriden register by MMIO will
+       be the pre-override value. However, the overriden values will be
+       still used internally by hw.
+    1: READ_OVERRIDE - the value read from the overriden register by MMIO
+       will be the one provided by HWSQ.
+
 The known flags are:
 
-[XXX: check on other cards than NV18]
-0: 60081c/60281c/CR4d b0
-1: 60081c/60281c/CR4d b1
-2: 60081c/60281c/CR4d b4
-3: 60081c/60281c/CR4d b5
-4: 680880 b28
-5: 682880 b28
-6: 680880 b29
-7: 682880 b29
-27: 10f0 b31
-28: 1084 b22
-29: 1084 b24
-30: 1084 b26
-31: 1084 b27
+0: 60081c/60281c/CR4d b0 [NV17:NV50] [nv10-gpio.txt]
+1: 60081c/60281c/CR4d b1 [NV17:NV50] [nv10-gpio.txt]
+2: 60081c/60281c/CR4d b4 [NV17:NV50] [nv10-gpio.txt]
+3: 60081c/60281c/CR4d b5 [NV17:NV50] [nv10-gpio.txt]
+4: 680880 b28 [NV17:NV50] [pramdac.txt]
+5: 682880 b28 [NV17:NV50] [pramdac.txt]
+6: 680880 b29 [NV17:NV50] [pramdac.txt]
+7: 682880 b29 [NV17:NV50] [pramdac.txt]
+[XXX: 8, 9, 13 seem used by microcode!]
+16: FB_PAUSE [NV41-] [see below]
+25: 15fc b31 [NV41:NV50] [nv10-gpio.txt]
+26: 15f4 b31 [NV41:NV50] [nv10-gpio.txt]
+27: 10f0 b31 [NV17:NV50] [nv10-gpio.txt]
+28: 1084 b22 [NV17:NV50] [XXX]
+29: 1084 b24 [NV17:NV50] [XXX]
+30: 1084 b26 [NV17:NV50] [XXX]
+31: 1084 b27 [NV17:NV50] [XXX]
+[XXX: check variants for 15f4, 15fc]
 
 
 = MMIO poke opcodes =
@@ -268,8 +292,7 @@ Opcode: 0x40 <b0:7> <b8:15> - addrlo #imm16 [NV41+]
   MMIO_WR32(ADDR, DATA);
 
 For the addr and addrlo instructions to work, and the pokes to be executed,
-HWSQ MMIO access has to be enabled. This is done by setting bit 3 of
-PBUS.DEBUG_6 [0x1098] register to 1 [see pbus.txt for details].
+HWSQ_ENABLE bit has to be set to 1.
 
 
 = Events =
@@ -290,12 +313,35 @@ Opcode: 0x5f <e> <v> - ewait #event #value
   specifies the event to wait on, third byte specifies the value to wait on.
   Delays next HWSQ opcode execution until given event has the given value.
 
-The known events are:
+The events are:
 
-[XXX: check on NV41:NV50]
-[XXX: figure out more events]
-0: ???
-1: CRTC0 vblank
-2: ???
-3: CRTC1 vblank
-4: ???
+0: FB_PAUSED [see below]
+1: CRTC0_VBLANK [nvvga.txt, pdisplay.txt]
+2: CRTC0_HBLANK [nvvga.txt, pdisplay.txt]
+3: CRTC1_VBLANK [nvvga.txt, pdisplay.txt]
+4: CRTC1_HBLANK [nvvga.txt, pdisplay.txt]
+
+
+= Framebuffer pause feature =
+
+One purpose of HWSQ is memory reclocking. Memory reclocking can only be done
+reliably if noone accesses the memory while it's being reclocked. Thus HWSQ
+can request memory accesses to be blocked for a while. This is done by
+flag #16, FB_PAUSE. This pause functionality is present on NV41:NVC0 cards.
+
+The FB_PAUSE flag, as opposed to all other flags, doesn't override any actual
+register bitfield - the signal it controls can only be set via that flag.
+Framebuffer pause is thus active iff flag #16 is in "override to 1" state.
+FB_PAUSE is also unaffected by the HWSQ_ENABLE bit.
+
+Framebuffer pausing doesn't work immediately and the HWSQ has to wait until
+the framebuffer is actually paused. The FB_PAUSED event is provided for that.
+The FB_PAUSED event is set to 1 iff framebuffer pause has been requested by
+HWSQ and completed by memory controller.
+
+On NV41:NV50, framebuffer pause will indefinitely block all accesses to memory
+until it's unpaused. This includes accesses from the host via BAR1, BAR2, 
+PEEPHOLE, and the PRAMIN range.
+
+On NV50+, framebuffer pause not only blocks memory accesses, it additionally
+blocks all accesses to the GPU from host - including MMIO accesses.
