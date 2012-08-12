@@ -144,6 +144,8 @@ int main(int argc, char **argv) {
 		nva_wr32(cnum, 0x609004, ((i >> 2) & 7) * 255/7);
 		nva_wr32(cnum, 0x609004, ((i >> 0) & 3) * 255/3);
 	}
+	for (i = 0; i < 0x400000; i+=4)
+		nva_wr32(cnum, 0x1000000 + i, 0xcccccccc);
 
 	/* framebuffer*/
 	for (i = 0; i < 0x300 * 0x400; i++) {
@@ -158,7 +160,7 @@ int main(int argc, char **argv) {
 			col = 0xe0;
 		if (x+y >= 0x700-32)
 			col = 0xff;
-		nva_wr32(cnum, 0x1000000 + i, col);
+		nva_wr8(cnum, 0x1000000 + i, col);
 	}
 	return 0;
 }
