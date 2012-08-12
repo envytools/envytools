@@ -51,6 +51,7 @@ Memory access and structure
 [***  ] nv01-vram.txt - NV01 VRAM structure and usage
 [     ] nv01-pdma.txt - NV01 PDMA engine and DMA objects
 [     ] nv03-vram.txt - NV03 VRAM structure and usage
+[*****] peephole.txt - NV30+ indirect memory access from host
 [***  ] nv50-surface.txt - NV50 and NVC0 surface overview, formats, and internal storage
 [**   ] nv50-vm.txt - NV50 virtual memory
 [     ] nvc0-vm.txt - NVC0 virtual memory
