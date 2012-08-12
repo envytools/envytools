@@ -55,8 +55,8 @@
 			</bitfield>
 			<!-- enables clock gating of various engings. Actual gaing must be enabled
 			     on per engine basis, by setting its value in 1588/1590 to 1 -->
-			<bitfield pos="5" name="CLOCK_GATING_1588" variants="NV50-"/>
-			<bitfield pos="6" name="CLOCK_GATING_1590" variants="NV50-"/>
+			<bitfield pos="5" name="CLOCK_GATING_1588" variants="NV17:NV20 NV25:NVC0"/>
+			<bitfield pos="6" name="CLOCK_GATING_1590" variants="NV17:NV20 NV25:NVC0"/>
 
 		</reg32>
 		<bitset name="nv_pbus_intr" inline="yes">
@@ -221,7 +221,7 @@
 			<bitfield pos="3" name="CRTC1_VBLANK"/>
 			<bitfield pos="4" name="CRTC1_HBLANK"/>
 		</reg32>
-		<reg32 offset="0x588" name="CLOCK_GATING_2" variants="NV17:NVC0">
+		<reg32 offset="0x588" name="CLOCK_GATING_2" variants="NV17:NV20 NV25:NVC0">
 			<doc>Disable engines by stopping their clock.
 			A pair of bit is affected to each stoppable engine.
 			Both need to be set in order to disable the engine.
@@ -233,7 +233,7 @@
 			<bitfield high="11" low="10" name="PCRTC2" variants="NV17:NV50"/>
 			<bitfield high="13" low="12" name="PVIDEO" variants="NV17:NV50"/>
 		</reg32>
-		<reg32 offset="0x590" name="CLOCK_GATING_4" variants="NV17:NVC0">
+		<reg32 offset="0x590" name="CLOCK_GATING_4" variants="NV17:NV20 NV25:NVC0">
 			<doc>Disable engines by stopping their clock.
 			A pair of bit is affected to each stoppable engine.
 			Both need to be set in order to disable the engine.
