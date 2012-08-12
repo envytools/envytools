@@ -183,7 +183,7 @@ c00000:1000000 NEW_USER - PFIFO DMA submission area [fifo-dma-pusher.txt]
 020000:021000 PTHERM - thermal sensor [ptherm.txt]
 021000:022000 PFUSE - efuses storing not so secret stuff [pfuse.txt]
 022000:022400 ???
-060000:061000 PEEPHOLE - indirect VM access [NV84-] [nv50-host-mem.txt]
+060000:061000 PEEPHOLE - indirect VM access [NV84-] [peephole.txt]
 070000:071000 PFIFO_BAR_FLUSH - used to flush BAR writes [NV84-] [nv50-host-mem.txt]
 080000:081000 PBUS_HWSQ_NEWCODE - extended HWSQ code space [NV92-] [hwsq.txt]
 084000:085000 PBSP - VP3 BSP engine [NV98, NVAA-] [vp3-pbsp.txt]
@@ -239,7 +239,7 @@ R means ROOT-connected engine, I means IBUS-connected
 021000:022000 I PFUSE - efuses storing not so secret stuff [pfuse.txt]
 022400:022800 I PUNITS - control over enabled card units [punits.txt]
 040000:060000 R PSUBFIFOs - individual SUBFIFOs of PFIFO [nvc0-pfifo.txt]
-060000:061000 R PEEPHOLE - indirect VM access [nvc0-vm.txt]
+060000:061000 R PEEPHOLE - indirect VM access [peephole.txt]
 070000:071000 R PFIFO_BAR_FLUSH - used to flush BAR writes [nvc0-vm.txt]
 082000:082400 I ???
 082800:083000 I ??? [NVC0:NVE4]
