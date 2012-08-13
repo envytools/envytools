@@ -20,13 +20,13 @@ set up an interrupt that will be triggered when the low 27 bits of the counter
 reach a specified value.
 
 The PTIMER's MMIO range is 0x101000:0x102000 on NV01, 0x9000:0xa000 on NV03
-and later cards. It is enabled by PMC.ENABLE bit 16, and its interrupt line
-is connected to PMC.INTR line 20. It's available on all cards, starting with
-nv01.
-[XXX: ENABLE bit on NV01]
+and later cards. It is enabled by PMC.ENABLE bit 4 [NV01 - shared with PDMA]
+or 16 [NV03-], and its interrupt line is connected to PMC.INTR line 20. It's
+available on all cards.
 
 Curiously, on NV41+ the PTIMER is also used to report MMIO faults, ie. MMIO
-space accesses from host that failed for some reason.
+space accesses from host that failed for some reason. [XXX: document that some
+day].
 
 
 = MMIO register list =

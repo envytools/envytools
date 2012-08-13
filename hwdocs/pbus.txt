@@ -1,1 +1,136 @@
-[XXX: write me]
+TOC
+
+0. Introduction
+1. MMIO ranges and registers
+2. DEBUG registers
+3. Interrupts
+3.1. User interrupts
+
+
+= Introduction =
+
+PBUS is present on all nvidia cards. In theory, it deals with "bus control".
+In practice, it accumulates all sort of junk nobody bothered to create
+a speecial area for. It is unaffected by any PMC.ENABLE bits.
+
+
+= MMIO ranges and registers =
+
+The MMIO ranges owned by PBUS are:
+
+001000:002000 PBUS - main area
+010000:020000 ??? - has something to do with PCI config space of other devices? [NV41-] [XXX]
+060000:061000 PEEPHOLE - indirect memory access [NV84-] [peephole.txt]
+080000:080200 PBUS_HWSQ_NEW_CODE - code RAM for hwsq [NV17:NV20, NV25:NVC0] [hwsq.txt]
+
+The registers in the PBUS area are:
+
+001000:001100 misc registers [see below] [XXX]
+001100:001200 interrupts [NV03-] [see below]
+001200:001208 ROM control [NV04:NV50] [prom.txt]
+001300:001380 HWSQ - hardware sequencer [NV17:NV20, NV25:NVC0] [hwsq.txt]
+001380:001400 VGA_STACK [NV41:NV50] [vga-stack.txt]
+001400:001500 HWSQ - hardware sequencer [NV17:NV20, NV25:NVC0] [hwsq.txt]
+001500:001540 misc registers [see below] [XXX]
+001540:001550 HWUNITS - enabling/disabling optional hardware subunits [NV40:NV50] [see below]
+00155c:001580 PEEPHOLE - indirect memory access [NV30:NV84] [peephole.txt]
+001580:0015a0 CLOCK_GATE - clock gating registers [NV17:NV20 NV25:NVC0] [see below]
+001700:001800 HOST_MEM - host memory access setup [NV44:NV50] [nv40-host-mem.txt] [XXX: variants are wrong]
+001700:001800 HOST_MEM - host memory access setup [NV50:NVC0] [nv50-host-mem.txt]
+001700:001800 HOST_MEM - host memory access setup [NVC0-] [nvc0-host-mem.txt]
+001800:001a00 PCI - PCI configuration space [NV01:NV50] [pci.txt]
+001900:001980 REMAP - BAR1 remapping circuitry [NV50:NVC0] [nv50-remap.txt]
+001980:001a00 P2P - NV50 P2P slave [NV50:NVC0] [nv50-p2p.txt]
+[XXX: loads and loads of unknown registers not shown]
+
+
+= DEBUG registers =
+
+DEBUG registers store misc hardware control bits. They're mostly unknown, and
+usually group together unrelated bits. The known bits include:
+
+MMIO 0x001098: DEBUG_6 [NV17:NV20, NV25-]
+  bit 3: HWSQ_ENABLE - enables HWSQ effects [hwsq.txt]
+  bit 4: HWSQ_OVERRIDE_MODE - selects read value for HWSQ-overriden registers
+         [hwsq.txt]
+[XXX: document other known stuff]
+
+
+= Interrupts =
+
+The following registers deal with PBUS interrupts:
+
+001100 INTR - interrupt status [NV03-]
+001104 INTR_GPIO - GPIO interrupt status [NV40:NV50] [nv10-gpio.txt]
+001140 INTR - interrupt enable [NV03-]
+001144 INTR_GPIO_EN - GPIO interrupt enable [NV40:NV50] [nv10-gpio.txt]
+001144 INTE_EN_NMHOST - interrupt enable for the NMHOST line [NVC0-]
+001150 INTR_USER0_TRIGGER - user interrupt generation [NV50-]
+001154+i*4, i<4 INTR_USER0_SCRATCH - user interrupt generation [NV50-]
+001170 INTR_USER1_TRIGGER - user interrupt generation [NVC0-]
+001174+i*4, i<4 INTR_USER1_SCRATCH - user interrupt generation [NVC0-]
+
+On NV03+, PMC interrupt line 28 is connected to PBUS. On NVC0+, there are
+actually two lines: the normal line and the NMHOST line [see pmc.txt for
+a description of them]. PBUS has many subinterrupts. The PBUS->PMC interrupt
+line is active when any PBUS interrupt is both active [the bit in INTR
+or INTR_GPIO is 1] and enabled [the bit in INTR_EN or INTR_GPIO_EN is 1].
+The NMHOST PBUS->PMC interrupt line is active when any PBUS interrupt is both
+active and enabled for NMHOST [the bit in INTR_EN_NMHOST is 1].
+
+Most PBUS interrupts are reported via INTR register and enabled via INTR_EN
+and INTR_EN_NMHOST registers:
+
+MMIO 0x001100: INTR [NV03-]
+  bit 0: BUS_ERROR - ??? [NV03:NV50]
+  bit 1: MMIO_DISABLED_ENG - MMIO access from host failed due to accessing
+         an area disabled via PMC.ENABLE [NVC0-] [XXX: document]
+  bit 2: MMIO_IBUS_ERR - MMIO access from host failed due to some error in
+         IBUS [NVC0-] [see pibus.txt]
+  bit 3: MMIO_FAULT - MMIO access from host failed due to other reasons
+         [NV41-] [XXX: document]
+  bit 7: HOST_MEM_TIMEOUT - an access to memory from host timed out [NVC0-]
+         [see nvc0-host-mem.txt]
+  bit 8: HOST_MEM_ZOMBIE - an access to memory from host thought to have timed
+         out has finally succeeded [NVC0-] [see nvc0-host-mem.txt]
+  bit 12: PEEPHOLE_W_PAIR_MISMATCH - violation of PEEPHOLE write port protocol
+         [NV30:NVC0] [see peephole.txt]
+  bit 26: USER0 - user interrupt #0 [NV50-] [see below]
+  bit 28: USER1 - user interrupt #1. Note that this interrupt cannot be
+          enabled for delivery to NMHOST line. [NVC0-] [see below]
+
+Writing the INTR register clears interrupts that correspond to bits that
+are set in the written value.
+
+MMIO 0x001140: INTR_EN [NV03-]
+  Same bitfields as in INTR.
+
+MMIO 0x001144: INTR_EN_NMHOST [NVC0-]
+  Same bitfields as in INTR, except USER1 is not present.
+
+On NV40:NV50 GPUs, the PBUS additionally deals with GPIO change interrupts,
+which are reported via INTR_GPIO register and enabled via INTR_GPIO_EN
+register. These registers effectively function as extra bits to INTR and
+INTR_EN. For description of these registrers and GPIO interupts, see
+nv10-gpio.txt .
+
+
+== User interrupts ==
+
+NV50+ PBUS has one [NV50:NVC0] or two [NVC0-] user-triggerable interupts.
+These interrupts are triggered by writing any value to a trigger register:
+
+MMIO 0x001150: INTR_USER0_TRIGGER [NV50-]
+  Writing any value triggers the USER0 interrupt. This register is write-only.
+
+MMIO 0x001170: INTR_USER1_TRIGGER [NVC0-]
+  Writing any value triggers the USER1 interrupt. This register is write-only.
+
+There are also 4 scratch registers per interrupt provided for software use.
+The hardware doesn't use their contents for anything:
+
+MMIO 0x001154+i*4, i < 4: INTR_USER0_SCRATCH[i] [NV50-]
+  32-bit scratch registers for USER0 interrupt.
+
+MMIO 0x001174+i*4, i < 4: INTR_USER1_SCRATCH[i] [NVC0-]
+  32-bit scratch registers for USER1 interrupt.
