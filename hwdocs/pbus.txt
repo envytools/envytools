@@ -25,17 +25,20 @@ The MMIO ranges owned by PBUS are:
 
 The registers in the PBUS area are:
 
-001000:001100 misc registers [see below] [XXX]
+001000:0010f0 DEBUG registers [see below]
+0010f0:0010f4 PWM - PWM generators [NV11:NV50] [nv10-gpio.txt]
 001100:001200 interrupts [NV03-] [see below]
 001200:001208 ROM control [NV04:NV50] [prom.txt]
 001300:001380 HWSQ - hardware sequencer [NV17:NV20, NV25:NVC0] [hwsq.txt]
 001380:001400 VGA_STACK [NV41:NV50] [vga-stack.txt]
 001400:001500 HWSQ - hardware sequencer [NV17:NV20, NV25:NVC0] [hwsq.txt]
-001500:001540 misc registers [see below] [XXX]
+001500:001540 DEBUG registers [see below]
 001540:001550 HWUNITS - enabling/disabling optional hardware subunits [NV40:NV50] [see below]
 00155c:001578 PEEPHOLE - indirect memory access [NV30:NV84] [peephole.txt]
 001578:001580 HWSQ - hardware sequencer [NV41:NVC0] [hwsq.txt]
 001580:0015a0 CLOCK_GATE - clock gating registers [NV17:NV20 NV25:NVC0] [see below]
+0015b0:0015c0 THERM - thermal sensor [NV43:NV50] [nv43-therm.txt]
+0015f4:001604 PWM - PWM generators [NV41:NV50] [nv10-gpio.txt]
 001700:001800 HOST_MEM - host memory access setup [NV44:NV50] [nv40-host-mem.txt] [XXX: variants are wrong]
 001700:001800 HOST_MEM - host memory access setup [NV50:NVC0] [nv50-host-mem.txt]
 001700:001800 HOST_MEM - host memory access setup [NVC0-] [nvc0-host-mem.txt]
