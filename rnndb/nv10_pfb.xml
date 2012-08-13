@@ -199,19 +199,19 @@
 		<bitfield high="15" low="5" name="VAL" />
 	</reg32>
 
-	<reg32 offset="0x230" name="MEM_TIMINGS_4" variants="NV50:NVC0">
+	<reg32 offset="0x230" name="MEM_TIMINGS_4" variants="NV50-">
 	</reg32>
 
-	<reg32 offset="0x234" name="MEM_TIMINGS_5" variants="NV40:NVC0">
+	<reg32 offset="0x234" name="MEM_TIMINGS_5" variants="NV40-">
 	</reg32>
 
-	<reg32 offset="0x238" name="MEM_TIMINGS_6" variants="NV40:NVC0">
+	<reg32 offset="0x238" name="MEM_TIMINGS_6" variants="NV40-">
 	</reg32>
 
-	<reg32 offset="0x23c" name="MEM_TIMINGS_7" variants="NV46 NV49 NV4B NV50-">
+	<reg32 offset="0x23c" name="MEM_TIMINGS_7" variants="NV46-">
 	</reg32>
 
-	<reg32 offset="0x240" name="MEM_TIMINGS_8" variants="NV49 NV4B NV50:NVC0">
+	<reg32 offset="0x240" name="MEM_TIMINGS_8" variants="NV49-">
 	</reg32>
 
 	<reg32 offset="0x244" name="MEM_TIMINGS_REFRESH" variants="NV50:NVC0">

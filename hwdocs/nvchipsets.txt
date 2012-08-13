@@ -81,8 +81,9 @@ is:
  - NV20 family: NV20, NV2A, NV25, NV28
  - NV30 family: NV30, NV35, NV31, NV36, NV34
  - NV40 family:
-   - NV40 subfamily: NV40, NV45, NV41, NV42, NV43, NV47, NV49, NV4B
-   - NV44 subfamily: NV44, NV4A, NV46, NV4C, NV4E, NV67, NV68, NV63
+   - NV40 subfamily: NV40, NV45, NV41, NV42, NV43, NV44, NV4A
+   - NV47 subfamily: NV47, NV49, NV4B, NV46
+   - the IGPs: NV4E, NV4C, NV67, NV68, NV63
  - NV50 family:
    - NV50 subfamily: NV50
    - NV84 subfamily: NV84, NV86, NV92, NV94, NV96, NV98
@@ -370,11 +371,14 @@ NV41:
  - introduced PVP, microcoded VP1 video processor
  - first natively PCIE card
  - added PCIE GART to memory controller
+NV43:
+ - added a thermal sensor to the GPU
 NV44:
  - a new PCIE GART page table format
  - 3d engine: [XXX: what's new?]
 NV4A:
  - like NV44, but AGP instead of PCIE
+
 [XXX: ...]
 
 The chipsets are [vertex shaders : pixel shaders : ROPs]:
@@ -382,13 +386,12 @@ The chipsets are [vertex shaders : pixel shaders : ROPs]:
 NV40/NV45 [NV40/NV45/NV48]: 6:16:16, AGP
 NV41/NV42 [NV41/NV42]: 5:12:12
 NV43 [NV43]: 3:8:4
-NV47 [G70]: 8:24:16
-NV49 [G71]: 8:24:16
-NV4B [G73]: 8:12:8
-
 NV44 [NV44]: 3:4:2
 NV4A [NV44A]: 3:4:2, AGP
+NV47 [G70]: 8:24:16
 NV46 [G72]: 3:4:2
+NV49 [G71]: 8:24:16
+NV4B [G73]: 8:12:8
 NV4E [C51]: 1:2:1, IGP
 NV4C [C61]: 1:2:1, IGP
 NV67/NV68 [C67/C68]: 1:2:2, IGP
@@ -418,7 +421,10 @@ The pci ids:
 021X NV40/NV45
 00cX NV41/NV42
 014X NV43
+016X NV44
+022X NV4A
 009X NV47
+01dX NV46
 029X NV49
 02e0 NV4B [faked by AGP bridge]
 02e1 NV4B [faked by AGP bridge]
@@ -426,10 +432,6 @@ The pci ids:
 02e3 NV49 [faked by AGP bridge]
 02e4 NV49 [faked by AGP bridge]
 039X NV4B
-
-016X NV44
-022X NV4A
-01dX NV46
 024X NV4E
 03dX NV4C
 053X NV67/NV68

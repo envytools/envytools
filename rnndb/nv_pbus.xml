@@ -263,8 +263,7 @@
 				<doc>XXX: Does not work on NVAC Asus AT3IONT-I (Deluxe)?</doc>
 			</bitfield>
 		</reg32>
-		<array offset="0x700" name="HOST_MEM" stride="0x100" length="1" variants="NV44:NV50">
-			<!-- XXX variants -->
+		<array offset="0x700" name="HOST_MEM" stride="0x100" length="1" variants="NV44:NV47 NV46:NV49 NV4E:NV50">
 			<reg32 offset="0x00" name="BAR1_VRAM_SIZE" align="0x100000"/>
 			<reg32 offset="0x04" name="BAR1_GART_SIZE" align="0x100000"/>
 			<reg32 offset="0x08" name="BAR1_CUTOUT_SIZE" align="0x100000"/>

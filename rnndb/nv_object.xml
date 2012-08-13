@@ -190,8 +190,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0397" name="NV30_3D" variants="NV30:NV40"/>
 	<value value="0x0497" name="NV35_3D" variants="NV35:NV34"/>
 	<value value="0x0697" name="NV34_3D" variants="NV34:NV40"/>
-	<value value="0x4097" name="NV40_3D" variants="NV40:NV44"/>
-	<value value="0x4497" name="NV44_3D" variants="NV44:NV50"/>
+	<value value="0x4097" name="NV40_3D" variants="NV40:NV44 NV47:NV46 NV49:NV4E"/>
+	<value value="0x4497" name="NV44_3D" variants="NV44:NV47 NV46:NV49 NV4E:NV50"/>
 	<value value="0x5097" name="NV50_3D" variants="NV50:NVA0"/>
 	<value value="0x8297" name="NV84_3D" variants="NV84:NVA0"/>
 	<value value="0x8397" name="NVA0_3D" variants="NVA0:NVA3"/>

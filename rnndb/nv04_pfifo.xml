@@ -137,12 +137,12 @@
 			<bitfield high="12" low="4" name="UNK4"/>
 		</reg32>
 		<reg32 offset="0x220" name="UNK220" variants="NV40-">
-			<bitfield high="7" low="0" name="UNK0" variants="NV40:NV44"/>
+			<bitfield high="7" low="0" name="UNK0" variants="NV40:NV44"/> <!-- XXX check variants -->
 			<bitfield high="12" low="0" name="UNK0" variants="NV44-"/>
 			<bitfield high="23" low="16" name="UNK16"/>
 		</reg32>
 
-		<reg32 offset="0x230" name="UNK230" variants="NV44-">
+		<reg32 offset="0x230" name="UNK230" variants="NV44-"> <!-- XXX check variants -->
 			<bitfield high="1" low="0" name="UNK0"/>
 		</reg32>
 
@@ -452,7 +452,7 @@
 				<doc>Bits 0xffff.</doc>
 			</reg32>
 			<reg32 offset="0x0e0" name="GRCTX_INST" variants="NV40-"/>
-			<reg32 offset="0x0e4" name="UNK0E4" variants="NV44-">
+			<reg32 offset="0x0e4" name="UNK0E4" variants="NV44-"> <!-- XXX check variants -->
 				<doc>Set to 1. Goes to RAMFC.</doc>
 			</reg32>
 			<reg32 offset="0x0e8" name="UNK0E8" variants="NV40-">
