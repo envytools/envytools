@@ -21,7 +21,7 @@ The MMIO ranges owned by PBUS are:
 001000:002000 PBUS - main area
 010000:020000 ??? - has something to do with PCI config space of other devices? [NV41-] [XXX]
 060000:061000 PEEPHOLE - indirect memory access [NV84-] [peephole.txt]
-080000:080200 PBUS_HWSQ_NEW_CODE - code RAM for hwsq [NV17:NV20, NV25:NVC0] [hwsq.txt]
+080000:080200 PBUS_HWSQ_NEW_CODE - code RAM for hwsq [NV92:NVC0] [hwsq.txt]
 
 The registers in the PBUS area are:
 
@@ -33,7 +33,8 @@ The registers in the PBUS area are:
 001400:001500 HWSQ - hardware sequencer [NV17:NV20, NV25:NVC0] [hwsq.txt]
 001500:001540 misc registers [see below] [XXX]
 001540:001550 HWUNITS - enabling/disabling optional hardware subunits [NV40:NV50] [see below]
-00155c:001580 PEEPHOLE - indirect memory access [NV30:NV84] [peephole.txt]
+00155c:001578 PEEPHOLE - indirect memory access [NV30:NV84] [peephole.txt]
+001578:001580 HWSQ - hardware sequencer [NV41:NVC0] [hwsq.txt]
 001580:0015a0 CLOCK_GATE - clock gating registers [NV17:NV20 NV25:NVC0] [see below]
 001700:001800 HOST_MEM - host memory access setup [NV44:NV50] [nv40-host-mem.txt] [XXX: variants are wrong]
 001700:001800 HOST_MEM - host memory access setup [NV50:NVC0] [nv50-host-mem.txt]
