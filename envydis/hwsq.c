@@ -58,14 +58,16 @@ static struct insn tabevent[] = {
 };
 
 static struct insn tabfl[] = {
-	{ 0x00, 0x1f, C("GPIO_0_OUT"), .fmask = F_NV17F },
-	{ 0x01, 0x1f, C("GPIO_0_OE"), .fmask = F_NV17F },
-	{ 0x02, 0x1f, C("GPIO_1_OUT"), .fmask = F_NV17F },
-	{ 0x03, 0x1f, C("GPIO_1_OE"), .fmask = F_NV17F },
+	{ 0x00, 0x1f, C("GPIO_2_OUT"), .fmask = F_NV17F },
+	{ 0x01, 0x1f, C("GPIO_2_OE"), .fmask = F_NV17F },
+	{ 0x02, 0x1f, C("GPIO_3_OUT"), .fmask = F_NV17F },
+	{ 0x03, 0x1f, C("GPIO_3_OE"), .fmask = F_NV17F },
 	{ 0x04, 0x1f, C("PRAMDAC0_UNK880_28"), .fmask = F_NV17F },
 	{ 0x05, 0x1f, C("PRAMDAC1_UNK880_28"), .fmask = F_NV17F },
 	{ 0x06, 0x1f, C("PRAMDAC0_UNK880_29"), .fmask = F_NV17F },
 	{ 0x07, 0x1f, C("PRAMDAC1_UNK880_29"), .fmask = F_NV17F },
+	{ 0x0e, 0x1f, C("GPIO_9_OUT"), .fmask = F_NV17F },
+	{ 0x0f, 0x1f, C("GPIO_9_OE"), .fmask = F_NV17F },
 	{ 0x10, 0x1f, C("FB_PAUSE"), .fmask = F_NV41P },
 	{ 0x19, 0x1f, C("PWM_2_ENABLE"), .fmask = F_NV41F },
 	{ 0x1a, 0x1f, C("PWM_1_ENABLE"), .fmask = F_NV41F },

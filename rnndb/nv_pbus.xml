@@ -120,14 +120,16 @@
 				<bitfield low="2" high="3" name="ENTRY_POINT"/>
 			</reg32>
 			<bitset name="nv_pbus_hwsq_flag_0" inline="yes">
-				<bitfield pos="0" name="GPIO_0_OUT" variants="NV17:NV50"/>
-				<bitfield pos="1" name="GPIO_0_OE" variants="NV17:NV50"/>
-				<bitfield pos="2" name="GPIO_1_OUT" variants="NV17:NV50"/>
-				<bitfield pos="3" name="GPIO_1_OE" variants="NV17:NV50"/>
+				<bitfield pos="0" name="GPIO_2_OUT" variants="NV17:NV50"/>
+				<bitfield pos="1" name="GPIO_2_OE" variants="NV17:NV50"/>
+				<bitfield pos="2" name="GPIO_3_OUT" variants="NV17:NV50"/>
+				<bitfield pos="3" name="GPIO_3_OE" variants="NV17:NV50"/>
 				<bitfield pos="4" name="PRAMDAC0_UNK880_28" variants="NV17:NV50"/>
 				<bitfield pos="5" name="PRAMDAC1_UNK880_28" variants="NV17:NV50"/>
 				<bitfield pos="6" name="PRAMDAC0_UNK880_29" variants="NV17:NV50"/>
 				<bitfield pos="7" name="PRAMDAC1_UNK880_29" variants="NV17:NV50"/>
+				<bitfield pos="14" name="GPIO_9_OUT" variants="NV31:NV50"/>
+				<bitfield pos="15" name="GPIO_9_OE" variants="NV31:NV50"/>
 			</bitset>
 			<bitset name="nv_pbus_hwsq_flag_1" inline="yes">
 				<bitfield pos="0" name="FB_PAUSE" variants="NV41:NVC0"/>
