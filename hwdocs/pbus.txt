@@ -53,6 +53,12 @@ The registers in the PBUS area are:
 DEBUG registers store misc hardware control bits. They're mostly unknown, and
 usually group together unrelated bits. The known bits include:
 
+MMIO 0x001084: DEBUG_1 [NV04-]
+  bit 11: FUSE_READOUT_ENABLE - enables reads from fuses in PFUSE [NV50:NVC0]
+          [pfuse.txt]
+  bit 28: HEADS_TIED - mirrors writes to CRTC/RAMDAC registers on any head to
+          the other head too [NV11:NV20, NV25:NV50] [nvvga.txt]
+
 MMIO 0x001098: DEBUG_6 [NV17:NV20, NV25-]
   bit 3: HWSQ_ENABLE - enables HWSQ effects [hwsq.txt]
   bit 4: HWSQ_OVERRIDE_MODE - selects read value for HWSQ-overriden registers
