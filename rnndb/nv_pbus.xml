@@ -265,11 +265,11 @@
 		</reg32>
 		<array offset="0x700" name="HOST_MEM" stride="0x100" length="1" variants="NV44:NV50">
 			<!-- XXX variants -->
-			<reg32 offset="0x00" name="BAR1_LIMIT" align="0x100000"/>
-			<reg32 offset="0x04" name="UNK04" align="0x100000"/>
-			<reg32 offset="0x08" name="BAR1_OFFSET" align="0x100000"/>
-			<reg32 offset="0x0c" name="UNK0C" align="0x100000"/>
-			<reg32 offset="0x10" name="UNK10" align="0x100000"/>
+			<reg32 offset="0x00" name="BAR1_VRAM_SIZE" align="0x100000"/>
+			<reg32 offset="0x04" name="BAR1_GART_SIZE" align="0x100000"/>
+			<reg32 offset="0x08" name="BAR1_CUTOUT_SIZE" align="0x100000"/>
+			<reg32 offset="0x0c" name="BAR1_CUTOUT_OFFSET" align="0x100000"/>
+			<reg32 offset="0x10" name="BAR1_GART_BASE" align="0x100000"/>
 		</array>
 		<array offset="0x700" name="HOST_MEM" stride="0x100" length="1" variants="NV50:NVC0">
 			<reg32 offset="0x00" name="PMEM">
