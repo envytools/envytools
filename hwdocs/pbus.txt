@@ -11,7 +11,7 @@ TOC
 
 PBUS is present on all nvidia cards. In theory, it deals with "bus control".
 In practice, it accumulates all sort of junk nobody bothered to create
-a speecial area for. It is unaffected by any PMC.ENABLE bits.
+a special area for. It is unaffected by any PMC.ENABLE bits.
 
 
 = MMIO ranges and registers =
