@@ -259,46 +259,84 @@
 				<doc>XXX: Does not work on NVAC Asus AT3IONT-I (Deluxe)?</doc>
 			</bitfield>
 		</reg32>
-		<reg32 offset="0x700" name="PMEM_START" variants="NV50-">
-			<doc>Selects the starting offset and target memory area
-			that is accessible by the 1MB PMEM window at 0x700000.
-			This is always unpaged and goes directly to VRAM / sysRAM.
-			</doc>
-			<bitfield high="23" low="0" shr="16" name="OFFSET"/>
-			<bitfield high="25" low="24" name="TARGET" type="nv50_mem_target"/>
-		</reg32>
-		<reg32 offset="0x704" name="MEM_CHAN" variants="NV50:NVC0">
-			<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
-			<bitfield pos="30" name="WHICH">
-				<value value="0" name="PEEPHOLE"/>
-				<value value="1" name="BAR"/>
-			</bitfield>
-		</reg32>
-		<reg32 offset="0x708" name="BAR1_CTXDMA" variants="NV50:NVC0">
-			<bitfield low="0" high="15" name="INST" shr="4"/>
-			<bitfield pos="31" name="ENABLE"/>
-		</reg32>
-		<reg32 offset="0x70c" name="BAR3_CTXDMA" variants="NV50:NVC0">
-			<bitfield low="0" high="15" name="INST" shr="4"/>
-			<bitfield pos="31" name="ENABLE"/>
-		</reg32>
-		<reg32 offset="0x710" name="PEEPHOLE_CTXDMA" variants="NV50:NVC0">
-			<bitfield low="0" high="15" name="INST" shr="4"/>
-			<bitfield pos="31" name="ENABLE"/>
-		</reg32>
-		<reg32 offset="0x704" name="BAR1_CHAN" variants="NVC0-">
-			<bitfield low="0" high="27" name="INST" shr="12"/>
-			<bitfield pos="31" name="ENABLE"/>
-		</reg32>
-		<reg32 offset="0x714" name="BAR3_CHAN" variants="NVC0-">
-			<bitfield low="0" high="27" name="INST" shr="12"/>
-			<bitfield pos="31" name="ENABLE"/>
-		</reg32>
-		<reg32 offset="0x718" name="PEEPHOLE_CHAN" variants="NVC0-">
-			<bitfield low="0" high="27" name="INST" shr="12"/>
-			<bitfield pos="31" name="ENABLE"/>
-		</reg32>
-		<array offset="0x800" name="PCI" stride="0x100" length="1" variants="NV01:NV50">
+		<array offset="0x700" name="HOST_MEM" stride="0x100" length="1" variants="NV44:NV50">
+			<!-- XXX variants -->
+			<reg32 offset="0x00" name="BAR1_LIMIT" align="0x100000"/>
+			<reg32 offset="0x04" name="UNK04" align="0x100000"/>
+			<reg32 offset="0x08" name="BAR1_OFFSET" align="0x100000"/>
+			<reg32 offset="0x0c" name="UNK0C" align="0x100000"/>
+			<reg32 offset="0x10" name="UNK10" align="0x100000"/>
+		</array>
+		<array offset="0x700" name="HOST_MEM" stride="0x100" length="1" variants="NV50:NVC0">
+			<reg32 offset="0x00" name="PMEM">
+				<doc>Selects the starting offset and target memory area
+				that is accessible by the 1MB PMEM window at 0x700000.
+				This is always unpaged and goes directly to VRAM / sysRAM.
+				</doc>
+				<bitfield high="23" low="0" shr="16" name="OFFSET"/>
+				<bitfield high="25" low="24" name="TARGET" type="nv50_mem_target"/>
+			</reg32>
+			<reg32 offset="0x04" name="CHAN">
+				<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
+				<bitfield pos="30" name="WHICH">
+					<value value="0" name="PEEPHOLE"/>
+					<value value="1" name="BAR"/>
+				</bitfield>
+			</reg32>
+			<reg32 offset="0x08" name="BAR1">
+				<bitfield low="0" high="15" name="INST" shr="4"/>
+				<bitfield pos="31" name="MODE">
+					<value value="0" name="VRAM"/>
+					<value value="1" name="DMAOBJ"/>
+				</bitfield>
+			</reg32>
+			<reg32 offset="0x0c" name="BAR3">
+				<bitfield low="0" high="15" name="INST" shr="4"/>
+				<bitfield pos="31" name="MODE">
+					<value value="0" name="VRAM"/>
+					<value value="1" name="DMAOBJ"/>
+				</bitfield>
+			</reg32>
+			<reg32 offset="0x10" name="PEEPHOLE">
+				<bitfield low="0" high="15" name="INST" shr="4"/>
+				<bitfield pos="31" name="MODE">
+					<value value="0" name="VRAM"/>
+					<value value="1" name="DMAOBJ"/>
+				</bitfield>
+			</reg32>
+		</array>
+		<array offset="0x700" name="HOST_MEM" stride="0x100" length="1" variants="NVC0-">
+			<reg32 offset="0x00" name="PMEM">
+				<bitfield high="23" low="0" shr="16" name="OFFSET"/>
+				<bitfield high="25" low="24" name="TARGET" type="nv50_mem_target"/>
+			</reg32>
+			<reg32 offset="0x04" name="BAR1">
+				<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
+				<bitfield pos="30" name="UNK30"/>
+				<bitfield pos="31" name="MODE">
+					<value value="0" name="VRAM"/>
+					<value value="1" name="VM"/>
+				</bitfield>
+			</reg32>
+			<reg32 offset="0x14" name="BAR3">
+				<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
+				<bitfield pos="30" name="UNK30"/>
+				<bitfield pos="31" name="MODE">
+					<value value="0" name="VRAM"/>
+					<value value="1" name="VM"/>
+				</bitfield>
+			</reg32>
+			<reg32 offset="0x18" name="PEEPHOLE">
+				<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
+				<bitfield pos="30" name="UNK30"/>
+				<bitfield pos="31" name="MODE">
+					<value value="0" name="VRAM"/>
+					<value value="1" name="VM"/>
+				</bitfield>
+			</reg32>
+			<!-- XXX: NVE4 has more stuff here -->
+		</array>
+		<array offset="0x800" name="PCI" stride="0x200" length="1" variants="NV01:NV50">
 			<use-group name="nv_pci"/>
 		</array>
 		<array offset="0x980" name="P2P" stride="0x80" length="1" variants="NV50:NVC0">
