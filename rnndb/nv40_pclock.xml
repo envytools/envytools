@@ -12,6 +12,25 @@
 </array>
 
 <array offset="0xc000" name="PCONTROL" stride="0x1000" variants="NV40:NV50" length="1">
+	<reg32 offset="0x040" name="MASTER">
+		<doc>
+		- when a name is suffixed by "_P", it means the clock is right-shifted
+		- href: PCIE reference clock
+		- hclk: href * 27778 / 10000
+		- hclkm3: hclk * 3
+		- hclkm3d2: hclk * 3 / 2
+		- nvclk: clocks core
+		- sclk: clocks shader
+		- mclk: clocks memory
+		- vdclk: clocks video decoding
+		</doc>
+		<!-- 0: href, 1: 0, 2: 0, 3: NVCLK_PLL? When 0, all sets are 0-->
+		<bitfield low="0" high="1" name="NVCLK" variant="NV4B" />
+		<bitfield low="28" high="29" name="HOST" variant="NV4B">
+			<value value="0" name="HREF"/>
+			<value value="3" name="HCLK"/>
+		</bitfield>
+	</reg32>
 </array>
 
 </domain>
