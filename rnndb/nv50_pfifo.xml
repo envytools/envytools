@@ -20,6 +20,20 @@
 	<value value="6" name="PBSP" variants="NV84-"/>
 </enum>
 
+<bitset name="nv50_pfifo_engine_mask" inline="yes">
+	<bitfield pos="0" name="PGRAPH"/>
+	<bitfield pos="1" name="PMPEG" variants="NV50:NV98 NVA0"/>
+	<bitfield pos="1" name="PPPP" variants="NV98 NVAA-"/>
+	<bitfield pos="2" name="PME" variants="NV50"/>
+	<bitfield pos="2" name="UNUSED2" variants="NV84:NVA3"/>
+	<bitfield pos="2" name="PCOPY" variants="NVA3-"/>
+	<bitfield pos="3" name="PVP"/>
+	<bitfield pos="4" name="PCRYPT" variants="NV84:NVA3"/>
+	<bitfield pos="4" name="UNUSED4" variants="NVA3:NVAF"/>
+	<bitfield pos="4" name="PUNK1C1" variants="NVAF-"/>
+	<bitfield pos="5" name="PBSP" variants="NV84-"/>
+</bitset>
+
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 	<array offset="0x2000" name="PFIFO" stride="0x2000" length="1" variants="NV50:NVC0">
 		<reg32 offset="0x040" name="DELAY">
@@ -174,21 +188,10 @@
 		<reg32 offset="0x514" name="UNK514_CHAN" type="nv50_channel"/>
 		<reg32 offset="0x518" name="UNK518">
 		</reg32>
-		<reg32 offset="0x51c" name="ENGINE_IDLE">
-			<bitfield pos="0" name="PGRAPH"/>
-			<bitfield pos="1" name="PMPEG" variants="NV50:NV98 NVA0"/>
-			<bitfield pos="1" name="PPPP" variants="NV98 NVAA-"/>
-			<bitfield pos="2" name="PME" variants="NV50"/>
-			<bitfield pos="2" name="UNUSED2" variants="NV84:NVA3"/>
-			<bitfield pos="2" name="PCOPY" variants="NVA3-"/>
-			<bitfield pos="3" name="PVP"/>
-			<bitfield pos="4" name="PCRYPT" variants="NV84:NVA3"/>
-			<bitfield pos="4" name="UNUSED4" variants="NVA3:NVAF"/>
-			<bitfield pos="4" name="PUNK1C1" variants="NVAF-"/>
-			<bitfield pos="5" name="PBSP" variants="NV84-"/>
-		</reg32>
-		<reg32 offset="0x520" name="UNK520" variants="NV84-">
-			<doc>Bits 0xffffffff, up as 3b003b.</doc>
+		<reg32 offset="0x51c" name="ENGINE_IDLE" type="nv50_pfifo_engine_mask"/>
+		<reg32 offset="0x520" name="ENGINE_CTRL" variants="NV84-">
+			<bitfield low="0" high="15" name="KICK_MASK" type="nv50_pfifo_engine_mask"/>
+			<bitfield low="16" high="31" name="UNK16_MASK" type="nv50_pfifo_engine_mask"/>
 		</reg32>
 
 		<reg32 offset="0x600" name="CHAN_TABLE" length="128" variants="NV50">
