@@ -67,8 +67,11 @@
 			<bitfield pos="7" name="HOST_MEM_TIMEOUT" variants="NVC0-"/>
 			<bitfield pos="8" name="HOST_MEM_ZOMBIE" variants="NVC0-"/>
 			<bitfield pos="12" name="PEEPHOLE_W_PAIR_MISMATCH" variants="NV30:NVC0"/>
-			<bitfield pos="26" name="USER0" variants="NV50-" />
-			<bitfield pos="28" name="USER1" variants="NVC0-" /> <!-- NOTE: not in INTR_EN_NMHOST -->
+			<bitfield pos="16" name="THERM_ALARM" variants="NV43:NV50" />
+			<bitfield pos="17" name="THERM_THRS_LOW" variants="NV43:NV50" />
+			<bitfield pos="18" name="THERM_THRS_HIGH" variants="NV43:NV50" />
+			<bitfield pos="26" name="USER" variants="NV50-" />
+			<bitfield pos="28" name="USER2" variants="NVC0-" /> <!-- NOTE: not in INTR_EN_NMHOST -->
 		</bitset>
 		<reg32 offset="0x100" name="INTR" type="nv_pbus_intr"/>
 		<reg32 offset="0x140" name="INTR_EN" type="nv_pbus_intr"/> <!-- affects PMC.INTR_HOST and PMC.INTR_DAEMON only -->
@@ -263,6 +266,7 @@
 				<doc>XXX: Does not work on NVAC Asus AT3IONT-I (Deluxe)?</doc>
 			</bitfield>
 		</reg32>
+<<<<<<< HEAD
 		<array offset="0x700" name="HOST_MEM" stride="0x100" length="1" variants="NV44:NV47 NV46:NV49 NV4E:NV50">
 			<reg32 offset="0x00" name="BAR1_VRAM_SIZE" align="0x100000"/>
 			<reg32 offset="0x04" name="BAR1_GART_SIZE" align="0x100000"/>
@@ -340,6 +344,103 @@
 			<!-- XXX: NVE4 has more stuff here -->
 		</array>
 		<array offset="0x800" name="PCI" stride="0x200" length="1" variants="NV01:NV50">
+=======
+		<array offset="0x5b0" name="THERM" stride="0x10" length="1" variants="NV43:NV47">
+			<reg32 offset="0x0" name="CFG0">
+				<bitfield low="0" high="7" name="ALARM_HIGH" />
+				<bitfield low="16" high="23" name="SENSOR_OFFSET" type="int"/>
+				<bitfield pos="24" name="DISABLE" />
+				<bitfield pos="28" name="ALARM_INTR_EN" />
+			</reg32>
+
+			<reg32 offset="0x4" name="STATUS">
+				<bitfield low="0" high="7" name="SENSOR_RAW" />
+				<bitfield pos="8" name="ALARM_HIGH" />
+
+				<!-- the source clock is the crystal -->
+				<bitfield low="25" high="31" name="ADC_CLOCK_XXX" />
+			</reg32>
+
+			<reg32 offset="0x8" name="CFG1">
+				<bitfield low="0" high="8" name="UNK0" /> <!-- temperature goes up -->
+				<bitfield low="9" high="12" name="UNK9" /> <!-- temperature goes down -->
+				<bitfield pos="17" name="ADC_PAUSE" />
+				<bitfield pos="23" name="CONNECT_SENSOR" />
+			</reg32>
+
+			<reg32 offset="0xc" name="THRESHOLD">
+				<bitfield low="0" high="7" name="LOW" />
+				<bitfield low="8" high="15" name="HIGH" />
+			</reg32>
+		</array>
+
+		<array offset="0x5b0" name="THERM" stride="0x10" length="1" variants="NV47:NV50">
+			<reg32 offset="0x0" name="CFG0">
+				<bitfield low="0" high="13" name="ALARM_HIGH" />
+				<bitfield low="16" high="29" name="SENSOR_OFFSET" type="int"/>
+				<bitfield pos="30" name="DISABLE" />
+				<bitfield pos="31" name="ENABLE" />
+			</reg32>
+
+			<reg32 offset="0x4" name="STATUS">
+				<bitfield low="0" high="13" name="SENSOR_RAW" />
+				<bitfield pos="16" name="ALARM_HIGH" />
+
+				<!-- the source clock is the crystal -->
+				<bitfield low="26" high="31" shr="4" name="ADC_CLOCK_DIV" />
+			</reg32>
+
+			<!-- exclude IGPs -->
+			<reg32 offset="0x8" name="CFG3" variants="NV43:NV4E">
+				<bitfield low="0" high="8" name="SENSOR_CALIB" />
+			</reg32>
+
+			<reg32 offset="0xc" name="THRESHOLD">
+				<bitfield low="0" high="13" name="LOW" />
+				<bitfield low="16" high="29" name="HIGH" />
+			</reg32>
+		</array>
+		<reg32 offset="0x700" name="PMEM_START" variants="NV50-">
+			<doc>Selects the starting offset and target memory area
+			that is accessible by the 1MB PMEM window at 0x700000.
+			This is always unpaged and goes directly to VRAM / sysRAM.
+			</doc>
+			<bitfield high="23" low="0" shr="16" name="OFFSET"/>
+			<bitfield high="25" low="24" name="TARGET" type="nv50_mem_target"/>
+		</reg32>
+		<reg32 offset="0x704" name="MEM_CHAN" variants="NV50:NVC0">
+			<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
+			<bitfield pos="30" name="WHICH">
+				<value value="0" name="PEEPHOLE"/>
+				<value value="1" name="BAR"/>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x708" name="BAR1_CTXDMA" variants="NV50:NVC0">
+			<bitfield low="0" high="15" name="INST" shr="4"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x70c" name="BAR3_CTXDMA" variants="NV50:NVC0">
+			<bitfield low="0" high="15" name="INST" shr="4"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x710" name="PEEPHOLE_CTXDMA" variants="NV50:NVC0">
+			<bitfield low="0" high="15" name="INST" shr="4"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x704" name="BAR1_CHAN" variants="NVC0-">
+			<bitfield low="0" high="27" name="INST" shr="12"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x714" name="BAR3_CHAN" variants="NVC0-">
+			<bitfield low="0" high="27" name="INST" shr="12"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x718" name="PEEPHOLE_CHAN" variants="NVC0-">
+			<bitfield low="0" high="27" name="INST" shr="12"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<array offset="0x800" name="PCI" stride="0x100" length="1" variants="NV01:NV50">
+>>>>>>> nv40/therm: initial work towards understanding thermal management on nv40
 			<use-group name="nv_pci"/>
 		</array>
 		<array offset="0x980" name="P2P" stride="0x80" length="1" variants="NV50:NVC0">
