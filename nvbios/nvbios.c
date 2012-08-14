@@ -1586,13 +1586,13 @@ int main(int argc, char **argv) {
 
 			correction_value = data;
 			if (id == 0x1) {
-				correction_target = "diode offset";
+				correction_target = "temp offset";
 				correction_value = (data >> 9) & 0x7f;
 			}
 			else if (id == 0x10)
-				correction_target = "diode multiplier";
+				correction_target = "offset numerator";
 			else if (id == 0x11)
-				correction_target = "diode divisor";
+				correction_target = "offset denominator";
 			else if (id == 0x12)
 				correction_target = "slope multiplier";
 			else if (id == 0x13)
