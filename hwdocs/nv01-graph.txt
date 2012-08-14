@@ -526,10 +526,14 @@ The methods are:
 0300   BETA
 
 mthd 0x300: BETA [NV01_BETA]
-  Sets the beta factor.
+  Sets the beta factor. The parameter is a signed fixed-point number with
+  a sign bit and 31 fractional bits. Note that negative values are clamped
+  to 0, and only 8 fractional bits are actually implemented in hardware.
 Operation:
-	BETA = param;
-[XXX: validation?]
+	if (param & 0x80000000) /* signed < 0 */
+		BETA = 0;
+	else
+		BETA = param & 0x7f800000;
 
 mthd 0x200: PATCH_BETA_OUTPUT [NV01_BETA] [NV04:NV20]
   Reserved for plugging a beta patchcord to output beta factor into.
