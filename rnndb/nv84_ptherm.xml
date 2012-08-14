@@ -9,13 +9,21 @@
 <bitset name="nv84_therm_intr" inline="yes">
 		<bitfield pos="0" name="TEMP_THRESHOLD_3" />
 		<bitfield pos="1" name="TEMP_THRESHOLD_4" />
-		<bitfield pos="2" name="TEMP_THRESHOLD_0" />
+		<bitfield pos="2" name="TEMP_THRESHOLD_CRIT" />
 		<bitfield pos="3" name="TEMP_THRESHOLD_1" />
 		<bitfield pos="4" name="TEMP_THRESHOLD_2" />
 		<bitfield pos="5" name="INPUT_0" />
 		<bitfield pos="6" name="INPUT_1" />
 		<bitfield pos="7" name="INPUT_2" />
 		<bitfield pos="8" name="POWER_BUDGET" /> <!-- guess -->
+</bitset>
+
+<bitset name="nv84_therm_i2c_sensor_state" inline="yes">
+		<bitfield pos="0" name="CRITICAL" />
+		<bitfield pos="3" name="THRESHOLD_1" />
+		<bitfield pos="4" name="THRESHOLD_2" />
+		<bitfield pos="5" name="THRESHOLD_3" />
+		<bitfield pos="6" name="THRESHOLD_4" />
 </bitset>
 
 <enum name="nv84_therm_intr_direction">
@@ -42,7 +50,7 @@
 
 		<!-- this part is RO and stores the state for the thresholds interrupts -->
 		<!-- I have no idea why thresholds 1 and 3 are inverted -->
-		<bitfield pos="20" name="TSH_0_STATE">
+		<bitfield pos="20" name="TSH_CRIT_STATE">
 			<value value="0" name="BELOW"/>
 			<value value="1" name="ABOVE"/>
 		</bitfield>
@@ -73,6 +81,9 @@
 		<bitfield low="16" high="21" name="UNK21"/>
 		<bitfield low="0" high="15" name="RAW_VALUE"/>
 	</reg32>
+	<reg32 offset="0x00c" name="SENSOR_RAW">
+		<bitfield pos="31" name="SENSOR_ENABLE"/>
+	</reg32>
 	<reg32 offset="0x044" name="POWER_COUNTER" />
 	<reg32 offset="0x0fc" name="INTR_DISPATCH" type="nv84_therm_intr" variants="NVA3-">
 		<doc>One bit per interrupt, 0 selects delivery to PMC line 19, 1 selects delivery
@@ -82,21 +93,31 @@
 	<reg32 offset="0x134" name="INTR_EN" type="nv84_therm_intr" variants="NVA3-"/>
 
 	<!-- i2c-slave range -->
-	<array offset="0x400" name="I2C_SLAVE" stride="0x400" length="1">
-		<reg32 offset="0x0" name="SENSOR_CALIBRATED" variants="NV84-"/>
+	<array offset="0x400" name="I2C_SLAVE" stride="0x400" length="1" variants="NV84-">
+		<reg32 offset="0x0" name="TEMP_HIGH"/>
 
-		<reg32 offset="0x14" name="TEMP_THRESHOLD_4" />
-		<reg32 offset="0x18" name="TEMP_THRESHOLD_3" />
+		<!-- the CRITICAL bit is RO. All the others should be ACK by writing 0 to them -->
+		<!-- Threshold 3 and 1's bits are SET when temperature is below the threshold -->
+		<reg32 offset="0x8" name="STATUS" type="nv84_therm_i2c_sensor_state" />
+		<reg32 offset="0xc" name="STATUS_EN" type="nv84_therm_i2c_sensor_state" />
 
-		<reg32 offset="0x44" name="SENSOR_CALIBRATED_LOW" />
+		<reg32 offset="0x14" name="THRESHOLD_4" /> <!-- Threshold 1 HIGH -->
+		<reg32 offset="0x18" name="THRESHOLD_3" /> <!-- Threshold 1 LOW -->
 
-		<reg32 offset="0x80" name="TEMP_THRESHOLD_0" />
-		<reg32 offset="0x84" name="TEMP_THRESHOLD_0_HYST" />
+		<reg32 offset="0x44" name="TEMP_LOW" />
 
-		<reg32 offset="0xc0" name="TEMP_THRESHOLD_2" />
-		<reg32 offset="0xc4" name="TEMP_THRESHOLD_1" />
+		<reg32 offset="0x80" name="THRESHOLD_CRIT" />
+		<reg32 offset="0x84" name="THRESHOLD_CRIT_HYST" />
 
-		<reg32 offset="0xc8" name="SENSOR_CALIB" /> <!-- XXX: no idea how this works -->
+		<reg32 offset="0xc0" name="THRESHOLD_2" /> <!-- Threshold 0 HIGH -->
+		<reg32 offset="0xc4" name="THRESHOLD_1" /> <!-- Threshold 1 LOW -->
+
+		<reg32 offset="0xc8" name="SENSOR_CALIB">
+			<!-- On my nv84, the output is roughly:
+				offset = CALIB_OFFSET * 6 -->
+			<bitfield low="0" high="6" name="CALIB_OFFSET" />
+			<bitfield pos="7" name="DISABLE" />
+		</reg32>
 	</array>
 
 </group>
