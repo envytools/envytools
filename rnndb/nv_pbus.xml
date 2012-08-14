@@ -290,7 +290,7 @@
 				<bitfield pos="23" name="CONNECT_SENSOR" />
 			</reg32>
 
-			<reg32 offset="0xc" name="THRESHOLD">
+			<reg32 offset="0xc" name="TEMP_RANGE">
 				<bitfield low="0" high="7" name="LOW" />
 				<bitfield low="8" high="15" name="HIGH" />
 			</reg32>
@@ -317,7 +317,7 @@
 				<bitfield low="0" high="8" name="SENSOR_CALIB" />
 			</reg32>
 
-			<reg32 offset="0xc" name="THRESHOLD">
+			<reg32 offset="0xc" name="TEMP_RANGE">
 				<bitfield low="0" high="13" name="LOW" />
 				<bitfield low="16" high="29" name="HIGH" />
 			</reg32>
