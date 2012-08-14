@@ -77,8 +77,8 @@
 	</reg32>
 	<reg32 offset="0x008" name="SENSOR_RAW">
 		<bitfield pos="31" name="ENABLE"/>
-		<bitfield pos="30" name="UNK30"/>
-		<bitfield low="16" high="21" name="UNK21"/>
+		<bitfield pos="30" name="ADC_CLOCK_DIV_FIXED_256"/> <!-- since I cannot find any reg to alter that -->
+		<bitfield low="16" high="21" name="ADC_CLOCK_DIV" shr="5"/>
 		<bitfield low="0" high="15" name="RAW_VALUE"/>
 	</reg32>
 	<reg32 offset="0x00c" name="SENSOR_RAW">
