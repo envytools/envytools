@@ -36,10 +36,13 @@ no annotation - available on all cards
 
 The source clock for THERM's ADC is:
 
- - NV43:NV44: the crystal
- - NV46-NV50: the host clock
+ - NV43:NV47: the host clock
+ - NV47-NV50: constant (most likely hclck)
 
-Before reaching the ADC, the clock source is divided by ADC_CLOCK_DIV.
+(most likely, since the rate doesn't change when I change the HOST clock)
+
+Before reaching the ADC, the clock source is divided by a fixed divider of 1024
+and then by ADC_CLOCK_DIV.
 
 MMIO 0x15b4: STATUS [NV43:NV47]
   bits 26-31: ADC_CLOCK_DIV
@@ -55,11 +58,13 @@ ADC_clock = source_clock / ADC_CLOCK_DIV
 
 The accuracy of the reading greatly depends on the ADC clock. A clock too fast
 will produce a lot of noise. A clock too low may actually produce an offseted
-value. An ADC clock rate in the range of [1kHz, 1MHz] is advised, based on
-limited testing on a nv4b. The clock should however be as close to
-1Mhz as possible.
+value. The ADC clock rate under 10 kHz is advised, based on limited testing
+on a nv4b.
 
 XXX: Make sure this clock range is safe on all cards
+
+Anyway, it seems like it is clocked at an acceptable frequency at boot time,
+so, no need to worry too much about it.
 
 = Reading temperature =
 
