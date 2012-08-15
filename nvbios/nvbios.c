@@ -1564,7 +1564,7 @@ int main(int argc, char **argv) {
 			uint8_t hysteresis = type & 0xf;
 			const char *section_s = NULL, *threshold = NULL;
 			const char *correction_target = NULL;
-			uint16_t correction_value = 0;
+			int8_t correction_value = 0;
 			uint16_t byte_low, byte_high;
 
 			if (id == 0x0)
@@ -1587,7 +1587,7 @@ int main(int argc, char **argv) {
 			correction_value = data;
 			if (id == 0x1) {
 				correction_target = "temp offset";
-				correction_value = (data >> 9) & 0x7f;
+				correction_value = ((int8_t)bios->data[(start+i*entry_length)+2]) / 2;
 			}
 			else if (id == 0x10)
 				correction_target = "offset numerator";
