@@ -70,7 +70,7 @@
 		<reg32 offset="0x800" name="DEVICE">
 			<bitfield high="6" low="0" name="CHID"/>
 			<bitfield pos="24" name="SWITCH_AVAILABLE"/>
-			<!-- XXX: NV01 has something at 28 -->
+			<bitfield pos="28" name="ACCESS_OK" variants="NV01:NV03"/>
 		</reg32>
 
 		<array offset="0x1000" length="1" stride="0x200" name="CACHE0">
