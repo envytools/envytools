@@ -245,9 +245,9 @@ the options field are:
     1: X8R8G8B8_A8R8G8B8 - 32bpp, 8 bits per channel, maybe 8 bits for alpha
     2: X2R10G10B10_A2R10G10B10 - 32bpp, 10 bits per channel, maybe 2 bits for
        alpha
-    3: B8_A8Y8 - 8bpp [no alpha] or 16bpp [alpha], single 8-bit color channel,
+    3: Y8_A8Y8 - 8bpp [no alpha] or 16bpp [alpha], single 8-bit color channel,
        maybe 8 bits for alpha
-    4: B16_A16Y16 - 16bpp [no alpha] or 32bpp [alpha], single 16-bit color
+    4: Y16_A16Y16 - 16bpp [no alpha] or 32bpp [alpha], single 16-bit color
        channel, maybe 16 bits for alpha
   bit 13: ALPHA - enables alpha channel for input. If 0, the color format
           variant without alpha will be used, and alpha value passed down will
@@ -401,14 +401,18 @@ mthd 0x104: NOTIFY [all NV01:NVC0 graph objects]
     [...]
     15: WRITE_15 - write ordinary notifier #15 [NV03:NV04]
 Operation:
-	if ((param > 0 && chipset == NV01)
+	if (!cur_grobj.NOTIFY_VALID) {
+		/* DMA notify object not set, or needs to be swapped in by sw */
+		throw(INVALID_NOTIFY);
+	} else if ((param > 0 && chipset == NV01)
 			|| (param > 15 && chipset >= NV03 && chipset < NV04)
 			|| (param > 1 && chipset >= NV04)) {
 		/* XXX: what state is changed? */
 		throw(INVALID_VALUE);
 	} else if (NOTIFY_PENDING) {
+		/* tried to do two NOTIFY methods in row */
 		/* XXX: what state is changed? */
-		throw(INVALID_NOTIFY);
+		throw(DOUBLE_NOTIFY);
 	} else {
 		NOTIFY_PENDING = 1;
 		NOTIFY_TYPE = param;
@@ -426,6 +430,9 @@ After every method other than NOTIFY and DMA_NOTIFY, the following is done:
 			irq_trigger(NOTIFY);
 		NOTIFY_PENDING = 0;
 	}
+
+if a subchannel switch or object bind is done while NOTIFY_PENDING is set,
+CTXSW_NOTIFY error is raised.
 
 NOTE: NV01 has a 1-bit NOTIFY_PENDING field, allowing it to do notifier writes
 with interrupts, but lacks support for setting it via the NOTIFY method. This

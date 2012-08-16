@@ -190,6 +190,7 @@
 <!-- 300000 - 3fffff PROM covered above -->
 
 <!-- 400000 - 5fffff PGRAPH -->
+<import file="nv01_pgraph.xml" />
 <import file="nv03_pgraph.xml" />
 <import file="nv04_pgraph.xml" />
 <import file="nv50_pgraph.xml" />
