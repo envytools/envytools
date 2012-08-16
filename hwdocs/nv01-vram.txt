@@ -43,9 +43,14 @@ framebuffer addresses directly correspond to VRAM addresses. It is accessed
 by four clients:
 
  - PFB/PDAC scanout hardware [nv01-pfb.txt]
- - PGRAPH rendering [nv01-pgraph.txt]
+ - PGRAPH rendering [nv01-2d.txt]
  - the host, through FB map area [see below]
- - PRM [XXX: figure out how and wtf for]
+ - PRM [nv01-prm.txt], for:
+  - host access through PRMFB to the VGA memory area
+  - reading VGA memory area for VGA rendering
+  - writing VGA shadow scanout framebuffer for VGA rendering
+  - writing ALOG entries
+  - VGA and DOS audio registers backing storage
 
 The host and scanout access the framebuffer simply by an address. PGRAPH,
 however, accesses the framebuffer by X, Y coordinates of a pixel. For this
