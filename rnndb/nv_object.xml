@@ -27,7 +27,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<!-- CONTEXT_BETA1, BETA_SOLID -->
 	<value value="0x0012" name="NV01_BETA" variants="NV01:NV84"/>
 
-	<!-- CONTEXT_BETA4, BETA_SOLID? -->
+	<!-- CONTEXT_BETA4, [none] -->
 	<value value="0x0072" name="NV04_BETA4" variants="NV04:NV84"/>
 
 	<!-- [none], IMAGE_ROP_AND -->
@@ -91,8 +91,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x005f" name="NV04_BLIT" variants="NV04:NV84"/>
 	<value value="0x009f" name="NV15_BLIT" variants="NV15:NV50"/>
 
-	<!-- [none], IMAGE_FROM_MEMORY -->
-	<value value="0x0020" name="NV01_IFROMMEM" variants="NV01:NV03"/>
+	<!-- IMAGE_FROM_MEMORY -->
+	<value value="0x0020" name="NV01_IFM" variants="NV01:NV03"/>
 
 	<!-- IMAGE_FROM_CPU -->
 	<value value="0x0021" name="NV01_IFC" variants="NV01:NV40"/>
@@ -105,8 +105,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<!-- IMAGE_MONOCHROME_FROM_CPU -->
 	<value value="0x0022" name="NV01_BITMAP" variants="NV01:NV04"/>
 
-	<!-- [none], IMAGE_TO_MEMORY -->
-	<value value="0x0025" name="NV01_ITOMEM" variants="NV01:NV04"/>
+	<!-- IMAGE_TO_MEMORY -->
+	<value value="0x0025" name="NV01_ITM" variants="NV01:NV04"/>
 
 	<!-- STRETCHED_IMAGE_FROM_CPU -->
 	<value value="0x0036" name="NV03_SIFC" variants="NV03:NV40"/>
@@ -123,9 +123,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x0389" name="NV30_SIFM" variants="NV30:NV40"/>
 	<value value="0x3089" name="NV40_SIFM" variants="NV40:NV50"/>
 	<value value="0x5089" name="NV50_SIFM" variants="NV50:NV84"/>
-
-	<!-- SCALED_YUV420_FROM_MEMORY -->
-	<value value="0x0038" name="NV03_SYFM" variants="NV03:NV04"/>
 
 	<value value="0x004b" name="NV03_GDI" variants="NV03:NV40"/>
 	<value value="0x004a" name="NV04_GDI" variants="NV04:NV84"/>

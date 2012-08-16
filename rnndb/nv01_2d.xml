@@ -536,6 +536,20 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0400" name="COLOR" length="1792"/>
 	</stripe>
 
+	<stripe prefix="obj-class" variants="NV01_IFM">
+		<reg32 offset="0x308" name="POINT" type="xy16"/>
+		<reg32 offset="0x30c" name="SIZE" type="wh16"/>
+		<reg32 offset="0x310" name="PITCH"/>
+		<reg32 offset="0x314" name="OFFSET"/>
+	</stripe>
+
+	<stripe prefix="obj-class" variants="NV01_ITM">
+		<reg32 offset="0x308" name="POINT" type="xy16"/>
+		<reg32 offset="0x30c" name="SIZE" type="wh16"/>
+		<reg32 offset="0x310" name="PITCH"/>
+		<reg32 offset="0x314" name="OFFSET"/>
+	</stripe>
+
 	<stripe prefix="obj-class" variants="NV03_SIFM-NV50_SIFM">
 		<reg32 offset="0x0108" name="WAIT_FOR_IDLE" variants="NV10_SIFM-"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
