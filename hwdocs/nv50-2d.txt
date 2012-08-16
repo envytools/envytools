@@ -1,0 +1,11 @@
+TOC
+
+0. Introduction
+1. The 2d pipeline
+2. Source and destination setup
+3. Pipeline setup
+4. The DRAW operation
+5. The SIFC operation
+6. The BLIT operation
+
+[XXX: write me]

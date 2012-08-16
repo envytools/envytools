@@ -1,0 +1,89 @@
+TOC
+
+0. Introduction
+1. The objects
+2. Color and monochrome formats
+2.1. COLOR_FORMAT method
+2.2. Color format conversions
+2.3. Monochrome formats
+3. The pipeline
+3.1. The source
+3.2. Clipping
+3.3. Chroma key
+3.4. The pre-write operations
+3.4.1. Raster operations
+3.4.2. Blending
+3.4.3. Source copy
+3.5. Dithering
+3.6. The plane mask
+3.7. The framebuffer
+3.7.1. NV01 canvas
+3.7.2. NV03 surfaces
+3.7.3. Clip rectangles
+4. NV01-style operation objects
+4.1. NV01_OP_CLIP
+4.2. NV01_OP_BLEND_AND
+4.3. NV01_OP_ROP_AND
+4.4. NV01_OP_CHROMA
+4.5. NV01_OP_SRCCOPY_AND
+4.6. NV01_OP_SRCCOPY
+4.7. NV01_OP_SRCCOPY_PREMULT
+4.8. NV01_OP_BLEND_PREMULT
+
+
+= Introduction =
+
+[XXX: write me]
+
+
+= The objects =
+
+[XXX: write me]
+
+
+= Color and monochrome formats =
+
+[XXX: write me]
+
+
+== COLOR_FORMAT methods ==
+
+mthd 0x300: COLOR_FORMAT [NV01_CHROMA, NV01_PATTERN] [NV04-]
+  Sets the color format using NV01 color enum.
+Operation:
+	cur_grobj.COLOR_FORMAT = get_nv01_color_format(param);
+[XXX: figure out this enum]
+
+mthd 0x300: COLOR_FORMAT [NV04_CHROMA, NV04_PATTERN]
+  Sets the color format using NV04 color enum.
+Operation:
+	cur_grobj.COLOR_FORMAT = get_nv04_color_format(param);
+[XXX: figure out this enum]
+
+
+== Color format conversions ==
+
+[XXX: write me]
+
+
+== Monochrome formats ==
+
+[XXX: write me]
+
+mthd 0x304: MONO_FORMAT [NV01_PATTERN] [NV04-]
+  Sets the monochrome format.
+Operation:
+	if (param != LE && param != CGA6)
+		throw(INVALID_ENUM);
+	cur_grobj.MONO_FORMAT = param;
+[XXX: check]
+
+
+= The pipeline =
+
+[XXX: write me]
+
+
+= NV01-style operation objects =
+
+[XXX: write me]

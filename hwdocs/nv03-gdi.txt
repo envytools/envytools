@@ -1,0 +1,10 @@
+TOC
+
+0. Introduction
+1. Clipped rectangles
+2. Unclipped rectangles
+3. Unclipped transparent bitmaps
+4. Clipped transparent bitmaps
+5. Clipped two-color bitmaps
+
+[XXX: write me]

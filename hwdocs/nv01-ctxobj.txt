@@ -1,0 +1,363 @@
+TOC
+
+0. Introduction
+1. BETA
+2. ROP
+3. CHROMA and PLANE
+4. CLIP
+5. PATTERN
+6. BETA4
+7. Surface setup
+7.1. SURF
+7.2. SURF2D
+7.3. SURF3D
+7.4. SWZSURF
+
+
+= Introducton =
+
+[XXX: write me]
+
+
+= BETA =
+
+The BETA object family deals with setting the beta factor for the BLEND
+operation. The objects in this family are:
+
+ - objtype 0x01: NV01_BETA [NV01:NV04]
+ - class 0x0012: NV01_BETA [NV04:NV84]
+
+The methods are:
+
+0100   NOP [NV04-]
+0104   NOTIFY
+0110   WAIT_FOR_IDLE [NV50-]
+0140   PM_TRIGGER [NV40-?] [XXX]
+0180 N DMA_NOTIFY [NV04-]
+0200 O PATCH_BETA_OUTPUT [NV04:NV20]
+0300   BETA
+
+mthd 0x300: BETA [NV01_BETA]
+  Sets the beta factor. The parameter is a signed fixed-point number with
+  a sign bit and 31 fractional bits. Note that negative values are clamped
+  to 0, and only 8 fractional bits are actually implemented in hardware.
+Operation:
+	if (param & 0x80000000) /* signed < 0 */
+		BETA = 0;
+	else
+		BETA = param & 0x7f800000;
+
+mthd 0x200: PATCH_BETA_OUTPUT [NV01_BETA] [NV04:NV20]
+  Reserved for plugging a beta patchcord to output beta factor into.
+Operation:
+	throw(UNIMPLEMENTED_MTHD);
+
+
+= ROP =
+
+The ROP object family deals with setting the ROP [raster operation]. The ROP
+value thus set is only used in the ROP_* operation modes. The objects in this
+family are:
+
+ - objtype 0x02: NV01_ROP [NV01:NV04]
+ - class 0x0043: NV01_ROP [NV04:NV84]
+
+The methods are:
+
+0100   NOP [NV04-]
+0104   NOTIFY
+0110   WAIT_FOR_IDLE [NV50-]
+0140   PM_TRIGGER [NV40-?] [XXX]
+0180 N DMA_NOTIFY [NV04-]
+0200 O PATCH_ROP_OUTPUT [NV04:NV20]
+0300   ROP
+
+mthd 0x300: ROP [NV01_ROP]
+  Sets the raster operation.
+Operation:
+	if (param & ~0xff)
+		throw(INVALID_VALUE);
+	ROP = param;
+
+mthd 0x200: PATCH_ROP_OUTPUT [NV01_ROP] [NV04:NV20]
+  Reserved for plugging a ROP patchcord to output the ROP into.
+Operation:
+	throw(UNIMPLEMENTED_MTHD);
+
+
+= CHROMA and PLANE =
+
+The CHROMA object family deals with setting the color for the color key. The
+color key is only used when enabled in options for a given graph object. The
+objects in this family are:
+
+ - objtype 0x03: NV01_CHROMA [NV01:NV04]
+ - class 0x0017: NV01_CHROMA [NV04:NV50]
+ - class 0x0057: NV04_CHROMA [NV04:NV84]
+
+The PLANE object family deals with setting the color for plane masking. The
+plane mask operation is only done when enabled in options for a given graph
+object. The objects in this family are:
+
+ - objtype 0x04: NV01_PLANE [NV01:NV04]
+
+For both objects, colors are internally stored in A1R10G10B10 format. [XXX:
+check NV04+]
+
+The methods for these families are:
+
+0100   NOP [NV04-]
+0104   NOTIFY
+0110   WAIT_FOR_IDLE [NV50-]
+0140   PM_TRIGGER [NV40-?] [XXX]
+0180 N DMA_NOTIFY [NV04-]
+0200 O PATCH_IMAGE_OUTPUT [NV04:NV20]
+0300   COLOR_FORMAT [NV04-]
+0304   COLOR
+
+mthd 0x304: COLOR [*_CHROMA, NV01_PLANE]
+  Sets the color.
+Operation:
+	struct {
+		int B : 10;
+		int G : 10;
+		int R : 10;
+		int A : 1;
+	} tmp;
+	tmp.B = get_color_b10(cur_grobj, param);
+	tmp.G = get_color_g10(cur_grobj, param);
+	tmp.R = get_color_r10(cur_grobj, param);
+	tmp.A = get_color_a1(cur_grobj, param);
+	if (cur_grobj.type == NV01_PLANE)
+		PLANE = tmp;
+	else
+		CHROMA = tmp;
+[XXX: check NV03+]
+
+mthd 0x200: PATCH_IMAGE_OUTPUT [*_CHROMA, NV01_PLANE] [NV04:NV20]
+  Reserved for plugging an image patchcord to output the color into.
+Operation:
+	throw(UNIMPLEMENTED_MTHD);
+
+
+= CLIP =
+
+The CLIP object family deals with setting up the user clip rectangle. The user
+clip rectangle is only used when enabled in options for a given graph object.
+The objects in this family are:
+
+ - objtype 0x05: NV01_CLIP [NV01:NV04]
+ - class 0x0019: NV01_CLIP [NV04:NV84]
+
+The methods for this family are:
+
+0100   NOP [NV04-]
+0104   NOTIFY
+0110   WAIT_FOR_IDLE [NV50-]
+0140   PM_TRIGGER [NV40-?] [XXX]
+0180 N DMA_NOTIFY [NV04-]
+0200 O PATCH_IMAGE_OUTPUT [NV04:NV20]
+0300   CORNER
+0304   SIZE
+
+The clip rectangle state can be loaded in two ways:
+ - submit CORNER method twice, with upper-left and bottom-right corners
+ - submit CORNER method with upper-right corner, then SIZE method
+To enable that, clip rectangle method operation is a bit unusual.
+[XXX: check if still applies on NV03+]
+
+Note that the clip rectangle state is internally stored relative to the
+absolute top-left corner of the framebuffer, while coordinates used in
+methods are relative to top-left corner of the canvas.
+
+mthd 0x300: CORNER [NV01_CLIP]
+  Sets a corner of the clipping rectangle.
+  bits 0-15: X coordinate
+  bits 16-31: Y coordinate
+Operation:
+	ABS_UCLIP_XMIN = ABS_UCLIP_XMAX;
+	ABS_UCLIP_YMIN = ABS_UCLIP_YMAX;
+	ABS_UCLIP_XMAX = CANVAS_MIN.X + param.X;
+	ABS_UCLIP_YMAX = CANVAS_MIN.Y + param.Y;
+[XXX: check NV03+]
+
+mthd 0x304: SIZE [NV01_CLIP]
+  Sets the size of the clipping rectangle.
+  bits 0-15: width
+  bits 16-31: height
+Operation:
+	ABS_UCLIP_XMIN = ABS_UCLIP_XMAX;
+	ABS_UCLIP_YMIN = ABS_UCLIP_YMAX;
+	ABS_UCLIP_XMAX += param.X;
+	ABS_UCLIP_YMAX += param.Y;
+[XXX: check NV03+]
+
+mthd 0x200: PATCH_IMAGE_OUTPUT [NV01_CLIP] [NV04:NV20]
+  Reserved for plugging an image patchcord to output the rectangle into.
+Operation:
+	throw(UNIMPLEMENTED_MTHD);
+
+
+= PATTERN =
+
+The PATTERN object family deals with setting up the pattern, which is used
+in some ROP and BLEND configurations. The objects in this family are:
+
+ - objtype 0x06: NV01_PATTERN [NV01:NV04]
+ - class 0x0018: NV01_PATTERN [NV04:NV50]
+ - class 0x0044: NV04_PATTERN [NV04:NV84]
+
+The methods for this family are:
+
+0100   NOP [NV04-]
+0104   NOTIFY
+0110   WAIT_FOR_IDLE [NV50-]
+0140   PM_TRIGGER [NV40-?] [XXX]
+0180 N DMA_NOTIFY [NV04-]
+0200 O PATCH_IMAGE_OUTPUT [NV04:NV20]
+0300   COLOR_FORMAT [NV04-]
+0304   MONO_FORMAT [NV04-]
+0308   SHAPE
+030c   SELECT [NV04_PATTERN]
+0310+i*4, i<2   MONO_COLOR
+0318+i*4, i<2   MONO_PATTERN
+0400+i*4, i<16  COLOR_Y8 [NV04_PATTERN]
+0500+i*4, i<32  COLOR_R5G6B5 [NV04_PATTERN]
+0600+i*4, i<32  COLOR_X1R5G5B5 [NV04_PATTERN]
+0700+i*4, i<64  COLOR_X8R8G8B8 [NV04_PATTERN]
+
+[XXX: describe how the pattern works]
+
+mthd 0x308: SHAPE [*_PATTERN]
+  Sets the pattern shape. One of:
+    0: 8x8
+    1: 64x1
+    2: 1x64
+Operation:
+	if (param > 2)
+		throw(INVALID_ENUM);
+	PATTERN_SHAPE = param;
+[XXX: check NV03+]
+
+mthd 0x30c: SELECT [NV04_PATTERN]
+  Sets the pattern type. One of:
+    1: MONO
+    2: COLOR
+Operation:
+	/* XXX: figure it out */
+
+mthd 0x310+i*4, i<2: MONO_COLOR [*_PATTERN]
+  Sets the colors used for mono pattern. i=0 sets the color used for pixels
+  corresponding to '0' bits in the pattern, i=1 sets the color used for '1'.
+Operation:
+	PATTERN_MONO_COLOR[i].B = get_color_b10(cur_grobj, param);
+	PATTERN_MONO_COLOR[i].G = get_color_b10(cur_grobj, param);
+	PATTERN_MONO_COLOR[i].R = get_color_b10(cur_grobj, param);
+	PATTERN_MONO_COLOR[i].A = get_color_b8(cur_grobj, param);
+[XXX: check NV03+]
+
+mthd 0x318+i*4, i<2: MONO_PATTERN [*_PATTERN]
+  Sets the mono pattern. i=0 sets bits 0-31, i=1 sets bits 32-63.
+Operation:
+	b8 tmp[4];
+	for (j = 0; j < 4; j++)
+		tmp[j] = param >> 8*j & 0xff;
+	/* pattern stored internally in LE format - for CGA6, reverse
+	   bits in all bytes */
+	if (cur_grobj.MONO_FORMAT == CGA6)
+		for (j = 0; j < 4; j++)
+			tmp[j] = reverse_bits(tmp[j]);
+	for (j = 0; j < 4; j++)
+		PATTERN_MONO[i*32+j*8:i*32+j*8+7] = tmp[j];
+[XXX: check NV03+]
+
+mthd 0x400+i*4, i<16: COLOR_Y8 [NV04_PATTERN]
+  Sets 4 color pattern cells, from Y8 source.
+  bits 0-7: color for pattern cell i*4+0
+  bits 8-15: color for pattern cell i*4+1
+  bits 16-23: color for pattern cell i*4+2
+  bits 24-31: color for pattern cell i*4+3
+Operation:
+	/* XXX: figure it out */
+
+mthd 0x500+i*4, i<32: COLOR_R5G6B5 [NV04_PATTERN]
+  Sets 2 color pattern cells, from R5G6B5 source.
+  bits 0-15: color for pattern cell i*2+0
+  bits 16-31: color for pattern cell i*2+1
+Operation:
+	/* XXX: figure it out */
+
+mthd 0x600+i*4, i<32: COLOR_X1R5G5B5 [NV04_PATTERN]
+  Sets 2 color pattern cells, from X1R5G5B5 source.
+  bits 0-15: color for pattern cell i*2+0
+  bits 16-31: color for pattern cell i*2+1
+Operation:
+	/* XXX: figure it out */
+
+mthd 0x700+i*4, i<64: COLOR_X8R8G8B8 [NV04_PATTERN]
+  Sets a color pattern cell, from X8R8G8B8 source.
+Operation:
+	/* XXX: figure it out */
+
+mthd 0x200: PATCH_IMAGE_OUTPUT [*_PATTERN] [NV04:NV20]
+  Reserved for plugging an image patchcord to output the pattern into.
+Operation:
+	throw(UNIMPLEMENTED_MTHD);
+
+
+= BETA4 =
+
+The BETA4 object family deals with setting the per-component beta factors for
+the BLEND_PREMULT and SRCCOPY_PREMULT operations. The objects in this family
+are:
+
+ - class 0x0072: NV04_BETA4 [NV04:NV84]
+
+The methods are:
+
+0100   NOP [NV04-]
+0104   NOTIFY
+0110   WAIT_FOR_IDLE [NV50-]
+0140   PM_TRIGGER [NV40-?] [XXX]
+0180 N DMA_NOTIFY [NV04-]
+0200 O PATCH_BETA_OUTPUT [NV04:NV20]
+0300   BETA4
+
+mthd 0x300: BETA4 [NV04_BETA4]
+  Sets the per-component beta factors.
+  bits 0-7: B
+  bits 8-15: G
+  bits 16-23: R
+  bits 24-31: A
+Operation:
+	/* XXX: figure it out */
+
+mthd 0x200: PATCH_BETA_OUTPUT [NV04_BETA4] [NV04:NV20]
+  Reserved for plugging a beta patchcord to output beta factors into.
+Operation:
+	throw(UNIMPLEMENTED_MTHD);
+
+
+= Surface setup =
+
+[XXX: write me]
+
+
+== SURF ==
+
+[XXX: write me]
+
+
+== SURF2D ==
+
+[XXX: write me]
+
+
+== SURF3D ==
+
+[XXX: write me]
+
+
+== SWZSURF ==
+
+[XXX: write me]

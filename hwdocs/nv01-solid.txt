@@ -1,0 +1,10 @@
+TOC
+
+0. Introduction
+1. Common methods
+2. POINT
+3. LINE/LIN
+4. TRI
+5. RECT
+
+[XXX: write me]
