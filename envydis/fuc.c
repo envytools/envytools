@@ -584,9 +584,9 @@ static void fuc_prep(struct disisa *isa) {
 	int vs_fucver = vardata_add_varset(isa->vardata, "fucver", "fµc version");
 	if (vs_fucver == -1)
 		abort();
-	int v_fuc0 = vardata_add_variant(isa->vardata, "fuc0", "NV40:NV50", vs_fucver);
-	int v_fuc3 = vardata_add_variant(isa->vardata, "fuc3", "NV50:NVA0", vs_fucver);
-	int v_fuc4 = vardata_add_variant(isa->vardata, "fuc4", "NVA0:NVC0", vs_fucver);
+	int v_fuc0 = vardata_add_variant(isa->vardata, "fuc0", "fµc v0", vs_fucver);
+	int v_fuc3 = vardata_add_variant(isa->vardata, "fuc3", "fµc v3", vs_fucver);
+	int v_fuc4 = vardata_add_variant(isa->vardata, "fuc4", "fµc v4", vs_fucver);
 	if (v_fuc0 == -1 || v_fuc3 == -1 || v_fuc4 == -1)
 		abort();
 	vardata_variant_feature(isa->vardata, v_fuc0, f_fuc0op);
