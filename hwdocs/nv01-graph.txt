@@ -47,9 +47,9 @@ TOC
 10.4. ITM
 10.5. M2MF
 11. NV01 3D objects
-11.1. TEXBI
+11.1. TEXLIN
 11.2. TEXQUAD
-11.3. TEXBIBETA
+11.3. TEXLINBETA
 11.4. TEXQUADBETA
 12. NV03 3D objects
 12.1. ZPOINT
@@ -71,7 +71,7 @@ objtype type name - description
 0x01 C BETA - sets beta factor for blending
 0x02 C ROP - sets raster operation
 0x03 C CHROMA - sets chroma key color
-0x04 C PLANE - sets ??? color [XXX]
+0x04 C PLANE - sets the plane mask
 0x05 C CLIP - sets clipping rectangle
 0x06 C PATTERN - sets pattern, ie. a small repeating image used as third input
        to raster operation
@@ -80,7 +80,7 @@ objtype type name - description
 0x0a R LIN - renders solid lins [ie. lines missing a pixel on one end]
 0x0b R TRI - renders solid triangles
 0x0c R RECT - renders solid rectangles
-0x0d 3 TEXBI - renders quads with linearly-mapped textures [XXX]
+0x0d 3 TEXLIN - renders quads with linearly-mapped textures [XXX]
 0x0e 3 TEXQUAD - renders quads with quadratically-mapped textures [XXX]
 0x10 T BLIT - copies rectangles of pixels from one place in framebuffer
        to another
@@ -88,7 +88,7 @@ objtype type name - description
 0x12 T BITMAP - uploads and expands a bitmap [ie. 1bpp image] via methods
 0x13 T IFM - Image From Memory, uploads a rectangle of pixels from a DMA object
 0x14 T ITM - Image To Memory, downloads a rectangle of pixels to a DMA object
-0x1d 3 TEXBIBETA - renders lit quads with linearly-mapped textures [XXX]
+0x1d 3 TEXLINBETA - renders lit quads with linearly-mapped textures [XXX]
 0x1e 3 TEXQUADBETA - renders lit quads with quadratically-mapped textures [XXX]
 
 And on NV03/NV03T:

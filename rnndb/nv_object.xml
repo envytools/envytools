@@ -150,6 +150,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x037b" name="NV30_TEXUPLOAD" variants="NV30:NV40"/>
 	<value value="0x307b" name="NV40_TEXUPLOAD" variants="NV40:NV84"/>
 
+	<!-- NV01 "3D" -->
+
+	<value value="0x0023" name="NV01_TEXLIN" variants="NV01:NV03"/>
+	<value value="0x0024" name="NV01_TEXQUAD" variants="NV01:NV03"/>
+	<value value="0x0034" name="NV01_TEXLINBETA" variants="NV01:NV03"/>
+	<value value="0x0035" name="NV01_TEXQUADBETA" variants="NV01:NV03"/>
+
 	<!-- DVD -->
 
 	<value value="0x0038" name="NV04_DVD_SUBPICTURE" variants="NV04:NV50"/>

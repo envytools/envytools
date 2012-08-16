@@ -19,14 +19,14 @@
 	<value value="0x0a" name="LIN"/>
 	<value value="0x0b" name="TRI"/>
 	<value value="0x0c" name="RECT"/>
-	<value value="0x0d" name="TEXBI"/>
+	<value value="0x0d" name="TEXLIN"/>
 	<value value="0x0e" name="TEXQUAD"/>
 	<value value="0x10" name="BLIT"/>
 	<value value="0x11" name="IFC"/>
 	<value value="0x12" name="BITMAP"/>
 	<value value="0x13" name="IFM"/>
 	<value value="0x14" name="ITM"/>
-	<value value="0x1d" name="TEXBIBETA"/>
+	<value value="0x1d" name="TEXLINBETA"/>
 	<value value="0x1e" name="TEXQUADBETA"/>
 </enum>
 
