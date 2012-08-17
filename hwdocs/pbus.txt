@@ -39,7 +39,7 @@ The registers in the PBUS area are:
 001580:0015a0 CLOCK_GATE - clock gating registers [NV17:NV20 NV25:NVC0] [see below]
 0015b0:0015c0 THERM - thermal sensor [NV43:NV50] [nv43-therm.txt]
 0015f4:001604 PWM - PWM generators [NV41:NV50] [nv10-gpio.txt]
-001700:001800 HOST_MEM - host memory access setup [NV44:NV50] [nv40-host-mem.txt] [XXX: variants are wrong]
+001700:001800 HOST_MEM - host memory access setup [TURBOCACHE] [nv44-host-mem.txt]
 001700:001800 HOST_MEM - host memory access setup [NV50:NVC0] [nv50-host-mem.txt]
 001700:001800 HOST_MEM - host memory access setup [NVC0-] [nvc0-host-mem.txt]
 001800:001a00 PCI - PCI configuration space [NV01:NV50] [pci.txt]

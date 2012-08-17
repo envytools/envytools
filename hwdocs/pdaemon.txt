@@ -55,6 +55,7 @@ Code TLB index bits:
 Code ports: 1
 Data ports: 4
 Version 4 unknown bits: 27, 29, 30, 31
+Core clock: daemon clock
 
 [XXX: IO regs]
 Interrupts:

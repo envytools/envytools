@@ -23,6 +23,9 @@ Secretful: no
 Code TLB index bits: 8
 Code ports: 1
 Data ports: 1
+Core clock:
+	HUB: hub clock [NVC0 clock #9]
+	GPC: GPC clock [NVC0 clock #0] [XXX: divider]
 
 [XXX: IO regs]
 [XXX: interrupts]

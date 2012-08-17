@@ -45,7 +45,7 @@ buffers, and have lower performance than tiled textures. Tiled surfaces
 can have up to three dimensions, can be put into arrays and be mipmapped,
 and use custom element arrangement in memory. However, tiled surfaces need to
 be placed in memory area with special storage type, depending on the surface
-format [see nv50-vm.txt, nv50-memory.txt].
+format [see nv50-vm.txt].
 
 Tiled surfaces have two main levels of element rearrangement: high-level and
 low-level. Low-level rearrangement is quite complicated, depends on surface's

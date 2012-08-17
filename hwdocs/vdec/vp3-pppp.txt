@@ -18,6 +18,7 @@ Code TLB index bits: 6
 Code ports: 1
 Data ports: 1
 Version 4 unknown bits: 31
+Core clock: VDCLK
 
 The IO registers:
 

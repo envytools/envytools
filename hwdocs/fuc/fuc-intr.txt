@@ -19,7 +19,7 @@ The lines are:
   1 [E]: watchdog timer		[fuc-timer.txt]
   2 [L]: FIFO data available	[fuc-fifo.txt]
   3 [E]: PFIFO channel switch	[fuc-fifo.txt]
-  4 [E]: uc halted		[fuc-ctrl.txt]
+  4 [E]: uc halted		[fuc-proc.txt]
   5 [E]: ??? [related to fuc+0x0a4] [XXX]
   6-7 [E]: scratch [unused by hw, user-defined]
   8-9 [E by default]: engine-specific
@@ -116,7 +116,7 @@ Whenever a trapworthy event happens on the uc, a trap is delivered:
 
 Operation:
 	if ($flags.ta) { // double trap?
-		EXIT; // see fuc-ctrl.txt
+		EXIT; // see fuc-proc.txt
 	}
 	$flags.ta = 1;
 	if (fuc_version != 0) // on v0, there's only one possible trap reason anyway [8]
@@ -158,7 +158,7 @@ Forms:
 	[no operands]				opcode = f8
 Operation:
 	if ($flags.ta) { // double trap?
-		EXIT; // see fuc-ctrl.txt
+		EXIT; // see fuc-proc.txt
 	}
 	$flags.ta = 1;
 	$tstatus = $pc | arg << 20;

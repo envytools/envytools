@@ -15,6 +15,7 @@ Code TLB index bits: 8
 Code ports: 1
 Data ports: 4
 Version 4 unknown bits: 27, 28, 29, 31
+Core clock: ??? [XXX]
 
 [XXX: IO regs]
 

@@ -19,7 +19,7 @@ calculating quantization parameters, converting macroblock type to prediction
 modes, etc.
 
 On VP2, the vµc is located inside the PBSP engine [see vp2-pbsp.txt]. On VP3
-and VP4, it is located inside the PVP engine [see fuc-vp.txt].
+and VP4, it is located inside the PVP engine [see vp3-pvp.txt].
 
 The vµc unit is made of the following subunits:
 

@@ -35,13 +35,13 @@ idx|   name   |   cards   | description
 1f |          |           | in sync with other commands.
 ------------------------------------------------------------------------------
    |          |           | Main engine of the card: 2d, 3d, compute.
-1/0| PGRAPH   |    all    | [see nv01-graph.txt for NV01:NV50, nv50-graph.txt,
-   |          |           | for NV50:NVC0, nvc0-graph.txt for NVC0:...]
+1/0| PGRAPH   |    all    | [see nv01-graph.txt for NV01:NVC0, nvc0-graph.txt
+   |          |           | for NVC0:...]
 ------------------------------------------------------------------------------
 2/-| PMPEG    | NV31:NV98 | The PFIFO interface to VPE MPEG2 decoding engine.
-   |          |           | [see vpe.txt]
+   |          |           | [see mpeg-fifo.txt]
 ------------------------------------------------------------------------------
-3/-| PME      | NV40:NV84 | VPE motion estimation engine [see vpe.txt]
+3/-| PME      | NV40:NV84 | VPE motion estimation engine [see me.txt]
 ------------------------------------------------------------------------------
 4/-| PVP      | NV41:NV84 | VP1 microcoded video processor. [see vp1.txt]
 ------------------------------------------------------------------------------
@@ -62,6 +62,7 @@ idx|   name   |   cards   | description
    |          |           | into PVP. [see vp3-pcrypt.txt]
 ------------------------------------------------------------------------------
 5/-| PUNK1C1  | NVAF:NVC0 | fuc-microcoded engine of unknown purpose
+   |          |           | [see punk1c1.txt]
 ------------------------------------------------------------------------------
 3/ |          |           | fuc-microcoded engine, meant to copy stuff from
 4,5| PCOPY    | NVA3:.... | point A to point B. Comes in two copies on NVC0+,

@@ -37,24 +37,50 @@ Misc GPU units
 [     ] prma.txt - retarded mode MMIO access engine
 [     ] nv01-paudio.txt - NV01 audio engine
 [     ] nv01-prm.txt - NV01 retarded mode engine
+[     ] nvc0-pxbar.txt - NVC0 memory/GPC crossbar
+[*    ] pci.txt - PCI interface and configuration registers
+[     ] pcodec.txt - Azalia codec
+[     ] pfuse.txt - Configuration fuses
+[     ] pkfuse.txt - Key fuses
+[     ] pmedia.txt - Video capture and external MPEG decoder interface
 
 
 GPU external device I/O units
 [***  ] pstraps.txt - PSTRAPS unit, straps readout and override
 [     ] prom.txt - BIOS ROM access engine
+[     ] nv10-gpio.txt - NV10 GPIOs
 [     ] pnvio.txt - NV50 IO engine
-[     ] pnvio-gpio.txt - NV50 GPIOs
+[*    ] pnvio-gpio.txt - NV50 GPIOs
 [***  ] nv01-peeprom.txt - NV01 mystery EEPROM
 
 
 Memory access and structure
 [***  ] nv01-vram.txt - NV01 VRAM structure and usage
 [     ] nv01-pdma.txt - NV01 PDMA engine and DMA objects
+[     ] nv01-surface.txt - NV01:NV50 surface formats
 [     ] nv03-vram.txt - NV03 VRAM structure and usage
+[     ] nv03-dmaobj.txt - NV03 DMA objects
+[     ] nv03-pfb.txt - NV03 memory controller
+[     ] nv04-vram.txt - NV04 VRAM structure and usage
+[     ] nv04-dmaobj.txt - NV04 DMA objects
+[     ] nv10-pfb.txt - NV10 memory controller
 [*****] peephole.txt - NV30+ indirect memory access from host
+[     ] nv40-pfb.txt - NV40 memory controller
+[     ] nv44-pfb.txt - NV44 memory controller
+[     ] nv44-host-mem.txt - NV44 host memory interface
 [***  ] nv50-surface.txt - NV50 and NVC0 surface overview, formats, and internal storage
 [**   ] nv50-vm.txt - NV50 virtual memory
+[     ] nv50-host-mem.txt - NV50 host memory interface
+[     ] nv50-vram.txt - NV50 VRAM geometry and usage
+[     ] nv50-comp.txt - NV50 memory compression
+[     ] nv50-p2p.txt - NV50 P2P memory access
+[     ] nv50-remap.txt - NV50 BAR1 remapping
+[     ] nv50-pfb.txt - NV50 memory controller
 [     ] nvc0-vm.txt - NVC0 virtual memory
+[     ] nvc0-host-mem.txt - NVC0 host memory interface
+[     ] nvc0-pffb.txt - NVC0 front memory controller
+[     ] nvc0-pmfb.txt - NVC0 middle memory controller
+[     ] nvc0-pbfb.txt - NVC0 back memory controller
 
 
 FIFO, user perspective
@@ -66,47 +92,84 @@ FIFO, user perspective
 
 
 PFIFO, kernel perspective
-[**   ] nv01-pfifo.txt - NV01 PFIFO engine
+[**   ] nv01-pfifo.txt - NV01:NV04 PFIFO engine
+[     ] nv04-pfifo.txt - NV04:NV50 PFIFO engine
+[     ] nv50-pfifo.txt - NV50:NVC0 PFIFO engine
+[     ] nvc0-pfifo.txt - NVC0+ PFIFO engine
 
 
 PGRAPH, user perspective
-[     ] nv01-graph.txt - Overview of NV01:NV50 graph objects, functionality common between object classes
-[     ] nv50-graph.txt - Overview of NV50:NVC0 graph objects, functionality common between object classes
-[     ] nvc0-graph.txt - Overview of NVC0+ graph objects, functionality common between object classes
-[     ] nvc0-macro.txt - NVC0 graph macro ISA
-[     ] m2mf.txt - The memory copying objects
-[     ] nv01-2d.txt - NV01-style 2d engine objects
-[     ] nv50-2d.txt - NV50-style 2d engine objects
+[     ] nv01-graph.txt - Overview of NV01:NVC0 graph objects, functionality common between object classes
+[     ] nv01-2d.txt - Overview of NV01-style 2D pipeline
+[     ] nv01-ctxobj.txt - graph context objects
+[     ] nv01-solid.txt - solids rendering objects
+[     ] nv01-bllt.txt - BLIT object
+[     ] nv01-ifc.txt - image from cpu objects
+[     ] nv01-ifm.txt - image to/from memory objects
+[     ] nv01-tex.txt - NV01 textured quad objects
+[     ] nv03-3d.txt - NV03-style 3D objects
+[     ] nv03-gdi.txt - GDI object
+[     ] nv03-sifm.txt - scaled image from memory object
+[     ] nv03-m2mf.txt - The memory copying objects
+[     ] nv04-dvd.txt - YCbCr blending object
+[     ] nv10-3d.txt - NV10 Celsius 3D objects
+[     ] nv20-3d.txt - NV20 Kelvin 3D objects
+[     ] nv30-3d.txt - NV30 Rankine 3D objects
+[     ] nv40-3d.txt - NV40 Curie 3D objects
+[     ] nv50-2d.txt - NV50-style 2D engine objects
+[     ] nv50-3d.txt - NV50 Tesla 3D objects
+[     ] nv50-compute.txt - NV50 Compute object
 [     ] nv50-texture.txt - NV50 and NVC0 texturing
 [**   ] nv50-cuda-isa.txt - NV50 CUDA/shader ISA overview
+[     ] nvc0-graph.txt - Overview of NVC0+ graph objects, functionality common between object classes
+[     ] nvc0-macro.txt - NVC0 graph macro ISA
 [     ] nvc0-cuda-isa.txt - NVC0 CUDA/shader ISA overview
 
 
 PGRAPH, kernel perspective
 [     ] nv01-pgraph.txt - NV01 graphics engine
+[     ] nv03-pgraph.txt - NV03 graphics engine
+[     ] nv03-pdma.txt - NV03 PGRAPH's DMA controller
+[     ] nv04-pgraph.txt - NV04 graphics engine
+[     ] nv10-pgraph.txt - NV10 graphics engine
+[     ] nv20-pgraph.txt - NV20 graphics engine
+[     ] nv40-pgraph.txt - NV40 graphics engine
+[     ] nv50-pgraph.txt - NV50 graphics engine
+[     ] nv50-ctxctl.txt - NV50 PGRAPH context switching unit
+[     ] nvc0-pgraph.txt - NVC0 graphics engine
 [*    ] nvc0-ctxctl.txt - the NVC0 context switching microcoded engines
 
 
 fuc engines:
-[**   ] fuc.txt - Introductory documentation about fuc
-[*****] fuc-arith.txt - fuc arithmetic instructions
-[*****] fuc-branch.txt - fuc branching instructions
-[*****] fuc-data.txt - fuc data space
-[     ] fuc-ctrl.txt - fuc uc control
-[**** ] fuc-intr.txt - fuc interrupt and trap handling
-[**** ] fuc-io.txt - fuc IO space access and map
-[**** ] fuc-isa.txt - fuc ISA overview and opcode map
-[**** ] fuc-timer.txt - fuc timers and clocks
-[**** ] fuc-vm.txt - fuc code space and virtual memory
-[**** ] fuc-xfer.txt - fuc coda/data xfers to/from external memory
-[     ] fuc-crypt.txt - fuc crypt coprocessor
-[     ] fuc-perf.txt - fuc performance monitoring signals
-[     ] fuc-fifo.txt - fuc interaction with PFIFO
+[**   ] fuc.txt - Introductory documentation about fµc
+[*****] fuc-arith.txt - fµc arithmetic instructions
+[*****] fuc-branch.txt - fµc branching instructions
+[*****] fuc-data.txt - fµc data space
+[     ] fuc-proc.txt - fµc processor control
+[**** ] fuc-intr.txt - fµc interrupt and trap handling
+[**** ] fuc-io.txt - fµc IO space access and map
+[**** ] fuc-isa.txt - fµc ISA overview and opcode map
+[**** ] fuc-timer.txt - fµc timers and clocks
+[**** ] fuc-vm.txt - fµc code space and virtual memory
+[**** ] fuc-xfer.txt - fµc coda/data xfers to/from external memory
+[     ] fuc-crypt.txt - fµc crypt coprocessor
+[     ] fuc-perf.txt - fµc performance monitoring signals
+[     ] fuc-fifo.txt - fµc interaction with PFIFO
+[     ] fuc-memif.txt - fµc memory interface
 
+VPE video decoding and encoding:
+[     ] mpeg.txt - PMPEG commands and operation
+[     ] mpeg-fifo.txt - PMPEG PFIFO interface
+[     ] me.txt - PME methods and operation
+[     ] vpe.txt - the VPE engines overview and shared circuitry
+[     ] pmpeg.txt - the PMPEG engine
+[     ] pme.txt - the PMPEG engine
+[     ] vp1.txt - the VP1 PVP engine
 
 VP2/VP3/VP4/VP5 video decoding:
 [     ] vp2.txt - Overview of VP2 hardware
 [*    ] vp2-xtensa.txt - VP2 xtensa processors
+[     ] vp2-pvp.txt - Overview of VP2 PVP engine
 [     ] vp2-pbsp.txt - Overview of VP2 PBSP engine
 [**   ] vp2-bsp.txt - VP2 BSP parser engine	[XXX: extend to cover VP3/VP4/VP5]
 [**** ] vp2-mbring.txt - VP2 MBRING format	[XXX: merge with vp3-mbring.txt]
@@ -117,19 +180,22 @@ VP2/VP3/VP4/VP5 video decoding:
 [**   ] vuc-vreg.txt - VP2/VP3/VP4 vµc video registers
 [     ] vuc-vpring.txt - VP2 vµc output
 [     ] vuc-perf.txt - vµc performance monitoring signals
-[*    ] vp3-pbsp.txt - fuc-based PBSP engine
-[*    ] vp3-pvp.txt - fuc-based PVP engine
-[*    ] vp3-pppp.txt - fuc-based PPPP engine
+[*    ] vp3-pbsp.txt - fµc-based PBSP engine
+[*    ] vp3-pvp.txt - fµc-based PVP engine
+[*    ] vp3-pppp.txt - fµc-based PPPP engine
 
 
 Other FIFO engines:
-[*    ] vp3-pcrypt.txt - fuc-based PCRYPT engine
+[*    ] vp3-pcrypt.txt - fµc-based PCRYPT engine
+[     ] pcrypt.txt - NV84:NV98 and NVA0 PCRYPT engine
+[     ] crypt.txt - NV84 PCRYPT user interface
 [*    ] pcopy.txt - PCOPY copying engine
 [*    ] punk1c1.txt - PUNK1C1 engine
 [*    ] pvenc.txt - PVENC H.264 encoding engine
 
 
 Performance counters:
+[     ] pcounter.txt - PCOUNTER engine overview
 [     ] nv10-pcounter.txt - NV10 PCOUNTER engine and signals
 [**   ] nv40-pcounter.txt - NV40 PCOUNTER engine and signals
 [     ] nvc0-pcounter.txt - NVC0 PCOUNTER engine and signals
@@ -137,11 +203,24 @@ Performance counters:
 
 Power management:
 [*    ] pdaemon.txt - PDAEMON card monitoring engine
+[***  ] nv43-therm.txt - NV43:NV50 thermal monitoring
+[     ] ptherm.txt - NV50+ thermal monitoring
 
+Clock management:
+[     ] nv40-pclock.txt - NV40 clocks
+[     ] nv50-pclock.txt - NV50 clocks
+[     ] nva3-pclock.txt - NVA3 clocks
+[     ] nvc0-pclock.txt - NVC0 clocks
 
 Display subsystem:
 [     ] nv01-pfb.txt - NV01 native display engine
 [     ] nv01-pdac.txt - NV01 DAC and external devices control
+[     ] nvvga.txt - NV03:NV50 VGA-based display engine
+[     ] pcrtc.txt - NV03:NV50 PCRTC unit
+[     ] pramdac.txt - NV03:NV50 PRAMDAC unit
+[     ] pvideo.txt - NV03:NV50 video overlay
+[     ] ptv.txt - NV17:NV50 on-chip TV encoder
+[     ] pdisplay.txt - NV50+ unified display engine
 [*    ] pdisplay-daemon.txt - PDISPLAY's monitoring engine
 [*****] vga-mutex.txt - NV50 VGA mutexes
 [*****] vga-stack.txt - some VGA-related stack

@@ -1,10 +1,9 @@
 TOC
 
 0. Introduction
-1. fuc core clock
-2. Periodic timer
-3. PTIMER access
-4. Watchdog timer
+1. Periodic timer
+2. PTIMER access
+3. Watchdog timer
 
 
 = Introduction =
@@ -20,23 +19,6 @@ You can:
 
 Also note that the CTXCTLs have another watchdog timer on their own - see
 nvc0-pgraph-ctxctl.txt for more information.
-
-
-= fuc core clock =
-
-The periodic and watchdog timers are bound to the fuc engine's core clock. The
-source of that clock depends on the engine and card:
-
- - PBSP, PVP, PPPP: core/vdec clock [nvc0 clock #14]
- - PCRYPT: core clock [XXX: divider]
- - PUNK1C1: ??? [XXX]
- - PCOPYs, PGRAPH HUB CTXCTL: core/hub clock [nvc0 clock #9]
- - PDAEMON: daemon clock [nvc0 clock #12]
- - PGRAPH GPC CTXCTLs: GPC clock [nvc0 clock #0] [XXX: divider]
-[XXX: check sources on nva3, figure out dividers]
-
-For more information about the clocks see nv50-pclock.txt, nva3-pclock.txt,
-nvc0-pclock.txt
 
 
 = Periodic timer =
@@ -56,7 +38,7 @@ When the counter is enabled, PERIODIC_TIME decreases by 1 every clock cycle.
 When PERIODIC_TIME reaches 0, an interrupt is generated on line 0 and the
 counter is reset to PERIODIC_PERIOD.
 
-Operation (after each clock source tick):
+Operation (after each fµc core clock tick):
 	if (PERIODIC_ENABLE) {
 		if (PERIODIC_TIME == 0) {
 			PERIODIC_TIME = PERIODIC_PERIOD;
@@ -106,7 +88,7 @@ the periodic timer. The differences are:
  - it generates an interrupt on line 1 instead of 0.
  - it needs to be reset manually
 
-Operation (after each clock source tick):
+Operation (after each fµc core clock tick):
 	if (WATCHDOG_ENABLE) {
 		if (WATCHDOG_TIME == 0) {
 			intr_line[1] = 1;

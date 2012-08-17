@@ -1,0 +1,10 @@
+TOC
+
+0. Introduction
+[XXX: write me]
+
+NOTE: This file deals only with NVC0+ PFIFO. For other GPUs, read:
+
+ - NV01:NV04 - nv01-pfifo.txt
+ - NV04:NV50 - nv04-pfifo.txt
+ - NV50:NVC0 - nv50-pfifo.txt

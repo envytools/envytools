@@ -152,13 +152,12 @@ MMIO 0x000200: ENABLE
   default state when disabled.
 
 On NV01, the bits are:
-  0: PAUDIO
-  4: PDMA
+  0: PAUDIO [nv01-paudio.txt]
+  4: PDMA [nv01-pdma.txt]
   8: PFIFO [nv01-pfifo.txt]
-  12: PGRAPH
-  16: PRM
-  24: PFB
-[XXX: this is probably wrong...]
+  12: PGRAPH [nv01-pgraph.txt]
+  16: PRM [nv01-prm.txt]
+  24: PFB [nv01-pfb.txt]
 
 On NV03:NV04, the bits are:
   0: ??? [XXX]
@@ -175,11 +174,11 @@ On NV04:NV50, the bits are:
   1: VPE [vpe.txt] [NV17-], also controls PVP [vp1.txt] [NV41-]
   4: PMEDIA [pmedia.txt]
   8: PFIFO [nv04-pfifo.txt]
-  12: PGRAPH [nv04-pgraph.txt, nv10-pgraph.txt, nv20-pgraph.txt, nv30-pgraph.txt, nv40-pgraph.txt]
+  12: PGRAPH [nv04-pgraph.txt, nv10-pgraph.txt, nv30-pgraph.txt, nv40-pgraph.txt]
   13: PGRAPH CS??? apparently exists on some late NV4x... [nv40-pgraph.txt] [NV4?-]
   [XXX: figure out the CS thing, figure out the variants. Known not to exist on NV40, NV43, NV44, NV49]
   16: PTIMER [ptimer.txt]
-  20: PFB [nv03-pfb.txt, nv10-pfb.txt, nv40-pfb.txt]
+  20: PFB [nv03-pfb.txt, nv10-pfb.txt, nv40-pfb.txt, nv44-pfb.txt]
   24: PCRTC [nvvga.txt]
   25: PCRTC2 [nvvga.txt] [NV11-]
   26: PTV [ptv.txt] [NV17:NV20, NV25:NV50]
@@ -187,15 +186,15 @@ On NV04:NV50, the bits are:
 
 On NV50:NVC0, the bits are:
   0: ??? - alleged to be related to I2C
-  1: VPE [vpe.txt] and PVP [vp1.txt, vp2.txt] [NV50:NV98 and NVA0]
+  1: VPE [vpe.txt] and PVP [vp1.txt, vp2-pvp.txt] [NV50:NV98 and NVA0]
   1: PPPP [vp3-pppp.txt] [NV98 and NVAA-]
   4: PMEDIA [pmedia.txt]
   8: PFIFO [nv50-pfifo.txt]
   12: PGRAPH [nv50-pgraph.txt]
   13: PCOPY [pcopy.txt] [NVA3-]
-  14: PCRYPT [crypt.txt, vp3-pcrypt.txt] [NV84:NVA3]
+  14: PCRYPT [pcrypt.txt, vp3-pcrypt.txt] [NV84:NVA3]
   14: PUNK1C1 [NVAF]
-  15: PBSP [vp2.txt, vp3-pbsp.txt] [NV84-]
+  15: PBSP [vp2-pbsp.txt, vp3-pbsp.txt] [NV84-]
   16: PTIMER [ptimer.txt]
   17: PVP [vp3-pvp.txt] [NV98 and NVAA-]
   20: PFB [nv50-pfb.txt]
@@ -331,7 +330,7 @@ The input interrupts are, for NV01:
 12: PGRAPH
 16: PRM
 20: PTIMER [ptimer.txt]
-24: PFB
+24: PGRAPH's vblank interrupt [nv01-pgraph.txt]
 28: software
 [XXX: check]
 
@@ -343,7 +342,7 @@ For NV03:
 13: PDMA [nv03-pdma.txt]
 16: PRAMDAC.VIDEO [pramdac.txt]
 20: PTIMER [ptimer.txt]
-24: PGRAPH's vblank interrupt [nv03-graph.txt, nvvga.txt]
+24: PGRAPH's vblank interrupt [nv03-pgraph.txt, nvvga.txt]
 28: PBUS [pbus.txt]
 31: software
 
@@ -352,7 +351,7 @@ For NV04:NV50:
 0: VPE [vpe.txt] [NV17:NV20 and NV25:NV50]
 4: PMEDIA [pmedia.txt]
 8: PFIFO [nv04-pfifo.txt]
-12: PGRAPH [nv04-pgraph.txt, nv10-pgraph.txt, nv20-pgraph.txt, nv30-pgraph.txt, nv40-pgraph.txt]
+12: PGRAPH [nv04-pgraph.txt, nv10-pgraph.txt, nv30-pgraph.txt, nv40-pgraph.txt]
 16: PRAMDAC.VIDEO [pramdac.txt] [NV04:NV10] or PVIDEO [pvideo.txt] [NV10:NV50]
 17: PVP [vp1.txt] [NV41-] [XXX: check this]
 20: PTIMER [ptimer.txt]
@@ -371,11 +370,11 @@ For NV50:NVC0:
 11: ??? [NVA3?-]
 12: PGRAPH [nv50-pgraph.txt]
 13: ??? [NVA3?-]
-14: PCRYPT [crypt.txt, vp3-pcrypt.txt] [NV84:NVA3]
+14: PCRYPT [pcrypt.txt, vp3-pcrypt.txt] [NV84:NVA3]
 14: PUNK1C1 [NV84:NVA3]
-15: PBSP [vp2.txt, vp3-pbsp.txt] [NV84-]
+15: PBSP [vp2-pbsp.txt, vp3-pbsp.txt] [NV84-]
 16: ??? [NVA3?-]
-17: PVP [vp1.txt, vp2.txt, vp3-pvp.txt] [XXX: check this]
+17: PVP [vp1.txt, vp2-pvp.txt, vp3-pvp.txt] [XXX: check this]
 18: PDAEMON [pdaemon.txt] [NVA3-]
 19: PTHERM [ptherm.txt]
 20: PTIMER [ptimer.txt]

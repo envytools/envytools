@@ -14,7 +14,7 @@ TOC
 
 Data segment of the fuc is inside the microcontroller itself. Its size can
 be determined by looking at UC_CAPS register, bits 9-16 shifted left by 8
-[see fuc-ctrl.txt].
+[see fuc-proc.txt].
 
 The segment has byte-oriented addressing and can be accessed in units of 8,
 16, or 32 bits. Unaligned accesses are not supported and cause botched reads
@@ -161,7 +161,7 @@ Operation:
 
 On v3+, the data segment is accessible through normal IO space through
 index/data reg pairs. The number of available index/data pairs is accessible
-by UC_CAPS2 register [see fuc-ctrl.txt]. This number is equal to 4 on PDAEMON,
+by UC_CAPS2 register [see fuc-proc.txt]. This number is equal to 4 on PDAEMON,
 1 on other engines:
 
 MMIO 0x1c0 + i * 8 / I[0x07000 + i * 0x200]: DATA_INDEX

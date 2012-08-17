@@ -27,13 +27,16 @@ Code TLB index bits:
 	cv1: 7
 Code ports: 1
 Data ports: 1
+Core clock:
+	cv0: NVCLK
+	cv1: hub clock [nvc0 clock #9]
 
 The IO registers:
 
 600/18000:640/19000 MEMIF	memory interface	[fuc-memif.txt]
-640/19000:680/1a000 ???		???			[fuc-copy.txt]
-800/20000:880/22000 COPY	copy engine		[fuc-copy.txt]
-900/24000:980/26000 ???		???			[fuc-copy.txt]
+640/19000:680/1a000 ???		???			[pcopy.txt]
+800/20000:880/22000 COPY	copy engine		[pcopy.txt]
+900/24000:980/26000 ???		???			[pcopy.txt]
 
 Interrupts:
 	10: ???

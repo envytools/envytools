@@ -161,7 +161,7 @@ it in BAR0. It also introduced DMA objects, a RAMIN structure used to define
 a VRAM or host memory area that PGRAPH is allowed to use when executing
 commands on behalf of an application. These early DMA objects are limitted to
 linear VRAM and paged host memory objects, and have to be switched manually
-by host. See nv03-memory.txt for details.
+by host. See nv03-vram.txt for details.
 
 
 == NV04 family: NV04, NV05 ==
@@ -386,16 +386,16 @@ The chipsets are [vertex shaders : pixel shaders : ROPs]:
 NV40/NV45 [NV40/NV45/NV48]: 6:16:16, AGP
 NV41/NV42 [NV41/NV42]: 5:12:12
 NV43 [NV43]: 3:8:4
-NV44 [NV44]: 3:4:2
+NV44 [NV44]: 3:4:2, TURBOCACHE
 NV4A [NV44A]: 3:4:2, AGP
 NV47 [G70]: 8:24:16
-NV46 [G72]: 3:4:2
+NV46 [G72]: 3:4:2, TURBOCACHE
 NV49 [G71]: 8:24:16
 NV4B [G73]: 8:12:8
-NV4E [C51]: 1:2:1, IGP
-NV4C [C61]: 1:2:1, IGP
-NV67/NV68 [C67/C68]: 1:2:2, IGP
-NV63 [C73]: 1:2:2, IGP
+NV4E [C51]: 1:2:1, IGP, TURBOCACHE
+NV4C [C61]: 1:2:1, IGP, TURBOCACHE
+NV67/NV68 [C67/C68]: 1:2:2, IGP, TURBOCACHE
+NV63 [C73]: 1:2:2, IGP, TURBOCACHE
 
 It's not clear how NV40 is different from NV45, or NV41 from NV42,
 or NV67 from NV68 - they even share pciid ranges.
@@ -441,8 +441,7 @@ The pci ids:
 == NV50 family ==
 
 The card where they redesigned everything. The most significant change was the
-redesigned memory subsystem, complete with a paging MMU [see nv50-vm.txt,
-nv50-memory.txt].
+redesigned memory subsystem, complete with a paging MMU [see nv50-vm.txt].
 
 NV50:
  - a new VM subsystem, complete with redesigned DMA objects

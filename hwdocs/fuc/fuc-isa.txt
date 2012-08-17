@@ -2,7 +2,7 @@ Instruction / register types
 
 A - arithmetic, logic, and moving data around	[fuc-arith.txt]
 B - branching and flow control			[fuc-branch.txt]
-C - uc control					[fuc-ctrl.txt]
+C - uc control					[fuc-proc.txt]
 D - access to data space			[fuc-data.txt]
 I - access to IO space				[fuc-io.txt]
 S - secret stuff				[fuc-crypt.txt]
@@ -208,7 +208,7 @@ On NVA3+, code segment is paged with virtual -> physical translation and needs
 special handling. See fuc-vm.txt for details.
 
 Code execution is started by host via MMIO from arbitrary entry point, and is
-stopped either by host or by the microcode itself, see fuc-ctrl.txt
+stopped either by host or by the microcode itself, see fuc-proc.txt
 
 When an invalid opcode is hit, $pc is unmodified and a trap is generated. On
 NVA3+, $tstatus reason field is set to 8. Pre-NVA3 cards don't have $tstatus

@@ -13,8 +13,11 @@ TOC
 6.1. RAMFC
 6.2. RAMHT
 
-[note: this file deals only with NV01 and NV03 PFIFO, see other files for
-newer cards]
+NOTE: This file deals only with NV01:NV04 PFIFO. For other GPUs, read:
+
+ - NV04:NV50 - nv04-pfifo.txt
+ - NV50:NVC0 - nv50-pfifo.txt
+ - NVC0+ - nvc0-pfifo.txt
 
 
 = Introduction =
