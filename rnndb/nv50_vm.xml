@@ -45,6 +45,7 @@
 	<value value="2" name="PAGE_NOT_PRESENT"/>
 	<value value="3" name="PAGE_SUPERVISOR_ONLY"/>
 	<value value="4" name="PAGE_READ_ONLY"/>
+	<value value="5" name="NO_CHANNEL"/>
 	<value value="6" name="NULL_DMAOBJ"/>
 	<value value="7" name="WRONG_MEMTYPE"/>
 	<value value="0xb" name="VRAM_LIMIT"/>
