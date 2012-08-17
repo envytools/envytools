@@ -187,7 +187,11 @@
 		<bitfield low="12" high="14" name="UNK12"/>
 		<bitfield low="16" high="18" name="UNK16"/>
 		<bitfield pos="20" name="UNK20"/>
-		<bitfield low="24" high="25" name="UNK24"/> <!-- used for TEX*, IFC and friends -->
+		<bitfield low="24" high="25" name="VTX_POS_MODE"> <!-- XXX: also used for IFC and friends -->
+			<value value="0" name="NONE"/>
+			<value value="1" name="INT"/>
+			<value value="3" name="FRACT"/>
+		</bitfield>
 	</reg32>
 	<enum name="NV01_PGRAPH_CLIP_STATUS">
 		<value value="0" name="INSIDE"/>
@@ -265,6 +269,10 @@
 	</reg32>
 	<reg32 offset="0x6ac" name="TRAPPED_DATA"/>
 	<reg32 offset="0x6bc" name="STATUS">
+		<bitfield pos="0" name="BUSY"/>
+		<bitfield pos="4" name="XY_LOGIC"/>
+		<bitfield pos="16" name="DMA"/>
+		<bitfield pos="20" name="DMA_NOTIFY"/>
 		<!-- XXX -->
 	</reg32>
 	<reg32 offset="0x700" name="VTX_BETA" length="14"/>
