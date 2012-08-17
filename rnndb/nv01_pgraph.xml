@@ -94,7 +94,9 @@
 	<reg32 offset="0x0088" name="DEBUG_2">
 		<bitfield pos="28" name="VOLATILE_RESET_ENABLE"/>
 	</reg32>
-	<reg32 offset="0x0100" name="INTR">
+	<reg32 offset="0x08c" name="DEBUG_3"> <!-- only some revs? -->
+	</reg32>
+	<bitset name="nv01_pgraph_intr" inline="yes">
 		<bitfield pos="0" name="INVALID"/>
 		<bitfield pos="4" name="CONTEXT_SWITCH"/>
 		<bitfield pos="8" name="VBLANK"/>
@@ -103,30 +105,18 @@
 		<bitfield pos="20" name="CANVAS_SOFTWARE"/>
 		<bitfield pos="24" name="CLIP_SOFTWARE"/>
 		<bitfield pos="28" name="NOTIFY"/>
-	</reg32>
-	<reg32 offset="0x0104" name="INVALID">
-		<bitfield pos="0" name="METHOD"/>
-		<bitfield pos="4" name="VALUE"/>
-		<bitfield pos="12" name="DOUBLE_NOTIFY"/>
-		<bitfield pos="16" name="SUBCH_SWITCH_NOTIFY"/>
-	</reg32>
-	<reg32 offset="0x0140" name="INTR_EN">
-		<bitfield pos="0" name="RESERVED"/>
-		<bitfield pos="4" name="CONTEXT_SWITCH"/>
-		<bitfield pos="8" name="VBLANK"/>
-		<bitfield pos="12" name="UNK12"/>
-		<bitfield pos="16" name="MISSING_METHOD"/>
-		<bitfield pos="20" name="CANVAS_SOFTWARE"/>
-		<bitfield pos="24" name="CLIP_SOFTWARE"/>
-		<bitfield pos="28" name="NOTIFY"/>
-	</reg32>
-	<reg32 offset="0x0144" name="INVALID_EN">
+	</bitset>
+	<bitset name="nv01_pgraph_invalid" inline="yes">
 		<bitfield pos="0" name="INVALID_METHOD"/>
 		<bitfield pos="4" name="INVALID_VALUE"/>
 		<bitfield pos="8" name="INVALID_NOTIFY"/>
 		<bitfield pos="12" name="DOUBLE_NOTIFY"/>
 		<bitfield pos="16" name="CTXSW_NOTIFY"/>
-	</reg32>
+	</bitset>
+	<reg32 offset="0x0100" name="INTR" type="nv01_pgraph_intr"/>
+	<reg32 offset="0x0104" name="INVALID" type="nv01_pgraph_invalid"/>
+	<reg32 offset="0x0140" name="INTR_EN" type="nv01_pgraph_intr"/>
+	<reg32 offset="0x0144" name="INVALID_EN" type="nv01_pgraph_invalid"/>
 	<reg32 offset="0x0180" name="CTX_SWITCH">
 		<bitfield low="0" high="15" name="OPTIONS" type="NV01_GROBJ_OPTIONS"/>
 		<bitfield low="16" high="22" name="CHID"/>
