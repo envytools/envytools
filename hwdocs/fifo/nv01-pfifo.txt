@@ -32,10 +32,14 @@ otherwise affect PFIFO]:
 
  - WAIT_RETRY
  - INTR_EN
+ - RAMHT [on NV03 only]
+ - RAMFC [on NV03 only] - forced to 0x1c00 instead
+ - RAMRO [on NV03 only] - forced to 0x1e00 instead
  - CACHES
- - CACHE*.PUSH_CTRL
- - CACHE*.PULL_CTRL
-[XXX: check on NV03]
+ - CACHE*.PUSH_ACCESS
+ - CACHE*.PULL_CTRL bit 0
+ - CACHE1.DMA_CTRL
+ - CACHE1.PULL_STATE [on NV03 only]
 
 
 = The MMIO registers =
