@@ -68,8 +68,22 @@
 		<bitfield pos="0" name="VERTICAL">
 			<brief>1 during blank</brief>
 		</bitfield>
-		<bitfield low="4" high="6" name="RESOLUTION"/>
-		<bitfield low="8" high="9" name="PIXEL_DEPTH"/>
+		<bitfield low="4" high="6" name="CANVAS_STRIDE">
+			<value value="0" name="576"/>
+			<value value="1" name="640"/>
+			<value value="2" name="800"/>
+			<value value="3" name="1024"/>
+			<value value="4" name="1152"/>
+			<value value="5" name="1280"/>
+			<value value="6" name="1600"/>
+			<value value="7" name="1856"/>
+		</bitfield>
+		<bitfield low="8" high="9" name="BPP">
+			<value value="0" name="4"/> <!-- doesn't work with PGRAPH -->
+			<value value="1" name="8"/> <!-- indexed -->
+			<value value="2" name="16"/> <!-- actually 15 -->
+			<value value="3" name="32"/> <!-- actually 30 -->
+		</bitfield>
 		<bitfield pos="12" name="UNK12"/>
 		<bitfield low="16" high="18" name="UNK16"/>
 		<bitfield pos="20" name="SCANLINE"/>
