@@ -32,7 +32,7 @@ struct nva_card {
 	uint32_t boot0;
 	int chipset;
 	int card_type;
-	int is_nv03p;
+	int is_nv03t;
 	void *bar0;
 	size_t bar0len;
 	int hasbar1;

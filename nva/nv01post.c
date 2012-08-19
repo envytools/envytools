@@ -162,5 +162,62 @@ int main(int argc, char **argv) {
 			col = 0xff;
 		nva_wr8(cnum, 0x1000000 + i, col);
 	}
+
+	/* PGRAPH */
+	nva_wr32(cnum, 0x4006a4, 0x07000111);
+	nva_wr32(cnum, 0x400080, 0x11111111);
+	nva_wr32(cnum, 0x400084, 0x11111000);
+	nva_wr32(cnum, 0x400088, 0x11111111);
+	nva_wr32(cnum, 0x40008c, 0x11111111);
+	nva_wr32(cnum, 0x400100, 0xffffffff);
+	nva_wr32(cnum, 0x400104, 0xffffffff);
+	nva_wr32(cnum, 0x400140, 0xffffffff);
+	nva_wr32(cnum, 0x400144, 0xffffffff);
+	nva_wr32(cnum, 0x400180, 0x00000010);
+	nva_wr32(cnum, 0x400190, 0x10010000);
+	for (i = 0; i < 18; i++) {
+		nva_wr32(cnum, 0x400400 + i * 4, 0);
+		nva_wr32(cnum, 0x400480 + i * 4, 0);
+	}
+	nva_wr32(cnum, 0x400450, 0);
+	nva_wr32(cnum, 0x400454, 0);
+	nva_wr32(cnum, 0x400460, 0x10);
+	nva_wr32(cnum, 0x400464, 0x3f0);
+	nva_wr32(cnum, 0x400468, 0x10);
+	nva_wr32(cnum, 0x40046c, 0x2f0);
+	nva_wr32(cnum, 0x400600, 0);
+	nva_wr32(cnum, 0x400604, 0);
+	nva_wr32(cnum, 0x400608, 0);
+	nva_wr32(cnum, 0x40060c, 0);
+	nva_wr32(cnum, 0x400610, 0);
+	nva_wr32(cnum, 0x400614, 0);
+	nva_wr32(cnum, 0x400618, 0);
+	nva_wr32(cnum, 0x40061c, 0);
+	nva_wr32(cnum, 0x400620, 0);
+	nva_wr32(cnum, 0x400624, 0);
+	nva_wr32(cnum, 0x400628, 0);
+	nva_wr32(cnum, 0x40062c, 0);
+	nva_wr32(cnum, 0x400630, 0);
+	nva_wr32(cnum, 0x400634, 0); /* XXX */
+	nva_wr32(cnum, 0x400640, 0);
+	nva_wr32(cnum, 0x400644, 0);
+	nva_wr32(cnum, 0x400648, 0);
+	nva_wr32(cnum, 0x40064c, 0);
+	nva_wr32(cnum, 0x400650, 0);
+	nva_wr32(cnum, 0x400654, 0);
+	nva_wr32(cnum, 0x400658, 0);
+	nva_wr32(cnum, 0x40065c, 0);
+	nva_wr32(cnum, 0x400660, 0);
+	nva_wr32(cnum, 0x400680, 0);
+	nva_wr32(cnum, 0x400684, 0);
+	nva_wr32(cnum, 0x400688, 0);
+	nva_wr32(cnum, 0x40068c, 0x02ff03ff);
+	nva_wr32(cnum, 0x400690, 0);
+	nva_wr32(cnum, 0x400694, 0);
+	nva_wr32(cnum, 0x400698, 0);
+	nva_wr32(cnum, 0x40069c, 0);
+	nva_wr32(cnum, 0x4006a0, 0);
+	for (i = 0; i < 14; i++)
+		nva_wr32(cnum, 0x400700 + i * 4, 0);
 	return 0;
 }

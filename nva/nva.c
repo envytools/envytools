@@ -139,7 +139,7 @@ int nva_init() {
 			} else {
 				nva_cards[i].chipset = nva_cards[i].boot0 >> 16 & 0xf;
 				if ((nva_cards[i].boot0 & 0xff) >= 0x20)
-					nva_cards[i].is_nv03p = 1;
+					nva_cards[i].is_nv03t = 1;
 			}
 		}
 		if (dev->vendor_id == 0x104a && dev->device_id == 0x0009)
