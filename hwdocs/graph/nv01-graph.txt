@@ -210,7 +210,7 @@ NV10-style 3d objects:
 8297 [NV84:NVA0] NV84_3D - Tesla Direct3D 10 engine		[nv50-3d.txt]
 8397 [NVA0:NVA3] NVA0_3D - Tesla Direct3D 10 engine		[nv50-3d.txt]
 8597 [NVA3:NVAF] NVA3_3D - Tesla Direct3D 10.1 engine		[nv50-3d.txt]
-8697 [NVAF:NVC0] NV50_3D - Tesla Direct3D 10.1 engine		[nv50-3d.txt]
+8697 [NVAF:NVC0] NVAF_3D - Tesla Direct3D 10.1 engine		[nv50-3d.txt]
 
 And the compute objects:
 50c0 [NV50:NVC0] NV50_COMPUTE - CUDA 1.x engine		[nv50-compute.txt]
