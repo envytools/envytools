@@ -67,11 +67,11 @@
 		<bitfield low="0" high="7" name="SWAP"/>
 		<bitfield low="8" high="15" name="UNK8"/>
 	</reg32>
-	<reg32 offset="0x580" name="UNK580" length="8" variants="NV84-"/> <!-- RO, always 0 -->
+	<reg32 offset="0x580" name="UNK580" length="8" variants="NVA3-"/> <!-- RO, always 0 -->
 	<reg32 offset="0x600" name="CTR_CYCLES" length="8"/>
 	<reg32 offset="0x640" name="CTR_CYCLES_ALT" length="8"/> <!-- the fuck? -->
 	<reg32 offset="0x680" name="CTR_EVENT" length="8"/>
-	<reg32 offset="0x6a0" name="UNK6A0" length="8" variants="NV84-"/> <!-- ff -->
+	<reg32 offset="0x6a0" name="UNK6A0" length="8" variants="NV92-"/> <!-- ff -->
 	<reg32 offset="0x6c0" name="CTR_START" length="8"/>
 	<reg32 offset="0x6e0" name="CTR_UNK2" length="8" variants="NV84-"/>
 	<reg32 offset="0x700" name="CTR_PRE" length="8"/>
