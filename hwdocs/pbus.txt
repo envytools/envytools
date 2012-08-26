@@ -45,6 +45,7 @@ The registers in the PBUS area are:
 001800:001a00 PCI - PCI configuration space [NV01:NV50] [pci.txt]
 001900:001980 REMAP - BAR1 remapping circuitry [NV50:NVC0] [nv50-remap.txt]
 001980:001a00 P2P - NV50 P2P slave [NV50:NVC0] [nv50-p2p.txt]
+001a14 IBUS_TIMEOUT - controls timeout length for accessing MMIO via IBUS [NVA3:NVC0] [see below]
 [XXX: loads and loads of unknown registers not shown]
 
 
@@ -144,3 +145,19 @@ MMIO 0x001154+i*4, i < 4: INTR_USER0_SCRATCH[i] [NV50-]
 
 MMIO 0x001174+i*4, i < 4: INTR_USER1_SCRATCH[i] [NVC0-]
   32-bit scratch registers for USER1 interrupt.
+
+
+== NVA3 IBUS timeout ==
+
+[XXX: description, maybe move somewhere else]
+
+On NVA3:NVC0, the IBUS timeout is controlled by:
+
+MMIO 0x001a14: IBUS_TIMEOUT [NVA3:NVC0]
+  Specifies how many host cycles to wait for response on MMIO accesses
+  forwarded to the IBUS.
+  [XXX: verify that it's host cycles]
+
+Reads that time out return a value of 0. Note that using too long timeout
+value will result in PCIE master timeouts instead, with possibly quite bad
+consequences. An IBUS timeout will cause the MMIO_FAULT interrupt to be lit.

@@ -420,6 +420,8 @@
 				<bitfield low="16" high="31" name="OFFSET"/>
 			</reg32>
 		</array>
+
+		<reg32 offset="0xa14" name="IBUS_TIMEOUT" max="0x7fffff" variants="NVA3:NVC0"/>
 	</array>
 
 	<array offset="0x60000" name="PPEEPHOLE" stride="0x10000" length="1" variants="NV84-">
