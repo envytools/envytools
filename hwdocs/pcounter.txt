@@ -1,4 +1,193 @@
 TOC
 
 0. Introduction
+1. MMIO registers
+1.1. NV10
+1.2. NV40
+1.3. NVC0
+2. The PCOUNTER signals
+3. Input selection
+4. Counters
+5. Control registers
+6. Single event mode
+7. Quad event mode
+8. Memory write mode
+9. The flag
+
+= Introduction =
+
+PCOUNTER is the card units that contains performance monitoring counters.
+It is present on NV10+ GPUs.
+
+PCOUNTER is actually made of several identical hardware counter units, one
+for each so-called domain. Each PCOUNTER domain can potentially run on
+a different source clock, allowing one to monitor events in various clock
+domains. The PCOUNTER domains are mostly independent, but there's some
+limitted communication and shared circuitry among them.
+
+There are three major revisions of PCOUNTER hardware, and some minor
+subrevisions:
+
+ - NV10:NV40 major revision:
+  - NV10:NV20 - first version, one domain, only single-event mode available
+  - NV20:NV30 - added second domain for events associated with memory clock
+  - NV30:NV40 - removed separate clrflag/setflag input selection, changed
+    from 40-bit to 32-bit counters, added ??? [XXX]
+[XXX: verify ranges, etc.]
+ - NV40:NVC0 major revision:
+  - NV40:NV84 - added quad event mode [?], rearranged to make space for 8
+    domains
+  - NV84:NVA0 - added memory dump mode and swap input selection
+  - NVA0:NVC0 - ??? [XXX]
+[XXX: verify ranges, etc.]
+ - NVC0+ major revision:
+  - NVC0+ - split PCOUNTER into hub, per-gpc and per-partition domain sets,
+    ???
+[XXX: figure out what else]
+
+The inputs to PCOUNTER are various activity monitoring signals from all over
+the card. The PCOUNTER hardware selects a few of them, performs programmable
+logic operations on them, and aggregates it to a handful of actual counter
+inputs. Some of the inputs are special and control counting start/stop, while
+others are the events to be counted. PCOUNTER can be used in three modes:
+
+ - single event mode - a single event is being counted, with fine-grained
+   control of counting periods via pre-start/start/stop signals. Several
+   counting periods per run may be configured, and a threshold counter may
+   be used. The input signals used are:
+   - PRE - a programmable amount of pulses on this input must happen before
+     START is recognised
+   - START - a pulse on this input starts a counting period
+   - EVENT - the pulses on this input are counted
+   - STOP - a pulse on this input stops a counting period
+ - quad event mode - 4 events are being counted, with a simple "swap counter
+   sets" trigger to delimit counting periods
+   - PRE, START, EVENT, STOP - the pulses on these inputs are counted [in 4
+     separate counters]
+   - SWAP - a pulse on this input swaps counter sets, ie. copies the internal
+     counters to the MMIO registers and resets internal counters to 0.
+ - memory write mode - ??? [XXX]
+
+The PCOUNTER uses MMIO area 0x00a000:0x00b000 on NV10:NV40 and NV40:NVC0. On
+NVC0+, it uses 0x180000:0x1c0000.
+
+PCOUNTER is unaffected by all PMC.ENABLE bits and has no interrupt lines.
+
+
+= MMIO registers =
+
+The MMIO registers are similiar among PCOUNTER revisions, but their placement
+is very different.
+
+
+== NV10 ==
+
+The MMIO registers for NV10:NV40 are [i is domain index]:
+
+00a400+i*0x100 PRE_SRC[i] - PRE input selection
+00a404+i*0x100 PRE_OP[i] - PRE logic operation
+00a408+i*0x100 START_SRC[i] - START input selection
+00a40c+i*0x100 START_OP[i] - START logic operation
+00a410+i*0x100 EVENT_SRC[i] - EVENT input selection
+00a414+i*0x100 EVENT_OP[i] - EVENT logic operation
+00a418+i*0x100 STOP_SRC[i] - STOP input selection
+00a41c+i*0x100 STOP_OP[i] - STOP logic operation
+00a420+i*0x100 SETFLAG_SRC[i] - SETFLAG input selection [NV10:NV30]
+00a424+i*0x100 SETFLAG_OP[i] - SETFLAG logic operation
+00a428+i*0x100 CLRFLAG_SRC[i] - CLRFLAG input selection [NV10:NV30]
+00a42c+i*0x100 CLRFLAG_OP[i] - CLRFLAG logic operation
+00a430+i*0x100+j*4,j<4 STATUS[i][j] - input status
+00a600+i*0x100 CTR_CYCLES[i] - elapsed cycles counter
+00a604+i*0x100 CTR_CYCLES_HI[i] - elapsed cycles counter high bits [NV10:NV30]
+00a608+i*0x100 CTR_CYCLES_ALT[i] - CYCLES copy ??? [XXX]
+00a60c+i*0x100 CTR_CYCLES_ALT_HI[i] - same, high bits [NV10:NV30]
+00a610+i*0x100 CTR_EVENT[i] - EVENT counter
+00a614+i*0x100 CTR_EVENT_HI[i] - EVENT counter high bits [NV10:NV30]
+00a618+i*0x100 CTR_START[i] - START counter
+00a61c+i*0x100 CTR_START_HI[i] - CTR_START high bits [NV10:NV30]
+00a620+i*0x100 CTR_PRE[i] - PRE counter
+00a624+i*0x100 CTR_STOP[i] - STOP counter
+00a628+i*0x100 THRESHOLD[i] - EVENT counter threshold
+00a62c+i*0x100 THRESHOLD_HI[i] - THRESHOLD high bits  [NV10:NV30]
+00a73c CTRL - PCOUNTER control
+
+
+== NV40 ==
+
+The MMIO registers for NV40:NVC0 are [i is domain index]:
+
+00a400+i*4 PRE_SRC[i] - PRE input selection
+00a420+i*4 PRE_OP[i] - PRE logic operation
+00a440+i*4 START_SRC[i] - START input selection
+00a460+i*4 START_OP[i] - START logic operation
+00a480+i*4 EVENT_SRC[i] - EVENT input selection
+00a4a0+i*4 EVENT_OP[i] - EVENT logic operation
+00a4c0+i*4 STOP_SRC[i] - STOP input selection
+00a4e0+i*4 STOP_OP[i] - STOP logic operation
+00a500+i*4 SETFLAG_OP[i] - SETFLAG logic operation
+00a520+i*4 CLRFLAG_OP[i] - CLRFLAG logic operation
+00a540+i*4 SRC_STATUS[i] - selected inputs status
+00a560+i*4 SPEC_SRC[i] - SWAP and UNK input selection [NV84-]
+00a580+i*4 ??? [XXX]
+00a600+i*4 CTR_CYCLES[i] - elapsed cycles counter
+00a640+i*4 CTR_CYCLES_ALT[i] - CYCLES copy ??? [XXX]
+00a680+i*4 CTR_EVENT[i] - EVENT counter
+00a6a0+i*4 ??? [XXX]
+00a6c0+i*4 CTR_START[i] - START counter
+00a6e0+i*4 ??? [XXX]
+00a700+i*4 CTR_PRE[i] - PRE counter
+00a720+i*4 ??? [XXX]
+00a740+i*4 CTR_STOP[i] - STOP counter
+00a760+i*4 ??? [XXX]
+00a780+i*4 THRESHOLD[i] - EVENT counter threshold
+00a7a0 CHANNEL - VM channel for memory write mode [NV84-]
+00a7a4 DMAOBJ - DMA object for memory write mode [NV84-]
+00a7a8 ??? [XXX]
+00a7c0+i*4 CTRL - PCOUNTER control
+00a7e0+i*4 QUAD_ACK_TRIGGER - used to ack counter data in quad event mode
+00a800+i*0x20+j*4,j<8 STATUS[i][j] - input status
+
+
+== NVC0 ==
+
+[XXX: write me]
+
+
+= The PCOUNTER signals =
+
+[XXX: write me]
+
+
+= Input selection =
+
+[XXX: write me]
+
+
+= Counters =
+
+[XXX: write me]
+
+
+= Control registers =
+
+[XXX: write me]
+
+
+= Single event mode =
+
+[XXX: write me]
+
+
+= Quad event mode =
+
+[XXX: write me]
+
+
+= Memory write mode =
+
+[XXX: write me]
+
+
+= The flag =
+
 [XXX: write me]

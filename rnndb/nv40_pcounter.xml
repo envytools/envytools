@@ -9,43 +9,43 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <array name="PCOUNTER" offset="0xa000" stride="0x1000" length="1" variants="NV40:NVC0">
-	<reg32 offset="0x400" name="MS0_SRC" length="8">
+	<reg32 offset="0x400" name="PRE_SRC" length="8">
 		<bitfield low="0" high="7" name="0"/>
 		<bitfield low="8" high="15" name="1"/>
 		<bitfield low="16" high="23" name="2"/>
 		<bitfield low="24" high="31" name="3"/>
 	</reg32>
-	<reg32 offset="0x420" name="MS0_OP" length="8">
+	<reg32 offset="0x420" name="PRE_OP" length="8">
 		<bitfield low="0" high="15" name="FUNC"/>
 		<bitfield low="16" high="17" name="UNK16"/>
 	</reg32>
-	<reg32 offset="0x440" name="MS1_SRC" length="8">
+	<reg32 offset="0x440" name="START_SRC" length="8">
 		<bitfield low="0" high="7" name="0"/>
 		<bitfield low="8" high="15" name="1"/>
 		<bitfield low="16" high="23" name="2"/>
 		<bitfield low="24" high="31" name="3"/>
 	</reg32>
-	<reg32 offset="0x460" name="MS1_OP" length="8">
+	<reg32 offset="0x460" name="START_OP" length="8">
 		<bitfield low="0" high="15" name="FUNC"/>
 		<bitfield low="16" high="17" name="UNK16"/>
 	</reg32>
-	<reg32 offset="0x480" name="MS2_SRC" length="8">
+	<reg32 offset="0x480" name="EVENT_SRC" length="8">
 		<bitfield low="0" high="7" name="0"/>
 		<bitfield low="8" high="15" name="1"/>
 		<bitfield low="16" high="23" name="2"/>
 		<bitfield low="24" high="31" name="3"/>
 	</reg32>
-	<reg32 offset="0x4a0" name="MS2_OP" length="8">
+	<reg32 offset="0x4a0" name="EVENT_OP" length="8">
 		<bitfield low="0" high="15" name="FUNC"/>
 		<bitfield low="16" high="18" name="UNK16"/>
 	</reg32>
-	<reg32 offset="0x4c0" name="MS3_SRC" length="8">
+	<reg32 offset="0x4c0" name="STOP_SRC" length="8">
 		<bitfield low="0" high="7" name="0"/>
 		<bitfield low="8" high="15" name="1"/>
 		<bitfield low="16" high="23" name="2"/>
 		<bitfield low="24" high="31" name="3"/>
 	</reg32>
-	<reg32 offset="0x4e0" name="MS3_OP" length="8">
+	<reg32 offset="0x4e0" name="STOP_OP" length="8">
 		<bitfield low="0" high="15" name="FUNC"/>
 		<bitfield low="16" high="18" name="UNK16"/>
 	</reg32>
@@ -57,23 +57,28 @@
 		<bitfield low="0" high="15" name="FUNC"/>
 		<bitfield low="16" high="17" name="UNK16"/>
 	</reg32>
-	<reg32 offset="0x540" name="MSSRC_STATUS" length="8"/>
-	<reg32 offset="0x560" name="SPEC_SRC" variants="NV84-">
+	<reg32 offset="0x540" name="SRC_STATUS" length="8">
+		<bitfield low="0" high="3" name="PRE"/>
+		<bitfield low="4" high="7" name="START"/>
+		<bitfield low="8" high="11" name="EVENT"/>
+		<bitfield low="12" high="15" name="STOP"/>
+	</reg32>
+	<reg32 offset="0x560" name="SPEC_SRC" length="8" variants="NV84-">
 		<bitfield low="0" high="7" name="SWAP"/>
 		<bitfield low="8" high="15" name="UNK8"/>
 	</reg32>
 	<reg32 offset="0x580" name="UNK580" length="8" variants="NV84-"/> <!-- RO, always 0 -->
-	<reg32 offset="0x600" name="CTR_UNK0" length="8"/>
-	<reg32 offset="0x640" name="CTR_UNK1" length="8"/>
-	<reg32 offset="0x680" name="CTR_MS2" length="8"/>
+	<reg32 offset="0x600" name="CTR_CYCLES" length="8"/>
+	<reg32 offset="0x640" name="CTR_CYCLES_ALT" length="8"/> <!-- the fuck? -->
+	<reg32 offset="0x680" name="CTR_EVENT" length="8"/>
 	<reg32 offset="0x6a0" name="UNK6A0" length="8" variants="NV84-"/> <!-- ff -->
-	<reg32 offset="0x6c0" name="CTR_MS1" length="8"/>
+	<reg32 offset="0x6c0" name="CTR_START" length="8"/>
 	<reg32 offset="0x6e0" name="CTR_UNK2" length="8" variants="NV84-"/>
-	<reg32 offset="0x700" name="CTR_MS0" length="8"/>
+	<reg32 offset="0x700" name="CTR_PRE" length="8"/>
 	<reg32 offset="0x720" name="UNK720" length="8" variants="NV84-"/> <!-- fffffff0 -->
-	<reg32 offset="0x740" name="CTR_MS3" length="8"/>
+	<reg32 offset="0x740" name="CTR_STOP" length="8"/>
 	<reg32 offset="0x760" name="UNK760" length="8" variants="NV84-"/> <!-- fffffff0 -->
-	<reg32 offset="0x780" name="UNK780" length="8"/> <!-- ffffffff -->
+	<reg32 offset="0x780" name="THRESHOLD" length="8"/> <!-- ffffffff -->
 	<reg32 offset="0x7a0" name="CHANNEL" variants="NV84-"/>
 	<reg32 offset="0x7a4" name="DMAOBJ" variants="NV84-"/>
 	<reg32 offset="0x7a8" name="UNK7A8" variants="NV84-">
@@ -90,18 +95,28 @@
 		<!-- PCOPY missing for some reason -->
 	</reg32>
 	<reg32 offset="0x7c0" name="CTRL" length="8">
-		<bitfield low="0" high="1" name="UNK0"/>
+		<bitfield low="0" high="1" name="MODE">
+			<value value="0" name="SINGLE"/>
+			<value value="1" name="QUAD"/>
+			<value value="2" name="UNK2" variants="NV84-"/>
+		</bitfield>
 		<bitfield low="4" high="6" name="UNK4"/>
 		<bitfield pos="8" name="UNK8"/>
-		<bitfield pos="11" name="MS2_IMPORT_DISABLE"/>
+		<bitfield pos="11" name="EVENT_IMPORT_DISABLE"/>
 		<bitfield pos="13" name="FLAG_IMPORT_DISABLE"/>
 		<bitfield pos="16" name="UNK16"/>
 		<bitfield low="20" high="23" name="UNK20" variants="NV84-"/>
-		<bitfield pos="24" name="SWAP_OK_NEXT"/>
-		<bitfield pos="25" name="SWAP_OK_CUR"/>
+		<bitfield pos="24" name="QUAD_VALID"/>
+		<bitfield pos="25" name="QUAD_OVERFLOW"/>
+		<bitfield low="28" high="29" name="SINGLE_STATE">
+			<value value="0" name="INACTIVE"/>
+			<value value="1" name="WAIT_PRE"/>
+			<value value="2" name="WAIT_START"/>
+			<value value="3" name="COUNTING"/>
+		</bitfield>
 		<bitfield pos="30" name="UNK30" variants="NVA0-"/> <!-- ? -->
 	</reg32>
-	<reg32 offset="0x7e0" name="UNK7E0" length="8"/> <!-- RO, always 0 -->
+	<reg32 offset="0x7e0" name="QUAD_ACK_TRIGGER" length="8"/>
 	<stripe offset="0x0800" stride="0x20" length="8">
 		<reg32 offset="0" name="STATUS" length="8"/>
 	</stripe>

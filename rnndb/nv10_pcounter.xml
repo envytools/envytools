@@ -9,7 +9,85 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <array name="PCOUNTER" offset="0xa000" stride="0x1000" length="1" variants="NV10:NV40">
-
+	<stripe offset="0x400" stride="0x100" length="2">
+		<!-- note: second domain only actually present on NV20+. not that I care. -->
+		<reg32 offset="0x000" name="PRE_SRC">
+			<bitfield low="0" high="7" name="0"/>
+			<bitfield low="8" high="15" name="1"/>
+			<bitfield low="16" high="23" name="2"/>
+			<bitfield low="24" high="31" name="3"/>
+		</reg32>
+		<reg32 offset="0x004" name="PRE_OP">
+			<bitfield low="0" high="15" name="FUNC"/>
+			<bitfield low="16" high="17" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x008" name="START_SRC">
+			<bitfield low="0" high="7" name="0"/>
+			<bitfield low="8" high="15" name="1"/>
+			<bitfield low="16" high="23" name="2"/>
+			<bitfield low="24" high="31" name="3"/>
+		</reg32>
+		<reg32 offset="0x00c" name="START_OP">
+			<bitfield low="0" high="15" name="FUNC"/>
+			<bitfield low="16" high="17" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x010" name="EVENT_SRC">
+			<bitfield low="0" high="7" name="0"/>
+			<bitfield low="8" high="15" name="1"/>
+			<bitfield low="16" high="23" name="2"/>
+			<bitfield low="24" high="31" name="3"/>
+		</reg32>
+		<reg32 offset="0x014" name="EVENT_OP">
+			<bitfield low="0" high="15" name="FUNC"/>
+			<bitfield low="16" high="17" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x018" name="STOP_SRC">
+			<bitfield low="0" high="7" name="0"/>
+			<bitfield low="8" high="15" name="1"/>
+			<bitfield low="16" high="23" name="2"/>
+			<bitfield low="24" high="31" name="3"/>
+		</reg32>
+		<reg32 offset="0x01c" name="STOP_OP">
+			<bitfield low="0" high="15" name="FUNC"/>
+			<bitfield low="16" high="17" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x020" name="SETFLAG_SRC">
+			<bitfield low="0" high="7" name="0"/>
+			<bitfield low="8" high="15" name="1"/>
+			<bitfield low="16" high="23" name="2"/>
+			<bitfield low="24" high="31" name="3"/>
+		</reg32>
+		<reg32 offset="0x024" name="SETFLAG_OP">
+			<bitfield low="0" high="15" name="FUNC"/>
+			<bitfield low="16" high="17" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x028" name="CLRFLAG_SRC">
+			<bitfield low="0" high="7" name="0"/>
+			<bitfield low="8" high="15" name="1"/>
+			<bitfield low="16" high="23" name="2"/>
+			<bitfield low="24" high="31" name="3"/>
+		</reg32>
+		<reg32 offset="0x02c" name="CLRFLAG_OP">
+			<bitfield low="0" high="15" name="FUNC"/>
+			<bitfield low="16" high="17" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x030" name="STATUS" length="4"/>
+		<reg32 offset="0x200" name="CTR_CYCLES"/>
+		<reg32 offset="0x204" name="CTR_CYCLES_HI"/>
+		<reg32 offset="0x208" name="CTR_CYCLES_ALT"/>
+		<reg32 offset="0x20c" name="CTR_CYCLES_ALT_HI"/>
+		<reg32 offset="0x210" name="CTR_EVENT"/>
+		<reg32 offset="0x214" name="CTR_EVENT_HI"/>
+		<reg32 offset="0x218" name="CTR_START"/>
+		<reg32 offset="0x21c" name="CTR_START_HI"/>
+		<reg32 offset="0x220" name="CTR_PRE"/>
+		<reg32 offset="0x224" name="CTR_STOP"/>
+		<reg32 offset="0x228" name="THRESHOLD"/>
+		<reg32 offset="0x22c" name="THRESHOLD_HI"/>
+	</stripe>
+	<reg32 offset="0x73c" name="CTRL">
+		<!-- XXX -->
+	</reg32>
 </array>
 
 </domain>
