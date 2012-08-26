@@ -114,7 +114,7 @@
 			<value value="2" name="WAIT_START"/>
 			<value value="3" name="COUNTING"/>
 		</bitfield>
-		<bitfield pos="30" name="UNK30" variants="NVA0-"/> <!-- ? -->
+		<bitfield pos="30" name="UNK30" variants="NV92-"/>
 	</reg32>
 	<reg32 offset="0x7e0" name="QUAD_ACK_TRIGGER" length="8"/>
 	<stripe offset="0x0800" stride="0x20" length="8">

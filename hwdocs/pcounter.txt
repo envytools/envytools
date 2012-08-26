@@ -37,9 +37,9 @@ subrevisions:
  - NV40:NVC0 major revision:
   - NV40:NV84 - added quad event mode [?], rearranged to make space for 8
     domains
-  - NV84:NVA0 - added memory dump mode and swap input selection
-  - NVA0:NVC0 - ??? [XXX]
-[XXX: verify ranges, etc.]
+  - NV84:NV92 - added memory dump mode and swap input selection
+  - NV92:NVA3 - ??? [XXX]
+  - NVA3:NVC0 - ??? [XXX]
  - NVC0+ major revision:
   - NVC0+ - split PCOUNTER into hub, per-gpc and per-partition domain sets,
     ???
