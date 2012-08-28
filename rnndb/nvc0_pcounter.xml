@@ -66,6 +66,7 @@
 		</reg32>
 		<reg32 offset="0x6c" name="SWAP_SRC"/>
 		<reg32 offset="0x9c" name="CTRL">
+			<bitfield pos="7" name="IMPORT_EVENT_DISABLE"/>
 		</reg32>
 		<reg32 offset="0xa4" name="CTR_MS2"/>
 		<reg32 offset="0xa8" name="CTR_MS0"/>
