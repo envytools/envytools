@@ -71,7 +71,7 @@
 			<bitfield low="0" high="15" name="FUNC"/>
 			<bitfield low="16" high="17" name="UNK16"/>
 		</reg32>
-		<reg32 offset="0x030" name="STATUS" length="4"/>
+		<reg32 offset="0x030" name="STATUS_0" length="4"/>
 		<reg32 offset="0x200" name="CTR_CYCLES"/>
 		<reg32 offset="0x204" name="CTR_CYCLES_HI" variants="NV10:NV30"/>
 		<reg32 offset="0x208" name="CTR_CYCLES_ALT"/>
@@ -84,6 +84,7 @@
 		<reg32 offset="0x224" name="CTR_STOP"/>
 		<reg32 offset="0x228" name="THRESHOLD"/>
 		<reg32 offset="0x22c" name="THRESHOLD_HI" variants="NV10:NV30"/>
+		<reg32 offset="0x230" name="STATUS_1" length="4"/>
 	</stripe>
 	<reg32 offset="0x738" name="QUAD_ACK_TRIGGER" variants="NV30-">
 		<bitfield pos="0" name="DOM0"/>
@@ -105,8 +106,8 @@
 			<value value="2" name="WAIT_START"/>
 			<value value="3" name="COUNTING"/>
 		</bitfield>
-		<bitfield pos="8" name="UNK8" variants="NV17-"/> <!-- XXX variants -->
-		<bitfield pos="9" name="UNK9" variants="NV20-"/> <!-- XXX variants -->
+		<bitfield pos="8" name="UNK8" variants="NV15-"/>
+		<bitfield pos="9" name="UNK9" variants="NV20-"/>
 		<bitfield pos="16" name="DOM0_MODE" variants="NV30-">
 			<value value="0" name="SINGLE"/>
 			<value value="1" name="QUAD"/>
