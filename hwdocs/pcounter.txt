@@ -32,11 +32,10 @@ subrevisions:
   - NV10:NV20 - first version, one domain, only single-event mode available
   - NV20:NV30 - added second domain for events associated with memory clock
   - NV30:NV40 - removed separate clrflag/setflag input selection, changed
-    from 40-bit to 32-bit counters, added ??? [XXX]
+    from 40-bit to 32-bit counters, added quad event mode
 [XXX: verify ranges, etc.]
  - NV40:NVC0 major revision:
-  - NV40:NV84 - added quad event mode [?], rearranged to make space for 8
-    domains
+  - NV40:NV84 - rearranged to make space for 8 domains, added ??? [XXX]
   - NV84:NV92 - added memory dump mode and swap input selection
   - NV92:NVA3 - ??? [XXX]
   - NVA3:NVC0 - ??? [XXX]
@@ -60,13 +59,13 @@ others are the events to be counted. PCOUNTER can be used in three modes:
    - START - a pulse on this input starts a counting period
    - EVENT - the pulses on this input are counted
    - STOP - a pulse on this input stops a counting period
- - quad event mode - 4 events are being counted, with a simple "swap counter
-   sets" trigger to delimit counting periods
+ - quad event mode [NV30-] - 4 events are being counted, with a simple "swap
+   counter sets" trigger to delimit counting periods
    - PRE, START, EVENT, STOP - the pulses on these inputs are counted [in 4
      separate counters]
    - SWAP - a pulse on this input swaps counter sets, ie. copies the internal
      counters to the MMIO registers and resets internal counters to 0.
- - memory write mode - ??? [XXX]
+ - memory write mode [NV84-] - ??? [XXX]
 
 The PCOUNTER uses MMIO area 0x00a000:0x00b000 on NV10:NV40 and NV40:NVC0. On
 NVC0+, it uses 0x180000:0x1c0000.
@@ -108,7 +107,8 @@ The MMIO registers for NV10:NV40 are [i is domain index]:
 00a620+i*0x100 CTR_PRE[i] - PRE counter
 00a624+i*0x100 CTR_STOP[i] - STOP counter
 00a628+i*0x100 THRESHOLD[i] - EVENT counter threshold
-00a62c+i*0x100 THRESHOLD_HI[i] - THRESHOLD high bits  [NV10:NV30]
+00a62c+i*0x100 THRESHOLD_HI[i] - THRESHOLD high bits [NV10:NV30]
+00a738 QUAD_ACK_TRIGGER - used to ack counter data in quad event mode [NV30:NV40]
 00a73c CTRL - PCOUNTER control
 
 
