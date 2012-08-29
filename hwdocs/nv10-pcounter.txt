@@ -1,14 +1,3 @@
-=== NV10:NV20 trailer signals ===
-
-0x1f: PCOUNTER_DOM0_FLAG
-
-=== NV20:NV40 trailer signals ===
-
-0x1d: PGRAPH.PM_TRIGGER
-0x1e: PCOUNTER_DOM1_FLAG
-0x1f: PCOUNTER_DOM0_FLAG
-
-
 === NV10 signals ===
 
 0x70: PGRAPH.PM_TRIGGER

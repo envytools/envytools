@@ -1,7 +1,4 @@
-PCOUNTER allows measurement of events of a certain type happening in various areas of the CPU. On NV40+ it's controlled via the PCOUNTER MMIO area (nv40_pcounter.xml).
-
-
-PCOUNTER has several separate "counter sets" on different families, bound to appropriate clocks:
+== PCOUNTER domains ==
 
 NV40 IGP:
 0: host clock
@@ -22,8 +19,8 @@ NV40 generation cards without turbocache and NV50:NV84:
 3: shader clock
 4: memory clock
 
-NV84+ IGP have same sets as NV40 cards, except of the memory clock set.
-They define the following additional sets
+NV84+ IGP have same domains as NV40 cards, except of the memory clock domain.
+They define the following additional domains
 4: misc on core clock
 5: video decoding
 6: VM and other memory interface stuff on core clock
@@ -32,73 +29,6 @@ Other NV84+ define the following on top of NV40:
 5: misc on core clock
 6: video decoding
 7: VM and other memory interface stuff on core clock
-
-
-= NV40:NVC0 =
-Counter sets are independent units exposing different signals. Some example signals are "is PGRAPH idle", "did I execute an instruction during this cycle", "did I get a command from PFIFO during this cycle". Signals within a set are specified by 8-bit ids, and same id may have a different meaning between sets. In each set, up to 4 signals can be measured at the same time.
-
-There are three kinds of quantities that can be measured, depending on the signal: "pulse" mode allows to count number of events, "continuous" mode measures clock cycles (of the specific set's clock) since the event, and finally, it's possible to count total clock cycles (set's clock) since signal was registered (independently from event/cycles count). Some signals allow only "continuous" mode, some allow only "pulse" mode and some allow the user to choose one. Counters are updated only on "reset", therefore it's not possible to read meaningful values while counter is running.
-
-Some signals can be triggered manually, through the means of microcode. In this case, either "pulse" or "continuous" can be chosen. fµc is known to have 6 signals [slots] per engine that can be triggered this way.
-
-* To choose between "continuous" and "pulse" on signals that support it:
-    - fµc: use PM_MODE register
-    - vp2: use either the PULSE command or the CLEAR/SET commands
-
-* counter reset can be triggered by an arbitrary signal through the SPEC_SRC reg
-
-Internally, event counter is upped every time a relevant bit is set while the event occurs. In "pulse" mode, the bit is cleared immediately, while in "continuous" mode it's not. This bit can be manually manipulated.
-The "reset" operation swaps the registers where the actual counting is being done with the registers accessible to user. There are some ways to do the actual counting in the user-accessible register though, controllable by CTRL register.
-
-Each set has corresponding registers in the MMIO area. Registers of the same purpose from different sets are aligned next to each other (e.g. MS0_SRC has base address of PCOUNTER + 0x400, so MS0_SRC for set 1 can be found at PCOUNTER + 0x404).
-
-- MSx_OP: selects signal mode or logical function of a macrosignal
-- CLRFLAG_OP and SETFLAG_OP: these are like MSx_OP, and deal with setting/clearing the FLAG, which is a single per-signal bit, which is itself visible as a signal. If SETFLAG_OP evaluates to 1 on a cycle, FLAG is set; if CLRFLAG_OP evaluates to 1, it's cleared; otherwise it's untouched
-
-Signal slot 0 has a special property: on nv84+ cards a write to MS0_OP causes counter reset.
-
-
-To register a signal in slot S in set X:
-1. Set CTRL[X] to 1. (value known to work, not figured out completely yet)
-2. Write signal id to MS{S}_SRC[X].
-3. Choose signal mode by writing to MS{S}_OP[X].
-4. Reset signal counter (not needed if counter reset in previous step).
-
-To read counter values:
-1. Reset signal counter.
-2. Read CTR_MS{S}[X] for event count.
-3. Read [unnamed][X] to get instructions (unnamed is PCOUNTER+0x600 for S == 0).
-
-
-== Macrosignals ==
-In addition to plain signals, there exists a macrosignal mechanism. It allows to combine input from up to 4 signals via an arbitrary logical function and treat it as a regular signal. Up to 4 macrosignal slots can be used.
-
-MSx_SRC sets the 4 signal sources for the logic function for a given macrosignal
-MSx_OP sets the logic function
-
-bitidx = signals[MSx_SRC[0]] | signals[MSx_SRC[1]] << 1 |signals[MSx_SRC[2]] << 2 | signals[MSx_SRC[3]] << 3
-macrosignal = MSx_OP >> bitidx & 1
-
-=== NV40:NVC0 trailer signals ===
-
-0x0e: PGRAPH.WRCACHE_FLUSH
-0x0f: PGRAPH.PM_TRIGGER
-0x10: PCOUNTER_S7_EVENT
-0x11: PCOUNTER_S6_EVENT
-0x12: PCOUNTER_S5_EVENT
-0x13: PCOUNTER_S4_EVENT
-0x14: PCOUNTER_S3_EVENT
-0x15: PCOUNTER_S2_EVENT
-0x16: PCOUNTER_S1_EVENT
-0x17: PCOUNTER_S0_EVENT
-0x18: PCOUNTER_S7_FLAG
-0x19: PCOUNTER_S6_FLAG
-0x1a: PCOUNTER_S5_FLAG
-0x1b: PCOUNTER_S4_FLAG
-0x1c: PCOUNTER_S3_FLAG
-0x1d: PCOUNTER_S2_FLAG
-0x1e: PCOUNTER_S1_FLAG
-0x1f: PCOUNTER_S0_FLAG
 
 
 === NV50 signals ===
