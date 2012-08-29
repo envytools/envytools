@@ -133,7 +133,7 @@ The MMIO registers for NV40:NVC0 are [i is domain index]:
 00a500+i*4 SETFLAG_OP[i] - SETFLAG logic operation
 00a520+i*4 CLRFLAG_OP[i] - CLRFLAG logic operation
 00a540+i*4 SRC_STATUS[i] - selected inputs status
-00a560+i*4 SPEC_SRC[i] - SWAP and UNK input selection [NV84-]
+00a560+i*4 SPEC_SRC[i] - SWAP and UNK8 input selection [NV84-]
 00a580+i*4 ??? [XXX]
 00a600+i*4 CTR_CYCLES[i] - elapsed cycles counter
 00a640+i*4 CTR_CYCLES_ALT[i] - CYCLES copy ??? [XXX]
@@ -271,7 +271,113 @@ base+0x3f: PCOUNTER.DOM[0].FLAG - the FLAG from domain 0
 
 = Input selection =
 
-[XXX: write me]
+Each domain has up to 256 signals, but only a handful of inputs are used for
+the counting process. They are:
+
+ - PRE, START, EVENT, STOP: created from 4 individually selected signals
+   through an arbitrary 4-input logic operation, used by the counting process
+ - CLRFLAG, SETFLAG: likewise created through an arbitrary 4-input logic
+   operation, but on NV30+ the logic operation input signal selections are
+   shared with PRE/START/EVENT/STOP inputs [NV10:NV30 have separate selections
+   like the other inputs]. Used to control the FLAG.
+ - SWAP [NV30-]: hardwired to PGRAPH.PM_TRIGGER on NV30:NV84, can be assigned
+   to an arbitrary signal [without logic operation] on NV84+. Used by the quad
+   event mode.
+ - UNK8 [NV84:NVC0]: can be assigned to an arbitrary signal, also without logic
+   operation. Purpose unknown [XXX]
+
+The registers used to select the signals going into the logic operations
+are:
+
+MMIO 0x00a400+i*0x100: PRE_SRC[i] [NV10:NV40]
+MMIO 0x00a400+i*4: PRE_SRC[i] [NV40:NVC0]
+MMIO dombase+0x040: PRE_SRC [NVC0-]
+  Selects the 4 signals used as inputs to PRE's logic operation.
+  bits 0-7: signal 0
+  bits 8-15: signal 1
+  bits 16-23: signal 2
+  bits 24-31: signal 3
+  On NV30+, these signals are also used as inputs to CLRFLAG and SETFLAG logic
+  operations.
+
+MMIO 0x00a408+i*0x100: START_SRC[i] [NV10:NV40]
+MMIO 0x00a440+i*4: START_SRC[i] [NV40:NVC0]
+MMIO dombase+0x048: START_SRC [NVC0-]
+  Like PRE_SRC, but for START. On NV30+, these signals are also used as inputs
+  to CLRFLAG and SETFLAG logic operations.
+
+MMIO 0x00a410+i*0x100: EVENT_SRC[i] [NV10:NV40]
+MMIO 0x00a480+i*4: EVENT_SRC[i] [NV40:NVC0]
+MMIO dombase+0x050: EVENT_SRC [NVC0-]
+  Like PRE_SRC, but for EVENT.
+
+MMIO 0x00a418+i*0x100: STOP_SRC[i] [NV10:NV40]
+MMIO 0x00a4c0+i*4: STOP_SRC[i] [NV40:NVC0]
+MMIO dombase+0x058: STOP_SRC [NVC0-]
+  Like PRE_SRC, but for STOP.
+
+MMIO 0x00a420+i*0x100: SETFLAG_SRC[i] [NV10:NV30]
+  Like PRE_SRC, but for SETFLAG.
+
+MMIO 0x00a428+i*0x100: CLRFLAG_SRC[i] [NV10:NV30]
+  Like PRE_SRC, but for CLRFLAG.
+
+For convenience, the status of all 16 source signals can be checked by reading
+the SRC_STATUS register on NV40+:
+
+MMIO 0x00a540+i*4: SRC_STATUS[i] [NV40:NVC0]
+MMIO dombase+0x068: SRC_STATUS [NVC0-]
+  bits 0-3: current state of PRE_SRC signals 0-3
+  bits 4-7: current state of START_SRC signals 0-3
+  bits 8-11: current state of EVENT_SRC signals 0-3
+  bits 12-15: current state of STOP_SRC signals 0-3
+
+The registers selecting the actual logic operation are:
+
+MMIO 0x00a400+i*0x100: PRE_OP[i] [NV10:NV40]
+MMIO 0x00a400+i*4: PRE_OP[i] [NV40:NVC0]
+MMIO dombase+0x040: PRE_OP [NVC0-]
+  bits 0-15: the logic operation to perform on the signals selected by PRE_SRC
+  bits 16-20: ??? [XXX]
+[XXX: document PRE_OP special behavior]
+
+MMIO 0x00a408+i*0x100: START_OP[i] [NV10:NV40]
+MMIO 0x00a440+i*4: START_OP[i] [NV40:NVC0]
+MMIO dombase+0x048: START_OP [NVC0-]
+  Like PRE_OP, but for START.
+
+MMIO 0x00a410+i*0x100: EVENT_OP[i] [NV10:NV40]
+MMIO 0x00a480+i*4: EVENT_OP[i] [NV40:NVC0]
+MMIO dombase+0x050: EVENT_OP [NVC0-]
+  Like PRE_OP, but for EVENT.
+
+MMIO 0x00a418+i*0x100: STOP_OP[i] [NV10:NV40]
+MMIO 0x00a4c0+i*4: STOP_OP[i] [NV40:NVC0]
+MMIO dombase+0x058: STOP_OP [NVC0-]
+  Like PRE_OP, but for STOP.
+
+MMIO 0x00a424+i*0x100: SETFLAG_OP[i] [NV10:NV40]
+MMIO 0x00a500+i*4: SETFLAG_OP[i] [NV40:NVC0]
+MMIO dombase+0x060: SETFLAG_OP [NVC0-]
+  Like PRE_OP, but for SETFLAG. On NV30+ the 4 inputs to the logic operation
+  are: START_SRC[2], START_SRC[3], PRE_SRC[0], PRE_SRC[1]
+
+MMIO 0x00a42c+i*0x100: CLRFLAG_OP[i] [NV10:NV40]
+MMIO 0x00a520+i*4: CLRFLAG_OP[i] [NV40:NVC0]
+MMIO dombase+0x064: CLRFLAG_OP [NVC0-]
+  Like PRE_OP, but for CLRFLAG. On NV30+ the 4 inputs to the logic operation
+  are: PRE_SRC[2], PRE_SRC[3], START_SRC[0], START_SRC[1]
+
+The register used to select the SWAP and UNK8 inputs on NV84:NVC0 cards is:
+
+MMIO 0x00a560+i*4: SPEC_SRC[i] [NV84:NVC0]
+  bits 0-7: the SWAP signal
+  bits 8-15: the UNK8 signal
+
+And on NVC0+:
+
+MMIO dombase+0x06c: SWAP_SRC [NVC0-]
+  bits 0-7: the SWAP signal
 
 
 = Counters =
@@ -301,4 +407,19 @@ base+0x3f: PCOUNTER.DOM[0].FLAG - the FLAG from domain 0
 
 = The flag =
 
-[XXX: write me]
+The FLAG is a single per-domain bit that can be set and cleared via the
+SETFLAG and CLRFLAG inputs. On every clock cycle:
+
+ - if CLRFLAG is 1, the FLAG is set to 0
+ - if SETFLAG is 1 and CLRFLAG is 0, the FLAG is set to 1
+ - if both CLRFLAG and SETFLAG are 0, the FLAG is unchanged
+
+[XXX: interactions of the flag with single event mode]
+
+The current value of the FLAG is available as a common trailer signal to all
+domains in the same domain set, allowing complex operations to be performed.
+Note however that the effect of CLRFLAG/SETFLAG on the FLAG signal is delayed
+by 2 clock cycles - if the SETFLAG input becomes 1 on cycle X, the FLAG signal
+will become 1 on cycle X+2.
+
+[XXX: cross-domain flag import stuff]
