@@ -10,7 +10,7 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <array name="PCOUNTER" offset="0x180000" stride="0x40000" length="1" variants="NVC0-">
-	<group name="pcounter_unk1">
+	<group name="pcounter_dom">
 		<reg32 offset="0" name="STATUS" length="8"/>
 		<reg32 offset="0x40" name="MS0_SRC">
 			<bitfield low="0" high="7" name="0"/>
@@ -81,38 +81,40 @@
 		</reg32>
 	</group>
 
-	<group name="pcounter_unk2">
+	<group name="pcounter_dset">
 
 	</group>
 
-	<array name="GPC_U1" offset="0" stride="0x1000" length="32">
-		<use-group name="pcounter_unk1"/>
-	</array>
-
-	<array name="ROPC_U1" offset="0x20000" stride="0x1000" length="16">
-		<stripe stride="0x200" length="2">
-			<use-group name="pcounter_unk1"/>
+	<array name="GPC_DOM" offset="0" stride="0x1000" length="32">
+		<stripe stride="0x200" length="8">
+			<use-group name="pcounter_dom"/>
 		</stripe>
 	</array>
 
-	<array name="MAIN_U1" offset="0x30000" stride="0x200" length="8">
-		<use-group name="pcounter_unk1"/>
+	<array name="PART_DOM" offset="0x20000" stride="0x1000" length="16">
+		<stripe stride="0x200" length="8">
+			<use-group name="pcounter_dom"/>
+		</stripe>
+	</array>
+
+	<array name="HUB_DOM" offset="0x30000" stride="0x200" length="8">
+		<use-group name="pcounter_dom"/>
 	</array>
 
 	<array name="MAIN" offset="0x34000" stride="0x4000" length="1">
 
 	</array>
 
-	<array name="GPC_U2" offset="0x38000" stride="0x200" length="32">
-		<use-group name="pcounter_unk2"/>
+	<array name="GPC_DSET" offset="0x38000" stride="0x200" length="32">
+		<use-group name="pcounter_dset"/>
 	</array>
 
-	<array name="ROPC_U2" offset="0x3c000" stride="0x200" length="16">
-		<use-group name="pcounter_unk2"/>
+	<array name="PART_DSET" offset="0x3c000" stride="0x200" length="16">
+		<use-group name="pcounter_dset"/>
 	</array>
 
-	<array name="MAIN_U2" offset="0x3e000" stride="0x200" length="1">
-		<use-group name="pcounter_unk2"/>
+	<array name="HUB_DSET" offset="0x3e000" stride="0x200" length="1">
+		<use-group name="pcounter_dset"/>
 	</array>
 </array>
 

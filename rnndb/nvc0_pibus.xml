@@ -44,11 +44,11 @@
 		</reg32>
 		<reg32 offset="0x104" name="ENABLE1">
 			<bitfield pos="27" name="PIBUS_MMIO" variants="NVE4-"/>
-			<bitfield pos="28" name="PCOUNTER_UNK2" variants="NVE4-"/>
-			<bitfield pos="29" name="PCOUNTER_SET_2" variants="NVE4-"/>
-			<bitfield pos="30" name="PCOUNTER_SET_1" variants="NVE4-"/>
-			<bitfield pos="30" name="PCOUNTER_UNK2" variants="NVC0:NVE4"/>
-			<bitfield pos="31" name="PCOUNTER_SET_0"/>
+			<bitfield pos="28" name="PCOUNTER_DSET" variants="NVE4-"/>
+			<bitfield pos="29" name="PCOUNTER_DOM_2" variants="NVE4-"/>
+			<bitfield pos="30" name="PCOUNTER_DOM_1" variants="NVE4-"/>
+			<bitfield pos="30" name="PCOUNTER_DSET" variants="NVC0:NVE4"/>
+			<bitfield pos="31" name="PCOUNTER_DOM_0"/>
 		</reg32>
 		<use-group name="nvc0_pibus_mmio_common"/>
 	</group>
@@ -69,12 +69,12 @@
 			<bitfield pos="13" name="PIBUS_MMIO"/>
 		</reg32>
 		<reg32 offset="0x104" name="ENABLE1">
-			<bitfield pos="29" name="PCOUNTER_UNK2" variants="NVC0:NVC1 NVC8-"/>
-			<bitfield pos="30" name="PCOUNTER_SET_1" variants="NVC0:NVC1 NVC8-"/>
-			<bitfield pos="31" name="PCOUNTER_SET_0" variants="NVC0:NVC1 NVC8-"/>
-			<bitfield pos="28" name="PCOUNTER_UNK2" variants="NVC1:NVC8"/>
-			<bitfield pos="29" name="PCOUNTER_SET_1" variants="NVC1:NVC8"/>
-			<bitfield pos="30" name="PCOUNTER_SET_0" variants="NVC1:NVC8"/>
+			<bitfield pos="29" name="PCOUNTER_DSET" variants="NVC0:NVC1 NVC8-"/>
+			<bitfield pos="30" name="PCOUNTER_DOM_1" variants="NVC0:NVC1 NVC8-"/>
+			<bitfield pos="31" name="PCOUNTER_DOM_0" variants="NVC0:NVC1 NVC8-"/>
+			<bitfield pos="28" name="PCOUNTER_DSET" variants="NVC1:NVC8"/>
+			<bitfield pos="29" name="PCOUNTER_DOM_1" variants="NVC1:NVC8"/>
+			<bitfield pos="30" name="PCOUNTER_DOM_0" variants="NVC1:NVC8"/>
 			<bitfield pos="31" name="PBFB_1" variants="NVC1:NVC8"/>
 		</reg32>
 		<use-group name="nvc0_pibus_mmio_common"/>
@@ -125,27 +125,27 @@
 
 			<!-- XXX: enables below this point are variable and a fucking mess, verify on something else than NVC0 and NVE4 -->
 			<bitfield pos="19" name="PUNITS" variants="NVE4-"/>
-			<bitfield pos="20" name="PCOUNTER_SET_4" variants="NVE4-"/>
-			<bitfield pos="21" name="PCOUNTER_SET_7" variants="NVE4-"/>
-			<bitfield pos="22" name="PCOUNTER_SET_6" variants="NVE4-"/>
-			<bitfield pos="23" name="PCOUNTER_SET_5" variants="NVE4-"/>
-			<bitfield pos="24" name="PCOUNTER_UNK2" variants="NVE4-"/>
-			<bitfield pos="25" name="PCOUNTER_SET_3" variants="NVE4-"/>
-			<bitfield pos="26" name="PCOUNTER_SET_2" variants="NVE4-"/>
-			<bitfield pos="27" name="PCOUNTER_SET_1" variants="NVE4-"/>
-			<bitfield pos="28" name="PCOUNTER_SET_0" variants="NVE4-"/>
+			<bitfield pos="20" name="PCOUNTER_DOM_4" variants="NVE4-"/>
+			<bitfield pos="21" name="PCOUNTER_DOM_7" variants="NVE4-"/>
+			<bitfield pos="22" name="PCOUNTER_DOM_6" variants="NVE4-"/>
+			<bitfield pos="23" name="PCOUNTER_DOM_5" variants="NVE4-"/>
+			<bitfield pos="24" name="PCOUNTER_DSET" variants="NVE4-"/>
+			<bitfield pos="25" name="PCOUNTER_DOM_3" variants="NVE4-"/>
+			<bitfield pos="26" name="PCOUNTER_DOM_2" variants="NVE4-"/>
+			<bitfield pos="27" name="PCOUNTER_DOM_1" variants="NVE4-"/>
+			<bitfield pos="28" name="PCOUNTER_DOM_0" variants="NVE4-"/>
 			<bitfield pos="29" name="PCOUNTER_MAIN" variants="NVE4-"/>
 			<bitfield pos="30" name="PUNK0820" variants="NVE4-"/>
 
-			<bitfield pos="21" name="PCOUNTER_SET_7" variants="NVC0:NVE4"/>
-			<bitfield pos="22" name="PCOUNTER_SET_6" variants="NVC0:NVE4"/>
-			<bitfield pos="23" name="PCOUNTER_SET_5" variants="NVC0:NVE4"/>
-			<bitfield pos="24" name="PCOUNTER_SET_4" variants="NVC0:NVE4"/>
-			<bitfield pos="25" name="PCOUNTER_SET_3" variants="NVC0:NVE4"/>
-			<bitfield pos="26" name="PCOUNTER_UNK2" variants="NVC0:NVE4"/>
-			<bitfield pos="27" name="PCOUNTER_SET_2" variants="NVC0:NVE4"/>
-			<bitfield pos="28" name="PCOUNTER_SET_1" variants="NVC0:NVE4"/>
-			<bitfield pos="29" name="PCOUNTER_SET_0" variants="NVC0:NVE4"/>
+			<bitfield pos="21" name="PCOUNTER_DOM_7" variants="NVC0:NVE4"/>
+			<bitfield pos="22" name="PCOUNTER_DOM_6" variants="NVC0:NVE4"/>
+			<bitfield pos="23" name="PCOUNTER_DOM_5" variants="NVC0:NVE4"/>
+			<bitfield pos="24" name="PCOUNTER_DOM_4" variants="NVC0:NVE4"/>
+			<bitfield pos="25" name="PCOUNTER_DOM_3" variants="NVC0:NVE4"/>
+			<bitfield pos="26" name="PCOUNTER_DSET" variants="NVC0:NVE4"/>
+			<bitfield pos="27" name="PCOUNTER_DOM_2" variants="NVC0:NVE4"/>
+			<bitfield pos="28" name="PCOUNTER_DOM_1" variants="NVC0:NVE4"/>
+			<bitfield pos="29" name="PCOUNTER_DOM_0" variants="NVC0:NVE4"/>
 			<bitfield pos="30" name="PCOUNTER_MAIN" variants="NVC0:NVE4"/>
 			<bitfield pos="31" name="PFFB_PBFB"/>
 		</reg32>
