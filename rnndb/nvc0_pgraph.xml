@@ -169,14 +169,62 @@
 		</reg32>
 	</stripe>
 
+	<reg32 offset="0x0380" name="VSTATUS_0" access="r">
+		<bitfield low="0" high="2" name="HUB_UNK0" type="NV50_VSTATUS"/>
+		<bitfield low="3" high="5" name="HUB_UNK1" type="NV50_VSTATUS"/>
+		<bitfield low="6" high="8" name="HUB_UNK2" type="NV50_VSTATUS"/>
+		<bitfield low="9" high="11" name="HUB_UNK3" type="NV50_VSTATUS"/>
+		<bitfield low="12" high="14" name="HUB_UNK4" type="NV50_VSTATUS"/>
+		<bitfield low="15" high="17" name="HUB_UNK5" type="NV50_VSTATUS"/>
+	</reg32>
+
+	<reg32 offset="0x0384" name="VSTATUS_1" access="r">
+		<bitfield low="0" high="2" name="HUB_UNK6" type="NV50_VSTATUS"/>
+		<bitfield low="3" high="5" name="HUB_UNK7" type="NV50_VSTATUS"/>
+		<bitfield low="6" high="8" name="HUB_UNK8" type="NV50_VSTATUS"/>
+		<bitfield low="9" high="11" name="HUB_UNK9" type="NV50_VSTATUS"/>
+		<bitfield low="12" high="14" name="HUB_UNK10" type="NV50_VSTATUS"/>
+	</reg32>
+
+	<reg32 offset="0x0388" name="VSTATUS_2" access="r">
+		<bitfield low="0" high="2" name="ROP_UNK0" type="NV50_VSTATUS"/>
+		<bitfield low="3" high="5" name="ROP_UNK1" type="NV50_VSTATUS"/>
+		<bitfield low="6" high="8" name="ROP_UNK2" type="NV50_VSTATUS"/>
+		<bitfield low="9" high="11" name="HUB_UNK11" type="NV50_VSTATUS"/>
+		<bitfield low="12" high="14" name="HUB_UNK12" type="NV50_VSTATUS"/>
+		<bitfield low="15" high="17" name="HUB_UNK13" type="NV50_VSTATUS"/>
+	</reg32>
+
+	<reg32 offset="0x0390" name="VSTATUS_3" access="r">
+		<bitfield low="0" high="2" name="GPC" type="NV50_VSTATUS"/>
+		<bitfield low="3" high="5" name="HUB_UNK14" type="NV50_VSTATUS"/>
+		<bitfield low="6" high="8" name="HUB_UNK15" type="NV50_VSTATUS"/>
+		<bitfield low="9" high="11" name="HUB_UNK16" type="NV50_VSTATUS"/>
+	</reg32>
+
+	<reg32 offset="0x0604" name="GPC_STATUS" access="r"/> <!-- mask of busy GPCs -->
+	<reg32 offset="0x0608" name="ROP_STATUS" access="r"/> <!-- mask of busy ROPs -->
+
 	<reg32 offset="0x0700" name="STATUS" access="r">
-		<bitfield name="ALL" pos="0"/>
+		<bitfield pos="0" name="ALL"/>
 
-		<bitfield name="M2MF" pos="6"/>
-		<bitfield name="CTXCTL" pos="7"/>
+		<bitfield pos="3" name="UNK3_PAUSABLE"/>
 
-		<bitfield name="GPC" pos="24"/>
-		<bitfield name="ROP" pos="25"/>
+		<bitfield pos="5" name="UNK5_PAUSABLE"/>
+		<bitfield pos="6" name="M2MF"/>
+		<bitfield pos="7" name="CTXCTL"/>
+		<bitfield pos="8" name="UNK8_PAUSABLE"/>
+		<bitfield pos="9" name="UNK9_PAUSABLE"/>
+		<bitfield pos="11" name="UNK11_PAUSABLE"/>
+		<bitfield pos="12" name="UNK12_PAUSABLE"/>
+		<bitfield pos="13" name="UNK13_PAUSABLE"/>
+		<bitfield pos="14" name="UNK14_PAUSABLE"/>
+		<bitfield pos="15" name="UNK15_PAUSABLE"/>
+		<bitfield pos="16" name="UNK16_PAUSABLE"/>
+		<bitfield pos="17" name="UNK17_PAUSABLE"/>
+
+		<bitfield pos="24" name="GPC"/>
+		<bitfield pos="25" name="ROP"/>
 	</reg32>
 
 	<reg32 offset="0x0704" name="TRAPPED_ADDR">
@@ -511,6 +559,14 @@
 				<bitfield name="ENABLE" pos="31" />
 			</reg32>
 		</array>
+		<reg32 offset="0x200" name="VSTATUS" access="r">
+			<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
+			<bitfield low="3" high="5" name="UNK1" type="NV50_VSTATUS"/>
+			<bitfield low="6" high="8" name="UNK2" type="NV50_VSTATUS"/>
+			<bitfield low="9" high="11" name="PCOUNTER" type="NV50_VSTATUS"/>
+			<bitfield low="12" high="14" name="UNK4" type="NV50_VSTATUS"/>
+			<bitfield low="15" high="17" name="UNK5" type="NV50_VSTATUS"/>
+		</reg32>
 		<reg32 offset="0x204" name="TRAP">
 			<bitfield pos="0" name="CROP"/>
 			<bitfield pos="1" name="ZROP"/>
@@ -539,6 +595,18 @@
 				for a sane implementation of transform feedback.
 				(Setting only on GPC[0].TP[0] seems enough.)</doc>
 			</reg32>
+			<reg32 offset="0x060" name="VSTATUS" access="r">
+				<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
+				<bitfield low="3" high="5" name="UNK1" type="NV50_VSTATUS"/>
+				<bitfield low="6" high="8" name="UNK2" type="NV50_VSTATUS"/>
+				<bitfield low="9" high="11" name="UNK3" type="NV50_VSTATUS"/>
+				<bitfield low="12" high="14" name="UNK4" type="NV50_VSTATUS"/>
+				<bitfield low="15" high="17" name="UNK5" type="NV50_VSTATUS"/>
+				<bitfield low="18" high="20" name="UNK6" type="NV50_VSTATUS"/>
+				<bitfield low="21" high="23" name="UNK7" type="NV50_VSTATUS"/>
+				<bitfield low="24" high="26" name="UNK8" type="NV50_VSTATUS"/>
+				<bitfield low="27" high="29" name="UNK9" type="NV50_VSTATUS"/>
+			</reg32>
 			<reg32 offset="0x084" name="TRAP">
 				<bitfield name="CLEAR" pos="30" />
 				<bitfield name="ENABLE" pos="31" />
@@ -549,6 +617,24 @@
 			<reg32 offset="0x24" name="TRAP">
 				<bitfield name="CLEAR" pos="30" />
 				<bitfield name="ENABLE" pos="31" />
+			</reg32>
+			<reg32 offset="0x38" name="VSTATUS_0" length="2" access="r">
+				<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
+				<bitfield low="4" high="6" name="UNK1" type="NV50_VSTATUS"/>
+				<bitfield low="8" high="10" name="UNK2" type="NV50_VSTATUS"/>
+				<bitfield low="11" high="13" name="UNK3" type="NV50_VSTATUS"/>
+				<bitfield low="14" high="16" name="UNK4" type="NV50_VSTATUS"/>
+				<bitfield low="17" high="19" name="UNK5" type="NV50_VSTATUS"/>
+				<bitfield low="20" high="22" name="UNK6" type="NV50_VSTATUS"/>
+				<bitfield low="23" high="25" name="UNK7" type="NV50_VSTATUS"/>
+				<bitfield low="26" high="28" name="UNK8" type="NV50_VSTATUS"/>
+				<bitfield low="29" high="31" name="UNK9" type="NV50_VSTATUS"/>
+			</reg32>
+			<reg32 offset="0xdc" name="VSTATUS_1" access="r">
+				<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
+				<bitfield low="4" high="6" name="UNK1" type="NV50_VSTATUS"/>
+				<bitfield low="8" high="10" name="UNK2" type="NV50_VSTATUS"/>
+				<bitfield low="11" high="13" name="UNK3" type="NV50_VSTATUS"/>
 			</reg32>
 		</array>
 		<array offset="0x300" name="TPBUS" stride="0x100" length="1">
@@ -569,6 +655,14 @@
 				<bitfield low="0" high="29" name="UNK0"/>
 			</reg32>
 		</array>
+		<array offset="0x400" name="UNK400" stride="0x80" length="1">
+			<reg32 offset="0x10" name="VSTATUS" access="r">
+				<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
+				<bitfield low="3" high="5" name="UNK1" type="NV50_VSTATUS"/>
+				<bitfield low="6" high="8" name="UNK2" type="NV50_VSTATUS"/>
+				<bitfield low="9" high="11" name="UNK3" type="NV50_VSTATUS"/>
+			</reg32>
+		</array>
 		<array offset="0x480" name="L1" stride="0x80" length="1">
 			<reg32 offset="0x0c" name="TRAP">
 				<bitfield pos="1" name="GLOBAL_MAP_READ"/> <!-- not passed up to TP.TRAP, causes VM fault -->
@@ -578,18 +672,29 @@
 			</reg32>
 			<reg32 offset="0x68" name="TPID"/>
 		</array>
-		<reg32 offset="0x508" name="TRAP">
-			<bitfield pos="0" name="TEX"/>
-			<bitfield pos="1" name="MP"/>
-			<bitfield pos="2" name="POLY"/>
-			<bitfield pos="3" name="L1C"/>
-		</reg32>
-		<reg32 offset="0x50c" name="TRAP_EN">
-			<bitfield pos="0" name="TEX"/>
-			<bitfield pos="1" name="MP"/>
-			<bitfield pos="2" name="POLY"/>
-			<bitfield pos="3" name="L1C"/>
-		</reg32>
+		<array offset="0x500" name="MASTER" stride="0x100" length="1">
+			<reg32 offset="0x00" name="VSTATUS" access="r">
+				<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
+				<bitfield low="3" high="5" name="UNK1" type="NV50_VSTATUS"/>
+				<bitfield low="6" high="8" name="UNK2" type="NV50_VSTATUS"/>
+				<bitfield low="9" high="11" name="UNK3" type="NV50_VSTATUS"/>
+				<bitfield low="12" high="14" name="UNK4" type="NV50_VSTATUS"/>
+				<bitfield low="15" high="17" name="UNK5" type="NV50_VSTATUS"/>
+				<bitfield low="18" high="20" name="UNK6" type="NV50_VSTATUS"/>
+			</reg32>
+			<reg32 offset="0x08" name="TRAP">
+				<bitfield pos="0" name="TEX"/>
+				<bitfield pos="1" name="MP"/>
+				<bitfield pos="2" name="POLY"/>
+				<bitfield pos="3" name="L1C"/>
+			</reg32>
+			<reg32 offset="0x0c" name="TRAP_EN">
+				<bitfield pos="0" name="TEX"/>
+				<bitfield pos="1" name="MP"/>
+				<bitfield pos="2" name="POLY"/>
+				<bitfield pos="3" name="L1C"/>
+			</reg32>
+		</array>
 		<array offset="0x600" name="MP" stride="0x200" length="1">
 			<reg32 offset="0x044" name="UNK44_TRAP"/>
 			<reg32 offset="0x04c" name="UNK4C_TRAP"/>
@@ -610,6 +715,19 @@
 			</reg32>
 			<reg32 offset="0x074" name="PM_COUNTER" length="8"/>
 			<reg32 offset="0x098" name="TPID"/>
+			<reg32 offset="0x128" name="VSTATUS" access="r">
+				<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
+				<bitfield low="3" high="5" name="UNK1" type="NV50_VSTATUS"/>
+				<bitfield low="6" high="8" name="UNK2" type="NV50_VSTATUS"/>
+				<bitfield low="9" high="11" name="UNK3" type="NV50_VSTATUS"/>
+				<bitfield low="12" high="14" name="UNK4" type="NV50_VSTATUS"/>
+				<bitfield low="15" high="17" name="UNK5" type="NV50_VSTATUS"/>
+				<bitfield low="18" high="20" name="UNK6" type="NV50_VSTATUS"/>
+				<bitfield low="21" high="23" name="UNK7" type="NV50_VSTATUS"/>
+				<bitfield low="24" high="26" name="UNK8" type="NV50_VSTATUS"/>
+				<bitfield low="27" high="29" name="UNK9" type="NV50_VSTATUS"/>
+				<bitfield low="30" high="31" name="UNK30"/> <!-- what the fuck? -->
+			</reg32>
 		</array>
 	</group>
 
@@ -779,6 +897,36 @@
 		<reg32 offset="0xc1c" name="INTR_UP_SET"/>
 		<reg32 offset="0xc20" name="INTR_UP_CLEAR"/>
 		<reg32 offset="0xc24" name="INTR_UP_ENABLE"/>
+		<reg32 offset="0xc80" name="VSTATUS_0" access="r">
+			<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
+			<bitfield low="3" high="5" name="UNK1" type="NV50_VSTATUS"/>
+			<bitfield low="6" high="8" name="UNK2" type="NV50_VSTATUS"/>
+			<bitfield low="9" high="11" name="UNK3" type="NV50_VSTATUS"/>
+			<bitfield low="12" high="14" name="UNK4" type="NV50_VSTATUS"/>
+			<bitfield low="15" high="17" name="UNK5" type="NV50_VSTATUS"/>
+			<bitfield low="18" high="20" name="UNK6" type="NV50_VSTATUS"/>
+			<bitfield low="21" high="23" name="UNK7" type="NV50_VSTATUS"/>
+		</reg32>
+		<reg32 offset="0xc84" name="VSTATUS_1" access="r">
+			<bitfield low="0" high="2" name="UNK8" type="NV50_VSTATUS"/>
+			<bitfield low="3" high="5" name="UNK9" type="NV50_VSTATUS"/>
+			<bitfield low="6" high="8" name="UNK10" type="NV50_VSTATUS"/>
+			<bitfield low="9" high="11" name="UNK11" type="NV50_VSTATUS"/>
+			<bitfield low="12" high="14" name="UNK12" type="NV50_VSTATUS"/>
+			<bitfield low="15" high="17" name="UNK13" type="NV50_VSTATUS"/>
+			<bitfield low="18" high="20" name="UNK14" type="NV50_VSTATUS"/>
+			<bitfield low="21" high="23" name="PCOUNTER" type="NV50_VSTATUS"/>
+		</reg32>
+		<reg32 offset="0xc88" name="VSTATUS_2" access="r">
+			<bitfield low="0" high="2" name="UNK15" type="NV50_VSTATUS"/>
+			<bitfield low="3" high="5" name="UNK16" type="NV50_VSTATUS"/>
+		</reg32>
+		<reg32 offset="0xc8c" name="VSTATUS_3" access="r">
+			<bitfield low="0" high="2" name="UNK17" type="NV50_VSTATUS"/>
+			<bitfield low="3" high="5" name="UNK18" type="NV50_VSTATUS"/>
+			<bitfield low="6" high="8" name="UNK19" type="NV50_VSTATUS"/>
+			<bitfield low="9" high="11" name="UNK20" type="NV50_VSTATUS"/>
+		</reg32>
 	</array>
 
 	<array name="ROP_BROADCAST" offset="0x8800" stride="0x400" length="1">
