@@ -173,7 +173,7 @@
 		<bitfield name="STRMOUT" pos="7" /> <!-- 18XX, NV50 strand 2. NVA0 strand 0. -->
 		<bitfield name="UNK14XX" pos="8" /> <!-- 14XX, 15XX, NV50 strand 2. NVA0 strand 7 / 2. -->
 		<bitfield name="TPRAST" pos="9" /> <!-- 8CXX / 80XX, NV50 strand 4. NVA0 strand 6 -->
-		<bitfield name="TPROP" pos="10" /> <!-- 8EXX / 87XX, NV50 strand 4. NVA0 strand 6 -->
+		<bitfield name="PROP" pos="10" /> <!-- 8EXX / 87XX, NV50 strand 4. NVA0 strand 6 -->
 		<bitfield name="TEXTURE" pos="11" /> <!-- 88XX, 89XX, 8AXX / 85XX, 86XX, NV50 strand 4. NVA0 strand 6 -->
 		<bitfield name="TPVP" pos="12" /> <!-- 84XX, NV50 strand 4. NVA0 strand 6. -->
 		<bitfield name="MP" pos="13" /> <!-- 82XX, 83XX / 81XX, 82XX, 83XX, NV50 xfer2. NVA0 xfer2 -->
@@ -275,7 +275,7 @@
 		<bitfield name="MP" pos="7">
 			<brief>Check TP+0x314 / TP+0x31c</brief>
 		</bitfield>
-		<bitfield name="TPROP" pos="8">
+		<bitfield name="PROP" pos="8">
 			<brief>Check TP+0xe08 / TP+0x708</brief>
 		</bitfield>
 	</reg32>
@@ -293,7 +293,7 @@
 		<bitfield name="CLIPID" pos="5" />
 		<bitfield name="TEXTURE" pos="6" />
 		<bitfield name="MP" pos="7" />
-		<bitfield name="TPROP" pos="8" />
+		<bitfield name="PROP" pos="8" />
 	</reg32>
 	<reg32 offset="0x013c" name="INTR_EN">
 		<brief>Interrupt enable</brief>
@@ -499,8 +499,8 @@
 		<bitfield pos="17" name="ENG2D"/>
 		<bitfield pos="18" name="UNK34XX"/>
 		<bitfield pos="19" name="TPRAST"/>
-		<bitfield pos="20" name="TPROP"/>
-		<bitfield pos="21" name="TEX"/>
+		<bitfield pos="20" name="PROP"/>
+		<bitfield pos="21" name="TEXTURE"/>
 		<bitfield pos="22" name="TPVP"/>
 		<bitfield pos="23" name="MP"/>
 		<bitfield pos="24" name="ROP"/>
@@ -667,9 +667,9 @@
 	<reg32 offset="0x08f8" name="CLOCK" />
 	<reg32 offset="0x08fc" name="UNITS">
 		<bitfield name="TP_MASK" high="15" low="0" />
-		<bitfield name="ROPC_MASK" high="21" low="16" variants="NV50:NVA0" />
+		<bitfield name="ROP_MASK" high="21" low="16" variants="NV50:NVA0" />
 		<bitfield name="MP_MASK" high="23" low="22" variants="NV50:NVA0" />
-		<bitfield name="ROPC_MASK" high="23" low="16" variants="NVA0-" />
+		<bitfield name="ROP_MASK" high="23" low="16" variants="NVA0-" />
 		<bitfield name="MP_MASK" high="31" low="28" variants="NVA0-" />
 	</reg32>
 	
@@ -782,7 +782,7 @@
 		</doc>
 	</reg32>
 
-	<array offset="0x7000" name="ROPC" stride="0x100" length="8">
+	<array offset="0x7000" name="ROP" stride="0x100" length="8">
 		<!-- one of them is ZROP, the other CROP -->
 		<array offset="0" name="UNK1" stride="0x80" length="1">
 			<reg32 offset="0x0c" name="JOE" />
@@ -913,7 +913,7 @@
 	</group>
 
 	<group name="nv50_pgraph_tprop">
-		<reg32 offset="0x08" name="TPROP_TRAP">
+		<reg32 offset="0x08" name="PROP_TRAP">
 			<bitfield name="SURF_WIDTH_OVERRUN" pos="2" />
 			<bitfield name="SURF_HEIGHT_OVERRUN" pos="3" />
 			<bitfield name="DST2D_FAULT" pos="4" />
@@ -928,7 +928,7 @@
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
-		<reg32 offset="0x28" name="TPROP_JOE" />
+		<reg32 offset="0x28" name="PROP_JOE" />
 	</group>
 
 	<array offset="0x8000" variants="NV50:NVA0" name="TP" stride="0x1000" length="8">

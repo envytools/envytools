@@ -53,7 +53,7 @@
 		<use-group name="nvc0_pibus_mmio_common"/>
 	</group>
 
-	<group name="nvc0_pibus_mmio_ropc">
+	<group name="nvc0_pibus_mmio_part">
 		<reg32 offset="0x100" name="ENABLE0">
 			<bitfield pos="0" name="PXBAR_U2" variants="NVC0:NVE4"/>
 			<bitfield pos="0" name="PXBAR" variants="NVE4-"/>
@@ -155,8 +155,8 @@
 	<array name="MMIO_GPC_BROADCAST" offset="0x0400" stride="0x0400" length="1">
 		<use-group name="nvc0_pibus_mmio_gpc"/>
 	</array>
-	<array name="MMIO_ROPC_BROADCAST" offset="0x0800" stride="0x0400" length="1">
-		<use-group name="nvc0_pibus_mmio_ropc"/>
+	<array name="MMIO_PART_BROADCAST" offset="0x0800" stride="0x0400" length="1">
+		<use-group name="nvc0_pibus_mmio_part"/>
 	</array>
 	<array name="MMIO_HUB_BROADCAST" offset="0x0c00" stride="0x0400" length="1">
 		<use-group name="nvc0_pibus_mmio_hub"/>
@@ -165,19 +165,19 @@
 	<array offset="0x1000" name="MAIN" stride="0x1000" length="1">
 		<reg32 offset="0xc58" name="MMIO_INTR_0">
 			<bitfield low="8" high="15" name="HUB"/>
-			<bitfield low="16" high="31" name="ROPC"/>
+			<bitfield low="16" high="31" name="PART"/>
 		</reg32>
 		<reg32 offset="0xc5c" name="MMIO_INTR_GPC"/>
 		<reg32 offset="0xc70" name="HUB_COUNT"/>
-		<reg32 offset="0xc74" name="ROPC_COUNT"/>
+		<reg32 offset="0xc74" name="PART_COUNT"/>
 		<reg32 offset="0xc78" name="GPC_COUNT"/>
 	</array>
 
 	<array name="MMIO_HUB" offset="0x2000" stride="0x0400" length="8">
 		<use-group name="nvc0_pibus_mmio_hub"/>
 	</array>
-	<array name="MMIO_ROPC" offset="0x4000" stride="0x0400" length="16">
-		<use-group name="nvc0_pibus_mmio_ropc"/>
+	<array name="MMIO_PART" offset="0x4000" stride="0x0400" length="16">
+		<use-group name="nvc0_pibus_mmio_part"/>
 	</array>
 	<array name="MMIO_GPC" offset="0x8000" stride="0x0400" length="32">
 		<use-group name="nvc0_pibus_mmio_gpc"/>

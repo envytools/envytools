@@ -456,7 +456,7 @@ NV50:
  - display subsystem reinvented from scratch: a stub version of the old
    VGA-based one remains for VGA compatibility, the new one is not VGA based
    and is controlled by PFIFO-like DMA push buffers
- - memory partitions tied directly to ROP clusters
+ - memory partitions tied directly to ROPs
 NV84:
  - redesigned channel structure with a new layout
  - got rid of VP1 video decoding and VPE encoding support, but VPE decoder
@@ -490,7 +490,7 @@ NVA3:
 NVAF:
  - added PUNK1C1 to [XXX: what?]
 
-The chipsets in this family are [TPs:MPs/TP:ROPCs]:
+The chipsets in this family are [TPs:MPs/TP:ROPs]:
 NV50 [G80]: 8:2:6
 NV84 [G84]: 4:2:4
 NV86 [G86]: 1:2:1
@@ -544,8 +544,8 @@ NVC0:
      - per-partition low-level memory controllers [PBFB]
      - per-partition middle memory controllers: compression, ECC, ... [PMFB]
      - a single "hub" memory controller: VM control, TLB control, ... [PFFB]
- - ROP clusters, memory partitions, GPCs, MPs have independent register areas,
-   as well as "broadcast" areas that can be used to control all units at once
+ - ROPs, memory partitions, GPCs, MPs have independent register areas, as well
+   as "broadcast" areas that can be used to control all units at once
  - second PCOPY engine
  - redesigned PCOUNTER, now having multiple more or less independent subunits
    to monitor various parts of GPU
@@ -573,7 +573,7 @@ NVE4:
      structures
    [XXX: figure out what else]
 
-Chipsets in NVC0 family [GPC count : MP count per GPC : ROPC count : memory partitions per ROPC]:
+Chipsets in NVC0 family [GPC count : MP count per GPC : ROP count : memory partitions per ROP]:
 
 NVC0 [GF100]: 4:4:6:1
 NVC4 [GF104]: 2:4:4:1

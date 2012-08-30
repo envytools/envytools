@@ -190,7 +190,7 @@ void time_pcounter_nvc0(unsigned int cnum)
 		}
 		sleep(1);
 		for (i = 0; i < 2; i++)
-			printf ("ROPC[%d] set %d: %d Hz\n", u, i, nva_rd32(cnum, 0x1a00a8 + i * 0x200 + u * 0x1000));
+			printf ("PART[%d] set %d: %d Hz\n", u, i, nva_rd32(cnum, 0x1a00a8 + i * 0x200 + u * 0x1000));
 	}
 	for (u = 0; u < gpcs; u++) {
 		for (i = 0; i < 1; i++) {

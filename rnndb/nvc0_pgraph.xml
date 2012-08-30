@@ -79,13 +79,13 @@
 			<brief>Check 404490</brief>
 		</bitfield>
 		<bitfield name="GPC" pos="24"/>
-		<bitfield name="ROPC" pos="25"/>
+		<bitfield name="ROP" pos="25"/>
 	</reg32>
 	<reg32 offset="0x0110" name="DATA_ERROR" type="NV50_PGRAPH_DATA_ERROR">
 		<doc>Stores type of the pending DATA_ERROR.</doc>
 	</reg32>
 	<reg32 offset="0x0118" name="TRAP_GPCS"/>
-	<reg32 offset="0x011c" name="TRAP_ROPCS"/>
+	<reg32 offset="0x011c" name="TRAP_ROPS"/>
 	<reg32 offset="0x0120" name="INTR_NMHOST">
 		<!-- a bitfield in the QUERY command selects whether to trigger an interrupt here or in the usual reg -->
 		<bitfield name="QUERY" pos="1"/>
@@ -94,7 +94,7 @@
 		<bitfield name="QUERY" pos="1"/>
 	</reg32>
 	<reg32 offset="0x0130" name="TRAP_GPCS_EN"/>
-	<reg32 offset="0x0134" name="TRAP_ROPCS_EN"/>
+	<reg32 offset="0x0134" name="TRAP_ROPS_EN"/>
 	<reg32 offset="0x0138" name="TRAP_EN">
 		<brief>Trap enable</brief>
 		<doc>A bitmask of events that will cause traps, same bit assignments as in TRAP reg.</doc>
@@ -107,7 +107,7 @@
 		<bitfield name="UNK6" pos="6"/>
 		<bitfield name="MACRO" pos="7"/>
 		<bitfield name="GPC" pos="24"/>
-		<bitfield name="ROPC" pos="25"/>
+		<bitfield name="ROP" pos="25"/>
 	</reg32>
 	<reg32 offset="0x013c" name="INTR_EN">
 		<brief>Interrupt enable</brief>
@@ -176,7 +176,7 @@
 		<bitfield name="CTXCTL" pos="7"/>
 
 		<bitfield name="GPC" pos="24"/>
-		<bitfield name="ROPC" pos="25"/>
+		<bitfield name="ROP" pos="25"/>
 	</reg32>
 
 	<reg32 offset="0x0704" name="TRAPPED_ADDR">
@@ -333,7 +333,7 @@
 			<bitfield low="25" high="29" name="5"/>
 		</reg32>
 		<reg32 offset="0xbc" name="TOTAL">
-			<bitfield low="0" high="7" name="ROPC_COUNT"/>
+			<bitfield low="0" high="7" name="ROP_COUNT"/>
 			<bitfield low="8" high="15" name="GPC_COUNT"/>
 		</reg32>
 	</array>
@@ -498,7 +498,7 @@
 		</reg32>
 	</group>
 
-	<group name="nvc0_ropc">
+	<group name="nvc0_rop">
 		<array offset="0x000" name="ZROP" stride="0x100" length="1">
 			<reg32 offset="0x70" name="TRAP">
 				<bitfield name="CLEAR" pos="30" />
@@ -520,9 +520,9 @@
 			<bitfield pos="1" name="ZROP"/>
 		</reg32>
 		<reg32 offset="0x210" name="RED_SWITCH">
-			<bitfield pos="2" name="UNK0_ROPC"/>
-			<bitfield pos="6" name="POWER_ROPC"/>
-			<bitfield pos="10" name="ENABLE_ROPC"/>
+			<bitfield pos="2" name="PAUSE_ROP"/>
+			<bitfield pos="6" name="POWER_ROP"/>
+			<bitfield pos="10" name="ENABLE_ROP"/>
 		</reg32>
 	</group>
 
@@ -561,7 +561,7 @@
 				<bitfield low="25" high="29" name="5"/>
 			</reg32>
 			<reg32 offset="0xd0" name="UNKD0">
-				<bitfield low="0" high="7" name="ROPC_COUNT"/>
+				<bitfield low="0" high="7" name="ROP_COUNT"/>
 				<bitfield low="8" high="15" name="GPC_COUNT"/>
 				<bitfield low="16" high="28" name="UNK16"/>
 			</reg32>
@@ -689,7 +689,7 @@
 				<bitfield low="25" high="29" name="5"/>
 			</reg32>
 			<reg32 offset="0xb8" name="TOTAL">
-				<bitfield low="0" high="7" name="ROPC_COUNT"/>
+				<bitfield low="0" high="7" name="ROP_COUNT"/>
 				<bitfield low="8" high="15" name="GPC_COUNT"/>
 			</reg32>
 		</array>
@@ -758,17 +758,17 @@
 		<use-group name="nvc0_ctxctl"/>
 		<reg32 offset="0x604" name="UNITS">
 			<bitfield low="0" high="4" name="GPC_COUNT"/>
-			<bitfield low="16" high="20" name="ROPC_COUNT"/>
+			<bitfield low="16" high="20" name="ROP_COUNT"/>
 		</reg32>
 		<reg32 offset="0x614" name="RED_SWITCH">
 			<bitfield pos="0" name="UNK0_MAIN"/>
 			<bitfield pos="1" name="UNK0_GPC"/>
 			<bitfield pos="4" name="POWER_MAIN"/>
 			<bitfield pos="5" name="POWER_GPC"/>
-			<bitfield pos="6" name="POWER_ROPC"/>
+			<bitfield pos="6" name="POWER_ROP"/>
 			<bitfield pos="8" name="ENABLE_MAIN"/>
 			<bitfield pos="9" name="ENABLE_GPC"/>
-			<bitfield pos="10" name="ENABLE_ROPC"/>
+			<bitfield pos="10" name="ENABLE_ROP"/>
 		</reg32>
 
 		<reg32 offset="0xc14" name="INTR_UP_ROUTE" type="nvc0_ctxctl_iroute">
@@ -781,12 +781,12 @@
 		<reg32 offset="0xc24" name="INTR_UP_ENABLE"/>
 	</array>
 
-	<array name="ROPC_BROADCAST" offset="0x8800" stride="0x400" length="1">
-		<use-group name="nvc0_ropc"/>
+	<array name="ROP_BROADCAST" offset="0x8800" stride="0x400" length="1">
+		<use-group name="nvc0_rop"/>
 	</array>
 
-	<array name="ROPC" offset="0x10000" stride="0x400" length="8">
-		<use-group name="nvc0_ropc"/>
+	<array name="ROP" offset="0x10000" stride="0x400" length="8">
+		<use-group name="nvc0_rop"/>
 	</array>
 
 	<array name="GPC_BROADCAST" offset="0x18000" stride="0x8000" length="1">

@@ -13,7 +13,7 @@
 
 	</array>
 
-	<array name="ROPC_UNK1" offset="0x1000" stride="0x80" length="16">
+	<array name="PART_UNK1" offset="0x1000" stride="0x80" length="16">
 
 	</array>
 
@@ -29,7 +29,7 @@
 
 	</array>
 	
-	<array name="ROPC_UNK2" offset="0x2800" stride="0x40" length="16">
+	<array name="PART_UNK2" offset="0x2800" stride="0x40" length="16">
 
 	</array>
 
