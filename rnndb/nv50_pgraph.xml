@@ -185,6 +185,7 @@
 		<bitfield name="ENG2D" pos="19" /> <!-- 30XX, NV50 strand 1. NVA0 strand 6 -->
 		<bitfield name="UNK34XX" pos="20" /> <!-- 34XX, NV50 strand 2. NVA0 strand 0. -->
 		<bitfield name="ROP" pos="21" /> <!-- 7XXX, NV50 strands 1 and 3. NVA0 strand 5. -->
+		<bitfield name="TPC" pos="22" /> <!-- 4CXX, no strands -->
 	</reg32>
 	<reg32 offset="0x0060" name="UNK60" />
 	<reg32 offset="0x0080" name="DEBUG_0">
@@ -520,157 +521,159 @@
 		<doc>Channel whose grctx is read/written by ctxprog opcodes 1XXXXX, 8XXXXX.</doc>
 	</reg32>
 
-	<reg32 offset="0x0804" name="DISPATCH_TRAP">
-		<bitfield name="FAULT" pos="0" /> <!-- COND/NOTIFIER faults at least. check 800848? -->
-		<bitfield name="QUERY" pos="1" /> <!-- hmm... -->
-		<bitfield name="GRCTX_FAULT_MMIO" pos="2" />
-		<bitfield name="GRCTX_FAULT_XFER1" pos="3" />
-		<bitfield name="GRCTX_FAULT_XFER2" pos="4" />
-		<bitfield name="CLEAR" pos="30" />
-		<bitfield name="ENABLE" pos="31" />
-	</reg32>
-	<reg32 offset="0x0808" name="DISPATCH_CMD_ADDR">
-		<bitfield name="MTHD" high="12" low="2" shr="2" />
-		<bitfield name="SUBCH" high="18" low="16" />
-		<bitfield name="NONINCR" pos="20" />
-		<bitfield name="UNK1" pos="21" /> <!-- sometimes set by DISPATCH itself during exec... related to NOTIFY? -->
-		<bitfield name="SINGLE_STEP_DONE" pos="22" />
-		<bitfield name="UNK3" high="24" low="23" />
-		<bitfield name="DOUBLE" pos="25" />
-		<bitfield name="UNK2" pos="28" />
-		<bitfield name="CURRENT_SUBCH" pos="29" />
-		<bitfield name="VALID" pos="31" />
-	</reg32>
-	<reg32 offset="0x080c" name="DISPATCH_CMD_DATA_LOW" />
-	<reg32 offset="0x0810" name="DISPATCH_CMD_DATA_HIGH" />
-	<reg32 offset="0x0814" name="CTX_SWITCH_1">
-		<bitfield name="CLASS" high="15" low="0"/>
-		<bitfield name="COLOR_KEY" pos="16"/>
-		<bitfield name="USER_CLIP" pos="17"/>
-		<bitfield name="UNK19" high="31" low="19" />
-	</reg32>
-	<reg32 offset="0x0818" name="CTX_SWITCH_2">
-		<bitfield name="NOTIFY_INSTANCE" high="15" low="0"/>
-		<bitfield name="UNK24" high="31" low="24" />
-	</reg32>
-	<reg32 offset="0x081c" name="CTX_SWITCH_3">
-		<bitfield name="DMA_INSTANCE" high="15" low="0">
-			<doc>Only used for sifm, gdirect, m2mf.</doc>
-		</bitfield>
-		<bitfield name="ENDIAN" pos="24">
-			<value value="0" name="LITTLE" />
-			<value value="1" name="BIG" />
-		</bitfield>
-		<bitfield name="SINGLE_STEP" pos="26" />
-	</reg32>
-	<reg32 offset="0x0820" name="CTX_SWITCH_4">
-		<bitfield name="MY_INSTANCE" high="31" low="16"/>
-		<bitfield name="COND_INSTANCE" high="15" low="0">
-			<doc>Also second DMA slot on m2mf.</doc>
-		</bitfield>
-	</reg32>
-	<reg32 offset="0x0824" name="CTXCTL_FLAGS_0">
-		<bitfield name="SWAP_DIRECTION" pos="0">
-			<value value="0" name="LOAD" />
-			<value value="1" name="SAVE" />
-		</bitfield>
-		<bitfield name="UNK1" pos="1"/> <!-- set while loading/saving context... -->
-		<bitfield name="DISPATCH_DROP" pos="3"/> <!-- causes incoming methods to get ignored, haven't dug deeper yet. -->
-		<bitfield name="XFER_ENABLE" pos="14"/> <!-- xfer just hangs when attempted without this bit set. -->
-		<bitfield name="PM0" pos="28"/>
-		<bitfield name="PM1" pos="29"/>
-		<bitfield name="PM2" pos="30"/>
-		<bitfield name="PM3" pos="31"/>
-	</reg32>
-	<reg32 offset="0x0828" name="CTXCTL_FLAGS_1"> <!-- saved to context -->
-		<bitfield name="UNK0" pos="0"/> <!-- weird stuff happens when not set -->
-	</reg32>
-	<reg32 offset="0x082c" name="CTXCTL_FLAGS_2">
-		<bitfield name="IDLE" pos="0" />
-		<bitfield name="UNK1" pos="1" /> <!-- usually 1, but seen 0 on NVA5.. -->
-		<bitfield name="AUTO_SAVE" pos="4" />
-		<bitfield name="AUTO_LOAD" pos="5" />
-		<bitfield name="UNK9" pos="9" /> <!-- seems to indicate some sort of ctxprog error. or maybe busy condition. you're in deep shit if this is 1 for you. -->
-		<bitfield name="NEWCTX_DONE" pos="10" /> <!-- extraordinarly weird. seems to blink "1" only for a very short amount of time. you need the wait right after the cmd. -->
-		<bitfield name="XFER_BUSY" pos="11" />
-		<bitfield name="DELAY_DONE" pos="12" />
-		<bitfield name="ALWAYS_TRUE" pos="13" />
-		<bitfield name="INTR_PENDING" pos="15" />
-	</reg32>
-	<reg32 offset="0x0830" name="CTXCTL_FLAGS_3">
-	</reg32>
+	<array offset="0x0800" name="DISPATCH" stride="0x400" length="1">
+		<reg32 offset="0x004" name="TRAP">
+			<bitfield name="FAULT" pos="0" /> <!-- COND/NOTIFIER faults at least. check 800848? -->
+			<bitfield name="QUERY" pos="1" /> <!-- hmm... -->
+			<bitfield name="GRCTX_FAULT_MMIO" pos="2" />
+			<bitfield name="GRCTX_FAULT_XFER1" pos="3" />
+			<bitfield name="GRCTX_FAULT_XFER2" pos="4" />
+			<bitfield name="CLEAR" pos="30" />
+			<bitfield name="ENABLE" pos="31" />
+		</reg32>
+		<reg32 offset="0x008" name="CMD_ADDR">
+			<bitfield name="MTHD" high="12" low="2" shr="2" />
+			<bitfield name="SUBCH" high="18" low="16" />
+			<bitfield name="NONINCR" pos="20" />
+			<bitfield name="UNK1" pos="21" /> <!-- sometimes set by DISPATCH itself during exec... related to NOTIFY? -->
+			<bitfield name="SINGLE_STEP_DONE" pos="22" />
+			<bitfield name="UNK3" high="24" low="23" />
+			<bitfield name="DOUBLE" pos="25" />
+			<bitfield name="UNK2" pos="28" />
+			<bitfield name="CURRENT_SUBCH" pos="29" />
+			<bitfield name="VALID" pos="31" />
+		</reg32>
+		<reg32 offset="0x00c" name="CMD_DATA_LOW" />
+		<reg32 offset="0x010" name="CMD_DATA_HIGH" />
+		<reg32 offset="0x014" name="CTX_SWITCH_1">
+			<bitfield name="CLASS" high="15" low="0"/>
+			<bitfield name="COLOR_KEY" pos="16"/>
+			<bitfield name="USER_CLIP" pos="17"/>
+			<bitfield name="UNK19" high="31" low="19" />
+		</reg32>
+		<reg32 offset="0x018" name="CTX_SWITCH_2">
+			<bitfield name="NOTIFY_INSTANCE" high="15" low="0"/>
+			<bitfield name="UNK24" high="31" low="24" />
+		</reg32>
+		<reg32 offset="0x01c" name="CTX_SWITCH_3">
+			<bitfield name="DMA_INSTANCE" high="15" low="0">
+				<doc>Only used for sifm, gdirect, m2mf.</doc>
+			</bitfield>
+			<bitfield name="ENDIAN" pos="24">
+				<value value="0" name="LITTLE" />
+				<value value="1" name="BIG" />
+			</bitfield>
+			<bitfield name="SINGLE_STEP" pos="26" />
+		</reg32>
+		<reg32 offset="0x020" name="CTX_SWITCH_4">
+			<bitfield name="MY_INSTANCE" high="31" low="16"/>
+			<bitfield name="COND_INSTANCE" high="15" low="0">
+				<doc>Also second DMA slot on m2mf.</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x024" name="CTXCTL_FLAGS_0">
+			<bitfield name="SWAP_DIRECTION" pos="0">
+				<value value="0" name="LOAD" />
+				<value value="1" name="SAVE" />
+			</bitfield>
+			<bitfield name="UNK1" pos="1"/> <!-- set while loading/saving context... -->
+			<bitfield name="DISPATCH_DROP" pos="3"/> <!-- causes incoming methods to get ignored, haven't dug deeper yet. -->
+			<bitfield name="XFER_ENABLE" pos="14"/> <!-- xfer just hangs when attempted without this bit set. -->
+			<bitfield name="PM0" pos="28"/>
+			<bitfield name="PM1" pos="29"/>
+			<bitfield name="PM2" pos="30"/>
+			<bitfield name="PM3" pos="31"/>
+		</reg32>
+		<reg32 offset="0x028" name="CTXCTL_FLAGS_1"> <!-- saved to context -->
+			<bitfield name="UNK0" pos="0"/> <!-- weird stuff happens when not set -->
+		</reg32>
+		<reg32 offset="0x02c" name="CTXCTL_FLAGS_2">
+			<bitfield name="IDLE" pos="0" />
+			<bitfield name="UNK1" pos="1" /> <!-- usually 1, but seen 0 on NVA5.. -->
+			<bitfield name="AUTO_SAVE" pos="4" />
+			<bitfield name="AUTO_LOAD" pos="5" />
+			<bitfield name="UNK9" pos="9" /> <!-- seems to indicate some sort of ctxprog error. or maybe busy condition. you're in deep shit if this is 1 for you. -->
+			<bitfield name="NEWCTX_DONE" pos="10" /> <!-- extraordinarly weird. seems to blink "1" only for a very short amount of time. you need the wait right after the cmd. -->
+			<bitfield name="XFER_BUSY" pos="11" />
+			<bitfield name="DELAY_DONE" pos="12" />
+			<bitfield name="ALWAYS_TRUE" pos="13" />
+			<bitfield name="INTR_PENDING" pos="15" />
+		</reg32>
+		<reg32 offset="0x030" name="CTXCTL_FLAGS_3">
+		</reg32>
 
-	<reg32 offset="0x0844" name="DISPATCH_UNK844">
-		<bitfield name="UNK0" pos="0" />
-		<bitfield name="SUBCH" high="15" low="13" />
-		<bitfield name="UNK31" pos="31" />
-	</reg32>
-	<reg32 offset="0x0848" name="DISPATCH_MISC">
-		<bitfield name="NOTIFY_FAULT" pos="0" />
-		<bitfield name="COND_FAULT" pos="3" />
-		<bitfield name="NOTIFY_PENDING" pos="8" />
-		<bitfield name="NOTIFY_AWAKEN" pos="16" />
-	</reg32>
-	<reg32 offset="0x084c" name="DISPATCH_ST2_ADDR">
-		<doc>Second stage of dispatch... if QUERY blows up on you,
-		it can get stuck here. At least sometimes.</doc>
-		<bitfield name="MTHD" high="12" low="2" shr="2" />
-		<bitfield name="UNK28" pos="28" />
-		<bitfield name="ILLEGAL_CLASS" pos="29" />
-		<bitfield name="ILLEGAL_MTHD" pos="30" />
-		<bitfield name="VALID" pos="31" />
-	</reg32>
+		<reg32 offset="0x044" name="UNK044">
+			<bitfield name="UNK0" pos="0" />
+			<bitfield name="SUBCH" high="15" low="13" />
+			<bitfield name="UNK31" pos="31" />
+		</reg32>
+		<reg32 offset="0x048" name="MISC">
+			<bitfield name="NOTIFY_FAULT" pos="0" />
+			<bitfield name="COND_FAULT" pos="3" />
+			<bitfield name="NOTIFY_PENDING" pos="8" />
+			<bitfield name="NOTIFY_AWAKEN" pos="16" />
+		</reg32>
+		<reg32 offset="0x04c" name="ST2_ADDR">
+			<doc>Second stage of dispatch... if QUERY blows up on you,
+			it can get stuck here. At least sometimes.</doc>
+			<bitfield name="MTHD" high="12" low="2" shr="2" />
+			<bitfield name="UNK28" pos="28" />
+			<bitfield name="ILLEGAL_CLASS" pos="29" />
+			<bitfield name="ILLEGAL_MTHD" pos="30" />
+			<bitfield name="VALID" pos="31" />
+		</reg32>
 
-	<reg32 offset="0x085c" name="DISPATCH_ST2_DATA_LOW" />
-	<reg32 offset="0x0860" name="DISPATCH_ST2_DATA_HIGH" />
+		<reg32 offset="0x05c" name="ST2_DATA_LOW" />
+		<reg32 offset="0x060" name="ST2_DATA_HIGH" />
 
-	<reg32 offset="0x0868" name="DISPATCH_ST2_DATA_ERROR">
-		<bitfield high="15" low="0" name="TYPE" type="NV50_PGRAPH_DATA_ERROR" />
-		<bitfield pos="16" name="VALID" />
-	</reg32>
-	<reg32 offset="0x086c" name="DISPATCH_ST3_ADDR">
-		<bitfield name="MTHD" high="12" low="2" shr="2" />
-		<bitfield name="UNK28" pos="28" />
-		<bitfield name="VALID" pos="31" />
-	</reg32>
-	<reg32 offset="0x0874" name="DISPATCH_ST3_DATA_LOW" />
-	<reg32 offset="0x0878" name="DISPATCH_ST3_DATA_HIGH" />
-	<reg32 offset="0x087c" name="DISPATCH_ST4_DATA_ERROR">
-		<bitfield high="15" low="0" name="TYPE" type="NV50_PGRAPH_DATA_ERROR" />
-		<bitfield pos="31" name="VALID" />
-	</reg32>
+		<reg32 offset="0x068" name="ST2_DATA_ERROR">
+			<bitfield high="15" low="0" name="TYPE" type="NV50_PGRAPH_DATA_ERROR" />
+			<bitfield pos="16" name="VALID" />
+		</reg32>
+		<reg32 offset="0x06c" name="ST3_ADDR">
+			<bitfield name="MTHD" high="12" low="2" shr="2" />
+			<bitfield name="UNK28" pos="28" />
+			<bitfield name="VALID" pos="31" />
+		</reg32>
+		<reg32 offset="0x074" name="ST3_DATA_LOW" />
+		<reg32 offset="0x078" name="ST3_DATA_HIGH" />
+		<reg32 offset="0x07c" name="ST4_DATA_ERROR">
+			<bitfield high="15" low="0" name="TYPE" type="NV50_PGRAPH_DATA_ERROR" />
+			<bitfield pos="31" name="VALID" />
+		</reg32>
 
-	<reg32 offset="0x0884" name="DISPATCH_ST5_ADDR">
-		<bitfield high="17" low="0" name="INDEX" />
-		<bitfield high="21" low="20" name="UNK1" />
-		<bitfield pos="31" name="VALID" />
+		<reg32 offset="0x084" name="ST5_ADDR">
+			<bitfield high="17" low="0" name="INDEX" />
+			<bitfield high="21" low="20" name="UNK1" />
+			<bitfield pos="31" name="VALID" />
 
-	</reg32>
-	<reg32 offset="0x0888" name="DISPATCH_ST5_DATA" />
+		</reg32>
+		<reg32 offset="0x088" name="ST5_DATA" />
 
-	<reg32 offset="0x0898" name="DISPATCH_ST6_DATA" />
-	<reg32 offset="0x089c" name="DISPATCH_ST6_ADDR" />
+		<reg32 offset="0x098" name="ST6_DATA" />
+		<reg32 offset="0x09c" name="ST6_ADDR" />
 
-	<reg32 offset="0x08dc" name="COND_ADDRESS_HIGH">
-		<bitfield name="3D" high="7" low="0" />
-		<bitfield name="2D" high="15" low="8" />
-	</reg32>
-	<reg32 offset="0x08e0" name="COND_ADDRESS_LOW_3D" />
-	<reg32 offset="0x08e4" name="COND_ADDRESS_LOW_2D" />
-	<reg32 offset="0x08e8" name="COND">
-		<bitfield name="3D" pos="0" />
-		<bitfield name="2D" pos="1" />
-		<bitfield name="UNK6" pos="6" /> <!-- COND traps cause this to be set. being set seems to prevent context switching and generally wreak havoc... -->
-	</reg32>
+		<reg32 offset="0x0dc" name="COND_ADDRESS_HIGH">
+			<bitfield name="3D" high="7" low="0" />
+			<bitfield name="2D" high="15" low="8" />
+		</reg32>
+		<reg32 offset="0x0e0" name="COND_ADDRESS_LOW_3D" />
+		<reg32 offset="0x0e4" name="COND_ADDRESS_LOW_2D" />
+		<reg32 offset="0x0e8" name="COND">
+			<bitfield name="3D" pos="0" />
+			<bitfield name="2D" pos="1" />
+			<bitfield name="UNK6" pos="6" /> <!-- COND traps cause this to be set. being set seems to prevent context switching and generally wreak havoc... -->
+		</reg32>
 
-	<reg32 offset="0x08f8" name="CLOCK" />
-	<reg32 offset="0x08fc" name="UNITS">
-		<bitfield name="TP_MASK" high="15" low="0" />
-		<bitfield name="ROP_MASK" high="21" low="16" variants="NV50:NVA0" />
-		<bitfield name="MP_MASK" high="23" low="22" variants="NV50:NVA0" />
-		<bitfield name="ROP_MASK" high="23" low="16" variants="NVA0-" />
-		<bitfield name="MP_MASK" high="31" low="28" variants="NVA0-" />
-	</reg32>
+		<reg32 offset="0x0f8" name="CLOCK" />
+		<reg32 offset="0x0fc" name="UNITS">
+			<bitfield name="TP_MASK" high="15" low="0" />
+			<bitfield name="ROP_MASK" high="21" low="16" variants="NV50:NVA0" />
+			<bitfield name="MP_MASK" high="23" low="22" variants="NV50:NVA0" />
+			<bitfield name="ROP_MASK" high="23" low="16" variants="NVA0-" />
+			<bitfield name="MP_MASK" high="31" low="28" variants="NVA0-" />
+		</reg32>
+	</array>
 	
 	<array offset="0x0c00" name="VFETCH" stride="0x400" length="1">
 		<reg32 offset="0x00" name="JOE" />
@@ -681,9 +684,13 @@
 		</reg32>
 	</array>
 
-	<reg32 offset="0x1000" name="UNK1000_JOE" />
+	<array offset="0x1000" name="UNK1000" stride="0x400" length="1">
+		<reg32 offset="0x00" name="JOE" />
+	</array>
 
-	<reg32 offset="0x1530" name="UNK1400_JOE" />
+	<array offset="0x1400" name="UNK1400" stride="0x400" length="1">
+		<reg32 offset="0x130" name="JOE" />
+	</array>
 
 	<array offset="0x1800" name="STRMOUT" stride="0x400" length="1">
 		<reg32 offset="0x00" name="TRAP">
@@ -698,7 +705,9 @@
 		<reg32 offset="0x18" name="JOE" />
 	</array>
 
-	<reg32 offset="0x1c04" name="UNK1C00_JOE" />
+	<array offset="0x1c00" name="UNK1C00" stride="0x400" length="1">
+		<reg32 offset="0x04" name="JOE" />
+	</array>
 
 	<array offset="0x2000" name="CLIPID" stride="0x400" length="1">
 		<reg32 offset="0x00" name="TRAP">
@@ -709,9 +718,13 @@
 		<reg32 offset="0x0c" name="JOE" variants="NVA0-" />
 	</array>
 
-	<reg32 offset="0x2404" name="UNK2400_JOE" />
+	<array offset="0x2400" name="UNK2400" stride="0x400" length="1">
+		<reg32 offset="0x04" name="JOE" />
+	</array>
 
-	<reg32 offset="0x2804" name="CSCHED_JOE" />
+	<array offset="0x2800" name="CSCHED" stride="0x400" length="1">
+		<reg32 offset="0x04" name="JOE" />
+	</array>
 
 	<array offset="0x2c00" name="ZCULL" stride="0x400" length="1">
 		<reg32 offset="0x18" name="UNK18"/> <!-- mask... -->
@@ -733,9 +746,30 @@
 		<reg32 offset="0xbc" name="JOE" />
 	</array>
 
-	<reg32 offset="0x3000" name="ENG2D_JOE" />
+	<array offset="0x3000" name="ENG2D" stride="0x400" length="1">
+		<reg32 offset="0x00" name="JOE" />
+	</array>
 
-	<reg32 offset="0x3400" name="UNK3400_JOE" variants="NVA0-" /> <!-- ? -->
+	<array offset="0x3400" name="UNK3400" stride="0x400" length="1">
+		<reg32 offset="0x00" name="JOE" variants="NVA0-" /> <!-- ? -->
+	</array>
+
+	<array offset="0x4c00" name="TPC" stride="0x400" length="1">
+		<reg32 offset="0x4e00" name="TP_VSTATUS" access="r" length="16">
+			<bitfield low="0" high="2" name="TPRAST" type="NV50_VSTATUS"/>
+			<bitfield low="3" high="5" name="PROP" type="NV50_VSTATUS"/>
+			<bitfield low="6" high="8" name="TEX" type="NV50_VSTATUS"/>
+			<bitfield low="9" high="11" name="TPVP" type="NV50_VSTATUS"/> <!-- unconfirmed -->
+			<bitfield low="12" high="14" name="MP" type="NV50_VSTATUS"/>
+			<bitfield low="15" high="17" name="UNK4" type="NV50_VSTATUS"/>
+			<bitfield low="18" high="20" name="UNK5" type="NV50_VSTATUS"/>
+		</reg32>
+		<reg32 offset="0x4f00" name="VSTATUS" access="r">
+			<bitfield low="0" high="2" name="TPC" type="NV50_VSTATUS"/> <!-- unconfirmed -->
+			<bitfield low="3" high="5" name="UNK4" type="NV50_VSTATUS"/>
+			<bitfield low="6" high="8" name="UNK5" type="NV50_VSTATUS"/>
+		</reg32>
+	</array>
 
 	<array offset="0x5000" name="CCACHE" stride="0x400" length="1">
 		<array offset="0x04" name="UNK04" stride="8" length="2">
@@ -752,7 +786,7 @@
 		<reg32 offset="0x28" name="JOE" /> <!-- a bit... different. -->
 	</array>
 
-	<stripe offset="0x6800" name="M2MF">
+	<array offset="0x6800" name="M2MF" stride="0x400" length="1">
 		<reg32 offset="0x00" name="TRAP">
 			<bitfield name="NOTIFY" pos="0" />
 			<bitfield name="IN" pos="1" />
@@ -769,7 +803,7 @@
 		<reg32 offset="0x8c" name="OFFSET_OUT_0_LOW" />
 		<reg32 offset="0x90" name="OFFSET_OUT_1_HIGH" />
 		<reg32 offset="0x94" name="OFFSET_OUT_1_LOW" />
-	</stripe>
+	</array>
 
 	<reg32 offset="0x6ff0" name="UNK_CHANINST" length="3">
 		<doc>Blob ctxprogs sometimes write current channel's
@@ -782,24 +816,23 @@
 	</reg32>
 
 	<array offset="0x7000" name="ROP" stride="0x100" length="8">
-		<!-- one of them is ZROP, the other CROP -->
-		<array offset="0" name="UNK1" stride="0x80" length="1">
+		<array offset="0" name="CROP" stride="0x80" length="1">
 			<reg32 offset="0x0c" name="JOE" />
 			<!-- should be set to the same value as PFB.BANKCFG -->
 			<reg32 offset="0x10" name="BANKCFG"/>
 		</array>
-		<array offset="0x80" name="UNK2" stride="0x80" length="1">
+		<array offset="0x80" name="ZROP" stride="0x80" length="1">
 			<reg32 offset="0x10" name="JOE" />
 			<reg32 offset="0x14" name="BANKCFG"/>
 		</array>
 	</array>
-	<array offset="0x7c00" name="ROPM" stride="0x200" length="1">
-		<array offset="0x7c00" name="ZROP" stride="0x100" length="1">
-		</array>
-		<array offset="0x7d00" name="CROP" stride="0x100" length="1">
-			<reg32 offset="0x00" name="SAMPLECNT"/>
-			<reg32 offset="0x20" name="BANKCFG"/>
-		</array>
+
+	<array offset="0x7c00" name="ZBAR" stride="0x100" length="1">
+
+	</array>
+	<array offset="0x7d00" name="CBAR" stride="0x100" length="1">
+		<reg32 offset="0x00" name="SAMPLECNT"/>
+		<reg32 offset="0x20" name="BANKCFG"/>
 	</array>
 
 	<group name="nv50_pgraph_mp">
@@ -854,7 +887,7 @@
 		There are two main areas: small and large. Large contains $r registers and s[]
 		space contents. Small contains everything else.
 		</doc>
-		<reg32 offset="0x3b0" name="MPC_SMALL_SELECT">
+		<reg32 offset="0xb0" name="MPC_SMALL_SELECT">
 			<doc>Selects the 64-bit thing accessible by MPC_SMALL_DATA window.</doc>
 			<bitfield high="1" low="0" name="MP">
 				<doc>Selects which MP of this TP to access.</doc>
@@ -881,8 +914,8 @@
 				depends on selected SPACE.</doc>
 			</bitfield>
 		</reg32>
-		<reg64 offset="0x3b4" name="MPC_SMALL_DATA" />
-		<reg32 offset="0x3bc" name="MPC_LARGE_SELECT">
+		<reg64 offset="0xb4" name="MPC_SMALL_DATA" length="2"/>
+		<reg32 offset="0xbc" name="MPC_LARGE_SELECT">
 			<doc>Selects the 16-word thing accessible by MPC_LARGE_DATA window.</doc>
 			<bitfield high="1" low="0" name="MP">
 				<doc>Selects which MP of this TP to access.</doc>
@@ -908,11 +941,11 @@
 				on pre-NVA0 cards.</doc>
 			</bitfield>
 		</reg32>
-		<reg32 offset="0x3c0" name="MPC_LARGE_DATA" length="16" />
+		<reg32 offset="0xc0" name="MPC_LARGE_DATA" length="16" />
 	</group>
 
-	<group name="nv50_pgraph_tprop">
-		<reg32 offset="0x08" name="PROP_TRAP">
+	<group name="nv50_pgraph_prop">
+		<reg32 offset="0x08" name="TRAP">
 			<bitfield name="SURF_WIDTH_OVERRUN" pos="2" />
 			<bitfield name="SURF_HEIGHT_OVERRUN" pos="3" />
 			<bitfield name="DST2D_FAULT" pos="4" />
@@ -927,80 +960,129 @@
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
-		<reg32 offset="0x28" name="PROP_JOE" />
+		<reg32 offset="0x28" name="JOE" />
+	</group>
+
+	<group name="nv50_pgraph_tprast">
+		<reg32 offset="0x04" name="JOE" />
+	</group>
+
+	<group name="nv50_pgraph_tpvp">
+		<reg32 offset="0x14" name="JOE" />
 	</group>
 
 	<array offset="0x8000" variants="NV50:NVA0" name="TP" stride="0x1000" length="8">
 		<array offset="0x200" name="MP" stride="0x80" length="2">
 			<use-group name="nv50_pgraph_mp" />
 		</array>
-		<reg32 offset="0x310" name="MP_JOE" />
-		<reg32 offset="0x314" name="MPC_TRAP">
-			<bitfield name="LOCAL_LIMIT_READ" pos="0" />
-			<bitfield name="LOCAL_LIMIT_WRITE" pos="4" />
-			<bitfield name="STACK_LIMIT" pos="6" />
-			<bitfield name="GLOBAL_LIMIT_READ" pos="8" />
-			<bitfield name="GLOBAL_LIMIT_WRITE" pos="12" />
-			<bitfield name="MP0" pos="16" />
-			<bitfield name="MP1" pos="17" />
-			<bitfield name="GLOBAL_LIMIT_RED" pos="18" />
-			<bitfield name="GLOBAL_LIMIT_ATOM" pos="22" />
-			<bitfield name="CLEAR" pos="30" />
-			<bitfield name="ENABLE" pos="31" />
-		</reg32>
-		<reg32 offset="0x414" name="UNK8400_JOE" />
-		<reg32 offset="0x824" name="TEXTURE_JOE1" />
-		<reg32 offset="0x82c" name="TEXTURE_JOE2" length="8" />
-		<reg32 offset="0x900" name="TEXTURE_TRAP">
-			<bitfield name="ANY" pos="0" />
-			<bitfield name="FAULT" pos="1" />
-			<bitfield name="STORAGE_TYPE_MISMATCH" pos="2" />
-			<bitfield name="LINEAR_MISMATCH" pos="3" />
-			<bitfield name="WRONG_MEMTYPE" pos="5" />
-			<bitfield name="CLEAR" pos="30" />
-			<bitfield name="ENABLE" pos="31" />
-		</reg32>
-		<reg32 offset="0xc04" name="UNK8C00_JOE" />
-		<stripe offset="0xe00" stride="0x100" length="1">
-			<use-group name="nv50_pgraph_tprop" />
-		</stripe>
+		<array offset="0x300" name="MPC" stride="0x100" length="1">
+			<reg32 offset="0x10" name="JOE" />
+			<reg32 offset="0x14" name="TRAP">
+				<bitfield name="LOCAL_LIMIT_READ" pos="0" />
+				<bitfield name="LOCAL_LIMIT_WRITE" pos="4" />
+				<bitfield name="STACK_LIMIT" pos="6" />
+				<bitfield name="GLOBAL_LIMIT_READ" pos="8" />
+				<bitfield name="GLOBAL_LIMIT_WRITE" pos="12" />
+				<bitfield name="MP0" pos="16" />
+				<bitfield name="MP1" pos="17" />
+				<bitfield name="GLOBAL_LIMIT_RED" pos="18" />
+				<bitfield name="GLOBAL_LIMIT_ATOM" pos="22" />
+				<bitfield name="CLEAR" pos="30" />
+				<bitfield name="ENABLE" pos="31" />
+			</reg32>
+			<use-group name="nv50_pgraph_mpc" />
+		</array>
+		<array offset="0x400" name="TPVP" stride="0x400" length="1">
+			<use-group name="nv50_pgraph_tpvp" />
+		</array>
+		<array offset="0x800" name="TEXTURE" stride="0x400" length="1">
+			<reg32 offset="0x024" name="TEXTURE_JOE1" />
+			<reg32 offset="0x02c" name="TEXTURE_JOE2" length="8" />
+			<reg32 offset="0x100" name="TEXTURE_TRAP">
+				<bitfield name="ANY" pos="0" />
+				<bitfield name="FAULT" pos="1" />
+				<bitfield name="STORAGE_TYPE_MISMATCH" pos="2" />
+				<bitfield name="LINEAR_MISMATCH" pos="3" />
+				<bitfield name="WRONG_MEMTYPE" pos="5" />
+				<bitfield name="CLEAR" pos="30" />
+				<bitfield name="ENABLE" pos="31" />
+			</reg32>
+			<reg32 offset="0x114" name="VSTATUS" length="2" access="r">
+				<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
+				<bitfield low="4" high="6" name="UNK1" type="NV50_VSTATUS"/>
+				<bitfield low="8" high="10" name="UNK2" type="NV50_VSTATUS"/>
+				<bitfield low="11" high="13" name="UNK3" type="NV50_VSTATUS"/>
+				<bitfield low="14" high="16" name="UNK4" type="NV50_VSTATUS"/>
+				<bitfield low="17" high="19" name="UNK5" type="NV50_VSTATUS"/>
+				<bitfield low="20" high="22" name="UNK6" type="NV50_VSTATUS"/>
+				<bitfield low="23" high="25" name="UNK7" type="NV50_VSTATUS"/>
+				<bitfield low="26" high="28" name="UNK8" type="NV50_VSTATUS"/>
+				<bitfield low="29" high="31" name="UNK9" type="NV50_VSTATUS"/>
+			</reg32>
+		</array>
+		<array offset="0xc00" name="TPRAST" stride="0x200" length="1">
+			<use-group name="nv50_pgraph_tprast" />
+		</array>
+		<array offset="0xe00" name="PROP" stride="0x200" length="1">
+			<use-group name="nv50_pgraph_prop" />
+		</array>
 	</array>
 
 	<array offset="0x8000" variants="NVA0-" name="TP" stride="0x800" length="16">
-
+		<array offset="0x080" name="TPRAST" stride="0x80" length="1">
+			<use-group name="nv50_pgraph_tprast" />
+		</array>
 		<array offset="0x100" name="MP" stride="0x80" length="4">
 			<use-group name="nv50_pgraph_mp" />
 		</array>
-		<reg32 offset="0x31c" name="MPC_TRAP">
-			<bitfield name="LOCAL_LIMIT_READ" pos="0" />
-			<bitfield name="LOCAL_LIMIT_WRITE" pos="4" />
-			<bitfield name="STACK_LIMIT" pos="6" />
-			<bitfield name="GLOBAL_LIMIT_READ" pos="8" />
-			<bitfield name="GLOBAL_LIMIT_WRITE" pos="12" />
-			<bitfield name="MP0" pos="16" />
-			<bitfield name="MP1" pos="17" />
-			<bitfield name="GLOBAL_LIMIT_RED" pos="18" />
-			<bitfield name="GLOBAL_LIMIT_ATOM" pos="22" />
-			<bitfield name="MP2" pos="26" />
-			<bitfield name="CLEAR" pos="30" />
-			<bitfield name="ENABLE" pos="31" />
-		</reg32>
-		<reg32 offset="0x414" name="UNK8400_JOE" />
-		<reg32 offset="0x524" name="TEXTURE_JOE1" />
-		<reg32 offset="0x52c" name="TEXTURE_JOE2" length="8" />
-		<reg32 offset="0x600" name="TEXTURE_TRAP">
-			<bitfield name="ANY" pos="0" />
-			<bitfield name="FAULT" pos="1" />
-			<bitfield name="STORAGE_TYPE_MISMATCH" pos="2" />
-			<bitfield name="LINEAR_MISMATCH" pos="3" />
-			<bitfield name="WRONG_MEMTYPE" pos="5" />
-			<bitfield name="CLEAR" pos="30" />
-			<bitfield name="ENABLE" pos="31" />
-		</reg32>
-		<reg32 offset="0x084" name="UNK8C00_JOE" />
-		<stripe offset="0x700" stride="0x100" length="1">
-			<use-group name="nv50_pgraph_tprop" />
-		</stripe>
+		<array offset="0x300" name="MPC" stride="0x100" length="1">
+			<reg32 offset="0x1c" name="MPC_TRAP">
+				<bitfield name="LOCAL_LIMIT_READ" pos="0" />
+				<bitfield name="LOCAL_LIMIT_WRITE" pos="4" />
+				<bitfield name="STACK_LIMIT" pos="6" />
+				<bitfield name="GLOBAL_LIMIT_READ" pos="8" />
+				<bitfield name="GLOBAL_LIMIT_WRITE" pos="12" />
+				<bitfield name="MP0" pos="16" />
+				<bitfield name="MP1" pos="17" />
+				<bitfield name="GLOBAL_LIMIT_RED" pos="18" />
+				<bitfield name="GLOBAL_LIMIT_ATOM" pos="22" />
+				<bitfield name="MP2" pos="26" />
+				<bitfield name="CLEAR" pos="30" />
+				<bitfield name="ENABLE" pos="31" />
+			</reg32>
+			<use-group name="nv50_pgraph_mpc" />
+		</array>
+		<array offset="0x400" name="TPVP" stride="0x100" length="1">
+			<use-group name="nv50_pgraph_tpvp" />
+		</array>
+		<array offset="0x500" name="TEXTURE" stride="0x200" length="1">
+			<reg32 offset="0x024" name="TEXTURE_JOE1" />
+			<reg32 offset="0x02c" name="TEXTURE_JOE2" length="8" />
+			<reg32 offset="0x100" name="TEXTURE_TRAP">
+				<bitfield name="ANY" pos="0" />
+				<bitfield name="FAULT" pos="1" />
+				<bitfield name="STORAGE_TYPE_MISMATCH" pos="2" />
+				<bitfield name="LINEAR_MISMATCH" pos="3" />
+				<bitfield name="WRONG_MEMTYPE" pos="5" />
+				<bitfield name="CLEAR" pos="30" />
+				<bitfield name="ENABLE" pos="31" />
+			</reg32>
+			<reg32 offset="0x114" name="VSTATUS" length="2" access="r">
+				<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
+				<bitfield low="4" high="6" name="UNK1" type="NV50_VSTATUS"/>
+				<bitfield low="8" high="10" name="UNK2" type="NV50_VSTATUS"/>
+				<bitfield low="11" high="13" name="UNK3" type="NV50_VSTATUS"/>
+				<bitfield low="14" high="16" name="UNK4" type="NV50_VSTATUS"/>
+				<bitfield low="17" high="19" name="UNK5" type="NV50_VSTATUS"/>
+				<bitfield low="20" high="22" name="UNK6" type="NV50_VSTATUS"/>
+				<bitfield low="23" high="25" name="UNK7" type="NV50_VSTATUS"/>
+				<bitfield low="26" high="28" name="UNK8" type="NV50_VSTATUS"/>
+				<bitfield low="29" high="31" name="UNK9" type="NV50_VSTATUS"/>
+			</reg32>
+		</array>
+		<array offset="0x700" name="PROP" stride="0x100" length="1">
+			<use-group name="nv50_pgraph_prop" />
+		</array>
 	</array>
 </array>
 </domain>
