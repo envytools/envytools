@@ -67,6 +67,16 @@
 		<reg32 offset="0x6c" name="SWAP_SRC"/>
 		<reg32 offset="0x9c" name="CTRL">
 			<bitfield pos="7" name="IMPORT_EVENT_DISABLE"/>
+			<bitfield low="21" high="23" name="PERIODIC_PERIOD">
+				<value value="0" name="DISABLED"/>
+				<value value="1" name="1K"/>
+				<value value="2" name="2K"/>
+				<value value="3" name="4K"/>
+				<value value="4" name="8K"/>
+				<value value="5" name="16K"/>
+				<value value="6" name="32K"/>
+				<value value="7" name="64K"/>
+			</bitfield>
 		</reg32>
 		<reg32 offset="0xa4" name="CTR_MS2"/>
 		<reg32 offset="0xa8" name="CTR_MS0"/>

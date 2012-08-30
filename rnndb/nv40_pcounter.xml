@@ -119,7 +119,17 @@
 		<bitfield pos="11" name="EVENT_IMPORT_DISABLE"/>
 		<bitfield pos="13" name="FLAG_IMPORT_DISABLE"/>
 		<bitfield pos="16" name="UNK16"/>
-		<bitfield low="20" high="23" name="UNK20" variants="NV84-"/>
+		<bitfield pos="20" name="UNK20" variants="NV84-"/>
+		<bitfield low="21" high="23" name="PERIODIC_PERIOD" variants="NV84-">
+			<value value="0" name="DISABLED"/>
+			<value value="1" name="1K"/>
+			<value value="2" name="2K"/>
+			<value value="3" name="4K"/>
+			<value value="4" name="8K"/>
+			<value value="5" name="16K"/>
+			<value value="6" name="32K"/>
+			<value value="7" name="64K"/>
+		</bitfield>
 		<bitfield pos="24" name="QUAD_VALID"/>
 		<bitfield pos="25" name="QUAD_OVERFLOW"/>
 		<bitfield low="28" high="29" name="SINGLE_STATE">

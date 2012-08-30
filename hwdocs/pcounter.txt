@@ -10,6 +10,7 @@ TOC
 2.2. Trailer signals
 2.3. The PM_TRIGGER and WRCACHE_FLUSH signals
 2.4. The USER signals
+2.5. The PERIODIC signal
 3. Input selection
 4. Counters
 5. Control registers
@@ -223,6 +224,7 @@ base+0x1f: PCOUNTER.DOM[0].FLAG - the flag from domain 0
 
 For NV40:NVC0:
 
+base+0x0d: PCOUNTER.PERIODIC - the PERIODIC signal from current domain [NV84:NVC0]
 base+0x0e: PGRAPH.WRCACHE_FLUSH - the WRCACHE_FLUSH pulse from PGRAPH [NV84:NVC0]
 base+0x0f: PGRAPH.PM_TRIGGER - the PM_TRIGGER pulse from PGRAPH
 base+0x10: PCOUNTER.DOM[7].EVENT - the EVENT input from domain 7
@@ -250,7 +252,9 @@ base+0x27: PCOUNTER.USER_0 - the USER_0 signal from current domain
 base+0x28: PCOUNTER.USER_1
 base+0x29: PCOUNTER.USER_2
 base+0x2a: PCOUNTER.USER_3
-base+0x2b..0x2f: ???
+base+0x2b..0x2d: ???
+base+0x2e: PCOUNTER.PERIODIC - the PERIODIC signal from current domain
+base+0x2f: ???
 base+0x30: PCOUNTER.DOM[7].EVENT - the EVENT input from domain 7
 base+0x31: PCOUNTER.DOM[6].EVENT - the EVENT input from domain 6
 base+0x32: PCOUNTER.DOM[5].EVENT - the EVENT input from domain 5
@@ -304,6 +308,15 @@ In effect:
   - write value = 0, pulse = any to set signal to 0 indefinitely
   - write value = 1, pulse = 0 to set signal to 1 indefinitely
   - write value = 1, pulse = 1 to set signal to 1 for one pulse only [and then set to 0 indefinitely]
+
+
+== The PERIODIC signal ==
+
+On NV84+, each domain has a single PERIODIC signal connected to a simple
+periodic pulse generator. The pulse generator will generate a single-clock
+'1' pulse every X clocks, with X selectable via the CTRL register from
+powers of two between 0x400 and 0x10000 clocks. The PERIODIC signal can
+also be disabled - it'll output a constant '0' signal in this case.
 
 
 = Input selection =
