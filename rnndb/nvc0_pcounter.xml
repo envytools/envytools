@@ -65,10 +65,18 @@
 			<bitfield low="4" high="7" name="START"/>
 			<bitfield low="8" high="11" name="EVENT"/>
 			<bitfield low="12" high="15" name="STOP"/>
+			<bitfield low="16" high="19" name="SETFLAG"/>
+			<bitfield low="20" high="23" name="CLRFLAG"/>
 		</reg32>
 		<reg32 offset="0x6c" name="SWAP_SRC"/>
 		<reg32 offset="0x9c" name="CTRL">
+			<bitfield low="1" high="2" name="MODE">
+				<value value="0" name="SINGLE"/>
+				<value value="1" name="QUAD"/>
+				<value value="2" name="UNK2"/>
+			</bitfield>
 			<bitfield pos="7" name="EVENT_IMPORT_DISABLE"/>
+			<bitfield pos="8" name="FLAG_IMPORT_DISABLE"/>
 			<bitfield low="21" high="23" name="PERIODIC_PERIOD">
 				<value value="0" name="DISABLED"/>
 				<value value="1" name="1K"/>
@@ -103,10 +111,23 @@
 			</bitfield>
 			<bitfield pos="2" name="QUAD_VALID"/>
 			<bitfield pos="3" name="QUAD_OVERFLOW"/>
+			<bitfield pos="4" name="FLAG_NEXT"/>
+			<bitfield pos="5" name="FLAG_CUR"/>
+			<bitfield pos="6" name="UNK6_FLAG"/>
+			<bitfield pos="7" name="EVENT_TOGGLE"/>
+			<bitfield low="8" high="11" name="EVENT_SRC"/>
+			<bitfield pos="12" name="SWAP"/>
+			<bitfield low="16" high="19" name="STOP_SRC"/>
+			<bitfield pow="20" name="PRE_SRC2"/>
+			<bitfield pow="21" name="PRE_SRC3"/>
+			<bitfield pow="22" name="START_SRC2"/>
+			<bitfield pow="23" name="START_SRC3"/>
 			<bitfield pos="24" name="EVENT"/>
 			<bitfield pos="25" name="PRE"/>
 			<bitfield pos="26" name="START"/>
 			<bitfield pos="27" name="STOP"/>
+			<bitfield pos="30" name="UNK30_SWAP"/> <!-- XXX: forced to 0 when MODE=SINGLE, CTRL[0] = 1 -->
+			<bitfield pos="31" name="UNK31_SWAP"/>
 		</reg32>
 		<reg32 offset="0xec" name="USER_TRIGGER">
 			<bitfield pos="0" name="VAL_0"/>
