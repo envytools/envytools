@@ -727,7 +727,7 @@
 				<bitfield low="16" high="20" name="UNK_ZCULL_COUNT"/>
 			</reg32>
 			<reg32 offset="0x614" name="RED_SWITCH">
-				<bitfield pos="1" name="UNK0_GPC"/>
+				<bitfield pos="1" name="PAUSE_GPC"/>
 				<bitfield pos="5" name="POWER_GPC"/>
 				<bitfield pos="9" name="ENABLE_GPC"/>
 				<bitfield pos="11" name="UNK11"/>
@@ -761,8 +761,8 @@
 			<bitfield low="16" high="20" name="ROP_COUNT"/>
 		</reg32>
 		<reg32 offset="0x614" name="RED_SWITCH">
-			<bitfield pos="0" name="UNK0_MAIN"/>
-			<bitfield pos="1" name="UNK0_GPC"/>
+			<bitfield pos="0" name="PAUSE_MAIN"/>
+			<bitfield pos="1" name="PAUSE_GPC"/>
 			<bitfield pos="4" name="POWER_MAIN"/>
 			<bitfield pos="5" name="POWER_GPC"/>
 			<bitfield pos="6" name="POWER_ROP"/>
