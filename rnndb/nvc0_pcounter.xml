@@ -122,10 +122,10 @@
 			<bitfield low="8" high="11" name="EVENT_SRC"/>
 			<bitfield pos="12" name="SWAP"/>
 			<bitfield low="16" high="19" name="STOP_SRC"/>
-			<bitfield pow="20" name="PRE_SRC2"/>
-			<bitfield pow="21" name="PRE_SRC3"/>
-			<bitfield pow="22" name="START_SRC2"/>
-			<bitfield pow="23" name="START_SRC3"/>
+			<bitfield pos="20" name="PRE_SRC2"/>
+			<bitfield pos="21" name="PRE_SRC3"/>
+			<bitfield pos="22" name="START_SRC2"/>
+			<bitfield pos="23" name="START_SRC3"/>
 			<bitfield pos="24" name="EVENT"/>
 			<bitfield pos="25" name="PRE"/>
 			<bitfield pos="26" name="START"/>
