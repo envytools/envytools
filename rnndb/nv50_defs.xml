@@ -24,6 +24,15 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<reg64 offset="0x8" name="TIME"/>
 </domain>
 
+<enum name="NV50_VSTATUS">
+	<value value="0" name="IDLE"/>
+	<value value="1" name="BUSY"/>
+	<value value="2" name="UNK2"/> <!-- NVC0+ only? -->
+	<value value="3" name="UNK3"/>
+	<value value="5" name="UNK5"/>
+	<value value="7" name="PAUSED"/>
+</enum>
+
 <enum name="nv50_cond_mode" inline="yes">
 	<value value="0" name="NEVER"/>
 	<value value="1" name="ALWAYS"/>

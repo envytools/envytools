@@ -387,32 +387,31 @@
 		<doc>Offset in grctx to read/write with opcode 8XXXXX. In units of 32-bit words.</doc>
 	</reg32>
 
-	<!-- blob checks these on 100c80... -->
 	<reg32 offset="0x0380" name="VSTATUS_0">
-		<bitfield low="0" high="2" name="VFETCH"/>
-		<bitfield low="3" high="5" name="CCACHE"/>
-		<bitfield low="6" high="8" name="UNK4"/>
-		<bitfield low="9" high="11" name="UNK5"/>
-		<bitfield low="12" high="14" name="GSCHED"/>
-		<bitfield low="15" high="17" name="STRMOUT"/> <!-- untested -->
-		<bitfield low="18" high="20" name="UNK14XX"/>
+		<bitfield low="0" high="2" name="VFETCH" type="NV50_VSTATUS"/>
+		<bitfield low="3" high="5" name="CCACHE" type="NV50_VSTATUS"/>
+		<bitfield low="6" high="8" name="UNK4" type="NV50_VSTATUS"/>
+		<bitfield low="9" high="11" name="UNK5" type="NV50_VSTATUS"/>
+		<bitfield low="12" high="14" name="GSCHED" type="NV50_VSTATUS"/>
+		<bitfield low="15" high="17" name="STRMOUT" type="NV50_VSTATUS"/> <!-- untested -->
+		<bitfield low="18" high="20" name="UNK14XX" type="NV50_VSTATUS"/>
 	</reg32>
 	<reg32 offset="0x0384" name="VSTATUS_1">
-		<bitfield low="0" high="2" name="TPRAST"/>
-		<bitfield low="3" high="5" name="TPROP"/>
-		<bitfield low="6" high="8" name="TEXTURE"/> <!-- untested -->
-		<bitfield low="9" high="11" name="TPVP"/> <!-- untested -->
-		<bitfield low="12" high="14" name="MP"/>
+		<bitfield low="0" high="2" name="TPRAST" type="NV50_VSTATUS"/>
+		<bitfield low="3" high="5" name="PROP" type="NV50_VSTATUS"/>
+		<bitfield low="6" high="8" name="TEXTURE" type="NV50_VSTATUS"/> <!-- untested -->
+		<bitfield low="9" high="11" name="TPVP" type="NV50_VSTATUS"/> <!-- untested -->
+		<bitfield low="12" high="14" name="MP" type="NV50_VSTATUS"/>
 	</reg32>
 	<reg32 offset="0x0388" name="VSTATUS_2">
-		<bitfield low="0" high="2" name="UNK24XX"/>
-		<bitfield low="3" high="5" name="CSCHED"/>
-		<bitfield low="6" high="8" name="UNK1CXX"/>
-		<bitfield low="9" high="11" name="CLIPID"/>
-		<bitfield low="12" high="14" name="ZCULL"/>
-		<bitfield low="15" high="17" name="ENG2D"/>
-		<bitfield low="18" high="20" name="UNK34XX"/>
-		<bitfield low="21" high="23" name="ROP"/>
+		<bitfield low="0" high="2" name="UNK24XX" type="NV50_VSTATUS"/>
+		<bitfield low="3" high="5" name="CSCHED" type="NV50_VSTATUS"/>
+		<bitfield low="6" high="8" name="UNK1CXX" type="NV50_VSTATUS"/>
+		<bitfield low="9" high="11" name="CLIPID" type="NV50_VSTATUS"/>
+		<bitfield low="12" high="14" name="ZCULL" type="NV50_VSTATUS"/>
+		<bitfield low="15" high="17" name="ENG2D" type="NV50_VSTATUS"/>
+		<bitfield low="18" high="20" name="UNK34XX" type="NV50_VSTATUS"/>
+		<bitfield low="21" high="23" name="ROP" type="NV50_VSTATUS"/>
 	</reg32>
 
 	<stripe offset="0x0400" name="STRAND">
