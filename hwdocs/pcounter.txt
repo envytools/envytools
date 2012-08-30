@@ -9,6 +9,7 @@ TOC
 2.1. The STATUS registers
 2.2. Trailer signals
 2.3. The PM_TRIGGER and WRCACHE_FLUSH signals
+2.4. The USER signals
 3. Input selection
 4. Counters
 5. Control registers
@@ -43,7 +44,7 @@ subrevisions:
   - NV40:NV84 - rearranged to make space for 8 domains, added ??? [XXX]
   - NV84:NV92 - added memory dump mode and swap input selection
   - NV92:NVA3 - ??? [XXX]
-  - NVA3:NVC0 - ??? [XXX]
+  - NVA3:NVC0 - added USER signals
  - NVC0+ major revision:
   - NVC0+ - split PCOUNTER into hub, per-gpc and per-partition domain sets,
     ???
@@ -134,7 +135,7 @@ The MMIO registers for NV40:NVC0 are [i is domain index]:
 00a520+i*4 CLRFLAG_OP[i] - CLRFLAG logic operation
 00a540+i*4 SRC_STATUS[i] - selected inputs status
 00a560+i*4 SPEC_SRC[i] - SWAP and UNK8 input selection [NV84-]
-00a580+i*4 ??? [XXX]
+00a580+i*4 USER_TRIGGER[i] - triggers user-controllable signals [NVA3-]
 00a600+i*4 CTR_CYCLES[i] - elapsed cycles counter
 00a640+i*4 CTR_CYCLES_ALT[i] - CYCLES copy ??? [XXX]
 00a680+i*4 CTR_EVENT[i] - EVENT counter
@@ -245,7 +246,11 @@ For NVC0+:
 
 base+0x1f..0x22: PCOUNTER.MAIN.???
 base+0x23..0x26: PCOUNTER.MAIN.???
-base+0x27..0x2f: ???
+base+0x27: PCOUNTER.USER_0 - the USER_0 signal from current domain
+base+0x28: PCOUNTER.USER_1
+base+0x29: PCOUNTER.USER_2
+base+0x2a: PCOUNTER.USER_3
+base+0x2b..0x2f: ???
 base+0x30: PCOUNTER.DOM[7].EVENT - the EVENT input from domain 7
 base+0x31: PCOUNTER.DOM[6].EVENT - the EVENT input from domain 6
 base+0x32: PCOUNTER.DOM[5].EVENT - the EVENT input from domain 5
@@ -267,6 +272,38 @@ base+0x3f: PCOUNTER.DOM[0].FLAG - the FLAG from domain 0
 == The PM_TRIGGER and WRCACHE_FLUSH signals ==
 
 [XXX: write me]
+
+
+== The USER signals ==
+
+On NVA3:NVC0, each domain has two "user" signals controllable directly by
+PCOUNTER's MMIO register. The signals are called USER_0 and USER_1.
+
+MMIO 0x00a580+i*4: USER_TRIGGER [NVA3:NVC0]
+  bit 0: value for USER_0
+  bit 1: value for USER_1
+  bit 2: pulse mode for USER_0 - if set, will reset USER_0 to 0 one cycle
+    after setting it to the value of bit 0.
+  bit 3: pulse mode for USER_1
+  Whenever this register is written, USER_0 signal is set to the value of bit
+  0, and USER_1 is set to the value of bit 1. On the next cycle after the
+  signal change, the USER signals for which the pulse mode bit is set are
+  reset to 0. This register is write-only.
+
+On NVC0+, this number is bumped to 4, the USER_TRIGGER register is read/write,
+and the signals are now located in the trailer area.
+
+MMIO dombase+0x0ec: USER_TRIGGER [NVC0-]
+  bits 0-3: value for USER_0..USER_3
+  bits 4-7: pulse mode for USER_0..USER_3
+  Works like the NVA3 USER_TRIGGER register, except it's also readable. Note
+  that bits 0-3 will be auto-cleared by bits 4-7 after one cycle - bits 0-3
+  of the read value correspond directly to the signals' current values.
+
+In effect:
+  - write value = 0, pulse = any to set signal to 0 indefinitely
+  - write value = 1, pulse = 0 to set signal to 1 indefinitely
+  - write value = 1, pulse = 1 to set signal to 1 for one pulse only [and then set to 0 indefinitely]
 
 
 = Input selection =

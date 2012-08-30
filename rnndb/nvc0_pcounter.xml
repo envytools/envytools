@@ -79,6 +79,16 @@
 			<bitfield pos="26" name="MS1"/>
 			<bitfield pos="27" name="MS3"/>
 		</reg32>
+		<reg32 offset="0xec" name="USER_TRIGGER">
+			<bitfield pos="0" name="VAL_0"/>
+			<bitfield pos="1" name="VAL_1"/>
+			<bitfield pos="2" name="VAL_2"/>
+			<bitfield pos="3" name="VAL_3"/>
+			<bitfield pos="4" name="PULSE_0"/>
+			<bitfield pos="5" name="PULSE_1"/>
+			<bitfield pos="6" name="PULSE_2"/>
+			<bitfield pos="7" name="PULSE_3"/>
+		</reg32>
 	</group>
 
 	<group name="pcounter_dset">
