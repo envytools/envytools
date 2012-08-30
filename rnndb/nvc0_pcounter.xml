@@ -12,61 +12,63 @@
 <array name="PCOUNTER" offset="0x180000" stride="0x40000" length="1" variants="NVC0-">
 	<group name="pcounter_dom">
 		<reg32 offset="0" name="STATUS" length="8"/>
-		<reg32 offset="0x40" name="MS0_SRC">
+		<reg32 offset="0x40" name="PRE_SRC">
 			<bitfield low="0" high="7" name="0"/>
 			<bitfield low="8" high="15" name="1"/>
 			<bitfield low="16" high="23" name="2"/>
 			<bitfield low="24" high="31" name="3"/>
 		</reg32>
-		<reg32 offset="0x44" name="MS0_OP">
+		<reg32 offset="0x44" name="PRE_OP">
 			<bitfield low="0" high="15" name="FUNC"/>
 			<bitfield low="16" high="20" name="UNK16"/>
 		</reg32>
-		<reg32 offset="0x48" name="MS1_SRC">
+		<reg32 offset="0x48" name="START_SRC">
 			<bitfield low="0" high="7" name="0"/>
 			<bitfield low="8" high="15" name="1"/>
 			<bitfield low="16" high="23" name="2"/>
 			<bitfield low="24" high="31" name="3"/>
 		</reg32>
-		<reg32 offset="0x4c" name="MS1_OP">
+		<reg32 offset="0x4c" name="START_OP">
 			<bitfield low="0" high="15" name="FUNC"/>
 			<bitfield low="16" high="20" name="UNK16"/>
 		</reg32>
-		<reg32 offset="0x50" name="MS2_SRC">
+		<reg32 offset="0x50" name="EVENT_SRC">
 			<bitfield low="0" high="7" name="0"/>
 			<bitfield low="8" high="15" name="1"/>
 			<bitfield low="16" high="23" name="2"/>
 			<bitfield low="24" high="31" name="3"/>
 		</reg32>
-		<reg32 offset="0x54" name="MS2_OP">
+		<reg32 offset="0x54" name="EVENT_OP">
 			<bitfield low="0" high="15" name="FUNC"/>
 			<bitfield low="16" high="20" name="UNK16"/>
 		</reg32>
-		<reg32 offset="0x58" name="MS3_SRC">
+		<reg32 offset="0x58" name="STOP_SRC">
 			<bitfield low="0" high="7" name="0"/>
 			<bitfield low="8" high="15" name="1"/>
 			<bitfield low="16" high="23" name="2"/>
 			<bitfield low="24" high="31" name="3"/>
 		</reg32>
-		<reg32 offset="0x5c" name="MS3_OP">
+		<reg32 offset="0x5c" name="STOP_OP">
 			<bitfield low="0" high="15" name="FUNC"/>
 			<bitfield low="16" high="20" name="UNK16"/>
 		</reg32>
-		<reg32 offset="0x5c" name="MS3_OP">
+		<reg32 offset="0x60" name="SETFLAG_OP">
 			<bitfield low="0" high="15" name="FUNC"/>
 			<bitfield low="16" high="20" name="UNK16"/>
 		</reg32>
-		<reg32 offset="0x60" name="UNK4_OP">
+		<reg32 offset="0x64" name="CLRFLAG_OP">
 			<bitfield low="0" high="15" name="FUNC"/>
 			<bitfield low="16" high="20" name="UNK16"/>
 		</reg32>
-		<reg32 offset="0x64" name="UNK5_OP">
-			<bitfield low="0" high="15" name="FUNC"/>
-			<bitfield low="16" high="20" name="UNK16"/>
+		<reg32 offset="0x68" name="SRC_STATUS">
+			<bitfield low="0" high="3" name="PRE"/>
+			<bitfield low="4" high="7" name="START"/>
+			<bitfield low="8" high="11" name="EVENT"/>
+			<bitfield low="12" high="15" name="STOP"/>
 		</reg32>
 		<reg32 offset="0x6c" name="SWAP_SRC"/>
 		<reg32 offset="0x9c" name="CTRL">
-			<bitfield pos="7" name="IMPORT_EVENT_DISABLE"/>
+			<bitfield pos="7" name="EVENT_IMPORT_DISABLE"/>
 			<bitfield low="21" high="23" name="PERIODIC_PERIOD">
 				<value value="0" name="DISABLED"/>
 				<value value="1" name="1K"/>
@@ -77,17 +79,34 @@
 				<value value="6" name="32K"/>
 				<value value="7" name="64K"/>
 			</bitfield>
+			<bitfield pos="24" name="QUAD_VALID"/>
+			<bitfield pos="25" name="QUAD_OVERFLOW"/>
+			<bitfield low="28" high="29" name="SINGLE_STATE">
+				<value value="0" name="INACTIVE"/>
+				<value value="1" name="WAIT_PRE"/>
+				<value value="2" name="WAIT_START"/>
+				<value value="3" name="COUNTING"/>
+			</bitfield>
 		</reg32>
-		<reg32 offset="0xa4" name="CTR_MS2"/>
-		<reg32 offset="0xa8" name="CTR_MS0"/>
-		<reg32 offset="0xac" name="CTR_MS1"/>
-		<reg32 offset="0xb0" name="CTR_MS3"/>
+		<reg32 offset="0xa0" name="QUAD_ACK_TRIGGER"/>
+		<reg32 offset="0xa4" name="CTR_EVENT"/>
+		<reg32 offset="0xa8" name="CTR_PRE"/>
+		<reg32 offset="0xac" name="CTR_START"/>
+		<reg32 offset="0xb0" name="CTR_STOP"/>
 		<reg32 offset="0xbc" name="CTR_UNK0"/>
-		<reg32 offset="0xe4" name="MSSTAT">
-			<bitfield pos="24" name="MS2"/>
-			<bitfield pos="25" name="MS0"/>
-			<bitfield pos="26" name="MS1"/>
-			<bitfield pos="27" name="MS3"/>
+		<reg32 offset="0xe4" name="STATE">
+			<bitfield low="0" high="1" name="SINGLE_STATE">
+				<value value="0" name="INACTIVE"/>
+				<value value="1" name="WAIT_PRE"/>
+				<value value="2" name="WAIT_START"/>
+				<value value="3" name="COUNTING"/>
+			</bitfield>
+			<bitfield pos="2" name="QUAD_VALID"/>
+			<bitfield pos="3" name="QUAD_OVERFLOW"/>
+			<bitfield pos="24" name="EVENT"/>
+			<bitfield pos="25" name="PRE"/>
+			<bitfield pos="26" name="START"/>
+			<bitfield pos="27" name="STOP"/>
 		</reg32>
 		<reg32 offset="0xec" name="USER_TRIGGER">
 			<bitfield pos="0" name="VAL_0"/>
