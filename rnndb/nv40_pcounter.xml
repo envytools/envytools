@@ -112,7 +112,10 @@
 			<value value="2" name="UNK2" variants="NV84-"/>
 		</bitfield>
 		<bitfield low="4" high="6" name="UNK4"/>
-		<bitfield pos="8" name="UNK8"/>
+		<bitfield pos="8" name="EVENT_CTR_PERIOD">
+			<value value="0" name="ONE"/>
+			<value value="1" name="ALL"/>
+		</bitfield>
 		<bitfield pos="11" name="EVENT_IMPORT_DISABLE"/>
 		<bitfield pos="13" name="FLAG_IMPORT_DISABLE"/>
 		<bitfield pos="16" name="UNK16"/>

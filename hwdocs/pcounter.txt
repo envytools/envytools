@@ -36,7 +36,7 @@ subrevisions:
 
  - NV10:NV40 major revision:
   - NV10:NV15 - first version, one domain, only single-event mode available
-  - NV15:NV20 - ??? [XXX]
+  - NV15:NV20 - added one period / all periods event counter mode switch
   - NV20:NV30 - added second domain for events associated with memory clock
   - NV30:NV40 - removed separate clrflag/setflag input selection, changed
     from 40-bit to 32-bit counters, added quad event mode

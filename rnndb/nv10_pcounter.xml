@@ -106,8 +106,14 @@
 			<value value="2" name="WAIT_START"/>
 			<value value="3" name="COUNTING"/>
 		</bitfield>
-		<bitfield pos="8" name="UNK8" variants="NV15-"/>
-		<bitfield pos="9" name="UNK9" variants="NV20-"/>
+		<bitfield pos="8" name="DOM0_EVENT_CTR_PERIOD" variants="NV15-">
+			<value value="0" name="ONE"/>
+			<value value="1" name="ALL"/>
+		</bitfield>
+		<bitfield pos="9" name="DOM1_EVENT_CTR_PERIOD" variants="NV20-">
+			<value value="0" name="ONE"/>
+			<value value="1" name="ALL"/>
+		</bitfield>
 		<bitfield pos="16" name="DOM0_MODE" variants="NV30-">
 			<value value="0" name="SINGLE"/>
 			<value value="1" name="QUAD"/>
