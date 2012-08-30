@@ -102,6 +102,10 @@
 		<reg32 offset="0xac" name="CTR_START"/>
 		<reg32 offset="0xb0" name="CTR_STOP"/>
 		<reg32 offset="0xbc" name="CTR_UNK0"/>
+		<reg32 offset="0xc8" name="VSTATUS">
+			<bitfield low="0" high="2" name="DOM" type="NV50_VSTATUS"/>
+			<bitfield pos="8" name="REPORT_TO_DSET"/>
+		</reg32>
 		<reg32 offset="0xe4" name="STATE">
 			<bitfield low="0" high="1" name="SINGLE_STATE">
 				<value value="0" name="INACTIVE"/>
@@ -142,7 +146,20 @@
 	</group>
 
 	<group name="pcounter_dset">
-
+		<reg32 offset="0x10" name="VSTATUS_0">
+			<bitfield low="0" high="2" name="DSET" type="NV50_VSTATUS"/>
+			<bitfield pos="8" name="REPORT_TO_PGRAPH"/>
+		</reg32>
+		<reg32 offset="0x14" name="VSTATUS_1">
+			<bitfield low="0" high="2" name="DOM0" type="NV50_VSTATUS"/>
+			<bitfield low="4" high="6" name="DOM1" type="NV50_VSTATUS"/>
+			<bitfield low="8" high="10" name="DOM2" type="NV50_VSTATUS"/>
+			<bitfield low="12" high="14" name="DOM3" type="NV50_VSTATUS"/>
+			<bitfield low="16" high="18" name="DOM4" type="NV50_VSTATUS"/>
+			<bitfield low="20" high="22" name="DOM5" type="NV50_VSTATUS"/>
+			<bitfield low="24" high="26" name="DOM6" type="NV50_VSTATUS"/>
+			<bitfield low="28" high="30" name="DOM7" type="NV50_VSTATUS"/>
+		</reg32>
 	</group>
 
 	<array name="GPC_DOM" offset="0" stride="0x1000" length="32">
@@ -162,7 +179,11 @@
 	</array>
 
 	<array name="MAIN" offset="0x34000" stride="0x4000" length="1">
-
+		<reg32 offset="0xa4" name="VSTATUS">
+			<bitfield low="0" high="2" name="MAIN" type="NV50_VSTATUS"/> <!-- XXX: check -->
+			<!-- XXX: something at position 4 -->
+			<bitfield pos="8" name="UNK8"/>
+		</reg32>
 	</array>
 
 	<array name="GPC_DSET" offset="0x38000" stride="0x200" length="32">
