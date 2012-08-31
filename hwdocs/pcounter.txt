@@ -45,7 +45,8 @@ subrevisions:
     chaining through SETFLAG.
  - NV40:NVC0 major revision:
   - NV40:NV84 - rearranged to make space for 8 domains, added ??? [XXX]
-  - NV84:NV92 - added memory dump mode and swap input selection
+  - NV84:NV92 - added memory dump mode, swap input selection, and PERIODIC
+    signals
   - NV92:NVA3 - added slightly more flexible logic op delayed source selection
     and ??? [XXX]
   - NVA3:NVC0 - added USER signals
@@ -53,6 +54,9 @@ subrevisions:
   - NVC0+ - split PCOUNTER into hub, per-gpc and per-partition domain sets,
     ???
 [XXX: figure out what else]
+
+NOTE: the information in this document is at the moment not fully verified
+for NVC0+. [XXX: make it so]
 
 The inputs to PCOUNTER are various activity monitoring signals from all over
 the card. The PCOUNTER hardware selects a few of them, performs programmable
@@ -537,7 +541,124 @@ the SWAP input was asserted for one cycle.
 
 = Counters =
 
-[XXX: write me]
+There are several modes in which PCOUNTER can be used, but all of them use
+common counters. they are:
+ - CTR_CYCLES: counts all clock cycles in a counting period
+ - CTR_CYCLES_ALT: a copy of CTR_CYCLES? [XXX]
+ - CTR_EVENT: counts 1s on EVENT input, or sums integers in EVENT_* special
+   counter modes
+ - CTR_START: in quad event mode, counts 1s on START input, or sums integers
+   in EXTRA_* special counter modes; in single event mode counts measurement
+   periods in which CTR_EVENT reached value >= THRESHOLD
+ - CTR_PRE: in quad event mode, counts 1s on PRE input; in single event mode,
+   counts down PRE assertions until WAIT_FOR_PRE state is left, then sums
+   integers in EXTRA_* special counter modes and is unused otherwise.
+ - CTR_STOP: in quad event mode, counts 1s on STOP input; in single event
+   mode, counts down counting periods until the counting process ends.
+
+On NV10:NV30, the CTR_CYCLES, CTR_CYCLES_ALT, CTR_EVENT and CTR_START counters
+are 40-bit, while CTR_PRE and CTR_STOP are 32-bit. On NV30+, all counters
+are 32-bit.
+
+The registers used to access the counters are:
+
+MMIO 0x00a600+i*0x100: CTR_CYCLES[i] [NV10:NV40]
+MMIO 0x00a600+i*4: CTR_CYCLES[i] [NV40:NVC0]
+  Read-only, gives the current value of CTR_CYCLES. Returns low 32 bits
+  on NV10:NV30.
+
+MMIO 0x00a604+i*0x100: CTR_CYCLES_HI[i] [NV10:NV30]
+  Read-only, gives the high 8 bits of the current value of CTR_CYCLES.
+
+MMIO 0x00a608+i*0x100: CTR_CYCLES_ALT[i] [NV10:NV40]
+MMIO 0x00a640+i*4: CTR_CYCLES_ALT[i] [NV40:NVC0]
+  Read-only, gives the current value of CTR_CYCLES_ALT. Returns low 32 bits
+  on NV10:NV30.
+
+MMIO 0x00a60c+i*0x100: CTR_CYCLES_ALT_HI[i] [NV10:NV30]
+  Read-only, gives the high 8 bits of the current value of CTR_CYCLES_ALT.
+
+MMIO 0x00a610+i*0x100: CTR_EVENT[i] [NV10:NV40]
+MMIO 0x00a680+i*4: CTR_EVENT[i] [NV40:NVC0]
+  Read-only, gives the current value of CTR_EVENT. Returns low 32 bits
+  on NV10:NV30.
+
+MMIO 0x00a614+i*0x100: CTR_EVENT_HI[i] [NV10:NV30]
+  Read-only, gives the high 8 bits of the current value of CTR_EVENT.
+
+MMIO 0x00a618+i*0x100: CTR_START[i] [NV10:NV40]
+MMIO 0x00a6c0+i*4: CTR_START[i] [NV40:NVC0]
+  Read-only, gives the current value of CTR_START. Returns low 32 bits
+  on NV10:NV30.
+
+MMIO 0x00a61c+i*0x100: CTR_START_HI[i] [NV10:NV30]
+  Read-only, gives the high 8 bits of the current value of CTR_START.
+
+MMIO 0x00a620+i*0x100: CTR_PRE[i] [NV10:NV40]
+MMIO 0x00a700+i*4: CTR_PRE[i] [NV40:NVC0]
+  When read, gives the current value of CTR_PRE. When written, sets the
+  initial CTR_PRE value for single-event mode.
+
+MMIO 0x00a624+i*0x100: CTR_STOP[i] [NV10:NV40]
+MMIO 0x00a740+i*4: CTR_STOP[i] [NV40:NVC0]
+  When read, gives the current value of CTR_STOP. When written, sets the
+  initial CTR_STOP value for single-event mode.
+
+Note that, in quad event mode, these registers access the copies of the
+counters from previous counting period, and the currently active counters
+are not visible.
+
+[XXX: figure out what's the deal with NVC0 counters]
+
+
+== Special counter modes ==
+
+While the simplest way to use the counters is to have them increment by 1 every
+clock cycle when a given input is set, PCOUNTER supports a few more complex
+modes where a 4-bit, 6-bit, or 2-bit integer made of several signals is added
+to a counter on every cycle. This is used to count events which can happen
+multiple times in a single cycle - the relevant unit then exports a multi-bit
+event count, instead of simple event strobe.
+
+The integers used in special copunter modes are:
+
+ - B4: 4-bit integer, made of the following signals, in low-to-high bit order:
+   - START_SRC[0]
+   - START_SRC[1]
+   - START_SRC[2]
+   - START_SRC[3]
+ - B6: 6-bit integer, made of:
+   - START_SRC[0]
+   - START_SRC[1]
+   - START_SRC[2]
+   - START_SRC[3]
+   - EVENT_SRC[2]
+   - EVENT_SRC[3]
+ - B2: 2-bit integer, made of:
+   - EVENT_SRC[0]
+   - EVENT_SRC[1]
+
+The modes are:
+
+ - SIMPLE: CTR_EVENT is increased by 1 on every cycle when EVENT input is 1
+   [ie. nothing interesting happens]
+ - EVENT_B4: CTR_EVENT is increased by B4 on every cycle when EVENT input is 1
+ - EVENT_B6 [NV40-]: CTR_EVENT is increased by B6 on every cycle when EVENT
+   input is 1
+ - EXTRA_B4 [NV40-]: CTR_EVENT behaves as in SIMPLE mode, but:
+   - single event mode: CTR_PRE, instead of staying at 0 after leaving
+     WAIT_FOR_PRE state, is used as a counter, and is increased by B4 on every
+     clock cycle
+   - quad event mode: CTR_START, instead of being controlled by START input,
+     is increased by B4 on every clock cycle
+ - EXTRA_B6_EVENT_B2 [NV40-]: CTR_EVENT is increased by B2 on every clock
+   cycle, and:
+   - single event mode: CTR_PRE behaves like in EXTRA_B4 mode, but is
+     increased by B6 instead of B4 every cycle
+   - quad event mode: CTR_START behaves like in EXTRA_B4 mode, bus is
+     increased by B6 instead of B4 every cycle
+
+[XXX: figure out if there's anything new on NVC0]
 
 
 = Control registers =
