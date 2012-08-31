@@ -432,7 +432,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1120" name="VTX_ATTR_MASK_UNK0DD0_ALT" length="4" variants="NVA3_3D-">
 			<doc>A mask of something for vertex attrs. Most likely.</doc>
 		</reg32>
-		<reg32 offset="0x1130" name="VP_ATTR_EN_ALT" length="4" variants="NVA3_3D">
+		<reg32 offset="0x1130" name="VP_ATTR_EN_ALT" length="4" variants="NVA3_3D-">
 			<bitfield name="7" high="31" low="28" type="nv50_vic"/>
 			<bitfield name="6" high="27" low="24" type="nv50_vic"/>
 			<bitfield name="5" high="23" low="20" type="nv50_vic"/>
