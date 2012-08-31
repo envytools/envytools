@@ -604,6 +604,12 @@ MMIO 0x00a740+i*4: CTR_STOP[i] [NV40:NVC0]
   When read, gives the current value of CTR_STOP. When written, sets the
   initial CTR_STOP value for single-event mode.
 
+The CTR_PRE and CTR_STOP counters have two values: the visible "current"
+value, and the hidden "initial" value. Reading the corresponding register
+reads the "current" value, while writing sets the "initial" value. The
+"initial" values are used when starting counting process in single event
+mode.
+
 Note that, in quad event mode, these registers access the copies of the
 counters from previous counting period, and the currently active counters
 are not visible.
@@ -668,12 +674,165 @@ The modes are:
 
 = Single event mode =
 
-[XXX: write me]
+In single event mode, one event input is being monitored and counted, with
+quite complex counting period management. The inputs used by single event mode
+counting process are PRE, START, EVENT, STOP.
+
+The counting process may be in one of 4 states:
+
+ - IDLE: nothing is happening, PCOUNTER needs to be set up
+ - WAIT_FOR_PRE: counting process has started, but PRE pulses are reuired
+   before it's actually possible to start a counting period
+ - WAIT_FOR_START: counting process has started, a counting period is not
+   currently active, but will be started on a START pulse
+ - COUNTING: a counting period is currently active, and the counters are in
+   use
+
+Counting process works like this:
+
+On every cycle:
+	if (PCOUNTER config register other than PRE_OP written this cycle) {
+		SINGLE_STATE = IDLE;
+	}
+	switch (SINGLE_STATE) {
+		case IDLE:
+			if (PRE_OP written this cycle) {
+				/* start counting process, init counters */
+				CTR_EVENT = 0;
+				CTR_START = 0;
+				CTR_CYCLES = CTR_CYCLES_ALT = 0;
+				CTR_PRE = CTR_PRE_init;
+				CTR_STOP = CTR_STOP_init;
+				FLAG = 0;
+				SINGLE_STATE = WAIT_FOR_PRE;
+			}
+			break;
+		case WAIT_FOR_PRE:
+			if (SETFLAG) FLAG = 1;
+			if (CLRFLAG) FLAG = 0;
+			if (PRE) {
+				if (CTR_PRE != 0) {
+					CTR_PRE--;
+				} else {
+					SINGLE_STATE = WAIT_FOR_START;
+				}
+			}
+			break;
+		case WAIT_FOR_START:
+			if (SETFLAG) FLAG = 1;
+			if (CLRFLAG) FLAG = 0;
+			if (START) {
+				CTR_CYCLES = CTR_CYCLES_ALT = 0;
+				if (EVENT_CTR_PERIOD == ONE)
+					CTR_EVENT = 0;
+				SINGLE_STATE = COUNTING;
+			}
+			break;
+		case COUNTING:
+			if (SETFLAG) FLAG = 1;
+			if (CLRFLAG) FLAG = 0;
+			increase CTR_EVENT and maybe CTR_PRE according to
+			the counter mode;
+			if (STOP) {
+				if (CTR_EVENT >= THRESHOLD)
+					CTR_START++;
+				if (CTR_STOP != 0) {
+					CTR_STOP--;
+					SINGLE_STATE = WAIT_FOR_START;
+				} else {
+					SINGLE_STATE = IDLE;
+				}
+			}
+	}
+
+Or, in summary:
+ - before actual counting, (CTR_PRE+1) 1s must happen on PRE input
+ - a counting process consists of (CTR_STOP+1) counting periods
+ - a counting period is started by 1 on START input and stopped by 1 on STOP
+   input
+ - events outside of a counting period don't count
+ - if EVENT_CTR_PERIOD is ONE, CTR_EVENT effectively applies to a counting
+   period, if it's ALL, it contains a sum over all counting periods.
+   CTR_PRE, when EXTRA_* counter mode is in use, always contains a sum over
+   all counting periods.
+ - CTR_CYCLES always contains length of current [COUNTING] or last
+   [WAIT_FOR_START] couting period
+ - CTR_START will contain the number of counting periods that ended with
+   CTR_EVENT >= THRESHOLD - probably only useful with EVENT_CTR_PERIOD = ONE.
+ - writing any *_OP register except PRE_OP, any *_SRC register, any CTR
+   register, THRESHOLD register, and CTRL register will abort the counting
+   process
+ - flag is frozen when in IDLE state, cleared to 0 when entering WAIT_FOR_PRE
+
+Single event mode doesn't use shadow counters - the values of all counters
+are immediately visible through MMIO registers.
+
+The threshold value for CTR_START counter can be set and read via the following
+registers:
+
+MMIO 0x00a628+i*0x100: THRESHOLD[i] [NV10:NV40]
+MMIO 0x00a780+i*4: THRESHOLD[i] [NV40:NVC0]
+  The THRESHOLD value, or low 32 bits of THRESHOLD value on NV10:NV30.
+
+MMIO 0x00a62c+i*0x100: THRESHOLD_HI[i] [NV10:NV30]
+  The high 8 bits of THRESHOLD value.
+
+[XXX: threshold on NVC0]
 
 
 = Quad event mode =
 
-[XXX: write me]
+In quad event mode, 4 different event inputs are counted, each in a dedicated
+counter. The events are counted in invisible "shadow" registers, while the
+visible registers contain the final values of counters from previous counting
+period. Counting periods are controlled by the special SWAP input, which
+copies the "shadow" counters to visible registers, and clears the shadow
+counters to 0. In addition, the SWAP signal marks the counter values as
+available in the CONTROL register.
+
+The counters used in quad event mode are:
+
+ - CTR_CYCLES and CTR_CYCLES_ALT: increases by 1 for every cycle
+ - CTR_EVENT: increases as per the counter mode, usually by 1 for every cycle
+   when EVENT input is set
+ - CTR_START: increases as per the counter mode, usually by 1 for every cycle
+   when START input is set
+ - CTR_PRE: increases by 1 for every cycle when PRE input is set
+ - CTR_STOP: increases by 1 for every cycle when STOP input is set
+
+When in quad event mode, the counters are always active - there's no IDLE state
+like in single event mode.
+
+The counter swap is triggered on every cycle when SWAP input is set. On
+NV84:NVC0, the counter swap is also triggered on every write to the PRE_OP
+register. The PCOUNTER keeps track of how many counter value sets have been
+swapped and how many have been read. It can thus be in one of the three states:
+
+ - EMPTY - no new counter values to read
+ - VALID - swap has happened and counter values are available for reading
+ - OVERFLOW - another swap has happened while in VALID state, and counter
+   values were lost
+
+A swap bumps the state up one unit - EMPTY goes to VALID, VALID goes to
+OVERFLOW, and OVERFLOW is unchanged.
+
+Note that the swap is performed before updating the counters for a given
+cycle - thus if SWAP and one of the event inputs are active on the same cycle,
+the events will be counted for the *next* period.
+
+The software may inform the PCOUNTER of read completion by poking the
+write-only QUAD_ACK_TRIGGER register. The register is shared for all domains
+on NV30:NV40, and per-domain for NV40+:
+
+MMIO 0x00a738: QUAD_ACK_TRIGGER [NV30:NV40]
+  bit 0: DOM0 - when written as 0, nothing happens. When written as 1, the
+    status of domain #1 is bumped down one unit - VALID goes to EMPTY, OVERFLOW
+    goes to VALID, and EMPTY is unchanged.
+  bit 8: DOM1 - like DOM0, but affects domain #1
+
+MMIO 0x00a7e0+i*4: QUAD_ACK_TRIGGER[i] [NV40:NVC0]
+MMIO dombase+0x0a0: QUAD_ACK_TRIGGER [NVC0-]
+  bit 0: Like NV30's DOM0/DOM1 bits, affects the domain the register is in.
 
 
 = Memory write mode =
@@ -690,7 +849,9 @@ SETFLAG and CLRFLAG inputs. On every clock cycle:
  - if SETFLAG is 1 and CLRFLAG is 0, the FLAG is set to 1
  - if both CLRFLAG and SETFLAG are 0, the FLAG is unchanged
 
-[XXX: interactions of the flag with single event mode]
+In addition, when in single-event mode, the FLAG is frozen [will not respond
+to CLRFLAG/SETFLAG] when in IDLE state, and will be cleared to 0 when going
+to WAIT_FOR_PRE state.
 
 The current value of the FLAG is available as a common trailer signal to all
 domains in the same domain set, allowing complex operations to be performed.
