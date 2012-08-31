@@ -13,6 +13,7 @@ TOC
 2.5. The PERIODIC signal
 3. Input selection
 4. Counters
+4.1. Counter modes
 5. Control registers
 6. Single event mode
 7. Quad event mode
@@ -361,12 +362,15 @@ MMIO 0x00a408+i*0x100: START_SRC[i] [NV10:NV40]
 MMIO 0x00a440+i*4: START_SRC[i] [NV40:NVC0]
 MMIO dombase+0x048: START_SRC [NVC0-]
   Like PRE_SRC, but for START. On NV30+, these signals are also used as inputs
-  to CLRFLAG and SETFLAG logic operations.
+  to CLRFLAG and SETFLAG logic operations, and are used as a 4-bit integer
+  or low 4 bits of 6-bit integer in special counter modes.
 
 MMIO 0x00a410+i*0x100: EVENT_SRC[i] [NV10:NV40]
 MMIO 0x00a480+i*4: EVENT_SRC[i] [NV40:NVC0]
 MMIO dombase+0x050: EVENT_SRC [NVC0-]
-  Like PRE_SRC, but for EVENT.
+  Like PRE_SRC, but for EVENT. On NV40+, signals 2 and 3 are also used as high
+  2 bits of a 6-bit integer in special counter modes, and signals 0 and 1 are
+  used as a 2-bit integer.
 
 MMIO 0x00a418+i*0x100: STOP_SRC[i] [NV10:NV40]
 MMIO 0x00a4c0+i*4: STOP_SRC[i] [NV40:NVC0]
