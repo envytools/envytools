@@ -75,8 +75,14 @@
 				<value value="1" name="QUAD"/>
 				<value value="2" name="UNK2"/>
 			</bitfield>
-			<bitfield pos="7" name="EVENT_IMPORT_DISABLE"/>
-			<bitfield pos="8" name="FLAG_IMPORT_DISABLE"/>
+			<bitfield pos="7" name="EVENT_IMPORT_MODE">
+				<value value="0" name="CONTINUOUS"/>
+				<value value="1" name="PULSE"/>
+			</bitfield>
+			<bitfield pos="8" name="FLAG_IMPORT_MODE">
+				<value value="0" name="CONTINUOUS"/>
+				<value value="1" name="PULSE"/>
+			</bitfield>
 			<bitfield low="21" high="23" name="PERIODIC_PERIOD">
 				<value value="0" name="DISABLED"/>
 				<value value="1" name="1K"/>

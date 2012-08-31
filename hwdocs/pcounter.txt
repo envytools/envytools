@@ -8,9 +8,10 @@ TOC
 2. The PCOUNTER signals
 2.1. The STATUS registers
 2.2. Trailer signals
-2.3. The PM_TRIGGER and WRCACHE_FLUSH signals
-2.4. The USER signals
-2.5. The PERIODIC signal
+2.3. The EVENT and FLAG signals
+2.4. The PM_TRIGGER and WRCACHE_FLUSH signals
+2.5. The USER signals
+2.6. The PERIODIC signal
 3. Input selection
 4. Counters
 4.1. Counter modes
@@ -280,6 +281,37 @@ base+0x3c: PCOUNTER.DOM[3].FLAG - the FLAG from domain 3
 base+0x3d: PCOUNTER.DOM[2].FLAG - the FLAG from domain 2
 base+0x3e: PCOUNTER.DOM[1].FLAG - the FLAG from domain 1
 base+0x3f: PCOUNTER.DOM[0].FLAG - the FLAG from domain 0
+
+
+== The EVENT and FLAG signals ==
+
+The trailer signals include EVENT and FLAG signals from all domains in the same
+domain set, allowing limitted inter-domain communication. The EVENT signal is
+simply the output of the EVENT logic operation in a given domain. The FLAG
+signal is the status of the FLAG in a given domain.
+
+In a given domain, its own FLAG and EVENT signals are connected directly to
+the relevant sources. However, other domains' signals need to be first
+converted to the right clock domain. On NV20:NV40, this is done by a simple
+synchronizer - the state of DOM[x].FLAG signal in domain y will be the same
+as the state of FLAG in domain x as of two domain y clocks ago. While this is
+appropriate for many purposes, this means that, if the two domains don't share
+the same clock, single-clock pulses in domain x may appear as multi-clock
+pulses in domain y [if it has faster clock], or be lost entirely [if it has
+slower clock].
+
+On NV40+, one of two synchronization mode can be selected for signals coming
+from other domains:
+
+ - CONTINUOUS: behaves like NV20:NV40
+ - PULSE: mode converts all 0-to-1 transitions in source domain into
+   single-clock pulses in destination domain
+
+There are two synchronization mode switches per domain. One applies to all
+incoming EVENT signals from other domains, while the other applies to all
+incoming FLAG signals. Note that the synchronization applies even between
+domains that do share a clock. However, the domain's own EVENT and FLAG signals
+aren't subject to synchronization when used inside it.
 
 
 == The PM_TRIGGER and WRCACHE_FLUSH signals ==
@@ -717,8 +749,11 @@ MMIO 0x00a7c0+i*4: CTRL[i] [NV40:NVC0]
     3: EXTRA_B4
     4: EXTRA_B6_EVENT_B2
   bit 8: EVENT_CTR_PERIOD - like on NV15
-  bit 11: ??? [XXX]
-  bit 13: ??? [XXX]
+  bit 11: EVENT_IMPORT_MODE - selects synchronization mode for EVENT signals
+    imported from other domains
+    0: CONTINUOUS
+    1: PULSE
+  bit 13: FLAG_IMPORT_MODE - like bit 11, but for FLAG signals
   bit 16: ??? [XXX]
   bit 20: ??? [XXX] [NV84:NVC0]
   bits 21-23: PERIODIC_PERIOD [NV84:NVC0] - selects PERIODIC signal period:
@@ -925,5 +960,3 @@ domains in the same domain set, allowing complex operations to be performed.
 Note however that the effect of CLRFLAG/SETFLAG on the FLAG signal is delayed
 by 2 clock cycles - if the SETFLAG input becomes 1 on cycle X, the FLAG signal
 will become 1 on cycle X+2.
-
-[XXX: cross-domain flag import stuff]
