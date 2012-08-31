@@ -105,8 +105,8 @@
 		<bitfield pos="8" name="DOM1"/>
 	</reg32>
 	<reg32 offset="0x73c" name="CTRL">
-		<bitfield pos="0" name="UNK0"/>
-		<bitfield pos="1" name="UNK1"/>
+		<bitfield pos="0" name="TVOUT_DEBUG_SEL"/>
+		<bitfield pos="1" name="TVOUT_DEBUG_ENABLE"/>
 		<bitfield pos="2" name="UNK2"/>
 		<bitfield low="3" high="4" name="DOM0_SINGLE_STATE">
 			<value value="0" name="INACTIVE"/>
