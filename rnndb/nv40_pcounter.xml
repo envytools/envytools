@@ -131,7 +131,7 @@
 			<!-- B6 sources are START_0123, EVENT_23 -->
 			<!-- B2 sources are EVENT_01 -->
 			<!-- EVENT_* add B4/B6 value to CTR_EVENT instead of 1 whenever EVENT is 1 -->
-			<value value="1" name="EVENT_B4"/> <!-- START_0123, EVENT_23 -->
+			<value value="1" name="EVENT_B4"/>
 			<value value="2" name="EVENT_B6"/>
 			<!-- EXTRA_* add B4/B6 value to CTR_PRE [SINGLE] or CTR_START [QUAD] on every clock cycle; EXTRA_B6_EVENT_B2 in addition adds B2 value to CTR_EVENT on every clock cycle; in EXTRA_B4 CTR_EVENT is unaffected -->
 			<value value="3" name="EXTRA_B4"/>

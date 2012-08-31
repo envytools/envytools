@@ -107,7 +107,10 @@
 	<reg32 offset="0x73c" name="CTRL">
 		<bitfield pos="0" name="TVOUT_DEBUG_SEL"/>
 		<bitfield pos="1" name="TVOUT_DEBUG_ENABLE"/>
-		<bitfield pos="2" name="UNK2"/>
+		<bitfield pos="2" name="CTR_MODE">
+			<value value="0" name="SIMPLE"/>
+			<value value="1" name="EVENT_B4"/>
+		</bitfield>
 		<bitfield low="3" high="4" name="DOM0_SINGLE_STATE">
 			<value value="0" name="INACTIVE"/>
 			<value value="1" name="WAIT_PRE"/>
