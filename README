@@ -23,7 +23,7 @@ Subdirectories:
 
 = Building, installing =
 
-Dependencies: cmake, libxml2, flex, bison
+Dependencies: cmake, libxml2, flex, bison, pkg-config
 Optional dependencies needed by nva: libpciaccess
 Optional dependencies needed by vdpow: vdpau, libx11
 
