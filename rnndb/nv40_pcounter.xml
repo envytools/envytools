@@ -17,7 +17,8 @@
 	</reg32>
 	<reg32 offset="0x420" name="PRE_OP" length="8">
 		<bitfield low="0" high="15" name="FUNC"/>
-		<bitfield low="16" high="17" name="UNK16"/>
+		<bitfield pos="16" name="ARG0_DELAY1"/>
+		<bitfield pos="17" name="ARG1_DELAY1"/>
 		<bitfield low="18" high="19" name="UNK18" variants="NV92-"/>
 	</reg32>
 	<reg32 offset="0x440" name="START_SRC" length="8">
@@ -28,7 +29,8 @@
 	</reg32>
 	<reg32 offset="0x460" name="START_OP" length="8">
 		<bitfield low="0" high="15" name="FUNC"/>
-		<bitfield low="16" high="17" name="UNK16"/>
+		<bitfield pos="16" name="ARG0_DELAY1"/>
+		<bitfield pos="17" name="ARG1_DELAY1"/>
 		<bitfield low="18" high="19" name="UNK18" variants="NV92-"/>
 	</reg32>
 	<reg32 offset="0x480" name="EVENT_SRC" length="8">
@@ -39,7 +41,12 @@
 	</reg32>
 	<reg32 offset="0x4a0" name="EVENT_OP" length="8">
 		<bitfield low="0" high="15" name="FUNC"/>
-		<bitfield low="16" high="18" name="UNK16"/>
+		<bitfield pos="16" name="ARG0_DELAY1"/>
+		<bitfield pos="17" name="ARG1_DELAY1"/>
+		<bitfield pos="18" name="ARG3">
+			<value value="0" name="SRC3"/>
+			<value value="1" name="SETFLAG"/>
+		</bitfield>
 		<bitfield low="19" high="20" name="UNK18" variants="NV92-"/>
 	</reg32>
 	<reg32 offset="0x4c0" name="STOP_SRC" length="8">
@@ -50,17 +57,24 @@
 	</reg32>
 	<reg32 offset="0x4e0" name="STOP_OP" length="8">
 		<bitfield low="0" high="15" name="FUNC"/>
-		<bitfield low="16" high="18" name="UNK16"/>
+		<bitfield pos="16" name="ARG0_DELAY1"/>
+		<bitfield pos="17" name="ARG1_DELAY1"/>
+		<bitfield pos="18" name="ARG3">
+			<value value="0" name="SRC3"/>
+			<value value="1" name="SETFLAG"/>
+		</bitfield>
 		<bitfield low="19" high="20" name="UNK18" variants="NV92-"/>
 	</reg32>
 	<reg32 offset="0x500" name="SETFLAG_OP" length="8">
 		<bitfield low="0" high="15" name="FUNC"/>
-		<bitfield low="16" high="17" name="UNK16"/>
+		<bitfield pos="16" name="ARG0_DELAY1"/>
+		<bitfield pos="17" name="ARG1_DELAY1"/>
 		<bitfield low="18" high="19" name="UNK18" variants="NV92-"/>
 	</reg32>
 	<reg32 offset="0x520" name="CLRFLAG_OP" length="8">
 		<bitfield low="0" high="15" name="FUNC"/>
-		<bitfield low="16" high="17" name="UNK16"/>
+		<bitfield pos="16" name="ARG0_DELAY1"/>
+		<bitfield pos="17" name="ARG1_DELAY1"/>
 		<bitfield low="18" high="19" name="UNK18" variants="NV92-"/>
 	</reg32>
 	<reg32 offset="0x540" name="SRC_STATUS" length="8">
