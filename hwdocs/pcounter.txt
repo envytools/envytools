@@ -575,6 +575,7 @@ the SWAP input was asserted for one cycle.
 
 There are several modes in which PCOUNTER can be used, but all of them use
 common counters. they are:
+
  - CTR_CYCLES: counts all clock cycles in a counting period
  - CTR_CYCLES_ALT: a copy of CTR_CYCLES? [XXX]
  - CTR_EVENT: counts 1s on EVENT input, or sums integers in EVENT_* special
@@ -590,7 +591,8 @@ common counters. they are:
 
 On NV10:NV30, the CTR_CYCLES, CTR_CYCLES_ALT, CTR_EVENT and CTR_START counters
 are 40-bit, while CTR_PRE and CTR_STOP are 32-bit. On NV30+, all counters
-are 32-bit.
+are 32-bit. The counters are saturated - once they reach the largest possible
+value [0xffffffffff or 0xffffffff], they stop incrementing.
 
 The registers used to access the counters are:
 
