@@ -87,8 +87,11 @@
 				<value value="6" name="32K"/>
 				<value value="7" name="64K"/>
 			</bitfield>
-			<bitfield pos="24" name="QUAD_VALID"/>
-			<bitfield pos="25" name="QUAD_OVERFLOW"/>
+			<bitfield low="24" high="25" name="QUAD_STATE">
+				<value value="0" name="EMPTY"/>
+				<value value="1" name="VALID"/>
+				<value value="3" name="OVERFLOW"/>
+			</bitfield>
 			<bitfield low="28" high="29" name="SINGLE_STATE">
 				<value value="0" name="INACTIVE"/>
 				<value value="1" name="WAIT_PRE"/>
@@ -113,8 +116,11 @@
 				<value value="2" name="WAIT_START"/>
 				<value value="3" name="COUNTING"/>
 			</bitfield>
-			<bitfield pos="2" name="QUAD_VALID"/>
-			<bitfield pos="3" name="QUAD_OVERFLOW"/>
+			<bitfield low="2" high="3" name="QUAD_STATE">
+				<value value="0" name="EMPTY"/>
+				<value value="1" name="VALID"/>
+				<value value="3" name="OVERFLOW"/>
+			</bitfield>
 			<bitfield pos="4" name="FLAG_NEXT"/>
 			<bitfield pos="5" name="FLAG_CUR"/>
 			<bitfield pos="6" name="UNK6_FLAG"/>

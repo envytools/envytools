@@ -531,7 +531,7 @@ MMIO dombase+0x06c: SWAP_SRC [NVC0-]
   bits 0-7: the SWAP signal
 
 On NV10:NVC0, writing any of the _SRC and _OP registers except PRE_OP in
-single event mode will result in the state being reset to IDLE. Writing
+single event mode will result in the state being reset to INACTIVE. Writing
 PRE_OP will start the counting process, setting the state to WAIT_PRE.
 On NV84:NVC0 in quad event mode, writing PRE_OP will cause a swap, as if
 the SWAP input was asserted for one cycle.
@@ -669,7 +669,72 @@ The modes are:
 
 = Control registers =
 
-[XXX: write me]
+The operation of PCOUNTER is controlled by the CTRL registers. NV10:NV40 have
+a single CTRL register, shared between both domains:
+
+MMIO 0x00a73c: CTRL [NV10:NV40]
+  bit 0: TVOUT_DEBUG_SEL - selects the signals that go to TV-out debug port,
+    if enabled.
+  bit 1: TVOUT_DEBUG_ENABLE - if 0, external TV encoder pins behave normally;
+    if 1, the display circuitry signals are disconnected, and internal PCOUNTER
+    debug pins are exposed via these pins.
+  bit 2: CTR_MODE - selects counter mode [see above], affects both domains
+    0: SIMPLE
+    1: EVENT_B4
+  bits 3-4: DOM0_SINGLE_STATE - read-only, reads as the current single event
+    mode state for domain #0:
+    0: INACTIVE
+    1: WAIT_PRE
+    2: WAIT_START
+    3: COUNTING
+  bits 5-6: DOM1_SINGLE_STATE [NV20:NV40] - like bits 3-4, but for domain #1
+  bit 8: DOM0_EVENT_CTR_PERIOD [NV15:NV40] - EVENT_CTR_PERIOD for domain #0:
+    0: ONE
+    1: ALL
+  bit 9: DOM1_EVENT_CTR_PERIOD [NV20:NV40] - like bit 8, but for domain #1
+  bit 16: DOM0_MODE [NV30:NV40] - selects counting mode for domain #0:
+    0: SINGLE - single event mode
+    1: QUAD - quad event mode
+  bit 18: DOM1_MODE [NV30:NV40] - like bit 16, but for domain #1
+  bits 24-25: DOM0_QUAD_STATE [NV30:NV40] - read-only, reads as the current
+    quad event mode state for domain #0:
+    0: EMPTY
+    1: VALID
+    3: OVERFLOW
+  bits 26-27: DOM1_QUAD_STATE [NV30:NV40] - like bits 24-25, but for domain #1
+
+NV40:NVC0 instead have per-domain CTRL registers:
+
+MMIO 0x00a7c0+i*4: CTRL[i] [NV40:NVC0]
+  bits 0-1: MODE - selects counting mode
+    0: SINGLE - single event mode
+    1: QUAD - quad event mode
+    2: MEMORY - memory write mode
+  bits 4-6: CTR_MODE - selects counter mode
+    0: SIMPLE
+    1: EVENT_B4
+    2: EVENT_B6
+    3: EXTRA_B4
+    4: EXTRA_B6_EVENT_B2
+  bit 8: EVENT_CTR_PERIOD - like on NV15
+  bit 11: ??? [XXX]
+  bit 13: ??? [XXX]
+  bit 16: ??? [XXX]
+  bit 20: ??? [XXX] [NV84:NVC0]
+  bits 21-23: PERIODIC_PERIOD [NV84:NVC0] - selects PERIODIC signal period:
+    0: disabled, PERIODIC signal is always 0
+    1: 0x400 clocks
+    2: 0x800 clocks
+    3: 0x1000 clocks
+    4: 0x2000 clocks
+    5: 0x4000 clocks
+    6: 0x8000 clocks
+    7: 0x10000 clocks
+  bits 24-25: QUAD_STATE - like on NV30
+  bits 28-29: SINGLE_STATE - like on NV10
+  bit 30: ??? [XXX] [NV92:NVC0]
+
+[XXX: NVC0]
 
 
 = Single event mode =
@@ -680,7 +745,7 @@ counting process are PRE, START, EVENT, STOP.
 
 The counting process may be in one of 4 states:
 
- - IDLE: nothing is happening, PCOUNTER needs to be set up
+ - INACTIVE: nothing is happening, PCOUNTER needs to be set up
  - WAIT_FOR_PRE: counting process has started, but PRE pulses are reuired
    before it's actually possible to start a counting period
  - WAIT_FOR_START: counting process has started, a counting period is not
@@ -692,10 +757,10 @@ Counting process works like this:
 
 On every cycle:
 	if (PCOUNTER config register other than PRE_OP written this cycle) {
-		SINGLE_STATE = IDLE;
+		SINGLE_STATE = INACTIVE;
 	}
 	switch (SINGLE_STATE) {
-		case IDLE:
+		case INACTIVE:
 			if (PRE_OP written this cycle) {
 				/* start counting process, init counters */
 				CTR_EVENT = 0;
@@ -723,7 +788,7 @@ On every cycle:
 			if (CLRFLAG) FLAG = 0;
 			if (START) {
 				CTR_CYCLES = CTR_CYCLES_ALT = 0;
-				if (EVENT_CTR_PERIOD == ONE)
+				if (chipset < NV15 || EVENT_CTR_PERIOD == ONE)
 					CTR_EVENT = 0;
 				SINGLE_STATE = COUNTING;
 			}
@@ -740,7 +805,7 @@ On every cycle:
 					CTR_STOP--;
 					SINGLE_STATE = WAIT_FOR_START;
 				} else {
-					SINGLE_STATE = IDLE;
+					SINGLE_STATE = INACTIVE;
 				}
 			}
 	}
@@ -754,7 +819,8 @@ Or, in summary:
  - if EVENT_CTR_PERIOD is ONE, CTR_EVENT effectively applies to a counting
    period, if it's ALL, it contains a sum over all counting periods.
    CTR_PRE, when EXTRA_* counter mode is in use, always contains a sum over
-   all counting periods.
+   all counting periods. NV10:NV15 cards don't have this submode bit and
+   always behave as if it was ONE.
  - CTR_CYCLES always contains length of current [COUNTING] or last
    [WAIT_FOR_START] couting period
  - CTR_START will contain the number of counting periods that ended with
@@ -762,7 +828,8 @@ Or, in summary:
  - writing any *_OP register except PRE_OP, any *_SRC register, any CTR
    register, THRESHOLD register, and CTRL register will abort the counting
    process
- - flag is frozen when in IDLE state, cleared to 0 when entering WAIT_FOR_PRE
+ - flag is frozen when in INACTIVE state, cleared to 0 when entering
+   WAIT_FOR_PRE
 
 Single event mode doesn't use shadow counters - the values of all counters
 are immediately visible through MMIO registers.
@@ -800,8 +867,8 @@ The counters used in quad event mode are:
  - CTR_PRE: increases by 1 for every cycle when PRE input is set
  - CTR_STOP: increases by 1 for every cycle when STOP input is set
 
-When in quad event mode, the counters are always active - there's no IDLE state
-like in single event mode.
+When in quad event mode, the counters are always active - there's no INACTIVE
+state like in single event mode.
 
 The counter swap is triggered on every cycle when SWAP input is set. On
 NV84:NVC0, the counter swap is also triggered on every write to the PRE_OP
@@ -850,7 +917,7 @@ SETFLAG and CLRFLAG inputs. On every clock cycle:
  - if both CLRFLAG and SETFLAG are 0, the FLAG is unchanged
 
 In addition, when in single-event mode, the FLAG is frozen [will not respond
-to CLRFLAG/SETFLAG] when in IDLE state, and will be cleared to 0 when going
+to CLRFLAG/SETFLAG] when in INACTIVE state, and will be cleared to 0 when going
 to WAIT_FOR_PRE state.
 
 The current value of the FLAG is available as a common trailer signal to all
