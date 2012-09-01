@@ -455,6 +455,13 @@
 		<reg32 offset="0x40c" name="BAR_REQMASK" length="2"/>
 		<reg32 offset="0x414" name="BAR"/>
 		<reg32 offset="0x418" name="BAR_SET"/>
+		<reg32 offset="0x420" name="IDLE_STATUS">
+			<bitfield pos="0" name="UC"/>
+			<bitfield pos="1" name="USER"/>
+			<bitfield pos="2" name="STRAND"/>
+			<bitfield pos="3" name="MMIO"/>
+		</reg32>
+		<reg32 offset="0x424" name="USER_BUSY" type="boolean"/>
 		<reg32 offset="0x430" name="CC_WATCHDOG">
 			<bitfield low="0" high="29" name="TIME_REMAINING"/>
 			<bitfield pos="31" name="ENABLE"/>
