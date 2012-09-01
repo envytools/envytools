@@ -419,6 +419,7 @@
 				<doc>When BAR has all bits from BAR_REQMASK[0]&amp;BAR_REQMASK[1] set.</doc>
 			</bitfield>
 			<bitfield pos="9" name="BAR_1"/>
+			<bitfield pos="10" name="UNK10_PCOUNTER"/>
 			<bitfield pos="11" name="CC_WATCHDOG"/>
 			<bitfield pos="12" name="UNK12_MEMIF"/>
 			<bitfield pos="13" name="UNK13_MEMIF"/>
@@ -441,6 +442,7 @@
 			<value value="0x27" name="MMIO_WRS_DONE"/>
 			<value value="0x28" name="BAR_0"/>
 			<value value="0x29" name="BAR_1"/>
+			<value value="0x2a" name="UNK10_PCOUNTER"/>
 			<value value="0x2b" name="CC_WATCHDOG"/>
 			<value value="0x2c" name="UNK12_MEMIF"/>
 			<value value="0x2d" name="UNK13_MEMIF"/>

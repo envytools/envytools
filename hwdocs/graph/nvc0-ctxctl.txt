@@ -131,7 +131,7 @@ Interrupts:
 0x27: MMIO_WRS - MMIO synchronous write complete [nvc0-ctxctl-mmio.txt]
 0x28: BAR_0 - barrier #0 reached [see below]
 0x29: BAR_1 - barrier #1 reached [see below]
-
+0x2a: ??? - related to PCOUNTER [XXX]
 0x2b: WATCHDOG - watchdog timer expired [see below]
 0x2c: ??? - related to MEMIF [XXX]
 0x2d: ??? - related to MEMIF [XXX]
