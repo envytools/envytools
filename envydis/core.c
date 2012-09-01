@@ -38,6 +38,7 @@ static const struct {
 } isas[] = {
 	"nv50", &nv50_isa_s,
 	"nvc0", &nvc0_isa_s,
+	"gk110", &gk110_isa_s,
 	"ctx", &ctx_isa_s,
 	"fuc", &fuc_isa_s,
 	"fµc", &fuc_isa_s,

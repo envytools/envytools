@@ -302,6 +302,7 @@ static inline int var_ok(int fmask, int ptype, struct varinfo *varinfo) {
 
 extern struct disisa nv50_isa_s;
 extern struct disisa nvc0_isa_s;
+extern struct disisa gk110_isa_s;
 extern struct disisa ctx_isa_s;
 extern struct disisa fuc_isa_s;
 extern struct disisa hwsq_isa_s;

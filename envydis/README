@@ -18,6 +18,7 @@ hexadecimal numbers representing the bytes to disassemble. The options are:
   -m <machine> Select the ISA to disassemble. One of: 
      [****] nv50: nv50 [tesla] CUDA/shader ISA
      [*** ] nvc0: nvc0 [fermi] CUDA/shader ISA
+     [**  ] gk110: nv?? (tbd) [kepler GK110] CUDA/shader ISA
      [**  ] ctx: nv40 and nv50 PGRAPH context-switching microcode
      [*** ] fuc: fifo microcode, used to power various engines on nv98+ cards
      [**  ] hwsq: PBUS hardware sequencer microcode
