@@ -406,21 +406,23 @@
 
 	<group name="nvc0_ctxctl">
 		<use-group name="nv98_fucbase"/>
-		<reg32 offset="0x400" name="DONE">
-			<doc>Reg saying when misc things are done.</doc>
-			<bitfield pos="2" name="STRAND"/>
-			<bitfield pos="5" name="MMCTX"/>
-			<bitfield pos="6" name="MMIO_RD"/>
-			<bitfield pos="7" name="MMIO_WRS"/>
+		<reg32 offset="0x400" name="SIGNAL">
+			<bitfield pos="0" name="ZERO"/>
+			<bitfield pos="1" name="PIBUS_INTR"/>
+			<bitfield pos="2" name="STRAND_BUSY"/>
+			<bitfield pos="3" name="UNK3_RED_SWITCH"/>
+			<bitfield pos="4" name="UNK4_DISPATCH"/>
+			<bitfield pos="5" name="MMCTX_DONE"/>
+			<bitfield pos="6" name="MMIO_RD_DONE"/>
+			<bitfield pos="7" name="MMIO_WRS_DONE"/>
 			<bitfield pos="8" name="BAR_0">
 				<doc>When BAR has all bits from BAR_REQMASK[0]&amp;BAR_REQMASK[1] set.</doc>
 			</bitfield>
 			<bitfield pos="9" name="BAR_1"/>
 			<bitfield pos="11" name="CC_WATCHDOG"/>
-			<bitfield pos="12" name="UNK12">
-				<doc>Related to fuc+0xaxx and 404160.</doc>
-			</bitfield>
-			<bitfield pos="13" name="UNK13"/>
+			<bitfield pos="12" name="UNK12_MEMIF"/>
+			<bitfield pos="13" name="UNK13_MEMIF"/>
+			<bitfield pos="14" name="UNK14_MEMIF"/>
 		</reg32>
 		<enum name="nvc0_ctxctl_isrc" inline="yes">
 			<value value="0x02" name="GPC_UNK2"/>
@@ -428,17 +430,21 @@
 			<value value="0x04" name="HUB_UNK4"/>
 			<value value="0x0b" name="HUB_CTXCTL_DOWN"/>
 			<value value="0x0c" name="HUB_UNK12"/>
+			<!-- 0x20 + X is SIGNAL bit X -->
 			<value value="0x20" name="ZERO"/>
-			<!-- 0x20 + X is DONE bit X -->
-			<value value="0x22" name="STRAND"/>
-			<value value="0x25" name="MMCTX"/>
-			<value value="0x26" name="MMIO_RD"/>
-			<value value="0x27" name="MMIO_WRS"/>
+			<value value="0x21" name="PIBUS_INTR"/>
+			<value value="0x22" name="STRAND_BUSY"/>
+			<value value="0x23" name="UNK3_RED_SWITCH"/>
+			<value value="0x24" name="UNK4_DISPATCH"/>
+			<value value="0x25" name="MMCTX_DONE"/>
+			<value value="0x26" name="MMIO_RD_DONE"/>
+			<value value="0x27" name="MMIO_WRS_DONE"/>
 			<value value="0x28" name="BAR_0"/>
 			<value value="0x29" name="BAR_1"/>
 			<value value="0x2b" name="CC_WATCHDOG"/>
-			<value value="0x2c" name="UNK12"/>
-			<value value="0x2d" name="UNK13"/>
+			<value value="0x2c" name="UNK12_MEMIF"/>
+			<value value="0x2d" name="UNK13_MEMIF"/>
+			<value value="0x2e" name="UNK14_MEMIF"/>
 		</enum>
 		<bitset name="nvc0_ctxctl_iroute" inline="yes">
 			<bitfield low="0" high="5" name="SRC0" type="nvc0_ctxctl_isrc"/>
@@ -454,10 +460,10 @@
 			<doc>Indexed fuc register, in 8 copies. Index i determines the source
 			of fuc interrupt i+8.</doc>
 		</reg32>
-		<!-- the BAR_* are indexed fµc regs, with valid indices being 0 and 1 -->
+		<!-- BAR_REQMASK and BAR are indexed fµc regs, with valid indices being 0 and 1 -->
 		<reg32 offset="0x40c" name="BAR_REQMASK" length="2"/>
 		<reg32 offset="0x414" name="BAR"/>
-		<reg32 offset="0x418" name="BAR_SET"/>
+		<reg32 offset="0x418" name="BAR_SET" length="2"/> <!-- not indexed. -->
 		<reg32 offset="0x420" name="IDLE_STATUS">
 			<bitfield pos="0" name="UC"/>
 			<bitfield pos="1" name="USER"/>
