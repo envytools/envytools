@@ -591,8 +591,10 @@ common counters. they are:
 
 On NV10:NV30, the CTR_CYCLES, CTR_CYCLES_ALT, CTR_EVENT and CTR_START counters
 are 40-bit, while CTR_PRE and CTR_STOP are 32-bit. On NV30+, all counters
-are 32-bit. The counters are saturated - once they reach the largest possible
-value [0xffffffffff or 0xffffffff], they stop incrementing.
+are 32-bit. On NV30+, The counters are saturated - once they reach the largest
+possible value [0xffffffff], they stop incrementing. On NV10:NV30, the low 39
+bits will wrap normally, but bit 39 is sticky: that is, 0xffffffffff increments
+to 0x8000000000, while other values increment normally.
 
 The registers used to access the counters are:
 
