@@ -69,12 +69,13 @@ static struct sreg pred_sr[] = {
 };
 
 static struct bitfield dst_bf = { 0x2, 8 };
-static struct bitfield pdst_bf = { 0x2, 3 };
+static struct bitfield pdst_bf = { 0x5, 3 };
+static struct bitfield pdstn_bf = { 0x2, 3 };
 static struct bitfield src1_bf = { 0xa, 8 };
 static struct bitfield src2_bf = { 0x17, 8 };
 static struct bitfield src3_bf = { 0x2a, 8 };
 static struct bitfield pred_bf = { 0x12, 3 };
-static struct bitfield psrc1_bf = { 0x2a, 3 };
+static struct bitfield psrc3_bf = { 0x2a, 3 };
 
 static struct reg dst_r = { &dst_bf, "r", .specials = reg_sr };
 static struct reg dstd_r = { &dst_bf, "r", "d", .specials = reg_sr };
@@ -85,14 +86,17 @@ static struct reg src2_r = { &src2_bf, "r", .specials = reg_sr };
 static struct reg src2d_r = { &src2_bf, "r", "d", .specials = reg_sr };
 static struct reg src3_r = { &src3_bf, "r", .specials = reg_sr };
 static struct reg src3d_r = { &src3_bf, "r", "d", .specials = reg_sr };
-static struct reg psrc1_r = { &psrc1_bf, "p", .specials = pred_sr, .cool = 1 };
+static struct reg psrc3_r = { &psrc3_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdst_r = { &pdst_bf, "p", .specials = pred_sr, .cool = 1 };
+static struct reg pdstn_r = { &pdstn_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pred_r = { &pred_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg cc_r = { 0, "c", .cool = 1 };
 
 #define DST atomreg, &dst_r
 #define DSTD atomreg, &dstd_r
 #define DSTQ atomreg, &dstq_r
+#define PDST atomreg, &pdst_r
+#define PDSTN atomreg, &pdstn_r
 #define PRED atomreg, &pred_r
 #define SRC1 atomreg, &src1_r
 #define SRC1D atomreg, &src1d_r
@@ -100,7 +104,7 @@ static struct reg cc_r = { 0, "c", .cool = 1 };
 #define SRC2D atomreg, &src2d_r
 #define SRC3 atomreg, &src3_r
 #define SRC3D atomreg, &src3d_r
-#define PSRC1 atomreg, &psrc1_r
+#define PSRC3 atomreg, &psrc3_r
 #define CC atomreg, &cc_r
 
 /*
@@ -125,6 +129,8 @@ static struct mem cmem_m = { "c", &cmem_idx, 0, &cmem_imm };
  */
 
 F(gmem, 0x37, GLOBAL, GLOBALD)
+
+F1(pnot2d, 0x2d, N("not"))
 
 static struct insn tabfrmi[] = {
 	{ 0x0000000000000000, 0x00000c0000000000, N("rni") },
@@ -154,6 +160,44 @@ static struct insn tabfrm36[] = {
 	{ 0x0080000000000000, 0x00c0000000000000, N("rp") },
 	{ 0x00c0000000000000, 0x00c0000000000000, N("rz") },
 	{ 0, 0, OOPS },
+};
+
+static struct insn tabisetit[] = {
+	{ 0x0000000000000000ull, 0x0070000000000000ull, N("false") },
+	{ 0x0010000000000000ull, 0x0070000000000000ull, N("lt") },
+	{ 0x0020000000000000ull, 0x0070000000000000ull, N("eq") },
+	{ 0x0030000000000000ull, 0x0070000000000000ull, N("le") },
+	{ 0x0040000000000000ull, 0x0070000000000000ull, N("gt") },
+	{ 0x0050000000000000ull, 0x0070000000000000ull, N("ne") },
+	{ 0x0060000000000000ull, 0x0070000000000000ull, N("ge") },
+	{ 0x0070000000000000ull, 0x0070000000000000ull, N("true") },
+	{ 0, 0, OOPS },
+};
+static struct insn tabsetit[] = {
+	{ 0x0000000000000000ull, 0x0078000000000000ull, N("false") },
+	{ 0x0008000000000000ull, 0x0078000000000000ull, N("lt") },
+	{ 0x0010000000000000ull, 0x0078000000000000ull, N("eq") },
+	{ 0x0018000000000000ull, 0x0078000000000000ull, N("le") },
+	{ 0x0020000000000000ull, 0x0078000000000000ull, N("gt") },
+	{ 0x0028000000000000ull, 0x0078000000000000ull, N("ne") },
+	{ 0x0030000000000000ull, 0x0078000000000000ull, N("ge") },
+	{ 0x0038000000000000ull, 0x0078000000000000ull, N("num") },
+	{ 0x0040000000000000ull, 0x0078000000000000ull, N("nan") },
+	{ 0x0048000000000000ull, 0x0078000000000000ull, N("ltu") },
+	{ 0x0050000000000000ull, 0x0078000000000000ull, N("equ") },
+	{ 0x0058000000000000ull, 0x0078000000000000ull, N("leu") },
+	{ 0x0060000000000000ull, 0x0078000000000000ull, N("gtu") },
+	{ 0x0068000000000000ull, 0x0078000000000000ull, N("neu") },
+	{ 0x0070000000000000ull, 0x0078000000000000ull, N("geu") },
+	{ 0x0078000000000000ull, 0x0078000000000000ull, N("true") },
+	{ 0, 0, OOPS },
+};
+static struct insn tabsetlop[] = {
+	{ 0x00001c0000000000ull, 0x00031c0000000000ull, N("") }, // noop, really "and $p7"
+	{ 0x0000000000000000ull, 0x0003000000000000ull, N("and"), T(pnot2d), PSRC3 },
+	{ 0x0001000000000000ull, 0x0003000000000000ull, N("or"), T(pnot2d), PSRC3 },
+	{ 0x0002000000000000ull, 0x0003000000000000ull, N("xor"), T(pnot2d), PSRC3 },
+	{ 0, 0, OOPS, T(pnot2d), PSRC3 },
 };
 
 static struct insn tablane2a[] = {
@@ -321,12 +365,18 @@ static struct insn tabcvti2idst[] = {
 F1(sat35, 0x35, N("sat")) // add,mul f32
 F1(sat3a, 0x3a, N("sat")) // mul f32 long immediate
 F1(ftz2f, 0x2f, N("ftz")) // add,mul f32
+F1(ftz32, 0x32, N("ftz")) // setp f32
 F1(ftz38, 0x38, N("ftz")) // fma f32
 F1(ftz3a, 0x3a, N("ftz")) // add f32 long immediate
+F1(neg8, 0x8, N("neg")) // setp f32 src2
+F1(neg2e, 0x2e, N("neg")) // setp f32 src1
 F1(neg30, 0x30, N("neg")) // add f32,f64 src2
 F1(neg33, 0x33, N("neg")) // add,mul,fma f32,f64 src1
+F1(neg38, 0x38, N("neg")) // set f32
 F1(neg3b, 0x3b, N("neg")) // mul f64 immediate
 F1(neg34, 0x34, N("neg")) // fma f32,f64 src3
+F1(abs9, 0x9, N("abs")) // setp f32 src1
+F1(abs2f, 0x2f, N("abs")) // setp f32 src2
 F1(abs31, 0x31, N("abs")) // add f32 src1
 F1(abs34, 0x34, N("abs")) // add f32,f64 src2
 F1(abs39, 0x39, N("abs")) // add f32 long immediate
@@ -335,14 +385,14 @@ F1(not2b, 0x2b, N("not")) // logop src2
 F1(acout32, 0x32, CC)
 F1(acin2e, 0x2e, CC)
 
-F1(pnot2d, 0x2d, N("not")) // minmax select
-
 F(shfclamp, 0x35, N("clamp"), N("wrap"))
+
+F(us32_33, 0x33, N("u32"), N("s32"))
 
 static struct insn tabminmax[] = {
 	{ 0x00001c0000000000ull, 0x00003c0000000000ull, N("min") },
 	{ 0x00003c0000000000ull, 0x00003c0000000000ull, N("max") },
-	{ 0, 0, N("minmax"), T(pnot2d), PSRC1 }, // min if true
+	{ 0, 0, N("minmax"), T(pnot2d), PSRC3 }, // min if true
 };
 
 static struct insn tabaddop[] = {
@@ -400,11 +450,19 @@ static struct insn tabsfuop[] = {
  */
 
 static struct insn tabm[] = {
+	{ 0x0000000000000002ull, 0x38c0000000000003ull, N("set"), T(ftz3a), N("b32"), DST, T(setit), N("f32"), T(neg2e), T(abs39), SRC1, T(neg38), T(abs2f), T(is2), T(setlop) }, // XXX: find f32 dst
 	{ 0x8400000003000002ull, 0xbfc0000003800003ull, N("rcp64h"), DST, T(neg33), T(abs31), SRC1 },
 	{ 0x8400000003800002ull, 0xbfc0000003800003ull, N("rsqrt64h"), DST, T(neg33), T(abs31), SRC1 },
 	{ 0x8400000000000002ull, 0xbfc0000000000003ull, T(sfuop), N("f32"), DST, T(neg33), T(abs31), SRC1 },
+	{ 0x0800000000000002ull, 0x3cc0000000000003ull, N("set"), N("b32"), DST, T(setit), N("f64"), T(neg2e), T(abs39), SRC1D, T(neg38), T(abs2f), T(ds2), T(setlop) },
 	{ 0x0c00000000000002ull, 0x3e00000000000003ull, N("fma"), T(ftz38), T(sat35),  T(frm36), N("f32"), DST, T(neg33), SRC1, T(is2w3), T(neg34), T(is3) },
+	{ 0x1a40000000000002ull, 0x3fc0000000000003ull, N("slct"), N("b32"), DST, SRC1, T(is2w3), T(isetit), T(us32_33), T(is3) }, // XXX: check us32_33
+	{ 0x1a80000000000002ull, 0x3f80000000000003ull, N("set"), N("b32"), DST, T(isetit), T(us32_33), SRC1, T(is2), T(setlop) },
+	{ 0x1b00000000000002ull, 0x3f80000000000003ull, N("set"), PDST, PDSTN, T(isetit), T(us32_33), SRC1, T(is2), T(setlop) },
 	{ 0x1b80000000000002ull, 0x3f80000000000003ull, N("fma"), T(frm35), N("f64"), DSTD, T(neg33), SRC1D, T(ds2w3), T(neg34), T(ds3) },
+	{ 0x1c00000000000002ull, 0x3fc0000000000003ull, N("set"), PDST, PDSTN, T(setit), N("f64"), T(neg2e), T(abs9), SRC1D, T(neg8), T(abs2f), T(ds2), T(setlop) },
+	{ 0x1d00000000000002ull, 0x3fc0000000000003ull, N("slct"), T(ftz32), N("b32"), DST, SRC1, T(is2w3), T(setit), N("f32"), T(is3) },
+	{ 0x1d80000000000002ull, 0x3f80000000000003ull, N("set"), T(ftz32), PDST, PDSTN, T(setit), N("f32"), T(neg2e), T(abs9), SRC1, T(neg8), T(abs2f), T(is2), T(setlop) },
 	{ 0x1fc0000000000002ull, 0x3fc0000000000003ull, N("lshf"), N("b32"), DST, SESTART, N("b64"), SRC1, SRC3, SEEND, T(shfclamp), T(is2) }, // XXX: check is2 and bits 0x29,0x33(swap srcs ?)
 	{ 0x2148000000000002ull, 0x3fc8000000000003ull, N("shr"), N("s32"), DST, SRC1, T(is2) }, // XXX: find shl and wrap bits
 	{ 0x2000000000000002ull, 0xfa80000000000003ull, N("mul"), T(ftz38), T(sat3a), N("f32"), DST, SRC1, LIMM },
@@ -419,6 +477,7 @@ static struct insn tabm[] = {
 	{ 0x2480000000000002ull, 0x3fc0040000000003ull, N("presin"), N("f32"), DST, T(neg30), T(abs34), T(is2) },
 	{ 0x2480040000000002ull, 0x3fc0040000000003ull, N("preex2"), N("f32"), DST, T(neg30), T(abs34), T(is2) },
 	{ 0x24c0000000000002ull, 0x3fc0000000000003ull, T(lane2a), N("mov"), N("b32"), DST, T(is2) },
+	{ 0x2500000000000002ull, 0x3fc0000000000003ull, N("selp"), N("b32"), DST, SRC1, T(is2), T(pnot2d), PSRC3 },
 	{ 0x2540000000001402ull, 0x3fc0000000003c03ull, N("cvt"), T(sat35), T(frmi), N("f16"), DST, N("f16"), T(neg30), T(abs34), T(is2) },
 	{ 0x2540000000001802ull, 0x3fc0000000003c03ull, N("cvt"), T(ftz2f), T(sat35), N("f32"), DST, N("f16"), T(neg30), T(abs34), T(is2) },
 	{ 0x2540000000002402ull, 0x3fc0000000003c03ull, N("cvt"), T(ftz2f), T(sat35), T(frm2a), N("f16"), DST, N("f32"), T(neg30), T(abs34), T(is2) },
