@@ -59,7 +59,7 @@
 		<bitfield pos="16" name="ARG0_DELAY1"/>
 		<bitfield pos="17" name="ARG1_DELAY1"/>
 		<bitfield pos="18" name="ARG3">
-			<value value="0" name="SRC"/> <!-- selected by ARG3_SRC, always SRC3 on pre-NV92 -->
+			<value value="0" name="SRC"/>
 			<value value="1" name="SETFLAG"/>
 		</bitfield>
 		<bitfield pos="19" name="ARG2" variants="NV92-">
@@ -82,7 +82,7 @@
 		<bitfield pos="16" name="ARG0_DELAY1"/>
 		<bitfield pos="17" name="ARG1_DELAY1"/>
 		<bitfield pos="18" name="ARG3">
-			<value value="0" name="SRC"/> <!-- selected by ARG3_SRC, always SRC3 on pre-NV92 -->
+			<value value="0" name="SRC"/>
 			<value value="1" name="SETFLAG"/>
 		</bitfield>
 		<bitfield pos="19" name="ARG2" variants="NV92-">
@@ -137,19 +137,19 @@
 		<bitfield pos="3" name="PULSE_1"/>
 	</reg32>
 	<reg32 offset="0x600" name="CTR_CYCLES" length="8"/>
-	<reg32 offset="0x640" name="CTR_CYCLES_ALT" length="8"/> <!-- the fuck? -->
+	<reg32 offset="0x640" name="CTR_CYCLES_ALT" length="8"/>
 	<reg32 offset="0x680" name="CTR_EVENT" length="8"/>
 	<reg32 offset="0x6a0" name="RECORD_ADDRESS_HIGH" length="8" variants="NV92-"/>
 	<reg32 offset="0x6c0" name="CTR_START" length="8"/>
 	<reg32 offset="0x6e0" name="RECORD_STATUS" length="8" variants="NV84-">
 		<bitfield pos="0" name="FAULT"/>
-		<bitfield low="4" high="31" name="POS" shr="4"/> <!-- *not* relative to RECORD_START -->
+		<bitfield low="4" high="31" name="POS" shr="4"/>
 	</reg32>
 	<reg32 offset="0x700" name="CTR_PRE" length="8"/>
-	<reg32 offset="0x720" name="RECORD_LIMIT" length="8" variants="NV84-"/> <!-- *not* relative to RECORD_START -->
+	<reg32 offset="0x720" name="RECORD_LIMIT" length="8" variants="NV84-"/>
 	<reg32 offset="0x740" name="CTR_STOP" length="8"/>
 	<reg32 offset="0x760" name="RECORD_START" length="8" variants="NV84-"/>
-	<reg32 offset="0x780" name="THRESHOLD" length="8"/> <!-- ffffffff -->
+	<reg32 offset="0x780" name="THRESHOLD" length="8"/>
 	<reg32 offset="0x7a0" name="RECORD_CHAN" variants="NV84-">
 		<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
 		<bitfield pos="31" name="VALID"/>
@@ -176,13 +176,8 @@
 		</bitfield>
 		<bitfield low="4" high="6" name="CTR_MODE">
 			<value value="0" name="SIMPLE"/>
-			<!-- B4 sources are START_0123 -->
-			<!-- B6 sources are START_0123, EVENT_23 -->
-			<!-- B2 sources are EVENT_01 -->
-			<!-- EVENT_* add B4/B6 value to CTR_EVENT instead of 1 whenever EVENT is 1 -->
 			<value value="1" name="EVENT_B4"/>
 			<value value="2" name="EVENT_B6"/>
-			<!-- EXTRA_* add B4/B6 value to CTR_PRE [SINGLE] or CTR_START [QUAD] on every clock cycle; EXTRA_B6_EVENT_B2 in addition adds B2 value to CTR_EVENT on every clock cycle; in EXTRA_B4 CTR_EVENT is unaffected -->
 			<value value="3" name="EXTRA_B4"/>
 			<value value="4" name="EXTRA_B6_EVENT_B2"/>
 		</bitfield>
@@ -218,7 +213,7 @@
 			<value value="1" name="VALID"/>
 			<value value="3" name="OVERFLOW"/>
 		</bitfield>
-		<bitfield pos="27" name="FAULT_CLEAR"/> <!-- WO -->
+		<bitfield pos="27" name="FAULT_CLEAR"/>
 		<bitfield low="28" high="29" name="SINGLE_STATE">
 			<value value="0" name="INACTIVE"/>
 			<value value="1" name="WAIT_PRE"/>
@@ -235,40 +230,23 @@
 
 </domain>
 
-<domain name="NV84_PCOUNTER_RECORD" size="0x20">
-	<!-- XXX: endian swap? -->
-	<reg32 offset="0x00" name="0">
-		<bitfield low="0" high="31" name="CYCLES_LOW"/>
-	</reg32>
-	<reg32 offset="0x04" name="1">
-		<bitfield low="0" high="15" name="CYCLES_HIGH"/>
-		<bitfield low="16" high="31" name="STOP"/>
-	</reg32>
-	<reg32 offset="0x08" name="2">
-		<bitfield low="0" high="15" name="PRE_SRC0"/>
-		<bitfield low="16" high="31" name="PRE_SRC1"/>
-	</reg32>
-	<reg32 offset="0x0c" name="3">
-		<bitfield low="0" high="15" name="PRE_SRC2"/>
-		<bitfield low="16" high="31" name="PRE_SRC3"/>
-	</reg32>
-	<!-- short ends here -->
-	<reg32 offset="0x10" name="4">
-		<bitfield low="0" high="15" name="START_SRC0"/>
-		<bitfield low="16" high="31" name="START_SRC1"/>
-	</reg32>
-	<reg32 offset="0x14" name="5">
-		<bitfield low="0" high="15" name="START_SRC2"/>
-		<bitfield low="16" high="31" name="START_SRC3"/>
-	</reg32>
-	<reg32 offset="0x18" name="6">
-		<bitfield low="0" high="15" name="EVENT_SRC0"/>
-		<bitfield low="16" high="31" name="EVENT_SRC1"/>
-	</reg32>
-	<reg32 offset="0x1c" name="7">
-		<bitfield low="0" high="15" name="EVENT_SRC2"/>
-		<bitfield low="16" high="31" name="EVENT_SRC3"/>
-	</reg32>
+<domain name="NV84_PCOUNTER_RECORD_PACKET" size="0x20">
+	<reg16 offset="0x00" name="CYCLES_LOW"/>
+	<reg16 offset="0x02" name="CYCLES_MID"/>
+	<reg16 offset="0x04" name="CYCLES_HIGH"/>
+	<reg16 offset="0x06" name="STOP"/>
+	<reg16 offset="0x08" name="PRE_SRC0"/>
+	<reg16 offset="0x0a" name="PRE_SRC1"/>
+	<reg16 offset="0x0c" name="PRE_SRC2"/>
+	<reg16 offset="0x0e" name="PRE_SRC3"/>
+	<reg16 offset="0x10" name="START_SRC0"/>
+	<reg16 offset="0x12" name="START_SRC1"/>
+	<reg16 offset="0x14" name="START_SRC2"/>
+	<reg16 offset="0x16" name="START_SRC3"/>
+	<reg16 offset="0x18" name="EVENT_SRC0"/>
+	<reg16 offset="0x1a" name="EVENT_SRC1"/>
+	<reg16 offset="0x1c" name="EVENT_SRC2"/>
+	<reg16 offset="0x1e" name="EVENT_SRC3"/>
 </domain>
 
 </database>

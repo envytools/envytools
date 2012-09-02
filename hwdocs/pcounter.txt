@@ -997,7 +997,7 @@ overflowing, or when the STOP input is asserted. The counters are:
 There are two packet formats available: long and short. Long format packets
 are 32 bytes long and include all counters, while short format paackets are
 16 bytes long and have only 4 of the 12 event counters. A packet in long
-format is made of 16 16-bit words:
+format is made of 16 16-bit little endian words:
 
 0x00: low 16 bits of cycle counter
 0x02: middle 16 bits of cycle counter
