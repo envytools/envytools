@@ -239,6 +239,13 @@
 		<bitfield high="19" low="16" name="ENGINE" type="NV50_VM_ENGINE"/>
 		<bitfield pos="0" name="TRIGGER"/>
 	</reg32>
+	<reg32 offset="0xc90" name="VM_FAULT" variants="NV50-">
+		<!-- XXX more bits... -->
+		<bitfield pos="21" name="PCOUNTER_ENABLE" variants="NV84-"/>
+		<bitfield low="24" high="26" name="INDEX"/>
+		<bitfield pos="31" name="PENDING"/>
+	</reg32>
+	<reg32 offset="0xc94" name="VM_FAULT_DATA" variants="NV50-"/>
 </array>
 
 </domain>
