@@ -1060,14 +1060,21 @@ The address of the record buffer is settable per-domain:
 MMIO 0x00a760+i*4: RECORD_START [NV84:NVC0]
   The start address of the record buffer. Only bits 4-31 are valid - the
   buffer has to be aligned to 16 byte bounduary. When this register is
-  written, the address is copied to RECORD_STATUS position field, the "limit
-  hit" internal flag will be cleared, and all counters are reset if the domain
+  written, the address is copied to RECORD_STATUS position field, the "buffer
+  valid" internal flag will be set, and all counters are reset if the domain
   is in record mode.
+
+Note that setting this register will not properly clear the counter state if
+the domain is not in record mode - in fact, a bogus packet will likely be
+written immediately after transitioning to the record mode if RECORD_START
+is written in another mode. To avoid that, write RECORD_START after entering
+record mode [and make sure the "buffer valid" flag is not set], or use the
+GCTRL.RECORD_RESET bit.
 
 MMIO 0x00a720+i*4: RECORD_LIMIT [NV84:NVC0]
   The last valid address in the record buffer. Only bits 4-31 are valid. After
-  a packet is written with address >= the value of this register, an internal
-  invisible "limit hit" flag is set, and all further writes will be ignored
+  a packet is written with address >= the value of this register, the internal
+  "buffer valid" flag will be cleared, and all further writes will be ignored
   until RECORD_START is written.
 
 Note that one packet write will always succeed before the limit hit flag is
