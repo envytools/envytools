@@ -38,6 +38,7 @@ The IO register ranges:
 a00/28000:b00/2c000 MEMIF	memory interface	[nvc0-ctxctl-memif.txt]
 b00/2c000:c00/30000 CSREQ	PFIFO switch requests	[nvc0-ctxctl.txt]
 c00/30000:d00/34000 GRAPH	PGRAPH status/control	[nvc0-ctxctl.txt]
+d80/36000:dc0/37000 ???		??? - related to MEMIF? [XXX] [NVE4-]
 
 Registers in CC range:
 400/10000  INTR			interrupt signals
@@ -84,12 +85,16 @@ Registers in MISC range:
 8a0/22800  ???			[XXX]
 8a4/22900  ???			[XXX]
 8a8/22a00  ???			[XXX]
+8b0/22c00  ???			[XXX] [NVE4-]
+8b4/22d00  ???			[XXX] [NVE4-]
 
 Registers in CSREQ range:
 b00/2c000H CHAN_CUR		current channel
 b04/2c100H CHAN_NEXT		next channel
 b08/2c200H INTR_EN		interrupt enable?
 b0c/2c300H INTR			interrupt
+b80/2e000H ???			[XXX]
+b84/2e100H ???			[XXX]
 
 Registers in GRAPH range:
 c00/30000H CMD_STATUS		some PGRAPH status bits?
@@ -98,7 +103,7 @@ c14/305xxH INTR_UP_ROUTE	upstream interrupt routing
 c18/30600H INTR_UP_STATUS	upstream interrupt status
 c1c/30700H INTR_UP_SET		upstream interrupt trigger
 c20/30800H INTR_UP_CLEAR	upstream interrupt clear
-c24/30900H INTR_UP_ENABLE	upstream interrupt enable
+c24/30900H INTR_UP_ENABLE	upstream interrupt enable [XXX: more bits on NVE4]
 c80/32000G VSTATUS_0		subunit verbose status
 c84/32100G VSTATUS_1		subunit verbose status
 c88/32200G VSTATUS_2		subunit verbose status
