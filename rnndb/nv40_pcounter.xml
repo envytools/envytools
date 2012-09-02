@@ -138,7 +138,7 @@
 	<reg32 offset="0x600" name="CTR_CYCLES" length="8"/>
 	<reg32 offset="0x640" name="CTR_CYCLES_ALT" length="8"/> <!-- the fuck? -->
 	<reg32 offset="0x680" name="CTR_EVENT" length="8"/>
-	<reg32 offset="0x6a0" name="UNK6A0" length="8" variants="NV92-"/> <!-- ff -->
+	<reg32 offset="0x6a0" name="RECORD_ADDRESS_HIGH" length="8" variants="NV92-"/>
 	<reg32 offset="0x6c0" name="CTR_START" length="8"/>
 	<reg32 offset="0x6e0" name="RECORD_STATUS" length="8" variants="NV84-">
 		<bitfield pos="0" name="FAULT"/>
