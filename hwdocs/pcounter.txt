@@ -19,6 +19,7 @@ TOC
 6. Single event mode
 7. Quad event mode
 8. Record mode
+8.1. Record mode setup
 9. The flag
 
 = Introduction =
@@ -1082,6 +1083,7 @@ set and further writes are disabled - even if the position is set far beyond
 the limit.
 
 MMIO 0x00a6e0+i*4: RECORD_STATUS [NV84:NVC0]
+  This register is read-only.
   bit 0: if set, a VM FAULT happened when writing the record buffer
   bits 4-31: bits 4-31 of the current record buffer position, ie. address of
     the next packet to be written
