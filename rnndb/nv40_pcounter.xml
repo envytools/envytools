@@ -195,7 +195,10 @@
 			<value value="1" name="PULSE"/>
 		</bitfield>
 		<bitfield pos="16" name="UNK16"/>
-		<bitfield pos="20" name="UNK20" variants="NV84-"/>
+		<bitfield pos="20" name="RECORD_FORMAT" variants="NV84-">
+			<value value="0" name="LONG"/>
+			<value value="1" name="SHORT"/>
+		</bitfield>
 		<bitfield low="21" high="23" name="PERIODIC_PERIOD" variants="NV84-">
 			<value value="0" name="DISABLED"/>
 			<value value="1" name="1K"/>
@@ -226,6 +229,42 @@
 	</stripe>
 </array>
 
+</domain>
+
+<domain name="NV84_PCOUNTER_RECORD" size="0x20">
+	<!-- XXX: endian swap? -->
+	<reg32 offset="0x00" name="0">
+		<bitfield low="0" high="31" name="CYCLES_LOW"/>
+	</reg32>
+	<reg32 offset="0x04" name="1">
+		<bitfield low="0" high="15" name="CYCLES_HIGH"/>
+		<bitfield low="16" high="31" name="STOP"/>
+	</reg32>
+	<reg32 offset="0x08" name="2">
+		<bitfield low="0" high="15" name="PRE_SRC0"/>
+		<bitfield low="16" high="31" name="PRE_SRC1"/>
+	</reg32>
+	<reg32 offset="0x0c" name="3">
+		<bitfield low="0" high="15" name="PRE_SRC2"/>
+		<bitfield low="16" high="31" name="PRE_SRC3"/>
+	</reg32>
+	<!-- short ends here -->
+	<reg32 offset="0x10" name="4">
+		<bitfield low="0" high="15" name="START_SRC0"/>
+		<bitfield low="16" high="31" name="START_SRC1"/>
+	</reg32>
+	<reg32 offset="0x14" name="5">
+		<bitfield low="0" high="15" name="START_SRC2"/>
+		<bitfield low="16" high="31" name="START_SRC3"/>
+	</reg32>
+	<reg32 offset="0x18" name="6">
+		<bitfield low="0" high="15" name="EVENT_SRC0"/>
+		<bitfield low="16" high="31" name="EVENT_SRC1"/>
+	</reg32>
+	<reg32 offset="0x1c" name="7">
+		<bitfield low="0" high="15" name="EVENT_SRC2"/>
+		<bitfield low="16" high="31" name="EVENT_SRC3"/>
+	</reg32>
 </domain>
 
 </database>
