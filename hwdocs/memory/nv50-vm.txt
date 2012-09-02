@@ -152,7 +152,7 @@ ids depends on both engine and client id. The DMA slots are
  - 7/6/4: PME context [nv50]
 [XXX 7/*]
 [XXX 8/* pre-nv98 - PMPEG]
-[XXX b/*]
+ - b/f/0: PCOUNTER record buffer [NV84:NVC0]
  - 1/c/0-f: PVP DMA ports 0-0xf [nv84:nv98]
  - 9/d/0-f: PBSP DMA ports 0-0xf [nv84:nv98]
  - a/e/0: PCRYPT context [nv84:nv98]

@@ -18,7 +18,7 @@ TOC
 5. Control registers
 6. Single event mode
 7. Quad event mode
-8. Memory write mode
+8. Record mode
 9. The flag
 
 = Introduction =
@@ -34,22 +34,21 @@ a different source clock, allowing one to monitor events in various clock
 domains. The PCOUNTER domains are mostly independent, but there's some
 limitted communication and shared circuitry among them.
 
-There are three major revisions of PCOUNTER hardware, and some minor
+There are two major revisions of PCOUNTER hardware, and some minor
 subrevisions:
 
- - NV10:NV40 major revision:
+ - NV10:NVC0 major revision:
   - NV10:NV15 - first version, one domain, only single-event mode available
   - NV15:NV20 - added one period / all periods event counter mode switch
   - NV20:NV30 - added second domain for events associated with memory clock
   - NV30:NV40 - removed separate clrflag/setflag input selection, changed
     from 40-bit to 32-bit counters, added quad event mode, added logic op
     chaining through SETFLAG.
- - NV40:NVC0 major revision:
-  - NV40:NV84 - rearranged to make space for 8 domains, added ??? [XXX]
-  - NV84:NV92 - added memory dump mode, swap input selection, and PERIODIC
-    signals
+  - NV40:NV84 - rearranged register space to make space for 8 domains, added
+    3 new special counter modes
+  - NV84:NV92 - added record mode, swap input selection, and PERIODIC signals
   - NV92:NVA3 - added slightly more flexible logic op delayed source selection
-    and ??? [XXX]
+    and a register to set high 8 bits of address for record mode
   - NVA3:NVC0 - added USER signals
  - NVC0+ major revision:
   - NVC0+ - split PCOUNTER into hub, per-gpc and per-partition domain sets,
@@ -75,17 +74,24 @@ others are the events to be counted. PCOUNTER can be used in three modes:
    - EVENT - the pulses on this input are counted
    - STOP - a pulse on this input stops a counting period
  - quad event mode [NV30-] - 4 events are being counted, with a simple "swap
-   counter sets" trigger to delimit counting periods
+   counter sets" trigger to delimit counting periods. The inputs used are:
    - PRE, START, EVENT, STOP - the pulses on these inputs are counted [in 4
      separate counters]
    - SWAP - a pulse on this input swaps counter sets, ie. copies the internal
      counters to the MMIO registers and resets internal counters to 0.
- - memory write mode [NV84-] - ??? [XXX]
+ - record mode [NV84-] - 12 simple events are being counted, and the counters
+   written to a "record buffer" in memory on every pulse of STOP input. The
+   inputs used are:
+   - PRE_SRC[0..3], START_SRC[0..3], EVENT_SRC[0..3] - 12 events to be counted
+   - STOP - a pulse on this input writes current counter values to memory and
+     clears the counters to 0
 
 The PCOUNTER uses MMIO area 0x00a000:0x00b000 on NV10:NV40 and NV40:NVC0. On
 NVC0+, it uses 0x180000:0x1c0000.
 
-PCOUNTER is unaffected by all PMC.ENABLE bits and has no interrupt lines.
+NV10:NVC0 PCOUNTER is unaffected by all PMC.ENABLE bits and has no interrupt
+lines. NVC0+ PCOUNTER is enabled by PMC.ENABLE bit 28 and [XXX: figure out
+interupt business]
 
 
 = MMIO registers =
@@ -148,17 +154,17 @@ The MMIO registers for NV40:NVC0 are [i is domain index]:
 00a600+i*4 CTR_CYCLES[i] - elapsed cycles counter
 00a640+i*4 CTR_CYCLES_ALT[i] - CYCLES copy ??? [XXX]
 00a680+i*4 CTR_EVENT[i] - EVENT counter
-00a6a0+i*4 ??? [XXX]
+00a6a0+i*4 RECORD_ADDRESS_HIGH[i] - high 8 bits of record buffer address [NV92-]
 00a6c0+i*4 CTR_START[i] - START counter
-00a6e0+i*4 ??? [XXX]
+00a6e0+i*4 RECORD_STATUS[i] - current status and position of record buffer [NV84-]
 00a700+i*4 CTR_PRE[i] - PRE counter
-00a720+i*4 ??? [XXX]
+00a720+i*4 RECORD_LIMIT[i] - the highest valid address in the record buffer [NV84-]
 00a740+i*4 CTR_STOP[i] - STOP counter
-00a760+i*4 ??? [XXX]
+00a760+i*4 RECORD_START[i] - the starting address of the record buffer [NV84-]
 00a780+i*4 THRESHOLD[i] - EVENT counter threshold
-00a7a0 CHANNEL - VM channel for memory write mode [NV84-]
-00a7a4 DMAOBJ - DMA object for memory write mode [NV84-]
-00a7a8 ??? [XXX]
+00a7a0 RECORD_CHAN - VM channel for record mode [NV84-]
+00a7a4 RECORD_DMA - DMA object for record mode [NV84-]
+00a7a8 GCTRL - PCOUNTER global control [shared between all domains] [NV84-]
 00a7c0+i*4 CTRL - PCOUNTER control
 00a7e0+i*4 QUAD_ACK_TRIGGER - used to ack counter data in quad event mode
 00a800+i*0x20+j*4,j<8 STATUS[i][j] - input status
@@ -358,6 +364,10 @@ periodic pulse generator. The pulse generator will generate a single-clock
 '1' pulse every X clocks, with X selectable via the CTRL register from
 powers of two between 0x400 and 0x10000 clocks. The PERIODIC signal can
 also be disabled - it'll output a constant '0' signal in this case.
+
+The GCTRL register has a global PERIODIC_RESET bit that keeps the periodic
+generator in a reset state while it's set to 1. This bit can be used to start
+the PERIODIC signal generators synchronously for all domains.
 
 
 = Input selection =
@@ -573,8 +583,8 @@ the SWAP input was asserted for one cycle.
 
 = Counters =
 
-There are several modes in which PCOUNTER can be used, but all of them use
-common counters. they are:
+The single event mode and quad event mode use MMIO-visible counter registers.
+They are:
 
  - CTR_CYCLES: counts all clock cycles in a counting period
  - CTR_CYCLES_ALT: a copy of CTR_CYCLES? [XXX]
@@ -649,6 +659,11 @@ mode.
 Note that, in quad event mode, these registers access the copies of the
 counters from previous counting period, and the currently active counters
 are not visible.
+
+The record mode uses a different counting algorithm, and the counters are
+written to memory instead of being accessed directly via MMIO. The same
+underlying storage is used internally, so parts of the counter state may be
+visible via MMIO registers. This isn't particularly useful.
 
 [XXX: figure out what's the deal with NVC0 counters]
 
@@ -745,7 +760,7 @@ MMIO 0x00a7c0+i*4: CTRL[i] [NV40:NVC0]
   bits 0-1: MODE - selects counting mode
     0: SINGLE - single event mode
     1: QUAD - quad event mode
-    2: MEMORY - memory write mode
+    2: RECORD - record mode
   bits 4-6: CTR_MODE - selects counter mode
     0: SIMPLE
     1: EVENT_B4
@@ -759,7 +774,9 @@ MMIO 0x00a7c0+i*4: CTRL[i] [NV40:NVC0]
     1: PULSE
   bit 13: FLAG_IMPORT_MODE - like bit 11, but for FLAG signals
   bit 16: ??? [XXX]
-  bit 20: ??? [XXX] [NV84:NVC0]
+  bit 20: RECORD_FORMAT - selects packet format for record mode [NV84:NVC0]
+    0: LONG - 32-byte packets with 12 usable event counters
+    1: SHORT - 16-byte packets with 4 usable event counters
   bits 21-23: PERIODIC_PERIOD [NV84:NVC0] - selects PERIODIC signal period:
     0: disabled, PERIODIC signal is always 0
     1: 0x400 clocks
@@ -770,8 +787,22 @@ MMIO 0x00a7c0+i*4: CTRL[i] [NV40:NVC0]
     6: 0x8000 clocks
     7: 0x10000 clocks
   bits 24-25: QUAD_STATE - like on NV30
+  bit 27: FAULT_CLEAR - write-only, when written as 1 clears the FAULT bit in
+    RECORD_STATUS. Note, however, that the domain will still be in a wedged
+    state due to [probably] a hardware bug. This bit is thus useless.
   bits 28-29: SINGLE_STATE - like on NV10
   bit 30: ??? [XXX] [NV92:NVC0]
+
+In addition, NV84:NVC0 have a global GCTRL register used for a few bits shared
+by all domains:
+
+MMIO 0x00a7a8: GCTRL [NV84:NVC0]
+  bit 0: RECORD_RESET - when set to 0, record counters increment normally; when
+    set, forces all record counters to 0 value
+  bit 4: PERIODIC_RESET - when set to 0, PERIODIC signals operate normally;
+    when set, PERIODIC signals are forced to 0 and will continue from the
+    beginning of the cycle upon reenabling
+[XXX: more bits]
 
 [XXX: NVC0]
 
@@ -941,9 +972,132 @@ MMIO dombase+0x0a0: QUAD_ACK_TRIGGER [NVC0-]
   bit 0: Like NV30's DOM0/DOM1 bits, affects the domain the register is in.
 
 
-= Memory write mode =
+= Record mode =
 
-[XXX: write me]
+In record mode, counter values are written to memory for later analysis
+instead of being read via MMIO - this enables much more frequent sampling
+and simplifies software. The counter values are written to a given virtual
+memory buffer in 16-byte or 32-byte packets, consisting of 14 counters.
+A new packet is written whenever one of the 12 event counters is close to
+overflowing, or when the STOP input is asserted. The counters are:
+
+ - 48-bit cycles counter, incremented by 1 on every cycle, cleared only when
+   record mode operation is started by writting the RECORD_START register or
+   GCTRL.RECORD_RESET is set to 1. This counter wraps on overflow.
+ - 12 16-bit event counters, corresponding to 12 monitored signals selected by
+   PRE_SRC[0..3], START_SRC[0..3], EVENT_SRC[0..3]. Incremented by 1 on every
+   cycle when corresponding signal is 1. Cleared after writing a packet.
+   A packet write is triggered whenever any of these counters reaches 0xf000.
+   If a counter reaches 0xffff, it stops incrementing further.
+ - 12-bit STOP counter, incremented by 1 whenever the STOP input is 1. Cleared
+   after writing a packet. A packet write is triggered whenever this counter
+   is non-0. If this counter reaches 0xfff, it stops incrementing further.
+
+There are two packet formats available: long and short. Long format packets
+are 32 bytes long and include all counters, while short format paackets are
+16 bytes long and have only 4 of the 12 event counters. A packet in long
+format is made of 16 16-bit words:
+
+0x00: low 16 bits of cycle counter
+0x02: middle 16 bits of cycle counter
+0x04: high 16 bits of cycle counter
+0x06:
+  bits 0-11: the STOP counter
+  bits 12-15: always 0
+0x08: PRE_SRC[0] event counter
+0x0a: PRE_SRC[1] event counter
+0x0c: PRE_SRC[2] event counter
+0x0e: PRE_SRC[3] event counter
+0x10: START_SRC[0] event counter
+0x12: START_SRC[1] event counter
+0x14: START_SRC[2] event counter
+0x16: START_SRC[3] event counter
+0x18: EVENT_SRC[0] event counter
+0x1a: EVENT_SRC[1] event counter
+0x1c: EVENT_SRC[2] event counter
+0x1e: EVENT_SRC[3] event counter
+
+A packet in short format is simply the first 16 bytes of a packet in long
+format.
+
+Packets are normally written to memory when STOP input is asserted. For this
+reason, packets in memory will usually have the STOP counter equal to 1 [for
+the one pulse that triggered them]. However, to avoid saturating the event
+counters, a packet write will also be triggered whenever any event counter
+is >= 0xf000. The STOP counter in the memory packet will be equal to 0 in this
+case. STOP counter values greater than 1 are possible when STOP input is
+asserted too often for the memory interface to keep up - each domain has place
+for one outgoing packet. Whenever a packet write is triggered and there isn't
+an outgoing packet yet, the packet will be sent, and the counters reset. When
+a packet write is triggered and there already is an outgoing packet, nothing
+will happen - the counters will just keep incrementing until the current
+packet write is finished.
+
+[XXX: check if still valid on NVC0]
+
+
+== Record mode setup ==
+
+Before record mode is started, a few registers need to be set up.
+
+First, the channel and DMA object for the record buffer need to be bound. The
+PCOUNTER will access virtual memory as engine 0xb, client 0xf, DMA slot 0.
+The channel and DMA object are global for all domains.
+
+MMIO 0x00a7a0: RECORD_CHAN [NV84:NVC0]
+  bits 0-29: CHAN - the channel to bind to PCOUNTER engine
+  bit 31: VALID - if set, a channel bind will happen when writing this
+    register, and DMA object binds will be accepted. If unset, the register
+    will be written, but a channel will not be bound, and DMA binds will be
+    ignored.
+
+MMIO 0x00a7a4: RECORD_DMA [NV84:NVC0]
+  bits 0-15: the DMA object to bind to PCOUNTER. Whenever this register is
+    written and RECORD_CHAN.VALID is set, a DMA object bind will be done.
+
+The address of the record buffer is settable per-domain:
+
+MMIO 0x00a760+i*4: RECORD_START [NV84:NVC0]
+  The start address of the record buffer. Only bits 4-31 are valid - the
+  buffer has to be aligned to 16 byte bounduary. When this register is
+  written, the address is copied to RECORD_STATUS position field, the "limit
+  hit" internal flag will be cleared, and all counters are reset if the domain
+  is in record mode.
+
+MMIO 0x00a720+i*4: RECORD_LIMIT [NV84:NVC0]
+  The last valid address in the record buffer. Only bits 4-31 are valid. After
+  a packet is written with address >= the value of this register, an internal
+  invisible "limit hit" flag is set, and all further writes will be ignored
+  until RECORD_START is written.
+
+Note that one packet write will always succeed before the limit hit flag is
+set and further writes are disabled - even if the position is set far beyond
+the limit.
+
+MMIO 0x00a6e0+i*4: RECORD_STATUS [NV84:NVC0]
+  bit 0: if set, a VM FAULT happened when writing the record buffer
+  bits 4-31: bits 4-31 of the current record buffer position, ie. address of
+    the next packet to be written
+
+The PCOUNTER internally operates on 32-bit addresses. On NV84:NV92, the high
+8 bits of 40-bit virtual address are always forced to 0, limitting the record
+buffer to low 4GB of the VM space. On NV92+, the high 8 bits of the address
+are instead taken from a register:
+
+MMIO 0x00a6a0+i*4: RECORD_ADDRESS_HIGH [NV92:NVC0]
+  Sets the high 8 bits of the record buffer virtual address.
+
+Note, however, that the internal address size is still 32-bit: the position
+will thus wrap at 4GB bounduary, instead of incrementing bit 32 of address.
+For this reason, record buffers that cross a 4GB block bounduary in virtual
+space cannot be used.
+
+Note that VM faults on the record buffer will permanently hang the faulting
+domain until the GPU is reset - while there's a "clear VM FAULT status" bit
+in the control register, it only clears the status bit, while hardware is
+still in a wedged state. This is likely a hardware bug.
+
+[XXX: figure out record mode setup for NVC0]
 
 
 = The flag =

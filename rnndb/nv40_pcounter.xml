@@ -5,6 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
+<import file="nv50_defs.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
@@ -149,11 +150,14 @@
 	<reg32 offset="0x740" name="CTR_STOP" length="8"/>
 	<reg32 offset="0x760" name="RECORD_START" length="8" variants="NV84-"/>
 	<reg32 offset="0x780" name="THRESHOLD" length="8"/> <!-- ffffffff -->
-	<reg32 offset="0x7a0" name="CHANNEL" variants="NV84-"/>
-	<reg32 offset="0x7a4" name="DMAOBJ" variants="NV84-"/>
+	<reg32 offset="0x7a0" name="RECORD_CHAN" variants="NV84-">
+		<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
+		<bitfield pos="31" name="VALID"/>
+	</reg32>
+	<reg32 offset="0x7a4" name="RECORD_DMA" variants="NV84-"/>
 	<reg32 offset="0x7a8" name="GCTRL" variants="NV84-">
-		<bitfield pos="0" name="RECORD_DISABLE"/>
-		<bitfield pos="4" name="PERIODIC_DISABLE"/>
+		<bitfield pos="0" name="RECORD_RESET"/>
+		<bitfield pos="4" name="PERIODIC_RESET"/>
 		<!-- the following are related to PM_TRIGGER / WRCACHE_FLUSH -->
 		<bitfield pos="8" name="PGRAPH"/>
 		<bitfield pos="9" name="PBSP"/>

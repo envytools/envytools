@@ -195,10 +195,10 @@ Other FIFO engines:
 
 
 Performance counters:
-[     ] pcounter.txt - PCOUNTER engine overview
-[     ] nv10-pcounter.txt - NV10 PCOUNTER engine and signals
-[**   ] nv40-pcounter.txt - NV40 PCOUNTER engine and signals
-[     ] nvc0-pcounter.txt - NVC0 PCOUNTER engine and signals
+[***  ] pcounter.txt - PCOUNTER engine
+[     ] nv10-pcounter.txt - NV10 PCOUNTER signals
+[**   ] nv40-pcounter.txt - NV40 PCOUNTER signals
+[     ] nvc0-pcounter.txt - NVC0 PCOUNTER signals
 
 
 Power management:
