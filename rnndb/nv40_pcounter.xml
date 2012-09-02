@@ -140,17 +140,20 @@
 	<reg32 offset="0x680" name="CTR_EVENT" length="8"/>
 	<reg32 offset="0x6a0" name="UNK6A0" length="8" variants="NV92-"/> <!-- ff -->
 	<reg32 offset="0x6c0" name="CTR_START" length="8"/>
-	<reg32 offset="0x6e0" name="CTR_UNK2" length="8" variants="NV84-"/>
+	<reg32 offset="0x6e0" name="MEM_STATUS" length="8" variants="NV84-">
+		<bitfield pos="0" name="FAULT"/>
+		<bitfield low="4" high="31" name="POS" shr="4"/> <!-- *not* relative to MEM_START -->
+	</reg32>
 	<reg32 offset="0x700" name="CTR_PRE" length="8"/>
-	<reg32 offset="0x720" name="UNK720" length="8" variants="NV84-"/> <!-- fffffff0 -->
+	<reg32 offset="0x720" name="MEM_LIMIT" length="8" variants="NV84-"/> <!-- *not* relative to MEM_START -->
 	<reg32 offset="0x740" name="CTR_STOP" length="8"/>
-	<reg32 offset="0x760" name="UNK760" length="8" variants="NV84-"/> <!-- fffffff0 -->
+	<reg32 offset="0x760" name="MEM_START" length="8" variants="NV84-"/>
 	<reg32 offset="0x780" name="THRESHOLD" length="8"/> <!-- ffffffff -->
 	<reg32 offset="0x7a0" name="CHANNEL" variants="NV84-"/>
 	<reg32 offset="0x7a4" name="DMAOBJ" variants="NV84-"/>
-	<reg32 offset="0x7a8" name="UNK7A8" variants="NV84-">
-		<bitfield pos="0" name="UNK0"/> <!-- RW -->
-		<bitfield pos="4" name="UNK4"/> <!-- RW -->
+	<reg32 offset="0x7a8" name="GCTRL" variants="NV84-">
+		<bitfield pos="0" name="MEM_DISABLE"/>
+		<bitfield pos="4" name="PERIODIC_DISABLE"/>
 		<!-- the following are related to PM_TRIGGER / WRCACHE_FLUSH -->
 		<bitfield pos="8" name="PGRAPH"/>
 		<bitfield pos="9" name="PBSP"/>
@@ -165,7 +168,7 @@
 		<bitfield low="0" high="1" name="MODE">
 			<value value="0" name="SINGLE"/>
 			<value value="1" name="QUAD"/>
-			<value value="2" name="UNK2" variants="NV84-"/>
+			<value value="2" name="MEM" variants="NV84-"/>
 		</bitfield>
 		<bitfield low="4" high="6" name="CTR_MODE">
 			<value value="0" name="SIMPLE"/>
@@ -208,6 +211,7 @@
 			<value value="1" name="VALID"/>
 			<value value="3" name="OVERFLOW"/>
 		</bitfield>
+		<bitfield pos="27" name="FAULT_CLEAR"/> <!-- WO -->
 		<bitfield low="28" high="29" name="SINGLE_STATE">
 			<value value="0" name="INACTIVE"/>
 			<value value="1" name="WAIT_PRE"/>
