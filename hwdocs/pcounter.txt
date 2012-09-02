@@ -1043,18 +1043,20 @@ Before record mode is started, a few registers need to be set up.
 
 First, the channel and DMA object for the record buffer need to be bound. The
 PCOUNTER will access virtual memory as engine 0xb, client 0xf, DMA slot 0.
-The channel and DMA object are global for all domains.
+The channel and DMA object are global for all domains. Note that the channel
+register has to be written *after* the DMA object register for a successful
+bind.
+
+MMIO 0x00a7a4: RECORD_DMA [NV84:NVC0]
+  bits 0-15: the DMA object to be used by PCOUNTER. Writing this register only
+    stores the DMA object, it doesn't actually bind it - the bind is done by
+    RECORD_CHAN write.
 
 MMIO 0x00a7a0: RECORD_CHAN [NV84:NVC0]
   bits 0-29: CHAN - the channel to bind to PCOUNTER engine
-  bit 31: VALID - if set, a channel bind will happen when writing this
-    register, and DMA object binds will be accepted. If unset, the register
-    will be written, but a channel will not be bound, and DMA binds will be
-    ignored.
-
-MMIO 0x00a7a4: RECORD_DMA [NV84:NVC0]
-  bits 0-15: the DMA object to bind to PCOUNTER. Whenever this register is
-    written and RECORD_CHAN.VALID is set, a DMA object bind will be done.
+  bit 31: VALID - if set, a channel bind and DMA object bind will be done when
+    writing this register. If unset, the register will be written, but no
+    binds will be done.
 
 The address of the record buffer is settable per-domain:
 
