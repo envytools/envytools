@@ -56,6 +56,9 @@ static struct rbitfield schedvals = { { 0x2, 56 }, .wrapok = 1 };
 #define LIMM atomrimm, &limmoff
 #define SCHED atomrimm, &schedvals
 
+static struct bitfield texbaroff = { 0x17, 6 }; // XXX: check exact size
+#define TEXBARIMM atomimm, &texbaroff
+
 /*
  * Register fields
  */
@@ -107,21 +110,53 @@ static struct reg cc_r = { 0, "c", .cool = 1 };
 #define PSRC3 atomreg, &psrc3_r
 #define CC atomreg, &cc_r
 
+static struct bitfield tdst_mask = { 0x22, 4 };
+static struct bitfield cnt0 = { .addend = 0 };
+static struct bitfield cnt1 = { .addend = 1 };
+static struct bitfield cnt2 = { .addend = 2 };
+static struct bitfield cnt3 = { .addend = 3 };
+static struct bitfield cnt4 = { .addend = 4 };
+
+static struct vec tdst_v = { "r", &dst_bf, &cnt4, &tdst_mask };
+static struct vec tsrc11_v = { "r", &src1_bf, &cnt1, 0 };
+static struct vec tsrc12_v = { "r", &src1_bf, &cnt2, 0 };
+static struct vec tsrc13_v = { "r", &src1_bf, &cnt3, 0 };
+static struct vec tsrc14_v = { "r", &src1_bf, &cnt4, 0 };
+static struct vec tsrc20_v = { "r", &src2_bf, &cnt0, 0 };
+static struct vec tsrc21_v = { "r", &src2_bf, &cnt1, 0 };
+static struct vec tsrc22_v = { "r", &src2_bf, &cnt2, 0 };
+static struct vec tsrc23_v = { "r", &src2_bf, &cnt3, 0 };
+static struct vec tsrc24_v = { "r", &src2_bf, &cnt4, 0 };
+
+#define TDST atomvec, &tdst_v
+#define TSRC11 atomvec, &tsrc11_v
+#define TSRC12 atomvec, &tsrc12_v
+#define TSRC13 atomvec, &tsrc13_v
+#define TSRC14 atomvec, &tsrc14_v
+#define TSRC20 atomvec, &tsrc20_v
+#define TSRC21 atomvec, &tsrc21_v
+#define TSRC22 atomvec, &tsrc22_v
+#define TSRC23 atomvec, &tsrc23_v
+#define TSRC24 atomvec, &tsrc24_v
+
 /*
  * Memory fields
  */
 
 static struct rbitfield gmem_imm = { { 0x17, 32 }, RBF_SIGNED };
 static struct rbitfield cmem_imm = { { 0x17, 14 }, RBF_SIGNED, .shr = 2 };
+static struct rbitfield tcmem_imm = { { 0x2f, 8 }, .shr = 2 }; // XXX: could be 13 bits
 static struct bitfield cmem_idx = { 0x25, 5 };
 
 static struct mem gmem_m = { "g", 0, &src1_r, &gmem_imm };
 static struct mem gdmem_m = { "g", 0, &src1d_r, &gmem_imm };
 static struct mem cmem_m = { "c", &cmem_idx, 0, &cmem_imm };
+static struct mem tcmem_m = { "c", 0, 0, &tcmem_imm };
 
 #define GLOBAL atommem, &gmem_m
 #define GLOBALD atommem, &gdmem_m
 #define CONST atommem, &cmem_m
+#define TCONST atommem, &tcmem_m
 
 
 /*
@@ -308,6 +343,217 @@ static struct insn tabdi2[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tabtexsrc1[] = { // XXX: find shadow and offset bits
+	// target
+	{ 0x0000000000000000ull, 0x100021c000000000ull, N("x###"), TSRC11 },
+	{ 0x0000004000000000ull, 0x100021c000000000ull, N("ax##"), TSRC12 },
+	{ 0x0000008000000000ull, 0x100021c000000000ull, N("xy##"), TSRC12 },
+	{ 0x000000c000000000ull, 0x100021c000000000ull, N("axy#"), TSRC13 },
+	{ 0x0000010000000000ull, 0x1000214000000000ull, N("xyz#"), TSRC13 },
+	{ 0x0000014000000000ull, 0x1000214000000000ull, N("axyz"), TSRC14 },
+	// target + lod/bias
+	{ 0x0000200000000000ull, 0x100021c000000000ull, N("xl##"), TSRC12 },
+	{ 0x0000204000000000ull, 0x100021c000000000ull, N("axl#"), TSRC13 },
+	{ 0x0000208000000000ull, 0x100021c000000000ull, N("xyl#"), TSRC13 },
+	{ 0x000020c000000000ull, 0x100021c000000000ull, N("axyl"), TSRC14 },
+	{ 0x0000210000000000ull, 0x1000214000000000ull, N("xyzl"), TSRC14 },
+	{ 0x0000214000000000ull, 0x1000214000000000ull, N("axyz"), TSRC14 },
+	// target + lod/bias + dc
+	{ 0x0000200000000000ull, 0x100021c000000000ull, N("xld#"), TSRC13 },
+	{ 0x0000204000000000ull, 0x100021c000000000ull, N("axld"), TSRC14 },
+	{ 0x0000208000000000ull, 0x100021c000000000ull, N("xyld"), TSRC14 },
+	{ 0x000020c000000000ull, 0x100021c000000000ull, N("axyl"), TSRC14 },
+	{ 0x0000210000000000ull, 0x1000214000000000ull, N("xyzl"), TSRC14 },
+	{ 0x0000214000000000ull, 0x1000214000000000ull, N("axyz"), TSRC14 },
+	// target + lod/bias + dc + offset
+	{ 0x0000200000000000ull, 0x100021c000000000ull, N("xlod"), TSRC14 },
+	{ 0x0000204000000000ull, 0x100021c000000000ull, N("axlo"), TSRC14 },
+	{ 0x0000208000000000ull, 0x100021c000000000ull, N("xylo"), TSRC14 },
+	{ 0x000020c000000000ull, 0x100021c000000000ull, N("axyl"), TSRC14 },
+	{ 0x0000210000000000ull, 0x1000214000000000ull, N("xyzl"), TSRC14 },
+	{ 0x0000214000000000ull, 0x1000214000000000ull, N("axyz"), TSRC14 },
+	// target + lod/bias + offset
+	{ 0x0000200000000000ull, 0x100021c000000000ull, N("xlo#"), TSRC13 },
+	{ 0x0000204000000000ull, 0x100021c000000000ull, N("axlo"), TSRC14 },
+	{ 0x0000208000000000ull, 0x100021c000000000ull, N("xylo"), TSRC14 },
+	{ 0x000020c000000000ull, 0x100021c000000000ull, N("axyl"), TSRC14 },
+	{ 0x0000210000000000ull, 0x1000214000000000ull, N("xyzl"), TSRC14 },
+	{ 0x0000214000000000ull, 0x1000214000000000ull, N("axyz"), TSRC14 },
+	// target + dc
+	{ 0x0000000000000000ull, 0x100021c000000000ull, N("xd##"), TSRC12 },
+	{ 0x0000004000000000ull, 0x100021c000000000ull, N("axd#"), TSRC13 },
+	{ 0x0000008000000000ull, 0x100021c000000000ull, N("xyd#"), TSRC13 },
+	{ 0x000000c000000000ull, 0x100021c000000000ull, N("axyd"), TSRC14 },
+	{ 0x0000010000000000ull, 0x1000214000000000ull, N("xyzd"), TSRC14 },
+	{ 0x0000014000000000ull, 0x1000214000000000ull, N("axyz"), TSRC14 },
+	// target + dc + offset
+	{ 0x0000000000000000ull, 0x100021c000000000ull, N("xod#"), TSRC13 },
+	{ 0x0000004000000000ull, 0x100021c000000000ull, N("axod"), TSRC14 },
+	{ 0x0000008000000000ull, 0x100021c000000000ull, N("xyod"), TSRC14 },
+	{ 0x000000c000000000ull, 0x100021c000000000ull, N("axyo"), TSRC14 },
+	{ 0x0000010000000000ull, 0x1000214000000000ull, N("xyzo"), TSRC14 },
+	{ 0x0000014000000000ull, 0x1000214000000000ull, N("axyz"), TSRC14 },
+	// target + offset
+	{ 0x0000000000000000ull, 0x100021c000000000ull, N("xo##"), TSRC12 },
+	{ 0x0000004000000000ull, 0x100021c000000000ull, N("axo#"), TSRC13 },
+	{ 0x0000008000000000ull, 0x100021c000000000ull, N("xyo#"), TSRC13 },
+	{ 0x000000c000000000ull, 0x100021c000000000ull, N("axyo"), TSRC14 },
+	{ 0x0000010000000000ull, 0x1000214000000000ull, N("xyzo"), TSRC14 },
+	{ 0x0000014000000000ull, 0x1000214000000000ull, N("axyz"), TSRC14 },
+	// ind + target
+	{ 0x1000000000000000ull, 0x100021c000000000ull, N("ix##"), TSRC12 },
+	{ 0x1000004000000000ull, 0x100021c000000000ull, N("iax#"), TSRC13 },
+	{ 0x1000008000000000ull, 0x100021c000000000ull, N("ixy#"), TSRC13 },
+	{ 0x100000c000000000ull, 0x100021c000000000ull, N("iaxy"), TSRC14 },
+	{ 0x1000010000000000ull, 0x1000214000000000ull, N("ixyz"), TSRC14 },
+	{ 0x1000014000000000ull, 0x1000214000000000ull, N("iaxy"), TSRC14 },
+	// ind + target + lod/bias
+	{ 0x1000200000000000ull, 0x100021c000000000ull, N("ixl#"), TSRC13 },
+	{ 0x1000204000000000ull, 0x100021c000000000ull, N("iaxl"), TSRC14 },
+	{ 0x1000208000000000ull, 0x100021c000000000ull, N("ixyl"), TSRC14 },
+	{ 0x100020c000000000ull, 0x100021c000000000ull, N("iaxy"), TSRC14 },
+	{ 0x1000210000000000ull, 0x1000214000000000ull, N("ixyz"), TSRC14 },
+	{ 0x1000214000000000ull, 0x1000214000000000ull, N("iaxy"), TSRC14 },
+	// ind + target + lod/bias + dc
+	{ 0x1000200000000000ull, 0x100021c000000000ull, N("ixld"), TSRC14 },
+	{ 0x1000204000000000ull, 0x100021c000000000ull, N("iaxl"), TSRC14 },
+	{ 0x1000208000000000ull, 0x100021c000000000ull, N("ixyl"), TSRC14 },
+	{ 0x100020c000000000ull, 0x100021c000000000ull, N("iaxy"), TSRC14 },
+	{ 0x1000210000000000ull, 0x1000214000000000ull, N("ixyz"), TSRC14 },
+	{ 0x1000214000000000ull, 0x1000214000000000ull, N("iaxy"), TSRC14 },
+	// ind + target + lod/bias + dc + offset
+	{ 0x1000200000000000ull, 0x100021c000000000ull, N("ixlo"), TSRC14 },
+	{ 0x1000204000000000ull, 0x100021c000000000ull, N("iaxl"), TSRC14 },
+	{ 0x1000208000000000ull, 0x100021c000000000ull, N("ixyl"), TSRC14 },
+	{ 0x100020c000000000ull, 0x100021c000000000ull, N("iaxy"), TSRC14 },
+	{ 0x1000210000000000ull, 0x1000214000000000ull, N("ixyz"), TSRC14 },
+	{ 0x1000214000000000ull, 0x1000214000000000ull, N("iaxy"), TSRC14 },
+	// ind + target + lod/bias + offset
+	{ 0x1000200000000000ull, 0x100021c000000000ull, N("ixlo"), TSRC14 },
+	{ 0x1000204000000000ull, 0x100021c000000000ull, N("iaxl"), TSRC14 },
+	{ 0x1000208000000000ull, 0x100021c000000000ull, N("ixyl"), TSRC14 },
+	{ 0x100020c000000000ull, 0x100021c000000000ull, N("iaxy"), TSRC14 },
+	{ 0x1000210000000000ull, 0x1000214000000000ull, N("ixyz"), TSRC14 },
+	{ 0x1000214000000000ull, 0x1000214000000000ull, N("iaxy"), TSRC14 },
+	// ind + target + dc
+	{ 0x1000000000000000ull, 0x100021c000000000ull, N("ixd#"), TSRC13 },
+	{ 0x1000004000000000ull, 0x100021c000000000ull, N("iaxd"), TSRC14 },
+	{ 0x1000008000000000ull, 0x100021c000000000ull, N("ixyd"), TSRC14 },
+	{ 0x100000c000000000ull, 0x100021c000000000ull, N("iaxy"), TSRC14 },
+	{ 0x1000010000000000ull, 0x1000214000000000ull, N("ixyz"), TSRC14 },
+	{ 0x1000014000000000ull, 0x1000214000000000ull, N("iaxy"), TSRC14 },
+	// ind + target + dc + offset
+	{ 0x1000000000000000ull, 0x100021c000000000ull, N("ixod"), TSRC14 },
+	{ 0x1000004000000000ull, 0x100021c000000000ull, N("iaxo"), TSRC14 },
+	{ 0x1000008000000000ull, 0x100021c000000000ull, N("ixyo"), TSRC14 },
+	{ 0x100000c000000000ull, 0x100021c000000000ull, N("iaxy"), TSRC14 },
+	{ 0x1000010000000000ull, 0x1000214000000000ull, N("ixyz"), TSRC14 },
+	{ 0x1000014000000000ull, 0x1000214000000000ull, N("iaxy"), TSRC14 },
+	// ind + target + offset
+	{ 0x1000000000000000ull, 0x100021c000000000ull, N("ixo#"), TSRC13 },
+	{ 0x1000004000000000ull, 0x100021c000000000ull, N("iaxo"), TSRC14 },
+	{ 0x1000008000000000ull, 0x100021c000000000ull, N("ixyo"), TSRC14 },
+	{ 0x100000c000000000ull, 0x100021c000000000ull, N("iaxy"), TSRC14 },
+	{ 0x1000010000000000ull, 0x1000214000000000ull, N("ixyz"), TSRC14 },
+	{ 0x1000014000000000ull, 0x1000214000000000ull, N("iaxy"), TSRC14 },
+};
+static struct insn tabtexsrc2[] = {
+	// target + lod/bias
+	{ 0x0000214000000000ull, 0x1000214000000000ull, N("l###"), TSRC21 },
+	// target + lod/bias + dc
+	{ 0x000020c000000000ull, 0x100021c000000000ull, N("d###"), TSRC21 },
+	{ 0x0000210000000000ull, 0x1000214000000000ull, N("d###"), TSRC21 },
+	{ 0x0000214000000000ull, 0x1000214000000000ull, N("ld##"), TSRC22 },
+	// target + lod/bias + dc + offset
+	{ 0x0000204000000000ull, 0x100021c000000000ull, N("d###"), TSRC21 },
+	{ 0x0000208000000000ull, 0x100021c000000000ull, N("d###"), TSRC21 },
+	{ 0x000020c000000000ull, 0x100021c000000000ull, N("od##"), TSRC22 },
+	{ 0x0000210000000000ull, 0x1000214000000000ull, N("od##"), TSRC22 },
+	{ 0x0000214000000000ull, 0x1000214000000000ull, N("lod#"), TSRC23 },
+	// target + lod/bias + offset
+	{ 0x000020c000000000ull, 0x100021c000000000ull, N("o###"), TSRC21 },
+	{ 0x0000210000000000ull, 0x1000214000000000ull, N("o###"), TSRC21 },
+	{ 0x0000214000000000ull, 0x1000214000000000ull, N("lo##"), TSRC22 },
+	// target + dc
+	{ 0x0000014000000000ull, 0x1000214000000000ull, N("d###"), TSRC21 },
+	// target + dc + offset
+	{ 0x000000c000000000ull, 0x100021c000000000ull, N("d###"), TSRC21 },
+	{ 0x0000010000000000ull, 0x1000214000000000ull, N("d###"), TSRC21 },
+	{ 0x0000014000000000ull, 0x1000214000000000ull, N("od##"), TSRC22 },
+	// target + offset
+	{ 0x0000014000000000ull, 0x1000214000000000ull, N("o###"), TSRC21 },
+	// ind + target
+	{ 0x1000014000000000ull, 0x1000214000000000ull, N("z###"), TSRC21 },
+	// ind + target + lod/bias
+	{ 0x100020c000000000ull, 0x100021c000000000ull, N("l###"), TSRC21 },
+	{ 0x1000210000000000ull, 0x1000214000000000ull, N("l###"), TSRC21 },
+	{ 0x1000214000000000ull, 0x1000214000000000ull, N("zl##"), TSRC22 },
+	// ind + target + lod/bias + dc
+	{ 0x1000204000000000ull, 0x100021c000000000ull, N("d###"), TSRC21 },
+	{ 0x1000208000000000ull, 0x100021c000000000ull, N("d###"), TSRC21 },
+	{ 0x100020c000000000ull, 0x100021c000000000ull, N("ld##"), TSRC22 },
+	{ 0x1000210000000000ull, 0x1000214000000000ull, N("ld##"), TSRC22 },
+	{ 0x1000214000000000ull, 0x1000214000000000ull, N("zld#"), TSRC23 },
+	// ind + target + lod/bias + dc + offset
+	{ 0x1000200000000000ull, 0x100021c000000000ull, N("d###"), TSRC21 },
+	{ 0x1000204000000000ull, 0x100021c000000000ull, N("od##"), TSRC22 },
+	{ 0x1000208000000000ull, 0x100021c000000000ull, N("od##"), TSRC22 },
+	{ 0x100020c000000000ull, 0x100021c000000000ull, N("lod#"), TSRC23 },
+	{ 0x1000210000000000ull, 0x1000214000000000ull, N("lod#"), TSRC23 },
+	{ 0x1000214000000000ull, 0x1000214000000000ull, N("zlod"), TSRC24 },
+	// ind + target + lod/bias + offset
+	{ 0x1000204000000000ull, 0x100021c000000000ull, N("o###"), TSRC21 },
+	{ 0x1000208000000000ull, 0x100021c000000000ull, N("o###"), TSRC21 },
+	{ 0x100020c000000000ull, 0x100021c000000000ull, N("lo##"), TSRC22 },
+	{ 0x1000210000000000ull, 0x1000214000000000ull, N("lo##"), TSRC22 },
+	{ 0x1000214000000000ull, 0x1000214000000000ull, N("zlo#"), TSRC23 },
+	// ind + target + dc
+	{ 0x100000c000000000ull, 0x100021c000000000ull, N("d###"), TSRC21 },
+	{ 0x1000010000000000ull, 0x1000214000000000ull, N("d###"), TSRC21 },
+	{ 0x1000014000000000ull, 0x1000214000000000ull, N("zd##"), TSRC22 },
+	// ind + target + dc + offset
+	{ 0x1000004000000000ull, 0x100021c000000000ull, N("d###"), TSRC21 },
+	{ 0x1000008000000000ull, 0x100021c000000000ull, N("d###"), TSRC21 },
+	{ 0x100000c000000000ull, 0x100021c000000000ull, N("od##"), TSRC22 },
+	{ 0x1000010000000000ull, 0x1000214000000000ull, N("od##"), TSRC22 },
+	{ 0x1000014000000000ull, 0x1000214000000000ull, N("zod#"), TSRC23 },
+	// ind + target + offset
+	{ 0x100000c000000000ull, 0x100021c000000000ull, N("o###"), TSRC21 },
+	{ 0x1000010000000000ull, 0x1000214000000000ull, N("o###"), TSRC21 },
+	{ 0x1000014000000000ull, 0x1000214000000000ull, N("zo##"), TSRC22 },
+   // rest
+	{ 0, 0, SRC2 },
+};
+static struct insn tabtconst[] = {
+	{ 0x4000000000000000ull, 0xc000000000000000ull, TCONST },
+	{ 0, 0, OOPS },
+};
+static struct insn tabtexm[] = {
+	{ 0x0000000000000000ull, 0x0000000300000000ull },
+	{ 0x0000000100000000ull, 0x0000000300000000ull, N("t") },
+	{ 0x0000000200000000ull, 0x0000000300000000ull, N("p") },
+	{ 0, 0, OOPS },
+};
+static struct insn tabtext[] = {
+	{ 0x0000000000000000ull, 0x000001c000000000ull, N("t1d") },
+	{ 0x0000004000000000ull, 0x000001c000000000ull, N("a1d") },
+	{ 0x0000008000000000ull, 0x000001c000000000ull, N("t2d") },
+	{ 0x000000c000000000ull, 0x000001c000000000ull, N("a2d") },
+	{ 0x0000010000000000ull, 0x000001c000000000ull, N("t3d") },
+	{ 0x0000018000000000ull, 0x000001c000000000ull, N("tcube") },
+	{ 0x000001c000000000ull, 0x000001c000000000ull, N("acube") },
+	{ 0, 0, OOPS },
+};
+static struct insn tablodt[] = {
+	{ 0x0000000000000000ull, 0x0000700000000000ull, N("lauto") },
+	{ 0x0000100000000000ull, 0x0000700000000000ull, N("lzero") },
+	{ 0x0000200000000000ull, 0x0000700000000000ull, N("lbias") },
+	{ 0x0000300000000000ull, 0x0000700000000000ull, N("llod") },
+	{ 0x0000600000000000ull, 0x0000700000000000ull, N("lbiasa") },
+	{ 0x0000700000000000ull, 0x0000700000000000ull, N("lloda") },
+	{ 0, 0, OOPS },
+};
+
 static struct insn tabcvtf2idst[] = {
 	{ 0x0000000000000400ull, 0x0000000000004c00ull, N("u16"), DST },
 	{ 0x0000000000004400ull, 0x0000000000004c00ull, N("s16"), DST },
@@ -488,6 +734,8 @@ static struct insn tabm[] = {
 	{ 0x2600000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(sat35), T(cvti2idst), T(neg30), T(abs34), T(cvti2isrc) },
 	{ 0x25c0000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(frm2a), T(cvti2fdst), T(neg30), T(abs34), T(cvti2fsrc) },
 	{ 0x27c0000000000002ull, 0x3fc0000000000003ull, N("rshf"), N("b32"), DST, SESTART, N("b64"), SRC1, SRC3, SEEND, T(shfclamp), T(is2) }, // XXX: check is2 and bits 0x29,0x33(swap srcs ?)
+	{ 0x7d80000000000002ull, 0x7fc0000000000003ull, N("tex"), T(texm), T(lodt), TDST, T(text), N("ind"), T(texsrc1), T(texsrc2) },
+	{ 0x7700000000000002ull, 0x7fc0000000000003ull, N("texbar"), TEXBARIMM },
 	{ 0x0, 0x0, OOPS },
 };
 
@@ -499,6 +747,7 @@ static struct insn tabi[] = {
 	{ 0x0400000000000001ull, 0x37c0000000000003ull, N("mul"), T(frm2a), T(neg3b), N("f64"), DSTD, SRC1D, T(di2) },
 	{ 0x07c0000000000001ull, 0x37c0000000000003ull, N("rshf"), N("b32"), DST, SESTART, N("b64"), SRC1, SRC3, SEEND, T(sui2b) }, // d = (s1 >> s2) | (s3 << (32 - s2))
 	{ 0x1400000000000001ull, 0x37c0000000000003ull, N("fma"), T(ftz38), T(sat35), T(frm36), N("f32"), DST, T(neg33), SRC1, T(is2w3), T(neg34), T(is3) }, // XXX
+	{ 0x2000000000000001ull, 0x3fc0000000000003ull, N("tex"), T(texm), T(lodt), TDST, T(text), T(tconst), T(texsrc1), T(texsrc2) },
 	{ 0x37c0000000000001ull, 0x37c0000000000003ull, N("lshf"), N("b32"), DST, SESTART, N("b64"), SRC1, SRC3, SEEND, T(sui2a) }, // d = (s3 << s2) | (s1 >> (32 - s2))
 	{ 0x0, 0x0, OOPS },
 };
