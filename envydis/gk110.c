@@ -42,15 +42,15 @@ static struct rbitfield ctargoff = { { 23, 24 }, RBF_SIGNED, .pcrel = 1, .addend
  * Misc number fields
  */
 static struct rbitfield uimmoff = { { 0x17, 19 }, RBF_UNSIGNED };
+static struct rbitfield i3bimmoff = { { 0x17, 19, 0x3b, 1 }, RBF_SIGNED };
 static struct rbitfield suimmoff = { { 0x17, 18 }, RBF_UNSIGNED }; // XXX: for r/lshf, check size
-static struct rbitfield iimmoff = { { 0x17, 19 }, RBF_SIGNED };
 static struct rbitfield fimmoff = { { 0x17, 19 }, .shr = 12 };
 static struct rbitfield limmoff = { { 0x17, 32 }, .wrapok = 1 };
 static struct rbitfield dimmoff = { { 0x17, 19 }, .shr = 44 };
 static struct rbitfield schedvals = { { 0x2, 56 }, .wrapok = 1 };
 #define UIMM atomrimm, &uimmoff
 #define SUIMM atomrimm, &suimmoff
-#define IIMM atomrimm, &iimmoff
+#define I3BIMM atomrimm, &i3bimmoff
 #define FIMM atomrimm, &fimmoff
 #define DIMM atomrimm, &dimmoff
 #define LIMM atomrimm, &limmoff
@@ -144,7 +144,7 @@ static struct vec tsrc24_v = { "r", &src2_bf, &cnt4, 0 };
  */
 
 static struct rbitfield gmem_imm = { { 0x17, 32 }, RBF_SIGNED };
-static struct rbitfield cmem_imm = { { 0x17, 14 }, RBF_SIGNED, .shr = 2 };
+static struct rbitfield cmem_imm = { { 0x17, 14 }, RBF_UNSIGNED, .shr = 2 };
 static struct rbitfield tcmem_imm = { { 0x2f, 8 }, .shr = 2 }; // XXX: could be 13 bits
 static struct bitfield cmem_idx = { 0x25, 5 };
 
@@ -321,9 +321,8 @@ static struct insn tabds3[] = {
 	{ 0, 0, OOPS },
 };
 
-static struct insn tabii2[] = {
-	{ 0xc000000000000000ull, 0xc800000000000000ull, UIMM },
-	{ 0xc800000000000000ull, 0xc800000000000000ull, IIMM }, // XXX: check me
+static struct insn tabi3bi2[] = {
+	{ 0xc000000000000000ull, 0xc000000000000000ull, I3BIMM },
 	{ 0, 0, OOPS },
 };
 static struct insn tabsui2a[] = {
@@ -609,6 +608,7 @@ static struct insn tabcvti2idst[] = {
 };
 
 F1(sat35, 0x35, N("sat")) // add,mul f32
+F1(sat39, 0x39, N("sat")) // mad s32
 F1(sat3a, 0x3a, N("sat")) // mul f32 long immediate
 F1(ftz2f, 0x2f, N("ftz")) // add,mul f32
 F1(ftz32, 0x32, N("ftz")) // setp f32
@@ -633,7 +633,13 @@ F1(acin2e, 0x2e, CC)
 
 F(shfclamp, 0x35, N("clamp"), N("wrap"))
 
+F(us32_2b, 0x2b, N("u32"), N("s32"))
+F(us32_2c, 0x2c, N("u32"), N("s32"))
 F(us32_33, 0x33, N("u32"), N("s32"))
+F(us32_38, 0x38, N("u32"), N("s32"))
+
+F1(high2a, 0x2a, N("high"))
+F1(high39, 0x39, N("high"))
 
 static struct insn tabminmax[] = {
 	{ 0x00001c0000000000ull, 0x00003c0000000000ull, N("min") },
@@ -646,6 +652,13 @@ static struct insn tabaddop[] = {
 	{ 0x0008000000000000ull, 0x0018000000000000ull, N("sub") },
 	{ 0x0010000000000000ull, 0x0018000000000000ull, N("subr") },
 	{ 0x0018000000000000ull, 0x0018000000000000ull, N("addpo") }, // XXX: check me
+	{ 0, 0, OOPS },
+};
+static struct insn tabaddop3a[] = {
+	{ 0x0000000000000000ull, 0x00c0000000000000ull, N("add") },
+	{ 0x0040000000000000ull, 0x00c0000000000000ull, N("sub") },
+	{ 0x0080000000000000ull, 0x00c0000000000000ull, N("subr") },
+	{ 0x00c0000000000000ull, 0x00c0000000000000ull, N("addpo") }, // XXX: check me
 	{ 0, 0, OOPS },
 };
 
@@ -702,6 +715,7 @@ static struct insn tabm[] = {
 	{ 0x8400000000000002ull, 0xbfc0000000000003ull, T(sfuop), N("f32"), DST, T(neg33), T(abs31), SRC1 },
 	{ 0x0800000000000002ull, 0x3cc0000000000003ull, N("set"), N("b32"), DST, T(setit), N("f64"), T(neg2e), T(abs39), SRC1D, T(neg38), T(abs2f), T(ds2), T(setlop) },
 	{ 0x0c00000000000002ull, 0x3e00000000000003ull, N("fma"), T(ftz38), T(sat35),  T(frm36), N("f32"), DST, T(neg33), SRC1, T(is2w3), T(neg34), T(is3) },
+	{ 0x1000000000000002ull, 0x3c00000000000003ull, T(addop3a), T(sat35), DST, SESTART, N("mul"), T(high39), T(us32_33), SRC1, T(us32_38), T(is2w3), SEEND, T(is3) }, // XXX: order of us32
 	{ 0x1a40000000000002ull, 0x3fc0000000000003ull, N("slct"), N("b32"), DST, SRC1, T(is2w3), T(isetit), T(us32_33), T(is3) }, // XXX: check us32_33
 	{ 0x1a80000000000002ull, 0x3f80000000000003ull, N("set"), N("b32"), DST, T(isetit), T(us32_33), SRC1, T(is2), T(setlop) },
 	{ 0x1b00000000000002ull, 0x3f80000000000003ull, N("set"), PDST, PDSTN, T(isetit), T(us32_33), SRC1, T(is2), T(setlop) },
@@ -713,6 +727,7 @@ static struct insn tabm[] = {
 	{ 0x2148000000000002ull, 0x3fc8000000000003ull, N("shr"), N("s32"), DST, SRC1, T(is2) }, // XXX: find shl and wrap bits
 	{ 0x2000000000000002ull, 0xfa80000000000003ull, N("mul"), T(ftz38), T(sat3a), N("f32"), DST, SRC1, LIMM },
 	{ 0x2080000000000002ull, 0x3fc0000000000003ull, T(addop), T(sat35), N("b32"), DST, T(acout32), SRC1, T(is2), T(acin2e) },
+	{ 0x21c0000000000002ull, 0x3fc0000000000003ull, N("mul"), T(high2a), DST, T(us32_2b), SRC1, T(us32_2c), T(is2) }, // XXX: order of us32
 	{ 0x2200000000000002ull, 0x3fc0000000000003ull, T(logop), N("b32"), DST, SRC1, T(not2b), T(is2) },
 	{ 0x2280000000000002ull, 0x3fc0000000000003ull, T(minmax), N("f64"), DSTD, T(neg33), T(abs31), SRC1D, T(neg30), T(abs34), T(ds2) },
 	{ 0x22c0000000000002ull, 0x3fc0000000000003ull, N("add"), T(ftz2f), T(sat35), T(frm2a), N("f32"), DST, T(neg33), T(abs31), SRC1, T(neg30), T(abs34), T(is2) },
@@ -740,13 +755,15 @@ static struct insn tabm[] = {
 };
 
 static struct insn tabi[] = {
-	{ 0x0080000000000001ull, 0x37c0000000000003ull, T(addop), T(sat35), N("b32"), DST, T(acout32), SRC1, T(ii2) },
+	{ 0x0080000000000001ull, 0x37c0000000000003ull, T(addop), T(sat35), N("b32"), DST, T(acout32), SRC1, T(i3bi2) },
 	{ 0x0148000000000001ull, 0x37c8000000000003ull, N("shr"), N("s32"), DST, SRC1, T(sui2b) }, // XXX: find shl and wrap bits
-	{ 0x02c0000000000001ull, 0x37c0000000000003ull, N("add"), T(ftz2f), T(sat35), T(frm2a), N("f32"), DST, T(neg33), T(abs31), SRC1, T(neg30), T(abs34), T(is2) }, // XXX
+	{ 0x01c0000000000001ull, 0x37c0000000000003ull, N("mul"), T(high2a), DST, T(us32_2b), SRC1, T(us32_2c), T(i3bi2) }, // XXX: order of us32, TODO: find LIMM form
+	{ 0x02c0000000000001ull, 0x37c0000000000003ull, N("add"), T(ftz2f), T(sat35), T(frm2a), N("f32"), DST, T(neg33), T(abs31), SRC1, T(neg3b), T(fi2) },
 	{ 0x0340000000000001ull, 0x37c0000000000003ull, N("mul"), T(ftz2f), T(sat35), T(frm2a), T(neg3b), N("f32"), DST, SRC1, T(fi2) },
 	{ 0x0400000000000001ull, 0x37c0000000000003ull, N("mul"), T(frm2a), T(neg3b), N("f64"), DSTD, SRC1D, T(di2) },
 	{ 0x07c0000000000001ull, 0x37c0000000000003ull, N("rshf"), N("b32"), DST, SESTART, N("b64"), SRC1, SRC3, SEEND, T(sui2b) }, // d = (s1 >> s2) | (s3 << (32 - s2))
-	{ 0x1400000000000001ull, 0x37c0000000000003ull, N("fma"), T(ftz38), T(sat35), T(frm36), N("f32"), DST, T(neg33), SRC1, T(is2w3), T(neg34), T(is3) }, // XXX
+	{ 0x9400000000000001ull, 0xb6c0000000000003ull, N("fma"), T(ftz38), T(sat35), T(frm36), N("f32"), DST, T(neg3b), SRC1, FIMM, T(neg34), SRC3 }, // TODO: find LIMM form
+	{ 0xa000000000000001ull, 0xb400000000000003ull, T(addop3a), T(sat39), DST, SESTART, N("mul"), T(us32_33), SRC1, T(us32_38), I3BIMM, SEEND, SRC3 },
 	{ 0x2000000000000001ull, 0x3fc0000000000003ull, N("tex"), T(texm), T(lodt), TDST, T(text), T(tconst), T(texsrc1), T(texsrc2) },
 	{ 0x37c0000000000001ull, 0x37c0000000000003ull, N("lshf"), N("b32"), DST, SESTART, N("b64"), SRC1, SRC3, SEEND, T(sui2a) }, // d = (s3 << s2) | (s1 >> (32 - s2))
 	{ 0x0, 0x0, OOPS },
