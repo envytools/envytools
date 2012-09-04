@@ -89,7 +89,7 @@
 			<bitfield pos="4" name="PKFUSE"/>
 			<bitfield pos="6" name="PUNK089" variants="NVC0:NVE4"/>
 			<bitfield pos="6" name="PUNK08B" variants="NVE4-"/> <!-- 8b000:8f000 -->
-			<bitfield pos="7" name="PPCI_PUNK139"/>
+			<bitfield pos="7" name="PPCI_PP2P"/>
 			<bitfield pos="9" name="PCOPY0"/>
 			<bitfield pos="10" name="PCOPY1"/>
 			<bitfield pos="11" name="PVP"/>

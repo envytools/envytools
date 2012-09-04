@@ -168,7 +168,10 @@
 <!-- 137000 - 137fff PCLOCK -->
 <import file="nvc0_pclock.xml" />
 
-<!-- 138000 - 13afff ??? [NVC0] -->
+<!-- 138000 - 138fff ??? [NVC0] -->
+
+<!-- 139000 - 13afff PP2P -->
+<import file="nvc0_pp2p.xml" />
 
 <!-- 13b000 - 13efff PXBAR -->
 <import file="nvc0_pxbar.xml" />

@@ -266,7 +266,8 @@ R means ROOT-connected engine, I means IBUS-connected
 120000:130000 I PIBUS - deals with internal bus used to reach most other areas of MMIO [pibus.txt]
 130000:135000 I ???
 137000:138000 I PCLOCK - clock setting [nvc0-pclock.txt]
-138000:13b000 I ???
+138000:139000 I ???
+139000:13b000 I PP2P - peer to peer memory access [nvc0-p2p.txt]
 13b000:13f000 I PXBAR - crossbar between memory controllers and GPCs [nvc0-pxbar.txt]
 140000:180000 I PMFBs - middle memory controllers: compression and L2 cache [nvc0-pmfb.txt]
 180000:1c0000 I PCOUNTER - performance monitoring counters [pcounter.txt]

@@ -96,7 +96,7 @@
 	<reg32 offset="0x504" name="COUNTER_MASK" stride="0x10" length="4" type="nva3_pdaemon_counter_signals" variants="NVA3:NVC0"/>
 	<reg32 offset="0x508" name="COUNTER_COUNT" stride="0x10" length="4" variants="NVA3:NVC0">
 		<bitfield low="0" high="30" name="COUNT"/>
-		<bitfield pos="31" name="CLEAR_TRIGGET"/>
+		<bitfield pos="31" name="CLEAR_TRIGGER"/>
 	</reg32>
 	<reg32 offset="0x50c" name="COUNTER_MODE" stride="0x10" length="4" variants="NVA3:NVC0">
 		<bitfield pos="0" name="INCR_IF_ALL"/>
