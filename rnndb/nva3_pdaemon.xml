@@ -43,8 +43,8 @@
 	<reg32 offset="0x48c" name="TOKEN_FREE">
 		<doc>Write a token here to mark it as free for allocation.</doc>
 	</reg32>
-	<reg32 offset="0x490" name="UNK490"/> <!-- 0/ffffffff/0 -->
-	<reg32 offset="0x494" name="UNK494"/> <!-- 842a3990/ffffffff/0 -->
+	<reg32 offset="0x490" name="CRC_DATA"/> <!-- write causes CRC accumulation of the 32 bits written into CRC_STATE, polynomial 0xedb88320 aka CRC-32 -->
+	<reg32 offset="0x494" name="CRC_STATE"/>
 	<reg32 offset="0x4a0" name="FIFO_PUT" length="4"/>
 	<reg32 offset="0x4b0" name="FIFO_GET" length="4"/>
 	<reg32 offset="0x4c0" name="FIFO_INTR">
