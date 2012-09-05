@@ -11,8 +11,10 @@ TOC
 5.3. Host to PDAEMON scratch register: H2D
 5.5. PDAEMON to host scratch register: D2H
 5.6. Scratch registers: DSCRATCH
-6. Counters
-7. Accessing the whole MMIO range
+6. Hardware mutexes
+7. CRC computation
+8. Counters
+9. Accessing the whole MMIO range
 
 
 = Introduction =
@@ -128,8 +130,8 @@ offset and I[] address on NVD9+, second is I[] address on NVA3:NVD9]:
 [XXX: unknown NVD9+ regs here]
 47c/11f00  CHSW_REQ - requests a channel switch [XXX: doc]
 484/12100  ??? [0/ff07/0]
-488/12200  TOKEN_ALLOC - allocates a mutex token [XXX: doc]
-48c/12300  TOKEN_FREE - frees a mutex token [XXX: doc]
+488/12200  TOKEN_ALLOC - allocates a mutex token
+48c/12300  TOKEN_FREE - frees a mutex token
 490/12400  CRC_DATA - the data to compute CRC of [XXX: doc]
 494/12500  CRC_STATE - current CRC state [XXX: doc]
 4a0/12800:4b0/12c00  FIFO_PUT - host to PDAEMON fifo head
@@ -151,7 +153,7 @@ offset and I[] address on NVD9+, second is I[] address on NVA3:NVD9]:
 504+i*4/14100+i*100  COUNTER_MASK [XXX: doc]
 508+i*4/14200+i*100  COUNTER_COUNT [XXX: doc]
 50c+i*4/14300+i*100  COUNTER_MODE [XXX: doc]
-580/16000:5c0/17000  MUTEX_TOKEN - the current mutex tokens [XXX: doc]
+580/16000:5c0/17000  MUTEX_TOKEN - the current mutex tokens
 [XXX: 5c0+]
 5d0/17400:5e0/17800  DSCRATCH - scratch registers
 5f0/17c00  ??? [0/ffffffff/0]
@@ -308,6 +310,51 @@ communication or any other purposes.
 
 MMIO 0x5d0+i*4 / I[0x17400+i*0x100], i<4: DSCRATCH[i]
   A 32-bit scratch register.
+
+
+= Hardware mutexes =
+
+The PDAEMON has hardware support for 16 busy-waiting mutexes accessed by up to
+254 clients simultanously. The clients may be anything able to read and write
+the PDAEMON registers - code running on host, on PDAEMON, or on any other fµc
+engine with MMIO access powers.
+
+The clients are identified by tokens. Tokens are 8-bit numbers in 0x01-0xfe
+range. Tokens may be assigned to clients statically by software, or dynamically
+by hardware. Only tokens 0x08-0xfe will be dynamically allocated by hardware
+- software may use statically assigned tokens 0x01-0x07 even if dynamic tokens
+are in use at the same time. The registers used for dynamic token allocation
+are:
+
+MMIO 0x488 / I[0x12200]: TOKEN_ALLOC
+  Read-only, each to this register allocates a free token and gives it as the
+  read result. If there are no free tokens, 0xff is returned.
+
+MMIO 0x48c / I[0x12300]: TOKEN_FREE
+  A write to this register will free a token, ie. return it back to the pool
+  used by TOKEN_ALLOC. Only low 8 bits of the written value are used.
+  Attempting to free a token outside of the dynamic allocation range
+  [0x08-0xff] will have no effect. Reading this register will show the last
+  written value, invalid or not.
+
+The free tokens are stored in a FIFO - the freed tokens will be used by
+TOKEN_ALLOC in the order of freeing. After reset, the free token FIFO will
+contain tokens 0x08-0xfe in ascending order.
+
+The actual mutex locking and unlocking is done by the MUTEX_TOKEN registers:
+
+MMIO 0x580+i*4 / I[0x16000+i*0x100], i<16: MUTEX_TOKEN[i]
+  The 16 mutices. A value of 0 means unlocked, any other value means locked
+  by the client holding the corresponding token. Only low 8 bits of the written
+  value are used. A write of 0 will unlock the mutex and will always succeed.
+  A write of 0x01-0xfe will succeed only if the mutex is currently unlocked.
+  A write of 0xff is invalid and will always fail. A failed write has no
+  effect.
+
+
+= CRC computation =
+
+[XXX: write me]
 
  
 = Counters =
