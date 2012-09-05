@@ -24,7 +24,7 @@
 
 	<reg32 offset="0x404" name="UNK404"/> <!-- ffff/ffffffff/0 -->
 	<reg32 offset="0x408" name="UNK408"/> <!-- 3/3/0 -->
-	<reg32 offset="0x420" name="UNK420"/> <!-- 0/1/0 -->
+	<reg32 offset="0x420" name="USER_BUSY"/> <!-- goes to bit 4 of status -->
 	<reg32 offset="0x424" name="UNK424" variants="NVD9-"/> <!-- 0/1/0 -->
 
 	<!-- 430:47c unknown NVD9+ and NVE4+ regs -->

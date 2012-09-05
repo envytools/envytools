@@ -65,7 +65,12 @@ Interrupts:
  13: SIGNAL
  14: INTR14
 [XXX: interrupts]
-[XXX: status bits]
+Status bits:
+  0: fµc [fuc-proc.txt]
+  1: ??? [XXX]
+  2: ??? [XXX]
+  3: MEMIF [fuc-memif.txt]
+  4: USER
 
 [XXX: describe PDAEMON]
 
