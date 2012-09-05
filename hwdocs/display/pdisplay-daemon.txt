@@ -21,9 +21,30 @@ Core clock: ??? [XXX]
 
 Interrupts:
  12: PDISPLAY DISPLAY_DAEMON-routed interrupt
- 13: FIFO?
- 15: PNVIO DISPLAY_DAEMON-routed interrupt [NVE4-]
+ 13: FIFO
+ 14: 520? 524 apparently not required
+ 15: PNVIO DISPLAY_DAEMON-routed interrupt, but also 554? [NVE4-]
 [XXX: interrupts]
 [XXX: status bits]
 
 [XXX: describe PDISPLAY.DAEMON]
+
+= MMIO registers =
+
+627000:627400  fµc [fuc-io.txt]
+627400  ??? [alias of 610018]
+627440+i*4  FIFO_PUT
+627450+i*4  FIFO_GET
+627460  FIFO_INTR
+627464  FIFO_INTR_EN
+627470+i*4  RFIFO_PUT
+627480+i*4  RFIFO_GET
+627490  RFIFO_STATUS
+6274a0  ??? [ffffffff/ffffffff/0] [NVE4-]
+627500+i*4  ???
+627520  ??? - interrupt 14 [NVE4-?]
+627524  ??? [0/ffffffff/0] [NVE4-]
+627550  ??? [2710/ffffffff/0] [NVE4-]
+627554  ??? - interrupt 15 [0/1/0] [NVE4-]
+627600:627680  MEMIf [fuc-memif.txt]
+627680:627700  [alias of 627600+]

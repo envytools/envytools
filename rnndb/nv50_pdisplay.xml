@@ -797,6 +797,22 @@
 		</array>
 		<array name="DAEMON" offset="0x17000" stride="0x1000" length="1" variants="NVD9-">
 			<use-group name="nv98_fucbase"/>
+			<reg32 offset="0x400" name="UNK0018" access="r"/>
+			<reg32 offset="0x440" name="FIFO_PUT" length="2" variants="NVD9:NVE4"/>
+			<reg32 offset="0x450" name="FIFO_GET" length="2" variants="NVD9:NVE4"/>
+			<reg32 offset="0x440" name="FIFO_PUT" length="3" variants="NVE4-"/>
+			<reg32 offset="0x450" name="FIFO_GET" length="3" variants="NVE4-"/>
+			<reg32 offset="0x460" name="FIFO_INTR"/>
+			<reg32 offset="0x464" name="FIFO_INTR_EN"/>
+			<reg32 offset="0x470" name="RFIFO_PUT" length="2"/>
+			<reg32 offset="0x480" name="RFIFO_GET" length="2"/>
+			<reg32 offset="0x490" name="RFIFO_STATUS"/>
+			<reg32 offset="0x4a0" name="UNK4A0" variants="NVE4-"/> <!-- ffffffff/ffffffff/0 -->
+			<reg32 offset="0x500" name="UNK500" length="2"/>
+			<reg32 offset="0x520" name="INTR14" variants="NVE4-"/>
+			<reg32 offset="0x524" name="UNK524" variants="NVE4-"/>
+			<reg32 offset="0x550" name="UNK550" variants="NVE4-"/> <!-- 2710/ffffffff/0 -->
+			<reg32 offset="0x554" name="UNK554" variants="NVE4-"/> <!-- 0/1/0 -->
 			<use-group name="nv98_fuc_memif"/>
 		</array>
 		<array offset="0x1e000" name="VGA_PANEL" stride="0x800" length="4" variants="NVD9-">
