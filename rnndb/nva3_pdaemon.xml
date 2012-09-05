@@ -72,7 +72,7 @@
 		<bitfield pos="0" name="RUNNING"/>
 		<bitfield pos="4" name="SOURCE">
 			<value value="0" name="DCLK"/>
-			<value value="1" name="PTIMER_B7"/>
+			<value value="1" name="PTIMER_B5"/>
 		</bitfield>
 		<bitfield pos="8" name="MODE">
 			<value value="0" name="ONESHOT"/>

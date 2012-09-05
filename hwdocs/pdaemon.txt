@@ -424,7 +424,7 @@ bits at the end [or the beginning] have to be handled manually.
 
 Aside from the usual fµc timers [see fuc-timer.txt], PDAEMON has its own
 timer. The timer can be configured as either one-shot or periodic, can run
-on either daemon clock or PTIMER clock divided by 256, and generates
+on either daemon clock or PTIMER clock divided by 64, and generates
 interrupts. The following registers deal with the timer:
 
 MMIO 0x4e0 / I[0x13800]: TIMER_START
@@ -450,9 +450,9 @@ MMIO 0x4e8 / I[0x13a00]: TIMER_CTRL
   bit 4: SOURCE - selects the source clock
     0: DCLK - daemon clock, effectively timer decrements by 1 on every daemon
        cycle
-    1: PTIMER_B7 - PTIMER time bit 7 [ie. bit 12 of TIME_LOW]. Since timer
+    1: PTIMER_B5 - PTIMER time bit 5 [ie. bit 10 of TIME_LOW]. Since timer
        decrements by 1 on every rising edge of the clock, this effectively
-       decrements the counter on every 256th PTIMER clock.
+       decrements the counter on every 64th PTIMER clock.
   bit 8: MODE - selects the timer mode
     0: ONESHOT - timer will halt after reaching 0
     1: PERIODIC - timer will restart from TIMER_START after reaching 0
