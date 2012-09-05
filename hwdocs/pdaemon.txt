@@ -196,6 +196,8 @@ registers via the PTHERM range.
  - FIFO_PUT_1_WRITE
  - FIFO_PUT_2_WRITE
  - FIFO_PUT_3_WRITE
+ - INPUT_CHANGE [XXX: doc]
+ - OUTPUT_2 [XXX: doc]
 
 
 = Second-level interrupts =
