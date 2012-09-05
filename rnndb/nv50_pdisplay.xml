@@ -422,6 +422,14 @@
 			<reg32 offset="0x188" name="INTR_DISPLAY_DAEMON_4_DISPATCH" type="nvd9_pdisplay_intr_4"/>
 			<reg32 offset="0x18c" name="INTR_DISPLAY_DAEMON_4_REDIRECT_ONE_HOST" type="nvd9_pdisplay_intr_4"/>
 			<reg32 offset="0x190" name="INTR_DISPLAY_DAEMON_4_REDIRECT_ONE_DAEMON" type="nvd9_pdisplay_intr_4"/>
+			<reg32 offset="0x488" name="MMIO_FAULT">
+				<bitfield pos="0" name="VALID"/>
+				<bitfield pos="1" name="TYPE">
+					<value value="0" name="READ"/>
+					<value value="1" name="WRITE"/>
+				</bitfield>
+				<bitfield low="2" high="31" name="ADDR" shr="2"/>
+			</reg32>
 		</stripe>
 
 		<array offset="0x4000" name="CLOCK" stride="0x2000" length="1">
