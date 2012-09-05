@@ -445,6 +445,10 @@ TOKEN_ALL_USED   |--|--|--|--|--|--|--|--|--|??|cd|??|??| pdaemon.txt
 TOKEN_NONE_USED  |--|--|--|--|--|--|--|--|--|??|ce|??|??| pdaemon.txt
 TOKEN_FREE       |--|--|--|--|--|--|--|--|--|??|cf|??|??| pdaemon.txt
 TOKEN_ALLOC      |--|--|--|--|--|--|--|--|--|??|d0|??|??| pdaemon.txt
+FIFO_PUT_0_WRITE |--|--|--|--|--|--|--|--|--|??|d1|??|??| pdaemon.txt
+FIFO_PUT_1_WRITE |--|--|--|--|--|--|--|--|--|??|d2|??|??| pdaemon.txt
+FIFO_PUT_2_WRITE |--|--|--|--|--|--|--|--|--|??|d3|??|??| pdaemon.txt
+FIFO_PUT_3_WRITE |--|--|--|--|--|--|--|--|--|??|d4|??|??| pdaemon.txt
 [trailer base]   |??|c0|??|??|??|a0|80|??|a0|e0|e0|??|??| pcounter.txt
 
 

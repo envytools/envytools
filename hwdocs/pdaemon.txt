@@ -190,6 +190,10 @@ registers via the PTHERM range.
  - TOKEN_NONE_USED
  - TOKEN_FREE
  - TOKEN_ALLOC
+ - FIFO_PUT_0_WRITE
+ - FIFO_PUT_1_WRITE
+ - FIFO_PUT_2_WRITE
+ - FIFO_PUT_3_WRITE
 
 
 = Second-level interrupts =
@@ -276,6 +280,12 @@ MMIO 0x4c0 / I[0x13000]: FIFO_INTR
 MMIO 0x4c4 / I[0x13100]: FIFO_INTR_EN
   The enable register for FIFO_PUT write interrupts. Read/write, only 4 low
   bits are valid. Bit assignment is the same as in FIFO_INTR.
+
+In addition, the FIFO circuitry exports four signals to PCOUNTER:
+ - FIFO_PUT_0_WRITE: pulses for one cycle whenever FIFO_PUT[0] is written
+ - FIFO_PUT_1_WRITE: pulses for one cycle whenever FIFO_PUT[1] is written
+ - FIFO_PUT_2_WRITE: pulses for one cycle whenever FIFO_PUT[2] is written
+ - FIFO_PUT_3_WRITE: pulses for one cycle whenever FIFO_PUT[3] is written
 
 
 == Submitting data to host: RFIFO ==
