@@ -22,8 +22,11 @@
 	</bitset>
 	<use-group name="nv98_fucbase"/>
 
-	<reg32 offset="0x404" name="UNK404"/> <!-- ffff/ffffffff/0 -->
-	<reg32 offset="0x408" name="UNK408"/> <!-- 3/3/0 -->
+	<reg32 offset="0x404" name="SUBENGINE_RESET_TIME"/>
+	<reg32 offset="0x408" name="SUBENGINE_RESET_MASK">
+		<bitfield pos="0" name="THERM"/>
+		<bitfield pos="1" name="DAEMON"/>
+	</reg32>
 	<reg32 offset="0x420" name="USER_BUSY"/>
 	<reg32 offset="0x424" name="UNK424" variants="NVD9-"/> <!-- 0/1/0 -->
 

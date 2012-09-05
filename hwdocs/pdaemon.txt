@@ -124,8 +124,10 @@ The following registers/register ranges exist on PDAEMON [first number is MMIO
 offset and I[] address on NVD9+, second is I[] address on NVA3:NVD9]:
 
 000/00000:400/10000  fµc [fuc-io.txt]
-404/10100  ??? [ffff/ffffffff/0]
-408/10200  ??? [3/3/0]
+404/10100  SUBENGINE_RESET_TIME - selects how long to keep parts in reset
+           after SUBENGINE_RESET [XXX: doc]
+408/10200  SUBENGINE_RESET_MASK - selects parts affected by SUBENGINE_RESET
+           [XXX:doc]
 420/10800  USER_BUSY - sets the user-controlled busy flag
 424/10900  ??? [0/1/0] [NVD9-]
 [XXX: unknown NVD9+ regs here]
