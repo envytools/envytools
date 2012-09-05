@@ -17,6 +17,7 @@ TOC
 9. Channel switching
 10. Counters
 11. Accessing the whole MMIO range
+12. PCOUNTER signals
 
 
 = Introduction =
@@ -109,8 +110,6 @@ Status bits:
   3: MEMIF [fuc-memif.txt]
   4: USER
 
-[XXX: describe PDAEMON]
-
 
 = IO register space =
 
@@ -179,6 +178,16 @@ Notes:
 
 Neither is a problem in practice, since the host can just access the same
 registers via the PTHERM range.
+
+
+= PCOUNTER signals =
+
+[XXX: write me]
+
+[XXX: discuss mismatched clock thing]
+
+ - TOKEN_ALL_USED
+ - TOKEN_NONE_USED
 
 
 = Second-level interrupts =
@@ -352,6 +361,13 @@ MMIO 0x580+i*4 / I[0x16000+i*0x100], i<16: MUTEX_TOKEN[i]
   A write of 0x01-0xfe will succeed only if the mutex is currently unlocked.
   A write of 0xff is invalid and will always fail. A failed write has no
   effect.
+
+The token allocation circuitry additionally exports two signals to PCOUNTER:
+
+ - TOKEN_ALL_USED: 1 if all tokens are currently allocated [ie. a read from
+   TOKEN_ALLOC would return 0xff]
+ - TOKEN_NONE_USED: 1 if no tokens are currently allocated [ie. tokens
+   0x08-0xfe are all in free tokens queue]
 
 
 = CRC computation =

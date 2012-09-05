@@ -441,6 +441,8 @@ signal           |84|86|92|94|96|98|a0|aa|ac|a3|a5|a8|af| documentation
 -----------------+--+--+--+--+--+--+--+--+--+--+--+--+--+---------------
 PCOUNTER USER_0  |--|--|--|--|--|--|--|--|--|??|3e|??|??| pcounter.txt
 PCOUNTER USER_1  |--|--|--|--|--|--|--|--|--|??|3f|??|??| pcounter.txt
+TOKEN_ALL_USED   |--|--|--|--|--|--|--|--|--|??|cd|??|??| pdaemon.txt
+TOKEN_NONE_USED  |--|--|--|--|--|--|--|--|--|??|ce|??|??| pdaemon.txt
 [trailer base]   |??|c0|??|??|??|a0|80|??|a0|e0|e0|??|??| pcounter.txt
 
 
