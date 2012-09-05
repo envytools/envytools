@@ -13,8 +13,10 @@ TOC
 5.6. Scratch registers: DSCRATCH
 6. Hardware mutexes
 7. CRC computation
-8. Counters
-9. Accessing the whole MMIO range
+8. The timer
+9. Channel switching
+10. Counters
+11. Accessing the whole MMIO range
 
 
 = Introduction =
@@ -144,9 +146,9 @@ offset and I[] address on NVD9+, second is I[] address on NVA3:NVD9]:
 4d4/13500  H2D_INTR - host to PDAEMON scratch reg interrupt status
 4d8/13600  H2D_INTR_EN - host to PDAEMON scratch reg interrupt enable
 4dc/13700  D2H - PDAEMON to host scratch reg
-4e0/13800  TIMER_START - timer initial tick count [XXX: doc]
-4e4/13900  TIMER_TIME - timer current tick count [XXX: doc]
-4e8/13a00  TIMER_CONTROL - timer control [XXX: doc]
+4e0/13800  TIMER_START - timer initial tick count
+4e4/13900  TIMER_TIME - timer current remaining tick count
+4e8/13a00  TIMER_CTRL - timer control
 4f0/13c00  ??? [0/f/0, 0/3f/0]
 4f8/13e00  ??? [0/11/0, 0/13/0]
 500/14000  COUNTER_SIGNALS [XXX: doc]
@@ -160,8 +162,8 @@ offset and I[] address on NVD9+, second is I[] address on NVA3:NVD9]:
 5f4/17d00  ??? [0/f/0]
 600/18000:640/19000  MEMIF [fuc-memif.txt]
 [XXX: 660+]
-680/1a000  TIMER_INTR - timer interrupt status [XXX: doc]
-684/1a100  TIMER_INTR_EN - timer interrupt enable [XXX: doc]
+680/1a000  TIMER_INTR - timer interrupt status
+684/1a100  TIMER_INTR_EN - timer interrupt enable
 688/1a200  SUBINTR - second-level interrupt status
 [XXX: finish the list]
 800/20000:fe0/40000  THERM [NVA3:NVD9] [ptherm.txt] [XXX: doc]
@@ -384,6 +386,59 @@ To compute a CRC:
 
 If the data block to CRC has size that is not a multiple of 32 bits, the extra
 bits at the end [or the beginning] have to be handled manually.
+
+
+= The timer =
+
+Aside from the usual fµc timers [see fuc-timer.txt], PDAEMON has its own
+timer. The timer can be configured as either one-shot or periodic, can run
+on either daemon clock or PTIMER clock divided by 256, and generates
+interrupts. The following registers deal with the timer:
+
+MMIO 0x4e0 / I[0x13800]: TIMER_START
+  The 32-bit count the timer starts counting down from. Read/write. For
+  periodic mode, the period will be equal to TIMER_START+1 source cycles.
+
+MMIO 0x4e4 / I[0x13900]: TIMER_TIME
+  The current value of the timer, read only. If TIMER_CONTROL.RUNNING is set,
+  this will decrease by 1 on every rising edge of the source clock. If such
+  rising edge causes this register to become 0, the TIMER_INTR bit 8 [TIMER]
+  is set. The behavior of rising edge when this register is already 0 depends
+  on the timer mode: in ONESHOT mode, nothing will happen. In PERIODIC mode,
+  the timer will be reset to the value from TIMER_START. Note that interrupts
+  won't be generated if the timer becomes 0 when copying the value from
+  TIMER_START, whether caused by starting the timer or beginning a new PERIODIC
+  period. This means that using PERIODIC mode with TIMER_START of 0 will never
+  generate any interrupts.
+
+MMIO 0x4e8 / I[0x13a00]: TIMER_CTRL
+  bit 0: RUNNING - when 0, the timer is stopped, when 1, the timer is runinng.
+    Setting this bit to 1 when it was previously 0 will also copy the
+    TIMER_START value to TIMER_TIME.
+  bit 4: SOURCE - selects the source clock
+    0: DCLK - daemon clock, effectively timer decrements by 1 on every daemon
+       cycle
+    1: PTIMER_B7 - PTIMER time bit 7 [ie. bit 12 of TIME_LOW]. Since timer
+       decrements by 1 on every rising edge of the clock, this effectively
+       decrements the counter on every 256th PTIMER clock.
+  bit 8: MODE - selects the timer mode
+    0: ONESHOT - timer will halt after reaching 0
+    1: PERIODIC - timer will restart from TIMER_START after reaching 0
+
+MMIO 0x680 / I[0x1a000]: TIMER_INTR
+  bit 8: TIMER - set whenever TIMER_TIME becomes 0 except by a copy from
+    TIMER_START, write 1 to this bit to clear it. When this and bit 8
+    of TIMER_INTR_EN are set at the same time, fµc interrupt line #14 [TIMER]
+    is asserted.
+
+MMIO 0x684 / I[0x1a100]: TIMER_INTR_EN
+  bit 8: TIMER - when set, timer interupt delivery to fµc interrupt line 14 is
+  enabled.
+
+
+= Channel switching =
+
+[XXX: write me]
 
  
 = Counters =

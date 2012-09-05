@@ -18,7 +18,7 @@
 		<bitfield pos="11" name="SUBINTR"/>
 		<bitfield pos="12" name="THERM"/> <!-- ? -->
 		<bitfield pos="13" name="SIGNAL"/> <!-- 7cc+ and 7ec+ -->
-		<bitfield pos="14" name="TIMER"/> <!-- 680 -->
+		<bitfield pos="14" name="TIMER"/>
 	</bitset>
 	<use-group name="nv98_fucbase"/>
 
@@ -68,11 +68,11 @@
 
 	<reg32 offset="0x4e0" name="TIMER_START"/>
 	<reg32 offset="0x4e4" name="TIMER_TIME" access="r"/>
-	<reg32 offset="0x4e8" name="TIMER_CONTROL">
+	<reg32 offset="0x4e8" name="TIMER_CTRL">
 		<bitfield pos="0" name="RUNNING"/>
 		<bitfield pos="4" name="SOURCE">
 			<value value="0" name="DCLK"/>
-			<value value="1" name="PTIMER_B7"/> <!-- ie. TILE_LOW bit 12 -->
+			<value value="1" name="PTIMER_B7"/>
 		</bitfield>
 		<bitfield pos="8" name="MODE">
 			<value value="0" name="ONESHOT"/>
