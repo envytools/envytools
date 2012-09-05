@@ -54,23 +54,21 @@
 		<bitfield pos="3" name="3"/>
 	</reg32>
 	<reg32 offset="0x4c4" name="FIFO_INTR_EN">
-		<bitfield pos="0" name="0"/>
-		<bitfield pos="1" name="1"/>
-		<bitfield pos="2" name="2"/>
-		<bitfield pos="3" name="3"/>
+		<bitfield pos="0" name="FIFO_0"/>
+		<bitfield pos="1" name="FIFO_1"/>
+		<bitfield pos="2" name="FIFO_2"/>
+		<bitfield pos="3" name="FIFO_3"/>
 	</reg32>
 	<reg32 offset="0x4c8" name="RFIFO_PUT"/>
 	<reg32 offset="0x4cc" name="RFIFO_GET"/>
-	<reg32 offset="0x4d0" name="ISCRATCH">
-		<doc>Any write here causes an ISCRATCH interrupt.</doc>
+	<reg32 offset="0x4d0" name="H2D"/>
+	<reg32 offset="0x4d4" name="H2D_INTR">
+		<bitfield pos="0" name="H2D"/>
 	</reg32>
-	<reg32 offset="0x4d4" name="ISCRATCH_INTR">
-		<bitfield pos="0" name="0"/>
+	<reg32 offset="0x4d8" name="H2D_INTR_EN">
+		<bitfield pos="0" name="H2D"/>
 	</reg32>
-	<reg32 offset="0x4d8" name="ISCRATCH_INTR_EN">
-		<bitfield pos="0" name="0"/>
-	</reg32>
-	<reg32 offset="0x4dc" name="UNK4DC"/> <!-- 0/ffffffff/0 -->
+	<reg32 offset="0x4dc" name="D2H"/>
 
 	<reg32 offset="0x4e0" name="TIMER_START"/>
 	<reg32 offset="0x4e4" name="TIMER_TIME" access="r"/>
@@ -150,12 +148,8 @@
 	<reg32 offset="0x680" name="TIMER_INTR" type="nva3_pdaemon_timer_intr"/>
 	<reg32 offset="0x684" name="TIMER_INTR_EN" type="nva3_pdaemon_timer_intr"/>
 	<reg32 offset="0x688" name="SUBINTR">
-		<bitfield pos="0" name="ISCRATCH">
-			<doc>Consult 4d4</doc>
-		</bitfield>
-		<bitfield pos="1" name="FIFO">
-			<doc>Consult 4c4</doc>
-		</bitfield>
+		<bitfield pos="0" name="H2D"/>
+		<bitfield pos="1" name="FIFO"/>
 		<bitfield pos="2" name="UNK2" variants="NVA3:NVE4">
 			<doc>Consult 700</doc>
 		</bitfield>
