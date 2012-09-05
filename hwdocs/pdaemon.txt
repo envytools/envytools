@@ -160,7 +160,7 @@ offset and I[] address on NVD9+, second is I[] address on NVA3:NVD9]:
 [XXX: 5c0+]
 5d0/17400:5e0/17800  DSCRATCH - scratch registers
 5f0/17c00  ??? [0/ffffffff/0]
-5f4/17d00  ??? [0/f/0]
+5f4/17d00  THERM_BYTE_MASK [XXX: doc]
 600/18000:640/19000  MEMIF [fuc-memif.txt]
 [XXX: 660+]
 680/1a000  TIMER_INTR - timer interrupt status

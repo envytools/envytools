@@ -131,7 +131,7 @@
 	<reg32 offset="0x5d0" name="DSCRATCH" length="4"/>
 
 	<reg32 offset="0x5f0" name="UNK5F0"/> <!-- 0/ffffffff/0 -->
-	<reg32 offset="0x5f4" name="UNK5F4"/> <!-- f/f/0 -->
+	<reg32 offset="0x5f4" name="THERM_BYTE_MASK"/>
 	<reg32 offset="0x5f8" name="UNK5F8" variants="NVE4-"/> <!-- 0/ffffffff/0 -->
 	<reg32 offset="0x5fc" name="UNK5FC" variants="NVE4-"/> <!-- 0/ffffffff/0 -->
 
