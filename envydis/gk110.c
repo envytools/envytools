@@ -145,16 +145,22 @@ static struct vec tsrc24_v = { "r", &src2_bf, &cnt4, 0 };
 
 static struct rbitfield gmem_imm = { { 0x17, 32 }, RBF_SIGNED };
 static struct rbitfield cmem_imm = { { 0x17, 14 }, RBF_UNSIGNED, .shr = 2 };
+static struct rbitfield lmem_imm = { { 0x17, 24 }, RBF_SIGNED };
+static struct rbitfield smem_imm = { { 0x17, 24 }, RBF_SIGNED };
 static struct rbitfield tcmem_imm = { { 0x2f, 8 }, .shr = 2 }; // XXX: could be 13 bits
 static struct bitfield cmem_idx = { 0x25, 5 };
 
 static struct mem gmem_m = { "g", 0, &src1_r, &gmem_imm };
+static struct mem lmem_m = { "l", 0, &src1_r, &lmem_imm };
+static struct mem smem_m = { "s", 0, &src1_r, &smem_imm };
 static struct mem gdmem_m = { "g", 0, &src1d_r, &gmem_imm };
 static struct mem cmem_m = { "c", &cmem_idx, 0, &cmem_imm };
 static struct mem tcmem_m = { "c", 0, 0, &tcmem_imm };
 
 #define GLOBAL atommem, &gmem_m
 #define GLOBALD atommem, &gdmem_m
+#define LOCAL atommem, &lmem_m
+#define SHARED atommem, &smem_m
 #define CONST atommem, &cmem_m
 #define TCONST atommem, &tcmem_m
 
@@ -699,6 +705,76 @@ static struct insn tabsfuop[] = {
 	{ 0, 0, OOPS },
 };
 
+static struct insn tablcop[] = {
+	{ 0x0000000000000000ull, 0x1800000000000000ull, N("ca") },
+	{ 0x0800000000000000ull, 0x1800000000000000ull, N("cg") },
+	{ 0x1000000000000000ull, 0x1800000000000000ull, N("cs") },
+	{ 0x1800000000000000ull, 0x1800000000000000ull, N("cv") },
+	{ 0, 0, OOPS },
+};
+static struct insn tabscop[] = {
+	{ 0x0000000000000000ull, 0x1800000000000000ull, N("wb") },
+	{ 0x0800000000000000ull, 0x1800000000000000ull, N("cg") },
+	{ 0x1000000000000000ull, 0x1800000000000000ull, N("cs") },
+	{ 0x1800000000000000ull, 0x1800000000000000ull, N("wt") },
+	{ 0, 0, OOPS },
+};
+static struct insn tabllcop[] = {
+	{ 0x0000000000000000ull, 0x0001800000000000ull, N("ca") },
+	{ 0x0000800000000000ull, 0x0001800000000000ull, N("cg") },
+	{ 0x0001000000000000ull, 0x0001800000000000ull, N("cs") },
+	{ 0x0001800000000000ull, 0x0001800000000000ull, N("cv") },
+	{ 0, 0, OOPS },
+};
+static struct insn tablscop[] = {
+	{ 0x0000000000000000ull, 0x0001800000000000ull, N("wb") },
+	{ 0x0000800000000000ull, 0x0001800000000000ull, N("cg") },
+	{ 0x0001000000000000ull, 0x0001800000000000ull, N("cs") },
+	{ 0x0001800000000000ull, 0x0001800000000000ull, N("wt") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabldstt[] = {
+	{ 0x0000000000000000ull, 0x0700000000000000ull, N("u8") },
+	{ 0x0100000000000000ull, 0x0700000000000000ull, N("s8") },
+	{ 0x0200000000000000ull, 0x0700000000000000ull, N("u16") },
+	{ 0x0300000000000000ull, 0x0700000000000000ull, N("s16") },
+	{ 0x0400000000000000ull, 0x0700000000000000ull, N("b32") },
+	{ 0x0500000000000000ull, 0x0700000000000000ull, N("b64") },
+	{ 0x0600000000000000ull, 0x0700000000000000ull, N("b128") },
+	{ 0, 0, OOPS },
+};
+static struct insn tabldstd[] = {
+	{ 0x0000000000000000ull, 0x0700000000000000ull, DST },
+	{ 0x0100000000000000ull, 0x0700000000000000ull, DST },
+	{ 0x0200000000000000ull, 0x0700000000000000ull, DST },
+	{ 0x0300000000000000ull, 0x0700000000000000ull, DST },
+	{ 0x0400000000000000ull, 0x0700000000000000ull, DST },
+	{ 0x0500000000000000ull, 0x0700000000000000ull, DSTD },
+	{ 0x0600000000000000ull, 0x0700000000000000ull, DSTQ },
+	{ 0, 0, OOPS, DST },
+};
+static struct insn tablldstt[] = {
+	{ 0x0000000000000000ull, 0x0038000000000000ull, N("u8") },
+	{ 0x0008000000000000ull, 0x0038000000000000ull, N("s8") },
+	{ 0x0010000000000000ull, 0x0038000000000000ull, N("u16") },
+	{ 0x0018000000000000ull, 0x0038000000000000ull, N("s16") },
+	{ 0x0020000000000000ull, 0x0038000000000000ull, N("b32") },
+	{ 0x0028000000000000ull, 0x0038000000000000ull, N("b64") },
+	{ 0x0030000000000000ull, 0x0038000000000000ull, N("b128") },
+	{ 0, 0, OOPS },
+};
+static struct insn tablldstd[] = {
+	{ 0x0000000000000000ull, 0x0038000000000000ull, DST },
+	{ 0x0008000000000000ull, 0x0038000000000000ull, DST },
+	{ 0x0010000000000000ull, 0x0038000000000000ull, DST },
+	{ 0x0018000000000000ull, 0x0038000000000000ull, DST },
+	{ 0x0020000000000000ull, 0x0038000000000000ull, DST },
+	{ 0x0028000000000000ull, 0x0038000000000000ull, DSTD },
+	{ 0x0030000000000000ull, 0x0038000000000000ull, DSTQ },
+	{ 0, 0, OOPS },
+};
+
 /*
  * Opcode format
  *
@@ -765,6 +841,10 @@ static struct insn tabm[] = {
 	{ 0x2800000000000002ull, 0x3980000000000003ull, N("mul"), DST, T(us32_39), SRC1, T(us32_3a), LIMM },
 	{ 0x7d80000000000002ull, 0x7fc0000000000003ull, N("tex"), T(texm), T(lodt), TDST, T(text), N("ind"), T(texsrc1), T(texsrc2) },
 	{ 0x7700000000000002ull, 0x7fc0000000000003ull, N("texbar"), TEXBARIMM },
+	{ 0x7a00000000000002ull, 0x7fc0000000000003ull, N("ld"), T(lldstt), T(llcop), T(lldstd), LOCAL },
+	{ 0x7a40000000000002ull, 0x7fc0000000000003ull, N("ld"), T(lldstt), T(lldstd), SHARED },
+	{ 0x7a80000000000002ull, 0x7fc0000000000003ull, N("st"), T(lldstt), T(lscop), LOCAL, T(lldstd) },
+	{ 0x7ac0000000000002ull, 0x7fc0000000000003ull, N("st"), T(lldstt), SHARED, T(lldstd) },
 	{ 0x0, 0x0, OOPS },
 };
 
@@ -808,47 +888,13 @@ static struct insn tabp[] = {
 	{ 0, 0, OOPS },
 };
 
-static struct insn tablcop[] = {
-	{ 0x0000000000000000ull, 0x1800000000000000ull, N("ca") },
-	{ 0x0800000000000000ull, 0x1800000000000000ull, N("cg") },
-	{ 0x1000000000000000ull, 0x1800000000000000ull, N("cs") },
-	{ 0x1800000000000000ull, 0x1800000000000000ull, N("cv") },
-	{ 0, 0, OOPS },
-};
-static struct insn tabscop[] = {
-	{ 0x0000000000000000ull, 0x1800000000000000ull, N("wb") },
-	{ 0x0800000000000000ull, 0x1800000000000000ull, N("cg") },
-	{ 0x1000000000000000ull, 0x1800000000000000ull, N("cs") },
-	{ 0x1800000000000000ull, 0x1800000000000000ull, N("wt") },
-	{ 0, 0, OOPS },
-};
-
-static struct insn tabldstt[] = {
-	{ 0x0000000000000000ull, 0x0700000000000000ull, N("u8") },
-	{ 0x0100000000000000ull, 0x0700000000000000ull, N("s8") },
-	{ 0x0200000000000000ull, 0x0700000000000000ull, N("u16") },
-	{ 0x0300000000000000ull, 0x0700000000000000ull, N("s16") },
-	{ 0x0400000000000000ull, 0x0700000000000000ull, N("b32") },
-	{ 0x0500000000000000ull, 0x0700000000000000ull, N("b64") },
-	{ 0x0600000000000000ull, 0x0700000000000000ull, N("b128") },
-	{ 0, 0, OOPS },
-};
-static struct insn tabldstd[] = {
-	{ 0x0000000000000000ull, 0x0700000000000000ull, DST },
-	{ 0x0100000000000000ull, 0x0700000000000000ull, DST },
-	{ 0x0200000000000000ull, 0x0700000000000000ull, DST },
-	{ 0x0300000000000000ull, 0x0700000000000000ull, DST },
-	{ 0x0400000000000000ull, 0x0700000000000000ull, DST },
-	{ 0x0500000000000000ull, 0x0700000000000000ull, DSTD },
-	{ 0x0600000000000000ull, 0x0700000000000000ull, DSTQ },
-	{ 0, 0, OOPS, DST },
-};
-
 static struct insn tabc[] = {
 	{ 0x0800000000000000ull, 0xfc00000000000000ull, N("sched"), SCHED },
 	{ 0x1200000000000000ull, 0xff80000000000000ull, T(p), T(cc), N("bra"), BTARG },
+	{ 0x1300000000000000ull, 0xff80000000000000ull, N("call"), CTARG },
 	{ 0x1480000000000000ull, 0xff80000000000000ull, N("joinat"), BTARG },
 	{ 0x1800000000000000ull, 0xff80000000000000ull, T(p), T(cc), N("exit") },
+	{ 0x1900000000000000ull, 0xff80000000000000ull, T(p), T(cc), N("ret") },
 
 	{ 0x2000000000000000ull, 0xfc80000000000000ull, T(p), T(logop38), N("b32"), DST, SRC1, LIMM },
 	{ 0x4000000000000000ull, 0xf180000000000000ull, T(p), N("add"), T(ftz3a), N("f32"), DST, T(neg3b), T(abs39), SRC1, LIMM },
