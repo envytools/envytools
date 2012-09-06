@@ -62,6 +62,58 @@ static struct bitfield texbaroff = { 0x17, 6 }; // XXX: check exact size
 /*
  * Register fields
  */
+
+static struct sreg sreg_sr[] = {
+	{ 0, "laneid" },
+	{ 2, "nphysid" },
+	{ 3, "physid" },
+	{ 4, "pm0" },
+	{ 5, "pm1" },
+	{ 6, "pm2" },
+	{ 7, "pm3" },
+	{ 8, "pm4" },
+	{ 9, "pm5" },
+	{ 0xa, "pm6" },
+	{ 0xb, "pm7" },
+	{ 0x10, "vtxcnt" },
+	{ 0x11, "invoc" },
+	{ 0x12, "ydir" },
+	{ 0x20, "tid" },
+	{ 0x21, "tidx" },
+	{ 0x22, "tidy" },
+	{ 0x23, "tidz" },
+	{ 0x24, "launcharg" },
+	{ 0x25, "ctaidx" },
+	{ 0x26, "ctaidy" },
+	{ 0x27, "ctaidz" },
+	{ 0x28, "ntid" },
+	{ 0x29, "ntidx" },
+	{ 0x2a, "ntidy" },
+	{ 0x2b, "ntidz" },
+	{ 0x2c, "gridid" },
+	{ 0x2d, "nctaidx" },
+	{ 0x2e, "nctaidy" },
+	{ 0x2f, "nctaidz" },
+	{ 0x30, "swinbase" },
+	{ 0x31, "swinsz" },
+	{ 0x32, "smemsz" },
+	{ 0x33, "smembanks" },
+	{ 0x34, "lwinbase" },
+	{ 0x35, "lwinsz" },
+	{ 0x36, "lpossz" },
+	{ 0x37, "lnegstart" },
+	{ 0x38, "lanemask_eq" },
+	{ 0x39, "lanemask_lt" },
+	{ 0x3a, "lanemask_le" },
+	{ 0x3b, "lanemask_gt" },
+	{ 0x3c, "lanemask_ge" },
+	{ 0x40, "trapstat" },
+	{ 0x42, "warperr" },
+	{ 0x50, "clock" },
+	{ 0x51, "clockhi" },
+	{ -1 },
+};
+
 static struct sreg reg_sr[] = {
 	{ 255, 0, SR_ZERO },
 	{ -1 },
@@ -79,6 +131,7 @@ static struct bitfield src2_bf = { 0x17, 8 };
 static struct bitfield src3_bf = { 0x2a, 8 };
 static struct bitfield pred_bf = { 0x12, 3 };
 static struct bitfield psrc3_bf = { 0x2a, 3 };
+static struct bitfield sreg_bf = { 0x17, 8 };
 
 static struct reg dst_r = { &dst_bf, "r", .specials = reg_sr };
 static struct reg dstd_r = { &dst_bf, "r", "d", .specials = reg_sr };
@@ -94,6 +147,7 @@ static struct reg pdst_r = { &pdst_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdstn_r = { &pdstn_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pred_r = { &pred_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg cc_r = { 0, "c", .cool = 1 };
+static struct reg sreg_r = { &sreg_bf, "sr", .specials = sreg_sr, .always_special = 1 };
 
 #define DST atomreg, &dst_r
 #define DSTD atomreg, &dstd_r
@@ -109,6 +163,7 @@ static struct reg cc_r = { 0, "c", .cool = 1 };
 #define SRC3D atomreg, &src3d_r
 #define PSRC3 atomreg, &psrc3_r
 #define CC atomreg, &cc_r
+#define SREG atomreg, &sreg_r
 
 static struct bitfield tdst_mask = { 0x22, 4 };
 static struct bitfield cnt0 = { .addend = 0 };
@@ -819,6 +874,7 @@ static struct insn tablldstd[] = {
 
 static struct insn tabm[] = {
 	{ 0x8400000000000002ull, 0xbfc0000000000003ull, T(sfuop), N("f32"), DST, T(neg33), T(abs31), SRC1 },
+	{ 0x8640000000000002ull, 0xbfc0000000000003ull, N("mov"), N("b32"), DST, SREG },
 	{ 0x0000000000000002ull, 0x38c0000000000003ull, N("set"), T(ftz3a), N("b32"), DST, T(setit), N("f32"), T(neg2e), T(abs39), SRC1, T(neg38), T(abs2f), T(is2), T(setlop) }, // XXX: find f32 dst
 	{ 0x0800000000000002ull, 0x3cc0000000000003ull, N("set"), N("b32"), DST, T(setit), N("f64"), T(neg2e), T(abs39), SRC1D, T(neg38), T(abs2f), T(ds2), T(setlop) },
 	{ 0x0c00000000000002ull, 0x3e00000000000003ull, N("fma"), T(ftz38), T(sat35),  T(frm36), N("f32"), DST, T(neg33), SRC1, T(is2w3), T(neg34), T(is3) },
