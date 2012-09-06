@@ -607,6 +607,26 @@ static struct insn tabtexsrc2[] = {
    // rest
 	{ 0, 0, SRC2 },
 };
+static struct insn tabtexgrsrc1[] = {
+	{ 0x0000000000000000ull, 0x080001c000000000ull, N("xgg#"), TSRC13 },
+	{ 0x0000004000000000ull, 0x080001c000000000ull, N("axgg"), TSRC14 },
+	{ 0x0000008000000000ull, 0x080001c000000000ull, N("xygg"), TSRC14 },
+	{ 0x000000c000000000ull, 0x080001c000000000ull, N("axyg"), TSRC14 },
+	{ 0x0800000000000000ull, 0x080001c000000000ull, N("ixgg"), TSRC14 },
+	{ 0x0800004000000000ull, 0x080001c000000000ull, N("iaxg"), TSRC14 },
+	{ 0x0800008000000000ull, 0x080001c000000000ull, N("ixyg"), TSRC14 },
+	{ 0x080000c000000000ull, 0x080001c000000000ull, N("iaxy"), TSRC14 },
+	{ 0, 0, OOPS },
+};
+static struct insn tabtexgrsrc2[] = {
+	{ 0x0000008000000000ull, 0x080001c000000000ull, N("gg##"), TSRC22 },
+	{ 0x000000c000000000ull, 0x080001c000000000ull, N("gg##"), TSRC22 },
+	{ 0x0800004000000000ull, 0x080001c000000000ull, N("g###"), TSRC21 },
+	{ 0x0800008000000000ull, 0x080001c000000000ull, N("ggg#"), TSRC23 },
+	{ 0x080000c000000000ull, 0x080001c000000000ull, N("gggg"), TSRC24 },
+   { 0, 0, SRC2 },
+	{ 0, 0, OOPS },
+};
 static struct insn tabtconst[] = {
 	{ 0x4000000000000000ull, 0xc000000000000000ull, TCONST },
 	{ 0, 0, OOPS },
@@ -919,13 +939,15 @@ static struct insn tabm[] = {
 	{ 0x27c0000000000002ull, 0x3fc0000000000003ull, N("rshf"), N("b32"), DST, SESTART, N("b64"), SRC1, SRC3, SEEND, T(shfclamp), T(is2) }, // XXX: check is2 and bits 0x29,0x33(swap srcs ?)
 	{ 0x2800000000000002ull, 0x3980000000000003ull, N("mul"), DST, T(us32_39), SRC1, T(us32_3a), LIMM },
 	{ 0x7400000000000002ull, 0x7fc0000000000003ull, T(lane0e), N("mov"), N("b32"), DST, LIMM },
-	{ 0x7d80000000000002ull, 0x7fc0000000000003ull, N("tex"), T(texm), T(lodt), TDST, T(text), N("ind"), T(texsrc1), T(texsrc2) },
+	{ 0x7600000000000002ull, 0x7fc0000000000003ull, N("texgrad"), T(texm), TDST, T(text), TCONST, T(texgrsrc1), T(texgrsrc2) },
 	{ 0x7700000000000002ull, 0x7fc0000000000003ull, N("texbar"), TEXBARIMM },
 	{ 0x7a00000000000002ull, 0x7fc0000000000003ull, N("ld"), T(lldstt), T(llcop), T(lldstd), LOCAL },
 	{ 0x7a40000000000002ull, 0x7fc0000000000003ull, N("ld"), T(lldstt), T(lldstd), SHARED },
 	{ 0x7a80000000000002ull, 0x7fc0000000000003ull, N("st"), T(lldstt), T(lscop), LOCAL, T(lldstd) },
 	{ 0x7ac0000000000002ull, 0x7fc0000000000003ull, N("st"), T(lldstt), SHARED, T(lldstd) },
 	{ 0x7c80000000000002ull, 0x7fc0000000000003ull, N("ld"), T(lldstt), T(lldstd), LCONST },
+	{ 0x7d80000000000002ull, 0x7fc0000000000003ull, N("tex"), T(texm), T(lodt), TDST, T(text), N("ind"), T(texsrc1), T(texsrc2) },
+	{ 0x7e00000000000002ull, 0x7fc0000000000003ull, N("texgrad"), T(texm), TDST, T(text), N("ind"), T(texgrsrc1), T(texgrsrc2) },
 	{ 0x0, 0x0, OOPS },
 };
 
