@@ -145,16 +145,19 @@ static struct vec tsrc24_v = { "r", &src2_bf, &cnt4, 0 };
 
 static struct rbitfield gmem_imm = { { 0x17, 32 }, RBF_SIGNED };
 static struct rbitfield cmem_imm = { { 0x17, 14 }, RBF_UNSIGNED, .shr = 2 };
+static struct rbitfield lcmem_imm = { { 0x17, 16 }, RBF_SIGNED };
 static struct rbitfield lmem_imm = { { 0x17, 24 }, RBF_SIGNED };
 static struct rbitfield smem_imm = { { 0x17, 24 }, RBF_SIGNED };
 static struct rbitfield tcmem_imm = { { 0x2f, 8 }, .shr = 2 }; // XXX: could be 13 bits
 static struct bitfield cmem_idx = { 0x25, 5 };
+static struct bitfield lcmem_idx = { 0x27, 5 };
 
 static struct mem gmem_m = { "g", 0, &src1_r, &gmem_imm };
 static struct mem lmem_m = { "l", 0, &src1_r, &lmem_imm };
 static struct mem smem_m = { "s", 0, &src1_r, &smem_imm };
 static struct mem gdmem_m = { "g", 0, &src1d_r, &gmem_imm };
 static struct mem cmem_m = { "c", &cmem_idx, 0, &cmem_imm };
+static struct mem lcmem_m = { "c", &lcmem_idx, &src1_r, &lcmem_imm };
 static struct mem tcmem_m = { "c", 0, 0, &tcmem_imm };
 
 #define GLOBAL atommem, &gmem_m
@@ -162,6 +165,7 @@ static struct mem tcmem_m = { "c", 0, 0, &tcmem_imm };
 #define LOCAL atommem, &lmem_m
 #define SHARED atommem, &smem_m
 #define CONST atommem, &cmem_m
+#define LCONST atommem, &lcmem_m
 #define TCONST atommem, &tcmem_m
 
 
@@ -258,6 +262,25 @@ static struct insn tablane2a[] = {
 	{ 0x0000340000000000ull, 0x00003c0000000000ull, N("l023") },
 	{ 0x0000380000000000ull, 0x00003c0000000000ull, N("l123") },
 	{ 0x00003c0000000000ull, 0x00003c0000000000ull },
+	{ 0, 0, OOPS },
+};
+static struct insn tablane0e[] = {
+	{ 0x00000000, 0x0003c000, N("lnone") },
+	{ 0x00004000, 0x0003c000, N("l0") },
+	{ 0x00008000, 0x0003c000, N("l1") },
+	{ 0x0000c000, 0x0003c000, N("l01") },
+	{ 0x00010000, 0x0003c000, N("l2") },
+	{ 0x00014000, 0x0003c000, N("l02") },
+	{ 0x00018000, 0x0003c000, N("l12") },
+	{ 0x0001c000, 0x0003c000, N("l012") },
+	{ 0x00020000, 0x0003c000, N("l3") },
+	{ 0x00024000, 0x0003c000, N("l03") },
+	{ 0x00028000, 0x0003c000, N("l13") },
+	{ 0x0002c000, 0x0003c000, N("l013") },
+	{ 0x00030000, 0x0003c000, N("l23") },
+	{ 0x00034000, 0x0003c000, N("l023") },
+	{ 0x00038000, 0x0003c000, N("l123") },
+	{ 0x0003c000, 0x0003c000 },
 	{ 0, 0, OOPS },
 };
 
@@ -839,12 +862,14 @@ static struct insn tabm[] = {
 	{ 0x25c0000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(frm2a), T(cvti2fdst), T(neg30), T(abs34), T(cvti2fsrc) },
 	{ 0x27c0000000000002ull, 0x3fc0000000000003ull, N("rshf"), N("b32"), DST, SESTART, N("b64"), SRC1, SRC3, SEEND, T(shfclamp), T(is2) }, // XXX: check is2 and bits 0x29,0x33(swap srcs ?)
 	{ 0x2800000000000002ull, 0x3980000000000003ull, N("mul"), DST, T(us32_39), SRC1, T(us32_3a), LIMM },
+	{ 0x7400000000000002ull, 0x7fc0000000000003ull, T(lane0e), N("mov"), N("b32"), DST, LIMM },
 	{ 0x7d80000000000002ull, 0x7fc0000000000003ull, N("tex"), T(texm), T(lodt), TDST, T(text), N("ind"), T(texsrc1), T(texsrc2) },
 	{ 0x7700000000000002ull, 0x7fc0000000000003ull, N("texbar"), TEXBARIMM },
 	{ 0x7a00000000000002ull, 0x7fc0000000000003ull, N("ld"), T(lldstt), T(llcop), T(lldstd), LOCAL },
 	{ 0x7a40000000000002ull, 0x7fc0000000000003ull, N("ld"), T(lldstt), T(lldstd), SHARED },
 	{ 0x7a80000000000002ull, 0x7fc0000000000003ull, N("st"), T(lldstt), T(lscop), LOCAL, T(lldstd) },
 	{ 0x7ac0000000000002ull, 0x7fc0000000000003ull, N("st"), T(lldstt), SHARED, T(lldstd) },
+	{ 0x7c80000000000002ull, 0x7fc0000000000003ull, N("ld"), T(lldstt), T(lldstd), LCONST },
 	{ 0x0, 0x0, OOPS },
 };
 
