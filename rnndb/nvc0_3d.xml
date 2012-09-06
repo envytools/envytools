@@ -1062,7 +1062,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="0" name="WRITE"/>
 				<value value="1" name="SYNC"/>
 				<value value="2" name="WRITE_UNK2"/>
-				<value value="3" name="WRITE_INTR_NMHOST"/>
+				<value value="3" name="WRITE_INTR_NRHOST"/>
 			</bitfield>
 			<bitfield pos="2" name="UNK2"/>
 			<bitfield pos="4" name="FENCE"/><!-- ? -->

@@ -437,21 +437,27 @@ PVP_USER_5       |a1|??|a1|??|51|??|??| fuc-perf.txt
 These signals are on set 7 on non-IGPs, set 6 on IGPs. All NV84+ cards have
 this set.
 
-signal           |84|86|92|94|96|98|a0|aa|ac|a3|a5|a8|af| documentation
------------------+--+--+--+--+--+--+--+--+--+--+--+--+--+---------------
-PCOUNTER USER_0  |--|--|--|--|--|--|--|--|--|??|3e|??|??| pcounter.txt
-PCOUNTER USER_1  |--|--|--|--|--|--|--|--|--|??|3f|??|??| pcounter.txt
-TOKEN_ALL_USED   |--|--|--|--|--|--|--|--|--|??|cd|??|??| pdaemon.txt
-TOKEN_NONE_USED  |--|--|--|--|--|--|--|--|--|??|ce|??|??| pdaemon.txt
-TOKEN_FREE       |--|--|--|--|--|--|--|--|--|??|cf|??|??| pdaemon.txt
-TOKEN_ALLOC      |--|--|--|--|--|--|--|--|--|??|d0|??|??| pdaemon.txt
-FIFO_PUT_0_WRITE |--|--|--|--|--|--|--|--|--|??|d1|??|??| pdaemon.txt
-FIFO_PUT_1_WRITE |--|--|--|--|--|--|--|--|--|??|d2|??|??| pdaemon.txt
-FIFO_PUT_2_WRITE |--|--|--|--|--|--|--|--|--|??|d3|??|??| pdaemon.txt
-FIFO_PUT_3_WRITE |--|--|--|--|--|--|--|--|--|??|d4|??|??| pdaemon.txt
-INPUT_CHANGE     |--|--|--|--|--|--|--|--|--|??|d5|??|??| pdaemon.txt
-OUTPUT_2         |--|--|--|--|--|--|--|--|--|??|d6|??|??| pdaemon.txt
-THERM_BUSY       |--|--|--|--|--|--|--|--|--|??|d8|??|??| pdaemon.txt
-[trailer base]   |??|c0|??|??|??|a0|80|??|a0|e0|e0|??|??| pcounter.txt
+signal                |84|86|92|94|96|98|a0|aa|ac|a3|a5|a8|af| documentation
+----------------------+--+--+--+--+--+--+--+--+--+--+--+--+--+---------------
+PCOUNTER USER_0       |--|--|--|--|--|--|--|--|--|??|3e|??|??| pcounter.txt
+PCOUNTER USER_1       |--|--|--|--|--|--|--|--|--|??|3f|??|??| pcounter.txt
+IREDIR_STATUS         |--|--|--|--|--|--|--|--|--|??|c4|??|??| pdaemon.txt
+IREDIR_HOST_REQ       |--|--|--|--|--|--|--|--|--|??|c5|??|??| pdaemon.txt
+IREDIR_TRIGGER_DAEMON |--|--|--|--|--|--|--|--|--|??|c6|??|??| pdaemon.txt
+IREDIR_TRIGGER_HOST   |--|--|--|--|--|--|--|--|--|??|c7|??|??| pdaemon.txt
+IREDIR_PMC            |--|--|--|--|--|--|--|--|--|??|c8|??|??| pdaemon.txt
+IREDIR_INTR           |--|--|--|--|--|--|--|--|--|??|c9|??|??| pdaemon.txt
+TOKEN_ALL_USED        |--|--|--|--|--|--|--|--|--|??|cd|??|??| pdaemon.txt
+TOKEN_NONE_USED       |--|--|--|--|--|--|--|--|--|??|ce|??|??| pdaemon.txt
+TOKEN_FREE            |--|--|--|--|--|--|--|--|--|??|cf|??|??| pdaemon.txt
+TOKEN_ALLOC           |--|--|--|--|--|--|--|--|--|??|d0|??|??| pdaemon.txt
+FIFO_PUT_0_WRITE      |--|--|--|--|--|--|--|--|--|??|d1|??|??| pdaemon.txt
+FIFO_PUT_1_WRITE      |--|--|--|--|--|--|--|--|--|??|d2|??|??| pdaemon.txt
+FIFO_PUT_2_WRITE      |--|--|--|--|--|--|--|--|--|??|d3|??|??| pdaemon.txt
+FIFO_PUT_3_WRITE      |--|--|--|--|--|--|--|--|--|??|d4|??|??| pdaemon.txt
+INPUT_CHANGE          |--|--|--|--|--|--|--|--|--|??|d5|??|??| pdaemon.txt
+OUTPUT_2              |--|--|--|--|--|--|--|--|--|??|d6|??|??| pdaemon.txt
+THERM_BUSY            |--|--|--|--|--|--|--|--|--|??|d8|??|??| pdaemon.txt
+[trailer base]        |??|c0|??|??|??|a0|80|??|a0|e0|e0|??|??| pcounter.txt
 
 

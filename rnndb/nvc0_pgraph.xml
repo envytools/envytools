@@ -86,11 +86,11 @@
 	</reg32>
 	<reg32 offset="0x0118" name="TRAP_GPCS"/>
 	<reg32 offset="0x011c" name="TRAP_ROPS"/>
-	<reg32 offset="0x0120" name="INTR_NMHOST">
+	<reg32 offset="0x0120" name="INTR_NRHOST">
 		<!-- a bitfield in the QUERY command selects whether to trigger an interrupt here or in the usual reg -->
 		<bitfield name="QUERY" pos="1"/>
 	</reg32>
-	<reg32 offset="0x0124" name="INTR_EN_NMHOST">
+	<reg32 offset="0x0124" name="INTR_EN_NRHOST">
 		<bitfield name="QUERY" pos="1"/>
 	</reg32>
 	<reg32 offset="0x0130" name="TRAP_GPCS_EN"/>

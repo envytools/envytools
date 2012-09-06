@@ -71,11 +71,11 @@
 			<bitfield pos="17" name="THERM_THRS_LOW" variants="NV43:NV50" />
 			<bitfield pos="18" name="THERM_THRS_HIGH" variants="NV43:NV50" />
 			<bitfield pos="26" name="USER" variants="NV50-" />
-			<bitfield pos="28" name="USER2" variants="NVC0-" /> <!-- NOTE: not in INTR_EN_NMHOST -->
+			<bitfield pos="28" name="USER2" variants="NVC0-" /> <!-- NOTE: not in INTR_EN_NRHOST -->
 		</bitset>
 		<reg32 offset="0x100" name="INTR" type="nv_pbus_intr"/>
 		<reg32 offset="0x140" name="INTR_EN" type="nv_pbus_intr"/> <!-- affects PMC.INTR_HOST and PMC.INTR_DAEMON only -->
-		<reg32 offset="0x144" name="INTR_EN_NMHOST" type="nv_pbus_intr" variants="NVC0-"/> <!-- affects PMC.INTR_NMHOST only, conspiciously missing bit 28 [USER2] -->
+		<reg32 offset="0x144" name="INTR_EN_NRHOST" type="nv_pbus_intr" variants="NVC0-"/> <!-- affects PMC.INTR_NRHOST only, conspiciously missing bit 28 [USER2] -->
 		<reg32 offset="0x150" name="INTR_USER0_TRIGGER" variants="NV50-"/>
 		<reg32 offset="0x154" name="INTR_USER0_SCRATCH" length="4" variants="NV50-"/>
 		<reg32 offset="0x170" name="INTR_USER1_TRIGGER" variants="NVC0-"/>

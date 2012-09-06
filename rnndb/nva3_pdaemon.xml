@@ -14,11 +14,12 @@
 	<bitset name="NVA3_PDAEMON_INTR" varset="chipset">
 		<!-- 0..7 standard fµc -->
 		<bitfield pos="9" name="VM_FAULT" variants="NVA3:NVC0"/>
-		<bitfield pos="10" name="PMC_INTR"/> <!-- from PMC.INTR_DAEMON -->
+		<bitfield pos="10" name="PMC_DAEMON"/>
 		<bitfield pos="11" name="SUBINTR"/>
 		<bitfield pos="12" name="THERM"/> <!-- ? -->
 		<bitfield pos="13" name="SIGNAL"/> <!-- 7cc+ and 7ec+ -->
 		<bitfield pos="14" name="TIMER"/>
+		<bitfield pos="15" name="IREDIR_PMC"/>
 	</bitset>
 	<use-group name="nv98_fucbase"/>
 
@@ -156,12 +157,8 @@
 		<bitfield pos="4" name="MMIO">
 			<doc>Consult 7b4</doc>
 		</bitfield>
-		<bitfield pos="5" name="IHM_ERR">
-			<doc>Consult 698+69c</doc>
-		</bitfield>
-		<bitfield pos="6" name="IHM_PLEASE_UNMASK">
-			<doc>No subinterrupts, no mask</doc>
-		</bitfield>
+		<bitfield pos="5" name="IREDIR_ERR"/>
+		<bitfield pos="6" name="IREDIR_HOST_REQ"/>
 
 		<bitfield pos="8" name="UNK8">
 			<doc>Consult 670</doc>
@@ -173,23 +170,25 @@
 		<!-- XXX: many more bits... -->
 	</reg32>
 
-	<!-- IHM: INTR_HOST mask -->
-	<reg32 offset="0x68c" name="IHM_TRIGGER">
-		<bitfield pos="0" name="PLEASE_UNMASK"/>
-		<bitfield pos="4" name="MASK"/>
-		<bitfield pos="12" name="UNMASK"/>
+	<reg32 offset="0x68c" name="IREDIR_TRIGGER">
+		<bitfield pos="0" name="HOST_REQ"/>
+		<bitfield pos="4" name="DAEMON"/>
+		<bitfield pos="12" name="HOST"/>
 	</reg32>
-	<reg32 offset="0x690" name="IHM_MASK_STATUS"/> <!-- 1 is masked, 0 is unmasked -->
-	<reg32 offset="0x694" name="IHM_TIMEOUT"/> <!-- in PDAEMON cycles -->
-	<reg32 offset="0x698" name="IHM_ERR_DETAIL">
-		<bitfield pos="0" name="TIMEOUT_WHILE_PLEASE_UNMASK"/>
-		<bitfield pos="4" name="PLEASE_UNMASK_WHILE_UNMASKED"/>
-		<bitfield pos="8" name="MASK_WHILE_MASKED"/>
-		<bitfield pos="12" name="UNMASK_WHILE_UNMASKED"/>
+	<reg32 offset="0x690" name="IREDIR_STATUS">
+		<value value="0" name="HOST"/>
+		<value value="1" name="DAEMON"/>
 	</reg32>
-	<reg32 offset="0x69c" name="IHM_ERR_INTR"/>
-	<reg32 offset="0x6a0" name="IHM_ERR_INTR_EN"/>
-	<reg32 offset="0x6a4" name="IHM_TIMEOUT_ENABLE"/>
+	<reg32 offset="0x694" name="IREDIR_TIMEOUT"/>
+	<reg32 offset="0x698" name="IREDIR_ERR_DETAIL">
+		<bitfield pos="0" name="HOST_REQ_TIMEOUT"/>
+		<bitfield pos="4" name="HOST_REQ_REDUNDANT"/>
+		<bitfield pos="8" name="DAEMON_REDUNDANT"/>
+		<bitfield pos="12" name="HOST_REDUNDANT"/>
+	</reg32>
+	<reg32 offset="0x69c" name="IREDIR_ERR_INTR"/>
+	<reg32 offset="0x6a0" name="IREDIR_ERR_INTR_EN"/>
+	<reg32 offset="0x6a4" name="IREDIR_TIMEOUT_ENABLE"/>
 
 	<!-- 6c0:7a0: lots of unknown probably FIFO engine related crap, different for NVA3:NVE4 and NVE4+ -->
 

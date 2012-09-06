@@ -3,21 +3,22 @@ TOC
 0. Introduction
 1. fµc parameters
 2. IO space
-3. Second-level interrupts
-4. User busy indication
-5. Host <-> PDAEMON communication
-5.1. Submitting data to PDAEMON: FIFO
-5.2. Submitting data to host: RFIFO
-5.3. Host to PDAEMON scratch register: H2D
-5.5. PDAEMON to host scratch register: D2H
-5.6. Scratch registers: DSCRATCH
-6. Hardware mutexes
-7. CRC computation
-8. The timer
-9. Channel switching
-10. Counters
-11. Accessing the whole MMIO range
-12. PCOUNTER signals
+3. PCOUNTER signals
+4. Second-level interrupts
+5. User busy indication
+6. Host <-> PDAEMON communication
+6.1. Submitting data to PDAEMON: FIFO
+6.2. Submitting data to host: RFIFO
+6.3. Host to PDAEMON scratch register: H2D
+6.5. PDAEMON to host scratch register: D2H
+6.6. Scratch registers: DSCRATCH
+7. Hardware mutexes
+8. CRC computation
+9. The timer
+10. Channel switching
+11. PMC interrupt redirection
+12. Counters
+13. Accessing the whole MMIO range
 
 
 = Introduction =
@@ -106,7 +107,7 @@ Interrupts:
  12: [L] THERM - PTHERM subinterrupts routed to PDAEMON [ptherm.txt]
  13: [L] SIGNAL - input signal rise/fall interrupts, comes from SIGNAL_*_INTR
  14: [L] TIMER - the timer interrupt, comes from TIMER_INTR
- 15: [L] PMC_REDIRECT - PMC interrupts routed via INTR and redirected to
+ 15: [L] IREDIR_PMC - PMC interrupts routed via INTR_HOST and redirected to
          PDAEMON by IREDIR
 
 Status bits:
@@ -172,6 +173,13 @@ offset and I[] address on NVD9+, second is I[] address on NVA3:NVD9]:
 680/1a000  TIMER_INTR - timer interrupt status
 684/1a100  TIMER_INTR_EN - timer interrupt enable
 688/1a200  SUBINTR - second-level interrupt status
+68c/1a300  IREDIR_TRIGGER - PMC interrupt redirection trigger
+690/1a400  IREDIR_STATUS - PMC interrupt redirection status
+694/1a500  IREDIR_TIMEOUT - IREDIR_HOST_REQ timeout
+698/1a600  IREDIR_ERR_DETAIL - IREDIR detailed error status
+69c/1a700  IREDIR_ERR_INTR - IREDIR error interrupt state
+6a0/1a800  IREDIR_ERR_INTR_EN - IREDIR error interrupt enable
+6a4/1a900  IREDIR_TIMEOUT_ENABLE - IREDIR_HOST_REQ timeout enable
 [XXX: finish the list]
 800/20000:fe0/40000  THERM [NVA3:NVD9] [ptherm.txt] [XXX: doc]
 fe0/-:1000/-  fµc [NVA3:NVD9] [fuc-io.txt]
@@ -194,6 +202,16 @@ registers via the PTHERM range.
 
 [XXX: discuss mismatched clock thing]
 
+ - ??? [XXX]
+ - IREDIR_STATUS
+ - IREDIR_HOST_REQ
+ - IREDIR_TRIGGER_DAEMON
+ - IREDIR_TRIGGER_HOST
+ - IREDIR_PMC
+ - IREDIR_INTR
+ - ??? [XXX]
+ - ??? [XXX]
+ - ??? [XXX]
  - TOKEN_ALL_USED
  - TOKEN_NONE_USED
  - TOKEN_FREE
@@ -219,8 +237,8 @@ MMIO 0x688 / I[0x1a200]: SUBINTR
   bit 2: EPWR_GRAPH - PGRAPH engine power control [XXX]
   bit 3: EPWR_VDEC - video decoding engine power control [XXX]
   bit 4: MMIO - indirect MMIO access error [see MMIO_INTR]
-  bit 5: IREDIR_ERR - interrupt redirection error [see IREDIR_INTR]
-  bit 6: IREDIR_REQ - interrupt redirection request [see IREDIR_*]
+  bit 5: IREDIR_ERR - interrupt redirection error [see IREDIR_ERR_INTR]
+  bit 6: IREDIR_HOST_REQ - interrupt redirection request [see IREDIR_TRIGGER]
   bit 7: ??? [XXX]
   bit 8: ??? - goes to 0x670 [XXX]
   bit 9: EPWR_PUNK1C1 [NVAF] - PUNK1C1 engine power control [XXX]
@@ -236,6 +254,9 @@ This effectively means that SUBINTR bits have to be cleared after the
 downstream interrupt. Note that SUBINTR has no corresponding enable bit - if
 an interrupt needs to be disabled, software should use the enable registers
 corresponding to individual second-level interrupts instead.
+
+Note that IREDIR_HOST_REQ interrupt has special semantics when cleared - see
+IREDIR_TRIGGER documentation.
 
 
 = User busy indication =
@@ -319,7 +340,7 @@ PDAEMON. It generates an interrupt when written.
 MMIO 0x4d0 / I[0x13400]: H2D
   A 32-bit scratch register. Sets H2D_INTR when written.
 
-MMIO 0x4d4 / I[0x13500]: H2D_INTR 
+MMIO 0x4d4 / I[0x13500]: H2D_INTR
   The status register for H2D write interrupt. Only bit 0 is valid. Set when
   H2D register is written, cleared when 1 is written to bit 0. When this and
   H2D_INTR_EN are both set, the H2D [#0] second-level interrupt line to
@@ -484,7 +505,107 @@ MMIO 0x684 / I[0x1a100]: TIMER_INTR_EN
 
 [XXX: write me]
 
- 
+
+= PMC interrupt redirection =
+
+One of PDAEMON powers is redirecting the PMC INTR_HOST interrupt to itself.
+The redirection hw may be in one of two states:
+ - HOST: PMC INTR_HOST output connected to PCI interrupt line [ORed with PMC
+   INTR_NRHOST output], PDAEMON fµc interrupt #15 disconnected and forced to 0
+ - DAEMON: PMC INTR_HOST output connected to PDAEMON fµc interrupt #15
+   [IREDIR_PMC], PCI interrupt line connected to INTR_NRHOST output only
+
+In addition, there's a capability enabling host to send "please turn redirect
+status back to HOST" interrupt with a timeout mechanism that will execute
+the request in hardware if the PDAEMON fails to respond to the interrupt in
+a given time.
+
+Note that, as a side effect of having this circuitry, PMC INTR_HOST line will
+be delivered nowhere [fµc interrupt line #15 will be 0, PCI interrupt line
+will be connected to INTR_NRHOST only] whenever the IREDIR circuitry is in
+reset state, due to either whole PDAEMON reset through PMC.ENABLE /
+PDAEMON_ENABLE or DAEMON circuitry reset via SUBENGINE_RESET with DAEMON
+set in the reset mask.
+
+The redirection state may be read at:
+
+MMIO 0x690 / I[0x1a400]: IREDIR_STATUS
+  Read-only. Reads as 0 if redirect hw is in HOST state, 1 if it's in DAEMON
+  state.
+
+The redirection state may be controlled by:
+
+MMIO 0x68c / I[0x1a300]: IREDIR_TRIGGER
+  This register is write-only.
+  bit 0: HOST_REQ - when written as 1, sends the "request redirect state change
+    to HOST" interrupt, setting SUBINTR bit #6 [IREDIR_HOST_REQ] to 1 and
+    starting the timeout, if enabled. When written as 1 while redirect hw is
+    already in HOST state, will just cause HOST_REQ_REDUNDANT error instead.
+  bit 4: DAEMON - when written as 1, sets the redirect hw state to DAEMON.
+    If it was set to DAEMON already, causes DAEMON_REDUNDANT error.
+  bit 12: HOST - when written as 1, sets the redirect hw state to HOST. If it
+    was set to HOST already, causes HOST_REDUNDANT error. Does *not* clear
+    IREDIR_HOST_REQ interrupt bit.
+  Writing a value with multiple bits set is not a good idea - one of them will
+  cause an error.
+
+The IREDIR_HOST_REQ interrupt state should be cleared by writing 1 to the
+corresponding SUBINTR bit. Once this is done, the timeout counting stops,
+and redirect hw goes to HOST state if it wasn't already.
+
+The IREDIR_HOST_REQ timeout is controlled by the following registers:
+
+MMIO 0x694 / I[0x1a500]: IREDIR_TIMEOUT
+  The timeout duration in daemon cycles. Read/write, 32-bit.
+
+MMIO 0x6a4 / I[0x1a900]: IREDIR_TIMEOUT_ENABLE
+  The timeout enable. Only bit 0 is valid. When set to 0, timeout mechanism
+  is disabled, when set to 1, it's active. Read/write.
+
+When timeout mechanism is enabled and IREDIR_HOST_REQ interupt is triggered,
+a hidden counter starts counting down. If IREDIR_TIMEOUT cycles go by without
+the interrupt being acked, the redirect hw goes to HOST state, the interrupt
+is cleared, and HOST_REQ_TIMEOUT error is triggered.
+
+The redirect hw errors will trigger the IREDIR_ERR interrupt, which is
+connected to SUBINTR bit #5. The registers involved are:
+
+MMIO 0x698 / I[0x1a600]: IREDIR_ERR_DETAIL
+  Read-only, shows detailed error status. All bits are auto-cleared when
+  IREDIR_ERR_INTR is cleared
+  bit 0: HOST_REQ_TIMEOUT - set when the IREDIR_HOST_REQ interrupt times out
+  bit 4: HOST_REQ_REDUNDANT - set when HOST_REQ is poked in IREDIR_TRIGGER
+    while the hw is already in HOST state
+  bit 12: DAEMON_REDUNDANT - set when HOST is poked in IREDIR_TRIGGER while the
+    hw is already in DAEMON state
+  bit 12: HOST_REDUNDANT - set when HOST is poked in IREDIR_TRIGGER while the
+    hw is already in HOST state
+
+MMIO 0x69c / I[0x1a700]: IREDIR_ERR_INTR
+  The status register for IREDIR_ERR interrupt. Only bit 0 is valid. Set when
+  any of the 4 errors happens, cleared [along with all IREDIR_ERR_DETAIL bits]
+  when 1 is written to bit 0. When this and IREDIR_ERR_INTR_EN are both set,
+  the IREDIR_ERR [#5] second-level interrupt line to SUBINTR is asserted.
+
+MMIO 0x6a0 / I[0x1a800]: IREDIR_ERR_INTR_EN
+  The enable register for IREDIR_ERR interrupt. Only bit 0 is valid.
+
+The interrupt redirection circuitry also exports the following signals to
+PCOUNTER:
+
+ - IREDIR_STATUS: current redirect hw status, like the IREDIR_STATUS reg.
+ - IREDIR_HOST_REQ: 1 if the IREDIR_HOST_REQ [SUBINTR #6] interrupt is pending
+ - IREDIR_TRIGGER_DAEMON: pulses for 1 cycle whenever INTR_TRIGGER.DAEMON is
+   written as 1, whether it results in an error or not
+ - IREDIR_TRIGGER_HOST: pulses for 1 cycle whenever INTR_TRIGGER.HOST is
+   written as 1, whether it results in an error or not
+ - IREDIR_PMC: 1 if the PMC INTR_HOST line is active and directed to DAEMON
+   [ie. mirrors fµc interrupt #15 input]
+ - IREDIR_INTR: 1 if any IREDIR interrupt is active - IREDIR_HOST_REQ,
+   IREDIR_ERR, or IREDIR_PMC. IREDIR_ERR does not count if IREDIR_ERR_INTR_EN
+   is not set.
+
+
 = Counters =
 
 XXX: TODO

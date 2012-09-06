@@ -75,22 +75,22 @@ The following registers deal with PBUS interrupts:
 001104 INTR_GPIO - GPIO interrupt status [NV40:NV50] [nv10-gpio.txt]
 001140 INTR - interrupt enable [NV03-]
 001144 INTR_GPIO_EN - GPIO interrupt enable [NV40:NV50] [nv10-gpio.txt]
-001144 INTE_EN_NMHOST - interrupt enable for the NMHOST line [NVC0-]
+001144 INTE_EN_NRHOST - interrupt enable for the NRHOST line [NVC0-]
 001150 INTR_USER0_TRIGGER - user interrupt generation [NV50-]
 001154+i*4, i<4 INTR_USER0_SCRATCH - user interrupt generation [NV50-]
 001170 INTR_USER1_TRIGGER - user interrupt generation [NVC0-]
 001174+i*4, i<4 INTR_USER1_SCRATCH - user interrupt generation [NVC0-]
 
 On NV03+, PMC interrupt line 28 is connected to PBUS. On NVC0+, there are
-actually two lines: the normal line and the NMHOST line [see pmc.txt for
+actually two lines: the normal line and the NRHOST line [see pmc.txt for
 a description of them]. PBUS has many subinterrupts. The PBUS->PMC interrupt
 line is active when any PBUS interrupt is both active [the bit in INTR
 or INTR_GPIO is 1] and enabled [the bit in INTR_EN or INTR_GPIO_EN is 1].
-The NMHOST PBUS->PMC interrupt line is active when any PBUS interrupt is both
-active and enabled for NMHOST [the bit in INTR_EN_NMHOST is 1].
+The NRHOST PBUS->PMC interrupt line is active when any PBUS interrupt is both
+active and enabled for NRHOST [the bit in INTR_EN_NRHOST is 1].
 
 Most PBUS interrupts are reported via INTR register and enabled via INTR_EN
-and INTR_EN_NMHOST registers:
+and INTR_EN_NRHOST registers:
 
 MMIO 0x001100: INTR [NV03-]
   bit 0: BUS_ERROR - ??? [NV03:NV50]
@@ -108,7 +108,7 @@ MMIO 0x001100: INTR [NV03-]
          [NV30:NVC0] [see peephole.txt]
   bit 26: USER0 - user interrupt #0 [NV50-] [see below]
   bit 28: USER1 - user interrupt #1. Note that this interrupt cannot be
-          enabled for delivery to NMHOST line. [NVC0-] [see below]
+          enabled for delivery to NRHOST line. [NVC0-] [see below]
 
 Writing the INTR register clears interrupts that correspond to bits that
 are set in the written value.
@@ -116,7 +116,7 @@ are set in the written value.
 MMIO 0x001140: INTR_EN [NV03-]
   Same bitfields as in INTR.
 
-MMIO 0x001144: INTR_EN_NMHOST [NVC0-]
+MMIO 0x001144: INTR_EN_NRHOST [NVC0-]
   Same bitfields as in INTR, except USER1 is not present.
 
 On NV40:NV50 GPUs, the PBUS additionally deals with GPIO change interrupts,

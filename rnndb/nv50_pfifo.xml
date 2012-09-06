@@ -124,7 +124,7 @@
 			<bitfield pos="29" name="UNK29"/>
 			<bitfield pos="30" name="NOTIFY" variants="NV84-"/>
 		</reg32>
-		<reg32 offset="0x104" name="INTR_NMHOST" variants="NVA3-"> <!-- affects PMC.INTR_NMHOST -->
+		<reg32 offset="0x104" name="INTR_NRHOST" variants="NVA3-"> <!-- affects PMC.INTR_NRHOST -->
 			<bitfield pos="30" name="NOTIFY"/>
 		</reg32>
 		<reg32 offset="0x140" name="INTR_EN"> <!-- affects PMC.INTR_HOST and PMC.INTR_DAEMON only -->
@@ -148,7 +148,7 @@
 			<bitfield pos="29" name="UNK29"/>
 			<bitfield pos="30" name="NOTIFY" variants="NV84-"/>
 		</reg32>
-		<reg32 offset="0x144" name="INTR_EN_NMHOST" variants="NVA3-">
+		<reg32 offset="0x144" name="INTR_EN_NRHOST" variants="NVA3-">
 			<bitfield pos="30" name="NOTIFY"/>
 		</reg32>
 		<reg32 offset="0x210" name="RAMHT">
