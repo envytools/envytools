@@ -209,9 +209,9 @@ registers via the PTHERM range.
  - IREDIR_TRIGGER_HOST
  - IREDIR_PMC
  - IREDIR_INTR
- - ??? [XXX]
- - ??? [XXX]
- - ??? [XXX]
+ - MMIO_BUSY [XXX: doc]
+ - MMIO_IDLE [XXX: doc]
+ - MMIO_DISABLED [XXX: doc]
  - TOKEN_ALL_USED
  - TOKEN_NONE_USED
  - TOKEN_FREE

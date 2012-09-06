@@ -208,9 +208,13 @@
 			<value value="2" name="WRITE"/>
 		</bitfield>
 		<bitfield low="4" high="7" name="BYTE_MASK"/>
-		<bitfield pos="12" name="BUSY"/>
-		<bitfield pos="13" name="TIMEOUT"/>
-		<bitfield pos="14" name="FAULT"/>
+		<bitfield low="12" high="14" name="STATUS">
+			<value value="0" name="IDLE"/>
+			<value value="1" name="BUSY"/>
+			<value value="2" name="TIMEOUT"/>
+			<value value="3" name="DISABLED"/>
+			<value value="4" name="FAULT"/> <!-- XXX: variants, not used on NVA3 -->
+		</bitfield>
 		<bitfield pos="16" name="TRIGGER"/>
 	</reg32>
 	<reg32 offset="0x7b0" name="MMIO_ERR" variants="NVA3:NVD9">
@@ -236,7 +240,7 @@
 	<reg32 offset="0x7b8" name="MMIO_INTR_EN">
 		<bitfield pos="0" name="ERR"/>
 	</reg32>
-	<reg32 offset="0x7bc" name="UNK7BC" type="boolean"/> <!-- 1/1/0 -->
+	<reg32 offset="0x7bc" name="MMIO_ENABLE" type="boolean"/>
 	<bitset name="nva3_pdaemon_signal" inline="yes">
 		<bitfield pos="8" name="I2C_3_SCL" variants="NVA3:NVD9"/>
 		<bitfield pos="9" name="I2C_3_SDA" variants="NVA3:NVD9"/>

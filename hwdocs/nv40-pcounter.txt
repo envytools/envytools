@@ -447,6 +447,9 @@ IREDIR_TRIGGER_DAEMON |--|--|--|--|--|--|--|--|--|??|c6|??|??| pdaemon.txt
 IREDIR_TRIGGER_HOST   |--|--|--|--|--|--|--|--|--|??|c7|??|??| pdaemon.txt
 IREDIR_PMC            |--|--|--|--|--|--|--|--|--|??|c8|??|??| pdaemon.txt
 IREDIR_INTR           |--|--|--|--|--|--|--|--|--|??|c9|??|??| pdaemon.txt
+MMIO_BUSY             |--|--|--|--|--|--|--|--|--|??|ca|??|??| pdaemon.txt
+MMIO_IDLE             |--|--|--|--|--|--|--|--|--|??|cb|??|??| pdaemon.txt
+MMIO_DISABLED         |--|--|--|--|--|--|--|--|--|??|cc|??|??| pdaemon.txt
 TOKEN_ALL_USED        |--|--|--|--|--|--|--|--|--|??|cd|??|??| pdaemon.txt
 TOKEN_NONE_USED       |--|--|--|--|--|--|--|--|--|??|ce|??|??| pdaemon.txt
 TOKEN_FREE            |--|--|--|--|--|--|--|--|--|??|cf|??|??| pdaemon.txt
