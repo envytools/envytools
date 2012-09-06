@@ -122,7 +122,7 @@
 	</reg32>
 	<reg32 offset="0x5c4" name="PTIMER_UNSHIFTED_HIGH"/>
 	<reg32 offset="0x5c8" name="UNK5C8">
-		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="0" name="PTIMER_B5_RISING_EDGE"/>
 		<bitfield pos="1" name="COUNTER3_ALL"/>
 		<bitfield pos="2" name="COUNTER2_ALL"/>
 		<bitfield pos="3" name="COUNTER1_ALL"/>
