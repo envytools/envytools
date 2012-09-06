@@ -44,9 +44,11 @@ The PDAEMON is made of:
  - CRC computation hardware
 [XXX: and unknown stuff.]
 
-There are 4 revisions of PDAEMON:
- - NVA3:NVC0 - the original revision
- - NVC0:NVD9 - aside from using NVC0 MEMIF, added second set of input/output
+There are 5 revisions of PDAEMON:
+ - NVA3:NVAF - the original revision
+ - NVAF:NVC0 - added a third instance of power gating controller for PUNK1C1
+   engine
+ - NVC0:NVD9 - removed PUNK1C1 support, added second set of input/output
    signals and [XXX: some unknown bits]
  - NVD9:NVE4 - changed I[] space layout, added [XXX: what?]
  - NVE4- - a new version of engine power gating controller and [XXX: what?]
@@ -57,36 +59,40 @@ There are 4 revisions of PDAEMON:
 = fµc parameters =
 
 Present on:
-	d0: NVA3:NVC0
-	d1: NVC0:NVD9
-	d2: NVD9:NVE4
-	d3: NVE4+
+	d0: NVA3:NVAF
+	d1: NVAF:NVC0
+	d2: NVC0:NVD9
+	d3: NVD9:NVE4
+	d4: NVE4+
 BAR0 address: 0x10a000
 PMC interrupt line:
-	d0: 18
-	d1+: 24
+	d0,d1: 18
+	d2+: 24
 PMC enable bit:
-	d0: none, use reg 0x22210 instead
-	d1+: 13
+	d0,d1: none, use reg 0x22210 instead
+	d2+: 13
 Version:
-	d0,d1: 3
-	d2,d3: 4
+	d0,d1,d2: 3
+	d3,d4: 4
 Code segment size:
 	d0: 0x4000
-	d1+: 0x6000
+	d1: ???
+	d2+: 0x6000
 Data segment size:
 	d0: 0x3000
-	d1+: 0x6000
+	d1: ???
+	d2+: 0x6000
 Fifo size:
 	d0: 0x10
-	d1+: 3
+	d1: ???
+	d2+: 3
 Xfer slots:
-	d0,d1: 8
-	d2,d3: 0x10
+	d0,d1,d2: 8
+	d3,d4: 0x10
 Secretful: no
 Code TLB index bits:
-	d0,d1: 8
-	d2,d3: 9
+	d0,d1,d2: 8
+	d3,d4: 9
 Code ports: 1
 Data ports: 4
 Version 4 unknown bits: 27, 29, 30, 31
