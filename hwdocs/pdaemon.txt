@@ -17,8 +17,9 @@ TOC
 9. The timer
 10. Channel switching
 11. PMC interrupt redirection
-12. Counters
-13. Accessing the whole MMIO range
+12. PTHERM access
+13. Counters
+14. Accessing the whole MMIO range
 
 
 = Introduction =
@@ -167,7 +168,7 @@ offset and I[] address on NVD9+, second is I[] address on NVA3:NVD9]:
 [XXX: 5c0+]
 5d0/17400:5e0/17800  DSCRATCH - scratch registers
 5f0/17c00  ??? [0/ffffffff/0]
-5f4/17d00  THERM_BYTE_MASK [XXX: doc]
+5f4/17d00  THERM_BYTE_MASK
 600/18000:640/19000  MEMIF [fuc-memif.txt]
 [XXX: 660+]
 680/1a000  TIMER_INTR - timer interrupt status
@@ -181,9 +182,9 @@ offset and I[] address on NVD9+, second is I[] address on NVA3:NVD9]:
 6a0/1a800  IREDIR_ERR_INTR_EN - IREDIR error interrupt enable
 6a4/1a900  IREDIR_TIMEOUT_ENABLE - IREDIR_HOST_REQ timeout enable
 [XXX: finish the list]
-800/20000:fe0/40000  THERM [NVA3:NVD9] [ptherm.txt] [XXX: doc]
+800/20000:fe0/40000  THERM [NVA3:NVD9] [ptherm.txt]
 fe0/-:1000/-  fµc [NVA3:NVD9] [fuc-io.txt]
-1000/-:1800/-  THERM [NVD9-] [ptherm.txt] [XXX: doc]
+1000/-:1800/-  THERM [NVD9-] [ptherm.txt]
 
 Notes:
  - the last 0x20 bytes of THERM range on NVA3:NVD9 aren't accessible by the
@@ -223,7 +224,7 @@ registers via the PTHERM range.
  - INPUT_CHANGE [XXX: doc]
  - OUTPUT_2 [XXX: doc]
  - ??? [XXX]
- - THERM_BUSY [XXX: doc]
+ - THERM_ACCESS_BUSY
 
 
 = Second-level interrupts =
@@ -604,6 +605,43 @@ PCOUNTER:
  - IREDIR_INTR: 1 if any IREDIR interrupt is active - IREDIR_HOST_REQ,
    IREDIR_ERR, or IREDIR_PMC. IREDIR_ERR does not count if IREDIR_ERR_INTR_EN
    is not set.
+
+
+= PTHERM access =
+
+PDAEMON can access all PTHERM registers directly, without having to go through
+the generic MMIO access functionality. The THERM range in the PDAEMON register
+space is mapped straight to PTHERM MMIO register range.
+
+On NVA3:NVD9, PTHERM registers are mapped into the I[] space at addresses
+0x20000:0x40000, with addresses being shifted left by 6 bits wrt their address
+in PTHERM - PTHERM register 0x20000+x would be visible at I[0x20000 + x * 0x40]
+by fµc, or at 0x10a800+x in MMIO [assuming it wouldn't fall into the reserved
+0x10afe0:0x10b000 range]. On NVD9+, the PTHERM registers are instead mapped
+into the I[] space at addresses 0x1000:0x1800, without shifting - PTHERM reg
+0x20000+x is visible at I[0x1000+x]. On NVD9+, the alias area is not visible
+via MMIO [just access PTHERM registers directly instead].
+
+Reads to the PTHERM-mapped area will always perform 32-bit reads to the
+corresponding PTHERM regs. Writes, however, have their byte enable mask
+controlled via a PDAEMON register, enabling writes with sizes other than
+32-bit:
+
+MMIO 0x5f4 / I[0x17d00]: THERM_BYTE_MASK
+  Read/write, only low 4 bits are valid, initialised to 0xf on reset. Selects
+  the byte mask to use when writing the THERM range. Bit i corresponds to
+  bits i*8..i*8+7 of the written 32-bit value.
+
+The PTHERM access circuitry also exports a signal to PCOUNTER:
+
+ - THERM_ACCESS_BUSY: 1 while a THERM range read/write is in progress - will
+   light up for a dozen or so cycles per access, depending on relative clock
+   speeds.
+
+In addition to direct register access to PTHERM, PDAEMON also has direct access
+to PTHERM interrupts - fµc interrupt #12 [THERM] comes from PTHERM interrupt
+aggregator. PTHERM subinterrupts can be individually assigned for PMC or
+PDAEMON delivery - see ptherm.txt for more information.
 
 
 = Counters =
