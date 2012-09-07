@@ -4,15 +4,131 @@
 
 [XXX: figure out what the fuck is going on]
 
-HUB domain 2:
- - 0x14,0x15: PDAEMON PM_SEL_0,1
+HUB domain 0 sources:
+ - 0: ???
+ - 1: ???
+
+HUB domain 0 signals:
+ - 0x01: SRC1 ???
+ - 0x02: SRC1 ???
+
+HUB domain 1 sources:
+ - 0: ???
+ - 1: ???
+ - 2: ???
+ - 3: ???
+
+HUB domain 1 signals:
+ - 0x00-0x02: SRC0 ???
+ - 0x13-0x14: SRC2 ???
+ - 0x16: SRC3 ???
+
+HUB domain 2 sources:
+ - 0: CTXCTL [?]
+ - 1: ???
+ - 2: PDAEMON
+
+HUB domain 2 signals:
+ - 0x14,0x15: PDAEMON PM_SEL_2,3
+ - 0x18: CTXCTL ???
  - 0x22-0x25: CTXCTL USER_0..USER_5
+ - 0x2c: PDAEMON PM_SEL_0
+ - 0x2d: PDAEMON PM_SEL_1
+ - 0x2e-0x2f: SRC1 ???
+ - 0x30: PDAEMON ???
 
-HUB domain 3:
- - 0x17,0x18: PCOPY[0] PMSEL_0,1
- - 0x19,0x1a: PCOPY[1] PMSEL_0,1
+HUB domain 3 sources:
+ - 0: PCOPY[0].???
+ - 1: PCOPY[0].FUC
+ - 2: PCOPY[0].???
+ - 3: PCOPY[1].???
+ - 4: PCOPY[1].FUC
+ - 5: PCOPY[1].???
+ - 6: PVP.???
+ - 7: PPPP.???
+ - 8: PBSP.???
 
-HUB domain 4:
- - 0x0c,0x0d: PPPP PM_SEL_0,1
- - 0x0e,0x0f: PVP PM_SEL_0,1
- - 0x10,0x11: PBSP PM_SEL_0,1
+HUB domain 3 signals:
+ - 0x00: PCOPY[0].SRC0 ???
+ - 0x02: PCOPY[0].SRC0 ???
+ - 0x05-0x07: PCOPY[1].SRC3 ???
+ - 0x0a: PPPP.SRC7 ???
+ - 0x0c: PVP.SRC6 ???
+ - 0x0e-0x10: PBSP.SRC8 ???
+ - 0x12: PCOPY[0].SRC2 ???
+ - 0x14: PCOPY[1].SRC5 ???
+ - 0x16: PCOPY[1].SRC5 ???
+ - 0x17,0x18: PCOPY[0].FUC PM_SEL_2,3
+ - 0x19,0x1a: PCOPY[1].FUC PM_SEL_2,3
+ - 0x1d: PPPP.SRC7 ???
+ - 0x1f: PPPP.SRC7 ???
+ - 0x22: PVP.SRC6 ???
+ - 0x24: PVP.SRC6 ???
+ - 0x27: PBSP.SRC8 ???
+ - 0x29: PBSP.SRC8 ???
+ - 0x2e: PCOPY[0].FUC ???
+ - 0x34: PCOPY[1].FUC ???
+ - 0x38: PCOPY[0].SRC0 ???
+ - 0x39: PCOPY[0].FUC ???
+ - 0x3a: PCOPY[0].SRC2 ???
+ - 0x3b: PCOPY[1].SRC3 ???
+ - 0x3c: PCOPY[1].FUC ???
+ - 0x3d: PCOPY[1].SRC5 ???
+ - 0x3e: PVP.SRC6 ???
+ - 0x3f: PPPP.SRC7 ???
+ - 0x40: PBSP.SRC8 ???
+
+HUB domain 4 sources:
+ - 0: PVP.???
+ - 1: PVP.FUC
+ - 2: PPPP.???
+ - 3: PPPP.FUC
+ - 4: PBSP.???
+ - 5: PBSP.FUC
+
+HUB domain 4 signals:
+ - 0x00-0x03: PPPP.SRC2 ???
+ - 0x06-0x07: PVP.SRC0 ???
+ - 0x09: PBSP.SRC4 ???
+ - 0x0b: PBSP.SRC4 ???
+ - 0x0c,0x0d: PPPP.FUC PM_SEL_2,3
+ - 0x0e,0x0f: PVP.FUC PM_SEL_2,3
+ - 0x10,0x11: PBSP.FUC PM_SEL_2,3
+ - 0x16-0x17: PPPP.FUC ???
+ - 0x1c-0x1d: PVP.FUC ???
+ - 0x1e: PBSP.FUC ???
+ - 0x24-0x25: PVP.SRC0 ???
+ - 0x26: PVP.FUC ???
+ - 0x27: PPPP.SRC2 ???
+ - 0x28: PPPP.FUC ???
+ - 0x29: PBSP.SRC4 ???
+ - 0x2a: PBSP.FUC ???
+
+HUB domain 5 sources:
+ - 0: ???
+
+HUB domain 5 signals:
+ - 0x00: SRC0 ???
+ - 0x05-0x06: SRC0 ???
+ - 0x09: SRC0 ???
+ - 0x0c: SRC0 ???
+
+HUB domain 6 sources:
+ - 0: ???
+ - 1: ???
+ - 2: ???
+ - 3: ???
+ - 4: ???
+ - 5: ???
+ - 6: ???
+ - 7: ???
+ - 8: ???
+
+HUB domain 6 signals:
+ - 0x0a-0x0b: SRC8 ???
+ - 0x36: SRC2 ???
+ - 0x39: SRC5 ???
+ - 0x45: SRC0 ???
+ - 0x47: SRC0 ???
+ - 0x4c: SRC6 ???
+

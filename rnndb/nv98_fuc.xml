@@ -213,9 +213,10 @@
 
 	<reg32 offset="0xfe8" name="PM_SEL" variants="NVC0-">
 		<!-- XXX: what the fuck? -->
-		<bitfield low="0" high="7" name="UNK0"/>
-		<bitfield low="8" high="11" name="0"/>
-		<bitfield low="12" high="15" name="1"/>
+		<bitfield low="0" high="3" name="0"/> <!-- from ??? -->
+		<bitfield low="4" high="7" name="1"/> <!-- from ??? -->
+		<bitfield low="8" high="11" name="2"/> <!-- from USER signals -->
+		<bitfield low="12" high="15" name="3"/> <!-- from USER signals -->
 		<bitfield low="17" high="31" name="UNK17"/>
 	</reg32>
 	<reg32 offset="0xfec" name="SP"/>

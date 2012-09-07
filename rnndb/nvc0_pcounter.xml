@@ -155,6 +155,10 @@
 			<bitfield pos="6" name="PULSE_2"/>
 			<bitfield pos="7" name="PULSE_3"/>
 		</reg32>
+		<reg32 offset="0x100" name="FILTER">
+			<bitfield low="0" high="30" name="SRC_MASK"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
 	</group>
 
 	<group name="pcounter_dset">
