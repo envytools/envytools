@@ -1,1 +1,18 @@
 [XXX: write me]
+
+= NVCF signals =
+
+[XXX: figure out what the fuck is going on]
+
+HUB domain 2:
+ - 0x14,0x15: PDAEMON PM_SEL_0,1
+ - 0x22-0x25: CTXCTL USER_0..USER_5
+
+HUB domain 3:
+ - 0x17,0x18: PCOPY[0] PMSEL_0,1
+ - 0x19,0x1a: PCOPY[1] PMSEL_0,1
+
+HUB domain 4:
+ - 0x0c,0x0d: PPPP PM_SEL_0,1
+ - 0x0e,0x0f: PVP PM_SEL_0,1
+ - 0x10,0x11: PBSP PM_SEL_0,1

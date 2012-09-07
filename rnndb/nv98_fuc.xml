@@ -211,6 +211,14 @@
 	</reg32>
 	<reg32 offset="0x1c4" name="DATA" stride="8" length="8" variants="NVA3-"/>
 
+	<reg32 offset="0xfe8" name="PM_SEL" variants="NVC0-">
+		<!-- XXX: what the fuck? -->
+		<bitfield low="0" high="7" name="UNK0"/>
+		<bitfield low="8" high="11" name="0"/>
+		<bitfield low="12" high="15" name="1"/>
+		<bitfield low="17" high="31" name="UNK17"/>
+	</reg32>
+	<reg32 offset="0xfec" name="SP"/>
 	<reg32 offset="0xff0" name="PC"/>
 	<reg32 offset="0xff4" name="UPLOAD"/>
 	<reg32 offset="0xff8" name="UPLOAD_ADDR">

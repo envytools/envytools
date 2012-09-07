@@ -35,9 +35,9 @@ The PDAEMON is made of:
  - standard fµc memory interface unit
  - a simple channel load interface, replacing the usual PFIFO interface
  - various means of communication betwen fµc and host
- - engine power gating controller
+ - engine power gating controllers for the PFIFO-connected engines
  - "idle" signals from various engines and associated idle counters
- - misc simple input/output signals to various enginesa, with interrupt
+ - misc simple input/output signals to various engines, with interrupt
    capability
  - a oneshot/periodic timer, using daemon clock or PTIMER as clock source
  - PMC interrupt redirection circuitry

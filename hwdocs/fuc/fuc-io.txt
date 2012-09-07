@@ -141,7 +141,7 @@ Registers starting from 400/10000 are engine-specific and described in engine
 documentation.
 
 Host-only common registers [present on all engines]:
-fe8/-	   ???			??? [XXX]
+fe8/-      PM_SEL [NVC0-]	perfmon signal select	[fuc-perf.txt]
 fec/-      UC_SP		microprocessor $sp reg	[fuc-proc.txt]
 ff0/-      UC_PC		microprocessor $pc reg	[fuc-proc.txt]
 ff4/-      UPLOAD		old code/data upload	[fuc-io.txt]
