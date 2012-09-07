@@ -460,6 +460,7 @@ FIFO_PUT_2_WRITE      |--|--|--|--|--|--|--|--|--|??|d3|??|??| pdaemon.txt
 FIFO_PUT_3_WRITE      |--|--|--|--|--|--|--|--|--|??|d4|??|??| pdaemon.txt
 INPUT_CHANGE          |--|--|--|--|--|--|--|--|--|??|d5|??|??| pdaemon.txt
 OUTPUT_2              |--|--|--|--|--|--|--|--|--|??|d6|??|??| pdaemon.txt
+INPUT_2               |--|--|--|--|--|--|--|--|--|??|d7|??|??| pdaemon.txt
 THERM_ACCESS_BUSY     |--|--|--|--|--|--|--|--|--|??|d8|??|??| pdaemon.txt
 [trailer base]        |??|c0|??|??|??|a0|80|??|a0|e0|e0|??|??| pcounter.txt
 
