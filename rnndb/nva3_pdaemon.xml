@@ -298,6 +298,9 @@
 	<bitset name="nva3_pdaemon_input1" inline="yes">
 	</bitset>
 	<bitset name="nva3_pdaemon_output" inline="yes">
+		<!-- XXX: variants -->
+		<bitfield pos="2" name="FB_PAUSE" variants="NVC0:NVD9"/>
+
 		<bitfield pos="8" name="I2C_3_SCL" variants="NVA3:NVD9"/>
 		<bitfield pos="9" name="I2C_3_SDA" variants="NVA3:NVD9"/>
 
