@@ -212,8 +212,32 @@ int envy_bios_parse (struct envy_bios *bios) {
 				bios_u32(bios, 0x5c, &bios->straps0_value);
 				bios_u32(bios, 0x60, &bios->straps1_select);
 				bios_u32(bios, 0x64, &bios->straps1_value);
-				bios_u16(bios, 0x68, &bios->hwinfo_unk68);
+				uint16_t off;
+				bios_u16(bios, 0x68, &off);
+				bios->mmioinit_offset = off * 4;
 				envy_bios_block(bios, 0x54, 0x18, "HWINFO", -1);
+				if (off) {
+				int pos = 0;
+					while (1) {
+						uint32_t word;
+						struct envy_bios_mmioinit_entry entry = { 0 };
+						if (bios_u32(bios, bios->mmioinit_offset + pos, &word)) {
+							ENVY_BIOS_ERR("Failed to parse MMIOINIT\n");
+							break;
+						}
+						entry.addr = (word & 0xffc) | (word >> 5 & 0xfffff000);
+						entry.len = (word >> 12 & 0x1f) + 1;
+						pos += 4;
+						int j;
+						for (j = 0; j < entry.len; j++, pos += 4)
+							bios_u32(bios, bios->mmioinit_offset + pos, &entry.data[j]);
+						ADDARRAY(bios->mmioinits, entry);
+						if (word & 2)
+							break;
+					}
+					bios->mmioinit_len = pos;
+					envy_bios_block(bios, bios->mmioinit_offset, bios->mmioinit_len, "MMIOINIT", -1);
+				}
 			}
 		} else {
 			envy_bios_block(bios, 0x54, 4, "HWINFO", -1);

@@ -348,8 +348,14 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 			if (bios->hwinfo_ext_valid) {
 				fprintf(out, "Straps 0: select 0x%08x value 0x%08x\n", bios->straps0_select, bios->straps0_value);
 				fprintf(out, "Straps 1: select 0x%08x value 0x%08x\n", bios->straps1_select, bios->straps1_value);
-				fprintf(out, "HWINFO unk68: 0x%04x\n", bios->hwinfo_unk68);
 				envy_bios_dump_hex(bios, out, 0x58, 0x14, mask);
+				int i, j;
+				for (i = 0; i < bios->mmioinitsnum; i++) {
+					fprintf(out, "Addr 0x%08x len %d\n", bios->mmioinits[i].addr, bios->mmioinits[i].len);
+					for (j = 0; j < bios->mmioinits[i].len; j++)
+						fprintf(out, "\tR[0x%08x] <= 0x%08x\n", bios->mmioinits[i].addr + j * 4, bios->mmioinits[i].data[j]);
+				}
+				envy_bios_dump_hex(bios, out, bios->mmioinit_offset, bios->mmioinit_len, mask);
 			}
 			fprintf(out, "\n");
 		}

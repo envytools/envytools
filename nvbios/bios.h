@@ -56,6 +56,12 @@ enum envy_bios_type {
 	ENVY_BIOS_TYPE_NV04,
 };
 
+struct envy_bios_mmioinit_entry {
+	uint32_t addr;
+	uint32_t len;
+	uint32_t data[32];
+};
+
 struct envy_bios_bit_entry {
 	uint16_t offset;
 	uint8_t type;
@@ -578,11 +584,16 @@ struct envy_bios {
 	uint16_t subsystem_device;
 
 	uint8_t hwinfo_ext_valid;
-	uint16_t hwinfo_unk68;
 	uint32_t straps0_select;
 	uint32_t straps0_value;
 	uint32_t straps1_select;
 	uint32_t straps1_value;
+	uint32_t mmioinit_offset;
+	uint32_t mmioinit_len;
+
+	struct envy_bios_mmioinit_entry *mmioinits;
+	int mmioinitsnum;
+	int mmioinitsmax;
 
 	unsigned int bmp_offset;
 	unsigned int bmp_length;
@@ -692,6 +703,7 @@ static inline int bios_string(struct envy_bios *bios, unsigned int offs, char *r
 int envy_bios_parse (struct envy_bios *bios);
 void envy_bios_dump_hex (struct envy_bios *bios, FILE *out, unsigned int start, unsigned int length, unsigned mask);
 void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_mmioinit (struct envy_bios *bios, FILE *out, unsigned mask);
 
 int envy_bios_parse_bit (struct envy_bios *bios);
 void envy_bios_print_bit (struct envy_bios *bios, FILE *out, unsigned mask);
