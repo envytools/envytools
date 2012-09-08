@@ -35,6 +35,25 @@
 	<reg32 offset="0x19c" name="P2P_OUT_WRITE_SETUP_ADDR_HIGH" stride="8" length="3" variants="NV50:NVC0"/>
 	<reg32 offset="0x1b0" name="P2P_OUT_WRITE_WINDOW_ADDR_LOW" stride="8" length="3" variants="NV50:NVC0"/>
 	<reg32 offset="0x1b4" name="P2P_OUT_WRITE_WINDOW_ADDR_HIGH" stride="8" length="3" variants="NV50:NVC0"/>
+	<bitset name="nv84_ppci_intr" inline="yes">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="1" name="UNK1" variants="NVA3-"/>
+		<bitfield pos="2" name="UNK2" variants="NVA3-"/>
+		<!-- XXX: following variants not certain -->
+		<bitfield pos="3" name="UNK3" variants="NVC0-"/>
+		<bitfield pos="4" name="UNK4" variants="NVC0-"/>
+		<bitfield pos="5" name="UNK5" variants="NVD9-"/>
+		<bitfield pos="8" name="UNK8" variants="NVE4-"/>
+		<bitfield pos="9" name="UNK9" variants="NVE4-"/>
+	</bitset>
+	<reg32 offset="0x41c" name="UNK41C" variants="NV84-">
+		<bitfield pos="19" name="INTR_ROUTE" variants="NVA3-">
+			<value value="0" name="PMC"/>
+			<value value="1" name="DAEMON"/>
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x480" name="INTR" variants="NV84-" type="nv84_ppci_intr"/>
+	<reg32 offset="0x484" name="INTR_EN" variants="NV84-" type="nv84_ppci_intr"/>
 </group>
 
 <domain name="NV_PCI" varset="chipset">

@@ -385,7 +385,7 @@ For NV50:NVC0:
 26: PDISPLAY [pdisplay.txt]
 27: ??? [NVA3?-]
 28: PBUS [pbus.txt]
-29: ??? [NVA3?-]
+29: PPCI [pci.txt] [NV84-]
 31: software
 [XXX: figure out unknown interrupts. They could've been introduced much
 earlier, but we only know them from bitscanning the INTR_MASK regs. on NVA3+.]
@@ -414,7 +414,7 @@ For NVC0+:
 26: PDISPLAY [pdisplay.txt]
 27: PFFB [nvc0-pffb.txt]
 28: PBUS [pbus.txt] - has separate NRHOST line
-29: ???
+29: PPCI [pci.txt]
 30: PIBUS [pibus.txt]
 31: software
 [XXX: unknowns]

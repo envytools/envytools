@@ -89,7 +89,7 @@
 			<bitfield pos="27" name="PFFB" variants="NVC0-"/>
 			<bitfield pos="28" name="SOFTWARE" variants="NV01"/>
 			<bitfield pos="28" name="PBUS" variants="NV03-"/>
-			<bitfield pos="29" name="UNK29" variants="NVA3-"/>
+			<bitfield pos="29" name="PPCI" variants="NV84-"/>
 			<bitfield pos="30" name="PIBUS" variants="NVC0-"/>
 			<bitfield pos="31" name="SOFTWARE" variants="NV03-">
 				<doc>Software interrupt: write 1 to this bit to trigger

@@ -251,6 +251,7 @@
 
 		<bitfield pos="8" name="I2C_3_SCL" variants="NVA3:NVD9"/>
 		<bitfield pos="9" name="I2C_3_SDA" variants="NVA3:NVD9"/>
+		<bitfield pos="10" name="PPCI_INTR_N" variants="NVA3:NVD9"/>
 
 		<bitfield pos="12" name="I2C_0_SCL" variants="NVA3:NVD9"/>
 		<bitfield pos="13" name="I2C_0_SDA" variants="NVA3:NVD9"/>
