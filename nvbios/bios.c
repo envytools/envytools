@@ -149,6 +149,7 @@ int envy_bios_parse (struct envy_bios *bios) {
 	const uint8_t bmpsig[5] = "\xff\x7f""NV\0";
 	const uint8_t bitsig[7] = "\xff\xb8""BIT\0\0";
 	const uint8_t hwsqsig[4] = "HWSQ";
+	const uint8_t hweasig[4] = "HWEA";
 	switch(vendor) {
 	case 0x104a: /* SGS */
 		if (device == 0x08 || device == 0x09) {
@@ -180,6 +181,7 @@ int envy_bios_parse (struct envy_bios *bios) {
 		bios->bmp_offset = find_string(bios, bmpsig, 5);
 		bios->bit.offset = find_string(bios, bitsig, 7);
 		bios->hwsq_offset = find_string(bios, hwsqsig, 4);
+		bios->hwea_offset = find_string(bios, hweasig, 4);
 		bios_u16(bios, 0x36, &bios->dcb.offset);
 		envy_bios_block(bios, 0x36, 2, "DCB_PTR", -1);
 		bios_u16(bios, 0x54, &bios->subsystem_vendor);
@@ -241,6 +243,42 @@ int envy_bios_parse (struct envy_bios *bios) {
 			}
 		} else {
 			envy_bios_block(bios, 0x54, 4, "HWINFO", -1);
+		}
+		if (bios->hwea_offset) {
+			int pos = 4;
+			while (1) {
+				uint32_t word;
+				struct envy_bios_hwea_entry entry = { 0 };
+				if (bios_u32(bios, bios->hwea_offset + pos, &word)) {
+					ENVY_BIOS_ERR("Failed to parse HWEA\n");
+					break;
+				}
+				pos += 4;
+				entry.len = word;
+				if (!word)
+					break;
+				if (bios_u32(bios, bios->hwea_offset + pos, &word)) {
+					ENVY_BIOS_ERR("Failed to parse HWEA\n");
+					break;
+				}
+				entry.base = word & 0xfffffff;
+				entry.type = word >> 28;
+				pos += 4;
+				if (entry.type > 1)
+					ENVY_BIOS_WARN("Unknown HWEA entry type %d\n", entry.type);
+				entry.data = calloc(sizeof *entry.data, entry.len);
+				int j;
+				for (j = 0; j < entry.len; j++) {
+					if (bios_u32(bios, bios->hwea_offset + pos, &entry.data[j])) {
+						ENVY_BIOS_ERR("Failed to parse HWEA\n");
+						break;
+					}
+					pos += 4;
+				}
+				ADDARRAY(bios->hwea_entries, entry);
+			}
+			bios->hwea_len = pos;
+			envy_bios_block(bios, bios->hwea_offset, bios->hwea_len, "HWEA", -1);
 		}
 		break;
 	}

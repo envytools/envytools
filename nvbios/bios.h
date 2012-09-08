@@ -62,6 +62,13 @@ struct envy_bios_mmioinit_entry {
 	uint32_t data[32];
 };
 
+struct envy_bios_hwea_entry {
+	uint32_t base;
+	uint32_t len;
+	uint8_t type;
+	uint32_t *data;
+};
+
 struct envy_bios_bit_entry {
 	uint16_t offset;
 	uint8_t type;
@@ -594,6 +601,12 @@ struct envy_bios {
 	struct envy_bios_mmioinit_entry *mmioinits;
 	int mmioinitsnum;
 	int mmioinitsmax;
+
+	unsigned int hwea_offset;
+	unsigned int hwea_len;
+	struct envy_bios_hwea_entry *hwea_entries;
+	int hwea_entriesnum;
+	int hwea_entriesmax;
 
 	unsigned int bmp_offset;
 	unsigned int bmp_length;

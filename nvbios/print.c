@@ -358,6 +358,30 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 				envy_bios_dump_hex(bios, out, bios->mmioinit_offset, bios->mmioinit_len, mask);
 			}
 			fprintf(out, "\n");
+			if (bios->hwea_offset) {
+				fprintf(out, "HWEA at %04x:\n", bios->hwea_offset);
+				int i, j;
+				for (i = 0; i < bios->hwea_entriesnum; i++) {
+					struct envy_bios_hwea_entry *entry = &bios->hwea_entries[i];
+					for (j = 0; j < entry->len; j++) {
+						fprintf(out, "\t");
+						switch (entry->type) {
+							case 0:
+								fprintf(out, "C");
+								break;
+							case 1:
+								fprintf(out, "D");
+								break;
+							default:
+								fprintf(out, "UNK%02X", entry->type);
+								break;
+						}
+						fprintf(out, "[0x%04x] <= 0x%08x\n", entry->base + j * 4, entry->data[j]);
+					}
+				}
+				envy_bios_dump_hex(bios, out, bios->hwea_offset, bios->hwea_len, mask);
+				fprintf(out, "\n");
+			}
 		}
 		envy_bios_print_bit(bios, stdout, mask);
 		envy_bios_print_info(bios, stdout, mask);
