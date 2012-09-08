@@ -251,4 +251,42 @@
 	</reg32>
 </group>
 
+<bitset name="pci_config_pwr_bdgt_data" inline="yes">
+	<bitfield low="0" high="7" name="BASE"/>
+	<bitfield low="8" high="9" name="SCALE">
+		<value value="0" name="1"/>
+		<value value="1" name="0P1"/>
+		<value value="2" name="0P01"/>
+		<value value="3" name="0P001"/>
+	</bitfield>
+	<bitfield low="10" high="12" name="PM_SUB"/>
+	<bitfield low="13" high="14" name="PM_STATE"/>
+	<bitfield low="15" high="17" name="TYPE">
+		<value value="0" name="PMEAUX"/>
+		<value value="1" name="AUX"/>
+		<value value="2" name="IDLE"/>
+		<value value="3" name="SUSTAINED"/>
+		<value value="7" name="MAX"/>
+	</bitfield>
+	<bitfield low="18" high="20" name="RAIL">
+		<value value="0" name="12V"/>
+		<value value="1" name="3P3V"/>
+		<value value="2" name="1P8V"/>
+		<value value="7" name="THERM"/>
+	</bitfield>
+</bitset>
+
+<group name="pci_config_pwr_bdgt">
+	<reg32 offset="0x0" name="PWR_BDGT_HEAD">
+		<bitfield low="0" high="15" name="CAP_ID">
+			<value value="0x04" name="PWR_BDGT"/>
+		</bitfield>
+		<bitfield low="16" high="19" name="VERSION"/>
+		<bitfield low="20" high="31" name="NEXT_CAP_PTR"/>
+	</reg32>
+	<reg32 offset="0x4" name="PWR_BDGT_IDX"/>
+	<reg32 offset="0x8" name="PWR_BDGT_DATA" type="pci_config_pwr_bdgt_data"/>
+	<reg32 offset="0xc" name="PWR_BDGT_SYSTEM" type="boolean"/>
+</group>
+
 </database>

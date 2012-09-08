@@ -48,7 +48,11 @@
 		<reg32 offset="0x10" name="MUTEX_TOKEN"/> <!-- works like PDAEMON's MUTEX_TOKEN, except 0x01-0xff are valid locked values -->
 	</array>
 	<!-- XXX: 100+ VC cap -->
-	<!-- XXX: 128+ power budget cap -->
+	<stripe offset="0x128" variants="NV41-">
+		<use-group name="pci_config_pwr_bdgt"/>
+	</stripe>
+	<!-- PWR_BDGT underlying storage, rw -->
+	<reg32 offset="0x15c" name="PWR_BDGT_DATA_BACK" length="6" type="pci_config_pwr_bdgt_data" variants="NV41-"/>
 	<reg32 offset="0x198" name="P2P_OUT_WRITE_SETUP_ADDR_LOW" stride="8" length="3" variants="NV50:NVC0"/>
 	<reg32 offset="0x19c" name="P2P_OUT_WRITE_SETUP_ADDR_HIGH" stride="8" length="3" variants="NV50:NVC0"/>
 	<reg32 offset="0x1b0" name="P2P_OUT_WRITE_WINDOW_ADDR_LOW" stride="8" length="3" variants="NV50:NVC0"/>
