@@ -510,21 +510,22 @@ Like NV40, these are just the maximal numbers.
 
 The pci vendor id is 0x10de. The pci device ids are:
 
-019X NV50
-040X NV84
-042X NV86
-060X+ NV92
-062X+ NV94
-064X+ NV96
-06eX+ NV98
-05eX+ NVA0
-084X+ NVAA
-086X+ NVAC
-0caX+ NVA3
-0a2X+ NVA5
-0a6X+ NVA8
-10cX+ NVA8
-08aX+ NVAF
+core  hda  chipset
+019X  -    NV50
+040X  -    NV84
+042X  -    NV86
+060X+ -    NV92
+062X+ -    NV94
+064X+ -    NV96
+06eX+ -    NV98
+05eX+ -    NVA0
+084X+ -    NVAA
+086X+ -    NVAC
+0caX+ 0be4 NVA3
+0a2X+ 0be2 NVA5
+0a6X+ 0be3 NVA8
+10cX+ 0be3 NVA8
+08aX+ -    NVAF
 
 
 == NVC0 family ==
@@ -588,13 +589,14 @@ NVE7 [GK107]: ?:?:2:1
 
 The pci device ids are:
 
-06cX+ NVC0
-0e2X+ NVC4
-0dcX+ NVC3
-120X+ NVCE
-124X+ NVCF
-0deX+ NVC1
-108X+ NVC8
-104X* NVD9
-118X* NVE4
-0fcX* NVE7
+core  hda  chipset
+06cX+ 0be5 NVC0
+0e2X+ 0beb NVC4
+0dcX+ 0be9 NVC3
+120X+ 0e0c NVCE
+124X+ 0bee NVCF
+0deX+ 0bea NVC1
+108X+ 0e09 NVC8
+104X* 0e08 NVD9
+118X* 0e0a NVE4
+0fcX* ???? NVE7
