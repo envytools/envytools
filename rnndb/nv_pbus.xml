@@ -47,7 +47,7 @@
 		<bitfield pos="9" name="UNK9" variants="NVE4-"/>
 	</bitset>
 	<reg32 offset="0x41c" name="UNK41C" variants="NV84-">
-		<bitfield pos="19" name="INTR_ROUTE" variants="NVA3-">
+		<bitfield pos="23" name="INTR_ROUTE" variants="NVA3-">
 			<value value="0" name="PMC"/>
 			<value value="1" name="DAEMON"/>
 		</bitfield>
