@@ -106,12 +106,13 @@
 <!-- 087000 - 087fff PCRYPT -->
 <import file="nv98_pcrypt.xml" />
 
-<!-- 088000 - 088fff PBUS_PCI covered in nv_pbus.xml -->
+<!-- 088000 - 088fff PPCI -->
+<import file="nv_pci.xml" />
 
 <!-- 089000 - 089fff ??? [NV84+] -->
 <import file="nv84_punk089.xml" />
 
-<!-- 08a000 - 08afff PCODEC_PCI covered in nv_pbus.xml -->
+<!-- 08a000 - 08afff PPCI_HDA covered in nv_pci.xml -->
 
 <!-- 090000 - 090fff PFIFO_CACHE1 covered in nv_pfifo.xml -->
 
