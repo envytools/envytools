@@ -80,6 +80,11 @@
 	<reg32 offset="0x480" name="INTR" variants="NV84-" type="nv84_pci_intr"/>
 	<reg32 offset="0x484" name="INTR_EN" variants="NV84-" type="nv84_pci_intr"/>
 	<!-- XXX: 600+ is another vendor-specific cap -->
+	<reg32 offset="0x700" name="GPU_RESET" variants="NVA3-">
+		<!-- this thing resets *everything* -->
+		<bitfield pos="0" name="TRIGGER"/>
+		<bitfield low="1" high="11" name="TIME"/>
+	</reg32>
 </group>
 
 <group name="nv_pci_hda">
