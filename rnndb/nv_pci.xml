@@ -47,6 +47,8 @@
 		<reg32 offset="0x08" name="DATA" length="2"/>
 		<reg32 offset="0x10" name="MUTEX_TOKEN"/> <!-- works like PDAEMON's MUTEX_TOKEN, except 0x01-0xff are valid locked values -->
 	</array>
+	<!-- XXX: 100+ VC cap -->
+	<!-- XXX: 128+ power budget cap -->
 	<reg32 offset="0x198" name="P2P_OUT_WRITE_SETUP_ADDR_LOW" stride="8" length="3" variants="NV50:NVC0"/>
 	<reg32 offset="0x19c" name="P2P_OUT_WRITE_SETUP_ADDR_HIGH" stride="8" length="3" variants="NV50:NVC0"/>
 	<reg32 offset="0x1b0" name="P2P_OUT_WRITE_WINDOW_ADDR_LOW" stride="8" length="3" variants="NV50:NVC0"/>
@@ -64,13 +66,15 @@
 	</bitset>
 	<reg32 offset="0x41c" name="CONFIG" variants="NV84-">
 		<bitfield pos="8" name="AER_EN"/>
+		<bitfield pos="9" name="UNK9"/> <!-- goes to 60c bit 1 -->
 		<bitfield pos="10" name="UNK600_CAP_EN"/>
 		<bitfield low="11" high="12" name="GEN2_DIS">
 			<doc>Set to 3 to disable gen2</doc>
 			<!-- XXX: figure it out -->
 		</bitfield>
 		<bitfield pos="17" name="MSG_CAP_EN" variants="NVA3-"/>
-		<bitfield pos="18" name="CLKPM"/> <!-- goes to EXP_LNK_CAP -->
+		<bitfield pos="18" name="CLKPM" variants="NVA3-"/> <!-- goes to EXP_LNK_CAP -->
+		<bitfield low="19" high="21" name="L1_LAT" variants="NVA3-"/> <!-- goes to EXP_DEV_CAP -->
 		<bitfield pos="23" name="INTR_ROUTE" variants="NVA3-">
 			<value value="0" name="PMC"/>
 			<value value="1" name="DAEMON"/>
@@ -97,12 +101,19 @@
 	<stripe offset="0x60">
 		<use-group name="pci_config_pm"/>
 	</stripe>
-	<stripe offset="0x68" variants="NV40-">
+	<stripe offset="0x68">
 		<use-group name="pci_config_msi64_nomask"/>
 	</stripe>
-	<stripe offset="0x78" variants="NV40-">
+	<stripe offset="0x78">
 		<use-group name="pci_config_exp_endpoint"/>
 	</stripe>
+
+	<!-- XXX: 100+ AER cap -->
+
+	<reg32 offset="0x41c" name="CONFIG">
+		<bitfield pos="8" name="AER_EN"/>
+		<bitfield low="19" high="21" name="L1_LAT"/>
+	</reg32>
 </group>
 
 <domain name="NV_PCI" varset="chipset">
