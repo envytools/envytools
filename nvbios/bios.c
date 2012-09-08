@@ -246,26 +246,50 @@ int envy_bios_parse (struct envy_bios *bios) {
 		}
 		if (bios->hwea_offset) {
 			int pos = 4;
+			if (bios->chipset == 0xc0 || bios->chipset == 0xc3 || bios->chipset == 0xc4)
+				bios->hwea_version = 0;
+			else if (bios->chipset < 0xe0)
+				bios->hwea_version = 1;
+			else
+				bios->hwea_version = 2;
+			if (bios->hwea_version >= 2)
+				pos = 8;
 			while (1) {
 				uint32_t word;
+				int last = 0;
 				struct envy_bios_hwea_entry entry = { 0 };
 				if (bios_u32(bios, bios->hwea_offset + pos, &word)) {
 					ENVY_BIOS_ERR("Failed to parse HWEA\n");
 					break;
 				}
 				pos += 4;
-				entry.len = word;
-				if (!word)
-					break;
-				if (bios_u32(bios, bios->hwea_offset + pos, &word)) {
-					ENVY_BIOS_ERR("Failed to parse HWEA\n");
-					break;
+				if (bios->hwea_version == 0) {
+					entry.len = word;
+					if (!word)
+						break;
+					if (bios_u32(bios, bios->hwea_offset + pos, &word)) {
+						ENVY_BIOS_ERR("Failed to parse HWEA\n");
+						break;
+					}
+					entry.base = word & 0xfffffff;
+					entry.type = word >> 28;
+					pos += 4;
+					if (entry.type > 1)
+						ENVY_BIOS_WARN("Unknown HWEA entry type %d\n", entry.type);
+				} else {
+					entry.base = word & 0x1fffffc;
+					entry.type = word&3;
+					switch (entry.type) {
+						case 0:
+						case 1:
+							entry.len = (word >> 25 & 0x3f) + 1;
+							break;
+						case 3:
+							last = 1;
+						case 2:
+							entry.len = 2;
+					}
 				}
-				entry.base = word & 0xfffffff;
-				entry.type = word >> 28;
-				pos += 4;
-				if (entry.type > 1)
-					ENVY_BIOS_WARN("Unknown HWEA entry type %d\n", entry.type);
 				entry.data = calloc(sizeof *entry.data, entry.len);
 				int j;
 				for (j = 0; j < entry.len; j++) {
@@ -276,6 +300,8 @@ int envy_bios_parse (struct envy_bios *bios) {
 					pos += 4;
 				}
 				ADDARRAY(bios->hwea_entries, entry);
+				if (last)
+					break;
 			}
 			bios->hwea_len = pos;
 			envy_bios_block(bios, bios->hwea_offset, bios->hwea_len, "HWEA", -1);

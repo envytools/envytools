@@ -602,6 +602,7 @@ struct envy_bios {
 	int mmioinitsnum;
 	int mmioinitsmax;
 
+	unsigned int hwea_version;
 	unsigned int hwea_offset;
 	unsigned int hwea_len;
 	struct envy_bios_hwea_entry *hwea_entries;

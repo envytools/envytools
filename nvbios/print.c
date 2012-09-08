@@ -363,20 +363,30 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 				int i, j;
 				for (i = 0; i < bios->hwea_entriesnum; i++) {
 					struct envy_bios_hwea_entry *entry = &bios->hwea_entries[i];
-					for (j = 0; j < entry->len; j++) {
-						fprintf(out, "\t");
-						switch (entry->type) {
-							case 0:
-								fprintf(out, "C");
-								break;
-							case 1:
-								fprintf(out, "D");
-								break;
-							default:
-								fprintf(out, "UNK%02X", entry->type);
-								break;
+					if (bios->hwea_version == 0) {
+						for (j = 0; j < entry->len; j++) {
+							fprintf(out, "\t");
+							switch (entry->type) {
+								case 0:
+									fprintf(out, "C");
+									break;
+								case 1:
+									fprintf(out, "D");
+									break;
+								default:
+									fprintf(out, "UNK%02X", entry->type);
+									break;
+							}
+							fprintf(out, "[0x%04x] <= 0x%08x\n", entry->base + j * 4, entry->data[j]);
 						}
-						fprintf(out, "[0x%04x] <= 0x%08x\n", entry->base + j * 4, entry->data[j]);
+					} else {
+						if (entry->type < 2) {
+							for (j = 0; j < entry->len; j++) {
+								fprintf(out, "\tR[0x%06x] <= 0x%08x\n", entry->base + j * 4 * !entry->type, entry->data[j]);
+							}
+						} else {
+							fprintf(out, "\tR[0x%06x] &= 0x%08x |= 0x%08x\n", entry->base, entry->data[0], entry->data[1]);
+						}
 					}
 				}
 				envy_bios_dump_hex(bios, out, bios->hwea_offset, bios->hwea_len, mask);
