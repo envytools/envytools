@@ -141,10 +141,10 @@ host/I[] address / name / file
 1f4/07d00+ DATA[6]		data access window	[fuc-data.txt]
 1f8/07e00+ DATA_INDEX[7]	data access window addr	[fuc-data.txt]
 1fc/07f00+ DATA[7]		data access window	[fuc-data.txt]
-200/08000* ???			???
-204/08100* ???			???
-208/08200* ???			???
-20c/08300* ???			???
+200/08000* DEBUG_CMD		debuging command	[fuc-debug.txt]
+204/08100* DEBUG_ADDR		address for DEBUG_CMD	[fuc-debug.txt]
+208/08200* DEBUG_DATA_WR	debug data to write	[fuc-debug.txt]
+20c/08300* DEBUG_DATA_RD	debug data last read	[fuc-debug.txt]
 [XXX: list incomplete for v4]
 
 Registers starting from 400/10000 are engine-specific and described in engine

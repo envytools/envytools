@@ -152,6 +152,7 @@ fuc engines:
 [**** ] fuc-timer.txt - fµc timers and clocks
 [**** ] fuc-vm.txt - fµc code space and virtual memory
 [**** ] fuc-xfer.txt - fµc coda/data xfers to/from external memory
+[     ] fuc-debug.txt - fµc debugging support
 [     ] fuc-crypt.txt - fµc crypt coprocessor
 [     ] fuc-perf.txt - fµc performance monitoring signals
 [     ] fuc-fifo.txt - fµc interaction with PFIFO
