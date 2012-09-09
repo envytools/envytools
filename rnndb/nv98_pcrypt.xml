@@ -6,12 +6,14 @@
 
 <import file="nvchipsets.xml" />
 <import file="nv98_fuc.xml" />
+<import file="nv98_fuc_crypt.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <array name="PCRYPT" offset="0x87000" stride="0x1000" length="1" variants="NV98 NVAA:NVA3">
 	<use-group name="nv98_fucbase"/>
 	<use-group name="nv98_fuc_memif"/>
+	<use-group name="nv98_fuc_crypt"/>
 </array>
 
 </domain>

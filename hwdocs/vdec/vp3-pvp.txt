@@ -39,22 +39,24 @@ The IO registers:
 680/1a000:700/1c000 ???		???			[vp3-pvp.txt]
 700/1c000:740/1d000 JOE		???			[vp3-pvp.txt]
 740/1d000:780/1e000 ???		???			[vp3-pvp.txt]
-800/20000:a00/28000 ???		???			[fuc-crypt.txt]
+800/20000:900/24000 CRYPT	crypto coprocessor	[fuc-crypt.txt]
+900/24000:a00/28000 ???		???			[fuc-crypt.txt]
 c00/30000:c40/31000 ???		???			[fuc-crypt.txt]
 d00/34000:d40/35000 ???		???			[fuc-crypt.txt]
 
 MEMIF ports:
-
- port 1: MBRING
- port 2: MVSURF
- port 3: 640+, used for writes
- port 4: 680+, used for reads
+  1: MBRING
+  2: MVSURF
+  3: 640+, used for writes
+  4: 680+, used for reads
+[XXX: incomplete?]
 
 Interrupts:
- 0-7: [common]
- 8: MEMIF disabled port
- 9: MEMIF VM fault
+  8: [E] MEMIF_TARGET_INVALID [NV98:NVC0] [fuc-memif.txt]
+  9: [E] MEMIF_FAULT [NV98:NVC0] [fuc-memif.txt]
+ 12: [L] CRYPT [NVC0:NVD9] [fuc-crypt.txt]
 [XXX: interrupts]
+
 [XXX: status bits]
 
 [XXX: describe PVP]

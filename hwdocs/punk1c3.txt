@@ -15,9 +15,19 @@ Version 4 unknown caps: -
 IO addressing type: simple
 Core clock: ??? [XXX]
 
-[XXX: IO regs]
-[XXX: MEMIF ports]
-[XXX: interrupts]
-[XXX: status bits]
+The IO registers:
+600:700 MEMIF	memory interface	[fuc-memif.txt]
+800:900 CRYPT	crypto coprocessor	[fuc-crypt.txt]
+900:a00 ???	???			[fuc-crypt.txt]
+a00:c00 ???	???			[punk1c3.txt]
+c00:c40 ???	???			[fuc-crypt.txt]
+d00:d40 ???	???			[fuc-crypt.txt]
+
+Interrupts:
+  8: [L] CRYPT [fuc-crypt.txt]
+
+Status bits:
+  0: fµc [fuc-proc.txt]
+  1: MEMIF [fuc-memif.txt]
 
 [XXX: describe PUNK1C3]

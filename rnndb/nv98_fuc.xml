@@ -168,9 +168,13 @@
 		<bitfield low="24" high="26" name="LOADS_PENDING"/>
 	</reg32>
 	<reg32 offset="0x128" name="UC_STATUS" variants="NVA3-">
-		<bitfield pos="2" name="XCLD_IDLE"/>
+		<bitfield pos="0" name="FIFO_IDLE"/>
+		<bitfield pos="1" name="CTXSW_IDLE"/>
+		<bitfield pos="2" name="XFER_IDLE"/>
 		<bitfield pos="3" name="CRYPT_IDLE"/>
-		<bitfield pos="8" name="TRAP_ACTIVE"/>
+		<bitfield pos="6" name="FLAGS_I0E"/>
+		<bitfield pos="7" name="FLAGS_I1E"/>
+		<bitfield pos="8" name="FLAGS_TA"/>
 		<bitfield pos="18" name="XDST_IDLE"/>
 		<bitfield pos="19" name="XDLD_IDLE"/>
 	</reg32>

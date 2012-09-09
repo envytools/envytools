@@ -14,7 +14,16 @@ Core clock: NVCLK [XXX: divider in 1530?]
 The IO registers:
 
 600/18000:640/19000 MEMIF	memory interface	[fuc-memif.txt]
-800/20000:a00/28000 ???		???			[fuc-crypt.txt]
+800/20000:900/24000 CRYPT	crypto coprocessor	[fuc-crypt.txt]
+900/24000:a00/28000 ???		???			[fuc-crypt.txt]
 c00/30000:c40/31000 ???		???			[fuc-crypt.txt]
 d00/34000:d40/35000 ???		???			[fuc-crypt.txt]
 
+Interrupts:
+  8: [E] MEMIF_TARGET_INVALID [fuc-memif.txt]
+  9: [E] MEMIF_FAULT [fuc-memif.txt]
+ 10: [L] CRYPT [fuc-crypt.txt]
+
+Status bits:
+  0: fµc [fuc-proc.txt]
+  1: MEMIF [fuc-memif.txt]

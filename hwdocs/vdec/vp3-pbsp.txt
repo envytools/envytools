@@ -44,12 +44,19 @@ The IO registers:
 640/19000:680/1a000 JOE		???			[vp3-pbsp.txt]
 600/18000:640/19000 MEMIF	memory interface	[fuc-memif.txt]
 680/1a000:700/1c000 ???		???			[vp3-pbsp.txt]
-800/20000:a00/28000 ???		???			[fuc-crypt.txt]
+800/20000:900/24000 CRYPT	crypto coprocessor	[fuc-crypt.txt]
+900/24000:a00/28000 ???		???			[fuc-crypt.txt]
 c00/30000:c40/31000 ???		???			[fuc-crypt.txt]
 d00/34000:d40/35000 ???		???			[fuc-crypt.txt]
 
 [XXX: MEMIF ports]
-[XXX: interrupts]
+
+Interrupts:
+  8: [E] MEMIF_TARGET_INVALID [NV98:NVC0] [fuc-memif.txt]
+  9: [E] MEMIF_FAULT [NV98:NVC0] [fuc-memif.txt]
+ 10: [L] BSP [vp3-pbsp.txt]
+ 11: [L] CRYPT [NVA3-] [fuc-crypt.txt]
+
 [XXX: status bits]
 
 [XXX: describe PBSP]
