@@ -96,6 +96,7 @@ The known trap reasons are:
   8	invalid opcode		[fuc-isa.txt]
   0xa	page fault - no hit	[fuc-vm.txt]
   0xb	page fault - multi hit	[fuc-vm.txt]
+  0xf   breakpoint hit		[fuc-debug.txt]
 
 Whenever there's an active and enabled interrupt set for vector X delivery,
 and ieX flag is set, vector X is called:

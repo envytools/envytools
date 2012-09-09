@@ -107,6 +107,12 @@
 		<bitfield pos="5" name="5" type="nv98_fuc_pm_mode"/>
 	</reg32>
 
+	<reg32 offset="0x098" name="BREAKPOINT" length="2" variants="NVA3-">
+		<bitfield low="0" high="23" name="PC"/>
+		<bitfield pos="30" name="SKIP_ONE"/>
+		<bitfield pos="31" name="ENABLED"/>
+	</reg32>
+
 	<reg32 offset="0x0a8" name="PM_SEL_V4" variants="NVD9-"> <!-- v4+ only -->
 		<!-- XXX: bitfields probably wrong for v4 -->
 		<bitfield low="0" high="3" name="0"/> <!-- from ??? -->

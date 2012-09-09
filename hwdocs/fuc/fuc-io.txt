@@ -102,8 +102,8 @@ host/I[] address / name / file
 08c/02300  PM_MODE		perfmon signal mode	[fuc-pm.txt]
 090/02400  ???			???
 094/02500+ ???			???
-098/02600+ ???			???
-09c/02700+ ???			???
+098/02600+ BREAKPOINT[0]	code breakpoint		[fuc-debug.txt]
+09c/02700+ BREAKPOINT[1]	code breakpoint		[fuc-debug.txt]
 0a0/02800+ ???			???
 0a4/02900+ ???			???
 0a8/02a00* PM_SEL		perfmon signal select	[fuc-perf.txt]
