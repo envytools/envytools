@@ -17,6 +17,10 @@
 	<bitfield pos="9" name="XFER_FAULT"/>
 </bitset>
 
+<bitset name="NV98_FUC_BREAK_MASK">
+	<bitfield pos="7" name="BREAKPOINT"/>
+</bitset>
+
 <group name="nv98_fucbase">
 	<reg32 offset="0x000" name="INTR_TRIGGER" access="w" type="nv98_fuc_intr"/>
 	<reg32 offset="0x004" name="INTR_ACK" access="w" type="nv98_fuc_intr"/>
@@ -242,13 +246,13 @@
 	<reg32 offset="0x200" name="DEBUG_CMD" variants="NVD9-"> <!-- actually v4 -->
 		<bitfield low="0" high="3" name="CMD">
 			<value value="0x0" name="BREAK"/>
-			<value value="0x1" name="CONTINUE"/>
+			<value value="0x1" name="CONTINUE_FROM_PC"/>
 			<value value="0x2" name="CONTINUE_FROM_ADDR"/>
-			<value value="0x3" name="CONTINUE_UNK3"/>
-			<value value="0x4" name="CONTINUE_UNK4"/>
-			<value value="0x5" name="CONTINUE_UNK5"/>
-			<value value="0x6" name="CONTINUE_UNK6"/>
-			<value value="0x7" name="UNK7"/>
+			<value value="0x3" name="CONTINUE_UNK1_FROM_PC"/>
+			<value value="0x4" name="CONTINUE_UNK1_FROM_ADDR"/>
+			<value value="0x5" name="SINGLE_STEP_FROM_PC"/>
+			<value value="0x6" name="SINGLE_STEP_FROM_ADDR"/>
+			<value value="0x7" name="SET_BREAK_MASK"/>
 			<value value="0x8" name="REG_READ"/>
 			<value value="0x9" name="REG_WRITE"/>
 			<value value="0xa" name="DATA_READ"/>
@@ -265,7 +269,7 @@
 		<bitfield low="8" high="12" name="IDX"/> <!-- used for REG_* and STATUS_READ -->
 		<bitfield pos="14" name="ERROR"/> <!-- RO -->
 		<bitfield pos="15" name="DONE"/> <!-- RO -->
-		<bitfield low="16" high="31" name="UNK16"/>
+		<bitfield low="16" high="31" name="BREAK_MASK" type="NV98_FUC_BREAK_MASK"/>
 	</reg32>
 	<reg32 offset="0x204" name="DEBUG_ADDR" variants="NVD9-"/> <!-- actually v4; used for DATA_*, IO_*, CONTINUE_FROM_ADDR -->
 	<reg32 offset="0x208" name="DEBUG_DATA_WR" variants="NVD9-"/>
