@@ -11,6 +11,7 @@ Secretful: no
 Code TLB index bits: 8
 Code ports: 1
 Data ports: 1
+IO addressing type: indexed
 Core clock: ??? [XXX]
 
 [XXX: IO regs]

@@ -8,6 +8,7 @@ Data segment size: 0x800
 Fifo size: 0x10
 Xfer slots: 8
 Secretful: yes
+IO addressing type: indexed
 Core clock: NVCLK [XXX: divider in 1530?]
 
 The IO registers:

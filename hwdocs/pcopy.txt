@@ -27,6 +27,7 @@ Code TLB index bits:
 	cv1: 7
 Code ports: 1
 Data ports: 1
+IO addressing type: indexed
 Core clock:
 	cv0: NVCLK
 	cv1: hub clock [nvc0 clock #9]

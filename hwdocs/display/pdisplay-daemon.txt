@@ -14,7 +14,8 @@ Secretful: no
 Code TLB index bits: 8
 Code ports: 1
 Data ports: 4
-Version 4 unknown bits: 27, 28, 29, 31
+Version 4 unknown caps: 31
+IO adressing type: full
 Core clock: ??? [XXX]
 
 [XXX: IO regs]

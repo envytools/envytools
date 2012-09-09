@@ -97,7 +97,10 @@ Code TLB index bits:
 	d3,d4: 9
 Code ports: 1
 Data ports: 4
-Version 4 unknown bits: 27, 29, 30, 31
+Version 4 unknown caps: 30, 31
+IO addressing type:
+	d0,d1,d2: indexed
+	d3,d4: simple
 Core clock: daemon clock
 
 Interrupts:
