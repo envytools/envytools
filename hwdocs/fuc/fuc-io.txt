@@ -58,6 +58,7 @@ PGRAPH.TP[i].CTXCTL	502000 + i * 0x8000
 = Common IO register list =
 
 + means v3+ only register.
+* means v4+ only register
 S means secret register. [see fuc-crypt.txt]
 
 host/I[] address / name / file
@@ -88,6 +89,7 @@ host/I[] address / name / file
 060/01800  ???			???
 064/01900  FIFO_DATA		FIFO command data	[fuc-fifo.txt]
 068/01a00  FIFO_CMD		FIFO command		[fuc-fifo.txt]
+06c/01b00* ???			FIFO ???		[fuc-fifo.txt]
 070/01c00  FIFO_OCCUPIED	FIFO commands available	[fuc-fifo.txt]
 074/01d00  FIFO_ACK		FIFO command ack	[fuc-fifo.txt]
 078/01e00  FIFO_LIMIT		FIFO size		[fuc-fifo.txt]
@@ -102,6 +104,8 @@ host/I[] address / name / file
 09c/02700+ ???			???
 0a0/02800+ ???			???
 0a4/02900+ ???			???
+0a8/02a00* PM_SEL		perfmon signal select	[fuc-perf.txt]
+0ac/02b00* HOST_IO_INDEX	IO space index for host	[fuc-io.txt] [XXX: doc]
 100/04000  UC_CTRL		microprocessor control	[fuc-proc.txt]
 104/04100  UC_ENTRY		microcode entry point	[fuc-proc.txt]
 108/04200  UC_CAPS		microprocessor caps	[fuc-proc.txt]
@@ -116,6 +120,8 @@ host/I[] address / name / file
 12c/04b00+ UC_CAPS2		microprocessor caps	[fuc-proc.txt]
 140/05000+ TLB_CMD		code VM command		[fuc-vm.txt]
 144/05100+ TLB_CMD_RES		code VM command result	[fuc-vm.txt]
+148/05200* ???			???
+14c/05300* ???			???
 180/06000+ CODE_INDEX		code access window addr	[fuc-vm.txt]
 184/06100+ CODE			code access window	[fuc-vm.txt]
 188/06200+ CODE_VIRT_ADDR	code access virt addr	[fuc-vm.txt]
@@ -135,12 +141,16 @@ host/I[] address / name / file
 1f4/07d00+ DATA[6]		data access window	[fuc-data.txt]
 1f8/07e00+ DATA_INDEX[7]	data access window addr	[fuc-data.txt]
 1fc/07f00+ DATA[7]		data access window	[fuc-data.txt]
+200/08000* ???			???
+204/08100* ???			???
+208/08200* ???			???
+20c/08300* ???			???
 [XXX: list incomplete for v4]
 
 Registers starting from 400/10000 are engine-specific and described in engine
 documentation.
 
-Host-only common registers [present on all engines]:
+Host-only common registers [present on all engines, fµc v0 and v3 only]:
 fe8/-      PM_SEL [NVC0-]	perfmon signal select	[fuc-perf.txt]
 fec/-      UC_SP		microprocessor $sp reg	[fuc-proc.txt]
 ff0/-      UC_PC		microprocessor $pc reg	[fuc-proc.txt]

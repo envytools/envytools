@@ -107,6 +107,17 @@
 		<bitfield pos="5" name="5" type="nv98_fuc_pm_mode"/>
 	</reg32>
 
+	<reg32 offset="0x0a8" name="PM_SEL_V4" variants="NVD9-"> <!-- v4+ only -->
+		<!-- XXX: bitfields probably wrong for v4 -->
+		<bitfield low="0" high="3" name="0"/> <!-- from ??? -->
+		<bitfield low="4" high="7" name="1"/> <!-- from ??? -->
+		<bitfield low="8" high="11" name="2"/> <!-- from USER signals -->
+		<bitfield low="12" high="15" name="3"/> <!-- from USER signals -->
+		<bitfield low="17" high="31" name="UNK17"/>
+	</reg32>
+
+	<reg32 offset="0x0ac" name="HOST_IO_INDEX_V4" variants="NVD9-"/> <!-- XXX: wtf are the high 6 bits for? -->
+
 	<reg32 offset="0x100" name="UC_CTRL">
 		<bitfield pos="1" name="START_TRIGGER"/>
 		<bitfield pos="2" name="RESET_UNK2_TRIGGER"/>
