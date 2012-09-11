@@ -165,7 +165,7 @@
 			<stripe offset="0x0c30" name="VERTEX_NOR_3F">
 				<use-group name="xyz-float"/>
 			</stripe>
-			<stripe offset="0x0c30" name="VERTEX_NOR_3I">
+			<stripe offset="0x0c40" name="VERTEX_NOR_3I">
 				<use-group name="xyz-short"/>
 			</stripe>
 
