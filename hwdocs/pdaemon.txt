@@ -97,7 +97,8 @@ Code TLB index bits:
 	d3,d4: 9
 Code ports: 1
 Data ports: 4
-Version 4 unknown caps: 30, 31
+Version 4 unknown caps: 31
+Unified address space: yes [on d3, 34]
 IO addressing type:
 	d0,d1,d2: indexed
 	d3,d4: simple

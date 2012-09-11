@@ -15,6 +15,7 @@ Code TLB index bits: 8
 Code ports: 1
 Data ports: 4
 Version 4 unknown caps: 31
+Unified address space: no
 IO adressing type: full
 Core clock: ??? [XXX]
 

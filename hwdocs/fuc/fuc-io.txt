@@ -60,8 +60,8 @@ PGRAPH.TP[i].CTXCTL	502000 + i * 0x8000
 + means v3+ only register.
 * means v4+ only register
 S means secret register. [see fuc-crypt.txt]
-X means only present when UNK31 cap is present
-Y means only present when UNK30 cap is present
+X means only present on fµc engines with UNK31 cap
+U means only present on fµc engines with UAS cap
 
 host/I[] address / name / file
 
@@ -127,8 +127,10 @@ host/I[] address / name / file
 150/05400X ???			???
 154/05500X ???			???
 158/05600X ???			???
-160/05800Y ???			???
-164/05900Y ???			???
+160/05800U UAS_IO_WINDOW	UAS I[] space window	[fuc-data.txt]
+164/05900U UAS_CONFIG		UAS configuration	[fuc-data.txt]
+168/05a00U UAS_FAULT_ADDR	UAS MMIO fault address	[fuc-data.txt]
+16c/05b00U UAS_FAULT_STATUS	UAS MMIO fault status	[fuc-data.txt]
 180/06000+ CODE_INDEX		code access window addr	[fuc-vm.txt]
 184/06100+ CODE			code access window	[fuc-vm.txt]
 188/06200+ CODE_VIRT_ADDR	code access virt addr	[fuc-vm.txt]

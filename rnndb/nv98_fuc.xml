@@ -210,7 +210,7 @@
 			<value value="5" name="SIMPLE"/>
 			<value value="7" name="FULL"/>
 		</bitfield>
-		<bitfield pos="30" name="UNK30" variants="NVD9-"/>
+		<bitfield pos="30" name="UAS" variants="NVD9-"/> <!-- unified address space -->
 		<bitfield pos="31" name="UNK31" variants="NVD9-"/>
 	</reg32>
 
@@ -223,6 +223,18 @@
 		</bitfield>
 	</reg32>
 	<reg32 offset="0x144" name="TLB_CMD_RES" variants="NVA3-"/>
+
+	<reg32 offset="0x160" name="UAS_IO_WINDOW" variants="NVD9-" align="0x40000"/>
+	<reg32 offset="0x164" name="UAS_CONFIG" variants="NVD9-">
+		<bitfield low="0" high="11" name="UNK0"/>
+		<bitfield pos="16" name="ENABLE"/>
+	</reg32>
+	<reg32 offset="0x168" name="UAS_FAULT_ADDR" variants="NVD9-"/>
+	<reg32 offset="0x16c" name="UAS_FAULT_STATUS">
+		<bitfield low="0" high="23" name="PC"/>
+		<bitfield low="24" high="26" name="TYPE"/> <!-- ??? -->
+		<bitfield pos="31" name="VALID"/> <!-- write *0* to clear, for a change -->
+	</reg32>
 
 	<reg32 offset="0x180" name="CODE_INDEX" variants="NVA3-">
 		<bitfield high="15" low="2" name="PHYS_ADDR" shr="2"/>

@@ -18,6 +18,7 @@ Code TLB index bits: 6
 Code ports: 1
 Data ports: 1
 Version 4 unknown caps: 31
+Unified address space: no
 IO addressing type: indexed
 Core clock: VDCLK
 

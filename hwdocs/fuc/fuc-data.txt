@@ -9,6 +9,8 @@ TOC
 6. Adjust stack pointer: add
 7. Accessing data segment through IO
 
+[XXX: document UAS]
+
 
 = Introduction =
 
