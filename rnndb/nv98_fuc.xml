@@ -189,12 +189,13 @@
 		<bitfield pos="19" name="XDLD_IDLE"/>
 	</reg32>
 	<reg32 offset="0x12c" name="CAPS2" variants="NVA3-">
-		<bitfield low="0" high="3" name="UNK0">
-			<doc>Always 3.</doc>
+		<bitfield low="0" high="3" name="VERSION">
+			<value value="3" name="V3"/>
+			<value value="4" name="V4"/>
 		</bitfield>
-		<bitfield low="4" high="7" name="SECRETFUL">
-			<doc>0 if normal engine, 3 if secretful engine. Maybe has
-			two bits, for crypt part and for auth/secrets part?</doc>
+		<bitfield low="4" high="7" name="CRYPT">
+			<value value="0" name="NONE"/>
+			<value value="3" name="V3"/>
 		</bitfield>
 		<bitfield low="8" high="11" name="CODE_PORTS">
 			<doc># of CODE access ports?</doc>
