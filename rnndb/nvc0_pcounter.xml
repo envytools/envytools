@@ -195,6 +195,15 @@
 	</array>
 
 	<array name="MAIN" offset="0x34000" stride="0x4000" length="1">
+		<reg32 offset="0x70" name="RECORD_CHAN">
+			<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
+			<bitfield pos="31" name="VALID"/>
+		</reg32>
+		<reg32 offset="0x74" name="RECORD_START"/>
+		<reg32 offset="0x78" name="RECORD_ADDRESS_HIGH"/>
+		<reg32 offset="0x7c" name="RECORD_LIMIT"/>
+		<reg32 offset="0x80" name="RECORD_POS"/>
+		<reg32 offset="0x84" name="RECORD_COUNT"/>
 		<reg32 offset="0xa4" name="VSTATUS">
 			<bitfield low="0" high="2" name="MAIN" type="NV50_VSTATUS"/> <!-- XXX: check -->
 			<!-- XXX: something at position 4 -->
