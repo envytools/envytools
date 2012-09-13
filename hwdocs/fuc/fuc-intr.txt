@@ -86,9 +86,8 @@ vectors. isX are interrupt enable save bits. ta is trap active flag. $tstatus
 is present on v3+ only and contains information about last trap. The bitfields
 of $tstatus are:
 
-  bits 0-15: faulting $pc
+  bits 0-19 [or as many bits as required]: faulting $pc
   bits 20-23: trap reason
-[XXX: recheck on v4]
 
 The known trap reasons are:
 
@@ -108,6 +107,11 @@ Operation:
 	$flags.is1 = $flags.ie1;
 	$flags.ie0 = 0;
 	$flags.ie1 = 0;
+	if (fuc_version >= 4) {
+		$flags.unk16 = $flags.unk12;
+		$flags.unk1d = $flags.unk1a;
+		$flags.unk12 = 0;
+	}
 	if (vector 0)
 		$pc = $iv0;
 	else
@@ -121,7 +125,17 @@ Operation:
 	}
 	$flags.ta = 1;
 	if (fuc_version != 0) // on v0, there's only one possible trap reason anyway [8]
-		$tstatus = $pc | reason << 20; // XXX: check page faults on page bounduaries
+		$tstatus = $pc | reason << 20;
+	if (fuc_version >= 4) {
+		/* XXX: didn't that happen before? */
+		$flags.is0 = $flags.ie0;
+		$flags.is1 = $flags.ie1;
+		$flags.unk16 = $flags.unk12;
+		$flags.unk1d = $flags.unk1a;
+		$flags.ie0 = 0;
+		$flags.ie1 = 0;
+		$flags.unk12 = 0;
+	}
 	$sp -= 4;
 	ST(32, $sp, $pc);
 	$pc = $tv;
@@ -142,6 +156,10 @@ Operation:
 	$sp += 4;
 	$flags.ie0 = $flags.is0;
 	$flags.ie1 = $flags.is1;
+	if (fuc_version >= 4) {
+		$flags.unk12 = $flags.unk16;
+		$flags.unk1a = $flags.unk1d;
+	}
 
 
 = Software trap trigger: trap =
@@ -158,12 +176,5 @@ Operands: -
 Forms:
 	[no operands]				opcode = f8
 Operation:
-	if ($flags.ta) { // double trap?
-		EXIT; // see fuc-proc.txt
-	}
-	$flags.ta = 1;
-	$tstatus = $pc | arg << 20;
 	$pc += oplen; // return will be to the insn after this one
-	$sp -= 4;
-	ST(32, $sp, $pc);
-	$pc = $tv;
+	TRAP(arg);

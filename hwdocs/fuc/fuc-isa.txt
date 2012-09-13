@@ -34,26 +34,22 @@ num | type | name      | description
 
 $flags is split into the following bitfields:
 
-num | type | name    | description
------------------------------------
-0-7 |  A   | $p0-$p7 | general-purpose predicates
- 8  |  A   | c       | carry flag
- 9  |  A   | o       | signed overflow flag
- a  |  A   | s       | sign/negative flag
- b  |  A   | z       | zero flag
-10  |  T   | ie0     | interrupt 0 enable
-11  |  T   | ie1     | interrupt 1 enable
-12  |  ?4  | ???     | ??? [XXX]
-14  |  T   | is0     | interrupt 0 saved enable
-15  |  T   | is1     | interrupt 1 saved enable
-16  |  ?4  | ???     | ??? [XXX]
-18  |  T   | ta      | trap handler active
-1a  |  ?4  | ???     | ??? [XXX]
-1b  |  ?4  | ???     | ??? [XXX]
-1c  |  ?4  | ???     | ??? [XXX]
-1d  |  ?4  | ???     | ??? [XXX]
-1e  |  ?4  | ???     | ??? [XXX]
-1f  |  ?4  | ???     | ??? [XXX]
+ num | type | name    | description
+------------------------------------
+ 0-7 |  A   | $p0-$p7 | general-purpose predicates
+  8  |  A   | c       | carry flag
+  9  |  A   | o       | signed overflow flag
+  a  |  A   | s       | sign/negative flag
+  b  |  A   | z       | zero flag
+ 10  |  T   | ie0     | interrupt 0 enable
+ 11  |  T   | ie1     | interrupt 1 enable
+ 12  |  ?4  | unk12   | ??? [XXX]
+ 14  |  T   | is0     | interrupt 0 saved enable
+ 15  |  T   | is1     | interrupt 1 saved enable
+ 16  |  ?4  | unk16   | ??? [XXX]
+ 18  |  T   | ta      | trap handler active
+1a-1c|  ?4  | unk1a   | ??? [XXX]
+1d-1f|  ?4  | unk1d   | ??? [XXX]
 
 
 Instruction formats

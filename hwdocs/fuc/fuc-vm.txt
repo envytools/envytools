@@ -161,7 +161,10 @@ Operation:
 
 Whenever instruction fetch is attempted, the VTLB operation is done on fetch
 address. If it returns no-hit or multihit error, a trap is generated and the
-$tstatus reason field is set to 0xa [for no-hit] or 0xb [for multihit].
+$tstatus reason field is set to 0xa [for no-hit] or 0xb [for multihit]. Note
+that, if the faulting instruction happens to cross a page bounduary and the
+second page triggered a fault, the $pc register saved in $tstatus wiill not
+point to the page that faulted.
 
 If no error was triggered, flag 0 [usable] is checked. If it's set, the access
 is finished using the physical page found by VTLB. If usable isn't set, but
