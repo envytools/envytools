@@ -179,8 +179,8 @@
 	</reg32>
 
 	<reg32 offset="0x0384" name="VSTATUS_1" access="r">
-		<bitfield low="0" high="2" name="HUB_UNK6" type="NV50_VSTATUS"/>
-		<bitfield low="3" high="5" name="HUB_UNK7" type="NV50_VSTATUS"/>
+		<bitfield low="0" high="2" name="PCOUNTER_MAIN" type="NV50_VSTATUS"/>
+		<bitfield low="3" high="5" name="PCOUNTER" type="NV50_VSTATUS"/>
 		<bitfield low="6" high="8" name="HUB_UNK8" type="NV50_VSTATUS"/>
 		<bitfield low="9" high="11" name="HUB_UNK9" type="NV50_VSTATUS"/>
 		<bitfield low="12" high="14" name="HUB_UNK10" type="NV50_VSTATUS"/>
@@ -204,6 +204,10 @@
 
 	<reg32 offset="0x0604" name="GPC_STATUS" access="r"/> <!-- mask of busy GPCs -->
 	<reg32 offset="0x0608" name="ROP_STATUS" access="r"/> <!-- mask of busy ROPs -->
+	<reg32 offset="0x0610" name="PCOUNTER_STATUS_MASK"> <!-- enables PCOUNTER -> PGRAPH.HUB status reporting -->
+		<bitfield pos="15" name="PCOUNTER_MAIN"/>
+		<bitfield pos="16" name="PCOUNTER"/>
+	</reg32>
 
 	<reg32 offset="0x0700" name="STATUS" access="r">
 		<bitfield pos="0" name="ALL"/>
@@ -219,8 +223,8 @@
 		<bitfield pos="12" name="UNK12_PAUSABLE"/>
 		<bitfield pos="13" name="UNK13_PAUSABLE"/>
 		<bitfield pos="14" name="UNK14_PAUSABLE"/>
-		<bitfield pos="15" name="UNK15_PAUSABLE"/>
-		<bitfield pos="16" name="UNK16_PAUSABLE"/>
+		<bitfield pos="15" name="PCOUNTER_MAIN"/>
+		<bitfield pos="16" name="PCOUNTER"/>
 		<bitfield pos="17" name="UNK17_PAUSABLE"/>
 
 		<bitfield pos="24" name="GPC"/>
