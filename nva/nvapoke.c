@@ -67,20 +67,32 @@ int main(int argc, char **argv) {
 	rs.card = &nva_cards[rs.cnum];
 	if (rs.regsz == 0)
 		rs.regsz = nva_rsdefsz(&rs);
-	uint32_t a;
-	uint64_t b;
+	uint32_t a, b = rs.regsz;
+	uint64_t val, step = 0;
 	if (optind >= argc) {
 		fprintf (stderr, "No address specified.\n");
 		return 1;
 	}
+	sscanf (argv[optind], "%x", &a);
 	if (optind + 1 >= argc) {
 		fprintf (stderr, "No value specified.\n");
 		return 1;
 	}
-	sscanf (argv[optind], "%x", &a);
-	sscanf (argv[optind + 1], "%"SCNx64, &b);
-	int e = nva_wr(&rs, a, b);
-	if (e)
-		printf("ERR %c\n", nva_rserrc(e));
+	if (optind + 2 >= argc) {
+		sscanf (argv[optind + 1], "%"SCNx64, &val);
+	} else {
+		sscanf (argv[optind + 1], "%x", &b);
+		sscanf (argv[optind + 2], "%"SCNx64, &val);
+	}
+	if (optind + 3 < argc)
+		sscanf (argv[optind + 3], "%"SCNx64, &step);
+	while (b > 0) {
+		int e = nva_wr(&rs, a, val);
+		if (e)
+			printf("%08x: ERR %c\n", a, nva_rserrc(e));
+		a += rs.regsz;
+		b -= rs.regsz;
+		val += step;
+	}
 	return 0;
 }
