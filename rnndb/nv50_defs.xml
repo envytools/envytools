@@ -24,12 +24,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<reg64 offset="0x8" name="TIME"/>
 </domain>
 
-<enum name="NV50_VSTATUS">
-	<value value="0" name="IDLE"/>
-	<value value="1" name="BUSY"/>
-	<value value="2" name="UNK2"/> <!-- NVC0+ only? -->
-	<value value="3" name="UNK3"/>
-	<value value="5" name="UNK5"/>
+<enum name="NV50_VSTATUS" varset="chipset">
+	<value value="0" name="IDLE"/> <!-- got nothing to do -->
+	<value value="1" name="BUSY"/> <!-- actively doing something -->
+	<value value="2" name="UNK2" variants="NVC0-"/>
+	<value value="3" name="WAITING"/> <!-- has something to do, but waiting for more data or a flush before starting to process -->
+	<value value="5" name="BLOCKED"/> <!-- has something to do, but cannot proceed due to full output buffer -->
+	<value value="6" name="FAULTED" variants="NVC0-"/>
 	<value value="7" name="PAUSED"/>
 </enum>
 
