@@ -24,16 +24,16 @@
 <array name="PFIFO" offset="0x2000" stride="0x2000" length="1" variants="NVC0-">
 	<bitset name="nvc0_pfifo_intr" inline="yes">
 		<bitfield pos="0" name="INVALID_ENGINE"/> <!-- NVE4: poke engine id >6 to chan table -->
-		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="4" name="UNK4"/> <!-- 6c4 -->
 		<bitfield pos="8" name="PLAYLIST"/>
 		<bitfield pos="16" name="UNK16"/>
 		<bitfield pos="23" name="UNK23"/>
-		<bitfield pos="24" name="UNK24"/>
+		<bitfield pos="24" name="UNK24"/> <!-- triggered when sum of 3e0+ bits 24-30 is > 0x80 -->
 		<bitfield pos="27" name="UNK27"/>
-		<bitfield pos="28" name="VM_FAULT"/>
-		<bitfield pos="29" name="SUBFIFO_INTR"/>
-		<bitfield pos="30" name="UNK30"/>
-		<bitfield pos="31" name="UNK31"/>
+		<bitfield pos="28" name="VM_FAULT"/> <!-- level -->
+		<bitfield pos="29" name="SUBFIFO_INTR"/> <!-- level -->
+		<bitfield pos="30" name="UNK30"/> <!-- a00, level -->
+		<bitfield pos="31" name="UNK31"/> <!-- level? -->
 	</bitset>
 	<reg32 offset="0x100" name="INTR" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x140" name="INTR_EN" type="nvc0_pfifo_intr"/>
@@ -109,6 +109,15 @@
 		<bitfield pos="1" name="1"/>
 		<bitfield pos="2" name="2"/>
 	</reg32>
+	<reg32 offset="0x62c" name="ENG_FAULT"> <!-- write 1 to clear -->
+		<bitfield pos="0" name="PGRAPH"/>
+		<bitfield pos="1" name="PVP"/>
+		<bitfield pos="2" name="PPPP"/>
+		<bitfield pos="3" name="PBSP"/>
+		<bitfield pos="4" name="PCOPY0"/>
+		<bitfield pos="5" name="PCOPY1"/>
+		<bitfield pos="6" name="PVENC" variants="NVE4-"/>
+	</reg32>
 	<reg32 offset="0x630" name="ENG_FREEZE">
 		<bitfield pos="0" name="PGRAPH"/>
 		<bitfield pos="1" name="PVP"/>
@@ -118,11 +127,20 @@
 		<bitfield pos="5" name="PCOPY1"/>
 	</reg32>
 	<reg32 offset="0x634" name="KICK_CHID"/> <!-- wtf is thisexactly? -->
+	<reg32 offset="0x640" name="ENG_STATE" length="6" variants="NVC0:NVE4">
+		<bitfield pos="24" name="FAULTED"/>
+	</reg32>
+	<reg32 offset="0x640" name="ENG_STATE_0" length="8" stride="8" variants="NVE4-"> <!-- #7 is PCOPY2 -->
+		<!-- unknown -->
+	</reg32>
+	<reg32 offset="0x644" name="ENG_STATE_1" length="8" stride="8" variants="NVE4-">
+		<!-- unknown -->
+	</reg32>
 	<reg32 offset="0x7d0" name="ENG_CH" length="6" variants="NVC0:NVE4">
 		<bitfield low="0" high="6" name="CHID"/>
 		<bitfield pos="8" name="ACTIVE"/>
 	</reg32>
-	<array offset="0x800" name="VM_FAULT" length="32" stride="0x10"> <!-- length is guess. -->
+	<array offset="0x800" name="VM_FAULT" length="32" stride="0x10">
 		<reg32 offset="0" name="CHAN" type="nv50_channel"/>
 		<reg32 offset="4" name="ADDR_LOW"/>
 		<reg32 offset="8" name="ADDR_HIGH"/>
@@ -140,7 +158,13 @@
 			<bitfield low="24" high="28" name="GPCID"/>
 		</reg32>
 	</array>
-	<reg32 offset="0xa00" name="INTR30_UNK"/>
+	<reg32 offset="0xa00" name="INTR30_UNK"/> <!-- 0 and 28 related to playlist -->
+	<reg32 offset="0xa10" name="TIME_LOW"/> <!-- from PTIMER -->
+	<reg32 offset="0xa14" name="TIME_HIGH"/>
+	<reg32 offset="0xa30" name="VM_FAULT_INJECT" length="6">
+		<bitfield low="0" high="4" name="ENGINE" type="NVC0_VM_ENGINE"/>
+		<bitfield pos="8" name="VALID"/>
+	</reg32>
 	<array offset="0x1000" name="CHAN_TABLE" length="128" stride="8" variants="NVC0:NVE4">
 		<reg32 offset="0" name="CHAN">
 			<bitfield low="0" high="29" name="INST" type="nv50_channel"/>
