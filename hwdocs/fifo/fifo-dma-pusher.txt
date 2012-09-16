@@ -153,8 +153,9 @@ areas: the old-style is in BAR0 at 0x800000 + 0x10000 * channel ID, supports
 channels 0-0x1f [XXX: check], can do both PIO and DMA submission, but does not
 have DMA_CGET when used in DMA mode. The new-style area is in BAR0 at 0xc0000
 + 0x1000 * channel ID, supports only DMA mode, supports all channels, and has
-DMA_CGET. On NV50 cards, there's only one channel control area, and it's in
-BAR0 at address 0xc00000 + 0x2000 * channel ID. On NVC0, the channel control
+DMA_CGET. On NV50 cards, channel 0 supports PIO mode and has channel control
+area at 0x800000, while channels 1-126 support DMA mode and have channel
+control areas at 0xc00000 + 0x2000 * channel ID. On NVC0, the channel control
 areas are accessed through selectable addresses in BAR1 and are backed by VRAM
 or host memory - see nvc0-pfifo.txt for more details.
 

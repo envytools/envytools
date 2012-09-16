@@ -94,7 +94,7 @@ The PFIFO can be split into roughly 4 pieces:
 
 A channel consists of the following:
 
- - channel mode: PIO [NV01:NV50], DMA [NV04:NVC0], or IB [NV50:NVC0]
+ - channel mode: PIO [NV01:NVC0], DMA [NV04:NVC0], or IB [NV50:NVC0]
  - PFIFO DMA pusher state [DMA and IB channels only] [see fifo-dma-pusher.txt]
  - PFIFO CACHE state: the commands already accepted but not yet executed
  - PFIFO puller state [see fifo-puller.txt]
@@ -111,10 +111,12 @@ A channel consists of the following:
  - engine-specific state
 
 Channel mode determines the way of submitting commands to the channel. PIO
-mode is available on pre-NV50 cards, and involves poking the methods directly
+mode is available on pre-NVC0 cards, and involves poking the methods directly
 to the channel control area. It's slow and fragile - everything breaks down
 easily when more than one channel is used simultanously. Not recommended. See
-fifo-pio.txt for details.
+fifo-pio.txt for details. On NV01:NV40, all channels support PIO mode. On
+NV40:NV50, only first 32 [XXX: check] channels support PIO mode. On NV50:NVC0
+only channel 0 supports PIO mode.
 
 NV01 PFIFO doesn't support any DMA mode. There's apparently a PDMA engine that
 could be DMA command submission, but nobody bothers enough to figure out how
@@ -129,16 +131,15 @@ through the channel control area. Thus, commands can now be submitted by
 multiple applications simultanously, without coordination with each other
 and without kernel's help. DMA mode is described in fifo-dma-pusher.txt.
 
-NV50 nuked the PIO mode, kept the NV04-style DMA mode, and introduced IB mode.
-IB mode is a modified version of DMA mode that, instead of following a single
-stream of commands from memory, has the ability to stitch together parts of
-multiple memory areas into a single command stream - allowing constructs that
-submit commands with parameters pulled directly from memory written by earlier
-commands. IB mode is described along with DMA mode in fifo-dma-pusher.txt.
+NV50 introduced IB mode. IB mode is a modified version of DMA mode that,
+instead of following a single stream of commands from memory, has the ability
+to stitch together parts of multiple memory areas into a single command stream
+- allowing constructs that submit commands with parameters pulled directly from
+memory written by earlier commands. IB mode is described along with DMA mode in
+fifo-dma-pusher.txt.
 
 NVC0 rearchitected the whole PFIFO, made it possible to have up to 3 channels
-executing simultanously, and changed DMA packet format. It also got rid of the
-non-IB DMA mode [or at least we don't know how to activate it yet].
+executing simultanously, and introduced a new DMA packet format.
 
 The commands, as stored in CACHE, are tuples of:
 

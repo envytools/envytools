@@ -215,7 +215,8 @@ c00000:1000000 NEW_USER - PFIFO DMA submission area [fifo-dma-pusher.txt]
 610000:640000 I PDISPLAY - the DMA FIFO controlled unified display engine [pdisplay.txt]
 640000:650000 I DISPLAY_USER - DMA submission to PDISPLAY [pdisplay.txt]
 700000:800000 R PMEM - indirect VRAM/host memory access [nv50-host-mem.txt]
-c00000:1000000 R NEW_USER - PFIFO DMA submission area [fifo-dma-pusher.txt]
+800000:810000 R USER_PIO - PFIFO PIO submission area [fifo-pio.txt]
+c00000:1000000 R USER_DMA - PFIFO DMA submission area [fifo-dma-pusher.txt]
 
 
 = NVC0+ MMIO map =

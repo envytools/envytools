@@ -107,7 +107,7 @@
 			<bitfield pos="0" name="CACHE_ERROR"/>
 			<bitfield pos="4" name="BAR_FAULT"/>
 			<bitfield pos="6" name="PEEPHOLE_FAULT"/>
-			<bitfield pos="8" name="UNK8"/>
+			<bitfield pos="8" name="PIO_ERROR"/>
 			<bitfield pos="12" name="DMA_PUSHER" />
 			<bitfield pos="16" name="UNK16"/>
 			<bitfield pos="18" name="UNK18"/>
@@ -131,7 +131,7 @@
 			<bitfield pos="0" name="CACHE_ERROR"/>
 			<bitfield pos="4" name="BAR_FAULT"/>
 			<bitfield pos="6" name="PEEPHOLE_FAULT"/>
-			<bitfield pos="8" name="UNK8"/>
+			<bitfield pos="8" name="PIO_ERROR"/>
 			<bitfield pos="12" name="DMA_PUSHER" />
 			<bitfield pos="16" name="UNK16"/>
 			<bitfield pos="18" name="UNK18"/>
@@ -242,7 +242,10 @@
 			</reg32>
 			<reg32 offset="0x004" name="PUSH1">
 				<bitfield high="6" low="0" name="CHID"/>
-				<bitfield pos="16" name="UNK16"/>
+				<bitfield pos="16" name="MODE">
+					<value value="0" name="PIO"/> <!-- for channel 0 only -->
+					<value value="1" name="DMA"/> <!-- for channels 1-127 only -->
+				</bitfield>
 			</reg32>
 			<reg32 offset="0x010" name="PUT"/>
 			<reg32 offset="0x014" name="STATUS">
@@ -434,7 +437,11 @@
 
 	<reg32 offset="0x70000" name="PFIFO_MAGIC_FLUSH" variants="NV84-"/>
 
-	<array offset="0xc00000" name="USER_NEW" stride="0x2000" length="128" variants="NV50:NVC0">
+	<array offset="0x800000" name="USER_PIO" stride="0x10000" length="1" variants="NV50:NVC0">
+		<reg32 offset="0x10" name="FREE"/> <!-- only on subch 0 -->
+	</array>
+
+	<array offset="0xc00000" name="USER_DMA" stride="0x2000" length="128" variants="NV50:NVC0">
 		<reg32 offset="0x40" name="DMA_PUT"/>
 		<reg32 offset="0x44" name="DMA_GET" access="r"/>
 		<reg32 offset="0x48" name="REF" access="r"/>
