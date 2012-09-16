@@ -531,26 +531,53 @@
 		<reg32 offset="0x800" name="CC_SCRATCH" length="8"/>
 		<reg32 offset="0x820" name="CC_SCRATCH_SET" length="8"/>
 		<reg32 offset="0x840" name="CC_SCRATCH_CLEAR" length="8"/>
-		<reg32 offset="0x880" name="STRANDS"/>
+		<reg32 offset="0x880" name="STRANDS_CNT"/>
+		<reg32 offset="0x884" name="STRANDS_CMD_MASK"/> <!-- XXX: 18 bits, but 9 strands? -->
 
+		<reg32 offset="0x904" name="STRAND_UNK4">
+			<bitfield low="0" high="27" name="UNK0"/>
+			<bitfield pos="31" name="UNK31"/>
+		</reg32>
 		<reg32 offset="0x908" name="STRAND_SAVE_SWBASE" shr="8"/>
 		<reg32 offset="0x90c" name="STRAND_LOAD_SWBASE" shr="8"/>
-		<reg32 offset="0x910" name="STRAND_SIZE">
-			<doc>In words.</doc>
-		</reg32>
+		<reg32 offset="0x910" name="STRAND_WORDS"/>
+		<reg32 offset="0x914" name="STRAND_UNK_MEMIF"/>
 		<reg32 offset="0x918" name="STRAND_GENE_CNT"/> <!-- also used as param by UNK5? -->
-		<reg32 offset="0x91c" name="STRAND_FIRST_GENE"/>
+		<reg32 offset="0x91c" name="STRAND_SELECT">
+			<bitfield low="0" high="13" name="GENE"/>
+			<bitfield low="16" high="19" name="UNK16"/>
+			<bitfield low="20" high="27" name="UNK20"/>
+		</reg32>
+		<bitset name="NVC0_STRAND_GENE_INFO">
+			<bitfield low="0" high="11" name="CELLS_M1"/>
+			<bitfield low="12" high="21" name="CELL_BITS"/>
+			<bitfield low="22" high="25" name="FILTER_UNK0"/>
+			<bitfield low="26" high="29" name="FILTER_UNK1"/>
+			<bitfield pos="31" name="VALID"/>
+		</bitset>
+		<reg32 offset="0x920" name="STRAND_UNK20">
+			<bitfield low="0" high="6" name="UNK0"/>
+			<bitfield low="16" high="21" name="UNK16"/>
+			<bitfield pos="31" name="UNK31"/>
+		</reg32>
+		<reg32 offset="0x924" name="STRAND_STATUS">
+			<bitfield low="0" high="3" name="LAST_CMD"/>
+		</reg32>
 		<reg32 offset="0x928" name="STRAND_CMD">
-			<value value="1" name="LATCH_FIRST_GENE"/>
-			<value value="2" name="LATCH_GENE_CNT"/>
+			<value value="1" name="SEEK"/>
+			<value value="2" name="GET_INFO"/>
 			<value value="3" name="SAVE"/>
 			<value value="4" name="LOAD"/>
 			<value value="5" name="UNK5"/> <!-- uses 918 -->
-			<value value="0xa" name="UNKA"/> <!-- uses 93c, selects strand set? -->
-			<value value="0xb" name="UNKB"/> <!-- uses 93c -->
-			<value value="0xc" name="UNKC"/> <!-- pre other commands -->
-			<value value="0xd" name="UNKD"/> <!-- post other commands -->
+			<value value="0x8" name="ACTIVATE_ONE"/>
+			<value value="0x9" name="DEACTIVATE_ONE"/>
+			<value value="0xa" name="ACTIVATE_FILTER"/>
+			<value value="0xb" name="DEACTIVATE_FILTER"/>
+			<value value="0xc" name="ENABLE"/>
+			<value value="0xd" name="DISABLE"/>
 		</reg32>
+		<reg32 offset="0x938" name="STRAND_UNK38"/> <!-- 24-bit -->
+		<reg32 offset="0x93c" name="STRAND_FILTER"/>
 
 		<reg32 offset="0xa04" name="MEM_BASE" shr="8"/>
 		<reg32 offset="0xa0c" name="MEM_CHAN" type="nv50_channel"/>
