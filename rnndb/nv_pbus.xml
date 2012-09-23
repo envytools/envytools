@@ -208,7 +208,7 @@
 			A pair of bit is affected to each stoppable engine.
 			Both need to be set in order to disable the engine.
 			</doc>
-			<bitfield high="1" low="0" name="PGRAPH_MP"/> <!-- gates shader clock -->
+			<bitfield high="1" low="0" name="PGRAPH"/>
 			<bitfield high="5" low="4" name="VPE" variants="NV17:NV98 NVA0"/>
 			<bitfield high="5" low="4" name="PPPP" variants="NV98 NVAA-"/>
 			<bitfield high="9" low="8" name="PCRTC" variants="NV17:NV50"/>
