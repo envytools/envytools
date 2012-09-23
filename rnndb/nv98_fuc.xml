@@ -207,8 +207,8 @@
 		<bitfield pos="8" name="FLAGS_TA"/>
 		<bitfield pos="18" name="XDST_IDLE"/>
 		<bitfield pos="19" name="XDLD_IDLE"/>
-		<bitfield pow="20" name="XFER_STORE_FULL"/>
-		<bitfield pow="21" name="XFER_LOAD_FULL"/>
+		<bitfield pos="20" name="XFER_STORE_FULL"/>
+		<bitfield pos="21" name="XFER_LOAD_FULL"/>
 	</reg32>
 	<reg32 offset="0x12c" name="CAPS2" variants="NVA3-">
 		<bitfield low="0" high="3" name="VERSION">
