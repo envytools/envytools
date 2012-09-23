@@ -13,8 +13,9 @@
 	<bitfield pos="2" name="FIFO_DATA"/>
 	<bitfield pos="3" name="CHANNEL_SWITCH"/>
 	<bitfield pos="4" name="EXIT"/>
-	<bitfield pos="6" name="USER1"/> <!-- there are more... -->
-	<bitfield pos="9" name="XFER_FAULT"/>
+	<bitfield pos="5" name="PAUSE"/>
+	<bitfield pos="6" name="USER1"/>
+	<bitfield pos="7" name="USER2"/>
 </bitset>
 
 <bitset name="NV98_FUC_BREAK_MASK">
@@ -51,13 +52,13 @@
 	<reg32 offset="0x034" name="WATCHDOG_TIME"/>
 	<reg32 offset="0x038" name="WATCHDOG_ENABLE"/>
 
-	<reg32 offset="0x040" name="SCRATCH" length="2"/>
-
+	<reg32 offset="0x040" name="SCRATCH0"/>
+	<reg32 offset="0x044" name="SCRATCH1"/>
 	<reg32 offset="0x048" name="ACCESS_EN">
 		<bitfield pos="0" name="CHANNEL_SWITCH"/>
 		<bitfield pos="1" name="FIFO"/>
 	</reg32>
-	<!-- 4c also related to FIFO/switching -->
+	<reg32 offset="0x04c" name="STATUS_BUSY"/> <!-- bits depend on engine -->
 
 	<!-- the following two are also conspiciously absent from PGRAPH. -->
 	<reg32 offset="0x050" name="CHANNEL_CUR">
@@ -71,6 +72,11 @@
 	<reg32 offset="0x058" name="CHANNEL_TRIGGER">
 		<bitfield pos="0" name="UNLOAD"/>
 		<bitfield pos="1" name="LOAD"/>
+	</reg32>
+	<reg32 offset="0x05c" name="STATUS_PAUSE">
+		<bitfield low="0" high="15" name="PAUSED_MASK"/>
+		<bitfield pos="16" name="FAULTED"/>
+		<bitfield pos="17" name="PAUSED"/>
 	</reg32>
 
 	<reg32 offset="0x064" name="FIFO_DATA"/>
@@ -87,7 +93,8 @@
 		<doc>Up to 0x10</doc>
 	</reg32>
 	<reg32 offset="0x07c" name="SUBENGINE_RESET"/>
-
+	<reg32 offset="0x080" name="SCRATCH2"/>
+	<reg32 offset="0x084" name="SCRATCH3"/>
 	<reg32 offset="0x088" name="PM_SIGNAL">
 		<bitfield pos="0" name="0"/>
 		<bitfield pos="1" name="1"/>
@@ -110,13 +117,24 @@
 		<bitfield pos="4" name="4" type="nv98_fuc_pm_mode"/>
 		<bitfield pos="5" name="5" type="nv98_fuc_pm_mode"/>
 	</reg32>
-
+	<reg32 offset="0x090" name="UNK090">
+		<bitfield low="0" high="15" name="UNK0"/>
+		<bitfield pos="16" name="UNK16" variants="NVA3-"/>
+	</reg32>
+	<reg32 offset="0x094" name="UNK094" variants="NVA3-"/>
 	<reg32 offset="0x098" name="BREAKPOINT" length="2" variants="NVA3-">
 		<bitfield low="0" high="23" name="PC"/>
 		<bitfield pos="30" name="SKIP_ONE"/>
 		<bitfield pos="31" name="ENABLED"/>
 	</reg32>
-
+	<reg32 offset="0x0a0" name="UNK0A0" variants="NVA3-" type="boolean"/>
+	<reg32 offset="0x0a4" name="PAUSE_CONTROL" variants="NVA3-">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="1" name="PAUSE_TRIGGER"/>
+		<bitfield pos="2" name="UNPAUSE_TRIGGER"/>
+		<bitfield pos="8" name="PAUSE_REQ"/>
+		<bitfield pos="9" name="PAUSE_DONE"/>
+	</reg32>
 	<reg32 offset="0x0a8" name="PM_SEL_V4" variants="NVD9-"> <!-- v4+ only -->
 		<!-- XXX: bitfields probably wrong for v4 -->
 		<bitfield low="0" high="3" name="0"/> <!-- from ??? -->
@@ -125,7 +143,6 @@
 		<bitfield low="12" high="15" name="3"/> <!-- from USER signals -->
 		<bitfield low="17" high="31" name="UNK17"/>
 	</reg32>
-
 	<reg32 offset="0x0ac" name="HOST_IO_INDEX_V4" variants="NVD9-"/> <!-- XXX: wtf are the high 6 bits for? -->
 
 	<reg32 offset="0x100" name="UC_CTRL">
