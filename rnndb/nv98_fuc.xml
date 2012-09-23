@@ -187,6 +187,8 @@
 		<bitfield pos="8" name="FLAGS_TA"/>
 		<bitfield pos="18" name="XDST_IDLE"/>
 		<bitfield pos="19" name="XDLD_IDLE"/>
+		<bitfield pow="20" name="XFER_STORE_FULL"/>
+		<bitfield pow="21" name="XFER_LOAD_FULL"/>
 	</reg32>
 	<reg32 offset="0x12c" name="CAPS2" variants="NVA3-">
 		<bitfield low="0" high="3" name="VERSION">
@@ -338,13 +340,17 @@
 			</bitfield>
 			<bitfield low="4" high="5" name="UNK4"/>
 			<bitfield low="8" high="9" name="UNK8"/>
-			<bitfield low="12" high="15" name="UNK12"/>
+			<bitfield pos="12" name="STORE_BREAK0_ENABLE"/>
+			<bitfield pos="13" name="STORE_BREAK1_ENABLE"/>
+			<bitfield pos="14" name="LOAD_BREAK0_ENABLE"/>
+			<bitfield pos="15" name="LOAD_BREAK1_ENABLE"/>
 		</reg32>
 		<reg32 offset="0x20" name="CHANNEL" access="r" type="nv50_channel"/>
 		<reg32 offset="0x24" name="CTRL">
 			<bitfield pos="0" name="UNK0_RO"/>
 			<bitfield pos="1" name="DISABLE_ALL_TRIGGER"/>
 			<bitfield pos="2" name="DEACTIVATE_TRIGGER"/>
+			<bitfield pos="3" name="COUNTER_CLEAR_TRIGGER"/>
 			<bitfield pos="4" name="UNK4_RW"/>
 			<bitfield pos="7" name="IGNORE_ACTIVATION" variants="NVC0-"/> <!-- XXX: on some engines only: NVC0+ PCOPY0, NVD9+ everything -->
 			<bitfield pos="8" name="UNK8_RO"/>
@@ -352,13 +358,32 @@
 			<bitfield pos="10" name="UNK10_RO"/>
 			<bitfield low="16" high="19" name="UNK16"/>
 		</reg32>
-		<reg32 offset="0x28" name="STAT">
-			<!-- ... -->
+		<reg32 offset="0x28" name="STATUS"/> <!-- indexed -->
+		<domain name="NV98_FUC_MEMIF_STATUS" width="32">
+			<reg32 offset="0" name="UNK0">
+				<!-- ... -->
+			</reg32>
+			<reg32 offset="1" name="UNK1">
+				<!-- ... -->
+			</reg32>
+			<reg32 offset="2" name="LOAD_COUNTER_LOW"/> <!-- # of loads, counted in 8-byte units -->
+			<reg32 offset="3" name="LOAD_COUNTER_HIGH"/>
+			<reg32 offset="4" name="STORE_COUNTER_LOW"/>
+			<reg32 offset="5" name="STORE_COUNTER_HIGH"/>
+		</domain>
+		<reg32 offset="0x2c" name="THROTTLE" variants="NVA3-">
+			<bitfield low="0" high="11" name="UNK0"/> <!-- no effect? -->
+			<bitfield low="16" high="27" name="UNK16"/> <!-- speed ~ 1/UNK16 -->
+			<bitfield low="30" high="31" name="UNK30_LOG2"/> <!-- speed ~ 2^UNK30_LOG2 -->
 		</reg32>
-		<reg32 offset="0x2c" name="UNK2C" variants="NVA3-"/>
 		<!-- XXX: VP3 PVP has 4 unrelated [PVP-specific] registers here that got moved elsewhere on VP4+ -->
-		<reg32 offset="0x30" name="UNK30" stride="8" length="2" variants="NVC0-"/>
-		<reg32 offset="0x34" name="UNK34" stride="8" length="2" variants="NVC0-"/>
+		<reg32 offset="0x30" name="BREAK_MATCH_BASE" stride="8" length="2" variants="NVC0-"/>
+		<reg32 offset="0x34" name="BREAK_CONFIG" stride="8" length="2" variants="NVC0-">
+			<bitfield low="0" high="4" name="MATCH_SIZE_LOG2"/>
+			<bitfield pos="6" name="MATCH_NEG"/>
+			<bitfield pos="7" name="ARMED"/>
+			<bitfield low="16" high="31" name="COUNT_LEFT"/>
+		</reg32>
 	</array>
 </group>
 
