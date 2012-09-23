@@ -78,7 +78,7 @@
 		<bitfield pos="16" name="FAULTED"/>
 		<bitfield pos="17" name="PAUSED"/>
 	</reg32>
-
+	<reg32 offset="0x060" name="VM_SUPERVISOR" type="boolean"/>
 	<reg32 offset="0x064" name="FIFO_DATA"/>
 	<reg32 offset="0x068" name="FIFO_CMD">
 		<bitfield low="0" high="10" name="MTHD" shr="2"/>
@@ -364,13 +364,14 @@
 		</reg32>
 		<reg32 offset="0x20" name="CHANNEL" access="r" type="nv50_channel"/>
 		<reg32 offset="0x24" name="CTRL">
-			<bitfield pos="0" name="UNK0_RO"/>
+			<bitfield pos="0" name="FLUSH_TRIGGER"/>
 			<bitfield pos="1" name="DISABLE_ALL_TRIGGER"/>
 			<bitfield pos="2" name="DEACTIVATE_TRIGGER"/>
 			<bitfield pos="3" name="COUNTER_CLEAR_TRIGGER"/>
-			<bitfield pos="4" name="UNK4_RW"/>
+			<bitfield pos="4" name="ENABLE"/>
+			<bitfield pos="6" name="RESET_TRIGGER"/>
 			<bitfield pos="7" name="IGNORE_ACTIVATION" variants="NVC0-"/> <!-- XXX: on some engines only: NVC0+ PCOPY0, NVD9+ everything -->
-			<bitfield pos="8" name="UNK8_RO"/>
+			<bitfield pos="8" name="IDLE"/>
 			<bitfield pos="9" name="UNK9_RO"/>
 			<bitfield pos="10" name="UNK10_RO"/>
 			<bitfield low="16" high="19" name="UNK16"/>
