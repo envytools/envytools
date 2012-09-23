@@ -569,6 +569,8 @@
 			<value value="3" name="SAVE"/>
 			<value value="4" name="LOAD"/>
 			<value value="5" name="UNK5"/> <!-- uses 918 -->
+			<value value="6" name="READ"/>
+			<value value="7" name="WRITE"/>
 			<value value="0x8" name="ACTIVATE_ONE"/>
 			<value value="0x9" name="DEACTIVATE_ONE"/>
 			<value value="0xa" name="ACTIVATE_FILTER"/>
@@ -576,6 +578,8 @@
 			<value value="0xc" name="ENABLE"/>
 			<value value="0xd" name="DISABLE"/>
 		</reg32>
+		<reg32 offset="0x930" name="STRAND_UNK30" access="r"/>
+		<reg32 offset="0x934" name="STRAND_UNK34" access="r"/>
 		<reg32 offset="0x938" name="STRAND_UNK38"/> <!-- 24-bit -->
 		<reg32 offset="0x93c" name="STRAND_FILTER"/>
 
