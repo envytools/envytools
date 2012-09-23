@@ -82,9 +82,12 @@
 	<reg32 offset="0x064" name="FIFO_DATA"/>
 	<reg32 offset="0x068" name="FIFO_CMD">
 		<bitfield low="0" high="10" name="MTHD" shr="2"/>
-		<bitfield low="11" high="13" name="SUBC"/> <!-- guess... -->
-		<bitfield pos="14" name="NONINCR"/> <!-- even bigger guess... -->
+		<bitfield low="11" high="13" name="SUBC"/>
+		<bitfield pos="14" name="UNK14"/>
+		<bitfield pos="15" name="UNK15" variants="NVD9-"/> <!-- v4+ -->
+		<bitfield pos="16" name="WR_PENDING" variants="NVD9-"/> <!-- v4+ -->
 	</reg32>
+	<reg32 offset="0x06c" name="FIFO_DATA_WR" variants="NVD9-"/> <!-- v4+ -->
 	<reg32 offset="0x070" name="FIFO_OCCUPIED"/>
 	<reg32 offset="0x074" name="FIFO_ACK">
 		<doc>Write 1 to go to next command.</doc>
