@@ -1220,7 +1220,7 @@ int main(int argc, char **argv) {
 			extra_data_count = bios->data[start+4];
 			extra_data_length = bios->data[start+5];
 			entry_length = mode_info_length + extra_data_count * extra_data_length;
-		} else if ((bios->info.version[0] & 0xf0) == 0x70) {
+		} else if ((bios->info.version[0] & 0xf0) <= 0x80) {
 			version = bios->data[start+0];
 			header_length = bios->data[start+1];
 			subentry_offset = bios->data[start+2];
@@ -1364,7 +1364,7 @@ int main(int argc, char **argv) {
 					hub07 = (le16(start+subent(11)) & 0xfff);
 
 					printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Hub01 %dMHz "
-						"Hub06 %dMHz Hub07 %dMHz ROP %dMHz VDec %dMHz Daemon %dMHz Copy %dMHz"
+						"Hub06 %dMHz Hub07 %dMHz ROP %dMHz VDec %dMHz Daemon %dMHz Copy %dMHz "
 						"Voltage entry %d PCIe link width %d --\n",
 						id, core, memclk, shader, hub01, hub06, hub07,
 						rop, vdec, daemon, copy, voltage, pcie_width );
