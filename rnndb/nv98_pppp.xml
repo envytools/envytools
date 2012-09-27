@@ -58,9 +58,18 @@
 			<bitfield pos="28" name="UNK28"/> <!-- set for VC-1, clear for H.264 -->
 			<bitfield pos="29" name="UNK29"/>
 		</reg32>	<!-- for surface layout purposes -->
-		<reg32 offset="0x08" name="UNK08">
-			<bitfield low="0" high="2" name="UNK0"/>
-			<bitfield pos="4" name="POUT_TWO_FIELDS"/> <!-- ? -->
+		<reg32 offset="0x08" name="POUT_CONFIG">
+			<bitfield low="0" high="2" name="LAYOUT">
+				<value value="0" name="LINEAR_RAW"/> <!-- like LINEAR, but SURF_WIDTH is ignored and PIC_WIDTH is used instead -->
+				<value value="1" name="LINEAR"/>
+				<value value="2" name="MACROBLOCK"/>
+				<value value="3" name="TILED_2_SWZ"/> <!-- like TILED_2, but with bits 4-5 of address swapped with 6-7 -->
+				<value value="4" name="TILED_2"/> <!-- tiled, with TILE_MODE = { X = 0, Y = 2, Z = 0 } -->
+			</bitfield>
+			<bitfield pos="4" name="MODE">
+				<value value="0" name="FRAME"/>
+				<value value="1" name="FIELDS"/>
+			</bitfield>
 		</reg32>
 		<reg32 offset="0x0c" name="PIN_ADDR" length="2" shr="8"/>
 		<reg32 offset="0x14" name="UNK14">
