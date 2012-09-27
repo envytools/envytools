@@ -29,7 +29,7 @@
 	<bitfield pos="5" name="H264"/>
 	<bitfield pos="6" name="UNK6"/>
 	<bitfield pos="7" name="HIST"/>
-	<bitfield pos="8" name="UNK8" variants="NVA3:NVD9"/>
+	<bitfield pos="8" name="UNK480" variants="NVA3:NVD9"/>
 </bitset>
 
 <bitset name="nv98_pppp_unit_status" inline="yes">
@@ -80,7 +80,14 @@
 		<reg32 offset="0x28" name="Y_PUT" shr="4"/>
 	</array>
 	<array offset="0x480" stride="0x80" name="UNK480" variants="NVA3:NVD9">
-		<!-- XXX -->
+		<reg32 offset="0x00" name="UNK00"/>
+		<reg32 offset="0x04" name="UNK04_ADDR" shr="8"/>
+		<reg32 offset="0x08" name="UNK08_ADDR" shr="8"/>
+		<reg32 offset="0x0c" name="CTRL">
+			<bitfield pos="0" name="ENABLE"/>
+			<bitfield pos="4" name="UNK4"/>
+		</reg32>
+		<reg32 offset="0x18" name="UNK18"/>
 	</array>
 	<array offset="0x500" stride="0xc0" name="H264">
 		<reg32 offset="0x00" name="STATUS" type="nv98_pppp_unit_status"/>

@@ -38,6 +38,8 @@ MEMIF ports:
   1: PIN - picture input
   2: POUT - picture output
 
+  5: UNK480 [XXX]
+
 Interrupts:
   8: [E] MEMIF_TARGET_INVALID [NVA3:NVC0] [fuc-memif.txt]
   9: [E] MEMIF_FAULT [NVA3:NVC0] [fuc-memif.txt]
@@ -54,9 +56,8 @@ Status bits:
   3: UNKE4 ???
   4: VC1
   5: H264
-  6: ???
+  6: ??? [XXX]
   7: HIST
-  8: ??? [NVA3:NVD9]
-[XXX: status bits]
+  8: UNK480 [NVA3:NVD9]
 
 [XXX: describe PPPP]
