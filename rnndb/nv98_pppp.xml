@@ -28,7 +28,7 @@
 	<bitfield pos="4" name="VC1"/>
 	<bitfield pos="5" name="H264"/>
 	<bitfield pos="6" name="UNK6"/>
-	<bitfield pos="7" name="UNK7"/>
+	<bitfield pos="7" name="HIST"/>
 	<bitfield pos="8" name="UNK8" variants="NVA3:NVD9"/>
 </bitset>
 
@@ -147,12 +147,18 @@
 		<reg32 offset="0x10" name="SURF_ADDR" length="2" shr="8"/>
 		<reg32 offset="0x18" name="UNK18"/> <!-- single bit -->
 	</array>
-	<array offset="0x680" length="0x20" stride="4" name="UNK680" /> <!-- saved to user buffer, linked to UNK700.. -->
-	<array offset="0x700" length="1" stride="0x40" name="UNK700">
-		<reg32 offset="0x00" name="UNK00"/><!-- some kind of trigger -->
-		<!-- UNK00 trigger: 0x11 is written before luma postproc, 0 is written after reading UNK680 array to user buffer, before chroma postproc, so luma only? -->
-		<reg32 offset="0x04" name="UNK04"/>
-		<reg32 offset="0x08" name="UNK08"/>
+	<array offset="0x680" length="1" stride="0xc0" name="HIST">
+		<reg32 offset="0x00" name="COUNT" length="0x20"/> <!-- indexed by COUNT_INDEX -->
+		<reg32 offset="0x80" name="CTRL">
+			<bitfield pos="0" name="ENABLE"/>
+			<bitfield pos="4" name="CLEAR_TRIGGER"/>
+			<bitfield pos="5" name="DIRTY"/>
+			<bitfield low="6" high="31" name="UNK6"/>
+		</reg32>
+		<reg32 offset="0x84" name="WINDOW_START" type="xy16"/>
+		<reg32 offset="0x88" name="WINDOW_END" type="xy16"/> <!-- not included -->
+		<reg32 offset="0x8c" name="STATUS" type="nv98_pppp_unit_status"/>
+		<reg32 offset="0x90" name="COUNT_INDEX" min="0" max="7"/>
 	</array>
 	<reg32 offset="0x740" name="JOE" variants="NVA3-"/>
 	<array offset="0x780" stride="0x80" name="UNK780" variants="NVC0-">

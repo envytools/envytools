@@ -30,8 +30,7 @@ The IO registers:
 5c0/17000:600/18000 VC1		VC-1 postprocessing	[vp3-pppp.txt]
 600/18000:640/19000 MEMIF	memory interface	[fuc-memif.txt]
 640/19000:680/1a000 POUT	picture output		[vp3-pppp.txt]
-680/1a000:700/1c000 ???		???			[vp3-pppp.txt]
-700/1c000:740/1d000 ???		???			[vp3-pppp.txt]
+680/1a000:740/1d000 HIST	histogram		[vp3-pppp.txt]
 740/1d000:780/1e000 JOE		???			[vp3-pppp.txt]
 780/1e000:7c0/1f000 ???		??? [NVC0:]		[vp3-pppp.txt]
 
@@ -56,7 +55,7 @@ Status bits:
   4: VC1
   5: H264
   6: ???
-  7: ???
+  7: HIST
   8: ??? [NVA3:NVD9]
 [XXX: status bits]
 
