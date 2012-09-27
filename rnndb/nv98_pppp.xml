@@ -9,11 +9,47 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
+<bitset name="NV98_PPPP_INTR" varset="chipset">
+	<bitfield low="0" high="7" name="FUC" type="nv98_fuc_intr"/>
+	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="NVA3:NVC0"/>
+	<bitfield pos="9" name="MEMIF_FAULT" variants="NVA3:NVC0"/>
+	<bitfield pos="9" name="MEMIF_BREAK" variants="NVC0-"/>
+	<bitfield pos="10" name="POUT_DONE"/>
+	<bitfield pos="11" name="POUT_ERR"/>
+	<bitfield pos="12" name="FE_ERR"/>
+	<bitfield pos="13" name="VC1_ERR"/>
+	<bitfield pos="14" name="H264_ERR"/>
+</bitset>
+<bitset name="NV98_PPPP_STATUS" varset="chipset">
+	<bitfield pos="0" name="FUC"/>
+	<bitfield pos="1" name="MEMIF"/>
+	<bitfield pos="2" name="POUT"/>
+	<bitfield pos="3" name="UNKE4"/>
+	<bitfield pos="4" name="VC1"/>
+	<bitfield pos="5" name="H264"/>
+	<bitfield pos="6" name="UNK6"/>
+	<bitfield pos="7" name="UNK7"/>
+	<bitfield pos="8" name="UNK8" variants="NVA3:NVD9"/>
+</bitset>
+
+<bitset name="nv98_pppp_unit_status" inline="yes">
+	<bitfield pos="0" name="BUSY"/>
+	<bitfield pos="4" name="IDLE"/>
+	<bitfield pos="28" name="ERR_UNK0"/>
+	<bitfield pos="29" name="ERR_UNK1"/>
+	<bitfield pos="30" name="ERR_WATCHDOG"/>
+</bitset>
+
 <array name="PPPP" offset="0x86000" stride="0x1000" length="1" variants="NV98 NVAA-">
 	<use-group name="nv98_fucbase"/>
 	<use-group name="nv98_fuc_memif"/>
-	<array offset="0x400" stride="0x80" length="1" name="PIN">
-		<reg32 offset="0x00" name="UNK00"/>
+	<array offset="0x400" stride="0x80" length="1" name="FE">
+		<reg32 offset="0x00" name="ENABLE">
+			<bitfield pos="4" name="H264"/>
+			<bitfield pos="8" name="VC1"/>
+			<bitfield pos="12" name="POUT"/>
+			<bitfield pos="16" name="UNKE4"/>
+		</reg32>
 		<reg32 offset="0x04" name="DIMS">
 			<bitfield low="0" high="7" name="PIC_WIDTH" shr="4"/>
 			<bitfield low="8" high="15" name="PIC_HEIGHT" shr="4"/>
@@ -26,27 +62,35 @@
 			<bitfield low="0" high="2" name="UNK0"/>
 			<bitfield pos="4" name="POUT_TWO_FIELDS"/> <!-- ? -->
 		</reg32>
-		<reg32 offset="0x0c" name="SURF_ADDR" length="2" shr="8"/>
+		<reg32 offset="0x0c" name="PIN_ADDR" length="2" shr="8"/>
 		<reg32 offset="0x14" name="UNK14">
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield pos="1" name="UNK1"/>
 			<bitfield low="28" high="31" name="UNK28"/>
 		</reg32>
 		<reg32 offset="0x18" name="INTR_ENABLE">
-			<bitfield pos="0" name="UNK0"/>
-			<bitfield pos="31" name="UNK31"/>
+			<bitfield pos="0" name="ERR"/>
+			<bitfield pos="31" name="SOFTWARE"/>
 		</reg32>
 		<reg32 offset="0x1c" name="INTR">
-			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="0" name="ERR"/>
 		</reg32>
-		<reg32 offset="0x20" name="UNK20"/>
-		<reg32 offset="0x24" name="INTR_UNK"/>
+		<reg32 offset="0x20" name="WATCHDOG_TIME"/>
+		<reg32 offset="0x24" name="STATUS" type="nv98_pppp_unit_status"/>
 		<reg32 offset="0x28" name="Y_PUT" shr="4"/>
 	</array>
+	<array offset="0x480" stride="0x80" name="UNK480" variants="NVA3:NVD9">
+		<!-- XXX -->
+	</array>
 	<array offset="0x500" stride="0xc0" name="H264">
-		<reg32 offset="0x00" name="INTR_UNK0"/>
-		<reg32 offset="0x04" name="INTR_UNK1"/>
-		<reg32 offset="0x08" name="INTR_UNK2"/>
+		<reg32 offset="0x00" name="STATUS" type="nv98_pppp_unit_status"/>
+		<reg32 offset="0x04" name="INTR_ENABLE">
+			<bitfield pos="0" name="ERR"/>
+			<bitfield pos="31" name="SOFTWARE"/>
+		</reg32>
+		<reg32 offset="0x08" name="INTR">
+			<bitfield pos="0" name="ERR"/>
+		</reg32>
 		<reg32 offset="0x0c" name="TRIGGER">
 			<bitfield pos="0" name="LUMA_TRIGGER"/>
 			<bitfield pos="4" name="CHROMA_TRIGGER"/>
@@ -63,9 +107,14 @@
 		<reg32 offset="0x80" name="UNK80" stride="4" length="0x10"/><!-- a different program uploaded array for luma/chroma -->
 	</array>
 	<array offset="0x5c0" stride="0x40" name="VC1">
-		<reg32 offset="0x00" name="INTR_UNK0"/>
-		<reg32 offset="0x04" name="INTR_UNK1"/>
-		<reg32 offset="0x08" name="INTR_UNK2"/>
+		<reg32 offset="0x00" name="STATUS" type="nv98_pppp_unit_status"/>
+		<reg32 offset="0x04" name="INTR_ENABLE">
+			<bitfield pos="0" name="ERR"/>
+			<bitfield pos="31" name="SOFTWARE"/>
+		</reg32>
+		<reg32 offset="0x08" name="INTR">
+			<bitfield pos="0" name="ERR"/>
+		</reg32>
 		<reg32 offset="0x0c" name="TRIGGER">
 			<bitfield pos="0" name="LUMA_TRIGGER"/>
 			<bitfield pos="4" name="CHROMA_TRIGGER"/>
@@ -81,9 +130,19 @@
 		</reg32>
 	</array>
 	<array offset="0x640" stride="0x40" length="1" name="POUT">
-		<reg32 offset="0x00" name="INTR_UNK0"/>
-		<reg32 offset="0x04" name="INTR_UNK1"/>
-		<reg32 offset="0x08" name="INTR_UNK2"/>
+		<reg32 offset="0x00" name="STATUS" type="nv98_pppp_unit_status"/>
+		<reg32 offset="0x04" name="INTR_ENABLE">
+			<bitfield pos="0" name="DONE_LUMA"/>
+			<bitfield pos="4" name="DONE_CHROMA"/>
+			<bitfield pos="8" name="ERR"/>
+			<bitfield pos="30" name="UNK30"/>
+			<bitfield pos="31" name="SOFTWARE"/>
+		</reg32>
+		<reg32 offset="0x08" name="INTR">
+			<bitfield pos="0" name="DONE_LUMA"/>
+			<bitfield pos="4" name="DONE_CHROMA"/>
+			<bitfield pos="8" name="ERR"/>
+		</reg32>
 		<reg32 offset="0x0c" name="SURF_WIDTH" shr="4"/> <!-- for surface layout purposes -->
 		<reg32 offset="0x10" name="SURF_ADDR" length="2" shr="8"/>
 		<reg32 offset="0x18" name="UNK18"/> <!-- single bit -->
@@ -94,6 +153,10 @@
 		<!-- UNK00 trigger: 0x11 is written before luma postproc, 0 is written after reading UNK680 array to user buffer, before chroma postproc, so luma only? -->
 		<reg32 offset="0x04" name="UNK04"/>
 		<reg32 offset="0x08" name="UNK08"/>
+	</array>
+	<reg32 offset="0x740" name="JOE" variants="NVA3-"/>
+	<array offset="0x780" stride="0x80" name="UNK780" variants="NVC0-">
+		<!-- XXX -->
 	</array>
 </array>
 

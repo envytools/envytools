@@ -12,8 +12,10 @@
 
 <array name="PDAEMON" offset="0x10a000" stride="0x1000" length="1" variants="NVA3-">
 	<bitset name="NVA3_PDAEMON_INTR" varset="chipset">
-		<!-- 0..7 standard fµc -->
-		<bitfield pos="9" name="VM_FAULT" variants="NVA3:NVC0"/>
+		<bitfield low="0" high="7" name="FUC" type="nv98_fuc_intr"/>
+		<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="NVA3:NVC0"/>
+		<bitfield pos="9" name="MEMIF_FAULT" variants="NVA3:NVC0"/>
+		<bitfield pos="9" name="MEMIF_BREAK" variants="NVC0-"/>
 		<bitfield pos="10" name="PMC_DAEMON"/>
 		<bitfield pos="11" name="SUBINTR"/>
 		<bitfield pos="12" name="THERM"/>

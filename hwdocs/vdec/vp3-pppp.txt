@@ -24,8 +24,8 @@ Core clock: VDCLK
 
 The IO registers:
 
-400/10000:480/12000 PIN		picture input		[vp3-pppp.txt]
-480/12000:500/14000 ???		???			[vp3-pppp.txt]
+400/10000:480/12000 FE		front end		[vp3-pppp.txt]
+480/12000:500/14000 ???		??? [NVA3:NVD9]		[vp3-pppp.txt]
 500/14000:5c0/17000 H264	H.264 postprocessing	[vp3-pppp.txt]
 5c0/17000:600/18000 VC1		VC-1 postprocessing	[vp3-pppp.txt]
 600/18000:640/19000 MEMIF	memory interface	[fuc-memif.txt]
@@ -33,10 +33,31 @@ The IO registers:
 680/1a000:700/1c000 ???		???			[vp3-pppp.txt]
 700/1c000:740/1d000 ???		???			[vp3-pppp.txt]
 740/1d000:780/1e000 JOE		???			[vp3-pppp.txt]
-780/1e000:7c0/1f000 ???		???			[vp3-pppp.txt]
+780/1e000:7c0/1f000 ???		??? [NVC0:]		[vp3-pppp.txt]
 
-[XXX: MEMIF ports]
-[XXX: interrupts]
+MEMIF ports:
+  1: PIN - picture input
+  2: POUT - picture output
+
+Interrupts:
+  8: [E] MEMIF_TARGET_INVALID [NVA3:NVC0] [fuc-memif.txt]
+  9: [E] MEMIF_FAULT [NVA3:NVC0] [fuc-memif.txt]
+ 10: [L] POUT_DONE
+ 11: [L] POUT_ERR
+ 12: [L] FE_ERR
+ 13: [L] VC1_ERR
+ 14: [L] H264_ERR
+
+Status bits:
+  0: fµc [fuc-proc.txt]
+  1: MEMIF [fuc-memif.txt]
+  2: POUT
+  3: UNKE4 ???
+  4: VC1
+  5: H264
+  6: ???
+  7: ???
+  8: ??? [NVA3:NVD9]
 [XXX: status bits]
 
 [XXX: describe PPPP]
