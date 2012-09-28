@@ -235,25 +235,28 @@
 
 	<reg32 offset="0x320" name="COMP_MAX_TAG" variants="NV20-"/>
 
-	<reg32 offset="0xc80" name="TLB_FLUSH" variants="NV50-">
-		<bitfield high="19" low="16" name="ENGINE" type="NV50_VM_ENGINE"/>
-		<bitfield pos="0" name="TRIGGER"/>
-	</reg32>
-	<reg32 offset="0xc90" name="VM_FAULT" variants="NV50-">
-		<!-- XXX more bits... -->
-		<bitfield pos="11" name="PCOPY_ENABLE" variants="NVA3-"/>
-		<bitfield pos="16" name="PVP_ENABLE" variants="NV50-"/>
-		<bitfield pos="17" name="PME_ENABLE" variants="NV50:NV84"/>
-		<bitfield pos="18" name="PMPEG_ENABLE" variants="NV50:NV98 NVA0:NVAA"/>
-		<bitfield pos="18" name="PPPP_ENABLE" variants="NV98:NVA0 NVAA-"/>
-		<bitfield pos="19" name="PBSP_ENABLE" variants="NV84-"/>
-		<bitfield pos="20" name="PCRYPT_ENABLE" variants="NV84:NVA3"/>
-		<bitfield pos="21" name="PCOUNTER_ENABLE" variants="NV84-"/>
-		<bitfield pos="23" name="PDAEMON_ENABLE" variants="NVA3-"/>
-		<bitfield low="24" high="26" name="INDEX"/>
-		<bitfield pos="31" name="PENDING"/>
-	</reg32>
-	<reg32 offset="0xc94" name="VM_FAULT_DATA" variants="NV50-"/>
+	<array offset="0xc80" name="MMU" stride="0x80" variants="NV50-">
+		<reg32 offset="0x00" name="TLB_FLUSH">
+			<bitfield high="19" low="16" name="ENGINE" type="NV50_VM_ENGINE"/>
+			<bitfield pos="0" name="TRIGGER"/>
+		</reg32>
+		<reg32 offset="0x10" name="VM_FAULT">
+			<!-- XXX more bits... -->
+			<bitfield pos="11" name="PCOPY_ENABLE" variants="NVA3-"/>
+			<bitfield pos="16" name="PVP_ENABLE"/>
+			<bitfield pos="17" name="PME_ENABLE" variants="NV50:NV84"/>
+			<bitfield pos="18" name="PMPEG_ENABLE" variants="NV50:NV98 NVA0:NVAA"/>
+			<bitfield pos="18" name="PPPP_ENABLE" variants="NV98:NVA0 NVAA-"/>
+			<bitfield pos="19" name="PBSP_ENABLE" variants="NV84-"/>
+			<bitfield pos="20" name="PCRYPT_ENABLE" variants="NV84:NVA3"/>
+			<bitfield pos="21" name="PCOUNTER_ENABLE" variants="NV84-"/>
+			<bitfield pos="23" name="PDAEMON_ENABLE" variants="NVA3-"/>
+			<bitfield low="24" high="26" name="INDEX"/>
+			<bitfield pos="31" name="PENDING"/>
+		</reg32>
+		<reg32 offset="0x14" name="VM_FAULT_DATA"/>
+		<reg32 offset="0x1c" name="PD_OFFSET" variants="NV84-"/> <!-- offset from channel base to PD, low 3 bits ignored -->
+	</array>
 </array>
 
 </domain>
