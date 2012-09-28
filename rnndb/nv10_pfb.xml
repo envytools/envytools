@@ -235,6 +235,29 @@
 
 	<reg32 offset="0x320" name="COMP_MAX_TAG" variants="NV20-"/>
 
+	<array offset="0xc00" name="UNKC00" stride="0x80" variants="NV50-">
+		<reg32 offset="0x08" name="UNK08_SYSRAM_ADDR" shr="8"/>
+		<reg32 offset="0x10" name="PM">
+			<bitfield low="0" high="4" name="CLIENT">
+				<value value="0" name="PFIFO_READ"/>
+				<value value="1" name="PFIFO_WRITE"/>
+				<value value="2" name="PPPP" variants="NV98:NVA0 NVAA-"/>
+				<value value="2" name="PVPE" variants="NV50:NV98 NVA0:NVAA"/>
+
+				<value value="0xb" name="PDISPLAY_UNK0B"/>
+				<value value="0xc" name="PDISPLAY_UNK0C"/>
+				<value value="0xd" name="PVP" variants="NV84-"/>
+				<value value="0xe" name="PBSP" variants="NV84-"/>
+				<value value="0xf" name="PCRYPT" variants="NV84:NVA3"/>
+				<value value="0x10" name="PCOUNTER" variants="NV84-"/>
+
+				<value value="0x12" name="PDAEMON" variants="NVA3-"/>
+				<value value="0x13" name="PCOPY" variants="NVA3-"/>
+			</bitfield>
+			<bitfield low="8" high="10" name="UNK8" variants="NVA3-"/>
+		</reg32>
+	</array>
+
 	<array offset="0xc80" name="MMU" stride="0x80" variants="NV50-">
 		<reg32 offset="0x00" name="TLB_FLUSH">
 			<bitfield high="19" low="16" name="ENGINE" type="NV50_VM_ENGINE"/>

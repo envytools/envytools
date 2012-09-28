@@ -140,8 +140,9 @@ set 7:
 0x2e: MAGIC_FLUSH + memory access
 0x30: MAGIC_FLUSH [misses 1 sometimes?] + memory read
 0x32: MAGIC_FLUSH [misses 1 sometimes?] + memory read
-0x4c: MAGIC_FLUSH + PFIFO memory read
-0x4d: MAGIC_FLUSH
+0x4b: PFB_WRITE
+0x4c: PFB_READ
+0x4d: PFB_FLUSH
 0x65: PBSP PM_TRIGGER 2nd
 0x66: PBSP WRCACHE_FLUSH 2nd
 0x71: PPPP PM_TRIGGER 2nd
@@ -441,6 +442,9 @@ signal                |84|86|92|94|96|98|a0|aa|ac|a3|a5|a8|af| documentation
 ----------------------+--+--+--+--+--+--+--+--+--+--+--+--+--+---------------
 PCOUNTER USER_0       |--|--|--|--|--|--|--|--|--|??|3e|??|??| pcounter.txt
 PCOUNTER USER_1       |--|--|--|--|--|--|--|--|--|??|3f|??|??| pcounter.txt
+PFB_WRITE             |??|??|??|??|??|4b|??|??|40|??|7b|??|??| [XXX]
+PFB_READ              |??|??|??|??|??|4c|??|??|41|??|7c|??|??| [XXX]
+PFB_FLUSH             |??|??|??|??|??|4d|??|??|42|??|7d|??|??| [XXX]
 IREDIR_STATUS         |--|--|--|--|--|--|--|--|--|??|c4|??|??| pdaemon.txt
 IREDIR_HOST_REQ       |--|--|--|--|--|--|--|--|--|??|c5|??|??| pdaemon.txt
 IREDIR_TRIGGER_DAEMON |--|--|--|--|--|--|--|--|--|??|c6|??|??| pdaemon.txt

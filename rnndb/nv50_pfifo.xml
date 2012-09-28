@@ -34,6 +34,11 @@
 	<bitfield pos="5" name="PBSP" variants="NV84-"/>
 </bitset>
 
+<bitset name="nv50_pfifo_flush_ctrl" inline="yes">
+	<bitfield pos="0" name="TRIGGER"/>
+	<bitfield pos="1" name="BUSY"/>
+</bitset>
+
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 	<array offset="0x2000" name="PFIFO" stride="0x2000" length="1" variants="NV50:NVC0">
 		<reg32 offset="0x040" name="DELAY">
@@ -384,8 +389,7 @@
 			<reg32 offset="0x108" name="UNK108">
 				<doc>RO, reads as 0.</doc>
 			</reg32>
-			<reg32 offset="0x10c" name="MAGIC_FLUSH" variants="NV50:NV84">
-			</reg32>
+			<reg32 offset="0x10c" name="FLUSH_CTRL" type="nv50_pfifo_flush_ctrl" variants="NV50:NV84"/>
 			<reg32 offset="0x110" name="UNK110">
 				<doc>Bits 0xffffffff.</doc>
 			</reg32>
@@ -435,7 +439,10 @@
 		</array>
 	</array>
 
-	<reg32 offset="0x70000" name="PFIFO_MAGIC_FLUSH" variants="NV84-"/>
+	<array offset="0x70000" stride="0x1000" name="PFIFO_FLUSH" variants="NV84-">
+		<!-- XXX: more stuff on NVC0+ -->
+		<reg32 offset="0x000" name="FLUSH_CTRL" type="nv50_pfifo_flush_ctrl"/>
+	</array>
 
 	<array offset="0x800000" name="USER_PIO" stride="0x10000" length="1" variants="NV50:NVC0">
 		<reg32 offset="0x10" name="FREE"/> <!-- only on subch 0 -->
