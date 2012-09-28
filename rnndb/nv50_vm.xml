@@ -150,7 +150,7 @@
 	<value value="3" name="USEVM"/>
 </enum>
 
-<domain name="NV50_DMAOBJ" size="0x10">
+<domain name="NV50_DMAOBJ" size="0x10" varset="chipset">
 	<reg32 offset="0x0" name="FLAGS">
 		<bitfield low="0" high="15" name="CLASS"/>
 		<bitfield low="16" high="17" name="TARGET">
@@ -186,6 +186,12 @@
 	</reg32>
 	<reg32 offset="0x14" name="EXTRA2">
 		<bitfield low="0" high="15" name="COMP_VRAM_START" shr="16"/>
+		<!-- 16, 17? -->
+		<bitfield low="18" high="19" name="ENCRYPTED" variants="NV84-">
+			<value value="0" name="NO"/>
+			<value value="1" name="YES"/>
+			<value value="2" name="USEVM"/>
+		</bitfield>
 	</reg32>
 </domain>
 
@@ -206,7 +212,7 @@
 	<bitfield low="12" high="39" name="ADDRESS" shr="12"/>
 </bitset>
 
-<bitset name="NV50_PTE">
+<bitset name="NV50_PTE" varset="chipset">
 	<bitfield pos="0" name="PRESENT"/>
 	<!-- 1? -->
 	<!-- 2? -->
@@ -218,6 +224,8 @@
 	<bitfield low="40" high="46" name="STORAGE_TYPE" type="NV50_STORAGE_TYPE"/>
 	<bitfield low="47" high="48" name="COMPRESSION" type="NV50_COMPRESSION"/>
 	<bitfield low="49" high="60" name="TAG"/>
+	<!-- 61? -->
+	<bitfield pos="62" name="ENCRYPTED" variants="NV84-"/>
 </bitset>
 
 </database>
