@@ -31,6 +31,17 @@ IO addressing type: indexed
 Core clock:
 	cv0: NVCLK
 	cv1: hub clock [nvc0 clock #9]
+NV50 VM engine: 0xd
+NV50 VM client: 0x13
+NV50 context DMA: 0xc
+NVC0 VM engine:
+	engine #0: 0x15
+	engine #1: 0x16
+	engine #2: 0x1b
+NVC0 VM client:
+	engine #0: HUB 0x01
+	engine #1: HUB 0x02
+	engine #2: HUB ??? [XXX]
 
 The IO registers:
 
@@ -40,9 +51,13 @@ The IO registers:
 900/24000:980/26000 ???		???			[pcopy.txt]
 
 Interrupts:
-	10: ???
-	11: ???
-[XXX: interrupts]
-[XXX: status bits]
+  8: [E] MEMIF_TARGET_INVALID [NVA3:NVC0] [fuc-memif.txt]
+  9: [E] MEMIF_FAULT [NVA3:NVC0] [fuc-memif.txt]
+ 10: [L] COPY_BLOCK
+ 11: [L] COPY_NONBLOCK
+
+Status bits:
+  0: fµc [fuc-proc.txt]
+  1: MEMIF [fuc-memif.txt] and COPY [pcopy.txt]
 
 [XXX: describe PCOPY]
