@@ -186,7 +186,11 @@
 	</reg32>
 	<reg32 offset="0x14" name="EXTRA2">
 		<bitfield low="0" high="15" name="COMP_VRAM_START" shr="16"/>
-		<!-- 16, 17? -->
+		<bitfield low="16" high="17" name="PART_CYCLE"> <!-- XXX: figure out wtf this is about and why it only works on some cards -->
+			<value value="0" name="USEVM"/>
+			<value value="1" name="256B"/>
+			<value value="2" name="1KB"/>
+		</bitfield>
 		<bitfield low="18" high="19" name="ENCRYPTED" variants="NV84-">
 			<value value="0" name="NO"/>
 			<value value="1" name="YES"/>
@@ -225,7 +229,10 @@
 	<bitfield low="40" high="46" name="STORAGE_TYPE" type="NV50_STORAGE_TYPE"/>
 	<bitfield low="47" high="48" name="COMPRESSION" type="NV50_COMPRESSION"/>
 	<bitfield low="49" high="60" name="TAG"/>
-	<!-- 61? -->
+	<bitfield pos="61" name="PART_CYCLE">
+		<value value="0" name="256B"/>
+		<value value="1" name="1KB"/>
+	</bitfield>
 	<bitfield pos="62" name="ENCRYPTED" variants="NV84-"/>
 </bitset>
 
