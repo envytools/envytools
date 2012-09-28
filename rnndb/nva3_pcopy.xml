@@ -28,7 +28,12 @@
 	<array offset="0x800" name="COPY" stride="0x200" length="1">
 		<reg32 offset="0x00" name="CTRL">
 			<bitfield pos="0" name="TRIGGER"/>
-			<bitfield low="1" high="3" name="UNK1"/>
+			<bitfield low="1" high="2" name="START_MODE">
+				<value value="0" name="IMMEDIATE"/>
+				<value value="1" name="WAIT_FOR_IDLE"/>
+				<value value="2" name="FLUSH"/>
+			</bitfield>
+			<bitfield pos="3" name="FINISH_FLUSH"/>
 			<bitfield pos="4" name="INTR"/>
 			<bitfield pos="5" name="INTR_TYPE">
 				<value value="0" name="NONBLOCK"/>
