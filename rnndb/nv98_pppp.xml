@@ -136,12 +136,12 @@
 			<bitfield pos="4" name="CHROMA_TRIGGER"/>
 			<bitfield low="30" high="31" name="UNK30"/>
 		</reg32>
-		<reg32 offset="0x10" name="UNK10"> <!-- set separately for luma and chroma -->
-			<bitfield pos="0" name="UNK0"/>
-			<bitfield low="4" high="6" name="UNK4"/>
+		<reg32 offset="0x10" name="RANGE_MAP">
+			<bitfield pos="0" name="ENABLE"/>
+			<bitfield low="4" high="6" name="COEFF"/>
 		</reg32>
-		<reg32 offset="0x14" name="UNK14">
-			<bitfield pos="0" name="UNK0"/>
+		<reg32 offset="0x14" name="DEBLOCK">
+			<bitfield pos="0" name="ENABLE"/>
 			<bitfield low="4" high="8" name="PQUANT"/>
 		</reg32>
 	</array>
