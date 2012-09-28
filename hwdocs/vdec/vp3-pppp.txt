@@ -26,7 +26,7 @@ The IO registers:
 
 400/10000:480/12000 FE		front end		[vp3-pppp.txt]
 480/12000:500/14000 ???		??? [NVA3:NVD9]		[vp3-pppp.txt]
-500/14000:5c0/17000 H264	H.264 postprocessing	[vp3-pppp.txt]
+500/14000:5c0/17000 FG		film grain effect	[vp3-pppp.txt]
 5c0/17000:600/18000 VC1		VC-1 postprocessing	[vp3-pppp.txt]
 600/18000:640/19000 MEMIF	memory interface	[fuc-memif.txt]
 640/19000:680/1a000 POUT	picture output		[vp3-pppp.txt]
@@ -37,8 +37,9 @@ The IO registers:
 MEMIF ports:
   1: PIN - picture input
   2: POUT - picture output
+  3: FG - ??? read [XXX]
 
-  5: UNK480 [XXX]
+  5: UNK480 - ??? write [XXX]
 
 Interrupts:
   8: [E] MEMIF_TARGET_INVALID [NVA3:NVC0] [fuc-memif.txt]
@@ -47,7 +48,7 @@ Interrupts:
  11: [L] POUT_ERR
  12: [L] FE_ERR
  13: [L] VC1_ERR
- 14: [L] H264_ERR
+ 14: [L] FG_ERR
 
 Status bits:
   0: fµc [fuc-proc.txt]
@@ -55,7 +56,7 @@ Status bits:
   2: POUT
   3: UNKE4 ???
   4: VC1
-  5: H264
+  5: FG
   6: ??? [XXX]
   7: HIST
   8: UNK480 [NVA3:NVD9]

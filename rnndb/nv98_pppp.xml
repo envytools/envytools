@@ -18,7 +18,7 @@
 	<bitfield pos="11" name="POUT_ERR"/>
 	<bitfield pos="12" name="FE_ERR"/>
 	<bitfield pos="13" name="VC1_ERR"/>
-	<bitfield pos="14" name="H264_ERR"/>
+	<bitfield pos="14" name="FG_ERR"/>
 </bitset>
 <bitset name="NV98_PPPP_STATUS" varset="chipset">
 	<bitfield pos="0" name="FUC"/>
@@ -26,7 +26,7 @@
 	<bitfield pos="2" name="POUT"/>
 	<bitfield pos="3" name="UNKE4"/>
 	<bitfield pos="4" name="VC1"/>
-	<bitfield pos="5" name="H264"/>
+	<bitfield pos="5" name="FG"/>
 	<bitfield pos="6" name="UNK6"/>
 	<bitfield pos="7" name="HIST"/>
 	<bitfield pos="8" name="UNK480" variants="NVA3:NVD9"/>
@@ -45,7 +45,7 @@
 	<use-group name="nv98_fuc_memif"/>
 	<array offset="0x400" stride="0x80" length="1" name="FE">
 		<reg32 offset="0x00" name="ENABLE">
-			<bitfield pos="4" name="H264"/>
+			<bitfield pos="4" name="FG"/>
 			<bitfield pos="8" name="VC1"/>
 			<bitfield pos="12" name="POUT"/>
 			<bitfield pos="16" name="UNKE4"/>
@@ -55,8 +55,11 @@
 			<bitfield low="8" high="15" name="PIC_HEIGHT" shr="4"/>
 			<bitfield low="16" high="23" name="SURF_WIDTH" shr="4"/>
 			<bitfield pos="24" name="UNK24"/> <!-- used only for VC-1 -->
-			<bitfield pos="28" name="UNK28"/> <!-- set for VC-1, clear for H.264 -->
-			<bitfield pos="29" name="UNK29"/>
+			<bitfield low="28" high="29" name="UNK28">
+				<value value="0" name="FG_UNK0"/>
+				<value value="1" name="VC1"/>
+				<value value="2" name="FG_UNK2"/>
+			</bitfield>
 		</reg32>	<!-- for surface layout purposes -->
 		<reg32 offset="0x08" name="POUT_CONFIG">
 			<bitfield low="0" high="2" name="LAYOUT">
@@ -98,7 +101,7 @@
 		</reg32>
 		<reg32 offset="0x18" name="UNK18"/>
 	</array>
-	<array offset="0x500" stride="0xc0" name="H264">
+	<array offset="0x500" stride="0xc0" name="FG">
 		<reg32 offset="0x00" name="STATUS" type="nv98_pppp_unit_status"/>
 		<reg32 offset="0x04" name="INTR_ENABLE">
 			<bitfield pos="0" name="ERR"/>
@@ -110,15 +113,21 @@
 		<reg32 offset="0x0c" name="TRIGGER">
 			<bitfield pos="0" name="LUMA_TRIGGER"/>
 			<bitfield pos="4" name="CHROMA_TRIGGER"/>
-			<bitfield pos="8" name="UNK8"/>
+			<bitfield pos="8" name="FG_ENABLE"/>
 			<bitfield low="30" high="31" name="UNK30"/>
 		</reg32>
-
-		<!-- UNK10..1c and UNK40-UNK80 are all used together, or not at all, never seen it used so far -->
-		<reg32 offset="0x10" name="UNK10" />
-		<reg32 offset="0x14" name="UNK14" />
-		<reg32 offset="0x18" name="UNK18" />
-		<reg32 offset="0x1c" name="UNK1c" />
+		<reg32 offset="0x10" name="UNK10" length="2"/> <!-- 0 is LUMA and CHROMA_0, 1 is CHROMA_1 -->
+		<bitset name="nv98_pppp_fg_ctrl" inline="yes">
+			<bitfield pos="0" name="ENABLE"/>
+			<bitfield low="1" high="7" name="UNK1"/>
+		</bitset>
+		<reg32 offset="0x18" name="CTRL">
+			<bitfield low="4" high="7" name="SCALE"/> <!-- the smaller, the more powerful the effect -->
+			<bitfield low="8" high="15" name="LUMA" type="nv98_pppp_fg_ctrl"/>
+			<bitfield low="16" high="23" name="CHROMA_0" type="nv98_pppp_fg_ctrl"/>
+			<bitfield low="24" high="31" name="CHROMA_1" type="nv98_pppp_fg_ctrl"/>
+		</reg32>
+		<reg32 offset="0x1c" name="UNK1C_ADDR" shr="8"/>
 		<reg32 offset="0x40" name="UNK40" stride="4" length="0x10"/><!-- a different program uploaded array for luma/chroma -->
 		<reg32 offset="0x80" name="UNK80" stride="4" length="0x10"/><!-- a different program uploaded array for luma/chroma -->
 	</array>
