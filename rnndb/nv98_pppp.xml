@@ -74,10 +74,13 @@
 				<value value="1" name="FIELDS"/>
 			</bitfield>
 		</reg32>
-		<reg32 offset="0x0c" name="PIN_ADDR" length="2" shr="8"/>
-		<reg32 offset="0x14" name="UNK14">
-			<bitfield pos="0" name="UNK0"/>
-			<bitfield pos="1" name="UNK1"/>
+		<reg32 offset="0x0c" name="PIN_ADDR" length="2" shr="8"/> <!-- in COPY_RAW mode, [0] is source base, [1] is size -->
+		<reg32 offset="0x14" name="MODE">
+			<bitfield low="0" high="1" name="MODE">
+				<value value="0" name="PPP"/> <!-- performs postprocessing -->
+				<value value="1" name="COPY_2D"/> <!-- just copies PIN to POUT, with format conversion but without any processing -->
+				<value value="2" name="COPY_RAW"/> <!-- raw, unformatted memory copy: memcpy(POUT_ADDR[0] << 8, PIN_ADDR[0] << 8, PIN_ADDR[1] << 8) -->
+			</bitfield>
 			<bitfield low="28" high="31" name="UNK28"/>
 		</reg32>
 		<reg32 offset="0x18" name="INTR_ENABLE">
