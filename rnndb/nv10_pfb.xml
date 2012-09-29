@@ -125,8 +125,8 @@
 		</bitfield>
 	</reg32>
 
-	<reg32 offset="0x20c" name="MEM_AMOUNT">
-		<bitfield high="7" low="0" name="HIGH" shr="32" variants="NV50-"/>
+	<reg32 offset="0x20c" name="MEM_AMOUNT"> <!-- NVAA+: includes both VRAM and FAKEFB, but only VRAM under VRAM_LIMIT counts -->
+		<bitfield pos="0" name="HIGH" type="hex" shr="32" variants="NV50-"/>
 		<bitfield high="31" low="12" name="LOW" shr="12"/>
 	</reg32>
 
@@ -280,6 +280,16 @@
 		<reg32 offset="0x14" name="VM_FAULT_DATA"/>
 		<reg32 offset="0x1c" name="PD_OFFSET" variants="NV84-"/> <!-- offset from channel base to PD, low 3 bits ignored -->
 	</array>
+
+	<!-- if FAKEFB is used along with real VRAM, it's appended after VRAM -->
+	<reg32 offset="0xe10" name="FAKEFB_BASE" shr="12" align="0x100" variants="NVAA-" access="r"/> <!-- writable through PCI config space -->
+	<reg32 offset="0xe14" name="FAKEFB_SIZE" shr="12" align="0x100" variants="NVAA-" access="r"/>
+	<reg32 offset="0xe1c" name="VRAM_LIMIT" variants="NVA3-"> <!-- inits to VRAM size; when VRAM size changes, follows it iff currently set equal to VRAM size -->
+		<bitfield pos="0" name="HIGH" type="hex" shr="32" variants="NV50-"/>
+		<bitfield high="31" low="12" name="LOW" shr="12"/>
+	</reg32>
+
+	<reg32 offset="0xf04" name="SYSRAM_ADDR_HIGH" shr="40"/> <!-- bits 40-63 of all SYSRAM addresses accessed by the card -->
 </array>
 
 </domain>
