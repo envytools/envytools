@@ -233,6 +233,30 @@
 		<value value="1" name="REORDER_TIMES3"/>
 	</reg32>
 
+	<array offset="0x240" name="TILE_REGION" stride="0x10" length="8" variants="NV10:NV20">
+		<reg32 offset="0x00" name="BASE">
+			<bitfield low="14" high="26" name="BASE" shr="14"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x04" name="LIMIT">
+			<bitfield low="14" high="26" name="LIMIT" shr="14"/> <!-- inclusive limit -->
+		</reg32>
+		<reg32 offset="0x08" name="PITCH">
+			<bitfield low="8" high="15" name="PITCH" shr="8"/>
+		</reg32>
+		<reg32 offset="0x0c" name="STATUS" access="r">
+			<bitfield low="0" high="3" name="FACTOR">
+				<value value="0" name="1"/>
+				<value value="1" name="3"/>
+				<value value="2" name="5"/>
+				<value value="3" name="7"/>
+				<!-- some later card introduced 4 - 13 -->
+			</bitfield>
+			<bitfield low="4" high="7" name="SHIFT"/>
+			<bitfield pos="31" name="VALID"/>
+		</reg32>
+	</array>
+
 	<array offset="0x2c0" name="RAMCHIP_CFG" stride="0x30" length="1" variants="NV30:NVC0">
 		<use-group name="ramchip_cfg" />
 	</array>
