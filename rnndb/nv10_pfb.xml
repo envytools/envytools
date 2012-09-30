@@ -266,6 +266,16 @@
 		<use-group name="ramchip_cfg" />
 	</array>
 
+	<reg32 offset="0x300" name="COMP_REGION" length="8" variants="NV20:NV25">
+		<bitfield low="6" high="17" name="TAG_BASE" shr="6"/>
+		<bitfield pos="26" name="FORMAT">
+			<value value="0" name="16"/>
+			<value value="1" name="32"/>
+		</bitfield>
+		<bitfield pos="27" name="BIG_ENDIAN"/>
+		<bitfield low="28" high="29" name="UNK28"/>
+		<bitfield pos="31" name="VALID"/>
+	</reg32>
 	<reg32 offset="0x320" name="COMP_MAX_TAG" variants="NV20-"/>
 
 	<array offset="0xc00" name="UNKC00" stride="0x80" length="1" variants="NV50-">
@@ -327,6 +337,98 @@
 	</array>
 </array>
 
+</domain>
+
+<domain name="NV20_ZCOMP_TILE_16">
+	<!-- 8x4 tile -->
+	<reg32 offset="0x00" name="W0">
+		<bitfield low="0" high="15" name="BASE"/> <!-- applies to pixel (2,0) -->
+		<bitfield low="16" high="27" name="DX"/> <!-- in half units -->
+		<bitfield low="28" high="31" name="DY_LOW"/> <!-- in half units -->
+	</reg32>
+	<reg32 offset="0x04" name="W1">
+		<bitfield low="0" high="7" name="DY_HIGH"/>
+		<bitfield low="8" high="10" name="DELTA_0_0"/>
+		<bitfield low="11" high="13" name="DELTA_0_1"/>
+		<!-- no DELTA_0_2 - always equal to BASE -->
+		<bitfield low="14" high="16" name="DELTA_0_3"/>
+		<!-- no DELTA_0_4 - always equal to BASE+DX -->
+		<bitfield low="17" high="19" name="DELTA_0_5"/>
+		<bitfield low="20" high="22" name="DELTA_0_6"/>
+		<bitfield low="23" high="25" name="DELTA_0_7"/>
+		<bitfield low="26" high="28" name="DELTA_1_0"/>
+		<bitfield low="29" high="30" name="DELTA_1_1_LOW"/>
+		<bitfield pos="31" name="COMPRESSED_SIZE">
+			<value value="0" name="16B"/>
+			<value value="1" name="8B"/> <!-- W2 and W3 ignored and assumed to be 0, used when DELTAs are all 0 -->
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x08" name="W2">
+		<bitfield pos="0" type="hex" name="DELTA_1_1_HIGH"/>
+		<bitfield low="1" high="3" name="DELTA_1_2"/>
+		<bitfield low="4" high="6" name="DELTA_1_3"/>
+		<bitfield low="7" high="9" name="DELTA_1_4"/>
+		<bitfield low="10" high="12" name="DELTA_1_5"/>
+		<bitfield low="13" high="15" name="DELTA_1_6"/>
+		<bitfield low="16" high="18" name="DELTA_1_7"/>
+		<bitfield low="19" high="21" name="DELTA_2_0"/>
+		<bitfield low="22" high="24" name="DELTA_2_1"/>
+		<!-- no DELTA_2_2 - always equal to BASE+DY -->
+		<bitfield low="25" high="27" name="DELTA_2_3"/>
+		<bitfield low="28" high="30" name="DELTA_2_4"/>
+		<bitfield pos="31" type="hex" name="DELTA_2_5_LOW"/>
+	</reg32>
+	<reg32 offset="0x0c" name="W3">
+		<bitfield low="0" high="1" name="DELTA_2_5_HIGH"/>
+		<bitfield low="2" high="4" name="DELTA_2_6"/>
+		<bitfield low="5" high="7" name="DELTA_2_7"/>
+		<bitfield low="8" high="10" name="DELTA_3_0"/>
+		<bitfield low="11" high="13" name="DELTA_3_1"/>
+		<bitfield low="14" high="16" name="DELTA_3_2"/>
+		<bitfield low="17" high="19" name="DELTA_3_3"/>
+		<bitfield low="20" high="22" name="DELTA_3_4"/>
+		<bitfield low="23" high="25" name="DELTA_3_5"/>
+		<bitfield low="26" high="28" name="DELTA_3_6"/>
+		<bitfield low="29" high="31" name="DELTA_3_7"/>
+	</reg32>
+</domain>
+
+<domain name="NV20_ZCOMP_TILE_32">
+	<!-- 4x4 tile -->
+	<reg32 offset="0x00" name="W0">
+		<bitfield low="0" high="7" name="STENCIL"/>
+		<bitfield low="8" high="31" name="BASE"/> <!-- applies to pixel (1,1) -->
+	</reg32>
+	<reg32 offset="0x04" name="W1">
+		<bitfield low="0" high="14" name="DX"/>
+		<bitfield low="15" high="29" name="DY"/>
+		<bitfield pos="30" type="hex" name="DELTA_0_0_LOW"/>
+		<bitfield pos="31" name="COMPRESSED_SIZE">
+			<value value="0" name="16B"/>
+			<value value="1" name="8B"/> <!-- W2 and W3 ignored and assumed to be 0, used when DELTAs are all 0 -->
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x08" name="W2">
+		<bitfield low="0" high="3" name="DELTA_0_0_HIGH"/>
+		<bitfield low="4" high="8" name="DELTA_0_1"/>
+		<bitfield low="9" high="13" name="DELTA_0_2"/>
+		<bitfield low="14" high="18" name="DELTA_0_3"/>
+		<bitfield low="19" high="23" name="DELTA_1_0"/>
+		<!-- no DELTA_1_1 - always equal to BASE -->
+		<!-- no DELTA_1_2 - always equal to BASE+DX -->
+		<bitfield low="24" high="28" name="DELTA_1_3"/>
+		<bitfield low="29" high="31" name="DELTA_2_0_LOW"/>
+	</reg32>
+	<reg32 offset="0x0c" name="W3">
+		<bitfield low="0" high="1" name="DELTA_2_0_HIGH"/>
+		<!-- no DELTA_2_1 - always equal to BASE+DY -->
+		<bitfield low="2" high="6" name="DELTA_2_2"/>
+		<bitfield low="7" high="11" name="DELTA_2_3"/>
+		<bitfield low="12" high="16" name="DELTA_3_0"/>
+		<bitfield low="17" high="21" name="DELTA_3_1"/>
+		<bitfield low="22" high="26" name="DELTA_3_2"/>
+		<bitfield low="27" high="31" name="DELTA_3_3"/>
+	</reg32>
 </domain>
 
 </database>
