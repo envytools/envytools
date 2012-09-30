@@ -30,10 +30,17 @@
 
 int test_scan(int cnum) {
 	int i;
+	int is_nv34 = nva_cards[cnum].chipset == 0x34;
 	for (i = 0; i < 8; i++) {
-		TEST_BITSCAN(0x100240 + i * 0x10, 0x87ffc000, 0);
-		TEST_BITSCAN(0x100244 + i * 0x10, 0x07ffc000, 0);
-		TEST_BITSCAN(0x100248 + i * 0x10, 0x0000ff00, 0);
+		if (is_nv34) {
+			TEST_BITSCAN(0x100240 + i * 0x10, 0xffffc001, 0);
+			TEST_BITSCAN(0x100244 + i * 0x10, 0xffffc000, 0);
+			TEST_BITSCAN(0x100248 + i * 0x10, 0x0000ff00, 0);
+		} else {
+			TEST_BITSCAN(0x100240 + i * 0x10, 0x87ffc000, 0);
+			TEST_BITSCAN(0x100244 + i * 0x10, 0x07ffc000, 0);
+			TEST_BITSCAN(0x100248 + i * 0x10, 0x0000ff00, 0);
+		}
 	}
 	return HWTEST_RES_PASS;
 }
@@ -70,6 +77,7 @@ uint32_t compute_status(uint32_t pitch) {
 
 int test_status(int cnum) {
 	int i;
+	int is_nv34 = nva_cards[cnum].chipset == 0x34;
 	for (i = 0; i < 0x100; i++) {
 		uint32_t pitch = i << 8;
 		nva_wr32(cnum, 0x100240, 0);
@@ -82,7 +90,7 @@ int test_status(int cnum) {
 			printf("Tile region status mismatch for pitch %05x: is %08x, expected %08x\n", pitch, real, exp);
 			return HWTEST_RES_FAIL;
 		}
-		nva_wr32(cnum, 0x100240, 0x80000000);
+		nva_wr32(cnum, 0x100240, is_nv34?1:0x80000000);
 		exp = compute_status(pitch);
 		if (exp == 0xffffffff)
 			exp = 0;
@@ -130,6 +138,7 @@ int test_format(int cnum) {
 	int res = HWTEST_RES_PASS;
 	int is_nv15 = nva_cards[cnum].chipset == 0x15;
 	int partflip = is_nv15 && (nva_rd32(cnum, 0x100200) & 0x30) == 0x10;
+	int is_nv34 = nva_cards[cnum].chipset == 0x34;
 	for (i = 0; i < 8; i++)
 		nva_wr32(cnum, 0x100240 + i * 0x10, 0);
 	for (i = 0; i < 0x200000; i += 4)
@@ -140,7 +149,7 @@ int test_format(int cnum) {
 			continue;
 		nva_wr32(cnum, 0x100248, pitch);
 		nva_wr32(cnum, 0x100244, 0x000fc000);
-		nva_wr32(cnum, 0x100240, 0x80000000);
+		nva_wr32(cnum, 0x100240, is_nv34?1:0x80000000);
 		for (j = 0; j < 0x100000; j += 4) {
 			uint32_t real = vram_rd32(cnum, j);
 			uint32_t exp = 0xc0000000 | translate_addr(pitch, j, bankshift, partflip);
@@ -171,7 +180,8 @@ int test_format_bs(int cnum, int bs) {
 	if (bs > bankshift)
 		return HWTEST_RES_NA;
 	while (bs < bankshift) {
-		if ((cfg >> 24 & 0xf) > 8) {
+		/* leaving unused column bits == bad idea with NV34 for some reason */
+		if ((cfg >> 24 & 0xf) > 8 && nva_cards[cnum].chipset != 0x34) {
 			cfg -= 1 << 24;
 		} else {
 			int partcfg = cfg >> 4 & 3;
@@ -241,7 +251,7 @@ int main(int argc, char **argv) {
 			fprintf (stderr, "No cards found.\n");
 		return 1;
 	}
-	if (nva_cards[cnum].chipset < 0x10 || nva_cards[cnum].chipset >= 0x1a) {
+	if (nva_cards[cnum].chipset < 0x10 || (nva_cards[cnum].chipset >= 0x1a && nva_cards[cnum].chipset != 0x34)) {
 		fprintf(stderr, "Test not applicable for this chipset.\n");
 		return 2;
 	}
