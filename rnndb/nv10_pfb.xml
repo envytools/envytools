@@ -235,13 +235,16 @@
 		<value value="1" name="REORDER_TIMES3"/>
 	</reg32>
 
-	<array offset="0x240" name="TILE_REGION" stride="0x10" length="8" variants="NV10:NV20">
+	<array offset="0x240" name="TILE_REGION" stride="0x10" length="8" variants="NV10:NV20 NV34:NV40">
 		<reg32 offset="0x00" name="BASE">
-			<bitfield low="14" high="26" name="BASE" shr="14"/>
-			<bitfield pos="31" name="ENABLE"/>
+			<bitfield low="14" high="26" name="BASE" shr="14" variants="NV10:NV20"/>
+			<bitfield pos="31" name="ENABLE" variants="NV10:NV20"/>
+			<bitfield pos="0" name="ENABLE" variants="NV34:NV40"/>
+			<bitfield low="14" high="31" name="BASE" shr="14" variants="NV34:NV40"/>
 		</reg32>
-		<reg32 offset="0x04" name="LIMIT">
-			<bitfield low="14" high="26" name="LIMIT" shr="14"/> <!-- inclusive limit -->
+		<reg32 offset="0x04" name="LIMIT"> <!-- inclusive limit -->
+			<bitfield low="14" high="26" name="LIMIT" shr="14" variants="NV10:NV20"/>
+			<bitfield low="14" high="31" name="LIMIT" shr="14" variants="NV34:NV40"/>
 		</reg32>
 		<reg32 offset="0x08" name="PITCH">
 			<bitfield low="8" high="15" name="PITCH" shr="8"/>
