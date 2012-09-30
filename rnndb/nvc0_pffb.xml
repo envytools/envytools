@@ -14,6 +14,9 @@
 		<bitfield low="0" high="3" name="PART_COUNT"/>
 		<bitfield pos="4" name="MEM_SPLIT_ENABLE"/>
 	</reg32>
+	<array name="UNKC00" offset="0xc00" stride="0x80" length="1">
+		<reg32 offset="0x10" name="UNK08_SYSRAM_ADDR" shr="8"/>
+	</array>
 	<array name="VM" offset="0xc80" stride="0x80" length="1">
 		<reg32 offset="0x00" name="CFG">
 			<bitfield pos="0" name="PT_GRANULARITY">
@@ -48,6 +51,10 @@
 			</bitfield>
 			<bitfield pos="31" name="TRIGGER"/>
 		</reg32>
+	</array>
+	<array offset="0xf00" name="SYSIF" stride="0x80" length="1" variants="NVD9-">
+		<!-- XXX: where is this on NVC0:NVD9? -->
+		<reg32 offset="0x04" name="SYSRAM_ADDR_HIGH" shr="40"/> <!-- bits 40-63 of all SYSRAM addresses accessed by the card -->
 	</array>
 </array>
 

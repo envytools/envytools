@@ -239,7 +239,7 @@
 
 	<reg32 offset="0x320" name="COMP_MAX_TAG" variants="NV20-"/>
 
-	<array offset="0xc00" name="UNKC00" stride="0x80" variants="NV50-">
+	<array offset="0xc00" name="UNKC00" stride="0x80" length="1" variants="NV50-">
 		<reg32 offset="0x08" name="UNK08_SYSRAM_ADDR" shr="8"/>
 		<reg32 offset="0x10" name="PM">
 			<bitfield low="0" high="4" name="CLIENT">
@@ -262,7 +262,7 @@
 		</reg32>
 	</array>
 
-	<array offset="0xc80" name="MMU" stride="0x80" variants="NV50-">
+	<array offset="0xc80" name="MMU" stride="0x80" length="1" variants="NV50-">
 		<reg32 offset="0x00" name="TLB_FLUSH">
 			<bitfield high="19" low="16" name="ENGINE" type="NV50_VM_ENGINE"/>
 			<bitfield pos="0" name="TRIGGER"/>
@@ -293,7 +293,9 @@
 		<bitfield high="31" low="12" name="LOW" shr="12"/>
 	</reg32>
 
-	<reg32 offset="0xf04" name="SYSRAM_ADDR_HIGH" shr="40"/> <!-- bits 40-63 of all SYSRAM addresses accessed by the card -->
+	<array offset="0xf00" name="SYSIF" stride="0x80" length="1" variants="NV50-">
+		<reg32 offset="0x04" name="SYSRAM_ADDR_HIGH" shr="40"/> <!-- bits 40-63 of all SYSRAM addresses accessed by the card -->
+	</array>
 </array>
 
 </domain>
