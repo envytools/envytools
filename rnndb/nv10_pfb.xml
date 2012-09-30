@@ -14,8 +14,10 @@
 	<reg32 offset="0x200" name="CFG0" variants="NV10:NV20 NV34">
 		<doc>Address is:
 		<ul>
-		<li>2-4 bits selecting a byte inside a memory cell [depending on bus width]</li>
-		<li>8-9 bits selecting a column</li>
+		<li>2 bits selecting a byte inside a memory cell [depending on bus width]</li>
+		<li>1 bit selecting a column</li>
+		<li>0-2 more bits selecting a byte inside a memory cell [depending on bus width]</li>
+		<li>7-8 more bits selecting a column</li>
 		<li>1 bit selecting a bank</li>
 		<li>9-12 bits selecting a row</li>
 		<li>0 or 1 more bits selecting a bank</li>
