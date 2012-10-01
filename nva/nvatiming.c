@@ -126,7 +126,7 @@ void time_pcounter_nv10(unsigned int cnum)
 	sleep(1);
 	printf ("Set 0: %d Hz\n", nva_rd32(cnum, 0xa608));
 	if (nva_cards[cnum].card_type >= 0x20) {
-		printf ("Set 1: %d Hz\n", nva_rd32(cnum, 0xa708));
+		printf ("Set 1: %u Hz\n", nva_rd32(cnum, 0xa708));
 	}
 }
 
@@ -147,7 +147,7 @@ void time_pcounter_nv40(unsigned int cnum)
 		nva_wr32(cnum, 0x400084, debug1 | 0x20);
 		sleep(1);
 		nva_wr32(cnum, 0x400084, debug1 | 0x20);
-		printf ("Set %d: %d Hz\n", i, nva_rd32(cnum, 0xa600 + i * 4));
+		printf ("Set %d: %u Hz\n", i, nva_rd32(cnum, 0xa600 + i * 4));
 	}
 }
 
@@ -164,7 +164,7 @@ void time_pcounter_nv84(unsigned int cnum)
 	for (i = 0; i < 8; i++)
 		nva_wr32(cnum, 0xa420 + i * 4, 0xffff);
 	for (i = 0; i < 8; i++)
-		printf ("Set %d: %d Hz\n", i, nva_rd32(cnum, 0xa600 + i * 4));
+		printf ("Set %d: %u Hz\n", i, nva_rd32(cnum, 0xa600 + i * 4));
 }
 
 void time_pcounter_nvc0(unsigned int cnum)
@@ -182,7 +182,7 @@ void time_pcounter_nvc0(unsigned int cnum)
 	}
 	sleep(1);
 	for (i = 0; i < 8; i++)
-		printf ("HUB set %d: %d Hz\n", i, nva_rd32(cnum, 0x1b00a8 + i * 0x200));
+		printf ("HUB set %d: %u Hz\n", i, nva_rd32(cnum, 0x1b00a8 + i * 0x200));
 	for (u = 0; u < parts; u++) {
 		for (i = 0; i < 2; i++) {
 			nva_wr32(cnum, 0x1a009c + i * 0x200 + u * 0x1000, 0x40002);
@@ -191,7 +191,7 @@ void time_pcounter_nvc0(unsigned int cnum)
 		}
 		sleep(1);
 		for (i = 0; i < 2; i++)
-			printf ("PART[%d] set %d: %d Hz\n", u, i, nva_rd32(cnum, 0x1a00a8 + i * 0x200 + u * 0x1000));
+			printf ("PART[%d] set %d: %u Hz\n", u, i, nva_rd32(cnum, 0x1a00a8 + i * 0x200 + u * 0x1000));
 	}
 	for (u = 0; u < gpcs; u++) {
 		for (i = 0; i < 1; i++) {
@@ -201,7 +201,7 @@ void time_pcounter_nvc0(unsigned int cnum)
 		}
 		sleep(1);
 		for (i = 0; i < 1; i++)
-			printf ("GPC[%d] set %d: %d Hz\n", u, i, nva_rd32(cnum, 0x1800a8 + i * 0x200 + u * 0x1000));
+			printf ("GPC[%d] set %d: %u Hz\n", u, i, nva_rd32(cnum, 0x1800a8 + i * 0x200 + u * 0x1000));
 	}
 }
 
