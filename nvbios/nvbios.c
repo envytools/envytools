@@ -1204,7 +1204,11 @@ int main(int argc, char **argv) {
 		uint8_t subentry_offset = 0, subentry_size = 0, subentry_count = 0;
 		uint16_t start = pm_mode_tbl_ptr;
 		uint8_t ram_cfg = strap?(strap & 0x1c) >> 2:0xff;
+		char sub_entry_engine[16][11] = { "unk" };
 		int e;
+		
+		for (i = 0; i < sizeof(sub_entry_engine) / sizeof(*sub_entry_engine); i++)
+			strncpy(sub_entry_engine[i], "unk_engine", 10);
 
 		if (bios->info.version[0] == 0x4) {
 			header_length = bios->data[start+0];
@@ -1337,37 +1341,31 @@ int main(int argc, char **argv) {
 					printf("\n");
 				}
 			} else if (version == 0x40) {
-				uint16_t hub01 = 0, hub06 = 0, copy = 0, rop = 0, daemon = 0, hub07 = 0, unka0 = 0;
 				id = bios->data[start+0];
 				voltage = bios->data[start+2];
 
 				if (bios->chipset < 0xc0) {
-					core = (le16(start+subent(0)) & 0xfff);
-					shader = (le16(start+subent(1)) & 0xfff);
-					memclk = (le16(start+subent(2)) & 0xfff);
-					vdec   = (le16(start+subent(3)) & 0xfff);
-					unka0 = (le16(start+subent(4)) & 0xfff);
+					strncpy(sub_entry_engine[0], "core", 10);
+					strncpy(sub_entry_engine[1], "shader", 10);
+					strncpy(sub_entry_engine[2], "memclk", 10);
+					strncpy(sub_entry_engine[3], "vdec", 10);
+					strncpy(sub_entry_engine[4], "unka0", 10);
 
-					printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Vdec %dMHz "
-						"Unka0 %dMHz Voltage entry %d PCIe link width %d --\n",
-						id, core, memclk, shader, vdec, unka0, voltage, pcie_width );
+					printf ("\n-- ID 0x%x Voltage entry %d PCIe link width %d --\n",
+						id, voltage, pcie_width );
 				} else {
-					hub06 = (le16(start+subent(0)) & 0xfff);
-					hub01 = (le16(start+subent(1)) & 0xfff);
-					copy = (le16(start+subent(2)) & 0xfff);
-					shader = (le16(start+subent(3)) & 0xfff);
-					core = shader / 2;
-					rop = (le16(start+subent(4)) & 0xfff);
-					memclk = (le16(start+subent(5)) & 0xfff);
-					vdec   = (le16(start+subent(6)) & 0xfff);
-					daemon = (le16(start+subent(10)) & 0xfff);
-					hub07 = (le16(start+subent(11)) & 0xfff);
+					strncpy(sub_entry_engine[0], "hub06", 10);
+					strncpy(sub_entry_engine[1], "hub01", 10);
+					strncpy(sub_entry_engine[2], "copy", 10);
+					strncpy(sub_entry_engine[3], "shader", 10);
+					strncpy(sub_entry_engine[4], "rop", 10);
+					strncpy(sub_entry_engine[5], "memclk", 10);
+					strncpy(sub_entry_engine[6], "vdec", 10);
+					strncpy(sub_entry_engine[10], "daemon", 10);
+					strncpy(sub_entry_engine[11], "hub07", 10);
 
-					printf ("\n-- ID 0x%x Core %dMHz Memory %dMHz Shader %dMHz Hub01 %dMHz "
-						"Hub06 %dMHz Hub07 %dMHz ROP %dMHz VDec %dMHz Daemon %dMHz Copy %dMHz "
-						"Voltage entry %d PCIe link width %d --\n",
-						id, core, memclk, shader, hub01, hub06, hub07,
-						rop, vdec, daemon, copy, voltage, pcie_width );
+					printf ("\n-- ID 0x%x Voltage entry %d PCIe link width %d --\n",
+						id, voltage, pcie_width );
 				}
 			}
 
@@ -1393,7 +1391,7 @@ int main(int argc, char **argv) {
 				for(e=0; e < subentry_count; e++) {
 					printf("	%i:", e);
 					printcmd(start + mode_info_length + (e*subentry_size), subentry_size);
-					printf("\n");
+					printf(" : %s freq = %u MHz\n", sub_entry_engine[e], le16(start+subent(e)) & 0xfff);
 				}
 			}
 			printf("\n\n");
