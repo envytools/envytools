@@ -26,6 +26,7 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <string.h>
 #include <getopt.h>
 #include "nva.h"
 #include "rnn.h"
@@ -380,9 +381,20 @@ void time_fuc_engine_watchdog (unsigned int card, const char *fuc_engine_name, u
 	nva_wr32(card, fucengine + 0x34, r34);
 }
 
+#define NVATIMING_PRINT_NONE			0
+#define NVATIMING_PRINT_CRYSTAL			1
+#define NVATIMING_PRINT_PTIMER			2
+#define NVATIMING_PRINT_PGRAPH_DISPATCH_CLK	4
+#define NVATIMING_PRINT_PWM			8
+#define NVATIMING_PRINT_COUNTERS		16
+#define NVATIMING_PRINT_DISPLAY_CLK		32
+#define NVATIMING_PRINT_FUC			64
+#define NVATIMING_PRINT_ALL			0xffffffff
+
 int main(int argc, char **argv)
 {
 	struct nva_card *card = NULL;
+	u32 print_filter = NVATIMING_PRINT_NONE;
 	u32 pmc_enable;
 	int c;
 	int cnum = 0;
@@ -393,12 +405,38 @@ int main(int argc, char **argv)
 	}
 
 	/* Arguments parsing */
-	while ((c = getopt (argc, argv, "c:")) != -1)
+	while ((c = getopt (argc, argv, "c:p:")) != -1)
 		switch (c) {
 			case 'c':
 				sscanf(optarg, "%d", &cnum);
 				break;
+			case 'p':
+				if (strcmp(optarg, "crystal") == 0)
+					print_filter |= NVATIMING_PRINT_CRYSTAL;
+				else if (strcmp(optarg, "ptimer") == 0)
+					print_filter |= NVATIMING_PRINT_PTIMER;
+				else if (strcmp(optarg, "pgraph_clk_dispatch") == 0)
+					print_filter |= NVATIMING_PRINT_PGRAPH_DISPATCH_CLK;
+				else if (strcmp(optarg, "pwm") == 0)
+					print_filter |= NVATIMING_PRINT_PWM;
+				else if (strcmp(optarg, "pcounter") == 0)
+					print_filter |= NVATIMING_PRINT_COUNTERS;
+				else if (strcmp(optarg, "disp_clk") == 0)
+					print_filter |= NVATIMING_PRINT_DISPLAY_CLK;
+				else if (strcmp(optarg, "fuc") == 0)
+					print_filter |= NVATIMING_PRINT_FUC;
+				else {
+					fprintf(stderr, "unknown selective print arg '%s'. "
+					"Possible choices are:\n"
+					"crystal, ptimer, pgraph_clk_dispatch, pwm, pcounter, disp_clk, fuc\n\n",
+					optarg);
+					exit(-1);
+				}
+				break;
 		}
+
+	if (print_filter == NVATIMING_PRINT_NONE)
+		print_filter = NVATIMING_PRINT_ALL;
 
 	if (cnum >= nva_cardsnum) {
 		if (nva_cardsnum)
@@ -413,33 +451,42 @@ int main(int argc, char **argv)
 	pmc_enable = nva_rd32(cnum, 0x200);
 	nva_wr32(cnum, 0x200, 0xffffffff);
 
+	if (print_filter & NVATIMING_PRINT_CRYSTAL)
 	printf("Using card nv%x, crystal frequency = %f MHz\n\n",
 	       card->chipset, crystal_type(cnum)/1000000.0);
-
-	time_ptimer(cnum);
-	printf("\n");
-
-	time_pgraph_dispatch_clock(cnum);
-	printf("\n");
-
-	if (card->card_type >= 0x50)
-		time_pwm_nv50(cnum);
-
-	if (card->card_type == 0xc0) {
-		time_pcounter_nvc0(cnum);
-		printf("\n");
-	} else if (card->chipset >= 0x84){
-		time_pcounter_nv84(cnum);
-		printf("\n");
-	} else if (card->chipset >= 0x40) {
-		time_pcounter_nv40(cnum);
-		printf("\n");
-	} else if (card->chipset >= 0x10) {
-		time_pcounter_nv10(cnum);
+	
+	if (print_filter & NVATIMING_PRINT_PTIMER) {
+		time_ptimer(cnum);
 		printf("\n");
 	}
 
-	if (card->card_type >= 0x50) {
+	if (print_filter & NVATIMING_PRINT_PGRAPH_DISPATCH_CLK) {
+		time_pgraph_dispatch_clock(cnum);
+		printf("\n");
+	}
+
+	if (card->card_type >= 0x50 && print_filter & NVATIMING_PRINT_PWM) {
+		time_pwm_nv50(cnum);
+		printf("\n");
+	}
+
+	if (print_filter & NVATIMING_PRINT_COUNTERS) {
+		if (card->card_type == 0xc0) {
+			time_pcounter_nvc0(cnum);
+			printf("\n");
+		} else if (card->chipset >= 0x84){
+			time_pcounter_nv84(cnum);
+			printf("\n");
+		} else if (card->chipset >= 0x40) {
+			time_pcounter_nv40(cnum);
+			printf("\n");
+		} else if (card->chipset >= 0x10) {
+			time_pcounter_nv10(cnum);
+			printf("\n");
+		}
+	}
+
+	if (card->card_type >= 0x50 && print_filter & NVATIMING_PRINT_DISPLAY_CLK) {
 		uint32_t t0 = nva_rd32(cnum, 0x610018);
 		sleep(1);
 		uint32_t t1 = nva_rd32(cnum, 0x610018);
@@ -449,90 +496,92 @@ int main(int argc, char **argv)
 
 	if (card->chipset < 0x98 || card->chipset == 0xa0) {
 		/* restore PMC enable */
-//		nva_wr32(cnum, 0x200, pmc_enable);
+		nva_wr32(cnum, 0x200, pmc_enable);
 
 		printf("Your card doesn't support fuc (chipset > nv98+ && chipset != nva0 needed)\n");
 		return 0;
 	}
 
-	time_fuc_engine_periodic(cnum, "PBSP", 0x84000);
-	time_fuc_engine_watchdog(cnum, "PBSP", 0x84000);
-	printf("\n");
-
-	time_fuc_engine_periodic(cnum, "PVP", 0x85000);
-	time_fuc_engine_watchdog(cnum, "PVP", 0x85000);
-	printf("\n");
-
-	time_fuc_engine_periodic(cnum, "PPPP", 0x86000);
-	time_fuc_engine_watchdog(cnum, "PPPP", 0x86000);
-	printf("\n");
-
-	if (card->chipset == 0x98 || card->chipset == 0xaa || card->chipset == 0xac) {
-		time_fuc_engine_periodic(cnum, "PCRYPT", 0x87000);
-		time_fuc_engine_watchdog(cnum, "PCRYPT", 0x87000);
-		printf("\n");
-	} else {
-		printf("Your card doesn't support PCOPY (chipset < nva3 only)\n\n");
-	}
-
-	if (card->chipset >= 0xa3 && card->chipset != 0xaa && card->chipset != 0xac) {
-		time_fuc_engine_periodic(cnum, "PCOPY[0]", 0x104000);
-		time_fuc_engine_watchdog(cnum, "PCOPY[0]", 0x104000);
-		printf("\n");
-	} else {
-		printf("Your card doesn't support PCOPY[0] (nva3+ only)\n\n");
-	}
-
-	if (card->chipset >= 0xc0 && card->chipset < 0xd9) {
-		time_fuc_engine_periodic(cnum, "PCOPY[1]", 0x105000);
-		time_fuc_engine_watchdog(cnum, "PCOPY[1]", 0x105000);
-		printf("\n");
-	} else {
-		printf("Your card doesn't support PCOPY[0] (nva3+ only)\n\n");
-	}
-
-	if (card->chipset >= 0xa3 && card->chipset != 0xaa && card->chipset != 0xac) {
-		time_fuc_engine_periodic(cnum, "PDAEMON", 0x10a000);
-		time_fuc_engine_watchdog(cnum, "PDAEMON", 0x10a000);
-		printf("\n");
-	} else {
-		printf("Your card doesn't support PDAEMON (nva3+ only)\n\n");
-	}
-
-	if (card->chipset == 0xaf) {
-		time_fuc_engine_periodic(cnum, "PUNK1C1", 0x1c1000);
-		time_fuc_engine_watchdog(cnum, "PUNK1C1", 0x1c1000);
-		printf("\n");
-	} else {
-		printf("Your card doesn't support PUNK1C1 (nvaf only)\n\n");
-	}
-
-	if (card->chipset == 0xd9) {
-		time_fuc_engine_periodic(cnum, "PUNK1C3", 0x1c3000);
-		time_fuc_engine_watchdog(cnum, "PUNK1C3", 0x1c3000);
-		printf("\n");
-	} else {
-		printf("Your card doesn't support PUNK1C3 (nvd9 only)\n\n");
-	}
-
-	if (card->chipset == 0xd9) {
-		time_fuc_engine_periodic(cnum, "PDISPLAY", 0x627000);
-		time_fuc_engine_watchdog(cnum, "PDISPLAY", 0x627000);
-		printf("\n");
-	} else {
-		printf("Your card doesn't support PDISPLAY (nvd9 only)\n\n");
-	}
-
-	if (card->chipset >= 0xc0) {
-		time_fuc_engine_periodic(cnum, "PGRAPH.CTXCTL", 0x409000);
-		time_fuc_engine_watchdog(cnum, "PGRAPH.CTXCTL", 0x409000);
+	if (print_filter & NVATIMING_PRINT_FUC) {
+		time_fuc_engine_periodic(cnum, "PBSP", 0x84000);
+		time_fuc_engine_watchdog(cnum, "PBSP", 0x84000);
 		printf("\n");
 
-		time_fuc_engine_periodic(cnum, "PGRAPH.TP[0].CTXCTL", 0x502000);
-		time_fuc_engine_watchdog(cnum, "PGRAPH.TP[0].CTXCTL", 0x502000);
+		time_fuc_engine_periodic(cnum, "PVP", 0x85000);
+		time_fuc_engine_watchdog(cnum, "PVP", 0x85000);
 		printf("\n");
-	} else {
-		printf("Your card doesn't support PGRAPH (nvc0+ only)\n\n");
+
+		time_fuc_engine_periodic(cnum, "PPPP", 0x86000);
+		time_fuc_engine_watchdog(cnum, "PPPP", 0x86000);
+		printf("\n");
+
+		if (card->chipset == 0x98 || card->chipset == 0xaa || card->chipset == 0xac) {
+			time_fuc_engine_periodic(cnum, "PCRYPT", 0x87000);
+			time_fuc_engine_watchdog(cnum, "PCRYPT", 0x87000);
+			printf("\n");
+		} else {
+			printf("Your card doesn't support PCOPY (chipset < nva3 only)\n\n");
+		}
+
+		if (card->chipset >= 0xa3 && card->chipset != 0xaa && card->chipset != 0xac) {
+			time_fuc_engine_periodic(cnum, "PCOPY[0]", 0x104000);
+			time_fuc_engine_watchdog(cnum, "PCOPY[0]", 0x104000);
+			printf("\n");
+		} else {
+			printf("Your card doesn't support PCOPY[0] (nva3+ only)\n\n");
+		}
+
+		if (card->chipset >= 0xc0 && card->chipset < 0xd9) {
+			time_fuc_engine_periodic(cnum, "PCOPY[1]", 0x105000);
+			time_fuc_engine_watchdog(cnum, "PCOPY[1]", 0x105000);
+			printf("\n");
+		} else {
+			printf("Your card doesn't support PCOPY[0] (nva3+ only)\n\n");
+		}
+
+		if (card->chipset >= 0xa3 && card->chipset != 0xaa && card->chipset != 0xac) {
+			time_fuc_engine_periodic(cnum, "PDAEMON", 0x10a000);
+			time_fuc_engine_watchdog(cnum, "PDAEMON", 0x10a000);
+			printf("\n");
+		} else {
+			printf("Your card doesn't support PDAEMON (nva3+ only)\n\n");
+		}
+
+		if (card->chipset == 0xaf) {
+			time_fuc_engine_periodic(cnum, "PUNK1C1", 0x1c1000);
+			time_fuc_engine_watchdog(cnum, "PUNK1C1", 0x1c1000);
+			printf("\n");
+		} else {
+			printf("Your card doesn't support PUNK1C1 (nvaf only)\n\n");
+		}
+
+		if (card->chipset == 0xd9) {
+			time_fuc_engine_periodic(cnum, "PUNK1C3", 0x1c3000);
+			time_fuc_engine_watchdog(cnum, "PUNK1C3", 0x1c3000);
+			printf("\n");
+		} else {
+			printf("Your card doesn't support PUNK1C3 (nvd9 only)\n\n");
+		}
+
+		if (card->chipset == 0xd9) {
+			time_fuc_engine_periodic(cnum, "PDISPLAY", 0x627000);
+			time_fuc_engine_watchdog(cnum, "PDISPLAY", 0x627000);
+			printf("\n");
+		} else {
+			printf("Your card doesn't support PDISPLAY (nvd9 only)\n\n");
+		}
+
+		if (card->chipset >= 0xc0) {
+			time_fuc_engine_periodic(cnum, "PGRAPH.CTXCTL", 0x409000);
+			time_fuc_engine_watchdog(cnum, "PGRAPH.CTXCTL", 0x409000);
+			printf("\n");
+
+			time_fuc_engine_periodic(cnum, "PGRAPH.TP[0].CTXCTL", 0x502000);
+			time_fuc_engine_watchdog(cnum, "PGRAPH.TP[0].CTXCTL", 0x502000);
+			printf("\n");
+		} else {
+			printf("Your card doesn't support PGRAPH (nvc0+ only)\n\n");
+		}
 	}
 
 	/* restore PMC enable */
