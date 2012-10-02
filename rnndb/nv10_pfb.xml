@@ -235,16 +235,22 @@
 		<value value="1" name="REORDER_TIMES3"/>
 	</reg32>
 
-	<array offset="0x240" name="TILE_REGION" stride="0x10" length="8" variants="NV10:NV20 NV34:NV40">
-		<reg32 offset="0x00" name="BASE">
-			<bitfield low="14" high="26" name="BASE" shr="14" variants="NV10:NV20"/>
-			<bitfield pos="31" name="ENABLE" variants="NV10:NV20"/>
-			<bitfield pos="0" name="ENABLE" variants="NV34:NV40"/>
-			<bitfield low="14" high="31" name="BASE" shr="14" variants="NV34:NV40"/>
+	<array offset="0x240" name="TILE_REGION" stride="0x10" length="8" variants="NV10:NV30 NV34:NV40">
+		<reg32 offset="0x00" name="BASE" variants="NV10:NV20">
+			<bitfield low="14" high="26" name="BASE" shr="14"/>
+			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
-		<reg32 offset="0x04" name="LIMIT"> <!-- inclusive limit -->
-			<bitfield low="14" high="26" name="LIMIT" shr="14" variants="NV10:NV20"/>
-			<bitfield low="14" high="31" name="LIMIT" shr="14" variants="NV34:NV40"/>
+		<reg32 offset="0x00" name="BASE" variants="NV20:NV40">
+			<bitfield pos="0" name="ENABLE"/>
+			<bitfield pos="1" name="BANKOFF" variants="NV20:NV30"/>
+			<bitfield low="4" high="5" name="BANKOFF" variants="NV30:NV34"/><!-- not verified -->
+			<bitfield low="14" high="31" name="BASE" shr="14"/>
+		</reg32>
+		<reg32 offset="0x04" name="LIMIT" variants="NV10:NV20"> <!-- inclusive limit -->
+			<bitfield low="14" high="26" name="LIMIT" shr="14"/>
+		</reg32>
+		<reg32 offset="0x04" name="LIMIT" variants="NV20:NV40">
+			<bitfield low="14" high="31" name="LIMIT" shr="14"/>
 		</reg32>
 		<reg32 offset="0x08" name="PITCH">
 			<bitfield low="8" high="15" name="PITCH" shr="8"/>
@@ -277,6 +283,12 @@
 		<bitfield pos="31" name="VALID"/>
 	</reg32>
 	<reg32 offset="0x320" name="COMP_MAX_TAG" variants="NV20-"/>
+	<reg32 offset="0x324" name="COMP_UNK324" variants="NV20:NV34">
+		<bitfield low="0" high="3" name="UNK0"/>
+		<bitfield pos="4" name="UNK4" variants="NV30:NV34"/>
+		<bitfield low="14" high="25" name="TAG_BASE" shr="6"/>
+		<bitfield pos="31" name="ENABLE"/>
+	</reg32>
 
 	<array offset="0xc00" name="UNKC00" stride="0x80" length="1" variants="NV50-">
 		<reg32 offset="0x08" name="UNK08_SYSRAM_ADDR" shr="8"/>
