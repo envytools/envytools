@@ -8,6 +8,7 @@ if (PC_PCIACCESS_FOUND)
 
 SET(HWTEST_PROGS
 	nv10_tile
+	nv20_tile
 )
 
 add_library(hwtest vram.c)
