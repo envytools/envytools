@@ -30,9 +30,10 @@
 struct hwtest_test {
 	int (*fun) (int cnum);
 	const char *name;
+	int slow;
 };
 
-#define HWTEST_TEST(a) { a, #a }
+#define HWTEST_TEST(a, slow) { a, #a, slow }
 
 enum hwtest_res {
 	HWTEST_RES_NA,

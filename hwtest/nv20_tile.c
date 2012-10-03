@@ -28,6 +28,30 @@
 #include <stdio.h>
 #include <unistd.h>
 
+int get_partbits(int cnum) {
+	uint32_t cfg0 = nva_rd32(cnum, 0x100200);
+	switch (cfg0 & 0xf) {
+		case 0:
+			return 0;
+		case 1:
+			return 1;
+		case 3:
+			return 2;
+		case 7:
+			return 3;
+		case 0xf:
+			return 4;
+		default:
+			printf("Unknown part bits count!\n");
+			return -1;
+	}
+}
+
+int get_colbits(int cnum) {
+	uint32_t cfg1 = nva_rd32(cnum, 0x100204);
+	return cfg1 >> 12 & 0xf;
+}
+
 int test_scan(int cnum) {
 	int i;
 	for (i = 0; i < 8; i++) {
@@ -150,6 +174,33 @@ int test_zcomp_size(int cnum) {
 	return HWTEST_RES_PASS;
 }
 
+int test_zcomp_access(int cnum) {
+	uint32_t size = (nva_rd32(cnum, 0x100320) + 1) / 8;
+	int i, j, k;
+	for (i = 0; i < 4; i++) {
+		for (j = 0; j < size; j += 0x40) {
+			nva_wr32(cnum, 0x1000f0, 0x1300000 | i << 16 | j);
+			for (k = 0; k < 0x40; k += 4) {
+				nva_wr32(cnum, 0x100100 + k, 0xdea00000 | i << 16 | j | k);
+			}
+		}
+	}
+	for (i = 0; i < 4; i++) {
+		for (j = 0; j < size; j += 0x40) {
+			nva_wr32(cnum, 0x1000f0, 0x1300000 | i << 16 | j);
+			for (k = 0; k < 0x40; k += 4) {
+				uint32_t val = nva_rd32(cnum, 0x100100+ k);
+				uint32_t x =  0xdea00000 | i << 16 | j | k;
+				if (val != x) {
+					printf("MISMATCH %08x %08x\n", x, val);
+					return HWTEST_RES_FAIL;
+				}
+			}
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 uint32_t translate_addr(uint32_t pitch, uint32_t laddr, int colbits, int partbits, int bankoff) {
 	uint32_t status = compute_status(pitch);
 	uint32_t shift = status >> 4;
@@ -166,22 +217,10 @@ uint32_t translate_addr(uint32_t pitch, uint32_t laddr, int colbits, int partbit
 	y >>= 2;
 	uint32_t y2 = y & ((1 << (ybits - 2)) - 1);
 	y >>= ybits - 2;
-	switch (partbits) {
-		case 0:
-			break;
-		case 1:
-			if (y2 & 1)
-				part++;
-			break;
-		case 2:
-			if (y2 & 1)
-				part += 2;
-			if (y2 & 2)
-				part += 1;
-			break;
-		default:
-			abort();
-	}
+	if (y2 & 1 && partbits >= 1)
+		part += 1 << (partbits - 1);
+	if (y2 & 2 && partbits >= 2)
+		part += 1 << (partbits - 2);
 	part &= (1 << partbits) - 1;
 	uint32_t res = x + y * (pitch / 0x100);
 	res ^= bankoff;
@@ -195,28 +234,77 @@ uint32_t translate_addr(uint32_t pitch, uint32_t laddr, int colbits, int partbit
 	return res;
 }
 
-int get_partbits(int cnum) {
-	uint32_t cfg0 = nva_rd32(cnum, 0x100200);
-	switch (cfg0 & 0xf) {
-		case 0:
-			return 0;
-		case 1:
-			return 1;
-		case 3:
-			return 2;
-		case 7:
-			return 3;
-		case 0xf:
-			return 4;
-		default:
-			printf("Unknown part bits count!\n");
-			return -1;
-	}
+uint32_t translate_tag(uint32_t pitch, int part, uint32_t tag, int colbits, int partbits) {
+	uint32_t lx = tag & ((1 << (4 - partbits)) - 1);
+	tag >>= 4 - partbits;
+	uint32_t ly = tag & ((1 << (colbits + partbits - 8)) - 1);
+	tag >>= colbits + partbits - 8;
+	uint32_t tx = tag % (pitch >> 8);
+	uint32_t ty = tag / (pitch >> 8);
+	uint32_t y = (ty << (colbits + partbits - 8) | ly) << 2;
+	uint32_t px = part;
+	if (ly & 1 && partbits >= 1)
+		px -= 1 << (partbits - 1);
+	if (ly & 2 && partbits >= 2)
+		px -= 1 << (partbits - 2);
+	px &= (1 << partbits) - 1;
+	uint32_t x = tx << 8 | lx << (partbits + 4) | px << 4;
+	return y * pitch + x;
 }
 
-int get_colbits(int cnum) {
-	uint32_t cfg1 = nva_rd32(cnum, 0x100204);
-	return cfg1 >> 12 & 0xf;
+int test_zcomp_layout(int cnum) {
+	int partbits = get_partbits(cnum);
+	int colbits = get_colbits(cnum);
+	uint32_t size = (nva_rd32(cnum, 0x100320) + 1);
+	int i, j, k, m;
+	for (i = 0; i < (1 << partbits); i++) {
+		for (j = 0; j < size; j += 0x40) {
+			nva_wr32(cnum, 0x1000f0, 0x1300000 | i << 16 | j);
+			for (k = 0; k < 0x40; k += 4) {
+				nva_wr32(cnum, 0x100100 + k, 0);
+			}
+		}
+	}
+	nva_wr32(cnum, 0x100240, 0);
+	for (i = 0; i < 0x200000; i += 0x10) {
+		vram_wr32(cnum, i+0x0, 0x0000ffff);
+		vram_wr32(cnum, i+0x4, 0x00000000);
+		vram_wr32(cnum, i+0x8, 0x00000000);
+		vram_wr32(cnum, i+0xc, 0x00000000);
+	}
+	uint32_t pitch = 0xe000;
+	nva_wr32(cnum, 0x100248, pitch);
+	nva_wr32(cnum, 0x100244, 0xfc000);
+	nva_wr32(cnum, 0x100240, 1);
+	nva_wr32(cnum, 0x100300, 0x80000000);
+	for (i = 0; i < (1 << partbits); i++) {
+		for (j = 0; j < size; j++) {
+			nva_wr32(cnum, 0x1000f0, 0x1300000 | i << 16 | (j >> 3 & ~0x3f));
+			nva_wr32(cnum, 0x100100 | (j >> 3 & 0x3c), 1 << (j & 0x1f));
+			uint32_t exp = translate_tag(pitch, i, j, colbits, partbits);
+			if (exp < 0x100000 && !vram_rd32(cnum, exp + 4)) {
+				printf("part %d tag %05x: expected to belong to %08x", i, j, exp);
+				int found = 0;
+				for (m = 0; m < 0x100000; m += 0x10) {
+					uint32_t mm = vram_rd32(cnum, m+4);
+					if (mm) {
+						printf(", found at %08x instead\n", m);
+						break;
+					}
+				}
+				if (!found) {
+					printf(", but not found in surface\n");
+				}
+				nva_wr32(cnum, 0x100240, 0);
+				nva_wr32(cnum, 0x100300, 0);
+				return HWTEST_RES_FAIL;
+			}
+			nva_wr32(cnum, 0x100100 | (j >> 3 & 0x3c), 0);
+		}
+	}
+	nva_wr32(cnum, 0x100240, 0);
+	nva_wr32(cnum, 0x100300, 0);
+	return HWTEST_RES_PASS;
 }
 
 int test_format(int cnum) {
@@ -272,7 +360,7 @@ int test_format(int cnum) {
 	return res;
 }
 
-int test_format_pb(int cnum, int pb) {
+int test_pb(int cnum, int pb, int (*fun)(int cnum)) {
 	uint32_t orig = nva_rd32(cnum, 0x100200);
 	uint32_t cfg = orig;
 	int partbits = get_partbits(cnum);
@@ -298,40 +386,66 @@ int test_format_pb(int cnum, int pb) {
 		nva_wr32(cnum, 0x100200, cfg);
 		partbits = get_partbits(cnum);
 	}
-	int res = test_format(cnum);
+	int res = fun(cnum);
 	nva_wr32(cnum, 0x100200, orig);
 	return res;
 }
 
 int test_format_pb0(int cnum) {
-	return test_format_pb(cnum, 0);
+	return test_pb(cnum, 0, test_format);
 }
 
 int test_format_pb1(int cnum) {
-	return test_format_pb(cnum, 1);
+	return test_pb(cnum, 1, test_format);
 }
 
 int test_format_pb2(int cnum) {
-	return test_format_pb(cnum, 2);
+	return test_pb(cnum, 2, test_format);
 }
 
 int test_format_pb3(int cnum) {
-	return test_format_pb(cnum, 3);
+	return test_pb(cnum, 3, test_format);
 }
 
 int test_format_pb4(int cnum) {
-	return test_format_pb(cnum, 4);
+	return test_pb(cnum, 4, test_format);
+}
+
+int test_zcomp_layout_pb0(int cnum) {
+	return test_pb(cnum, 0, test_zcomp_layout);
+}
+
+int test_zcomp_layout_pb1(int cnum) {
+	return test_pb(cnum, 1, test_zcomp_layout);
+}
+
+int test_zcomp_layout_pb2(int cnum) {
+	return test_pb(cnum, 2, test_zcomp_layout);
+}
+
+int test_zcomp_layout_pb3(int cnum) {
+	return test_pb(cnum, 3, test_zcomp_layout);
+}
+
+int test_zcomp_layout_pb4(int cnum) {
+	return test_pb(cnum, 4, test_zcomp_layout);
 }
 
 struct hwtest_test nv20_tile_tests[] = {
-	HWTEST_TEST(test_scan),
-	HWTEST_TEST(test_status),
-	HWTEST_TEST(test_zcomp_size),
-	HWTEST_TEST(test_format_pb0),
-	HWTEST_TEST(test_format_pb1),
-	HWTEST_TEST(test_format_pb2),
-	HWTEST_TEST(test_format_pb3),
-	HWTEST_TEST(test_format_pb4),
+	HWTEST_TEST(test_scan, 0),
+	HWTEST_TEST(test_status, 0),
+	HWTEST_TEST(test_zcomp_size, 0),
+	HWTEST_TEST(test_zcomp_access, 0),
+	HWTEST_TEST(test_format_pb0, 1),
+	HWTEST_TEST(test_format_pb1, 1),
+	HWTEST_TEST(test_format_pb2, 1),
+	HWTEST_TEST(test_format_pb3, 1),
+	HWTEST_TEST(test_format_pb4, 1),
+	HWTEST_TEST(test_zcomp_layout_pb0, 0),
+	HWTEST_TEST(test_zcomp_layout_pb1, 0),
+	HWTEST_TEST(test_zcomp_layout_pb2, 0),
+	HWTEST_TEST(test_zcomp_layout_pb3, 0),
+	HWTEST_TEST(test_zcomp_layout_pb4, 0),
 };
 
 int main(int argc, char **argv) {
@@ -342,13 +456,17 @@ int main(int argc, char **argv) {
 	int c;
 	int cnum = 0;
 	int colors = 1;
-	while ((c = getopt (argc, argv, "c:n")) != -1)
+	int noslow = 0;
+	while ((c = getopt (argc, argv, "c:ns")) != -1)
 		switch (c) {
 			case 'c':
 				sscanf(optarg, "%d", &cnum);
 				break;
 			case 'n':
 				colors = 0;
+				break;
+			case 's':
+				noslow = 1;
 				break;
 		}
 	if (cnum >= nva_cardsnum) {
@@ -369,22 +487,26 @@ int main(int argc, char **argv) {
 	int i;
 	int worst = 0;
 	for (i = 0; i < ARRAY_SIZE(nv20_tile_tests); i++) {
-		int res = nv20_tile_tests[i].fun(cnum);
-		if (worst < res)
-			worst = res;
-		const char *tab[] = {
-			[HWTEST_RES_NA] = "n/a",
-			[HWTEST_RES_PASS] = "passed",
-			[HWTEST_RES_UNPREP] = "hw not prepared",
-			[HWTEST_RES_FAIL] = "FAILED",
-		};
-		const char *tabc[] = {
-			[HWTEST_RES_NA] = "n/a",
-			[HWTEST_RES_PASS] = "\x1b[32mpassed\x1b[0m",
-			[HWTEST_RES_UNPREP] = "\x1b[33mhw not prepared\x1b[0m",
-			[HWTEST_RES_FAIL] = "\x1b[31mFAILED\x1b[0m",
-		};
-		printf("%s: %s\n", nv20_tile_tests[i].name, res[colors?tabc:tab]);
+		if (nv20_tile_tests[i].slow && noslow) {
+			printf("%s: skipped\n", nv20_tile_tests[i].name);
+		} else {
+			int res = nv20_tile_tests[i].fun(cnum);
+			if (worst < res)
+				worst = res;
+			const char *tab[] = {
+				[HWTEST_RES_NA] = "n/a",
+				[HWTEST_RES_PASS] = "passed",
+				[HWTEST_RES_UNPREP] = "hw not prepared",
+				[HWTEST_RES_FAIL] = "FAILED",
+			};
+			const char *tabc[] = {
+				[HWTEST_RES_NA] = "n/a",
+				[HWTEST_RES_PASS] = "\x1b[32mpassed\x1b[0m",
+				[HWTEST_RES_UNPREP] = "\x1b[33mhw not prepared\x1b[0m",
+				[HWTEST_RES_FAIL] = "\x1b[31mFAILED\x1b[0m",
+			};
+			printf("%s: %s\n", nv20_tile_tests[i].name, res[colors?tabc:tab]);
+		}
 	}
 	if (worst == HWTEST_RES_PASS)
 		return 0;

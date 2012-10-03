@@ -219,12 +219,12 @@ int test_format_bs13(int cnum) {
 }
 
 struct hwtest_test nv10_tile_tests[] = {
-	HWTEST_TEST(test_scan),
-	HWTEST_TEST(test_status),
-	HWTEST_TEST(test_format_bs10),
-	HWTEST_TEST(test_format_bs11),
-	HWTEST_TEST(test_format_bs12),
-	HWTEST_TEST(test_format_bs13),
+	HWTEST_TEST(test_scan, 0),
+	HWTEST_TEST(test_status, 0),
+	HWTEST_TEST(test_format_bs10, 1),
+	HWTEST_TEST(test_format_bs11, 1),
+	HWTEST_TEST(test_format_bs12, 1),
+	HWTEST_TEST(test_format_bs13, 1),
 };
 
 int main(int argc, char **argv) {
@@ -235,13 +235,17 @@ int main(int argc, char **argv) {
 	int c;
 	int cnum = 0;
 	int colors = 1;
-	while ((c = getopt (argc, argv, "c:n")) != -1)
+	int noslow = 0;
+	while ((c = getopt (argc, argv, "c:ns")) != -1)
 		switch (c) {
 			case 'c':
 				sscanf(optarg, "%d", &cnum);
 				break;
 			case 'n':
 				colors = 0;
+				break;
+			case 's':
+				noslow = 1;
 				break;
 		}
 	if (cnum >= nva_cardsnum) {
@@ -262,22 +266,26 @@ int main(int argc, char **argv) {
 	int i;
 	int worst = 0;
 	for (i = 0; i < ARRAY_SIZE(nv10_tile_tests); i++) {
-		int res = nv10_tile_tests[i].fun(cnum);
-		if (worst < res)
-			worst = res;
-		const char *tab[] = {
-			[HWTEST_RES_NA] = "n/a",
-			[HWTEST_RES_PASS] = "passed",
-			[HWTEST_RES_UNPREP] = "hw not prepared",
-			[HWTEST_RES_FAIL] = "FAILED",
-		};
-		const char *tabc[] = {
-			[HWTEST_RES_NA] = "n/a",
-			[HWTEST_RES_PASS] = "\x1b[32mpassed\x1b[0m",
-			[HWTEST_RES_UNPREP] = "\x1b[33mhw not prepared\x1b[0m",
-			[HWTEST_RES_FAIL] = "\x1b[31mFAILED\x1b[0m",
-		};
-		printf("%s: %s\n", nv10_tile_tests[i].name, res[colors?tabc:tab]);
+		if (nv10_tile_tests[i].slow && noslow) {
+			printf("%s: skipped\n", nv10_tile_tests[i].name);
+		} else {
+			int res = nv10_tile_tests[i].fun(cnum);
+			if (worst < res)
+				worst = res;
+			const char *tab[] = {
+				[HWTEST_RES_NA] = "n/a",
+				[HWTEST_RES_PASS] = "passed",
+				[HWTEST_RES_UNPREP] = "hw not prepared",
+				[HWTEST_RES_FAIL] = "FAILED",
+			};
+			const char *tabc[] = {
+				[HWTEST_RES_NA] = "n/a",
+				[HWTEST_RES_PASS] = "\x1b[32mpassed\x1b[0m",
+				[HWTEST_RES_UNPREP] = "\x1b[33mhw not prepared\x1b[0m",
+				[HWTEST_RES_FAIL] = "\x1b[31mFAILED\x1b[0m",
+			};
+			printf("%s: %s\n", nv10_tile_tests[i].name, res[colors?tabc:tab]);
+		}
 	}
 	if (worst == HWTEST_RES_PASS)
 		return 0;
