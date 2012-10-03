@@ -174,9 +174,24 @@ int test_zcomp_size(int cnum) {
 	return HWTEST_RES_PASS;
 }
 
+void clear_zcomp(int cnum) {
+	int partbits = get_partbits(cnum);
+	uint32_t size = (nva_rd32(cnum, 0x100320) + 1);
+	int i, j, k;
+	for (i = 0; i < (1 << partbits); i++) {
+		for (j = 0; j < size; j += 0x40) {
+			nva_wr32(cnum, 0x1000f0, 0x1300000 | i << 16 | j);
+			for (k = 0; k < 0x40; k += 4) {
+				nva_wr32(cnum, 0x100100 + k, 0);
+			}
+		}
+	}
+}
+
 int test_zcomp_access(int cnum) {
 	uint32_t size = (nva_rd32(cnum, 0x100320) + 1) / 8;
 	int i, j, k;
+	clear_zcomp(cnum);
 	for (i = 0; i < 4; i++) {
 		for (j = 0; j < size; j += 0x40) {
 			nva_wr32(cnum, 0x1000f0, 0x1300000 | i << 16 | j);
@@ -189,7 +204,7 @@ int test_zcomp_access(int cnum) {
 		for (j = 0; j < size; j += 0x40) {
 			nva_wr32(cnum, 0x1000f0, 0x1300000 | i << 16 | j);
 			for (k = 0; k < 0x40; k += 4) {
-				uint32_t val = nva_rd32(cnum, 0x100100+ k);
+				uint32_t val = nva_rd32(cnum, 0x100100 + k);
 				uint32_t x =  0xdea00000 | i << 16 | j | k;
 				if (val != x) {
 					printf("MISMATCH %08x %08x\n", x, val);
@@ -256,15 +271,8 @@ int test_zcomp_layout(int cnum) {
 	int partbits = get_partbits(cnum);
 	int colbits = get_colbits(cnum);
 	uint32_t size = (nva_rd32(cnum, 0x100320) + 1);
-	int i, j, k, m;
-	for (i = 0; i < (1 << partbits); i++) {
-		for (j = 0; j < size; j += 0x40) {
-			nva_wr32(cnum, 0x1000f0, 0x1300000 | i << 16 | j);
-			for (k = 0; k < 0x40; k += 4) {
-				nva_wr32(cnum, 0x100100 + k, 0);
-			}
-		}
-	}
+	int i, j, m;
+	clear_zcomp(cnum);
 	nva_wr32(cnum, 0x100240, 0);
 	for (i = 0; i < 0x200000; i += 0x10) {
 		vram_wr32(cnum, i+0x0, 0x0000ffff);
@@ -276,7 +284,7 @@ int test_zcomp_layout(int cnum) {
 	nva_wr32(cnum, 0x100248, pitch);
 	nva_wr32(cnum, 0x100244, 0xfc000);
 	nva_wr32(cnum, 0x100240, 1);
-	nva_wr32(cnum, 0x100300, 0x80000000);
+	nva_wr32(cnum, 0x100300, 0x90000000);
 	for (i = 0; i < (1 << partbits); i++) {
 		for (j = 0; j < size; j++) {
 			nva_wr32(cnum, 0x1000f0, 0x1300000 | i << 16 | (j >> 3 & ~0x3f));
@@ -357,6 +365,181 @@ int test_format(int cnum) {
 		}
 		nva_wr32(cnum, 0x100240, 0x0);
 	}
+	return res;
+}
+
+void zcomp_decompress(int format, uint32_t dst[4][4], uint32_t src[4]) {
+	int x, y;
+	uint64_t w0 = src[0] | (uint64_t)src[1] << 32;
+	uint64_t w1 = src[2] | (uint64_t)src[3] << 32;
+	/* short flag */
+	if (w0 & (uint64_t)1 << 63)
+		w1 = 0;
+	if (!(format & 1)) {
+		/* Z16 */
+		uint16_t tdst[8][4];
+		uint32_t delta[8][4];
+		uint32_t base = w0 & 0xffff;
+		uint32_t dx = w0 >> 16 & 0xfff;
+		uint32_t dy = w0 >> 28 & 0xfff;
+		if (dx & 0x800)
+			dx |= 0xfffff000;
+		if (dy & 0x800)
+			dy |= 0xfffff000;
+		delta[0][0] = w0 >> 40 & 7;
+		delta[1][0] = w0 >> 43 & 7;
+		delta[2][0] = 0;
+		delta[3][0] = w0 >> 46 & 7;
+		delta[4][0] = 0;
+		delta[5][0] = w0 >> 49 & 7;
+		delta[6][0] = w0 >> 52 & 7;
+		delta[7][0] = w0 >> 55 & 7;
+		delta[0][1] = w0 >> 58 & 7;
+		delta[1][1] = (w0 >> 61 & 3) | (w1 & 1) << 2;
+		delta[2][1] = w1 >> 1 & 7;
+		delta[3][1] = w1 >> 4 & 7;
+		delta[4][1] = w1 >> 7 & 7;
+		delta[5][1] = w1 >> 10 & 7;
+		delta[6][1] = w1 >> 13 & 7;
+		delta[7][1] = w1 >> 16 & 7;
+		delta[0][2] = w1 >> 19 & 7;
+		delta[1][2] = w1 >> 22 & 7;
+		delta[2][2] = 0;
+		delta[3][2] = w1 >> 25 & 7;
+		delta[4][2] = w1 >> 28 & 7;
+		delta[5][2] = w1 >> 31 & 7;
+		delta[6][2] = w1 >> 34 & 7;
+		delta[7][2] = w1 >> 37 & 7;
+		delta[0][3] = w1 >> 40 & 7;
+		delta[1][3] = w1 >> 43 & 7;
+		delta[2][3] = w1 >> 46 & 7;
+		delta[3][3] = w1 >> 49 & 7;
+		delta[4][3] = w1 >> 52 & 7;
+		delta[5][3] = w1 >> 55 & 7;
+		delta[6][3] = w1 >> 58 & 7;
+		delta[7][3] = w1 >> 61 & 7;
+		for (x = 0; x < 8; x++) {
+			for (y = 0; y < 4; y++) {
+				if (delta[x][y] & 4)
+					delta[x][y] |= 0xfff8;
+				uint32_t tmp = base * 2 + (x - 2) * dx + y * dy + delta[x][y] * 2;
+				tdst[x][y] = (tmp + 1) >> 1;
+				if (format & 2) {
+					tdst[x][y] = tdst[x][y] << 8 | tdst[x][y] >> 8;
+				}
+			}
+		}
+		for (x = 0; x < 4; x++) {
+			for (y = 0; y < 4; y++) {
+				dst[x][y] = tdst[2*x][y] | tdst[2*x+1][y] << 16;
+			}
+		}
+	} else {
+		/* Z24S8 */
+		uint32_t delta[4][4];
+		uint8_t stencil = w0 & 0xff;
+		uint32_t base = w0 >> 8 & 0xffffff;
+		uint32_t dx = w0 >> 32 & 0x7fff;
+		uint32_t dy = w0 >> 47 & 0x7fff;
+		if (dx & 0x4000)
+			dx |= 0xff8000;
+		if (dy & 0x4000)
+			dy |= 0xff8000;
+		delta[0][0] = (w0 >> 62 & 1) | (w1 & 0xf) << 1;
+		delta[1][0] = w1 >> 4 & 0x1f;
+		delta[2][0] = w1 >> 9 & 0x1f;
+		delta[3][0] = w1 >> 14 & 0x1f;
+		delta[0][1] = w1 >> 19 & 0x1f;
+		delta[1][1] = 0;
+		delta[2][1] = 0;
+		delta[3][1] = w1 >> 24 & 0x1f;
+		delta[0][2] = w1 >> 29 & 0x1f;
+		delta[1][2] = 0;
+		delta[2][2] = w1 >> 34 & 0x1f;
+		delta[3][2] = w1 >> 39 & 0x1f;
+		delta[0][3] = w1 >> 44 & 0x1f;
+		delta[1][3] = w1 >> 49 & 0x1f;
+		delta[2][3] = w1 >> 54 & 0x1f;
+		delta[3][3] = w1 >> 59 & 0x1f;
+		for (x = 0; x < 4; x++) {
+			for (y = 0; y < 4; y++) {
+				if (delta[x][y] & 0x10)
+					delta[x][y] |= 0xffffe0;
+				dst[x][y] = base;
+				dst[x][y] += (x - 1) * dx;
+				dst[x][y] += (y - 1) * dy;
+				dst[x][y] += delta[x][y];
+				dst[x][y] <<= 8;
+				dst[x][y] |= stencil;
+				if (format & 2) {
+					dst[x][y] = (dst[x][y] & 0xff00ff) << 8 | (dst[x][y] & 0xff00ff00) >> 8;
+					dst[x][y] = dst[x][y] << 16 | dst[x][y] >> 16;
+				}
+			}
+		}
+	}
+}
+
+int test_zcomp_format(int cnum) {
+	int res = HWTEST_RES_PASS;
+	int colbits = get_colbits(cnum);
+	int partbits = get_partbits(cnum);
+	uint32_t pitch = 0x200;
+	nva_wr32(cnum, 0x100248, pitch);
+	nva_wr32(cnum, 0x100244, 0);
+	nva_wr32(cnum, 0x100240, 1);
+	int i, j;
+	for (i = 0; i < 16; i++) {
+		nva_wr32(cnum, 0x100300, 0x80000000 | i << 26);
+		for (j = 0; j < 100000; j++) {
+			int tag = rand() & 0xff;
+			int part = tag & ((1 << partbits) - 1);
+			tag >>= partbits;
+			uint32_t addr = translate_tag(pitch, part, tag, colbits, partbits);
+			uint32_t src[4];
+			int k;
+			nva_wr32(cnum, 0x1000f0, 0x1300000 | part << 16);
+			nva_wr32(cnum, 0x100100 | (tag >> 3 & 0x3c), 0);
+			for (k = 0; k < 4; k++) {
+				src[k] = rand() ^ rand() << 10 ^ rand() << 20;
+				vram_wr32(cnum, addr + k * 4, src[k]);
+			}
+			nva_wr32(cnum, 0x100100 | (tag >> 3 & 0x3c), 1 << (tag & 0x1f));
+			uint32_t dst[4][4], rdst[4][4];
+			int x, y;
+			for (x = 0; x < 4; x++)
+				for (y = 0; y < 4; y++)
+					rdst[x][y] = vram_rd32(cnum, addr + x * 4 + y * pitch);
+			zcomp_decompress(i, dst, src);
+			int fail = 0;
+			for (x = 0; x < 4; x++)
+				for (y = 0; y < 4; y++)
+					if (rdst[x][y] != dst[x][y])
+						fail = 1;
+			if (fail) {
+				printf("ZCOMP decompression mismatch iter %d: format %d part %d tag %05x, src %08x %08x %08x %08x\n", j, i, part, tag, src[0], src[1], src[2], src[3]);
+				printf("expected:\n");
+				for (y = 0; y < 4; y++)
+					for (x = 0; x < 4; x++) 
+						printf("%08x%c", dst[x][y], x == 3 ? '\n' : ' ');
+				printf("real:\n");
+				for (y = 0; y < 4; y++)
+					for (x = 0; x < 4; x++) 
+						printf("%08x%c", rdst[x][y], x == 3 ? '\n' : ' ');
+			for (x = 0; x < 4; x++)
+				for (y = 0; y < 4; y++)
+					rdst[x][y] = vram_rd32(cnum, addr + x * 4 + y * pitch);
+				printf("realer:\n");
+				for (y = 0; y < 4; y++)
+					for (x = 0; x < 4; x++) 
+						printf("%08x%c", rdst[x][y], x == 3 ? '\n' : ' ');
+				res = HWTEST_RES_FAIL;
+				break;
+			}
+		}
+	}
+	nva_wr32(cnum, 0x100240, 0);
+	nva_wr32(cnum, 0x100300, 0);
 	return res;
 }
 
@@ -446,6 +629,7 @@ struct hwtest_test nv20_tile_tests[] = {
 	HWTEST_TEST(test_zcomp_layout_pb2, 0),
 	HWTEST_TEST(test_zcomp_layout_pb3, 0),
 	HWTEST_TEST(test_zcomp_layout_pb4, 0),
+	HWTEST_TEST(test_zcomp_format, 0),
 };
 
 int main(int argc, char **argv) {
