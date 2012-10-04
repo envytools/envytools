@@ -261,7 +261,7 @@
 				<value value="1" name="3"/>
 				<value value="2" name="5"/>
 				<value value="3" name="7"/>
-				<!-- some later card introduced 4 - 13 -->
+				<value value="4" name="13" variants="NV25:NV34 NV40-"/>
 			</bitfield>
 			<bitfield low="4" high="7" name="SHIFT"/>
 			<bitfield pos="31" name="VALID"/>
