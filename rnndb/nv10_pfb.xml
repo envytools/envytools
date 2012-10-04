@@ -282,6 +282,17 @@
 		<bitfield low="28" high="29" name="UNK28"/>
 		<bitfield pos="31" name="VALID"/>
 	</reg32>
+	<reg32 offset="0x300" name="COMP_REGION" length="8" variants="NV25">
+		<bitfield low="6" high="17" name="TAG_BASE" shr="6"/>
+		<bitfield low="20" high="23" name="FORMAT">
+			<value value="0" name="OFF"/>
+			<value value="1" name="16"/>
+			<value value="2" name="32"/>
+			<value value="3" name="16_MS"/>
+			<value value="4" name="32_MS"/>
+		</bitfield>
+		<bitfield pos="24" name="BIG_ENDIAN"/>
+	</reg32>
 	<reg32 offset="0x320" name="COMP_MAX_TAG" variants="NV20-"/>
 	<reg32 offset="0x324" name="COMP_UNK324" variants="NV20:NV34">
 		<bitfield low="0" high="3" name="UNK0"/>
