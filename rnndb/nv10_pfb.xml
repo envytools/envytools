@@ -282,7 +282,7 @@
 		<bitfield low="28" high="29" name="UNK28"/>
 		<bitfield pos="31" name="VALID"/>
 	</reg32>
-	<reg32 offset="0x300" name="COMP_REGION" length="8" variants="NV25">
+	<reg32 offset="0x300" name="COMP_REGION" length="8" variants="NV25:NV30">
 		<bitfield low="6" high="17" name="TAG_BASE" shr="6"/>
 		<bitfield low="20" high="23" name="FORMAT">
 			<value value="0" name="OFF"/>
@@ -301,7 +301,7 @@
 		</doc>
 		<bitfield low="0" high="3" name="REGION"/>
 		<bitfield pos="4" name="UNK4" variants="NV30:NV34"/>
-		<bitfield low="14" high="25" name="BASE" shr="6"/>
+		<bitfield low="14" high="25" name="BASE" shr="14"/>
 		<bitfield pos="31" name="ENABLE"/>
 	</reg32>
 
