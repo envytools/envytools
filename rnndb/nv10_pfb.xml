@@ -294,10 +294,14 @@
 		<bitfield pos="24" name="BIG_ENDIAN"/>
 	</reg32>
 	<reg32 offset="0x320" name="COMP_MAX_TAG" variants="NV20-"/>
-	<reg32 offset="0x324" name="COMP_UNK324" variants="NV20:NV34">
-		<bitfield low="0" high="3" name="UNK0"/>
+	<reg32 offset="0x324" name="COMP_OFFSET" variants="NV20:NV34">
+		<doc>
+		Controls the offset where Z compression begins to be
+		used for some specific tiling region.
+		</doc>
+		<bitfield low="0" high="3" name="REGION"/>
 		<bitfield pos="4" name="UNK4" variants="NV30:NV34"/>
-		<bitfield low="14" high="25" name="TAG_BASE" shr="6"/>
+		<bitfield low="14" high="25" name="BASE" shr="6"/>
 		<bitfield pos="31" name="ENABLE"/>
 	</reg32>
 
