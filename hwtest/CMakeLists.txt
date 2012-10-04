@@ -11,7 +11,7 @@ SET(HWTEST_PROGS
 	nv20_tile
 )
 
-add_library(hwtest vram.c)
+add_library(hwtest vram.c common.c)
 target_link_libraries(hwtest nva)
 
 foreach(PROG ${HWTEST_PROGS})

@@ -22,56 +22,34 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef HWTEST_H
-#define HWTEST_H
+#include "hwtest.h"
+#include <stdlib.h>
+#include <stdio.h>
 
-#include <stdint.h>
-
-struct hwtest_ctx {
-	int cnum;
-	int chipset;
-	int noslow;
-	int colors;
-};
-
-struct hwtest_test {
-	int (*fun) (struct hwtest_ctx *ctx);
-	const char *name;
-	int slow;
-};
-
-#define HWTEST_TEST(a, slow) { a, #a, slow }
-
-struct hwtest_group {
-	const struct hwtest_test *tests;
-	int testsnum;
-};
-
-enum hwtest_res {
-	HWTEST_RES_NA,
-	HWTEST_RES_PASS,
-	HWTEST_RES_UNPREP,
-	HWTEST_RES_FAIL,
-};
-
-#define TEST_BITSCAN(reg, all1, all0) do { \
-	uint32_t _reg = reg; \
-	uint32_t _all0 = all0; \
-	uint32_t _all1 = all1; \
-	uint32_t _tmp = nva_rd32(ctx->cnum, _reg); \
-	nva_wr32(ctx->cnum, _reg, 0xffffffff); \
-	uint32_t _rall1 = nva_rd32(ctx->cnum, _reg); \
-	nva_wr32(ctx->cnum, _reg, 0); \
-	uint32_t _rall0 = nva_rd32(ctx->cnum, _reg); \
-	nva_wr32(ctx->cnum, _reg, _tmp); \
-	if (_rall1 != _all1) { \
-		fprintf(stderr, "Bitscan mismatch for %06x: is %08x/%08x, expected %08x/%08x\n", _reg, _rall1, _rall0, _all1, _all0); \
-		return HWTEST_RES_FAIL; \
-	} \
-} while (0)
-
-uint32_t vram_rd32(int card, uint64_t addr);
-void vram_wr32(int card, uint64_t addr, uint32_t val);
-int hwtest_run_group(struct hwtest_ctx *ctx, const struct hwtest_group *group);
-
-#endif
+int hwtest_run_group(struct hwtest_ctx *ctx, const struct hwtest_group *group) {
+	int i;
+	int worst = 0;
+	for (i = 0; i < group->testsnum; i++) {
+		if (group->tests[i].slow && ctx->noslow) {
+			printf("%s: skipped\n", group->tests[i].name);
+		} else {
+			int res = group->tests[i].fun(ctx);
+			if (worst < res)
+				worst = res;
+			const char *tab[] = {
+				[HWTEST_RES_NA] = "n/a",
+				[HWTEST_RES_PASS] = "passed",
+				[HWTEST_RES_UNPREP] = "hw not prepared",
+				[HWTEST_RES_FAIL] = "FAILED",
+			};
+			const char *tabc[] = {
+				[HWTEST_RES_NA] = "n/a",
+				[HWTEST_RES_PASS] = "\x1b[32mpassed\x1b[0m",
+				[HWTEST_RES_UNPREP] = "\x1b[33mhw not prepared\x1b[0m",
+				[HWTEST_RES_FAIL] = "\x1b[31mFAILED\x1b[0m",
+			};
+			printf("%s: %s\n", group->tests[i].name, res[ctx->colors?tabc:tab]);
+		}
+	}
+	return worst;
+}

@@ -52,14 +52,14 @@ int get_colbits(int cnum) {
 	return cfg1 >> 12 & 0xf;
 }
 
-int test_scan(int cnum) {
+int test_scan(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 8; i++) {
-		if (nva_cards[cnum].chipset < 0x30) {
+		if (ctx->chipset < 0x30) {
 			TEST_BITSCAN(0x100240 + i * 0x10, 0xffffc003, 0);
 			TEST_BITSCAN(0x100244 + i * 0x10, 0xffffffff, 0x3fff);
 			TEST_BITSCAN(0x100248 + i * 0x10, 0x0000ff00, 0);
-			if (nva_cards[cnum].chipset == 0x20) {
+			if (ctx->chipset == 0x20) {
 				TEST_BITSCAN(0x100300 + i * 0x4, 0xbc03ffc0, 0);
 			} else {
 				TEST_BITSCAN(0x100300 + i * 0x4, 0x01f3ffc0, 0);
@@ -68,14 +68,14 @@ int test_scan(int cnum) {
 			TEST_BITSCAN(0x100240 + i * 0x10, 0xffffc031, 0);
 			TEST_BITSCAN(0x100244 + i * 0x10, 0xffffffff, 0x3fff);
 			TEST_BITSCAN(0x100248 + i * 0x10, 0x0000ff00, 0);
-			if (nva_cards[cnum].chipset < 0x35) { /* XXX: confirm on NV30, NV36 */
+			if (ctx->chipset < 0x35) { /* XXX: confirm on NV30, NV36 */
 				TEST_BITSCAN(0x100300 + i * 0x4, 0x1fffffff, 0);
 			} else {
 				TEST_BITSCAN(0x100300 + i * 0x4, 0x7fffffff, 0);
 			}
 		}
 	}
-	if (nva_cards[cnum].chipset == 0x20) {
+	if (ctx->chipset == 0x20) {
 		TEST_BITSCAN(0x100324, 0x83ffc00f, 0);
 	} else {
 		TEST_BITSCAN(0x100324, 0x83ffc01f, 0);
@@ -114,28 +114,28 @@ uint32_t compute_status(uint32_t pitch) {
 	return factor | shift << 4;
 }
 
-int test_status(int cnum) {
+int test_status(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 0x100; i++) {
 		uint32_t pitch = i << 8;
-		nva_wr32(cnum, 0x100240, 0);
-		nva_wr32(cnum, 0x100248, pitch);
+		nva_wr32(ctx->cnum, 0x100240, 0);
+		nva_wr32(ctx->cnum, 0x100248, pitch);
 		uint32_t exp = compute_status(pitch);
 		if (exp == 0xffffffff)
 			exp = 0;
-		uint32_t real = nva_rd32(cnum, 0x10024c);
+		uint32_t real = nva_rd32(ctx->cnum, 0x10024c);
 		if (exp != real) {
 			printf("Tile region status mismatch for pitch %05x: is %08x, expected %08x\n", pitch, real, exp);
 			return HWTEST_RES_FAIL;
 		}
-		nva_wr32(cnum, 0x100240, 1);
+		nva_wr32(ctx->cnum, 0x100240, 1);
 		exp = compute_status(pitch);
 		if (exp == 0xffffffff)
 			exp = 0;
 		else
 			exp |= 0x80000000;
-		real = nva_rd32(cnum, 0x10024c);
-		nva_wr32(cnum, 0x100240, 0);
+		real = nva_rd32(ctx->cnum, 0x10024c);
+		nva_wr32(ctx->cnum, 0x100240, 0);
 		if (exp != real) {
 			printf("Tile region status mismatch for pitch %05x [enabled]: is %08x, expected %08x\n", pitch, real, exp);
 			return HWTEST_RES_FAIL;
@@ -144,10 +144,10 @@ int test_status(int cnum) {
 	return HWTEST_RES_PASS;
 }
 
-int test_zcomp_size(int cnum) {
+int test_zcomp_size(struct hwtest_ctx *ctx) {
 	uint32_t expected;
-	uint32_t real = nva_rd32(cnum, 0x100320);
-	switch (nva_cards[cnum].chipset) {
+	uint32_t real = nva_rd32(ctx->cnum, 0x100320);
+	switch (ctx->chipset) {
 		case 0x20:
 			expected = 0x7fff;
 			break;
@@ -164,7 +164,7 @@ int test_zcomp_size(int cnum) {
 			expected = 0x5c7ff;
 			break;
 		default:
-			printf("Don't know expected zcomp size for NV%02X [%08x] - please report!\n", nva_cards[cnum].chipset, real);
+			printf("Don't know expected zcomp size for NV%02X [%08x] - please report!\n", ctx->chipset, real);
 			return HWTEST_RES_UNPREP;
 	}
 	if (real != expected) {
@@ -188,23 +188,23 @@ void clear_zcomp(int cnum) {
 	}
 }
 
-int test_zcomp_access(int cnum) {
-	uint32_t size = (nva_rd32(cnum, 0x100320) + 1) / 8;
+int test_zcomp_access(struct hwtest_ctx *ctx) {
+	uint32_t size = (nva_rd32(ctx->cnum, 0x100320) + 1) / 8;
 	int i, j, k;
-	clear_zcomp(cnum);
+	clear_zcomp(ctx->cnum);
 	for (i = 0; i < 4; i++) {
 		for (j = 0; j < size; j += 0x40) {
-			nva_wr32(cnum, 0x1000f0, 0x1300000 | i << 16 | j);
+			nva_wr32(ctx->cnum, 0x1000f0, 0x1300000 | i << 16 | j);
 			for (k = 0; k < 0x40; k += 4) {
-				nva_wr32(cnum, 0x100100 + k, 0xdea00000 | i << 16 | j | k);
+				nva_wr32(ctx->cnum, 0x100100 + k, 0xdea00000 | i << 16 | j | k);
 			}
 		}
 	}
 	for (i = 0; i < 4; i++) {
 		for (j = 0; j < size; j += 0x40) {
-			nva_wr32(cnum, 0x1000f0, 0x1300000 | i << 16 | j);
+			nva_wr32(ctx->cnum, 0x1000f0, 0x1300000 | i << 16 | j);
 			for (k = 0; k < 0x40; k += 4) {
-				uint32_t val = nva_rd32(cnum, 0x100100 + k);
+				uint32_t val = nva_rd32(ctx->cnum, 0x100100 + k);
 				uint32_t x =  0xdea00000 | i << 16 | j | k;
 				if (val != x) {
 					printf("MISMATCH %08x %08x\n", x, val);
@@ -267,34 +267,34 @@ uint32_t translate_tag(uint32_t pitch, int part, uint32_t tag, int colbits, int 
 	return y * pitch + x;
 }
 
-int test_zcomp_layout(int cnum) {
-	int partbits = get_partbits(cnum);
-	int colbits = get_colbits(cnum);
-	uint32_t size = (nva_rd32(cnum, 0x100320) + 1);
+int test_zcomp_layout(struct hwtest_ctx *ctx) {
+	int partbits = get_partbits(ctx->cnum);
+	int colbits = get_colbits(ctx->cnum);
+	uint32_t size = (nva_rd32(ctx->cnum, 0x100320) + 1);
 	int i, j, m;
-	clear_zcomp(cnum);
-	nva_wr32(cnum, 0x100240, 0);
+	clear_zcomp(ctx->cnum);
+	nva_wr32(ctx->cnum, 0x100240, 0);
 	for (i = 0; i < 0x200000; i += 0x10) {
-		vram_wr32(cnum, i+0x0, 0x0000ffff);
-		vram_wr32(cnum, i+0x4, 0x00000000);
-		vram_wr32(cnum, i+0x8, 0x00000000);
-		vram_wr32(cnum, i+0xc, 0x00000000);
+		vram_wr32(ctx->cnum, i+0x0, 0x0000ffff);
+		vram_wr32(ctx->cnum, i+0x4, 0x00000000);
+		vram_wr32(ctx->cnum, i+0x8, 0x00000000);
+		vram_wr32(ctx->cnum, i+0xc, 0x00000000);
 	}
 	uint32_t pitch = 0xe000;
-	nva_wr32(cnum, 0x100248, pitch);
-	nva_wr32(cnum, 0x100244, 0xfc000);
-	nva_wr32(cnum, 0x100240, 1);
-	nva_wr32(cnum, 0x100300, 0x90000000);
+	nva_wr32(ctx->cnum, 0x100248, pitch);
+	nva_wr32(ctx->cnum, 0x100244, 0xfc000);
+	nva_wr32(ctx->cnum, 0x100240, 1);
+	nva_wr32(ctx->cnum, 0x100300, 0x90000000);
 	for (i = 0; i < (1 << partbits); i++) {
 		for (j = 0; j < size; j++) {
-			nva_wr32(cnum, 0x1000f0, 0x1300000 | i << 16 | (j >> 3 & ~0x3f));
-			nva_wr32(cnum, 0x100100 | (j >> 3 & 0x3c), 1 << (j & 0x1f));
+			nva_wr32(ctx->cnum, 0x1000f0, 0x1300000 | i << 16 | (j >> 3 & ~0x3f));
+			nva_wr32(ctx->cnum, 0x100100 | (j >> 3 & 0x3c), 1 << (j & 0x1f));
 			uint32_t exp = translate_tag(pitch, i, j, colbits, partbits);
-			if (exp < 0x100000 && !vram_rd32(cnum, exp + 4)) {
+			if (exp < 0x100000 && !vram_rd32(ctx->cnum, exp + 4)) {
 				printf("part %d tag %05x: expected to belong to %08x", i, j, exp);
 				int found = 0;
 				for (m = 0; m < 0x100000; m += 0x10) {
-					uint32_t mm = vram_rd32(cnum, m+4);
+					uint32_t mm = vram_rd32(ctx->cnum, m+4);
 					if (mm) {
 						printf(", found at %08x instead\n", m);
 						break;
@@ -303,49 +303,49 @@ int test_zcomp_layout(int cnum) {
 				if (!found) {
 					printf(", but not found in surface\n");
 				}
-				nva_wr32(cnum, 0x100240, 0);
-				nva_wr32(cnum, 0x100300, 0);
+				nva_wr32(ctx->cnum, 0x100240, 0);
+				nva_wr32(ctx->cnum, 0x100300, 0);
 				return HWTEST_RES_FAIL;
 			}
-			nva_wr32(cnum, 0x100100 | (j >> 3 & 0x3c), 0);
+			nva_wr32(ctx->cnum, 0x100100 | (j >> 3 & 0x3c), 0);
 		}
 	}
-	nva_wr32(cnum, 0x100240, 0);
-	nva_wr32(cnum, 0x100300, 0);
+	nva_wr32(ctx->cnum, 0x100240, 0);
+	nva_wr32(ctx->cnum, 0x100300, 0);
 	return HWTEST_RES_PASS;
 }
 
-int test_format(int cnum) {
+int test_format(struct hwtest_ctx *ctx) {
 	int i, j;
-	int partbits = get_partbits(cnum);
-	int colbits = get_colbits(cnum);
+	int partbits = get_partbits(ctx->cnum);
+	int colbits = get_colbits(ctx->cnum);
 	if (partbits < 0)
 		return HWTEST_RES_UNPREP;
 	int res = HWTEST_RES_PASS;
 	int bankoff;
 	int banktry;
-	if (nva_cards[cnum].chipset < 0x30)
+	if (ctx->chipset < 0x30)
 		banktry = 2;
 	else
 		banktry = 4;
 	for (i = 0; i < 8; i++)
-		nva_wr32(cnum, 0x100240 + i * 0x10, 0);
+		nva_wr32(ctx->cnum, 0x100240 + i * 0x10, 0);
 	for (i = 0; i < 0x200000; i += 4)
-		vram_wr32(cnum, i, 0xc0000000 | i);
+		vram_wr32(ctx->cnum, i, 0xc0000000 | i);
 	for (i = 0; i < 0x100; i++) {
 		uint32_t pitch = i << 8;
-		nva_wr32(cnum, 0x100300, 0);
-		nva_wr32(cnum, 0x100248, pitch);
-		nva_wr32(cnum, 0x100244, 0x000fc000);
+		nva_wr32(ctx->cnum, 0x100300, 0);
+		nva_wr32(ctx->cnum, 0x100248, pitch);
+		nva_wr32(ctx->cnum, 0x100244, 0x000fc000);
 		if (compute_status(pitch) == 0xffffffff)
 			continue;
 		for (bankoff = 0; bankoff < banktry; bankoff++) {
-			if (nva_cards[cnum].chipset < 0x30)
-				nva_wr32(cnum, 0x100240, 1 | bankoff << 1);
+			if (ctx->chipset < 0x30)
+				nva_wr32(ctx->cnum, 0x100240, 1 | bankoff << 1);
 			else
-				nva_wr32(cnum, 0x100240, 1 | bankoff << 4);
+				nva_wr32(ctx->cnum, 0x100240, 1 | bankoff << 4);
 			for (j = 0; j < 0x100000; j += 4) {
-				uint32_t real = vram_rd32(cnum, j);
+				uint32_t real = vram_rd32(ctx->cnum, j);
 				uint32_t exp = 0xc0000000 | translate_addr(pitch, j, colbits, partbits, bankoff);
 				if (real != exp) {
 					printf("Mismatch at %08x for pitch %05x bankoff %d: is %08x, expected %08x\n", j, pitch, bankoff, real, exp);
@@ -355,7 +355,7 @@ int test_format(int cnum) {
 			}
 		}
 		for (j = 0x100000; j < 0x180000; j += 4) {
-			uint32_t real = vram_rd32(cnum, j);
+			uint32_t real = vram_rd32(ctx->cnum, j);
 			uint32_t exp = 0xc0000000 | j;
 			if (real != exp) {
 				printf("Mismatch at %08x [after limit] for pitch %05x: is %08x, expected %08x\n", j, pitch, real, exp);
@@ -363,7 +363,7 @@ int test_format(int cnum) {
 				break;
 			}
 		}
-		nva_wr32(cnum, 0x100240, 0x0);
+		nva_wr32(ctx->cnum, 0x100240, 0x0);
 	}
 	return res;
 }
@@ -480,17 +480,17 @@ void zcomp_decompress(int format, uint32_t dst[4][4], uint32_t src[4]) {
 	}
 }
 
-int test_zcomp_format(int cnum) {
+int test_zcomp_format(struct hwtest_ctx *ctx) {
 	int res = HWTEST_RES_PASS;
-	int colbits = get_colbits(cnum);
-	int partbits = get_partbits(cnum);
+	int colbits = get_colbits(ctx->cnum);
+	int partbits = get_partbits(ctx->cnum);
 	uint32_t pitch = 0x200;
-	nva_wr32(cnum, 0x100248, pitch);
-	nva_wr32(cnum, 0x100244, 0);
-	nva_wr32(cnum, 0x100240, 1);
+	nva_wr32(ctx->cnum, 0x100248, pitch);
+	nva_wr32(ctx->cnum, 0x100244, 0);
+	nva_wr32(ctx->cnum, 0x100240, 1);
 	int i, j;
 	for (i = 0; i < 16; i++) {
-		nva_wr32(cnum, 0x100300, 0x80000000 | i << 26);
+		nva_wr32(ctx->cnum, 0x100300, 0x80000000 | i << 26);
 		for (j = 0; j < 100000; j++) {
 			int tag = rand() & 0xff;
 			int part = tag & ((1 << partbits) - 1);
@@ -498,18 +498,18 @@ int test_zcomp_format(int cnum) {
 			uint32_t addr = translate_tag(pitch, part, tag, colbits, partbits);
 			uint32_t src[4];
 			int k;
-			nva_wr32(cnum, 0x1000f0, 0x1300000 | part << 16);
-			nva_wr32(cnum, 0x100100 | (tag >> 3 & 0x3c), 0);
+			nva_wr32(ctx->cnum, 0x1000f0, 0x1300000 | part << 16);
+			nva_wr32(ctx->cnum, 0x100100 | (tag >> 3 & 0x3c), 0);
 			for (k = 0; k < 4; k++) {
 				src[k] = rand() ^ rand() << 10 ^ rand() << 20;
-				vram_wr32(cnum, addr + k * 4, src[k]);
+				vram_wr32(ctx->cnum, addr + k * 4, src[k]);
 			}
-			nva_wr32(cnum, 0x100100 | (tag >> 3 & 0x3c), 1 << (tag & 0x1f));
+			nva_wr32(ctx->cnum, 0x100100 | (tag >> 3 & 0x3c), 1 << (tag & 0x1f));
 			uint32_t dst[4][4], rdst[4][4];
 			int x, y;
 			for (x = 0; x < 4; x++)
 				for (y = 0; y < 4; y++)
-					rdst[x][y] = vram_rd32(cnum, addr + x * 4 + y * pitch);
+					rdst[x][y] = vram_rd32(ctx->cnum, addr + x * 4 + y * pitch);
 			zcomp_decompress(i, dst, src);
 			int fail = 0;
 			for (x = 0; x < 4; x++)
@@ -528,7 +528,7 @@ int test_zcomp_format(int cnum) {
 						printf("%08x%c", rdst[x][y], x == 3 ? '\n' : ' ');
 			for (x = 0; x < 4; x++)
 				for (y = 0; y < 4; y++)
-					rdst[x][y] = vram_rd32(cnum, addr + x * 4 + y * pitch);
+					rdst[x][y] = vram_rd32(ctx->cnum, addr + x * 4 + y * pitch);
 				printf("realer:\n");
 				for (y = 0; y < 4; y++)
 					for (x = 0; x < 4; x++) 
@@ -538,15 +538,15 @@ int test_zcomp_format(int cnum) {
 			}
 		}
 	}
-	nva_wr32(cnum, 0x100240, 0);
-	nva_wr32(cnum, 0x100300, 0);
+	nva_wr32(ctx->cnum, 0x100240, 0);
+	nva_wr32(ctx->cnum, 0x100300, 0);
 	return res;
 }
 
-int test_pb(int cnum, int pb, int (*fun)(int cnum)) {
-	uint32_t orig = nva_rd32(cnum, 0x100200);
+int test_pb(struct hwtest_ctx *ctx, int pb, int (*fun)(struct hwtest_ctx *ctx)) {
+	uint32_t orig = nva_rd32(ctx->cnum, 0x100200);
 	uint32_t cfg = orig;
-	int partbits = get_partbits(cnum);
+	int partbits = get_partbits(ctx->cnum);
 	if (partbits < 0)
 		return HWTEST_RES_UNPREP;
 	if (pb > partbits)
@@ -554,7 +554,7 @@ int test_pb(int cnum, int pb, int (*fun)(int cnum)) {
 	while (pb < partbits) {
 		switch (cfg & 0xf) {
 			case 0:
-				nva_wr32(cnum, 0x100200, orig);
+				nva_wr32(ctx->cnum, 0x100200, orig);
 				return HWTEST_RES_NA;
 			case 1:
 				cfg &= ~0xf;
@@ -566,52 +566,52 @@ int test_pb(int cnum, int pb, int (*fun)(int cnum)) {
 			default:
 				abort();
 		}
-		nva_wr32(cnum, 0x100200, cfg);
-		partbits = get_partbits(cnum);
+		nva_wr32(ctx->cnum, 0x100200, cfg);
+		partbits = get_partbits(ctx->cnum);
 	}
-	int res = fun(cnum);
-	nva_wr32(cnum, 0x100200, orig);
+	int res = fun(ctx);
+	nva_wr32(ctx->cnum, 0x100200, orig);
 	return res;
 }
 
-int test_format_pb0(int cnum) {
-	return test_pb(cnum, 0, test_format);
+int test_format_pb0(struct hwtest_ctx *ctx) {
+	return test_pb(ctx, 0, test_format);
 }
 
-int test_format_pb1(int cnum) {
-	return test_pb(cnum, 1, test_format);
+int test_format_pb1(struct hwtest_ctx *ctx) {
+	return test_pb(ctx, 1, test_format);
 }
 
-int test_format_pb2(int cnum) {
-	return test_pb(cnum, 2, test_format);
+int test_format_pb2(struct hwtest_ctx *ctx) {
+	return test_pb(ctx, 2, test_format);
 }
 
-int test_format_pb3(int cnum) {
-	return test_pb(cnum, 3, test_format);
+int test_format_pb3(struct hwtest_ctx *ctx) {
+	return test_pb(ctx, 3, test_format);
 }
 
-int test_format_pb4(int cnum) {
-	return test_pb(cnum, 4, test_format);
+int test_format_pb4(struct hwtest_ctx *ctx) {
+	return test_pb(ctx, 4, test_format);
 }
 
-int test_zcomp_layout_pb0(int cnum) {
-	return test_pb(cnum, 0, test_zcomp_layout);
+int test_zcomp_layout_pb0(struct hwtest_ctx *ctx) {
+	return test_pb(ctx, 0, test_zcomp_layout);
 }
 
-int test_zcomp_layout_pb1(int cnum) {
-	return test_pb(cnum, 1, test_zcomp_layout);
+int test_zcomp_layout_pb1(struct hwtest_ctx *ctx) {
+	return test_pb(ctx, 1, test_zcomp_layout);
 }
 
-int test_zcomp_layout_pb2(int cnum) {
-	return test_pb(cnum, 2, test_zcomp_layout);
+int test_zcomp_layout_pb2(struct hwtest_ctx *ctx) {
+	return test_pb(ctx, 2, test_zcomp_layout);
 }
 
-int test_zcomp_layout_pb3(int cnum) {
-	return test_pb(cnum, 3, test_zcomp_layout);
+int test_zcomp_layout_pb3(struct hwtest_ctx *ctx) {
+	return test_pb(ctx, 3, test_zcomp_layout);
 }
 
-int test_zcomp_layout_pb4(int cnum) {
-	return test_pb(cnum, 4, test_zcomp_layout);
+int test_zcomp_layout_pb4(struct hwtest_ctx *ctx) {
+	return test_pb(ctx, 4, test_zcomp_layout);
 }
 
 struct hwtest_test nv20_tile_tests[] = {
@@ -632,68 +632,53 @@ struct hwtest_test nv20_tile_tests[] = {
 	HWTEST_TEST(test_zcomp_format, 0),
 };
 
+struct hwtest_group nv20_tile = {
+	nv20_tile_tests,
+	ARRAY_SIZE(nv20_tile_tests),
+};
+
 int main(int argc, char **argv) {
+	struct hwtest_ctx sctx;
+	struct hwtest_ctx *ctx = &sctx;
 	if (nva_init()) {
 		fprintf (stderr, "PCI init failure!\n");
 		return 1;
 	}
 	int c;
-	int cnum = 0;
-	int colors = 1;
-	int noslow = 0;
+	ctx->cnum = 0;
+	ctx->colors = 1;
+	ctx->noslow = 0;
 	while ((c = getopt (argc, argv, "c:ns")) != -1)
 		switch (c) {
 			case 'c':
-				sscanf(optarg, "%d", &cnum);
+				sscanf(optarg, "%d", &ctx->cnum);
 				break;
 			case 'n':
-				colors = 0;
+				ctx->colors = 0;
 				break;
 			case 's':
-				noslow = 1;
+				ctx->noslow = 1;
 				break;
 		}
-	if (cnum >= nva_cardsnum) {
+	if (ctx->cnum >= nva_cardsnum) {
 		if (nva_cardsnum)
 			fprintf (stderr, "No such card.\n");
 		else
 			fprintf (stderr, "No cards found.\n");
 		return 1;
 	}
-	if (nva_cards[cnum].chipset < 0x20 || nva_cards[cnum].chipset == 0x2a || nva_cards[cnum].chipset == 0x34 || nva_cards[cnum].chipset >= 0x40) {
+	ctx->chipset = nva_cards[ctx->cnum].chipset;
+	if (ctx->chipset < 0x20 || ctx->chipset == 0x2a || ctx->chipset == 0x34 || ctx->chipset >= 0x40) {
 		fprintf(stderr, "Test not applicable for this chipset.\n");
 		return 2;
 	}
-	if (!(nva_rd32(cnum, 0x200) & 1 << 20)) {
+	if (!(nva_rd32(ctx->cnum, 0x200) & 1 << 20)) {
 		fprintf(stderr, "Mem controller not up.\n");
 		return 3;
 	}
-	int i;
-	int worst = 0;
-	for (i = 0; i < ARRAY_SIZE(nv20_tile_tests); i++) {
-		if (nv20_tile_tests[i].slow && noslow) {
-			printf("%s: skipped\n", nv20_tile_tests[i].name);
-		} else {
-			int res = nv20_tile_tests[i].fun(cnum);
-			if (worst < res)
-				worst = res;
-			const char *tab[] = {
-				[HWTEST_RES_NA] = "n/a",
-				[HWTEST_RES_PASS] = "passed",
-				[HWTEST_RES_UNPREP] = "hw not prepared",
-				[HWTEST_RES_FAIL] = "FAILED",
-			};
-			const char *tabc[] = {
-				[HWTEST_RES_NA] = "n/a",
-				[HWTEST_RES_PASS] = "\x1b[32mpassed\x1b[0m",
-				[HWTEST_RES_UNPREP] = "\x1b[33mhw not prepared\x1b[0m",
-				[HWTEST_RES_FAIL] = "\x1b[31mFAILED\x1b[0m",
-			};
-			printf("%s: %s\n", nv20_tile_tests[i].name, res[colors?tabc:tab]);
-		}
-	}
-	if (worst == HWTEST_RES_PASS)
+	int res = hwtest_run_group(ctx, &nv20_tile);
+	if (res == HWTEST_RES_PASS)
 		return 0;
 	else
-		return worst + 1;
+		return res + 1;
 }

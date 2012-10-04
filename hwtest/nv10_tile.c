@@ -28,9 +28,9 @@
 #include <stdio.h>
 #include <unistd.h>
 
-int test_scan(int cnum) {
+int test_scan(struct hwtest_ctx *ctx) {
 	int i;
-	int is_nv34 = nva_cards[cnum].chipset == 0x34;
+	int is_nv34 = ctx->chipset == 0x34;
 	for (i = 0; i < 8; i++) {
 		if (is_nv34) {
 			TEST_BITSCAN(0x100240 + i * 0x10, 0xffffc001, 0);
@@ -75,29 +75,29 @@ uint32_t compute_status(uint32_t pitch) {
 	return factor | shift << 4;
 }
 
-int test_status(int cnum) {
+int test_status(struct hwtest_ctx *ctx) {
 	int i;
-	int is_nv34 = nva_cards[cnum].chipset == 0x34;
+	int is_nv34 = ctx->chipset == 0x34;
 	for (i = 0; i < 0x100; i++) {
 		uint32_t pitch = i << 8;
-		nva_wr32(cnum, 0x100240, 0);
-		nva_wr32(cnum, 0x100248, pitch);
+		nva_wr32(ctx->cnum, 0x100240, 0);
+		nva_wr32(ctx->cnum, 0x100248, pitch);
 		uint32_t exp = compute_status(pitch);
 		if (exp == 0xffffffff)
 			exp = 0;
-		uint32_t real = nva_rd32(cnum, 0x10024c);
+		uint32_t real = nva_rd32(ctx->cnum, 0x10024c);
 		if (exp != real) {
 			printf("Tile region status mismatch for pitch %05x: is %08x, expected %08x\n", pitch, real, exp);
 			return HWTEST_RES_FAIL;
 		}
-		nva_wr32(cnum, 0x100240, is_nv34?1:0x80000000);
+		nva_wr32(ctx->cnum, 0x100240, is_nv34?1:0x80000000);
 		exp = compute_status(pitch);
 		if (exp == 0xffffffff)
 			exp = 0;
 		else
 			exp |= 0x80000000;
-		real = nva_rd32(cnum, 0x10024c);
-		nva_wr32(cnum, 0x100240, 0);
+		real = nva_rd32(ctx->cnum, 0x10024c);
+		nva_wr32(ctx->cnum, 0x100240, 0);
 		if (exp != real) {
 			printf("Tile region status mismatch for pitch %05x [enabled]: is %08x, expected %08x\n", pitch, real, exp);
 			return HWTEST_RES_FAIL;
@@ -132,26 +132,26 @@ int get_bankshift(int cnum) {
 	return bankshift;
 }
 
-int test_format(int cnum) {
+int test_format(struct hwtest_ctx *ctx) {
 	int i, j;
-	int bankshift = get_bankshift(cnum);
+	int bankshift = get_bankshift(ctx->cnum);
 	int res = HWTEST_RES_PASS;
-	int is_nv15 = nva_cards[cnum].chipset == 0x15;
-	int partflip = is_nv15 && (nva_rd32(cnum, 0x100200) & 0x30) == 0x10;
-	int is_nv34 = nva_cards[cnum].chipset == 0x34;
+	int is_nv15 = ctx->chipset == 0x15;
+	int partflip = is_nv15 && (nva_rd32(ctx->cnum, 0x100200) & 0x30) == 0x10;
+	int is_nv34 = ctx->chipset == 0x34;
 	for (i = 0; i < 8; i++)
-		nva_wr32(cnum, 0x100240 + i * 0x10, 0);
+		nva_wr32(ctx->cnum, 0x100240 + i * 0x10, 0);
 	for (i = 0; i < 0x200000; i += 4)
-		vram_wr32(cnum, i, 0xc0000000 | i);
+		vram_wr32(ctx->cnum, i, 0xc0000000 | i);
 	for (i = 0; i < 0x100; i++) {
 		uint32_t pitch = i << 8;
 		if (compute_status(pitch) == 0xffffffff)
 			continue;
-		nva_wr32(cnum, 0x100248, pitch);
-		nva_wr32(cnum, 0x100244, 0x000fc000);
-		nva_wr32(cnum, 0x100240, is_nv34?1:0x80000000);
+		nva_wr32(ctx->cnum, 0x100248, pitch);
+		nva_wr32(ctx->cnum, 0x100244, 0x000fc000);
+		nva_wr32(ctx->cnum, 0x100240, is_nv34?1:0x80000000);
 		for (j = 0; j < 0x100000; j += 4) {
-			uint32_t real = vram_rd32(cnum, j);
+			uint32_t real = vram_rd32(ctx->cnum, j);
 			uint32_t exp = 0xc0000000 | translate_addr(pitch, j, bankshift, partflip);
 			if (real != exp) {
 				printf("Mismatch at %08x for pitch %05x: is %08x, expected %08x\n", j, pitch, real, exp);
@@ -160,7 +160,7 @@ int test_format(int cnum) {
 			}
 		}
 		for (j = 0x100000; j < 0x180000; j += 4) {
-			uint32_t real = vram_rd32(cnum, j);
+			uint32_t real = vram_rd32(ctx->cnum, j);
 			uint32_t exp = 0xc0000000 | j;
 			if (real != exp) {
 				printf("Mismatch at %08x [after limit] for pitch %05x: is %08x, expected %08x\n", j, pitch, real, exp);
@@ -168,54 +168,54 @@ int test_format(int cnum) {
 				break;
 			}
 		}
-		nva_wr32(cnum, 0x100240, 0x0);
+		nva_wr32(ctx->cnum, 0x100240, 0x0);
 	}
 	return res;
 }
 
-int test_format_bs(int cnum, int bs) {
-	uint32_t orig = nva_rd32(cnum, 0x100200);
+int test_format_bs(struct hwtest_ctx *ctx, int bs) {
+	uint32_t orig = nva_rd32(ctx->cnum, 0x100200);
 	uint32_t cfg = orig;
-	int bankshift = get_bankshift(cnum);
+	int bankshift = get_bankshift(ctx->cnum);
 	if (bs > bankshift)
 		return HWTEST_RES_NA;
 	while (bs < bankshift) {
 		/* leaving unused column bits == bad idea with NV34 for some reason */
-		if ((cfg >> 24 & 0xf) > 8 && nva_cards[cnum].chipset != 0x34) {
+		if ((cfg >> 24 & 0xf) > 8 && ctx->chipset != 0x34) {
 			cfg -= 1 << 24;
 		} else {
 			int partcfg = cfg >> 4 & 3;
 			if (partcfg == 1) {
 				cfg &= 0xffffffcf;
-			} else if (partcfg == 0 && nva_cards[cnum].chipset != 0x10) {
+			} else if (partcfg == 0 && ctx->chipset != 0x10) {
 				cfg |= 0x20;
 			} else {
-				nva_wr32(cnum, 0x100200, orig);
+				nva_wr32(ctx->cnum, 0x100200, orig);
 				return HWTEST_RES_NA;
 			}
 		}
-		nva_wr32(cnum, 0x100200, cfg);
-		bankshift = get_bankshift(cnum);
+		nva_wr32(ctx->cnum, 0x100200, cfg);
+		bankshift = get_bankshift(ctx->cnum);
 	}
-	int res = test_format(cnum);
-	nva_wr32(cnum, 0x100200, orig);
+	int res = test_format(ctx);
+	nva_wr32(ctx->cnum, 0x100200, orig);
 	return res;
 }
 
-int test_format_bs10(int cnum) {
-	return test_format_bs(cnum, 10);
+int test_format_bs10(struct hwtest_ctx *ctx) {
+	return test_format_bs(ctx, 10);
 }
 
-int test_format_bs11(int cnum) {
-	return test_format_bs(cnum, 11);
+int test_format_bs11(struct hwtest_ctx *ctx) {
+	return test_format_bs(ctx, 11);
 }
 
-int test_format_bs12(int cnum) {
-	return test_format_bs(cnum, 12);
+int test_format_bs12(struct hwtest_ctx *ctx) {
+	return test_format_bs(ctx, 12);
 }
 
-int test_format_bs13(int cnum) {
-	return test_format_bs(cnum, 13);
+int test_format_bs13(struct hwtest_ctx *ctx) {
+	return test_format_bs(ctx, 13);
 }
 
 struct hwtest_test nv10_tile_tests[] = {
@@ -227,68 +227,53 @@ struct hwtest_test nv10_tile_tests[] = {
 	HWTEST_TEST(test_format_bs13, 1),
 };
 
+struct hwtest_group nv10_tile = {
+	nv10_tile_tests,
+	ARRAY_SIZE(nv10_tile_tests),
+};
+
 int main(int argc, char **argv) {
+	struct hwtest_ctx sctx;
+	struct hwtest_ctx *ctx = &sctx;
 	if (nva_init()) {
 		fprintf (stderr, "PCI init failure!\n");
 		return 1;
 	}
 	int c;
-	int cnum = 0;
-	int colors = 1;
-	int noslow = 0;
+	ctx->cnum = 0;
+	ctx->colors = 1;
+	ctx->noslow = 0;
 	while ((c = getopt (argc, argv, "c:ns")) != -1)
 		switch (c) {
 			case 'c':
-				sscanf(optarg, "%d", &cnum);
+				sscanf(optarg, "%d", &ctx->cnum);
 				break;
 			case 'n':
-				colors = 0;
+				ctx->colors = 0;
 				break;
 			case 's':
-				noslow = 1;
+				ctx->noslow = 1;
 				break;
 		}
-	if (cnum >= nva_cardsnum) {
+	if (ctx->cnum >= nva_cardsnum) {
 		if (nva_cardsnum)
 			fprintf (stderr, "No such card.\n");
 		else
 			fprintf (stderr, "No cards found.\n");
 		return 1;
 	}
-	if (nva_cards[cnum].chipset < 0x10 || (nva_cards[cnum].chipset >= 0x1a && nva_cards[cnum].chipset != 0x34)) {
+	ctx->chipset = nva_cards[ctx->cnum].chipset;
+	if (ctx->chipset < 0x10 || (ctx->chipset >= 0x1a && ctx->chipset != 0x34)) {
 		fprintf(stderr, "Test not applicable for this chipset.\n");
 		return 2;
 	}
-	if (!(nva_rd32(cnum, 0x200) & 1 << 20)) {
+	if (!(nva_rd32(ctx->cnum, 0x200) & 1 << 20)) {
 		fprintf(stderr, "Mem controller not up.\n");
 		return 3;
 	}
-	int i;
-	int worst = 0;
-	for (i = 0; i < ARRAY_SIZE(nv10_tile_tests); i++) {
-		if (nv10_tile_tests[i].slow && noslow) {
-			printf("%s: skipped\n", nv10_tile_tests[i].name);
-		} else {
-			int res = nv10_tile_tests[i].fun(cnum);
-			if (worst < res)
-				worst = res;
-			const char *tab[] = {
-				[HWTEST_RES_NA] = "n/a",
-				[HWTEST_RES_PASS] = "passed",
-				[HWTEST_RES_UNPREP] = "hw not prepared",
-				[HWTEST_RES_FAIL] = "FAILED",
-			};
-			const char *tabc[] = {
-				[HWTEST_RES_NA] = "n/a",
-				[HWTEST_RES_PASS] = "\x1b[32mpassed\x1b[0m",
-				[HWTEST_RES_UNPREP] = "\x1b[33mhw not prepared\x1b[0m",
-				[HWTEST_RES_FAIL] = "\x1b[31mFAILED\x1b[0m",
-			};
-			printf("%s: %s\n", nv10_tile_tests[i].name, res[colors?tabc:tab]);
-		}
-	}
-	if (worst == HWTEST_RES_PASS)
+	int res = hwtest_run_group(ctx, &nv10_tile);
+	if (res == HWTEST_RES_PASS)
 		return 0;
 	else
-		return worst + 1;
+		return res + 1;
 }
