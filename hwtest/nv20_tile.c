@@ -185,31 +185,38 @@ int test_zcomp_size(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-void zcomp_seek(int cnum, int part, int addr) {
+uint32_t zcomp_seek(int cnum, int part, int addr) {
 	if (nva_cards[cnum].chipset == 0x20) {
 		nva_wr32(cnum, 0x1000f0, 0x1300000 |
 			 (part << 16) | (addr & 0x1fc0));
+		return 0x100100 + (addr & 0x3c);
 	} else if (nva_cards[cnum].chipset < 0x30) {
 		nva_wr32(cnum, 0x1000f0, 0x2380000 |
 			 ((addr << 6) & 0x40000) |
 			 (part << 16) | (addr & 0xfc0));
-	} else {
+		return 0x100100 + (addr & 0x3c);
+	} else if (nva_cards[cnum].chipset < 0x35) {
 		nva_wr32(cnum, 0x1000f0, 0x2380000 |
 			 (part << 16) | (addr & 0x7fc0));
+		return 0x100100 + (addr & 0x3c);
+	} else {
+		nva_wr32(cnum, 0x1000f0, 0x2380000 | (addr & 4) << 16 |
+			 (part << 16) | (addr >> 1 & 0x7fc0));
+		return 0x100100 + (addr >> 1 & 0x3c);
 	}
 }
 
 uint32_t zcomp_rd32(int cnum, int part, int addr) {
-	zcomp_seek(cnum, part, addr);
-	uint32_t res = nva_rd32(cnum, 0x100100 + (addr & 0x3c));
+	uint32_t a = zcomp_seek(cnum, part, addr);
+	uint32_t res = nva_rd32(cnum, a);
 	nva_wr32(cnum, 0x1000f0, 0);
 	return res;
 }
 
 void zcomp_wr32(int cnum, int part, int addr, uint32_t v) {
-	zcomp_seek(cnum, part, addr);
-	nva_wr32(cnum, 0x100100 + (addr & 0x3c), v);
-	nva_rd32(cnum, 0x100100 + (addr & 0x3c));
+	uint32_t a = zcomp_seek(cnum, part, addr);
+	nva_wr32(cnum, a, v);
+	nva_rd32(cnum, a);
 	nva_wr32(cnum, 0x1000f0, 0);
 }
 
@@ -346,8 +353,10 @@ int test_zcomp_layout(struct hwtest_ctx *ctx) {
 		nva_wr32(ctx->cnum, 0x100300, 0x90000000);
 	else if (ctx->chipset < 0x30)
 		nva_wr32(ctx->cnum, 0x100300, 0x00200000);
-	else
+	else if (ctx->chipset < 0x35)
 		nva_wr32(ctx->cnum, 0x100300, 0x02fff000);
+	else
+		nva_wr32(ctx->cnum, 0x100300, 0x0bffe000);
 	for (i = 0; i < (1 << partbits); i++) {
 		for (j = 0; j < zcomp_size; j++) {
 			zcomp_wr32(ctx->cnum, i, j >> 3, 1 << (j & 0x1f));
@@ -490,6 +499,22 @@ static const struct zcomp_format nv30_zcomp_formats[] = {
 	{ 0x14fff000, 32, 1, 1, 1, 1 },
 	{ 0x15fff000, 16, 3, 0, 1, 0 },
 	{ 0x16fff000, 32, 1, 1, 1, 0 },
+	{ 0 }
+};
+
+static const struct zcomp_format nv35_zcomp_formats[] = {
+	{ 0x07ffe000, 16, 3, 0, 0, 0 },
+	{ 0x0bffe000, 32, 1, 1, 0, 0 },
+	{ 0x0fffe000, 16, 3, 0, 0, 1 },
+	{ 0x13ffe000, 32, 1, 1, 0, 1 },
+	{ 0x17ffe000, 16, 3, 0, 0, 0 },
+	{ 0x1bffe000, 32, 1, 1, 0, 0 },
+	{ 0x47ffe000, 16, 3, 0, 1, 0 },
+	{ 0x4bffe000, 32, 1, 1, 1, 0 },
+	{ 0x4fffe000, 16, 3, 0, 1, 1 },
+	{ 0x53ffe000, 32, 1, 1, 1, 1 },
+	{ 0x57ffe000, 16, 3, 0, 1, 0 },
+	{ 0x5bffe000, 32, 1, 1, 1, 0 },
 	{ 0 }
 };
 
@@ -682,8 +707,10 @@ int test_zcomp_format(struct hwtest_ctx *ctx) {
 		fmt = nv20_zcomp_formats;
 	else if (ctx->chipset < 0x30)
 		fmt = nv25_zcomp_formats;
-	else
+	else if (ctx->chipset < 0x35)
 		fmt = nv30_zcomp_formats;
+	else
+		fmt = nv35_zcomp_formats;
 
 	nva_wr32(ctx->cnum, 0x100248, pitch);
 	nva_wr32(ctx->cnum, 0x100244, 0);
