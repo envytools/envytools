@@ -30,20 +30,16 @@
 
 int get_partbits(int cnum) {
 	uint32_t cfg0 = nva_rd32(cnum, 0x100200);
-	if (nva_cards[cnum].chipset < 0x30) {
-		switch (cfg0 & 0xf) {
-			case 0:
-				return 0;
-			case 1:
-				return 1;
-			case 3:
-				return 2;
-			default:
-				printf("Unknown part bits count!\n");
-				return -1;
-		}
-	} else {
-		return 1;
+	switch (cfg0 & 3) {
+		case 0:
+			return 0;
+		case 1:
+			return 1;
+		case 3:
+			return 2;
+		default:
+			printf("Unknown part bits count!\n");
+			return -1;
 	}
 }
 
@@ -53,24 +49,8 @@ int get_colbits(int cnum) {
 }
 
 int get_mcbits(int cnum) {
-	if (nva_cards[cnum].chipset < 0x30)
-		return 2;
 	uint32_t cfg0 = nva_rd32(cnum, 0x100200);
-	int i, cnt = 0;
-	for (i = 0; i < 4; i++)
-		if (cfg0 & 1 << i)
-			cnt++;
-	switch (cnt) {
-		case 1:
-			return 2;
-		case 2:
-			return 3;
-		case 4:
-			return 4;
-		default:
-			printf("Unknown bus width!\n");
-			return -1;
-	}
+	return (cfg0 >> 2 & 1) + 2;
 }
 
 int test_scan(struct hwtest_ctx *ctx) {
@@ -248,12 +228,12 @@ int get_maxparts(int chipset) {
 		case 0x20:
 		case 0x25:
 		case 0x28:
+		case 0x35:
+		case 0x36:
 			return 4;
 		case 0x30:
 		case 0x31:
 			return 2;
-		case 0x35:
-		case 0x36:
 		default:
 			abort();
 	}
