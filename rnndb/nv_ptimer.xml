@@ -42,6 +42,12 @@
 	<reg32 offset="0x400" name="TIME_LOW" />
 	<reg32 offset="0x410" name="TIME_HIGH" />
 	<reg32 offset="0x420" name="ALARM" />
+	<array offset="0x610" name="REMAP" stride="0x10" length="4" variants="NV17:NV40">
+		<!-- remaps BAR1 areas -->
+		<reg32 offset="0x0" name="BASE"/> <!-- 0x10-aligned -->
+		<reg32 offset="0x4" name="LIMIT"/> <!-- inclusive -->
+		<reg32 offset="0x8" name="TARGET_ADDR"/>
+	</array>
 </array>
 
 </domain>
