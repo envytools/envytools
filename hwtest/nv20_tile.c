@@ -30,20 +30,20 @@
 
 int get_partbits(int cnum) {
 	uint32_t cfg0 = nva_rd32(cnum, 0x100200);
-	switch (cfg0 & 0xf) {
-		case 0:
-			return 0;
-		case 1:
-			return 1;
-		case 3:
-			return 2;
-		case 7:
-			return 3;
-		case 0xf:
-			return 4;
-		default:
-			printf("Unknown part bits count!\n");
-			return -1;
+	if (nva_cards[cnum].chipset < 0x30) {
+		switch (cfg0 & 0xf) {
+			case 0:
+				return 0;
+			case 1:
+				return 1;
+			case 3:
+				return 2;
+			default:
+				printf("Unknown part bits count!\n");
+				return -1;
+		}
+	} else {
+		return 1;
 	}
 }
 
@@ -663,19 +663,25 @@ int test_pb(struct hwtest_ctx *ctx, int pb, int (*fun)(struct hwtest_ctx *ctx)) 
 	if (pb > partbits)
 		return HWTEST_RES_NA;
 	while (pb < partbits) {
-		switch (cfg & 0xf) {
-			case 0:
-				nva_wr32(ctx->cnum, 0x100200, orig);
-				return HWTEST_RES_NA;
-			case 1:
-				cfg &= ~0xf;
-				break;
-			case 3:
-				cfg &= ~0xf;
-				cfg |= 1;
-				break;
-			default:
-				abort();
+		if (ctx->chipset < 0x30) {
+			switch (cfg & 0xf) {
+				case 0:
+					nva_wr32(ctx->cnum, 0x100200, orig);
+					return HWTEST_RES_NA;
+				case 1:
+					cfg &= ~0xf;
+					break;
+				case 3:
+					cfg &= ~0xf;
+					cfg |= 1;
+					break;
+				default:
+					abort();
+			}
+		} else {
+			/* XXX */
+			nva_wr32(ctx->cnum, 0x100200, orig);
+			return HWTEST_RES_NA;
 		}
 		nva_wr32(ctx->cnum, 0x100200, cfg);
 		partbits = get_partbits(ctx->cnum);
@@ -697,14 +703,6 @@ int test_format_pb2(struct hwtest_ctx *ctx) {
 	return test_pb(ctx, 2, test_format);
 }
 
-int test_format_pb3(struct hwtest_ctx *ctx) {
-	return test_pb(ctx, 3, test_format);
-}
-
-int test_format_pb4(struct hwtest_ctx *ctx) {
-	return test_pb(ctx, 4, test_format);
-}
-
 int test_zcomp_layout_pb0(struct hwtest_ctx *ctx) {
 	return test_pb(ctx, 0, test_zcomp_layout);
 }
@@ -717,14 +715,6 @@ int test_zcomp_layout_pb2(struct hwtest_ctx *ctx) {
 	return test_pb(ctx, 2, test_zcomp_layout);
 }
 
-int test_zcomp_layout_pb3(struct hwtest_ctx *ctx) {
-	return test_pb(ctx, 3, test_zcomp_layout);
-}
-
-int test_zcomp_layout_pb4(struct hwtest_ctx *ctx) {
-	return test_pb(ctx, 4, test_zcomp_layout);
-}
-
 struct hwtest_test nv20_tile_tests[] = {
 	HWTEST_TEST(test_scan, 0),
 	HWTEST_TEST(test_status, 0),
@@ -733,13 +723,9 @@ struct hwtest_test nv20_tile_tests[] = {
 	HWTEST_TEST(test_format_pb0, 1),
 	HWTEST_TEST(test_format_pb1, 1),
 	HWTEST_TEST(test_format_pb2, 1),
-	HWTEST_TEST(test_format_pb3, 1),
-	HWTEST_TEST(test_format_pb4, 1),
 	HWTEST_TEST(test_zcomp_layout_pb0, 0),
 	HWTEST_TEST(test_zcomp_layout_pb1, 0),
 	HWTEST_TEST(test_zcomp_layout_pb2, 0),
-	HWTEST_TEST(test_zcomp_layout_pb3, 0),
-	HWTEST_TEST(test_zcomp_layout_pb4, 0),
 	HWTEST_TEST(test_zcomp_format, 0),
 };
 
