@@ -83,11 +83,14 @@
 			</ul>
 			Rank B starts right after rank A ends, unless RANK_INTERLEAVE enabled.
 		</doc>
-		<bitfield low="0" high="3" name="BUS_WIDTH">
+		<bitfield low="0" high="1" name="PARTS"> <!-- RW on NV2x, NV35; RO and forced to 1 [2 partitions] on NV31 -->
+			<value value="0" name="1"/>
+			<value value="1" name="2"/>
+			<value value="3" name="4"/>
+		</bitfield>
+		<bitfield pos="2" name="BUS_WIDTH" variants="NV30-"> <!-- bus width for a single partition -->
 			<value value="0" name="32"/>
 			<value value="1" name="64"/>
-			<value value="3" name="128"/>
-			<value value="7" name="256" variants="NV30-"/>
 		</bitfield>
 		<bitfield low="4" high="5" name="UNK4" variants="NV20:NV25"/>
 		<bitfield pos="8" name="RANKS">
