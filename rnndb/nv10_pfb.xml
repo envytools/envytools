@@ -378,7 +378,8 @@
 
 </domain>
 
-<domain name="NV20_ZCOMP_TILE_16">
+<domain name="NV20_ZCOMP_TILE_16" varset="chipset">
+	<!-- XXX: fix the differing delta bits -->
 	<!-- 8x4 tile -->
 	<reg32 offset="0x00" name="W0">
 		<bitfield low="0" high="15" name="BASE"/> <!-- applies to pixel (2,0) -->
@@ -397,10 +398,11 @@
 		<bitfield low="23" high="25" name="DELTA_0_7"/>
 		<bitfield low="26" high="28" name="DELTA_1_0"/>
 		<bitfield low="29" high="30" name="DELTA_1_1_LOW"/>
-		<bitfield pos="31" name="COMPRESSED_SIZE">
+		<bitfield pos="31" name="COMPRESSED_SIZE" variants="NV20:NV30">
 			<value value="0" name="16B"/>
 			<value value="1" name="8B"/> <!-- W2 and W3 ignored and assumed to be 0, used when DELTAs are all 0 -->
 		</bitfield>
+		<bitfield pos="31" name="CONST" variants="NV30-"/> <!-- if set, everything but base is ignored -->
 	</reg32>
 	<reg32 offset="0x08" name="W2">
 		<bitfield pos="0" type="hex" name="DELTA_1_1_HIGH"/>
@@ -432,7 +434,7 @@
 	</reg32>
 </domain>
 
-<domain name="NV20_ZCOMP_TILE_32">
+<domain name="NV20_ZCOMP_TILE_32" varset="chipset">
 	<!-- 4x4 tile -->
 	<reg32 offset="0x00" name="W0">
 		<bitfield low="0" high="7" name="STENCIL"/>
@@ -442,10 +444,11 @@
 		<bitfield low="0" high="14" name="DX"/>
 		<bitfield low="15" high="29" name="DY"/>
 		<bitfield pos="30" type="hex" name="DELTA_0_0_LOW"/>
-		<bitfield pos="31" name="COMPRESSED_SIZE">
+		<bitfield pos="31" name="COMPRESSED_SIZE" variants="NV20:NV30">
 			<value value="0" name="16B"/>
 			<value value="1" name="8B"/> <!-- W2 and W3 ignored and assumed to be 0, used when DELTAs are all 0 -->
 		</bitfield>
+		<bitfield pos="31" name="CONST" variants="NV30-"/> <!-- if set, everything but base and stencil is ignored -->
 	</reg32>
 	<reg32 offset="0x08" name="W2">
 		<bitfield low="0" high="3" name="DELTA_0_0_HIGH"/>
