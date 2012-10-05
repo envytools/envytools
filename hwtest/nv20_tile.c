@@ -377,6 +377,7 @@ int test_zcomp_layout(struct hwtest_ctx *ctx) {
 					uint32_t mm = vram_rd32(ctx->cnum, m + 0x4);
 					if (mm) {
 						printf(", found at %08x instead\n", m);
+						found = 1;
 						break;
 					}
 				}
