@@ -496,15 +496,37 @@ static const struct zcomp_format nv25_zcomp_formats[] = {
 	{ 0 }
 };
 
-void zcomp_decompress(const struct zcomp_format *fmt, uint32_t dst[4][4], uint32_t src[4]) {
+/* XXX: add the color formats */
+static const struct zcomp_format nv30_zcomp_formats[] = {
+	{ 0x01fff000, 16, 3, 0, 0, 0 },
+	{ 0x02fff000, 32, 1, 1, 0, 0 },
+	{ 0x03fff000, 16, 3, 0, 0, 1 },
+	{ 0x04fff000, 32, 1, 1, 0, 1 },
+	{ 0x05fff000, 16, 3, 0, 0, 0 },
+	{ 0x06fff000, 32, 1, 1, 0, 0 },
+	{ 0x11fff000, 16, 3, 0, 1, 0 },
+	{ 0x12fff000, 32, 1, 1, 1, 0 },
+	{ 0x13fff000, 16, 3, 0, 1, 1 },
+	{ 0x14fff000, 32, 1, 1, 1, 1 },
+	{ 0x15fff000, 16, 3, 0, 1, 0 },
+	{ 0x16fff000, 32, 1, 1, 1, 0 },
+	{ 0 }
+};
+
+void zcomp_decompress(const struct zcomp_format *fmt, uint32_t dst[4][4], uint32_t src[4], int is_nv30) {
 	int x, y;
 	uint64_t w0 = src[0] | (uint64_t)src[1] << 32;
 	uint64_t w1 = src[2] | (uint64_t)src[3] << 32;
 	int32_t dz;
+	int is_const = 0;
 
 	/* short flag */
-	if (w0 & (uint64_t)1 << 63)
-		w1 = 0;
+	if (w0 & (uint64_t)1 << 63) {
+		if (!is_nv30)
+			w1 = 0;
+		else
+			is_const = 1;
+	}
 
 	if (fmt->bpp == 16) {
 		/* Z16 */
@@ -524,14 +546,23 @@ void zcomp_decompress(const struct zcomp_format *fmt, uint32_t dst[4][4], uint32
 			delta[3][0] = w0 >> 46 & 7;
 			delta[4][0] = 0;
 			delta[5][0] = w0 >> 49 & 7;
-		} else if (fmt->x0 == 3) {
+			delta[6][0] = w0 >> 52 & 7;
+			delta[7][0] = w0 >> 55 & 7;
+		} else if (fmt->x0 == 3 && !is_nv30) {
 			delta[2][0] = w0 >> 46 & 7;
 			delta[3][0] = 0;
 			delta[4][0] = w0 >> 49 & 7;
 			delta[5][0] = 0;
+			delta[6][0] = w0 >> 52 & 7;
+			delta[7][0] = w0 >> 55 & 7;
+		} else {
+			delta[2][0] = w0 >> 46 & 7;
+			delta[3][0] = 0;
+			delta[4][0] = w0 >> 49 & 7;
+			delta[5][0] = w0 >> 52 & 7;
+			delta[6][0] = w0 >> 55 & 7;
+			delta[7][0] = 0;
 		}
-		delta[6][0] = w0 >> 52 & 7;
-		delta[7][0] = w0 >> 55 & 7;
 		delta[0][1] = w0 >> 58 & 7;
 		delta[1][1] = (w0 >> 61 & 3) | (w1 & 1) << 2;
 		delta[2][1] = w1 >> 1 & 7;
@@ -567,16 +598,31 @@ void zcomp_decompress(const struct zcomp_format *fmt, uint32_t dst[4][4], uint32
 					delta[x][y] |= 0xfff8;
 
 				if (fmt->multisample) {
-					dz = (dx * 2 * (x - fmt->x0) +
-					      dy * (2 * (y - fmt->y0) -
-						    ((x - fmt->x0) & 1)) +
-					      (y ? 2 : 3)) >> 2;
+					if (is_nv30) {
+						dz = (dx * 2 * (x - fmt->x0) +
+						      dy * 2 * (2 * (y - fmt->y0) -
+							    ((x - fmt->x0) & 1)) +
+						      6) >> 3;
+					} else {
+						dz = (dx * 2 * (x - fmt->x0) +
+						      dy * (2 * (y - fmt->y0) -
+							    ((x - fmt->x0) & 1)) +
+						      (y ? 2 : 3)) >> 2;
+					}
 				} else {
-					dz = (dx * (x - fmt->x0) +
-					      dy * (y - fmt->y0) + 1) >> 1;
+					if (is_nv30) {
+						dz = (dx * (x - fmt->x0) +
+						      dy * (y - fmt->y0)*2 + 3) >> 2;
+					} else {
+						dz = (dx * (x - fmt->x0) +
+						      dy * (y - fmt->y0) + 1) >> 1;
+					}
 				}
 
-				tdst[x][y] = base + dz + delta[x][y];
+				if (is_const)
+					tdst[x][y] = base;
+				else
+					tdst[x][y] = base + dz + delta[x][y];
 				if (fmt->big_endian) {
 					tdst[x][y] = tdst[x][y] << 8 | tdst[x][y] >> 8;
 				}
@@ -632,7 +678,10 @@ void zcomp_decompress(const struct zcomp_format *fmt, uint32_t dst[4][4], uint32
 					dz = (x - fmt->x0) * dx + (y - fmt->y0) * dy;
 				}
 
-				dst[x][y] = (base + dz + delta[x][y]) << 8 | stencil;
+				if (is_const)
+					dst[x][y] = base << 8 | stencil;
+				else
+					dst[x][y] = (base + dz + delta[x][y]) << 8 | stencil;
 				if (fmt->big_endian) {
 					dst[x][y] = (dst[x][y] & 0xff00ff) << 8 | (dst[x][y] & 0xff00ff00) >> 8;
 					dst[x][y] = dst[x][y] << 16 | dst[x][y] >> 16;
@@ -648,9 +697,13 @@ int test_zcomp_format(struct hwtest_ctx *ctx) {
 	int partbits = get_partbits(ctx->cnum);
 	int mcbits = get_mcbits(ctx->cnum);
 	uint32_t pitch = 0x200;
-	const struct zcomp_format *fmt =
-		(nva_cards[ctx->cnum].chipset >= 0x25 ?
-		 nv25_zcomp_formats : nv20_zcomp_formats);
+	const struct zcomp_format *fmt;
+	if (ctx->chipset < 0x25)
+		fmt = nv20_zcomp_formats;
+	else if (ctx->chipset < 0x30)
+		fmt = nv25_zcomp_formats;
+	else
+		fmt = nv30_zcomp_formats;
 
 	nva_wr32(ctx->cnum, 0x100248, pitch);
 	nva_wr32(ctx->cnum, 0x100244, 0);
@@ -676,7 +729,7 @@ int test_zcomp_format(struct hwtest_ctx *ctx) {
 			for (x = 0; x < 4; x++)
 				for (y = 0; y < 4; y++)
 					rdst[x][y] = vram_rd32(ctx->cnum, addr + x * 4 + y * pitch);
-			zcomp_decompress(fmt, dst, src);
+			zcomp_decompress(fmt, dst, src, ctx->chipset >= 0x30);
 			int fail = 0;
 			for (x = 0; x < 4; x++)
 				for (y = 0; y < 4; y++)
