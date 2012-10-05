@@ -184,31 +184,32 @@ int test_zcomp_size(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-uint32_t zcomp_rd32(int cnum, int part, int addr) {
-	if (nva_cards[cnum].chipset >= 0x25) {
+void zcomp_seek(int cnum, int part, int addr) {
+	if (nva_cards[cnum].chipset == 0x20) {
+		nva_wr32(cnum, 0x1000f0, 0x1300000 |
+			 (part << 16) | (addr & 0x1fc0));
+	} else if (nva_cards[cnum].chipset < 0x30) {
 		nva_wr32(cnum, 0x1000f0, 0x2380000 |
 			 ((addr << 6) & 0x40000) |
 			 (part << 16) | (addr & 0xfc0));
 	} else {
-		nva_wr32(cnum, 0x1000f0, 0x1300000 |
-			 (part << 16) | (addr & 0x1fc0));
+		nva_wr32(cnum, 0x1000f0, 0x2380000 |
+			 (part << 16) | (addr & 0x7fc0));
 	}
+}
 
-	return nva_rd32(cnum, 0x100100 + (addr & 0x3c));
+uint32_t zcomp_rd32(int cnum, int part, int addr) {
+	zcomp_seek(cnum, part, addr);
+	uint32_t res = nva_rd32(cnum, 0x100100 + (addr & 0x3c));
+	nva_wr32(cnum, 0x1000f0, 0);
+	return res;
 }
 
 void zcomp_wr32(int cnum, int part, int addr, uint32_t v) {
-	if (nva_cards[cnum].chipset >= 0x25) {
-		nva_wr32(cnum, 0x1000f0, 0x2380000 |
-			 ((addr << 6) & 0x40000) |
-			 (part << 16) | (addr & 0xfc0));
-	} else {
-		nva_wr32(cnum, 0x1000f0, 0x1300000 |
-			 (part << 16) | (addr & 0x1fc0));
-	}
-
+	zcomp_seek(cnum, part, addr);
 	nva_wr32(cnum, 0x100100 + (addr & 0x3c), v);
 	nva_rd32(cnum, 0x100100 + (addr & 0x3c));
+	nva_wr32(cnum, 0x1000f0, 0);
 }
 
 void clear_zcomp(int cnum) {
@@ -221,15 +222,32 @@ void clear_zcomp(int cnum) {
 	}
 }
 
+int get_maxparts(int chipset) {
+	switch (chipset) {
+		case 0x20:
+		case 0x25:
+		case 0x28:
+			return 4;
+		case 0x30:
+		case 0x31:
+			return 2;
+		case 0x35:
+		case 0x36:
+		default:
+			abort();
+	}
+}
+
 int test_zcomp_access(struct hwtest_ctx *ctx) {
 	uint32_t size = (nva_rd32(ctx->cnum, 0x100320) + 1) / 8;
 	int i, j;
+	int parts = get_maxparts(ctx->chipset);
 	clear_zcomp(ctx->cnum);
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < parts; i++) {
 		for (j = 0; j < size; j += 0x4)
 			zcomp_wr32(ctx->cnum, i, j, 0xdea00000 | i << 16 | j);
 	}
-	for (i = 0; i < 4; i++) {
+	for (i = 0; i < parts; i++) {
 		for (j = 0; j < size; j += 0x4) {
 			uint32_t val = zcomp_rd32(ctx->cnum, i, j);
 			uint32_t x = 0xdea00000 | i << 16 | j;
