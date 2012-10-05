@@ -787,6 +787,14 @@ int main(int argc, char **argv) {
 		fprintf(stderr, "Mem controller not up.\n");
 		return 3;
 	}
+	if (ctx->chipset >= 0x30) {
+		/* accessing 1000f0/100100 is a horribly bad idea while any mem operations are in progress on NV30+ [at least NV31]... */
+		/* tell PCRTC* to fuck off */
+		nva_wr8(ctx->cnum, 0x0c03c4, 1);
+		nva_wr8(ctx->cnum, 0x0c03c5, 0x20);
+		/* tell vgacon to fuck off */
+		nva_wr32(ctx->cnum, 0x001854, 0);
+	}
 	int res = hwtest_run_group(ctx, &nv20_tile);
 	if (res == HWTEST_RES_PASS)
 		return 0;
