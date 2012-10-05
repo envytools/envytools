@@ -52,6 +52,27 @@ int get_colbits(int cnum) {
 	return cfg1 >> 12 & 0xf;
 }
 
+int get_mcbits(int cnum) {
+	if (nva_cards[cnum].chipset < 0x30)
+		return 2;
+	uint32_t cfg0 = nva_rd32(cnum, 0x100200);
+	int i, cnt = 0;
+	for (i = 0; i < 4; i++)
+		if (cfg0 & 1 << i)
+			cnt++;
+	switch (cnt) {
+		case 1:
+			return 2;
+		case 2:
+			return 3;
+		case 4:
+			return 4;
+		default:
+			printf("Unknown bus width!\n");
+			return -1;
+	}
+}
+
 int test_scan(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 8; i++) {
@@ -260,10 +281,10 @@ int test_zcomp_access(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-uint32_t translate_addr(uint32_t pitch, uint32_t laddr, int colbits, int partbits, int bankoff) {
+uint32_t translate_addr(uint32_t pitch, uint32_t laddr, int colbits, int partbits, int mcbits, int bankoff, int is_nv30) {
 	uint32_t status = compute_status(pitch, ~0);
 	uint32_t shift = status >> 4;
-	int ybits = partbits + colbits + 2 - 8;
+	int ybits = partbits + colbits + mcbits - 8;
 	uint32_t x = laddr % pitch;
 	uint32_t y = laddr / pitch;
 	uint32_t x1 = x & 0xf;
@@ -282,9 +303,20 @@ uint32_t translate_addr(uint32_t pitch, uint32_t laddr, int colbits, int partbit
 		part += 1 << (partbits - 2);
 	part &= (1 << partbits) - 1;
 	uint32_t res = x + y * (pitch / 0x100);
-	res ^= bankoff;
-	if (y & 1 && shift)
-		res ^= 1;
+	if (is_nv30) {
+		int bank = res & 3;
+		if (shift >= 2)
+			bank ^= y << 1 & 2;
+		if (shift >= 1)
+			bank += y >> 1 & 1;
+		bank ^= bankoff;
+		bank &= 3;
+		res = (res & ~3) | bank;
+	} else {
+		res ^= bankoff;
+		if (y & 1 && shift)
+			res ^= 1;
+	}
 	res <<= ybits - 2, res |= y2;
 	res <<= 4 - partbits, res |= x2;
 	res <<= 2, res |= y1;
@@ -367,6 +399,7 @@ int test_format(struct hwtest_ctx *ctx) {
 	int i, j;
 	int partbits = get_partbits(ctx->cnum);
 	int colbits = get_colbits(ctx->cnum);
+	int mcbits = get_mcbits(ctx->cnum);
 	if (partbits < 0)
 		return HWTEST_RES_UNPREP;
 	int res = HWTEST_RES_PASS;
@@ -394,7 +427,7 @@ int test_format(struct hwtest_ctx *ctx) {
 				nva_wr32(ctx->cnum, 0x100240, 1 | bankoff << 4);
 			for (j = 0; j < 0x100000; j += 4) {
 				uint32_t real = vram_rd32(ctx->cnum, j);
-				uint32_t exp = 0xc0000000 | translate_addr(pitch, j, colbits, partbits, bankoff);
+				uint32_t exp = 0xc0000000 | translate_addr(pitch, j, colbits, partbits, mcbits, bankoff, ctx->chipset >= 0x30);
 				if (real != exp) {
 					printf("Mismatch at %08x for pitch %05x bankoff %d: is %08x, expected %08x\n", j, pitch, bankoff, real, exp);
 					res = HWTEST_RES_FAIL;
