@@ -325,14 +325,14 @@ uint32_t translate_addr(uint32_t pitch, uint32_t laddr, int colbits, int partbit
 	return res;
 }
 
-uint32_t translate_tag(uint32_t pitch, int part, uint32_t tag, int colbits, int partbits) {
+uint32_t translate_tag(uint32_t pitch, int part, uint32_t tag, int colbits, int partbits, int mcbits) {
 	uint32_t lx = tag & ((1 << (4 - partbits)) - 1);
 	tag >>= 4 - partbits;
-	uint32_t ly = tag & ((1 << (colbits + partbits - 8)) - 1);
-	tag >>= colbits + partbits - 8;
+	uint32_t ly = tag & ((1 << (colbits + partbits + mcbits - 10)) - 1);
+	tag >>= colbits + partbits + mcbits - 10;
 	uint32_t tx = tag % (pitch >> 8);
 	uint32_t ty = tag / (pitch >> 8);
-	uint32_t y = (ty << (colbits + partbits - 8) | ly) << 2;
+	uint32_t y = (ty << (colbits + partbits + mcbits - 10) | ly) << 2;
 	uint32_t px = part;
 	if (ly & 1 && partbits >= 1)
 		px -= 1 << (partbits - 1);
@@ -346,8 +346,9 @@ uint32_t translate_tag(uint32_t pitch, int part, uint32_t tag, int colbits, int 
 int test_zcomp_layout(struct hwtest_ctx *ctx) {
 	int partbits = get_partbits(ctx->cnum);
 	int colbits = get_colbits(ctx->cnum);
+	int mcbits = get_mcbits(ctx->cnum);
 	uint32_t zcomp_size = (nva_rd32(ctx->cnum, 0x100320) + 1);
-	uint32_t fb_size = 0xc00000;
+	uint32_t fb_size = 0xe00000;
 	int i, j, m;
 	clear_zcomp(ctx->cnum);
 	nva_wr32(ctx->cnum, 0x100240, 0);
@@ -361,15 +362,16 @@ int test_zcomp_layout(struct hwtest_ctx *ctx) {
 	nva_wr32(ctx->cnum, 0x100248, pitch);
 	nva_wr32(ctx->cnum, 0x100244, fb_size - 1);
 	nva_wr32(ctx->cnum, 0x100240, 1);
-	if (nva_cards[ctx->cnum].chipset >= 0x25) {
-		nva_wr32(ctx->cnum, 0x100300, 0x00200000);
-	} else {
+	if (ctx->chipset < 0x25)
 		nva_wr32(ctx->cnum, 0x100300, 0x90000000);
-	}
+	else if (ctx->chipset < 0x30)
+		nva_wr32(ctx->cnum, 0x100300, 0x00200000);
+	else
+		nva_wr32(ctx->cnum, 0x100300, 0x02fff000);
 	for (i = 0; i < (1 << partbits); i++) {
 		for (j = 0; j < zcomp_size; j++) {
 			zcomp_wr32(ctx->cnum, i, j >> 3, 1 << (j & 0x1f));
-			uint32_t exp = translate_tag(pitch, i, j, colbits, partbits);
+			uint32_t exp = translate_tag(pitch, i, j, colbits, partbits, mcbits);
 			if (exp < fb_size && !vram_rd32(ctx->cnum, exp + 4)) {
 				printf("part %d tag %05x: expected to belong to %08x", i, j, exp);
 				int found = 0;
@@ -644,6 +646,7 @@ int test_zcomp_format(struct hwtest_ctx *ctx) {
 	int res = HWTEST_RES_PASS;
 	int colbits = get_colbits(ctx->cnum);
 	int partbits = get_partbits(ctx->cnum);
+	int mcbits = get_mcbits(ctx->cnum);
 	uint32_t pitch = 0x200;
 	const struct zcomp_format *fmt =
 		(nva_cards[ctx->cnum].chipset >= 0x25 ?
@@ -659,7 +662,7 @@ int test_zcomp_format(struct hwtest_ctx *ctx) {
 			int tag = rand() & 0xff;
 			int part = tag & ((1 << partbits) - 1);
 			tag >>= partbits;
-			uint32_t addr = translate_tag(pitch, part, tag, colbits, partbits);
+			uint32_t addr = translate_tag(pitch, part, tag, colbits, partbits, mcbits);
 			uint32_t src[4];
 			int k;
 			zcomp_wr32(ctx->cnum, part, (tag >> 3 & 0x3c), 0);
