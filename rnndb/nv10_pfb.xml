@@ -275,21 +275,27 @@
 	<reg32 offset="0x300" name="COMP_REGION" length="8" variants="NV20:NV25">
 		<bitfield low="6" high="17" name="TAG_BASE" shr="6"/>
 		<bitfield pos="26" name="FORMAT">
-			<value value="0" name="16"/>
-			<value value="1" name="32"/>
+			<value value="0" name="Z16"/>
+			<value value="1" name="Z24S8"/>
 		</bitfield>
 		<bitfield pos="27" name="BIG_ENDIAN"/>
 		<bitfield low="28" high="29" name="UNK28"/>
 		<bitfield pos="31" name="VALID"/>
 	</reg32>
-	<reg32 offset="0x300" name="COMP_REGION" length="8" variants="NV25:NV30">
-		<bitfield low="6" high="17" name="TAG_BASE" shr="6"/>
+	<reg32 offset="0x300" name="COMP_REGION" length="8" variants="NV25:NV35 NV31:NV36">
+		<bitfield low="6" high="17" name="TAG_BASE" shr="6" variants="NV25:NV30"/>
+		<bitfield low="0" high="11" name="TAG_BASE" shr="6" variants="NV30:NV35 NV31:NV36"/>
+		<bitfield low="12" high="19" name="TAG_LIMIT" shr="6" variants="NV30:NV35 NV31:NV36"/>
 		<bitfield low="20" high="23" name="FORMAT">
 			<value value="0" name="OFF"/>
-			<value value="1" name="16"/>
-			<value value="2" name="32"/>
-			<value value="3" name="16_MS"/>
-			<value value="4" name="32_MS"/>
+			<value value="1" name="Z16"/>
+			<value value="2" name="Z24S8"/>
+			<value value="3" name="Z16_MS2"/>
+			<value value="4" name="Z24S8_MS2"/>
+			<value value="5" name="Z16_MS4"/> <!-- XXX: guess -->
+			<value value="6" name="Z24S8_MS4"/> <!-- XXX: guess -->
+			<value value="7" name="C32_4X4" variants="NV30-"/> <!-- 1 word duplicated 16 times -->
+			<value value="8" name="C32_2X2" variants="NV30-"/> <!-- 4 words, each duplicated 4 times in 2x2 tiles -->
 		</bitfield>
 		<bitfield pos="24" name="BIG_ENDIAN"/>
 	</reg32>
