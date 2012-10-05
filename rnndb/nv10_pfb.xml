@@ -308,6 +308,12 @@
 		<bitfield low="24" high="27" name="FORMAT" type="NV25_COMP_FORMAT"/>
 		<bitfield pos="28" name="BIG_ENDIAN"/>
 	</reg32>
+	<reg32 offset="0x300" name="COMP_REGION" length="8" variants="NV35:NV31 NV36:NV34">
+		<bitfield low="0" high="12" name="TAG_BASE" shr="6"/>
+		<bitfield low="13" high="25" name="TAG_LIMIT" shr="6"/>
+		<bitfield low="26" high="29" name="FORMAT" type="NV25_COMP_FORMAT"/>
+		<bitfield pos="30" name="BIG_ENDIAN"/>
+	</reg32>
 	<reg32 offset="0x320" name="COMP_MAX_TAG" variants="NV20-"/>
 	<reg32 offset="0x324" name="COMP_OFFSET" variants="NV20:NV34">
 		<doc>
