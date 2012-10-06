@@ -28,7 +28,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-int get_partbits(int cnum) {
+static int get_partbits(int cnum) {
 	uint32_t cfg0 = nva_rd32(cnum, 0x100200);
 	switch (cfg0 & 3) {
 		case 0:
@@ -43,17 +43,17 @@ int get_partbits(int cnum) {
 	}
 }
 
-int get_colbits(int cnum) {
+static int get_colbits(int cnum) {
 	uint32_t cfg1 = nva_rd32(cnum, 0x100204);
 	return cfg1 >> 12 & 0xf;
 }
 
-int get_mcbits(int cnum) {
+static int get_mcbits(int cnum) {
 	uint32_t cfg0 = nva_rd32(cnum, 0x100200);
 	return (cfg0 >> 2 & 1) + 2;
 }
 
-int test_scan(struct hwtest_ctx *ctx) {
+static int test_scan(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 8; i++) {
 		if (ctx->chipset < 0x30) {
@@ -84,14 +84,14 @@ int test_scan(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-uint32_t get_prime_mask(int cnum) {
+static uint32_t get_prime_mask(int cnum) {
 	if (nva_cards[cnum].chipset >= 0x25)
 		return 1 << 0xd | 1 << 0x7 | 1 << 0x5 | 1 << 0x3 | 1 << 0x1;
 	else
 		return 1 << 0x7 | 1 << 0x5 | 1 << 0x3 | 1 << 0x1;
 }
 
-uint32_t compute_status(uint32_t pitch, uint32_t prime_mask) {
+static uint32_t compute_status(uint32_t pitch, uint32_t prime_mask) {
 	/* like NV10, except pitches 0x300, 0x500, 0x700 are now valid */
 	if (pitch & ~0xff00)
 		abort();
@@ -125,7 +125,7 @@ uint32_t compute_status(uint32_t pitch, uint32_t prime_mask) {
 	return factor | (shift - 8) << 4;
 }
 
-int test_status(struct hwtest_ctx *ctx) {
+static int test_status(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 0x100; i++) {
 		uint32_t pitch = i << 8;
@@ -155,7 +155,7 @@ int test_status(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-int test_zcomp_size(struct hwtest_ctx *ctx) {
+static int test_zcomp_size(struct hwtest_ctx *ctx) {
 	uint32_t expected;
 	uint32_t real = nva_rd32(ctx->cnum, 0x100320);
 	switch (ctx->chipset) {
@@ -185,7 +185,7 @@ int test_zcomp_size(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-uint32_t zcomp_seek(int cnum, int part, int addr) {
+static uint32_t zcomp_seek(int cnum, int part, int addr) {
 	if (nva_cards[cnum].chipset == 0x20) {
 		nva_wr32(cnum, 0x1000f0, 0x1300000 |
 			 (part << 16) | (addr & 0x1fc0));
@@ -206,7 +206,7 @@ uint32_t zcomp_seek(int cnum, int part, int addr) {
 	}
 }
 
-uint32_t zcomp_rd32(int cnum, int part, int addr) {
+static uint32_t zcomp_rd32(int cnum, int part, int addr) {
 	uint32_t a = zcomp_seek(cnum, part, addr);
 	uint32_t res = nva_rd32(cnum, a);
 	nva_wr32(cnum, 0x1000f0, 0);
@@ -230,7 +230,7 @@ void clear_zcomp(int cnum) {
 	}
 }
 
-int get_maxparts(int chipset) {
+static int get_maxparts(int chipset) {
 	switch (chipset) {
 		case 0x20:
 		case 0x25:
@@ -246,10 +246,33 @@ int get_maxparts(int chipset) {
 	}
 }
 
-int test_zcomp_access(struct hwtest_ctx *ctx) {
+static int test_zcomp_access(struct hwtest_ctx *ctx) {
 	uint32_t size = (nva_rd32(ctx->cnum, 0x100320) + 1) / 8;
 	int i, j;
 	int parts = get_maxparts(ctx->chipset);
+	if (0) {
+		for (i = 0; i < 0x400; i++) {
+			nva_wr32(ctx->cnum, 0x1000f0, i << 16);
+			uint32_t old[16];
+			printf("%03x:\n", i);
+			for (j = 0; j < 16; j++)
+				old[j] = nva_rd32(ctx->cnum, 0x100100 + j * 4);
+			for (j = 0; j < 16; j++)
+				printf("%08x%c", nva_rd32(ctx->cnum, 0x100100 + j * 4), j == 15 ? '\n' : ' ');
+			for (j = 0; j < 16; j++)
+				nva_wr32(ctx->cnum, 0x100100 + j * 4, 0xffffffff);
+			for (j = 0; j < 16; j++)
+				printf("%08x%c", nva_rd32(ctx->cnum, 0x100100 + j * 4), j == 15 ? '\n' : ' ');
+			for (j = 0; j < 16; j++)
+				nva_wr32(ctx->cnum, 0x100100 + j * 4, 0);
+			for (j = 0; j < 16; j++)
+				printf("%08x%c", nva_rd32(ctx->cnum, 0x100100 + j * 4), j == 15 ? '\n' : ' ');
+			for (j = 0; j < 16; j++)
+				nva_wr32(ctx->cnum, 0x100100 + j * 4, old[j]);
+		}
+		nva_wr32(ctx->cnum, 0x1000f0, 0);
+		return HWTEST_RES_FAIL;
+	}
 	clear_zcomp(ctx->cnum);
 	for (i = 0; i < parts; i++) {
 		for (j = 0; j < size; j += 0x4)
@@ -268,7 +291,7 @@ int test_zcomp_access(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-uint32_t translate_addr(uint32_t pitch, uint32_t laddr, int colbits, int partbits, int mcbits, int bankoff, int is_nv30) {
+static uint32_t translate_addr(uint32_t pitch, uint32_t laddr, int colbits, int partbits, int mcbits, int bankoff, int is_nv30) {
 	uint32_t status = compute_status(pitch, ~0);
 	uint32_t shift = status >> 4;
 	int ybits = partbits + colbits + mcbits - 8;
@@ -312,7 +335,7 @@ uint32_t translate_addr(uint32_t pitch, uint32_t laddr, int colbits, int partbit
 	return res;
 }
 
-uint32_t translate_tag(uint32_t pitch, int part, uint32_t tag, int colbits, int partbits, int mcbits) {
+static uint32_t translate_tag(uint32_t pitch, int part, uint32_t tag, int colbits, int partbits, int mcbits) {
 	uint32_t lx = tag & ((1 << (4 - partbits)) - 1);
 	tag >>= 4 - partbits;
 	uint32_t ly = tag & ((1 << (colbits + partbits + mcbits - 10)) - 1);
@@ -330,7 +353,7 @@ uint32_t translate_tag(uint32_t pitch, int part, uint32_t tag, int colbits, int 
 	return y * pitch + x;
 }
 
-int test_zcomp_layout(struct hwtest_ctx *ctx) {
+static int test_zcomp_layout(struct hwtest_ctx *ctx) {
 	int partbits = get_partbits(ctx->cnum);
 	int colbits = get_colbits(ctx->cnum);
 	int mcbits = get_mcbits(ctx->cnum);
@@ -387,7 +410,7 @@ int test_zcomp_layout(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-int test_format(struct hwtest_ctx *ctx) {
+static int test_format(struct hwtest_ctx *ctx) {
 	int i, j;
 	int partbits = get_partbits(ctx->cnum);
 	int colbits = get_colbits(ctx->cnum);
@@ -518,7 +541,7 @@ static const struct zcomp_format nv35_zcomp_formats[] = {
 	{ 0 }
 };
 
-void zcomp_decompress(const struct zcomp_format *fmt, uint32_t dst[4][4], uint32_t src[4], int is_nv30) {
+static void zcomp_decompress(const struct zcomp_format *fmt, uint32_t dst[4][4], uint32_t src[4], int is_nv30) {
 	int x, y;
 	uint64_t w0 = src[0] | (uint64_t)src[1] << 32;
 	uint64_t w1 = src[2] | (uint64_t)src[3] << 32;
@@ -696,7 +719,7 @@ void zcomp_decompress(const struct zcomp_format *fmt, uint32_t dst[4][4], uint32
 	}
 }
 
-int test_zcomp_format(struct hwtest_ctx *ctx) {
+static int test_zcomp_format(struct hwtest_ctx *ctx) {
 	int res = HWTEST_RES_PASS;
 	int colbits = get_colbits(ctx->cnum);
 	int partbits = get_partbits(ctx->cnum);
@@ -769,7 +792,7 @@ int test_zcomp_format(struct hwtest_ctx *ctx) {
 	return res;
 }
 
-int test_pb(struct hwtest_ctx *ctx, int pb, int (*fun)(struct hwtest_ctx *ctx)) {
+static int test_pb(struct hwtest_ctx *ctx, int pb, int (*fun)(struct hwtest_ctx *ctx)) {
 	uint32_t orig = nva_rd32(ctx->cnum, 0x100200);
 	uint32_t cfg = orig;
 	int partbits = get_partbits(ctx->cnum);
@@ -806,31 +829,50 @@ int test_pb(struct hwtest_ctx *ctx, int pb, int (*fun)(struct hwtest_ctx *ctx)) 
 	return res;
 }
 
-int test_format_pb0(struct hwtest_ctx *ctx) {
+static int test_format_pb0(struct hwtest_ctx *ctx) {
 	return test_pb(ctx, 0, test_format);
 }
 
-int test_format_pb1(struct hwtest_ctx *ctx) {
+static int test_format_pb1(struct hwtest_ctx *ctx) {
 	return test_pb(ctx, 1, test_format);
 }
 
-int test_format_pb2(struct hwtest_ctx *ctx) {
+static int test_format_pb2(struct hwtest_ctx *ctx) {
 	return test_pb(ctx, 2, test_format);
 }
 
-int test_zcomp_layout_pb0(struct hwtest_ctx *ctx) {
+static int test_zcomp_layout_pb0(struct hwtest_ctx *ctx) {
 	return test_pb(ctx, 0, test_zcomp_layout);
 }
 
-int test_zcomp_layout_pb1(struct hwtest_ctx *ctx) {
+static int test_zcomp_layout_pb1(struct hwtest_ctx *ctx) {
 	return test_pb(ctx, 1, test_zcomp_layout);
 }
 
-int test_zcomp_layout_pb2(struct hwtest_ctx *ctx) {
+static int test_zcomp_layout_pb2(struct hwtest_ctx *ctx) {
 	return test_pb(ctx, 2, test_zcomp_layout);
 }
 
-struct hwtest_test nv20_tile_tests[] = {
+static int nv20_tile_prep(struct hwtest_ctx *ctx) {
+	if (ctx->chipset < 0x20 || ctx->chipset == 0x2a || ctx->chipset == 0x34 || ctx->chipset >= 0x40) {
+		return HWTEST_RES_NA;
+	}
+	if (!(nva_rd32(ctx->cnum, 0x200) & 1 << 20)) {
+		printf("Mem controller not up.\n");
+		return HWTEST_RES_UNPREP;
+	}
+	if (ctx->chipset >= 0x30) {
+		/* accessing 1000f0/100100 is a horribly bad idea while any mem operations are in progress on NV30+ [at least NV31]... */
+		/* tell PCRTC* to fuck off */
+		nva_wr8(ctx->cnum, 0x0c03c4, 1);
+		nva_wr8(ctx->cnum, 0x0c03c5, 0x20);
+		/* tell vgacon to fuck off */
+		nva_wr32(ctx->cnum, 0x001854, 0);
+	}
+	return HWTEST_RES_PASS;
+}
+
+HWTEST_DEF_GROUP(nv20_tile,
 	HWTEST_TEST(test_scan, 0),
 	HWTEST_TEST(test_status, 0),
 	HWTEST_TEST(test_zcomp_size, 0),
@@ -842,63 +884,4 @@ struct hwtest_test nv20_tile_tests[] = {
 	HWTEST_TEST(test_zcomp_layout_pb1, 0),
 	HWTEST_TEST(test_zcomp_layout_pb2, 0),
 	HWTEST_TEST(test_zcomp_format, 0),
-};
-
-struct hwtest_group nv20_tile = {
-	nv20_tile_tests,
-	ARRAY_SIZE(nv20_tile_tests),
-};
-
-int main(int argc, char **argv) {
-	struct hwtest_ctx sctx;
-	struct hwtest_ctx *ctx = &sctx;
-	if (nva_init()) {
-		fprintf (stderr, "PCI init failure!\n");
-		return 1;
-	}
-	int c;
-	ctx->cnum = 0;
-	ctx->colors = 1;
-	ctx->noslow = 0;
-	while ((c = getopt (argc, argv, "c:ns")) != -1)
-		switch (c) {
-			case 'c':
-				sscanf(optarg, "%d", &ctx->cnum);
-				break;
-			case 'n':
-				ctx->colors = 0;
-				break;
-			case 's':
-				ctx->noslow = 1;
-				break;
-		}
-	if (ctx->cnum >= nva_cardsnum) {
-		if (nva_cardsnum)
-			fprintf (stderr, "No such card.\n");
-		else
-			fprintf (stderr, "No cards found.\n");
-		return 1;
-	}
-	ctx->chipset = nva_cards[ctx->cnum].chipset;
-	if (ctx->chipset < 0x20 || ctx->chipset == 0x2a || ctx->chipset == 0x34 || ctx->chipset >= 0x40) {
-		fprintf(stderr, "Test not applicable for this chipset.\n");
-		return 2;
-	}
-	if (!(nva_rd32(ctx->cnum, 0x200) & 1 << 20)) {
-		fprintf(stderr, "Mem controller not up.\n");
-		return 3;
-	}
-	if (ctx->chipset >= 0x30) {
-		/* accessing 1000f0/100100 is a horribly bad idea while any mem operations are in progress on NV30+ [at least NV31]... */
-		/* tell PCRTC* to fuck off */
-		nva_wr8(ctx->cnum, 0x0c03c4, 1);
-		nva_wr8(ctx->cnum, 0x0c03c5, 0x20);
-		/* tell vgacon to fuck off */
-		nva_wr32(ctx->cnum, 0x001854, 0);
-	}
-	int res = hwtest_run_group(ctx, &nv20_tile);
-	if (res == HWTEST_RES_PASS)
-		return 0;
-	else
-		return res + 1;
-}
+)

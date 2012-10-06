@@ -28,7 +28,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-int test_scan(struct hwtest_ctx *ctx) {
+static int test_scan(struct hwtest_ctx *ctx) {
 	int i;
 	int is_nv34 = ctx->chipset == 0x34;
 	for (i = 0; i < 8; i++) {
@@ -45,7 +45,7 @@ int test_scan(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-uint32_t compute_status(uint32_t pitch) {
+static uint32_t compute_status(uint32_t pitch) {
 	if (pitch & ~0xff00)
 		abort();
 	if (!pitch)
@@ -75,7 +75,7 @@ uint32_t compute_status(uint32_t pitch) {
 	return factor | shift << 4;
 }
 
-int test_status(struct hwtest_ctx *ctx) {
+static int test_status(struct hwtest_ctx *ctx) {
 	int i;
 	int is_nv34 = ctx->chipset == 0x34;
 	for (i = 0; i < 0x100; i++) {
@@ -106,7 +106,7 @@ int test_status(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-uint32_t translate_addr(uint32_t pitch, uint32_t laddr, int bankshift, int partflip) {
+static uint32_t translate_addr(uint32_t pitch, uint32_t laddr, int bankshift, int partflip) {
 	uint32_t status = compute_status(pitch);
 	uint32_t shift = status >> 4;
 	uint32_t x = laddr % pitch;
@@ -123,7 +123,7 @@ uint32_t translate_addr(uint32_t pitch, uint32_t laddr, int bankshift, int partf
 	return addr;
 }
 
-int get_bankshift(int cnum) {
+static int get_bankshift(int cnum) {
 	uint32_t cfg = nva_rd32(cnum, 0x100200);
 	int colbits = cfg >> 24 & 0xf;
 	int partcfg = cfg >> 4 & 3;
@@ -132,7 +132,7 @@ int get_bankshift(int cnum) {
 	return bankshift;
 }
 
-int test_format(struct hwtest_ctx *ctx) {
+static int test_format(struct hwtest_ctx *ctx) {
 	int i, j;
 	int bankshift = get_bankshift(ctx->cnum);
 	int res = HWTEST_RES_PASS;
@@ -202,78 +202,38 @@ int test_format_bs(struct hwtest_ctx *ctx, int bs) {
 	return res;
 }
 
-int test_format_bs10(struct hwtest_ctx *ctx) {
+static int test_format_bs10(struct hwtest_ctx *ctx) {
 	return test_format_bs(ctx, 10);
 }
 
-int test_format_bs11(struct hwtest_ctx *ctx) {
+static int test_format_bs11(struct hwtest_ctx *ctx) {
 	return test_format_bs(ctx, 11);
 }
 
-int test_format_bs12(struct hwtest_ctx *ctx) {
+static int test_format_bs12(struct hwtest_ctx *ctx) {
 	return test_format_bs(ctx, 12);
 }
 
-int test_format_bs13(struct hwtest_ctx *ctx) {
+static int test_format_bs13(struct hwtest_ctx *ctx) {
 	return test_format_bs(ctx, 13);
 }
 
-struct hwtest_test nv10_tile_tests[] = {
+static int nv10_tile_prep(struct hwtest_ctx *ctx) {
+	if (ctx->chipset < 0x10 || (ctx->chipset >= 0x1a && ctx->chipset != 0x34)) {
+		return HWTEST_RES_NA;
+	}
+	if (!(nva_rd32(ctx->cnum, 0x200) & 1 << 20)) {
+		printf("Mem controller not up.\n");
+		return HWTEST_RES_UNPREP;
+	}
+	return HWTEST_RES_PASS;
+}
+
+HWTEST_DEF_GROUP(nv10_tile, 
 	HWTEST_TEST(test_scan, 0),
 	HWTEST_TEST(test_status, 0),
 	HWTEST_TEST(test_format_bs10, 1),
 	HWTEST_TEST(test_format_bs11, 1),
 	HWTEST_TEST(test_format_bs12, 1),
 	HWTEST_TEST(test_format_bs13, 1),
-};
-
-struct hwtest_group nv10_tile = {
-	nv10_tile_tests,
-	ARRAY_SIZE(nv10_tile_tests),
-};
-
-int main(int argc, char **argv) {
-	struct hwtest_ctx sctx;
-	struct hwtest_ctx *ctx = &sctx;
-	if (nva_init()) {
-		fprintf (stderr, "PCI init failure!\n");
-		return 1;
-	}
-	int c;
-	ctx->cnum = 0;
-	ctx->colors = 1;
-	ctx->noslow = 0;
-	while ((c = getopt (argc, argv, "c:ns")) != -1)
-		switch (c) {
-			case 'c':
-				sscanf(optarg, "%d", &ctx->cnum);
-				break;
-			case 'n':
-				ctx->colors = 0;
-				break;
-			case 's':
-				ctx->noslow = 1;
-				break;
-		}
-	if (ctx->cnum >= nva_cardsnum) {
-		if (nva_cardsnum)
-			fprintf (stderr, "No such card.\n");
-		else
-			fprintf (stderr, "No cards found.\n");
-		return 1;
-	}
-	ctx->chipset = nva_cards[ctx->cnum].chipset;
-	if (ctx->chipset < 0x10 || (ctx->chipset >= 0x1a && ctx->chipset != 0x34)) {
-		fprintf(stderr, "Test not applicable for this chipset.\n");
-		return 2;
-	}
-	if (!(nva_rd32(ctx->cnum, 0x200) & 1 << 20)) {
-		fprintf(stderr, "Mem controller not up.\n");
-		return 3;
-	}
-	int res = hwtest_run_group(ctx, &nv10_tile);
-	if (res == HWTEST_RES_PASS)
-		return 0;
-	else
-		return res + 1;
-}
+)

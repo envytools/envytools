@@ -6,20 +6,10 @@ pkg_check_modules(PC_PCIACCESS pciaccess)
 
 if (PC_PCIACCESS_FOUND)
 
-SET(HWTEST_PROGS
-	nv10_tile
-	nv20_tile
-)
-
-add_library(hwtest vram.c common.c)
+add_executable(hwtest hwtest.c common.c vram.c nv10_tile.c nv20_tile.c)
 target_link_libraries(hwtest nva)
 
-foreach(PROG ${HWTEST_PROGS})
-	add_executable(${PROG} ${PROG}.c)
-	target_link_libraries(${PROG} hwtest)
-endforeach(PROG)
-
-install(TARGETS ${HWTEST_PROGS}
+install(TARGETS hwtest
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
 	ARCHIVE DESTINATION lib${LIB_SUFFIX})

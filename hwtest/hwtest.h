@@ -25,6 +25,7 @@
 #ifndef HWTEST_H
 #define HWTEST_H
 
+#include "util.h"
 #include <stdint.h>
 
 struct hwtest_ctx {
@@ -32,20 +33,25 @@ struct hwtest_ctx {
 	int chipset;
 	int noslow;
 	int colors;
+	int indent;
 };
 
 struct hwtest_test {
-	int (*fun) (struct hwtest_ctx *ctx);
 	const char *name;
+	int (*fun) (struct hwtest_ctx *ctx);
+	const struct hwtest_group *group;
 	int slow;
 };
-
-#define HWTEST_TEST(a, slow) { a, #a, slow }
 
 struct hwtest_group {
 	const struct hwtest_test *tests;
 	int testsnum;
+	int (*prep) (struct hwtest_ctx *ctx);
 };
+
+#define HWTEST_TEST(a, slow) { #a, a, 0, slow }
+#define HWTEST_GROUP(a) { #a, 0, &a##_group, 0 }
+#define HWTEST_DEF_GROUP(a, ...) const struct hwtest_test a##_tests[] = { __VA_ARGS__ }; const struct hwtest_group a##_group = { a##_tests, ARRAY_SIZE(a##_tests), a##_prep };
 
 enum hwtest_res {
 	HWTEST_RES_NA,
@@ -72,6 +78,9 @@ enum hwtest_res {
 
 uint32_t vram_rd32(int card, uint64_t addr);
 void vram_wr32(int card, uint64_t addr, uint32_t val);
-int hwtest_run_group(struct hwtest_ctx *ctx, const struct hwtest_group *group);
+int hwtest_run_group(struct hwtest_ctx *ctx, const struct hwtest_group *group, const char *filter);
+
+extern const struct hwtest_group nv10_tile_group;
+extern const struct hwtest_group nv20_tile_group;
 
 #endif

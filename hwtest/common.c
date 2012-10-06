@@ -25,17 +25,53 @@
 #include "hwtest.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
-int hwtest_run_group(struct hwtest_ctx *ctx, const struct hwtest_group *group) {
-	int i;
+int hwtest_run_group(struct hwtest_ctx *ctx, const struct hwtest_group *group, const char *filter) {
+	int i, j;
 	int worst = 0;
+	int pres = group->prep(ctx);
+	if (pres != HWTEST_RES_PASS) {
+		return pres;
+	}
+	int flen = 0;
+	const char *fnext = 0;
+	if (filter) {
+		fnext = strchr(filter, '/');
+		if (fnext) {
+			flen = fnext - filter;
+			fnext++;
+		} else {
+			flen = strlen(filter);
+		}
+	}
+	if (!filter)
+		ctx->indent++;
+	int found = 0;
 	for (i = 0; i < group->testsnum; i++) {
+		if (filter && (strlen(group->tests[i].name) != flen || strncmp(group->tests[i].name, filter, flen)))
+			continue;
+		found = 1;
 		if (group->tests[i].slow && ctx->noslow) {
+			for (j = 0; j < ctx->indent; j++)
+				printf("  ");
 			printf("%s: skipped\n", group->tests[i].name);
 		} else {
-			int res = group->tests[i].fun(ctx);
+			int res;
+			if (group->tests[i].fun) {
+				res = group->tests[i].fun(ctx);
+			} else {
+				if (!fnext) {
+					for (j = 0; j < ctx->indent; j++)
+						printf("  ");
+					printf("%s...\n", group->tests[i].name);
+				}
+				res = hwtest_run_group(ctx, group->tests[i].group, fnext);
+			}
 			if (worst < res)
 				worst = res;
+			if (fnext)
+				continue;
 			const char *tab[] = {
 				[HWTEST_RES_NA] = "n/a",
 				[HWTEST_RES_PASS] = "passed",
@@ -48,8 +84,16 @@ int hwtest_run_group(struct hwtest_ctx *ctx, const struct hwtest_group *group) {
 				[HWTEST_RES_UNPREP] = "\x1b[33mhw not prepared\x1b[0m",
 				[HWTEST_RES_FAIL] = "\x1b[31mFAILED\x1b[0m",
 			};
+			for (j = 0; j < ctx->indent; j++)
+				printf("  ");
 			printf("%s: %s\n", group->tests[i].name, res[ctx->colors?tabc:tab]);
 		}
+	}
+	if (!filter)
+		ctx->indent--;
+	if (!found) {
+		printf("No tests found for %s!\n", filter);
+		return HWTEST_RES_NA;
 	}
 	return worst;
 }
