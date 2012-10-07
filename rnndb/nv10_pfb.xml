@@ -22,6 +22,54 @@
 	<value value="8" name="C32_2X2" variants="NV30-"/> <!-- 4 words, each duplicated 4 times in 2x2 tiles -->
 </enum>
 
+<group name="nv10_pfb_tile_region">
+	<reg32 offset="0x00" name="BASE" variants="NV10:NV20">
+		<bitfield low="14" high="26" name="BASE" shr="14"/>
+		<bitfield pos="31" name="ENABLE"/>
+	</reg32>
+	<reg32 offset="0x00" name="BASE" variants="NV20:NV50">
+		<bitfield pos="0" name="ENABLE" variants="NV20:NV44 NV47:NV46 NV49:NV4E"/>
+		<bitfield pos="1" name="BANKOFF" variants="NV20:NV30"/>
+		<bitfield low="0" high="1" name="MODE" variants="NV44:NV47">
+			<value value="0" name="DISABLED"/>
+			<value value="1" name="VRAM"/>
+			<value value="2" name="GART"/>
+			<value value="3" name="GART_ALT"/>
+		</bitfield>
+		<bitfield low="0" high="2" name="MODE" variants="NV46:NV49 NV4E:NV50">
+			<value value="0" name="DISABLED"/>
+			<value value="1" name="VRAM"/>
+			<value value="2" name="GART"/>
+			<value value="3" name="GART_ALT"/>
+			<value value="4" name="VRAM_ALT"/>
+		</bitfield>
+		<bitfield pos="3" name="BANKOFF" variants="NV46:NV49 NV4E:NV50"/>
+		<bitfield low="4" high="5" name="BANKOFF" variants="NV30:NV34 NV40:NV44 NV47:NV46 NV49:NV4E"/>
+		<bitfield low="14" high="31" name="BASE" shr="14" variants="NV20:NV40 NV44:NV47 NV46:NV49 NV4E:NV50"/>
+		<bitfield low="16" high="31" name="BASE" shr="16" variants="NV40:NV44 NV47:NV46 NV49:NV4E"/>
+	</reg32>
+	<reg32 offset="0x04" name="LIMIT"> <!-- inclusive limit -->
+		<bitfield low="14" high="26" name="LIMIT" shr="14" variants="NV10:NV20"/>
+		<bitfield low="14" high="31" name="LIMIT" shr="14" variants="NV20:NV40 NV44:NV47 NV46:NV49 NV4E:NV50"/>
+		<bitfield low="16" high="31" name="LIMIT" shr="16" variants="NV40:NV44 NV47:NV46 NV49:NV4E"/>
+	</reg32>
+	<reg32 offset="0x08" name="PITCH">
+		<bitfield low="8" high="15" name="PITCH" shr="8" variants="NV10:NV40 NV44:NV47 NV46:NV49 NV4E:NV50"/>
+		<bitfield low="8" high="15" name="PITCH" shr="8" variants="NV40:NV44 NV47:NV46 NV49:NV4E"/>
+	</reg32>
+	<reg32 offset="0x0c" name="STATUS" access="r">
+		<bitfield low="0" high="3" name="FACTOR">
+			<value value="0" name="1"/>
+			<value value="1" name="3"/>
+			<value value="2" name="5"/>
+			<value value="3" name="7"/>
+			<value value="4" name="13" variants="NV25:NV34 NV40-"/>
+		</bitfield>
+		<bitfield low="4" high="7" name="SHIFT"/>
+		<bitfield pos="31" name="VALID"/>
+	</reg32>
+</group>
+
 <array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV10:NVC0">
 	<reg32 offset="0x200" name="CFG0" variants="NV10:NV20 NV34">
 		<doc>Address is:
@@ -250,37 +298,8 @@
 		<value value="1" name="REORDER_TIMES3"/>
 	</reg32>
 
-	<array offset="0x240" name="TILE_REGION" stride="0x10" length="8" variants="NV10:NV30 NV34:NV40">
-		<reg32 offset="0x00" name="BASE" variants="NV10:NV20">
-			<bitfield low="14" high="26" name="BASE" shr="14"/>
-			<bitfield pos="31" name="ENABLE"/>
-		</reg32>
-		<reg32 offset="0x00" name="BASE" variants="NV20:NV40">
-			<bitfield pos="0" name="ENABLE"/>
-			<bitfield pos="1" name="BANKOFF" variants="NV20:NV30"/>
-			<bitfield low="4" high="5" name="BANKOFF" variants="NV30:NV34"/><!-- not verified -->
-			<bitfield low="14" high="31" name="BASE" shr="14"/>
-		</reg32>
-		<reg32 offset="0x04" name="LIMIT" variants="NV10:NV20"> <!-- inclusive limit -->
-			<bitfield low="14" high="26" name="LIMIT" shr="14"/>
-		</reg32>
-		<reg32 offset="0x04" name="LIMIT" variants="NV20:NV40">
-			<bitfield low="14" high="31" name="LIMIT" shr="14"/>
-		</reg32>
-		<reg32 offset="0x08" name="PITCH">
-			<bitfield low="8" high="15" name="PITCH" shr="8"/>
-		</reg32>
-		<reg32 offset="0x0c" name="STATUS" access="r">
-			<bitfield low="0" high="3" name="FACTOR">
-				<value value="0" name="1"/>
-				<value value="1" name="3"/>
-				<value value="2" name="5"/>
-				<value value="3" name="7"/>
-				<value value="4" name="13" variants="NV25:NV34 NV40-"/>
-			</bitfield>
-			<bitfield low="4" high="7" name="SHIFT"/>
-			<bitfield pos="31" name="VALID"/>
-		</reg32>
+	<array offset="0x240" name="TILE_REGION" stride="0x10" length="8" variants="NV10:NV41">
+		<use-group name="nv10_pfb_tile_region"/>
 	</array>
 
 	<array offset="0x2c0" name="RAMCHIP_CFG" stride="0x30" length="1" variants="NV30:NVC0">
@@ -325,6 +344,14 @@
 		<bitfield low="14" high="25" name="BASE" shr="14"/>
 		<bitfield pos="31" name="ENABLE"/>
 	</reg32>
+
+	<array offset="0x600" name="TILE_REGION" stride="0x10" length="12" variants="NV41:NV47">
+		<use-group name="nv10_pfb_tile_region"/>
+	</array>
+
+	<array offset="0x600" name="TILE_REGION" stride="0x10" length="15" variants="NV47:NV50">
+		<use-group name="nv10_pfb_tile_region"/>
+	</array>
 
 	<array offset="0xc00" name="UNKC00" stride="0x80" length="1" variants="NV50-">
 		<reg32 offset="0x08" name="UNK08_SYSRAM_ADDR" shr="8"/>
