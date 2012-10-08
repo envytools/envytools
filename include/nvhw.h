@@ -45,11 +45,13 @@ struct mc_config {
 	int parts;
 	int partbits;
 	int colbits;
+	int colbits_lo;
 	int bankbits_lo;
 	int ranks;
 	int rank_interleave;
 	int rowbits[2];
 	int bankbits[2];
+	int burstbits;
 };
 
 int pfb_type(int chipset);
@@ -58,9 +60,10 @@ int tile_pitch_valid(int chipset, uint32_t pitch, int *pshift, int *pfactor);
 int has_large_tile(int chipset);
 int tile_bankoff_bits(int chipset);
 int has_vram_alt_tile(int chipset);
-uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int bankoff, const struct mc_config *mcc);
+uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int mode, int bankoff, const struct mc_config *mcc);
 
 int is_igp(int chipset);
+int get_maxparts(int chipset);
 
 enum comp_type {
 	COMP_NONE,

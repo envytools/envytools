@@ -121,9 +121,12 @@ int has_vram_alt_tile(int chipset) {
 	return pfb_type(chipset) == PFB_NV44 && chipset != 0x44 && chipset != 0x4a;
 }
 
-uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int bankoff, const struct mc_config *mcc) {
-	int bankshift = mcc->mcbits + mcc->partbits + mcc->colbits;
-	if (pfb_type(chipset) == PFB_NV44)
+uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int mode, int bankoff, const struct mc_config *mcc) {
+	int bankshift = mcc->mcbits + mcc->partbits + mcc->colbits_lo;
+	int is_vram = mode == 1 || mode == 4;
+	if (is_igp(chipset))
+		is_vram = 0;
+	if (!is_vram)
 		bankshift = 12;
 	int shift, factor;
 	if (!tile_pitch_valid(chipset, pitch, &shift, &factor))
@@ -143,7 +146,7 @@ uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int 
 			iaddr = ix | iy << 8;
 			if (y & 1)
 				baddr ^= 1;
-			if (chipset == 0x15 && mcc->mcbits == 4 && address & 0x100)
+			if (chipset > 0x10 && mcc->mcbits + mcc->partbits + mcc->burstbits > 4 && address & 0x100)
 				iaddr ^= 0x10;
 		} break;
 		case PFB_NV20:
@@ -192,6 +195,8 @@ uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int 
 			iaddr = ix | iy << 8;
 			baddr ^= y&1;
 			baddr ^= bankoff;
+			if (mcc->mcbits + mcc->partbits + mcc->burstbits > 4 && is_vram && iaddr & 0x100)
+				iaddr ^= 0x10;
 		} break;
 		default:
 			abort();

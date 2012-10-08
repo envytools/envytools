@@ -23,6 +23,7 @@
  */
 
 #include "nvhw.h"
+#include <stdlib.h>
 
 int is_igp(int chipset) {
 	switch (chipset) {
@@ -64,4 +65,36 @@ int pfb_type(int chipset) {
 	if (chipset < 0xc0)
 		return PFB_NV50;
 	return PFB_NVC0;
+}
+
+int get_maxparts(int chipset) {
+	switch (chipset) {
+		case 0x1a:
+		case 0x1f:
+		case 0x2a:
+		case 0x4e:
+		case 0x4c:
+		case 0x67:
+		case 0x68:
+		case 0x63:
+			return 0;
+		case 0x10:
+		case 0x15:
+		case 0x11:
+		case 0x17:
+		case 0x18:
+		case 0x20:
+		case 0x25:
+		case 0x28:
+		case 0x35:
+		case 0x36:
+		case 0x40:
+			return 4;
+		case 0x30:
+		case 0x31:
+		case 0x43:
+			return 2;
+		default:
+			abort();
+	}
 }

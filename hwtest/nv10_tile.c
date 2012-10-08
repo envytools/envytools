@@ -39,25 +39,29 @@ static void get_mc_config(struct hwtest_ctx *ctx, struct mc_config *mcc) {
 	switch (pfb_type(ctx->chipset)) {
 		case PFB_NV10:
 			cfg0 = nva_rd32(ctx->cnum, 0x100200);
+			mcc->mcbits = 2;
 			switch (cfg0 & 0x30) {
 				case 0x20:
-					mcc->mcbits = 2;
+					mcc->partbits = 0;
 					break;
 				case 0x00:
-					mcc->mcbits = 3;
+					mcc->partbits = 1;
 					break;
 				case 0x10:
-					mcc->mcbits = 4;
+					mcc->partbits = 2;
 					break;
 			}
 			mcc->parts = 1;
-			mcc->partbits = 0;
-			mcc->colbits = cfg0 >> 24 & 0xf;
+			mcc->colbits = mcc->colbits_lo = cfg0 >> 24 & 0xf;
+			/* XXX: figure out just what the fuck is happening here */
+			if (mcc->colbits_lo > 9)
+				mcc->colbits_lo = 9;
 			mcc->bankbits_lo = 1;
 			mcc->bankbits[0] = mcc->bankbits[1] = (cfg0 >> 16 & 1) + 1;
 			mcc->rank_interleave = 0;
 			mcc->ranks = (cfg0 >> 12 & 1) + 1;
 			mcc->rowbits[0] = mcc->rowbits[1] = cfg0 >> 20 & 0xf;
+			mcc->burstbits = cfg0 & 1 || ctx->chipset >= 0x17;
 			break;
 		case PFB_NV20:
 		case PFB_NV40:
@@ -65,24 +69,34 @@ static void get_mc_config(struct hwtest_ctx *ctx, struct mc_config *mcc) {
 		case PFB_NV44:
 			cfg0 = nva_rd32(ctx->cnum, 0x100200);
 			cfg1 = nva_rd32(ctx->cnum, 0x100204);
-			switch (cfg0 & 3) {
-				case 0:
-					mcc->partbits = 0;
-					break;
-				case 1:
-					mcc->partbits = 1;
-					break;
-				case 3:
-					mcc->partbits = 2;
-					break;
+			if (pfb_type(ctx->chipset) == PFB_NV44) {
+				mcc->partbits = 1 - (cfg0 >> 1 & 1);
+			} else {
+				switch (cfg0 & 3) {
+					case 0:
+						mcc->partbits = 0;
+						break;
+					case 1:
+						mcc->partbits = 1;
+						break;
+					case 3:
+						mcc->partbits = 2;
+						break;
+				}
 			}
 			if (ctx->chipset < 0x40) {
 				mcc->mcbits = (cfg0 >> 2 & 1) + 2;
 			} else {
-				mcc->mcbits = 3;
+				if (pfb_type(ctx->chipset) == PFB_NV44) {
+					mcc->mcbits = 2;
+				} else {
+					mcc->mcbits = 3;
+				}
 			}
 			mcc->parts = 1 << mcc->partbits;
-			mcc->colbits = cfg1 >> 12 & 0xf;
+			mcc->colbits = mcc->colbits_lo = cfg1 >> 12 & 0xf;
+			if (mcc->colbits_lo > 9 && pfb_type(ctx->chipset == PFB_NV44))
+				mcc->colbits_lo = 9;
 			mcc->bankbits_lo = tile_bankoff_bits(ctx->chipset);
 			mcc->rowbits[0] = cfg1 >> 16 & 0xf;
 			mcc->rowbits[1] = cfg1 >> 20 & 0xf;
@@ -90,6 +104,7 @@ static void get_mc_config(struct hwtest_ctx *ctx, struct mc_config *mcc) {
 			mcc->bankbits[1] = (cfg1 >> 28 & 0xf) + 1;
 			mcc->ranks = (cfg0 >> 8 & 1) + 1;
 			mcc->rank_interleave = cfg0 >> 9 & 1;
+			mcc->burstbits = (cfg0 >> 11 & 1) + 1; /* valid for at least NV44, doesn't matter for others */
 			break;
 		default:
 			abort();
@@ -273,6 +288,9 @@ static int test_comp_size(struct hwtest_ctx *ctx) {
 		case 0x40:
 			expected = 0x2e3ff;
 			break;
+		case 0x43:
+			expected = 0x5c7ff;
+			break;
 		default:
 			printf("Don't know expected comp size for NV%02X [%08x] - please report!\n", ctx->chipset, real);
 			return HWTEST_RES_UNPREP;
@@ -321,23 +339,6 @@ void comp_wr32(int cnum, int part, int addr, uint32_t v) {
 	nva_wr32(cnum, a, v);
 	nva_rd32(cnum, a);
 	nva_wr32(cnum, 0x1000f0, 0);
-}
-
-static int get_maxparts(int chipset) {
-	switch (chipset) {
-		case 0x20:
-		case 0x25:
-		case 0x28:
-		case 0x35:
-		case 0x36:
-		case 0x40:
-			return 4;
-		case 0x30:
-		case 0x31:
-			return 2;
-		default:
-			abort();
-	}
 }
 
 void clear_comp(int cnum) {
@@ -484,7 +485,7 @@ static int test_format(struct hwtest_ctx *ctx) {
 			set_tile(ctx, 0, 0, 0xfffff, pitch, bankoff);
 			for (j = 0; j < 0x100000; j += 4) {
 				uint32_t real = vram_rd32(ctx->cnum, j);
-				uint32_t exp = 0xc0000000 | tile_translate_addr(ctx->chipset, pitch, j, bankoff, &mcc);
+				uint32_t exp = 0xc0000000 | tile_translate_addr(ctx->chipset, pitch, j, 1, bankoff, &mcc);
 				if (real != exp) {
 					printf("Mismatch at %08x for pitch %05x bankoff %d: is %08x, expected %08x\n", j, pitch, bankoff, real, exp);
 					res = HWTEST_RES_FAIL;
