@@ -12,14 +12,18 @@
 
 <enum name="NV25_COMP_FORMAT" varset="chipset">
 	<value value="0" name="OFF"/>
-	<value value="1" name="Z16"/>
-	<value value="2" name="Z24S8"/>
-	<value value="3" name="Z16_MS2"/>
-	<value value="4" name="Z24S8_MS2"/>
-	<value value="5" name="Z16_MS4"/> <!-- XXX: guess -->
-	<value value="6" name="Z24S8_MS4"/> <!-- XXX: guess -->
+	<value value="1" name="Z16" variants="NV25:NV40"/>
+	<value value="2" name="Z24S8" variants="NV25:NV40"/>
+	<value value="3" name="Z16_MS2" variants="NV25:NV40"/>
+	<value value="4" name="Z24S8_MS2" variants="NV25:NV40"/>
+	<value value="5" name="Z16_MS4" variants="NV25:NV40"/> <!-- XXX: guess -->
+	<value value="6" name="Z24S8_MS4" variants="NV25:NV40"/> <!-- XXX: guess -->
 	<value value="7" name="C32_4X4" variants="NV30-"/> <!-- 1 word duplicated 16 times -->
 	<value value="8" name="C32_2X2" variants="NV30-"/> <!-- 4 words, each duplicated 4 times in 2x2 tiles -->
+	<value value="9" name="Z24S8_SPLIT" variants="NV40-"/>
+	<value value="10" name="Z24S8_SPLIT_COMP_UNK10" variants="NV40-"/>
+	<value value="11" name="Z24S8_SPLIT_COMP_UNK11" variants="NV40-"/>
+	<value value="12" name="Z24S8_SPLIT_COMP_UNK12" variants="NV40-"/>
 </enum>
 
 <group name="nv10_pfb_tile_region">
@@ -333,6 +337,12 @@
 		<bitfield low="26" high="29" name="FORMAT" type="NV25_COMP_FORMAT"/>
 		<bitfield pos="30" name="BIG_ENDIAN"/>
 	</reg32>
+	<reg32 offset="0x300" name="COMP_REGION" length="8" variants="NV40:NV41">
+		<bitfield low="0" high="12" name="TAG_BASE" shr="6"/>
+		<bitfield low="13" high="25" name="TAG_LIMIT" shr="6"/>
+		<bitfield low="26" high="29" name="FORMAT" type="NV25_COMP_FORMAT"/>
+		<bitfield pos="30" name="BIG_ENDIAN"/>
+	</reg32>
 	<reg32 offset="0x320" name="COMP_MAX_TAG" variants="NV20-"/>
 	<reg32 offset="0x324" name="COMP_OFFSET" variants="NV20:NV34">
 		<doc>
@@ -352,6 +362,20 @@
 	<array offset="0x600" name="TILE_REGION" stride="0x10" length="15" variants="NV47:NV50">
 		<use-group name="nv10_pfb_tile_region"/>
 	</array>
+
+	<reg32 offset="0x700" name="COMP_REGION" length="12" variants="NV41:NV44">
+		<bitfield low="0" high="12" name="TAG_BASE" shr="6"/>
+		<bitfield low="13" high="25" name="TAG_LIMIT" shr="6"/>
+		<bitfield low="26" high="29" name="FORMAT" type="NV25_COMP_FORMAT"/>
+		<bitfield pos="30" name="BIG_ENDIAN"/>
+	</reg32>
+
+	<reg32 offset="0x700" name="COMP_REGION" length="15" variants="NV47:NV46 NV49:NV4E">
+		<bitfield low="0" high="12" name="TAG_BASE" shr="6"/>
+		<bitfield low="13" high="25" name="TAG_LIMIT" shr="6"/>
+		<bitfield low="26" high="29" name="FORMAT" type="NV25_COMP_FORMAT"/>
+		<bitfield pos="30" name="BIG_ENDIAN"/>
+	</reg32>
 
 	<array offset="0xc00" name="UNKC00" stride="0x80" length="1" variants="NV50-">
 		<reg32 offset="0x08" name="UNK08_SYSRAM_ADDR" shr="8"/>
