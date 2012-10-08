@@ -33,7 +33,6 @@ int hwtest_root_prep(struct hwtest_ctx *ctx) {
 
 HWTEST_DEF_GROUP(hwtest_root,
 	HWTEST_GROUP(nv10_tile),
-	HWTEST_GROUP(nv20_tile),
 )
 
 int main(int argc, char **argv) {

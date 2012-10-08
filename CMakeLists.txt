@@ -14,6 +14,7 @@ add_subdirectory(envydis)
 add_subdirectory(nvbios)
 add_subdirectory(vstream)
 add_subdirectory(vdpow)
+add_subdirectory(nvhw)
 add_subdirectory(hwtest)
 
 install(DIRECTORY include/ DESTINATION include/envytools)
