@@ -294,7 +294,7 @@
 
 		<array offset="0x700" name="HOST_MEM" stride="0x100" length="1" variants="NV44:NV47 NV46:NV49 NV4E:NV50">
 			<reg32 offset="0x00" name="BAR1_VRAM_SIZE" align="0x100000"/>
-			<reg32 offset="0x04" name="BAR1_GART_SIZE" align="0x100000"/>
+			<reg32 offset="0x04" name="BAR1_GART_LIMIT" align="0x100000"/> <!-- highest GART address that can be accessed, not inclusive -->
 			<reg32 offset="0x08" name="BAR1_CUTOUT_SIZE" align="0x100000"/>
 			<reg32 offset="0x0c" name="BAR1_CUTOUT_OFFSET" align="0x100000"/>
 			<reg32 offset="0x10" name="BAR1_GART_BASE" align="0x100000"/>
