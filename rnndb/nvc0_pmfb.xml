@@ -27,6 +27,9 @@
 		<reg32 offset="0x14" name="TAGMEM_BASE"/>
 		<reg32 offset="0x18" name="PART_COUNT"/>
 	</array>
+	<reg32 offset="0x110" name="UNK110">
+		<bitfield pos="0" name="CACHE_FLUSH_TRIGGER"/>
+	</reg32>
 </group>
 
 <group name="nvc0_pmfb">
