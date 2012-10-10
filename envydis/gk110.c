@@ -45,6 +45,7 @@ static struct rbitfield uimmoff = { { 0x17, 19 }, RBF_UNSIGNED };
 static struct rbitfield i3bimmoff = { { 0x17, 19, 0x3b, 1 }, RBF_SIGNED };
 static struct rbitfield suimmoff = { { 0x17, 6 }, RBF_UNSIGNED }; // XXX: for r/lshf, check size
 static struct rbitfield shcntsoff = { { 0x2a, 5 }, RBF_UNSIGNED };
+static struct rbitfield shcnlsoff = { { 0x38, 5 }, RBF_UNSIGNED };
 static struct rbitfield fimmoff = { { 0x17, 19 }, .shr = 12 };
 static struct rbitfield limmoff = { { 0x17, 32 }, .wrapok = 1 };
 static struct rbitfield dimmoff = { { 0x17, 19 }, .shr = 44 };
@@ -52,6 +53,7 @@ static struct rbitfield schedvals = { { 0x2, 56 }, .wrapok = 1 };
 #define UIMM atomrimm, &uimmoff
 #define SUIMM atomrimm, &suimmoff
 #define SHCNT atomrimm, &shcntsoff
+#define SHCNL atomrimm, &shcnlsoff
 #define I3BIMM atomrimm, &i3bimmoff
 #define FIMM atomrimm, &fimmoff
 #define DIMM atomrimm, &dimmoff
@@ -908,16 +910,6 @@ static struct insn tablldstd[] = {
 // I[0]=I[1]<<33;
 //     00000048: 109c080d b7c00e00     lshf b32 $r3 (b64 $r2 $r3) 0x21 [unknown: 00000000 00000200]
 //     00000050: 109ffc09 b7c00a00     lshf b32 $r2 (b64 0x0 $r2) 0x21 [unknown: 00000000 00000200]
-// observed unknowns:
-//     000000e0: 541c0c0c a3514113     ??? [unknown: 541c0c0c a3514113] [unknown instruction]
-//     00000130: 381c1010 a34a1efa     ??? [unknown: 381c1010 a34a1efa] [unknown instruction]
-//     00000188: 1c1c1010 a342fce1     ??? [unknown: 1c1c1010 a342fce1] [unknown instruction]
-//     000001d8: 001c1010 a33bdac8     ??? [unknown: 001c1010 a33bdac8] [unknown instruction]
-// 
-//     00000058: 001c0808 bd500000     ??? [unknown: 001c0808 bd500000] [unknown instruction]
-//     000005e8: b29ffc45 b6009403     ??? [unknown: b283fc44 b6009403] [unknown instruction]
-//     00000638: 3b1ffc49 b6009400     ??? [unknown: 3b03fc48 b6009400] [unknown instruction]
-//     00000e10: 039ffc89 b6009400     ??? [unknown: 0383fc88 b6009400] [unknown instruction]
 //</WIP>
 
 static struct insn tabm[] = {
@@ -1032,6 +1024,7 @@ static struct insn tabc[] = {
 
 	{ 0x2000000000000000ull, 0xfc80000000000000ull, T(p), T(logop38), N("b32"), DST, SRC1, LIMM },
 	{ 0x4000000000000000ull, 0xf180000000000000ull, T(p), N("add"), T(ftz3a), N("f32"), DST, T(neg3b), T(abs39), SRC1, LIMM },
+	{ 0xa000000000000000ull, 0xe000000000000000ull, T(p), N("add"), N("b32"), DST, N("shl"), SRC1, SHCNL, LIMM},
 
 	{ 0xc000000000000000ull, 0xe000000000000000ull, T(p), N("ld"), T(ldstt), T(ldstd), T(lcop), T(gmem) },
 	{ 0xe000000000000000ull, 0xe000000000000000ull, T(p), N("st"), T(ldstt), T(scop), T(gmem), T(ldstd) },
