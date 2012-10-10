@@ -187,8 +187,35 @@ uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int 
 		case PFB_NV40:
 		case PFB_NV41:
 		{
-			/* XXX */
-			iaddr = ix | iy << 8;
+			iaddr = iy >> (2 + mcc->partbits);
+			iaddr <<= 2, iaddr |= ix >> 6 & 3;
+			int part = iy >> 2;
+			part ^= ix >> 7;
+			part ^= x << 1;
+			part &= (1 << mcc->partbits) - 1;
+			iaddr <<= mcc->partbits, iaddr |= part;
+			iaddr <<= 1, iaddr |= ix >> 5 & 1;
+			iaddr <<= 2, iaddr |= iy & 3;
+			iaddr <<= 1, iaddr |= (ix >> 4 ^ ix >> 5 ^ iy) & 1;
+			iaddr <<= 4, iaddr |= ix & 0xf;
+			int bank = baddr & 3;
+			if (shift >= 2) {
+				bank = (x >> 1 & 1) | (x << 1 & 2);
+				bank += y;
+			} else if (shift == 1) {
+				bank = (x >> 1 & 1) | (x << 1 & 2);
+				bank += y;
+			}
+			bank += bankoff;
+			baddr = (baddr & ~3) | (bank & 3);
+			if (mcc->partbits == 2) {
+				/* undo linear partition transformation */
+				uint32_t addr = iaddr | baddr << bankshift;
+				int px0 = addr >> 11 ^ addr >> 12;
+				int px1 = addr >> 10 ^ addr >> 11 ^ addr >> 13 ^ addr >> 14;
+				int px = (px0 & 1) | (px1 & 1) << 1;
+				iaddr ^= px << 8;
+			}
 		} break;
 		case PFB_NV44:
 		{
