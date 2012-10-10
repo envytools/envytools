@@ -4,39 +4,52 @@
 
 <enum name="NVC0_VM_ENGINE" varset="chipset">
 	<value value="0x00" name="PGRAPH"/>
+
 	<value value="0x03" name="PEEPHOLE"/>
 	<value value="0x04" name="BAR1"/>
 	<value value="0x05" name="BAR3"/>
+
 	<value value="0x07" name="PSUBFIFO0"/>
 	<value value="0x08" name="PSUBFIFO1"/>
 	<value value="0x09" name="PSUBFIFO2"/>
+
 	<value value="0x10" name="PBSP"/>
 	<value value="0x11" name="PPPP"/>
+
 	<value value="0x13" name="PCOUNTER"/>
 	<value value="0x14" name="PVP"/>
 	<value value="0x15" name="PCOPY0"/>
 	<value value="0x16" name="PCOPY1"/>
 	<value value="0x17" name="PDAEMON"/>
+
 	<value value="0x19" name="PVENC" variants="NVE4-"/>
+
 	<value value="0x1b" name="PCOPY2" variants="NVE4-"/>
 </enum>
 
 <enum name="NVC0_VM_HUBCLIENT">
 	<value value="0x01" name="PCOPY0"/>
 	<value value="0x02" name="PCOPY1"/>
+	<value value="0x03" name="PDISPLAY"/> <!-- EVO, DAEMON, etc. -->
 	<value value="0x04" name="DISPATCH"/>
 	<value value="0x05" name="CTXCTL"/>
 	<value value="0x06" name="PFIFO"/>
-	<value value="0x07" name="BAR_READ"/>
-	<value value="0x08" name="BAR_WRITE"/>
+	<value value="0x07" name="BAR"/>
+	<value value="0x08" name="BAR_NB"/>
+	<value value="0x09" name="SCANOUT"/>
+	<value value="0x0a" name="MMU"/>
 	<value value="0x0b" name="PVP"/>
 	<value value="0x0c" name="PPPP"/>
 	<value value="0x0d" name="PBSP"/>
+
 	<value value="0x10" name="IDXFETCH"/>
 	<value value="0x11" name="PCOUNTER"/>
 	<value value="0x12" name="PDAEMON"/>
+
 	<value value="0x14" name="CCACHE"/>
-	<value value="0x15" name="CCACHE_POST"/>
+	<value value="0x15" name="CCACHE_NB"/>
+	<value value="0x1a" name="MMU_NB"/> <!-- what the fuck? -->
+	<value value="0x1e" name="PUNK1C3" variants="NVD9-"/>
 </enum>
 
 <enum name="NVC0_VM_GPCCLIENT">
