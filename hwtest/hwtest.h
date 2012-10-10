@@ -81,6 +81,5 @@ void vram_wr32(int card, uint64_t addr, uint32_t val);
 int hwtest_run_group(struct hwtest_ctx *ctx, const struct hwtest_group *group, const char *filter);
 
 extern const struct hwtest_group nv10_tile_group;
-extern const struct hwtest_group nv20_tile_group;
 
 #endif
