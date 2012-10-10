@@ -44,12 +44,14 @@ static struct rbitfield ctargoff = { { 23, 24 }, RBF_SIGNED, .pcrel = 1, .addend
 static struct rbitfield uimmoff = { { 0x17, 19 }, RBF_UNSIGNED };
 static struct rbitfield i3bimmoff = { { 0x17, 19, 0x3b, 1 }, RBF_SIGNED };
 static struct rbitfield suimmoff = { { 0x17, 6 }, RBF_UNSIGNED }; // XXX: for r/lshf, check size
+static struct rbitfield shcntsoff = { { 0x2a, 5 }, RBF_UNSIGNED };
 static struct rbitfield fimmoff = { { 0x17, 19 }, .shr = 12 };
 static struct rbitfield limmoff = { { 0x17, 32 }, .wrapok = 1 };
 static struct rbitfield dimmoff = { { 0x17, 19 }, .shr = 44 };
 static struct rbitfield schedvals = { { 0x2, 56 }, .wrapok = 1 };
 #define UIMM atomrimm, &uimmoff
 #define SUIMM atomrimm, &suimmoff
+#define SHCNT atomrimm, &shcntsoff
 #define I3BIMM atomrimm, &i3bimmoff
 #define FIMM atomrimm, &fimmoff
 #define DIMM atomrimm, &dimmoff
@@ -939,6 +941,7 @@ static struct insn tabm[] = {
 	{ 0x2000000000000002ull, 0xfa80000000000003ull, N("mul"), T(ftz38), T(sat3a), N("f32"), DST, SRC1, LIMM },
 	{ 0x2040000000000002ull, 0x3fc0000000000003ull, N("popc"), N("b32"), DST, T(not2a), SRC1, T(not2b), T(is2) }, // popc(src1 & src2)
 	{ 0x2080000000000002ull, 0x3fc0000000000003ull, T(addop), T(sat35), N("b32"), DST, T(acout32), SRC1, T(is2), T(acin2e) },
+	{ 0x20c0000000000002ull, 0x3fc0000000000003ull, T(addop), N("b32"), DST, N("shl"), SRC1, SHCNT, T(is2) },     //XXX: cin, cout
 	{ 0x2100000000000002ull, 0x3fc0000000000003ull, T(minmax), T(us32_33), DST, SRC1, T(is2) },
 	{ 0x21c0000000000002ull, 0x3fc0000000000003ull, N("mul"), T(high2a), DST, T(acout32), T(us32_2b), SRC1, T(us32_2c), T(is2) }, // XXX: order of us32
 	{ 0x2200000000000002ull, 0x3fc0000000000003ull, T(logop), N("b32"), DST, SRC1, T(not2b), T(is2) },
@@ -983,6 +986,7 @@ static struct insn tabi[] = {
 	{ 0x8200000000000001ull, 0xf780000000000003ull, N("set"), T(ftz3a), N("b32"), DST, T(setit), N("f32"), T(neg2e), T(abs39), SRC1, T(neg3b), FIMM, T(setlop) }, // XXX: find f32 dst
 	{ 0x0040000000000001ull, 0x37c0000000000003ull, N("popc"), N("b32"), DST, T(not2a), SRC1, T(i3bi2) },
 	{ 0x0080000000000001ull, 0x37c0000000000003ull, T(addop), T(sat35), N("b32"), DST, T(acout32), SRC1, T(i3bi2) },
+	{ 0x00c0000000000001ull, 0x37c0000000000003ull, T(addop), N("b32"), DST, N("shl"), SRC1, SHCNT, T(i3bi2)},
 	{ 0x0100000000000001ull, 0x37c0000000000003ull, T(minmax), T(us32_33), DST, SRC1, T(i3bi2) },
 	{ 0x0148000000000001ull, 0x37c8000000000003ull, N("shr"), N("s32"), DST, SRC1, T(sui2b) }, // XXX: find shl and wrap bits
 	{ 0x01c0000000000001ull, 0x37c0000000000003ull, N("mul"), T(high2a), DST, T(us32_2b), SRC1, T(us32_2c), T(i3bi2) }, // XXX: order of us32, TODO: find LIMM form
