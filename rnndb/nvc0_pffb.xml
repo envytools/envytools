@@ -19,9 +19,10 @@
 	</array>
 	<array name="VM" offset="0xc80" stride="0x80" length="1">
 		<reg32 offset="0x00" name="CFG">
-			<bitfield pos="0" name="PT_GRANULARITY">
-				<value value="0" name="128MB"/>
-				<value value="1" name="64MB"/>
+			<bitfield pos="0" name="LARGE_PAGE_SIZE">
+				<!-- also affects VM area covered by each PDE [it's always 1024 large pages] -->
+				<value value="0" name="128KB"/>
+				<value value="1" name="64KB"/>
 			</bitfield>
 			<!-- ... -->
 		</reg32>
