@@ -290,6 +290,7 @@ R means ROOT-connected engine, I means IBUS-connected
 ROOT errors:
 
 bad001XX: nonexistent register [gives PBUS intr 3]
+bad0acXX: VM fault when accessing memory
 bad0daXX: disabled in PMC.ENABLE or PMC.SUBFIFO_ENABLE [gives PBUS intr 1]
 bad0fbXX: problem accessing memory [gives PBUS intr 7 or maybe 5]
 
