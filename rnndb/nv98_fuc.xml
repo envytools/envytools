@@ -358,8 +358,8 @@
 				<value value="5" name="SYSRAM"/>
 				<value value="6" name="SYSRAM_NO_SNOOP"/>
 			</bitfield>
-			<bitfield low="4" high="5" name="UNK4"/>
-			<bitfield low="8" high="9" name="UNK8"/>
+			<bitfield low="4" high="5" name="REQ_UNK16_WRITE"/>
+			<bitfield low="8" high="9" name="REQ_UNK16_READ"/>
 			<bitfield pos="12" name="STORE_BREAK0_ENABLE"/>
 			<bitfield pos="13" name="STORE_BREAK1_ENABLE"/>
 			<bitfield pos="14" name="LOAD_BREAK0_ENABLE"/>
