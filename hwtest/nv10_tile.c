@@ -475,15 +475,15 @@ static int test_format(struct hwtest_ctx *ctx) {
 	int bankoff;
 	int banktry = 1 << tile_bankoff_bits(ctx->chipset);
 	clear_tile(ctx);
-	for (i = 0; i < 0x200000; i += 4)
+	for (i = 0; i < 0x800000; i += 4)
 		vram_wr32(ctx->cnum, i, 0xc0000000 | i);
 	for (i = 0; i < 0x100; i++) {
 		uint32_t pitch = i << 8;
 		if (!compute_status(ctx->chipset, pitch, 1))
 			continue;
 		for (bankoff = 0; bankoff < banktry; bankoff++) {
-			set_tile(ctx, 0, 0, 0xfffff, pitch, bankoff);
-			for (j = 0; j < 0x100000; j += 4) {
+			set_tile(ctx, 0, 0, 0x3fffff, pitch, bankoff);
+			for (j = 0; j < 0x400000; j += 4) {
 				uint32_t real = vram_rd32(ctx->cnum, j);
 				uint32_t exp = 0xc0000000 | tile_translate_addr(ctx->chipset, pitch, j, 1, bankoff, &mcc);
 				if (real != exp) {
@@ -493,7 +493,7 @@ static int test_format(struct hwtest_ctx *ctx) {
 				}
 			}
 		}
-		for (j = 0x100000; j < 0x180000; j += 4) {
+		for (j = 0x400000; j < 0x600000; j += 4) {
 			uint32_t real = vram_rd32(ctx->cnum, j);
 			uint32_t exp = 0xc0000000 | j;
 			if (real != exp) {
