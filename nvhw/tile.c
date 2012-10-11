@@ -189,9 +189,16 @@ uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int 
 		{
 			iaddr = iy >> (2 + mcc->partbits);
 			iaddr <<= 2, iaddr |= ix >> 6 & 3;
-			int part = iy >> 2;
-			part ^= ix >> 7;
-			part ^= x << 1;
+			int part = 0;
+			if (mcc->partbits == 1)
+				part = iy >> 2;
+			else if (mcc->partbits == 2) {
+				part = (iy >> 3 & 1) | (iy >> 2 & 1) << 1;
+			}
+			if (shift == 0) {
+				part += y << 1;
+			}
+			part += x << 1 | ix >> 7;
 			part &= (1 << mcc->partbits) - 1;
 			iaddr <<= mcc->partbits, iaddr |= part;
 			iaddr <<= 1, iaddr |= ix >> 5 & 1;
