@@ -419,7 +419,7 @@ static int test_comp_layout(struct hwtest_ctx *ctx) {
 	get_mc_config(ctx, &mcc);
 	uint32_t comp_size = (nva_rd32(ctx->cnum, 0x100320) + 1);
 	uint32_t fb_size = 0xe00000;
-	int i, j, m;
+	int i, j;
 	clear_comp(ctx->cnum);
 	uint32_t mmio_comp = tile_mmio_comp(ctx->chipset);;
 	clear_tile(ctx);
@@ -437,31 +437,39 @@ static int test_comp_layout(struct hwtest_ctx *ctx) {
 		nva_wr32(ctx->cnum, mmio_comp, 0x00200000);
 	else if (ctx->chipset < 0x35)
 		nva_wr32(ctx->cnum, mmio_comp, 0x02fff000);
-	else
+	else if (ctx->chipset < 0x40)
 		nva_wr32(ctx->cnum, mmio_comp, 0x0bffe000);
-	for (i = 0; i < (1 << mcc.partbits); i++) {
-		for (j = 0; j < comp_size; j++) {
-			comp_wr32(ctx->cnum, i, j >> 3, 1 << (j & 0x1f));
-			uint32_t exp = translate_tag(pitch, i, j, &mcc);
-			if (exp < fb_size && !vram_rd32(ctx->cnum, exp + 4)) {
-				printf("part %d tag %05x: expected to belong to %08x", i, j, exp);
-				int found = 0;
-				for (m = 0; m < fb_size; m += 0x10) {
-					uint32_t mm = vram_rd32(ctx->cnum, m + 0x4);
+	else
+		nva_wr32(ctx->cnum, mmio_comp, 0x1fffe000);
+
+	int txstep = (comp_type(ctx->chipset) < COMP_NV40 ? 0x10 : 0x20);
+	for (j = 0; j < fb_size; j += txstep) {
+		while ((j / pitch) % 4)
+			j += pitch;
+		if (j >= fb_size)
+			break;
+		int part, tag;
+		tile_translate_addr(ctx->chipset, pitch, j, 1, 0, &mcc, &part, &tag);
+		comp_wr32(ctx->cnum, part, tag >> 3, 1 << (tag & 0x1f));
+		if (tag < comp_size && !vram_rd32(ctx->cnum, j + 4)) {
+			printf("%08x: expected to be part %d tag %05x", j, part, tag);
+			int p, t;
+			for (p = 0; p < (1 << mcc.partbits); p++)
+				for (t = 0; t < comp_size; t++) {
+					comp_wr32(ctx->cnum, p, t >> 3, 1 << (t & 0x1f));
+					uint32_t mm = vram_rd32(ctx->cnum, j + 0x4);
+					comp_wr32(ctx->cnum, p, t >> 3, 0);
 					if (mm) {
-						printf(", found at %08x instead\n", m);
-						found = 1;
-						break;
+						printf(", found at part %d tag %05x instead\n", p, t);
+						goto found;
 					}
 				}
-				if (!found) {
-					printf(", but not found in surface\n");
-				}
-				clear_tile(ctx);
-				return HWTEST_RES_FAIL;
-			}
-			comp_wr32(ctx->cnum, i, j >> 3, 0);
+			printf(", but not found in tagspace\n");
+found:
+			clear_tile(ctx);
+			return HWTEST_RES_FAIL;
 		}
+		comp_wr32(ctx->cnum, part, tag >> 3, 0);
 	}
 	clear_tile(ctx);
 	return HWTEST_RES_PASS;
