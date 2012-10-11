@@ -121,7 +121,7 @@ int has_vram_alt_tile(int chipset) {
 	return pfb_type(chipset) == PFB_NV44 && chipset != 0x44 && chipset != 0x4a;
 }
 
-uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int mode, int bankoff, const struct mc_config *mcc) {
+uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int mode, int bankoff, const struct mc_config *mcc, int *ppart, int *ptag) {
 	int bankshift = mcc->mcbits + mcc->partbits + mcc->colbits_lo;
 	int is_vram = mode == 1 || mode == 4;
 	if (is_igp(chipset))
@@ -139,6 +139,7 @@ uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int 
 	y >>= bankshift - 8;
 	uint32_t iaddr = 0;
 	uint32_t baddr = y * (pitch >> 8) + x;
+	int part = 0, tag = 0;
 	switch (pfb_type(chipset)) {
 		case PFB_NV10:
 		{
@@ -148,12 +149,14 @@ uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int 
 				baddr ^= 1;
 			if (chipset > 0x10 && mcc->mcbits + mcc->partbits + mcc->burstbits > 4 && address & 0x100)
 				iaddr ^= 0x10;
+			if (ppart || ptag)
+				abort();
 		} break;
 		case PFB_NV20:
 		{
 			uint32_t x1 = ix & 0xf;
 			ix >>= 4;
-			int part = ix & ((1 << mcc->partbits) - 1);
+			part = ix & ((1 << mcc->partbits) - 1);
 			ix >>= mcc->partbits;
 			uint32_t x2 = ix;
 			uint32_t y1 = iy & 3;
@@ -183,21 +186,23 @@ uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int 
 			iaddr <<= 2, iaddr |= y1;
 			iaddr <<= mcc->partbits, iaddr |= part;
 			iaddr <<= 4, iaddr |= x1;
+			tag = x + y * (pitch >> 8);
+			tag <<= bankshift - 10, tag |= (iy >> 2);
+			tag <<= (4 - mcc->partbits), tag |= ix >> (4 + mcc->partbits) & ((1 << mcc->partbits) - 1);
 		} break;
 		case PFB_NV40:
 		case PFB_NV41:
 		{
 			iaddr = iy >> (2 + mcc->partbits);
 			iaddr <<= 2, iaddr |= ix >> 6 & 3;
-			int part = 0;
-			if (mcc->partbits == 1)
+			if (mcc->partbits == 0)
+				part = 0;
+			else if (mcc->partbits == 1)
 				part = iy >> 2;
-			else if (mcc->partbits == 2) {
+			else
 				part = (iy >> 3 & 1) | (iy >> 2 & 1) << 1;
-			}
-			if (shift == 0) {
+			if (shift == 0)
 				part += y << 1;
-			}
 			part += x << 1 | ix >> 7;
 			part &= (1 << mcc->partbits) - 1;
 			iaddr <<= mcc->partbits, iaddr |= part;
@@ -223,6 +228,9 @@ uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int 
 				int px = (px0 & 1) | (px1 & 1) << 1;
 				iaddr ^= px << 8;
 			}
+			tag = x + y * (pitch >> 8);
+			tag <<= bankshift - mcc->partbits - 10, tag |= (iy >> (mcc->partbits + 2));
+			tag <<= 3, tag |= ix >> 5;
 		} break;
 		case PFB_NV44:
 		{
@@ -231,10 +239,16 @@ uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int 
 			baddr ^= bankoff;
 			if (mcc->mcbits + mcc->partbits + mcc->burstbits > 4 && is_vram && iaddr & 0x100)
 				iaddr ^= 0x10;
+			if (ppart || ptag)
+				abort();
 		} break;
 		default:
 			abort();
 	}
+	if (ptag)
+		*ptag = tag;
+	if (ppart)
+		*ppart = part;
 	return iaddr | baddr << bankshift;
 }
 

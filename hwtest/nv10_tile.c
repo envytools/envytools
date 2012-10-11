@@ -485,7 +485,7 @@ static int test_format(struct hwtest_ctx *ctx) {
 			set_tile(ctx, 0, 0, 0x3fffff, pitch, bankoff);
 			for (j = 0; j < 0x400000; j += 4) {
 				uint32_t real = vram_rd32(ctx->cnum, j);
-				uint32_t exp = 0xc0000000 | tile_translate_addr(ctx->chipset, pitch, j, 1, bankoff, &mcc);
+				uint32_t exp = 0xc0000000 | tile_translate_addr(ctx->chipset, pitch, j, 1, bankoff, &mcc, 0, 0);
 				if (real != exp) {
 					printf("Mismatch at %08x for pitch %05x bankoff %d: is %08x, expected %08x\n", j, pitch, bankoff, real, exp);
 					res = HWTEST_RES_FAIL;
