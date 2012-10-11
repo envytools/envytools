@@ -95,7 +95,7 @@ static void get_mc_config(struct hwtest_ctx *ctx, struct mc_config *mcc) {
 			}
 			mcc->parts = 1 << mcc->partbits;
 			mcc->colbits = mcc->colbits_lo = cfg1 >> 12 & 0xf;
-			if (mcc->colbits_lo > 9 && pfb_type(ctx->chipset == PFB_NV44))
+			if (mcc->colbits_lo > 9 && pfb_type(ctx->chipset) == PFB_NV44)
 				mcc->colbits_lo = 9;
 			mcc->bankbits_lo = tile_bankoff_bits(ctx->chipset);
 			mcc->rowbits[0] = cfg1 >> 16 & 0xf;
