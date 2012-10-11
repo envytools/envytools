@@ -231,8 +231,32 @@ static void unset_tile(struct hwtest_ctx *ctx, int idx) {
 }
 
 static void unset_comp(struct hwtest_ctx *ctx, int idx) {
+	if (comp_type(ctx->chipset) == COMP_NONE)
+		return;
 	uint32_t mmio = tile_mmio_comp(ctx->chipset) + 4 * idx;
 	nva_wr32(ctx->cnum, mmio, 0);
+	nva_rd32(ctx->cnum, mmio);
+}
+
+static void set_comp(struct hwtest_ctx *ctx, int idx, int format, int tagbase, int taglimit) {
+	uint32_t mmio = tile_mmio_comp(ctx->chipset) + 4 * idx;
+	switch (comp_type(ctx->chipset)) {
+		case COMP_NV20:
+			nva_wr32(ctx->cnum, mmio, 0x80000000 | format << 26 | (tagbase & 0x3ffc0));
+			break;
+		case COMP_NV25:
+			nva_wr32(ctx->cnum, mmio, format << 20 | (tagbase & 0x3ffc0));
+			break;
+		case COMP_NV30:
+			nva_wr32(ctx->cnum, mmio, format << 24 | (tagbase >> 6 & 0xfff) | (taglimit >> 6 & 0xfff) << 12);
+			break;
+		case COMP_NV35:
+		case COMP_NV40:
+			nva_wr32(ctx->cnum, mmio, format << 26 | (tagbase >> 6 & 0x1fff) | (taglimit >> 6 & 0x1fff) << 13);
+			break;
+		default:
+			abort();
+	}
 	nva_rd32(ctx->cnum, mmio);
 }
 
@@ -421,7 +445,6 @@ static int test_comp_layout(struct hwtest_ctx *ctx) {
 	uint32_t fb_size = 0xe00000;
 	int i, j;
 	clear_comp(ctx->cnum);
-	uint32_t mmio_comp = tile_mmio_comp(ctx->chipset);;
 	clear_tile(ctx);
 	for (i = 0; i < fb_size; i += 0x10) {
 		vram_wr32(ctx->cnum, i+0x0, 0x0000ffff);
@@ -430,18 +453,24 @@ static int test_comp_layout(struct hwtest_ctx *ctx) {
 		vram_wr32(ctx->cnum, i+0xc, 0x00000000);
 	}
 	uint32_t pitch = 0xe000;
+	int test_format;
+	switch (comp_type(ctx->chipset)) {
+		case COMP_NV20:
+			test_format = 1;
+			break;
+		case COMP_NV25:
+		case COMP_NV30:
+		case COMP_NV35:
+			test_format = 2;
+			break;
+		case COMP_NV40:
+			test_format = 7;
+			break;
+		default:
+			abort();
+	}
 	set_tile(ctx, 0, 0, fb_size-1, pitch, 0);
-	if (ctx->chipset < 0x25)
-		nva_wr32(ctx->cnum, mmio_comp, 0x90000000);
-	else if (ctx->chipset < 0x30)
-		nva_wr32(ctx->cnum, mmio_comp, 0x00200000);
-	else if (ctx->chipset < 0x35)
-		nva_wr32(ctx->cnum, mmio_comp, 0x02fff000);
-	else if (ctx->chipset < 0x40)
-		nva_wr32(ctx->cnum, mmio_comp, 0x0bffe000);
-	else
-		nva_wr32(ctx->cnum, mmio_comp, 0x1fffe000);
-
+	set_comp(ctx, 0, test_format, 0, 0xffffffff);
 	int txstep = (comp_type(ctx->chipset) < COMP_NV40 ? 0x10 : 0x20);
 	for (j = 0; j < fb_size; j += txstep) {
 		while ((j / pitch) % 4)
@@ -516,7 +545,7 @@ static int test_format(struct hwtest_ctx *ctx) {
 }
 
 struct comp_format {
-	uint32_t value;
+	int format;
 	int bpp;
 	int x0, y0;
 	int big_endian;
@@ -524,71 +553,55 @@ struct comp_format {
 };
 
 static const struct comp_format nv20_comp_formats[] = {
-	{ 0x80000000, 16, 2, 0, 0, 0 },
-	{ 0x84000000, 32, 1, 1, 0, 0 },
-	{ 0x88000000, 16, 2, 0, 1, 0 },
-	{ 0x8c000000, 32, 1, 1, 1, 0 },
-	{ 0x90000000, 16, 2, 0, 0, 0 },
-	{ 0x94000000, 32, 1, 1, 0, 0 },
-	{ 0x98000000, 16, 2, 0, 1, 0 },
-	{ 0x9c000000, 32, 1, 1, 1, 0 },
-	{ 0xa0000000, 16, 2, 0, 0, 0 },
-	{ 0xa4000000, 32, 1, 1, 0, 0 },
-	{ 0xa8000000, 16, 2, 0, 1, 0 },
-	{ 0xac000000, 32, 1, 1, 1, 0 },
-	{ 0xb0000000, 16, 2, 0, 0, 0 },
-	{ 0xb4000000, 32, 1, 1, 0, 0 },
-	{ 0xb8000000, 16, 2, 0, 1, 0 },
-	{ 0xbc000000, 32, 1, 1, 1, 0 },
+	{ 0x0, 16, 2, 0, 0, 0 },
+	{ 0x1, 32, 1, 1, 0, 0 },
+	{ 0x2, 16, 2, 0, 1, 0 },
+	{ 0x3, 32, 1, 1, 1, 0 },
+	{ 0x4, 16, 2, 0, 0, 0 },
+	{ 0x5, 32, 1, 1, 0, 0 },
+	{ 0x6, 16, 2, 0, 1, 0 },
+	{ 0x7, 32, 1, 1, 1, 0 },
+	{ 0x8, 16, 2, 0, 0, 0 },
+	{ 0x9, 32, 1, 1, 0, 0 },
+	{ 0xa, 16, 2, 0, 1, 0 },
+	{ 0xb, 32, 1, 1, 1, 0 },
+	{ 0xc, 16, 2, 0, 0, 0 },
+	{ 0xd, 32, 1, 1, 0, 0 },
+	{ 0xe, 16, 2, 0, 1, 0 },
+	{ 0xf, 32, 1, 1, 1, 0 },
 	{ 0 }
 };
 
 static const struct comp_format nv25_comp_formats[] = {
-	{ 0x00100000, 16, 3, 0, 0, 0 },
-	{ 0x00200000, 32, 1, 1, 0, 0 },
-	{ 0x00300000, 16, 3, 0, 0, 1 },
-	{ 0x00400000, 32, 1, 1, 0, 1 },
-	{ 0x00500000, 16, 3, 0, 0, 0 },
-	{ 0x00600000, 32, 1, 1, 0, 0 },
-	{ 0x01100000, 16, 3, 0, 1, 0 },
-	{ 0x01200000, 32, 1, 1, 1, 0 },
-	{ 0x01300000, 16, 3, 0, 1, 1 },
-	{ 0x01400000, 32, 1, 1, 1, 1 },
-	{ 0x01500000, 16, 3, 0, 1, 0 },
-	{ 0x01600000, 32, 1, 1, 1, 0 },
+	{ 0x01, 16, 3, 0, 0, 0 },
+	{ 0x02, 32, 1, 1, 0, 0 },
+	{ 0x03, 16, 3, 0, 0, 1 },
+	{ 0x04, 32, 1, 1, 0, 1 },
+	{ 0x05, 16, 3, 0, 0, 0 },
+	{ 0x06, 32, 1, 1, 0, 0 },
+	{ 0x11, 16, 3, 0, 1, 0 },
+	{ 0x12, 32, 1, 1, 1, 0 },
+	{ 0x13, 16, 3, 0, 1, 1 },
+	{ 0x14, 32, 1, 1, 1, 1 },
+	{ 0x15, 16, 3, 0, 1, 0 },
+	{ 0x16, 32, 1, 1, 1, 0 },
 	{ 0 }
 };
 
 /* XXX: add the color formats */
 static const struct comp_format nv30_comp_formats[] = {
-	{ 0x01fff000, 16, 3, 0, 0, 0 },
-	{ 0x02fff000, 32, 1, 1, 0, 0 },
-	{ 0x03fff000, 16, 3, 0, 0, 1 },
-	{ 0x04fff000, 32, 1, 1, 0, 1 },
-	{ 0x05fff000, 16, 3, 0, 0, 0 },
-	{ 0x06fff000, 32, 1, 1, 0, 0 },
-	{ 0x11fff000, 16, 3, 0, 1, 0 },
-	{ 0x12fff000, 32, 1, 1, 1, 0 },
-	{ 0x13fff000, 16, 3, 0, 1, 1 },
-	{ 0x14fff000, 32, 1, 1, 1, 1 },
-	{ 0x15fff000, 16, 3, 0, 1, 0 },
-	{ 0x16fff000, 32, 1, 1, 1, 0 },
-	{ 0 }
-};
-
-static const struct comp_format nv35_comp_formats[] = {
-	{ 0x07ffe000, 16, 3, 0, 0, 0 },
-	{ 0x0bffe000, 32, 1, 1, 0, 0 },
-	{ 0x0fffe000, 16, 3, 0, 0, 1 },
-	{ 0x13ffe000, 32, 1, 1, 0, 1 },
-	{ 0x17ffe000, 16, 3, 0, 0, 0 },
-	{ 0x1bffe000, 32, 1, 1, 0, 0 },
-	{ 0x47ffe000, 16, 3, 0, 1, 0 },
-	{ 0x4bffe000, 32, 1, 1, 1, 0 },
-	{ 0x4fffe000, 16, 3, 0, 1, 1 },
-	{ 0x53ffe000, 32, 1, 1, 1, 1 },
-	{ 0x57ffe000, 16, 3, 0, 1, 0 },
-	{ 0x5bffe000, 32, 1, 1, 1, 0 },
+	{ 0x01, 16, 3, 0, 0, 0 },
+	{ 0x02, 32, 1, 1, 0, 0 },
+	{ 0x03, 16, 3, 0, 0, 1 },
+	{ 0x04, 32, 1, 1, 0, 1 },
+	{ 0x05, 16, 3, 0, 0, 0 },
+	{ 0x06, 32, 1, 1, 0, 0 },
+	{ 0x11, 16, 3, 0, 1, 0 },
+	{ 0x12, 32, 1, 1, 1, 0 },
+	{ 0x13, 16, 3, 0, 1, 1 },
+	{ 0x14, 32, 1, 1, 1, 1 },
+	{ 0x15, 16, 3, 0, 1, 0 },
+	{ 0x16, 32, 1, 1, 1, 0 },
 	{ 0 }
 };
 
@@ -780,16 +793,12 @@ static int test_comp_format(struct hwtest_ctx *ctx) {
 		fmt = nv20_comp_formats;
 	else if (ctx->chipset < 0x30)
 		fmt = nv25_comp_formats;
-	else if (ctx->chipset < 0x35)
-		fmt = nv30_comp_formats;
 	else
-		fmt = nv35_comp_formats;
-	uint32_t mmio_comp = tile_mmio_comp(ctx->chipset);
-
+		fmt = nv30_comp_formats;
 	set_tile(ctx, 0, 0, 0, pitch, 0);
 	int i;
-	for (; fmt->value; ++fmt) {
-		nva_wr32(ctx->cnum, mmio_comp, fmt->value);
+	for (; fmt->bpp; ++fmt) {
+		set_comp(ctx, 0, fmt->format, 0, 0xffffffff);
 		for (i = 0; i < 100000; i++) {
 			int tag = rand() & 0xff;
 			int part = tag & ((1 << mcc.partbits) - 1);
@@ -815,7 +824,7 @@ static int test_comp_format(struct hwtest_ctx *ctx) {
 					if (rdst[x][y] != dst[x][y])
 						fail = 1;
 			if (fail) {
-				printf("COMP decompression mismatch iter %d: format %08x part %d tag %05x, src %08x %08x %08x %08x\n", i, fmt->value, part, tag, src[0], src[1], src[2], src[3]);
+				printf("COMP decompression mismatch iter %d: format %d part %d tag %05x, src %08x %08x %08x %08x\n", i, fmt->format, part, tag, src[0], src[1], src[2], src[3]);
 				printf("expected:\n");
 				for (y = 0; y < 4; y++)
 					for (x = 0; x < 4; x++) 
