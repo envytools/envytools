@@ -972,7 +972,7 @@ static struct insn tabm[] = {
 	{ 0x2600000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(sat35), T(cvti2idst), T(neg30), T(abs34), T(cvti2isrc) },
 	{ 0x25c0000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(frm2a), T(cvti2fdst), T(neg30), T(abs34), T(cvti2fsrc) },
 	{ 0x27c0000000000002ull, 0x3fc0000000000003ull, N("rshf"), N("b32"), DST, SESTART, T(us64_28), SRC1, SRC3, SEEND, T(shfclamp), T(is2) }, // XXX: check is2 and bits 0x29,0x33(swap srcs ?)
-	{ 0x2800000000000002ull, 0x3980000000000003ull, N("mul"), DST, T(us32_39), SRC1, T(us32_3a), LIMM },    //XXX: wrong! 6c280000011c100a is atom-related
+	{ 0x2800000000000002ull, 0x3fc0000000000003ull, N("mul"), DST, T(us32_39), SRC1, T(us32_3a), LIMM },
 	{ 0x7400000000000002ull, 0x7f80000000000003ull, T(lane0e), N("mov"), N("b32"), DST, LIMM },
 	{ 0x7600000000000002ull, 0x7fc0000000000003ull, N("texgrad"), T(texm), TDST, T(text), TCONST, T(texgrsrc1), T(texgrsrc2) },
 	{ 0x7700000000000002ull, 0x7fc0000000000003ull, N("texbar"), TEXBARIMM },
@@ -1017,6 +1017,8 @@ static struct insn tabi[] = {
 	{ 0xb780000000000001ull, 0xb7c0000000000003ull, N("ins"), N("b32"), DST, SRC1, I3BIMM, SRC3 },
 	{ 0x2000000000000001ull, 0x3fc0000000000003ull, N("tex"), T(texm), T(lodt), TDST, T(text), T(tconst), T(texsrc1), T(texsrc2) },
 	{ 0x37c0000000000001ull, 0x37c0000000000003ull, N("lshf"), N("b32"), DST, SESTART, N("b64"), SRC1, SRC3, SEEND, T(shfclamp), T(sui2a) }, // d = (s3 << s2) | (s1 >> (32 - s2))
+	{ 0xc000000000000001ull, 0xc000000000000003ull, N("brev"), N("b32"), DST, SRC1, OOPS},  //XXX: likely special case of something else
+    
 	{ 0x0, 0x0, DST, SRC1, SRC2, SRC3, OOPS },
 };
 
