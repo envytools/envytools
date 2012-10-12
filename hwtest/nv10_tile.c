@@ -203,6 +203,7 @@ static uint32_t compute_status(int chipset, uint32_t pitch, int enable) {
 
 static void set_tile(struct hwtest_ctx *ctx, int idx, uint32_t base, uint32_t limit, uint32_t pitch, int bankoff) {
 	uint32_t mmio = tile_mmio_region(ctx->chipset) + idx * 0x10;
+	vram_rd32(ctx->cnum, 0);
 	nva_wr32(ctx->cnum, mmio+8, pitch);
 	nva_wr32(ctx->cnum, mmio+4, limit);
 	if (ctx->chipset < 0x20) {
@@ -230,6 +231,7 @@ uint32_t get_tile_status(struct hwtest_ctx *ctx, int idx) {
 
 static void unset_tile(struct hwtest_ctx *ctx, int idx) {
 	uint32_t mmio = tile_mmio_region(ctx->chipset) + idx * 0x10;
+	vram_rd32(ctx->cnum, 0);
 	nva_wr32(ctx->cnum, mmio, 0);
 	nva_rd32(ctx->cnum, mmio);
 }
@@ -238,12 +240,14 @@ static void unset_comp(struct hwtest_ctx *ctx, int idx) {
 	if (comp_type(ctx->chipset) == COMP_NONE)
 		return;
 	uint32_t mmio = tile_mmio_comp(ctx->chipset) + 4 * idx;
+	vram_rd32(ctx->cnum, 0);
 	nva_wr32(ctx->cnum, mmio, 0);
 	nva_rd32(ctx->cnum, mmio);
 }
 
 static void set_comp(struct hwtest_ctx *ctx, int idx, int format, int tagbase, int taglimit) {
 	uint32_t mmio = tile_mmio_comp(ctx->chipset) + 4 * idx;
+	vram_rd32(ctx->cnum, 0);
 	switch (comp_type(ctx->chipset)) {
 		case COMP_NV20:
 			nva_wr32(ctx->cnum, mmio, 0x80000000 | format << 26 | (tagbase & 0x3ffc0));
