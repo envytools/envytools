@@ -155,6 +155,10 @@ static int test_scan(struct hwtest_ctx *ctx) {
 			bs_comp = 0x7fffffff;
 			bs_comp_off = 0x83ffc01f;
 			break;
+		case COMP_NV36:
+			bs_comp = 0xffffffff;
+			bs_comp_off = 0x83ffc01f;
+			break;
 		case COMP_NV40:
 			bs_comp = 0x7fffffff;
 			break;
@@ -254,6 +258,9 @@ static void set_comp(struct hwtest_ctx *ctx, int idx, int format, int tagbase, i
 		case COMP_NV40:
 			nva_wr32(ctx->cnum, mmio, format << 26 | (tagbase >> 6 & 0x1fff) | (taglimit >> 6 & 0x1fff) << 13);
 			break;
+		case COMP_NV36:
+			nva_wr32(ctx->cnum, mmio, format << 28 | (tagbase >> 6 & 0x3fff) | (taglimit >> 6 & 0x3fff) << 14);
+			break;
 		default:
 			abort();
 	}
@@ -306,8 +313,10 @@ static int test_comp_size(struct hwtest_ctx *ctx) {
 			expected = 0x3ffff;
 			break;
 		case 0x35:
-		case 0x36: /* guess */
 			expected = 0x5c7ff;
+			break;
+		case 0x36:
+			expected = 0xb9fff;
 			break;
 		case 0x40:
 			expected = 0x2e3ff;
@@ -340,10 +349,14 @@ static uint32_t comp_seek(int cnum, int part, int addr) {
 		nva_wr32(cnum, 0x1000f0, 0x2380000 |
 			 (part << 16) | (addr & 0x7fc0));
 		return 0x100100 + (addr & 0x3c);
-	} else if (nva_cards[cnum].chipset < 0x40) {
+	} else if (nva_cards[cnum].chipset < 0x36) {
 		nva_wr32(cnum, 0x1000f0, 0x2380000 | (addr & 4) << 16 |
 			 (part << 16) | (addr >> 1 & 0x7fc0));
 		return 0x100100 + (addr >> 1 & 0x3c);
+	} else if (nva_cards[cnum].chipset < 0x40) {
+		nva_wr32(cnum, 0x1000f0, 0x2380000 | (addr & 0xc) << 15 |
+			 (part << 16) | (addr >> 2 & 0x7fc0));
+		return 0x100100 + (addr >> 2 & 0x3c);
 	} else {
 		nva_wr32(cnum, 0x1000f0, 0x80000 |
 			 (part << 16) | (addr & 0x7fc0));
@@ -419,25 +432,6 @@ static int test_comp_access(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-static uint32_t translate_tag(uint32_t pitch, int part, uint32_t tag, const struct mc_config *mcc) {
-	uint32_t lx = tag & ((1 << (4 - mcc->partbits)) - 1);
-	tag >>= 4 - mcc->partbits;
-	int ybits = mcc->colbits + mcc->partbits + mcc->mcbits - 10;
-	uint32_t ly = tag & ((1 << ybits) - 1);
-	tag >>= ybits;
-	uint32_t tx = tag % (pitch >> 8);
-	uint32_t ty = tag / (pitch >> 8);
-	uint32_t y = (ty << ybits | ly) << 2;
-	uint32_t px = part;
-	if (ly & 1 && mcc->partbits >= 1)
-		px -= 1 << (mcc->partbits - 1);
-	if (ly & 2 && mcc->partbits >= 2)
-		px -= 1 << (mcc->partbits - 2);
-	px &= (1 << mcc->partbits) - 1;
-	uint32_t x = tx << 8 | lx << (mcc->partbits + 4) | px << 4;
-	return y * pitch + x;
-}
-
 static int test_comp_layout(struct hwtest_ctx *ctx) {
 	struct mc_config mcc;
 	get_mc_config(ctx, &mcc);
@@ -461,6 +455,7 @@ static int test_comp_layout(struct hwtest_ctx *ctx) {
 		case COMP_NV25:
 		case COMP_NV30:
 		case COMP_NV35:
+		case COMP_NV36:
 			test_format = 2;
 			break;
 		case COMP_NV40:
@@ -544,302 +539,74 @@ static int test_format(struct hwtest_ctx *ctx) {
 	return res;
 }
 
-struct comp_format {
-	int format;
-	int bpp;
-	int x0, y0;
-	int big_endian;
-	int multisample;
-};
-
-static const struct comp_format nv20_comp_formats[] = {
-	{ 0x0, 16, 2, 0, 0, 0 },
-	{ 0x1, 32, 1, 1, 0, 0 },
-	{ 0x2, 16, 2, 0, 1, 0 },
-	{ 0x3, 32, 1, 1, 1, 0 },
-	{ 0x4, 16, 2, 0, 0, 0 },
-	{ 0x5, 32, 1, 1, 0, 0 },
-	{ 0x6, 16, 2, 0, 1, 0 },
-	{ 0x7, 32, 1, 1, 1, 0 },
-	{ 0x8, 16, 2, 0, 0, 0 },
-	{ 0x9, 32, 1, 1, 0, 0 },
-	{ 0xa, 16, 2, 0, 1, 0 },
-	{ 0xb, 32, 1, 1, 1, 0 },
-	{ 0xc, 16, 2, 0, 0, 0 },
-	{ 0xd, 32, 1, 1, 0, 0 },
-	{ 0xe, 16, 2, 0, 1, 0 },
-	{ 0xf, 32, 1, 1, 1, 0 },
-	{ 0 }
-};
-
-static const struct comp_format nv25_comp_formats[] = {
-	{ 0x01, 16, 3, 0, 0, 0 },
-	{ 0x02, 32, 1, 1, 0, 0 },
-	{ 0x03, 16, 3, 0, 0, 1 },
-	{ 0x04, 32, 1, 1, 0, 1 },
-	{ 0x05, 16, 3, 0, 0, 0 },
-	{ 0x06, 32, 1, 1, 0, 0 },
-	{ 0x11, 16, 3, 0, 1, 0 },
-	{ 0x12, 32, 1, 1, 1, 0 },
-	{ 0x13, 16, 3, 0, 1, 1 },
-	{ 0x14, 32, 1, 1, 1, 1 },
-	{ 0x15, 16, 3, 0, 1, 0 },
-	{ 0x16, 32, 1, 1, 1, 0 },
-	{ 0 }
-};
-
-/* XXX: add the color formats */
-static const struct comp_format nv30_comp_formats[] = {
-	{ 0x01, 16, 3, 0, 0, 0 },
-	{ 0x02, 32, 1, 1, 0, 0 },
-	{ 0x03, 16, 3, 0, 0, 1 },
-	{ 0x04, 32, 1, 1, 0, 1 },
-	{ 0x05, 16, 3, 0, 0, 0 },
-	{ 0x06, 32, 1, 1, 0, 0 },
-	{ 0x11, 16, 3, 0, 1, 0 },
-	{ 0x12, 32, 1, 1, 1, 0 },
-	{ 0x13, 16, 3, 0, 1, 1 },
-	{ 0x14, 32, 1, 1, 1, 1 },
-	{ 0x15, 16, 3, 0, 1, 0 },
-	{ 0x16, 32, 1, 1, 1, 0 },
-	{ 0 }
-};
-
-static void comp_decompress(const struct comp_format *fmt, uint32_t dst[4][4], uint32_t src[4], int is_nv30) {
-	int x, y;
-	uint64_t w0 = src[0] | (uint64_t)src[1] << 32;
-	uint64_t w1 = src[2] | (uint64_t)src[3] << 32;
-	int32_t dz;
-	int is_const = 0;
-
-	/* short flag */
-	if (w0 & (uint64_t)1 << 63) {
-		if (!is_nv30)
-			w1 = 0;
-		else
-			is_const = 1;
-	}
-
-	if (fmt->bpp == 16) {
-		/* Z16 */
-		uint16_t tdst[8][4];
-		uint32_t delta[8][4];
-		uint32_t base = w0 & 0xffff;
-		uint32_t dx = w0 >> 16 & 0xfff;
-		uint32_t dy = w0 >> 28 & 0xfff;
-		if (dx & 0x800)
-			dx |= 0xfffff000;
-		if (dy & 0x800)
-			dy |= 0xfffff000;
-		delta[0][0] = w0 >> 40 & 7;
-		delta[1][0] = w0 >> 43 & 7;
-		if (fmt->x0 == 2) {
-			delta[2][0] = 0;
-			delta[3][0] = w0 >> 46 & 7;
-			delta[4][0] = 0;
-			delta[5][0] = w0 >> 49 & 7;
-			delta[6][0] = w0 >> 52 & 7;
-			delta[7][0] = w0 >> 55 & 7;
-		} else if (fmt->x0 == 3 && !is_nv30) {
-			delta[2][0] = w0 >> 46 & 7;
-			delta[3][0] = 0;
-			delta[4][0] = w0 >> 49 & 7;
-			delta[5][0] = 0;
-			delta[6][0] = w0 >> 52 & 7;
-			delta[7][0] = w0 >> 55 & 7;
-		} else {
-			delta[2][0] = w0 >> 46 & 7;
-			delta[3][0] = 0;
-			delta[4][0] = w0 >> 49 & 7;
-			delta[5][0] = w0 >> 52 & 7;
-			delta[6][0] = w0 >> 55 & 7;
-			delta[7][0] = 0;
-		}
-		delta[0][1] = w0 >> 58 & 7;
-		delta[1][1] = (w0 >> 61 & 3) | (w1 & 1) << 2;
-		delta[2][1] = w1 >> 1 & 7;
-		delta[3][1] = w1 >> 4 & 7;
-		delta[4][1] = w1 >> 7 & 7;
-		delta[5][1] = w1 >> 10 & 7;
-		delta[6][1] = w1 >> 13 & 7;
-		delta[7][1] = w1 >> 16 & 7;
-		delta[0][2] = w1 >> 19 & 7;
-		delta[1][2] = w1 >> 22 & 7;
-		if (fmt->x0 == 2) {
-			delta[2][2] = 0;
-			delta[3][2] = w1 >> 25 & 7;
-		} else if (fmt->x0 == 3) {
-			delta[2][2] = w1 >> 25 & 7;
-			delta[3][2] = 0;
-		}
-		delta[4][2] = w1 >> 28 & 7;
-		delta[5][2] = w1 >> 31 & 7;
-		delta[6][2] = w1 >> 34 & 7;
-		delta[7][2] = w1 >> 37 & 7;
-		delta[0][3] = w1 >> 40 & 7;
-		delta[1][3] = w1 >> 43 & 7;
-		delta[2][3] = w1 >> 46 & 7;
-		delta[3][3] = w1 >> 49 & 7;
-		delta[4][3] = w1 >> 52 & 7;
-		delta[5][3] = w1 >> 55 & 7;
-		delta[6][3] = w1 >> 58 & 7;
-		delta[7][3] = w1 >> 61 & 7;
-		for (x = 0; x < 8; x++) {
-			for (y = 0; y < 4; y++) {
-				if (delta[x][y] & 4)
-					delta[x][y] |= 0xfff8;
-
-				if (fmt->multisample) {
-					if (is_nv30) {
-						dz = (dx * 2 * (x - fmt->x0) +
-						      dy * 2 * (2 * (y - fmt->y0) -
-							    ((x - fmt->x0) & 1)) +
-						      6) >> 3;
-					} else {
-						dz = (dx * 2 * (x - fmt->x0) +
-						      dy * (2 * (y - fmt->y0) -
-							    ((x - fmt->x0) & 1)) +
-						      (y ? 2 : 3)) >> 2;
-					}
-				} else {
-					if (is_nv30) {
-						dz = (dx * (x - fmt->x0) +
-						      dy * (y - fmt->y0)*2 + 3) >> 2;
-					} else {
-						dz = (dx * (x - fmt->x0) +
-						      dy * (y - fmt->y0) + 1) >> 1;
-					}
-				}
-
-				if (is_const)
-					tdst[x][y] = base;
-				else
-					tdst[x][y] = base + dz + delta[x][y];
-				if (fmt->big_endian) {
-					tdst[x][y] = tdst[x][y] << 8 | tdst[x][y] >> 8;
-				}
-			}
-		}
-		for (x = 0; x < 4; x++) {
-			for (y = 0; y < 4; y++) {
-				dst[x][y] = tdst[2*x][y] | tdst[2*x+1][y] << 16;
-			}
-		}
-	} else if (fmt->bpp == 32) {
-		/* Z24S8 */
-		uint32_t delta[4][4];
-		uint8_t stencil = w0 & 0xff;
-		uint32_t base = w0 >> 8 & 0xffffff;
-		uint32_t dx = w0 >> 32 & 0x7fff;
-		uint32_t dy = w0 >> 47 & 0x7fff;
-		if (dx & 0x4000)
-			dx |= 0xffff8000;
-		if (dy & 0x4000)
-			dy |= 0xffff8000;
-		delta[0][0] = (w0 >> 62 & 1) | (w1 & 0xf) << 1;
-		delta[1][0] = w1 >> 4 & 0x1f;
-		delta[2][0] = w1 >> 9 & 0x1f;
-		delta[3][0] = w1 >> 14 & 0x1f;
-		delta[0][1] = w1 >> 19 & 0x1f;
-		delta[1][1] = 0;
-		if (fmt->multisample) {
-			delta[2][1] = w1 >> 24 & 0x1f;
-			delta[3][1] = 0;
-		} else {
-			delta[2][1] = 0;
-			delta[3][1] = w1 >> 24 & 0x1f;
-		}
-		delta[0][2] = w1 >> 29 & 0x1f;
-		delta[1][2] = 0;
-		delta[2][2] = w1 >> 34 & 0x1f;
-		delta[3][2] = w1 >> 39 & 0x1f;
-		delta[0][3] = w1 >> 44 & 0x1f;
-		delta[1][3] = w1 >> 49 & 0x1f;
-		delta[2][3] = w1 >> 54 & 0x1f;
-		delta[3][3] = w1 >> 59 & 0x1f;
-		for (x = 0; x < 4; x++) {
-			for (y = 0; y < 4; y++) {
-				if (delta[x][y] & 0x10)
-					delta[x][y] |= 0xffffffe0;
-
-				if (fmt->multisample) {
-					dz = (dx * (x - fmt->x0) +
-					      dy * (2 * (y - fmt->y0)
-						    - ((x - fmt->x0) & 1)) + 1) >> 1;
-				} else {
-					dz = (x - fmt->x0) * dx + (y - fmt->y0) * dy;
-				}
-
-				if (is_const)
-					dst[x][y] = base << 8 | stencil;
-				else
-					dst[x][y] = (base + dz + delta[x][y]) << 8 | stencil;
-				if (fmt->big_endian) {
-					dst[x][y] = (dst[x][y] & 0xff00ff) << 8 | (dst[x][y] & 0xff00ff00) >> 8;
-					dst[x][y] = dst[x][y] << 16 | dst[x][y] >> 16;
-				}
-			}
-		}
-	}
-}
-
 static int test_comp_format(struct hwtest_ctx *ctx) {
 	int res = HWTEST_RES_PASS;
 	struct mc_config mcc;
 	get_mc_config(ctx, &mcc);
 	uint32_t pitch = 0x200;
-	const struct comp_format *fmt;
-	if (ctx->chipset < 0x25)
-		fmt = nv20_comp_formats;
-	else if (ctx->chipset < 0x30)
-		fmt = nv25_comp_formats;
-	else
-		fmt = nv30_comp_formats;
-	set_tile(ctx, 0, 0, 0, pitch, 0);
+	set_tile(ctx, 0, 0, 0xffff, pitch, 0);
 	int i;
-	for (; fmt->bpp; ++fmt) {
-		set_comp(ctx, 0, fmt->format, 0, 0xffffffff);
+	int formats = comp_type(ctx->chipset) >= COMP_NV25 ? 0x20 : 0x10;
+	if (comp_type(ctx->chipset) == COMP_NV36)
+		formats = 0x10;
+	int f;
+	int tw;
+	if (comp_type(ctx->chipset) < COMP_NV40)
+		tw = 0x10;
+	else
+		tw = 0x20;
+	int th = 4;
+	int tsz = tw * th;
+	int sh = 0x80;
+	for (f = 0; f < formats; f++) {
 		for (i = 0; i < 100000; i++) {
-			int tag = rand() & 0xff;
-			int part = tag & ((1 << mcc.partbits) - 1);
-			tag >>= mcc.partbits;
-			uint32_t addr = translate_tag(pitch, part, tag, &mcc);
-			uint32_t src[4];
+			int x = rand() % pitch;
+			x &= -tw;
+			int y = rand() % sh;
+			y &= -th;
+			uint32_t addr = x + y * pitch;
+			int tag;
+			int part;
+			tile_translate_addr(ctx->chipset, pitch, addr, 1, 0, &mcc, &part, &tag);
+			uint8_t src[0x80], dst[0x80], rdst[0x80];
 			int k;
-			comp_wr32(ctx->cnum, part, (tag >> 3 & 0x3c), 0);
-			for (k = 0; k < 4; k++) {
-				src[k] = rand() ^ rand() << 10 ^ rand() << 20;
-				vram_wr32(ctx->cnum, addr + k * 4, src[k]);
+			comp_wr32(ctx->cnum, part, tag >> 3, 0);
+			unset_comp(ctx, 0);
+			for (k = 0; k < tsz; k++)
+				src[k] = rand() & 0xff;
+			for (k = 0; k < tsz; k += 4) {
+				uint32_t val = 0;
+				int z;
+				for (z = 0; z < 4; z++)
+					val |= src[k+z] << z*8;
+				vram_wr32(ctx->cnum, addr + k % tw + k / tw * pitch, val);
 			}
-			comp_wr32(ctx->cnum, part, (tag >> 3 & 0x3c), 1 << (tag & 0x1f));
-			uint32_t dst[4][4], rdst[4][4];
-			int x, y;
-			for (x = 0; x < 4; x++)
-				for (y = 0; y < 4; y++)
-					rdst[x][y] = vram_rd32(ctx->cnum, addr + x * 4 + y * pitch);
-			comp_decompress(fmt, dst, src, ctx->chipset >= 0x30);
+			int tv = rand() & 1;
+			set_comp(ctx, 0, f, 0, 0xffffffff);
+			comp_wr32(ctx->cnum, part, tag >> 3, tv << (tag & 0x1f));
+			for (x = 0; x < tw; x++)
+				for (y = 0; y < th; y++)
+					rdst[x+y*tw] = vram_rd32(ctx->cnum, addr + (x & ~3) + y * pitch) >> 8 * (x & 3);
+			memcpy(dst, src, tsz);
+			comp_decompress(ctx->chipset, f, dst, tv);
 			int fail = 0;
-			for (x = 0; x < 4; x++)
-				for (y = 0; y < 4; y++)
-					if (rdst[x][y] != dst[x][y])
-						fail = 1;
+			for (k = 0; k < tsz; k++)
+				if (rdst[k] != dst[k])
+					fail = 1;
 			if (fail) {
-				printf("COMP decompression mismatch iter %d: format %d part %d tag %05x, src %08x %08x %08x %08x\n", i, fmt->format, part, tag, src[0], src[1], src[2], src[3]);
+				printf("COMP decompression mismatch iter %d: format %02x tv %d addr %08x part %d tag %05x\n", i, f, tv, addr, part, tag);
+				printf("source:\n");
+				for (y = 0; y < th; y++)
+					for (x = 0; x < tw; x++) 
+						printf("%02x%c", src[x+y*tw], x == tw-1 ? '\n' : ' ');
 				printf("expected:\n");
-				for (y = 0; y < 4; y++)
-					for (x = 0; x < 4; x++) 
-						printf("%08x%c", dst[x][y], x == 3 ? '\n' : ' ');
+				for (y = 0; y < th; y++)
+					for (x = 0; x < tw; x++) 
+						printf("%02x%c", dst[x+y*tw], x == tw-1 ? '\n' : ' ');
 				printf("real:\n");
-				for (y = 0; y < 4; y++)
-					for (x = 0; x < 4; x++) 
-						printf("%08x%c", rdst[x][y], x == 3 ? '\n' : ' ');
-				for (x = 0; x < 4; x++)
-					for (y = 0; y < 4; y++)
-						rdst[x][y] = vram_rd32(ctx->cnum, addr + x * 4 + y * pitch);
-				printf("realer:\n");
-				for (y = 0; y < 4; y++)
-					for (x = 0; x < 4; x++) 
-						printf("%08x%c", rdst[x][y], x == 3 ? '\n' : ' ');
+				for (y = 0; y < th; y++)
+					for (x = 0; x < tw; x++) 
+						printf("%02x%c", rdst[x+y*tw], x == tw-1 ? '\n' : ' ');
 				res = HWTEST_RES_FAIL;
 				break;
 			}

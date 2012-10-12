@@ -93,20 +93,6 @@ int tile_bankoff_bits(int chipset) {
 	return 2;
 }
 
-int comp_type(int chipset) {
-	if (pfb_type(chipset) < PFB_NV20 || pfb_type(chipset) > PFB_NV41)
-		return COMP_NONE;
-	if (chipset == 0x20)
-		return COMP_NV20;
-	if (chipset < 0x30)
-		return COMP_NV25;
-	if (chipset < 0x35)
-		return COMP_NV30;
-	if (chipset < 0x40)
-		return COMP_NV35;
-	return COMP_NV40;
-}
-
 int num_tile_regions(int chipset) {
 	if (pfb_type(chipset) < PFB_NV10 || pfb_type(chipset) > PFB_NV44)
 		return 0;
@@ -187,8 +173,8 @@ uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int 
 			iaddr <<= mcc->partbits, iaddr |= part;
 			iaddr <<= 4, iaddr |= x1;
 			tag = x + y * (pitch >> 8);
-			tag <<= bankshift - 10, tag |= (iy >> 2);
-			tag <<= (4 - mcc->partbits), tag |= ix >> (4 + mcc->partbits) & ((1 << mcc->partbits) - 1);
+			tag <<= bankshift - 10, tag |= iy;
+			tag <<= (4 - mcc->partbits), tag |= x2;
 		} break;
 		case PFB_NV40:
 		case PFB_NV41:
@@ -261,18 +247,6 @@ uint32_t tile_mmio_region(int chipset) {
 		case PFB_NV41:
 		case PFB_NV44:
 			return 0x100600;
-		default:
-			return 0;
-	}
-}
-
-uint32_t tile_mmio_comp(int chipset) {
-	switch (pfb_type(chipset)) {
-		case PFB_NV20:
-		case PFB_NV40:
-			return 0x100300;
-		case PFB_NV41:
-			return 0x100700;
 		default:
 			return 0;
 	}

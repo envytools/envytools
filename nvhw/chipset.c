@@ -86,12 +86,12 @@ int get_maxparts(int chipset) {
 		case 0x20:
 		case 0x25:
 		case 0x28:
+		case 0x30:
 		case 0x35:
-		case 0x36:
 		case 0x40:
 			return 4;
-		case 0x30:
 		case 0x31:
+		case 0x36:
 		case 0x43:
 			return 2;
 		default:
