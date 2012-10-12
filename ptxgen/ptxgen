@@ -1,0 +1,169 @@
+#!/usr/bin/perl -sw
+# Mass RE tool, generates large amounts of .ptx
+use Data::Dumper;
+use List::MoreUtils qw{any};
+use Switch;
+no warnings "once";
+sub cartesian{
+    my @C=[];
+    foreach(reverse @_){
+        my @A=@$_;
+        @C=map{my $n=$_;map{[$n,@$_]} @C} @A;
+    }
+    return @C;
+}
+sub fprint{
+    my($filename,$content)=@_;
+    return if not ($content);
+    open(FILE, ">".$filename) or die "can't open file: $filename\n";
+    print FILE $content;
+    close FILE;
+}
+sub gen_ptx{
+    my $desc = shift;
+    my $code = "";
+    $code.=".version ".$$desc{ver}."\n";
+    $code.=".target ".$$desc{arch}."\n";
+    $code.=".entry bench(.param .u64 I){\n";
+    $code.="    .reg .b64   ptr;\n";
+    $code.="    .reg .pred  pi<".$$desc{pi}.">;\n" if $$desc{pi};
+    $code.="    .reg .pred  po<".$$desc{po}.">;\n" if $$desc{po};
+    foreach my $b (8,16,32,64,128){
+        my $key = "r".$b."i";
+        $code.="    .reg .b".$b."   ".$key."<".$$desc{$key}.">;\n" if $$desc{$key};
+    }
+    foreach my $b (8,16,32,64,128){
+        my $key = "r".$b."o";
+        $code.="    .reg .b".$b."   ".$key."<".$$desc{$key}.">;\n" if $$desc{$key};
+    }
+    $code.="    ld.param.u64 ptr, [I];\n";
+    $code.="    cvta.to.global.u64  ptr, ptr;\n";
+    for(my $i=0;$i < ($$desc{pi}||0); $i++){
+        $code.="    setp.ne.u64     pi$i, ptr, $i;\n";
+    }
+    foreach my $b (8,16,32,64,128){
+        my $key = "r".$b."i";
+        for(my $i=0;$i < ($$desc{$key}||0); $i++){
+            $code.="    ldu.global.b".$b." ".$key.$i.", [ptr+".($i*$b/8)."];\n";
+        }
+    }
+    $code.="    ".$$desc{insn}."\n";
+    foreach my $b (8,16,32,64,128){
+        my $key = "r".$b."o";
+        for(my $i=0;$i < ($$desc{$key}||0); $i++){
+            $code.="    st.global.b".$b." [ptr+".($i*$b/8)."], ".$key.$i.";\n";
+        }
+    }
+    $code.="}\n";
+    fprint($$desc{outfile},$code);
+}
+my $ver  = $v||"3.1";
+my $arch = $a||"sm_35";
+my $dir  = $d||"./data";
+$dir.="/";
+my $us64 = ["u64","s64"];
+my $us32 = ["u32","s32"];
+my $us16 = ["u16","s16"];
+my $us8  = ["u8","s8"];
+my @types= (@$us8,@$us16,@$us32,@$us64,"f16","f32","f64","b16","b32","b64","b128");
+# TODO:
+#   conditional
+#   immediates
+#   ?offsets
+my @entries=(
+    #Integer Arithmetic Instructions
+    [["mul"],["hi","lo"],$us16,["ARGS"],["r16o"],["r16i"],["r16i"]],
+    [["mul","mul24"],["hi","lo"],$us32,["ARGS"],["r32o"],["r32i"],["r32i"]],
+    [["mul"],["hi","lo"],$us64,["ARGS"],["r64o"],["r64i"],["r64i"]],
+    [["mul"],["wide"],$us16,["ARGS"],["r32o"],["r16i"],["r16i"]],
+    [["mul"],["wide"],$us32,["ARGS"],["r64o"],["r32i"],["r32i"]],
+    [["mad"],["hi","lo"],$us16,["ARGS"],["r16o"],["r16i"],["r16i"],["r16i"]],
+    [["mad","mad24"],["hi","lo"],$us32,["ARGS"],["r32o"],["r32i"],["r32i"],["r32i"]],
+    [["mad","mad24"],["hi"],["sat"],["s32"],["ARGS"],["r32o"],["r32i"],["r32i"],["r32i"]],
+    [["mad"],["hi","lo"],$us64,["ARGS"],["r64o"],["r64i"],["r64i"],["r64i"]],
+    [["mad"],["wide"],$us16,["ARGS"],["r32o"],["r16i"],["r16i"],["r32i"]],
+    [["mad"],["wide"],$us32,["ARGS"],["r64o"],["r32i"],["r32i"],["r64i"]],
+    [["sad"],$us16,["ARGS"],["r16o"],["r16i"],["r16i"],["r16i"]],
+    [["sad"],$us32,["ARGS"],["r32o"],["r32i"],["r32i"],["r32i"]],
+    [["sad"],$us64,["ARGS"],["r64o"],["r64i"],["r64i"],["r64i"]],
+    [["add","sub","div","rem","min","max"],$us16,["ARGS"],["r16o"],["r16i"],["r16i"]],
+    [["add","sub","div","rem","min","max"],$us32,["ARGS"],["r32o"],["r32i"],["r32i"]],
+    [["add","sub","div","rem","min","max"],$us64,["ARGS"],["r64o"],["r64i"],["r64i"]],
+    [["neg","abs"],["s16"],["ARGS"],["r16o"],["r16i"]],
+    [["neg","abs"],["s32"],["ARGS"],["r32o"],["r32i"]],
+    [["neg","abs"],["s64"],["ARGS"],["r64o"],["r64i"]],
+    [["popc"],["b32"],["ARGS"],["r32o"],["r32i"]],
+    [["popc"],["b64"],["ARGS"],["r32o"],["r64i"]],
+    [["clz"],["b32"],["ARGS"],["r32o"],["r32i"]],
+    [["clz"],["b64"],["ARGS"],["r32o"],["r64i"]],
+    [["bfind"],["shiftamt",""],[@$us32],["ARGS"],["r32o"],["r32i"]],
+    [["bfind"],["shiftamt",""],[@$us64],["ARGS"],["r32o"],["r64i"]],
+    [["brev"],["b32"],["ARGS"],["r32o"],["r32i"]],
+    [["brev"],["b64"],["ARGS"],["r64o"],["r64i"]],
+    [["bfe"],$us32,["ARGS"],["r32o"],["r32i"],["r32i"],["r32i"]],
+    [["bfe"],$us64,["ARGS"],["r64o"],["r64i"],["r32i"],["r32i"]],
+    [["bfi"],["b32"],["ARGS"],["r32o"],["r32i"],["r32i"],["r32i"],["r32i"]],
+    [["bfi"],["b64"],["ARGS"],["r64o"],["r64i"],["r64i"],["r32i"],["r32i"]],
+    #Parallel Synchronization and Communication Instructions
+    [["bar"],["sync","arrive"],["ARGS"],["r32o"],["r32i"]],
+    [["bar"],["red"],["popc"],["u32"],["ARGS"],["r32o"],["r32i"],["r32i"],["pi"]],
+    [["bar"],["red"],["and","or"],["pred"],["ARGS"],["po"],["r32i"],["r32i"],["pi"]],
+    [["membar"],["cta","gl","sys"]],
+    [["atom"],["global","shared"],["and","or","xor","exch"],["b32"],["ARGS"],["r32o"],["ptr"],["r32i"]],
+    [["atom"],["global","shared"],["cas"],["b32"],["ARGS"],["r32o"],["ptr"],["r32i"],["r32i"]],
+    [["atom"],["global","shared"],["add"],[@$us32,"f32"],["ARGS"],["r32o"],["ptr"],["r32i"]],
+    [["atom"],["global","shared"],["inc","dec"],["u32"],["ARGS"],["r32o"],["ptr"],["r32i"]],
+    [["atom"],["global","shared"],["min","max"],$us32,["ARGS"],["r32o"],["ptr"],["r32i"]],
+    [["atom"],["global","shared"],["and","or","xor","exch"],["b64"],["ARGS"],["r64o"],["ptr"],["r64i"]],
+    [["atom"],["global","shared"],["cas"],["b64"],["ARGS"],["r64o"],["ptr"],["r64i"],["r64i"]],
+    [["atom"],["global","shared"],["min","max"],$us64,["ARGS"],["r64o"],["ptr"],["r64i"]],
+    [["atom"],["global","shared"],["add"],["u64"],["ARGS"],["r64o"],["ptr"],["r64i"]],
+    [["red"],["global","shared"],["and","or","xor"],["b32"],["ARGS"],["ptr"],["r32i"]],
+    [["red"],["global","shared"],["add"],[@$us32,"f32"],["ARGS"],["ptr"],["r32i"]],
+    [["red"],["global","shared"],["inc","dec"],["u32"],["ARGS"],["ptr"],["r32i"]],
+    [["red"],["global","shared"],["min","max"],$us32,["ARGS"],["ptr"],["r32i"]],
+    [["red"],["global","shared"],["and","or","xor"],["b64"],["ARGS"],["ptr"],["r64i"]],
+    [["red"],["global","shared"],["min","max"],$us64,["ARGS"],["ptr"],["r64i"]],
+    [["red"],["global","shared"],["add"],["u64"],["ARGS"],["ptr"],["r64i"]],
+    [["vote"],["all","any","uni"],["pred"],["ARGS"],["po"],["pi"]],
+    [["vote"],["ballot"],["b32"],["ARGS"],["r32o"],["pi"]],
+);
+foreach $entry (@entries){
+    my @op_descs = cartesian(@$entry);
+    foreach $op_desc (@op_descs){
+        my $name = "";
+        my $insn = "";
+        my %desc = (ver=>$ver,arch=>$arch,dir=>$dir);
+        my $args = 0;
+        foreach $field (@$op_desc){
+            next if $field eq "";
+            if($field eq "ARGS"){
+                chop($insn);
+                $args = 1;
+                next;
+            }
+            if(any{$_ eq $field} @types){
+                $desc{type}=$field;
+            }
+            $name.=$field."_";
+            if($args){
+                if($field eq "ptr"){
+                    $insn.=" [ptr],";
+                }
+                else{
+                    $insn.=" ".$field.($desc{$field}++).",";
+                }
+            }
+            else{
+                $insn.=$field.".";
+            }
+        }
+        chop($name);
+        $name.=".ptx";
+        chop($insn);
+        $insn.=";";
+        $desc{insn}=$insn;
+        $desc{outfile}=$dir.$name;
+        gen_ptx(\%desc);
+    }
+}

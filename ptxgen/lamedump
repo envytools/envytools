@@ -1,0 +1,22 @@
+#!/usr/bin/perl -s
+#dump cubin section 
+#usage: ./lamedump.pl [-s=section_name] [-e] cubin
+	#section_name: section to dump
+		# use objdump to find one or:
+		# ".text.bench" is the default, so use .entry bench{...} with ptxas for convinience, or name your .cu function as "extern 'C' bench"
+	#-e swaps endianness (for easy visual matching in hexdumps)
+#./lamedump.pl -s=.text.bench cubin/add.cubin|./envydis -mnvc0 -w
+$s=$s||".text.bench";
+exit if not $ARGV[0];
+@lines=`readelf -x $s '$ARGV[0]'`;
+foreach(@lines){
+    next if(not $_=~m/^\s*0x/gi);
+	@fields=split;
+	if(not $#fields<5){
+		for($i=1;$i<5;$i++){
+			$fields[$i]=~s/(..)(..)(..)(..)/$4$3$2$1/g if not $e;	#endianness fun;
+			print $fields[$i],", ";
+		}
+		print "\n";
+	}
+}
