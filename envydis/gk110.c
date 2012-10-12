@@ -902,21 +902,26 @@ static struct insn tablldstd[] = {
  * c000000000000000 source type
  */
 
-//<WIP>
-// observed flag changes:
-// I[0]=I[1]<<29;
-//     00000048: 0e9c080d b7c00e00     lshf b32 $r3 (b64 $r2 $r3) 0x1d [unknown: 00000000 00000200]
-//     00000050: 0e9ffc09 b7c00800     lshf b32 $r2 (b64 0x0 $r2) 0x1d
-// I[0]=I[1]<<33;
-//     00000048: 109c080d b7c00e00     lshf b32 $r3 (b64 $r2 $r3) 0x21 [unknown: 00000000 00000200]
-//     00000050: 109ffc09 b7c00a00     lshf b32 $r2 (b64 0x0 $r2) 0x21 [unknown: 00000000 00000200]
-// ld.global.ca.nc.b32 %r4,[%rd1];
-//     00000020: 7f9c0801 60021084     tex lzero $r0:#:#:# t2d c[0x10] xy## $r2:$r3 0x0
-// ld.global.cs.nc.b32 %r4,[%rd1];
-//     00000020: 7f9c0802 70008484     $r0 $r2 0x0 $r33 ??? [unknown: 00000000 70000084] [unknown instruction]
-// ld.global.cg.nc.b32 %r4,[%rd1];
-//     00000020: 7f9c0802 70008084     $r0 $r2 0x0 $r32 ??? [unknown: 00000000 70000084] [unknown instruction]
-//</WIP>
+/* <WIP>
+observed flag changes:
+I[0]=I[1]<<29;
+    00000048: 0e9c080d b7c00e00     lshf b32 $r3 (b64 $r2 $r3) 0x1d [unknown: 00000000 00000200]
+    00000050: 0e9ffc09 b7c00800     lshf b32 $r2 (b64 0x0 $r2) 0x1d
+I[0]=I[1]<<33;
+    00000048: 109c080d b7c00e00     lshf b32 $r3 (b64 $r2 $r3) 0x21 [unknown: 00000000 00000200]
+    00000050: 109ffc09 b7c00a00     lshf b32 $r2 (b64 0x0 $r2) 0x21 [unknown: 00000000 00000200]
+
+ld.global.ca.nc.b32 %r4,[%rd1];
+    00000020: 7f9c0801 60021084     tex lzero $r0:#:#:# t2d c[0x10] xy## $r2:$r3 0x0
+ld.global.cs.nc.b32 %r4,[%rd1];
+    00000020: 7f9c0802 70008484     $r0 $r2 0x0 $r33 ??? [unknown: 00000000 70000084] [unknown instruction]
+ld.global.cg.nc.b32 %r4,[%rd1];
+    00000020: 7f9c0802 70008084     $r0 $r2 0x0 $r32 ??? [unknown: 00000000 70000084] [unknown instruction]
+
+atom.global.exch.b32 r4,  [ptr], r1;   
+    00000028: 001c0802 6c080000     mul $r0 u32 $r2 s32 0x10000000 [unknown: 00000000 40000000]             //OOPS
+    00000030: 001c0816 7b800000     $r5 $r2 $r0 $r0 ??? [unknown: 00000000 7b800000] [unknown instruction]
+</WIP> */
 
 static struct insn tabm[] = {
 	{ 0x8400000000000002ull, 0xbfc0000000000003ull, T(sfuop), N("f32"), DST, T(neg33), T(abs31), SRC1 },
@@ -964,7 +969,7 @@ static struct insn tabm[] = {
 	{ 0x2600000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(sat35), T(cvti2idst), T(neg30), T(abs34), T(cvti2isrc) },
 	{ 0x25c0000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(frm2a), T(cvti2fdst), T(neg30), T(abs34), T(cvti2fsrc) },
 	{ 0x27c0000000000002ull, 0x3fc0000000000003ull, N("rshf"), N("b32"), DST, SESTART, T(us64_28), SRC1, SRC3, SEEND, T(shfclamp), T(is2) }, // XXX: check is2 and bits 0x29,0x33(swap srcs ?)
-	{ 0x2800000000000002ull, 0x3980000000000003ull, N("mul"), DST, T(us32_39), SRC1, T(us32_3a), LIMM },
+	{ 0x2800000000000002ull, 0x3980000000000003ull, N("mul"), DST, T(us32_39), SRC1, T(us32_3a), LIMM },    //XXX: wrong! 6c280000011c100a is atom-related
 	{ 0x7400000000000002ull, 0x7f80000000000003ull, T(lane0e), N("mov"), N("b32"), DST, LIMM },
 	{ 0x7600000000000002ull, 0x7fc0000000000003ull, N("texgrad"), T(texm), TDST, T(text), TCONST, T(texgrsrc1), T(texgrsrc2) },
 	{ 0x7700000000000002ull, 0x7fc0000000000003ull, N("texbar"), TEXBARIMM },

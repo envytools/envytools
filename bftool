@@ -1,65 +1,65 @@
 #!/usr/bin/perl -sw
 #RE tool, decodes hex into bitfield descriptions {pos,len}
 #   supports disjoint bitfields
-#   supports 64 and 32 bit hex (in envydis's endianness)
+#   supports mixed 64bit and 32bit (in envydis's endianness) hex words
 #   modes: and, or, xor (mask, diff)
 #Examples:
-#   find a diff between to OPs:
-#       ./bftool -op=xor 8540dc00001c0002 8540dc00001c3c02 
-#           U8{0x0000000000003c00} U4{0x00003c00,0x00000000}
-#           10,4
-#   the same, but with 32bit input:
-#       ./bftool -op=xor 001c0002 8540dc00 001c3c02 8540dc00
-#           U8{0x0000000000003c00} U4{0x00003c00,0x00000000}
-#           10,4
+#   find a diff between two OPs:
+#        ./bftool -op=xor 8540dc00001c0002 8540dc00001c3c02
+#     or ./bftool -op=xor 8540dc00001c0002 001c3c02 8540dc00
+#     or ./bftool -op=xor 001c0002 8540dc00 001c3c02 8540dc00
+#        > x: U8{0x8540dc00001c0002} U4{0x001c0002,0x8540dc00}
+#          y: U8{0x8540dc00001c3c02} U4{0x001c3c02,0x8540dc00}
+#          z: U8{0x0000000000003c00} U4{0x00003c00,0x00000000}
+#          {pos,len} = {10,4} = {0xa,4}
 #   find a match against a mask:
-#       ./bftool -op=and 3fc0000000000000 8540dc00001c0002
+#        ./bftool -op=and 3fc0000000000000 8540dc00001c0002
+#     or ./bftool -op=and 3fc0000000000000 001c0002 8540dc00
+#     ...
 #           U8{0x0540000000000000} U4{0x00000000,0x05400000}
 #           54,1
 #           56,1
 #           58,1
+use Data::Dumper;
 no warnings "portable";
 my $op = $op || "nop";
-my $n = scalar(@ARGV);
-my $x = 0;
-my $y = 0;
-die "bad arg count" if not ($n==1 or $n==2 or $n==4);
+sub readhex{
+    my $A = shift;
+    my $x = shift(@$A);
+    return undef if not defined($x);
+    return hex($x) if(length($x)>8 or scalar(@$A)==0 or length($A->[0])>8);
+    my $y = shift(@$A);
+    return hex($x)|hex($y) << 32;
+}
+my $x = readhex(\@ARGV) || undef;
+my $y = readhex(\@ARGV) || undef;
+my $z = 0;
 if($op eq "nop"){
-	die "bad arg count" if $n>2;
-	$x = hex($ARGV[0]);
-	$x = $x | hex($ARGV[1]) << 32 if($n==2);
+    $z = $x;
 }
-else{
-	if($n==2){
-		$x = hex($ARGV[0]);
-		$y = hex($ARGV[1]);
-	}
-	elsif($n==4){
-		$x = hex($ARGV[1]) << 32 | hex($ARGV[0]);
-		$y = hex($ARGV[3]) << 32 | hex($ARGV[2]);
-	}
-}
-if($op eq "and"){
-	$x = $x & $y;
+elsif($op eq "and"){
+    $z = $x & $y;
 }
 elsif($op eq "xor"){
-	$x = $x ^ $y;
+    $z = $x ^ $y;
 }
 elsif($op eq "or"){
-	$x = $x | $y;
+    $z = $x | $y;
 }
-print sprintf("U8{0x%016x} U4{0x%08x,0x%08x}\n",$x,$x&0xFFFFFFFF,($x>>32)&0xFFFFFFFF);
+print sprintf("x: U8{0x%016x} U4{0x%08x,0x%08x}\n",$x,$x&0xFFFFFFFF,($x>>32)&0xFFFFFFFF);
+print sprintf("y: U8{0x%016x} U4{0x%08x,0x%08x}\n",$y,$y&0xFFFFFFFF,($y>>32)&0xFFFFFFFF);
+print sprintf("z: U8{0x%016x} U4{0x%08x,0x%08x}\n",$z,$z&0xFFFFFFFF,($z>>32)&0xFFFFFFFF);
 my $pos=0;
-while($x!=0){
-	while(($x&0x1) eq 0){
-		$pos++;
-		$x = $x >> 1;
-	}
-	my $len=0;
-	while(($x&0x1) eq 1){
-		$len++;
-		$x = $x >> 1;
-	}
-	print $pos,",",$len,"\n";
+while($z!=0){
+    while(($z&0x1) eq 0){
+        $pos++;
+        $z = $z >> 1;
+    }
+    my $len=0;
+    while(($z&0x1) eq 1){
+        $len++;
+        $z = $z >> 1;
+    }
+    print sprintf("{pos,len} = {%d,%d} = {0x%x,%d}\n",$pos,$len,$pos,$len);
     $pos+=$len;
 }
