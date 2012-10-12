@@ -740,6 +740,8 @@ F1(abs39, 0x39, N("abs")) // add f32 long immediate
 F1(not2a, 0x2a, N("not")) // popc
 F1(not2b, 0x2b, N("not")) // logop src2
 
+F1(rev2b, 0x2b, N("rev"))
+
 F1(rint, 0x2d, T(frmi))
 
 F1(acout32, 0x32, CC)
@@ -984,6 +986,7 @@ static struct insn tabm[] = {
 	{ 0x7d80000000000002ull, 0x7fc0000000000003ull, N("tex"), T(texm), T(lodt), TDST, T(text), N("ind"), T(texsrc1), T(texsrc2) },
 	{ 0x7e00000000000002ull, 0x7fc0000000000003ull, N("texgrad"), T(texm), TDST, T(text), N("ind"), T(texgrsrc1), T(texgrsrc2) },
 	{ 0x0540000000000002ull, 0x3fc0000000000002ull, N("bar"), BAR, OOPS},
+	{ 0xe000000000000002ull, 0xffc0000000000003ull, N("ext"), T(rev2b), T(us32_33), DST, SRC1, SRC2},  //XXX? can't find CONST
 	{ 0x0, 0x0, DST, SRC1, SRC2, SRC3, OOPS },
 };
 
@@ -1017,8 +1020,7 @@ static struct insn tabi[] = {
 	{ 0xb780000000000001ull, 0xb7c0000000000003ull, N("ins"), N("b32"), DST, SRC1, I3BIMM, SRC3 },
 	{ 0x2000000000000001ull, 0x3fc0000000000003ull, N("tex"), T(texm), T(lodt), TDST, T(text), T(tconst), T(texsrc1), T(texsrc2) },
 	{ 0x37c0000000000001ull, 0x37c0000000000003ull, N("lshf"), N("b32"), DST, SESTART, N("b64"), SRC1, SRC3, SEEND, T(shfclamp), T(sui2a) }, // d = (s3 << s2) | (s1 >> (32 - s2))
-	{ 0xc000000000000001ull, 0xc000000000000003ull, N("brev"), N("b32"), DST, SRC1, OOPS},  //XXX: likely special case of something else
-    
+	{ 0xc000000000000001ull, 0xffc0000000000003ull, N("ext"), T(rev2b), T(us32_33), DST, SRC1, I3BIMM},
 	{ 0x0, 0x0, DST, SRC1, SRC2, SRC3, OOPS },
 };
 
