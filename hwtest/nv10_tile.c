@@ -602,15 +602,15 @@ static int test_comp_format(struct hwtest_ctx *ctx) {
 				printf("source:\n");
 				for (y = 0; y < th; y++)
 					for (x = 0; x < tw; x++) 
-						printf("%02x%c", src[x+y*tw], x == tw-1 ? '\n' : ' ');
+						printf("%02x%s", src[x+y*tw], x == tw-1 ? "\n" : (x & 3) == 3 ? "  " : " ");
 				printf("expected:\n");
 				for (y = 0; y < th; y++)
 					for (x = 0; x < tw; x++) 
-						printf("%02x%c", dst[x+y*tw], x == tw-1 ? '\n' : ' ');
+						printf("%02x%s", dst[x+y*tw], x == tw-1 ? "\n" : (x & 3) == 3 ? "  " : " ");
 				printf("real:\n");
 				for (y = 0; y < th; y++)
 					for (x = 0; x < tw; x++) 
-						printf("%02x%c", rdst[x+y*tw], x == tw-1 ? '\n' : ' ');
+						printf("%02x%s", rdst[x+y*tw], x == tw-1 ? "\n" : (x & 3) == 3 ? "  " : " ");
 				res = HWTEST_RES_FAIL;
 				break;
 			}
