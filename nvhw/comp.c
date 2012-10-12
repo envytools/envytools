@@ -97,7 +97,7 @@ int comp_format_type(int chipset, int format) {
 	} else {
 		switch (format & 0xf) {
 			case 7:
-				return COMP_FORMAT_A8R8G8B8_GRAD;
+				return COMP_FORMAT_A8R8G8B8_INTERP;
 			case 8:
 				return COMP_FORMAT_FLAT;
 			case 9:
@@ -361,7 +361,7 @@ static uint32_t sext(uint32_t a, int b) {
 	return res;
 }
 
-static void comp_a8r8g8b8_grad_decompress(int chipset, int ms, uint64_t w0, uint64_t w1, int is_const, uint32_t od32[4][8]) {
+static void comp_a8r8g8b8_grad_decompress(int chipset, uint64_t w0, uint64_t w1, int is_const, uint32_t od32[4][8]) {
 	uint8_t base[4];
 	int8_t dx[3], dy[3];
 	int8_t delta[5][3];
@@ -429,6 +429,183 @@ static void comp_a8r8g8b8_grad_decompress(int chipset, int ms, uint64_t w0, uint
 	}
 }
 
+static int rbits(char *bit, int *ppos, int n) {
+	int i;
+	int res = 0;
+	for (i = 0; i < n; i++)
+		res |= bit[(*ppos)++] << i;
+	if (res & 1 << (n-1))
+		res |= -1 << n;
+	return res;
+}
+
+static void comp_a8r8g8b8_interp_decompress(int chipset, uint32_t cd[8], uint32_t od32[4][8]) {
+	/* fuck performance. */
+	char bit[255];
+	int mode;
+	if (cd[3] & 1 << 31) {
+		if (cd[3] & 1 << 30)
+			mode = 2;
+		else
+			mode = 1;
+	} else {
+		mode = 0;
+	}
+	int i, k;
+	for (i = 0; i < 128-mode-1; i++)
+		bit[i] = cd[i/32] >> (i%32) & 1;
+	for (i = 128; i < 256; i++)
+		bit[i-mode-1] = cd[i/32] >> (i%32) & 1;
+	int pos = 0;
+	uint16_t raw[16][3];
+	uint8_t alpha = 0;
+	for (i = 0; i < (mode == 2 ? 1 : 16); i++) {
+		int rbsize, gsize, is_l;
+		if (i < 4)
+			rbsize = gsize = 8, is_l = 0;
+		else if (!mode) {
+			if (i < 11)
+				rbsize = 4, gsize = 5, is_l = 1;
+			else
+				rbsize = gsize = 4, is_l = 1;
+		} else {
+			if (i < 5)
+				rbsize = 4, gsize = 6, is_l = 1;
+			else
+				rbsize = 4, gsize = 5, is_l = 1;
+		}
+		int b = rbits(bit, &pos, rbsize);
+		int g = rbits(bit, &pos, gsize);
+		int r = rbits(bit, &pos, rbsize);
+		if (is_l)
+			r += g, b += g;
+		else
+			r &= 0xff, g &= 0xff, b &= 0xff;
+		raw[i][0] = b;
+		raw[i][1] = g;
+		raw[i][2] = r;
+		if (i == 0)
+			alpha = rbits(bit, &pos, mode == 1 ? 1 : 8);
+	}
+	static const int8_t weight[16][4][4] = {
+		{
+			{ 3, 4, 2, 1 },
+			{ 2, 3, 1, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 },
+		},
+		{
+			{ 0, 0, 2, 3 },
+			{ 0, 0, 3, 4 },
+			{ 0, 0, 1, 2 },
+			{ 0, 0, 0, 1 },
+		},
+		{
+			{ 1, 0, 0, 0 },
+			{ 2, 1, 0, 0 },
+			{ 4, 3, 0, 0 },
+			{ 3, 2, 0, 0 },
+		},
+		{
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 1, 3, 2 },
+			{ 1, 2, 4, 3 },
+		},
+		{
+			{ 0, 0, 4, 2 },
+			{ 0, 0, 2, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 },
+		},
+		{
+			{ 2, 0, 0, 0 },
+			{ 4, 2, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 },
+		},
+		{
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 2, 4 },
+			{ 0, 0, 0, 2 },
+		},
+		{
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 2, 0, 0 },
+			{ 2, 4, 0, 0 },
+		},
+		{
+			{ 4, 0, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 },
+		},
+		{
+			{ 0, 0, 0, 4 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 },
+		},
+		{
+			{ 0, 0, 0, 0 },
+			{ 0, 4, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 },
+		},
+		{
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 4, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 },
+		},
+		{
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 4, 0, 0 },
+			{ 0, 0, 0, 0 },
+		},
+		{
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 4, 0 },
+			{ 0, 0, 0, 0 },
+		},
+		{
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 4, 0, 0, 0 },
+		},
+		{
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 0 },
+			{ 0, 0, 0, 4 },
+		},
+	};
+	int y, x;
+	for (y = 0; y < 4; y++) {
+		for (x = 0; x < 4; x++) {
+			uint32_t res = alpha << 24;
+			for (k = 0; k < 3; k++) {
+				int pixel = 3;
+				if (mode == 2) {
+					pixel = raw[0][k];
+				} else {
+					for (i = 0; i < 16; i++)
+						pixel += raw[i][k] * weight[i][y][x];
+					pixel >>= 2;
+				}
+				res |= (pixel & 0xff) << 8 * k;
+			}
+			od32[y][2*x] = res;
+			od32[y][2*x+1] = res;
+		}
+	}
+}
+
 void comp_decompress(int chipset, int format, uint8_t *data, int tag) {
 	int ftype = comp_format_type(chipset, format);
 	uint32_t cd[8];
@@ -478,8 +655,14 @@ void comp_decompress(int chipset, int format, uint8_t *data, int tag) {
 			} else if (ftype == COMP_FORMAT_Z24S8_GRAD) {
 				comp_z24s8_grad_decompress(chipset, ms, w0, w1, is_const, od32);
 			} else {
-				comp_a8r8g8b8_grad_decompress(chipset, ms, w0, w1, is_const, od32);
+				comp_a8r8g8b8_grad_decompress(chipset, w0, w1, is_const, od32);
 			}
+			break;
+		}
+		case COMP_FORMAT_A8R8G8B8_INTERP: {
+			if (!tag)
+				return;
+			comp_a8r8g8b8_interp_decompress(chipset, cd, od32);
 			break;
 		}
 		case COMP_FORMAT_Z24S8_SPLIT_GRAD: {

@@ -34,7 +34,7 @@
 
 <enum name="NV40_COMP_FORMAT" varset="chipset">
 	<value value="0" name="OFF"/>
-	<value value="7" name="A8R8G8B8_GRAD_MS2"/>
+	<value value="7" name="A8R8G8B8_INTERP_MS2"/>
 	<value value="8" name="32_FLAT_MS4"/>
 	<value value="9" name="Z24S8_SPLIT"/>
 	<value value="10" name="Z24S8_SPLIT_GRAD_UNK10"/>
