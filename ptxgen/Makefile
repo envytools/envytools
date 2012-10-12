@@ -6,7 +6,7 @@ CUB = $(patsubst %.ptx,%.cubin,$(PTX))
 ASM = $(patsubst %.cubin,%.asm,$(CUB))
 UNK = $(patsubst %.asm,%.unk,$(ASM))
 
-HOME  = ../..
+HOME  = ../../..
 CUDA  = $(HOME)/blob/5.0
 DIS   = $(HOME)/envytools/build/envydis/envydis -wn -mgk110
 PTXAS = $(CUDA)/bin/ptxas -O3 -arch sm_35
@@ -29,7 +29,7 @@ $(UNK):	%.unk : %.asm
 $(ASM):	%.asm : %.cubin
 		mkdir -p $(shell dirname '$@')
 		$(DUMP) '$<' | $(DIS) > '$@'
-$(CUB):	%.cubin : %.ptx ptx
+$(CUB):	%.cubin : %.ptx
 		mkdir -p $(shell dirname '$@')
 		$(PTXAS) '$<' -o '$@'
 clean:
