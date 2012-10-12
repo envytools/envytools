@@ -12,18 +12,34 @@
 
 <enum name="NV25_COMP_FORMAT" varset="chipset">
 	<value value="0" name="OFF"/>
-	<value value="1" name="Z16" variants="NV25:NV40"/>
-	<value value="2" name="Z24S8" variants="NV25:NV40"/>
-	<value value="3" name="Z16_MS2" variants="NV25:NV40"/>
-	<value value="4" name="Z24S8_MS2" variants="NV25:NV40"/>
-	<value value="5" name="Z16_MS4" variants="NV25:NV40"/> <!-- XXX: guess -->
-	<value value="6" name="Z24S8_MS4" variants="NV25:NV40"/> <!-- XXX: guess -->
-	<value value="7" name="C32_4X4" variants="NV30-"/> <!-- 1 word duplicated 16 times -->
-	<value value="8" name="C32_2X2" variants="NV30-"/> <!-- 4 words, each duplicated 4 times in 2x2 tiles -->
-	<value value="9" name="Z24S8_SPLIT" variants="NV40-"/>
-	<value value="10" name="Z24S8_SPLIT_COMP_UNK10" variants="NV40-"/>
-	<value value="11" name="Z24S8_SPLIT_COMP_UNK11" variants="NV40-"/>
-	<value value="12" name="Z24S8_SPLIT_COMP_UNK12" variants="NV40-"/>
+	<value value="1" name="Z16_GRAD"/>
+	<value value="2" name="Z24S8_GRAD"/>
+	<value value="3" name="Z16_GRAD_MS2"/>
+	<value value="4" name="Z24S8_GRAD_MS2"/>
+	<value value="5" name="Z16_GRAD_MS4"/> <!-- XXX: guess -->
+	<value value="6" name="Z24S8_GRAD_MS4"/> <!-- XXX: guess -->
+	<value value="7" name="A8R8G8B8_GRAD_MS2" variants="NV30-"/>
+	<value value="8" name="32_FLAT_MS4" variants="NV30-"/>
+</enum>
+
+<enum name="NV36_COMP_FORMAT" varset="chipset">
+	<value value="0" name="OFF"/>
+	<value value="1" name="Z16_GRAD"/>
+	<value value="2" name="Z24S8_GRAD"/>
+	<value value="3" name="Z16_GRAD_MS2"/>
+	<value value="4" name="Z24S8_GRAD_MS2"/>
+	<value value="5" name="A8R8G8B8_GRAD_MS2"/>
+	<value value="6" name="32_FLAT_MS4"/>
+</enum>
+
+<enum name="NV40_COMP_FORMAT" varset="chipset">
+	<value value="0" name="OFF"/>
+	<value value="7" name="A8R8G8B8_GRAD_MS2"/>
+	<value value="8" name="32_FLAT_MS4"/>
+	<value value="9" name="Z24S8_SPLIT"/>
+	<value value="10" name="Z24S8_SPLIT_GRAD_UNK10"/>
+	<value value="11" name="Z24S8_SPLIT_GRAD_UNK11"/>
+	<value value="12" name="Z24S8_SPLIT_GRAD_UNK12"/>
 </enum>
 
 <group name="nv10_pfb_tile_region">
@@ -331,16 +347,22 @@
 		<bitfield low="24" high="27" name="FORMAT" type="NV25_COMP_FORMAT"/>
 		<bitfield pos="28" name="BIG_ENDIAN"/>
 	</reg32>
-	<reg32 offset="0x300" name="COMP_REGION" length="8" variants="NV35:NV31 NV36:NV34">
+	<reg32 offset="0x300" name="COMP_REGION" length="8" variants="NV35:NV31">
 		<bitfield low="0" high="12" name="TAG_BASE" shr="6"/>
 		<bitfield low="13" high="25" name="TAG_LIMIT" shr="6"/>
 		<bitfield low="26" high="29" name="FORMAT" type="NV25_COMP_FORMAT"/>
 		<bitfield pos="30" name="BIG_ENDIAN"/>
 	</reg32>
+	<reg32 offset="0x300" name="COMP_REGION" length="8" variants="NV36:NV34">
+		<bitfield low="0" high="13" name="TAG_BASE" shr="6"/>
+		<bitfield low="14" high="27" name="TAG_LIMIT" shr="6"/>
+		<bitfield low="28" high="30" name="FORMAT" type="NV36_COMP_FORMAT"/>
+		<bitfield pos="31" name="BIG_ENDIAN"/>
+	</reg32>
 	<reg32 offset="0x300" name="COMP_REGION" length="8" variants="NV40:NV41">
-		<bitfield low="0" high="12" name="TAG_BASE" shr="6"/>
-		<bitfield low="13" high="25" name="TAG_LIMIT" shr="6"/>
-		<bitfield low="26" high="29" name="FORMAT" type="NV25_COMP_FORMAT"/>
+		<bitfield low="0" high="12" name="TAG_BASE" shr="8"/>
+		<bitfield low="13" high="25" name="TAG_LIMIT" shr="8"/>
+		<bitfield low="26" high="29" name="FORMAT" type="NV40_COMP_FORMAT"/>
 		<bitfield pos="30" name="BIG_ENDIAN"/>
 	</reg32>
 	<reg32 offset="0x320" name="COMP_MAX_TAG" variants="NV20-"/>
@@ -364,16 +386,16 @@
 	</array>
 
 	<reg32 offset="0x700" name="COMP_REGION" length="12" variants="NV41:NV44">
-		<bitfield low="0" high="12" name="TAG_BASE" shr="6"/>
-		<bitfield low="13" high="25" name="TAG_LIMIT" shr="6"/>
-		<bitfield low="26" high="29" name="FORMAT" type="NV25_COMP_FORMAT"/>
+		<bitfield low="0" high="12" name="TAG_BASE" shr="8"/>
+		<bitfield low="13" high="25" name="TAG_LIMIT" shr="8"/>
+		<bitfield low="26" high="29" name="FORMAT" type="NV40_COMP_FORMAT"/>
 		<bitfield pos="30" name="BIG_ENDIAN"/>
 	</reg32>
 
 	<reg32 offset="0x700" name="COMP_REGION" length="15" variants="NV47:NV46 NV49:NV4E">
-		<bitfield low="0" high="12" name="TAG_BASE" shr="6"/>
-		<bitfield low="13" high="25" name="TAG_LIMIT" shr="6"/>
-		<bitfield low="26" high="29" name="FORMAT" type="NV25_COMP_FORMAT"/>
+		<bitfield low="0" high="12" name="TAG_BASE" shr="8"/>
+		<bitfield low="13" high="25" name="TAG_LIMIT" shr="8"/>
+		<bitfield low="26" high="29" name="FORMAT" type="NV40_COMP_FORMAT"/>
 		<bitfield pos="30" name="BIG_ENDIAN"/>
 	</reg32>
 
