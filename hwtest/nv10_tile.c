@@ -363,7 +363,7 @@ static uint32_t comp_seek(int cnum, int part, int addr) {
 		return 0x100100 + (addr >> 2 & 0x3c);
 	} else {
 		nva_wr32(cnum, 0x1000f0, 0x80000 |
-			 (part << 16) | (addr & 0x7fc0));
+			 (part << 16) | (addr & 0xffc0));
 		return 0x100100 + (addr & 0x3c);
 	}
 }
