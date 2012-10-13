@@ -323,6 +323,8 @@ static int test_comp_size(struct hwtest_ctx *ctx) {
 			expected = 0xb9fff;
 			break;
 		case 0x40:
+		case 0x41:
+		case 0x42:
 			expected = 0x2e3ff;
 			break;
 		case 0x43:
