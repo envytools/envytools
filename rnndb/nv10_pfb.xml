@@ -37,9 +37,9 @@
 	<value value="7" name="A8R8G8B8_INTERP_MS2"/>
 	<value value="8" name="32_FLAT_MS4"/>
 	<value value="9" name="Z24S8_SPLIT"/>
-	<value value="10" name="Z24S8_SPLIT_GRAD_UNK10"/>
-	<value value="11" name="Z24S8_SPLIT_GRAD_UNK11"/>
-	<value value="12" name="Z24S8_SPLIT_GRAD_UNK12"/>
+	<value value="10" name="Z24S8_SPLIT_GRAD"/>
+	<value value="11" name="Z24S8_SPLIT_GRAD_MS2"/>
+	<value value="12" name="Z24S8_SPLIT_GRAD_MS4"/>
 </enum>
 
 <group name="nv10_pfb_tile_region">

@@ -163,13 +163,12 @@ int comp_format_ms(int chipset, int format) {
 				return 1;
 			case 8:
 				return 2;
-			/* XXX we'll sort these out later */
 			case 10:
-				return 3;
+				return 0;
 			case 11:
-				return 4;
+				return 1;
 			case 12:
-				return 5;
+				return 2;
 			default:
 				abort();
 		}
@@ -606,6 +605,74 @@ static void comp_a8r8g8b8_interp_decompress(int chipset, uint32_t cd[8], uint32_
 	}
 }
 
+static void comp_z24_grad_decompress(int chipset, int ms, uint32_t cd[8], uint32_t od32[4][8]) {
+	int is_const = cd[3] >> 31 & 1;
+	uint32_t base = cd[0] & 0xffffff;
+	uint32_t dxp = sext(cd[0] >> 24 | cd[1] << 8, 17);
+	uint32_t dxn = sext(cd[1] >> 9, 17);
+	uint32_t dy = sext(cd[1] >> 26 | cd[2] << 6, 17);
+	uint32_t delta[4][8];
+	delta[0][0] = sext(cd[2] >> 11, 7);
+	delta[0][1] = 0;
+	delta[0][2] = sext(cd[2] >> 18, 6);
+	delta[0][3] = 0;
+	delta[0][4] = sext(cd[2] >> 24, 6);
+	delta[0][5] = sext(cd[2] >> 30 | cd[3] << 2, 7);
+	delta[0][6] = sext(cd[3] >> 5, 7);
+	delta[0][7] = 0;
+	delta[1][0] = sext(cd[3] >> 12, 7);
+	delta[1][1] = sext(cd[3] >> 19, 6);
+	delta[1][2] = sext(cd[3] >> 25, 6);
+	delta[1][3] = sext(cd[4], 6);
+	delta[1][4] = sext(cd[4] >> 6, 6);
+	delta[1][5] = sext(cd[4] >> 12, 7);
+	delta[1][6] = sext(cd[4] >> 19, 7);
+	delta[1][7] = sext(cd[4] >> 26, 6);
+	delta[2][0] = sext(cd[5], 7);
+	delta[2][1] = sext(cd[5] >> 7, 6);
+	delta[2][2] = sext(cd[5] >> 13, 6);
+	delta[2][3] = 0;
+	delta[2][4] = sext(cd[5] >> 19, 6);
+	delta[2][5] = sext(cd[5] >> 25, 7);
+	delta[2][6] = sext(cd[6], 7);
+	delta[2][7] = sext(cd[6] >> 7, 6);
+	delta[3][0] = sext(cd[6] >> 13, 7);
+	delta[3][1] = sext(cd[6] >> 20, 6);
+	delta[3][2] = sext(cd[6] >> 26, 6);
+	delta[3][3] = sext(cd[7], 6);
+	delta[3][4] = sext(cd[7] >> 6, 6);
+	delta[3][5] = sext(cd[7] >> 12, 7);
+	delta[3][6] = sext(cd[7] >> 19, 7);
+	delta[3][7] = sext(cd[7] >> 26, 6);
+	int y, x;
+	int y0 = 0, x0 = 3;
+	for (y = 0; y < 4; y++) {
+		for (x = 0; x < 8; x++) {
+			uint32_t val = base;
+			if (!is_const) {
+				int32_t dz = 7;
+				int rx = 2 * (x - x0);
+				int ry = 2 * (y - y0);
+				if (ms == 1) {
+					ry -= ((x - x0) & 1);
+				} else if (ms == 2) {
+					ry -= ((x - x0) & 1);
+					rx -= ((y - y0) & 1);
+				}
+
+				if (rx > 0)
+					dz += rx * dxp;
+				else
+					dz -= 2 * rx * dxn;
+				dz += 2 * ry * dy;
+				dz >>= 3;
+				val += dz + delta[y][x];
+			}
+			od32[y][x] = val;
+		}
+	}
+}
+
 void comp_decompress(int chipset, int format, uint8_t *data, int tag) {
 	int ftype = comp_format_type(chipset, format);
 	uint32_t cd[8];
@@ -667,7 +734,7 @@ void comp_decompress(int chipset, int format, uint8_t *data, int tag) {
 		}
 		case COMP_FORMAT_Z24S8_SPLIT_GRAD: {
 			if (tag) {
-				/* XXX */
+				comp_z24_grad_decompress(chipset, comp_format_ms(chipset, format), cd, od32);
 			} else {
 				uint8_t rbuf[0x60];
 				case COMP_FORMAT_Z24S8_SPLIT:
