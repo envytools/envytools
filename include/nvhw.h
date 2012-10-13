@@ -52,6 +52,7 @@ struct mc_config {
 	int rowbits[2];
 	int bankbits[2];
 	int burstbits;
+	int partshift;
 };
 
 int pfb_type(int chipset);

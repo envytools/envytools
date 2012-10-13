@@ -98,9 +98,7 @@ int num_tile_regions(int chipset) {
 		return 0;
 	if (pfb_type(chipset) < PFB_NV41)
 		return 8;
-	if (chipset < 0x46 || chipset == 0x4a)
-		return 12;
-	return 15;
+	return is_g7x(chipset) ? 15 : 12;
 }
 
 int has_vram_alt_tile(int chipset) {
@@ -195,8 +193,13 @@ uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int 
 			if (shift == 0)
 				part += y << 1;
 			part &= (1 << mcc->partbits) - 1;
-			iaddr <<= mcc->partbits, iaddr |= part;
-			iaddr <<= 1, iaddr |= ix >> 5 & 1;
+			if (mcc->partshift == 8) {
+				iaddr <<= mcc->partbits, iaddr |= part;
+				iaddr <<= 1, iaddr |= ix >> 5 & 1;
+			} else {
+				iaddr <<= 1, iaddr |= ix >> 5 & 1;
+				iaddr <<= mcc->partbits, iaddr |= part;
+			}
 			iaddr <<= 2, iaddr |= iy & 3;
 			iaddr <<= 1, iaddr |= (ix >> 4 ^ ix >> 5 ^ iy) & 1;
 			iaddr <<= 4, iaddr |= ix & 0xf;
@@ -216,13 +219,15 @@ uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int 
 				int px0 = addr >> 11 ^ addr >> 12;
 				int px1 = addr >> 10 ^ addr >> 11 ^ addr >> 13 ^ addr >> 14;
 				int px = (px0 & 1) | (px1 & 1) << 1;
-				iaddr ^= px << 8;
+				iaddr ^= px << mcc->partshift;
 			}
 			if (mcc->partbits == 1 && chipset >= 0x43) {
 				/* undo linear partition transformation */
 				uint32_t addr = iaddr | baddr << bankshift;
 				int px = addr >> 9 ^ addr >> 10 ^ addr >> 11 ^ addr >> 12 ^ addr >> 13;
-				iaddr ^= (px & 1) << 8;
+				if (mcc->partshift == 7)
+					px ^= addr >> 8;
+				iaddr ^= (px & 1) << mcc->partshift;
 			}
 			tag = x + y * (pitch >> 8);
 			tag <<= bankshift - mcc->partbits - 10, tag |= (iy >> (mcc->partbits + 2));

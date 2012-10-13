@@ -45,6 +45,12 @@ int is_igp(int chipset) {
 	}
 }
 
+int is_g7x(int chipset) {
+	if (chipset < 0x46 || chipset == 0x4a || chipset == 0x4e || chipset == 0x50 || chipset >= 0x70)
+		return 0;
+	return 1;
+}
+
 int pfb_type(int chipset) {
 	if (chipset <3)
 		return PFB_NV01;

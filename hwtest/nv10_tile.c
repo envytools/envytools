@@ -105,6 +105,12 @@ static void get_mc_config(struct hwtest_ctx *ctx, struct mc_config *mcc) {
 			mcc->ranks = (cfg0 >> 8 & 1) + 1;
 			mcc->rank_interleave = cfg0 >> 9 & 1;
 			mcc->burstbits = (cfg0 >> 11 & 1) + 1; /* valid for at least NV44, doesn't matter for others */
+			if (pfb_type(ctx->chipset) >= PFB_NV40) {
+				if (is_g7x(ctx->chipset))
+					mcc->partshift = 8 - (cfg0 >> 4 & 1);
+				else
+					mcc->partshift = 8;
+			}
 			break;
 		default:
 			abort();
@@ -330,6 +336,11 @@ static int test_comp_size(struct hwtest_ctx *ctx) {
 		case 0x43:
 			expected = 0x5c7ff;
 			break;
+		case 0x47: /* guess */
+		case 0x49:
+			expected = 0x47fff;
+			break;
+		/* XXX: 0x4b */
 		default:
 			printf("Don't know expected comp size for NV%02X [%08x] - please report!\n", ctx->chipset, real);
 			return HWTEST_RES_UNPREP;
