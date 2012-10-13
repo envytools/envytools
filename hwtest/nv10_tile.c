@@ -563,7 +563,7 @@ static int test_comp_format(struct hwtest_ctx *ctx) {
 	int tsz = tw * th;
 	int sh = 0x80;
 	for (f = 0; f < formats; f++) {
-		for (i = 0; i < 100000; i++) {
+		for (i = 0; i < 10000; i++) {
 			int x = rand() % pitch;
 			x &= -tw;
 			int y = rand() % sh;
@@ -598,6 +598,9 @@ static int test_comp_format(struct hwtest_ctx *ctx) {
 				if (rdst[k] != dst[k])
 					fail = 1;
 			if (fail) {
+				const char *br = "", *er = "";
+				if (ctx->colors)
+					br = "\x1b[31m", er = "\x1b[0m";
 				printf("COMP decompression mismatch iter %d: format %02x tv %d addr %08x part %d tag %05x\n", i, f, tv, addr, part, tag);
 				printf("source:\n");
 				for (y = 0; y < th; y++)
@@ -605,12 +608,16 @@ static int test_comp_format(struct hwtest_ctx *ctx) {
 						printf("%02x%s", src[x+y*tw], x == tw-1 ? "\n" : (x & 3) == 3 ? "  " : " ");
 				printf("expected:\n");
 				for (y = 0; y < th; y++)
-					for (x = 0; x < tw; x++) 
-						printf("%02x%s", dst[x+y*tw], x == tw-1 ? "\n" : (x & 3) == 3 ? "  " : " ");
+					for (x = 0; x < tw; x++) {
+						int isred = dst[x+y*tw] != rdst[x+y*tw];
+						printf("%s%02x%s%s", isred?br:"", dst[x+y*tw], isred?er:"", x == tw-1 ? "\n" : (x & 3) == 3 ? "  " : " ");
+					}
 				printf("real:\n");
 				for (y = 0; y < th; y++)
-					for (x = 0; x < tw; x++) 
-						printf("%02x%s", rdst[x+y*tw], x == tw-1 ? "\n" : (x & 3) == 3 ? "  " : " ");
+					for (x = 0; x < tw; x++) {
+						int isred = dst[x+y*tw] != rdst[x+y*tw];
+						printf("%s%02x%s%s", isred?br:"", rdst[x+y*tw], isred?er:"", x == tw-1 ? "\n" : (x & 3) == 3 ? "  " : " ");
+					}
 				res = HWTEST_RES_FAIL;
 				break;
 			}
