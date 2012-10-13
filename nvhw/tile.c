@@ -214,7 +214,7 @@ uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int 
 				int px = (px0 & 1) | (px1 & 1) << 1;
 				iaddr ^= px << 8;
 			}
-			if (mcc->partbits == 1 && pfb_type(chipset) >= PFB_NV41) {
+			if (mcc->partbits == 1 && chipset >= 0x43) {
 				/* undo linear partition transformation */
 				uint32_t addr = iaddr | baddr << bankshift;
 				int px = addr >> 9 ^ addr >> 10 ^ addr >> 11 ^ addr >> 12 ^ addr >> 13;
