@@ -181,15 +181,19 @@ uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int 
 		{
 			iaddr = iy >> (2 + mcc->partbits);
 			iaddr <<= 2, iaddr |= ix >> 6 & 3;
-			if (mcc->partbits == 0)
+			if (mcc->partbits == 0) {
 				part = 0;
-			else if (mcc->partbits == 1)
+			} else if (mcc->partbits == 1) {
 				part = iy >> 2;
-			else
+				part ^= ix >> 7;
+			} else if (pfb_type(chipset) < PFB_NV41) {
 				part = (iy >> 3 & 1) | (iy >> 2 & 1) << 1;
+				part += x << 1 | ix >> 7;
+			} else {
+				part = -(iy >> 2) ^ (x << 1 | ix >> 7);
+			}
 			if (shift == 0)
 				part += y << 1;
-			part += x << 1 | ix >> 7;
 			part &= (1 << mcc->partbits) - 1;
 			iaddr <<= mcc->partbits, iaddr |= part;
 			iaddr <<= 1, iaddr |= ix >> 5 & 1;
