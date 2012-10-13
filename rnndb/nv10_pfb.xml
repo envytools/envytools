@@ -214,6 +214,16 @@
 		</bitfield>
 	</reg32>
 
+	<reg32 offset="0x208" name="DBI" variants="NV47-">
+		<bitfield pos="0" name="WR_ENABLE"/>
+		<bitfield pos="1" name="WR_MODE">
+			<value value="0" name="MIN_ZERO"/>
+			<value value="1" name="MIN_TRANS"/>
+		</bitfield>
+		<bitfield pos="8" name="RD_ENABLE"/>
+		<bitfield low="16" high="17" name="UNK16" variants="NVA3-"/>
+	</reg32>
+
 	<reg32 offset="0x20c" name="MEM_AMOUNT"> <!-- NVAA+: includes both VRAM and FAKEFB, but only VRAM under VRAM_LIMIT counts -->
 		<bitfield pos="0" name="HIGH" type="hex" shr="32" variants="NV50-"/>
 		<bitfield high="31" low="12" name="LOW" shr="12"/>
