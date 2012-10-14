@@ -27,7 +27,7 @@
 #include "yy.h"
 #include "easm_parse.h"
 #include "easm_lex.h"
-void easm_error(YYLTYPE *loc, yyscan_t lex_state, struct easm_file **res, const char *err) {
+void easm_error(YYLTYPE *loc, void *lex_state, struct easm_file **res, const char *err) {
 	fprintf(stderr, LOC_FORMAT(*loc, "%s\n"), err);
 }
 %}
@@ -35,8 +35,8 @@ void easm_error(YYLTYPE *loc, yyscan_t lex_state, struct easm_file **res, const 
 %locations
 %define api.pure
 %name-prefix "easm_"
-%lex-param { yyscan_t lex_state }
-%parse-param { yyscan_t lex_state }
+%lex-param { void *lex_state }
+%parse-param { void *lex_state }
 %parse-param { struct easm_file **res }
 /* XXX */
 
