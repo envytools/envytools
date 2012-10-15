@@ -1,0 +1,10 @@
+#!/usr/bin/perl -sw
+my %hash=();
+while(<>){
+    my $line = $_;
+    my @fields = split(/\s+/,$line,);
+    $hash{$fields[2].$fields[1]}=$line;
+}
+foreach my $key(keys %hash){
+    print $hash{$key};
+}
