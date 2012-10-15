@@ -41,7 +41,6 @@ static struct rbitfield ctargoff = { { 23, 24 }, RBF_SIGNED, .pcrel = 1, .addend
 /*
  * Misc number fields
  */
-static struct rbitfield uimmoff = { { 0x17, 19 }, RBF_UNSIGNED };
 static struct rbitfield i3bimmoff = { { 0x17, 19, 0x3b, 1 }, RBF_SIGNED };
 static struct rbitfield suimmoff = { { 0x17, 6 }, RBF_UNSIGNED }; // XXX: for r/lshf, check size
 static struct rbitfield shcntsoff = { { 0x2a, 5 }, RBF_UNSIGNED };
@@ -50,7 +49,6 @@ static struct rbitfield fimmoff = { { 0x17, 19 }, .shr = 12 };
 static struct rbitfield limmoff = { { 0x17, 32 }, .wrapok = 1 };
 static struct rbitfield dimmoff = { { 0x17, 19 }, .shr = 44 };
 static struct rbitfield schedvals = { { 0x2, 56 }, .wrapok = 1 };
-#define UIMM atomrimm, &uimmoff
 #define SUIMM atomrimm, &suimmoff
 #define SHCNT atomrimm, &shcntsoff
 #define SHCNL atomrimm, &shcnlsoff
@@ -173,7 +171,6 @@ static struct reg sreg_r = { &sreg_bf, "sr", .specials = sreg_sr, .always_specia
 #define SREG atomreg, &sreg_r
 
 static struct bitfield tdst_mask = { 0x22, 4 };
-static struct bitfield cnt0 = { .addend = 0 };
 static struct bitfield cnt1 = { .addend = 1 };
 static struct bitfield cnt2 = { .addend = 2 };
 static struct bitfield cnt3 = { .addend = 3 };
@@ -184,7 +181,6 @@ static struct vec tsrc11_v = { "r", &src1_bf, &cnt1, 0 };
 static struct vec tsrc12_v = { "r", &src1_bf, &cnt2, 0 };
 static struct vec tsrc13_v = { "r", &src1_bf, &cnt3, 0 };
 static struct vec tsrc14_v = { "r", &src1_bf, &cnt4, 0 };
-static struct vec tsrc20_v = { "r", &src2_bf, &cnt0, 0 };
 static struct vec tsrc21_v = { "r", &src2_bf, &cnt1, 0 };
 static struct vec tsrc22_v = { "r", &src2_bf, &cnt2, 0 };
 static struct vec tsrc23_v = { "r", &src2_bf, &cnt3, 0 };
@@ -195,7 +191,6 @@ static struct vec tsrc24_v = { "r", &src2_bf, &cnt4, 0 };
 #define TSRC12 atomvec, &tsrc12_v
 #define TSRC13 atomvec, &tsrc13_v
 #define TSRC14 atomvec, &tsrc14_v
-#define TSRC20 atomvec, &tsrc20_v
 #define TSRC21 atomvec, &tsrc21_v
 #define TSRC22 atomvec, &tsrc22_v
 #define TSRC23 atomvec, &tsrc23_v
@@ -753,7 +748,6 @@ F1(shiftamt, 0x2c, N("shiftamt"))
 F(shfclamp, 0x35, N("clamp"), N("wrap"))
 
 F(us64_28, 0x28, N("u64"), N("s64"))
-F(us64_29, 0x29, N("u64"), N("s64"))
 F(us32_2b, 0x2b, N("u32"), N("s32"))
 F(us32_2c, 0x2c, N("u32"), N("s32"))
 F(us32_33, 0x33, N("u32"), N("s32"))
