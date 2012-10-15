@@ -22,10 +22,10 @@ unk:	$(UNK)
 asm:	$(ASM)
 cub:	$(CUB)
 unks.txt : $(UNK)
-		grep -h '???' $(UNK) > '$@'
+		grep -h 'unknown' $(UNK) | ./unique > '$@'
 $(UNK):	%.unk : %.asm
 		mkdir -p $(shell dirname '$@')
-		- grep '???' '$<' > '$@'
+		- grep 'unknown' '$<' | ./unique > '$@'
 $(ASM):	%.asm : %.cubin
 		mkdir -p $(shell dirname '$@')
 		$(DUMP) '$<' | $(DIS) > '$@'

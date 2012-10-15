@@ -54,6 +54,9 @@ sub gen_ptx{
             $code.="    st.global.b".$b." [ptr+".($i*$b/8)."], ".$key.$i.";\n";
         }
     }
+    for(my $i=0;$i < ($$desc{"po"}||0); $i++){
+        $code.="    \@po$i st.global.b8 [ptr+".($i*8)."], ".$i.";\n";
+    }
     $code.="}\n";
     fprint($$desc{outfile},$code);
 }
@@ -61,14 +64,40 @@ my $ver  = $v||"3.1";
 my $arch = $a||"sm_35";
 my $dir  = $d||"./data";
 $dir.="/";
-my $us64 = ["u64","s64"];
-my $us32 = ["u32","s32"];
-my $us16 = ["u16","s16"];
-my $us8  = ["u8","s8"];
-my @types= (@$us8,@$us16,@$us32,@$us64,"f16","f32","f64","b16","b32","b64","b128");
+
+#shorthands
+my $us8    = ["u8","s8"];
+my $bus8   = ["b8",@$us8];
+my $us16   = ["u16","s16"];
+my $bus16  = ["b16",@$us16];
+my $us32   = ["u32","s32"];
+my $bus32  = ["b32",@$us32];
+my $fus32  = ["f32",@$us32];
+my $busf32 = ["f32",@$bus32];
+my $us64   = ["u64","s64"];
+my $bus64  = ["b64",@$us64];
+my $busf64 = ["f64",@$bus64];
+my @types  = (@$bus8,@$bus16,@$busf32,@$busf64,"b128");
+my $frnd   = ["rn","rz","rm","rp"];
+my $irnd   = ["rni","rzi","rmi","rpi"];
+my $bcmp   = ["eq", "ne"];
+my $scmp   = ["eq", "ne", "lt", "le", "gt", "ge"];
+my $ucmp   = ["lo", "ls", "hi", "hs"];
+my $fcmp   = [@icmp, "equ", "neu", "ltu", "leu", "gtu", "geu", "num", "nan"];
+my $bool   = ["and","or","xor"];
+my $ftz    = ["ftz",""];
+my $sat    = ["sat",""];
+my $shclamp= ["clamp","wrap"];
+my $lcop   = ["ca","cg","cs"];
+my $lcopv  = [@$lcop,"lu","cv"];
+my $scop   = ["wb","cg","cs","wt"];
 # TODO:
+#   try to generate instructions outside PTX ISA (add shl, cmem load-exe)
 #   conditional
 #   immediates
+#   cmem
+#   lmem
+#   smem
 #   ?offsets
 my @entries=(
     #Integer Arithmetic Instructions
@@ -104,6 +133,147 @@ my @entries=(
     [["bfe"],$us64,["ARGS"],["r64o"],["r64i"],["r32i"],["r32i"]],
     [["bfi"],["b32"],["ARGS"],["r32o"],["r32i"],["r32i"],["r32i"],["r32i"]],
     [["bfi"],["b64"],["ARGS"],["r64o"],["r64i"],["r64i"],["r32i"],["r32i"]],
+    #Extended-Precision Arithmetic Instructions
+    [["add","addc","sub","subc"],["cc",""],$us32,["ARGS"],["r32o"],["r32i"],["r32i"]],
+    [["mad","madc"],["hi","lo"],["cc"],$us32,["ARGS"],["r32o"],["r32i"],["r32i"],["r32i"]],
+    #Floating-Point Instructions
+    [["testp"],["finite","infinite","number","notanumber","normal","subnormal"],["f32"],["ARGS"],["po"],["r32i"]],
+    [["testp"],["finite","infinite","number","notanumber","normal","subnormal"],["f64"],["ARGS"],["po"],["r64i"]],
+    [["copysign"],["f32"],["ARGS"],["r32o"],["r32i"],["r32i"]],
+    [["copysign"],["f64"],["ARGS"],["r64o"],["r64i"],["r64i"]],
+    [["add","sub","mul"],$frnd,$ftz,$sat,["f32"],["ARGS"],["r32o"],["r32i"],["r32i"]],
+    [["add","sub","mul"],$frnd,["f64"],["ARGS"],["r64o"],["r64i"],["r64i"]],
+    [["min","max"],$ftz,["f32"],["ARGS"],["r32o"],["r32i"],["r32i"]],
+    [["min","max"],["f64"],["ARGS"],["r64o"],["r64i"],["r64i"]],
+    [["fma","mad"],$frnd,$ftz,$sat,["f32"],["ARGS"],["r32o"],["r32i"],["r32i"],["r32i"]],
+    [["fma","mad"],$frnd,["f64"],["ARGS"],["r64o"],["r64i"],["r64i"],["r64i"]],
+    [["div"],["approx","full",@$frnd],$ftz,["f32"],["ARGS"],["r32o"],["r32i"],["r32i"]],
+    [["div"],$frnd,["f64"],["ARGS"],["r64o"],["r64i"],["r64i"]],
+    [["neg","abs"],$ftz,["f32"],["ARGS"],["r32o"],["r32i"]],
+    [["neg","abs"],["f64"],["ARGS"],["r64o"],["r64i"]],
+    [["rcp","sqrt"],["approx",@$frnd],$ftz,["f32"],["ARGS"],["r32o"],["r32i"]],
+    [["rcp"],$frnd,["ftz"],["f64"],["ARGS"],["r64o"],["r64i"]],
+    [["sqrt"],$frnd,["f64"],["ARGS"],["r64o"],["r64i"]],
+    [["rcp"],["approx"],["ftz"],["f64"],["ARGS"],["r64o"],["r64i"]],
+    [["sqrt"],$frnd,["f64"],["ARGS"],["r64o"],["r64i"]],
+    [["rsqrt","sin","cos","lg2","ex2"],["approx"],$ftz,["f32"],["ARGS"],["r32o"],["r32i"]],
+    [["rsqrt"],["approx"],["f64"],["ARGS"],["r64o"],["r64i"]],
+    #Comparison and Selection Instructions:
+    [["set"],$bcmp,$fus32,["b16"],["ARGS"],["r32o"],["r16i"],["r16i"]],
+    [["set"],$ucmp,$fus32,["u16"],["ARGS"],["r32o"],["r16i"],["r16i"]],
+    [["set"],$scmp,$fus32,["s16"],["ARGS"],["r32o"],["r16i"],["r16i"]],
+    [["set"],$bcmp,$fus32,["b32"],["ARGS"],["r32o"],["r32i"],["r32i"]],
+    [["set"],$ucmp,$fus32,["u32"],["ARGS"],["r32o"],["r32i"],["r32i"]],
+    [["set"],$scmp,$fus32,["s32"],["ARGS"],["r32o"],["r32i"],["r32i"]],
+    [["set"],$fcmp,$ftz,$fus32,["f32"],["ARGS"],["r32o"],["r32i"],["r32i"]],
+    [["set"],$bcmp,$fus32,["b64"],["ARGS"],["r32o"],["r64i"],["r64i"]],
+    [["set"],$ucmp,$fus32,["u64"],["ARGS"],["r32o"],["r64i"],["r64i"]],
+    [["set"],$scmp,$fus32,["s64"],["ARGS"],["r32o"],["r64i"],["r64i"]],
+    [["set"],$fcmp,$fus32,["f64"],["ARGS"],["r32o"],["r64i"],["r64i"]],
+    [["set"],$bcmp,$bool,$fus32,["b16"],["ARGS"],["r32o"],["r16i"],["r16i"],["pi"]],
+    [["set"],$ucmp,$bool,$fus32,["u16"],["ARGS"],["r32o"],["r16i"],["r16i"],["pi"]],
+    [["set"],$scmp,$bool,$fus32,["s16"],["ARGS"],["r32o"],["r16i"],["r16i"],["pi"]],
+    [["set"],$bcmp,$bool,$fus32,["b32"],["ARGS"],["r32o"],["r32i"],["r32i"],["pi"]],
+    [["set"],$ucmp,$bool,$fus32,["u32"],["ARGS"],["r32o"],["r32i"],["r32i"],["pi"]],
+    [["set"],$scmp,$bool,$fus32,["s32"],["ARGS"],["r32o"],["r32i"],["r32i"],["pi"]],
+    [["set"],$fcmp,$bool,$ftz,$fus32,["f32"],["ARGS"],["r32o"],["r32i"],["r32i"],["pi"]],
+    [["set"],$bcmp,$bool,$fus32,["b64"],["ARGS"],["r32o"],["r64i"],["r64i"],["pi"]],
+    [["set"],$ucmp,$bool,$fus32,["u64"],["ARGS"],["r32o"],["r64i"],["r64i"],["pi"]],
+    [["set"],$scmp,$bool,$fus32,["s64"],["ARGS"],["r32o"],["r64i"],["r64i"],["pi"]],
+    [["set"],$fcmp,$bool,$fus32,["f64"],["ARGS"],["r32o"],["r64i"],["r64i"],["pi"]],
+    [["setp"],$bcmp,["b16"],["ARGS"],["po"],["r16i"],["r16i"]],
+    [["setp"],$ucmp,["u16"],["ARGS"],["po"],["r16i"],["r16i"]],
+    [["setp"],$scmp,["s16"],["ARGS"],["po"],["r16i"],["r16i"]],
+    [["setp"],$bcmp,["b32"],["ARGS"],["po"],["r32i"],["r32i"]],
+    [["setp"],$ucmp,["u32"],["ARGS"],["po"],["r32i"],["r32i"]],
+    [["setp"],$scmp,["s32"],["ARGS"],["po"],["r32i"],["r32i"]],
+    [["setp"],$fcmp,$ftz,["f32"],["ARGS"],["po"],["r32i"],["r32i"]],
+    [["setp"],$bcmp,["b64"],["ARGS"],["po"],["r64i"],["r64i"]],
+    [["setp"],$ucmp,["u64"],["ARGS"],["po"],["r64i"],["r64i"]],
+    [["setp"],$scmp,["s64"],["ARGS"],["po"],["r64i"],["r64i"]],
+    [["setp"],$fcmp,["f64"],["ARGS"],["po"],["r64i"],["r64i"]],
+    [["setp"],$bcmp,$bool,["b16"],["ARGS"],["po"],["r16i"],["r16i"],["pi"]],
+    [["setp"],$ucmp,$bool,["u16"],["ARGS"],["po"],["r16i"],["r16i"],["pi"]],
+    [["setp"],$scmp,$bool,["s16"],["ARGS"],["po"],["r16i"],["r16i"],["pi"]],
+    [["setp"],$bcmp,$bool,["b32"],["ARGS"],["po"],["r32i"],["r32i"],["pi"]],
+    [["setp"],$ucmp,$bool,["u32"],["ARGS"],["po"],["r32i"],["r32i"],["pi"]],
+    [["setp"],$scmp,$bool,["s32"],["ARGS"],["po"],["r32i"],["r32i"],["pi"]],
+    [["setp"],$fcmp,$bool,$ftz,["f32"],["ARGS"],["po"],["r32i"],["r32i"],["pi"]],
+    [["setp"],$bcmp,$bool,["b64"],["ARGS"],["po"],["r64i"],["r64i"],["pi"]],
+    [["setp"],$ucmp,$bool,["u64"],["ARGS"],["po"],["r64i"],["r64i"],["pi"]],
+    [["setp"],$scmp,$bool,["s64"],["ARGS"],["po"],["r64i"],["r64i"],["pi"]],
+    [["setp"],$fcmp,$bool,["f64"],["ARGS"],["po"],["r64i"],["r64i"],["pi"]],
+    [["selp"],$bus16,["ARGS"],["r16o"],["r16i"],["r16i"],["pi"]],
+    [["selp"],$busf32,["ARGS"],["r32o"],["r32i"],["r32i"],["pi"]],
+    [["selp"],$busf64,["ARGS"],["r64o"],["r64i"],["r64i"],["pi"]],
+    [["slct"],$bus16,["s32"],["ARGS"],["r16o"],["r16i"],["r16i"],["r32i"]],
+    [["slct"],$ftz,$bus16,["f32"],["ARGS"],["r16o"],["r16i"],["r16i"],["r32i"]],
+    [["slct"],$busf32,["s32"],["ARGS"],["r32o"],["r32i"],["r32i"],["r32i"]],
+    [["slct"],$ftz,$busf32,["f32"],["ARGS"],["r32o"],["r32i"],["r32i"],["r32i"]],
+    [["slct"],$busf64,["s32"],["ARGS"],["r64o"],["r64i"],["r64i"],["r32i"]],
+    [["slct"],$ftz,$busf64,["f32"],["ARGS"],["r64o"],["r64i"],["r64i"],["r32i"]],
+    #Logic and Shift Instructions
+    [$bool,["pred"],["ARGS"],["po"],["pi"],["pi"]],
+    [$bool,["b16"],["ARGS"],["r16o"],["r16i"],["r16i"]],
+    [$bool,["b32"],["ARGS"],["r32o"],["r32i"],["r32i"]],
+    [$bool,["b64"],["ARGS"],["r64o"],["r64i"],["r64i"]],
+    [["not","cnot"],["b16"],["ARGS"],["r16o"],["r16i"]],
+    [["not","cnot"],["b32"],["ARGS"],["r32o"],["r32i"]],
+    [["not","cnot"],["b64"],["ARGS"],["r64o"],["r64i"]],
+    [["shf"],["l","r"],$shclamp,["b32"],["ARGS"],["r32o"],["r32i"],["r32i"],["r32i"]],
+    [["shl"],["b16"],["ARGS"],["r16o"],["r16i"],["r32i"]],
+    [["shl"],["b32"],["ARGS"],["r32o"],["r32i"],["r32i"]],
+    [["shl"],["b64"],["ARGS"],["r64o"],["r64i"],["r32i"]],
+    [["shr"],$bus16,["ARGS"],["r16o"],["r16i"],["r32i"]],
+    [["shr"],$bus32,["ARGS"],["r32o"],["r32i"],["r32i"]],
+    [["shr"],$bus64,["ARGS"],["r64o"],["r64i"],["r32i"]],
+    #Data Movement and Conversion Instructions
+    [["mov"],["pred"],["ARGS"],["po"],["pi"]],
+    [["mov"],$bus16,["ARGS"],["r16o"],["r16i"]],
+    [["mov"],$bus32,["ARGS"],["r32o"],["r32i"]],
+    [["mov"],$busf32,["ARGS"],["r32o"],["r32i"]],
+    [["mov"],$busf64,["ARGS"],["r64o"],["r64i"]],
+    # TODO: vector, sreg
+    [["shfl"],["up","down","bfly","idx"],["b32"],["ARGS"],["r32o"],["r32i"],["r32i"],["r32i"]],
+    [["prmt"],["b32"],["f4e","b4e","rc8","ecl","ecr","rc16"],["ARGS"],["r32o"],["r32i"],["r32i"],["r32i"]],
+    [["ld"],["const","global","local","param","shared"],$lcopv,$bus8,["ARGS"],["r8o"],["ptr"]],
+    [["ld"],["const","global","local","param","shared"],$lcopv,$bus16,["ARGS"],["r16o"],["ptr"]],
+    [["ld"],["const","global","local","param","shared"],$lcopv,$busf32,["ARGS"],["r32o"],["ptr"]],
+    [["ld"],["const","global","local","param","shared"],$lcopv,$busf64,["ARGS"],["r64o"],["ptr"]],
+    [["ld"],["volatile"],["global","shared"],$bus8,["ARGS"],["r8o"],["ptr"]],
+    [["ld"],["volatile"],["global","shared"],$bus16,["ARGS"],["r16o"],["ptr"]],
+    [["ld"],["volatile"],["global","shared"],$busf32,["ARGS"],["r32o"],["ptr"]],
+    [["ld"],["volatile"],["global","shared"],$busf64,["ARGS"],["r64o"],["ptr"]],
+    # TODO: vector ld
+    [["ld"],["global"],$lcop,["nc"],$bus8,["ARGS"],["r8o"],["ptr"]],
+    [["ld"],["global"],$lcop,["nc"],$bus16,["ARGS"],["r16o"],["ptr"]],
+    [["ld"],["global"],$lcop,["nc"],$busf32,["ARGS"],["r32o"],["ptr"]],
+    [["ld"],["global"],$lcop,["nc"],$busf64,["ARGS"],["r64o"],["ptr"]],
+    [["ldu"],["global"],$bus8,["ARGS"],["r8o"],["ptr"]],
+    [["ldu"],["global"],$bus16,["ARGS"],["r16o"],["ptr"]],
+    [["ldu"],["global"],$busf32,["ARGS"],["r32o"],["ptr"]],
+    [["ldu"],["global"],$busf64,["ARGS"],["r64o"],["ptr"]],
+    [["st"],["global","local","param","shared"],$scop,$bus8,["ARGS"],["ptr"],["r8i"]],
+    [["st"],["global","local","param","shared"],$scop,$bus16,["ARGS"],["ptr"],["r16i"]],
+    [["st"],["global","local","param","shared"],$scop,$busf32,["ARGS"],["ptr"],["r32i"]],
+    [["st"],["global","local","param","shared"],$scop,$busf64,["ARGS"],["ptr"],["r64i"]],
+    [["st"],["global","local","param","shared"],$scop,$bus8,["ARGS"],["ptr"],["r8i"]],
+    [["st"],["volatile"],["global","shared"],$bus8,["ARGS"],["ptr"],["r8i"]],
+    [["st"],["volatile"],["global","shared"],$bus16,["ARGS"],["ptr"],["r16i"]],
+    [["st"],["volatile"],["global","shared"],$busf32,["ARGS"],["ptr"],["r32i"]],
+    [["st"],["volatile"],["global","shared"],$busf64,["ARGS"],["ptr"],["r64i"]],
+    [["prefetch"],["L1","L2"],["global","local"],["ARGS"],["ptr"]],
+    [["prefetchu"],["L1"],["ARGS"],["ptr"]],
+    [["isspacep"],["global","local","const","shared"],["ARGS"],["po"],["r32i"]],
+    [["cvta"],["global","local","const","shared"],["u32"],["ARGS"],["r32o"],["r32i"]],
+    [["cvta"],["global","local","const","shared"],["u64"],["ARGS"],["r64o"],["r64i"]],
+    # NOTE: skipped most of cvts
+    [["cvt"],$us8,$us32,["ARGS"],["r8o"],["r32i"]],
+    [["cvt"],$irnd,$ftz,$sat,$us32,["f32"],["ARGS"],["r32o"],["r32i"]],
+    [["cvt"],$frnd,$ftz,$sat,["f32"],$us32,["ARGS"],["r32o"],["r32i"]],
+    # TODO: Texture Instructions
+    # TODO: Surface Instructions
+    # TODO: Control Flow Instructions
     #Parallel Synchronization and Communication Instructions
     [["bar"],["sync","arrive"],["ARGS"],["r32o"],["r32i"]],
     [["bar"],["red"],["popc"],["u32"],["ARGS"],["r32o"],["r32i"],["r32i"],["pi"]],
@@ -111,7 +281,7 @@ my @entries=(
     [["membar"],["cta","gl","sys"]],
     [["atom"],["global","shared"],["and","or","xor","exch"],["b32"],["ARGS"],["r32o"],["ptr"],["r32i"]],
     [["atom"],["global","shared"],["cas"],["b32"],["ARGS"],["r32o"],["ptr"],["r32i"],["r32i"]],
-    [["atom"],["global","shared"],["add"],[@$us32,"f32"],["ARGS"],["r32o"],["ptr"],["r32i"]],
+    [["atom"],["global","shared"],["add"],$fus32,["ARGS"],["r32o"],["ptr"],["r32i"]],
     [["atom"],["global","shared"],["inc","dec"],["u32"],["ARGS"],["r32o"],["ptr"],["r32i"]],
     [["atom"],["global","shared"],["min","max"],$us32,["ARGS"],["r32o"],["ptr"],["r32i"]],
     [["atom"],["global","shared"],["and","or","xor","exch"],["b64"],["ARGS"],["r64o"],["ptr"],["r64i"]],
@@ -119,7 +289,7 @@ my @entries=(
     [["atom"],["global","shared"],["min","max"],$us64,["ARGS"],["r64o"],["ptr"],["r64i"]],
     [["atom"],["global","shared"],["add"],["u64"],["ARGS"],["r64o"],["ptr"],["r64i"]],
     [["red"],["global","shared"],["and","or","xor"],["b32"],["ARGS"],["ptr"],["r32i"]],
-    [["red"],["global","shared"],["add"],[@$us32,"f32"],["ARGS"],["ptr"],["r32i"]],
+    [["red"],["global","shared"],["add"],$fus32,["ARGS"],["ptr"],["r32i"]],
     [["red"],["global","shared"],["inc","dec"],["u32"],["ARGS"],["ptr"],["r32i"]],
     [["red"],["global","shared"],["min","max"],$us32,["ARGS"],["ptr"],["r32i"]],
     [["red"],["global","shared"],["and","or","xor"],["b64"],["ARGS"],["ptr"],["r64i"]],
