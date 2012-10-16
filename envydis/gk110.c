@@ -49,6 +49,8 @@ static struct rbitfield fimmoff = { { 0x17, 19 }, .shr = 12 };
 static struct rbitfield limmoff = { { 0x17, 32 }, .wrapok = 1 };
 static struct rbitfield dimmoff = { { 0x17, 19 }, .shr = 44 };
 static struct rbitfield schedvals = { { 0x2, 56 }, .wrapok = 1 };
+static struct rbitfield sflnimmoff = { { 0x17, 5 }, RBF_UNSIGNED };
+static struct rbitfield sflmimmoff = { { 0x25, 13 }, RBF_UNSIGNED };
 #define SUIMM atomrimm, &suimmoff
 #define SHCNT atomrimm, &shcntsoff
 #define SHCNL atomrimm, &shcnlsoff
@@ -57,6 +59,8 @@ static struct rbitfield schedvals = { { 0x2, 56 }, .wrapok = 1 };
 #define DIMM atomrimm, &dimmoff
 #define LIMM atomrimm, &limmoff
 #define SCHED atomrimm, &schedvals
+#define SFLNIMM atomrimm, &sflnimmoff
+#define SFLMIMM atomrimm, &sflmimmoff
 
 static struct bitfield baroff = { 0xA, 4 };
 static struct bitfield texbaroff = { 0x17, 6 }; // XXX: check exact size
@@ -131,6 +135,7 @@ static struct sreg pred_sr[] = {
 static struct bitfield dst_bf = { 0x2, 8 };
 static struct bitfield pdst_bf = { 0x5, 3 };
 static struct bitfield pdstn_bf = { 0x2, 3 };
+static struct bitfield pdst2_bf = { 0x33, 3 };
 static struct bitfield src1_bf = { 0xa, 8 };
 static struct bitfield src2_bf = { 0x17, 8 };
 static struct bitfield src3_bf = { 0x2a, 8 };
@@ -150,6 +155,7 @@ static struct reg src3d_r = { &src3_bf, "r", "d", .specials = reg_sr };
 static struct reg psrc3_r = { &psrc3_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdst_r = { &pdst_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdstn_r = { &pdstn_bf, "p", .specials = pred_sr, .cool = 1 };
+static struct reg pdst2_r = { &pdst2_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pred_r = { &pred_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg cc_r = { 0, "c", .cool = 1 };
 static struct reg sreg_r = { &sreg_bf, "sr", .specials = sreg_sr, .always_special = 1 };
@@ -159,6 +165,7 @@ static struct reg sreg_r = { &sreg_bf, "sr", .specials = sreg_sr, .always_specia
 #define DSTQ atomreg, &dstq_r
 #define PDST atomreg, &pdst_r
 #define PDSTN atomreg, &pdstn_r
+#define PDST2 atomreg, &pdst2_r
 #define PRED atomreg, &pred_r
 #define SRC1 atomreg, &src1_r
 #define SRC1D atomreg, &src1d_r
@@ -747,6 +754,11 @@ F1(shiftamt, 0x2c, N("shiftamt"))
 
 F(shfclamp, 0x35, N("clamp"), N("wrap"))
 
+F(sflane,0x1f,SRC2,SFLNIMM)
+F(sfmask,0x20,SRC3,SFLMIMM)
+
+F(lvlca,0x3,N("L1"),N("L2"))
+
 F(us64_28, 0x28, N("u64"), N("s64"))
 F(us32_2b, 0x2b, N("u32"), N("s32"))
 F(us32_2c, 0x2c, N("u32"), N("s32"))
@@ -880,6 +892,22 @@ static struct insn tablldstd[] = {
 	{ 0x0030000000000000ull, 0x0038000000000000ull, DSTQ },
 	{ 0, 0, OOPS },
 };
+static struct insn tabprmtmod[] = {
+	{ 0x0008000000000000ull, 0x0038000000000000, N("f4e")},
+	{ 0x0010000000000000ull, 0x0038000000000000, N("b4e")},
+	{ 0x0018000000000000ull, 0x0038000000000000, N("rc8")},
+	{ 0x0020000000000000ull, 0x0038000000000000, N("ecl")},
+	{ 0x0028000000000000ull, 0x0038000000000000, N("ecr")},
+	{ 0x0030000000000000ull, 0x0038000000000000, N("rc16")},
+	{ 0, 0, OOPS },
+};
+static struct insn tabshflmod[] = {
+	{ 0x0000000000000000ull, 0x0000000600000000, N("idx")},
+	{ 0x0000000200000000ull, 0x0000000600000000, N("up")},
+	{ 0x0000000400000000ull, 0x0000000600000000, N("down")},
+	{ 0x0000000600000000ull, 0x0000000600000000, N("bfly")},
+	{ 0, 0, OOPS },
+};
 
 /*
  * Opcode format
@@ -964,15 +992,23 @@ static struct insn tabm[] = {
 	{ 0x7400000000000002ull, 0x7f80000000000003ull, T(lane0e), N("mov"), N("b32"), DST, LIMM },
 	{ 0x7600000000000002ull, 0x7fc0000000000003ull, N("texgrad"), T(texm), TDST, T(text), TCONST, T(texgrsrc1), T(texgrsrc2) },
 	{ 0x7700000000000002ull, 0x7fc0000000000003ull, N("texbar"), TEXBARIMM },
+	{ 0x7880000000000002ull, 0x7fc0000000000003ull, N("shfl"), T(shflmod), N("b32"), DST, PDST2, SRC1, T(sflane), T(sfmask)},
 	{ 0x7a00000000000002ull, 0x7fc0000000000003ull, N("ld"), T(lldstt), T(llcop), T(lldstd), LOCAL },
 	{ 0x7a40000000000002ull, 0x7fc0000000000003ull, N("ld"), T(lldstt), T(lldstd), SHARED },
 	{ 0x7a80000000000002ull, 0x7fc0000000000003ull, N("st"), T(lldstt), T(lscop), LOCAL, T(lldstd) },
 	{ 0x7ac0000000000002ull, 0x7fc0000000000003ull, N("st"), T(lldstt), SHARED, T(lldstd) },
+	{ 0x7b80000000000002ull, 0x7fc0000000000003ull, N("prefetch"), T(lvlca), GLOBALD },   //XXX: "cctl"? seems there's more here.
+	{ 0x7c00000000000002ull, 0x7fc0000000000003ull, N("prefetch"), T(lvlca), LOCAL },     //XXX: "cctl"? seems there's more here.
 	{ 0x7c80000000000002ull, 0x7fc0000000000003ull, N("ld"), T(lldstt), T(lldstd), LCONST },
+	{ 0x7cc00000001c0002ull, 0x7fc00000001c0c03ull, N("membar"), N("cta") },
+	{ 0x7cc00000001c0402ull, 0x7fc00000001c0c03ull, N("membar"), N("gl") },
+	{ 0x7cc00000001c0802ull, 0x7fc00000001c0c03ull, N("membar"), N("sys") },
 	{ 0x7d80000000000002ull, 0x7fc0000000000003ull, N("tex"), T(texm), T(lodt), TDST, T(text), N("ind"), T(texsrc1), T(texsrc2) },
 	{ 0x7e00000000000002ull, 0x7fc0000000000003ull, N("texgrad"), T(texm), TDST, T(text), N("ind"), T(texgrsrc1), T(texgrsrc2) },
-	{ 0x0540000000000002ull, 0x3fc0000000000002ull, N("bar"), BAR, OOPS},
+	{ 0x0540000800000002ull, 0x3fc0000800000003ull, N("bar"), N("arrive"), BAR, OOPS},
+	{ 0x0540000000000002ull, 0x3fc0000000000003ull, N("bar"), BAR, OOPS},
 	{ 0xe000000000000002ull, 0xffc0000000000003ull, N("ext"), T(rev2b), T(us32_33), DST, SRC1, SRC2},  //XXX? can't find CONST
+	{ 0xde00000000000002ull, 0xffc0000000000003ull, N("prmt"), T(prmtmod), N("b32"), DST, SRC1, SRC3, SRC2},
 	{ 0x0, 0x0, DST, SRC1, SRC2, SRC3, OOPS },
 };
 
@@ -1007,6 +1043,7 @@ static struct insn tabi[] = {
 	{ 0x2000000000000001ull, 0x3fc0000000000003ull, N("tex"), T(texm), T(lodt), TDST, T(text), T(tconst), T(texsrc1), T(texsrc2) },
 	{ 0x37c0000000000001ull, 0x37c0000000000003ull, N("lshf"), N("b32"), DST, SESTART, N("b64"), SRC1, SRC3, SEEND, T(shfclamp), T(sui2a) }, // d = (s3 << s2) | (s1 >> (32 - s2))
 	{ 0xc000000000000001ull, 0xffc0000000000003ull, N("ext"), T(rev2b), T(us32_33), DST, SRC1, I3BIMM},
+	{ 0xb600000000000001ull, 0xb7c0000000000003ull, N("prmt"), T(prmtmod), N("b32"), DST, SRC1, SRC3, I3BIMM},
 	{ 0x0, 0x0, DST, SRC1, SRC2, SRC3, I3BIMM, LIMM, DIMM, FIMM, SHCNT, SHCNL, OOPS },
 };
 
