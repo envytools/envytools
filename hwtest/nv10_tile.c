@@ -340,7 +340,9 @@ static int test_comp_size(struct hwtest_ctx *ctx) {
 		case 0x49:
 			expected = 0x47fff;
 			break;
-		/* XXX: 0x4b */
+		case 0x4b:
+			expected = 0x5cbff;
+			break;
 		default:
 			printf("Don't know expected comp size for NV%02X [%08x] - please report!\n", ctx->chipset, real);
 			return HWTEST_RES_UNPREP;
