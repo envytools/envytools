@@ -50,20 +50,21 @@
 	<reg32 offset="0x00" name="BASE" variants="NV20:NV50">
 		<bitfield pos="0" name="ENABLE" variants="NV20:NV44 NV47:NV46 NV49:NV4E"/>
 		<bitfield pos="1" name="BANKOFF" variants="NV20:NV30"/>
-		<bitfield low="0" high="1" name="MODE" variants="NV44:NV47">
+		<bitfield low="0" high="1" name="MODE" variants="NV44:NV47 NV46:NV49">
 			<value value="0" name="DISABLED"/>
 			<value value="1" name="VRAM"/>
 			<value value="2" name="GART"/>
 			<value value="3" name="GART_ALT"/>
 		</bitfield>
-		<bitfield low="0" high="2" name="MODE" variants="NV46:NV49 NV4E:NV50">
+		<bitfield low="0" high="2" name="MODE" variants="NV4E:NV50">
 			<value value="0" name="DISABLED"/>
 			<value value="1" name="VRAM"/>
 			<value value="2" name="GART"/>
 			<value value="3" name="GART_ALT"/>
 			<value value="4" name="VRAM_ALT"/>
 		</bitfield>
-		<bitfield pos="3" name="BANKOFF" variants="NV46:NV49 NV4E:NV50"/>
+		<bitfield pos="3" name="BANKOFF" variants="NV4E:NV50"/>
+		<bitfield pos="4" name="BANKOFF" variants="NV46:NV49"/>
 		<bitfield low="4" high="5" name="BANKOFF" variants="NV30:NV34 NV40:NV44 NV47:NV46 NV49:NV4E"/>
 		<bitfield low="14" high="31" name="BASE" shr="14" variants="NV20:NV40 NV44:NV47 NV46:NV49 NV4E:NV50"/>
 		<bitfield low="16" high="31" name="BASE" shr="16" variants="NV40:NV44 NV47:NV46 NV49:NV4E"/>

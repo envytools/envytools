@@ -60,7 +60,6 @@ int pfb_type(int chipset);
 int tile_pitch_valid(int chipset, uint32_t pitch, int *pshift, int *pfactor);
 int has_large_tile(int chipset);
 int tile_bankoff_bits(int chipset);
-int has_vram_alt_tile(int chipset);
 uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int mode, int bankoff, const struct mc_config *mcc, int *ppart, int *ptag);
 
 int is_igp(int chipset);

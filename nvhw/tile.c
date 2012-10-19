@@ -101,10 +101,6 @@ int num_tile_regions(int chipset) {
 	return is_g7x(chipset) ? 15 : 12;
 }
 
-int has_vram_alt_tile(int chipset) {
-	return pfb_type(chipset) == PFB_NV44 && chipset != 0x44 && chipset != 0x4a;
-}
-
 uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int mode, int bankoff, const struct mc_config *mcc, int *ppart, int *ptag) {
 	int bankshift = mcc->mcbits + mcc->partbits + mcc->colbits_lo;
 	int is_vram = mode == 1 || mode == 4;
@@ -237,7 +233,10 @@ uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int 
 		{
 			iaddr = ix | iy << 8;
 			baddr ^= y&1;
-			baddr ^= bankoff;
+			if (is_igp(chipset))
+				baddr ^= bankoff;
+			else
+				baddr ^= bankoff << 1;
 			if (mcc->mcbits + mcc->partbits + mcc->burstbits > 4 && is_vram && iaddr & 0x100)
 				iaddr ^= 0x10;
 			if (ppart || ptag)

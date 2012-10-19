@@ -170,12 +170,12 @@ static int test_scan(struct hwtest_ctx *ctx) {
 			break;
 	}
 	if (pfb_type(ctx->chipset) == PFB_NV44) {
-		if (has_vram_alt_tile(ctx->chipset))
-			bs_base |= 6;
+		if (is_igp(ctx->chipset))
+			bs_base |= 0xe;
+		else if (tile_bankoff_bits(ctx->chipset))
+			bs_base |= 0x12;
 		else
 			bs_base |= 2;
-		if (tile_bankoff_bits(ctx->chipset))
-			bs_base |= 8;
 	} else  {
 		switch (tile_bankoff_bits(ctx->chipset)) {
 			case 0:
@@ -214,18 +214,12 @@ static void set_tile(struct hwtest_ctx *ctx, int idx, uint32_t base, uint32_t li
 	nva_wr32(ctx->cnum, mmio+4, limit);
 	if (ctx->chipset < 0x20) {
 		nva_wr32(ctx->cnum, mmio, base | 0x80000000);
-	} else if (pfb_type(ctx->chipset) == PFB_NV44) {
-			nva_wr32(ctx->cnum, mmio, base | 1 | bankoff << 3);
-	} else switch (tile_bankoff_bits(ctx->chipset)) {
-		case 0:
-			nva_wr32(ctx->cnum, mmio, base | 1);
-			break;
-		case 1:
-			nva_wr32(ctx->cnum, mmio, base | 1 | bankoff << 1);
-			break;
-		case 2:
-			nva_wr32(ctx->cnum, mmio, base | 1 | bankoff << 4);
-			break;
+	} else if (is_igp(ctx->chipset)) {
+		nva_wr32(ctx->cnum, mmio, base | 1 | bankoff << 3);
+	} else if (ctx->chipset >= 0x30) {
+		nva_wr32(ctx->cnum, mmio, base | 1 | bankoff << 4);
+	} else {
+		nva_wr32(ctx->cnum, mmio, base | 1 | bankoff << 1);
 	}
 	nva_rd32(ctx->cnum, mmio);
 }
