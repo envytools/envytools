@@ -330,7 +330,7 @@ static int test_comp_size(struct hwtest_ctx *ctx) {
 		case 0x43:
 			expected = 0x5c7ff;
 			break;
-		case 0x47: /* guess */
+		case 0x47:
 		case 0x49:
 			expected = 0x47fff;
 			break;
