@@ -585,7 +585,7 @@ NVC1 [GF108]: 1:2:1:2
 NVC8 [GF110]: 4:4:6:1
 NVD9 [GF119]: 1:1:1:1
 NVE4 [GK104]: 4:2:4:1
-NVE7 [GK107]: ?:?:2:1
+NVE7 [GK107]: 1:2:2:1
 
 The pci device ids are:
 
@@ -599,4 +599,4 @@ core  hda  chipset
 108X+ 0e09 NVC8
 104X* 0e08 NVD9
 118X* 0e0a NVE4
-0fcX* ???? NVE7
+0fcX* 0e1b NVE7
