@@ -232,7 +232,8 @@ uint32_t tile_translate_addr(int chipset, uint32_t pitch, uint32_t address, int 
 		case PFB_NV44:
 		{
 			iaddr = ix | iy << 8;
-			baddr ^= y&1;
+			if (chipset != 0x4e)
+				baddr ^= y&1;
 			if (is_igp(chipset))
 				baddr ^= bankoff;
 			else
