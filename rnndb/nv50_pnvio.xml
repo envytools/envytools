@@ -83,8 +83,8 @@
 	</bitset>
 
 	<bitset name="nv50_pnvio_gpio_intr_0" inline="yes">
-		<bitfield low="0" high="15" name="0TO1_MASK_0"/>
-		<bitfield low="16" high="31" name="1TO0_MASK_0"/>
+		<bitfield low="0" high="15" name="RISE_MASK_0"/>
+		<bitfield low="16" high="31" name="FALL_MASK_0"/>
 	</bitset>
 
 	<bitset name="nv50_pnvio_i2c_intr" inline="yes">
@@ -115,8 +115,8 @@
 	</bitset>
 
 	<bitset name="nv50_pnvio_gpio_intr_1" inline="yes">
-		<bitfield low="0" high="15" name="0TO1_MASK_16"/>
-		<bitfield low="16" high="31" name="1TO0_MASK_16"/>
+		<bitfield low="0" high="15" name="RISE_MASK_16"/>
+		<bitfield low="16" high="31" name="FALL_MASK_16"/>
 	</bitset>
 
 	<group name="nv50_pnvio_i2c">

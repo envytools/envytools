@@ -72,9 +72,9 @@ MMIO 0x001098: DEBUG_6 [NV17:NV20, NV25-]
 The following registers deal with PBUS interrupts:
 
 001100 INTR - interrupt status [NV03-]
-001104 INTR_GPIO - GPIO interrupt status [NV40:NV50] [nv10-gpio.txt]
+001104 INTR_GPIO - GPIO interrupt status [NV31:NV50] [nv10-gpio.txt]
 001140 INTR - interrupt enable [NV03-]
-001144 INTR_GPIO_EN - GPIO interrupt enable [NV40:NV50] [nv10-gpio.txt]
+001144 INTR_GPIO_EN - GPIO interrupt enable [NV31:NV50] [nv10-gpio.txt]
 001144 INTE_EN_NRHOST - interrupt enable for the NRHOST line [NVC0-]
 001150 INTR_USER0_TRIGGER - user interrupt generation [NV50-]
 001154+i*4, i<4 INTR_USER0_SCRATCH - user interrupt generation [NV50-]
@@ -100,12 +100,20 @@ MMIO 0x001100: INTR [NV03-]
          IBUS [NVC0-] [see pibus.txt]
   bit 3: MMIO_FAULT - MMIO access from host failed due to other reasons
          [NV41-] [XXX: document]
+  bit 4: GPIO_0_RISE - GPIO #0 went from 0 to 1 [NV10:NV31] [nv10-gpio.txt]
   bit 7: HOST_MEM_TIMEOUT - an access to memory from host timed out [NVC0-]
          [see nvc0-host-mem.txt]
+  bit 8: GPIO_0_FALL - GPIO #0 went from 1 to 0 [NV10:NV31] [nv10-gpio.txt]
   bit 8: HOST_MEM_ZOMBIE - an access to memory from host thought to have timed
          out has finally succeeded [NVC0-] [see nvc0-host-mem.txt]
   bit 12: PEEPHOLE_W_PAIR_MISMATCH - violation of PEEPHOLE write port protocol
          [NV30:NVC0] [see peephole.txt]
+  bit 16: THERM_ALARM - Temperature is critical and requires actions
+          [NV43-] [nv43-therm.txt ptherm.txt]
+  bit 17: THERM_THRS_LOW - Temperature is lower than TEMP_RANGE.LOW
+          [NV43:NV50] [nv43-therm.txt]
+  bit 18: THERM_THRS_HIGH - Temperature is higher than TEMP_RANGE.HIGH
+          [NV43:NV50] [nv43-therm.txt]
   bit 26: USER0 - user interrupt #0 [NV50-] [see below]
   bit 28: USER1 - user interrupt #1. Note that this interrupt cannot be
           enabled for delivery to NRHOST line. [NVC0-] [see below]

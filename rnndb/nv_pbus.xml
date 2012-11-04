@@ -33,17 +33,25 @@
 			<bitfield pos="1" name="MMIO_DISABLED_ENG" variants="NVC0-"/>
 			<bitfield pos="2" name="MMIO_IBUS_ERR" variants="NVC0-"/>
 			<bitfield pos="3" name="MMIO_FAULT" variants="NV41-"/>
+			<bitfield pos="4" name="GPIO_0_RISE" variants="NV10:NV31"/>
 			<bitfield pos="7" name="HOST_MEM_TIMEOUT" variants="NVC0-"/>
+			<bitfield pos="8" name="GPIO_0_FALL" variants="NV10:NV31"/>
 			<bitfield pos="8" name="HOST_MEM_ZOMBIE" variants="NVC0-"/>
 			<bitfield pos="12" name="PEEPHOLE_W_PAIR_MISMATCH" variants="NV30:NVC0"/>
-			<bitfield pos="16" name="THERM_ALARM" variants="NV43:NV50" />
+			<bitfield pos="16" name="THERM_ALARM" variants="NV43:NVA3" /> <!-- but they forgot to get rid of it until nvc0 -->
 			<bitfield pos="17" name="THERM_THRS_LOW" variants="NV43:NV50" />
 			<bitfield pos="18" name="THERM_THRS_HIGH" variants="NV43:NV50" />
 			<bitfield pos="26" name="USER" variants="NV50-" />
 			<bitfield pos="28" name="USER2" variants="NVC0-" /> <!-- NOTE: not in INTR_EN_NRHOST -->
 		</bitset>
+		<bitset name="nv_pbus_intr_gpio" inline="yes">
+			<bitfield low="0" high="12" name="RISE_MASK" />
+			<bitfield low="16" high="28" name="FALL_MASK" />
+		</bitset>
 		<reg32 offset="0x100" name="INTR" type="nv_pbus_intr"/>
+		<reg32 offset="0x104" name="INTR_GPIO" variants="NV31:NV50" type="nv_pbus_intr_gpio"/>
 		<reg32 offset="0x140" name="INTR_EN" type="nv_pbus_intr"/> <!-- affects PMC.INTR_HOST and PMC.INTR_DAEMON only -->
+		<reg32 offset="0x144" name="INTR_GPIO_EN" variants="NV31:NV50" type="nv_pbus_intr_gpio"/>
 		<reg32 offset="0x144" name="INTR_EN_NRHOST" type="nv_pbus_intr" variants="NVC0-"/> <!-- affects PMC.INTR_NRHOST only, conspiciously missing bit 28 [USER2] -->
 		<reg32 offset="0x150" name="INTR_USER0_TRIGGER" variants="NV50-"/>
 		<reg32 offset="0x154" name="INTR_USER0_SCRATCH" length="4" variants="NV50-"/>
