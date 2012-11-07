@@ -197,7 +197,7 @@ NV10-style 3d objects:
 
 0056 [NV10:NV30] NV10_3D - Celsius Direct3D 7 engine		[nv10-3d.txt]
 0096 [NV10:NV30] NV15_3D - Celsius Direct3D 7 engine		[nv10-3d.txt]
-0098 [NV17:NV30] NV11_3D - Celsius Direct3D 7 engine		[nv10-3d.txt]
+0098 [NV17:NV20] NV11_3D - Celsius Direct3D 7 engine		[nv10-3d.txt]
 0099 [NV17:NV20] NV17_3D - Celsius Direct3D 7 engine		[nv10-3d.txt]
 0097 [NV20:NV34] NV20_3D - Kelvin Direct3D 8 SM 1 engine	[nv20-3d.txt]
 0597 [NV25:NV40] NV25_3D - Kelvin Direct3D 8 SM 1 engine	[nv20-3d.txt]

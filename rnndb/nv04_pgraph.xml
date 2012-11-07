@@ -7,6 +7,33 @@
 <import file="nv_object.xml" />
 <import file="nv01_2d.xml" />
 
+<enum name="NV04_PGRAPH_COLOR_FORMAT" varset="chipset">
+	<value value="0x00" name="INVALID"/>
+	<value value="0x01" name="Y8"/>
+	<value value="0x02" name="X16A8Y8"/>
+	<value value="0x03" name="X24Y8"/>
+
+	<value value="0x06" name="A1R5G5B5"/>
+	<value value="0x07" name="X1R5G5B5"/>
+	<value value="0x08" name="X16A1R5G5B5"/>
+	<value value="0x09" name="X17R5G5B5"/>
+	<value value="0x0a" name="R5G6B5"/>
+	<value value="0x0b" name="A16R5G6B5"/>
+	<value value="0x0c" name="X16R5G6B5"/>
+	<value value="0x0d" name="A8R8G8B8"/>
+	<value value="0x0e" name="X8R8G8B8"/>
+
+	<value value="0x11" name="UNK11"/>
+	<value value="0x12" name="V8YB8U8YA8"/>
+	<value value="0x13" name="YB8V8YA8U8"/>
+
+	<value value="0x15" name="AY8" variants="NV10-"/>
+	<value value="0x16" name="UNK16" variants="NV11-"/>
+	<value value="0x17" name="UNK17" variants="NV11-"/>
+	<value value="0x18" name="UNK18" variants="NV30-"/>
+	<value value="0x19" name="UNK19" variants="NV30-"/>
+</enum>
+
 <bitset name="nv04_grobj_0" inline="yes">
 	<bitfield high="7" low="0" name="GRCLASS" type="obj-class"/>
 	<bitfield pos="12" name="CHROMA_KEY"/>
@@ -24,8 +51,12 @@
 </bitset>
 
 <bitset name="nv04_grobj_1" inline="yes">
-	<bitfield high="1" low="0" name="MONO_FORMAT"/>
-	<bitfield high="13" low="8" name="COLOR_FORMAT"/>
+	<bitfield high="1" low="0" name="MONO_FORMAT">
+		<value value="0" name="INVALID"/>
+		<value value="1" name="CGA6"/>
+		<value value="2" name="LE"/>
+	</bitfield>
+	<bitfield high="13" low="8" name="COLOR_FORMAT" type="NV04_PGRAPH_COLOR_FORMAT"/>
 	<bitfield high="31" low="16" name="NOTIFY_INST" shr="4"/>
 </bitset>
 
