@@ -131,6 +131,8 @@ void easm_print_sexpr(FILE *out, const struct envy_colors *cols, struct easm_exp
 		fprintf(out, "%s", cols->reset);
 	} else if (expr->type == EASM_EXPR_DISCARD) {
 		fprintf(out, "%s#%s", cols->sym, cols->reset);
+	} else if (expr->type == EASM_EXPR_ZVEC) {
+		fprintf(out, "%s()%s", cols->sym, cols->reset);
 	} else if (expr->type == EASM_EXPR_SINSN) {
 		fprintf(out, "%s(%s", cols->sym, cols->reset);
 		easm_print_sinsn(out, cols, expr->sinsn);

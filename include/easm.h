@@ -81,6 +81,7 @@ struct easm_expr {
 		EASM_EXPR_MEMPE,
 		EASM_EXPR_MEMME,
 		EASM_EXPR_POS,
+		EASM_EXPR_ZVEC,
 	} type;
 	enum easm_expr_special {
 		EASM_SPEC_NONE,

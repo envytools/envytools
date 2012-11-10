@@ -355,6 +355,8 @@ void atomvec_d DPROTO {
 		else
 			expr = sexpr;
 	}
+	if (!expr)
+		expr = easm_expr_simple(EASM_EXPR_ZVEC);
 	ADDARRAY(ctx->atoms, makeli(expr));
 }
 

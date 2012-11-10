@@ -598,11 +598,13 @@ struct matches *atomvec_a APROTO {
 	const struct easm_expr **vexprs = 0;
 	int vexprsnum = 0;
 	int vexprsmax = 0;
-	while (expr->type == EASM_EXPR_VEC) {
-		ADDARRAY(vexprs, expr->e2);
-		expr = expr->e1;
+	if (expr->type != EASM_EXPR_ZVEC) {
+		while (expr->type == EASM_EXPR_VEC) {
+			ADDARRAY(vexprs, expr->e2);
+			expr = expr->e1;
+		}
+		ADDARRAY(vexprs, expr);
 	}
-	ADDARRAY(vexprs, expr);
 	int i;
 	for (i = 0; i < vexprsnum/2; i++) {
 		const struct easm_expr *tmp = vexprs[i];
