@@ -47,6 +47,9 @@ int main(int argc, char **argv) {
 	ctx->colors = 1;
 	ctx->noslow = 0;
 	ctx->indent = 0;
+	ctx->rand48[0] = 0xdead;
+	ctx->rand48[1] = 0xbeef;
+	ctx->rand48[2] = 0xcafe;
 	while ((c = getopt (argc, argv, "c:ns")) != -1)
 		switch (c) {
 			case 'c':

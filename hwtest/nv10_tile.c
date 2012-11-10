@@ -573,9 +573,9 @@ static int test_comp_format(struct hwtest_ctx *ctx) {
 	int sh = 0x80;
 	for (f = 0; f < formats; f++) {
 		for (i = 0; i < 10000; i++) {
-			int x = rand() % pitch;
+			int x = jrand48(ctx->rand48) % pitch;
 			x &= -tw;
-			int y = rand() % sh;
+			int y = jrand48(ctx->rand48) % sh;
 			y &= -th;
 			uint32_t addr = x + y * pitch;
 			int tag;
@@ -586,7 +586,7 @@ static int test_comp_format(struct hwtest_ctx *ctx) {
 			comp_wr32(ctx->cnum, part, tag >> 3, 0);
 			unset_comp(ctx, 0);
 			for (k = 0; k < tsz; k++)
-				src[k] = rand() & 0xff;
+				src[k] = jrand48(ctx->rand48) & 0xff;
 			for (k = 0; k < tsz; k += 4) {
 				uint32_t val = 0;
 				int z;
@@ -594,7 +594,7 @@ static int test_comp_format(struct hwtest_ctx *ctx) {
 					val |= src[k+z] << z*8;
 				vram_wr32(ctx->cnum, addr + k % tw + k / tw * pitch, val);
 			}
-			int tv = rand() & 1;
+			int tv = jrand48(ctx->rand48) & 1;
 			set_comp(ctx, 0, f, 0, 0xffffffff);
 			comp_wr32(ctx->cnum, part, tag >> 3, tv << (tag & 0x1f));
 			for (x = 0; x < tw; x++)

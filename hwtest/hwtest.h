@@ -34,6 +34,7 @@ struct hwtest_ctx {
 	int noslow;
 	int colors;
 	int indent;
+	unsigned short rand48[3];
 };
 
 struct hwtest_test {

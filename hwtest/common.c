@@ -49,6 +49,10 @@ int hwtest_run_group(struct hwtest_ctx *ctx, const struct hwtest_group *group, c
 		ctx->indent++;
 	int found = 0;
 	for (i = 0; i < group->testsnum; i++) {
+		struct hwtest_ctx nctx = *ctx;
+		nctx.rand48[0] = jrand48(ctx->rand48);
+		nctx.rand48[1] = jrand48(ctx->rand48);
+		nctx.rand48[2] = jrand48(ctx->rand48);
 		if (filter && (strlen(group->tests[i].name) != flen || strncmp(group->tests[i].name, filter, flen)))
 			continue;
 		found = 1;
@@ -59,14 +63,14 @@ int hwtest_run_group(struct hwtest_ctx *ctx, const struct hwtest_group *group, c
 		} else {
 			int res;
 			if (group->tests[i].fun) {
-				res = group->tests[i].fun(ctx);
+				res = group->tests[i].fun(&nctx);
 			} else {
 				if (!fnext) {
 					for (j = 0; j < ctx->indent; j++)
 						printf("  ");
 					printf("%s...\n", group->tests[i].name);
 				}
-				res = hwtest_run_group(ctx, group->tests[i].group, fnext);
+				res = hwtest_run_group(&nctx, group->tests[i].group, fnext);
 			}
 			if (worst < res)
 				worst = res;
