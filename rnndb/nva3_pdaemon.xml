@@ -6,7 +6,7 @@
 
 <import file="nvchipsets.xml" />
 <import file="nv98_fuc.xml" />
-<import file="nv84_ptherm.xml" />
+<import file="nv50_ptherm.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
@@ -363,7 +363,7 @@
 	<reg32 offset="0x7f4" name="INPUT1_RISE_INTR_EN" type="nva3_pdaemon_input1" variants="NVC0-"/>
 	<reg32 offset="0x7f8" name="INPUT1_FALL_INTR_EN" type="nva3_pdaemon_input1" variants="NVC0-"/>
 	<array offset="0x800" name="THERM" stride="0x7e0" length="1" variants="NVA3:NVD9"> <!-- note: larger in I[] space -->
-		<use-group name="nv84_therm"/>
+		<use-group name="nv50_therm"/>
 	</array>
 	<!-- 800+: NVD9+ unknown crap -->
 </array>

@@ -74,7 +74,6 @@
 
 <!-- 020000 - 020fff PTHERM -->
 <import file="nv50_ptherm.xml" />
-<import file="nv84_ptherm.xml" />
 
 <!-- 021000 - 021fff PFUSE -->
 <import file="nv50_pfuse.xml" />
