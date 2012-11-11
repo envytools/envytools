@@ -36,7 +36,7 @@
 <group name="nv84_therm">
 	<reg32 offset="0x000" name="INTR_DIRECTION">
 		<!-- group direction bits together to shorten the output of this reg in lookup -->
-		<bitfield low="0" high="1" name="TEMP_THRESHOLD_0" type="nv84_therm_intr_direction" />
+		<bitfield low="0" high="1" name="TEMP_THRESHOLD_CRIT" type="nv84_therm_intr_direction" />
 		<bitfield low="2" high="3" name="TEMP_THRESHOLD_1" type="nv84_therm_intr_direction" />
 		<bitfield low="4" high="5" name="TEMP_THRESHOLD_2" type="nv84_therm_intr_direction" />
 		<bitfield low="6" high="7" name="TEMP_THRESHOLD_3" type="nv84_therm_intr_direction" />
@@ -89,7 +89,7 @@
 		<doc>One bit per interrupt, 0 selects delivery to PMC line 19, 1 selects delivery
 		to PDAEMON fµc interrupt 12</doc>
 	</reg32>
-	<reg32 offset="0x100" name="INTR" type="nv84_therm_intr" /> <!-- XXX: has something to do with PBUS interrupt 16? -->
+	<reg32 offset="0x100" name="INTR" type="nv84_therm_intr" /> <!-- PBUS intr #16 -->
 	<reg32 offset="0x134" name="INTR_EN" type="nv84_therm_intr" variants="NVA3-"/>
 
 	<!-- i2c-slave range -->
@@ -101,16 +101,16 @@
 		<reg32 offset="0x8" name="STATUS" type="nv84_therm_i2c_sensor_state" />
 		<reg32 offset="0xc" name="STATUS_EN" type="nv84_therm_i2c_sensor_state" />
 
-		<reg32 offset="0x14" name="THRESHOLD_4" /> <!-- Threshold 1 HIGH -->
-		<reg32 offset="0x18" name="THRESHOLD_3" /> <!-- Threshold 1 LOW -->
+		<reg32 offset="0x14" name="THRESHOLD_4" /> <!-- Window 1 HIGH -->
+		<reg32 offset="0x18" name="THRESHOLD_3" /> <!-- Window 1 LOW -->
 
 		<reg32 offset="0x44" name="TEMP_LOW" />
 
 		<reg32 offset="0x80" name="THRESHOLD_CRIT" />
 		<reg32 offset="0x84" name="THRESHOLD_CRIT_HYST" />
 
-		<reg32 offset="0xc0" name="THRESHOLD_2" /> <!-- Threshold 0 HIGH -->
-		<reg32 offset="0xc4" name="THRESHOLD_1" /> <!-- Threshold 1 LOW -->
+		<reg32 offset="0xc0" name="THRESHOLD_2" /> <!-- Window 0 HIGH -->
+		<reg32 offset="0xc4" name="THRESHOLD_1" /> <!-- Window 0 LOW -->
 
 		<reg32 offset="0xc8" name="SENSOR_CALIB">
 			<!-- On my nv84, the output is roughly:
