@@ -27,7 +27,7 @@
 	<value value="0x1b" name="PCOPY2" variants="NVE4-"/>
 </enum>
 
-<enum name="NVC0_VM_HUBCLIENT">
+<enum name="NVC0_VM_HUBCLIENT" varset="chipset">
 	<value value="0x01" name="PCOPY0"/>
 	<value value="0x02" name="PCOPY1"/>
 	<value value="0x03" name="PDISPLAY"/> <!-- EVO, DAEMON, etc. -->
