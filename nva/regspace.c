@@ -170,6 +170,22 @@ int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val) {
 			nva_wr32(regspace->cnum, vstbase+0x8, savecfg);
 			nva_wr32(regspace->cnum, vstbase+0xc, savepos);
 			return 0;
+		case NVA_REGSPACE_PIPE:
+			if (regspace->card->card_type < 0x10 || regspace->card->card_type >= 0x50)
+				return NVA_ERR_NOSPC;
+			if (regspace->regsz != 4)
+				return NVA_ERR_REGSZ;
+			nva_wr32(regspace->cnum, 0x400f50, addr);
+			nva_wr32(regspace->cnum, 0x400f54, val);
+			return 0;
+		case NVA_REGSPACE_RDI:
+			if (regspace->card->card_type < 0x20 || regspace->card->card_type >= 0x50)
+				return NVA_ERR_NOSPC;
+			if (regspace->regsz != 4)
+				return NVA_ERR_REGSZ;
+			nva_wr32(regspace->cnum, 0x400750, addr);
+			nva_wr32(regspace->cnum, 0x400754, val);
+			return 0;
 		default:
 			return NVA_ERR_NOSPC;
 	}
@@ -315,6 +331,22 @@ int nva_rd(struct nva_regspace *regspace, uint32_t addr, uint64_t *val) {
 			nva_wr32(regspace->cnum, vstbase+0x8, savecfg);
 			nva_wr32(regspace->cnum, vstbase+0xc, savepos);
 			return 0;
+		case NVA_REGSPACE_PIPE:
+			if (regspace->card->card_type < 0x10 || regspace->card->card_type >= 0x50)
+				return NVA_ERR_NOSPC;
+			if (regspace->regsz != 4)
+				return NVA_ERR_REGSZ;
+			nva_wr32(regspace->cnum, 0x400f50, addr);
+			*val = nva_rd32(regspace->cnum, 0x400f54);
+			return 0;
+		case NVA_REGSPACE_RDI:
+			if (regspace->card->card_type < 0x20 || regspace->card->card_type >= 0x50)
+				return NVA_ERR_NOSPC;
+			if (regspace->regsz != 4)
+				return NVA_ERR_REGSZ;
+			nva_wr32(regspace->cnum, 0x400750, addr);
+			*val = nva_rd32(regspace->cnum, 0x400754);
+			return 0;
 		default:
 			return NVA_ERR_NOSPC;
 	}
@@ -351,6 +383,10 @@ int nva_rstype(const char *name) {
 		return NVA_REGSPACE_VGA_CR;
 	if (!strcmp(name, "vst"))
 		return NVA_REGSPACE_VGA_ST;
+	if (!strcmp(name, "pipe"))
+		return NVA_REGSPACE_PIPE;
+	if (!strcmp(name, "rdi"))
+		return NVA_REGSPACE_RDI;
 	return -1;
 }
 
@@ -359,6 +395,8 @@ int nva_rsdefsz(struct nva_regspace *regspace) {
 		case NVA_REGSPACE_BAR0:
 		case NVA_REGSPACE_BAR1:
 		case NVA_REGSPACE_BAR2:
+		case NVA_REGSPACE_PIPE:
+		case NVA_REGSPACE_RDI:
 			return 4;
 		default:
 			return 1;
