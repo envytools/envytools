@@ -1,7 +1,8 @@
 project(ENVYTOOLS C)
 cmake_minimum_required(VERSION 2.6)
 
-add_library(nvhw chipset.c tile.c comp.c)
+add_library(nvhw chipset.c tile.c comp.c
+	pgraph.c)
 
 install(TARGETS nvhw
 	RUNTIME DESTINATION bin
