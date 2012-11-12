@@ -282,6 +282,10 @@
 		<reg32 offset="4" name="DATA"/>
 	</array>
 
+	<reg32 offset="0xe4" name="UNK0E4">
+		<bitfield pos="2" name="COPY_COND_OFF"/>
+	</reg32>
+
 	<reg32 offset="0xf0" name="PRECACHE_2"/>
 
 	<bitset name="nvc0_psubfifo_intr" inline="yes">
@@ -307,6 +311,9 @@
 	<reg32 offset="0x13c" name="INTR_HALT_MASK" type="nvc0_psubfifo_intr"/>
 
 	<bitset name="nvc0_psubfifo_copy_intr" inline="yes">
+		<!-- XXX: figure these out -->
+		<bitfield pos="0" name="ILLEGAL_ENUM"/> <!-- invalid cond mode -->
+		<bitfield pos="1" name="ILLEGAL_STATE"/> <!-- COND_MODE with unaligned COND_ADDR -->
 		<bitfield pos="2" name="ILLEGAL_VALUE"/>
 		<bitfield pos="3" name="ILLEGAL_MTHD"/>
 		<bitfield pos="4" name="ILLEGAL_CLASS"/>
@@ -323,7 +330,7 @@
 		<reg32 offset="0x08" name="QUERY_SEQUENCE"/>
 		<reg32 offset="0x0c" name="COND_ADDRESS_HIGH"/>
 		<reg32 offset="0x10" name="COND_ADDRESS_LOW"/>
-		<reg32 offset="0x14" name="COND_ENABLE"/>
+		<reg32 offset="0x14" name="COND_MODE"/>
 		<reg32 offset="0x18" name="UNK260"/>
 		<reg32 offset="0x1c" name="UNK264"/>
 		<reg32 offset="0x20" name="SRC_ADDRESS_HIGH"/>

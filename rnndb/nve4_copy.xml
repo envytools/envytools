@@ -5,6 +5,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="copyright.xml"/>
 <import file="nvchipsets.xml"/>
 <import file="nv_object.xml"/>
+<import file="nv50_defs.xml"/>
+
 <domain name="NV01_SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NVE4_COPY">
 		<reg32 offset="0x100" name="NOP"/>
@@ -14,14 +16,26 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x248" name="QUERY_COUNTER"/>
 		<reg32 offset="0x254" name="COND_ADDRESS_HIGH"/>
 		<reg32 offset="0x258" name="COND_ADDRESS_LOW"/>
-		<reg32 offset="0x25c" name="COND_MODE"/>
+		<reg32 offset="0x25c" name="COND_MODE" type="nv50_cond_mode"/>
 		<reg32 offset="0x260" name="UNK260"/>
 		<reg32 offset="0x264" name="UNK264"/>
 		<reg32 offset="0x300" name="EXEC">
-			<bitfield pos="0" name="QUERY_WRITE"/>
-			<bitfield pos="1" name="UNK1"/>
-			<bitfield pos="2" name="UNK_QUERY2"/>
-			<bitfield pos="4" name="UNK_QUERY4"/>
+			<bitfield low="0" high="1" name="COPY_MODE">
+				<value value="0" name="NONE"/>
+				<value value="1" name="UNK1"/>
+				<value value="2" name="UNK2"/>
+			</bitfield>
+			<bitfield pos="2" name="FLUSH"/>
+			<bitfield low="3" high="4" name="QUERY">
+				<value value="0" name="NONE"/>
+				<value value="1" name="SHORT"/>
+				<value value="2" name="LONG"/>
+			</bitfield>
+			<bitfield low="5" high="6" name="INTR">
+				<value value="0" name="NONE"/>
+				<value value="1" name="BLOCK"/>
+				<value value="2" name="NONBLOCK"/>
+			</bitfield>
 			<bitfield low="7" high="7" name="SRC_MODE">
 				<value value="0" name="2D_LINEAR"/>
 				<value value="1" name="3D_TILED"/>
