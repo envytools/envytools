@@ -148,10 +148,10 @@
 	<reg32 offset="0x464" name="UCLIP_XMAX_ABS"/>
 	<reg32 offset="0x468" name="UCLIP_YMIN_ABS"/>
 	<reg32 offset="0x46c" name="UCLIP_YMAX_ABS"/>
-	<reg32 offset="0x560" name="UCLIP_XMIN_ABS" access="w"/>
-	<reg32 offset="0x564" name="UCLIP_XMAX_ABS" access="w"/>
-	<reg32 offset="0x568" name="UCLIP_YMIN_ABS" access="w"/>
-	<reg32 offset="0x56c" name="UCLIP_YMAX_ABS" access="w"/>
+	<reg32 offset="0x560" name="UCLIP_XMIN_REL" access="w"/>
+	<reg32 offset="0x564" name="UCLIP_XMAX_REL" access="w"/>
+	<reg32 offset="0x568" name="UCLIP_YMIN_REL" access="w"/>
+	<reg32 offset="0x56c" name="UCLIP_YMAX_REL" access="w"/>
 	<!-- non-volatile state -->
 	<reg32 offset="0x600" name="PATTERN_MONO_COLOR_RGB" stride="8" length="2"/>
 	<reg32 offset="0x604" name="PATTERN_MONO_COLOR_A" stride="8" length="2"/>
