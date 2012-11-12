@@ -182,6 +182,22 @@
 	</array>
 </array>
 
+<array offset="0x800000" name="PFIFO_CHAN" stride="8" length="0x1000" variants="NVE4-">
+	<reg32 offset="0" name="CHAN">
+		<bitfield low="0" high="29" name="nv50_channel"/>
+		<bitfield pos="31" name="UNK31"/>
+	</reg32>
+	<reg32 offset="4" name="STATE">
+		<bitfield pos="0" name="ENABLED"/>
+		<bitfield pos="9" name="UNK9_TRIGGER"/> <!-- sets UNK24, UNK28 -->
+		<bitfield pos="10" name="ENABLE_TRIGGER"/>
+		<bitfield pos="11" name="DISABLE_TRIGGER"/>
+		<bitfield low="16" high="19" name="ENGINE" type="nvc0_pfifo_engine"/>
+		<bitfield low="24" high="26" name="UNK24_RO"/>
+		<bitfield pos="28" name="UNK28_RO"/>
+	</reg32>
+</array>
+
 <array name="PSUBFIFO" offset="0x40000" stride="0x2000" length="3" variants="NVC0-">
 	<reg32 offset="0x00" name="IB_PUT"/>
 
