@@ -21,6 +21,11 @@ Version 4 unknown caps: 31
 Unified address space: no
 IO addressing type: indexed
 Core clock: VDCLK
+NV50 VM engine: 0x8
+NV50 VM client: 0x06
+NV50 context DMA: 0x6
+NVC0 VM engine: 0x11
+NVC0 VM client: HUB 0x0c
 
 The IO registers:
 

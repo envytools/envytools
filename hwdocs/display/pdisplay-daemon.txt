@@ -18,6 +18,8 @@ Version 4 unknown caps: 31
 Unified address space: no
 IO adressing type: full
 Core clock: ??? [XXX]
+NVC0 VM engine: none
+NVC0 VM client: HUB 0x03 [shared with rest of PDISPLAY]
 
 [XXX: IO regs]
 

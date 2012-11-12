@@ -13,6 +13,9 @@ Code ports: 1
 Data ports: 1
 IO addressing type: indexed
 Core clock: ??? [XXX]
+NV50 VM engine: ??? [XXX]
+NV50 VM client: ??? [XXX]
+NV50 context DMA: 0xa
 
 [XXX: IO regs]
 [XXX: MEMIF ports]

@@ -10,6 +10,9 @@ Xfer slots: 8
 Secretful: yes
 IO addressing type: indexed
 Core clock: NVCLK [XXX: divider in 1530?]
+NV50 VM engine: 0xa
+NV50 VM client: 0x0e
+NV50 context DMA: 0xa
 
 The IO registers:
 

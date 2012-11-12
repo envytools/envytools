@@ -103,6 +103,11 @@ IO addressing type:
 	d0,d1,d2: indexed
 	d3,d4: simple
 Core clock: daemon clock
+NV50 VM engine: 0xe
+NV50 VM client: 0x11
+NV50 context DMA: none
+NVC0 VM engine: 0x17
+NVC0 VM client: HUB 0x12
 
 Interrupts:
   8: [E] MEMIF_TARGET_INVALID [NVA3:NVC0] [fuc-memif.txt]
