@@ -41,7 +41,7 @@ NVC0 VM engine:
 NVC0 VM client:
 	engine #0: HUB 0x01
 	engine #1: HUB 0x02
-	engine #2: HUB ??? [XXX]
+	engine #2: HUB 0x18
 
 The IO registers:
 

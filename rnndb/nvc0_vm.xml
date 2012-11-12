@@ -49,6 +49,8 @@
 	<value value="0x14" name="CCACHE"/>
 	<value value="0x15" name="CCACHE_NB"/>
 
+	<value value="0x18" name="PCOPY2" variants="NVE4-"/>
+
 	<value value="0x1a" name="MMU_NB"/> <!-- what the fuck? -->
 	<value value="0x1b" name="PVENC" variants="NVE4-"/>
 
