@@ -6,7 +6,7 @@ pkg_check_modules(PC_PCIACCESS pciaccess)
 
 if (PC_PCIACCESS_FOUND)
 
-add_executable(hwtest hwtest.c common.c vram.c nv10_tile.c)
+add_executable(hwtest hwtest.c common.c vram.c nv01_pgraph.c nv10_tile.c)
 target_link_libraries(hwtest nva nvhw)
 
 install(TARGETS hwtest
