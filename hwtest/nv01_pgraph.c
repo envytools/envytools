@@ -272,19 +272,6 @@ static int test_scan_vtx(struct hwtest_ctx *ctx) {
 		if (i < 14)
 			TEST_BITSCAN(0x400700 + i * 4, 0x01ffffff, 0);
 	}
-	/* relative */
-	for (i = 0; i < 1000; i++) {
-		int idx = nrand48(ctx->rand48) % 18;
-		int xy = jrand48(ctx->rand48) & 1;
-		uint32_t canv_min = jrand48(ctx->rand48);
-		nva_wr32(ctx->cnum, 0x400688, canv_min);
-		uint32_t val = jrand48(ctx->rand48);
-		uint32_t cm = canv_min >> xy * 16 & 0xffff;
-		uint32_t exp = (int16_t)cm + val;
-		nva_wr32(ctx->cnum, 0x400500 + idx * 4 + xy * 0x80, val);
-		TEST_READ(0x400400 + idx * 4 + xy * 0x80, exp, "cm %08x val %08x", cm, val);
-		TEST_READ(0x400c00 + idx * 4 + xy * 0x80, exp, "cm %08x val %08x", cm, val);
-	}
 	return HWTEST_RES_PASS;
 }
 
@@ -312,23 +299,6 @@ static int test_scan_clip(struct hwtest_ctx *ctx) {
 		v2 &= 0x3ffff;
 		TEST_READ(0x400460 + idx * 8, v1, "v0 %08x v1 %08x v2 %08x", v0, v1, v2);
 		TEST_READ(0x400464 + idx * 8, v2, "v0 %08x v1 %08x v2 %08x", v0, v1, v2);
-	}
-	/* relative */
-	for (i = 0; i < 1000; i++) {
-		int idx = jrand48(ctx->rand48) & 1;
-		uint32_t canv_min = jrand48(ctx->rand48);
-		nva_wr32(ctx->cnum, 0x400688, canv_min);
-		uint32_t val = jrand48(ctx->rand48);
-		uint32_t cm = canv_min >> idx * 16 & 0xffff;
-		uint32_t r = jrand48(ctx->rand48);
-		uint32_t exp = ((int16_t)cm + val) & 0x3ffff;
-		if (r&1) {
-			nva_wr32(ctx->cnum, 0x400550 + idx * 4, val);
-			TEST_READ(0x400450 + idx * 4, exp, "cm %08x val %08x", cm, val);
-		} else {
-			nva_wr32(ctx->cnum, 0x400560 + idx * 8 + (r & 2) * 2, val);
-			TEST_READ(0x400464 + idx * 8, exp, "cm %08x val %08x", cm, val);
-		}
 	}
 	return HWTEST_RES_PASS;
 }
