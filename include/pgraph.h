@@ -88,5 +88,6 @@ uint32_t nv01_pgraph_expand_a1r10g10b10(uint32_t ctx, uint32_t config, uint32_t 
 uint32_t nv01_pgraph_expand_mono(uint32_t ctx, uint32_t mono);
 void nv01_pgraph_clip_bounds(struct nv01_pgraph_state *state, uint32_t min[2], uint32_t max[2]);
 void nv01_pgraph_vtx_fixup(struct nv01_pgraph_state *state, int xy, int idx);
+void nv01_pgraph_iclip_fixup(struct nv01_pgraph_state *state, int xy, int32_t coord);
 
 #endif

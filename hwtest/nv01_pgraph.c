@@ -523,6 +523,29 @@ static int test_mmio_vtx16_write(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mmio_iclip_write(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		int xy = jrand48(ctx->rand48) & 1;
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		nv01_pgraph_load_state(ctx, &exp);
+		uint32_t reg = 0x400450 + xy * 4;
+		uint32_t val = jrand48(ctx->rand48);
+		nva_wr32(ctx->cnum, reg, val);
+		exp.iclip[xy] = val & 0x3ffff;
+		nv01_pgraph_iclip_fixup(&exp, xy, val);
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			nv01_pgraph_print_state(&exp);
+			printf("After writing %08x <- %08x\n", reg, val);
+			printf("Iteration %d\n", i);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_mthd_beta(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
@@ -720,6 +743,10 @@ static int scan_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int state_prep(struct hwtest_ctx *ctx) {
+	return HWTEST_RES_PASS;
+}
+
 static int ctx_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -735,6 +762,15 @@ HWTEST_DEF_GROUP(scan,
 	HWTEST_TEST(test_scan_vstate, 0),
 )
 
+HWTEST_DEF_GROUP(state,
+	HWTEST_TEST(test_state, 0),
+	HWTEST_TEST(test_soft_reset, 0),
+	HWTEST_TEST(test_mmio_read, 0),
+	HWTEST_TEST(test_mmio_vtx16_write, 0),
+	HWTEST_TEST(test_mmio_iclip_write, 0),
+	HWTEST_TEST(test_mmio_clip_status, 0),
+)
+
 HWTEST_DEF_GROUP(ctx_mthd,
 	HWTEST_TEST(test_mthd_ctx_invalid, 0),
 	HWTEST_TEST(test_mthd_beta, 0),
@@ -748,10 +784,6 @@ HWTEST_DEF_GROUP(ctx_mthd,
 
 HWTEST_DEF_GROUP(nv01_pgraph,
 	HWTEST_GROUP(scan),
-	HWTEST_TEST(test_state, 0),
-	HWTEST_TEST(test_soft_reset, 0),
-	HWTEST_TEST(test_mmio_read, 0),
-	HWTEST_TEST(test_mmio_vtx16_write, 0),
-	HWTEST_TEST(test_mmio_clip_status, 0),
+	HWTEST_GROUP(state),
 	HWTEST_GROUP(ctx_mthd),
 )
