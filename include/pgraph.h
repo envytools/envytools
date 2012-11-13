@@ -84,4 +84,8 @@ struct nv01_pgraph_state {
 	uint32_t pfb_config;
 };
 
+void nv01_pgraph_expand_color(uint32_t ctx, uint32_t config, uint32_t color, uint32_t *rgb, uint32_t *alpha);
+uint32_t nv01_pgraph_expand_a1r10g10b10(uint32_t ctx, uint32_t config, uint32_t color);
+uint32_t nv01_pgraph_expand_mono(uint32_t ctx, uint32_t mono);
+
 #endif
