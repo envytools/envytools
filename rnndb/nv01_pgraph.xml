@@ -261,7 +261,14 @@
 		<bitfield low="0" high="1" name="UNK0"/>
 		<bitfield pos="4" name="UNK4"/>
 		<bitfield pos="8" name="UNK8"/>
-		<bitfield low="16" high="31" name="UNK16"/>
+		<bitfield low="16" high="17" name="VTX16_XCLIP_MIN_STATUS" type="NV01_PGRAPH_CLIP_STATUS"/>
+		<bitfield low="18" high="19" name="VTX16_XCLIP_MAX_STATUS" type="NV01_PGRAPH_CLIP_STATUS"/>
+		<bitfield low="20" high="21" name="VTX16_YCLIP_MIN_STATUS" type="NV01_PGRAPH_CLIP_STATUS"/>
+		<bitfield low="22" high="23" name="VTX16_YCLIP_MAX_STATUS" type="NV01_PGRAPH_CLIP_STATUS"/>
+		<bitfield low="24" high="25" name="VTX17_XCLIP_MIN_STATUS" type="NV01_PGRAPH_CLIP_STATUS"/>
+		<bitfield low="26" high="27" name="VTX17_XCLIP_MAX_STATUS" type="NV01_PGRAPH_CLIP_STATUS"/>
+		<bitfield low="28" high="29" name="VTX17_YCLIP_MIN_STATUS" type="NV01_PGRAPH_CLIP_STATUS"/>
+		<bitfield low="30" high="31" name="VTX17_YCLIP_MAX_STATUS" type="NV01_PGRAPH_CLIP_STATUS"/>
 	</reg32>
 	<reg32 offset="0x660" name="BIT33"/> <!-- only some revs? -->
 	<reg32 offset="0x680" name="DMA_INST"/>

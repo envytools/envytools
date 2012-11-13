@@ -72,10 +72,9 @@ struct nv01_pgraph_state {
 	uint32_t source_color;
 	uint32_t subdivide;
 	uint32_t edgefill;
-	uint32_t x_misc;
-	uint32_t y_misc;
 	uint32_t xy_misc_0;
 	uint32_t xy_misc_1;
+	uint32_t xy_misc_2[2];
 	uint32_t dma;
 	uint32_t notify;
 	uint32_t access;
@@ -88,5 +87,6 @@ void nv01_pgraph_expand_color(uint32_t ctx, uint32_t config, uint32_t color, uin
 uint32_t nv01_pgraph_expand_a1r10g10b10(uint32_t ctx, uint32_t config, uint32_t color);
 uint32_t nv01_pgraph_expand_mono(uint32_t ctx, uint32_t mono);
 void nv01_pgraph_clip_bounds(struct nv01_pgraph_state *state, uint32_t min[2], uint32_t max[2]);
+void nv01_pgraph_vtx_fixup(struct nv01_pgraph_state *state, int xy, int idx);
 
 #endif

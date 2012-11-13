@@ -125,3 +125,90 @@ void nv01_pgraph_clip_bounds(struct nv01_pgraph_state *state, uint32_t min[2], u
 			max[i] = state->iclip[i] & 0xfff;
 	}
 }
+
+void nv01_pgraph_clip_status(struct nv01_pgraph_state *state, int32_t coord, int xy, int *cstat, int *oob) {
+	uint32_t class = state->access >> 12 & 0x1f;
+	int is_texlin_class = (class & 0xf) == 0xd;
+	int is_texquad_class = (class & 0xf) == 0xe;
+	int is_tex_class = is_texlin_class || is_texquad_class;
+	uint32_t clip_min[2], clip_max[2];
+	nv01_pgraph_clip_bounds(state, clip_min, clip_max);
+	*cstat = 0;
+	*oob = 0;
+	if (is_tex_class) {
+		coord >>= 15;
+		coord &= 0xffff;
+		if (state->xy_misc_1 & 0x02000000) {
+			coord >>= 4;
+			if (coord & 0x800)
+				coord -= 0x1000;
+		} else {
+			if (coord & 0x8000)
+				coord -= 0x10000;
+		}
+	} else {
+		if (coord >= 0x8000 || coord < -0x8000)
+			*oob = 1;
+		coord &= 0x3ffff;
+		if (coord & 0x20000)
+			coord -= 0x40000;
+	}
+	if (coord < (int32_t)clip_min[xy])
+		*cstat |= 1;
+	if (coord == (int32_t)clip_min[xy])
+		*cstat |= 2;
+	if (coord > (int32_t)clip_max[xy])
+		*cstat |= 4;
+	if (coord == (int32_t)clip_max[xy])
+		*cstat |= 8;
+}
+
+int nv01_pgraph_use_v16(struct nv01_pgraph_state *state) {
+	uint32_t class = state->access >> 12 & 0x1f;
+	int d0_24 = state->debug[0] >> 24 & 1;
+	int d1_8 = state->debug[1] >> 8 & 1;
+	int d1_24 = state->debug[1] >> 24 & 1;
+	int sd[2], sde[4];
+	sd[0] = state->subdivide >> 0 & 0xf;
+	sd[1] = state->subdivide >> 4 & 0xf;
+	sde[0] = state->subdivide >> 16 & 0xf;
+	sde[1] = state->subdivide >> 20 & 0xf;
+	sde[2] = state->subdivide >> 24 & 0xf;
+	sde[3] = state->subdivide >> 28 & 0xf;
+	int sdl = sd[0] <= sde[0] && sd[0] <= sde[1] && sd[1] <= sde[2] && sd[1] <= sde[3];
+	int biopt = d1_8 && !(state->xy_misc_2[0] & 3 << 28) && !(state->xy_misc_2[1] & 3 << 28);
+	switch (class) {
+		case 8:
+			return 1;
+		case 0xd:
+		case 0x1d:
+			return d1_24 && (!d0_24 || sdl) && !biopt;
+		case 0xe:
+		case 0x1e:
+			return d1_24 && (!d0_24 || sdl);
+		default:
+			return 0;
+	}
+}
+
+void nv01_pgraph_vtx_fixup(struct nv01_pgraph_state *state, int xy, int idx) {
+	uint32_t class = state->access >> 12 & 0x1f;
+	int32_t coord = xy ? state->vtx_y[idx] : state->vtx_x[idx];
+	int oob, cstat;
+	nv01_pgraph_clip_status(state, coord, xy, &cstat, &oob);
+	state->xy_misc_2[xy] &= ~0x11;
+	state->xy_misc_2[xy] |= oob << 4;
+	if (idx < 16 || nv01_pgraph_use_v16(state)) {
+		state->xy_misc_2[xy] &= ~0xf00;
+		state->xy_misc_2[xy] |= cstat << 8;
+		if (class == 8) {
+			state->xy_misc_2[xy] &= ~0xf000;
+			state->xy_misc_2[xy] |= cstat << 12;
+		}
+	}
+	if (idx >= 16) {
+		int shift = 16 + xy * 4 + (idx - 16) * 8;
+		state->edgefill &= ~(0xf << shift);
+		state->edgefill |= cstat << shift;
+	}
+}
