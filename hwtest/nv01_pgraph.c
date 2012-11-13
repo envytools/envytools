@@ -115,7 +115,7 @@ static void nv01_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv01_pgraph_sta
 		state->uclip_max[i] &= 0x3ffff;
 		state->pattern_rgb[i] &= 0x3fffffff;
 		state->pattern_a[i] &= 0xff;
-		state->pattern_mono[i] &= 0xffffffff;
+		state->pattern_bitmap[i] &= 0xffffffff;
 		state->bitmap_color[i] &= 0x7fffffff;
 	}
 	state->pattern_shape &= 3;
@@ -424,6 +424,188 @@ static int test_mmio_read(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_beta(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		exp.notify &= ~0x110000;
+		nv01_pgraph_load_state(ctx, &exp);
+		nva_wr32(ctx->cnum, 0x410300, val);
+		exp.beta = val;
+		if (exp.beta & 0x80000000)
+			exp.beta = 0;
+		exp.beta &= 0x7f800000;
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			printf("Beta set to %08x\n", val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int check_mthd_invalid(struct hwtest_ctx *ctx, int class, int mthd) {
+	int i;
+	for (i = 0; i < 10; i++) {
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		exp.notify &= ~0x110000;
+		nv01_pgraph_load_state(ctx, &exp);
+		nva_wr32(ctx->cnum, 0x400000 | class << 16 | mthd, 0);
+		exp.intr |= 1;
+		exp.invalid |= 1;
+		exp.access &= ~0x101;
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			printf("Used class %02x mthd %04x iter %d\n", class, mthd, i);
+			return 1;
+		}
+	}
+	return 0;
+}
+
+static int test_mthd_ctx_invalid(struct hwtest_ctx *ctx) {
+	int i;
+	int res = 0;
+	for (i = 0; i < 0x2000; i += 4)
+		if (i != 0 && i != 0x104 && i != 0x300)
+			res |= check_mthd_invalid(ctx, 1, i);
+	for (i = 0; i < 0x2000; i += 4)
+		if (i != 0 && i != 0x104 && i != 0x300)
+			res |= check_mthd_invalid(ctx, 2, i);
+	for (i = 0; i < 0x2000; i += 4)
+		if (i != 0 && i != 0x104 && i != 0x304)
+			res |= check_mthd_invalid(ctx, 3, i);
+	for (i = 0; i < 0x2000; i += 4)
+		if (i != 0 && i != 0x104 && i != 0x304)
+			res |= check_mthd_invalid(ctx, 4, i);
+	for (i = 0; i < 0x2000; i += 4)
+		if (i != 0 && i != 0x104 && i != 0x300 && i != 0x304)
+			res |= check_mthd_invalid(ctx, 5, i);
+	for (i = 0; i < 0x2000; i += 4)
+		if (i != 0 && i != 0x104 && i != 0x308 && i != 0x310 && i != 0x314 && i != 0x318 && i != 0x31c)
+			res |= check_mthd_invalid(ctx, 6, i);
+	return res ? HWTEST_RES_FAIL : HWTEST_RES_PASS;
+}
+
+static int test_mthd_rop(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		if (jrand48(ctx->rand48) & 1)
+			val &= 0xff;
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		exp.notify &= ~0x110000;
+		nv01_pgraph_load_state(ctx, &exp);
+		nva_wr32(ctx->cnum, 0x420300, val);
+		exp.rop = val & 0xff;
+		if (val & ~0xff) {
+			exp.intr |= 1;
+			exp.invalid |= 0x10;
+			exp.access &= ~0x101;
+		}
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			printf("ROP set to %08x\n", val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_chroma_plane(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		int is_plane = jrand48(ctx->rand48) & 1;
+		uint32_t val = jrand48(ctx->rand48);
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		exp.notify &= ~0x110000;
+		nv01_pgraph_load_state(ctx, &exp);
+		nva_wr32(ctx->cnum, is_plane ? 0x440304 : 0x430304, val);
+		uint32_t new = nv01_pgraph_expand_a1r10g10b10(exp.ctx_switch, exp.canvas_config, val);
+		if (is_plane)
+			exp.plane = new;
+		else
+			exp.chroma = new;
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			printf("Color set to %08x switch %08x config %08x\n", val, exp.ctx_switch, exp.canvas_config);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_pattern_shape(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		if (jrand48(ctx->rand48) & 1)
+			val &= 0xf;
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		exp.notify &= ~0x110000;
+		nv01_pgraph_load_state(ctx, &exp);
+		nva_wr32(ctx->cnum, 0x460308, val);
+		exp.pattern_shape = val & 3;
+		if (val > 2) {
+			exp.intr |= 1;
+			exp.invalid |= 0x10;
+			exp.access &= ~0x101;
+		}
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			printf("Shape set to %08x\n", val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_pattern_mono_bitmap(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		int idx = jrand48(ctx->rand48) & 1;
+		uint32_t val = jrand48(ctx->rand48);
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		exp.notify &= ~0x110000;
+		nv01_pgraph_load_state(ctx, &exp);
+		nva_wr32(ctx->cnum, 0x460318 + idx * 4, val);
+		exp.pattern_bitmap[idx] = nv01_pgraph_expand_mono(exp.ctx_switch, val);
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			printf("Bitmap set to %08x switch %08x\n", val, exp.ctx_switch);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_pattern_mono_color(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		int idx = jrand48(ctx->rand48) & 1;
+		uint32_t val = jrand48(ctx->rand48);
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		exp.notify &= ~0x110000;
+		nv01_pgraph_load_state(ctx, &exp);
+		nva_wr32(ctx->cnum, 0x460310 + idx * 4, val);
+		nv01_pgraph_expand_color(exp.ctx_switch, exp.canvas_config, val, &exp.pattern_rgb[idx], &exp.pattern_a[idx]);
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			printf("Color set to %08x switch %08x config %08x\n", val, exp.ctx_switch, exp.canvas_config);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int nv01_pgraph_prep(struct hwtest_ctx *ctx) {
 	if (ctx->chipset != 0x01)
 		return HWTEST_RES_NA;
@@ -435,7 +617,15 @@ static int nv01_pgraph_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-HWTEST_DEF_GROUP(nv01_pgraph,
+static int scan_prep(struct hwtest_ctx *ctx) {
+	return HWTEST_RES_PASS;
+}
+
+static int ctx_mthd_prep(struct hwtest_ctx *ctx) {
+	return HWTEST_RES_PASS;
+}
+
+HWTEST_DEF_GROUP(scan,
 	HWTEST_TEST(test_scan_access, 0),
 	HWTEST_TEST(test_scan_debug, 0),
 	HWTEST_TEST(test_scan_control, 0),
@@ -444,7 +634,23 @@ HWTEST_DEF_GROUP(nv01_pgraph,
 	HWTEST_TEST(test_scan_clip, 0),
 	HWTEST_TEST(test_scan_context, 0),
 	HWTEST_TEST(test_scan_vstate, 0),
+)
+
+HWTEST_DEF_GROUP(ctx_mthd,
+	HWTEST_TEST(test_mthd_ctx_invalid, 0),
+	HWTEST_TEST(test_mthd_beta, 0),
+	HWTEST_TEST(test_mthd_rop, 0),
+	HWTEST_TEST(test_mthd_chroma_plane, 0),
+	/* XXX: CLIP */
+	HWTEST_TEST(test_mthd_pattern_shape, 0),
+	HWTEST_TEST(test_mthd_pattern_mono_color, 0),
+	HWTEST_TEST(test_mthd_pattern_mono_bitmap, 0),
+)
+
+HWTEST_DEF_GROUP(nv01_pgraph,
+	HWTEST_GROUP(scan),
 	HWTEST_TEST(test_state, 0),
 	HWTEST_TEST(test_soft_reset, 0),
 	HWTEST_TEST(test_mmio_read, 0),
+	HWTEST_GROUP(ctx_mthd),
 )

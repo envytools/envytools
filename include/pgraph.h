@@ -55,7 +55,7 @@ struct nv01_pgraph_state {
 	uint32_t vtx_beta[14];
 	uint32_t pattern_rgb[2];
 	uint32_t pattern_a[2];
-	uint32_t pattern_mono[2];
+	uint32_t pattern_bitmap[2];
 	uint32_t pattern_shape;
 	uint32_t bitmap_color[2];
 	uint32_t rop;
