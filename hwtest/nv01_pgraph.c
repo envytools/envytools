@@ -384,13 +384,13 @@ static int test_state(struct hwtest_ctx *ctx) {
 
 static int test_soft_reset(struct hwtest_ctx *ctx) {
 	int i;
-	for (i = 0; i < 100000; i++) {
+	for (i = 0; i < 10000; i++) {
 		struct nv01_pgraph_state exp, real;
 		nv01_pgraph_gen_state(ctx, &exp);
 		nv01_pgraph_load_state(ctx, &exp);
 		nva_wr32(ctx->cnum, 0x400080, exp.debug[0] | 1);
 		exp.valid = 0;
-		exp.edgefill &= ~0xffff;
+		exp.edgefill &= 0xffff0000;
 		exp.xy_misc_0 &= 0x1000;
 		exp.xy_misc_1 &= 0x03000000;
 		exp.x_misc &= 0xff000000;
@@ -421,6 +421,66 @@ static int test_mmio_read(struct hwtest_ctx *ctx) {
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&exp, &real)) {
 			printf("After reading %08x\n", reg);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mmio_clip_status(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		int xy = jrand48(ctx->rand48) & 1;
+		struct nv01_pgraph_state exp;
+		nv01_pgraph_gen_state(ctx, &exp);
+		uint32_t class = exp.access >> 12 & 0x1f;
+		int is_tex_class = 0;
+		if (class >= 0xd && class <= 0xe)
+			is_tex_class = 1;
+		if (class >= 0x1d && class <= 0x1e)
+			is_tex_class = 1;
+		nv01_pgraph_load_state(ctx, &exp);
+		int32_t min, max;
+		uint32_t min_exp[2], max_exp[2];
+		nv01_pgraph_clip_bounds(&exp, min_exp, max_exp);
+		if (is_tex_class) {
+			min = max = 0x40000000;
+			int bit;
+			for (bit = 30; bit >= 15; bit--) {
+				nva_wr32(ctx->cnum, 0x400400 + xy * 0x80, min ^ 1 << bit);
+				if (nva_rd32(ctx->cnum, 0x400648 + xy * 4) & 0x300) {
+					min ^= 1 << bit;
+				}
+				nva_wr32(ctx->cnum, 0x400400 + xy * 0x80, max ^ 1 << bit);
+				if (!(nva_rd32(ctx->cnum, 0x400648 + xy * 4) & 0x400)) {
+					max ^= 1 << bit;
+				}
+			}
+			min >>= 15;
+			max >>= 15;
+			if (exp.xy_misc_1 & 0x02000000) {
+				min >>= 4, max >>= 4;
+				if (min_exp[xy] & 0x800)
+					min_exp[xy] = 0x7ff;
+				if (max_exp[xy] & 0x800)
+					max_exp[xy] = 0x7ff;
+			}
+		} else {
+			min = max = 0x20000;
+			int bit;
+			for (bit = 17; bit >= 0; bit--) {
+				nva_wr32(ctx->cnum, 0x400400 + xy * 0x80, min ^ 1 << bit);
+				if (nva_rd32(ctx->cnum, 0x400648 + xy * 4) & 0x300) {
+					min ^= 1 << bit;
+				}
+				nva_wr32(ctx->cnum, 0x400400 + xy * 0x80, max ^ 1 << bit);
+				if (!(nva_rd32(ctx->cnum, 0x400648 + xy * 4) & 0x400)) {
+					max ^= 1 << bit;
+				}
+			}
+		}
+		if (min_exp[xy] != min || max_exp[xy] != max) {
+			printf("%08x %08x %08x %08x  %08x %08x  %08x %08x  %08x  %03x %03x\n", class, exp.xy_misc_1, min, max, exp.canvas_min, exp.canvas_max, exp.uclip_min[xy], exp.uclip_max[xy], exp.iclip[xy], min_exp[xy], max_exp[xy]);
 			return HWTEST_RES_FAIL;
 		}
 	}
@@ -655,5 +715,6 @@ HWTEST_DEF_GROUP(nv01_pgraph,
 	HWTEST_TEST(test_state, 0),
 	HWTEST_TEST(test_soft_reset, 0),
 	HWTEST_TEST(test_mmio_read, 0),
+	HWTEST_TEST(test_mmio_clip_status, 0),
 	HWTEST_GROUP(ctx_mthd),
 )

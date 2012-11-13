@@ -108,3 +108,20 @@ uint32_t nv01_pgraph_expand_mono(uint32_t ctx, uint32_t mono) {
 	}
 	return res;
 }
+
+void nv01_pgraph_clip_bounds(struct nv01_pgraph_state *state, uint32_t min[2], uint32_t max[2]) {
+	int i;
+	for (i = 0; i < 2; i++) {
+		min[i] = state->canvas_min >> (i * 16) & 0x8fff;
+		if (min[i] & 0x8000)
+			min[i] = 0;
+		max[i] = state->canvas_max >> (i * 16) & 0xfff;
+		int conf = state->xy_misc_1 >> (12 + i * 4) & 7;
+		if (conf & 1 && state->ctx_switch & 0x80)
+			min[i] = state->uclip_min[i] & 0xfff;
+		if (conf & 2 && state->ctx_switch & 0x80)
+			max[i] = state->uclip_max[i] & 0xfff;
+		if (conf & 4)
+			max[i] = state->iclip[i] & 0xfff;
+	}
+}

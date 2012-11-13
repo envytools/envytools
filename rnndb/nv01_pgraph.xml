@@ -184,8 +184,31 @@
 		<bitfield pos="0" name="UNK0"/> <!-- touched by IFC and friends -->
 		<bitfield low="4" high="5" name="UNK4"/>
 		<bitfield low="8" high="9" name="UNK8"/> <!-- not affected by volatile reset -->
-		<bitfield low="12" high="14" name="UNK12"/>
-		<bitfield low="16" high="18" name="UNK16"/>
+		<!-- *CLIP_MIN and *CLIP_MAX_0 overriden to 0 if CTX_SWITCH.CLIP is 0 -->
+		<bitfield pos="12" name="XCLIP_MIN">
+			<value value="0" name="CANVAS"/>
+			<value value="1" name="UCLIP"/>
+		</bitfield>
+		<bitfield pos="13" name="XCLIP_MAX_0">
+			<value value="0" name="CANVAS"/>
+			<value value="1" name="UCLIP"/>
+		</bitfield>
+		<bitfield pos="14" name="XCLIP_MAX">
+			<value value="0" name="XCLIP_MAX_0"/>
+			<value value="1" name="ICLIP"/>
+		</bitfield>
+		<bitfield pos="16" name="YCLIP_MIN">
+			<value value="0" name="CANVAS"/>
+			<value value="1" name="UCLIP"/>
+		</bitfield>
+		<bitfield pos="17" name="YCLIP_MAX_0">
+			<value value="0" name="CANVAS"/>
+			<value value="1" name="UCLIP"/>
+		</bitfield>
+		<bitfield pos="18" name="YCLIP_MAX">
+			<value value="0" name="YCLIP_MAX_0"/>
+			<value value="1" name="ICLIP"/>
+		</bitfield>
 		<bitfield pos="20" name="UNK20"/>
 		<bitfield low="24" high="25" name="VTX_POS_MODE"> <!-- XXX: also used for IFC and friends -->
 			<value value="0" name="NONE"/>
@@ -195,11 +218,18 @@
 	</reg32>
 	<enum name="NV01_PGRAPH_CLIP_STATUS">
 		<value value="0" name="INSIDE"/>
-		<value value="1" name="TOUCHES"/>
-		<value value="2" name="OUTSIDE"/>
+		<value value="1" name="OUTSIDE"/>
+		<value value="2" name="TOUCHES"/>
 	</enum>
 	<bitset name="NV01_PGRAPH_XY_MISC_2">
-		<bitfield low="0" high="7" name="UNK0"/>
+		<bitfield pos="0" name="VTX0_UNK0"/>
+		<bitfield pos="1" name="VTX1_UNK0"/>
+		<bitfield pos="2" name="VTX2_UNK0"/>
+		<bitfield pos="3" name="VTX3_UNK0"/>
+		<bitfield pos="4" name="VTX0_OOB"/> <!-- set when coord out of [-0x8000,0x7fff] range -->
+		<bitfield pos="5" name="VTX1_OOB"/>
+		<bitfield pos="6" name="VTX2_OOB"/>
+		<bitfield pos="7" name="VTX3_OOB"/>
 		<bitfield low="8" high="9" name="VTX0_CLIP_MIN_STATUS" type="NV01_PGRAPH_CLIP_STATUS"/>
 		<bitfield low="10" high="11" name="VTX0_CLIP_MAX_STATUS" type="NV01_PGRAPH_CLIP_STATUS"/>
 		<bitfield low="12" high="13" name="VTX1_CLIP_MIN_STATUS" type="NV01_PGRAPH_CLIP_STATUS"/>
