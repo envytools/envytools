@@ -379,6 +379,51 @@ static int test_state(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_soft_reset(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 100000; i++) {
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		nv01_pgraph_load_state(ctx, &exp);
+		nva_wr32(ctx->cnum, 0x400080, exp.debug[0] | 1);
+		exp.valid = 0;
+		exp.edgefill &= ~0xffff;
+		exp.xy_misc_0 &= 0x1000;
+		exp.xy_misc_1 &= 0x03000000;
+		exp.x_misc &= 0xff000000;
+		exp.x_misc |= 0x00555500;
+		exp.y_misc &= 0xff000000;
+		exp.y_misc |= 0x00555500;
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			printf("Iteration %d\n", i);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mmio_read(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		int idx = nrand48(ctx->rand48) % ARRAY_SIZE(nv01_pgraph_state_regs);
+		uint32_t reg = nv01_pgraph_state_regs[idx];
+		nv01_pgraph_load_state(ctx, &exp);
+		nva_rd32(ctx->cnum, reg);
+		if ((reg & ~0xf) == 0x400460) {
+			exp.xy_misc_1 &= ~0xfff000;
+		}
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			printf("After reading %08x\n", reg);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int nv01_pgraph_prep(struct hwtest_ctx *ctx) {
 	if (ctx->chipset != 0x01)
 		return HWTEST_RES_NA;
@@ -400,4 +445,6 @@ HWTEST_DEF_GROUP(nv01_pgraph,
 	HWTEST_TEST(test_scan_context, 0),
 	HWTEST_TEST(test_scan_vstate, 0),
 	HWTEST_TEST(test_state, 0),
+	HWTEST_TEST(test_soft_reset, 0),
+	HWTEST_TEST(test_mmio_read, 0),
 )
