@@ -2,6 +2,8 @@ TOC
 
 0. Introduction
 1. The objects
+1.1. Connecting the objects - NV01 style
+1.2. Connecting the objects - NV05 style
 2. Color and monochrome formats
 2.1. COLOR_FORMAT method
 2.2. Color format conversions
@@ -33,12 +35,156 @@ TOC
 
 = Introduction =
 
-[XXX: write me]
+On nvidia GPUs, 2d operations are done by PGRAPH engine [see *-graph.txt].
+The 2d engine is rather orthogonal and has the following features:
+
+ - various data sources:
+  - solid color shapes (points, lines, triangles, rectangles)
+  - pixels uploaded directly through command stream, raw or expanded using
+    a palette
+  - text with in-memory fonts [NV03:NV50]
+  - rectangles blitted from another area of video memory
+  - pixels read by DMA
+  - linearly and quadratically textured quads [NV01:NV03]
+ - color format conversions
+ - chroma key
+ - clipping rectangles
+ - per-pixel operations between source, destination, and pattern:
+  - logic operations
+  - alpha and beta blending
+  - pre-multiplied alpha blending [NV04-]
+ - plane masking [NV01:NV04]
+ - dithering
+ - data output:
+  - to the framebuffer [NV01:NV03]
+  - to any surface in VRAM [NV03:NV84]
+  - to arbirary memory [NV84-]
 
 
 = The objects =
 
-[XXX: write me]
+The 2d engine is controlled by the user via PGRAPH objects. On NV01:NV84, each
+piece of 2d functionality has its own object class - a matching set of objects
+needs to be used together to perform an operation. NV50+ have a unified 2d
+engine object that can be used to control all of the 2d pipeline in one place.
+
+The non-unified objects can be divided into 3 classes:
+ - source objects: control the drawing operation, choose pixels to draw and
+   their colors
+ - context objects: control various pipeline settings shared by other objects
+ - operation objects: connect source and context objects together
+
+The source objects are:
+ - POINT, LIN, LINE, TRI, RECT: drawing of solid color shapes [nv01-solid.txt]
+ - IFC, BITMAP, SIFC, INDEX, TEXTURE: drawing of pixel data from CPU
+   [nv01-ifc.txt]
+ - BLIT: copying rectangles from another area of video memory [nv01-blit.txt]
+ - IFM, SIFM: drawing pixel data from DMA [nv01-ifm.txt, nv03-sifm.txt]
+ - GDI: Drawing solid rectangles and text fonts [nv03-gdi.txt]
+ - TEXLIN, TEXQUAD, TEXLINBETA, TEXQUADBETA: Drawing textured quads
+   [nv01-tex.txt] 
+
+The context objects are [nv01-ctxobj.txt]:
+ - BETA: blend factor
+ - ROP: logic operation
+ - CHROMA: color for chroma key
+ - PLANE: color for plane mask
+ - CLIP: clipping rectangle
+ - PATTERN: repeating pattern image
+ - BETA4: pre-multiplied blend factor
+ - SURF, SURF2D, SWZSURF: destination and blit source surface setup
+
+The operation objects are:
+ - OP_CLIP: clipping operation
+ - OP_BLEND_AND: blending
+ - OP_ROP_AND: logic operation
+ - OP_CHROMA: color key	
+ - OP_SRCCOPY_AND: source copy with 0-alpha discard
+ - OP_SRCCOPY: source copy
+ - OP_SRCCOPY_PREMULT: pre-multiplying copy
+ - OP_BLEND_PREMULT: pre-multiplied blending
+
+The unified 2d engine objects are described in nv50-2d.txt .
+
+The objects that, although related to 2d operations, aren't part of the usual
+2d pipeline:
+ - ITM: downloading framebuffer data to DMA [nv01-ifm.txt]
+ - M2MF: DMA to DMA copies [nv03-m2mf.txt]
+ - DVD_SUBPICTURE: blending of YUV data [nv04-dvd.txt]
+
+Note that, although multiple objects of a single kind may be created, there is
+only one copy of pipeline state data in PGRAPH. There are thus two usage
+possibilities:
+
+ - aliasing: all objects on a channel access common pipeline state, making it
+   mostly useless to create several objects of single kind
+ - swapping: the kernel driver or some other piece of software handles PGRAPH
+   interrupts, swapping pipeline configurations as they're needed, and marking
+   objects valid/not valid according to currently loaded configuration
+
+
+== Connecting the objects - NV01 style ==
+
+The objects were originally intended and designed for connecting with
+so-called patchcords. A patchcord is a dummy object that's conceptually
+a wire carrying some sort of data. The patchcord types are:
+
+ - image patchcord: carries pixel color data
+ - beta patchcord: carries beta blend factor data
+ - zeta patchcord: carries pixel depth data
+ - rop patchcord: carries logic operation data
+
+Each 2d object has patchcord "slots" representing its inputs and outputs.
+A slot is represented by an object methods. Objects are connected together
+by creating a patchcord of appropriate type and writing its handle to the
+input slot method on one object and the output slot method on the other
+object. For example:
+
+ - source objects have an output image patchcord slot [BLIT also has input
+   image slot]
+ - BETA context object has an output beta slot
+ - OP_BLEND_AND has two image input slots, one beta input slot, and one
+   image output slot
+
+A valid set of objects, called a "patch" is constructed by connecting
+patchcords appropriately. Not all possible connections ara valid, though.
+Only ones that map to the actual hardware pipeline are allowed: one of
+the source objects must be at the beginning, connected via image patchcord
+to OP_BLEND_*, OP_ROP_AND, or OP_SRCCOPY_*, optionally connected further
+through OP_CLIP and/or OP_CHROMA, then finally connected to a SURF object
+representing the destination surface. Each of the OP_* objects and source
+objects that needs it must also be connected to the appropriate extra
+inputs, like the CLIP rectangle, PATTERN or another SURF, or CHROMA key.
+
+No GPU has ever supported connecting patchcords in hardware - the software
+must deal with all required processing and state swapping. However, NV04:NV20
+hardware knows of the methods reserved for these purpose, and raises a special
+interrupt when they're called. The OP_*, while lacking in any useful hardware
+methods, are also supported on NV04:NV05.
+
+
+== Connecting the objects - NV05 style ==
+
+A new way of connecting objects was designed for NV05 [but can be used with
+earlier cards via software emulation]. Instead of treating a patch as
+a freeform set of objects, the patch is centered on the source object. While
+context objects are still in use, operation objects are skipped - the set
+of operations to perform is specified at the source object, instead of being
+implid by the patchcord topology. The context objects are now connected
+directly to the source object by writing their handles to appropriate source
+object methods. The OP_CLIP and OP_CHROMA functionality is replaced by CLIP
+and CHROMA methods on the source objects: enabling clipping/color keying
+is done by connecting appropriate context object, while disabling is done
+by connecting a NULL object. The remaining operation objects are replaced
+by OPERATION method, which takes an enum selecting the operation to perform.
+
+NV05 added support for the NV05-style connections in hardware - all methods
+can be processed without software assistance as long as only one object of
+each type is in use [or they're allowed to alias]. If swapping is required,
+it's the responsibility of software. The new methods can be globally disabled
+if NV01-style connections are desired, however. NV05-style connections can
+also be implemented for older GPUs simply by handling the relevant methods
+in software.
 
 
 = Color and monochrome formats =
