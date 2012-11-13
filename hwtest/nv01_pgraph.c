@@ -152,6 +152,8 @@ static void nv01_pgraph_load_state(struct hwtest_ctx *ctx, struct nv01_pgraph_st
 		abort();
 	int i;
 	uint32_t *rawstate = (uint32_t*)state;
+	nva_wr32(ctx->cnum, 0x000200, 0xffffefff);
+	nva_wr32(ctx->cnum, 0x000200, 0xffffffff);
 	nva_wr32(ctx->cnum, 0x4006a4, 0x04000100);
 	nva_wr32(ctx->cnum, 0x400100, 0xffffffff);
 	nva_wr32(ctx->cnum, 0x400104, 0xffffffff);
@@ -166,6 +168,7 @@ static void nv01_pgraph_dump_state(struct hwtest_ctx *ctx, struct nv01_pgraph_st
 	uint32_t *rawstate = (uint32_t*)state;
 	uint32_t access = nva_rd32(ctx->cnum, 0x4006a4);
 	uint32_t xy_misc_1 = nva_rd32(ctx->cnum, 0x400644); /* this one can be disturbed by *reading* VTX mem */
+	while(nva_rd32(ctx->cnum, 0x4006b0));
 	nva_wr32(ctx->cnum, 0x4006a4, 0x04000100);
 	for (i = 0; i < ARRAY_SIZE(nv01_pgraph_state_regs); i++)
 		rawstate[i] = nva_rd32(ctx->cnum, nv01_pgraph_state_regs[i]);
