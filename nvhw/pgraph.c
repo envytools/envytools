@@ -191,20 +191,34 @@ int nv01_pgraph_use_v16(struct nv01_pgraph_state *state) {
 	}
 }
 
-void nv01_pgraph_vtx_fixup(struct nv01_pgraph_state *state, int xy, int idx) {
+void nv01_pgraph_vtx_fixup(struct nv01_pgraph_state *state, int xy, int idx, int32_t coord, int rel) {
 	uint32_t class = state->access >> 12 & 0x1f;
-	int32_t coord = xy ? state->vtx_y[idx] : state->vtx_x[idx];
+	int is_texlin_class = (class & 0xf) == 0xd;
+	int is_texquad_class = (class & 0xf) == 0xe;
+	int is_tex_class = is_texlin_class || is_texquad_class;
+	int sid = rel ? idx & 3 : 0;
+	int32_t cbase = (int16_t)(state->canvas_min >> 16 * xy);
+	if (is_tex_class && state->xy_misc_1 & 1 << 25)
+		cbase <<= 4;
+	if (rel)
+		coord += cbase;
+	if (xy == 0)
+		state->vtx_x[idx] = coord;
+	else
+		state->vtx_y[idx] = coord;
 	int oob, cstat;
 	nv01_pgraph_clip_status(state, coord, xy, &cstat, &oob);
-	state->xy_misc_2[xy] &= ~0x11;
-	state->xy_misc_2[xy] |= oob << 4;
-	if (idx < 16 || nv01_pgraph_use_v16(state)) {
-		state->xy_misc_2[xy] &= ~0xf00;
+	state->xy_misc_2[xy] &= ~(0x11 << sid);
+	state->xy_misc_2[xy] |= oob << (4 + sid);
+	if (rel && (uint32_t)coord < (uint32_t)cbase)
+		state->xy_misc_2[xy] |= 1 << sid;
+	if (class == 8) {
+		state->xy_misc_2[xy] &= ~0xff00;
 		state->xy_misc_2[xy] |= cstat << 8;
-		if (class == 8) {
-			state->xy_misc_2[xy] &= ~0xf000;
-			state->xy_misc_2[xy] |= cstat << 12;
-		}
+		state->xy_misc_2[xy] |= cstat << 12;
+	} else if (idx < 16 || nv01_pgraph_use_v16(state)) {
+		state->xy_misc_2[xy] &= ~(0xf00 << sid * 4);
+		state->xy_misc_2[xy] |= cstat << (8 + sid * 4);
 	}
 	if (idx >= 16) {
 		int shift = 16 + xy * 4 + (idx - 16) * 8;
@@ -213,7 +227,7 @@ void nv01_pgraph_vtx_fixup(struct nv01_pgraph_state *state, int xy, int idx) {
 	}
 }
 
-void nv01_pgraph_iclip_fixup(struct nv01_pgraph_state *state, int xy, int32_t coord) {
+void nv01_pgraph_iclip_fixup(struct nv01_pgraph_state *state, int xy, int32_t coord, int rel) {
 	uint32_t class = state->access >> 12 & 0x1f;
 	int is_texlin_class = (class & 0xf) == 0xd;
 	int is_texquad_class = (class & 0xf) == 0xe;
@@ -221,11 +235,18 @@ void nv01_pgraph_iclip_fixup(struct nv01_pgraph_state *state, int xy, int32_t co
 	int max = state->canvas_max >> (xy * 16) & 0xfff;
 	if (state->xy_misc_1 & 0x2000 << (xy * 4) && state->ctx_switch & 0x80)
 		max = state->uclip_max[xy] & 0xfff;
-	int32_t cmin = state->canvas_min >> 16 * xy & 0x8fff;
+	int32_t cbase = (int16_t)(state->canvas_min >> 16 * xy);
+	int32_t cmin = cbase;
 	if (cmin & 0x8000)
 		cmin = 0;
 	if (state->ctx_switch & 0x80 && state->xy_misc_1 & 0x1000 << xy * 4)
-		cmin = state->uclip_min[xy] & 0xfff;
+		cmin = state->uclip_min[xy];
+	cmin &= 0xfff;
+	if (is_tex_class && state->xy_misc_1 & 1 << 25)
+		cbase <<= 4;
+	if (rel)
+		coord += cbase;
+	state->iclip[xy] = coord & 0x3ffff;
 	if (is_tex_class) {
 		coord >>= 15;
 		coord &= 0xffff;

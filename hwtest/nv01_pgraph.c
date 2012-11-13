@@ -496,22 +496,28 @@ static int test_mmio_clip_status(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-static int test_mmio_vtx16_write(struct hwtest_ctx *ctx) {
+static int test_mmio_vtx_write(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
-		int idx = jrand48(ctx->rand48) & 1;
+		int idx = nrand48(ctx->rand48) % 18;
 		int xy = jrand48(ctx->rand48) & 1;
+		int rel = jrand48(ctx->rand48) & 1;
 		struct nv01_pgraph_state exp, real;
 		nv01_pgraph_gen_state(ctx, &exp);
+		if (jrand48(ctx->rand48) & 1) {
+			/* rare and complicated enough to warrant better testing */
+			idx &= 1;
+			idx |= 0x10;
+		}
 		if (jrand48(ctx->rand48) & 1) {
 			/* rare and complicated enough to warrant better testing */
 			exp.access = 0x0f00d111 + (jrand48(ctx->rand48) & 0x11000);
 		}
 		nv01_pgraph_load_state(ctx, &exp);
-		uint32_t reg = 0x400440 + idx * 4 + xy * 0x80;
-		uint32_t val = xy ? exp.vtx_y[idx+16] : exp.vtx_x[idx+16];
+		uint32_t reg = 0x400400 + idx * 4 + xy * 0x80 + rel * 0x100;
+		uint32_t val = jrand48(ctx->rand48);
 		nva_wr32(ctx->cnum, reg, val);
-		nv01_pgraph_vtx_fixup(&exp, xy, 16+idx);
+		nv01_pgraph_vtx_fixup(&exp, xy, idx, val, rel);
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&exp, &real)) {
 			nv01_pgraph_print_state(&exp);
@@ -527,14 +533,14 @@ static int test_mmio_iclip_write(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
 		int xy = jrand48(ctx->rand48) & 1;
+		int rel = jrand48(ctx->rand48) & 1;
 		struct nv01_pgraph_state exp, real;
 		nv01_pgraph_gen_state(ctx, &exp);
 		nv01_pgraph_load_state(ctx, &exp);
-		uint32_t reg = 0x400450 + xy * 4;
+		uint32_t reg = 0x400450 + xy * 4 + rel * 0x100;
 		uint32_t val = jrand48(ctx->rand48);
 		nva_wr32(ctx->cnum, reg, val);
-		exp.iclip[xy] = val & 0x3ffff;
-		nv01_pgraph_iclip_fixup(&exp, xy, val);
+		nv01_pgraph_iclip_fixup(&exp, xy, val, rel);
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&exp, &real)) {
 			nv01_pgraph_print_state(&exp);
@@ -766,7 +772,7 @@ HWTEST_DEF_GROUP(state,
 	HWTEST_TEST(test_state, 0),
 	HWTEST_TEST(test_soft_reset, 0),
 	HWTEST_TEST(test_mmio_read, 0),
-	HWTEST_TEST(test_mmio_vtx16_write, 0),
+	HWTEST_TEST(test_mmio_vtx_write, 0),
 	HWTEST_TEST(test_mmio_iclip_write, 0),
 	HWTEST_TEST(test_mmio_clip_status, 0),
 )
