@@ -406,6 +406,45 @@ static int test_mmio_read(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mmio_write(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		int idx = nrand48(ctx->rand48) % ARRAY_SIZE(nv01_pgraph_state_regs);
+		uint32_t reg = nv01_pgraph_state_regs[idx];
+		uint32_t val = ((uint32_t*)&exp)[idx];
+		nv01_pgraph_load_state(ctx, &exp);
+		nva_wr32(ctx->cnum, reg, val);
+		if (reg == 0x400180) {
+			exp.debug[1] &= ~1;
+			exp.ctx_control &= ~0x01000000;
+		}
+		if ((reg & ~0xff) == 0x400400) {
+			if ((reg & 0x7f) < 0x50) {
+				int xy = reg >> 7 & 1;
+				int idx = reg >> 2 & 0x1f;
+				nv01_pgraph_vtx_fixup(&exp, xy, idx, val, 0);
+			} else if (reg < 0x400460) {
+				int xy = reg >> 2 & 1;
+				nv01_pgraph_iclip_fixup(&exp, xy, val, 0);
+			} else {
+				int xy = reg >> 3 & 1;
+				int idx = reg >> 2 & 1;
+				nv01_pgraph_uclip_fixup(&exp, xy, idx, val, 0);
+			}
+		}
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			nv01_pgraph_print_state(&exp);
+			printf("After writing %08x <- %08x\n", reg, val);
+			printf("Iteration %d\n", i);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_mmio_clip_status(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
@@ -766,6 +805,7 @@ HWTEST_DEF_GROUP(state,
 	HWTEST_TEST(test_state, 0),
 	HWTEST_TEST(test_soft_reset, 0),
 	HWTEST_TEST(test_mmio_read, 0),
+	HWTEST_TEST(test_mmio_write, 0),
 	HWTEST_TEST(test_mmio_vtx_write, 0),
 	HWTEST_TEST(test_mmio_iclip_write, 0),
 	HWTEST_TEST(test_mmio_uclip_write, 0),
