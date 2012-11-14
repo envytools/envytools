@@ -522,6 +522,30 @@ static int test_mmio_iclip_write(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mmio_uclip_write(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		int xy = jrand48(ctx->rand48) & 1;
+		int idx = jrand48(ctx->rand48) & 1;
+		int rel = jrand48(ctx->rand48) & 1;
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		nv01_pgraph_load_state(ctx, &exp);
+		uint32_t reg = 0x400460 + xy * 8 + idx * 4 + rel * 0x100;
+		uint32_t val = jrand48(ctx->rand48);
+		nva_wr32(ctx->cnum, reg, val);
+		nv01_pgraph_uclip_fixup(&exp, xy, idx, val, rel);
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			nv01_pgraph_print_state(&exp);
+			printf("After writing %08x <- %08x\n", reg, val);
+			printf("Iteration %d\n", i);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_mthd_beta(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
@@ -744,6 +768,7 @@ HWTEST_DEF_GROUP(state,
 	HWTEST_TEST(test_mmio_read, 0),
 	HWTEST_TEST(test_mmio_vtx_write, 0),
 	HWTEST_TEST(test_mmio_iclip_write, 0),
+	HWTEST_TEST(test_mmio_uclip_write, 0),
 	HWTEST_TEST(test_mmio_clip_status, 0),
 )
 

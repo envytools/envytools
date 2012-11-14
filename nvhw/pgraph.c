@@ -274,3 +274,43 @@ void nv01_pgraph_iclip_fixup(struct nv01_pgraph_state *state, int xy, int32_t co
 		state->xy_misc_1 |= (coord < cmin) << 5;
 	}
 }
+
+void nv01_pgraph_uclip_fixup(struct nv01_pgraph_state *state, int xy, int idx, int32_t coord, int rel) {
+	uint32_t class = state->access >> 12 & 0x1f;
+	int is_texlin_class = (class & 0xf) == 0xd;
+	int is_texquad_class = (class & 0xf) == 0xe;
+	int is_tex_class = is_texlin_class || is_texquad_class;
+	int32_t cbase = (int16_t)(state->canvas_min >> 16 * xy);
+	if (rel)
+		coord += cbase;
+	state->uclip_min[xy] = state->uclip_max[xy];
+	state->uclip_max[xy] = coord & 0x3ffff;
+	if (!xy)
+		state->vtx_x[15] = coord;
+	else
+		state->vtx_y[15] = coord;
+	state->xy_misc_1 &= ~0x0fff000;
+	if (!idx) {
+		state->xy_misc_1 &= ~0x1000000;
+	} else {
+		state->xy_misc_1 &= ~(0x110 << xy);
+		int32_t cmin = state->canvas_min >> 16 * xy & 0x8fff;
+		if (cmin & 0x8000)
+			cmin = 0;
+		int32_t cmax = state->canvas_max >> 16 * xy & 0x0fff;
+		int32_t ucmin = state->uclip_min[xy] & 0x3ffff;
+		int32_t ucmax = state->uclip_max[xy] & 0x3ffff;
+		if (ucmin & 0x20000)
+			ucmin -= 0x40000;
+		if (ucmax & 0x20000)
+			ucmax -= 0x40000;
+		if (is_tex_class && state->xy_misc_1 & 1 << 25)
+			ucmin >>= 4, ucmax >>= 4;
+		state->xy_misc_1 |= (ucmax < cmin) << (8 + xy);
+		if (state->xy_misc_2[xy] >> 10 & 1)
+			state->xy_misc_1 |= (ucmax >= 0) << (8 + xy);
+		if (!(state->xy_misc_2[xy] >> 8 & 1))
+			state->xy_misc_1 |= 1 << (12 + xy * 4);
+		state->xy_misc_1 |= (ucmax <= cmax) << (13 + xy * 4);
+	}
+}
