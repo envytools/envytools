@@ -83,9 +83,11 @@ static inline int clog2(uint64_t x) {
 
 #define CEILDIV(a, b) (((a) + (b) - 1)/(b))
 
+#define bflmask(a) ((2ull << ((c)-1)) - 1)
 #define sext(a, b) ((a) & 1ull << (b) ? (a) - (2ull << (b)) : (a))
-#define extr(a, b, c) (((a) >> (b)) & ((2ull << ((c)-1)) - 1))
+#define extr(a, b, c) (((a) >> (b)) & bflmask(c))
 #define extrs(a, b, c) sext(extr(a, b, c), (c)-1)
+#define insrt(a, b, c, d) ((a) &= ~(bflmask(c) << (b)), (a) |= ((d) & bflmask(c)) << (b))
 
 struct envy_loc {
 	int lstart;
