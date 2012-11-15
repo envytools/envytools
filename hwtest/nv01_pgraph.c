@@ -767,6 +767,43 @@ static int test_mthd_pattern_mono_color(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_subdivide(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		int beta = jrand48(ctx->rand48) & 1;
+		int quad = jrand48(ctx->rand48) & 1;
+		int class = 0xd + beta * 0x10 + quad;
+		uint32_t val = jrand48(ctx->rand48);
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		exp.notify &= ~0x110000;
+		nv01_pgraph_load_state(ctx, &exp);
+		nva_wr32(ctx->cnum, 0x400304 | class << 16, val);
+		exp.subdivide = val & 0xffff00ff;
+		int err = 0;
+		if (val & 0xff00)
+			err = 1;
+		int j;
+		for (j = 0; j < 8; j++) {
+			if (extr(val, 4*j, 4) > 8)
+				err = 1;
+			if (j < 2 && extr(val, 4*j, 4) < 2)
+				err = 1;
+		}
+		if (err) {
+			exp.intr |= 1;
+			exp.invalid |= 0x10;
+			exp.access &= ~0x101;
+		}
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			printf("Subdivide set to %08x\n", val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int nv01_pgraph_prep(struct hwtest_ctx *ctx) {
 	if (ctx->chipset != 0x01)
 		return HWTEST_RES_NA;
@@ -787,6 +824,10 @@ static int state_prep(struct hwtest_ctx *ctx) {
 }
 
 static int ctx_mthd_prep(struct hwtest_ctx *ctx) {
+	return HWTEST_RES_PASS;
+}
+
+static int tex_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
@@ -823,8 +864,13 @@ HWTEST_DEF_GROUP(ctx_mthd,
 	HWTEST_TEST(test_mthd_pattern_mono_bitmap, 0),
 )
 
+HWTEST_DEF_GROUP(tex_mthd,
+	HWTEST_TEST(test_mthd_subdivide, 0),
+)
+
 HWTEST_DEF_GROUP(nv01_pgraph,
 	HWTEST_GROUP(scan),
 	HWTEST_GROUP(state),
 	HWTEST_GROUP(ctx_mthd),
+	HWTEST_GROUP(tex_mthd),
 )
