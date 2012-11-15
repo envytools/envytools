@@ -23,6 +23,7 @@
  */
 
 #include "pgraph.h"
+#include "util.h"
 #include <stdlib.h>
 
 int pgraph_type(int chipset) {
@@ -50,34 +51,34 @@ void nv01_pgraph_expand_color(uint32_t ctx, uint32_t config, uint32_t color, uin
 	int replicate = config >> 20 & 1;
 	int factor;
 	switch (format % 5) {
-		case 0:
+		case 0: /* (X16)A1R5G5B5 */
 			factor = replicate ? 0x21 : 0x20;
-			a = (color >> 15 & 1) * 0xff;
-			r = (color >> 10 & 0x1f) * factor;
-			g = (color >> 5 & 0x1f) * factor;
-			b = (color & 0x1f) * factor;
+			a = extr(color, 15, 1) * 0xff;
+			r = extr(color, 10, 5) * factor;
+			g = extr(color, 5, 5) * factor;
+			b = extr(color, 0, 5) * factor;
 			break;
-		case 1:
+		case 1: /* A8R8G8B8 */
 			factor = replicate ? 0x101 : 0x100;
-			a = color >> 24 & 0xff;
-			r = (color >> 16 & 0xff) * factor >> 6;
-			g = (color >> 8 & 0xff) * factor >> 6;
-			b = (color & 0xff) * factor >> 6;
+			a = extr(color, 24, 8);
+			r = extr(color, 16, 8) * factor >> 6;
+			g = extr(color, 8, 8) * factor >> 6;
+			b = extr(color, 0, 8) * factor >> 6;
 			break;
-		case 2:
-			a = (color >> 30 & 3) * 0x55;
-			r = color >> 20 & 0x3ff;
-			g = color >> 10 & 0x3ff;
-			b = color & 0x3ff;
+		case 2: /* A2R10G10B10 */
+			a = extr(color, 30, 2) * 0x55;
+			r = extr(color, 20, 10);
+			g = extr(color, 10, 10);
+			b = extr(color, 0, 10);
 			break;
-		case 3:
+		case 3: /* (X16)A8Y8 */
 			factor = replicate ? 0x101 : 0x100;
-			a = color >> 8 & 0xff;
-			r = g = b = (color & 0xff) * factor >> 6;
+			a = extr(color, 8, 8);
+			r = g = b = extr(color, 0, 8) * factor >> 6;
 			break;
-		case 4:
-			a = color >> 24 & 0xff;
-			r = g = b = color >> 6 & 0x3ff;
+		case 4: /* A16Y16 */
+			a = extr(color, 16, 16) >> 8;
+			r = g = b = extr(color, 0, 16) >> 6;
 			break;
 		default:
 			abort();
@@ -102,64 +103,54 @@ uint32_t nv01_pgraph_expand_mono(uint32_t ctx, uint32_t mono) {
 	if (ctx & 0x4000) {
 		int i;
 		for (i = 0; i < 32; i++)
-			res |= (mono >> i & 1) << (i ^ 7);
+			insrt(res, i^7, 1, extr(mono, i, 1));
 	} else {
 		res = mono;
 	}
 	return res;
 }
 
-void nv01_pgraph_clip_bounds(struct nv01_pgraph_state *state, uint32_t min[2], uint32_t max[2]) {
+void nv01_pgraph_clip_bounds(struct nv01_pgraph_state *state, int32_t min[2], int32_t max[2]) {
 	int i;
 	for (i = 0; i < 2; i++) {
-		min[i] = state->canvas_min >> (i * 16) & 0x8fff;
-		if (min[i] & 0x8000)
+		min[i] = extrs(state->canvas_min, i*16, 16);
+		max[i] = extr(state->canvas_max, i*16, 12);
+		int sel = extr(state->xy_misc_1, 12+i*4, 3);
+		int uce = extr(state->ctx_switch, 7, 1);
+		if (sel & 1 && uce)
+			min[i] = state->uclip_min[i];
+		if (sel & 2 && uce)
+			max[i] = state->uclip_max[i];
+		if (sel & 4)
+			max[i] = state->iclip[i];
+		if (min[i] < 0)
 			min[i] = 0;
-		max[i] = state->canvas_max >> (i * 16) & 0xfff;
-		int conf = state->xy_misc_1 >> (12 + i * 4) & 7;
-		if (conf & 1 && state->ctx_switch & 0x80)
-			min[i] = state->uclip_min[i] & 0xfff;
-		if (conf & 2 && state->ctx_switch & 0x80)
-			max[i] = state->uclip_max[i] & 0xfff;
-		if (conf & 4)
-			max[i] = state->iclip[i] & 0xfff;
+		min[i] &= 0xfff;
+		max[i] &= 0xfff;
 	}
 }
 
-void nv01_pgraph_clip_status(struct nv01_pgraph_state *state, int32_t coord, int xy, int *cstat, int *oob) {
-	uint32_t class = state->access >> 12 & 0x1f;
-	int is_texlin_class = (class & 0xf) == 0xd;
-	int is_texquad_class = (class & 0xf) == 0xe;
-	int is_tex_class = is_texlin_class || is_texquad_class;
-	uint32_t clip_min[2], clip_max[2];
+void nv01_pgraph_clip_status(struct nv01_pgraph_state *state, int32_t coord, int xy, int is_tex_class, int *cstat, int *oob) {
+	int32_t clip_min[2], clip_max[2];
 	nv01_pgraph_clip_bounds(state, clip_min, clip_max);
 	*cstat = 0;
 	*oob = 0;
 	if (is_tex_class) {
-		coord >>= 15;
-		coord &= 0xffff;
-		if (state->xy_misc_1 & 0x02000000) {
+		coord = extrs(coord, 15, 16);
+		if (state->xy_misc_1 & 0x02000000)
 			coord >>= 4;
-			if (coord & 0x800)
-				coord -= 0x1000;
-		} else {
-			if (coord & 0x8000)
-				coord -= 0x10000;
-		}
 	} else {
 		if (coord >= 0x8000 || coord < -0x8000)
 			*oob = 1;
-		coord &= 0x3ffff;
-		if (coord & 0x20000)
-			coord -= 0x40000;
+		coord = extrs(coord, 0, 18);
 	}
-	if (coord < (int32_t)clip_min[xy])
+	if (coord < clip_min[xy])
 		*cstat |= 1;
-	if (coord == (int32_t)clip_min[xy])
+	if (coord == clip_min[xy])
 		*cstat |= 2;
-	if (coord > (int32_t)clip_max[xy])
+	if (coord > clip_max[xy])
 		*cstat |= 4;
-	if (coord == (int32_t)clip_max[xy])
+	if (coord == clip_max[xy])
 		*cstat |= 8;
 }
 
@@ -168,18 +159,13 @@ int nv01_pgraph_use_v16(struct nv01_pgraph_state *state) {
 	int d0_24 = state->debug[0] >> 24 & 1;
 	int d1_8 = state->debug[1] >> 8 & 1;
 	int d1_24 = state->debug[1] >> 24 & 1;
-	int sd[2], sde[4];
-	sd[0] = state->subdivide >> 0 & 0xf;
-	sd[1] = state->subdivide >> 4 & 0xf;
-	sde[0] = state->subdivide >> 16 & 0xf;
-	sde[1] = state->subdivide >> 20 & 0xf;
-	sde[2] = state->subdivide >> 24 & 0xf;
-	sde[3] = state->subdivide >> 28 & 0xf;
-	int sdl = sd[0] <= sde[0] && sd[0] <= sde[1] && sd[1] <= sde[2] && sd[1] <= sde[3];
-	int biopt = d1_8 && !(state->xy_misc_2[0] & 3 << 28) && !(state->xy_misc_2[1] & 3 << 28);
+	int j;
+	int sdl = 1;
+	for (j = 0; j < 4; j++)
+		if (extr(state->subdivide, (j/2)*4, 4) > extr(state->subdivide, 16+j*4, 4))
+			sdl = 0;
+	int biopt = d1_8 && !extr(state->xy_misc_2[0], 28, 2) && !extr(state->xy_misc_2[1], 28, 2);
 	switch (class) {
-		case 8:
-			return 1;
 		case 0xd:
 		case 0x1d:
 			return d1_24 && (!d0_24 || sdl) && !biopt;
@@ -192,12 +178,12 @@ int nv01_pgraph_use_v16(struct nv01_pgraph_state *state) {
 }
 
 void nv01_pgraph_vtx_fixup(struct nv01_pgraph_state *state, int xy, int idx, int32_t coord, int rel) {
-	uint32_t class = state->access >> 12 & 0x1f;
+	uint32_t class = extr(state->access, 12, 5);
 	int is_texlin_class = (class & 0xf) == 0xd;
 	int is_texquad_class = (class & 0xf) == 0xe;
 	int is_tex_class = is_texlin_class || is_texquad_class;
 	int sid = rel ? idx & 3 : 0;
-	int32_t cbase = (int16_t)(state->canvas_min >> 16 * xy);
+	int32_t cbase = extrs(state->canvas_min, 16 * xy, 16);
 	if (is_tex_class && state->xy_misc_1 & 1 << 25)
 		cbase <<= 4;
 	if (rel)
@@ -207,23 +193,18 @@ void nv01_pgraph_vtx_fixup(struct nv01_pgraph_state *state, int xy, int idx, int
 	else
 		state->vtx_y[idx] = coord;
 	int oob, cstat;
-	nv01_pgraph_clip_status(state, coord, xy, &cstat, &oob);
-	state->xy_misc_2[xy] &= ~(0x11 << sid);
-	state->xy_misc_2[xy] |= oob << (4 + sid);
-	if (rel && (uint32_t)coord < (uint32_t)cbase)
-		state->xy_misc_2[xy] |= 1 << sid;
+	nv01_pgraph_clip_status(state, coord, xy, is_tex_class, &cstat, &oob);
+	int carry = rel && (uint32_t)coord < (uint32_t)cbase;
+	insrt(state->xy_misc_2[xy], sid, 1, carry);
+	insrt(state->xy_misc_2[xy], sid+4, 1, oob);
 	if (class == 8) {
-		state->xy_misc_2[xy] &= ~0xff00;
-		state->xy_misc_2[xy] |= cstat << 8;
-		state->xy_misc_2[xy] |= cstat << 12;
+		insrt(state->xy_misc_2[xy], 8, 4, cstat);
+		insrt(state->xy_misc_2[xy], 12, 4, cstat);
 	} else if (idx < 16 || nv01_pgraph_use_v16(state)) {
-		state->xy_misc_2[xy] &= ~(0xf00 << sid * 4);
-		state->xy_misc_2[xy] |= cstat << (8 + sid * 4);
+		insrt(state->xy_misc_2[xy], 8 + sid * 4, 4, cstat);
 	}
 	if (idx >= 16) {
-		int shift = 16 + xy * 4 + (idx - 16) * 8;
-		state->edgefill &= ~(0xf << shift);
-		state->edgefill |= cstat << shift;
+		insrt(state->edgefill, 16 + xy * 4 + (idx - 16) * 8, 4, cstat);
 	}
 }
 
@@ -235,9 +216,9 @@ void nv01_pgraph_iclip_fixup(struct nv01_pgraph_state *state, int xy, int32_t co
 	int max = state->canvas_max >> (xy * 16) & 0xfff;
 	if (state->xy_misc_1 & 0x2000 << (xy * 4) && state->ctx_switch & 0x80)
 		max = state->uclip_max[xy] & 0xfff;
-	int32_t cbase = (int16_t)(state->canvas_min >> 16 * xy);
+	int32_t cbase = extrs(state->canvas_min, 16 * xy, 16);
 	int32_t cmin = cbase;
-	if (cmin & 0x8000)
+	if (cmin < 0)
 		cmin = 0;
 	if (state->ctx_switch & 0x80 && state->xy_misc_1 & 0x1000 << xy * 4)
 		cmin = state->uclip_min[xy];
@@ -248,30 +229,19 @@ void nv01_pgraph_iclip_fixup(struct nv01_pgraph_state *state, int xy, int32_t co
 		coord += cbase;
 	state->iclip[xy] = coord & 0x3ffff;
 	if (is_tex_class) {
-		coord >>= 15;
-		coord &= 0xffff;
-		if (state->xy_misc_1 & 0x02000000) {
+		coord = extrs(coord, 15, 16);
+		if (state->xy_misc_1 & 0x02000000)
 			coord >>= 4;
-			if (coord & 0x800)
-				coord -= 0x1000;
-		} else {
-			if (coord & 0x8000)
-				coord -= 0x10000;
-		}
 	} else {
-		coord &= 0x3ffff;
-		if (coord & 0x20000)
-			coord -= 0x40000;
+		coord = extrs(coord, 0, 18);
 	}
 	state->xy_misc_1 &= ~0x144000;
-	state->xy_misc_1 |= (coord <= max) << (xy * 4 + 14);
+	insrt(state->xy_misc_1, 14+xy*4, 1, coord <= max);
 	if (!xy) {
-		state->xy_misc_1 &= ~0x10;
-		state->xy_misc_1 |= (coord <= max) << 20;
-		state->xy_misc_1 |= (coord < cmin) << 4;
+		insrt(state->xy_misc_1, 20, 1, coord <= max);
+		insrt(state->xy_misc_1, 4, 1, coord < cmin);
 	} else {
-		state->xy_misc_1 &= ~0x20;
-		state->xy_misc_1 |= (coord < cmin) << 5;
+		insrt(state->xy_misc_1, 5, 1, coord < cmin);
 	}
 }
 
@@ -298,12 +268,8 @@ void nv01_pgraph_uclip_fixup(struct nv01_pgraph_state *state, int xy, int idx, i
 		if (cmin & 0x8000)
 			cmin = 0;
 		int32_t cmax = state->canvas_max >> 16 * xy & 0x0fff;
-		int32_t ucmin = state->uclip_min[xy] & 0x3ffff;
-		int32_t ucmax = state->uclip_max[xy] & 0x3ffff;
-		if (ucmin & 0x20000)
-			ucmin -= 0x40000;
-		if (ucmax & 0x20000)
-			ucmax -= 0x40000;
+		int32_t ucmin = sext(state->uclip_min[xy], 17);
+		int32_t ucmax = sext(state->uclip_max[xy], 17);
 		if (is_tex_class && state->xy_misc_1 & 1 << 25)
 			ucmin >>= 4, ucmax >>= 4;
 		state->xy_misc_1 |= (ucmax < cmin) << (8 + xy);

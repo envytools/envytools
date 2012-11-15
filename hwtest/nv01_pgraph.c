@@ -212,13 +212,13 @@ static int test_scan_access(struct hwtest_ctx *ctx) {
 		uint32_t next = val;
 		nva_wr32(ctx->cnum, 0x4006a4, nv);
 		if (nv & 1 << 24)
-			next &= ~0x1, next |= nv & 0x1;
+			insrt(next, 0, 1, extr(nv, 0, 1));
 		if (nv & 1 << 25)
-			next &= ~0x10, next |= nv & 0x10;
+			insrt(next, 4, 1, extr(nv, 4, 1));
 		if (nv & 1 << 26)
-			next &= ~0x100, next |= nv & 0x100;
+			insrt(next, 8, 1, extr(nv, 8, 1));
 		if (nv & 1 << 27)
-			next &= ~0x1f000, next |= nv & 0x1f000;
+			insrt(next, 12, 5, extr(nv, 12, 5));
 		uint32_t real = nva_rd32(ctx->cnum, 0x4006a4);
 		if (real != next) {
 			printf("ACCESS mismatch: prev %08x write %08x expected %08x real %08x\n", val, nv, next, real);
@@ -459,7 +459,7 @@ static int test_mmio_clip_status(struct hwtest_ctx *ctx) {
 			is_tex_class = 1;
 		nv01_pgraph_load_state(ctx, &exp);
 		int32_t min, max;
-		uint32_t min_exp[2], max_exp[2];
+		int32_t min_exp[2], max_exp[2];
 		nv01_pgraph_clip_bounds(&exp, min_exp, max_exp);
 		if (is_tex_class) {
 			min = max = 0x40000000;
