@@ -143,8 +143,8 @@ static void nv01_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv01_pgraph_sta
 	state->cliprect_ctrl &= 0x113;
 	state->access &= 0x0001f000;
 	state->access |= 0x0f000111;
-	state->pfb_config &= 0x70;
-	state->pfb_config |= nva_rd32(ctx->cnum, 0x600200) & ~0x71;
+	state->pfb_config &= 0x370;
+	state->pfb_config |= nva_rd32(ctx->cnum, 0x600200) & ~0x371;
 }
 
 static void nv01_pgraph_load_state(struct hwtest_ctx *ctx, struct nv01_pgraph_state *state) {
@@ -1001,6 +1001,62 @@ static int test_mthd_bitmap_color(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_rop_simple(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		exp.notify &= ~0x110000;
+		exp.canvas_min = 0;
+		exp.canvas_max = 0x01000400;
+		exp.xy_misc_0 = 0;
+		exp.xy_misc_1 = 0;
+		exp.xy_misc_2[0] = 0;
+		exp.xy_misc_2[1] = 0;
+		exp.ctx_switch &= ~0x007f;
+		exp.ctx_switch |= 0x17;
+		exp.edgefill = 0;
+		exp.cliprect_ctrl = 0;
+		exp.valid = 0;
+		insrt(exp.access, 12, 5, 8);
+		insrt(exp.pfb_config, 4, 3, 3);
+		nv01_pgraph_load_state(ctx, &exp);
+		int x = jrand48(ctx->rand48) & 0x3ff;
+		int y = jrand48(ctx->rand48) & 0xff;
+		uint32_t addr = nv01_pgraph_pixel_addr(&exp, x, y);
+		nva_wr32(ctx->cnum, 0x1000000+(addr&~3), jrand48(ctx->rand48));
+		uint32_t pixel = nva_rd32(ctx->cnum, 0x1000000+(addr&~3)) >> (addr & 3) * 8;
+		pixel &= bflmask(nv01_pgraph_cpp(exp.pfb_config)*8);
+		nva_wr32(ctx->cnum, 0x480400, y << 16 | x);
+		uint32_t epixel = nv01_pgraph_rop(&exp, x, y, pixel);
+		exp.vtx_x[0] = x;
+		exp.vtx_y[0] = y;
+		exp.xy_misc_0 |= 0x10000000;
+		exp.xy_misc_1 |= 0x01000000;
+		if (!x)
+			exp.xy_misc_2[0] |= 0x2200;
+		if (x == 0x400)
+			exp.xy_misc_2[0] |= 0x8800;
+		if (!y)
+			exp.xy_misc_2[1] |= 0x2200;
+		if (y == 0x100)
+			exp.xy_misc_2[1] |= 0x8800;
+		if (extr(exp.canvas_config, 24, 1)) {
+			exp.intr |= 1 << 20;
+			exp.access &= ~0x101;
+		}
+		nv01_pgraph_dump_state(ctx, &real);
+		uint32_t rpixel = nva_rd32(ctx->cnum, 0x1000000+(addr&~3)) >> (addr & 3) * 8;
+		rpixel &= bflmask(nv01_pgraph_cpp(exp.pfb_config)*8);
+		if (nv01_pgraph_cmp_state(&exp, &real) || epixel != rpixel) {
+			printf("Iter %04d: Point (%03x,%02x) orig %08x expected %08x real %08x source %08x canvas %08x pfb %08x\n", i, x, y, pixel, epixel, rpixel, exp.source_color, exp.canvas_config, exp.pfb_config);
+			nv01_pgraph_print_state(&real);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int nv01_pgraph_prep(struct hwtest_ctx *ctx) {
 	if (ctx->chipset != 0x01)
 		return HWTEST_RES_NA;
@@ -1037,6 +1093,10 @@ static int ifc_mthd_prep(struct hwtest_ctx *ctx) {
 }
 
 static int tex_mthd_prep(struct hwtest_ctx *ctx) {
+	return HWTEST_RES_PASS;
+}
+
+static int rop_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
@@ -1089,6 +1149,10 @@ HWTEST_DEF_GROUP(tex_mthd,
 	HWTEST_TEST(test_mthd_subdivide, 0),
 )
 
+HWTEST_DEF_GROUP(rop,
+	HWTEST_TEST(test_rop_simple, 0),
+)
+
 HWTEST_DEF_GROUP(nv01_pgraph,
 	HWTEST_GROUP(scan),
 	HWTEST_GROUP(state),
@@ -1097,4 +1161,5 @@ HWTEST_DEF_GROUP(nv01_pgraph,
 	HWTEST_GROUP(solid_mthd),
 	HWTEST_GROUP(ifc_mthd),
 	HWTEST_GROUP(tex_mthd),
+	HWTEST_GROUP(rop),
 )
