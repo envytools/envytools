@@ -797,7 +797,75 @@ static int test_mthd_subdivide(struct hwtest_ctx *ctx) {
 		}
 		nv01_pgraph_dump_state(ctx, &real);
 		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			nv01_pgraph_print_state(&real);
 			printf("Subdivide set to %08x\n", val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_solid_color(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		int class;
+		uint32_t mthd;
+		switch (nrand48(ctx->rand48)%5) {
+			case 0:
+				mthd = 0x304;
+				class = 8 + nrand48(ctx->rand48)%5;
+				break;
+			case 1:
+				mthd = 0x500 | (jrand48(ctx->rand48)&0x78);
+				class = 8;
+				break;
+			case 2:
+				mthd = 0x600 | (jrand48(ctx->rand48)&0x78);
+				class = 9 + (jrand48(ctx->rand48)&1);
+				break;
+			case 3:
+				mthd = 0x500;
+				class = 0xb;
+				break;
+			case 4:
+				mthd = 0x580 | (jrand48(ctx->rand48)&0x78);
+				class = 0xb;
+				break;
+			default:
+				abort();
+		}
+		uint32_t val = jrand48(ctx->rand48);
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		exp.notify &= ~0x110000;
+		nv01_pgraph_load_state(ctx, &exp);
+		nva_wr32(ctx->cnum, 0x400000 | class << 16 | mthd, val);
+		exp.source_color = val;
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			nv01_pgraph_print_state(&real);
+			printf("Color [%02x:%04x] set to %08x\n", class, mthd, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_bitmap_color(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		int idx = jrand48(ctx->rand48)&1;
+		uint32_t val = jrand48(ctx->rand48);
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		exp.notify &= ~0x110000;
+		nv01_pgraph_load_state(ctx, &exp);
+		nva_wr32(ctx->cnum, 0x520308 + idx * 4, val);
+		exp.bitmap_color[idx] = nv01_pgraph_expand_a1r10g10b10(exp.ctx_switch, exp.canvas_config, val);
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			nv01_pgraph_print_state(&real);
+			printf("Color %d set to %08x\n", idx, val);
 			return HWTEST_RES_FAIL;
 		}
 	}
@@ -824,6 +892,14 @@ static int state_prep(struct hwtest_ctx *ctx) {
 }
 
 static int ctx_mthd_prep(struct hwtest_ctx *ctx) {
+	return HWTEST_RES_PASS;
+}
+
+static int solid_mthd_prep(struct hwtest_ctx *ctx) {
+	return HWTEST_RES_PASS;
+}
+
+static int ifc_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
@@ -864,6 +940,14 @@ HWTEST_DEF_GROUP(ctx_mthd,
 	HWTEST_TEST(test_mthd_pattern_mono_bitmap, 0),
 )
 
+HWTEST_DEF_GROUP(solid_mthd,
+	HWTEST_TEST(test_mthd_solid_color, 0),
+)
+
+HWTEST_DEF_GROUP(ifc_mthd,
+	HWTEST_TEST(test_mthd_bitmap_color, 0),
+)
+
 HWTEST_DEF_GROUP(tex_mthd,
 	HWTEST_TEST(test_mthd_subdivide, 0),
 )
@@ -872,5 +956,7 @@ HWTEST_DEF_GROUP(nv01_pgraph,
 	HWTEST_GROUP(scan),
 	HWTEST_GROUP(state),
 	HWTEST_GROUP(ctx_mthd),
+	HWTEST_GROUP(solid_mthd),
+	HWTEST_GROUP(ifc_mthd),
 	HWTEST_GROUP(tex_mthd),
 )

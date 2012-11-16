@@ -516,6 +516,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0400" name="COLOR" length="1792" variants="NV04_IFC-"/>
 	</stripe>
 
+	<stripe prefix="obj-class" variants="NV01_BITMAP">
+		<reg32 offset="0x0308" name="COLOR" length="2"/>
+		<reg32 offset="0x0310" name="POINT" type="xy16"/>
+		<reg32 offset="0x0314" name="SIZE_OUT" type="wh16"/>
+		<reg32 offset="0x0318" name="SIZE_IN" type="wh16"/>
+		<reg32 offset="0x0400" name="BITMAP" length="32"/>
+	</stripe>
+
 	<stripe prefix="obj-class" variants="NV03_SIFC-NV40_SIFC">
 		<reg32 offset="0x010c" name="PATCH"/>
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
