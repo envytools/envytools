@@ -572,6 +572,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</stripe>
 
 	<stripe prefix="obj-class" variants="NV01_IFM">
+		<reg32 offset="0x040" name="DATA" length="16"/> <!-- internal, written by PDMA -->
 		<reg32 offset="0x308" name="POINT" type="xy16"/>
 		<reg32 offset="0x30c" name="SIZE" type="wh16"/>
 		<reg32 offset="0x310" name="PITCH"/>
