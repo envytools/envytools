@@ -130,28 +130,26 @@ void nv01_pgraph_clip_bounds(struct nv01_pgraph_state *state, int32_t min[2], in
 	}
 }
 
-void nv01_pgraph_clip_status(struct nv01_pgraph_state *state, int32_t coord, int xy, int is_tex_class, int *cstat, int *oob) {
+int nv01_pgraph_clip_status(struct nv01_pgraph_state *state, int32_t coord, int xy, int is_tex_class) {
 	int32_t clip_min[2], clip_max[2];
 	nv01_pgraph_clip_bounds(state, clip_min, clip_max);
-	*cstat = 0;
-	*oob = 0;
+	int cstat = 0;
 	if (is_tex_class) {
 		coord = extrs(coord, 15, 16);
 		if (state->xy_misc_1 & 0x02000000)
 			coord >>= 4;
 	} else {
-		if (coord >= 0x8000 || coord < -0x8000)
-			*oob = 1;
 		coord = extrs(coord, 0, 18);
 	}
 	if (coord < clip_min[xy])
-		*cstat |= 1;
+		cstat |= 1;
 	if (coord == clip_min[xy])
-		*cstat |= 2;
+		cstat |= 2;
 	if (coord > clip_max[xy])
-		*cstat |= 4;
+		cstat |= 4;
 	if (coord == clip_max[xy])
-		*cstat |= 8;
+		cstat |= 8;
+	return cstat;
 }
 
 int nv01_pgraph_use_v16(struct nv01_pgraph_state *state) {
@@ -192,8 +190,8 @@ void nv01_pgraph_vtx_fixup(struct nv01_pgraph_state *state, int xy, int idx, int
 		state->vtx_x[idx] = coord;
 	else
 		state->vtx_y[idx] = coord;
-	int oob, cstat;
-	nv01_pgraph_clip_status(state, coord, xy, is_tex_class, &cstat, &oob);
+	int oob = !is_tex_class && (coord >= 0x8000 || coord < -0x8000);
+	int cstat = nv01_pgraph_clip_status(state, coord, xy, is_tex_class);
 	int carry = rel && (uint32_t)coord < (uint32_t)cbase;
 	insrt(state->xy_misc_2[xy], sid, 1, carry);
 	insrt(state->xy_misc_2[xy], sid+4, 1, oob);
@@ -278,5 +276,105 @@ void nv01_pgraph_uclip_fixup(struct nv01_pgraph_state *state, int xy, int idx, i
 		if (!(state->xy_misc_2[xy] >> 8 & 1))
 			state->xy_misc_1 |= 1 << (12 + xy * 4);
 		state->xy_misc_1 |= (ucmax <= cmax) << (13 + xy * 4);
+	}
+}
+
+void nv01_pgraph_set_clip(struct nv01_pgraph_state *state, int is_size, uint32_t val) {
+	uint32_t class = state->access >> 12 & 0x1f;
+	int is_texlin_class = (class & 0xf) == 0xd;
+	int is_texquad_class = (class & 0xf) == 0xe;
+	int is_tex_class = is_texlin_class || is_texquad_class;
+	int is_tex = is_tex_class && !is_size;
+	int xy;
+	if (is_size) {
+		int n = state->valid >> 24 & 1;
+		state->valid &= ~0x11000000;
+		if (!n)
+			state->valid |= 1 << 28;
+		state->xy_misc_1 &= 0x03000001;
+	} else {
+		if (is_tex_class && (state->xy_misc_1 >> 24 & 3) == 3) {
+			state->valid = 0;
+			state->xy_misc_1 &= ~0x02000000;
+		}
+		state->valid &= ~0x11000000;
+		state->valid |= 1 << 24;
+		state->xy_misc_1 &= 0x00000330;
+		state->xy_misc_1 |= 0x01000000;
+	}
+	for (xy = 0; xy < 2; xy++) {
+		int32_t new = (uint16_t)(val >> xy * 16);
+		int32_t cbase = (int16_t)(state->canvas_min >> 16 * xy);
+		int svidx = is_tex ? 4 : 15;
+		int dvidx = svidx;
+		int mvidx = is_size;
+		if ((class == 0xc || class == 0x11 || class == 0x12 || class == 0x13) && is_size) {
+			svidx = 0;
+			dvidx = extr(state->xy_misc_0, 28, 4);
+			mvidx = dvidx%4;
+		}
+		if (class == 0x14 && is_size) {
+			svidx = 0;
+			dvidx = 2;
+			mvidx = dvidx%4;
+			state->vtx_x[3] = val & 0xffff;
+			state->vtx_y[3] = val >> 16 & 0xffff;
+			state->xy_misc_0 &= ~0x1000;
+		}
+		if (is_tex_class && state->xy_misc_1 & 1 << 25)
+			cbase <<= 4;
+		if (is_size) {
+			new += xy ? state->vtx_y[svidx] : state->vtx_x[svidx];
+		} else {
+			new = (int16_t)new;
+			new += cbase;
+		}
+		uint32_t m2 = state->xy_misc_2[xy];
+		int32_t vcoord = new;
+		if (is_tex)
+			vcoord <<= 15, vcoord |= 1 << 14;
+		if (!xy)
+			state->vtx_x[dvidx] = vcoord;
+		else
+			state->vtx_y[dvidx] = vcoord;
+		state->uclip_min[xy] = state->uclip_max[xy];
+		state->uclip_max[xy] = new & 0x3ffff;
+		int cstat = nv01_pgraph_clip_status(state, new & 0x3ffff, xy, 0);
+		int oob = (new >= 0x8000 || new < -0x8000);
+		if (is_tex_class) {
+			if (is_size) {
+				oob = 0;
+				cstat = nv01_pgraph_clip_status(state, new, xy, 1);
+			} else {
+				oob |= m2 >> (mvidx + 4) & 1;
+			}
+		}
+		state->xy_misc_2[xy] &= ~(0x11 << mvidx);
+		if (!is_size)
+			state->xy_misc_2[xy] |= ((uint32_t)new < (uint32_t)cbase) << mvidx;
+		state->xy_misc_2[xy] |= oob << (4 + mvidx);
+		if (class == 8) {
+			insrt(state->xy_misc_2[xy], 8, 4, cstat);
+			insrt(state->xy_misc_2[xy], 12, 4, cstat);
+		} else {
+			insrt(state->xy_misc_2[xy], 8+mvidx*4, 4, cstat);
+		}
+		if (is_size) {
+			int32_t cmin = state->canvas_min >> 16 * xy & 0x8fff;
+			if (cmin & 0x8000)
+				cmin = 0;
+			int32_t cmax = state->canvas_max >> 16 * xy & 0x0fff;
+			int32_t ucmax = sext(state->uclip_max[xy], 17);
+			if (is_tex_class)
+				ucmax = extrs(vcoord, 15, 16);
+			if (is_tex_class && state->xy_misc_1 & 1 << 25)
+				ucmax >>= 4;
+			state->xy_misc_1 |= (ucmax < cmin) << (8 + xy);
+			if (m2 >> 10 & 1)
+				state->xy_misc_1 |= (ucmax >= 0) << (8 + xy);
+			if (!(m2 >> 8 & 1))
+				state->xy_misc_1 |= 1 << (12 + xy * 4);
+			state->xy_misc_1 |= (ucmax <= cmax) << (13 + xy * 4);
+		}
 	}
 }

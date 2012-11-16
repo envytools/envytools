@@ -805,6 +805,31 @@ static int test_mthd_chroma_plane(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_clip(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		int is_size = jrand48(ctx->rand48) & 1;
+		uint32_t val = jrand48(ctx->rand48);
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		exp.notify &= ~0x110000;
+		/* XXX: submitting on BLIT causes an actual blit */
+		if (is_size && extr(exp.access, 12, 5) == 0x10)
+			insrt(exp.access, 12, 5, 0);
+		nv01_pgraph_load_state(ctx, &exp);
+		nva_wr32(ctx->cnum, 0x450300 + is_size * 4, val);
+		nv01_pgraph_set_clip(&exp, is_size, val);
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			nv01_pgraph_print_state(&real);
+			printf("Clip %s set to %08x\n", is_size?"size":"point", val);
+			printf("Iteration %d\n", i);
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_mthd_pattern_shape(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
@@ -1046,7 +1071,7 @@ HWTEST_DEF_GROUP(ctx_mthd,
 	HWTEST_TEST(test_mthd_beta, 0),
 	HWTEST_TEST(test_mthd_rop, 0),
 	HWTEST_TEST(test_mthd_chroma_plane, 0),
-	/* XXX: CLIP */
+	HWTEST_TEST(test_mthd_clip, 0),
 	HWTEST_TEST(test_mthd_pattern_shape, 0),
 	HWTEST_TEST(test_mthd_pattern_mono_color, 0),
 	HWTEST_TEST(test_mthd_pattern_mono_bitmap, 0),
