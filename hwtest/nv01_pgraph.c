@@ -585,6 +585,63 @@ static int test_mmio_uclip_write(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_ctx_switch(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		uint32_t val = jrand48(ctx->rand48);
+		int classes[20] = {
+			0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
+			0x08, 0x09, 0x0a, 0x0b, 0x0c,
+			0x0d, 0x0e, 0x1d, 0x1e,
+			0x10, 0x11, 0x12, 0x13, 0x14,
+		};
+		int class = classes[nrand48(ctx->rand48) % 20];
+		struct nv01_pgraph_state orig, exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		exp.notify &= ~0x110000;
+		orig = exp;
+		nv01_pgraph_load_state(ctx, &exp);
+		nva_wr32(ctx->cnum, 0x400000 | class << 16, val);
+		int chsw = 0;
+		int och = extr(exp.ctx_switch, 16, 7);
+		int nch = extr(val, 16, 7);
+		if ((val & 0x007f8000) != (exp.ctx_switch & 0x007f8000))
+			chsw = 1;
+		if (!extr(exp.ctx_control, 16, 1))
+			chsw = 1;
+		int volatile_reset = val >> 31 && extr(exp.debug[2], 28, 1) && (!extr(exp.ctx_control, 16, 1) || och == nch);
+		if (chsw) {
+			exp.ctx_control |= 0x01010000;
+			exp.intr |= 0x10;
+			exp.access &= ~0x101;
+		} else {
+			exp.ctx_control &= ~0x01000000;
+		}
+		insrt(exp.access, 12, 5, class);
+		insrt(exp.debug[1], 0, 1, volatile_reset);
+		if (volatile_reset) {
+			exp.bitmap_color[0] &= 0x3fffffff;
+			exp.bitmap_color[1] &= 0x3fffffff;
+			exp.valid &= 0x11000000;
+			exp.xy_misc_0 = 0;
+			exp.xy_misc_1 &= 0x33300;
+			exp.xy_misc_2[0] = 0x555500;
+			exp.xy_misc_2[1] = 0x555500;
+			exp.source_color &= 0x00ff00ff;
+			exp.subdivide &= 0xffff0000;
+		}
+		exp.ctx_switch = val & 0x807fffff;
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			nv01_pgraph_print_state(&orig);
+			printf("Iter %d\n", i);
+			printf("Switch to %02x %08x%s\n", class, val, volatile_reset?" *":"");
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
 static int test_mthd_beta(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
@@ -891,6 +948,10 @@ static int state_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int misc_mthd_prep(struct hwtest_ctx *ctx) {
+	return HWTEST_RES_PASS;
+}
+
 static int ctx_mthd_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
@@ -929,6 +990,10 @@ HWTEST_DEF_GROUP(state,
 	HWTEST_TEST(test_mmio_clip_status, 0),
 )
 
+HWTEST_DEF_GROUP(misc_mthd,
+	HWTEST_TEST(test_mthd_ctx_switch, 0),
+)
+
 HWTEST_DEF_GROUP(ctx_mthd,
 	HWTEST_TEST(test_mthd_ctx_invalid, 0),
 	HWTEST_TEST(test_mthd_beta, 0),
@@ -955,6 +1020,7 @@ HWTEST_DEF_GROUP(tex_mthd,
 HWTEST_DEF_GROUP(nv01_pgraph,
 	HWTEST_GROUP(scan),
 	HWTEST_GROUP(state),
+	HWTEST_GROUP(misc_mthd),
 	HWTEST_GROUP(ctx_mthd),
 	HWTEST_GROUP(solid_mthd),
 	HWTEST_GROUP(ifc_mthd),
