@@ -684,27 +684,74 @@ static int check_mthd_invalid(struct hwtest_ctx *ctx, int class, int mthd) {
 	return 0;
 }
 
-static int test_mthd_ctx_invalid(struct hwtest_ctx *ctx) {
+static int test_mthd_invalid(struct hwtest_ctx *ctx) {
 	int i;
 	int res = 0;
-	for (i = 0; i < 0x2000; i += 4)
-		if (i != 0 && i != 0x104 && i != 0x300)
-			res |= check_mthd_invalid(ctx, 1, i);
-	for (i = 0; i < 0x2000; i += 4)
-		if (i != 0 && i != 0x104 && i != 0x300)
-			res |= check_mthd_invalid(ctx, 2, i);
-	for (i = 0; i < 0x2000; i += 4)
-		if (i != 0 && i != 0x104 && i != 0x304)
-			res |= check_mthd_invalid(ctx, 3, i);
-	for (i = 0; i < 0x2000; i += 4)
-		if (i != 0 && i != 0x104 && i != 0x304)
-			res |= check_mthd_invalid(ctx, 4, i);
-	for (i = 0; i < 0x2000; i += 4)
-		if (i != 0 && i != 0x104 && i != 0x300 && i != 0x304)
-			res |= check_mthd_invalid(ctx, 5, i);
-	for (i = 0; i < 0x2000; i += 4)
-		if (i != 0 && i != 0x104 && i != 0x308 && i != 0x310 && i != 0x314 && i != 0x318 && i != 0x31c)
-			res |= check_mthd_invalid(ctx, 6, i);
+	int classes[20] = {
+		0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
+		0x08, 0x09, 0x0a, 0x0b, 0x0c,
+		0x0d, 0x0e, 0x1d, 0x1e,
+		0x10, 0x11, 0x12, 0x13, 0x14,
+	};
+	for (i = 0; i < 20; i++) {
+		int class = classes[i];
+		int mthd;
+		for (mthd = 0; mthd < 0x2000; mthd += 4) {
+			if (mthd == 0 || mthd == 0x104) /* CTX_SWITCH, NOTIFY */
+				continue;
+			if ((class == 1 || class == 2) && mthd == 0x300) /* ROP, BETA */
+				continue;
+			if ((class == 3 || class == 4) && mthd == 0x304) /* CHROMA, PLANE */
+				continue;
+			if (class == 5 && (mthd == 0x300 || mthd == 0x304)) /* CLIP */
+				continue;
+			if (class == 6 && (mthd == 0x308 || (mthd >= 0x310 && mthd <= 0x31c))) /* PATTERN */
+				continue;
+			if (class >= 8 && class <= 0xc && mthd == 0x304) /* COLOR */
+				continue;
+			if (class == 8 && mthd >= 0x400 && mthd < 0x580) /* POINT */
+				continue;
+			if (class >= 9 && class <= 0xa && mthd >= 0x400 && mthd < 0x680) /* LINE/LIN */
+				continue;
+			if (class == 0xb && mthd >= 0x310 && mthd < 0x31c) /* TRI.TRIANGLE */
+				continue;
+			if (class == 0xb && mthd >= 0x320 && mthd < 0x338) /* TRI.TRIANGLE32 */
+				continue;
+			if (class == 0xb && mthd >= 0x400 && mthd < 0x600) /* TRI.TRIMESH, TRI.TRIMESH32, TRI.CTRIANGLE, TRI.CTRIMESH */
+				continue;
+			if (class == 0xc && mthd >= 0x400 && mthd < 0x480) /* RECT */
+				continue;
+			if (class == 0xd || class == 0xe || class == 0x1d || class == 0x1e) { /* TEX* */
+				if (mthd == 0x304) /* SUBDIVIDE */
+					continue;
+				int vcnt = 4;
+				if ((class & 0xf) == 0xe)
+					vcnt = 9;
+				int vcntd2 = (vcnt+1)/2;
+				if (mthd >= 0x310 && mthd < 0x310+vcnt*4) /* VTX_POS_INT */
+					continue;
+				if (mthd >= 0x350 && mthd < 0x350+vcnt*4) /* VTX_POS_FRACT */
+					continue;
+				if (class & 0x10 && mthd >= 0x380 && mthd < 0x380+vcntd2*4) /* VTX_BETA */
+					continue;
+				if (mthd >= 0x400 && mthd < 0x480) /* COLOR */
+					continue;
+			}
+			if (class == 0x10 && mthd >= 0x300 && mthd < 0x30c) /* BLIT */
+				continue;
+			if (class == 0x11 && mthd >= 0x304 && mthd < 0x310) /* IFC setup */
+				continue;
+			if (class == 0x12 && mthd >= 0x308 && mthd < 0x31c) /* BITMAP setup */
+				continue;
+			if (class >= 0x11 && class <= 0x12 && mthd >= 0x400 && mthd < 0x480) /* IFC/BITMAP data */
+				continue;
+			if (class >= 0x13 && class <= 0x14 && mthd >= 0x308 && mthd < 0x318) /* IFM/ITM */
+				continue;
+			if (class == 0x13 && mthd >= 0x40 && mthd < 0x80) /* IFM data */
+				continue;
+			res |= check_mthd_invalid(ctx, class, mthd);
+		}
+	}
 	return res ? HWTEST_RES_FAIL : HWTEST_RES_PASS;
 }
 
@@ -991,11 +1038,11 @@ HWTEST_DEF_GROUP(state,
 )
 
 HWTEST_DEF_GROUP(misc_mthd,
+	HWTEST_TEST(test_mthd_invalid, 0),
 	HWTEST_TEST(test_mthd_ctx_switch, 0),
 )
 
 HWTEST_DEF_GROUP(ctx_mthd,
-	HWTEST_TEST(test_mthd_ctx_invalid, 0),
 	HWTEST_TEST(test_mthd_beta, 0),
 	HWTEST_TEST(test_mthd_rop, 0),
 	HWTEST_TEST(test_mthd_chroma_plane, 0),
