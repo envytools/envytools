@@ -673,23 +673,32 @@ uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t
 	} else {
 		uint32_t beta = state->beta >> 23;
 		uint8_t factor;
+		if (op >= 0x1b)
+			sa = 0xff;
 		if (op == 0x18) {
 			factor = nv01_pgraph_blend_factor_square(sa);
-		} else if (op == 0x19) {
-			if (!beta)
+		} else if (op == 0x19 || op == 0x1b) {
+			if (!beta && op == 0x19)
 				return pixel;
 			factor = nv01_pgraph_blend_factor(sa, beta);
-		} else if (op == 0x1a) {
-			if (beta == 0xff)
+		} else if (op == 0x1a || op == 0x1c) {
+			if (beta == 0xff && op == 0x1a)
 				return pixel;
 			factor = nv01_pgraph_blend_factor(sa, 0xff-beta);
 		} else {
-			/* XXX */
 			abort();
 		}
-		sr = nv01_pgraph_do_blend(factor, dr, sr);
-		sg = nv01_pgraph_do_blend(factor, dg, sg);
-		sb = nv01_pgraph_do_blend(factor, db, sb);
+		if (op < 0x1b) {
+			sr = nv01_pgraph_do_blend(factor, dr, sr);
+			sg = nv01_pgraph_do_blend(factor, dg, sg);
+			sb = nv01_pgraph_do_blend(factor, db, sb);
+		} else {
+			if (!ta)
+				return pixel;
+			sr = nv01_pgraph_do_blend(factor, tr, sr);
+			sg = nv01_pgraph_do_blend(factor, tg, sg);
+			sb = nv01_pgraph_do_blend(factor, tb, sb);
+		}
 	}
 	int bypass = extr(state->canvas_config, 0, 1);
 	int dither = extr(state->canvas_config, 16, 1);

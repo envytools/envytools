@@ -1025,8 +1025,7 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 			exp.ctx_switch |= ops[nrand48(ctx->rand48) % ARRAY_SIZE(ops)];
 		} else {
 			/* BLEND needs more testing */
-			/* XXX more ops */
-			int ops[] = { 0x18, 0x19, 0x1a };
+			int ops[] = { 0x18, 0x19, 0x1a, 0x1b, 0x1c };
 			exp.ctx_switch |= ops[nrand48(ctx->rand48) % ARRAY_SIZE(ops)];
 			/* XXX R5G5B5 blend */
 			exp.pfb_config |= 0x300;
