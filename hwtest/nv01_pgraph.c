@@ -1004,13 +1004,6 @@ static int test_mthd_bitmap_color(struct hwtest_ctx *ctx) {
 static int test_rop_simple(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 100000; i++) {
-		int ops[] = {
-			0x00, 0x0f,
-			0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
-			0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e,
-			0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x17,
-			/* XXX BLEND */
-		};
 		struct nv01_pgraph_state exp, real;
 		nv01_pgraph_gen_state(ctx, &exp);
 		exp.notify &= ~0x110000;
@@ -1022,7 +1015,22 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		exp.xy_misc_2[1] = 0;
 		/* avoid invalid ops */
 		exp.ctx_switch &= ~0x001f;
-		exp.ctx_switch |= ops[nrand48(ctx->rand48) % ARRAY_SIZE(ops)];
+		if (jrand48(ctx->rand48)&1) {
+			int ops[] = {
+				0x00, 0x0f,
+				0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+				0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e,
+				0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x17,
+			};
+			exp.ctx_switch |= ops[nrand48(ctx->rand48) % ARRAY_SIZE(ops)];
+		} else {
+			/* BLEND needs more testing */
+			/* XXX more ops */
+			int ops[] = { 0x18, 0x19 };
+			exp.ctx_switch |= ops[nrand48(ctx->rand48) % ARRAY_SIZE(ops)];
+			/* XXX R5G5B5 blend */
+			exp.pfb_config |= 0x300;
+		}
 		exp.pattern_shape = nrand48(ctx->rand48)%3; /* shape 3 is a rather ugly hole in Karnough map */
 		exp.edgefill = 0;
 		exp.cliprect_ctrl = 0;
