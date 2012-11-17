@@ -470,23 +470,152 @@ int nv01_pgraph_dither_10to5(int val, int x, int y, int isg) {
 	return val >> 5;
 }
 
+void nv01_pgraph_pattern_pixel(struct nv01_pgraph_state *state, int x, int y, uint32_t *ta, uint32_t *tr, uint32_t *tg, uint32_t *tb, uint32_t *ti) {
+	int bidx;
+	switch (state->pattern_shape) {
+		case 0:
+			bidx = (x & 7) | (y & 7) << 3;
+			break;
+		case 1:
+			bidx = x & 0x3f;
+			break;
+		case 2:
+			bidx = y & 0x3f;
+			break;
+		case 3:
+			bidx = (y & 0x3f) | (x & 0x3c);
+			break;
+		default:
+			abort();
+	}
+	int bit = state->pattern_bitmap[bidx >> 5] >> (bidx & 0x1f) & 1;
+	*ta = state->pattern_a[bit];
+	*tr = state->pattern_rgb[bit] >> 20 & 0x3ff;
+	*tg = state->pattern_rgb[bit] >> 10 & 0x3ff;
+	*tb = state->pattern_rgb[bit] >> 00 & 0x3ff;
+	*ti = state->pattern_rgb[bit] >> 2 & 0xff;
+}
+
+uint8_t nv01_pgraph_xlat_rop(struct nv01_pgraph_state *state) {
+	uint8_t res = 0;
+	int op = extr(state->ctx_switch, 0, 5);
+	int swizzle[3];
+	if (op < 8) {
+		swizzle[0] = op >> 0 & 1;
+		swizzle[1] = op >> 1 & 1;
+		swizzle[2] = op >> 2 & 1;
+	} else if (op < 0x10) {
+		swizzle[0] = (op >> 0 & 1)+1;
+		swizzle[1] = (op >> 1 & 1)+1;
+		swizzle[2] = (op >> 2 & 1)+1;
+	} else if (op == 0x10) {
+		swizzle[0] = 0, swizzle[1] = 1, swizzle[2] = 2;
+	} else if (op == 0x11) {
+		swizzle[0] = 1, swizzle[1] = 0, swizzle[2] = 2;
+	} else if (op == 0x12) {
+		swizzle[0] = 0, swizzle[1] = 2, swizzle[2] = 1;
+	} else if (op == 0x13) {
+		swizzle[0] = 2, swizzle[1] = 0, swizzle[2] = 1;
+	} else if (op == 0x14) {
+		swizzle[0] = 1, swizzle[1] = 2, swizzle[2] = 0;
+	} else if (op == 0x15) {
+		swizzle[0] = 2, swizzle[1] = 1, swizzle[2] = 0;
+	} else {
+		abort();
+	}
+	if (op == 0) {
+		if (state->rop & 0x01)
+			res |= 0x11;
+		if (state->rop & 0x16)
+			res |= 0x44;
+		if (state->rop & 0x68)
+			res |= 0x22;
+		if (state->rop & 0x80)
+			res |= 0x88;
+	} else if (op == 0xf) {
+		if (state->rop & 0x01)
+			res |= 0x03;
+		if (state->rop & 0x16)
+			res |= 0x0c;
+		if (state->rop & 0x68)
+			res |= 0x30;
+		if (state->rop & 0x80)
+			res |= 0xc0;
+	} else {
+		int i;
+		for (i = 0; i < 8; i++) {
+			int s0 = i >> swizzle[0] & 1;
+			int s1 = i >> swizzle[1] & 1;
+			int s2 = i >> swizzle[2] & 1;
+			int s = s2 << 2 | s1 << 1 | s0;
+			if (state->rop >> s & 1)
+				res |= 1 << i;
+		}
+	}
+	return res;
+}
+
+uint32_t nv01_pgraph_do_rop(uint8_t rop, uint32_t dst, uint32_t src, uint32_t pat) {
+	int i;
+	uint32_t res = 0;
+	for (i = 0; i < 10; i++) {
+		int d = dst >> i & 1;
+		int s = src >> i & 1;
+		int p = pat >> i & 1;
+		int bit = p << 2 | s << 1 | d;
+		int r = rop >> bit & 1;
+		res |= r << i;
+	}
+	return res;
+}
+
 uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t pixel) {
 	int src_format = extr(state->ctx_switch, 9, 4) % 5;
 	int cpp = nv01_pgraph_cpp(state->pfb_config);
 	int mode_idx = cpp == 1 || (src_format == 3 && !extr(state->canvas_config, 12, 1));
 	uint32_t rgb, sa;
 	nv01_pgraph_expand_color(state->ctx_switch, state->canvas_config, state->source_color, &rgb, &sa);
+	uint32_t ca = state->chroma >> 30 & 1;
+	uint32_t cr = state->chroma >> 20 & 0x3ff;
+	uint32_t cg = state->chroma >> 10 & 0x3ff;
+	uint32_t cb = state->chroma >> 00 & 0x3ff;
+	uint32_t ci = state->chroma >> 02 & 0xff;
 	uint32_t sr = rgb >> 20 & 0x3ff;
 	uint32_t sg = rgb >> 10 & 0x3ff;
 	uint32_t sb = rgb >> 00 & 0x3ff;
 	uint32_t si = state->source_color & 0xff;
+	uint32_t dr = 0, dg = 0, db = 0, di = 0;
+	if (mode_idx)
+		di = pixel & 0xff;
+	else if (cpp == 2) {
+		int factor = extr(state->canvas_config, 20, 1) ? 0x21 : 0x20;
+		dr = (pixel >> 10 & 0x1f) * factor;
+		dg = (pixel >> 5 & 0x1f) * factor;
+		db = (pixel >> 0 & 0x1f) * factor;
+	} else {
+		dr = pixel >> 20 & 0x3ff;
+		dg = pixel >> 10 & 0x3ff;
+		db = pixel >> 00 & 0x3ff;
+	}
 	int alpha_en = extr(state->debug[0], 28, 1);
+	int op = extr(state->ctx_switch, 0, 5);
+	uint32_t ta, tr, tg, tb, ti;
+	nv01_pgraph_pattern_pixel(state, x, y, &ta, &tr, &tg, &tb, &ti);
+	if (op < 0x16) {
+		int worop = extr(state->debug[0], 20, 1);
+		if (op >= 9 && !ta)
+			return pixel;
+		uint8_t rop = nv01_pgraph_xlat_rop(state);
+		if (rop == 0xaa && worop && !(state->ctx_switch & 0x40))
+			return pixel;
+		sr = nv01_pgraph_do_rop(rop, dr, sr, tr) & 0x3ff;
+		sg = nv01_pgraph_do_rop(rop, dg, sg, tg) & 0x3ff;
+		sb = nv01_pgraph_do_rop(rop, db, sb, tb) & 0x3ff;
+		si = nv01_pgraph_do_rop(rop, di, si, ti) & 0xff;
+	} else if (op >= 0x18) {
+		/* XXX blend */
+	}
 	if (state->ctx_switch & 0x20) {
-		uint32_t ca = state->chroma >> 30 & 1;
-		uint32_t cr = state->chroma >> 20 & 0x3ff;
-		uint32_t cg = state->chroma >> 10 & 0x3ff;
-		uint32_t cb = state->chroma >> 00 & 0x3ff;
-		uint32_t ci = state->chroma >> 02 & 0xff;
 		if (mode_idx) {
 			if (ci == si && ca) {
 				return pixel;
@@ -501,6 +630,7 @@ uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t
 			}
 		}
 	}
+	/* 0x17 s SRCCOPY, ie. a nop */
 	uint32_t planemask = 0xffffffff;
 	if (state->ctx_switch & 0x40)
 		planemask = state->plane;
@@ -509,25 +639,12 @@ uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t
 	uint32_t pg = planemask >> 10 & 0x3ff;
 	uint32_t pb = planemask >> 00 & 0x3ff;
 	uint32_t pi = planemask >> 02 & 0xff;
-	uint32_t dr = 0, dg = 0, db = 0, di = 0;
 	if (!pa && alpha_en)
 		return pixel;
 	if (extr(state->canvas_config, 24, 1))
 		return pixel;
 	if (!sa)
 		return pixel;
-	if (mode_idx)
-		di = pixel & 0xff;
-	else if (cpp == 2) {
-		int factor = extr(state->canvas_config, 20, 1) ? 0x21 : 0x20;
-		dr = (pixel >> 10 & 0x1f) * factor;
-		dg = (pixel >> 5 & 0x1f) * factor;
-		db = (pixel >> 0 & 0x1f) * factor;
-	} else {
-		dr = pixel >> 20 & 0x3ff;
-		dg = pixel >> 10 & 0x3ff;
-		db = pixel >> 00 & 0x3ff;
-	}
 	uint32_t fi = (pi & si) | (~pi & di);
 	uint32_t fr = (pr & sr) | (~pr & dr);
 	uint32_t fg = (pg & sg) | (~pg & dg);
