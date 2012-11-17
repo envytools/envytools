@@ -1003,7 +1003,7 @@ static int test_mthd_bitmap_color(struct hwtest_ctx *ctx) {
 
 static int test_rop_simple(struct hwtest_ctx *ctx) {
 	int i;
-	for (i = 0; i < 10000; i++) {
+	for (i = 0; i < 100000; i++) {
 		struct nv01_pgraph_state exp, real;
 		nv01_pgraph_gen_state(ctx, &exp);
 		exp.notify &= ~0x110000;
@@ -1013,13 +1013,23 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		exp.xy_misc_1 = 0;
 		exp.xy_misc_2[0] = 0;
 		exp.xy_misc_2[1] = 0;
-		exp.ctx_switch &= ~0x003f;
+		exp.ctx_switch &= ~0x001f;
 		exp.ctx_switch |= 0x17;
 		exp.edgefill = 0;
 		exp.cliprect_ctrl = 0;
 		exp.valid = 0;
 		insrt(exp.access, 12, 5, 8);
 		insrt(exp.pfb_config, 4, 3, 3);
+		if (jrand48(ctx->rand48)&1) {
+			/* it's vanishingly rare for the chroma key to match perfectly by random, so boost the odds */
+			uint32_t ckey = nv01_pgraph_expand_a1r10g10b10(exp.ctx_switch, exp.canvas_config, exp.source_color);
+			ckey ^= (jrand48(ctx->rand48) & 1) << 30; /* perturb alpha */
+			if (jrand48(ctx->rand48)&1) {
+				/* perturb it a bit to check which bits have to match */
+				ckey ^= 1 << (nrand48(ctx->rand48) % 30);
+			}
+			exp.chroma = ckey;
+		}
 		nv01_pgraph_load_state(ctx, &exp);
 		int x = jrand48(ctx->rand48) & 0x3ff;
 		int y = jrand48(ctx->rand48) & 0xff;

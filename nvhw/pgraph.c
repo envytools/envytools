@@ -480,6 +480,27 @@ uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t
 	uint32_t sg = rgb >> 10 & 0x3ff;
 	uint32_t sb = rgb >> 00 & 0x3ff;
 	uint32_t si = state->source_color & 0xff;
+	int alpha_en = extr(state->debug[0], 28, 1);
+	if (state->ctx_switch & 0x20) {
+		uint32_t ca = state->chroma >> 30 & 1;
+		uint32_t cr = state->chroma >> 20 & 0x3ff;
+		uint32_t cg = state->chroma >> 10 & 0x3ff;
+		uint32_t cb = state->chroma >> 00 & 0x3ff;
+		uint32_t ci = state->chroma >> 02 & 0xff;
+		if (mode_idx) {
+			if (ci == si && ca) {
+				return pixel;
+			}
+		} else if (cpp == 2 && src_format == 0) {
+			if ((cr >> 5) == (sr >> 5) && (cg >> 5) == (sg >> 5) && (cb >> 5) == (sb >> 5) && ca) {
+				return pixel;
+			}
+		} else {
+			if (cr == sr && cg == sg && cb == sb && ca) {
+				return pixel;
+			}
+		}
+	}
 	uint32_t planemask = 0xffffffff;
 	if (state->ctx_switch & 0x40)
 		planemask = state->plane;
@@ -489,7 +510,7 @@ uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t
 	uint32_t pb = planemask >> 00 & 0x3ff;
 	uint32_t pi = planemask >> 02 & 0xff;
 	uint32_t dr = 0, dg = 0, db = 0, di = 0;
-	if (!pa && extr(state->debug[0], 28, 1))
+	if (!pa && alpha_en)
 		return pixel;
 	if (extr(state->canvas_config, 24, 1))
 		return pixel;
