@@ -377,6 +377,65 @@ static void fill_mpeg_mb(const struct h262_picparm *pp, const struct h262_slice 
 	mb->motion_vertical_field_select[1][1] = vfs;
 }
 
+static void test_mpeg(void *bytes, uint32_t len, struct h262_picparm *picparm, struct h262_seqparm *seqparm)
+{
+#if 1
+	struct bitstream *str = vs_new_decode(VS_H262, bytes, len);
+	int nslice = 0;
+
+	while (str->bytepos < str->bytesnum) {
+		unsigned start_code;
+
+		if (vs_start(str, &start_code)) goto err;
+
+		if (start_code >= H262_START_CODE_SLICE_BASE && start_code <= H262_START_CODE_SLICE_LAST) {
+			struct h262_slice *slice;
+
+			nslice++;
+
+			slice = calloc (sizeof *slice, 1);
+			slice->mbs = calloc (sizeof *slice->mbs, picparm->pic_size_in_mbs);
+			slice->slice_vertical_position = start_code - H262_START_CODE_SLICE_BASE;
+			if (seqparm->vertical_size > 2800) {
+				uint32_t svp_ext;
+				if (vs_u(str, &svp_ext, 3)) {
+					h262_del_slice(slice);
+					goto err;
+				}
+				if (slice->slice_vertical_position >= 0x80) {
+					fprintf(stderr, "Invalid slice start code for large picture\n");
+					goto err;
+				}
+				slice->slice_vertical_position += svp_ext * 0x80;
+			}
+			if (slice->slice_vertical_position >= picparm->pic_height_in_mbs) {
+				fprintf(stderr, "slice_vertical_position too large\n");
+				goto err;
+			}
+			if (h262_slice(str, seqparm, picparm, slice)) {
+//				h262_print_slice(seqparm, picparm, slice);
+				h262_del_slice(slice);
+				goto err;
+			}
+//			h262_print_slice(seqparm, picparm, slice);
+			if (vs_end(str)) {
+				h262_del_slice(slice);
+				goto err;
+			}
+			h262_del_slice(slice);
+		} else {
+			fprintf(stderr, "Unknown start code %08x\n", start_code);
+			goto err;
+		}
+	}
+	return;
+
+err:
+	assert(0);
+	exit(1);
+#endif
+}
+
 static void generate_mpeg(const VdpPictureInfoMPEG1Or2 *info, int mpeg2, const void **byte, uint32_t *len)
 {
 	struct bitstream *str = vs_new_encode(VS_H262);
@@ -403,16 +462,16 @@ static void generate_mpeg(const VdpPictureInfoMPEG1Or2 *info, int mpeg2, const v
 		fill_mpeg_mb(&pp, &slice, &mbs[x]);
 
 	for (y = 0; y < pp.pic_size_in_mbs; y += pp.pic_width_in_mbs, ++val) {
-		vs_align_byte(str, VS_ALIGN_0);
 		vs_start(str, &val);
-		if (h262_slice(str, &seqparm, &pp, &slice)) {
+		if (h262_slice(str, &seqparm, &pp, &slice) || vs_end(str)) {
 			fprintf(stderr, "Failed to encode slice!\n");
 			return;
 		}
 	}
-	vs_end(str);
 	*byte = str->bytes;
 	*len = str->bytesnum;
+
+	test_mpeg(str->bytes, str->bytesnum, &pp, &seqparm);
 	free(mbs);
 	free(str);
 }
@@ -421,10 +480,8 @@ static void action_mpeg(VdpDecoder dec, VdpVideoSurface surf, VdpPictureInfoMPEG
 struct fuzz *f, uint32_t oldval, uint32_t newval)
 {
 	VdpStatus ret;
-	uint8_t *y = calloc(input_height, input_width);
-	uint8_t *cbcr = calloc(input_height/2, input_width);
-	void *data[3] = { y, cbcr };
-	uint32_t pitches[3] = { input_width, input_width };
+	int debug = 1;
+
 	struct snap *cur = f ? calloc(1, sizeof(*cur)) : ref;
 	int save = 0, failed_tries = 0;
 
@@ -432,26 +489,40 @@ struct fuzz *f, uint32_t oldval, uint32_t newval)
 	buffer.struct_version = VDP_BITSTREAM_BUFFER_VERSION;
 	generate_mpeg(info, 1, &buffer.bitstream, &buffer.bitstream_bytes);
 
-	do {
-		if (save)
-			ok(vdp_video_surface_get_bits_y_cb_cr(surf, VDP_YCBCR_FORMAT_NV12, data, pitches));
-		ok(vdp_decoder_render(dec, surf, (void*)info, 1, &buffer));
-	} while ((save = save_data(VS_H262, cur)) == -EAGAIN || (save == -EIO && ++failed_tries < 3));
+	if (!debug) {
+		uint32_t pitches[3] = { input_width, input_width };
 
-	free((void*)buffer.bitstream);
-	ok(vdp_video_surface_get_bits_y_cb_cr(surf, VDP_YCBCR_FORMAT_NV12, data, pitches));
-	free(y);
-	free(cbcr);
-	if (save < 0) {
-		if (!f || oldval == newval) {
-			// Reference streams shouldn't be failing
-			assert(!!!"WTF?");
+		void *data[3];
+
+		data[0] = calloc(input_height, input_width);
+		data[1] = calloc(input_height/2, input_width);
+		data[2] = NULL;
+
+		do {
+			if (save)
+				ok(vdp_video_surface_get_bits_y_cb_cr(surf, VDP_YCBCR_FORMAT_NV12, data, pitches));
+			ok(vdp_decoder_render(dec, surf, (void*)info, 1, &buffer));
+		} while ((save = save_data(VS_H262, cur)) == -EAGAIN || (save == -EIO && ++failed_tries < 3));
+
+		ok(vdp_video_surface_get_bits_y_cb_cr(surf, VDP_YCBCR_FORMAT_NV12, data, pitches));
+		free(data[0]);
+		free(data[1]);
+
+		if (save < 0) {
+			if (!f || oldval == newval) {
+				// Reference streams shouldn't be failing
+				assert(!!!"WTF?");
+				return;
+			}
+			fprintf(stderr, "Failed on %s %u->%u, stream was likely invalid\n", f->name, oldval, newval);
+			free((void*)buffer.bitstream);
+			free(cur);
 			return;
 		}
-		fprintf(stderr, "Failed on %s %u->%u, stream was likely invalid\n", f->name, oldval, newval);
-		free(cur);
-		return;
-	}
+	} else
+		ok(vdp_decoder_render(dec, surf, (void*)info, 1, &buffer));
+
+	free((void*)buffer.bitstream);
 	if (f) {
 		compare_data(ref, cur, f, oldval, newval);
 		free(cur);
