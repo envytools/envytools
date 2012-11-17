@@ -679,8 +679,12 @@ uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t
 			if (!beta)
 				return pixel;
 			factor = nv01_pgraph_blend_factor(sa, beta);
+		} else if (op == 0x1a) {
+			if (beta == 0xff)
+				return pixel;
+			factor = nv01_pgraph_blend_factor(sa, 0xff-beta);
 		} else {
-			/* XXX blend */
+			/* XXX */
 			abort();
 		}
 		sr = nv01_pgraph_do_blend(factor, dr, sr);
