@@ -140,6 +140,7 @@
 		<reg32 offset="0x30" name="INTR" type="nv98_pvp_680_intr"/>
 		<reg32 offset="0x38" name="UNK38_HEIGHT"/>
 	</array>
+	<reg32 offset="0x700" name="JOE" variants="NVA3-"/>
 </array>
 
 </domain>

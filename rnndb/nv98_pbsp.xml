@@ -237,6 +237,7 @@
 		<reg32 offset="0x60" name="MB_TOTAL" variants="NVA3-"/>
 	</array>
 	<reg32 offset="0x580" name="BITPLANE_DATA" length="4" variants="NVA3-"/> <!-- indexed, needs to be saved/restored for mpeg4 -->
+	<reg32 offset="0x640" name="JOE" variants="NVA3-"/>
 </array>
 
 </domain>
