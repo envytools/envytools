@@ -1013,7 +1013,7 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		exp.xy_misc_1 = 0;
 		exp.xy_misc_2[0] = 0;
 		exp.xy_misc_2[1] = 0;
-		exp.ctx_switch &= ~0x007f;
+		exp.ctx_switch &= ~0x003f;
 		exp.ctx_switch |= 0x17;
 		exp.edgefill = 0;
 		exp.cliprect_ctrl = 0;

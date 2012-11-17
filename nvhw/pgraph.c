@@ -472,38 +472,67 @@ int nv01_pgraph_dither_10to5(int val, int x, int y, int isg) {
 
 uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t pixel) {
 	int src_format = extr(state->ctx_switch, 9, 4) % 5;
-	int mode_idx = nv01_pgraph_cpp(state->pfb_config) == 1 || (src_format == 3 && !extr(state->canvas_config, 12, 1));
-	uint32_t rgb, a;
-	nv01_pgraph_expand_color(state->ctx_switch, state->canvas_config, state->source_color, &rgb, &a);
-	uint32_t r = rgb >> 20 & 0x3ff;
-	uint32_t g = rgb >> 10 & 0x3ff;
-	uint32_t b = rgb >> 00 & 0x3ff;
+	int cpp = nv01_pgraph_cpp(state->pfb_config);
+	int mode_idx = cpp == 1 || (src_format == 3 && !extr(state->canvas_config, 12, 1));
+	uint32_t rgb, sa;
+	nv01_pgraph_expand_color(state->ctx_switch, state->canvas_config, state->source_color, &rgb, &sa);
+	uint32_t sr = rgb >> 20 & 0x3ff;
+	uint32_t sg = rgb >> 10 & 0x3ff;
+	uint32_t sb = rgb >> 00 & 0x3ff;
+	uint32_t si = state->source_color & 0xff;
+	uint32_t planemask = 0xffffffff;
+	if (state->ctx_switch & 0x40)
+		planemask = state->plane;
+	uint32_t pa = planemask >> 30 & 1;
+	uint32_t pr = planemask >> 20 & 0x3ff;
+	uint32_t pg = planemask >> 10 & 0x3ff;
+	uint32_t pb = planemask >> 00 & 0x3ff;
+	uint32_t pi = planemask >> 02 & 0xff;
+	uint32_t dr = 0, dg = 0, db = 0, di = 0;
+	if (!pa && extr(state->debug[0], 28, 1))
+		return pixel;
 	if (extr(state->canvas_config, 24, 1))
 		return pixel;
-	if (!a)
+	if (!sa)
 		return pixel;
+	if (mode_idx)
+		di = pixel & 0xff;
+	else if (cpp == 2) {
+		int factor = extr(state->canvas_config, 20, 1) ? 0x21 : 0x20;
+		dr = (pixel >> 10 & 0x1f) * factor;
+		dg = (pixel >> 5 & 0x1f) * factor;
+		db = (pixel >> 0 & 0x1f) * factor;
+	} else {
+		dr = pixel >> 20 & 0x3ff;
+		dg = pixel >> 10 & 0x3ff;
+		db = pixel >> 00 & 0x3ff;
+	}
+	uint32_t fi = (pi & si) | (~pi & di);
+	uint32_t fr = (pr & sr) | (~pr & dr);
+	uint32_t fg = (pg & sg) | (~pg & dg);
+	uint32_t fb = (pb & sb) | (~pb & db);
 	int bypass = extr(state->canvas_config, 0, 1);
 	int dither = extr(state->canvas_config, 16, 1);
-	switch (nv01_pgraph_cpp(state->pfb_config)) {
+	switch (cpp) {
 		case 1:
-			return state->source_color & 0xff;
+			return fi;
 		case 2:
 			if (mode_idx)
-				return bypass << 15 | (state->source_color & 0xff);
+				return bypass << 15 | fi;
 			if (dither && src_format != 0) {
-				r = nv01_pgraph_dither_10to5(r, x, y, 0);
-				g = nv01_pgraph_dither_10to5(g, x, y, 1);
-				b = nv01_pgraph_dither_10to5(b, x, y, 0);
+				fr = nv01_pgraph_dither_10to5(fr, x, y, 0);
+				fg = nv01_pgraph_dither_10to5(fg, x, y, 1);
+				fb = nv01_pgraph_dither_10to5(fb, x, y, 0);
 			} else {
-				r >>= 5;
-				g >>= 5;
-				b >>= 5;
+				fr >>= 5;
+				fg >>= 5;
+				fb >>= 5;
 			}
-			return bypass << 15 | r << 10 | g << 5 | b;
+			return bypass << 15 | fr << 10 | fg << 5 | fb;
 		case 4:
 			if (mode_idx)
-				return bypass << 31 | (state->source_color & 0xff);
-			return bypass << 31 | rgb;
+				return bypass << 31 | fi;
+			return bypass << 31 | fr << 20 | fg << 10 | fb;
 		default:
 			abort();
 	}
