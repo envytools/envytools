@@ -31,6 +31,42 @@
 #include <string.h>
 #include <unistd.h>
 
+/*
+ * TODO:
+ *  - cliprects
+ *  - point VTX methods
+ *  - lin/line VTX methods
+ *  - tri VTX methods
+ *  - rect VTX methods
+ *  - tex* VTX methods
+ *  - tex* COLOR methods
+ *  - ifc/bitmap VTX methods
+ *  - ifc COLOR methods
+ *  - bitmap MONO methods
+ *  - blit VTX methods
+ *  - blit pixel ops
+ *  - tex* pixel ops
+ *  - point rasterization
+ *  - line rasterization
+ *  - lin rasterization
+ *  - tri rasterization
+ *  - rect rasterization
+ *  - quad rasterization
+ *  - blit/ifc/bitmap rasterization
+ *  - itm methods
+ *  - ifm methods
+ *  - notify
+ *  - range interrupt
+ *  - PFB_CONFIG b12
+ *  - interrupt handling
+ *  - ifm rasterization
+ *  - ifm dma
+ *  - itm rasterization
+ *  - itm dma
+ *  - itm pixel ops
+ *  - cleanup & refactor everything
+ */
+
 static const uint32_t nv01_pgraph_state_regs[] = {
 	/* INTR, INVALID */
 	0x400100, 0x400104,
@@ -936,6 +972,54 @@ static int test_mthd_subdivide(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
+static int test_mthd_tex_vtx_xy(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		int beta = jrand48(ctx->rand48) & 1;
+		int quad = jrand48(ctx->rand48) & 1;
+		int fract = jrand48(ctx->rand48) & 1;
+		int idx = nrand48(ctx->rand48) % (quad?9:4);
+		int class = 0xd + beta * 0x10 + quad;
+		uint32_t val = jrand48(ctx->rand48);
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		exp.notify &= ~0x110000;
+		/* XXX: try with other classes? */
+		exp.access = 0x0f000111 | class << 12;
+		nv01_pgraph_load_state(ctx, &exp);
+		nva_wr32(ctx->cnum, 0x400310 + idx * 4 + fract * 0x40 | class << 16, val);
+		if (extr(exp.xy_misc_1, 24, 1) && extr(exp.xy_misc_1, 25, 1) != fract) {
+			exp.valid &= ~0xffffff;
+		}
+		insrt(exp.xy_misc_1, 24, 1, 1);
+		insrt(exp.xy_misc_1, 25, 1, fract);
+		exp.xy_misc_1 |= 0x01000000 | fract << 25;
+		insrt(exp.xy_misc_1, 0, 1, 0);
+		nv01_pgraph_set_vtx(&exp, 0, idx, extrs(val, 0, 16));
+		nv01_pgraph_set_vtx(&exp, 1, idx, extrs(val, 16, 16));
+		int vidx = extr(exp.xy_misc_0, 28, 4);
+		if (idx == 0)
+			vidx = 0;
+		if (vidx == 2 + nv01_pgraph_use_v16(&exp))
+			vidx = 0;
+		else
+			vidx++;
+		insrt(exp.xy_misc_0, 28, 4, vidx);
+		exp.valid |= 0x1001 << idx;
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			nv01_pgraph_print_state(&real);
+			printf("Iter %04d: %s VTX %d set to %08x %s\n", i, quad?"quad":"lin", idx, val, fract?"fract":"int");
+			return HWTEST_RES_FAIL;
+		}
+	}
+	return HWTEST_RES_PASS;
+}
+
+static int test_mthd_tex_vtx_beta(struct hwtest_ctx *ctx) {
+	return HWTEST_RES_PASS;
+}
+
 static int test_mthd_solid_color(struct hwtest_ctx *ctx) {
 	int i;
 	for (i = 0; i < 10000; i++) {
@@ -1191,6 +1275,8 @@ HWTEST_DEF_GROUP(ifc_mthd,
 
 HWTEST_DEF_GROUP(tex_mthd,
 	HWTEST_TEST(test_mthd_subdivide, 0),
+	HWTEST_TEST(test_mthd_tex_vtx_xy, 0),
+	HWTEST_TEST(test_mthd_tex_vtx_beta, 0),
 )
 
 HWTEST_DEF_GROUP(rop,
