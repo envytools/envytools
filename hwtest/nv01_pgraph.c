@@ -87,6 +87,7 @@ static const uint32_t nv01_pgraph_state_regs[] = {
 	0x400080, 0x400084, 0x400088,
 	/* PFB_CONFIG */
 	0x600200,
+	0x600000,
 
 };
 
@@ -143,8 +144,9 @@ static void nv01_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv01_pgraph_sta
 	state->cliprect_ctrl &= 0x113;
 	state->access &= 0x0001f000;
 	state->access |= 0x0f000111;
-	state->pfb_config &= 0x370;
-	state->pfb_config |= nva_rd32(ctx->cnum, 0x600200) & ~0x371;
+	state->pfb_config &= 0x1370;
+	state->pfb_config |= nva_rd32(ctx->cnum, 0x600200) & ~0x1371;
+	state->pfb_boot = nva_rd32(ctx->cnum, 0x600000);
 }
 
 static void nv01_pgraph_load_state(struct hwtest_ctx *ctx, struct nv01_pgraph_state *state) {
@@ -1049,12 +1051,24 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		nv01_pgraph_load_state(ctx, &exp);
 		int x = jrand48(ctx->rand48) & 0x3ff;
 		int y = jrand48(ctx->rand48) & 0xff;
-		uint32_t addr = nv01_pgraph_pixel_addr(&exp, x, y);
-		nva_wr32(ctx->cnum, 0x1000000+(addr&~3), jrand48(ctx->rand48));
-		uint32_t pixel = nva_rd32(ctx->cnum, 0x1000000+(addr&~3)) >> (addr & 3) * 8;
-		pixel &= bflmask(nv01_pgraph_cpp(exp.pfb_config)*8);
+		int bfmt = extr(exp.ctx_switch, 9, 4);
+		int bufmask = (bfmt / 5 + 1) & 3;
+		if (!extr(exp.pfb_config, 12, 1))
+			bufmask = 1;
+		uint32_t addr0 = nv01_pgraph_pixel_addr(&exp, x, y, 0);
+		uint32_t addr1 = nv01_pgraph_pixel_addr(&exp, x, y, 1);
+		nva_wr32(ctx->cnum, 0x1000000+(addr0&~3), jrand48(ctx->rand48));
+		nva_wr32(ctx->cnum, 0x1000000+(addr1&~3), jrand48(ctx->rand48));
+		uint32_t pixel0 = nva_rd32(ctx->cnum, 0x1000000+(addr0&~3)) >> (addr0 & 3) * 8;
+		uint32_t pixel1 = nva_rd32(ctx->cnum, 0x1000000+(addr1&~3)) >> (addr1 & 3) * 8;
+		pixel0 &= bflmask(nv01_pgraph_cpp(exp.pfb_config)*8);
+		pixel1 &= bflmask(nv01_pgraph_cpp(exp.pfb_config)*8);
 		nva_wr32(ctx->cnum, 0x480400, y << 16 | x);
-		uint32_t epixel = nv01_pgraph_rop(&exp, x, y, pixel);
+		uint32_t epixel0 = pixel0, epixel1 = pixel1;
+		if (bufmask & 1)
+			epixel0 = nv01_pgraph_rop(&exp, x, y, pixel0);
+		if (bufmask & 2)
+			epixel1 = nv01_pgraph_rop(&exp, x, y, pixel1);
 		exp.vtx_x[0] = x;
 		exp.vtx_y[0] = y;
 		exp.xy_misc_0 |= 0x10000000;
@@ -1072,10 +1086,14 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 			exp.access &= ~0x101;
 		}
 		nv01_pgraph_dump_state(ctx, &real);
-		uint32_t rpixel = nva_rd32(ctx->cnum, 0x1000000+(addr&~3)) >> (addr & 3) * 8;
-		rpixel &= bflmask(nv01_pgraph_cpp(exp.pfb_config)*8);
-		if (nv01_pgraph_cmp_state(&exp, &real) || epixel != rpixel) {
-			printf("Iter %05d: Point (%03x,%02x) orig %08x expected %08x real %08x source %08x canvas %08x pfb %08x ctx %08x beta %02x fmt %d\n", i, x, y, pixel, epixel, rpixel, exp.source_color, exp.canvas_config, exp.pfb_config, exp.ctx_switch, exp.beta >> 23, (int)extr(exp.ctx_switch, 9, 4)%5);
+		uint32_t rpixel0 = nva_rd32(ctx->cnum, 0x1000000+(addr0&~3)) >> (addr0 & 3) * 8;
+		uint32_t rpixel1 = nva_rd32(ctx->cnum, 0x1000000+(addr1&~3)) >> (addr1 & 3) * 8;
+		rpixel0 &= bflmask(nv01_pgraph_cpp(exp.pfb_config)*8);
+		rpixel1 &= bflmask(nv01_pgraph_cpp(exp.pfb_config)*8);
+		if (!extr(exp.pfb_config, 12, 1))
+			rpixel1 = epixel1;
+		if (nv01_pgraph_cmp_state(&exp, &real) || epixel0 != rpixel0 || epixel1 != rpixel1) {
+			printf("Iter %05d: Point (%03x,%02x) orig %08x/%08x expected %08x/%08x real %08x/%08x source %08x canvas %08x pfb %08x ctx %08x beta %02x fmt %d\n", i, x, y, pixel0, pixel1, epixel0, epixel1, rpixel0, rpixel1, exp.source_color, exp.canvas_config, exp.pfb_config, exp.ctx_switch, exp.beta >> 23, bfmt%5);
 			nv01_pgraph_print_state(&real);
 			return HWTEST_RES_FAIL;
 		}

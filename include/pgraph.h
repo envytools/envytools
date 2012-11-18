@@ -81,6 +81,7 @@ struct nv01_pgraph_state {
 	uint32_t debug[3];
 	/* not exactly PGRAPH reg, but important */
 	uint32_t pfb_config;
+	uint32_t pfb_boot;
 };
 
 void nv01_pgraph_expand_color(uint32_t ctx, uint32_t config, uint32_t color, uint32_t *rgb, uint32_t *alpha);
@@ -92,7 +93,7 @@ void nv01_pgraph_iclip_fixup(struct nv01_pgraph_state *state, int xy, int32_t co
 void nv01_pgraph_uclip_fixup(struct nv01_pgraph_state *state, int xy, int idx, int32_t coord, int rel);
 void nv01_pgraph_set_clip(struct nv01_pgraph_state *state, int is_size, uint32_t val);
 int nv01_pgraph_cpp(uint32_t pfb_config);
-uint32_t nv01_pgraph_pixel_addr(struct nv01_pgraph_state *state, int x, int y);
+uint32_t nv01_pgraph_pixel_addr(struct nv01_pgraph_state *state, int x, int y, int buf);
 uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t pixel);
 
 #endif

@@ -67,7 +67,7 @@
 	<bitfield pos="6" name="PLANE"/>
 	<bitfield pos="7" name="CLIP"/>
 	<bitfield pos="8" name="NOTIFY_VALID"/>
-	<bitfield low="9" high="12" name="COLOR_FORMAT"> <!-- in double buffer config, also selects the buffer to render into -->
+	<bitfield low="9" high="12" name="COLOR_FORMAT"> <!-- in double buffer config, also selects the buffer[s] to render into -->
 		<value value="0" name="BUF0_X1R5G5B5_A1R5G5B5"/>
 		<value value="1" name="BUF0_X8R8G8B8_A8R8G8B8"/>
 		<value value="2" name="BUF0_X2R10G10B10_A2R10G10B10"/>
@@ -78,6 +78,11 @@
 		<value value="7" name="BUF1_X2R10G10B10_A2R10G10B10"/>
 		<value value="8" name="BUF1_Y8_A8Y8"/>
 		<value value="9" name="BUF1_Y16_A16Y16"/>
+		<value value="10" name="BUF01_X1R5G5B5_A1R5G5B5"/>
+		<value value="11" name="BUF01_X8R8G8B8_A8R8G8B8"/>
+		<value value="12" name="BUF01_X2R10G10B10_A2R10G10B10"/>
+		<value value="13" name="BUF01_Y8_A8Y8"/>
+		<value value="14" name="BUF01_Y16_A16Y16"/>
 	</bitfield>
 	<bitfield pos="13" name="ALPHA"/>
 	<bitfield pos="14" name="MONO_FORMAT">

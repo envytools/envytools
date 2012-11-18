@@ -416,8 +416,17 @@ int nv01_pgraph_width(uint32_t pfb_config) {
 	}
 }
 
-uint32_t nv01_pgraph_pixel_addr(struct nv01_pgraph_state *state, int x, int y) {
-	return (y * nv01_pgraph_width(state->pfb_config) + x) * nv01_pgraph_cpp(state->pfb_config);
+uint32_t nv01_pgraph_pixel_addr(struct nv01_pgraph_state *state, int x, int y, int buf) {
+	uint32_t addr = (y * nv01_pgraph_width(state->pfb_config) + x) * nv01_pgraph_cpp(state->pfb_config);
+	uint32_t memsize = 1 << (20 + extr(state->pfb_boot, 0, 2));
+	if (extr(state->pfb_config, 12, 1)) {
+		addr &= memsize/2 - 1;
+		buf &= 1;
+		addr += buf * memsize/2;
+	} else {
+		addr &= memsize - 1;
+	}
+	return addr;
 }
 
 int nv01_pgraph_dither_10to5(int val, int x, int y, int isg) {
