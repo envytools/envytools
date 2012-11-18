@@ -583,13 +583,18 @@ uint32_t nv01_pgraph_blend_factor(uint32_t alpha, uint32_t beta) {
 	return ((alpha >> 4) * beta) >> 4;
 }
 
-uint32_t nv01_pgraph_do_blend(uint32_t factor, uint32_t dst, uint32_t src) {
+uint32_t nv01_pgraph_do_blend(uint32_t factor, uint32_t dst, uint32_t src, int is_r5g5b5) {
 	if (factor == 0xff)
 		return src;
 	if (!factor)
 		return dst;
-	uint32_t res = ((dst >> 2) * (0xff - factor) + (src >> 2) * factor) >> 6;
-	return res;
+	if (is_r5g5b5) {
+		src &= 0x3e0;
+		dst &= 0x3e0;
+	}
+	dst >>= 2;
+	src >>= 2;
+	return (dst * (0xff - factor) + src * factor) >> 6;
 }
 
 uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t pixel) {
@@ -598,6 +603,8 @@ uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t
 	int op = extr(state->ctx_switch, 0, 5);
 	int blend_en = op >= 0x18;
 	int mode_idx = (cpp == 1 || (src_format == 3 && !extr(state->canvas_config, 12, 1))) && !blend_en;
+	int bypass = extr(state->canvas_config, 0, 1);
+	int dither = extr(state->canvas_config, 16, 1) && (src_format != 0 || blend_en) && cpp == 2;
 	uint32_t rgb, sa;
 	nv01_pgraph_expand_color(state->ctx_switch, state->canvas_config, state->source_color, &rgb, &sa);
 	if (!sa)
@@ -671,6 +678,7 @@ uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t
 			sb = (pb & sb) | (~pb & db);
 		}
 	} else {
+		int is_r5g5b5 = cpp == 2 && !dither;
 		uint32_t beta = state->beta >> 23;
 		uint8_t factor;
 		if (op >= 0x1b)
@@ -688,27 +696,36 @@ uint32_t nv01_pgraph_rop(struct nv01_pgraph_state *state, int x, int y, uint32_t
 		} else {
 			abort();
 		}
+		if (cpp == 2 && src_format == 0) {
+			sr &= 0x3e0;
+			sg &= 0x3e0;
+			sb &= 0x3e0;
+			tr &= 0x3e0;
+			tg &= 0x3e0;
+			tb &= 0x3e0;
+			dr &= 0x3e0;
+			dg &= 0x3e0;
+			db &= 0x3e0;
+		}
 		if (op < 0x1b) {
-			sr = nv01_pgraph_do_blend(factor, dr, sr);
-			sg = nv01_pgraph_do_blend(factor, dg, sg);
-			sb = nv01_pgraph_do_blend(factor, db, sb);
+			sr = nv01_pgraph_do_blend(factor, dr, sr, is_r5g5b5);
+			sg = nv01_pgraph_do_blend(factor, dg, sg, is_r5g5b5);
+			sb = nv01_pgraph_do_blend(factor, db, sb, is_r5g5b5);
 		} else {
 			if (!ta)
 				return pixel;
-			sr = nv01_pgraph_do_blend(factor, tr, sr);
-			sg = nv01_pgraph_do_blend(factor, tg, sg);
-			sb = nv01_pgraph_do_blend(factor, tb, sb);
+			sr = nv01_pgraph_do_blend(factor, tr, sr, is_r5g5b5);
+			sg = nv01_pgraph_do_blend(factor, tg, sg, is_r5g5b5);
+			sb = nv01_pgraph_do_blend(factor, tb, sb, is_r5g5b5);
 		}
 	}
-	int bypass = extr(state->canvas_config, 0, 1);
-	int dither = extr(state->canvas_config, 16, 1);
 	switch (cpp) {
 		case 1:
 			return si;
 		case 2:
 			if (mode_idx)
 				return bypass << 15 | si;
-			if (dither && src_format != 0) {
+			if (dither) {
 				sr = nv01_pgraph_dither_10to5(sr, x, y, 0);
 				sg = nv01_pgraph_dither_10to5(sg, x, y, 1);
 				sb = nv01_pgraph_dither_10to5(sb, x, y, 0);

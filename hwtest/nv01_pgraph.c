@@ -1027,8 +1027,8 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 			/* BLEND needs more testing */
 			int ops[] = { 0x18, 0x19, 0x1a, 0x1b, 0x1c };
 			exp.ctx_switch |= ops[nrand48(ctx->rand48) % ARRAY_SIZE(ops)];
-			/* XXX R5G5B5 blend */
-			exp.pfb_config |= 0x300;
+			/* XXX Y8 blend? */
+			exp.pfb_config |= 0x200;
 		}
 		exp.pattern_shape = nrand48(ctx->rand48)%3; /* shape 3 is a rather ugly hole in Karnough map */
 		exp.edgefill = 0;
@@ -1075,7 +1075,7 @@ static int test_rop_simple(struct hwtest_ctx *ctx) {
 		uint32_t rpixel = nva_rd32(ctx->cnum, 0x1000000+(addr&~3)) >> (addr & 3) * 8;
 		rpixel &= bflmask(nv01_pgraph_cpp(exp.pfb_config)*8);
 		if (nv01_pgraph_cmp_state(&exp, &real) || epixel != rpixel) {
-			printf("Iter %04d: Point (%03x,%02x) orig %08x expected %08x real %08x source %08x canvas %08x pfb %08x\n", i, x, y, pixel, epixel, rpixel, exp.source_color, exp.canvas_config, exp.pfb_config);
+			printf("Iter %05d: Point (%03x,%02x) orig %08x expected %08x real %08x source %08x canvas %08x pfb %08x ctx %08x beta %02x fmt %d\n", i, x, y, pixel, epixel, rpixel, exp.source_color, exp.canvas_config, exp.pfb_config, exp.ctx_switch, exp.beta >> 23, (int)extr(exp.ctx_switch, 9, 4)%5);
 			nv01_pgraph_print_state(&real);
 			return HWTEST_RES_FAIL;
 		}
