@@ -66,7 +66,7 @@
 	<reg8 offset="0x20" name="CURSOR_MODE">
 		<value value="0" name="DISABLED"/>
 		<value value="1" name="C0_TRANS_C2_C1"/>
-		<value value="3" name="C1_C2_INV_TRANS"/>
+		<value value="2" name="C1_C2_INV_TRANS"/>
 		<value value="3" name="TRANS_TRANS_C2_C1"/>
 	</reg8>
 	<reg8 offset="0x22" name="CURSOR_X_POS_LO"/>
