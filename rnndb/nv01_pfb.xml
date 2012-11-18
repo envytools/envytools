@@ -84,7 +84,7 @@
 			<value value="2" name="16"/> <!-- actually 15 -->
 			<value value="3" name="32"/> <!-- actually 30 -->
 		</bitfield>
-		<bitfield pos="12" name="UNK12"/>
+		<bitfield pos="12" name="DOUBLE_BUFFER"/> <!-- split memory in two halves, PGRAPH.CTX_SWITCH.COLOR_FORMAT selects which one will be rendered to, RAMIN striped over both -->
 		<bitfield low="16" high="18" name="UNK16"/>
 		<bitfield pos="20" name="SCANLINE"/>
 		<bitfield low="24" high="26" name="PCLK_VCLK_RATIO"/>
