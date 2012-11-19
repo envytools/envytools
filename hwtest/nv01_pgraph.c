@@ -38,7 +38,6 @@
  *  - lin/line VTX methods
  *  - tri VTX methods
  *  - rect VTX methods
- *  - tex* VTX methods
  *  - tex* COLOR methods
  *  - ifc/bitmap VTX methods
  *  - ifc COLOR methods
@@ -51,13 +50,14 @@
  *  - lin rasterization
  *  - tri rasterization
  *  - rect rasterization
+ *  - texlin calculations
+ *  - texquad calculations
  *  - quad rasterization
  *  - blit/ifc/bitmap rasterization
  *  - itm methods
  *  - ifm methods
  *  - notify
  *  - range interrupt
- *  - PFB_CONFIG b12
  *  - interrupt handling
  *  - ifm rasterization
  *  - ifm dma
@@ -987,7 +987,7 @@ static int test_mthd_tex_vtx_xy(struct hwtest_ctx *ctx) {
 		/* XXX: try with other classes? */
 		exp.access = 0x0f000111 | class << 12;
 		nv01_pgraph_load_state(ctx, &exp);
-		nva_wr32(ctx->cnum, 0x400310 + idx * 4 + fract * 0x40 | class << 16, val);
+		nva_wr32(ctx->cnum, (0x400310 + idx * 4 + fract * 0x40) | class << 16, val);
 		if (extr(exp.xy_misc_1, 24, 1) && extr(exp.xy_misc_1, 25, 1) != fract) {
 			exp.valid &= ~0xffffff;
 		}
@@ -1017,6 +1017,40 @@ static int test_mthd_tex_vtx_xy(struct hwtest_ctx *ctx) {
 }
 
 static int test_mthd_tex_vtx_beta(struct hwtest_ctx *ctx) {
+	int i;
+	for (i = 0; i < 10000; i++) {
+		int quad = jrand48(ctx->rand48) & 1;
+		int idx = nrand48(ctx->rand48) % (quad?5:2);
+		int mclass = 0x1d + quad;
+		uint32_t val = jrand48(ctx->rand48);
+		struct nv01_pgraph_state exp, real;
+		nv01_pgraph_gen_state(ctx, &exp);
+		exp.notify &= ~0x110000;
+		nv01_pgraph_load_state(ctx, &exp);
+		nva_wr32(ctx->cnum, (0x400380 + idx * 4) | mclass << 16, val);
+		uint32_t rclass = extr(exp.access, 12, 5);
+		int j;
+		for (j = 0; j < 2; j++) {
+			int vid = idx * 2 + j;
+			if (vid == 9 && (rclass & 0xf) == 0xe)
+				break;
+			uint32_t beta = extr(val, j*16, 16);
+			beta &= 0xff80;
+			beta <<= 8;
+			beta |= 0x4000;
+			if (beta & 1 << 23)
+				beta |= 1 << 24;
+			exp.vtx_beta[vid] = beta;
+		}
+		if (rclass == 0x1d || rclass == 0x1e)
+			exp.valid |= 1 << (12 + idx);
+		nv01_pgraph_dump_state(ctx, &real);
+		if (nv01_pgraph_cmp_state(&exp, &real)) {
+			nv01_pgraph_print_state(&real);
+			printf("Iter %04d: VTX %d set to %08x\n", i, idx, val);
+			return HWTEST_RES_FAIL;
+		}
+	}
 	return HWTEST_RES_PASS;
 }
 
