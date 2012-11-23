@@ -15,11 +15,11 @@ as well. They can be triggered by hw events, or by the user.
 
 The lines are:
 
-  0 [E]: periodic timer		[fuc-timer.txt]
-  1 [E]: watchdog timer		[fuc-timer.txt]
-  2 [L]: FIFO data available	[fuc-fifo.txt]
-  3 [E]: PFIFO channel switch	[fuc-fifo.txt]
-  4 [E]: uc halted		[fuc-proc.txt]
+  0 [E]: periodic timer		[fuc/timer.txt]
+  1 [E]: watchdog timer		[fuc/timer.txt]
+  2 [L]: FIFO data available	[fuc/fifo.txt]
+  3 [E]: PFIFO channel switch	[fuc/fifo.txt]
+  4 [E]: uc halted		[fuc/proc.txt]
   5 [E]: ??? [related to fuc+0x0a4] [XXX]
   6-7 [E]: scratch [unused by hw, user-defined]
   8-9 [E by default]: engine-specific
@@ -91,11 +91,11 @@ of $tstatus are:
 
 The known trap reasons are:
 
-  0-3	software trap		[fuc-intr.txt]
-  8	invalid opcode		[fuc-isa.txt]
-  0xa	page fault - no hit	[fuc-vm.txt]
-  0xb	page fault - multi hit	[fuc-vm.txt]
-  0xf   breakpoint hit		[fuc-debug.txt]
+  0-3	software trap		[fuc/intr.txt]
+  8	invalid opcode		[fuc/isa.txt]
+  0xa	page fault - no hit	[fuc/vm.txt]
+  0xb	page fault - multi hit	[fuc/vm.txt]
+  0xf   breakpoint hit		[fuc/debug.txt]
 
 Whenever there's an active and enabled interrupt set for vector X delivery,
 and ieX flag is set, vector X is called:
@@ -121,7 +121,7 @@ Whenever a trapworthy event happens on the uc, a trap is delivered:
 
 Operation:
 	if ($flags.ta) { // double trap?
-		EXIT; // see fuc-proc.txt
+		EXIT; // see fuc/proc.txt
 	}
 	$flags.ta = 1;
 	if (fuc_version != 0) // on v0, there's only one possible trap reason anyway [8]

@@ -43,25 +43,25 @@ NVC0 VM client: HUB 0x0d
 
 The IO registers:
 
-400/10000:480/12000 BSP		bitstream processor	[vp3-pbsp.txt]
-480/12000:500/14000 STREAM	bitstream input		[vp3-pbsp.txt]
-500/14000:580/16000 MBRING	macroblock data output	[vp3-pbsp.txt]
-580/16000:600/18000 ???		???			[vp3-pbsp.txt]
-640/19000:680/1a000 JOE		???			[vp3-pbsp.txt]
-600/18000:640/19000 MEMIF	memory interface	[fuc-memif.txt]
-680/1a000:700/1c000 ???		???			[vp3-pbsp.txt]
-800/20000:900/24000 CRYPT	crypto coprocessor	[fuc-crypt.txt]
-900/24000:a00/28000 ???		???			[fuc-crypt.txt]
-c00/30000:c40/31000 ???		???			[fuc-crypt.txt]
-d00/34000:d40/35000 ???		???			[fuc-crypt.txt]
+400/10000:480/12000 BSP		bitstream processor	[vdec/vp3-pbsp.txt]
+480/12000:500/14000 STREAM	bitstream input		[vdec/vp3-pbsp.txt]
+500/14000:580/16000 MBRING	macroblock data output	[vdec/vp3-pbsp.txt]
+580/16000:600/18000 ???		???			[vdec/vp3-pbsp.txt]
+640/19000:680/1a000 JOE		???			[vdec/vp3-pbsp.txt]
+600/18000:640/19000 MEMIF	memory interface	[fuc/memif.txt]
+680/1a000:700/1c000 ???		???			[vdec/vp3-pbsp.txt]
+800/20000:900/24000 CRYPT	crypto coprocessor	[fuc/crypt.txt]
+900/24000:a00/28000 ???		???			[fuc/crypt.txt]
+c00/30000:c40/31000 ???		???			[fuc/crypt.txt]
+d00/34000:d40/35000 ???		???			[fuc/crypt.txt]
 
 [XXX: MEMIF ports]
 
 Interrupts:
-  8: [E] MEMIF_TARGET_INVALID [NV98:NVC0] [fuc-memif.txt]
-  9: [E] MEMIF_FAULT [NV98:NVC0] [fuc-memif.txt]
- 10: [L] BSP [vp3-pbsp.txt]
- 11: [L] CRYPT [NVA3-] [fuc-crypt.txt]
+  8: [E] MEMIF_TARGET_INVALID [NV98:NVC0] [fuc/memif.txt]
+  9: [E] MEMIF_FAULT [NV98:NVC0] [fuc/memif.txt]
+ 10: [L] BSP [vdec/vp3-pbsp.txt]
+ 11: [L] CRYPT [NVA3-] [fuc/crypt.txt]
 
 [XXX: status bits]
 

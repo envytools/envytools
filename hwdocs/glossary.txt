@@ -112,7 +112,7 @@ bound and unbound to subchannels through the command stream.
 
 surface: a 2d or 3d array of samples, elements, or bytes, depending on the
 viewpoint - depending on how it's used, it can be a render target, a texture,
-a framebuffer, etc. [nv50-surface.txt]
+a framebuffer, etc. [memory/nv50-surface.txt]
 
 surface element: see element
 
@@ -142,4 +142,4 @@ Z
 
 zeta surface: a surface containing the depth buffer, optionally the stencil
 buffer, and the special coverage component if coverage sampling is in use
-[see nv50-surface.txt]
+[see memory/nv50-surface.txt]

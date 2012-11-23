@@ -29,15 +29,15 @@ NVC0 VM client: HUB 0x0c
 
 The IO registers:
 
-400/10000:480/12000 FE		front end		[vp3-pppp.txt]
-480/12000:500/14000 ???		??? [NVA3:NVD9]		[vp3-pppp.txt]
-500/14000:5c0/17000 FG		film grain effect	[vp3-pppp.txt]
-5c0/17000:600/18000 VC1		VC-1 postprocessing	[vp3-pppp.txt]
-600/18000:640/19000 MEMIF	memory interface	[fuc-memif.txt]
-640/19000:680/1a000 POUT	picture output		[vp3-pppp.txt]
-680/1a000:740/1d000 HIST	histogram		[vp3-pppp.txt]
-740/1d000:780/1e000 JOE		???			[vp3-pppp.txt]
-780/1e000:7c0/1f000 ???		??? [NVC0:]		[vp3-pppp.txt]
+400/10000:480/12000 FE		front end		[vdec/vp3-pppp.txt]
+480/12000:500/14000 ???		??? [NVA3:NVD9]		[vdec/vp3-pppp.txt]
+500/14000:5c0/17000 FG		film grain effect	[vdec/vp3-pppp.txt]
+5c0/17000:600/18000 VC1		VC-1 postprocessing	[vdec/vp3-pppp.txt]
+600/18000:640/19000 MEMIF	memory interface	[fuc/memif.txt]
+640/19000:680/1a000 POUT	picture output		[vdec/vp3-pppp.txt]
+680/1a000:740/1d000 HIST	histogram		[vdec/vp3-pppp.txt]
+740/1d000:780/1e000 JOE		???			[vdec/vp3-pppp.txt]
+780/1e000:7c0/1f000 ???		??? [NVC0:]		[vdec/vp3-pppp.txt]
 
 MEMIF ports:
   1: PIN - picture input
@@ -47,8 +47,8 @@ MEMIF ports:
   5: UNK480 - ??? write [XXX]
 
 Interrupts:
-  8: [E] MEMIF_TARGET_INVALID [NVA3:NVC0] [fuc-memif.txt]
-  9: [E] MEMIF_FAULT [NVA3:NVC0] [fuc-memif.txt]
+  8: [E] MEMIF_TARGET_INVALID [NVA3:NVC0] [fuc/memif.txt]
+  9: [E] MEMIF_FAULT [NVA3:NVC0] [fuc/memif.txt]
  10: [L] POUT_DONE
  11: [L] POUT_ERR
  12: [L] FE_ERR
@@ -56,8 +56,8 @@ Interrupts:
  14: [L] FG_ERR
 
 Status bits:
-  0: fµc [fuc-proc.txt]
-  1: MEMIF [fuc-memif.txt]
+  0: fµc [fuc/proc.txt]
+  1: MEMIF [fuc/memif.txt]
   2: POUT
   3: UNKE4 ???
   4: VC1

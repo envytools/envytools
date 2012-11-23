@@ -68,7 +68,7 @@ when not shown by the above schema.
 
 In summary, a card contains:
 
- - a GPU chipset [see nvchipsets.txt for a list]
+ - a GPU chipset [see chipsets.txt for a list]
  - a PCI, AGP, or PCI-Express host interface
  - on-board GPU memory [aka VRAM] - depending on GPU, various memory types can
    be supported: VRAM, EDO, SGRAM, SDR, DDR, DDR2, GDDR3, DDR3, GDDR5.
@@ -189,7 +189,7 @@ The GPU is made of:
  - processing engines:
   - PFIFO: gathers processing commands from the command buffers prepared by
     the host and delivers them to PGRAPH and PVPE engines in orderly manner
-    [fifo.txt]
+    [fifo/fifo.txt]
   - PGRAPH: memory copying, 2d and 3d rendering engine
   - PVPE: a trio of video decoding/encoding engines
    - PMPEG: MPEG1 and MPEG2 mocomp and IDCT decoding engine [NV17+]
@@ -210,7 +210,7 @@ The GPU is made of:
     controller for them
 
 Almost all units of the GPU are controlled through MMIO registers accessible
-by a common bus and visible through PCI BAR0 [see nvbars.txt]. This bus is not
+by a common bus and visible through PCI BAR0 [see bars.txt]. This bus is not
 shown above.
 
 
@@ -263,7 +263,7 @@ The GPU is made of:
  - processing engines:
   - PFIFO: gathers processing commands from the command buffers prepared by
     the host and delivers them to PGRAPH and PVPE engines in orderly manner
-    [fifo.txt]
+    [fifo/fifo.txt]
   - PGRAPH: memory copying, 2d and 3d rendering engine
   - video decoding engines, see below
   - PCOPY: asynchronous copy engine [pcopy.txt]

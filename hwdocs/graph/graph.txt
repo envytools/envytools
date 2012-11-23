@@ -29,52 +29,52 @@ The following graphics objects exist on NV01:NV04:
 [3] - NV03:NV04 only
 no annotation - all NV01:NV04 GPUs
 
-0x01     BETA - sets beta factor for blending		[nv01-ctxobj.txt]
-0x02     ROP - sets raster operation			[nv01-ctxobj.txt]
-0x03     CHROMA - sets color for color key		[nv01-ctxobj.txt]
-0x04     PLANE - sets the plane mask			[nv01-ctxobj.txt]
-0x05     CLIP - sets clipping rectangle			[nv01-ctxobj.txt]
-0x06     PATTERN - sets pattern, ie. a small repeating	[nv01-ctxobj.txt]
+0x01     BETA - sets beta factor for blending		[graph/ctxobj.txt]
+0x02     ROP - sets raster operation			[graph/ctxobj.txt]
+0x03     CHROMA - sets color for color key		[graph/ctxobj.txt]
+0x04     PLANE - sets the plane mask			[graph/ctxobj.txt]
+0x05     CLIP - sets clipping rectangle			[graph/ctxobj.txt]
+0x06     PATTERN - sets pattern, ie. a small repeating	[graph/ctxobj.txt]
          image used as one of the inputs to a raster
 	 operation or blending
-0x07 [3] RECT - renders solid rectangles		[nv01-solid.txt]
-0x08     POINT - renders single points			[nv01-solid.txt]
-0x09     LINE - renders solid lines			[nv01-solid.txt]
-0x0a     LIN - renders solid lins [ie. lines missing	[nv01-solid.txt]
+0x07 [3] RECT - renders solid rectangles		[graph/solid.txt]
+0x08     POINT - renders single points			[graph/solid.txt]
+0x09     LINE - renders solid lines			[graph/solid.txt]
+0x0a     LIN - renders solid lins [ie. lines missing	[graph/solid.txt]
          a pixel on one end]
-0x0b     TRI - renders solid triangles			[nv01-solid.txt]
-0x0c [1] RECT - renders solid rectangles		[nv01-solid.txt]
-0x0c [3] GDI - renders Windows 95 primitives:		[nv03-gdi.txt]
+0x0b     TRI - renders solid triangles			[graph/solid.txt]
+0x0c [1] RECT - renders solid rectangles		[graph/solid.txt]
+0x0c [3] GDI - renders Windows 95 primitives:		[graph/nv03-gdi.txt]
          rectangles and characters, with font read
 	 from a DMA object			
-0x0d [1] TEXLIN - renders quads with linearly mapped	[nv01-tex.txt]
+0x0d [1] TEXLIN - renders quads with linearly mapped	[graph/nv01-tex.txt]
          textures
-0x0d [3] M2MF - copies data from one DMA object		[nv03-m2mf.txt]
+0x0d [3] M2MF - copies data from one DMA object		[graph/m2mf.txt]
          to another
-0x0e [1] TEXQUAD - renders quads with quadratically	[nv01-tex.txt]
+0x0e [1] TEXQUAD - renders quads with quadratically	[graph/nv01-tex.txt]
          mapped textures
-0x0e [3] SIFM - Scaled Image From Memory, like NV01's	[nv03-sifm.txt]
+0x0e [3] SIFM - Scaled Image From Memory, like NV01's	[graph/nv03-sifm.txt]
          IFM, but with scaling
-0x10     BLIT - copies rectangles of pixels from one	[nv01-blit.txt]
+0x10     BLIT - copies rectangles of pixels from one	[graph/nv01-blit.txt]
          place in framebuffer to another	
-0x11     IFC - Image From CPU, uploads a rectangle of	[nv01-ifc.txt]
+0x11     IFC - Image From CPU, uploads a rectangle of	[graph/ifc.txt]
          pixels via methods
-0x12     BITMAP - uploads and expands a bitmap [ie.	[nv01-ifc.txt]
+0x12     BITMAP - uploads and expands a bitmap [ie.	[graph/ifc.txt]
          1bpp image] via methods
-0x13 [1] IFM - Image From Memory, uploads a rectangle	[nv01-ifm.txt]
+0x13 [1] IFM - Image From Memory, uploads a rectangle	[graph/nv01-ifm.txt]
          of pixels from a DMA object to framebuffer
-0x14     ITM - Image To Memory, downloads a rectangle	[nv01-ifm.txt]
+0x14     ITM - Image To Memory, downloads a rectangle	[graph/nv01-ifm.txt]
          of pixels to a DMA object from framebuffer
-0x15 [3] SIFC - Stretched Image From CPU, like IFC,	[nv01-ifc.txt]
+0x15 [3] SIFC - Stretched Image From CPU, like IFC,	[graph/ifc.txt]
          but with image stretching		
-0x17 [3] D3D - Direct3D 5 textured triangles		[nv03-3d.txt]
+0x17 [3] D3D - Direct3D 5 textured triangles		[graph/nv03-3d.txt]
 [XXX: check Direct3D version]
-0x18 [3] ZPOINT - renders single points to a surface	[nv03-3d.txt]
+0x18 [3] ZPOINT - renders single points to a surface	[graph/nv03-3d.txt]
          with depth buffer
-0x1c [3] SURF - sets rendering surface parameters	[nv01-ctxobj.txt]
-0x1d [1] TEXLINBETA - renders lit quads with		[nv01-tex.txt]
+0x1c [3] SURF - sets rendering surface parameters	[graph/ctxobj.txt]
+0x1d [1] TEXLINBETA - renders lit quads with		[graph/nv01-tex.txt]
          linearly mapped textures
-0x1e [1] TEXQUADBETA - renders lit quads with		[nv01-tex.txt]
+0x1e [1] TEXQUADBETA - renders lit quads with		[graph/nv01-tex.txt]
          quadratically mapped textures
 
 
@@ -83,12 +83,12 @@ no annotation - all NV01:NV04 GPUs
 Not really graph objects, but usable as parameters for some object-bind
 methods [all NV04:NVC0]:
 
-0030 NV01_NULL - does nothing				[nv01-graph.txt]
-0002 NV01_DMA_R - DMA object for reading		[nv04-dmaobj.txt]
-0003 NV01_DMA_W - DMA object for writing		[nv04-dmaobj.txt]
-003d NV03_DMA - read/write DMA object			[nv04-dmaobj.txt]
+0030 NV01_NULL - does nothing				[graph/intro.txt] [XXX: document it]
+0002 NV01_DMA_R - DMA object for reading		[graph/nv04-dmaobj.txt]
+0003 NV01_DMA_W - DMA object for writing		[graph/nv04-dmaobj.txt]
+003d NV03_DMA - read/write DMA object			[graph/nv04-dmaobj.txt]
 
-NV01-style operation objects [see nv01-2d.txt] [all NV04:NV05]:
+NV01-style operation objects [see graph/2d.txt] [all NV04:NV05]:
 
 0010 NV01_OP_CLIP - clipping
 0011 NV01_OP_BLEND_AND - blending
@@ -99,12 +99,12 @@ NV01-style operation objects [see nv01-2d.txt] [all NV04:NV05]:
 0066 NV04_OP_SRCCOPY_PREMULT - pre-multiplying copy
 0067 NV04_OP_BLEND_PREMULT - pre-multiplied blending
 
-Memory to memory copy objects [see nv03-m2mf.txt]:
+Memory to memory copy objects [see graph/m2mf.txt]:
 
 0039 [NV04:NV50] NV03_M2MF - copies data from one DMA object to another
 5039 [NV50:NVC0] NV50_M2MF - copies data from one DMA object to another
 
-Context objects [see nv01-ctxobj.txt]:
+Context objects [see graph/ctxobj.txt]:
 
 0012 [NV04:NV84] NV01_BETA - sets beta factor for blending
 0017 [NV04:NV50] NV01_CHROMA - sets color for color key	
@@ -130,7 +130,7 @@ Context objects [see nv01-ctxobj.txt]:
 0053 [NV04:NV20] NV04_SURF3D - sets 3d color and zeta surfaces
 0093 [NV10:NV20] NV10_SURF3D - sets 3d color and zeta surfaces
 
-Solids rendering objects [see nv01-solid.txt]:
+Solids rendering objects [see graph/solid.txt]:
 
 001c [NV04:NV40] NV01_LIN - renders a lin
 005c [NV04:NV50] NV04_LIN - renders a lin
@@ -141,7 +141,7 @@ Solids rendering objects [see nv01-solid.txt]:
 001e [NV04:NV40] NV01_RECT - renders a rectangle
 005e [NV04:NV40] NV04_RECT - renders a rectangle
 
-Image upload from CPU objects [see nv01-ifc.txt]:
+Image upload from CPU objects [see graph/ifc.txt]:
 
 0021 [NV04:NV40] NV01_IFC - image from CPU
 0061 [NV04:NV50] NV04_IFC - image from CPU
@@ -165,27 +165,27 @@ Image upload from CPU objects [see nv01-ifc.txt]:
 
 Other objects using NV01/NV04-style 2d pipeline:
 
-001f [NV04:NV50] NV01_BLIT - blits inside framebuffer	[nv01-blit.txt]
-005f [NV04:NV84] NV04_BLIT - blits inside framebuffer	[nv01-blit.txt]
-009f [NV15:NV50] NV15_BLIT - blits inside framebuffer	[nv01-blit.txt]
-0037 [NV04:NV50] NV03_SIFM - scaled image from memory	[nv03-sifm.txt]
-0077 [NV04:NV50] NV04_SIFM - scaled image from memory	[nv03-sifm.txt]
-0063 [NV10:NV50] NV05_SIFM - scaled image from memory	[nv03-sifm.txt]
-0089 [NV10:NV40] NV10_SIFM - scaled image from memory	[nv03-sifm.txt]
-0389 [NV30:NV40] NV30_SIFM - scaled image from memory	[nv03-sifm.txt]
-3089 [NV40:NV50] NV30_SIFM - scaled image from memory	[nv03-sifm.txt]
-5089 [NV50:NV84] NV50_SIFM - scaled image from memory	[nv03-sifm.txt]
-004b [NV04:NV40] NV03_GDI - draws GDI primitives	[nv03-gdi.txt]
-004a [NV04:NV50] NV04_GDI - draws GDI primitives	[nv03-gdi.txt]
+001f [NV04:NV50] NV01_BLIT - blits inside framebuffer	[graph/nv01-blit.txt]
+005f [NV04:NV84] NV04_BLIT - blits inside framebuffer	[graph/nv01-blit.txt]
+009f [NV15:NV50] NV15_BLIT - blits inside framebuffer	[graph/nv01-blit.txt]
+0037 [NV04:NV50] NV03_SIFM - scaled image from memory	[graph/nv03-sifm.txt]
+0077 [NV04:NV50] NV04_SIFM - scaled image from memory	[graph/nv03-sifm.txt]
+0063 [NV10:NV50] NV05_SIFM - scaled image from memory	[graph/nv03-sifm.txt]
+0089 [NV10:NV40] NV10_SIFM - scaled image from memory	[graph/nv03-sifm.txt]
+0389 [NV30:NV40] NV30_SIFM - scaled image from memory	[graph/nv03-sifm.txt]
+3089 [NV40:NV50] NV30_SIFM - scaled image from memory	[graph/nv03-sifm.txt]
+5089 [NV50:NV84] NV50_SIFM - scaled image from memory	[graph/nv03-sifm.txt]
+004b [NV04:NV40] NV03_GDI - draws GDI primitives	[graph/nv03-gdi.txt]
+004a [NV04:NV50] NV04_GDI - draws GDI primitives	[graph/nv03-gdi.txt]
 
 2d objects *not* using NV01/NV04-style 2d pipeline:
 
-0038 [NV04:NV50] NV04_DVD_SUBPICTURE - YCbCr blending	[nv04-dvd.txt]
-0088 [NV10:NV50] NV10_DVD_SUBPICTURE - YCbCr blending	[nv04-dvd.txt]
+0038 [NV04:NV50] NV04_DVD_SUBPICTURE - YCbCr blending	[graph/nv04-dvd.txt]
+0088 [NV10:NV50] NV10_DVD_SUBPICTURE - YCbCr blending	[graph/nv04-dvd.txt]
 [XXX: find better name for these two]
-502d [NV50:NVC0] NV50_2D - the NV50+ unified 2d engine	[nv50-2d.txt]
+502d [NV50:NVC0] NV50_2D - the NV50+ unified 2d engine	[graph/2d.txt]
 
-NV03-style 3d objects [see nv03-3d.txt]:
+NV03-style 3d objects [see graph/nv03-3d.txt]:
 
 0048 [NV04:NV15] NV03_D3D - Direct3D 5 textured triangles [XXX: check version]
 0054 [NV04:NV20] NV04_D3D5 - Direct3D 5 textured triangles
@@ -195,26 +195,26 @@ NV03-style 3d objects [see nv03-3d.txt]:
 
 NV10-style 3d objects:
 
-0056 [NV10:NV30] NV10_3D - Celsius Direct3D 7 engine		[nv10-3d.txt]
-0096 [NV10:NV30] NV15_3D - Celsius Direct3D 7 engine		[nv10-3d.txt]
-0098 [NV17:NV20] NV11_3D - Celsius Direct3D 7 engine		[nv10-3d.txt]
-0099 [NV17:NV20] NV17_3D - Celsius Direct3D 7 engine		[nv10-3d.txt]
-0097 [NV20:NV34] NV20_3D - Kelvin Direct3D 8 SM 1 engine	[nv20-3d.txt]
-0597 [NV25:NV40] NV25_3D - Kelvin Direct3D 8 SM 1 engine	[nv20-3d.txt]
-0397 [NV30:NV40] NV30_3D - Rankine Direct3D 9 SM 2 engine	[nv30-3d.txt]
-0497 [NV35:NV34] NV35_3D - Rankine Direct3D 9 SM 2 engine	[nv30-3d.txt]
-0697 [NV34:NV40] NV34_3D - Rankine Direct3D 9 SM 2 engine	[nv30-3d.txt]
-4097 [NV40:NV50 non-TC] NV40_3D - Curie Direct3D 9 SM 3 engine	[nv40-3d.txt]
-4497 [NV40:NV50 TC] NV44_3D - Curie Direct3D 9 SM 3 engine	[nv40-3d.txt]
-5097 [NV50:NVA0] NV50_3D - Tesla Direct3D 10 engine		[nv50-3d.txt]
-8297 [NV84:NVA0] NV84_3D - Tesla Direct3D 10 engine		[nv50-3d.txt]
-8397 [NVA0:NVA3] NVA0_3D - Tesla Direct3D 10 engine		[nv50-3d.txt]
-8597 [NVA3:NVAF] NVA3_3D - Tesla Direct3D 10.1 engine		[nv50-3d.txt]
-8697 [NVAF:NVC0] NVAF_3D - Tesla Direct3D 10.1 engine		[nv50-3d.txt]
+0056 [NV10:NV30] NV10_3D - Celsius Direct3D 7 engine		[graph/nv10-3d.txt]
+0096 [NV10:NV30] NV15_3D - Celsius Direct3D 7 engine		[graph/nv10-3d.txt]
+0098 [NV17:NV20] NV11_3D - Celsius Direct3D 7 engine		[graph/nv10-3d.txt]
+0099 [NV17:NV20] NV17_3D - Celsius Direct3D 7 engine		[graph/nv10-3d.txt]
+0097 [NV20:NV34] NV20_3D - Kelvin Direct3D 8 SM 1 engine	[graph/nv20-3d.txt]
+0597 [NV25:NV40] NV25_3D - Kelvin Direct3D 8 SM 1 engine	[graph/nv20-3d.txt]
+0397 [NV30:NV40] NV30_3D - Rankine Direct3D 9 SM 2 engine	[graph/nv30-3d.txt]
+0497 [NV35:NV34] NV35_3D - Rankine Direct3D 9 SM 2 engine	[graph/nv30-3d.txt]
+0697 [NV34:NV40] NV34_3D - Rankine Direct3D 9 SM 2 engine	[graph/nv30-3d.txt]
+4097 [NV40:NV50 non-TC] NV40_3D - Curie Direct3D 9 SM 3 engine	[graph/nv40-3d.txt]
+4497 [NV40:NV50 TC] NV44_3D - Curie Direct3D 9 SM 3 engine	[graph/nv40-3d.txt]
+5097 [NV50:NVA0] NV50_3D - Tesla Direct3D 10 engine		[graph/nv50-3d.txt]
+8297 [NV84:NVA0] NV84_3D - Tesla Direct3D 10 engine		[graph/nv50-3d.txt]
+8397 [NVA0:NVA3] NVA0_3D - Tesla Direct3D 10 engine		[graph/nv50-3d.txt]
+8597 [NVA3:NVAF] NVA3_3D - Tesla Direct3D 10.1 engine		[graph/nv50-3d.txt]
+8697 [NVAF:NVC0] NVAF_3D - Tesla Direct3D 10.1 engine		[graph/nv50-3d.txt]
 
 And the compute objects:
-50c0 [NV50:NVC0] NV50_COMPUTE - CUDA 1.x engine		[nv50-compute.txt]
-85c0 [NVA3:NVC0] NVA3_COMPUTE - CUDA 1.x engine		[nv50-compute.txt]
+50c0 [NV50:NVC0] NV50_COMPUTE - CUDA 1.x engine		[graph/nv50-compute.txt]
+85c0 [NVA3:NVC0] NVA3_COMPUTE - CUDA 1.x engine		[graph/nv50-compute.txt]
 
 
 = The graphics context =

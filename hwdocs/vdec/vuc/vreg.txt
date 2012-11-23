@@ -33,8 +33,10 @@ TOC
      partition, 4-7 and 12-15 will select the right partition.
  - $sr3: ??? bits 0-4 affect $sr32-$sr42 [XXX] [VP2 only]
  - $sr3: ??? [XXX] [VP3+ only]
- - $sr4/$h2v: a scratch register to pass data from host to vµc [see vuc.txt]
- - $sr5/$v2h: a scratch register to pass data from vµc to host [see vuc.txt]
+ - $sr4/$h2v: a scratch register to pass data from host to vµc [see
+   vdec/vuc/intro.txt]
+ - $sr5/$v2h: a scratch register to pass data from vµc to host [see
+   vdec/vuc/intro.txt]
  - $sr6/$stat: some sort of control/status reg, writing 0x8000 alternates
    values between 0x8103 and 0 [XXX]
      bit 10: macroblock input available - set whenever there's a complete
@@ -47,7 +49,7 @@ TOC
        not equal to 0xffff, cleared when $icnt or WDCNT is modified in any
 	 way.
  - $sr7/$parm: sequence/picture/slice parameters required by vµc hardware
-   [see vuc.txt]
+   [see vdec/vuc/intro.txt]
  - $sr9/$cspos: call stack position, 0-8. Equal to the number of used entries
    on the stack.
  - $sr10/$cstop: call stack top. Writing to this register causes the written

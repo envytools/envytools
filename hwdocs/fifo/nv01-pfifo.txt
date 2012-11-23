@@ -23,8 +23,8 @@ NOTE: This file deals only with NV01:NV04 PFIFO. For other GPUs, read:
 = Introduction =
 
 PFIFO is the functional unit in charge of collecting engine commands from user
-applications and delivering them to PGRAPH. See fifo.txt for an overview of
-its construction.
+applications and delivering them to PGRAPH. See fifo/intro.txt for an overview
+of its construction.
 
 PFIFO is controlled by PMC.ENABLE bit 8 and is connected to PMC interrupt 8.
 Setting PMC.ENABLE bit 8 to 0 forces the following registers to 0 [but doesn't
@@ -142,10 +142,10 @@ In addition to these, NV03 also uses the page table part of standard DMA
 object structure to access the DMA command buffer.
 
 On NV01, these three structures reside at fixed addresses in RAMIN, selected
-based on the PRAM size configuration [see nv01-vram.txt]. There are special
-MMIO areas provided for easy access to them. On NV03, the structures can be
-located anywhere in the first 64kB of RAMIN, settable via the configuration
-registers:
+based on the PRAM size configuration [see memory/nv01-vram.txt]. There are
+special MMIO areas provided for easy access to them. On NV03, the structures
+can be located anywhere in the first 64kB of RAMIN, settable via the
+configuration registers:
 
 MMIO 0x002210: RAMHT [NV03-]
   bits 12-15: bits 12-15 of RAMHT start address inside RAMIN

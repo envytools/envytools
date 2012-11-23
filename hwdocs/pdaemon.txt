@@ -110,8 +110,8 @@ NVC0 VM engine: 0x17
 NVC0 VM client: HUB 0x12
 
 Interrupts:
-  8: [E] MEMIF_TARGET_INVALID [NVA3:NVC0] [fuc-memif.txt]
-  9: [E] MEMIF_FAULT [NVA3:NVC0] [fuc-memif.txt]
+  8: [E] MEMIF_TARGET_INVALID [NVA3:NVC0] [fuc/memif.txt]
+  9: [E] MEMIF_FAULT [NVA3:NVC0] [fuc/memif.txt]
  10: [L] PMC_DAEMON - PMC interrupts routed to PDAEMON via INTR_DAEMON [pmc.txt]
  11: [L] SUBINTR - comes from SUBINTR interupt aggregator
  12: [L] THERM - PTHERM subinterrupts routed to PDAEMON [ptherm.txt]
@@ -121,10 +121,10 @@ Interrupts:
          PDAEMON by IREDIR
 
 Status bits:
-  0: fµc [fuc-proc.txt]
+  0: fµc [fuc/proc.txt]
   1: ??? [XXX]
   2: ??? [XXX]
-  3: MEMIF [fuc-memif.txt]
+  3: MEMIF [fuc/memif.txt]
   4: USER
 
 
@@ -140,7 +140,7 @@ to offsets in MMIO window - I[0x48c] can be accessed through MMIO 0x10a48c.
 The following registers/register ranges exist on PDAEMON [first number is MMIO
 offset and I[] address on NVD9+, second is I[] address on NVA3:NVD9]:
 
-000/00000:400/10000  fµc [fuc-io.txt]
+000/00000:400/10000  fµc [fuc/io.txt]
 404/10100  SUBENGINE_RESET_TIME - selects how long to keep parts in reset
            after SUBENGINE_RESET [XXX: doc]
 408/10200  SUBENGINE_RESET_MASK - selects parts affected by SUBENGINE_RESET
@@ -178,7 +178,7 @@ offset and I[] address on NVD9+, second is I[] address on NVA3:NVD9]:
 5d0/17400:5e0/17800  DSCRATCH - scratch registers
 5f0/17c00  ??? [0/ffffffff/0]
 5f4/17d00  THERM_BYTE_MASK
-600/18000:640/19000  MEMIF [fuc-memif.txt]
+600/18000:640/19000  MEMIF [fuc/memif.txt]
 [XXX: 660+]
 680/1a000  TIMER_INTR - timer interrupt status
 684/1a100  TIMER_INTR_EN - timer interrupt enable
@@ -192,7 +192,7 @@ offset and I[] address on NVD9+, second is I[] address on NVA3:NVD9]:
 6a4/1a900  IREDIR_TIMEOUT_ENABLE - IREDIR_HOST_REQ timeout enable
 [XXX: finish the list]
 800/20000:fe0/40000  THERM [NVA3:NVD9] [ptherm.txt]
-fe0/-:1000/-  fµc [NVA3:NVD9] [fuc-io.txt]
+fe0/-:1000/-  fµc [NVA3:NVD9] [fuc/io.txt]
 1000/-:1800/-  THERM [NVD9-] [ptherm.txt]
 
 Notes:
@@ -465,7 +465,7 @@ bits at the end [or the beginning] have to be handled manually.
 
 = The timer =
 
-Aside from the usual fµc timers [see fuc-timer.txt], PDAEMON has its own
+Aside from the usual fµc timers [see fuc/timer.txt], PDAEMON has its own
 timer. The timer can be configured as either one-shot or periodic, can run
 on either daemon clock or PTIMER clock divided by 64, and generates
 interrupts. The following registers deal with the timer:
@@ -755,5 +755,5 @@ MMIO 0x7b4 / I[0x1ed00] : MMIO_INTR
 
 MMIO 0x7b8 / I[0x1ee00] : MMIO_INTR_EN
   Specifies which MMIO interrupts are enabled. Interrupts will be fired on
-  line 11 [fuc-intr.txt].
+  line 11 [fuc/intr.txt].
   bit 0: ERR

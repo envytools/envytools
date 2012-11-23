@@ -35,20 +35,20 @@ NVC0 VM client: HUB 0x0b
 
 The IO registers:
 
-400/10000:500/14000 VUC		vµc microprocessor	[vuc.txt]
-500/14000:540/15000 TRANS	block transform		[vp3-pvp.txt]
-540/15000:580/16000 ???		???			[vp3-pvp.txt]
-580/16000:5c0/17000 ???		???			[vp3-pvp.txt]
-5c0/17000:600/18000 ???		???			[vp3-pvp.txt]
-600/18000:640/19000 MEMIF	memory interface	[fuc-memif.txt]
-640/19000:680/1a000 ???		???			[vp3-pvp.txt]
-680/1a000:700/1c000 ???		???			[vp3-pvp.txt]
-700/1c000:740/1d000 JOE		???			[vp3-pvp.txt]
-740/1d000:780/1e000 ???		???			[vp3-pvp.txt]
-800/20000:900/24000 CRYPT	crypto coprocessor	[fuc-crypt.txt]
-900/24000:a00/28000 ???		???			[fuc-crypt.txt]
-c00/30000:c40/31000 ???		???			[fuc-crypt.txt]
-d00/34000:d40/35000 ???		???			[fuc-crypt.txt]
+400/10000:500/14000 VUC		vµc microprocessor	[vdec/vuc/intro.txt]
+500/14000:540/15000 TRANS	block transform		[vdec/vp3-pvp.txt]
+540/15000:580/16000 ???		???			[vdec/vp3-pvp.txt]
+580/16000:5c0/17000 ???		???			[vdec/vp3-pvp.txt]
+5c0/17000:600/18000 ???		???			[vdec/vp3-pvp.txt]
+600/18000:640/19000 MEMIF	memory interface	[fuc/memif.txt]
+640/19000:680/1a000 ???		???			[vdec/vp3-pvp.txt]
+680/1a000:700/1c000 ???		???			[vdec/vp3-pvp.txt]
+700/1c000:740/1d000 JOE		???			[vdec/vp3-pvp.txt]
+740/1d000:780/1e000 ???		???			[vdec/vp3-pvp.txt]
+800/20000:900/24000 CRYPT	crypto coprocessor	[fuc/crypt.txt]
+900/24000:a00/28000 ???		???			[fuc/crypt.txt]
+c00/30000:c40/31000 ???		???			[fuc/crypt.txt]
+d00/34000:d40/35000 ???		???			[fuc/crypt.txt]
 
 MEMIF ports:
   1: MBRING
@@ -58,9 +58,9 @@ MEMIF ports:
 [XXX: incomplete?]
 
 Interrupts:
-  8: [E] MEMIF_TARGET_INVALID [NV98:NVC0] [fuc-memif.txt]
-  9: [E] MEMIF_FAULT [NV98:NVC0] [fuc-memif.txt]
- 12: [L] CRYPT [NVC0:NVD9] [fuc-crypt.txt]
+  8: [E] MEMIF_TARGET_INVALID [NV98:NVC0] [fuc/memif.txt]
+  9: [E] MEMIF_FAULT [NV98:NVC0] [fuc/memif.txt]
+ 12: [L] CRYPT [NVC0:NVD9] [fuc/crypt.txt]
 [XXX: interrupts]
 
 [XXX: status bits]

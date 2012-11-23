@@ -12,7 +12,7 @@ TOC
 
 The flow control instructions on fuc include conditional relative branches,
 unconditional absolute branches, absolute calls, and returns. Calls use the
-stack in data segment for storage for return addresses [see fuc-data.txt].
+stack in data segment for storage for return addresses [see fuc/data.txt].
 The conditions available for branching are based on the low 12 bits of $flags
 register:
 
@@ -23,7 +23,7 @@ register:
  - bit b: z, zero flag
 
 c, o, s, z flags are automatically set by many ALU instructions, $p0-$p7 have
-to be explicitely manipulated. See fuc-arith.txt for more details.
+to be explicitely manipulated. See fuc/arith.txt for more details.
 
 Address of the current instruction is always available through the read-only
 $pc special register.
@@ -45,7 +45,7 @@ of instructions, all effects on $pc are mentioned explicitely in this file.
 
 oplen is the length of the currently executed instruction in bytes.
 
-See also conventions from fuc-arith.txt and fuc-data.txt.
+See also conventions from fuc/arith.txt and fuc/data.txt.
 
 
 = Conditional branch: bra =

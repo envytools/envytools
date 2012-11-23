@@ -36,7 +36,7 @@ MMIO 0x400100: INTR
     id and/or SUBCONTEXT_ID is different from the current one.
   bit 8: VBLANK - the vertical blanking period has started on PFB. This
     is really PFB's interrupt. It is delivered to a different PMC line than
-    other PGRAPH interrupts. See nv01-pfb.txt for details.
+    other PGRAPH interrupts. See memory/nv01-pfb.txt for details.
   bit 12: ??? [XXX: figure this out]
   bit 16: MISSING_METHOD - the final method to do an operation was submitted
     without first submitting other required methods

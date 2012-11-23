@@ -18,7 +18,7 @@ You can:
  - Use a watchdog/one-shot timer: Generate an interrupt once in the future
 
 Also note that the CTXCTLs have another watchdog timer on their own - see
-nvc0-pgraph-ctxctl.txt for more information.
+graph/nvc0-ctxctl.txt for more information.
 
 
 = Periodic timer =

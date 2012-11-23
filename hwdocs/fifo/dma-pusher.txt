@@ -157,7 +157,7 @@ DMA_CGET. On NV50 cards, channel 0 supports PIO mode and has channel control
 area at 0x800000, while channels 1-126 support DMA mode and have channel
 control areas at 0xc00000 + 0x2000 * channel ID. On NVC0, the channel control
 areas are accessed through selectable addresses in BAR1 and are backed by VRAM
-or host memory - see nvc0-pfifo.txt for more details.
+or host memory - see fifo/nvc0-pfifo.txt for more details.
 
 
 = NV04-style mode =

@@ -31,11 +31,17 @@ TOC
 4.6. NV01_OP_SRCCOPY
 4.7. NV01_OP_SRCCOPY_PREMULT
 4.8. NV01_OP_BLEND_PREMULT
+5. Unified 2d objects
+5.1. Source and destination setup
+5.2. Pipeline setup
+5.3. The DRAW operation
+5.4. The SIFC operation
+5.5. The BLIT operation
 
 
 = Introduction =
 
-On nvidia GPUs, 2d operations are done by PGRAPH engine [see *-graph.txt].
+On nvidia GPUs, 2d operations are done by PGRAPH engine [see graph/intro.txt].
 The 2d engine is rather orthogonal and has the following features:
 
  - various data sources:
@@ -75,16 +81,18 @@ The non-unified objects can be divided into 3 classes:
  - operation objects: connect source and context objects together
 
 The source objects are:
- - POINT, LIN, LINE, TRI, RECT: drawing of solid color shapes [nv01-solid.txt]
+ - POINT, LIN, LINE, TRI, RECT: drawing of solid color shapes [graph/solid.txt]
  - IFC, BITMAP, SIFC, INDEX, TEXTURE: drawing of pixel data from CPU
-   [nv01-ifc.txt]
- - BLIT: copying rectangles from another area of video memory [nv01-blit.txt]
- - IFM, SIFM: drawing pixel data from DMA [nv01-ifm.txt, nv03-sifm.txt]
- - GDI: Drawing solid rectangles and text fonts [nv03-gdi.txt]
+   [graph/ifc.txt]
+ - BLIT: copying rectangles from another area of video memory
+   [graph/nv01-blit.txt]
+ - IFM, SIFM: drawing pixel data from DMA [graph/nv01-ifm.txt,
+   graph/nv03-sifm.txt]
+ - GDI: Drawing solid rectangles and text fonts [graph/nv03-gdi.txt]
  - TEXLIN, TEXQUAD, TEXLINBETA, TEXQUADBETA: Drawing textured quads
-   [nv01-tex.txt] 
+   [graph/nv01-tex.txt] 
 
-The context objects are [nv01-ctxobj.txt]:
+The context objects are [graph/ctxobj.txt]:
  - BETA: blend factor
  - ROP: logic operation
  - CHROMA: color for chroma key
@@ -104,13 +112,13 @@ The operation objects are:
  - OP_SRCCOPY_PREMULT: pre-multiplying copy
  - OP_BLEND_PREMULT: pre-multiplied blending
 
-The unified 2d engine objects are described in nv50-2d.txt .
+The unified 2d engine objects are described below.
 
 The objects that, although related to 2d operations, aren't part of the usual
 2d pipeline:
- - ITM: downloading framebuffer data to DMA [nv01-ifm.txt]
- - M2MF: DMA to DMA copies [nv03-m2mf.txt]
- - DVD_SUBPICTURE: blending of YUV data [nv04-dvd.txt]
+ - ITM: downloading framebuffer data to DMA [graph/nv01-ifm.txt]
+ - M2MF: DMA to DMA copies [graph/m2mf.txt]
+ - DVD_SUBPICTURE: blending of YUV data [graph/nv04-dvd.txt]
 
 Note that, although multiple objects of a single kind may be created, there is
 only one copy of pipeline state data in PGRAPH. There are thus two usage

@@ -31,7 +31,7 @@ An xfer request consists of the following:
 [XXX: one more unknown flag on secret engines]
 
 Note that xfer functionality is greatly enhanced on secret engines to cover
-copying data to/from crypto registers. See fuc-crypt.txt for details.
+copying data to/from crypto registers. See fuc/crypt.txt for details.
 
 xfer requests can be submitted either through special fuc instructions, or
 through poking IO registers. The requests are stored in a queue and processed
@@ -60,8 +60,8 @@ xfer:
  - bits 12-14: port for data stores
 
 The external memory that fuc will use depends on the particular engine.
-See nvc0-ctxctl-memif.txt for NVC0 PGRAPH fucs, fuc-memif.txt for the other
-engines.
+See graph/nvc0-ctxctl-memif.txt for NVC0 PGRAPH fucs, fuc/memif.txt for
+the other engines.
 
 
 = Submitting xfer requests: xcld, xdld, xdst =

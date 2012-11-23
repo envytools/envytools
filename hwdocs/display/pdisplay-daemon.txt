@@ -35,7 +35,7 @@ Interrupts:
 
 = MMIO registers =
 
-627000:627400  fµc [fuc-io.txt]
+627000:627400  fµc [fuc/io.txt]
 627400  ??? [alias of 610018]
 627440+i*4  FIFO_PUT
 627450+i*4  FIFO_GET
@@ -50,5 +50,5 @@ Interrupts:
 627524  ??? [0/ffffffff/0] [NVE4-]
 627550  ??? [2710/ffffffff/0] [NVE4-]
 627554  ??? - interrupt 15 [0/1/0] [NVE4-]
-627600:627680  MEMIf [fuc-memif.txt]
+627600:627680  MEMIf [fuc/memif.txt]
 627680:627700  [alias of 627600+]

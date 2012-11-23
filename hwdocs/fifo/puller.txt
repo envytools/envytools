@@ -97,8 +97,8 @@ The following are commonly accepted object classes:
 
 Other object classes are engine-specific.
 
-For more information on DMA objects, see nv03-dmaobj.txt, nv04-dmaobj.txt,
-or nv50-vm.txt.
+For more information on DMA objects, see memory/nv03-dmaobj.txt,
+memory/nv04-dmaobj.txt, or memory/nv50-vm.txt.
 
 
 == NV03 ==
@@ -177,11 +177,11 @@ engine id directly as parameters:
    engine.
  - bits 16-20: engine id
 
-The list of valid engine ids can be found on fifo.txt. The SOFTWARE engine is
-special: all methods submitted to it, explicitely or implicitely by binding
-a subchannel to it, will cause a CACHE_ERROR(EMPTY_SUBCHANNEL) interrupt. This
-interrupt can then be intercepted by the driver to implement a "software
-object", or can be treated as an actual error and reported.
+The list of valid engine ids can be found on fifo/intro.txt. The SOFTWARE
+engine is special: all methods submitted to it, explicitely or implicitely by
+binding a subchannel to it, will cause a CACHE_ERROR(EMPTY_SUBCHANNEL)
+interrupt. This interrupt can then be intercepted by the driver to implement
+a "software object", or can be treated as an actual error and reported.
 
 The engines run asynchronously. The puller will send them commands whenever
 they have space in their input queues and won't wait for completion of a
@@ -297,7 +297,7 @@ mthd 0x0100-0x3ffc / 0x040-0xfff: [forwarded to engine]
 
 NV10 introduced a "reference counter". It's a per-channel 32-bit register that
 is writable by the puller and readable through the channel control area [see
-fifo-dma-pusher.txt]. It can be used to tell host which commands have already
+fifo/dma-pusher.txt]. It can be used to tell host which commands have already
 completed: after every interesting batch of commands, add a method that will
 set the ref counter to monotonically increasing values. The host code can then
 read the counter from channel control area and deduce which batches are
@@ -559,7 +559,7 @@ mthd 0x0020 / 0x008: NOTIFY_INTR [NV84:]
 [XXX: check how this is reported on NVC0]
 
 The NV84+ WRCACHE_FLUSH method can be used to flush PFIFO's write post caches.
-[see nv50-vm.txt]
+[see memory/nv50-vm.txt]
 
 mthd 0x0024 / 0x009: WRCACHE_FLUSH [NV84:]
 	VM_WRCACHE_FLUSH(PFIFO);
