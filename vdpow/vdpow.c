@@ -454,6 +454,7 @@ static void generate_mpeg(const VdpPictureInfoMPEG1Or2 *info, int mpeg2, const v
 
 	seqparm.is_ext = mpeg2;
 	seqparm.chroma_format = 1; // 420
+	seqparm.vertical_size = input_height;
 	pp.is_ext = mpeg2;
 	fill_mpeg_picparm(info, &pp);
 	mbs = calloc(sizeof(*mbs), pp.pic_size_in_mbs);
@@ -496,7 +497,8 @@ struct fuzz *f, uint32_t oldval, uint32_t newval)
 	buffer.struct_version = VDP_BITSTREAM_BUFFER_VERSION;
 	generate_mpeg(info, 1, &buffer.bitstream, &buffer.bitstream_bytes);
 
-	fprintf(stderr, "Starting %s %u -> %u\n", f->name, oldval, newval);
+	if (f)
+		fprintf(stderr, "Starting %s %u -> %u\n", f->name, oldval, newval);
 
 	if (!debug) {
 		uint32_t pitches[3] = { input_width, input_width };
@@ -602,17 +604,19 @@ static void fuzz_mpeg(VdpVideoMixer mix, VdpVideoSurface *surf, VdpOutputSurface
 static void action_h264(VdpDecoder dec, VdpVideoSurface surf, VdpPictureInfoH264 *info, struct snap *ref,
 struct fuzz *f, uint32_t oldval, uint32_t newval)
 {
+	struct snap *cur = f ? calloc(1, sizeof(*cur)) : ref;
 	VdpStatus ret;
 	int debug = 1;
 	char bitstream[0] = {};
-
-	struct snap *cur = f ? calloc(1, sizeof(*cur)) : ref;
 	int save = 0, failed_tries = 0;
-
 	VdpBitstreamBuffer buffer;
+
 	buffer.struct_version = VDP_BITSTREAM_BUFFER_VERSION;
 	buffer.bitstream = bitstream;
 	buffer.bitstream_bytes = sizeof(bitstream);
+
+	if (f)
+		fprintf(stderr, "Starting %s %u -> %u\n", f->name, oldval, newval);
 
 	if (!debug) {
 		uint32_t pitches[3] = { input_width, input_width };
