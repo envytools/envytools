@@ -805,7 +805,7 @@ int main(int argc, char *argv[]) {
       return 1;
 
    /* This requires libvdpau_trace, which is available in libvdpau.git */
-   //setenv("VDPAU_TRACE", "1", 0);
+   setenv("VDPAU_TRACE", "1", 0);
 
    display = XOpenDisplay(NULL);
    root = XDefaultRootWindow(display);
