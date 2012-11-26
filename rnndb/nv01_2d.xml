@@ -29,7 +29,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <enum name="nv04_color_format_unpacked_alpha" inline="yes">
 	<value value="1" name="A16R5G6B5"/>
-	<value value="2" name="UNK08"/>
+	<value value="2" name="X16A1R5G5B5"/>
 	<value value="3" name="A8R8G8B8"/>
 </enum>
 
@@ -66,7 +66,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x000b" name="Y32"/>
 </enum>
 
-<enum name="nv04_mono_format" inline="yes">
+<enum name="nv04_bitmap_format" inline="yes">
 	<value value="1" name="CGA6"/>
 	<value value="2" name="LE"/>
 </enum>
@@ -109,25 +109,25 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0180" name="DMA_NOTIFY" type="object"/>
 		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv01_color_format_unpacked_alpha" variants="NV01_PATTERN"/>
 		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv04_color_format_unpacked_alpha" variants="NV04_PATTERN-"/>
-		<reg32 offset="0x0304" name="MONOCHROME_FORMAT" type="nv04_mono_format"/>
-		<reg32 offset="0x0308" name="MONOCHROME_SHAPE">
+		<reg32 offset="0x0304" name="BITMAP_FORMAT" type="nv04_bitmap_format"/>
+		<reg32 offset="0x0308" name="BITMAP_SHAPE">
 			<value value="0" name="8X8"/>
 			<value value="1" name="64X1"/>
 			<value value="2" name="1X64"/>
 		</reg32>
-		<reg32 offset="0x030c" name="PATTERN_SELECT" variants="NV04_PATTERN-">
-			<value value="1" name="MONO"/>
+		<reg32 offset="0x030c" name="SELECT" variants="NV04_PATTERN-">
+			<value value="1" name="BITMAP"/>
 			<value value="2" name="COLOR"/>
 		</reg32>
-		<reg32 offset="0x0310" name="MONOCHROME_COLOR" length="2"/>
-		<reg32 offset="0x0318" name="MONOCHROME_PATTERN" length="2"/>
-		<reg32 offset="0x0400" name="PATTERN_Y8" length="16" variants="NV04_PATTERN-">
+		<reg32 offset="0x0310" name="BITMAP_COLOR" length="2"/>
+		<reg32 offset="0x0318" name="BITMAP" length="2"/>
+		<reg32 offset="0x0400" name="COLOR_Y8" length="16" variants="NV04_PATTERN-">
 			<bitfield name="Y0" high="7" low="0" type="uint"/>
 			<bitfield name="Y1" high="15" low="8" type="uint"/>
 			<bitfield name="Y2" high="23" low="16" type="uint"/>
 			<bitfield name="Y3" high="31" low="24" type="uint"/>
 		</reg32>
-		<reg32 offset="0x0500" name="PATTERN_R5G6B5" length="32" variants="NV04_PATTERN-">
+		<reg32 offset="0x0500" name="COLOR_R5G6B5" length="32" variants="NV04_PATTERN-">
 			<bitfield name="B0" high="4" low="0" type="uint"/>
 			<bitfield name="G0" high="10" low="5" type="uint"/>
 			<bitfield name="R0" high="15" low="11" type="uint"/>
@@ -135,7 +135,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="G1" high="26" low="21" type="uint"/>
 			<bitfield name="R1" high="31" low="27" type="uint"/>
 		</reg32>
-		<reg32 offset="0x0600" name="PATTERN_X1R5G5B5" length="32" variants="NV04_PATTERN-">
+		<reg32 offset="0x0600" name="COLOR_X1R5G5B5" length="32" variants="NV04_PATTERN-">
 			<bitfield name="B0" high="4" low="0" type="uint"/>
 			<bitfield name="G0" high="9" low="5" type="uint"/>
 			<bitfield name="R0" high="14" low="10" type="uint"/>
@@ -143,7 +143,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="G1" high="25" low="21" type="uint"/>
 			<bitfield name="R1" high="30" low="26" type="uint"/>
 		</reg32>
-		<reg32 offset="0x0700" name="PATTERN_X8R8G8B8" length="64" variants="NV04_PATTERN-">
+		<reg32 offset="0x0700" name="COLOR_X8R8G8B8" length="64" variants="NV04_PATTERN-">
 			<bitfield name="B" high="7" low="0" type="uint"/>
 			<bitfield name="G" high="15" low="8" type="uint"/>
 			<bitfield name="R" high="23" low="16" type="uint"/>
@@ -740,7 +740,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x02fc" name="OPERATION" type="nv03_operation"/>
 		<reg32 offset="0x0300" name="COLOR_FORMAT" type="nv04_color_format_unpacked"/>
-		<reg32 offset="0x0304" name="MONOCHROME_FORMAT" type="nv04_mono_format"/>
+		<reg32 offset="0x0304" name="MONOCHROME_FORMAT" type="nv04_bitmap_format"/>
 		<reg32 offset="0x03fc" name="COLOR1_A"/>
 		<reg32 offset="0x0400" name="UNCLIPPED_RECTANGLE_POINT" length="32" stride="8">
 			<bitfield name="Y" high="15" low="0" type="int"/>

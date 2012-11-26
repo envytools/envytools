@@ -110,9 +110,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield high="13" low="8" name="Y"/>
 		</reg32>
 		<reg32 offset="0x02b4" name="PATTERN_SELECT">
-			<value value="0" name="MONO_8X8"/>
-			<value value="1" name="MONO_64X1"/>
-			<value value="2" name="MONO_1X64"/>
+			<value value="0" name="BITMAP_8X8"/>
+			<value value="1" name="BITMAP_64X1"/>
+			<value value="2" name="BITMAP_1X64"/>
 			<value value="3" name="COLOR"/>
 		</reg32>
 		<reg32 offset="0x02dc" name="UNK2DC" variants="NVC0_2D-">
@@ -129,13 +129,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="0x0003" name="8BPP"/>
 			<value value="0x0004" name="UNK4"/>
 			<value value="0x0005" name="UNK5"/>
-			<value value="0x0006" name="UNK6"/>
 		</reg32>
-		<reg32 offset="0x02ec" name="PATTERN_MONO_FORMAT">
+		<reg32 offset="0x02ec" name="PATTERN_BITMAP_FORMAT">
 			<value value="0" name="CGA6"/>
 			<value value="1" name="LE"/>
 		</reg32>
-		<reg32 offset="0x02f0" name="PATTERN_COLOR" length="2" type="int"/>
+		<reg32 offset="0x02f0" name="PATTERN_BITMAP_COLOR" length="2" type="int"/>
 		<reg32 offset="0x02f8" name="PATTERN_BITMAP" length="2" type="int"/>
 		<reg32 offset="0x0300" name="PATTERN_X8R8G8B8" length="64">
 			<bitfield name="B" high="7" low="0" type="uint"/>

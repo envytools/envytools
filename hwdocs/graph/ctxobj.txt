@@ -5,13 +5,12 @@ TOC
 2. ROP
 3. CHROMA and PLANE
 4. CLIP
-5. PATTERN
-6. BETA4
-7. Surface setup
-7.1. SURF
-7.2. SURF2D
-7.3. SURF3D
-7.4. SWZSURF
+5. BETA4
+6. Surface setup
+6.1. SURF
+6.2. SURF2D
+6.3. SURF3D
+6.4. SWZSURF
 
 
 = Introducton =
@@ -194,113 +193,6 @@ Operation:
 
 mthd 0x200: PATCH_IMAGE_OUTPUT [NV01_CLIP] [NV04:NV20]
   Reserved for plugging an image patchcord to output the rectangle into.
-Operation:
-	throw(UNIMPLEMENTED_MTHD);
-
-
-= PATTERN =
-
-The PATTERN object family deals with setting up the pattern, which is used
-in some ROP and BLEND configurations. The objects in this family are:
-
- - objtype 0x06: NV01_PATTERN [NV01:NV04]
- - class 0x0018: NV01_PATTERN [NV04:NV50]
- - class 0x0044: NV04_PATTERN [NV04:NV84]
-
-The methods for this family are:
-
-0100   NOP [NV04-]
-0104   NOTIFY
-0110   WAIT_FOR_IDLE [NV50-]
-0140   PM_TRIGGER [NV40-?] [XXX]
-0180 N DMA_NOTIFY [NV04-]
-0200 O PATCH_IMAGE_OUTPUT [NV04:NV20]
-0300   COLOR_FORMAT [NV04-]
-0304   MONO_FORMAT [NV04-]
-0308   SHAPE
-030c   SELECT [NV04_PATTERN]
-0310+i*4, i<2   MONO_COLOR
-0318+i*4, i<2   MONO_PATTERN
-0400+i*4, i<16  COLOR_Y8 [NV04_PATTERN]
-0500+i*4, i<32  COLOR_R5G6B5 [NV04_PATTERN]
-0600+i*4, i<32  COLOR_X1R5G5B5 [NV04_PATTERN]
-0700+i*4, i<64  COLOR_X8R8G8B8 [NV04_PATTERN]
-
-[XXX: describe how the pattern works]
-
-mthd 0x308: SHAPE [*_PATTERN]
-  Sets the pattern shape. One of:
-    0: 8x8
-    1: 64x1
-    2: 1x64
-Operation:
-	if (param > 2)
-		throw(INVALID_ENUM);
-	PATTERN_SHAPE = param;
-[XXX: check NV03+]
-
-mthd 0x30c: SELECT [NV04_PATTERN]
-  Sets the pattern type. One of:
-    1: MONO
-    2: COLOR
-Operation:
-	/* XXX: figure it out */
-
-mthd 0x310+i*4, i<2: MONO_COLOR [*_PATTERN]
-  Sets the colors used for mono pattern. i=0 sets the color used for pixels
-  corresponding to '0' bits in the pattern, i=1 sets the color used for '1'.
-Operation:
-	PATTERN_MONO_COLOR[i].B = get_color_b10(cur_grobj, param);
-	PATTERN_MONO_COLOR[i].G = get_color_b10(cur_grobj, param);
-	PATTERN_MONO_COLOR[i].R = get_color_b10(cur_grobj, param);
-	PATTERN_MONO_COLOR[i].A = get_color_b8(cur_grobj, param);
-[XXX: check NV03+]
-
-mthd 0x318+i*4, i<2: MONO_PATTERN [*_PATTERN]
-  Sets the mono pattern. i=0 sets bits 0-31, i=1 sets bits 32-63.
-Operation:
-	b8 tmp[4];
-	for (j = 0; j < 4; j++)
-		tmp[j] = param >> 8*j & 0xff;
-	/* pattern stored internally in LE format - for CGA6, reverse
-	   bits in all bytes */
-	if (cur_grobj.MONO_FORMAT == CGA6)
-		for (j = 0; j < 4; j++)
-			tmp[j] = reverse_bits(tmp[j]);
-	for (j = 0; j < 4; j++)
-		PATTERN_MONO[i*32+j*8:i*32+j*8+7] = tmp[j];
-[XXX: check NV03+]
-
-mthd 0x400+i*4, i<16: COLOR_Y8 [NV04_PATTERN]
-  Sets 4 color pattern cells, from Y8 source.
-  bits 0-7: color for pattern cell i*4+0
-  bits 8-15: color for pattern cell i*4+1
-  bits 16-23: color for pattern cell i*4+2
-  bits 24-31: color for pattern cell i*4+3
-Operation:
-	/* XXX: figure it out */
-
-mthd 0x500+i*4, i<32: COLOR_R5G6B5 [NV04_PATTERN]
-  Sets 2 color pattern cells, from R5G6B5 source.
-  bits 0-15: color for pattern cell i*2+0
-  bits 16-31: color for pattern cell i*2+1
-Operation:
-	/* XXX: figure it out */
-
-mthd 0x600+i*4, i<32: COLOR_X1R5G5B5 [NV04_PATTERN]
-  Sets 2 color pattern cells, from X1R5G5B5 source.
-  bits 0-15: color for pattern cell i*2+0
-  bits 16-31: color for pattern cell i*2+1
-Operation:
-	/* XXX: figure it out */
-
-mthd 0x700+i*4, i<64: COLOR_X8R8G8B8 [NV04_PATTERN]
-  Sets a color pattern cell, from X8R8G8B8 source.
-Operation:
-	/* XXX: figure it out */
-
-mthd 0x200: PATCH_IMAGE_OUTPUT [*_PATTERN] [NV04:NV20]
-  Reserved for plugging an image patchcord to output the pattern into.
 Operation:
 	throw(UNIMPLEMENTED_MTHD);
 

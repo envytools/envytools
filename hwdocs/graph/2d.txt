@@ -98,7 +98,7 @@ The context objects are [graph/ctxobj.txt]:
  - CHROMA: color for chroma key
  - PLANE: color for plane mask
  - CLIP: clipping rectangle
- - PATTERN: repeating pattern image
+ - PATTERN: repeating pattern image [graph/pattern.txt]
  - BETA4: pre-multiplied blend factor
  - SURF, SURF2D, SWZSURF: destination and blit source surface setup
 
@@ -241,3 +241,34 @@ Operation:
 = NV01-style operation objects =
 
 [XXX: write me]
+
+
+= Unified 2d objects =
+
+[XXX: write me]
+
+0100   NOP					[graph/intro.txt]
+0104   NOTIFY [NV50_2D]				[graph/intro.txt]
+[XXX: NVC0 methods]
+0110   WAIT_FOR_IDLE				[graph/intro.txt]
+0140   PM_TRIGGER				[graph/intro.txt]
+0180   DMA_NOTIFY [NV50_2D]			[graph/intro.txt]
+0184   DMA_SRC [NV50_2D]			[XXX]
+0188   DMA_DST [NV50_2D]			[XXX]
+018c   DMA_COND [NV50_2D]			[XXX]
+[XXX: 0200-02ac]
+02b0   PATTERN_OFFSET				[graph/pattern.txt]
+02b4   PATTERN_SELECT				[graph/pattern.txt]
+02dc   ??? [NVC0_2D-]				[XXX]
+02e0   ??? [NVC0_2D-]				[XXX]
+02e8   PATTERN_COLOR_FORMAT			[graph/pattern.txt]
+02ec   PATTERN_BITMAP_FORMAT			[graph/pattern.txt]
+02f0+i*4, i<2   PATTERN_BITMAP_COLOR		[graph/pattern.txt]
+02f8+i*4, i<2   PATTERN_BITMAP			[graph/pattern.txt]
+0300+i*4, i<64  PATTERN_X8R8G8B8		[graph/pattern.txt]
+0400+i*4, i<32  PATTERN_R5G6B5			[graph/pattern.txt]
+0480+i*4, i<32  PATTERN_X1R5G5B5		[graph/pattern.txt]
+0500+i*4, i<16  PATTERN_Y8			[graph/pattern.txt]
+[XXX: 0540-08dc]
+08e0+i*4, i<32  FIRMWARE			[graph/intro.txt]
+[XXX: NVC0 methods]
