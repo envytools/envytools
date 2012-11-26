@@ -116,10 +116,11 @@ PGRAPH, user perspective
 [     ] graph/nv30-3d.txt - NV30 Rankine 3D objects
 [     ] graph/nv40-3d.txt - NV40 Curie 3D objects
 [     ] graph/nv50-3d.txt - NV50 Tesla 3D objects
+[     ] graph/nvc0-3d.txt - NVC0 Fermi 3D objects
 [     ] graph/nv50-compute.txt - NV50 Compute object
+[     ] graph/nvc0-compute.txt - NVC0 Compute object
 [     ] graph/nv50-texture.txt - NV50 and NVC0 texturing
 [**   ] graph/nv50-cuda-isa.txt - NV50 CUDA/shader ISA overview
-[     ] graph/nvc0-graph.txt - Overview of NVC0+ graph objects, functionality common between object classes
 [     ] graph/nvc0-macro.txt - NVC0 graph macro ISA
 [     ] graph/nvc0-cuda-isa.txt - NVC0 CUDA/shader ISA overview
 
