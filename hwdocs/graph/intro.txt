@@ -34,7 +34,7 @@ no annotation - all NV01:NV04 GPUs
 0x03     CHROMA - sets color for color key		[graph/ctxobj.txt]
 0x04     PLANE - sets the plane mask			[graph/ctxobj.txt]
 0x05     CLIP - sets clipping rectangle			[graph/ctxobj.txt]
-0x06     PATTERN - sets pattern, ie. a small repeating	[graph/ctxobj.txt]
+0x06     PATTERN - sets pattern, ie. a small repeating	[graph/pattern.txt]
          image used as one of the inputs to a raster
 	 operation or blending
 0x07 [3] RECT - renders solid rectangles		[graph/solid.txt]

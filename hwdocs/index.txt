@@ -98,11 +98,12 @@ PFIFO, kernel perspective
 
 
 PGRAPH, user perspective
-[     ] graph/intro.txt - Overview of graph objects, functionality common between object classes
+[**   ] graph/intro.txt - Overview of graph objects, functionality common between object classes
 [     ] graph/m2mf.txt - The memory copying objects
-[     ] graph/2d.txt - Overview of the 2D pipeline
-[     ] graph/ctxobj.txt - graph context objects
-[     ] graph/solid.txt - 2d solid shape rendering
+[**   ] graph/2d.txt - Overview of the 2D pipeline
+[**** ] graph/pattern.txt - 2D pattern
+[**   ] graph/ctxobj.txt - graph context objects
+[**   ] graph/solid.txt - 2d solid shape rendering
 [     ] graph/ifc.txt - 2d image from cpu upload
 [     ] graph/nv01-bllt.txt - BLIT object
 [     ] graph/nv01-ifm.txt - image to/from memory objects
@@ -126,7 +127,7 @@ PGRAPH, user perspective
 
 
 PGRAPH, kernel perspective
-[     ] graph/nv01-pgraph.txt - NV01 graphics engine
+[*    ] graph/nv01-pgraph.txt - NV01 graphics engine
 [     ] graph/nv03-pgraph.txt - NV03 graphics engine
 [     ] graph/nv03-pdma.txt - NV03 PGRAPH's DMA controller
 [     ] graph/nv04-pgraph.txt - NV04 graphics engine
