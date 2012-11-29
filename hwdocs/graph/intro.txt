@@ -291,115 +291,24 @@ and update the DMA object pointers in RAMIN. On NV05+, PGRAPH can modify
 most of this state when requested via methods. All NV04+ automatic options
 modification methods can be disabled by software, if so desired.
 
+The graph options contain the following information:
 
-=== NV01 graph object options ===
+ - 2d pipeline configuration [see nv01-2d.txt]
+ - 2d color and mono format [see nv01-2d.txt]
+ - NOTIFY_VALID flag - if set, NOTIFY method will be enabled. If unset, NOTIFY
+   method will cause an interrupt. Can be used by the driver to emulate
+   per-object DMA_NOTIFY setting - this flag will be set on objects whose
+   emulated DMA_NOTIFY value matches the one currently in PGRAPH context,
+   and interrupt will cause a switch of the PGRAPH context value followed
+   by a method restart.
+ - SUBCONTEXT_ID - a single-bit flag that can be used to emulate more than
+   one PGRAPH context on one channel. When an object is bound and its
+   SUBCONTEXT_ID doesn't match PGRAPH's current SUBCONTEXT_ID, a context
+   switch interrupt is raised to allow software to load an alternate context.
 
-On NV01, graph objects come with a 16-bit options field. The field is stored
-in the RAMHT structure, and is thus automatically passed to PGRAPH via
-method 0 by PFIFO when the active object changes for any reason. The bits in
-the options field are:
+[XXX: NV03+]
 
-  bits 0-4: OP - selects the operation to perform on the color from rendering
-            pipeline before writing it to the framebuffer
-    0x00: RPOP_DS - RPOP(DST, SRC)
-    0x01: ROP_SDD - ROP(SRC, DST, DST)
-    0x02: ROP_DSD - ROP(DST, SRC, DST)
-    0x03: ROP_SSD - ROP(SRC, SRC, DST)
-    0x04: ROP_DDS - ROP(DST, DST, SRC)
-    0x05: ROP_SDS - ROP(SRC, DST, SRC)
-    0x06: ROP_DSS - ROP(DST, SRC, SRC)
-    0x07: ROP_SSS - ROP(SRC, SRC, SRC)
-    0x08: ROP_SSS_ALT - ROP(SRC, SRC, SRC)
-    0x09: ROP_PSS - ROP(PAT, SRC, SRC)
-    0x0a: ROP_SPS - ROP(SRC, PAT, SRC)
-    0x0b: ROP_PPS - ROP(PAT, PAT, SRC)
-    0x0c: ROP_SSP - ROP(SRC, SRC, PAT)
-    0x0d: ROP_PSP - ROP(PAT, SRC, PAT)
-    0x0e: ROP_SPP - ROP(SRC, PAT, PAT)
-    0x0f: RPOP_SP - ROP(SRC, PAT)
-    0x10: ROP_DSP - ROP(DST, SRC, PAT)
-    0x11: ROP_SDP - ROP(SRC, DST, PAT)
-    0x12: ROP_DPS - ROP(DST, PAT, SRC)
-    0x13: ROP_PDS - ROP(PAT, DST, SRC)
-    0x14: ROP_SPD - ROP(SRC, PAT, DST)
-    0x15: ROP_PSD - ROP(PAT, SRC, DST)
-    0x17: SRCCOPY - SRC [no operation]
-    0x18: BLEND_SS - BLEND(SRC, SRC) [XXX check]
-    0x19: BLEND_DS - BLEND(DST, SRC)
-    0x1a: BLEND_SD - BLEND(SRC, DST)
-    0x1b: BLEND_PS - BLEND(PAT, SRC)
-    0x1c: BLEND_SP - BLEND(SRC, PAT)
-    0x1d: BLEND_US - BLEND(???, SRC) [XXX]
-    0x1e: BLEND_SU - BLEND(SRC, ???) [XXX]
-  bit 5: CHROMA - if set, enables the chroma key pipeline stage
-  bit 6: PLANE - if set, enables the plane mask pipeline stage [XXX]
-  bit 7: CLIP - if set, enables clipping to the user clip rectangle set via
-         the CLIP object
-  bit 8: NOTIFY_VALID - if set, NOTIFY method will be enabled. If unset, NOTIFY
-         method will cause an interrupt. Can be used by the driver to emulate
-         per-object DMA_NOTIFY setting - this flag will be set on objects whose
-         emulated DMA_NOTIFY value matches the one currently in PGRAPH context,
-	 and interrupt will cause a switch of the PGRAPH context value followed
-	 by a method restart.
-  bits 9-12: COLOR_FORMAT - selects the color format to use for decoding this
-         object's methods and data sent to/from DMA objects. Does *not* affect
-         framebuffer format - this is decided by PFB.
-    0: X1R5G5B5_A1R5G5B5 - 16bpp, 5 bits per channel, maybe 1 bit for alpha
-    1: X8R8G8B8_A8R8G8B8 - 32bpp, 8 bits per channel, maybe 8 bits for alpha
-    2: X2R10G10B10_A2R10G10B10 - 32bpp, 10 bits per channel, maybe 2 bits for
-       alpha
-    3: Y8_A8Y8 - 8bpp [no alpha] or 16bpp [alpha], single 8-bit color channel,
-       maybe 8 bits for alpha
-    4: Y16_A16Y16 - 16bpp [no alpha] or 32bpp [alpha], single 16-bit color
-       channel, maybe 16 bits for alpha
-  bit 13: ALPHA - enables alpha channel for input. If 0, the color format
-          variant without alpha will be used, and alpha value passed down will
-	  be forced to full [ie. 0xff]. If 1, the color format variant with
-	  alpha will be used.
-  bit 14: MONO_FORMAT - selects monochromatic image input format for the
-          PATTERN and BITMAP objects:
-    0: LE - the leftmost pixel in each byte will be in bit 0, the next one in
-          bit 1, and so on.
-    1: CGA6 - the leftmost pixel in each byte will be in bit 7, the next one in
-          bit 6, and so on.
-    In both formats, the leftmost 8 pixels are in byte 0, next 8 pixels in
-    byte 1, and so on.
-  bit 15: SUBCONTEXT_ID - can be used to emulate more than one PGRAPH context
-    on one channel. When an object is bound and its SUBCONTEXT_ID doesn't
-    match PGRAPH's current SUBCONTEXT_ID, a context switch interrupt is raised
-    to allow software to load an alternate context.
-
-
-=== NV03 graph object options ===
-
-On NV03, object options were expanded and moved to a memory structure in
-RAMIN. The data stored in RAMHT and passed to PGRAPH is just a [shifted]
-pointer to the grobj structure. Most importantly, the DMA objects bound
-to the graph object are now stored in the options structure and don't have
-to be swapped by software on every graphics object switch. The graph
-object options structure is made of 3 32-bit words aligned on 0x10-byte
-bounduary:
-
-word 0:
-  [XXX: figure out the bits, should be similiar to the NV01 options]
-
-word 1:
-  bits 0-15: main DMA object. This is used for GDI, SIFM, ITM, D3D, M2MF.
-    For M2MF, this is the source [XXX: check] DMA object.
-  bits 16-31: NOTIFY DMA object.
-
-word 2:
-  bits 0-15: secondary DMA object. This is used for M2MF destination DMA
-    object. [XXX: check]
-
-The options structure, and thus also the graph object, is selected by the
-structure address in RAMIN shifted right by 4 bits. Thus graph object 0x1234
-has its options structure at RAMIN address 0x12340.
-
-
-=== NV04+ graph object structure ===
-
-[XXX: write me]
+See nv01-pgraph.txt for detailed format.
 
 
 == Volatile state ==

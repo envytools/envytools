@@ -9,19 +9,18 @@ TOC
 2.2. Color format conversions
 2.3. Monochrome formats
 3. The pipeline
-3.1. The source
-3.2. Clipping
-3.3. Chroma key
-3.4. The pre-write operations
-3.4.1. Raster operations
-3.4.2. Blending
-3.4.3. Source copy
-3.5. Dithering
-3.6. The plane mask
-3.7. The framebuffer
-3.7.1. NV01 canvas
-3.7.2. NV03 surfaces
-3.7.3. Clip rectangles
+3.1. Clipping
+3.2. Source format conversion
+3.3. Buffer read
+3.3. Bitwise operation
+3.4. Chroma key
+3.5. The plane mask
+3.6. Blending
+3.7. Dithering
+3.8. The framebuffer
+3.8.1. NV01 canvas
+3.8.2. NV03 surfaces
+3.8.3. Clip rectangles
 4. NV01-style operation objects
 4.1. NV01_OP_CLIP
 4.2. NV01_OP_BLEND_AND

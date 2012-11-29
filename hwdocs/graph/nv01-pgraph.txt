@@ -4,10 +4,11 @@ TOC
 1. MMIO registers
 2. Interrupts
 3. Control and status registers
-4. Method submission
-5. Context
-6. Surface setup
-7. Drawing operation
+4. Graph object options
+5. Method submission
+6. Context
+7. Surface setup
+8. Drawing operation
 
 
 = Intruduction =
@@ -128,6 +129,69 @@ MMIO 0x4006b0: STATUS
   bit 16: DMA - PGRAPH is busy talking to PDMA about IFM or ITM DMA
   bit 20: DMA_NOTIFY - PGRAPH is busy talking to PDMA about NOTIFY DMA
   [XXX: more bits]
+
+
+= Graph object options =
+
+On NV01, graph objects come with a 16-bit options field. The field is stored
+in the RAMHT structure, and is thus automatically passed to PGRAPH via
+method 0 by PFIFO when the active object changes for any reason. The bits in
+the options field are:
+
+  bits 0-4: OP - 2d operation [see nv01-2d.txt]
+    0x00: RPOP_DS
+    0x01: ROP_SDD
+    0x02: ROP_DSD
+    0x03: ROP_SSD
+    0x04: ROP_DDS
+    0x05: ROP_SDS
+    0x06: ROP_DSS
+    0x07: ROP_SSS
+    0x08: ROP_SSS_ALT
+    0x09: ROP_PSS
+    0x0a: ROP_SPS
+    0x0b: ROP_PPS
+    0x0c: ROP_SSP
+    0x0d: ROP_PSP
+    0x0e: ROP_SPP
+    0x0f: RPOP_SP
+    0x10: ROP_DSP
+    0x11: ROP_SDP
+    0x12: ROP_DPS
+    0x13: ROP_PDS
+    0x14: ROP_SPD
+    0x15: ROP_PSD
+    0x17: SRCCOPY
+    0x18: BLEND_DS_AA
+    0x19: BLEND_DS_AB
+    0x1a: BLEND_DS_AIB
+    0x1b: BLEND_PS_B
+    0x1c: BLEND_PS_IB
+  bit 5: CHROMA - 2d chroma key enable [see nv01-2d.txt]
+  bit 6: PLANE - 2d plane mask enable [see nv01-2d.txt]
+  bit 7: CLIP - 2d user clip rectangle enable [see nv01-2d.txt]
+  bit 8: NOTIFY_VALID - enables the NOTIFY method [see nv01-graph.txt]
+  bits 9-12: COLOR_FORMAT_DST - a field that selects the 2d color format
+         [see nv01-2d.txt] and the destination buffer mask [see nv01-2d.txt]
+     0: BUF0_X1R5G5B5_A1R5G5B5
+     1: BUF0_X8R8G8B8_A8R8G8B8
+     2: BUF0_X2R10G10B10_A2R10G10B10
+     3: BUF0_Y8_A8Y8
+     4: BUF0_Y16_A16Y16
+     5: BUF1_X1R5G5B5_A1R5G5B5
+     6: BUF1_X8R8G8B8_A8R8G8B8
+     7: BUF1_X2R10G10B10_A2R10G10B10
+     8: BUF1_Y8_A8Y8
+     9: BUF1_Y16_A16Y16
+    10: BUF01_X1R5G5B5_A1R5G5B5
+    11: BUF01_X8R8G8B8_A8R8G8B8
+    12: BUF01_X2R10G10B10_A2R10G10B10
+    13: BUF01_Y8_A8Y8
+    14: BUF01_Y16_A16Y16
+  bit 13: ALPHA - 2d alpha enable [see nv01-2d.txt]
+  bit 14: MONO_FORMAT - 2d mono format [see nv01-2d.txt]
+  bit 15: SUBCONTEXT_ID - used to implement multiple subcontexts per channel
+          [see nv01-graph.txt]
 
 
 = Method submission =
