@@ -234,7 +234,158 @@ Operation:
 
 = The pipeline =
 
+The 2d pipeline consists of the following stages, in order:
+
+1. Image source: one of the source objects, or one of the three source types
+   on the unified 2d objects [SOLID, SIFC, or BLIT] - see documentation
+   of the relevant object
+2. Clipping
+3. Source color conversion
+4. One of:
+   4.1. Bitwise operation subpipeline, soncisting of:
+     4.1.1. Optionally, an arbitrary bitwise operation done on the source,
+            the destination, and the pattern.
+     4.1.2. Optionally, a color key operation
+     4.1.3. Optionally, a plane mask operation [NV01:NV04]
+   4.2. Blending operation subpipeline, consisting of:
+     4.2.1. Blend factor calculation
+     4.2.2. Blending
+5. Dithering
+6. Destination write
+
+In addition, the pipeline may be used in RGB mode [treating colors as made of
+R, G, B components], or index mode [treating colors as 8-bit palette index].
+The pipeline mode is determined automatically by the hardware based on source
+and destination formats and some configuration bits.
+
+The pixels are rendered to a destination buffer. On NV01:NV04, more than one
+destination buffer may be enabled at a time. If this is the case, the pixel
+operations are executed separately for each buffer.
+
+
+== Pipeline configuration: NV01 ==
+
+The pipeline configuration is stored in graph options and other PGRAPH
+registers. It cannot be changed by user-visible commands other than via
+rebinding objects. The following options are stored in the graph object:
+
+ - the operation, one of:
+   - RPOP_DS - RPOP(DST, SRC)
+   - ROP_SDD - ROP(SRC, DST, DST)
+   - ROP_DSD - ROP(DST, SRC, DST)
+   - ROP_SSD - ROP(SRC, SRC, DST)
+   - ROP_DDS - ROP(DST, DST, SRC)
+   - ROP_SDS - ROP(SRC, DST, SRC)
+   - ROP_DSS - ROP(DST, SRC, SRC)
+   - ROP_SSS - ROP(SRC, SRC, SRC)
+   - ROP_SSS_ALT - ROP(SRC, SRC, SRC)
+   - ROP_PSS - ROP(PAT, SRC, SRC)
+   - ROP_SPS - ROP(SRC, PAT, SRC)
+   - ROP_PPS - ROP(PAT, PAT, SRC)
+   - ROP_SSP - ROP(SRC, SRC, PAT)
+   - ROP_PSP - ROP(PAT, SRC, PAT)
+   - ROP_SPP - ROP(SRC, PAT, PAT)
+   - RPOP_SP - ROP(SRC, PAT)
+   - ROP_DSP - ROP(DST, SRC, PAT)
+   - ROP_SDP - ROP(SRC, DST, PAT)
+   - ROP_DPS - ROP(DST, PAT, SRC)
+   - ROP_PDS - ROP(PAT, DST, SRC)
+   - ROP_SPD - ROP(SRC, PAT, DST)
+   - ROP_PSD - ROP(PAT, SRC, DST)
+   - SRCCOPY - SRC [no operation]
+   - BLEND_DS_AA - BLEND(DST, SRC, SRC.ALPHA^2) [XXX check]
+   - BLEND_DS_AB - BLEND(DST, SRC, SRC.ALPHA * BETA)
+   - BLEND_DS_AIB - BLEND(DST, SRC, SRC.ALPHA * (1-BETA))
+   - BLEND_PS_B - BLEND(PAT, SRC, BETA)
+   - BLEND_PS_IB - BLEND(SRC, PAT, (1-BETA))
+   If the operation is set to one of the BLEND_* values, blending subpipeline
+   will be active. Otherwise, the bitwise operation subpipeline will be active.
+   For bitwise operation pipeline, RPOP* and ROP* will cause the bitwise
+   operation stage to be enabled with the appropriate options, while the
+   SRCCOPY setting will cause it to be disabled and bypassed.
+ - chroma enable: if this is set to 1, and the bitwise operation subpipeline
+   is active, the color key stage will be enabled
+ - plane mask enable: if this is set to 1, and the bitwise operation
+   subpipeline is active, the plane mask stage will be enabled
+ - user clip enable: if set to 1, the user clip rectangle will be enabled in
+   the clipping stage
+ - destination buffer mask: selects which destination buffers will be written
+
+The following options are stored in other PGRAPH registers:
+
+ - palette bypass bit: determines the value of the palette bypass bit written
+   to the framebuffer
+ - Y8 expand: determines piepline mode used with Y8 source and non-Y8
+   destination - if set, Y8 is upconverted to RGB and the RGB mode is used,
+   otherwise the index mode is used
+ - dither enable: if set, and several conditions are fullfilled, dithering
+   stage will be enabled
+ - software mode: if set, all drawing operations will trap without touching
+   the framebuffer, allowing software to perform the operation instead
+
+The pipeline mode is selected as follows:
+ - if blending subpipeline is used, RGB mode is selected [index blending is
+   not supported]
+ - if bitwise operation subpipeline is used:
+   - if destination format is Y8, indexed mode is selected
+   - if destination format is D1R5G5B5 or D1X1R10G10B10:
+     - if source format is not Y8 or Y8 expand is enabled, RGB mode is selected
+     - if source format is Y8 and Y8 expand is not enabled, indexed mode is
+       selected
+
+In RGB mode, the pipeline internally uses 10-bit components. In index mode,
+8-bit indices are used.
+
+See nv01-pgraph.txt for more information on the configuration registers.
+
+
+== Clipping ==
+
 [XXX: write me]
+
+
+== Source format conversion ==
+
+Firstly, the source color is converted from its original format to the format
+used for operations.
+
+[XXX: figure out what happens on ITM, IFM, BLIT, TEX*BETA]
+
+On NV01, all operations are done on A8R10G10B10 or I8 format internally. In
+RGB mode, colors are converted using the standard color expansion formula.
+In index mode, the index is taken from the low 8 bits of the color.
+
+	src.B = get_color_b10(cur_grobj, color);
+	src.G = get_color_g10(cur_grobj, color);
+	src.R = get_color_r10(cur_grobj, color);
+	src.A = get_color_a8(cur_grobj, color);
+	src.I = color[0:7];
+
+In addition, pixels are discarded [all processing is aborted and the
+destination buffer is left untouched] if the alpha component is 0 [even in
+index mode].
+
+	if (!src.A)
+		discard;
+
+[XXX: NV03+]
+
+
+== Buffer read ==
+
+In some blending and bitwise operation modes, the current contents of the
+destination buffer at the drawn pixel location may be used as an input to
+the 2d pipeline.
+
+[XXX: document that and BLIT]
+
+
+== Bitwise operation ==
+
+[XXX: write me]
+
+
+[XXX: next sections]
 
 
 = NV01-style operation objects =
