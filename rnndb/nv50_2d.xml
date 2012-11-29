@@ -122,13 +122,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>0, 0x11, 0x12, 0x21, 0x22</doc>
 		</reg32>
 		<reg32 offset="0x02e8" name="PATTERN_COLOR_FORMAT">
-			<!-- XXX: maybe same as COLOR_KEY_FORMAT and someone just messed up? -->
-			<value value="0x0000" name="16BPP"/>
-			<value value="0x0001" name="15BPP"/>
-			<value value="0x0002" name="32BPP"/>
-			<value value="0x0003" name="8BPP"/>
-			<value value="0x0004" name="UNK4"/>
-			<value value="0x0005" name="UNK5"/>
+			<value value="0" name="A16R5G6B5"/>
+			<value value="1" name="X16A1R5G5B5"/>
+			<value value="2" name="A8R8G8B8"/>
+			<value value="3" name="X16A8Y8"/>
+			<value value="4" name="UNK4"/>
+			<value value="5" name="UNK5"/>
 		</reg32>
 		<reg32 offset="0x02ec" name="PATTERN_BITMAP_FORMAT">
 			<value value="0" name="CGA6"/>
