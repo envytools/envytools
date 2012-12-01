@@ -207,16 +207,27 @@ static void nv01_pgraph_dump_state(struct hwtest_ctx *ctx, struct nv01_pgraph_st
 		abort();
 	int i;
 	uint32_t *rawstate = (uint32_t*)state;
-	uint32_t access = nva_rd32(ctx->cnum, 0x4006a4);
-	uint32_t xy_misc_1 = nva_rd32(ctx->cnum, 0x400644); /* this one can be disturbed by *reading* VTX mem */
 	int ctr = 0;
-	while(nva_rd32(ctx->cnum, 0x4006b0)) {
+	uint32_t status;
+	while((status = nva_rd32(ctx->cnum, 0x4006b0))) {
 		ctr++;
 		if (ctr > 100000) {
-			fprintf(stderr, "PGRAPH locked up!\n");
+			fprintf(stderr, "PGRAPH locked up [%08x]!\n", status);
+			uint32_t save_intr_en = nva_rd32(ctx->cnum, 0x400140);
+			uint32_t save_invalid_en = nva_rd32(ctx->cnum, 0x400144);
+			uint32_t save_ctx_ctrl = nva_rd32(ctx->cnum, 0x400190);
+			uint32_t save_access = nva_rd32(ctx->cnum, 0x4006a4);
+			nva_wr32(ctx->cnum, 0x000200, 0xffffefff);
+			nva_wr32(ctx->cnum, 0x000200, 0xffffffff);
+			nva_wr32(ctx->cnum, 0x400140, save_intr_en);
+			nva_wr32(ctx->cnum, 0x400144, save_invalid_en);
+			nva_wr32(ctx->cnum, 0x400190, save_ctx_ctrl);
+			nva_wr32(ctx->cnum, 0x4006a4, save_access);
 			break;
 		}
 	}
+	uint32_t access = nva_rd32(ctx->cnum, 0x4006a4);
+	uint32_t xy_misc_1 = nva_rd32(ctx->cnum, 0x400644); /* this one can be disturbed by *reading* VTX mem */
 	nva_wr32(ctx->cnum, 0x4006a4, 0x04000100);
 	for (i = 0; i < ARRAY_SIZE(nv01_pgraph_state_regs); i++)
 		rawstate[i] = nva_rd32(ctx->cnum, nv01_pgraph_state_regs[i]);
@@ -225,6 +236,7 @@ static void nv01_pgraph_dump_state(struct hwtest_ctx *ctx, struct nv01_pgraph_st
 	state->pfb_config &= ~1;
 	state->access = access;
 	state->xy_misc_1 = xy_misc_1;
+	state->status = status;
 }
 
 static int nv01_pgraph_cmp_state(struct nv01_pgraph_state *exp, struct nv01_pgraph_state *real) {
