@@ -38,7 +38,8 @@ MMIO 0x400100: INTR
   bit 8: VBLANK - the vertical blanking period has started on PFB. This
     is really PFB's interrupt. It is delivered to a different PMC line than
     other PGRAPH interrupts. See memory/nv01-pfb.txt for details.
-  bit 12: ??? [XXX: figure this out]
+  bit 12: XY_RANGE - an X or Y coordinate used for rendering was out of the
+    -0x8000..0x7fff range supported by the rasterizer
   bit 16: MISSING_METHOD - the final method to do an operation was submitted
     without first submitting other required methods
   bit 20: CANVAS_SOFTWARE - a drawing operation was attempted with SOFTWARE

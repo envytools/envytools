@@ -56,6 +56,7 @@
 		<bitfield pos="0" name="RESERVED"/>
 		<bitfield pos="4" name="CONTEXT_SWITCH"/>
 		<bitfield pos="8" name="VBLANK"/>
+		<bitfield pos="12" name="XY_RANGE"/>
 		<bitfield pos="16" name="MISSING_METHOD"/>
 		<bitfield pos="20" name="MISSING_FORMAT"/>
 		<bitfield pos="28" name="NOTIFY"/>

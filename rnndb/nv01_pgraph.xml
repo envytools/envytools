@@ -110,7 +110,7 @@
 		<bitfield pos="0" name="INVALID"/>
 		<bitfield pos="4" name="CONTEXT_SWITCH"/>
 		<bitfield pos="8" name="VBLANK"/>
-		<bitfield pos="12" name="UNK12"/>
+		<bitfield pos="12" name="XY_RANGE"/>
 		<bitfield pos="16" name="MISSING_METHOD"/>
 		<bitfield pos="20" name="CANVAS_SOFTWARE"/>
 		<bitfield pos="24" name="CLIP_SOFTWARE"/>
