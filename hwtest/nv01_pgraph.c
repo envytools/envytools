@@ -121,6 +121,8 @@ static const uint32_t nv01_pgraph_state_regs[] = {
 	0x4006a4,
 	/* DEBUG */
 	0x400080, 0x400084, 0x400088,
+	/* STATUS */
+	0x4006b0,
 	/* PFB_CONFIG */
 	0x600200,
 	0x600000,
@@ -180,6 +182,7 @@ static void nv01_pgraph_gen_state(struct hwtest_ctx *ctx, struct nv01_pgraph_sta
 	state->cliprect_ctrl &= 0x113;
 	state->access &= 0x0001f000;
 	state->access |= 0x0f000111;
+	state->status = 0;
 	state->pfb_config &= 0x1370;
 	state->pfb_config |= nva_rd32(ctx->cnum, 0x600200) & ~0x1371;
 	state->pfb_boot = nva_rd32(ctx->cnum, 0x600000);
@@ -206,7 +209,14 @@ static void nv01_pgraph_dump_state(struct hwtest_ctx *ctx, struct nv01_pgraph_st
 	uint32_t *rawstate = (uint32_t*)state;
 	uint32_t access = nva_rd32(ctx->cnum, 0x4006a4);
 	uint32_t xy_misc_1 = nva_rd32(ctx->cnum, 0x400644); /* this one can be disturbed by *reading* VTX mem */
-	while(nva_rd32(ctx->cnum, 0x4006b0));
+	int ctr = 0;
+	while(nva_rd32(ctx->cnum, 0x4006b0)) {
+		ctr++;
+		if (ctr > 100000) {
+			fprintf(stderr, "PGRAPH locked up!\n");
+			break;
+		}
+	}
 	nva_wr32(ctx->cnum, 0x4006a4, 0x04000100);
 	for (i = 0; i < ARRAY_SIZE(nv01_pgraph_state_regs); i++)
 		rawstate[i] = nva_rd32(ctx->cnum, nv01_pgraph_state_regs[i]);

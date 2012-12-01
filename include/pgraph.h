@@ -79,6 +79,7 @@ struct nv01_pgraph_state {
 	uint32_t notify;
 	uint32_t access;
 	uint32_t debug[3];
+	uint32_t status;
 	/* not exactly PGRAPH reg, but important */
 	uint32_t pfb_config;
 	uint32_t pfb_boot;
