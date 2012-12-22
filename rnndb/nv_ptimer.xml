@@ -23,6 +23,17 @@
 </array>
 
 <array offset="0x9000" name="PTIMER" stride="0x1000" length="1" variants="NV03-">
+	<reg32 offset="0x84" name="MMIO_FAULT_ADDRESS" variants="NV41-">
+		<doc>Write 0 to ACK the information on nvc0+</doc>
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="1" name="ACCESS">
+			<value value="0" name="READ"/>
+			<value value="1" name="WRITE"/>
+		</bitfield>
+		<bitfield low="2" high="31" name="ADDRESS" shr="2" variants="NV41-"/>
+	</reg32>
+	<reg32 offset="0x88" name="MMIO_FAULT_DATA" variants="NV41-"/>
+
 	<reg32 offset="0x100" name="INTR">
 		<bitfield pos="0" name="ALARM"/>
 	</reg32>
