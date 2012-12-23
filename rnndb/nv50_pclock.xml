@@ -288,8 +288,13 @@
 		</bitfield>
 	</reg32>
 
-	<reg32 offset="0x044" name="HOST_MUL">
-		<doc>HOST clock is multiplied by this/16. If it's > 16, it gets clamped to 16.</doc>
+	<reg32 offset="0x044" name="HOST_CLK_GATING">
+		<doc>
+			HOST clock seems to be gated when un-used. The clock gating factor is set by this reg.
+			This register seems to specify the number of clocks that should be let through every 16 clocks. 
+			Zero is an impossible value and yields the same result as 1.
+			Although the scan of this reg is 0x1f, the value is clamped to 16 at most.
+		</doc>
 	</reg32>
 
 	<reg32 offset="0x04c" name="NVCLK_MUL">
