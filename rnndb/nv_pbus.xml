@@ -22,7 +22,7 @@
 				<value value="0" name="READ_NORMAL"/>
 				<value value="1" name="READ_OVERRIDE"/>
 			</bitfield>
-			<!-- enables clock gating of various engings. Actual gaing must be enabled
+			<!-- enables clock gating of various engings. Actual gating must be enabled
 			     on per engine basis, by setting its value in 1588/1590 to 1 -->
 			<bitfield pos="5" name="CLOCK_GATING_1588" variants="NV17:NV20 NV25:NVC0"/>
 			<bitfield pos="6" name="CLOCK_GATING_1590" variants="NV17:NV20 NV25:NVC0"/>

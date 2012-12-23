@@ -123,7 +123,7 @@
 </group>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
-	<array name="PTHERM" offset="0x00020000" stride="0x1000" length="1" variants="NV84-">
+	<array name="PTHERM" offset="0x00020000" stride="0x1000" length="1" variants="NV50-">
 		<use-group name="nv50_therm"/>
 	</array>
 </domain>

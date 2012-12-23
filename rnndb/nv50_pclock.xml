@@ -275,7 +275,6 @@
 		</bitfield>
 
 		<bitfield low="28" high="29" name="HOST">
-			<doc>Gets post-multiplied by HOST_MUL.</doc>
 			<value value="0" name="HREF"/>
 			<value value="2" name="HCLK" variants="NV84-"/>
 			<value value="3" name="HCLK"/>
