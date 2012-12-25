@@ -31,6 +31,7 @@
 struct hwtest_ctx {
 	int cnum;
 	int chipset;
+	int card_type;
 	int noslow;
 	int colors;
 	int indent;

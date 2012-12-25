@@ -71,6 +71,7 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 	ctx->chipset = nva_cards[ctx->cnum].chipset;
+	ctx->card_type = nva_cards[ctx->cnum].card_type;
 	int worst = 0;
 	if (optind == argc) {
 		printf("Running all tests...\n");
