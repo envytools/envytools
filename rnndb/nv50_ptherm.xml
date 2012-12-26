@@ -102,28 +102,27 @@
 		<bitfield pos="1" name="INPUT_1" />
 		<bitfield pos="2" name="INPUT_2" /> <!-- just a guess, doesn't work on my nv84 -->
 		<bitfield pos="3" name="THRESHOLD_CRIT" />
-		<bitfield pos="4" name="THRESHOLD_2" /> <!-- just a guess, doesn't work on my nv84 -->
-		<bitfield pos="5" name="THRESHOLD_4" />
+		<bitfield pos="4" name="THRESHOLD_4" />
+		<bitfield pos="5" name="THRESHOLD_2" />
 	</reg32>
 	<reg32 offset="0x008" name="SENSOR_RAW">
-		<bitfield pos="31" name="ENABLE"/>
-		<bitfield pos="30" name="ADC_CLOCK_DIV_FIXED_256"/> <!-- since I cannot find any reg to alter that -->
+		<bitfield low="0" high="14" name="RAW_VALUE"/>
+		<bitfield pos="15" name="FORCE_TEMP"/>
 		<bitfield low="16" high="21" name="ADC_CLOCK_DIV" shr="5"/>
-		<bitfield low="0" high="15" name="RAW_VALUE"/>
-	</reg32>
-	<reg32 offset="0x00c" name="SENSOR_RAW">
-		<bitfield pos="31" name="SENSOR_ENABLE"/>
+		<bitfield low="22" high="29" name="FORCED_TEMP"/>
+		<bitfield pos="30" name="ADC_CLOCK_DIV_FIXED_256"/> <!-- since I cannot find any reg to alter that -->
+		<bitfield pos="31" name="ENABLE"/>
 	</reg32>
 	<reg32 offset="0x044" name="POWER_COUNTER" />
 	<reg32 offset="0x048" name="CLOCK_GATING_STATUS">
 		<doc>For some reasons, this reg doesn't get updated when idle clock-gating is on</doc>
 		<bitfield low="0" high="7" name="PWM" /> <!-- 0xff when div == DISABLED -->
-		<bitfield pos="8" name="UNK8"/>
+		<bitfield pos="8" name="POWER_LIMIT_ACTIVE"/>
 		<bitfield pos="9" name="FORCE_DIV_ACTIVE"/>
 		<bitfield pos="10" name="UNK10"/>
 		<bitfield pos="11" name="THERMAL_PROTECT_DIV_ACTIVE"/>
 		<bitfield low="12" high="14" name="CUR_DIV" type="nv50_therm_clock_gating_div" />
-		<bitfield pos="16" name="THERMAL_PROTECT_ENABLED"/> <!-- set when THERMAL_PROTECT_USE != 0 -->
+		<bitfield pos="16" name="THERMAL_PROTECT_ENABLED"/> <!-- kind of an alias for THERMAL_PROTECT_DIV_ACTIVE -->
 	</reg32>
 	<reg32 offset="0x0fc" name="INTR_DISPATCH" type="nv50_therm_intr" variants="NVA3-">
 		<doc>One bit per interrupt, 0 selects delivery to PMC line 19, 1 selects delivery
@@ -131,22 +130,22 @@
 	</reg32>
 	<reg32 offset="0x060" name="CLOCK_GATING_0">
 		<bitfield low="0" high="2" name="THERMAL_PROTECT_ALT_DIV" type="nv50_therm_clock_gating_div" /> <!-- not sure what the condition is to activate this one but it looks thermal related -->
-		<bitfield low="24" high="31" name="HW_PROTECT_PWM" /> <!-- this is a guess but I doubt there is another way to achieve that -->
+		<bitfield low="8" high="15" name="HW_PROTECT_PWM" /> <!-- this is a guess but I doubt there is another way to achieve that -->
 		
 		<bitfield low="16" high="18" name="IDLE_DIV" type="nv50_therm_clock_gating_div" /> <!-- not sure where the enable bit is -->
 		<bitfield low="24" high="31" name="IDLE_PWM" /> <!-- this is a guess but I doubt there is another way to achieve that -->
 	</reg32>
 	<reg32 offset="0x064" name="CLOCK_GATING_1">
 		<bitfield low="0" high="2" name="FORCE_DIV" type="nv50_therm_clock_gating_div" /> <!-- it doesn't seem to depend on any state, let's call it force -->
-		<bitfield low="24" high="31" name="FORCE_PWM" /> <!-- this is a guess but I doubt there is another way to achieve that -->
+		<bitfield low="8" high="15" name="FORCE_PWM" /> <!-- this is a guess but I doubt there is another way to achieve that -->
 		
 		<bitfield low="16" high="18" name="DIV1" type="nv50_therm_clock_gating_div" />
 		<bitfield low="24" high="31" name="DIV1_PWM" />
 	</reg32>
 	<reg32 offset="0x074" name="THERMAL_PROTECT_CFG">
 		<bitfield low="0" high="2" name="THRESHOLD_CRIT_DIV" type="nv50_therm_thermal_protect_div" />
-		<bitfield low="4" high="6" name="THRESHOLD_4_DIV" type="nv50_therm_thermal_protect_div" />
-		<bitfield low="8" high="10" name="THRESHOLD_2_DIV" type="nv50_therm_thermal_protect_div" /> <!-- just a guess, it doesn't work on my nv84 -->
+		<bitfield low="4" high="6" name="THRESHOLD_2_DIV" type="nv50_therm_thermal_protect_div" />
+		<bitfield low="8" high="10" name="THRESHOLD_4_DIV" type="nv50_therm_thermal_protect_div" />
 		<bitfield low="12" high="14" name="INPUT_0_DIV" type="nv50_therm_thermal_protect_div" />
 		<bitfield low="16" high="18" name="INPUT_1_DIV" type="nv50_therm_thermal_protect_div" />
 		<bitfield low="20" high="22" name="INPUT_2_DIV" type="nv50_therm_thermal_protect_div" /> <!-- just a guess, it doesn't work on my nv84 -->
