@@ -60,13 +60,31 @@ static int test_credible_temperature(struct hwtest_ctx *ctx) {
 		return HWTEST_RES_FAIL;
 }
 
+/* calibration */
+static int test_temperature_enable_state(struct hwtest_ctx *ctx) {
+	uint32_t r008 = nva_mask(ctx->cnum, 0x20008, 0x80000000, 0x0);
+	uint32_t temp_disabled, temp_enabled;
+	
+	temp_disabled = nva_rd32(ctx->cnum, 0x20008 & 0xffff);
+	nva_wr32(ctx->cnum, 0x20008, r008);
+	usleep(20000);
+	temp_enabled = nva_rd32(ctx->cnum, 0x20008 & 0xffff);
+	
+	if ((temp_disabled & 0xffff) == 0 && temp_enabled & 0xffff)
+		return HWTEST_RES_FAIL;
+	else
+		return HWTEST_RES_PASS;
+}
+
 /* thresholds */
 struct therm_threshold {
 	uint32_t thrs_addr;
 	uint32_t hyst_addr;
 	uint8_t state_bit;
 	uint8_t intr_bit;
-	uint8_t inverted;
+	uint8_t intr_dir_id;
+	uint8_t intr_inverted;
+	uint8_t state_inverted;
 	uint8_t state_set_equal;
 	uint8_t state_unset_equal;
 };
@@ -80,17 +98,16 @@ enum therm_thresholds {
 };
 
 struct therm_threshold nv50_therm_thresholds[] = {
-	{ 0x20480, 0x20484, 20, 2, 0, 1, 0 }, /* crit */
-	{ 0x204c4, 0x00000, 21, 3, 1, 1, 1 }, /* threshold_1 */
-	{ 0x204c0, 0x00000, 22, 4, 0, 0, 0 }, /* threshold_2 */
-	{ 0x20418, 0x00000, 23, 0, 1, 1, 1 }, /* threshold_3 */
-	{ 0x20414, 0x00000, 24, 1, 0, 0, 0 }  /* threshold_4 */
+	{ 0x20480, 0x20484, 20, 2, 0, 1, 0, 1, 0 }, /* crit */
+	{ 0x204c4, 0x00000, 21, 3, 1, 0, 1, 1, 1 }, /* threshold_1 */
+	{ 0x204c0, 0x00000, 22, 4, 2, 1, 0, 0, 0 }, /* threshold_2 */
+	{ 0x20418, 0x00000, 23, 0, 3, 0, 1, 1, 1 }, /* threshold_3 */
+	{ 0x20414, 0x00000, 24, 1, 4, 1, 0, 0, 0 }  /* threshold_4 */
 };
 
 static int threshold_check_state(struct hwtest_ctx *ctx, struct therm_threshold *thrs) {
-	int temp = nva_rd32(ctx->cnum, 0x20400);
 	uint32_t exp_state;
-	int hyst, hyst_state, prev_hyst_state;
+	int temp, hyst, hyst_state, prev_hyst_state;
 	int i, dir;
 
 	hyst = 0;
@@ -108,6 +125,7 @@ static int threshold_check_state(struct hwtest_ctx *ctx, struct therm_threshold 
 		nva_wr32(ctx->cnum, thrs->thrs_addr, i);
 		
 		/* calculate the expected state */
+		temp = nva_rd32(ctx->cnum, 0x20400);
 		if (hyst_state)
 			if (thrs->state_unset_equal)
 				exp_state = (temp >= (i - hyst));
@@ -119,7 +137,7 @@ static int threshold_check_state(struct hwtest_ctx *ctx, struct therm_threshold 
 			else
 				exp_state = (temp > i);
 		hyst_state = !exp_state;
-		if (thrs->inverted)
+		if (thrs->state_inverted)
 			exp_state = !exp_state;
 		exp_state <<= thrs->state_bit;
 		
@@ -157,21 +175,162 @@ static int test_threshold_4_state(struct hwtest_ctx *ctx) {
 	return threshold_check_state(ctx, &nv50_therm_thresholds[therm_threshold_4]);
 }
 
-/* TODO: check interrupts */
+static int threshold_gen_intr_dir(struct hwtest_ctx *ctx, struct therm_threshold *thrs, int dir) {
+	int temp = nva_rd32(ctx->cnum, 0x20400);
+	int lower_thrs = temp - 20;
+	int higher_thrs = temp + 20;
 
-/* calibration */
-static int test_temperature_enable_state(struct hwtest_ctx *ctx) {
-	uint32_t r008 = nva_mask(ctx->cnum, 0x20008, 0x80000000, 0x0);
-	uint32_t temp_disabled, temp_enabled;
+	if (lower_thrs < 0)
+		lower_thrs = 0;
+
+	/* clear the state */
+	if (thrs->hyst_addr)
+		nva_wr32(ctx->cnum, thrs->hyst_addr, 0);
 	
-	temp_disabled = nva_rd32(ctx->cnum, 0x20008 & 0xffff);
-	nva_wr32(ctx->cnum, 0x20008, r008);
-	temp_enabled = nva_rd32(ctx->cnum, 0x20008 & 0xffff);
+	if (thrs->intr_inverted) {
+		if (dir > 0)
+			nva_wr32(ctx->cnum, thrs->thrs_addr, higher_thrs);
+		else
+			nva_wr32(ctx->cnum, thrs->thrs_addr, lower_thrs);
+	} else {
+		if (dir > 0)
+			nva_wr32(ctx->cnum, thrs->thrs_addr, lower_thrs);
+		else
+			nva_wr32(ctx->cnum, thrs->thrs_addr, higher_thrs);
+	}
 	
-	if ((temp_disabled & 0xffff) == 0 && temp_enabled & 0xffff)
-		return HWTEST_RES_FAIL;
-	else
-		return HWTEST_RES_PASS;
+	/* ACK any IRQ */
+	nva_wr32(ctx->cnum, 0x20100, 0xffffffff); /* ack ptherm's IRQs */
+	nva_wr32(ctx->cnum, 0x1100, 0xffffffff); /* ack pbus' IRQs */
+	
+	/* Generate an IRQ */
+	if (thrs->intr_inverted) {
+		if (dir > 0)
+			nva_wr32(ctx->cnum, thrs->thrs_addr, lower_thrs);
+		else
+			nva_wr32(ctx->cnum, thrs->thrs_addr, higher_thrs);
+	} else {
+		if (dir > 0)
+			nva_wr32(ctx->cnum, thrs->thrs_addr, higher_thrs);
+		else
+			nva_wr32(ctx->cnum, thrs->thrs_addr, lower_thrs);
+	}
+	
+	return HWTEST_RES_PASS;
+}
+
+static int threshold_check_intr_rising(struct hwtest_ctx *ctx, struct therm_threshold *thrs) {
+	uint32_t intr_dir;
+	if (ctx->card_type >= 0xa3)
+		return HWTEST_RES_NA;
+
+	/* enable the rising IRQs */
+	intr_dir = 1;
+	nva_wr32(ctx->cnum, 0x20000, intr_dir << (thrs->intr_dir_id * 2));
+	threshold_gen_intr_dir(ctx, thrs, 1);
+	TEST_READ_MASK(0x20100, 1 << thrs->intr_bit, 1 << thrs->intr_bit,
+		       "rising: unexpected ptherm intr bit, expected bit %i. intr_dir: %x",
+		       thrs->intr_bit, nva_rd32(ctx->cnum, 0x20000));
+	TEST_READ_MASK(0x1100, 0x10000, 0x10000,
+		       "rising: unexpected pbus intr bit, expected bit 16 %s", "");
+	threshold_gen_intr_dir(ctx, thrs, -1);
+	TEST_READ(0x20100, 0,
+		  "falling: unexpected ptherm IRQ! intr_dir: %x",
+		  nva_rd32(ctx->cnum, 0x20000));
+	
+	return HWTEST_RES_PASS;
+}
+
+static int threshold_check_intr_falling(struct hwtest_ctx *ctx, struct therm_threshold *thrs) {
+	uint32_t intr_dir;
+	if (ctx->card_type >= 0xa3)
+		return HWTEST_RES_NA;
+
+	/* enable the falling IRQs */
+	intr_dir = 2;
+	nva_wr32(ctx->cnum, 0x20000, intr_dir << (thrs->intr_dir_id * 2));
+	threshold_gen_intr_dir(ctx, thrs, -1);
+	TEST_READ_MASK(0x20100, 1 << thrs->intr_bit, 1 << thrs->intr_bit,
+		       "falling: unexpected ptherm intr bit, expected bit %i. intr_dir: %x",
+		       thrs->intr_bit, nva_rd32(ctx->cnum, 0x20000));
+	TEST_READ_MASK(0x1100, 0x10000, 0x10000,
+		       "falling: unexpected pbus intr bit, expected bit 16%s", "");
+	threshold_gen_intr_dir(ctx, thrs, 1);
+	TEST_READ(0x20100, 0, 
+		  "rising: unexpected ptherm IRQ! intr_dir: %x",
+		  nva_rd32(ctx->cnum, 0x20000));
+
+	return HWTEST_RES_PASS;
+}
+
+static int threshold_check_intr_both(struct hwtest_ctx *ctx, struct therm_threshold *thrs) {
+	uint32_t intr_dir;
+	if (ctx->card_type >= 0xa3)
+		return HWTEST_RES_NA;
+
+	/* enable the IRQs on both sides */
+	intr_dir = 3;
+	nva_wr32(ctx->cnum, 0x20000, intr_dir << (thrs->intr_dir_id * 2));
+	threshold_gen_intr_dir(ctx, thrs, 1);
+	TEST_READ_MASK(0x20100, 1 << thrs->intr_bit, 1 << thrs->intr_bit,
+		       "rising: unexpected ptherm intr bit, expected bit %i. intr_dir: %x",
+		       thrs->intr_bit, nva_rd32(ctx->cnum, 0x20000));
+	threshold_gen_intr_dir(ctx, thrs, -1);
+	TEST_READ_MASK(0x20100, 1 << thrs->intr_bit, 1 << thrs->intr_bit,
+		       "falling: unexpected ptherm intr bit, expected bit %i. intr_dir: %x",
+		       thrs->intr_bit, nva_rd32(ctx->cnum, 0x20000));
+	
+	return HWTEST_RES_PASS;
+}
+
+static int test_threshold_crit_intr_rising(struct hwtest_ctx *ctx) {
+	return threshold_check_intr_rising(ctx, &nv50_therm_thresholds[therm_threshold_crit]);
+}
+static int test_threshold_crit_intr_falling(struct hwtest_ctx *ctx) {
+	return threshold_check_intr_falling(ctx, &nv50_therm_thresholds[therm_threshold_crit]);
+}
+static int test_threshold_crit_intr_both(struct hwtest_ctx *ctx) {
+	return threshold_check_intr_both(ctx, &nv50_therm_thresholds[therm_threshold_crit]);
+}
+
+static int test_threshold_1_intr_rising(struct hwtest_ctx *ctx) {
+	return threshold_check_intr_rising(ctx, &nv50_therm_thresholds[therm_threshold_1]);
+}
+static int test_threshold_1_intr_falling(struct hwtest_ctx *ctx) {
+	return threshold_check_intr_falling(ctx, &nv50_therm_thresholds[therm_threshold_1]);
+}
+static int test_threshold_1_intr_both(struct hwtest_ctx *ctx) {
+	return threshold_check_intr_both(ctx, &nv50_therm_thresholds[therm_threshold_1]);
+}
+
+static int test_threshold_2_intr_rising(struct hwtest_ctx *ctx) {
+	return threshold_check_intr_rising(ctx, &nv50_therm_thresholds[therm_threshold_2]);
+}
+static int test_threshold_2_intr_falling(struct hwtest_ctx *ctx) {
+	return threshold_check_intr_falling(ctx, &nv50_therm_thresholds[therm_threshold_2]);
+}
+static int test_threshold_2_intr_both(struct hwtest_ctx *ctx) {
+	return threshold_check_intr_both(ctx, &nv50_therm_thresholds[therm_threshold_2]);
+}
+
+static int test_threshold_3_intr_rising(struct hwtest_ctx *ctx) {
+	return threshold_check_intr_rising(ctx, &nv50_therm_thresholds[therm_threshold_3]);
+}
+static int test_threshold_3_intr_falling(struct hwtest_ctx *ctx) {
+	return threshold_check_intr_falling(ctx, &nv50_therm_thresholds[therm_threshold_3]);
+}
+static int test_threshold_3_intr_both(struct hwtest_ctx *ctx) {
+	return threshold_check_intr_both(ctx, &nv50_therm_thresholds[therm_threshold_3]);
+}
+
+static int test_threshold_4_intr_rising(struct hwtest_ctx *ctx) {
+	return threshold_check_intr_rising(ctx, &nv50_therm_thresholds[therm_threshold_4]);
+}
+static int test_threshold_4_intr_falling(struct hwtest_ctx *ctx) {
+	return threshold_check_intr_falling(ctx, &nv50_therm_thresholds[therm_threshold_4]);
+}
+static int test_threshold_4_intr_both(struct hwtest_ctx *ctx) {
+	return threshold_check_intr_both(ctx, &nv50_therm_thresholds[therm_threshold_4]);
 }
 
 /* tests definitions */
@@ -208,6 +367,21 @@ HWTEST_DEF_GROUP(nv50_temperature_thresholds,
 	HWTEST_TEST(test_threshold_2_state, 0),
 	HWTEST_TEST(test_threshold_3_state, 0),
 	HWTEST_TEST(test_threshold_4_state, 0),
+	HWTEST_TEST(test_threshold_crit_intr_rising, 0),
+	HWTEST_TEST(test_threshold_crit_intr_falling, 0),
+	HWTEST_TEST(test_threshold_crit_intr_both, 0),
+	HWTEST_TEST(test_threshold_1_intr_rising, 0),
+	HWTEST_TEST(test_threshold_1_intr_falling, 0),
+	HWTEST_TEST(test_threshold_1_intr_both, 0),
+	HWTEST_TEST(test_threshold_2_intr_rising, 0),
+	HWTEST_TEST(test_threshold_2_intr_falling, 0),
+	HWTEST_TEST(test_threshold_2_intr_both, 0),
+	HWTEST_TEST(test_threshold_3_intr_rising, 0),
+	HWTEST_TEST(test_threshold_3_intr_falling, 0),
+	HWTEST_TEST(test_threshold_3_intr_both, 0),
+	HWTEST_TEST(test_threshold_4_intr_rising, 0),
+	HWTEST_TEST(test_threshold_4_intr_falling, 0),
+	HWTEST_TEST(test_threshold_4_intr_both, 0),
 )
 
 HWTEST_DEF_GROUP(nv50_sensor_calibration,
@@ -216,6 +390,6 @@ HWTEST_DEF_GROUP(nv50_sensor_calibration,
 
 HWTEST_DEF_GROUP(nv50_ptherm,
 	HWTEST_GROUP(nv50_read_temperature),
+	HWTEST_GROUP(nv50_sensor_calibration),
 	HWTEST_GROUP(nv50_temperature_thresholds),
-	HWTEST_GROUP(nv50_sensor_calibration)
 )
