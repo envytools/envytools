@@ -221,7 +221,7 @@ static int threshold_gen_intr_dir(struct hwtest_ctx *ctx, struct therm_threshold
 
 static int threshold_check_intr_rising(struct hwtest_ctx *ctx, struct therm_threshold *thrs) {
 	uint32_t intr_dir;
-	if (ctx->card_type >= 0xa3)
+	if (ctx->chipset >= 0xa3)
 		return HWTEST_RES_NA;
 
 	/* enable the rising IRQs */
@@ -243,7 +243,7 @@ static int threshold_check_intr_rising(struct hwtest_ctx *ctx, struct therm_thre
 
 static int threshold_check_intr_falling(struct hwtest_ctx *ctx, struct therm_threshold *thrs) {
 	uint32_t intr_dir;
-	if (ctx->card_type >= 0xa3)
+	if (ctx->chipset >= 0xa3)
 		return HWTEST_RES_NA;
 
 	/* enable the falling IRQs */
@@ -265,7 +265,7 @@ static int threshold_check_intr_falling(struct hwtest_ctx *ctx, struct therm_thr
 
 static int threshold_check_intr_both(struct hwtest_ctx *ctx, struct therm_threshold *thrs) {
 	uint32_t intr_dir;
-	if (ctx->card_type >= 0xa3)
+	if (ctx->chipset >= 0xa3)
 		return HWTEST_RES_NA;
 
 	/* enable the IRQs on both sides */
