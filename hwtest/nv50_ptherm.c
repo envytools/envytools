@@ -31,7 +31,7 @@
 
 /* nv50_read_temperature */
 static int test_ADC_enabled(struct hwtest_ctx *ctx) {
-	
+
 	if (nva_rd32(ctx->cnum, 0x20008) & 0x80000000)
 		return HWTEST_RES_PASS;
 	else
@@ -64,12 +64,12 @@ static int test_credible_temperature(struct hwtest_ctx *ctx) {
 static int test_temperature_enable_state(struct hwtest_ctx *ctx) {
 	uint32_t r008 = nva_mask(ctx->cnum, 0x20008, 0x80000000, 0x0);
 	uint32_t temp_disabled, temp_enabled;
-	
+
 	temp_disabled = nva_rd32(ctx->cnum, 0x20008 & 0xffff);
 	nva_wr32(ctx->cnum, 0x20008, r008);
 	usleep(20000);
 	temp_enabled = nva_rd32(ctx->cnum, 0x20008 & 0xffff);
-	
+
 	if ((temp_disabled & 0xffff) == 0 && temp_enabled & 0xffff)
 		return HWTEST_RES_FAIL;
 	else
@@ -78,15 +78,24 @@ static int test_temperature_enable_state(struct hwtest_ctx *ctx) {
 
 /* thresholds */
 struct therm_threshold {
+	/* temperature thresholds */
 	uint32_t thrs_addr;
 	uint32_t hyst_addr;
-	uint8_t state_bit;
+
+	/* intr */
 	uint8_t intr_bit;
 	uint8_t intr_dir_id;
 	uint8_t intr_inverted;
+
+	/* state */
+	uint8_t state_bit;
 	uint8_t state_inverted;
 	uint8_t state_set_equal;
 	uint8_t state_unset_equal;
+
+	/* thermal protect */
+	uint8_t tp_use_bit;
+	uint8_t tp_cfg_id;
 };
 
 enum therm_thresholds {
@@ -98,14 +107,14 @@ enum therm_thresholds {
 };
 
 struct therm_threshold nv50_therm_thresholds[] = {
-	{ 0x20480, 0x20484, 20, 2, 0, 1, 0, 1, 0 }, /* crit */
-	{ 0x204c4, 0x00000, 21, 3, 1, 0, 1, 1, 1 }, /* threshold_1 */
-	{ 0x204c0, 0x00000, 22, 4, 2, 1, 0, 0, 0 }, /* threshold_2 */
-	{ 0x20418, 0x00000, 23, 0, 3, 0, 1, 1, 1 }, /* threshold_3 */
-	{ 0x20414, 0x00000, 24, 1, 4, 1, 0, 0, 0 }  /* threshold_4 */
+	{ 0x20480, 0x20484, 2, 0, 1, 20, 0, 1, 0,  3,  0 }, /* crit */
+	{ 0x204c4, 0x00000, 3, 1, 0, 21, 1, 1, 1, -1, -1 }, /* threshold_1 */
+	{ 0x204c0, 0x00000, 4, 2, 1, 22, 0, 0, 0,  5,  1}, /* threshold_2 */
+	{ 0x20418, 0x00000, 0, 3, 0, 23, 1, 1, 1, -1, -1 }, /* threshold_3 */
+	{ 0x20414, 0x00000, 1, 4, 1, 24, 0, 0, 0,  4,  2 }  /* threshold_4 */
 };
 
-static int threshold_check_state(struct hwtest_ctx *ctx, struct therm_threshold *thrs) {
+static int threshold_check_state(struct hwtest_ctx *ctx, const struct therm_threshold *thrs) {
 	uint32_t exp_state;
 	int temp, hyst, hyst_state, prev_hyst_state;
 	int i, dir;
@@ -123,7 +132,7 @@ static int threshold_check_state(struct hwtest_ctx *ctx, struct therm_threshold 
 	while (i > 0) {
 		/* set the threshold */
 		nva_wr32(ctx->cnum, thrs->thrs_addr, i);
-		
+
 		/* calculate the expected state */
 		temp = nva_rd32(ctx->cnum, 0x20400);
 		if (hyst_state)
@@ -140,9 +149,9 @@ static int threshold_check_state(struct hwtest_ctx *ctx, struct therm_threshold 
 		if (thrs->state_inverted)
 			exp_state = !exp_state;
 		exp_state <<= thrs->state_bit;
-		
+
 		/* check the state in 0x20000 */
-		TEST_READ_MASK(0x20000, exp_state, 1 << thrs->state_bit, 
+		TEST_READ_MASK(0x20000, exp_state, 1 << thrs->state_bit,
 			       "invalid state at temperature %i: dir (%i), threshold (%i), hyst (%i), hyst_state (%i, prev was %i)",
 			       temp, dir, i, hyst, hyst_state, prev_hyst_state);
 
@@ -186,7 +195,7 @@ static int threshold_gen_intr_dir(struct hwtest_ctx *ctx, struct therm_threshold
 	/* clear the state */
 	if (thrs->hyst_addr)
 		nva_wr32(ctx->cnum, thrs->hyst_addr, 0);
-	
+
 	if (thrs->intr_inverted) {
 		if (dir > 0)
 			nva_wr32(ctx->cnum, thrs->thrs_addr, higher_thrs);
@@ -198,11 +207,11 @@ static int threshold_gen_intr_dir(struct hwtest_ctx *ctx, struct therm_threshold
 		else
 			nva_wr32(ctx->cnum, thrs->thrs_addr, higher_thrs);
 	}
-	
+
 	/* ACK any IRQ */
 	nva_wr32(ctx->cnum, 0x20100, 0xffffffff); /* ack ptherm's IRQs */
 	nva_wr32(ctx->cnum, 0x1100, 0xffffffff); /* ack pbus' IRQs */
-	
+
 	/* Generate an IRQ */
 	if (thrs->intr_inverted) {
 		if (dir > 0)
@@ -215,7 +224,7 @@ static int threshold_gen_intr_dir(struct hwtest_ctx *ctx, struct therm_threshold
 		else
 			nva_wr32(ctx->cnum, thrs->thrs_addr, lower_thrs);
 	}
-	
+
 	return HWTEST_RES_PASS;
 }
 
@@ -237,7 +246,7 @@ static int threshold_check_intr_rising(struct hwtest_ctx *ctx, struct therm_thre
 	TEST_READ(0x20100, 0,
 		  "falling: unexpected ptherm IRQ! intr_dir: %x",
 		  nva_rd32(ctx->cnum, 0x20000));
-	
+
 	return HWTEST_RES_PASS;
 }
 
@@ -256,7 +265,7 @@ static int threshold_check_intr_falling(struct hwtest_ctx *ctx, struct therm_thr
 	TEST_READ_MASK(0x1100, 0x10000, 0x10000,
 		       "falling: unexpected pbus intr bit, expected bit 16%s", "");
 	threshold_gen_intr_dir(ctx, thrs, 1);
-	TEST_READ(0x20100, 0, 
+	TEST_READ(0x20100, 0,
 		  "rising: unexpected ptherm IRQ! intr_dir: %x",
 		  nva_rd32(ctx->cnum, 0x20000));
 
@@ -279,7 +288,7 @@ static int threshold_check_intr_both(struct hwtest_ctx *ctx, struct therm_thresh
 	TEST_READ_MASK(0x20100, 1 << thrs->intr_bit, 1 << thrs->intr_bit,
 		       "falling: unexpected ptherm intr bit, expected bit %i. intr_dir: %x",
 		       thrs->intr_bit, nva_rd32(ctx->cnum, 0x20000));
-	
+
 	return HWTEST_RES_PASS;
 }
 
@@ -337,8 +346,15 @@ static int test_threshold_4_intr_both(struct hwtest_ctx *ctx) {
 static int clock_gating_reset(struct hwtest_ctx *ctx) {
 	int i;
 
-	for (i = 0x20060; i < 20074; i+=4)
+	nva_wr32(ctx->cnum, 0x20004, 0);
+	for (i = 0x20060; i <= 0x20074; i+=4)
 		nva_wr32(ctx->cnum, i, 0);
+	nva_wr32(ctx->cnum, 0x20414, 0xff);
+	nva_wr32(ctx->cnum, 0x20418, 0xff);
+	nva_wr32(ctx->cnum, 0x20480, 0xff);
+	nva_wr32(ctx->cnum, 0x204c0, 0xff);
+	nva_wr32(ctx->cnum, 0x204c0, 0xff);
+
 	return HWTEST_RES_PASS;
 }
 
@@ -346,12 +362,12 @@ static int test_clock_gating_force_div_only(struct hwtest_ctx *ctx) {
 	int i;
 
 	clock_gating_reset(ctx);
-	
+
 	for (i = 1; i < 7; i++) {
 		nva_wr32(ctx->cnum, 0x20064, i);
 		TEST_READ_MASK(0x20048, (i << 12) | 0x200, 0xffff, "%s", "");
 	}
-		
+
 	return HWTEST_RES_PASS;
 }
 
@@ -359,19 +375,73 @@ static int test_clock_gating_force_div_pwm(struct hwtest_ctx *ctx) {
 	int i;
 
 	clock_gating_reset(ctx);
-	
+
 	for (i = 0; i < 0x100; i++) {
 		nva_wr32(ctx->cnum, 0x20064, (i << 8) | 2);
 		TEST_READ_MASK(0x20048, 0x2200 | i, 0xffff, "%s", "");
 	}
-		
+
 	return HWTEST_RES_PASS;
 }
 
-/* TODO: 
- * - check thermal protect clock gating
+/* TODO:
  * - check power-based clock gating
  */
+
+static int test_clock_gating_thermal_protect(struct hwtest_ctx *ctx,
+						    const struct therm_threshold *thrs) {
+	int temp = nva_rd32(ctx->cnum, 0x20400);
+	int lower_thrs = temp - 20;
+	int rnd_div = rand() % 7;
+	int rnd_pwm = rand() % 0xff;
+
+	clock_gating_reset(ctx);
+
+	if (lower_thrs < 0)
+		lower_thrs = 0;
+
+	TEST_READ_MASK(0x20048, 0, 0x10000, "0 - THERMAL_PROTECT_ENABLED is set without reason%s", "");
+	nva_wr32(ctx->cnum, 0x20004, 1 << thrs->tp_use_bit);
+
+	nva_wr32(ctx->cnum, thrs->thrs_addr, lower_thrs);
+	nva_wr32(ctx->cnum, 0x20060, (rnd_pwm << 8) | rnd_div); /* PWM = rnd_pwm, div = rnd_div */
+	nva_wr32(ctx->cnum, 0x20074, 0x80000000); /* force alt div */
+
+	/* set a divisor for the threshold but override it by using alt_div */
+	nva_wr32(ctx->cnum, 0x20074, (1 << 31) | (rnd_div << (thrs->tp_cfg_id * 4)));
+
+	TEST_READ_MASK(0x20048, 0x10000, 0x10000,
+			       "1 - THERMAL_PROTECT_ENABLED didn't get set (use = %08x)",
+			       nva_rd32(ctx->cnum, 0x20004));
+	TEST_READ_MASK(0x20048, 0x800, 0x800, "1 - THERMAL_PROTECT_DIV_ACTIVE is not active!%s", "");
+	TEST_READ_MASK(0x20048, rnd_pwm, 0xff, "1 - PWM isn't %i", rnd_pwm);
+	TEST_READ_MASK(0x20048, rnd_div << 12, 0x7000, "1 - divisor isn't %i", rnd_div);
+	TEST_READ_MASK(0x20074, rnd_div << 28, 0x7 << 28, "1 - effective divisor isn't %i", rnd_div);
+
+	/* disable the force div to use the other divisor */
+	nva_mask(ctx->cnum, 0x20074, 0x80000000, 0);
+
+	TEST_READ_MASK(0x20048, 0x10000, 0x10000,
+			       "2 - THERMAL_PROTECT_ENABLED didn't get set (use = %08x)",
+			       nva_rd32(ctx->cnum, 0x20004));
+	TEST_READ_MASK(0x20048, 0x800, 0x800, "2 - THERMAL_PROTECT_DIV_ACTIVE is not active!%s", "");
+	TEST_READ_MASK(0x20048, rnd_pwm, 0xff, "1 - PWM isn't %i", rnd_pwm);
+	TEST_READ_MASK(0x20048, rnd_div << 12, 0x7000, "1 - divisor isn't %i", rnd_div);
+	TEST_READ_MASK(0x20074, rnd_div << 28, 0x7 << 28, "1 - effective divisor isn't %i", rnd_div);
+
+	return HWTEST_RES_PASS;
+}
+
+static int test_clock_gating_thermal_protect_crit(struct hwtest_ctx *ctx) {
+	return test_clock_gating_thermal_protect(ctx, &nv50_therm_thresholds[therm_threshold_crit]);
+}
+static int test_clock_gating_thermal_protect_threshold_2(struct hwtest_ctx *ctx) {
+	return test_clock_gating_thermal_protect(ctx, &nv50_therm_thresholds[therm_threshold_2]);
+}
+static int test_clock_gating_thermal_protect_threshold_4(struct hwtest_ctx *ctx) {
+	return test_clock_gating_thermal_protect(ctx, &nv50_therm_thresholds[therm_threshold_4]);
+}
+
 
 /* tests definitions */
 static int nv50_ptherm_prep(struct hwtest_ctx *ctx) {
@@ -433,6 +503,9 @@ HWTEST_DEF_GROUP(nv50_temperature_thresholds,
 HWTEST_DEF_GROUP(nv50_clock_gating,
 	HWTEST_TEST(test_clock_gating_force_div_only, 0),
 	HWTEST_TEST(test_clock_gating_force_div_pwm, 0),
+	HWTEST_TEST(test_clock_gating_thermal_protect_crit, 0),
+	HWTEST_TEST(test_clock_gating_thermal_protect_threshold_2, 0),
+	HWTEST_TEST(test_clock_gating_thermal_protect_threshold_4, 0),
 )
 
 HWTEST_DEF_GROUP(nv50_ptherm,
