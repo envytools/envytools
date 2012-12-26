@@ -266,7 +266,7 @@ static int threshold_check_intr_rising(struct hwtest_ctx *ctx, struct therm_thre
 	TEST_READ_MASK(0x1100, 0x10000, 0x10000,
 		       "rising: unexpected pbus intr bit, expected bit 16 %s", "");
 	threshold_gen_intr_dir(ctx, thrs, -1);
-	TEST_READ(0x20100, 0,
+	TEST_READ_MASK(0x20100, 0, 1 << thrs->intr_bit,
 		  "falling: unexpected ptherm IRQ! intr_dir: %x",
 		  nva_rd32(ctx->cnum, 0x20000));
 
@@ -288,7 +288,7 @@ static int threshold_check_intr_falling(struct hwtest_ctx *ctx, struct therm_thr
 	TEST_READ_MASK(0x1100, 0x10000, 0x10000,
 		       "falling: unexpected pbus intr bit, expected bit 16%s", "");
 	threshold_gen_intr_dir(ctx, thrs, 1);
-	TEST_READ(0x20100, 0,
+	TEST_READ_MASK(0x20100, 0, 1 << thrs->intr_bit,
 		  "rising: unexpected ptherm IRQ! intr_dir: %x",
 		  nva_rd32(ctx->cnum, 0x20000));
 
