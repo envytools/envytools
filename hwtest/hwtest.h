@@ -88,11 +88,23 @@ enum hwtest_res {
 	} \
 } while (0)
 
+#define TEST_READ_MASK(reg, exp, mask, msg, ...) do { \
+	uint32_t _reg = reg; \
+	uint32_t _exp = exp; \
+	uint32_t _mask = mask; \
+	uint32_t _real = nva_rd32(ctx->cnum, _reg); \
+	if (_exp != (_real & _mask)) { \
+		fprintf(stderr, "Read mismatch for %06x: is %08x (& %08x), expected %08x - " msg "\n", _reg, _real, _mask, _exp, __VA_ARGS__); \
+		return HWTEST_RES_FAIL; \
+	} \
+} while (0)
+
 uint32_t vram_rd32(int card, uint64_t addr);
 void vram_wr32(int card, uint64_t addr, uint32_t val);
 int hwtest_run_group(struct hwtest_ctx *ctx, const struct hwtest_group *group, const char *filter);
 
 extern const struct hwtest_group nv10_tile_group;
 extern const struct hwtest_group nv01_pgraph_group;
+extern const struct hwtest_group nv50_ptherm_group;
 
 #endif
