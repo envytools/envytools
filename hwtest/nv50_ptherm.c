@@ -29,6 +29,11 @@
 #include <stdio.h>
 #include <unistd.h>
 
+/* common */
+static void force_temperature(struct hwtest_ctx *ctx, uint8_t temp) {
+	nva_wr32(ctx->cnum, 0x20008, 0x80000000 | ((temp & 0x3f) << 22) | 0x8000);
+}
+
 /* nv50_read_temperature */
 static int test_ADC_enabled(struct hwtest_ctx *ctx) {
 
@@ -71,6 +76,20 @@ static int test_temperature_enable_state(struct hwtest_ctx *ctx) {
 	temp_enabled = nva_rd32(ctx->cnum, 0x20008 & 0xffff);
 
 	if ((temp_disabled & 0xffff) == 0 && temp_enabled & 0xffff)
+		return HWTEST_RES_FAIL;
+	else
+		return HWTEST_RES_PASS;
+}
+
+static int test_temperature_force(struct hwtest_ctx *ctx) {
+	uint32_t r008 = nva_rd32(ctx->cnum, 0x20008);
+	uint8_t temp_read, temp = rand() % 0x3f;
+
+	force_temperature(ctx, temp);
+	temp_read = nva_rd32(ctx->cnum, 0x20400);
+	nva_wr32(ctx->cnum, 0x20008, r008);
+
+	if (temp_read != temp)
 		return HWTEST_RES_FAIL;
 	else
 		return HWTEST_RES_PASS;
@@ -185,9 +204,13 @@ static int test_threshold_4_state(struct hwtest_ctx *ctx) {
 }
 
 static int threshold_gen_intr_dir(struct hwtest_ctx *ctx, struct therm_threshold *thrs, int dir) {
-	int temp = nva_rd32(ctx->cnum, 0x20400);
-	int lower_thrs = temp - 20;
-	int higher_thrs = temp + 20;
+	int temp, lower_thrs, higher_thrs;
+
+	force_temperature(ctx, 0x10 + (rand() % 0x2f));
+
+	temp = nva_rd32(ctx->cnum, 0x20400);
+	lower_thrs = temp - 10;
+	higher_thrs = temp + 10;
 
 	if (lower_thrs < 0)
 		lower_thrs = 0;
@@ -390,12 +413,15 @@ static int test_clock_gating_force_div_pwm(struct hwtest_ctx *ctx) {
 
 static int test_clock_gating_thermal_protect(struct hwtest_ctx *ctx,
 						    const struct therm_threshold *thrs) {
-	int temp = nva_rd32(ctx->cnum, 0x20400);
-	int lower_thrs = temp - 20;
-	int rnd_div = rand() % 7;
-	int rnd_pwm = rand() % 0xff;
+	int temp, lower_thrs;
+	int rnd_div = 1 + (rand() % 6);
+	int rnd_pwm = 1 + (rand() % 0xfe);
 
 	clock_gating_reset(ctx);
+
+	force_temperature(ctx, 0x10 + (rand() % 0x2f));
+	temp = nva_rd32(ctx->cnum, 0x20400);
+	lower_thrs = temp - 10;
 
 	if (lower_thrs < 0)
 		lower_thrs = 0;
@@ -405,7 +431,6 @@ static int test_clock_gating_thermal_protect(struct hwtest_ctx *ctx,
 
 	nva_wr32(ctx->cnum, thrs->thrs_addr, lower_thrs);
 	nva_wr32(ctx->cnum, 0x20060, (rnd_pwm << 8) | rnd_div); /* PWM = rnd_pwm, div = rnd_div */
-	nva_wr32(ctx->cnum, 0x20074, 0x80000000); /* force alt div */
 
 	/* set a divisor for the threshold but override it by using alt_div */
 	nva_wr32(ctx->cnum, 0x20074, (1 << 31) | (rnd_div << (thrs->tp_cfg_id * 4)));
@@ -425,7 +450,7 @@ static int test_clock_gating_thermal_protect(struct hwtest_ctx *ctx,
 			       "2 - THERMAL_PROTECT_ENABLED didn't get set (use = %08x)",
 			       nva_rd32(ctx->cnum, 0x20004));
 	TEST_READ_MASK(0x20048, 0x800, 0x800, "2 - THERMAL_PROTECT_DIV_ACTIVE is not active!%s", "");
-	TEST_READ_MASK(0x20048, rnd_pwm, 0xff, "1 - PWM isn't %i", rnd_pwm);
+	TEST_READ_MASK(0x20048, rnd_pwm, 0xff, "2 - PWM isn't %i", rnd_pwm);
 	TEST_READ_MASK(0x20048, rnd_div << 12, 0x7000, "1 - divisor isn't %i", rnd_div);
 	TEST_READ_MASK(0x20074, rnd_div << 28, 0x7 << 28, "1 - effective divisor isn't %i", rnd_div);
 
@@ -476,6 +501,7 @@ HWTEST_DEF_GROUP(nv50_read_temperature,
 
 HWTEST_DEF_GROUP(nv50_sensor_calibration,
 	HWTEST_TEST(test_temperature_enable_state, 0),
+	HWTEST_TEST(test_temperature_force, 0),
 )
 
 HWTEST_DEF_GROUP(nv50_temperature_thresholds,
