@@ -333,6 +333,46 @@ static int test_threshold_4_intr_both(struct hwtest_ctx *ctx) {
 	return threshold_check_intr_both(ctx, &nv50_therm_thresholds[therm_threshold_4]);
 }
 
+/* clock gating */
+static int clock_gating_reset(struct hwtest_ctx *ctx) {
+	int i;
+
+	for (i = 0x20060; i < 20074; i+=4)
+		nva_wr32(ctx->cnum, i, 0);
+	return HWTEST_RES_PASS;
+}
+
+static int test_clock_gating_force_div_only(struct hwtest_ctx *ctx) {
+	int i;
+
+	clock_gating_reset(ctx);
+	
+	for (i = 1; i < 7; i++) {
+		nva_wr32(ctx->cnum, 0x20064, i);
+		TEST_READ_MASK(0x20048, (i << 12) | 0x200, 0xffff, "%s", "");
+	}
+		
+	return HWTEST_RES_PASS;
+}
+
+static int test_clock_gating_force_div_pwm(struct hwtest_ctx *ctx) {
+	int i;
+
+	clock_gating_reset(ctx);
+	
+	for (i = 0; i < 0x100; i++) {
+		nva_wr32(ctx->cnum, 0x20064, (i << 8) | 2);
+		TEST_READ_MASK(0x20048, 0x2200 | i, 0xffff, "%s", "");
+	}
+		
+	return HWTEST_RES_PASS;
+}
+
+/* TODO: 
+ * - check thermal protect clock gating
+ * - check power-based clock gating
+ */
+
 /* tests definitions */
 static int nv50_ptherm_prep(struct hwtest_ctx *ctx) {
 	if (ctx->card_type >= 0x50)
@@ -345,20 +385,27 @@ static int nv50_read_temperature_prep(struct hwtest_ctx *ctx) {
 	return nv50_ptherm_prep(ctx);
 }
 
-static int nv50_temperature_thresholds_prep(struct hwtest_ctx *ctx) {
-	return nv50_ptherm_prep(ctx);
-}
-
 static int nv50_sensor_calibration_prep(struct hwtest_ctx *ctx) {
 	return nv50_ptherm_prep(ctx);
 }
 
+static int nv50_temperature_thresholds_prep(struct hwtest_ctx *ctx) {
+	return nv50_ptherm_prep(ctx);
+}
+
+static int nv50_clock_gating_prep(struct hwtest_ctx *ctx) {
+	return nv50_ptherm_prep(ctx);
+}
 
 HWTEST_DEF_GROUP(nv50_read_temperature,
 	HWTEST_TEST(test_ADC_enabled, 0),
 	HWTEST_TEST(test_read_temperature, 0),
 	HWTEST_TEST(test_read_calibrated_temperature, 0),
 	HWTEST_TEST(test_credible_temperature, 0),
+)
+
+HWTEST_DEF_GROUP(nv50_sensor_calibration,
+	HWTEST_TEST(test_temperature_enable_state, 0),
 )
 
 HWTEST_DEF_GROUP(nv50_temperature_thresholds,
@@ -383,13 +430,14 @@ HWTEST_DEF_GROUP(nv50_temperature_thresholds,
 	HWTEST_TEST(test_threshold_4_intr_falling, 0),
 	HWTEST_TEST(test_threshold_4_intr_both, 0),
 )
-
-HWTEST_DEF_GROUP(nv50_sensor_calibration,
-	HWTEST_TEST(test_temperature_enable_state, 0),
+HWTEST_DEF_GROUP(nv50_clock_gating,
+	HWTEST_TEST(test_clock_gating_force_div_only, 0),
+	HWTEST_TEST(test_clock_gating_force_div_pwm, 0),
 )
 
 HWTEST_DEF_GROUP(nv50_ptherm,
 	HWTEST_GROUP(nv50_read_temperature),
 	HWTEST_GROUP(nv50_sensor_calibration),
 	HWTEST_GROUP(nv50_temperature_thresholds),
+	HWTEST_GROUP(nv50_clock_gating),
 )
