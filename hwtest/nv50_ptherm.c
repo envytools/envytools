@@ -115,6 +115,8 @@ struct therm_threshold {
 	/* thermal protect */
 	uint8_t tp_use_bit;
 	uint8_t tp_cfg_id;
+	uint32_t tp_pwm_addr;
+	uint8_t tp_pwm_shift;
 };
 
 enum therm_thresholds {
@@ -126,11 +128,11 @@ enum therm_thresholds {
 };
 
 struct therm_threshold nv50_therm_thresholds[] = {
-	{ 0x20480, 0x20484, 2, 0, 1, 20, 0, 1, 0,  3,  0 }, /* crit */
-	{ 0x204c4, 0x00000, 3, 1, 0, 21, 1, 1, 1, -1, -1 }, /* threshold_1 */
-	{ 0x204c0, 0x00000, 4, 2, 1, 22, 0, 0, 0,  5,  1}, /* threshold_2 */
-	{ 0x20418, 0x00000, 0, 3, 0, 23, 1, 1, 1, -1, -1 }, /* threshold_3 */
-	{ 0x20414, 0x00000, 1, 4, 1, 24, 0, 0, 0,  4,  2 }  /* threshold_4 */
+	{ 0x20480, 0x20484, 2, 0, 1, 20, 0, 1, 0,  3,  0, 0x20110, 0 }, /* crit */
+	{ 0x204c4, 0x00000, 3, 1, 0, 21, 1, 1, 1, -1, -1, 0x00000, 0 }, /* threshold_1 */
+	{ 0x204c0, 0x00000, 4, 2, 1, 22, 0, 0, 0,  5,  1, 0x20110, 16 }, /* threshold_2 */
+	{ 0x20418, 0x00000, 0, 3, 0, 23, 1, 1, 1, -1, -1, 0x00000, 0 }, /* threshold_3 */
+	{ 0x20414, 0x00000, 1, 4, 1, 24, 0, 0, 0,  4,  2, 0x20110, 8 }  /* threshold_4 */
 };
 
 static int threshold_check_state(struct hwtest_ctx *ctx, const struct therm_threshold *thrs) {
@@ -376,7 +378,7 @@ static int clock_gating_reset(struct hwtest_ctx *ctx) {
 	nva_wr32(ctx->cnum, 0x20418, 0xff);
 	nva_wr32(ctx->cnum, 0x20480, 0xff);
 	nva_wr32(ctx->cnum, 0x204c0, 0xff);
-	nva_wr32(ctx->cnum, 0x204c0, 0xff);
+	nva_wr32(ctx->cnum, 0x204c4, 0xff);
 
 	return HWTEST_RES_PASS;
 }
@@ -412,10 +414,11 @@ static int test_clock_gating_force_div_pwm(struct hwtest_ctx *ctx) {
  */
 
 static int test_clock_gating_thermal_protect(struct hwtest_ctx *ctx,
-						    const struct therm_threshold *thrs) {
+					     const struct therm_threshold *thrs) {
 	int temp, lower_thrs;
-	int rnd_div = 1 + (rand() % 6);
-	int rnd_pwm = 1 + (rand() % 0xfe);
+	uint8_t rnd_div = 1 + (rand() % 6);
+	uint8_t rnd_pwm = 1 + (rand() % 0xfe);
+	uint8_t eds = 28; /* effective_div_shift */
 
 	clock_gating_reset(ctx);
 
@@ -426,33 +429,42 @@ static int test_clock_gating_thermal_protect(struct hwtest_ctx *ctx,
 	if (lower_thrs < 0)
 		lower_thrs = 0;
 
+	if (ctx->chipset >= 0xa3)
+		eds = 24;
+
 	TEST_READ_MASK(0x20048, 0, 0x10000, "0 - THERMAL_PROTECT_ENABLED is set without reason%s", "");
 	nva_wr32(ctx->cnum, 0x20004, 1 << thrs->tp_use_bit);
 
 	nva_wr32(ctx->cnum, thrs->thrs_addr, lower_thrs);
-	nva_wr32(ctx->cnum, 0x20060, (rnd_pwm << 8) | rnd_div); /* PWM = rnd_pwm, div = rnd_div */
+	nva_wr32(ctx->cnum, 0x20060, (rnd_pwm << 8) | rnd_div); /* div = rnd_div */
+
+	if (ctx->chipset >= 0x94 && thrs->tp_pwm_addr > 0)
+		nva_wr32(ctx->cnum, thrs->tp_pwm_addr, rnd_pwm << thrs->tp_pwm_shift); /* PWM = rnd_pwm */
 
 	/* set a divisor for the threshold but override it by using alt_div */
 	nva_wr32(ctx->cnum, 0x20074, (1 << 31) | (rnd_div << (thrs->tp_cfg_id * 4)));
 
-	TEST_READ_MASK(0x20048, 0x10000, 0x10000,
+	if (ctx->chipset < 0xa3)
+		TEST_READ_MASK(0x20048, 0x10000, 0x10000,
 			       "1 - THERMAL_PROTECT_ENABLED didn't get set (use = %08x)",
 			       nva_rd32(ctx->cnum, 0x20004));
 	TEST_READ_MASK(0x20048, 0x800, 0x800, "1 - THERMAL_PROTECT_DIV_ACTIVE is not active!%s", "");
 	TEST_READ_MASK(0x20048, rnd_pwm, 0xff, "1 - PWM isn't %i", rnd_pwm);
 	TEST_READ_MASK(0x20048, rnd_div << 12, 0x7000, "1 - divisor isn't %i", rnd_div);
-	TEST_READ_MASK(0x20074, rnd_div << 28, 0x7 << 28, "1 - effective divisor isn't %i", rnd_div);
+	TEST_READ_MASK(0x20074, rnd_div << eds, 0x7 << eds, "1 - effective divisor isn't %i", rnd_div);
 
 	/* disable the force div to use the other divisor */
+	nva_mask(ctx->cnum, 0x20060, 0xff00, 0);
 	nva_mask(ctx->cnum, 0x20074, 0x80000000, 0);
 
-	TEST_READ_MASK(0x20048, 0x10000, 0x10000,
+	if (ctx->chipset < 0xa3)
+		TEST_READ_MASK(0x20048, 0x10000, 0x10000,
 			       "2 - THERMAL_PROTECT_ENABLED didn't get set (use = %08x)",
 			       nva_rd32(ctx->cnum, 0x20004));
 	TEST_READ_MASK(0x20048, 0x800, 0x800, "2 - THERMAL_PROTECT_DIV_ACTIVE is not active!%s", "");
 	TEST_READ_MASK(0x20048, rnd_pwm, 0xff, "2 - PWM isn't %i", rnd_pwm);
-	TEST_READ_MASK(0x20048, rnd_div << 12, 0x7000, "1 - divisor isn't %i", rnd_div);
-	TEST_READ_MASK(0x20074, rnd_div << 28, 0x7 << 28, "1 - effective divisor isn't %i", rnd_div);
+	TEST_READ_MASK(0x20048, rnd_div << 12, 0x7000, "2 - divisor isn't %i", rnd_div);
+ 	TEST_READ_MASK(0x20074, rnd_div << eds, 0x7 << eds, "2 - effective divisor isn't %i", rnd_div);
 
 	return HWTEST_RES_PASS;
 }
