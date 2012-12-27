@@ -70,15 +70,17 @@ static int test_temperature_enable_state(struct hwtest_ctx *ctx) {
 	uint32_t r008 = nva_mask(ctx->cnum, 0x20008, 0x80000000, 0x0);
 	uint32_t temp_disabled, temp_enabled;
 
-	temp_disabled = nva_rd32(ctx->cnum, 0x20008 & 0xffff);
-	nva_wr32(ctx->cnum, 0x20008, r008);
+	temp_disabled = nva_rd32(ctx->cnum, 0x20008) & 0x3fff;
+	nva_mask(ctx->cnum, 0x20008, 0x80000000, 0x80000000);
 	usleep(20000);
-	temp_enabled = nva_rd32(ctx->cnum, 0x20008 & 0xffff);
+	temp_enabled = nva_rd32(ctx->cnum, 0x20008) & 0x3fff;
 
-	if ((temp_disabled & 0xffff) == 0 && temp_enabled & 0xffff)
-		return HWTEST_RES_FAIL;
-	else
+	nva_wr32(ctx->cnum, 0x20008, r008);
+
+	if (temp_disabled  == 0 && temp_enabled)
 		return HWTEST_RES_PASS;
+	else
+		return HWTEST_RES_FAIL;
 }
 
 static int test_temperature_force(struct hwtest_ctx *ctx) {
