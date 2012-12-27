@@ -55,8 +55,35 @@
 	<value value="7" name="DISABLED"/>
 </enum>
 
+<enum name="nv50_therm_filter_div">
+	<value value="0" name="16"/>
+	<value value="1" name="256"/>
+	<value value="2" name="4096"/>
+	<value value="3" name="65536"/>
+</enum>
+
 <group name="nv50_therm">
-	<reg32 offset="0x000" name="INTR_DIRECTION">
+	<reg32 offset="0x000" name="ALARM_CFG0" variants="NV50">
+		<bitfield low="0" high="1" name="CRITICAL_DIRECTION" type="nv50_therm_intr_direction" /> <!-- pbus's bit 16 -->
+		<bitfield pos="3" name="CRITICAL_REVERSE" />
+		<bitfield low="16" high="23" name="CRITICAL_FILTER_CYCLES" />
+		<bitfield low="24" high="25" name="CRITICAL_FILTER_DIVIDER" type="nv50_therm_filter_div" />
+		<bitfield pos="31" name="CRITICAL_ACTIVE" />
+	</reg32>
+
+	<reg32 offset="0x004" name="ALARM_CFG1" variants="NV50">
+		<bitfield low="0" high="1" name="LOW_DIRECTION" type="nv50_therm_intr_direction" /> <!-- pbus's bit 17 -->
+		<bitfield low="4" high="11" name="LOW_FILTER_CYCLES" />
+		<bitfield low="12" high="13" name="LOW_FILTER_DIVIDER" type="nv50_therm_filter_div" />
+		<bitfield pos="14" name="LOW_ACTIVE" />
+
+		<bitfield low="16" high="17" name="HIGH_DIRECTION" type="nv50_therm_intr_direction" /> <!-- pbus's bit 18 -->
+		<bitfield low="20" high="27" name="HIGH_FILTER_CYCLES" />
+		<bitfield low="28" high="29" name="HIGH_FILTER_DIVIDER" type="nv50_therm_filter_div" />
+		<bitfield pos="30" name="HIGH_ACTIVE" />
+	</reg32>
+
+	<reg32 offset="0x000" name="INTR_DIRECTION" variants="NV84-">
 		<!-- group direction bits together to shorten the output of this reg in lookup -->
 		<bitfield low="0" high="1" name="TEMP_THRESHOLD_CRIT" type="nv50_therm_intr_direction" />
 		<bitfield low="2" high="3" name="TEMP_THRESHOLD_1" type="nv50_therm_intr_direction" />
@@ -97,7 +124,7 @@
 		<bitfield pos="26" name="INPUT_1_STATE" /> <!-- ALERT -->
 		<bitfield pos="27" name="INPUT_2_STATE" /> <!-- POWER_FAIL -->
 	</reg32>
-	<reg32 offset="0x004" name="THERMAL_PROTECT_USE">
+	<reg32 offset="0x004" name="THERMAL_PROTECT_USE" variants="NV84-">
 		<bitfield pos="0" name="INPUT_0" />
 		<bitfield pos="1" name="INPUT_1" />
 		<bitfield pos="2" name="INPUT_2" /> <!-- just a guess, doesn't work on my nv84 -->
@@ -105,7 +132,7 @@
 		<bitfield pos="4" name="THRESHOLD_4" />
 		<bitfield pos="5" name="THRESHOLD_2" />
 	</reg32>
-	<reg32 offset="0x008" name="SENSOR_RAW">
+	<reg32 offset="0x008" name="SENSOR_RAW" variants="NV84-">
 		<bitfield low="0" high="14" name="RAW_VALUE"/>
 		<bitfield pos="15" name="FORCE_TEMP"/>
 		<bitfield low="16" high="21" name="ADC_CLOCK_DIV" shr="5"/>
@@ -113,6 +140,28 @@
 		<bitfield pos="30" name="ADC_CLOCK_DIV_FIXED_256"/> <!-- since I cannot find any reg to alter that -->
 		<bitfield pos="31" name="ENABLE"/>
 	</reg32>
+
+	<reg32 offset="0x010" name="SENSOR_CFG0" variants="NV50">
+		<bitfield low="0" high="14" name="CRITICAL_ALARM"/>
+		<bitfield low="16" high="29" name="SENSOR_OFFSET"/> <!-- signed integer -->
+		<bitfield pos="30" name="ENABLE"/>
+		<bitfield pos="31" name="CRITICAL_ALARM_ENABLE"/>
+	</reg32>
+	<reg32 offset="0x014" name="SENSOR_STATUS" variants="NV50">
+		<bitfield low="0" high="14" name="RAW_VALUE"/>
+		<bitfield pos="16" name="ALARM_HIGH"/>
+		<bitfield low="26" high="31" name="ADC_CLOCK_DIV" shr="5"/>
+	</reg32>
+	<reg32 offset="0x018" name="SENSOR_CFG1" variants="NV50">
+		<bitfield low="0" high="14" name="RAW_VALUE"/>
+		<bitfield pos="16" name="ALARM_HIGH"/>
+		<bitfield low="26" high="31" name="ADC_CLOCK_DIV" shr="5"/>
+	</reg32>
+	<reg32 offset="0x01c" name="SENSOR_TEMP_RANGE" variants="NV50">
+		<bitfield low="0" high="13" name="LOW"/>
+		<bitfield low="16" high="29" name="HIGH"/>
+	</reg32>
+
 	<reg32 offset="0x044" name="POWER_COUNTER" />
 	<reg32 offset="0x048" name="CLOCK_GATING_STATUS">
 		<doc>For some reasons, this reg doesn't get updated when idle clock-gating is on</doc>
