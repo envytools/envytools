@@ -149,7 +149,14 @@
 		<bitfield low="12" high="14" name="INPUT_0_DIV" type="nv50_therm_thermal_protect_div" />
 		<bitfield low="16" high="18" name="INPUT_1_DIV" type="nv50_therm_thermal_protect_div" />
 		<bitfield low="20" high="22" name="INPUT_2_DIV" type="nv50_therm_thermal_protect_div" /> <!-- just a guess, it doesn't work on my nv84 -->
-		<bitfield low="28" high="30" name="EFFECTIVE_DIV"> <!-- RO -->
+		<bitfield low="28" high="30" name="EFFECTIVE_DIV" variants="NV50:NVA3"> <!-- RO -->
+			<value value="0" name="DISABLED"/>
+			<value value="1" name="2"/>
+			<value value="2" name="4"/>
+			<value value="3" name="8"/>
+			<value value="4" name="16"/>
+		</bitfield>
+		<bitfield low="24" high="26" name="EFFECTIVE_DIV" variants="NVA3-"> <!-- RO -->
 			<value value="0" name="DISABLED"/>
 			<value value="1" name="2"/>
 			<value value="2" name="4"/>
@@ -160,6 +167,16 @@
 	</reg32>
 
 	<reg32 offset="0x100" name="INTR" type="nv50_therm_intr" /> <!-- PBUS intr #16 -->
+
+	<reg32 offset="0x110" name="THERMAL_PROTECT_PWM_CFG_0" variants="NV94-">
+		<bitfield low="0" high="7" name="THRESHOLD_CRIT" />
+		<bitfield low="8" high="15" name="THRESHOLD_4" />
+		<bitfield low="16" high="23" name="THRESHOLD_2" />
+	</reg32>
+	<reg32 offset="0x114" name="THERMAL_PROTECT_PWM_CFG_1" variants="NV94-">
+		<bitfield low="0" high="7" name="EFFECTIVE_PWM" /> <!-- RO -->
+	</reg32>
+
 	<reg32 offset="0x134" name="INTR_EN" type="nv50_therm_intr" variants="NVA3-"/>
 
 	<!-- i2c-slave range -->
