@@ -35,6 +35,7 @@ HWTEST_DEF_GROUP(hwtest_root,
 	HWTEST_GROUP(nv01_pgraph),
 	HWTEST_GROUP(nv10_tile),
 	HWTEST_GROUP(nv50_ptherm),
+	HWTEST_GROUP(nv84_ptherm),
 )
 
 int main(int argc, char **argv) {
