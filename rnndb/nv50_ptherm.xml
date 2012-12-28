@@ -147,11 +147,7 @@
 		<bitfield pos="30" name="ENABLE"/>
 		<bitfield pos="31" name="CRITICAL_ALARM_ENABLE"/>
 	</reg32>
-	<reg32 offset="0x014" name="SENSOR_STATUS" variants="NV50">
-		<bitfield low="0" high="14" name="RAW_VALUE"/>
-		<bitfield pos="16" name="ALARM_HIGH"/>
-		<bitfield low="26" high="31" name="ADC_CLOCK_DIV" shr="5"/>
-	</reg32>
+	<reg32 offset="0x014" name="SENSOR_STATUS" variants="NV50" />
 	<reg32 offset="0x018" name="SENSOR_CFG1" variants="NV50">
 		<bitfield low="0" high="14" name="RAW_VALUE"/>
 		<bitfield pos="16" name="ALARM_HIGH"/>
