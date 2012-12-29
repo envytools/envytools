@@ -320,6 +320,17 @@ void printscript (uint16_t soff) {
 					soff += 2;
 				}
 				break;
+			case 0x50:
+				printcmd (soff, 3);
+				printf ("TMDS_ZM_GROUP\tT[0x%02x]\n", bios->data[soff+1]);
+				cnt = bios->data[soff+2];
+				soff += 3;
+				while (cnt--) {
+					printcmd (soff, 2);
+					printf ("\t[0x%02x] = 0x%02x\n", bios->data[soff], bios->data[soff+1]);
+					soff += 2;
+				}
+				break;
 			case 0x51:
 				printcmd (soff, 5);
 				cnt = bios->data[soff+4];
