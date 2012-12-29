@@ -65,7 +65,7 @@ void envy_bios_dump_hex (struct envy_bios *bios, FILE *out, unsigned int start, 
 		while (length) {
 			unsigned int i, len = length;
 			if (len > 16) len = 16;
-			fprintf (out, "%04x:", start);
+			fprintf (out, "0x%04x:", start);
 			for (i = 0; i < len; i++)
 				fprintf(out, " %02x", bios->data[start+i]);
 			fprintf(out, "\n");
@@ -92,11 +92,11 @@ static void print_pcir(struct envy_bios *bios, FILE *out, unsigned mask) {
 		}
 		fprintf(out, "PCIR [rev 0x%02x]:\n", bios->parts[i].pcir_rev);
 		envy_bios_dump_hex(bios, out, bios->parts[i].start + bios->parts[i].pcir_offset, bios->parts[i].pcir_len, mask);
-		fprintf(out, "PCI device: %04x:%04x, class %02x%02x%02x\n", bios->parts[i].pcir_vendor, bios->parts[i].pcir_device, bios->parts[i].pcir_class[2], bios->parts[i].pcir_class[1], bios->parts[i].pcir_class[0]);
+		fprintf(out, "PCI device: 0x%04x:0x%04x, class 0x%02x%02x%02x\n", bios->parts[i].pcir_vendor, bios->parts[i].pcir_device, bios->parts[i].pcir_class[2], bios->parts[i].pcir_class[1], bios->parts[i].pcir_class[0]);
 		if (bios->parts[i].pcir_vpd)
-			fprintf(out, "VPD: %x\n", bios->parts[i].pcir_vpd);
+			fprintf(out, "VPD: 0x%x\n", bios->parts[i].pcir_vpd);
 		fprintf(out, "Code type 0x%02x, rev 0x%04x\n", bios->parts[i].pcir_code_type, bios->parts[i].pcir_code_rev);
-		fprintf(out, "PCIR indicator: %02x\n", bios->parts[i].pcir_indi);
+		fprintf(out, "PCIR indicator: 0x%02x\n", bios->parts[i].pcir_indi);
 	}
 	if (bios->broken_part)
 		fprintf(out, "\nWARN: Couldn't read part %d!\n", bios->partsnum);
@@ -106,7 +106,7 @@ static void print_pcir(struct envy_bios *bios, FILE *out, unsigned mask) {
 static void print_bmp_nv03(struct envy_bios *bios, FILE *out, unsigned mask) {
 	if (!(mask & ENVY_BIOS_PRINT_BMP_BIT) || !bios->bmp_length)
 		return;
-	fprintf(out, "BMP %02x.%02x at 0x%x\n", bios->bmp_ver_major, bios->bmp_ver_minor, bios->bmp_offset);
+	fprintf(out, "BMP 0x%02x.%02x at 0x%x\n", bios->bmp_ver_major, bios->bmp_ver_minor, bios->bmp_offset);
 	envy_bios_dump_hex(bios, out, bios->bmp_offset, bios->bmp_length, mask);
 	fprintf(out, "x86 mode pointer: 0x%x\n", bios->mode_x86);
 	fprintf(out, "x86 init pointer: 0x%x\n", bios->init_x86);
@@ -174,7 +174,7 @@ static void print_nv01_init_script(struct envy_bios *bios, FILE *out, unsigned o
 				return;
 			}
 			dump_hex_script(bios, out, offset, len);
-			fprintf(out, "\tMMIO_WR_CRYSTAL %06x <= %08x / %08x\n", arg32_0, arg32_1, arg32_2);
+			fprintf(out, "\tMMIO_WR_CRYSTAL 0x%06x <= 0x%08x / 0x%08x\n", arg32_0, arg32_1, arg32_2);
 			break;
 		case 0x74:	/* NV03+ */
 			len = 3;
@@ -230,7 +230,7 @@ static void print_nv01_init_script(struct envy_bios *bios, FILE *out, unsigned o
 				return;
 			}
 			dump_hex_script(bios, out, offset, len);
-			fprintf(out, "\tIF_STRAPS & %08x == %08x\n", arg32_0, arg32_1);
+			fprintf(out, "\tIF_STRAPS & 0x%08x == 0x%08x\n", arg32_0, arg32_1);
 			break;
 		case 0x72:	/* NV03+ */
 			len = 1;
@@ -331,7 +331,7 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 		if (mask & ENVY_BIOS_PRINT_VERSION)
 			fprintf(out, "BIOS type: NV03\n\n");
 		if (mask & ENVY_BIOS_PRINT_HWINFO) {
-			fprintf(out, "Subsystem id: %04x:%04x\n", bios->subsystem_vendor, bios->subsystem_device);
+			fprintf(out, "Subsystem id: 0x%04x:0x%04x\n", bios->subsystem_vendor, bios->subsystem_device);
 			envy_bios_dump_hex(bios, out, 0x54, 4, mask);
 			fprintf(out, "\n");
 		}
@@ -343,7 +343,7 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 		if (mask & ENVY_BIOS_PRINT_VERSION)
 			fprintf(out, "BIOS type: NV04\n\n");
 		if (mask & ENVY_BIOS_PRINT_HWINFO) {
-			fprintf(out, "Subsystem id: %04x:%04x\n", bios->subsystem_vendor, bios->subsystem_device);
+			fprintf(out, "Subsystem id: 0x%04x:0x%04x\n", bios->subsystem_vendor, bios->subsystem_device);
 			envy_bios_dump_hex(bios, out, 0x54, 4, mask);
 			if (bios->hwinfo_ext_valid) {
 				fprintf(out, "Straps 0: select 0x%08x value 0x%08x\n", bios->straps0_select, bios->straps0_value);
@@ -359,7 +359,7 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 			}
 			fprintf(out, "\n");
 			if (bios->hwea_offset) {
-				fprintf(out, "HWEA at %04x:\n", bios->hwea_offset);
+				fprintf(out, "HWEA at 0x%04x:\n", bios->hwea_offset);
 				int i, j;
 				for (i = 0; i < bios->hwea_entriesnum; i++) {
 					struct envy_bios_hwea_entry *entry = &bios->hwea_entries[i];
@@ -420,12 +420,12 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 			unsigned start = bios->blocks[i].start;
 			unsigned end = start + bios->blocks[i].len;
 			if (start > last) {
-				fprintf(out, "%08x:%08x ???\n", last, start);
+				fprintf(out, "0x%08x:0x%08x ???\n", last, start);
 			}
 			if (start < last) {
 				fprintf(out, "overlap detected!\n");
 			}
-			fprintf(out, "%08x:%08x %s", start, end, bios->blocks[i].name);
+			fprintf(out, "0x%08x:0x%08x %s", start, end, bios->blocks[i].name);
 			if (bios->blocks[i].idx != -1) {
 				if (!strcmp(bios->blocks[i].name, "BIT"))
 					fprintf(out, " '%c'", bios->blocks[i].idx);

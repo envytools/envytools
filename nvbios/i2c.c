@@ -60,7 +60,7 @@ int envy_bios_parse_i2c (struct envy_bios *bios) {
 		case 0x40:
 			break;
 		default:
-			ENVY_BIOS_ERR("Unknown I2C table version %x.%x\n", i2c->version >> 4, i2c->version & 0xf);
+			ENVY_BIOS_ERR("Unknown I2C table version %d.%d\n", i2c->version >> 4, i2c->version & 0xf);
 			return -EINVAL;
 	}
 	if (i2c->hlen < wanthlen) {
@@ -144,10 +144,10 @@ void envy_bios_print_i2c (struct envy_bios *bios, FILE *out, unsigned mask) {
 	if (!i2c->offset || !(mask & ENVY_BIOS_PRINT_I2C))
 		return;
 	if (!i2c->valid) {
-		fprintf(out, "Failed to parse I2C table at %04x version %x.%x\n\n", i2c->offset, i2c->version >> 4, i2c->version & 0xf);
+		fprintf(out, "Failed to parse I2C table at 0x%04x version %d.%d\n\n", i2c->offset, i2c->version >> 4, i2c->version & 0xf);
 		return;
 	}
-	fprintf(out, "I2C table at %04x version %x.%x", i2c->offset, i2c->version >> 4, i2c->version & 0xf);
+	fprintf(out, "I2C table at 0x%04x version %d.%d", i2c->offset, i2c->version >> 4, i2c->version & 0xf);
 	fprintf(out, " defaults %d %d", i2c->def[0], i2c->def[1]);
 	fprintf(out, "\n");
 	envy_bios_dump_hex(bios, out, i2c->offset, i2c->hlen, mask);

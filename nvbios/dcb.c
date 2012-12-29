@@ -115,7 +115,7 @@ int envy_bios_parse_dcb (struct envy_bios *bios) {
 			}
 			break;
 		default:
-			ENVY_BIOS_ERR("Unknown DCB table version %x.%x\n", dcb->version >> 4, dcb->version & 0xf);
+			ENVY_BIOS_ERR("Unknown DCB table version %d.%d\n", dcb->version >> 4, dcb->version & 0xf);
 			return -EINVAL;
 	}
 	envy_bios_block(bios, dcb->offset, dcb->hlen + dcb->rlen * dcb->entriesnum, "DCB", -1);
@@ -131,7 +131,7 @@ int envy_bios_parse_dcb (struct envy_bios *bios) {
 			envy_bios_block(bios, bios->odcb_offset, 0x80, "ODCB", -1);
 		} else {
 			if (envy_bios_parse_rdcb(bios))
-				ENVY_BIOS_ERR("Failed to parse RDCB table at %04x version %x.%x\n", bios->dcb.offset, bios->dcb.rdcb_version >> 4, bios->dcb.rdcb_version & 0xf);
+				ENVY_BIOS_ERR("Failed to parse RDCB table at 0x%04x version %d.%d\n", bios->dcb.offset, bios->dcb.rdcb_version >> 4, bios->dcb.rdcb_version & 0xf);
 		}
 	}
 	if (err)
@@ -241,23 +241,23 @@ int envy_bios_parse_dcb (struct envy_bios *bios) {
 	}
 	dcb->valid = 1;
 	if (envy_bios_parse_i2c(bios))
-		ENVY_BIOS_ERR("Failed to parse I2C table at %04x version %x.%x\n", bios->i2c.offset, bios->i2c.version >> 4, bios->i2c.version & 0xf);
+		ENVY_BIOS_ERR("Failed to parse I2C table at 0x%04x version %d.%d\n", bios->i2c.offset, bios->i2c.version >> 4, bios->i2c.version & 0xf);
 	if (envy_bios_parse_gpio(bios))
-		ENVY_BIOS_ERR("Failed to parse GPIO table at %04x version %x.%x\n", bios->gpio.offset, bios->gpio.version >> 4, bios->gpio.version & 0xf);
+		ENVY_BIOS_ERR("Failed to parse GPIO table at 0x%04x version %d.%d\n", bios->gpio.offset, bios->gpio.version >> 4, bios->gpio.version & 0xf);
 	if (envy_bios_parse_dunk0c(bios))
-		ENVY_BIOS_ERR("Failed to parse DUNK0C table at %04x version %x.%x\n", bios->dunk0c.offset, bios->dunk0c.version >> 4, bios->dunk0c.version & 0xf);
+		ENVY_BIOS_ERR("Failed to parse DUNK0C table at 0x%04x version %d.%d\n", bios->dunk0c.offset, bios->dunk0c.version >> 4, bios->dunk0c.version & 0xf);
 	if (envy_bios_parse_dunk0e(bios))
-		ENVY_BIOS_ERR("Failed to parse DUNK0E table at %04x version %x.%x\n", bios->dunk0e.offset, bios->dunk0e.version >> 4, bios->dunk0e.version & 0xf);
+		ENVY_BIOS_ERR("Failed to parse DUNK0E table at 0x%04x version %d.%d\n", bios->dunk0e.offset, bios->dunk0e.version >> 4, bios->dunk0e.version & 0xf);
 	if (envy_bios_parse_dunk10(bios))
-		ENVY_BIOS_ERR("Failed to parse DUNK10 table at %04x version %x.%x\n", bios->dunk10.offset, bios->dunk10.version >> 4, bios->dunk10.version & 0xf);
+		ENVY_BIOS_ERR("Failed to parse DUNK10 table at 0x%04x version %d.%d\n", bios->dunk10.offset, bios->dunk10.version >> 4, bios->dunk10.version & 0xf);
 	if (envy_bios_parse_extdev(bios))
-		ENVY_BIOS_ERR("Failed to parse EXTDEV table at %04x version %x.%x\n", bios->extdev.offset, bios->extdev.version >> 4, bios->extdev.version & 0xf);
+		ENVY_BIOS_ERR("Failed to parse EXTDEV table at 0x%04x version %d.%d\n", bios->extdev.offset, bios->extdev.version >> 4, bios->extdev.version & 0xf);
 	if (envy_bios_parse_conn(bios))
-		ENVY_BIOS_ERR("Failed to parse CONN table at %04x version %x.%x\n", bios->conn.offset, bios->conn.version >> 4, bios->conn.version & 0xf);
+		ENVY_BIOS_ERR("Failed to parse CONN table at 0x%04x version %d.%d\n", bios->conn.offset, bios->conn.version >> 4, bios->conn.version & 0xf);
 	if (envy_bios_parse_dunk17(bios))
-		ENVY_BIOS_ERR("Failed to parse DUNK17 table at %04x version %x.%x\n", bios->dunk17.offset, bios->dunk17.version >> 4, bios->dunk17.version & 0xf);
+		ENVY_BIOS_ERR("Failed to parse DUNK17 table at 0x%04x version %d.%d\n", bios->dunk17.offset, bios->dunk17.version >> 4, bios->dunk17.version & 0xf);
 	if (envy_bios_parse_mux(bios))
-		ENVY_BIOS_ERR("Failed to parse MUX table at %04x version %x.%x\n", bios->mux.offset, bios->mux.version >> 4, bios->mux.version & 0xf);
+		ENVY_BIOS_ERR("Failed to parse MUX table at 0x%04x version %d.%d\n", bios->mux.offset, bios->mux.version >> 4, bios->mux.version & 0xf);
 	return 0;
 }
 
@@ -279,7 +279,7 @@ int envy_bios_parse_rdcb (struct envy_bios *bios) {
 			dcb->rdcb_len = 0x1c;
 			break;
 		default:
-			ENVY_BIOS_ERR("Unknown RDCB table version %x.%x\n", dcb->rdcb_version >> 4, dcb->rdcb_version & 0xf);
+			ENVY_BIOS_ERR("Unknown RDCB table version %d.%d\n", dcb->rdcb_version >> 4, dcb->rdcb_version & 0xf);
 			return -EINVAL;
 	}
 	err |= bios_u16(bios, dcb->offset - 3, &bios->dunk0c.offset);
@@ -336,10 +336,10 @@ void envy_bios_print_dcb (struct envy_bios *bios, FILE *out, unsigned mask) {
 	if (!dcb->offset || !(mask & ENVY_BIOS_PRINT_DCB))
 		return;
 	if (!dcb->valid) {
-		fprintf(out, "Failed to parse DCB table at %04x version %x.%x\n\n", dcb->offset, dcb->version >> 4, dcb->version & 0xf);
+		fprintf(out, "Failed to parse DCB table at 0x%04x version %d.%d\n\n", dcb->offset, dcb->version >> 4, dcb->version & 0xf);
 		return;
 	}
-	fprintf(out, "DCB table at %04x version %x.%x", dcb->offset, dcb->version >> 4, dcb->version & 0xf);
+	fprintf(out, "DCB table at 0x%04x version %d.%d", dcb->offset, dcb->version >> 4, dcb->version & 0xf);
 	if (dcb->version >= 0x30)
 		fprintf(out, " unk16 0x%02x", dcb->unk16);
 	fprintf(out, "\n");
@@ -366,7 +366,7 @@ void envy_bios_print_dcb (struct envy_bios *bios, FILE *out, unsigned mask) {
 					if (entry->unk00_4)
 						fprintf(out, " unk00_4 %d", entry->unk00_4);
 					if (dcb->version >= 0x30)
-						fprintf(out, " CONN %d [%02x]", entry->conn, bios->conn.entries[entry->conn].type);
+						fprintf(out, " CONN %d [0x%02x]", entry->conn, bios->conn.entries[entry->conn].type);
 					else if (entry->unk01_4)
 						fprintf(out, " unk01_4 %d", entry->unk01_4);
 					fprintf(out, " conntag %d", entry->conntag);
@@ -442,12 +442,12 @@ void envy_bios_print_dcb (struct envy_bios *bios, FILE *out, unsigned mask) {
 	}
 	fprintf(out, "\n");
 	if (bios->dev_rec_offset) {
-		fprintf(out, "DEV_REC at %04x\n", bios->dev_rec_offset);
+		fprintf(out, "DEV_REC at 0x%04x\n", bios->dev_rec_offset);
 		envy_bios_dump_hex(bios, out, bios->dev_rec_offset, 7, mask);
 		fprintf(out, "\n");
 	}
 	if (dcb->rdcb_valid) {
-		fprintf(out, "RDCB table at %04x version %x.%x", dcb->offset, dcb->rdcb_version >> 4, dcb->rdcb_version & 0xf);
+		fprintf(out, "RDCB table at 0x%04x version %d.%d", dcb->offset, dcb->rdcb_version >> 4, dcb->rdcb_version & 0xf);
 		if (dcb->tvdac0_present) {
 			fprintf(out, " TVDAC0 line %d", dcb->tvdac0_line);
 			if (dcb->tvdac0_neg)
@@ -460,13 +460,13 @@ void envy_bios_print_dcb (struct envy_bios *bios, FILE *out, unsigned mask) {
 		int j;
 		for (j = 0; j < 7; j++) {
 			if (dcb->rdcb_unk06[j])
-				fprintf(out, " unk%02x 0x%02x", j+6, dcb->rdcb_unk06[j]);
+				fprintf(out, " unk0x%02x 0x%02x", j+6, dcb->rdcb_unk06[j]);
 		}
 		if (dcb->rdcb_unk0d)
 			fprintf(out, " unk0d 0x%02x", dcb->rdcb_unk0d);
 		for (j = 0; j < 13; j++) {
 			if (dcb->rdcb_unk10[j])
-				fprintf(out, " unk%02x 0x%02x", j+0x10, dcb->rdcb_unk10[j]);
+				fprintf(out, " unk0x%02x 0x%02x", j+0x10, dcb->rdcb_unk10[j]);
 		}
 		fprintf(out, "\n");
 		envy_bios_dump_hex(bios, out, dcb->offset - dcb->rdcb_len, dcb->rdcb_len, mask);
@@ -476,7 +476,7 @@ void envy_bios_print_dcb (struct envy_bios *bios, FILE *out, unsigned mask) {
 
 void envy_bios_print_odcb (struct envy_bios *bios, FILE *out, unsigned mask) {
 	if (bios->odcb_offset) {
-		fprintf(out, "ODCB table at %04x\n", bios->odcb_offset);
+		fprintf(out, "ODCB table at 0x%04x\n", bios->odcb_offset);
 		envy_bios_dump_hex(bios, out, bios->odcb_offset, 0x80, mask);
 		fprintf(out, "\n");
 	}

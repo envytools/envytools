@@ -101,7 +101,7 @@ void printhex (uint32_t start, uint32_t length) {
 }
 
 void printcmd (uint16_t off, uint16_t length) {
-	printf ("%04x:", off);
+	printf ("0x%04x:", off);
 	int i;
 	for (i = 0; i < length; i++)
 		printf(" %02x", bios->data[off+i]);
@@ -216,7 +216,7 @@ void printscript (uint16_t soff) {
 				soff += 11;
 				while (cnt--) {
 					printcmd (soff, 4);
-					printf ("\t%08x\n", le32(soff));
+					printf ("\t0x%08x\n", le32(soff));
 					soff += 4;
 				}
 				printcmd (soff, 0);
@@ -249,7 +249,7 @@ void printscript (uint16_t soff) {
 				break;
 			case 0x37:
 				printcmd (soff, 11);
-				printf ("COPY\t0x%04x[0x%02x] & ~0x%02x |= (R[0x%06x] %s 0x%02x) & %08x\n",
+				printf ("COPY\t0x%04x[0x%02x] & ~0x%02x |= (R[0x%06x] %s 0x%02x) & 0x%08x\n",
 						le16(soff+7), bios->data[soff+9], bios->data[soff+10], le32(soff+1), bios->data[soff+5]&0x80?"<<":">>",
 						bios->data[soff+5]&0x80?0x100-bios->data[soff+5]:bios->data[soff+5], bios->data[soff+6]);
 				soff += 11;
@@ -276,7 +276,7 @@ void printscript (uint16_t soff) {
 				soff += 9;
 				while (cnt--) {
 					printcmd (soff, 2);
-					printf("\t[%02x] = %02x\n", bios->data[soff], bios->data[soff+1]);
+					printf("\t[0x%02x] = 0x%02x\n", bios->data[soff], bios->data[soff+1]);
 					soff += 2;
 				}
 				break;
@@ -335,11 +335,11 @@ void printscript (uint16_t soff) {
 				printcmd (soff, 5);
 				cnt = bios->data[soff+4];
 				dst = bios->data[soff+3];
-				printf ("CR_INDEX_ADDR C[%02x] C[%02x] %02x %02x\n", bios->data[soff+1], bios->data[soff+2], bios->data[soff+3], bios->data[soff+4]);
+				printf ("CR_INDEX_ADDR C[0x%02x] C[0x%02x] 0x%02x 0x%02x\n", bios->data[soff+1], bios->data[soff+2], bios->data[soff+3], bios->data[soff+4]);
 				soff += 5;
 				while (cnt--) {
 					printcmd(soff, 1);
-					printf ("\t\t[%02x] = %02x\n", dst, bios->data[soff]);
+					printf ("\t\t[0x%02x] = 0x%02x\n", dst, bios->data[soff]);
 					soff++;
 					dst++;
 				}
@@ -361,7 +361,7 @@ void printscript (uint16_t soff) {
 				soff += 2;
 				while (cnt--) {
 					printcmd(soff, 2);
-					printf ("\t\tC[0x%02x] = %02x\n", bios->data[soff], bios->data[soff+1]);
+					printf ("\t\tC[0x%02x] = 0x%02x\n", bios->data[soff], bios->data[soff+1]);
 					soff += 2;
 				}
 				break;
@@ -410,14 +410,14 @@ void printscript (uint16_t soff) {
 				printcmd (soff, 16);
 				printf ("\n");
 				printcmd (soff+16, 6);
-				printf ("COPY_NV_REG\tR[0x%06x] & ~0x%08x = (R[0x%06x] %s 0x%02x) & %08x ^ %08x\n",
+				printf ("COPY_NV_REG\tR[0x%06x] & ~0x%08x = (R[0x%06x] %s 0x%02x) & 0x%08x ^ 0x%08x\n",
 						le32(soff+14), le32(soff+18), le32(soff+1), bios->data[soff+5]&0x80?"<<":">>",
 						bios->data[soff+5]&0x80?0x100-bios->data[soff+5]:bios->data[soff+5], le32(soff+6), le32(soff+10));
 				soff += 22;
 				break;
 			case 0x62:
 				printcmd (soff, 5);
-				printf ("ZM_INDEX_IO\tI[0x%04x][%02x] = 0x%02x\n", le16(soff+1), bios->data[soff+3], bios->data[soff+4]);
+				printf ("ZM_INDEX_IO\tI[0x%04x][0x%02x] = 0x%02x\n", le16(soff+1), bios->data[soff+3], bios->data[soff+4]);
 				soff += 5;
 				break;
 			case 0x63:
@@ -503,7 +503,7 @@ void printscript (uint16_t soff) {
 				break;
 			case 0x78:
 				printcmd (soff, 6);
-				printf ("INDEX_IO\tI[0x%04x][%02x] &= 0x%02x |= 0x%02x\n", le16(soff+1), bios->data[soff+3], bios->data[soff+4], bios->data[soff+5]);
+				printf ("INDEX_IO\tI[0x%04x][0x%02x] &= 0x%02x |= 0x%02x\n", le16(soff+1), bios->data[soff+3], bios->data[soff+4], bios->data[soff+5]);
 				soff += 6;
 				break;
 			case 0x79:
@@ -543,7 +543,7 @@ void printscript (uint16_t soff) {
 				break;
 			case 0x8f:
 				printcmd (soff, 7);
-				printf ("RAM_RESTRICT_ZM_REG_GROUP\tR[0x%06x] %02x %02x\n", le32(soff+1), bios->data[soff+5], bios->data[soff+6]);
+				printf ("RAM_RESTRICT_ZM_REG_GROUP\tR[0x%06x] 0x%02x 0x%02x\n", le32(soff+1), bios->data[soff+5], bios->data[soff+6]);
 				incr = bios->data[soff+5];
 				cnt = bios->data[soff+6];
 				dst = le32(soff+1);
@@ -553,7 +553,7 @@ void printscript (uint16_t soff) {
 					printf ("\tR[0x%06x] = {\n", dst);
 					for (i = 0; i < ram_restrict_group_count; i++) {
 						printcmd (soff, 4);
-						printf ("\t\t%08x\n", le32(soff));
+						printf ("\t\t0x%08x\n", le32(soff));
 						soff += 4;
 					}
 					printcmd (soff, 0);
@@ -573,7 +573,7 @@ void printscript (uint16_t soff) {
 				soff += 6;
 				while (cnt--) {
 					printcmd (soff, 4);
-					printf ("\t\t%08x\n", le32(soff));
+					printf ("\t\t0x%08x\n", le32(soff));
 					soff += 4;
 				}
 				break;
@@ -616,7 +616,7 @@ static void parse_bios_version(uint16_t offset)
 	bios->info.version[3] = bios->data[offset + 0];
 
 	if (printmask & ENVY_BIOS_PRINT_BMP_BIT) {
-	printf("Bios version %02x.%02x.%02x.%02x\n\n",
+	printf("Bios version 0x%02x.%02x.%02x.%02x\n\n",
 		 bios->data[offset + 3], bios->data[offset + 2],
 		 bios->data[offset + 1], bios->data[offset]);
 	}
@@ -722,7 +722,7 @@ const char * mem_type(uint8_t version, uint16_t start)
 	uint8_t ram_type = bios->data[start] & 0x0f;
 
 	if (version != 0x10)
-		return "unknown table version (%x)\n";
+		return "unknown table version (0x%x)\n";
 
 	switch (ram_type) {
 	case 0:
@@ -843,7 +843,7 @@ int main(int argc, char **argv) {
 		bmpver_min = bios->data[bios->bmp_offset+6];
 		bmpver = bmpver_maj << 8 | bmpver_min;
 		if (printmask & ENVY_BIOS_PRINT_BMP_BIT) {
-			printf ("BMP %02x.%02x at %x\n", bmpver_maj, bmpver_min, bios->bmp_offset);
+			printf ("BMP 0x%02x.%02x at 0x%x\n", bmpver_maj, bmpver_min, bios->bmp_offset);
 			printf ("\n");
 		}
 		parse_bios_version(bios->bmp_offset + 10);
@@ -899,17 +899,17 @@ int main(int argc, char **argv) {
 
 					if (printmask & ENVY_BIOS_PRINT_BMP_BIT) {
 						if (entry->t_len >= 7)
-							printf("M.tbl_05 at %x\n", le16(eoff+5));
+							printf("M.tbl_05 at 0x%x\n", le16(eoff+5));
 						if (entry->t_len >= 9)
-							printf("M.tbl_07 at %x\n", le16(eoff+7));
+							printf("M.tbl_07 at 0x%x\n", le16(eoff+7));
 						if (entry->t_len >= 0xb)
-							printf("M.tbl_09 at %x\n", le16(eoff+9));
+							printf("M.tbl_09 at 0x%x\n", le16(eoff+9));
 						if (entry->t_len >= 0xd)
-							printf("M.tbl_0b at %x\n", le16(eoff+0xb));
+							printf("M.tbl_0b at 0x%x\n", le16(eoff+0xb));
 						if (entry->t_len >= 0xf)
-							printf("M.tbl_0c at %x\n", le16(eoff+0xd));
+							printf("M.tbl_0c at 0x%x\n", le16(eoff+0xd));
 						if (entry->t_len >= 0x11)
-							printf("M.tbl_0d at %x\n", le16(eoff+0xf));
+							printf("M.tbl_0d at 0x%x\n", le16(eoff+0xf));
 					}
 					break;
 				case 'C':
@@ -920,7 +920,7 @@ int main(int argc, char **argv) {
 					break;
 				case 'P':
 					if (printmask & ENVY_BIOS_PRINT_BMP_BIT)
-						printf("Bit P table version %x\n", entry->version);
+						printf("Bit P table version %d\n", entry->version);
 
 					p_tbls_ver = entry->version;
 					pm_mode_tbl_ptr = le16(eoff + 0);
@@ -960,14 +960,14 @@ int main(int argc, char **argv) {
 		entry_count = bios->data[bios->hwsq_offset];
 		bytes_to_write = bios->data[bios->hwsq_offset + 1];
 
-		printf("HWSQ table at %x: Entry count %u, entry length %u\n", bios->hwsq_offset, entry_count, bytes_to_write);
+		printf("HWSQ table at 0x%x: Entry count %u, entry length %u\n", bios->hwsq_offset, entry_count, bytes_to_write);
 
 		for (i=0; i < entry_count; i++) {
 			uint16_t entry_offset = bios->hwsq_offset + 2 + i * bytes_to_write;
 			uint32_t sequencer = le32(entry_offset);
 			//uint8_t bytes_written = 4;
 
-			printf("-- HWSQ entry %u at %x: sequencer control = %u\n", i, entry_offset, sequencer);
+			printf("-- HWSQ entry %u at 0x%x: sequencer control = %u\n", i, entry_offset, sequencer);
 			envydis(hwsq_isa, stdout, bios->data + entry_offset + 4, 0, bytes_to_write - 4, hwsq_var_nv41, 0, 0, 0, discolors);
 			printf ("\n");
 		}
@@ -977,7 +977,7 @@ int main(int argc, char **argv) {
 	if (pll_limit_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PLL)) {
 		uint8_t ver = bios->data[pll_limit_tbl_ptr];
 		uint8_t hlen = 0, rlen = 0, entries = 0;
-		printf ("PLL limits table at %x, version %x\n", pll_limit_tbl_ptr, ver);
+		printf ("PLL limits table at 0x%x, version %d\n", pll_limit_tbl_ptr, ver);
 		switch (ver) {
 			case 0:
 				break;
@@ -1107,7 +1107,7 @@ int main(int argc, char **argv) {
 			ADDARRAY(subs, i);
 			i++;
 		}
-		printf ("Init script table at %x: %d main scripts\n\n", init_script_tbl_ptr, i);
+		printf ("Init script table at 0x%x: %d main scripts\n\n", init_script_tbl_ptr, i);
 	}
 
 	int subspos = 0, callspos = 0;
@@ -1115,18 +1115,18 @@ int main(int argc, char **argv) {
 	while ((!ssdone || subspos < subsnum || callspos < callsnum) && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
 		if (callspos < callsnum) {
 			uint16_t soff = calls[callspos++];
-			printf ("Subroutine at %x:\n", soff);
+			printf ("Subroutine at 0x%x:\n", soff);
 			printscript(soff);
 			printf("\n");
 		} else if (subspos < subsnum) {
 			int i = subs[subspos++];
 			uint16_t soff = le32(init_script_tbl_ptr + 2*i);
-			printf ("Init script %d at %x:\n", i, soff);
+			printf ("Init script %d at 0x%x:\n", i, soff);
 			printscript(soff);
 			printf("\n");
 		} else if (!ssdone) {
 			if (some_script_ptr) {
-				printf ("Some script at %x:\n", some_script_ptr);
+				printf ("Some script at 0x%x:\n", some_script_ptr);
 				printscript(some_script_ptr);
 				printf("\n");
 			}
@@ -1140,7 +1140,7 @@ int main(int argc, char **argv) {
 		uint8_t rlen = bios->data[disp_script_tbl_ptr+2];
 		uint8_t entries = bios->data[disp_script_tbl_ptr+3];
 		uint8_t rhlen = bios->data[disp_script_tbl_ptr+4];
-		printf ("Display script table at %x, version %x:\n", disp_script_tbl_ptr, ver);
+		printf ("Display script table at 0x%x, version %d:\n", disp_script_tbl_ptr, ver);
 		printhex(disp_script_tbl_ptr, hlen + rlen * entries);
 		printf ("\n");
 		for (i = 0; i < entries; i++) {
@@ -1149,7 +1149,7 @@ int main(int argc, char **argv) {
 				continue;
 			uint32_t entry = le32(table);
 			uint8_t configs = bios->data[table+5];
-			printf ("Subtable %d at %x for %08x:\n", i, table, entry);
+			printf ("Subtable %d at 0x%x for 0x%08x:\n", i, table, entry);
 			printhex(table, rhlen + configs * 6);
 			printf("\n");
 		}
@@ -1157,7 +1157,7 @@ int main(int argc, char **argv) {
 	}
 
 	if (condition_tbl_ptr && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
-		printf ("Condition table at %x: %d conditions:\n", condition_tbl_ptr, maxcond+1);
+		printf ("Condition table at 0x%x: %d conditions:\n", condition_tbl_ptr, maxcond+1);
 		for (i = 0; i <= maxcond; i++) {
 			printcmd(condition_tbl_ptr + 12 * i, 12);
 			printf ("[0x%02x] R[0x%06x] & 0x%08x == 0x%08x\n", i,
@@ -1169,7 +1169,7 @@ int main(int argc, char **argv) {
 	}
 
 	if (macro_index_tbl_ptr && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
-		printf ("Macro index table at %x: %d macro indices:\n", macro_index_tbl_ptr, maxmi+1);
+		printf ("Macro index table at 0x%x: %d macro indices:\n", macro_index_tbl_ptr, maxmi+1);
 		for (i = 0; i <= maxmi; i++) {
 			printcmd(macro_index_tbl_ptr + 2 * i, 2);
 			printf ("[0x%02x] 0x%02x *%d\n", i,
@@ -1182,7 +1182,7 @@ int main(int argc, char **argv) {
 	}
 
 	if (macro_tbl_ptr && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
-		printf ("Macro table at %x: %d macros:\n", macro_tbl_ptr, maxmac+1);
+		printf ("Macro table at 0x%x: %d macros:\n", macro_tbl_ptr, maxmac+1);
 		for (i = 0; i <= maxmac; i++) {
 			printcmd(macro_tbl_ptr + 8 * i, 8);
 			printf ("[0x%02x] R[0x%06x] = 0x%08x\n", i,
@@ -1201,7 +1201,7 @@ int main(int argc, char **argv) {
 		entry_count = bios->data[start+3];
 		entry_length = bios->data[start+2];
 
-		printf("Ram type table at %x: Version %x, %u entries\n", start, version, entry_count);
+		printf("Ram type table at 0x%x: Version %d, %u entries\n", start, version, entry_count);
 		start += bios->data[start+1];
 		if(version == 0x10) {
 			printf("Detected ram type: %s\n",
@@ -1260,10 +1260,10 @@ int main(int argc, char **argv) {
 			mode_info_length = subentry_offset;
 			entry_count = bios->data[start+5];
 		} else {
-			printf("Unknown PM major version %x\n", bios->info.version[0]);
+			printf("Unknown PM major version %d\n", bios->info.version[0]);
 		}
 
-		printf ("PM_Mode table at %x. Version %x. RamCFG %x. Info_length %i.\n",
+		printf ("PM_Mode table at 0x%x. Version %d. RamCFG 0x%x. Info_length %i.\n",
 			pm_mode_tbl_ptr, version, ram_cfg, mode_info_length
 		);
 
@@ -1437,7 +1437,7 @@ int main(int argc, char **argv) {
 		entry_length = bios->data[start+2];
 		entry_count = bios->data[start+3];
 
-		printf ("Voltage map table at %x. Version %x.\n", voltage_map_tbl_ptr, version);
+		printf ("Voltage map table at 0x%x. Version %d.\n", voltage_map_tbl_ptr, version);
 
 		printf("Header:\n");
 		printcmd(voltage_map_tbl_ptr, header_length>0?header_length:10);
@@ -1490,11 +1490,11 @@ int main(int argc, char **argv) {
 			mask = bios->data[start+11];			// guess
 		}
 
-		printf ("Voltage table at %x. Version %x.\n", voltage_tbl_ptr, version);
+		printf ("Voltage table at 0x%x. Version %d.\n", voltage_tbl_ptr, version);
 
 		printf("Header:\n");
 		printcmd(voltage_tbl_ptr, header_length>0?header_length:10);
-		printf (" mask = %x\n\n", mask);
+		printf (" mask = 0x%x\n\n", mask);
 
 		if (version < 0x40) {
 			start += header_length;
@@ -1506,7 +1506,7 @@ int main(int argc, char **argv) {
 				id = bios->data[start+1] >> shift;
 				label = bios->data[start+0] * 10000;
 
-				printf ("-- Vid = %x, voltage = %u µV --\n", id, label);
+				printf ("-- Vid = 0x%x, voltage = %u µV --\n", id, label);
 
 				/* List the gpio tags assosiated with each voltage id */
 				int j;
@@ -1515,7 +1515,7 @@ int main(int argc, char **argv) {
 					/*	printf("-- Voltage unused/overridden by voltage mask --\n");*/
 						continue;
 	 				}
-					printf("-- GPIO tag %x(VID) data (logic %d) --\n", vidtag[j], (!!(id & (1 << j))));
+					printf("-- GPIO tag 0x%x(VID) data (logic %d) --\n", vidtag[j], (!!(id & (1 << j))));
 				}
 
 				if (entry_length > 20) {
@@ -1547,7 +1547,7 @@ int main(int argc, char **argv) {
 					/*	printf("-- Voltage unused/overridden by voltage mask --\n");*/
 						continue;
 	 				}
-					printf("-- GPIO tag %x(VID) data (logic %d) --\n", vidtag[j], (!!(i & (1 << j))));
+					printf("-- GPIO tag 0x%x(VID) data (logic %d) --\n", vidtag[j], (!!(i & (1 << j))));
 				}
 				printf("\n");
 			}
@@ -1572,7 +1572,7 @@ int main(int argc, char **argv) {
 
 		start += header_length;
 
-		printf ("Temperature table at %x. Version %x.\n", voltage_tbl_ptr, version);
+		printf ("Temperature table at 0x%x. Version %d.\n", voltage_tbl_ptr, version);
 
 		printf("Header:\n");
 		printcmd(temperature_tbl_ptr, header_length>0?header_length:10);
@@ -1685,7 +1685,7 @@ int main(int argc, char **argv) {
 			entry_length = bios->data[start+2];
 		}
 
-		printf ("Timing table at %x. Version %x.\n", timings_tbl_ptr, version);
+		printf ("Timing table at 0x%x. Version %d.\n", timings_tbl_ptr, version);
 
 		printf("Header:\n");
 		printcmd(timings_tbl_ptr, header_length>0?header_length:10);
@@ -1785,10 +1785,10 @@ int main(int argc, char **argv) {
 							}
 						}
 
-						printf("Registers: 220: %08x %08x %08x %08x\n",
+						printf("Registers: 220: 0x%08x 0x%08x 0x%08x 0x%08x\n",
 						reg_100220, reg_100224,
 						reg_100228, reg_10022c);
-						printf("           230: %08x %08x %08x %08x\n",
+						printf("           230: 0x%08x 0x%08x 0x%08x 0x%08x\n",
 						reg_100230, reg_100234,
 						reg_100238, reg_10023c);
 					} else {
@@ -1798,10 +1798,10 @@ int main(int argc, char **argv) {
 						reg_10022c = tUNK_20 << 9 | tUNK_13;
 						reg_100230 = 0x42e00069 | tUNK_12 << 15;
 
-						printf("Registers: 290: %08x %08x %08x %08x\n",
+						printf("Registers: 290: 0x%08x 0x%08x 0x%08x 0x%08x\n",
 						reg_100220, reg_100224,
 						reg_100228, reg_10022c);
-						printf("           2a0: %08x %08x %08x %08x\n",
+						printf("           2a0: 0x%08x 0x%08x 0x%08x 0x%08x\n",
 						reg_100230, reg_100234,
 						reg_100238, reg_10023c);
 					}
@@ -1857,7 +1857,7 @@ int main(int argc, char **argv) {
 			xinfo_count = bios->data[start+4];
 			xinfo_length = bios->data[start+3];
 		}
-		printf ("Timing mapping table at %x. Version %x.\n", timings_map_tbl_ptr, version);
+		printf ("Timing mapping table at 0x%x. Version %d.\n", timings_map_tbl_ptr, version);
 		printf("Header:\n");
 		printcmd(timings_map_tbl_ptr, header_length>0?header_length:10);
 		printf ("\n\n");
@@ -1906,7 +1906,7 @@ int main(int argc, char **argv) {
 			entry_length = bios->data[start+2];
 		}
 
-		printf ("Unknown PM table at %x. Version %x.\n", pm_unknown_tbl_ptr, version);
+		printf ("Unknown PM table at 0x%x. Version %d.\n", pm_unknown_tbl_ptr, version);
 		printcmd(start, header_length>0?header_length:10);
 		printf("\n\n");
 

@@ -44,7 +44,7 @@ int envy_bios_parse_iunk21 (struct envy_bios *bios) {
 			wantrlen = 3;
 			break;
 		default:
-			ENVY_BIOS_ERR("Unknown IUNK21 table version %x.%x\n", iunk21->version >> 4, iunk21->version & 0xf);
+			ENVY_BIOS_ERR("Unknown IUNK21 table version %d.%d\n", iunk21->version >> 4, iunk21->version & 0xf);
 			return -EINVAL;
 	}
 	if (iunk21->hlen < wanthlen) {
@@ -81,10 +81,10 @@ void envy_bios_print_iunk21 (struct envy_bios *bios, FILE *out, unsigned mask) {
 	if (!iunk21->offset || !(mask & ENVY_BIOS_PRINT_IUNK))
 		return;
 	if (!iunk21->valid) {
-		fprintf(out, "Failed to parse IUNK21 table at %04x version %x.%x\n\n", iunk21->offset, iunk21->version >> 4, iunk21->version & 0xf);
+		fprintf(out, "Failed to parse IUNK21 table at 0x%04x version %d.%d\n\n", iunk21->offset, iunk21->version >> 4, iunk21->version & 0xf);
 		return;
 	}
-	fprintf(out, "IUNK21 table at %04x version %x.%x\n", iunk21->offset, iunk21->version >> 4, iunk21->version & 0xf);
+	fprintf(out, "IUNK21 table at 0x%04x version %d.%d\n", iunk21->offset, iunk21->version >> 4, iunk21->version & 0xf);
 	envy_bios_dump_hex(bios, out, iunk21->offset, iunk21->hlen, mask);
 	int i;
 	for (i = 0; i < iunk21->entriesnum; i++) {

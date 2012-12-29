@@ -50,7 +50,7 @@ void envy_bios_print_i2cscript (struct envy_bios *bios, FILE *out, unsigned mask
 	if (!i2cscript->bit || !(mask & ENVY_BIOS_PRINT_I2CSCRIPT))
 		return;
 	if (!i2cscript->valid) {
-		fprintf(out, "Failed to parse BIT table '2' at %04x version 1\n\n", i2cscript->bit->t_offset);
+		fprintf(out, "Failed to parse BIT table '2' at 0x%04x version 1\n\n", i2cscript->bit->t_offset);
 		return;
 	}
 	if ((mask & ENVY_BIOS_PRINT_VERBOSE) || i2cscript->unk00 || i2cscript->script) {

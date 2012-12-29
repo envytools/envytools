@@ -45,7 +45,7 @@ int envy_bios_parse_conn (struct envy_bios *bios) {
 		case 0x40:
 			break;
 		default:
-			ENVY_BIOS_ERR("Unknown CONN table version %x.%x\n", conn->version >> 4, conn->version & 0xf);
+			ENVY_BIOS_ERR("Unknown CONN table version %d.%d\n", conn->version >> 4, conn->version & 0xf);
 			return -EINVAL;
 	}
 	if (conn->hlen < wanthlen) {
@@ -134,10 +134,10 @@ void envy_bios_print_conn (struct envy_bios *bios, FILE *out, unsigned mask) {
 	if (!conn->offset || !(mask & ENVY_BIOS_PRINT_CONN))
 		return;
 	if (!conn->valid) {
-		fprintf(out, "Failed to parse CONN table at %04x version %x.%x\n\n", conn->offset, conn->version >> 4, conn->version & 0xf);
+		fprintf(out, "Failed to parse CONN table at 0x%04x version %d.%d\n\n", conn->offset, conn->version >> 4, conn->version & 0xf);
 		return;
 	}
-	fprintf(out, "CONN table at %04x version %x.%x\n", conn->offset, conn->version >> 4, conn->version & 0xf);
+	fprintf(out, "CONN table at 0x%04x version %d.%d\n", conn->offset, conn->version >> 4, conn->version & 0xf);
 	envy_bios_dump_hex(bios, out, conn->offset, conn->hlen, mask);
 	int i;
 	for (i = 0; i < conn->entriesnum; i++) {

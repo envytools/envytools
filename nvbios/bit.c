@@ -116,7 +116,7 @@ int envy_bios_parse_bit (struct envy_bios *bios) {
 			struct envy_bios_bit_entry *entry = &bit->entries[i];
 			if (entry->type == bit_types[j].type && entry->version == bit_types[j].version) {
 				if (bit_types[j].parse(bios, entry))
-					ENVY_BIOS_ERR("Failed to parse BIT table '%c' at %04x version %d\n", entry->type, entry->t_offset, entry->version);
+					ENVY_BIOS_ERR("Failed to parse BIT table '%c' at 0x%04x version %d\n", entry->type, entry->t_offset, entry->version);
 				else
 					entry->is_unk = 0;
 			}
@@ -131,10 +131,10 @@ void envy_bios_print_bit (struct envy_bios *bios, FILE *out, unsigned mask) {
 	if (!bit->offset || !(mask & ENVY_BIOS_PRINT_BMP_BIT))
 		return;
 	if (!bit->valid) {
-		fprintf(out, "Failed to parse BIT table at %04x version %d\n\n", bit->offset, bit->version);
+		fprintf(out, "Failed to parse BIT table at 0x%04x version %d\n\n", bit->offset, bit->version);
 		return;
 	}
-	fprintf(out, "BIT table at %04x version %d", bit->offset, bit->version);
+	fprintf(out, "BIT table at 0x%04x version %d", bit->offset, bit->version);
 	fprintf(out, "\n");
 	envy_bios_dump_hex(bios, out, bit->offset, bit->hlen, mask);
 	int i;

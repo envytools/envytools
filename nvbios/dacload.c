@@ -44,7 +44,7 @@ int envy_bios_parse_bit_A (struct envy_bios *bios, struct envy_bios_bit_entry *b
 	if (err)
 		return -EFAULT;
 	if (envy_bios_parse_dacload(bios))
-		ENVY_BIOS_ERR("Failed to parse DACLOAD table at %04x version %x.%x\n", bios->dacload.offset, bios->dacload.version >> 4, bios->dacload.version & 0xf);
+		ENVY_BIOS_ERR("Failed to parse DACLOAD table at 0x%04x version %d.%d\n", bios->dacload.offset, bios->dacload.version >> 4, bios->dacload.version & 0xf);
 	return 0;
 }
 
@@ -69,7 +69,7 @@ int envy_bios_parse_dacload (struct envy_bios *bios) {
 			wantrlen = 4;
 			break;
 		default:
-			ENVY_BIOS_ERR("Unknown DACLOAD table version %x.%x\n", dacload->version >> 4, dacload->version & 0xf);
+			ENVY_BIOS_ERR("Unknown DACLOAD table version %d.%d\n", dacload->version >> 4, dacload->version & 0xf);
 			return -EINVAL;
 	}
 	if (dacload->hlen < wanthlen) {
@@ -112,10 +112,10 @@ void envy_bios_print_dacload (struct envy_bios *bios, FILE *out, unsigned mask) 
 	if (!dacload->offset)
 		return;
 	if (!dacload->valid) {
-		fprintf(out, "Failed to parse DACLOAD table at %04x version %x.%x\n\n", dacload->offset, dacload->version >> 4, dacload->version & 0xf);
+		fprintf(out, "Failed to parse DACLOAD table at 0x%04x version %d.%d\n\n", dacload->offset, dacload->version >> 4, dacload->version & 0xf);
 		return;
 	}
-	fprintf(out, "DACLOAD table at %04x version %x.%x\n", dacload->offset, dacload->version >> 4, dacload->version & 0xf);
+	fprintf(out, "DACLOAD table at 0x%04x version %d.%d\n", dacload->offset, dacload->version >> 4, dacload->version & 0xf);
 	envy_bios_dump_hex(bios, out, dacload->offset, dacload->hlen, mask);
 	int i;
 	for (i = 0; i < dacload->entriesnum; i++) {

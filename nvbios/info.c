@@ -239,9 +239,9 @@ int envy_bios_parse_bit_i (struct envy_bios *bios, struct envy_bios_bit_entry *b
 			break;
 	}
 	if (envy_bios_parse_dacload(bios))
-		ENVY_BIOS_ERR("Failed to parse DACLOAD table at %04x version %x.%x\n", bios->dacload.offset, bios->dacload.version >> 4, bios->dacload.version & 0xf);
+		ENVY_BIOS_ERR("Failed to parse DACLOAD table at 0x%04x version %d.%d\n", bios->dacload.offset, bios->dacload.version >> 4, bios->dacload.version & 0xf);
 	if (envy_bios_parse_iunk21(bios))
-		ENVY_BIOS_ERR("Failed to parse IUNK21 table at %04x version %x.%x\n", bios->iunk21.offset, bios->iunk21.version >> 4, bios->iunk21.version & 0xf);
+		ENVY_BIOS_ERR("Failed to parse IUNK21 table at 0x%04x version %d.%d\n", bios->iunk21.offset, bios->iunk21.version >> 4, bios->iunk21.version & 0xf);
 	return 0;
 }
 
@@ -250,10 +250,10 @@ void envy_bios_print_info (struct envy_bios *bios, FILE *out, unsigned mask) {
 	if (!info->bit || !(mask & ENVY_BIOS_PRINT_INFO))
 		return;
 	if (!info->valid) {
-		fprintf(out, "Failed to parse BIT table 'i' at %04x version 2\n\n", info->bit->t_offset);
+		fprintf(out, "Failed to parse BIT table 'i' at 0x%04x version 2\n\n", info->bit->t_offset);
 		return;
 	}
-	fprintf(out, "INFO: BIOS version %02x.%02x.%02x.%02x.%02x from %s for", info->version[0], info->version[1], info->version[2], info->version[3], info->version[4], info->date);
+	fprintf(out, "INFO: BIOS version 0x%02x.%02x.%02x.%02x.%02x from %s for", info->version[0], info->version[1], info->version[2], info->version[3], info->version[4], info->date);
 	if (bios->chipset) {
 		fprintf(out, " NV%02X", bios->chipset);
 		if (bios->chipset_name)
@@ -292,7 +292,7 @@ void envy_bios_print_info (struct envy_bios *bios, FILE *out, unsigned mask) {
 		fprintf(out, " (none)");
 	fprintf(out, ", unk07");
 	for (i = 0; i < 6; i++)
-		fprintf(out, " %02x", info->unk07[i]);
+		fprintf(out, " 0x%02x", info->unk07[i]);
 	int unk19_st = 0;
 	for (i = 0; i < 8; i++)
 		if (info->unk19[i])
@@ -300,16 +300,16 @@ void envy_bios_print_info (struct envy_bios *bios, FILE *out, unsigned mask) {
 	if (unk19_st) {
 		fprintf(out, ", unk19");
 		for (i = 0; i < 8; i++)
-			fprintf(out, " %02x", info->unk19[i]);
+			fprintf(out, " 0x%02x", info->unk19[i]);
 	}
 	if (info->unk23)
-		fprintf(out, ", unk23 %02x", info->unk23);
+		fprintf(out, ", unk23 0x%02x", info->unk23);
 	if (info->unk24)
-		fprintf(out, ", unk24 %02x", info->unk24);
+		fprintf(out, ", unk24 0x%02x", info->unk24);
 	if (info->unk25)
-		fprintf(out, ", unk25 %02x", info->unk25);
+		fprintf(out, ", unk25 0x%02x", info->unk25);
 	if (info->unk26)
-		fprintf(out, ", unk26 %04x", info->unk26);
+		fprintf(out, ", unk26 0x%04x", info->unk26);
 	int unk28_st = 0;
 	for (i = 0; i < 8; i++)
 		if (info->unk28[i])
@@ -317,7 +317,7 @@ void envy_bios_print_info (struct envy_bios *bios, FILE *out, unsigned mask) {
 	if (unk28_st) {
 		fprintf(out, ", unk28");
 		for (i = 0; i < 8; i++)
-			fprintf(out, " %02x", info->unk28[i]);
+			fprintf(out, " 0x%02x", info->unk28[i]);
 	}
 	if (info->unk30[0]) {
 		fprintf(out, ", unk30 %s", info->unk30);
@@ -332,7 +332,7 @@ void envy_bios_print_info (struct envy_bios *bios, FILE *out, unsigned mask) {
 	if (unk3c_st) {
 		fprintf(out, ", unk3c");
 		for (i = 0; i < 8; i++)
-			fprintf(out, " %02x", info->unk3c[i]);
+			fprintf(out, " 0x%02x", info->unk3c[i]);
 	}
 	fprintf(out, "\n");
 	envy_bios_dump_hex(bios, out, info->bit->t_offset, info->bit->t_len, mask);

@@ -44,7 +44,7 @@ int envy_bios_parse_mux (struct envy_bios *bios) {
 			wantrlen = 5;
 			break;
 		default:
-			ENVY_BIOS_ERR("Unknown MUX table version %x.%x\n", mux->version >> 4, mux->version & 0xf);
+			ENVY_BIOS_ERR("Unknown MUX table version %d.%d\n", mux->version >> 4, mux->version & 0xf);
 			return -EINVAL;
 	}
 	if (mux->hlen < wanthlen) {
@@ -90,10 +90,10 @@ void envy_bios_print_mux (struct envy_bios *bios, FILE *out, unsigned mask) {
 	if (!mux->offset || !(mask & ENVY_BIOS_PRINT_MUX))
 		return;
 	if (!mux->valid) {
-		fprintf(out, "Failed to parse MUX table at %04x version %x.%x\n\n", mux->offset, mux->version >> 4, mux->version & 0xf);
+		fprintf(out, "Failed to parse MUX table at 0x%04x version %d.%d\n\n", mux->offset, mux->version >> 4, mux->version & 0xf);
 		return;
 	}
-	fprintf(out, "MUX table at %04x version %x.%x\n", mux->offset, mux->version >> 4, mux->version & 0xf);
+	fprintf(out, "MUX table at 0x%04x version %d.%d\n", mux->offset, mux->version >> 4, mux->version & 0xf);
 	envy_bios_dump_hex(bios, out, mux->offset, mux->hlen, mask);
 	int i;
 	for (i = 0; i < mux->entriesnum; i++) {

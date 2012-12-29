@@ -68,7 +68,7 @@ int envy_bios_parse_gpio (struct envy_bios *bios) {
 			wantrlen = 5;
 			break;
 		default:
-			ENVY_BIOS_ERR("Unknown GPIO table version %x.%x\n", bios->gpio.version >> 4, bios->gpio.version & 0xf);
+			ENVY_BIOS_ERR("Unknown GPIO table version %d.%d\n", bios->gpio.version >> 4, bios->gpio.version & 0xf);
 			return -EINVAL;
 	}
 	if (gpio->hlen < wanthlen) {
@@ -90,7 +90,7 @@ int envy_bios_parse_gpio (struct envy_bios *bios) {
 		if (err)
 			return -EFAULT;
 		if (envy_bios_parse_xpiodir(bios))
-			ENVY_BIOS_ERR("Failed to parse XPIODIR table at %04x version %x.%x\n", bios->gpio.xpiodir.offset, bios->gpio.xpiodir.version >> 4, bios->gpio.xpiodir.version & 0xf);
+			ENVY_BIOS_ERR("Failed to parse XPIODIR table at 0x%04x version %d.%d\n", bios->gpio.xpiodir.offset, bios->gpio.xpiodir.version >> 4, bios->gpio.xpiodir.version & 0xf);
 	}
 	gpio->entries = calloc(gpio->entriesnum, sizeof *gpio->entries);
 	if (!gpio->entries)
@@ -234,10 +234,10 @@ void envy_bios_print_gpio (struct envy_bios *bios, FILE *out, unsigned mask) {
 	if (!bios->gpio.offset || !(mask & ENVY_BIOS_PRINT_GPIO))
 		return;
 	if (!bios->gpio.valid) {
-		fprintf(out, "Failed to parse GPIO table at %04x version %x.%x\n\n", bios->gpio.offset, bios->gpio.version >> 4, bios->gpio.version & 0xf);
+		fprintf(out, "Failed to parse GPIO table at 0x%04x version %d.%d\n\n", bios->gpio.offset, bios->gpio.version >> 4, bios->gpio.version & 0xf);
 		return;
 	}
-	fprintf(out, "GPIO table at %04x version %x.%x\n", bios->gpio.offset, bios->gpio.version >> 4, bios->gpio.version & 0xf);
+	fprintf(out, "GPIO table at 0x%04x version %d.%d\n", bios->gpio.offset, bios->gpio.version >> 4, bios->gpio.version & 0xf);
 	envy_bios_dump_hex(bios, out, bios->gpio.offset, bios->gpio.hlen, mask);
 	int i;
 	for (i = 0; i < gpio->entriesnum; i++) {
@@ -335,7 +335,7 @@ int envy_bios_parse_xpio (struct envy_bios *bios, struct envy_bios_xpio *xpio, i
 			}
 			break;
 		default:
-			ENVY_BIOS_ERR("Unknown XPIO table version %x.%x\n", xpio->version >> 4, xpio->version & 0xf);
+			ENVY_BIOS_ERR("Unknown XPIO table version %d.%d\n", xpio->version >> 4, xpio->version & 0xf);
 			return -EINVAL;
 	}
 	if (xpio->hlen < wanthlen) {
@@ -434,7 +434,7 @@ int envy_bios_parse_xpiodir (struct envy_bios *bios) {
 			wantrlen = 2;
 			break;
 		default:
-			ENVY_BIOS_ERR("Unknown XPIODIR table version %x.%x\n", xpiodir->version >> 4, xpiodir->version & 0xf);
+			ENVY_BIOS_ERR("Unknown XPIODIR table version %d.%d\n", xpiodir->version >> 4, xpiodir->version & 0xf);
 			return -EINVAL;
 	}
 	if (xpiodir->hlen < wanthlen) {
@@ -462,7 +462,7 @@ int envy_bios_parse_xpiodir (struct envy_bios *bios) {
 		if (err)
 			return -EFAULT;
 		if (envy_bios_parse_xpio(bios, xpio, i))
-			ENVY_BIOS_ERR("Failed to parse XPIO table at %04x version %x.%x\n", xpio->offset, xpio->version >> 4, xpio->version & 0xf);
+			ENVY_BIOS_ERR("Failed to parse XPIO table at 0x%04x version %d.%d\n", xpio->offset, xpio->version >> 4, xpio->version & 0xf);
 	}
 	xpiodir->valid = 1;
 	return 0;
@@ -479,11 +479,11 @@ void envy_bios_print_xpio (struct envy_bios *bios, FILE *out, struct envy_bios_x
 	if (!xpio->offset)
 		return;
 	if (!xpio->valid) {
-		fprintf(out, "Failed to parse XPIO table at %04x version %x.%x\n\n", xpio->offset, xpio->version >> 4, xpio->version & 0xf);
+		fprintf(out, "Failed to parse XPIO table at 0x%04x version %d.%d\n\n", xpio->offset, xpio->version >> 4, xpio->version & 0xf);
 		return;
 	}
 	const char *typename = find_enum(xpio_types, xpio->type);
-	fprintf(out, "XPIO table %d at %04x version %x.%x", idx, xpio->offset, xpio->version >> 4, xpio->version & 0xf);
+	fprintf(out, "XPIO table %d at 0x%04x version %d.%d", idx, xpio->offset, xpio->version >> 4, xpio->version & 0xf);
 	fprintf(out, " type 0x%02x [%s]", xpio->type, typename);
 	fprintf(out, " at 0x%02x defbus %d", xpio->addr, xpio->bus);
 	if (xpio->unk02_0)
@@ -543,10 +543,10 @@ void envy_bios_print_xpiodir (struct envy_bios *bios, FILE *out, unsigned mask) 
 	if (!xpiodir->offset)
 		return;
 	if (!xpiodir->valid) {
-		fprintf(out, "Failed to parse XPIODIR table at %04x version %x.%x\n\n", xpiodir->offset, xpiodir->version >> 4, xpiodir->version & 0xf);
+		fprintf(out, "Failed to parse XPIODIR table at 0x%04x version %d.%d\n\n", xpiodir->offset, xpiodir->version >> 4, xpiodir->version & 0xf);
 		return;
 	}
-	fprintf(out, "XPIODIR table at %04x version %x.%x, %d subtables\n", xpiodir->offset, xpiodir->version >> 4, xpiodir->version & 0xf, xpiodir->entriesnum);
+	fprintf(out, "XPIODIR table at 0x%04x version %d.%d, %d subtables\n", xpiodir->offset, xpiodir->version >> 4, xpiodir->version & 0xf, xpiodir->entriesnum);
 	envy_bios_dump_hex(bios, out, xpiodir->offset, xpiodir->hlen + xpiodir->entriesnum * xpiodir->rlen, mask);
 	fprintf(out, "\n");
 	int i;

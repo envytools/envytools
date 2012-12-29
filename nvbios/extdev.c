@@ -45,7 +45,7 @@ int envy_bios_parse_extdev (struct envy_bios *bios) {
 		case 0x40:
 			break;
 		default:
-			ENVY_BIOS_ERR("Unknown EXTDEV table version %x.%x\n", extdev->version >> 4, extdev->version & 0xf);
+			ENVY_BIOS_ERR("Unknown EXTDEV table version %d.%d\n", extdev->version >> 4, extdev->version & 0xf);
 			return -EINVAL;
 	}
 	if (extdev->hlen >= 5)
@@ -105,10 +105,10 @@ void envy_bios_print_extdev (struct envy_bios *bios, FILE *out, unsigned mask) {
 	if (!extdev->offset || !(mask & ENVY_BIOS_PRINT_EXTDEV))
 		return;
 	if (!extdev->valid) {
-		fprintf(out, "Failed to parse EXTDEV table at %04x version %x.%x\n\n", extdev->offset, extdev->version >> 4, extdev->version & 0xf);
+		fprintf(out, "Failed to parse EXTDEV table at 0x%04x version %d.%d\n\n", extdev->offset, extdev->version >> 4, extdev->version & 0xf);
 		return;
 	}
-	fprintf(out, "EXTDEV table at %04x version %x.%x", extdev->offset, extdev->version >> 4, extdev->version & 0xf);
+	fprintf(out, "EXTDEV table at 0x%04x version %d.%d", extdev->offset, extdev->version >> 4, extdev->version & 0xf);
 	if (extdev->hlen > 4)
 		fprintf(out, " unk04 0x%02x", extdev->unk04);
 	fprintf(out, "\n");

@@ -155,7 +155,7 @@ int envy_bios_parse (struct envy_bios *bios) {
 		if (device == 0x08 || device == 0x09) {
 			bios->type = ENVY_BIOS_TYPE_NV01;
 		} else {
-			ENVY_BIOS_ERR("Unknown SGS pciid %04x\n", device);
+			ENVY_BIOS_ERR("Unknown SGS pciid 0x%04x\n", device);
 			break;
 		}
 		break;
@@ -163,7 +163,7 @@ int envy_bios_parse (struct envy_bios *bios) {
 		if (device == 0x18 || device == 0x19) {
 			bios->type = ENVY_BIOS_TYPE_NV03;
 		} else {
-			ENVY_BIOS_ERR("Unknown SGS/NVidia pciid %04x\n", device);
+			ENVY_BIOS_ERR("Unknown SGS/NVidia pciid 0x%04x\n", device);
 			break;
 		}
 		bios_u16(bios, 0x54, &bios->subsystem_vendor);
@@ -187,9 +187,9 @@ int envy_bios_parse (struct envy_bios *bios) {
 		bios_u16(bios, 0x54, &bios->subsystem_vendor);
 		bios_u16(bios, 0x56, &bios->subsystem_device);
 		if (envy_bios_parse_bit(bios))
-			ENVY_BIOS_ERR("Failed to parse BIT table at %04x version %d\n", bios->bit.offset, bios->bit.version);
+			ENVY_BIOS_ERR("Failed to parse BIT table at 0x%04x version %d\n", bios->bit.offset, bios->bit.version);
 		if (envy_bios_parse_dcb(bios))
-			ENVY_BIOS_ERR("Failed to parse DCB table at %04x version %x.%x\n", bios->dcb.offset, bios->dcb.version >> 4, bios->dcb.version & 0xf);
+			ENVY_BIOS_ERR("Failed to parse DCB table at 0x%04x version %d.%d\n", bios->dcb.offset, bios->dcb.version >> 4, bios->dcb.version & 0xf);
 		if (bios->dcb.version >= 0x20) {
 			/* XXX: should use chipset instead */
 			/* note: NV17 and NV1F don't actually have these registers, but the bioses I've seen include the [nop] values anyway */
