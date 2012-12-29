@@ -261,9 +261,16 @@
 			<reg32 offset="0x020" name="DMA_PUSH">
 				<bitfield pos="0" name="ACCESS"/>
 				<bitfield pos="4" name="BUSY"/>
+				<bitfield pos="5" name="UNK5"/>
+				<bitfield pos="6" name="UNK6"/>
 				<bitfield pos="8" name="EMPTY"/>
 				<bitfield pos="12" name="SUSPENDED"/>
+				<bitfield pos="13" name="UNK13"/>
+				<bitfield pos="14" name="UNK14"/>
 				<bitfield pos="16" name="UNK16"/>
+				<bitfield pos="20" name="UNK20"/>
+				<bitfield pos="21" name="UNK21"/>
+				<bitfield pos="22" name="UNK22"/>
 				<!-- XXX: NV50 has many funky status bitfields here which someone should figure out some day. -->
 				<bitfield high="31" low="24" name="UNK24"/>
 			</reg32>
