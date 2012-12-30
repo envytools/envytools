@@ -86,13 +86,52 @@ int subsnum = 0, subsmax = 0;
 uint16_t *calls = 0;
 int callsnum = 0, callsmax = 0;
 
+struct {
+	const char *name;
+	unsigned mask;
+} printmasks[] = {
+	{ "pcir",	ENVY_BIOS_PRINT_PCIR },
+	{ "version",	ENVY_BIOS_PRINT_VERSION },
+	{ "hwinfo",	ENVY_BIOS_PRINT_HWINFO },
+	{ "bit",	ENVY_BIOS_PRINT_BMP_BIT },
+	{ "bmp",	ENVY_BIOS_PRINT_BMP_BIT },
+	{ "info",	ENVY_BIOS_PRINT_INFO },
+	{ "dacload",	ENVY_BIOS_PRINT_DACLOAD },
+	{ "iunk",	ENVY_BIOS_PRINT_IUNK },
+	{ "scripts",	ENVY_BIOS_PRINT_SCRIPTS },
+	{ "hwsq",	ENVY_BIOS_PRINT_HWSQ },
+	{ "pll",	ENVY_BIOS_PRINT_PLL },
+	{ "ram",	ENVY_BIOS_PRINT_RAM },
+	{ "perf",	ENVY_BIOS_PRINT_PERF },
+	{ "i2cscript",	ENVY_BIOS_PRINT_I2CSCRIPT },
+	{ "dcball",	ENVY_BIOS_PRINT_DCB_ALL },
+	{ "dcb",	ENVY_BIOS_PRINT_DCB },
+	{ "gpio",	ENVY_BIOS_PRINT_GPIO },
+	{ "i2c",	ENVY_BIOS_PRINT_I2C },
+	{ "extdev",	ENVY_BIOS_PRINT_EXTDEV },
+	{ "conn",	ENVY_BIOS_PRINT_CONN },
+	{ "mux",	ENVY_BIOS_PRINT_MUX },
+	{ "dunk",	ENVY_BIOS_PRINT_DUNK },
+};
+
 int usage(char* name) {
-	printf("Usage: %s mybios.rom [-c XX] [-s strap]\n",name);
+	int i;
+
+	printf("\nUsage:\n %s [options] mybios.rom\n\n", name);
 	printf("Options:\n");
-	printf("  -c XX : override card generation\n");
-	printf("  -m XX : set tCWL (for timing entry size < 20)\n");
-	printf("  -s XX : set the trap register\n");
-	printf("  -i XXXX : print init script at XXXX and exit\n");
+	printf(" -h        print usage and exit\n");
+	printf(" -m XX     set tCWL (for timing entry size < 20)\n");
+	printf(" -s XX     set the trap register\n");
+	printf(" -i XXXX   print init script at XXXX and exit\n");
+	printf(" -v        be verbose\n");
+	printf(" -u        print unused\n");
+	printf(" -b        print blocks\n");
+	printf(" -p XXXX   set print mask, XXXX can be: ");
+	for (i = 0; i < sizeof(printmasks) / sizeof(*printmasks) - 1; i++)
+		printf("%s, ", printmasks[i].name);
+	printf("%s\n", printmasks[i].name);
+
+	printf("\nFor more details see code\n");
 	return 1;
 }
 
@@ -742,38 +781,10 @@ const char * mem_type(uint8_t version, uint16_t start)
 	}
 }
 
-struct {
-	const char *name;
-	unsigned mask;
-} printmasks[] = {
-	{ "pcir",	ENVY_BIOS_PRINT_PCIR },
-	{ "version",	ENVY_BIOS_PRINT_VERSION },
-	{ "hwinfo",	ENVY_BIOS_PRINT_HWINFO },
-	{ "bit",	ENVY_BIOS_PRINT_BMP_BIT },
-	{ "bmp",	ENVY_BIOS_PRINT_BMP_BIT },
-	{ "info",	ENVY_BIOS_PRINT_INFO },
-	{ "dacload",	ENVY_BIOS_PRINT_DACLOAD },
-	{ "iunk",	ENVY_BIOS_PRINT_IUNK },
-	{ "scripts",	ENVY_BIOS_PRINT_SCRIPTS },
-	{ "hwsq",	ENVY_BIOS_PRINT_HWSQ },
-	{ "pll",	ENVY_BIOS_PRINT_PLL },
-	{ "ram",	ENVY_BIOS_PRINT_RAM },
-	{ "perf",	ENVY_BIOS_PRINT_PERF },
-	{ "i2cscript",	ENVY_BIOS_PRINT_I2CSCRIPT },
-	{ "dcball",	ENVY_BIOS_PRINT_DCB_ALL },
-	{ "dcb",	ENVY_BIOS_PRINT_DCB },
-	{ "gpio",	ENVY_BIOS_PRINT_GPIO },
-	{ "i2c",	ENVY_BIOS_PRINT_I2C },
-	{ "extdev",	ENVY_BIOS_PRINT_EXTDEV },
-	{ "conn",	ENVY_BIOS_PRINT_CONN },
-	{ "mux",	ENVY_BIOS_PRINT_MUX },
-	{ "dunk",	ENVY_BIOS_PRINT_DUNK },
-};
-
 int main(int argc, char **argv) {
 	int i;
 	int c;
-	while ((c = getopt (argc, argv, "m:s:i:p:vub")) != -1)
+	while ((c = getopt (argc, argv, "m:s:i:p:vubh")) != -1)
 		switch (c) {
 			case 'm':
 				sscanf(optarg,"%2hhx",&tCWL);
@@ -804,6 +815,8 @@ int main(int argc, char **argv) {
 						printmask |= printmasks[i].mask;
 				}
 				break;
+			case 'h':
+				return usage(argv[0]);
 		}
 
 	if (!(printmask & ENVY_BIOS_PRINT_ALL))
