@@ -484,7 +484,7 @@ static int test_clock_gating_thermal_protect_threshold_4(struct hwtest_ctx *ctx)
 
 /* tests definitions */
 static int nv84_ptherm_prep(struct hwtest_ctx *ctx) {
-	if (ctx->card_type >= 0x84)
+	if (ctx->chipset >= 0x84)
 		return HWTEST_RES_PASS;
 	else
 		return HWTEST_RES_NA;
