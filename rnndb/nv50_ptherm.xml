@@ -259,7 +259,9 @@
 		<reg32 offset="0x44" name="TEMP_LOW" />
 
 		<reg32 offset="0x80" name="THRESHOLD_CRIT" />
-		<reg32 offset="0x84" name="THRESHOLD_CRIT_HYST" />
+		<reg32 offset="0x84" name="THRESHOLD_CRIT_HYST" variants="NV84:NVC0"/>
+		<!-- if unset, the hysteresis window will span across [THRESHOLD_CRIT-2, THRESHOLD_CRIT+2] -->
+		<reg32 offset="0x84" name="THRESHOLD_CRIT_HYST_DISABLE" variants="NVC0-"/>
 
 		<reg32 offset="0xc0" name="THRESHOLD_2" /> <!-- Window 0 HIGH -->
 		<reg32 offset="0xc4" name="THRESHOLD_1" /> <!-- Window 0 LOW -->
