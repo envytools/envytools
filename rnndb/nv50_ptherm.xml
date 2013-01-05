@@ -45,6 +45,13 @@
 	<value value="1" name="2"/>
 	<value value="2" name="4"/>
 	<value value="3" name="8"/>
+</enum>
+
+<enum name="nv84_therm_clock_gating_div">
+	<value value="0" name="DISABLED"/>
+	<value value="1" name="2"/>
+	<value value="2" name="4"/>
+	<value value="3" name="8"/>
 	<value value="4" name="16"/>
 	<value value="5" name="8"/>
 	<value value="6" name="16"/>
@@ -152,14 +159,14 @@
 		<bitfield low="0" high="14" name="CRITICAL_ALARM"/>
 		<bitfield low="16" high="29" name="SENSOR_OFFSET"/> <!-- signed integer -->
 		<bitfield pos="30" name="ENABLE"/>
-		<bitfield pos="31" name="CRITICAL_ALARM_ENABLE"/>
+		<bitfield pos="31" name="CRITICAL_ALARM_ENABLE"/> <!-- also enables hw_protect clock gating -->
 	</reg32>
-	<reg32 offset="0x014" name="SENSOR_STATUS" variants="NV50" />
-	<reg32 offset="0x018" name="SENSOR_CFG1" variants="NV50">
+	<reg32 offset="0x014" name="SENSOR_STATUS" variants="NV50">
 		<bitfield low="0" high="14" name="RAW_VALUE"/>
 		<bitfield pos="16" name="ALARM_HIGH"/>
 		<bitfield low="26" high="31" name="ADC_CLOCK_DIV" shr="5"/>
 	</reg32>
+	<reg32 offset="0x018" name="SENSOR_CFG1" variants="NV50"/>
 	<reg32 offset="0x01c" name="SENSOR_TEMP_RANGE" variants="NV50">
 		<bitfield low="0" high="13" name="LOW"/>
 		<bitfield low="16" high="29" name="HIGH"/>
@@ -173,28 +180,34 @@
 		<bitfield pos="9" name="FORCE_DIV_ACTIVE"/>
 		<bitfield pos="10" name="UNK10"/>
 		<bitfield pos="11" name="THERMAL_PROTECT_DIV_ACTIVE"/>
-		<bitfield low="12" high="14" name="CUR_DIV" type="nv50_therm_clock_gating_div" />
-		<bitfield pos="16" name="THERMAL_PROTECT_ENABLED"/> <!-- kind of an alias for THERMAL_PROTECT_DIV_ACTIVE -->
+		<bitfield low="12" high="14" name="CUR_DIV" type="nv84_therm_clock_gating_div" />
+		<bitfield pos="16" name="THERMAL_PROTECT_ENABLED" variants="NV84:NVA3"/> <!-- kind of an alias for THERMAL_PROTECT_DIV_ACTIVE -->
 	</reg32>
 	<reg32 offset="0x0fc" name="INTR_DISPATCH" type="nv50_therm_intr" variants="NVA3-">
 		<doc>One bit per interrupt, 0 selects delivery to PMC line 19, 1 selects delivery
 		to PDAEMON fµc interrupt 12</doc>
 	</reg32>
 	<reg32 offset="0x060" name="CLOCK_GATING_0">
-		<bitfield low="0" high="2" name="THERMAL_PROTECT_ALT_DIV" type="nv50_therm_clock_gating_div" /> <!-- not sure what the condition is to activate this one but it looks thermal related -->
-		<bitfield low="8" high="15" name="HW_PROTECT_PWM" /> <!-- this is a guess but I doubt there is another way to achieve that -->
-		
-		<bitfield low="16" high="18" name="IDLE_DIV" type="nv50_therm_clock_gating_div" /> <!-- not sure where the enable bit is -->
+		<!-- not sure what the condition is to activate this one but it looks thermal related -->
+		<bitfield low="0" high="1" name="THERMAL_PROTECT_DIV" type="nv50_therm_clock_gating_div" variants="NV50" />
+		<bitfield low="0" high="2" name="THERMAL_PROTECT_ALT_DIV" type="nv84_therm_clock_gating_div" variants="NV84-" />
+		<bitfield low="8" high="15" name="THERMAL_PROTECT_PWM" /> <!-- this is a guess but I doubt there is another way to achieve that -->
+
+		<bitfield low="16" high="17" name="IDLE_DIV" type="nv50_therm_clock_gating_div" variants="NV50" />
+		<bitfield low="16" high="18" name="IDLE_DIV" type="nv84_therm_clock_gating_div" variants="NV84-" /> <!-- not sure where the enable bit is -->
 		<bitfield low="24" high="31" name="IDLE_PWM" /> <!-- this is a guess but I doubt there is another way to achieve that -->
 	</reg32>
 	<reg32 offset="0x064" name="CLOCK_GATING_1">
-		<bitfield low="0" high="2" name="FORCE_DIV" type="nv50_therm_clock_gating_div" /> <!-- it doesn't seem to depend on any state, let's call it force -->
+		<bitfield low="0" high="1" name="FORCE_DIV" type="nv50_therm_clock_gating_div" variants="NV50" />
+		<bitfield low="0" high="2" name="FORCE_DIV" type="nv84_therm_clock_gating_div" variants="NV84-" /> <!-- it doesn't seem to depend on any state, let's call it force -->
 		<bitfield low="8" high="15" name="FORCE_PWM" /> <!-- this is a guess but I doubt there is another way to achieve that -->
 		
-		<bitfield low="16" high="18" name="DIV1" type="nv50_therm_clock_gating_div" />
+		<!-- power gating : TODO, document this! -->
+		<bitfield low="16" high="17" name="DIV1" type="nv50_therm_clock_gating_div" variants="NV50" />
+		<bitfield low="16" high="18" name="DIV1" type="nv84_therm_clock_gating_div" variants="NV84-" />
 		<bitfield low="24" high="31" name="DIV1_PWM" />
 	</reg32>
-	<reg32 offset="0x074" name="THERMAL_PROTECT_CFG">
+	<reg32 offset="0x074" name="THERMAL_PROTECT_CFG" variants="NV84-">
 		<bitfield low="0" high="2" name="THRESHOLD_CRIT_DIV" type="nv50_therm_thermal_protect_div" />
 		<bitfield low="4" high="6" name="THRESHOLD_2_DIV" type="nv50_therm_thermal_protect_div" />
 		<bitfield low="8" high="10" name="THRESHOLD_4_DIV" type="nv50_therm_thermal_protect_div" />
