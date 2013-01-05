@@ -75,13 +75,13 @@ enum therm_thresholds {
 	therm_threshold_high,
 };
 
-static struct therm_threshold nv84_therm_thresholds[] = {
+static struct therm_threshold nv50_therm_thresholds[] = {
 	{ 0x20010, 0x00003fff, 00, 0x20000, 0x00003, 00, 0, 16 }, /* crit */
 	{ 0x2001c, 0x00003fff, 00, 0x20004, 0x00003, 00, 1, 17 }, /* threshold_low */
 	{ 0x2001c, 0x3fff0000, 16, 0x20004, 0x30000, 16, 0, 18 }, /* threshold_high */
 };
 
-static int threshold_reset(struct hwtest_ctx *ctx)
+static void threshold_reset(struct hwtest_ctx *ctx)
 {
 	nva_wr32(ctx->cnum, 0x20000, 0);
 	nva_wr32(ctx->cnum, 0x20004, 0);
@@ -188,23 +188,23 @@ static int threshold_check_intr_both(struct hwtest_ctx *ctx, struct therm_thresh
 static int test_threshold_crit_intr_rising(struct hwtest_ctx *ctx) {
 	threshold_reset(ctx);
 	nva_mask(ctx->cnum, 0x20010, 0x80000000, 0x80000000);
-	return threshold_check_intr_rising(ctx, &nv84_therm_thresholds[therm_threshold_crit]);
+	return threshold_check_intr_rising(ctx, &nv50_therm_thresholds[therm_threshold_crit]);
 }
 static int test_threshold_crit_intr_falling(struct hwtest_ctx *ctx) {
 	threshold_reset(ctx);
 	nva_mask(ctx->cnum, 0x20010, 0x80000000, 0x80000000);
-	return threshold_check_intr_falling(ctx, &nv84_therm_thresholds[therm_threshold_crit]);
+	return threshold_check_intr_falling(ctx, &nv50_therm_thresholds[therm_threshold_crit]);
 }
 static int test_threshold_crit_intr_both(struct hwtest_ctx *ctx) {
 	threshold_reset(ctx);
 	nva_mask(ctx->cnum, 0x20010, 0x80000000, 0x80000000);
-	return threshold_check_intr_both(ctx, &nv84_therm_thresholds[therm_threshold_crit]);
+	return threshold_check_intr_both(ctx, &nv50_therm_thresholds[therm_threshold_crit]);
 }
 
 static int test_threshold_crit_intr_rising_disabled(struct hwtest_ctx *ctx) {
 	threshold_reset(ctx);
 	nva_mask(ctx->cnum, 0x20010, 0x80000000, 0x00000000);
-	if (threshold_check_intr_rising(ctx, &nv84_therm_thresholds[therm_threshold_crit]) == HWTEST_RES_FAIL)
+	if (threshold_check_intr_rising(ctx, &nv50_therm_thresholds[therm_threshold_crit]) == HWTEST_RES_FAIL)
 		return HWTEST_RES_PASS;
 	else
 		return HWTEST_RES_FAIL;
@@ -212,14 +212,14 @@ static int test_threshold_crit_intr_rising_disabled(struct hwtest_ctx *ctx) {
 static int test_threshold_crit_intr_falling_disabled(struct hwtest_ctx *ctx) {
 	threshold_reset(ctx);
 	nva_mask(ctx->cnum, 0x20010, 0x80000000, 0x00000000);
-	if (threshold_check_intr_falling(ctx, &nv84_therm_thresholds[therm_threshold_crit]) == HWTEST_RES_FAIL)
+	if (threshold_check_intr_falling(ctx, &nv50_therm_thresholds[therm_threshold_crit]) == HWTEST_RES_FAIL)
 		return HWTEST_RES_PASS;
 	else
 		return HWTEST_RES_FAIL;
 }
 static int test_threshold_crit_intr_both_disabled(struct hwtest_ctx *ctx) {
 	nva_mask(ctx->cnum, 0x20010, 0x80000000, 0x00000000);
-	if (threshold_check_intr_both(ctx, &nv84_therm_thresholds[therm_threshold_crit]) == HWTEST_RES_FAIL)
+	if (threshold_check_intr_both(ctx, &nv50_therm_thresholds[therm_threshold_crit]) == HWTEST_RES_FAIL)
 		return HWTEST_RES_PASS;
 	else
 		return HWTEST_RES_FAIL;
@@ -227,28 +227,88 @@ static int test_threshold_crit_intr_both_disabled(struct hwtest_ctx *ctx) {
 
 static int test_threshold_low_intr_rising(struct hwtest_ctx *ctx) {
 	threshold_reset(ctx);
-	return threshold_check_intr_rising(ctx, &nv84_therm_thresholds[therm_threshold_low]);
+	return threshold_check_intr_rising(ctx, &nv50_therm_thresholds[therm_threshold_low]);
 }
 static int test_threshold_low_intr_falling(struct hwtest_ctx *ctx) {
 	threshold_reset(ctx);
-	return threshold_check_intr_falling(ctx, &nv84_therm_thresholds[therm_threshold_low]);
+	return threshold_check_intr_falling(ctx, &nv50_therm_thresholds[therm_threshold_low]);
 }
 static int test_threshold_low_intr_both(struct hwtest_ctx *ctx) {
 	threshold_reset(ctx);
-	return threshold_check_intr_both(ctx, &nv84_therm_thresholds[therm_threshold_low]);
+	return threshold_check_intr_both(ctx, &nv50_therm_thresholds[therm_threshold_low]);
 }
 
 static int test_threshold_high_intr_rising(struct hwtest_ctx *ctx) {
 	threshold_reset(ctx);
-	return threshold_check_intr_rising(ctx, &nv84_therm_thresholds[therm_threshold_high]);
+	return threshold_check_intr_rising(ctx, &nv50_therm_thresholds[therm_threshold_high]);
 }
 static int test_threshold_high_intr_falling(struct hwtest_ctx *ctx) {
 	threshold_reset(ctx);
-	return threshold_check_intr_falling(ctx, &nv84_therm_thresholds[therm_threshold_high]);
+	return threshold_check_intr_falling(ctx, &nv50_therm_thresholds[therm_threshold_high]);
 }
 static int test_threshold_high_intr_both(struct hwtest_ctx *ctx) {
 	threshold_reset(ctx);
-	return threshold_check_intr_both(ctx, &nv84_therm_thresholds[therm_threshold_high]);
+	return threshold_check_intr_both(ctx, &nv50_therm_thresholds[therm_threshold_high]);
+}
+
+/* clock gating */
+static int clock_gating_reset(struct hwtest_ctx *ctx) {
+	int i;
+
+	for (i = 0x20060; i <= 0x20074; i+=4)
+		nva_wr32(ctx->cnum, i, 0);
+
+	threshold_reset(ctx);
+
+	return HWTEST_RES_PASS;
+}
+
+static int test_clock_gating_force_div_only(struct hwtest_ctx *ctx) {
+	int i;
+
+	clock_gating_reset(ctx);
+
+	for (i = 1; i < 4; i++) {
+		nva_wr32(ctx->cnum, 0x20064, i);
+		TEST_READ_MASK(0x20048, (i << 12) | 0x200, 0xffff, "iteration %i/4 failed", i);
+	}
+
+	return HWTEST_RES_PASS;
+}
+
+static int test_clock_gating_force_div_pwm(struct hwtest_ctx *ctx) {
+	int i;
+
+	clock_gating_reset(ctx);
+
+	for (i = 0; i < 0x100; i++) {
+		nva_wr32(ctx->cnum, 0x20064, (i << 8) | 2);
+		TEST_READ_MASK(0x20048, 0x2200 | i, 0xffff, "iteration %i/255 failed", i);
+	}
+
+	return HWTEST_RES_PASS;
+}
+
+static int test_clock_gating_thermal_protect_crit(struct hwtest_ctx *ctx) {
+	int temp, lower_thrs;
+	uint8_t rnd_div = 1 + (rand() % 6);
+	uint8_t rnd_pwm = 1 + (rand() % 0xfe);
+
+	clock_gating_reset(ctx);
+
+	temp = nva_rd32(ctx->cnum, 0x20014) & 0x3fff;
+	lower_thrs = temp - 0x200; /* just to be sure the threshold is under the current temp */
+	if (lower_thrs < 0)
+		lower_thrs = 0;
+
+	nva_mask(ctx->cnum, 0x20010, 0x80003fff, 0x80000000 | lower_thrs);
+	nva_wr32(ctx->cnum, 0x20060, (rnd_pwm << 8) | rnd_div); /* div = rnd_div */
+
+	TEST_READ_MASK(0x20048, 0x800, 0x800, "THERMAL_PROTECT_DIV_ACTIVE is not active!%s", "");
+	TEST_READ_MASK(0x20048, rnd_pwm, 0xff, "PWM isn't %i", rnd_pwm);
+	TEST_READ_MASK(0x20048, rnd_div << 12, 0x7000, "divisor isn't %i", rnd_div);
+
+	return HWTEST_RES_PASS;
 }
 
 /* tests definitions */
@@ -268,8 +328,18 @@ static int nv50_temperature_thresholds_prep(struct hwtest_ctx *ctx) {
 	return nv50_ptherm_prep(ctx);
 }
 
+static int nv50_clock_gating_prep(struct hwtest_ctx *ctx) {
+	return nv50_ptherm_prep(ctx);
+}
+
 HWTEST_DEF_GROUP(nv50_sensor_calibration,
 	HWTEST_TEST(test_temperature_enable_state, 0),
+)
+
+HWTEST_DEF_GROUP(nv50_clock_gating,
+	HWTEST_TEST(test_clock_gating_force_div_only, 0),
+	HWTEST_TEST(test_clock_gating_force_div_pwm, 0),
+	HWTEST_TEST(test_clock_gating_thermal_protect_crit, 0)
 )
 
 HWTEST_DEF_GROUP(nv50_temperature_thresholds,
@@ -290,4 +360,5 @@ HWTEST_DEF_GROUP(nv50_temperature_thresholds,
 HWTEST_DEF_GROUP(nv50_ptherm,
 	HWTEST_GROUP(nv50_sensor_calibration),
 	HWTEST_GROUP(nv50_temperature_thresholds),
+	HWTEST_GROUP(nv50_clock_gating),
 )
