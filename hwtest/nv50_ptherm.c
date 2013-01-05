@@ -64,6 +64,7 @@ struct therm_threshold {
 	uint32_t dir_mask;
 	uint8_t dir_lshift;
 	uint8_t dir_inverted;
+	uint8_t dir_status_bit;
 	
 	/* pbus intr bits */
 	uint8_t pbus_irq_bit;
@@ -76,9 +77,9 @@ enum therm_thresholds {
 };
 
 static struct therm_threshold nv50_therm_thresholds[] = {
-	{ 0x20010, 0x00003fff, 00, 0x20000, 0x00003, 00, 0, 16 }, /* crit */
-	{ 0x2001c, 0x00003fff, 00, 0x20004, 0x00003, 00, 1, 17 }, /* threshold_low */
-	{ 0x2001c, 0x3fff0000, 16, 0x20004, 0x30000, 16, 0, 18 }, /* threshold_high */
+	{ 0x20010, 0x00003fff, 00, 0x20000, 0x00003, 00, 0, 31, 16 }, /* crit */
+	{ 0x2001c, 0x00003fff, 00, 0x20004, 0x00003, 00, 1, 14, 17 }, /* threshold_low */
+	{ 0x2001c, 0x3fff0000, 16, 0x20004, 0x30000, 16, 0, 30, 18 }, /* threshold_high */
 };
 
 static void threshold_reset(struct hwtest_ctx *ctx)
@@ -87,6 +88,47 @@ static void threshold_reset(struct hwtest_ctx *ctx)
 	nva_wr32(ctx->cnum, 0x20004, 0);
 	nva_wr32(ctx->cnum, 0x20010, 0x3fff);
 	nva_wr32(ctx->cnum, 0x2001c, 0x3fff0000);
+}
+
+static int threshold_check_state(struct hwtest_ctx *ctx, const struct therm_threshold *thrs) {
+	int i, dir, temp, exp_state;
+
+	i = 1;
+	dir = 1;
+	while (i > 0) {
+		/* set the threshold */
+		nva_mask(ctx->cnum, thrs->thrs_addr, thrs->thrs_mask,
+			 (i << thrs->thrs_lshift) & thrs->thrs_mask);
+
+		/* calculate the expected state */
+		temp = nva_rd32(ctx->cnum, 0x20014) & 0x3fff;
+		if (thrs->dir_inverted)
+			exp_state = (temp < i);
+		else
+			exp_state = (temp > i);
+
+		/* check the state */
+		TEST_READ_MASK(thrs->dir_addr, exp_state << thrs->dir_status_bit, 1 << thrs->dir_status_bit,
+			       "invalid state at temperature %i: dir (%i), threshold (%i)", temp, dir, i);
+
+		if (i == 0x3fff)
+			dir = -1;
+		i += dir;
+	}
+
+	return HWTEST_RES_PASS;
+}
+
+static int test_threshold_crit_state(struct hwtest_ctx *ctx) {
+	return threshold_check_state(ctx, &nv50_therm_thresholds[therm_threshold_crit]);
+}
+
+static int test_threshold_low_state(struct hwtest_ctx *ctx) {
+	return threshold_check_state(ctx, &nv50_therm_thresholds[therm_threshold_low]);
+}
+
+static int test_threshold_high_state(struct hwtest_ctx *ctx) {
+	return threshold_check_state(ctx, &nv50_therm_thresholds[therm_threshold_high]);
 }
 
 static int threshold_gen_intr_dir(struct hwtest_ctx *ctx, struct therm_threshold *thrs, int dir) {
@@ -343,6 +385,9 @@ HWTEST_DEF_GROUP(nv50_clock_gating,
 )
 
 HWTEST_DEF_GROUP(nv50_temperature_thresholds,
+	HWTEST_TEST(test_threshold_crit_state, 0),
+	HWTEST_TEST(test_threshold_low_state, 0),
+	HWTEST_TEST(test_threshold_high_state, 0),
 	HWTEST_TEST(test_threshold_crit_intr_rising, 0),
 	HWTEST_TEST(test_threshold_crit_intr_falling, 0),
 	HWTEST_TEST(test_threshold_crit_intr_both, 0),
