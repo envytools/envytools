@@ -31,7 +31,11 @@
 
 /* common */
 static void force_temperature(struct hwtest_ctx *ctx, uint8_t temp) {
-	nva_wr32(ctx->cnum, 0x20008, 0x80000000 | ((temp & 0x3f) << 22) | 0x8000);
+	nva_wr32(ctx->cnum, 0x20008, 0x80008000 | ((temp & 0x3f) << 22));
+}
+
+static void unforce_temperature(struct hwtest_ctx *ctx) {
+	nva_wr32(ctx->cnum, 0x20008, 0x80000000);
 }
 
 /* nv50_read_temperature */
@@ -112,6 +116,7 @@ struct therm_threshold {
 	uint8_t state_bit;
 	uint8_t state_inverted;
 	uint8_t state_set_equal;
+	uint8_t state_nvc0_set_equal_plus_1;
 	uint8_t state_unset_equal;
 
 	/* thermal protect */
@@ -130,23 +135,21 @@ enum therm_thresholds {
 };
 
 static struct therm_threshold nv84_therm_thresholds[] = {
-	{ 0x20480, 0x20484, 2, 0, 1, 20, 0, 1, 0,  3,  0, 0x20110, 0 }, /* crit */
-	{ 0x204c4, 0x00000, 3, 1, 0, 21, 1, 1, 1, -1, -1, 0x00000, 0 }, /* threshold_1 */
-	{ 0x204c0, 0x00000, 4, 2, 1, 22, 0, 0, 0,  5,  1, 0x20110, 16 }, /* threshold_2 */
-	{ 0x20418, 0x00000, 0, 3, 0, 23, 1, 1, 1, -1, -1, 0x00000, 0 }, /* threshold_3 */
-	{ 0x20414, 0x00000, 1, 4, 1, 24, 0, 0, 0,  4,  2, 0x20110, 8 }  /* threshold_4 */
+	{ 0x20480, 0x20484, 2, 0, 1, 20, 0, 1, 1, 0,  3,  0, 0x20110, 0 }, /* crit */
+	{ 0x204c4, 0x00000, 3, 1, 0, 21, 1, 1, 0, 1, -1, -1, 0x00000, 0 }, /* threshold_1 */
+	{ 0x204c0, 0x00000, 4, 2, 1, 22, 0, 0, 0, 0,  5,  1, 0x20110, 16 }, /* threshold_2 */
+	{ 0x20418, 0x00000, 0, 3, 0, 23, 1, 1, 0, 1, -1, -1, 0x00000, 0 }, /* threshold_3 */
+	{ 0x20414, 0x00000, 1, 4, 1, 24, 0, 0, 0, 0,  4,  2, 0x20110, 8 }  /* threshold_4 */
 };
 
-static int threshold_check_state(struct hwtest_ctx *ctx, const struct therm_threshold *thrs) {
+static int nv84_threshold_check_state(struct hwtest_ctx *ctx, const struct therm_threshold *thrs) {
 	uint32_t exp_state;
 	int temp, hyst, hyst_state, prev_hyst_state;
 	int i, dir;
 
 	hyst = 0;
-	if (thrs->hyst_addr > 0) {
+	if (thrs->hyst_addr > 0)
 		nva_wr32(ctx->cnum, thrs->hyst_addr, 0);
-		hyst = 0;
-	}
 
 	i = 1;
 	dir = 1;
@@ -187,24 +190,98 @@ static int threshold_check_state(struct hwtest_ctx *ctx, const struct therm_thre
 	return HWTEST_RES_PASS;
 }
 
+static int nvc0_threshold_check_state(struct hwtest_ctx *ctx, const struct therm_threshold *thrs) {
+	uint32_t exp_state;
+	int temp, hyst, hyst_state, prev_hyst_state;
+	int i, dir;
+
+	hyst = 0;
+	if (thrs->hyst_addr > 0) {
+		nva_wr32(ctx->cnum, thrs->hyst_addr, 1); /* deactivate hysteresis */
+		hyst = 0;
+	}
+
+	force_temperature(ctx, 20);
+
+	i = 1;
+	dir = 1;
+	hyst_state = 0;
+	prev_hyst_state = 0;
+	while (i > 0) {
+		/* set the threshold */
+		nva_wr32(ctx->cnum, thrs->thrs_addr, i);
+
+		usleep(24); /* do not set under 24; TODO: find the equivalent of nv50's filter that must influence this */
+
+		/* calculate the expected state */
+		temp = nva_rd32(ctx->cnum, 0x20400);
+		if (hyst_state)
+			if (thrs->state_unset_equal)
+				exp_state = (temp >= i);
+			else
+				exp_state = (temp > i);
+		else {
+			if (thrs->state_nvc0_set_equal_plus_1)
+				temp++;
+			if (thrs->state_set_equal)
+				exp_state = (temp >= i);
+			else
+				exp_state = (temp > i);
+		}
+		hyst_state = !exp_state;
+		if (thrs->state_inverted)
+			exp_state = !exp_state;
+		exp_state <<= thrs->state_bit;
+
+		/* check the state in 0x20000 */
+		TEST_READ_MASK(0x20000, exp_state, 1 << thrs->state_bit,
+			       "invalid state at temperature %i: dir (%i), threshold (%i), hyst (%i), hyst_state (%i, prev was %i)",
+			       temp, dir, i, hyst, hyst_state, prev_hyst_state);
+
+		prev_hyst_state = hyst_state;
+		if (i == 0xff)
+			dir = -1;
+		i += dir;
+	}
+
+	unforce_temperature(ctx);
+
+	return HWTEST_RES_PASS;
+}
+
 static int test_threshold_crit_state(struct hwtest_ctx *ctx) {
-	return threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_crit]);
+	if (ctx->chipset >= 0xc0)
+		return nvc0_threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_crit]);
+	else
+		return nv84_threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_crit]);
 }
 
 static int test_threshold_1_state(struct hwtest_ctx *ctx) {
-	return threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_1]);
+	if (ctx->chipset >= 0xc0)
+		return nvc0_threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_1]);
+	else
+		return nvc0_threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_1]);
 }
 
 static int test_threshold_2_state(struct hwtest_ctx *ctx) {
-	return threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_2]);
+	if (ctx->chipset >= 0xc0)
+		return nvc0_threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_2]);
+	else
+		return nvc0_threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_2]);
 }
 
 static int test_threshold_3_state(struct hwtest_ctx *ctx) {
-	return threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_3]);
+	if (ctx->chipset >= 0xc0)
+		return nvc0_threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_3]);
+	else
+		return nvc0_threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_3]);
 }
 
 static int test_threshold_4_state(struct hwtest_ctx *ctx) {
-	return threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_4]);
+	if (ctx->chipset >= 0xc0)
+		return nvc0_threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_4]);
+	else
+		return nvc0_threshold_check_state(ctx, &nv84_therm_thresholds[therm_threshold_4]);
 }
 
 static int threshold_gen_intr_dir(struct hwtest_ctx *ctx, struct therm_threshold *thrs, int dir) {
@@ -499,6 +576,10 @@ static int nv84_sensor_calibration_prep(struct hwtest_ctx *ctx) {
 }
 
 static int nv84_temperature_thresholds_prep(struct hwtest_ctx *ctx) {
+	/* disable the voltage regulator shutdown */
+	nva_mask(ctx->cnum, 0xe100, 0x100, 0x0);
+	nva_mask(ctx->cnum, 0xe108, 0x2, 0x0);
+
 	return nv84_ptherm_prep(ctx);
 }
 
