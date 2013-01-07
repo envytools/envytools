@@ -69,6 +69,17 @@
 	<value value="7" name="DISABLED"/>
 </enum>
 
+<enum name="nvc0_therm_thermal_protect_div">
+	<value value="0" name="24"/>
+	<value value="1" name="25"/>
+	<value value="2" name="26"/>
+	<value value="3" name="27"/>
+	<value value="4" name="28"/>
+	<value value="5" name="29"/>
+	<value value="6" name="30"/>
+	<value value="6" name="31"/>
+</enum>
+
 <enum name="nv50_therm_filter_div">
 	<value value="0" name="16"/>
 	<value value="1" name="256"/>
@@ -187,7 +198,7 @@
 		<doc>One bit per interrupt, 0 selects delivery to PMC line 19, 1 selects delivery
 		to PDAEMON fµc interrupt 12</doc>
 	</reg32>
-	<reg32 offset="0x060" name="CLOCK_GATING_0">
+	<reg32 offset="0x060" name="CLOCK_GATING_0" variants="NV84:NVC0">
 		<!-- not sure what the condition is to activate this one but it looks thermal related -->
 		<bitfield low="0" high="1" name="THERMAL_PROTECT_DIV" type="nv50_therm_clock_gating_div" variants="NV50" />
 		<bitfield low="0" high="2" name="THERMAL_PROTECT_ALT_DIV" type="nv84_therm_clock_gating_div" variants="NV84-" />
@@ -197,7 +208,7 @@
 		<bitfield low="16" high="18" name="IDLE_DIV" type="nv84_therm_clock_gating_div" variants="NV84-" /> <!-- not sure where the enable bit is -->
 		<bitfield low="24" high="31" name="IDLE_PWM" /> <!-- this is a guess but I doubt there is another way to achieve that -->
 	</reg32>
-	<reg32 offset="0x064" name="CLOCK_GATING_1">
+	<reg32 offset="0x064" name="CLOCK_GATING_1" variants="NV84:NVC0">
 		<bitfield low="0" high="1" name="FORCE_DIV" type="nv50_therm_clock_gating_div" variants="NV50" />
 		<bitfield low="0" high="2" name="FORCE_DIV" type="nv84_therm_clock_gating_div" variants="NV84-" /> <!-- it doesn't seem to depend on any state, let's call it force -->
 		<bitfield low="8" high="15" name="FORCE_PWM" /> <!-- this is a guess but I doubt there is another way to achieve that -->
@@ -207,13 +218,13 @@
 		<bitfield low="16" high="18" name="DIV1" type="nv84_therm_clock_gating_div" variants="NV84-" />
 		<bitfield low="24" high="31" name="DIV1_PWM" />
 	</reg32>
-	<reg32 offset="0x074" name="THERMAL_PROTECT_CFG" variants="NV84-">
+	<reg32 offset="0x074" name="THERMAL_PROTECT_CFG" variants="NV84:NVC0">
 		<bitfield low="0" high="2" name="THRESHOLD_CRIT_DIV" type="nv50_therm_thermal_protect_div" />
 		<bitfield low="4" high="6" name="THRESHOLD_2_DIV" type="nv50_therm_thermal_protect_div" />
 		<bitfield low="8" high="10" name="THRESHOLD_4_DIV" type="nv50_therm_thermal_protect_div" />
 		<bitfield low="12" high="14" name="INPUT_0_DIV" type="nv50_therm_thermal_protect_div" />
 		<bitfield low="16" high="18" name="INPUT_1_DIV" type="nv50_therm_thermal_protect_div" />
-		<bitfield low="20" high="22" name="INPUT_2_DIV" type="nv50_therm_thermal_protect_div" /> <!-- just a guess, it doesn't work on my nv84 -->
+		<bitfield low="20" high="22" name="INPUT_2_DIV" type="nv50_therm_thermal_protect_div" variants="NV86-" /> <!-- it doesn't work on my nv84 -->
 		<bitfield low="28" high="30" name="EFFECTIVE_DIV" variants="NV50:NVA3"> <!-- RO -->
 			<value value="0" name="DISABLED"/>
 			<value value="1" name="2"/>
@@ -231,15 +242,55 @@
 		<bitfield pos="31" name="FORCE_ALT_DIV" />
 	</reg32>
 
+	<reg32 offset="0x060" name="CLOCK_GATING_0" variants="NVC0-">
+		<!-- TODO: these values must come from somewhere, there are too odd! -->
+		<bitfield pos="0" name="FORCE_DIV">
+			<value value="0" name="7" />
+			<value value="1" name="31" />
+		</bitfield>
+		<bitfield low="1" high="5" name="FORCE_PWM1" /> <!-- mix the divided clock with the non-divided one -->
+		<bitfield pos="8" name="UNK8" />
+		<bitfield low="9" high="15" name="FORCE_PWM2" /> <!-- second stage: mix the first pwm stage with the non-divided clock. It may be global -->
+	</reg32>
+	<reg32 offset="0x064" name="CLOCK_GATING_1" variants="NVC0-">
+		<!-- TODO: verify this (likely power gating)! -->
+		<bitfield low="16" high="23" name="DIV1" variants="NV84-" />
+		<bitfield low="24" high="31" name="DIV1_PWM" />
+	</reg32>
+	<reg32 offset="0x074" name="THERMAL_PROTECT_CFG" variants="NVC0-">
+		<!-- TODO: find the origin of the 0x18 and 0x8 constants! -->
+		<bitfield low="0" high="2" name="THRESHOLD_CRIT_PWM1" /> <!-- EFFECTIVE_PWM1 = THRESHOLD_CRIT_PWM1 + 0x18 -->
+		<bitfield low="4" high="6" name="THRESHOLD_2_PWM1" /> <!-- EFFECTIVE_PWM1 = THRESHOLD_CRIT_PWM1 + 0x8 -->
+
+		 <!-- just a guess, I haven't reproduced it yet -->
+		<bitfield low="8" high="10" name="THRESHOLD_4_PWM1" />
+		<bitfield low="12" high="14" name="INPUT_0_PWM1" />
+		<bitfield low="16" high="18" name="INPUT_1_PWM1" />
+		<bitfield low="20" high="22" name="INPUT_2_PWM1" /> <!-- just a guess, it doesn't work on my nv84 -->
+
+		<bitfield low="24" high="26" name="EFFECTIVE_PWM1" /> <!-- RO -->
+		<bitfield pos="31" name="ENABLE_FORCE" /> <!-- regardless of the temperature -->
+	</reg32>
+
 	<reg32 offset="0x100" name="INTR" type="nv50_therm_intr" /> <!-- PBUS intr #16 -->
 
-	<reg32 offset="0x110" name="THERMAL_PROTECT_PWM_CFG_0" variants="NV94-">
+	<reg32 offset="0x110" name="THERMAL_PROTECT_PWM_CFG_0" variants="NV94:NVC0">
 		<bitfield low="0" high="7" name="THRESHOLD_CRIT" />
 		<bitfield low="8" high="15" name="THRESHOLD_4" />
 		<bitfield low="16" high="23" name="THRESHOLD_2" />
 	</reg32>
-	<reg32 offset="0x114" name="THERMAL_PROTECT_PWM_CFG_1" variants="NV94-">
+	<reg32 offset="0x114" name="THERMAL_PROTECT_PWM_CFG_1" variants="NV94:NVC0">
 		<bitfield low="0" high="7" name="EFFECTIVE_PWM" /> <!-- RO -->
+	</reg32>
+
+       <!-- this is the second stage PWM for THERMAL_PROTECT -->
+	<reg32 offset="0x110" name="THERMAL_PROTECT_PWM2_CFG_0" variants="NVC0-">
+		<bitfield low="0" high="7" name="THRESHOLD_CRIT" />
+		<bitfield low="8" high="15" name="THRESHOLD_4" />
+		<bitfield low="16" high="23" name="THRESHOLD_2" />
+	</reg32>
+	<reg32 offset="0x114" name="THERMAL_PROTECT_PWM_CFG_1" variants="NVC0-">
+		<bitfield low="0" high="7" name="EFFECTIVE_PWM2" /> <!-- RO -->
 	</reg32>
 
 	<reg32 offset="0x134" name="INTR_EN" type="nv50_therm_intr" variants="NVA3-"/>
