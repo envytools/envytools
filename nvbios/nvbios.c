@@ -117,7 +117,7 @@ uint16_t le16 (uint16_t off) {
 	return bios->data[off] | bios->data[off+1] << 8;
 }
 
-uint8_t parse_memtm_mapping_entry(uint16_t pos, uint16_t len, uint16_t hdr_pos)
+uint8_t parse_memtm_mapping_entry_10(uint16_t pos, uint16_t len, uint16_t hdr_pos)
 {
 	if(len < 4) {
 		printf("Unknown timing mapping entry length: %u\n", len);
@@ -183,6 +183,21 @@ uint8_t parse_memtm_mapping_entry(uint16_t pos, uint16_t len, uint16_t hdr_pos)
 	printf("\n");
 
 	return bios->data[pos+1];
+}
+
+uint8_t parse_memtm_mapping_entry_11(uint16_t pos, uint16_t len, uint16_t hdr_pos)
+{
+	if(len < 4) {
+		printf("Unknown timing mapping entry length: %u\n", len);
+		return 0xff;
+	}
+	if(bios->data[pos+0] != 0xff) {
+		printf(" Timing: %u\n", bios->data[pos]);
+	} else {
+		printf(" Timing: none/boot\n");
+	}
+
+	return bios->data[pos];
 }
 
 void printscript (uint16_t soff) {
@@ -1277,7 +1292,7 @@ int main(int argc, char **argv) {
 			if (version > 0x15 && version < 0x40) {
 				uint16_t extra_start = start + mode_info_length;
 				uint16_t timing_extra_data = extra_start+(ram_cfg*extra_data_length);
-				timing_id = parse_memtm_mapping_entry(timing_extra_data, extra_data_length, 0);
+				timing_id = parse_memtm_mapping_entry_10(timing_extra_data, extra_data_length, 0);
 				if (ram_cfg < extra_data_count)
 					timing_id = bios->data[timing_extra_data+1];
 			} else if (version == 0x40 && ram_cfg < subentry_count) {
@@ -1646,12 +1661,17 @@ int main(int argc, char **argv) {
 		uint8_t tUNK_18, /* 19 == tCWL */tUNK_20, tUNK_21;
 		uint32_t reg_100220 = 0, reg_100224 = 0, reg_100228 = 0, reg_10022c = 0;
 		uint32_t reg_100230 = 0, reg_100234 = 0, reg_100238 = 0, reg_10023c = 0;
+		uint32_t *bios_data;
 
 		version = bios->data[start+0];
 		if (version == 0x10) {
 			header_length = bios->data[start+1];
 			entry_count = bios->data[start+2];
 			entry_length = bios->data[start+3];
+		} else if(version == 0x20) {
+			header_length = bios->data[start+1];
+			entry_count = bios->data[start+3];
+			entry_length = bios->data[start+2];
 		}
 
 		printf ("Timing table at %x. Version %x.\n", timings_tbl_ptr, version);
@@ -1663,120 +1683,147 @@ int main(int argc, char **argv) {
 		start += header_length;
 
 		printf ("%i entries\n", entry_count);
-		for (i = 0; i < entry_count; i++) {
-			tUNK_18 = 1;
-			tUNK_20 = 0;
-			tUNK_21 = 0;
-			switch (entry_length<22?entry_length:22) {
-			case 22:
-				tUNK_21 = bios->data[start+21];
-			case 21:
-				tUNK_20 = bios->data[start+20];
-			case 20:
-				if(bios->data[start+19] > 0)
-					tCWL = bios->data[start+19];
-			case 19:
-				tUNK_18 = bios->data[start+18];
-			default:
-				tWR  = bios->data[start+0];
-				tWTR  = bios->data[start+1];
-				tCL  = bios->data[start+2];
-				tRC     = bios->data[start+3];
-				tRFC    = bios->data[start+5];
-				tRAS    = bios->data[start+7];
-				tRCD     = bios->data[start+9];
-				tUNK_10 = bios->data[start+10];
-				tUNK_11 = bios->data[start+11];
-				tUNK_12 = bios->data[start+12];
-				tUNK_13 = bios->data[start+13];
-				tRAM_FT1 = bios->data[start+14];
-				break;
-			}
-
-			printcmd(start, entry_length); printf("\n");
-			if (bios->data[start+0] != 0) {
-				printf("Entry %d: WR(%02d), WTR(%02d),  CL(%02d)\n",
-					i, tWR,tWTR,tCL);
-				printf("       : RC(%02d), RFC(%02d), RAS(%02d), RCD(%02d)\n\n",
-					tRC, tRFC, tRAS, tRCD);
-				/** First parse RAM_FT1 */
-				printf("RAM FT:");
-				printf(" ODT(%hhx)", tRAM_FT1 & 0xf);
-				printf(" DRIVE_STRENGTH(%hhx)\n", (tRAM_FT1 & 0xf0) >> 4);
-
-				if (bios->chipset < 0xc0) {
-					reg_100220 = (tRCD << 24 | tRAS << 16 | tRFC << 8 | tRC);
-					reg_100224 = ((tWR + 2 + (tCWL - 1)) << 24 |
-								(tUNK_18 ? tUNK_18 : 1) << 16 |
-								(tWTR + 2 + (tCWL - 1)) << 8);
-
-					reg_100228 = ((tCWL - 1) << 24 | (tUNK_12 << 16) | tUNK_11 << 8 | tUNK_10);
-
-					if(bios->chipset < 0x50) {
-						/* Don't know, don't care...
-						* don't touch the rest */
-						reg_100224 |= (tCL + 2 - (tCWL - 1));
-						reg_100228 |= 0x20200000;
-					} else {
-						reg_100230 = (tUNK_13 << 8  | tUNK_13);
-
-						reg_100234 = (tRFC << 24 | tRCD);
-						if(tUNK_10 > tUNK_11) {
-							reg_100234 += tUNK_10 << 16;
-						} else {
-							reg_100234 += tUNK_11 << 16;
-						}
-
-						if(p_tbls_ver == 1) {
-							reg_100224 |= (tCL + 2 - (tCWL - 1));
-							reg_10022c = (0x14 + tCL) << 24 |
-										0x16 << 16 |
-										(tCL - 1) << 8 |
-										(tCL - 1);
-							reg_100234 |= (tCL + 2) << 8;
-							reg_100238 = (0x33 - tCWL) << 16 |
-										tCWL << 8 |
-										(0x2E + tCL - tCWL);
-							reg_10023c |= 0x4000202 | (tCL - 1) << 16;
-						} else {
-							/* See d.bul in NV98..
-							 * seems to have changed for G105M+
-							 * 10023c seen as 06xxxxxx, 0bxxxxxx or 0fxxxxxx */
-							reg_100224 |= (5 + tCL - tCWL);
-							reg_10022c = (tCL - 1);
-							reg_100230 |= tUNK_20 << 24 | tUNK_21 << 16;
-							reg_100234 |= (tCWL + 6) << 8;
-							reg_100238 = (0x5A + tCL) << 16 |
-										(6 - tCL + tCWL) << 8 |
-										(0x50 + tCL - tCWL);
-							reg_10023c = 0x202;
-						}
-					}
-
-					printf("Registers: 220: %08x %08x %08x %08x\n",
-					reg_100220, reg_100224,
-					reg_100228, reg_10022c);
-					printf("           230: %08x %08x %08x %08x\n",
-					reg_100230, reg_100234,
-					reg_100238, reg_10023c);
-				} else {
-					reg_100220 = (tRCD << 24 | (tRAS&0x7f) << 17 | tRFC << 8 | tRC);
-					reg_100224 = 0x4c << 24 | (tUNK_11&0x0f) << 20 | (tCWL << 7) | (tCL & 0x0f);
-					reg_100228 = 0x44000011 | tWR << 16 | tWTR << 8;
-					reg_10022c = tUNK_20 << 9 | tUNK_13;
-					reg_100230 = 0x42e00069 | tUNK_12 << 15;
-
-					printf("Registers: 290: %08x %08x %08x %08x\n",
-					reg_100220, reg_100224,
-					reg_100228, reg_10022c);
-					printf("           2a0: %08x %08x %08x %08x\n",
-					reg_100230, reg_100234,
-					reg_100238, reg_10023c);
+		if(version == 0x10) {
+			for (i = 0; i < entry_count; i++) {
+				tUNK_18 = 1;
+				tUNK_20 = 0;
+				tUNK_21 = 0;
+				switch (entry_length<22?entry_length:22) {
+				case 22:
+					tUNK_21 = bios->data[start+21];
+				case 21:
+					tUNK_20 = bios->data[start+20];
+				case 20:
+					if(bios->data[start+19] > 0)
+						tCWL = bios->data[start+19];
+				case 19:
+					tUNK_18 = bios->data[start+18];
+				default:
+					tWR  = bios->data[start+0];
+					tWTR  = bios->data[start+1];
+					tCL  = bios->data[start+2];
+					tRC     = bios->data[start+3];
+					tRFC    = bios->data[start+5];
+					tRAS    = bios->data[start+7];
+					tRCD     = bios->data[start+9];
+					tUNK_10 = bios->data[start+10];
+					tUNK_11 = bios->data[start+11];
+					tUNK_12 = bios->data[start+12];
+					tUNK_13 = bios->data[start+13];
+					tRAM_FT1 = bios->data[start+14];
+					break;
 				}
-			}
-			printf("\n");
 
-			start += entry_length;
+				printcmd(start, entry_length); printf("\n");
+				if (bios->data[start+0] != 0) {
+					printf("Entry %d: WR(%02d), WTR(%02d),  CL(%02d)\n",
+						i, tWR,tWTR,tCL);
+					printf("       : RC(%02d), RFC(%02d), RAS(%02d), RCD(%02d)\n\n",
+						tRC, tRFC, tRAS, tRCD);
+					/** First parse RAM_FT1 */
+					printf("RAM FT:");
+					printf(" ODT(%hhx)", tRAM_FT1 & 0xf);
+					printf(" DRIVE_STRENGTH(%hhx)\n", (tRAM_FT1 & 0xf0) >> 4);
+
+					if (bios->chipset < 0xc0) {
+						reg_100220 = (tRCD << 24 | tRAS << 16 | tRFC << 8 | tRC);
+						reg_100224 = ((tWR + 2 + (tCWL - 1)) << 24 |
+									(tUNK_18 ? tUNK_18 : 1) << 16 |
+									(tWTR + 2 + (tCWL - 1)) << 8);
+
+						reg_100228 = ((tCWL - 1) << 24 | (tUNK_12 << 16) | tUNK_11 << 8 | tUNK_10);
+
+						if(bios->chipset < 0x50) {
+							/* Don't know, don't care...
+							* don't touch the rest */
+							reg_100224 |= (tCL + 2 - (tCWL - 1));
+							reg_100228 |= 0x20200000;
+						} else {
+							reg_100230 = (tUNK_13 << 8  | tUNK_13);
+
+							reg_100234 = (tRFC << 24 | tRCD);
+							if(tUNK_10 > tUNK_11) {
+								reg_100234 += tUNK_10 << 16;
+							} else {
+								reg_100234 += tUNK_11 << 16;
+							}
+
+							if(p_tbls_ver == 1) {
+								reg_100224 |= (tCL + 2 - (tCWL - 1));
+								reg_10022c = (0x14 + tCL) << 24 |
+											0x16 << 16 |
+											(tCL - 1) << 8 |
+											(tCL - 1);
+								reg_100234 |= (tCL + 2) << 8;
+								reg_100238 = (0x33 - tCWL) << 16 |
+											tCWL << 8 |
+											(0x2E + tCL - tCWL);
+								reg_10023c |= 0x4000202 | (tCL - 1) << 16;
+							} else {
+								/* See d.bul in NV98..
+								 * seems to have changed for G105M+
+								 * 10023c seen as 06xxxxxx, 0bxxxxxx or 0fxxxxxx */
+								reg_100224 |= (5 + tCL - tCWL);
+								reg_10022c = (tCL - 1);
+								reg_100230 |= tUNK_20 << 24 | tUNK_21 << 16;
+								reg_100234 |= (tCWL + 6) << 8;
+								reg_100238 = (0x5A + tCL) << 16 |
+											(6 - tCL + tCWL) << 8 |
+											(0x50 + tCL - tCWL);
+								reg_10023c = 0x202;
+							}
+						}
+
+						printf("Registers: 220: %08x %08x %08x %08x\n",
+						reg_100220, reg_100224,
+						reg_100228, reg_10022c);
+						printf("           230: %08x %08x %08x %08x\n",
+						reg_100230, reg_100234,
+						reg_100238, reg_10023c);
+					} else {
+						reg_100220 = (tRCD << 24 | (tRAS&0x7f) << 17 | tRFC << 8 | tRC);
+						reg_100224 = 0x4c << 24 | (tUNK_11&0x0f) << 20 | (tCWL << 7) | (tCL & 0x0f);
+						reg_100228 = 0x44000011 | tWR << 16 | tWTR << 8;
+						reg_10022c = tUNK_20 << 9 | tUNK_13;
+						reg_100230 = 0x42e00069 | tUNK_12 << 15;
+
+						printf("Registers: 290: %08x %08x %08x %08x\n",
+						reg_100220, reg_100224,
+						reg_100228, reg_10022c);
+						printf("           2a0: %08x %08x %08x %08x\n",
+						reg_100230, reg_100234,
+						reg_100238, reg_10023c);
+					}
+				}
+				printf("\n");
+
+				start += entry_length;
+			}
+		} else if(version == 0x20) {
+			for (i = 0; i < entry_count; i++) {
+				printcmd(start, entry_length); printf("\n");
+				bios_data = (uint32_t *)&bios->data[start];
+
+				reg_100220 = bios_data[0];
+				reg_100224 = bios_data[1];
+				reg_100228 = bios_data[2];
+				reg_10022c = bios_data[3];
+				reg_100230 = bios_data[4];
+				reg_100234 = bios_data[5];
+				reg_100238 = bios_data[6];
+				reg_10023c = bios_data[7];
+
+				printf("Registers: 290: %08x %08x %08x %08x\n",
+				reg_100220, reg_100224,
+				reg_100228, reg_10022c);
+				printf("           2a0: %08x %08x %08x %08x\n",
+				reg_100230, reg_100234,
+				reg_100238, reg_10023c);
+
+				printf("\n");
+
+				start += entry_length;
+			}
 		}
 	}
 
@@ -1792,7 +1839,7 @@ int main(int argc, char **argv) {
 		uint8_t ram_cfg = strap?(strap & 0x1c) >> 2:0xff;
 
 		version = bios->data[start];
-		if (version == 0x10) {
+		if (version == 0x10 || version == 0x11) {
 			header_length = bios->data[start+1];
 			entry_count = bios->data[start+5];
 			entry_length = bios->data[start+2];
@@ -1807,12 +1854,16 @@ int main(int argc, char **argv) {
 		start += header_length;
 
 		for(i = 0; i < entry_count; i++) {
+			/* XXX: NVEx: frequency x2? */
 			clock_low = le16(start);
 			clock_hi = le16(start+2);
 
 			printf("Entry %d: %d MHz - %d MHz\n",i, clock_low, clock_hi);
 			entry = start+entry_length+(ram_cfg*xinfo_length);
-			parse_memtm_mapping_entry(entry, xinfo_length, start);
+			if(version == 0x10)
+				parse_memtm_mapping_entry_10(entry, xinfo_length, start);
+			else if(version == 0x11)
+				parse_memtm_mapping_entry_11(entry, xinfo_length, start);
 
 			printcmd(start, entry_length>0?entry_length:10);
 			start += entry_length;
