@@ -45,6 +45,7 @@ struct bitstream {
 		VS_H262,
 		VS_H263,
 		VS_H264,
+		VS_VC1,
 	} type;
 	int hasbyte;
 };

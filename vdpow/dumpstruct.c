@@ -281,6 +281,31 @@ struct struct_define defines_bsp[] = {
 #undef STRUCT
 }},
 { "vc-1 bsp", {
+#define STRUCT vc1_picparm_bsp
+	_(STRUCT, width),
+	_(STRUCT, height),
+	_(STRUCT, profile),
+	_(STRUCT, postprocflag),
+	_(STRUCT, pulldown),
+	_(STRUCT, interlaced),
+	_(STRUCT, tfcntrflag),
+	_(STRUCT, finterpflag),
+	_(STRUCT, psf),
+	_PAD(STRUCT, pad),
+	_(STRUCT, multires),
+	_(STRUCT, syncmarker),
+	_(STRUCT, rangered),
+	_(STRUCT, maxbframes),
+	_(STRUCT, dquant),
+	_(STRUCT, panscan_flag),
+	_(STRUCT, refdist_flag),
+	_(STRUCT, quantizer),
+	_(STRUCT, extended_mv),
+	_(STRUCT, extended_dmv),
+	_(STRUCT, overlap),
+	_(STRUCT, vstransform),
+
+#undef STRUCT
 }},
 { "h264 bsp", {
 #define STRUCT h264_picparm_bsp
@@ -331,6 +356,24 @@ struct struct_define defines_vp[] = {
 #undef STRUCT
 }},
 { "vc-1 vp", {
+#define STRUCT vc1_picparm_vp
+	_(STRUCT, bucket_size),
+	_PAD(STRUCT, pad),
+	_(STRUCT, inter_ring_data_size),
+	_(STRUCT, unk0c),
+	_(STRUCT, unk10),
+	_ARRAY(STRUCT, ofs),
+	_(STRUCT, width),
+	_(STRUCT, height),
+	_(STRUCT, profile),
+	_(STRUCT, loopfilter),
+	_(STRUCT, u32),
+	_(STRUCT, dquant),
+	_(STRUCT, overlap),
+	_(STRUCT, quantizer),
+	_(STRUCT, u36),
+	_PAD(STRUCT, pad2),
+#undef STRUCT
 }},
 { "h264 vp", {
 #define STRUCT h264_picparm_vp
