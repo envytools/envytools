@@ -102,6 +102,7 @@ int nva_init() {
 		ret = pci_device_map_range(dev, dev->regions[0].base_addr, dev->regions[0].size, PCI_DEV_MAP_FLAG_WRITABLE, &nva_cards[i].bar0);
 		if (ret) {
 			fprintf (stderr, "WARN: Can't probe %04x:%02x:%02x.%x\n", dev->domain, dev->bus, dev->dev, dev->func);
+			int j;
 			for (j = i + 1; j < nva_cardsnum; j++) {
 				nva_cards[j-1] = nva_cards[j];
 			}
