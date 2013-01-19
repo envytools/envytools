@@ -28,6 +28,7 @@
 #include "util.h"
 #include <stdio.h>
 #include <unistd.h>
+#include <math.h>
 
 /* common */
 static void force_temperature(struct hwtest_ctx *ctx, uint8_t temp) {
@@ -141,6 +142,98 @@ static struct therm_threshold nv84_therm_thresholds[] = {
 	{ 0x20418, 0x00000, 0, 3, 0, 23, 1, 1, 0, 1, -1, -1, 0x00000, 0 }, /* threshold_3 */
 	{ 0x20414, 0x00000, 1, 4, 1, 24, 0, 0, 0, 0,  4,  2, 0x20110, 8 }  /* threshold_4 */
 };
+
+uint64_t get_time(unsigned int card)
+{
+	uint64_t low;
+
+	/* From kmmio dumps on nv28 this looks like how the blob does this.
+	* It reads the high dword twice, before and after.
+	* The only explanation seems to be that the 64-bit timer counter
+	* advances between high and low dword reads and may corrupt the
+	* result. Not confirmed.
+	*/
+	uint64_t high2 = nva_rd32(card, 0x9410);
+	uint64_t high1;
+	do {
+		high1 = high2;
+		low = nva_rd32(card, 0x9400);
+		high2 = nva_rd32(card, 0x9410);
+	} while (high1 != high2);
+	return ((((uint64_t)high2) << 32) | (uint64_t)low);
+}
+
+static int nv84_threshold_filter(struct hwtest_ctx *ctx, const struct therm_threshold *thrs)
+{
+	uint8_t div, cycles;
+	struct {
+		uint64_t before;
+		uint64_t after;
+	} results[4][3];
+
+	force_temperature(ctx, 40);
+
+	nva_wr32(ctx->cnum, 0x20000, 0xffffffff);
+
+	/* get the data */
+	for (div = 0; div < 4; div++) {
+		for (cycles = 1; cycles < 3; cycles++) {
+			nva_wr32(ctx->cnum, 0x20078, 0);
+
+			nva_wr32(ctx->cnum, thrs->thrs_addr, 20);
+
+			nva_wr32(ctx->cnum, 0x20100, 0xffffffff);
+			nva_wr32(ctx->cnum, 0x20078, (div << 24) | ((cycles * 0x7f)  << 16));
+
+			results[div][cycles].before = get_time(ctx->cnum);
+
+			nva_wr32(ctx->cnum, thrs->thrs_addr, 150);
+			while (nva_rd32(ctx->cnum, 0x20100) == 0);
+
+			results[div][cycles].after = get_time(ctx->cnum);
+		}
+	}
+
+	/* test the result */
+	for (div = 0; div < 4; div++) {
+		for (cycles = 1; cycles < 3; cycles++) {
+			uint64_t time = results[div][cycles].after - results[div][cycles].before;
+
+			uint64_t clock_hz = (277000000 / (32 * (uint32_t)pow(16, div)));
+			double expected_time = (1.0 / clock_hz) * cycles * 0x7f * 1e9;
+
+			double prediction_error = abs(time - expected_time) * 100.0 / expected_time;
+
+			if ((div == 0 && prediction_error > 15.0) || (div > 0 && prediction_error > 5.0)) {
+				printf("div %x => %f, cycles 0x%x: delay %llu; expected delay %.0f (prediction_error = %f%%)\n",
+					div, 32 * pow(16, div), cycles * 0x7f, time, expected_time, prediction_error);
+				return HWTEST_RES_FAIL;
+			}
+		}
+	}
+
+	return HWTEST_RES_PASS;
+}
+
+static int test_threshold_crit_filter(struct hwtest_ctx *ctx) {
+	return nv84_threshold_filter(ctx, &nv84_therm_thresholds[therm_threshold_crit]);
+}
+
+static int test_threshold_1_filter(struct hwtest_ctx *ctx) {
+	return nv84_threshold_filter(ctx, &nv84_therm_thresholds[therm_threshold_1]);
+}
+
+static int test_threshold_2_filter(struct hwtest_ctx *ctx) {
+	return nv84_threshold_filter(ctx, &nv84_therm_thresholds[therm_threshold_2]);
+}
+
+static int test_threshold_3_filter(struct hwtest_ctx *ctx) {
+	return nv84_threshold_filter(ctx, &nv84_therm_thresholds[therm_threshold_3]);
+}
+
+static int test_threshold_4_filter(struct hwtest_ctx *ctx) {
+	return nv84_threshold_filter(ctx, &nv84_therm_thresholds[therm_threshold_4]);
+}
 
 static int nv84_threshold_check_state(struct hwtest_ctx *ctx, const struct therm_threshold *thrs) {
 	uint32_t exp_state;
@@ -577,8 +670,8 @@ static int nv84_sensor_calibration_prep(struct hwtest_ctx *ctx) {
 
 static int nv84_temperature_thresholds_prep(struct hwtest_ctx *ctx) {
 	/* disable the voltage regulator shutdown */
-	nva_mask(ctx->cnum, 0xe100, 0x100, 0x0);
 	nva_mask(ctx->cnum, 0xe108, 0x2, 0x0);
+	nva_mask(ctx->cnum, 0xe100, 0x100, 0x0);
 
 	return nv84_ptherm_prep(ctx);
 }
@@ -600,6 +693,11 @@ HWTEST_DEF_GROUP(nv84_sensor_calibration,
 )
 
 HWTEST_DEF_GROUP(nv84_temperature_thresholds,
+	HWTEST_TEST(test_threshold_crit_filter, 0),
+	HWTEST_TEST(test_threshold_1_filter, 0),
+	HWTEST_TEST(test_threshold_2_filter, 0),
+	HWTEST_TEST(test_threshold_3_filter, 0),
+	HWTEST_TEST(test_threshold_4_filter, 0),
 	HWTEST_TEST(test_threshold_crit_state, 0),
 	HWTEST_TEST(test_threshold_1_state, 0),
 	HWTEST_TEST(test_threshold_2_state, 0),
