@@ -305,6 +305,7 @@
 	<reg32 offset="0x00c" name="SENSOR_CALIB_0">
 		<bitfield pos="0" name="USE_CALIB_SW_SLOPE"/>
 		<bitfield pos="1" name="USE_CALIB_SW_OFFSET"/>
+		<bitfield low="2" high="21" name="UNK2"/>
 		<bitfield pos="31" name="ENABLE"/>
 	</reg32>
 	<reg32 offset="0x010" name="SENSOR_SW_CALIB">
@@ -347,6 +348,7 @@
 	<reg32 offset="0x02c" name="POWER_WEIGHT_3">
 		<bitfield low="0" high="4" name="UNK0"/>
 		<bitfield low="8" high="12" name="UNK8"/>
+		<bitfield low="16" high="20" name="UNK16"/>
 	</reg32>
 	<reg32 offset="0x030" name="POWER_WEIGHT_4">
 		<bitfield low="0" high="4" name="UNK0"/>
@@ -368,6 +370,8 @@
 	<reg32 offset="0x03c" name="POWER_WEIGHT_7">
 		<bitfield low="0" high="4" name="UNK0"/>
 		<bitfield low="8" high="15" name="UNK8"/>
+		<bitfield low="16" high="20" name="UNK16"/>
+		<bitfield low="24" high="28" name="UNK24"/>
 	</reg32>
 	<reg32 offset="0x040" name="POWER_WEIGHT_8">
 		<bitfield low="0" high="4" name="UNK0"/>
@@ -575,11 +579,14 @@
 		<reg32 offset="0xc0" name="THRESHOLD_2" /> <!-- Window 0 HIGH -->
 		<reg32 offset="0xc4" name="THRESHOLD_1" /> <!-- Window 0 LOW -->
 
-		<reg32 offset="0xc8" name="SENSOR_CALIB">
+		<reg32 offset="0xc8" name="SENSOR_CALIB_0">
 			<!-- On my nv84, the output is roughly:
 				offset = CALIB_OFFSET * 6 -->
 			<bitfield low="0" high="6" name="CALIB_OFFSET" />
 			<bitfield pos="7" name="DISABLE" />
+		</reg32>
+		<reg32 offset="0xcc" name="SENSOR_CALIB_1">
+			<!-- it does affect the temperature in some way -->
 		</reg32>
 	</array>
 </group>
