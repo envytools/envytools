@@ -590,7 +590,7 @@
 	</array>
 
 	<array name="PTHERM" offset="0x00020000" stride="0x1000" length="1" variants="NV84-">
-		<use-group name="nv50_therm"/>
+		<use-group name="nv84_therm"/>
 	</array>
 </domain>
 
