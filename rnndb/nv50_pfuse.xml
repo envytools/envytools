@@ -11,6 +11,8 @@
 <array name="PFUSE" offset="0x021000" stride="0x1000" length="1" variants="NV50-">
 	<reg32 offset="0x144" name="TP_DISABLE_MASK"/>
 	<reg32 offset="0x148" name="PART_DISABLE_MASK"/>
+	<reg32 offset="0x1a0" name="TEMP_CAL_SLOPE_MUL_OFFSET"/> <!-- int8_t -->
+	<reg32 offset="0x1a4" name="TEMP_CAL_OFFSET_MUL_OFFSET"/> <!-- int16_t -->
 </array>
 
 </domain>
