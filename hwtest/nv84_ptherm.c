@@ -146,7 +146,7 @@ static struct therm_threshold nv84_therm_thresholds[] = {
 	{ 0x20414, 0x00000, 1, 4, 1, 24, 0, 0, 0, 0,  4,  2, 0x20110, 8 }  /* threshold_4 */
 };
 
-uint64_t get_time(unsigned int card)
+static uint64_t get_time(unsigned int card)
 {
 	uint64_t low;
 
