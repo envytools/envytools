@@ -105,6 +105,90 @@ static int test_temperature_force(struct hwtest_ctx *ctx) {
 		return HWTEST_RES_PASS;
 }
 
+uint32_t read_fuses(struct hwtest_ctx *ctx, uint16_t offset) {
+	uint32_t val;
+
+	nva_mask(ctx->cnum, 0x1084, 0x800, 0x800);
+	val = nva_rd32(ctx->cnum, 0x21000 + offset);
+	nva_mask(ctx->cnum, 0x1084, 0x800, 0x0);
+
+	return val;
+}
+
+static int test_temperature_calib(struct hwtest_ctx *ctx, int16_t slope, int16_t offset, const char *str)
+{
+	uint16_t temp_raw, temp, temp_expected;
+
+	do {
+		temp = nva_rd32(ctx->cnum, 0x20400);
+		temp_raw  = nva_rd32(ctx->cnum, 0x20008) & 0x7fff;
+	} while (temp != nva_rd32(ctx->cnum, 0x20400));
+
+	temp_expected = temp_raw * slope / 0x4000 + offset / 2;
+
+	if (abs(temp - temp_expected) <= 1)
+		return HWTEST_RES_PASS;
+	else {
+		fprintf(stderr, "%s: cannot reproduce 0x20400 (0x%x): raw 0x%x slope %i offset %i --> 0x%x\n",
+			str, temp, temp_raw, slope, offset, temp_expected);
+		return HWTEST_RES_FAIL;
+	}
+}
+
+static int test_temperature_calibration_hw(struct hwtest_ctx *ctx) {
+	int8_t fuse_offset_slope = read_fuses(ctx, 0x1a0);
+	int16_t fuse_offset_offset = read_fuses(ctx, 0x1a4);
+	int16_t slope, offset;
+
+	nva_mask(ctx->cnum, 0x2000c, 0x3, 0x0);
+
+	slope = nva_rd32(ctx->cnum, 0x2001c) & 0xffff;
+	slope += fuse_offset_slope;
+
+	offset = nva_rd32(ctx->cnum, 0x2001c) >> 16;
+	offset += fuse_offset_offset;
+
+	TEST_READ(0x20014, (offset << 16) | slope, "cannot reproduce 0x20014 (fuse: %x %x, 20001c: %x)\n",
+		  fuse_offset_slope, fuse_offset_offset, nva_rd32(ctx->cnum, 0x2001c));
+
+	return test_temperature_calib(ctx, slope, offset, "calib hw");
+}
+
+static int test_temperature_calibration_sw(struct hwtest_ctx *ctx) {
+	int16_t slope_sw, offset_sw, slope_hw, offset_hw;
+	int ret = HWTEST_RES_FAIL;
+
+	slope_hw = nva_rd32(ctx->cnum, 0x20014) & 0xffff;
+	offset_hw = nva_rd32(ctx->cnum, 0x20014) >> 16;
+
+	slope_sw = slope_hw + ((rand() % 0x50) - 0x28);
+	offset_sw = offset_hw + ((rand() % 0x50) - 0x28);
+
+	nva_wr32(ctx->cnum, 0x20010, (offset_sw << 16) | slope_sw);
+
+	/* use only sw_slope */
+	nva_mask(ctx->cnum, 0x2000c, 0x3, 0x1);
+	if (test_temperature_calib(ctx, slope_sw, offset_hw, "1 - slope_sw, offset_hw") != HWTEST_RES_PASS)
+		goto exit;
+
+	/* use only sw_offset */
+	nva_mask(ctx->cnum, 0x2000c, 0x3, 0x2);
+	if (test_temperature_calib(ctx, slope_hw, offset_sw, "2 - slope_hw, offset_sw") != HWTEST_RES_PASS)
+		goto exit;
+
+	/* use full sw */
+	nva_mask(ctx->cnum, 0x2000c, 0x3, 0x3);
+	if (test_temperature_calib(ctx, slope_sw, offset_sw, "3 - full sw") != HWTEST_RES_PASS)
+		goto exit;
+
+	ret = HWTEST_RES_PASS;
+
+exit:
+	nva_mask(ctx->cnum, 0x2000c, 0x3, 0x0);
+
+	return ret;
+}
+
 /* thresholds */
 struct therm_threshold {
 	/* temperature thresholds */
@@ -707,6 +791,8 @@ HWTEST_DEF_GROUP(nv84_read_temperature,
 HWTEST_DEF_GROUP(nv84_sensor_calibration,
 	HWTEST_TEST(test_temperature_enable_state, 0),
 	HWTEST_TEST(test_temperature_force, 0),
+	HWTEST_TEST(test_temperature_calibration_hw, 0),
+	HWTEST_TEST(test_temperature_calibration_sw, 0),
 )
 
 HWTEST_DEF_GROUP(nv84_temperature_thresholds,
