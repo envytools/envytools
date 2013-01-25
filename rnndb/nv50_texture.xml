@@ -37,6 +37,7 @@
 		<bitfield high="8" low="6" name="TYPE0" type="NV50_TIC_TYPE"/>
 		<bitfield high="5" low="0" name="FMT">
 			<value value="0x01" name="32_32_32_32"/>
+			<value value="0x02" name="32_32_32" variants="NVC0-"/>
 			<value value="0x03" name="16_16_16_16"/>
 			<value value="0x04" name="32_32"/>
 			<value value="0x05" name="32_8_X24"/>
