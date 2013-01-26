@@ -7,23 +7,29 @@
 <import file="nvchipsets.xml" />
 
 <bitset name="nv50_therm_intr" inline="yes">
-		<bitfield pos="0" name="TEMP_THRESHOLD_3" />
-		<bitfield pos="1" name="TEMP_THRESHOLD_4" />
-		<bitfield pos="2" name="TEMP_THRESHOLD_CRIT" />
-		<bitfield pos="3" name="TEMP_THRESHOLD_1" />
-		<bitfield pos="4" name="TEMP_THRESHOLD_2" />
-		<bitfield pos="5" name="INPUT_0" />
-		<bitfield pos="6" name="INPUT_1" />
-		<bitfield pos="7" name="INPUT_2" />
-		<bitfield pos="8" name="POWER_BUDGET" /> <!-- guess -->
+	<bitfield pos="0" name="TEMP_THRESHOLD_3" />
+	<bitfield pos="1" name="TEMP_THRESHOLD_4" />
+	<bitfield pos="2" name="TEMP_THRESHOLD_CRIT" />
+	<bitfield pos="3" name="TEMP_THRESHOLD_1" />
+	<bitfield pos="4" name="TEMP_THRESHOLD_2" />
+	<bitfield pos="5" name="INPUT_0" />
+	<bitfield pos="6" name="INPUT_1" />
+	<bitfield pos="7" name="INPUT_2" />
+	<bitfield pos="8" name="POWER_BUDGET" /> <!-- guess -->
+	<bitfield pos="9" name="TEMP_THRESHOLD_5" variants="NV94-" />
+	<bitfield pos="10" name="TEMP_THRESHOLD_6" variants="NV94-" />
+	<bitfield pos="11" name="TEMP_THRESHOLD_7" variants="NV94-" />
+	<bitfield pos="12" name="TEMP_THRESHOLD_8" variants="NV94-" />
+	<bitfield pos="13" name="TEMP_THRESHOLD_9" variants="NV94-" />
+	<bitfield pos="14" name="TEMP_THRESHOLD_10" variants="NV94-" />
 </bitset>
 
 <bitset name="nv50_therm_i2c_sensor_state" inline="yes">
-		<bitfield pos="0" name="CRITICAL" />
-		<bitfield pos="3" name="THRESHOLD_1" />
-		<bitfield pos="4" name="THRESHOLD_2" />
-		<bitfield pos="5" name="THRESHOLD_3" />
-		<bitfield pos="6" name="THRESHOLD_4" />
+	<bitfield pos="0" name="CRITICAL" />
+	<bitfield pos="3" name="THRESHOLD_1" />
+	<bitfield pos="4" name="THRESHOLD_2" />
+	<bitfield pos="5" name="THRESHOLD_3" />
+	<bitfield pos="6" name="THRESHOLD_4" />
 </bitset>
 
 <enum name="nv50_therm_intr_direction">
@@ -242,7 +248,7 @@
 </group>
 
 <group name="nv84_therm">
-	<reg32 offset="0x000" name="INTR_DIRECTION" variants="NV84-">
+	<reg32 offset="0x000" name="INTR_DIRECTION_0">
 		<!-- group direction bits together to shorten the output of this reg in lookup -->
 		<bitfield low="0" high="1" name="TEMP_THRESHOLD_CRIT" type="nv84_therm_intr_direction" />
 		<bitfield low="2" high="3" name="TEMP_THRESHOLD_1" type="nv84_therm_intr_direction" />
@@ -283,7 +289,7 @@
 		<bitfield pos="26" name="INPUT_1_STATE" /> <!-- ALERT -->
 		<bitfield pos="27" name="INPUT_2_STATE" /> <!-- POWER_FAIL -->
 	</reg32>
-	<reg32 offset="0x004" name="THERMAL_PROTECT_USE" variants="NV84-">
+	<reg32 offset="0x004" name="THERMAL_PROTECT_USE">
 		<bitfield pos="0" name="INPUT_0" />
 		<bitfield pos="1" name="INPUT_1" />
 		<bitfield pos="2" name="INPUT_2" /> <!-- just a guess, doesn't work on my nv84 -->
@@ -291,7 +297,13 @@
 		<bitfield pos="4" name="THRESHOLD_4" />
 		<bitfield pos="5" name="THRESHOLD_2" />
 
-		<!-- TODO: There is more to it in nvc0 -->
+		<!-- just a guess, haven't checked yet -->
+		<bitfield pos="6" name="THRESHOLD_5" variants="NV94-" />
+		<bitfield pos="7" name="THRESHOLD_7" variants="NV94-" />
+		<bitfield pos="8" name="THRESHOLD_9" variants="NV94-" />
+
+		<bitfield pos="12" name="UNK12" variants="NV94-" />
+		<bitfield pos="16" name="UNK16" variants="NV94-" />
 	</reg32>
 	<reg32 offset="0x008" name="SENSOR_RAW">
 		<bitfield low="0" high="14" name="RAW_VALUE"/>
@@ -501,7 +513,47 @@
 		to PDAEMON fµc interrupt 12</doc>
 	</reg32>
 
-	<reg32 offset="0x100" name="INTR" type="nv50_therm_intr" /> <!-- PBUS intr #16 -->
+	<reg32 offset="0x100" name="INTR" type="nv50_therm_intr" variants="NV92-"/> <!-- PBUS intr #16 -->
+
+	<reg32 offset="0x108" name="INTR_DIRECTION_1" variants="NV94-">
+		<!-- group direction bits together to shorten the output of this reg in lookup -->
+		<bitfield low="0" high="1" name="TEMP_THRESHOLD_5" type="nv84_therm_intr_direction" />
+		<bitfield low="2" high="3" name="TEMP_THRESHOLD_6" type="nv84_therm_intr_direction" />
+		<bitfield low="4" high="5" name="TEMP_THRESHOLD_7" type="nv84_therm_intr_direction" />
+		<bitfield low="6" high="7" name="TEMP_THRESHOLD_8" type="nv84_therm_intr_direction" />
+		<bitfield low="8" high="9" name="TEMP_THRESHOLD_9" type="nv84_therm_intr_direction" />
+		<bitfield low="10" high="11" name="TEMP_THRESHOLD_10" type="nv84_therm_intr_direction" />
+		<bitfield low="12" high="13" name="UNK12" type="nv84_therm_intr_direction" />
+
+		<!-- this part is RO and stores the state for the thresholds interrupts -->
+		<!-- I have no idea why thresholds 1 and 3 are inverted -->
+		<bitfield pos="16" name="TSH_5_STATE">
+			<value value="0" name="ABOVE"/>
+			<value value="1" name="BELOW"/>
+		</bitfield>
+		<bitfield pos="17" name="TSH_6_STATE">
+			<value value="0" name="BELOW"/>
+			<value value="1" name="ABOVE"/>
+		</bitfield>
+		<bitfield pos="18" name="TSH_7_STATE">
+			<value value="0" name="ABOVE"/>
+			<value value="1" name="BELOW"/>
+		</bitfield>
+		<bitfield pos="19" name="TSH_8_STATE">
+			<value value="0" name="BELOW"/>
+			<value value="1" name="ABOVE"/>
+		</bitfield>
+		<bitfield pos="20" name="TSH_9_STATE">
+			<value value="0" name="ABOVE"/>
+			<value value="1" name="BELOW"/>
+		</bitfield>
+		<bitfield pos="21" name="TSH_10_STATE">
+			<value value="0" name="BELOW"/>
+			<value value="1" name="ABOVE"/>
+		</bitfield>
+
+		<bitfield low="27" high="31" name="UNK27" />
+	</reg32>
 
 	<reg32 offset="0x110" name="THERMAL_PROTECT_FSRM_CFG_0" variants="NV94-">
 		<bitfield low="0" high="7" name="THRESHOLD_CRIT" />
@@ -510,6 +562,10 @@
 	</reg32>
 	<reg32 offset="0x114" name="THERMAL_PROTECT_FSRM_CFG_1" variants="NV94-">
 		<bitfield low="0" high="7" name="CUR_FSRM" /> <!-- RO -->
+	</reg32>
+
+	<reg32 offset="0x124" name="SENSOR_CALIB_0" length="4" variants="NV92-">
+		<bitfield pos="9" name="DISABLE_I2C_SLAVE.SENSOR_CALIB_0" />
 	</reg32>
 
 	<reg32 offset="0x134" name="INTR_EN" type="nv50_therm_intr" variants="NVA3-"/>
@@ -561,10 +617,28 @@
 	<array offset="0x400" name="I2C_SLAVE" stride="0x400" length="1" variants="NV84-">
 		<reg32 offset="0x0" name="TEMP_HIGH"/>
 
-		<!-- the CRITICAL bit is RO. All the others should be ACK by writing 0 to them -->
+		<!-- the CRITICAL bit in STATUS_0 is RO. All the others should be ACK by writing 0 to them -->
 		<!-- Threshold 3 and 1's bits are SET when temperature is below the threshold -->
-		<reg32 offset="0x8" name="STATUS" type="nv50_therm_i2c_sensor_state" />
-		<reg32 offset="0xc" name="STATUS_EN" type="nv50_therm_i2c_sensor_state" />
+		<!-- Bits in STATUS_1 are set when temperature is inside the window -->
+		<reg32 offset="0x4" name="STATUS_1" variants="NV94-">
+			<!-- No idea why 0, 1 and 2 are left blank -->
+			<bitfield pos="3" name="THRESHOLD_5" />
+			<bitfield pos="4" name="THRESHOLD_6" />
+			<bitfield pos="5" name="THRESHOLD_7" />
+			<bitfield pos="6" name="THRESHOLD_8" />
+			<bitfield pos="7" name="THRESHOLD_9" />
+			<bitfield pos="8" name="THRESHOLD_10" />
+		</reg32>
+		<reg32 offset="0x8" name="STATUS_0" type="nv50_therm_i2c_sensor_state" />
+		<reg32 offset="0xc" name="STATUS_EN_0" type="nv50_therm_i2c_sensor_state" />
+		<reg32 offset="0x10" name="STATUS_EN_1" variants="NV94-">
+			<bitfield pos="0" name="THRESHOLD_6" />
+			<bitfield pos="1" name="THRESHOLD_5" />
+			<bitfield pos="2" name="THRESHOLD_8" />
+			<bitfield pos="3" name="THRESHOLD_7" />
+			<bitfield pos="4" name="THRESHOLD_10" />
+			<bitfield pos="5" name="THRESHOLD_9" />
+		</reg32>
 
 		<reg32 offset="0x14" name="THRESHOLD_4" /> <!-- Window 1 HIGH -->
 		<reg32 offset="0x18" name="THRESHOLD_3" /> <!-- Window 1 LOW -->
@@ -588,6 +662,19 @@
 		<reg32 offset="0xcc" name="SENSOR_CALIB_1">
 			<!-- it does affect the temperature in some way -->
 		</reg32>
+
+		<reg32 offset="0xd8" name="THRESHOLD_6" variants="NV94-" /> <!-- Window 2 LOW -->
+		<reg32 offset="0xdc" name="THRESHOLD_5" variants="NV94-" /> <!-- Window 2 HIGH -->
+
+		<reg32 offset="0xe0" name="THRESHOLD_8" variants="NV94-" /> <!-- Window 3 LOW -->
+		<reg32 offset="0xe4" name="THRESHOLD_7" variants="NV94-" /> <!-- Window 3 HIGH -->
+
+		<reg32 offset="0xe8" name="THRESHOLD_10" variants="NV94-" /> <!-- Window 4 LOW -->
+		<reg32 offset="0xec" name="THRESHOLD_9" variants="NV94-" /> <!-- Window 4 HIGH -->
+
+		<!-- got from the LM89's datasheet -->
+		<reg32 offset="0xf8" name="VENDOR_ID" />
+		<reg32 offset="0xfc" name="STEPPING" />
 	</array>
 </group>
 

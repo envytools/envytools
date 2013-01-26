@@ -13,6 +13,7 @@
 	<reg32 offset="0x148" name="PART_DISABLE_MASK"/>
 	<reg32 offset="0x1a0" name="TEMP_CAL_SLOPE_MUL_OFFSET"/> <!-- int8_t -->
 	<reg32 offset="0x1a4" name="TEMP_CAL_OFFSET_MUL_OFFSET"/> <!-- int16_t -->
+	<reg32 offset="0x1a8" name="TEMP_CAL_OK"/> <!-- this one is a wild guess, the blob checks it before configuring the sensor -->
 </array>
 
 </domain>
