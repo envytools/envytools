@@ -673,8 +673,8 @@
 		<reg32 offset="0xec" name="THRESHOLD_9" variants="NV94-" /> <!-- Window 4 HIGH -->
 
 		<!-- got from the LM89's datasheet -->
-		<reg32 offset="0xf8" name="VENDOR_ID" />
-		<reg32 offset="0xfc" name="STEPPING" />
+		<reg32 offset="0x3f8" name="VENDOR_ID" variants="NV94-" />
+		<reg32 offset="0x3fc" name="STEPPING" variants="NV94-" />
 	</array>
 </group>
 
