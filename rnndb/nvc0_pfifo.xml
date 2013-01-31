@@ -33,7 +33,7 @@
 		<bitfield pos="28" name="VM_FAULT"/> <!-- level -->
 		<bitfield pos="29" name="SUBFIFO_INTR"/> <!-- level -->
 		<bitfield pos="30" name="UNK30"/> <!-- a00, level -->
-		<bitfield pos="31" name="UNK31"/> <!-- level? -->
+		<bitfield pos="31" name="NOTIFY"/> <!-- level? -->
 	</bitset>
 	<reg32 offset="0x100" name="INTR" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x140" name="INTR_EN" type="nvc0_pfifo_intr"/>
@@ -108,6 +108,9 @@
 		<bitfield pos="0" name="0"/>
 		<bitfield pos="1" name="1"/>
 		<bitfield pos="2" name="2"/>
+	</reg32>
+	<reg32 offset="0x628" name="NOTIFY_ENABLE" variants="NVC0:NVE4">
+		<!-- Set to 1 to get NOTIFY_INTR to work on fermi -->
 	</reg32>
 	<reg32 offset="0x62c" name="ENG_FAULT"> <!-- write 1 to clear -->
 		<bitfield pos="0" name="PGRAPH"/>
