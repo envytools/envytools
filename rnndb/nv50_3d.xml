@@ -273,8 +273,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Writing 0 disables watchdog, writing 1-31 causes
 			program to be killed after 7*2^(x-1) clocks [?].</doc>
 		</reg32>
-		<reg32 offset="0x0de8" name="UNK0DE8" type="boolean">
-			<doc>Goes to vfetch.</doc>
+		<reg32 offset="0x0de8" name="PRIM_RESTART_WITH_DRAW_ARRAYS" type="boolean">
+			<doc>Whether primitive restart applies to drawing via VERTEX_BUFFER_FIRST,COUNT.</doc>
 		</reg32>
 		<reg32 offset="0x0dec" name="UNK0DEC" type="boolean">
 			<doc>Goes to vfetch. 1 by default.</doc>
