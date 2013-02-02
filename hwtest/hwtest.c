@@ -26,6 +26,7 @@
 #include "nva.h"
 #include <unistd.h>
 #include <stdio.h>
+#include <pciaccess.h>
 
 int hwtest_root_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
@@ -45,7 +46,7 @@ int main(int argc, char **argv) {
 		fprintf (stderr, "PCI init failure!\n");
 		return 1;
 	}
-	int c;
+	int c, force = 0;
 	ctx->cnum = 0;
 	ctx->colors = 1;
 	ctx->noslow = 0;
@@ -53,7 +54,7 @@ int main(int argc, char **argv) {
 	ctx->rand48[0] = 0xdead;
 	ctx->rand48[1] = 0xbeef;
 	ctx->rand48[2] = 0xcafe;
-	while ((c = getopt (argc, argv, "c:ns")) != -1)
+	while ((c = getopt (argc, argv, "c:nsf")) != -1)
 		switch (c) {
 			case 'c':
 				sscanf(optarg, "%d", &ctx->cnum);
@@ -63,6 +64,9 @@ int main(int argc, char **argv) {
 				break;
 			case 's':
 				ctx->noslow = 1;
+				break;
+			case 'f':
+				force = 1;
 				break;
 		}
 	if (ctx->cnum >= nva_cardsnum) {
@@ -74,6 +78,14 @@ int main(int argc, char **argv) {
 	}
 	ctx->chipset = nva_cards[ctx->cnum].chipset;
 	ctx->card_type = nva_cards[ctx->cnum].card_type;
+	if (pci_device_has_kernel_driver(nva_cards[ctx->cnum].pci)) {
+		if (force) {
+			fprintf(stderr, "WARNING: Kernel driver in use.\n");
+		} else {
+			fprintf(stderr, "ERROR: Kernel driver in use. If you know what you are doing, use -f option.\n");
+			return 1;
+		}
+	}
 	int worst = 0;
 	if (optind == argc) {
 		printf("Running all tests...\n");
