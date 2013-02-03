@@ -573,9 +573,9 @@ static int test_comp_format(struct hwtest_ctx *ctx) {
 	int sh = 0x80;
 	for (f = 0; f < formats; f++) {
 		for (i = 0; i < 10000; i++) {
-			int x = jrand48(ctx->rand48) % pitch;
+			int x = nrand48(ctx->rand48) % pitch;
 			x &= -tw;
-			int y = jrand48(ctx->rand48) % sh;
+			int y = nrand48(ctx->rand48) % sh;
 			y &= -th;
 			uint32_t addr = x + y * pitch;
 			int tag;

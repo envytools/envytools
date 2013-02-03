@@ -22,8 +22,8 @@
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef NVHW_H
-#define NVHW_H
+#ifndef PGRAPH_H
+#define PGRAPH_H
 
 #include <stdint.h>
 
