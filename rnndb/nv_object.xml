@@ -235,12 +235,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x14" name="SEMAPHORE_ADDRESS_LOW" />
 			<reg32 offset="0x18" name="SEMAPHORE_SEQUENCE" />
 			<reg32 offset="0x1c" name="SEMAPHORE_TRIGGER">
-				<value value="1" name="ACQUIRE_EQUAL"/>
-				<value value="2" name="WRITE_LONG"/>
-				<value value="4" name="ACQUIRE_GEQUAL">
-					<doc>Waits until (*SEMAPHORE_ADDRESS - SEQUENCE) >= 0 as signed 32-bit number.</doc>
-				</value>
-				<bitfield pos="12" name="TRIGGER_YIELD" variants="NVC0-" />
+				<bitfield high="3" low="0" name="ACTION">
+					<value value="1" name="ACQUIRE_EQUAL"/>
+					<value value="2" name="WRITE_LONG"/>
+					<value value="4" name="ACQUIRE_GEQUAL">
+						<doc>Waits until (*SEMAPHORE_ADDRESS - SEQUENCE) >= 0 as signed 32-bit number.</doc>
+					</value>
+				</bitfield>
+				<bitfield pos="12" name="YIELD" variants="NVC0-" />
 			</reg32>
 			<reg32 offset="0x20" name="NOTIFY_INTR"/>
 			<reg32 offset="0x24" name="WRCACHE_FLUSH"/>
