@@ -122,6 +122,7 @@ static struct enum_val conn_types[] = {
 	{ ENVY_BIOS_CONN_LVDS_SPWG,		"LVDS_SPWG" },
 	{ ENVY_BIOS_CONN_DP,			"DP" },
 	{ ENVY_BIOS_CONN_EDP,			"EDP" },
+	{ ENVY_BIOS_CONN_STEREO,		"STEREO" },
 	{ ENVY_BIOS_CONN_HDMI,			"HDMI" },
 	{ ENVY_BIOS_CONN_DMS59_DP0,		"DMS59_DP0" },
 	{ ENVY_BIOS_CONN_DMS59_DP1,		"DMS59_DP1" },

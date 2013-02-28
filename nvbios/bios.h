@@ -503,8 +503,8 @@ enum envy_bios_conn_type {
 	ENVY_BIOS_CONN_EDP			= 0x47,
 	/* ??? */
 	/* 0x54 and 0x55 seen - some crazy TMDS connector in use on Dell laptops */
-	/* HDMI... and DP? */
-	/* 0x60 seen, never connected to anything sensible, alleged to be HDMI by nouveau */
+	/* stereo, HDMI... and DP? */
+	ENVY_BIOS_CONN_STEREO			= 0x60,
 	ENVY_BIOS_CONN_HDMI			= 0x61,
 	/* 0x62 seen, never connected to anything sensible */
 	ENVY_BIOS_CONN_DMS59_DP0		= 0x64,
