@@ -133,7 +133,15 @@
 	<value value="0xe4" name="NVE4">
 		<brief>GK104: GeForce 680 GTX</brief>
 	</value>
-	<value value="0xe7" name="NVE7"/>
+	<value value="0xe7" name="NVE7">
+		<brief>GK107</brief>
+	</value>
+	<value value="0xe6" name="NVE6">
+		<brief>GK106</brief>
+	</value>
+	<value value="0xf0" name="NVF0">
+		<brief>GK110</brief>
+	</value>
 </enum>
 
 </database>

@@ -537,7 +537,7 @@ NVC0:
  - redesigned PGRAPH:
    - split into a central HUB managing everything and several GPCs
      doing all actual work
-   - GPCs further split into a common part and several MPs
+   - GPCs further split into a common part and several TPs
    - using fµc for context switching
    - D3D11 support
  - redesigned memory controller
@@ -545,7 +545,7 @@ NVC0:
      - per-partition low-level memory controllers [PBFB]
      - per-partition middle memory controllers: compression, ECC, ... [PMFB]
      - a single "hub" memory controller: VM control, TLB control, ... [PFFB]
- - ROPs, memory partitions, GPCs, MPs have independent register areas, as well
+ - ROPs, memory partitions, GPCs, TPs have independent register areas, as well
    as "broadcast" areas that can be used to control all units at once
  - second PCOPY engine
  - redesigned PCOUNTER, now having multiple more or less independent subunits
@@ -573,8 +573,14 @@ NVE4:
    - lots of setup has been moved from methods/registers into memory
      structures
    [XXX: figure out what else]
+NVF0:
+ - PFIFO changes:
+   - ??? [XXX]
+ - PGRAPH changes:
+   - ISA format change
+   - ??? [XXX]
 
-Chipsets in NVC0 family [GPC count : MP count per GPC : ROP count : memory partitions per ROP]:
+Chipsets in NVC0 family [GPC count : TP count per GPC : ROP count : memory partitions per ROP]:
 
 NVC0 [GF100]: 4:4:6:1
 NVC4 [GF104]: 2:4:4:1
@@ -586,6 +592,8 @@ NVC8 [GF110]: 4:4:6:1
 NVD9 [GF119]: 1:1:1:1
 NVE4 [GK104]: 4:2:4:1
 NVE7 [GK107]: 1:2:2:1
+NVE6 [GK106]: 3:2:?:? [XXX: it is said that one of the GPCs has only one TP]
+NVF0 [GK110]: 5:3:6:1 [XXX: unconfirmed]
 
 The pci device ids are:
 
@@ -600,3 +608,5 @@ core  hda  chipset
 104X* 0e08 NVD9
 118X* 0e0a NVE4
 0fcX* 0e1b NVE7
+????* ???? NVE6 [XXX]
+1000* ???? NVF0 [XXX]
