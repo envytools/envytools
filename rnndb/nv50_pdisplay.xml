@@ -87,6 +87,7 @@
 				<value value="0x0150" name="1_5"/> <!-- NVA3:NVD9 -->
 				<value value="0x0200" name="2_0"/> <!-- NVD9 -->
 				<value value="0x0210" name="2_1"/> <!-- NVE4 -->
+				<value value="0x0220" name="2_2"/> <!-- NVF0 -->
 			</bitfield>
 			<bitfield low="16" high="31" name="CLASS">
 				<value value="0x507d" name="NV50_DISPLAY_MASTER"/>
@@ -96,6 +97,7 @@
 				<value value="0x857d" name="NVA3_DISPLAY_MASTER"/>
 				<value value="0x907d" name="NVD9_DISPLAY_MASTER"/>
 				<value value="0x917d" name="NVE4_DISPLAY_MASTER"/>
+				<value value="0x927d" name="NVF0_DISPLAY_MASTER"/>
 			</bitfield>
 		</reg32>
 
