@@ -593,7 +593,7 @@ NVD9 [GF119]: 1:1:1:1
 NVE4 [GK104]: 4:2:4:1
 NVE7 [GK107]: 1:2:2:1
 NVE6 [GK106]: 3:2:?:? [XXX: it is said that one of the GPCs has only one TP]
-NVF0 [GK110]: 5:3:6:1 [XXX: unconfirmed]
+NVF0 [GK110]: 5:3:6:1
 
 The pci device ids are:
 
@@ -609,4 +609,4 @@ core  hda  chipset
 118X* 0e0a NVE4
 0fcX* 0e1b NVE7
 ????* ???? NVE6 [XXX]
-1000* ???? NVF0 [XXX]
+1000* 0e1a NVF0
