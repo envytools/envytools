@@ -78,6 +78,9 @@
 		<bitfield name="MACRO" pos="7">
 			<brief>Check 404490</brief>
 		</bitfield>
+		<bitfield name="SKED" pos="8" variants="NVE4-">
+			<brief>Check 407020</brief>
+		</bitfield>
 		<bitfield name="GPC" pos="24"/>
 		<bitfield name="ROP" pos="25"/>
 	</reg32>
@@ -106,6 +109,7 @@
 		<bitfield name="UNK5" pos="5"/>
 		<bitfield name="UNK6" pos="6"/>
 		<bitfield name="MACRO" pos="7"/>
+		<bitfield name="SKED" pos="8" variants="NVE4-"/>
 		<bitfield name="GPC" pos="24"/>
 		<bitfield name="ROP" pos="25"/>
 	</reg32>
