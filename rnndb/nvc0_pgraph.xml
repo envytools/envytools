@@ -375,6 +375,33 @@
 			<reg32 offset="0" name="MASK" length="8"/>
 		</stripe>
 	</stripe>
+	<array offset="0x7000" name="SKED" stride="0x800" length="1" variants="NVE4-">
+		<reg32 offset="0x00" name="JOE"/>
+		<reg32 offset="0x04" name="UNK04"/>
+		<reg32 offset="0x08" name="UNK08"/>
+		<reg32 offset="0x0c" name="UNK0C"/>
+		<reg32 offset="0x10" name="UNK10"/>
+		<reg32 offset="0x20" name="TRAP">
+			<doc>This reports compute program launch check errors
+			(in the "launch descriptor") on a0c0.</doc>
+			<bitfield pos="7" name="CONSTANT_BUFFER_SIZE"/>
+			<bitfield pos="9" name="LOCAL_MEMORY_SIZE_NEG"/>
+			<bitfield pos="10" name="LOCAL_MEMORY_SIZE_POS"/>
+			<bitfield pos="13" name="REGISTER_COUNT"/>
+			<bitfield pos="18" name="TOTAL_THREADS"/>
+			<bitfield pos="20" name="PROGRAM_OFFSET"/>
+			<bitfield pos="21" name="SHARED_MEMORY_SIZE"/>
+			<bitfield pos="25" name="SHARED_CONFIG_TOO_SMALL"/>
+			<bitfield pos="26" name="TOTAL_REGISTER_COUNT"/>
+			<bitfield pos="30" name="CLEAR"/>
+		</reg32>
+		<reg32 offset="0x24" name="UNK24"/>
+		<reg32 offset="0x28" name="UNK28"/>
+		<reg32 offset="0x2c" name="UNK2c"/>
+		<reg32 offset="0x40" name="UNK40"/>
+		<reg32 offset="0x54" name="UNK54"/>
+		<reg32 offset="0x100" name="UNK100"/>
+	</array>
 	<array offset="0x7800" name="TPBUS" stride="0x800" length="1">
 		<reg32 offset="0x0c" name="TP_GPCID" length="44">
 			<bitfield low="0" high="4" name="0"/>
