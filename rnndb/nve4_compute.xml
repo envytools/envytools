@@ -42,12 +42,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x02b8" name="UNK02B8"/>
 		<reg32 offset="0x02bc" name="LAUNCH"/>
 		<!-- 02c0 - 02e0: illegal !-->
-		<reg32 offset="0x02e4" name="UNK02E4"/>
-		<reg32 offset="0x02e8" name="UNK02E8"/>
-		<reg32 offset="0x02ec" name="UNK02EC"/>
-		<reg32 offset="0x02f0" name="UNK02F0"/>
-		<reg32 offset="0x02f4" name="UNK02F4"/>
-		<reg32 offset="0x02f8" name="UNK02F8"/>
+		<array offset="0x02e4" name="TEMP_SIZE" length="2" stride="0xc">
+			<reg32 offset="0x0" name="HIGH"/>
+			<reg32 offset="0x4" name="LOW"/><!-- aligned to 0x8000 -->
+			<reg32 offset="0x8" name="MASK"/><!-- bits 0x1ff -->
+		</array>
 		<!-- 02fc - 030c: illegal !-->
 		<reg32 offset="0x0310" name="UNK0310"/>
 		<!-- 0314 - 04fc: illegal !-->
