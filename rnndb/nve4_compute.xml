@@ -32,6 +32,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>32 bit address, not shifted. Contents of $sbase register.</doc>
 		</reg32>
 		<!-- 0218: illegal !-->
+		<reg32 offset="0x021c" name="MEM_BARRIER"/>
 		<!-- 0220 - 023c: illegal !-->
 		<!-- 024c - 0270: illegal !-->
 		<reg32 offset="0x0280" name="UNK0280"/>
@@ -56,6 +57,23 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0790" name="TEMP_ADDRESS_HIGH"/>
 		<reg32 offset="0x0794" name="TEMP_ADDRESS_LOW"/>
 		<!-- 0798 - 0afc+: illegal !-->
+		<reg32 offset="0x0de4" name="WATCHDOG_TIMER" type="uint"/><!-- 0 means infinite timeout -->
+		<reg32 offset="0x1234" name="LINKED_TSC" type="boolean"/>
+		<reg32 offset="0x1330" name="TSC_FLUSH">
+			<bitfield pos="0" name="SPECIFIC"/>
+			<bitfield low="4" high="25" name="ENTRY"/>
+		</reg32>
+		<reg32 offset="0x1334" name="TIC_FLUSH">
+			<bitfield pos="0" name="SPECIFIC"/>
+			<bitfield low="4" high="25" name="ENTRY"/>
+		</reg32>
+                <reg32 offset="0x1338" name="TEX_CACHE_CTL">
+                        <bitfield low="0" high="2" name="UNK0"/>
+                        <bitfield low="4" high="25" name="ENTRY"/>
+                </reg32>
+		<reg32 offset="0x1550" name="COND_ADDRESS_HIGH"/>
+		<reg32 offset="0x1554" name="COND_ADDRESS_LOW"/>
+		<reg32 offset="0x1558" name="COND_MODE" type="nv50_cond_mode"/>
 		<reg32 offset="0x155c" name="TSC_ADDRESS_HIGH"/>
 		<reg32 offset="0x1560" name="TSC_ADDRESS_LOW"/>
 		<reg32 offset="0x1564" name="TSC_LIMIT"/>
@@ -87,6 +105,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 </domain>
 
 <domain name="NVE4_COMPUTE_LAUNCH_DESC" size="0x100">
+	<reg32 offset="0x18" name="6">
+		<bitfield high="11" low="10" name="NOTIFY"/><!-- or something; causes page fault by DISPATCH but not at NVC0_GRAPH_NOTIFY_ADDRESS -->
+	</reg32>
 	<reg32 offset="0x20" name="PROG_START">
 		<doc>Byte offset from CODE_ADDRESS.</doc>
 	</reg32>
@@ -129,9 +150,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<bitfield high="7" low="0" name="ADDRESS_HIGH"/>
 		<bitfield high="31" low="15" name="SIZE"/><!-- 15, not a typo, 0x10000 must be encodable -->
 	</reg32>
-	<reg32 offset="0xb8" name="46">
+	<reg32 offset="0xb4" name="45">
 		<bitfield high="19" low="0" name="LOCAL_POS_ALLOC"/>
+		<bitfield high="31" low="27" name="BARRIER_ALLOC"/>
+	</reg32>
+	<reg32 offset="0xb8" name="46">
+		<bitfield high="19" low="0" name="LOCAL_NEG_ALLOC"/>
 		<bitfield high="29" low="24" name="GPR_ALLOC"/>
+	</reg32>
+	<reg32 offset="0xbc" name="47">
+		<bitfield high="19" low="0" name="WARP_CSTACK_SIZE"/><!-- aligned to 0x200 -->
 	</reg32>
 </domain>
 
