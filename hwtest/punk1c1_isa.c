@@ -60,6 +60,11 @@ static void set_pdst(uint64_t *regs, uint32_t op, uint32_t val) {
 	}
 }
 
+static int get_bpred(uint64_t *regs, uint32_t op) {
+	int pidx = op >> 14 & 3;
+	return regs[10] >> pidx & 1;
+}
+
 static int64_t get_src1(uint64_t *regs, uint32_t op) {
 	return sext(regs[op >> 8 & 7], 47);
 }
@@ -188,14 +193,41 @@ static void simulate_op(uint64_t *regs, uint32_t op) {
 			tmp1 >>= tmp2;
 			set_dst(regs, op, tmp1);
 			break;
+		case 0x2a:
+			if (!get_bpred(regs, op))
+				regs[8] = get_limm(regs, op) & 0xff;
+			break;
+		case 0x2b:
+			if (get_bpred(regs, op))
+				regs[8] = get_limm(regs, op) & 0xff;
+			break;
+		/* XXX: why two bras? */
+		case 0x28:
+		case 0x2c:
+		case 0x2e: /* call */
+			regs[8] = get_limm(regs, op) & 0xff;
+			break;
 	}
 }
 
 static int test_arith(struct hwtest_ctx *ctx) {
 	int i, j;
-	for (i = 0; i < 1000000; i++) {
+	for (i = 0; i < 100000; i++) {
 		uint32_t op = jrand48(ctx->rand48) & 0x7fffff;
 		int opc = op & 0x3f;
+		uint64_t regs[12], eregs[12], nregs[12];
+		for (j = 0; j < 8; j++) {
+			regs[j] = (uint32_t)jrand48(ctx->rand48);
+			regs[j] |= (uint64_t)jrand48(ctx->rand48) << 32;
+			regs[j] &= 0xffffffffffffull;
+		}
+		uint32_t pc = regs[8] = jrand48(ctx->rand48) & 0xff;
+		if (pc == 0xff)
+			continue;
+		regs[9] = 0;
+		regs[10] = jrand48(ctx->rand48) & 7;
+		regs[11] = jrand48(ctx->rand48) & 0xf;
+		uint32_t btarg = get_limm(regs, op) & 0xff;
 		/* load unsigned & load signed */
 		if (opc == 0x20 || opc == 0x21)
 			continue;
@@ -205,35 +237,19 @@ static int test_arith(struct hwtest_ctx *ctx) {
 		/* waiti */
 		if (opc == 0x26)
 			continue;
-		/* ? */
-		if (opc == 0x28)
+		/* prevent bra to self */
+		if ((opc == 0x28 || opc == 0x2a || opc == 0x2b || opc == 0x2c || opc == 0x2e) && (btarg == 0 || btarg == pc))
 			continue;
-		/* ? */
-		if (opc == 0x2a)
-			continue;
-		/* ? */
-		if (opc == 0x2b)
-			continue;
-		/* bra */
-		if (opc == 0x2c)
-			continue;
-		/* ? */
-		if (opc == 0x2e)
-			continue;
-		/* some sort of branch? */
+		/* ret */
 		if (opc == 0x2f)
 			continue;
-		uint64_t regs[12], eregs[12], nregs[12];
-		for (j = 0; j < 8; j++) {
-			regs[j] = (uint32_t)jrand48(ctx->rand48);
-			regs[j] |= (uint64_t)jrand48(ctx->rand48) << 32;
-			regs[j] &= 0xffffffffffffull;
+		for (j = 0; j < 0x100; j++) {
+			nva_wr32(ctx->cnum, 0x1c17c8, (j) << 2);
+			nva_wr32(ctx->cnum, 0x1c17cc, 0x26);
 		}
-		uint32_t pc = regs[8] = jrand48(ctx->rand48) & 0xff & 0;
-		regs[9] = 0;
-		regs[10] = jrand48(ctx->rand48) & 7;
-		regs[11] = jrand48(ctx->rand48) & 0xf;
 		nva_wr32(ctx->cnum, 0x1c107c, 1);
+		nva_wr32(ctx->cnum, 0x1c17c8, 0);
+		nva_wr32(ctx->cnum, 0x1c17cc, 0x28 | (pc & 0x3f) << 8 | (pc >> 6) << 17);
 		nva_wr32(ctx->cnum, 0x1c17c8, pc << 2);
 		nva_wr32(ctx->cnum, 0x1c17cc, op);
 		nva_wr32(ctx->cnum, 0x1c17c8, (pc+1) << 2);
@@ -245,12 +261,21 @@ static int test_arith(struct hwtest_ctx *ctx) {
 			eregs[j] = regs[j];
 		}
 		nva_wr32(ctx->cnum, 0x1c17c0, 1);
+		eregs[8] = pc+1;
 		simulate_op(eregs, op);
-		eregs[8] = pc+2;
+		eregs[8]++;
+		eregs[8] &= 0xff;
 		eregs[9] = 0x26;
-		while (nva_rd32(ctx->cnum, 0x1c17c4) == 1);
-		nva_wr32(ctx->cnum, 0x1c17c0, 2);
+		nva_rd32(ctx->cnum, 0x1c17c4);
+		nva_rd32(ctx->cnum, 0x1c17c4);
+		nva_rd32(ctx->cnum, 0x1c17c4);
+		nva_rd32(ctx->cnum, 0x1c17c4);
 		int bad = 0;
+		if (nva_rd32(ctx->cnum, 0x1c17c4)) {
+			printf("HUNG!\n");
+			bad = 1;
+		}
+		nva_wr32(ctx->cnum, 0x1c17c0, 2);
 		for (j = 0; j < 12; j++) {
 			nva_wr32(ctx->cnum, 0x1c17d0, j);
 			nregs[j] = nva_rd32(ctx->cnum, 0x1c17d4);
