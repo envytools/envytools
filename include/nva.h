@@ -102,6 +102,8 @@ struct nva_regspace {
 		NVA_REGSPACE_VGA_ST,
 		NVA_REGSPACE_PIPE,
 		NVA_REGSPACE_RDI,
+		NVA_REGSPACE_UNK1C1_CODE,
+		NVA_REGSPACE_UNK1C1_REG,
 	} type;
 	int regsz;
 	int idx;
