@@ -89,7 +89,7 @@ is:
    - NV84 subfamily: NV84, NV86, NV92, NV94, NV96, NV98
    - NVA0 subfamily: NVA0, NVAA, NVAC
    - NVA3 subfamily: NVA3, NVA5, NVA8, NVAF
- - NVC0 family: NVC0, NVC4, NVC3, NVCE, NVCF, NVC1, NVC8, NVD9, NVE4, NVE7
+ - NVC0 family: NVC0, NVC4, NVC3, NVCE, NVCF, NVC1, NVC8, NVD7, NVD9, NVE4, NVE7, NVE6, NVF0
 
 Whenever a range of cards is mentioned in the documentation, it's written as
 "NVxx:NVyy". This is left-inclusive, right-noninclusive range of chipset ids
@@ -589,6 +589,7 @@ NVCE [GF114]: 2:4:4:1
 NVCF [GF116]: 1:4:3:1
 NVC1 [GF108]: 1:2:1:2
 NVC8 [GF110]: 4:4:6:1
+NVD7 [GF117]: ?:?:?:? [XXX]
 NVD9 [GF119]: 1:1:1:1
 NVE4 [GK104]: 4:2:4:1
 NVE7 [GK107]: 1:2:2:1
@@ -605,6 +606,7 @@ core  hda  chipset
 124X+ 0bee NVCF
 0deX+ 0bea NVC1
 108X+ 0e09 NVC8
+114X* ???? NVD7 [XXX]
 104X* 0e08 NVD9
 118X* 0e0a NVE4
 0fcX* 0e1b NVE7
