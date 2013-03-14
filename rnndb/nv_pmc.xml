@@ -64,7 +64,8 @@
 			<bitfield pos="13" name="UNK13" variants="NVA3:NVC0" />
 			<bitfield pos="13" name="PBFB" variants="NVC0-"/>
 			<bitfield pos="14" name="PCRYPT" variants="NV84:NVA3"/>
-			<bitfield pos="14" name="UNK14" variants="NVA3:NVC0" />
+			<bitfield pos="14" name="UNK14" variants="NVA3:NVAF" />
+			<bitfield pos="14" name="PUNK1C1" variants="NVAF:NVC0"/>
 			<bitfield pos="15" name="PBSP" variants="NV84-"/>
 			<bitfield pos="16" name="PRM" variants="NV01"/>
 			<bitfield pos="16" name="PVIDEO" variants="NV03:NV50"/>
@@ -134,6 +135,7 @@
 			<bitfield pos="13" name="PCOPY" variants="NVA3:NVC0"/>
 			<bitfield pos="13" name="PDAEMON" variants="NVC0-"/>
 			<bitfield pos="14" name="PCRYPT" variants="NV84:NVA3"/>
+			<bitfield pos="14" name="PUNK1C1" variants="NVAF:NVC0"/>
 			<bitfield pos="15" name="PBSP" variants="NV84-"/>
 			<bitfield pos="16" name="PRM" variants="NV01"/>
 			<bitfield pos="16" name="PTIMER" variants="NV03-"/>

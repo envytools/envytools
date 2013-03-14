@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+<import file="nv98_fuc.xml" />
+
+<array name="PUNK1C1" offset="0x1c1000" stride="0x1000" length="1" variants="NVAF-">
+	<use-group name="nv98_fucbase"/>
+	<use-group name="nv98_fuc_memif"/>
+	<bitset name="unk1c1_intr" inline="yes">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="1" name="UNK1"/>
+		<bitfield pos="2" name="UNK2"/>
+		<bitfield pos="3" name="UNK3"/>
+		<bitfield pos="4" name="UNK4"/>
+		<bitfield pos="5" name="UNK5"/>
+	</bitset>
+	<reg32 offset="0x41c" name="INTR_TRIGGER" type="unk1c1_intr"/>
+	<reg32 offset="0x420" name="INTR_EN" type="unk1c1_intr"/>
+	<reg32 offset="0x424" name="INTR" type="unk1c1_intr"/>
+	<reg32 offset="0x42c" name="UNK430_IDX" max="0x20b"/>
+	<reg32 offset="0x430" name="UNK430_DATA" length="4"/> <!-- scan ffffffff for indices 0-3, 3fffffff for 4-0x20b -->
+	<reg32 offset="0x46c" name="UNK470_IDX" max="0xe"/>
+	<reg32 offset="0x470" name="UNK470_DATA" length="4"/>
+	<reg32 offset="0x66c" name="UNK470_IDX" max="0x31"/> <!-- XXX wtf? -->
+	<reg32 offset="0x670" name="UNK470_DATA" length="4"/>
+	<array offset="0x7c0" name="UC" stride="0x40">
+		<reg32 offset="0x00" name="CONTROL">
+			<bitfield pos="0" name="START_TRIGGER"/>
+			<bitfield pos="1" name="STOP_TRIGGER"/>
+		</reg32>
+		<reg32 offset="0x04" name="STATUS">
+			<bitfield pos="0" name="RUNNING"/>
+			<bitfield pos="1" name="STOPPED"/>
+		</reg32>
+		<reg32 offset="0x08" name="CODE_ADDR" min="0" max="0x3fc" align="4"/>
+		<reg32 offset="0x0c" name="CODE_WINDOW"/>
+		<reg32 offset="0x10" name="REG_IDX">
+			<value value="0" name="R0"/>
+			<value value="1" name="R1"/>
+			<value value="2" name="R2"/>
+			<value value="3" name="R3"/>
+			<value value="4" name="R4"/>
+			<value value="5" name="R5"/>
+			<value value="6" name="R6"/>
+			<value value="7" name="R7"/>
+			<value value="8" name="PC"/>
+			<value value="9" name="OP"/>
+			<value value="0xa" name="PRED"/> <!-- 3-bit -->
+			<value value="0xb" name="UNK0B"/> <!-- 4-bit -->
+		</reg32>
+		<reg32 offset="0x14" name="REG_LOW"/>
+		<reg32 offset="0x18" name="REG_HIGH"/>
+	</array>
+</array>

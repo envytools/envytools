@@ -17,13 +17,13 @@ Version:
 Code segment size:
 	VP3: 0x1000
 	VP4.0: 0x1800
-	VP4.1: ??? [XXX]
+	VP4.1: 0x2000
 	VP4.2: 0x2000
 	VP5: 0x2000
 Data segment size:
 	VP3: 0x1000
 	VP4.0: 0x1000
-	VP4.1: ??? [XXX]
+	VP4.1: 0x2000
 	VP4.2: 0x2000
 	VP5: 0x1000
 Fifo size: 0x10

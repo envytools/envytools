@@ -182,6 +182,9 @@
 <!-- 180000 - 1bffff PCOUNTER -->
 <import file="nvc0_pcounter.xml" />
 
+<!-- 1c1000 - 1c1fff PUNK1C1 -->
+<import file="nvaf_punk1c1.xml" />
+
 <!-- 200000 - 200fff PMEDIA -->
 <import file="nv_pmedia.xml" />
 

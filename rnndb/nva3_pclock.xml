@@ -75,22 +75,22 @@
 
 	<reg32 name="NVPLL_SRC" offset="0x120" type="nva3_pll_src"/>
 	<reg32 name="SPLL_SRC" offset="0x124" type="nva3_pll_src"/>
-	<reg32 name="MPLL_SRC" offset="0x128" type="nva3_pll_src"/>
+	<reg32 name="MPLL_SRC" offset="0x128" type="nva3_pll_src"/> <!-- not on NVAF -->
 	<reg32 name="VPLL1_SRC" offset="0x140" type="nva3_pll_src"/>
 	<reg32 name="VPLL2_SRC" offset="0x144" type="nva3_pll_src"/>
 	<reg32 name="NVCLK" offset="0x160" type="nva3_pll_src"/>
 	<reg32 name="SCLK" offset="0x164" type="nva3_pll_src"/>
-	<reg32 name="MCLK" offset="0x168" type="nva3_pll_src"/>
+	<reg32 name="MCLK" offset="0x168" type="nva3_pll_src"/> <!-- *is* present on NVAF -->
 	<reg32 name="VCLK1" offset="0x180" type="nva3_pll_src"/>
 	<reg32 name="VCLK2" offset="0x184" type="nva3_pll_src"/>
 	<reg32 name="TCLK" offset="0x190" type="nva3_pll_src"/>
 	<reg32 name="CLK13" offset="0x194" type="nva3_pll_src"/>
-	<reg32 name="CLK14" offset="0x198" type="nva3_pll_src"/>
+	<reg32 name="CLK14" offset="0x198" type="nva3_pll_src"/> <!-- not on NVAF -->
 	<reg32 name="CLK32" offset="0x1a0" type="nva3_pll_src"/>
 	<reg32 name="VDCLK" offset="0x1a4" type="nva3_pll_src"/>
 	<reg32 name="CLK36" offset="0x1b0" type="nva3_pll_src"/>
 	<reg32 name="DCLK" offset="0x1b4" type="nva3_pll_src"/>
-	<reg32 name="ACLK" offset="0x1bc" type="nva3_pll_src"/>
+	<reg32 name="ACLK" offset="0x1bc" type="nva3_pll_src"/> <!-- not on NVAF -->
 
 	<reg32 offset="0x200" name="NVPLL_CTRL" type="nva3_nvpll_ctrl"/>
 	<reg32 offset="0x204" name="NVPLL_COEF" type="nva3_pll_coef"/>

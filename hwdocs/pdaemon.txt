@@ -78,15 +78,12 @@ Version:
 	d3,d4: 4
 Code segment size:
 	d0: 0x4000
-	d1: ???
-	d2+: 0x6000
+	d1+: 0x6000
 Data segment size:
 	d0: 0x3000
-	d1: ???
-	d2+: 0x6000
+	d1+: 0x6000
 Fifo size:
-	d0: 0x10
-	d1: ???
+	d0, d1: 0x10
 	d2+: 3
 Xfer slots:
 	d0,d1,d2: 8

@@ -190,6 +190,7 @@
 			<bitfield pos="2" name="PDISPLAY"/>
 			<bitfield pos="5" name="PBSP"/>
 			<bitfield pos="6" name="PCRYPT" variants="NV84:NVA3"/>
+			<bitfield pos="6" name="PUNK1C1" variants="NVAF-"/>
 			<bitfield pos="9" name="PCOPY" variants="NVA3-"/>
 		</reg32>
 		<reg32 offset="0x55c" name="PEEPHOLE_W_CTRL" variants="NV30:NVC0">
@@ -239,6 +240,7 @@
 				<doc>XXX: Does not work on NVAC Asus AT3IONT-I (Deluxe)?</doc>
 			</bitfield>
 			<bitfield high="11" low="10" name="PCRYPT" variants="NV84:NVA3"/>
+			<bitfield high="11" low="10" name="PUNK1C1" variants="NVAF-"/>
 			<bitfield high="13" low="12" name="PBSP" variants="NV84-">
 				<doc>XXX: Does not work on NVAC Asus AT3IONT-I (Deluxe)?</doc>
 			</bitfield>
