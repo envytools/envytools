@@ -389,8 +389,10 @@
 			<doc>This reports compute program launch check errors
 			(in the "launch descriptor") on a0c0.</doc>
 			<bitfield pos="7" name="CONSTANT_BUFFER_SIZE"/>
-			<bitfield pos="9" name="LOCAL_MEMORY_SIZE_NEG"/>
-			<bitfield pos="10" name="LOCAL_MEMORY_SIZE_POS"/>
+			<bitfield pos="9" name="LOCAL_MEMORY_SIZE_POS"/>
+			<bitfield pos="10" name="LOCAL_MEMORY_SIZE_NEG"/>
+			<bitfield pos="11" name="WARP_CSTACK_SIZE"/>
+			<bitfield pos="12" name="TOTAL_TEMP_SIZE"/>
 			<bitfield pos="13" name="REGISTER_COUNT"/>
 			<bitfield pos="18" name="TOTAL_THREADS"/>
 			<bitfield pos="20" name="PROGRAM_OFFSET"/>
