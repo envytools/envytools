@@ -782,8 +782,39 @@
 			</reg32>
 		</array>
 		<array offset="0x600" name="MP" stride="0x200" length="1">
-			<reg32 offset="0x044" name="UNK44_TRAP"/>
-			<reg32 offset="0x04c" name="UNK4C_TRAP"/>
+			<reg32 offset="0x00c" name="BPT_STATUS"/>
+			<reg32 offset="0x010" name="BPT_CONTROL"/>
+			<reg32 offset="0x014" name="ACTIVE_WARP_MASK" length="2" stride="4"/>
+			<reg32 offset="0x024" name="PAUSED_WARP_MASK" length="2" stride="4"/>
+			<reg32 offset="0x034" name="BPT_TRAP_WARP_MASK" length="2" stride="4"/>
+			<reg32 offset="0x044" name="TRAP_WARP_ERROR_EN">
+				<bitfield pos="1" name="STACK_MISMATCH"/>
+				<bitfield pos="5" name="MISALIGNED_PC"/>
+				<bitfield pos="8" name="MISALIGNED_GPR"/>
+				<bitfield pos="9" name="INVALID_OPCODE"/>
+				<bitfield pos="13" name="GPR_OUT_OF_BOUNDS"/>
+				<bitfield pos="14" name="MEM_OUT_OF_BOUNDS"/>
+				<bitfield pos="17" name="INVALID_PARAM"/><!-- e.g. non-allocated barrier -->
+			</reg32>
+			<reg32 offset="0x048" name="TRAP_WARP_ERROR">
+				<bitfield high="15" low="0" name="ID">
+					<value value="1" name="STACK_MISMATCH"/>
+					<value value="5" name="MISALIGNED_PC"/>
+					<value value="8" name="MISALIGNED_GPR"/>
+					<value value="9" name="INVALID_OPCODE"/>
+					<value value="13" name="GPR_OUT_OF_BOUNDS"/>
+					<value value="14" name="MEM_OUT_OF_BOUNDS"/>
+					<value value="17" name="INVALID_PARAM"/>
+				</bitfield>
+			</reg32>
+			<reg32 offset="0x04c" name="TRAP_GLOBAL_ERROR_EN">
+				<bitfield pos="2" name="MULTIPLE_WARP_ERRORS"/>
+				<bitfield pos="3" name="OUT_OF_STACK_SPACE"/>
+			</reg32>
+			<reg32 offset="0x050" name="TRAP_GLOBAL_ERROR">
+				<bitfield pos="2" name="MULTIPLE_WARP_ERRORS"/>
+				<bitfield pos="3" name="OUT_OF_STACK_SPACE"/>
+			</reg32>
 			<reg32 offset="0x058" name="TRAP_HANDLER_PC"/>
 			<reg32 offset="0x060" name="PM_OP" length="4">
 				<bitfield low="0" high="15" name="0"/>
@@ -801,6 +832,10 @@
 			</reg32>
 			<reg32 offset="0x074" name="PM_COUNTER" length="8"/>
 			<reg32 offset="0x098" name="TPID"/>
+			<reg32 offset="0x0a4" name="CCACHE_CTRL">
+				<bitfield pos="0" name="CODE_FLUSH_TRIGGER"/>
+				<bitfield pos="1" name="CBUF_FLUSH_TRIGGER"/>
+			</reg32>
 			<reg32 offset="0x128" name="VSTATUS" access="r">
 				<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
 				<bitfield low="3" high="5" name="UNK1" type="NV50_VSTATUS"/>
@@ -911,6 +946,9 @@
 		<array offset="0xf00" name="UNKF00" stride="0x100" length="1">
 		</array>
 		<array offset="0x1000" name="CCACHE" stride="0x100" length="1">
+			<reg32 offset="0x00" name="CACHE_CTRL">
+				<bitfield pos="1" name="FLUSH_TRIGGER"/>
+			</reg32>
 			<reg32 offset="0x04" name="HUB2GPC_ADDR" shr="8"/>
 			<reg32 offset="0x08" name="HUB2GPC_CONF">
 				<bitfield low="0" high="7" name="UNK0"/>
