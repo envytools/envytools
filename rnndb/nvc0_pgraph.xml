@@ -329,7 +329,7 @@
 	</array>
 	<array offset="0x4800" name="DDATA" stride="0x800" length="1">
 	</array>
-	<array offset="0x5800" name="UNK5800" stride="0x800" length="1">
+	<array offset="0x5800" name="UNK5800" stride="0x100" length="1">
 		<reg32 offset="0x40" name="TRAP">
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
@@ -344,6 +344,16 @@
 			<bitfield low="20" high="23" name="5"/>
 			<bitfield low="24" high="27" name="6"/>
 			<bitfield low="28" high="31" name="7"/>
+		</reg32>
+	</array>
+	<array offset="0x5b00" name="UNK5B00" stride="0x100" length="1">
+		<reg32 offset="0x00" name="UNK00">
+			<doc>Affects the maximum number of MPs used for compute shader grids.
+			This includes layout the layout of the TEMP area.
+			Values seen: 0x201 for 1 GPC with 2 TPs and 0x804 for 4 GPCs with 2 TPs each.
+			</doc>
+			<bitfield low="0" high="7" name="UNK0"/>
+			<bitfield low="8" high="15" name="MP_COUNT"/><!-- guess -->
 		</reg32>
 	</array>
 	<array offset="0x6000" name="UNK6000" stride="0x800" length="1">

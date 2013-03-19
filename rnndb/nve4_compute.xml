@@ -43,7 +43,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x02b8" name="UNK02B8"/>
 		<reg32 offset="0x02bc" name="LAUNCH"/>
 		<!-- 02c0 - 02e0: illegal !-->
-		<array offset="0x02e4" name="TEMP_SIZE" length="2" stride="0xc">
+		<array offset="0x02e4" name="MP_TEMP_SIZE" length="2" stride="0xc">
+			<doc>The TEMP area is split among MPs, where each MP gets assigned a single contiguous block.
+			This specifies the size a single MP is awarded, so it should be set to the actual size of the
+			buffer divided by the number of MPs that are available.
+			</doc>
 			<reg32 offset="0x0" name="HIGH"/>
 			<reg32 offset="0x4" name="LOW"/><!-- aligned to 0x8000 -->
 			<reg32 offset="0x8" name="MASK"/><!-- bits 0x1ff -->
