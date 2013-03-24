@@ -303,6 +303,35 @@
 	</array>
 	<array offset="0x4400" name="MACRO" stride="0x100" length="1">
 		<reg32 offset="0" name="REG" length="8"/>
+		<reg32 offset="0x20" name="OPCODE"/>
+		<reg32 offset="0x24" name="PC"/>
+		<reg32 offset="0x28" name="NPC"/>
+		<reg32 offset="0x2c" name="STATE">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="8" name="RUNNING"/>
+			<bitfield pos="9" name="UNK9"/> <!-- parm/maddr? -->
+		</reg32>
+		<reg32 offset="0x30" name="UNK30">
+			<bitfield low="0" high="15" name="CLASS"/>
+			<bitfield low="16" high="18" name="UNK16"/>
+			<bitfield pos="20" name="UNK20"/>
+			<bitfield pos="24" name="UNK24"/>
+		</reg32>
+		<reg32 offset="0x34" name="UNK34">
+			<bitfield low="0" high="15" name="CLASS"/>
+			<bitfield low="16" high="18" name="UNK16"/>
+			<bitfield pos="20" name="UNK20"/>
+		</reg32>
+		<reg32 offset="0x38" name="UNK38">
+			<bitfield low="0" high="17" name="UNK0"/>
+			<bitfield pos="20" name="UNK20"/>
+		</reg32>
+		<reg32 offset="0x60" name="UNK60"/> <!-- 7f -->
+		<reg32 offset="0x64" name="UNK64"/> <!-- 7ff -->
+		<reg32 offset="0x68" name="WDCNT"/> <!-- 24 bits on NVC0:NVD9, 30 bits on NVD9+? -->
+		<reg32 offset="0x6c" name="ICNT"/>
+		<reg32 offset="0x80" name="UNK80"/> <!-- 3 -->
 		<reg32 offset="0x88" name="MCACHE_CTRL">
 			<bitfield low="0" high="15" name="CLASS"/>
 			<bitfield low="16" high="27" name="MTHD" shr="2"/>
@@ -311,12 +340,25 @@
 		</reg32>
 		<reg32 offset="0x8c" name="MCACHE_DATA"/>
 		<reg32 offset="0x90" name="TRAP">
-			<bitfield name="TOO_FEW_PARAMS" pos="0" />
-			<bitfield name="TOO_MANY_PARAMS" pos="1" />
-			<bitfield name="ILLEGAL_OPCODE" pos="2" />
-			<bitfield name="DOUBLE_BRANCH" pos="3" />
-			<bitfield name="CLEAR" pos="30" />
-			<bitfield name="ENABLE" pos="31" />
+			<bitfield pos="0" name="TOO_FEW_PARAMS"/>
+			<bitfield pos="1" name="TOO_MANY_PARAMS"/>
+			<bitfield pos="2" name="ILLEGAL_OPCODE"/>
+			<bitfield pos="3" name="DOUBLE_BRANCH"/>
+			<bitfield pos="4" name="WATCHDOG"/>
+			<bitfield pos="29" name="UNK29"/>
+			<bitfield pos="30" name="CLEAR"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x94" name="TRAP_LOCATION" access="r">
+			<bitfield low="0" high="10" name="PC"/>
+			<!-- XXX: something at 28? -->
+		</reg32>
+		<reg32 offset="0x98" name="UNK98">
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="4" name="UNK4"/>
+		</reg32>
+		<reg32 offset="0x9c" name="TRAP_OPCODE" access="r"/>
+		<reg32 offset="0xa0" name="STATUS">
 		</reg32>
 	</array>
 	<array offset="0x4600" name="M2MF" stride="0x200" length="1">
@@ -585,7 +627,7 @@
 		<reg32 offset="0x90c" name="STRAND_LOAD_SWBASE" shr="8"/>
 		<reg32 offset="0x910" name="STRAND_WORDS"/>
 		<reg32 offset="0x914" name="STRAND_UNK_MEMIF"/>
-		<reg32 offset="0x918" name="STRAND_GENE_CNT"/> <!-- also used as param by UNK5? -->
+		<reg32 offset="0x918" name="STRAND_DATA"/>
 		<reg32 offset="0x91c" name="STRAND_SELECT">
 			<bitfield low="0" high="13" name="GENE"/>
 			<bitfield low="16" high="19" name="UNK16"/>
