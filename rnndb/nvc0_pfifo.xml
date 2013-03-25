@@ -186,7 +186,7 @@
 
 <array offset="0x800000" name="PFIFO_CHAN" stride="8" length="0x1000" variants="NVE4-">
 	<reg32 offset="0" name="CHAN">
-		<bitfield low="0" high="29" name="nv50_channel"/>
+		<bitfield low="0" high="29" name="INST" type="nv50_channel"/>
 		<bitfield pos="31" name="UNK31"/>
 	</reg32>
 	<reg32 offset="4" name="STATE">
@@ -215,6 +215,7 @@
 		<bitfield pos="31" name="VALID"/>
 	</reg32>
 	<reg32 offset="0x28" name="REF_CNT"/>
+	<reg32 offset="0x2c" name="ACTIVE_CYCLES"/>
 
 	<reg32 offset="0x38" name="SEMAPHORE_ADDRESS_HIGH"/>
 	<reg32 offset="0x3c" name="SEMAPHORE_ADDRESS_LOW"/>
@@ -222,13 +223,13 @@
 	<reg32 offset="0x44" name="SEMAPHORE_STATE">
 		<bitfield low="0" high="3" name="MODE">
 			<value value="1" name="ACQUIRE_EQUAL"/>
-			<value value="2" name="RELEASE_LONG"/>
+			<value value="2" name="RELEASE"/>
 			<value value="4" name="ACQUIRE_GEQUAL"/>
 		</bitfield>
-		<bitfield pos="12" name="UNK12"/>
+		<bitfield pos="12" name="YIELD"/>
 		<bitfield pos="19" name="ACQUIRE_PENDING"/>
 		<bitfield pos="20" name="UNK20"/>
-		<bitfield pos="24" name="UNK24"/>
+		<bitfield pos="24" name="SHORT"/>
 	</reg32>
 	<reg32 offset="0x48" name="IB_ADDRESS_LOW"/>
 	<reg32 offset="0x4c" name="IB_CONFIG">
@@ -244,6 +245,8 @@
 	<reg32 offset="0x6c" name="DMA_PUT_HIGH_RS"/>
 	<reg32 offset="0x70" name="DMA_MGET_HIGH_RS"/>
 
+	<reg32 offset="0x7c" name="MTHD_UNK74" variants="NVC0:NVE4"/>
+	<reg32 offset="0x80" name="MTHD_UNK78" variants="NVC0:NVE4"/>
 	<reg32 offset="0x84" name="DMA_STATE_0">
 		<bitfield pos="1" name="UNK1"/>
 		<bitfield low="2" high="13" name="MTHD" shr="2"/>
@@ -264,7 +267,14 @@
 	</reg32>
 	<reg32 offset="0x8c" name="PRECACHE_0"/>
 	<reg32 offset="0x90" name="PRECACHE_1"/>
+	<reg32 offset="0x94" name="SLI">
+		<bitfield low="0" high="11" name="UNK0"/>
+		<bitfield low="16" high="27" name="UNK16"/>
+		<bitfield pos="28" name="UNK28"/> <!-- RO 1 -->
+		<bitfield pos="29" name="UNK29"/>
+	</reg32>
 
+	<reg32 offset="0xa0" name="MTHD_UNK28"/>
 	<reg32 offset="0xa4" name="ENGINE" length="2" variants="NVC0:NVE4">
 		<bitfield low="0" high="4" name="0" type="nvc0_pfifo_engine"/>
 		<bitfield low="8" high="12" name="1" type="nvc0_pfifo_engine"/>
