@@ -26,6 +26,8 @@ mthd   | name                   | cards | description
 -----------------------------------------------------------------------------
 0x0000 | OBJECT [O]             |  all  | binds an engine object
 -----------------------------------------------------------------------------
+0x0008 | NOP                    | NVC0- | does nothing
+-----------------------------------------------------------------------------
 0x0010 | SEMAPHORE_ADDRESS_HIGH |       |
 0x0014 | SEMAPHORE_ADDRESS_LOW  |       | new-style semaphores
 0x0018 | SEMAPHORE_SEQUENCE     |       |
@@ -35,12 +37,21 @@ mthd   | name                   | cards | description
 --------------------------------|       |------------------------------------
 0x0024 | WRCACHE_FLUSH          |       | flushes write post caches
 -----------------------------------------------------------------------------
+0x0028 | ???                    | NVC0- | ???
+0x002c | ???                    | NVC0- | ???
+-----------------------------------------------------------------------------
 0x0050 | REF_CNT                | NV10- | writes the ref counter
 -----------------------------------------------------------------------------
-0x0060 | DMA_SEMAPHORE [O]      |       |
-0x0064 | SEMAPHORE_OFFSET       | NV11: | old-style semaphores
-0x0068 | SEMAPHORE_ACQUIRE      | :NVC0 |
+0x0060 | DMA_SEMAPHORE [O]      | 11:C0 | DMA object for semaphores
+-----------------------------------------------------------------------------
+0x0064 | SEMAPHORE_OFFSET       |       |
+0x0068 | SEMAPHORE_ACQUIRE      | NV11- | old-style semaphores
 0x006c | SEMAPHORE_RELEASE      |       |
+-----------------------------------------------------------------------------
+0x0070 | ???                    | NVC0- | ???
+0x0074 | ???                    | NVC0- | ???
+0x0078 | ???                    | NVC0- | ???
+0x007c | ???                    | NVC0- | ???
 -----------------------------------------------------------------------------
 0x0080 | YIELD                  | NV40- | yield PFIFO - force channel switch
 -----------------------------------------------------------------------------
@@ -417,21 +428,23 @@ mthd 0x0060 / 0x018: DMA_SEMAPHORE [O] [NV11:NVC0]
 	dma_semaphore = obj;
 [XXX: is there ANY way to make NV50 reject non-DMA object classes?]
 
-mthd 0x0064 / 0x019: SEMAPHORE_OFFSET [NV11:NVC0]
+mthd 0x0064 / 0x019: SEMAPHORE_OFFSET [NV11-]
 	if (chipset < NV50) {
 		if (param & ~0xffc)
 			throw SEMAPHORE(INVALID_OPERAND);
 		semaphore_offset = param;
-	} else {
+	} else if (chipset < NVC0) {
 		if (param & 3)
 			throw SEMAPHORE(ADDRESS_UNALIGNED);
 		if (param & 0xffff0000)
 			throw SEMAPHORE(ADDRESS_TOO_LARGE);
 		semaphore_offset = param;
 		semaphore_off_val = 1;
+	} else {
+		semaphore_address[0:31] = param;
 	}
 
-mthd 0x0068 / 0x01a: SEMAPHORE_ACQUIRE [NV11:NVC0]
+mthd 0x0068 / 0x01a: SEMAPHORE_ACQUIRE [NV11-]
 	if (chipset < NV50 && !dma_semaphore)
 		/* unbound DMA object */
 		throw SEMAPHORE(INVALID_STATE);
@@ -461,7 +474,7 @@ mthd 0x0068 / 0x01a: SEMAPHORE_ACQUIRE [NV11:NVC0]
 		}
 	}
 
-mthd 0x006c / 0x01b: SEMAPHORE_RELEASE [NV11:NVC0]
+mthd 0x006c / 0x01b: SEMAPHORE_RELEASE [NV11-]
 	if (chipset < NV50 && !dma_semaphore)
 		/* unbound DMA object */
 		throw SEMAPHORE(INVALID_STATE);

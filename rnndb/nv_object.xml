@@ -229,31 +229,36 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <domain name="NV01_SUBCHAN" bare="yes" size="0x8000">
 	<stripe name="SUBCHAN" prefix="chipset">
-		<reg32 offset="0x00" name="OBJECT" type="object" />
-		<stripe variants="NV84-">
-			<reg32 offset="0x10" name="SEMAPHORE_ADDRESS_HIGH" />
-			<reg32 offset="0x14" name="SEMAPHORE_ADDRESS_LOW" />
-			<reg32 offset="0x18" name="SEMAPHORE_SEQUENCE" />
-			<reg32 offset="0x1c" name="SEMAPHORE_TRIGGER">
-				<bitfield high="3" low="0" name="ACTION">
-					<value value="1" name="ACQUIRE_EQUAL"/>
-					<value value="2" name="WRITE_LONG"/>
-					<value value="4" name="ACQUIRE_GEQUAL">
-						<doc>Waits until (*SEMAPHORE_ADDRESS - SEQUENCE) >= 0 as signed 32-bit number.</doc>
-					</value>
-				</bitfield>
-				<bitfield pos="12" name="YIELD" variants="NVC0-" />
-			</reg32>
-			<reg32 offset="0x20" name="NOTIFY_INTR"/>
-			<reg32 offset="0x24" name="WRCACHE_FLUSH"/>
-		</stripe>
+		<reg32 offset="0x00" name="OBJECT" type="object"/>
+		<reg32 offset="0x08" name="NOP" variants="NVC0-"/>
+		<reg32 offset="0x10" name="SEMAPHORE_ADDRESS_HIGH" variants="NV84-"/>
+		<reg32 offset="0x14" name="SEMAPHORE_ADDRESS_LOW" variants="NV84-"/>
+		<reg32 offset="0x18" name="SEMAPHORE_SEQUENCE" variants="NV84-"/>
+		<reg32 offset="0x1c" name="SEMAPHORE_TRIGGER" variants="NV84-">
+			<bitfield high="3" low="0" name="ACTION">
+				<value value="1" name="ACQUIRE_EQUAL"/>
+				<value value="2" name="RELEASE"/>
+				<value value="4" name="ACQUIRE_GEQUAL">
+					<doc>Waits until (*SEMAPHORE_ADDRESS - SEQUENCE) >= 0 as signed 32-bit number.</doc>
+				</value>
+			</bitfield>
+			<bitfield pos="12" name="YIELD" variants="NVC0-"/>
+			<bitfield pos="20" name="UNK20" variants="NVC0-"/>
+			<bitfield pos="24" name="SHORT" variants="NVC0-"/>
+		</reg32>
+		<reg32 offset="0x20" name="NOTIFY_INTR" variants="NV84-"/>
+		<reg32 offset="0x24" name="WRCACHE_FLUSH" variants="NV84-"/>
+		<reg32 offset="0x28" name="UNK28" variants="NVC0-"/>
+		<reg32 offset="0x2c" name="UNK2C" variants="NVC0-"/>
 		<reg32 offset="0x50" name="REF_CNT" variants="NV10-"/>
-		<stripe variants="NV11-">
-			<reg32 offset="0x60" name="DMA_SEMAPHORE" type="object" />
-			<reg32 offset="0x64" name="SEMAPHORE_OFFSET" />
-			<reg32 offset="0x68" name="SEMAPHORE_ACQUIRE" />
-			<reg32 offset="0x6c" name="SEMAPHORE_RELEASE" />
-		</stripe>
+		<reg32 offset="0x60" name="DMA_SEMAPHORE" variants="NV11:NVC0" type="object"/>
+		<reg32 offset="0x64" name="SEMAPHORE_OFFSET" variants="NV11-"/>
+		<reg32 offset="0x68" name="SEMAPHORE_ACQUIRE" variants="NV11-"/>
+		<reg32 offset="0x6c" name="SEMAPHORE_RELEASE" variants="NV11-"/>
+		<reg32 offset="0x70" name="UNK70" variants="NVC0-"/>
+		<reg32 offset="0x74" name="UNK74" variants="NVC0-"/>
+		<reg32 offset="0x78" name="UNK78" variants="NVC0-"/>
+		<reg32 offset="0x7c" name="UNK7C" variants="NVC0-"/>
 		<reg32 offset="0x80" name="YIELD" variants="NV40-"/>
 	</stripe>
 	<stripe name="GRAPH" prefix="chipset" varset="obj-class" variants="NV01_BETA:NV84_CRYPT">
