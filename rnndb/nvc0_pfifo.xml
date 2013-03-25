@@ -28,12 +28,12 @@
 		<bitfield pos="8" name="PLAYLIST"/>
 		<bitfield pos="16" name="UNK16"/>
 		<bitfield pos="23" name="UNK23"/>
-		<bitfield pos="24" name="UNK24"/> <!-- triggered when sum of 3e0+ bits 24-30 is > 0x80 -->
+		<bitfield pos="24" name="UNK24"/> <!-- 58c -->
 		<bitfield pos="27" name="UNK27"/>
 		<bitfield pos="28" name="VM_FAULT"/> <!-- level -->
 		<bitfield pos="29" name="SUBFIFO_INTR"/> <!-- level -->
 		<bitfield pos="30" name="UNK30"/> <!-- a00, level -->
-		<bitfield pos="31" name="NOTIFY"/> <!-- level? -->
+		<bitfield pos="31" name="ENGINE_INTR"/> <!-- level -->
 	</bitset>
 	<reg32 offset="0x100" name="INTR" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x140" name="INTR_EN" type="nvc0_pfifo_intr"/>
@@ -92,26 +92,25 @@
 	</reg32>
 	<reg32 offset="0x528" name="INTR_EN_NRHOST" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x530" name="INTR_UNK530" type="nvc0_pfifo_intr"/>
-	<reg32 offset="0x54c" name="PLAYLIST_INTR">
+	<reg32 offset="0x54c" name="PLAYLIST_INTR"> <!-- RO, ack in 2100 -->
 		<value value="1" name="INACTIVE_CHANNEL"/>
 		<value value="0xa" name="ENGINE_TIMEOUT"/>
 		<value value="0x19" name="ENGINE_MISMATCH" variants="NVE4-"/>
 	</reg32>
-	<reg32 offset="0x59c" name="VM_FAULT_SOURCE">
-		<bitfield pos="0" name="PGRAPH"/>
-		<bitfield pos="3" name="PEEPHOLE"/>
-		<bitfield pos="4" name="BAR1"/>
-		<bitfield pos="5" name="BAR3"/>
-		<bitfield pos="7" name="PFIFO"/>
+	<reg32 offset="0x58c" name="INTR24_SOURCE"> <!-- RO, ack in 2100 -->
+		<bitfield pos="0" name="UNKBUF0_SUM_OVERFLOW"/>
 	</reg32>
-	<reg32 offset="0x5a0" name="SUBFIFO_INTR_SOURCE">
-		<bitfield pos="0" name="0"/>
-		<bitfield pos="1" name="1"/>
-		<bitfield pos="2" name="2"/>
-	</reg32>
-	<reg32 offset="0x628" name="NOTIFY_ENABLE" variants="NVC0:NVE4">
-		<!-- Set to 1 to get NOTIFY_INTR to work on fermi -->
-	</reg32>
+	<reg32 offset="0x59c" name="VM_FAULT_SOURCE"/> <!-- bit x: VM engine #x -->
+	<reg32 offset="0x5a0" name="SUBFIFO_INTR_SOURCE"/> <!-- bit x: PSUBFIFO #x -->
+	<bitset name="nvc0_pfifo_engine_intr" inline="yes">
+		<bitfield pos="0" name="NOTIFY"/>
+		<bitfield pos="1" name="UNK1"/>
+		<bitfield pos="2" name="UNK2"/>
+		<bitfield pos="3" name="UNK3"/>
+	</bitset>
+	<reg32 offset="0x5a4" name="ENGINE_INTR_SOURCE" variants="NVC0:NVE4"/> <!-- bit x: FIFO engine #x -->
+	<reg32 offset="0x5a8" name="ENGINE_INTR" length="16" type="nvc0_pfifo_engine_intr" variants="NVC0:NVE4"/>
+	<reg32 offset="0x628" name="ENGINE_INTR_ENABLE" type="nvc0_pfifo_engine_intr" variants="NVC0:NVE4"/>
 	<reg32 offset="0x62c" name="ENG_FAULT"> <!-- write 1 to clear -->
 		<bitfield pos="0" name="PGRAPH"/>
 		<bitfield pos="1" name="PVP"/>
