@@ -208,6 +208,7 @@
 
 	<reg32 offset="0x0604" name="GPC_STATUS" access="r"/> <!-- mask of busy GPCs -->
 	<reg32 offset="0x0608" name="ROP_STATUS" access="r"/> <!-- mask of busy ROPs -->
+	<reg32 offset="0x060c" name="FE_STATUS" access="r"/> <!-- 1 when FE busy? -->
 	<reg32 offset="0x0610" name="PCOUNTER_STATUS_MASK"> <!-- enables PCOUNTER -> PGRAPH.HUB status reporting -->
 		<bitfield pos="15" name="PCOUNTER_MAIN"/>
 		<bitfield pos="16" name="PCOUNTER"/>
@@ -307,10 +308,10 @@
 		<reg32 offset="0x24" name="PC"/>
 		<reg32 offset="0x28" name="NPC"/>
 		<reg32 offset="0x2c" name="STATE">
-			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="0" name="CARRY"/>
 			<bitfield pos="4" name="UNK4"/>
 			<bitfield pos="8" name="RUNNING"/>
-			<bitfield pos="9" name="UNK9"/> <!-- parm/maddr? -->
+			<bitfield pos="9" name="OPCODE_PENDING"/>
 		</reg32>
 		<reg32 offset="0x30" name="UNK30">
 			<bitfield low="0" high="15" name="CLASS"/>
@@ -324,7 +325,7 @@
 			<bitfield pos="20" name="UNK20"/>
 		</reg32>
 		<reg32 offset="0x38" name="UNK38">
-			<bitfield low="0" high="17" name="UNK0"/>
+			<bitfield low="0" high="17" name="MADDR"/>
 			<bitfield pos="20" name="UNK20"/>
 		</reg32>
 		<reg32 offset="0x60" name="UNK60"/> <!-- 7f -->
@@ -345,7 +346,7 @@
 			<bitfield pos="2" name="ILLEGAL_OPCODE"/>
 			<bitfield pos="3" name="DOUBLE_BRANCH"/>
 			<bitfield pos="4" name="WATCHDOG"/>
-			<bitfield pos="29" name="UNK29"/>
+			<bitfield pos="29" name="BLOCK"/>
 			<bitfield pos="30" name="CLEAR"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
