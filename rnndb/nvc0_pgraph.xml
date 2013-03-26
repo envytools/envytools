@@ -300,6 +300,8 @@
 		<reg32 offset="0xe0" name="NOTIFY_M2MF_ADDRESS_HIGH" />
 		<reg32 offset="0xe4" name="NOTIFY_M2MF_ADDRESS_LOW" />
 
+		<reg32 offset="0x15c" name="PM_UNK15C"/>
+
 		<reg32 offset="0x200" name="CTX_CACHE" length="8" />
 	</array>
 	<array offset="0x4400" name="MACRO" stride="0x100" length="1">
@@ -462,6 +464,7 @@
 		<reg32 offset="0x100" name="UNK100"/>
 	</array>
 	<array offset="0x7800" name="TPBUS" stride="0x800" length="1">
+		<reg32 offset="0x08" name="PM_UNK08"/>
 		<reg32 offset="0x0c" name="TP_GPCID" length="44">
 			<bitfield low="0" high="4" name="0"/>
 			<bitfield low="5" high="9" name="1"/>
@@ -693,10 +696,12 @@
 			</reg32>
 		</array>
 		<array offset="0x100" name="CROP" stride="0x100" length="1">
+			<reg32 offset="0x14" name="PM_UNK14" length="8"/>
 			<reg32 offset="0x44" name="TRAP">
 				<bitfield name="CLEAR" pos="30" />
 				<bitfield name="ENABLE" pos="31" />
 			</reg32>
+			<reg32 offset="0x88" name="PM_UNK88" length="2"/>
 		</array>
 		<reg32 offset="0x200" name="VSTATUS" access="r">
 			<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
@@ -727,6 +732,7 @@
 				<bitfield low="0" high="27" name="ADDRESS" shr="12"/>
 				<bitfield pos="28" name="UNK28"/>
 			</reg32>
+			<reg32 offset="0x054" name="PM_UNK054"/>
 			<reg32 offset="0x05c" name="TFB_UNFUCKUP_OFFSET_QUERIES">
 				<doc>If set to 0, the 9097/1b0c/0d005002 query will return bytes written
 				since the last time TFB_BUFFER_OFFSET (9097/0390) was written.
@@ -795,6 +801,7 @@
 			</reg32>
 		</array>
 		<array offset="0x400" name="UNK400" stride="0x80" length="1">
+			<reg32 offset="0x0c" name="PM_UNK0C"/>
 			<reg32 offset="0x10" name="VSTATUS" access="r">
 				<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
 				<bitfield low="3" high="5" name="UNK1" type="NV50_VSTATUS"/>
@@ -809,6 +816,7 @@
 				<bitfield pos="30" name="CLEAR"/>
 				<bitfield pos="31" name="ENABLE"/>
 			</reg32>
+			<reg32 offset="0x28" name="PM_UNK28"/>
 			<reg32 offset="0x68" name="TPID"/>
 		</array>
 		<array offset="0x500" name="MASTER" stride="0x100" length="1">
@@ -835,6 +843,7 @@
 			</reg32>
 		</array>
 		<array offset="0x600" name="MP" stride="0x200" length="1">
+			<reg32 offset="0x000" name="PM_UNK000"/>
 			<reg32 offset="0x00c" name="BPT_STATUS"/>
 			<reg32 offset="0x010" name="BPT_CONTROL"/>
 			<reg32 offset="0x014" name="ACTIVE_WARP_MASK" length="2" stride="4"/>
@@ -907,6 +916,7 @@
 
 	<group name="nvc0_gpc">
 		<array offset="0x380" name="UNK380" stride="0x080" length="1">
+			<reg32 offset="0x04" name="PM_UNK04"/>
 		</array>
 		<array offset="0x400" name="PROP" stride="0x100" length="1">
 			<reg32 offset="0x20" name="TRAP">
@@ -929,14 +939,18 @@
 			<reg32 offset="0x3c" name="TRAP_7">
 				<bitfield low="0" high="7" name="STORAGE_TYPE"/>
 			</reg32>
+			<reg32 offset="0xa0" name="PM_UNKA0"/>
 		</array>
 		<array offset="0x500" name="UNK500" stride="0x100" length="1">
 		</array>
 		<array offset="0x600" name="UNK600" stride="0x080" length="1">
+			<reg32 offset="0x04" name="PM_UNK04"/>
 		</array>
 		<array offset="0x680" name="UNK680" stride="0x080" length="1">
+			<reg32 offset="0x00" name="PM_UNK00"/>
 		</array>
 		<array offset="0x700" name="UNK700" stride="0x080" length="1">
+			<reg32 offset="0x14" name="PM_UNK14"/>
 		</array>
 		<array offset="0x800" name="ESETUP" stride="0x080" length="1">
 			<reg32 offset="0x08" name="HUB2ESETUP_ADDR" shr="8"/>
@@ -948,6 +962,7 @@
 				<bitfield low="0" high="27" name="ADDRESS" shr="12"/>
 				<bitfield pos="31" name="UNK31"/>
 			</reg32>
+			<reg32 offset="0x1c" name="PM_UNK1C"/>
 			<reg32 offset="0x24" name="TRAP">
 				<bitfield name="CLEAR" pos="30" />
 				<bitfield name="ENABLE" pos="31" />
@@ -960,6 +975,7 @@
 			</reg32>
 			<reg32 offset="0x34" name="UNK34_ADDR" shr="8"/>
 			<reg32 offset="0x38" name="UNK38_ADDR" shr="8"/>
+			<reg32 offset="0x48" name="PM_UNK48"/>
 		</array>
 		<array offset="0x900" name="ZCULL" stride="0x080" length="1">
 			<reg32 offset="0x00" name="TRAP">
@@ -972,6 +988,7 @@
 		<array offset="0xa00" name="UNKA00" stride="0x100" length="1">
 		</array>
 		<array offset="0xb00" name="TPBUS" stride="0x100" length="1">
+			<reg32 offset="0x04" name="PM_UNK04"/>
 			<reg32 offset="0x08" name="TP_GPCID" length="44">
 				<bitfield low="0" high="4" name="0"/>
 				<bitfield low="5" high="9" name="1"/>
@@ -1076,6 +1093,10 @@
 				<bitfield pos="3" name="ESETUP"/>
 				<bitfield low="16" high="23" name="TP"/>
 			</reg32>
+		</array>
+
+		<array offset="0x3000" stride="0x1000" length="1" name="UNK3000" variants="NVE4-">
+			<reg32 offset="0x14" name="PM_UNK14"/>
 		</array>
 
 		<array name="TP" offset="0x4000" stride="0x800" length="4">
