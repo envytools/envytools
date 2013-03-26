@@ -105,6 +105,25 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x2608" name="TEX_CB_INDEX"/>
 		<reg32 offset="0x260c" name="UNK260c"/>
+		<reg32 offset="0x335c" name="PM_SET" length="8">
+			<doc>i-th method sets i-th counter register, MP+0x74+(i*4).</doc>
+		</reg32>
+		<reg32 offset="0x337c" name="PM_UNK337C" length="8">
+			<doc>i-th method sets i-th byte of MP+0x4,0x8 mmio regs.</doc>
+			<bitfield high="7" low="0" name="UNIT"/>
+		</reg32>
+		<reg32 offset="0x339c" name="PM_UNK339C" length="8">
+			<doc>i-th method sets MP+0x130+(i*4) reg.</doc>
+		</reg32>
+		<reg32 offset="0x33bc" name="PM_UNK33BC" length="8">
+			<bitfield high="3" low="0" name="UNK0">
+				<doc>i-th method sets bits [i*4,i*4+3] of MP+0x5c,58 (note reverse order !).</doc>
+			</bitfield>
+			<bitfield high="19" low="4" name="UNK4">
+				<doc>i-th method sets i-th 16-bit word of MP+0x60,64,68,6c.</doc>
+			</bitfield>
+		</reg32>
+		<reg32 offset="0x33dc" name="PM_UNK33DC"/>
 	</stripe>
 </domain>
 
