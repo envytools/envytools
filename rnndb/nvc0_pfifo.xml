@@ -24,8 +24,8 @@
 <array name="PFIFO" offset="0x2000" stride="0x2000" length="1" variants="NVC0-">
 	<reg32 offset="0x000" name="UNK000"/> <!-- ffffffff/ffffffff/0 -->
 	<bitset name="nvc0_pfifo_intr" inline="yes">
-		<bitfield pos="0" name="INVALID_ENGINE"/> <!-- NVE4: poke engine id >6 to chan table -->
-		<bitfield pos="4" name="UNK4"/> <!-- 6c4 -->
+		<bitfield pos="0" name="UNK0"/> <!-- 52c -->
+		<bitfield pos="4" name="UNK4"/> <!-- triggered by messing with 6c4, no subintr? -->
 		<bitfield pos="8" name="PLAYLIST"/>
 		<bitfield pos="16" name="UNK16"/>
 		<bitfield pos="23" name="UNK23"/>
@@ -115,7 +115,10 @@
 	<reg32 offset="0x460" name="UNK460" length="16" stride="8"/> <!-- RO 1f000000 -->
 	<reg32 offset="0x464" name="UNK464" length="16" stride="8"/> <!-- RO 1f000000 -->
 	<reg32 offset="0x528" name="INTR_EN_NRHOST" type="nvc0_pfifo_intr"/>
-	<reg32 offset="0x52c" name="UNK52C"/> <!-- RO 0? -->
+	<reg32 offset="0x52c" name="INTR0_SOURCE">
+		<bitfield value="5" name="UNK5"/> <!-- caused by 0x3f1 poked to 2200 -->
+		<!-- unknown one [NVE4]: poke engine id >6 to chan table -->
+	</reg32>
 	<reg32 offset="0x530" name="INTR_UNK530" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x54c" name="PLAYLIST_INTR"> <!-- RO, ack in 2100 -->
 		<value value="1" name="INACTIVE_CHANNEL"/>
@@ -124,7 +127,7 @@
 	</reg32>
 	<reg32 offset="0x56c" name="UNK56C"/> <!-- RO 0? -->
 	<reg32 offset="0x58c" name="INTR24_SOURCE"> <!-- RO, ack in 2100 -->
-		<bitfield pos="0" name="UNKBUF0_SUM_OVERFLOW"/>
+		<value value="0" name="UNKBUF0_SUM_OVERFLOW"/>
 	</reg32>
 	<reg32 offset="0x59c" name="VM_FAULT_SOURCE"/> <!-- bit x: VM engine #x -->
 	<reg32 offset="0x5a0" name="SUBFIFO_INTR_SOURCE"/> <!-- bit x: PSUBFIFO #x -->
@@ -212,7 +215,10 @@
 			<bitfield low="24" high="28" name="GPCID"/>
 		</reg32>
 	</array>
-	<reg32 offset="0xa00" name="INTR30_UNK"/> <!-- 0 and 28 related to playlist -->
+	<reg32 offset="0xa00" name="UNKINTR30_INTR">
+		<bitfield pos="0" name="UNK0"/> <!-- playlist related -->
+		<bitfield pos="28" name="UNK28"/> <!-- playlist related... walk done? -->
+	</reg32>
 	<reg32 offset="0xa04" name="UNKA04"/> <!-- 8001ffff/bfffffff/0 on NVCx, 800003ff/bfffffff/0 on NVE4 -->
 	<reg32 offset="0xa08" name="UNKA08"/> <!-- 80ffffff/80ffffff/0 on NVCx, 80007fff/80ffffff/0 on NVE4 -->
 	<reg32 offset="0xa0c" name="UNKA0C"/> <!-- ffffffff/ffffffff/0 on NVCx, 803ff3ff/ffffffff/0 on NVE4 -->
@@ -223,7 +229,7 @@
 	<reg32 offset="0xa20" name="UNKA20"/> <!-- 8000ffff/8000ffff/0 on NVCx, 8000007f/8000ffff/0 on NVE4 -->
 	<reg32 offset="0xa24" name="UNKA24" type="boolean"/>
 	<reg32 offset="0xa28" name="UNKA28"/> <!-- 0/7/0 -->
-	<reg32 offset="0xa2c" name="UNKA2C"/> <!-- 0/80ffffff/0 -->
+	<reg32 offset="0xa2c" name="UNKA2C" variants="NVE4-"/> <!-- 0/80ffffff/0 -->
 	<reg32 offset="0xa30" name="VM_FAULT_INJECT" length="8"> <!-- 6 on NVC0:NVE4, 8 on NVE4+ -->
 		<bitfield low="0" high="4" name="ENGINE" type="NVC0_VM_ENGINE"/>
 		<bitfield pos="8" name="VALID"/>
@@ -406,6 +412,8 @@
 	<reg32 offset="0x104" name="UNK104" variants="NVC0:NVE4"/> <!-- 0/fffff/0 -->
 
 	<bitset name="nvc0_psubfifo_intr" inline="yes">
+		<bitfield pos="15" name="UNK15"/> <!-- caused by FEATURE 0 -->
+		<bitfield pos="18" name="UNK18"/> <!-- caused by 20010006 submitted in compat mode -->
 		<!-- XXX: all bits except 28 valid? -->
 		<bitfield pos="21" name="ILLEGAL_MTHD"/>
 		<bitfield pos="22" name="ILLEGAL_CMD"/>
