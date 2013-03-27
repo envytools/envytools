@@ -32,6 +32,7 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <string.h>
+#include <getopt.h>
 
 int sleep_disabled = 0;
 
@@ -225,6 +226,23 @@ FILE *open_input(char *filename) {
 }
 
 int main(int argc, char **argv) {
+	char *file = NULL;
+	int c,use_colors=1;
+	while ((c = getopt (argc, argv, "f:c")) != -1) {
+		switch (c) {
+			case 'f':{
+				file = strdup(optarg);
+				break;
+			}
+			case 'c':{
+				use_colors = 0;
+				break;
+			}
+			default:{
+				break;
+			}
+		}
+	}
 	rnn_init();
 
 	struct rnndb *db = rnn_newdb();
@@ -232,11 +250,7 @@ int main(int argc, char **argv) {
 	rnn_prepdb (db);
 	struct rnndomain *mmiodom = rnn_finddomain(db, "NV_MMIO");
 	struct rnndomain *crdom = rnn_finddomain(db, "NV_CR");
-	FILE *fin = stdin;
-
-	if (argc > 1)
-		fin = open_input(argv[1]);
-
+	FILE *fin = (file==NULL) ? stdin : open_input(file);
 	if (!fin) {
 		fprintf (stderr, "Failed to open input file!\n");
 		return 1;
@@ -256,7 +270,7 @@ int main(int argc, char **argv) {
 	varinfo_set_variant(hwsq_var_nv17, "nv17");
 	varinfo_set_variant(hwsq_var_nv41, "nv41");
 	varinfo_set_variant(hwsq_var_nv50, "nv50");
-	const struct envy_colors *colors = &envy_def_colors;
+	const struct envy_colors *colors = use_colors ? &envy_def_colors : &envy_null_colors;
 	while (1) {
 		/* yes, static buffer. but mmiotrace lines are bound to have sane length anyway. */
 		if (!fgets(line, sizeof(line), fin))
