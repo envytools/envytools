@@ -249,8 +249,8 @@
 			<bitfield pos="28" name="PENDING"/>
 		</reg32>
 	</array>
-	<reg332 offset="0x1000" name="UNK1000" length="8"/> <!-- RO 0 -->
-	<reg332 offset="0x1080" name="UNK1080" length="3"/> <!-- RO 0 -->
+	<reg32 offset="0x1000" name="UNK1000" length="8"/> <!-- RO 0 -->
+	<reg32 offset="0x1080" name="UNK1080" length="3"/> <!-- RO 0 -->
 </array>
 
 <array offset="0x800000" name="PFIFO_CHAN" stride="8" length="0x1000" variants="NVE4-">
