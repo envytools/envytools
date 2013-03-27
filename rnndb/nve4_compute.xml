@@ -105,25 +105,81 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x2608" name="TEX_CB_INDEX"/>
 		<reg32 offset="0x260c" name="UNK260c"/>
-		<reg32 offset="0x335c" name="PM_SET" length="8">
-			<doc>i-th method sets i-th counter register, MP+0x74+(i*4).</doc>
+		<reg32 offset="0x335c" name="MP_PM_SET" length="8"><!-- MP+0x74+(i*4) -->
+			<doc>These set the value of the respective counter register.</doc>
 		</reg32>
-		<reg32 offset="0x337c" name="PM_UNK337C" length="8">
-			<doc>i-th method sets i-th byte of MP+0x4,0x8 mmio regs.</doc>
-			<bitfield high="7" low="0" name="UNIT"/>
+		<enum name="mp_pm_siggroup_a" inline="yes">
+			<value value="0x0" name="NONE"/>
+			<value value="0x1" name="USER"/><!-- 0..7: prof_trigger_00..07 -->
+			<value value="0x3" name="LAUNCH"/><!-- 1: warps_launched; 2..7: threads_launched bits 0..5(1..6) ? -->
+			<value value="0x4" name="EXEC"/><!-- 7,6: bits 1,0 of inst_executed -->
+			<value value="0x5" name="ISSUE"/><!-- 1,2: inst_issued1,2 -->
+			<value value="0x1b" name="LDST"/><!-- 0,1: shared_ld,st; 2,3: local_ld,st; 4,5: gld,gst_request  -->
+			<value value="0x1c" name="BRANCH"/><!-- 3: branch; 4: divergent_branch -->
+		</enum>
+		<enum name="mp_pm_siggroup_b" inline="yes">
+			<value value="0x0" name="NONE"/>
+			<value value="0x2" name="WARP"/><!-- 0: active_cycles; 1..6: active_warps bits 0..5(1..6?); 7: sm_cta_launched -->
+			<value value="0x10" name="L1"/><!-- 0,1: l1_local_load_hit,miss; 2,3: l1_local_store_hit,miss; 4,5: l1_global_load_hit,miss  -->
+			<value value="0x11" name="MEM"/><!-- 0: uncached_global_load_transaction; 1: global_store_transaction -->
+		</enum>
+		<!-- NOTE: mmio MP+0x0: 0x408000 for counter group a enable, 0x400080 for counter group b enable -->
+		<reg32 offset="0x337c" name="MP_PM_A_SIGSEL" length="4" type="mp_pm_siggroup_a"><!-- byte i of MP+0x4 -->
+			<doc>These methods determine the signal groups that can be accessed
+			by SRCSEL(0..3).</doc>
 		</reg32>
-		<reg32 offset="0x339c" name="PM_UNK339C" length="8">
-			<doc>i-th method sets MP+0x130+(i*4) reg.</doc>
+		<reg32 offset="0x338c" name="MP_PM_B_SIGSEL" length="4" type="mp_pm_siggroup_b"><!-- byte i of MP+0x8 -->
+			<doc>These methods determine the signal groups that can be accessed
+			by SRCSEL(4..7).</doc>
 		</reg32>
-		<reg32 offset="0x33bc" name="PM_UNK33BC" length="8">
-			<bitfield high="3" low="0" name="UNK0">
-				<doc>i-th method sets bits [i*4,i*4+3] of MP+0x5c,58 (note reverse order !).</doc>
+		<reg32 offset="0x339c" name="MP_PM_SRCSEL" length="8"><!-- MP+0x130+(i*4) -->
+			<doc>
+			GRPj selects the signal group for function input j. It is an index into PM_SIGSEL_A/B.
+			SIGj selects the individual signal of the signal group.
+			</doc>
+                        <bitfield high="1"  low="0"  name="GRP0"/>
+                        <bitfield high="4"  low="2"  name="SIG0"/>
+                        <bitfield high="6"  low="5"  name="GRP1"/>
+                        <bitfield high="9"  low="7"  name="SIG1"/>
+                        <bitfield high="11" low="10" name="GRP2"/>
+                        <bitfield high="14" low="12" name="SIG2"/>
+                        <bitfield high="16" low="15" name="GRP3"/>
+                        <bitfield high="19" low="17" name="SIG3"/>
+                        <bitfield high="21" low="20" name="GRP4"/>
+                        <bitfield high="24" low="22" name="SIG4"/>
+                        <bitfield high="26" low="25" name="GRP5"/>
+                        <bitfield high="29" low="27" name="SIG5"/>
+		</reg32>
+		<reg32 offset="0x33bc" name="MP_PM_FUNC" length="8">
+			<doc>i-th method programs i-th counter, where counters 0 to 3 access SIGSEL/SRCSEL_A,
+			and counters 4 to 7 refer to SIGSEL/SRCSEL_B.
+
+			In LOGOP mode, PM_SRCSEL_A/B (GRPi,SIGi), i=0..3 determine src i of
+			the logic operation described by FUNC (i.e. bit i of the index of the
+			bit of FUNC that determines whether the counter is incremented or not).
+
+			In B6 mode, PM_SRCSEL_A/B (GRPi,SIGi) determine bit i of the value the
+			counter is incremented by. That value is masked with FUNC.
+
+			In LOGOP_B6 mode, the counter is incremented by x (made of (GRPi,SIGi)) if
+			LOGOP is true, i.e. bit (x AND 15) of FUNC is 1.
+
+			The PULSE variants only increment the counter when the LOGOP result changes from 1 to 0.
+			</doc>
+			<bitfield high="3" low="0" name="MODE"><!-- bits [i*4,i*4+3] of MP+0x5c,58 (note reverse order !) -->
+				<value value="0" name="LOGOP"/>
+				<value value="1" name="LOGOP_PULSE"/>
+				<value value="2" name="B6"/>
+				<value value="3" name="UNK3"/><!-- same as 2 ? -->
+				<value value="4" name="LOGOP_B6"/>
+				<value value="5" name="LOGOP_B6_PULSE"/>
+				<value value="6" name="UNK6"/><!-- same as 4 ? -->
+				<value value="7" name="UNK7"/><!-- same as 5 ? -->
+				<value value="8" name="UNK8"/><!-- same as 0 ? -->
 			</bitfield>
-			<bitfield high="19" low="4" name="UNK4">
-				<doc>i-th method sets i-th 16-bit word of MP+0x60,64,68,6c.</doc>
-			</bitfield>
+			<bitfield high="19" low="4" name="FUNC"/><!-- i-th 16-bit word of MP+0x60..0x6c -->
 		</reg32>
-		<reg32 offset="0x33dc" name="PM_UNK33DC"/>
+		<reg32 offset="0x33dc" name="MP_PM_UNK33DC"/>
 	</stripe>
 </domain>
 
