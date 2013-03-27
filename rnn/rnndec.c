@@ -255,6 +255,8 @@ char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64
 			asprintf (&res, "%s%lf%s (%08"PRIx64")", ctx->colors->num,
 					((double)value) / ((double)(1 << ti->radix)),
 					ctx->colors->reset, value);
+		case RNN_TTYPE_A3XX_REGID:
+			asprintf (&res, "%sr%d.%c%s", ctx->colors->num, (value >> 2), "xyzw"[value & 0x3], ctx->colors->reset);
 			return res;
 		case RNN_TTYPE_UINT:
 			asprintf (&res, "%s%"PRIu64"%s", ctx->colors->num, value, ctx->colors->reset);
