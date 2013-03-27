@@ -7,6 +7,8 @@
 <import file="nvchipsets.xml" />
 <import file="nv98_fuc.xml" />
 
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
 <array name="PUNK1C1" offset="0x1c1000" stride="0x1000" length="1" variants="NVAF-">
 	<use-group name="nv98_fucbase"/>
 	<use-group name="nv98_fuc_memif"/>
@@ -56,3 +58,7 @@
 		<reg32 offset="0x18" name="REG_HIGH"/>
 	</array>
 </array>
+
+</domain>
+
+</database>
