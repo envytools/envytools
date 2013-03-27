@@ -194,7 +194,7 @@
 	<reg32 offset="0x784" name="UNK784"/> <!-- RO, random -->
 	<reg32 offset="0x790" name="UNK790" length="16" variants="NVC0:NVE4"/> <!-- RO -->
 	<reg32 offset="0x790" name="UNK790" length="3" variants="NVE4-"/> <!-- RO -->
-	<reg32 offset="0x7d0" name="ENG_CH" length="16" variants="NVC0:NVE4">
+	<reg32 offset="0x7d0" name="ENG_CH" length="12" variants="NVC0:NVE4">	<!-- FIXME: lenght? -->
 		<bitfield low="0" high="6" name="CHID"/>
 		<bitfield pos="8" name="ACTIVE"/>
 	</reg32>
