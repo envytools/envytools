@@ -116,8 +116,7 @@
 	<reg32 offset="0x464" name="UNK464" length="16" stride="8"/> <!-- RO 1f000000 -->
 	<reg32 offset="0x528" name="INTR_EN_NRHOST" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x52c" name="INTR0_SOURCE">
-		<!-- FIXME: parse error, should be pos=5 instead?
-		<bitfield value="5" name="UNK5"/> --> <!-- caused by 0x3f1 poked to 2200 -->
+		<value value="5" name="UNK5"/> <!-- caused by 0x3f1 poked to 2200 -->
 		<!-- unknown one [NVE4]: poke engine id >6 to chan table -->
 	</reg32>
 	<reg32 offset="0x530" name="INTR_UNK530" type="nvc0_pfifo_intr"/>
