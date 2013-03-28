@@ -148,8 +148,9 @@
 		<bitfield name="FIRMWARE_MTHD" pos="8" />
 	</reg32>
 
-	<reg32 offset="0x0200" name="ICMD_CMD" />
-	<reg32 offset="0x0204" name="ICMD_DATA" />
+	<reg32 offset="0x0200" name="ICMD_CMD"/>
+	<reg32 offset="0x0204" name="ICMD_DATA"/> <!-- ctx-switchable -->
+	<reg32 offset="0x0208" name="ICMD_UNK0208"/> <!-- ctx-switchable -->
 
 	<stripe offset="0x0500" name="FIFO">
 		<reg32 offset="0x00" name="CONTROL">
@@ -302,7 +303,8 @@
 
 		<reg32 offset="0x15c" name="PM_UNK15C"/>
 
-		<reg32 offset="0x200" name="CTX_CACHE" length="8" />
+		<reg32 offset="0x200" name="CTX_CACHE" length="8" variants="NVC0:NVE4"/>
+		<reg32 offset="0x200" name="CTX_CACHE" length="4" variants="NVE4-"/> <!-- 3d, compute, upload, 2d -->
 	</array>
 	<array offset="0x4400" name="MACRO" stride="0x100" length="1">
 		<reg32 offset="0" name="REG" length="8"/>
@@ -375,12 +377,17 @@
 	<array offset="0x4800" name="DDATA" stride="0x800" length="1">
 	</array>
 	<array offset="0x5800" name="UNK5800" stride="0x100" length="1">
+		<reg32 offset="0x00" name="CTX_UNK00"/>
+		<reg32 offset="0x30" name="CTX_UNK30"/>
+		<reg32 offset="0x34" name="CTX_UNK34"/>
+		<reg32 offset="0x38" name="CTX_UNK38"/>
 		<reg32 offset="0x40" name="TRAP">
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
 		<reg32 offset="0x44" name="TRAP_UNK44"/>
-		<reg32 offset="0x70" name="GPC_TPCNT" length="4">
+		<reg32 offset="0x54" name="CTX_UNK54"/>
+		<reg32 offset="0x70" name="GPC_TPCNT" length="4"> <!-- ctx-switched -->
 			<bitfield low="0" high="3" name="0"/>
 			<bitfield low="4" high="7" name="1"/>
 			<bitfield low="8" high="11" name="2"/>
@@ -391,8 +398,15 @@
 			<bitfield low="28" high="31" name="7"/>
 		</reg32>
 	</array>
-	<array offset="0x5b00" name="UNK5B00" stride="0x100" length="1">
-		<reg32 offset="0x00" name="UNK00">
+	<array offset="0x5900" name="UNK5900" stride="0x100" length="1">
+	</array>
+	<array offset="0x5a00" name="UNK5A00" stride="0x100" length="1">
+		<reg32 offset="0x00" name="CTX_UNK00"/>
+		<reg32 offset="0x04" name="CTX_UNK04"/>
+		<reg32 offset="0x18" name="CTX_UNK18"/>
+	</array>
+	<array offset="0x5b00" name="UNK5B00" stride="0x100" length="1" variants="NVE4-">
+		<reg32 offset="0x00" name="UNK00"> <!-- ctx-switched -->
 			<doc>Affects the maximum number of MPs used for compute shader grids.
 			This includes layout the layout of the TEMP area.
 			Values seen: 0x201 for 1 GPC with 2 TPs and 0x804 for 4 GPCs with 2 TPs each.
@@ -400,18 +414,20 @@
 			<bitfield low="0" high="7" name="UNK0"/>
 			<bitfield low="8" high="15" name="MP_COUNT"/><!-- guess -->
 		</reg32>
+		<reg32 offset="0x10" name="CTX_UNK10"/>
 	</array>
 	<array offset="0x6000" name="UNK6000" stride="0x800" length="1">
-		<reg32 offset="0x18" name="TRAP_UNK0">
+		<reg32 offset="0x018" name="TRAP_UNK0">
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
-		<reg32 offset="0x1c" name="TRAP_UNK1">
+		<reg32 offset="0x01c" name="TRAP_UNK1">
 			<bitfield name="TEMP_TOO_SMALL" pos="0" />
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
-		<reg32 offset="0x28" name="GPC_TPCNT" length="4">
+		<reg32 offset="0x020" name="CTX_UNK20"/>
+		<reg32 offset="0x028" name="GPC_TPCNT" length="4"> <!-- ctx-switched -->
 			<bitfield low="0" high="3" name="0"/>
 			<bitfield low="4" high="7" name="1"/>
 			<bitfield low="8" high="11" name="2"/>
@@ -421,20 +437,30 @@
 			<bitfield low="24" high="27" name="6"/>
 			<bitfield low="28" high="31" name="7"/>
 		</reg32>
-		<reg32 offset="0xa8" name="TP_GPCID" length="0x40">
+		<reg32 offset="0x0a8" name="TP_GPCID" length="0x40">
 			<bitfield low="0" high="4" name="0"/>
 			<bitfield low="8" high="12" name="1"/>
 			<bitfield low="16" high="20" name="2"/>
 			<bitfield low="24" high="28" name="3"/>
 		</reg32>
+		<reg32 offset="0x4a8" name="CTX_UNK4A8"/>
+		<reg32 offset="0x4ac" name="CTX_UNK4AC"/>
 		<reg32 offset="0x4b0" name="TEMP_SIZE_PER_MP" shr="8"/>
+		<reg32 offset="0x4b4" name="CTX_UNK4B4"/>
+		<reg32 offset="0x4b8" name="CTX_UNK4B8"/>
+		<reg32 offset="0x4c0" name="CTX_UNK4C0"/>
+		<reg32 offset="0x4c4" name="CTX_UNK4C4"/>
+		<reg32 offset="0x4c8" name="CTX_UNK4C8"/>
+		<reg32 offset="0x4cc" name="CTX_UNK4CC"/>
+		<reg32 offset="0x4d0" name="CTX_UNK4D0" length="8"/>
+		<reg32 offset="0x4fc" name="CTX_UNK4FC"/>
 	</array>
 	<stripe offset="0x6800" stride="0x400" length="2">
 		<stripe offset="0" name="TPGRAD" stride="0x20" length="0x20">
 			<reg32 offset="0" name="MASK" length="8"/>
 		</stripe>
 	</stripe>
-	<array offset="0x7000" name="SKED" stride="0x800" length="1" variants="NVE4-">
+	<array offset="0x7000" name="SKED" stride="0x400" length="1" variants="NVE4-">
 		<reg32 offset="0x00" name="JOE"/>
 		<reg32 offset="0x04" name="UNK04"/>
 		<reg32 offset="0x08" name="UNK08"/>
@@ -459,13 +485,14 @@
 		<reg32 offset="0x24" name="UNK24"/>
 		<reg32 offset="0x28" name="UNK28"/>
 		<reg32 offset="0x2c" name="UNK2c"/>
-		<reg32 offset="0x40" name="UNK40"/>
+		<reg32 offset="0x40" name="UNK40"/> <!-- ctx-switched -->
 		<reg32 offset="0x54" name="UNK54"/>
 		<reg32 offset="0x100" name="UNK100"/>
 	</array>
 	<array offset="0x7800" name="TPBUS" stride="0x800" length="1">
+		<reg32 offset="0x04" name="CTX_UNK04"/>
 		<reg32 offset="0x08" name="PM_UNK08"/>
-		<reg32 offset="0x0c" name="TP_GPCID" length="44">
+		<reg32 offset="0x0c" name="TP_GPCID" length="44"> <!-- ctx-switched -->
 			<bitfield low="0" high="4" name="0"/>
 			<bitfield low="5" high="9" name="1"/>
 			<bitfield low="10" high="14" name="2"/>
@@ -473,12 +500,13 @@
 			<bitfield low="20" high="24" name="4"/>
 			<bitfield low="25" high="29" name="5"/>
 		</reg32>
-		<reg32 offset="0xbc" name="TOTAL">
+		<reg32 offset="0xbc" name="TOTAL"> <!-- ctx-switched -->
 			<bitfield low="0" high="7" name="ROP_COUNT"/>
 			<bitfield low="8" high="15" name="GPC_COUNT"/>
 		</reg32>
 	</array>
 	<array offset="0x8000" name="CCACHE" stride="0x800" length="1">
+		<reg32 offset="0x00" name="CTX_UNK00"/>
 		<reg32 offset="0x04" name="HUB2GPC_ADDR" shr="8"/>
 		<reg32 offset="0x08" name="HUB2GPC_CONF">
 			<bitfield low="0" high="7" name="UNK0"/>
@@ -491,10 +519,13 @@
 			<bitfield low="11" high="15" name="UNK11"/>
 			<bitfield pos="31" name="UNK31"/>
 		</reg32>
+		<reg32 offset="0x14" name="CTX_UNK14"/>
+		<reg32 offset="0x18" name="CTX_UNK18"/>
 		<reg32 offset="0x30" name="TRAP">
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
+		<reg32 offset="0x64" name="CTX_UNK64"/>
 	</array>
 
 	<group name="nvc0_ctxctl">
@@ -690,17 +721,26 @@
 
 	<group name="nvc0_rop">
 		<array offset="0x000" name="ZROP" stride="0x100" length="1">
+			<reg32 offset="0x00" name="CTX_UNK00"/>
+			<reg32 offset="0x04" name="CTX_UNK04"/>
+			<reg32 offset="0x08" name="CTX_UNK08"/>
+			<reg32 offset="0x40" name="CTX_UNK40" variants="NVE4-"/>
 			<reg32 offset="0x70" name="TRAP">
 				<bitfield name="CLEAR" pos="30" />
 				<bitfield name="ENABLE" pos="31" />
 			</reg32>
 		</array>
 		<array offset="0x100" name="CROP" stride="0x100" length="1">
+			<reg32 offset="0x00" name="CTX_UNK00"/>
+			<reg32 offset="0x04" name="CTX_UNK04"/>
+			<reg32 offset="0x08" name="CTX_UNK08"/>
+			<reg32 offset="0x0c" name="CTX_UNK0C"/> <!-- ctx-switched separately per partition -->
 			<reg32 offset="0x14" name="PM_UNK14" length="8"/>
 			<reg32 offset="0x44" name="TRAP">
 				<bitfield name="CLEAR" pos="30" />
 				<bitfield name="ENABLE" pos="31" />
 			</reg32>
+			<reg32 offset="0x80" name="CTX_UNK80"/>
 			<reg32 offset="0x88" name="PM_UNK88" length="2"/>
 		</array>
 		<reg32 offset="0x200" name="VSTATUS" access="r">
@@ -752,17 +792,27 @@
 				<bitfield low="24" high="26" name="UNK8" type="NV50_VSTATUS"/>
 				<bitfield low="27" high="29" name="UNK9" type="NV50_VSTATUS"/>
 			</reg32>
+			<reg32 offset="0x064" name="CTX_UNK064"/>
 			<reg32 offset="0x084" name="TRAP">
 				<bitfield name="CLEAR" pos="30" />
 				<bitfield name="ENABLE" pos="31" />
 			</reg32>
-			<reg32 offset="0x088" name="TPID"/>
+			<reg32 offset="0x088" name="TPID"/> <!-- ctx-switched -->
 		</array>
 		<array offset="0x200" name="TEX" stride="0x100" length="1">
+			<reg32 offset="0x00" name="CTX_UNK00"/>
+			<reg32 offset="0x04" name="CTX_UNK04"/>
+			<reg32 offset="0x08" name="CTX_UNK08"/>
+			<reg32 offset="0x0c" name="CTX_UNK0C"/>
+			<reg32 offset="0x10" name="CTX_UNK10"/>
+			<reg32 offset="0x14" name="CTX_UNK14"/>
+			<reg32 offset="0x1c" name="CTX_UNK1C"/>
+			<reg32 offset="0x20" name="CTX_UNK20"/>
 			<reg32 offset="0x24" name="TRAP">
 				<bitfield name="CLEAR" pos="30" />
 				<bitfield name="ENABLE" pos="31" />
 			</reg32>
+			<reg32 offset="0x30" name="CTX_UNK30" variants="NVE4-"/>
 			<reg32 offset="0x38" name="VSTATUS_0" length="2" access="r">
 				<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
 				<bitfield low="4" high="6" name="UNK1" type="NV50_VSTATUS"/>
@@ -775,6 +825,7 @@
 				<bitfield low="26" high="28" name="UNK8" type="NV50_VSTATUS"/>
 				<bitfield low="29" high="31" name="UNK9" type="NV50_VSTATUS"/>
 			</reg32>
+			<reg32 offset="0xc4" name="CTX_UNKC4" variants="NVE4-"/>
 			<reg32 offset="0xdc" name="VSTATUS_1" access="r">
 				<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
 				<bitfield low="4" high="6" name="UNK1" type="NV50_VSTATUS"/>
@@ -782,8 +833,9 @@
 				<bitfield low="11" high="13" name="UNK3" type="NV50_VSTATUS"/>
 			</reg32>
 		</array>
-		<array offset="0x300" name="TPBUS" stride="0x100" length="1">
-			<reg32 offset="0x00" name="TP_GPCID" length="44">
+		<!-- moved to GPC+0x3000 on NVE4 -->
+		<array offset="0x300" name="TPBUS" variants="NVC0:NVE4" stride="0x100" length="1">
+			<reg32 offset="0x00" name="TP_GPCID" length="44"> <!-- ctx-switched -->
 				<bitfield low="0" high="4" name="0"/>
 				<bitfield low="5" high="9" name="1"/>
 				<bitfield low="10" high="14" name="2"/>
@@ -791,16 +843,18 @@
 				<bitfield low="20" high="24" name="4"/>
 				<bitfield low="25" high="29" name="5"/>
 			</reg32>
-			<reg32 offset="0xd0" name="UNKD0">
+			<reg32 offset="0xd0" name="UNKD0"> <!-- ctx-switched -->
 				<bitfield low="0" high="7" name="ROP_COUNT"/>
 				<bitfield low="8" high="15" name="GPC_COUNT"/>
 				<bitfield low="16" high="28" name="UNK16"/>
 			</reg32>
-			<reg32 offset="0xe4" name="UNKE4">
-				<bitfield low="0" high="29" name="UNK0"/>
-			</reg32>
+			<reg32 offset="0xe0" name="CTX_UNKE0"/>
+			<reg32 offset="0xe4" name="CTX_UNKE4"/>
 		</array>
 		<array offset="0x400" name="UNK400" stride="0x80" length="1">
+			<reg32 offset="0x00" name="CTX_UNK00"/>
+			<reg32 offset="0x04" name="CTX_UNK04"/>
+			<reg32 offset="0x08" name="CTX_UNK08"/>
 			<reg32 offset="0x0c" name="PM_UNK0C"/>
 			<reg32 offset="0x10" name="VSTATUS" access="r">
 				<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
@@ -808,6 +862,9 @@
 				<bitfield low="6" high="8" name="UNK2" type="NV50_VSTATUS"/>
 				<bitfield low="9" high="11" name="UNK3" type="NV50_VSTATUS"/>
 			</reg32>
+			<reg32 offset="0x20" name="CTX_UNK20"/>
+			<reg32 offset="0x24" name="CTX_UNK24" variants="NVE4-"/>
+			<reg32 offset="0x28" name="CTX_UNK28" variants="NVE4-"/>
 		</array>
 		<array offset="0x480" name="L1" stride="0x80" length="1">
 			<reg32 offset="0x0c" name="TRAP">
@@ -817,7 +874,8 @@
 				<bitfield pos="31" name="ENABLE"/>
 			</reg32>
 			<reg32 offset="0x28" name="PM_UNK28"/>
-			<reg32 offset="0x68" name="TPID"/>
+			<reg32 offset="0x68" name="TPID"/> <!-- ctx-switched -->
+			<reg32 offset="0x74" name="CTX_UNK74"/>
 		</array>
 		<array offset="0x500" name="MASTER" stride="0x100" length="1">
 			<reg32 offset="0x00" name="VSTATUS" access="r">
@@ -841,6 +899,8 @@
 				<bitfield pos="2" name="POLY"/>
 				<bitfield pos="3" name="L1C"/>
 			</reg32>
+			<reg32 offset="0x20" name="CTX_UNK20" variants="NVC0:NVE4"/>
+			<reg32 offset="0x24" name="CTX_UNK24" variants="NVC0:NVE4"/>
 		</array>
 		<array offset="0x600" name="MP" stride="0x200" length="1">
 			<reg32 offset="0x000" name="PM_UNK000" variants="NVC0:NVE4"/>
@@ -863,12 +923,12 @@
 				<bitfield high="23" low="16" name="2" type="nve4_mp_pm_siggroup_b"/>
 				<bitfield high="31" low="24" name="3" type="nve4_mp_pm_siggroup_b"/>
 			</reg32>
-			<reg32 offset="0x00c" name="BPT_STATUS"/>
-			<reg32 offset="0x010" name="BPT_CONTROL"/>
+			<reg32 offset="0x00c" name="BPT_STATUS"/> <!-- ctx-switched -->
+			<reg32 offset="0x010" name="BPT_CONTROL"/> <!-- ctx-switched -->
 			<reg32 offset="0x014" name="ACTIVE_WARP_MASK" length="2" stride="4"/>
 			<reg32 offset="0x024" name="PAUSED_WARP_MASK" length="2" stride="4"/>
 			<reg32 offset="0x034" name="BPT_TRAP_WARP_MASK" length="2" stride="4"/>
-			<reg32 offset="0x044" name="TRAP_WARP_ERROR_EN">
+			<reg32 offset="0x044" name="TRAP_WARP_ERROR_EN"> <!-- ctx-switched -->
 				<bitfield pos="1" name="STACK_MISMATCH"/>
 				<bitfield pos="5" name="MISALIGNED_PC"/>
 				<bitfield pos="8" name="MISALIGNED_GPR"/>
@@ -877,7 +937,7 @@
 				<bitfield pos="14" name="MEM_OUT_OF_BOUNDS"/>
 				<bitfield pos="17" name="INVALID_PARAM"/><!-- e.g. non-allocated barrier -->
 			</reg32>
-			<reg32 offset="0x048" name="TRAP_WARP_ERROR">
+			<reg32 offset="0x048" name="TRAP_WARP_ERROR"> <!-- ctx-switched -->
 				<bitfield high="15" low="0" name="ID">
 					<value value="1" name="STACK_MISMATCH"/>
 					<value value="5" name="MISALIGNED_PC"/>
@@ -888,15 +948,16 @@
 					<value value="17" name="INVALID_PARAM"/>
 				</bitfield>
 			</reg32>
-			<reg32 offset="0x04c" name="TRAP_GLOBAL_ERROR_EN">
+			<reg32 offset="0x04c" name="TRAP_GLOBAL_ERROR_EN"> <!-- ctx-switched -->
 				<bitfield pos="2" name="MULTIPLE_WARP_ERRORS"/>
 				<bitfield pos="3" name="OUT_OF_STACK_SPACE"/>
 			</reg32>
-			<reg32 offset="0x050" name="TRAP_GLOBAL_ERROR">
+			<reg32 offset="0x050" name="TRAP_GLOBAL_ERROR"> <!-- ctx-switched??? -->
 				<bitfield pos="2" name="MULTIPLE_WARP_ERRORS"/>
 				<bitfield pos="3" name="OUT_OF_STACK_SPACE"/>
 			</reg32>
-			<reg32 offset="0x058" name="TRAP_HANDLER_PC" variants="NVC0:NVE4"/>
+			<reg32 offset="0x054" name="CTX_UNK054"/>
+			<reg32 offset="0x058" name="TRAP_HANDLER_PC" variants="NVC0:NVE4"/> <!-- ctx-switched -->
 			<reg32 offset="0x05c" name="PM_MODE" variants="NVC0:NVE4"> <!-- ctx-switched -->
 				<bitfield pos="3" name="0" type="nv50_mp_pm_mode"/>
 				<bitfield pos="7" name="1" type="nv50_mp_pm_mode"/>
@@ -946,12 +1007,14 @@
 				<bitfield pos="2" name="6"/>
 				<bitfield pos="3" name="7"/>
 			</reg32>
-			<reg32 offset="0x098" name="TPID"/>
+			<reg32 offset="0x098" name="TPID"/> <!-- ctx-switched -->
 			<reg32 offset="0x0a4" name="CCACHE_CTRL">
 				<bitfield pos="0" name="CODE_FLUSH_TRIGGER"/>
 				<bitfield pos="1" name="CBUF_FLUSH_TRIGGER"/>
 			</reg32>
-			<reg32 offset="0x0ac" name="UNK0AC"/>
+			<reg32 offset="0x0ac" name="CTX_UNK0AC" variants="NVE4-"/>
+			<reg32 offset="0x0b0" name="CTX_UNK0B0" variants="NVE4-"/>
+			<reg32 offset="0x0c8" name="CTX_UNK0C8" variants="NVE4-"/>
 			<reg32 offset="0x128" name="VSTATUS" access="r">
 				<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
 				<bitfield low="3" high="5" name="UNK1" type="NV50_VSTATUS"/>
@@ -1003,14 +1066,27 @@
 				<bitfield high="26" low="25" name="GRP5"/>
 				<bitfield high="29" low="27" name="SIG5"/>
 			</reg32>
+			<reg32 offset="0x150" name="CTX_UNK150" length="2" variants="NVC0:NVE4"/> <!-- ctx-switched -->
+			<reg32 offset="0x158" name="CTX_UNK158" variants="NVE4-"/> <!-- ctx-switched -->
+			<reg32 offset="0x170" name="CTX_UNK170" variants="NVE4-"/> <!-- ctx-switched -->
+			<reg32 offset="0x178" name="CTX_UNK178" variants="NVE4-"/> <!-- ctx-switched -->
+			<reg32 offset="0x17c" name="CTX_UNK17C" variants="NVE4-"/> <!-- ctx-switched -->
 		</array>
 	</group>
 
 	<group name="nvc0_gpc">
 		<array offset="0x380" name="UNK380" stride="0x080" length="1">
+			<reg32 offset="0x00" name="CTX_UNK00"/>
 			<reg32 offset="0x04" name="PM_UNK04"/>
 		</array>
 		<array offset="0x400" name="PROP" stride="0x100" length="1">
+			<reg32 offset="0x00" name="CTX_UNK00"/>
+			<reg32 offset="0x04" name="CTX_UNK04"/>
+			<reg32 offset="0x08" name="UNK08" variants="NVC0:NVE4"/>
+			<reg32 offset="0x08" name="CTX_UNK08" variants="NVE4-"/>
+			<reg32 offset="0x0c" name="CTX_UNK0C"/>
+			<reg32 offset="0x10" name="CTX_UNK10"/>
+			<reg32 offset="0x14" name="CTX_UNK14"/>
 			<reg32 offset="0x20" name="TRAP">
 				<bitfield pos="1" name="RT_PITCH_OVERRUN"/>
 				<bitfield pos="4" name="RT_WIDTH_OVERRUN"/>
@@ -1031,20 +1107,29 @@
 			<reg32 offset="0x3c" name="TRAP_7">
 				<bitfield low="0" high="7" name="STORAGE_TYPE"/>
 			</reg32>
+			<reg32 offset="0x50" name="CTX_UNK50" length="9"/>
 			<reg32 offset="0xa0" name="PM_UNKA0"/>
 		</array>
 		<array offset="0x500" name="UNK500" stride="0x100" length="1">
 		</array>
 		<array offset="0x600" name="UNK600" stride="0x080" length="1">
+			<reg32 offset="0x00" name="CTX_UNK00"/>
 			<reg32 offset="0x04" name="PM_UNK04"/>
 		</array>
 		<array offset="0x680" name="UNK680" stride="0x080" length="1">
 			<reg32 offset="0x00" name="PM_UNK00"/>
+			<reg32 offset="0x04" name="CTX_UNK04"/>
 		</array>
 		<array offset="0x700" name="UNK700" stride="0x080" length="1">
+			<reg32 offset="0x00" name="CTX_UNK00"/>
+			<reg32 offset="0x04" name="CTX_UNK04"/>
+			<reg32 offset="0x08" name="CTX_UNK08"/>
+			<reg32 offset="0x0c" name="CTX_UNK0C"/>
+			<reg32 offset="0x10" name="CTX_UNK10"/>
 			<reg32 offset="0x14" name="PM_UNK14"/>
 		</array>
 		<array offset="0x800" name="ESETUP" stride="0x080" length="1">
+			<reg32 offset="0x00" name="CTX_UNK00"/>
 			<reg32 offset="0x08" name="HUB2ESETUP_ADDR" shr="8"/>
 			<reg32 offset="0x0c" name="HUB2ESETUP_CONF">
 				<bitfield low="0" high="10" name="UNK0"/>
@@ -1059,6 +1144,8 @@
 				<bitfield name="CLEAR" pos="30" />
 				<bitfield name="ENABLE" pos="31" />
 			</reg32>
+			<reg32 offset="0x28" name="JOE"/> <!-- XXX: ctx-switched? -->
+			<reg32 offset="0x30" name="CTX_UNK30"/>
 		</array>
 		<array offset="0x880" name="FFB" stride="0x080" length="1">
 			<reg32 offset="0x2c" name="PART_CONFIG">
@@ -1068,20 +1155,36 @@
 			<reg32 offset="0x34" name="UNK34_ADDR" shr="8"/>
 			<reg32 offset="0x38" name="UNK38_ADDR" shr="8"/>
 			<reg32 offset="0x48" name="PM_UNK48"/>
+			<reg32 offset="0x58" name="CTX_UNK58"/>
+			<reg32 offset="0x60" name="CTX_UNK60"/>
+			<reg32 offset="0x68" name="CTX_UNK68" length="6"/>
 		</array>
 		<array offset="0x900" name="ZCULL" stride="0x080" length="1">
 			<reg32 offset="0x00" name="TRAP">
 				<bitfield name="CLEAR" pos="30" />
 				<bitfield name="ENABLE" pos="31" />
 			</reg32>
+			<reg32 offset="0x1c" name="CTX_UNK1C"/>
+			<reg32 offset="0x24" name="CTX_UNK24"/>
+			<reg32 offset="0x28" name="CTX_UNK28"/>
+			<reg32 offset="0x2c" name="CTX_UNK2C"/>
 		</array>
 		<array offset="0x980" name="UNK980" stride="0x080" length="1">
 		</array>
-		<array offset="0xa00" name="UNKA00" stride="0x100" length="1">
+		<array offset="0xa00" name="UNKA00" stride="0x20" length="8">
+			<!-- connected with the weird secondary strand set thing -->
+			<reg32 offset="0x00" name="UNK00"/>
+			<reg32 offset="0x04" name="UNK04"/>
+			<reg32 offset="0x08" name="UNK08"/>
+			<reg32 offset="0x0c" name="UNK0C"/>
+			<reg32 offset="0x10" name="UNK10"/>
+			<reg32 offset="0x14" name="UNK14"/>
+			<reg32 offset="0x18" name="UNK18"/>
 		</array>
 		<array offset="0xb00" name="TPBUS" stride="0x100" length="1">
+			<reg32 offset="0x00" name="CTX_UNK00"/>
 			<reg32 offset="0x04" name="PM_UNK04"/>
-			<reg32 offset="0x08" name="TP_GPCID" length="44">
+			<reg32 offset="0x08" name="TP_GPCID" length="44"> <!-- ctx-switched -->
 				<bitfield low="0" high="4" name="0"/>
 				<bitfield low="5" high="9" name="1"/>
 				<bitfield low="10" high="14" name="2"/>
@@ -1089,17 +1192,20 @@
 				<bitfield low="20" high="24" name="4"/>
 				<bitfield low="25" high="29" name="5"/>
 			</reg32>
-			<reg32 offset="0xb8" name="TOTAL">
+			<reg32 offset="0xb8" name="TOTAL"> <!-- ctx-switched -->
 				<bitfield low="0" high="7" name="ROP_COUNT"/>
 				<bitfield low="8" high="15" name="GPC_COUNT"/>
 			</reg32>
 		</array>
 		<array offset="0xc00" name="TPCONF" stride="0x080" length="1">
-			<reg32 offset="0x8" name="TPCNT"/>
-			<reg32 offset="0x10" name="TPID" length="8"/>
+			<reg32 offset="0x08" name="TPCNT"/> <!-- ctx-switched -->
+			<reg32 offset="0x10" name="TPID" length="8"/> <!-- ctx-switched -->
+			<reg32 offset="0x40" name="CTX_UNK40" variants="NVE4-"/>
+			<reg32 offset="0x6c" name="CTX_UNK6C" variants="NVE4-"/>
 		</array>
 		<array offset="0xc80" name="UNKC80" stride="0x080" length="1">
-			<reg32 offset="0xc" name="TPCNT"/>
+			<reg32 offset="0x00" name="CTX_UNK00"/>
+			<reg32 offset="0xc" name="TPCNT"/> <!-- ctx-switched -->
 		</array>
 		<array offset="0xd00" name="UNKD00" stride="0x080" length="1">
 		</array>
@@ -1108,13 +1214,14 @@
 		<array offset="0xf00" name="UNKF00" stride="0x100" length="1">
 		</array>
 		<array offset="0x1000" name="CCACHE" stride="0x100" length="1">
-			<reg32 offset="0x00" name="CACHE_CTRL">
+			<reg32 offset="0x00" name="CACHE_CTRL"> <!-- ctx-switched -->
 				<bitfield pos="1" name="FLUSH_TRIGGER"/>
 			</reg32>
 			<reg32 offset="0x04" name="HUB2GPC_ADDR" shr="8"/>
 			<reg32 offset="0x08" name="HUB2GPC_CONF">
 				<bitfield low="0" high="7" name="UNK0"/>
 			</reg32>
+			<reg32 offset="0x14" name="CTX_UNK14"/>
 			<reg32 offset="0x28" name="TRAP">
 				<bitfield name="CLEAR" pos="30" />
 				<bitfield name="ENABLE" pos="31" />
@@ -1188,7 +1295,26 @@
 		</array>
 
 		<array offset="0x3000" stride="0x1000" length="1" name="UNK3000" variants="NVE4-">
-			<reg32 offset="0x14" name="PM_UNK14"/>
+			<reg32 offset="0x014" name="PM_UNK014"/>
+			<reg32 offset="0x024" name="CTX_UNK024"/>
+			<reg32 offset="0x0c0" name="CTX_UNK0C0"/>
+			<reg32 offset="0x0c4" name="CTX_UNK0C4"/>
+			<reg32 offset="0x0e4" name="CTX_UNK0E4"/>
+			<reg32 offset="0x100" name="TP_GPCID" length="44"> <!-- ctx-switched -->
+				<bitfield low="0" high="4" name="0"/>
+				<bitfield low="5" high="9" name="1"/>
+				<bitfield low="10" high="14" name="2"/>
+				<bitfield low="15" high="19" name="3"/>
+				<bitfield low="20" high="24" name="4"/>
+				<bitfield low="25" high="29" name="5"/>
+			</reg32>
+			<reg32 offset="0x1d0" name="UNK1D0"> <!-- ctx-switched -->
+				<bitfield low="0" high="7" name="ROP_COUNT"/>
+				<bitfield low="8" high="15" name="GPC_COUNT"/>
+				<bitfield low="16" high="28" name="UNK16"/>
+			</reg32>
+			<reg32 offset="0x1e0" name="CTX_UNK1E0"/>
+			<reg32 offset="0x1e4" name="CTX_UNK1E4"/>
 		</array>
 
 		<array name="TP" offset="0x4000" stride="0x800" length="4">

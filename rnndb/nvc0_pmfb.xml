@@ -31,6 +31,9 @@
 		<bitfield pos="0" name="CACHE_FLUSH_TRIGGER"/>
 	</reg32>
 
+	<reg32 offset="0x11c" name="UNK11C"/> <!-- XXX: ctx-switched with PGRAPH -->
+	<reg32 offset="0x120" name="UNK120"/> <!-- XXX: ctx-switched with PGRAPH -->
+
 	<reg32 offset="0x14c" name="MEM_ACC_UNK14C"/> <!-- deals with counter -->
 	<reg32 offset="0x158" name="MEM_ACC_UNK158"/> <!-- deals with counter -->
 	<reg32 offset="0x15c" name="MEM_ACC_ADDR" shr="7"/>
