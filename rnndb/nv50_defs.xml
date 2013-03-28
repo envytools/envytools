@@ -194,4 +194,18 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="1" name="CULL"/>
 </enum>
 
+<enum name="nv50_mp_pm_mode" inline="yes">
+	<value value="0" name="LOGOP"/>
+	<value value="1" name="LOGOP_PULSE"/>
+</enum>
+
+<enum name="nv50_mp_pm_unit" inline="yes">
+	<value value="0" name="UNK0"/>
+	<value value="1" name="UNK1"/>
+	<value value="2" name="UNK2"/>
+	<value value="3" name="UNK3"/>
+	<value value="4" name="UNK4"/>
+	<value value="5" name="UNK5"/>
+</enum>
+
 </database>

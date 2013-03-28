@@ -837,11 +837,11 @@
 	</array>
 
 	<group name="nv50_pgraph_mp">
-		<reg32 offset="0x10" name="PM_CONTROL_3">
-			<bitfield name="0" high="7" low="0" />
-			<bitfield name="1" high="15" low="8" />
-			<bitfield name="2" high="23" low="16" />
-			<bitfield name="3" high="31" low="24" />
+		<reg32 offset="0x10" name="PM_SIG">
+			<bitfield low="0" high="7" name="0"/>
+			<bitfield low="8" high="15" name="1"/>
+			<bitfield low="16" high="23" name="2"/>
+			<bitfield low="24" high="31" name="3"/>
 		</reg32>
 		<reg32 offset="0x14" name="ERROR_CODE">
 			<bitfield pos="0" name="STACK_UNDERFLOW" />
@@ -855,26 +855,24 @@
 			<bitfield name="ADDR" high="23" low="0" />
 			<bitfield name="WARP" high="31" low="24" />
 		</reg32>
-		<stripe offset="0x38" stride="0x4" length="0x2">
-			<reg32 offset="0x0" name="PM_CONTROL_2">
-				<bitfield name="0" high="15" low="0" />
-				<bitfield name="1" high="31" low="16" />
-			</reg32>
-		</stripe>
+		<reg32 offset="0x38" name="PM_FUNC" length="2">
+			<bitfield low="0" high="15" name="0"/>
+			<bitfield low="16" high="31" name="1"/>
+		</reg32>
 		<!-- 44: Same as 10 or what? -->
 		<reg32 offset="0x58" name="CONTROL_0">
-			<bitfield name="WATCHDOG" high="20" low="16" />
-			<bitfield name="KILL" pos="21" />
-			<bitfield name="PM_CONTROL_1_0" high="28" low="26" />
-			<bitfield name="PM_CONTROL_1_1" high="31" low="29" />
+			<bitfield low="16" high="20" name="WATCHDOG"/>
+			<bitfield pos="21" name="KILL"/>
+			<bitfield low="26" high="28" name="PM_UNIT_0" type="nv50_mp_pm_unit"/>
+			<bitfield low="29" high="31" name="PM_UNIT_1" type="nv50_mp_pm_unit"/>
 		</reg32>
 		<reg32 offset="0x5c" name="CONTROL_1">
-			<bitfield name="PM_CONTROL_1_2" high="2" low="0" />
-			<bitfield name="PM_CONTROL_1_3" high="5" low="3" />
-			<bitfield name="PM_CONTROL_0_0" pos="14" />
-			<bitfield name="PM_CONTROL_0_1" pos="15" />
-			<bitfield name="PM_CONTROL_0_2" pos="16" />
-			<bitfield name="PM_CONTROL_0_3" pos="17" />
+			<bitfield low="0" high="2" name="PM_UNIT_2" type="nv50_mp_pm_unit"/>
+			<bitfield low="3" high="5" name="PM_UNIT_3" type="nv50_mp_pm_unit"/>
+			<bitfield pos="14" name="PM_MODE_0" type="nv50_mp_pm_mode"/>
+			<bitfield pos="15" name="PM_MODE_1" type="nv50_mp_pm_mode"/>
+			<bitfield pos="16" name="PM_MODE_2" type="nv50_mp_pm_mode"/>
+			<bitfield pos="17" name="PM_MODE_3" type="nv50_mp_pm_mode"/>
 		</reg32>
 		<reg32 offset="0x70" name="OPCODE_LOW"/>
 		<reg32 offset="0x74" name="OPCODE_HIGH"/>

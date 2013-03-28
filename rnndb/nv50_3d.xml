@@ -584,7 +584,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x12e4" name="BLEND_INDEPENDENT" type="boolean"/>
 		<reg32 offset="0x12e8" name="DEPTH_WRITE_ENABLE" type="boolean"/>
 		<reg32 offset="0x12ec" name="ALPHA_TEST_ENABLE" type="boolean"/>
-		<reg32 offset="0x12f0" name="PM_SET" length="4">
+		<reg32 offset="0x12f0" name="MP_PM_SET" length="4">
 			<doc>just sets corresponding pm register.</doc>
 		</reg32>
 		<reg32 offset="0x1300" name="VB_ELEMENT_U8_SETUP">
@@ -816,16 +816,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x157c" name="TIC_LIMIT" type="uint">
 			<doc>number of entries - 1</doc>
 		</reg32>
-		<reg32 offset="0x1580" name="PM_CONTROL" length="4">
-			<doc>*very* weird.</doc>
-			<bitfield name="UNK0" pos="0">
-				<doc>disable bit?</doc>
-			</bitfield>
-			<bitfield name="UNK1" high="6" low="4">
-				<doc>valid values are 0-5</doc>
-			</bitfield>
-			<bitfield name="UNK2" high="23" low="8"/>
-			<bitfield name="UNK3" high="31" low="24"/>
+		<reg32 offset="0x1580" name="MP_PM_CONTROL" length="4">
+			<bitfield pos="0" name="MODE" type="nv50_mp_pm_mode"/>
+			<bitfield low="4" high="6" name="UNIT" type="nv50_mp_pm_unit"/>
+			<bitfield low="8" high="23" name="FUNC"/>
+			<bitfield low="24" high="31" name="SIG"/>
 		</reg32>
 		<reg32 offset="0x1590" name="ZCULL_REGION">
 			<doc>0x3f means none.</doc>
