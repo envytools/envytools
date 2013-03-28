@@ -1208,25 +1208,68 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<stripe offset="0x2800" length="4" stride="0x80">
 			<reg32 name="TFB_VARYING_LOCS" length="32"/>
 		</stripe>
-		<reg32 offset="0x335c" name="PM_SET" length="8"/>
-		<reg32 offset="0x337c" name="PM_UNK337C" length="8">
-			<doc>0-0xff</doc>
+		<reg32 offset="0x335c" name="MP_PM_SET" length="8"/>
+		<reg32 offset="0x337c" name="MP_PM_SIGSEL" length="8" variants="NVC0_3D:NVE4_3D"/>
+		<reg32 offset="0x337c" name="MP_PM_A_SIGSEL" length="4" type="nve4_mp_pm_siggroup_a" variants="NVE4_3D-"><!-- byte i of MP+0x4 -->
+			<doc>These methods determine the signal groups that can be accessed
+			by SRCSEL(0..3).</doc>
 		</reg32>
-		<reg32 offset="0x339c" name="PM_UNK339C" length="8">
-			<bitfield low="0" high="2" name="0"/>
-			<bitfield low="4" high="6" name="1"/>
-			<bitfield low="8" high="10" name="2"/>
-			<bitfield low="12" high="14" name="3"/>
-			<bitfield low="16" high="18" name="4"/>
-			<bitfield low="20" high="22" name="5"/>
-			<bitfield low="24" high="26" name="6"/>
-			<bitfield low="28" high="30" name="7"/>
+		<reg32 offset="0x338c" name="MP_PM_B_SIGSEL" length="4" type="nve4_mp_pm_siggroup_b" variants="NVE4_3D-"><!-- byte i of MP+0x8 -->
+			<doc>These methods determine the signal groups that can be accessed
+			by SRCSEL(4..7).</doc>
 		</reg32>
-		<reg32 offset="0x33bc" name="PM_UNK33BC" length="8">
-			<bitfield pos="0" name="0"/>
-			<bitfield low="4" high="15" name="4"/>
+		<reg32 offset="0x339c" name="MP_PM_SRCSEL" length="8" variants="NVC0_3D:NVE4_3D">
+			<bitfield low="0" high="2" name="GRP0"/>
+			<bitfield low="4" high="6" name="SIG0"/>
+			<bitfield low="8" high="10" name="GRP1"/>
+			<bitfield low="12" high="14" name="SIG1"/>
+			<bitfield low="16" high="18" name="GRP2"/>
+			<bitfield low="20" high="22" name="SIG2"/>
+			<bitfield low="24" high="26" name="GRP3"/>
+			<bitfield low="28" high="30" name="SIG3"/>
 		</reg32>
-		<reg32 offset="0x33dc" name="PM_UNK33DC">
+		<reg32 offset="0x339c" name="MP_PM_SRCSEL" length="8" variants="NVE4_3D-"><!-- MP+0x130+(i*4) -->
+			<doc>
+			GRPj selects the signal group for function input j. It is an index into PM_SIGSEL_A/B.
+			SIGj selects the individual signal of the signal group.
+			</doc>
+                        <bitfield high="1"  low="0"  name="GRP0"/>
+                        <bitfield high="4"  low="2"  name="SIG0"/>
+                        <bitfield high="6"  low="5"  name="GRP1"/>
+                        <bitfield high="9"  low="7"  name="SIG1"/>
+                        <bitfield high="11" low="10" name="GRP2"/>
+                        <bitfield high="14" low="12" name="SIG2"/>
+                        <bitfield high="16" low="15" name="GRP3"/>
+                        <bitfield high="19" low="17" name="SIG3"/>
+                        <bitfield high="21" low="20" name="GRP4"/>
+                        <bitfield high="24" low="22" name="SIG4"/>
+                        <bitfield high="26" low="25" name="GRP5"/>
+                        <bitfield high="29" low="27" name="SIG5"/>
+		</reg32>
+		<reg32 offset="0x33bc" name="MP_PM_OP" length="8" variants="NVC0_3D:NVE4_3D">
+			<bitfield pos="0" name="MODE" type="nv50_mp_pm_mode"/>
+			<bitfield low="4" high="19" name="FUNC"/>
+		</reg32>
+		<reg32 offset="0x33bc" name="MP_PM_FUNC" length="8" variants="NVE4_3D-">
+			<doc>i-th method programs i-th counter, where counters 0 to 3 access SIGSEL/SRCSEL_A,
+			and counters 4 to 7 refer to SIGSEL/SRCSEL_B.
+
+			In LOGOP mode, PM_SRCSEL_A/B (GRPi,SIGi), i=0..3 determine src i of
+			the logic operation described by FUNC (i.e. bit i of the index of the
+			bit of FUNC that determines whether the counter is incremented or not).
+
+			In B6 mode, PM_SRCSEL_A/B (GRPi,SIGi) determine bit i of the value the
+			counter is incremented by. That value is masked with FUNC.
+
+			In LOGOP_B6 mode, the counter is incremented by x (made of (GRPi,SIGi)) if
+			LOGOP is true, i.e. bit (x AND 15) of FUNC is 1.
+
+			The PULSE variants only increment the counter when the LOGOP result changes from 1 to 0.
+			</doc>
+			<bitfield high="3" low="0" name="MODE" type="nve4_mp_pm_mode"/><!-- bits [i*4,i*4+3] of MP+0x5c,58 (note reverse order !) -->
+			<bitfield high="19" low="4" name="FUNC"/><!-- i-th 16-bit word of MP+0x60..0x6c -->
+		</reg32>
+		<reg32 offset="0x33dc" name="MP_PM_UNK33DC">
 			<doc>0-0xff</doc>
 		</reg32>
 		<reg32 offset="0x3820" name="VERTEX_ARRAY_SELECT" type="uint"/>

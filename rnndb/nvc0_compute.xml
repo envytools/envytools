@@ -234,25 +234,23 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</reg32>
 			<reg32 offset="0x14" name="TILE_MODE"/>
 		</stripe>
-		<reg32 offset="0x335c" name="PM_SET" length="8"/>
-		<reg32 offset="0x337c" name="PM_UNK337C" length="8">
-			<doc>0-0xff</doc>
+		<reg32 offset="0x335c" name="MP_PM_SET" length="8"/>
+		<reg32 offset="0x337c" name="MP_PM_SIGSEL" length="8"/>
+		<reg32 offset="0x339c" name="MP_PM_SRCSEL" length="8">
+			<bitfield low="0" high="2" name="GRP0"/>
+			<bitfield low="4" high="6" name="SIG0"/>
+			<bitfield low="8" high="10" name="GRP1"/>
+			<bitfield low="12" high="14" name="SIG1"/>
+			<bitfield low="16" high="18" name="GRP2"/>
+			<bitfield low="20" high="22" name="SIG2"/>
+			<bitfield low="24" high="26" name="GRP3"/>
+			<bitfield low="28" high="30" name="SIG3"/>
 		</reg32>
-		<reg32 offset="0x339c" name="PM_UNK339C" length="8">
-			<bitfield low="0" high="2" name="0"/>
-			<bitfield low="4" high="6" name="1"/>
-			<bitfield low="8" high="10" name="2"/>
-			<bitfield low="12" high="14" name="3"/>
-			<bitfield low="16" high="18" name="4"/>
-			<bitfield low="20" high="22" name="5"/>
-			<bitfield low="24" high="26" name="6"/>
-			<bitfield low="28" high="30" name="7"/>
+		<reg32 offset="0x33bc" name="MP_PM_OP" length="8">
+			<bitfield pos="0" name="MODE" type="nv50_mp_pm_mode"/>
+			<bitfield low="4" high="19" name="FUNC"/>
 		</reg32>
-		<reg32 offset="0x33bc" name="PM_UNK33BC" length="8">
-			<bitfield pos="0" name="0"/>
-			<bitfield low="4" high="15" name="4"/>
-		</reg32>
-		<reg32 offset="0x33dc" name="PM_UNK33DC">
+		<reg32 offset="0x33dc" name="MP_PM_UNK33DC">
 			<doc>0-0xff</doc>
 		</reg32>
 		<doc>USER_PARAM doesn't exist anymore, use a constant buffer for parameters.</doc>

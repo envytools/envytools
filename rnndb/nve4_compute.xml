@@ -108,27 +108,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x335c" name="MP_PM_SET" length="8"><!-- MP+0x74+(i*4) -->
 			<doc>These set the value of the respective counter register.</doc>
 		</reg32>
-		<enum name="mp_pm_siggroup_a" inline="yes">
-			<value value="0x0" name="NONE"/>
-			<value value="0x1" name="USER"/><!-- 0..7: prof_trigger_00..07 -->
-			<value value="0x3" name="LAUNCH"/><!-- 1: warps_launched; 2..7: threads_launched bits 0..5(1..6) ? -->
-			<value value="0x4" name="EXEC"/><!-- 7,6: bits 1,0 of inst_executed -->
-			<value value="0x5" name="ISSUE"/><!-- 1,2: inst_issued1,2 -->
-			<value value="0x1b" name="LDST"/><!-- 0,1: shared_ld,st; 2,3: local_ld,st; 4,5: gld,gst_request  -->
-			<value value="0x1c" name="BRANCH"/><!-- 3: branch; 4: divergent_branch -->
-		</enum>
-		<enum name="mp_pm_siggroup_b" inline="yes">
-			<value value="0x0" name="NONE"/>
-			<value value="0x2" name="WARP"/><!-- 0: active_cycles; 1..6: active_warps bits 0..5(1..6?); 7: sm_cta_launched -->
-			<value value="0x10" name="L1"/><!-- 0,1: l1_local_load_hit,miss; 2,3: l1_local_store_hit,miss; 4,5: l1_global_load_hit,miss  -->
-			<value value="0x11" name="MEM"/><!-- 0: uncached_global_load_transaction; 1: global_store_transaction -->
-		</enum>
 		<!-- NOTE: mmio MP+0x0: 0x408000 for counter group a enable, 0x400080 for counter group b enable -->
-		<reg32 offset="0x337c" name="MP_PM_A_SIGSEL" length="4" type="mp_pm_siggroup_a"><!-- byte i of MP+0x4 -->
+		<reg32 offset="0x337c" name="MP_PM_A_SIGSEL" length="4" type="nve4_mp_pm_siggroup_a"><!-- byte i of MP+0x4 -->
 			<doc>These methods determine the signal groups that can be accessed
 			by SRCSEL(0..3).</doc>
 		</reg32>
-		<reg32 offset="0x338c" name="MP_PM_B_SIGSEL" length="4" type="mp_pm_siggroup_b"><!-- byte i of MP+0x8 -->
+		<reg32 offset="0x338c" name="MP_PM_B_SIGSEL" length="4" type="nve4_mp_pm_siggroup_b"><!-- byte i of MP+0x8 -->
 			<doc>These methods determine the signal groups that can be accessed
 			by SRCSEL(4..7).</doc>
 		</reg32>
@@ -166,17 +151,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 			The PULSE variants only increment the counter when the LOGOP result changes from 1 to 0.
 			</doc>
-			<bitfield high="3" low="0" name="MODE"><!-- bits [i*4,i*4+3] of MP+0x5c,58 (note reverse order !) -->
-				<value value="0" name="LOGOP"/>
-				<value value="1" name="LOGOP_PULSE"/>
-				<value value="2" name="B6"/>
-				<value value="3" name="UNK3"/><!-- same as 2 ? -->
-				<value value="4" name="LOGOP_B6"/>
-				<value value="5" name="LOGOP_B6_PULSE"/>
-				<value value="6" name="UNK6"/><!-- same as 4 ? -->
-				<value value="7" name="UNK7"/><!-- same as 5 ? -->
-				<value value="8" name="UNK8"/><!-- same as 0 ? -->
-			</bitfield>
+			<bitfield high="3" low="0" name="MODE" type="nve4_mp_pm_mode"/><!-- bits [i*4,i*4+3] of MP+0x5c,58 (note reverse order !) -->
 			<bitfield high="19" low="4" name="FUNC"/><!-- i-th 16-bit word of MP+0x60..0x6c -->
 		</reg32>
 		<reg32 offset="0x33dc" name="MP_PM_UNK33DC"/>

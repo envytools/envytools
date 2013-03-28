@@ -843,22 +843,14 @@
 			</reg32>
 		</array>
 		<array offset="0x600" name="MP" stride="0x200" length="1">
-			<reg32 offset="0x000" name="PM_UNK000"/>
-			<enum name="nve4_mp_pm_siggroup_a" inline="yes">
-				<value value="0x0" name="NONE"/>
-				<value value="0x1" name="USER"/>
-				<value value="0x3" name="LAUNCH"/>
-				<value value="0x4" name="EXEC"/>
-				<value value="0x5" name="ISSUE"/>
-				<value value="0x1b" name="LDST"/>
-				<value value="0x1c" name="BRANCH"/>
-			</enum>
-			<enum name="nve4_mp_pm_siggroup_b" inline="yes">
-				<value value="0x0" name="NONE"/>
-				<value value="0x2" name="WARP"/>
-				<value value="0x10" name="L1"/>
-				<value value="0x11" name="MEM"/>
-			</enum>
+			<reg32 offset="0x000" name="PM_UNK000" variants="NVC0:NVE4"/>
+			<reg32 offset="0x000" name="PM_UNK000" variants="NVE4-"/>
+			<reg32 offset="0x004" name="PM_SIGSEL" length="2" variants="NVC0:NVE4"> <!-- ctx-switched -->
+				<bitfield low="0" high="7" name="0"/>
+				<bitfield low="8" high="15" name="1"/>
+				<bitfield low="16" high="23" name="2"/>
+				<bitfield low="24" high="31" name="3"/>
+			</reg32>
 			<reg32 offset="0x004" name="PM_A_SIGSEL" variants="NVE4-">
 				<bitfield high="7"   low="0" name="0" type="nve4_mp_pm_siggroup_a"/>
 				<bitfield high="15"  low="8" name="1" type="nve4_mp_pm_siggroup_a"/>
@@ -905,17 +897,16 @@
 				<bitfield pos="3" name="OUT_OF_STACK_SPACE"/>
 			</reg32>
 			<reg32 offset="0x058" name="TRAP_HANDLER_PC" variants="NVC0:NVE4"/>
-			<enum name="nve4_mp_pm_mode" inline="yes">
-				<value value="0" name="LOGOP"/>
-				<value value="1" name="LOGOP_PULSE"/>
-				<value value="2" name="B6"/>
-				<value value="3" name="UNK3"/><!-- same as 2 ? -->
-				<value value="4" name="LOGOP_B6"/>
-				<value value="5" name="LOGOP_B6_PULSE"/>
-				<value value="6" name="UNK6"/><!-- same as 4 ? -->
-				<value value="7" name="UNK7"/><!-- same as 5 ? -->
-				<value value="8" name="UNK8"/><!-- same as 0 ? -->
-			</enum>
+			<reg32 offset="0x05c" name="PM_MODE" variants="NVC0:NVE4"> <!-- ctx-switched -->
+				<bitfield pos="3" name="0" type="nv50_mp_pm_mode"/>
+				<bitfield pos="7" name="1" type="nv50_mp_pm_mode"/>
+				<bitfield pos="11" name="2" type="nv50_mp_pm_mode"/>
+				<bitfield pos="15" name="3" type="nv50_mp_pm_mode"/>
+				<bitfield pos="19" name="4" type="nv50_mp_pm_mode"/>
+				<bitfield pos="23" name="5" type="nv50_mp_pm_mode"/>
+				<bitfield pos="27" name="6" type="nv50_mp_pm_mode"/>
+				<bitfield pos="31" name="7" type="nv50_mp_pm_mode"/>
+			</reg32>
 			<reg32 offset="0x058" name="PM_B_MODE" variants="NVE4-">
 				<bitfield high="3" low="0" name="0" type="nve4_mp_pm_mode"/>
 				<bitfield high="7" low="4" name="0" type="nve4_mp_pm_mode"/>
@@ -928,15 +919,11 @@
 				<bitfield high="11" low="8" name="0" type="nve4_mp_pm_mode"/>
 				<bitfield high="15" low="12" name="0" type="nve4_mp_pm_mode"/>
 			</reg32>
-			<reg32 offset="0x060" name="PM_A_FUNC" length="2" variants="NVE4-">
+			<reg32 offset="0x060" name="PM_FUNC" length="4">
 				<bitfield low="0" high="15" name="0"/>
 				<bitfield low="16" high="31" name="1"/>
 			</reg32>
-			<reg32 offset="0x068" name="PM_B_FUNC" length="2" variants="NVE4-">
-				<bitfield low="0" high="15" name="0"/>
-				<bitfield low="16" high="31" name="1"/>
-			</reg32>
-			<reg32 offset="0x070" name="PM_COUNTER_OVERFLOW">
+			<reg32 offset="0x070" name="PM_COUNTER_OVERFLOW" variants="NVC0:NVE4"> <!-- ctx-switched -->
 				<bitfield pos="0" name="0"/>
 				<bitfield pos="1" name="1"/>
 				<bitfield pos="2" name="2"/>
@@ -946,8 +933,19 @@
 				<bitfield pos="6" name="6"/>
 				<bitfield pos="7" name="7"/>
 			</reg32>
-			<reg32 offset="0x074" name="PM_COUNTER" length="8"/>
-			<reg32 offset="0x094" name="PM_UNK094"/>
+			<reg32 offset="0x070" name="PM_COUNTER_OVERFLOW_A" variants="NVE4-"> <!-- ctx-switched -->
+				<bitfield pos="0" name="0"/>
+				<bitfield pos="1" name="1"/>
+				<bitfield pos="2" name="2"/>
+				<bitfield pos="3" name="3"/>
+			</reg32>
+			<reg32 offset="0x074" name="PM_COUNTER" length="8"/> <!-- ctx-switched -->
+			<reg32 offset="0x094" name="PM_COUNTER_OVERFLOW_B" variants="NVE4-">
+				<bitfield pos="0" name="4"/>
+				<bitfield pos="1" name="5"/>
+				<bitfield pos="2" name="6"/>
+				<bitfield pos="3" name="7"/>
+			</reg32>
 			<reg32 offset="0x098" name="TPID"/>
 			<reg32 offset="0x0a4" name="CCACHE_CTRL">
 				<bitfield pos="0" name="CODE_FLUSH_TRIGGER"/>
@@ -966,6 +964,16 @@
 				<bitfield low="24" high="26" name="UNK8" type="NV50_VSTATUS"/>
 				<bitfield low="27" high="29" name="UNK9" type="NV50_VSTATUS"/>
 				<bitfield low="30" high="31" name="UNK30"/> <!-- what the fuck? -->
+			</reg32>
+			<reg32 offset="0x130" name="PM_SRCSEL" length="8" variants="NVC4:NVE4"> <!-- XXX check variants -->
+				<bitfield low="0" high="2" name="GRP0"/>
+				<bitfield low="4" high="6" name="SIG0"/>
+				<bitfield low="8" high="10" name="GRP1"/>
+				<bitfield low="12" high="14" name="SIG1"/>
+				<bitfield low="16" high="18" name="GRP2"/>
+				<bitfield low="20" high="22" name="SIG2"/>
+				<bitfield low="24" high="26" name="GRP3"/>
+				<bitfield low="28" high="30" name="SIG3"/>
 			</reg32>
 			<reg32 offset="0x130" name="PM_A_SRCSEL" length="4" variants="NVE4-">
 				<bitfield high="1"  low="0"  name="GRP0"/>
