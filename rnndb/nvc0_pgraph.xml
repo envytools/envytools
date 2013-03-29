@@ -332,11 +332,11 @@
 			<bitfield low="0" high="17" name="MADDR"/>
 			<bitfield pos="20" name="UNK20"/>
 		</reg32>
-		<reg32 offset="0x60" name="UNK60"/> <!-- 7f -->
-		<reg32 offset="0x64" name="UNK64"/> <!-- 7ff -->
+		<reg32 offset="0x60" name="ENTRY_POS"/>
+		<reg32 offset="0x64" name="CODE_POS"/>
 		<reg32 offset="0x68" name="WDCNT"/> <!-- 24 bits on NVC0:NVD9, 30 bits on NVD9+? -->
 		<reg32 offset="0x6c" name="ICNT"/>
-		<reg32 offset="0x80" name="UNK80"/> <!-- 3 -->
+		<reg32 offset="0x80" name="MTHD_UNK0124"/> <!-- 3 -->
 		<reg32 offset="0x88" name="MCACHE_CTRL">
 			<bitfield low="0" high="15" name="CLASS"/>
 			<bitfield low="16" high="27" name="MTHD" shr="2"/>
