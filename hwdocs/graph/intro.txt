@@ -104,7 +104,8 @@ Memory to memory copy objects [see graph/m2mf.txt]:
 0039 [NV04:NV50] NV03_M2MF - copies data from one buffer to another
 5039 [NV50:NVC0] NV50_M2MF - copies data from one buffer to another
 9039 [NVC0:NVE4] NVC0_M2MF - copies data from one buffer to another
-a040 [NVE4-] NVE4_P2MF - copies data from FIFO to memory buffer
+a040 [NVE4:NVF0] NVE4_P2MF - copies data from FIFO to memory buffer
+a140 [NVF0-] NVF0_P2MF - copies data from FIFO to memory buffer
 
 Context objects [see graph/ctxobj.txt]:
 
@@ -220,14 +221,16 @@ NV10-style 3d objects:
 9097 [NVC0:NVE4] NVC0_3D - Fermi Direct3D 11 engine		[graph/nvc0-3d.txt]
 9197 [NVC1:NVE4] NVC1_3D - Fermi Direct3D 11 engine		[graph/nvc0-3d.txt]
 9297 [NVC8:NVE4] NVC8_3D - Fermi Direct3D 11 engine		[graph/nvc0-3d.txt]
-a097 [NVE4-] NVE4_3D - Kepler Direct3D 11.1 engine		[graph/nvc0-3d.txt]
+a097 [NVE4:NVF0] NVE4_3D - Kepler Direct3D 11.1 engine		[graph/nvc0-3d.txt]
+a197 [NVF0-] NVF0_3D - Kepler Direct3D 11.1 engine		[graph/nvc0-3d.txt]
 
 And the compute objects:
 50c0 [NV50:NVC0] NV50_COMPUTE - CUDA 1.x engine		[graph/nv50-compute.txt]
 85c0 [NVA3:NVC0] NVA3_COMPUTE - CUDA 1.x engine		[graph/nv50-compute.txt]
 90c0 [NVC0:NVE4] NVC0_COMPUTE - CUDA 2.x engine		[graph/nvc0-compute.txt]
 91c0 [NVC8:NVE4] NVC8_COMPUTE - CUDA 2.x engine		[graph/nvc0-compute.txt]
-a0c0 [NVE4-] NVE4_COMPUTE - CUDA 3.x engine		[graph/nvc0-compute.txt]
+a0c0 [NVE4:NVF0] NVE4_COMPUTE - CUDA 3.x engine		[graph/nvc0-compute.txt]
+a1c0 [NVF0-] NVF0_COMPUTE - CUDA 3.x engine		[graph/nvc0-compute.txt]
 
 
 = The graphics context =

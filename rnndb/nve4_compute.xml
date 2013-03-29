@@ -9,7 +9,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nv50_defs.xml"/>
 
 <domain name="NV01_SUBCHAN" bare="yes">
-	<stripe prefix="obj-class" variants="NVE4_COMPUTE">
+	<stripe prefix="obj-class" variants="NVE4_COMPUTE-NVF0_COMPUTE">
 		<doc>State that also exists on NVE4_3D (like CODE,TEMP,TIC,TSC_ADDRESS)
 		seems to be kept separate from the 3D object.</doc>
 		<!-- 0114 - 012c: illegal !-->

@@ -196,10 +196,13 @@ class	type	subtype	chipsets	name
 9197	uni3d	fermi	NVC1:NVE4	NVC1_3D
 91c0	comp	fermi	NVC8:NVE4	NVC8_COMPUTE
 9297	uni3d	fermi	NVC8:NVE4	NVC8_3D
-a040	mem	p2mf	NVE4:...	NVE4_P2MF
-a097	uni3d	kepler	NVE4:...	NVE4_3D
+a040	mem	p2mf	NVE4:NVF0	NVE4_P2MF
+a097	uni3d	kepler	NVE4:NVF0	NVE4_3D
 a0b5	mem	copy	NVE4:...	NVE4_COPY
-a0c0	comp	kepler	NVE4:...	NVE4_COMPUTE
+a0c0	comp	kepler	NVE4:NVF0	NVE4_COMPUTE
+a140	mem	p2mf	NVF0:...	NVF0_P2MF
+a197	uni3d	kepler	NVF0:...	NVF0_3D
+a1c0	comp	kepler	NVF0:...	NVF0_COMPUTE
 
 
 Sorted by type:
@@ -215,7 +218,8 @@ Sorted by type:
 0039	mem	m2mf	NV04:NV50	NV03_M2MF
 5039	mem	m2mf	NV50:NVC0	NV50_M2MF
 9039	mem	m2mf	NVC0:NVE4	NVC0_M2MF
-a040	mem	p2mf	NVE4:...	NVE4_P2MF
+a040	mem	p2mf	NVE4:NVF0	NVE4_P2MF
+a140	mem	p2mf	NVF0:...	NVF0_P2MF
 a0b5	mem	copy	NVE4:...	NVE4_COPY
 
 
@@ -344,7 +348,8 @@ a0b5	mem	copy	NVE4:...	NVE4_COPY
 9197	uni3d	fermi	NVC1:NVE4	NVC1_3D
 9297	uni3d	fermi	NVC8:NVE4	NVC8_3D
 
-a097	uni3d	kepler	NVE4:...	NVE4_3D
+a097	uni3d	kepler	NVE4:NVF0	NVE4_3D
+a197	uni3d	kepler	NVF0:...	NVF0_3D
 
 
 50c0	comp	tesla	NV50:NVC0	NV50_COMPUTE
@@ -353,7 +358,8 @@ a097	uni3d	kepler	NVE4:...	NVE4_3D
 90c0	comp	fermi	NVC0:NVE4	NVC0_COMPUTE
 91c0	comp	fermi	NVC8:NVE4	NVC8_COMPUTE
 
-a0c0	comp	kepler	NVE4:...	NVE4_COMPUTE
+a0c0	comp	kepler	NVE4:NVF0	NVE4_COMPUTE
+a1c0	comp	kepler	NVF0:...	NVF0_COMPUTE
 
 
 74c1	crypt		NV84:NV98	NV84_CRYPT

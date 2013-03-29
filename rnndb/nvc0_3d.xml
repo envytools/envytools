@@ -37,7 +37,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 </enum>
 
 <domain name="NV01_SUBCHAN" bare="yes">
-	<stripe prefix="obj-class" variants="NVC0_3D-NVE4_3D">
+	<stripe prefix="obj-class" variants="NVC0_3D-NVF0_3D">
 
 		<!-- NOTE: NVC0_3D_CYLINDRICAL_WRAP doesn't exit, it has to be done in a GP -->
 
