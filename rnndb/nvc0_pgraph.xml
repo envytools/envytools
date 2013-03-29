@@ -239,8 +239,9 @@
 
 	<reg32 offset="0x0704" name="TRAPPED_ADDR">
 		<doc>Offending subchan + method, for [most types of] PGRAPH interrupts.</doc>
-		<bitfield name="MTHD" high="13" low="2" shr="2" />
-		<bitfield name="SUBCH" high="18" low="16" />
+		<bitfield low="2" high="13" name="MTHD" shr="2"/>
+		<bitfield low="16" high="18" name="SUBCH"/>
+		<bitfield pos="28" name="IB_UNK40"/>
 	</reg32>
 	<reg32 offset="0x0708" name="TRAPPED_DATA_LOW">
 		<doc>Offending method data, for [most types of] PGRAPH interrupts.</doc>
@@ -259,6 +260,7 @@
 			<bitfield name="UNK1" pos="21" /> <!-- sometimes set by DISPATCH itself during exec... related to NOTIFY? -->
 			<bitfield name="SINGLE_STEP_DONE" pos="22" />
 			<bitfield name="DOUBLE" pos="25" />
+			<bitfield pos="28" name="IB_UNK40"/>
 			<bitfield name="CURRENT_SUBCH" pos="29" />
 			<bitfield name="VALID" pos="31" />
 		</reg32>
@@ -266,7 +268,8 @@
 		<reg32 offset="0x0c" name="CMD_DATA_HIGH" />
 		<reg32 offset="0x10" name="CTX_SWITCH" />
 		<reg32 offset="0x24" name="SUBCH">
-			<bitfield name="SUBCH" high="15" low="13" />
+			<bitfield pos="0" name="IB_UNK40"/>
+			<bitfield low="13" high="15" name="SUBCH"/>
 		</reg32>
 		<reg32 offset="0x28" name="MISC">
 			<bitfield name="NOTIFY_PENDING" pos="8" />
@@ -319,14 +322,14 @@
 		</reg32>
 		<reg32 offset="0x30" name="UNK30">
 			<bitfield low="0" high="15" name="CLASS"/>
-			<bitfield low="16" high="18" name="UNK16"/>
-			<bitfield pos="20" name="UNK20"/>
+			<bitfield low="16" high="18" name="SUBCH"/>
+			<bitfield pos="20" name="IB_UNK40"/>
 			<bitfield pos="24" name="UNK24"/>
 		</reg32>
 		<reg32 offset="0x34" name="UNK34">
 			<bitfield low="0" high="15" name="CLASS"/>
-			<bitfield low="16" high="18" name="UNK16"/>
-			<bitfield pos="20" name="UNK20"/>
+			<bitfield low="16" high="18" name="SUBCH"/>
+			<bitfield pos="20" name="IB_UNK40"/>
 		</reg32>
 		<reg32 offset="0x38" name="UNK38">
 			<bitfield low="0" high="17" name="MADDR"/>
