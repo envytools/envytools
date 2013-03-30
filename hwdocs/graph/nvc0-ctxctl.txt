@@ -131,7 +131,7 @@ Interrupts:
 0x21: ??? - bit 9 of reg 0x128 of corresponding IBUS piece [XXX]
 0x22: STRAND - strand busy executing command [graph/nvc0-strand.txt]
 0x23: ???, affected by RED_SWITCH [XXX]
-0x24: ???, DISPATCH reg 404024 bit 0 [XXX]
+0x24: IB_UNK40, last state of IB_UNK40 bit, from DISPATCH.SUBCH reg
 0x25: MMCTX - MMIO transfer complete [graph/nvc0-ctxctl-mmio.txt]
 0x26: MMIO_RD - MMIO read complete [graph/nvc0-ctxctl-mmio.txt]
 0x27: MMIO_WRS - MMIO synchronous write complete [graph/nvc0-ctxctl-mmio.txt]
