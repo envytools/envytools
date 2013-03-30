@@ -315,11 +315,12 @@
 			<value value="1" name="ACQUIRE_EQUAL"/>
 			<value value="2" name="RELEASE"/>
 			<value value="4" name="ACQUIRE_GEQUAL"/>
+			<value value="8" name="ACQUIRE_MASK"/>
 		</bitfield>
 		<bitfield pos="12" name="YIELD"/>
 		<bitfield pos="19" name="ACQUIRE_PENDING"/>
-		<bitfield pos="20" name="UNK20"/>
-		<bitfield pos="24" name="SHORT"/>
+		<bitfield pos="20" name="RELEASE_UNK20"/>
+		<bitfield pos="24" name="RELEASE_SHORT"/>
 	</reg32>
 	<reg32 offset="0x48" name="IB_ADDRESS_LOW"/>
 	<reg32 offset="0x4c" name="IB_CONFIG">
@@ -445,6 +446,7 @@
 		<bitfield pos="18" name="ILLEGAL_CMD"/>
 		<!-- XXX: all bits except 28 valid? -->
 		<bitfield pos="21" name="ILLEGAL_MTHD"/>
+		<bitfield pos="22" name="MTHD_UNK7C_NONZERO"/>
 		<bitfield pos="23" name="SW_MTHD"/>
 		<bitfield pos="25" name="ILLEGAL_SEM"/>
 		<bitfield pos="26" name="SEM_TIMEOUT"/>

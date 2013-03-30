@@ -388,7 +388,9 @@ semaphore_sequence instead of SEMAPHORE_RELEASE param. The "acquire greater
 or equal" operation, instead of waiting for the semaphore value to be equal to
 semaphore_sequence, it waits for value that satisfies (int32_t)(val -
 semaphore_sequence) >= 0, ie. for a value that's greater or equal to
-semaphore_sequence in 32-bit wrapping arithmetic.
+semaphore_sequence in 32-bit wrapping arithmetic. The "acquire mask" operation
+waits for a value that, ANDed with semaphore_sequence, gives a non-0 result
+[NVC0+ only].
 
 Failures of semaphore-related methods will trigger the SEMAPHORE error. The
 SEMAPHORE error has several subtypes, depending on card generation.
@@ -508,6 +510,7 @@ mthd 0x001c / 0x007: SEMAPHORE_TRIGGER [NV84:]
     1: ACQUIRE_EQUAL
     2: WRITE_LONG
     4: ACQUIRE_GEQUAL
+    8: ACQUIRE_MASK [NVC0-]
 [XXX: bit 12 does something on NVC0?]
 	op = param & 7;
 	b64 timestamp = PTIMER_GETTIME();
@@ -536,9 +539,10 @@ mthd 0x001c / 0x007: SEMAPHORE_TRIGGER [NV84:]
 		} else {
 			word = READ_VM_32(semaphore_address, pfifo_endian);
 		}
-		if ((op == 1 && word == semaphore_sequence) || (op == 4 && (int32_t)(word - semaphore_sequence) >= 0)) {
+		if ((op == 1 && word == semaphore_sequence) || (op == 4 && (int32_t)(word - semaphore_sequence) >= 0) || (op == 8 && word & semaphore_sequence)) {
 			/* already done */
 		} else {
+			/* XXX NVC0 */
 			acquire_source = 1;
 			acquire_value = semaphore_sequence;
 			acquire_timestamp = ???;
