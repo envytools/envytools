@@ -254,15 +254,15 @@
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
 		<reg32 offset="0x04" name="CMD_ADDR">
-			<bitfield name="MTHD" high="12" low="2" shr="2" />
-			<bitfield name="SUBCH" high="18" low="16" />
-			<bitfield name="NONINCR" pos="20" />
-			<bitfield name="UNK1" pos="21" /> <!-- sometimes set by DISPATCH itself during exec... related to NOTIFY? -->
-			<bitfield name="SINGLE_STEP_DONE" pos="22" />
-			<bitfield name="DOUBLE" pos="25" />
+			<bitfield low="2" high="12" name="MTHD" shr="2"/>
+			<bitfield low="16" high="18" name="SUBCH"/>
+			<bitfield pos="20" name="NONINCR"/>
+			<bitfield pos="21" name="UNK1"/> <!-- sometimes set by DISPATCH itself during exec... related to NOTIFY? -->
+			<bitfield pos="22" name="SINGLE_STEP_DONE"/>
+			<bitfield pos="25" name="DOUBLE"/>
 			<bitfield pos="28" name="IB_UNK40"/>
-			<bitfield name="CURRENT_SUBCH" pos="29" />
-			<bitfield name="VALID" pos="31" />
+			<bitfield pos="29" name="CURRENT_SUBCH"/>
+			<bitfield pos="31" name="VALID"/>
 		</reg32>
 		<reg32 offset="0x08" name="CMD_DATA_LOW" />
 		<reg32 offset="0x0c" name="CMD_DATA_HIGH" />

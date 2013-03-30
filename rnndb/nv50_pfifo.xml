@@ -472,11 +472,14 @@
 	</array>
 
 	<bitset name="IB_ENTRY" prefix="chipset" variants="NV50-">
-		<bitfield high="39" low="2" shr="2" name="ADDRESS"/>
+		<bitfield pos="0" name="UNK0" variants="NVC0-"/>
+		<bitfield pos="1" name="UNK1" variants="NVC0:NVE4"/>
+		<bitfield low="2" high="39" shr="2" name="ADDRESS"/>
 		<bitfield pos="40" name="UNK40"/>
 		<bitfield pos="41" name="NON_MAIN"/>
-		<bitfield high="62" low="42" shr="2" name="SIZE"/> <!-- XXX: what size is this thing exactly? -->
-		<bitfield pos="63" name="NO_PREFETCH"/>
+		<bitfield low="42" high="63" shr="2" name="SIZE" variants="NV50:NVC0"/>
+		<bitfield low="42" high="62" shr="2" name="SIZE" variants="NVC0-"/>
+		<bitfield pos="63" name="NO_PREFETCH" variants="NVC0-"/>
 	</bitset>
 
 </domain>

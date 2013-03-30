@@ -120,6 +120,7 @@ addr | R/W | name          | description
 0x44 |  R  | DMA_GET       | dma_get
 0x48 |  R  | REF           | ref
 0x4c | R/W | DMA_PUT_HIGH  | dma_put_high_rs/ws, only writable when not in IB
+0x50 | R/W | ???           | NVC0+ only
 0x54 |  R  | DMA_CGET      | [O] nv40+ only, connected to subr_return when
      |     |               | subroutine active, dma_get when inactive.
 0x58 |  R  | DMA_MGET      | dma_mget
@@ -372,11 +373,16 @@ The XX bits in the command are ignored.
 
 NVC0 format follows the same idea, but uses all-new command encoding.
 
-00000000000000000000MMMMMMMMMMMM - SLI conditional
-0010CCCCCCCCCCCCSSS0MMMMMMMMMMMM - increasing methods
-0110CCCCCCCCCCCCSSS0MMMMMMMMMMMM - non-increasing methods
-1000VVVVVVVVVVVVSSS0MMMMMMMMMMMM - inline method
-1010CCCCCCCCCCCCSSS0MMMMMMMMMMMM - increase-once methods
+000CCCCCCCCCCC00SSSMMMMMMMMMMMXX - increasing methods [old]
+000XXXXXXXXXXX01MMMMMMMMMMMMXXXX - SLI conditional
+000XXXXXXXXXXX10MMMMMMMMMMMMXXXX - SLI user mask store [new]
+000XXXXXXXXXXX11XXXXXXXXXXXXXXXX - SLI conditional from user mask [new]
+001CCCCCCCCCCCCCSSSXMMMMMMMMMMMM - increasing methods [new]
+010CCCCCCCCCCC00SSSMMMMMMMMMMMXX - non-increasing methods [old]
+011CCCCCCCCCCCCCSSSXMMMMMMMMMMMM - non-increasing methods [new]
+100VVVVVVVVVVVVVSSSXMMMMMMMMMMMM - inline method [new]
+101CCCCCCCCCCCCCSSSXMMMMMMMMMMMM - increase-once methods [new]
+110XXXXXXXXXXXXXXXXXXXXXXXXXXXXX - ??? [XXX] [new]
 [XXX: check bitfield bounduaries]
 [XXX: check the extra SLI bits]
 [XXX: look for other forms]

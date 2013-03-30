@@ -116,8 +116,9 @@
 	<reg32 offset="0x464" name="UNK464" length="16" stride="8"/> <!-- RO 1f000000 -->
 	<reg32 offset="0x528" name="INTR_EN_NRHOST" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x52c" name="INTR0_SOURCE">
-		<value value="5" name="UNK5"/> <!-- caused by 0x3f1 poked to 2200 -->
-		<!-- unknown one [NVE4]: poke engine id >6 to chan table -->
+		<value value="1" name="CHANNEL_IN_USE"/> <!-- tried to modify a validated channel -->
+		<value value="2" name="NO_POLL"/> <!-- tried to set a channel with POLL_ENABLE, but poll area is disabled -->
+		<value value="5" name="NO_ENGINE"/> <!-- caused by 0x3f1 poked to 2200 [NVC0] or engine id >6 in chan table [NVE4] -->
 	</reg32>
 	<reg32 offset="0x530" name="INTR_UNK530" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x54c" name="PLAYLIST_INTR"> <!-- RO, ack in 2100 -->
@@ -237,8 +238,8 @@
 	<array offset="0x1000" name="CHAN_TABLE" length="128" stride="8" variants="NVC0:NVE4">
 		<reg32 offset="0" name="CHAN">
 			<bitfield low="0" high="29" name="INST" type="nv50_channel"/>
-			<bitfield pos="30" name="UNK30"/>
-			<bitfield pos="31" name="UNK31"/>
+			<bitfield pos="30" name="POLL_ENABLE"/> <!-- XXX what good is a channel without this? -->
+			<bitfield pos="31" name="VALID"/>
 		</reg32>
 		<reg32 offset="4" name="STATE">
 			<bitfield pos="0" name="ENABLE"/>
@@ -271,13 +272,15 @@
 
 <array name="PSUBFIFO" offset="0x40000" stride="0x2000" length="3" variants="NVC0-">
 	<reg32 offset="0x00" name="IB_PUT"/>
-	<reg32 offset="0x04" name="UNK04" variants="NVC0:NVE4"/> <!-- taken from even addr in CTRL area? -->
+	<reg32 offset="0x04" name="UNK04_CTRL_UNK50" variants="NVC0:NVE4"/>
 	<reg32 offset="0x08" name="CTRL_ADDR_LOW">
 		<bitfield low="0" high="1" name="TARGET"/> <!-- XXX: enum vals & confirm -->
 		<bitfield low="12" high="31" name="ADDR_LOW" shr="12"/>
 	</reg32>
 	<reg32 offset="0x0c" name="CTRL_ADDR_HIGH"/>
-	<reg32 offset="0x10" name="UNK10"/> <!-- face/ffffffff/0 -->
+	<reg32 offset="0x10" name="SIG">
+		<value value="0xface" name="SIG"/> <!-- only low 16 bits have to match -->
+	</reg32>
 	<reg32 offset="0x14" name="IB_GET"/>
 	<reg32 offset="0x18" name="DMA_GET"/>
 	<reg32 offset="0x1c" name="DMA_GET_HIGH"/> <!-- XXX: gone on NVE4? -->
@@ -287,9 +290,14 @@
 		<bitfield pos="31" name="VALID"/>
 	</reg32>
 	<reg32 offset="0x28" name="REF_CNT"/>
-	<reg32 offset="0x2c" name="ACTIVE_CYCLES"/>
-	<reg32 offset="0x30" name="UNK30"/> <!-- fffff902/ffffffff/0 -->
-	<reg32 offset="0x34" name="UNK34"/>
+	<reg32 offset="0x2c" name="ACTIVE_CYCLES"/> <!-- XXX: figure this out -->
+	<reg32 offset="0x30" name="SEMAPHORE_CONFIG">
+		<bitfield low="0" high="10" name="UNK0"/> <!-- 2 by default -->
+		<bitfield low="11" high="14" name="TIMEOUT_SHIFT"/>
+		<bitfield low="15" high="30" name="TIMEOUT"/>
+		<bitfield pos="31" name="TIMEOUT_ENABLE"/>
+	</reg32>
+	<reg32 offset="0x34" name="SEMAPHORE_DEADLINE"/> <!-- PTIMER bits 10-41 [ie. us units] -->
 	<reg32 offset="0x38" name="SEMAPHORE_ADDRESS_HIGH"/>
 	<reg32 offset="0x3c" name="SEMAPHORE_ADDRESS_LOW"/>
 	<reg32 offset="0x40" name="SEMAPHORE_SEQUENCE"/>
@@ -310,12 +318,13 @@
 		<bitfield high="15" low="8" name="UNK8"/>
 		<bitfield high="31" low="16" name="ORDER"/> <!-- XXX: check exact vals and bfs -->
 	</reg32>
-	<reg32 offset="0x50" name="UNK50"/>
-	<reg32 offset="0x54" name="UNK54"/> <!-- ffffffff on NVCx, fffffffd on NVE4 -->
+	<reg32 offset="0x50" name="IB_POS_UNK"/>
+	<reg32 offset="0x54" name="IB_ENTRY_LOW"/>
+	<reg32 offset="0x58" name="IB_ENTRY_HIGH_RO"/>
 
 	<reg32 offset="0x5c" name="DMA_PUT"/>
 	<reg32 offset="0x60" name="DMA_PUT_HIGH"/> <!-- XXX: gone on NVE4? -->
-	<reg32 offset="0x64" name="UNK64"/>
+	<reg32 offset="0x64" name="IB_ENTRY_HIGH"/>
 	<reg32 offset="0x68" name="DMA_GET_HIGH_RS"/>
 	<reg32 offset="0x6c" name="DMA_PUT_HIGH_RS"/>
 	<reg32 offset="0x70" name="DMA_MGET_HIGH_RS"/>
@@ -337,32 +346,39 @@
 			<value value="5" name="ONCEINCR"/>
 		</bitfield>
 	</reg32>
+	<bitset name="nvc0_precache_state" inline="yes">
+		<bitfield pos="0" name="VALID"/>
+		<bitfield pos="1" name="IB_UNK40"/>
+		<bitfield pos="2" name="IB_NON_MAIN"/>
+		<bitfield pos="3" name="IB_UNK1" variants="NVC0:NVE4"/>
+	</bitset>
 	<reg32 offset="0x88" name="DMA_STATE_1">
 		<bitfield low="0" high="12" name="METHOD_COUNT"/>
 		<bitfield low="14" high="15" name="UNK14"/>
-		<bitfield pos="16" name="PRECACHE_0_VALID"/>
-		<bitfield low="17" high="18" name="UNK17"/>
-		<bitfield pos="19" name="UNK19" variants="NVC0:NVE4"/>
-		<bitfield pos="20" name="PRECACHE_1_VALID"/>
-		<bitfield low="21" high="22" name="UNK21"/>
-		<bitfield pos="23" name="UNK23" variants="NVC0:NVE4"/>
-		<bitfield pos="24" name="PRECACHE_2_VALID"/>
-		<bitfield low="25" high="26" name="UNK25"/>
-		<bitfield pos="27" name="UNK27" variants="NVC0:NVE4"/>
-		<bitfield low="28" high="31" name="UNK28"/>
+		<bitfield low="16" high="19" name="PRECACHE_0" type="nvc0_precache_state"/>
+		<bitfield low="20" high="23" name="PRECACHE_1" type="nvc0_precache_state"/>
+		<bitfield low="24" high="27" name="PRECACHE_2" type="nvc0_precache_state"/>
+		<bitfield pos="28" name="UNK28"/>
+		<bitfield pos="29" name="UNK29"/>
+		<bitfield pos="30" name="IB_UNK0"/>
+		<bitfield pos="31" name="UNK31"/>
 	</reg32>
 	<reg32 offset="0x8c" name="PRECACHE_0"/>
 	<reg32 offset="0x90" name="PRECACHE_1"/>
 	<reg32 offset="0x94" name="SLI">
-		<bitfield low="0" high="11" name="UNK0"/>
-		<bitfield low="16" high="27" name="UNK16"/>
-		<bitfield pos="28" name="UNK28"/> <!-- RO 1 -->
-		<bitfield pos="29" name="UNK29"/>
+		<bitfield low="0" high="11" name="MASK"/>
+		<bitfield low="16" high="27" name="USER_MASK"/>
+		<bitfield pos="28" name="ACTIVE"/>
+		<bitfield pos="29" name="ENABLE"/>
 	</reg32>
 	<reg32 offset="0x98" name="UNK98"/> <!-- clock? -->
-	<reg32 offset="0x9c" name="UNK9C">
-		<bitfield low="0" high="1" name="UNK0"/>
-		<bitfield low="8" high="9" name="UNK8"/> <!-- 1 by default -->
+	<reg32 offset="0x9c" name="FEATURE_ENABLE">
+		<bitfield low="0" high="1" name="UNK0"/> <!-- deals with IB? -->
+		<bitfield low="8" high="9" name="CMD_TYPES">
+			<value value="0" name="OLD"/>
+			<value value="1" name="NEW"/>
+			<value value="2" name="BOTH"/>
+		</bitfield>
 		<bitfield low="16" high="17" name="UNK16" variants="NVC0:NVE4"/>
 		<bitfield low="24" high="25" name="UNK24"/>
 	</reg32>
@@ -375,26 +391,27 @@
 	</reg32>
 	<reg32 offset="0xac" name="CUR_ENGINE" type="nvc0_pfifo_engine"/> <!-- XXX is that still it on NVE4? -->
 	<reg32 offset="0xb0" name="UNKB0"/>
-	<reg32 offset="0xb4" name="UNKB4" variants="NVC0:NVE4"/> <!-- ffffffff/ffffffff/0 -->
+	<reg32 offset="0xb4" name="UNKB4_CTRL_UNK50" variants="NVC0:NVE4"/> <!-- ffffffff/ffffffff/0 -->
 	<reg32 offset="0xb8" name="UNKB8" variants="NVC0:NVE4"/> <!-- f8000000/f800007f/0 -->
 	<reg32 offset="0xbc" name="UNKBC" variants="NVC0:NVE4"/> <!-- 0/8000007f/0 -->
 	<array offset="0xc0" name="CACHE" length="4" stride="8">
 		<reg32 offset="0" name="ADDR">
 			<bitfield pos="0" name="INCR"/>
+			<bitfield pos="1" name="IB_UNK40"/>
 			<bitfield low="2" high="13" name="MTHD" shr="2"/>
 			<bitfield low="16" high="18" name="SUBCH"/>
-			<bitfield pos="21" name="UNK21" variants="NVC0:NVE4"/> <!-- type of submission command, perhaps? -->
+			<bitfield pos="21" name="NOT_IB_UNK1" variants="NVC0:NVE4"/>
 			<bitfield low="22" high="23" name="UNK22"/> <!-- type of submission command, perhaps? -->
 			<bitfield pos="31" name="VALID"/>
 		</reg32>
 		<reg32 offset="4" name="DATA"/>
 	</array>
-	<reg32 offset="0xe0" name="UNK0E0">
-		<bitfield pos="0" name="UNK0"/>
-		<bitfield pos="1" name="UNK1" variants="NVC0:NVE4"/>
-		<bitfield pos="2" name="UNK2"/>
-		<bitfield pos="3" name="UNK3"/>
-		<bitfield pos="4" name="UNK4"/>
+	<reg32 offset="0xe0" name="IB_FLAGS">
+		<bitfield pos="0" name="IB_UNK0"/>
+		<bitfield pos="1" name="IB_UNK1" variants="NVC0:NVE4"/> <!-- only valid with IB_UNK40 set -->
+		<bitfield pos="2" name="IB_UNK40"/>
+		<bitfield pos="3" name="IB_NON_MAIN"/>
+		<bitfield pos="4" name="IB_NO_PREFETCH"/>
 	</reg32>
 	<reg32 offset="0xe4" name="UNK0E4" variants="NVC0:NVE4"/>
 	<reg32 offset="0xe4" name="UNK0E4" variants="NVE4-">
@@ -412,13 +429,18 @@
 	<reg32 offset="0x104" name="UNK104" variants="NVC0:NVE4"/> <!-- 0/fffff/0 -->
 
 	<bitset name="nvc0_psubfifo_intr" inline="yes">
-		<bitfield pos="15" name="UNK15"/> <!-- caused by FEATURE 0 -->
-		<bitfield pos="18" name="UNK18"/> <!-- caused by 20010006 submitted in compat mode -->
+		<bitfield pos="8" name="ENGINE_PULL_TIMEOUT"/>
+		<bitfield pos="14" name="IB_PUT_OVERFLOW"/>
+		<bitfield pos="15" name="IB_ENTRY_INVALID"/>
+		<bitfield pos="18" name="ILLEGAL_CMD"/>
 		<!-- XXX: all bits except 28 valid? -->
 		<bitfield pos="21" name="ILLEGAL_MTHD"/>
-		<bitfield pos="22" name="ILLEGAL_CMD"/>
 		<bitfield pos="23" name="SW_MTHD"/>
 		<bitfield pos="25" name="ILLEGAL_SEM"/>
+		<bitfield pos="26" name="SEM_TIMEOUT"/>
+		<bitfield pos="27" name="MMIO_WRITE_WHILE_BUSY"/>
+		<bitfield pos="29" name="SEM_ACQUIRE_WITH_IB_UNK1"/>
+		<bitfield pos="31" name="SIG_MISMATCH"/>
 	</bitset>
 	<reg32 offset="0x108" name="INTR" type="nvc0_psubfifo_intr"/>
 	<reg32 offset="0x10c" name="INTR_EN" type="nvc0_psubfifo_intr"/>
