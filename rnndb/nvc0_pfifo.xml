@@ -98,7 +98,10 @@
 		<bitfield low="12" high="15" name="UNK12"/>
 		<bitfield pos="28" name="UNK20"/>
 	</reg32>
-	<reg32 offset="0x390" name="SUBFIFO_ENG_MASK" length="3" variants="NVE4-"> <!-- XXX: exists for NVC0, reads as 1f -->
+	<reg32 offset="0x390" name="SUBFIFO_ENGINE" length="3" variants="NVC0:NVE4">
+		<doc>Engine currently used by given subfifo, or 0x1f for none</doc>
+	</reg32>
+	<reg32 offset="0x390" name="SUBFIFO_ENG_MASK" length="3" variants="NVE4-">
 		<doc>One for each SUBFIFO, has a mask of handled engines</doc>
 	</reg32>
 	<reg32 offset="0x3e0" name="UNK3E0" length="16" stride="8">
@@ -116,11 +119,14 @@
 	<reg32 offset="0x464" name="UNK464" length="16" stride="8"/> <!-- RO 1f000000 -->
 	<reg32 offset="0x528" name="INTR_EN_NRHOST" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x52c" name="INTR0_SOURCE">
-		<value value="1" name="CHANNEL_IN_USE"/> <!-- tried to modify a validated channel -->
-		<value value="2" name="NO_POLL"/> <!-- tried to set a channel with POLL_ENABLE, but poll area is disabled -->
+		<value value="1" name="CHANNEL_IN_USE"/> <!-- modified a validated channel -->
+		<value value="2" name="NO_POLL"/> <!-- validated a channel with POLL_ENABLE, but poll area is disabled -->
+		<value value="3" name="CHANNEL_ACTIVE"/> <!-- invalidated a channel that was active on one of the subfifos -->
+		<value value="4" name="CHANNEL_PENDING"/> <!-- invalidated a channel that had the PENDING flag? -->
 		<value value="5" name="NO_ENGINE"/> <!-- caused by 0x3f1 poked to 2200 [NVC0] or engine id >6 in chan table [NVE4] -->
+		<value value="0xb" name="UNK0B"/> <!-- invalidated a channel while it was RUNNABLE and on playlist -->
 	</reg32>
-	<reg32 offset="0x530" name="INTR_UNK530" type="nvc0_pfifo_intr"/>
+	<reg32 offset="0x530" name="INTR_HALT_MASK" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x54c" name="PLAYLIST_INTR"> <!-- RO, ack in 2100 -->
 		<value value="1" name="INACTIVE_CHANNEL"/>
 		<value value="0xa" name="ENGINE_TIMEOUT"/>
@@ -135,7 +141,7 @@
 	<bitset name="nvc0_pfifo_engine_intr" inline="yes">
 		<bitfield pos="0" name="NOTIFY"/>
 		<bitfield pos="1" name="UNK1"/>
-		<bitfield pos="2" name="UNK2"/>
+		<bitfield pos="2" name="IDLE"/>
 		<bitfield pos="3" name="UNK3"/>
 	</bitset>
 	<reg32 offset="0x5a4" name="ENGINE_INTR_SOURCE" variants="NVC0:NVE4"/> <!-- bit x: FIFO engine #x -->
@@ -192,7 +198,10 @@
 	</reg32>
 	<reg32 offset="0x780" name="UNK780"/> <!-- 0/3ffc/0 on NVCx, 0/7ffc/0 on NVE4 -->
 	<reg32 offset="0x784" name="UNK784"/> <!-- RO, random -->
-	<reg32 offset="0x790" name="UNK790" length="16" variants="NVC0:NVE4"/> <!-- RO -->
+	<reg32 offset="0x790" name="ENGINE_CHANNEL" length="16" variants="NVC0:NVE4"> <!-- RO -->
+		<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
+		<bitfield pos="31" name="VALID"/>
+	</reg32>
 	<reg32 offset="0x790" name="UNK790" length="3" variants="NVE4-"/> <!-- RO -->
 	<reg32 offset="0x7d0" name="ENG_CH" length="12" variants="NVC0:NVE4">	<!-- FIXME: lenght? -->
 		<bitfield low="0" high="6" name="CHID"/>
@@ -242,8 +251,8 @@
 			<bitfield pos="31" name="VALID"/>
 		</reg32>
 		<reg32 offset="4" name="STATE">
-			<bitfield pos="0" name="ENABLE"/>
-			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="0" name="RUNNABLE"/>
+			<bitfield pos="4" name="ACQUIRE_PENDING"/>
 			<bitfield pos="8" name="UNK8"/>
 			<bitfield pos="12" name="LOADED"/> <!-- on one of the SUBFIFOs -->
 			<bitfield low="16" high="20" name="ENGINE" type="nvc0_pfifo_engine"/>
