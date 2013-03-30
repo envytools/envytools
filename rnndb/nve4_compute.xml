@@ -7,42 +7,38 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nvchipsets.xml"/>
 <import file="nv_object.xml"/>
 <import file="nv50_defs.xml"/>
+<import file="nve4_p2mf.xml"/>
 
 <domain name="NV01_SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NVE4_COMPUTE-NVF0_COMPUTE">
 		<doc>State that also exists on NVE4_3D (like CODE,TEMP,TIC,TSC_ADDRESS)
 		seems to be kept separate from the 3D object.</doc>
-		<!-- 0114 - 012c: illegal !-->
-		<!-- 0148 - 014c: illegal !-->
-		<!-- 0158 - 017c: illegal !-->
-		<reg32 offset="0x0180" name="UPLOAD_SIZE"/>
-		<reg32 offset="0x0184" name="UPLOAD_UNK0184"/>
-		<reg32 offset="0x0188" name="UPLOAD_ADDRESS_HIGH"/>
-		<reg32 offset="0x018c" name="UPLOAD_ADDRESS_LOW"/>
-		<reg32 offset="0x01a0" name="UNK01A0"/>
-		<reg32 offset="0x01a4" name="UNK01A4"/>
-		<reg32 offset="0x01a8" name="UNK01A8"/>
-		<reg32 offset="0x01ac" name="UNK01AC"/>
-		<reg32 offset="0x01b0" name="UPLOAD_EXEC"/>
-		<reg32 offset="0x01b4" name="UPLOAD_DATA"/>
-		<!-- 01b8 - 01d8: illegal !-->
-		<!-- 01e8 - 01ec: illegal !-->
-		<!-- 0200 - 0210: illegal !-->
+		<use-group name="nve4_upload"/>
 		<reg32 offset="0x0214" name="SHARED_BASE">
 			<doc>32 bit address, not shifted. Contents of $sbase register.</doc>
 		</reg32>
-		<!-- 0218: illegal !-->
-		<reg32 offset="0x021c" name="MEM_BARRIER"/>
-		<!-- 0220 - 023c: illegal !-->
-		<!-- 024c - 0270: illegal !-->
-		<reg32 offset="0x0280" name="UNK0280"/>
-		<!-- 028c: illegal !-->
-		<!-- 0294 - 02ac: illegal !-->
-		<reg32 offset="0x02b0" name="UNK02B0"/>
+		<reg32 offset="0x021c" name="MEM_BARRIER">
+			<bitfield low="0" high="2" name="UNK0"/>
+			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="12" name="UNK12"/>
+		</reg32>
+		<reg32 offset="0x0240" name="UNK0240" type="boolean"/>
+		<reg32 offset="0x0244" name="UNK244_TIC_FLUSH"/>
+		<reg32 offset="0x0248" name="UNK0248">
+			<bitfield low="0" high="5" name="UNK0"/>
+			<bitfield low="8" high="23" name="UNK8"/>
+		</reg32>
+		<reg32 offset="0x0274" name="UNK0274"/> <!-- ff -->
+		<reg32 offset="0x0278" name="UNK0278"/> <!-- ffffffff -->
+		<reg32 offset="0x027c" name="UNK027C"/> <!-- 8001ffff -->
+		<reg32 offset="0x0280" name="UNK0280"/> <!-- ffffffff -->
+		<reg32 offset="0x0284" name="UNK0284"/> <!-- ffffffff -->
+		<reg32 offset="0x0288" name="UNK0288"/> <!-- ffffffff -->
+		<reg32 offset="0x0290" name="UNK0290"/> <!-- ffffffff -->
+		<reg32 offset="0x02b0" name="UNK02B0"/> <!-- ff -->
 		<reg32 offset="0x02b4" name="LAUNCH_DESC_ADDRESS" shr="8"/>
-		<reg32 offset="0x02b8" name="UNK02B8"/>
-		<reg32 offset="0x02bc" name="LAUNCH"/>
-		<!-- 02c0 - 02e0: illegal !-->
+		<reg32 offset="0x02b8" name="UNK02B8"/> <!-- ffffffff -->
+		<reg32 offset="0x02bc" name="LAUNCH"/> <!-- 3 -->
 		<array offset="0x02e4" name="MP_TEMP_SIZE" length="2" stride="0xc">
 			<doc>The TEMP area is split among MPs, where each MP gets assigned a single contiguous block.
 			This specifies the size a single MP is awarded, so it should be set to the actual size of the
@@ -52,17 +48,18 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x4" name="LOW"/><!-- aligned to 0x8000 -->
 			<reg32 offset="0x8" name="MASK"/><!-- bits 0x1ff -->
 		</array>
-		<!-- 02fc - 030c: illegal !-->
-		<reg32 offset="0x0310" name="UNK0310"/>
-		<!-- 0314 - 04fc: illegal !-->
-		<!-- 0584 - 0778: illegal !-->
+		<reg32 offset="0x0310" name="UNK0310"/> <!-- ffff -->
+		<reg32 offset="0x0500" name="FIRMWARE" length="0x20"/>
 		<reg32 offset="0x077c" name="LOCAL_BASE"/><!-- 32 bit address, not shifted, appears in $lbase -->
-		<!-- 0780 - 078c: illegal !-->
 		<reg32 offset="0x0790" name="TEMP_ADDRESS_HIGH"/>
 		<reg32 offset="0x0794" name="TEMP_ADDRESS_LOW"/>
-		<!-- 0798 - 0afc+: illegal !-->
+		<reg32 offset="0x0d94" name="UNK0D94">
+			<doc>0-1, shared with fermi</doc>
+		</reg32>
 		<reg32 offset="0x0de4" name="WATCHDOG_TIMER" type="uint"/><!-- 0 means infinite timeout -->
-		<reg32 offset="0x1234" name="LINKED_TSC" type="boolean"/>
+		<reg32 offset="0x0f44" name="UNK0F44" length="4"/> <!-- ffffffff -->
+		<reg32 offset="0x1040" name="UNK1040" length="12"/> <!-- ffffffff -->
+		<reg32 offset="0x1288" name="UNK1288_TIC_FLUSH"/>
 		<reg32 offset="0x1330" name="TSC_FLUSH">
 			<bitfield pos="0" name="SPECIFIC"/>
 			<bitfield low="4" high="25" name="ENTRY"/>
@@ -72,9 +69,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield low="4" high="25" name="ENTRY"/>
 		</reg32>
                 <reg32 offset="0x1338" name="TEX_CACHE_CTL">
-                        <bitfield low="0" high="2" name="UNK0"/>
+                        <bitfield pos="0" name="UNK0"/>
                         <bitfield low="4" high="25" name="ENTRY"/>
                 </reg32>
+		<reg32 offset="0x1424" name="UNK1424_TSC_FLUSH"/>
 		<reg32 offset="0x1550" name="COND_ADDRESS_HIGH"/>
 		<reg32 offset="0x1554" name="COND_ADDRESS_LOW"/>
 		<reg32 offset="0x1558" name="COND_MODE" type="nv50_cond_mode"/>
@@ -86,11 +84,18 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x157c" name="TIC_LIMIT"/>
 		<reg32 offset="0x1608" name="CODE_ADDRESS_HIGH"/>
 		<reg32 offset="0x160c" name="CODE_ADDRESS_LOW"/>
+		<reg32 offset="0x1690" name="UNK1690" type="boolean"/>
 		<reg32 offset="0x1698" name="FLUSH">
 			<bitfield pos="0" name="CODE"/>
 			<bitfield pos="4" name="GLOBAL"/>
-			<bitfield pos="8" name="UNK8"/>
 			<bitfield pos="12" name="CB"/>
+		</reg32>
+		<reg32 offset="0x1944" name="UNK1944">
+			<doc>0-2, no icmd, shared with other objects</doc>
+		</reg32>
+		<reg32 offset="0x1a24" name="DELAY"/>
+		<reg32 offset="0x1a2c" name="UNK1A2C" length="5">
+			<doc>Shared with fermi</doc>
 		</reg32>
 		<reg32 offset="0x1b00" name="QUERY_ADDRESS_HIGH"/>
 		<reg32 offset="0x1b04" name="QUERY_ADDRESS_LOW"/>
@@ -102,9 +107,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</bitfield>
 			<bitfield pos="20" name="INTR"/>
 			<bitfield pos="28" name="SHORT"/>
+			<!-- XXX more bitfields -->
 		</reg32>
 		<reg32 offset="0x2608" name="TEX_CB_INDEX"/>
-		<reg32 offset="0x260c" name="UNK260c"/>
+		<reg32 offset="0x260c" name="UNK260C"/>
 		<reg32 offset="0x335c" name="MP_PM_SET" length="8"><!-- MP+0x74+(i*4) -->
 			<doc>These set the value of the respective counter register.</doc>
 		</reg32>
