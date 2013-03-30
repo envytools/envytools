@@ -553,11 +553,16 @@
 			<bitfield pos="14" name="UNK14_MEMIF"/>
 		</reg32>
 		<enum name="nvc0_ctxctl_isrc" inline="yes">
+			<!-- ENGINE_STATUS on HUB, ??? on GPC -->
+			<value value="0x00" name="HUB_CHSW_PENDING"/>
+			<value value="0x01" name="HUB_CHAN_VALID"/>
 			<value value="0x02" name="GPC_UNK2"/>
-			<value value="0x03" name="HUB_CHANNEL_SWITCH"/>
+			<value value="0x03" name="HUB_CHSW_PULSE"/>
 			<value value="0x04" name="HUB_UNK4"/>
-			<value value="0x0b" name="HUB_CTXCTL_DOWN"/>
-			<value value="0x0c" name="HUB_UNK12"/>
+			<value value="0x09" name="HUB_IDLE_BUSY"/>
+			<value value="0x0b" name="HUB_FIRMWARE_MTHD"/>
+			<value value="0x0c" name="HUB_ILLEGAL_MTHD"/>
+			<value value="0x0f" name="HUB_PAUSE_BUSY"/>
 			<!-- 0x20 + X is SIGNAL bit X -->
 			<value value="0x20" name="ZERO"/>
 			<value value="0x21" name="PIBUS_INTR"/>
@@ -1341,6 +1346,20 @@
 		<reg32 offset="0xc14" name="INTR_UP_ROUTE" type="nvc0_ctxctl_iroute">
 			<doc>Indexed fuc register, in 19 copies. Index i determines the source
 			of interrupt i. Source for interrupt 19 is hardwired to 0x2b [WATCHDOG].</doc>
+		</reg32>
+		<reg32 offset="0xc00" name="ENGINE_STATUS">
+			<bitfield pos="0" name="CHSW_PENDING"/>
+			<bitfield pos="1" name="CHAN_VALID"/>
+			<bitfield pos="3" name="CHSW_PULSE"/>
+			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="9" name="IDLE_BUSY"/>
+			<bitfield pos="11" name="FIRMWARE_MTHD"/> <!-- from CTXCTL_DOWN -->
+			<bitfield pos="12" name="ILLEGAL_MTHD"/> <!-- from CTXCTL_DOWN -->
+			<bitfield pos="15" name="PAUSE_BUSY"/>
+		</reg32>
+		<reg32 offset="0xc08" name="ENGINE_TRIGGER">
+			<bitfield pos="2" name="IDLE"/>
+			<bitfield pos="3" name="PAUSE"/>
 		</reg32>
 		<reg32 offset="0xc18" name="INTR_UP_STATUS"/>
 		<reg32 offset="0xc1c" name="INTR_UP_SET"/>
