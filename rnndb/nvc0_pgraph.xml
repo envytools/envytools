@@ -538,7 +538,7 @@
 			<bitfield pos="1" name="PIBUS_INTR"/>
 			<bitfield pos="2" name="STRAND_BUSY"/>
 			<bitfield pos="3" name="UNK3_RED_SWITCH"/>
-			<bitfield pos="4" name="UNK4_DISPATCH"/>
+			<bitfield pos="4" name="IB_UNK40"/>
 			<bitfield pos="5" name="MMCTX_DONE"/>
 			<bitfield pos="6" name="MMIO_RD_DONE"/>
 			<bitfield pos="7" name="MMIO_WRS_DONE"/>
@@ -563,7 +563,7 @@
 			<value value="0x21" name="PIBUS_INTR"/>
 			<value value="0x22" name="STRAND_BUSY"/>
 			<value value="0x23" name="UNK3_RED_SWITCH"/>
-			<value value="0x24" name="UNK4_DISPATCH"/>
+			<value value="0x24" name="IB_UNK40"/>
 			<value value="0x25" name="MMCTX_DONE"/>
 			<value value="0x26" name="MMIO_RD_DONE"/>
 			<value value="0x27" name="MMIO_WRS_DONE"/>
@@ -1247,10 +1247,6 @@
 				<bitfield pos="11" name="UNK11"/>
 			</reg32>
 			<reg32 offset="0x618" name="MYINDEX"/>
-			<reg32 offset="0xc18" name="INTR_UP_STATUS"/>
-			<reg32 offset="0xc1c" name="INTR_UP_SET"/>
-			<reg32 offset="0xc20" name="INTR_UP_CLEAR"/>
-			<reg32 offset="0xc24" name="INTR_UP_ENABLE"/>
 			<reg32 offset="0xc80" name="VSTATUS_0" access="r">
 				<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
 				<bitfield low="3" high="5" name="UNK1" type="NV50_VSTATUS"/>
@@ -1346,6 +1342,10 @@
 			<doc>Indexed fuc register, in 19 copies. Index i determines the source
 			of interrupt i. Source for interrupt 19 is hardwired to 0x2b [WATCHDOG].</doc>
 		</reg32>
+		<reg32 offset="0xc18" name="INTR_UP_STATUS"/>
+		<reg32 offset="0xc1c" name="INTR_UP_SET"/>
+		<reg32 offset="0xc20" name="INTR_UP_CLEAR"/>
+		<reg32 offset="0xc24" name="INTR_UP_ENABLE"/>
 	</array>
 
 	<array name="ROP_BROADCAST" offset="0x8800" stride="0x400" length="1">
