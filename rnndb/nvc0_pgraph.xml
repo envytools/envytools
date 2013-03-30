@@ -1320,7 +1320,7 @@
 			<reg32 offset="0x1e4" name="CTX_UNK1E4"/>
 		</array>
 
-		<array name="TP" offset="0x4000" stride="0x800" length="4">
+		<array name="TP" offset="0x4000" stride="0x800" length="8">
 			<use-group name="nvc0_tp"/>
 		</array>
 	</group>
@@ -1352,7 +1352,7 @@
 		<use-group name="nvc0_rop"/>
 	</array>
 
-	<array name="ROP" offset="0x10000" stride="0x400" length="8">
+	<array name="ROP" offset="0x10000" stride="0x400" length="16">
 		<use-group name="nvc0_rop"/>
 	</array>
 
@@ -1360,7 +1360,7 @@
 		<use-group name="nvc0_gpc"/>
 	</array>
 
-	<array name="GPC" offset="0x100000" stride="0x8000" length="4">
+	<array name="GPC" offset="0x100000" stride="0x8000" length="32">
 		<use-group name="nvc0_gpc"/>
 	</array>
 </array>
