@@ -25,7 +25,7 @@
 	<reg32 offset="0x000" name="UNK000"/> <!-- ffffffff/ffffffff/0 -->
 	<bitset name="nvc0_pfifo_intr" inline="yes">
 		<bitfield pos="0" name="UNK0"/> <!-- 52c -->
-		<bitfield pos="4" name="UNK4"/> <!-- triggered by messing with 6c4, no subintr? -->
+		<bitfield pos="4" name="BYPASS_ERROR"/>
 		<bitfield pos="8" name="PLAYLIST"/>
 		<bitfield pos="16" name="UNK16"/>
 		<bitfield pos="23" name="UNK23"/>
@@ -129,6 +129,7 @@
 	<reg32 offset="0x530" name="INTR_HALT_MASK" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x54c" name="PLAYLIST_INTR"> <!-- RO, ack in 2100 -->
 		<value value="1" name="INACTIVE_CHANNEL"/>
+		<value value="4" name="UNK4"/> <!-- poked 1c0000 -->
 		<value value="0xa" name="ENGINE_TIMEOUT"/>
 		<value value="0x19" name="ENGINE_MISMATCH" variants="NVE4-"/>
 	</reg32>
@@ -182,8 +183,15 @@
 	<reg32 offset="0x6a8" name="UNK6A8" type="boolean"/>
 	<reg32 offset="0x6ac" name="UNK6AC" type="boolean"/>
 	<reg32 offset="0x6c0" name="UNK6C0" variants="NVC0:NVE4"/> <!-- RO 0 -->
-	<reg32 offset="0x6c4" name="UNK6C4"/> <!-- 0/31f/0 -->
-	<reg32 offset="0x6c8" name="UNK6C8"/> <!-- 0/bfffffff/0 -->
+	<reg32 offset="0x6c4" name="BYPASS_CONFIG">
+		<bitfield low="0" high="4" name="ENGINE" type="nvc0_pfifo_engine"/>
+		<bitfield pos="8" name="ENABLE"/>
+		<bitfield pos="9" name="UNK9"/>
+	</reg32>
+	<reg32 offset="0x6c8" name="BYPASS_CHANNEL_SWITCH">
+		<bitfield low="0" high="29" name="CHAN" type="nv50_channel"/>
+		<bitfield pos="31" name="VALID"/>
+	</reg32>
 	<reg32 offset="0x6f0" name="UNK6F0"/> <!-- 11/11/0 on NVCx, 11/111/0 on NVE4? -->
 	<reg32 offset="0x6f4" name="UNK6F4" length="3" variants="NVE4-"/> <!-- RO -->
 	<reg32 offset="0x700" name="UNK700" length="16"> <!-- RO... CTXSW fifo? -->
@@ -261,6 +269,19 @@
 	</array>
 	<reg32 offset="0x1000" name="UNK1000" length="8"/> <!-- RO 0 -->
 	<reg32 offset="0x1080" name="UNK1080" length="3"/> <!-- RO 0 -->
+</array>
+
+<array offset="0x005000" name="PFIFO_BYPASS" stride="0x1000" length="1" variants="NVC0-">
+	<reg32 offset="0x0" name="STATUS">
+		<!-- XXX -->
+	</reg32>
+	<reg32 offset="0x4" name="ADDR">
+		<bitfield low="2" high="13" name="MTHD" shr="2"/>
+		<bitfield low="16" high="18" name="SUBCH"/>
+		<bitfield pos="20" name="IB_UNK40"/>
+	</reg32>
+	<reg32 offset="0x8" name="DATA"/> <!-- poke to submit -->
+	<reg32 offset="0xc" name="UNK0C" type="boolean"/>
 </array>
 
 <array offset="0x800000" name="PFIFO_CHAN" stride="8" length="0x1000" variants="NVE4-">

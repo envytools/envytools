@@ -228,7 +228,7 @@ R means ROOT-connected engine, I means IBUS-connected
 000000:001000 R PMC - card master control [pmc.txt]
 001000:002000 R PBUS - bus control [pbus.txt]
 002000:004000 R PFIFO - DMA FIFO submission to execution engines [fifo/nvc0-pfifo.txt]
-005000:006000 R ???
+005000:006000 R PFIFO_BYPASS - PFIFO bypass interface [fifo/nvc0-pfifo.txt]
 007000:008000 R PRMA - access to BAR0 from real mode [prma.txt]
 009000:00a000 R PTIMER - time measurement and time-based alarms [ptimer.txt]
 00c800:00cc00 I ???
@@ -273,7 +273,7 @@ R means ROOT-connected engine, I means IBUS-connected
 13b000:13f000 I PXBAR - crossbar between memory controllers and GPCs [memory/nvc0-pxbar.txt]
 140000:180000 I PMFBs - middle memory controllers: compression and L2 cache [memory/nvc0-pmfb.txt]
 180000:1c0000 I PCOUNTER - performance monitoring counters [pcounter.txt]
-1c0000:1c1000 R ???
+1c0000:1c1000 R ??? related to PFIFO and playlist?
 1c2000:1c3000 I PVENC - H.264 video encoding engine [NVE4-] [pvenc.txt]
 1c3000:1c4000 I ??? some fµc engine [NVD9-] [punk1c3.txt]
 [XXX: did they finally kill off this one?]

@@ -43,6 +43,8 @@
 
 <!-- 005000 - 005fff ??? -->
 
+<!-- 005000 - 005fff PFIFO_BYPASS covered in nvc0_pfifo.xml -->
+
 <!-- 008000 - 008fff PVIDEO -->
 <import file="nv10_pvideo.xml" />
 
