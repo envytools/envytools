@@ -328,7 +328,8 @@
 	<reg32 offset="0x68" name="DMA_GET_HIGH_RS"/>
 	<reg32 offset="0x6c" name="DMA_PUT_HIGH_RS"/>
 	<reg32 offset="0x70" name="DMA_MGET_HIGH_RS"/>
-	<reg32 offset="0x74" name="UNK74"/>
+	<!-- CRC algorithm: like CRC-32, but with all bits in input bytes in reverse order, result in reverse order, no final xor with 0xffffffff, and initial value of 0 instead of 0xffffffff -->
+	<reg32 offset="0x74" name="IB_CRC"/> <!-- running CRC of all IB entries ever submitted -->
 	<reg32 offset="0x78" name="UNK78" variants="NVC0:NVE4"/>
 	<reg32 offset="0x7c" name="MTHD_UNK74" variants="NVC0:NVE4"/>
 	<reg32 offset="0x80" name="MTHD_UNK78" variants="NVC0:NVE4"/>
@@ -371,7 +372,7 @@
 		<bitfield pos="28" name="ACTIVE"/>
 		<bitfield pos="29" name="ENABLE"/>
 	</reg32>
-	<reg32 offset="0x98" name="UNK98"/> <!-- clock? -->
+	<reg32 offset="0x98" name="PUSHBUF_CRC"/> <!-- running CRC of current pushbuffer [ie. reset to 0 on every new IB entry] -->
 	<reg32 offset="0x9c" name="FEATURE_ENABLE">
 		<bitfield low="0" high="1" name="UNK0"/> <!-- deals with IB? -->
 		<bitfield low="8" high="9" name="CMD_TYPES">
