@@ -149,6 +149,9 @@
 	<value value="0x98" name="RT_LINEAR_WITH_ZETA_NVC0">
 		<brief>You tried to use linear RTs with ZETA enabled.</brief>
 	</value>
+	<value value="0xa5" name="ENG2D_UNALIGNED_PITCH_NVC0">
+		<brief>You tried to use a linear src/dst with pitch not aligned to 128.</brief>
+	</value>
 </enum>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
