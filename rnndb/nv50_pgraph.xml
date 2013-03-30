@@ -127,6 +127,9 @@
 	<value value="0x31" name="ENG2D_FORMAT_MISMATCH"> <!-- sifc at least. -->
 		<brief>The dst/src format combination you chose doesn't make sense.</brief>
 	</value>
+	<value value="0x33" name="ENG2D_OPERATION_ILLEGAL_FOR_DST_FORMAT">
+		<brief>The OPERATION isn't possible with the chosen destination format.</brief>
+	</value>
 	<value value="0x3f" name="PRIMITIVE_ID_NEEDS_GP">
 		<brief>You tried to enable PRIMITIVE_ID without enabling GP.</brief>
 	</value>
