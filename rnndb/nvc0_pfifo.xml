@@ -24,8 +24,8 @@
 <array name="PFIFO" offset="0x2000" stride="0x2000" length="1" variants="NVC0-">
 	<reg32 offset="0x000" name="UNK000"/> <!-- ffffffff/ffffffff/0 -->
 	<bitset name="nvc0_pfifo_intr" inline="yes">
-		<bitfield pos="0" name="UNK0"/> <!-- 52c -->
-		<bitfield pos="4" name="BYPASS_ERROR"/>
+		<bitfield pos="0" name="CHAN_TABLE_ERROR"/>
+		<bitfield pos="4" name="BYPASS_ERROR"/> <!-- PFIFO_BYPASS.STATUS -->
 		<bitfield pos="8" name="PLAYLIST"/>
 		<bitfield pos="16" name="UNK16"/>
 		<bitfield pos="23" name="UNK23"/>
@@ -118,7 +118,7 @@
 	<reg32 offset="0x460" name="UNK460" length="16" stride="8"/> <!-- RO 1f000000 -->
 	<reg32 offset="0x464" name="UNK464" length="16" stride="8"/> <!-- RO 1f000000 -->
 	<reg32 offset="0x528" name="INTR_EN_NRHOST" type="nvc0_pfifo_intr"/>
-	<reg32 offset="0x52c" name="INTR0_SOURCE">
+	<reg32 offset="0x52c" name="CHAN_TABLE_ERROR">
 		<value value="1" name="CHANNEL_IN_USE"/> <!-- modified a validated channel -->
 		<value value="2" name="NO_POLL"/> <!-- validated a channel with POLL_ENABLE, but poll area is disabled -->
 		<value value="3" name="CHANNEL_ACTIVE"/> <!-- invalidated a channel that was active on one of the subfifos -->
@@ -273,7 +273,11 @@
 
 <array offset="0x005000" name="PFIFO_BYPASS" stride="0x1000" length="1" variants="NVC0-">
 	<reg32 offset="0x0" name="STATUS">
-		<!-- XXX -->
+		<bitfield pos="0" name="CHSW_PENDING"/>
+		<bitfield pos="4" name="MTHD_PENDING"/>
+		<bitfield pos="8" name="ERR_NOT_ENABLED"/>
+		<bitfield pos="9" name="ERR_CONTROL_WHILE_BUSY"/>
+		<bitfield pos="10" name="ERR_MTHD_OVERFLOW"/>
 	</reg32>
 	<reg32 offset="0x4" name="ADDR">
 		<bitfield low="2" high="13" name="MTHD" shr="2"/>
