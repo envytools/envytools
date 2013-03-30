@@ -559,9 +559,13 @@
 			<value value="0x02" name="GPC_UNK2"/>
 			<value value="0x03" name="HUB_CHSW_PULSE"/>
 			<value value="0x04" name="HUB_UNK4"/>
-			<value value="0x09" name="HUB_IDLE_BUSY"/>
+			<value value="0x07" name="DAEMON2CTXCTL_REQ"/>
+			<value value="0x08" name="DAEMON2CTXCTL_ACK"/>
+			<value value="0x09" name="CTXCTL2DAEMON_REQ"/>
+			<value value="0x0a" name="CTXCTL2DAEMON_ACK"/>
 			<value value="0x0b" name="HUB_FIRMWARE_MTHD"/>
 			<value value="0x0c" name="HUB_ILLEGAL_MTHD"/>
+			<value value="0x0d" name="HUB_IDLE_BUSY"/>
 			<value value="0x0f" name="HUB_PAUSE_BUSY"/>
 			<!-- 0x20 + X is SIGNAL bit X -->
 			<value value="0x20" name="ZERO"/>
@@ -1352,12 +1356,18 @@
 			<bitfield pos="1" name="CHAN_VALID"/>
 			<bitfield pos="3" name="CHSW_PULSE"/>
 			<bitfield pos="4" name="UNK4"/>
-			<bitfield pos="9" name="IDLE_BUSY"/>
+			<bitfield pos="7" name="DAEMON2CTXCTL_REQ"/>
+			<bitfield pos="8" name="DAEMON2CTXCTL_ACK"/>
+			<bitfield pos="9" name="CTXCTL2DAEMON_REQ"/>
+			<bitfield pos="10" name="CTXCTL2DAEMON_ACK"/>
 			<bitfield pos="11" name="FIRMWARE_MTHD"/> <!-- from CTXCTL_DOWN -->
 			<bitfield pos="12" name="ILLEGAL_MTHD"/> <!-- from CTXCTL_DOWN -->
+			<bitfield pos="13" name="IDLE_BUSY"/>
 			<bitfield pos="15" name="PAUSE_BUSY"/>
 		</reg32>
 		<reg32 offset="0xc08" name="ENGINE_TRIGGER">
+			<bitfield pos="0" name="DAEMON2CTXCTL_ACK"/>
+			<bitfield pos="1" name="CTXCTL2DAEMON_REQ"/>
 			<bitfield pos="2" name="IDLE"/>
 			<bitfield pos="3" name="PAUSE"/>
 		</reg32>

@@ -244,6 +244,8 @@
 	</reg32>
 	<reg32 offset="0x7bc" name="MMIO_ENABLE" type="boolean"/>
 	<bitset name="nva3_pdaemon_input0" inline="yes">
+		<bitfield pos="0" name="DAEMON2CTXCTL_ACK" variants="NVC0:NVD9"/>
+		<bitfield pos="1" name="CTXCTL2DAEMON_REQ" variants="NVC0:NVD9"/>
 		<!-- XXX variants for the next 5 -->
 		<bitfield pos="2" name="FB_PAUSED" variants="NVA3:NVD9"/>
 		<bitfield pos="3" name="CRTC0_VBLANK" variants="NVA3:NVD9"/>
@@ -301,6 +303,8 @@
 	<bitset name="nva3_pdaemon_input1" inline="yes">
 	</bitset>
 	<bitset name="nva3_pdaemon_output" inline="yes">
+		<bitfield pos="0" name="DAEMON2CTXCTL_REQ" variants="NVC0:NVD9"/>
+		<bitfield pos="1" name="CTXCTL2DAEMON_ACK" variants="NVC0:NVD9"/>
 		<!-- XXX: variants -->
 		<bitfield pos="2" name="FB_PAUSE" variants="NVC0:NVD9"/>
 
