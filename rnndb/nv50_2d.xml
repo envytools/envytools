@@ -48,9 +48,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0258" name="UNK258" varset="chipset" variants="NV94-">
 			<doc>Accepts 0-3</doc>
 		</reg32>
-		<reg32 offset="0x0260" name="UNK260">
+		<reg32 offset="0x0260" name="UNK260" variants="NV50_2D:NVC0_2D">
 			<doc>Accepts 0 and 1</doc>
 		</reg32>
+		<reg32 offset="0x0260" name="SINGLE_GPC" type="boolean" variants="NVC0_2D-"/>
 		<reg32 offset="0x0264" name="COND_ADDRESS_HIGH"/>
 		<reg32 offset="0x0268" name="COND_ADDRESS_LOW"/>
 		<reg32 offset="0x026c" name="COND_MODE" type="nv50_cond_mode"/>
