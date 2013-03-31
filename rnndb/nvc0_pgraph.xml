@@ -294,10 +294,33 @@
 		<reg32 offset="0x50" name="ST3_DATA_LOW" />
 		<reg32 offset="0x54" name="ST3_DATA_HIGH" />
 
-		<reg32 offset="0xc0" name="COND_ADDRESS_HIGH" />
-		<reg32 offset="0xc4" name="COND_ADDRESS_LOW" />
+		<reg32 offset="0xa8" name="COND_3D_ADDRESS_HIGH"/>
+		<reg32 offset="0xac" name="COND_3D_ADDRESS_LOW"/>
+		<reg32 offset="0xb0" name="COND_2D_ADDRESS_HIGH"/>
+		<reg32 offset="0xb4" name="COND_2D_ADDRESS_LOW"/>
+		<reg32 offset="0xb8" name="COND_MASTER_ADDRESS_HIGH"/>
+		<reg32 offset="0xbc" name="COND_MASTER_ADDRESS_LOW"/>
+		<reg32 offset="0xc0" name="COND_M2MF_ADDRESS_HIGH"/>
+		<reg32 offset="0xc4" name="COND_M2MF_ADDRESS_LOW"/>
+		<reg32 offset="0xc8" name="COND_STATE">
+			<bitfield pos="0" name="EFFECTIVE_3D"/> <!-- MASTER & 3D -->
+			<bitfield pos="1" name="EFFECTIVE_2D"/>
+			<bitfield pos="2" name="EFFECTIVE_M2MF"/>
+			<bitfield pos="3" name="EFFECTIVE_COMPUTE" variants="NVE4-"/> <!-- shared with 3d before -->
 
-		<reg32 offset="0xd0" name="NOTIFY_3D_ADDRESS_HIGH" /> <!-- also compute -->
+			<bitfield low="7" high="15" name="UNK7"/>
+
+			<bitfield low="18" high="19" name="UNK18" variants="NVE4-"/>
+			<bitfield low="20" high="25" name="UNK20"/>
+
+			<bitfield pos="27" name="COMPUTE" variants="NVE4-"/> <!-- shared with 3d before -->
+			<bitfield pos="28" name="3D"/>
+			<bitfield pos="29" name="2D"/>
+			<bitfield pos="30" name="M2MF"/>
+			<bitfield pos="31" name="MASTER"/>
+		</reg32>
+
+		<reg32 offset="0xd0" name="NOTIFY_3D_ADDRESS_HIGH" />
 		<reg32 offset="0xd4" name="NOTIFY_3D_ADDRESS_LOW" />
 		<reg32 offset="0xd8" name="NOTIFY_2D_ADDRESS_HIGH" />
 		<reg32 offset="0xdc" name="NOTIFY_2D_ADDRESS_LOW" />
@@ -305,6 +328,12 @@
 		<reg32 offset="0xe4" name="NOTIFY_M2MF_ADDRESS_LOW" />
 
 		<reg32 offset="0x15c" name="PM_UNK15C"/>
+
+		<!-- before NVE4 shared with 3d -->
+		<reg32 offset="0x1a0" name="COND_COMPUTE_ADDRESS_HIGH" variants="NVE4-"/>
+		<reg32 offset="0x1a4" name="COND_COMPUTE_ADDRESS_LOW" variants="NVE4-"/>
+		<reg32 offset="0x1a8" name="NOTIFY_COMPUTE_ADDRESS_HIGH" variants="NVE4-"/>
+		<reg32 offset="0x1ac" name="NOTIFY_COMPUTE_ADDRESS_LOW" variants="NVE4-"/>
 
 		<reg32 offset="0x200" name="CTX_CACHE" length="8" variants="NVC0:NVE4"/>
 		<reg32 offset="0x200" name="CTX_CACHE" length="4" variants="NVE4-"/> <!-- 3d, compute, upload, 2d -->

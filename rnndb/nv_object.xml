@@ -289,9 +289,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0124" name="MACRO_UNK0124" variants="NVC0-"/> <!-- 3 -->
 		<reg32 offset="0x0120" name="UNK0120" variants="NVA3:NVC0"/>
 		<reg32 offset="0x0124" name="UNK0124" variants="NVA3:NVC0"/>
-		<reg32 offset="0x0130" name="COND_ADDRESS_HIGH" variants="NVC0-"/>
-		<reg32 offset="0x0134" name="COND_ADDRESS_LOW" variants="NVC0-"/>
-		<reg32 offset="0x0138" name="COND_MODE" variants="NVC0-" type="nv50_cond_mode"/>
+		<reg32 offset="0x0130" name="COND_MASTER_ADDRESS_HIGH" variants="NVC0-"/>
+		<reg32 offset="0x0134" name="COND_MASTER_ADDRESS_LOW" variants="NVC0-"/>
+		<reg32 offset="0x0138" name="COND_MASTER_MODE" variants="NVC0-" type="nv50_cond_mode"/>
 		<reg32 offset="0x013c" name="UNK013C" variants="NVC0-"/> <!-- ffffffff -->
 		<reg32 offset="0x0140" name="PM_TRIGGER" variants="NV40-"/> <!-- XXX: likely controlled by a PGRAPH_DEBUG bit. -->
 		<!-- note: 144 present on NVE4 as part of upload -->
