@@ -806,7 +806,7 @@
 			<bitfield low="6" high="9" name="PM_SIG_UNIT2_1"/>
 			<bitfield low="10" high="13" name="PM_SIG_UNIT2_2"/>
 			<bitfield low="14" high="17" name="PM_SIG_UNIT2_3"/>
-			<bitfield low="18" high="19" name="UNK18"/>
+			<bitfield low="18" high="19" name="UNK18" variants="NVA0-"/>
 		</reg64>
 		<reg64 offset="0x68" name="UNK68" variants="NVA0-"/> <!-- 3f -->
 		<reg64 offset="0x70" name="OPCODE"/>
