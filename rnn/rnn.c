@@ -180,6 +180,9 @@ static int trytypeattr (struct rnndb *db, char *file, xmlNode *node, xmlAttr *at
 	} else if (!strcmp(attr->name, "type")) {
 		ti->name = strdup(getattrib(db, file, node->line, attr));;
 		return 1;
+	} else if (!strcmp(attr->name, "radix")) {
+		ti->radix = getnumattrib(db, file, node->line, attr);
+		ti->radixvalid = 1;
 	}
 	return 0;
 }
@@ -1115,6 +1118,10 @@ static void preptypeinfo(struct rnndb *db, struct rnntypeinfo *ti, char *prefix,
 			ti->type = RNN_TTYPE_INLINE_BITSET;
 		} else if (!strcmp(ti->name, "enum")) {
 			ti->type = RNN_TTYPE_INLINE_ENUM;
+		} else if (!strcmp(ti->name, "fixed")) {
+			ti->type = RNN_TTYPE_FIXED;
+		} else if (!strcmp(ti->name, "ufixed")) {
+			ti->type = RNN_TTYPE_UFIXED;
 		} else {
 			ti->type = RNN_TTYPE_HEX;
 			fprintf (stderr, "%s: unknown type %s\n", prefix, ti->name);

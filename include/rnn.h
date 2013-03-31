@@ -122,6 +122,8 @@ struct rnntypeinfo {
 		RNN_TTYPE_UINT,
 		RNN_TTYPE_FLOAT,
 		RNN_TTYPE_BOOLEAN,
+		RNN_TTYPE_FIXED,
+		RNN_TTYPE_UFIXED,
 	} type;
 	struct rnnenum *eenum;
 	struct rnnbitset *ebitset;
@@ -133,8 +135,8 @@ struct rnntypeinfo {
 	int valsnum;
 	int valsmax;
 	int shr;
-	uint64_t min, max, align;
-	int minvalid, maxvalid, alignvalid;
+	uint64_t min, max, align, radix;
+	int minvalid, maxvalid, alignvalid, radixvalid;
 };
 
 struct rnnbitset {

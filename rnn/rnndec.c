@@ -162,6 +162,19 @@ char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64
 		case RNN_TTYPE_HEX:
 			asprintf (&res, "%s%#"PRIx64"%s", ctx->colors->num, value, ctx->colors->reset);
 			return res;
+		case RNN_TTYPE_FIXED:
+			if (value & UINT64_C(1) << (width-1)) {
+				asprintf (&res, "%s-%f%s (%08x)", ctx->colors->num,
+						((float)((UINT64_C(1) << width) - value)) / ((float)(1 << ti->radix)),
+						ctx->colors->reset, value);
+				return res;
+			}
+			/* fallthrough */
+		case RNN_TTYPE_UFIXED:
+			asprintf (&res, "%s%f%s (%08x)", ctx->colors->num,
+					((float)value) / ((float)(1 << ti->radix)),
+					ctx->colors->reset, value);
+			return res;
 		case RNN_TTYPE_UINT:
 			asprintf (&res, "%s%"PRIu64"%s", ctx->colors->num, value, ctx->colors->reset);
 			return res;

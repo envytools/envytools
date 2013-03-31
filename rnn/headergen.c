@@ -122,6 +122,8 @@ void printtypeinfo (struct rnntypeinfo *ti, char *prefix, int shift, char *file)
 		printdef (prefix, "MAX", 0, ti->max, file);
 	if (ti->alignvalid)
 		printdef (prefix, "ALIGN", 0, ti->align, file);
+	if (ti->radixvalid)
+		printdef (prefix, "RADIX", 0, ti->radix, file);
 	int i;
 	for (i = 0; i < ti->valsnum; i++)
 		printvalue(ti->vals[i], shift);
