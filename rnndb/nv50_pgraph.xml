@@ -923,14 +923,17 @@
 				<bitfield name="CLEAR" pos="30" />
 				<bitfield name="ENABLE" pos="31" />
 			</reg32>
-			<reg32 offset="0x58" name="CODE_ADDRESS_HIGH">
-				<bitfield low="0" high="7" name="VP"/>
-				<bitfield low="8" high="15" name="GP"/>
-				<bitfield low="16" high="23" name="FP"/>
+			<enum name="nv50_pgraph_mpc_pm_group" inline="yes">
+				<value value="0x00" name="MP0_FUNC"/>
+				<value value="0x01" name="MP1_FUNC"/>
+			</enum>
+			<reg32 offset="0x30" name="PM_GROUP_SEL">
+				<bitfield low="0" high="7" name="0" type="nv50_pgraph_mpc_pm_group"/>
+				<bitfield low="8" high="15" name="1" type="nv50_pgraph_mpc_pm_group"/>
+				<bitfield low="16" high="23" name="2" type="nv50_pgraph_mpc_pm_group"/>
+				<bitfield low="24" high="31" name="3" type="nv50_pgraph_mpc_pm_group"/>
 			</reg32>
-			<reg32 offset="0x5c" name="VP_ADDRESS_LOW"/>
-			<reg32 offset="0x60" name="GP_ADDRESS_LOW"/>
-			<reg32 offset="0x64" name="FP_ADDRESS_LOW"/>
+			<reg32 offset="0x3c" name="PM_OUT_ENABLE" type="boolean"/>
 			<use-group name="nv50_pgraph_mpc" />
 		</array>
 		<array offset="0x400" name="TPVP" stride="0x400" length="1">
@@ -991,6 +994,26 @@
 				<bitfield name="CLEAR" pos="30" />
 				<bitfield name="ENABLE" pos="31" />
 			</reg32>
+			<enum name="nva0_pgraph_mpc_pm_group" inline="yes">
+				<value value="0x14" name="MP0_FUNC"/>
+				<value value="0x28" name="MP1_FUNC"/>
+				<value value="0x3c" name="MP2_FUNC"/>
+			</enum>
+			<reg32 offset="0x3c" name="PM_GROUP_SEL">
+				<bitfield low="0" high="7" name="0" type="nva0_pgraph_mpc_pm_group"/>
+				<bitfield low="8" high="15" name="1" type="nva0_pgraph_mpc_pm_group"/>
+				<bitfield low="16" high="23" name="2" type="nva0_pgraph_mpc_pm_group"/>
+				<bitfield low="24" high="31" name="3" type="nva0_pgraph_mpc_pm_group"/>
+			</reg32>
+			<reg32 offset="0x40" name="PM_OUT_ENABLE" type="boolean"/>
+			<reg32 offset="0x58" name="CODE_ADDRESS_HIGH">
+				<bitfield low="0" high="7" name="VP"/>
+				<bitfield low="8" high="15" name="GP"/>
+				<bitfield low="16" high="23" name="FP"/>
+			</reg32>
+			<reg32 offset="0x5c" name="VP_ADDRESS_LOW"/>
+			<reg32 offset="0x60" name="GP_ADDRESS_LOW"/>
+			<reg32 offset="0x64" name="FP_ADDRESS_LOW"/>
 			<use-group name="nv50_pgraph_mpc" />
 		</array>
 		<array offset="0x400" name="TPVP" stride="0x100" length="1">

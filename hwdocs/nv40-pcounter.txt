@@ -300,6 +300,18 @@ PCOUNTER USER_1  |--|--|--|--|--|--|--|--|--|--|??|9f|??|??| pcounter.txt
 [trailer base]   |e0|??|80|??|??|??|80|e0|??|e0|c0|c0|??|c0| pcounter.txt
 
 
+= Known shader signals =
+
+These signals are always on set 2.
+
+ - 0x00-0x03: MPC GROUP 0
+ - 0x04-0x07: MPC GROUP 1
+ - 0x08-0x0b: MPC GROUP 2
+ - 0x0c-0x0f: MPC GROUP 3
+ - [XXX]
+ - 0x20: trailer base
+
+
 = Known memory signals =
 
 These signals are on set 4 if they're present. IGPs don't have this set.
