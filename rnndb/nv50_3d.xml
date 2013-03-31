@@ -608,8 +608,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1314" name="ALPHA_TEST_FUNC" type="gl_comparison_op"/>
 		<reg32 offset="0x1318" name="DRAW_TFB_STRIDE" min="1" max="0xfff" variants="NVA0_3D-"/>
 		<reg32 offset="0x131c" name="BLEND_COLOR" length="4" type="float"/>
-		<reg32 offset="0x132c" name="UNK132C">
-			<doc>Accepts 0-f. Same as turing UNK02F0</doc>
+		<reg32 offset="0x132c" name="MP_PM_OVERFLOW_TRAP_ENABLE">
+			<bitfield pos="0" name="0"/>
+			<bitfield pos="1" name="1"/>
+			<bitfield pos="2" name="2"/>
+			<bitfield pos="3" name="3"/>
 		</reg32>
 		<reg32 offset="0x1330" name="TSC_FLUSH">
 			<bitfield pos="0" name="SPECIFIC"/>

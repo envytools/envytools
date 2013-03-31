@@ -137,8 +137,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield low="8" high="23" name="FUNC"/>
 			<bitfield low="24" high="31" name="SIG"/>
 		</reg32>
-		<reg32 offset="0x02f0" name="UNK02F0">
-			<doc>Accepts 0-f. Same as tesla UNK132C</doc>
+		<reg32 offset="0x02f0" name="MP_PM_OVERFLOW_TRAP_ENABLE">
+			<bitfield pos="0" name="0"/>
+			<bitfield pos="1" name="1"/>
+			<bitfield pos="2" name="2"/>
+			<bitfield pos="3" name="3"/>
 		</reg32>
 		<reg32 offset="0x02f4" name="UNK02F4">
 			<doc>Accepts anything.</doc>
