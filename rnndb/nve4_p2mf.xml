@@ -13,9 +13,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0184" name="LINE_COUNT" type="uint"/>
 		<reg32 offset="0x0188" name="DST_ADDRESS_HIGH"/>
 		<reg32 offset="0x018c" name="DST_ADDRESS_LOW"/>
-		<reg32 offset="0x0190" name="UNK0190"/>
+		<reg32 offset="0x0190" name="DST_PITCH"/>
 		<reg32 offset="0x0194" name="DST_TILE_MODE"/>
-		<reg32 offset="0x0198" name="DST_PITCH" type="uint">
+		<reg32 offset="0x0198" name="DST_WIDTH" type="uint">
 			<doc>For tiled mode, this is the line length, not aligned to tile pitch.</doc>
 		</reg32>
 		<reg32 offset="0x019c" name="DST_HEIGHT" type="uint"/>
@@ -26,13 +26,15 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x01ac" name="DST_Y" type="uint"/>
 		<reg32 offset="0x01b0" name="EXEC">
-			<bitfield name="LINEAR" pos="0" type="boolean"/>
-			<bitfield name="UNK12" pos="12"/>
+			<bitfield pos="0" name="LINEAR"/>
+			<bitfield low="1" high="6" name="UNK1"/>
+			<bitfield low="8" high="9" name="BUF_NOTIFY" type="boolean"/> <!-- yes. -->
+			<bitfield low="12" high="15" name="UNK12"/>
 		</reg32>
 		<reg32 offset="0x01b4" name="DATA"/>
-		<reg32 offset="0x01dc" name="UNK01DC"/>
-		<reg32 offset="0x01e0" name="UNK01E0"/>
-		<reg32 offset="0x01e4" name="UNK01E4"/>
+		<reg32 offset="0x01dc" name="QUERY_ADDRESS_HIGH"/>
+		<reg32 offset="0x01e0" name="QUERY_ADDRESS_LOW"/>
+		<reg32 offset="0x01e4" name="QUERY_SEQUENCE"/>
 		<reg32 offset="0x01f0" name="UNK01F0"/>
 		<reg32 offset="0x01f4" name="UNK01F4"/>
 		<reg32 offset="0x01f8" name="UNK01F8"/>
