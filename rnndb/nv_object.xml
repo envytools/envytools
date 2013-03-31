@@ -286,6 +286,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0118" name="MACRO_CODE_DATA" variants="NVC0-"/>
 		<reg32 offset="0x011c" name="MACRO_ENTRY_POS" variants="NVC0-"/>
 		<reg32 offset="0x0120" name="MACRO_ENTRY_DATA" variants="NVC0-"/>
+		<!-- note: poking 3 results in stuff being ignored on a097 [notably NOP] -->
 		<reg32 offset="0x0124" name="MACRO_UNK0124" variants="NVC0-"/> <!-- 3 -->
 		<reg32 offset="0x0120" name="UNK0120" variants="NVA3:NVC0"/>
 		<reg32 offset="0x0124" name="UNK0124" variants="NVA3:NVC0"/>

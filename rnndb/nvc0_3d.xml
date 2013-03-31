@@ -98,19 +98,20 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x02d8" name="UNK02D8">
 			<doc>0x00, 0x10, 0x20, 0x30, 0x40, 0x50. Tiling mode for something?</doc>
 		</reg32>
+		<reg32 offset="0x02e0" name="UNK02E0" type="boolean" variants="NVC8_3D:NVE4_3D"/>
 		<reg32 offset="0x02e4" name="UNK02E4" variants="NVC1_3D-">
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield pos="4" name="UNK4"/>
 			<bitfield pos="8" name="UNK8"/>
 			<bitfield low="12" high="15" name="UNK12"/>
 		</reg32>
-		<reg32 offset="0x02e8" name="UNK02E8" variants="NVE4_3D-"/> <!-- ffffff1 -->
+		<reg32 offset="0x02e8" name="UNK02E8" variants="NVC8_3D-"/> <!-- ffffff1 -->
 		<reg32 offset="0x02ec" name="UNK02EC">
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield low="4" high="11" name="UNK4"/>
 		</reg32>
-		<reg32 offset="0x02f8" name="UNK02F8" variants="NVE4_3D-"/> <!-- fffffff -->
-		<reg32 offset="0x02fc" name="UNK02FC" variants="NVE4_3D-"/> <!-- 3 -->
+		<reg32 offset="0x02f8" name="UNK02F8" variants="NVC8_3D-"/> <!-- fffffff -->
+		<reg32 offset="0x02fc" name="UNK02FC" variants="NVC8_3D-"/> <!-- 3 -->
 		<reg32 offset="0x0300" name="UNK0300">
 			<doc>0-3</doc>
 		</reg32>
@@ -166,10 +167,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0368" name="UNK0368">
 			<doc>0-1, no icmd.</doc>
 		</reg32>
-		<reg32 offset="0x036c" name="UNK036C" variants="NVE4_3D-"/> <!-- ff1 -->
-		<reg32 offset="0x0370" name="UNK0370" variants="NVE4_3D-"/> <!-- 71 -->
-		<reg32 offset="0x0374" name="UNK0374" variants="NVE4_3D-"/> <!-- 11 -->
-		<reg32 offset="0x0378" name="UNK0378" variants="NVE4_3D-"/> <!-- 3f -->
+		<reg32 offset="0x036c" name="UNK036C" variants="NVC8_3D-"/> <!-- ff1 -->
+		<reg32 offset="0x0370" name="UNK0370" variants="NVC8_3D-"/> <!-- 71 -->
+		<reg32 offset="0x0374" name="UNK0374" variants="NVC8_3D-"/> <!-- 11 -->
+		<reg32 offset="0x0378" name="UNK0378" variants="NVC8_3D-"/> <!-- 3f -->
 		<reg32 offset="0x037c" name="RASTERIZE_ENABLE" type="boolean"/>
 		<stripe offset="0x0380" name="TFB" length="4" stride="32">
 			<reg32 offset="0x00" name="BUFFER_ENABLE" type="boolean"/>
@@ -230,7 +231,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x07a0" name="WARP_TEMP_ALLOC">
 			<doc>0x3ffffff, aligned to 0x200, shared with dijkstra</doc>
 		</reg32>
-		<reg32 offset="0x07a4" name="UNK07A4" length="2" variants="NVE4_3D-"/> <!-- 7fff -->
+		<reg32 offset="0x07a4" name="UNK07A4" length="2" variants="NVC8_3D-"/> <!-- 7fff -->
 		<reg32 offset="0x07ac" name="UNK07AC" variants="NVE4_3D-"/> <!-- ffffffff -->
 		<reg32 offset="0x07b0" name="UNK07B0" length="4">
 			<doc>Vertex data upload?</doc>
@@ -379,7 +380,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield low="8" high="9" name="UNK8"/>
 			<bitfield low="16" high="31" name="UNK16"/>
 		</reg32>
-		<reg32 offset="0x0ddc" name="UNK0DDC">
+		<reg32 offset="0x0ddc" name="UNK0DDC" variants="NVC0_3D:NVE4_3D">
 			<doc>0-2, no icmd</doc>
 		</reg32>
 		<reg32 offset="0x0de4" name="WATCHDOG_TIMER" type="uint"/> <!-- extended range wrt nv50? -->
@@ -405,7 +406,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0f00" name="UNK0F00" length="4">
 			<doc>Vertex subm?</doc>
 		</reg32>
-		<reg32 offset="0x0f20" name="UNK0F20" length="5" variants="NVE4_3D-"/>
+		<reg32 offset="0x0f20" name="UNK0F20" length="5" type="boolean" variants="NVE4_3D-"/>
 		<reg32 offset="0x0f54" name="STENCIL_BACK_FUNC_REF"/>
 		<reg32 offset="0x0f58" name="STENCIL_BACK_MASK"/>
 		<reg32 offset="0x0f5c" name="STENCIL_BACK_FUNC_MASK"/>
@@ -622,7 +623,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield low="4" high="25" name="ENTRY"/>
 		</reg32>
 		<reg32 offset="0x1338" name="TEX_CACHE_CTL">
-			<bitfield low="0" high="2" name="UNK0"/>
+			<bitfield low="0" high="2" name="UNK0" variants="NVC0_3D:NVE4_3D"/>
+			<bitfield pos="0" name="UNK0" variants="NVE4_3D-"/>
 			<bitfield low="4" high="25" name="ENTRY"/>
 		</reg32>
 		<reg32 offset="0x133c" name="BLEND_SEPARATE_ALPHA" type="boolean"/>
@@ -909,13 +911,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1684" name="PROVOKING_VERTEX_LAST" type="boolean"/>
 		<reg32 offset="0x1688" name="VERTEX_TWO_SIDE_ENABLE" type="boolean"/>
 		<reg32 offset="0x168c" name="POLYGON_STIPPLE_ENABLE" type="boolean"/>
-		<reg32 offset="0x1690" name="UNK1690">
+		<reg32 offset="0x1690" name="UNK1690" variants="NVC0_3D:NVE4_3D">
 			<bitfield pos="0" name="ALWAYS_DERIV">
 				<doc>Always use auto LOD selection by implicit derivatives,
 				even in program types other than FP.</doc>
 			</bitfield>
 			<bitfield pos="16" name="UNK16"/>
 		</reg32>
+		<reg32 offset="0x1690" name="UNK1690" variants="NVE4_3D-"/> <!-- 7 -->
 		<reg32 offset="0x169c" name="UNK169C" type="boolean"/>
 		<reg32 offset="0x16a0" name="UNK16A0"/>
 		<reg32 offset="0x16a4" name="UNK16A4">
@@ -1082,6 +1085,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1b04" name="QUERY_ADDRESS_LOW"/>
 		<reg32 offset="0x1b08" name="QUERY_SEQUENCE"/>
 		<reg32 offset="0x1b0c" name="QUERY_GET">
+			<!-- XXX: more bits on NVE4 -->
 			<!-- XXX: figure this out -->
 			<bitfield low="0" high="1" name="MODE">
 				<value value="0" name="WRITE"/>

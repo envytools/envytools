@@ -84,6 +84,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="WRITE_OK" pos="31"/>
 			<doc>Remaps high byte of g[] address used in CP (INDEX -> HIGH).</doc>
 		</reg32>
+		<reg32 offset="0x02e0" name="UNK02E0" type="boolean" variants="NVC8_COMPUTE-"/>
 		<reg32 offset="0x0308" name="CACHE_SPLIT">
 			<value value="1" name="16K_SHARED_48K_L1"/>
 			<value value="3" name="48K_SHARED_16K_L1"/>
@@ -94,13 +95,15 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0360" name="UNK0360">
 			<doc>Similar to turing?</doc>
 			<bitfield pos="0" name="UNK0"/>
-			<bitfield low="8" high="9" name="UNK1"/>
+			<bitfield low="8" high="9" name="UNK8"/>
+			<bitfield low="10" high="11" name="UNK10" variants="NVC8_COMPUTE-"/>
 		</reg32>
 		<reg32 offset="0x0368" name="LAUNCH">
 			<doc>Parameter passed to this method is available as $launcharg special register</doc>
 		</reg32>
 		<reg32 offset="0x036c" name="UNK036C">
-			<doc>0-3.</doc>
+			<bitfield low="0" high="1" name="UNK0"/>
+			<bitfield low="2" high="3" name="UNK2" variants="NVC8_COMPUTE-"/>
 		</reg32>
 		<reg32 offset="0x03ac" name="BLOCKDIM_YX">
 			<bitfield name="X" high="15" low="0" type="uint"/>
