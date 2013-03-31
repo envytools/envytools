@@ -164,14 +164,14 @@ char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64
 			return res;
 		case RNN_TTYPE_FIXED:
 			if (value & UINT64_C(1) << (width-1)) {
-				asprintf (&res, "%s-%lf%s (%08x)", ctx->colors->num,
+				asprintf (&res, "%s-%lf%s (%08"PRIx64")", ctx->colors->num,
 						((double)((UINT64_C(1) << width) - value)) / ((double)(1 << ti->radix)),
 						ctx->colors->reset, value);
 				return res;
 			}
 			/* fallthrough */
 		case RNN_TTYPE_UFIXED:
-			asprintf (&res, "%s%lf%s (%08x)", ctx->colors->num,
+			asprintf (&res, "%s%lf%s (%08"PRIx64")", ctx->colors->num,
 					((double)value) / ((double)(1 << ti->radix)),
 					ctx->colors->reset, value);
 			return res;
