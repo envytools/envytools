@@ -881,7 +881,7 @@
 			<bitfield low="26" high="33" name="PM_SIG_UNIT1_1"/>
 			<bitfield low="34" high="41" name="PM_SIG_UNIT1_2"/>
 			<bitfield low="42" high="49" name="PM_SIG_UNIT1_3"/>
-			<bitfield low="50" high="57" name="UNK18"/>
+			<bitfield low="50" high="57" name="UNK50"/>
 			<bitfield low="60" high="61" name="UNK60"/>
 		</reg64>
 		<reg32 offset="0x20" name="UNK20"/>
@@ -911,7 +911,8 @@
 		<reg64 offset="0x48" name="UNK48"/>
 		<reg64 offset="0x50" name="UNK50"/>
 		<reg64 offset="0x58" name="CONTROL">
-			<bitfield low="0" high="15" name="UNK0"/>
+			<bitfield low="0" high="7" name="FP_INTERPOLANT_COUNT_NONFLAT"/>
+			<bitfield low="8" high="15" name="FP_INTERPOLANT_COUNT"/>
 			<bitfield low="16" high="20" name="WATCHDOG"/>
 			<bitfield pos="21" name="KILL"/> <!-- XXX: also convered by the WATCHDOG ICMD? -->
 			<bitfield pos="22" name="PM_OVERFLOW_TRAP_ENABLE_0"/>
@@ -922,7 +923,14 @@
 			<bitfield low="29" high="31" name="PM_UNIT_1" type="nv50_mp_pm_unit"/>
 			<bitfield low="32" high="34" name="PM_UNIT_2" type="nv50_mp_pm_unit"/>
 			<bitfield low="35" high="37" name="PM_UNIT_3" type="nv50_mp_pm_unit"/>
-			<bitfield low="38" high="45" name="UNK38"/>
+			<bitfield pos="38" name="FP_INTERPOLANT_UNK28"/>
+			<bitfield pos="39" name="FP_INTERPOLANT_UMASK_W"/>
+			<bitfield pos="40" name="FP_INTERPOLANT_UMASK_Z"/>
+			<bitfield pos="41" name="FP_INTERPOLANT_UMASK_Y"/>
+			<bitfield pos="42" name="FP_INTERPOLANT_UMASK_X"/>
+			<bitfield pos="43" name="UNK1690_UNK8"/>
+			<bitfield pos="44" name="UNK1690_UNK4"/>
+			<bitfield pos="45" name="UNK1690_UNK0"/>
 			<bitfield pos="46" name="PM_MODE_0" type="nv50_mp_pm_mode"/>
 			<bitfield pos="47" name="PM_MODE_1" type="nv50_mp_pm_mode"/>
 			<bitfield pos="48" name="PM_MODE_2" type="nv50_mp_pm_mode"/>
@@ -935,7 +943,8 @@
 			<bitfield low="58" high="59" name="UNK58"/>
 		</reg64>
 		<reg64 offset="0x60" name="UNK60">
-			<bitfield low="0" high="1" name="UNK0"/>
+			<bitfield pos="0" name="UNK1690_UNK037C_ALWAYS_DERIV"/>
+			<bitfield pos="1" name="UNK1690_UNK037C_UNK16"/>
 			<bitfield low="2" high="5" name="PM_SIG_UNIT2_0"/>
 			<bitfield low="6" high="9" name="PM_SIG_UNIT2_1"/>
 			<bitfield low="10" high="13" name="PM_SIG_UNIT2_2"/>

@@ -1019,9 +1019,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1698" name="UNK1698">
 			<doc>Goes to MP.</doc>
-			<bitfield pos="0" name="0"/>
-			<bitfield pos="4" name="1"/>
-			<bitfield pos="8" name="2"/>
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="8" name="UNK8"/>
 		</reg32>
 		<reg32 offset="0x169c" name="SAMPLE_SHADING" variants="NVA3_3D-">
 			<bitfield low="0" high="3" name="MIN_SAMPLES">
@@ -1168,10 +1168,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1980" name="CLIPID_WIDTH" type="uint" align="0x40" max="0x2000"/>
 		<reg32 offset="0x1984" name="CLIPID_ID"/>
 		<reg32 offset="0x1988" name="FP_INTERPOLANT_CTRL">
-			<bitfield name="UMASK" high="31" low="24" type="nv50_vic"/>
-			<bitfield name="COUNT_NONFLAT" high="23" low="16" type="int"/>
-			<bitfield name="OFFSET" high="15" low="8" type="int"/>
-			<bitfield name="COUNT" high="7" low="0" type="int"/>
+			<bitfield low="0" high="7" name="COUNT" type="uint"/>
+			<bitfield low="8" high="15" name="OFFSET" type="uint"/>
+			<bitfield low="16" high="23" name="COUNT_NONFLAT" type="uint"/>
+			<bitfield low="24" high="27" name="UMASK" type="nv50_vic"/>
+			<bitfield pos="28" name="UNK28"/> <!-- has to be 0? -->
 		</reg32>
 		<reg32 offset="0x198c" name="FP_REG_ALLOC_TEMP" type="int"/>
 		<reg32 offset="0x19a0" name="REG_MODE" type="nv50_reg_mode"/>
