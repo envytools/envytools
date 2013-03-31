@@ -717,8 +717,8 @@
 			<bitfield pos="3" name="TIMEOUT"/>
 			<bitfield pos="4" name="INVALID_OPCODE"/>
 			<bitfield pos="5" name="PM_OVERFLOW"/>
-			<bitfield pos="6" name="BREAKPOINT"/>
-			<bitfield pos="7" name="UNK7"/>
+			<bitfield pos="6" name="BREAKPOINT" variants="NV84-"/>
+			<bitfield pos="7" name="UNK7" variants="NVA0-"/>
 			<bitfield pos="16" name="UNK16"/>
 			<bitfield pos="17" name="UNK17"/>
 		</reg32>
@@ -732,9 +732,14 @@
 			<bitfield low="34" high="41" name="PM_SIG_UNIT1_2"/>
 			<bitfield low="42" high="49" name="PM_SIG_UNIT1_3"/>
 			<bitfield low="50" high="57" name="UNK50"/>
-			<bitfield low="60" high="61" name="UNK60"/>
+			<bitfield pos="60" name="UNK60"/>
+			<bitfield pos="61" name="UNK61" variants="NVA0-"/>
 		</reg64>
-		<reg32 offset="0x20" name="UNK20"/>
+		<reg32 offset="0x20" name="UNK20">
+			<bitfield low="0" high="28" name="UNK0"/>
+			<bitfield pos="29" name="UNK29" variants="NV84-"/>
+			<bitfield low="30" high="31" name="UNK30" variants="NVA0-"/>
+		</reg32>
 		<reg32 offset="0x24" name="PC_CURRENT">
 			<bitfield low="0" high="23" name="ADDR"/>
 			<bitfield low="24" high="28" name="WARP"/>
@@ -750,7 +755,8 @@
 			<bitfield low="0" high="7" name="GP_TEMP"/>
 			<bitfield low="8" high="15" name="FP_TEMP"/>
 			<bitfield low="16" high="23" name="VP_TEMP"/>
-			<bitfield low="24" high="31" name="UNK24"/>
+			<bitfield low="24" high="30" name="UNK24"/>
+			<bitfield pos="31" name="UNK31" variants="NVA0-"/>
 		</reg32>
 		<reg32 offset="0x44" name="PM_SIG_UNIT0">
 			<bitfield low="0" high="7" name="0"/>
@@ -790,7 +796,8 @@
 			<bitfield pos="55" name="PM_OVERFLOW_TRAP_1"/>
 			<bitfield pos="56" name="PM_OVERFLOW_TRAP_2"/>
 			<bitfield pos="57" name="PM_OVERFLOW_TRAP_3"/>
-			<bitfield low="58" high="59" name="UNK58"/>
+			<bitfield low="58" high="59" name="UNK58" variants="NV84-"/>
+			<bitfield low="60" high="63" name="UNK60" variants="NVA3-"/>
 		</reg64>
 		<reg64 offset="0x60" name="UNK60">
 			<bitfield pos="0" name="UNK1690_UNK037C_ALWAYS_DERIV"/>
@@ -801,7 +808,7 @@
 			<bitfield low="14" high="17" name="PM_SIG_UNIT2_3"/>
 			<bitfield low="18" high="19" name="UNK18"/>
 		</reg64>
-		<reg64 offset="0x68" name="UNK68"/> <!-- 3f -->
+		<reg64 offset="0x68" name="UNK68" variants="NVA0-"/> <!-- 3f -->
 		<reg64 offset="0x70" name="OPCODE"/>
 		<reg64 offset="0x78" name="PC_PREVIOUS">
 			<bitfield low="0" high="23" name="ADDR"/>
