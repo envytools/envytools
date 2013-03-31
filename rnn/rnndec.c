@@ -164,15 +164,15 @@ char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64
 			return res;
 		case RNN_TTYPE_FIXED:
 			if (value & UINT64_C(1) << (width-1)) {
-				asprintf (&res, "%s-%f%s (%08x)", ctx->colors->num,
-						((float)((UINT64_C(1) << width) - value)) / ((float)(1 << ti->radix)),
+				asprintf (&res, "%s-%lf%s (%08x)", ctx->colors->num,
+						((double)((UINT64_C(1) << width) - value)) / ((double)(1 << ti->radix)),
 						ctx->colors->reset, value);
 				return res;
 			}
 			/* fallthrough */
 		case RNN_TTYPE_UFIXED:
-			asprintf (&res, "%s%f%s (%08x)", ctx->colors->num,
-					((float)value) / ((float)(1 << ti->radix)),
+			asprintf (&res, "%s%lf%s (%08x)", ctx->colors->num,
+					((double)value) / ((double)(1 << ti->radix)),
 					ctx->colors->reset, value);
 			return res;
 		case RNN_TTYPE_UINT:
