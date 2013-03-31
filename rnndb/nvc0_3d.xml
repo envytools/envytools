@@ -308,7 +308,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="H" high="31" low="16" type="int"/>
 		</reg32>
 		<reg32 offset="0x0c08" name="DEPTH_RANGE_NEAR" length="16" stride="16" type="float"/>
-		<reg32 offset="0x0c0c" name="DEPTH_RANGE_FAR" length="16" stride="16" type="float"/>
+		<reg32 offset="0x0c0c" name="DEPTH_RANGE_FAR" length="16" stride="16" type="float">
+			<doc>Effective values somehow depend on ZETA state.</doc>
+		</reg32>
 		<reg32 offset="0x0d00" name="CLIP_RECT_HORIZ" length="8" stride="8">
 			<bitfield name="MIN" high="15" low="0" type="uint"/>
 			<bitfield name="MAX" high="31" low="16" type="uint"/>
@@ -971,7 +973,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Shared with dijkstra</doc>
 		</reg32>
 		<reg32 offset="0x193c" name="VIEW_VOLUME_CLIP_CTRL">
-			<bitfield pos="0" name="UNK0"/>
+			<bitfield pos="0" name="DEPTH_RANGE_0_1" type="boolean">
+				<doc>If true, DEPTH_RANGE_NEAR/FAR is ignored and primitives
+				are clipped if position.z is outside of the range [0,1]</doc>
+			</bitfield>
 			<bitfield high="2" low="1" name="UNK1">
 				<value value="0" name="UNK0"/>
 				<value value="1" name="UNK1"/>
