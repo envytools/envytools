@@ -843,6 +843,17 @@
 	</array>
 
 	<group name="nv50_pgraph_mp">
+		<reg64 offset="0x00" name="CODE_CONFIG_0">
+			<bitfield low="0" high="21" name="FP_START_ID" shr="2"/>
+			<bitfield low="22" high="25" name="FP_CALL_LIMIT_LOG"/>
+			<bitfield low="26" high="47" name="VP_START_ID" shr="2"/>
+			<bitfield low="48" high="51" name="VP_CALL_LIMIT_LOG"/>
+		</reg64>
+		<reg64 offset="0x08" name="CODE_CONFIG_1">
+			<bitfield low="0" high="21" name="GP_START_ID" shr="2"/>
+			<bitfield low="22" high="25" name="GP_CALL_LIMIT_LOG"/>
+			<bitfield low="26" high="57" name="UNK1568_UNK02B0"/>
+		</reg64>
 		<reg32 offset="0x10" name="PM_SIG">
 			<bitfield low="0" high="7" name="0"/>
 			<bitfield low="8" high="15" name="1"/>
@@ -850,25 +861,40 @@
 			<bitfield low="24" high="31" name="3"/>
 		</reg32>
 		<reg32 offset="0x14" name="ERROR_CODE">
-			<bitfield pos="0" name="STACK_UNDERFLOW" />
-			<bitfield pos="1" name="STACK_MISMATCH" />
-			<bitfield pos="2" name="QUADON_ACTIVE" />
-			<bitfield pos="3" name="TIMEOUT" />
-			<bitfield pos="4" name="INVALID_OPCODE" />
-			<bitfield pos="6" name="BREAKPOINT" />
+			<bitfield pos="0" name="STACK_UNDERFLOW"/>
+			<bitfield pos="1" name="STACK_MISMATCH"/>
+			<bitfield pos="2" name="QUADON_ACTIVE"/>
+			<bitfield pos="3" name="TIMEOUT"/>
+			<bitfield pos="4" name="INVALID_OPCODE"/>
+			<bitfield pos="6" name="BREAKPOINT"/>
 		</reg32>
+		<reg64 offset="0x18" name="UNK18">
+			<bitfield low="0" high="7" name="UNK12A8_UNK0228_UNK12"/>
+			<bitfield pos="8" name="UNK12A8_UNK0228_UNK0"/>
+			<bitfield low="9" high="16" name="UNK12A8_UNK0228_UNK4"/>
+			<bitfield pos="17" name="UNK12AC_UNK0290"/>
+			<bitfield low="50" high="57" name="UNK18"/>
+			<bitfield low="60" high="61" name="UNK60"/>
+		</reg64>
+		<reg32 offset="0x20" name="UNK20"/>
 		<reg32 offset="0x24" name="PC_CURRENT">
-			<bitfield name="ADDR" high="23" low="0" />
-			<bitfield name="WARP" high="31" low="24" />
+			<bitfield low="0" high="23" name="ADDR"/>
+			<bitfield low="24" high="28" name="WARP"/>
 		</reg32>
 		<reg32 offset="0x38" name="PM_FUNC" length="2">
 			<bitfield low="0" high="15" name="0"/>
 			<bitfield low="16" high="31" name="1"/>
 		</reg32>
+		<reg32 offset="0x40" name="REG_ALLOC">
+			<bitfield low="0" high="7" name="GP_TEMP"/>
+			<bitfield low="8" high="15" name="FP_TEMP"/>
+			<bitfield low="16" high="23" name="VP_TEMP"/>
+			<bitfield low="24" high="31" name="UNK24"/>
+		</reg32>
 		<!-- 44: Same as 10 or what? -->
 		<reg32 offset="0x58" name="CONTROL_0">
 			<bitfield low="16" high="20" name="WATCHDOG"/>
-			<bitfield pos="21" name="KILL"/>
+			<bitfield pos="21" name="KILL"/> <!-- XXX: also convered by the WATCHDOG ICMD? -->
 			<bitfield low="26" high="28" name="PM_UNIT_0" type="nv50_mp_pm_unit"/>
 			<bitfield low="29" high="31" name="PM_UNIT_1" type="nv50_mp_pm_unit"/>
 		</reg32>
@@ -880,12 +906,11 @@
 			<bitfield pos="16" name="PM_MODE_2" type="nv50_mp_pm_mode"/>
 			<bitfield pos="17" name="PM_MODE_3" type="nv50_mp_pm_mode"/>
 		</reg32>
-		<reg32 offset="0x70" name="OPCODE_LOW"/>
-		<reg32 offset="0x74" name="OPCODE_HIGH"/>
-		<reg32 offset="0x78" name="PC_PREVIOUS">
-			<bitfield name="ADDR" high="23" low="0" />
-			<bitfield name="WARP" high="31" low="24" />
-		</reg32>
+		<reg64 offset="0x70" name="OPCODE"/>
+		<reg64 offset="0x78" name="PC_PREVIOUS">
+			<bitfield low="0" high="23" name="ADDR"/>
+			<bitfield low="24" high="28" name="WARP"/>
+		</reg64>
 	</group>
 	<group name="nv50_pgraph_mpc">
 		<doc>MP Context. The whole state of MP is accessible indirectly via these registers.
@@ -995,6 +1020,14 @@
 				<bitfield name="CLEAR" pos="30" />
 				<bitfield name="ENABLE" pos="31" />
 			</reg32>
+			<reg32 offset="0x58" name="CODE_ADDRESS_HIGH">
+				<bitfield low="0" high="7" name="VP"/>
+				<bitfield low="8" high="15" name="GP"/>
+				<bitfield low="16" high="23" name="FP"/>
+			</reg32>
+			<reg32 offset="0x5c" name="VP_ADDRESS_LOW"/>
+			<reg32 offset="0x60" name="GP_ADDRESS_LOW"/>
+			<reg32 offset="0x64" name="FP_ADDRESS_LOW"/>
 			<use-group name="nv50_pgraph_mpc" />
 		</array>
 		<array offset="0x400" name="TPVP" stride="0x400" length="1">

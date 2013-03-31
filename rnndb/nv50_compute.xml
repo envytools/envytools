@@ -51,9 +51,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x0228" name="UNK0228">
 			<doc>Same as tesla UNK12A8</doc>
-			<bitfield pos="0" name="UNK1"/>
-			<bitfield low="4" high="11" name="UNK2"/>
-			<bitfield low="18" high="19" name="UNK3"/>
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield low="4" high="11" name="UNK4"/>
+			<bitfield low="12" high="19" name="UNK12"/>
 		</reg32>
 		<reg32 offset="0x022c" name="TSC_ADDRESS_HIGH"/>
 		<reg32 offset="0x0230" name="TSC_ADDRESS_LOW" align="0x20"/>

@@ -546,8 +546,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x12a8" name="UNK12A8">
 			<doc>Same as turing UNK0228</doc>
-			<bitfield pos="0" name="UNK1"/>
-			<bitfield low="4" high="19" name="UNK2"/>
+			<bitfield pos="0" name="UNK0"/>
+			<bitfield low="4" high="11" name="UNK4"/>
+			<bitfield low="12" high="19" name="UNK12"/>
 		</reg32>
 		<reg32 offset="0x12ac" name="UNK12AC" type="boolean">
 			<doc>Same as turing UNK0290</doc>
