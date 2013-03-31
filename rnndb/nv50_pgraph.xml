@@ -904,6 +904,18 @@
 		<reg32 offset="0x14" name="JOE" />
 	</group>
 
+	<bitset name="nv50_mpc_trap" inline="yes">
+		<bitfield name="LOCAL_LIMIT_READ" pos="0"/>
+		<bitfield name="LOCAL_LIMIT_WRITE" pos="4"/>
+		<bitfield name="STACK_LIMIT" pos="6"/>
+		<bitfield name="GLOBAL_LIMIT_READ" pos="8"/>
+		<bitfield name="GLOBAL_LIMIT_WRITE" pos="12"/>
+		<bitfield name="MP0" pos="16"/>
+		<bitfield name="MP1" pos="17"/>
+		<bitfield name="GLOBAL_LIMIT_RED" pos="18" variants="NV84-"/>
+		<bitfield name="GLOBAL_LIMIT_ATOM" pos="22" variants="NV84-"/>
+		<bitfield name="MP2" pos="26" variants="NVA0-"/>
+	</bitset>
 	<array offset="0x8000" variants="NV50:NVA0" name="TP" stride="0x1000" length="8">
 		<array offset="0x200" name="MP" stride="0x80" length="2">
 			<use-group name="nv50_pgraph_mp" />
@@ -911,18 +923,11 @@
 		<array offset="0x300" name="MPC" stride="0x100" length="1">
 			<reg32 offset="0x10" name="JOE" />
 			<reg32 offset="0x14" name="TRAP">
-				<bitfield name="LOCAL_LIMIT_READ" pos="0" />
-				<bitfield name="LOCAL_LIMIT_WRITE" pos="4" />
-				<bitfield name="STACK_LIMIT" pos="6" />
-				<bitfield name="GLOBAL_LIMIT_READ" pos="8" />
-				<bitfield name="GLOBAL_LIMIT_WRITE" pos="12" />
-				<bitfield name="MP0" pos="16" />
-				<bitfield name="MP1" pos="17" />
-				<bitfield name="GLOBAL_LIMIT_RED" pos="18" />
-				<bitfield name="GLOBAL_LIMIT_ATOM" pos="22" />
-				<bitfield name="CLEAR" pos="30" />
-				<bitfield name="ENABLE" pos="31" />
+				<bitfield low="0" high="30" name="TRAP" type="nv50_mpc_trap"/>
+				<bitfield name="CLEAR" pos="30"/>
+				<bitfield name="ENABLE" pos="31"/>
 			</reg32>
+			<reg32 offset="0x18" name="TRAP_EN" type="nv50_mpc_trap"/>
 			<enum name="nv50_pgraph_mpc_pm_group" inline="yes">
 				<value value="0x00" name="MP0_FUNC"/>
 				<value value="0x01" name="MP1_FUNC"/>
@@ -980,20 +985,12 @@
 			<use-group name="nv50_pgraph_mp" />
 		</array>
 		<array offset="0x300" name="MPC" stride="0x100" length="1">
-			<reg32 offset="0x1c" name="MPC_TRAP">
-				<bitfield name="LOCAL_LIMIT_READ" pos="0" />
-				<bitfield name="LOCAL_LIMIT_WRITE" pos="4" />
-				<bitfield name="STACK_LIMIT" pos="6" />
-				<bitfield name="GLOBAL_LIMIT_READ" pos="8" />
-				<bitfield name="GLOBAL_LIMIT_WRITE" pos="12" />
-				<bitfield name="MP0" pos="16" />
-				<bitfield name="MP1" pos="17" />
-				<bitfield name="GLOBAL_LIMIT_RED" pos="18" />
-				<bitfield name="GLOBAL_LIMIT_ATOM" pos="22" />
-				<bitfield name="MP2" pos="26" />
-				<bitfield name="CLEAR" pos="30" />
-				<bitfield name="ENABLE" pos="31" />
+			<reg32 offset="0x1c" name="TRAP">
+				<bitfield low="0" high="30" name="TRAP" type="nv50_mpc_trap"/>
+				<bitfield name="CLEAR" pos="30"/>
+				<bitfield name="ENABLE" pos="31"/>
 			</reg32>
+			<reg32 offset="0x20" name="TRAP_EN" type="nv50_mpc_trap"/>
 			<enum name="nva0_pgraph_mpc_pm_group" inline="yes">
 				<value value="0x14" name="MP0_FUNC"/>
 				<value value="0x28" name="MP1_FUNC"/>
