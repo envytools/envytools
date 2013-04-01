@@ -831,15 +831,23 @@
 					<doc>Same thing as available directly via PGRAPH_TP_MP.
 					Wraps on index 16.</doc>
 				</value>
-				<value value="1" name="MISC1" />
+				<value value="1" name="MISC1"/>
 				<value value="2" name="UNK2"/>
-				<value value="3" name="MISC3" />
+				<value value="3" name="MISC3"/>
 				<value value="4" name="UNK4"/>
-				<value value="5" name="UNK5"/>
-				<value value="6" name="UNK6"/>
-				<value value="7" name="UNK7"/>
-				<value value="9" name="UNK9"/> <!-- code cache? -->
-				<value value="0xa" name="UNKA"/>
+				<value value="5" name="UNK6" variants="NV50:NVA0"/>
+				<value value="6" name="UNK7" variants="NV50:NVA0"/>
+				<value value="8" name="UNK9" variants="NV50:NVA0"/> <!-- code cache? -->
+				<value value="9" name="UNK10" variants="NV50:NVA0"/>
+				<value value="0xa" name="UNK11" variants="NV50:NVA0"/>
+				<value value="0xb" name="SFU_LUT" variants="NV50:NVA0"/>
+				<value value="5" name="UNK5" variants="NVA0-"/>
+				<value value="6" name="UNK6" variants="NVA0-"/>
+				<value value="7" name="UNK7" variants="NVA0-"/>
+				<value value="9" name="UNK9" variants="NVA0-"/> <!-- code cache? -->
+				<value value="0xa" name="UNK10" variants="NVA0-"/>
+				<value value="0xb" name="UNK11" variants="NVA0-"/>
+				<value value="0xc" name="SFU_LUT" variants="NVA0-"/>
 			</bitfield>
 			<bitfield high="31" low="6" name="INDEX">
 				<doc>Index inside the selected SPACE to access.
@@ -1049,7 +1057,7 @@
 </domain>
 
 <!-- the MP context spaces. -->
-<domain name="NV50_MPC_SMALL1" width="64">
+<domain name="NV50_MPC_SMALL1" width="64"> <!-- 12-bit addressing -->
 	<array offset="0" name="STACK" stride="0x10" length="32">
 		<reg64 offset="0" name="ENTRY" length="16">
 			<bitfield high="21" low="0" name="PC" shr="2" />
@@ -1119,13 +1127,15 @@
 		</bitfield>
 	</reg64>
 	<reg64 offset="0x2a1" name="MISC2">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="1" name="UNK1"/>
 		<bitfield pos="2" name="SINGLE_STEP">
 			<doc>Enables single stepping.</doc>
 		</bitfield>
-		<bitfield pos="3" name="CONT">
+		<bitfield pos="3" name="CONT_TRIGGER">
 			<doc>Continues paused execution.</doc>
 		</bitfield>
-		<bitfield pos="4" name="BREAK">
+		<bitfield pos="4" name="BREAK"> <!-- XXX: not in scan? -->
 			<doc>Will cause next CUDA execution to start in paused state.</doc>
 		</bitfield>
 		<bitfield high="63" low="32" name="CRASH_MASK">
@@ -1134,7 +1144,7 @@
 	</reg64>
 	<!-- something happens at 0x300+... -->
 </domain>
-<domain name="NV50_MPC_SMALL2" width="64">
+<domain name="NV50_MPC_SMALL2" width="64"> <!-- 12-bit addr -->
 	<array offset="0" name="UNK0" stride="2" length="32">
 		<reg64 offset="0" name="SLOT" length="2" />
 	</array>
@@ -1152,7 +1162,7 @@
 	</array>
 	<reg64 offset="0x80" name="UNK2" length="32" />
 	<reg64 offset="0xa0" name="UNK3" length="32" />
-	<array offset="0xc0" name="UNK4" stride="2" length="32">
+	<array offset="0xc0" name="UNK4" stride="2" length="32"> <!-- made of 40-bit quantities -->
 		<reg64 offset="0" name="UNK0" />
 		<reg64 offset="1" name="UNK1" />
 	</array>
@@ -1161,7 +1171,7 @@
 	</reg64>
 	<reg64 offset="0x110" name="UNK6" length="8" /> <!-- bits f -->
 </domain>
-<domain name="NV50_MPC_SMALL3" width="64">
+<domain name="NV50_MPC_SMALL3" width="64"> <!-- 12-bit addr -->
 	<reg64 offset="0" name="ADDRESS" length="0x400">
 		<doc>$a1-$a4 registers... this shit is so ugly,
 		I won't even bother expressing it with proper
@@ -1213,12 +1223,64 @@
 		<doc>More general information about a given warp.</doc>
 		<!-- 00000000XXXXa0a0 for FPs, 0 for VPs, ??? for CPs, ??? for GPs? hm. -->
 	</reg64>
-	<reg64 offset="0x540" name="A7" length="0x20"> <!-- aiii! has something in low 32-bit -->
+	<reg64 offset="0x540" name="A7" length="0x20">
+		<bitfield low="0" high="31" name="UNK0"/>
 		<doc>$a7 register. Yes, it's per-warp. And it's CP-only.
 		Don't ask me why. At least no insane reordering
 		is involved.</doc>
-		<bitfield high="47" low="32" name="A7" />
+		<bitfield low="32" high="47" name="A7"/>
+		<bitfield low="48" high="63" name="UNK48" variants="NVA0-"/>
 	</reg64>
+	<reg64 offset="0x600" name="UNK600" length="0x100"/> <!-- 16-bit really... -->
+	<reg64 offset="0x700" name="UNK700" length="0x40" variants="NVA0-"/> <!-- 16-bit -->
+</domain>
+<domain name="NV50_MPC_SMALL4" width="64"> <!-- 8-bit addr -->
+	<reg64 offset="0x00" name="UNK00" length="0x100"/> <!-- 8 per warp actually -->
+</domain>
+<domain name="NV50_MPC_SMALL5" width="64"> <!-- 8-bit addr; new on NVA0 -->
+	<reg64 offset="0x00" name="UNK00" length="0x100"/>
+</domain>
+<domain name="NV50_MPC_SMALL6" width="64"> <!-- 7-bit addr -->
+	<reg64 offset="0x00" name="UNK00" length="0x80"/> <!-- 4 per warp actually -->
+</domain>
+<domain name="NV50_MPC_SMALL7" width="64"> <!-- 10-bit addr -->
+	<reg64 offset="0x000" name="UNK000" length="0x300"/>
+</domain>
+<domain name="NV50_MPC_SMALL8" width="64"> <!-- 9-bit addr -->
+	<reg64 offset="0x000" name="UNK000" length="0x180"/>
+</domain>
+<domain name="NV50_MPC_SMALL10" width="64"> <!-- 12-bit addr -->
+	<reg64 offset="0x000" name="UNK000" length="0x200"/>
+</domain>
+<domain name="NV50_MPC_SMALL11" width="64"> <!-- ???-bit addr -->
+	<reg64 offset="0x000" name="UNK000" length="0x80"/> <!-- 32-bit -->
+</domain>
+<domain name="NV50_MPC_SFU_LUT" width="64"> <!-- 10-bit addr -->
+	<!-- all of the following are in .26 fixed format, for some reason duplicated to make a 52-bit value -->
+	<!-- 1/x for x in [1, 2) -->
+	<reg64 offset="0x000" name="RCP_LUT_ZERO" length="0x80"/>
+	<!-- 1/sqrt(x) for x in [1, 2) -->
+	<reg64 offset="0x080" name="RSQRT_1_LUT_ZERO" length="0x40"/>
+	<!-- 1/sqrt(x) for x in [2, 4) -->
+	<reg64 offset="0x0c0" name="RSQRT_2_LUT_ZERO" length="0x40"/>
+	<!-- sin(x) for x in [0, pi/2) -->
+	<reg64 offset="0x100" name="SIN_LUT_ZERO" length="0x40"/>
+	<!-- 2^x/2 for x in [0, 1) -->
+	<reg64 offset="0x140" name="EX2_LUT_ZERO" length="0x40"/>
+	<!-- lg2(x) for x in [1, 2) -->
+	<reg64 offset="0x180" name="LG2_LUT_ZERO" length="0x40"/>
+	<!-- 1 - 1/x^2 for x in [1, 2) -->
+	<reg64 offset="0x200" name="RCP_LUT_ONE" length="0x80"/>
+	<!-- 1 - 1/sqrt((x^3)) for x in [1, 2) -->
+	<reg64 offset="0x280" name="RSQRT_1_LUT_ONE" length="0x40"/>
+	<!-- 1 - 4/sqrt((x^3)) for x in [2, 4) -->
+	<reg64 offset="0x2c0" name="RSQRT_2_LUT_ONE" length="0x40"/>
+	<!-- pi/2*cos(x)/2 for x in [0, pi/2)-->
+	<reg64 offset="0x300" name="SINS_LUT_ONE" length="0x40"/>
+	<!-- ln(2)*2^x/2 for x in [0, 1) -->
+	<reg64 offset="0x340" name="EX2_LUT_ONE" length="0x40"/>
+	<!-- lg2(e)/x/2 for x in [1, 2) -->
+	<reg64 offset="0x380" name="LG2_LUT_ONE" length="0x40"/>
 </domain>
 
 </database>
