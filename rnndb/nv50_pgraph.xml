@@ -750,7 +750,7 @@
 			<bitfield low="16" high="31" name="1"/>
 			<bitfield low="32" high="47" name="2"/>
 			<bitfield low="48" high="63" name="3"/>
-		</reg32>
+		</reg64>
 		<reg32 offset="0x40" name="REG_ALLOC">
 			<bitfield low="0" high="7" name="GP_TEMP"/>
 			<bitfield low="8" high="15" name="FP_TEMP"/>
