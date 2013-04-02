@@ -276,12 +276,13 @@
 			<bitfield name="NOTIFY_AWAKEN" pos="16" />
 		</reg32>
 		<reg32 offset="0x2c" name="ST2_ADDR">
-			<doc>Second stage of dispatch... if QUERY blows up on you,
-			it can get stuck here. At least sometimes.</doc>
-			<bitfield name="MTHD" high="12" low="2" shr="2" />
-			<bitfield name="ILLEGAL_CLASS" pos="29" />
-			<bitfield name="ILLEGAL_MTHD" pos="30" />
-			<bitfield name="VALID" pos="31" />
+			<bitfield low="0" high="1" name="UNK0"/>
+			<bitfield low="2" high="12" name="MTHD" shr="2"/>
+			<bitfield pos="22" name="INTR_UNK7"/>
+			<bitfield pos="23" name="FIRMWARE_MTHD"/>
+			<bitfield pos="29" name="ILLEGAL_CLASS"/>
+			<bitfield pos="30" name="ILLEGAL_MTHD"/>
+			<bitfield pos="31" name="VALID"/>
 		</reg32>
 
 		<reg32 offset="0x3c" name="ST2_DATA_LOW" />
