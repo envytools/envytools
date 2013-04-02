@@ -1108,14 +1108,15 @@
 		</bitfield>
 	</reg64>
 	<reg64 offset="0x260" name="MASK2" length="32">
-		<bitfield high="63" low="32" name="DEAD">
+		<bitfield low="0" high="31" name="UNK0" variants="NV50:NV84"/>
+		<bitfield high="63" low="32" name="DEAD" variants="NV84-">
 			<doc>Aliases the previous one. nothing to see here.</doc>
 		</bitfield>
 	</reg64>
-	<reg64 offset="0x280" name="PC" shr="2" length="32">
+	<reg64 offset="0x280" name="PC" shr="2" length="32" variants="NV50:NV84">
 		<doc>The per-warp program counters.</doc>
 	</reg64>
-	<reg64 offset="0x2a0" name="WARPS">
+	<reg64 offset="0x2a0" name="WARPS" variants="NV50:NV84">
 		<bitfield high="31" low="0" name="ACTIVE">
 			<doc>Mask of currently active warps</doc>
 		</bitfield>
@@ -1126,7 +1127,7 @@
 			</doc>
 		</bitfield>
 	</reg64>
-	<reg64 offset="0x2a1" name="MISC2">
+	<reg64 offset="0x2a1" name="MISC2" variants="NV50:NV84">
 		<bitfield pos="0" name="UNK0"/>
 		<bitfield pos="1" name="UNK1"/>
 		<bitfield pos="2" name="SINGLE_STEP">
@@ -1166,10 +1167,10 @@
 		<reg64 offset="0" name="UNK0" />
 		<reg64 offset="1" name="UNK1" />
 	</array>
-	<reg64 offset="0x100" name="BARRIER_COUNTER" length="16">
+	<reg64 offset="0x100" name="BARRIER_COUNTER" length="16" variants="NV50:NV84">
 		<doc>The counters associated with barriers. Inexplicably shifted left by 1 bit. 6-bit on pre-NVA0, most likely 7-bit on NVAx.</doc>
 	</reg64>
-	<reg64 offset="0x110" name="UNK6" length="8" /> <!-- bits f -->
+	<reg64 offset="0x110" name="UNK6" length="8" variants="NV50:NV84"/> <!-- bits f -->
 </domain>
 <domain name="NV50_MPC_SMALL3" width="64"> <!-- 12-bit addr -->
 	<reg64 offset="0" name="ADDRESS" length="0x400">
