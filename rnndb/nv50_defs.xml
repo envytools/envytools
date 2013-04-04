@@ -312,6 +312,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x33" name="ENG2D_OPERATION_ILLEGAL_FOR_DST_FORMAT">
 		<brief>The OPERATION isn't possible with the chosen destination format.</brief>
 	</value>
+	<value value="0x34" name="ENG2D_FORMAT_MISMATCH_B"><!-- happens with the single-component formats -->
+		<brief>The dst format chosen is only usable if the src format is the same (simple copy, no conversion).</brief>
+	</value>
 	<value value="0x3f" name="PRIMITIVE_ID_NEEDS_GP">
 		<brief>You tried to enable PRIMITIVE_ID without enabling GP.</brief>
 	</value>
