@@ -944,10 +944,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1644" name="PRIM_RESTART_ENABLE" type="boolean"/>
 		<reg32 offset="0x1648" name="PRIM_RESTART_INDEX" type="int"/>
 		<reg32 offset="0x164c" name="VP_GP_BUILTIN_ATTR_EN">
-			<bitfield name="VERTEX_ID" pos="0" type="boolean"/><!-- works without bit 12 -->
+			<bitfield name="VERTEX_ID" pos="0" type="boolean"/>
 			<bitfield name="INSTANCE_ID" pos="4" type="boolean"/>
 			<bitfield name="PRIMITIVE_ID" pos="8" type="boolean"/>
-			<bitfield name="UNK12" pos="12" type="boolean"/><!-- set together with bit 0 -->
+			<bitfield name="VERTEX_ID_DRAW_ARRAYS_ADD_START" pos="12" type="boolean">
+				<doc>For non-indexed drawing, whether to start counting from 0 (if false)
+				or VERTEX_BUFFER_FIRST.</doc>
+			</bitfield>
 		</reg32>
 		<reg32 offset="0x1650" name="VP_ATTR_EN" length="2">
 			<bitfield name="7" high="31" low="28" type="nv50_vic"/>

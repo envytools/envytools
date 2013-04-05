@@ -884,8 +884,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1640" name="VERTEX_DATA"/>
 		<reg32 offset="0x1644" name="PRIM_RESTART_ENABLE" type="boolean"/>
 		<reg32 offset="0x1648" name="PRIM_RESTART_INDEX" type="int"/>
-		<reg32 offset="0x164c" name="VP_GP_BUILTIN_ATTR_EN">
-			<bitfield name="UNK12" pos="12" type="boolean"/>
+		<reg32 offset="0x164c" name="VERTEX_ID_GEN_MODE">
+			<bitfield name="DRAW_ARRAYS_ADD_START" pos="12" type="boolean">
+				<doc>If true, for non-indexed drawing, VertexID starts with
+				the value of VERTEX_BUFFER_FIRST.
+				If false, it will always range from 0 to VERTEX_BUFFER_COUNT.</doc>
+			</bitfield>
 		</reg32>
 		<reg32 offset="0x1658" name="POINT_SMOOTH_ENABLE" type="boolean"/>
 		<reg32 offset="0x165c" name="POINT_RASTER_RULES">
