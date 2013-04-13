@@ -205,6 +205,17 @@
 		<bitfield high="23" low="12" name="MAX_LOD">
 			<doc>Fixed-point unsigned 4.8</doc>
 		</bitfield>
+		<bitfield high="31" low="24" name="BORDER_COLOR_SRGB_RED">
+			<doc>Used if COLORSPACE_SRGB is set in TIC.
+			This is the sRGB value. E.g. if you put 0x80 here, the linear
+			result in the shader will be about 0.2.
+			</doc>
+		</bitfield>
+	</reg32>
+
+	<reg32 offset="0x0c" name="3">
+		<bitfield high="19" low="12" name="BORDER_COLOR_SRGB_GREEN"/>
+		<bitfield high="27" low="20" name="BORDER_COLOR_SRGB_BLUE"/>
 	</reg32>
 
 	<reg32 offset="0x10" name="4">
