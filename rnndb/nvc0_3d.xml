@@ -349,7 +349,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0d6c" name="UNK0D6C" type="xy16" length="2"/>
 		<reg32 offset="0x0d74" name="VERTEX_BUFFER_FIRST"/>
 		<reg32 offset="0x0d78" name="VERTEX_BUFFER_COUNT"/>
-		<reg32 offset="0x0d7c" name="UNK0D7C" type="boolean"/>
+		<reg32 offset="0x0d7c" name="DEPTH_CLIP_NEGATIVE_Z" type="boolean">
+                        <doc>This determines where depth values are clipped before the
+                        viewport transformation, whereas DEPTH_RANGE applies after it.
+                        If true, the permitted depth range is [0,1], otherwise [-1,1].
+                        </doc>
+		</reg32>
 		<reg32 offset="0x0d80" name="CLEAR_COLOR" length="4" type="float"/>
 		<reg32 offset="0x0d90" name="CLEAR_DEPTH" type="float"/>
 		<reg32 offset="0x0d94" name="UNK0D94">
