@@ -976,7 +976,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1918" name="CULL_FACE_ENABLE" type="boolean"/>
 		<reg32 offset="0x191c" name="FRONT_FACE" type="gl_front_face"/>
 		<reg32 offset="0x1920" name="CULL_FACE" type="gl_cull_face"/>
-		<reg32 offset="0x1924" name="LINE_LAST_PIXEL" type="boolean"/>
+		<reg32 offset="0x1924" name="PIXEL_CENTER_INTEGER" type="boolean">
+			<doc>Affects FragCoord shader input.</doc>
+		</reg32>
 		<reg32 offset="0x192c" name="VIEWPORT_TRANSFORM_EN" type="boolean"/>
 		<reg32 offset="0x1930" name="UNK1930" type="boolean">
 			<doc>Shared with dijkstra</doc>

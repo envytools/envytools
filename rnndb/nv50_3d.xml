@@ -1099,7 +1099,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1918" name="CULL_FACE_ENABLE" type="boolean"/>
 		<reg32 offset="0x191c" name="FRONT_FACE" type="gl_front_face"/>
 		<reg32 offset="0x1920" name="CULL_FACE" type="gl_cull_face"/>
-		<reg32 offset="0x1924" name="LINE_LAST_PIXEL" type="boolean"/>
+		<reg32 offset="0x1924" name="PIXEL_CENTER_INTEGER" type="boolean">
+			<doc>Affects FragCoord shader input.</doc>
+		</reg32>
 		<reg32 offset="0x1928" name="FP_MULTISAMPLE" variants="NVA3_3D-">
 			<bitfield pos="0" name="EXPORT_SAMPLE_MASK"/>
 			<bitfield pos="1" name="FORCE_PER_SAMPLE"/>
