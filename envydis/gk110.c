@@ -206,6 +206,8 @@ static struct vec tsrc24_v = { "r", &src2_bf, &cnt4, 0 };
  * Memory fields
  */
 
+static struct rbitfield amem_imm = { { 0x17, 19 }, RBF_UNSIGNED };
+static struct rbitfield iamem_imm = { { 0x1f, 10 }, RBF_UNSIGNED };
 static struct rbitfield gmem_imm = { { 0x17, 32 }, RBF_SIGNED };
 static struct rbitfield cmem_imm = { { 0x17, 14 }, RBF_UNSIGNED, .shr = 2 };
 static struct rbitfield lcmem_imm = { { 0x17, 16 }, RBF_SIGNED };
@@ -215,6 +217,8 @@ static struct rbitfield tcmem_imm = { { 0x2f, 8 }, .shr = 2 }; // XXX: could be 
 static struct bitfield cmem_idx = { 0x25, 5 };
 static struct bitfield lcmem_idx = { 0x27, 5 };
 
+static struct mem amem_m = { "a", 0, 0, &amem_imm };
+static struct mem iamem_m = { "a", 0, 0, &iamem_imm };
 static struct mem gmem_m = { "g", 0, &src1_r, &gmem_imm };
 static struct mem lmem_m = { "l", 0, &src1_r, &lmem_imm };
 static struct mem smem_m = { "s", 0, &src1_r, &smem_imm };
@@ -223,6 +227,8 @@ static struct mem cmem_m = { "c", &cmem_idx, 0, &cmem_imm };
 static struct mem lcmem_m = { "c", &lcmem_idx, &src1_r, &lcmem_imm };
 static struct mem tcmem_m = { "c", 0, 0, &tcmem_imm };
 
+#define ATTR atommem, &amem_m
+#define IATTR atommem, &iamem_m
 #define GLOBAL atommem, &gmem_m
 #define GLOBALD atommem, &gdmem_m
 #define LOCAL atommem, &lmem_m
@@ -431,6 +437,14 @@ static struct insn tabfi2[] = {
 };
 static struct insn tabdi2[] = {
 	{ 0xc000000000000000ull, 0xc000000000000000ull, DIMM },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabinterpmode[] = {
+	{ 0x0000000000000000ull, 0x0060000000000000ull, N("pass") },
+	{ 0x0020000000000000ull, 0x0060000000000000ull, N("mul") },
+	{ 0x0040000000000000ull, 0x0060000000000000ull, N("flat") },
+	{ 0x0060000000000000ull, 0x0060000000000000ull, N("sc") },
 	{ 0, 0, OOPS },
 };
 
@@ -989,6 +1003,7 @@ static struct insn tabm[] = {
 	{ 0x27c0000000000002ull, 0x3fc0000000000003ull, N("rshf"), N("b32"), DST, SESTART, T(us64_28), SRC1, SRC3, SEEND, T(shfclamp), T(is2) }, // XXX: check is2 and bits 0x29,0x33(swap srcs ?)
 	{ 0x2800000000000002ull, 0x3fc0000000000003ull, N("mul"), DST, T(us32_39), SRC1, T(us32_3a), LIMM },
 	{ 0x7400000000000002ull, 0x7f80000000000003ull, T(lane0e), N("mov"), N("b32"), DST, LIMM },
+	{ 0x7480000000000002ull, 0x7f80000000000003ull, N("interp"), T(interpmode), N("f32"), DST, IATTR, SRC2, SRC1, SRC3 },
 	{ 0x7600000000000002ull, 0x7fc0000000000003ull, N("texgrad"), T(texm), TDST, T(text), TCONST, T(texgrsrc1), T(texgrsrc2) },
 	{ 0x7700000000000002ull, 0x7fc0000000000003ull, N("texbar"), TEXBARIMM },
 	{ 0x7880000000000002ull, 0x7fc0000000000003ull, N("shfl"), T(shflmod), N("b32"), DST, PDST2, SRC1, T(sflane), T(sfmask)},
@@ -1004,6 +1019,8 @@ static struct insn tabm[] = {
 	{ 0x7cc00000001c0802ull, 0x7fc00000001c0c03ull, N("membar"), N("sys") },
 	{ 0x7d80000000000002ull, 0x7fc0000000000003ull, N("tex"), T(texm), T(lodt), TDST, T(text), N("ind"), T(texsrc1), T(texsrc2) },
 	{ 0x7e00000000000002ull, 0x7fc0000000000003ull, N("texgrad"), T(texm), TDST, T(text), N("ind"), T(texgrsrc1), T(texgrsrc2) },
+	{ 0x7ec0000000000002ull, 0x7fc0000000000003ull, N("ld"), N("b32"), DST, ATTR, SRC1, SRC3 },
+	{ 0x7f00000000000002ull, 0x7fc0000000000003ull, N("st"), N("b32"), ATTR, DST, SRC1, SRC3 },
 	{ 0x0540000800000002ull, 0x3fc0000800000003ull, N("bar"), N("arrive"), BAR, OOPS},
 	{ 0x0540000000000002ull, 0x3fc0000000000003ull, N("bar"), BAR, OOPS},
 	{ 0xe000000000000002ull, 0xffc0000000000003ull, N("ext"), T(rev2b), T(us32_33), DST, SRC1, SRC2},  //XXX? can't find CONST
