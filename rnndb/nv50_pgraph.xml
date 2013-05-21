@@ -1057,7 +1057,7 @@
 </domain>
 
 <!-- the MP context spaces. -->
-<domain name="NV50_MPC_SMALL1" width="64"> <!-- 12-bit addressing -->
+<domain name="NV50_MPC_SMALL1" width="64" varset="chipset"> <!-- 12-bit addressing -->
 	<array offset="0" name="STACK" stride="0x10" length="32">
 		<reg64 offset="0" name="ENTRY" length="16">
 			<bitfield high="21" low="0" name="PC" shr="2" />
@@ -1145,7 +1145,7 @@
 	</reg64>
 	<!-- something happens at 0x300+... -->
 </domain>
-<domain name="NV50_MPC_SMALL2" width="64"> <!-- 12-bit addr -->
+<domain name="NV50_MPC_SMALL2" width="64" varset="chipset"> <!-- 12-bit addr -->
 	<array offset="0" name="UNK0" stride="2" length="32">
 		<reg64 offset="0" name="SLOT" length="2" />
 	</array>
@@ -1172,7 +1172,7 @@
 	</reg64>
 	<reg64 offset="0x110" name="UNK6" length="8" variants="NV50:NV84"/> <!-- bits f -->
 </domain>
-<domain name="NV50_MPC_SMALL3" width="64"> <!-- 12-bit addr -->
+<domain name="NV50_MPC_SMALL3" width="64" varset="chipset"> <!-- 12-bit addr -->
 	<reg64 offset="0" name="ADDRESS" length="0x400">
 		<doc>$a1-$a4 registers... this shit is so ugly,
 		I won't even bother expressing it with proper
