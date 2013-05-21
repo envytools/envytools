@@ -30,6 +30,10 @@ Optional dependencies needed by vdpow: vdpau, libx11
 If your distribution has -dev or -devel packages, you'll also need ones
 corresponding to the dependencies above.
 
+On ubuntu it can be done like this:
+
+apt-get install cmake flex libpciaccess-dev bison libx11-dev libxext-dev libxml2-dev libvdpau-dev
+
 To build, use
 
  $ cmake .
