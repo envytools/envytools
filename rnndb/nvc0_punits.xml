@@ -20,15 +20,13 @@
 	<reg32 offset="0x044" name="DESIGN_PCOPY_COUNT" variants="NVD9-"/> <!-- or spoon? -->
 	<reg32 offset="0x048" name="DESIGN_CRTC_COUNT" variants="NVD9-"/>
 	<reg32 offset="0x100" name="HW_MISC_DISABLE">
-		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="0" name="PDISPLAY_PUNK1C3"/>
 		<bitfield pos="1" name="PVP_PPPP"/>
 		<bitfield pos="2" name="PBSP"/>
-		<bitfield pos="3" name="UNK3" variants="NVD9-"/>
-		<bitfield pos="4" name="UNK4"/>
-		<bitfield pos="8" name="PCOPY0"/>
-		<bitfield pos="9" name="PCOPY1"/>
-		<bitfield pos="10" name="UNK10" variants="NVC1-"/>
-		<bitfield pos="11" name="UNK11" variants="NVC1-"/>
+		<bitfield pos="3" name="PVENC" variants="NVD9-"/> <!-- XXX: why is it on NVD9? -->
+		<bitfield pos="4" name="UNK4"/> <!-- not present anyway on any card I've seen -->
+		<bitfield low="8" high="11" name="PCOPY_MASK"/> <!-- 2 bits on NVC0:NVC1, 4 bits on NVC1:NVE4, 3 bits on NVE4- -->
+		<bitfield low="12" high="17" name="UNK12" variants="NVE4-"/>
 	</reg32>
 	<reg32 offset="0x104" name="HW_GPC_DISABLE_MASK"/>
 	<reg32 offset="0x108" name="HW_TP_DISABLE_MASK" length="8"/>
@@ -40,24 +38,22 @@
 	<reg32 offset="0x158" name="HW_UNK3_DISABLE_MASK" variants="NVC1-"/>
 	<reg32 offset="0x15c" name="HW_CRTC_DISABLE_MASK" variants="NVD9-"/>
 	<reg32 offset="0x180" name="SW_MISC_DISABLE">
-		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="0" name="PDISPLAY_PUNK1C3"/>
 		<bitfield pos="1" name="PVP_PPPP"/>
 		<bitfield pos="2" name="PBSP"/>
-		<bitfield pos="3" name="UNK3" variants="NVD9-"/>
+		<bitfield pos="3" name="PVENC" variants="NVD9-"/>
 		<bitfield pos="4" name="UNK4"/>
-		<bitfield pos="8" name="PCOPY0"/>
-		<bitfield pos="9" name="PCOPY1"/>
-		<bitfield pos="10" name="UNK10" variants="NVC1-"/>
-		<bitfield pos="11" name="UNK11" variants="NVC1-"/>
+		<bitfield low="8" high="11" name="PCOPY_MASK"/>
+		<bitfield low="12" high="17" name="UNK12" variants="NVE4-"/>
 	</reg32>
 	<reg32 offset="0x184" name="SW_GPC_DISABLE_MASK"/>
 	<reg32 offset="0x188" name="SW_TP_DISABLE_MASK" length="8"/>
 	<reg32 offset="0x1a8" name="SW_UNK_ZCULL_DISABLE_MASK" length="8"/>
 	<reg32 offset="0x1c8" name="SW_PART_DISABLE_MASK"/>
-	<reg32 offset="0x1cc" name="SW_UNK0_DISABLE_MASK"/>
-	<reg32 offset="0x1d0" name="SW_MC_DISABLE_MASK" variants="NVC1-"/>
-	<reg32 offset="0x1d4" name="SW_UNK2_DISABLE_MASK"/>
-	<reg32 offset="0x1d8" name="SW_UNK3_DISABLE_MASK" variants="NVC1-"/>
+	<reg32 offset="0x1cc" name="SW_UNK0_DISABLE_MASK"/> <!-- 1 on NVD9, 0 on NVC1 and NVE4? -->
+	<reg32 offset="0x1d0" name="SW_MC_DISABLE_MASK" variants="NVC1-"/> <!-- 1 on NVD9, 4 on NVE4, 2 on NVC1 -->
+	<reg32 offset="0x1d4" name="SW_UNK2_DISABLE_MASK"/> <!-- related to PBFB? --> <!-- 1 on NVD9, 4 on NVE4, 6 on NVC1??? -->
+	<reg32 offset="0x1d8" name="SW_UNK3_DISABLE_MASK" variants="NVC1-"/> <!-- 8 on NVC1, NVD9 and NVE4 -->
 	<reg32 offset="0x1dc" name="SW_CRTC_DISABLE_MASK" variants="NVD9-"/>
 </array>
 
