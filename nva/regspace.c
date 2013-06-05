@@ -203,6 +203,40 @@ int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val) {
 			nva_wr32(regspace->cnum, 0x1c17d4, val);
 			nva_wr32(regspace->cnum, 0x1c17d8, val >> 32);
 			return 0;
+		case NVA_REGSPACE_MACRO_CODE:
+			if (regspace->card->chipset < 0xc0)
+				return NVA_ERR_NOSPC;
+			if (regspace->regsz != 4)
+				return NVA_ERR_REGSZ;
+			nva_wr32(regspace->cnum, 0x40986c, 0x10);
+			nva_wr32(regspace->cnum, 0x409ffc, 2);
+			nva_wr32(regspace->cnum, 0x409928, 0xc);
+			while (nva_rd32(regspace->cnum, 0x409928));
+			nva_wr32(regspace->cnum, 0x40993c, 0xf);
+			nva_wr32(regspace->cnum, 0x409928, 0xa);
+			while (nva_rd32(regspace->cnum, 0x409928));
+			nva_wr32(regspace->cnum, 0x40991c, 0x1);
+			nva_wr32(regspace->cnum, 0x409928, 0x1);
+			while (nva_rd32(regspace->cnum, 0x409928));
+			for (i = 0; i < addr; i+=4) {
+				nva_wr32(regspace->cnum, 0x409928, 0x6);
+				while (nva_rd32(regspace->cnum, 0x409928));
+			}
+			nva_wr32(regspace->cnum, 0x409918, val);
+			nva_wr32(regspace->cnum, 0x409928, 0x7);
+			while (nva_rd32(regspace->cnum, 0x409928));
+			return 0;
+		case NVA_REGSPACE_XT:
+			if (regspace->regsz != 4)
+				return NVA_ERR_REGSZ;
+			nva_wr32(regspace->cnum, 0x1700, 0x30);
+			nva_wr32(regspace->cnum, 0x700004, addr);
+			nva_wr32(regspace->cnum, 0x700008, val);
+			nva_wr32(regspace->cnum, 0x70000, 1);
+			while (nva_rd32(regspace->cnum, 0x70000));
+			nva_wr32(regspace->cnum, 0x700000, 2);
+			while (nva_rd32(regspace->cnum, 0x700000));
+			return 0;
 		default:
 			return NVA_ERR_NOSPC;
 	}
@@ -381,6 +415,40 @@ int nva_rd(struct nva_regspace *regspace, uint32_t addr, uint64_t *val) {
 			*val = nva_rd32(regspace->cnum, 0x1c17d4);
 			*val |= (uint64_t)nva_rd32(regspace->cnum, 0x1c17d8) << 32;
 			return 0;
+		case NVA_REGSPACE_MACRO_CODE:
+			if (regspace->card->chipset < 0xc0)
+				return NVA_ERR_NOSPC;
+			if (regspace->regsz != 4)
+				return NVA_ERR_REGSZ;
+			nva_wr32(regspace->cnum, 0x40986c, 0x10);
+			nva_wr32(regspace->cnum, 0x409ffc, 2);
+			nva_wr32(regspace->cnum, 0x409928, 0xc);
+			while (nva_rd32(regspace->cnum, 0x409928));
+			nva_wr32(regspace->cnum, 0x40993c, 0xf);
+			nva_wr32(regspace->cnum, 0x409928, 0xa);
+			while (nva_rd32(regspace->cnum, 0x409928));
+			nva_wr32(regspace->cnum, 0x40991c, 0x1);
+			nva_wr32(regspace->cnum, 0x409928, 0x1);
+			while (nva_rd32(regspace->cnum, 0x409928));
+			for (i = 0; i < addr; i+=4) {
+				nva_wr32(regspace->cnum, 0x409928, 0x6);
+				while (nva_rd32(regspace->cnum, 0x409928));
+			}
+			nva_wr32(regspace->cnum, 0x409928, 0x6);
+			while (nva_rd32(regspace->cnum, 0x409928));
+			*val = nva_rd32(regspace->cnum, 0x409918);
+			return 0;
+		case NVA_REGSPACE_XT:
+			if (regspace->regsz != 4)
+				return NVA_ERR_REGSZ;
+			nva_wr32(regspace->cnum, 0x1700, 0x30);
+			nva_wr32(regspace->cnum, 0x700004, addr);
+			nva_wr32(regspace->cnum, 0x70000, 1);
+			while (nva_rd32(regspace->cnum, 0x70000));
+			nva_wr32(regspace->cnum, 0x700000, 1);
+			while (nva_rd32(regspace->cnum, 0x700000));
+			*val = nva_rd32(regspace->cnum, 0x700004);
+			return 0;
 		default:
 			return NVA_ERR_NOSPC;
 	}
@@ -425,6 +493,10 @@ int nva_rstype(const char *name) {
 		return NVA_REGSPACE_UNK1C1_CODE;
 	if (!strcmp(name, "unk1c1_reg"))
 		return NVA_REGSPACE_UNK1C1_REG;
+	if (!strcmp(name, "macro_code"))
+		return NVA_REGSPACE_MACRO_CODE;
+	if (!strcmp(name, "xt"))
+		return NVA_REGSPACE_XT;
 	return -1;
 }
 
@@ -436,6 +508,8 @@ int nva_rsdefsz(struct nva_regspace *regspace) {
 		case NVA_REGSPACE_PIPE:
 		case NVA_REGSPACE_RDI:
 		case NVA_REGSPACE_UNK1C1_CODE:
+		case NVA_REGSPACE_MACRO_CODE:
+		case NVA_REGSPACE_XT:
 			return 4;
 		case NVA_REGSPACE_UNK1C1_REG:
 			return 8;

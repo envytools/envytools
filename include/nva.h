@@ -104,6 +104,8 @@ struct nva_regspace {
 		NVA_REGSPACE_RDI,
 		NVA_REGSPACE_UNK1C1_CODE,
 		NVA_REGSPACE_UNK1C1_REG,
+		NVA_REGSPACE_MACRO_CODE,
+		NVA_REGSPACE_XT,
 	} type;
 	int regsz;
 	int idx;
