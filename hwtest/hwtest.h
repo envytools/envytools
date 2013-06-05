@@ -108,5 +108,6 @@ extern const struct hwtest_group nv01_pgraph_group;
 extern const struct hwtest_group nv50_ptherm_group;
 extern const struct hwtest_group nv84_ptherm_group;
 extern const struct hwtest_group punk1c1_isa_group;
+extern const struct hwtest_group vp2_macro_group;
 
 #endif
