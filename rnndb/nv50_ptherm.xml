@@ -142,6 +142,9 @@
 		<bitfield low="16" high="29" name="HIGH"/>
 	</reg32>
 
+	<!-- The Power limiter is explained in patent "Power estimation based on block activity"
+	     that is accessible at http://www.freepatentsonline.com/8060765.html
+	-->
 	<reg32 offset="0x020" name="POWER_WEIGHT_0">
 		<bitfield low="0" high="4" name="UNK0"/>
 		<bitfield low="8" high="12" name="UNK8"/>
@@ -229,6 +232,20 @@
 		<!-- power gating : TODO, document this! -->
 		<bitfield low="16" high="17" name="DIV1" type="nv50_therm_clock_gating_div" />
 		<bitfield low="24" high="31" name="DIV1_FSRM" />
+	</reg32>
+	<reg32 offset="0x068" name="CLOCK_GATING_2">
+		<bitfield low="0" high="7" name="POWER_LIMITER_FASTEST_DEC_VAL" />
+		<bitfield low="8" high="11" name="POWER_LIMITER_SLOW_INC_VAL" />
+		<bitfield low="12" high="15" name="POWER_LIMITER_FAST_INC_VAL" />
+		<bitfield low="16" high="31" name="POWER_LIMITER_FASTEST_DEC_THRS" />
+	</reg32>
+	<reg32 offset="0x06c" name="CLOCK_GATING_3">
+		<bitfield low="0" high="15" name="POWER_LIMITER_FAST_INC_THRS" />
+		<bitfield low="16" high="31" name="POWER_LIMITER_FAST_DEC_THRS" />
+	</reg32>
+	<reg32 offset="0x070" name="CLOCK_GATING_4">
+		<bitfield low="0" high="15" name="POWER_LIMITER_SLOW_INC_THRS" />
+		<bitfield low="16" high="31" name="POWER_LIMITER_SLOW_DEC_THRS" />
 	</reg32>
 	<reg32 offset="0x074" name="THERMAL_PROTECT_CFG">
 		<bitfield low="0" high="2" name="THRESHOLD_CRIT_DIV" type="nv50_therm_thermal_protect_div" />
@@ -335,6 +352,9 @@
 		<bitfield low="16" high="31" name="OFFSET_MUL_BASE"/>
 	</reg32>
 
+	<!-- The Power limiter is explained in patent "Power estimation based on block activity"
+	     that is accessible at http://www.freepatentsonline.com/8060765.html
+	-->
 	<reg32 offset="0x020" name="POWER_WEIGHT_0">
 		<bitfield low="0" high="4" name="UNK0"/>
 		<bitfield low="8" high="12" name="UNK8"/>
@@ -393,8 +413,10 @@
 	</reg32>
 
 	<reg32 offset="0x044" name="POWER_COUNTER" variants="NV84-">
-		<bitfield low="0" high="15" name="RAW" /> <!-- RO -->
+		<bitfield low="0" high="15" name="RAW" /> <!-- RO - unit [0.01W] -->
 		<bitfield low="16" high="23" name="POWER_FSRM" /> <!-- RO -->
+		<bitfield pos="24" name="POWER_LIMIT_ACTIVE" />
+		<bitfield pos="25" name="UNK25" />
 	</reg32>
 	<reg32 offset="0x048" name="CLOCK_GATING_STATUS" variants="NV50:NVC0">
 		<doc>For some reasons, this reg doesn't get updated when idle clock-gating is on</doc>
@@ -410,8 +432,12 @@
 		<bitfield pos="21" name="UNK21" /> <!-- linked with 20180's 0x0000ff3f -->
 		<bitfield pos="22" name="UNK22" /> <!-- seems to be active when PGRAPH is idle -->
 	</reg32>
-	<reg32 offset="0x04c" name="CLOCK_GATING_CFG" variants="NV50:NVC0">
+	<reg32 offset="0x04c" name="CLOCK_GATING_CFG_0" variants="NV50:NVC0">
+		<bitfield pos="13" name="DISABLE_SINGLE_THRS_POWER_LIMITER" />
 		<bitfield pos="25" name="DISABLE_CORE_SLOWDOWN" /> <!-- disable the core clock slowdown. Core will always run at full speed -->
+	</reg32>
+	<reg32 offset="0x050" name="CLOCK_GATING_CFG_1" variants="NV50:NVC0">
+		<bitfield low="0" high="2" name="POWER_LIMITER_DIV" /> <!-- clk = HOST / X / 2^POWER_LIMITER_DIV, values 0 and 1 are invalid -->
 	</reg32>
 
 	<reg32 offset="0x060" name="CLOCK_GATING_0" variants="NV50:NVC0">
@@ -426,9 +452,23 @@
 		<bitfield low="0" high="2" name="FORCE_DIV" type="nv84_therm_clock_gating_div" variants="NV84-" /> <!-- it doesn't seem to depend on any state, let's call it force -->
 		<bitfield low="8" high="15" name="FORCE_FSRM" /> <!-- this is a guess but I doubt there is another way to achieve that -->
 
-		<!-- power gating : TODO, document this! -->
-		<bitfield low="16" high="18" name="DIV1" type="nv84_therm_clock_gating_div" variants="NV84-" />
-		<bitfield low="24" high="31" name="DIV1_FSRM" />
+		<bitfield low="16" high="18" name="POWER_LIMITER_DIV" type="nv84_therm_clock_gating_div" variants="NV84-" />
+		<bitfield low="20" high="23" name="POWER_LIMITER_SLOW_DEC_VAL" />
+		<bitfield low="24" high="31" name="POWER_LIMITER_FAST_DEC_VAL" />
+	</reg32>
+	<reg32 offset="0x068" name="CLOCK_GATING_2" variants="NV50:NVC0">
+		<bitfield low="0" high="7" name="POWER_LIMITER_FASTEST_DEC_VAL" />
+		<bitfield low="8" high="11" name="POWER_LIMITER_SLOW_INC_VAL" />
+		<bitfield low="12" high="15" name="POWER_LIMITER_FAST_INC_VAL" />
+		<bitfield low="16" high="31" name="POWER_LIMITER_FASTEST_DEC_THRS" />
+	</reg32>
+	<reg32 offset="0x06c" name="CLOCK_GATING_3" variants="NV50:NVC0">
+		<bitfield low="0" high="15" name="POWER_LIMITER_FAST_INC_THRS" />
+		<bitfield low="16" high="31" name="POWER_LIMITER_FAST_DEC_THRS" />
+	</reg32>
+	<reg32 offset="0x070" name="CLOCK_GATING_4" variants="NV50:NVC0">
+		<bitfield low="0" high="15" name="POWER_LIMITER_SLOW_INC_THRS" />
+		<bitfield low="16" high="31" name="POWER_LIMITER_SLOW_DEC_THRS" />
 	</reg32>
 	<reg32 offset="0x074" name="THERMAL_PROTECT_CFG" variants="NV50:NVC0">
 		<bitfield low="0" high="2" name="THRESHOLD_CRIT_DIV" type="nv50_therm_thermal_protect_div" />
@@ -513,7 +553,7 @@
 		to PDAEMON fµc interrupt 12</doc>
 	</reg32>
 
-	<reg32 offset="0x100" name="INTR" type="nv50_therm_intr" variants="NV92-"/> <!-- PBUS intr #16 -->
+	<reg32 offset="0x100" name="INTR" type="nv50_therm_intr" variants="NV84-"/> <!-- PBUS intr #16 -->
 
 	<reg32 offset="0x108" name="INTR_DIRECTION_1" variants="NV94-">
 		<!-- group direction bits together to shorten the output of this reg in lookup -->
