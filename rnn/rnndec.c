@@ -76,6 +76,37 @@ int rnndec_varmatch(struct rnndeccontext *ctx, struct rnnvarinfo *vi) {
 	return 1;
 }
 
+/* see https://en.wikipedia.org/wiki/Half-precision_floating-point_format */
+static uint32_t float16i(uint16_t val)
+{
+	uint32_t sign = ((uint32_t)(val & 0x8000)) << 16;
+	uint32_t frac = val & 0x3ff;
+	int32_t  expn = (val >> 10) & 0x1f;
+
+	if (expn == 0) {
+		if (frac) {
+			/* denormalized number: */
+			int shift = __builtin_clz(frac) - 21;
+			frac <<= shift;
+			expn = -shift;
+		} else {
+			/* +/- zero: */
+			return sign;
+		}
+	} else if (expn == 0x1f) {
+		/* Inf/NaN: */
+		return sign | 0x7f800000 | (frac << 13);
+	}
+
+	return sign | ((expn + 127 - 15) << 23) | (frac << 13);
+}
+static float float16(uint16_t val)
+{
+	union { uint32_t i; float f; } u;
+	u.i = float16i(val);
+	return u.f;
+}
+
 char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64_t value, int width) {
 	char *res = 0;
 	int i;
@@ -201,6 +232,9 @@ char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64
 			else if (width == 32)
 				asprintf(&res, "%s%f%s", ctx->colors->num,
 					val.f, ctx->colors->reset);
+			else if (width == 16)
+				asprintf(&res, "%s%f%s", ctx->colors->num,
+					float16(value), ctx->colors->reset);
 			else
 				goto failhex;
 
