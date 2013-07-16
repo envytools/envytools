@@ -1210,10 +1210,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		  <bitfield name="TEXTURE" pos="1" type="uint"/>
 		  <bitfield name="TIC" high="30" low="9" type="uint"/>
 		</reg32>
-		<reg32 offset="0x2400" name="UNK2400_TSC" length="5" stride="32" type="bolean" variants="NVE4_3D-"/>
-		<reg32 offset="0x2404" name="UNK2400_TIC" length="5" stride="32" type="bolean" variants="NVE4_3D-"/>
-		<reg32 offset="0x2408" name="UNK2400_TSC2" length="5" stride="32" type="bolean" variants="NVE4_3D-"/>
-		<reg32 offset="0x240c" name="UNK2400_TIC2" length="5" stride="32" type="bolean" variants="NVE4_3D-"/>
+		<reg32 offset="0x2400" name="UNK2400_TSC" length="5" stride="32" type="boolean" variants="NVE4_3D-"/>
+		<reg32 offset="0x2404" name="UNK2400_TIC" length="5" stride="32" type="boolean" variants="NVE4_3D-"/>
+		<reg32 offset="0x2408" name="UNK2400_TSC2" length="5" stride="32" type="boolean" variants="NVE4_3D-"/>
+		<reg32 offset="0x240c" name="UNK2400_TIC2" length="5" stride="32" type="boolean" variants="NVE4_3D-"/>
 		<reg32 offset="0x2410" name="CB_BIND" length="5" stride="32">
 		  <bitfield name="VALID" pos="0" type="boolean"/>
 		  <bitfield name="INDEX" high="8" low="4" type="uint"/>
