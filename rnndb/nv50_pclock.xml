@@ -390,7 +390,10 @@
 		</bitfield>
 
 		<bitfield pos="16" name="UNK_16"/>
-		<bitfield pos="17" name="UNK_17"/>
+		<bitfield pos="17" name="PDISP_CLK">
+			<value value="0" name="DISABLE"/>
+			<value value="1" name="ENABLE"/>
+		</bitfield>
 		<bitfield low="18" high="19" name="HOST_CLK">
 			<value value="0" name="HREFm2d3"/>
 			<value value="1" name="UNKNOWN"/>
