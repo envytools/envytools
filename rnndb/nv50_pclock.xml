@@ -405,7 +405,7 @@
 			<value value="1" name="CORE_MUX"/>
 		</bitfield>
 
-		<bitfield low="24" high="25" name="CCLK_MUX_CTRL"/>
+		<bitfield low="24" high="25" name="CCLK_MUX_CTRL">
 			<value value="0" name="BYPASS"/>
 			<value value="3" name="ENABLE"/>
 			<!-- XXX: value of 2 crashes the card, value of 1 seems to do nothing. Probably two separate bits, blob just enables both -->
