@@ -148,6 +148,13 @@
 	<reg32 offset="0x068" name="MPLL3_POST_A" variants="NVA0" type="nv92_mpll_post_a"/>
 	<reg32 offset="0x06c" name="MPLL3_POST_B" variants="NVA0" type="nv92_mpll_post_b"/>
 	<reg32 offset="0x070" name="SPLL_POST" variants="NV92:NVA3" type="nv92_spll_post"/>
+	<reg32 offset="0x080" name="PLL_STATUS" variants="NV50:NVA3">
+		<!-- XXX: only verified on NVAC, but present on NV94 -->
+		<bitfield pos="8" name="NVPLL_LOCK" />
+		<bitfield pos="9" name="NVPLL_ENABLE" />
+		<bitfield pos="12" name="SPLL_LOCK" />
+		<bitfield pos="13" name="SPLL_ENABLE" />
+	</reg32>
 	<reg32 offset="0x088" name="MPLL3_CTRL" variants="NVA0" type="nv50_mpll_ctrl"/>
 	<reg32 offset="0x08c" name="MPLL3_COEF" variants="NVA0" type="nv50_pll_coef"/>
 	<reg32 offset="0x10c" name="PWM_DIV" variants="NV84:NV94" type="nv50_fan_div"/>
@@ -170,6 +177,8 @@
 		- mclk: clocks memory on nv50
 		- vdclk: clocks video decoding
 		- dom6: probably clocks pdisplay, verified by measuring rate of evo commands
+
+		This appears to be ignored completely on NVAC in favour of 0x(c)054.
 		</doc>
 		<bitfield low="0" high="1" name="NVCLK">
 			<doc>right shift is NVPLL.P1 if NVCLK_1 is 0, NVPLL.P2 if NVCLK_1 is 1. Gets post-multiplied by NVCLK_MUL.</doc>
@@ -327,6 +336,82 @@
 		</bitfield>
 		<bitfield pos="13" name="UNK13" variants="NV94:NVA0"/>
 		<bitfield low="14" high="17" name="UNK14"/>
+	</reg32>
+
+	<reg32 offset="0x054" name="MASTER" variants="NVAC">
+		<doc>
+		- href: PCIE reference clock
+		- hrefm4: href * 4
+		- hrefm2d3: href * 2 / 3
+		- nvclk: clock usually used for core
+		- cclk: clocks core
+		- sclk: clocks shader
+		- vdclk: clocks video decoding
+		XXX: dom6: might not exist any more
+
+		XXX: What is "set 0" clock in nvatiming. I can make it do random funny stuff with bits 16:20.
+		</doc>
+		<bitfield low="0" high="1" name="NVCLK">
+			<doc>right shift is NVPLL.P1 if NVCLK_1 is 0, NVPLL.P2 if NVCLK_1 is 1. Gets post-multiplied by NVCLK_MUL.</doc>
+			<value value="0" name="CRYSTAL"/>
+			<value value="1" name="0"/>
+			<value value="2" name="HREFm4"/>
+			<value value="3" name="NVPLL"/>
+		</bitfield>
+
+		<bitfield low="2" high="3" name="TCLK">
+			<doc>
+			selects 'external' PTIMER clock source
+			0 and 1 seem to have the same "external" clock source, but all PTIMERS (and PGRAPH dispatch)
+			clock are divided by... 215?
+			</doc>
+			<value value="0" name="HREF"/>
+			<value value="1" name="UNK"/>
+			<value value="2" name="HREFm4"/>
+			<value value="3" name="NVCLK"/>
+		</bitfield>
+
+		<bitfield low="4" high="6" name="SCLK">
+			<value value="0" name="CRYSTAL"/>
+			<value value="1" name="0"/>
+			<value value="2" name="NVPLL"/>
+			<value value="3" name="SPLL"/>
+			<value value="4" name="HREF"/>
+		</bitfield>
+		<bitfield pos="7" name="UNK_7"/>
+
+		<bitfield pos="8" name="UNK_8"/>
+		<bitfield pos="9" name="CCLK_MUX">
+			<value value="0" name="NVPLL"/>
+			<value value="1" name="CCLK_ALT"/>
+		</bitfield>
+		<bitfield low="10" high="11" name="CCLK_ALT">
+			<value value="0" name="HREF"/>
+			<value value="1" name="HREFm4"/>
+			<value value="2" name="HREFm2d3"/>
+		</bitfield>
+
+		<bitfield pos="16" name="UNK_16"/>
+		<bitfield pos="17" name="UNK_17"/>
+		<bitfield pos="18" name="UNK_18"/>
+		<bitfield pos="19" name="UNK_19"/>
+
+		<!-- XXX: Bits 20 and 21 are ignored  by the blob on NVAC, how does this work on NVAA, NVAF? -->
+		<bitfield pos="20" name="UNK_20"/>
+		<bitfield pos="21" name="UNK_21"/>
+		<bitfield pos="22" name="VDCLK_P">
+			<doc>Selects clock for PBSP, PVP and PPPP, 0 sets to 500MHz. Shifted by VDEC_P</doc>
+			<value value="0" name="UNKNOWN"/>
+			<value value="1" name="CORE_MUX"/>
+		</bitfield>
+
+		<bitfield low="24" high="25" name="CCLK_MUX_CTRL"/>
+			<value value="0" name="BYPASS"/>
+			<value value="3" name="ENABLE"/>
+			<!-- XXX: value of 2 crashes the card, value of 1 seems to do nothing. Probably two separate bits, blob just enables both -->
+		</bitfield>
+		<bitfield pos="26" name="UNK 26"/>
+		<bitfield pos="27" name="UNK_27"/>
 	</reg32>
 
 	<!-- this register is read and written by blob while doing reclocking -->
