@@ -348,8 +348,6 @@
 		- sclk: clocks shader
 		- vdclk: clocks video decoding
 		XXX: dom6: might not exist any more
-
-		XXX: What is "set 0" clock in nvatiming. I can make it do random funny stuff with bits 16:20.
 		</doc>
 		<bitfield low="0" high="1" name="NVCLK">
 			<doc>right shift is NVPLL.P1 if NVCLK_1 is 0, NVPLL.P2 if NVCLK_1 is 1. Gets post-multiplied by NVCLK_MUL.</doc>
@@ -392,9 +390,16 @@
 		</bitfield>
 
 		<bitfield pos="16" name="UNK_16"/>
-		<bitfield pos="17" name="UNK_17"/>
-		<bitfield pos="18" name="UNK_18"/>
-		<bitfield pos="19" name="UNK_19"/>
+		<bitfield pos="17" name="PDISP_CLK">
+			<value value="0" name="DISABLE"/>
+			<value value="1" name="ENABLE"/>
+		</bitfield>
+		<bitfield low="18" high="19" name="HOST_CLK">
+			<value value="0" name="HREFm2d3"/>
+			<value value="1" name="UNKNOWN"/>
+			<value value="2" name="HREFm4"/>
+			<value value="3" name="CCLK"/>
+		</bitfield>
 
 		<!-- XXX: Bits 20 and 21 are ignored  by the blob on NVAC, how does this work on NVAA, NVAF? -->
 		<bitfield pos="20" name="UNK_20"/>
@@ -402,7 +407,7 @@
 		<bitfield pos="22" name="VDCLK_P">
 			<doc>Selects clock for PBSP, PVP and PPPP, 0 sets to 500MHz. Shifted by VDEC_P</doc>
 			<value value="0" name="UNKNOWN"/>
-			<value value="1" name="CORE_MUX"/>
+			<value value="1" name="CCLK"/>
 		</bitfield>
 
 		<bitfield low="24" high="25" name="CCLK_MUX_CTRL">
@@ -410,7 +415,7 @@
 			<value value="3" name="ENABLE"/>
 			<!-- XXX: value of 2 crashes the card, value of 1 seems to do nothing. Probably two separate bits, blob just enables both -->
 		</bitfield>
-		<bitfield pos="26" name="UNK 26"/>
+		<bitfield pos="26" name="UNK_26"/>
 		<bitfield pos="27" name="UNK_27"/>
 	</reg32>
 
