@@ -389,7 +389,10 @@
 			<value value="2" name="HREFm2d3"/>
 		</bitfield>
 
-		<bitfield pos="16" name="UNK_16"/>
+		<bitfield pos="16" name="PLLS"/>
+			<value value="0" name="DISABLE"/>
+			<value value="1" name="ENABLE"/>
+		</bitfield>
 		<bitfield pos="17" name="PDISP_CLK">
 			<value value="0" name="DISABLE"/>
 			<value value="1" name="ENABLE"/>
