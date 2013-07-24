@@ -47,3 +47,12 @@ If you want to install to a non-default directory, you'll also need to pass
 it as an option to cmake before building, eg.:
 
  $ cmake -D CMAKE_INSTALL_PREFIX:PATH=/usr/local .
+
+== Cmake options ==
+
+If you don't want to compile some parts of envytools, you can pass the
+following options to cmake:
+
+ - Hwtest:	-DDISABLE_HWTEST=ON
+ - Nva:		-DDISABLE_NVA=ON
+ - VDPOW:	-DDISABLE_VDPOW=ON
