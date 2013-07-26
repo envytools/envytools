@@ -7,7 +7,7 @@ if (NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "Debug")
 endif (NOT CMAKE_BUILD_TYPE)
 if (NOT DOC_PATH)
-	set(DOC_PATH "/share/doc/envytools/")
+	set(DOC_PATH "share/doc/envytools/")
 endif (NOT DOC_PATH)
 
 include_directories(include)
