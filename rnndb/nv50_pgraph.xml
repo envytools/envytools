@@ -51,6 +51,10 @@
 		<bitfield pos="8" name="INVALID_BITFIELD_CHECK"/>
 		<bitfield pos="9" name="UNK9"/> <!-- makes COMPUTE not work for some reason. -->
 	</reg32>
+	<reg32 offset="0x0084" name="UNK84">
+		<doc>This register is write-only. The blob writes 0x20 after
+		reading PM performance counters. Checked on nv86, nv96 and nva3.</doc>
+	</reg32>
 	<reg32 offset="0x0088" name="DEBUG_2"/>
 	<reg32 offset="0x008c" name="DEBUG_3">
 		<bitfield name="HW_CONTEXT_SWITCH" pos="2" />
