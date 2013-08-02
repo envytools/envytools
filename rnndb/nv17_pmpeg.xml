@@ -52,8 +52,8 @@
 		<bitfield pos="8" name="INVALID_INTRA_DC_WEIGHT"/> <!-- tried to set IQ weight for DC intra coords to something other than 8 -->
 		<bitfield pos="9" name="INVALID_IQ_WEIGHT"/> <!-- tried to set 0 IQ weight -->
 		<bitfield pos="10" name="INVALID_DATA_UNK10"/> <!-- 71000001 -->
-		<bitfield pos="11" name="UNK11"/> <!-- cmd a -->
-		<bitfield pos="12" name="UNK12"/> <!-- cmd a -->
+		<bitfield pos="11" name="INVALID_MB_COORD_X"/> <!-- X not aligned to 16 -->
+		<bitfield pos="12" name="INVALID_MB_COORD_Y"/> <!-- Y not aligned to 8 [luma] or 4 [chroma] -->
 		<bitfield pos="13" name="INVALID_SEQUENCE_MB"/> <!-- cmd 8/9 not immediately followed by cmd a, or cmd a out of blue -->
 		<bitfield pos="14" name="INVALID_SEQUENCE_MV"/> <!-- cmd c/d not immediately followed by cmd e, or cmd e out of blue -->
 		<bitfield pos="15" name="INVALID_DATA_SEEK" variants="NV50-"/> <!-- DATA_SEEK used in NV17 mode -->
@@ -72,6 +72,7 @@
 		<bitfield pos="0" name="CLEAR"/>
 		<bitfield pos="4" name="ILLEGAL_MTHD"/>
 		<bitfield pos="5" name="ILLEGAL_VALUE"/>
+		<bitfield pos="13" name="ILLEGAL_EXEC"/>
 	</reg32>
 	<reg32 offset="0x134" name="FIFO_ERR_MTHD" variants="NV31-"/>
 	<reg32 offset="0x138" name="FIFO_ERR_DATA" variants="NV31-"/>
