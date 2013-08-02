@@ -103,7 +103,7 @@
 		<bitfield pos="25" name="UNK25" variants="NV84-"/>
 		<bitfield pos="26" name="UNK26" variants="NV44:NV50"/>
 	</reg32>
-	<reg32 offset="0x208" name="UNK208" variants="NV31-"/> <!-- ffffffff -->
+	<reg32 offset="0x208" name="INSTANCE" variants="NV31-"/> <!-- ffffffff -->
 	<reg32 offset="0x210" name="UNK310"/> <!-- 1f/1f/0 -->
 	<reg32 offset="0x214" name="UNK314"/> <!-- 0/ffff/0 -->
 	<reg32 offset="0x218" name="CHANNEL_CUR" variants="NV44-"/>

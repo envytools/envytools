@@ -36,7 +36,7 @@
 	</reg32>
 	<reg32 offset="0x130" name="INTR" type="nv84_pcrypt_intr"/>
 	<reg32 offset="0x140" name="INTR_EN" type="nv84_pcrypt_intr"/>
-	<reg32 offset="0x180" name="INST"/>
+	<reg32 offset="0x180" name="INSTANCE"/>
 	<reg32 offset="0x188" name="CHAN_CUR"/>
 	<reg32 offset="0x18c" name="CHAN_NEXT"/>
 	<reg32 offset="0x190" name="FIFO_MTHD"/>
