@@ -137,14 +137,26 @@
 			<value value="1" name="S8"/>
 		</bitfield>
 		<bitfield pos="8" name="UNK8"/>
+	<reg32 offset="0x290" name="DMA_QUERY" variants="NV84-">
+		<bitfield low="0" high="15" name="INST"/>
+		<bitfield pos="31" name="VALID"/>
 	</reg32>
-	<reg32 offset="0x290" name="DMA_QUERY" type="pvpe_dma" variants="NV84-"/>
 	<reg32 offset="0x294" name="QUERY_ADDRESS" variants="NV84-"/>
 	<reg32 offset="0x300" name="UNK400"/> <!-- ff -->
 	<reg32 offset="0x310" name="UNK410"/> <!-- ffffffff -->
-	<reg32 offset="0x320" name="DMA_UNK0" type="pvpe_dma" variants="NV50-"/>
-	<reg32 offset="0x324" name="DMA_UNK1" type="pvpe_dma" variants="NV50-"/>
-	<reg32 offset="0x328" name="DMA_UNK2" type="pvpe_dma" variants="NV50-"/>
+	<reg32 offset="0x320" name="DMA_CMD" variants="NV50-">
+		<bitfield low="0" high="15" name="INST"/>
+		<bitfield pos="31" name="VALID"/>
+	</reg32>
+	<reg32 offset="0x324" name="DMA_DATA" variants="NV50-">
+		<bitfield low="0" high="15" name="INST"/>
+		<bitfield pos="31" name="VALID"/>
+	</reg32>
+	<reg32 offset="0x328" name="DMA_IMAGE" variants="NV50-">
+		<bitfield low="0" high="15" name="INST"/>
+		<bitfield pos="30" name="UNK30"/>
+		<bitfield pos="31" name="VALID"/>
+	</reg32>
 	<reg32 offset="0x350" name="IMAGE_Y_OFFSET" stride="8" length="8" variants="NV31-"/>
 	<reg32 offset="0x354" name="IMAGE_C_OFFSET" stride="8" length="8" variants="NV31-"/>
 </group>
