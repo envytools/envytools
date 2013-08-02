@@ -92,7 +92,7 @@
 	</bitfield>
 </bitset>
 
-<bitset name="NV50_MPEG_CMD_DATA_SEEK"> <!-- followed by a word param -->
+<bitset name="NV31_MPEG_CMD_DATA_SEEK"> <!-- followed by a word param, which is data offset in 32-bit word units -->
 	<bitfield low="24" high="31" name="OP">
 		<value value="0x72" name="DATA_SETUP"/>
 	</bitfield>
@@ -102,11 +102,6 @@
 		<value value="2" name="ZERORUN_ALTERNATE_HORIZONTAL"/>
 		<value value="3" name="ABSOLUTE"/>
 	</bitfield>
-</bitset>
-
-<bitset name="NV50_MPEG_DATA_SEEK_PARAM">
-	<bitfield low="0" high="29" name="OFFSET" shr="2"/>
-	<bitfield low="30" high="31" name="UNK30"/>
 </bitset>
 
 <bitset name="NV17_MPEG_CMD_CHROMA_MB_HEADER">

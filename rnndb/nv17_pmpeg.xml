@@ -57,17 +57,17 @@
 		<bitfield pos="12" name="INVALID_MB_COORD_Y"/> <!-- Y not aligned to 8 [luma] or 4 [chroma] -->
 		<bitfield pos="13" name="INVALID_SEQUENCE_MB"/> <!-- cmd 8/9 not immediately followed by cmd a, or cmd a out of blue -->
 		<bitfield pos="14" name="INVALID_SEQUENCE_MV"/> <!-- cmd c/d not immediately followed by cmd e, or cmd e out of blue -->
-		<bitfield pos="15" name="INVALID_DATA_SEEK" variants="NV50-"/> <!-- DATA_SEEK used in NV17 mode -->
+		<bitfield pos="15" name="INVALID_DATA_SEEK" variants="NV31-"/> <!-- DATA_SEEK used in NV17 mode -->
 		<bitfield pos="16" name="DATA_TOO_SHORT" variants="NV40-"/> <!-- tried to read data past DATA_SIZE -->
 		<bitfield pos="17" name="DATA_SIZE_MISMATCH" variants="NV40-"/> <!-- final data pos != DATA_SIZE -->
-		<bitfield pos="24" name="CMD_FAULT" variants="NV31-"/> <!-- XXX variants -->
-		<bitfield pos="25" name="DATA_FAULT" variants="NV31-"/> <!-- XXX variants -->
-		<bitfield pos="26" name="IMAGE_FAULT" variants="NV31-"/> <!-- XXX variants -->
+		<bitfield pos="24" name="CMD_FAULT" variants="NV31-"/>
+		<bitfield pos="25" name="DATA_FAULT" variants="NV31-"/>
+		<bitfield pos="26" name="IMAGE_FAULT" variants="NV31-"/>
 		<bitfield pos="27" name="QUERY_FAULT" variants="NV84-"/>
 	</reg32>
 	<reg32 offset="0x114" name="ERROR_CMD"/>
 	<reg32 offset="0x118" name="ERROR_MMIO_ADDR"/>
-	<reg32 offset="0x11c" name="ERROR_MEM_ADDR"/> <!-- XXX variants? -->
+	<reg32 offset="0x11c" name="ERROR_MEM_ADDR" variants="NV31-"/> <!-- XXX variants? -->
 	<reg32 offset="0x120" name="COMPAT_MODE" variants="NV31-"> <!-- 17/ffff/0 -->
 		<!-- seems every non-0x17 value is the new mode -->
 		<value value="0x17" name="NV17"/>
