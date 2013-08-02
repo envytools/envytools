@@ -40,8 +40,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</bitfield>
 			<bitfield pos="8" name="UNK8"/>
 		</reg32>
-		<reg32 offset="0x0314" name="IDCT_ENABLE">
-			<doc>Perhaps 0x1774/0x32000000, so, iDCT enable?</doc>
+		<reg32 offset="0x0314" name="MODE">
+			<doc>0x1774/0x32000000</doc>
+			<bitfield pos="0" name="IDCT_ENABLE"/>
 		</reg32>
 		<stripe variants="NV84_MPEG">
 			<reg32 offset="0x031c" name="QUERY_OFFSET"/>

@@ -35,11 +35,12 @@
 		<bitfield pos="30" name="UNK30"/> <!-- 7 command -->
 
 	</reg32>
-	<reg32 offset="0x104" name="UNK204">
+	<reg32 offset="0x104" name="MODE">
 		<bitfield pos="0" name="IDCT_ENABLE"/>
-		<bitfield pos="4" name="IQ_ENABLE"/>
+		<bitfield pos="4" name="IQ_ENABLE" variants="NV17:NV31"/>
 		<bitfield pos="8" name="UNK8"/> <!-- RO 1 -->
-		<bitfield pos="12" name="UNK12"/> <!-- RO 1 -->
+		<bitfield pos="12" name="UNK12" variants="NV17:NV31"/> <!-- RO 1 -->
+		<bitfield pos="31" name="UNK31" variants="NV40-"/> <!-- RO 1 -->
 	</reg32>
 	<reg32 offset="0x110" name="ERROR_STATUS">
 		<bitfield pos="0" name="INVALID_MMIO_ADDR"/> <!-- write to nonexistent or RO MMIO address -->

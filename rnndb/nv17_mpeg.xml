@@ -39,9 +39,9 @@
 	</bitfield>
 </bitset>
 
-<bitset name="NV17_MPEG_CMD_MODE">
+<bitset name="NV17_MPEG_CMD_MODE" varset="chipset">
 	<bitfield pos="0" name="IDCT_ENABLE"/>
-	<bitfield pos="4" name="IQ_ENABLE"/>
+	<bitfield pos="4" name="IQ_ENABLE" variants="NV17:NV31"/>
 	<bitfield low="24" high="31" name="OP">
 		<value value="0x32" name="MODE"/>
 	</bitfield>
