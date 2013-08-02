@@ -100,16 +100,28 @@
 		</bitfield>
 		<bitfield low="16" high="17" name="CMD_TARGET" variants="NV40:NV50"/>
 		<bitfield low="18" high="19" name="DATA_TARGET" variants="NV40:NV50"/>
-		<bitfield pos="20" name="ENDIAN">
+		<!-- NOTE: the ENDIAN bits simply byteswap 32-bit words. This works
+		     for CMD, but not for DATA in non-IDCT mode, is totally pointless
+		     for IMAGE, and doesn't properly swap the QUERY timestamp -->
+		<bitfield pos="20" name="CMD_ENDIAN">
 			<value value="0" name="LITTLE"/>
 			<value value="1" name="BIG"/>
 		</bitfield>
-		<bitfield pos="21" name="UNK21" variants="NV31-"/>
+		<bitfield pos="21" name="DATA_ENDIAN" variants="NV31-">
+			<value value="0" name="LITTLE"/>
+			<value value="1" name="BIG"/>
+		</bitfield>
 		<bitfield pos="22" name="UNK22" variants="NV44-"/>
 		<bitfield pos="23" name="UNK23" variants="NV44-"/>
-		<bitfield pos="24" name="UNK24" variants="NV44-"/>
+		<bitfield pos="24" name="IMAGE_ENDIAN" variants="NV44-">
+			<value value="0" name="LITTLE"/>
+			<value value="1" name="BIG"/>
+		</bitfield>
 		<bitfield pos="25" name="UNK25" variants="NV44:NV50"/>
-		<bitfield pos="25" name="UNK25" variants="NV84-"/>
+		<bitfield pos="25" name="QUERY_ENDIAN" variants="NV84-">
+			<value value="0" name="LITTLE"/>
+			<value value="1" name="BIG"/>
+		</bitfield>
 		<bitfield pos="26" name="UNK26" variants="NV44:NV50"/>
 	</reg32>
 	<reg32 offset="0x208" name="INSTANCE" variants="NV31-"/> <!-- ffffffff -->
