@@ -56,6 +56,8 @@
 		<bitfield pos="12" name="UNK12"/> <!-- cmd a -->
 		<bitfield pos="13" name="INVALID_SEQUENCE_MB"/> <!-- cmd 8/9 not immediately followed by cmd a, or cmd a out of blue -->
 		<bitfield pos="14" name="INVALID_SEQUENCE_MV"/> <!-- cmd c/d not immediately followed by cmd e, or cmd e out of blue -->
+		<bitfield pos="15" name="INVALID_DATA_SEEK" variants="NV50-"/> <!-- DATA_SEEK used in NV17 mode -->
+		<bitfield pos="17" name="DATA_SIZE_MISMATCH"/> <!-- final data pos != DATA_SIZE -->
 	</reg32>
 	<reg32 offset="0x114" name="ERROR_CMD"/>
 	<reg32 offset="0x118" name="ERROR_MMIO_ADDR"/>
