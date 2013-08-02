@@ -12,15 +12,16 @@
 <array name="PME" offset="0xb800" stride="0x800" length="1" variants="NV40:NV84">
 	<bitset name="pme_intr" inline="yes">
 		<bitfield pos="4" name="UNK4" variants="NV50-"/>
-		<bitfield pos="8" name="UNK8" variants="NV44-"/>
+		<bitfield pos="8" name="UNK8" variants="NV41-"/> <!-- XXX variants -->
 		<bitfield pos="16" name="UNK16"/>
 		<bitfield pos="24" name="FIFO"/>
 	</bitset>
 	<reg32 offset="0x000" name="INTR" type="pme_intr"/>
 	<reg32 offset="0x040" name="INTR_EN" type="pme_intr"/>
 	<reg32 offset="0x048" name="STATUS"/>
+	<reg32 offset="0x050" name="UNK050"/> <!-- 40/ffff/0 -->
 	<reg32 offset="0x058" name="ENG_INSTANCE"/>
-	<reg32 offset="0x05c" name="CHANNEL_CUR"/>
+	<reg32 offset="0x05c" name="CHANNEL_CUR" variants="NV41-"/>
 	<reg32 offset="0x060" name="ENABLE"/>
 	<reg32 offset="0x068" name="CONFIG"> <!-- variants tested on: NV42, NV44, NV50 -->
 		<bitfield pos="0" name="UNK0"/>
@@ -86,6 +87,8 @@
 	<reg32 offset="0x174" name="MTHD_UNK20C"/>
 	<reg32 offset="0x178" name="MTHD_UNK210"/>
 	<reg32 offset="0x17c" name="MTHD_UNK214"/>
+	<reg32 offset="0x180" name="UNK180"/> <!-- RO -->
+	<reg32 offset="0x184" name="UNK184"/> <!-- RO -->
 	<reg32 offset="0x190" name="PIO_MTHD"/>
 	<reg32 offset="0x194" name="PIO_DATA"/>
 	<reg32 offset="0x198" name="PIO_CONTROL">

@@ -21,6 +21,7 @@
 	</bitset>
 	<reg32 offset="0x000" name="INTR" type="pmpeg_intr"/>
 	<reg32 offset="0x040" name="INTR_EN" type="pmpeg_intr"/>
+	<reg32 offset="0x090" name="UNK090" variants="NV41-"/> <!-- 0/1/0 on NV41, 0/3/0 on NV50 -->
 	<reg32 offset="0x100" name="STATUS">
 		<bitfield pos="0" name="UNK0"/>
 		<bitfield pos="4" name="UNK4"/> <!-- fetch -->
@@ -81,6 +82,7 @@
 	</reg32>
 	<reg32 offset="0x134" name="FIFO_ERR_MTHD" variants="NV31-"/>
 	<reg32 offset="0x138" name="FIFO_ERR_DATA" variants="NV31-"/>
+	<reg32 offset="0x140" name="UNK240" variants="NV50-"/> <!-- 20800/3ffff/0 -->
 	<reg32 offset="0x150" name="FIFO_FREE" access="r" variants="NV31:NV40"/>
 	<reg32 offset="0x154" name="FIFO_BUSY" access="r" variants="NV31:NV40"/>
 	<reg32 offset="0x150" name="PIO_MTHD" variants="NV40-"/>
