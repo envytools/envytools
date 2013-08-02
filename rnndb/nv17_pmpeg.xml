@@ -57,7 +57,8 @@
 		<bitfield pos="13" name="INVALID_SEQUENCE_MB"/> <!-- cmd 8/9 not immediately followed by cmd a, or cmd a out of blue -->
 		<bitfield pos="14" name="INVALID_SEQUENCE_MV"/> <!-- cmd c/d not immediately followed by cmd e, or cmd e out of blue -->
 		<bitfield pos="15" name="INVALID_DATA_SEEK" variants="NV50-"/> <!-- DATA_SEEK used in NV17 mode -->
-		<bitfield pos="17" name="DATA_SIZE_MISMATCH"/> <!-- final data pos != DATA_SIZE -->
+		<bitfield pos="16" name="DATA_TOO_SHORT" variants="NV40-"/> <!-- tried to read data past DATA_SIZE -->
+		<bitfield pos="17" name="DATA_SIZE_MISMATCH" variants="NV40-"/> <!-- final data pos != DATA_SIZE -->
 		<bitfield pos="24" name="CMD_FAULT" variants="NV31-"/> <!-- XXX variants -->
 		<bitfield pos="25" name="DATA_FAULT" variants="NV31-"/> <!-- XXX variants -->
 		<bitfield pos="26" name="IMAGE_FAULT" variants="NV31-"/> <!-- XXX variants -->
@@ -81,13 +82,13 @@
 		<bitfield pos="6" name="UNK6" variants="NV44-"/>
 		<bitfield pos="7" name="UNK7" variants="NV44-"/>
 		<bitfield pos="8" name="ERROR_CHECK"/>
-		<bitfield pos="9" name="UNK9" variants="NV31-"/>
+		<bitfield pos="9" name="FIFO_ERR_CHECK" variants="NV31-"/>
 		<bitfield pos="10" name="CMD_FAULT_CHECK" variants="NV31-"/>
 		<bitfield pos="11" name="DATA_FAULT_CHECK" variants="NV31-"/>
 		<bitfield pos="12" name="IMAGE_FAULT_CHECK" variants="NV31-"/>
 		<bitfield pos="13" name="QUERY_FAULT_CHECK" variants="NV84-"/>
 		<bitfield pos="14" name="UNK14" variants="NV50-"/>
-		<bitfield pos="15" name="UNK15" variants="NV40-"/>
+		<bitfield pos="15" name="DATA_SIZE_CHECK" variants="NV40-"/> <!-- enables DATA_TOO_SHORT and DATA_SIZE_MISMATCH error checking -->
 		<bitfield pos="16" name="CMD_TARGET" variants="NV17:NV40">
 			<value value="0" name="VRAM"/>
 			<value value="1" name="AGP"/> <!-- or PCI? -->
