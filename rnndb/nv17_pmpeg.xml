@@ -136,8 +136,8 @@
 	<reg32 offset="0x230" name="CMD_GET"/> <!-- RO -->
 	<reg32 offset="0x234" name="CMD_BASE" variants="NV31:NV50"/> <!-- fffffffc -->
 	<reg32 offset="0x240" name="SEQUENCE"/> <!-- RO -->
-	<reg32 offset="0x250" name="UNK350"/> <!-- ffffffff -->
-	<reg32 offset="0x254" name="UNK354"/> <!-- RO & funny -->
+	<reg32 offset="0x250" name="CRYPT_KEY_H2M"/>
+	<reg32 offset="0x254" name="CRYPT_KEY_M2H"/>
 	<reg32 offset="0x260" name="DATA_BASE" variants="NV31:NV50"/>
 	<reg32 offset="0x264" name="DATA_LIMIT" variants="NV31:NV50"/>
 	<reg32 offset="0x268" name="DATA_OFFSET" variants="NV31-"/>

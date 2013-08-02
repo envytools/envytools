@@ -10,7 +10,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <domain name="NV01_SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NV31_MPEG-NV84_MPEG">
 		<reg32 offset="0x0108" name="UNK108"/>
-		<reg32 offset="0x0140" name="UNK140"/>
+		<reg32 offset="0x0140" name="CRYPT_KEY_H2M"/>
 		<reg32 offset="0x0148" name="UNK148"/>
 		<reg32 offset="0x0160" name="PITCH">
 			<doc>Seems to correspond to 0x1774/0x31000000, which
