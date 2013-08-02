@@ -7,59 +7,63 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="nvchipsets.xml"/>
 <import file="nv_object.xml"/>
 
+<group name="mpeg">
+	<reg32 offset="0x0108" name="UNK108"/>
+	<reg32 offset="0x0140" name="CRYPT_KEY_H2M"/>
+	<reg32 offset="0x0148" name="UNK148"/>
+	<reg32 offset="0x0160" name="PITCH">
+		<doc>Seems to correspond to 0x1774/0x31000000, which
+		contains (width / 32), the value you poke in here is
+		not divided by 32 however.</doc>
+		<bitfield low="0" high="12" name="PITCH" type="int"/>
+		<bitfield low="16" high="16" name="UNK">
+			<doc>PMPEG error if not set</doc>
+		</bitfield>
+	</reg32>
+	<reg32 offset="0x0164" name="SIZE">
+		<doc>Seems to correspond to 0x1774/0x30000000</doc>
+		<bitfield low="0" high="15" name="W" type="int"/>
+		<bitfield low="16" high="31" name="H" type="int"/>
+	</reg32>
+	<reg32 offset="0x0190" name="DMA_CMD" type="object"/>
+	<reg32 offset="0x01a0" name="DMA_DATA" type="object"/>
+	<reg32 offset="0x01b0" name="DMA_IMAGE" type="object"/>
+	<reg32 offset="0x01c0" name="DMA_QUERY" type="object" variants="NV84-" varset="chipset"/>
+	<reg32 offset="0x0200" name="IMAGE_Y_OFFSET" stride="8" length="8">
+		<doc>0x1774/0x20000000</doc>
+	</reg32>
+	<reg32 offset="0x0204" name="IMAGE_C_OFFSET" stride="8" length="8">
+		<doc>0x1774/0x21000000</doc>
+	</reg32>
+	<reg32 offset="0x0310" name="FORMAT">
+		<bitfield pos="0" name="DATA_FORMAT">
+			<value value="0" name="S16"/>
+			<value value="1" name="S8"/>
+		</bitfield>
+		<bitfield pos="8" name="UNK8"/>
+	</reg32>
+	<reg32 offset="0x0314" name="MODE">
+		<doc>0x1774/0x32000000</doc>
+		<bitfield pos="0" name="IDCT_ENABLE"/>
+	</reg32>
+	<stripe variants="NV84-" varset="chipset">
+		<reg32 offset="0x031c" name="QUERY_OFFSET"/>
+		<reg32 offset="0x0320" name="QUERY_COUNTER">
+			<doc>writing kicks off the query</doc>
+		</reg32>
+	</stripe>
+	<reg32 offset="0x0380" name="CMD_OFFSET"/>
+	<reg32 offset="0x0384" name="CMD_SIZE"/>
+	<reg32 offset="0x038c" name="DATA_OFFSET"/>
+	<reg32 offset="0x0390" name="DATA_SIZE"/>
+	<reg32 offset="0x0394" name="EXEC">
+		<doc>Write 1, do other values work?</doc>
+	</reg32>
+</group>
+
 <domain name="NV01_SUBCHAN" bare="yes">
 	<stripe prefix="obj-class" variants="NV31_MPEG-NV84_MPEG">
-		<reg32 offset="0x0108" name="UNK108"/>
-		<reg32 offset="0x0140" name="CRYPT_KEY_H2M"/>
-		<reg32 offset="0x0148" name="UNK148"/>
-		<reg32 offset="0x0160" name="PITCH">
-			<doc>Seems to correspond to 0x1774/0x31000000, which
-			contains (width / 32), the value you poke in here is
-			not divided by 32 however.</doc>
-			<bitfield low="0" high="12" name="PITCH" type="int"/>
-			<bitfield low="16" high="16" name="UNK">
-				<doc>PMPEG error if not set</doc>
-			</bitfield>
-		</reg32>
-		<reg32 offset="0x0164" name="SIZE">
-			<doc>Seems to correspond to 0x1774/0x30000000</doc>
-			<bitfield low="0" high="15" name="W" type="int"/>
-			<bitfield low="16" high="31" name="H" type="int"/>
-		</reg32>
-		<reg32 offset="0x0190" name="DMA_CMD" type="object"/>
-		<reg32 offset="0x01a0" name="DMA_DATA" type="object"/>
-		<reg32 offset="0x01b0" name="DMA_IMAGE" type="object"/>
-		<reg32 offset="0x01c0" name="DMA_QUERY" type="object" variants="NV84_MPEG"/>
-		<reg32 offset="0x0200" name="IMAGE_Y_OFFSET" stride="8" length="8">
-			<doc>0x1774/0x20000000</doc>
-		</reg32>
-		<reg32 offset="0x0204" name="IMAGE_C_OFFSET" stride="8" length="8">
-			<doc>0x1774/0x21000000</doc>
-		</reg32>
-		<reg32 offset="0x0310" name="FORMAT">
-			<bitfield pos="0" name="DATA_FORMAT">
-				<value value="0" name="S16"/>
-				<value value="1" name="S8"/>
-			</bitfield>
-			<bitfield pos="8" name="UNK8"/>
-		</reg32>
-		<reg32 offset="0x0314" name="MODE">
-			<doc>0x1774/0x32000000</doc>
-			<bitfield pos="0" name="IDCT_ENABLE"/>
-		</reg32>
-		<stripe variants="NV84_MPEG">
-			<reg32 offset="0x031c" name="QUERY_OFFSET"/>
-			<reg32 offset="0x0320" name="QUERY_COUNTER">
-				<doc>writing kicks off the query</doc>
-			</reg32>
-		</stripe>
-		<reg32 offset="0x0380" name="CMD_OFFSET"/>
-		<reg32 offset="0x0384" name="CMD_SIZE"/>
-		<reg32 offset="0x038c" name="DATA_OFFSET"/>
-		<reg32 offset="0x0390" name="DATA_SIZE"/>
-		<reg32 offset="0x0394" name="EXEC">
-			<doc>Write 1, do other values work?</doc>
-		</reg32>
+		<use-group name="mpeg"/>
 	</stripe>
 </domain>
 

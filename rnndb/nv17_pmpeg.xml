@@ -6,6 +6,7 @@
 
 <import file="nvchipsets.xml" />
 <import file="nv40_pvpe.xml" />
+<import file="nv31_mpeg.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
@@ -67,19 +68,27 @@
 	<reg32 offset="0x114" name="ERROR_CMD"/>
 	<reg32 offset="0x118" name="ERROR_MMIO_ADDR"/>
 	<reg32 offset="0x11c" name="ERROR_MEM_ADDR"/> <!-- XXX variants? -->
-	<reg32 offset="0x120" name="COMPAT_MODE" variants="NV31-"/> <!-- 17/ffff/0 -->
+	<reg32 offset="0x120" name="COMPAT_MODE" variants="NV31-"> <!-- 17/ffff/0 -->
+		<!-- seems every non-0x17 value is the new mode -->
+		<value value="0x17" name="NV17"/>
+	</reg32>
 	<reg32 offset="0x130" name="FIFO_ERR" variants="NV31-">
 		<bitfield pos="0" name="CLEAR"/>
 		<bitfield pos="4" name="ILLEGAL_MTHD"/>
 		<bitfield pos="5" name="ILLEGAL_VALUE"/>
+		<bitfield pos="12" name="PIO_OVERFLOW"/>
 		<bitfield pos="13" name="ILLEGAL_EXEC"/>
 	</reg32>
 	<reg32 offset="0x134" name="FIFO_ERR_MTHD" variants="NV31-"/>
 	<reg32 offset="0x138" name="FIFO_ERR_DATA" variants="NV31-"/>
-	<reg32 offset="0x150" name="UNK250" variants="NV31-"/> <!-- RO 12 -->
+	<reg32 offset="0x150" name="FIFO_FREE" access="r" variants="NV31:NV40"/>
+	<reg32 offset="0x154" name="FIFO_BUSY" access="r" variants="NV31:NV40"/>
 	<reg32 offset="0x200" name="CONFIG"> <!-- 10000/ffffffff on pre-NV31, 30200/ffffffff on NV31+, ... -->
 		<!-- variants tested on: NV17, NV31, NV40, NV42, NV44, NV50, NVA0 -->
-		<bitfield pos="0" name="UNK0" variants="NV31-"/>
+		<bitfield pos="0" name="FIFO_MODE" variants="NV31-">
+			<value value="0" name="PIO"/>
+			<value value="1" name="PFIFO"/>
+		</bitfield>
 		<bitfield pos="6" name="UNK6" variants="NV44-"/>
 		<bitfield pos="7" name="UNK7" variants="NV44-"/>
 		<bitfield pos="8" name="ERROR_CHECK"/>
@@ -189,6 +198,12 @@
 	<stripe offset="0x100">
 		<use-group name="pmpeg"/>
 	</stripe>
+	<array offset="0xc00" stride="0x400" length="1" name="PIO" variants="NV31:NV40">
+		<reg32 offset="0x0000" name="OBJECT"/>
+		<reg32 offset="0x0010" name="FREE" access="r"/>
+		<reg32 offset="0x0014" name="BUSY" access="r"/>
+		<use-group name="mpeg"/>
+	</array>
 </array>
 
 <array name="PMPEG" offset="0xb100" stride="0x400" length="1" variants="NV40:NV98 NVA0">
