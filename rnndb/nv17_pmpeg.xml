@@ -133,17 +133,20 @@
 		<bitfield low="0" high="10" name="W"/>
 		<bitfield low="16" high="26" name="H"/>
 	</reg32>
-	<reg32 offset="0x288" name="FORMAT" variants="NV31:NV50"> <!-- mthd 310-->
+	<reg32 offset="0x288" name="FORMAT"> <!-- mthd 310; RO on NV50+ -->
 		<bitfield pos="0" name="DATA_FORMAT">
 			<value value="0" name="S16"/>
 			<value value="1" name="S8"/>
 		</bitfield>
 		<bitfield pos="8" name="UNK8"/>
+		<bitfield pos="24" name="UNK24" variants="NV50-"/>
+	</reg32>
 	<reg32 offset="0x290" name="DMA_QUERY" variants="NV84-">
 		<bitfield low="0" high="15" name="INST"/>
 		<bitfield pos="31" name="VALID"/>
 	</reg32>
 	<reg32 offset="0x294" name="QUERY_ADDRESS" variants="NV84-"/>
+	<reg32 offset="0x298" name="QUERY_COUNTER" variants="NV84-" access="r"/>
 	<reg32 offset="0x300" name="UNK400"/> <!-- ff -->
 	<reg32 offset="0x310" name="UNK410"/> <!-- ffffffff -->
 	<reg32 offset="0x320" name="DMA_CMD" variants="NV50-">
@@ -173,6 +176,36 @@
 	<use-group name="pmpeg"/>
 </array>
 
+</domain>
+
+<!-- XXX: pre nv50 -->
+<domain name="NV50_MPEGCTX" varset="chipset">
+	<reg32 offset="0x00" name="SIZE"/>
+	<reg32 offset="0x04" name="MODE"/>
+	<reg32 offset="0x08" name="FORMAT"/>
+	<reg32 offset="0x0c" name="PITCH"/>
+	<reg32 offset="0x10" name="IMAGE_C_OFFSET" length="8"/> <!-- in reverse order! -->
+	<reg32 offset="0x30" name="IMAGE_Y_OFFSET" length="8"/> <!-- in reverse order! -->
+	<reg32 offset="0x50" name="DMA_IMAGE"/>
+	<reg32 offset="0x54" name="DATA_SIZE"/>
+	<reg32 offset="0x58" name="DATA_OFFSET"/>
+	<reg32 offset="0x5c" name="DMA_DATA"/>
+	<reg32 offset="0x60" name="CMD_PUT"/>
+	<reg32 offset="0x64" name="CMD_OFFSET"/>
+	<reg32 offset="0x68" name="CMD_LIMIT"/>
+	<reg32 offset="0x6c" name="DMA_CMD"/>
+	<reg32 offset="0x70" name="CONFIG"/>
+	<reg32 offset="0x74" name="SEQUENCE"/>
+	<reg32 offset="0x78" name="INSTANCE"/>
+	<reg32 offset="0x7c" name="UNK364"/> <!-- XXX mangled horribly -->
+	<reg32 offset="0x80" name="QUERY_COUNTER" variants="NV84-"/>
+	<reg32 offset="0x84" name="QUERY_OFFSET" variants="NV84-"/>
+	<reg32 offset="0x88" name="DMA_QUERY" variants="NV84-"/>
+	<reg32 offset="0x100" name="FIFO_DATA" stride="8" length="32"/>
+	<reg32 offset="0x104" name="FIFO_CMD" stride="8" length="32">
+		<bitfield low="0" high="10" name="MTHD" shr="2"/>
+		<bitfield pos="31" name="VALID"/>
+	</reg32>
 </domain>
 
 </database>
