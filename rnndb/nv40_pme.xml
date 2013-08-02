@@ -86,6 +86,11 @@
 	<reg32 offset="0x174" name="MTHD_UNK20C"/>
 	<reg32 offset="0x178" name="MTHD_UNK210"/>
 	<reg32 offset="0x17c" name="MTHD_UNK214"/>
+	<reg32 offset="0x190" name="PIO_MTHD"/>
+	<reg32 offset="0x194" name="PIO_DATA"/>
+	<reg32 offset="0x198" name="PIO_CONTROL">
+		<bitfield pos="0" name="TRIGGER"/>
+	</reg32>
 </array>
 
 </domain>

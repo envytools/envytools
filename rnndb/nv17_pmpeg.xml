@@ -83,6 +83,12 @@
 	<reg32 offset="0x138" name="FIFO_ERR_DATA" variants="NV31-"/>
 	<reg32 offset="0x150" name="FIFO_FREE" access="r" variants="NV31:NV40"/>
 	<reg32 offset="0x154" name="FIFO_BUSY" access="r" variants="NV31:NV40"/>
+	<reg32 offset="0x150" name="PIO_MTHD" variants="NV40-"/>
+	<reg32 offset="0x154" name="PIO_DATA" variants="NV40-"/>
+	<reg32 offset="0x158" name="PIO_CONTROL" variants="NV40-">
+		<bitfield pos="0" name="TRIGGER"/>
+		<bitfield pos="8" name="IDLE"/>
+	</reg32>
 	<reg32 offset="0x200" name="CONFIG"> <!-- 10000/ffffffff on pre-NV31, 30200/ffffffff on NV31+, ... -->
 		<!-- variants tested on: NV17, NV31, NV40, NV42, NV44, NV50, NVA0 -->
 		<bitfield pos="0" name="FIFO_MODE" variants="NV31-">
