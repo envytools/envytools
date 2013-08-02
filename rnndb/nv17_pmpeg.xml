@@ -58,9 +58,14 @@
 		<bitfield pos="14" name="INVALID_SEQUENCE_MV"/> <!-- cmd c/d not immediately followed by cmd e, or cmd e out of blue -->
 		<bitfield pos="15" name="INVALID_DATA_SEEK" variants="NV50-"/> <!-- DATA_SEEK used in NV17 mode -->
 		<bitfield pos="17" name="DATA_SIZE_MISMATCH"/> <!-- final data pos != DATA_SIZE -->
+		<bitfield pos="24" name="CMD_FAULT" variants="NV31-"/> <!-- XXX variants -->
+		<bitfield pos="25" name="DATA_FAULT" variants="NV31-"/> <!-- XXX variants -->
+		<bitfield pos="26" name="IMAGE_FAULT" variants="NV31-"/> <!-- XXX variants -->
+		<bitfield pos="27" name="QUERY_FAULT" variants="NV84-"/>
 	</reg32>
 	<reg32 offset="0x114" name="ERROR_CMD"/>
 	<reg32 offset="0x118" name="ERROR_MMIO_ADDR"/>
+	<reg32 offset="0x11c" name="ERROR_MEM_ADDR"/> <!-- XXX variants? -->
 	<reg32 offset="0x120" name="COMPAT_MODE" variants="NV31-"/> <!-- 17/ffff/0 -->
 	<reg32 offset="0x130" name="FIFO_ERR" variants="NV31-">
 		<bitfield pos="0" name="CLEAR"/>
@@ -77,10 +82,10 @@
 		<bitfield pos="7" name="UNK7" variants="NV44-"/>
 		<bitfield pos="8" name="ERROR_CHECK"/>
 		<bitfield pos="9" name="UNK9" variants="NV31-"/>
-		<bitfield pos="10" name="UNK10" variants="NV31-"/>
-		<bitfield pos="11" name="UNK11" variants="NV31-"/>
-		<bitfield pos="12" name="UNK12" variants="NV31-"/>
-		<bitfield pos="13" name="UNK13" variants="NV84-"/>
+		<bitfield pos="10" name="CMD_FAULT_CHECK" variants="NV31-"/>
+		<bitfield pos="11" name="DATA_FAULT_CHECK" variants="NV31-"/>
+		<bitfield pos="12" name="IMAGE_FAULT_CHECK" variants="NV31-"/>
+		<bitfield pos="13" name="QUERY_FAULT_CHECK" variants="NV84-"/>
 		<bitfield pos="14" name="UNK14" variants="NV50-"/>
 		<bitfield pos="15" name="UNK15" variants="NV40-"/>
 		<bitfield pos="16" name="CMD_TARGET" variants="NV17:NV40">
