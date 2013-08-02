@@ -96,7 +96,11 @@
 	<bitfield low="24" high="31" name="OP">
 		<value value="0x72" name="DATA_SETUP"/>
 	</bitfield>
-	<bitfield low="6" high="7" name="UNK6">
+	<bitfield low="6" high="7" name="COEFF_SCAN_MODE">
+		<value value="0" name="ZERORUN_ZIGZAG"/>
+		<value value="1" name="ZERORUN_ALTERNATE_VERTICAL"/>
+		<value value="2" name="ZERORUN_ALTERNATE_HORIZONTAL"/>
+		<value value="3" name="ABSOLUTE"/>
 	</bitfield>
 </bitset>
 
