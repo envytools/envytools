@@ -1458,13 +1458,26 @@ int main(int argc, char **argv) {
 
 		start += header_length;
 
-		for (i=0; i < entry_count; i++) {
-			printf ("-- ID = %u: voltage_min = %u, voltage_max = %u [µV] --\n",
-				i, le32(start), le32(start+4));
-			printcmd(start, entry_length);
-			printf("\n\n");
+		switch(version) {
+		case 0x10:
+			for (i=0; i < entry_count; i++) {
+				printf ("-- ID = %u: voltage_min = %u, voltage_max = %u [µV] --\n",
+					i, le32(start), le32(start+4));
+				printcmd(start, entry_length);
+				printf("\n\n");
 
-			start += entry_length;
+				start += entry_length;
+			}
+			break;
+		case 0x20:
+			for (i=0; i < entry_count; i++) {
+				printf ("-- ID = %u, link: %hhx, voltage_min = %u, voltage_max = %u [µV] --\n",
+					i, bios->data[start+1], le32(start+2), le32(start+6));
+				printcmd(start, entry_length);
+				printf("\n\n");
+
+				start += entry_length;
+			}
 		}
 
 		printf("\n");
@@ -1474,6 +1487,8 @@ int main(int argc, char **argv) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0, mask = 0;
 		uint16_t start = voltage_tbl_ptr;
+		uint16_t step_uv;
+		uint32_t volt_uv, volt;
 		uint8_t shift = 0;
 		const int vidtag[] =  { 0x04, 0x05, 0x06, 0x1a, 0x73 };
 		int nr_vidtag = sizeof(vidtag) / sizeof(vidtag[0]);
@@ -1501,7 +1516,18 @@ int main(int argc, char **argv) {
 			entry_length = bios->data[start+2];
 			entry_count = bios->data[start+3];	// XXX: NFI what the entries are for
 			mask = bios->data[start+11];			// guess
+			step_uv = le16(start+8);
+			volt_uv = le32(start+4);
+		} else if (version == 0x50) {
+			header_length = bios->data[start+1];
+			entry_length = bios->data[start+2];
+			entry_count = bios->data[start+3];	// XXX: NFI what the entries are for
+			mask = bios->data[start+6];			// guess
+			step_uv = le16(start+22);
+			volt_uv = le32(start+10);
+			volt_uv &= 0x00ffffff;
 		}
+
 
 		printf ("Voltage table at 0x%x. Version %d.\n", voltage_tbl_ptr, version);
 
@@ -1542,16 +1568,13 @@ int main(int argc, char **argv) {
 				start += entry_length;
 			}
 		} else {
-			/* That's what nouveau does, but it doesn't make much sense... */
-			uint32_t volt_uv = le32(start+4);
-			int16_t step_uv = le16(start+8);
-			uint16_t nr_label = mask + 1; // XXX: hacky solution
-
 			printf("-- Maximum voltage %d µV, voltage step %d µV, Maximum voltage to be used %d µV --\n",
 					volt_uv, step_uv, le32(start+14));
+			start += header_length;
 
-			for (i = 0; i < nr_label; i++) {
-				printf("-- Vid %d, voltage %d µV --\n", i, volt_uv);
+			for (i = 0; i < entry_count; i++) {
+				volt = le32(start) & 0x000fffff;
+				printf("-- Vid %d, voltage %d µV/%d µV --\n", i, volt_uv, volt);
 				volt_uv += step_uv;
 				/* List the gpio tags assosiated with each voltage id */
 				int j;
@@ -1562,7 +1585,9 @@ int main(int argc, char **argv) {
 	 				}
 					printf("-- GPIO tag 0x%x(VID) data (logic %d) --\n", vidtag[j], (!!(i & (1 << j))));
 				}
+				printcmd(start + (i * entry_length), entry_length); printf("\n");
 				printf("\n");
+				start += entry_length;
 			}
 
 //			printf ("-- Voltage range = %u-%u µV, step = %u µV--\n",
