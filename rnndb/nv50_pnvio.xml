@@ -27,11 +27,14 @@
 
 <bitset name="nva3_rpll_ctrl" inline="yes">
 	<bitfield pos="0" name="ENABLE"/>
-	<bitfield low="1" high="2" name="UNK1"/>
+	<bitfield pos="1" name="PWROFF"/>
+	<bitfield pos="2" name="UNK2"/>
 	<bitfield pos="3" name="BYPASS"/> <!-- and use the usual clk_id + 10 -->
-	<bitfield low="4" high="6" name="UNK4"/>
-	<bitfield pos="8" name="UNK8" />
-	<bitfield low="16" high="17" name="UNK16" />
+	<bitfield pos="4" name="DISABLE"/>
+	<bitfield low="5" high="6" name="UNK5"/>
+	<bitfield pos="8" name="UNK8"/>
+	<bitfield pos="16" name="PLL_PWR"/>
+	<bitfield pos="17" name="PLL_LOCK"/>
 	<bitfield pos="24" name="UNK24" />
 </bitset>
 
