@@ -7,7 +7,9 @@ if (NOT DISABLE_NVA)
 	pkg_check_modules(PC_PCIACCESS pciaccess)
 	pkg_check_modules(PC_X11 x11)
 	pkg_check_modules(PC_XEXT xext)
+	pkg_check_modules(PC_PYTHON python3)
 	find_package (Threads)
+	find_program (CYTHON_EXECUTABLE cython)
 
 	if (PC_PCIACCESS_FOUND)
 
@@ -66,6 +68,20 @@ if (NOT DISABLE_NVA)
 		else(PC_X11_FOUND AND PC_XEXT_FOUND)
 			message("Warning: nvamemtiming won't be built because of un-met dependencies (libx11 and/or libxext)")
 		endif(PC_X11_FOUND AND PC_XEXT_FOUND)
+
+		if(PC_PYTHON_FOUND AND CYTHON_EXECUTABLE)
+			include_directories(${PC_PYTHON_INCLUDE_DIRS})
+			link_directories(${PC_PYTHON_LIBRARY_DIRS})
+			add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/nvapy.c
+					   COMMAND ${CYTHON_EXECUTABLE}
+					   ARGS -3 ${CMAKE_CURRENT_SOURCE_DIR}/nvapy.pyx -o ${CMAKE_CURRENT_BINARY_DIR}/nvapy.c
+					   MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/nvapy.pyx)
+			add_library(nvapy MODULE ${CMAKE_CURRENT_BINARY_DIR}/nvapy.c nva.c)
+			set_target_properties(nvapy PROPERTIES PREFIX "")
+			target_link_libraries(nvapy ${PC_PYTHON_LIBRARIES} ${PC_PCIACCESS_LIBRARIES})
+		else(PC_PYTHON_FOUND AND CYTHON_EXECUTABLE)
+			message("Warning: nvapy won't be built because of un-met dependencies (python and cython)")
+		endif(PC_PYTHON_FOUND AND CYTHON_EXECUTABLE)
 
 		target_link_libraries(nvawatch ${CMAKE_THREAD_LIBS_INIT})
 		target_link_libraries(nvacounter rt)
