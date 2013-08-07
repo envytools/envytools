@@ -61,7 +61,7 @@ uint8_t mpeg_crypt_sess_hash(uint16_t host_key, uint16_t mpeg_key) {
 		{  1,  2, 12, 13 },
 	};
 	int i;
-	uint8_t res;
+	uint8_t res = 0;
 	for (i = 0; i < 8; i++) {
 		int which = host_key >> tab[i][0] & 1;
 		int flip = host_key >> tab[i][1] & 1;
