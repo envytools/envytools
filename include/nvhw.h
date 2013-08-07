@@ -97,4 +97,7 @@ int comp_format_bpp(int chipset, int format);
 
 void comp_decompress(int chipset, int format, uint8_t *data, int tag);
 
+uint8_t mpeg_crypt_host_hash(uint16_t host_key, uint8_t host_sel);
+uint8_t mpeg_crypt_sess_hash(uint16_t host_key, uint16_t mpeg_key);
+
 #endif

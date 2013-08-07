@@ -162,7 +162,7 @@
 	<reg32 offset="0x254" name="CRYPT_MPEG" access="r">
 		<bitfield low="0" high="15" name="MPEG_KEY"/>
 		<bitfield low="16" high="23" name="TKEY_ID"/> <!-- identifies the tkey selected by MPEG -->
-		<bitfield low="24" high="31" name="SESS_HASH"/> <!-- over HOST_KEY and MPEG_KEY, does NOT involve tkey; XXX also involves HOST_SEL? -->
+		<bitfield low="24" high="31" name="SESS_HASH"/> <!-- over HOST_KEY and MPEG_KEY -->
 	</reg32>
 	<reg32 offset="0x260" name="DATA_BASE" variants="NV31:NV50"/>
 	<reg32 offset="0x264" name="DATA_LIMIT" variants="NV31:NV50"/>
