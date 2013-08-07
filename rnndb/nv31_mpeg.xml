@@ -9,7 +9,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <group name="mpeg">
 	<reg32 offset="0x0108" name="UNK108"/>
-	<reg32 offset="0x0140" name="CRYPT_KEY_H2M"/>
+	<reg32 offset="0x0140" name="CRYPT_HOST">
+		<bitfield low="0" high="15" name="HOST_KEY"/>
+		<bitfield low="16" high="23" name="HOST_HASH"/>
+		<bitfield low="24" high="26" name="HOST_SEL"/>
+		<!-- 27-31 unused -->
+	</reg32>
 	<reg32 offset="0x0148" name="UNK148"/>
 	<reg32 offset="0x0160" name="PITCH">
 		<doc>Seems to correspond to 0x1774/0x31000000, which

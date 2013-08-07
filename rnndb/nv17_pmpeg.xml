@@ -153,8 +153,17 @@
 	<reg32 offset="0x230" name="CMD_GET"/> <!-- RO -->
 	<reg32 offset="0x234" name="CMD_BASE" variants="NV31:NV50"/> <!-- fffffffc -->
 	<reg32 offset="0x240" name="SEQUENCE"/> <!-- RO -->
-	<reg32 offset="0x250" name="CRYPT_KEY_H2M"/>
-	<reg32 offset="0x254" name="CRYPT_KEY_M2H"/>
+	<reg32 offset="0x250" name="CRYPT_HOST">
+		<bitfield low="0" high="15" name="HOST_KEY"/>
+		<bitfield low="16" high="23" name="HOST_HASH"/> <!-- over HOST_KEY and HOST_SEL -->
+		<bitfield low="24" high="26" name="HOST_SEL"/> <!-- provides 3 bits of tkey index; MPEG will provide the remaining one -->
+		<!-- 27-31 unused -->
+	</reg32>
+	<reg32 offset="0x254" name="CRYPT_MPEG" access="r">
+		<bitfield low="0" high="15" name="MPEG_KEY"/>
+		<bitfield low="16" high="23" name="TKEY_ID"/> <!-- identifies the tkey selected by MPEG -->
+		<bitfield low="24" high="31" name="SESS_HASH"/> <!-- over HOST_KEY and MPEG_KEY, does NOT involve tkey; XXX also involves HOST_SEL? -->
+	</reg32>
 	<reg32 offset="0x260" name="DATA_BASE" variants="NV31:NV50"/>
 	<reg32 offset="0x264" name="DATA_LIMIT" variants="NV31:NV50"/>
 	<reg32 offset="0x268" name="DATA_OFFSET" variants="NV31-"/>
