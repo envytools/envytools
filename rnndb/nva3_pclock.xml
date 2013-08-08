@@ -8,31 +8,15 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<bitset name="nva3_nvpll_ctrl" inline="yes">
+<bitset name="nva3_pll_ctrl" inline="yes">
 	<bitfield pos="0" name="ENABLE"/>
-	<bitfield low="1" high="2" name="UNK1"/>
-	<bitfield pos="3" name="BYPASS"/> <!-- and use NVCLK -->
-	<bitfield low="4" high="6" name="UNK4"/>
-	<bitfield low="16" high="17" name="UNK16"/>
-</bitset>
-
-<bitset name="nva3_mpll_ctrl" inline="yes">
-	<bitfield pos="0" name="ENABLE"/>
-	<bitfield low="1" high="2" name="UNK1"/>
-	<bitfield pos="3" name="BYPASS"/> <!-- and use MCLK -->
-	<bitfield low="4" high="6" name="UNK4"/>
-	<bitfield pos="9" name="UNK9"/>
-	<bitfield low="16" high="17" name="UNK16"/>
-	<bitfield low="27" high="28" name="UNK27"/> <!-- always on -->
-</bitset>
-
-<bitset name="nva3_spll_ctrl" inline="yes">
-	<doc>bit 16 sometimes is not writable and forced to 0</doc>
-	<bitfield pos="0" name="ENABLE"/>
-	<bitfield low="1" high="2" name="UNK1"/>
-	<bitfield pos="3" name="BYPASS"/> <!-- and use SCLK -->
-	<bitfield low="4" high="6" name="UNK4"/>
-	<bitfield low="16" high="17" name="UNK16"/>
+	<bitfield pos="1" name="PWROFF"/>
+	<bitfield pos="2" name="UNK2"/>
+	<bitfield pos="3" name="BYPASS"/>
+	<bitfield pos="4" name="DISABLE"/>
+	<bitfield pos="5" name="UNK5"/>
+	<bitfield pos="16" name="PLL_PWR"/>
+	<bitfield pos="17" name="PLL_LOCK"/>
 </bitset>
 
 <bitset name="nva3_pll_coef" inline="yes">
@@ -70,7 +54,9 @@
 <array offset="0x4000" name="PCLOCK" stride="0x1000" variants="NVA3:NVC0" length="1">
 	<!-- tested on my nva3 only -->
 
-	<reg32 offset="0x000" name="MPLL_CTRL" type="nva3_mpll_ctrl"/>
+	<reg32 offset="0x000" name="MPLL_CTRL" type="nva3_pll_ctrl">
+		<bitfield low="27" high="28" name="UNK27"/> <!-- always on -->
+	</reg32>
 	<reg32 offset="0x004" name="MPLL_COEF" type="nva3_pll_coef"/>
 
 	<reg32 name="NVPLL_SRC" offset="0x120" type="nva3_pll_src"/>
@@ -92,9 +78,9 @@
 	<reg32 name="DCLK" offset="0x1b4" type="nva3_pll_src"/>
 	<reg32 name="ACLK" offset="0x1bc" type="nva3_pll_src"/> <!-- not on NVAF -->
 
-	<reg32 offset="0x200" name="NVPLL_CTRL" type="nva3_nvpll_ctrl"/>
+	<reg32 offset="0x200" name="NVPLL_CTRL" type="nva3_pll_ctrl"/>
 	<reg32 offset="0x204" name="NVPLL_COEF" type="nva3_pll_coef"/>
-	<reg32 offset="0x220" name="SPLL_CTRL" type="nva3_spll_ctrl"/>
+	<reg32 offset="0x220" name="SPLL_CTRL" type="nva3_pll_ctrl"/>
 	<reg32 offset="0x224" name="SPLL_COEF" type="nva3_pll_coef"/>
 </array>
 
