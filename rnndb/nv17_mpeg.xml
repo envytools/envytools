@@ -64,7 +64,12 @@
 </bitset>
 
 <bitset name="NV17_MPEG_CMD_BLOCK_DATA"> <!-- followed by NV17_MPEG_BLOCK_DATA until LAST bit set -->
-	<bitfield pos="0" name="INTRA"/> <!-- check me -->
+	<bitfield low="0" high="1" name="TYPE">
+		<value value="0" name="INTER"/>
+		<value value="1" name="INTRA"/>
+		<value value="3" name="INTRA_CRYPT"/>
+	</bitfield>
+	<bitfield low="8" high="23" name="FRAME_KEY"/> <!-- a value different from previous FRAME_KEY triggers cipher reset, same as previous just advances the LFSRs; initial FRAME_KEY after reset is 0 -->
 	<bitfield low="28" high="31" name="OP">
 		<value value="6" name="BLOCK_DATA"/>
 	</bitfield>
