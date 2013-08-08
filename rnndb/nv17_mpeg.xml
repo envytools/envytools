@@ -33,7 +33,7 @@
 </bitset>
 
 <bitset name="NV17_MPEG_CMD_PITCH">
-	<bitfield low="0" high="6" name="PITCH"/>
+	<bitfield low="0" high="6" name="PITCH" shr="5"/>
 	<bitfield low="24" high="31" name="OP">
 		<value value="0x31" name="PITCH"/>
 	</bitfield>
