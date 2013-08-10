@@ -297,7 +297,7 @@ static int nv84_threshold_filter(struct hwtest_ctx *ctx, const struct therm_thre
 			double prediction_error = abs(time - expected_time) * 100.0 / expected_time;
 
 			if ((div == 0 && prediction_error > 15.0) || (div > 0 && prediction_error > 5.0)) {
-				printf("div %x => %f, cycles 0x%x: delay %llu; expected delay %.0f (prediction_error = %f%%)\n",
+				printf("div %x => %f, cycles 0x%x: delay %"PRIu64"; expected delay %.0f (prediction_error = %f%%)\n",
 					div, 32 * pow(16, div), cycles * 0x7f, time, expected_time, prediction_error);
 				return HWTEST_RES_FAIL;
 			}

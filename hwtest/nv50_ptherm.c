@@ -171,7 +171,7 @@ static int nv50_threshold_filter(struct hwtest_ctx *ctx, const struct therm_thre
 			double prediction_error = abs(time - expected_time) * 100.0 / expected_time;
 
 			if (prediction_error > 5.0) {
-				printf("div %x => %f, cycles 0x%x: delay %llu; expected delay %.0f (prediction_error = %f%%), clock_hz = %f\n",
+				printf("div %x => %f, cycles 0x%x: delay %"PRIu64"; expected delay %.0f (prediction_error = %f%%), clock_hz = %f\n",
 					div, 32 * pow(16, div), cycles * 0x7f, time, expected_time, prediction_error, clock_hz);
 				return HWTEST_RES_FAIL;
 			}
@@ -185,6 +185,8 @@ static int test_threshold_crit_filter(struct hwtest_ctx *ctx) {
 	return nv50_threshold_filter(ctx, &nv50_therm_thresholds[therm_threshold_crit]);
 }
 
+#if 0
+
 /* this test fails. I will investigate why later! */
 static int test_threshold_low_filter(struct hwtest_ctx *ctx) {
 	return nv50_threshold_filter(ctx, &nv50_therm_thresholds[therm_threshold_low]);
@@ -194,6 +196,8 @@ static int test_threshold_low_filter(struct hwtest_ctx *ctx) {
 static int test_threshold_high_filter(struct hwtest_ctx *ctx) {
 	return nv50_threshold_filter(ctx, &nv50_therm_thresholds[therm_threshold_high]);
 }
+
+#endif
 
 static int threshold_check_state(struct hwtest_ctx *ctx, const struct therm_threshold *thrs) {
 	int i, dir, temp, exp_state;
