@@ -73,3 +73,99 @@ uint8_t mpeg_crypt_sess_hash(uint16_t host_key, uint16_t mpeg_key) {
 	}
 	return res;
 }
+
+static const struct mpeg_crypt_tkey {
+	uint8_t selector;
+	uint32_t key;
+} tkeys[] = {
+	{ 0x55, 0xc480cc39 },
+	{ 0xff, 0x444c4991 },
+
+	{ 0x89, 0x38d13bf2 },
+	{ 0x23, 0xf160787d },
+
+	{ 0x33, 0x6a7c3b83 },
+	{ 0x99, 0x19c832fd },
+
+	{ 0xeb, 0x4e998d9f },
+	{ 0x41, 0xb5bde57b },
+
+	{ 0xef, 0xc1c42917 },
+	{ 0x45, 0xf8253852 },
+
+	{ 0x2b, 0x41d0a606 },
+	{ 0x81, 0xd59dc21a },
+
+	{ 0x8b, 0x989517a1 },
+	{ 0x21, 0x508a4265 },
+
+	{ 0x4b, 0x7553d94c },
+	{ 0xe1, 0x5a83df4f },
+};
+
+int mpeg_crypt_init(struct mpeg_crypt_state *state, uint32_t host, uint32_t mpeg, uint16_t frame_key) {
+	uint16_t host_key = host & 0xffff;
+	uint16_t mpeg_key = mpeg & 0xffff;
+	uint8_t selector = mpeg >> 16 & 0xff;
+
+	int i;
+	int ntkeys = sizeof tkeys / sizeof *tkeys;
+	for (i = 0; i < ntkeys; i++)
+		if (selector == tkeys[i].selector)
+			break;
+	if (i == ntkeys)
+		return -1;
+	uint32_t tkey = tkeys[i].key;
+
+	uint32_t const_a = tkey >> 16 & mpeg_key >> 8 & 0xff;
+	uint32_t const_b = mpeg_key & tkey >> 26 & 0x3f;
+	uint32_t const_c = (tkey >> 24 | host_key) << 8 & 0xf00;
+	uint32_t const_d = host_key & 0xfc0;
+	state->const_key = const_a ^ const_b ^ const_c ^ const_d;
+
+	uint32_t lfsr_key = frame_key << 16 ^ host_key << 8 ^ mpeg_key;
+	state->lfsra = lfsr_key ^ (tkey & 0xff) << 12;
+	state->lfsrb = lfsr_key ^ (tkey & 0xff00) << 4;
+
+	mpeg_crypt_advance(state);
+	return 0;	
+}
+
+static void advance_lfsr(uint32_t *lfsr, uint32_t poly) {
+	int bits, xbits;
+	for (bits = xbits = 0; xbits + 3 >= 2 * bits; bits++) {
+		if (*lfsr & 0x00110000)
+			xbits++;
+		if (*lfsr & 1) {
+			*lfsr >>= 1;
+			*lfsr ^= poly;
+		} else {
+			*lfsr >>= 1;
+		}
+	}
+}
+
+void mpeg_crypt_advance(struct mpeg_crypt_state *state) {
+	advance_lfsr(&state->lfsra, 0x8001fff9);
+	advance_lfsr(&state->lfsrb, 0x8f0f0f0e);
+	state->block_key = state->const_key ^ (state->lfsra & 0xfff) ^ (state->lfsrb & 0x3f);
+}
+
+const uint8_t mpeg_crypt_bitrev[0x40] = {
+	0x00, 0x20, 0x10, 0x30,
+	0x08, 0x28, 0x18, 0x38,
+	0x04, 0x24, 0x14, 0x34,
+	0x0c, 0x2c, 0x1c, 0x3c,
+	0x02, 0x22, 0x12, 0x32,
+	0x0a, 0x2a, 0x1a, 0x3a,
+	0x06, 0x26, 0x16, 0x36,
+	0x0e, 0x2e, 0x1e, 0x3e,
+	0x01, 0x21, 0x11, 0x31,
+	0x09, 0x29, 0x19, 0x39,
+	0x05, 0x25, 0x15, 0x35,
+	0x0d, 0x2d, 0x1d, 0x3d,
+	0x03, 0x23, 0x13, 0x33,
+	0x0b, 0x2b, 0x1b, 0x3b,
+	0x07, 0x27, 0x17, 0x37,
+	0x0f, 0x2f, 0x1f, 0x3f,
+};
