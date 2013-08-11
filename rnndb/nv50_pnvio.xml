@@ -616,6 +616,18 @@
 			</reg32>
 		</group>
 
+		<group name="nvc0_rpll">
+			<reg32 offset="0x0" name="CTRL">
+				<bitfield pos="0" name="ENABLE"/>
+			</reg32>
+			<reg32 offset="0x4" name="COEF">
+				<doc>freq = (27MHz * N / M) >> P</doc>
+				<bitfield low="0" high="7" name="M"/>
+				<bitfield low="8" high="15" name="N"/>
+				<bitfield low="16" high="18" name="P"/>
+			</reg32>
+		</group>
+
 		<stripe name="RPLL1" offset="0x818" variants="NV50:NVA3">
 			<use-group name="nv50_rpll"/>
 		</stripe>
@@ -651,6 +663,12 @@
 		</array>
 		<!-- XXX: NVAF -->
 		<!-- XXX: NVC0 -->
+		<stripe name="RPLL1" offset="0x800" variants="NVC0-NVE4">
+			<use-group name="nvc0_rpll"/>
+		</stripe>
+		<stripe name="RPLL2" offset="0x820" variants="NVC0-NVE4">
+			<use-group name="nvc0_rpll"/>
+		</stripe>
 	</array>
 </domain>
 
