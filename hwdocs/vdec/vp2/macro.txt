@@ -1,0 +1,296 @@
+TOC
+
+0. Introduction
+1. MMIO registers
+2. FIFOs
+3. Commands
+4. Execution state and registers
+4.1. Code RAM
+4.2. Execution control
+4.3. Parameter registers
+4.4. Global registers
+4.5. Special registers
+4.6. The LUT
+5. Opcodes
+5.1. Command opcodes
+5.2. Data opcodes
+
+
+= Introduction =
+
+The VP2 macro processor is a small programmable processor that can emit vector
+processor commands when triggered by special commands from xtensa. All vector
+commands first go through the macro processor, which checks whether they're
+in macro command range, and either passes them down to vector processor, or
+interprets them itself, possibly launching a macro and submitting other vector
+commands. It is one of the four major blocks making up the VP2 PVP engine.
+
+The macro processor has:
+
+ - 64-bit VLIW opcodes, controlling two separate execution paths, one
+   primarily for processing/emitting commands, the other for command
+   parameters
+ - dedicated code RAM, 512 64-bit words in size
+ - 32 * 32-bit word LUT data space, RW by host and RO by the macro code
+ - 6 32-bit global [not banked] GPRs visible to macro code and host [$g0-$g5]
+ - 8 32-bit banked GPRs visible to macro code and host, meant for passing
+   parameters - one bank is writable by the param commands, the other is in
+   use by macro code at any time [$p0-$p7]
+ - 3 1-bit predicates, with conditional execution [$p1-$p3]
+ - instruction set consisting of bit operations, shifts, and 16-bit addition
+ - no branch/loop capabilities
+ - a 32-bit command path accumulator [$cacc]
+ - a 32-bit data path accumulator [$dacc]
+ - a 7-bit LUT address register [$lutidx]
+ - 15-bit command, 32-bit data, and 8-bit high data registers for command
+   submission [$cmd, $data, $datahi]
+ - 64-entry input command FIFO
+ - 2-entry output command FIFO
+ - a single hardware breakpoint
+
+
+= MMIO registers =
+
+The macro processor registers occupy 0x00f600:0x00f700 range in BAR0 space,
+corresponding to 0x2c000:0x2e000 range in PVP's XLMI space. They are:
+
+2c000:2c800/00f600:00f640 - control registers
+2c000/00f600: CONTROL - master control
+2c100/00f608: STATUS - detailed status
+2c180/00f60c: IDLE - a busy/idle status
+2c200/00f610: INTR_EN - interrupt enable
+2c280/00f614: INTR - interrupt status
+2c300/00f618: BREAKPOINT - breakpoint address and enable
+
+2c800:2d000/00f640:00f680 - execution state registers
+2c800:2c880/00f640: LUT[0:32] - the LUT data
+2c880:2c8a0/00f644: PARAM_A[0:8] - $p bank A
+2c900:2c920/00f648: PARAM_B[0:8] - $p bank B
+2c980:2c9a0/00f64c: GLOBAL[0:8] - $g registers
+2cb80/00f65c: PARAM_SEL - $p bank selection switch
+2cc00/00f660: RUNNING - code execution in progress switch
+2cc80/00f664: PC - program counter
+2cd00/00f668: DATAHI - $datahi register
+2cd80/00f66c: LUTIDX - $lutidx register
+2ce00/00f670: CACC - $cacc register
+2ce80/00f674: CMD - $cmd register
+2cf00/00f678: DACC - $dacc register
+2cf80/00f67c: DATA - $data register
+
+2d000:2d500/00f680:00f6a8 - FIFO control registers
+2d000/00f680: IFIFO_DATA - input FIFO data
+2d080/00f684: IFIFO_ADDR - input FIFO command
+2d100/00f688: IFIFO_TRIGGER - input FIFO manual read/write trigger
+2d180/00f66c: IFIFO_SIZE - input FIFO size limitter
+2d200/00f670: IFIFO_STATUS - input FIFO status
+2d280/00f674: OFIFO_DATA - output FIFO data
+2d300/00f678: OFIFO_ADDR - output FIFO command & high data
+2d380/00f67c: OFIFO_TRIGGER - output FIFO manual read/write trigger
+2d400/00f680: OFIFO_SIZE - output FIFO size limitter
+2d480/00f684: OFIFO_STATUS - output FIFO status
+
+2d780/00f6bc: CODE_SEL - selects high or low part of code RAM for code window
+2d800:2e000/00f6c0:00f700: CODE - a 256-word window to code space
+
+[XXX: write me]
+
+
+= FIFOs =
+
+[XXX: write me]
+
+
+= Commands =
+
+The macro processor processes commands in 0xc000-0xdfff range from the input
+FIFO, passing down all other commands directly to the output FIFO [provided
+that no macro is executing at the moment]. The macro processor commands are:
+
+0xc000 + i * 4, i < 8	MACRO_PARAM[i] - write to $p host register bank
+0xc020 + i * 4, i < 8	MACRO_GLOBAL[i] - write to $g registers
+0xc080 + i * 4, i < 32	MACRO_LUT[i] - write to given LUT entry
+0xc100			MACRO_EXEC - execute a macro
+0xc200			MACRO_DATAHI - write to $datahi register
+0xd000 + i * 4, i < 0x400	MACRO_CODE[i] - upload half of a code word
+
+
+= Execution state and registers =
+
+== Code RAM ==
+
+The code RAM contains 512 opcodes. Opcodes are 64 bits long and are accessible
+by the host as pairs of 32-bit words. Code may be read or written using MMIO
+window:
+
+BAR0 0x00f6bc / XLMI 0x2d780: CODE_SEL
+  1-bit RW register. Writing 0 selects code RAM entries 0:0x100 to be mapped to
+  the CODE window, writing 1 selects code RAM entries 0x100:0x200.
+
+BAR0 0x00f6c0 + (i >> 5) * 4 [index i & 0x1f] / XLMI 0x2d800 + i * 4, i < 0x200: CODE[i]
+  The code window. Reading or writing CODE[i] is equivalent to reading or
+  writing low [if i is even] or high [if i is odd] 32 bits of code RAM cell
+  i >> 1 | CODE_SEL << 8.
+
+They can also be written in pipelined manner by the MACRO_CODE command:
+
+VP command 0xd000 + i * 4, i < 0x400: MACRO_CODE[i]
+  Write the parameter to low [if i is even] or high [if i is odd] 32 bits of
+  code RAM cell i >> 1. If a macro is currently executing, execution of this
+  command is blocked until it finishes. Valid only on macro input FIFO.
+
+
+== Execution control ==
+
+[XXX: write me]
+
+
+== Parameter registers ==
+
+Parameter registers server dual purpose: they're meant for passing parameters
+to macros, but can also be used as GPRs by the code. There are two banks of
+parameter registers, bank A and bank B. Each bank contains 8 32-bit registers.
+At any time, one of the banks is in use by the macro code, while the other can
+be written by the host via MACRO_PARAM commands for next macro execution. Each
+time a macro is launched, the bank assignments are swapped. The current
+assignment is controlled by the PARAM_SEL register:
+
+BAR0 0x00f65c / XLMI 0x2cb80: PARAM_SEL
+  1-bit RW register. Can be set to one of:
+    0: CODE_A_CMD_B - bank A is in use by the macro code, commands will write
+       to bank B
+    1: CODE_B_CMD_A - bank B is in use by the macro code, commands will write
+       to bank A
+  This register is toggled on every MACRO_EXEC command execution.
+
+The parameter register banks can be accessed through MMIO registers:
+
+BAR0 0x00f644 [index i] / XLMI 0x2c880 + i * 4, i < 8: PARAM_A[i]
+BAR0 0x00f648 [index i] / XLMI 0x2c900 + i * 4, i < 8: PARAM_B[i]
+  These MMIO registers are mapped straight to corresponding parameter
+  registers.
+ 
+The bank not currently in use by code can also be written by MACRO_PARAM
+commands:
+
+VP command 0xc000 + i * 4, i < 8: MACRO_PARAM[i]
+  Write the command data to parameter register i of the bank currently
+  not assigned to the macro code. Execution of this command won't wait for
+  the current macro execution to finish. Valid only on macro input FIFO.
+
+The parameter registers are visible to the macro code as GPR registers 0-7.
+
+
+== Global registers ==
+
+There are 6 normal global registers, $g0-$g5. They are simply 32-bit GPRs for
+use by macro computations. There are also two special global pseudo-registers,
+$g6 and $g7.
+
+$g6 is the LUT readout register. Any attempt to read from it will read from
+the LUT entry selected by $lutidx register. Any attempt to write to it will
+be ignored.
+
+$g7 is the special predicate register, $pred. Its 4 low bits are mapped to the
+four predicates, $p0-$p3. Any attempt to read from this register will read
+the predicates, and fill high 28 bits with zeros. Any attempt to write this
+register will write the predicates.
+
+$p0 is always forced to 1, while $p1-$p3 are writable. The predicates are used
+for conditional execution in macro code. In addition to access through $pred,
+the predicates can also be written by macro code individually as a result of 
+various operations.
+
+All 8 global registers are accessible through MMIO and the command stream:
+
+BAR0 0x00f64c [index i] / XLMI 0x2c980 + i * 4, i < 8: GLOBAL[i]
+  These registers are mapped straight to corresponding global registers.
+
+VP command 0xc020 + i * 4, i < 8: MACRO_GLOBAL[i]
+  Write the command data to global register i. If a macro is currently
+  executing, execution of this command is blocked until it finishes. Valid
+  only on macro input FIFO.
+
+The global registers are visible to the macro code as GPR registers 8-15.
+
+
+== Special registers ==
+
+In addition to the GPRs, the macro code can use 6 special registers. There are
+4 special registers belonging to the command execution path, identified by
+a 2-bit index:
+
+ - 0: $cacc, command accumulator
+ - 1: $cmd, output command register
+ - 2: $lutidx, LUT index
+ - 3: $datahi, output high data register
+
+There are also 2 special registers belonging to the data execution path,
+identified by a 1-bit index:
+
+ - 0: $dacc, data accumulator
+ - 1: $data, output data register
+
+The $cacc and $dacc registers are 32-bit and can be read back by the macro
+code, and so are usable for general purpose computations.
+
+The $cmd, $data, and $datahi registers are write-only by the macro code, and
+their contents are submitted to the macro output FIFO when a submit opcode
+is executed. $data is 32-bit, $datahi is 8-bit, mapping to bits 0-7 of written
+values. $cmd is 15-bit, mapping to bits 2-16 of written values. The $datahi
+register is also used to fill the high data bits in output FIFO whenever
+a command is bypassed from the input FIFO.
+
+The $lutidx register is 5-bit and write-only by the macro code. It maps to
+bits 0-4 of written values. Its value selects the LUT entry visible in $g6
+pseudo-register.
+
+All 6 special registers can be accessed through MMIO, and the $datahi register
+can be additionally set by a command:
+
+MMIO 0x00f668 / XLMI 0x2cd00: DATAHI
+MMIO 0x00f66c / XLMI 0x2cd80: LUTIDX
+MMIO 0x00f670 / XLMI 0x2ce00: CACC
+MMIO 0x00f674 / XLMI 0x2ce80: CMD
+MMIO 0x00f678 / XLMI 0x2cf00: DACC
+MMIO 0x00f67c / XLMI 0x2cf80: DATA
+  These registers map directly to corresponding special registers. For $cacc,
+  $dacc, and $data, all bits are valid. For $cmd, bits 2-16 are valid.
+  For $lutidx, bits 0-4 are valid. For $datahi, bits 0-7 are valid. Remaining
+  bits are forced to 0.
+
+VP command 0xc200: MACRO_DATAHI
+  Sets $datahi to low 8 bits of the command data.  If a macro is currently
+  executing, execution of this command is blocked until it finishes. Valid
+  only on macro input FIFO.
+
+
+== The LUT ==
+
+The LUT is a small indexable RAM that's read-only by the macro code, but
+freely writable by the host. It's made of 32 32-bit words. The LUT entry
+selected by $lutidx register can be read by macro code simply by reading from
+the $g6 pseudo-register. The LUT can be accessed by the host through MMIO
+and the command stream:
+
+BAR0 0x00f640 [index i] / XLMI 0x2c800 + i * 4, i < 32: LUT[i]
+  These registers are mapped straight to corresponding LUT entries.
+
+VP command 0xc080 + i * 4, i < 32: MACRO_LUT[i]
+  Write the command data to LUT entry i. If a macro is currently executing,
+  execution of this command is blocked until it finishes. Valid only on macro
+  input FIFO.
+
+
+= Opcodes =
+
+[XXX: write me]
+
+
+== Command opcodes ==
+
+[XXX: write me]
+
+
+== Data opcodes ==
+
+[XXX: write me]
