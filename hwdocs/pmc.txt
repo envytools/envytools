@@ -186,7 +186,7 @@ On NV04:NV50, the bits are:
 
 On NV50:NVC0, the bits are:
   0: ??? - alleged to be related to I2C
-  1: VPE [vdec/vpe.txt] and PVP [vdec/vp1.txt, vdec/vp2-pvp.txt] [NV50:NV98 and NVA0]
+  1: VPE [vdec/vpe.txt] and PVP [vdec/vp1.txt, vdec/vp2/pvp.txt] [NV50:NV98 and NVA0]
   1: PPPP [vdec/vp3-pppp.txt] [NV98 and NVAA-]
   4: PMEDIA [pmedia.txt]
   8: PFIFO [fifo/nv50-pfifo.txt]
@@ -194,7 +194,7 @@ On NV50:NVC0, the bits are:
   13: PCOPY [pcopy.txt] [NVA3-]
   14: PCRYPT [pcrypt.txt, vdec/vp3-pcrypt.txt] [NV84:NVA3]
   14: PUNK1C1 [NVAF]
-  15: PBSP [vdec/vp2-pbsp.txt, vdec/vp3-pbsp.txt] [NV84-]
+  15: PBSP [vdec/vp2/pbsp.txt, vdec/vp3-pbsp.txt] [NV84-]
   16: PTIMER [ptimer.txt]
   17: PVP [vdec/vp3-pvp.txt] [NV98 and NVAA-]
   20: PFB [memory/nv50-pfb.txt]
@@ -374,9 +374,9 @@ For NV50:NVC0:
 13: ??? [NVA3?-]
 14: PCRYPT [pcrypt.txt, vdec/vp3-pcrypt.txt] [NV84:NVA3]
 14: PUNK1C1 [NV84:NVA3]
-15: PBSP [vdec/vp2-pbsp.txt, vdec/vp3-pbsp.txt] [NV84-]
+15: PBSP [vdec/vp2/pbsp.txt, vdec/vp3-pbsp.txt] [NV84-]
 16: ??? [NVA3?-]
-17: PVP [vdec/vp2-pvp.txt, vdec/vp3-pvp.txt]
+17: PVP [vdec/vp2/pvp.txt, vdec/vp3-pvp.txt]
 18: PDAEMON [pdaemon.txt] [NVA3-]
 19: PTHERM [ptherm.txt] [NVA3-]
 20: PTIMER [ptimer.txt]

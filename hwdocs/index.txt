@@ -168,12 +168,13 @@ VPE video decoding and encoding:
 [     ] vdec/vp1.txt - the VP1 PVP engine
 
 VP2/VP3/VP4/VP5 video decoding:
-[     ] vdec/vp2.txt - Overview of VP2 hardware
-[*    ] vdec/vp2-xtensa.txt - VP2 xtensa processors
-[     ] vdec/vp2-pvp.txt - Overview of VP2 PVP engine
-[     ] vdec/vp2-pbsp.txt - Overview of VP2 PBSP engine
-[**   ] vdec/vp2-bsp.txt - VP2 BSP parser engine	[XXX: extend to cover VP3/VP4/VP5]
-[**** ] vdec/vp2-mbring.txt - VP2 MBRING format	[XXX: merge with vp3-mbring.txt]
+[     ] vdec/vp2/intro.txt - Overview of VP2 hardware
+[*    ] vdec/vp2/xtensa.txt - VP2 xtensa processors
+[     ] vdec/vp2/pvp.txt - Overview of VP2 PVP engine
+[     ] vdec/vp2/pbsp.txt - Overview of VP2 PBSP engine
+[**   ] vdec/vp2/bsp.txt - VP2 BSP parser engine	[XXX: extend to cover VP3/VP4/VP5]
+[**** ] vdec/vp2/mbring.txt - VP2 MBRING format	[XXX: merge with vp3-mbring.txt]
+[**   ] vdec/vp2/macro.txt - the VP2 command macro processor
 [**   ] vdec/vp3-mbring.txt - VP3 MBRING format
 [***  ] vdec/vuc/intro.txt -  Overview of VP2/VP3/VP4 vµc hardware
 [**** ] vdec/vuc/isa.txt - VP2/VP3/VP4 vµc ISA

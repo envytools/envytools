@@ -18,7 +18,7 @@ vµc is dependent on the codec and may include eg. motion vector derivation,
 calculating quantization parameters, converting macroblock type to prediction
 modes, etc.
 
-On VP2, the vµc is located inside the PBSP engine [see vdec/vp2-pbsp.txt]. On
+On VP2, the vµc is located inside the PBSP engine [see vdec/vp2/pbsp.txt]. On
 VP3 and VP4, it is located inside the PVP engine [see vdec/vp3-pvp.txt].
 
 The vµc unit is made of the following subunits:
