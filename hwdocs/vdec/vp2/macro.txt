@@ -283,12 +283,128 @@ VP command 0xc080 + i * 4, i < 32: MACRO_LUT[i]
 
 = Opcodes =
 
-[XXX: write me]
+The code opcodes are 64 bits long. They're divided in several major parts:
+
+ - bits 0-2: conditional execution predicate selection.
+   - bits 0-1: PRED, the predicate to use [selected from $p0-$p3]
+   - bit 2: PNOT, selects whether the predicate is negated before use.
+ - bit 3: EXIT, exit flag
+ - bit 4: SUBMIT, submit flag
+ - bits 5-30: command opcode
+ - bits 31-32: PDST, predicate destination [selected from $p0-$p3]
+ - bits 33-63: data opcode
+
+When a macro is launched, opcodes are executed sequentially from the macro
+start address until an opcode with the exit flag set is executed. An opcode
+is executed as follows:
+
+1. If the SUBMIT bit is set, the current values of $cmd, $data, $datahi are
+   sent to the output FIFO.
+2. Conditional execution status is determined: the predicate selected by
+   PRED is read. If PNOT is set to 0, conditional execution will be enabled
+   if the predicate is set to 1. Otherwise [PNOT set to 1], conditional
+   execution will be enabled if the predicate is set to 0.  Unconditional
+   opcodes are simply opcodes using non-negated predicate $p0 [PRED = 0,
+   PNOT = 0].
+3. If the SUBMIT bit is set, conditional execution is enabled, and
+   ($cmd & 0x1fe80) == 0xb000 [ie. the submitted command was in 0xb000-0xb07c
+   or 0xb100-0xb17c ranges, correnspoding to vector processor param commands],
+   $cmd is incremented by 4. This enables submitting several parameters in
+   a row without having to update the $cmd register.
+4. If conditional execution is enabled, the command opcode is executed, and
+   the command result, command predicate result, and the C2D intermediate
+   value are computed.
+5. If conditional execution is enabled, the data opcode is executed, and
+   the data result and data predicate result are computed.
+6. If conditional execution is enabled, the command and data results are
+   written to their destination registers.
+7. If the EXIT bit is set, macro execution halts.
+
+Effectively, conditional execution affects all computations [including auto
+$cmd increment], but doesn't affect submit and exit opcodes.
 
 
 == Command opcodes ==
 
-[XXX: write me]
+The command processing path is mainly meant for processing commands and data
+going to $lutidx/$datahi register, but can also exchange data with the data
+processing path if needed.
+
+The command opcode bitfields are:
+
+ - bits 5-9: CBFSTART - bitfield start [CINSRT_R, CINSRT_I, some data ops]
+ - bits 10-14: CBFEND - bitfield end [CINSRT_R, CINSRT_I, some data ops]
+ - bits 15-19: CSHIFT - shift count [CINSRT_R]
+ - bit 20: CSHDIR - shift direction [CINSRT_R]
+ - bits 15-20: CIMM6 - 6-bit unsigned immediate [CINSRT_I]
+ - bits 21-22: CSRC2 - selects command source #2 [CINSRT_I, CINSRT_R], one of:
+   - 0: ZERO, source #2 is 0
+   - 1: CACC, source #2 is current value of $cacc
+   - 2: DACC, source #2 is current value of $dacc
+   - 3: GPR, source #2 is same as command source #1
+ - bits 15-22: CIMM8 - 8-bit unsigned immediate [CEXTRADD8]
+ - bits 5-22: CIMM18 - 18-bit signed immediate [CMOV_I]
+ - bits 23-26: CSRC1 - selects command source #1 [CINSRT_R, CEXTRADD8, some data
+   ops]. The command source #1 is the GPR with index selected by this
+   bitfield.
+ - bits 27-28: the command destination, determines where the command result
+   will be written; one of:
+   - 0: CACC
+   - 1: CMD
+   - 2: LUTIDX
+   - 3: DATAHI
+ - bits 29-30: the command operation, one of:
+   - 0: CINSRT_R, bitfield insertion with shift, register sources
+   - 1: CINSRT_I, bitfield insertion with 6-bit immediate source
+   - 2: CMOV_I, 18-bit immediate value load
+   - 3: CEXTRADD8, bitfield extraction + 8-bit immediate addition
+
+The command processing path computes four values for further processing:
+
+ - the command result, ie. the 32-bit value that will later be written to
+   the command destination register
+ - the command predicate result, ie. the 1-bit value that may later be
+   written to the destination predicate
+ - the C2D value, a 32-bit intermediate result used in some data opcodes
+ - the command bitfield mask [CBFMASK], a 32-bit value used in some command
+   and data opcodes
+
+The command bitfield mask is used by the bitfield insertion operations. It
+is computed from the command bitfield start and end as follows:
+
+	if (CBFEND >= CBFSTART) {
+		CBFMASK = (2 << CBFEND) - (1 << CBFSTART); // bits CBFSTART-CBFEND are 1
+	} else {
+		CBFMASK = 0;
+	}
+
+Since the CBFEND and CBFSTART fields conflict with CIMM18 field, the data ops
+using the command mask should not be used together with the CMOV_I operation.
+
+The CINSRT_R operation has the following semantics:
+
+	if (CSHDIR == 0) /* 0 is left shift, 1 is right logical shift */
+		shifted_source = command_source_1 << CSHIFT;
+	else
+		shifted_source = command_source_1 >> CSHIFT;
+	C2D = command_result = (shifted_source & CBFMASK) | (command_source_2 & ~CBFMASK);
+	command_predicate_result = (shifted_source & CBFMASK) == 0;
+
+The CINSRT_I operation has the following semantics:
+
+	C2D = command_result = (CIMM6 << CBFSTART & CBFMASK) | (command_source_2 & ~CBFMASK);
+	command_predicate_result = 0;
+
+The CMOV_I operation has the following semantics:
+
+	C2D = command_result = sext(CIMM18, 17); /* sign-extend 18-bit immediate to 32 bits */
+	command_predicate_result = 0;
+
+The CEXTRADD8 operation has the following semantics:
+
+	C2D = (command_source_1 & CBFMASK) >> CBFSTART;
+	command_result = ((C2D + CIMM8) & 0xff) | (C2D & ~0xff); /* add immediate to low 8 bits of extracted value */
+	command_predicate_result = 0;
 
 
 == Data opcodes ==

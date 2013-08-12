@@ -66,58 +66,35 @@ static uint32_t read_reg(struct vp2_macro_ctx *ctx, int idx) {
 
 static void simulate_op(struct vp2_macro_ctx *ctx, uint64_t op) {
 	uint32_t data_res;
-	int op_pred = ctx->pred >> (op & 3) & 1;
-	if (op & 1 << 2)
-		op_pred ^= 1;
-	if (!op_pred)
+	/* predicate stuff */
+	int pred = op & 3;
+	int pnot = op >> 2 & 1;
+	int pred_val = ctx->pred >> pred & 1;
+	if (pnot)
+		pred_val ^= 1;
+	if (!pred_val)
 		return;
-	if (op & 0x10) {
-		int inc = 0;
-		if ((ctx->cmd & 0x1fe80) == 0xb000)
-			inc = 1;
-		if (inc)
-			ctx->cmd += 4;
-	}
-	int data_pdst = op >> 31 & 3;
-	int data_rdst = op >> 56 & 0xf;
-	int data_sdst = op >> 60 & 1;
-	int data_op = op >> 61 & 7;
-	int cmd_op = op >> 29 & 3;
-	int data_rsrc = op >> 52 & 0xf;
-	int data_ssrc = op >> 50 & 3;
-	int cmd_ssrc = op >> 21 & 3;
-	uint32_t data_src1, data_src2;
-	uint32_t data_src3 = read_reg(ctx, op >> 23 & 0xf);
-	uint32_t cmd_res;
-	uint32_t cmd2data;
+
+	// int exit_flag = op >> 3 & 1;
+	int submit_flag = op >> 4 & 1;
+	if (submit_flag && (ctx->cmd & 0x1fe80) == 0xb000)
+		ctx->cmd += 4;
 	int cbf_start = op >> 5 & 0x1f;
 	int cbf_end = op >> 10 & 0x1f;
+	int cmd_ssrc = op >> 21 & 3;
+	uint32_t cmd_src1 = read_reg(ctx, op >> 23 & 0xf);
+	int cmd_op = op >> 29 & 3;
+	uint32_t cmd_res;
+	uint32_t cmd2data;
 	uint32_t cmask = 0;
 	if (cbf_end >= cbf_start)
 		cmask = (2 << cbf_end) - (1 << cbf_start);
-	data_src1 = read_reg(ctx, data_rsrc);
 	int pres = 0;
-	switch (data_ssrc) {
-		case 0: {
-			data_src2 = 0;
-			break;
-		}
-		case 1:
-			data_src2 = ctx->cacc;
-			break;
-		case 2:
-			data_src2 = ctx->dacc;
-			break;
-		case 3:
-			data_src2 = data_src1;
-			break;
-	}
 	uint32_t cmd_src2;
 	switch (cmd_ssrc) {
-		case 0: {
+		case 0:
 			cmd_src2 = 0;
 			break;
-		}
 		case 1:
 			cmd_src2 = ctx->cacc;
 			break;
@@ -125,7 +102,7 @@ static void simulate_op(struct vp2_macro_ctx *ctx, uint64_t op) {
 			cmd_src2 = ctx->dacc;
 			break;
 		case 3:
-			cmd_src2 = data_src3;
+			cmd_src2 = cmd_src1;
 			break;
 	}
 	switch (cmd_op) {
@@ -134,9 +111,9 @@ static void simulate_op(struct vp2_macro_ctx *ctx, uint64_t op) {
 			int cbf_shdir = op >> 20 & 1;
 			uint32_t ssrc;
 			if (cbf_shdir) {
-				ssrc = data_src3 >> cbf_shift;
+				ssrc = cmd_src1 >> cbf_shift;
 			} else {
-				ssrc = data_src3 << cbf_shift;
+				ssrc = cmd_src1 << cbf_shift;
 			}
 			cmd_res = cmd_src2 & ~cmask;
 			cmd_res |= ssrc & cmask;
@@ -161,8 +138,7 @@ static void simulate_op(struct vp2_macro_ctx *ctx, uint64_t op) {
 		}
 		case 3: {
 			uint32_t cmd_imm = op >> 15 & 0xff;
-//			printf("NOW %08x %02x %08x\n", data_src3, cmd_imm, cmask);
-			uint32_t msrc = (data_src3 & cmask) >> cbf_start;
+			uint32_t msrc = (cmd_src1 & cmask) >> cbf_start;
 			cmd_res = ((msrc + cmd_imm) & 0xff) | (msrc & ~0xff);
 			cmd2data = msrc;
 			break;
@@ -170,10 +146,32 @@ static void simulate_op(struct vp2_macro_ctx *ctx, uint64_t op) {
 		default:
 			abort();
 	}
+	int pdst = op >> 31 & 3;
+	int data_ssrc = op >> 50 & 3;
+	int data_rsrc = op >> 52 & 0xf;
+	int data_rdst = op >> 56 & 0xf;
+	int data_sdst = op >> 60 & 1;
+	int data_op = op >> 61 & 7;
+	uint32_t data_src1 = read_reg(ctx, data_rsrc);
+	uint32_t data_src2;
+	switch (data_ssrc) {
+		case 0:
+			data_src2 = 0;
+			break;
+		case 1:
+			data_src2 = ctx->cacc;
+			break;
+		case 2:
+			data_src2 = ctx->dacc;
+			break;
+		case 3:
+			data_src2 = data_src1;
+			break;
+	}
 	int data_skip_sdst = 0;
 	switch (data_op) {
-		case 1:
-		case 0: {
+		case 0:
+		case 1: {
 			int bf_start = op >> 33 & 0x1f;
 			int bf_end = op >> 38 & 0x1f;
 			int bf_shift = op >> 43 & 0x1f;
@@ -258,7 +256,7 @@ static void simulate_op(struct vp2_macro_ctx *ctx, uint64_t op) {
 		}
 		case 5: {
 			int shdir = op >> 48 & 1;
-			int shift = data_src3 & 0x1f;
+			int shift = cmd_src1 & 0x1f;
 			if (shdir) {
 				data_res = data_src1 >> shift;
 				if (data_src1 & 1 << 31 && shift)
@@ -299,9 +297,9 @@ static void simulate_op(struct vp2_macro_ctx *ctx, uint64_t op) {
 			else
 				halfop = data_src1 & 0xffff;
 			if (which2)
-				halfop2 = data_src3 >> 16;
+				halfop2 = cmd_src1 >> 16;
 			else
-				halfop2 = data_src3 & 0xffff;
+				halfop2 = cmd_src1 & 0xffff;
 			if (subop)
 				halfop = (halfop - halfop2) & 0xffff;
 			else
@@ -338,9 +336,9 @@ static void simulate_op(struct vp2_macro_ctx *ctx, uint64_t op) {
 		else
 			ctx->dacc = data_res;
 	}
-	if (data_pdst) {
-		ctx->pred &= ~(1 << data_pdst);
-		ctx->pred |= pres << data_pdst;
+	if (pdst) {
+		ctx->pred &= ~(1 << pdst);
+		ctx->pred |= pres << pdst;
 	}
 }
 
