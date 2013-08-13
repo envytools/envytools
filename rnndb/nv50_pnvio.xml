@@ -30,7 +30,7 @@
 	<bitfield pos="1" name="PWROFF"/>
 	<bitfield pos="2" name="UNK2"/>
 	<bitfield pos="3" name="BYPASS"/> <!-- and use the usual clk_id + 10 -->
-	<bitfield pos="4" name="DISABLE"/>
+	<bitfield pos="4" name="BYPASS_PLL_CHECK"/>
 	<bitfield low="5" high="6" name="UNK5"/>
 	<bitfield pos="8" name="UNK8"/>
 	<bitfield pos="16" name="PLL_PWR"/>
