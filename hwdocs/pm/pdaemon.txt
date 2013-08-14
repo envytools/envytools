@@ -123,7 +123,9 @@ Status bits:
   1: ??? [XXX]
   2: ??? [XXX]
   3: MEMIF [fuc/memif.txt]
-  4: USER
+  4: USER [NVA3:NVAF, NVC0-]
+  4: ??? [XXX] [NVAF:NVC0]
+  5: USER [NVAF:NVC0]
 
 
 = IO register space =
@@ -275,8 +277,8 @@ register is connected to a dummy unit whose busy status is controlled directly
 by the user:
 
 MMIO 0x420 / I[0x10800]: USER_BUSY
-  Read/write, only bit 0 is valid. If set, fµc status line 4 [USER] is set to 1
-  [busy], otherwise it's set to 0 [idle].
+  Read/write, only bit 0 is valid. If set, fµc status line 4 or 5 [USER] is
+  set to 1 [busy], otherwise it's set to 0 [idle].
 
 [XXX: what could possibly use PDAEMON's busy status?]
 
