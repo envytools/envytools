@@ -53,6 +53,7 @@ The IO registers:
 Interrupts:
   8: [E] MEMIF_TARGET_INVALID [NVA3:NVC0] [fuc/memif.txt]
   9: [E] MEMIF_FAULT [NVA3:NVC0] [fuc/memif.txt]
+  9: [E] MEMIF_BREAK [NVC0-] [fuc/memif.txt]
  10: [L] COPY_BLOCK
  11: [L] COPY_NONBLOCK
 

@@ -49,6 +49,7 @@ MEMIF ports:
 Interrupts:
   8: [E] MEMIF_TARGET_INVALID [NVA3:NVC0] [fuc/memif.txt]
   9: [E] MEMIF_FAULT [NVA3:NVC0] [fuc/memif.txt]
+  9: [E] MEMIF_BREAK [NVC0-] [fuc/memif.txt]
  10: [L] POUT_DONE
  11: [L] POUT_ERR
  12: [L] FE_ERR

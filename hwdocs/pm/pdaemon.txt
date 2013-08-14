@@ -109,6 +109,7 @@ NVC0 VM client: HUB 0x12
 Interrupts:
   8: [E] MEMIF_TARGET_INVALID [NVA3:NVC0] [fuc/memif.txt]
   9: [E] MEMIF_FAULT [NVA3:NVC0] [fuc/memif.txt]
+  9: [E] MEMIF_BREAK [NVC0-] [fuc/memif.txt]
  10: [L] PMC_DAEMON - PMC interrupts routed to PDAEMON via INTR_DAEMON [bus/pmc.txt]
  11: [L] SUBINTR - comes from SUBINTR interupt aggregator
  12: [L] THERM - PTHERM subinterrupts routed to PDAEMON [pm/ptherm.txt]

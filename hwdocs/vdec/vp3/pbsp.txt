@@ -60,6 +60,7 @@ d00/34000:d40/35000 ???		???			[fuc/crypt.txt]
 Interrupts:
   8: [E] MEMIF_TARGET_INVALID [NV98:NVC0] [fuc/memif.txt]
   9: [E] MEMIF_FAULT [NV98:NVC0] [fuc/memif.txt]
+  9: [E] MEMIF_BREAK [NVC0-] [fuc/memif.txt]
  10: [L] BSP [vdec/vp3/pbsp.txt]
  11: [L] CRYPT [NVA3-] [fuc/crypt.txt]
 
