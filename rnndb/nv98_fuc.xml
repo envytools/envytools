@@ -246,6 +246,11 @@
 		</bitfield>
 	</reg32>
 	<reg32 offset="0x144" name="TLB_CMD_RES" variants="NVA3-"/>
+	<reg32 offset="0x148" name="BRANCH_HISTORY_CTRL" variants="NVD9-">
+		<bitfield low="0" high="7" name="IDX"/>
+		<bitfield low="16" high="23" name="IDX_VALID_MASK"/> <!-- RO -->
+	</reg32>
+	<reg32 offset="0x14c" name="BRANCH_HISTORY_PC" variants="NVD9-"/>
 
 	<reg32 offset="0x160" name="UAS_IO_WINDOW" variants="NVD9-" align="0x40000"/>
 	<reg32 offset="0x164" name="UAS_CONFIG" variants="NVD9-">
