@@ -26,7 +26,9 @@ TOC
 7. The $stat register
 7.1. Sleep instruction: sleep
 7.2. Wait for status bit instructions: wstc, wsts
-8. Misc special registers
+8. The watchdog counter
+8.1. Clear watchdog counter instruction: clicnt
+9. Misc special registers
 
 
 = Introduction =
@@ -104,8 +106,7 @@ oriented. There are 3 ISA register files:
    - $sr58/$bqpc: B neighbour's $qpc				[vdec/vuc/vreg.txt]
 
 There are 7 address spaces the vµc can access:
- - D[] - user data, word-addressed, 0x800 16-bit words long, loads and stores
-         are in word units.
+ - D[] - user data					[vdec/vuc/isa.txt]
  - PWT[] - pred weight table data, read-only. This space is filled when
            a packet of type 4 is read from the MBRING. Byte-addressed, 0x200
 	   bytes long, loads are in byte units.
@@ -491,7 +492,31 @@ instructions starting from code address 0. When this bit is changed from 1 to
 
 = The data space =
 
-[XXX: write me]
+D[] is a read-write memory space consisting of 0x800 16-bit cells. Every
+address in range 0-0x7ff corresponds to one cell. The D[] space is used for
+three purposes:
+
+ - to store general-purpose data by microcode/host and communicate between
+   the microcode and the host
+ - to store the RPI table, a mapping from bitstream reference indices to hw
+   surface indices [RPIs], used directly by hardware [vdec/vuc/vreg.txt]
+ - to store the REF table, a mapping from RPIs to surface VM addresses, used
+   directly by hardware [VP3+] [vdec/vuc/vreg.txt]
+
+On VP2, the D[] space can be accessed from the host directly by using the DATA
+window:
+
+BAR0 0x103200 + (i >> 6) * 4 [index i & 0x3f] / XLMI 0x08000 + i * 4, i < 0x800: DATA[i] [VP2]
+  Accesses the data space - low 16 bits of DATA[i] go to D[] cell i, high 16
+  bits are unused.
+
+On VP3+, the DATA window also exists, but cells are accessed in pairs:
+
+BAR0 0x085400 + (i >> 6) * 4 [index i & 0x3f] / I[0x10000 + i * 4], i < 0x400: DATA[i] [VP3+]
+  Accesses the data space - low 16 bits of DATA[i] go to D[] cell i*2, high 16
+  bits go to D[] cell i*2+1.
+
+The D[] space can be both read and written via the DATA window.
 
 
 = Instruction reference =
@@ -912,83 +937,25 @@ Execution unit conflicts: lmulu, lmuls, lsrr, ladd, lsar, ldivu
 
 == Memory access instructions: ld, st ==
 
-[XXX: write me]
-   
-* Memory
-    0x80: [st DST SRC]
-		  st MEM[IMM10] GPREG
-		  st MEM[GPREG] GPREG
-		  st MEM[GPREG + IMM10] GPREG
-		  st MEM[GPREG + GPREG] GPREG
-		Predicated exceptions:
-		  PRED st MEM[IMM6] GPREG
-		  PRED st MEM[GPREG + IMM6] GPREG
-        Store data into memory. If instruction is predicated, the immediate value will be shorter.
-            DST := SRC
-        Delay: immediate
-    
-    0x81: [ld DST SRC]
-          ld GPREG MEM[IMM10]
-          ld GPREG MEM[GPREG]
-          ld GPREG MEM[GPREG + IMM10]
-          ld GPREG MEM[GPREG + GPREG]
-        Predicated exceptions:
-          PRED ld GPREG MEM[IMM6]
-          PRED ld GPREG MEM[GPREG + IMM6]
-        Load data from memory MEM. If instruction is predicated, immediate is shorter.
-            DST := SRC
-        Delay: 2 * MOV. Value is being read immediately (or it seems so), delay applies to DST update.
+These instructions load and store values from/to one of the memory spaces
+available to the vµc microprocessor. The exact semantics of such operation
+depend on the space being accessed.
 
-* IO
-    0x8f: [iord DST SRC]
-          iord GPREG IO[IMM10]
-          iord GPREG IO[GPREG]
-          iord GPREG IO[GPREG + IMM10]
-          iord GPREG IO[GPREG + GPREG]
-        Predicated exceptions:
-          PRED iord GPREG IO[IMM6]
-          PRED iord GPREG IO[GPREG + IMM6]
-        Read data from IO address space - a copy of [ld] instruction. If predicated, immediate is shorter.
-        XXX: verify predicated forms
-            DST := SRC
-        Delay: 2 * MOV. Value is being read immediately (or it seems so), delay applies to DST update.
-    
-    0x8e: [iowr DST SRC]
-          iowr IO[IMM10] GPREG
-          iowr IO[GPREG] GPREG
-          iowr IO[GPREG + IMM10] GPREG
-        Predicated exceptions:
-          PRED iowr IO[IMM6] GPREG
-          PRED iowr IO[GPREG + IMM6] GPREG
-        Write data into IO address space. If instruction is predicated, the immediate value will be shorter.
-        XXX: verify all forms
-            DST := SRC
-        Delay: immediate
-        
-* Unknown
-    0x83: I/O? Memory load type
-        Memory space unknown, labeled F.
-        Composed of 8-byte structures.
-        XXX: address space size
-        Delay: 2 * MOV
-    
-    0x89: I/O? Memory load type
-        Memory space unknown, labeled G.
-        Composed of 8-byte structures.
-        XXX: address space size
-        Delay: 2 * MOV
-    
-    0x84: I/O? Memory store type.
-          [8:12]: (0, 2, 3, 4, 5)
-          [16:20]: all
-          [20:24]: (0, 1, 2)
-          [25]: 1, 0 # extra 1
-          [26:]: const
-
-    0x8d: I/O? Memory load type.
-        Always yields 2. Only used in h264, only in the form of 0x1c05008d.
-        Blob ORs it with [$sr28|$sr29] ored with [0x8|0x4], then writes to E[2].
-        Delay: 2 * MOV
+Instructions:
+	st space[dst + src1 * 2], src2	OP=xxxx0	[if IMMF is 0]
+	st space[src1 + stoff], src2	OP=xxxx0	[if IMMF is 1]
+	ld dst, space[src1 + ldoff]	OP=xxxx1	[if IMMF is 0]
+	ld dst, space[src1 + src2]	OP=xxxx1	[if IMMF is 1]
+Opcode: Special opcode with OC=100, OP as above. Note that btis 1-4 of OP are
+        used to select memory space.
+Operation:
+	if (op == st)
+		space.STORE(address, src2);
+	else
+		dst = space.LOAD(address);
+Execution time:
+	ld: 3 cycles
+	st: 1 cycle
 
 
 = The scratch special registers =
@@ -1091,6 +1058,16 @@ Operation:
 	while (($stat >> imm4 & 1) != (op == wsts));
 Execution time: as long as necessary, at least 1 cycle, blocks subsequent
 	instructions until finished
+
+
+= The watchdog counter =
+
+[XXX: write me]
+
+
+== Clear watchdog counter instruction: clicnt ==
+
+[XXX: write me]
 
 
 = Misc special registers =

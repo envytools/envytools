@@ -48,6 +48,7 @@ The vµc registers are located in PBSP XLMI space at addresses 0x08000:0x10000
 [BAR0 addresses 0x103200:0x103400]. They are:
 
 08000:0a000/103200:103280: DATA - vµc microprocessor data space
+							[vdec/vuc/isa.txt]
 0a000/103280: ICNT - executed instructions counter, aliased to vµc special
               register $sr15 [$icnt]
 0a100/103284: WDCNT - watchdog count - when ICNT reaches WDCNT value and WDCNT
@@ -95,6 +96,7 @@ The vµc registers are located in PVP fµc IO space at addresses 0x10000:0x14000
 [BAR0 addresses 0x085400:0x085500]. They are:
 
 10000:11000/085400:085440: DATA - vµc microprocessor data space
+							[vdec/vuc/isa.txt]
 11000/085440: CODE_CONTROL - code execution control	[vdec/vuc/isa.txt]
 11100/085444: CODE_WINDOW - code access window		[vdec/vuc/isa.txt]
 11200/085448: ICNT - executed instructions counter, aliased to vµc special
