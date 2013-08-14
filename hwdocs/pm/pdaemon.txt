@@ -109,9 +109,9 @@ NVC0 VM client: HUB 0x12
 Interrupts:
   8: [E] MEMIF_TARGET_INVALID [NVA3:NVC0] [fuc/memif.txt]
   9: [E] MEMIF_FAULT [NVA3:NVC0] [fuc/memif.txt]
- 10: [L] PMC_DAEMON - PMC interrupts routed to PDAEMON via INTR_DAEMON [pmc.txt]
+ 10: [L] PMC_DAEMON - PMC interrupts routed to PDAEMON via INTR_DAEMON [bus/pmc.txt]
  11: [L] SUBINTR - comes from SUBINTR interupt aggregator
- 12: [L] THERM - PTHERM subinterrupts routed to PDAEMON [ptherm.txt]
+ 12: [L] THERM - PTHERM subinterrupts routed to PDAEMON [pm/ptherm.txt]
  13: [L] SIGNAL - input signal rise/fall interrupts, comes from SIGNAL_*_INTR
  14: [L] TIMER - the timer interrupt, comes from TIMER_INTR
  15: [L] IREDIR_PMC - PMC interrupts routed via INTR_HOST and redirected to
@@ -188,9 +188,9 @@ offset and I[] address on NVD9+, second is I[] address on NVA3:NVD9]:
 6a0/1a800  IREDIR_ERR_INTR_EN - IREDIR error interrupt enable
 6a4/1a900  IREDIR_TIMEOUT_ENABLE - IREDIR_HOST_REQ timeout enable
 [XXX: finish the list]
-800/20000:fe0/40000  THERM [NVA3:NVD9] [ptherm.txt]
+800/20000:fe0/40000  THERM [NVA3:NVD9] [pm/ptherm.txt]
 fe0/-:1000/-  fµc [NVA3:NVD9] [fuc/io.txt]
-1000/-:1800/-  THERM [NVD9-] [ptherm.txt]
+1000/-:1800/-  THERM [NVD9-] [pm/ptherm.txt]
 
 Notes:
  - the last 0x20 bytes of THERM range on NVA3:NVD9 aren't accessible by the
@@ -647,7 +647,7 @@ The PTHERM access circuitry also exports a signal to PCOUNTER:
 In addition to direct register access to PTHERM, PDAEMON also has direct access
 to PTHERM interrupts - fµc interrupt #12 [THERM] comes from PTHERM interrupt
 aggregator. PTHERM subinterrupts can be individually assigned for PMC or
-PDAEMON delivery - see ptherm.txt for more information.
+PDAEMON delivery - see pm/ptherm.txt for more information.
 
 
 = Counters =

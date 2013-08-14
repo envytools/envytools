@@ -22,7 +22,7 @@ The IO registers:
 600:700 MEMIF	memory interface	[fuc/memif.txt]
 800:900 CRYPT	crypto coprocessor	[fuc/crypt.txt]
 900:a00 ???	???			[fuc/crypt.txt]
-a00:c00 ???	???			[punk1c3.txt]
+a00:c00 ???	???			[display/nv50/punk1c3.txt]
 c00:c40 ???	???			[fuc/crypt.txt]
 d00:d40 ???	???			[fuc/crypt.txt]
 

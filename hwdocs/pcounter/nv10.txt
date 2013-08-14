@@ -1,13 +1,13 @@
 === NV10 signals ===
 
 0x70: PGRAPH.PM_TRIGGER
-0x87: PTIMER_TIME_B12 [ptimer.txt]
+0x87: PTIMER_TIME_B12 [bus/ptimer.txt]
 0x80: trailer base
 
 === NV15 signals ===
 
 0x70: PGRAPH.PM_TRIGGER
-0x87: PTIMER_TIME_B12 [ptimer.txt]
+0x87: PTIMER_TIME_B12 [bus/ptimer.txt]
 0x80: trailer base
 
 === NV1F signals ===

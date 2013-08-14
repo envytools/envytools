@@ -19,7 +19,7 @@ calculating quantization parameters, converting macroblock type to prediction
 modes, etc.
 
 On VP2, the vµc is located inside the PBSP engine [see vdec/vp2/pbsp.txt]. On
-VP3 and VP4, it is located inside the PVP engine [see vdec/vp3-pvp.txt].
+VP3 and VP4, it is located inside the PVP engine [see vdec/vp3/pvp.txt].
 
 The vµc unit is made of the following subunits:
 
@@ -52,13 +52,13 @@ The vµc registers are located in PBSP XLMI space at addresses 0x08000:0x10000
               register $sr15 [$icnt]
 0a100/103284: WDCNT - watchdog count - when ICNT reaches WDCNT value and WDCNT
               is not equal to 0xffff, a watchdog interrupt is raised
-0a200/103288: CODE_CONTROL - code execution control	[vuc/isa.txt]
-0a300/10328c: CODE_WINDOW - code access window		[vuc/isa.txt]
-0a400/103290: H2V - host to vµc scratch register	[vuc/isa.txt]
-0a500/103294: V2H - vµc to host scratch register	[vuc/isa.txt]
+0a200/103288: CODE_CONTROL - code execution control	[vdec/vuc/isa.txt]
+0a300/10328c: CODE_WINDOW - code access window		[vdec/vuc/isa.txt]
+0a400/103290: H2V - host to vµc scratch register	[vdec/vuc/isa.txt]
+0a500/103294: V2H - vµc to host scratch register	[vdec/vuc/isa.txt]
 0a600/103298: PARM - sequence/picture/slice parameters required by vµc
               hardware, aliased to vµc special register $sr7 [$parm]
-0a700/10329c: PC - program counter			[vuc/isa.txt]
+0a700/10329c: PC - program counter			[vdec/vuc/isa.txt]
 0a800/1032a0: VPRING_RESIDUAL.OFFSET - the VPRING_RESIDUAL offset
 0a900/1032a4: VPRING_RESIDUAL.HALT_POS - the VPRING_RESIDUAL halt position
 0aa00/1032a8: VPRING_RESIDUAL.WRITE_POS - the VPRING_RESIDUAL write position
@@ -75,14 +75,14 @@ The vµc registers are located in PBSP XLMI space at addresses 0x08000:0x10000
 0b500/1032d4: INTR - interrupt status
 0b600/1032d8: INTR_EN - interrupt enable mask
 0b700/1032dc: VPRING_ENABLE - enables VPRING access
-0b800/1032e0: MVSURF_IN_OFFSET - MVSURF_IN offset	[vuc/mvsurf.txt]
-0b900/1032e4: MVSURF_IN_PARM - MVSURF_IN parameters	[vuc/mvsurf.txt]
-0ba00/1032e8: MVSURF_IN_LEFT - MVSURF_IN data left	[vuc/mvsurf.txt]
-0bb00/1032ec: MVSURF_IN_POS - MVSURF_IN position	[vuc/mvsurf.txt]
-0bc00/1032f0: MVSURF_OUT_OFFSET - MVSURF_OUT offset	[vuc/mvsurf.txt]
-0bd00/1032f4: MVSURF_OUT_PARM - MVSURF_OUT parameters	[vuc/mvsurf.txt]
-0be00/1032f8: MVSURF_OUT_LEFT - MVSURF_OUT space left	[vuc/mvsurf.txt]
-0bf00/1032fc: MVSURF_OUT_POS - MVSURF_OUT position	[vuc/mvsurf.txt]
+0b800/1032e0: MVSURF_IN_OFFSET - MVSURF_IN offset	[vdec/vuc/mvsurf.txt]
+0b900/1032e4: MVSURF_IN_PARM - MVSURF_IN parameters	[vdec/vuc/mvsurf.txt]
+0ba00/1032e8: MVSURF_IN_LEFT - MVSURF_IN data left	[vdec/vuc/mvsurf.txt]
+0bb00/1032ec: MVSURF_IN_POS - MVSURF_IN position	[vdec/vuc/mvsurf.txt]
+0bc00/1032f0: MVSURF_OUT_OFFSET - MVSURF_OUT offset	[vdec/vuc/mvsurf.txt]
+0bd00/1032f4: MVSURF_OUT_PARM - MVSURF_OUT parameters	[vdec/vuc/mvsurf.txt]
+0be00/1032f8: MVSURF_OUT_LEFT - MVSURF_OUT space left	[vdec/vuc/mvsurf.txt]
+0bf00/1032fc: MVSURF_OUT_POS - MVSURF_OUT position	[vdec/vuc/mvsurf.txt]
 0c000/103300: MBRING_OFFSET - the MBRING offset
 0c100/103304: MBRING_SIZE - the MBRING size
 0c200/103308: MBRING_READ_POS - the MBRING read position
@@ -95,30 +95,30 @@ The vµc registers are located in PVP fµc IO space at addresses 0x10000:0x14000
 [BAR0 addresses 0x085400:0x085500]. They are:
 
 10000:11000/085400:085440: DATA - vµc microprocessor data space
-11000/085440: CODE_CONTROL - code execution control	[vuc/isa.txt]
-11100/085444: CODE_WINDOW - code access window		[vuc/isa.txt]
+11000/085440: CODE_CONTROL - code execution control	[vdec/vuc/isa.txt]
+11100/085444: CODE_WINDOW - code access window		[vdec/vuc/isa.txt]
 11200/085448: ICNT - executed instructions counter, aliased to vµc special
               register $sr15 [$icnt]
 11300/08544c: WDCNT - watchdog count - when ICNT reaches WDCNT value and WDCNT
               is not equal to 0xffff, a watchdog interrupt is raised
-11400/085450: H2V - host to vµc scratch register	[vuc/isa.txt]
-11500/085454: V2H - vµc to host scratch register	[vuc/isa.txt]
+11400/085450: H2V - host to vµc scratch register	[vdec/vuc/isa.txt]
+11500/085454: V2H - vµc to host scratch register	[vdec/vuc/isa.txt]
 11600/085458: PARM - sequence/picture/slice parameters required by vµc
               hardware, aliased to vµc special register $sr7 [$parm]
-11700/08545c: PC - program counter			[vuc/isa.txt]
+11700/08545c: PC - program counter			[vdec/vuc/isa.txt]
 11800/085460: RPITAB - the address of refidx -> RPI translation table
 11900/085464: REFTAB - the address of RPI -> VM address translation table
 11a00/085468: BUSY - a status reg showing which subunits of vµc are busy
 11c00/085470: INTR - interrupt status
 11d00/085474: INTR_EN - interrupt enable mask
-12000/085480: MVSURF_IN_ADDR - MVSURF_IN address	[vuc/mvsurf.txt]
-12100/085484: MVSURF_IN_PARM - MVSURF_IN parameters	[vuc/mvsurf.txt]
-12200/085488: MVSURF_IN_LEFT - MVSURF_IN data left	[vuc/mvsurf.txt]
-12300/08548c: MVSURF_IN_POS - MVSURF_IN position	[vuc/mvsurf.txt]
-12400/085490: MVSURF_OUT_ADDR - MVSURF_OUT address	[vuc/mvsurf.txt]
-12500/085494: MVSURF_OUT_PARM - MVSURF_OUT parameters	[vuc/mvsurf.txt]
-12600/085498: MVSURF_OUT_LEFT - MVSURF_OUT space left	[vuc/mvsurf.txt]
-12700/08549c: MVSURF_OUT_POS - MVSURF_OUT position	[vuc/mvsurf.txt]
+12000/085480: MVSURF_IN_ADDR - MVSURF_IN address	[vdec/vuc/mvsurf.txt]
+12100/085484: MVSURF_IN_PARM - MVSURF_IN parameters	[vdec/vuc/mvsurf.txt]
+12200/085488: MVSURF_IN_LEFT - MVSURF_IN data left	[vdec/vuc/mvsurf.txt]
+12300/08548c: MVSURF_IN_POS - MVSURF_IN position	[vdec/vuc/mvsurf.txt]
+12400/085490: MVSURF_OUT_ADDR - MVSURF_OUT address	[vdec/vuc/mvsurf.txt]
+12500/085494: MVSURF_OUT_PARM - MVSURF_OUT parameters	[vdec/vuc/mvsurf.txt]
+12600/085498: MVSURF_OUT_LEFT - MVSURF_OUT space left	[vdec/vuc/mvsurf.txt]
+12700/08549c: MVSURF_OUT_POS - MVSURF_OUT position	[vdec/vuc/mvsurf.txt]
 12800/0854a0: MBRING_OFFSET - the MBRING offset
 12900/0854a4: MBRING_SIZE - the MBRING size
 12a00/0854a8: MBRING_READ_POS - the MBRING read position
@@ -126,7 +126,7 @@ The vµc registers are located in PVP fµc IO space at addresses 0x10000:0x14000
 12c00/0854b0: ??? [XXX]
 12d00/0854b4: ??? [XXX]
 12e00/0854b8: ??? [XXX]
-12f00/0854bc: STAT - control/status register		[vuc/isa.txt]
+12f00/0854bc: STAT - control/status register		[vdec/vuc/isa.txt]
 13000/0854c0: ??? [XXX]
 13100/0854c4: ??? [XXX]
 

@@ -28,10 +28,10 @@ NV30:NV50 [enough to address all of VRAM], 32-bit on NV50:NVC0, 40-bit on
 NVC0+.
 
 For details on setting up the target physical/VM space on NV50:NVC0, see
-nv50-host-mem.txt ; for NVC0+ see nvc0-host-mem.txt .
+memory/nv50-host-mem.txt ; for NVC0+ see memory/nvc0-host-mem.txt .
 
 Note that, on NV30:NVC0 cards, the PEEPHOLE is subject to PMC hidden window
-masking - see pmc.txt for details.
+masking - see bus/pmc.txt for details.
 
 
 = MMIO registers =
@@ -131,7 +131,7 @@ PEEPHOLE_W_DATA write operation:
 	}
 
 The PEEPHOLE_W_PAIR_MISMATCH interrupt is reported in PBUS.INTR bit 12 [see
-pbus.txt].
+bus/pbus.txt].
 
 
 = RW port operation =

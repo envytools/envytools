@@ -37,7 +37,7 @@ MMIO 0x400100: INTR
     id and/or SUBCONTEXT_ID is different from the current one.
   bit 8: VBLANK - the vertical blanking period has started on PFB. This
     is really PFB's interrupt. It is delivered to a different PMC line than
-    other PGRAPH interrupts. See memory/nv01-pfb.txt for details.
+    other PGRAPH interrupts. See display/nv01/pfb.txt for details.
   bit 12: XY_RANGE - an X or Y coordinate used for rendering was out of the
     -0x8000..0x7fff range supported by the rasterizer
   bit 16: MISSING_METHOD - the final method to do an operation was submitted
@@ -139,7 +139,7 @@ in the RAMHT structure, and is thus automatically passed to PGRAPH via
 method 0 by PFIFO when the active object changes for any reason. The bits in
 the options field are:
 
-  bits 0-4: OP - 2d operation [see nv01-2d.txt]
+  bits 0-4: OP - 2d operation [see graph/2d.txt]
     0x00: RPOP_DS
     0x01: ROP_SDD
     0x02: ROP_DSD
@@ -168,12 +168,12 @@ the options field are:
     0x1a: BLEND_DS_AIB
     0x1b: BLEND_PS_B
     0x1c: BLEND_PS_IB
-  bit 5: CHROMA - 2d chroma key enable [see nv01-2d.txt]
-  bit 6: PLANE - 2d plane mask enable [see nv01-2d.txt]
-  bit 7: CLIP - 2d user clip rectangle enable [see nv01-2d.txt]
-  bit 8: NOTIFY_VALID - enables the NOTIFY method [see nv01-graph.txt]
+  bit 5: CHROMA - 2d chroma key enable [see graph/2d.txt]
+  bit 6: PLANE - 2d plane mask enable [see graph/2d.txt]
+  bit 7: CLIP - 2d user clip rectangle enable [see graph/2d.txt]
+  bit 8: NOTIFY_VALID - enables the NOTIFY method [see graph/intro.txt]
   bits 9-12: COLOR_FORMAT_DST - a field that selects the 2d color format
-         [see nv01-2d.txt] and the destination buffer mask [see nv01-2d.txt]
+         [see graph/2d.txt] and the destination buffer mask [see graph/2d.txt]
      0: BUF0_X1R5G5B5_A1R5G5B5
      1: BUF0_X8R8G8B8_A8R8G8B8
      2: BUF0_X2R10G10B10_A2R10G10B10
@@ -189,10 +189,10 @@ the options field are:
     12: BUF01_X2R10G10B10_A2R10G10B10
     13: BUF01_Y8_A8Y8
     14: BUF01_Y16_A16Y16
-  bit 13: ALPHA - 2d alpha enable [see nv01-2d.txt]
-  bit 14: MONO_FORMAT - 2d mono format [see nv01-2d.txt]
+  bit 13: ALPHA - 2d alpha enable [see graph/2d.txt]
+  bit 14: MONO_FORMAT - 2d mono format [see graph/2d.txt]
   bit 15: SUBCONTEXT_ID - used to implement multiple subcontexts per channel
-          [see nv01-graph.txt]
+          [see graph/intro.txt]
 
 
 = Method submission =

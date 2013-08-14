@@ -3,7 +3,7 @@ C
 class: an enumerated value selecting the type of a FIFO object. They were
 introduced in hardware on NV04, being managed in software on NV01:NV04. The
 nvidia binary blob, aside from actual hardware objects, assigns classes to
-many software-only objects. For a list of classes, see classes.txt
+many software-only objects. For a list of classes, see fifo/classes.txt
 
 channel: an independent stream of commands to the GPU, handled via PFIFO, or
 PDISPLAY for display channels. A PFIFO channel can send commands to any of the
@@ -24,7 +24,8 @@ D
 
 DMA object: a FIFO object represeting an area of memory, used on NV01:NVC0.
 Can be used to represent both contiguous and paged areas of memory.
-[nv01-dmaobj.txt, nv03-dmaobj.txt, nv04-dmaobj.txt, nv50-vm.txt]
+[memory/nv01-pdma.txt, memory/nv03-dmaobj.txt, memory/nv04-dmaobj.txt,
+memory/nv50-vm.txt]
 
 
 E

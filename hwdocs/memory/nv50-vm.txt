@@ -23,7 +23,7 @@ the following address spaces:
  - physical addresses: 40-bit physical address + target specifier, which
    can be VRAM, SYSRAM_SNOOP, or SYSRAM_NOSNOOP. They can refer to:
    - VRAM: 32-bit physical addresses - high 8 bits are ignored - on-board
-     memory of the card. Supports LSR and compression. See nv50-vram.txt
+     memory of the card. Supports LSR and compression. See memory/nv50-vram.txt
    - SYSRAM: 40-bit physical addresses - accessing this space will cause
      the card to invoke PCIE read/write transactions to the given bus
      address, allowing it to access system RAM or other PCI devices' memory.
@@ -32,7 +32,7 @@ the following address spaces:
    Mostly, physical addresses are a result of logical address translation,
    but some memory areas are specified directly by their physical addresses.
  - 12-bit tag addresses: select a cell in hidden compression tag RAM, used
-   for compressed areas of VRAM. See nv50-comp.txt
+   for compressed areas of VRAM. See memory/nv50-comp.txt
  - virtual addresses: 40-bit virtual address + channel descriptor address,
    specifies an address that will be looked up in the page tables of the
    relevant channel. Virtual addresses are always a result of logical address
@@ -226,7 +226,7 @@ by the DMA object.
 
 DMA objects are specifid by 16-bit "selectors". In case of fifo engines,
 the RAMHT is used to translate from user-visible 32-bit handles to the
-selectors [see fifo-puller.txt]. The selector is shifted left by 4 bits
+selectors [see fifo/puller.txt]. The selector is shifted left by 4 bits
 and added to channel structure base to obtain address of DMAobj structure,
 which is 0x18 bytes long and made of 32-bit LE words:
 
@@ -411,7 +411,7 @@ MMIO 0x100c80:
 A flush consists of writing engine << 16 | 1 to this register and waiting
 until bit 0 becomes 0. However, note that NV86 PGRAPH has a bug that can
 result in a lockup if PGRAPH TLB flush is initiated while PGRAPH is running,
-see nv50-pgraph.txt for details.
+see graph/nv50-pgraph.txt for details.
 
 
 = User vs supervisor accesses =

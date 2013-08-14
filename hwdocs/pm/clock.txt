@@ -18,7 +18,7 @@ NV01:NV40 chipsets have the following clocks:
 [XXX: NV01???]
 
 These clocks are set in PDAC [NV01] or PRAMDAC [NV03 and up] areas - see
-pramdac.txt for more information.
+display/nv03/pramdac.txt for more information.
 
 NV40 generation cards have the following clocks:
 
@@ -36,7 +36,7 @@ NV40 generation cards have the following clocks:
 [XXX: figure it out]
 
 The clocks other than VPLLs are set through the new PCLOCK area
-[see nv40-pclock.txt], VPLLs are set through PRAMDAC like before.
+[see pm/nv40-pclock.txt], VPLLs are set through PRAMDAC like before.
 
 NV50:NVA3 cards have the following clocks:
 
@@ -63,9 +63,9 @@ NV50:NVA3 cards have the following clocks:
    only present on NV84+
  - video clocks [VCLK1,VCLK2]: used to drive the video outputs
 
-The root clocks are set up in PNVIO area [see pnvio.txt], VPLLs are set up in
-PDISPLAY area [see pdisplay.txt], and the other clocks are set up in PCLOCK
-area [see nv50-pclock.txt].
+The root clocks are set up in PNVIO area [see io/pnvio.txt], VPLLs are set up in
+PDISPLAY area [see display/nv50/pdisplay.txt], and the other clocks are set up
+in PCLOCK area [see pm/nv50-pclock.txt].
 
 NVA3:NVC0 cards have the following clocks:
 
@@ -87,9 +87,9 @@ NVA3:NVC0 cards have the following clocks:
  - daemon clock [clock #37]: used to clock PDAEMON
  - audio clock [clock #39]: used to clock PCODEC
 
-The root clocks are set up in PNVIO area [see pnvio.txt], VPLLs are set up in
-PDISPLAY area [see pdisplay.txt], and the other clocks are set up in PCLOCK
-area [see nva3-pclock.txt].
+The root clocks are set up in PNVIO area [see io/pnvio.txt], VPLLs are set up in
+PDISPLAY area [see display/nv50/pdisplay.txt], and the other clocks are set up
+in PCLOCK area [see pm/nva3-pclock.txt].
 
 NVC0+ cards have the following clocks:
 
@@ -110,6 +110,6 @@ NVC0+ cards have the following clocks:
 [XXX: uses two PLLs, actually]
  - video clocks [VPLL1,VPLL2]: used to drive the video outputs
 
-The root clocks are set up in PNVIO area [see pnvio.txt], VPLLs are set up in
-PDISPLAY area [see pdisplay.txt], the MPLLs are set up in PMCLOCK area, and
-the other clocks are set up in PCLOCK area [see nvc0-pclock.txt].
+The root clocks are set up in PNVIO area [see io/pnvio.txt], VPLLs are set up in
+PDISPLAY area [see display/nv50/pdisplay.txt], the MPLLs are set up in PMCLOCK
+area, and the other clocks are set up in PCLOCK area [see pm/nvc0-pclock.txt].

@@ -380,7 +380,7 @@ memory at semaphore_address:
 
 0x00: [32-bit] semaphore_sequence
 0x04: [32-bit] 0
-0x08: [64-bit] PTIMER timestamp [see ptimer.txt]
+0x08: [64-bit] PTIMER timestamp [see bus/ptimer.txt]
 
 The new-style "acquire equal" operation behaves exactly like old-style
 acquire, but uses semaphore_address instead of semaphore_offset and

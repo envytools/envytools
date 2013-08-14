@@ -176,7 +176,7 @@ are considered to be part of a given solid. The common variables appearing
 in the pseudocodes are:
 
  - CLIP_MIN_X - the left bounduary of the final clipping rectangle. If user
-   clipping rectangle [see 2d.txt] is enabled, this is max(UCLIP_MIN_X,
+   clipping rectangle [see graph/2d.txt] is enabled, this is max(UCLIP_MIN_X,
    CANVAS_MIN_X). Otherwise, this is CANVAS_MIN_X.
  - CLIP_MAX_X - the right bounduary of the final clipping rectangle. If user
    clipping rectangle is enabled, this is min(UCLIP_MAX_X, CANVAS_MAX_X).

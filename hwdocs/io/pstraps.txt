@@ -46,7 +46,7 @@ which resides at addresses 0x608000-0x608fff [NV01] or 0x101000-0x101fff
 [NV03+] in BAR0. It's also known as PEXTDEV by nvidia.
 
 On NV03:NV17, PSTRAPS is enabled by PMC.ENABLE bit 20 [PFB], on later cards
-and on NV01 it's unaffected by PMC.ENABLE [see pmc.txt].
+and on NV01 it's unaffected by PMC.ENABLE [see bus/pmc.txt].
 
 On NV03:NV04 cards, the PSTRAPS area is also home to an unrelated register
 controlling ROM timings.
@@ -78,7 +78,7 @@ no annotation - available on all NV03+ cards
 101038[3] STRAPS2_SELECT	straps set 2 select mask
 10103c[3] STRAPS2_SECONDARY	straps set 2 secondary value
 101040[3] ??? RO 0
-101200[1] ROM_TIMINGS		ROM timing configuration [see prom.txt]
+101200[1] ROM_TIMINGS		ROM timing configuration [see io/prom.txt]
 
 
 = NV01 straps =

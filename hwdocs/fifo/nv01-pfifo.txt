@@ -15,9 +15,9 @@ TOC
 
 NOTE: This file deals only with NV01:NV04 PFIFO. For other GPUs, read:
 
- - NV04:NV50 - nv04-pfifo.txt
- - NV50:NVC0 - nv50-pfifo.txt
- - NVC0+ - nvc0-pfifo.txt
+ - NV04:NV50 - fifo/nv04-pfifo.txt
+ - NV50:NVC0 - fifo/nv50-pfifo.txt
+ - NVC0+ - fifo/nvc0-pfifo.txt
 
 
 = Introduction =

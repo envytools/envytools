@@ -98,8 +98,8 @@ host/I[] address / name / file
 07c/01f00  SUBENGINE_RESET	reset subengines	[fuc/io.txt]
 080/02000  SCRATCH2		scratch register	[fuc/io.txt]
 084/02100  SCRATCH3		scratch register	[fuc/io.txt]
-088/02200  PM_TRIGGER		perfmon triggers	[fuc/pm.txt]
-08c/02300  PM_MODE		perfmon signal mode	[fuc/pm.txt]
+088/02200  PM_TRIGGER		perfmon triggers	[fuc/perf.txt]
+08c/02300  PM_MODE		perfmon signal mode	[fuc/perf.txt]
 090/02400  ???			???
 094/02500+ ???			???
 098/02600+ BREAKPOINT[0]	code breakpoint		[fuc/debug.txt]

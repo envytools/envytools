@@ -43,20 +43,20 @@ The base fµc hardware comes in three different revisions:
 The fµc units present on nvidia cards are:
 
  - The VP3/VP4/VP5 engines [NV98 and NVAA+]:
-  - PBSP, the bitstream processor			[vdec/vp3-pbsp.txt]
-  - PVP, the video processor				[vdec/vp3-pvp.txt]
-  - PPPP, the video processor				[vdec/vp3-pppp.txt]
+  - PBSP, the bitstream processor			[vdec/vp3/pbsp.txt]
+  - PVP, the video processor				[vdec/vp3/pvp.txt]
+  - PPPP, the video processor				[vdec/vp3/pppp.txt]
  - The VP3 cryptographic engine [NV98, NVAA, NVAC]:
-  - PCRYPT, the cryptographic engine			[vdec/vp3-pcrypt.txt]
- - The NVA3+ copy engines:
-  - PCOPY0 [NVA3+]					[pcopy.txt]
-  - PCOPY1 [NVC0+]					[pcopy.txt]
+  - PCRYPT, the cryptographic engine			[vdec/vp3/pcrypt.txt]
+ - The NVA3:NVE4 copy engines:
+  - PCOPY0 [NVA3:NVE4]					[fifo/pcopy.txt]
+  - PCOPY1 [NVC0:NVE4]					[fifo/pcopy.txt]
  - The NVA3+ daemon engines:
-  - PDAEMON [NVA3+]					[pdaemon.txt]
-  - PDISPLAY.DAEMON [NVD9+]				[display/pdisplay-daemon.txt]
+  - PDAEMON [NVA3+]					[pm/pdaemon.txt]
+  - PDISPLAY.DAEMON [NVD9+]				[display/nv50/pdisplay-daemon.txt]
  - The NVC0 PGRAPH CTXCTL engines:
-  - PGRAPH.CTXCTL					[graph/nvc0-ctxctl.txt]
-  - PGRAPH.GPC[*].CTXCTL				[graph/nvc0-ctxctl.txt]
+  - PGRAPH.CTXCTL					[graph/nvc0-ctxctl/intro.txt]
+  - PGRAPH.GPC[*].CTXCTL				[graph/nvc0-ctxctl/intro.txt]
  - The unknown NVAF PUNK1C1 engine [XXX]		[punk1c1.txt]
- - The unknown NVD9 PUNK1C3 engine [XXX]		[punk1c3.txt]
- - The H.264 encodning engine, PVENC [NVE4+]		[pvenc.txt]
+ - The unknown NVD9 PUNK1C3 engine [XXX]		[display/nv50/punk1c3.txt]
+ - The H.264 encodning engine, PVENC [NVE4+]		[vdec/pvenc.txt]

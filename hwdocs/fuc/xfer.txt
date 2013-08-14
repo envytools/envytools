@@ -60,7 +60,7 @@ xfer:
  - bits 12-14: port for data stores
 
 The external memory that fuc will use depends on the particular engine.
-See graph/nvc0-ctxctl-memif.txt for NVC0 PGRAPH fucs, fuc/memif.txt for
+See graph/nvc0-ctxctl/memif.txt for NVC0 PGRAPH fucs, fuc/memif.txt for
 the other engines.
 
 

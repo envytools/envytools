@@ -201,8 +201,8 @@ On NV40+ there can be up to 8 domains per domain set. On all GPUs, there
 can be up to 256 signals per domain. The available signals and domains
 depend heavily on the chipset. The signals are packed tightly, so even
 a signal common to two GPUs may be at different position between them.
-The lists of known domains and signals may be found in nv10-pcounter.txt,
-nv40-pcounter.txt and nvc0-pcounter.txt
+The lists of known domains and signals may be found in pcounter/nv10.txt,
+pcounter/nv40.txt and pcounter/nvc0.txt
 
 
 == The STATUS registers ==

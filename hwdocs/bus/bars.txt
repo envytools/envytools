@@ -33,7 +33,7 @@ The nvidia GPUs expose the following areas to the outside world through PCI:
 = PCI/PCIE configuration space =
 
 Nvidia GPUs, like all PCI devices, have PCI configuration space. Its contents are
-described in pci.txt.
+described in bus/pci.txt.
 
 
 = BAR0: MMIO registers =
@@ -47,7 +47,7 @@ This space is a 16MB area of memory sparsely populated with areas representing
 individual engines, which in turn are sparsely populated with registers. The
 list of engines depends on card type. While there are no known registers
 outside 16MB range, the BAR itself can have a larger size on NV40+ cards if
-configured so by straps [see pstraps.txt].
+configured so by straps [see io/pstraps.txt].
 
 Its address is set up through PCI BAR 0. The BAR uses 32-bit addressing and
 is non-prefetchable memory.
@@ -64,7 +64,7 @@ A particularly important subarea of MMIO space is PMC, the card's master
 control. This subarea is present on all nvidia GPUs at addresses 0x000000
 through 0x000fff. It contains the card chipset information, Big Red Switches
 for engines that can be turned off, and master interrupt control. It's
-described in more detail in pmc.txt.
+described in more detail in bus/pmc.txt.
 
 
 = BAR1: VRAM aperture =
@@ -75,12 +75,12 @@ addressing.
 
 On non-TURBOCACHE pre-NV50 cards and on NV50+ cards with BAR1 VM disabled, BAR
 addresses map directly to VRAM addresses. On TURBOCACHE cards, BAR1 is made of
-controllable VRAM and GART windows [see nv44-host-mem.txt]. NV50+ cards have
-a mode where all BAR references go through the card's VM subsystem, see
-nv50-host-mem.txt and nvc0-host-mem.txt .
+controllable VRAM and GART windows [see memory/nv44-host-mem.txt]. NV50+ cards
+have a mode where all BAR references go through the card's VM subsystem, see
+memory/nv50-host-mem.txt and memory/nvc0-host-mem.txt .
 
 On NV03 cards, this BAR also contains RAMIN access aperture at address
-0xc00000 [see nv03-vram.txt] [XXX: map out the BAR fully]
+0xc00000 [see memory/nv03-vram.txt] [XXX: map out the BAR fully]
 
 the BAR size depends on card type:
 
@@ -88,8 +88,8 @@ NV03: 16MB [with RAMIN]
 NV04: 16MB
 NV05: 32MB
 NV10:NV17: 128MB
-NV17:NV50: 64MB-512MB, set via straps [see pstraps.txt]
-NV50-: 64MB-64GB, set via straps [see pstraps.txt]
+NV17:NV50: 64MB-512MB, set via straps [see io/pstraps.txt]
+NV50-: 64MB-64GB, set via straps [see io/pstraps.txt]
 
 Note that BAR size is independent from actual VRAM size, although on pre-NV40
 cards the BAR is guaranteed not to be smaller than VRAM. This means it's may
@@ -116,7 +116,7 @@ The BAR uses 64-bit addressing on native PCIE cards, 32-bit addressing on
 native PCI/AGP. It uses BAR2 slot on native PCIE, BAR3 on native PCI/AGP.
 It is non-prefetchable memory on cards up to and including NVA0, prefetchable
 memory on NVAA+. The size is at least 16MB and is set via straps
-[see pstraps.txt].
+[see io/pstraps.txt].
 
 
 = BAR2: NV03 indirect memory access =
@@ -132,7 +132,7 @@ that cannot map high memory addresses. Present only on NV03.
 An area of IO ports used to access BAR0, BAR1, and BAR3 indirectly by real
 mode code that cannot map high memory addresses. Present on NV50+ cards.
 On earlier cards, the indirect access feature of VGA IO ports can be used
-instead. This BAR can also be disabled via straps [see pstraps.txt].
+instead. This BAR can also be disabled via straps [see io/pstraps.txt].
 [XXX: It's present on some NV4x]
 
 This area is 0x80 bytes of IO ports, but only first 0x20 bytes are actually
@@ -177,7 +177,7 @@ video output on pre-NV50 cards. If shadow is enabled, EEPROM is disabled,
 PROM reads will return garbage, and PCI ROM aperture will access the VRAM
 shadow copy of BIOS. On pre-NV50 cards, the shadow BIOS is located at address
 0 of RAMIN, on NV50+ cards the shadow bios is pointed to by
-PDISPLAY.VGA.ROM_WINDOW register - see pdisplay.txt for details.
+PDISPLAY.VGA.ROM_WINDOW register - see display/nv50/pdisplay.txt for details.
 
 
 = INTA: the card interrupt =
@@ -185,7 +185,7 @@ PDISPLAY.VGA.ROM_WINDOW register - see pdisplay.txt for details.
 [XXX: MSI]
 
 The GPU reports all interrupts through the PCI INTA line. The interrupt enable
-and status registers are located in PMC area - see pmc.txt.
+and status registers are located in PMC area - see bus/pmc.txt.
 
 
 = Legacy VGA IO ports and memory =
@@ -197,4 +197,4 @@ and memory are still accessible through their aliases in BAR0, and disabling
 the legacy ranges has no effect on the operation of the card. The IO range
 contains an extra top-level register that allows indirect access to the MMIO
 area for use by real mode code, as well as many nvidia-specific extra
-registers in the VGA subunits. For details, see nvvga.txt
+registers in the VGA subunits. For details, see display/nv03/vga.txt

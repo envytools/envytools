@@ -18,7 +18,7 @@ You can:
  - Use a watchdog/one-shot timer: Generate an interrupt once in the future
 
 Also note that the CTXCTLs have another watchdog timer on their own - see
-graph/nvc0-ctxctl.txt for more information.
+graph/nvc0-ctxctl/intro.txt for more information.
 
 
 = Periodic timer =
@@ -62,7 +62,7 @@ MMIO 0x02c / I[0x00b00]: TIME_LOW
 MMIO 0x030 / I[0x00c00]: TIME_HIGH
 	Alias of PTIMER's TIME_HIGH register [MMIO 0x9410]
 
-Both of these registers are read-only. See ptimer.txt for more information
+Both of these registers are read-only. See bus/ptimer.txt for more information
 about PTIMER.
 
 

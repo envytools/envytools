@@ -84,9 +84,9 @@ Not really graph objects, but usable as parameters for some object-bind
 methods [all NV04:NVC0]:
 
 0030 NV01_NULL - does nothing				[graph/intro.txt] [XXX: document it]
-0002 NV01_DMA_R - DMA object for reading		[graph/nv04-dmaobj.txt]
-0003 NV01_DMA_W - DMA object for writing		[graph/nv04-dmaobj.txt]
-003d NV03_DMA - read/write DMA object			[graph/nv04-dmaobj.txt]
+0002 NV01_DMA_R - DMA object for reading		[memory/nv04-dmaobj.txt]
+0003 NV01_DMA_W - DMA object for writing		[memory/nv04-dmaobj.txt]
+003d NV03_DMA - read/write DMA object			[memory/nv04-dmaobj.txt]
 
 NV01-style operation objects [see graph/2d.txt] [all NV04:NV05]:
 
@@ -296,8 +296,8 @@ modification methods can be disabled by software, if so desired.
 
 The graph options contain the following information:
 
- - 2d pipeline configuration [see nv01-2d.txt]
- - 2d color and mono format [see nv01-2d.txt]
+ - 2d pipeline configuration [see graph/2d.txt]
+ - 2d color and mono format [see graph/2d.txt]
  - NOTIFY_VALID flag - if set, NOTIFY method will be enabled. If unset, NOTIFY
    method will cause an interrupt. Can be used by the driver to emulate
    per-object DMA_NOTIFY setting - this flag will be set on objects whose
@@ -311,7 +311,7 @@ The graph options contain the following information:
 
 [XXX: NV03+]
 
-See nv01-pgraph.txt for detailed format.
+See graph/nv01-pgraph.txt for detailed format.
 
 
 == Volatile state ==
@@ -338,7 +338,7 @@ to be written by PGRAPH. The notifier structure is:
 
 base+0x0: 64-bit timestamp - written by PGRAPH with current PTIMER time as of
           the notifier write. The timestamp is a concatenation of current
-          values of TIME_LOW and TIME_HIGH registers [see ptimer.txt].
+          values of TIME_LOW and TIME_HIGH registers [see bus/ptimer.txt].
           When big-endian mode is in effect, this becomes a 64-bit
 	  big-endian number as expected. [XXX: at least on NV50]
 base+0x8: 32-bit word always set to 0 by PGRAPH. This field may be used by

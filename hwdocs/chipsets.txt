@@ -23,7 +23,7 @@ engines, and registers, with very minor exceptions. Such cards can however
 still differ in the external devices they contain: output connectors,
 encoders, capture chips, temperature sensors, fan controllers, installed
 memory, supported clocks, etc. You can get the chipset id of a card by reading
-from its PMC area [see pmc.txt].
+from its PMC area [see bus/pmc.txt].
 
 The chipset id is usually written as NVxx, where xx is the id written as
 uppercase hexadecimal number. Note that, while cards before NV10 used another
@@ -37,7 +37,7 @@ code names correspond 1 to 1 with the chipset ids.
 
 The chipset id has a one-to-many relationship with pci device ids. Note that
 the last few bits [0-6 depending on chipset id] of PCI device id are
-changeable through straps [see pstraps.txt]. When pci ids of a chipset are
+changeable through straps [see io/pstraps.txt]. When pci ids of a chipset are
 listed in this file, the following shorthands are used:
 
 1234: PCI device id 0x1234
@@ -161,7 +161,7 @@ it in BAR0. It also introduced DMA objects, a RAMIN structure used to define
 a VRAM or host memory area that PGRAPH is allowed to use when executing
 commands on behalf of an application. These early DMA objects are limitted to
 linear VRAM and paged host memory objects, and have to be switched manually
-by host. See nv03-vram.txt for details.
+by host. See memory/nv03-vram.txt for details.
 
 
 == NV04 family: NV04, NV05 ==
@@ -441,7 +441,7 @@ The pci ids:
 == NV50 family ==
 
 The card where they redesigned everything. The most significant change was the
-redesigned memory subsystem, complete with a paging MMU [see nv50-vm.txt].
+redesigned memory subsystem, complete with a paging MMU [see memory/nv50-vm.txt].
 
 NV50:
  - a new VM subsystem, complete with redesigned DMA objects

@@ -78,7 +78,7 @@ In summary, a card contains:
    manage devices on the card.
  - configuration straps - a set of resistors used to configure various
    functions of the card that need to be up before the card is POSTed.
-   [pstraps.txt]
+   [io/pstraps.txt]
  - a small I2C EEPROM with encrypted HDCP keys [optional, some NV84:NVA3, now
    discontinued in favor of storing the keys in fuses on the GPU]
  - a voltage regulator [starting with NV10 [?] family] - starting with roughly
@@ -168,11 +168,11 @@ or memory controller, sharing the main system RAM instead.
 The GPU is made of:
 
  - control circuitry:
-  - PMC: master control area [pmc.txt]
+  - PMC: master control area [bus/pmc.txt]
   - PBUS: bus control and an area where "misc" registers are thrown in. Known
     to contain at least:
    - HWSQ, a simple script engine, can poke card registers and sleep in
-     a given sequence [hwsq.txt] [NV17+]
+     a given sequence [bus/hwsq.txt] [NV17+]
    - a thermal sensor [NV30+]
    - clock gating control [NV17+]
    - indirect VRAM access from host circuitry [NV30+]
@@ -180,23 +180,23 @@ The GPU is made of:
    - PWM controller for fans and panel backlight [NV17+]
   - PPMI: PCI Memory Interface, handles SYSRAM accesses from other units of
     the GPU
-  - PTIMER: measures wall time and delivers alarm interrupts [ptimer.txt]
+  - PTIMER: measures wall time and delivers alarm interrupts [bus/ptimer.txt]
   - PCLOCK+PCONTROL: clock generation and distribution [contained in PRAMDAC
     on pre-NV40 GPUs]
   - PFB: memory controller and arbiter
   - PROM: VIOS ROM access
-  - PSTRAPS: configuration straps access [pstraps.txt]
+  - PSTRAPS: configuration straps access [io/pstraps.txt]
  - processing engines:
   - PFIFO: gathers processing commands from the command buffers prepared by
     the host and delivers them to PGRAPH and PVPE engines in orderly manner
-    [fifo/fifo.txt]
+    [fifo/intro.txt]
   - PGRAPH: memory copying, 2d and 3d rendering engine
   - PVPE: a trio of video decoding/encoding engines
    - PMPEG: MPEG1 and MPEG2 mocomp and IDCT decoding engine [NV17+]
    - PME: motion estimation engine [NV40+]
    - PVP: VP1 video processor [NV41+]
   - PCOUNTER: performance monitoring counters for the processing engines and
-    memory controller [pcounter.txt] 
+    memory controller [pcounter/intro.txt] 
  - display engines:
   - PCRTC: generates display control signals and reads framebuffer data for
     display, present in two instances on NV11+ cards; also handles GPIO and I2C
@@ -210,8 +210,8 @@ The GPU is made of:
     controller for them
 
 Almost all units of the GPU are controlled through MMIO registers accessible
-by a common bus and visible through PCI BAR0 [see bars.txt]. This bus is not
-shown above.
+by a common bus and visible through PCI BAR0 [see bus/bars.txt]. This bus is
+not shown above.
 
 
 = GPU schematic - NV50:NVC0 =
@@ -248,28 +248,28 @@ shown above.
 
 The GPU is made of:
  - control circuitry:
-  - PMC: master control area [pmc.txt]
+  - PMC: master control area [bus/pmc.txt]
   - PBUS: bus control and an area where "misc" registers are thrown in. Known
     to contain at least:
    - HWSQ, a simple script engine, can poke card registers and sleep in
-     a given sequence [hwsq.txt]
+     a given sequence [bus/hwsq.txt]
    - clock gating control
    - indirect VRAM access from host circuitry
-  - PTIMER: measures wall time and delivers alarm interrupts [ptimer.txt]
+  - PTIMER: measures wall time and delivers alarm interrupts [bus/ptimer.txt]
   - PCLOCK+PCONTROL: clock generation and distribution
-  - PTHERM: thermal sensor and clock throttling circuitry [ptherm.txt]
-  - PDAEMON: card management microcontroller [pdaemon.txt]
+  - PTHERM: thermal sensor and clock throttling circuitry [pm/ptherm.txt]
+  - PDAEMON: card management microcontroller [pm/pdaemon.txt]
   - PFB: memory controller and arbiter
  - processing engines:
   - PFIFO: gathers processing commands from the command buffers prepared by
     the host and delivers them to PGRAPH and PVPE engines in orderly manner
-    [fifo/fifo.txt]
+    [fifo/intro.txt]
   - PGRAPH: memory copying, 2d and 3d rendering engine
   - video decoding engines, see below
-  - PCOPY: asynchronous copy engine [pcopy.txt]
+  - PCOPY: asynchronous copy engine [fifo/pcopy.txt]
   - PUNK1C1: ???
   - PCOUNTER: performance monitoring counters for the processing engines and
-    memory controller [pcounter.txt] 
+    memory controller [pcounter/intro.txt] 
  - display and IO port units:
   - PNVIO: deals with misc external devices
    - GPIOs

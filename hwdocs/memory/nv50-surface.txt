@@ -21,7 +21,7 @@ TOC
 
 = Introduction =
 
-This file deals with nv50+ cards only. For older cards, see nv01-surface.txt.
+This file deals with nv50+ cards only. For older cards, see memory/nv01-surface.txt .
 
 A "surface" is a 2d or 3d array of elements. Surfaces are used for image
 storage, and can be bound to at least the following slots on the engines:
@@ -45,7 +45,7 @@ buffers, and have lower performance than tiled textures. Tiled surfaces
 can have up to three dimensions, can be put into arrays and be mipmapped,
 and use custom element arrangement in memory. However, tiled surfaces need to
 be placed in memory area with special storage type, depending on the surface
-format [see nv50-vm.txt].
+format [see memory/nv50-vm.txt].
 
 Tiled surfaces have two main levels of element rearrangement: high-level and
 low-level. Low-level rearrangement is quite complicated, depends on surface's
@@ -383,7 +383,7 @@ stored sequentially:
 		subtexture_address[i] = texture_address + i * subtexture_bytes;
 	}
 
-For more information about textures, see nv50-texture.txt
+For more information about textures, see graph/nv50-texture.txt
 
 
 = Multisampled surfaces =
@@ -800,8 +800,8 @@ RT multisample configuration.
 For textures, Z corresponds to C0, S to C1, and C to C2. However, C cannot
 be used together with Z and/or S in a single sampler. Z and S sampling works
 normally, but when C is sampled, the sampler returns preprocessed weights
-instead of the raw value - see nv50-texture.txt for more information about
-the sampling process.
+instead of the raw value - see graph/nv50-texture.txt for more information
+about the sampling process.
 
 The formats are:
 
@@ -856,7 +856,7 @@ by x coordinate of the sample, then by its y coordinate.
 This format can be used for 2d engine and texturing. When used for texturing,
 it forces using a special "box" filter: result of sampling is a percentage of
 "lit" area in WxH rectangle centered on the sampled location. See
-nv50-texture.txt for more details.
+graph/nv50-texture.txt for more details.
 [XXX: figure out more. Check how it works with 2d engine.]
 
 The formats are:
@@ -895,7 +895,7 @@ types:
    VRAM geometry. Bounduaries between VRAM areas using NONE/SSR and LSR need
    to be properly aligned in physical space to prevent conflicts.
 
-Long range reordering is described in detail in nv50-vram.txt.
+Long range reordering is described in detail in memory/nv50-vram.txt.
 
 The storage types can be roughly split into the following groups:
 

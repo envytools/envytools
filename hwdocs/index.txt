@@ -21,40 +21,51 @@ Metafiles
 
 Hardware overview docs
 [**   ] intro.txt - Overview of the nvidia GPU functionality
-[***  ] bars.txt - PCI BARs and other means of accessing the GPU
 [***  ] chipsets.txt - List and overview of all chipset variants
-[**   ] clock.txt - List of clocks present on the GPUs
-[***  ] classes.txt - List and overview of object classes
 [***  ] mmio.txt - List and overview of MMIO ranges
 
 
+PCI/PCIE/AGP bus interface and card management logic
+[***  ] bus/pmc.txt - PMC unit, interrupt routing, card ID, engine enables
+[**** ] bus/ptimer.txt - PTIMER engine, clock setup, readout, and alarms
+[***  ] bus/bars.txt - PCI BARs and other means of accessing the GPU
+[     ] bus/pbus.txt - PBUS engine and PCI config space
+[**   ] bus/hwsq.txt - HWSQ scripts on PBUS engine
+[     ] bus/prma.txt - retarded mode MMIO access engine
+[     ] bus/nv01-prm.txt - NV01 retarded mode engine
+[     ] bus/pfuse.txt - Configuration fuses
+[     ] bus/pibus.txt - Card internal bus
+[     ] bus/punits.txt - Card subunit disable control
+[*    ] bus/pci.txt - PCI interface and configuration registers
+
+
+Power, thermal, and clock management
+[**   ] pm/clock.txt - List of clocks present on the GPUs
+[     ] pm/nv40-pclock.txt - NV40 clocks
+[     ] pm/nv50-pclock.txt - NV50 clocks
+[     ] pm/nva3-pclock.txt - NVA3 clocks
+[     ] pm/nvc0-pclock.txt - NVC0 clocks
+[*    ] pm/pdaemon.txt - PDAEMON card monitoring engine
+[***  ] pm/nv43-therm.txt - NV43:NV50 thermal monitoring
+[     ] pm/ptherm.txt - NV50+ thermal monitoring
+
+
 Misc GPU units
-[***  ] pmc.txt - PMC unit, interrupt routing, card ID, engine enables
-[     ] pbus.txt - PBUS engine and PCI config space
-[**   ] hwsq.txt - HWSQ scripts on PBUS engine
-[**** ] ptimer.txt - PTIMER engine, clock setup, readout, and alarms
-[*    ] punk1c3.txt - PUNK1C3 engine
-[     ] prma.txt - retarded mode MMIO access engine
 [     ] nv01-paudio.txt - NV01 audio engine
-[     ] nv01-prm.txt - NV01 retarded mode engine
-[     ] nvc0-pxbar.txt - NVC0 memory/GPC crossbar
-[*    ] pci.txt - PCI interface and configuration registers
-[     ] pcodec.txt - Azalia codec
-[     ] pfuse.txt - Configuration fuses
-[     ] pkfuse.txt - Key fuses
-[     ] pmedia.txt - Video capture and external MPEG decoder interface
 
 
 GPU external device I/O units
-[***  ] pstraps.txt - PSTRAPS unit, straps readout and override
-[     ] prom.txt - BIOS ROM access engine
-[     ] nv10-gpio.txt - NV10 GPIOs
-[     ] pnvio.txt - NV50 IO engine
-[*    ] pnvio-gpio.txt - NV50 GPIOs
-[***  ] nv01-peeprom.txt - NV01 mystery EEPROM
+[***  ] io/pstraps.txt - PSTRAPS unit, straps readout and override
+[     ] io/prom.txt - BIOS ROM access engine
+[     ] io/nv10-gpio.txt - NV10 GPIOs
+[     ] io/pnvio.txt - NV50 IO engine
+[*    ] io/pnvio-gpio.txt - NV50 GPIOs
+[***  ] io/nv01-peeprom.txt - NV01 mystery EEPROM
+[     ] io/pmedia.txt - Video capture and external MPEG decoder interface
 
 
 Memory access and structure
+[***  ] memory/vram.txt - Generic information about VRAM structure
 [***  ] memory/nv01-vram.txt - NV01 VRAM structure and usage
 [     ] memory/nv01-pdma.txt - NV01 PDMA engine and DMA objects
 [     ] memory/nv01-surface.txt - NV01:NV50 surface formats
@@ -78,9 +89,11 @@ Memory access and structure
 [     ] memory/nv50-pfb.txt - NV50 memory controller
 [     ] memory/nvc0-vm.txt - NVC0 virtual memory
 [     ] memory/nvc0-host-mem.txt - NVC0 host memory interface
+[     ] memory/nvc0-p2p.txt - NVC0 P2P memory access
 [     ] memory/nvc0-pffb.txt - NVC0 front memory controller
 [     ] memory/nvc0-pmfb.txt - NVC0 middle memory controller
 [     ] memory/nvc0-pbfb.txt - NVC0 back memory controller
+[     ] memory/nvc0-pxbar.txt - NVC0 memory/GPC crossbar
 
 
 FIFO, user perspective
@@ -88,6 +101,7 @@ FIFO, user perspective
 [     ] fifo/pio.txt - PIO submission to FIFOs
 [**** ] fifo/dma-pusher.txt - DMA submission to FIFOs on NV04+
 [***  ] fifo/puller.txt - handling of submitted commands by FIFO
+[***  ] fifo/classes.txt - List and overview of object classes
 
 
 PFIFO, kernel perspective
@@ -105,7 +119,7 @@ PGRAPH, user perspective
 [**   ] graph/ctxobj.txt - graph context objects
 [**   ] graph/solid.txt - 2d solid shape rendering
 [     ] graph/ifc.txt - 2d image from cpu upload
-[     ] graph/nv01-bllt.txt - BLIT object
+[     ] graph/nv01-blit.txt - BLIT object
 [     ] graph/nv01-ifm.txt - image to/from memory objects
 [     ] graph/nv01-tex.txt - NV01 textured quad objects
 [     ] graph/nv03-3d.txt - NV03-style 3D objects
@@ -137,11 +151,14 @@ PGRAPH, kernel perspective
 [     ] graph/nv50-pgraph.txt - NV50 graphics engine
 [     ] graph/nv50-ctxctl.txt - NV50 PGRAPH context switching unit
 [     ] graph/nvc0-pgraph.txt - NVC0 graphics engine
-[*    ] graph/nvc0-ctxctl.txt - the NVC0 context switching microcoded engines
+[*    ] graph/nvc0-ctxctl/intro.txt - the NVC0 context switching microcoded engines
+[     ] graph/nvc0-ctxctl/mmio.txt - NVC0 CTXCTL MMIO access
+[     ] graph/nvc0-ctxctl/strand.txt - NVC0 strands
+[     ] graph/nvc0-ctxctl/memif.txt - NVC0 CTXCTL memory interface
 
 
 fuc engines:
-[**   ] fuc/fuc.txt - Introductory documentation about fµc
+[**   ] fuc/intro.txt - Introductory documentation about fµc
 [*****] fuc/arith.txt - fµc arithmetic instructions
 [*****] fuc/branch.txt - fµc branching instructions
 [*****] fuc/data.txt - fµc data space
@@ -158,71 +175,73 @@ fuc engines:
 [     ] fuc/fifo.txt - fµc interaction with PFIFO
 [     ] fuc/memif.txt - fµc memory interface
 
-VPE video decoding and encoding:
-[     ] vdec/mpeg.txt - PMPEG commands and operation
-[     ] vdec/mpeg-fifo.txt - PMPEG PFIFO interface
-[     ] vdec/me.txt - PME methods and operation
-[     ] vdec/vpe.txt - the VPE engines overview and shared circuitry
-[     ] vdec/pmpeg.txt - the PMPEG engine
-[     ] vdec/pme.txt - the PME engine
-[     ] vdec/vp1.txt - the VP1 PVP engine
 
-VP2/VP3/VP4/VP5 video decoding:
-[     ] vdec/vp2/intro.txt - Overview of VP2 hardware
-[*    ] vdec/vp2/xtensa.txt - VP2 xtensa processors
-[     ] vdec/vp2/pvp.txt - Overview of VP2 PVP engine
-[     ] vdec/vp2/pbsp.txt - Overview of VP2 PBSP engine
-[**   ] vdec/vp2/bsp.txt - VP2 BSP parser engine	[XXX: extend to cover VP3/VP4/VP5]
-[**** ] vdec/vp2/mbring.txt - VP2 MBRING format	[XXX: merge with vp3-mbring.txt]
-[**   ] vdec/vp2/macro.txt - the VP2 command macro processor
-[**   ] vdec/vp3-mbring.txt - VP3 MBRING format
+VPE video decoding and encoding:
+[     ] vdec/vpe/intro.txt - the VPE engines overview and shared circuitry
+[     ] vdec/vpe/mpeg.txt - PMPEG commands and operation
+[     ] vdec/vpe/mpeg-fifo.txt - PMPEG PFIFO interface
+[     ] vdec/vpe/me.txt - PME methods and operation
+[     ] vdec/vpe/pmpeg.txt - the PMPEG engine
+[     ] vdec/vpe/pme.txt - the PME engine
+[     ] vdec/vpe/vp1.txt - the VP1 PVP engine
+
+VP2/VP3/VP4 vµc processor:
 [***  ] vdec/vuc/intro.txt -  Overview of VP2/VP3/VP4 vµc hardware
 [**** ] vdec/vuc/isa.txt - VP2/VP3/VP4 vµc ISA
 [***  ] vdec/vuc/mvsurf.txt - VP2/VP3/VP4 vµc MVSURF
 [**   ] vdec/vuc/vreg.txt - VP2/VP3/VP4 vµc video registers
 [     ] vdec/vuc/vpring.txt - VP2 vµc output
 [     ] vdec/vuc/perf.txt - vµc performance monitoring signals
-[*    ] vdec/vp3-pbsp.txt - fµc-based PBSP engine
-[*    ] vdec/vp3-pvp.txt - fµc-based PVP engine
-[*    ] vdec/vp3-pppp.txt - fµc-based PPPP engine
+
+VP2 video decoding:
+[     ] vdec/vp2/intro.txt - Overview of VP2 hardware
+[*    ] vdec/vp2/xtensa.txt - VP2 xtensa processors
+[     ] vdec/vp2/pvp.txt - Overview of VP2 PVP engine
+[     ] vdec/vp2/pbsp.txt - Overview of VP2 PBSP engine
+[**   ] vdec/vp2/bsp.txt - VP2 BSP parser engine
+[**** ] vdec/vp2/mbring.txt - VP2 MBRING format
+[**   ] vdec/vp2/macro.txt - the VP2 command macro processor
+[     ] vdec/vp2/pcrypt.txt - NV84:NV98 and NVA0 PCRYPT engine
+[     ] vdec/vp2/crypt.txt - NV84 PCRYPT user interface
+
+VP3/VP4/VP5 video decoding:
+[**   ] vdec/vp3/mbring.txt - VP3 MBRING format
+[*    ] vdec/vp3/pbsp.txt - fµc-based PBSP engine
+[*    ] vdec/vp3/pvp.txt - fµc-based PVP engine
+[*    ] vdec/vp3/pppp.txt - fµc-based PPPP engine
+[*    ] vdec/vp3/pcrypt.txt - fµc-based PCRYPT engine
 
 
 Other FIFO engines:
-[*    ] vdec/vp3-pcrypt.txt - fµc-based PCRYPT engine
-[     ] pcrypt.txt - NV84:NV98 and NVA0 PCRYPT engine
-[     ] crypt.txt - NV84 PCRYPT user interface
-[*    ] pcopy.txt - PCOPY copying engine
+[*    ] vdec/pvenc.txt - PVENC H.264 encoding engine
+[*    ] fifo/pcopy.txt - PCOPY copying engine
 [*    ] punk1c1.txt - PUNK1C1 engine
-[*    ] pvenc.txt - PVENC H.264 encoding engine
 
 
 Performance counters:
-[***  ] pcounter.txt - PCOUNTER engine
-[     ] nv10-pcounter.txt - NV10 PCOUNTER signals
-[**   ] nv40-pcounter.txt - NV40 PCOUNTER signals
-[     ] nvc0-pcounter.txt - NVC0 PCOUNTER signals
+[***  ] pcounter/intro.txt - PCOUNTER engine
+[     ] pcounter/nv10.txt - NV10 PCOUNTER signals
+[**   ] pcounter/nv40.txt - NV40 PCOUNTER signals
+[     ] pcounter/nvc0.txt - NVC0 PCOUNTER signals
 
 
-Power management:
-[*    ] pdaemon.txt - PDAEMON card monitoring engine
-[***  ] nv43-therm.txt - NV43:NV50 thermal monitoring
-[     ] ptherm.txt - NV50+ thermal monitoring
+NV01 display subsystem:
+[     ] display/nv01/pfb.txt - NV01 native display engine
+[     ] display/nv01/pdac.txt - NV01 DAC and external devices control
 
-Clock management:
-[     ] nv40-pclock.txt - NV40 clocks
-[     ] nv50-pclock.txt - NV50 clocks
-[     ] nva3-pclock.txt - NVA3 clocks
-[     ] nvc0-pclock.txt - NVC0 clocks
+NV03 display subsystem:
+[     ] display/nv03/vga.txt - NV03:NV50 VGA-based display engine
+[     ] display/nv03/pcrtc.txt - NV03:NV50 PCRTC unit
+[     ] display/nv03/pramdac.txt - NV03:NV50 PRAMDAC unit
+[     ] display/nv03/pvideo.txt - NV03:NV50 video overlay
+[     ] display/nv03/ptv.txt - NV17:NV50 on-chip TV encoder
+[*****] display/nv03/vga-stack.txt - some VGA-related stack
 
-Display subsystem:
-[     ] display/nv01-pfb.txt - NV01 native display engine
-[     ] display/nv01-pdac.txt - NV01 DAC and external devices control
-[     ] display/vga.txt - NV03:NV50 VGA-based display engine
-[     ] display/pcrtc.txt - NV03:NV50 PCRTC unit
-[     ] display/pramdac.txt - NV03:NV50 PRAMDAC unit
-[     ] display/pvideo.txt - NV03:NV50 video overlay
-[     ] display/ptv.txt - NV17:NV50 on-chip TV encoder
-[     ] display/pdisplay.txt - NV50+ unified display engine
-[*    ] display/pdisplay-daemon.txt - PDISPLAY's monitoring engine
-[*****] display/vga-mutex.txt - NV50 VGA mutexes
-[*****] display/vga-stack.txt - some VGA-related stack
+NV50 display subsystem:
+[     ] display/nv50/pdisplay.txt - NV50+ unified display engine
+[*    ] display/nv50/pdisplay-daemon.txt - PDISPLAY's monitoring engine
+[     ] display/nv50/vga.txt - NV50 VGA emulation
+[*****] display/nv50/vga-mutex.txt - NV50 VGA mutexes
+[*    ] display/nv50/punk1c3.txt - PUNK1C3 engine
+[     ] display/nv50/pcodec.txt - Azalia codec
+[     ] display/nv50/pkfuse.txt - Key fuses

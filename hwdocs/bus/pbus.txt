@@ -21,28 +21,28 @@ The MMIO ranges owned by PBUS are:
 001000:002000 PBUS - main area
 010000:020000 ??? - has something to do with PCI config space of other devices? [NV41-] [XXX]
 060000:061000 PEEPHOLE - indirect memory access [NV84-] [memory/peephole.txt]
-080000:080200 PBUS_HWSQ_NEW_CODE - code RAM for hwsq [NV92:NVC0] [hwsq.txt]
+080000:080200 PBUS_HWSQ_NEW_CODE - code RAM for hwsq [NV92:NVC0] [bus/hwsq.txt]
 
 The registers in the PBUS area are:
 
 001000:0010f0 DEBUG registers [see below]
-0010f0:0010f4 PWM - PWM generators [NV11:NV50] [nv10-gpio.txt]
+0010f0:0010f4 PWM - PWM generators [NV11:NV50] [io/nv10-gpio.txt]
 001100:001200 interrupts [NV03-] [see below]
-001200:001208 ROM control [NV04:NV50] [prom.txt]
-001300:001380 HWSQ - hardware sequencer [NV17:NV20, NV25:NVC0] [hwsq.txt]
-001380:001400 VGA_STACK [NV41:NV50] [display/vga-stack.txt]
-001400:001500 HWSQ - hardware sequencer [NV17:NV20, NV25:NVC0] [hwsq.txt]
+001200:001208 ROM control [NV04:NV50] [io/prom.txt]
+001300:001380 HWSQ - hardware sequencer [NV17:NV20, NV25:NVC0] [bus/hwsq.txt]
+001380:001400 VGA_STACK [NV41:NV50] [display/nv03/vga-stack.txt]
+001400:001500 HWSQ - hardware sequencer [NV17:NV20, NV25:NVC0] [bus/hwsq.txt]
 001500:001540 DEBUG registers [see below]
 001540:001550 HWUNITS - enabling/disabling optional hardware subunits [NV40:NV50] [see below]
 00155c:001578 PEEPHOLE - indirect memory access [NV30:NV84] [memory/peephole.txt]
-001578:001580 HWSQ - hardware sequencer [NV41:NVC0] [hwsq.txt]
+001578:001580 HWSQ - hardware sequencer [NV41:NVC0] [bus/hwsq.txt]
 001580:0015a0 CLOCK_GATE - clock gating registers [NV17:NV20 NV25:NVC0] [see below]
-0015b0:0015c0 THERM - thermal sensor [NV43:NV50] [nv43-therm.txt]
-0015f4:001604 PWM - PWM generators [NV41:NV50] [nv10-gpio.txt]
+0015b0:0015c0 THERM - thermal sensor [NV43:NV50] [pm/nv43-therm.txt]
+0015f4:001604 PWM - PWM generators [NV41:NV50] [io/nv10-gpio.txt]
 001700:001800 HOST_MEM - host memory access setup [TURBOCACHE] [memory/nv44-host-mem.txt]
 001700:001800 HOST_MEM - host memory access setup [NV50:NVC0] [memory/nv50-host-mem.txt]
 001700:001800 HOST_MEM - host memory access setup [NVC0-] [memory/nvc0-host-mem.txt]
-001800:001a00 PCI - PCI configuration space [NV01:NV50] [pci.txt]
+001800:001a00 PCI - PCI configuration space [NV01:NV50] [bus/pci.txt]
 001900:001980 REMAP - BAR1 remapping circuitry [NV50:NVC0] [memory/nv50-remap.txt]
 001980:001a00 P2P - NV50 P2P slave [NV50:NVC0] [memory/nv50-p2p.txt]
 001a14 IBUS_TIMEOUT - controls timeout length for accessing MMIO via IBUS [NVA3:NVC0] [see below]
@@ -56,14 +56,14 @@ usually group together unrelated bits. The known bits include:
 
 MMIO 0x001084: DEBUG_1 [NV04-]
   bit 11: FUSE_READOUT_ENABLE - enables reads from fuses in PFUSE [NV50:NVC0]
-          [pfuse.txt]
+          [bus/pfuse.txt]
   bit 28: HEADS_TIED - mirrors writes to CRTC/RAMDAC registers on any head to
-          the other head too [NV11:NV20, NV25:NV50] [display/vga.txt]
+          the other head too [NV11:NV20, NV25:NV50] [display/nv03/vga.txt]
 
 MMIO 0x001098: DEBUG_6 [NV17:NV20, NV25-]
-  bit 3: HWSQ_ENABLE - enables HWSQ effects [hwsq.txt]
+  bit 3: HWSQ_ENABLE - enables HWSQ effects [bus/hwsq.txt]
   bit 4: HWSQ_OVERRIDE_MODE - selects read value for HWSQ-overriden registers
-         [hwsq.txt]
+         [bus/hwsq.txt]
 [XXX: document other known stuff]
 
 
@@ -72,9 +72,9 @@ MMIO 0x001098: DEBUG_6 [NV17:NV20, NV25-]
 The following registers deal with PBUS interrupts:
 
 001100 INTR - interrupt status [NV03-]
-001104 INTR_GPIO - GPIO interrupt status [NV31:NV50] [nv10-gpio.txt]
+001104 INTR_GPIO - GPIO interrupt status [NV31:NV50] [io/nv10-gpio.txt]
 001140 INTR - interrupt enable [NV03-]
-001144 INTR_GPIO_EN - GPIO interrupt enable [NV31:NV50] [nv10-gpio.txt]
+001144 INTR_GPIO_EN - GPIO interrupt enable [NV31:NV50] [io/nv10-gpio.txt]
 001144 INTE_EN_NRHOST - interrupt enable for the NRHOST line [NVC0-]
 001150 INTR_USER0_TRIGGER - user interrupt generation [NV50-]
 001154+i*4, i<4 INTR_USER0_SCRATCH - user interrupt generation [NV50-]
@@ -82,7 +82,7 @@ The following registers deal with PBUS interrupts:
 001174+i*4, i<4 INTR_USER1_SCRATCH - user interrupt generation [NVC0-]
 
 On NV03+, PMC interrupt line 28 is connected to PBUS. On NVC0+, there are
-actually two lines: the normal line and the NRHOST line [see pmc.txt for
+actually two lines: the normal line and the NRHOST line [see bus/pmc.txt for
 a description of them]. PBUS has many subinterrupts. The PBUS->PMC interrupt
 line is active when any PBUS interrupt is both active [the bit in INTR
 or INTR_GPIO is 1] and enabled [the bit in INTR_EN or INTR_GPIO_EN is 1].
@@ -97,23 +97,23 @@ MMIO 0x001100: INTR [NV03-]
   bit 1: MMIO_DISABLED_ENG - MMIO access from host failed due to accessing
          an area disabled via PMC.ENABLE [NVC0-] [XXX: document]
   bit 2: MMIO_IBUS_ERR - MMIO access from host failed due to some error in
-         IBUS [NVC0-] [see pibus.txt]
+         IBUS [NVC0-] [see bus/pibus.txt]
   bit 3: MMIO_FAULT - MMIO access from host failed due to other reasons
          [NV41-] [XXX: document]
-  bit 4: GPIO_0_RISE - GPIO #0 went from 0 to 1 [NV10:NV31] [nv10-gpio.txt]
+  bit 4: GPIO_0_RISE - GPIO #0 went from 0 to 1 [NV10:NV31] [io/nv10-gpio.txt]
   bit 7: HOST_MEM_TIMEOUT - an access to memory from host timed out [NVC0-]
          [see memory/nvc0-host-mem.txt]
-  bit 8: GPIO_0_FALL - GPIO #0 went from 1 to 0 [NV10:NV31] [nv10-gpio.txt]
+  bit 8: GPIO_0_FALL - GPIO #0 went from 1 to 0 [NV10:NV31] [io/nv10-gpio.txt]
   bit 8: HOST_MEM_ZOMBIE - an access to memory from host thought to have timed
          out has finally succeeded [NVC0-] [see memory/nvc0-host-mem.txt]
   bit 12: PEEPHOLE_W_PAIR_MISMATCH - violation of PEEPHOLE write port protocol
          [NV30:NVC0] [see memory/peephole.txt]
   bit 16: THERM_ALARM - Temperature is critical and requires actions
-          [NV43-] [nv43-therm.txt ptherm.txt]
+          [NV43-] [pm/nv43-therm.txt, pm/ptherm.txt]
   bit 17: THERM_THRS_LOW - Temperature is lower than TEMP_RANGE.LOW
-          [NV43:NV50] [nv43-therm.txt]
+          [NV43:NV50] [pm/nv43-therm.txt]
   bit 18: THERM_THRS_HIGH - Temperature is higher than TEMP_RANGE.HIGH
-          [NV43:NV50] [nv43-therm.txt]
+          [NV43:NV50] [pm/nv43-therm.txt]
   bit 26: USER0 - user interrupt #0 [NV50-] [see below]
   bit 28: USER1 - user interrupt #1. Note that this interrupt cannot be
           enabled for delivery to NRHOST line. [NVC0-] [see below]
@@ -131,7 +131,7 @@ On NV40:NV50 GPUs, the PBUS additionally deals with GPIO change interrupts,
 which are reported via INTR_GPIO register and enabled via INTR_GPIO_EN
 register. These registers effectively function as extra bits to INTR and
 INTR_EN. For description of these registrers and GPIO interupts, see
-nv10-gpio.txt .
+io/nv10-gpio.txt .
 
 
 == User interrupts ==

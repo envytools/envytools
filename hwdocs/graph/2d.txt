@@ -336,7 +336,7 @@ The pipeline mode is selected as follows:
 In RGB mode, the pipeline internally uses 10-bit components. In index mode,
 8-bit indices are used.
 
-See nv01-pgraph.txt for more information on the configuration registers.
+See graph/nv01-pgraph.txt for more information on the configuration registers.
 
 
 == Clipping ==
