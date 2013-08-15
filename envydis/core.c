@@ -48,6 +48,7 @@ static const struct {
 	"vµc", &vuc_isa_s,
 	"macro", &macro_isa_s,
 	"vp1", &vp1_isa_s,
+	"vcomp", &vcomp_isa_s,
 };
 
 const struct disisa *ed_getisa(const char *name) {

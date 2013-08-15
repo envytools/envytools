@@ -234,7 +234,7 @@ static int test_arith(struct hwtest_ctx *ctx) {
 		/* store */
 		if (opc == 0x22)
 			continue;
-		/* waiti */
+		/* sleep */
 		if (opc == 0x26)
 			continue;
 		/* prevent bra to self */
