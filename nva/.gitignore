@@ -32,3 +32,5 @@ nv01post
 nv01dump
 libnva.a
 libnva.so
+nvapy.c
+nvapy.so
