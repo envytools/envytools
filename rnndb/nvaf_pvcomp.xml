@@ -9,26 +9,171 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
+<bitset name="NVAF_PVCOMP_INTR" varset="chipset">
+	<bitfield low="0" high="7" name="FUC" type="nv98_fuc_intr"/>
+	<bitfield pos="8" name="MEMIF_TARGET_INVALID"/>
+	<bitfield pos="9" name="MEMIF_FAULT"/>
+	<bitfield pos="10" name="VCOMP"/>
+</bitset>
+<bitset name="NVAF_PVCOMP_STATUS" varset="chipset">
+	<bitfield pos="0" name="FUC"/>
+	<bitfield pos="1" name="MEMIF"/>
+	<bitfield pos="2" name="UNK2"/>
+	<bitfield pos="3" name="UC"/>
+	<bitfield pos="4" name="UNK4"/>
+	<bitfield pos="5" name="INITDATA_FETCH"/>
+	<bitfield pos="6" name="UNK6"/>
+	<bitfield pos="7" name="UNK7"/>
+	<bitfield pos="8" name="UNK8"/>
+	<bitfield pos="9" name="UNK644_INITDATA_UNK470_UNK430"/>
+	<bitfield pos="10" name="GAMMA"/>
+	<bitfield pos="11" name="UNK11"/>
+</bitset>
+
 <array name="PVCOMP" offset="0x1c1000" stride="0x1000" length="1" variants="NVAF-">
 	<use-group name="nv98_fucbase"/>
 	<use-group name="nv98_fuc_memif"/>
-	<bitset name="vcomp_intr" inline="yes">
-		<bitfield pos="0" name="UNK0"/>
-		<bitfield pos="1" name="UNK1"/>
-		<bitfield pos="2" name="UNK2"/>
-		<bitfield pos="3" name="UNK3"/>
-		<bitfield pos="4" name="UNK4"/>
-		<bitfield pos="5" name="UNK5"/>
-	</bitset>
-	<reg32 offset="0x41c" name="INTR_TRIGGER" type="vcomp_intr"/>
-	<reg32 offset="0x420" name="INTR_EN" type="vcomp_intr"/>
-	<reg32 offset="0x424" name="INTR" type="vcomp_intr"/>
-	<reg32 offset="0x42c" name="UNK430_IDX" max="0x20b"/>
-	<reg32 offset="0x430" name="UNK430_DATA" length="4"/> <!-- scan ffffffff for indices 0-3, 3fffffff for 4-0x20b -->
-	<reg32 offset="0x46c" name="UNK470_IDX" max="0xe"/>
-	<reg32 offset="0x470" name="UNK470_DATA" length="4"/>
-	<reg32 offset="0x66c" name="UNK470_IDX" max="0x31"/> <!-- XXX wtf? -->
-	<reg32 offset="0x670" name="UNK470_DATA" length="4"/>
+
+	<array offset="0x400" name="ALPHA" stride="0x40" length="1">
+		<reg32 offset="0x00" name="KAPPA_TRIGGER"/>
+		<reg32 offset="0x04" name="LAMBDA_CONFIG_TRIGGER">
+			<bitfield low="0" high="2" name="VISET_IDX"/>
+			<bitfield pos="4" name="MU_ENABLE"/>
+			<bitfield pos="5" name="RHO_ENABLE"/>
+			<bitfield pos="6" name="ETA_ENABLE"/>
+			<bitfield pos="7" name="NU_ENABLE"/>
+			<bitfield low="8" high="12" name="FORMAT"/>
+			<bitfield pos="13" name="XI_ENABLE"/>
+			<bitfield pos="14" name="UNK14"/>
+			<bitfield pos="15" name="UNK15"/>
+			<bitfield low="16" high="19" name="UNK16"/>
+			<bitfield low="24" high="27" name="UNK24"/>
+			<bitfield pos="31" name="UNK31"/>
+		</reg32>
+		<reg32 offset="0x08" name="LAMBDA_PARAM" length="2">
+			<bitfield low="0" high="11" name="UNK0"/>
+			<bitfield low="16" high="27" name="UNK16"/>
+		</reg32>
+		<bitset name="vcomp_intr" inline="yes">
+			<bitfield pos="0" name="UC_USER"/>
+			<bitfield pos="1" name="UNK1"/>
+			<bitfield pos="2" name="UNK2"/>
+			<bitfield pos="3" name="UNK3"/>
+			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="5" name="UNK5"/>
+		</bitset>
+		<reg32 offset="0x1c" name="INTR_TRIGGER" type="vcomp_intr"/>
+		<reg32 offset="0x20" name="INTR_EN" type="vcomp_intr"/>
+		<reg32 offset="0x24" name="INTR" type="vcomp_intr"/>
+		<reg32 offset="0x28" name="STATUS" access="r"/> <!-- indexed -->
+		<reg32 offset="0x2c" name="DATA_IDX" max="0x20b"/>
+		<reg32 offset="0x30" name="DATA" length="4"/> <!-- scan ffffffff for indices 0-3, 3fffffff for 4-0x20b -->
+	</array>
+
+	<array offset="0x440" name="IOTA" stride="0x40" length="1">
+		<reg32 offset="0x28" name="STATUS" access="r"/>
+		<reg32 offset="0x2c" name="DATA_IDX" max="0xe"/>
+		<reg32 offset="0x30" name="DATA" length="4"/>
+	</array>
+
+	<array offset="0x480" name="CHI" stride="0x40" length="1">
+		<reg32 offset="0x00" name="INITDATA_ADDR" shr="8"/>
+		<reg32 offset="0x04" name="INITDATA_SIZE" shr="4"/>
+		<reg32 offset="0x08" name="BETA_ADDR" shr="8"/>
+		<reg32 offset="0x0c" name="THETA" length="5"/>
+		<enum name="CHI_THETA_INDEX">
+			<value value="0x0" name="ADDR_0_0"/>
+			<value value="0x1" name="ADDR_1_0"/>
+			<value value="0x2" name="ADDR_2_0"/>
+			<value value="0x3" name="ADDR_3_0"/>
+			<value value="0x4" name="ADDR_0_1"/>
+			<value value="0x5" name="ADDR_1_1"/>
+			<value value="0x6" name="ADDR_2_1"/>
+			<value value="0x7" name="ADDR_3_1"/>
+			<value value="0x8" name="ADDR_4_0"/>
+			<value value="0x9" name="ADDR_4_1"/>
+			<value value="0xa" name="ADDR_5_0"/>
+			<value value="0xb" name="ADDR_5_1"/>
+			<value value="0xc" name="ADDR_6_0"/>
+			<value value="0xd" name="ADDR_6_1"/>
+			<value value="0xe" name="ADDR_7_0"/>
+			<value value="0xf" name="ADDR_7_1"/>
+			<value value="0x10" name="TARGETS"/>
+		</enum>
+		<reg32 offset="0x20" name="TARGETS">
+			<bitfield low="4" high="7" name="INITDATA"/>
+			<bitfield low="8" high="11" name="BETA"/>
+		</reg32>
+		<reg32 offset="0x24" name="UNK24"/> <!-- 40/ff/0 -->
+		<reg32 offset="0x2c" name="STATUS" access="r"/> <!-- indexed -->
+		<reg32 offset="0x30" name="DATA" length="4"/>
+	</array>
+
+	<array offset="0x4c0" name="OMICRON" stride="0x40" length="1">
+		<reg32 offset="0x00" name="UNK00"/>
+		<reg32 offset="0x04" name="UNK04"/> <!-- 0x34005000 -->
+		<reg32 offset="0x08" name="UNK08"/>
+		<reg32 offset="0x0c" name="UNK0C"/> <!-- 0x40000000 -->
+		<reg32 offset="0x10" name="UNK10"/>
+		<reg32 offset="0x20" name="STATUS" access="r"/>
+	</array>
+
+	<array offset="0x500" name="RHO" stride="0x40" length="1">
+		<reg32 offset="0x00" name="UNK00"/> <!-- writing clears UNK04, UNK14 -->
+		<reg32 offset="0x04" name="UNK04" length="2"/>
+		<reg32 offset="0x14" name="UNK14" length="2"/>
+		<!-- XXX status? -->
+	</array>
+
+	<array offset="0x640" name="DELTA" stride="0x40" length="1">
+		<reg32 offset="0x00" name="ADDR" shr="8"/>
+		<reg32 offset="0x04" name="TRIGGER" access="w"/> <!-- write 1 -->
+		<reg32 offset="0x08" name="TARGET"/>
+		<reg32 offset="0x0c" name="UNK0C">
+			<bitfield low="0" high="4" name="UNK0"/> <!-- 1f by default -->
+			<bitfield pos="8" name="UNK8"/>
+			<bitfield low="16" high="20" name="UNK16"/> <!-- 1f by default -->
+		</reg32>
+
+		<reg32 offset="0x20" name="SIGMA"/> <!-- 18-bit -->
+		<reg32 offset="0x28" name="STATUS" access="r"/>
+		<reg32 offset="0x2c" name="IDX">
+			<bitfield low="0" high="5" name="DATA_IDX" max="0x31"/>
+			<bitfield low="0" high="9" name="SIGMA_IDX"/>
+			<bitfield low="10" high="11" name="SIGMA_PIECE"/>
+			<bitfield pos="12" name="SIGMA_SET"/>
+		</reg32>
+		<reg32 offset="0x30" name="DATA" length="4"/>
+	</array>
+
+	<array offset="0x680" name="GAMMA" stride="0x40" length="1">
+		<reg32 offset="0x00" name="ADDR" length="8" shr="8"/>
+		<reg32 offset="0x20" name="LAMBDA_PARAM"> <!-- indexed, valid indices 0, 0x20 -->
+			<bitfield low="0" high="11" name="UNK0"/>
+			<bitfield low="16" high="27" name="UNK16"/>
+		</reg32>
+		<reg32 offset="0x24" name="LAMBDA_CONFIG">
+			<bitfield pos="3" name="UNK3"/>
+			<bitfield pos="7" name="NU_ENABLE"/>
+			<bitfield low="8" high="12" name="FORMAT"/>
+			<bitfield pos="14" name="UNK14"/>
+			<bitfield pos="15" name="UNK15"/>
+			<bitfield low="16" high="19" name="UNK16"/>
+			<bitfield pos="20" name="UNK20"/>
+			<bitfield low="21" high="23" name="PHI_1"/>
+			<bitfield low="24" high="27" name="UNK24"/>
+		</reg32>
+		<reg32 offset="0x28" name="TARGETS">
+			<bitfield low="0" high="3" name="0"/>
+			<bitfield low="4" high="7" name="1"/>
+			<bitfield low="8" high="11" name="2"/>
+			<bitfield low="12" high="15" name="3"/>
+		</reg32>
+		<reg32 offset="0x2c" name="STATUS" access="r"/> <!-- index 0 -->
+		<reg32 offset="0x2c" name="DATA_IDX" max="1"/> <!-- index 0x20 -->
+		<reg32 offset="0x30" name="DATA" length="4"/>
+	</array>
+
 	<array offset="0x7c0" name="UC" stride="0x40">
 		<reg32 offset="0x00" name="CONTROL">
 			<bitfield pos="0" name="START_TRIGGER"/>
@@ -37,6 +182,7 @@
 		<reg32 offset="0x04" name="STATUS">
 			<bitfield pos="0" name="RUNNING"/>
 			<bitfield pos="1" name="STOPPED"/>
+			<bitfield pos="8" name="USER_INTR"/>
 		</reg32>
 		<reg32 offset="0x08" name="CODE_ADDR" min="0" max="0x3fc" align="4"/>
 		<reg32 offset="0x0c" name="CODE_WINDOW"/>
@@ -52,13 +198,23 @@
 			<value value="8" name="PC"/>
 			<value value="9" name="OP"/>
 			<value value="0xa" name="PRED"/> <!-- 3-bit -->
-			<value value="0xb" name="UNK0B"/> <!-- 4-bit -->
+			<value value="0xb" name="MEMIDX"/> <!-- 4-bit -->
 		</reg32>
 		<reg32 offset="0x14" name="REG_LOW"/>
 		<reg32 offset="0x18" name="REG_HIGH"/>
 	</array>
 </array>
 
+</domain>
+
+<domain name="NVAF_PUNK1C1_INITDATA">
+	<reg32 offset="0x0000" name="CHI_DATA" length="4"/>
+	<reg32 offset="0x0004" name="IOTA_DATA" length="0x3c"/> <!-- 15 x 4, first by position in DATA, then by index -->
+	<reg32 offset="0x0100" name="DELTA_DATA" length="0xc8"/> <!-- 0x32 x 4, first by position in DATA, then by index -->
+	<reg32 offset="0x0420" name="UNK0420" length="0x78"/> <!-- XXX -->
+	<reg64 offset="0x0600" name="DELTA_SIGMA" length="0x800"/> <!-- set 0, then set 1; piece 0 is bits 0-17, piece 1 is bits 20-37, piece 2 is bits 40-57 -->
+	<reg32 offset="0x4600" name="GAMMA_DATA" length="8"/>
+	<reg32 offset="0x4620" name="ALPHA_DATA" length="0x830"/> <!-- 0x20c x 4 -->
 </domain>
 
 </database>
