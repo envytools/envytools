@@ -9,10 +9,10 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array name="PUNK1C1" offset="0x1c1000" stride="0x1000" length="1" variants="NVAF-">
+<array name="PVCOMP" offset="0x1c1000" stride="0x1000" length="1" variants="NVAF-">
 	<use-group name="nv98_fucbase"/>
 	<use-group name="nv98_fuc_memif"/>
-	<bitset name="unk1c1_intr" inline="yes">
+	<bitset name="vcomp_intr" inline="yes">
 		<bitfield pos="0" name="UNK0"/>
 		<bitfield pos="1" name="UNK1"/>
 		<bitfield pos="2" name="UNK2"/>
@@ -20,9 +20,9 @@
 		<bitfield pos="4" name="UNK4"/>
 		<bitfield pos="5" name="UNK5"/>
 	</bitset>
-	<reg32 offset="0x41c" name="INTR_TRIGGER" type="unk1c1_intr"/>
-	<reg32 offset="0x420" name="INTR_EN" type="unk1c1_intr"/>
-	<reg32 offset="0x424" name="INTR" type="unk1c1_intr"/>
+	<reg32 offset="0x41c" name="INTR_TRIGGER" type="vcomp_intr"/>
+	<reg32 offset="0x420" name="INTR_EN" type="vcomp_intr"/>
+	<reg32 offset="0x424" name="INTR" type="vcomp_intr"/>
 	<reg32 offset="0x42c" name="UNK430_IDX" max="0x20b"/>
 	<reg32 offset="0x430" name="UNK430_DATA" length="4"/> <!-- scan ffffffff for indices 0-3, 3fffffff for 4-0x20b -->
 	<reg32 offset="0x46c" name="UNK470_IDX" max="0xe"/>

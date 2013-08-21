@@ -16,7 +16,7 @@
 	<value value="3" name="PCOPY" variants="NVA3-"/>
 	<value value="4" name="PVP" variants="NV50"/>
 	<value value="5" name="PCRYPT" variants="NV84:NVA3"/>
-	<value value="5" name="PUNK1C1" variants="NVAF-"/>
+	<value value="5" name="PVCOMP" variants="NVAF-"/>
 	<value value="6" name="PBSP" variants="NV84-"/>
 </enum>
 
@@ -30,7 +30,7 @@
 	<bitfield pos="3" name="PVP"/>
 	<bitfield pos="4" name="PCRYPT" variants="NV84:NVA3"/>
 	<bitfield pos="4" name="UNUSED4" variants="NVA3:NVAF"/>
-	<bitfield pos="4" name="PUNK1C1" variants="NVAF-"/>
+	<bitfield pos="4" name="PVCOMP" variants="NVAF-"/>
 	<bitfield pos="5" name="PBSP" variants="NV84-"/>
 </bitset>
 
@@ -99,7 +99,7 @@
 			<bitfield low="16" high="23" name="UNK16"/>
 			<bitfield low="24" high="27" name="PCRYPT" variants="NV84:NVA3"/>
 			<bitfield low="24" high="27" name="UNUSED4" variants="NVA3:NVAF"/>
-			<bitfield low="24" high="27" name="PUNK1C1" variants="NVAF-"/>
+			<bitfield low="24" high="27" name="PVCOMP" variants="NVAF-"/>
 			<bitfield low="28" high="31" name="PBSP" variants="NV84-"/>
 		</reg32>
 		<reg32 offset="0x094" name="UNK94" variants="NV84-">

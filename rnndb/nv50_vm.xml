@@ -9,7 +9,7 @@
 	<value value="5" name="PFIFO"/>
 	<value value="6" name="BAR"/>
 	<value value="7" name="PME" variants="NV50:NV84"/>
-	<value value="7" name="PUNK1C1" variants="NVAF-"/>
+	<value value="7" name="PVCOMP" variants="NVAF-"/>
 	<value value="8" name="PMPEG" variants="NV50:NV98 NVA0"/>
 	<value value="8" name="PPPP" variants="NV98 NVAA-"/>
 	<value value="9" name="PBSP" variants="NV84-"/>
@@ -38,7 +38,7 @@
 	<value value="0x0f" name="PCOUNTER" variants="NV84-"/>
 	<value value="0x11" name="PDAEMON" variants="NVA3-"/>
 	<value value="0x13" name="PCOPY" variants="NVA3-"/>
-	<value value="0x14" name="PUNK1C1" variants="NVAF-"/>
+	<value value="0x14" name="PVCOMP" variants="NVAF-"/>
 </enum>
 
 <enum name="NV50_VM_FAULT">

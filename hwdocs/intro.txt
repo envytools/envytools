@@ -236,9 +236,9 @@ not shown above.
                |       +--| PCOPY |    |  | PFUSE |
           +----------+ |  +-------+    |  +-------+
           | PDISPLAY |-+               |
-          +----------+ |  +---------+  |  +--------+
-               |       +--| PUNK1C1 |--+  | PKFUSE |
-           +--------+  |  +---------+  |  +--------+
+          +----------+ |  +--------+   |  +--------+
+               |       +--| PVCOMP |---+  | PKFUSE |
+           +--------+  |  +--------+   |  +--------+
            | PCODEC |  |               |
            +--------+  |  +-----------------------+
                        +--| video decoding, crypt |
@@ -267,7 +267,7 @@ The GPU is made of:
   - PGRAPH: memory copying, 2d and 3d rendering engine
   - video decoding engines, see below
   - PCOPY: asynchronous copy engine [fifo/pcopy.txt]
-  - PUNK1C1: ???
+  - PVCOMP: video compositing engine
   - PCOUNTER: performance monitoring counters for the processing engines and
     memory controller [pcounter/intro.txt] 
  - display and IO port units:

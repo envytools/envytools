@@ -91,7 +91,7 @@ VM is used by several clients, which are identified by VM client id:
  - f: PCOUNTER [nv84-]
  - 11: PDAEMON [nva3-]
  - 13: PCOPY [nva3-]
- - 14: PUNK1C1 [nvaf]
+ - 14: PVCOMP [nvaf]
 
 A related concept is VM engine, which is a group of clients that share TLBs
 and stay on the same channel at any single moment. It's possible for a client
@@ -103,7 +103,7 @@ to be part of several VM engines. The engines are:
  - 5: PFIFO: PFIFO_WRITE + PFIFO_READ
  - 6: BAR: PFIFO_WRITE + PFIFO_READ
  - 7: PME: PVPE [nv50:nv84]
- - 7: PUNK1C1: PUNK1C1 [nvaf]
+ - 7: PVCOMP: PVCOMP [nvaf]
  - 8: PMPEG: PVPE [nv50:nv98]
  - 8: PPPP: PPPP [nv98-]
  - 9: PBSP: PBSP [nv84-]
@@ -170,7 +170,7 @@ ids depends on both engine and client id. The DMA slots are
  - a/e/0-7: PCRYPT fuc ports 0-7 [nv98:nva3]
  - d/13/0-7: PCOPY fuc ports 0-7 [nva3:]
  - e/11/0-7: PDAEMON fuc ports 0-7 [nva3:]
- - 7/14/0-7: PUNK1C1 fuc ports 0-7 [nvaf:]
+ - 7/14/0-7: PVCOMP fuc ports 0-7 [nvaf:]
 
 
 = Channels =
@@ -322,7 +322,7 @@ selector | address | cards | engine
  0x0006  | 0x00060 | NV98- | PPPP
  0x0008  | 0x00080 |  all  | PBSP
  0x000a  | 0x000a0 | 84:A3 | PCRYPT
- 0x000a  | 0x000a0 | NVAF- | PUNK1C1
+ 0x000a  | 0x000a0 | NVAF- | PVCOMP
  0x000c  | 0x000c0 | NVA3- | PCOPY
 
 

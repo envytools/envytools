@@ -39,7 +39,7 @@ HWTEST_DEF_GROUP(hwtest_root,
 	HWTEST_GROUP(nv50_ptherm),
 	HWTEST_GROUP(nv84_ptherm),
 	HWTEST_GROUP(vp2_macro),
-	HWTEST_GROUP(punk1c1_isa),
+	HWTEST_GROUP(pvcomp_isa),
 )
 
 int main(int argc, char **argv) {

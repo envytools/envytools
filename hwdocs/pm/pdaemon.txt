@@ -48,9 +48,9 @@ The PDAEMON is made of:
 
 There are 5 revisions of PDAEMON:
  - NVA3:NVAF - the original revision
- - NVAF:NVC0 - added a third instance of power gating controller for PUNK1C1
+ - NVAF:NVC0 - added a third instance of power gating controller for PVCOMP
    engine
- - NVC0:NVD9 - removed PUNK1C1 support, added second set of input/output
+ - NVC0:NVD9 - removed PVCOMP support, added second set of input/output
    signals and [XXX: some unknown bits]
  - NVD9:NVE4 - changed I[] space layout, added [XXX: what?]
  - NVE4- - a new version of engine power gating controller and [XXX: what?]
@@ -251,7 +251,7 @@ MMIO 0x688 / I[0x1a200]: SUBINTR
   bit 6: IREDIR_HOST_REQ - interrupt redirection request [see IREDIR_TRIGGER]
   bit 7: ??? [XXX]
   bit 8: ??? - goes to 0x670 [XXX]
-  bit 9: EPWR_PUNK1C1 [NVAF] - PUNK1C1 engine power control [XXX]
+  bit 9: EPWR_VCOMP [NVAF] - PVCOMP engine power control [XXX]
   [XXX: more bits here?]
   bit 13: ??? [NVD9-] - goes to 0x888 [XXX]
 

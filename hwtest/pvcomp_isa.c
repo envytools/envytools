@@ -295,7 +295,7 @@ static int test_arith(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-static int punk1c1_isa_prep(struct hwtest_ctx *ctx) {
+static int pvcomp_isa_prep(struct hwtest_ctx *ctx) {
 	if (ctx->chipset != 0xaf)
 		return HWTEST_RES_NA;
 	nva_wr32(ctx->cnum, 0x200, 0xffffbfff);
@@ -303,6 +303,6 @@ static int punk1c1_isa_prep(struct hwtest_ctx *ctx) {
 	return HWTEST_RES_PASS;
 }
 
-HWTEST_DEF_GROUP(punk1c1_isa,
+HWTEST_DEF_GROUP(pvcomp_isa,
 	HWTEST_TEST(test_arith, 0),
 )

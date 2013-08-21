@@ -488,7 +488,7 @@ NVA3:
  - Added PCOPY, the dedicated copy engine
  - Merged PCRYPT functionality into PBSP
 NVAF:
- - added PUNK1C1 to [XXX: what?]
+ - added PVCOMP, the video compositor engine
 
 The chipsets in this family are [TPs:MPs/TP:ROPs]:
 NV50 [G80]: 8:2:6

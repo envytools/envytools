@@ -22,4 +22,4 @@ NV50 context DMA: 0xa
 [XXX: interrupts]
 [XXX: status bits]
 
-[XXX: describe PUNK1C1]
+[XXX: describe PVCOMP]

@@ -442,12 +442,12 @@ PVP_USER_2       |9e|??|9e|??|4e|??|4e| fuc/perf.txt
 PVP_USER_3       |9f|??|9f|??|4f|??|4f| fuc/perf.txt
 PVP_USER_4       |a0|??|a0|??|50|??|50| fuc/perf.txt
 PVP_USER_5       |a1|??|a1|??|51|??|51| fuc/perf.txt
-PUNK1C1_USER_0   |--|--|--|--|--|--|60| fuc/perf.txt
-PUNK1C1_USER_1   |--|--|--|--|--|--|61| fuc/perf.txt
-PUNK1C1_USER_2   |--|--|--|--|--|--|62| fuc/perf.txt
-PUNK1C1_USER_3   |--|--|--|--|--|--|63| fuc/perf.txt
-PUNK1C1_USER_4   |--|--|--|--|--|--|64| fuc/perf.txt
-PUNK1C1_USER_5   |--|--|--|--|--|--|65| fuc/perf.txt
+PVCOMP_USER_0    |--|--|--|--|--|--|60| fuc/perf.txt
+PVCOMP_USER_1    |--|--|--|--|--|--|61| fuc/perf.txt
+PVCOMP_USER_2    |--|--|--|--|--|--|62| fuc/perf.txt
+PVCOMP_USER_3    |--|--|--|--|--|--|63| fuc/perf.txt
+PVCOMP_USER_4    |--|--|--|--|--|--|64| fuc/perf.txt
+PVCOMP_USER_5    |--|--|--|--|--|--|65| fuc/perf.txt
 [trailer base]   |a0|??|a0|c0|c0|??|e0| pcounter/intro.txt
 
 

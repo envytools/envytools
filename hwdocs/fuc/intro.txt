@@ -57,6 +57,6 @@ The fµc units present on nvidia cards are:
  - The NVC0 PGRAPH CTXCTL engines:
   - PGRAPH.CTXCTL					[graph/nvc0-ctxctl/intro.txt]
   - PGRAPH.GPC[*].CTXCTL				[graph/nvc0-ctxctl/intro.txt]
- - The unknown NVAF PUNK1C1 engine [XXX]		[punk1c1.txt]
+ - The video compositing engine, PVCOMP [NVAF:NVC0]	[vdec/pvcomp.txt]
  - The unknown NVD9 PUNK1C3 engine [XXX]		[display/nv50/punk1c3.txt]
- - The H.264 encodning engine, PVENC [NVE4+]		[vdec/pvenc.txt]
+ - The H.264 encoding engine, PVENC [NVE4+]		[vdec/pvenc.txt]

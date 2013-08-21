@@ -60,8 +60,8 @@ idx|   name   |   cards   | description
 5/-| PCRYPT   | NV98:NVA3 | On NVA3+, the crypto powers were instead merged
    |          |           | into PVP. [see vdec/vp3/pcrypt.txt]
 ------------------------------------------------------------------------------
-5/-| PUNK1C1  | NVAF:NVC0 | fuc-microcoded engine of unknown purpose
-   |          |           | [see punk1c1.txt]
+5/-| PVCOMP   | NVAF:NVC0 | fuc-microcoded video compositing engine
+   |          |           | [see vdec/pvcomp.txt]
 ------------------------------------------------------------------------------
 3/ |          |           | fuc-microcoded engine, meant to copy stuff from
 4,5| PCOPY    | NVA3:.... | point A to point B. Comes in two copies on NVC0+,
