@@ -113,6 +113,9 @@
 			<bitfield pos="4" name="BAR_FAULT"/>
 			<bitfield pos="6" name="PEEPHOLE_FAULT"/>
 			<bitfield pos="8" name="PIO_ERROR"/>
+			<bitfield pos="9" name="UNK9" variants="NVA3-"/>
+			<bitfield pos="10" name="UNK10" variants="NVA3-"/>
+			<bitfield pos="11" name="MTHD_UNK2C" variants="NVAF-"/>
 			<bitfield pos="12" name="DMA_PUSHER" />
 			<bitfield pos="16" name="UNK16"/>
 			<bitfield pos="18" name="UNK18"/>
@@ -137,6 +140,9 @@
 			<bitfield pos="4" name="BAR_FAULT"/>
 			<bitfield pos="6" name="PEEPHOLE_FAULT"/>
 			<bitfield pos="8" name="PIO_ERROR"/>
+			<bitfield pos="9" name="UNK9" variants="NVA3-"/>
+			<bitfield pos="10" name="UNK10" variants="NVA3-"/>
+			<bitfield pos="11" name="MTHD_UNK2C" variants="NVAF-"/>
 			<bitfield pos="12" name="DMA_PUSHER" />
 			<bitfield pos="16" name="UNK16"/>
 			<bitfield pos="18" name="UNK18"/>
@@ -321,6 +327,8 @@
 					<value value="4" name="MEM_FAULT"/>
 				</bitfield>
 				<bitfield pos="24" name="INVALID_ENGINE"/>
+				<bitfield pos="25" name="MTHD_UNK2C_UNK0_0_UNK28_1" variants="NVAF-"/>
+				<bitfield pos="26" name="MTHD_UNK2C_UNK29_INVALID" variants="NVAF-"/>
 				<bitfield high="31" low="28" name="STATUS">
 					<!-- XXX: figure this out -->
 				</bitfield>
@@ -443,6 +451,8 @@
 				<bitfield high="31" low="30" name="TARGET" type="nv50_mem_target"/> <!-- XXX: guess -->
 			</reg32>
 			<reg32 offset="0x210" name="CHAN_INST" variants="NV84-" type="nv50_channel"/>
+			<reg32 offset="0x300" name="MTHD_UNK28" varianta="NVAF-"/>
+			<reg32 offset="0x304" name="UNK304" varianta="NVAF-"/>
 		</array>
 	</array>
 
@@ -525,6 +535,9 @@
 	<reg32 offset="0x90" name="SEMAPHORE_ADDRESS_LOW"/>
 	<reg32 offset="0x94" name="SEMAPHORE_SEQUENCE"/>
 	<reg32 offset="0x98" name="CHAN_INST"/>
+	<!-- following NVAF+ -->
+	<reg32 offset="0x9c" name="MTHD_UNK28"/>
+	<reg32 offset="0xa0" name="UNK304"/>
 </domain>
 
 </database>

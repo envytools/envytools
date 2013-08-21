@@ -254,8 +254,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x20" name="NOTIFY_INTR" variants="NV84-"/>
 		<reg32 offset="0x24" name="WRCACHE_FLUSH" variants="NV84-"/>
-		<reg32 offset="0x28" name="UNK28" variants="NVC0-"/>
-		<reg32 offset="0x2c" name="UNK2C" variants="NVC0-"/>
+		<reg32 offset="0x28" name="UNK28" variants="NVAF-"/>
+		<reg32 offset="0x2c" name="UNK2C" variants="NVAF-">
+			<bitfield low="0" high="27" name="UNK0"/>
+			<bitfield pos="28" name="UNK28"/>
+			<bitfield low="29" high="31" name="UNK29">
+				<value value="0" name="UNK0"/>
+				<value value="1" name="UNK1"/>
+				<value value="2" name="UNK2"/>
+			</bitfield>
+		</reg32>
 		<reg32 offset="0x50" name="REF_CNT" variants="NV10-"/>
 		<reg32 offset="0x60" name="DMA_SEMAPHORE" variants="NV11:NVC0" type="object"/>
 		<reg32 offset="0x64" name="SEMAPHORE_OFFSET" variants="NV11-"/>
