@@ -15,10 +15,31 @@
 </bitset>
 
 <bitset name="nvc0_pll_ctrl" inline="yes">
+	<doc>
+		Avoid setting both ENABLE and PWROFF at the same time. If you do so,
+		make sure to first clear them both before setting ENABLE.
+		The PLL won't lock if you don't do that.
+
+		UNK12 is a post divider, but it is a bit of a mystery how to
+		make use of it. I sometimes managed to activate it but I cannot
+		reproduce it.
+	</doc>
 	<bitfield pos="0" name="ENABLE"/>
+	<bitfield pos="1" name="PWROFF"/>
+	<bitfield pos="2" name="UNK2"/>
+	<bitfield pos="4" name="BYPASS_PLL_CHECK"/>
+	<bitfield low="12" high="15" name="UNK12"/>
+	<bitfield pos="16" name="PLL_PWR"/>
+	<bitfield pos="17" name="PLL_LOCK"/>
 </bitset>
 
 <bitset name="nvc0_pll_coef" inline="yes">
+	<doc>
+		output = input * N / M / P.
+
+		if the value set to M, N or P is set to 0, it will be equivalent
+		to writing 1.
+	</doc>
 	<bitfield low="0" high="7" name="M"/>
 	<bitfield low="8" high="15" name="N"/>
 	<bitfield low="16" high="21" name="P"/>
@@ -59,15 +80,19 @@
 <array name="PCLOCK" offset="0x137000" stride="0x1000" length="1" variants="NVC0-">
 	<reg32 offset="0x000" name="CLK0_CTRL" type="nvc0_pll_ctrl"/>
 	<reg32 offset="0x004" name="CLK0_COEF" type="nvc0_pll_coef"/>
+	<reg32 offset="0x008" name="CLK0_UNK8" />
 
 	<reg32 offset="0x020" name="CLK1_CTRL" type="nvc0_pll_ctrl"/>
 	<reg32 offset="0x024" name="CLK1_COEF" type="nvc0_pll_coef"/>
+	<reg32 offset="0x028" name="CLK1_UNK8" />
 
 	<reg32 offset="0x040" name="CLK2_CTRL" type="nvc0_pll_ctrl"/>
 	<reg32 offset="0x044" name="CLK2_COEF" type="nvc0_pll_coef"/>
+	<reg32 offset="0x048" name="CLK2_UNK8" />
 
 	<reg32 offset="0x0e0" name="CLK7_CTRL" type="nvc0_pll_ctrl"/>
 	<reg32 offset="0x0e4" name="CLK7_COEF" type="nvc0_pll_coef"/>
+	<reg32 offset="0x0e8" name="CLK7_UNK8" />
 
 	<reg32 offset="0x100" name="SRC_SEL">
 		<doc>
