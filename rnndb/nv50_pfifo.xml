@@ -451,8 +451,8 @@
 				<bitfield high="31" low="30" name="TARGET" type="nv50_mem_target"/> <!-- XXX: guess -->
 			</reg32>
 			<reg32 offset="0x210" name="CHAN_INST" variants="NV84-" type="nv50_channel"/>
-			<reg32 offset="0x300" name="MTHD_UNK28" varianta="NVAF-"/>
-			<reg32 offset="0x304" name="UNK304" varianta="NVAF-"/>
+			<reg32 offset="0x300" name="MTHD_UNK28" variants="NVAF-"/>
+			<reg32 offset="0x304" name="UNK304" variants="NVAF-"/>
 		</array>
 	</array>
 
