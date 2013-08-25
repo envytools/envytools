@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <getopt.h>
+#include <assert.h>
 #include "nva.h"
 #include "rnn.h"
 
@@ -169,39 +170,67 @@ void time_pcounter_nv84(unsigned int cnum)
 
 void time_pcounter_nvc0(unsigned int cnum)
 {
+	uint32_t hub[8], part[8][2], gpc[32][1];
+
 	printf ("Perf counters:\n");
 
 	int parts = nva_rd32(cnum, 0x121c74);
 	int gpcs = nva_rd32(cnum, 0x121c78);
 
+	assert(parts <= 8);
+	assert(gpcs <= 32);
+
 	int i, u;
+	/* HUBs */
 	for (i = 0; i < 8; i++) {
 		nva_wr32(cnum, 0x1b009c + i * 0x200, 0x40002);
 		nva_wr32(cnum, 0x1b0044 + i * 0x200, 0xffff);
 		nva_wr32(cnum, 0x1b00a8 + i * 0x200, 0);
 	}
-	sleep(1);
-	for (i = 0; i < 8; i++)
-		printf ("HUB set %d: %u Hz\n", i, nva_rd32(cnum, 0x1b00a8 + i * 0x200));
+
+	/* PARTS */
 	for (u = 0; u < parts; u++) {
 		for (i = 0; i < 2; i++) {
 			nva_wr32(cnum, 0x1a009c + i * 0x200 + u * 0x1000, 0x40002);
 			nva_wr32(cnum, 0x1a0044 + i * 0x200 + u * 0x1000, 0xffff);
 			nva_wr32(cnum, 0x1a00a8 + i * 0x200 + u * 0x1000, 0);
 		}
-		sleep(1);
-		for (i = 0; i < 2; i++)
-			printf ("PART[%d] set %d: %u Hz\n", u, i, nva_rd32(cnum, 0x1a00a8 + i * 0x200 + u * 0x1000));
 	}
+
+	/* GPCs */
 	for (u = 0; u < gpcs; u++) {
 		for (i = 0; i < 1; i++) {
 			nva_wr32(cnum, 0x18009c + i * 0x200 + u * 0x1000, 0x40002);
 			nva_wr32(cnum, 0x180044 + i * 0x200 + u * 0x1000, 0xffff);
 			nva_wr32(cnum, 0x1800a8 + i * 0x200 + u * 0x1000, 0);
 		}
-		sleep(1);
+	}
+
+	sleep(1);
+
+	/* collect data */
+	for (i = 0; i < 8; i++)
+		hub[i] = nva_rd32(cnum, 0x1b00a8 + i * 0x200);
+
+	for (u = 0; u < parts; u++) {
+		for (i = 0; i < 2; i++)
+			part[u][i] = nva_rd32(cnum, 0x1a00a8 + i * 0x200 + u * 0x1000);
+	}
+	for (u = 0; u < gpcs; u++) {
 		for (i = 0; i < 1; i++)
-			printf ("GPC[%d] set %d: %u Hz\n", u, i, nva_rd32(cnum, 0x1800a8 + i * 0x200 + u * 0x1000));
+			gpc[u][i] = nva_rd32(cnum, 0x1800a8 + i * 0x200 + u * 0x1000);
+	}
+
+	/* display data */
+	for (i = 0; i < 8; i++)
+		printf ("HUB set %d: %u Hz\n", i, hub[i]);
+	for (u = 0; u < parts; u++) {
+		for (i = 0; i < 2; i++)
+			printf ("PART[%d] set %d: %u Hz\n", u, i, part[u][i]);
+	}
+	for (u = 0; u < gpcs; u++) {
+		for (i = 0; i < 1; i++)
+			printf ("GPC[%d] set %d: %u Hz\n", u, i, gpc[u][i]);
 	}
 }
 
@@ -548,11 +577,11 @@ int main(int argc, char **argv)
 		}
 
 		if (card->chipset == 0xaf) {
-			time_fuc_engine_periodic(cnum, "PVCOMP", 0x1c1000);
-			time_fuc_engine_watchdog(cnum, "PVCOMP", 0x1c1000);
+			time_fuc_engine_periodic(cnum, "PUNK1C1", 0x1c1000);
+			time_fuc_engine_watchdog(cnum, "PUNK1C1", 0x1c1000);
 			printf("\n");
 		} else {
-			printf("Your card doesn't support PVCOMP (nvaf only)\n\n");
+			printf("Your card doesn't support PUNK1C1 (nvaf only)\n\n");
 		}
 
 		if (card->chipset == 0xd9) {
