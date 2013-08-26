@@ -577,11 +577,11 @@ int main(int argc, char **argv)
 		}
 
 		if (card->chipset == 0xaf) {
-			time_fuc_engine_periodic(cnum, "PUNK1C1", 0x1c1000);
-			time_fuc_engine_watchdog(cnum, "PUNK1C1", 0x1c1000);
+			time_fuc_engine_periodic(cnum, "PVCOMP", 0x1c1000);
+			time_fuc_engine_watchdog(cnum, "PVCOMP", 0x1c1000);
 			printf("\n");
 		} else {
-			printf("Your card doesn't support PUNK1C1 (nvaf only)\n\n");
+			printf("Your card doesn't support PVCOMP (nvaf only)\n\n");
 		}
 
 		if (card->chipset == 0xd9) {

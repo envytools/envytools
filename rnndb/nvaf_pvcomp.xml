@@ -207,7 +207,7 @@
 
 </domain>
 
-<domain name="NVAF_PUNK1C1_INITDATA">
+<domain name="NVAF_PVCOMP_INITDATA">
 	<reg32 offset="0x0000" name="CHI_DATA" length="4"/>
 	<reg32 offset="0x0004" name="IOTA_DATA" length="0x3c"/> <!-- 15 x 4, first by position in DATA, then by index -->
 	<reg32 offset="0x0100" name="DELTA_DATA" length="0xc8"/> <!-- 0x32 x 4, first by position in DATA, then by index -->
