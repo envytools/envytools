@@ -186,7 +186,7 @@ VPE video decoding and encoding:
 [     ] vdec/vpe/vp1.txt - the VP1 PVP engine
 
 VP2/VP3/VP4 vµc processor:
-[***  ] vdec/vuc/intro.txt -  Overview of VP2/VP3/VP4 vµc hardware
+[***  ] vdec/vuc/intro.txt - Overview of VP2/VP3/VP4 vµc hardware
 [**** ] vdec/vuc/isa.txt - VP2/VP3/VP4 vµc ISA
 [***  ] vdec/vuc/mvsurf.txt - VP2/VP3/VP4 vµc MVSURF
 [**   ] vdec/vuc/vreg.txt - VP2/VP3/VP4 vµc video registers

@@ -64,6 +64,11 @@ Interrupts:
  10: [L] BSP [vdec/vp3/pbsp.txt]
  11: [L] CRYPT [NVA3-] [fuc/crypt.txt]
 
-[XXX: status bits]
+Status bits:
+  0: fµc [fuc/proc.txt]
+  1: MEMIF [fuc/memif.txt]
+  2: BSP [vdec/vp3/pbsp.txt]
+  3: ??? [NVA3-] [XXX]
+  4: ??? [NVC0-] [XXX]
 
 [XXX: describe PBSP]

@@ -93,6 +93,7 @@
 		<reg32 offset="0x20" name="WATCHDOG_TIME"/>
 		<reg32 offset="0x24" name="STATUS" type="nv98_pppp_unit_status"/>
 		<reg32 offset="0x28" name="Y_PUT" shr="4"/>
+		<reg32 offset="0x38" name="UNK38"/> <!-- RO 0x07010001 -->
 	</array>
 	<array offset="0x480" stride="0x80" name="UNK480" variants="NVA3:NVD9">
 		<reg32 offset="0x00" name="UNK00"/>
@@ -102,7 +103,7 @@
 			<bitfield pos="0" name="ENABLE"/>
 			<bitfield pos="4" name="UNK4"/>
 		</reg32>
-		<reg32 offset="0x18" name="UNK18"/>
+		<reg32 offset="0x18" name="UNK18" access="r"/>
 	</array>
 	<array offset="0x500" stride="0xc0" name="FG">
 		<reg32 offset="0x00" name="STATUS" type="nv98_pppp_unit_status"/>
@@ -156,6 +157,7 @@
 			<bitfield pos="0" name="ENABLE"/>
 			<bitfield low="4" high="8" name="PQUANT"/>
 		</reg32>
+		<reg32 offset="0x3c" name="UNK3C"/> <!-- RO 0x40 -->
 	</array>
 	<array offset="0x640" stride="0x40" length="1" name="POUT">
 		<reg32 offset="0x00" name="STATUS" type="nv98_pppp_unit_status"/>
@@ -174,6 +176,7 @@
 		<reg32 offset="0x0c" name="SURF_WIDTH" shr="4"/> <!-- for surface layout purposes -->
 		<reg32 offset="0x10" name="SURF_ADDR" length="2" shr="8"/>
 		<reg32 offset="0x18" name="UNK18"/> <!-- single bit -->
+		<reg32 offset="0x1c" name="UNK1C"/> <!-- RO 0xffffffff -->
 	</array>
 	<array offset="0x680" length="1" stride="0xc0" name="HIST">
 		<reg32 offset="0x00" name="COUNT" length="0x20"/> <!-- indexed by COUNT_INDEX -->
@@ -181,16 +184,23 @@
 			<bitfield pos="0" name="ENABLE"/>
 			<bitfield pos="4" name="CLEAR_TRIGGER"/>
 			<bitfield pos="5" name="DIRTY"/>
-			<bitfield low="6" high="31" name="UNK6"/>
+			<bitfield low="6" high="29" name="UNK6" variants="NVA3-"/>
+			<bitfield low="30" high="31" name="UNK30"/>
 		</reg32>
-		<reg32 offset="0x84" name="WINDOW_START" type="xy16"/>
+		<reg32 offset="0x84" name="WINDOW_START" type="xy16"/> <!-- On NV98: X aligned to 16, Y to 8; on NVA3: no alignment -->
 		<reg32 offset="0x88" name="WINDOW_END" type="xy16"/> <!-- not included -->
 		<reg32 offset="0x8c" name="STATUS" type="nv98_pppp_unit_status"/>
-		<reg32 offset="0x90" name="COUNT_INDEX" min="0" max="7"/>
+		<reg32 offset="0x90" name="COUNT_INDEX" min="0" max="7" variants="NVA3-"/>
 	</array>
 	<reg32 offset="0x740" name="JOE" variants="NVA3-"/>
 	<array offset="0x780" stride="0x80" name="UNK780" variants="NVC0-">
-		<!-- XXX -->
+		<reg32 offset="0x00" name="UNK00">
+			<bitfield low="0" high="6" name="UNK0"/>
+			<bitfield low="8" high="14" name="UNK8"/>
+			<bitfield low="16" high="22" name="UNK16"/>
+			<bitfield low="24" high="31" name="UNK24"/>
+		</reg32>
+		<reg32 offset="0x0c" name="UNK0C" length="5" variants="NVD9-"/>
 	</array>
 </array>
 

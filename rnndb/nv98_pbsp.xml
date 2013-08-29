@@ -11,6 +11,22 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
+<bitset name="NV98_PBSP_INTR" varset="chipset">
+	<bitfield low="0" high="7" name="FUC" type="nv98_fuc_intr"/>
+	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="NVA3:NVC0"/>
+	<bitfield pos="9" name="MEMIF_FAULT" variants="NVA3:NVC0"/>
+	<bitfield pos="9" name="MEMIF_BREAK" variants="NVC0-"/>
+	<bitfield pos="10" name="BSP"/>
+	<bitfield pos="11" name="CRYPT" variants="NVA3-"/>
+</bitset>
+<bitset name="NV98_PBSP_STATUS" varset="chipset">
+	<bitfield pos="0" name="FUC"/>
+	<bitfield pos="1" name="MEMIF"/>
+	<bitfield pos="2" name="BSP"/>
+	<bitfield pos="3" name="UNK3" variants="NVA3-"/>
+	<bitfield pos="4" name="UNK4" variants="NVC0-"/>
+</bitset>
+
 <array name="PBSP" offset="0x84000" stride="0x1000" length="1" variants="NV98 NVAA-">
 	<use-group name="nv98_fucbase"/>
 	<use-group name="nv98_fuc_memif"/>
@@ -86,7 +102,8 @@
 			<bitfield low="10" high="11" name="VC1_REFDIST"/>
 			<bitfield pos="12" name="VC1_REFFIELD"/>
 			<bitfield pos="16" name="UNK16_BITPLANE"/> <!-- always set for MPEG4 -->
-			<bitfield low="24" high="31" name="MPEG4_MB_X" variants="NVA3-"/>
+			<bitfield low="24" high="30" name="MPEG4_MB_X" variants="NVA3:NVD9"/>
+			<bitfield low="24" high="31" name="MPEG4_MB_X" variants="NVD9-"/>
 		</reg32>
 		<reg32 offset="0x10" name="PARM_VC1_MPEG4_1">
 			<bitfield low="0" high="2" name="VC1_CBPTAB"/> <!-- or icbptab -->
@@ -159,7 +176,11 @@
 			<bitfield low="0" high="12" name="MB_IDX"/>
 			<bitfield low="13" high="20" name="MB_X"/>
 			<bitfield low="21" high="28" name="MB_Y"/>
+			<bitfield pos="29" name="UNK29"/>
 		</reg32>
+		<reg32 offset="0x28" name="UNK28" variants="NVD9-"/> <!-- 3fffffff -->
+		<reg32 offset="0x2c" name="UNK2C" variants="NVD9-"/>
+		<reg32 offset="0x30" name="UNK30" length="3" variants="NVD9-"/> <!-- 7 -->
 		<!-- only H264? -->
 		<reg32 offset="0x40" name="SLICE_POS">
 			<bitfield low="0" high="12" name="MB_IDX"/>
@@ -199,7 +220,9 @@
 		</bitset>
 		<reg32 offset="0x50" name="INTR_EN" type="nv98_bsp_intr"/>
 		<reg32 offset="0x54" name="INTR" type="nv98_bsp_intr"/> <!-- fuc intr 10 -->
-		<reg32 offset="0x58" name="UNK58" variants="NVA3-"/><!-- errstat from ERR_UNK2 interrupt? Write 0 after reading -->
+		<reg32 offset="0x58" name="UNK58"/><!-- errstat from ERR_UNK2 interrupt? Write 0 after reading -->
+		<reg32 offset="0x5c" name="UNK5C" variants="NVA3-"/>
+		<reg32 offset="0x60" name="UNK60"/>
 		<reg32 offset="0x64" name="UNK64" variants="NVA3-"/><!-- MPEG4 writes 4 as part of recovery with resync_marker, and waits until it turns to 0 -->
 	</array>
 	<array offset="0x480" name="STREAM" stride="0x80">
@@ -209,7 +232,7 @@
 		</reg32>
 		<reg32 offset="0x04" name="STREAM_1" stride="8" length="4">
 			<bitfield pos="0" name="ENABLE"/>
-			<bitfield pos="1" name="UNK1"/> <!-- set for crypto crap streams -->
+			<bitfield pos="1" name="UNK1" variants="NVA3-"/> <!-- set for crypto crap streams -->
 			<bitfield low="2" high="31" name="ADDR_LO"/>
 		</reg32>
 		<reg32 offset="0x40" name="STREAM_POSITION">
@@ -232,12 +255,30 @@
 		<reg32 offset="0x18" name="UNK18"/> <!-- fff -->
 		<reg32 offset="0x1c" name="UNK1C"/> <!-- 1 -->
 
+		<reg32 offset="0x24" name="UNK24" variants="NVD9-"/>
+
 		<reg32 offset="0x58" name="UNK58" variants="NVA3-"/>
 		<reg32 offset="0x5c" name="TOTAL_LENGTH" variants="NVA3-"/><!-- sum over STREAM_0[i].LENGTH -->
-		<reg32 offset="0x60" name="MB_TOTAL" variants="NVA3-"/>
+		<reg32 offset="0x60" name="UNK60" variants="NVA3-">
+			<bitfield low="0" high="13" name="MB_TOTAL" variants="NVA3:NVD9"/>
+			<bitfield low="0" high="16" name="MB_TOTAL" variants="NVD9-"/>
+			<bitfield pos="31" name="UNK31"/>
+		</reg32>
 	</array>
 	<reg32 offset="0x580" name="BITPLANE_DATA" length="4" variants="NVA3-"/> <!-- indexed, needs to be saved/restored for mpeg4 -->
 	<reg32 offset="0x640" name="JOE" variants="NVA3-"/>
+	<reg32 offset="0x64c" name="UNK64C" length="5" variants="NVD9-"/>
+	<array offset="0x680" name="UNK680" stride="0x40" variants="NVC0-">
+		<reg32 offset="0x04" name="UNK04">
+			<bitfield low="0" high="6" name="UNK0"/>
+			<bitfield pos="8" name="UNK8"/>
+		</reg32>
+		<reg32 offset="0x0c" name="UNK0C">
+			<bitfield pos="0" name="UNK0"/> <!-- RO 1 -->
+			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="24" name="UNK24"/> <!-- RO 1 -->
+		</reg32>
+	</array>
 </array>
 
 </domain>
