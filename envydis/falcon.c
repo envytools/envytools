@@ -581,12 +581,12 @@ static void falcon_prep(struct disisa *isa) {
 	int f_crypt = vardata_add_feature(isa->vardata, "crypt", "Cryptographic coprocessor");
 	if (f_fuc0op == -1 || f_fuc3op == -1 || f_pc24 == -1 || f_crypt == -1)
 		abort();
-	int vs_fucver = vardata_add_varset(isa->vardata, "fucver", "fµc version");
+	int vs_fucver = vardata_add_varset(isa->vardata, "version", "falcon version");
 	if (vs_fucver == -1)
 		abort();
-	int v_fuc0 = vardata_add_variant(isa->vardata, "fuc0", "fµc v0", vs_fucver);
-	int v_fuc3 = vardata_add_variant(isa->vardata, "fuc3", "fµc v3", vs_fucver);
-	int v_fuc4 = vardata_add_variant(isa->vardata, "fuc4", "fµc v4", vs_fucver);
+	int v_fuc0 = vardata_add_variant(isa->vardata, "fuc0", "falcon v0", vs_fucver);
+	int v_fuc3 = vardata_add_variant(isa->vardata, "fuc3", "falcon v3", vs_fucver);
+	int v_fuc4 = vardata_add_variant(isa->vardata, "fuc4", "falcon v4", vs_fucver);
 	if (v_fuc0 == -1 || v_fuc3 == -1 || v_fuc4 == -1)
 		abort();
 	vardata_variant_feature(isa->vardata, v_fuc0, f_fuc0op);

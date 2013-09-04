@@ -15,14 +15,14 @@ hexadecimal numbers representing the bytes to disassemble. The options are:
   -d <skip> Skip/discard that many bytes of input before starting to read code
   -l <limit> Don't disassemble more than <limit> bytes.
  variant selection
-  -m <machine> Select the ISA to disassemble. One of: 
+  -m <machine> Select the ISA to disassemble. One of:
      [****] nv50: nv50 [tesla] CUDA/shader ISA
      [*** ] nvc0: nvc0 [fermi] CUDA/shader ISA
      [**  ] gk110: nv?? (tbd) [kepler GK110] CUDA/shader ISA
      [**  ] ctx: nv40 and nv50 PGRAPH context-switching microcode
-     [*** ] fuc: fifo microcode, used to power various engines on nv98+ cards
+     [*** ] falcon: falcon microcode, used to power various engines on nv98+ cards
      [****] hwsq: PBUS hardware sequencer microcode
-     [****] vp2: video processor 2 [nv84-gen] code, an xtensa variant
+     [****] xtensa: xtensa variant as used by video processor 2 [nv84-gen]
      [*** ] vuc: video processor 2/3 master/mocomp microcode
      [****] macro: nvc0 PGRAPH macro method ISA
      [**  ] vp1: video processor 1 [nv41-gen] code
@@ -51,10 +51,10 @@ hexadecimal numbers representing the bytes to disassemble. The options are:
        nv17: NV17:NV41 cards
        nv41: NV41:NV50 cards
        nv50: NV50:NVC0 cards
-     For fuc:
-       fuc0: fµc version 0 [NV98, NVAA, NVAC]
-       fuc3: fµc version 3 [NVA3 and up]
-       fuc4: fµc version 4 [NVD9 and up, selected engines only]
+     For falcon:
+       fuc0: falcon version 0 [NV98, NVAA, NVAC]
+       fuc3: falcon version 3 [NVA3 and up]
+       fuc4: falcon version 4 [NVD9 and up, selected engines only]
      For vuc:
        vp2: VP2 video processor [NV84:NV98, NVA0]
        vp3: VP3 video processor [NV98, NVAA, NVAC]
@@ -78,10 +78,10 @@ hexadecimal numbers representing the bytes to disassemble. The options are:
        nv17f: NV17:NV50 flags [selected by nv17, nv41]
        nv41f: NV41:NV50 flags [selected by nv41]
        nv41op: NV41 new opcodes [selected by nv41, nv50]
-     For fuc:
-       fuc0op: fµc version 0 exclusive opcodes [selected by fuc0] 
-       fuc3op: fµc version 3+ exclusive opcodes [selected by fuc3, fuc4] 
-       pc24: 24-bit PC opcodes [selected by fuc4] 
+     For falcon:
+       fuc0op: falcon version 0 exclusive opcodes [selected by fuc0]
+       fuc3op: falcon version 3+ exclusive opcodes [selected by fuc3, fuc4]
+       pc24: 24-bit PC opcodes [selected by fuc4]
        crypt: Cryptographic coprocessor opcodes [has to be manually selected]
      For vuc:
        vp2op: VP2 exclusive opcodes [selected by vp2]
