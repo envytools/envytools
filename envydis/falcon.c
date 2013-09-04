@@ -572,9 +572,10 @@ static struct insn tabm[] = {
 	{ 0, 0, OOPS },
 };
 
-static void fuc_prep(struct disisa *isa) {
-	isa->vardata = vardata_new("fuc");
+static void falcon_prep(struct disisa *isa) {
+	isa->vardata = vardata_new("falcon");
 	int f_fuc0op = vardata_add_feature(isa->vardata, "fuc0op", "v0 exclusive opcodes");
+	/* XXX rename variants */
 	int f_fuc3op = vardata_add_feature(isa->vardata, "fuc3op", "v3+ opcodes");
 	int f_pc24 = vardata_add_feature(isa->vardata, "pc24", "24-bit PC opcodes");
 	int f_crypt = vardata_add_feature(isa->vardata, "crypt", "Cryptographic coprocessor");
@@ -596,10 +597,10 @@ static void fuc_prep(struct disisa *isa) {
 		abort();
 }
 
-struct disisa fuc_isa_s = {
+struct disisa falcon_isa_s = {
 	tabm,
 	4,
 	1,
 	1,
-	.prep = fuc_prep,
+	.prep = falcon_prep,
 };

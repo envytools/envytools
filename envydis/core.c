@@ -40,10 +40,12 @@ static const struct {
 	"nvc0", &nvc0_isa_s,
 	"gk110", &gk110_isa_s,
 	"ctx", &ctx_isa_s,
-	"fuc", &fuc_isa_s,
-	"fµc", &fuc_isa_s,
+	"falcon", &falcon_isa_s,
+	"fuc", &falcon_isa_s, /* XXX remove some day */
+	"fµc", &falcon_isa_s, /* XXX remove some day */
 	"hwsq", &hwsq_isa_s,
-	"vp2", &vp2_isa_s,
+	"xtensa", &xtensa_isa_s,
+	"vp2", &xtensa_isa_s, /* XXX remove some day, preferably before cracking the actual VP2 ISA open */
 	"vuc", &vuc_isa_s,
 	"vµc", &vuc_isa_s,
 	"macro", &macro_isa_s,
