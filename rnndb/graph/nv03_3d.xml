@@ -4,7 +4,7 @@ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="copyright.xml"/>
 
-<import file="nv_object.xml"/>
+<import file="fifo/nv_object.xml"/>
 
 <enum name="nv03_tex_format" inline="yes">
 	<value value="0" name="A1R5G5B5"/>

@@ -5,6 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
+<import file="display/nv_vga.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 

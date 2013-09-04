@@ -25,31 +25,31 @@
 </domain>
 
 <!-- 000000 - 000fff PMC -->
-<import file="nv_pmc.xml" />
+<import file="bus/nv_pmc.xml" />
 
 <!-- 001000 - 001fff PBUS -->
-<import file="nv_pbus.xml" />
+<import file="bus/nv_pbus.xml" />
 
 <!-- 002000 - 003fff PFIFO -->
-<import file="nv01_pfifo.xml" />
-<import file="nv04_pfifo.xml" />
-<import file="nv50_pfifo.xml" />
-<import file="nvc0_pfifo.xml" />
+<import file="fifo/nv01_pfifo.xml" />
+<import file="fifo/nv04_pfifo.xml" />
+<import file="fifo/nv50_pfifo.xml" />
+<import file="fifo/nvc0_pfifo.xml" />
 
 <!-- 004000 - 004fff PCLOCK -->
-<import file="nv40_pclock.xml" />
-<import file="nv50_pclock.xml" />
-<import file="nva3_pclock.xml" />
+<import file="pm/nv40_pclock.xml" />
+<import file="pm/nv50_pclock.xml" />
+<import file="pm/nva3_pclock.xml" />
 
 <!-- 005000 - 005fff ??? -->
 
 <!-- 005000 - 005fff PFIFO_BYPASS covered in nvc0_pfifo.xml -->
 
 <!-- 008000 - 008fff PVIDEO -->
-<import file="nv10_pvideo.xml" />
+<import file="display/nv10_pvideo.xml" />
 
 <!-- 009000 - 009fff PTIMER -->
-<import file="nv_ptimer.xml" />
+<import file="bus/nv_ptimer.xml" />
 
 <!-- 00a000 - 00afff PCOUNTER -->
 <import file="nv10_pcounter.xml" />
@@ -63,12 +63,12 @@
 <!-- 00c000 - 00cfff PCONTROL covered in nv40_pclock.xml, nv50_pclock.xml, nva3_pclock.xml -->
 
 <!-- 00d000 - 00dfff PTV -->
-<import file="nv17_ptv.xml" />
+<import file="display/nv17_ptv.xml" />
 
 <!-- 00d000 - 00dfff PGPIO covered in nv50_pnvio.xml -->
 
 <!-- 00e000 - 00efff PNVIO -->
-<import file="nv50_pnvio.xml" />
+<import file="io/nv50_pnvio.xml" />
 
 <!-- 00f000 - 00ffff PVP1 -->
 <import file="vdec/vpe/pvp1.xml" />
@@ -77,15 +77,15 @@
 <import file="vdec/vp2/pvp2.xml" />
 
 <!-- 020000 - 020fff PTHERM -->
-<import file="nv50_ptherm.xml" />
+<import file="pm/nv50_ptherm.xml" />
 
 <!-- 021000 - 021fff PFUSE -->
-<import file="nv50_pfuse.xml" />
+<import file="bus/nv50_pfuse.xml" />
 
 <!-- 022000 - 0223ff PUNK022 covered above -->
 
 <!-- 022400 - 0227ff PUNITS -->
-<import file="nvc0_punits.xml" />
+<import file="bus/nvc0_punits.xml" />
 
 <!-- 040000 - 045fff PFIFO_CHAN covered in nvc0_pfifo.xml -->
 
@@ -110,7 +110,7 @@
 <import file="vdec/vp3/pcrypt3.xml" />
 
 <!-- 088000 - 088fff PPCI -->
-<import file="nv_pci.xml" />
+<import file="bus/nv_pci.xml" />
 
 <!-- 089000 - 089fff ??? [NV84+] -->
 <import file="nv84_punk089.xml" />
@@ -120,21 +120,21 @@
 <!-- 090000 - 090fff PFIFO_CACHE1 covered in nv_pfifo.xml -->
 
 <!-- 0a0000 - 0bffff PRMFB -->
-<import file="nv_vga.xml" />
+<import file="display/nv_vga.xml" />
 
 <!-- 0c0000 - 0cffff PRMVIO -->
-<import file="nv03_prmvio.xml" />
+<import file="display/nv03_prmvio.xml" />
 
 <!-- 100000 - 100fff PDMA -->
-<import file="nv01_pdma.xml" />
+<import file="memory/nv01_pdma.xml" />
 
 <!-- 100000 - 100fff PFB or PFFB -->
-<import file="nv03_pfb.xml" />
-<import file="nv10_pfb.xml" />
-<import file="nvc0_pffb.xml" />
+<import file="memory/nv03_pfb.xml" />
+<import file="memory/nv10_pfb.xml" />
+<import file="memory/nvc0_pffb.xml" />
 
 <!-- 101000 - 101fff PSTRAPS -->
-<import file="nv_pstraps.xml" />
+<import file="io/nv_pstraps.xml" />
 
 <!-- 101000 - 101fff PTIMER covered in nv01_ptimer.xml -->
 
@@ -144,44 +144,45 @@
 <!-- 103000 - 103fff PBSP -->
 <import file="vdec/vp2/pbsp.xml" />
 
-<!-- 104000 - 104fff PCOPY -->
-<!-- 105000 - 105fff PCOPY2 -->
-<import file="nva3_pcopy.xml" />
+<!-- 104000 - 104fff PCOPY[0] -->
+<!-- 105000 - 105fff PCOPY[1] -->
+<!-- 106000 - 106fff PCOPY[2] -->
+<import file="fifo/nva3_pcopy.xml" />
 
 <!-- 108000 - 109fff PCODEC -->
-<import file="nva3_pcodec.xml" />
+<import file="display/nva3_pcodec.xml" />
 
 <!-- 109000 - 109fff PKFUSE -->
-<import file="nva3_pkfuse.xml" />
+<import file="display/nva3_pkfuse.xml" />
 
 <!-- 10a000 - 10afff PDAEMON -->
-<import file="nva3_pdaemon.xml" />
+<import file="pm/nva3_pdaemon.xml" />
 
 <!-- 10c000 - 10efff ??? [NVC0] -->
 
 <!-- 10f000 - 111fff ??? [NVA5] -->
 
 <!-- 10f000 - 11ffff PBFB covered -->
-<import file="nvc0_pbfb.xml" />
+<import file="memory/nvc0_pbfb.xml" />
 
 <!-- 120000 - 12ffff PIBUS -->
-<import file="nvc0_pibus.xml" />
+<import file="bus/nvc0_pibus.xml" />
 
 <!-- 130000 - 136fff ??? [NVC0] -->
 
 <!-- 137000 - 137fff PCLOCK -->
-<import file="nvc0_pclock.xml" />
+<import file="pm/nvc0_pclock.xml" />
 
 <!-- 138000 - 138fff ??? [NVC0] -->
 
 <!-- 139000 - 13afff PP2P -->
-<import file="nvc0_pp2p.xml" />
+<import file="memory/nvc0_pp2p.xml" />
 
 <!-- 13b000 - 13efff PXBAR -->
-<import file="nvc0_pxbar.xml" />
+<import file="memory/nvc0_pxbar.xml" />
 
 <!-- 140000 - 17ffff PMFB -->
-<import file="nvc0_pmfb.xml" />
+<import file="memory/nvc0_pmfb.xml" />
 
 <!-- 180000 - 1bffff PCOUNTER -->
 <import file="nvc0_pcounter.xml" />
@@ -193,10 +194,10 @@
 <import file="vdec/pvenc.xml" />
 
 <!-- 1c3000 - 1c3fff PUNK1C3 -->
-<import file="nvd9_punk1c3.xml" />
+<import file="display/nvd9_punk1c3.xml" />
 
 <!-- 200000 - 200fff PMEDIA -->
-<import file="nv_pmedia.xml" />
+<import file="io/nv_pmedia.xml" />
 
 <!-- 2ff000 - 2fffff PBRIDGE_PCI covered in nv_pbus.xml -->
 
@@ -214,27 +215,27 @@
 <import file="graph/nv03_pdma.xml" />
 
 <!-- 600000 - 600fff PFB -->
-<import file="nv01_pfb.xml" />
+<import file="display/nv01_pfb.xml" />
 
 <!-- 600000 - 67ffff PCRTC/PRMCIO -->
-<import file="nv03_pcrtc.xml" />
+<import file="display/nv03_pcrtc.xml" />
 
 <!-- 602000 - 602fff PRAM -->
-<import file="nv01_pram.xml" />
+<import file="memory/nv01_pram.xml" />
 
 <!-- 605000 - 605fff PCHIPID -->
-<import file="nv01_pchipid.xml" />
+<import file="io/nv01_pchipid.xml" />
 
 <!-- 608000 - 608fff PSTRAPS covered in nv_pstraps.xml -->
 
 <!-- 609000 - 609fff PDAC -->
-<import file="nv01_pdac.xml" />
+<import file="display/nv01_pdac.xml" />
 
 <!-- 60a000 - 60afff PEEPROM -->
-<import file="nv01_peeprom.xml" />
+<import file="io/nv01_peeprom.xml" />
 
 <!-- 680000 - 6fffff PRAMDAC/PRMDIO -->
-<import file="nv03_pramdac.xml" />
+<import file="display/nv03_pramdac.xml" />
 
 <!-- 601000 - 601fff PRMIO covered in nv50_pdisplay.xml -->
 
@@ -243,7 +244,7 @@
 <!-- 618000 - 61ffff PALT covered above -->
 
 <!-- 610000 - 6bffff PDISPLAY -->
-<import file="nv50_pdisplay.xml" />
+<import file="display/nv50_pdisplay.xml" />
 
 <!-- 640000 - 647fff PRAMHT covered in nv01_pram.xml -->
 
@@ -252,7 +253,7 @@
 <!-- 650000 - 653fff PRAMRO covered in nv01_pram.xml -->
 
 <!-- 6c0000 - 6c7fff PRM -->
-<import file="nv01_prm.xml" />
+<import file="bus/nv01_prm.xml" />
 
 <!-- 6d0000 - 6d0fff PRMIO covered in nv01_prm.xml -->
 

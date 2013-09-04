@@ -6,7 +6,7 @@
 
 <import file="nvchipsets.xml" />
 <import file="nv50_defs.xml" />
-<import file="nvc0_vm.xml" />
+<import file="memory/nvc0_vm.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 

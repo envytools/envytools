@@ -4,7 +4,6 @@
 	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <import file="nvchipsets.xml" />
-<import file="nv_object.xml" />
 <import file="graph/nv01_2d.xml" />
 
 <enum name="NV01_GRAPH_OBJECT">

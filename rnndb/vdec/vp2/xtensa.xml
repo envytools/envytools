@@ -5,6 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
+<import file="nv50_defs.xml" />
 
 <bitset name="nv84_vp2_target" inline="yes">
 	<bitfield low="0" high="3" name="DMAIDX"/>

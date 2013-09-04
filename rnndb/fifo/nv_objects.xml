@@ -24,6 +24,6 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="vdec/vpe/me_fifo.xml" />
 <import file="vdec/vpe/vp1_fifo.xml" />
 <import file="vdec/vp2/crypt2_fifo.xml" />
-<import file="nve4_copy.xml" />
+<import file="fifo/nve4_copy.xml" />
 
 </database>

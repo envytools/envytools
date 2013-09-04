@@ -6,7 +6,7 @@
 
 <import file="nvchipsets.xml" />
 <import file="falcon.xml" />
-<import file="nv50_ptherm.xml" />
+<import file="pm/nv50_ptherm.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 

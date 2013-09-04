@@ -3,7 +3,7 @@
 
 <import file="graph/nv_3ddefs.xml"/>
 <import file="nv_defs.xml"/>
-<import file="nv_object.xml"/>
+<import file="fifo/nv_object.xml"/>
 
 <enum name="nv30_tex_swz_src" inline="yes">
 	<value value="0" name="ZERO"/>

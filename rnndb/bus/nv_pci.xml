@@ -6,9 +6,9 @@
 
 <import file="nvchipsets.xml" />
 <import file="nv50_defs.xml" />
-<import file="nv50_vm.xml" />
-<import file="nv_vga.xml" />
-<import file="pci.xml" />
+<import file="memory/nv50_vm.xml" />
+<import file="display/nv_vga.xml" />
+<import file="bus/pci.xml" />
 
 <group name="nv_pci">
 	<use-group name="pci_config_head"/>

@@ -5,7 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="nv_vga.xml" />
+<import file="display/nv_vga.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 	<array name="PRMVIO" offset="0x0c0000" stride="0x1000" length="1" variants="NV03:NV50">

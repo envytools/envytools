@@ -5,7 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="nv_vga.xml" />
+<import file="display/nv_vga.xml" />
 
 <bitset name="nv03_pll" inline="yes">
 	<bitfield low="0" high="7" name="M"/>

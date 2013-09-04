@@ -5,7 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="nv_pfb.xml" />
+<import file="memory/nv_pfb.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 

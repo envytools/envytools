@@ -5,7 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="nv_vga.xml" />
+<import file="display/nv_vga.xml" />
 <import file="falcon.xml" />
 
 <group name="NV_HDMI">
