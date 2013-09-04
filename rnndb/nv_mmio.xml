@@ -95,8 +95,8 @@
 
 <!-- 082000 - 082fff ??? -->
 
-<!-- 084000 - 084fff PBSP -->
-<import file="nv98_pbsp.xml" />
+<!-- 084000 - 084fff PVLD -->
+<import file="nv98_pvld.xml" />
 
 <!-- 085000 - 085fff PVP -->
 <import file="nv98_pvp.xml" />

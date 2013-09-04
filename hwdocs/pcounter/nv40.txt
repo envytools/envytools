@@ -143,8 +143,8 @@ set 7:
 0x4b: PFB_WRITE
 0x4c: PFB_READ
 0x4d: PFB_FLUSH
-0x65: PBSP PM_TRIGGER 2nd
-0x66: PBSP WRCACHE_FLUSH 2nd
+0x65: PVLD PM_TRIGGER 2nd
+0x66: PVLD WRCACHE_FLUSH 2nd
 0x71: PPPP PM_TRIGGER 2nd
 0x72: PPPP WRCACHE_FLUSH 2nd
 0x8c: PVP PM_TRIGGER 2nd
@@ -231,12 +231,12 @@ set 3 [MP]:
 set 6 [vdec]:
 0x10: PCOUNTER USER_0
 0x11: PCOUNTER USER_1
-0x17: PBSP FIFO idle
-0x18: PBSP idle
-0x19-0x1b: PBSP uc execution
-0x22: PBSP PM_TRIGGER
-0x23: PBSP WRCACHE_FLUSH
-0x24-0x29: PBSP_USER_0-5 [falcon/perf.txt]
+0x17: PVLD FIFO idle
+0x18: PVLD idle
+0x19-0x1b: PVLD uc execution
+0x22: PVLD PM_TRIGGER
+0x23: PVLD WRCACHE_FLUSH
+0x24-0x29: PVLD_USER_0-5 [falcon/perf.txt]
 0x2b: PPPP
 0x36: PPPP PM_TRIGGER
 0x37: PPPP WRCACHE_FLUSH
@@ -245,13 +245,13 @@ set 6 [vdec]:
 0x4a: PVP PM_TRIGGER
 0x4b: PVP WRCACHE_FLUSH
 0x4c-0x51: PVP_USER_0-5 [falcon/perf.txt]
-0x54-0x58: PBSP
+0x54-0x58: PVLD
 0x5f-0x7e: PPPP
 0x88-0x8c: vµc
 0xa0-0xa4: PVP [xfrm? - 4c b3, b5]
 0xad-0xaf: PVP [580 - 4c b7]
 0xb6: PVP [680 - 4c b8]
-0xc0-0xc5: PBSP.CRYPT
+0xc0-0xc5: PVLD.CRYPT
 0xc0 trailer base
 
 
@@ -407,16 +407,16 @@ signal           |98|aa|ac|a3|a5|a8|af| documentation
 -----------------+--+--+--+--+--+--+--+---------------
 PCOUNTER USER_0  |--|--|--|??|10|??|10| pcounter/intro.txt
 PCOUNTER_USER_1  |--|--|--|??|11|??|11| pcounter/intro.txt
-PBSP_IDLE        |12|??|??|??|18|??|??| falcon/perf.txt
-PBSP_TA          |15|??|??|??|1b|??|??| falcon/perf.txt
-PBSP_PM_TRIGGER  |1c|??|??|??|22|??|??| falcon/perf.txt
-PBSP_WRCACHE_FL  |1d|??|??|??|23|??|??| falcon/perf.txt
-PBSP_USER_0      |1e|??|1e|??|24|??|24| falcon/perf.txt
-PBSP_USER_1      |1f|??|1f|??|25|??|25| falcon/perf.txt
-PBSP_USER_2      |20|??|20|??|26|??|26| falcon/perf.txt
-PBSP_USER_3      |21|??|21|??|27|??|27| falcon/perf.txt
-PBSP_USER_4      |22|??|22|??|28|??|28| falcon/perf.txt
-PBSP_USER_5      |23|??|23|??|29|??|29| falcon/perf.txt
+PVLD_IDLE        |12|??|??|??|18|??|??| falcon/perf.txt
+PVLD_TA          |15|??|??|??|1b|??|??| falcon/perf.txt
+PVLD_PM_TRIGGER  |1c|??|??|??|22|??|??| falcon/perf.txt
+PVLD_WRCACHE_FL  |1d|??|??|??|23|??|??| falcon/perf.txt
+PVLD_USER_0      |1e|??|1e|??|24|??|24| falcon/perf.txt
+PVLD_USER_1      |1f|??|1f|??|25|??|25| falcon/perf.txt
+PVLD_USER_2      |20|??|20|??|26|??|26| falcon/perf.txt
+PVLD_USER_3      |21|??|21|??|27|??|27| falcon/perf.txt
+PVLD_USER_4      |22|??|22|??|28|??|28| falcon/perf.txt
+PVLD_USER_5      |23|??|23|??|29|??|29| falcon/perf.txt
 PPPP_IDLE        |42|??|??|??|2c|??|??| falcon/perf.txt
 PPPP_TA          |45|??|??|??|2f|??|??| falcon/perf.txt
 PPPP_PM_TRIGGER  |4c|??|??|??|36|??|??| falcon/perf.txt

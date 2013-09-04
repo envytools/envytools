@@ -160,7 +160,8 @@
 		<bitfield pos="4" name="PERIODIC_RESET"/>
 		<!-- the following are related to PM_TRIGGER / WRCACHE_FLUSH -->
 		<bitfield pos="8" name="PGRAPH"/>
-		<bitfield pos="9" name="PBSP"/>
+		<bitfield pos="9" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
+		<bitfield pos="9" name="PVLD" variants="NV98:NVA0 NVAA-"/>
 		<bitfield pos="10" name="PCRYPT" variants="NV84:NVA3"/>
 		<bitfield pos="11" name="PVP"/>
 		<!-- perhaps PMPEG too? -->

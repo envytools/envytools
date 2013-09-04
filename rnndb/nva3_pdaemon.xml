@@ -103,7 +103,7 @@
 	</reg32>
 
 	<bitset name="nva3_pdaemon_counter_signals" inline="yes">
-		<bitfield pos="4" name="PBSP_IDLE"/>
+		<bitfield pos="4" name="PVLD_IDLE"/>
 		<bitfield pos="5" name="PVP_IDLE"/>
 		<bitfield pos="6" name="PPPP_IDLE"/>
 		<bitfield pos="19" name="PCOPY_IDLE"/>

@@ -11,7 +11,7 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<bitset name="NV98_PBSP_INTR" varset="chipset">
+<bitset name="NV98_PVLD_INTR" varset="chipset">
 	<bitfield low="0" high="7" name="FALCON" type="falcon_intr"/>
 	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="NVA3:NVC0"/>
 	<bitfield pos="9" name="MEMIF_FAULT" variants="NVA3:NVC0"/>
@@ -19,7 +19,7 @@
 	<bitfield pos="10" name="BSP"/>
 	<bitfield pos="11" name="CRYPT" variants="NVA3-"/>
 </bitset>
-<bitset name="NV98_PBSP_STATUS" varset="chipset">
+<bitset name="NV98_PVLD_STATUS" varset="chipset">
 	<bitfield pos="0" name="FALCON"/>
 	<bitfield pos="1" name="MEMIF"/>
 	<bitfield pos="2" name="BSP"/>
@@ -27,7 +27,7 @@
 	<bitfield pos="4" name="UNK4" variants="NVC0-"/>
 </bitset>
 
-<array name="PBSP" offset="0x84000" stride="0x1000" length="1" variants="NV98 NVAA-">
+<array name="PVLD" offset="0x84000" stride="0x1000" length="1" variants="NV98:NVA0 NVAA-">
 	<use-group name="falcon_base"/>
 	<use-group name="falcon_memif"/>
 	<stripe variants="NVA3-">
@@ -115,14 +115,14 @@
 			<bitfield low="12" high="14" name="VC1_MBMODETAB"/>
 			<bitfield pos="16" name="VC1_TRANSDCTAB"/>
 			<bitfield pos="17" name="UNK17"/>
-			<enum name="pbsp_vc1_transacfrm" inline="yes">
+			<enum name="pvld_vc1_transacfrm" inline="yes">
 				<value value="0" name="HIGH_RATE"/> <!-- tables 219-232 -->
 				<value value="1" name="LOW_MOTION"/> <!-- tables 191-204 -->
 				<value value="2" name="HIGH_MOTION"/> <!-- tables 177-190 -->
 				<value value="3" name="MID_RATE"/> <!-- tables 205-218 -->
 			</enum>
-			<bitfield low="20" high="21" name="VC1_TRANSACFRM" type="pbsp_vc1_transacfrm"/> <!-- set to 3 for MPEG4 -->
-			<bitfield low="22" high="23" name="VC1_TRANSACFRM2" type="pbsp_vc1_transacfrm"/> <!-- set to 3 for MPEG4 -->
+			<bitfield low="20" high="21" name="VC1_TRANSACFRM" type="pvld_vc1_transacfrm"/> <!-- set to 3 for MPEG4 -->
+			<bitfield low="22" high="23" name="VC1_TRANSACFRM2" type="pvld_vc1_transacfrm"/> <!-- set to 3 for MPEG4 -->
 		</reg32>
 		<reg32 offset="0x14" name="PARM_VC1_MPEG4_2">
 			<bitfield pos="0" name="VC1_DQUANT_INFRAME"/>

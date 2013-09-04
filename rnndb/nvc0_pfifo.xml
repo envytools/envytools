@@ -14,7 +14,7 @@
 	<value value="0" name="PGRAPH"/>
 	<value value="1" name="PVP"/>
 	<value value="2" name="PPPP"/>
-	<value value="3" name="PBSP"/>
+	<value value="3" name="PVLD"/>
 	<value value="4" name="PCOPY0"/>
 	<value value="5" name="PCOPY1"/>
 	<value value="6" name="PVENC"/>
@@ -152,7 +152,7 @@
 		<bitfield pos="0" name="PGRAPH"/>
 		<bitfield pos="1" name="PVP"/>
 		<bitfield pos="2" name="PPPP"/>
-		<bitfield pos="3" name="PBSP"/>
+		<bitfield pos="3" name="PVLD"/>
 		<bitfield pos="4" name="PCOPY0"/>
 		<bitfield pos="5" name="PCOPY1"/>
 		<bitfield pos="6" name="PVENC" variants="NVE4-"/>
@@ -161,7 +161,7 @@
 		<bitfield pos="0" name="PGRAPH"/>
 		<bitfield pos="1" name="PVP"/>
 		<bitfield pos="2" name="PPPP"/>
-		<bitfield pos="3" name="PBSP"/>
+		<bitfield pos="3" name="PVLD"/>
 		<bitfield pos="4" name="PCOPY0"/>
 		<bitfield pos="5" name="PCOPY1"/>
 	</reg32>

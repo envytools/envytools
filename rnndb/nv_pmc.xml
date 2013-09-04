@@ -49,8 +49,8 @@
 		<reg32 offset="0x008" name="BOOT_2" variants="NV92-"/>
 		<bitset name="nv_pmc_intr" inline="yes">
 			<bitfield pos="0" name="PAUDIO" variants="NV01"/>
-			<bitfield pos="0" name="PVPE" variants="NV17:NV98 NVA0"/>
-			<bitfield pos="0" name="PPPP" variants="NV98 NVAA-"/>
+			<bitfield pos="0" name="PVPE" variants="NV17:NV98 NVA0:NVAA"/>
+			<bitfield pos="0" name="PPPP" variants="NV98:NVA0 NVAA-"/>
 			<bitfield pos="4" name="PDMA" variants="NV01"/>
 			<bitfield pos="4" name="PMEDIA" variants="NV03-"/>
 			<bitfield pos="5" name="PCOPY0" variants="NVC0-"/>
@@ -66,7 +66,8 @@
 			<bitfield pos="14" name="PCRYPT" variants="NV84:NVA3"/>
 			<bitfield pos="14" name="UNK14" variants="NVA3:NVAF" />
 			<bitfield pos="14" name="PVCOMP" variants="NVAF:NVC0"/>
-			<bitfield pos="15" name="PBSP" variants="NV84-"/>
+			<bitfield pos="15" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
+			<bitfield pos="15" name="PVLD" variants="NV98:NVA0 NVAA-"/>
 			<bitfield pos="16" name="PRM" variants="NV01"/>
 			<bitfield pos="16" name="PVIDEO" variants="NV03:NV50"/>
 			<bitfield pos="16" name="UNK16" variants="NVA3:NVC0" />
@@ -136,7 +137,8 @@
 			<bitfield pos="13" name="PDAEMON" variants="NVC0-"/>
 			<bitfield pos="14" name="PCRYPT" variants="NV84:NVA3"/>
 			<bitfield pos="14" name="PVCOMP" variants="NVAF:NVC0"/>
-			<bitfield pos="15" name="PBSP" variants="NV84-"/>
+			<bitfield pos="15" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
+			<bitfield pos="15" name="PVLD" variants="NV98:NVA0 NVAA-"/>
 			<bitfield pos="16" name="PRM" variants="NV01"/>
 			<bitfield pos="16" name="PTIMER" variants="NV03-"/>
 			<bitfield pos="17" name="PVP" variants="NV98 NVAA-"/>
@@ -154,7 +156,8 @@
 			<bitfield pos="25" name="PCRYPT_CHSW" variants="NV84:NVA3"/>
 			<bitfield pos="25" name="UNUSED4_CHSW" variants="NVA3:NVAF"/>
 			<bitfield pos="25" name="PVCOMP_CHSW" variants="NVAF:NVC0"/>
-			<bitfield pos="26" name="PBSP_CHSW" variants="NV84:NVC0"/>
+			<bitfield pos="26" name="PBSP_CHSW" variants="NV84:NV98 NVA0:NVAA"/>
+			<bitfield pos="26" name="PVLD_CHSW" variants="NV98:NVA0 NVAA:NVC0"/>
 			<!-- place for two more CHSWs? -->
 			<bitfield pos="27" name="UNK27" variants="NV84:NVC0"/>
 			<bitfield pos="28" name="UNK28" variants="NV84:NVC0"/>
@@ -181,7 +184,7 @@
 			<bitfield pos="6" name="PCOPY0"/>
 			<bitfield pos="7" name="PCOPY1"/>
 			<bitfield pos="12" name="PGRAPH"/>
-			<bitfield pos="15" name="PBSP"/>
+			<bitfield pos="15" name="PVLD"/>
 			<bitfield pos="17" name="PVP"/>
 		</reg32>
 		<reg32 offset="0x300" name="VRAM_HIDE_LOW" variants="NV17-">

@@ -10,9 +10,10 @@
 	<value value="6" name="BAR"/>
 	<value value="7" name="PME" variants="NV50:NV84"/>
 	<value value="7" name="PVCOMP" variants="NVAF-"/>
-	<value value="8" name="PMPEG" variants="NV50:NV98 NVA0"/>
-	<value value="8" name="PPPP" variants="NV98 NVAA-"/>
-	<value value="9" name="PBSP" variants="NV84-"/>
+	<value value="8" name="PMPEG" variants="NV50:NV98 NVA0:NVAA"/>
+	<value value="8" name="PPPP" variants="NV98:NVA0 NVAA-"/>
+	<value value="9" name="PBSP" variants="NV50:NV98 NVA0:NVAA"/>
+	<value value="9" name="PVLD" variants="NV98:NVA0 NVAA-"/>
 	<value value="0xa" name="PCRYPT" variants="NV84:NVA3"/>
 	<value value="0xb" name="PCOUNTER" variants="NV84-"/>
 	<value value="0xc" name="SEMAPHORE_BG" variants="NV84-"/>
@@ -25,15 +26,16 @@
 	<value value="0x03" name="DISPATCH"/>
 	<value value="0x04" name="PFIFO_WRITE"/>
 	<value value="0x05" name="CCACHE"/>
-	<value value="0x06" name="PVPE" variants="NV50:NV98 NVA0"/>
-	<value value="0x06" name="PPPP" variants="NV98 NVAA-"/>
+	<value value="0x06" name="PVPE" variants="NV50:NV98 NVA0:NVAA"/>
+	<value value="0x06" name="PPPP" variants="NV98:NVA0 NVAA-"/>
 	<value value="0x07" name="CLIPID"/>
 	<value value="0x08" name="PFIFO_READ"/>
 	<value value="0x09" name="VFETCH"/>
 	<value value="0x0a" name="TEXTURE"/>
 	<value value="0x0b" name="PROP"/>
 	<value value="0x0c" name="PVP" variants="NV84-"/>
-	<value value="0x0d" name="PBSP" variants="NV84-"/>
+	<value value="0x0d" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
+	<value value="0x0d" name="PVLD" variants="NV98:NVA0 NVAA-"/>
 	<value value="0x0e" name="PCRYPT" variants="NV84-"/>
 	<value value="0x0f" name="PCOUNTER" variants="NV84-"/>
 	<value value="0x11" name="PDAEMON" variants="NVA3-"/>

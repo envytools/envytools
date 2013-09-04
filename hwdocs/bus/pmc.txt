@@ -186,17 +186,19 @@ On NV04:NV50, the bits are:
 
 On NV50:NVC0, the bits are:
   0: ??? - alleged to be related to I2C
-  1: VPE [vdec/vpe/intro.txt] and PVP [vdec/vpe/vp1.txt, vdec/vp2/pvp.txt] [NV50:NV98 and NVA0]
-  1: PPPP [vdec/vp3/pppp.txt] [NV98 and NVAA-]
+  1: VPE [vdec/vpe/intro.txt] and PVP [vdec/vpe/vp1.txt] [NV50:NV98 and NVA0]
+  1: PPPP [vdec/vp3/pppp.txt] [NV98:NVA0 NVAA-]
   4: PMEDIA [io/pmedia.txt]
   8: PFIFO [fifo/nv50-pfifo.txt]
   12: PGRAPH [graph/nv50-pgraph.txt]
   13: PCOPY [fifo/pcopy.txt] [NVA3-]
   14: PCRYPT [vdec/vp2/pcrypt.txt, vdec/vp3/pcrypt.txt] [NV84:NVA3]
   14: PVCOMP [vdec/pvcomp.txt] [NVAF]
-  15: PBSP [vdec/vp2/pbsp.txt, vdec/vp3/pbsp.txt] [NV84-]
+  15: PBSP [vdec/vp2/pbsp.txt] [NV84:NV98 NVA0:NVAA]
+  15: PVLD [vdec/vp3/pvld.txt] [NV98:NVA0 NVAA-]
   16: PTIMER [bus/ptimer.txt]
-  17: PVP [vdec/vp3/pvp.txt] [NV98 and NVAA-]
+  17: PVP [vdec/vp2/pvp.txt] [NV84:NV98 NVA0:NVAA]
+  17: PVP [vdec/vp3/pvp.txt] [NV98:NVA0 NVAA-]
   20: PFB [memory/nv50-pfb.txt]
   21: PGRAPH CHSW [NV84-] [fifo/nv50-pfifo.txt]
   22: PMPEG CHSW [NV84-]
@@ -204,7 +206,8 @@ On NV50:NVC0, the bits are:
   24: PVP CHSW [NV84-] [fifo/nv50-pfifo.txt]
   25: PCRYPT CHSW [NV84:NVA3] [fifo/nv50-pfifo.txt]
   25: PVCOMP CHSW [NVAF] [fifo/nv50-pfifo.txt]
-  26: PBSP CHSW [NV84-] [fifo/nv50-pfifo.txt]
+  26: PBSP CHSW [NV84:NV98 NVA0:NVAA] [fifo/nv50-pfifo.txt]
+  26: PVLD CHSW [NV98:NVA0 NVAA-] [fifo/nv50-pfifo.txt]
   27: ??? [NV84-]
   28: ??? [NV84-]
   30: PDISPLAY [display/nv50/pdisplay.txt]
@@ -223,7 +226,7 @@ On NVC0+, the bits are:
   8: PFIFO [fifo/nvc0-pfifo.txt]
   12: PGRAPH [graph/nvc0-pgraph.txt]
   13: PDAEMON [pm/pdaemon.txt]
-  15: PBSP [vdec/vp3/pbsp.txt]
+  15: PVLD [vdec/vp3/pvld.txt]
   16: PTIMER [bus/ptimer.txt]
   17: PVP [vdec/vp3/pvp.txt]
   18: PVENC [NVE4-] [vdec/pvenc.txt]
@@ -255,7 +258,7 @@ MMIO 0x00020c: ??? [NVC4-]
     6: PCOPY[0]
     7: PCOPY[1]
     12: PGRAPH
-    15: PBSP
+    15: PVLD
     17: PVP
   Comes up as all-1.
 
@@ -374,7 +377,8 @@ For NV50:NVC0:
 13: ??? [NVA3?-]
 14: PCRYPT [vdec/vp2/pcrypt.txt, vdec/vp3/pcrypt.txt] [NV84:NVA3]
 14: PVCOMP [vdec/pvcomp.txt] [NVAF-]
-15: PBSP [vdec/vp2/pbsp.txt, vdec/vp3/pbsp.txt] [NV84-]
+15: PBSP [vdec/vp2/pbsp.txt] [NV84:NV98 NVA0:NVAA]
+15: PVLD [vdec/vp3/pvld.txt] [NV98:NVA0 NVAA-]
 16: ??? [NVA3?-]
 17: PVP [vdec/vp2/pvp.txt, vdec/vp3/pvp.txt]
 18: PDAEMON [pm/pdaemon.txt] [NVA3-]
@@ -401,7 +405,7 @@ For NVC0+:
 9: ???
 12: PGRAPH [graph/nvc0-pgraph.txt] - has separate NRHOST line
 13: PBFB [memory/nvc0-pbfb.txt]
-15: PBSP [vdec/vp3/pbsp.txt] - has separate NRHOST line
+15: PVLD [vdec/vp3/pvld.txt] - has separate NRHOST line
 16: PVENC [NVE4-] [vdec/pvenc.txt] - has separate NRHOST line
 17: PVP [vdec/vp3/pvp.txt] - has separate NRHOST line
 18: PTHERM [pm/ptherm.txt]

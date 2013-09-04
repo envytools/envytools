@@ -486,7 +486,7 @@ NVA3:
  - PGRAPH additions for D3D10.1 support
  - added HDA audio codec for HDMI sound support, on a separate PCI function
  - Added PCOPY, the dedicated copy engine
- - Merged PCRYPT functionality into PBSP
+ - Merged PCRYPT functionality into PVLD
 NVAF:
  - added PVCOMP, the video compositor engine
 

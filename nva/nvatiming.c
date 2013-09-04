@@ -532,8 +532,8 @@ int main(int argc, char **argv)
 	}
 
 	if (print_filter & NVATIMING_PRINT_FUC) {
-		time_fuc_engine_periodic(cnum, "PBSP", 0x84000);
-		time_fuc_engine_watchdog(cnum, "PBSP", 0x84000);
+		time_fuc_engine_periodic(cnum, "PVLD", 0x84000);
+		time_fuc_engine_watchdog(cnum, "PVLD", 0x84000);
 		printf("\n");
 
 		time_fuc_engine_periodic(cnum, "PVP", 0x85000);

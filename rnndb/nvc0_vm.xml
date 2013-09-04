@@ -13,7 +13,7 @@
 	<value value="0x08" name="PSUBFIFO1"/>
 	<value value="0x09" name="PSUBFIFO2"/>
 
-	<value value="0x10" name="PBSP"/>
+	<value value="0x10" name="PVLD"/>
 	<value value="0x11" name="PPPP"/>
 
 	<value value="0x13" name="PCOUNTER"/>
@@ -40,7 +40,7 @@
 	<value value="0x0a" name="MMU"/>
 	<value value="0x0b" name="PVP"/>
 	<value value="0x0c" name="PPPP"/>
-	<value value="0x0d" name="PBSP"/>
+	<value value="0x0d" name="PVLD"/>
 
 	<value value="0x10" name="IDXFETCH"/>
 	<value value="0x11" name="PCOUNTER"/>

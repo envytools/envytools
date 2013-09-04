@@ -43,9 +43,9 @@ The base falcon hardware comes in three different revisions:
 The falcon units present on nvidia cards are:
 
  - The VP3/VP4/VP5 engines [NV98 and NVAA+]:
-  - PBSP, the bitstream processor			[vdec/vp3/pbsp.txt]
+  - PVLD, the variable length decoder			[vdec/vp3/pvld.txt]
   - PVP, the video processor				[vdec/vp3/pvp.txt]
-  - PPPP, the video processor				[vdec/vp3/pppp.txt]
+  - PPPP, the video post-processor			[vdec/vp3/pppp.txt]
  - The VP3 cryptographic engine [NV98, NVAA, NVAC]:
   - PCRYPT, the cryptographic engine			[vdec/vp3/pcrypt.txt]
  - The NVA3:NVE4 copy engines:

@@ -41,19 +41,6 @@ MMIO 0xffc: HOST_IO_INDEX
 Unaligned accesses to the IO space are unsupported, both from host and falcon.
 Low 2 bits of addresses should be 0 at all times.
 
-The host MMIO base addresses for various engines are:
-
-PBSP			084000
-PVP			085000
-PPPP			086000
-PCRYPT			087000
-PCOPY[0]		104000
-PCOPY[1]		105000
-PDAEMON			10a000
-PVCOMP			1c1000
-PGRAPH.CTXCTL		409000
-PGRAPH.TP[i].CTXCTL	502000 + i * 0x8000
-
 
 = Common IO register list =
 

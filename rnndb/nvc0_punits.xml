@@ -22,7 +22,7 @@
 	<reg32 offset="0x100" name="HW_MISC_DISABLE">
 		<bitfield pos="0" name="PDISPLAY_PUNK1C3"/>
 		<bitfield pos="1" name="PVP_PPPP"/>
-		<bitfield pos="2" name="PBSP"/>
+		<bitfield pos="2" name="PVLD"/>
 		<bitfield pos="3" name="PVENC" variants="NVD9-"/> <!-- XXX: why is it on NVD9? -->
 		<bitfield pos="4" name="UNK4"/> <!-- not present anyway on any card I've seen -->
 		<bitfield low="8" high="11" name="PCOPY_MASK"/> <!-- 2 bits on NVC0:NVC1, 4 bits on NVC1:NVE4, 3 bits on NVE4- -->
@@ -40,7 +40,7 @@
 	<reg32 offset="0x180" name="SW_MISC_DISABLE">
 		<bitfield pos="0" name="PDISPLAY_PUNK1C3"/>
 		<bitfield pos="1" name="PVP_PPPP"/>
-		<bitfield pos="2" name="PBSP"/>
+		<bitfield pos="2" name="PVLD"/>
 		<bitfield pos="3" name="PVENC" variants="NVD9-"/>
 		<bitfield pos="4" name="UNK4"/>
 		<bitfield low="8" high="11" name="PCOPY_MASK"/>

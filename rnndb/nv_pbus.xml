@@ -181,14 +181,15 @@
 			</bitfield>
 			<bitfield pos="29" name="UNK29"/>
 			<bitfield pos="30" name="VDEC">
-				<doc>Selects whether video decoding engines (PMPEG, PME, PVP, VP2 and VP3 PBSP, PPPP, VP2 PCRYPT, but not VP3 PCRYPT nor VP4 PBSP) are enabled.</doc>
+				<doc>Selects whether video decoding engines (PMPEG, PME, PVP, PBSP, VP3 PVLD, PPPP, VP2 PCRYPT, but not VP3 PCRYPT nor VP4 PVLD) are enabled.</doc>
 			</bitfield>
 			<bitfield pos="31" name="UNK31"/>
 		</reg32>
 		<reg32 offset="0x54c" name="HWUNITS_1" variants="NV84:NVC0">
 			<bitfield pos="1" name="UNK1"/> <!-- enabling causes the card to change class 0x3000000 -> 0x48000 -->
 			<bitfield pos="2" name="PDISPLAY"/>
-			<bitfield pos="5" name="PBSP"/>
+			<bitfield pos="5" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
+			<bitfield pos="5" name="PVLD" variants="NV98:NVA0 NVAA-"/>
 			<bitfield pos="6" name="PCRYPT" variants="NV84:NVA3"/>
 			<bitfield pos="6" name="PVCOMP" variants="NVAF-"/>
 			<bitfield pos="9" name="PCOPY" variants="NVA3-"/>
@@ -218,8 +219,8 @@
 			Both need to be set in order to disable the engine.
 			</doc>
 			<bitfield high="1" low="0" name="PGRAPH"/>
-			<bitfield high="5" low="4" name="VPE" variants="NV17:NV98 NVA0"/>
-			<bitfield high="5" low="4" name="PPPP" variants="NV98 NVAA-"/>
+			<bitfield high="5" low="4" name="VPE" variants="NV17:NV98 NVA0:NVAA"/>
+			<bitfield high="5" low="4" name="PPPP" variants="NV98:NVA0 NVAA-"/>
 			<bitfield high="9" low="8" name="PCRTC" variants="NV17:NV50"/>
 			<bitfield high="11" low="10" name="PCRTC2" variants="NV17:NV50"/>
 			<bitfield high="13" low="12" name="PVIDEO" variants="NV17:NV50"/>
@@ -241,7 +242,8 @@
 			</bitfield>
 			<bitfield high="11" low="10" name="PCRYPT" variants="NV84:NVA3"/>
 			<bitfield high="11" low="10" name="PVCOMP" variants="NVAF-"/>
-			<bitfield high="13" low="12" name="PBSP" variants="NV84-">
+			<bitfield high="13" low="12" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
+			<bitfield high="13" low="12" name="PVLD" variants="NV98:NVA0 NVAA-">
 				<doc>XXX: Does not work on NVAC Asus AT3IONT-I (Deluxe)?</doc>
 			</bitfield>
 		</reg32>

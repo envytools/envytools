@@ -206,7 +206,7 @@ VP2 video decoding:
 
 VP3/VP4/VP5 video decoding:
 [**   ] vdec/vp3/mbring.txt - VP3 MBRING format
-[*    ] vdec/vp3/pbsp.txt - falcon-based PBSP engine
+[*    ] vdec/vp3/pvld.txt - falcon-based PVLD engine
 [*    ] vdec/vp3/pvp.txt - falcon-based PVP engine
 [*    ] vdec/vp3/pppp.txt - falcon-based PPPP engine
 [*    ] vdec/vp3/pcrypt.txt - falcon-based PCRYPT engine
