@@ -113,7 +113,7 @@ host/I[] address / name / file
 108/04200  UC_CAPS		microprocessor caps	[falcon/proc.txt]
 10c/04300  UC_BLOCK_ON_FIFO	microprocessor block	[falcon/proc.txt]
 110/04400  XFER_EXT_BASE	xfer external base	[falcon/xfer.txt]
-114/04500  XFER_FUC_ADDR	xfer falcon address	[falcon/xfer.txt]
+114/04500  XFER_FALCON_ADDR	xfer falcon address	[falcon/xfer.txt]
 118/04600  XFER_CTRL		xfer control		[falcon/xfer.txt]
 11c/04700  XFER_EXT_ADDR	xfer external offset	[falcon/xfer.txt]
 120/04800  XFER_STATUS		xfer status		[falcon/xfer.txt]

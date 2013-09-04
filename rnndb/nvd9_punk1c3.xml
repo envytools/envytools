@@ -10,12 +10,12 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <bitset name="NVD9_PUNK1C3_INTR" varset="chipset">
-	<bitfield low="0" high="7" name="FUC" type="falcon_intr"/>
+	<bitfield low="0" high="7" name="FALCON" type="falcon_intr"/>
 	<bitfield pos="9" name="MEMIF_BREAK"/>
 	<!-- XXX -->
 </bitset>
 <bitset name="NVD9_PUNK1C3_STATUS" varset="chipset">
-	<bitfield pos="0" name="FUC"/>
+	<bitfield pos="0" name="FALCON"/>
 	<bitfield pos="1" name="MEMIF"/>
 </bitset>
 

@@ -10,7 +10,7 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <bitset name="NV98_PPPP_INTR" varset="chipset">
-	<bitfield low="0" high="7" name="FUC" type="falcon_intr"/>
+	<bitfield low="0" high="7" name="FALCON" type="falcon_intr"/>
 	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="NVA3:NVC0"/>
 	<bitfield pos="9" name="MEMIF_FAULT" variants="NVA3:NVC0"/>
 	<bitfield pos="9" name="MEMIF_BREAK" variants="NVC0-"/>
@@ -21,7 +21,7 @@
 	<bitfield pos="14" name="FG_ERR"/>
 </bitset>
 <bitset name="NV98_PPPP_STATUS" varset="chipset">
-	<bitfield pos="0" name="FUC"/>
+	<bitfield pos="0" name="FALCON"/>
 	<bitfield pos="1" name="MEMIF"/>
 	<bitfield pos="2" name="POUT"/>
 	<bitfield pos="3" name="UNKE4"/>

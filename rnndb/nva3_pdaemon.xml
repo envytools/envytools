@@ -10,19 +10,28 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
+<bitset name="NVA3_PDAEMON_INTR" varset="chipset">
+	<bitfield low="0" high="7" name="FALCON" type="falcon_intr"/>
+	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="NVA3:NVC0"/>
+	<bitfield pos="9" name="MEMIF_FAULT" variants="NVA3:NVC0"/>
+	<bitfield pos="9" name="MEMIF_BREAK" variants="NVC0-"/>
+	<bitfield pos="10" name="PMC_DAEMON"/>
+	<bitfield pos="11" name="SUBINTR"/>
+	<bitfield pos="12" name="THERM"/>
+	<bitfield pos="13" name="INPUT"/> <!-- 7cc+ and 7ec+ -->
+	<bitfield pos="14" name="TIMER"/>
+	<bitfield pos="15" name="IREDIR_PMC"/>
+</bitset>
+<bitset name="NVA3_PDAEMON_STATUS" varset="chipset">
+	<bitfield pos="0" name="FALCON"/>
+	<bitfield pos="1" name="EPWR_GRAPH"/>
+	<bitfield pos="2" name="EPWR_VDEC"/>
+	<bitfield pos="3" name="MEMIF"/>
+	<bitfield pos="4" name="USER" variants="NVA3:NVAF NVC0-"/>
+	<bitfield pos="4" name="EPWR_VCOMP" variants="NVAF:NVC0"/>
+	<bitfield pos="5" name="USER" variants="NVAF:NVC0"/>
+</bitset>
 <array name="PDAEMON" offset="0x10a000" stride="0x1000" length="1" variants="NVA3-">
-	<bitset name="NVA3_PDAEMON_INTR" varset="chipset">
-		<bitfield low="0" high="7" name="FUC" type="falcon_intr"/>
-		<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="NVA3:NVC0"/>
-		<bitfield pos="9" name="MEMIF_FAULT" variants="NVA3:NVC0"/>
-		<bitfield pos="9" name="MEMIF_BREAK" variants="NVC0-"/>
-		<bitfield pos="10" name="PMC_DAEMON"/>
-		<bitfield pos="11" name="SUBINTR"/>
-		<bitfield pos="12" name="THERM"/>
-		<bitfield pos="13" name="INPUT"/> <!-- 7cc+ and 7ec+ -->
-		<bitfield pos="14" name="TIMER"/>
-		<bitfield pos="15" name="IREDIR_PMC"/>
-	</bitset>
 	<use-group name="falcon_base"/>
 
 	<reg32 offset="0x404" name="SUBENGINE_RESET_TIME"/>
