@@ -47,7 +47,7 @@ The falcon units present on nvidia cards are:
   - PVDEC, the video decoder				[vdec/vp3/pvdec.txt]
   - PPPP, the video post-processor			[vdec/vp3/pppp.txt]
  - The VP3 cryptographic engine [NV98, NVAA, NVAC]:
-  - PCRYPT, the cryptographic engine			[vdec/vp3/pcrypt.txt]
+  - PCRYPT3, the cryptographic engine			[vdec/vp3/pcrypt3.txt]
  - The NVA3:NVE4 copy engines:
   - PCOPY0 [NVA3:NVE4]					[fifo/pcopy.txt]
   - PCOPY1 [NVC0:NVE4]					[fifo/pcopy.txt]

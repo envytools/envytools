@@ -79,7 +79,7 @@ mem	an engine object representing memory copy/fill/upload functionality to
 /m2mf	a PGRAPH engine object representing memory to memory copy functionality
 /p2mf	a PGRAPH engine object representing FIFO to memory upload functionality
 
-crypt	a PCRYPT engine object representing crypto functionality
+crypt	a PCRYPT2 engine object representing crypto functionality
 
 [XXX: VPE trio]
 

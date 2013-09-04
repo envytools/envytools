@@ -425,7 +425,8 @@
 				<value value="0xd" name="PVDEC" variants="NV98:NVA0 NVAA-"/>
 				<value value="0xe" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
 				<value value="0xe" name="PVLD" variants="NV98:NVA0 NVAA-"/>
-				<value value="0xf" name="PCRYPT" variants="NV84:NVA3"/>
+				<value value="0xf" name="PCRYPT2" variants="NV84:NV98 NVA0:NVAA"/>
+				<value value="0xf" name="PCRYPT3" variants="NV98:NVA0 NVAA:NVA3"/>
 				<value value="0x10" name="PCOUNTER" variants="NV84-"/>
 
 				<value value="0x12" name="PDAEMON" variants="NVA3-"/>
@@ -451,7 +452,8 @@
 			<bitfield pos="18" name="PPPP_ENABLE" variants="NV98:NVA0 NVAA-"/>
 			<bitfield pos="19" name="PBSP_ENABLE" variants="NV84:NV98 NVA0:NVAA"/>
 			<bitfield pos="19" name="PVLD_ENABLE" variants="NV98:NVA0 NVAA-"/>
-			<bitfield pos="20" name="PCRYPT_ENABLE" variants="NV84:NVA3"/>
+			<bitfield pos="20" name="PCRYPT2_ENABLE" variants="NV84:NV98 NVA0:NVAA"/>
+			<bitfield pos="20" name="PCRYPT3_ENABLE" variants="NV98:NVA0 NVAA:NVA3"/>
 			<bitfield pos="21" name="PCOUNTER_ENABLE" variants="NV84-"/>
 			<bitfield pos="23" name="PDAEMON_ENABLE" variants="NVA3-"/>
 			<bitfield low="24" high="26" name="INDEX"/>

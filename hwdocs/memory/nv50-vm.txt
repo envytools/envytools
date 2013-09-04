@@ -89,8 +89,8 @@ VM is used by several clients, which are identified by VM client id:
  - c: PVDEC [NV98:NVA0 NVAA-]
  - d: PBSP [NV84:NV98 NVA0:NVAA]
  - d: PVLD [NV98:NVA0 NVAA-]
- - e: PCRYPT [NV84:NV98 NVA0:NVAA]
- - e: PCRYPT [NV98:NVA0 NVAA:NVA3]
+ - e: PCRYPT2 [NV84:NV98 NVA0:NVAA]
+ - e: PCRYPT3 [NV98:NVA0 NVAA:NVA3]
  - f: PCOUNTER [NV84-]
  - 11: PDAEMON [NVA3-]
  - 13: PCOPY [NVA3-]
@@ -113,8 +113,8 @@ to be part of several VM engines. The engines are:
  - 8: PPPP: PPPP [NV98:NVA0 NVAA-]
  - 9: PBSP: PBSP [NV84:NV98 NVA0:NVAA]
  - 9: PVLD: PVLD [NV98:NVA0 NVAA-]
- - a: PCRYPT: PCRYPT [NV84:NV98 NVA0:NVAA]
- - a: PCRYPT: PCRYPT [NV98:NVA0 NVAA:NVA3]
+ - a: PCRYPT2: PCRYPT2 [NV84:NV98 NVA0:NVAA]
+ - a: PCRYPT3: PCRYPT3 [NV98:NVA0 NVAA:NVA3]
  - b: PCOUNTER: PCOUNTER
  - c: SEMAPHORE_BG: PFIFO_READ - handles background semaphore acquire polling
  - d: PCOPY: PCOPY [NVA3-]
@@ -167,14 +167,14 @@ ids depends on both engine and client id. The DMA slots are
  - b/f/0: PCOUNTER record buffer [NV84:NVC0]
  - 1/c/0-f: PVP2 DMA ports 0-0xf [NV84:NV98 NVA0:NVAA]
  - 9/d/0-f: PBSP DMA ports 0-0xf [NV84:NV98 NVA0:NVAA]
- - a/e/0: PCRYPT context [NV84:NV98 NVA0:NVAA]
- - a/e/1: PCRYPT SRC [NV84:NV98 NVA0:NVAA]
- - a/e/2: PCRYPT DST [NV84:NV98 NVA0:NVAA]
- - a/e/3: PCRYPT QUERY [NV84:NV98 NVA0:NVAA]
+ - a/e/0: PCRYPT2 context [NV84:NV98 NVA0:NVAA]
+ - a/e/1: PCRYPT2 SRC [NV84:NV98 NVA0:NVAA]
+ - a/e/2: PCRYPT2 DST [NV84:NV98 NVA0:NVAA]
+ - a/e/3: PCRYPT2 QUERY [NV84:NV98 NVA0:NVAA]
  - 1/c/0-7: PVDEC falcon ports 0-7 [NV98:NVA0 NVAA-]
  - 8/6/0-7: PPPP falcon ports 0-7 [NV98:NVA0 NVAA-]
  - 9/d/0-7: PVLD falcon ports 0-7 [NV98:NVA0 NVAA-]
- - a/e/0-7: PCRYPT falcon ports 0-7 [NV98:NVA3]
+ - a/e/0-7: PCRYPT3 falcon ports 0-7 [NV98:NVA3]
  - d/13/0-7: PCOPY falcon ports 0-7 [NVA3-]
  - e/11/0-7: PDAEMON falcon ports 0-7 [NVA3-]
  - 7/14/0-7: PVCOMP falcon ports 0-7 [NVAF-]
@@ -330,8 +330,8 @@ selector | address |        cards        | engine
  0x0006  | 0x00060 | NV98:NVA0 NVAA-     | PPPP
  0x0008  | 0x00080 | NV84:NV98 NVA0:NVAA | PBSP
  0x0008  | 0x00080 | NV98:NVA0 NVAA-     | PVLD
- 0x000a  | 0x000a0 | NV84:NV98 NVA0:NVAA | PCRYPT
- 0x000a  | 0x000a0 | NV98:NVA0 NVAA:NVA3 | PCRYPT
+ 0x000a  | 0x000a0 | NV84:NV98 NVA0:NVAA | PCRYPT2
+ 0x000a  | 0x000a0 | NV98:NVA0 NVAA:NVA3 | PCRYPT3
  0x000a  | 0x000a0 |        NVAF-        | PVCOMP
  0x000c  | 0x000c0 |        NVA3-        | PCOPY
 

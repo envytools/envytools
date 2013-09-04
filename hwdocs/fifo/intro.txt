@@ -48,7 +48,7 @@ idx|   name   |   cards   | description
 --------------|           | bitstream processor. Microcoded through embedded
 6/-| PBSP     | NV84:NV98 | xtensa cores. [see vdec/vp2/pvp2.txt, vdec/vp2/pbsp.txt]
 --------------|           |---------------------------------------------------
-5/-| PCRYPT   |           | AES cryptography and copy engine. [see vdec/vp2/crypt.txt]
+5/-| PCRYPT2  |           | AES cryptography and copy engine. [see vdec/vp2/crypt.txt]
 ------------------------------------------------------------------------------
 2/2| PPPP     |           | VP3 falcon-microcoded video decoding engines: picture
 --------------|           | post-processor, video processor, bitstream
@@ -57,8 +57,8 @@ idx|   name   |   cards   | description
 6/3| PVLD     |           |
 ------------------------------------------------------------------------------
    |          |           | falcon-microcoded engine with AES crypto coprocessor.
-5/-| PCRYPT   | NV98:NVA3 | On NVA3+, the crypto powers were instead merged
-   |          |           | into PVLD. [see vdec/vp3/pcrypt.txt]
+5/-| PCRYPT3  | NV98:NVA3 | On NVA3+, the crypto powers were instead merged
+   |          |           | into PVLD. [see vdec/vp3/pcrypt3.txt]
 ------------------------------------------------------------------------------
 5/-| PVCOMP   | NVAF:NVC0 | falcon-microcoded video compositing engine
    |          |           | [see vdec/pvcomp.txt]

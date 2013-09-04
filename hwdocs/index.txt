@@ -201,15 +201,15 @@ VP2 video decoding:
 [**   ] vdec/vp2/vld.txt - VP2 variable length decoding engine
 [**** ] vdec/vp2/mbring.txt - VP2 MBRING format
 [**   ] vdec/vp2/macro.txt - the VP2 command macro processor
-[     ] vdec/vp2/pcrypt.txt - NV84:NV98 and NVA0 PCRYPT engine
-[     ] vdec/vp2/crypt.txt - NV84 PCRYPT user interface
+[     ] vdec/vp2/pcrypt2.txt - PCRYPT2 engine
+[     ] vdec/vp2/crypt.txt - PCRYPT2 user interface
 
 VP3/VP4/VP5 video decoding:
 [**   ] vdec/vp3/mbring.txt - VP3 MBRING format
 [*    ] vdec/vp3/pvld.txt - falcon-based PVLD engine
 [*    ] vdec/vp3/pvdec.txt - falcon-based PVDEC engine
 [*    ] vdec/vp3/pppp.txt - falcon-based PPPP engine
-[*    ] vdec/vp3/pcrypt.txt - falcon-based PCRYPT engine
+[*    ] vdec/vp3/pcrypt3.txt - falcon-based PCRYPT3 engine
 
 
 Other FIFO engines:

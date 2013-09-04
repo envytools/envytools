@@ -123,12 +123,12 @@ set 3 [MPs]:
 0x20 trailer base
 
 set 5:
-0x37: PCRYPT PM_TRIGGER 2nd
-0x38: PCRYPT WRCACHE_FLUSH 2nd
-0x3b: PCRYPT idle
-0x45: PCRYPT PM_TRIGGER
-0x46: PCRYPT WRCACHE_FLUSH
-0x47-0x4c: PCRYPT USER
+0x37: PCRYPT3 PM_TRIGGER 2nd
+0x38: PCRYPT3 WRCACHE_FLUSH 2nd
+0x3b: PCRYPT3 idle
+0x45: PCRYPT3 PM_TRIGGER
+0x46: PCRYPT3 WRCACHE_FLUSH
+0x47-0x4c: PCRYPT3 USER
 0x60 trailer base
 
 set 7:
@@ -172,7 +172,7 @@ set 0:
 == NVAC signals ==
 
 set 2:
-0xd4-0xd9: PCRYPT_USER_0-5 [falcon/perf.txt]
+0xd4-0xd9: PCRYPT3_USER_0-5 [falcon/perf.txt]
 
 === NVA5 signals ===
 
@@ -432,16 +432,16 @@ VUC_SLEEP        |5e|??|??|??|89|??|??| vdec/vuc/perf.txt
 VUC_WATCHDOG     |5f|??|??|??|8a|??|??| vdec/vuc/perf.txt
 VUC_USER_CONT    |60|??|??|??|8b|??|??| vdec/vuc/perf.txt
 VUC_USER_PULSE   |61|??|??|??|8c|??|??| vdec/vuc/perf.txt
-PVDEC_IDLE         |90|??|??|??|40|??|??| falcon/perf.txt
-PVDEC_TA           |93|??|??|??|43|??|??| falcon/perf.txt
-PVDEC_PM_TRIGGER   |9a|??|??|??|4a|??|??| falcon/perf.txt
-PVDEC_WRCACHE_FL   |9b|??|??|??|4b|??|??| falcon/perf.txt
-PVDEC_USER_0       |9c|??|9c|??|4c|??|4c| falcon/perf.txt
-PVDEC_USER_1       |9d|??|9d|??|4d|??|4d| falcon/perf.txt
-PVDEC_USER_2       |9e|??|9e|??|4e|??|4e| falcon/perf.txt
-PVDEC_USER_3       |9f|??|9f|??|4f|??|4f| falcon/perf.txt
-PVDEC_USER_4       |a0|??|a0|??|50|??|50| falcon/perf.txt
-PVDEC_USER_5       |a1|??|a1|??|51|??|51| falcon/perf.txt
+PVDEC_IDLE       |90|??|??|??|40|??|??| falcon/perf.txt
+PVDEC_TA         |93|??|??|??|43|??|??| falcon/perf.txt
+PVDEC_PM_TRIGGER |9a|??|??|??|4a|??|??| falcon/perf.txt
+PVDEC_WRCACHE_FL |9b|??|??|??|4b|??|??| falcon/perf.txt
+PVDEC_USER_0     |9c|??|9c|??|4c|??|4c| falcon/perf.txt
+PVDEC_USER_1     |9d|??|9d|??|4d|??|4d| falcon/perf.txt
+PVDEC_USER_2     |9e|??|9e|??|4e|??|4e| falcon/perf.txt
+PVDEC_USER_3     |9f|??|9f|??|4f|??|4f| falcon/perf.txt
+PVDEC_USER_4     |a0|??|a0|??|50|??|50| falcon/perf.txt
+PVDEC_USER_5     |a1|??|a1|??|51|??|51| falcon/perf.txt
 PVCOMP_USER_0    |--|--|--|--|--|--|60| falcon/perf.txt
 PVCOMP_USER_1    |--|--|--|--|--|--|61| falcon/perf.txt
 PVCOMP_USER_2    |--|--|--|--|--|--|62| falcon/perf.txt

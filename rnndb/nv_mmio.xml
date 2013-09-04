@@ -106,8 +106,8 @@
 <!-- 086000 - 086fff PPPP -->
 <import file="nv98_pppp.xml" />
 
-<!-- 087000 - 087fff PCRYPT -->
-<import file="nv98_pcrypt.xml" />
+<!-- 087000 - 087fff PCRYPT3 -->
+<import file="nv98_pcrypt3.xml" />
 
 <!-- 088000 - 088fff PPCI -->
 <import file="nv_pci.xml" />
@@ -138,8 +138,8 @@
 
 <!-- 101000 - 101fff PTIMER covered in nv01_ptimer.xml -->
 
-<!-- 102000 - 102fff PCRYPT -->
-<import file="nv84_pcrypt.xml" />
+<!-- 102000 - 102fff PCRYPT2 -->
+<import file="nv84_pcrypt2.xml" />
 
 <!-- 103000 - 103fff PBSP -->
 <import file="nv84_pbsp.xml" />

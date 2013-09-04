@@ -17,7 +17,8 @@
 	<value value="4" name="PVP1" variants="NV50:NV84"/>
 	<value value="4" name="PVP2" variants="NV84:NV98 NVA0:NVAA"/>
 	<value value="4" name="PVDEC" variants="NV98:NVA0 NVAA-"/>
-	<value value="5" name="PCRYPT" variants="NV84:NVA3"/>
+	<value value="5" name="PCRYPT2" variants="NV84:NV98 NVA0:NVAA"/>
+	<value value="5" name="PCRYPT3" variants="NV98:NVA0 NVAA:NVA3"/>
 	<value value="5" name="PVCOMP" variants="NVAF-"/>
 	<value value="6" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
 	<value value="6" name="PVLD" variants="NV98:NVA0 NVAA-"/>
@@ -33,7 +34,8 @@
 	<bitfield pos="3" name="PVP1" variants="NV50:NV84"/>
 	<bitfield pos="3" name="PVP2" variants="NV84:NV98 NVA0:NVAA"/>
 	<bitfield pos="3" name="PVDEC" variants="NV98:NVA0 NVAA-"/>
-	<bitfield pos="4" name="PCRYPT" variants="NV84:NVA3"/>
+	<bitfield pos="4" name="PCRYPT2" variants="NV84:NV98 NVA0:NVAA"/>
+	<bitfield pos="4" name="PCRYPT3" variants="NV98:NVA0 NVAA:NVA3"/>
 	<bitfield pos="4" name="UNUSED4" variants="NVA3:NVAF"/>
 	<bitfield pos="4" name="PVCOMP" variants="NVAF-"/>
 	<bitfield pos="5" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
@@ -105,7 +107,8 @@
 			<bitfield low="12" high="15" name="PVP2" variants="NV84:NV98 NVA0:NVAA"/>
 			<bitfield low="12" high="15" name="PVDEC" variants="NV98:NVA0 NVAA-"/>
 			<bitfield low="16" high="23" name="UNK16"/>
-			<bitfield low="24" high="27" name="PCRYPT" variants="NV84:NVA3"/>
+			<bitfield low="24" high="27" name="PCRYPT2" variants="NV84:NV98 NVA0:NVAA"/>
+			<bitfield low="24" high="27" name="PCRYPT3" variants="NV98:NVA0 NVAA:NVA3"/>
 			<bitfield low="24" high="27" name="UNUSED4" variants="NVA3:NVAF"/>
 			<bitfield low="24" high="27" name="PVCOMP" variants="NVAF-"/>
 			<bitfield low="28" high="31" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>

@@ -8,7 +8,7 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array name="PCRYPT" offset="0x102000" stride="0x1000" length="1" variants="NV84:NV98 NVA0">
+<array name="PCRYPT2" offset="0x102000" stride="0x1000" length="1" variants="NV84:NV98 NVA0">
 
 	<reg32 offset="0x00c" name="UNK00C">
 		<bitfield pos="0" name="UNK0"/>
@@ -16,7 +16,7 @@
 		<bitfield pos="8" name="UNK8"/>
 		<bitfield low="12" high="14" name="UNK12"/>
 	</reg32>
-	<bitset name="nv84_pcrypt_intr" inline="yes">
+	<bitset name="nv84_pcrypt2_intr" inline="yes">
 		<bitfield pos="0" name="INVALID_STATE"/>
 		<bitfield pos="1" name="ILLEGAL_MTHD"/>
 		<bitfield pos="2" name="ILLEGAL_CLASS"/>
@@ -34,8 +34,8 @@
 		<bitfield low="24" high="28" name="UNK24"/>
 		<bitfield pos="30" name="UNK30"/>
 	</reg32>
-	<reg32 offset="0x130" name="INTR" type="nv84_pcrypt_intr"/>
-	<reg32 offset="0x140" name="INTR_EN" type="nv84_pcrypt_intr"/>
+	<reg32 offset="0x130" name="INTR" type="nv84_pcrypt2_intr"/>
+	<reg32 offset="0x140" name="INTR_EN" type="nv84_pcrypt2_intr"/>
 	<reg32 offset="0x180" name="INSTANCE"/>
 	<reg32 offset="0x188" name="CHAN_CUR"/>
 	<reg32 offset="0x18c" name="CHAN_NEXT"/>

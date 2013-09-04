@@ -545,8 +545,8 @@ int main(int argc, char **argv)
 		printf("\n");
 
 		if (card->chipset == 0x98 || card->chipset == 0xaa || card->chipset == 0xac) {
-			time_fuc_engine_periodic(cnum, "PCRYPT", 0x87000);
-			time_fuc_engine_watchdog(cnum, "PCRYPT", 0x87000);
+			time_fuc_engine_periodic(cnum, "PCRYPT3", 0x87000);
+			time_fuc_engine_watchdog(cnum, "PCRYPT3", 0x87000);
 			printf("\n");
 		} else {
 			printf("Your card doesn't support PCOPY (chipset < nva3 only)\n\n");

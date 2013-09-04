@@ -186,13 +186,14 @@ On NV04:NV50, the bits are:
 
 On NV50:NVC0, the bits are:
   0: ??? - alleged to be related to I2C
-  1: VPE [vdec/vpe/intro.txt] [NV50:NV98 and NVA0]
+  1: VPE [vdec/vpe/intro.txt] [NV50:NV98 NVA0:NVAA]
   1: PPPP [vdec/vp3/pppp.txt] [NV98:NVA0 NVAA-]
   4: PMEDIA [io/pmedia.txt]
   8: PFIFO [fifo/nv50-pfifo.txt]
   12: PGRAPH [graph/nv50-pgraph.txt]
   13: PCOPY [fifo/pcopy.txt] [NVA3-]
-  14: PCRYPT [vdec/vp2/pcrypt.txt, vdec/vp3/pcrypt.txt] [NV84:NVA3]
+  14: PCRYPT2 [vdec/vp2/pcrypt2.txt] [NV84:NV98 NVA0:NVAA]
+  14: PCRYPT3 [vdec/vp3/pcrypt3.txt] [NV98:NVA0 NVAA:NVA3]
   14: PVCOMP [vdec/pvcomp.txt] [NVAF]
   15: PBSP [vdec/vp2/pbsp.txt] [NV84:NV98 NVA0:NVAA]
   15: PVLD [vdec/vp3/pvld.txt] [NV98:NVA0 NVAA-]
@@ -205,7 +206,8 @@ On NV50:NVC0, the bits are:
   23: PCOPY CHSW [NVA3-]
   24: PVP2 CHSW [NV84:NV98 NVA0:NVAA] [fifo/nv50-pfifo.txt]
   24: PVDEC CHSW [NV98:NVA0 NVAA-] [fifo/nv50-pfifo.txt]
-  25: PCRYPT CHSW [NV84:NVA3] [fifo/nv50-pfifo.txt]
+  25: PCRYPT2 CHSW [NV84:NV98 NVA0:NVAA] [fifo/nv50-pfifo.txt]
+  25: PCRYPT3 CHSW [NV98:NVA0 NVAA:NVA3] [fifo/nv50-pfifo.txt]
   25: PVCOMP CHSW [NVAF] [fifo/nv50-pfifo.txt]
   26: PBSP CHSW [NV84:NV98 NVA0:NVAA] [fifo/nv50-pfifo.txt]
   26: PVLD CHSW [NV98:NVA0 NVAA-] [fifo/nv50-pfifo.txt]
@@ -367,15 +369,16 @@ For NV04:NV50:
 
 For NV50:NVC0:
 
-0: VPE [vdec/vpe/intro.txt] [NV50:NV98 and NVA0]
-0: PPPP [vdec/vp3/pppp.txt] [NV98 and NVAA-]
+0: VPE [vdec/vpe/intro.txt] [NV50:NV98 NVA0:NVAA]
+0: PPPP [vdec/vp3/pppp.txt] [NV98:NVA0 NVAA-]
 4: PMEDIA [io/pmedia.txt]
 8: PFIFO [fifo/nv50-pfifo.txt] - has separate NRHOST line on NVA3+
 9: ??? [NVA3?-]
 11: ??? [NVA3?-]
 12: PGRAPH [graph/nv50-pgraph.txt]
 13: ??? [NVA3?-]
-14: PCRYPT [vdec/vp2/pcrypt.txt, vdec/vp3/pcrypt.txt] [NV84:NVA3]
+14: PCRYPT2 [vdec/vp2/pcrypt2.txt] [NV84:NV98 NVA0:NVAA]
+14: PCRYPT3 [vdec/vp3/pcrypt3.txt] [NV98:NVA0 NVAA:NVA3]
 14: PVCOMP [vdec/pvcomp.txt] [NVAF-]
 15: PBSP [vdec/vp2/pbsp.txt] [NV84:NV98 NVA0:NVAA]
 15: PVLD [vdec/vp3/pvld.txt] [NV98:NVA0 NVAA-]
