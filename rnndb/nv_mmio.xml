@@ -56,9 +56,9 @@
 <import file="nv40_pcounter.xml" />
 
 <!-- 00b000 - 00bfff PVPE/PMPEG/PME -->
-<import file="nv17_pmpeg.xml" />
-<import file="nv40_pvpe.xml" />
-<import file="nv40_pme.xml" />
+<import file="vdec/nv17_pmpeg.xml" />
+<import file="vdec/nv40_pvpe.xml" />
+<import file="vdec/nv40_pme.xml" />
 
 <!-- 00c000 - 00cfff PCONTROL covered in nv40_pclock.xml, nv50_pclock.xml, nva3_pclock.xml -->
 
@@ -71,10 +71,10 @@
 <import file="nv50_pnvio.xml" />
 
 <!-- 00f000 - 00ffff PVP1 -->
-<import file="nv41_pvp1.xml" />
+<import file="vdec/nv41_pvp1.xml" />
 
 <!-- 00f000 - 00ffff PVP2 -->
-<import file="nv84_pvp2.xml" />
+<import file="vdec/nv84_pvp2.xml" />
 
 <!-- 020000 - 020fff PTHERM -->
 <import file="nv50_ptherm.xml" />
@@ -98,16 +98,16 @@
 <!-- 082000 - 082fff ??? -->
 
 <!-- 084000 - 084fff PVLD -->
-<import file="nv98_pvld.xml" />
+<import file="vdec/nv98_pvld.xml" />
 
 <!-- 085000 - 085fff PVDEC -->
-<import file="nv98_pvdec.xml" />
+<import file="vdec/nv98_pvdec.xml" />
 
 <!-- 086000 - 086fff PPPP -->
-<import file="nv98_pppp.xml" />
+<import file="vdec/nv98_pppp.xml" />
 
 <!-- 087000 - 087fff PCRYPT3 -->
-<import file="nv98_pcrypt3.xml" />
+<import file="vdec/nv98_pcrypt3.xml" />
 
 <!-- 088000 - 088fff PPCI -->
 <import file="nv_pci.xml" />
@@ -139,10 +139,10 @@
 <!-- 101000 - 101fff PTIMER covered in nv01_ptimer.xml -->
 
 <!-- 102000 - 102fff PCRYPT2 -->
-<import file="nv84_pcrypt2.xml" />
+<import file="vdec/nv84_pcrypt2.xml" />
 
 <!-- 103000 - 103fff PBSP -->
-<import file="nv84_pbsp.xml" />
+<import file="vdec/nv84_pbsp.xml" />
 
 <!-- 104000 - 104fff PCOPY -->
 <!-- 105000 - 105fff PCOPY2 -->
@@ -187,10 +187,10 @@
 <import file="nvc0_pcounter.xml" />
 
 <!-- 1c1000 - 1c1fff PVCOMP -->
-<import file="nvaf_pvcomp.xml" />
+<import file="vdec/nvaf_pvcomp.xml" />
 
 <!-- 1c2000 - 1c2fff PVENC -->
-<import file="nve4_pvenc.xml" />
+<import file="vdec/nve4_pvenc.xml" />
 
 <!-- 1c3000 - 1c3fff PUNK1C3 -->
 <import file="nvd9_punk1c3.xml" />
@@ -206,12 +206,12 @@
 <!-- 300000 - 3fffff PROM covered above -->
 
 <!-- 400000 - 5fffff PGRAPH -->
-<import file="nv01_pgraph.xml" />
-<import file="nv03_pgraph.xml" />
-<import file="nv04_pgraph.xml" />
-<import file="nv50_pgraph.xml" />
-<import file="nvc0_pgraph.xml" />
-<import file="nv03_pdma.xml" />
+<import file="graph/nv01_pgraph.xml" />
+<import file="graph/nv03_pgraph.xml" />
+<import file="graph/nv04_pgraph.xml" />
+<import file="graph/nv50_pgraph.xml" />
+<import file="graph/nvc0_pgraph.xml" />
+<import file="graph/nv03_pdma.xml" />
 
 <!-- 600000 - 600fff PFB -->
 <import file="nv01_pfb.xml" />

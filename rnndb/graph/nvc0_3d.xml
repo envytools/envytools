@@ -5,10 +5,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="copyright.xml"/>
 
 <import file="nv_defs.xml"/>
-<import file="nv_3ddefs.xml"/>
+<import file="graph/nv_3ddefs.xml"/>
 <import file="nv_object.xml"/>
 <import file="nv50_defs.xml"/>
-<import file="nve4_p2mf.xml"/>
+<import file="graph/nve4_p2mf.xml"/>
 
 <enum name="nvc0_vtxelt_type" inline="yes">
 	<value value="1" name="SNORM"/>

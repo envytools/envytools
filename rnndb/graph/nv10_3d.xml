@@ -5,7 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nv_defs.xml"/>
-<import file="nv_3ddefs.xml"/>
+<import file="graph/nv_3ddefs.xml"/>
 <import file="nv_object.xml"/>
 
 <enum name="nv10_fog_coord" inline="yes">

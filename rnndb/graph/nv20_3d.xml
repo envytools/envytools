@@ -4,7 +4,7 @@
 	  xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="copyright.xml"/>
 
-<import file="nv10_3d.xml"/>
+<import file="graph/nv10_3d.xml"/>
 
 <enum name="nv20_tex_comp" inline="yes">
 	<value value="0" name="NEVER"/>

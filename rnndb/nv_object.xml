@@ -5,8 +5,9 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="nv_defs.xml" />
 <import file="nv50_defs.xml" />
+
+<spectype name="object" type="hex"/>
 
 <enum name="obj-class" varset="chipset" bare="yes">
 	<value value="0x0002" name="NV01_DMA_FROM_MEMORY"/>
@@ -219,7 +220,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0xa0c0" name="NVE4_COMPUTE" variants="NVE4:NVF0"/>
 	<value value="0xa1c0" name="NVF0_COMPUTE" variants="NVF0-"/>
 
-	<value value="0x74c1" name="NV84_CRYPT" variants="NV84:NV98 NVA0"/>
+	<value value="0x74c1" name="NV84_CRYPT2" variants="NV84:NV98 NVA0"/>
 	
 	<value value="0xa0b5" name="NVE4_COPY" variants="NVE4-"/>
 
@@ -227,7 +228,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x3174" name="NV31_MPEG" variants="NV31:NV84"/>
 	<value value="0x8274" name="NV84_MPEG" variants="NV84:NV98 NVA0"/>
 	<value value="0x4075" name="NV40_ME" variants="NV40:NV84"/>
-	<value value="0x4176" name="NV41_VP" variants="NV41:NV84"/>
+	<value value="0x4176" name="NV41_VP1" variants="NV41:NV84"/>
 </enum>
 
 <domain name="NV01_SUBCHAN" bare="yes" size="0x8000">
@@ -275,7 +276,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x7c" name="UNK7C" variants="NVC0-"/>
 		<reg32 offset="0x80" name="YIELD" variants="NV40-"/>
 	</stripe>
-	<stripe name="GRAPH" prefix="chipset" varset="obj-class" variants="NV01_BETA:NV84_CRYPT">
+	<stripe name="GRAPH" prefix="chipset" varset="obj-class" variants="NV01_BETA:NV84_CRYPT2">
 		<doc>Methods available on all PGRAPH objects.</doc>
 		<reg32 offset="0x0100" name="NOP" variants="NV04-" />
 		<reg32 offset="0x0104" name="NOTIFY" variants="NV04:NVC0">

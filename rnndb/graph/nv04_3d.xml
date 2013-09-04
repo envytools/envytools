@@ -6,7 +6,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 
 <import file="nv_object.xml" />
 <import file="nv_defs.xml" />
-<import file="nv_3ddefs.xml" />
+<import file="graph/nv_3ddefs.xml" />
 
 <enum name="nv04_tex_format" inline="yes">
 	<value value="0x0001" name="Y8"/>

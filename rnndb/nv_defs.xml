@@ -140,6 +140,4 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	</reg32>
 </group>
 
-<spectype name="object" type="hex"/>
-
 </database>
