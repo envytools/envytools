@@ -1,14 +1,14 @@
 Instruction / register types
 
-A - arithmetic, logic, and moving data around	[fuc/arith.txt]
-B - branching and flow control			[fuc/branch.txt]
-C - uc control					[fuc/proc.txt]
-D - access to data space			[fuc/data.txt]
-I - access to IO space				[fuc/io.txt]
-S - secret stuff				[fuc/crypt.txt]
-T - traps and interrupts			[fuc/intr.txt]
-V - virtual memory				[fuc/vm.txt]
-X - external xfers				[fuc/xfer.txt]
+A - arithmetic, logic, and moving data around	[falcon/arith.txt]
+B - branching and flow control			[falcon/branch.txt]
+C - uc control					[falcon/proc.txt]
+D - access to data space			[falcon/data.txt]
+I - access to IO space				[falcon/io.txt]
+S - secret stuff				[falcon/crypt.txt]
+T - traps and interrupts			[falcon/intr.txt]
+V - virtual memory				[falcon/vm.txt]
+X - external xfers				[falcon/xfer.txt]
 3 - v3+ only insn
 4 - v4+ only insn
 
@@ -164,9 +164,9 @@ Unsized
  iord    |I   | f|  |  |  |  |  |  |  |  |  |  |  |  |  | f| U |-   |-    |  ~1-x| read IO port
  iowr    |I   |  | 0|  |  |  |  |  |  |  |  | 0|  |  |  |  | U |-   |-    |   1-x| write IO port asynchronous
  iowrs   |I3  |  | 1|  |  |  |  |  |  |  |  | 1|  |  |  |  | U |N/A |-    |   9-x| write IO port synchronous
- xcld    |X   |  |  |  |  |  |  |  |  |  |  | 4|  |  |  |  |   |-   |-    |      | code xfer to fuc
- xdld    |X   |  |  |  |  |  |  |  |  |  |  | 5|  |  |  |  |   |-   |-    |      | data xfer to fuc
- xdst    |X   |  |  |  |  |  |  |  |  |  |  | 6|  |  |  |  |   |-   |-    |      | data xfer from fuc
+ xcld    |X   |  |  |  |  |  |  |  |  |  |  | 4|  |  |  |  |   |-   |-    |      | code xfer to falcon
+ xdld    |X   |  |  |  |  |  |  |  |  |  |  | 5|  |  |  |  |   |-   |-    |      | data xfer to falcon
+ xdst    |X   |  |  |  |  |  |  |  |  |  |  | 6|  |  |  |  |   |-   |-    |      | data xfer from falcon
  setp    |A   |  |  |  |  |  | 8|  |  |  |  | 8|  |  |  |  |   |-   |-    |      | set predicate
  ccmd    |S   |  |  |  |  |  | c|3c|3c|  |  |  |  |  |  |  |   |-   |-    |      | crypto coprocessor command
  bra [r] |B   |  |  |  |  |  |  |0x|0x|  |  |  |  |  |  |  | S |-   |-    |     5| branch relative conditional
@@ -198,21 +198,21 @@ Unsized
 
 Code segment
 
-fuc has separate code and data spaces. Code segment, like data segment, is
+falcon has separate code and data spaces. Code segment, like data segment, is
 located in small piece of SRAM in the microcontroller. Its size can be
-determined by looking at MMIO address fuc+0x108, bits 0-8 shifted left by 8.
+determined by looking at MMIO address falcon+0x108, bits 0-8 shifted left by 8.
 
 Code is byte-oriented, but can only be accessed by 32-bit words from outside,
 and can only be modified in 0x100-byte [page] units.
 
 On pre-NVA3, code segment is just a flat piece of RAM, except for the per-page
-secret flag. See fuc/io.txt for information on uploading code and data.
+secret flag. See falcon/io.txt for information on uploading code and data.
 
 On NVA3+, code segment is paged with virtual -> physical translation and needs
-special handling. See fuc/vm.txt for details.
+special handling. See falcon/vm.txt for details.
 
 Code execution is started by host via MMIO from arbitrary entry point, and is
-stopped either by host or by the microcode itself, see fuc/proc.txt
+stopped either by host or by the microcode itself, see falcon/proc.txt
 
 When an invalid opcode is hit, $pc is unmodified and a trap is generated. On
 NVA3+, $tstatus reason field is set to 8. Pre-NVA3 cards don't have $tstatus

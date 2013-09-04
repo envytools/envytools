@@ -50,24 +50,24 @@ idx|   name   |   cards   | description
 --------------|           |---------------------------------------------------
 5/-| PCRYPT   |           | AES cryptography and copy engine. [see vdec/vp2/crypt.txt]
 ------------------------------------------------------------------------------
-2/2| PPPP     |           | VP3 fuc-microcoded video decoding engines: picture
+2/2| PPPP     |           | VP3 falcon-microcoded video decoding engines: picture
 --------------|           | post-processor, video processor, bitstream
 4/1| PVP      | NV98:.... | processor. [see vdec/vp3/pbsp.txt,
 --------------|           | vdec/vp3/pvp.txt, vdec/vp3/pppp.txt]
 6/3| PBSP     |           |
 ------------------------------------------------------------------------------
-   |          |           | fuc-microcoded engine with AES crypto coprocessor.
+   |          |           | falcon-microcoded engine with AES crypto coprocessor.
 5/-| PCRYPT   | NV98:NVA3 | On NVA3+, the crypto powers were instead merged
    |          |           | into PVP. [see vdec/vp3/pcrypt.txt]
 ------------------------------------------------------------------------------
-5/-| PVCOMP   | NVAF:NVC0 | fuc-microcoded video compositing engine
+5/-| PVCOMP   | NVAF:NVC0 | falcon-microcoded video compositing engine
    |          |           | [see vdec/pvcomp.txt]
 ------------------------------------------------------------------------------
-3/ |          |           | fuc-microcoded engine, meant to copy stuff from
+3/ |          |           | falcon-microcoded engine, meant to copy stuff from
 4,5| PCOPY    | NVA3:.... | point A to point B. Comes in two copies on NVC0+,
    |          |           | three copies on NVE4+ [see fifo/pcopy.txt]
 ------------------------------------------------------------------------------
--/6| PVENC    | NVE4:.... | fuc-microcoded H.264 encoding engine [vdec/pvenc.txt]
+-/6| PVENC    | NVE4:.... | falcon-microcoded H.264 encoding engine [vdec/pvenc.txt]
 ------------------------------------------------------------------------------
 idx is the FIFO engine id. The first number is the id for pre-nvc0 cards, the
 second is for nvc0+ cards.

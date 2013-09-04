@@ -317,7 +317,7 @@ MMIO 0x000648: INTR_MASK_DAEMON [NVA3-]
 
 The HOST and NRHOST output interrupt lines are connected to the PCI INTA pin
 on the card. HOST goes through PDAEMON's HOST interrupt masking circuitry
-[IHM], while NRHOST doesn't. DAEMON goes to PDAEMON's fµc interrupt line #10
+[IHM], while NRHOST doesn't. DAEMON goes to PDAEMON's falcon interrupt line #10
 [PMC_DAEMON].
 
 On pre-NVA3, each PMC interrupt input is a single 0/1 line. On NVA3+, some

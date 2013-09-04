@@ -468,7 +468,7 @@ NV84:
  - PEEPHOLE moved out of PBUS
  - PFIFO_BAR_FLUSH moved out of PFIFO
 NV98:
- - introduced VP3 video decoding engines, and the fµc microcode with them
+ - introduced VP3 video decoding engines, and the falcon microcode with them
  - got rid of VP2 video decoding
 NVA0:
  - developped in parallel with NV98
@@ -480,9 +480,9 @@ NVAA:
  - merged NVA0 and NV98 changes: has both VP3 and new PGRAPH
  - only CUDA ISA 1.2 now: fp64 support got cut out again
 NVA3:
- - a new revision of the fµc ISA
+ - a new revision of the falcon ISA
  - a revision to VP3 video decoding, known as VP4. Adds MPEG-4 ASP support.
- - added PDAEMON, a fµc engine meant to do card monitoring and power maanagement
+ - added PDAEMON, a falcon engine meant to do card monitoring and power maanagement
  - PGRAPH additions for D3D10.1 support
  - added HDA audio codec for HDMI sound support, on a separate PCI function
  - Added PCOPY, the dedicated copy engine
@@ -538,7 +538,7 @@ NVC0:
    - split into a central HUB managing everything and several GPCs
      doing all actual work
    - GPCs further split into a common part and several TPs
-   - using fµc for context switching
+   - using falcon for context switching
    - D3D11 support
  - redesigned memory controller
    - split into three parts:
@@ -554,8 +554,8 @@ NVC0:
 [XXX: ...]
 NVD9:
  - a major revision to VP3 video decoding, now called VP5. vµc microcode removed.
- - another revision to the fµc ISA, allowing 24-bit PC
- - added PUNK1C3 fµc engine
+ - another revision to the falcon ISA, allowing 24-bit PC
+ - added PUNK1C3 falcon engine
  - redesigned I2C bus interface
  - redesigned PDISPLAY
  - removed second PCOPY engine
@@ -563,7 +563,7 @@ NVD7:
  - PGRAPH changes:
    - ??? [XXX]
 NVE4:
- - redesigned PCOPY: the fµc controller is now gone, replaced with hardware
+ - redesigned PCOPY: the falcon controller is now gone, replaced with hardware
    control logic, partially in PFIFO
  - an additional PCOPY engine
  - PFIFO redesign - a channel can now only access a single engine selected on

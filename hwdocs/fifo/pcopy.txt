@@ -45,20 +45,20 @@ NVC0 VM client:
 
 The IO registers:
 
-600/18000:640/19000 MEMIF	memory interface	[fuc/memif.txt]
+600/18000:640/19000 MEMIF	memory interface	[falcon/memif.txt]
 640/19000:680/1a000 ???		???			[fifo/pcopy.txt]
 800/20000:880/22000 COPY	copy engine		[fifo/pcopy.txt]
 900/24000:980/26000 ???		???			[fifo/pcopy.txt]
 
 Interrupts:
-  8: [E] MEMIF_TARGET_INVALID [NVA3:NVC0] [fuc/memif.txt]
-  9: [E] MEMIF_FAULT [NVA3:NVC0] [fuc/memif.txt]
-  9: [E] MEMIF_BREAK [NVC0-] [fuc/memif.txt]
+  8: [E] MEMIF_TARGET_INVALID [NVA3:NVC0] [falcon/memif.txt]
+  9: [E] MEMIF_FAULT [NVA3:NVC0] [falcon/memif.txt]
+  9: [E] MEMIF_BREAK [NVC0-] [falcon/memif.txt]
  10: [L] COPY_BLOCK
  11: [L] COPY_NONBLOCK
 
 Status bits:
-  0: fµc [fuc/proc.txt]
-  1: MEMIF [fuc/memif.txt] and COPY [fifo/pcopy.txt]
+  0: falcon [falcon/proc.txt]
+  1: MEMIF [falcon/memif.txt] and COPY [fifo/pcopy.txt]
 
 [XXX: describe PCOPY]

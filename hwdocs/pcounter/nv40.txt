@@ -172,7 +172,7 @@ set 0:
 == NVAC signals ==
 
 set 2:
-0xd4-0xd9: PCRYPT_USER_0-5 [fuc/perf.txt]
+0xd4-0xd9: PCRYPT_USER_0-5 [falcon/perf.txt]
 
 === NVA5 signals ===
 
@@ -236,15 +236,15 @@ set 6 [vdec]:
 0x19-0x1b: PBSP uc execution
 0x22: PBSP PM_TRIGGER
 0x23: PBSP WRCACHE_FLUSH
-0x24-0x29: PBSP_USER_0-5 [fuc/perf.txt]
+0x24-0x29: PBSP_USER_0-5 [falcon/perf.txt]
 0x2b: PPPP
 0x36: PPPP PM_TRIGGER
 0x37: PPPP WRCACHE_FLUSH
-0x38-0x3d: PPPP_USER_0-5 [fuc/perf.txt]
+0x38-0x3d: PPPP_USER_0-5 [falcon/perf.txt]
 0x3f: PVP
 0x4a: PVP PM_TRIGGER
 0x4b: PVP WRCACHE_FLUSH
-0x4c-0x51: PVP_USER_0-5 [fuc/perf.txt]
+0x4c-0x51: PVP_USER_0-5 [falcon/perf.txt]
 0x54-0x58: PBSP
 0x5f-0x7e: PPPP
 0x88-0x8c: vµc
@@ -383,18 +383,18 @@ signal           |98|aa|ac|a3|a5|a8|af| documentation
 -----------------+--+--+--+--+--+--+--+---------------
 PCOUNTER USER_0  |--|--|--|??|10|??|10| pcounter/intro.txt
 PCOUNTER_USER_1  |--|--|--|??|11|??|11| pcounter/intro.txt
-PCOPY_USER_0     |--|--|--|??|2d|??|2d| fuc/perf.txt
-PCOPY_USER_1     |--|--|--|??|2e|??|2e| fuc/perf.txt
-PCOPY_USER_2     |--|--|--|??|2f|??|2f| fuc/perf.txt
-PCOPY_USER_3     |--|--|--|??|30|??|30| fuc/perf.txt
-PCOPY_USER_4     |--|--|--|??|31|??|31| fuc/perf.txt
-PCOPY_USER_5     |--|--|--|??|32|??|32| fuc/perf.txt
-PDAEMON_USER_0   |--|--|--|??|4e|??|4e| fuc/perf.txt
-PDAEMON_USER_1   |--|--|--|??|4f|??|4f| fuc/perf.txt
-PDAEMON_USER_2   |--|--|--|??|50|??|50| fuc/perf.txt
-PDAEMON_USER_3   |--|--|--|??|51|??|51| fuc/perf.txt
-PDAEMON_USER_4   |--|--|--|??|52|??|52| fuc/perf.txt
-PDAEMON_USER_5   |--|--|--|??|53|??|53| fuc/perf.txt
+PCOPY_USER_0     |--|--|--|??|2d|??|2d| falcon/perf.txt
+PCOPY_USER_1     |--|--|--|??|2e|??|2e| falcon/perf.txt
+PCOPY_USER_2     |--|--|--|??|2f|??|2f| falcon/perf.txt
+PCOPY_USER_3     |--|--|--|??|30|??|30| falcon/perf.txt
+PCOPY_USER_4     |--|--|--|??|31|??|31| falcon/perf.txt
+PCOPY_USER_5     |--|--|--|??|32|??|32| falcon/perf.txt
+PDAEMON_USER_0   |--|--|--|??|4e|??|4e| falcon/perf.txt
+PDAEMON_USER_1   |--|--|--|??|4f|??|4f| falcon/perf.txt
+PDAEMON_USER_2   |--|--|--|??|50|??|50| falcon/perf.txt
+PDAEMON_USER_3   |--|--|--|??|51|??|51| falcon/perf.txt
+PDAEMON_USER_4   |--|--|--|??|52|??|52| falcon/perf.txt
+PDAEMON_USER_5   |--|--|--|??|53|??|53| falcon/perf.txt
 [trailer base]   |60|??|00|60|60|??|60| pcounter/intro.txt
 
 
@@ -407,47 +407,47 @@ signal           |98|aa|ac|a3|a5|a8|af| documentation
 -----------------+--+--+--+--+--+--+--+---------------
 PCOUNTER USER_0  |--|--|--|??|10|??|10| pcounter/intro.txt
 PCOUNTER_USER_1  |--|--|--|??|11|??|11| pcounter/intro.txt
-PBSP_IDLE        |12|??|??|??|18|??|??| fuc/perf.txt
-PBSP_TA          |15|??|??|??|1b|??|??| fuc/perf.txt
-PBSP_PM_TRIGGER  |1c|??|??|??|22|??|??| fuc/perf.txt
-PBSP_WRCACHE_FL  |1d|??|??|??|23|??|??| fuc/perf.txt
-PBSP_USER_0      |1e|??|1e|??|24|??|24| fuc/perf.txt
-PBSP_USER_1      |1f|??|1f|??|25|??|25| fuc/perf.txt
-PBSP_USER_2      |20|??|20|??|26|??|26| fuc/perf.txt
-PBSP_USER_3      |21|??|21|??|27|??|27| fuc/perf.txt
-PBSP_USER_4      |22|??|22|??|28|??|28| fuc/perf.txt
-PBSP_USER_5      |23|??|23|??|29|??|29| fuc/perf.txt
-PPPP_IDLE        |42|??|??|??|2c|??|??| fuc/perf.txt
-PPPP_TA          |45|??|??|??|2f|??|??| fuc/perf.txt
-PPPP_PM_TRIGGER  |4c|??|??|??|36|??|??| fuc/perf.txt
-PPPP_WRCACHE_FL  |4d|??|??|??|37|??|??| fuc/perf.txt
-PPPP_USER_0      |4e|??|4e|??|38|??|38| fuc/perf.txt
-PPPP_USER_1      |4f|??|4f|??|39|??|39| fuc/perf.txt
-PPPP_USER_2      |50|??|50|??|3a|??|3a| fuc/perf.txt
-PPPP_USER_3      |51|??|51|??|3b|??|3b| fuc/perf.txt
-PPPP_USER_4      |52|??|52|??|3c|??|3c| fuc/perf.txt
-PPPP_USER_5      |53|??|53|??|3d|??|3d| fuc/perf.txt
+PBSP_IDLE        |12|??|??|??|18|??|??| falcon/perf.txt
+PBSP_TA          |15|??|??|??|1b|??|??| falcon/perf.txt
+PBSP_PM_TRIGGER  |1c|??|??|??|22|??|??| falcon/perf.txt
+PBSP_WRCACHE_FL  |1d|??|??|??|23|??|??| falcon/perf.txt
+PBSP_USER_0      |1e|??|1e|??|24|??|24| falcon/perf.txt
+PBSP_USER_1      |1f|??|1f|??|25|??|25| falcon/perf.txt
+PBSP_USER_2      |20|??|20|??|26|??|26| falcon/perf.txt
+PBSP_USER_3      |21|??|21|??|27|??|27| falcon/perf.txt
+PBSP_USER_4      |22|??|22|??|28|??|28| falcon/perf.txt
+PBSP_USER_5      |23|??|23|??|29|??|29| falcon/perf.txt
+PPPP_IDLE        |42|??|??|??|2c|??|??| falcon/perf.txt
+PPPP_TA          |45|??|??|??|2f|??|??| falcon/perf.txt
+PPPP_PM_TRIGGER  |4c|??|??|??|36|??|??| falcon/perf.txt
+PPPP_WRCACHE_FL  |4d|??|??|??|37|??|??| falcon/perf.txt
+PPPP_USER_0      |4e|??|4e|??|38|??|38| falcon/perf.txt
+PPPP_USER_1      |4f|??|4f|??|39|??|39| falcon/perf.txt
+PPPP_USER_2      |50|??|50|??|3a|??|3a| falcon/perf.txt
+PPPP_USER_3      |51|??|51|??|3b|??|3b| falcon/perf.txt
+PPPP_USER_4      |52|??|52|??|3c|??|3c| falcon/perf.txt
+PPPP_USER_5      |53|??|53|??|3d|??|3d| falcon/perf.txt
 VUC_IDLE         |5d|??|??|??|88|??|??| vdec/vuc/perf.txt
 VUC_SLEEP        |5e|??|??|??|89|??|??| vdec/vuc/perf.txt
 VUC_WATCHDOG     |5f|??|??|??|8a|??|??| vdec/vuc/perf.txt
 VUC_USER_CONT    |60|??|??|??|8b|??|??| vdec/vuc/perf.txt
 VUC_USER_PULSE   |61|??|??|??|8c|??|??| vdec/vuc/perf.txt
-PVP_IDLE         |90|??|??|??|40|??|??| fuc/perf.txt
-PVP_TA           |93|??|??|??|43|??|??| fuc/perf.txt
-PVP_PM_TRIGGER   |9a|??|??|??|4a|??|??| fuc/perf.txt
-PVP_WRCACHE_FL   |9b|??|??|??|4b|??|??| fuc/perf.txt
-PVP_USER_0       |9c|??|9c|??|4c|??|4c| fuc/perf.txt
-PVP_USER_1       |9d|??|9d|??|4d|??|4d| fuc/perf.txt
-PVP_USER_2       |9e|??|9e|??|4e|??|4e| fuc/perf.txt
-PVP_USER_3       |9f|??|9f|??|4f|??|4f| fuc/perf.txt
-PVP_USER_4       |a0|??|a0|??|50|??|50| fuc/perf.txt
-PVP_USER_5       |a1|??|a1|??|51|??|51| fuc/perf.txt
-PVCOMP_USER_0    |--|--|--|--|--|--|60| fuc/perf.txt
-PVCOMP_USER_1    |--|--|--|--|--|--|61| fuc/perf.txt
-PVCOMP_USER_2    |--|--|--|--|--|--|62| fuc/perf.txt
-PVCOMP_USER_3    |--|--|--|--|--|--|63| fuc/perf.txt
-PVCOMP_USER_4    |--|--|--|--|--|--|64| fuc/perf.txt
-PVCOMP_USER_5    |--|--|--|--|--|--|65| fuc/perf.txt
+PVP_IDLE         |90|??|??|??|40|??|??| falcon/perf.txt
+PVP_TA           |93|??|??|??|43|??|??| falcon/perf.txt
+PVP_PM_TRIGGER   |9a|??|??|??|4a|??|??| falcon/perf.txt
+PVP_WRCACHE_FL   |9b|??|??|??|4b|??|??| falcon/perf.txt
+PVP_USER_0       |9c|??|9c|??|4c|??|4c| falcon/perf.txt
+PVP_USER_1       |9d|??|9d|??|4d|??|4d| falcon/perf.txt
+PVP_USER_2       |9e|??|9e|??|4e|??|4e| falcon/perf.txt
+PVP_USER_3       |9f|??|9f|??|4f|??|4f| falcon/perf.txt
+PVP_USER_4       |a0|??|a0|??|50|??|50| falcon/perf.txt
+PVP_USER_5       |a1|??|a1|??|51|??|51| falcon/perf.txt
+PVCOMP_USER_0    |--|--|--|--|--|--|60| falcon/perf.txt
+PVCOMP_USER_1    |--|--|--|--|--|--|61| falcon/perf.txt
+PVCOMP_USER_2    |--|--|--|--|--|--|62| falcon/perf.txt
+PVCOMP_USER_3    |--|--|--|--|--|--|63| falcon/perf.txt
+PVCOMP_USER_4    |--|--|--|--|--|--|64| falcon/perf.txt
+PVCOMP_USER_5    |--|--|--|--|--|--|65| falcon/perf.txt
 [trailer base]   |a0|??|a0|c0|c0|??|e0| pcounter/intro.txt
 
 

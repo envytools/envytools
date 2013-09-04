@@ -9,20 +9,20 @@ TOC
 
 = Introduction =
 
-The fuc has a builtin DMA controller that allows running asynchronous copies
-beteween fuc data/code segments and external memory.
+The falcon has a builtin DMA controller that allows running asynchronous copies
+beteween falcon data/code segments and external memory.
 
 An xfer request consists of the following:
 
- - mode: code load [external -> fuc code], data load [external -> fuc data],
-   or data store [fuc data -> external]
+ - mode: code load [external -> falcon code], data load [external -> falcon data],
+   or data store [falcon data -> external]
  - external port: 0-7. Specifies which external memory space the xfer should
    use.
  - external base: 0-0xffffffff. Shifted left by 8 bits to obtain the base
    address of the transfer in external memory.
  - external offset: 0-0xffffffff. Offset in external memory, and for v3+
    code segments, virtual address that code should be loaded at.
- - local address: 0-0xffff. Offset in fuc code/data segment where data should
+ - local address: 0-0xffff. Offset in falcon code/data segment where data should
    be transferred. Physical address for code xfers.
  - xfer size: 0-6 for data xfers, ignored for code xfers [always effectively
    6]. The xfer copies (4<<size) bytes.
@@ -31,26 +31,26 @@ An xfer request consists of the following:
 [XXX: one more unknown flag on secret engines]
 
 Note that xfer functionality is greatly enhanced on secret engines to cover
-copying data to/from crypto registers. See fuc/crypt.txt for details.
+copying data to/from crypto registers. See falcon/crypt.txt for details.
 
-xfer requests can be submitted either through special fuc instructions, or
+xfer requests can be submitted either through special falcon instructions, or
 through poking IO registers. The requests are stored in a queue and processed
 asynchronously.
 
 A data load xfer copies (4<<$size) bytes from external memory port $port
-at address ($ext_base << 8) + $ext_offset to fuc data segment at address
+at address ($ext_base << 8) + $ext_offset to falcon data segment at address
 $local_address. external offset and local address have to be aligned to the
 xfer size.
 
 A code load xfer copies 0x100 bytes from external memory port $port at address
-($ext_base << 8) + $ext_offset to fuc code segment at physical address
+($ext_base << 8) + $ext_offset to falcon code segment at physical address
 $local_address. Right after queuing the transfer, the code page is marked
 "busy" and, for v3+, mapped to virtual address $ext_offset. If the secret
 flag is set, it'll also be set for the page. When the transfer is finished,
 The page flags are set to "usable" for non-secret pages, or "secret" for
 secret pages.
 
-There are 3 fuc special registers that hold parameters for uc-originated xfer
+There are 3 falcon special registers that hold parameters for uc-originated xfer
 requests. $xdbase stores ext_base for data loads/stores, $xcbase stores
 ext_base for code loads. $xtargets stores the ports for various types of
 xfer:
@@ -59,8 +59,8 @@ xfer:
  - bits 8-10: port for data loads
  - bits 12-14: port for data stores
 
-The external memory that fuc will use depends on the particular engine.
-See graph/nvc0-ctxctl/memif.txt for NVC0 PGRAPH fucs, fuc/memif.txt for
+The external memory that falcon will use depends on the particular engine.
+See graph/nvc0-ctxctl/memif.txt for NVC0 PGRAPH CTXCTLs, falcon/memif.txt for
 the other engines.
 
 

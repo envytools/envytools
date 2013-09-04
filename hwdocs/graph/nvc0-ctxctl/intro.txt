@@ -43,7 +43,7 @@ d80/36000:dc0/37000 ???		??? - related to MEMIF? [XXX] [NVE4-]
 
 Registers in CC range:
 400/10000  INTR			interrupt signals
-404/101xx  INTR_ROUTE		fµc interrupt routing
+404/101xx  INTR_ROUTE		falcon interrupt routing
 40c/1030x  BAR_REQMASK[0]	barrier required bits
 410/1040x  BAR_REQMASK[1]	barrier required bits
 414/1050x  BAR			barrier state
@@ -65,7 +65,7 @@ Registers in MC range:
 610/18400H ???			[XXX]
 614/18500  RED_SWITCH		enable/power/pause master control
 618/18600G GPCID		the id of containing GPC
-620/18800  UC_CAPS		fµc code and data size
+620/18800  UC_CAPS		falcon code and data size
 698/1a600G ???			[XXX]
 69c/1a700G ???			[XXX]
 
@@ -113,7 +113,7 @@ c90/32400G TRAP			GPC trap status
 c94/32500G TRAP_EN		GPC trap enable
 
 Interrupts:
- 0-7: standard fµc intterrupts
+ 0-7: standard falcon intterrupts
  8-15: controlled by INTR_ROUTE
 
 

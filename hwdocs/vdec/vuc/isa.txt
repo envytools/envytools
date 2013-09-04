@@ -626,7 +626,7 @@ Predicate output: the comparison result
 
 clamplep clamps src1 to [0, src2] range. clamps, like the xtensa instruction
 of the same name, clamps src1 to [-(1 << src2), (1 << src2) - 1] range, ie.
-to the set of (src2+1)-bit signed integers. sext, like the xteansa and fµc
+to the set of (src2+1)-bit signed integers. sext, like the xteansa and falcon
 instructions of the same name, replaces bits src2 and up with a copy of bit
 src2, effectively doing a sign extension from a (src2+1)-bit signed number.
 
@@ -730,7 +730,7 @@ Predicate output:
 
 == Swapping reg halves: hswap ==
 
-hswap, like the fµc instruction of the same name, rotates a value by half its
+hswap, like the falcon instruction of the same name, rotates a value by half its
 size, which is always 8 bits for vµc.
 
 Instructions:
@@ -961,7 +961,7 @@ Execution time:
 = The scratch special registers =
 
 The vµc has two 16-bit scratch registers that may be used for communication
-between vµc and the host [xtensa/fµc code counts at the host in this case].
+between vµc and the host [xtensa/falcon code counts at the host in this case].
 One of them is for host -> vµc direction, the other for vµc -> host.
 
 The host -> vµc register is called $h2v. It's RW on the host side, RO on vµc

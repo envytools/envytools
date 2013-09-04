@@ -1,0 +1,287 @@
+TOC
+
+0. Introduction
+1. Common IO register list
+2. Scratch registers
+3. Engine status and control registers
+4. PCOUNTER signal control registers
+5. v0 code/data upload registers
+6. IO space writes: iowr, iowrs
+7. IO space reads: iord
+
+
+= Introduction =
+
+Every falcon engine has an associated IO space. The space consists of 32-bit IO
+registers, and is accessible in two ways:
+
+ - host access by MMIO areas in BAR0
+ - falcon access by io* instructions
+
+The IO space contains control registers for the microprocessor itself,
+interrupt and timer setup, code/data space access ports, PFIFO communication
+registers, as well as registers for the engine-specific hardware that falcon
+is meant to control.
+
+The addresses are different between falcon and host. From falcon POV, the IO space
+is word-addressable 0x40000-byte space. However, most registers are duplicated
+64 times: bits 2-7 of the address are ignored. The few registers that don't
+ignore these bits are called "indexed" registers. From host POV, the falcon IO
+space is a 0x1000-byte window in BAR0. Its base address is engine-dependent.
+First 0xf00 bytes of this window are tied to the falcon IO space, while last 0x100
+bytes contain several host-only registers. On nva3-d9, host mmio address
+falcon_base + X is directed to falcon IO space address X << 6 | HOST_IO_INDEX << 2.
+On nvd9+, some engines stopped using the indexed accesses. On those,
+host mmio address falcon_base + X is directed to falcon IO space address X.
+HOST_IO_INDEX is specified in the host-only MMIO register falcon_base + 0xffc:
+
+MMIO 0xffc: HOST_IO_INDEX
+  bits 0-5: selects bits 2-7 of the falcon IO space when accessed from host.
+
+Unaligned accesses to the IO space are unsupported, both from host and falcon.
+Low 2 bits of addresses should be 0 at all times.
+
+The host MMIO base addresses for various engines are:
+
+PBSP			084000
+PVP			085000
+PPPP			086000
+PCRYPT			087000
+PCOPY[0]		104000
+PCOPY[1]		105000
+PDAEMON			10a000
+PVCOMP			1c1000
+PGRAPH.CTXCTL		409000
+PGRAPH.TP[i].CTXCTL	502000 + i * 0x8000
+
+
+= Common IO register list =
+
++ means v3+ only register.
+* means v4+ only register
+S means secret register. [see falcon/crypt.txt]
+X means only present on falcon engines with UNK31 cap
+U means only present on falcon engines with UAS cap
+
+host/I[] address / name / file
+
+000/00000  INTR_SET		trigger interrupt	[falcon/intr.txt]
+004/00100  INTR_CLEAR		clear interrupt		[falcon/intr.txt]
+008/00200  INTR			interrupt status	[falcon/intr.txt]
+00c/00300+ INTR_MODE		interrupt edge/level	[falcon/intr.txt]
+010/00400  INTR_EN_SET		interrupt enable set	[falcon/intr.txt]
+014/00500  INTR_EN_CLR		interrupt enable clear	[falcon/intr.txt]
+018/00600  INTR_EN		interrupt enable status	[falcon/intr.txt]
+01c/00700  INTR_DISPATCH	interrupt routing	[falcon/intr.txt]
+020/00800  PERIODIC_PERIOD	periodic timer period	[falcon/timer.txt]
+024/00900  PERIODIC_TIME	periodic timer counter	[falcon/timer.txt]
+028/00a00  PERIODIC_ENABLE	periodic interrupt en	[falcon/timer.txt]
+02c/00b00  TIME_LOW		PTIMER time low		[falcon/timer.txt]
+030/00c00  TIME_HIGH		PTIMER time high	[falcon/timer.txt]
+034/00d00  WATCHDOG_TIME	watchdog timer counter	[falcon/timer.txt]
+038/00e00  WATCHDOG_ENABLE	watchdog interrupt en	[falcon/timer.txt]
+040/01000  SCRATCH0		scratch register	[falcon/io.txt]
+044/01100  SCRATCH1		scratch register	[falcon/io.txt]
+048/01200  FIFO_ENABLE		PFIFO access enable	[falcon/fifo.txt]
+04c/01300  STATUS		busy/idle status	[falcon/io.txt]
+050/01400  CHANNEL_CUR		current PFIFO channel	[falcon/fifo.txt]
+054/01500  CHANNEL_NEXT		next PFIFO channel	[falcon/fifo.txt]
+058/01600  CHANNEL_CMD		PFIFO channel control	[falcon/fifo.txt]
+05c/01700  STATUS_MASK		busy/idle status mask?	[falcon/io.txt]
+060/01800  ???			???
+064/01900  FIFO_DATA		FIFO command data	[falcon/fifo.txt]
+068/01a00  FIFO_CMD		FIFO command		[falcon/fifo.txt]
+06c/01b00* ???			FIFO ???		[falcon/fifo.txt]
+070/01c00  FIFO_OCCUPIED	FIFO commands available	[falcon/fifo.txt]
+074/01d00  FIFO_ACK		FIFO command ack	[falcon/fifo.txt]
+078/01e00  FIFO_LIMIT		FIFO size		[falcon/fifo.txt]
+07c/01f00  SUBENGINE_RESET	reset subengines	[falcon/io.txt]
+080/02000  SCRATCH2		scratch register	[falcon/io.txt]
+084/02100  SCRATCH3		scratch register	[falcon/io.txt]
+088/02200  PM_TRIGGER		perfmon triggers	[falcon/perf.txt]
+08c/02300  PM_MODE		perfmon signal mode	[falcon/perf.txt]
+090/02400  ???			???
+094/02500+ ???			???
+098/02600+ BREAKPOINT[0]	code breakpoint		[falcon/debug.txt]
+09c/02700+ BREAKPOINT[1]	code breakpoint		[falcon/debug.txt]
+0a0/02800+ ???			???
+0a4/02900+ ???			???
+0a8/02a00* PM_SEL		perfmon signal select	[falcon/perf.txt]
+0ac/02b00* HOST_IO_INDEX	IO space index for host	[falcon/io.txt] [XXX: doc]
+100/04000  UC_CTRL		microprocessor control	[falcon/proc.txt]
+104/04100  UC_ENTRY		microcode entry point	[falcon/proc.txt]
+108/04200  UC_CAPS		microprocessor caps	[falcon/proc.txt]
+10c/04300  UC_BLOCK_ON_FIFO	microprocessor block	[falcon/proc.txt]
+110/04400  XFER_EXT_BASE	xfer external base	[falcon/xfer.txt]
+114/04500  XFER_FUC_ADDR	xfer falcon address	[falcon/xfer.txt]
+118/04600  XFER_CTRL		xfer control		[falcon/xfer.txt]
+11c/04700  XFER_EXT_ADDR	xfer external offset	[falcon/xfer.txt]
+120/04800  XFER_STATUS		xfer status		[falcon/xfer.txt]
+124/04900S CX_STATUS		crypt xfer status	[falcon/crypt.txt]
+128/04a00+ UC_STATUS		microprocessor status	[falcon/proc.txt]
+12c/04b00+ UC_CAPS2		microprocessor caps	[falcon/proc.txt]
+140/05000+ TLB_CMD		code VM command		[falcon/vm.txt]
+144/05100+ TLB_CMD_RES		code VM command result	[falcon/vm.txt]
+148/05200* ???			???
+14c/05300* ???			???
+150/05400X ???			???
+154/05500X ???			???
+158/05600X ???			???
+160/05800U UAS_IO_WINDOW	UAS I[] space window	[falcon/data.txt]
+164/05900U UAS_CONFIG		UAS configuration	[falcon/data.txt]
+168/05a00U UAS_FAULT_ADDR	UAS MMIO fault address	[falcon/data.txt]
+16c/05b00U UAS_FAULT_STATUS	UAS MMIO fault status	[falcon/data.txt]
+180/06000+ CODE_INDEX		code access window addr	[falcon/vm.txt]
+184/06100+ CODE			code access window	[falcon/vm.txt]
+188/06200+ CODE_VIRT_ADDR	code access virt addr	[falcon/vm.txt]
+1c0/07000+ DATA_INDEX[0]	data access window addr	[falcon/data.txt]
+1c4/07100+ DATA[0]		data access window	[falcon/data.txt]
+1c8/07200+ DATA_INDEX[1]	data access window addr	[falcon/data.txt]
+1cc/07300+ DATA[1]		data access window	[falcon/data.txt]
+1d0/07400+ DATA_INDEX[2]	data access window addr	[falcon/data.txt]
+1d4/07500+ DATA[2]		data access window	[falcon/data.txt]
+1d8/07600+ DATA_INDEX[3]	data access window addr	[falcon/data.txt]
+1dc/07700+ DATA[3]		data access window	[falcon/data.txt]
+1e0/07800+ DATA_INDEX[4]	data access window addr	[falcon/data.txt]
+1e4/07900+ DATA[4]		data access window	[falcon/data.txt]
+1e8/07a00+ DATA_INDEX[5]	data access window addr	[falcon/data.txt]
+1ec/07b00+ DATA[5]		data access window	[falcon/data.txt]
+1f0/07c00+ DATA_INDEX[6]	data access window addr	[falcon/data.txt]
+1f4/07d00+ DATA[6]		data access window	[falcon/data.txt]
+1f8/07e00+ DATA_INDEX[7]	data access window addr	[falcon/data.txt]
+1fc/07f00+ DATA[7]		data access window	[falcon/data.txt]
+200/08000* DEBUG_CMD		debuging command	[falcon/debug.txt]
+204/08100* DEBUG_ADDR		address for DEBUG_CMD	[falcon/debug.txt]
+208/08200* DEBUG_DATA_WR	debug data to write	[falcon/debug.txt]
+20c/08300* DEBUG_DATA_RD	debug data last read	[falcon/debug.txt]
+[XXX: list incomplete for v4]
+
+Registers starting from 400/10000 are engine-specific and described in engine
+documentation.
+
+Host-only common registers [present on all engines, falcon v0 and v3 only]:
+fe8/-      PM_SEL [NVC0-]	perfmon signal select	[falcon/perf.txt]
+fec/-      UC_SP		microprocessor $sp reg	[falcon/proc.txt]
+ff0/-      UC_PC		microprocessor $pc reg	[falcon/proc.txt]
+ff4/-      UPLOAD		old code/data upload	[falcon/io.txt]
+ff8/-      UPLOAD_ADDR		old code/data up addr	[falcon/io.txt]
+ffc/-      HOST_IO_INDEX	IO space index for host	[falcon/io.txt]
+
+
+= Scratch registers =
+
+MMIO 0x040 / I[0x01000]: SCRATCH0
+MMIO 0x044 / I[0x01100]: SCRATCH1
+MMIO 0x080 / I[0x02000]: SCRATCH2
+MMIO 0x084 / I[0x02100]: SCRATCH3
+  Scratch 32-bit registers, meant for host <-> falcon communication.
+
+
+= Engine status and control registers =
+
+MMIO 0x04c / I[0x01300]: STATUS
+  Status of various parts of the engine. For each bit, 1 means busy, 0 means
+  idle.
+  bit 0: UC. Microcode. 1 if microcode is running and not on a sleep insn.
+  bit 1: ???
+  Further bits are engine-specific.
+
+MMIO 0x05c / I[0x01700]: STATUS_MASK
+  A bitmask of nonexistent status bits. Each of bits 0-15 is set to 0 if
+  corresponding STATUS line is tied to anything in this particular engine, 1
+  if it's unused. [?]
+
+MMIO 0x07c / I[0x01f00]: SUBENGINE_RESET
+  When written with value 1, resets all subengines that this falcon engine
+  controls - that is, everything in IO space addresses 0x10000:0x20000. Note
+  that this includes the memory interface - using this register while an xfer
+  is in progress is ill-advised.
+
+
+= PCOUNTER signal control registers =
+
+MMIO 0x088 / I[0x02200]: MISC_TRIGGER
+  A WO "trigger" register for various things. write 1 to a bit to trigger
+  the relevant event, 0 to do nothing.
+  bits 0-15: ??? [perf counters?]
+  bit 16: WRCACHE_FLUSH
+  bit 17: ??? [PM_TRIGGER?]
+
+
+= v0 code/data upload registers =
+
+MMIO 0xff4: UPLOAD
+  The data to upload, see below
+MMIO 0xff8: UPLOAD_ADDR
+  bits 2-15: bits 2-15 of the code/data address being uploaded.
+  bit 20: target segment. 0 means data, 1 means code.
+  bit 21: readback.
+  bit 24: xfer busy [RO]
+  bit 28: secret flag - secret engines only [see falcon/crypt.txt]
+  bit 29: code busy [RO]
+
+This pair of registers can be used on v0 to read/write code and data
+segments. It's quite fragile and should only be used when no xfers are active.
+bit 24 of UPLOAD_ADDR is set when this is the case. On v3+, this pair is
+broken and should be avoided in favor of the new-style access via CODE and
+DATA ports [see falcon/vm.txt and falcon/data.txt].
+
+To write data, poke address to UPLOAD_ADDR, then poke the data words to
+UPLOAD. The address will auto-increment as words are uploaded.
+
+To read data or code, poke address + readback flag to UPLOAD_ADDR, then read
+the word from UPLOAD. This only works for a single word, and you need to poke
+UPLOAD_ADDR again for each subsequent word.
+
+The code segment is organised in 0x100-byte pages. On secretful engines, each
+page can be secret or not. Reading from secret pages doesn't work and you just
+get 0. Writing code segment can only be done in aligned page units.
+
+To write a code page, write start address of the page + secret flag [if
+needed] to UPLOAD_ADDR, then poke multiple of 0x40 words to UPLOAD. The
+address will autoincrement. The process cannot be interrupted except between
+pages. The "code busy" flag in UPLOAD_ADDR will be lit when this is the case.
+
+= IO space writes: iowr, iowrs =
+
+Writes a word to IO space. iowr does asynchronous writes [queues the write,
+but doesn't wait for completion], iowrs does synchronous write [write is
+guaranteed to complete before executing next instruction]. On v0 cards,
+iowrs doesn't exist and synchronisation can instead be done by re-reading
+the relevant register.
+
+Instructions:
+	iowr - Asynchronous IO space write	subopcode = 0
+	iowrs - Synchronous IO space write	subopcode = 1 [v3+ only]
+Instruction class: unsized
+Operands: BASE, IDX, SRC
+Forms:
+	R2, I8, R1				opcode = d0
+	R2, 0, R1				opcode = fa
+Immediates: zero-extended
+Operation:
+	if (op == iowr)
+		IOWR(BASE + IDX * 4, SRC);
+	else
+		IOWRS(BASE + IDX * 4, SRC);
+
+
+= IO space reads: iord =
+
+Reads a word from IO space.
+
+Instructions:
+	???					subopcode = e [v3+ only]
+	iord - IO space read			subopcode = f
+Instruction class: unsized
+Operands: DST, BASE, IDX
+Forms:
+	R1, R2, I8				subopcode = c0
+	R3, R2, R1				subopcode = ff
+Immediates: zero-extended
+Operation:
+	if (op == iord)
+		DST = IORD(BASE + IDX * 4);
+	else
+		???;
+[XXX: subop e]

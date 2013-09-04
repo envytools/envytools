@@ -157,23 +157,23 @@ PGRAPH, kernel perspective
 [     ] graph/nvc0-ctxctl/memif.txt - NVC0 CTXCTL memory interface
 
 
-fuc engines:
-[**   ] fuc/intro.txt - Introductory documentation about fµc
-[*****] fuc/arith.txt - fµc arithmetic instructions
-[*****] fuc/branch.txt - fµc branching instructions
-[*****] fuc/data.txt - fµc data space
-[     ] fuc/proc.txt - fµc processor control
-[**** ] fuc/intr.txt - fµc interrupt and trap handling
-[**** ] fuc/io.txt - fµc IO space access and map
-[**** ] fuc/isa.txt - fµc ISA overview and opcode map
-[**** ] fuc/timer.txt - fµc timers and clocks
-[**** ] fuc/vm.txt - fµc code space and virtual memory
-[**** ] fuc/xfer.txt - fµc coda/data xfers to/from external memory
-[     ] fuc/debug.txt - fµc debugging support
-[     ] fuc/crypt.txt - fµc crypt coprocessor
-[     ] fuc/perf.txt - fµc performance monitoring signals
-[     ] fuc/fifo.txt - fµc interaction with PFIFO
-[     ] fuc/memif.txt - fµc memory interface
+falcon engines:
+[**   ] falcon/intro.txt - Introductory documentation about falcon
+[*****] falcon/arith.txt - falcon arithmetic instructions
+[*****] falcon/branch.txt - falcon branching instructions
+[*****] falcon/data.txt - falcon data space
+[     ] falcon/proc.txt - falcon processor control
+[**** ] falcon/intr.txt - falcon interrupt and trap handling
+[**** ] falcon/io.txt - falcon IO space access and map
+[**** ] falcon/isa.txt - falcon ISA overview and opcode map
+[**** ] falcon/timer.txt - falcon timers and clocks
+[**** ] falcon/vm.txt - falcon code space and virtual memory
+[**** ] falcon/xfer.txt - falcon coda/data xfers to/from external memory
+[     ] falcon/debug.txt - falcon debugging support
+[     ] falcon/crypt.txt - falcon crypt coprocessor
+[     ] falcon/perf.txt - falcon performance monitoring signals
+[     ] falcon/fifo.txt - falcon interaction with PFIFO
+[     ] falcon/memif.txt - falcon memory interface
 
 
 VPE video decoding and encoding:
@@ -206,10 +206,10 @@ VP2 video decoding:
 
 VP3/VP4/VP5 video decoding:
 [**   ] vdec/vp3/mbring.txt - VP3 MBRING format
-[*    ] vdec/vp3/pbsp.txt - fµc-based PBSP engine
-[*    ] vdec/vp3/pvp.txt - fµc-based PVP engine
-[*    ] vdec/vp3/pppp.txt - fµc-based PPPP engine
-[*    ] vdec/vp3/pcrypt.txt - fµc-based PCRYPT engine
+[*    ] vdec/vp3/pbsp.txt - falcon-based PBSP engine
+[*    ] vdec/vp3/pvp.txt - falcon-based PVP engine
+[*    ] vdec/vp3/pppp.txt - falcon-based PPPP engine
+[*    ] vdec/vp3/pcrypt.txt - falcon-based PCRYPT engine
 
 
 Other FIFO engines:

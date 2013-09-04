@@ -82,7 +82,7 @@ NVA3:NVC0 cards have the following clocks:
  - unknown clock #29
  - unknown clock #30
  - unknown clock #32
- - vdec clock [clock #33]: used to clock the fuc video decoding engines
+ - vdec clock [clock #33]: used to clock the falcon video decoding engines
  - unknown clock #36
  - daemon clock [clock #37]: used to clock PDAEMON
  - audio clock [clock #39]: used to clock PCODEC
@@ -105,7 +105,7 @@ NVC0+ cards have the following clocks:
  - HUB clock [clock #9]: clocks the common part of PGRAPH, and the PCOPY engines
  - timer clock [TCLK, clock #11]: clocks the PTIMER circuitry
  - daemon clock [clock #12]: used to clock PDAEMON
- - vdec clock [clock #14]: used to clock the fuc video decoding engines
+ - vdec clock [clock #14]: used to clock the falcon video decoding engines
  - memory clock [MPLL, clock M]: used to clock the VRAM, one per memory partition
 [XXX: uses two PLLs, actually]
  - video clocks [VPLL1,VPLL2]: used to drive the video outputs

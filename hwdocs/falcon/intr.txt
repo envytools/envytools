@@ -7,7 +7,7 @@ TOC
 
 = Introduction =
 
-fuc has interrupt support. There are 16 interrupt lines on each engine, and
+falcon has interrupt support. There are 16 interrupt lines on each engine, and
 two interrupt vectors on the microprocessor. Each of the interrupt lines can
 be independently routed to one of the microprocessor vectors, or to the PMC
 interrupt line, if the engine has one. The lines can be individually masked
@@ -15,12 +15,12 @@ as well. They can be triggered by hw events, or by the user.
 
 The lines are:
 
-  0 [E]: periodic timer		[fuc/timer.txt]
-  1 [E]: watchdog timer		[fuc/timer.txt]
-  2 [L]: FIFO data available	[fuc/fifo.txt]
-  3 [E]: PFIFO channel switch	[fuc/fifo.txt]
-  4 [E]: uc halted		[fuc/proc.txt]
-  5 [E]: ??? [related to fuc+0x0a4] [XXX]
+  0 [E]: periodic timer		[falcon/timer.txt]
+  1 [E]: watchdog timer		[falcon/timer.txt]
+  2 [L]: FIFO data available	[falcon/fifo.txt]
+  3 [E]: PFIFO channel switch	[falcon/fifo.txt]
+  4 [E]: uc halted		[falcon/proc.txt]
+  5 [E]: ??? [related to falcon+0x0a4] [XXX]
   6-7 [E]: scratch [unused by hw, user-defined]
   8-9 [E by default]: engine-specific
   10-15 [L by default]: engine-specific
@@ -67,16 +67,16 @@ MMIO 0x01c / I[0x00700]: INTR_ROUTING
   Bits 16-31: bit 1 of interrupt routing selector, one for each interrupt line
 For each interrupt line, the two bits from respective bitfields are put
 together to find its routing testination:
-  0: fuc vector 0
+  0: falcon vector 0
   1: PMC HOST/DAEMON line
-  2: fuc vector 1
+  2: falcon vector 1
   3: PMC NRHOST line [NVC0+ selected engines only]
 
 If the engine has a PMC interrupt line and any interrupt set for PMC irq
 delivery is active and unmasked, the corresponding PMC interrupt input line
 is active.
 
-fuc interrupt and trap delivery is controlled by $iv0, $iv1, $tv, $tstatus
+falcon interrupt and trap delivery is controlled by $iv0, $iv1, $tv, $tstatus
 registers and ie0, ie1, is0, is1, ta $flags bits. Traps behave like
 interrupts, but are triggered by events inside the UC.
 
@@ -91,11 +91,11 @@ of $tstatus are:
 
 The known trap reasons are:
 
-  0-3	software trap		[fuc/intr.txt]
-  8	invalid opcode		[fuc/isa.txt]
-  0xa	page fault - no hit	[fuc/vm.txt]
-  0xb	page fault - multi hit	[fuc/vm.txt]
-  0xf   breakpoint hit		[fuc/debug.txt]
+  0-3	software trap		[falcon/intr.txt]
+  8	invalid opcode		[falcon/isa.txt]
+  0xa	page fault - no hit	[falcon/vm.txt]
+  0xb	page fault - multi hit	[falcon/vm.txt]
+  0xf   breakpoint hit		[falcon/debug.txt]
 
 Whenever there's an active and enabled interrupt set for vector X delivery,
 and ieX flag is set, vector X is called:
@@ -107,7 +107,7 @@ Operation:
 	$flags.is1 = $flags.ie1;
 	$flags.ie0 = 0;
 	$flags.ie1 = 0;
-	if (fuc_version >= 4) {
+	if (falcon_version >= 4) {
 		$flags.unk16 = $flags.unk12;
 		$flags.unk1d = $flags.unk1a;
 		$flags.unk12 = 0;
@@ -121,12 +121,12 @@ Whenever a trapworthy event happens on the uc, a trap is delivered:
 
 Operation:
 	if ($flags.ta) { // double trap?
-		EXIT; // see fuc/proc.txt
+		EXIT; // see falcon/proc.txt
 	}
 	$flags.ta = 1;
-	if (fuc_version != 0) // on v0, there's only one possible trap reason anyway [8]
+	if (falcon_version != 0) // on v0, there's only one possible trap reason anyway [8]
 		$tstatus = $pc | reason << 20;
-	if (fuc_version >= 4) {
+	if (falcon_version >= 4) {
 		/* XXX: didn't that happen before? */
 		$flags.is0 = $flags.ie0;
 		$flags.is1 = $flags.ie1;
@@ -156,7 +156,7 @@ Operation:
 	$sp += 4;
 	$flags.ie0 = $flags.is0;
 	$flags.ie1 = $flags.is1;
-	if (fuc_version >= 4) {
+	if (falcon_version >= 4) {
 		$flags.unk12 = $flags.unk16;
 		$flags.unk1a = $flags.unk1d;
 	}

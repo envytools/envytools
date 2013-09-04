@@ -8,7 +8,7 @@ TOC
 
 = Introduction =
 
-Time and timer-related registers are the same across each fuc engines, except
+Time and timer-related registers are the same on all falcon engines, except
 PGRAPH CTXCTLs which lack PTIMER access.
 
 You can:
@@ -23,7 +23,7 @@ graph/nvc0-ctxctl/intro.txt for more information.
 
 = Periodic timer =
 
-All fuc engines have a periodic timer. This timer generates periodic interrupts
+All falcon engines have a periodic timer. This timer generates periodic interrupts
 on line 0. The registers controlling this timer are:
 
 MMIO 0x020 / I[0x00800]: PERIODIC_PERIOD
@@ -38,7 +38,7 @@ When the counter is enabled, PERIODIC_TIME decreases by 1 every clock cycle.
 When PERIODIC_TIME reaches 0, an interrupt is generated on line 0 and the
 counter is reset to PERIODIC_PERIOD.
 
-Operation (after each fµc core clock tick):
+Operation (after each falcon core clock tick):
 	if (PERIODIC_ENABLE) {
 		if (PERIODIC_TIME == 0) {
 			PERIODIC_TIME = PERIODIC_PERIOD;
@@ -54,7 +54,7 @@ Operation (after each fµc core clock tick):
 
 = PTIMER access =
 
-The fuc engines other than PGRAPH's CTXCTLs have PTIMER's time registers
+The falcon engines other than PGRAPH's CTXCTLs have PTIMER's time registers
 aliased into their IO space. aliases are:
 
 MMIO 0x02c / I[0x00b00]: TIME_LOW
@@ -68,7 +68,7 @@ about PTIMER.
 
 = Watchdog timer =
 
-Apart from a periodic timer, the fuc engines also have an independent one-shot
+Apart from a periodic timer, the falcon engines also have an independent one-shot
 timer, also called watchdog timer. It can be used to set up a single interrupt
 in near future. The registers are:
 
@@ -82,13 +82,13 @@ A classic use of a watchdog is to set it before calling a sensitive function by
 initializing it to, for instance, twice the usual time needed by this function to
 be executed.
 
-In fuc's case, the watchdog doesn't reboot the µc. Indeed, it is very similar to
+In falcon's case, the watchdog doesn't reboot the µc. Indeed, it is very similar to
 the periodic timer. The differences are:
 
  - it generates an interrupt on line 1 instead of 0.
  - it needs to be reset manually
 
-Operation (after each fµc core clock tick):
+Operation (after each falcon core clock tick):
 	if (WATCHDOG_ENABLE) {
 		if (WATCHDOG_TIME == 0) {
 			intr_line[1] = 1;

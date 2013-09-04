@@ -1,7 +1,7 @@
 TOC
 
 0. Introduction
-1. fµc parameters
+1. falcon parameters
 2. IO space
 3. PCOUNTER signals
 4. Second-level interrupts
@@ -24,17 +24,17 @@ TOC
 
 = Introduction =
 
-PDAEMON is a fµc-based engine introduced on NVA3. Its main purpose is
+PDAEMON is a falcon-based engine introduced on NVA3. Its main purpose is
 autonomous power and thermal management, but it can be used to oversee any part
 of GPU operation. The PDAEMON has many dedicated connections to various parts
 of the GPU.
 
 The PDAEMON is made of:
 
- - a fµc microprocessor core
- - standard fµc memory interface unit
+ - a falcon microprocessor core
+ - standard falcon memory interface unit
  - a simple channel load interface, replacing the usual PFIFO interface
- - various means of communication betwen fµc and host
+ - various means of communication betwen falcon and host
  - engine power gating controllers for the PFIFO-connected engines
  - "idle" signals from various engines and associated idle counters
  - misc simple input/output signals to various engines, with interrupt
@@ -58,7 +58,7 @@ There are 5 revisions of PDAEMON:
 [XXX: this file deals mostly with NVA3 version now]
 
 
-= fµc parameters =
+= falcon parameters =
 
 Present on:
 	d0: NVA3:NVAF
@@ -107,9 +107,9 @@ NVC0 VM engine: 0x17
 NVC0 VM client: HUB 0x12
 
 Interrupts:
-  8: [E] MEMIF_TARGET_INVALID [NVA3:NVC0] [fuc/memif.txt]
-  9: [E] MEMIF_FAULT [NVA3:NVC0] [fuc/memif.txt]
-  9: [E] MEMIF_BREAK [NVC0-] [fuc/memif.txt]
+  8: [E] MEMIF_TARGET_INVALID [NVA3:NVC0] [falcon/memif.txt]
+  9: [E] MEMIF_FAULT [NVA3:NVC0] [falcon/memif.txt]
+  9: [E] MEMIF_BREAK [NVC0-] [falcon/memif.txt]
  10: [L] PMC_DAEMON - PMC interrupts routed to PDAEMON via INTR_DAEMON [bus/pmc.txt]
  11: [L] SUBINTR - comes from SUBINTR interupt aggregator
  12: [L] THERM - PTHERM subinterrupts routed to PDAEMON [pm/ptherm.txt]
@@ -119,10 +119,10 @@ Interrupts:
          PDAEMON by IREDIR
 
 Status bits:
-  0: fµc [fuc/proc.txt]
+  0: falcon [falcon/proc.txt]
   1: ??? [XXX]
   2: ??? [XXX]
-  3: MEMIF [fuc/memif.txt]
+  3: MEMIF [falcon/memif.txt]
   4: USER [NVA3:NVAF, NVC0-]
   4: ??? [XXX] [NVAF:NVC0]
   5: USER [NVAF:NVC0]
@@ -130,7 +130,7 @@ Status bits:
 
 = IO register space =
 
-On NVA3:NVD9, PDAEMON uses the "classic" fµc addressing scheme: I[] space
+On NVA3:NVD9, PDAEMON uses the "classic" falcon addressing scheme: I[] space
 addresses are shifted left by 6 wrt the offsets in MMIO window - ie. I[0x12300]
 can be accessed through MMIO address 0x10a48c, and registers are usually 0x100
 bytes apart in the I[] space and aliased over that 0x100-byte range to be
@@ -140,7 +140,7 @@ to offsets in MMIO window - I[0x48c] can be accessed through MMIO 0x10a48c.
 The following registers/register ranges exist on PDAEMON [first number is MMIO
 offset and I[] address on NVD9+, second is I[] address on NVA3:NVD9]:
 
-000/00000:400/10000  fµc [fuc/io.txt]
+000/00000:400/10000  falcon [falcon/io.txt]
 404/10100  SUBENGINE_RESET_TIME - selects how long to keep parts in reset
            after SUBENGINE_RESET [XXX: doc]
 408/10200  SUBENGINE_RESET_MASK - selects parts affected by SUBENGINE_RESET
@@ -178,7 +178,7 @@ offset and I[] address on NVD9+, second is I[] address on NVA3:NVD9]:
 5d0/17400:5e0/17800  DSCRATCH - scratch registers
 5f0/17c00  ??? [0/ffffffff/0]
 5f4/17d00  THERM_BYTE_MASK
-600/18000:640/19000  MEMIF [fuc/memif.txt]
+600/18000:640/19000  MEMIF [falcon/memif.txt]
 [XXX: 660+]
 680/1a000  TIMER_INTR - timer interrupt status
 684/1a100  TIMER_INTR_EN - timer interrupt enable
@@ -192,15 +192,15 @@ offset and I[] address on NVD9+, second is I[] address on NVA3:NVD9]:
 6a4/1a900  IREDIR_TIMEOUT_ENABLE - IREDIR_HOST_REQ timeout enable
 [XXX: finish the list]
 800/20000:fe0/40000  THERM [NVA3:NVD9] [pm/ptherm.txt]
-fe0/-:1000/-  fµc [NVA3:NVD9] [fuc/io.txt]
+fe0/-:1000/-  falcon [NVA3:NVD9] [falcon/io.txt]
 1000/-:1800/-  THERM [NVD9-] [pm/ptherm.txt]
 
 Notes:
  - the last 0x20 bytes of THERM range on NVA3:NVD9 aren't accessible by the
-   host, since they're hidden by the overlapping fµc host-only control
+   host, since they're hidden by the overlapping falcon host-only control
    registers
  - the THERM range on NVD9+ is not accessible at all by the host, since its
-   base address is above the end of the MMIO window to fµc's I[] space
+   base address is above the end of the MMIO window to falcon's I[] space
 
 Neither is a problem in practice, since the host can just access the same
 registers via the PTHERM range.
@@ -238,7 +238,7 @@ registers via the PTHERM range.
 
 = Second-level interrupts =
 
-Because fµc has space for only 8 engine interrupts and PDAEMON needs many
+Because falcon has space for only 8 engine interrupts and PDAEMON needs many
 more, a second-level interrupt register was introduced:
 
 MMIO 0x688 / I[0x1a200]: SUBINTR
@@ -256,7 +256,7 @@ MMIO 0x688 / I[0x1a200]: SUBINTR
   bit 13: ??? [NVD9-] - goes to 0x888 [XXX]
 
 The second-level interrupts are merged into a single level-triggered interrupt
-and delivered to fµc interrupt line 11. This line is asserted whenever any bit
+and delivered to falcon interrupt line 11. This line is asserted whenever any bit
 of SUBINTR register is non-0. A given SUBINTR bit is set to 1 whenever the
 input second-level interrupt line is 1, but will not auto-clear when the input
 line goes back to 0 - only writing 1 to that bit in SUBINTR will clear it.
@@ -272,12 +272,12 @@ IREDIR_TRIGGER documentation.
 = User busy indication =
 
 To enable the microcode to set the "PDAEMON is busy" flag without actually
-making any PDAEMON subunit perform computation, bit 4 of the fµc status
+making any PDAEMON subunit perform computation, bit 4 of the falcon status
 register is connected to a dummy unit whose busy status is controlled directly
 by the user:
 
 MMIO 0x420 / I[0x10800]: USER_BUSY
-  Read/write, only bit 0 is valid. If set, fµc status line 4 or 5 [USER] is
+  Read/write, only bit 0 is valid. If set, falcon status line 4 or 5 [USER] is
   set to 1 [busy], otherwise it's set to 0 [idle].
 
 [XXX: what could possibly use PDAEMON's busy status?]
@@ -382,7 +382,7 @@ MMIO 0x5d0+i*4 / I[0x17400+i*0x100], i<4: DSCRATCH[i]
 
 The PDAEMON has hardware support for 16 busy-waiting mutexes accessed by up to
 254 clients simultanously. The clients may be anything able to read and write
-the PDAEMON registers - code running on host, on PDAEMON, or on any other fµc
+the PDAEMON registers - code running on host, on PDAEMON, or on any other falcon
 engine with MMIO access powers.
 
 The clients are identified by tokens. Tokens are 8-bit numbers in 0x01-0xfe
@@ -465,7 +465,7 @@ bits at the end [or the beginning] have to be handled manually.
 
 = The timer =
 
-Aside from the usual fµc timers [see fuc/timer.txt], PDAEMON has its own
+Aside from the usual falcon timers [see falcon/timer.txt], PDAEMON has its own
 timer. The timer can be configured as either one-shot or periodic, can run
 on either daemon clock or PTIMER clock divided by 64, and generates
 interrupts. The following registers deal with the timer:
@@ -503,11 +503,11 @@ MMIO 0x4e8 / I[0x13a00]: TIMER_CTRL
 MMIO 0x680 / I[0x1a000]: TIMER_INTR
   bit 8: TIMER - set whenever TIMER_TIME becomes 0 except by a copy from
     TIMER_START, write 1 to this bit to clear it. When this and bit 8
-    of TIMER_INTR_EN are set at the same time, fµc interrupt line #14 [TIMER]
+    of TIMER_INTR_EN are set at the same time, falcon interrupt line #14 [TIMER]
     is asserted.
 
 MMIO 0x684 / I[0x1a100]: TIMER_INTR_EN
-  bit 8: TIMER - when set, timer interupt delivery to fµc interrupt line 14 is
+  bit 8: TIMER - when set, timer interupt delivery to falcon interrupt line 14 is
   enabled.
 
 
@@ -521,8 +521,8 @@ MMIO 0x684 / I[0x1a100]: TIMER_INTR_EN
 One of PDAEMON powers is redirecting the PMC INTR_HOST interrupt to itself.
 The redirection hw may be in one of two states:
  - HOST: PMC INTR_HOST output connected to PCI interrupt line [ORed with PMC
-   INTR_NRHOST output], PDAEMON fµc interrupt #15 disconnected and forced to 0
- - DAEMON: PMC INTR_HOST output connected to PDAEMON fµc interrupt #15
+   INTR_NRHOST output], PDAEMON falcon interrupt #15 disconnected and forced to 0
+ - DAEMON: PMC INTR_HOST output connected to PDAEMON falcon interrupt #15
    [IREDIR_PMC], PCI interrupt line connected to INTR_NRHOST output only
 
 In addition, there's a capability enabling host to send "please turn redirect
@@ -531,7 +531,7 @@ the request in hardware if the PDAEMON fails to respond to the interrupt in
 a given time.
 
 Note that, as a side effect of having this circuitry, PMC INTR_HOST line will
-be delivered nowhere [fµc interrupt line #15 will be 0, PCI interrupt line
+be delivered nowhere [falcon interrupt line #15 will be 0, PCI interrupt line
 will be connected to INTR_NRHOST only] whenever the IREDIR circuitry is in
 reset state, due to either whole PDAEMON reset through PMC.ENABLE /
 PDAEMON_ENABLE or DAEMON circuitry reset via SUBENGINE_RESET with DAEMON
@@ -610,7 +610,7 @@ PCOUNTER:
  - IREDIR_TRIGGER_HOST: pulses for 1 cycle whenever INTR_TRIGGER.HOST is
    written as 1, whether it results in an error or not
  - IREDIR_PMC: 1 if the PMC INTR_HOST line is active and directed to DAEMON
-   [ie. mirrors fµc interrupt #15 input]
+   [ie. mirrors falcon interrupt #15 input]
  - IREDIR_INTR: 1 if any IREDIR interrupt is active - IREDIR_HOST_REQ,
    IREDIR_ERR, or IREDIR_PMC. IREDIR_ERR does not count if IREDIR_ERR_INTR_EN
    is not set.
@@ -625,7 +625,7 @@ space is mapped straight to PTHERM MMIO register range.
 On NVA3:NVD9, PTHERM registers are mapped into the I[] space at addresses
 0x20000:0x40000, with addresses being shifted left by 6 bits wrt their address
 in PTHERM - PTHERM register 0x20000+x would be visible at I[0x20000 + x * 0x40]
-by fµc, or at 0x10a800+x in MMIO [assuming it wouldn't fall into the reserved
+by falcon, or at 0x10a800+x in MMIO [assuming it wouldn't fall into the reserved
 0x10afe0:0x10b000 range]. On NVD9+, the PTHERM registers are instead mapped
 into the I[] space at addresses 0x1000:0x1800, without shifting - PTHERM reg
 0x20000+x is visible at I[0x1000+x]. On NVD9+, the alias area is not visible
@@ -648,7 +648,7 @@ The PTHERM access circuitry also exports a signal to PCOUNTER:
    speeds.
 
 In addition to direct register access to PTHERM, PDAEMON also has direct access
-to PTHERM interrupts - fµc interrupt #12 [THERM] comes from PTHERM interrupt
+to PTHERM interrupts - falcon interrupt #12 [THERM] comes from PTHERM interrupt
 aggregator. PTHERM subinterrupts can be individually assigned for PMC or
 PDAEMON delivery - see pm/ptherm.txt for more information.
 
@@ -755,5 +755,5 @@ MMIO 0x7b4 / I[0x1ed00] : MMIO_INTR
 
 MMIO 0x7b8 / I[0x1ee00] : MMIO_INTR_EN
   Specifies which MMIO interrupts are enabled. Interrupts will be fired on
-  line 11 [fuc/intr.txt].
+  line 11 [falcon/intr.txt].
   bit 0: ERR
