@@ -34,7 +34,6 @@ install(TARGETS demmio headergen rnn dedma lookup
 
 add_test(check_nv_mmio rnncheck nv_mmio.xml)
 add_test(check_nv_evo rnncheck nv_evo.xml)
-add_test(check_nv_structs rnncheck nv_struct.xml)
 add_test(check_nv_objects rnncheck nv_objects.xml)
 add_test(check_nv50_texture rnncheck graph/nv50_texture.xml)
 add_test(check_adt7473 rnncheck extdev/adt7473.xml)
