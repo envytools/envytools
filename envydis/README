@@ -96,14 +96,3 @@ hexadecimal numbers representing the bytes to disassemble. The options are:
  output format
   -n Disable output coloring
   -q Disable printing address + opcodes.
-
-envydis can also be invoked under one of the alternative names, which imply
--m and sometimes -w options:
-  - nv50dis: -m nv50 -w
-  - nvc0dis: -m nvc0 -w
-  - ctxdis: -m ctx -w
-  - fucdis: -m fuc
-  - hwsqdis: -m hwsq
-  - vp2dis: -m vp2
-  - vucdis: -m vuc
-  - macrodis: -m macro -w
