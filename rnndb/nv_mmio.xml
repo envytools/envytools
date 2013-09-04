@@ -187,6 +187,12 @@
 <!-- 1c1000 - 1c1fff PVCOMP -->
 <import file="nvaf_pvcomp.xml" />
 
+<!-- 1c2000 - 1c2fff PVENC -->
+<import file="nve4_pvenc.xml" />
+
+<!-- 1c3000 - 1c3fff PUNK1C3 -->
+<import file="nvd9_punk1c3.xml" />
+
 <!-- 200000 - 200fff PMEDIA -->
 <import file="nv_pmedia.xml" />
 

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+<import file="falcon.xml" />
+
+<domain name="NV_MMIO" bare="yes" prefix="chipset">
+
+<bitset name="NVE4_PVENC_INTR" varset="chipset">
+	<bitfield low="0" high="7" name="FUC" type="falcon_intr"/>
+	<bitfield pos="9" name="MEMIF_BREAK"/>
+	<!-- XXX -->
+</bitset>
+<bitset name="NVE4_PVENC_STATUS" varset="chipset">
+	<bitfield pos="0" name="FUC"/>
+	<bitfield pos="1" name="MEMIF"/>
+	<bitfield pos="2" name="UNK2"/>
+	<bitfield pos="3" name="UNK3"/>
+	<bitfield pos="4" name="UNK4"/>
+	<bitfield pos="5" name="UNK5"/>
+	<bitfield pos="6" name="UNK6"/>
+	<bitfield pos="7" name="UNK7"/>
+	<bitfield pos="8" name="UNK8"/>
+	<bitfield pos="9" name="UNK9"/>
+	<bitfield pos="10" name="UNK10"/>
+	<bitfield pos="11" name="UNK11"/>
+	<bitfield pos="12" name="UNK12"/>
+</bitset>
+
+<array name="PVENC" offset="0x1c2000" stride="0x1000" length="1" variants="NVE4-">
+	<use-group name="falcon_base"/>
+	<use-group name="falcon_memif"/>
+	<!-- XXX -->
+</array>
+
+</domain>
+
+</database>
