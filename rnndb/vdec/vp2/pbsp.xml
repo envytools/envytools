@@ -5,7 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="vdec/nv84_xtensa.xml" />
+<import file="vdec/vp2/xtensa.xml" />
 
 <domain name="NV_PBSP_XLMI">
 	<use-group name="nv_xlmi_common"/>

@@ -5,8 +5,8 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="vdec/nv40_pvpe.xml" />
-<import file="vdec/nv31_mpeg.xml" />
+<import file="vdec/vpe/pvpe.xml" />
+<import file="vdec/vpe/mpeg_fifo.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 

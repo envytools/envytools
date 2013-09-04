@@ -16,14 +16,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 <import file="graph/nv50_2d.xml" />
 <import file="graph/nv50_3d.xml" />
 <import file="graph/nv50_compute.xml" />
-<import file="vdec/nv84_crypt2.xml" />
-<import file="vdec/nv31_mpeg.xml" />
-<import file="vdec/nv40_me.xml" />
-<import file="vdec/nv41_vp1.xml" />
 <import file="graph/nvc0_3d.xml" />
 <import file="graph/nvc0_compute.xml" />
 <import file="graph/nve4_compute.xml" />
-<import file="nve4_copy.xml" />
 <import file="graph/nve4_p2mf.xml" />
+<import file="vdec/vpe/mpeg_fifo.xml" />
+<import file="vdec/vpe/me_fifo.xml" />
+<import file="vdec/vpe/vp1_fifo.xml" />
+<import file="vdec/vp2/crypt2_fifo.xml" />
+<import file="nve4_copy.xml" />
 
 </database>
