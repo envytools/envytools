@@ -157,13 +157,7 @@ static struct mem dataspr32_m = { "D", 0, &sp_r, 0, &reg1_r, 2 };
 #define DATA32SPR atommem, &dataspr32_m
 
 /*
- * MMIO space
- *
- * bits 8-17 specify register. It corresponds to MMIO reg fuc_base + ((addr >> 6) & 0xffc).
- * bits 2-7, for indexed registers, specify reg index. for host MMIO accesses, the index comes
- * from fuc_base + 0xffc instead.
- *
- * fuc_base + 0xff0 and up are host-only
+ * IO space
  */
 
 static struct mem ior_m = { "I", 0, &reg2_r };
