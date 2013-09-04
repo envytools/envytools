@@ -70,9 +70,11 @@
 <!-- 00e000 - 00efff PNVIO -->
 <import file="nv50_pnvio.xml" />
 
-<!-- 00f000 - 00ffff PVP -->
-<import file="nv41_pvp.xml" />
-<import file="nv84_pvp.xml" />
+<!-- 00f000 - 00ffff PVP1 -->
+<import file="nv41_pvp1.xml" />
+
+<!-- 00f000 - 00ffff PVP2 -->
+<import file="nv84_pvp2.xml" />
 
 <!-- 020000 - 020fff PTHERM -->
 <import file="nv50_ptherm.xml" />

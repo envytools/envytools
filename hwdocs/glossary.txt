@@ -68,8 +68,8 @@ P
 
 PFIFO: command stream processing engine. Gathers FIFO commands from user
 buffers and direct submission, sorting them out and sending them to execution
-engines, which [depending on chipset] may include: PGRAPH, PMPEG, PME, PVP,
-PBSP, PCRYPT, PVLD, PVDEC, PPPP, PCOPY, PVENC, plus some unknown ones.
+engines, which [depending on chipset] may include: PGRAPH, PMPEG, PME, PVP1,
+PVP2, PBSP, PCRYPT, PVLD, PVDEC, PPPP, PCOPY, PVENC, plus some unknown ones.
 
 
 R

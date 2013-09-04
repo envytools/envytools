@@ -368,7 +368,7 @@ NV40:
  [XXX more changes]
 NV41:
  - introduced context switching to VPE
- - introduced PVP, microcoded VP1 video processor
+ - introduced PVP1, microcoded video processor
  - first natively PCIE card
  - added PCIE GART to memory controller
 NV43:

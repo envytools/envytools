@@ -194,7 +194,7 @@ The GPU is made of:
   - PVPE: a trio of video decoding/encoding engines
    - PMPEG: MPEG1 and MPEG2 mocomp and IDCT decoding engine [NV17+]
    - PME: motion estimation engine [NV40+]
-   - PVP: VP1 video processor [NV41+]
+   - PVP1: VP1 video processor [NV41+]
   - PCOUNTER: performance monitoring counters for the processing engines and
     memory controller [pcounter/intro.txt] 
  - display engines:

@@ -9,8 +9,8 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array name="PVP" offset="0xf000" stride="0x1000" length="1" variants="NV41:NV84">
-	<bitset name="pvp_intr" inline="yes">
+<array name="PVP1" offset="0xf000" stride="0x1000" length="1" variants="NV41:NV84">
+	<bitset name="pvp1_intr" inline="yes">
 		<bitfield pos="0" name="UNK0"/>
 		<bitfield pos="4" name="UNK4"/>
 		<bitfield pos="8" name="UNK8"/>
@@ -19,8 +19,8 @@
 		<bitfield pos="20" name="UNK20"/>
 		<bitfield pos="24" name="UNK24"/>
 	</bitset>
-	<reg32 offset="0x400" name="INTR" type="pvp_intr"/>
-	<reg32 offset="0x404" name="INTR_EN" type="pvp_intr"/>
+	<reg32 offset="0x400" name="INTR" type="pvp1_intr"/>
+	<reg32 offset="0x404" name="INTR_EN" type="pvp1_intr"/>
 	<reg32 offset="0x408" name="CHANNEL_UNK"/>
 	<reg32 offset="0x414" name="CHANNEL_CUR"/>
 	<reg32 offset="0x424" name="EXIT_CODE"/>

@@ -78,14 +78,14 @@ VM is used by several clients, which are identified by VM client id:
  - 3: DISPATCH: PGRAPH context save/restore, NOTIFY, QUERY, COND, and m2mf.
  - 4: PFIFO_WRITE: non-blocking write accesses by PFIFO, for FIFOs and BARs
  - 5: CCACHE: PGRAPH c[], code, TIC, and TSC accesses
- - 6: PVPE: VM front-end for PMPEG + PME [NV50 only] + PVP [NV50 only] [NV50:NV98 NVA0:NVAA]
+ - 6: PVPE: VM front-end for PMPEG + PME [NV50 only] + PVP1 [NV50 only] [NV50:NV98 NVA0:NVAA]
  - 6: PPPP [NV98:NVA0 NVAA-]
  - 7: CLIPID: PGRAPH window clip id reads/writes
  - 8: PFIFO_READ: reads by PFIFO, for FIFOs and BARs
  - 9: VFETCH: PGRAPH vertex array fetch
  - a: TEXTURE: PGRAPH texture fetches
  - b: ROP: PGRAPH raster output and CUDA global/local memory accesses
- - c: PVP [NV84:NV98 NVA0:NVAA]
+ - c: PVP2 [NV84:NV98 NVA0:NVAA]
  - c: PVDEC [NV98:NVA0 NVAA-]
  - d: PBSP [NV84:NV98 NVA0:NVAA]
  - d: PVLD [NV98:NVA0 NVAA-]
@@ -101,8 +101,8 @@ and stay on the same channel at any single moment. It's possible for a client
 to be part of several VM engines. The engines are:
 
  - 0: PGRAPH: STRMOUT + DISPATCH + CCACHE + CLIPID + VFETCH + TEXTURE + ROP
- - 1: PVP: PVPE [NV50:NV84]
- - 1: PVP: PVP [NV84:NV98 NVA0:NVAA]
+ - 1: PVP1: PVPE [NV50:NV84]
+ - 1: PVP2: PVP2 [NV84:NV98 NVA0:NVAA]
  - 1: PVDEC: PVDEC [NV98:NVA0 NVAA-]
  - 4: PEEPHOLE: PFIFO_WRITE + PFIFO_READ
  - 5: PFIFO: PFIFO_WRITE + PFIFO_READ
@@ -155,7 +155,7 @@ ids depends on both engine and client id. The DMA slots are
  - 5/4/1: FIFO semaphore write
  - 5/8/1: FIFO semaphore read
  - c/8/1: FIFO background semaphore read
- - 1/6/8: PVP context [NV50:NV84]
+ - 1/6/8: PVP1 context [NV50:NV84]
 [XXX 1/* pre-nv84]
  - 7/6/4: PME context [NV50:NV84]
 [XXX 7/*]
@@ -165,7 +165,7 @@ ids depends on both engine and client id. The DMA slots are
  - 8/6/4: PMPEG context [NV50:NV98 NVA0:NVAA]
  - 8/6/5: PMPEG QUERY [NV84:NV98 NVA0:NVAA]
  - b/f/0: PCOUNTER record buffer [NV84:NVC0]
- - 1/c/0-f: PVP DMA ports 0-0xf [NV84:NV98 NVA0:NVAA]
+ - 1/c/0-f: PVP2 DMA ports 0-0xf [NV84:NV98 NVA0:NVAA]
  - 9/d/0-f: PBSP DMA ports 0-0xf [NV84:NV98 NVA0:NVAA]
  - a/e/0: PCRYPT context [NV84:NV98 NVA0:NVAA]
  - a/e/1: PCRYPT SRC [NV84:NV98 NVA0:NVAA]
@@ -315,7 +315,7 @@ objects are:
 selector | address | engine
 ----------------------------
  0x0020  | 0x00200 | PGRAPH
- 0x0022  | 0x00220 | PVP
+ 0x0022  | 0x00220 | PVP1
  0x0024  | 0x00240 | PME
  0x0026  | 0x00260 | PMPEG
 
@@ -324,7 +324,7 @@ On nv84+ cards, they are:
 selector | address |        cards        | engine
 -----------------------------------------------
  0x0002  | 0x00020 |         all         | PGRAPH
- 0x0004  | 0x00040 | NV84:NV98 NVA0:NVAA | PVP
+ 0x0004  | 0x00040 | NV84:NV98 NVA0:NVAA | PVP2
  0x0004  | 0x00040 | NV98:NVA0 NVAA-     | PVDEC
  0x0006  | 0x00060 | NV84:NV98 NVA0:NVAA | PMPEG
  0x0006  | 0x00060 | NV98:NVA0 NVAA-     | PPPP

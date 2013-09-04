@@ -181,7 +181,7 @@
 			</bitfield>
 			<bitfield pos="29" name="UNK29"/>
 			<bitfield pos="30" name="VDEC">
-				<doc>Selects whether video decoding engines (PMPEG, PME, PVP, PBSP, VP3 PVLD, PVDEC, PPPP, VP2 PCRYPT, but not VP3 PCRYPT nor VP4 PVLD) are enabled.</doc>
+				<doc>Selects whether video decoding engines (PMPEG, PME, PVP1, PVP2, PBSP, VP3 PVLD, PVDEC, PPPP, VP2 PCRYPT, but not VP3 PCRYPT nor VP4 PVLD) are enabled.</doc>
 			</bitfield>
 			<bitfield pos="31" name="UNK31"/>
 		</reg32>
@@ -237,7 +237,7 @@
 				</doc>
 			</bitfield>
 			<bitfield high="7" low="6" name="PCOPY" variants="NVA3-"/>
-			<bitfield high="9" low="8" name="PVP" variants="NV84:NV98 NVA0:NVAA"/>
+			<bitfield high="9" low="8" name="PVP2" variants="NV84:NV98 NVA0:NVAA"/>
 			<bitfield high="9" low="8" name="PVDEC" variants="NV98:NVA0 NVAA-">
 				<doc>XXX: Does not work on NVAC Asus AT3IONT-I (Deluxe)?</doc>
 			</bitfield>

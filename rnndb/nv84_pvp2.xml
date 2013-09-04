@@ -7,7 +7,7 @@
 <import file="nvchipsets.xml" />
 <import file="nv84_xtensa.xml" />
 
-<domain name="NV_PVP_XLMI">
+<domain name="NV_PVP2_XLMI">
 	<use-group name="nv_xlmi_common"/>
 	<reg32 offset="0x3821c" name="INTR">
 		<bitfield pos="4" name="UNK4"/>
@@ -28,7 +28,7 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<array name="PVP" offset="0x00f000" stride="0x1000" length="1" variants="NV84:NV98 NVA0">
+<array name="PVP2" offset="0x00f000" stride="0x1000" length="1" variants="NV84:NV98 NVA0">
 	<array offset="0xc00" name="XTENSA" stride="0x400">
 		<use-group name="nv84_xtensa_common"/>
 		<reg32 offset="0x194" name="FIFO_CTRL">

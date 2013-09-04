@@ -183,7 +183,7 @@ VPE video decoding and encoding:
 [     ] vdec/vpe/me.txt - PME methods and operation
 [     ] vdec/vpe/pmpeg.txt - the PMPEG engine
 [     ] vdec/vpe/pme.txt - the PME engine
-[     ] vdec/vpe/vp1.txt - the VP1 PVP engine
+[     ] vdec/vpe/vp1.txt - the PVP1 engine
 
 VP2/VP3/VP4 vµc processor:
 [***  ] vdec/vuc/intro.txt - Overview of VP2/VP3/VP4 vµc hardware
@@ -196,8 +196,8 @@ VP2/VP3/VP4 vµc processor:
 VP2 video decoding:
 [     ] vdec/vp2/intro.txt - Overview of VP2 hardware
 [*    ] vdec/vp2/xtensa.txt - VP2 xtensa processors
-[     ] vdec/vp2/pvp.txt - Overview of VP2 PVP engine
-[     ] vdec/vp2/pbsp.txt - Overview of VP2 PBSP engine
+[     ] vdec/vp2/pvp2.txt - Overview of PVP2 engine
+[     ] vdec/vp2/pbsp.txt - Overview of PBSP engine
 [**   ] vdec/vp2/vld.txt - VP2 variable length decoding engine
 [**** ] vdec/vp2/mbring.txt - VP2 MBRING format
 [**   ] vdec/vp2/macro.txt - the VP2 command macro processor

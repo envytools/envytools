@@ -164,7 +164,7 @@
 		<bitfield pos="9" name="PVLD" variants="NV98:NVA0 NVAA-"/>
 		<bitfield pos="10" name="PCRYPT" variants="NV84:NV98 NVA0:NVAA"/>
 		<bitfield pos="10" name="PCRYPT" variants="NV98:NVA0 NVAA:NVA3"/>
-		<bitfield pos="11" name="PVP" variants="NV84:NV98 NVA0:NVAA"/>
+		<bitfield pos="11" name="PVP2" variants="NV84:NV98 NVA0:NVAA"/>
 		<bitfield pos="11" name="PVDEC" variants="NV98:NVA0 NVAA-"/>
 		<bitfield pos="12" name="PPPP" variants="NV98:NVA0 NVAA-"/>
 		<bitfield pos="18" name="PVCOMP" variants="NVAF-"/>

@@ -24,7 +24,7 @@ processor commands when triggered by special commands from xtensa. All vector
 commands first go through the macro processor, which checks whether they're
 in macro command range, and either passes them down to vector processor, or
 interprets them itself, possibly launching a macro and submitting other vector
-commands. It is one of the four major blocks making up the VP2 PVP engine.
+commands. It is one of the four major blocks making up the PVP2 engine.
 
 The macro processor has:
 
@@ -53,7 +53,7 @@ The macro processor has:
 = MMIO registers =
 
 The macro processor registers occupy 0x00f600:0x00f700 range in BAR0 space,
-corresponding to 0x2c000:0x2e000 range in PVP's XLMI space. They are:
+corresponding to 0x2c000:0x2e000 range in PVP2's XLMI space. They are:
 
 2c000:2c800/00f600:00f640 - control registers
 2c000/00f600: CONTROL - master control

@@ -42,11 +42,11 @@ idx|   name   |   cards   | description
 ------------------------------------------------------------------------------
 3/-| PME      | NV40:NV84 | VPE motion estimation engine [see vdec/vpe/me.txt]
 ------------------------------------------------------------------------------
-4/-| PVP      | NV41:NV84 | VP1 microcoded video processor. [see vdec/vpe/vp1.txt]
+4/-| PVP1     | NV41:NV84 | VP1 microcoded video processor. [see vdec/vpe/vp1.txt]
 ------------------------------------------------------------------------------
-4/-| PVP      |           | VP2 video decoding engines: video processor and
+4/-| PVP2     |           | VP2 video decoding engines: video processor and
 --------------|           | bitstream processor. Microcoded through embedded
-6/-| PBSP     | NV84:NV98 | xtensa cores. [see vdec/vp2/pvp.txt, vdec/vp2/pbsp.txt]
+6/-| PBSP     | NV84:NV98 | xtensa cores. [see vdec/vp2/pvp2.txt, vdec/vp2/pbsp.txt]
 --------------|           |---------------------------------------------------
 5/-| PCRYPT   |           | AES cryptography and copy engine. [see vdec/vp2/crypt.txt]
 ------------------------------------------------------------------------------

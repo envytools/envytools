@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
 	}
 
 	if (!base) {
-		fprintf (stderr, "No engine specified. Specify -b for PBSP, -v for PVP\n");
+		fprintf (stderr, "No engine specified. Specify -b for PBSP, -v for PVP2\n");
 		return 1;
 	}
 	

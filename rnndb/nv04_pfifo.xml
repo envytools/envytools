@@ -19,7 +19,7 @@
 	<value value="1" name="PGRAPH"/>
 	<value value="2" name="PMPEG" variants="NV31-"/>
 	<value value="3" name="PME" variants="NV40-"/>
-	<value value="4" name="PVP" variants="NV41-"/>
+	<value value="4" name="PVP1" variants="NV41-"/>
 </enum>
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">

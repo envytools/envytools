@@ -72,7 +72,7 @@
 			<bitfield pos="16" name="PVIDEO" variants="NV03:NV50"/>
 			<bitfield pos="16" name="UNK16" variants="NVA3:NVC0" />
 			<bitfield pos="16" name="PVENC" variants="NVE4-" />
-			<bitfield pos="17" name="PVP" variants="NV84:NV98 NVA0:NVAA"/>
+			<bitfield pos="17" name="PVP2" variants="NV84:NV98 NVA0:NVAA"/>
 			<bitfield pos="17" name="PVDEC" variants="NV98:NVA0 NVAA-"/>
 			<bitfield pos="18" name="PDAEMON" variants="NVA3:NVC0"/>
 			<bitfield pos="18" name="PTHERM" variants="NVC0-"/>
@@ -142,7 +142,7 @@
 			<bitfield pos="15" name="PVLD" variants="NV98:NVA0 NVAA-"/>
 			<bitfield pos="16" name="PRM" variants="NV01"/>
 			<bitfield pos="16" name="PTIMER" variants="NV03-"/>
-			<bitfield pos="17" name="PVP" variants="NV84:NV98 NVA0:NVAA"/>
+			<bitfield pos="17" name="PVP2" variants="NV84:NV98 NVA0:NVAA"/>
 			<bitfield pos="17" name="PVDEC" variants="NV98:NVA0 NVAA-"/>
 			<bitfield pos="18" name="PVENC" variants="NVE4-"/>
 			<bitfield pos="20" name="PFB" variants="NV03:NVC0"/>
@@ -154,7 +154,7 @@
 			<bitfield pos="22" name="PPPP_CHSW" variants="NV98 NVAA:NVC0"/>
 			<bitfield pos="23" name="UNUSED2_CHSW" variants="NV84:NVA3"/>
 			<bitfield pos="23" name="PCOPY_CHSW" variants="NVA3:NVC0"/>
-			<bitfield pos="24" name="PVP_CHSW" variants="NV84:NV98 NVA0:NVAA"/>
+			<bitfield pos="24" name="PVP2_CHSW" variants="NV84:NV98 NVA0:NVAA"/>
 			<bitfield pos="24" name="PVDEC_CHSW" variants="NV98:NVA0 NVAA:NVC0"/>
 			<bitfield pos="25" name="PCRYPT_CHSW" variants="NV84:NVA3"/>
 			<bitfield pos="25" name="UNUSED4_CHSW" variants="NVA3:NVAF"/>
