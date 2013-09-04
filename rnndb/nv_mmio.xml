@@ -25,10 +25,10 @@
 </domain>
 
 <!-- 000000 - 000fff PMC -->
-<import file="bus/nv_pmc.xml" />
+<import file="bus/pmc.xml" />
 
 <!-- 001000 - 001fff PBUS -->
-<import file="bus/nv_pbus.xml" />
+<import file="bus/pbus.xml" />
 
 <!-- 002000 - 003fff PFIFO -->
 <import file="fifo/nv01_pfifo.xml" />
@@ -49,7 +49,7 @@
 <import file="display/nv10_pvideo.xml" />
 
 <!-- 009000 - 009fff PTIMER -->
-<import file="bus/nv_ptimer.xml" />
+<import file="bus/ptimer.xml" />
 
 <!-- 00a000 - 00afff PCOUNTER -->
 <import file="nv10_pcounter.xml" />
@@ -68,7 +68,7 @@
 <!-- 00d000 - 00dfff PGPIO covered in nv50_pnvio.xml -->
 
 <!-- 00e000 - 00efff PNVIO -->
-<import file="io/nv50_pnvio.xml" />
+<import file="io/pnvio.xml" />
 
 <!-- 00f000 - 00ffff PVP1 -->
 <import file="vdec/vpe/pvp1.xml" />
@@ -77,15 +77,15 @@
 <import file="vdec/vp2/pvp2.xml" />
 
 <!-- 020000 - 020fff PTHERM -->
-<import file="pm/nv50_ptherm.xml" />
+<import file="pm/ptherm.xml" />
 
 <!-- 021000 - 021fff PFUSE -->
-<import file="bus/nv50_pfuse.xml" />
+<import file="bus/pfuse.xml" />
 
 <!-- 022000 - 0223ff PUNK022 covered above -->
 
 <!-- 022400 - 0227ff PUNITS -->
-<import file="bus/nvc0_punits.xml" />
+<import file="bus/punits.xml" />
 
 <!-- 040000 - 045fff PFIFO_CHAN covered in nvc0_pfifo.xml -->
 
@@ -110,12 +110,12 @@
 <import file="vdec/vp3/pcrypt3.xml" />
 
 <!-- 088000 - 088fff PPCI -->
-<import file="bus/nv_pci.xml" />
+<import file="bus/pci.xml" />
 
 <!-- 089000 - 089fff ??? [NV84+] -->
 <import file="nv84_punk089.xml" />
 
-<!-- 08a000 - 08afff PPCI_HDA covered in nv_pci.xml -->
+<!-- 08a000 - 08afff PPCI_HDA covered in bus/pci.xml -->
 
 <!-- 090000 - 090fff PFIFO_CACHE1 covered in nv_pfifo.xml -->
 
@@ -134,7 +134,7 @@
 <import file="memory/nvc0_pffb.xml" />
 
 <!-- 101000 - 101fff PSTRAPS -->
-<import file="io/nv_pstraps.xml" />
+<import file="io/pstraps.xml" />
 
 <!-- 101000 - 101fff PTIMER covered in nv01_ptimer.xml -->
 
@@ -147,7 +147,7 @@
 <!-- 104000 - 104fff PCOPY[0] -->
 <!-- 105000 - 105fff PCOPY[1] -->
 <!-- 106000 - 106fff PCOPY[2] -->
-<import file="fifo/nva3_pcopy.xml" />
+<import file="fifo/pcopy.xml" />
 
 <!-- 108000 - 109fff PCODEC -->
 <import file="display/nva3_pcodec.xml" />
@@ -156,7 +156,7 @@
 <import file="display/nva3_pkfuse.xml" />
 
 <!-- 10a000 - 10afff PDAEMON -->
-<import file="pm/nva3_pdaemon.xml" />
+<import file="pm/pdaemon.xml" />
 
 <!-- 10c000 - 10efff ??? [NVC0] -->
 
@@ -166,7 +166,7 @@
 <import file="memory/nvc0_pbfb.xml" />
 
 <!-- 120000 - 12ffff PIBUS -->
-<import file="bus/nvc0_pibus.xml" />
+<import file="bus/pibus.xml" />
 
 <!-- 130000 - 136fff ??? [NVC0] -->
 
@@ -197,7 +197,7 @@
 <import file="display/nvd9_punk1c3.xml" />
 
 <!-- 200000 - 200fff PMEDIA -->
-<import file="io/nv_pmedia.xml" />
+<import file="io/pmedia.xml" />
 
 <!-- 2ff000 - 2fffff PBRIDGE_PCI covered in nv_pbus.xml -->
 
@@ -224,7 +224,7 @@
 <import file="memory/nv01_pram.xml" />
 
 <!-- 605000 - 605fff PCHIPID -->
-<import file="io/nv01_pchipid.xml" />
+<import file="io/pchipid.xml" />
 
 <!-- 608000 - 608fff PSTRAPS covered in nv_pstraps.xml -->
 
@@ -232,7 +232,7 @@
 <import file="display/nv01_pdac.xml" />
 
 <!-- 60a000 - 60afff PEEPROM -->
-<import file="io/nv01_peeprom.xml" />
+<import file="io/peeprom.xml" />
 
 <!-- 680000 - 6fffff PRAMDAC/PRMDIO -->
 <import file="display/nv03_pramdac.xml" />
@@ -253,7 +253,7 @@
 <!-- 650000 - 653fff PRAMRO covered in nv01_pram.xml -->
 
 <!-- 6c0000 - 6c7fff PRM -->
-<import file="bus/nv01_prm.xml" />
+<import file="bus/prm.xml" />
 
 <!-- 6d0000 - 6d0fff PRMIO covered in nv01_prm.xml -->
 

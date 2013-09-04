@@ -8,7 +8,7 @@
 <import file="nv50_defs.xml" />
 <import file="memory/nv50_vm.xml" />
 <import file="display/nv_vga.xml" />
-<import file="bus/nv_pci.xml" />
+<import file="bus/pci.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 	<array offset="0x1000" name="PBUS" stride="0x1000" length="1">
