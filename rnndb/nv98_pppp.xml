@@ -5,12 +5,12 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="nv98_fuc.xml" />
+<import file="falcon.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <bitset name="NV98_PPPP_INTR" varset="chipset">
-	<bitfield low="0" high="7" name="FUC" type="nv98_fuc_intr"/>
+	<bitfield low="0" high="7" name="FUC" type="falcon_intr"/>
 	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="NVA3:NVC0"/>
 	<bitfield pos="9" name="MEMIF_FAULT" variants="NVA3:NVC0"/>
 	<bitfield pos="9" name="MEMIF_BREAK" variants="NVC0-"/>
@@ -41,8 +41,8 @@
 </bitset>
 
 <array name="PPPP" offset="0x86000" stride="0x1000" length="1" variants="NV98 NVAA-">
-	<use-group name="nv98_fucbase"/>
-	<use-group name="nv98_fuc_memif"/>
+	<use-group name="falcon_base"/>
+	<use-group name="falcon_memif"/>
 	<array offset="0x400" stride="0x80" length="1" name="FE">
 		<reg32 offset="0x00" name="ENABLE">
 			<bitfield pos="4" name="FG"/>

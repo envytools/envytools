@@ -6,7 +6,7 @@
 
 <import file="nvchipsets.xml" />
 
-<enum name="NV98_CRYPT_OP">
+<enum name="FALCON_CRYPT_OP">
 	<value value="0x00" name="UNK0"/>
 	<value value="0x01" name="MOV"/>
 	<value value="0x02" name="XSIN"/>
@@ -33,7 +33,7 @@
 	<value value="0x18" name="UNK18_SIG"/>
 </enum>
 
-<group name="nv98_fuc_crypt">
+<group name="falcon_crypt">
 	<array offset="0x800" name="CRYPT" stride="0x100" length="1">
 		<reg32 offset="0x00" name="ACCESS">
 			<bitfield pos="10" name="UNK10"/>
@@ -50,12 +50,12 @@
 		<reg32 offset="0x30" name="INSN_IO">
 			<bitfield low="0" high="3" name="ARG1"/>
 			<bitfield low="8" high="13" name="ARG2"/>
-			<bitfield low="20" high="24" name="OPCODE" type="NV98_CRYPT_OP"/>
+			<bitfield low="20" high="24" name="OPCODE" type="FALCON_CRYPT_OP"/>
 			<bitfield pos="28" name="VALID"/>
 		</reg32>
 		<reg32 offset="0x58" name="UNK58" access="r">
-			<bitfield low="0" high="4" name="SEQ_OPCODE" type="NV98_CRYPT_OP"/>
-			<bitfield low="5" high="9" name="IO_OPCODE" type="NV98_CRYPT_OP"/>
+			<bitfield low="0" high="4" name="SEQ_OPCODE" type="FALCON_CRYPT_OP"/>
+			<bitfield low="5" high="9" name="IO_OPCODE" type="FALCON_CRYPT_OP"/>
 			<bitfield low="15" high="16" name="AES_OP">
 				<value value="0" name="ENC"/>
 				<value value="1" name="DEC"/>
@@ -63,7 +63,7 @@
 				<value value="3" name="KREXP"/>
 			</bitfield>
 		</reg32>
-		<bitset name="nv98_fuc_crypt_intr" inline="yes">
+		<bitset name="falcon_crypt_intr" inline="yes">
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield pos="8" name="UNK8"/>
 			<bitfield pos="12" name="UNK12"/>
@@ -72,8 +72,8 @@
 			<bitfield pos="24" name="UNK24"/>
 			<bitfield pos="28" name="UNK28"/> <!-- ??? -->
 		</bitset>
-		<reg32 offset="0x80" name="INTR" type="nv98_fuc_crypt_intr"/>
-		<reg32 offset="0x84" name="INTR_EN" type="nv98_fuc_crypt_intr"/>
+		<reg32 offset="0x80" name="INTR" type="falcon_crypt_intr"/>
+		<reg32 offset="0x84" name="INTR_EN" type="falcon_crypt_intr"/>
 		<reg32 offset="0x98" name="OPCODE_ERR">
 			<bitfield pos="0" name="ILLEGAL_OPCODE"/>
 			<bitfield pos="4" name="SEQ_EMPTY"/>

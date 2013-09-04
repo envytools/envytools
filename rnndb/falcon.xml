@@ -7,7 +7,7 @@
 <import file="nvchipsets.xml" />
 <import file="nv50_defs.xml" />
 
-<bitset name="nv98_fuc_intr" inline="yes">
+<bitset name="falcon_intr" inline="yes">
 	<bitfield pos="0" name="PERIODIC"/>
 	<bitfield pos="1" name="WATCHDOG"/>
 	<bitfield pos="2" name="FIFO_DATA"/>
@@ -18,30 +18,30 @@
 	<bitfield pos="7" name="USER2"/>
 </bitset>
 
-<bitset name="NV98_FUC_BREAK_MASK">
+<bitset name="FALCON_BREAK_MASK">
 	<bitfield pos="7" name="BREAKPOINT"/>
 </bitset>
 
-<group name="nv98_fucbase">
-	<reg32 offset="0x000" name="INTR_TRIGGER" access="w" type="nv98_fuc_intr"/>
-	<reg32 offset="0x004" name="INTR_ACK" access="w" type="nv98_fuc_intr"/>
-	<reg32 offset="0x008" name="INTR" access="r" type="nv98_fuc_intr"/>
-	<reg32 offset="0x010" name="INTR_EN_SET" access="w" type="nv98_fuc_intr"/>
-	<reg32 offset="0x014" name="INTR_EN_CLR" access="w" type="nv98_fuc_intr"/>
-	<reg32 offset="0x018" name="INTR_EN" access="r" type="nv98_fuc_intr"/>
+<group name="falcon_base">
+	<reg32 offset="0x000" name="INTR_TRIGGER" access="w" type="falcon_intr"/>
+	<reg32 offset="0x004" name="INTR_ACK" access="w" type="falcon_intr"/>
+	<reg32 offset="0x008" name="INTR" access="r" type="falcon_intr"/>
+	<reg32 offset="0x010" name="INTR_EN_SET" access="w" type="falcon_intr"/>
+	<reg32 offset="0x014" name="INTR_EN_CLR" access="w" type="falcon_intr"/>
+	<reg32 offset="0x018" name="INTR_EN" access="r" type="falcon_intr"/>
 	<reg32 offset="0x01c" name="INTR_ROUTING">
 		<doc>
 			Each interrupt has 2 bits in here, and its handling
 			is determined by their combination:
 			<ul>
-			<li>M1 = 0, M2 = 0: fuc interrupt 0</li>
-			<li>M1 = 0, M2 = 1: fuc interrupt 1</li>
+			<li>M1 = 0, M2 = 0: falcon interrupt 0</li>
+			<li>M1 = 0, M2 = 1: falcon interrupt 1</li>
 			<li>M1 = 1, M2 = 0: PMC HOST/DAEMON interrupt</li>
 			<li>M1 = 1, M2 = 1: PMC UNK1 interrupt [NVC0+ only]</li>
 			</ul>
 		</doc>
-		<bitfield low="0" high="15" name="M1" type="nv98_fuc_intr"/>
-		<bitfield low="16" high="31" name="M2" type="nv98_fuc_intr"/>
+		<bitfield low="0" high="15" name="M1" type="falcon_intr"/>
+		<bitfield low="16" high="31" name="M2" type="falcon_intr"/>
 	</reg32>
 	<!-- the following are conspiciously absent from PGRAPH. -->
 	<reg32 offset="0x020" name="PERIODIC_PERIOD"/>
@@ -108,17 +108,17 @@
 		<bitfield pos="16" name="WRCACHE_FLUSH"/>
 		<bitfield pos="17" name="PM_TRIGGER"/>
 	</reg32>
-	<enum name="nv98_fuc_pm_mode" inline="yes">
+	<enum name="falcon_pm_mode" inline="yes">
 		<value value="0" name="PULSE"/>
 		<value value="1" name="CONTINUOUS"/>
 	</enum>
 	<reg32 offset="0x08c" name="PM_MODE">
-		<bitfield pos="0" name="0" type="nv98_fuc_pm_mode"/>
-		<bitfield pos="1" name="1" type="nv98_fuc_pm_mode"/>
-		<bitfield pos="2" name="2" type="nv98_fuc_pm_mode"/>
-		<bitfield pos="3" name="3" type="nv98_fuc_pm_mode"/>
-		<bitfield pos="4" name="4" type="nv98_fuc_pm_mode"/>
-		<bitfield pos="5" name="5" type="nv98_fuc_pm_mode"/>
+		<bitfield pos="0" name="0" type="falcon_pm_mode"/>
+		<bitfield pos="1" name="1" type="falcon_pm_mode"/>
+		<bitfield pos="2" name="2" type="falcon_pm_mode"/>
+		<bitfield pos="3" name="3" type="falcon_pm_mode"/>
+		<bitfield pos="4" name="4" type="falcon_pm_mode"/>
+		<bitfield pos="5" name="5" type="falcon_pm_mode"/>
 	</reg32>
 	<reg32 offset="0x090" name="UNK090">
 		<bitfield low="0" high="15" name="UNK0"/>
@@ -309,7 +309,7 @@
 		<bitfield low="8" high="12" name="IDX"/> <!-- used for REG_* and STATUS_READ -->
 		<bitfield pos="14" name="ERROR"/> <!-- RO -->
 		<bitfield pos="15" name="DONE"/> <!-- RO -->
-		<bitfield low="16" high="31" name="BREAK_MASK" type="NV98_FUC_BREAK_MASK"/>
+		<bitfield low="16" high="31" name="BREAK_MASK" type="FALCON_BREAK_MASK"/>
 	</reg32>
 	<reg32 offset="0x204" name="DEBUG_ADDR" variants="NVD9-"/> <!-- actually v4; used for DATA_*, IO_*, CONTINUE_FROM_ADDR -->
 	<reg32 offset="0x208" name="DEBUG_DATA_WR" variants="NVD9-"/>
@@ -340,7 +340,7 @@
 	<reg32 offset="0xffc" name="HOST_IO_INDEX"/>
 </group>
 
-<group name="nv98_fuc_memif">
+<group name="falcon_memif">
 	<array offset="0x600" length="1" stride="0x40" name="MEMIF">
 		<reg32 offset="0x00" length="8" name="PORT" variants="NV50:NVC0">
 			<doc>Note that port 7 is hardwired to point to context DMAobj.</doc>
@@ -385,7 +385,7 @@
 			<bitfield low="16" high="19" name="UNK16"/>
 		</reg32>
 		<reg32 offset="0x28" name="STATUS"/> <!-- indexed -->
-		<domain name="NV98_FUC_MEMIF_STATUS" width="32">
+		<domain name="FALCON_MEMIF_STATUS" width="32">
 			<reg32 offset="0" name="UNK0">
 				<!-- ... -->
 			</reg32>

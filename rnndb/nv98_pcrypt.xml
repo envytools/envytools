@@ -5,13 +5,13 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="nv98_fuc.xml" />
-<import file="nv98_fuc_crypt.xml" />
+<import file="falcon.xml" />
+<import file="falcon_crypt.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <bitset name="NV98_PCRYPT_INTR" varset="chipset">
-	<bitfield low="0" high="7" name="FUC" type="nv98_fuc_intr"/>
+	<bitfield low="0" high="7" name="FUC" type="falcon_intr"/>
 	<bitfield pos="8" name="MEMIF_TARGET_INVALID"/>
 	<bitfield pos="9" name="MEMIF_FAULT"/>
 	<bitfield pos="10" name="CRYPT"/>
@@ -22,9 +22,9 @@
 </bitset>
 
 <array name="PCRYPT" offset="0x87000" stride="0x1000" length="1" variants="NV98 NVAA:NVA3">
-	<use-group name="nv98_fucbase"/>
-	<use-group name="nv98_fuc_memif"/>
-	<use-group name="nv98_fuc_crypt"/>
+	<use-group name="falcon_base"/>
+	<use-group name="falcon_memif"/>
+	<use-group name="falcon_crypt"/>
 </array>
 
 </domain>

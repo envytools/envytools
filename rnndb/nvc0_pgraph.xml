@@ -5,7 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="nv98_fuc.xml" />
+<import file="falcon.xml" />
 <import file="nv50_pgraph.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
@@ -562,7 +562,7 @@
 	</array>
 
 	<group name="nvc0_ctxctl">
-		<use-group name="nv98_fucbase"/>
+		<use-group name="falcon_base"/>
 		<reg32 offset="0x400" name="SIGNAL">
 			<bitfield pos="0" name="ZERO"/>
 			<bitfield pos="1" name="PIBUS_INTR"/>
@@ -625,10 +625,10 @@
 			<bitfield pos="18" name="LEVEL"/>
 		</bitset>
 		<reg32 offset="0x404" name="INTR_ROUTE" type="nvc0_ctxctl_iroute">
-			<doc>Indexed fuc register, in 8 copies. Index i determines the source
-			of fuc interrupt i+8.</doc>
+			<doc>Indexed falcon register, in 8 copies. Index i determines the source
+			of falcon interrupt i+8.</doc>
 		</reg32>
-		<!-- BAR_REQMASK and BAR are indexed fµc regs, with valid indices being 0 and 1 -->
+		<!-- BAR_REQMASK and BAR are indexed falcon regs, with valid indices being 0 and 1 -->
 		<reg32 offset="0x40c" name="BAR_REQMASK" length="2"/>
 		<reg32 offset="0x414" name="BAR"/>
 		<reg32 offset="0x418" name="BAR_SET" length="2"/> <!-- not indexed. -->
@@ -1378,7 +1378,7 @@
 		</reg32>
 
 		<reg32 offset="0xc14" name="INTR_UP_ROUTE" type="nvc0_ctxctl_iroute">
-			<doc>Indexed fuc register, in 19 copies. Index i determines the source
+			<doc>Indexed falcon register, in 19 copies. Index i determines the source
 			of interrupt i. Source for interrupt 19 is hardwired to 0x2b [WATCHDOG].</doc>
 		</reg32>
 		<reg32 offset="0xc00" name="ENGINE_STATUS">

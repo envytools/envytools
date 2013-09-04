@@ -45,7 +45,7 @@
 		<bitfield low="2" high="3" name="UNK2"/> <!-- set to 2 on BAR accesses -->
 		<bitfield pos="5" name="IS_FLUSH"/> <!-- ? -->
 		<bitfield low="8" high="15" name="STORAGE_TYPE" type="NVC0_STORAGE_TYPE"/>
-		<bitfield low="16" high="17" name="UNK16"/> <!-- for fµc accesses comes from target config -->
+		<bitfield low="16" high="17" name="UNK16"/> <!-- for falcon accesses comes from target config -->
 		<bitfield low="18" high="19" name="CLASS">
 			<value value="0" name="ISO"/> <!-- scanout -->
 			<value value="1" name="NORMAL"/>

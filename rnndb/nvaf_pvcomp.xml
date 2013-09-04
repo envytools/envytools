@@ -5,12 +5,12 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="nv98_fuc.xml" />
+<import file="falcon.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <bitset name="NVAF_PVCOMP_INTR" varset="chipset">
-	<bitfield low="0" high="7" name="FUC" type="nv98_fuc_intr"/>
+	<bitfield low="0" high="7" name="FUC" type="falcon_intr"/>
 	<bitfield pos="8" name="MEMIF_TARGET_INVALID"/>
 	<bitfield pos="9" name="MEMIF_FAULT"/>
 	<bitfield pos="10" name="VCOMP"/>
@@ -31,8 +31,8 @@
 </bitset>
 
 <array name="PVCOMP" offset="0x1c1000" stride="0x1000" length="1" variants="NVAF-">
-	<use-group name="nv98_fucbase"/>
-	<use-group name="nv98_fuc_memif"/>
+	<use-group name="falcon_base"/>
+	<use-group name="falcon_memif"/>
 
 	<array offset="0x400" name="ALPHA" stride="0x40" length="1">
 		<reg32 offset="0x00" name="KAPPA_TRIGGER"/>

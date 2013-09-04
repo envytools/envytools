@@ -5,17 +5,18 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
-<import file="nv98_fuc.xml" />
-<import file="nv98_fuc_crypt.xml" />
+<import file="falcon.xml" />
+<import file="falcon_crypt.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <bitset name="NV98_PVP_INTR" varset="chipset">
-	<bitfield low="0" high="7" name="FUC" type="nv98_fuc_intr"/>
+	<bitfield low="0" high="7" name="FUC" type="falcon_intr"/>
 	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="NVA3:NVC0"/>
 	<bitfield pos="9" name="MEMIF_FAULT" variants="NVA3:NVC0"/>
 	<bitfield pos="9" name="MEMIF_BREAK" variants="NVC0-"/>
 	<bitfield pos="10" name="VUC"/>
+	<bitfield pos="15" name="UNK680"/>
 </bitset>
 <bitset name="NV98_PVP_STATUS" varset="chipset">
 	<bitfield pos="0" name="FUC"/>
@@ -41,10 +42,10 @@
 </enum>
 
 <array name="PVP" offset="0x85000" stride="0x1000" length="1" variants="NV98 NVAA-">
-	<use-group name="nv98_fucbase"/>
-	<use-group name="nv98_fuc_memif"/>
+	<use-group name="falcon_base"/>
+	<use-group name="falcon_memif"/>
 	<stripe variants="NVC0:NVD9">
-		<use-group name="nv98_fuc_crypt"/>
+		<use-group name="falcon_crypt"/>
 	</stripe>
 	<array offset="0x400" name="VUC" stride="0x100">
 		<reg32 offset="0x00" name="DATA" length="16"/> <!-- indexed -->
@@ -70,7 +71,7 @@
 		</reg32>
 		<reg32 offset="0x48" name="ICNT"/>
 		<reg32 offset="0x4c" name="WDCNT"/>
-		<bitset name="nv98_pvp_vuc_intr" inline="yes"> <!-- fuc intr 10 -->
+		<bitset name="nv98_pvp_vuc_intr" inline="yes">
 			<bitfield pos="0" name="WATCHDOG"/>
 			<bitfield pos="1" name="UNK1"/>
 			<bitfield pos="2" name="V2H" variants="NV98:NVD9"/>
@@ -300,7 +301,7 @@
 			<bitfield pos="12" name="UNK12" variants="NVA3-"/>
 		</reg32>
 		<reg32 offset="0x28" name="UNK28"/> <!-- ffff on NV98, 1ffff on NVD9 -->
-		<bitset name="nv98_pvp_680_intr"> <!-- fuc intr 15 -->
+		<bitset name="nv98_pvp_680_intr">
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield pos="4" name="UNK4"/>
 			<bitfield pos="8" name="UNK8"/>

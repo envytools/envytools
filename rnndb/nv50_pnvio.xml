@@ -256,7 +256,7 @@
 			<reg32 offset="0x088" name="GPIO_INTR_INJECT_HOST_1" type="nv50_pnvio_gpio_intr_1"/>
 			<reg32 offset="0x08c" name="GPIO_INTR_INJECT_DISPLAY_DAEMON_1" type="nv50_pnvio_gpio_intr_1"/>
 		</array>
-		<array offset="0xe00" name="INTR_DISPLAY_DAEMON" stride="0x100" variants="NVE4-"> <!-- do PDISPLAY.DAEMON fµc interrupt 15 -->
+		<array offset="0xe00" name="INTR_DISPLAY_DAEMON" stride="0x100" variants="NVE4-">
 			<reg32 offset="0x000" name="GPIO_INTR_0" type="nv50_pnvio_gpio_intr_0"/>
 			<reg32 offset="0x004" name="GPIO_INTR_DISPATCH_0" type="nv50_pnvio_gpio_intr_0"/>
 			<reg32 offset="0x008" name="GPIO_INTR_INJECT_HOST_0" type="nv50_pnvio_gpio_intr_0"/>
