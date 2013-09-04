@@ -26,18 +26,18 @@ TOC
 
 = Introduction =
 
-The BSP is the first stage of the VP2 decoding pipeline. It is part of
+The VLD is the first stage of the VP2 decoding pipeline. It is part of
 PBSP and deals with decoding the H.264 bitstream into syntax elements.
 
-The input to the BSP is the raw H.264 bitstream. The output of BSP is MBRING,
+The input to the VLD is the raw H.264 bitstream. The output of VLD is MBRING,
 a ring buffer structure storing the decoded syntax elements in the form
 of word-aligned packets.
 
-The BSP only deals with parsing the NALs containing the slice data - the
+The VLD only deals with parsing the NALs containing the slice data - the
 remaining NAL types are supposed to be parsed by the host. Further, the
 hardware can only parse pred_weight_table and slice_data elements efficiently
  - the remaining parts of the slice NAL are supposed to be parsed by the
-firmware controlling the BSP in a semi-manual manner: the BSP provides
+firmware controlling the VLD in a semi-manual manner: the VLD provides
 commands that parse single syntax elements.
 
 The following H.264 profiles are supported:
@@ -53,7 +53,7 @@ The limitations are:
  - max picture width and height: 128 macroblocks [XXX: or 255?]
  - max macroblocks in picture: 8192
 
-There are two modes of operation that BSP can be used with: single-macroblock
+There are two modes of operation that VLD can be used with: single-macroblock
 mode and whole-slice mode. In the single-macroblock mode, parsing for each
 macroblock has to be manually triggered by the firmware. In whole-slice mode,
 the firmware triggers processing of a whole slice, and the hardware
@@ -62,7 +62,7 @@ mode doesn't support Flexible Macroblock Ordering aka. slice groups. Thus,
 single-macroblock mode has to be used for sequences with non-zero value of
 num_slice_groups_minus1.
 
-The BSP keeps extensive hidden internal state, including:
+The VLD keeps extensive hidden internal state, including:
  - pred_weight_table data, to be prepended to the next emitted macroblock
  - bitstream position, zero byte count [for escaping], and lookahead buffer
  - CABAC valMPS, pStateIdx, codIOFfset, codIRange state
@@ -73,22 +73,22 @@ The BSP keeps extensive hidden internal state, including:
 
 = The registers =
 
-The BSP registers are located in PBSP XLMI space at addresses 0x00000:0x08000
+The VLD registers are located in PBSP XLMI space at addresses 0x00000:0x08000
 [BAR0 addresses 0x103000:0x103200]. They are:
 
-00000:02000/103000:103080 - BSP control registers
+00000:02000/103000:103080 - VLD control registers
 00000/103000: PARM_0 - parameters from sequence/picture parameter structs and
                        the slice header
 00100/103004: PARM_1 - parameters from sequence/picture parameter structs and
                        the slice header
 00200/103008: MB_POS - position of the current macroblock
-00300/10300c: COMMAND - writing executes a BSP command
-00400/103010: STATUS - shows busy status of various parts of the BSP
+00300/10300c: COMMAND - writing executes a VLD command
+00400/103010: STATUS - shows busy status of various parts of the VLD
 00500/103014: RESULT - result of a command
 00700/10301c: INTR_EN - interrupt enable mask
 00800/103020: ??? [XXX]
 00900/103024: INTR - interrupt status
-00a00/103028: RESET - resets the BSP and its registers to initial state
+00a00/103028: RESET - resets the VLD and its registers to initial state
 01000+i*0x100/103040+i*4, 0<=i<8: CONF[i] - length and enable bit of
 						   stream buffer i
 01100+i*0x100/103044+i*4, 0<=i<8: OFFSET[i] - offset of stream buffer i
@@ -105,14 +105,14 @@ The BSP registers are located in PBSP XLMI space at addresses 0x00000:0x08000
 The engine may be reset at any time by poking the RESET register.
 
 BAR0 0x103028 / XLMI 0x00a00: RESET
-  Any write will cause the BSP to be reset. All internal state is reset to
+  Any write will cause the VLD to be reset. All internal state is reset to
   default values. All user-writable registers are set to 0, except UNK8
   which is set to 0xffffffff.
 
 
 = Parameter and position registers =
 
-The values of these registers are used by some of the BSP commands. PARM
+The values of these registers are used by some of the VLD commands. PARM
 registers should be initialised with values derived from sequence parameters,
 picture parameters, and slice header. MB_POS should be set to the address of
 currently processed macroblock [for single-macroblock operation] or the first
@@ -162,7 +162,7 @@ BAR0 0x103008 / XLMI 0x00200: MB_POS
 
 Both CAVLC and CABAC sometimes use decoded data of previous macroblocks in the
 slice to determine the decoding algorithm for syntax elements of the current
-macroblock. The BSP thus stores this data in its internal hidden memory.
+macroblock. The VLD thus stores this data in its internal hidden memory.
 
 [XXX: what macroblocks are stored, indexing, tagging, reset state]
 

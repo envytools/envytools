@@ -10,7 +10,7 @@
 <domain name="NV_PBSP_XLMI">
 	<use-group name="nv_xlmi_common"/>
 	<reg32 offset="0x3821c" name="INTR">
-		<bitfield pos="0" name="BSP"/>
+		<bitfield pos="0" name="VLD"/>
 		<bitfield pos="1" name="VUC"/>
 		<bitfield pos="2" name="MEMIF"/>
 		<bitfield pos="3" name="LIMIT_FAULT"/>
@@ -32,7 +32,7 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <array name="PBSP" offset="0x103000" stride="0x1000" length="1" variants="NV84:NV98 NVA0">
-	<array offset="0x000" name="BSP" stride="0x200">
+	<array offset="0x000" name="VLD" stride="0x200">
 		<reg32 offset="0x00" name="PARM_0">
 			<bitfield pos="0" name="ENTROPY_CODING_MODE_FLAG"/>
 			<bitfield low="1" high="8" name="WIDTH_MB"/>

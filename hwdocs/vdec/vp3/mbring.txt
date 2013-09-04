@@ -1,4 +1,4 @@
-The macroblock ring outputted from BSP is packet based, and aligned on
+The macroblock ring outputted from VLD is packet based, and aligned on
 32-bit word size.
 
 A packet has the header type in bits [24..31] and length in bits [0..23].

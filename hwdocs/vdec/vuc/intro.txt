@@ -11,7 +11,7 @@ TOC
 vµc is a microprocessor unit used as the second stage of the VP2 [in H.264
 mode only], VP3 and VP4 video decoding pipelines. The same name is also used
 to refer to the instruction set of this microprocessor. vµc's task is to read
-decoded bitstream data written by BSP into the MBRING structure, do any
+decoded bitstream data written by VLD into the MBRING structure, do any
 required calculations on this data, then construct instructions for the VP
 stage regarding processing of the incoming macroblocks. The work required of
 vµc is dependent on the codec and may include eg. motion vector derivation,
@@ -25,7 +25,7 @@ The vµc unit is made of the following subunits:
 
  - the vµc microcprocessor - oversees everything and does the calculations
    that are not performance-sensitive enough to be done in hardware
- - MBRING input and parsing circuitry - reads bitstream data parsed by the BSP
+ - MBRING input and parsing circuitry - reads bitstream data parsed by the VLD
  - MVSURF input and output circuitry - the MVSURF is a storage buffer attached
    to all reference pictures in H.264 and to P pictures in VC-1, MPEG-4. It
    stores the motion vectors and other data used for direct prediction in B

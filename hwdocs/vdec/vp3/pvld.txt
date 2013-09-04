@@ -43,7 +43,7 @@ NVC0 VM client: HUB 0x0d
 
 The IO registers:
 
-400/10000:480/12000 BSP		bitstream processor	[vdec/vp3/pvld.txt]
+400/10000:480/12000 VLD		bitstream processor	[vdec/vp3/pvld.txt]
 480/12000:500/14000 STREAM	bitstream input		[vdec/vp3/pvld.txt]
 500/14000:580/16000 MBRING	macroblock data output	[vdec/vp3/pvld.txt]
 580/16000:600/18000 ???		???			[vdec/vp3/pvld.txt]
@@ -61,13 +61,13 @@ Interrupts:
   8: [E] MEMIF_TARGET_INVALID [NV98:NVC0] [falcon/memif.txt]
   9: [E] MEMIF_FAULT [NV98:NVC0] [falcon/memif.txt]
   9: [E] MEMIF_BREAK [NVC0-] [falcon/memif.txt]
- 10: [L] BSP [vdec/vp3/pvld.txt]
+ 10: [L] VLD [vdec/vp3/pvld.txt]
  11: [L] CRYPT [NVA3-] [falcon/crypt.txt]
 
 Status bits:
   0: falcon [falcon/proc.txt]
   1: MEMIF [falcon/memif.txt]
-  2: BSP [vdec/vp3/pvld.txt]
+  2: VLD [vdec/vp3/pvld.txt]
   3: ??? [NVA3-] [XXX]
   4: ??? [NVC0-] [XXX]
 

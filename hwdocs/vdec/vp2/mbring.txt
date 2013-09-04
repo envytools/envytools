@@ -10,7 +10,7 @@ TOC
 
 = Introduction =
 
-An invocation of SLICE_DATA BSP command writes the decoded data into the
+An invocation of SLICE_DATA VLD command writes the decoded data into the
 MBRING. The MBRING is a ring buffer located in VM memory, made of 32-bit word
 oriented packets. Each packet starts with a header word, whose high 8 bits
 signify the packet type.

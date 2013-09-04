@@ -16,13 +16,13 @@
 	<bitfield pos="8" name="MEMIF_TARGET_INVALID" variants="NVA3:NVC0"/>
 	<bitfield pos="9" name="MEMIF_FAULT" variants="NVA3:NVC0"/>
 	<bitfield pos="9" name="MEMIF_BREAK" variants="NVC0-"/>
-	<bitfield pos="10" name="BSP"/>
+	<bitfield pos="10" name="VLD"/>
 	<bitfield pos="11" name="CRYPT" variants="NVA3-"/>
 </bitset>
 <bitset name="NV98_PVLD_STATUS" varset="chipset">
 	<bitfield pos="0" name="FALCON"/>
 	<bitfield pos="1" name="MEMIF"/>
-	<bitfield pos="2" name="BSP"/>
+	<bitfield pos="2" name="VLD"/>
 	<bitfield pos="3" name="UNK3" variants="NVA3-"/>
 	<bitfield pos="4" name="UNK4" variants="NVC0-"/>
 </bitset>
@@ -33,7 +33,7 @@
 	<stripe variants="NVA3-">
 		<use-group name="falcon_crypt"/>
 	</stripe>
-	<array offset="0x400" name="BSP" stride="0x80">
+	<array offset="0x400" name="VLD" stride="0x80">
 		<reg32 offset="0x00" name="MODE">
 			<bitfield low="0" high="7" name="WIDTH_MB"/>
 			<bitfield low="8" high="15" name="HEIGHT_MB"/>
@@ -211,15 +211,15 @@
 			<bitfield pos="4" name="UNK4"/> <!-- BSP2VP writer? -->
 		</reg32>
 		<reg32 offset="0x4c" name="RESULT"/>
-		<bitset name="nv98_bsp_intr" inline="yes">
+		<bitset name="nv98_vld_intr" inline="yes">
 			<bitfield pos="0" name="ERR_UNK0"/>
 			<bitfield pos="1" name="ERR_UNK1"/>
 			<bitfield pos="2" name="ERR_UNK2"/>
 			<bitfield pos="3" name="BSP2VP_FULL"/>
 			<bitfield pos="4" name="DONE"/>
 		</bitset>
-		<reg32 offset="0x50" name="INTR_EN" type="nv98_bsp_intr"/>
-		<reg32 offset="0x54" name="INTR" type="nv98_bsp_intr"/>
+		<reg32 offset="0x50" name="INTR_EN" type="nv98_vld_intr"/>
+		<reg32 offset="0x54" name="INTR" type="nv98_vld_intr"/>
 		<reg32 offset="0x58" name="UNK58"/><!-- errstat from ERR_UNK2 interrupt? Write 0 after reading -->
 		<reg32 offset="0x5c" name="UNK5C" variants="NVA3-"/>
 		<reg32 offset="0x60" name="UNK60"/>

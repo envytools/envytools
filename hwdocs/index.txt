@@ -198,7 +198,7 @@ VP2 video decoding:
 [*    ] vdec/vp2/xtensa.txt - VP2 xtensa processors
 [     ] vdec/vp2/pvp.txt - Overview of VP2 PVP engine
 [     ] vdec/vp2/pbsp.txt - Overview of VP2 PBSP engine
-[**   ] vdec/vp2/bsp.txt - VP2 BSP parser engine
+[**   ] vdec/vp2/vld.txt - VP2 variable length decoding engine
 [**** ] vdec/vp2/mbring.txt - VP2 MBRING format
 [**   ] vdec/vp2/macro.txt - the VP2 command macro processor
 [     ] vdec/vp2/pcrypt.txt - NV84:NV98 and NVA0 PCRYPT engine
