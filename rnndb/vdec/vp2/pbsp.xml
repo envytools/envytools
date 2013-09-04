@@ -45,7 +45,7 @@
 			<bitfield low="12" high="16" name="NAL_UNIT_TYPE"/>
 			<bitfield pos="17" name="CONSTRAINED_INTRA_PRED"/>
 			<bitfield low="18" high="19" name="CABAC_INIT_IDC"/>
-			<bitfield pos="20" high="21" name="CHROMA_FORMAT_IDC"/>
+			<bitfield low="20" high="21" name="CHROMA_FORMAT_IDC"/>
 			<bitfield pos="22" name="DIRECT_8X8_INFERENCE_FLAG"/>
 			<bitfield pos="23" name="TRANSFORM_8X8_MODE_FLAG"/>
 		</reg32>
