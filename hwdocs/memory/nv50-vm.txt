@@ -86,7 +86,7 @@ VM is used by several clients, which are identified by VM client id:
  - a: TEXTURE: PGRAPH texture fetches
  - b: ROP: PGRAPH raster output and CUDA global/local memory accesses
  - c: PVP [NV84:NV98 NVA0:NVAA]
- - c: PVP [NV98:NVA0 NVAA-]
+ - c: PVDEC [NV98:NVA0 NVAA-]
  - d: PBSP [NV84:NV98 NVA0:NVAA]
  - d: PVLD [NV98:NVA0 NVAA-]
  - e: PCRYPT [NV84:NV98 NVA0:NVAA]
@@ -103,7 +103,7 @@ to be part of several VM engines. The engines are:
  - 0: PGRAPH: STRMOUT + DISPATCH + CCACHE + CLIPID + VFETCH + TEXTURE + ROP
  - 1: PVP: PVPE [NV50:NV84]
  - 1: PVP: PVP [NV84:NV98 NVA0:NVAA]
- - 1: PVP: PVP [NV98:NVA0 NVAA-]
+ - 1: PVDEC: PVDEC [NV98:NVA0 NVAA-]
  - 4: PEEPHOLE: PFIFO_WRITE + PFIFO_READ
  - 5: PFIFO: PFIFO_WRITE + PFIFO_READ
  - 6: BAR: PFIFO_WRITE + PFIFO_READ
@@ -171,7 +171,7 @@ ids depends on both engine and client id. The DMA slots are
  - a/e/1: PCRYPT SRC [NV84:NV98 NVA0:NVAA]
  - a/e/2: PCRYPT DST [NV84:NV98 NVA0:NVAA]
  - a/e/3: PCRYPT QUERY [NV84:NV98 NVA0:NVAA]
- - 1/c/0-7: PVP falcon ports 0-7 [NV98:NVA0 NVAA-]
+ - 1/c/0-7: PVDEC falcon ports 0-7 [NV98:NVA0 NVAA-]
  - 8/6/0-7: PPPP falcon ports 0-7 [NV98:NVA0 NVAA-]
  - 9/d/0-7: PVLD falcon ports 0-7 [NV98:NVA0 NVAA-]
  - a/e/0-7: PCRYPT falcon ports 0-7 [NV98:NVA3]
@@ -325,7 +325,7 @@ selector | address |        cards        | engine
 -----------------------------------------------
  0x0002  | 0x00020 |         all         | PGRAPH
  0x0004  | 0x00040 | NV84:NV98 NVA0:NVAA | PVP
- 0x0004  | 0x00040 | NV98:NVA0 NVAA-     | PVP
+ 0x0004  | 0x00040 | NV98:NVA0 NVAA-     | PVDEC
  0x0006  | 0x00060 | NV84:NV98 NVA0:NVAA | PMPEG
  0x0006  | 0x00060 | NV98:NVA0 NVAA-     | PPPP
  0x0008  | 0x00080 | NV84:NV98 NVA0:NVAA | PBSP

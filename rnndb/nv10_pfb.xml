@@ -421,7 +421,8 @@
 
 				<value value="0xb" name="PDISPLAY_UNK0B"/>
 				<value value="0xc" name="PDISPLAY_UNK0C"/>
-				<value value="0xd" name="PVP" variants="NV84-"/>
+				<value value="0xd" name="PVP" variants="NV84:NV98 NVA0:NVAA"/>
+				<value value="0xd" name="PVDEC" variants="NV98:NVA0 NVAA-"/>
 				<value value="0xe" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
 				<value value="0xe" name="PVLD" variants="NV98:NVA0 NVAA-"/>
 				<value value="0xf" name="PCRYPT" variants="NV84:NVA3"/>
@@ -442,7 +443,8 @@
 		<reg32 offset="0x10" name="VM_FAULT">
 			<!-- XXX more bits... -->
 			<bitfield pos="11" name="PCOPY_ENABLE" variants="NVA3-"/>
-			<bitfield pos="16" name="PVP_ENABLE"/>
+			<bitfield pos="16" name="PVP_ENABLE" variants="NV50:NV98 NVA0:NVAA"/>
+			<bitfield pos="16" name="PVDEC_ENABLE" variants="NV98:NVA0 NVAA-"/>
 			<bitfield pos="17" name="PME_ENABLE" variants="NV50:NV84"/>
 			<bitfield pos="18" name="PMPEG_ENABLE" variants="NV50:NV98 NVA0:NVAA"/>
 			<bitfield pos="18" name="PPPP_ENABLE" variants="NV98:NVA0 NVAA-"/>

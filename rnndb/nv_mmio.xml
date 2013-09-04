@@ -98,8 +98,8 @@
 <!-- 084000 - 084fff PVLD -->
 <import file="nv98_pvld.xml" />
 
-<!-- 085000 - 085fff PVP -->
-<import file="nv98_pvp.xml" />
+<!-- 085000 - 085fff PVDEC -->
+<import file="nv98_pvdec.xml" />
 
 <!-- 086000 - 086fff PPPP -->
 <import file="nv98_pppp.xml" />

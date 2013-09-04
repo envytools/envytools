@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
 	}
 
 	if (!base) {
-		fprintf (stderr, "No engine specified. Specify -b for PVLD, -v for PVP, -p for PPPP, -s for PCRYPT, -o for PCOPY\n");
+		fprintf (stderr, "No engine specified. Specify -b for PVLD, -v for PVDEC, -p for PPPP, -s for PCRYPT, -o for PCOPY\n");
 		return 1;
 	}
 

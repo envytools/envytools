@@ -21,7 +21,7 @@
 	<reg32 offset="0x048" name="DESIGN_CRTC_COUNT" variants="NVD9-"/>
 	<reg32 offset="0x100" name="HW_MISC_DISABLE">
 		<bitfield pos="0" name="PDISPLAY_PUNK1C3"/>
-		<bitfield pos="1" name="PVP_PPPP"/>
+		<bitfield pos="1" name="PVDEC_PPPP"/>
 		<bitfield pos="2" name="PVLD"/>
 		<bitfield pos="3" name="PVENC" variants="NVD9-"/> <!-- XXX: why is it on NVD9? -->
 		<bitfield pos="4" name="UNK4"/> <!-- not present anyway on any card I've seen -->
@@ -39,7 +39,7 @@
 	<reg32 offset="0x15c" name="HW_CRTC_DISABLE_MASK" variants="NVD9-"/>
 	<reg32 offset="0x180" name="SW_MISC_DISABLE">
 		<bitfield pos="0" name="PDISPLAY_PUNK1C3"/>
-		<bitfield pos="1" name="PVP_PPPP"/>
+		<bitfield pos="1" name="PVDEC_PPPP"/>
 		<bitfield pos="2" name="PVLD"/>
 		<bitfield pos="3" name="PVENC" variants="NVD9-"/>
 		<bitfield pos="4" name="UNK4"/>

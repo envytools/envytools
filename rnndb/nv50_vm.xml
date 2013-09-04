@@ -4,7 +4,8 @@
 
 <enum name="NV50_VM_ENGINE" varset="chipset">
 	<value value="0" name="PGRAPH"/>
-	<value value="1" name="PVP"/>
+	<value value="1" name="PVP" variants="NV50:NV98 NVA0:NVAA"/>
+	<value value="1" name="PVDEC" variants="NV98:NVA0 NVAA-"/>
 	<value value="4" name="PEEPHOLE"/>
 	<value value="5" name="PFIFO"/>
 	<value value="6" name="BAR"/>
@@ -33,7 +34,8 @@
 	<value value="0x09" name="VFETCH"/>
 	<value value="0x0a" name="TEXTURE"/>
 	<value value="0x0b" name="PROP"/>
-	<value value="0x0c" name="PVP" variants="NV84-"/>
+	<value value="0x0c" name="PVP" variants="NV84:NV98 NVA0:NVAA"/>
+	<value value="0x0c" name="PVDEC" variants="NV98:NVA0 NVAA-"/>
 	<value value="0x0d" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
 	<value value="0x0d" name="PVLD" variants="NV98:NVA0 NVAA-"/>
 	<value value="0x0e" name="PCRYPT" variants="NV84-"/>

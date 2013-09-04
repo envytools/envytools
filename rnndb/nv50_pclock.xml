@@ -408,7 +408,7 @@
 		<bitfield pos="20" name="UNK_20"/>
 		<bitfield pos="21" name="UNK_21"/>
 		<bitfield pos="22" name="VDCLK_P">
-			<doc>Selects clock for PVLD, PVP and PPPP, 0 sets to 500MHz. Shifted by VDEC_P</doc>
+			<doc>Selects clock for PVLD, PVDEC and PPPP, 0 sets to 500MHz. Shifted by VDEC_P</doc>
 			<value value="0" name="UNKNOWN"/>
 			<value value="1" name="CCLK"/>
 		</bitfield>

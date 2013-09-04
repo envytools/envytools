@@ -52,13 +52,13 @@ idx|   name   |   cards   | description
 ------------------------------------------------------------------------------
 2/2| PPPP     |           | VP3 falcon-microcoded video decoding engines: picture
 --------------|           | post-processor, video processor, bitstream
-4/1| PVP      | NV98:.... | processor. [see vdec/vp3/pvld.txt,
---------------|           | vdec/vp3/pvp.txt, vdec/vp3/pppp.txt]
+4/1| PVDEC    | NV98:.... | processor. [see vdec/vp3/pvld.txt,
+--------------|           | vdec/vp3/pvdec.txt, vdec/vp3/pppp.txt]
 6/3| PVLD     |           |
 ------------------------------------------------------------------------------
    |          |           | falcon-microcoded engine with AES crypto coprocessor.
 5/-| PCRYPT   | NV98:NVA3 | On NVA3+, the crypto powers were instead merged
-   |          |           | into PVP. [see vdec/vp3/pcrypt.txt]
+   |          |           | into PVLD. [see vdec/vp3/pcrypt.txt]
 ------------------------------------------------------------------------------
 5/-| PVCOMP   | NVAF:NVC0 | falcon-microcoded video compositing engine
    |          |           | [see vdec/pvcomp.txt]

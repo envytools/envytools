@@ -7,7 +7,7 @@
 <import file="nvchipsets.xml" />
 <import file="falcon.xml" />
 <import file="falcon_crypt.xml" />
-<import file="nv98_pvp.xml" /> <!-- for vp3_mode -->
+<import file="nv98_pvdec.xml" /> <!-- for vp3_mode -->
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 

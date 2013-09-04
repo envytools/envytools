@@ -147,8 +147,8 @@ set 7:
 0x66: PVLD WRCACHE_FLUSH 2nd
 0x71: PPPP PM_TRIGGER 2nd
 0x72: PPPP WRCACHE_FLUSH 2nd
-0x8c: PVP PM_TRIGGER 2nd
-0x8d: PVP WRCACHE_FLUSH 2nd
+0x8c: PVDEC PM_TRIGGER 2nd
+0x8d: PVDEC WRCACHE_FLUSH 2nd
 0xa0 trailer base
 
 
@@ -241,16 +241,16 @@ set 6 [vdec]:
 0x36: PPPP PM_TRIGGER
 0x37: PPPP WRCACHE_FLUSH
 0x38-0x3d: PPPP_USER_0-5 [falcon/perf.txt]
-0x3f: PVP
-0x4a: PVP PM_TRIGGER
-0x4b: PVP WRCACHE_FLUSH
-0x4c-0x51: PVP_USER_0-5 [falcon/perf.txt]
+0x3f: PVDEC
+0x4a: PVDEC PM_TRIGGER
+0x4b: PVDEC WRCACHE_FLUSH
+0x4c-0x51: PVDEC_USER_0-5 [falcon/perf.txt]
 0x54-0x58: PVLD
 0x5f-0x7e: PPPP
-0x88-0x8c: vµc
-0xa0-0xa4: PVP [xfrm? - 4c b3, b5]
-0xad-0xaf: PVP [580 - 4c b7]
-0xb6: PVP [680 - 4c b8]
+0x88-0x8c: PVDEC vµc
+0xa0-0xa4: PVDEC [xfrm? - 4c b3, b5]
+0xad-0xaf: PVDEC [580 - 4c b7]
+0xb6: PVDEC [680 - 4c b8]
 0xc0-0xc5: PVLD.CRYPT
 0xc0 trailer base
 
@@ -432,16 +432,16 @@ VUC_SLEEP        |5e|??|??|??|89|??|??| vdec/vuc/perf.txt
 VUC_WATCHDOG     |5f|??|??|??|8a|??|??| vdec/vuc/perf.txt
 VUC_USER_CONT    |60|??|??|??|8b|??|??| vdec/vuc/perf.txt
 VUC_USER_PULSE   |61|??|??|??|8c|??|??| vdec/vuc/perf.txt
-PVP_IDLE         |90|??|??|??|40|??|??| falcon/perf.txt
-PVP_TA           |93|??|??|??|43|??|??| falcon/perf.txt
-PVP_PM_TRIGGER   |9a|??|??|??|4a|??|??| falcon/perf.txt
-PVP_WRCACHE_FL   |9b|??|??|??|4b|??|??| falcon/perf.txt
-PVP_USER_0       |9c|??|9c|??|4c|??|4c| falcon/perf.txt
-PVP_USER_1       |9d|??|9d|??|4d|??|4d| falcon/perf.txt
-PVP_USER_2       |9e|??|9e|??|4e|??|4e| falcon/perf.txt
-PVP_USER_3       |9f|??|9f|??|4f|??|4f| falcon/perf.txt
-PVP_USER_4       |a0|??|a0|??|50|??|50| falcon/perf.txt
-PVP_USER_5       |a1|??|a1|??|51|??|51| falcon/perf.txt
+PVDEC_IDLE         |90|??|??|??|40|??|??| falcon/perf.txt
+PVDEC_TA           |93|??|??|??|43|??|??| falcon/perf.txt
+PVDEC_PM_TRIGGER   |9a|??|??|??|4a|??|??| falcon/perf.txt
+PVDEC_WRCACHE_FL   |9b|??|??|??|4b|??|??| falcon/perf.txt
+PVDEC_USER_0       |9c|??|9c|??|4c|??|4c| falcon/perf.txt
+PVDEC_USER_1       |9d|??|9d|??|4d|??|4d| falcon/perf.txt
+PVDEC_USER_2       |9e|??|9e|??|4e|??|4e| falcon/perf.txt
+PVDEC_USER_3       |9f|??|9f|??|4f|??|4f| falcon/perf.txt
+PVDEC_USER_4       |a0|??|a0|??|50|??|50| falcon/perf.txt
+PVDEC_USER_5       |a1|??|a1|??|51|??|51| falcon/perf.txt
 PVCOMP_USER_0    |--|--|--|--|--|--|60| falcon/perf.txt
 PVCOMP_USER_1    |--|--|--|--|--|--|61| falcon/perf.txt
 PVCOMP_USER_2    |--|--|--|--|--|--|62| falcon/perf.txt

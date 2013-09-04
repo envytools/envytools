@@ -198,12 +198,13 @@ On NV50:NVC0, the bits are:
   15: PVLD [vdec/vp3/pvld.txt] [NV98:NVA0 NVAA-]
   16: PTIMER [bus/ptimer.txt]
   17: PVP [vdec/vp2/pvp.txt] [NV84:NV98 NVA0:NVAA]
-  17: PVP [vdec/vp3/pvp.txt] [NV98:NVA0 NVAA-]
+  17: PVDEC [vdec/vp3/pvdec.txt] [NV98:NVA0 NVAA-]
   20: PFB [memory/nv50-pfb.txt]
   21: PGRAPH CHSW [NV84-] [fifo/nv50-pfifo.txt]
   22: PMPEG CHSW [NV84-]
   23: PCOPY CHSW [NVA3-]
-  24: PVP CHSW [NV84-] [fifo/nv50-pfifo.txt]
+  24: PVP CHSW [NV84:NV98 NVA0:NVAA] [fifo/nv50-pfifo.txt]
+  24: PVDEC CHSW [NV98:NVA0 NVAA-] [fifo/nv50-pfifo.txt]
   25: PCRYPT CHSW [NV84:NVA3] [fifo/nv50-pfifo.txt]
   25: PVCOMP CHSW [NVAF] [fifo/nv50-pfifo.txt]
   26: PBSP CHSW [NV84:NV98 NVA0:NVAA] [fifo/nv50-pfifo.txt]
@@ -228,7 +229,7 @@ On NVC0+, the bits are:
   13: PDAEMON [pm/pdaemon.txt]
   15: PVLD [vdec/vp3/pvld.txt]
   16: PTIMER [bus/ptimer.txt]
-  17: PVP [vdec/vp3/pvp.txt]
+  17: PVDEC [vdec/vp3/pvdec.txt]
   18: PVENC [NVE4-] [vdec/pvenc.txt]
   20: PBFB [memory/nvc0-pbfb.txt]
   21: PCOPY[2] [NVE4-] [fifo/pcopy.txt]
@@ -259,7 +260,7 @@ MMIO 0x00020c: ??? [NVC4-]
     7: PCOPY[1]
     12: PGRAPH
     15: PVLD
-    17: PVP
+    17: PVDEC
   Comes up as all-1.
 
 [XXX: RE these two]
@@ -380,7 +381,8 @@ For NV50:NVC0:
 15: PBSP [vdec/vp2/pbsp.txt] [NV84:NV98 NVA0:NVAA]
 15: PVLD [vdec/vp3/pvld.txt] [NV98:NVA0 NVAA-]
 16: ??? [NVA3?-]
-17: PVP [vdec/vp2/pvp.txt, vdec/vp3/pvp.txt]
+17: PVP [vdec/vp2/pvp.txt] [NV84:NV98 NVA0:NVAA]
+17: PVDEC [vdec/vp3/pvdec.txt] [NV98:NVA0 NVAA-]
 18: PDAEMON [pm/pdaemon.txt] [NVA3-]
 19: PTHERM [pm/ptherm.txt] [NVA3-]
 20: PTIMER [bus/ptimer.txt]
@@ -407,7 +409,7 @@ For NVC0+:
 13: PBFB [memory/nvc0-pbfb.txt]
 15: PVLD [vdec/vp3/pvld.txt] - has separate NRHOST line
 16: PVENC [NVE4-] [vdec/pvenc.txt] - has separate NRHOST line
-17: PVP [vdec/vp3/pvp.txt] - has separate NRHOST line
+17: PVDEC [vdec/vp3/pvdec.txt] - has separate NRHOST line
 18: PTHERM [pm/ptherm.txt]
 19: ??? [NVD9-]
 20: PTIMER [bus/ptimer.txt]
