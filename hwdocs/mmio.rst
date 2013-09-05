@@ -24,7 +24,7 @@ Address range   Name    Reference                  Description
 002000:004000   PFIFO   `<fifo/nv01-pfifo.txt>`_   MMIO-mapped FIFO submission to PGRAPH
 100000:101000   PDMA    `<memory/nv01-pdma.txt>`_  system memory DMA engine
 101000:102000   PTIMER  `<bus/ptimer.txt>`_        time measurement and time-based alarms
-300000:301000   PAUDIO  `<nv01-paudio.txt>`_       audio capture and playback device
+300000:301000   PAUDIO  :ref:`nv01-paudio`         audio capture and playback device
 400000:401000   PGRAPH  `<graph/nv01-pgraph.txt>`_ accelerated drawing engine
 600000:601000   PFB     `<display/nv01/pfb.txt>`_  VRAM and video output control
 602000:603000   PRAM    `<memory/nv01-vram.txt>`_  RAMIN layout control

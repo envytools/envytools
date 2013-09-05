@@ -9,6 +9,11 @@ Contents:
    intro
    chipsets
    mmio
+
+   bus/index
+   pm/index
+   nv01-paudio
+   io/index
    
    falcon/index
 
