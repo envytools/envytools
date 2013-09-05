@@ -9,8 +9,8 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <bitset name="nvc0_post_div_ctrl" inline="yes">
-	<bitfield low="0" high="5" name="POST_DIVIDER_DIV_MODE-2"/> <!-- add 2 to get the real divider -->
-	<bitfield low="8" high="13" name="POST_DIVIDER_PLL_MODE-2"/> <!-- add 2 to get the real divider -->
+	<bitfield low="0" high="5" add="2" name="POST_DIVIDER_DIV_MODE"/> <!-- add 2 to get the real divider -->
+	<bitfield low="8" high="13" add="2" name="POST_DIVIDER_PLL_MODE"/> <!-- add 2 to get the real divider -->
 	<bitfield pos="31" name="ENABLE_POST_DIVIDER"/>
 </bitset>
 
@@ -46,7 +46,7 @@
 </bitset>
 
 <bitset name="nvc0_div_ctrl" inline="yes">
-	<bitfield low="0" high="5" name="POST_DIVIDER_DIV_MODE-2"/> <!-- add 2 to get the real divider -->
+	<bitfield low="0" high="5" add="2" name="POST_DIVIDER_DIV_MODE"/> <!-- add 2 to get the real divider -->
 	<bitfield pos="31" name="ENABLE_POST_DIVIDER"/>
 </bitset>
 
