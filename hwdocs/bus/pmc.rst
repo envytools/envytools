@@ -74,7 +74,7 @@ MMIO 0x000000: ID [NV01:NV04]
 
 MMIO 0x000000: ID [NV04:NV10]
   - bits 0-3: ???
-  - bitd 4-11: always 0
+  - bits 4-11: always 0
   - bits 12-15: architecture - always 4
   - bits 16-19: minor revision
   - bits 20-23: major revision - 0 is NV04, 1 and 2 are NV05.
