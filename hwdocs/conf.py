@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# falcon documentation build configuration file, created by
+# envytools documentation build configuration file, created by
 # sphinx-quickstart on Thu Sep  5 00:56:33 2013.
 #
 # This file is execfile()d with the current directory set to its containing dir.
@@ -41,7 +41,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'falcon'
+project = 'envytools'
 copyright = '2013, Marcin Kościelnicki'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -165,7 +165,7 @@ html_static_path = ['_static']
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'falcondoc'
+htmlhelp_basename = 'hwdocs'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -184,7 +184,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'falcon.tex', 'falcon Documentation',
+  ('index', 'hwdocs.tex', 'nVidia Hardware Documentation',
    'Marcin Kościelnicki', 'manual'),
 ]
 
@@ -214,7 +214,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'falcon', 'falcon Documentation',
+    ('index', 'hwdocs', 'nVidia Hardware Documentation',
      ['Marcin Kościelnicki'], 1)
 ]
 
@@ -228,8 +228,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'falcon', 'falcon Documentation',
-   'Marcin Kościelnicki', 'falcon', 'One line description of project.',
+  ('index', 'hwdocs', 'nVidia Hardware Documentation',
+   'Marcin Kościelnicki', 'hwdocs', 'One line description of project.',
    'Miscellaneous'),
 ]
 
