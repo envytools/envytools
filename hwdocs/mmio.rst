@@ -20,7 +20,7 @@ NV01 MMIO map
 Address range   Name    Reference                  Description
 =============== ======= ========================== ======================
 000000:001000   PMC     :ref:`pmc-mmio`            card master control
-001000:002000   PBUS    `<bus/pbus.txt>`_          bus control
+001000:002000   PBUS    :ref:`pbus-mmio`           bus control
 002000:004000   PFIFO   `<fifo/nv01-pfifo.txt>`_   MMIO-mapped FIFO submission to PGRAPH
 100000:101000   PDMA    `<memory/nv01-pdma.txt>`_  system memory DMA engine
 101000:102000   PTIMER  :ref:`ptimer-mmio-nv01`    time measurement and time-based alarms
@@ -58,7 +58,7 @@ NV03:NV50 MMIO map
 Address range   Name     Variants  Reference                      Description
 =============== ======== ========= ============================== ======================
 000000:001000   PMC      all       :ref:`pmc-mmio`                card master control
-001000:002000   PBUS     all       `<bus/pbus.txt>`_              bus control
+001000:002000   PBUS     all       :ref:`pbus-mmio`               bus control
 002000:004000   PFIFO    all       `<fifo/nv01-pfifo.txt>`_       MMIO and DMA FIFO submission to PGRAPH and VPE
                                    `<fifo/nv04-pfifo.txt>`_
 004000:005000   ???      NV03:NV10 ???                            ???
@@ -130,7 +130,7 @@ NV50:NVC0 MMIO map
 Address range  Port  Name          Variants  Reference                        Description
 ============== ===== ============= ========= ================================ ======================
 000000:001000  ROOT  PMC           all       :ref:`pmc-mmio`                  card master control
-001000:002000  ROOT  PBUS          all       `<bus/pbus.txt>`_                bus control
+001000:002000  ROOT  PBUS          all       :ref:`pbus-mmio`                 bus control
 002000:004000  ROOT  PFIFO         all       `<fifo/nv50-pfifo.txt>`_         DMA FIFO submission to execution engines
 004000:005000  IBUS  PCLOCK        all       `<pm/nv50-pclock.txt>`_          PLL control
                                              `<pm/nva3-pclock.txt>`_          
@@ -174,7 +174,7 @@ Address range  Port  Name          Variants  Reference                        De
 1c1000:1c2000  IBUS  PVCOMP        NVAF:NVC0 `<vdec/pvcomp.txt>`_             video compositor engine
 200000:201000  IBUS  PMEDIA        all       `<io/pmedia.txt>`_               mediaport
 280000:2a0000  ROOT  ???           NVAF      ???                              ???
-2ff000:300000  IBUS  PBRIDGE_PCI   IGPs      `<bus/pbus.txt>`_                access to PCI config registers of the GPU's upstream PCIE bridge
+2ff000:300000  IBUS  PBRIDGE_PCI   IGPs      :ref:`pbus-mmio`                 access to PCI config registers of the GPU's upstream PCIE bridge
 300000:400000  IBUS  PROM          all       `<io/prom.txt>`_                 ROM access window
 400000:410000  IBUS  PGRAPH        all       `<graph/nv50-pgraph.txt>`_       accelerated 2d/3d drawing and CUDA engine
 601000:602000  IBUS  PRMIO         all       `<display/nv50/vga.txt>`_        aliases VGA registers
@@ -203,7 +203,7 @@ NVC0+ MMIO map
 Address range  Port  Name          Variants  Reference                        Description
 ============== ===== ============= ========= ================================ ======================
 000000:001000  ROOT  PMC           all       :ref:`pmc-mmio`                  card master control
-001000:002000  ROOT  PBUS          all       `<bus/pbus.txt>`_                bus control
+001000:002000  ROOT  PBUS          all       :ref:`pbus-mmio`                 bus control
 002000:004000  ROOT  PFIFO         all       `<fifo/nvc0-pfifo.txt>`_         DMA FIFO submission to execution engines
 005000:006000  ROOT  PFIFO_BYPASS  all       `<fifo/nvc0-pfifo.txt>`_         PFIFO bypass interface
 007000:008000  ROOT  PRMA          all       `<bus/prma.txt>`_                access to BAR0 from real mode

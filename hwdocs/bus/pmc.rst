@@ -377,7 +377,7 @@ For NV03:
 - 16: PRAMDAC.VIDEO [display/nv03/pramdac.txt]
 - 20: :ref:`PTIMER <ptimer-intr>`
 - 24: PGRAPH's vblank interrupt [graph/nv03-pgraph.txt, display/nv03/vga.txt]
-- 28: PBUS [bus/pbus.txt]
+- 28: :ref:`PBUS <pbus-intr>`
 - 31: software
 
 For NV04:NV50:
@@ -390,7 +390,7 @@ For NV04:NV50:
 - 20: :ref:`PTIMER <ptimer-intr>`
 - 24: PCRTC [display/nv03/vga.txt]
 - 25: PCRTC2 [display/nv03/vga.txt] [NV17:NV20 and NV25:NV50]
-- 28: PBUS [bus/pbus.txt]
+- 28: :ref:`PBUS <pbus-intr>`
 - 31: software
 
 For NV50:NVC0:
@@ -418,7 +418,7 @@ For NV50:NVC0:
 - 22: PCOPY [fifo/pcopy.txt]
 - 26: PDISPLAY [display/nv50/pdisplay.txt]
 - 27: ??? [NVA3?-]
-- 28: PBUS [bus/pbus.txt]
+- 28: :ref:`PBUS <pbus-intr>`
 - 29: PPCI [bus/pci.txt] [NV84-]
 - 31: software
 
@@ -448,7 +448,7 @@ For NVC0+:
 - 25: PMFB [memory/nvc0-pmfb.txt]
 - 26: PDISPLAY [display/nv50/pdisplay.txt]
 - 27: PFFB [memory/nvc0-pffb.txt]
-- 28: PBUS [bus/pbus.txt] - has separate NRHOST line
+- 28: :ref:`PBUS <pbus-intr>` - has separate NRHOST line
 - 29: PPCI [bus/pci.txt]
 - 30: PIBUS [bus/pibus.txt]
 - 31: software

@@ -9,3 +9,4 @@ Contents:
    pmc
    ptimer
    bars
+   pbus
