@@ -1,8 +1,8 @@
 .. _intro:
 
-========================================
-Overview of the nvidia GPU functionality
-========================================
+=======================
+nVidia GPU introduction
+=======================
 
 .. contents::
 

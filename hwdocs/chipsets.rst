@@ -1,8 +1,8 @@
 .. _chipsets:
 
-=====================================
-List and overview of chipset variants
-=====================================
+========
+Chipsets
+========
 
 .. contents::
 
@@ -18,7 +18,7 @@ engines, and registers, with very minor exceptions. Such cards can however
 still differ in the external devices they contain: output connectors,
 encoders, capture chips, temperature sensors, fan controllers, installed
 memory, supported clocks, etc. You can get the chipset id of a card by reading
-from its PMC area [see `<bus/pmc.rst>`_].
+from its :ref:`PMC area <pmc-mmio-id>`.
 
 The chipset id is usually written as NVxx, where xx is the id written as
 uppercase hexadecimal number. Note that, while cards before NV10 used another
@@ -32,7 +32,7 @@ code names correspond 1 to 1 with the chipset ids.
 
 The chipset id has a one-to-many relationship with pci device ids. Note that
 the last few bits [0-6 depending on chipset id] of PCI device id are
-changeable through straps [see `<io/pstraps.rst>`_]. When pci ids of a chipset are
+changeable through straps [see `<io/pstraps.txt>`_]. When pci ids of a chipset are
 listed in this file, the following shorthands are used:
 
 1234
@@ -47,8 +47,8 @@ listed in this file, the following shorthands are used:
     PCI device ids 0x1240-0x127X, choosable by straps
 
 
-The card families
-=================
+The chipset families
+====================
 
 The chipsets can roughly be grouped into 9 families: NV01, NV03, NV04, NV10,
 NV20, NV30, NV40, NV50, NVC0. This aligns with big revisions of PGRAPH, the
@@ -56,7 +56,7 @@ drawing engine of the card. While most functionality was introduced in sync
 with PGRAPH revisions, some other functionality [notably video decoding
 hardware] gets added in chipsets late in a chipset family and sometimes
 doesn't even get to the first chipset in the next chipset family. For example,
-NV11 expanded upon the previous NV15 card by adding dual-head support, while
+NV11 expanded upon the previous NV15 chipswt by adding dual-head support, while
 NV20 added new PGRAPH revision with shaders, but didn't have dual-head - the
 first chipset to feature both was NV25.
 
@@ -100,7 +100,7 @@ is:
   - NVD9 subfamily: NVD9, NVD7
   - NVE4 subfamily: NVE4, NVE7, NVE6, NVF0, GK208
 
-Whenever a range of cards is mentioned in the documentation, it's written as
+Whenever a range of chipsets is mentioned in the documentation, it's written as
 "NVxx:NVyy". This is left-inclusive, right-noninclusive range of chipset ids
 as sorted in the preceding list. For example, NVA0:NVA8 means chipsets NVA0,
 NVAA, NVAC, NVA3, NVA5. NV20:NV30 effectively means all NV20 family cards.
@@ -175,7 +175,7 @@ it in BAR0. It also introduced DMA objects, a RAMIN structure used to define
 a VRAM or host memory area that PGRAPH is allowed to use when executing
 commands on behalf of an application. These early DMA objects are limitted to
 linear VRAM and paged host memory objects, and have to be switched manually
-by host. See `<memory/nv03-vram.rst>`_ for details.
+by host. See `<memory/nv03-vram.txt>`_ for details.
 
 
 NV04 family: NV04, NV05
@@ -497,7 +497,7 @@ NV50 family
 -----------
 
 The card where they redesigned everything. The most significant change was the
-redesigned memory subsystem, complete with a paging MMU [see `<memory/nv50-vm.rst>`_].
+redesigned memory subsystem, complete with a paging MMU [see `<memory/nv50-vm.txt>`_].
 
 - NV50:
 

@@ -1,8 +1,8 @@
 .. _mmio:
 
-================================
-List and overview of MMIO ranges
-================================
+====================
+MMIO register ranges
+====================
 
 .. contents::
 

@@ -1,8 +1,8 @@
 .. _ptimer:
 
-============
-Timer engine
-============
+====================
+PTIMER: Timer engine
+====================
 
 .. contents::
 
