@@ -71,8 +71,8 @@ MMIO 0x02c / I[0x00b00]: TIME_LOW
 MMIO 0x030 / I[0x00c00]: TIME_HIGH
     Alias of PTIMER's TIME_HIGH register [MMIO 0x9410]
 
-Both of these registers are read-only. See `<../bus/ptimer.txt>`_ for more
-information about PTIMER.
+Both of these registers are read-only. See :ref:`ptimer` for more information
+about PTIMER.
 
 
 .. _falcon-intr-watchdog:

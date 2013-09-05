@@ -196,7 +196,7 @@ The GPU is made of:
   - PPMI: PCI Memory Interface, handles SYSRAM accesses from other units of
     the GPU
 
-  - PTIMER: measures wall time and delivers alarm interrupts [`<bus/ptimer.txt>`_]
+  - :ref:`PTIMER <ptimer>`: measures wall time and delivers alarm interrupts
 
   - PCLOCK+PCONTROL: clock generation and distribution [contained in PRAMDAC
     on pre-NV40 GPUs]
@@ -295,7 +295,7 @@ The GPU is made of:
     - clock gating control
     - indirect VRAM access from host circuitry
 
-  - PTIMER: measures wall time and delivers alarm interrupts [`<bus/ptimer.txt>`_]
+  - :ref:`PTIMER <ptimer>`: measures wall time and delivers alarm interrupts
 
   - PCLOCK+PCONTROL: clock generation and distribution
 

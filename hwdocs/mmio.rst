@@ -23,7 +23,7 @@ Address range   Name    Reference                  Description
 001000:002000   PBUS    `<bus/pbus.txt>`_          bus control
 002000:004000   PFIFO   `<fifo/nv01-pfifo.txt>`_   MMIO-mapped FIFO submission to PGRAPH
 100000:101000   PDMA    `<memory/nv01-pdma.txt>`_  system memory DMA engine
-101000:102000   PTIMER  `<bus/ptimer.txt>`_        time measurement and time-based alarms
+101000:102000   PTIMER  :ref:`ptimer-mmio-nv01`    time measurement and time-based alarms
 300000:301000   PAUDIO  :ref:`nv01-paudio-mmio`    audio capture and playback device
 400000:401000   PGRAPH  `<graph/nv01-pgraph.txt>`_ accelerated drawing engine
 600000:601000   PFB     `<display/nv01/pfb.txt>`_  VRAM and video output control
@@ -66,7 +66,7 @@ Address range   Name     Variants  Reference                      Description
 005000:006000   ???      all       ???                            ???
 007000:008000   PRMA     all       `<bus/prma.txt>`_              access to BAR0/BAR1 from real mode
 008000:009000   PVIDEO   NV10:NV50 `<display/nv03/pvideo.txt>`_   video overlay
-009000:00a000   PTIMER   all       `<bus/ptimer.txt>`_            time measurement and time-based alarms
+009000:00a000   PTIMER   all       :ref:`ptimer-mmio-nv03`        time measurement and time-based alarms
 00a000:00b000   PCOUNTER NV10:NV50 `<pcounter/intro.txt>`_        performance monitoring counters
 00b000:00c000   PVPE     NV17:NV20 `<vdec/vpe/intro.txt>`_        MPEG2 decoding engine
                          NV30:NV50 
@@ -135,7 +135,7 @@ Address range  Port  Name          Variants  Reference                        De
 004000:005000  IBUS  PCLOCK        all       `<pm/nv50-pclock.txt>`_          PLL control
                                              `<pm/nva3-pclock.txt>`_          
 007000:008000  ROOT  PRMA          all       `<bus/prma.txt>`_                access to BAR0 from real mode
-009000:00a000  ROOT  PTIMER        all       `<bus/ptimer.txt>`_              time measurement and time-based alarms
+009000:00a000  ROOT  PTIMER        all       :ref:`ptimer-mmio-nv03`          time measurement and time-based alarms
 00a000:00b000  IBUS  PCOUNTER      all       `<pcounter/intro.txt>`_          performance monitoring counters
 00b000:00c000  IBUS  PVPE          all       `<vdec/vpe/intro.txt>`_          MPEG2 decoding engine
 00c000:00d000  IBUS  PCONTROL      all       `<pm/nv50-pclock.txt>`_          control of misc stuff
@@ -207,7 +207,7 @@ Address range  Port  Name          Variants  Reference                        De
 002000:004000  ROOT  PFIFO         all       `<fifo/nvc0-pfifo.txt>`_         DMA FIFO submission to execution engines
 005000:006000  ROOT  PFIFO_BYPASS  all       `<fifo/nvc0-pfifo.txt>`_         PFIFO bypass interface
 007000:008000  ROOT  PRMA          all       `<bus/prma.txt>`_                access to BAR0 from real mode
-009000:00a000  ROOT  PTIMER        all       `<bus/ptimer.txt>`_              time measurement and time-based alarms
+009000:00a000  ROOT  PTIMER        all       :ref:`ptimer-mmio-nv03`          time measurement and time-based alarms
 00c800:00cc00  IBUS  ???           all       ???                              ???
 00cc00:00d000  IBUS  ???           all       ???                              ???
 00d000:00e000  IBUS  PGPIO         NVD9-     `<io/pnvio.txt>`_                GPIOs, I2C buses

@@ -165,7 +165,7 @@ MMIO 0x000200: ENABLE
 On NV01, the bits are:
 
 - 0: :ref:`PAUDIO <nv01-paudio>`
-- 4: PDMA [memory/nv01-pdma.txt]
+- 4: PDMA [memory/nv01-pdma.txt] and :ref:`PTIMER <ptimer>`
 - 8: PFIFO [fifo/nv01-pfifo.txt]
 - 12: PGRAPH [graph/nv01-pgraph.txt]
 - 16: PRM [bus/nv01-prm.txt]
@@ -177,7 +177,7 @@ On NV03:NV04, the bits are:
 - 4: PMEDIA [io/pmedia.txt]
 - 8: PFIFO [fifo/nv01-pfifo.txt]
 - 12: PGRAPH [graph/nv03-pgraph.txt] and PDMA [graph/nv03-pdma.txt]
-- 16: PTIMER [bus/ptimer.txt]
+- 16: :ref:`PTIMER <ptimer>`
 - 20: PFB [memory/nv03-pfb.txt]
 - 24: CRTC [display/nv03/vga.txt]
 - 28: PRAMDAC.VIDEO [display/nv03/pramdac.txt]
@@ -191,7 +191,7 @@ On NV04:NV50, the bits are:
 - 12: PGRAPH [graph/nv04-pgraph.txt, graph/nv10-pgraph.txt, graph/nv20-pgraph.txt, graph/nv40-pgraph.txt]
 - 13: PGRAPH CS??? apparently exists on some late NV4x... [graph/nv40-pgraph.txt] [NV4?-]
 - [XXX: figure out the CS thing, figure out the variants. Known not to exist on NV40, NV43, NV44, NV49]
-- 16: PTIMER [bus/ptimer.txt]
+- 16: :ref:`PTIMER <ptimer>`
 - 20: PFB [memory/nv03-pfb.txt, memory/nv10-pfb.txt, memory/nv40-pfb.txt, memory/nv44-pfb.txt]
 - 24: PCRTC [display/nv03/vga.txt]
 - 25: PCRTC2 [display/nv03/vga.txt] [NV11-]
@@ -212,7 +212,7 @@ On NV50:NVC0, the bits are:
 - 14: PVCOMP [vdec/pvcomp.txt] [NVAF]
 - 15: PBSP [vdec/vp2/pbsp.txt] [NV84:NV98 NVA0:NVAA]
 - 15: PVLD [vdec/vp3/pvld.txt] [NV98:NVA0 NVAA-]
-- 16: PTIMER [bus/ptimer.txt]
+- 16: :ref:`PTIMER <ptimer>`
 - 17: PVP2 [vdec/vp2/pvp2.txt] [NV84:NV98 NVA0:NVAA]
 - 17: PVDEC [vdec/vp3/pvdec.txt] [NV98:NVA0 NVAA-]
 - 20: PFB [memory/nv50-pfb.txt]
@@ -247,7 +247,7 @@ On NVC0+, the bits are:
 - 12: PGRAPH [graph/nvc0-pgraph.txt]
 - 13: PDAEMON [pm/pdaemon.txt]
 - 15: PVLD [vdec/vp3/pvld.txt]
-- 16: PTIMER [bus/ptimer.txt]
+- 16: :ref:`PTIMER <ptimer>`
 - 17: PVDEC [vdec/vp3/pvdec.txt]
 - 18: PVENC [NVE4-] [vdec/pvenc.txt]
 - 20: PBFB [memory/nvc0-pbfb.txt]
@@ -361,7 +361,7 @@ The input interrupts are, for NV01:
 - 8: PFIFO [fifo/nv01-pfifo.txt]
 - 12: PGRAPH [graph/nv01-pgraph.txt]
 - 16: PRM [bus/nv01-prm.txt]
-- 20: PTIMER [bus/ptimer.txt]
+- 20: :ref:`PTIMER <ptimer-intr>`
 - 24: PGRAPH's vblank interrupt [graph/nv01-pgraph.txt]
 - 28: software
 
@@ -374,7 +374,7 @@ For NV03:
 - 12: PGRAPH [graph/nv03-pgraph.txt]
 - 13: PDMA [graph/nv03-pdma.txt]
 - 16: PRAMDAC.VIDEO [display/nv03/pramdac.txt]
-- 20: PTIMER [bus/ptimer.txt]
+- 20: :ref:`PTIMER <ptimer-intr>`
 - 24: PGRAPH's vblank interrupt [graph/nv03-pgraph.txt, display/nv03/vga.txt]
 - 28: PBUS [bus/pbus.txt]
 - 31: software
@@ -386,7 +386,7 @@ For NV04:NV50:
 - 8: PFIFO [fifo/nv04-pfifo.txt]
 - 12: PGRAPH [graph/nv04-pgraph.txt, graph/nv10-pgraph.txt, graph/nv20-pgraph.txt, graph/nv40-pgraph.txt]
 - 16: PRAMDAC.VIDEO [display/nv03/pramdac.txt] [NV04:NV10] or PVIDEO [display/nv03/pvideo.txt] [NV10:NV50]
-- 20: PTIMER [bus/ptimer.txt]
+- 20: :ref:`PTIMER <ptimer-intr>`
 - 24: PCRTC [display/nv03/vga.txt]
 - 25: PCRTC2 [display/nv03/vga.txt] [NV17:NV20 and NV25:NV50]
 - 28: PBUS [bus/pbus.txt]
@@ -412,7 +412,7 @@ For NV50:NVC0:
 - 17: PVDEC [vdec/vp3/pvdec.txt] [NV98:NVA0 NVAA-]
 - 18: PDAEMON [pm/pdaemon.txt] [NVA3-]
 - 19: PTHERM [pm/ptherm.txt] [NVA3-]
-- 20: PTIMER [bus/ptimer.txt]
+- 20: :ref:`PTIMER <ptimer-intr>`
 - 21: PNVIO's GPIO interrupts [io/pnvio.txt]
 - 22: PCOPY [fifo/pcopy.txt]
 - 26: PDISPLAY [display/nv50/pdisplay.txt]
@@ -440,7 +440,7 @@ For NVC0+:
 - 17: PVDEC [vdec/vp3/pvdec.txt] - has separate NRHOST line
 - 18: PTHERM [pm/ptherm.txt]
 - 19: ??? [NVD9-]
-- 20: PTIMER [bus/ptimer.txt]
+- 20: :ref:`PTIMER <ptimer-intr>`
 - 21: PNVIO's GPIO interrupts [io/pnvio.txt]
 - 23: ???
 - 24: PDAEMON [pm/pdaemon.txt]
