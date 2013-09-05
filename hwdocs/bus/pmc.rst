@@ -290,6 +290,7 @@ MMIO 0x00020c: ??? [NVC4-]
 
 
 .. _pmc-mmio-intr:
+.. _pmc-intr:
 
 Interrupts
 ==========

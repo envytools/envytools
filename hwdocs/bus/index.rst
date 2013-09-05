@@ -8,3 +8,4 @@ Contents:
 
    pmc
    ptimer
+   bars

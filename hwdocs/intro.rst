@@ -243,7 +243,7 @@ The GPU is made of:
     controller for them
 
 Almost all units of the GPU are controlled through MMIO registers accessible
-by a common bus and visible through PCI BAR0 [see `<bus/bars.txt>`_]. This bus is
+by a common bus and visible through PCI BAR0 [see :ref:`bars`]. This bus is
 not shown above.
 
 
