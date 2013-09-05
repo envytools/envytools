@@ -42,9 +42,9 @@ Address range   Name    Reference                  Description
                         `<fifo/nv01-pfifo.txt>`_
 650000:654000   PRAMRO  `<memory/nv01-vram.txt>`_  RAMRO access
                         `<fifo/nv01-pfifo.txt>`_
-6c0000:6c8000   PRM     `<bus/nv01-prm.txt>`_      VGA compatibility control - NV01 specific
-6d0000:6d1000   PRMIO   `<bus/nv01-prm.txt>`_      VGA and ISA sound compat IO port access
-6e0000:700000   PRMFB   `<bus/nv01-prm.txt>`_      aliases VGA memory window
+6c0000:6c8000   PRM     :ref:`nv01-prm-mmio`       VGA compatibility control - NV01 specific
+6d0000:6d1000   PRMIO   :ref:`nv01-prmio-mmio`     VGA and ISA sound compat IO port access
+6e0000:700000   PRMFB   :ref:`nv01-prmfb-mmio`     aliases VGA memory window
 700000:800000   PRAMIN  `<memory/nv01-vram.txt>`_  RAMIN access
 800000:1000000  USER    `<fifo/pio.txt>`_          PFIFO MMIO submission area
 1000000:2000000 FB      `<memory/nv01-vram.txt>`_  VRAM access area
@@ -64,7 +64,7 @@ Address range   Name     Variants  Reference                      Description
 004000:005000   ???      NV03:NV10 ???                            ???
 004000:005000   PCLOCK   NV40:NV50 `<pm/nv40-pclock.txt>`_        PLL control
 005000:006000   ???      all       ???                            ???
-007000:008000   PRMA     all       `<bus/prma.txt>`_              access to BAR0/BAR1 from real mode
+007000:008000   PRMA     all       :ref:`prma-mmio`               access to BAR0/BAR1 from real mode
 008000:009000   PVIDEO   NV10:NV50 `<display/nv03/pvideo.txt>`_   video overlay
 009000:00a000   PTIMER   all       :ref:`ptimer-mmio-nv03`        time measurement and time-based alarms
 00a000:00b000   PCOUNTER NV10:NV50 `<pcounter/intro.txt>`_        performance monitoring counters
@@ -74,7 +74,7 @@ Address range   Name     Variants  Reference                      Description
 00d000:00e000   PTV      NV17:NV20 `<display/nv03/ptv.txt>`_      TV encoder
                          NV30:NV50 
 00f000:010000   PVP1     NV41:NV50 `<vdec/vpe/vp1.txt>`_          VP1 video processing engine
-088000:089000   PPCI     NV40:NV50 `<bus/pci.txt>`_               PCI config space access
+088000:089000   PPCI     NV40:NV50 :ref:`ppci-mmio`               PCI config space access
 090000:0a0000   PFIFO    NV40:NV50 `<fifo/nv04-pfifo.txt>`_       part of PFIFO
                 cache
 0a0000:0c0000   PRMFB    all       `<display/nv03/vga.txt>`_      aliases VGA memory window
@@ -134,7 +134,7 @@ Address range  Port  Name          Variants  Reference                        De
 002000:004000  ROOT  PFIFO         all       `<fifo/nv50-pfifo.txt>`_         DMA FIFO submission to execution engines
 004000:005000  IBUS  PCLOCK        all       `<pm/nv50-pclock.txt>`_          PLL control
                                              `<pm/nva3-pclock.txt>`_          
-007000:008000  ROOT  PRMA          all       `<bus/prma.txt>`_                access to BAR0 from real mode
+007000:008000  ROOT  PRMA          all       :ref:`prma-mmio`                 access to BAR0 from real mode
 009000:00a000  ROOT  PTIMER        all       :ref:`ptimer-mmio-nv03`          time measurement and time-based alarms
 00a000:00b000  IBUS  PCOUNTER      all       `<pcounter/intro.txt>`_          performance monitoring counters
 00b000:00c000  IBUS  PVPE          all       `<vdec/vpe/intro.txt>`_          MPEG2 decoding engine
@@ -146,7 +146,7 @@ Address range  Port  Name          Variants  Reference                        De
 00f000:010000  IBUS  PVP2          VP2       `<vdec/vp2/pvp2.txt>`_           VP2 xtensa video processing engine
 010000:020000  ROOT  ???           all       ???                              has something to do with PCI config spaces of other devices?
 020000:021000  IBUS  PTHERM        all       `<pm/ptherm.txt>`_               thermal sensor
-021000:022000  IBUS  PFUSE         all       `<bus/pfuse.txt>`_               efuses storing not so secret stuff
+021000:022000  IBUS  PFUSE         all       :ref:`pfuse-mmio`                efuses storing not so secret stuff
 022000:022400  IBUS  ???           ???       ???                              ???
 060000:061000  ROOT  PEEPHOLE      NV84:NVC0 `<memory/peephole.txt>`_         indirect VM access
 070000:071000  ROOT  PFIFO         NV84:NVC0 `<memory/nv50-host-mem.txt>`_    used to flush BAR writes
@@ -157,9 +157,9 @@ Address range  Port  Name          Variants  Reference                        De
 085000:086000  IBUS  PVDEC         VP3, VP4  `<vdec/vp3/pvdec.txt>`_          VP3 video decoding engine
 086000:087000  IBUS  PPPP          VP3, VP4  `<vdec/vp3/pppp.txt>`_           VP3 video postprocessing engine
 087000:088000  IBUS  PCRYPT3       VP3       `<vdec/vp3/pcrypt3.txt>`_        VP3 cryptographic engine
-088000:089000  IBUS  PPCI          all       `<bus/pci.txt>`_                 PCI config space access
+088000:089000  IBUS  PPCI          all       :ref:`ppci-mmio`                 PCI config space access
 089000:08a000  IBUS  ???           NV84:NVC0 ???                              ???
-08a000:08b000  IBUS  PPCI_HDA      NVA3:NVC0 `<bus/pci.txt>`_                 PCI config space access for the HDA codec function
+08a000:08b000  IBUS  PPCI_HDA      NVA3:NVC0 :ref:`ppci-hda-mmio`             PCI config space access for the HDA codec function
 090000:0a0000  ROOT  PFIFO cache   all       `<fifo/nv50-pfifo.txt>`_         part of PFIFO
 0a0000:0c0000  ROOT  PRMFB         all       `<display/nv50/vga.txt>`_        aliases VGA memory window
 100000:101000  IBUS  PFB           all       `<memory/nv50-pfb.txt>`_         memory interface and VM control
@@ -206,7 +206,7 @@ Address range  Port  Name          Variants  Reference                        De
 001000:002000  ROOT  PBUS          all       :ref:`pbus-mmio`                 bus control
 002000:004000  ROOT  PFIFO         all       `<fifo/nvc0-pfifo.txt>`_         DMA FIFO submission to execution engines
 005000:006000  ROOT  PFIFO_BYPASS  all       `<fifo/nvc0-pfifo.txt>`_         PFIFO bypass interface
-007000:008000  ROOT  PRMA          all       `<bus/prma.txt>`_                access to BAR0 from real mode
+007000:008000  ROOT  PRMA          all       :ref:`prma-mmio`                 access to BAR0 from real mode
 009000:00a000  ROOT  PTIMER        all       :ref:`ptimer-mmio-nv03`          time measurement and time-based alarms
 00c800:00cc00  IBUS  ???           all       ???                              ???
 00cc00:00d000  IBUS  ???           all       ???                              ???
@@ -215,8 +215,8 @@ Address range  Port  Name          Variants  Reference                        De
 00e800:00f000  IBUS  PIOCLOCK      all       `<pm/nvc0-pclock.txt>`_          PNVIO's clock setup
 010000:020000  ROOT  ???           all       ???                              has something to do with PCI config spaces of other devices?
 020000:021000  IBUS  PTHERM        all       `<pm/ptherm.txt>`_               thermal sensor
-021000:022000  IBUS  PFUSE         all       `<bus/pfuse.txt>`_               efuses storing not so secret stuff
-022400:022800  IBUS  PUNITS        all       `<bus/punits.txt>`_              control over enabled card units
+021000:022000  IBUS  PFUSE         all       :ref:`pfuse-mmio`                efuses storing not so secret stuff
+022400:022800  IBUS  PUNITS        all       :ref:`punits-mmio`               control over enabled card units
 040000:060000  ROOT  PSUBFIFOs     all       `<fifo/nvc0-pfifo.txt>`_         individual SUBFIFOs of PFIFO
 060000:061000  ROOT  PEEPHOLE      all       `<memory/peephole.txt>`_         indirect VM access
 070000:071000  ROOT  PFIFO         all       `<memory/nvc0-host-mem.txt>`_    used to flush BAR writes
@@ -226,9 +226,9 @@ Address range  Port  Name          Variants  Reference                        De
 084000:085000  IBUS  PVLD          all       `<vdec/vp3/pvld.txt>`_           VP3 VLD engine
 085000:086000  IBUS  PVDEC         all       `<vdec/vp3/pvdec.txt>`_          VP3 video decoding engine
 086000:087000  IBUS  PPPP          all       `<vdec/vp3/pppp.txt>`_           VP3 video postprocessing engine
-088000:089000  IBUS  PPCI          all       `<bus/pci.txt>`_                 PCI config space access
+088000:089000  IBUS  PPCI          all       :ref:`ppci-mmio`                 PCI config space access
 089000:08a000  IBUS  ???           NVC0:NVE4 ???                              ???
-08a000:08b000  IBUS  PPCI_HDA      all       `<bus/pci.txt>`_                 PCI config space access for the HDA codec function
+08a000:08b000  IBUS  PPCI_HDA      all       :ref:`ppci-hda-mmio`             PCI config space access for the HDA codec function
 08b000:08f000  IBUS  ???           NVE4-     ???                              seems to be a new version of former 89000 area
 0a0000:0c0000  both  PRMFB         all       `<display/nv50/vga.txt>`_        aliases VGA memory window
 100700:100800  IBUS  PBFB_COMMON   all       `<memory/nvc0-pbfb.txt>`_        some regs shared between PBFBs???
@@ -243,7 +243,7 @@ Address range  Port  Name          Variants  Reference                        De
 10a000:10b000  IBUS  PDAEMON       all       `<pm/pdaemon.txt>`_              a falcon engine used to run management code in background
 10c000:10f000  IBUS  ???           ???       ???                              ???
 10f000:120000  IBUS  PBFBs         all       `<memory/nvc0-pbfb.txt>`_        memory controller backends
-120000:130000  IBUS  PIBUS         all       `<bus/pibus.txt>`_               deals with internal bus used to reach most other areas of MMIO
+120000:130000  IBUS  PIBUS         all       :ref:`pibus-mmio`                deals with internal bus used to reach most other areas of MMIO
 130000:135000  IBUS  ???           ???       ???                              ???
 137000:138000  IBUS  PCLOCK        all       `<pm/nvc0-pclock.txt>`_          clock setting
 138000:139000  IBUS  ???           ???       ???                              ???

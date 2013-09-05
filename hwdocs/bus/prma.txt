@@ -1,7 +1,0 @@
-TOC
-
-0. Introduction
-1. The MMIO registers
-2. Operation
-
-[XXX: write me]

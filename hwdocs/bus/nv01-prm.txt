@@ -1,6 +1,0 @@
-TOC
-
-0. Introduction
-1. The MMIO registers
-
-[XXX: figure out what the fuck this engine does]

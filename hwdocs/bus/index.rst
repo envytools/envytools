@@ -11,3 +11,9 @@ Contents:
    bars
    pbus
    hwsq
+   prma
+   nv01-prm
+   pfuse
+   pibus
+   punits
+   pci

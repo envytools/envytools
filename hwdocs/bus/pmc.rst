@@ -168,7 +168,7 @@ On NV01, the bits are:
 - 4: PDMA [memory/nv01-pdma.txt] and :ref:`PTIMER <ptimer>`
 - 8: PFIFO [fifo/nv01-pfifo.txt]
 - 12: PGRAPH [graph/nv01-pgraph.txt]
-- 16: PRM [bus/nv01-prm.txt]
+- 16: :ref:`PRM <nv01-prm>`
 - 24: PFB [display/nv01/pfb.txt]
 
 On NV03:NV04, the bits are:
@@ -361,7 +361,7 @@ The input interrupts are, for NV01:
 - 4: PDMA [memory/nv01-pdma.txt]
 - 8: PFIFO [fifo/nv01-pfifo.txt]
 - 12: PGRAPH [graph/nv01-pgraph.txt]
-- 16: PRM [bus/nv01-prm.txt]
+- 16: :ref:`PRM <nv01-prm-intr>`
 - 20: :ref:`PTIMER <ptimer-intr>`
 - 24: PGRAPH's vblank interrupt [graph/nv01-pgraph.txt]
 - 28: software
