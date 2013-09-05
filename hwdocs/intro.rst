@@ -185,8 +185,8 @@ The GPU is made of:
   - PBUS: bus control and an area where "misc" registers are thrown in. Known
     to contain at least:
 
-    - HWSQ, a simple script engine, can poke card registers and sleep in
-      a given sequence [`<bus/hwsq.txt>`_] [NV17+]
+    - :ref:`HWSQ <hwsq>`, a simple script engine, can poke card registers and
+      sleep in a given sequence [NV17+]
     - a thermal sensor [NV30+]
     - clock gating control [NV17+]
     - indirect VRAM access from host circuitry [NV30+]
@@ -290,8 +290,8 @@ The GPU is made of:
   - PBUS: bus control and an area where "misc" registers are thrown in. Known
     to contain at least:
 
-    - HWSQ, a simple script engine, can poke card registers and sleep in
-      a given sequence [`<bus/hwsq.txt>`_]
+    - :ref:`HWSQ <hwsq>`, a simple script engine, can poke card registers and
+      sleep in a given sequence
     - clock gating control
     - indirect VRAM access from host circuitry
 

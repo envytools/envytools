@@ -33,15 +33,15 @@ Range         Variants  Description
 0010f0:0010f4 NV11:NV50 PWM - PWM generators [io/nv10-gpio.txt]
 001100:001200 NV03-     :ref:`interrupts <pbus-mmio-intr>`
 001200:001208 NV04:NV50 ROM control [io/prom.txt]
-001300:001380 NV17:NV20 HWSQ - hardware sequencer [bus/hwsq.txt]
+001300:001380 NV17:NV20 :ref:`HWSQ - hardware sequencer <hwsq-mmio>`
               NV25:NVC0
 001380:001400 NV41:NV50 VGA_STACK [display/nv03/vga-stack.txt]
-001400:001500 NV17:NV20 HWSQ - hardware sequencer [bus/hwsq.txt]
+001400:001500 NV17:NV20 :ref:`HWSQ - hardware sequencer <hwsq-mmio>`
               NV25:NVC0
 001500:001540 ???       :ref:`DEBUG registers <pbus-mmio-debug>`
 001540:001550 NV40:NVC0 HWUNITS - enabling/disabling optional hardware subunits [see below]
 00155c:001578 NV30:NV84 PEEPHOLE - indirect memory access [memory/peephole.txt]
-001578:001580 NV41:NVC0 HWSQ - hardware sequencer [bus/hwsq.txt]
+001578:001580 NV41:NVC0 :ref:`HWSQ - hardware sequencer <hwsq-mmio>`
 001580:0015a0 NV17:NV20 CLOCK_GATE - clock gating registers [see below]
               NV25:NVC0
 0015b0:0015c0 NV43:NV50 THERM - thermal sensor [pm/nv43-therm.txt]
@@ -73,9 +73,8 @@ MMIO 0x001084: DEBUG_1 [NV04-]
           the other head too [NV11:NV20, NV25:NV50] [display/nv03/vga.txt]
 
 MMIO 0x001098: DEBUG_6 [NV17:NV20, NV25-]
-  bit 3: HWSQ_ENABLE - enables HWSQ effects [bus/hwsq.txt]
-  bit 4: HWSQ_OVERRIDE_MODE - selects read value for HWSQ-overriden registers
-         [bus/hwsq.txt]
+  bit 3: :ref:`HWSQ_ENABLE - enables HWSQ effects <hwsq-mmio>`
+  bit 4: :ref:`HWSQ_OVERRIDE_MODE - selects read value for HWSQ-overriden registers <hwsq-mmio>`
 
 .. todo:: document other known stuff
 

@@ -151,7 +151,7 @@ Address range  Port  Name          Variants  Reference                        De
 060000:061000  ROOT  PEEPHOLE      NV84:NVC0 `<memory/peephole.txt>`_         indirect VM access
 070000:071000  ROOT  PFIFO         NV84:NVC0 `<memory/nv50-host-mem.txt>`_    used to flush BAR writes
                      BAR_FLUSH                                                
-080000:081000  ROOT  PBUS HWSQ     NV92:NVC0 `<bus/hwsq.txt>`_                extended HWSQ code space
+080000:081000  ROOT  PBUS HWSQ     NV92:NVC0 :ref:`hwsq-mmio`                 extended HWSQ code space
                      NEW_CODE                                                 
 084000:085000  IBUS  PVLD          VP3, VP4  `<vdec/vp3/pvld.txt>`_           VP3 variable length decoding engine
 085000:086000  IBUS  PVDEC         VP3, VP4  `<vdec/vp3/pvdec.txt>`_          VP3 video decoding engine

@@ -10,3 +10,4 @@ Contents:
    ptimer
    bars
    pbus
+   hwsq
