@@ -13,11 +13,21 @@ Introduction
 .. todo:: write me
 
 
+.. _nv01-paudio-mmio:
+
 MMIO registers
 ==============
 
 .. todo:: write me
+
+
+.. _nv01-paudio-intr:
+
+Interrupts
+==========
  
+.. todo:: write me
+
 
 Control registers
 =================

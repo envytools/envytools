@@ -180,7 +180,7 @@ The GPU is made of:
 
 - control circuitry:
 
-  - PMC: master control area [`<bus/pmc.txt>`_]
+  - :ref:`PMC <pmc>`: master control area
 
   - PBUS: bus control and an area where "misc" registers are thrown in. Known
     to contain at least:
@@ -286,7 +286,7 @@ The GPU is made of:
 
 - control circuitry:
 
-  - PMC: master control area [`<bus/pmc.txt>`_]
+  - :ref:`PMC <pmc>`: master control area
   - PBUS: bus control and an area where "misc" registers are thrown in. Known
     to contain at least:
 

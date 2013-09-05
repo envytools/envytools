@@ -19,12 +19,12 @@ NV01 MMIO map
 =============== ======= ========================== ======================
 Address range   Name    Reference                  Description
 =============== ======= ========================== ======================
-000000:001000   PMC     `<bus/pmc.txt>`_           card master control
+000000:001000   PMC     :ref:`pmc-mmio`            card master control
 001000:002000   PBUS    `<bus/pbus.txt>`_          bus control
 002000:004000   PFIFO   `<fifo/nv01-pfifo.txt>`_   MMIO-mapped FIFO submission to PGRAPH
 100000:101000   PDMA    `<memory/nv01-pdma.txt>`_  system memory DMA engine
 101000:102000   PTIMER  `<bus/ptimer.txt>`_        time measurement and time-based alarms
-300000:301000   PAUDIO  :ref:`nv01-paudio`         audio capture and playback device
+300000:301000   PAUDIO  :ref:`nv01-paudio-mmio`    audio capture and playback device
 400000:401000   PGRAPH  `<graph/nv01-pgraph.txt>`_ accelerated drawing engine
 600000:601000   PFB     `<display/nv01/pfb.txt>`_  VRAM and video output control
 602000:603000   PRAM    `<memory/nv01-vram.txt>`_  RAMIN layout control
@@ -57,7 +57,7 @@ NV03:NV50 MMIO map
 =============== ======== ========= ============================== ======================
 Address range   Name     Variants  Reference                      Description
 =============== ======== ========= ============================== ======================
-000000:001000   PMC      all       `<bus/pmc.txt>`_               card master control
+000000:001000   PMC      all       :ref:`pmc-mmio`                card master control
 001000:002000   PBUS     all       `<bus/pbus.txt>`_              bus control
 002000:004000   PFIFO    all       `<fifo/nv01-pfifo.txt>`_       MMIO and DMA FIFO submission to PGRAPH and VPE
                                    `<fifo/nv04-pfifo.txt>`_
@@ -129,60 +129,60 @@ NV50:NVC0 MMIO map
 ============== ===== ============= ========= ================================ ======================
 Address range  Port  Name          Variants  Reference                        Description
 ============== ===== ============= ========= ================================ ======================
-000000:001000  ROOT  PMC           all        `<bus/pmc.txt>`_                card master control
-001000:002000  ROOT  PBUS          all        `<bus/pbus.txt>`_               bus control
-002000:004000  ROOT  PFIFO         all        `<fifo/nv50-pfifo.txt>`_        DMA FIFO submission to execution engines
-004000:005000  IBUS  PCLOCK        all        `<pm/nv50-pclock.txt>`_         PLL control
-                                              `<pm/nva3-pclock.txt>`_
-007000:008000  ROOT  PRMA          all        `<bus/prma.txt>`_               access to BAR0 from real mode
-009000:00a000  ROOT  PTIMER        all        `<bus/ptimer.txt>`_             time measurement and time-based alarms
-00a000:00b000  IBUS  PCOUNTER      all        `<pcounter/intro.txt>`_         performance monitoring counters
-00b000:00c000  IBUS  PVPE          all        `<vdec/vpe/intro.txt>`_         MPEG2 decoding engine
-00c000:00d000  IBUS  PCONTROL      all        `<pm/nv50-pclock.txt>`_         control of misc stuff
-                                              `<pm/nva3-pclock.txt>`_
-00e000:00e800  IBUS  PNVIO         all        `<io/pnvio.txt>`_               GPIOs, I2C buses, PWM fan control, and other external devices
-00e800:00f000  IBUS  PIOCLOCK      all        `<pm/nv50-pclock.txt>`_         PNVIO's clock setup
-00f000:010000  IBUS  PVP1          VP1        `<vdec/vpe/vp1.txt>`_           VP1 video processing engine
-00f000:010000  IBUS  PVP2          VP2        `<vdec/vp2/pvp2.txt>`_          VP2 xtensa video processing engine
-010000:020000  ROOT  ???           all        ???                             has something to do with PCI config spaces of other devices?
-020000:021000  IBUS  PTHERM        all        `<pm/ptherm.txt>`_              thermal sensor
-021000:022000  IBUS  PFUSE         all        `<bus/pfuse.txt>`_              efuses storing not so secret stuff
-022000:022400  IBUS  ???           ???        ???                             ???
-060000:061000  ROOT  PEEPHOLE      NV84:NVC0  `<memory/peephole.txt>`_        indirect VM access
-070000:071000  ROOT  PFIFO         NV84:NVC0  `<memory/nv50-host-mem.txt>`_   used to flush BAR writes
-                     BAR_FLUSH
-080000:081000  ROOT  PBUS HWSQ     NV92:NVC0  `<bus/hwsq.txt>`_               extended HWSQ code space
-                     NEW_CODE
-084000:085000  IBUS  PVLD          VP3, VP4   `<vdec/vp3/pvld.txt>`_          VP3 variable length decoding engine
-085000:086000  IBUS  PVDEC         VP3, VP4   `<vdec/vp3/pvdec.txt>`_         VP3 video decoding engine
-086000:087000  IBUS  PPPP          VP3, VP4   `<vdec/vp3/pppp.txt>`_          VP3 video postprocessing engine
-087000:088000  IBUS  PCRYPT3       VP3        `<vdec/vp3/pcrypt3.txt>`_       VP3 cryptographic engine
-088000:089000  IBUS  PPCI          all        `<bus/pci.txt>`_                PCI config space access
-089000:08a000  IBUS  ???           NV84:NVC0  ???                             ???
-08a000:08b000  IBUS  PPCI_HDA      NVA3:NVC0  `<bus/pci.txt>`_                PCI config space access for the HDA codec function
-090000:0a0000  ROOT  PFIFO cache   all        `<fifo/nv50-pfifo.txt>`_        part of PFIFO
-0a0000:0c0000  ROOT  PRMFB         all        `<display/nv50/vga.txt>`_       aliases VGA memory window
-100000:101000  IBUS  PFB           all        `<memory/nv50-pfb.txt>`_        memory interface and VM control
-101000:102000  IBUS  PSTRAPS       all        `<io/pstraps.txt>`_             straps readout / override
-102000:103000  IBUS  PCRYPT2       VP2        `<vdec/vp2/pcrypt2.txt>`_       VP2 cryptographic engine
-102000:103000  ROOT  ???           IGPs only  ???                             ???
-103000:104000  IBUS  PBSP          VP2        `<vdec/vp2/pbsp.txt>`_          VP2 BSP engine
-104000:105000  IBUS  PCOPY         NVA3:NVC0  `<fifo/pcopy.txt>`_             memory copy engine
-108000:109000  IBUS  PCODEC        NVA3:NVC0  `<display/nv50/pcodec.txt>`_    the HDA codec doing HDMI audio
-109000:10a000  IBUS  PKFUSE        NVA3:NVC0  `<display/nv50/pkfuse.txt>`_    efuses storing secret key stuff
-10a000:10b000  IBUS  PDAEMON       NVA3:NVC0  `<pm/pdaemon.txt>`_             a falcon engine used to run management code in background
-1c1000:1c2000  IBUS  PVCOMP        NVAF:NVC0  `<vdec/pvcomp.txt>`_            video compositor engine
-200000:201000  IBUS  PMEDIA        all        `<io/pmedia.txt>`_              mediaport
-280000:2a0000  ROOT  ???           NVAF       ???                             ???
-2ff000:300000  IBUS  PBRIDGE_PCI   IGPs       `<bus/pbus.txt>`_               access to PCI config registers of the GPU's upstream PCIE bridge
-300000:400000  IBUS  PROM          all        `<io/prom.txt>`_                ROM access window
-400000:410000  IBUS  PGRAPH        all        `<graph/nv50-pgraph.txt>`_      accelerated 2d/3d drawing and CUDA engine
-601000:602000  IBUS  PRMIO         all        `<display/nv50/vga.txt>`_       aliases VGA registers
-610000:640000  IBUS  PDISPLAY      all        `<display/nv50/pdisplay.txt>`_  the DMA FIFO controlled unified display engine
-640000:650000  IBUS  DISPLAY_USER  all        `<display/nv50/pdisplay.txt>`_  DMA submission to PDISPLAY
-700000:800000  ROOT  PMEM          all        `<memory/nv50-host-mem.txt>`_   indirect VRAM/host memory access
-800000:810000  ROOT  USER_PIO      all        `<fifo/pio.txt>`_               PFIFO PIO submission area
-c00000:1000000 ROOT  USER_DMA      all        `<fifo/dma-pusher.txt>`_        PFIFO DMA submission area
+000000:001000  ROOT  PMC           all       :ref:`pmc-mmio`                  card master control
+001000:002000  ROOT  PBUS          all       `<bus/pbus.txt>`_                bus control
+002000:004000  ROOT  PFIFO         all       `<fifo/nv50-pfifo.txt>`_         DMA FIFO submission to execution engines
+004000:005000  IBUS  PCLOCK        all       `<pm/nv50-pclock.txt>`_          PLL control
+                                             `<pm/nva3-pclock.txt>`_          
+007000:008000  ROOT  PRMA          all       `<bus/prma.txt>`_                access to BAR0 from real mode
+009000:00a000  ROOT  PTIMER        all       `<bus/ptimer.txt>`_              time measurement and time-based alarms
+00a000:00b000  IBUS  PCOUNTER      all       `<pcounter/intro.txt>`_          performance monitoring counters
+00b000:00c000  IBUS  PVPE          all       `<vdec/vpe/intro.txt>`_          MPEG2 decoding engine
+00c000:00d000  IBUS  PCONTROL      all       `<pm/nv50-pclock.txt>`_          control of misc stuff
+                                             `<pm/nva3-pclock.txt>`_          
+00e000:00e800  IBUS  PNVIO         all       `<io/pnvio.txt>`_                GPIOs, I2C buses, PWM fan control, and other external devices
+00e800:00f000  IBUS  PIOCLOCK      all       `<pm/nv50-pclock.txt>`_          PNVIO's clock setup
+00f000:010000  IBUS  PVP1          VP1       `<vdec/vpe/vp1.txt>`_            VP1 video processing engine
+00f000:010000  IBUS  PVP2          VP2       `<vdec/vp2/pvp2.txt>`_           VP2 xtensa video processing engine
+010000:020000  ROOT  ???           all       ???                              has something to do with PCI config spaces of other devices?
+020000:021000  IBUS  PTHERM        all       `<pm/ptherm.txt>`_               thermal sensor
+021000:022000  IBUS  PFUSE         all       `<bus/pfuse.txt>`_               efuses storing not so secret stuff
+022000:022400  IBUS  ???           ???       ???                              ???
+060000:061000  ROOT  PEEPHOLE      NV84:NVC0 `<memory/peephole.txt>`_         indirect VM access
+070000:071000  ROOT  PFIFO         NV84:NVC0 `<memory/nv50-host-mem.txt>`_    used to flush BAR writes
+                     BAR_FLUSH                                                
+080000:081000  ROOT  PBUS HWSQ     NV92:NVC0 `<bus/hwsq.txt>`_                extended HWSQ code space
+                     NEW_CODE                                                 
+084000:085000  IBUS  PVLD          VP3, VP4  `<vdec/vp3/pvld.txt>`_           VP3 variable length decoding engine
+085000:086000  IBUS  PVDEC         VP3, VP4  `<vdec/vp3/pvdec.txt>`_          VP3 video decoding engine
+086000:087000  IBUS  PPPP          VP3, VP4  `<vdec/vp3/pppp.txt>`_           VP3 video postprocessing engine
+087000:088000  IBUS  PCRYPT3       VP3       `<vdec/vp3/pcrypt3.txt>`_        VP3 cryptographic engine
+088000:089000  IBUS  PPCI          all       `<bus/pci.txt>`_                 PCI config space access
+089000:08a000  IBUS  ???           NV84:NVC0 ???                              ???
+08a000:08b000  IBUS  PPCI_HDA      NVA3:NVC0 `<bus/pci.txt>`_                 PCI config space access for the HDA codec function
+090000:0a0000  ROOT  PFIFO cache   all       `<fifo/nv50-pfifo.txt>`_         part of PFIFO
+0a0000:0c0000  ROOT  PRMFB         all       `<display/nv50/vga.txt>`_        aliases VGA memory window
+100000:101000  IBUS  PFB           all       `<memory/nv50-pfb.txt>`_         memory interface and VM control
+101000:102000  IBUS  PSTRAPS       all       `<io/pstraps.txt>`_              straps readout / override
+102000:103000  IBUS  PCRYPT2       VP2       `<vdec/vp2/pcrypt2.txt>`_        VP2 cryptographic engine
+102000:103000  ROOT  ???           IGPs only ???                              ???
+103000:104000  IBUS  PBSP          VP2       `<vdec/vp2/pbsp.txt>`_           VP2 BSP engine
+104000:105000  IBUS  PCOPY         NVA3:NVC0 `<fifo/pcopy.txt>`_              memory copy engine
+108000:109000  IBUS  PCODEC        NVA3:NVC0 `<display/nv50/pcodec.txt>`_     the HDA codec doing HDMI audio
+109000:10a000  IBUS  PKFUSE        NVA3:NVC0 `<display/nv50/pkfuse.txt>`_     efuses storing secret key stuff
+10a000:10b000  IBUS  PDAEMON       NVA3:NVC0 `<pm/pdaemon.txt>`_              a falcon engine used to run management code in background
+1c1000:1c2000  IBUS  PVCOMP        NVAF:NVC0 `<vdec/pvcomp.txt>`_             video compositor engine
+200000:201000  IBUS  PMEDIA        all       `<io/pmedia.txt>`_               mediaport
+280000:2a0000  ROOT  ???           NVAF      ???                              ???
+2ff000:300000  IBUS  PBRIDGE_PCI   IGPs      `<bus/pbus.txt>`_                access to PCI config registers of the GPU's upstream PCIE bridge
+300000:400000  IBUS  PROM          all       `<io/prom.txt>`_                 ROM access window
+400000:410000  IBUS  PGRAPH        all       `<graph/nv50-pgraph.txt>`_       accelerated 2d/3d drawing and CUDA engine
+601000:602000  IBUS  PRMIO         all       `<display/nv50/vga.txt>`_        aliases VGA registers
+610000:640000  IBUS  PDISPLAY      all       `<display/nv50/pdisplay.txt>`_   the DMA FIFO controlled unified display engine
+640000:650000  IBUS  DISPLAY_USER  all       `<display/nv50/pdisplay.txt>`_   DMA submission to PDISPLAY
+700000:800000  ROOT  PMEM          all       `<memory/nv50-host-mem.txt>`_    indirect VRAM/host memory access
+800000:810000  ROOT  USER_PIO      all       `<fifo/pio.txt>`_                PFIFO PIO submission area
+c00000:1000000 ROOT  USER_DMA      all       `<fifo/dma-pusher.txt>`_         PFIFO DMA submission area
 ============== ===== ============= ========= ================================ ======================
 
 .. note:: VP1 is NV50:NV84
@@ -202,7 +202,7 @@ NVC0+ MMIO map
 ============== ===== ============= ========= ================================ ======================
 Address range  Port  Name          Variants  Reference                        Description
 ============== ===== ============= ========= ================================ ======================
-000000:001000  ROOT  PMC           all       `<bus/pmc.txt>`_                 card master control
+000000:001000  ROOT  PMC           all       :ref:`pmc-mmio`                  card master control
 001000:002000  ROOT  PBUS          all       `<bus/pbus.txt>`_                bus control
 002000:004000  ROOT  PFIFO         all       `<fifo/nvc0-pfifo.txt>`_         DMA FIFO submission to execution engines
 005000:006000  ROOT  PFIFO_BYPASS  all       `<fifo/nvc0-pfifo.txt>`_         PFIFO bypass interface
