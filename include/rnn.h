@@ -135,6 +135,7 @@ struct rnntypeinfo {
 	int valsnum;
 	int valsmax;
 	int shr;
+	int add;
 	uint64_t min, max, align, radix;
 	int minvalid, maxvalid, alignvalid, radixvalid;
 };

@@ -119,6 +119,7 @@ char *rnndec_decodeval(struct rnndeccontext *ctx, struct rnntypeinfo *ti, uint64
 	if (!ti)
 		goto failhex;
 	if (ti->shr) value <<= ti->shr;
+	if (ti->add) value += ti->add;
 	switch (ti->type) {
 		case RNN_TTYPE_ENUM:
 			vals = ti->eenum->vals;

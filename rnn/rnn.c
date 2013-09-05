@@ -165,6 +165,9 @@ static int trytypeattr (struct rnndb *db, char *file, xmlNode *node, xmlAttr *at
 	if (!strcmp(attr->name, "shr")) {
 		ti->shr = getnumattrib(db, file, node->line, attr);
 		return 1;
+	} else if (!strcmp(attr->name, "add")) {
+		ti->add = getnumattrib(db, file, node->line, attr);
+		return 1;
 	} else if (!strcmp(attr->name, "min")) {
 		ti->min = getnumattrib(db, file, node->line, attr);
 		ti->minvalid = 1;
@@ -897,6 +900,7 @@ static void copytypeinfo (struct rnntypeinfo *dst, struct rnntypeinfo *src, char
 	int i;
 	dst->name = src->name;
 	dst->shr = src->shr;
+	dst->add = src->add;
 	dst->min = src->min;
 	dst->max = src->max;
 	dst->align = src->align;
