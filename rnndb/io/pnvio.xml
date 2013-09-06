@@ -539,7 +539,7 @@
 			<bitfield low="0" high="7" name="M1"/>
 			<bitfield low="8" high="15" name="N1"/>
 			<bitfield low="16" high="23" name="M2"/>
-			<bitfield low="24" high="32" name="N2"/>
+			<bitfield low="24" high="31" name="N2"/>
 		</bitset>
 
 		<reg32 offset="0x800" name="VPLL1_CTRL" type="nv50_pnvio_pll_ctrl" variants="NV50:NV92 NVA0"/>
