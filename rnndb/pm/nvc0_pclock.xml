@@ -8,7 +8,7 @@
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
-<bitset name="nvc0_post_div_ctrl" inline="yes">
+<bitset name="nvc0_div_ctrl" inline="yes">
 	<bitfield low="0" high="5" add="2" name="POST_DIVIDER_DIV_MODE"/> <!-- add 2 to get the real divider -->
 	<bitfield low="8" high="13" add="2" name="POST_DIVIDER_PLL_MODE"/> <!-- add 2 to get the real divider -->
 	<bitfield pos="31" name="ENABLE_POST_DIVIDER"/>
@@ -45,11 +45,35 @@
 	<bitfield low="16" high="21" name="P"/>
 </bitset>
 
-<bitset name="nvc0_div_ctrl" inline="yes">
-	<bitfield low="0" high="5" add="2" name="POST_DIVIDER_DIV_MODE"/> <!-- add 2 to get the real divider -->
-	<bitfield pos="31" name="ENABLE_POST_DIVIDER"/>
+<bitset name="nvc0_pll_ref_div_src" inline="yes">
+	<bitfield low="0" high="3" name="SRC">
+		<value value="0" name="SRC0"/>
+		<value value="1" name="2.25MHz"/>
+		<value value="2" name="SRC2"/>
+		<value value="3" name="SRC3"/>
+	</bitfield>
+	<bitfield low="8" high="12" name="UNK8">
+	</bitfield>
+	<bitfield low="16" high="17" name="SRC0">
+		<value value="0" name="27MHz"/>
+		<value value="1" name="2.25MHz"/>
+		<value value="2" name="2.25MHz"/>
+		<value value="3" name="108MHz"/>
+	</bitfield>
+	<bitfield low="24" high="26" name="SRC2">
+		<value value="0" name="100MHz"/>
+		<value value="1" name="277MHz"/>
+		<value value="2" name="2.25MHz"/>
+		<value value="3" name="2.25MHz"/>
+		<value value="4" name="2.25MHz"/>
+		<value value="5" name="2.25MHz"/>
+		<value value="6" name="2.25MHz"/>
+		<value value="7" name="2.25MHz"/>
+	</bitfield>
+	<bitfield pos="31" name="UNK31"/>
 </bitset>
 
+<!-- TODO: Verify this, in div mode -->
 <bitset name="nvc0_div_src" inline="yes">
 	<bitfield low="0" high="3" name="SRC">
 		<value value="0" name="SRC0"/>
@@ -109,9 +133,9 @@
 		<bitfield pos="14" name="CLK14" type="nvc0_clk_src_sel"/> <!-- PLL source = 0x1370e0 -->
 	</reg32>
 
-	<reg32 offset="0x120" name="CLK0_PLL_REF_DIV_SRC" type="nvc0_div_src"/>
-	<reg32 offset="0x128" name="CLK2_PLL_REF_DIV_SRC" type="nvc0_div_src"/>
-	<reg32 offset="0x13c" name="CLK7_PLL_REF_DIV_SRC" type="nvc0_div_src"/>
+	<reg32 offset="0x120" name="CLK0_PLL_REF_DIV_SRC" type="nvc0_pll_ref_div_src"/>
+	<reg32 offset="0x128" name="CLK2_PLL_REF_DIV_SRC" type="nvc0_pll_ref_div_src"/>
+	<reg32 offset="0x13c" name="CLK7_PLL_REF_DIV_SRC" type="nvc0_pll_ref_div_src"/>
 
 	<reg32 offset="0x140" name="CLK0_PLL_REF_DIV_CRTL" type="nvc0_div_ctrl"/>
 	<reg32 offset="0x148" name="CLK2_PLL_REF_DIV_CTRL" type="nvc0_div_ctrl"/>
@@ -134,14 +158,14 @@
 	<reg32 offset="0x1d8" name="CLK2_DIV_CTRL" type="nvc0_div_ctrl"/>
 	<reg32 offset="0x1ec" name="CLK7_DIV_CTRL" type="nvc0_div_ctrl"/>
 
-	<reg32 offset="0x250" name="CLK0_POST_DIV_CTRL" type="nvc0_post_div_ctrl"/>
-	<reg32 offset="0x258" name="CLK2_POST_DIV_CTRL" type="nvc0_post_div_ctrl"/>
-	<reg32 offset="0x26c" name="CLK7_POST_DIV_CTRL" type="nvc0_post_div_ctrl"/>
-	<reg32 offset="0x270" name="CLK8_POST_DIV_CTRL" type="nvc0_post_div_ctrl"/>
-	<reg32 offset="0x274" name="CLK9_POST_DIV_CTRL" type="nvc0_post_div_ctrl"/>
-	<reg32 offset="0x27c" name="CLK11_POST_DIV_CTRL" type="nvc0_post_div_ctrl"/>
-	<reg32 offset="0x280" name="CLK12_POST_DIV_CTRL" type="nvc0_post_div_ctrl"/>
-	<reg32 offset="0x288" name="CLK14_POST_DIV_CTRL" type="nvc0_post_div_ctrl"/>
+	<reg32 offset="0x250" name="CLK0_POST_DIV_CTRL" type="nvc0_div_ctrl"/>
+	<reg32 offset="0x258" name="CLK2_POST_DIV_CTRL" type="nvc0_div_ctrl"/>
+	<reg32 offset="0x26c" name="CLK7_POST_DIV_CTRL" type="nvc0_div_ctrl"/>
+	<reg32 offset="0x270" name="CLK8_POST_DIV_CTRL" type="nvc0_div_ctrl"/>
+	<reg32 offset="0x274" name="CLK9_POST_DIV_CTRL" type="nvc0_div_ctrl"/>
+	<reg32 offset="0x27c" name="CLK11_POST_DIV_CTRL" type="nvc0_div_ctrl"/>
+	<reg32 offset="0x280" name="CLK12_POST_DIV_CTRL" type="nvc0_div_ctrl"/>
+	<reg32 offset="0x288" name="CLK14_POST_DIV_CTRL" type="nvc0_div_ctrl"/>
 
 	<reg32 offset="0x300" name="MCLK_PLL0_REF_DIV_SRC" type="nvc0_div_src"/>
 	<reg32 offset="0x310" name="MCLK_PLL0_REF_DIV_CRTL" type="nvc0_div_ctrl"/>
