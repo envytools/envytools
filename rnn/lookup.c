@@ -45,7 +45,7 @@ void usage()
 }
 
 int main(int argc, char **argv) {
-	char *file = "nv_mmio.xml";
+	char *file = "root.xml";
 	char *name = "NV_MMIO";
 	char *variant = NULL;
 	int c, mode = 'd';
