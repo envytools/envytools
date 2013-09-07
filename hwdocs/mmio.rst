@@ -62,7 +62,7 @@ Address range   Name     Variants  Reference                      Description
 002000:004000   PFIFO    all       `<fifo/nv01-pfifo.txt>`_       MMIO and DMA FIFO submission to PGRAPH and VPE
                                    `<fifo/nv04-pfifo.txt>`_
 004000:005000   ???      NV03:NV10 ???                            ???
-004000:005000   PCLOCK   NV40:NV50 `<pm/nv40-pclock.txt>`_        PLL control
+004000:005000   PCLOCK   NV40:NV50 :ref:`nv40-pclock-mmio`        PLL control
 005000:006000   ???      all       ???                            ???
 007000:008000   PRMA     all       :ref:`prma-mmio`               access to BAR0/BAR1 from real mode
 008000:009000   PVIDEO   NV10:NV50 `<display/nv03/pvideo.txt>`_   video overlay
@@ -70,7 +70,7 @@ Address range   Name     Variants  Reference                      Description
 00a000:00b000   PCOUNTER NV10:NV50 `<pcounter/intro.txt>`_        performance monitoring counters
 00b000:00c000   PVPE     NV17:NV20 `<vdec/vpe/intro.txt>`_        MPEG2 decoding engine
                          NV30:NV50 
-00c000:00d000   PCONTROL NV40:NV50 `<pm/nv40-pclock.txt>`_        control of misc stuff
+00c000:00d000   PCONTROL NV40:NV50 :ref:`nv40-pcontrol-mmio`      control of misc stuff
 00d000:00e000   PTV      NV17:NV20 `<display/nv03/ptv.txt>`_      TV encoder
                          NV30:NV50 
 00f000:010000   PVP1     NV41:NV50 `<vdec/vpe/vp1.txt>`_          VP1 video processing engine
@@ -132,16 +132,17 @@ Address range  Port  Name          Variants  Reference                        De
 000000:001000  ROOT  PMC           all       :ref:`pmc-mmio`                  card master control
 001000:002000  ROOT  PBUS          all       :ref:`pbus-mmio`                 bus control
 002000:004000  ROOT  PFIFO         all       `<fifo/nv50-pfifo.txt>`_         DMA FIFO submission to execution engines
-004000:005000  IBUS  PCLOCK        all       `<pm/nv50-pclock.txt>`_          PLL control
-                                             `<pm/nva3-pclock.txt>`_          
+004000:005000  IBUS  PCLOCK        NV50:NVA3 :ref:`nv50-pclock-mmio`          PLL control
+004000:005000  IBUS  PCLOCK        NVA3:NVC0 :ref:`nva3-pclock-mmio`          PLL control
 007000:008000  ROOT  PRMA          all       :ref:`prma-mmio`                 access to BAR0 from real mode
 009000:00a000  ROOT  PTIMER        all       :ref:`ptimer-mmio-nv03`          time measurement and time-based alarms
 00a000:00b000  IBUS  PCOUNTER      all       `<pcounter/intro.txt>`_          performance monitoring counters
 00b000:00c000  IBUS  PVPE          all       `<vdec/vpe/intro.txt>`_          MPEG2 decoding engine
-00c000:00d000  IBUS  PCONTROL      all       `<pm/nv50-pclock.txt>`_          control of misc stuff
-                                             `<pm/nva3-pclock.txt>`_          
+00c000:00d000  IBUS  PCONTROL      NV50:NVA3 :ref:`nv50-pcontrol-mmio`        control of misc stuff
+00c000:00d000  IBUS  PCONTROL      NVA3:NVC0 :ref:`nva3-pcontrol-mmio`        control of misc stuff
 00e000:00e800  IBUS  PNVIO         all       `<io/pnvio.txt>`_                GPIOs, I2C buses, PWM fan control, and other external devices
-00e800:00f000  IBUS  PIOCLOCK      all       `<pm/nv50-pclock.txt>`_          PNVIO's clock setup
+00e800:00f000  IBUS  PIOCLOCK      NV50:NVA3 :ref:`nv50-pioclock-mmio`        PNVIO's clock setup
+00e800:00f000  IBUS  PIOCLOCK      NVA3:NVC0 :ref:`nva3-pioclock-mmio`        PNVIO's clock setup
 00f000:010000  IBUS  PVP1          VP1       `<vdec/vpe/vp1.txt>`_            VP1 video processing engine
 00f000:010000  IBUS  PVP2          VP2       `<vdec/vp2/pvp2.txt>`_           VP2 xtensa video processing engine
 010000:020000  ROOT  ???           all       ???                              has something to do with PCI config spaces of other devices?
@@ -212,7 +213,7 @@ Address range  Port  Name          Variants  Reference                        De
 00cc00:00d000  IBUS  ???           all       ???                              ???
 00d000:00e000  IBUS  PGPIO         NVD9-     `<io/pnvio.txt>`_                GPIOs, I2C buses
 00e000:00e800  IBUS  PNVIO         all       `<io/pnvio.txt>`_                GPIOs, I2C buses, PWM fan control, and other external devices
-00e800:00f000  IBUS  PIOCLOCK      all       `<pm/nvc0-pclock.txt>`_          PNVIO's clock setup
+00e800:00f000  IBUS  PIOCLOCK      all       :ref:`nvc0-pioclock-mmio`        PNVIO's clock setup
 010000:020000  ROOT  ???           all       ???                              has something to do with PCI config spaces of other devices?
 020000:021000  IBUS  PTHERM        all       `<pm/ptherm.txt>`_               thermal sensor
 021000:022000  IBUS  PFUSE         all       :ref:`pfuse-mmio`                efuses storing not so secret stuff
@@ -245,7 +246,7 @@ Address range  Port  Name          Variants  Reference                        De
 10f000:120000  IBUS  PBFBs         all       `<memory/nvc0-pbfb.txt>`_        memory controller backends
 120000:130000  IBUS  PIBUS         all       :ref:`pibus-mmio`                deals with internal bus used to reach most other areas of MMIO
 130000:135000  IBUS  ???           ???       ???                              ???
-137000:138000  IBUS  PCLOCK        all       `<pm/nvc0-pclock.txt>`_          clock setting
+137000:138000  IBUS  PCLOCK        all       :ref:`nvc0-pclock-mmio`          clock setting
 138000:139000  IBUS  ???           ???       ???                              ???
 139000:13b000  IBUS  PP2P          all       `<memory/nvc0-p2p.txt>`_         peer to peer memory access
 13b000:13f000  IBUS  PXBAR         all       `<memory/nvc0-pxbar.txt>`_       crossbar between memory controllers and GPCs

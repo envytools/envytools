@@ -86,13 +86,15 @@ a clock source. The clock source depends on the card:
 
 - NV01:NV04: the clock source is the MPLL output [see display/nv03/pramdac.txt]
 - NV04:NV40: the clock source is the NVPLL output [see display/nv03/pramdac.txt]
-- NV40:NV41: the clock source is HCLK, the host clock [see pm/nv40-pclock.txt]
+- NV40:NV41: the clock source is :ref:`HCLK, the host clock <nv40-clock-hclk>`
 - NV41:NV84: the clock source can be bound to either the internal clock source
   or external clock source. Internal clock source is the crystal
   [see io/pstraps.txt] frequency multiplied by a small ratio, while external
-  clock source is HCLK, the host clock [see pm/nv40-pclock.txt, pm/nv50-pclock.txt].
+  clock source is HCLK, the host clock [:ref:`nv40 <nv40-clock-hclk>`,
+  :ref:`nv50 <nv50-clock-hclk>`]
 - NV84 and up: like NV41, but external clock source is TCLK, the PTIMER clock
-  [see pm/nv50-pclock.txt, pm/nva3-pclock.txt, pm/nvc0-pclock.txt]
+  [:ref:`nv84 <nv84-clock-tclk>`, :ref:`nva3 <nva3-clock-tclk>`,
+  :ref:`nvc0 <nvc0-clock-tclk>`]
 
 On NV41+ cards, which have both internal and external clock generators, the
 internal clock generator and the switch is configured by the CLOCK_SOURCE
