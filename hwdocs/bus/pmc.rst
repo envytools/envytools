@@ -180,8 +180,8 @@ On NV03:NV04, the bits are:
 - 12: PGRAPH [graph/nv03-pgraph.txt] and PDMA [graph/nv03-pdma.txt]
 - 16: :ref:`PTIMER <ptimer>`
 - 20: PFB [memory/nv03-pfb.txt]
-- 24: CRTC [display/nv03/vga.txt]
-- 28: PRAMDAC.VIDEO [display/nv03/pramdac.txt]
+- 24: :ref:`PCRTC <pcrtc>`
+- 28: :ref:`PRAMDAC.VIDEO <pvideo>`
 
 On NV04:NV50, the bits are:
 
@@ -194,10 +194,10 @@ On NV04:NV50, the bits are:
 - [XXX: figure out the CS thing, figure out the variants. Known not to exist on NV40, NV43, NV44, NV49]
 - 16: :ref:`PTIMER <ptimer>`
 - 20: PFB [memory/nv03-pfb.txt, memory/nv10-pfb.txt, memory/nv40-pfb.txt, memory/nv44-pfb.txt]
-- 24: PCRTC [display/nv03/vga.txt]
-- 25: PCRTC2 [display/nv03/vga.txt] [NV11-]
-- 26: PTV [display/nv03/ptv.txt] [NV17:NV20, NV25:NV50]
-- 28: PRAMDAC.VIDEO [display/nv03/pramdac.txt] [NV04:NV10] or PVIDEO [display/nv03/pvideo.txt] [NV10:NV50]
+- 24: :ref:`PCRTC <pcrtc>`
+- 25: :ref:`PCRTC2 <pcrtc>` [NV11-]
+- 26: :ref:`PTV <ptv>` [NV17:NV20, NV25:NV50]
+- 28: :ref:`PRAMDAC.VIDEO <pvideo>` [NV04:NV10] or :ref:`PVIDEO <pvideo>` [NV10:NV50]
 
 On NV50:NVC0, the bits are:
 
@@ -376,9 +376,9 @@ For NV03:
 - 8: PFIFO [fifo/nv01-pfifo.txt]
 - 12: PGRAPH [graph/nv03-pgraph.txt]
 - 13: PDMA [graph/nv03-pdma.txt]
-- 16: PRAMDAC.VIDEO [display/nv03/pramdac.txt]
+- 16: :ref:`PRAMDAC.VIDEO <pvideo-intr>`
 - 20: :ref:`PTIMER <ptimer-intr>`
-- 24: PGRAPH's vblank interrupt [graph/nv03-pgraph.txt, display/nv03/vga.txt]
+- 24: :ref:`PGRAPH's vblank interrupt <pcrtc-intr>`
 - 28: :ref:`PBUS <pbus-intr>`
 - 31: software
 
@@ -388,10 +388,10 @@ For NV04:NV50:
 - 4: :ref:`PMEDIA <pmedia-intr>`
 - 8: PFIFO [fifo/nv04-pfifo.txt]
 - 12: PGRAPH [graph/nv04-pgraph.txt, graph/nv10-pgraph.txt, graph/nv20-pgraph.txt, graph/nv40-pgraph.txt]
-- 16: PRAMDAC.VIDEO [display/nv03/pramdac.txt] [NV04:NV10] or PVIDEO [display/nv03/pvideo.txt] [NV10:NV50]
+- 16: :ref:`PRAMDAC.VIDEO <pvideo-intr>` [NV04:NV10] or :ref:`PVIDEO <pvideo>` [NV10:NV50]
 - 20: :ref:`PTIMER <ptimer-intr>`
-- 24: PCRTC [display/nv03/vga.txt]
-- 25: PCRTC2 [display/nv03/vga.txt] [NV17:NV20 and NV25:NV50]
+- 24: :ref:`PCRTC <pcrtc-intr>`
+- 25: :ref:`PCRTC2 <pcrtc-intr>` [NV17:NV20 and NV25:NV50]
 - 28: :ref:`PBUS <pbus-intr>`
 - 31: software
 

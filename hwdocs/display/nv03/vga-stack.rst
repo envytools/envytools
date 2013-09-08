@@ -1,59 +1,66 @@
-TOC
+.. _vga-stack:
 
-0. Introduction
-1. MMIO registers
-2. Description
-3. Stack access registers
-4. Stack configuration registers
-5. Internal operation
+=========
+VGA stack
+=========
+
+.. contents::
 
 
-= Introduction =
+Introduction
+============
 
 A dedicated RAM made of 0x200 8-bit cells arranged into a hw stack. NFI what
 it is for, apparently related to VGA. Present on NV41+ cards.
 
 
-= MMIO registers =
+.. _pbus-mmio-vga-stack:
+.. _pdisplay-mmio-vga-stack:
+.. _nv03-cr-vga-stack:
+.. _nv50-cr-vga-stack:
+
+MMIO registers
+==============
 
 On NV41:NV50, the registers are located in PBUS area:
 
-001380 VAL
-001384 CTRL
-001388 CONFIG
-00138c SP
+- 001380 VAL
+- 001384 CTRL
+- 001388 CONFIG
+- 00138c SP
 
 They are also aliased in the VGA CRTC register space:
 
-CR90 VAL
-CR91 CTRL
+- CR90 VAL
+- CR91 CTRL
 
 On NV50+, the registers are located in PDISPLAY.VGA area:
 
-619e40 VAL
-619e44 CTRL
-619e48 CONFIG
-619e4c SP
+- 619e40 VAL
+- 619e44 CTRL
+- 619e48 CONFIG
+- 619e4c SP
 
 And aliased in VGA CRTC register space, but in a different place:
 
-CRA2 VAL
-CRA3 CTRL
+- CRA2 VAL
+- CRA3 CTRL
 
 
-= Description =
+Description
+===========
 
 The stack is made of the following data:
 
- - an array of 0x200 bytes [the actual stack]
- - a write shadow byte, WVAL [NV50+ only]
- - a read shadow byte, RVAL [NV50+ only]
- - a 10-bit stack pointer [SP]
- - 3 config bits:
+- an array of 0x200 bytes [the actual stack]
+- a write shadow byte, WVAL [NV50+ only]
+- a read shadow byte, RVAL [NV50+ only]
+- a 10-bit stack pointer [SP]
+- 3 config bits:
   - push mode: auto or manual
   - pop mode: auto or manual
   - manual pop mode: read before pop or read after pop
- - 2 sticky error bits:
+- 2 sticky error bits:
   - stack underflow
   - stack overflow
 
@@ -81,7 +88,8 @@ is cleared by executing a pop, and the underflow status is cleared by
 executing a push.
 
 
-= Stack access registers =
+Stack access registers
+======================
 
 The stack data is read or written through the VAL register:
 
@@ -100,12 +108,12 @@ The CTRL register is used to manually push/pop the stack and check its status:
 
 MMIO 0x001384 / CR 0x91: CTRL [NV41:NV50]
 MMIO 0x619e44 / CR 0xa3: CTRL [NV50-]
-  bit 0: PUSH_TRIGGER - when written as 1, executes a push. Always reads as 0.
-  bit 1: POP_TRIGGER - like above, for pop.
-  bit 4: EMPTY - read-only, reads as 1 when SP == 0.
-  bit 5: FULL - read-only, reads as 1 when SP >= 0x200.
-  bit 6: OVERFLOW - read-only, the sticky overflow error bit
-  bit 7: UNDERFLOW - read-only, the sticky underflow error bit
+  - bit 0: PUSH_TRIGGER - when written as 1, executes a push. Always reads as 0.
+  - bit 1: POP_TRIGGER - like above, for pop.
+  - bit 4: EMPTY - read-only, reads as 1 when SP == 0.
+  - bit 5: FULL - read-only, reads as 1 when SP >= 0x200.
+  - bit 6: OVERFLOW - read-only, the sticky overflow error bit
+  - bit 7: UNDERFLOW - read-only, the sticky underflow error bit
 
 
 = Stack configuration registers =
@@ -114,19 +122,25 @@ To configure the stack, the CONFIG register is used:
 
 MMIO 0x001388: CONFIG [NV41:NV50]
 MMIO 0x619e48: CONFIG [NV50-]
-  bit 0: PUSH_MODE - selects push mode [see above]
-    0: MANUAL
-    1: AUTO
-  bit 1: POP_MODE - selects pop mode [see above]
-    0: MANUAL
-    1: AUTO
-  bit 2: MANUAL_POP_MODE - for manual pop mode, selects manual pop submode.
+  - bit 0: PUSH_MODE - selects push mode [see above]
+
+    - 0: MANUAL
+    - 1: AUTO
+
+  - bit 1: POP_MODE - selects pop mode [see above]
+
+    - 0: MANUAL
+    - 1: AUTO
+
+  - bit 2: MANUAL_POP_MODE - for manual pop mode, selects manual pop submode.
     Unused for auto pop mode.
-    0: POP_READ - pop before read
-    1: READ_POP - read before pop
-  bit 6: OVERFLOW_CLEAR [NV41:NV50] - when written as 1, clears CTRL.OVERFLOW
+
+    - 0: POP_READ - pop before read
+    - 1: READ_POP - read before pop
+
+  - bit 6: OVERFLOW_CLEAR [NV41:NV50] - when written as 1, clears CTRL.OVERFLOW
     to 0. Always reads as 0.
-  bit 7: UNDERFLOW_CLEAR [NV41:NV50] - like above, for CTRL.UNDERFLOW
+  - bit 7: UNDERFLOW_CLEAR [NV41:NV50] - like above, for CTRL.UNDERFLOW
 
 The stack pointer can be accessed directly by the SP register:
 
@@ -135,19 +149,23 @@ MMIO 0x619e4c: SP [NV50-]
   The stack pointer. Only low 10 bits are valid.
 
 
-= Internal operation =
+Internal operation
+==================
 
-NV41:NV50 VAL write:
+NV41:NV50 VAL write::
+
 	if (SP >= 0x200)
 		CTRL.OVERFLOW = 1;
 	STACK[SP] = val;
 	if (CONFIG.PUSH_MODE == AUTO)
 		PUSH();
 
-NV41:NV50 PUSH:
+NV41:NV50 PUSH::
+
 	SP++;
 
-NV41:NV50 VAL read:
+NV41:NV50 VAL read::
+
 	if (SP == 0)
 		CTRL.UNDERFLOW = 1;
 	if (CONFIG.POP_MODE == AUTO) {
@@ -160,22 +178,26 @@ NV41:NV50 VAL read:
 			res = STACK[SP-1];
 	}
 
-NV41:NV50 POP:
+NV41:NV50 POP::
+
 	SP--;
 
-NV50+ VAL write:
+NV50+ VAL write::
+
 	WVAL = val;
 	if (CONFIG.PUSH_MODE == AUTO)
 		PUSH();
 
-NV50+ PUSH:
+NV50+ PUSH::
+
 	if (SP >= 0x200)
 		CTRL.OVERFLOW = 1;
 	else
 		STACK[SP++] = WVAL;
 	CTRL.UNDERFLOW = 0;
 
-NV50+ VAL read:
+NV50+ VAL read::
+
 	if (CONFIG.POP_MODE == AUTO) {
 		POP();
 		res = RVAL;
@@ -186,7 +208,8 @@ NV50+ VAL read:
 			res = STACK[SP-1];
 	}
 
-NV50+ POP:
+NV50+ POP::
+
 	if (SP == 0)
 		CTRL.UNDERFLOW = 1;
 	else

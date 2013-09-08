@@ -259,10 +259,10 @@ The known flags are:
 - 1: :ref:`60081c/60281c/CR4d b1 [NV17:NV50] <nv10-gpio-lines>`
 - 2: :ref:`60081c/60281c/CR4d b4 [NV17:NV50] <nv10-gpio-lines>`
 - 3: :ref:`60081c/60281c/CR4d b5 [NV17:NV50] <nv10-gpio-lines>`
-- 4: 680880 b28 [NV17:NV40] [display/nv03/pramdac.txt]
-- 5: 682880 b28 [NV17:NV40] [display/nv03/pramdac.txt]
-- 6: 680880 b29 [NV17:NV50] [display/nv03/pramdac.txt]
-- 7: 682880 b29 [NV17:NV50] [display/nv03/pramdac.txt]
+- 4: :ref:`680880 b28 [NV17:NV40] <pramdac-mmio>`
+- 5: :ref:`682880 b28 [NV17:NV40] <pramdac-mmio>`
+- 6: :ref:`680880 b29 [NV17:NV50] <pramdac-mmio>`
+- 7: :ref:`682880 b29 [NV17:NV50] <pramdac-mmio>`
 - 14: :ref:`60081c/60281c b28 [NV31:NV50] <nv10-gpio-lines>`
 - 15: :ref:`60081c/60281c b29 [NV31:NV50] <nv10-gpio-lines>`
 - 16: FB_PAUSE [NV41-] [see below]
@@ -354,10 +354,10 @@ Opcode: 0x5f <e> <v> - ewait #event #value
 The events are:
 
 - 0: FB_PAUSED [see below]
-- 1: CRTC0_VBLANK [display/nv03/vga.txt, display/nv50/pdisplay.txt]
-- 2: CRTC0_HBLANK [display/nv03/vga.txt, display/nv50/pdisplay.txt]
-- 3: CRTC1_VBLANK [display/nv03/vga.txt, display/nv50/pdisplay.txt]
-- 4: CRTC1_HBLANK [display/nv03/vga.txt, display/nv50/pdisplay.txt]
+- 1: CRTC0_VBLANK [:ref:`nv41 <pcrtc-blank>`, display/nv50/pdisplay.txt]
+- 2: CRTC0_HBLANK [:ref:`nv41 <pcrtc-blank>`, display/nv50/pdisplay.txt]
+- 3: CRTC1_VBLANK [:ref:`nv41 <pcrtc-blank>`, display/nv50/pdisplay.txt]
+- 4: CRTC1_HBLANK [:ref:`nv41 <pcrtc-blank>`, display/nv50/pdisplay.txt]
 
 
 Framebuffer pause feature

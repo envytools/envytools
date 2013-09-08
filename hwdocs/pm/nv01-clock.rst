@@ -24,7 +24,22 @@ NV01:NV40 chipsets have the following clocks:
 .. todo:: DLL on NV03
 .. todo:: NV01???
 
-These clocks are set in PDAC [NV01] or PRAMDAC [NV03 and up] areas - see
-display/nv03/pramdac.txt for more information.
+These clocks are set in PDAC [NV01] or PRAMDAC [NV03 and up] areas.
+
+.. todo:: write me
+
+
+.. _nv01-clock-nvclk:
+
+NVCLK: core clock
+=================
+
+.. todo:: write me
+
+
+.. _nv01-clock-mclk:
+
+MCLK: memory clock
+==================
 
 .. todo:: write me

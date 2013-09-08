@@ -217,4 +217,4 @@ and memory are still accessible through their aliases in BAR0, and disabling
 the legacy ranges has no effect on the operation of the card. The IO range
 contains an extra top-level register that allows indirect access to the MMIO
 area for use by real mode code, as well as many nvidia-specific extra
-registers in the VGA subunits. For details, see `<../display/nv03/vga.txt>`_.
+registers in the VGA subunits. For details, see :ref:`nv03-vga`.

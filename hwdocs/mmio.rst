@@ -62,21 +62,21 @@ Address range   Name     Variants  Reference                      Description
 004000:005000   PCLOCK   NV40:NV50 :ref:`nv40-pclock-mmio`        PLL control
 005000:006000   ???      all       ???                            ???
 007000:008000   PRMA     all       :ref:`prma-mmio`               access to BAR0/BAR1 from real mode
-008000:009000   PVIDEO   NV10:NV50 `<display/nv03/pvideo.txt>`_   video overlay
+008000:009000   PVIDEO   NV10:NV50 :ref:`pvideo-mmio`             video overlay
 009000:00a000   PTIMER   all       :ref:`ptimer-mmio-nv03`        time measurement and time-based alarms
 00a000:00b000   PCOUNTER NV10:NV50 `<pcounter/intro.txt>`_        performance monitoring counters
 00b000:00c000   PVPE     NV17:NV20 `<vdec/vpe/intro.txt>`_        MPEG2 decoding engine
                          NV30:NV50 
 00c000:00d000   PCONTROL NV40:NV50 :ref:`nv40-pcontrol-mmio`      control of misc stuff
-00d000:00e000   PTV      NV17:NV20 `<display/nv03/ptv.txt>`_      TV encoder
+00d000:00e000   PTV      NV17:NV20 :ref:`ptv-mmio`                TV encoder
                          NV30:NV50 
 00f000:010000   PVP1     NV41:NV50 `<vdec/vpe/vp1.txt>`_          VP1 video processing engine
 088000:089000   PPCI     NV40:NV50 :ref:`ppci-mmio`               PCI config space access
 090000:0a0000   PFIFO    NV40:NV50 `<fifo/nv04-pfifo.txt>`_       part of PFIFO
                 cache
-0a0000:0c0000   PRMFB    all       `<display/nv03/vga.txt>`_      aliases VGA memory window
-0c0000:0c1000   PRMVIO   all       `<display/nv03/vga.txt>`_      aliases VGA sequencer and graphics controller registers
-0c2000:0c3000   PRMVIO2  NV40:NV50 `<display/nv03/vga.txt>`_      like PRMVIO, but for second head
+0a0000:0c0000   PRMFB    all       :ref:`prmfb-mmio`              aliases VGA memory window
+0c0000:0c1000   PRMVIO   all       :ref:`prmvio-mmio`             aliases VGA sequencer and graphics controller registers
+0c2000:0c3000   PRMVIO2  NV40:NV50 :ref:`prmvio-mmio`             like PRMVIO, but for second head
 100000:101000   PFB      all       `<memory/nv03-pfb.txt>`_       memory interface and PCIE GART
                          except    `<memory/nv10-pfb.txt>`_
                          IGPs      `<memory/nv40-pfb.txt>`_
@@ -99,17 +99,17 @@ Address range   Name     Variants  Reference                      Description
                                    `<graph/nv10-pgraph.txt>`_
                                    `<graph/nv20-pgraph.txt>`_
 400000:410000   PGRAPH   NV40:NV50 `<graph/nv40-pgraph.txt>`_     accelerated 2d/3d drawing engine
-600000:601000   PCRTC    NV04:NV50 `<display/nv03/pcrtc.txt>`_    more CRTC controls
-601000:602000   PRMCIO   all       `<display/nv03/vga.txt>`_      aliases VGA CRTC and attribute controller registers
-602000:603000   PCRTC2   NV11:NV20 `<display/nv03/pcrtc.txt>`_    like PCRTC, but for second head
+600000:601000   PCRTC    NV04:NV50 :ref:`pcrtc-mmio`              more CRTC controls
+601000:602000   PRMCIO   all       :ref:`prmcio-mmio`             aliases VGA CRTC and attribute controller registers
+602000:603000   PCRTC2   NV11:NV20 :ref:`pcrtc-mmio`              like PCRTC, but for second head
                          NV25:NV50
-603000:604000   PRMCIO2  NV11:NV20 `<display/nv03/vga.txt>`_      like PRMCIO, but for second head
+603000:604000   PRMCIO2  NV11:NV20 :ref:`prmcio-mmio`             like PRMCIO, but for second head
                          NV25:NV50
-680000:681000   PRAMDAC  all       `<display/nv03/pramdac.txt>`_  RAMDAC, video overlay, cursor, and PLL control
-681000:682000   PRMDIO   all       `<display/nv03/vga.txt>`_      aliases VGA palette registers
-682000:683000   PRAMDAC2 NV11:NV20 `<display/nv03/pramdac.txt>`_  like PRAMDAC, but for second head
+680000:681000   PRAMDAC  all       :ref:`pramdac-mmio`            RAMDAC, video overlay, cursor, and PLL control
+681000:682000   PRMDIO   all       :ref:`prmdio-mmio`             aliases VGA palette registers
+682000:683000   PRAMDAC2 NV11:NV20 :ref:`pramdac-mmio`            like PRAMDAC, but for second head
                          NV25:NV50
-683000:684000   PRMDIO2  NV11:NV20 `<display/nv03/vga.txt>`_      like PRMDIO, but for second head
+683000:684000   PRMDIO2  NV11:NV20 :ref:`prmdio-mmio`             like PRMDIO, but for second head
                          NV25:NV50
 700000:800000   PRAMIN   NV04:NV50 `<memory/nv04-vram.txt>`_      RAMIN access
 800000:1000000  USER     all       `<fifo/pio.txt>`_              PFIFO MMIO and DMA submission area

@@ -35,7 +35,7 @@ Range         Variants  Description
 001200:001208 NV04:NV50 :ref:`ROM control <prom-mmio-rom-timings>`
 001300:001380 NV17:NV20 :ref:`HWSQ - hardware sequencer <hwsq-mmio>`
               NV25:NVC0
-001380:001400 NV41:NV50 VGA_STACK [display/nv03/vga-stack.txt]
+001380:001400 NV41:NV50 :ref:`VGA_STACK <pbus-mmio-vga-stack>`
 001400:001500 NV17:NV20 :ref:`HWSQ - hardware sequencer <hwsq-mmio>`
               NV25:NVC0
 001500:001540 ???       :ref:`DEBUG registers <pbus-mmio-debug>`
@@ -49,7 +49,7 @@ Range         Variants  Description
 001700:001800 TC        HOST_MEM - host memory access setup [memory/nv44-host-mem.txt]
 001700:001800 NV50:NVC0 HOST_MEM - host memory access setup [memory/nv50-host-mem.txt]
 001700:001800 NVC0-     HOST_MEM - host memory access setup [memory/nvc0-host-mem.txt]
-001800:001a00 NV01:NV50 PCI - PCI configuration space [bus/pci.txt]
+001800:001a00 NV01:NV50 :ref:`PCI - PCI configuration space <pbus-mmio-pci>`
 001900:001980 NV50:NVC0 REMAP - BAR1 remapping circuitry [memory/nv50-remap.txt]
 001980:001a00 NV50:NVC0 P2P - NV50 P2P slave [memory/nv50-p2p.txt]
 001a14        NVA3:NVC0 :ref:`IBUS_TIMEOUT - controls timeout length for accessing MMIO via IBUS <pbus-mmio-ibus-timeout>`
@@ -69,8 +69,8 @@ usually group together unrelated bits. The known bits include:
 MMIO 0x001084: DEBUG_1 [NV04-]
   bit 11: FUSE_READOUT_ENABLE - enables reads from fuses in PFUSE [NV50:NVC0]
           [bus/pfuse.txt]
-  bit 28: HEADS_TIED - mirrors writes to CRTC/RAMDAC registers on any head to
-          the other head too [NV11:NV20, NV25:NV50] [display/nv03/vga.txt]
+  bit 28: HEADS_TIED - mirrors writes to :ref:`CRTC <pcrtc-mmio>`/:ref:`RAMDAC <pramdac-mmio>` registers on any head to
+          the other head too [NV11:NV20, NV25:NV50]
 
 MMIO 0x001098: DEBUG_6 [NV17:NV20, NV25-]
   bit 3: :ref:`HWSQ_ENABLE - enables HWSQ effects <hwsq-mmio>`
