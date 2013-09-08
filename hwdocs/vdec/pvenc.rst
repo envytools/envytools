@@ -1,0 +1,38 @@
+.. _pvenc:
+
+============================
+PVENC: video encoding engine
+============================
+
+.. contents::
+
+.. todo:: convert
+
+::
+
+    Present on: NVE4+
+    BAR0 address: 0x1c2000
+    PMC interrupt line: 16
+    PMC enable bit: 18
+    Version: 4
+    Code segment size: 0x4000
+    Data segment size: 0x1800
+    Fifo size: 0x10
+    Xfer slots: 8
+    Secretful: no
+    Code TLB index bits: 8
+    Code ports: 1
+    Data ports: 1
+    Version 4 unknown caps: -
+    Unified address space: no
+    IO addressing type: simple
+    Core clock: ??? [XXX]
+    NVC0 VM engine: 0x19
+    NVC0 VM client: HUB 0x1b
+
+    [XXX: IO regs]
+    [XXX: MEMIF ports]
+    [XXX: interrupts]
+    [XXX: status bits]
+
+    [XXX: describe PVENC]

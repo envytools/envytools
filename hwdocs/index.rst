@@ -14,8 +14,15 @@ Contents:
    pm/index
    nv01-paudio
    io/index
-   
+   memory/index
+   fifo/index
+   graph/index
    falcon/index
+   vdec/index
+   pcounter/index
+   display/index
+
+.. todo:: convert glossary
 
 
 Indices and tables

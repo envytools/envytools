@@ -1,0 +1,501 @@
+.. _pcounter-signal-nv40:
+
+=================
+NV40:NVC0 signals
+=================
+
+.. contents::
+
+.. todo:: convert
+
+::
+
+    == PCOUNTER domains ==
+
+    NV40 IGP:
+    0: host clock
+    1: core clock [PGRAPH probably]
+    2: core clock [shaders probably]
+    3: unknown, could be the memory interface
+
+    NV40 generation with turbocache that are not IGPs:
+    0: host clock
+    1: core clock [PGRAPH front]
+    2: shader clock
+    3: memory clock
+
+    NV40 generation cards without turbocache and NV50:NV84:
+    0: host clock
+    1: core clock [PGRAPH front]
+    2: geometry[?] clock [PGRAPH back]
+    3: shader clock
+    4: memory clock
+
+    NV84+ IGP have same domains as NV40 cards, except of the memory clock domain.
+    They define the following additional domains
+    4: misc on core clock
+    5: video decoding
+    6: VM and other memory interface stuff on core clock
+
+    Other NV84+ define the following on top of NV40:
+    5: misc on core clock
+    6: video decoding
+    7: VM and other memory interface stuff on core clock
+
+
+    === NV50 signals ===
+
+    set 0 [host]:
+    0x00: PFIFO/host memory write
+    0x1a: PFIFO/host memory read
+    0x1c: triple MMIO read???
+    0x1d: MMIO read [or any BAR?]
+    0x27: PTIMER_TIME_B12 [bus/ptimer.txt]
+    0x29: MMIO read or write [or any BAR?]
+    0x2a: MMIO write [or any BAR?]
+    0x20 trailer base
+
+    set 1 [graph]:
+    0x3f: VFETCH.JOE related
+    0x6e: ZCULL
+    0x73: CSCHED
+    0x77-0x7e: GSCHED
+    0x80-0x82: STRMOUT
+    0x95-0x99: UNK24xx
+    0xa7: ENG2D
+    0xb8-0xbb: UNK14xx
+    0xc8: PGRAPH_IDLE
+    0xca: PGRAPH_INTR_PENDING
+    0xd2: CTXCTL flag 0x1c
+    0xd3: CTXCTL flag 0x1d
+    0xd4: CTXCTL flag 0x1e
+    0xd5: CTXCTL flag 0x1f
+    0xe3-0xe6: UNK1Cxx
+    0xe0 trailer base
+
+    set 2:
+    0x3a: PVPE
+    0x5d: memory access
+    0x5e: happens when reading memory through VGA window?
+    0x64: memory read [?]
+    0x68: memory read [?]
+    0x80: memory access
+    0x89-0xa6: PVPE
+    0xac: PFB 100c98
+    0xad: PFIFO host DMAobj load
+    0xb8: PFB 100e0c
+    0xc4: PFIFO/host memory read
+    0xea: CCACHE
+    0xe0 trailer base
+
+    set 3 [MPs]:
+    0x20 trailer base
+
+    set 4 [mem]:
+    0x1a: PFB 100008
+    0x20 trailer base
+
+    === NV98 signals ===
+
+    set 0 [host]:
+    0x04: PFIFO/host memory write
+    0x28: happens once with PFIFO write or PDISPLAY access [not PFIFO read]
+    0x2a: PFIFO/host memory read
+    0x2d: MMIO read [or any BAR?]
+    0x37: PTIMER_TIME_B12 [bus/ptimer.txt]
+    0x39: MMIO read or write [or any BAR?]
+    0x3a: MMIO write [or any BAR?]
+    0x40 trailer base
+
+    set 1 [graph]:
+    0x31: CSCHED
+    0x37: UNK24xx
+    0x4f: ZCULL
+    0x57-0x59: GSCHED
+    0x5f: STRMOUT
+    0x8d: UNK24xx
+    0x9b-0x9d: ENG2D
+    0xae-0xb0: UNK14xx
+    0xbd: PGRAPH_IDLE
+    0xbf: PGRAPH_INTR_PENDING
+    0xc7: CTXCTL flag 0x1c
+    0xc8: CTXCTL flag 0x1d
+    0xc9: CTXCTL flag 0x1e
+    0xca: CTXCTL flag 0x1f
+    0xd9-0xdb: UNK1Cxx
+    0xe0 trailer base
+
+    set 2:
+    0x36-0x37: ENG2D
+    0x58: ZCULL
+    0x60: ENG2D
+    0x80 trailer base
+
+    set 3 [MPs]:
+    0x20 trailer base
+
+    set 5:
+    0x37: PCRYPT3 PM_TRIGGER 2nd
+    0x38: PCRYPT3 WRCACHE_FLUSH 2nd
+    0x3b: PCRYPT3 idle
+    0x45: PCRYPT3 PM_TRIGGER
+    0x46: PCRYPT3 WRCACHE_FLUSH
+    0x47-0x4c: PCRYPT3 USER
+    0x60 trailer base
+
+    set 7:
+    0x07: something related to MAGIC_FLUSH + PFIFO memory read?
+    0x22: 16 * PFIFO host DMAobj load
+    0x23: 16 * PFIFO host DMAobj load
+    0x24: MAGIC_FLUSH + PFIFO memory read
+    0x2c: MAGIC_FLUSH + memory access
+    0x2e: MAGIC_FLUSH + memory access
+    0x30: MAGIC_FLUSH [misses 1 sometimes?] + memory read
+    0x32: MAGIC_FLUSH [misses 1 sometimes?] + memory read
+    0x4b: PFB_WRITE
+    0x4c: PFB_READ
+    0x4d: PFB_FLUSH
+    0x65: PVLD PM_TRIGGER 2nd
+    0x66: PVLD WRCACHE_FLUSH 2nd
+    0x71: PPPP PM_TRIGGER 2nd
+    0x72: PPPP WRCACHE_FLUSH 2nd
+    0x8c: PVDEC PM_TRIGGER 2nd
+    0x8d: PVDEC WRCACHE_FLUSH 2nd
+    0xa0 trailer base
+
+
+    == NVA0 signals ==
+
+    set 0:
+    0x05: host memory write
+    0x0a: all PFIFO engines enabled and idle???
+    0x29: ??? on for 10%
+    0x2a: ??? on for 10%
+    0x2b: pcie activity wakeups [long]?!?
+    0x2c: pcie activity bursts?!?
+    0x2e: host memory read
+    0x30: 3x pcie read
+    0x31: pcie read
+    0x3b: PTIMER_TIME_B12
+    0x3d: pcie transaction [r or w]
+    0x3e: pcie write
+
+
+    == NVAC signals ==
+
+    set 2:
+    0xd4-0xd9: PCRYPT3_USER_0-5 [falcon/perf.txt]
+
+    === NVA5 signals ===
+
+    set 0 [host]:
+    0x1a: PFIFO writes
+    0x2a: PCOUNTER USER_0
+    0x2b: PCOUNTER USER_1
+    0x74: MMIO reads
+    0x96: PFIFO reads
+    0x99: MMIO reads
+    0xa3: PTIMER_TIME_B12 [bus/ptimer.txt]
+    0xa5: MMIO accesses
+    0xa6: MMIO writes
+    0xe0 trailer base
+
+    set 1 [graph]:
+    0x2f: CCACHE_UNK4 ??? [flag 2]
+    0x30: CCACHE_UNK4 ??? [flag 2]
+    0x33: CCACHE_UNK5 ??? [flag 2]
+    0x34: CCACHE_UNK5 ??? [flag 2]
+    0x37: PGRAPH 24xx ??? [idle?]
+    0x69: PCOUNTER USER_0
+    0x6a: PCOUNTER USER_1
+    0x77: ZCULL ??? [idle?]
+    0xa9: ENG2D ??? [idle?]
+    0xab: ENG2D ??? [idle?]
+    0xbc: PGRAPH 14xx ??? [idle?]
+    0xbe: PGRAPH 14xx ??? [idle?]
+    0xca: DISPATCH ???? [idle?]
+    0xcb: PGRAPH_IDLE
+    0xcd: PGRAPH_INTR_PENDING
+    0xd5: CTXCTL flag 0x1c
+    0xd6: CTXCTL flag 0x1d
+    0xd7: CTXCTL flag 0x1e
+    0xd8: CTXCTL flag 0x1f
+    0xe0 trailer base
+
+    set 2:
+    0x2a: CCACHE ??? [idle?]
+    0x2c: CCACHE ??? [idle?]
+    0x49: GSCHED ??? [idle?]
+    0x4b: GSCHED ??? [idle?]
+    0x4e: STRMOUT ??? [idle?]
+    0x50: STRMOUT ??? [idle?]
+    0x6c: 14xx ??? [idle?]
+    0x6d: 14xx ??? [idle?]
+    0x9e: PCOUNTER USER_0
+    0x9f: PCOUNTER USER_1
+    0xc0 trailer base
+
+    set 3 [MP]:
+    0x13: PCOUNTER USER_0
+    0x14: PCOUNTER USER_1
+    0x20 trailer base
+
+    set 6 [vdec]:
+    0x10: PCOUNTER USER_0
+    0x11: PCOUNTER USER_1
+    0x17: PVLD FIFO idle
+    0x18: PVLD idle
+    0x19-0x1b: PVLD uc execution
+    0x22: PVLD PM_TRIGGER
+    0x23: PVLD WRCACHE_FLUSH
+    0x24-0x29: PVLD_USER_0-5 [falcon/perf.txt]
+    0x2b: PPPP
+    0x36: PPPP PM_TRIGGER
+    0x37: PPPP WRCACHE_FLUSH
+    0x38-0x3d: PPPP_USER_0-5 [falcon/perf.txt]
+    0x3f: PVDEC
+    0x4a: PVDEC PM_TRIGGER
+    0x4b: PVDEC WRCACHE_FLUSH
+    0x4c-0x51: PVDEC_USER_0-5 [falcon/perf.txt]
+    0x54-0x58: PVLD
+    0x5f-0x7e: PPPP
+    0x88-0x8c: PVDEC vµc
+    0xa0-0xa4: PVDEC [xfrm? - 4c b3, b5]
+    0xad-0xaf: PVDEC [580 - 4c b7]
+    0xb6: PVDEC [680 - 4c b8]
+    0xc0-0xc5: PVLD.CRYPT
+    0xc0 trailer base
+
+
+    = Known NV50 host signals =
+
+    These signals are always on set 0.
+
+    signal           |50|84|86|92|94|96|98|a0|aa|ac|a3|a5|a8|af| documentation
+    -----------------+--+--+--+--+--+--+--+--+--+--+--+--+--+--+---------------
+    HOST_MEM_WR      |00|??|04|04|04|??|04|05|??|??|--|??|??|??| [XXX]
+    HOST_MEM_RD      |1a|??|1f|2a|2a|??|2a|2e|??|??|96|??|??|??| [XXX]
+    PCOUNTER USER_0  |--|--|--|--|--|--|--|--|--|--|??|2a|??|3a| pcounter/intro.txt
+    PCOUNTER USER_1  |--|--|--|--|--|--|--|--|--|--|??|2b|??|3b| pcounter/intro.txt
+    PBUS_PCIE_RD     |1d|??|22|??|2d|??|2d|31|??|??|99|99|??|??| [XXX]
+    PTIMER_TIME_B12  |27|2c|2c|34|37|37|37|3b|??|53|a3|a3|a3|4a| bus/ptimer.txt
+    PBUS_PCIE_TRANS  |29|??|2e|36|39|??|39|3d|??|??|a5|a5|??|??| [XXX]
+    PBUS_PCIE_WR     |2a|??|2f|37|3a|??|3a|3e|??|??|a6|a6|??|??| [XXX]
+    [trailer base]   |20|??|40|??|??|??|40|60|??|80|e0|e0|??|80| pcounter/intro.txt
+
+
+    = Known graph signals =
+
+    These signals are always on set 1.
+
+    signal           |50|84|86|92|94|96|98|a0|aa|ac|a3|a5|a8|af| documentation
+    -----------------+--+--+--+--+--+--+--+--+--+--+--+--+--+--+---------------
+    PCOUNTER USER_0  |--|--|--|--|--|--|--|--|--|--|??|69|??|??| pcounter/intro.txt
+    PCOUNTER USER_1  |--|--|--|--|--|--|--|--|--|--|??|6a|??|??| pcounter/intro.txt
+    PGRAPH_IDLE      |c8|bd|bd|bd|bd|bd|bd|c9|??|c9|cb|cb|cb|??| graph/nv50-pgraph.txt
+    PGRAPH_INTR      |ca|bf|bf|bf|bf|bf|bf|cb|??|cb|cd|cd|cd|??| graph/nv50-pgraph.txt
+    CTXCTL_USER_0    |d2|c7|c7|c7|c7|c7|c7|d3|??|d3|d5|d5|d5|??| graph/nv50-ctxctl.txt
+    CTXCTL_USER_1    |d3|c8|c8|c8|c8|c8|c8|d4|??|d4|d6|d6|d6|??| graph/nv50-ctxctl.txt
+    CTXCTL_USER_2    |d4|c9|c9|c9|c9|c9|c9|d5|??|d5|d7|d7|d7|??| graph/nv50-ctxctl.txt
+    CTXCTL_USER_3    |d5|ca|ca|ca|ca|ca|ca|d6|??|d6|d8|d8|d8|??| graph/nv50-ctxctl.txt
+    [trailer base]   |e0|??|e0|??|??|??|e0|e0|??|e0|e0|e0|??|e0| pcounter/intro.txt
+
+
+    = Known set 2 signals =
+
+    These signals are always on set 2.
+
+    signal           |50|84|86|92|94|96|98|a0|aa|ac|a3|a5|a8|af| documentation
+    -----------------+--+--+--+--+--+--+--+--+--+--+--+--+--+--+---------------
+    PCOUNTER USER_0  |--|--|--|--|--|--|--|--|--|--|??|9e|??|??| pcounter/intro.txt
+    PCOUNTER USER_1  |--|--|--|--|--|--|--|--|--|--|??|9f|??|??| pcounter/intro.txt
+    [trailer base]   |e0|??|80|??|??|??|80|e0|??|e0|c0|c0|??|c0| pcounter/intro.txt
+
+
+    = Known shader signals =
+
+    These signals are always on set 2.
+
+     - 0x00-0x03: MPC GROUP 0
+     - 0x04-0x07: MPC GROUP 1
+     - 0x08-0x0b: MPC GROUP 2
+     - 0x0c-0x0f: MPC GROUP 3
+     - [XXX]
+     - 0x20: trailer base
+
+
+    = Known memory signals =
+
+    These signals are on set 4 if they're present. IGPs don't have this set.
+
+    signal           |50|84|86|92|94|96|98|a0|a3|a5|a8| documentation
+    -----------------+--+--+--+--+--+--+--+--+--+--+--+---------------
+    PCOUNTER USER_0  |--|--|--|--|--|--|--|--|??|3b|??| pcounter/intro.txt
+    PCOUNTER USER_1  |--|--|--|--|--|--|--|--|??|3c|??| pcounter/intro.txt
+    [trailer base]   |20|??|40|??|??|??|40|60|60|60|??| pcounter/intro.txt
+
+
+    = Known VP2 set 5 signals =
+
+    These signals are on set 5 if they're present. Only cards with VP2 have this
+    set.
+
+    signal           |84|86|92|94|96|a0| documentation
+    -----------------+--+--+--+--+--+--+---------------
+    PBSP_USER_0      |??|??|??|??|??|00| vdec/vp2/intro.txt
+    PBSP_USER_1      |??|??|??|??|??|01| vdec/vp2/intro.txt
+    PBSP_USER_2      |??|??|??|??|??|02| vdec/vp2/intro.txt
+    PBSP_USER_3      |??|??|??|??|??|03| vdec/vp2/intro.txt
+    PBSP_USER_4      |??|??|??|??|??|04| vdec/vp2/intro.txt
+    PBSP_USER_5      |??|??|??|??|??|05| vdec/vp2/intro.txt
+    PBSP_USER_6      |??|??|??|??|??|06| vdec/vp2/intro.txt
+    PBSP_USER_7      |??|??|??|??|??|07| vdec/vp2/intro.txt
+    PVP2_USER_0       |??|??|??|??|??|08| vdec/vp2/intro.txt
+    PVP2_USER_1       |??|??|??|??|??|09| vdec/vp2/intro.txt
+    PVP2_USER_2       |??|??|??|??|??|0a| vdec/vp2/intro.txt
+    PVP2_USER_3       |??|??|??|??|??|0b| vdec/vp2/intro.txt
+    PVP2_USER_4       |??|??|??|??|??|0c| vdec/vp2/intro.txt
+    PVP2_USER_5       |??|??|??|??|??|0d| vdec/vp2/intro.txt
+    PVP2_USER_6       |??|??|??|??|??|0e| vdec/vp2/intro.txt
+    PVP2_USER_7       |??|??|??|??|??|0f| vdec/vp2/intro.txt
+    VUC_IDLE         |??|??|??|??|??|34| vdec/vuc/perf.txt
+    VUC_SLEEP        |??|??|??|??|??|36| vdec/vuc/perf.txt
+    VUC_WATCHDOG     |??|??|??|??|??|38| vdec/vuc/perf.txt
+    VUC_USER_PULSE   |??|??|??|??|??|39| vdec/vuc/perf.txt
+    VUC_USER_CONT    |??|??|??|??|??|3a| vdec/vuc/perf.txt
+    [trailer base]   |??|40|??|??|??|60| pcounter/intro.txt
+
+
+    = Known VP2 set 6 signals =
+
+    These signals are on set 6 if they're present. Only cards with VP2 have this
+    set.
+
+    signal           |84|86|92|94|96|a0| documentation
+    -----------------+--+--+--+--+--+--+---------------
+    PVP2_USER_0       |??|??|??|??|??|00| vdec/vp2/intro.txt
+    PVP2_USER_1       |??|??|??|??|??|01| vdec/vp2/intro.txt
+    PVP2_USER_2       |??|??|??|??|??|02| vdec/vp2/intro.txt
+    PVP2_USER_3       |??|??|??|??|??|03| vdec/vp2/intro.txt
+    PVP2_USER_4       |??|??|??|??|??|04| vdec/vp2/intro.txt
+    PVP2_USER_5       |??|??|??|??|??|05| vdec/vp2/intro.txt
+    PVP2_USER_6       |??|??|??|??|??|06| vdec/vp2/intro.txt
+    PVP2_USER_7       |??|??|??|??|??|07| vdec/vp2/intro.txt
+    [trailer base]   |??|a0|??|??|??|a0| pcounter/intro.txt
+
+
+    = Known VP3/VP4 set 5 signals =
+
+    If these signals are present, they're on set 5 on non-IGPs, set 4 on IGPs.
+    Only cards with VP3/VP4 have this set.
+
+    [XXX: this may not be the same set...]
+
+    signal           |98|aa|ac|a3|a5|a8|af| documentation
+    -----------------+--+--+--+--+--+--+--+---------------
+    PCOUNTER USER_0  |--|--|--|??|10|??|10| pcounter/intro.txt
+    PCOUNTER_USER_1  |--|--|--|??|11|??|11| pcounter/intro.txt
+    PCOPY_USER_0     |--|--|--|??|2d|??|2d| falcon/perf.txt
+    PCOPY_USER_1     |--|--|--|??|2e|??|2e| falcon/perf.txt
+    PCOPY_USER_2     |--|--|--|??|2f|??|2f| falcon/perf.txt
+    PCOPY_USER_3     |--|--|--|??|30|??|30| falcon/perf.txt
+    PCOPY_USER_4     |--|--|--|??|31|??|31| falcon/perf.txt
+    PCOPY_USER_5     |--|--|--|??|32|??|32| falcon/perf.txt
+    PDAEMON_USER_0   |--|--|--|??|4e|??|4e| falcon/perf.txt
+    PDAEMON_USER_1   |--|--|--|??|4f|??|4f| falcon/perf.txt
+    PDAEMON_USER_2   |--|--|--|??|50|??|50| falcon/perf.txt
+    PDAEMON_USER_3   |--|--|--|??|51|??|51| falcon/perf.txt
+    PDAEMON_USER_4   |--|--|--|??|52|??|52| falcon/perf.txt
+    PDAEMON_USER_5   |--|--|--|??|53|??|53| falcon/perf.txt
+    [trailer base]   |60|??|00|60|60|??|60| pcounter/intro.txt
+
+
+    = Known VP3/VP4 set 6 signals =
+
+    If these signals are present, they're on set 6 on non-IGPs, set 5 on IGPs.
+    Only cards with VP3/VP4 have this set.
+
+    signal           |98|aa|ac|a3|a5|a8|af| documentation
+    -----------------+--+--+--+--+--+--+--+---------------
+    PCOUNTER USER_0  |--|--|--|??|10|??|10| pcounter/intro.txt
+    PCOUNTER_USER_1  |--|--|--|??|11|??|11| pcounter/intro.txt
+    PVLD_IDLE        |12|??|??|??|18|??|??| falcon/perf.txt
+    PVLD_TA          |15|??|??|??|1b|??|??| falcon/perf.txt
+    PVLD_PM_TRIGGER  |1c|??|??|??|22|??|??| falcon/perf.txt
+    PVLD_WRCACHE_FL  |1d|??|??|??|23|??|??| falcon/perf.txt
+    PVLD_USER_0      |1e|??|1e|??|24|??|24| falcon/perf.txt
+    PVLD_USER_1      |1f|??|1f|??|25|??|25| falcon/perf.txt
+    PVLD_USER_2      |20|??|20|??|26|??|26| falcon/perf.txt
+    PVLD_USER_3      |21|??|21|??|27|??|27| falcon/perf.txt
+    PVLD_USER_4      |22|??|22|??|28|??|28| falcon/perf.txt
+    PVLD_USER_5      |23|??|23|??|29|??|29| falcon/perf.txt
+    PPPP_IDLE        |42|??|??|??|2c|??|??| falcon/perf.txt
+    PPPP_TA          |45|??|??|??|2f|??|??| falcon/perf.txt
+    PPPP_PM_TRIGGER  |4c|??|??|??|36|??|??| falcon/perf.txt
+    PPPP_WRCACHE_FL  |4d|??|??|??|37|??|??| falcon/perf.txt
+    PPPP_USER_0      |4e|??|4e|??|38|??|38| falcon/perf.txt
+    PPPP_USER_1      |4f|??|4f|??|39|??|39| falcon/perf.txt
+    PPPP_USER_2      |50|??|50|??|3a|??|3a| falcon/perf.txt
+    PPPP_USER_3      |51|??|51|??|3b|??|3b| falcon/perf.txt
+    PPPP_USER_4      |52|??|52|??|3c|??|3c| falcon/perf.txt
+    PPPP_USER_5      |53|??|53|??|3d|??|3d| falcon/perf.txt
+    VUC_IDLE         |5d|??|??|??|88|??|??| vdec/vuc/perf.txt
+    VUC_SLEEP        |5e|??|??|??|89|??|??| vdec/vuc/perf.txt
+    VUC_WATCHDOG     |5f|??|??|??|8a|??|??| vdec/vuc/perf.txt
+    VUC_USER_CONT    |60|??|??|??|8b|??|??| vdec/vuc/perf.txt
+    VUC_USER_PULSE   |61|??|??|??|8c|??|??| vdec/vuc/perf.txt
+    PVDEC_IDLE       |90|??|??|??|40|??|??| falcon/perf.txt
+    PVDEC_TA         |93|??|??|??|43|??|??| falcon/perf.txt
+    PVDEC_PM_TRIGGER |9a|??|??|??|4a|??|??| falcon/perf.txt
+    PVDEC_WRCACHE_FL |9b|??|??|??|4b|??|??| falcon/perf.txt
+    PVDEC_USER_0     |9c|??|9c|??|4c|??|4c| falcon/perf.txt
+    PVDEC_USER_1     |9d|??|9d|??|4d|??|4d| falcon/perf.txt
+    PVDEC_USER_2     |9e|??|9e|??|4e|??|4e| falcon/perf.txt
+    PVDEC_USER_3     |9f|??|9f|??|4f|??|4f| falcon/perf.txt
+    PVDEC_USER_4     |a0|??|a0|??|50|??|50| falcon/perf.txt
+    PVDEC_USER_5     |a1|??|a1|??|51|??|51| falcon/perf.txt
+    PVCOMP_USER_0    |--|--|--|--|--|--|60| falcon/perf.txt
+    PVCOMP_USER_1    |--|--|--|--|--|--|61| falcon/perf.txt
+    PVCOMP_USER_2    |--|--|--|--|--|--|62| falcon/perf.txt
+    PVCOMP_USER_3    |--|--|--|--|--|--|63| falcon/perf.txt
+    PVCOMP_USER_4    |--|--|--|--|--|--|64| falcon/perf.txt
+    PVCOMP_USER_5    |--|--|--|--|--|--|65| falcon/perf.txt
+    [trailer base]   |a0|??|a0|c0|c0|??|e0| pcounter/intro.txt
+
+
+    = Known set 7 signals =
+
+    These signals are on set 7 on non-IGPs, set 6 on IGPs. All NV84+ cards have
+    this set.
+
+    signal                |84|86|92|94|96|98|a0|aa|ac|a3|a5|a8|af| documentation
+    ----------------------+--+--+--+--+--+--+--+--+--+--+--+--+--+---------------
+    PCOUNTER USER_0       |--|--|--|--|--|--|--|--|--|??|3e|??|1e| pcounter/intro.txt
+    PCOUNTER USER_1       |--|--|--|--|--|--|--|--|--|??|3f|??|1f| pcounter/intro.txt
+    PFB_WRITE             |??|??|??|??|??|4b|75|??|40|??|7b|??|??| [XXX]
+    PFB_READ              |??|??|??|??|??|4c|76|??|41|??|7c|??|??| [XXX]
+    PFB_FLUSH             |??|??|??|??|??|4d|77|??|42|??|7d|??|??| [XXX]
+    IREDIR_STATUS         |--|--|--|--|--|--|--|--|--|??|c4|??|??| pm/pdaemon.txt
+    IREDIR_HOST_REQ       |--|--|--|--|--|--|--|--|--|??|c5|??|??| pm/pdaemon.txt
+    IREDIR_TRIGGER_DAEMON |--|--|--|--|--|--|--|--|--|??|c6|??|??| pm/pdaemon.txt
+    IREDIR_TRIGGER_HOST   |--|--|--|--|--|--|--|--|--|??|c7|??|??| pm/pdaemon.txt
+    IREDIR_PMC            |--|--|--|--|--|--|--|--|--|??|c8|??|??| pm/pdaemon.txt
+    IREDIR_INTR           |--|--|--|--|--|--|--|--|--|??|c9|??|??| pm/pdaemon.txt
+    MMIO_BUSY             |--|--|--|--|--|--|--|--|--|??|ca|??|??| pm/pdaemon.txt
+    MMIO_IDLE             |--|--|--|--|--|--|--|--|--|??|cb|??|??| pm/pdaemon.txt
+    MMIO_DISABLED         |--|--|--|--|--|--|--|--|--|??|cc|??|??| pm/pdaemon.txt
+    TOKEN_ALL_USED        |--|--|--|--|--|--|--|--|--|??|cd|??|??| pm/pdaemon.txt
+    TOKEN_NONE_USED       |--|--|--|--|--|--|--|--|--|??|ce|??|c8| pm/pdaemon.txt
+    TOKEN_FREE            |--|--|--|--|--|--|--|--|--|??|cf|??|??| pm/pdaemon.txt
+    TOKEN_ALLOC           |--|--|--|--|--|--|--|--|--|??|d0|??|??| pm/pdaemon.txt
+    FIFO_PUT_0_WRITE      |--|--|--|--|--|--|--|--|--|??|d1|??|??| pm/pdaemon.txt
+    FIFO_PUT_1_WRITE      |--|--|--|--|--|--|--|--|--|??|d2|??|??| pm/pdaemon.txt
+    FIFO_PUT_2_WRITE      |--|--|--|--|--|--|--|--|--|??|d3|??|??| pm/pdaemon.txt
+    FIFO_PUT_3_WRITE      |--|--|--|--|--|--|--|--|--|??|d4|??|??| pm/pdaemon.txt
+    INPUT_CHANGE          |--|--|--|--|--|--|--|--|--|??|d5|??|??| pm/pdaemon.txt
+    OUTPUT_2              |--|--|--|--|--|--|--|--|--|??|d6|??|??| pm/pdaemon.txt
+    INPUT_2               |--|--|--|--|--|--|--|--|--|??|d7|??|??| pm/pdaemon.txt
+    THERM_ACCESS_BUSY     |--|--|--|--|--|--|--|--|--|??|d8|??|??| pm/pdaemon.txt
+    [trailer base]        |??|c0|??|??|??|a0|80|??|a0|e0|e0|??|e0| pcounter/intro.txt
+
+

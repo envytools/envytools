@@ -1,0 +1,81 @@
+.. _pcounter-signal-nv10:
+
+=================
+NV10:NV40 signals
+=================
+
+.. contents::
+
+.. todo:: convert
+
+::
+
+    === NV10 signals ===
+
+    0x70: PGRAPH.PM_TRIGGER
+    0x87: PTIMER_TIME_B12 [bus/ptimer.txt]
+    0x80: trailer base
+
+    === NV15 signals ===
+
+    0x70: PGRAPH.PM_TRIGGER
+    0x87: PTIMER_TIME_B12 [bus/ptimer.txt]
+    0x80: trailer base
+
+    === NV1F signals ===
+
+    0x70: PGRAPH.PM_TRIGGER
+    0x86: CRTC0_VBLANK
+    0x87: CRTC1_VBLANK
+    0x80: trailer base
+
+
+    === NV20 signals ===
+
+    domain 0 [nvclk]:
+    0xaa: CRTC0_VBLANK
+    0xa0: trailer base
+
+    domain 1 [mclk]:
+    0x20: trailer base
+
+
+    === NV28 signals ===
+
+    domain 0 [nvclk]:
+    0xaa: CRTC0_VBLANK
+    0xa0: trailer base
+
+    domain 1 [mclk]:
+    0x20: trailer base
+
+
+    === NV35 signals ===
+
+    domain 0 [nvclk]:
+    0xf8: CRTC0_VBLANK
+    0xf9: CRTC1_VBLANK
+    0xe0: trailer base
+
+    domain 1 [mclk]:
+    0x20: trailer base
+
+    === NV31 signals ===
+
+    domain 0 [nvclk]:
+    0xf8: CRTC0_VBLANK
+    0xf9: CRTC1_VBLANK
+    0xe0: trailer base
+
+    domain 1 [mclk]:
+    0x20: trailer base
+
+    === NV34 signals ===
+
+    domain 0 [nvclk]:
+    0xda: CRTC0_VBLANK
+    0xdb: CRTC1_VBLANK
+    0xe0: trailer base
+
+    domain 1 [mclk]:
+    0x20: trailer base

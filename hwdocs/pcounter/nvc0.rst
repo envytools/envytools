@@ -1,3 +1,15 @@
+.. _pcounter-signal-nvc0:
+
+=============
+NVC0- signals
+=============
+
+.. contents::
+
+.. todo:: convert
+
+::
+
 [XXX: write me]
 
 = NVCF signals =

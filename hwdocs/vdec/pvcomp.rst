@@ -1,0 +1,37 @@
+.. _pvcomp:
+
+===============================
+PVCOMP: video compositor engine
+===============================
+
+.. contents::
+
+.. todo:: convert
+
+::
+
+    Present on: NVAF
+    BAR0 address: 0x1c1000
+    PMC interrupt line: 14
+    PMC enable bit: 14
+    Version: 3
+    Code segment size: 0x1000
+    Data segment size: 0xb00
+    Fifo size: 0x10
+    Xfer slots: 8
+    Secretful: no
+    Code TLB index bits: 8
+    Code ports: 1
+    Data ports: 1
+    IO addressing type: indexed
+    Core clock: VDCLK
+    NV50 VM engine: 7
+    NV50 VM client: 0x14
+    NV50 context DMA: 0xa
+
+    [XXX: IO regs]
+    [XXX: MEMIF ports]
+    [XXX: interrupts]
+    [XXX: status bits]
+
+    [XXX: describe PVCOMP]
