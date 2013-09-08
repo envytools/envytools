@@ -62,9 +62,25 @@ HCLK: host clock
 .. todo:: write me
 
 
+.. _nv50-clock-nvclk:
+
+NVCLK: core clock
+=================
+
+.. todo:: write me
+
+
 .. _nv84-clock-tclk:
 
 TCLK: timer clock
 =================
+
+.. todo:: write me
+
+
+.. _nv98-clock-vdclk:
+
+VDCLK: video decoding clock
+===========================
 
 .. todo:: write me

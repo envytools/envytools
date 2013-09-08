@@ -1,3 +1,9 @@
+.. _vuc-mbring:
+.. _vuc-mvsurf:
+.. _pvdec-io-vuc:
+.. _pvdec-intr-vuc:
+.. _pvdec-status-vuc:
+
 VP2/VP3 vµc processor
 =====================
 

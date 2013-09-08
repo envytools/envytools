@@ -63,3 +63,11 @@ DCLK: daemon clock
 ==================
 
 .. todo:: write me
+
+
+.. _nvc0-clock-vdclk:
+
+VDCLK: video decoding clock
+===========================
+
+.. todo:: write me
