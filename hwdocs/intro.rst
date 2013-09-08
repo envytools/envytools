@@ -83,9 +83,8 @@ In summary, a card contains:
   image, in addition to standard VGA BIOS code, contains information about
   the devices and connectors present on the card and scripts to boot up and
   manage devices on the card.
-- configuration straps - a set of resistors used to configure various
-  functions of the card that need to be up before the card is POSTed.
-  [`<io/pstraps.txt>`_]
+- :ref:`configuration straps <pstraps>` - a set of resistors used to configure
+  various functions of the card that need to be up before the card is POSTed.
 - a small I2C EEPROM with encrypted HDCP keys [optional, some NV84:NVA3, now
   discontinued in favor of storing the keys in fuses on the GPU]
 - a voltage regulator [starting with NV10 [?] family] - starting with roughly
@@ -203,9 +202,9 @@ The GPU is made of:
 
   - PFB: memory controller and arbiter
 
-  - PROM: VIOS ROM access
+  - :ref:`PROM <prom>`: VIOS ROM access
 
-  - PSTRAPS: configuration straps access [`<io/pstraps.txt>`_]
+  - :ref:`PSTRAPS <pstraps>`: configuration straps access
 
 - processing engines:
 

@@ -46,7 +46,7 @@ This space is a 16MB area of memory sparsely populated with areas representing
 individual engines, which in turn are sparsely populated with registers. The
 list of engines depends on card type. While there are no known registers
 outside 16MB range, the BAR itself can have a larger size on NV40+ cards if
-configured so by straps [see `<../io/pstraps.txt>`_].
+configured so by :ref:`straps <pstraps>`.
 
 Its address is set up through PCI BAR 0. The BAR uses 32-bit addressing and
 is non-prefetchable memory.
@@ -93,7 +93,7 @@ the BAR size depends on card type:
 - NV04: 16MB
 - NV05: 32MB
 - NV10:NV17: 128MB
-- NV17:NV50: 64MB-512MB, set via straps [see `<../io/pstraps.txt>`_]
+- NV17:NV50: 64MB-512MB, set via :ref:`straps <pstraps>`
 - NV50-: 64MB-64GB, set via straps
 
 Note that BAR size is independent from actual VRAM size, although on pre-NV30
@@ -121,8 +121,7 @@ user-accessible memory.
 The BAR uses 64-bit addressing on native PCIE cards, 32-bit addressing on
 native PCI/AGP. It uses BAR2 slot on native PCIE, BAR3 on native PCI/AGP.
 It is non-prefetchable memory on cards up to and including NVA0, prefetchable
-memory on NVAA+. The size is at least 16MB and is set via straps
-[see `<../io/pstraps.txt>`_].
+memory on NVAA+. The size is at least 16MB and is set via :ref:`straps <pstraps>`.
 
 
 BAR2: NV03 indirect memory access
@@ -140,7 +139,7 @@ BAR5: NV50 indirect memory access
 An area of IO ports used to access BAR0, BAR1, and BAR3 indirectly by real
 mode code that cannot map high memory addresses. Present on NV50+ cards.
 On earlier cards, the indirect access feature of VGA IO ports can be used
-instead. This BAR can also be disabled via straps [see `<../io/pstraps.txt>`_].
+instead. This BAR can also be disabled via :ref:`straps <pstraps>`.
 
 .. todo:: It's present on some NV4x
 

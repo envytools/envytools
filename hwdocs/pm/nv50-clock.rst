@@ -38,9 +38,9 @@ NV50:NVA3 cards have the following clocks:
 .. todo:: figure out IOCLK, ZPLL, DOM6
 .. todo:: figure out 4010, 4018, 4088
 
-The root clocks are set up in PNVIO area [see io/pnvio.txt], VPLLs are set up in
-PDISPLAY area [see display/nv50/pdisplay.txt], and the other clocks are set up
-in PCLOCK area.
+The root clocks are set up in PNVIO area, VPLLs are set up in PDISPLAY area
+[see display/nv50/pdisplay.txt], and the other clocks are set up in PCLOCK
+area.
 
 .. todo:: write me
 

@@ -89,7 +89,7 @@ a clock source. The clock source depends on the card:
 - NV40:NV41: the clock source is :ref:`HCLK, the host clock <nv40-clock-hclk>`
 - NV41:NV84: the clock source can be bound to either the internal clock source
   or external clock source. Internal clock source is the crystal
-  [see io/pstraps.txt] frequency multiplied by a small ratio, while external
+  [see :ref:`pstraps`] frequency multiplied by a small ratio, while external
   clock source is HCLK, the host clock [:ref:`nv40 <nv40-clock-hclk>`,
   :ref:`nv50 <nv50-clock-hclk>`]
 - NV84 and up: like NV41, but external clock source is TCLK, the PTIMER clock

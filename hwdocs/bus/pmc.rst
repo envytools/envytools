@@ -89,7 +89,7 @@ MMIO 0x000000: ID [NV10-]
   - bits 12-19: device id [NVD9-]
     The value of this bitfield is equal to low 4, 5, or 6 bits of the PCI
     device id. The bitfield size and position changed between cards due to
-    varying amount of changeable bits. See `<io/pstraps.txt>`_ and
+    varying amount of changeable bits. See :ref:`pstraps` and
     :ref:`chipsets` for more details.
   - bits 20-27: chipset id.
     This is THE chipset id that comes after "NV". See chipsets.txt for the
@@ -150,6 +150,7 @@ this switch, despite being in BAR0.
 
 
 .. _pmc-mmio-enable:
+.. _pmc-enable:
 
 Engine enables
 ==============
@@ -174,7 +175,7 @@ On NV01, the bits are:
 On NV03:NV04, the bits are:
 
 - 0: ??? [XXX]
-- 4: PMEDIA [io/pmedia.txt]
+- 4: :ref:`PMEDIA <pmedia>`
 - 8: PFIFO [fifo/nv01-pfifo.txt]
 - 12: PGRAPH [graph/nv03-pgraph.txt] and PDMA [graph/nv03-pdma.txt]
 - 16: :ref:`PTIMER <ptimer>`
@@ -186,7 +187,7 @@ On NV04:NV50, the bits are:
 
 - 0: ??? - alleged to be related to I2C [NV10-] [XXX]
 - 1: VPE [vdec/vpe/intro.txt] [NV17-]
-- 4: PMEDIA [io/pmedia.txt]
+- 4: :ref:`PMEDIA <pmedia>`
 - 8: PFIFO [fifo/nv04-pfifo.txt]
 - 12: PGRAPH [graph/nv04-pgraph.txt, graph/nv10-pgraph.txt, graph/nv20-pgraph.txt, graph/nv40-pgraph.txt]
 - 13: PGRAPH CS??? apparently exists on some late NV4x... [graph/nv40-pgraph.txt] [NV4?-]
@@ -203,7 +204,7 @@ On NV50:NVC0, the bits are:
 - 0: ??? - alleged to be related to I2C
 - 1: VPE [vdec/vpe/intro.txt] [NV50:NV98 NVA0:NVAA]
 - 1: PPPP [vdec/vp3/pppp.txt] [NV98:NVA0 NVAA-]
-- 4: PMEDIA [io/pmedia.txt]
+- 4: :ref:`PMEDIA <pmedia>`
 - 8: PFIFO [fifo/nv50-pfifo.txt]
 - 12: PGRAPH [graph/nv50-pgraph.txt]
 - 13: PCOPY [fifo/pcopy.txt] [NVA3-]
@@ -239,7 +240,7 @@ On NVC0+, the bits are:
 - 1: PPPP [vdec/vp3/pppp.txt]
 - 2: PXBAR [memory/nvc0-pxbar.txt]
 - 3: PMFB [memory/nvc0-pmfb.txt]
-- 4: PMEDIA [io/pmedia.txt]
+- 4: :ref:`PMEDIA <pmedia>`
 - 5: PIBUS [bus/pibus.txt]
 - 6: PCOPY[0] [fifo/pcopy.txt]
 - 7: PCOPY[1] [fifo/pcopy.txt]
@@ -371,7 +372,7 @@ The input interrupts are, for NV01:
 
 For NV03:
 
-- 4: PMEDIA [io/pmedia.txt]
+- 4: :ref:`PMEDIA <pmedia-intr>`
 - 8: PFIFO [fifo/nv01-pfifo.txt]
 - 12: PGRAPH [graph/nv03-pgraph.txt]
 - 13: PDMA [graph/nv03-pdma.txt]
@@ -384,7 +385,7 @@ For NV03:
 For NV04:NV50:
 
 - 0: VPE [vdec/vpe/intro.txt] [NV17:NV20 and NV25:NV50]
-- 4: PMEDIA [io/pmedia.txt]
+- 4: :ref:`PMEDIA <pmedia-intr>`
 - 8: PFIFO [fifo/nv04-pfifo.txt]
 - 12: PGRAPH [graph/nv04-pgraph.txt, graph/nv10-pgraph.txt, graph/nv20-pgraph.txt, graph/nv40-pgraph.txt]
 - 16: PRAMDAC.VIDEO [display/nv03/pramdac.txt] [NV04:NV10] or PVIDEO [display/nv03/pvideo.txt] [NV10:NV50]
@@ -398,7 +399,7 @@ For NV50:NVC0:
 
 - 0: VPE [vdec/vpe/intro.txt] [NV50:NV98 NVA0:NVAA]
 - 0: PPPP [vdec/vp3/pppp.txt] [NV98:NVA0 NVAA-]
-- 4: PMEDIA [io/pmedia.txt]
+- 4: :ref:`PMEDIA <pmedia-intr>`
 - 8: PFIFO [fifo/nv50-pfifo.txt] - has separate NRHOST line on NVA3+
 - 9: ??? [NVA3?-]
 - 11: ??? [NVA3?-]
@@ -415,7 +416,7 @@ For NV50:NVC0:
 - 18: :ref:`PDAEMON [NVA3-] <pdaemon-falcon>`
 - 19: :ref:`PTHERM [NVA3-] <ptherm-intr>`
 - 20: :ref:`PTIMER <ptimer-intr>`
-- 21: PNVIO's GPIO interrupts [io/pnvio.txt]
+- 21: :ref:`PNVIO's GPIO interrupts <nv50-gpio-intr>`
 - 22: PCOPY [fifo/pcopy.txt]
 - 26: PDISPLAY [display/nv50/pdisplay.txt]
 - 27: ??? [NVA3?-]
@@ -429,7 +430,7 @@ For NV50:NVC0:
 For NVC0+:
 
 - 0: PPPP [vdec/vp3/pppp.txt] - has separate NRHOST line
-- 4: PMEDIA [io/pmedia.txt]
+- 4: :ref:`PMEDIA <pmedia-intr>`
 - 5: PCOPY[0] [fifo/pcopy.txt] - has separate NRHOST line
 - 6: PCOPY[1] [fifo/pcopy.txt] - has separate NRHOST line
 - 7: PCOPY[2] [NVE4-] [fifo/pcopy.txt] - has separate NRHOST line
@@ -443,7 +444,7 @@ For NVC0+:
 - 18: :ref:`PTHERM <ptherm-intr>`
 - 19: ??? [NVD9-]
 - 20: :ref:`PTIMER <ptimer-intr>`
-- 21: PNVIO's GPIO interrupts [io/pnvio.txt]
+- 21: :ref:`PNVIO's GPIO interrupts <nv50-gpio-intr>`
 - 23: ???
 - 24: :ref:`PDAEMON <pdaemon-falcon>`
 - 25: PMFB [memory/nvc0-pmfb.txt]

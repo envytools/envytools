@@ -32,7 +32,7 @@ code names correspond 1 to 1 with the chipset ids.
 
 The chipset id has a one-to-many relationship with pci device ids. Note that
 the last few bits [0-6 depending on chipset id] of PCI device id are
-changeable through straps [see `<io/pstraps.txt>`_]. When pci ids of a chipset are
+changeable through straps [see :ref:`pstraps`]. When pci ids of a chipset are
 listed in this file, the following shorthands are used:
 
 1234

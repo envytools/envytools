@@ -30,9 +30,9 @@ The registers in the PBUS area are:
 Range         Variants  Description
 ============= ========= ===============
 001000:0010f0 NV04-     :ref:`DEBUG registers <pbus-mmio-debug>`
-0010f0:0010f4 NV11:NV50 PWM - PWM generators [io/nv10-gpio.txt]
+0010f0:0010f4 NV11:NV50 :ref:`PWM - PWM generators <pbus-mmio-pwm>`
 001100:001200 NV03-     :ref:`interrupts <pbus-mmio-intr>`
-001200:001208 NV04:NV50 ROM control [io/prom.txt]
+001200:001208 NV04:NV50 :ref:`ROM control <prom-mmio-rom-timings>`
 001300:001380 NV17:NV20 :ref:`HWSQ - hardware sequencer <hwsq-mmio>`
               NV25:NVC0
 001380:001400 NV41:NV50 VGA_STACK [display/nv03/vga-stack.txt]
@@ -45,7 +45,7 @@ Range         Variants  Description
 001580:0015a0 NV17:NV20 CLOCK_GATE - clock gating registers [see below]
               NV25:NVC0
 0015b0:0015c0 NV43:NV50 :ref:`THERM - thermal sensor <nv43-therm-mmio>`
-0015f4:001604 NV41:NV50 PWM - PWM generators [io/nv10-gpio.txt]
+0015f4:001604 NV41:NV50 :ref:`PWM - PWM generators <pbus-mmio-pwm>`
 001700:001800 TC        HOST_MEM - host memory access setup [memory/nv44-host-mem.txt]
 001700:001800 NV50:NVC0 HOST_MEM - host memory access setup [memory/nv50-host-mem.txt]
 001700:001800 NVC0-     HOST_MEM - host memory access setup [memory/nvc0-host-mem.txt]
@@ -88,9 +88,9 @@ Interrupts
 The following registers deal with PBUS interrupts:
 
 - 001100 INTR - interrupt status [NV03-]
-- 001104 INTR_GPIO - GPIO interrupt status [NV31:NV50] [io/nv10-gpio.txt]
+- 001104 INTR_GPIO - :ref:`GPIO interrupt status [NV31:NV50] <nv10-gpio-intr>`
 - 001140 INTR - interrupt enable [NV03-]
-- 001144 INTR_GPIO_EN - GPIO interrupt enable [NV31:NV50] [io/nv10-gpio.txt]
+- 001144 INTR_GPIO_EN - :ref:`GPIO interrupt enable [NV31:NV50] <nv10-gpio-intr>`
 - 001144 INTE_EN_NRHOST - interrupt enable for the NRHOST line [NVC0-]
 - 001150 INTR_USER0_TRIGGER - user interrupt generation [NV50-]
 - 001154+i*4, i<4 INTR_USER0_SCRATCH - user interrupt generation [NV50-]
@@ -118,10 +118,10 @@ MMIO 0x001100: INTR [NV03-]
     IBUS [NVC0-] [see bus/pibus.txt]
   - bit 3: MMIO_FAULT - MMIO access from host failed due to other reasons
     [NV41-] [XXX: document]
-  - bit 4: GPIO_0_RISE - GPIO #0 went from 0 to 1 [NV10:NV31] [io/nv10-gpio.txt]
+  - bit 4: GPIO_0_RISE - :ref:`GPIO #0 went from 0 to 1 [NV10:NV31] <nv10-gpio-intr>`
   - bit 7: HOST_MEM_TIMEOUT - an access to memory from host timed out [NVC0-]
     [see memory/nvc0-host-mem.txt]
-  - bit 8: GPIO_0_FALL - GPIO #0 went from 1 to 0 [NV10:NV31] [io/nv10-gpio.txt]
+  - bit 8: GPIO_0_FALL - :ref:`GPIO #0 went from 1 to 0 [NV10:NV31] <nv10-gpio-intr>`
   - bit 8: HOST_MEM_ZOMBIE - an access to memory from host thought to have timed
     out has finally succeeded [NVC0-] [see memory/nvc0-host-mem.txt]
   - bit 12: PEEPHOLE_W_PAIR_MISMATCH - violation of PEEPHOLE write port protocol
@@ -149,7 +149,7 @@ On NV40:NV50 GPUs, the PBUS additionally deals with GPIO change interrupts,
 which are reported via INTR_GPIO register and enabled via INTR_GPIO_EN
 register. These registers effectively function as extra bits to INTR and
 INTR_EN. For description of these registrers and GPIO interupts, see
-io/nv10-gpio.txt .
+:ref:`nv10-gpio-intr`.
 
 
 User interrupts

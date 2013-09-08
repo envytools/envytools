@@ -29,13 +29,13 @@ Address range   Name    Reference                  Description
 600000:601000   PFB     `<display/nv01/pfb.txt>`_  VRAM and video output control
 602000:603000   PRAM    `<memory/nv01-vram.txt>`_  RAMIN layout control
 604000:605000   ???     `<memory/nv01-vram.txt>`_  ???
-605000:606000   PCHIPID `<io/nv01-peeprom.txt>`_   chip ID readout
+605000:606000   PCHIPID :ref:`pchipid-mmio`        chip ID readout
 606000:607000   ???     `<memory/nv01-vram.txt>`_  ???
-608000:609000   PSTRAPS `<io/pstraps.txt>`_        straps readout / override
+608000:609000   PSTRAPS :ref:`pstraps-mmio`        straps readout / override
 609000:60a000   PDAC    `<display/nv01/pdac.txt>`_ DAC control
-60a000:60b000   PEEPROM `<io/nv01-peeprom.txt>`_   configuration EEPROM access
-610000:618000   PROM    `<io/prom.txt>`_           ROM access window
-618000:620000   PALT    `<io/prom.txt>`_           external memory access window
+60a000:60b000   PEEPROM :ref:`peeprom-mmio`        configuration EEPROM access
+610000:618000   PROM    :ref:`prom-mmio`           ROM access window
+618000:620000   PALT    :ref:`palt-mmio`           external memory access window
 640000:648000   PRAMHT  `<memory/nv01-vram.txt>`_  RAMHT access
                         `<fifo/nv01-pfifo.txt>`_
 648000:64c000   PRAMFC  `<memory/nv01-vram.txt>`_  RAMFC access
@@ -82,20 +82,20 @@ Address range   Name     Variants  Reference                      Description
 0c2000:0c3000   PRMVIO2  NV40:NV50 `<display/nv03/vga.txt>`_      like PRMVIO, but for second head
 100000:101000   PFB      all       `<memory/nv03-pfb.txt>`_       memory interface and PCIE GART
                          except    `<memory/nv10-pfb.txt>`_
-			 IGPs      `<memory/nv40-pfb.txt>`_
-			           `<memory/nv44-pfb.txt>`_
-101000:102000   PSTRAPS  all       `<io/pstraps.txt>`_            straps readout / override
+                         IGPs      `<memory/nv40-pfb.txt>`_
+                                   `<memory/nv44-pfb.txt>`_
+101000:102000   PSTRAPS  all       :ref:`pstraps-mmio`            straps readout / override
                          except
-			 IGPs
+                         IGPs
 102000:103000   ???      NV40+     ???                            ???
                          IGPs only
-110000:120000   PROM     NV03:NV04 `<io/prom.txt>`_               ROM access window
-200000:201000   PMEDIA   all       `<io/pmedia.txt>`_             mediaport
+110000:120000   PROM     NV03:NV04 :ref:`prom-mmio`               ROM access window
+200000:201000   PMEDIA   all       :ref:`pmedia-mmio`             mediaport
                          except
-			 IGPs
-300000:400000   PROM     NV04:NV50 `<io/prom.txt>`_               ROM access window
+                         IGPs
+300000:400000   PROM     NV04:NV50 :ref:`prom-mmio`               ROM access window
                          except
-			 IGPs
+                         IGPs
 400000:401000   PGRAPH   NV03:NV04 `<graph/nv03-pgraph.txt>`_     accelerated 2d/3d drawing engine
 401000:402000   PDMA     NV03:NV04 `<graph/nv03-pdma.txt>`_       system memory DMA engine
 400000:402000   PGRAPH   NV04:NV40 `<graph/nv04-pgraph.txt>`_     accelerated 2d/3d drawing engine
@@ -140,7 +140,7 @@ Address range  Port  Name          Variants  Reference                        De
 00b000:00c000  IBUS  PVPE          all       `<vdec/vpe/intro.txt>`_          MPEG2 decoding engine
 00c000:00d000  IBUS  PCONTROL      NV50:NVA3 :ref:`nv50-pcontrol-mmio`        control of misc stuff
 00c000:00d000  IBUS  PCONTROL      NVA3:NVC0 :ref:`nva3-pcontrol-mmio`        control of misc stuff
-00e000:00e800  IBUS  PNVIO         all       `<io/pnvio.txt>`_                GPIOs, I2C buses, PWM fan control, and other external devices
+00e000:00e800  IBUS  PNVIO         all       :ref:`pnvio-mmio`                GPIOs, I2C buses, PWM fan control, and other external devices
 00e800:00f000  IBUS  PIOCLOCK      NV50:NVA3 :ref:`nv50-pioclock-mmio`        PNVIO's clock setup
 00e800:00f000  IBUS  PIOCLOCK      NVA3:NVC0 :ref:`nva3-pioclock-mmio`        PNVIO's clock setup
 00f000:010000  IBUS  PVP1          VP1       `<vdec/vpe/vp1.txt>`_            VP1 video processing engine
@@ -164,7 +164,7 @@ Address range  Port  Name          Variants  Reference                        De
 090000:0a0000  ROOT  PFIFO cache   all       `<fifo/nv50-pfifo.txt>`_         part of PFIFO
 0a0000:0c0000  ROOT  PRMFB         all       `<display/nv50/vga.txt>`_        aliases VGA memory window
 100000:101000  IBUS  PFB           all       `<memory/nv50-pfb.txt>`_         memory interface and VM control
-101000:102000  IBUS  PSTRAPS       all       `<io/pstraps.txt>`_              straps readout / override
+101000:102000  IBUS  PSTRAPS       all       :ref:`pstraps-mmio`              straps readout / override
 102000:103000  IBUS  PCRYPT2       VP2       `<vdec/vp2/pcrypt2.txt>`_        VP2 cryptographic engine
 102000:103000  ROOT  ???           IGPs only ???                              ???
 103000:104000  IBUS  PBSP          VP2       `<vdec/vp2/pbsp.txt>`_           VP2 BSP engine
@@ -173,10 +173,10 @@ Address range  Port  Name          Variants  Reference                        De
 109000:10a000  IBUS  PKFUSE        NVA3:NVC0 `<display/nv50/pkfuse.txt>`_     efuses storing secret key stuff
 10a000:10b000  IBUS  PDAEMON       NVA3:NVC0 :ref:`pdaemon-io`                a falcon engine used to run management code in background
 1c1000:1c2000  IBUS  PVCOMP        NVAF:NVC0 `<vdec/pvcomp.txt>`_             video compositor engine
-200000:201000  IBUS  PMEDIA        all       `<io/pmedia.txt>`_               mediaport
+200000:201000  IBUS  PMEDIA        all       :ref:`pmedia-mmio`               mediaport
 280000:2a0000  ROOT  ???           NVAF      ???                              ???
 2ff000:300000  IBUS  PBRIDGE_PCI   IGPs      :ref:`pbus-mmio`                 access to PCI config registers of the GPU's upstream PCIE bridge
-300000:400000  IBUS  PROM          all       `<io/prom.txt>`_                 ROM access window
+300000:400000  IBUS  PROM          all       :ref:`prom-mmio`                 ROM access window
 400000:410000  IBUS  PGRAPH        all       `<graph/nv50-pgraph.txt>`_       accelerated 2d/3d drawing and CUDA engine
 601000:602000  IBUS  PRMIO         all       `<display/nv50/vga.txt>`_        aliases VGA registers
 610000:640000  IBUS  PDISPLAY      all       `<display/nv50/pdisplay.txt>`_   the DMA FIFO controlled unified display engine
@@ -190,9 +190,9 @@ c00000:1000000 ROOT  USER_DMA      all       `<fifo/dma-pusher.txt>`_         PF
 
           VP2 is NV84:NV98 and NVA0:NVAA
 
-	  VP3 is NV98:NVA0 and NVAA:NVA3
+          VP3 is NV98:NVA0 and NVAA:NVA3
 
-	  VP4 is NVA3:NVC0
+          VP4 is NVA3:NVC0
 
 .. todo:: 10f000:112000 range on NVA3-
 
@@ -211,8 +211,8 @@ Address range  Port  Name          Variants  Reference                        De
 009000:00a000  ROOT  PTIMER        all       :ref:`ptimer-mmio-nv03`          time measurement and time-based alarms
 00c800:00cc00  IBUS  ???           all       ???                              ???
 00cc00:00d000  IBUS  ???           all       ???                              ???
-00d000:00e000  IBUS  PGPIO         NVD9-     `<io/pnvio.txt>`_                GPIOs, I2C buses
-00e000:00e800  IBUS  PNVIO         all       `<io/pnvio.txt>`_                GPIOs, I2C buses, PWM fan control, and other external devices
+00d000:00e000  IBUS  PGPIO         NVD9-     :ref:`pgpio-mmio`                GPIOs, I2C buses
+00e000:00e800  IBUS  PNVIO         all       :ref:`pnvio-mmio`                GPIOs, I2C buses, PWM fan control, and other external devices
 00e800:00f000  IBUS  PIOCLOCK      all       :ref:`nvc0-pioclock-mmio`        PNVIO's clock setup
 010000:020000  ROOT  ???           all       ???                              has something to do with PCI config spaces of other devices?
 020000:021000  IBUS  PTHERM        all       :ref:`ptherm-mmio`               thermal sensor
@@ -235,7 +235,7 @@ Address range  Port  Name          Variants  Reference                        De
 100700:100800  IBUS  PBFB_COMMON   all       `<memory/nvc0-pbfb.txt>`_        some regs shared between PBFBs???
 100800:100e00  IBUS  PFFB          all       `<memory/nvc0-pffb.txt>`_        front memory interface and VM control
 100f00:101000  IBUS  PFFB          all       `<memory/nvc0-pffb.txt>`_        front memory interface and VM control
-101000:102000  IBUS  PSTRAPS       all       `<io/pstraps.txt>`_              straps readout / override
+101000:102000  IBUS  PSTRAPS       all       :ref:`pstraps-mmio`              straps readout / override
 104000:105000  IBUS  PCOPY0        all       `<fifo/pcopy.txt>`_              memory copy engine #1
 105000:106000  IBUS  PCOPY1        all       `<fifo/pcopy.txt>`_              memory copy engine #2
 106000:107000  IBUS  PCOPY2        NVE4-     `<fifo/pcopy.txt>`_              memory copy engine #3
@@ -255,8 +255,8 @@ Address range  Port  Name          Variants  Reference                        De
 1c0000:1c1000  ROOT  ???           all       ???                              related to PFIFO and playlist?
 1c2000:1c3000  IBUS  PVENC         NVE4-     `<vdec/pvenc.txt>`_              H.264 video encoding engine
 1c3000:1c4000  IBUS  ???           NVD9-     `<display/nv50/punk1c1.txt>`_    some falcon engine
-200000:201000  ???   PMEDIA        all       `<io/pmedia.txt>`_               mediaport
-300000:380000  IBUS  PROM          all       `<io/prom.txt>`_                 ROM access window
+200000:201000  ???   PMEDIA        all       :ref:`pmedia-mmio`               mediaport
+300000:380000  IBUS  PROM          all       :ref:`prom-mmio`                 ROM access window
 400000:600000  IBUS  PGRAPH        all       `<graph/nvc0-pgraph.txt>`_       accelerated 2d/3d drawing and CUDA engine
 601000:602000  IBUS  PRMIO         all       `<display/nv50/vga.txt>`_        aliases VGA registers
 610000:6c0000  IBUS  PDISPLAY      all       `<display/nv50/pdisplay.txt>`_   the DMA FIFO controlled unified display engine

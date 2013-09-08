@@ -255,27 +255,30 @@ MMIO 0x001098 bit 4: HWSQ_OVERRIDE_MODE
 
 The known flags are:
 
-- 0: 60081c/60281c/CR4d b0 [NV17:NV50] [io/nv10-gpio.txt]
-- 1: 60081c/60281c/CR4d b1 [NV17:NV50] [io/nv10-gpio.txt]
-- 2: 60081c/60281c/CR4d b4 [NV17:NV50] [io/nv10-gpio.txt]
-- 3: 60081c/60281c/CR4d b5 [NV17:NV50] [io/nv10-gpio.txt]
-- 4: 680880 b28 [NV17:NV40] [display/nv03/pramdac.txt] [XXX: check variants, some NV4x could have it]
+- 0: :ref:`60081c/60281c/CR4d b0 [NV17:NV50] <nv10-gpio-lines>`
+- 1: :ref:`60081c/60281c/CR4d b1 [NV17:NV50] <nv10-gpio-lines>`
+- 2: :ref:`60081c/60281c/CR4d b4 [NV17:NV50] <nv10-gpio-lines>`
+- 3: :ref:`60081c/60281c/CR4d b5 [NV17:NV50] <nv10-gpio-lines>`
+- 4: 680880 b28 [NV17:NV40] [display/nv03/pramdac.txt]
 - 5: 682880 b28 [NV17:NV40] [display/nv03/pramdac.txt]
 - 6: 680880 b29 [NV17:NV50] [display/nv03/pramdac.txt]
 - 7: 682880 b29 [NV17:NV50] [display/nv03/pramdac.txt]
-- 14: 60081c/60281c b28 [NV31:NV50] [io/nv10-gpio.txt] [XXX: check variants]
-- 15: 60081c/60281c b29 [NV31:NV50] [io/nv10-gpio.txt]
+- 14: :ref:`60081c/60281c b28 [NV31:NV50] <nv10-gpio-lines>`
+- 15: :ref:`60081c/60281c b29 [NV31:NV50] <nv10-gpio-lines>`
 - 16: FB_PAUSE [NV41-] [see below]
-- 25: 15fc b31 [NV41:NV50] [io/nv10-gpio.txt]
-- 26: 15f4 b31 [NV41:NV50] [io/nv10-gpio.txt]
-- 27: 10f0 b31 [NV17:NV50] [io/nv10-gpio.txt]
-- 28: 1084 b22 [NV17:NV50] [XXX]
-- 29: 1084 b24 [NV17:NV50] [XXX]
-- 30: 1084 b26 [NV17:NV50] [XXX]
-- 31: 1084 b27 [NV17:NV50] [XXX]
+- 25: :ref:`15fc b31 [NV41:NV50] <nv10-gpio-pwm>`
+- 26: :ref:`15f4 b31 [NV41:NV50] <nv10-gpio-pwm>`
+- 27: :ref:`10f0 b31 [NV17:NV50] <nv10-gpio-pwm>`
+- 28: 1084 b22 [NV17:NV50]
+- 29: 1084 b24 [NV17:NV50]
+- 30: 1084 b26 [NV17:NV50]
+- 31: 1084 b27 [NV17:NV50]
 
 .. todo:: 8, 9, 13 seem used by microcode!
 .. todo:: check variants for 15f4, 15fc
+.. todo:: check variants for 4-7, some NV4x could have it
+.. todo:: check variants for 14, 15
+.. todo:: doc 1084 bits
 
 
 MMIO poke opcodes
