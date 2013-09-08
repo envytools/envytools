@@ -16,39 +16,36 @@ Introduction
 NV01 MMIO map
 =============
 
-=============== ======= ========================== ======================
-Address range   Name    Reference                  Description
-=============== ======= ========================== ======================
-000000:001000   PMC     :ref:`pmc-mmio`            card master control
-001000:002000   PBUS    :ref:`pbus-mmio`           bus control
-002000:004000   PFIFO   `<fifo/nv01-pfifo.txt>`_   MMIO-mapped FIFO submission to PGRAPH
-100000:101000   PDMA    `<memory/nv01-pdma.txt>`_  system memory DMA engine
-101000:102000   PTIMER  :ref:`ptimer-mmio-nv01`    time measurement and time-based alarms
-300000:301000   PAUDIO  :ref:`nv01-paudio-mmio`    audio capture and playback device
-400000:401000   PGRAPH  `<graph/nv01-pgraph.txt>`_ accelerated drawing engine
-600000:601000   PFB     `<display/nv01/pfb.txt>`_  VRAM and video output control
-602000:603000   PRAM    `<memory/nv01-vram.txt>`_  RAMIN layout control
-604000:605000   ???     `<memory/nv01-vram.txt>`_  ???
-605000:606000   PCHIPID :ref:`pchipid-mmio`        chip ID readout
-606000:607000   ???     `<memory/nv01-vram.txt>`_  ???
-608000:609000   PSTRAPS :ref:`pstraps-mmio`        straps readout / override
-609000:60a000   PDAC    `<display/nv01/pdac.txt>`_ DAC control
-60a000:60b000   PEEPROM :ref:`peeprom-mmio`        configuration EEPROM access
-610000:618000   PROM    :ref:`prom-mmio`           ROM access window
-618000:620000   PALT    :ref:`palt-mmio`           external memory access window
-640000:648000   PRAMHT  `<memory/nv01-vram.txt>`_  RAMHT access
-                        `<fifo/nv01-pfifo.txt>`_
-648000:64c000   PRAMFC  `<memory/nv01-vram.txt>`_  RAMFC access
-                        `<fifo/nv01-pfifo.txt>`_
-650000:654000   PRAMRO  `<memory/nv01-vram.txt>`_  RAMRO access
-                        `<fifo/nv01-pfifo.txt>`_
-6c0000:6c8000   PRM     :ref:`nv01-prm-mmio`       VGA compatibility control - NV01 specific
-6d0000:6d1000   PRMIO   :ref:`nv01-prmio-mmio`     VGA and ISA sound compat IO port access
-6e0000:700000   PRMFB   :ref:`nv01-prmfb-mmio`     aliases VGA memory window
-700000:800000   PRAMIN  `<memory/nv01-vram.txt>`_  RAMIN access
-800000:1000000  USER    `<fifo/pio.txt>`_          PFIFO MMIO submission area
-1000000:2000000 FB      `<memory/nv01-vram.txt>`_  VRAM access area
-=============== ======= ========================== ======================
+=============== ======= =================================================
+Address range   Name    Description
+=============== ======= =================================================
+000000:001000   PMC     :ref:`card master control <pmc-mmio>`
+001000:002000   PBUS    :ref:`bus control <pbus-mmio>`
+002000:004000   PFIFO   MMIO-mapped FIFO submission to PGRAPH [`<fifo/nv01-pfifo.txt>`_]
+100000:101000   PDMA    :ref:`system memory DMA engine <nv01-pdma-mmio>`
+101000:102000   PTIMER  :ref:`time measurement and time-based alarms <ptimer-mmio-nv01>`
+300000:301000   PAUDIO  :ref:`audio capture and playback device <nv01-paudio-mmio>`
+400000:401000   PGRAPH  accelerated drawing engine [`<graph/nv01-pgraph.txt>`_]
+600000:601000   PFB     :ref:`VRAM and video output control <nv01-pfb-mmio>`
+602000:603000   PRAM    :ref:`RAMIN layout control <nv01-pram-mmio>`
+604000:605000   ???     :ref:`??? <nv01-pramunk1-mmio>`
+605000:606000   PCHIPID :ref:`chip ID readout <pchipid-mmio>`
+606000:607000   ???     :ref:`??? <nv01-pramunk2-mmio>`
+608000:609000   PSTRAPS :ref:`straps readout / override <pstraps-mmio>`
+609000:60a000   PDAC    :ref:`DAC control <nv01-pdac-mmio>`
+60a000:60b000   PEEPROM :ref:`configuration EEPROM access <peeprom-mmio>`
+610000:618000   PROM    :ref:`ROM access window <prom-mmio>`
+618000:620000   PALT    :ref:`external memory access window <palt-mmio>`
+640000:648000   PRAMHT  :ref:`RAMHT access <nv01-pramht-mmio>`
+648000:64c000   PRAMFC  :ref:`RAMFC access <nv01-pramfc-mmio>`
+650000:654000   PRAMRO  :ref:`RAMRO access <nv01-pramro-mmio>`
+6c0000:6c8000   PRM     :ref:`VGA compatibility control - NV01 specific <nv01-prm-mmio>`
+6d0000:6d1000   PRMIO   :ref:`VGA and ISA sound compat IO port access <nv01-prmio-mmio>`
+6e0000:700000   PRMFB   :ref:`aliases VGA memory window <nv01-prmfb-mmio>`
+700000:800000   PRAMIN  :ref:`RAMIN access <nv01-pramin-mmio>`
+800000:1000000  USER    PFIFO MMIO submission area [`<fifo/pio.txt>`_]
+1000000:2000000 FB      :ref:`VRAM access area <nv01-fb-mmio>`
+=============== ======= =================================================
 
 
 NV03:NV50 MMIO map

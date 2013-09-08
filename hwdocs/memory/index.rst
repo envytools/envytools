@@ -4,12 +4,13 @@ Memory access and structure
 Contents:
 
 .. toctree::
+    
+    vram
+    nv01-vram
+    nv01-pdma
 
 ::
 
-    [***  ] memory/vram.txt - Generic information about VRAM structure
-    [***  ] memory/nv01-vram.txt - NV01 VRAM structure and usage
-    [     ] memory/nv01-pdma.txt - NV01 PDMA engine and DMA objects
     [     ] memory/nv01-surface.txt - NV01:NV50 surface formats
     [     ] memory/nv03-vram.txt - NV03 VRAM structure and usage
     [     ] memory/nv03-dmaobj.txt - NV03 DMA objects

@@ -166,11 +166,11 @@ MMIO 0x000200: ENABLE
 On NV01, the bits are:
 
 - 0: :ref:`PAUDIO <nv01-paudio>`
-- 4: PDMA [memory/nv01-pdma.txt] and :ref:`PTIMER <ptimer>`
+- 4: :ref:`PDMA <nv01-pdma>` and :ref:`PTIMER <ptimer>`
 - 8: PFIFO [fifo/nv01-pfifo.txt]
 - 12: PGRAPH [graph/nv01-pgraph.txt]
 - 16: :ref:`PRM <nv01-prm>`
-- 24: PFB [display/nv01/pfb.txt]
+- 24: :ref:`PFB <nv01-pfb>`
 
 On NV03:NV04, the bits are:
 
@@ -360,7 +360,7 @@ lines: one for HOST and DAEMON outputs, and one for NRHOST outuput.
 The input interrupts are, for NV01:
 
 - 0: :ref:`PAUDIO <nv01-paudio-intr>`
-- 4: PDMA [memory/nv01-pdma.txt]
+- 4: :ref:`PDMA <nv01-pdma-intr>`
 - 8: PFIFO [fifo/nv01-pfifo.txt]
 - 12: PGRAPH [graph/nv01-pgraph.txt]
 - 16: :ref:`PRM <nv01-prm-intr>`
