@@ -1,4 +1,6 @@
 .. _pvcomp:
+.. _pvcomp-falcon:
+.. _pvcomp-io:
 
 ===============================
 PVCOMP: video compositor engine

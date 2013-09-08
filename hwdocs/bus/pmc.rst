@@ -92,7 +92,7 @@ MMIO 0x000000: ID [NV10-]
     varying amount of changeable bits. See :ref:`pstraps` and
     :ref:`chipsets` for more details.
   - bits 20-27: chipset id.
-    This is THE chipset id that comes after "NV". See chipsets.txt for the
+    This is THE chipset id that comes after "NV". See :ref:`chipsets` for the
     list.
   - bits 28-31: ???
 
@@ -384,11 +384,11 @@ For NV03:
 
 For NV04:NV50:
 
-- 0: VPE [vdec/vpe/intro.txt] [NV17:NV20 and NV25:NV50]
+- 0: :ref:`PVPE <pvpe-intr>` [NV17:NV20 and NV25:NV50]
 - 4: :ref:`PMEDIA <pmedia-intr>`
 - 8: PFIFO [fifo/nv04-pfifo.txt]
 - 12: PGRAPH [graph/nv04-pgraph.txt, graph/nv10-pgraph.txt, graph/nv20-pgraph.txt, graph/nv40-pgraph.txt]
-- 16: :ref:`PRAMDAC.VIDEO <pvideo-intr>` [NV04:NV10] or :ref:`PVIDEO <pvideo>` [NV10:NV50]
+- 16: :ref:`PRAMDAC.VIDEO <pvideo-intr>` [NV04:NV10] or :ref:`PVIDEO <pvideo-intr>` [NV10:NV50]
 - 20: :ref:`PTIMER <ptimer-intr>`
 - 24: :ref:`PCRTC <pcrtc-intr>`
 - 25: :ref:`PCRTC2 <pcrtc-intr>` [NV17:NV20 and NV25:NV50]
@@ -397,27 +397,27 @@ For NV04:NV50:
 
 For NV50:NVC0:
 
-- 0: VPE [vdec/vpe/intro.txt] [NV50:NV98 NVA0:NVAA]
-- 0: PPPP [vdec/vp3/pppp.txt] [NV98:NVA0 NVAA-]
+- 0: :ref:`PVPE <pvpe-intr>` [NV50:NV98 NVA0:NVAA]
+- 0: :ref:`PPPP <pppp-falcon>` [NV98:NVA0 NVAA-]
 - 4: :ref:`PMEDIA <pmedia-intr>`
 - 8: PFIFO [fifo/nv50-pfifo.txt] - has separate NRHOST line on NVA3+
 - 9: ??? [NVA3?-]
 - 11: ??? [NVA3?-]
 - 12: PGRAPH [graph/nv50-pgraph.txt]
 - 13: ??? [NVA3?-]
-- 14: PCRYPT2 [vdec/vp2/pcrypt2.txt] [NV84:NV98 NVA0:NVAA]
-- 14: PCRYPT3 [vdec/vp3/pcrypt3.txt] [NV98:NVA0 NVAA:NVA3]
-- 14: PVCOMP [vdec/pvcomp.txt] [NVAF-]
-- 15: PBSP [vdec/vp2/pbsp.txt] [NV84:NV98 NVA0:NVAA]
-- 15: PVLD [vdec/vp3/pvld.txt] [NV98:NVA0 NVAA-]
+- 14: :ref:`PCRYPT2 <pcrypt2-intr>` [NV84:NV98 NVA0:NVAA]
+- 14: :ref:`PCRYPT3 <pcrypt3-falcon>` [NV98:NVA0 NVAA:NVA3]
+- 14: :ref:`PVCOMP <pvcomp-falcon>` [NVAF-]
+- 15: :ref:`PBSP <pbsp-intr>` [NV84:NV98 NVA0:NVAA]
+- 15: :ref:`PVLD <pvld-falcon>` [NV98:NVA0 NVAA-]
 - 16: ??? [NVA3?-]
-- 17: PVP2 [vdec/vp2/pvp2.txt] [NV84:NV98 NVA0:NVAA]
-- 17: PVDEC [vdec/vp3/pvdec.txt] [NV98:NVA0 NVAA-]
+- 17: :ref:`PVP2 <pvp2-intr>` [NV84:NV98 NVA0:NVAA]
+- 17: :ref:`PVDEC <pvdec-falcon>` [NV98:NVA0 NVAA-]
 - 18: :ref:`PDAEMON [NVA3-] <pdaemon-falcon>`
 - 19: :ref:`PTHERM [NVA3-] <ptherm-intr>`
 - 20: :ref:`PTIMER <ptimer-intr>`
 - 21: :ref:`PNVIO's GPIO interrupts <nv50-gpio-intr>`
-- 22: PCOPY [fifo/pcopy.txt]
+- 22: :ref:`PCOPY <pcopy-falcon>`
 - 26: :ref:`PDISPLAY <pdisplay-intr>`
 - 27: ??? [NVA3?-]
 - 28: :ref:`PBUS <pbus-intr>`
@@ -429,18 +429,18 @@ For NV50:NVC0:
 
 For NVC0+:
 
-- 0: PPPP [vdec/vp3/pppp.txt] - has separate NRHOST line
+- 0: :ref:`PPPP <pppp-falcon>` - has separate NRHOST line
 - 4: :ref:`PMEDIA <pmedia-intr>`
-- 5: PCOPY[0] [fifo/pcopy.txt] - has separate NRHOST line
-- 6: PCOPY[1] [fifo/pcopy.txt] - has separate NRHOST line
-- 7: PCOPY[2] [NVE4-] [fifo/pcopy.txt] - has separate NRHOST line
+- 5: PCOPY[0] [:ref:`NVC0 <pcopy-falcon>`, :ref:`NVE4 <pcopy-intr>`] - has separate NRHOST line
+- 6: PCOPY[1] [:ref:`NVC0 <pcopy-falcon>`, :ref:`NVE4 <pcopy-intr>`] - has separate NRHOST line
+- 7: :ref:`PCOPY[2] <pcopy-intr>` [NVE4-] - has separate NRHOST line
 - 8: PFIFO [fifo/nvc0-pfifo.txt]
 - 9: ???
 - 12: PGRAPH [graph/nvc0-pgraph.txt] - has separate NRHOST line
 - 13: :ref:`PBFB <pbfb-intr>`
-- 15: PVLD [vdec/vp3/pvld.txt] - has separate NRHOST line
-- 16: PVENC [NVE4-] [vdec/pvenc.txt] - has separate NRHOST line
-- 17: PVDEC [vdec/vp3/pvdec.txt] - has separate NRHOST line
+- 15: :ref:`PVLD <pvld-falcon>` - has separate NRHOST line
+- 16: :ref:`PVENC <pvenc-falcon>` [NVE4-] - has separate NRHOST line
+- 17: :ref:`PVDEC <pvdec-falcon>` - has separate NRHOST line
 - 18: :ref:`PTHERM <ptherm-intr>`
 - 19: ??? [NVD9-]
 - 20: :ref:`PTIMER <ptimer-intr>`

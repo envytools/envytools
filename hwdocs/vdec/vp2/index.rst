@@ -1,6 +1,12 @@
 .. _pbsp:
+.. _pbsp-mmio:
+.. _pbsp-intr:
 .. _pvp2:
+.. _pvp2-mmio:
+.. _pvp2-intr:
 .. _pcrypt2:
+.. _pcrypt2-mmio:
+.. _pcrypt2-intr:
 
 VP2 video decoding
 ==================

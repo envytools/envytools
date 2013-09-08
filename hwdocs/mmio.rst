@@ -65,12 +65,12 @@ Address range   Name     Variants  Reference                      Description
 008000:009000   PVIDEO   NV10:NV50 :ref:`pvideo-mmio`             video overlay
 009000:00a000   PTIMER   all       :ref:`ptimer-mmio-nv03`        time measurement and time-based alarms
 00a000:00b000   PCOUNTER NV10:NV50 `<pcounter/intro.txt>`_        performance monitoring counters
-00b000:00c000   PVPE     NV17:NV20 `<vdec/vpe/intro.txt>`_        MPEG2 decoding engine
+00b000:00c000   PVPE     NV17:NV20 :ref:`pvpe-mmio`               MPEG2 decoding engine
                          NV30:NV50 
 00c000:00d000   PCONTROL NV40:NV50 :ref:`nv40-pcontrol-mmio`      control of misc stuff
 00d000:00e000   PTV      NV17:NV20 :ref:`ptv-mmio`                TV encoder
                          NV30:NV50 
-00f000:010000   PVP1     NV41:NV50 `<vdec/vpe/vp1.txt>`_          VP1 video processing engine
+00f000:010000   PVP1     NV41:NV50 :ref:`pvp1-mmio`               VP1 video processing engine
 088000:089000   PPCI     NV40:NV50 :ref:`ppci-mmio`               PCI config space access
 090000:0a0000   PFIFO    NV40:NV50 `<fifo/nv04-pfifo.txt>`_       part of PFIFO
                 cache
@@ -134,14 +134,14 @@ Address range  Port  Name          Variants  Reference                        De
 007000:008000  ROOT  PRMA          all       :ref:`prma-mmio`                 access to BAR0 from real mode
 009000:00a000  ROOT  PTIMER        all       :ref:`ptimer-mmio-nv03`          time measurement and time-based alarms
 00a000:00b000  IBUS  PCOUNTER      all       `<pcounter/intro.txt>`_          performance monitoring counters
-00b000:00c000  IBUS  PVPE          all       `<vdec/vpe/intro.txt>`_          MPEG2 decoding engine
+00b000:00c000  IBUS  PVPE          all       :ref:`pvpe-mmio`                 MPEG2 decoding engine
 00c000:00d000  IBUS  PCONTROL      NV50:NVA3 :ref:`nv50-pcontrol-mmio`        control of misc stuff
 00c000:00d000  IBUS  PCONTROL      NVA3:NVC0 :ref:`nva3-pcontrol-mmio`        control of misc stuff
 00e000:00e800  IBUS  PNVIO         all       :ref:`pnvio-mmio`                GPIOs, I2C buses, PWM fan control, and other external devices
 00e800:00f000  IBUS  PIOCLOCK      NV50:NVA3 :ref:`nv50-pioclock-mmio`        PNVIO's clock setup
 00e800:00f000  IBUS  PIOCLOCK      NVA3:NVC0 :ref:`nva3-pioclock-mmio`        PNVIO's clock setup
-00f000:010000  IBUS  PVP1          VP1       `<vdec/vpe/vp1.txt>`_            VP1 video processing engine
-00f000:010000  IBUS  PVP2          VP2       `<vdec/vp2/pvp2.txt>`_           VP2 xtensa video processing engine
+00f000:010000  IBUS  PVP1          VP1       :ref:`pvp1-mmio`                 VP1 video processing engine
+00f000:010000  IBUS  PVP2          VP2       :ref:`pvp2-mmio`                 VP2 xtensa video processing engine
 010000:020000  ROOT  ???           all       ???                              has something to do with PCI config spaces of other devices?
 020000:021000  IBUS  PTHERM        all       :ref:`ptherm-mmio`               thermal sensor
 021000:022000  IBUS  PFUSE         all       :ref:`pfuse-mmio`                efuses storing not so secret stuff
@@ -150,10 +150,10 @@ Address range  Port  Name          Variants  Reference                        De
 070000:071000  ROOT  PFLUSH        NV84:NVC0 :ref:`nv50-pflush-mmio`          used to flush BAR writes
 080000:081000  ROOT  PBUS HWSQ     NV92:NVC0 :ref:`hwsq-mmio`                 extended HWSQ code space
                      NEW_CODE                                                 
-084000:085000  IBUS  PVLD          VP3, VP4  `<vdec/vp3/pvld.txt>`_           VP3 variable length decoding engine
-085000:086000  IBUS  PVDEC         VP3, VP4  `<vdec/vp3/pvdec.txt>`_          VP3 video decoding engine
-086000:087000  IBUS  PPPP          VP3, VP4  `<vdec/vp3/pppp.txt>`_           VP3 video postprocessing engine
-087000:088000  IBUS  PCRYPT3       VP3       `<vdec/vp3/pcrypt3.txt>`_        VP3 cryptographic engine
+084000:085000  IBUS  PVLD          VP3, VP4  :ref:`pvld-io`                   VP3 variable length decoding engine
+085000:086000  IBUS  PVDEC         VP3, VP4  :ref:`pvdec-io`                  VP3 video decoding engine
+086000:087000  IBUS  PPPP          VP3, VP4  :ref:`pppp-io`                   VP3 video postprocessing engine
+087000:088000  IBUS  PCRYPT3       VP3       :ref:`pcrypt3-io`                VP3 cryptographic engine
 088000:089000  IBUS  PPCI          all       :ref:`ppci-mmio`                 PCI config space access
 089000:08a000  IBUS  ???           NV84:NVC0 ???                              ???
 08a000:08b000  IBUS  PPCI_HDA      NVA3:NVC0 :ref:`ppci-hda-mmio`             PCI config space access for the HDA codec function
@@ -161,14 +161,14 @@ Address range  Port  Name          Variants  Reference                        De
 0a0000:0c0000  ROOT  PRMFB         all       :ref:`nv50-prmfb-mmio`           aliases VGA memory window
 100000:101000  IBUS  PFB           all       :ref:`nv50-pfb-mmio`             memory interface and VM control
 101000:102000  IBUS  PSTRAPS       all       :ref:`pstraps-mmio`              straps readout / override
-102000:103000  IBUS  PCRYPT2       VP2       `<vdec/vp2/pcrypt2.txt>`_        VP2 cryptographic engine
+102000:103000  IBUS  PCRYPT2       VP2       :ref:`pcrypt2-mmio`              VP2 cryptographic engine
 102000:103000  ROOT  ???           IGPs only ???                              ???
-103000:104000  IBUS  PBSP          VP2       `<vdec/vp2/pbsp.txt>`_           VP2 BSP engine
-104000:105000  IBUS  PCOPY         NVA3:NVC0 `<fifo/pcopy.txt>`_              memory copy engine
+103000:104000  IBUS  PBSP          VP2       :ref:`pbsp-mmio`                 VP2 BSP engine
+104000:105000  IBUS  PCOPY         NVA3:NVC0 :ref:`pcopy-io`                  memory copy engine
 108000:109000  IBUS  PCODEC        NVA3:NVC0 :ref:`pcodec-mmio`               the HDA codec doing HDMI audio
 109000:10a000  IBUS  PKFUSE        NVA3:NVC0 :ref:`pkfuse-mmio`               efuses storing secret key stuff
 10a000:10b000  IBUS  PDAEMON       NVA3:NVC0 :ref:`pdaemon-io`                a falcon engine used to run management code in background
-1c1000:1c2000  IBUS  PVCOMP        NVAF:NVC0 `<vdec/pvcomp.txt>`_             video compositor engine
+1c1000:1c2000  IBUS  PVCOMP        NVAF:NVC0 :ref:`pvcomp-io`                 video compositor engine
 200000:201000  IBUS  PMEDIA        all       :ref:`pmedia-mmio`               mediaport
 280000:2a0000  ROOT  ???           NVAF      ???                              ???
 2ff000:300000  IBUS  PBRIDGE_PCI   IGPs      :ref:`pbus-mmio`                 access to PCI config registers of the GPU's upstream PCIE bridge
@@ -219,9 +219,9 @@ Address range  Port  Name          Variants  Reference                        De
 070000:071000  ROOT  PFLUSH        all       :ref:`nvc0-pflush-mmio`          used to flush BAR writes
 082000:082400  IBUS  ???           all       ???                              ???
 082800:083000  IBUS  ???           NVC0:NVE4 ???                              ???
-084000:085000  IBUS  PVLD          all       `<vdec/vp3/pvld.txt>`_           VP3 VLD engine
-085000:086000  IBUS  PVDEC         all       `<vdec/vp3/pvdec.txt>`_          VP3 video decoding engine
-086000:087000  IBUS  PPPP          all       `<vdec/vp3/pppp.txt>`_           VP3 video postprocessing engine
+084000:085000  IBUS  PVLD          all       :ref:`pvld-io`                   VP3 VLD engine
+085000:086000  IBUS  PVDEC         all       :ref:`pvdec-io`                  VP3 video decoding engine
+086000:087000  IBUS  PPPP          all       :ref:`pppp-io`                   VP3 video postprocessing engine
 088000:089000  IBUS  PPCI          all       :ref:`ppci-mmio`                 PCI config space access
 089000:08a000  IBUS  ???           NVC0:NVE4 ???                              ???
 08a000:08b000  IBUS  PPCI_HDA      all       :ref:`ppci-hda-mmio`             PCI config space access for the HDA codec function
@@ -231,9 +231,11 @@ Address range  Port  Name          Variants  Reference                        De
 100800:100e00  IBUS  PFFB          all       :ref:`pffb-mmio`                 front memory interface and VM control
 100f00:101000  IBUS  PFFB          all       :ref:`pffb-mmio`                 front memory interface and VM control
 101000:102000  IBUS  PSTRAPS       all       :ref:`pstraps-mmio`              straps readout / override
-104000:105000  IBUS  PCOPY0        all       `<fifo/pcopy.txt>`_              memory copy engine #1
-105000:106000  IBUS  PCOPY1        all       `<fifo/pcopy.txt>`_              memory copy engine #2
-106000:107000  IBUS  PCOPY2        NVE4-     `<fifo/pcopy.txt>`_              memory copy engine #3
+104000:105000  IBUS  PCOPY[0]      NVC0:NVE4 :ref:`pcopy-io`                  memory copy engine #0
+105000:106000  IBUS  PCOPY[1]      NVC0:NVE4 :ref:`pcopy-io`                  memory copy engine #1
+104000:105000  IBUS  PCOPY[0]      NVE4-     :ref:`pcopy-mmio`                memory copy engine #0
+105000:106000  IBUS  PCOPY[1]      NVE4-     :ref:`pcopy-mmio`                memory copy engine #1
+106000:107000  IBUS  PCOPY[2]      NVE4-     :ref:`pcopy-mmio`                memory copy engine #2
 108000:108800  IBUS  PCODEC        all       :ref:`pcodec-mmio`               the HDA codec doing HDMI audio
 109000:10a000  IBUS  PKFUSE        all       :ref:`pkfuse-mmio`               efuses storing secret key stuff
 10a000:10b000  IBUS  PDAEMON       all       :ref:`pdaemon-io`                a falcon engine used to run management code in background
@@ -248,7 +250,7 @@ Address range  Port  Name          Variants  Reference                        De
 140000:180000  IBUS  PMFBs         all       :ref:`pmfb-mmio`                 middle memory controllers: compression and L2 cache
 180000:1c0000  IBUS  PCOUNTER      all       `<pcounter/intro.txt>`_          performance monitoring counters
 1c0000:1c1000  ROOT  ???           all       ???                              related to PFIFO and playlist?
-1c2000:1c3000  IBUS  PVENC         NVE4-     `<vdec/pvenc.txt>`_              H.264 video encoding engine
+1c2000:1c3000  IBUS  PVENC         NVE4-     :ref:`pvenc-io`                  H.264 video encoding engine
 1c3000:1c4000  IBUS  ???           NVD9-     :ref:`punk1c3-io`                some falcon engine
 200000:201000  ???   PMEDIA        all       :ref:`pmedia-mmio`               mediaport
 300000:380000  IBUS  PROM          all       :ref:`prom-mmio`                 ROM access window

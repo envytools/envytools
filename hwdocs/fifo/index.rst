@@ -1,4 +1,8 @@
 .. _pcopy:
+.. _pcopy-falcon:
+.. _pcopy-io:
+.. _pcopy-mmio:
+.. _pcopy-intr:
 .. _nv50-pfifo:
 .. _nv50-pfifo-vm:
 .. _nv50-pfifo-bg:

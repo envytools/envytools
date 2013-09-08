@@ -1,4 +1,6 @@
 .. _pvenc:
+.. _pvenc-falcon:
+.. _pvenc-io:
 
 ============================
 PVENC: video encoding engine

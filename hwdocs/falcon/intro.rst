@@ -49,18 +49,18 @@ The falcon units present on nvidia cards are:
 
 - The VP3/VP4/VP5 engines [NV98 and NVAA+]:
 
-  - PVLD, the variable length decoder			`<../vdec/vp3/pvld.txt>`_
-  - PVDEC, the video decoder				`<../vdec/vp3/pvdec.txt>`_
-  - PPPP, the video post-processor			`<../vdec/vp3/pppp.txt>`_
+  - :ref:`PVLD <pvld-falcon>`, the variable length decoder
+  - :ref:`PVDEC <pvdec-falcon>`, the video decoder
+  - :ref:`PPPP <pppp-falcon>`, the video post-processor
 
 - The VP3 cryptographic engine [NV98, NVAA, NVAC]:
 
-  - PCRYPT3, the cryptographic engine			`<../vdec/vp3/pcrypt3.txt>`_
+  - :ref:`PCRYPT3 <pcrypt3-falcon>`, the cryptographic engine
 
 - The NVA3:NVE4 copy engines:
 
-  - PCOPY0 [NVA3:NVE4]					`<../fifo/pcopy.txt>`_
-  - PCOPY1 [NVC0:NVE4]					`<../fifo/pcopy.txt>`_
+  - :ref:`PCOPY[0] <pcopy-falcon>` [NVA3:NVE4]
+  - :ref:`PCOPY[1] <pcopy-falcon>` [NVC0:NVE4]
 
 - The NVA3+ daemon engines:
 
@@ -73,5 +73,5 @@ The falcon units present on nvidia cards are:
   - PGRAPH.CTXCTL					`<../graph/nvc0-ctxctl/intro.txt>`_
   - PGRAPH.GPC[*].CTXCTL				`<../graph/nvc0-ctxctl/intro.txt>`_
 
-- The video compositing engine, PVCOMP [NVAF:NVC0]	`<../vdec/pvcomp.txt>`_
-- The H.264 encoding engine, PVENC [NVE4+]		`<../vdec/pvenc.txt>`_
+- :ref:`PVCOMP <pvcomp-falcon>`, the video compositing engine [NVAF:NVC0]
+- :ref:`PVENC <pvenc-falcon>`, the H.264 encoding engine [NVE4+]
