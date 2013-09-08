@@ -77,10 +77,10 @@ Address range   Name     Variants  Reference                      Description
 0a0000:0c0000   PRMFB    all       :ref:`prmfb-mmio`              aliases VGA memory window
 0c0000:0c1000   PRMVIO   all       :ref:`prmvio-mmio`             aliases VGA sequencer and graphics controller registers
 0c2000:0c3000   PRMVIO2  NV40:NV50 :ref:`prmvio-mmio`             like PRMVIO, but for second head
-100000:101000   PFB      all       `<memory/nv03-pfb.txt>`_       memory interface and PCIE GART
-                         except    `<memory/nv10-pfb.txt>`_
-                         IGPs      `<memory/nv40-pfb.txt>`_
-                                   `<memory/nv44-pfb.txt>`_
+100000:101000   PFB      all       :ref:`nv03-pfb-mmio`           memory interface and PCIE GART
+                         except    :ref:`nv03-pfb-mmio`    
+                         IGPs      :ref:`nv40-pfb-mmio`    
+                                   :ref:`nv44-pfb-mmio`    
 101000:102000   PSTRAPS  all       :ref:`pstraps-mmio`            straps readout / override
                          except
                          IGPs
@@ -111,7 +111,7 @@ Address range   Name     Variants  Reference                      Description
                          NV25:NV50
 683000:684000   PRMDIO2  NV11:NV20 :ref:`prmdio-mmio`             like PRMDIO, but for second head
                          NV25:NV50
-700000:800000   PRAMIN   NV04:NV50 `<memory/nv04-vram.txt>`_      RAMIN access
+700000:800000   PRAMIN   NV04:NV50 :ref:`nv04-pramin-mmio`        RAMIN access
 800000:1000000  USER     all       `<fifo/pio.txt>`_              PFIFO MMIO and DMA submission area
                                    `<fifo/dma-pusher.txt>`_
 c00000:1000000  NEW_USER NV40:NV50 `<fifo/dma-pusher.txt>`_       PFIFO DMA submission area
@@ -146,9 +146,8 @@ Address range  Port  Name          Variants  Reference                        De
 020000:021000  IBUS  PTHERM        all       :ref:`ptherm-mmio`               thermal sensor
 021000:022000  IBUS  PFUSE         all       :ref:`pfuse-mmio`                efuses storing not so secret stuff
 022000:022400  IBUS  ???           ???       ???                              ???
-060000:061000  ROOT  PEEPHOLE      NV84:NVC0 `<memory/peephole.txt>`_         indirect VM access
-070000:071000  ROOT  PFIFO         NV84:NVC0 `<memory/nv50-host-mem.txt>`_    used to flush BAR writes
-                     BAR_FLUSH                                                
+060000:061000  ROOT  PEEPHOLE      NV84:NVC0 :ref:`peephole-mmio`             indirect VM access
+070000:071000  ROOT  PFLUSH        NV84:NVC0 :ref:`nv50-pflush-mmio`          used to flush BAR writes
 080000:081000  ROOT  PBUS HWSQ     NV92:NVC0 :ref:`hwsq-mmio`                 extended HWSQ code space
                      NEW_CODE                                                 
 084000:085000  IBUS  PVLD          VP3, VP4  `<vdec/vp3/pvld.txt>`_           VP3 variable length decoding engine
@@ -160,7 +159,7 @@ Address range  Port  Name          Variants  Reference                        De
 08a000:08b000  IBUS  PPCI_HDA      NVA3:NVC0 :ref:`ppci-hda-mmio`             PCI config space access for the HDA codec function
 090000:0a0000  ROOT  PFIFO cache   all       `<fifo/nv50-pfifo.txt>`_         part of PFIFO
 0a0000:0c0000  ROOT  PRMFB         all       `<display/nv50/vga.txt>`_        aliases VGA memory window
-100000:101000  IBUS  PFB           all       `<memory/nv50-pfb.txt>`_         memory interface and VM control
+100000:101000  IBUS  PFB           all       :ref:`nv50-pfb-mmio`             memory interface and VM control
 101000:102000  IBUS  PSTRAPS       all       :ref:`pstraps-mmio`              straps readout / override
 102000:103000  IBUS  PCRYPT2       VP2       `<vdec/vp2/pcrypt2.txt>`_        VP2 cryptographic engine
 102000:103000  ROOT  ???           IGPs only ???                              ???
@@ -178,7 +177,7 @@ Address range  Port  Name          Variants  Reference                        De
 601000:602000  IBUS  PRMIO         all       `<display/nv50/vga.txt>`_        aliases VGA registers
 610000:640000  IBUS  PDISPLAY      all       `<display/nv50/pdisplay.txt>`_   the DMA FIFO controlled unified display engine
 640000:650000  IBUS  DISPLAY_USER  all       `<display/nv50/pdisplay.txt>`_   DMA submission to PDISPLAY
-700000:800000  ROOT  PMEM          all       `<memory/nv50-host-mem.txt>`_    indirect VRAM/host memory access
+700000:800000  ROOT  PMEM          all       :ref:`pmem-mmio`                 indirect VRAM/host memory access
 800000:810000  ROOT  USER_PIO      all       `<fifo/pio.txt>`_                PFIFO PIO submission area
 c00000:1000000 ROOT  USER_DMA      all       `<fifo/dma-pusher.txt>`_         PFIFO DMA submission area
 ============== ===== ============= ========= ================================ ======================
@@ -216,9 +215,8 @@ Address range  Port  Name          Variants  Reference                        De
 021000:022000  IBUS  PFUSE         all       :ref:`pfuse-mmio`                efuses storing not so secret stuff
 022400:022800  IBUS  PUNITS        all       :ref:`punits-mmio`               control over enabled card units
 040000:060000  ROOT  PSUBFIFOs     all       `<fifo/nvc0-pfifo.txt>`_         individual SUBFIFOs of PFIFO
-060000:061000  ROOT  PEEPHOLE      all       `<memory/peephole.txt>`_         indirect VM access
-070000:071000  ROOT  PFIFO         all       `<memory/nvc0-host-mem.txt>`_    used to flush BAR writes
-                     BAR_FLUSH
+060000:061000  ROOT  PEEPHOLE      all       :ref:`peephole-mmio`             indirect VM access
+070000:071000  ROOT  PFLUSH        all       :ref:`nvc0-pflush-mmio`          used to flush BAR writes
 082000:082400  IBUS  ???           all       ???                              ???
 082800:083000  IBUS  ???           NVC0:NVE4 ???                              ???
 084000:085000  IBUS  PVLD          all       `<vdec/vp3/pvld.txt>`_           VP3 VLD engine
@@ -229,9 +227,9 @@ Address range  Port  Name          Variants  Reference                        De
 08a000:08b000  IBUS  PPCI_HDA      all       :ref:`ppci-hda-mmio`             PCI config space access for the HDA codec function
 08b000:08f000  IBUS  ???           NVE4-     ???                              seems to be a new version of former 89000 area
 0a0000:0c0000  both  PRMFB         all       `<display/nv50/vga.txt>`_        aliases VGA memory window
-100700:100800  IBUS  PBFB_COMMON   all       `<memory/nvc0-pbfb.txt>`_        some regs shared between PBFBs???
-100800:100e00  IBUS  PFFB          all       `<memory/nvc0-pffb.txt>`_        front memory interface and VM control
-100f00:101000  IBUS  PFFB          all       `<memory/nvc0-pffb.txt>`_        front memory interface and VM control
+100700:100800  IBUS  PBFB_COMMON   all       :ref:`pbfb-mmio`                 some regs shared between PBFBs???
+100800:100e00  IBUS  PFFB          all       :ref:`pffb-mmio`                 front memory interface and VM control
+100f00:101000  IBUS  PFFB          all       :ref:`pffb-mmio`                 front memory interface and VM control
 101000:102000  IBUS  PSTRAPS       all       :ref:`pstraps-mmio`              straps readout / override
 104000:105000  IBUS  PCOPY0        all       `<fifo/pcopy.txt>`_              memory copy engine #1
 105000:106000  IBUS  PCOPY1        all       `<fifo/pcopy.txt>`_              memory copy engine #2
@@ -240,14 +238,14 @@ Address range  Port  Name          Variants  Reference                        De
 109000:10a000  IBUS  PKFUSE        all       `<display/nv50/pkfuse.txt>`_     efuses storing secret key stuff
 10a000:10b000  IBUS  PDAEMON       all       :ref:`pdaemon-io`                a falcon engine used to run management code in background
 10c000:10f000  IBUS  ???           ???       ???                              ???
-10f000:120000  IBUS  PBFBs         all       `<memory/nvc0-pbfb.txt>`_        memory controller backends
+10f000:120000  IBUS  PBFBs         all       :ref:`pbfb-mmio`                 memory controller backends
 120000:130000  IBUS  PIBUS         all       :ref:`pibus-mmio`                deals with internal bus used to reach most other areas of MMIO
 130000:135000  IBUS  ???           ???       ???                              ???
 137000:138000  IBUS  PCLOCK        all       :ref:`nvc0-pclock-mmio`          clock setting
 138000:139000  IBUS  ???           ???       ???                              ???
-139000:13b000  IBUS  PP2P          all       `<memory/nvc0-p2p.txt>`_         peer to peer memory access
-13b000:13f000  IBUS  PXBAR         all       `<memory/nvc0-pxbar.txt>`_       crossbar between memory controllers and GPCs
-140000:180000  IBUS  PMFBs         all       `<memory/nvc0-pmfb.txt>`_        middle memory controllers: compression and L2 cache
+139000:13b000  IBUS  PP2P          all       :ref:`pp2p-mmio`                 peer to peer memory access
+13b000:13f000  IBUS  PXBAR         all       :ref:`pxbar-mmio`                crossbar between memory controllers and GPCs
+140000:180000  IBUS  PMFBs         all       :ref:`pmfb-mmio`                 middle memory controllers: compression and L2 cache
 180000:1c0000  IBUS  PCOUNTER      all       `<pcounter/intro.txt>`_          performance monitoring counters
 1c0000:1c1000  ROOT  ???           all       ???                              related to PFIFO and playlist?
 1c2000:1c3000  IBUS  PVENC         NVE4-     `<vdec/pvenc.txt>`_              H.264 video encoding engine
@@ -257,7 +255,7 @@ Address range  Port  Name          Variants  Reference                        De
 400000:600000  IBUS  PGRAPH        all       `<graph/nvc0-pgraph.txt>`_       accelerated 2d/3d drawing and CUDA engine
 601000:602000  IBUS  PRMIO         all       `<display/nv50/vga.txt>`_        aliases VGA registers
 610000:6c0000  IBUS  PDISPLAY      all       `<display/nv50/pdisplay.txt>`_   the DMA FIFO controlled unified display engine
-700000:800000  ROOT  PMEM          all       `<memory/nvc0-host-mem.txt>`_    indirect VRAM/host memory access
+700000:800000  ROOT  PMEM          all       :ref:`pmem-mmio`                 indirect VRAM/host memory access
 800000:810000  ROOT  PFIFO_CHAN    NVE4-     `<fifo/nvc0-pfifo.txt>`_         PFIFO channel table
 ============== ===== ============= ========= ================================ ======================
 

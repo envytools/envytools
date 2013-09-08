@@ -1,3 +1,8 @@
+.. _pvld:
+.. _pvdec:
+.. _pppp:
+.. _pcrypt3:
+
 VP3/VP4/VP5 video decoding
 ==========================
 

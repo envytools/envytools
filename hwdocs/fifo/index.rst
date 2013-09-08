@@ -1,3 +1,8 @@
+.. _pcopy:
+.. _nv50-pfifo:
+.. _nv50-pfifo-vm:
+.. _nv50-pfifo-bg:
+
 PFIFO: command submission to execution engines
 ==============================================
 

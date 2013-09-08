@@ -40,18 +40,18 @@ Range         Variants  Description
               NV25:NVC0
 001500:001540 ???       :ref:`DEBUG registers <pbus-mmio-debug>`
 001540:001550 NV40:NVC0 HWUNITS - enabling/disabling optional hardware subunits [see below]
-00155c:001578 NV30:NV84 PEEPHOLE - indirect memory access [memory/peephole.txt]
+00155c:001578 NV30:NV84 :ref:`PEEPHOLE - indirect memory access <peephole-mmio>`
 001578:001580 NV41:NVC0 :ref:`HWSQ - hardware sequencer <hwsq-mmio>`
 001580:0015a0 NV17:NV20 CLOCK_GATE - clock gating registers [see below]
               NV25:NVC0
 0015b0:0015c0 NV43:NV50 :ref:`THERM - thermal sensor <nv43-therm-mmio>`
 0015f4:001604 NV41:NV50 :ref:`PWM - PWM generators <pbus-mmio-pwm>`
-001700:001800 TC        HOST_MEM - host memory access setup [memory/nv44-host-mem.txt]
-001700:001800 NV50:NVC0 HOST_MEM - host memory access setup [memory/nv50-host-mem.txt]
-001700:001800 NVC0-     HOST_MEM - host memory access setup [memory/nvc0-host-mem.txt]
+001700:001800 TC        :ref:`HOST_MEM - host memory access setup <pbus-mmio-nv44-host-mem>`
+001700:001800 NV50:NVC0 :ref:`HOST_MEM - host memory access setup <pbus-mmio-nv50-host-mem>`
+001700:001800 NVC0-     :ref:`HOST_MEM - host memory access setup <pbus-mmio-nvc0-host-mem>`
 001800:001a00 NV01:NV50 :ref:`PCI - PCI configuration space <pbus-mmio-pci>`
-001900:001980 NV50:NVC0 REMAP - BAR1 remapping circuitry [memory/nv50-remap.txt]
-001980:001a00 NV50:NVC0 P2P - NV50 P2P slave [memory/nv50-p2p.txt]
+001900:001980 NV50:NVC0 :ref:`REMAP - BAR1 remapping circuitry <pbus-mmio-nv50-remap>`
+001980:001a00 NV50:NVC0 :ref:`P2P - NV50 P2P slave <pbus-mmio-nv50-p2p>`
 001a14        NVA3:NVC0 :ref:`IBUS_TIMEOUT - controls timeout length for accessing MMIO via IBUS <pbus-mmio-ibus-timeout>`
 ============= ========= ===============
 
@@ -118,13 +118,13 @@ MMIO 0x001100: INTR [NV03-]
   - bit 3: MMIO_FAULT - MMIO access from host failed due to other reasons
     [NV41-] [XXX: document]
   - bit 4: GPIO_0_RISE - :ref:`GPIO #0 went from 0 to 1 [NV10:NV31] <nv10-gpio-intr>`
-  - bit 7: HOST_MEM_TIMEOUT - an access to memory from host timed out [NVC0-]
-    [see memory/nvc0-host-mem.txt]
+  - bit 7: HOST_MEM_TIMEOUT - :ref:`an access to memory from host timed out [NVC0-]
+    <pbus-intr-host-mem-timeout>`
   - bit 8: GPIO_0_FALL - :ref:`GPIO #0 went from 1 to 0 [NV10:NV31] <nv10-gpio-intr>`
-  - bit 8: HOST_MEM_ZOMBIE - an access to memory from host thought to have timed
-    out has finally succeeded [NVC0-] [see memory/nvc0-host-mem.txt]
-  - bit 12: PEEPHOLE_W_PAIR_MISMATCH - violation of PEEPHOLE write port protocol
-    [NV30:NVC0] [see memory/peephole.txt]
+  - bit 8: HOST_MEM_ZOMBIE - :ref:`an access to memory from host thought to have timed
+    out has finally succeeded [NVC0-] <pbus-intr-host-mem-zombie>`
+  - bit 12: PEEPHOLE_W_PAIR_MISMATCH - :ref:`violation of PEEPHOLE write port protocol
+    [NV30:NVC0] <pbus-intr-peephole-w-pair-mismatch>`
   - bit 16: THERM_ALARM - Temperature is critical and requires actions
     [NV43-] [:ref:`NV43 <nv43-therm-intr-alarm>`, :ref:`NV50 <ptherm-intr>`]
   - bit 17: THERM_THRS_LOW - Temperature is lower than TEMP_RANGE.LOW

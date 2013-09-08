@@ -1,3 +1,12 @@
+.. _nv50-pgraph:
+.. _nv50-pgraph-vfetch:
+.. _nv50-pgraph-strmout:
+.. _nv50-pgraph-ccache:
+.. _nv50-pgraph-texture:
+.. _nv50-pgraph-rop:
+.. _nv50-pgraph-dispatch:
+.. _nv50-pgraph-clipid:
+
 PGRAPH: 2d/3d graphics and compute engine
 =========================================
 

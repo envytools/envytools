@@ -179,7 +179,7 @@ On NV03:NV04, the bits are:
 - 8: PFIFO [fifo/nv01-pfifo.txt]
 - 12: PGRAPH [graph/nv03-pgraph.txt] and PDMA [graph/nv03-pdma.txt]
 - 16: :ref:`PTIMER <ptimer>`
-- 20: PFB [memory/nv03-pfb.txt]
+- 20: :ref:`PFB <nv03-pfb>`
 - 24: :ref:`PCRTC <pcrtc>`
 - 28: :ref:`PRAMDAC.VIDEO <pvideo>`
 
@@ -193,7 +193,7 @@ On NV04:NV50, the bits are:
 - 13: PGRAPH CS??? apparently exists on some late NV4x... [graph/nv40-pgraph.txt] [NV4?-]
 - [XXX: figure out the CS thing, figure out the variants. Known not to exist on NV40, NV43, NV44, NV49]
 - 16: :ref:`PTIMER <ptimer>`
-- 20: PFB [memory/nv03-pfb.txt, memory/nv10-pfb.txt, memory/nv40-pfb.txt, memory/nv44-pfb.txt]
+- 20: PFB [:ref:`NV03 <nv03-pfb>`, :ref:`NV10 <nv10-pfb>`, :ref:`NV40 <nv40-pfb>`, :ref:`NV44 <nv44-pfb>`]
 - 24: :ref:`PCRTC <pcrtc>`
 - 25: :ref:`PCRTC2 <pcrtc>` [NV11-]
 - 26: :ref:`PTV <ptv>` [NV17:NV20, NV25:NV50]
@@ -216,7 +216,7 @@ On NV50:NVC0, the bits are:
 - 16: :ref:`PTIMER <ptimer>`
 - 17: PVP2 [vdec/vp2/pvp2.txt] [NV84:NV98 NVA0:NVAA]
 - 17: PVDEC [vdec/vp3/pvdec.txt] [NV98:NVA0 NVAA-]
-- 20: PFB [memory/nv50-pfb.txt]
+- 20: :ref:`PFB <nv50-pfb>`
 - 21: PGRAPH CHSW [NV84-] [fifo/nv50-pfifo.txt]
 - 22: PMPEG CHSW [NV84-]
 - 23: PCOPY CHSW [NVA3-]
@@ -238,8 +238,8 @@ On NVC0+, the bits are:
 
 - 0: ??? - alleged to be related to I2C
 - 1: PPPP [vdec/vp3/pppp.txt]
-- 2: PXBAR [memory/nvc0-pxbar.txt]
-- 3: PMFB [memory/nvc0-pmfb.txt]
+- 2: :ref:`PXBAR <pxbar>`
+- 3: :ref:`PMFB <pmfb>`
 - 4: :ref:`PMEDIA <pmedia>`
 - 5: :ref:`PIBUS <pibus>`
 - 6: PCOPY[0] [fifo/pcopy.txt]
@@ -251,12 +251,12 @@ On NVC0+, the bits are:
 - 16: :ref:`PTIMER <ptimer>`
 - 17: PVDEC [vdec/vp3/pvdec.txt]
 - 18: PVENC [NVE4-] [vdec/pvenc.txt]
-- 20: PBFB [memory/nvc0-pbfb.txt]
+- 20: :ref:`PBFB <pbfb>`
 - 21: PCOPY[2] [NVE4-] [fifo/pcopy.txt]
 - 26: ??? [NVE4-]
 - 27: ???
 - 28: PCOUNTER [pcounter/intro.txt]
-- 29: PFFB [memory/nvc0-pffb.txt]
+- 29: :ref:`PFFB <pffb>`
 - 30: PDISPLAY [display/nv50/pdisplay.txt]
 - 31: ???
 
@@ -437,7 +437,7 @@ For NVC0+:
 - 8: PFIFO [fifo/nvc0-pfifo.txt]
 - 9: ???
 - 12: PGRAPH [graph/nvc0-pgraph.txt] - has separate NRHOST line
-- 13: PBFB [memory/nvc0-pbfb.txt]
+- 13: :ref:`PBFB <pbfb-intr>`
 - 15: PVLD [vdec/vp3/pvld.txt] - has separate NRHOST line
 - 16: PVENC [NVE4-] [vdec/pvenc.txt] - has separate NRHOST line
 - 17: PVDEC [vdec/vp3/pvdec.txt] - has separate NRHOST line
@@ -447,9 +447,9 @@ For NVC0+:
 - 21: :ref:`PNVIO's GPIO interrupts <nv50-gpio-intr>`
 - 23: ???
 - 24: :ref:`PDAEMON <pdaemon-falcon>`
-- 25: PMFB [memory/nvc0-pmfb.txt]
+- 25: :ref:`PMFB <pmfb-intr>`
 - 26: PDISPLAY [display/nv50/pdisplay.txt]
-- 27: PFFB [memory/nvc0-pffb.txt]
+- 27: :ref:`PFFB <pffb-intr>`
 - 28: :ref:`PBUS <pbus-intr>` - has separate NRHOST line
 - 29: :ref:`PPCI <ppci-intr>`
 - 30: :ref:`PIBUS <pibus-intr>`
@@ -459,6 +459,7 @@ For NVC0+:
 
 
 .. _pmc-mmio-vram-hide:
+.. _pmc-vram-hide:
 
 VRAM hidden area
 ================

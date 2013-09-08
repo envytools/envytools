@@ -175,7 +175,7 @@ it in BAR0. It also introduced DMA objects, a RAMIN structure used to define
 a VRAM or host memory area that PGRAPH is allowed to use when executing
 commands on behalf of an application. These early DMA objects are limitted to
 linear VRAM and paged host memory objects, and have to be switched manually
-by host. See `<memory/nv03-vram.txt>`_ for details.
+by host. See :ref:`nv03-dmaobj` for details.
 
 
 NV04 family: NV04, NV05
@@ -497,7 +497,7 @@ NV50 family
 -----------
 
 The card where they redesigned everything. The most significant change was the
-redesigned memory subsystem, complete with a paging MMU [see `<memory/nv50-vm.txt>`_].
+redesigned memory subsystem, complete with a paging MMU [see :ref:`nv50-vm`].
 
 - NV50:
 

@@ -1,3 +1,8 @@
+.. _pvpe:
+.. _pmpeg:
+.. _pme:
+.. _pvp1:
+
 VPE video decoding and encoding
 ===============================
 

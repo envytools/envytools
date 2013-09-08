@@ -1,3 +1,7 @@
+.. _pbsp:
+.. _pvp2:
+.. _pcrypt2:
+
 VP2 video decoding
 ==================
 
