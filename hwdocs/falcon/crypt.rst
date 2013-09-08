@@ -15,6 +15,22 @@ Introduction
 .. todo:: write me
 
 
+.. _falcon-crypt-io:
+
+IO registers
+============
+
+.. todo:: write me
+
+
+.. _falcon-crypt-intr:
+
+Interrupts
+==========
+
+.. todo:: write me
+
+
 .. _falcon-isa-ccmd:
 
 Submitting crypto commands: ccmd

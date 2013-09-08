@@ -1,31 +1,36 @@
-TOC
+.. _nv50-vga-mutex:
 
-0. Introduction
-1. MMIO registers
-2. Operation
+================
+NV50 VGA mutexes
+================
+
+.. contents::
 
 
-= Introduction =
+Introduction
+============
 
 Dedicated mutex support hardware supporting trylock and unlock operations
 on 64 mutexes by 2 clients. Present on NV50+ cards.
 
 
-= MMIO registers =
+MMIO registers
+==============
 
 On NV50+, the registers are located in PDISPLAY.VGA area:
 
-619e80 MUTEX_TRYLOCK_A[0]
-619e84 MUTEX_TRYLOCK_A[1]
-619e88 MUTEX_UNLOCK_A[0]
-619e8c MUTEX_UNLOCK_A[1]
-619e90 MUTEX_TRYLOCK_B[0]
-619e94 MUTEX_TRYLOCK_B[1]
-619e98 MUTEX_UNLOCK_B[0]
-619e9c MUTEX_UNLOCK_B[1]
+- 619e80 MUTEX_TRYLOCK_A[0]
+- 619e84 MUTEX_TRYLOCK_A[1]
+- 619e88 MUTEX_UNLOCK_A[0]
+- 619e8c MUTEX_UNLOCK_A[1]
+- 619e90 MUTEX_TRYLOCK_B[0]
+- 619e94 MUTEX_TRYLOCK_B[1]
+- 619e98 MUTEX_UNLOCK_B[0]
+- 619e9c MUTEX_UNLOCK_B[1]
 
 
-= Operation =
+Operation
+=========
 
 There are 64 mutexes and 2 clients. The clients are called A and B. Each mutex
 can be either unlocked, locked by A, or locked by B at any given moment. Each

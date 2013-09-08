@@ -65,7 +65,8 @@ The falcon units present on nvidia cards are:
 - The NVA3+ daemon engines:
 
   - :ref:`PDAEMON [NVA3+] <pdaemon-falcon>`
-  - PDISPLAY.DAEMON [NVD9+]				`<../display/nv50/pdisplay-daemon.txt>`_
+  - :ref:`PDISPLAY.DAEMON [NVD9+] <pdisplay-daemon-falcon>`
+  - :ref:`PUNK1C3 [NVD9+] <punk1c3-falcon>`
 
 - The NVC0 PGRAPH CTXCTL engines:
 
@@ -73,7 +74,4 @@ The falcon units present on nvidia cards are:
   - PGRAPH.GPC[*].CTXCTL				`<../graph/nvc0-ctxctl/intro.txt>`_
 
 - The video compositing engine, PVCOMP [NVAF:NVC0]	`<../vdec/pvcomp.txt>`_
-- The unknown NVD9 PUNK1C3 engine			`<../display/nv50/punk1c3.txt>`_
 - The H.264 encoding engine, PVENC [NVE4+]		`<../vdec/pvenc.txt>`_
-
-.. todo:: figure out PUNK1C3

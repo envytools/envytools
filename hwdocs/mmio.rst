@@ -158,15 +158,15 @@ Address range  Port  Name          Variants  Reference                        De
 089000:08a000  IBUS  ???           NV84:NVC0 ???                              ???
 08a000:08b000  IBUS  PPCI_HDA      NVA3:NVC0 :ref:`ppci-hda-mmio`             PCI config space access for the HDA codec function
 090000:0a0000  ROOT  PFIFO cache   all       `<fifo/nv50-pfifo.txt>`_         part of PFIFO
-0a0000:0c0000  ROOT  PRMFB         all       `<display/nv50/vga.txt>`_        aliases VGA memory window
+0a0000:0c0000  ROOT  PRMFB         all       :ref:`nv50-prmfb-mmio`           aliases VGA memory window
 100000:101000  IBUS  PFB           all       :ref:`nv50-pfb-mmio`             memory interface and VM control
 101000:102000  IBUS  PSTRAPS       all       :ref:`pstraps-mmio`              straps readout / override
 102000:103000  IBUS  PCRYPT2       VP2       `<vdec/vp2/pcrypt2.txt>`_        VP2 cryptographic engine
 102000:103000  ROOT  ???           IGPs only ???                              ???
 103000:104000  IBUS  PBSP          VP2       `<vdec/vp2/pbsp.txt>`_           VP2 BSP engine
 104000:105000  IBUS  PCOPY         NVA3:NVC0 `<fifo/pcopy.txt>`_              memory copy engine
-108000:109000  IBUS  PCODEC        NVA3:NVC0 `<display/nv50/pcodec.txt>`_     the HDA codec doing HDMI audio
-109000:10a000  IBUS  PKFUSE        NVA3:NVC0 `<display/nv50/pkfuse.txt>`_     efuses storing secret key stuff
+108000:109000  IBUS  PCODEC        NVA3:NVC0 :ref:`pcodec-mmio`               the HDA codec doing HDMI audio
+109000:10a000  IBUS  PKFUSE        NVA3:NVC0 :ref:`pkfuse-mmio`               efuses storing secret key stuff
 10a000:10b000  IBUS  PDAEMON       NVA3:NVC0 :ref:`pdaemon-io`                a falcon engine used to run management code in background
 1c1000:1c2000  IBUS  PVCOMP        NVAF:NVC0 `<vdec/pvcomp.txt>`_             video compositor engine
 200000:201000  IBUS  PMEDIA        all       :ref:`pmedia-mmio`               mediaport
@@ -174,9 +174,9 @@ Address range  Port  Name          Variants  Reference                        De
 2ff000:300000  IBUS  PBRIDGE_PCI   IGPs      :ref:`pbus-mmio`                 access to PCI config registers of the GPU's upstream PCIE bridge
 300000:400000  IBUS  PROM          all       :ref:`prom-mmio`                 ROM access window
 400000:410000  IBUS  PGRAPH        all       `<graph/nv50-pgraph.txt>`_       accelerated 2d/3d drawing and CUDA engine
-601000:602000  IBUS  PRMIO         all       `<display/nv50/vga.txt>`_        aliases VGA registers
-610000:640000  IBUS  PDISPLAY      all       `<display/nv50/pdisplay.txt>`_   the DMA FIFO controlled unified display engine
-640000:650000  IBUS  DISPLAY_USER  all       `<display/nv50/pdisplay.txt>`_   DMA submission to PDISPLAY
+601000:602000  IBUS  PRMIO         all       :ref:`nv50-prmio-mmio`           aliases VGA registers
+610000:640000  IBUS  PDISPLAY      all       :ref:`pdisplay-mmio`             the DMA FIFO controlled unified display engine
+640000:650000  IBUS  DISPLAY_USER  all       :ref:`display-user-mmio`         DMA submission to PDISPLAY
 700000:800000  ROOT  PMEM          all       :ref:`pmem-mmio`                 indirect VRAM/host memory access
 800000:810000  ROOT  USER_PIO      all       `<fifo/pio.txt>`_                PFIFO PIO submission area
 c00000:1000000 ROOT  USER_DMA      all       `<fifo/dma-pusher.txt>`_         PFIFO DMA submission area
@@ -226,7 +226,7 @@ Address range  Port  Name          Variants  Reference                        De
 089000:08a000  IBUS  ???           NVC0:NVE4 ???                              ???
 08a000:08b000  IBUS  PPCI_HDA      all       :ref:`ppci-hda-mmio`             PCI config space access for the HDA codec function
 08b000:08f000  IBUS  ???           NVE4-     ???                              seems to be a new version of former 89000 area
-0a0000:0c0000  both  PRMFB         all       `<display/nv50/vga.txt>`_        aliases VGA memory window
+0a0000:0c0000  both  PRMFB         all       :ref:`nv50-prmfb-mmio`           aliases VGA memory window
 100700:100800  IBUS  PBFB_COMMON   all       :ref:`pbfb-mmio`                 some regs shared between PBFBs???
 100800:100e00  IBUS  PFFB          all       :ref:`pffb-mmio`                 front memory interface and VM control
 100f00:101000  IBUS  PFFB          all       :ref:`pffb-mmio`                 front memory interface and VM control
@@ -234,8 +234,8 @@ Address range  Port  Name          Variants  Reference                        De
 104000:105000  IBUS  PCOPY0        all       `<fifo/pcopy.txt>`_              memory copy engine #1
 105000:106000  IBUS  PCOPY1        all       `<fifo/pcopy.txt>`_              memory copy engine #2
 106000:107000  IBUS  PCOPY2        NVE4-     `<fifo/pcopy.txt>`_              memory copy engine #3
-108000:108800  IBUS  PCODEC        all       `<display/nv50/pcodec.txt>`_     the HDA codec doing HDMI audio
-109000:10a000  IBUS  PKFUSE        all       `<display/nv50/pkfuse.txt>`_     efuses storing secret key stuff
+108000:108800  IBUS  PCODEC        all       :ref:`pcodec-mmio`               the HDA codec doing HDMI audio
+109000:10a000  IBUS  PKFUSE        all       :ref:`pkfuse-mmio`               efuses storing secret key stuff
 10a000:10b000  IBUS  PDAEMON       all       :ref:`pdaemon-io`                a falcon engine used to run management code in background
 10c000:10f000  IBUS  ???           ???       ???                              ???
 10f000:120000  IBUS  PBFBs         all       :ref:`pbfb-mmio`                 memory controller backends
@@ -249,12 +249,12 @@ Address range  Port  Name          Variants  Reference                        De
 180000:1c0000  IBUS  PCOUNTER      all       `<pcounter/intro.txt>`_          performance monitoring counters
 1c0000:1c1000  ROOT  ???           all       ???                              related to PFIFO and playlist?
 1c2000:1c3000  IBUS  PVENC         NVE4-     `<vdec/pvenc.txt>`_              H.264 video encoding engine
-1c3000:1c4000  IBUS  ???           NVD9-     `<display/nv50/punk1c1.txt>`_    some falcon engine
+1c3000:1c4000  IBUS  ???           NVD9-     :ref:`punk1c3-io`                some falcon engine
 200000:201000  ???   PMEDIA        all       :ref:`pmedia-mmio`               mediaport
 300000:380000  IBUS  PROM          all       :ref:`prom-mmio`                 ROM access window
 400000:600000  IBUS  PGRAPH        all       `<graph/nvc0-pgraph.txt>`_       accelerated 2d/3d drawing and CUDA engine
-601000:602000  IBUS  PRMIO         all       `<display/nv50/vga.txt>`_        aliases VGA registers
-610000:6c0000  IBUS  PDISPLAY      all       `<display/nv50/pdisplay.txt>`_   the DMA FIFO controlled unified display engine
+601000:602000  IBUS  PRMIO         all       :ref:`nv50-prmio-mmio`           aliases VGA registers
+610000:6c0000  IBUS  PDISPLAY      all       :ref:`pdisplay-mmio`             the DMA FIFO controlled unified display engine
 700000:800000  ROOT  PMEM          all       :ref:`pmem-mmio`                 indirect VRAM/host memory access
 800000:810000  ROOT  PFIFO_CHAN    NVE4-     `<fifo/nvc0-pfifo.txt>`_         PFIFO channel table
 ============== ===== ============= ========= ================================ ======================

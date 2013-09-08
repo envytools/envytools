@@ -354,10 +354,10 @@ Opcode: 0x5f <e> <v> - ewait #event #value
 The events are:
 
 - 0: FB_PAUSED [see below]
-- 1: CRTC0_VBLANK [:ref:`nv41 <pcrtc-blank>`, display/nv50/pdisplay.txt]
-- 2: CRTC0_HBLANK [:ref:`nv41 <pcrtc-blank>`, display/nv50/pdisplay.txt]
-- 3: CRTC1_VBLANK [:ref:`nv41 <pcrtc-blank>`, display/nv50/pdisplay.txt]
-- 4: CRTC1_HBLANK [:ref:`nv41 <pcrtc-blank>`, display/nv50/pdisplay.txt]
+- 1: CRTC0_VBLANK [:ref:`nv41 <pcrtc-blank>`, :ref:`nv50 <pdisplay-blank>`] 
+- 2: CRTC0_HBLANK [:ref:`nv41 <pcrtc-blank>`, :ref:`nv50 <pdisplay-blank>`] 
+- 3: CRTC1_VBLANK [:ref:`nv41 <pcrtc-blank>`, :ref:`nv50 <pdisplay-blank>`] 
+- 4: CRTC1_HBLANK [:ref:`nv41 <pcrtc-blank>`, :ref:`nv50 <pdisplay-blank>`] 
 
 
 Framebuffer pause feature

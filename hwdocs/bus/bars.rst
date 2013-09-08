@@ -31,7 +31,7 @@ PCI/PCIE configuration space
 ============================
 
 Nvidia GPUs, like all PCI devices, have PCI configuration space. Its contents are
-described in `<pci.txt>`_.
+described in :ref:`pci`.
 
 
 BAR0: MMIO registers
@@ -193,8 +193,7 @@ video output on pre-NV50 cards. If shadow is enabled, EEPROM is disabled,
 PROM reads will return garbage, and PCI ROM aperture will access the VRAM
 shadow copy of BIOS. On pre-NV50 cards, the shadow BIOS is located at address
 0 of RAMIN, on NV50+ cards the shadow bios is pointed to by
-PDISPLAY.VGA.ROM_WINDOW register - see `<../display/nv50/pdisplay.txt>`_ for
-details.
+PDISPLAY.VGA.ROM_WINDOW register - see :ref:`nv50-vga` for details.
 
 
 INTA: the card interrupt

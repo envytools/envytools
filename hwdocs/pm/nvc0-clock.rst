@@ -35,9 +35,9 @@ NVC0+ cards have the following clocks:
 .. todo:: VM clock is a guess
 .. todo:: memory clock uses two PLLs, actually
 
-The root clocks are set up in PNVIO area, VPLLs are set up in PDISPLAY area
-[see display/nv50/pdisplay.txt], the MPLLs are set up in PMCLOCK area, and
-the other clocks are set up in PCLOCK area.
+The root clocks are set up in PNVIO area, VPLLs are set up in PDISPLAY area,
+the MPLLs are set up in PMCLOCK area, and the other clocks are set up in
+PCLOCK area.
 
 
 .. _nvc0-pclock-mmio:

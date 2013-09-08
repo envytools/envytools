@@ -186,7 +186,7 @@ On NV03:NV04, the bits are:
 On NV04:NV50, the bits are:
 
 - 0: ??? - alleged to be related to I2C [NV10-] [XXX]
-- 1: VPE [vdec/vpe/intro.txt] [NV17-]
+- 1: :ref:`PVPE <pvpe>` [NV17-]
 - 4: :ref:`PMEDIA <pmedia>`
 - 8: PFIFO [fifo/nv04-pfifo.txt]
 - 12: PGRAPH [graph/nv04-pgraph.txt, graph/nv10-pgraph.txt, graph/nv20-pgraph.txt, graph/nv40-pgraph.txt]
@@ -202,20 +202,20 @@ On NV04:NV50, the bits are:
 On NV50:NVC0, the bits are:
 
 - 0: ??? - alleged to be related to I2C
-- 1: VPE [vdec/vpe/intro.txt] [NV50:NV98 NVA0:NVAA]
-- 1: PPPP [vdec/vp3/pppp.txt] [NV98:NVA0 NVAA-]
+- 1: :ref:`PVPE <pvpe>` [NV50:NV98 NVA0:NVAA]
+- 1: :ref:`PPPP <pppp>` [NV98:NVA0 NVAA-]
 - 4: :ref:`PMEDIA <pmedia>`
 - 8: PFIFO [fifo/nv50-pfifo.txt]
 - 12: PGRAPH [graph/nv50-pgraph.txt]
-- 13: PCOPY [fifo/pcopy.txt] [NVA3-]
-- 14: PCRYPT2 [vdec/vp2/pcrypt2.txt] [NV84:NV98 NVA0:NVAA]
-- 14: PCRYPT3 [vdec/vp3/pcrypt3.txt] [NV98:NVA0 NVAA:NVA3]
-- 14: PVCOMP [vdec/pvcomp.txt] [NVAF]
-- 15: PBSP [vdec/vp2/pbsp.txt] [NV84:NV98 NVA0:NVAA]
-- 15: PVLD [vdec/vp3/pvld.txt] [NV98:NVA0 NVAA-]
+- 13: :ref:`PCOPY <pcopy>` [NVA3-]
+- 14: :ref:`PCRYPT2 <pcrypt2>` [NV84:NV98 NVA0:NVAA]
+- 14: :ref:`PCRYPT3 <pcrypt3>` [NV98:NVA0 NVAA:NVA3]
+- 14: :ref:`PVCOMP <pvcomp>` [NVAF]
+- 15: :ref:`PBSP <pbsp>` [NV84:NV98 NVA0:NVAA]
+- 15: :ref:`PVLD <pvld>` [NV98:NVA0 NVAA-]
 - 16: :ref:`PTIMER <ptimer>`
-- 17: PVP2 [vdec/vp2/pvp2.txt] [NV84:NV98 NVA0:NVAA]
-- 17: PVDEC [vdec/vp3/pvdec.txt] [NV98:NVA0 NVAA-]
+- 17: :ref:`PVP2 <pvp2>` [NV84:NV98 NVA0:NVAA]
+- 17: :ref:`PVDEC <pvdec>` [NV98:NVA0 NVAA-]
 - 20: :ref:`PFB <nv50-pfb>`
 - 21: PGRAPH CHSW [NV84-] [fifo/nv50-pfifo.txt]
 - 22: PMPEG CHSW [NV84-]
@@ -229,7 +229,7 @@ On NV50:NVC0, the bits are:
 - 26: PVLD CHSW [NV98:NVA0 NVAA-] [fifo/nv50-pfifo.txt]
 - 27: ??? [NV84-]
 - 28: ??? [NV84-]
-- 30: PDISPLAY [display/nv50/pdisplay.txt]
+- 30: :ref:`PDISPLAY <pdisplay>`
 - 31: ???
 
 .. todo:: unknowns
@@ -237,27 +237,27 @@ On NV50:NVC0, the bits are:
 On NVC0+, the bits are:
 
 - 0: ??? - alleged to be related to I2C
-- 1: PPPP [vdec/vp3/pppp.txt]
+- 1: :ref:`PPPP <pppp>`
 - 2: :ref:`PXBAR <pxbar>`
 - 3: :ref:`PMFB <pmfb>`
 - 4: :ref:`PMEDIA <pmedia>`
 - 5: :ref:`PIBUS <pibus>`
-- 6: PCOPY[0] [fifo/pcopy.txt]
-- 7: PCOPY[1] [fifo/pcopy.txt]
+- 6: :ref:`PCOPY[0] <pcopy>`
+- 7: :ref:`PCOPY[1] <pcopy>`
 - 8: PFIFO [fifo/nvc0-pfifo.txt]
 - 12: PGRAPH [graph/nvc0-pgraph.txt]
 - 13: :ref:`PDAEMON <pdaemon>`
-- 15: PVLD [vdec/vp3/pvld.txt]
+- 15: :ref:`PVLD <pvld>`
 - 16: :ref:`PTIMER <ptimer>`
-- 17: PVDEC [vdec/vp3/pvdec.txt]
-- 18: PVENC [NVE4-] [vdec/pvenc.txt]
+- 17: :ref:`PVDEC <pvdec>`
+- 18: :ref:`PVENC <pvenc>` [NVE4-]
 - 20: :ref:`PBFB <pbfb>`
-- 21: PCOPY[2] [NVE4-] [fifo/pcopy.txt]
+- 21: :ref:`PCOPY[2] <pcopy>` [NVE4-]
 - 26: ??? [NVE4-]
 - 27: ???
-- 28: PCOUNTER [pcounter/intro.txt]
+- 28: :ref:`PCOUNTER <pcounter>`
 - 29: :ref:`PFFB <pffb>`
-- 30: PDISPLAY [display/nv50/pdisplay.txt]
+- 30: :ref:`PDISPLAY <pdisplay>`
 - 31: ???
 
 NVC0 also introduced SUBFIFO_ENABLE register:
@@ -418,7 +418,7 @@ For NV50:NVC0:
 - 20: :ref:`PTIMER <ptimer-intr>`
 - 21: :ref:`PNVIO's GPIO interrupts <nv50-gpio-intr>`
 - 22: PCOPY [fifo/pcopy.txt]
-- 26: PDISPLAY [display/nv50/pdisplay.txt]
+- 26: :ref:`PDISPLAY <pdisplay-intr>`
 - 27: ??? [NVA3?-]
 - 28: :ref:`PBUS <pbus-intr>`
 - 29: :ref:`PPCI <ppci-intr>` [NV84-]
@@ -448,7 +448,7 @@ For NVC0+:
 - 23: ???
 - 24: :ref:`PDAEMON <pdaemon-falcon>`
 - 25: :ref:`PMFB <pmfb-intr>`
-- 26: PDISPLAY [display/nv50/pdisplay.txt]
+- 26: :ref:`PDISPLAY <pdisplay-intr>`
 - 27: :ref:`PFFB <pffb-intr>`
 - 28: :ref:`PBUS <pbus-intr>` - has separate NRHOST line
 - 29: :ref:`PPCI <ppci-intr>`
