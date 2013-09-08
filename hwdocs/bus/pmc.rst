@@ -245,7 +245,7 @@ On NVC0+, the bits are:
 - 7: PCOPY[1] [fifo/pcopy.txt]
 - 8: PFIFO [fifo/nvc0-pfifo.txt]
 - 12: PGRAPH [graph/nvc0-pgraph.txt]
-- 13: PDAEMON [pm/pdaemon.txt]
+- 13: :ref:`PDAEMON <pdaemon>`
 - 15: PVLD [vdec/vp3/pvld.txt]
 - 16: :ref:`PTIMER <ptimer>`
 - 17: PVDEC [vdec/vp3/pvdec.txt]
@@ -291,6 +291,7 @@ MMIO 0x00020c: ??? [NVC4-]
 
 .. _pmc-mmio-intr:
 .. _pmc-intr:
+.. _pdaemon-intr-pmc-daemon:
 
 Interrupts
 ==========
@@ -304,7 +305,7 @@ software interrupts.
 
 NVA3 introduced fine-grained interrupt masking, as well as an option to route
 interrupts to PDAEMON. The HOST interrupts have a new redirection stage in
-PDAEMON [see `<pm/pdaemon.txt>`_] - while normally routed to the PCI interrupt line,
+PDAEMON [see :ref:`pdaemon-iredir`] - while normally routed to the PCI interrupt line,
 they may be switched over to PDAEMON delivery when it so decides. As a side
 effect of that, powering off PDAEMON will disable host interrupt delivery.
 A subset of interrupt types can also be routed to NRHOST destination, which
@@ -347,8 +348,8 @@ MMIO 0x000648: INTR_MASK_DAEMON [NVA3-]
   enabled.
 
 The HOST and NRHOST output interrupt lines are connected to the PCI INTA pin
-on the card. HOST goes through PDAEMON's HOST interrupt masking circuitry
-[IHM], while NRHOST doesn't. DAEMON goes to PDAEMON's falcon interrupt line #10
+on the card. HOST goes through PDAEMON's HOST interrupt redirection circuitry
+[IREDIR], while NRHOST doesn't. DAEMON goes to PDAEMON's falcon interrupt line #10
 [PMC_DAEMON].
 
 On pre-NVA3, each PMC interrupt input is a single 0/1 line. On NVA3+, some
@@ -411,7 +412,7 @@ For NV50:NVC0:
 - 16: ??? [NVA3?-]
 - 17: PVP2 [vdec/vp2/pvp2.txt] [NV84:NV98 NVA0:NVAA]
 - 17: PVDEC [vdec/vp3/pvdec.txt] [NV98:NVA0 NVAA-]
-- 18: PDAEMON [pm/pdaemon.txt] [NVA3-]
+- 18: :ref:`PDAEMON [NVA3-] <pdaemon-falcon>`
 - 19: PTHERM [pm/ptherm.txt] [NVA3-]
 - 20: :ref:`PTIMER <ptimer-intr>`
 - 21: PNVIO's GPIO interrupts [io/pnvio.txt]
@@ -444,7 +445,7 @@ For NVC0+:
 - 20: :ref:`PTIMER <ptimer-intr>`
 - 21: PNVIO's GPIO interrupts [io/pnvio.txt]
 - 23: ???
-- 24: PDAEMON [pm/pdaemon.txt]
+- 24: :ref:`PDAEMON <pdaemon-falcon>`
 - 25: PMFB [memory/nvc0-pmfb.txt]
 - 26: PDISPLAY [display/nv50/pdisplay.txt]
 - 27: PFFB [memory/nvc0-pffb.txt]

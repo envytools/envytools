@@ -55,3 +55,11 @@ TCLK: timer clock
 =================
 
 .. todo:: write me
+
+
+.. _nvc0-clock-dclk:
+
+DCLK: daemon clock
+==================
+
+.. todo:: write me

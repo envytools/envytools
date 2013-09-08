@@ -64,7 +64,7 @@ The falcon units present on nvidia cards are:
 
 - The NVA3+ daemon engines:
 
-  - PDAEMON [NVA3+]					`<../pm/pdaemon.txt>`_
+  - :ref:`PDAEMON [NVA3+] <pdaemon-falcon>`
   - PDISPLAY.DAEMON [NVD9+]				`<../display/nv50/pdisplay-daemon.txt>`_
 
 - The NVC0 PGRAPH CTXCTL engines:

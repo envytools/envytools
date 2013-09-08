@@ -6,3 +6,4 @@ Contents:
 .. toctree::
 
    clock
+   pdaemon/index

@@ -301,7 +301,7 @@ The GPU is made of:
 
   - PTHERM: thermal sensor and clock throttling circuitry [`<pm/ptherm.txt>`_]
 
-  - PDAEMON: card management microcontroller [`<pm/pdaemon.txt>`_]
+  - :ref:`PDAEMON <pdaemon>`: card management microcontroller
 
   - PFB: memory controller and arbiter
 

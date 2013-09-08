@@ -42,6 +42,8 @@ Low 2 bits of addresses should be 0 at all times.
 .. todo:: document v4 new addressing
 
 
+.. _falcon-io-common:
+
 Common IO register list
 =======================
 
@@ -163,6 +165,8 @@ MMIO 0x084 / I[0x02100]: SCRATCH3
   Scratch 32-bit registers, meant for host <-> falcon communication.
 
 
+.. _falcon-status:
+
 Engine status and control registers
 ===================================
 
@@ -177,6 +181,8 @@ MMIO 0x05c / I[0x01700]: STATUS_MASK
   A bitmask of nonexistent status bits. Each of bits 0-15 is set to 0 if
   corresponding STATUS line is tied to anything in this particular engine, 1
   if it's unused. [?]
+
+.. todo:: clean. fix. write. move.
 
 MMIO 0x07c / I[0x01f00]: SUBENGINE_RESET
   When written with value 1, resets all subengines that this falcon engine

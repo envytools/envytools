@@ -171,7 +171,7 @@ Address range  Port  Name          Variants  Reference                        De
 104000:105000  IBUS  PCOPY         NVA3:NVC0 `<fifo/pcopy.txt>`_              memory copy engine
 108000:109000  IBUS  PCODEC        NVA3:NVC0 `<display/nv50/pcodec.txt>`_     the HDA codec doing HDMI audio
 109000:10a000  IBUS  PKFUSE        NVA3:NVC0 `<display/nv50/pkfuse.txt>`_     efuses storing secret key stuff
-10a000:10b000  IBUS  PDAEMON       NVA3:NVC0 `<pm/pdaemon.txt>`_              a falcon engine used to run management code in background
+10a000:10b000  IBUS  PDAEMON       NVA3:NVC0 :ref:`pdaemon-io`                a falcon engine used to run management code in background
 1c1000:1c2000  IBUS  PVCOMP        NVAF:NVC0 `<vdec/pvcomp.txt>`_             video compositor engine
 200000:201000  IBUS  PMEDIA        all       `<io/pmedia.txt>`_               mediaport
 280000:2a0000  ROOT  ???           NVAF      ???                              ???
@@ -241,7 +241,7 @@ Address range  Port  Name          Variants  Reference                        De
 106000:107000  IBUS  PCOPY2        NVE4-     `<fifo/pcopy.txt>`_              memory copy engine #3
 108000:108800  IBUS  PCODEC        all       `<display/nv50/pcodec.txt>`_     the HDA codec doing HDMI audio
 109000:10a000  IBUS  PKFUSE        all       `<display/nv50/pkfuse.txt>`_     efuses storing secret key stuff
-10a000:10b000  IBUS  PDAEMON       all       `<pm/pdaemon.txt>`_              a falcon engine used to run management code in background
+10a000:10b000  IBUS  PDAEMON       all       :ref:`pdaemon-io`                a falcon engine used to run management code in background
 10c000:10f000  IBUS  ???           ???       ???                              ???
 10f000:120000  IBUS  PBFBs         all       `<memory/nvc0-pbfb.txt>`_        memory controller backends
 120000:130000  IBUS  PIBUS         all       :ref:`pibus-mmio`                deals with internal bus used to reach most other areas of MMIO
