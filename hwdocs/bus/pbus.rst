@@ -44,7 +44,7 @@ Range         Variants  Description
 001578:001580 NV41:NVC0 :ref:`HWSQ - hardware sequencer <hwsq-mmio>`
 001580:0015a0 NV17:NV20 CLOCK_GATE - clock gating registers [see below]
               NV25:NVC0
-0015b0:0015c0 NV43:NV50 THERM - thermal sensor [pm/nv43-therm.txt]
+0015b0:0015c0 NV43:NV50 :ref:`THERM - thermal sensor <nv43-therm-mmio>`
 0015f4:001604 NV41:NV50 PWM - PWM generators [io/nv10-gpio.txt]
 001700:001800 TC        HOST_MEM - host memory access setup [memory/nv44-host-mem.txt]
 001700:001800 NV50:NVC0 HOST_MEM - host memory access setup [memory/nv50-host-mem.txt]
@@ -127,11 +127,11 @@ MMIO 0x001100: INTR [NV03-]
   - bit 12: PEEPHOLE_W_PAIR_MISMATCH - violation of PEEPHOLE write port protocol
     [NV30:NVC0] [see memory/peephole.txt]
   - bit 16: THERM_ALARM - Temperature is critical and requires actions
-    [NV43-] [pm/nv43-therm.txt, pm/ptherm.txt]
+    [NV43-] [:ref:`NV43 <nv43-therm-intr-alarm>`, :ref:`NV50 <ptherm-intr>`]
   - bit 17: THERM_THRS_LOW - Temperature is lower than TEMP_RANGE.LOW
-    [NV43:NV50] [pm/nv43-therm.txt]
+    [NV43:NV50] [:ref:`NV43 <nv43-therm-intr-range>`]
   - bit 18: THERM_THRS_HIGH - Temperature is higher than TEMP_RANGE.HIGH
-    [NV43:NV50] [pm/nv43-therm.txt]
+    [NV43:NV50] [:ref:`NV43 <nv43-therm-intr-range>`]
   - bit 26: USER0 - user interrupt #0 [NV50-] [see below]
   - bit 28: USER1 - user interrupt #1. Note that this interrupt cannot be
     enabled for delivery to NRHOST line. [NVC0-] [see below]

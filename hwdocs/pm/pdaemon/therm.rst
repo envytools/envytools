@@ -39,4 +39,4 @@ The PTHERM access circuitry also exports a signal to PCOUNTER:
 In addition to direct register access to PTHERM, PDAEMON also has direct access
 to PTHERM interrupts - falcon interrupt #12 [THERM] comes from PTHERM interrupt
 aggregator. PTHERM subinterrupts can be individually assigned for PMC or
-PDAEMON delivery - see pm/ptherm.txt for more information.
+PDAEMON delivery - see :ref:`ptherm-intr` for more information.

@@ -7,3 +7,5 @@ Contents:
 
    clock
    pdaemon/index
+   nv43-therm
+   ptherm

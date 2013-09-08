@@ -299,7 +299,7 @@ The GPU is made of:
 
   - PCLOCK+PCONTROL: clock generation and distribution
 
-  - PTHERM: thermal sensor and clock throttling circuitry [`<pm/ptherm.txt>`_]
+  - :ref:`PTHERM <ptherm>`: thermal sensor and clock throttling circuitry
 
   - :ref:`PDAEMON <pdaemon>`: card management microcontroller
 

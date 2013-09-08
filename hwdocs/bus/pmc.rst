@@ -413,7 +413,7 @@ For NV50:NVC0:
 - 17: PVP2 [vdec/vp2/pvp2.txt] [NV84:NV98 NVA0:NVAA]
 - 17: PVDEC [vdec/vp3/pvdec.txt] [NV98:NVA0 NVAA-]
 - 18: :ref:`PDAEMON [NVA3-] <pdaemon-falcon>`
-- 19: PTHERM [pm/ptherm.txt] [NVA3-]
+- 19: :ref:`PTHERM [NVA3-] <ptherm-intr>`
 - 20: :ref:`PTIMER <ptimer-intr>`
 - 21: PNVIO's GPIO interrupts [io/pnvio.txt]
 - 22: PCOPY [fifo/pcopy.txt]
@@ -440,7 +440,7 @@ For NVC0+:
 - 15: PVLD [vdec/vp3/pvld.txt] - has separate NRHOST line
 - 16: PVENC [NVE4-] [vdec/pvenc.txt] - has separate NRHOST line
 - 17: PVDEC [vdec/vp3/pvdec.txt] - has separate NRHOST line
-- 18: PTHERM [pm/ptherm.txt]
+- 18: :ref:`PTHERM <ptherm-intr>`
 - 19: ??? [NVD9-]
 - 20: :ref:`PTIMER <ptimer-intr>`
 - 21: PNVIO's GPIO interrupts [io/pnvio.txt]

@@ -146,7 +146,7 @@ Address range  Port  Name          Variants  Reference                        De
 00f000:010000  IBUS  PVP1          VP1       `<vdec/vpe/vp1.txt>`_            VP1 video processing engine
 00f000:010000  IBUS  PVP2          VP2       `<vdec/vp2/pvp2.txt>`_           VP2 xtensa video processing engine
 010000:020000  ROOT  ???           all       ???                              has something to do with PCI config spaces of other devices?
-020000:021000  IBUS  PTHERM        all       `<pm/ptherm.txt>`_               thermal sensor
+020000:021000  IBUS  PTHERM        all       :ref:`ptherm-mmio`               thermal sensor
 021000:022000  IBUS  PFUSE         all       :ref:`pfuse-mmio`                efuses storing not so secret stuff
 022000:022400  IBUS  ???           ???       ???                              ???
 060000:061000  ROOT  PEEPHOLE      NV84:NVC0 `<memory/peephole.txt>`_         indirect VM access
@@ -215,7 +215,7 @@ Address range  Port  Name          Variants  Reference                        De
 00e000:00e800  IBUS  PNVIO         all       `<io/pnvio.txt>`_                GPIOs, I2C buses, PWM fan control, and other external devices
 00e800:00f000  IBUS  PIOCLOCK      all       :ref:`nvc0-pioclock-mmio`        PNVIO's clock setup
 010000:020000  ROOT  ???           all       ???                              has something to do with PCI config spaces of other devices?
-020000:021000  IBUS  PTHERM        all       `<pm/ptherm.txt>`_               thermal sensor
+020000:021000  IBUS  PTHERM        all       :ref:`ptherm-mmio`               thermal sensor
 021000:022000  IBUS  PFUSE         all       :ref:`pfuse-mmio`                efuses storing not so secret stuff
 022400:022800  IBUS  PUNITS        all       :ref:`punits-mmio`               control over enabled card units
 040000:060000  ROOT  PSUBFIFOs     all       `<fifo/nvc0-pfifo.txt>`_         individual SUBFIFOs of PFIFO
