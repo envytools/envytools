@@ -64,3 +64,11 @@ DCLK: daemon clock
 ==================
 
 .. todo:: write me
+
+
+.. _nva3-clock-vdclk:
+
+VDCLK: video decoding clock
+===========================
+
+.. todo:: write me
