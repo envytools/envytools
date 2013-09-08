@@ -126,7 +126,7 @@ Endian switch
 
 PMC also contains the endian switch register. The endian switch can be set to
 either little or big endian, and affects all accesses to BAR0 and, if present,
-BAR2/BAR3 - see bus/bars.txt for more details. It is controlled by the ENDIAN
+BAR2/BAR3 - see :ref:`bars` for more details. It is controlled by the ENDIAN
 register:
 
 MMIO 0x000004: ENDIAN [NV11-]
@@ -241,7 +241,7 @@ On NVC0+, the bits are:
 - 2: PXBAR [memory/nvc0-pxbar.txt]
 - 3: PMFB [memory/nvc0-pmfb.txt]
 - 4: :ref:`PMEDIA <pmedia>`
-- 5: PIBUS [bus/pibus.txt]
+- 5: :ref:`PIBUS <pibus>`
 - 6: PCOPY[0] [fifo/pcopy.txt]
 - 7: PCOPY[1] [fifo/pcopy.txt]
 - 8: PFIFO [fifo/nvc0-pfifo.txt]
@@ -421,7 +421,7 @@ For NV50:NVC0:
 - 26: PDISPLAY [display/nv50/pdisplay.txt]
 - 27: ??? [NVA3?-]
 - 28: :ref:`PBUS <pbus-intr>`
-- 29: PPCI [bus/pci.txt] [NV84-]
+- 29: :ref:`PPCI <ppci-intr>` [NV84-]
 - 31: software
 
 .. todo:: figure out unknown interrupts. They could've been introduced much
@@ -451,8 +451,8 @@ For NVC0+:
 - 26: PDISPLAY [display/nv50/pdisplay.txt]
 - 27: PFFB [memory/nvc0-pffb.txt]
 - 28: :ref:`PBUS <pbus-intr>` - has separate NRHOST line
-- 29: PPCI [bus/pci.txt]
-- 30: PIBUS [bus/pibus.txt]
+- 29: :ref:`PPCI <ppci-intr>`
+- 30: :ref:`PIBUS <pibus-intr>`
 - 31: software
 
 .. todo:: unknowns

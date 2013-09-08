@@ -67,8 +67,7 @@ DEBUG registers store misc hardware control bits. They're mostly unknown, and
 usually group together unrelated bits. The known bits include:
 
 MMIO 0x001084: DEBUG_1 [NV04-]
-  bit 11: FUSE_READOUT_ENABLE - enables reads from fuses in PFUSE [NV50:NVC0]
-          [bus/pfuse.txt]
+  bit 11: FUSE_READOUT_ENABLE - enables reads from fuses in :ref:`PFUSE <pfuse>` [NV50:NVC0]
   bit 28: HEADS_TIED - mirrors writes to :ref:`CRTC <pcrtc-mmio>`/:ref:`RAMDAC <pramdac-mmio>` registers on any head to
           the other head too [NV11:NV20, NV25:NV50]
 
@@ -114,8 +113,8 @@ MMIO 0x001100: INTR [NV03-]
   - bit 0: BUS_ERROR - ??? [NV03:NV50]
   - bit 1: MMIO_DISABLED_ENG - MMIO access from host failed due to accessing
     an area disabled via PMC.ENABLE [NVC0-] [XXX: document]
-  - bit 2: MMIO_IBUS_ERR - MMIO access from host failed due to some error in
-    IBUS [NVC0-] [see bus/pibus.txt]
+  - bit 2: MMIO_IBUS_ERR - :ref:`MMIO access from host failed due to some error in
+    IBUS <pbus-intr-mmio-ibus-err>` [NVC0-]
   - bit 3: MMIO_FAULT - MMIO access from host failed due to other reasons
     [NV41-] [XXX: document]
   - bit 4: GPIO_0_RISE - :ref:`GPIO #0 went from 0 to 1 [NV10:NV31] <nv10-gpio-intr>`

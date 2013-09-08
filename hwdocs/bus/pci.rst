@@ -24,6 +24,14 @@ MMIO registers
 .. todo:: write me
 
 
+.. _ppci-intr:
+
+Interrupts
+==========
+
+.. todo:: write me
+
+
 .. _pbus-mmio-pci:
 
 PCI/PCIE configuration space registers
