@@ -653,12 +653,9 @@
 		<!-- XXX: NVC0 -->
 		<group name="nvc0_rpll">
 			<reg32 offset="0x0" name="CTRL">
-				<bitfield low="0" high="1" name="OUTPUT">
-					<value value="0" name="2.25MHz"/>
-					<value value="1" name="RPLL"/>
-					<value value="2" name="2.25MHz"/>
-					<value value="3" name="2.25MHz"/>
-				</bitfield>
+				<doc>If both ENABLE and PWROFF are set</doc>
+				<bitfield pos="0" name="ENABLE"/>
+				<bitfield pos="1" name="PWROFF"/>
 				<bitfield pos="2" name="UNK2"/>
 				<bitfield pos="4" name="BYPASS_PLL_CHECK"/>
 				<bitfield pos="5" name="UNK5"/>
@@ -670,10 +667,11 @@
 				<bitfield pos="24" name="UNK24" />
 			</reg32>
 			<reg32 offset="0x4" name="COEF">
-				<doc>freq = (27MHz * N / M) >> P</doc>
+				<doc>freq = 27MHz * N / M</doc>
 				<bitfield low="0" high="7" name="M"/>
 				<bitfield low="8" high="15" name="N"/>
-				<bitfield low="16" high="18" name="P"/> <!-- doesn't appear to do anything -->
+				<bitfield low="16" high="21" name="UNK16"/>
+				<bitfield low="24" high="27" name="UNK24"/>
 			</reg32>
 		</group>
 

@@ -48,27 +48,18 @@
 <bitset name="nvc0_pll_ref_div_src" inline="yes">
 	<bitfield low="0" high="3" name="SRC">
 		<value value="0" name="SRC0"/>
-		<value value="1" name="2.25MHz"/>
 		<value value="2" name="SRC2"/>
-		<value value="3" name="SRC3"/>
+		<value value="3" name="RPLL1"/>
 	</bitfield>
 	<bitfield low="8" high="12" name="UNK8">
 	</bitfield>
 	<bitfield low="16" high="17" name="SRC0">
 		<value value="0" name="27MHz"/>
-		<value value="1" name="2.25MHz"/>
-		<value value="2" name="2.25MHz"/>
 		<value value="3" name="108MHz"/>
 	</bitfield>
 	<bitfield low="24" high="26" name="SRC2">
 		<value value="0" name="100MHz"/>
 		<value value="1" name="277MHz"/>
-		<value value="2" name="2.25MHz"/>
-		<value value="3" name="2.25MHz"/>
-		<value value="4" name="2.25MHz"/>
-		<value value="5" name="2.25MHz"/>
-		<value value="6" name="2.25MHz"/>
-		<value value="7" name="2.25MHz"/>
 	</bitfield>
 	<bitfield pos="31" name="UNK31"/>
 </bitset>
