@@ -1,22 +1,27 @@
+=====================
+VP2 xtensa processors
+=====================
+
+.. todo:: write me
 
 Configured options:
 
- - Code Density Option
- - Loop Option
- - 16-bit Integer Multiply Option
- - Miscellaneous Operations Option:
+- Code Density Option
+- Loop Option
+- 16-bit Integer Multiply Option
+- Miscellaneous Operations Option:
   - InstructionCLAMPS = 0
   - InstructionMINMAX = 1
   - InstructionNSA = 0
   - InstructionSEXT = 0
- - Boolean Option
- - Exception Option
+- Boolean Option
+- Exception Option
   - NDEPC = 1
   - ResetVector = 0xc0000020
   - UserExceptionVector = 0xc0000420
   - KernelExceptionVector = 0xc0000600
   - DoubleExceptionVector = 0xc0000a00
- - Interrupt Option
+- Interrupt Option
   - NINTERRUPT = 10
   - INTTYPE[0]: Timer
   - INTTYPE[1]: Timer
@@ -28,7 +33,7 @@ Configured options:
   - INTTYPE[7]: Level
   - INTTYPE[8]: Level
   - INTTYPE[9]: Level
- - High-priority Interrupt Option
+- High-priority Interrupt Option
   - NLEVEL: 6
   - LEVEL[0]: 1
   - LEVEL[1]: 1
@@ -48,28 +53,28 @@ Configured options:
   - InterruptVector[5] = 0xc0000e00
   - InterruptVector[6] = 0xc0000f00
   - InterruptVector[7] = 0xc0001000
- - Timer Interrupt Option
+- Timer Interrupt Option
   - NCOMPARE = 2
   - TIMERINT[0]: 0
   - TIMERINT[1]: 1
- - Instruction Cache Option
+- Instruction Cache Option
   - InstCacheWayCount: 3
   - InstCacheLineBytes: 0x20
   - InstCacheBytes: 0x3000
- - Instruction Cache Test Option
- - Instruction Cache Index Lock Option
- - Data Cache Option
+- Instruction Cache Test Option
+- Instruction Cache Index Lock Option
+- Data Cache Option
   - DataCacheWayCount: 2
   - DataCacheLineBytes: 0x20
   - DataCacheBytes: 0x1000
   - IsWriteback: Yes
- - Data Cache Test Option
- - Data Cache Index Lock Option
- - XLMI Option
+- Data Cache Test Option
+- Data Cache Index Lock Option
+- XLMI Option
   - XLMIBytes = 256kB
   - XLMIPAddr = 0xcffc0000
- - Region Protection Option
- - Windowed Register Option
+- Region Protection Option
+- Windowed Register Option
   - WindowOverflow4 = 0xc0000800
   - WindowUnderflow4 = 0xc0000840
   - WindowOverflow8 = 0xc0000880
@@ -77,11 +82,11 @@ Configured options:
   - WindowOverflow12 = 0xc0000900
   - WindowUnderflow12 = 0xc0000940
   - NAREG = 32
- - Processor Interface Option
- - Debug Option
+- Processor Interface Option
+- Debug Option
   - DEBUGLEVEL = 6
   - NIBREAK = 2
   - NDBREAK = 2
   - SZICOUNT = 32
   - OCD: XXX
- - Trace Port Option? [XXX]
+- Trace Port Option? [XXX]
