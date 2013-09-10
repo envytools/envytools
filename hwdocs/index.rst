@@ -22,6 +22,8 @@ Contents:
    pcounter/index
    display/index
 
+   todo
+
 .. todo:: convert glossary
 
 
