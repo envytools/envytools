@@ -13,11 +13,12 @@ The macroblock ring outputted from VLD is packet based, and aligned on
 A packet has the header type in bits [24..31] and length in bits [0..23].
 The data length is in words, and doesn't include the header itself.
 
-For MPEG1/2 the following format is used:
-
 
 type 00: Macro block header
 ===========================
+
+MPEG2
+-----
 
 The macro block header contains 4 data words:
 
@@ -53,8 +54,66 @@ The macro block header contains 4 data words:
   - [8:12] quantiser_scale_code
 
 
+H.264
+-----
+
+- Payload word 0:
+
+  - bits 0-12: macroblock address
+
+- Payload word 1:
+
+  - bits 0-7: y coord in macroblock units
+  - bits 8-15: x coord in macroblock units
+
+- Payload word 2:
+
+  - bit 0: first macroblock of a slice flag
+  - bit 1: mb_skip_flag
+  - bit 2: mb_field_coding_flag
+  - bits 3-8: mb_type
+  - bits 9+i*4 - 12+i*4, i < 4: sub_mb_type[i]
+  - bit 25: transform_size_8x8_flag
+
+- Payload word 3:
+
+  - bits 0-5: mb_qp_delta
+  - bits 6-7: intra_chroma_pred_mode
+
+- Payload word 4:
+
+  - bits i*4+0 - i*4+2, i < 8: rem_intra_pred_mode[i]
+  - bit i*4+3, i < 8: prev_intra_pred_mode_flag[i]
+
+- Payload word 5:
+
+  - bits i*4+0 - i*4+2, i < 8: rem_intra_pred_mode[i+8]
+  - bit i*4+3, i < 8: prev_intra_pred_mode_flag[i+8]
+
+
+Error
+-----
+
+The macro block header contains 3 data words:
+
+- Word 0:
+
+  - [0:15] Absolute address in macroblock units, 0 based
+  - [16] error flag, always set
+
+- Word 1:
+
+  - [0:7] Y coord in macroblock units, 0 based
+  - [8:15] X coord in macroblock units, 0 based
+
+- Word 2: all 0
+
+
 type 01: Motion vector
 ======================
+
+MPEG2
+-----
 
 .. todo:: Verify whether X or Y is in the lowest 16 bits. I assume X
 
@@ -71,6 +130,12 @@ The layout of each 16 bit PMV:
 
 motion_vertical_field_select and dmvector occupy same bits, but the mpeg
 spec makes them mutually exclusive, so they don't conflict.
+
+
+H.264
+-----
+
+Payload like VP2, except length is in 32-bit words.
 
 
 type 02: DCT coordinates
@@ -94,10 +159,31 @@ For example: 0x10 0x00 0x40 0xff
 Chunk 4 (0x0010>>4)&1 has pos 3 (0x40 >> (2*3))&3 set to -1
 
 
+type 03: PCM data
+=================
+
+Payload length is 0x60 words. Packet is byte oriented, instead of word
+oriented. Payload is raw PCM data from bitstream.
+
+
 type 04: Coded block pattern
 ============================
 
+MPEG2
+-----
 This packet puts coded_block_pattern in 1 data word.
+
+
+H.264
+-----
+
+Payload like VP2.
+
+
+type 05: Pred weight table
+==========================
+
+Payload like VP2, except length is in 32-bit words.
 
 
 type 06: End of stream
@@ -113,7 +199,7 @@ A macroblock is created in this order:
 
 - motion vector (optional)
 - macro block header
-- DCT coordinates (optional, and repeated as many times as needed)
+- DCT coordinates / PCM samples (optional, and repeated as many times as needed)
 - coded_block_pattern (optional)
 
 'optional' is relative to the MPEG spec. For example intra frames always
