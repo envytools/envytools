@@ -200,7 +200,7 @@
 				<value value="12" name="MACROBLOCKS"/>
 				<value value="14" name="NEXTBITS"/>
 				<value value="17" name="BITPLANE"/> <!-- VC-1, param is plane index -->
-				<value value="18" name="UNK18_NOPARM_NORES"/> <!-- halt? -->
+				<value value="18" name="SEND_EOS"/>
 			</bitfield>
 			<bitfield low="5" high="10" name="PARAM"/>
 		</reg32>
@@ -256,6 +256,8 @@
 		<reg32 offset="0x1c" name="UNK1C"/> <!-- 1 -->
 
 		<reg32 offset="0x24" name="UNK24" variants="NVD9-"/>
+
+		<reg32 offset="0x40" name="UNK40" access="r"/>
 
 		<reg32 offset="0x58" name="UNK58" variants="NVA3-"/>
 		<reg32 offset="0x5c" name="TOTAL_LENGTH" variants="NVA3-"/><!-- sum over STREAM_0[i].LENGTH -->
