@@ -118,6 +118,14 @@ Status bits:
     ===== ========== ========== ============
 IO registers:
     :ref:`pvld-io`
+MEMIF ports:
+    ==== ======= ============
+    Port Name    Description
+    ==== ======= ============
+    1    STREAM  bitstream input
+    2    MBRING  MBRING output
+    4    BUCKET  temp bucket
+    ==== ======= ============
 
 .. todo:: MEMIF ports
 
