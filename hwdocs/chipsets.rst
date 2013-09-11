@@ -683,7 +683,7 @@ pciid pciid
 0fcX* 0e1b  NVE7 GK107 1    2       2    1
 11cX+ 0e0b  NVE6 GK106 3    2       ?    ?
 100X+ 0e1a  NVF0 GK110 5    3       6    1
-?     ?     ?    GK208 ?    ?       ?    ?
+128X+ ?     ?    GK208 1    2       1    1
 ===== ===== ==== ===== ==== ======= ==== =========
 
 .. todo:: it is said that one of the GPCs has only one TP on NVE6
