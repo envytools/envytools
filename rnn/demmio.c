@@ -325,8 +325,10 @@ int main(int argc, char **argv) {
 						cc->hwsqip = 0;
 					}
 					if (addr == 0 && !cc->chdone) {
-						char chname[5];
-						if (value & 0x0f000000)
+						char chname[6];
+						if ((value & 0xfff00000) == 0x10800000)
+							snprintf(chname, 6, "NV108");
+						else if (value & 0x0f000000)
 							snprintf(chname, 5, "NV%02"PRIX64, (value >> 20) & 0xff);
 						else if (value & 0x0000f000)
 							snprintf(chname, 5, "NV%02"PRIX64, ((value >> 20) & 0xf) + 4);
@@ -335,7 +337,10 @@ int main(int argc, char **argv) {
 						rnndec_varadd(cc->ctx, "chipset", chname);
 						switch ((value >> 20) & 0xf0) {
 							case 0:
-								cc->arch = 0;
+								if (strlen(chname) == 5)
+									cc->arch = 6;
+								else
+									cc->arch = 0;
 								break;
 							case 0x10:
 								cc->arch = 1;
