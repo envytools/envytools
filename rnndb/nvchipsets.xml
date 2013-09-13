@@ -145,6 +145,9 @@
 	<value value="0xf0" name="NVF0">
 		<brief>GK110</brief>
 	</value>
+	<value value="0x108" name="NV108">
+		<brief>GK208</brief>
+	</value>
 </enum>
 
 </database>

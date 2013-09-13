@@ -98,7 +98,7 @@ is:
 
   - NVC0 subfamily: NVC0, NVC4, NVC3, NVCE, NVCF, NVC1, NVC8
   - NVD9 subfamily: NVD9, NVD7
-  - NVE4 subfamily: NVE4, NVE7, NVE6, NVF0, GK208
+  - NVE4 subfamily: NVE4, NVE7, NVE6, NVF0, NV108
 
 Whenever a range of chipsets is mentioned in the documentation, it's written as
 "NVxx:NVyy". This is left-inclusive, right-noninclusive range of chipset ids
@@ -666,24 +666,24 @@ The card where they redesigned everything again.
 
 Chipsets in NVC0 family:
 
-===== ===== ==== ===== ==== ======= ==== =========
-core  hda   id   name  GPCs TPs/GPC ROPs parts/ROP
+===== ===== ===== ===== ==== ======= ==== =========
+core  hda   id    name  GPCs TPs/GPC ROPs parts/ROP
 pciid pciid
-===== ===== ==== ===== ==== ======= ==== =========
-06cX+ 0be5  NVC0 GF100 4    4       6    1
-0e2X+ 0beb  NVC4 GF104 2    4       4    1
-0dcX+ 0be9  NVC3 GF106 1    4       3    1
-120X+ 0e0c  NVCE GF114 2    4       4    1
-124X+ 0bee  NVCF GF116 1    4       3    1
-0deX+ 0bea  NVC1 GF108 1    2       1    2
-108X+ 0e09  NVC8 GF110 4    4       6    1
-104X* 0e08  NVD9 GF119 1    1       1    1
-1140  \-    NVD7 GF117 1    2       1    1
-118X* 0e0a  NVE4 GK104 4    2       4    1
-0fcX* 0e1b  NVE7 GK107 1    2       2    1
-11cX+ 0e0b  NVE6 GK106 3    2       ?    ?
-100X+ 0e1a  NVF0 GK110 5    3       6    1
-128X+ ?     ?    GK208 1    2       1    1
-===== ===== ==== ===== ==== ======= ==== =========
+===== ===== ===== ===== ==== ======= ==== =========
+06cX+ 0be5  NVC0  GF100 4    4       6    1
+0e2X+ 0beb  NVC4  GF104 2    4       4    1
+0dcX+ 0be9  NVC3  GF106 1    4       3    1
+120X+ 0e0c  NVCE  GF114 2    4       4    1
+124X+ 0bee  NVCF  GF116 1    4       3    1
+0deX+ 0bea  NVC1  GF108 1    2       1    2
+108X+ 0e09  NVC8  GF110 4    4       6    1
+104X* 0e08  NVD9  GF119 1    1       1    1
+1140  \-    NVD7  GF117 1    2       1    1
+118X* 0e0a  NVE4  GK104 4    2       4    1
+0fcX* 0e1b  NVE7  GK107 1    2       2    1
+11cX+ 0e0b  NVE6  GK106 3    2       ?    ?
+100X+ 0e1a  NVF0  GK110 5    3       6    1
+128X+ 0e0f  NV108 GK208 1    2       1    1
+===== ===== ===== ===== ==== ======= ==== =========
 
 .. todo:: it is said that one of the GPCs has only one TP on NVE6
