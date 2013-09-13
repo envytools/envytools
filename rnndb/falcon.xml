@@ -214,10 +214,12 @@
 		<bitfield low="0" high="3" name="VERSION">
 			<value value="3" name="V3"/>
 			<value value="4" name="V4"/>
+			<value value="5" name="V5"/>
 		</bitfield>
 		<bitfield low="4" high="7" name="CRYPT">
 			<value value="0" name="NONE"/>
 			<value value="3" name="V3"/>
+			<value value="4" name="V4"/> <!-- XXX check -->
 		</bitfield>
 		<bitfield low="8" high="11" name="CODE_PORTS">
 			<doc># of CODE access ports?</doc>
