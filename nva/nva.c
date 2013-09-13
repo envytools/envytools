@@ -137,7 +137,9 @@ int nva_init() {
 		nva_cards[i].boot0 = nva_rd32(i, 0);
 		nva_cards[i].chipset = nva_cards[i].boot0 >> 20 & 0xff;
 		if (nva_cards[i].chipset < 0x10) {
-			if (nva_cards[i].boot0 & 0xf000) {
+			if ((nva_cards[i].boot0 & 0xfff00000) == 0x10800000) {
+				nva_cards[i].chipset = 0x108;
+			} else if (nva_cards[i].boot0 & 0xf000) {
 				if (nva_cards[i].boot0 & 0xf00000)
 					nva_cards[i].chipset = 5;
 				else
