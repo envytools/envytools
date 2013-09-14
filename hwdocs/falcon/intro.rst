@@ -42,7 +42,7 @@ The base falcon hardware comes in three different revisions:
   bitfield manipulation, ...], and other features
 - version 4: used on NVD9+ for some engines [others are still version 3]:
   adds support for 24-bit code addressing, debugging and ???
-- version 5: used on NV108+ for some engines, adds ???
+- version 5: used on NVF0+ for some engines, redesigned ISA encoding
 
 .. todo:: figure out v4 new stuff
 .. todo:: figure out v5 new stuff

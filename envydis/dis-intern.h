@@ -227,12 +227,14 @@ void atomtab_d DPROTO;
 #define OP3B atomopl_a, atomopl_d, op3blen
 #define OP4B atomopl_a, atomopl_d, op4blen
 #define OP5B atomopl_a, atomopl_d, op5blen
+#define OP6B atomopl_a, atomopl_d, op6blen
 #define OP8B atomopl_a, atomopl_d, op8blen
 extern int op1blen[];
 extern int op2blen[];
 extern int op3blen[];
 extern int op4blen[];
 extern int op5blen[];
+extern int op6blen[];
 extern int op8blen[];
 struct matches *atomopl_a APROTO;
 void atomopl_d DPROTO;

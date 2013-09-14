@@ -55,6 +55,7 @@ hexadecimal numbers representing the bytes to disassemble. The options are:
        fuc0: falcon version 0 [NV98, NVAA, NVAC]
        fuc3: falcon version 3 [NVA3 and up]
        fuc4: falcon version 4 [NVD9 and up, selected engines only]
+       fuc5: falcon version 4 [NVF0 and up, selected engines only]
      For vuc:
        vp2: VP2 video processor [NV84:NV98, NVA0]
        vp3: VP3 video processor [NV98, NVAA, NVAC]

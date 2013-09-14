@@ -30,6 +30,7 @@ int op2blen[] = { 2 };
 int op3blen[] = { 3 };
 int op4blen[] = { 4 };
 int op5blen[] = { 5 };
+int op6blen[] = { 6 };
 int op8blen[] = { 8 };
 
 static const struct {
