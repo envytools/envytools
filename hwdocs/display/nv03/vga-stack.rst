@@ -94,6 +94,7 @@ Stack access registers
 The stack data is read or written through the VAL register:
 
 MMIO 0x001380 / CR 0x90: VAL [NV41:NV50]
+
 MMIO 0x619e40 / CR 0xa2: VAL [NV50-]
   Accesses a stack entry. A write to this register stored the low 8 bits
   of written data as a byte to be pushed. If automatic push mode is set,
@@ -107,6 +108,7 @@ MMIO 0x619e40 / CR 0xa2: VAL [NV50-]
 The CTRL register is used to manually push/pop the stack and check its status:
 
 MMIO 0x001384 / CR 0x91: CTRL [NV41:NV50]
+
 MMIO 0x619e44 / CR 0xa3: CTRL [NV50-]
   - bit 0: PUSH_TRIGGER - when written as 1, executes a push. Always reads as 0.
   - bit 1: POP_TRIGGER - like above, for pop.
@@ -121,6 +123,7 @@ MMIO 0x619e44 / CR 0xa3: CTRL [NV50-]
 To configure the stack, the CONFIG register is used:
 
 MMIO 0x001388: CONFIG [NV41:NV50]
+
 MMIO 0x619e48: CONFIG [NV50-]
   - bit 0: PUSH_MODE - selects push mode [see above]
 
@@ -145,6 +148,7 @@ MMIO 0x619e48: CONFIG [NV50-]
 The stack pointer can be accessed directly by the SP register:
 
 MMIO 0x00138c: SP [NV41:NV50]
+
 MMIO 0x619e4c: SP [NV50-]
   The stack pointer. Only low 10 bits are valid.
 

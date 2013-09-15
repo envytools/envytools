@@ -97,11 +97,13 @@ MMIO 0x00155c: PEEPHOLE_W_CTRL [NV30:NVC0]
 The address and data registers are:
 
 MMIO 0x001560: PEEPHOLE_W_ADDR [NV30:NV84]
+
 MMIO 0x060000: PEEPHOLE_W_ADDR [NV84:NVC0]
   The address register. On NV30:NV50, only bits 2-28 are valid. On NV50+, only
   bits 2-31 are valid.
 
 MMIO 0x001564: PEEPHOLE_W_DATA [NV30:NV84]
+
 MMIO 0x060004: PEEPHOLE_W_DATA [NV84:NVC0]
   The data register. This register is actually RW, and a read will return the
   last written value. Writes other than 32-bit are accepted, but will translate
@@ -162,11 +164,13 @@ MMIO 0x06000c: PEEPHOLE_RW_ADDR_HIGH [NVC0-]
   address bits 32-39.
 
 MMIO 0x001570: PEEPHOLE_RW_ADDR [NV30:NV84]
+
 MMIO 0x060010: PEEPHOLE_RW_ADDR_LOW [NV84-]
   The low part of the address register. On NV30:NV50, only bits 2-28 are
   valid. On NV50+, only bits 2-31 are valid.
 
 MMIO 0x001574: PEEPHOLE_RW_DATA [NV30:NV84]
+
 MMIO 0x060014: PEEPHOLE_RW_DATA [NV84-]
   The data port. Any access to this address will be translated to
   a corresponding memory read/write and cause the address register to be
