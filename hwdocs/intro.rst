@@ -210,7 +210,7 @@ The GPU is made of:
 
   - PFIFO: gathers processing commands from the command buffers prepared by
     the host and delivers them to PGRAPH and PVPE engines in orderly manner
-    [`<fifo/intro.txt>`_]
+    [:ref:`PFIFO introduction<fifo-intro>`]
 
   - PGRAPH: memory copying, 2d and 3d rendering engine
 
@@ -308,10 +308,10 @@ The GPU is made of:
 
   - PFIFO: gathers processing commands from the command buffers prepared by
     the host and delivers them to PGRAPH and PVPE engines in orderly manner
-    [`<fifo/intro.txt>`_]
+    [:ref:`PFIFO introduction<fifo-intro>`]
   - PGRAPH: memory copying, 2d and 3d rendering engine
   - video decoding engines, see below
-  - PCOPY: asynchronous copy engine [`<fifo/pcopy.txt>`_]
+  - PCOPY: asynchronous copy engine [:ref:`PCOPY engine<pcopy>`]
   - PVCOMP: video compositing engine [`<vdec/pvcomp.txt>`_]
   - PCOUNTER: performance monitoring counters for the processing engines and
     memory controller [`<pcounter/intro.txt>`_] 
