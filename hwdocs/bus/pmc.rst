@@ -143,7 +143,7 @@ This register and the endian switch don't exist on pre-NV11 cards - they're
 always little-endian.
 
 Note that this switch is also used by NV50+ PFIFO as its default endianness
-- see `<fifo/nv50-pfifo.txt>`_ for details.
+- see :ref:`nv50-pfifo` for details.
 
 The MMIO areas containing aliases of 8-bit VGA registers are unaffected by
 this switch, despite being in BAR0.
@@ -167,7 +167,7 @@ On NV01, the bits are:
 
 - 0: :ref:`PAUDIO <nv01-paudio>`
 - 4: :ref:`PDMA <nv01-pdma>` and :ref:`PTIMER <ptimer>`
-- 8: PFIFO [fifo/nv01-pfifo.txt]
+- 8: PFIFO :ref:`nv01-pfifo`
 - 12: PGRAPH [graph/nv01-pgraph.txt]
 - 16: :ref:`PRM <nv01-prm>`
 - 24: :ref:`PFB <nv01-pfb>`
@@ -176,7 +176,7 @@ On NV03:NV04, the bits are:
 
 - 0: ??? [XXX]
 - 4: :ref:`PMEDIA <pmedia>`
-- 8: PFIFO [fifo/nv01-pfifo.txt]
+- 8: PFIFO :ref:`nv01-pfifo`
 - 12: PGRAPH [graph/nv03-pgraph.txt] and PDMA [graph/nv03-pdma.txt]
 - 16: :ref:`PTIMER <ptimer>`
 - 20: :ref:`PFB <nv03-pfb>`
@@ -188,7 +188,7 @@ On NV04:NV50, the bits are:
 - 0: ??? - alleged to be related to I2C [NV10-] [XXX]
 - 1: :ref:`PVPE <pvpe>` [NV17-]
 - 4: :ref:`PMEDIA <pmedia>`
-- 8: PFIFO [fifo/nv04-pfifo.txt]
+- 8: PFIFO :ref:`nv04-pfifo`
 - 12: PGRAPH [graph/nv04-pgraph.txt, graph/nv10-pgraph.txt, graph/nv20-pgraph.txt, graph/nv40-pgraph.txt]
 - 13: PGRAPH CS??? apparently exists on some late NV4x... [graph/nv40-pgraph.txt] [NV4?-]
 - [XXX: figure out the CS thing, figure out the variants. Known not to exist on NV40, NV43, NV44, NV49]
@@ -205,7 +205,7 @@ On NV50:NVC0, the bits are:
 - 1: :ref:`PVPE <pvpe>` [NV50:NV98 NVA0:NVAA]
 - 1: :ref:`PPPP <pppp>` [NV98:NVA0 NVAA-]
 - 4: :ref:`PMEDIA <pmedia>`
-- 8: PFIFO [fifo/nv50-pfifo.txt]
+- 8: PFIFO :ref:`nv50-pfifo`
 - 12: PGRAPH [graph/nv50-pgraph.txt]
 - 13: :ref:`PCOPY <pcopy>` [NVA3-]
 - 14: :ref:`PCRYPT2 <pcrypt2>` [NV84:NV98 NVA0:NVAA]
@@ -217,16 +217,16 @@ On NV50:NVC0, the bits are:
 - 17: :ref:`PVP2 <pvp2>` [NV84:NV98 NVA0:NVAA]
 - 17: :ref:`PVDEC <pvdec>` [NV98:NVA0 NVAA-]
 - 20: :ref:`PFB <nv50-pfb>`
-- 21: PGRAPH CHSW [NV84-] [fifo/nv50-pfifo.txt]
+- 21: PGRAPH CHSW [NV84-] :ref:`nv50-pfifo`
 - 22: PMPEG CHSW [NV84-]
 - 23: PCOPY CHSW [NVA3-]
-- 24: PVP2 CHSW [NV84:NV98 NVA0:NVAA] [fifo/nv50-pfifo.txt]
-- 24: PVDEC CHSW [NV98:NVA0 NVAA-] [fifo/nv50-pfifo.txt]
-- 25: PCRYPT2 CHSW [NV84:NV98 NVA0:NVAA] [fifo/nv50-pfifo.txt]
-- 25: PCRYPT3 CHSW [NV98:NVA0 NVAA:NVA3] [fifo/nv50-pfifo.txt]
-- 25: PVCOMP CHSW [NVAF] [fifo/nv50-pfifo.txt]
-- 26: PBSP CHSW [NV84:NV98 NVA0:NVAA] [fifo/nv50-pfifo.txt]
-- 26: PVLD CHSW [NV98:NVA0 NVAA-] [fifo/nv50-pfifo.txt]
+- 24: PVP2 CHSW [NV84:NV98 NVA0:NVAA] :ref:`nv50-pfifo`
+- 24: PVDEC CHSW [NV98:NVA0 NVAA-] :ref:`nv50-pfifo`
+- 25: PCRYPT2 CHSW [NV84:NV98 NVA0:NVAA] :ref:`nv50-pfifo`
+- 25: PCRYPT3 CHSW [NV98:NVA0 NVAA:NVA3] :ref:`nv50-pfifo`
+- 25: PVCOMP CHSW [NVAF] :ref:`nv50-pfifo`
+- 26: PBSP CHSW [NV84:NV98 NVA0:NVAA] :ref:`nv50-pfifo`
+- 26: PVLD CHSW [NV98:NVA0 NVAA-] :ref:`nv50-pfifo`
 - 27: ??? [NV84-]
 - 28: ??? [NV84-]
 - 30: :ref:`PDISPLAY <pdisplay>`
@@ -244,7 +244,7 @@ On NVC0+, the bits are:
 - 5: :ref:`PIBUS <pibus>`
 - 6: :ref:`PCOPY[0] <pcopy>`
 - 7: :ref:`PCOPY[1] <pcopy>`
-- 8: PFIFO [fifo/nvc0-pfifo.txt]
+- 8: PFIFO :ref:`nvc0-pfifo`
 - 12: PGRAPH [graph/nvc0-pgraph.txt]
 - 13: :ref:`PDAEMON <pdaemon>`
 - 15: :ref:`PVLD <pvld>`
@@ -264,7 +264,7 @@ NVC0 also introduced SUBFIFO_ENABLE register:
 
 MMIO 0x000204: SUBFIFO_ENABLE
   Enables PFIFO's PSUBFIFOs. Bit i corresponds to PSUBFIFO[i]. See
-  `<fifo/nvc0-pfifo.txt>`_ for details.
+  :ref:`nvc0-pfifo` for details.
 
 There are also two other registers looking like ENABLE, but with seemingly
 no effect and currently unknown purpose:
@@ -361,7 +361,7 @@ The input interrupts are, for NV01:
 
 - 0: :ref:`PAUDIO <nv01-paudio-intr>`
 - 4: :ref:`PDMA <nv01-pdma-intr>`
-- 8: PFIFO [fifo/nv01-pfifo.txt]
+- 8: PFIFO :ref:`nv01-pfifo`
 - 12: PGRAPH [graph/nv01-pgraph.txt]
 - 16: :ref:`PRM <nv01-prm-intr>`
 - 20: :ref:`PTIMER <ptimer-intr>`
@@ -373,7 +373,7 @@ The input interrupts are, for NV01:
 For NV03:
 
 - 4: :ref:`PMEDIA <pmedia-intr>`
-- 8: PFIFO [fifo/nv01-pfifo.txt]
+- 8: PFIFO :ref:`nv01-pfifo`
 - 12: PGRAPH [graph/nv03-pgraph.txt]
 - 13: PDMA [graph/nv03-pdma.txt]
 - 16: :ref:`PRAMDAC.VIDEO <pvideo-intr>`
@@ -386,7 +386,7 @@ For NV04:NV50:
 
 - 0: :ref:`PVPE <pvpe-intr>` [NV17:NV20 and NV25:NV50]
 - 4: :ref:`PMEDIA <pmedia-intr>`
-- 8: PFIFO [fifo/nv04-pfifo.txt]
+- 8: PFIFO :ref:`nv04-pfifo`
 - 12: PGRAPH [graph/nv04-pgraph.txt, graph/nv10-pgraph.txt, graph/nv20-pgraph.txt, graph/nv40-pgraph.txt]
 - 16: :ref:`PRAMDAC.VIDEO <pvideo-intr>` [NV04:NV10] or :ref:`PVIDEO <pvideo-intr>` [NV10:NV50]
 - 20: :ref:`PTIMER <ptimer-intr>`
@@ -400,7 +400,7 @@ For NV50:NVC0:
 - 0: :ref:`PVPE <pvpe-intr>` [NV50:NV98 NVA0:NVAA]
 - 0: :ref:`PPPP <pppp-falcon>` [NV98:NVA0 NVAA-]
 - 4: :ref:`PMEDIA <pmedia-intr>`
-- 8: PFIFO [fifo/nv50-pfifo.txt] - has separate NRHOST line on NVA3+
+- 8: PFIFO :ref:`nv50-pfifo` - has separate NRHOST line on NVA3+
 - 9: ??? [NVA3?-]
 - 11: ??? [NVA3?-]
 - 12: PGRAPH [graph/nv50-pgraph.txt]
@@ -434,7 +434,7 @@ For NVC0+:
 - 5: PCOPY[0] [:ref:`NVC0 <pcopy-falcon>`, :ref:`NVE4 <pcopy-intr>`] - has separate NRHOST line
 - 6: PCOPY[1] [:ref:`NVC0 <pcopy-falcon>`, :ref:`NVE4 <pcopy-intr>`] - has separate NRHOST line
 - 7: :ref:`PCOPY[2] <pcopy-intr>` [NVE4-] - has separate NRHOST line
-- 8: PFIFO [fifo/nvc0-pfifo.txt]
+- 8: PFIFO :ref:`nvc0-pfifo`
 - 9: ???
 - 12: PGRAPH [graph/nvc0-pgraph.txt] - has separate NRHOST line
 - 13: :ref:`PBFB <pbfb-intr>`

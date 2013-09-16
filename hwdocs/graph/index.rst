@@ -1,3 +1,4 @@
+.. _graph-intro:
 .. _nv50-pgraph:
 .. _nv50-pgraph-vfetch:
 .. _nv50-pgraph-strmout:
