@@ -261,7 +261,7 @@ by the DMA object.
 
 DMA objects are specifid by 16-bit "selectors". In case of fifo engines,
 the RAMHT is used to translate from user-visible 32-bit handles to the
-selectors [see fifo/puller.txt]. The selector is shifted left by 4 bits
+selectors [see :ref:`puller`]. The selector is shifted left by 4 bits
 and added to channel structure base to obtain address of DMAobj structure,
 which is 0x18 bytes long and made of 32-bit LE words:
 
