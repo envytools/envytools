@@ -370,6 +370,7 @@ int main(int argc, char **argv) {
 								break;
 						}
 						cc->chipset = (value >> 20) & 0xff;
+						cc->chdone = 1;
 					} else if (addr == 0xa00) {
 						uint32_t chipset = (value >> 20) & 0x1ff;
 						switch (chipset & 0x1f0) {
@@ -389,6 +390,7 @@ int main(int argc, char **argv) {
 						}
 						if (chipset) {
 							char chname[6];
+							cc->chdone = 1;
 							sprintf(chname, "NV%02x", chipset);
 							rnndec_varmod(cc->ctx, "chipset", chname);
 							cc->chipset = chipset;
