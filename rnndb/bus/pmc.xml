@@ -208,7 +208,7 @@
 			<bitfield low="0" high="4" name="DEVICE_ID"/>
 			<bitfield low="8" high="9" name="BOOT_2"/>
 			<bitfield low="12" high="19" name="STEPPING"/>
-			<bitfield low="20" high="27" name="CHIPSET" type="chipset"/>
+			<bitfield low="20" high="28" name="CHIPSET" type="chipset"/>
 		</reg32>
 	</array>
 </domain>
