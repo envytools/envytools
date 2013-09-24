@@ -325,9 +325,13 @@ int main(int argc, char **argv) {
 						cc->hwsqip = 0;
 					}
 					if (addr == 0 && !cc->chdone) {
-						char chname[6];
-						if ((value & 0xfff00000) == 0x10800000)
-							snprintf(chname, 6, "NV108");
+						char chname[5];
+
+						/* Test if card has disappeared? 0xffffffff is not a valid NVF0 chipset */
+						if ((value & 0xffffffff) == 0xffffffff) {
+							fprintf(stderr, "invalid read for  PMC.ID %"PRIX64"\n", value);
+							continue;
+						}
 						else if (value & 0x0f000000)
 							snprintf(chname, 5, "NV%02"PRIX64, (value >> 20) & 0xff);
 						else if (value & 0x0000f000)
@@ -337,10 +341,7 @@ int main(int argc, char **argv) {
 						rnndec_varadd(cc->ctx, "chipset", chname);
 						switch ((value >> 20) & 0xf0) {
 							case 0:
-								if (strlen(chname) == 5)
-									cc->arch = 6;
-								else
-									cc->arch = 0;
+								cc->arch = 0;
 								break;
 							case 0x10:
 								cc->arch = 1;
@@ -364,10 +365,35 @@ int main(int argc, char **argv) {
 							case 0xc0:
 							case 0xd0:
 							case 0xe0:
+							case 0xf0:
 								cc->arch = 6;
 								break;
 						}
 						cc->chipset = (value >> 20) & 0xff;
+					} else if (addr == 0xa00) {
+						uint32_t chipset = (value >> 20) & 0x1ff;
+						switch (chipset & 0x1f0) {
+							case 0:
+								break;
+							case 0x90:
+							case 0xa0:
+								cc->arch = 5;
+								break;
+							case 0xc0:
+							case 0xd0:
+							case 0xe0:
+							case 0xf0:
+							case 0x100:
+								cc->arch = 6;
+								break;
+						}
+						if (chipset) {
+							char chname[6];
+							sprintf(chname, "NV%02x", chipset);
+							rnndec_varmod(cc->ctx, "chipset", chname);
+							cc->chipset = chipset;
+							printf ("New chipset set to %s\n", chname);
+						}
 					} else if (cc->arch >= 5 && addr == 0x1700) {
 						cc->praminbase = value << 16;
 					} else if (cc->arch == 5 && addr == 0x1704) {

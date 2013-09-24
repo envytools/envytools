@@ -57,6 +57,25 @@ int rnndec_varadd(struct rnndeccontext *ctx, char *varset, char *variant) {
 	return 0;
 }
 
+int rnndec_varmod(struct rnndeccontext *ctx, char *varset, char *variant) {
+	struct rnnenum *en = rnn_findenum(ctx->db, varset);
+	if (!en) {
+		fprintf (stderr, "Enum %s doesn't exist in database!\n", varset);
+		return 0;
+	}
+	int i;
+	for (i = 0; i < en->valsnum; i++)
+		if (!strcasecmp(en->vals[i]->name, variant)) {
+			struct rnndecvariant *ci;
+			FINDARRAY(ctx->vars, ci, ci->en == en);
+			ci->variant = i;
+			return 1;
+		}
+	fprintf (stderr, "Variant %s doesn't exist in enum %s!\n", variant, varset);
+	return 0;
+}
+
+
 int rnndec_varmatch(struct rnndeccontext *ctx, struct rnnvarinfo *vi) {
 	if (vi->dead)
 		return 0;
