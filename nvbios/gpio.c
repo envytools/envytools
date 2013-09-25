@@ -132,15 +132,16 @@ int envy_bios_parse_gpio (struct envy_bios *bios) {
 				entry->param = bytes[3] >> 7 & 1;
 				break;
 			case 0x41:
-				entry->line = bytes[0] & 0x1f;
-				entry->unk40_0 = bytes[0] >> 5 & 3;
+				entry->line = bytes[0] & 0x3f;
+				entry->io = bytes[0] >> 6 & 1;
 				entry->def = bytes[0] >> 7 & 1;
 				entry->tag = bytes[1];
 				entry->spec_out = bytes[2];
 				entry->spec_in = bytes[3] & 0x1f;
-				entry->unk41_3_1 = bytes[3] >> 5 & 3;
+				entry->gsync = bytes[3] >> 5 & 1;
+				entry->reserved = bytes[3] >> 6 & 1;
 				entry->param = bytes[3] >> 7 & 1;
-				entry->unk41_4 = bytes[4] & 0xf;
+				entry->lockpin = bytes[4] & 0xf;
 				entry->log[0] = bytes[4] >> 4 & 3;
 				entry->log[1] = bytes[4] >> 6 & 3;
 				break;
@@ -278,16 +279,18 @@ void envy_bios_print_gpio (struct envy_bios *bios, FILE *out, unsigned mask) {
 			}
 			if (entry->unk40_0)
 				fprintf(out, " unk40_0 %d", entry->unk40_0);
+			if (gpio->version == 0x41)
+				fprintf(out, " gpio: %s", entry->io ? "lockpin" : "normal");
 			if (entry->unk40_2)
 				fprintf(out, " unk40_2 0x%02x", entry->unk40_2);
 			if (entry->spec_out)
 				fprintf(out, " SPEC_OUT 0x%02x [%s]", entry->spec_out, spec_out);
-			if (gpio->version == 0x41 && entry->unk41_4 != 15)
-				fprintf(out, " unk41_4 %d", entry->unk41_4);
+			if (gpio->version == 0x41 && entry->lockpin != 15)
+				fprintf(out, " lockpin %d", entry->lockpin);
 			if (entry->spec_in)
 				fprintf(out, " SPEC_IN 0x%02x [%s]", entry->spec_in-1, spec_in);
-			if (entry->unk41_3_1)
-				fprintf(out, " unk41_3_1 %d", entry->unk41_3_1);
+			if (entry->gsync)
+				fprintf(out, " gsync %d", entry->gsync);
 			fprintf(out, "\n");
 		}
 		envy_bios_dump_hex(bios, out, entry->offset, gpio->rlen, mask);
@@ -391,15 +394,16 @@ int envy_bios_parse_xpio (struct envy_bios *bios, struct envy_bios_xpio *xpio, i
 				entry->param = bytes[3] >> 7 & 1;
 				break;
 			case 0x41:
-				entry->line = bytes[0] & 0x1f;
-				entry->unk40_0 = bytes[0] >> 5 & 3;
+				entry->line = bytes[0] & 0x3f;
+				entry->io = bytes[0] >> 6 & 1;
 				entry->def = bytes[0] >> 7 & 1;
 				entry->tag = bytes[1];
 				entry->spec_out = bytes[2];
 				entry->spec_in = bytes[3] & 0x1f;
-				entry->unk41_3_1 = bytes[3] >> 5 & 3;
+				entry->gsync = bytes[3] >> 5 & 1;
+				entry->reserved = bytes[3] >> 6 & 1;
 				entry->param = bytes[3] >> 7 & 1;
-				entry->unk41_4 = bytes[4] & 0xf;
+				entry->lockpin = bytes[4] & 0xf;
 				entry->log[0] = bytes[4] >> 4 & 3;
 				entry->log[1] = bytes[4] >> 6 & 3;
 				break;
@@ -525,12 +529,12 @@ void envy_bios_print_xpio (struct envy_bios *bios, FILE *out, struct envy_bios_x
 				fprintf(out, " unk40_2 0x%02x", entry->unk40_2);
 			if (entry->spec_out)
 				fprintf(out, " SPEC_OUT 0x%02x", entry->spec_out);
-			if (bios->gpio.version == 0x41 && entry->unk41_4 != 15)
-				fprintf(out, " unk41_4 %d", entry->unk41_4);
+			if (bios->gpio.version == 0x41 && entry->lockpin != 15)
+				fprintf(out, " lockpin %d", entry->lockpin);
 			if (entry->spec_in)
 				fprintf(out, " SPEC_IN 0x%02x", entry->spec_in-1);
-			if (entry->unk41_3_1)
-				fprintf(out, " unk41_3_1 %d", entry->unk41_3_1);
+			if (entry->gsync)
+				fprintf(out, " gsync %d", entry->gsync);
 			fprintf(out, "\n");
 		}
 		envy_bios_dump_hex(bios, out, entry->offset, xpio->rlen, mask);

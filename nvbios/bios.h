@@ -258,6 +258,8 @@ struct envy_bios_i2c {
 enum envy_bios_gpio_tag {
 	ENVY_BIOS_GPIO_PANEL_BACKLIGHT_ON	= 0x00,
 	ENVY_BIOS_GPIO_PANEL_POWER		= 0x01,
+	ENVY_BIOS_GPIO_PANEL_POWER_STATUS	= 0x02,
+	ENVY_BIOS_GPIO_VSYNC			= 0x03,
 
 	ENVY_BIOS_GPIO_VID_0			= 0x04,
 	ENVY_BIOS_GPIO_VID_1			= 0x05,
@@ -265,11 +267,12 @@ enum envy_bios_gpio_tag {
 	ENVY_BIOS_GPIO_HPD_0			= 0x07,
 	ENVY_BIOS_GPIO_HPD_1			= 0x08,
 	ENVY_BIOS_GPIO_FAN_PWM			= 0x09,
-
+	/* RESERVED 0x0a */
+	/* RESERVED 0x0b */
 	ENVY_BIOS_GPIO_TVDAC_0			= 0x0c,
-	/* 0x0d seen, neg input [NV40, NV44, NV46, NV4A, NV4E] */
-
-	/* 0x0f seen, output [NV50, NVA0, NV98, NVA5, NVA8, NV86, NVD9], SPEC NVIO, uses unk40_0 and unk41_4 */
+	ENVY_BIOS_GPIO_TVDAC_0_ALTERNATE_LOAD_DETECT = 0x0d,
+	ENVY_BIOS_GPIO_STEREO_DAC_SELECT	= 0x0e,
+	ENVY_BIOS_GPIO_STEREO_TOGGLE		= 0x0f,
 	ENVY_BIOS_GPIO_ATX_POWER_BAD		= 0x10,
 	ENVY_BIOS_GPIO_THERM_ALERT		= 0x11, /* eg. ADT7473 THERM* input [pin 9] */
 	/* 0x12 seen, input [NV40, NV42, NV47, NV50] */
@@ -352,8 +355,10 @@ struct envy_bios_gpio_entry {
 	uint8_t mode;
 	uint8_t spec_out;
 	uint8_t spec_in;
-	uint8_t unk41_3_1;
-	uint8_t unk41_4; /* same thing as unk40_0 probably... */
+	uint8_t gsync;
+	uint8_t reserved;
+	uint8_t lockpin;
+	uint8_t io;
 };
 
 enum envy_bios_xpio_type {
