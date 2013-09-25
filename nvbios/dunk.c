@@ -24,28 +24,28 @@
 
 #include "bios.h"
 
-int envy_bios_parse_dunk0c (struct envy_bios *bios) {
-	struct envy_bios_dunk0c *dunk0c = &bios->dunk0c;
-	if (!dunk0c->offset)
+int envy_bios_parse_inputdev (struct envy_bios *bios) {
+	struct envy_bios_inputdev *inputdev = &bios->inputdev;
+	if (!inputdev->offset)
 		return 0;
 	int err = 0;
 	int wanthlen = 4;
 	int wantrlen = 1;
 	if (bios->dcb.version >= 0x30) {
-		err |= bios_u8(bios, dunk0c->offset, &dunk0c->version);
-		err |= bios_u8(bios, dunk0c->offset+1, &dunk0c->hlen);
-		err |= bios_u8(bios, dunk0c->offset+2, &dunk0c->entriesnum);
-		err |= bios_u8(bios, dunk0c->offset+3, &dunk0c->rlen);
+		err |= bios_u8(bios, inputdev->offset, &inputdev->version);
+		err |= bios_u8(bios, inputdev->offset+1, &inputdev->hlen);
+		err |= bios_u8(bios, inputdev->offset+2, &inputdev->entriesnum);
+		err |= bios_u8(bios, inputdev->offset+3, &inputdev->rlen);
 	} else {
-		dunk0c->version = bios->dcb.version;
-		wanthlen = dunk0c->hlen = 0;
-		dunk0c->entriesnum = 8;
-		dunk0c->rlen = 1;
+		inputdev->version = bios->dcb.version;
+		wanthlen = inputdev->hlen = 0;
+		inputdev->entriesnum = 8;
+		inputdev->rlen = 1;
 	}
 	if (err)
 		return -EFAULT;
-	envy_bios_block(bios, dunk0c->offset, dunk0c->hlen + dunk0c->rlen * dunk0c->entriesnum, "DUNK0C", -1);
-	switch (dunk0c->version) {
+	envy_bios_block(bios, inputdev->offset, inputdev->hlen + inputdev->rlen * inputdev->entriesnum, "INPUTDEV", -1);
+	switch (inputdev->version) {
 		case 0x20:
 		case 0x21:
 		case 0x22:
@@ -53,206 +53,226 @@ int envy_bios_parse_dunk0c (struct envy_bios *bios) {
 		case 0x40:
 			break;
 		default:
-			ENVY_BIOS_ERR("Unknown DUNK0C table version %d.%d\n", dunk0c->version >> 4, dunk0c->version & 0xf);
+			ENVY_BIOS_ERR("Unknown INPUTDEV table version %d.%d\n", inputdev->version >> 4, inputdev->version & 0xf);
 			return -EINVAL;
 	}
-	if (dunk0c->hlen < wanthlen) {
-		ENVY_BIOS_ERR("DUNK0C table header too short [%d < %d]\n", dunk0c->hlen, wanthlen);
+	if (inputdev->hlen < wanthlen) {
+		ENVY_BIOS_ERR("INPUTDEV table header too short [%d < %d]\n", inputdev->hlen, wanthlen);
 		return -EINVAL;
 	}
-	if (dunk0c->rlen < wantrlen) {
-		ENVY_BIOS_ERR("DUNK0C table record too short [%d < %d]\n", dunk0c->rlen, wantrlen);
+	if (inputdev->rlen < wantrlen) {
+		ENVY_BIOS_ERR("INPUTDEV table record too short [%d < %d]\n", inputdev->rlen, wantrlen);
 		return -EINVAL;
 	}
-	if (dunk0c->hlen > wanthlen) {
-		ENVY_BIOS_WARN("DUNK0C table header longer than expected [%d > %d]\n", dunk0c->hlen, wanthlen);
+	if (inputdev->hlen > wanthlen) {
+		ENVY_BIOS_WARN("INPUTDEV table header longer than expected [%d > %d]\n", inputdev->hlen, wanthlen);
 	}
-	if (dunk0c->rlen > wantrlen) {
-		ENVY_BIOS_WARN("DUNK0C table record longer than expected [%d > %d]\n", dunk0c->rlen, wantrlen);
+	if (inputdev->rlen > wantrlen) {
+		ENVY_BIOS_WARN("INPUTDEV table record longer than expected [%d > %d]\n", inputdev->rlen, wantrlen);
 	}
-	dunk0c->entries = calloc(dunk0c->entriesnum, sizeof *dunk0c->entries);
-	if (!dunk0c->entries)
+	inputdev->entries = calloc(inputdev->entriesnum, sizeof *inputdev->entries);
+	if (!inputdev->entries)
 		return -ENOMEM;
 	int i;
-	for (i = 0; i < dunk0c->entriesnum; i++) {
-		struct envy_bios_dunk0c_entry *entry = &dunk0c->entries[i];
-		entry->offset = dunk0c->offset + dunk0c->hlen + dunk0c->rlen * i;
-		err |= bios_u8(bios, entry->offset, &entry->unk00);
+	for (i = 0; i < inputdev->entriesnum; i++) {
+		struct envy_bios_inputdev_entry *entry = &inputdev->entries[i];
+		entry->offset = inputdev->offset + inputdev->hlen + inputdev->rlen * i;
+		err |= bios_u8(bios, entry->offset, &entry->entry);
 		if (err)
 			return -EFAULT;
 	}
-	dunk0c->valid = 1;
+	inputdev->valid = 1;
 	return 0;
 }
 
-void envy_bios_print_dunk0c (struct envy_bios *bios, FILE *out, unsigned mask) {
-	struct envy_bios_dunk0c *dunk0c = &bios->dunk0c;
-	if (!dunk0c->offset || !(mask & ENVY_BIOS_PRINT_DUNK))
+static const char *dump_inputdev_type(unsigned type) {
+	switch (type) {
+	case 0: return "VCR";
+	case 1: return "TV";
+	default: return "UNK";
+	}
+}
+
+static const char *dump_inputdev_vtype(unsigned type) {
+	switch (type) {
+	case 0: return "CVBS";
+	case 1: return "Tuner";
+	case 2: return "S-Video";
+	default: return "UNK";
+	}
+}
+
+void envy_bios_print_inputdev (struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_inputdev *inputdev = &bios->inputdev;
+	if (!inputdev->offset || !(mask & ENVY_BIOS_PRINT_DUNK))
 		return;
-	if (!dunk0c->valid) {
-		fprintf(out, "Failed to parse DUNK0C table at 0x%04x version %d.%d\n\n", dunk0c->offset, dunk0c->version >> 4, dunk0c->version & 0xf);
+	if (!inputdev->valid) {
+		fprintf(out, "Failed to parse INPUTDEV table at 0x%04x version %d.%d\n\n", inputdev->offset, inputdev->version >> 4, inputdev->version & 0xf);
 		return;
 	}
-	fprintf(out, "DUNK0C table at 0x%04x version %d.%d\n", dunk0c->offset, dunk0c->version >> 4, dunk0c->version & 0xf);
-	envy_bios_dump_hex(bios, out, dunk0c->offset, dunk0c->hlen, mask);
+	fprintf(out, "INPUTDEV table at 0x%04x version %d.%d\n", inputdev->offset, inputdev->version >> 4, inputdev->version & 0xf);
+	envy_bios_dump_hex(bios, out, inputdev->offset, inputdev->hlen, mask);
 	int i;
-	for (i = 0; i < dunk0c->entriesnum; i++) {
-		struct envy_bios_dunk0c_entry *entry = &dunk0c->entries[i];
-		if (entry->unk00 != 0x0f || mask & ENVY_BIOS_PRINT_UNUSED) {
-			fprintf(out, "DUNK0C %d: unk00 0x%02x\n", i, entry->unk00);
+	for (i = 0; i < inputdev->entriesnum; i++) {
+		struct envy_bios_inputdev_entry *entry = &inputdev->entries[i];
+		if ((entry->entry & 0xf) != 0x0f || (mask & ENVY_BIOS_PRINT_UNUSED)) {
+			fprintf(out, "INPUTDEV %d: mode: %x, type: %s, vtype: %s\n", i,
+				entry->entry & 0xf,
+				dump_inputdev_type((entry->entry >> 4) & 3),
+				dump_inputdev_vtype((entry->entry >> 6) & 3));
 		}
-		envy_bios_dump_hex(bios, out, entry->offset, dunk0c->rlen, mask);
+		envy_bios_dump_hex(bios, out, entry->offset, inputdev->rlen, mask);
 	}
 	fprintf(out, "\n");
 }
 
 
-int envy_bios_parse_dunk0e (struct envy_bios *bios) {
-	struct envy_bios_dunk0e *dunk0e = &bios->dunk0e;
-	if (!dunk0e->offset)
+int envy_bios_parse_cinema (struct envy_bios *bios) {
+	struct envy_bios_cinema *cinema = &bios->cinema;
+	if (!cinema->offset)
 		return 0;
 	int err = 0;
-	err |= bios_u8(bios, dunk0e->offset, &dunk0e->version);
-	err |= bios_u8(bios, dunk0e->offset+1, &dunk0e->hlen);
+	err |= bios_u8(bios, cinema->offset, &cinema->version);
+	err |= bios_u8(bios, cinema->offset+1, &cinema->hlen);
 	int i;
 	for (i = 0; i < 10; i++)
-		err |= bios_u8(bios, dunk0e->offset+2+i, &dunk0e->unk02[i]);
+		err |= bios_u8(bios, cinema->offset+2+i, &cinema->unk02[i]);
 	if (err)
 		return -EFAULT;
-	envy_bios_block(bios, dunk0e->offset, dunk0e->hlen, "DUNK0E", -1);
+	envy_bios_block(bios, cinema->offset, cinema->hlen, "CINEMA", -1);
 	int wanthlen = 0;
-	switch (dunk0e->version) {
+	switch (cinema->version) {
 		case 0x30:
 		case 0x31:
 		case 0x40:
 			wanthlen = 12;
 			break;
 		default:
-			ENVY_BIOS_ERR("Unknown DUNK0E table version %d.%d\n", dunk0e->version >> 4, dunk0e->version & 0xf);
+			ENVY_BIOS_ERR("Unknown CINEMA table version %d.%d\n", cinema->version >> 4, cinema->version & 0xf);
 			return -EINVAL;
 	}
-	if (dunk0e->hlen < wanthlen) {
-		ENVY_BIOS_ERR("DUNK0E table header too short [%d < %d]\n", dunk0e->hlen, wanthlen);
+	if (cinema->hlen < wanthlen) {
+		ENVY_BIOS_ERR("CINEMA table header too short [%d < %d]\n", cinema->hlen, wanthlen);
 		return -EINVAL;
 	}
-	if (dunk0e->hlen > wanthlen) {
-		ENVY_BIOS_WARN("DUNK0E table header longer than expected [%d > %d]\n", dunk0e->hlen, wanthlen);
+	if (cinema->hlen > wanthlen) {
+		ENVY_BIOS_WARN("CINEMA table header longer than expected [%d > %d]\n", cinema->hlen, wanthlen);
 	}
-	dunk0e->valid = 1;
+	cinema->valid = 1;
 	return 0;
 }
 
-void envy_bios_print_dunk0e (struct envy_bios *bios, FILE *out, unsigned mask) {
-	struct envy_bios_dunk0e *dunk0e = &bios->dunk0e;
-	if (!dunk0e->offset || !(mask & ENVY_BIOS_PRINT_DUNK))
+void envy_bios_print_cinema (struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_cinema *cinema = &bios->cinema;
+	if (!cinema->offset || !(mask & ENVY_BIOS_PRINT_DUNK))
 		return;
-	if (!dunk0e->valid) {
-		fprintf(out, "Failed to parse DUNK0E table at 0x%04x version %d.%d\n\n", dunk0e->offset, dunk0e->version >> 4, dunk0e->version & 0xf);
+	if (!cinema->valid) {
+		fprintf(out, "Failed to parse CINEMA table at 0x%04x version %d.%d\n\n", cinema->offset, cinema->version >> 4, cinema->version & 0xf);
 		return;
 	}
-	fprintf(out, "DUNK0E table at 0x%04x version %d.%d data", dunk0e->offset, dunk0e->version >> 4, dunk0e->version & 0xf);
+	fprintf(out, "CINEMA table at 0x%04x version %d.%d data", cinema->offset, cinema->version >> 4, cinema->version & 0xf);
 	int i;
 	for (i = 0; i < 10; i++)
-		fprintf(out, " 0x%02x", dunk0e->unk02[i]);
+		fprintf(out, " 0x%02x", cinema->unk02[i]);
 	fprintf(out, "\n");
-	envy_bios_dump_hex(bios, out, dunk0e->offset, dunk0e->hlen, mask);
+	envy_bios_dump_hex(bios, out, cinema->offset, cinema->hlen, mask);
 	fprintf(out, "\n");
 }
 
 
-int envy_bios_parse_dunk10 (struct envy_bios *bios) {
-	struct envy_bios_dunk10 *dunk10 = &bios->dunk10;
-	if (!dunk10->offset)
+int envy_bios_parse_spreadspectrum (struct envy_bios *bios) {
+	struct envy_bios_spreadspectrum *spreadspectrum = &bios->spreadspectrum;
+	if (!spreadspectrum->offset)
 		return 0;
 	int err = 0;
-	err |= bios_u8(bios, dunk10->offset, &dunk10->version);
-	err |= bios_u8(bios, dunk10->offset+1, &dunk10->hlen);
-	err |= bios_u8(bios, dunk10->offset+2, &dunk10->entriesnum);
-	err |= bios_u8(bios, dunk10->offset+3, &dunk10->rlen);
+	err |= bios_u8(bios, spreadspectrum->offset, &spreadspectrum->version);
+	err |= bios_u8(bios, spreadspectrum->offset+1, &spreadspectrum->hlen);
+	err |= bios_u8(bios, spreadspectrum->offset+2, &spreadspectrum->entriesnum);
+	err |= bios_u8(bios, spreadspectrum->offset+3, &spreadspectrum->rlen);
 	if (err)
 		return -EFAULT;
-	envy_bios_block(bios, dunk10->offset, dunk10->hlen + dunk10->rlen * dunk10->entriesnum, "DUNK10", -1);
+	envy_bios_block(bios, spreadspectrum->offset, spreadspectrum->hlen + spreadspectrum->rlen * spreadspectrum->entriesnum, "SPREADSPECTRUM", -1);
 	int wanthlen = 0;
 	int wantrlen = 0;
-	switch (dunk10->version) {
+	switch (spreadspectrum->version) {
 		case 0x31:
 		case 0x40:
 			wanthlen = 10;
 			wantrlen = 1;
-			err |= bios_u8(bios, dunk10->offset+4, &dunk10->unk04);
-			err |= bios_u8(bios, dunk10->offset+5, &dunk10->unk05);
-			err |= bios_u8(bios, dunk10->offset+6, &dunk10->unk06);
-			err |= bios_u8(bios, dunk10->offset+7, &dunk10->unk07);
-			err |= bios_u8(bios, dunk10->offset+8, &dunk10->unk08);
-			err |= bios_u8(bios, dunk10->offset+9, &dunk10->unk09);
+			err |= bios_u8(bios, spreadspectrum->offset+4, &spreadspectrum->unk04);
+			err |= bios_u8(bios, spreadspectrum->offset+5, &spreadspectrum->unk05);
+			err |= bios_u8(bios, spreadspectrum->offset+6, &spreadspectrum->unk06);
+			err |= bios_u8(bios, spreadspectrum->offset+7, &spreadspectrum->unk07);
+			err |= bios_u8(bios, spreadspectrum->offset+8, &spreadspectrum->unk08);
+			err |= bios_u8(bios, spreadspectrum->offset+9, &spreadspectrum->unk09);
 			if (err)
 				return -EFAULT;
 			break;
 		case 0x41:
 			wanthlen = 5;
 			wantrlen = 1;
-			if (dunk10->rlen >= 2)
+			if (spreadspectrum->rlen >= 2)
 				wantrlen = 2;
-			err |= bios_u8(bios, dunk10->offset+4, &dunk10->unk04);
+			err |= bios_u8(bios, spreadspectrum->offset+4, &spreadspectrum->unk04);
 			if (err)
 				return -EFAULT;
 			break;
 		default:
-			ENVY_BIOS_ERR("Unknown DUNK10 table version %d.%d\n", dunk10->version >> 4, dunk10->version & 0xf);
+			ENVY_BIOS_ERR("Unknown SPREADSPECTRUM table version %d.%d\n", spreadspectrum->version >> 4, spreadspectrum->version & 0xf);
 			return -EINVAL;
 	}
-	if (dunk10->hlen < wanthlen) {
-		ENVY_BIOS_ERR("DUNK10 table header too short [%d < %d]\n", dunk10->hlen, wanthlen);
+	if (spreadspectrum->hlen < wanthlen) {
+		ENVY_BIOS_ERR("SPREADSPECTRUM table header too short [%d < %d]\n", spreadspectrum->hlen, wanthlen);
 		return -EINVAL;
 	}
-	if (dunk10->rlen < wantrlen) {
-		ENVY_BIOS_ERR("DUNK10 table record too short [%d < %d]\n", dunk10->rlen, wantrlen);
+	if (spreadspectrum->rlen < wantrlen) {
+		ENVY_BIOS_ERR("SPREADSPECTRUM table record too short [%d < %d]\n", spreadspectrum->rlen, wantrlen);
 		return -EINVAL;
 	}
-	if (dunk10->hlen > wanthlen) {
-		ENVY_BIOS_WARN("DUNK10 table header longer than expected [%d > %d]\n", dunk10->hlen, wanthlen);
+	if (spreadspectrum->hlen > wanthlen) {
+		ENVY_BIOS_WARN("SPREADSPECTRUM table header longer than expected [%d > %d]\n", spreadspectrum->hlen, wanthlen);
 	}
-	if (dunk10->rlen > wantrlen) {
-		ENVY_BIOS_WARN("DUNK10 table record longer than expected [%d > %d]\n", dunk10->rlen, wantrlen);
+	if (spreadspectrum->rlen > wantrlen) {
+		ENVY_BIOS_WARN("SPREADSPECTRUM table record longer than expected [%d > %d]\n", spreadspectrum->rlen, wantrlen);
 	}
-	dunk10->entries = calloc(dunk10->entriesnum, sizeof *dunk10->entries);
-	if (!dunk10->entries)
+	spreadspectrum->entries = calloc(spreadspectrum->entriesnum, sizeof *spreadspectrum->entries);
+	if (!spreadspectrum->entries)
 		return -ENOMEM;
 	int i;
-	for (i = 0; i < dunk10->entriesnum; i++) {
-		struct envy_bios_dunk10_entry *entry = &dunk10->entries[i];
-		entry->offset = dunk10->offset + dunk10->hlen + dunk10->rlen * i;
+	for (i = 0; i < spreadspectrum->entriesnum; i++) {
+		struct envy_bios_spreadspectrum_entry *entry = &spreadspectrum->entries[i];
+		entry->offset = spreadspectrum->offset + spreadspectrum->hlen + spreadspectrum->rlen * i;
 		err |= bios_u8(bios, entry->offset+0, &entry->unk00);
-		if (dunk10->rlen >= 2)
+		if (spreadspectrum->rlen >= 2)
 			err |= bios_u8(bios, entry->offset+1, &entry->unk01);
 		if (err)
 			return -EFAULT;
 	}
-	dunk10->valid = 1;
+	spreadspectrum->valid = 1;
 	return 0;
 }
 
-void envy_bios_print_dunk10 (struct envy_bios *bios, FILE *out, unsigned mask) {
-	struct envy_bios_dunk10 *dunk10 = &bios->dunk10;
-	if (!dunk10->offset || !(mask & ENVY_BIOS_PRINT_DUNK))
+void envy_bios_print_spreadspectrum (struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_spreadspectrum *spreadspectrum = &bios->spreadspectrum;
+	if (!spreadspectrum->offset || !(mask & ENVY_BIOS_PRINT_DUNK))
 		return;
-	if (!dunk10->valid) {
-		fprintf(out, "Failed to parse DUNK10 table at 0x%04x version %d.%d\n\n", dunk10->offset, dunk10->version >> 4, dunk10->version & 0xf);
+	if (!spreadspectrum->valid) {
+		fprintf(out, "Failed to parse SPREADSPECTRUM table at 0x%04x version %d.%d\n\n", spreadspectrum->offset, spreadspectrum->version >> 4, spreadspectrum->version & 0xf);
 		return;
 	}
-	fprintf(out, "DUNK10 table at 0x%04x version %d.%d", dunk10->offset, dunk10->version >> 4, dunk10->version & 0xf);
-	if (dunk10->version < 0x41) {
-		fprintf (out, " unk04 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n", dunk10->unk04, dunk10->unk05, dunk10->unk06, dunk10->unk07, dunk10->unk08, dunk10->unk09);
+	fprintf(out, "SPREADSPECTRUM table at 0x%04x version %d.%d", spreadspectrum->offset, spreadspectrum->version >> 4, spreadspectrum->version & 0xf);
+	if (spreadspectrum->version < 0x41) {
+		fprintf (out, " unk04 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x 0x%02x\n", spreadspectrum->unk04, spreadspectrum->unk05, spreadspectrum->unk06, spreadspectrum->unk07, spreadspectrum->unk08, spreadspectrum->unk09);
 	} else {
-		fprintf (out, " unk04 0x%02x\n", dunk10->unk04);
+		fprintf (out, " unk04 0x%02x\n", spreadspectrum->unk04);
 	}
-	envy_bios_dump_hex(bios, out, dunk10->offset, dunk10->hlen, mask);
+	envy_bios_dump_hex(bios, out, spreadspectrum->offset, spreadspectrum->hlen, mask);
 	int i;
-	for (i = 0; i < dunk10->entriesnum; i++) {
-		struct envy_bios_dunk10_entry *entry = &dunk10->entries[i];
-		envy_bios_dump_hex(bios, out, entry->offset, dunk10->rlen, mask);
-		fprintf(out, "DUNK10 %d: unk00 0x%02x", i, entry->unk00);
-		if (dunk10->rlen >= 2)
+	for (i = 0; i < spreadspectrum->entriesnum; i++) {
+		struct envy_bios_spreadspectrum_entry *entry = &spreadspectrum->entries[i];
+		envy_bios_dump_hex(bios, out, entry->offset, spreadspectrum->rlen, mask);
+		fprintf(out, "SPREADSPECTRUM %d: unk00 0x%02x", i, entry->unk00);
+		if (spreadspectrum->rlen >= 2)
 			fprintf(out, " unk01 0x%02x", entry->unk01);
 		fprintf(out, "\n");
 	}
@@ -260,72 +280,72 @@ void envy_bios_print_dunk10 (struct envy_bios *bios, FILE *out, unsigned mask) {
 }
 
 
-int envy_bios_parse_dunk17 (struct envy_bios *bios) {
-	struct envy_bios_dunk17 *dunk17 = &bios->dunk17;
-	if (!dunk17->offset)
+int envy_bios_parse_hdtvtt (struct envy_bios *bios) {
+	struct envy_bios_hdtvtt *hdtvtt = &bios->hdtvtt;
+	if (!hdtvtt->offset)
 		return 0;
 	int err = 0;
-	err |= bios_u8(bios, dunk17->offset, &dunk17->version);
-	err |= bios_u8(bios, dunk17->offset+1, &dunk17->hlen);
-	err |= bios_u8(bios, dunk17->offset+2, &dunk17->entriesnum);
-	err |= bios_u8(bios, dunk17->offset+3, &dunk17->rlen);
+	err |= bios_u8(bios, hdtvtt->offset, &hdtvtt->version);
+	err |= bios_u8(bios, hdtvtt->offset+1, &hdtvtt->hlen);
+	err |= bios_u8(bios, hdtvtt->offset+2, &hdtvtt->entriesnum);
+	err |= bios_u8(bios, hdtvtt->offset+3, &hdtvtt->rlen);
 	if (err)
 		return -EFAULT;
-	envy_bios_block(bios, dunk17->offset, dunk17->hlen + dunk17->rlen * dunk17->entriesnum, "DUNK17", -1);
+	envy_bios_block(bios, hdtvtt->offset, hdtvtt->hlen + hdtvtt->rlen * hdtvtt->entriesnum, "HDTVTT", -1);
 	int wanthlen = 0;
 	int wantrlen = 0;
-	switch (dunk17->version) {
+	switch (hdtvtt->version) {
 		case 0x10:
 		case 0x11:
 			wanthlen = 4;
-			if (dunk17->hlen >= 10)
+			if (hdtvtt->hlen >= 10)
 				wanthlen = 10;
 			wantrlen = 2;
 			break;
 		default:
-			ENVY_BIOS_ERR("Unknown DUNK17 table version %d.%d\n", dunk17->version >> 4, dunk17->version & 0xf);
+			ENVY_BIOS_ERR("Unknown HDTVTT table version %d.%d\n", hdtvtt->version >> 4, hdtvtt->version & 0xf);
 			return -EINVAL;
 	}
-	if (dunk17->hlen < wanthlen) {
-		ENVY_BIOS_ERR("DUNK17 table header too short [%d < %d]\n", dunk17->hlen, wanthlen);
+	if (hdtvtt->hlen < wanthlen) {
+		ENVY_BIOS_ERR("HDTVTT table header too short [%d < %d]\n", hdtvtt->hlen, wanthlen);
 		return -EINVAL;
 	}
-	if (dunk17->rlen < wantrlen) {
-		ENVY_BIOS_ERR("DUNK17 table record too short [%d < %d]\n", dunk17->rlen, wantrlen);
+	if (hdtvtt->rlen < wantrlen) {
+		ENVY_BIOS_ERR("HDTVTT table record too short [%d < %d]\n", hdtvtt->rlen, wantrlen);
 		return -EINVAL;
 	}
-	if (dunk17->hlen > wanthlen) {
-		ENVY_BIOS_WARN("DUNK17 table header longer than expected [%d > %d]\n", dunk17->hlen, wanthlen);
+	if (hdtvtt->hlen > wanthlen) {
+		ENVY_BIOS_WARN("HDTVTT table header longer than expected [%d > %d]\n", hdtvtt->hlen, wanthlen);
 	}
-	if (dunk17->rlen > wantrlen) {
-		ENVY_BIOS_WARN("DUNK17 table record longer than expected [%d > %d]\n", dunk17->rlen, wantrlen);
+	if (hdtvtt->rlen > wantrlen) {
+		ENVY_BIOS_WARN("HDTVTT table record longer than expected [%d > %d]\n", hdtvtt->rlen, wantrlen);
 	}
-	dunk17->entries = calloc(dunk17->entriesnum, sizeof *dunk17->entries);
-	if (!dunk17->entries)
+	hdtvtt->entries = calloc(hdtvtt->entriesnum, sizeof *hdtvtt->entries);
+	if (!hdtvtt->entries)
 		return -ENOMEM;
 	int i;
-	for (i = 0; i < dunk17->entriesnum; i++) {
-		struct envy_bios_dunk17_entry *entry = &dunk17->entries[i];
-		entry->offset = dunk17->offset + dunk17->hlen + dunk17->rlen * i;
+	for (i = 0; i < hdtvtt->entriesnum; i++) {
+		struct envy_bios_hdtvtt_entry *entry = &hdtvtt->entries[i];
+		entry->offset = hdtvtt->offset + hdtvtt->hlen + hdtvtt->rlen * i;
 	}
-	dunk17->valid = 1;
+	hdtvtt->valid = 1;
 	return 0;
 }
 
-void envy_bios_print_dunk17 (struct envy_bios *bios, FILE *out, unsigned mask) {
-	struct envy_bios_dunk17 *dunk17 = &bios->dunk17;
-	if (!dunk17->offset || !(mask & ENVY_BIOS_PRINT_DUNK))
+void envy_bios_print_hdtvtt (struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_hdtvtt *hdtvtt = &bios->hdtvtt;
+	if (!hdtvtt->offset || !(mask & ENVY_BIOS_PRINT_DUNK))
 		return;
-	if (!dunk17->valid) {
-		fprintf(out, "Failed to parse DUNK17 table at 0x%04x version %d.%d\n\n", dunk17->offset, dunk17->version >> 4, dunk17->version & 0xf);
+	if (!hdtvtt->valid) {
+		fprintf(out, "Failed to parse HDTVTT table at 0x%04x version %d.%d\n\n", hdtvtt->offset, hdtvtt->version >> 4, hdtvtt->version & 0xf);
 		return;
 	}
-	fprintf(out, "DUNK17 table at 0x%04x version %d.%d\n", dunk17->offset, dunk17->version >> 4, dunk17->version & 0xf);
-	envy_bios_dump_hex(bios, out, dunk17->offset, dunk17->hlen, mask);
+	fprintf(out, "HDTVTT table at 0x%04x version %d.%d\n", hdtvtt->offset, hdtvtt->version >> 4, hdtvtt->version & 0xf);
+	envy_bios_dump_hex(bios, out, hdtvtt->offset, hdtvtt->hlen, mask);
 	int i;
-	for (i = 0; i < dunk17->entriesnum; i++) {
-		struct envy_bios_dunk17_entry *entry = &dunk17->entries[i];
-		envy_bios_dump_hex(bios, out, entry->offset, dunk17->rlen, mask);
+	for (i = 0; i < hdtvtt->entriesnum; i++) {
+		struct envy_bios_hdtvtt_entry *entry = &hdtvtt->entries[i];
+		envy_bios_dump_hex(bios, out, entry->offset, hdtvtt->rlen, mask);
 	}
 	fprintf(out, "\n");
 }

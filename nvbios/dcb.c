@@ -95,15 +95,15 @@ int envy_bios_parse_dcb (struct envy_bios *bios) {
 			err |= bios_u16(bios, dcb->offset+4, &bios->i2c.offset);
 			err |= bios_u32(bios, dcb->offset+6, &sig);
 			err |= bios_u16(bios, dcb->offset+10, &bios->gpio.offset);
-			err |= bios_u16(bios, dcb->offset+12, &bios->dunk0c.offset);
-			err |= bios_u16(bios, dcb->offset+14, &bios->dunk0e.offset);
-			err |= bios_u16(bios, dcb->offset+16, &bios->dunk10.offset);
+			err |= bios_u16(bios, dcb->offset+12, &bios->inputdev.offset);
+			err |= bios_u16(bios, dcb->offset+14, &bios->cinema.offset);
+			err |= bios_u16(bios, dcb->offset+16, &bios->spreadspectrum.offset);
 			err |= bios_u16(bios, dcb->offset+18, &bios->extdev.offset);
 			err |= bios_u16(bios, dcb->offset+20, &bios->conn.offset);
 			err |= bios_u8(bios, dcb->offset+22, &dcb->unk16);
 			if (dcb->hlen >= 25) {
 				wanthlen = 25;
-				err |= bios_u16(bios, dcb->offset+23, &bios->dunk17.offset);
+				err |= bios_u16(bios, dcb->offset+23, &bios->hdtvtt.offset);
 			}
 			if (dcb->hlen >= 27) {
 				wanthlen = 27;
@@ -244,18 +244,18 @@ int envy_bios_parse_dcb (struct envy_bios *bios) {
 		ENVY_BIOS_ERR("Failed to parse I2C table at 0x%04x version %d.%d\n", bios->i2c.offset, bios->i2c.version >> 4, bios->i2c.version & 0xf);
 	if (envy_bios_parse_gpio(bios))
 		ENVY_BIOS_ERR("Failed to parse GPIO table at 0x%04x version %d.%d\n", bios->gpio.offset, bios->gpio.version >> 4, bios->gpio.version & 0xf);
-	if (envy_bios_parse_dunk0c(bios))
-		ENVY_BIOS_ERR("Failed to parse DUNK0C table at 0x%04x version %d.%d\n", bios->dunk0c.offset, bios->dunk0c.version >> 4, bios->dunk0c.version & 0xf);
-	if (envy_bios_parse_dunk0e(bios))
-		ENVY_BIOS_ERR("Failed to parse DUNK0E table at 0x%04x version %d.%d\n", bios->dunk0e.offset, bios->dunk0e.version >> 4, bios->dunk0e.version & 0xf);
-	if (envy_bios_parse_dunk10(bios))
-		ENVY_BIOS_ERR("Failed to parse DUNK10 table at 0x%04x version %d.%d\n", bios->dunk10.offset, bios->dunk10.version >> 4, bios->dunk10.version & 0xf);
+	if (envy_bios_parse_inputdev(bios))
+		ENVY_BIOS_ERR("Failed to parse INPUTDEV table at 0x%04x version %d.%d\n", bios->inputdev.offset, bios->inputdev.version >> 4, bios->inputdev.version & 0xf);
+	if (envy_bios_parse_cinema(bios))
+		ENVY_BIOS_ERR("Failed to parse CINEMA table at 0x%04x version %d.%d\n", bios->cinema.offset, bios->cinema.version >> 4, bios->cinema.version & 0xf);
+	if (envy_bios_parse_spreadspectrum(bios))
+		ENVY_BIOS_ERR("Failed to parse SPREADSPECTRUM table at 0x%04x version %d.%d\n", bios->spreadspectrum.offset, bios->spreadspectrum.version >> 4, bios->spreadspectrum.version & 0xf);
 	if (envy_bios_parse_extdev(bios))
 		ENVY_BIOS_ERR("Failed to parse EXTDEV table at 0x%04x version %d.%d\n", bios->extdev.offset, bios->extdev.version >> 4, bios->extdev.version & 0xf);
 	if (envy_bios_parse_conn(bios))
 		ENVY_BIOS_ERR("Failed to parse CONN table at 0x%04x version %d.%d\n", bios->conn.offset, bios->conn.version >> 4, bios->conn.version & 0xf);
-	if (envy_bios_parse_dunk17(bios))
-		ENVY_BIOS_ERR("Failed to parse DUNK17 table at 0x%04x version %d.%d\n", bios->dunk17.offset, bios->dunk17.version >> 4, bios->dunk17.version & 0xf);
+	if (envy_bios_parse_hdtvtt(bios))
+		ENVY_BIOS_ERR("Failed to parse HDTVTT table at 0x%04x version %d.%d\n", bios->hdtvtt.offset, bios->hdtvtt.version >> 4, bios->hdtvtt.version & 0xf);
 	if (envy_bios_parse_mux(bios))
 		ENVY_BIOS_ERR("Failed to parse MUX table at 0x%04x version %d.%d\n", bios->mux.offset, bios->mux.version >> 4, bios->mux.version & 0xf);
 	return 0;
@@ -282,7 +282,7 @@ int envy_bios_parse_rdcb (struct envy_bios *bios) {
 			ENVY_BIOS_ERR("Unknown RDCB table version %d.%d\n", dcb->rdcb_version >> 4, dcb->rdcb_version & 0xf);
 			return -EINVAL;
 	}
-	err |= bios_u16(bios, dcb->offset - 3, &bios->dunk0c.offset);
+	err |= bios_u16(bios, dcb->offset - 3, &bios->inputdev.offset);
 	uint8_t tv0, tv1;
 	int j;
 	err |= bios_u8(bios, dcb->offset - 5, &tv0);

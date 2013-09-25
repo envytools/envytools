@@ -400,22 +400,22 @@ struct envy_bios_gpio {
 	struct envy_bios_xpiodir xpiodir;
 };
 
-struct envy_bios_dunk0c_entry {
+struct envy_bios_inputdev_entry {
 	uint16_t offset;
-	uint8_t unk00;
+	uint8_t entry;
 };
 
-struct envy_bios_dunk0c {
+struct envy_bios_inputdev {
 	uint16_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
 	uint8_t entriesnum;
 	uint8_t rlen;
-	struct envy_bios_dunk0c_entry *entries;
+	struct envy_bios_inputdev_entry *entries;
 };
 
-struct envy_bios_dunk0e {
+struct envy_bios_cinema {
 	uint16_t offset;
 	uint8_t valid;
 	uint8_t version;
@@ -423,13 +423,13 @@ struct envy_bios_dunk0e {
 	uint8_t unk02[10];
 };
 
-struct envy_bios_dunk10_entry {
+struct envy_bios_spreadspectrum_entry {
 	uint16_t offset;
 	uint8_t unk00;
 	uint8_t unk01;
 };
 
-struct envy_bios_dunk10 {
+struct envy_bios_spreadspectrum {
 	uint16_t offset;
 	uint8_t valid;
 	uint8_t version;
@@ -442,7 +442,7 @@ struct envy_bios_dunk10 {
 	uint8_t unk07;
 	uint8_t unk08;
 	uint8_t unk09;
-	struct envy_bios_dunk10_entry *entries;
+	struct envy_bios_spreadspectrum_entry *entries;
 };
 
 enum envy_bios_extdev_type {
@@ -534,18 +534,18 @@ struct envy_bios_conn {
 	struct envy_bios_conn_entry *entries;
 };
 
-struct envy_bios_dunk17_entry {
+struct envy_bios_hdtvtt_entry {
 	uint16_t offset;
 };
 
-struct envy_bios_dunk17 {
+struct envy_bios_hdtvtt {
 	uint16_t offset;
 	uint8_t valid;
 	uint8_t version;
 	uint8_t hlen;
 	uint8_t entriesnum;
 	uint8_t rlen;
-	struct envy_bios_dunk17_entry *entries;
+	struct envy_bios_hdtvtt_entry *entries;
 };
 
 struct envy_bios_mux_entry {
@@ -633,12 +633,12 @@ struct envy_bios {
 	struct envy_bios_dcb dcb;
 	struct envy_bios_i2c i2c;
 	struct envy_bios_gpio gpio;
-	struct envy_bios_dunk0c dunk0c;
-	struct envy_bios_dunk0e dunk0e;
-	struct envy_bios_dunk10 dunk10;
+	struct envy_bios_inputdev inputdev;
+	struct envy_bios_cinema cinema;
+	struct envy_bios_spreadspectrum spreadspectrum;
 	struct envy_bios_extdev extdev;
 	struct envy_bios_conn conn;
-	struct envy_bios_dunk17 dunk17;
+	struct envy_bios_hdtvtt hdtvtt;
 	struct envy_bios_mux mux;
 
 	struct envy_bios_block *blocks;
@@ -740,18 +740,18 @@ int envy_bios_parse_i2c (struct envy_bios *bios);
 void envy_bios_print_i2c (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_gpio (struct envy_bios *bios);
 void envy_bios_print_gpio (struct envy_bios *bios, FILE *out, unsigned mask);
-int envy_bios_parse_dunk0c (struct envy_bios *bios);
-void envy_bios_print_dunk0c (struct envy_bios *bios, FILE *out, unsigned mask);
-int envy_bios_parse_dunk0e (struct envy_bios *bios);
-void envy_bios_print_dunk0e (struct envy_bios *bios, FILE *out, unsigned mask);
-int envy_bios_parse_dunk10 (struct envy_bios *bios);
-void envy_bios_print_dunk10 (struct envy_bios *bios, FILE *out, unsigned mask);
+int envy_bios_parse_inputdev (struct envy_bios *bios);
+void envy_bios_print_inputdev (struct envy_bios *bios, FILE *out, unsigned mask);
+int envy_bios_parse_cinema (struct envy_bios *bios);
+void envy_bios_print_cinema (struct envy_bios *bios, FILE *out, unsigned mask);
+int envy_bios_parse_spreadspectrum (struct envy_bios *bios);
+void envy_bios_print_spreadspectrum (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_extdev (struct envy_bios *bios);
 void envy_bios_print_extdev (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_conn (struct envy_bios *bios);
 void envy_bios_print_conn (struct envy_bios *bios, FILE *out, unsigned mask);
-int envy_bios_parse_dunk17 (struct envy_bios *bios);
-void envy_bios_print_dunk17 (struct envy_bios *bios, FILE *out, unsigned mask);
+int envy_bios_parse_hdtvtt (struct envy_bios *bios);
+void envy_bios_print_hdtvtt (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_mux (struct envy_bios *bios);
 void envy_bios_print_mux (struct envy_bios *bios, FILE *out, unsigned mask);
 
