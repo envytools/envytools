@@ -338,9 +338,9 @@ static struct insn tabsi[] = {
 	{ 0x00000000, 0x0000003f, OP3B, N("st"), T(sz), T(datari), REG1, .fmask = F_FUCOLD },
 	{ 0x00000000, 0x00000030, OP3B, OOPS, T(sz), REG1, REG2, IMM8, .fmask = F_FUCOLD },
 
-	{ 0x00000000, 0x000000f0, OP2B, N("mov"), REG0, FIMM8 },
-	{ 0x00000040, 0x000000f0, OP3B, N("mov"), REG0, FIMM16 },
-	{ 0x00000080, 0x000000f0, OP4B, N("mov"), REG0, FIMM24 },
+	{ 0x00000000, 0x000000f0, OP2B, N("mov"), REG0, FIMM8, .fmask = F_FUC5P },
+	{ 0x00000040, 0x000000f0, OP3B, N("mov"), REG0, FIMM16, .fmask = F_FUC5P },
+	{ 0x00000080, 0x000000f0, OP4B, N("mov"), REG0, FIMM24, .fmask = F_FUC5P },
 
 	{ 0x00000010, 0x0000003f, OP3B, N("add"), T(sz), REG1, REG2, IMM8 },
 	{ 0x00000011, 0x0000003f, OP3B, N("adc"), T(sz), REG1, REG2, IMM8 },
