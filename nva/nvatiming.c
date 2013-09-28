@@ -441,6 +441,7 @@ int main(int argc, char **argv)
 {
 	struct nva_card *card = NULL;
 	u32 print_filter = NVATIMING_PRINT_NONE;
+	u32 print_exclude_filter = NVATIMING_PRINT_NONE;
 	u32 pmc_enable;
 	int c;
 	int cnum = 0;
@@ -451,7 +452,7 @@ int main(int argc, char **argv)
 	}
 
 	/* Arguments parsing */
-	while ((c = getopt (argc, argv, "c:p:")) != -1)
+	while ((c = getopt (argc, argv, "c:p:e:")) != -1)
 		switch (c) {
 			case 'c':
 				sscanf(optarg, "%d", &cnum);
@@ -479,10 +480,34 @@ int main(int argc, char **argv)
 					exit(-1);
 				}
 				break;
+			case 'e':
+				if (strcmp(optarg, "crystal") == 0)
+					print_exclude_filter |= NVATIMING_PRINT_CRYSTAL;
+				else if (strcmp(optarg, "ptimer") == 0)
+					print_exclude_filter |= NVATIMING_PRINT_PTIMER;
+				else if (strcmp(optarg, "pgraph_clk_dispatch") == 0)
+					print_exclude_filter |= NVATIMING_PRINT_PGRAPH_DISPATCH_CLK;
+				else if (strcmp(optarg, "pwm") == 0)
+					print_exclude_filter |= NVATIMING_PRINT_PWM;
+				else if (strcmp(optarg, "pcounter") == 0)
+					print_exclude_filter |= NVATIMING_PRINT_COUNTERS;
+				else if (strcmp(optarg, "disp_clk") == 0)
+					print_exclude_filter |= NVATIMING_PRINT_DISPLAY_CLK;
+				else if (strcmp(optarg, "fuc") == 0)
+					print_exclude_filter |= NVATIMING_PRINT_FUC;
+				else {
+					fprintf(stderr, "unknown selective print arg '%s'. "
+					"Possible choices are:\n"
+					"crystal, ptimer, pgraph_clk_dispatch, pwm, pcounter, disp_clk, fuc\n\n",
+					optarg);
+					exit(-1);
+				}
+				break;
 		}
 
 	if (print_filter == NVATIMING_PRINT_NONE)
 		print_filter = NVATIMING_PRINT_ALL;
+	print_filter &= ~print_exclude_filter;
 
 	if (cnum >= nva_cardsnum) {
 		if (nva_cardsnum)
