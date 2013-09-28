@@ -269,11 +269,39 @@ void envy_bios_print_spreadspectrum (struct envy_bios *bios, FILE *out, unsigned
 	envy_bios_dump_hex(bios, out, spreadspectrum->offset, spreadspectrum->hlen, mask);
 	int i;
 	for (i = 0; i < spreadspectrum->entriesnum; i++) {
+		unsigned int spread;
 		struct envy_bios_spreadspectrum_entry *entry = &spreadspectrum->entries[i];
 		envy_bios_dump_hex(bios, out, entry->offset, spreadspectrum->rlen, mask);
-		fprintf(out, "SPREADSPECTRUM %d: unk00 0x%02x", i, entry->unk00);
-		if (spreadspectrum->rlen >= 2)
-			fprintf(out, " unk01 0x%02x", entry->unk01);
+		if(!(entry->unk00 & 0x1)) {
+			fprintf(out, "SPREADSPECTRUM %d: INVALID 0x%02x", i, entry->unk00);
+						
+			if (spreadspectrum->rlen >= 2)
+				fprintf(out, " 0x%02x", entry->unk01);
+		} else {
+			fprintf(out, "SPREADSPECTRUM %d: ", i);
+			fprintf(out, "idx(%1x) ", (entry->unk00 & 0x10) >> 4);
+			switch(entry->unk00 & 0x6) {
+			case 0x0:
+				fprintf(out, "SRC_INTERNAL_0 ");
+				break;
+			case 0x2:
+				fprintf(out, "SRC_INTERNAL_1 ");
+				break;
+			case 0x4:
+				fprintf(out, "SRC_EXTERNAL ");
+				break;
+			case 0x6:
+				fprintf(out, "SRC_PLL ");
+				break;
+			}
+			spread = (entry->unk01 & 0x3f) * 5;
+			fprintf(out, "SPREAD(%d.%02d\%) ", spread / 100, spread % 100);
+			
+			if(entry->unk01 & 0x70)
+				fprintf(out, "DOWN");
+			else
+				fprintf(out, "CENTER");
+		}
 		fprintf(out, "\n");
 	}
 	fprintf(out, "\n");
