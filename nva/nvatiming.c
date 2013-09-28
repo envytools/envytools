@@ -354,6 +354,8 @@ void time_fuc_engine_periodic (unsigned int card, const char *fuc_engine_name, u
 {
 	struct timeval start, end;
 	ptime_t t_start;
+	float freq;
+	int i = 0;
 
 	/* Save the current values */
 	u32 r24 = nva_rd32(card, fucengine + 0x24);
@@ -364,16 +366,23 @@ void time_fuc_engine_periodic (unsigned int card, const char *fuc_engine_name, u
 	do
 	{
 		t_start = nva_rd32(card, fucengine + 0x24);
-	} while (t_start < 10000000);
+		i++;
+	} while (t_start < 10000000 && i < 10000);
 
-	gettimeofday(&start, NULL);
+	if (i < 10000 && (t_start & 0xffff0000 != 0xbadf0000)) {
+		gettimeofday(&start, NULL);
 
-	while (t_start - nva_rd32(card, fucengine + 0x24) < 10000000);
+		while (t_start - nva_rd32(card, fucengine + 0x24) < 10000000);
 
-	gettimeofday(&end, NULL);
+		gettimeofday(&end, NULL);
 
-	ptime_t val = time_diff_us(start, end);
-	printf("%s's periodic timer: frequency = %f MHz\n", fuc_engine_name, 10000000.0/val);
+		ptime_t val = time_diff_us(start, end);
+		freq = 10000000.0 / val;
+	} else {
+		freq = 0;
+	}
+
+	printf("%s's periodic timer: frequency = %f MHz\n", fuc_engine_name, freq);
 
 	/* Restore the previous values */
 	nva_wr32(card, fucengine + 0x28, r28);
@@ -384,6 +393,8 @@ void time_fuc_engine_watchdog (unsigned int card, const char *fuc_engine_name, u
 {
 	struct timeval start, end;
 	ptime_t t_start;
+	float freq;
+	int i = 0;
 
 	/* Save the current values */
 	u32 r34 = nva_rd32(card, fucengine + 0x34);
@@ -394,16 +405,22 @@ void time_fuc_engine_watchdog (unsigned int card, const char *fuc_engine_name, u
 	do
 	{
 		t_start = nva_rd32(card, fucengine + 0x34);
-	} while (t_start < 10000000);
+		i++;
+	} while (t_start < 10000000 && i < 10000);
 
-	gettimeofday(&start, NULL);
+	if (i < 10000 && (t_start & 0xffff0000 != 0xbadf0000)) {
+		gettimeofday(&start, NULL);
 
-	while (t_start - nva_rd32(card, fucengine + 0x34) < 10000000);
+		while (t_start - nva_rd32(card, fucengine + 0x34) < 10000000);
 
-	gettimeofday(&end, NULL);
+		gettimeofday(&end, NULL);
 
-	ptime_t val = time_diff_us(start, end);
-	printf("%s's watchdog: frequency       = %f MHz\n", fuc_engine_name, 10000000.0/val);
+		ptime_t val = time_diff_us(start, end);
+		freq = 10000000.0 / val;
+	} else {
+		freq = 0;
+	}
+	printf("%s's watchdog: frequency       = %f MHz\n", fuc_engine_name, freq);
 
 	/* Restore the previous values */
 	nva_wr32(card, fucengine + 0x38, r38);
