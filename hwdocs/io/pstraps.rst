@@ -120,7 +120,9 @@ NV03+ straps readout/override registers
 =======================================
 
 MMIO 0x101000: STRAPS0_PRIMARY
+
 MMIO 0x10100c: STRAPS1_PRIMARY [NV18:NV20 and NV25+ only]
+
 MMIO 0x101034: STRAPS2_PRIMARY [NVD9+ only]
   - bits 0-30: straps primary value
   - bit 31: override enable [NV04+ only]
@@ -131,7 +133,9 @@ is 1, override is enabled, and the straps value is set to the value written
 by host.
 
 MMIO 0x101004: STRAPS0_SELECT [NV18:NV20 and NV25+ only]
+
 MMIO 0x101010: STRAPS1_SELECT [NV18:NV20 and NV25+ only]
+
 MMIO 0x101038: STRAPS2_SELECT [NVD9+ only]
   - bits 0-30: strap source selection for strap bit X
 
@@ -141,7 +145,9 @@ the secondary value. This register is always writable and not affected by
 override enable.
 
 MMIO 0x101008: STRAPS0_SECONDARY [NV18:NV20 and NV25+ only]
+
 MMIO 0x101014: STRAPS1_SECONDARY [NV18:NV20 and NV25+ only]
+
 MMIO 0x10103c: STRAPS2_SECONDARY [NVD9+ only]
   - bits 0-30: straps secondary value
 
