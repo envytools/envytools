@@ -37,6 +37,8 @@ otherwise affect PFIFO]:
 - CACHE1.PULL_STATE [on NV03 only]
 
 
+.. _nv01-pfifo-mmio:
+
 The MMIO registers
 ==================
 
@@ -100,6 +102,7 @@ Address         Name                  Description
 .. [2] available on NV01 and NV03, but not NV03T
 .. [3] available on NV03 and NV03T, but not NV01
 .. [4] available on NV03T only
+
 
 .. _nv01-pfifo-intr:
 
@@ -225,11 +228,15 @@ FIFO submission area
 .. todo:: write me
 
 
+.. _nv01-pfifo-ramro:
+
 RAMRO
 -----
 
 .. todo:: write me
 
+
+.. _nv03-pfifo-dma:
 
 DMA submission
 --------------
@@ -243,11 +250,15 @@ The puller
 .. todo:: write me
 
 
+.. _nv01-pfifo-ramfc:
+
 RAMFC
 =====
 
 .. todo:: write me
 
+
+.. _nv01-pfifo-ramht:
 
 RAMHT
 =====

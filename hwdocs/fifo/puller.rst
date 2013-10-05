@@ -1,4 +1,4 @@
-.. _puller:
+.. _fifo-puller:
 
 ===============================================
 Puller - handling of submitted commands by FIFO
@@ -17,60 +17,40 @@ Methods 0-0xfc are special and executed by the puller. Methods 0x100 and up
 are forwarded to the engine object currently bound to a given subchannel.
 The methods are:
 
-+-------+------------------------+-------+--------------------------------------+
-|mthd   | name                   | cards | description                          |
-+-------+------------------------+-------+--------------------------------------+
-|0x0000 | OBJECT [O]             |  all  | binds an engine object               |
-+-------+------------------------+-------+--------------------------------------+
-|0x0008 | NOP                    | NVC0- | does nothing                         |
-+-------+------------------------+-------+--------------------------------------+
-|0x0010 | SEMAPHORE_ADDRESS_HIGH |       |                                      |
-|0x0014 | SEMAPHORE_ADDRESS_LOW  |       | new-style semaphores                 |
-|0x0018 | SEMAPHORE_SEQUENCE     |       |                                      |
-|0x001c | SEMAPHORE_TRIGGER      |       |                                      |
-+-------+------------------------+ NV84- +--------------------------------------+
-|0x0020 | NOTIFY_INTR            |       | triggers an interrupt                |
-+-------+------------------------+       +--------------------------------------+
-|0x0024 | WRCACHE_FLUSH          |       | flushes write post caches            |
-+-------+------------------------+-------+--------------------------------------+
-|0x0028 | ???                    | NVC0- | ???                                  |
-+-------+------------------------+-------+--------------------------------------+
-|0x002c | ???                    | NVC0- | ???                                  |
-+-------+------------------------+-------+--------------------------------------+
-|0x0050 | REF_CNT                | NV10- | writes the ref counter               |
-+-------+------------------------+-------+--------------------------------------+
-|0x0060 | DMA_SEMAPHORE [O]      | 11:C0 | DMA object for semaphores            |
-+-------+------------------------+-------+--------------------------------------+
-|0x0064 | SEMAPHORE_OFFSET       |       |                                      |
-|0x0068 | SEMAPHORE_ACQUIRE      | NV11- | old-style semaphores                 |
-|0x006c | SEMAPHORE_RELEASE      |       |                                      |
-+-------+------------------------+-------+--------------------------------------+
-|0x0070 | ???                    | NVC0- | ???                                  |
-+-------+------------------------+-------+--------------------------------------+
-|0x0074 | ???                    | NVC0- | ???                                  |
-+-------+------------------------+-------+--------------------------------------+
-|0x0078 | ???                    | NVC0- | ???                                  |
-+-------+------------------------+-------+--------------------------------------+
-|0x007c | ???                    | NVC0- | ???                                  |
-+-------+------------------------+-------+--------------------------------------+
-|0x0080 | YIELD                  | NV40- | yield PFIFO - force channel switch   |
-+-------+------------------------+-------+--------------------------------------+
-|0x0100-| ...                    |  all  | passed down to the engine            |
-|0x017c |                        |       |                                      |
-+-------+------------------------+-------+--------------------------------------+
-|0x0180-| ... [O]                | NV04: | passed down to the engine            |
-|0x01fc |                        | :NVC0 |                                      |
-+-------+------------------------+-------+--------------------------------------+
-|0x0200-| ...                    |  all  | passed down to the engine            |
-|...    |                        |       |                                      |
-+-------+------------------------+-------+--------------------------------------+
-
+============= ========== ====================== ====================================== 
+Method        Present on Name                   Description                           
+============= ========== ====================== ====================================== 
+0x0000        all        OBJECT                 :ref:`Binds an engine object <fifo-mthd-object>`
+0x0008        NVC0-      NOP                    :ref:`Does nothing <fifo-mthd-nop>`
+0x0010        NV84-      SEMAPHORE_ADDRESS_HIGH :ref:`New-style semaphore address high part <fifo-mthd-semaphore>`
+0x0014        NV84-      SEMAPHORE_ADDRESS_LOW  :ref:`New-style semaphore address low part <fifo-mthd-semaphore>`
+0x0018        NV84-      SEMAPHORE_SEQUENCE     :ref:`New-style semaphore payload <fifo-mthd-semaphore>`
+0x001c        NV84-      SEMAPHORE_TRIGGER      :ref:`New-style semaphore trigger <fifo-mthd-semaphore>`
+0x0020        NV84-      NOTIFY_INTR            :ref:`Triggers an interrupt <fifo-mthd-notify>`
+0x0024        NV84-      WRCACHE_FLUSH          :ref:`Flushes write post caches <fifo-mthd-flush>`
+0x0028        NVAF-      ???                    ???                                   
+0x002c        NVAF-      ???                    ???                                   
+0x0050        NV10-      REF_CNT                :ref:`Writes the ref counter <fifo-mthd-ref>`
+0x0060        NV11:NVC0  DMA_SEMAPHORE          :ref:`DMA object for semaphores <fifo-mthd-semaphore>`
+0x0064        NV11-      SEMAPHORE_OFFSET       :ref:`Old-style semaphore address <fifo-mthd-semaphore>`                                               
+0x0068        NV11-      SEMAPHORE_ACQUIRE      :ref:`Old-style semaphore acquire trigger and payload <fifo-mthd-semaphore>`
+0x006c        NV11-      SEMAPHORE_RELEASE      :ref:`Old-style semaphore release trigger and payload <fifo-mthd-semaphore>`
+0x0070        NVC0-      ???                    ???
+0x0074        NVC0-      ???                    ???
+0x0078        NVC0-      ???                    ???
+0x007c        NVC0-      ???                    ???
+0x0080        NV40-      YIELD                  :ref:`Yield PFIFO - force channel switch <fifo-mthd-yield>`
+0x0100:0x2000 NV01:NV04  ...                    Passed down to the engine
+0x0100:0x0180 NV04:NVC0  ...                    Passed down to the engine
+0x0180:0x0200 NV04:NVC0  ...                    Passed down to the engine, goes through RAMHT lookup
+0x0200:0x2000 NV04:NVC0  ...                    Passed down to the engine
+0x0100:0x4000 NVC0-      ...                    Passed down to the engine
+============= ========== ====================== ====================================== 
 
 .. todo:: missing the NVC0+ methods
 
-Methods marked as [O] take object handles as parameters, and are thus looked
-up in RAMHT before further processing.
 
+.. _fifo-ramht:
 
 RAMHT and the FIFO objects
 ==========================
@@ -106,15 +86,15 @@ of pre-NV50 graph objects have methods that expect other graph objects.
 
 The following are commonly accepted object classes:
 
- - 0x0002: DMA object for reading
- - 0x0003: DMA object for writing
- - 0x0030: NULL object - used to effectively unbind a previously bound object
- - 0x003d: DMA object for reading/writing
+- 0x0002: DMA object for reading
+- 0x0003: DMA object for writing
+- 0x0030: NULL object - used to effectively unbind a previously bound object
+- 0x003d: DMA object for reading/writing
 
 Other object classes are engine-specific.
 
 For more information on DMA objects, see :ref:`nv03-dmaobj`,
-:ref:`nv04-dmaobj`, or :ref:`nv50-vm`.
+:ref:`nv04-dmaobj`, or :ref:`nv50-dmaobj`.
 
 
 NV03
@@ -163,6 +143,8 @@ bool    acquire_mode        NV84+  semaphore acquire mode
 NVC0 state is likely incomplete.
 
 
+.. _fifo-mthd-object:
+
 Engine objects
 ==============
 
@@ -178,10 +160,10 @@ object will be forwarded to the engine through its method 0. The information
 about an object is 24-bit, is known as object's "context", and has the
 following fields:
 
- - bits 0-15 [NV01]: object flags
- - bits 0-15 [NV03]: object address
- - bits 16-22: object type
- - bit 23: engine id
+- bits 0-15 [NV01]: object flags
+- bits 0-15 [NV03]: object address
+- bits 16-22: object type
+- bit 23: engine id
 
 The context for objects is stored directly in their RAMHT entries.
 
@@ -195,9 +177,9 @@ while object address is passed down to the engine for further processing.
 NVC0+ did away with RAMHT. Thus, method 0 now takes the object class and
 engine id directly as parameters:
 
- - bits 0-15: object class. Not used by the puller, simply passed down to the
-   engine.
- - bits 16-20: engine id
+- bits 0-15: object class. Not used by the puller, simply passed down to the
+  engine.
+- bits 16-20: engine id
 
 The list of valid engine ids can be found on :ref:`fifo-intro`. The SOFTWARE
 engine is special: all methods submitted to it, explicitely or implicitely by
@@ -324,12 +306,14 @@ mthd 0x0100-0x3ffc / 0x040-0xfff: [forwarded to engine]
 Puller builtin methods
 ======================
 
+.. _fifo-mthd-ref:
+
 Syncing with host: reference counter
 ------------------------------------
 
 NV10 introduced a "reference counter". It's a per-channel 32-bit register that
 is writable by the puller and readable through the channel control area [see
-:ref:`dma-pusher`]. It can be used to tell host which commands have already
+:ref:`fifo-dma-pusher`]. It can be used to tell host which commands have already
 completed: after every interesting batch of commands, add a method that will
 set the ref counter to monotonically increasing values. The host code can then
 read the counter from channel control area and deduce which batches are
@@ -346,6 +330,8 @@ mthd 0x0050 / 0x014: REF_CNT [NV10:]
 		;
 	ref = param;
 
+
+.. _fifo-mthd-semaphore:
 
 Semaphores
 ----------
@@ -608,6 +594,11 @@ mthd 0x001c / 0x007: SEMAPHORE_TRIGGER [NV84:]
 	}
 
 
+.. _fifo-mthd-yield:
+.. _fifo-mthd-notify:
+.. _fifo-mthd-flush:
+.. _fifo-mthd-nop:
+
 Misc puller methods
 -------------------
 
@@ -616,12 +607,14 @@ at the moment, will cause PFIFO to switch to another channel immediately,
 without waiting for the timeslice to expire.
 
 mthd 0x0080 / 0x020: YIELD [NV40:]
+    ::
 	PFIFO_YIELD();
 
 NV84 introduced the NOTIFY_INTR method, which simply raises an interrupt that
 notifies the host of its execution. It can be used for sync primitives.
 
 mthd 0x0020 / 0x008: NOTIFY_INTR [NV84:]
+    ::
 	PFIFO_NOTIFY_INTR();
 
 .. todo:: check how this is reported on NVC0
@@ -630,4 +623,11 @@ The NV84+ WRCACHE_FLUSH method can be used to flush PFIFO's write post caches.
 [see :ref:`nv50-vm`]
 
 mthd 0x0024 / 0x009: WRCACHE_FLUSH [NV84:]
+    ::
 	VM_WRCACHE_FLUSH(PFIFO);
+
+The NVC0+ NOP method does nothing:
+
+mthd 0x0008 / 0x002: NOP [NVC0:]
+    ::
+	/* do nothing */

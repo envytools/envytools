@@ -23,6 +23,7 @@ Contents:
     nv04-pfifo
     nv50-pfifo
     nvc0-pfifo
+    nvc0-psubfifo
 
 .. rubric:: Other FIFO engines
 

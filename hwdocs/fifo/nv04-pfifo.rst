@@ -1,5 +1,4 @@
 .. _nv04-pfifo:
-.. _nv04-pfifo-intr:
 
 ======================
 NV04:NV50 PFIFO engine
@@ -19,5 +18,22 @@ NV04:NV50 PFIFO engine
 
 Introduction
 ============
+
+.. todo:: write me
+
+
+.. _nv04-pfifo-mmio:
+.. _nv04-pfifo-mmio-cache:
+
+MMIO registers
+==============
+
+.. todo:: write me
+
+
+.. _nv04-pfifo-intr:
+
+Interrupts
+==========
 
 .. todo:: write me

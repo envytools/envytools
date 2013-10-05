@@ -181,8 +181,8 @@ The GPU is made of:
 
   - :ref:`PMC <pmc>`: master control area
 
-  - PBUS: bus control and an area where "misc" registers are thrown in. Known
-    to contain at least:
+  - :ref:`PBUS <pbus>`: bus control and an area where "misc" registers
+    are thrown in. Known to contain at least:
 
     - :ref:`HWSQ <hwsq>`, a simple script engine, can poke card registers and
       sleep in a given sequence [NV17+]
@@ -208,38 +208,39 @@ The GPU is made of:
 
 - processing engines:
 
-  - PFIFO: gathers processing commands from the command buffers prepared by
-    the host and delivers them to PGRAPH and PVPE engines in orderly manner
-    [:ref:`PFIFO introduction<fifo-intro>`]
+  - :ref:`PFIFO <fifo-intro>`: gathers processing commands from the command
+    buffers prepared by the host and delivers them to PGRAPH and PVPE engines
+    in orderly manner
 
-  - PGRAPH: memory copying, 2d and 3d rendering engine
+  - :ref:`PGRAPH <graph-intro>`: memory copying, 2d and 3d rendering engine
 
-  - PVPE: a trio of video decoding/encoding engines
+  - :ref:`PVPE <pvpe>`: a trio of video decoding/encoding engines
 
-    - PMPEG: MPEG1 and MPEG2 mocomp and IDCT decoding engine [NV17+]
-    - PME: motion estimation engine [NV40+]
-    - PVP1: VP1 video processor [NV41+]
+    - :ref:`PMPEG <pmpeg>`: MPEG1 and MPEG2 mocomp and IDCT decoding engine [NV17+]
+    - :ref:`PME <pme>`: motion estimation engine [NV40+]
+    - :ref:`PVP1 <pvp1>`: VP1 video processor [NV41+]
 
-  - PCOUNTER: performance monitoring counters for the processing engines and
-    memory controller [`<pcounter/intro.txt>`_] 
+  - :ref:`PCOUNTER <pcounter>`: performance monitoring counters for
+    the processing engines and memory controller
 
 - display engines:
 
-  - PCRTC: generates display control signals and reads framebuffer data for
-    display, present in two instances on NV11+ cards; also handles GPIO and I2C
+  - :ref:`PCRTC <pcrtc>`: generates display control signals and reads
+    framebuffer data for display, present in two instances on NV11+ cards;
+    also handles GPIO and I2C
 
-  - PVIDEO: reads and preprocesses overlay video data
+  - :ref:`PVIDEO <pvideo>`: reads and preprocesses overlay video data
 
-  - PRAMDAC: multiplexes PCRTC, PVIDEO and cursor image data, applies palette
-    LUT, coverts to output signals, present in two instances on NV11+ cards;
-    on pre-NV40 cards also deals with clock generation
+  - :ref:`PRAMDAC <pramdac>`: multiplexes PCRTC, PVIDEO and cursor image data,
+    applies palette LUT, coverts to output signals, present in two instances
+    on NV11+ cards; on pre-NV40 cards also deals with clock generation
 
-  - PTV: an on-chip TV encoder
+  - :ref:`PTV <ptv>`: an on-chip TV encoder
 
 - misc engines:
 
-  - PMEDIA: controls video capture input and the mediaport, acts as a DMA
-    controller for them
+  - :ref:`PMEDIA <pmedia>`: controls video capture input and the mediaport,
+    acts as a DMA controller for them
 
 Almost all units of the GPU are controlled through MMIO registers accessible
 by a common bus and visible through PCI BAR0 [see :ref:`bars`]. This bus is
@@ -306,19 +307,19 @@ The GPU is made of:
 
 - processing engines:
 
-  - PFIFO: gathers processing commands from the command buffers prepared by
-    the host and delivers them to PGRAPH and PVPE engines in orderly manner
-    [:ref:`PFIFO introduction<fifo-intro>`]
-  - PGRAPH: memory copying, 2d and 3d rendering engine
+  - :ref:`PFIFO <fifo-intro>`: gathers processing commands from the command
+    buffers prepared by the host and delivers them to PGRAPH and PVPE engines
+    in orderly manner
+  - :ref:`PGRAPH <graph-intro>`: memory copying, 2d and 3d rendering engine
   - video decoding engines, see below
-  - PCOPY: asynchronous copy engine [:ref:`PCOPY engine<pcopy>`]
-  - PVCOMP: video compositing engine [`<vdec/pvcomp.txt>`_]
-  - PCOUNTER: performance monitoring counters for the processing engines and
-    memory controller [`<pcounter/intro.txt>`_] 
+  - :ref:`PCOPY <pcopy>`: asynchronous copy engine
+  - :ref:`PVCOMP <pvcomp>`: video compositing engine
+  - :ref:`PCOUNTER <pcounter>`: performance monitoring counters for
+    the processing engines and memory controller
 
 - display and IO port units:
 
-  - PNVIO: deals with misc external devices
+  - :ref:`PNVIO <pnvio>`: deals with misc external devices
 
     - GPIOs
     - fan PWM controllers
@@ -328,14 +329,14 @@ The GPU is made of:
     - straps interface
     - PNVIO/PDISPLAY clock generation
 
-  - PDISPLAY: a unified display engine
+  - :ref:`PDISPLAY <pdisplay>`: a unified display engine
 
-  - PCODEC: audio codec for HDMI audio
+  - :ref:`PCODEC <pcodec>`: audio codec for HDMI audio
 
 - misc engines:
 
-  - PMEDIA: controls video capture input and the mediaport, acts as a DMA
-    controller for them
+  - :ref:`PMEDIA <pmedia>`: controls video capture input and the mediaport,
+    acts as a DMA controller for them
 
 
 GPU schematic - NVC0-

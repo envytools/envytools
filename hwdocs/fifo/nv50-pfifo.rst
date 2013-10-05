@@ -1,8 +1,4 @@
 .. _nv50-pfifo:
-.. _nv50-pfifo-intr:
-.. _nv50-pfifo-vm:
-.. _nv50-pfifo-bg:
-.. _nv50-pfifo-chsw:
 
 ======================
 NV50:NVC0 PFIFO engine
@@ -23,5 +19,39 @@ NV50:NVC0 PFIFO engine
 
 Introduction
 ============
+
+.. todo:: write me
+
+
+.. _nv50-pfifo-mmio:
+.. _nv50-pfifo-mmio-cache:
+
+MMIO registers
+==============
+
+.. todo:: write me
+
+
+.. _nv50-pfifo-intr:
+
+Interrupts
+==========
+
+.. todo:: write me
+
+
+.. _nv50-pfifo-vm:
+.. _nv50-pfifo-bg:
+
+VM engines
+==========
+
+.. todo:: write me
+
+
+.. _nv50-pfifo-chsw:
+
+Channel switching
+=================
 
 .. todo:: write me

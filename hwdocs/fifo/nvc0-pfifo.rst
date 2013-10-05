@@ -1,5 +1,4 @@
 .. _nvc0-pfifo:
-.. _nvc0-pfifo-intr:
 
 ======================
 NVC0+ PFIFO engine
@@ -19,5 +18,23 @@ NVC0+ PFIFO engine
 
 Introduction
 ============
+
+.. todo:: write me
+
+
+.. _nvc0-pfifo-mmio:
+.. _nvc0-pfifo-mmio-bypass:
+.. _nvc0-pfifo-mmio-chan:
+
+MMIO registers
+==============
+
+.. todo:: write me
+
+
+.. _nvc0-pfifo-intr:
+
+Interrupts
+==========
 
 .. todo:: write me

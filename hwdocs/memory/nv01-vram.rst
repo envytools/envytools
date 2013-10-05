@@ -95,11 +95,11 @@ address X corresponds to VRAM address ``vram_size + (X ^ (-4))``.
 RAMIN is split into several subareas:
 
 - RAMHT - PFIFO Hash Table, used by PFIFO to store PGRAPH objects and their
-  handles [see :ref:`nv01-pfifo`]
+  handles [see :ref:`nv01-pfifo-ramht`]
 - RAMRO - PFIFO RunOut area, used by PFIFO to send naughty FIFO accesses to
-  [see fifo/pio.txt]
+  [see :ref:`fifo-ramro`]
 - RAMFC - PFIFO Context, used by PFIFO to store context for currently
-  inactive channels [see :ref:`nv01-pfifo`]
+  inactive channels [see :ref:`nv01-pfifo-ramfc`]
 - UNK1 - unknown 0x1000-byte long area. Or maybe 0xc00-byte - last 0x400
   bytes seem to conflict with UNK2. Related to PAUDIO.
 - UNK2 - unknown 0x400-byte long area.

@@ -217,16 +217,16 @@ On NV50:NVC0, the bits are:
 - 17: :ref:`PVP2 <pvp2>` [NV84:NV98 NVA0:NVAA]
 - 17: :ref:`PVDEC <pvdec>` [NV98:NVA0 NVAA-]
 - 20: :ref:`PFB <nv50-pfb>`
-- 21: :ref:`PGRAPH CHSW <nv50-pfifo>` [NV84-]
-- 22: :ref:`PMPEG CHSW <nv50-pfifo>` [NV84-]
-- 23: :ref:`PCOPY CHSW <nv50-pfifo>` [NVA3-]
-- 24: :ref:`PVP2 CHSW <nv50-pfifo>` [NV84:NV98 NVA0:NVAA]
-- 24: :ref:`PVDEC CHSW <nv50-pfifo>` [NV98:NVA0 NVAA-]
-- 25: :ref:`PCRYPT2 CHSW <nv50-pfifo>` [NV84:NV98 NVA0:NVAA]
-- 25: :ref:`PCRYPT3 CHSW <nv50-pfifo>` [NV98:NVA0 NVAA:NVA3]
-- 25: :ref:`PVCOMP CHSW <nv50-pfifo>` [NVAF]
-- 26: :ref:`PBSP CHSW <nv50-pfifo>` [NV84:NV98 NVA0:NVAA]
-- 26: :ref:`PVLD CHSW <nv50-pfifo>` [NV98:NVA0 NVAA-]
+- 21: :ref:`PGRAPH CHSW <nv50-pfifo-chsw>` [NV84-]
+- 22: :ref:`PMPEG CHSW <nv50-pfifo-chsw>` [NV84-]
+- 23: :ref:`PCOPY CHSW <nv50-pfifo-chsw>` [NVA3-]
+- 24: :ref:`PVP2 CHSW <nv50-pfifo-chsw>` [NV84:NV98 NVA0:NVAA]
+- 24: :ref:`PVDEC CHSW <nv50-pfifo-chsw>` [NV98:NVA0 NVAA-]
+- 25: :ref:`PCRYPT2 CHSW <nv50-pfifo-chsw>` [NV84:NV98 NVA0:NVAA]
+- 25: :ref:`PCRYPT3 CHSW <nv50-pfifo-chsw>` [NV98:NVA0 NVAA:NVA3]
+- 25: :ref:`PVCOMP CHSW <nv50-pfifo-chsw>` [NVAF]
+- 26: :ref:`PBSP CHSW <nv50-pfifo-chsw>` [NV84:NV98 NVA0:NVAA]
+- 26: :ref:`PVLD CHSW <nv50-pfifo-chsw>` [NV98:NVA0 NVAA-]
 - 27: ??? [NV84-]
 - 28: ??? [NV84-]
 - 30: :ref:`PDISPLAY <pdisplay>`
@@ -264,7 +264,7 @@ NVC0 also introduced SUBFIFO_ENABLE register:
 
 MMIO 0x000204: SUBFIFO_ENABLE
   Enables PFIFO's PSUBFIFOs. Bit i corresponds to PSUBFIFO[i]. See
-  :ref:`NVC0+ PFIFO <nvc0-pfifo>` for details.
+  :ref:`NVC0+ PFIFO <nvc0-psubfifo>` for details.
 
 There are also two other registers looking like ENABLE, but with seemingly
 no effect and currently unknown purpose:
