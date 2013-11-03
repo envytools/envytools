@@ -70,6 +70,25 @@
 	</reg32>
 </group>
 
+<group name="NV_CRTC_STAT">
+	<!-- ftp://download.nvidia.com/open-gpu-doc/gk104-disable-underflow-reporting/1/gk104-disable-underflow-reporting.txt -->
+	<reg32 name="REPORT_UNDERFLOW" offset="0x308">
+		<bitfield pos="0" name="ENABLE" />
+		<bitfield pos="4" name="UNDERFLOWED" /> <!-- Sticky bit, clear by writing 1 -->
+		<bitfield pos="8" name="MODE">
+			<value value="0" name="REPEAT" />
+			<value value="1" name="RED" />
+		</bitfield>
+	</reg32>
+	<reg32 name="VERT" offset="0x340">
+		<bitfield low="0" high="15" name="VLINE"/>
+		<bitfield low="16" high="31" name="VBLANK_COUNT"/>
+	</reg32>
+	<reg32 name="HORZ" offset="0x344">
+		<bitfield low="0" high="15" name="HLINE"/>
+	</reg32>
+</group>
+
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 	<array name="PRMIO" offset="0x601000" stride="0x1000" length="1" variants="NV50-">
 		<!-- as opposed to earlier cards, NV50+ keep all the legacy regs in one place. -->
@@ -472,16 +491,14 @@
 			<reg32 offset="0x0380" name="UNK380" stride="0x800" length="3"/>
 		</array>
 
-		<stripe offset="0x6000" name="CRTC_STAT" stride="0x800" length="2">
-			<reg32 name="VERT" offset="0x340">
-				<bitfield low="0" high="15" name="VLINE"/>
-				<bitfield low="16" high="31" name="VBLANK_COUNT"/>
-			</reg32>
-			<reg32 name="HORZ" offset="0x344">
-				<bitfield low="0" high="15" name="HLINE"/>
-			</reg32>
+		<stripe offset="0x6000" name="CRTC_STAT" stride="0x800" length="2" variants="NVA3:NVE4">
+			<use-group name="NV_CRTC_STAT"/>
 		</stripe>
-
+		
+		<stripe offset="0x6000" name="CRTC_STAT" stride="0x800" length="4" variants="NVE4-">
+			<use-group name="NV_CRTC_STAT"/>
+		</stripe>
+		
 		<stripe offset="0x6500" name="HDMI" stride="0x800" length="2" variants="NV84:NVA3">
 			<use-group name="NV_HDMI"/>
 		</stripe>
