@@ -459,6 +459,7 @@ enum envy_bios_extdev_type {
 	/* 0x43 seen, at address 0x60 */
 	/* 0x48 seen, at address 0x60, 0xe0 and 0xe2 */
 	/* 0x4c seen, at address 0x90, 0x92, 0x94 */
+	ENVY_BIOS_EXTDEV_INA3221	= 0x4e,
 	/* 0x50 seen, at address 0xca */
 	ENVY_BIOS_EXTDEV_ADT7473	= 0x70,
 	ENVY_BIOS_EXTDEV_HDCP_EEPROM	= 0x90,
