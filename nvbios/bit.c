@@ -42,6 +42,8 @@ static const struct {
 	{ 'A', 1, envy_bios_parse_bit_A },	/* Analog */
 	{ 'N', 0, envy_bios_parse_bit_empty },	/* never seen non-empty */
 	{ 'c', 0, envy_bios_parse_bit_empty },	/* never seen non-empty */
+	{ 'P', 1, envy_bios_parse_bit_P },	/* Power v1 */
+	{ 'P', 2, envy_bios_parse_bit_P },	/* Power v2 */
 	{ 0 },
 };
 

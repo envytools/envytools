@@ -573,6 +573,47 @@ struct envy_bios_mux {
 	struct envy_bios_mux_entry *entries;
 };
 
+struct envy_bios_power_volt {
+	uint16_t offset;
+};
+
+struct envy_bios_power_volt_map {
+	uint16_t offset;
+};
+
+struct envy_bios_power_perf {
+	uint16_t offset;
+};
+
+struct envy_bios_power_therm {
+	uint16_t offset;
+};
+
+struct envy_bios_power_timing {
+	uint16_t offset;
+};
+
+struct envy_bios_power_timing_map {
+	uint16_t offset;
+};
+
+struct envy_bios_power_unk {
+	uint16_t offset;
+};
+
+struct envy_bios_power {
+	struct envy_bios_bit_entry *bit;
+
+	struct envy_bios_power_perf perf;
+	struct envy_bios_power_timing_map timing_map;
+	struct envy_bios_power_timing timing;
+	struct envy_bios_power_therm therm;
+	struct envy_bios_power_volt volt;
+	struct envy_bios_power_volt_map volt_map;
+
+	struct envy_bios_power_unk unk;
+};
+
 struct envy_bios_block {
 	unsigned int start;
 	unsigned int len;
@@ -646,6 +687,7 @@ struct envy_bios {
 	struct envy_bios_conn conn;
 	struct envy_bios_hdtvtt hdtvtt;
 	struct envy_bios_mux mux;
+	struct envy_bios_power power;
 
 	struct envy_bios_block *blocks;
 	int blocksnum;
@@ -739,6 +781,9 @@ void envy_bios_print_iunk21 (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_bit_2 (struct envy_bios *bios, struct envy_bios_bit_entry *bit);
 void envy_bios_print_i2cscript (struct envy_bios *bios, FILE *out, unsigned mask);
 
+int envy_bios_parse_bit_P (struct envy_bios *bios, struct envy_bios_bit_entry *bit);
+void envy_bios_print_bit_P (struct envy_bios *bios, FILE *out, unsigned mask);
+
 int envy_bios_parse_dcb (struct envy_bios *bios);
 void envy_bios_print_dcb (struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_odcb (struct envy_bios *bios, FILE *out, unsigned mask);
@@ -760,6 +805,7 @@ int envy_bios_parse_hdtvtt (struct envy_bios *bios);
 void envy_bios_print_hdtvtt (struct envy_bios *bios, FILE *out, unsigned mask);
 int envy_bios_parse_mux (struct envy_bios *bios);
 void envy_bios_print_mux (struct envy_bios *bios, FILE *out, unsigned mask);
+
 
 struct enum_val {
 	int val;

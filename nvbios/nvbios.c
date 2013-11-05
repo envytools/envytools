@@ -71,15 +71,6 @@ uint16_t ram_type_tbl_ptr;
 
 uint16_t pll_limit_tbl_ptr;
 
-uint8_t p_tbls_ver = 0;
-uint16_t pm_mode_tbl_ptr = 0;
-uint16_t voltage_map_tbl_ptr = 0;
-uint16_t voltage_tbl_ptr = 0;
-uint16_t temperature_tbl_ptr = 0;
-uint16_t timings_tbl_ptr = 0;
-uint16_t timings_map_tbl_ptr = 0;
-uint16_t pm_unknown_tbl_ptr = 0;
-
 uint16_t *subs = 0;
 int subsnum = 0, subsmax = 0;
 
@@ -168,7 +159,7 @@ uint8_t parse_memtm_mapping_entry_10(uint16_t pos, uint16_t len, uint16_t hdr_po
 		printf(" Timing: none/boot\n");
 	}
 
-	if(p_tbls_ver == 1) {
+	if(bios->power.bit->version == 1) {
 		uint8_t c = bios->data[pos+3];
 		printf(" 100710: (r & 0x101) | 0x%x | 0x%x\n",
 		       (c & 0x2) ? 0x100 : 0, (c & 0x8) ? 0 : 1);
@@ -176,7 +167,7 @@ uint8_t parse_memtm_mapping_entry_10(uint16_t pos, uint16_t len, uint16_t hdr_po
 		printf(" 10071c: (r & 0x100) | 0x%x", (c & 0x1) ? 0x100 : 0);
 	}
 
-	if(p_tbls_ver == 2) {
+	if(bios->power.bit->version == 2) {
 		printf(" DLL: ");
 		if(bios->data[pos+2] & 0x40) {
 			printf("disabled\n");
@@ -873,8 +864,8 @@ int main(int argc, char **argv) {
 			init_function_tbl_ptr = le32(bios->bmp_offset + 87);
 		}
 		if (bmpver >= 0x527) {
-			pm_mode_tbl_ptr = le16(bios->bmp_offset + 148);
-			voltage_tbl_ptr = le16(bios->bmp_offset + 152);
+			bios->power.perf.offset = le16(bios->bmp_offset + 148);
+			bios->power.volt.offset = le16(bios->bmp_offset + 152);
 		}
 	}
 
@@ -930,28 +921,6 @@ int main(int argc, char **argv) {
 					break;
 				case 'U':
 					disp_script_tbl_ptr = le16(eoff);
-					break;
-				case 'P':
-					if (printmask & ENVY_BIOS_PRINT_BMP_BIT)
-						printf("Bit P table version %d\n", entry->version);
-
-					p_tbls_ver = entry->version;
-					pm_mode_tbl_ptr = le16(eoff + 0);
-					if (entry->version == 1) {
-						voltage_tbl_ptr = le16(eoff + 16);
-						temperature_tbl_ptr = le16(eoff + 12);
-						timings_tbl_ptr = le16(eoff + 4);
-						pm_unknown_tbl_ptr = le16(eoff + 21);
-					} else if (entry->version == 2) {
-						voltage_tbl_ptr = le16(eoff + 12);
-						temperature_tbl_ptr = le16(eoff + 16);
-						timings_tbl_ptr = le16(eoff + 8);
-						timings_map_tbl_ptr = le16(eoff + 4);
-						pm_unknown_tbl_ptr = le16(eoff + 24);
-						if (entry->t_len >= 34)
-							voltage_map_tbl_ptr = le16(eoff + 32);
-					}
-
 					break;
 			}
 		}
@@ -1236,12 +1205,12 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 #define subent(n) (subentry_offset + ((n) * subentry_size))
-	if (pm_mode_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PERF)) {
+	if (bios->power.perf.offset && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t mode_info_length = 0, header_length = 0;
 		uint8_t extra_data_length = 8, extra_data_count = 0;
 		uint8_t subentry_offset = 0, subentry_size = 0, subentry_count = 0;
-		uint16_t start = pm_mode_tbl_ptr;
+		uint16_t start = bios->power.perf.offset;
 		uint8_t ram_cfg = strap?(strap & 0x1c) >> 2:0xff;
 		char sub_entry_engine[16][11] = { "unk" };
 		int e;
@@ -1277,7 +1246,7 @@ int main(int argc, char **argv) {
 		}
 
 		printf ("PM_Mode table at 0x%x. Version %d. RamCFG 0x%x. Info_length %i.\n",
-			pm_mode_tbl_ptr, version, ram_cfg, mode_info_length
+			start, version, ram_cfg, mode_info_length
 		);
 
 		if (version > 0x20 && version < 0x40)
@@ -1292,7 +1261,7 @@ int main(int argc, char **argv) {
 			printf("Version unknown\n");
 
 		printf("Header:\n");
-		printcmd(pm_mode_tbl_ptr, header_length>0?header_length:10);
+		printcmd(start, header_length>0?header_length:10);
 		printf ("\n");
 
 		start += header_length;
@@ -1440,20 +1409,20 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
-	if (voltage_map_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PERF)) {
+	if (bios->power.volt_map.offset && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0;
-		uint16_t start = voltage_map_tbl_ptr;
+		uint16_t start = bios->power.volt_map.offset;
 
 		version = bios->data[start+0];
 		header_length = bios->data[start+1];
 		entry_length = bios->data[start+2];
 		entry_count = bios->data[start+3];
 
-		printf ("Voltage map table at 0x%x. Version %d.\n", voltage_map_tbl_ptr, version);
+		printf ("Voltage map table at 0x%x. Version %d.\n", start, version);
 
 		printf("Header:\n");
-		printcmd(voltage_map_tbl_ptr, header_length>0?header_length:10);
+		printcmd(start, header_length>0?header_length:10);
 		printf("\n\n");
 
 		start += header_length;
@@ -1483,10 +1452,10 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
-	if (voltage_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PERF)) {
+	if (bios->power.volt.offset && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0, mask = 0;
-		uint16_t start = voltage_tbl_ptr;
+		uint16_t start = bios->power.volt.offset;
 		uint16_t step_uv = 0;
 		uint32_t volt_uv = 0, volt;
 		uint8_t shift = 0;
@@ -1529,10 +1498,10 @@ int main(int argc, char **argv) {
 		}
 
 
-		printf ("Voltage table at 0x%x. Version %d.\n", voltage_tbl_ptr, version);
+		printf ("Voltage table at 0x%x. Version %d.\n", start, version);
 
 		printf("Header:\n");
-		printcmd(voltage_tbl_ptr, header_length>0?header_length:10);
+		printcmd(start, header_length>0?header_length:10);
 		printf (" mask = 0x%x\n\n", mask);
 
 		if (version < 0x40) {
@@ -1595,10 +1564,10 @@ int main(int argc, char **argv) {
 		}
 		printf("\n");
 	}
-	if (temperature_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PERF)) {
+	if (bios->power.therm.offset && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0;
-		uint16_t start = temperature_tbl_ptr;
+		uint16_t start = bios->power.therm.offset;
 		uint8_t cur_section = -1;
 
 		uint8_t fan_speed_tbl[] = { 0, 0, 25, 0, 40, 0, 50, 0, 75, 0, 85, 0, 100, 0, 100, 0 };
@@ -1610,10 +1579,10 @@ int main(int argc, char **argv) {
 
 		start += header_length;
 
-		printf ("Temperature table at 0x%x. Version %d.\n", voltage_tbl_ptr, version);
+		printf ("Temperature table at 0x%x. Version %d.\n", start, version);
 
 		printf("Header:\n");
-		printcmd(temperature_tbl_ptr, header_length>0?header_length:10);
+		printcmd(start, header_length>0?header_length:10);
 		printf ("\n\n");
 
 		printf ("%i entries\n", entry_count);
@@ -1697,10 +1666,10 @@ int main(int argc, char **argv) {
 		}
 		printf("\n");
 	}
-	if (timings_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PERF)) {
+	if (bios->power.timing.offset && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0;
-		uint16_t start = timings_tbl_ptr;
+		uint16_t start = bios->power.timing.offset;
 		uint8_t tWR, tWTR, tCL;
 		uint8_t tRC;		/* Byte 3 */
 		uint8_t tRFC;	/* Byte 5 */
@@ -1723,10 +1692,10 @@ int main(int argc, char **argv) {
 			entry_length = bios->data[start+2];
 		}
 
-		printf ("Timing table at 0x%x. Version %d.\n", timings_tbl_ptr, version);
+		printf ("Timing table at 0x%x. Version %d.\n", start, version);
 
 		printf("Header:\n");
-		printcmd(timings_tbl_ptr, header_length>0?header_length:10);
+		printcmd(start, header_length>0?header_length:10);
 		printf ("\n\n");
 
 		start += header_length;
@@ -1797,7 +1766,7 @@ int main(int argc, char **argv) {
 								reg_100234 += tUNK_11 << 16;
 							}
 
-							if(p_tbls_ver == 1) {
+							if(bios->power.bit->version == 1) {
 								reg_100224 |= (tCL + 2 - (tCWL - 1));
 								reg_10022c = (0x14 + tCL) << 24 |
 											0x16 << 16 |
@@ -1876,12 +1845,12 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	if(timings_map_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PERF)) {
+	if(bios->power.timing_map.offset && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		/* Mapping timings to clockspeeds since 2009 */
 		uint8_t 	version = 0, entry_count = 0, entry_length = 0,
 				xinfo_count = 0, xinfo_length = 0,
 				header_length = 0;
-		uint16_t start = timings_map_tbl_ptr;
+		uint16_t start = bios->power.timing_map.offset;
 		uint16_t clock_low = 0, clock_hi = 0;
 		uint16_t entry;
 		int j;
@@ -1895,9 +1864,9 @@ int main(int argc, char **argv) {
 			xinfo_count = bios->data[start+4];
 			xinfo_length = bios->data[start+3];
 		}
-		printf ("Timing mapping table at 0x%x. Version %d.\n", timings_map_tbl_ptr, version);
+		printf ("Timing mapping table at 0x%x. Version %d.\n", start, version);
 		printf("Header:\n");
-		printcmd(timings_map_tbl_ptr, header_length>0?header_length:10);
+		printcmd(start, header_length>0?header_length:10);
 		printf ("\n\n");
 
 		start += header_length;
@@ -1931,10 +1900,10 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
-	if(pm_unknown_tbl_ptr && (printmask & ENVY_BIOS_PRINT_PERF)) {
+	if(bios->power.unk.offset && (printmask & ENVY_BIOS_PRINT_PERF)) {
 		uint8_t 	version = 0, entry_count = 0, entry_length = 0,
 				header_length = 0;
-		uint16_t start = pm_unknown_tbl_ptr;
+		uint16_t start = bios->power.unk.offset;
 
 		version = bios->data[start];
 
@@ -1944,7 +1913,7 @@ int main(int argc, char **argv) {
 			entry_length = bios->data[start+2];
 		}
 
-		printf ("Unknown PM table at 0x%x. Version %d.\n", pm_unknown_tbl_ptr, version);
+		printf ("Unknown PM table at 0x%x. Version %d.\n", start, version);
 		printcmd(start, header_length>0?header_length:10);
 		printf("\n\n");
 

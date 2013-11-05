@@ -395,6 +395,7 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 		}
 		envy_bios_print_bit(bios, stdout, mask);
 		envy_bios_print_info(bios, stdout, mask);
+		envy_bios_print_bit_P(bios, stdout, mask);
 		envy_bios_print_dacload(bios, stdout, mask);
 		envy_bios_print_iunk21(bios, stdout, mask);
 		envy_bios_print_i2cscript(bios, stdout, mask);
