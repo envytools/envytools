@@ -601,6 +601,61 @@ struct envy_bios_power_unk {
 	uint16_t offset;
 };
 
+struct envy_bios_power_boost_subentry {
+	uint16_t offset;
+	uint8_t domain;
+	uint8_t percent;
+	uint16_t min;
+	uint16_t max;
+};
+
+struct envy_bios_power_boost_entry {
+	uint16_t offset;
+	uint8_t pstate;
+	uint16_t min;
+	uint16_t max;
+	struct envy_bios_power_boost_subentry *entries;
+};
+
+struct envy_bios_power_boost {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+	uint8_t snr;
+	uint8_t ssz;
+	struct envy_bios_power_boost_entry entries[4];
+};
+
+struct envy_bios_power_cstep_entry1 {
+	uint16_t offset;
+	uint8_t pstate;
+	uint8_t index;
+};
+
+struct envy_bios_power_cstep_entry2 {
+	uint16_t offset;
+	uint8_t valid;
+	uint16_t freq;
+	uint8_t unkn[2];
+	uint8_t voltage;
+};
+
+struct envy_bios_power_cstep {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+	uint8_t snr;
+	uint8_t ssz;
+	struct envy_bios_power_cstep_entry1 ent1[4];
+	struct envy_bios_power_cstep_entry2 *ent2;
+};
+
 struct envy_bios_power {
 	struct envy_bios_bit_entry *bit;
 
@@ -612,6 +667,9 @@ struct envy_bios_power {
 	struct envy_bios_power_volt_map volt_map;
 
 	struct envy_bios_power_unk unk;
+
+	struct envy_bios_power_boost boost;
+	struct envy_bios_power_cstep cstep;
 };
 
 struct envy_bios_block {
@@ -783,6 +841,8 @@ void envy_bios_print_i2cscript (struct envy_bios *bios, FILE *out, unsigned mask
 
 int envy_bios_parse_bit_P (struct envy_bios *bios, struct envy_bios_bit_entry *bit);
 void envy_bios_print_bit_P (struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_boost(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_cstep(struct envy_bios *bios, FILE *out, unsigned mask);
 
 int envy_bios_parse_dcb (struct envy_bios *bios);
 void envy_bios_print_dcb (struct envy_bios *bios, FILE *out, unsigned mask);

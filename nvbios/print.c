@@ -396,6 +396,7 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 		envy_bios_print_bit(bios, stdout, mask);
 		envy_bios_print_info(bios, stdout, mask);
 		envy_bios_print_bit_P(bios, stdout, mask);
+
 		envy_bios_print_dacload(bios, stdout, mask);
 		envy_bios_print_iunk21(bios, stdout, mask);
 		envy_bios_print_i2cscript(bios, stdout, mask);
@@ -411,6 +412,9 @@ void envy_bios_print (struct envy_bios *bios, FILE *out, unsigned mask) {
 		envy_bios_print_conn(bios, stdout, mask);
 		envy_bios_print_hdtvtt(bios, stdout, mask);
 		envy_bios_print_mux(bios, stdout, mask);
+
+		envy_bios_print_power_boost(bios, stdout, mask);
+		envy_bios_print_power_cstep(bios, stdout, mask);
 		break;
 	}
 	if (mask & ENVY_BIOS_PRINT_BLOCKS) {
