@@ -294,6 +294,7 @@ int envy_bios_parse_power_budget(struct envy_bios *bios) {
 
 	bios_u8(bios, budget->offset + 0x0, &budget->version);
 	switch(budget->version) {
+	case 0x10:
 	case 0x20:
 		err |= bios_u8(bios, budget->offset + 0x1, &budget->hlen);
 		err |= bios_u8(bios, budget->offset + 0x2, &budget->rlen);
@@ -311,8 +312,10 @@ int envy_bios_parse_power_budget(struct envy_bios *bios) {
 		uint16_t data = budget->offset + budget->hlen + i * budget->rlen;
 
 		budget->entries[i].offset = data;
-		err |= bios_u32(bios, data + 0x6, &budget->entries[i].min);
-		err |= bios_u32(bios, data + 0xa, &budget->entries[i].max);
+		err |= bios_u32(bios, data + 0x02, &budget->entries[i].unkn02);
+		err |= bios_u32(bios, data + 0x06, &budget->entries[i].avg);
+		err |= bios_u32(bios, data + 0x0a, &budget->entries[i].peak);
+		err |= bios_u32(bios, data + 0x12, &budget->entries[i].unkn12);
 
 		budget->entries[i].valid = !err;
 	}
@@ -328,7 +331,7 @@ void envy_bios_print_power_budget(struct envy_bios *bios, FILE *out, unsigned ma
 	uint8_t ram_cfg = strap?(strap & 0x1c) >> 2:0xff;
 
 
-	if (!(mask & ENVY_BIOS_PRINT_PERF))
+	if (!budget->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 
 	fprintf(out, "POWER BUDGET table at 0x%x, version %x\n", budget->offset, budget->version);
@@ -336,9 +339,12 @@ void envy_bios_print_power_budget(struct envy_bios *bios, FILE *out, unsigned ma
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
 	for (i = 0; i < budget->entriesnum; i++) {
-		fprintf(out, "%s %i: avg = %u mW, peak = %u mW\n",
-			ram_cfg == i?"*":" ", i, budget->entries[i].min,
-			budget->entries[i].max);
+		fprintf(out, "%s %i: avg = %u mW, peak = %u mW (unkn02 = %u mW, unkn12 = %u)\n",
+			ram_cfg == i?"*":" ", i, budget->entries[i].avg,
+			budget->entries[i].peak, budget->entries[i].unkn02,
+			budget->entries[i].unkn12
+       		);
+
 		envy_bios_dump_hex(bios, out, budget->entries[i].offset, budget->rlen, mask);
 		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 	}
