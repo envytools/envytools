@@ -451,18 +451,57 @@ struct envy_bios_spreadspectrum {
 };
 
 enum envy_bios_extdev_type {
-	ENVY_BIOS_EXTDEV_LM89		= 0x02,
+	/* thermal chips */
+	ENVY_BIOS_EXTDEV_ADM1032	= 0x01,
+	ENVY_BIOS_EXTDEV_MAX6649	= 0x02,
+	ENVY_BIOS_EXTDEV_LM99		= 0x03,
 	/* 0x04 seen, at address 0x98 */
-	ENVY_BIOS_EXTDEV_VT1103M	= 0x40,
+	ENVY_BIOS_EXTDEV_MAX1617	= 0x06,
+	ENVY_BIOS_EXTDEV_LM64		= 0x07,
+	ENVY_BIOS_EXTDEV_LM89		= 0x0b,
+	ENVY_BIOS_EXTDEV_TMP411		= 0x0c,
+
+	/* I2C ADC */
+	ENVY_BIOS_EXTDEV_ADS1112	= 0x30,
+
+	/* I2C Power Controllers */
+	ENVY_BIOS_EXTDEV_PIC16F690	= 0xC0,
+	ENVY_BIOS_EXTDEV_VT1103		= 0x40,
 	ENVY_BIOS_EXTDEV_PX3540		= 0x41,
-	ENVY_BIOS_EXTDEV_VT1105M	= 0x42, /* or close enough... */
-	/* 0x43 seen, at address 0x60 */
-	/* 0x48 seen, at address 0x60, 0xe0 and 0xe2 */
-	/* 0x4c seen, at address 0x90, 0x92, 0x94 */
+	ENVY_BIOS_EXTDEV_VT1165		= 0x42,
+	ENVY_BIOS_EXTDEV_CHIL_I2C	= 0x43, /* CHL8203/8212/8213/8214 */
+
+	/* SMBUS Power Controllers */
+	ENVY_BIOS_EXTDEV_CHIL_SMBUS0	= 0x48, /* CHL8112A/B, CHL8225/8228 */
+	ENVY_BIOS_EXTDEV_CHIL_SMBUS1	= 0x49, /* CHL8266, CHL8316 */
+
+	/* Power sensors */
+	ENVY_BIOS_EXTDEV_INA219		= 0x4c,
+	ENVY_BIOS_EXTDEV_INA209		= 0x4d,
 	ENVY_BIOS_EXTDEV_INA3221	= 0x4e,
-	/* 0x50 seen, at address 0xca */
+
+	/* Clock generator */
+	ENVY_BIOS_EXTDEV_CY2XP304	= 0x50,
+
+	/* External GPIO controllers */
+	ENVY_BIOS_EXTDEV_PCA9555	= 0x60, /* Japanese HDTV support */
+
+	/* Fan controllers */
 	ENVY_BIOS_EXTDEV_ADT7473	= 0x70,
+
+	/* HDMI Compositor/converters */
+	ENVY_BIOS_EXTDEV_SI1930UC	= 0x80,
+
+	/* HDCP EEPROM */
 	ENVY_BIOS_EXTDEV_HDCP_EEPROM	= 0x90,
+
+	/* GPU I2C Controllers */
+	ENVY_BIOS_EXTDEV_GT21X		= 0xB0,
+	ENVY_BIOS_EXTDEV_GF11X		= 0xB1,
+
+	/* Display encoders */
+	ENVY_BIOS_EXTDEV_ANX9805	= 0xD0,
+
 	/* 0xa0 seen, at address 0xa8 */
 	ENVY_BIOS_EXTDEV_UNUSED		= 0xff,
 };
