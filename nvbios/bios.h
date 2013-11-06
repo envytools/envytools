@@ -716,6 +716,112 @@ struct envy_bios_power_budget {
 	struct envy_bios_power_budget_entry *entries;
 };
 
+struct envy_bios_power_unk24_entry {
+	uint16_t offset;
+};
+
+struct envy_bios_power_unk24 {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk24_entry *entries;
+};
+
+struct envy_bios_power_sense_entry {
+	uint16_t offset;
+	uint8_t resistor_mohm;
+};
+
+struct envy_bios_power_sense {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_sense_entry *entries;
+};
+
+struct envy_bios_power_unk38_entry {
+	uint16_t offset;
+};
+
+struct envy_bios_power_unk38 {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk38_entry *entries;
+};
+
+struct envy_bios_power_unk3c_entry {
+	uint16_t offset;
+};
+
+struct envy_bios_power_unk3c {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk3c_entry *entries;
+};
+
+struct envy_bios_power_unk40_entry {
+	uint16_t offset;
+};
+
+struct envy_bios_power_unk40 {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk40_entry *entries;
+};
+
+struct envy_bios_power_unk44_entry {
+	uint16_t offset;
+};
+
+struct envy_bios_power_unk44 {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk44_entry *entries;
+};
+
+struct envy_bios_power_unk50_entry {
+	uint16_t offset;
+};
+
+struct envy_bios_power_unk50 {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_unk50_entry *entries;
+};
+
 struct envy_bios_power {
 	struct envy_bios_bit_entry *bit;
 
@@ -728,9 +834,16 @@ struct envy_bios_power {
 
 	struct envy_bios_power_unk unk;
 
+	struct envy_bios_power_unk24 unk24;
+	struct envy_bios_power_sense sense;
 	struct envy_bios_power_budget budget;
 	struct envy_bios_power_boost boost;
 	struct envy_bios_power_cstep cstep;
+	struct envy_bios_power_unk38 unk38;
+	struct envy_bios_power_unk3c unk3c;
+	struct envy_bios_power_unk40 unk40;
+	struct envy_bios_power_unk44 unk44;
+	struct envy_bios_power_unk50 unk50;
 };
 
 struct envy_bios_block {
@@ -902,9 +1015,16 @@ void envy_bios_print_i2cscript (struct envy_bios *bios, FILE *out, unsigned mask
 
 int envy_bios_parse_bit_P (struct envy_bios *bios, struct envy_bios_bit_entry *bit);
 void envy_bios_print_bit_P (struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk24(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_sense(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_budget(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_boost(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_cstep(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk38(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk3c(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk40(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk44(struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_unk50(struct envy_bios *bios, FILE *out, unsigned mask);
 
 int envy_bios_parse_dcb (struct envy_bios *bios);
 void envy_bios_print_dcb (struct envy_bios *bios, FILE *out, unsigned mask);
