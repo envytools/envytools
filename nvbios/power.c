@@ -185,7 +185,7 @@ void envy_bios_print_power_boost(struct envy_bios *bios, FILE *out, unsigned mas
 	struct envy_bios_power_boost *boost = &bios->power.boost;
 	int i, j;
 
-	if (!(mask & ENVY_BIOS_PRINT_PERF))
+	if (!boost->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 
 	fprintf(out, "BOOST table at 0x%x, version %x\n", boost->offset, boost->version);
@@ -261,7 +261,7 @@ void envy_bios_print_power_cstep(struct envy_bios *bios, FILE *out, unsigned mas
 	struct envy_bios_power_cstep *cstep = &bios->power.cstep;
 	int i;
 
-	if (!(mask & ENVY_BIOS_PRINT_PERF))
+	if (!cstep->offset || !(mask & ENVY_BIOS_PRINT_PERF))
 		return;
 
 	fprintf(out, "CSTEP table at 0x%x, version %x\n", cstep->offset, cstep->version);
