@@ -454,9 +454,11 @@ int envy_bios_parse_power_sense(struct envy_bios *bios) {
 
 		switch(sense->version) {
 		case 0x10:
+			err |= bios_u8(bios, data + 0x2, &sense->entries[i].extdev_id);
 			err |= bios_u8(bios, data + 0x3, &sense->entries[i].resistor_mohm);
 			break;
 		case 0x20:
+			err |= bios_u8(bios, data + 0x1, &sense->entries[i].extdev_id);
 			err |= bios_u8(bios, data + 0x5, &sense->entries[i].resistor_mohm);
 			break;
 		};
@@ -477,8 +479,8 @@ void envy_bios_print_power_sense(struct envy_bios *bios, FILE *out, unsigned mas
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
 	for (i = 0; i < sense->entriesnum; i++) {
-		fprintf(out, "power rail %i: shunt resistor = %u mOhm\n",
-			i, sense->entries[i].resistor_mohm);
+		fprintf(out, "power rail %i: extdev_id/power_rail = %u, shunt resistor = %u mOhm\n",
+			i, sense->entries[i].extdev_id, sense->entries[i].resistor_mohm);
 		envy_bios_dump_hex(bios, out, sense->entries[i].offset, sense->rlen, mask);
 		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 	}

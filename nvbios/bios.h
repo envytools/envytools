@@ -733,6 +733,7 @@ struct envy_bios_power_unk24 {
 
 struct envy_bios_power_sense_entry {
 	uint16_t offset;
+	uint8_t extdev_id;
 	uint8_t resistor_mohm;
 };
 
