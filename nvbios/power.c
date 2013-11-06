@@ -24,6 +24,7 @@
 
 #include "bios.h"
 
+int envy_bios_parse_power_budget(struct envy_bios *bios);
 int envy_bios_parse_power_boost(struct envy_bios *bios);
 int envy_bios_parse_power_cstep(struct envy_bios *bios);
 
@@ -51,6 +52,7 @@ int parse_at(struct envy_bios *bios, struct envy_bios_power *power,
 		{ 0x10, &power->therm.offset, "THERMAL"  },
 		{ 0x18, &power->unk.offset, "UNK" },
 		{ 0x20, &power->volt_map.offset, "VOLT MAPPING" },
+		{ 0x2c, &power->budget.offset, "POWER BUDGET" },
 		{ 0x30, &power->boost.offset, "BOOST" },
 		{ 0x34, &power->cstep.offset, "CSTEP" }
 	};
@@ -101,6 +103,7 @@ int envy_bios_parse_bit_P (struct envy_bios *bios, struct envy_bios_bit_entry *b
 	while (!parse_at(bios, power, idx, -1, NULL))
 		idx++;
 
+	envy_bios_parse_power_budget(bios);
 	envy_bios_parse_power_boost(bios);
 	envy_bios_parse_power_cstep(bios);
 
@@ -279,6 +282,64 @@ void envy_bios_print_power_cstep(struct envy_bios *bios, FILE *out, unsigned mas
 		fprintf(out, "	%i: freq %d MHz unkn[0] %x unkn[1] %x voltage %d\n",
 			i, cstep->ent2[i].freq, cstep->ent2[i].unkn[0], cstep->ent2[i].unkn[1], cstep->ent2[i].voltage);
 		envy_bios_dump_hex(bios, out, cstep->ent2[i].offset, cstep->ssz, mask);
+		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+	}
+
+	fprintf(out, "\n");
+}
+
+int envy_bios_parse_power_budget(struct envy_bios *bios) {
+	struct envy_bios_power_budget *budget = &bios->power.budget;
+	int i, err = 0;
+
+	bios_u8(bios, budget->offset + 0x0, &budget->version);
+	switch(budget->version) {
+	case 0x20:
+		err |= bios_u8(bios, budget->offset + 0x1, &budget->hlen);
+		err |= bios_u8(bios, budget->offset + 0x2, &budget->rlen);
+		err |= bios_u8(bios, budget->offset + 0x3, &budget->entriesnum);
+		budget->valid = !err;
+		break;
+	default:
+		ENVY_BIOS_ERR("Unknown POWER BUDGET table version 0x%x\n", budget->version);
+		return -EINVAL;
+	};
+
+	err = 0;
+	budget->entries = malloc(budget->entriesnum * sizeof(struct envy_bios_power_budget_entry));
+	for (i = 0; i < budget->entriesnum; i++) {
+		uint16_t data = budget->offset + budget->hlen + i * budget->rlen;
+
+		budget->entries[i].offset = data;
+		err |= bios_u32(bios, data + 0x6, &budget->entries[i].min);
+		err |= bios_u32(bios, data + 0xa, &budget->entries[i].max);
+
+		budget->entries[i].valid = !err;
+	}
+
+	return 0;
+}
+
+void envy_bios_print_power_budget(struct envy_bios *bios, FILE *out, unsigned mask) {
+	struct envy_bios_power_budget *budget = &bios->power.budget;
+	int i;
+
+	extern uint32_t strap;
+	uint8_t ram_cfg = strap?(strap & 0x1c) >> 2:0xff;
+
+
+	if (!(mask & ENVY_BIOS_PRINT_PERF))
+		return;
+
+	fprintf(out, "POWER BUDGET table at 0x%x, version %x\n", budget->offset, budget->version);
+	envy_bios_dump_hex(bios, out, budget->offset, budget->hlen, mask);
+	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
+
+	for (i = 0; i < budget->entriesnum; i++) {
+		fprintf(out, "%s %i: avg = %u mW, peak = %u mW\n",
+			ram_cfg == i?"*":" ", i, budget->entries[i].min,
+			budget->entries[i].max);
+		envy_bios_dump_hex(bios, out, budget->entries[i].offset, budget->rlen, mask);
 		if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 	}
 

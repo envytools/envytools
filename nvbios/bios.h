@@ -656,6 +656,25 @@ struct envy_bios_power_cstep {
 	struct envy_bios_power_cstep_entry2 *ent2;
 };
 
+struct envy_bios_power_budget_entry {
+	uint16_t offset;
+	uint8_t valid;
+
+	uint32_t min;
+	uint32_t max;
+};
+
+struct envy_bios_power_budget {
+	uint16_t offset;
+	uint8_t valid;
+	uint8_t version;
+	uint8_t hlen;
+	uint8_t entriesnum;
+	uint8_t rlen;
+
+	struct envy_bios_power_budget_entry *entries;
+};
+
 struct envy_bios_power {
 	struct envy_bios_bit_entry *bit;
 
@@ -668,6 +687,7 @@ struct envy_bios_power {
 
 	struct envy_bios_power_unk unk;
 
+	struct envy_bios_power_budget budget;
 	struct envy_bios_power_boost boost;
 	struct envy_bios_power_cstep cstep;
 };
@@ -841,6 +861,7 @@ void envy_bios_print_i2cscript (struct envy_bios *bios, FILE *out, unsigned mask
 
 int envy_bios_parse_bit_P (struct envy_bios *bios, struct envy_bios_bit_entry *bit);
 void envy_bios_print_bit_P (struct envy_bios *bios, FILE *out, unsigned mask);
+void envy_bios_print_power_budget(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_boost(struct envy_bios *bios, FILE *out, unsigned mask);
 void envy_bios_print_power_cstep(struct envy_bios *bios, FILE *out, unsigned mask);
 
