@@ -117,7 +117,7 @@ static struct rbitfield imm8soff = { { 16, 8 }, RBF_SIGNED };
 static struct rbitfield imm16woff = { { 16, 16 }, .wrapok = 1 };
 static struct rbitfield imm16hoff = { { 16, 16 }, RBF_UNSIGNED, 16 };
 static struct rbitfield imm8hoff = { { 16, 8 }, RBF_UNSIGNED, 16 };
-static struct rbitfield fimm8off = { 8, 8 };
+static struct rbitfield fimm8soff = { { 8, 8 }, RBF_SIGNED };
 static struct rbitfield fimm16off = { 8, 16 };
 static struct rbitfield fimm24off = { 8, 24 };
 static struct rbitfield fimm32off = { 8, 32 };
@@ -130,7 +130,7 @@ static struct bitfield cimm2off = { 20, 6 };
 #define IMM16W atomrimm, &imm16woff
 #define IMM16H atomrimm, &imm16hoff
 #define IMM8H atomrimm, &imm8hoff
-#define FIMM8 atomrimm, &fimm8off
+#define FIMM8S atomrimm, &fimm8soff
 #define FIMM16 atomrimm, &fimm16off
 #define FIMM24 atomrimm, &fimm24off
 #define FIMM32 atomrimm, &fimm32off
@@ -338,7 +338,7 @@ static struct insn tabsi[] = {
 	{ 0x00000000, 0x0000003f, OP3B, N("st"), T(sz), T(datari), REG1, .fmask = F_FUCOLD },
 	{ 0x00000000, 0x00000030, OP3B, OOPS, T(sz), REG1, REG2, IMM8, .fmask = F_FUCOLD },
 
-	{ 0x00000000, 0x000000f0, OP2B, N("mov"), REG0, FIMM8, .fmask = F_FUC5P },
+	{ 0x00000000, 0x000000f0, OP2B, N("mov"), REG0, FIMM8S, .fmask = F_FUC5P },
 	{ 0x00000040, 0x000000f0, OP3B, N("mov"), REG0, FIMM16, .fmask = F_FUC5P },
 	{ 0x00000080, 0x000000f0, OP4B, N("mov"), REG0, FIMM24, .fmask = F_FUC5P },
 
