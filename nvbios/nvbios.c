@@ -1456,7 +1456,7 @@ int main(int argc, char **argv) {
 		uint8_t version = 0, entry_count = 0, entry_length = 0;
 		uint8_t header_length = 0, mask = 0;
 		uint16_t start = bios->power.volt.offset;
-		uint16_t step_uv = 0;
+		int16_t step_uv = 0;
 		uint32_t volt_uv = 0, volt;
 		uint8_t shift = 0;
 		const int vidtag[] =  { 0x04, 0x05, 0x06, 0x1a, 0x73 };
