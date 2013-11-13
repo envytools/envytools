@@ -1459,9 +1459,8 @@ int main(int argc, char **argv) {
 		int16_t step_uv = 0;
 		uint32_t volt_uv = 0, volt;
 		uint8_t shift = 0;
-		const int vidtag[] =  { 0x04, 0x05, 0x06, 0x1a, 0x73 };
+		const int vidtag[] =  { 0x04, 0x05, 0x06, 0x1a, 0x73, 0x74, 0x75, 0x76 };
 		int nr_vidtag = sizeof(vidtag) / sizeof(vidtag[0]);
-
 
 		version = bios->data[start+0];
 		if (version == 0x10 || version == 0x12) {
@@ -1536,9 +1535,64 @@ int main(int argc, char **argv) {
 
 				start += entry_length;
 			}
+		} else if (version == 0x40) {
+			int realtag[8];
+			int max_uv_used = le32(start+14);
+
+			printf("-- Maximum voltage %d µV, voltage step %d µV, Maximum voltage to be used %d µV --\n",
+					volt_uv, step_uv, max_uv_used);
+			printf ("-- Voltage range = %u-%u µV, step = %i µV --\n\n",
+				volt_uv, volt_uv + step_uv * mask, step_uv);
+			start += header_length;
+
+			memcpy(realtag, vidtag, sizeof(realtag));
+
+			for (i = 0; i < entry_count; i++) {
+#if 0
+				// Speculation, not confirmed in any way
+				// Nvidia seems to have 8 1-byte entries for v40:
+				// 00 11 22 33 44 58 68 78
+
+				uint8_t bit = bios->data[start] >> 4;
+				uint8_t gpio = bios->data[start] & 0xf;
+
+				if (gpio < 8)
+					realtag[bit] = vidtag[gpio];
+				else
+					realtag[bit] = 0;
+
+				printf("-- bit %u mapped to GPIO tag 0x%x(VID)\n", bit, realtag[bit]);
+#endif
+				printcmd(start, entry_length); printf("\n\n");
+				start += entry_length;
+			}
+
+			for (i = 0; i <= mask; ++i, volt_uv += step_uv) {
+				int j;
+
+				printf("-- Vid %d, voltage %d µV --\n", i, volt_uv);
+				if (i & ~mask) {
+					printf("-- Voltage unused/overridden by voltage mask --\n\n");
+					continue;
+				}
+
+				if (volt_uv > max_uv_used) {
+					printf("-- Voltage unused: higher than limit --\n\n");
+					continue;
+				}
+
+				for (j = 0; j < nr_vidtag; j++) {
+					if ((1 << j) & ~mask)
+						continue;
+					printf("-- GPIO tag 0x%x(VID) data (logic %d) --\n", realtag[j], (!!(i & (1 << j))));
+				}
+				printf("\n");
+			}
 		} else {
 			printf("-- Maximum voltage %d µV, voltage step %d µV, Maximum voltage to be used %d µV --\n",
 					volt_uv, step_uv, le32(start+14));
+//			printf ("-- Voltage range = %u-%u µV, step = %i µV --\n\n",
+//				volt_uv, volt_uv + step_uv * mask, step_uv);
 			start += header_length;
 
 			for (i = 0; i < entry_count; i++) {
@@ -1551,17 +1605,15 @@ int main(int argc, char **argv) {
 					if (!(mask & (1 << j))) {
 					/*	printf("-- Voltage unused/overridden by voltage mask --\n");*/
 						continue;
-	 				}
+					}
 					printf("-- GPIO tag 0x%x(VID) data (logic %d) --\n", vidtag[j], (!!(i & (1 << j))));
 				}
-				printcmd(start + (i * entry_length), entry_length); printf("\n");
+				printcmd(start, entry_length); printf("\n");
 				printf("\n");
 				start += entry_length;
 			}
-
-//			printf ("-- Voltage range = %u-%u µV, step = %u µV--\n",
-//				volt_uv, volt_uv + volt_uv * mask, step_uv);
 		}
+
 		printf("\n");
 	}
 	if (bios->power.therm.offset && (printmask & ENVY_BIOS_PRINT_PERF)) {
