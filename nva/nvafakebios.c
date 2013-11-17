@@ -28,6 +28,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+#include <inttypes.h>
 
 #define NV_PRAMIN_OFFSET            0x00700000
 #define NV_PROM_SIZE                0x00010000
@@ -41,6 +42,7 @@
 #define ENOTVBIOS -5
 #define ECARD -6
 
+#define EDIT_SIZE 100
 
 static void chksum(uint8_t *data, unsigned int length)
 {
@@ -97,7 +99,7 @@ int vbios_upload_pramin(int cnum, uint8_t *vbios, int length)
 	return ret;
 }
 
-int vbios_read(const char *filename, uint8_t **vbios, unsigned int *length)
+int vbios_read(const char *filename, uint8_t **vbios, size_t *length)
 {
 	FILE * fd_bios;
 
@@ -142,13 +144,77 @@ void usage(int error_code)
 	exit(error_code);
 }
 
+enum print_type { HEX = 0, UDEC = 1 };
+struct edit_offset {
+	uint16_t offset;
+	uint32_t val;
+	size_t size;
+	enum print_type type;
+};
+
+uint8_t bios_edit_u8(uint8_t *vbios, size_t vbios_length, unsigned int offs, uint8_t new) {
+	uint8_t orig = 0;
+	if (offs >= vbios_length) {
+		fprintf(stderr, "requested OOB u8 at 0x%04x\n", offs);
+		return 0;
+	}
+	orig = vbios[offs];
+	vbios[offs] = new;
+	return orig;
+}
+
+uint16_t bios_edit_u16(uint8_t *vbios, size_t vbios_length, unsigned int offs, uint16_t new) {
+	uint16_t orig = 0;
+	if (offs+1 >= vbios_length) {
+		fprintf(stderr, "requested OOB u16 at 0x%04x\n", offs);
+		return 0;
+	}
+	orig = vbios[offs] | vbios[offs+1] << 8;
+	vbios[offs + 0] = (new >> 0) & 0xff;
+	vbios[offs + 1] = (new >> 8) & 0xff;
+	return orig;
+}
+
+uint32_t bios_edit_u32(uint8_t *vbios, size_t vbios_length, unsigned int offs, uint32_t new) {
+	uint32_t orig = 0;
+	if (offs+3 >= vbios_length) {
+		fprintf(stderr, "requested OOB u32 at 0x%04x\n", offs);
+		return 0;
+	}
+	orig = vbios[offs] | vbios[offs+1] << 8 | vbios[offs+2] << 16 | vbios[offs+3] << 24;
+	vbios[offs + 0] = (new >> 0) & 0xff;
+	vbios[offs + 1] = (new >> 8) & 0xff;
+	vbios[offs + 2] = (new >> 16) & 0xff;
+	vbios[offs + 3] = (new >> 24) & 0xff;
+	return orig;
+}
+
+void edit_bios(uint8_t *vbios, size_t vbios_length, struct edit_offset *edit)
+{
+	uint32_t orig = 0;
+	if (edit->size == 8) {
+		edit->val &= 0xff;
+		orig = bios_edit_u8(vbios, vbios_length, edit->offset, edit->val);
+	} else if (edit->size == 16) {
+		edit->val &= 0xffff;
+		orig = bios_edit_u16(vbios, vbios_length, edit->offset, edit->val);
+	} else if (edit->size == 32)
+		orig = bios_edit_u32(vbios, vbios_length, edit->offset, edit->val);
+
+	if (edit->type == HEX)
+		printf("Edit offset 0x%x from 0x%x to 0x%x (hex, %lu bits)\n", edit->offset, orig, edit->val, edit->size);
+	else if (edit->type == UDEC)
+		printf("Edit offset 0x%x from %u to %u (dec, %lu bits)\n", edit->offset, orig, edit->val, edit->size);
+	else
+		printf("Unknown print type for edit offset 0x%x\n", edit->offset);
+}
+
 int main(int argc, char **argv) {
 	uint8_t *vbios = NULL;
-	unsigned int vbios_length = 0;
+	size_t vbios_length = 0;
 	int c, i, cnum = 0, result = 0;
 
-	uint16_t offset[10] = { 0 };
-	uint16_t val[10] = { 0 };
+	struct edit_offset edits[100] = { { 0, 0, HEX } };
 	int e = 0;
 
 	if (nva_init()) {
@@ -157,7 +223,7 @@ int main(int argc, char **argv) {
 	}
 
 	/* Arguments parsing */
-	while ((c = getopt (argc, argv, "hc:e:")) != -1)
+	while ((c = getopt (argc, argv, "hc:e:E:w:W:l:L:")) != -1)
 		switch (c) {
 			case 'h':
 				usage(0);
@@ -166,7 +232,39 @@ int main(int argc, char **argv) {
 				sscanf(optarg, "%d", &cnum);
 				break;
 			case 'e':
-				sscanf(optarg, "%hx:%hx", &offset[e], &val[e]);
+				sscanf(optarg, "%hx:%x", &edits[e].offset, &edits[e].val);
+				edits[e].size = 8;
+				edits[e].type = HEX;
+				e++;
+				break;
+			case 'E':
+				sscanf(optarg, "%hx:%u", &edits[e].offset, &edits[e].val);
+				edits[e].size = 8;
+				edits[e].type = UDEC;
+				e++;
+				break;
+			case 'w':
+				sscanf(optarg, "%hx:%x", &edits[e].offset, &edits[e].val);
+				edits[e].size = 16;
+				edits[e].type = HEX;
+				e++;
+				break;
+			case 'W':
+				sscanf(optarg, "%hx:%u", &edits[e].offset, &edits[e].val);
+				edits[e].size = 16;
+				edits[e].type = UDEC;
+				e++;
+				break;
+			case 'l':
+				sscanf(optarg, "%hx:%x", &edits[e].offset, &edits[e].val);
+				edits[e].size = 32;
+				edits[e].type = HEX;
+				e++;
+				break;
+			case 'L':
+				sscanf(optarg, "%hx:%u", &edits[e].offset, &edits[e].val);
+				edits[e].size = 32;
+				edits[e].type = UDEC;
 				e++;
 				break;
 			default:
@@ -191,10 +289,8 @@ int main(int argc, char **argv) {
 		goto out;
 
 	/* do the edits */
-	for (i = 0; i < e; i++) {
-		printf("Edit offset 0x%x from 0x%x to 0x%x\n", offset[i], vbios[offset[i]], val[i]);
-		vbios[offset[i]] = val[i];
-	}
+	for (i = 0; i < e; i++)
+		edit_bios(vbios, vbios_length, &edits[i]),
 
 	/* Upload */
 	result = vbios_upload_pramin(cnum, vbios, vbios_length);
