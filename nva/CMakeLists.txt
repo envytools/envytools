@@ -51,6 +51,7 @@ if (NOT DISABLE_NVA)
 			evotiming
 			nv01dump
 			nv01post
+			nvaspyi2c
 		)
 
 		foreach(PROG ${NVA_PROGS})
