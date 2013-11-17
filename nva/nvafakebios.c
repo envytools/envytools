@@ -60,7 +60,7 @@ static void chksum(uint8_t *data, unsigned int length)
 /* vbios should at least be NV_PROM_SIZE bytes long */
 int vbios_upload_pramin(int cnum, uint8_t *vbios, int length)
 {
-	uint32_t old_bar0_pramin = 0;
+	uint64_t old_bar0_pramin = 0;
 	uint32_t ret = EUNK;
 	int i = 0;
 
@@ -75,10 +75,10 @@ int vbios_upload_pramin(int cnum, uint8_t *vbios, int length)
 			cnum, nva_cards[cnum].chipset);
 
 	if (nva_cards[cnum].card_type >= 0x50) {
-		uint32_t vbios_vram = (nva_rd32(cnum, 0x619f04) & ~0xff) << 8;
+		uint64_t vbios_vram = (uint64_t)(nva_rd32(cnum, 0x619f04) & ~0xff) << 8;
 
 		if (!vbios_vram)
-			vbios_vram = (nva_rd32(cnum, 0x1700) << 16) + 0xf0000;
+			vbios_vram =((uint64_t)nva_rd32(cnum, 0x1700) << 16) + 0xf0000;
 
 		old_bar0_pramin = nva_rd32(cnum, 0x1700);
 		nva_wr32(cnum, 0x1700, vbios_vram >> 16);
