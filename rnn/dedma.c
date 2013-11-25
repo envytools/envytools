@@ -413,7 +413,7 @@ main(int argc, char *argv[])
 	/* set up an rnn context */
 	rnn_init();
 	s.db = rnn_newdb();
-	rnn_parsefile(s.db, "nv_objects.xml");
+	rnn_parsefile(s.db, "fifo/nv_objects.xml");
 	rnn_prepdb(s.db);
 	s.dom = rnn_finddomain(s.db, "NV01_SUBCHAN");
 
