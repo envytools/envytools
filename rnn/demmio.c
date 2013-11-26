@@ -332,14 +332,14 @@ int main(int argc, char **argv) {
 							fprintf(stderr, "invalid read for  PMC.ID %"PRIX64"\n", value);
 							continue;
 						}
-						else if (value & 0x0f000000)
-							snprintf(chname, 5, "NV%02"PRIX64, (value >> 20) & 0xff);
+						else if (value & 0x1f000000)
+							snprintf(chname, 5, "NV%02"PRIX64, (value >> 20) & 0x1ff);
 						else if (value & 0x0000f000)
 							snprintf(chname, 5, "NV%02"PRIX64, ((value >> 20) & 0xf) + 4);
 						else
 							snprintf(chname, 5, "NV%02"PRIX64, ((value >> 16) & 0xf));
 						rnndec_varadd(cc->ctx, "chipset", chname);
-						switch ((value >> 20) & 0xf0) {
+						switch ((value >> 20) & 0x1f0) {
 							case 0:
 								cc->arch = 0;
 								break;
@@ -366,10 +366,11 @@ int main(int argc, char **argv) {
 							case 0xd0:
 							case 0xe0:
 							case 0xf0:
+							case 0x100:
 								cc->arch = 6;
 								break;
 						}
-						cc->chipset = (value >> 20) & 0xff;
+						cc->chipset = (value >> 20) & 0x1ff;
 						cc->chdone = 1;
 					} else if (addr == 0xa00) {
 						uint32_t chipset = (value >> 20) & 0x1ff;
