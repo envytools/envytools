@@ -64,7 +64,8 @@ Address range   Name     Variants  Reference                      Description
 007000:008000   PRMA     all       :ref:`prma-mmio`               access to BAR0/BAR1 from real mode
 008000:009000   PVIDEO   NV10:NV50 :ref:`pvideo-mmio`             video overlay
 009000:00a000   PTIMER   all       :ref:`ptimer-mmio-nv03`        time measurement and time-based alarms
-00a000:00b000   PCOUNTER NV10:NV50 `<pcounter/intro.txt>`_        performance monitoring counters
+00a000:00b000   PCOUNTER NV10:NV50 :ref:`nv10-pcounter-mmio`      performance monitoring counters
+                                   :ref:`nv40-pcounter-mmio`
 00b000:00c000   PVPE     NV17:NV20 :ref:`pvpe-mmio`               MPEG2 decoding engine
                          NV30:NV50 
 00c000:00d000   PCONTROL NV40:NV50 :ref:`nv40-pcontrol-mmio`      control of misc stuff
@@ -132,7 +133,7 @@ Address range  Port  Name          Variants  Reference                        De
 004000:005000  IBUS  PCLOCK        NVA3:NVC0 :ref:`nva3-pclock-mmio`          PLL control
 007000:008000  ROOT  PRMA          all       :ref:`prma-mmio`                 access to BAR0 from real mode
 009000:00a000  ROOT  PTIMER        all       :ref:`ptimer-mmio-nv03`          time measurement and time-based alarms
-00a000:00b000  IBUS  PCOUNTER      all       `<pcounter/intro.txt>`_          performance monitoring counters
+00a000:00b000  IBUS  PCOUNTER      all       :ref:`nv40-pcounter-mmio`        performance monitoring counters
 00b000:00c000  IBUS  PVPE          all       :ref:`pvpe-mmio`                 MPEG2 decoding engine
 00c000:00d000  IBUS  PCONTROL      NV50:NVA3 :ref:`nv50-pcontrol-mmio`        control of misc stuff
 00c000:00d000  IBUS  PCONTROL      NVA3:NVC0 :ref:`nva3-pcontrol-mmio`        control of misc stuff
@@ -247,7 +248,7 @@ Address range  Port  Name          Variants  Reference                        De
 139000:13b000  IBUS  PP2P          all       :ref:`pp2p-mmio`                 peer to peer memory access
 13b000:13f000  IBUS  PXBAR         all       :ref:`pxbar-mmio`                crossbar between memory controllers and GPCs
 140000:180000  IBUS  PMFBs         all       :ref:`pmfb-mmio`                 middle memory controllers: compression and L2 cache
-180000:1c0000  IBUS  PCOUNTER      all       `<pcounter/intro.txt>`_          performance monitoring counters
+180000:1c0000  IBUS  PCOUNTER      all       :ref:`nvc0-pcounter-mmio`        performance monitoring counters
 1c0000:1c1000  ROOT  ???           all       ???                              related to PFIFO and playlist?
 1c2000:1c3000  IBUS  PVENC         NVE4-     :ref:`pvenc-io`                  H.264 video encoding engine
 1c3000:1c4000  IBUS  ???           NVD9-     :ref:`punk1c3-io`                some falcon engine
