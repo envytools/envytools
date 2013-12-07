@@ -36,6 +36,7 @@ static const int SZ = 1024 * 1024;
 uint32_t queue[1024 * 1024];
 uint32_t tqueue[1024 * 1024];
 volatile int get = 0, put = 0;
+uint32_t mask = 0xffffffff;
 
 void *watchfun(void *x) {
 	uint32_t val = nva_rd32(cnum, a);
@@ -43,7 +44,7 @@ void *watchfun(void *x) {
 	put = (put + 1) % SZ;
 	while (1) {
 		uint32_t nval = nva_rd32(cnum, a);
-		if (nval != val) {
+		if ((nval & mask) != (val & mask)) {
 			queue[put] = nval;
 			put = (put + 1) % SZ;
 		}
@@ -58,7 +59,7 @@ void *twatchfun(void *x) {
 	put = (put + 1) % SZ;
 	while (1) {
 		uint32_t nval = nva_rd32(cnum, a);
-		if (nval != val) {
+		if ((nval & mask) != (val & mask)) {
 			queue[put] = nval;
 			tqueue[put] = nva_rd32(cnum, 0x9400);
 			put = (put + 1) % SZ;
@@ -74,13 +75,16 @@ int main(int argc, char **argv) {
 	}
 	int c;
 	int wanttime = 0;
-	while ((c = getopt (argc, argv, "tc:")) != -1)
+	while ((c = getopt (argc, argv, "tc:m:")) != -1)
 		switch (c) {
 			case 't':
 				wanttime = 1;
 				break;
 			case 'c':
 				sscanf(optarg, "%d", &cnum);
+				break;
+			case 'm':
+				sscanf(optarg, "%x", &mask);
 				break;
 		}
 	if (cnum >= nva_cardsnum) {
