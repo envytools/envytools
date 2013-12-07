@@ -290,7 +290,7 @@ int main(int argc, char **argv) {
 
 	/* do the edits */
 	for (i = 0; i < e; i++)
-		edit_bios(vbios, vbios_length, &edits[i]),
+		edit_bios(vbios, vbios_length, &edits[i]);
 
 	/* Upload */
 	result = vbios_upload_pramin(cnum, vbios, vbios_length);
