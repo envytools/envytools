@@ -292,6 +292,7 @@ enum envy_bios_gpio_tag {
 
 	/* 0x2b seen, neg input [NV86, NV92, NV94, NV96, NV98, NVA3, NVA5, NVCE] */
 	/* 0x2c seen, output [NV4B] */
+	ENVY_BIOS_GPIO_MEM_VREF			= 0x2e,
 	ENVY_BIOS_GPIO_TVDAC_1			= 0x2d,
 	/* 0x2e seen, output neg [lotsa NV84+ cards], related to mem reclocking... also used as a SPEC NVIO input on nv50 */
 
@@ -307,7 +308,9 @@ enum envy_bios_gpio_tag {
 	/* 0x43 seen, output [NV50, NVA0], SPEC NVIO [or not]... not seen on NVC0+ */
 	ENVY_BIOS_GPIO_SLI_SENSE_1_ALT		= 0x44, /* used on NV50 instead of 0x41 for some reason */
 
+
 	/* 0x49 seen, output [NV98, NVA3, NVA8, NVCE] or input [NVD9], unk41_line used... related to PWM? */
+	ENVY_BIOS_GPIO_THERM_ALERT_OUT		= 0x49,
 	ENVY_BIOS_GPIO_DP_EXT_0			= 0x4a,	/* XXX: figure out what this is... some input */
 	ENVY_BIOS_GPIO_DP_EXT_1			= 0x4b,
 	ENVY_BIOS_GPIO_ATX_POWER_BAD_ALT	= 0x4c,
@@ -331,14 +334,19 @@ enum envy_bios_gpio_tag {
 
 	/* 0x6c, 0x6d, 0x6e seen, output [NVCE] */
 	/* 0x6f seen, input [NVA5, NVA8] SPEC NVIO */
+	ENVY_BIOS_GPIO_HW_PWR_SLOWDOWN		= 0x6f,
 
 	ENVY_BIOS_GPIO_VID_4			= 0x73,
 
 	/* 0x78 seen, output [NVC0, NVC3, NVC4, NVC8, NVCE, NVCF, NVE4 */
+	ENVY_BIOS_GPIO_FAN_FAILSAFE_PWM		= 0x78,
 	/* 0x79 seen, neg input [NVC0, NVE4], uses unk41_line */
+	ENVY_BIOS_GPIO_ATX_POWER_LOW		= 0x79,
 	/* 0x7a seen, open-collector output [NVE4] */
+	ENVY_BIOS_GPIO_ATX_FORCE_LOW_PWR	= 0x7a,
 
 	/* 0x83 seen, input [NVE4], SPEC - connected to PWM??? */
+	ENVY_BIOS_GPIO_SLI_LED_PWM		= 0x83,
 
 	ENVY_BIOS_GPIO_UNUSED			= 0xff,
 };
