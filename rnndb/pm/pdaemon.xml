@@ -106,6 +106,7 @@
 		<bitfield pos="4" name="PVLD_IDLE"/>
 		<bitfield pos="5" name="PVDEC_IDLE"/>
 		<bitfield pos="6" name="PPPP_IDLE"/>
+		<bitfield pos="8" name="PGRAPH_IDLE"/> <!-- strong evidence, no factual proof -->
 		<bitfield pos="19" name="PCOPY_IDLE"/>
 	</bitset>
 	<reg32 offset="0x500" name="COUNTER_SIGNALS" type="nva3_pdaemon_counter_signals"/>
