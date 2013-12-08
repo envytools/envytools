@@ -707,7 +707,7 @@ struct envy_bios_power_budget_entry {
 	uint16_t offset;
 	uint8_t valid;
 
-	uint32_t unkn02;
+	uint32_t min;
 	uint32_t avg;
 	uint32_t peak;
 	uint32_t unkn12;

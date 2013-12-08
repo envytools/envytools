@@ -339,7 +339,7 @@ int envy_bios_parse_power_budget(struct envy_bios *bios) {
 		if (budget->rlen == 0x6) {
 			err |= bios_u32(bios, data + 0x02, &budget->entries[i].avg);
 		} else {
-			err |= bios_u32(bios, data + 0x02, &budget->entries[i].unkn02);
+			err |= bios_u32(bios, data + 0x02, &budget->entries[i].min);
 			err |= bios_u32(bios, data + 0x06, &budget->entries[i].avg);
 			err |= bios_u32(bios, data + 0x0a, &budget->entries[i].peak);
 			err |= bios_u32(bios, data + 0x12, &budget->entries[i].unkn12);
@@ -367,9 +367,9 @@ void envy_bios_print_power_budget(struct envy_bios *bios, FILE *out, unsigned ma
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
 	for (i = 0; i < budget->entriesnum; i++) {
-		fprintf(out, "%s %i: avg = %u mW, peak = %u mW (unkn02 = %u mW, unkn12 = %u)\n",
-			ram_cfg == i?"*":" ", i, budget->entries[i].avg,
-			budget->entries[i].peak, budget->entries[i].unkn02,
+		fprintf(out, "%s %i: min = %u W, avg = %u mW, peak = %u mW (unkn12 = %u)\n",
+			ram_cfg == i?"*":" ", i, budget->entries[i].min,
+			budget->entries[i].avg, budget->entries[i].peak,
 			budget->entries[i].unkn12
        		);
 
