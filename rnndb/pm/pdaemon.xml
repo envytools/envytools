@@ -103,11 +103,14 @@
 	</reg32>
 
 	<bitset name="nva3_pdaemon_counter_signals" inline="yes">
+		<bitfield pos="0" name="GR_IDLE"/>
 		<bitfield pos="4" name="PVLD_IDLE"/>
 		<bitfield pos="5" name="PVDEC_IDLE"/>
 		<bitfield pos="6" name="PPPP_IDLE"/>
-		<bitfield pos="8" name="PGRAPH_IDLE"/> <!-- strong evidence, no factual proof -->
-		<bitfield pos="19" name="PCOPY_IDLE"/>
+		<bitfield pos="8" name="MC_IDLE" variants="NVE4-"/> <!-- needs more proof but it looks like it -->
+		<bitfield pos="19" name="PCOPY0_IDLE"/>
+		<bitfield pos="20" name="PCOPY1_IDLE" variants="NVC0-"/>
+		<bitfield pos="21" name="PCOPY2_IDLE" variants="NVE4-"/>
 	</bitset>
 	<reg32 offset="0x500" name="COUNTER_SIGNALS" type="nva3_pdaemon_counter_signals"/>
 	<reg32 offset="0x504" name="COUNTER_MASK" stride="0x10" length="4" type="nva3_pdaemon_counter_signals" variants="NVA3:NVC0"/>
