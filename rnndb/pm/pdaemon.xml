@@ -107,7 +107,7 @@
 		<bitfield pos="4" name="PVLD_IDLE"/>
 		<bitfield pos="5" name="PVDEC_IDLE"/>
 		<bitfield pos="6" name="PPPP_IDLE"/>
-		<bitfield pos="8" name="MC_IDLE" variants="NVE4-"/> <!-- needs more proof but it looks like it -->
+		<bitfield pos="7" name="MC_IDLE" variants="NVE4-"/> <!-- needs more proof but it looks like it -->
 		<bitfield pos="19" name="PCOPY0_IDLE"/>
 		<bitfield pos="20" name="PCOPY1_IDLE" variants="NVC0-"/>
 		<bitfield pos="21" name="PCOPY2_IDLE" variants="NVE4-"/>
