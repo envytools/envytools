@@ -29,7 +29,7 @@
 #include <stdlib.h>
 
 int h264_mb_slice_group(struct h264_slice *slice, uint32_t mbaddr) {
-	if (mbaddr < 0 || mbaddr >= slice->pic_size_in_mbs)
+	if (mbaddr >= slice->pic_size_in_mbs)
 		return 0;
 	if (!slice->picparm->num_slice_groups_minus1)
 		return 0;
