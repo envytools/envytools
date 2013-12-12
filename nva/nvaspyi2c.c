@@ -198,7 +198,7 @@ bool i2c_add_data(struct i2c_state *i2c, uint8_t scl, uint8_t sda)
 
 void print_debug()
 {
-	printf(debugbuf);
+	printf("%s", debugbuf);
 	debugoff = 0;
 }
 
