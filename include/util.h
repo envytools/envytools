@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <inttypes.h>
+#include <assert.h>
 
 #define ADDARRAY(a, e) \
 	do { \
@@ -111,5 +112,11 @@ struct astr {
 void print_escaped_astr(FILE *out, struct astr *astr);
 
 char *aprintf(const char *format, ...);
+
+#ifdef NDEBUG
+#undef assert
+#define UNUSED(x) ((void)(x))
+#define assert(expression) UNUSED(expression)
+#endif
 
 #endif

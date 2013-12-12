@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <assert.h>
 #include <stdlib.h>
 #include <time.h>
 #include <sys/time.h>
@@ -12,6 +11,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include "util.h"
 
 VdpGetProcAddress * vdp_get_proc_address;
 VdpGetErrorString * vdp_get_error_string;

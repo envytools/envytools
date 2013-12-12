@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include <getopt.h>
@@ -7,6 +6,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stddef.h>
+#include "util.h"
 
 /* bsp structs */
 struct mpeg12_picparm_bsp {
