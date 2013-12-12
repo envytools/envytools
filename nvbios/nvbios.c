@@ -185,7 +185,7 @@ uint8_t parse_memtm_mapping_entry_10(uint16_t pos, uint16_t len, uint16_t hdr_po
 				printf("   1005a4: 0x0000%02hhx%02hhx\n",
 						bios->data[pos+8],
 						bios->data[pos+7]);
-				printf("   10f804: 0x80%02hhx00%02hhx\n",
+				printf("   10f804: 0x80%02x00%02x\n",
 						bios->data[pos+9] & 0xf0,
 						bios->data[pos+9] & 0x0f);
 			} else {
@@ -195,7 +195,7 @@ uint8_t parse_memtm_mapping_entry_10(uint16_t pos, uint16_t len, uint16_t hdr_po
 				printf("   10f660: 0x0000%02hhx%02hhx\n",
 						bios->data[pos+8],
 						bios->data[pos+7]);
-				printf("   10f668: 0x80%02hhx00%02hhx\n",
+				printf("   10f668: 0x80%02x00%02x\n",
 						bios->data[pos+9] & 0xf0,
 						bios->data[pos+9] & 0x0f);
 			}
@@ -1792,8 +1792,8 @@ int main(int argc, char **argv) {
 						tRC, tRFC, tRAS, tRCD);
 					/** First parse RAM_FT1 */
 					printf("RAM FT:");
-					printf(" ODT(%hhx)", tRAM_FT1 & 0xf);
-					printf(" DRIVE_STRENGTH(%hhx)\n", (tRAM_FT1 & 0xf0) >> 4);
+					printf(" ODT(%x)", tRAM_FT1 & 0xf);
+					printf(" DRIVE_STRENGTH(%x)\n", (tRAM_FT1 & 0xf0) >> 4);
 
 					if (bios->chipset < 0xc0) {
 						reg_100220 = (tRCD << 24 | tRAS << 16 | tRFC << 8 | tRC);
