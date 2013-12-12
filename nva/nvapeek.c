@@ -50,7 +50,7 @@ int main(int argc, char **argv) {
 				break;
 			case 't':
 				rs.type = nva_rstype(optarg);
-				if (rs.type == -1) {
+				if (rs.type == NVA_REGSPACE_UNKNOWN) {
 					fprintf (stderr, "Unknown register space.\n");
 					return 1;
 				}

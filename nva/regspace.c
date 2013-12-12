@@ -497,7 +497,7 @@ int nva_rstype(const char *name) {
 		return NVA_REGSPACE_MACRO_CODE;
 	if (!strcmp(name, "xt"))
 		return NVA_REGSPACE_XT;
-	return -1;
+	return NVA_REGSPACE_UNKNOWN;
 }
 
 int nva_rsdefsz(struct nva_regspace *regspace) {

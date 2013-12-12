@@ -90,6 +90,7 @@ struct nva_regspace {
 	struct nva_card *card;
 	int cnum;
 	enum {
+		NVA_REGSPACE_UNKNOWN,
 		NVA_REGSPACE_BAR0,
 		NVA_REGSPACE_BAR1,
 		NVA_REGSPACE_BAR2,
