@@ -336,8 +336,9 @@ int vs_search_start(struct bitstream *str) {
 	}
 	if (str->type == VS_H261 || str->type == VS_H263) {
 		int nzbit = (str->type == VS_H261 ? 15 : 16);
+		uint32_t bit = 0;
+
 		while (1) {
-			uint32_t bit;
 			if (!str->hasbyte && str->bytepos >= str->bytesnum)
 				return 0;
 			if (str->zero_bits >= nzbit)
