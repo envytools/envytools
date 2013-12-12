@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include <stddef.h>
 #include "nva.h"
 #include "vstream.h"
 #include "h262.h"
@@ -693,7 +694,7 @@ static void fuzz_h263(VdpVideoMixer mix, VdpVideoSurface *surf, VdpOutputSurface
 
 	struct fuzz fuzzy[] = {
 #define entry(type, rest...) { \
-	__builtin_offsetof(VdpPictureInfoMPEG4Part2, type), \
+	offsetof(VdpPictureInfoMPEG4Part2, type), \
 	sizeof(((VdpPictureInfoMPEG4Part2*)NULL)->type), \
 	#type, rest \
 }
@@ -862,7 +863,7 @@ static void fuzz_h264(VdpVideoMixer mix, VdpVideoSurface *surf, VdpOutputSurface
 
 	struct fuzz fuzzy[] = {
 #define entry(type, rest...) { \
-	__builtin_offsetof(VdpPictureInfoH264, type), \
+	offsetof(VdpPictureInfoH264, type), \
 	sizeof(((VdpPictureInfoH264*)NULL)->type), \
 	#type, rest \
 }
@@ -1042,7 +1043,7 @@ static void fuzz_vc1(VdpVideoMixer mix, VdpVideoSurface *surf, VdpOutputSurface 
 
 	struct fuzz fuzzy[] = {
 #define entry(type, rest...) { \
-	__builtin_offsetof(VdpPictureInfoVC1, type), \
+	offsetof(VdpPictureInfoVC1, type), \
 	sizeof(((VdpPictureInfoVC1*)NULL)->type), \
 	#type, rest \
 }

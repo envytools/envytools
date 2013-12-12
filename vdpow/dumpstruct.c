@@ -6,12 +6,7 @@
 #include <vdpau/vdpau.h>
 #include <fcntl.h>
 #include <unistd.h>
-
-#if __GNUC__ >= 4
-#define offsetof __builtin_offsetof
-#else
-#define offsetof(str, x) ((size_t)&((str*)0)->x)
-#endif
+#include <stddef.h>
 
 /* bsp structs */
 struct mpeg12_picparm_bsp {
