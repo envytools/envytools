@@ -369,7 +369,7 @@ void time_fuc_engine_periodic (unsigned int card, const char *fuc_engine_name, u
 		i++;
 	} while (t_start < 10000000 && i < 10000);
 
-	if (i < 10000 && (t_start & 0xffff0000 != 0xbadf0000)) {
+	if (i < 10000 && ((t_start & 0xffff0000) != 0xbadf0000)) {
 		gettimeofday(&start, NULL);
 
 		while (t_start - nva_rd32(card, fucengine + 0x24) < 10000000);
@@ -408,7 +408,7 @@ void time_fuc_engine_watchdog (unsigned int card, const char *fuc_engine_name, u
 		i++;
 	} while (t_start < 10000000 && i < 10000);
 
-	if (i < 10000 && (t_start & 0xffff0000 != 0xbadf0000)) {
+	if (i < 10000 && ((t_start & 0xffff0000) != 0xbadf0000)) {
 		gettimeofday(&start, NULL);
 
 		while (t_start - nva_rd32(card, fucengine + 0x34) < 10000000);
