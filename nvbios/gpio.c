@@ -99,7 +99,7 @@ int envy_bios_parse_gpio (struct envy_bios *bios) {
 	for (i = 0; i < gpio->entriesnum; i++) {
 		struct envy_bios_gpio_entry *entry = &gpio->entries[i];
 		entry->offset = gpio->offset + gpio->hlen + gpio->rlen * i;
-		uint8_t bytes[5];
+		uint8_t bytes[5] = { 0 };
 		int j;
 		for (j = 0; j < 5 && j < gpio->rlen; j++) {
 			err |= bios_u8(bios, entry->offset+j, &bytes[j]);
@@ -111,6 +111,8 @@ int envy_bios_parse_gpio (struct envy_bios *bios) {
 			case 0x10:
 			case 0x30:
 			case 0x31:
+				if (gpio->rlen < 2)
+					return -EFAULT;
 				val = bytes[0] | bytes[1] << 8;
 				entry->line = val & 0x1f;
 				entry->tag = val >> 5 & 0x3f;
@@ -121,6 +123,8 @@ int envy_bios_parse_gpio (struct envy_bios *bios) {
 					entry->tag = 0xff;
 				break;
 			case 0x40:
+				if (gpio->rlen < 4)
+					return -EFAULT;
 				entry->line = bytes[0] & 0x1f;
 				entry->unk40_0 = bytes[0] >> 5 & 7;
 				entry->tag = bytes[1];
@@ -132,6 +136,8 @@ int envy_bios_parse_gpio (struct envy_bios *bios) {
 				entry->param = bytes[3] >> 7 & 1;
 				break;
 			case 0x41:
+				if (gpio->rlen < 5)
+					return -EFAULT;
 				entry->line = bytes[0] & 0x3f;
 				entry->io = bytes[0] >> 6 & 1;
 				entry->def = bytes[0] >> 7 & 1;
@@ -370,7 +376,7 @@ int envy_bios_parse_xpio (struct envy_bios *bios, struct envy_bios_xpio *xpio, i
 		struct envy_bios_gpio_entry *entry = &xpio->entries[i];
 		entry->offset = xpio->offset + xpio->hlen + xpio->rlen * i;
 		/* note: structure is the same as GPIO, but tags are different, and some fields don't make sense */
-		uint8_t bytes[5];
+		uint8_t bytes[5] = { 0 };
 		int j;
 		for (j = 0; j < 5 && j < xpio->rlen; j++) {
 			err |= bios_u8(bios, entry->offset+j, &bytes[j]);
@@ -382,6 +388,8 @@ int envy_bios_parse_xpio (struct envy_bios *bios, struct envy_bios_xpio *xpio, i
 		switch (bios->gpio.version) {
 			case 0x30:
 			case 0x31:
+				if (xpio->rlen < 2)
+					return -EFAULT;
 				val = bytes[0] | bytes[1] << 8;
 				entry->line = val & 0x1f;
 				entry->tag = val >> 5 & 0x3f;
@@ -390,6 +398,8 @@ int envy_bios_parse_xpio (struct envy_bios *bios, struct envy_bios_xpio *xpio, i
 				entry->param = val >> 15 & 1;
 				break;
 			case 0x40:
+				if (xpio->rlen < 4)
+					return -EFAULT;
 				entry->line = bytes[0] & 0x1f;
 				entry->unk40_0 = bytes[0] >> 5 & 7;
 				entry->tag = bytes[1];
@@ -401,6 +411,8 @@ int envy_bios_parse_xpio (struct envy_bios *bios, struct envy_bios_xpio *xpio, i
 				entry->param = bytes[3] >> 7 & 1;
 				break;
 			case 0x41:
+				if (xpio->rlen < 5)
+					return -EFAULT;
 				entry->line = bytes[0] & 0x3f;
 				entry->io = bytes[0] >> 6 & 1;
 				entry->def = bytes[0] >> 7 & 1;
