@@ -23,6 +23,7 @@
  */
 
 #include "bios.h"
+#include <string.h>
 
 int envy_bios_parse_power_budget(struct envy_bios *bios);
 int envy_bios_parse_power_boost(struct envy_bios *bios);
