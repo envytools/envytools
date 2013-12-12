@@ -66,7 +66,7 @@ int rnndec_varmod(struct rnndeccontext *ctx, char *varset, char *variant) {
 	int i;
 	for (i = 0; i < en->valsnum; i++)
 		if (!strcasecmp(en->vals[i]->name, variant)) {
-			struct rnndecvariant *ci;
+			struct rnndecvariant *ci = NULL;
 			FINDARRAY(ctx->vars, ci, ci->en == en);
 			ci->variant = i;
 			return 1;
