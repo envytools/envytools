@@ -295,7 +295,7 @@ void envy_bios_print_spreadspectrum (struct envy_bios *bios, FILE *out, unsigned
 				break;
 			}
 			spread = (entry->unk01 & 0x3f) * 5;
-			fprintf(out, "SPREAD(%d.%02d\%) ", spread / 100, spread % 100);
+			fprintf(out, "SPREAD(%d.%02d%%) ", spread / 100, spread % 100);
 			
 			if(entry->unk01 & 0x70)
 				fprintf(out, "DOWN");
