@@ -428,7 +428,7 @@ deep_dump(struct nvamemtiming_conf *conf)
 	char filename[21];
 	int i;
 
-	if (conf->range.start == -1 ||  conf->range.end == -1)
+	if (conf->range.start == (unsigned char) -1 ||  conf->range.end == (unsigned char) -1)
 		sprintf(filename, "regs_timing_deep_%i_%i", conf->range.start, conf->range.end);
 	else
 		sprintf(filename, "regs_timing_deep");
@@ -486,7 +486,7 @@ shallow_dump(struct nvamemtiming_conf *conf)
 	char filename[21];
 	int i;
 
-	if (conf->range.start == -1 ||  conf->range.end == -1)
+	if (conf->range.start == (unsigned char) -1 ||  conf->range.end == (unsigned char) -1)
 		sprintf(filename, "regs_timing_%i_%i", conf->range.start, conf->range.end);
 	else
 		sprintf(filename, "regs_timing");
