@@ -50,6 +50,7 @@ static int gethex(char c) {
 	if (c >= 'A' && c <= 'F')
 		return c - 'A' + 0xa;
 	assert(0);
+	return 0;
 }
 
 void yy_str_deescape(const char *str, struct astr *astr) {
