@@ -27,6 +27,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <sched.h>
+#include <inttypes.h>
 
 int cnum = 0;
 int32_t a;
@@ -35,8 +36,25 @@ static const int SZ = 1024 * 1024;
 
 uint32_t queue[1024 * 1024];
 uint32_t tqueue[1024 * 1024];
+uint64_t tqueue64[1024 * 1024];
 volatile int get = 0, put = 0;
 uint32_t mask = 0xffffffff;
+
+#define NV04_PTIMER_TIME_0                                 0x00009400
+#define NV04_PTIMER_TIME_1                                 0x00009410
+uint64_t get_time(unsigned int card)
+{
+	uint64_t low;
+
+	uint64_t high2 = nva_rd32(card, NV04_PTIMER_TIME_1);
+	uint64_t high1;
+	do {
+		high1 = high2;
+		low = nva_rd32(card, NV04_PTIMER_TIME_0);
+		high2 = nva_rd32(card, NV04_PTIMER_TIME_1);
+	} while (high1 != high2);
+	return ((((uint64_t)high2) << 32) | (uint64_t)low);
+}
 
 void *watchfun(void *x) {
 	uint32_t val = nva_rd32(cnum, a);
@@ -68,17 +86,35 @@ void *twatchfun(void *x) {
 	}
 }
 
+void *t64watchfun(void *x) {
+	uint32_t val = nva_rd32(cnum, a);
+	queue[put] = val;
+	tqueue64[put] = get_time(cnum);
+	put = (put + 1) % SZ;
+	while (1) {
+		uint32_t nval = nva_rd32(cnum, a);
+		if ((nval & mask) != (val & mask)) {
+			queue[put] = nval;
+			tqueue64[put] = get_time(cnum);
+			put = (put + 1) % SZ;
+		}
+		val = nval;
+	}
+}
+
 int main(int argc, char **argv) {
 	if (nva_init()) {
 		fprintf (stderr, "PCI init failure!\n");
 		return 1;
 	}
 	int c;
-	int wanttime = 0;
+	unsigned int wanttime = 0;
 	while ((c = getopt (argc, argv, "tc:m:")) != -1)
 		switch (c) {
 			case 't':
-				wanttime = 1;
+				wanttime++;
+				if (wanttime > 2)
+					wanttime = 2;
 				break;
 			case 'c':
 				sscanf(optarg, "%d", &cnum);
@@ -99,17 +135,31 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 	sscanf (argv[optind], "%x", &a);
+
 	pthread_t thr;
-	pthread_create(&thr, 0, wanttime ? twatchfun : watchfun, 0);
+	if (wanttime == 0)
+		pthread_create(&thr, 0, watchfun, 0);
+	else if (wanttime == 1)
+		pthread_create(&thr, 0, twatchfun, 0);
+	else
+		pthread_create(&thr, 0, t64watchfun, 0);
+
 	uint32_t ptime = 0;
+	uint64_t ptime64 = 0;
 	while (1) {
 		while (get == put)
 			sched_yield();
-		if (wanttime)
-			printf("%08x[+%d]: %08x\n", tqueue[get], tqueue[get]-ptime, queue[get]);
-		else
+
+		if (wanttime == 0)
 			printf("%08x\n", queue[get]);
-		ptime = tqueue[get];
+		if (wanttime == 1) {
+			printf("%08x[+%d]: %08x\n", tqueue[get], tqueue[get]-ptime, queue[get]);
+			ptime = tqueue[get];
+		} else {
+			printf("%016"PRIu64"[+%"PRIu64"]: %08x\n", tqueue64[get], tqueue64[get]-ptime64, queue[get]);
+			ptime64 = tqueue64[get];
+		}
+
 		get = (get + 1) % SZ;
 	}
 }
