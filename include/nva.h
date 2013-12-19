@@ -90,7 +90,6 @@ struct nva_regspace {
 	struct nva_card *card;
 	int cnum;
 	enum {
-		NVA_REGSPACE_UNKNOWN,
 		NVA_REGSPACE_BAR0,
 		NVA_REGSPACE_BAR1,
 		NVA_REGSPACE_BAR2,
@@ -107,6 +106,7 @@ struct nva_regspace {
 		NVA_REGSPACE_VCOMP_REG,
 		NVA_REGSPACE_MACRO_CODE,
 		NVA_REGSPACE_XT,
+		NVA_REGSPACE_UNKNOWN,
 	} type;
 	int regsz;
 	int idx;
