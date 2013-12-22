@@ -152,7 +152,7 @@ int main(int argc, char **argv) {
 
 		if (wanttime == 0)
 			printf("%08x\n", queue[get]);
-		if (wanttime == 1) {
+		else if (wanttime == 1) {
 			printf("%08x[+%d]: %08x\n", tqueue[get], tqueue[get]-ptime, queue[get]);
 			ptime = tqueue[get];
 		} else {
