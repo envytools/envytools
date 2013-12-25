@@ -98,18 +98,18 @@
 	<value value="0x42" name="Z32_MS4"/>
 	<value value="0x43" name="Z32_MS8"/>
 
-	<value value="0x44" name="TILED_24"/>
-	<value value="0x45" name="TILED_24_MS4"/>
-	<value value="0x46" name="TILED_24_MS8"/>
+	<value value="0x44" name="TILED_24" variants="NVA0-"/>
+	<value value="0x45" name="TILED_24_MS4" variants="NVA0-"/>
+	<value value="0x46" name="TILED_24_MS8" variants="NVA0-"/>
 
 	<value value="0x47" name="Z32_MS1_LSR"/>
 	<value value="0x48" name="Z32_MS2_LSR"/>
 	<value value="0x49" name="Z32_MS4_LSR"/>
 	<value value="0x4a" name="Z32_MS8_LSR"/>
 
-	<value value="0x4b" name="TILED_24_LSR"/>
-	<value value="0x4c" name="TILED_24_MS4_LSR"/>
-	<value value="0x4d" name="TILED_24_MS8_LSR"/>
+	<value value="0x4b" name="TILED_24_LSR" variants="NVA0-"/>
+	<value value="0x4c" name="TILED_24_MS4_LSR" variants="NVA0-"/>
+	<value value="0x4d" name="TILED_24_MS8_LSR" variants="NVA0-"/>
 
 	<value value="0x54" name="Z24_X8_S8_C8_X16_MS4_CS4"/>
 	<value value="0x55" name="Z24_X8_S8_C8_X16_MS4_CS12"/>
