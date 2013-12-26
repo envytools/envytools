@@ -6,6 +6,10 @@ Memory structure
 
 .. contents::
 
+
+Introduction
+============
+
 While DRAM is often treated as a flat array of bytes, its internal structure
 is far more complicated. A good understanding of it is necessary for
 high-performance applications like GPUs.
