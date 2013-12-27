@@ -91,8 +91,93 @@ The linear addresses are transformed in the following steps:
 Partition cycle
 ===============
 
-.. todo:: write me
+Partition cycle is the first address transformation. Its purpose is converting
+linear [global] addressing to partition index and per-partition addressing.
+The inputs to this process are:
 
+- the block index [ie. bits 8-31 of linear VRAM address]
+- partition cycle selected [short or long]
+- linear or tiled mode - linear is used when storage type is LINEAR, tiled
+  for all other storage types
+- partition count in the system [as selected by PBUS HWUNITS register]
+
+The outputs of this process are:
+
+- partition ID
+- partition block index
+
+Partition pre-ID and ID adjust are intermediate values in this process.
+
+On NV50 [and NV50 only], there are two partition cycles available: short one
+and long one. The short one switches partitions every block, while the long
+one switches partitions roughly every 4 blocks. However, to make sure
+addresses don't "bleed" between large page bounduaries, long partition cycle
+reverts to switching partitions every block near large page bounduaries::
+
+    if partition_cycle == LONG and chipset == NV50:
+        # round down to 4 * partition_count multiple
+        group_start = block_index / (4 * partition_count) * 4 * partition_count
+        group_end = group_start + 4 * partition_count - 1
+        # check whether the group is entirely within one large page
+        use_long_cycle = (group_start & ~0xff) == (group_end & ~0xff)
+    else:
+        use_long_cycle = False
+
+On NV84+, long partition cycle is no longer supported - short cycle is used
+regardless of the setting.
+
+.. todo:: verify it's really the NV84
+
+When short partition cycle is selected, the partition pre-ID and partition
+block index are calculated by simple division. The partition ID adjust is
+low 5 bits of partition block index::
+
+    if not use_long_cycle:
+        partition_preid = block_index % partition_count
+        partition_block_index = block_index / partition_count
+        partition_id_adjust = partition_block_index & 0x1f
+
+When long partition cycle is selected, the same calculation is performed,
+but with bits 2-23 of block index, and the resulting partition block index
+is merged back with bits 0-1 of block index::
+
+    if use_long_cycle:
+        quadblock_index = block_index >> 2
+        partition_preid = quadblock_index % partition_count
+        partition_quadblock_index = quadblock_index / partition_count
+        partition_id_adjust = partition_quadblock_index & 0x1f
+        partition_block_index = partition_quadblock_index << 2 | (block_index & 3)
+
+Finally, the real partition ID is determined. For linear mode, the partition
+ID is simply equal to the partition pre-ID. For tiled mode, the partition ID
+is adjusted as follows:
+
+- for 1, 3, 5, or 7-partition GPUs: no change [partition ID = partition pre-ID]
+- for 2 or 6-partition GPUs: XOR together all bits of partition ID adjust, then
+  XOR the partition pre-ID with the resulting bit to get the partition ID
+- for 4-partition GPUs: add together bits 0-1, bits 2-3, and bit 4 of partition
+  ID adjust, substract it from partition pre-ID, and take the result modulo 4.
+  This is the partition ID.
+- for 8-partition GPUs: ???
+
+.. todo:: figure out the 8-partition cycle
+
+In summary::
+
+    if linear or partition_count in [1, 3, 5, 7]:
+        partition_id = partition_preid
+    elif partition_count in [2, 6]:
+        xor = 0
+        for bit in range(5):
+            xor ^= partition_id_adjust >> bit & 1
+        partition_id = partition_preid ^ xor
+    elif partition_count == 4:
+        sub = partition_id_adjust & 3
+        sub += partition_id_adjust >> 2 & 3
+        sub += partition_id_adjust >> 4 & 1
+        partition_id = (partition_preid - sub) % 4
+    elif partition_count == 8:
+        # XXX figure it out
 
 Tag memory addressing
 ---------------------
