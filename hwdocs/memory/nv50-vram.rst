@@ -188,7 +188,55 @@ Tag memory addressing
 Subpartition cycle
 ==================
 
-.. todo:: write me
+On NVA3+, once the partition block index has been determined, it has to be
+further transformed to subpartition ID and subpartition block index. On NV50,
+this step doesn't exist - partitions are not split into subpartitions, and
+"subpartition" in further steps should be taken to actually refer to
+a partition.
+
+The inputs to this process are:
+
+- partition block index
+- subpartition select mask
+- subpartition count
+
+The outputs of this process are:
+
+- subpartition ID
+- subpartition block index
+
+The subpartition configuration is stored in the following register:
+
+MMIO 0x100268: [NVA3-]
+  - bits 8-10: SELECT_MASK, a 3-bit value affecting subpartition ID selection.
+  - bits 16-17: ???
+  - bits 28-29: ENABLE_MASK, a 2-bit mask of enabled subpartitions. The only
+    valid values are 1 [only subpartition 0 enabled] and 3 [both subpartitions
+    enabled].
+
+When only one subpartition is enabled, the subpartition cycle is effectively
+a NOP - subpartition ID is 0, and subpartition block index is same as
+partition block index. When both subpartitions are enabled, The subpartition
+block index is the partition block index shifted right by 1, and the
+subpartition ID is based on low 14 bits of partition block index::
+
+    if subpartition_count == 1:
+        subpartition_block_index = partition_block_index
+        subpartition_id = 0
+    else:
+        subpartition_block_index = partition_block_index >> 1
+        # bit 0 and bits 4-13 of the partition block index always used for
+        # subpartition ID selection
+        subpartition_select_bits = partition_block_index & 0x3ff1
+        # bits 1-3 of partition block index only used if enabled by the select
+        # mask
+        subpartition_select_bits |= partition_block_index & (subpartition_select_mask << 1)
+        # subpartition ID is a XOR of all the bits of subpartition_select_bits
+        subpartition_id = 0
+        for bit in range(14):
+            subpartition_id ^= subpartition_select_bits >> bit & 1
+
+.. todo:: tag stuff?
 
 
 Row/bank/column split

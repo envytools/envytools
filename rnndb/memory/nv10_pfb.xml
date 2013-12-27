@@ -329,6 +329,12 @@
 		<value value="1" name="REORDER_TIMES3"/>
 	</reg32>
 
+	<reg32 offset="0x268" name="SUBPART_CONFIG" variants="NVA3-">
+		<bitfield low="8" high="10" name="SELECT_MASK"/>
+		<bitfield low="16" high="17" name="UNK16"/>
+		<bitfield low="28" high="29" name="ENABLE_MASK"/>
+	</reg32>
+
 	<array offset="0x240" name="TILE_REGION" stride="0x10" length="8" variants="NV10:NV41">
 		<use-group name="nv10_pfb_tile_region"/>
 	</array>
