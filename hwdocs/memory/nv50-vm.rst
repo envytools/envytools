@@ -6,18 +6,6 @@ NV50 virtual memory
 
 .. contents::
 
-0. Introduction
-1. VM users
-2. Channels
-3. DMA objects
-4. Page tables
-5. TLB flushes
-6. User vs supervisor accesses
-7. Storage types
-8. Compression modes
-9. VM faults
-10. BAR1, BAR3, and the PEEPHOLE
-
 
 Introduction
 ============
@@ -27,34 +15,38 @@ addresses to physical ones. The translation has two levels: DMA objects,
 which behave like x86 segments, and page tables. The translation involves
 the following address spaces:
 
-- physical addresses: 40-bit physical address + target specifier, which
-  can be VRAM, SYSRAM_SNOOP, or SYSRAM_NOSNOOP. They can refer to:
-
-  - VRAM: 32-bit physical addresses - high 8 bits are ignored - on-board
-    memory of the card. Supports LSR and compression. See :ref:`nv50-vram`
-  - SYSRAM: 40-bit physical addresses - accessing this space will cause
-    the card to invoke PCIE read/write transactions to the given bus
-    address, allowing it to access system RAM or other PCI devices' memory.
-    SYSRAM_SNOOP uses normal PCIE transactions, SYSRAM_NOSNOOP uses PCIE
-    transactions with the "no snoop" bit set.
-
-  Mostly, physical addresses are a result of logical address translation,
-  but some memory areas are specified directly by their physical addresses.
-- 12-bit tag addresses: select a cell in hidden compression tag RAM, used
-  for compressed areas of VRAM. See :ref:`nv50-comp`
-- virtual addresses: 40-bit virtual address + channel descriptor address,
-  specifies an address that will be looked up in the page tables of the
-  relevant channel. Virtual addresses are always a result of logical address
-  translation and can never be specified directly.
 - logical addresses: 40-bit logical address + channel descriptor address +
   DMAobj address. Specifies an address that will be translated by the
   relevant DMAobj, and then by the page tables if DMAobj says so. All
   addresses appearing in FIFO command streams are logical addresses, or
   eventually translated to logical addresses
+- virtual addresses: 40-bit virtual address + channel descriptor address,
+  specifies an address that will be looked up in the page tables of the
+  relevant channel. Virtual addresses are always a result of logical address
+  translation and can never be specified directly.
+- linear addresses: 40-bit linear address + target specifier, which
+  can be VRAM, SYSRAM_SNOOP, or SYSRAM_NOSNOOP. They can refer to:
+
+  - VRAM: 32-bit linear addresses - high 8 bits are ignored - on-board
+    memory of the card. Supports LSR and compression. See :ref:`nv50-vram`
+  - SYSRAM: 40-bit linear addresses - accessing this space will cause
+    the card to invoke PCIE read/write transactions to the given bus
+    address, allowing it to access system RAM or other PCI devices' memory.
+    SYSRAM_SNOOP uses normal PCIE transactions, SYSRAM_NOSNOOP uses PCIE
+    transactions with the "no snoop" bit set.
+
+  Mostly, linear addresses are a result of logical address translation,
+  but some memory areas are specified directly by their linear addresses.
+- 12-bit tag addresses: select a cell in hidden compression tag RAM, used
+  for compressed areas of VRAM. See :ref:`nv50-comp`
+- physical address: for VRAM, the partition/subpartition/row/bank/column
+  coordinates of a memory cell; for SYSRAM, the final bus address
+
+.. todo:: kill this list in favor of an actual explanation
 
 The VM's job is to translate a logical address into its associated data:
 
-- physical address
+- linear address
 - target: VRAM, SYSRAM_SNOOP, or SYSRAM_NOSNOOP
 - read-only flag
 - supervisor-only flag
@@ -71,8 +63,9 @@ The VM's job is to translate a logical address into its associated data:
   0x200 tag bits. For SINGLE compression mode, every 0x10000 bytes of
   compressed VRAM require 1 tag cell. For DOUBLE compression mode, every
   0x10000 bytes of VRAM require 2 tag cells.
-
-.. todo:: list incomplete
+- partition cycle: either short or long, affecting low-level VRAM storage
+- encryption flag [NV84+]: for SYSRAM, causes data to be encrypted with
+  a simple cipher before being stored
 
 A VM access can also end unsuccessfully due to multiple reasons, like a non
 present page. When that happens, a VM fault is triggered. The faulting access
@@ -215,7 +208,7 @@ non-fifo engines.
 A channel is identified by a "channel descriptor", which is a 30-bit number
 that points to the base of the channel memory structure:
 
-- bits 0-27: bits 12-39 of channel memory structure physical address
+- bits 0-27: bits 12-39 of channel memory structure linear address
 - bits 28-29: the target specifier for channel memory structure
   - 0: VRAM
   - 1: invalid, do not use
@@ -251,7 +244,7 @@ DMA objects
 ===========
 
 The only channel object type that VM subsystem cares about is DMA objects.
-DMA objects represent contiguous segments of either virtual or physical
+DMA objects represent contiguous segments of either virtual or linear
 memory and are the first stage of VM address translation. DMA objects can
 be paged or unpaged. Unpaged DMA objects directly specify the target space
 and all attributes, merely adding the base address and checking the limit.
@@ -274,7 +267,7 @@ word 0:
       address to obtain a virtual address, then the virtual address should
       be translated via the page tables
     - 1: VRAM - unpaged object - the logical address should be added to the
-      base address to directly obtain the physical address in VRAM
+      base address to directly obtain the linear address in VRAM
     - 2: SYSRAM_SNOOP - like VRAM, but gives SYSRAM address
     - 3: SYSRAM_NOSNOOP - like VRAM, but gives SYSRAM address and uses nosnoop
       transactions
@@ -314,7 +307,17 @@ word 4:
   - bits 16-27: limit tag address
 word 5:
   - bits 0-15: compression base address bits 16-31 [bits 0-15 are forced to 0]
-  - bits 16-19: ??? [XXX: figure this out]
+  - bits 16-17: partition cycle
+    
+    - 0: use partition cycle from page tables
+    - 1: short cycle
+    - 2: long cycle
+
+  - bits 18-19 [NV84-]: encryption flag
+
+    - 0: not encrypted
+    - 1: encrypted
+    - 2: use encryption flag from page tables
 
 First, DMA object selector is compared with 0. If the selector is 0,
 NULL_DMAOBJ fault happens. Then, the logical address is added to the base
@@ -323,10 +326,10 @@ address from DMA object and, if larger or equal, DMAOBJ_LIMIT fault happens.
 If DMA object is paged, the address is looked up in the page tables, with
 read-only flag, supervisor-only flag, storage type, and compression mode
 optionally overriden as specified by the DMA object. Otherwise, the address
-directly becomes the physical address. For compressed unpaged VRAM objects,
+directly becomes the linear address. For compressed unpaged VRAM objects,
 the tag address is computed as follows:
 
-- take the computed VRAM physical address and substract compression base
+- take the computed VRAM linear address and substract compression base
   address from it. if result is negative, force compression mode to none
 - shift result right by 16 bits
 - add base tag address to the result
@@ -388,23 +391,27 @@ directory, where each entry covers 0x20000000 bytes of virtual address space.
 The page directory is embedded in the channel structure. It starts at offset
 0x1400 on the original NV50, at 0x200 on nv84+. Each page directory entry, or
 PDE, is 8 bytes long. The PDEs point to page tables and specify the page table
-attributes. Each page table can use either small or large pages. Small pages
-are 0x1000 bytes long, large pages are 0x10000 bytes long. For small-page
-page tables, the size of page table can be artificially limitted to cover
-only 0x2000, 0x4000, or 0x8000 pages instead of full 0x20000 pages - the
-pages over this limit will fault. Large-page page tables always cover full
-0x2000 entries. Page tables of both kinds are made of 8-byte page table
-entries, or PTEs.
+attributes. Each page table can use either small, medium [NVA3-] or large
+pages. Small pages are 0x1000 bytes long, medium pages are 0x4000 bytes long,
+and large pages are 0x10000 bytes long. For small-page page tables, the size
+of page table can be artificially limitted to cover only 0x2000, 0x4000, or
+0x8000 pages instead of full 0x20000 pages - the pages over this limit will
+fault.  Medium- and large-page page tables always cover full 0x8000 or 0x2000
+entries.  Page tables of both kinds are made of 8-byte page table entries, or
+PTEs.
+
+.. todo:: verify NVA3 transition for medium pages
 
 The PDEs are made of two 32-bit LE words, and have the following format:
 
 word 0:
 
-- bit 0: page table present
-- bit 1: page size
+- bits 0-1: page table presence and page size
 
-  - 0: large pages
-  - 1: small pages
+  - 0: page table not present
+  - 1: large pages [64kiB]
+  - 2: medium pages [16kiB] [NVA3-]
+  - 3: small pages [4kiB]
 
 - bits 2-3: target specifier for the page table itself
 
@@ -421,11 +428,11 @@ word 0:
   - 2: 0x4000 entries
   - 3: 0x2000 entries
 
-- bits 12-31: page table physical address bits 12-31
+- bits 12-31: page table linear address bits 12-31
 
 word 1:
 
-- bits 32-39: page table physical address bits 32-39
+- bits 32-39: page table linear address bits 32-39
 
 The page table start address has to be aligned to 0x1000 bytes.
 
@@ -445,24 +452,31 @@ word 0:
 
 - bit 6: supervisor-only flag
 - bits 7-9: log2 of contig block size in pages [see below]
-- bits 12-31: bits 12-31 of physical address [small pages]
-- bits 16-31: bits 16-31 of physical address [large pages]
+- bits 12-31: bits 12-31 of linear address [small pages]
+- bits 14-31: bits 14-31 of linear address [medium pages]
+- bits 16-31: bits 16-31 of linear address [large pages]
 
 word 1:
 
-- bits 32-39: bits 32-39 of physical address
+- bits 32-39: bits 32-39 of linear address
 - bits 40-46: storage type
 - bits 47-48: compression mode
 - bits 49-60: compression tag address
+- bit 61: partition cycle
+
+  - 0: short cycle
+  - 1: long cycle
+
+- bit 62 [NV84-]: encryption flag
 
 Contig blocks are a special feature of PTEs used to save TLB space. When 2^o
 adjacent pages starting on 2^o page aligned bounduary map to contiguous
-physical addresses [and, if appropriate, contiguous tag addresses] and have
+linear addresses [and, if appropriate, contiguous tag addresses] and have
 identical other attributes, they can be marked as a contig block of order o,
 where o is 0-7. To do this, all PTEs for that range should have bits 7-9 set
-equal to o, and physical/tag address fields set to the physical/tag address
+equal to o, and linear/tag address fields set to the linear/tag address
 of the *first* page in the contig block [ie. all PTEs belonging to contig
-block should be identical]. The starting physical address need not be aligned
+block should be identical]. The starting linear address need not be aligned
 to contig block size, but virtual address has to be.
 
 
