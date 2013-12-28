@@ -55,6 +55,7 @@ MMIO 0x500 / I[0x14000]: COUNTER_SIGNALS
   Read-only. Bitfield with each bit indicating the instantenous state of the
   associated engines/blocks. When the bit is set, the engine/block is idle,
   when it is cleared, the engine/block is active.
+
   - bit 0: GR_IDLE
   - bit 4: PVLD_IDLE
   - bit 5: PVDEC_IDLE
@@ -75,6 +76,5 @@ MMIO 0x508+i*10 / I[0x14100+i*0x400]: COUNTER_COUNT
 
 MMIO 0x50c+i*10 / I[0x14300+i*0x400]: COUNTER_MODE
   - bit 0: INCR_IF_ALL : Increment the counter if all the masked bits are set
-  - bit 1: INCR_IF_NOT_ALL : Increment the counter if all the masked bits are
-			     cleared
+  - bit 1: INCR_IF_NOT_ALL : Increment the counter if all the masked bits are cleared
   - bit 2: UNK2 [NVD9-]
