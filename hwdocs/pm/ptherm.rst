@@ -129,7 +129,7 @@ threshold. However, only the divisor can be changed depending on the threshold
 as all the temperature-related thresholds need to share the same FSRM ratio.
 
 .. todo:: verify the priorities of each threshold (if two thresholds are active
-at the same time, which one is considered as being active?
+at the same time, which one is considered as being active?)
 
 NV84+
 -----

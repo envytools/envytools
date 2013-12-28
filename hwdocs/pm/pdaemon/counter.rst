@@ -66,8 +66,8 @@ MMIO 0x500 / I[0x14000]: COUNTER_SIGNALS
   - bit 21: PCOPY2_IDLE [NVE4-]
 
 MMIO 0x504+i*10 / I[0x14100+i*0x400]: COUNTER_MASK
-The mask that will be applied on COUNTER_SIGNALS before applying the logic
-set by COUNTER_MODE.
+  The mask that will be applied on COUNTER_SIGNALS before applying the logic
+  set by COUNTER_MODE.
 
 MMIO 0x508+i*10 / I[0x14100+i*0x400]: COUNTER_COUNT
   - bit 0-30: COUNT
