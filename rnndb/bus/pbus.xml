@@ -393,7 +393,12 @@
 			</reg32>
 			<reg32 offset="0x04" name="WRITE_SETUP_1" stride="8" length="3">
 				<bitfield low="0" high="6" name="STORAGE_TYPE" type="NV50_STORAGE_TYPE"/>
-				<bitfield low="7" high="21" name="UNK7"/>
+				<bitfield low="7" high="8" name="COMPRESSION" type="NV50_COMPRESSION"/>
+				<bitfield low="9" high="20" name="TAG"/>
+				<bitfield pos="21" name="PART_CYCLE">
+					<value value="0" name="SHORT"/>
+					<value value="1" name="LONG"/>
+				</bitfield>
 			</reg32>
 			<reg32 offset="0x20" name="UNK20_0" stride="8" length="3">
 			</reg32>
