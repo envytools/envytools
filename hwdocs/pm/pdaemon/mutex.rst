@@ -20,8 +20,8 @@ are in use at the same time. The registers used for dynamic token allocation
 are:
 
 MMIO 0x488 / I[0x12200]: TOKEN_ALLOC
-  Read-only, each to this register allocates a free token and gives it as the
-  read result. If there are no free tokens, 0xff is returned.
+  Read-only, each read to this register allocates a free token and gives it as
+  the read result. If there are no free tokens, 0xff is returned.
 
 MMIO 0x48c / I[0x12300]: TOKEN_FREE
   A write to this register will free a token, ie. return it back to the pool
