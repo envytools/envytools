@@ -44,9 +44,9 @@ Host         Falcon          Present on   Name                  Description
 0x4f0        0x13c00         all          ???                   [0/f/0, 0/3f/0]
 0x4f8        0x13e00         all          ???                   [0/11/0, 0/13/0]
 0x500        0x14000         all          COUNTER_SIGNALS       :ref:`idle signal status <pdaemon-io-counter>`
-0x504+i*4    0x14100+i*0x100 all          COUNTER_MASK          :ref:`idle counter mask <pdaemon-io-counter>`
-0x508+i*4    0x14200+i*0x100 all          COUNTER_COUNT         :ref:`idle counter state <pdaemon-io-counter>`
-0x50c+i*4    0x14300+i*0x100 all          COUNTER_MODE          :ref:`idle counter mode <pdaemon-io-counter>`
+0x504+i*10   0x14100+i*0x400 all          COUNTER_MASK          :ref:`idle counter mask <pdaemon-io-counter>`
+0x508+i*10   0x14200+i*0x400 all          COUNTER_COUNT         :ref:`idle counter state <pdaemon-io-counter>`
+0x50c+i*10   0x14300+i*0x400 all          COUNTER_MODE          :ref:`idle counter mode <pdaemon-io-counter>`
 0x580:0x5c0  0x16000:0x17000 all          MUTEX_TOKEN           :ref:`the current mutex tokens <pdaemon-io-mutex>`
 0x5d0:0x5e0  0x17400:0x17800 all          DSCRATCH              :ref:`scratch registers <pdaemon-io-dscratch>`
 0x5f0        0x17c00         all          ???                   [0/ffffffff/0]
