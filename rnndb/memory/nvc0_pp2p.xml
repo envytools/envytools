@@ -5,6 +5,7 @@
 <import file="copyright.xml"/>
 
 <import file="nvchipsets.xml" />
+<import file="memory/nvc0_vm.xml" />
 
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
@@ -20,9 +21,18 @@
 		<reg32 offset="0x18" name="OUT_READ_REQUEST_ADDR_LOW"/>
 		<reg32 offset="0x1c" name="OUT_READ_REQUEST_ADDR_HIGH"/>
 		<reg32 offset="0x20" name="UNK20"/> <!-- 0x74 seen -->
-		<reg32 offset="0x24" name="UNK24"/> <!-- 0xfee seen -->
-		<reg32 offset="0x28" name="IN_WRITE_SETUP_LOW"/>
-		<reg32 offset="0x2c" name="IN_WRITE_SETUP_HIGH"/>
+		<reg32 offset="0x24" name="IN_WRITE_WINDOW">
+			<bitfield pos="0" name="DISABLE"/>
+			<bitfield low="1" high="18" name="OFFSET" shr="16"/>
+		</reg32>
+		<reg32 offset="0x28" name="IN_WRITE_SETUP_LOW">
+			<bitfield low="0" high="17" name="ADDRESS" shr="16"/>
+		</reg32>
+		<reg32 offset="0x2c" name="IN_WRITE_SETUP_HIGH">
+			<bitfield low="0" high="7" name="STORAGE_TYPE" type="NVC0_STORAGE_TYPE"/>
+			<bitfield low="8" high="24" name="TAG"/>
+			<bitfield pos="25" name="SMALL_PAGE"/>
+		</reg32>
 		<reg32 offset="0x30" name="IN_READ_REQUEST_LOW"/>
 		<reg32 offset="0x34" name="IN_REQD_REQUEST_HIGH"/>
 		<reg32 offset="0x38" name="IN_READ_REPLY_ADDR_LOW"/>
