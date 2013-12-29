@@ -234,7 +234,12 @@
 	<!-- 1? -->
 	<!-- 2? -->
 	<bitfield pos="3" name="READ_ONLY"/>
-	<bitfield low="4" high="5" name="TARGET" type="nv50_mem_target"/>
+	<bitfield low="4" high="5" name="TARGET">
+		<value value="0" name="VRAM"/>
+		<value value="1" name="P2P"/> <!-- address bits 38-39 select target port -->
+		<value value="2" name="SYSRAM"/>
+		<value value="3" name="SYSRAM_NO_SNOOP"/>
+	</bitfield>
 	<bitfield pos="6" name="SUPERVISOR_ONLY"/>
 	<bitfield low="7" high="9" name="CONTIG_BLOCK_LOG2"/>
 	<bitfield low="12" high="39" name="ADDRESS" shr="12"/>
