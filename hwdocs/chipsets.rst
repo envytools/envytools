@@ -98,7 +98,7 @@ is:
 
   - NVC0 subfamily: NVC0, NVC4, NVC3, NVCE, NVCF, NVC1, NVC8
   - NVD9 subfamily: NVD9, NVD7
-  - NVE4 subfamily: NVE4, NVE7, NVE6, NVF0, NV108
+  - NVE4 subfamily: NVE4, NVE7, NVE6, NVF0, NVF1, NV108
 
 Whenever a range of chipsets is mentioned in the documentation, it's written as
 "NVxx:NVyy". This is left-inclusive, right-noninclusive range of chipset ids
@@ -683,7 +683,10 @@ pciid pciid
 0fcX* 0e1b  NVE7  GK107 1    2       2    1
 11cX+ 0e0b  NVE6  GK106 3    2       ?    ?
 100X+ 0e1a  NVF0  GK110 5    3       6    1
+100X+ 0e1a  NVF1  GK110 5    3       6    1
 128X+ 0e0f  NV108 GK208 1    2       1    1
 ===== ===== ===== ===== ==== ======= ==== =========
 
 .. todo:: it is said that one of the GPCs has only one TP on NVE6
+
+.. todo:: what the fuck is NVF1?
