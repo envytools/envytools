@@ -202,9 +202,9 @@ void edit_bios(uint8_t *vbios, size_t vbios_length, struct edit_offset *edit)
 		orig = bios_edit_u32(vbios, vbios_length, edit->offset, edit->val);
 
 	if (edit->type == HEX)
-		printf("Edit offset 0x%x from 0x%x to 0x%x (hex, %lu bits)\n", edit->offset, orig, edit->val, edit->size);
+		printf("Edit offset 0x%x from 0x%x to 0x%x (hex, %zu bits)\n", edit->offset, orig, edit->val, edit->size);
 	else if (edit->type == UDEC)
-		printf("Edit offset 0x%x from %u to %u (dec, %lu bits)\n", edit->offset, orig, edit->val, edit->size);
+		printf("Edit offset 0x%x from %u to %u (dec, %zu bits)\n", edit->offset, orig, edit->val, edit->size);
 	else
 		printf("Unknown print type for edit offset 0x%x\n", edit->offset);
 }
