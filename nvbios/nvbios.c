@@ -431,6 +431,11 @@ void printscript (uint16_t soff) {
 				if (i == callsnum)
 					ADDARRAY(calls, x);
 				break;
+			case 0x5c:
+				printcmd (soff, 3);
+				printf ("JUMP\t0x%04x\n", le16(soff+1));
+				soff += 3;
+				break;
 			case 0x5e:
 				printcmd (soff, 6);
 				printf ("I2C_IF\tI2C[0x%02x][0x%02x][0x%02x] & 0x%02x == 0x%02x\n", bios->data[soff+1], bios->data[soff+2], bios->data[soff+3], bios->data[soff+4], bios->data[soff+5]);
