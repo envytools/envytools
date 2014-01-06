@@ -296,6 +296,21 @@ void printscript (uint16_t soff) {
 					maxiofcond = bios->data[soff+1];
 				soff += 2;
 				break;
+			case 0x3a:
+				printcmd (soff, 3);
+				printf ("DP_CONDITION\t0x%02x 0x%02x\n", bios->data[soff+1], bios->data[soff+2]);
+				soff += 3;
+				break;
+			case 0x3b:
+				printcmd (soff, 2);
+				printf ("IO_MASK_OR\t0x03d4[0x%02x] &= ~(1 << OR)\n", bios->data[soff+1]);
+				soff += 2;
+				break;
+			case 0x3c:
+				printcmd (soff, 2);
+				printf ("IO_OR\t0x03d4[0x%02x] |= 1 << OR\n", bios->data[soff+1]);
+				soff += 2;
+				break;
 			case 0x49:
 				printcmd (soff, 9);
 				printf ("INDEX_ADDRESS_LATCHED\tR[0x%06x] : R[0x%06x]\n", le32(soff+1), le32(soff+5));
@@ -349,6 +364,22 @@ void printscript (uint16_t soff) {
 					printf ("\t[0x%02x] = 0x%02x\n", bios->data[soff], bios->data[soff+1]);
 					soff += 2;
 				}
+				break;
+			case 0x4e:
+				printcmd (soff, 4);
+				printf ("ZM_I2C\tI2C[0x%02x][0x%02x]\n", bios->data[soff+1], bios->data[soff+2]);
+				cnt = bios->data[soff+3];
+				soff += 4;
+				while (cnt--) {
+					printcmd (soff, 1);
+					printf ("\t\t0x%02x\n", bios->data[soff]);
+					soff++;
+				}
+				break;
+			case 0x4f:
+				printcmd (soff, 5);
+				printf ("TMDS\tT[0x%02x][0x%02x] &= 0x%02x |= 0x%02x\n", bios->data[soff+1], bios->data[soff+2], bios->data[soff+3], bios->data[soff+4]);
+				soff += 5;
 				break;
 			case 0x50:
 				printcmd (soff, 3);
@@ -496,6 +527,13 @@ void printscript (uint16_t soff) {
 				if (i == subsnum)
 					ADDARRAY(subs, x);
 				break;
+			case 0x6d:
+				printcmd (soff, 3);
+				printf ("RAM_CONDITION\t"
+					"(R[0x100000] & 0x%02x) == 0x%02x\n",
+					bios->data[soff+1], bios->data[soff+2]);
+				soff += 3;
+				break;
 			case 0x6e:
 				printcmd (soff, 13);
 				printf ("NV_REG\tR[0x%06x] &= 0x%08x |= 0x%08x\n", le32(soff+1), le32(soff+5), le32(soff+9));
@@ -617,15 +655,73 @@ void printscript (uint16_t soff) {
 				printf ("UNK92\n");
 				soff++;
 				break;
+			case 0x96:
+				printcmd (soff, 16);
+				printf ("\n");
+				printcmd (soff+16, 1);
+				x = bios->data[soff+5];
+				printf ("XLAT\tR[0x%06x] &= 0x%08x |= "
+					"(X%02x((R[0x%06x] %s 0x%02x) & 0x%02x) << 0x%02x)\n",
+					le32(soff+8), le32(soff+12),
+					bios->data[soff+7], le32(soff+1),
+					(x & 0x80) ? "<<" : ">>",
+					(x & 0x80) ? (0x100 - x) : x,
+					bios->data[soff+6], bios->data[soff+16]);
+				soff += 17;
+				break;
 			case 0x97:
 				printcmd (soff, 13);
 				printf ("ZM_MASK_ADD\tR[0x%06x] & ~0x%08x += 0x%08x\n", le32(soff+1), le32(soff+5), le32(soff+9));
 				soff += 13;
 				break;
+			case 0x98:
+				printcmd (soff, 6);
+				cnt = bios->data[soff+5];
+				x = le32(soff+1);
+				printf ("AUXCH\tAUX[0x%08x] 0x%02x\n", x, cnt);
+				soff += 6;
+				while (cnt--) {
+					printcmd (soff, 2);
+					printf ("\t\tAUX[0x%08x] &= 0x%02x |= 0x%02x\n", x, bios->data[soff], bios->data[soff+1]);
+					soff += 2;
+				}
+				break;
+			case 0x99:
+				printcmd (soff, 6);
+				cnt = bios->data[soff+5];
+				x = le32(soff+1);
+				printf ("ZM_AUXCH\tAUX[0x%08x] 0x%02x\n", x, cnt);
+				soff += 6;
+				while (cnt--) {
+					printcmd (soff, 1);
+					printf ("\t\tAUX[0x%08x] = 0x%02x\n", x, bios->data[soff]);
+					soff++;
+				}
+				break;
 			case 0x9a:
 				printcmd (soff, 7);
 				printf ("I2C_IF_LONG\tI2C[0x%02x][0x%02x][0x%02x:0x%02x] & 0x%02x == 0x%02x\n", bios->data[soff+1], bios->data[soff+2], bios->data[soff+4], bios->data[soff+3], bios->data[soff+5], bios->data[soff+6]);
 				soff += 7;
+				break;
+			case 0xa9:
+				printcmd (soff, 2);
+				printf ("GPIO_NE\n");
+				cnt = bios->data[soff+1];
+				soff += 2;
+				while (cnt--) {
+					printcmd (soff, 1);
+					x = bios->data[soff];
+					if (x != 0xff)
+						printf ("\t\tFUNC[0x%02x]\n", x);
+					else
+						printf ("\n");
+					soff++;
+				}
+				break;
+			case 0xaa:
+				printcmd (soff, 4);
+				printf("UNKAA\n");
+				soff += 4;
 				break;
 			default:
 				printcmd (soff, 1);
