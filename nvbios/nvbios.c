@@ -942,6 +942,7 @@ int main(int argc, char **argv) {
 	envy_bios_print(bios, stdout, printmask);
 
 	const struct envy_colors *discolors = &envy_def_colors;
+	bool old_init_script = false;
 
 	if (bios->bmp_offset && bios->type == ENVY_BIOS_TYPE_NV04) {
 		bmpver_maj = bios->data[bios->bmp_offset+5];
@@ -963,6 +964,9 @@ int main(int argc, char **argv) {
 			io_condition_tbl_ptr = le32(bios->bmp_offset + 83);
 			io_flag_condition_tbl_ptr = le32(bios->bmp_offset + 85);
 			init_function_tbl_ptr = le32(bios->bmp_offset + 87);
+		} else {
+			init_script_tbl_ptr = bios->bmp_offset + (bmpver < 0x200 ? 14 : 18);
+			old_init_script = true;
 		}
 		if (bmpver >= 0x527) {
 			bios->power.perf.offset = le16(bios->bmp_offset + 148);
@@ -1185,7 +1189,7 @@ int main(int argc, char **argv) {
 		i = 0;
 		uint16_t off = init_script_tbl_ptr;
 		uint16_t soff;
-		while ((soff = le16(off))) {
+		while ((soff = le16(off)) && (!old_init_script || i < 2)) {
 			off += 2;
 			ADDARRAY(subs, i);
 			i++;
