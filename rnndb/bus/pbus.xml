@@ -412,7 +412,7 @@
 					<value value="1" name="LONG"/>
 				</bitfield>
 				<!-- must be multiple of 0x10 bytes to work correctly? -->
-				<btifield low="22" high="28" name="LENGTH" shr="2"/>
+				<bitfield low="22" high="28" name="LENGTH" shr="2"/>
 			</reg32>
 			<reg32 offset="0x60" name="WRITE_WINDOW" length="3">
 				<bitfield pos="0" name="DISABLE"/>

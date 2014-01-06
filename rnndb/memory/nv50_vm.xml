@@ -211,7 +211,7 @@
 	</reg32>
 </domain>
 
-<bitset name="NV50_PDE">
+<bitset name="NV50_PDE" varset="chipset">
 	<bitfield low="0" high="1" name="PT_TYPE">
 		<value value="0" name="NOT_PRESENT"/>
 		<value value="1" name="64K"/>
