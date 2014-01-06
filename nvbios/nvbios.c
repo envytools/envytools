@@ -964,7 +964,7 @@ int main(int argc, char **argv) {
 			io_condition_tbl_ptr = le32(bios->bmp_offset + 83);
 			io_flag_condition_tbl_ptr = le32(bios->bmp_offset + 85);
 			init_function_tbl_ptr = le32(bios->bmp_offset + 87);
-		} else {
+		} else if (bmpver >= 0x100) {
 			init_script_tbl_ptr = bios->bmp_offset + (bmpver < 0x200 ? 14 : 18);
 			old_init_script = true;
 		}
