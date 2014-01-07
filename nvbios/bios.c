@@ -137,15 +137,15 @@ static void parse_bmp_nv03(struct envy_bios *bios) {
 }
 
 int envy_bios_parse (struct envy_bios *bios) {
-	int ret = 0;
 	uint16_t vendor, device;
-	ret = parse_pcir(bios);
-	if (ret)
-		return ret;
-	if (!bios->partsnum)
-		return -EINVAL;
-	vendor = bios->parts[0].pcir_vendor;
-	device = bios->parts[0].pcir_device;
+	parse_pcir(bios);
+	if (bios->partsnum) {
+		vendor = bios->parts[0].pcir_vendor;
+		device = bios->parts[0].pcir_device;
+	} else {
+		vendor = 0x10de;
+		device = 0;
+	}
 	const uint8_t bmpsig[5] = "\xff\x7f""NV\0";
 	const uint8_t bitsig[7] = "\xff\xb8""BIT\0\0";
 	const uint8_t hwsqsig[4] = "HWSQ";
