@@ -160,8 +160,6 @@ is adjusted as follows:
   This is the partition ID.
 - for 8-partition GPUs: ???
 
-.. todo:: figure out the 8-partition cycle
-
 In summary::
 
     if linear or partition_count in [1, 3, 5, 7]:
@@ -177,7 +175,9 @@ In summary::
         sub += partition_id_adjust >> 4 & 1
         partition_id = (partition_preid - sub) % 4
     elif partition_count == 8:
-        # XXX figure it out
+        sub = partition_id_adjust & 7
+        sub += partition_id_adjust >> 3 & 3
+        partition_id = (partition_preid - sub) % 8
 
 Tag memory addressing
 ---------------------
