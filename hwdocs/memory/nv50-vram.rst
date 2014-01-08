@@ -158,7 +158,10 @@ is adjusted as follows:
 - for 4-partition GPUs: add together bits 0-1, bits 2-3, and bit 4 of partition
   ID adjust, substract it from partition pre-ID, and take the result modulo 4.
   This is the partition ID.
-- for 8-partition GPUs: ???
+- for 8-partition GPUs: add together bits 0-2 and bits 3-4 of partition ID
+  adjust, substract it from partition pre-ID, and take the result modulo 8.
+  This is the partition ID.
+
 
 In summary::
 
