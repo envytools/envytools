@@ -21,7 +21,7 @@ add_executable(lookup lookup.c)
 add_executable(rnncheck rnncheck.c)
 
 target_link_libraries(rnn ${LIBXML2_LIBRARIES} envyutil)
-target_link_libraries(demmio envy rnn)
+target_link_libraries(demmio envy nvhw rnn)
 target_link_libraries(headergen rnn)
 target_link_libraries(dedma rnn)
 target_link_libraries(lookup rnn)

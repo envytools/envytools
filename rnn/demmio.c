@@ -28,6 +28,7 @@
 #include "var.h"
 #include "dis.h"
 #include "util.h"
+#include "nvhw.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
@@ -47,9 +48,7 @@ struct i2c_ctx {
 
 struct cctx {
 	struct rnndeccontext *ctx;
-	int chdone;
-	int arch;
-	int chipset;
+	struct chipset_info chipset;
 	uint64_t praminbase;
 	uint64_t ramins;
 	uint64_t fakechan;
@@ -317,93 +316,27 @@ int main(int argc, char **argv) {
 					addr -= cc->bar0;
 					if (cc->hwsqip && addr != cc->hwsqnext) {
 						struct varinfo *var = hwsq_var_nv17;
-						if (cc->chipset >= 0x41)
+						if (cc->chipset.chipset >= 0x41)
 							var = hwsq_var_nv41;
-						if (cc->arch == 5)
+						if (cc->chipset.card_type == 0x50)
 							var = hwsq_var_nv50;
 						envydis(hwsq_isa, stdout, cc->hwsq, 0, cc->hwsqnext & 0x3fc, var, 0, 0, 0, colors);
 						cc->hwsqip = 0;
 					}
-					if (addr == 0 && !cc->chdone) {
-						char chname[5];
-
-						/* Test if card has disappeared? 0xffffffff is not a valid NVF0 chipset */
-						if ((value & 0xffffffff) == 0xffffffff) {
-							fprintf(stderr, "invalid read for  PMC.ID %"PRIX64"\n", value);
-							continue;
-						}
-						else if (value & 0x1f000000)
-							snprintf(chname, 5, "NV%02"PRIX64, (value >> 20) & 0x1ff);
-						else if (value & 0x0000f000)
-							snprintf(chname, 5, "NV%02"PRIX64, ((value >> 20) & 0xf) + 4);
-						else
-							snprintf(chname, 5, "NV%02"PRIX64, ((value >> 16) & 0xf));
-						rnndec_varadd(cc->ctx, "chipset", chname);
-						switch ((value >> 20) & 0x1f0) {
-							case 0:
-								cc->arch = 0;
-								break;
-							case 0x10:
-								cc->arch = 1;
-								break;
-							case 0x20:
-								cc->arch = 2;
-								break;
-							case 0x30:
-								cc->arch = 3;
-								break;
-							case 0x40:
-							case 0x60:
-								cc->arch = 4;
-								break;
-							case 0x50:
-							case 0x80:
-							case 0x90:
-							case 0xa0:
-								cc->arch = 5;
-								break;
-							case 0xc0:
-							case 0xd0:
-							case 0xe0:
-							case 0xf0:
-							case 0x100:
-								cc->arch = 6;
-								break;
-						}
-						cc->chipset = (value >> 20) & 0x1ff;
-						cc->chdone = 1;
-					} else if (addr == 0xa00) {
-						uint32_t chipset = (value >> 20) & 0x1ff;
-						switch (chipset & 0x1f0) {
-							case 0:
-								break;
-							case 0x90:
-							case 0xa0:
-								cc->arch = 5;
-								break;
-							case 0xc0:
-							case 0xd0:
-							case 0xe0:
-							case 0xf0:
-							case 0x100:
-								cc->arch = 6;
-								break;
-						}
-						if (chipset) {
+					if (addr == 0 && !cc->chipset.chipset) {
+						parse_pmc_id(value, &cc->chipset);
+						if (cc->chipset.chipset) {
 							char chname[6];
-							cc->chdone = 1;
-							sprintf(chname, "NV%02x", chipset);
-							rnndec_varmod(cc->ctx, "chipset", chname);
-							cc->chipset = chipset;
-							printf ("New chipset set to %s\n", chname);
+							snprintf(chname, 6, "NV%02X", cc->chipset.chipset);
+							rnndec_varadd(cc->ctx, "chipset", chname);
 						}
-					} else if (cc->arch >= 5 && addr == 0x1700) {
+					} else if (cc->chipset.card_type >= 0x50 && addr == 0x1700) {
 						cc->praminbase = value << 16;
-					} else if (cc->arch == 5 && addr == 0x1704) {
+					} else if (cc->chipset.card_type == 0x50 && addr == 0x1704) {
 						cc->fakechan = (value & 0xfffffff) << 12;
-					} else if (cc->arch == 5 && addr == 0x170c) {
+					} else if (cc->chipset.card_type == 0x50 && addr == 0x170c) {
 						cc->ramins = (value & 0xffff) << 4;
-					} else if (cc->arch >= 6 && addr == 0x1714) {
+					} else if (cc->chipset.card_type >= 0xc0 && addr == 0x1714) {
 						cc->ramins = (value & 0xfffffff) << 12;
 					} else if (addr == 0x6013d4) {
 						cc->crx0 = value & 0xff;
@@ -425,7 +358,7 @@ int main(int argc, char **argv) {
 						free(ai);
 						free(decoded_val);
 						skip = 1;
-					} else if (cc->arch >= 5 && (addr & 0xfff000) == 0xe000) {
+					} else if (cc->chipset.card_type >= 0x50 && (addr & 0xfff000) == 0xe000) {
 						int bus = i2c_bus_num(addr);
 						if (bus != -1) {
 							if (cc->i2cip != bus) {
@@ -461,9 +394,9 @@ int main(int argc, char **argv) {
 						cc->hwsqip = 1;
 						cc->hwsqnext = addr + 4;
 						skip = 1;
-					} else if (addr == 0x400324 && cc->arch >= 4 && cc->arch <= 5) {
+					} else if (addr == 0x400324 && cc->chipset.card_type >= 0x40 && cc->chipset.card_type <= 0x50) {
 						cc->ctxpos = value;
-					} else if (addr == 0x400328 && cc->arch >= 4 && cc->arch <= 5) {
+					} else if (addr == 0x400328 && cc->chipset.card_type >= 0x40 && cc->chipset.card_type <= 0x50) {
 						uint8_t param[4];
 						param[0] = value;
 						param[1] = value >> 8;
@@ -471,7 +404,7 @@ int main(int argc, char **argv) {
 						param[3] = value >> 24;
 						struct rnndecaddrinfo *ai = rnndec_decodeaddr(cc->ctx, mmiodom, addr, line[0] == 'W');
 						printf ("[%d] MMIO%d %c 0x%06"PRIx64" 0x%08"PRIx64" %s %s ", cci, width, line[0], addr, value, ai->name, line[0]=='W'?"<=":"=>");
-						envydis(ctx_isa, stdout, param, cc->ctxpos, 4, (cc->arch == 5 ? ctx_var_nv50 : ctx_var_nv40), 0, 0, 0, colors);
+						envydis(ctx_isa, stdout, param, cc->ctxpos, 4, (cc->chipset.card_type == 0x50 ? ctx_var_nv50 : ctx_var_nv40), 0, 0, 0, colors);
 						cc->ctxpos++;
 						free(ai->name);
 						free(ai);
@@ -481,7 +414,7 @@ int main(int argc, char **argv) {
 						printf ("\n");
 						cc->i2cip = -1;
 					}
-					if (cc->arch >= 5 && addr >= 0x700000 && addr < 0x800000) {
+					if (cc->chipset.card_type >= 0x50 && addr >= 0x700000 && addr < 0x800000) {
 						addr -= 0x700000;
 						addr += cc->praminbase;
 						printf ("[%d] %lf, MEM%d %"PRIx64" %s %"PRIx64"\n", cci, timestamp, width, addr, line[0]=='W'?"<=":"=>", value);
@@ -522,7 +455,7 @@ int main(int argc, char **argv) {
 					printf ("[%d] %lf, FB%d %"PRIx64" %s %"PRIx64"\n", cci, timestamp, width, addr, line[0]=='W'?"<=":"=>", value);
 				} else if (cc->bar2 && addr >= cc->bar2 && addr < cc->bar2+cc->bar2l) {
 					addr -= cc->bar2;
-					if (cc->arch >= 6) {
+					if (cc->chipset.card_type >= 0xc0) {
 						uint64_t pd = *findmem(cc, cc->ramins + 0x200);
 						uint64_t pt = *findmem(cc, pd + 4);
 						pt &= 0xfffffff0;
@@ -534,11 +467,11 @@ int main(int argc, char **argv) {
 						*findmem(cc, pg) = value;
 	//					printf ("%"PRIx64" %"PRIx64" %"PRIx64" %"PRIx64"\n", ramins, pd, pt, pg);
 						printf ("[%d] %lf RAMIN%d %"PRIx64" %"PRIx64" %s %"PRIx64"\n", cci, timestamp, width, addr, pg, line[0]=='W'?"<=":"=>", value);
-					} else if (cc->arch == 5) {
+					} else if (cc->chipset.card_type == 0x50) {
 						uint64_t paddr = addr;
 						paddr += *findmem(cc, cc->fakechan + cc->ramins + 8);
 						paddr += (uint64_t)(*findmem(cc, cc->fakechan + cc->ramins + 12) >> 24) << 32;
-						uint64_t pt = *findmem(cc, cc->fakechan + (cc->chipset == 0x50 ? 0x1400 : 0x200) + ((paddr >> 29) << 3));
+						uint64_t pt = *findmem(cc, cc->fakechan + (cc->chipset.chipset == 0x50 ? 0x1400 : 0x200) + ((paddr >> 29) << 3));
 	//					printf ("%#"PRIx64" PT: %#"PRIx64" %#"PRIx64" ", paddr, fakechan + 0x200 + ((paddr >> 29) << 3), pt);
 						uint32_t div = (pt & 2 ? 0x1000 : 0x10000);
 						pt &= 0xfffff000;
