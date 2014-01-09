@@ -27,6 +27,15 @@
 
 #include <stdint.h>
 
+struct chipset_info {
+	uint32_t pmc_id;
+	int chipset;
+	int card_type;
+	int is_nv03t;
+	int endian;
+	const char *name;
+};
+
 enum pfb_type {
 	PFB_NONE,
 	PFB_NV01,
@@ -55,6 +64,7 @@ struct mc_config {
 	int partshift;
 };
 
+int parse_pmc_id(uint32_t pmc_id, struct chipset_info *info);
 int pfb_type(int chipset);
 
 int tile_pitch_valid(int chipset, uint32_t pitch, int *pshift, int *pfactor);
