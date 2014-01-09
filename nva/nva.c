@@ -134,42 +134,8 @@ int nva_init() {
 				nva_cards[i].bar2 = 0;
 			}
 		}
-		nva_cards[i].boot0 = nva_rd32(i, 0);
-		nva_cards[i].chipset = nva_cards[i].boot0 >> 20 & 0xff;
-		if (nva_cards[i].chipset < 0x10) {
-			if ((nva_cards[i].boot0 & 0xfff00000) == 0x10800000) {
-				nva_cards[i].chipset = 0x108;
-			} else if (nva_cards[i].boot0 & 0xf000) {
-				if (nva_cards[i].boot0 & 0xf00000)
-					nva_cards[i].chipset = 5;
-				else
-					nva_cards[i].chipset = 4;
-			} else {
-				nva_cards[i].chipset = nva_cards[i].boot0 >> 16 & 0xf;
-				if ((nva_cards[i].boot0 & 0xff) >= 0x20)
-					nva_cards[i].is_nv03t = 1;
-			}
-		}
-		if (dev->vendor_id == 0x104a && dev->device_id == 0x0009)
-			nva_cards[i].chipset = 0x01;
-
-		if (nva_cards[i].chipset < 0x04)
-			nva_cards[i].card_type = nva_cards[i].chipset;
-		else if (nva_cards[i].chipset < 0x10)
-			nva_cards[i].card_type = 0x04;
-		else if (nva_cards[i].chipset < 0x20)
-			nva_cards[i].card_type = 0x10;
-		else if (nva_cards[i].chipset < 0x30)
-			nva_cards[i].card_type = 0x20;
-		else if (nva_cards[i].chipset < 0x40)
-			nva_cards[i].card_type = 0x30;
-		else if (nva_cards[i].chipset < 0x50 ||
-			(nva_cards[i].chipset & 0xf0) == 0x60)
-			nva_cards[i].card_type = 0x40;
-		else if (nva_cards[i].chipset < 0xc0)
-			nva_cards[i].card_type = 0x50;
-		else
-			nva_cards[i].card_type = 0xc0;
+		uint32_t pmc_id = nva_rd32(i, 0);
+		parse_pmc_id(pmc_id, &nva_cards[i].chipset);
 	}
 	return (nva_cardsnum == 0);
 }

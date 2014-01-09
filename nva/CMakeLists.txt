@@ -17,7 +17,7 @@ if (NOT DISABLE_NVA)
 		link_directories(${PC_PCIACCESS_LIBRARY_DIRS})
 
 		add_library(nva nva.c regspace.c)
-		target_link_libraries(nva ${PC_PCIACCESS_LIBRARIES})
+		target_link_libraries(nva nvhw ${PC_PCIACCESS_LIBRARIES})
 
 		SET(NVA_PROGS
 			nvalist

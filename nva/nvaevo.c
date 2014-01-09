@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
 	sscanf (argv[optind + 1], "%x", &m);
 	sscanf (argv[optind + 2], "%x", &d);
 
-	if (nva_cards[cnum].chipset >= 0xd0) {
+	if (nva_cards[cnum].chipset.chipset >= 0xd0) {
 		ctrl = nva_rd32(cnum, 0x610700 + (c * 8));
 		nva_wr32(cnum, 0x610700 + (c * 8), ctrl | 1);
 		nva_wr32(cnum, 0x610704 + (c * 8), d);
@@ -66,8 +66,8 @@ int main(int argc, char **argv) {
 		while (nva_rd32(cnum, 0x610700 + (c * 8)) & 0x80000000);
 		nva_wr32(cnum, 0x610700 + (c * 8), ctrl);
 	} else
-	if (nva_cards[cnum].chipset == 0x50 ||
-	    nva_cards[cnum].chipset >= 0x84) {
+	if (nva_cards[cnum].chipset.chipset == 0x50 ||
+	    nva_cards[cnum].chipset.chipset >= 0x84) {
 		ctrl = nva_rd32(cnum, 0x610300 + (c * 8));
 		nva_wr32(cnum, 0x610300 + (c * 8), ctrl | 1);
 		nva_wr32(cnum, 0x610304 + (c * 8), d);

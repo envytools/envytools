@@ -76,7 +76,7 @@ int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val) {
 					return NVA_ERR_REGSZ;
 			}
 		case NVA_REGSPACE_PDAC:
-			if (regspace->card->chipset != 0x01)
+			if (regspace->card->chipset.chipset != 0x01)
 				return NVA_ERR_NOSPC;
 			if (addr > 0x10000 - regspace->regsz)
 				return NVA_ERR_RANGE;
@@ -88,7 +88,7 @@ int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val) {
 				nva_wr32(regspace->cnum, 0x609018, (val >> i * 8) & 0xff);
 			return 0;
 		case NVA_REGSPACE_EEPROM:
-			if (regspace->card->chipset != 0x01)
+			if (regspace->card->chipset.chipset != 0x01)
 				return NVA_ERR_NOSPC;
 			if (regspace->regsz != 1)
 				return NVA_ERR_REGSZ;
@@ -121,18 +121,18 @@ int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val) {
 		vga:
 			if (regspace->regsz != 1)
 				return NVA_ERR_REGSZ;
-			if (regspace->card->card_type == 0x01) {
+			if (regspace->card->chipset.card_type == 0x01) {
 				vgabase = 0x6d0000;
 				if (regspace->idx != 0)
 					return NVA_ERR_NOSPC;
-			} else if (regspace->card->card_type < 0x50) {
+			} else if (regspace->card->chipset.card_type < 0x50) {
 				if (vgaio == 0x3c4 || vgaio == 0x3ce)
 					vgabase = 0x0c0000;
 				else
 					vgabase = 0x601000;
 				if (regspace->idx > 2)
 					return NVA_ERR_NOSPC;
-				if ((regspace->card->chipset < 0x17 || regspace->card->chipset == 0x1a || regspace->card->chipset == 0x20) && regspace->idx == 1)
+				if ((regspace->card->chipset.chipset < 0x17 || regspace->card->chipset.chipset == 0x1a || regspace->card->chipset.chipset == 0x20) && regspace->idx == 1)
 					return NVA_ERR_NOSPC;
 				vgabase += regspace->idx * 0x2000;
 			} else {
@@ -155,12 +155,12 @@ int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val) {
 			}
 			return 0;
 		case NVA_REGSPACE_VGA_ST:
-			if (regspace->card->chipset < 0x41)
+			if (regspace->card->chipset.chipset < 0x41)
 				return NVA_ERR_NOSPC;
 			if (regspace->regsz != 1)
 				return NVA_ERR_REGSZ;
 			uint32_t vstbase = 0x1380;
-			if (regspace->card->card_type >= 0x50)
+			if (regspace->card->chipset.card_type >= 0x50)
 				vstbase = 0x619e40;
 			uint32_t savepos = nva_rd32(regspace->cnum, vstbase+0xc);
 			uint32_t savecfg = nva_rd32(regspace->cnum, vstbase+0x8);
@@ -171,7 +171,7 @@ int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val) {
 			nva_wr32(regspace->cnum, vstbase+0xc, savepos);
 			return 0;
 		case NVA_REGSPACE_PIPE:
-			if (regspace->card->card_type < 0x10 || regspace->card->card_type >= 0x50)
+			if (regspace->card->chipset.card_type < 0x10 || regspace->card->chipset.card_type >= 0x50)
 				return NVA_ERR_NOSPC;
 			if (regspace->regsz != 4)
 				return NVA_ERR_REGSZ;
@@ -179,7 +179,7 @@ int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val) {
 			nva_wr32(regspace->cnum, 0x400f54, val);
 			return 0;
 		case NVA_REGSPACE_RDI:
-			if (regspace->card->card_type < 0x20 || regspace->card->card_type >= 0x50)
+			if (regspace->card->chipset.card_type < 0x20 || regspace->card->chipset.card_type >= 0x50)
 				return NVA_ERR_NOSPC;
 			if (regspace->regsz != 4)
 				return NVA_ERR_REGSZ;
@@ -187,7 +187,7 @@ int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val) {
 			nva_wr32(regspace->cnum, 0x400754, val);
 			return 0;
 		case NVA_REGSPACE_VCOMP_CODE:
-			if (regspace->card->chipset != 0xaf)
+			if (regspace->card->chipset.chipset != 0xaf)
 				return NVA_ERR_NOSPC;
 			if (regspace->regsz != 4)
 				return NVA_ERR_REGSZ;
@@ -195,7 +195,7 @@ int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val) {
 			nva_wr32(regspace->cnum, 0x1c17cc, val);
 			return 0;
 		case NVA_REGSPACE_VCOMP_REG:
-			if (regspace->card->chipset != 0xaf)
+			if (regspace->card->chipset.chipset != 0xaf)
 				return NVA_ERR_NOSPC;
 			if (regspace->regsz != 8)
 				return NVA_ERR_REGSZ;
@@ -204,7 +204,7 @@ int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val) {
 			nva_wr32(regspace->cnum, 0x1c17d8, val >> 32);
 			return 0;
 		case NVA_REGSPACE_MACRO_CODE:
-			if (regspace->card->chipset < 0xc0)
+			if (regspace->card->chipset.chipset < 0xc0)
 				return NVA_ERR_NOSPC;
 			if (regspace->regsz != 4)
 				return NVA_ERR_REGSZ;
@@ -285,7 +285,7 @@ int nva_rd(struct nva_regspace *regspace, uint32_t addr, uint64_t *val) {
 					return NVA_ERR_REGSZ;
 			}
 		case NVA_REGSPACE_PDAC:
-			if (regspace->card->chipset != 0x01)
+			if (regspace->card->chipset.chipset != 0x01)
 				return NVA_ERR_NOSPC;
 			if (addr > 0x10000 - regspace->regsz)
 				return NVA_ERR_RANGE;
@@ -298,7 +298,7 @@ int nva_rd(struct nva_regspace *regspace, uint32_t addr, uint64_t *val) {
 				*val |= (uint64_t)(nva_rd32(regspace->cnum, 0x609018) & 0xff) << i * 8;
 			return 0;
 		case NVA_REGSPACE_EEPROM:
-			if (regspace->card->chipset != 0x01)
+			if (regspace->card->chipset.chipset != 0x01)
 				return NVA_ERR_NOSPC;
 			if (regspace->regsz != 1)
 				return NVA_ERR_REGSZ;
@@ -332,18 +332,18 @@ int nva_rd(struct nva_regspace *regspace, uint32_t addr, uint64_t *val) {
 		vga:
 			if (regspace->regsz != 1)
 				return NVA_ERR_REGSZ;
-			if (regspace->card->card_type == 0x01) {
+			if (regspace->card->chipset.card_type == 0x01) {
 				vgabase = 0x6d0000;
 				if (regspace->idx != 0)
 					return NVA_ERR_NOSPC;
-			} else if (regspace->card->card_type < 0x50) {
+			} else if (regspace->card->chipset.card_type < 0x50) {
 				if (vgaio == 0x3c4 || vgaio == 0x3ce)
 					vgabase = 0x0c0000;
 				else
 					vgabase = 0x601000;
 				if (regspace->idx > 2)
 					return NVA_ERR_NOSPC;
-				if ((regspace->card->chipset < 0x17 || regspace->card->chipset == 0x1a || regspace->card->chipset == 0x20) && regspace->idx == 1)
+				if ((regspace->card->chipset.chipset < 0x17 || regspace->card->chipset.chipset == 0x1a || regspace->card->chipset.chipset == 0x20) && regspace->idx == 1)
 					return NVA_ERR_NOSPC;
 				vgabase += regspace->idx * 0x2000;
 			} else {
@@ -367,12 +367,12 @@ int nva_rd(struct nva_regspace *regspace, uint32_t addr, uint64_t *val) {
 			}
 			return 0;
 		case NVA_REGSPACE_VGA_ST:
-			if (regspace->card->chipset < 0x41)
+			if (regspace->card->chipset.chipset < 0x41)
 				return NVA_ERR_NOSPC;
 			if (regspace->regsz != 1)
 				return NVA_ERR_REGSZ;
 			uint32_t vstbase = 0x1380;
-			if (regspace->card->card_type >= 0x50)
+			if (regspace->card->chipset.card_type >= 0x50)
 				vstbase = 0x619e40;
 			uint32_t savepos = nva_rd32(regspace->cnum, vstbase+0xc);
 			uint32_t savecfg = nva_rd32(regspace->cnum, vstbase+0x8);
@@ -383,7 +383,7 @@ int nva_rd(struct nva_regspace *regspace, uint32_t addr, uint64_t *val) {
 			nva_wr32(regspace->cnum, vstbase+0xc, savepos);
 			return 0;
 		case NVA_REGSPACE_PIPE:
-			if (regspace->card->card_type < 0x10 || regspace->card->card_type >= 0x50)
+			if (regspace->card->chipset.card_type < 0x10 || regspace->card->chipset.card_type >= 0x50)
 				return NVA_ERR_NOSPC;
 			if (regspace->regsz != 4)
 				return NVA_ERR_REGSZ;
@@ -391,7 +391,7 @@ int nva_rd(struct nva_regspace *regspace, uint32_t addr, uint64_t *val) {
 			*val = nva_rd32(regspace->cnum, 0x400f54);
 			return 0;
 		case NVA_REGSPACE_RDI:
-			if (regspace->card->card_type < 0x20 || regspace->card->card_type >= 0x50)
+			if (regspace->card->chipset.card_type < 0x20 || regspace->card->chipset.card_type >= 0x50)
 				return NVA_ERR_NOSPC;
 			if (regspace->regsz != 4)
 				return NVA_ERR_REGSZ;
@@ -399,7 +399,7 @@ int nva_rd(struct nva_regspace *regspace, uint32_t addr, uint64_t *val) {
 			*val = nva_rd32(regspace->cnum, 0x400754);
 			return 0;
 		case NVA_REGSPACE_VCOMP_CODE:
-			if (regspace->card->chipset != 0xaf)
+			if (regspace->card->chipset.chipset != 0xaf)
 				return NVA_ERR_NOSPC;
 			if (regspace->regsz != 4)
 				return NVA_ERR_REGSZ;
@@ -407,7 +407,7 @@ int nva_rd(struct nva_regspace *regspace, uint32_t addr, uint64_t *val) {
 			*val = nva_rd32(regspace->cnum, 0x1c17cc);
 			return 0;
 		case NVA_REGSPACE_VCOMP_REG:
-			if (regspace->card->chipset != 0xaf)
+			if (regspace->card->chipset.chipset != 0xaf)
 				return NVA_ERR_NOSPC;
 			if (regspace->regsz != 8)
 				return NVA_ERR_REGSZ;
@@ -416,7 +416,7 @@ int nva_rd(struct nva_regspace *regspace, uint32_t addr, uint64_t *val) {
 			*val |= (uint64_t)nva_rd32(regspace->cnum, 0x1c17d8) << 32;
 			return 0;
 		case NVA_REGSPACE_MACRO_CODE:
-			if (regspace->card->chipset < 0xc0)
+			if (regspace->card->chipset.chipset < 0xc0)
 				return NVA_ERR_NOSPC;
 			if (regspace->regsz != 4)
 				return NVA_ERR_REGSZ;

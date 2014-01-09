@@ -351,24 +351,24 @@ static int test_comp_size(struct hwtest_ctx *ctx) {
 }
 
 static uint32_t comp_seek(int cnum, int part, int addr) {
-	if (nva_cards[cnum].chipset == 0x20) {
+	if (nva_cards[cnum].chipset.chipset == 0x20) {
 		nva_wr32(cnum, 0x1000f0, 0x1300000 |
 			 (part << 16) | (addr & 0x1fc0));
 		return 0x100100 + (addr & 0x3c);
-	} else if (nva_cards[cnum].chipset < 0x30) {
+	} else if (nva_cards[cnum].chipset.chipset < 0x30) {
 		nva_wr32(cnum, 0x1000f0, 0x2380000 |
 			 ((addr << 6) & 0x40000) |
 			 (part << 16) | (addr & 0xfc0));
 		return 0x100100 + (addr & 0x3c);
-	} else if (nva_cards[cnum].chipset < 0x35) {
+	} else if (nva_cards[cnum].chipset.chipset < 0x35) {
 		nva_wr32(cnum, 0x1000f0, 0x2380000 |
 			 (part << 16) | (addr & 0x7fc0));
 		return 0x100100 + (addr & 0x3c);
-	} else if (nva_cards[cnum].chipset < 0x36) {
+	} else if (nva_cards[cnum].chipset.chipset < 0x36) {
 		nva_wr32(cnum, 0x1000f0, 0x2380000 | (addr & 4) << 16 |
 			 (part << 16) | (addr >> 1 & 0x7fc0));
 		return 0x100100 + (addr >> 1 & 0x3c);
-	} else if (nva_cards[cnum].chipset < 0x40) {
+	} else if (nva_cards[cnum].chipset.chipset < 0x40) {
 		nva_wr32(cnum, 0x1000f0, 0x2380000 | (addr & 0xc) << 15 |
 			 (part << 16) | (addr >> 2 & 0x7fc0));
 		return 0x100100 + (addr >> 2 & 0x3c);
@@ -396,7 +396,7 @@ void comp_wr32(int cnum, int part, int addr, uint32_t v) {
 void clear_comp(int cnum) {
 	uint32_t size = (nva_rd32(cnum, 0x100320) + 1) / 8;
 	int i, j;
-	for (i = 0; i < get_maxparts(nva_cards[cnum].chipset); i++) {
+	for (i = 0; i < get_maxparts(nva_cards[cnum].chipset.chipset); i++) {
 		for (j = 0; j < size; j += 0x4)
 			comp_wr32(cnum, i, j, 0);
 	}

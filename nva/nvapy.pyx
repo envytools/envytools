@@ -1,9 +1,13 @@
-cdef extern from "nva.h":
-    struct nva_card:
-        unsigned boot0
+cdef extern from "nvhw.h":
+    struct chipset_info:
+        unsigned pmc_id
         int chipset
         int card_type
         int is_nv03t
+
+cdef extern from "nva.h":
+    struct nva_card:
+        chipset_info chipset
         void *bar0
         void *bar1
         void *bar2
@@ -62,10 +66,11 @@ cdef NvaCard_ nva_wrapcard(nva_card *ccard):
     card.bar0 = nva_wrapbar(ccard.bar0, ccard.bar0len)
     card.bar1 = nva_wrapbar(ccard.bar1, ccard.bar1len) if ccard.hasbar1 else None
     card.bar2 = nva_wrapbar(ccard.bar2, ccard.bar2len) if ccard.hasbar2 else None
-    card.chipset = ccard.chipset
-    card.boot0 = ccard.boot0
-    card.card_type = ccard.card_type
-    card.is_nv03t = ccard.is_nv03t
+    # XXX clean up?
+    card.chipset = ccard.chipset.chipset
+    card.pmc_id = ccard.chipset.pmc_id
+    card.card_type = ccard.chipset.card_type
+    card.is_nv03t = ccard.chipset.is_nv03t
     return card
 
 if nva_init():

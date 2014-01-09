@@ -26,13 +26,11 @@
 #define NVA_H
 #include <stdint.h>
 #include <stddef.h>
+#include "nvhw.h"
 
 struct nva_card {
 	struct pci_device *pci;
-	uint32_t boot0;
-	int chipset;
-	int card_type;
-	int is_nv03t;
+	struct chipset_info chipset;
 	void *bar0;
 	size_t bar0len;
 	int hasbar1;

@@ -318,7 +318,7 @@ dump_timings(struct nvamemtiming_conf *conf, FILE* outf,
 	}
 	fprintf(outf, "\n");
 
-	if (nva_cards[conf->cnum].card_type >= 0xc0) {
+	if (nva_cards[conf->cnum].chipset.card_type >= 0xc0) {
 		dump_regs(conf->cnum, outf, ref_val3, ref_exist, 0x10f240, 0x20, color && progression > 0);
 		dump_regs(conf->cnum, outf, ref_val1, ref_exist, 0x10f290, 0xa0, color && progression > 0);
 		dump_regs(conf->cnum, outf, ref_val4, ref_exist, 0x10f610, 0x10, color && progression > 0);
@@ -440,7 +440,7 @@ deep_dump(struct nvamemtiming_conf *conf)
 		return 1;
 	}
 
-	if (nva_cards[conf->cnum].card_type >= 0xc0)
+	if (nva_cards[conf->cnum].chipset.card_type >= 0xc0)
 		timing_value_types = nvc0_timing_value_types;
 	else
 		timing_value_types = nv40_timing_value_types;
@@ -498,7 +498,7 @@ shallow_dump(struct nvamemtiming_conf *conf)
 		return 1;
 	}
 
-	if (nva_cards[conf->cnum].card_type >= 0xc0)
+	if (nva_cards[conf->cnum].chipset.card_type >= 0xc0)
 		timing_value_types = nvc0_timing_value_types;
 	else
 		timing_value_types = nv40_timing_value_types;

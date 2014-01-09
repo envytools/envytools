@@ -223,7 +223,7 @@ static uint32_t mask_pvp(enum vs_type codec, uint32_t idx) {
 	case 0x688 ... 0x69c:
 		return 0U;
 	case 0x440 ... 0x444:
-		return nva_cards[cnum].chipset < 0xd0 ? 0U : ~0U;
+		return nva_cards[cnum].chipset.chipset < 0xd0 ? 0U : ~0U;
 	default:
 		return ~0U;
 	}

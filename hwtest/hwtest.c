@@ -79,8 +79,8 @@ int main(int argc, char **argv) {
 			fprintf (stderr, "No cards found.\n");
 		return 1;
 	}
-	ctx->chipset = nva_cards[ctx->cnum].chipset;
-	ctx->card_type = nva_cards[ctx->cnum].card_type;
+	ctx->chipset = nva_cards[ctx->cnum].chipset.chipset;
+	ctx->card_type = nva_cards[ctx->cnum].chipset.card_type;
 	if (pci_device_has_kernel_driver(nva_cards[ctx->cnum].pci)) {
 		if (force) {
 			fprintf(stderr, "WARNING: Kernel driver in use.\n");
