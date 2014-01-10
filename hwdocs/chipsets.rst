@@ -483,6 +483,8 @@ pciid      chipset id chipset names     vertex  pixel   ROPs notes
 07eX       NV63       C73               1       2       2    IGP, TURBOCACHE
 =========  ========== ================  ======= ======= ==== =====
 
+.. todo:: all geometry information unverified
+
 It's not clear how NV40 is different from NV45, or NV41 from NV42,
 or NV67 from NV68 - they even share pciid ranges.
 
@@ -585,6 +587,8 @@ Like NV40, these are just the maximal numbers.
 
 The pci vendor id is 0x10de.
 
+.. todo:: geometry information not verified for G92, G94, G96, MCP77, GT215, GT218
+
 
 
 NVC0 family
@@ -686,6 +690,8 @@ pciid pciid
 100X+ 0e1a  NVF1  GK110 5    3       6    1
 128X+ 0e0f  NV108 GK208 1    2       1    1
 ===== ===== ===== ===== ==== ======= ==== =========
+
+.. todo:: verify/fill all geometry information
 
 .. todo:: it is said that one of the GPCs has only one TP on NVE6
 
