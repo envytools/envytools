@@ -44,6 +44,11 @@
 			<bitfield low="15" high="19" name="DEVICE_ID" variants="NV92:NVD9"/>
 			<bitfield low="12" high="17" name="DEVICE_ID" variants="NVD9-"/>
 			<bitfield low="20" high="28" name="CHIPSET" type="chipset"/>
+			<bitfield low="29" high="31" name="FOUNDRY">
+				<value value="0" name="TMSC"/>
+				<value value="1" name="UMC"/>
+				<value value="2" name="IBM"/>
+			</bitfield>
 		</reg32>
 		<reg32 offset="0x004" name="ENDIAN" variants="NV11-"/>
 		<reg32 offset="0x008" name="BOOT_2" variants="NV92-"/>
