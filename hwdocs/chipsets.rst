@@ -566,7 +566,7 @@ core pciid  hda   id   name        TPs MPs/TP ROPs notes
             pciid
 =========== ===== ==== =========== === ====== ==== ======
 019X        \-    NV50 G80         8   2      6
-040X        \-    NV84 G84         4   2      4
+040X        \-    NV84 G84         2   2      2
 042X        \-    NV86 G86         1   2      1
 060X+       \-    NV92 G92         8   2      4
 062X+       \-    NV94 G94         4   2      4
