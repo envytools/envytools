@@ -116,7 +116,7 @@ int parse_pmc_id(uint32_t pmc_id, struct chipset_info *info) {
 			case 0x94: info->name = "G94"; break;
 			case 0x96: info->name = "G96"; break;
 			case 0x98: info->name = "G98"; break;
-			case 0xa0: info->name = "GT200"; break;
+			case 0xa0: info->name = "G200"; break;
 			case 0xaa: info->name = "MCP77"; break;
 			case 0xac: info->name = "MCP79"; break;
 
