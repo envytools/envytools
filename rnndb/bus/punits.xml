@@ -12,6 +12,14 @@
 	<reg32 offset="0x000" name="FUSE_CONTROL">
 		<bitfield pos="11" name="FUSE_READOUT_ENABLE"/>
 	</reg32>
+	<reg32 offset="0x01c" name="UNK01C">
+		<bitfield pos="0" name="UNK0"/>
+		<bitfield pos="1" name="PCI_CLASS">
+			<value value="0" name="DISPLAY"/> <!-- 030000/030200 -->
+			<value value="1" name="MULTIMEDIA"/> <!-- 048000 -->
+		</bitfield>
+		<bitfield pos="7" name="UNK7"/>
+	</reg32>
 	<reg32 offset="0x030" name="DESIGN_GPC_COUNT"/>
 	<reg32 offset="0x034" name="DESIGN_TP_PER_GPC_COUNT"/>
 	<reg32 offset="0x038" name="DESIGN_PART_COUNT"/>
