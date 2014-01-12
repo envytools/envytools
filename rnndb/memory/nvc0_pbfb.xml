@@ -10,6 +10,11 @@
 <domain name="NV_MMIO" bare="yes" prefix="chipset">
 
 <group name="nvc0_pbfb">
+	<reg32 offset="0x160" name="PM_SEL">
+		<bitfield low="0" high="2" name="SEL"/>
+		<bitfield pos="8" name="ENABLE"/>
+	</reg32>
+
 	<reg32 offset="0x200" name="CFG0">
 		<bitfield pos="2" name="RANKS">
 			<value value="0" name="A"/>
