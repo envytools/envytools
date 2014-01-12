@@ -71,6 +71,11 @@
 </group>
 
 <group name="nvc0_pmfb">
+	<reg32 offset="0x160" name="PM_SEL">
+		<bitfield low="0" high="2" name="SEL"/>
+		<bitfield pos="8" name="ENABLE"/>
+	</reg32>
+
 	<array name="SUBP_BROADCAST" offset="0x0800" stride="0x400" length="1">
 		<use-group name="nvc0_pmfb_subp"/>
 	</array>
