@@ -674,14 +674,14 @@ Chipsets in NVC0 family:
 core  hda   id    name   GPCs TPs  PARTs MCs ZCULLs PCOPYs CRTCs PPCs SUBPs SPOONs
 pciid pciid                   /GPC           /GPC                /GPC /PART
 ===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ===== ======
-06cX+ 0be5  NVC0  GF100  4    4    6     [6] [4]    [2]    [2]   -    2     3
-0e2X+ 0beb  NVC4  GF104  2    4    4     [4] [4]    [2]    [2]   -    2     3
-0dcX+ 0be9  NVC3  GF106  1    4    3     [3] [4]    [2]    [2]   -    2     3
-120X+ 0e0c  NVCE  GF114  2    4    4     [4] [4]    [2]    [2]   -    2     3
-124X+ 0bee  NVCF  GF116  1    4    3     [3] [4]    [2]    [2]   -    2     3
-0deX+ 0bea  NVC1  GF108  1    2    1     2   4      [2]    [2]   -    2     1
-108X+ 0e09  NVC8  GF110  4    4    6     [6] [4]    [2]    [2]   -    2     3
-104X* 0e08  NVD9  GF119  1    1    1     1   4      1      2     -    1     1
+06cX+ 0be5  NVC0  GF100  4    4    6     [6] [4]    [2]    [2]   \-   2     3
+0e2X+ 0beb  NVC4  GF104  2    4    4     [4] [4]    [2]    [2]   \-   2     3
+0dcX+ 0be9  NVC3  GF106  1    4    3     [3] [4]    [2]    [2]   \-   2     3
+120X+ 0e0c  NVCE  GF114  2    4    4     [4] [4]    [2]    [2]   \-   2     3
+124X+ 0bee  NVCF  GF116  1    4    3     [3] [4]    [2]    [2]   \-   2     3
+0deX+ 0bea  NVC1  GF108  1    2    1     2   4      [2]    [2]   \-   2     1
+108X+ 0e09  NVC8  GF110  4    4    6     [6] [4]    [2]    [2]   \-   2     3
+104X* 0e08  NVD9  GF119  1    1    1     1   4      1      2     \-   1     1
 1140  \-    NVD7  GF117  1    2    1     1   4      1      4     1    2     1
 118X* 0e0a  NVE4  GK104  4    2    4     4   4      3      4     1    4     3
 0fcX* 0e1b  NVE7  GK107  1    2    2     2   4      3      4     1    4     3
