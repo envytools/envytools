@@ -216,7 +216,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x50c0" name="NV50_COMPUTE" variants="NV50:NVC0"/>
 	<value value="0x85c0" name="NVA3_COMPUTE" variants="NVA3:NVC0"/>
 	<value value="0x90c0" name="NVC0_COMPUTE" variants="NVC0:NVE4"/>
-	<value value="0x92c0" name="NVC8_COMPUTE" variants="NVC8 NVD9"/>
+	<value value="0x92c0" name="NVC8_COMPUTE" variants="NVC8:NVE4"/>
 	<value value="0xa0c0" name="NVE4_COMPUTE" variants="NVE4:NVF0"/>
 	<value value="0xa1c0" name="NVF0_COMPUTE" variants="NVF0-"/>
 
