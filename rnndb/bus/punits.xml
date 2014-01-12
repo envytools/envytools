@@ -12,6 +12,12 @@
 	<reg32 offset="0x000" name="FUSE_CONTROL">
 		<bitfield pos="11" name="FUSE_READOUT_ENABLE"/>
 	</reg32>
+	<reg32 offset="0x004" name="UNK004" access="r"/> <!-- 1 on NVC1 -->
+	<reg32 offset="0x008" name="UNK008"/> <!-- 32-bit -->
+	<reg32 offset="0x00c" name="UNK00C"/> <!-- 32-bit; 2 on NVC0, NVD7, NVCF, NVE4, NVF1; 0 on NVC1, NVD9 -->
+	<reg32 offset="0x018" name="UNK018" variants="NVC0:NVC1 NVC8:NVD9">
+		<bitfield low="30" high="31" name="UNK30"/> <!-- 3/3/0 -->
+	</reg32>
 	<reg32 offset="0x01c" name="UNK01C">
 		<bitfield pos="0" name="UNK0"/>
 		<bitfield pos="1" name="PCI_CLASS">
@@ -20,12 +26,13 @@
 		</bitfield>
 		<bitfield pos="7" name="UNK7"/>
 	</reg32>
+	<reg32 offset="0x028" name="UNK028"/> <!-- 800/ffffffff/0 -->
 	<reg32 offset="0x030" name="DESIGN_GPC_COUNT"/>
 	<reg32 offset="0x034" name="DESIGN_TP_PER_GPC_COUNT"/>
 	<reg32 offset="0x038" name="DESIGN_PART_COUNT"/>
-	<reg32 offset="0x03c" name="DESIGN_MC_COUNT" variants="NVC1-"/>
-	<reg32 offset="0x040" name="DESIGN_UNK_ZCULL_PER_GPC_COUNT" variants="NVC1-"/>
-	<reg32 offset="0x044" name="DESIGN_PCOPY_COUNT" variants="NVD9-"/> <!-- or spoon? -->
+	<reg32 offset="0x03c" name="DESIGN_MC_COUNT" variants="NVC1:NVC8 NVD9-"/>
+	<reg32 offset="0x040" name="DESIGN_UNK_ZCULL_PER_GPC_COUNT" variants="NVC1:NVC8 NVD9-"/>
+	<reg32 offset="0x044" name="DESIGN_PCOPY_COUNT" variants="NVD9-"/>
 	<reg32 offset="0x048" name="DESIGN_CRTC_COUNT" variants="NVD9-"/>
 	<reg32 offset="0x100" name="HW_MISC_DISABLE">
 		<bitfield pos="0" name="PDISPLAY_PUNK1C3"/>

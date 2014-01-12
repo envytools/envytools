@@ -563,10 +563,10 @@ redesigned memory subsystem, complete with a paging MMU [see :ref:`nv50-vm`].
 
 The chipsets in this family are:
 
-=========== ===== ==== =========== === ====== ==== ======
-core pciid  hda   id   name        TPs MPs/TP ROPs notes
+=========== ===== ==== =========== === ====== ========== ======
+core pciid  hda   id   name        TPs MPs/TP partitions notes
             pciid
-=========== ===== ==== =========== === ====== ==== ======
+=========== ===== ==== =========== === ====== ========== ======
 019X        \-    NV50 G80         8   2      6
 040X        \-    NV84 G84         2   2      2
 042X        \-    NV86 G86         1   2      2
@@ -575,13 +575,13 @@ core pciid  hda   id   name        TPs MPs/TP ROPs notes
 064X+       \-    NV96 G96         2   2      2
 06eX+       \-    NV98 G98         1   1      1
 05eX+       \-    NVA0 G200        10  3      8
-084X+       \-    NVAA MCP77/MCP78 1   1      1    IGP
-086X+       \-    NVAC MCP79/MCP7A 1   2      1    IGP
+084X+       \-    NVAA MCP77/MCP78 1   1      1          IGP
+086X+       \-    NVAC MCP79/MCP7A 1   2      1          IGP
 0caX+       0be4  NVA3 GT215       4   3      4
 0a2X+       0be2  NVA5 GT216       2   3      2
 0a6X+ 10cX+ 0be3  NVA8 GT218       1   2      1
-08aX+       \-    NVAF MCP89       2   3      2    IGP
-=========== ===== ==== =========== === ====== ==== ======
+08aX+       \-    NVAF MCP89       2   3      2          IGP
+=========== ===== ==== =========== === ====== ========== ======
 
 Like NV40, these are just the maximal numbers.
 
@@ -615,7 +615,7 @@ The card where they redesigned everything again.
       - per-partition middle memory controllers: compression, ECC, ... [PMFB]
       - a single "hub" memory controller: VM control, TLB control, ... [PFFB]
 
-  - ROPs, memory partitions, GPCs, TPs have independent register areas, as well
+  - memory partitions, GPCs, TPs have independent register areas, as well
     as "broadcast" areas that can be used to control all units at once
   - second PCOPY engine
   - redesigned PCOUNTER, now having multiple more or less independent subunits
@@ -670,29 +670,27 @@ The card where they redesigned everything again.
 
 Chipsets in NVC0 family:
 
-===== ===== ===== ===== ==== ======= ==== =========
-core  hda   id    name  GPCs TPs/GPC ROPs parts/ROP
-pciid pciid
-===== ===== ===== ===== ==== ======= ==== =========
-06cX+ 0be5  NVC0  GF100 4    4       6    1
-0e2X+ 0beb  NVC4  GF104 2    4       4    1
-0dcX+ 0be9  NVC3  GF106 1    4       3    1
-120X+ 0e0c  NVCE  GF114 2    4       4    1
-124X+ 0bee  NVCF  GF116 1    4       3    1
-0deX+ 0bea  NVC1  GF108 1    2       1    2
-108X+ 0e09  NVC8  GF110 4    4       6    1
-104X* 0e08  NVD9  GF119 1    1       1    1
-1140  \-    NVD7  GF117 1    2       1    1
-118X* 0e0a  NVE4  GK104 4    2       4    1
-0fcX* 0e1b  NVE7  GK107 1    2       2    1
-11cX+ 0e0b  NVE6  GK106 3    2       ?    ?
-100X+ 0e1a  NVF0  GK110 5    3       6    1
-100X+ 0e1a  NVF1  GK110 5    3       6    1
-128X+ 0e0f  NV108 GK208 1    2       1    1
-===== ===== ===== ===== ==== ======= ==== =========
+===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ===== ======
+core  hda   id    name   GPCs TPs  PARTs MCs ZCULLs PCOPYs CRTCs PPCs SUBPs SPOONs
+pciid pciid                   /GPC           /GPC                /GPC /PART
+===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ===== ======
+06cX+ 0be5  NVC0  GF100  4    4    6     [6] [4]    [2]    [2]   -    2     3
+0e2X+ 0beb  NVC4  GF104  2    4    4     [4] [4]    [2]    [2]   -    2     3
+0dcX+ 0be9  NVC3  GF106  1    4    3     [3] [4]    [2]    [2]   -    2     3
+120X+ 0e0c  NVCE  GF114  2    4    4     [4] [4]    [2]    [2]   -    2     3
+124X+ 0bee  NVCF  GF116  1    4    3     [3] [4]    [2]    [2]   -    2     3
+0deX+ 0bea  NVC1  GF108  1    2    1     2   4      [2]    [2]   -    2     1
+108X+ 0e09  NVC8  GF110  4    4    6     [6] [4]    [2]    [2]   -    2     3
+104X* 0e08  NVD9  GF119  1    1    1     1   4      1      2     -    1     1
+1140  \-    NVD7  GF117  1    2    1     1   4      1      4     1    2     1
+118X* 0e0a  NVE4  GK104  4    2    4     4   4      3      4     1    4     3
+0fcX* 0e1b  NVE7  GK107  1    2    2     2   4      3      4     1    4     3
+11cX+ 0e0b  NVE6  GK106  3    2    3     3   4      3      4     1    4     3
+100X+ 0e1a  NVF0  GK110  5    3    6     6   4      3      4     2    4     3
+100X+ 0e1a  NVF1  GK110B 5    3    6     6   4      3      4     2    4     3
+128X+ 0e0f  NV108 GK208  1    2    1     1   4      3      4     1    2     2
+===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ===== ======
 
-.. todo:: verify/fill all geometry information
-
-.. todo:: it is said that one of the GPCs has only one TP on NVE6
+.. todo:: it is said that one of the GPCs [0th one] has only one TP on NVE6
 
 .. todo:: what the fuck is NVF1?
