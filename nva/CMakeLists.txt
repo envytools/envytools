@@ -77,7 +77,7 @@ if (NOT DISABLE_NVA)
 					   COMMAND ${CYTHON_EXECUTABLE}
 					   ARGS -3 ${CMAKE_CURRENT_SOURCE_DIR}/nvapy.pyx -o ${CMAKE_CURRENT_BINARY_DIR}/nvapy.c
 					   MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/nvapy.pyx)
-			add_library(nvapy MODULE ${CMAKE_CURRENT_BINARY_DIR}/nvapy.c nva.c)
+			add_library(nvapy MODULE ${CMAKE_CURRENT_BINARY_DIR}/nvapy.c nva.c ../nvhw/chipset.c)
 			set_target_properties(nvapy PROPERTIES PREFIX "")
 			target_link_libraries(nvapy ${PC_PYTHON_LIBRARIES} ${PC_PCIACCESS_LIBRARIES})
 			if (NVAPY_PATH)
