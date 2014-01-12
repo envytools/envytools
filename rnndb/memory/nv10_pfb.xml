@@ -93,12 +93,24 @@
 
 <array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV10:NVC0">
 
-	<!-- could be partition instead of MC. MWK will know better -->
-	<reg32 offset="0x34" name="PM_SEL_MC" variants="NVA0 NVA3 NVA5 NVA8" length="7">
-		<bitfield low="0" high="5" name="UNK0" variants="NVA0"/>
-		<bitfield low="0" high="6" name="UNK0" variants="NVA3 NVA5 NVA8"/>
-		<bitfield pos="28" name="UNK28"/>
-		<bitfield pos="31" name="ENABLE"/>
+	<!-- one per partition, actually; not on IGPs -->
+	<reg32 offset="0x34" name="PART_PM_SEL" variants="NV84:NVC0" length="8">
+		<bitfield low="0" high="4" name="CLIENT" variants="NV84:NVA3">
+			<value value="0x0" name="PFIFO_READ"/>
+			<value value="0x2" name="PPPP_READ" variants="NV98:NVA0 NVAA-"/>
+			<value value="0x3" name="PPPP_WRITE" variants="NV98:NVA0 NVAA-"/>
+			<value value="0x14" name="PVDEC_READ" variants="NV98:NVA0 NVAA-"/>
+			<value value="0x15" name="PVDEC_WRITE" variants="NV98:NVA0 NVAA-"/>
+			<value value="0x16" name="PVLD_READ" variants="NV98:NVA0 NVAA-"/>
+			<value value="0x17" name="PVLD_WRITE" variants="NV98:NVA0 NVAA-"/>
+			<value value="0x18" name="PCRYPT3_READ" variants="NV98:NVA0 NVAA-"/>
+			<value value="0x19" name="PCRYPT3_WRITE" variants="NV98:NVA0 NVAA-"/>
+			<value value="0x1c" name="PFIFO_WRITE"/> <!-- eh? -->
+		</bitfield>
+		<bitfield pos="5" name="ENABLE" variants="NV84:NVA3"/>
+		<bitfield low="0" high="6" name="UNK0" variants="NVA3:NVC0"/>
+		<bitfield pos="28" name="UNK28" variants="NVA3:NVC0"/>
+		<bitfield pos="31" name="ENABLE" variants="NVA3:NVC0"/>
 	</reg32>
 
 	<reg32 offset="0x200" name="CFG0" variants="NV10:NV20 NV34">
