@@ -1019,8 +1019,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="0x2" name="GEOMETRY"/>
 				<value value="0x3" name="FRAGMENT"/>
 			</bitfield>
-			<bitfield name="INDEX" high="11" low="8" type="int"/>
-			<bitfield name="BUFFER" high="18" low="12" type="int"/>
+			<bitfield name="INDEX" high="11" low="8" type="uint"/>
+			<bitfield name="BUFFER" high="18" low="12" type="uint"/>
 			<bitfield name="VALID" pos="0" type="boolean"/>
 		</reg32>
 		<reg32 offset="0x1698" name="UNK1698">
