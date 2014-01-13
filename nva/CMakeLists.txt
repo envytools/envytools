@@ -52,6 +52,7 @@ if (NOT DISABLE_NVA)
 			nv01dump
 			nv01post
 			nvaspyi2c
+			nvammiotracereplay
 		)
 
 		foreach(PROG ${NVA_PROGS})
