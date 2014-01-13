@@ -124,7 +124,8 @@
 		<value value="3" name="CHANNEL_ACTIVE"/> <!-- invalidated a channel that was active on one of the subfifos -->
 		<value value="4" name="CHANNEL_PENDING"/> <!-- invalidated a channel that had the PENDING flag? -->
 		<value value="5" name="NO_ENGINE"/> <!-- caused by 0x3f1 poked to 2200 [NVC0] or engine id >6 in chan table [NVE4] -->
-		<value value="0xb" name="UNK0B"/> <!-- invalidated a channel while it was RUNNABLE and on playlist -->
+		<value value="6" name="INVALID_TARGET"/> <!-- write a channel instance with target == INVALID [1] -->
+		<value value="0xb" name="CHANNEL_RUNNABLE"/> <!-- invalidated a channel while it was RUNNABLE and on playlist -->
 	</reg32>
 	<reg32 offset="0x530" name="INTR_HALT_MASK" type="nvc0_pfifo_intr"/>
 	<reg32 offset="0x54c" name="PLAYLIST_INTR"> <!-- RO, ack in 2100 -->
