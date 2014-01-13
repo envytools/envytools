@@ -97,14 +97,20 @@
 	<reg32 offset="0x34" name="PART_PM_SEL" variants="NV84:NVC0" length="8">
 		<bitfield low="0" high="4" name="CLIENT" variants="NV84:NVA3">
 			<value value="0x0" name="PFIFO_READ"/>
+
 			<value value="0x2" name="PPPP_READ" variants="NV98:NVA0 NVAA-"/>
 			<value value="0x3" name="PPPP_WRITE" variants="NV98:NVA0 NVAA-"/>
+
+			<value value="0x5" name="DISPATCH_READ"/>
+			<value value="0x6" name="DISPATCH_WRITE"/>
+
 			<value value="0x14" name="PVDEC_READ" variants="NV98:NVA0 NVAA-"/>
 			<value value="0x15" name="PVDEC_WRITE" variants="NV98:NVA0 NVAA-"/>
 			<value value="0x16" name="PVLD_READ" variants="NV98:NVA0 NVAA-"/>
 			<value value="0x17" name="PVLD_WRITE" variants="NV98:NVA0 NVAA-"/>
 			<value value="0x18" name="PCRYPT3_READ" variants="NV98:NVA0 NVAA-"/>
 			<value value="0x19" name="PCRYPT3_WRITE" variants="NV98:NVA0 NVAA-"/>
+
 			<value value="0x1c" name="PFIFO_WRITE"/> <!-- eh? -->
 		</bitfield>
 		<bitfield pos="5" name="ENABLE" variants="NV84:NVA3"/>
