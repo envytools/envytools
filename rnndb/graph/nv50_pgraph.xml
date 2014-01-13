@@ -98,10 +98,7 @@
 		</bitfield>
 		<bitfield name="UNK22" pos="22" />
 		<bitfield name="SINGLE_STEP" pos="24" />
-		<bitfield name="CTXPROG_PAUSED" pos="25">
-			<doc>Can be triggered by pausing ctxprog via CTXCTL_CONTROL... but that's
-			useless, there should be another way to trigger it.</doc>
-		</bitfield>
+		<bitfield name="CTXPROG_SINGLE_STEP" pos="25"/>
 	</reg32>
 	<reg32 offset="0x0108" name="TRAP">
 		<brief>Trap status</brief>
@@ -171,7 +168,7 @@
 		<bitfield name="TRAP" pos="21" />
 		<bitfield name="UNK22" pos="22" />
 		<bitfield name="SINGLE_STEP" pos="24" />
-		<bitfield name="CTXPROG_PAUSED" pos="25" />
+		<bitfield name="CTXCTL_SINGLE_STEP" pos="25" />
 	</reg32>
 
 	<reg32 offset="0x0200" name="ICMD_CMD" />
@@ -180,17 +177,24 @@
 	<reg32 offset="0x0300" name="CTXCTL_STATUS">
 		<brief>ctxprog status</brief>
 		<!-- TODO: Figure this out.-->
-		<bitfield name="RUNNING" pos="0" />
-		<bitfield name="DISPATCH_FREE" pos="1" />
+		<bitfield pos="0" name="RUNNING"/>
+		<bitfield pos="1" name="DISPATCH_FREE"/>
 		<!-- bits 2 and 3 light up when PC == 0... wtf? -->
-		<bitfield name="PAUSED" pos="4" />
-		<bitfield name="NEXTDIFFERS" pos="8" /> <!-- CUR != NEXT -->
+		<bitfield low="4" high="5" name="STATE">
+			<value value="0" name="IDLE"/>
+			<value value="1" name="FETCH"/>
+			<value value="2" name="EXECUTE"/>
+			<value value="3" name="SINGLE_STEP_WAIT"/>
+		</bitfield>
+		<bitfield pos="8" name="NEXTDIFFERS"/> <!-- CUR != NEXT -->
 		<bitfield low="12" high="31" name="TIMER"/>
 	</reg32>
 	<reg32 offset="0x0304" name="CTXCTL_CONTROL">
-		<bitfield name="RUN" pos="0" />
-		<bitfield name="CONT" pos="1" />
-		<bitfield name="PAUSE" pos="4" />
+		<bitfield pos="0" name="RUN"/>
+		<bitfield pos="1" name="RESET_EXECUTE"/>
+		<bitfield pos="2" name="RESET_PC"/>
+		<bitfield pos="3" name="RESET_FLAGS"/>
+		<bitfield pos="4" name="SINGLE_STEP_ENABLE"/>
 	</reg32>
 	<reg32 offset="0x0308" name="CTXCTL_OPCODE">
  		<doc>Next opcode to execute, or the exit opcode if program exitted.</doc>
@@ -216,6 +220,7 @@
 		<value value="0xb" name="UNK0B" />
 		<value value="0xc" name="END" />
 		<value value="0xd" name="NEXT_TO_CURRENT" />
+		<value value="0xe" name="SINGLE_STEP" />
 		<value value="0xf" name="UNK0F" /> <!-- causes 101 in STATUS, 200 in FLAGS_2 -->
 		<value value="0x11" name="UNK11" />
 		<value value="0x12" name="UNK12" /> <!-- causes some new registers to appear / light up. fun. -->
