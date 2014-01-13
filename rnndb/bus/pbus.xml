@@ -186,16 +186,26 @@
 			<bitfield pos="31" name="UNK31"/>
 		</reg32>
 		<reg32 offset="0x54c" name="HWUNITS_1" variants="NV84:NVC0">
+			<bitfield pos="0" name="PCIE_VERSION">
+				<value value="0" name="1"/>
+				<value value="1" name="2"/>
+			</bitfield>
 			<bitfield pos="1" name="PCI_CLASS">
 				<value value="0" name="DISPLAY"/> <!-- 030000/030200 -->
 				<value value="1" name="MULTIMEDIA"/> <!-- 048000 -->
 			</bitfield>
 			<bitfield pos="2" name="PDISPLAY"/>
+			<bitfield low="3" high="4" name="UNK3"/>
 			<bitfield pos="5" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
 			<bitfield pos="5" name="PVLD" variants="NV98:NVA0 NVAA-"/>
 			<bitfield pos="6" name="PCRYPT2" variants="NV84:NV98 NVA0:NVAA"/>
 			<bitfield pos="6" name="PCRYPT3" variants="NV98:NVA0 NVAA:NVA3"/>
 			<bitfield pos="6" name="PVCOMP" variants="NVAF-"/>
+			<bitfield pos="7" name="PCIE_SPEED">
+				<value value="0" name="2P5GT"/>
+				<value value="1" name="FULL"/> <!-- 5 or 8 -->
+			</bitfield>
+			<bitfield pos="8" name="UNK8"/> <!-- seen 1 on NVA0 -->
 			<bitfield pos="9" name="PCOPY" variants="NVA3-"/>
 		</reg32>
 		<reg32 offset="0x55c" name="PEEPHOLE_W_CTRL" variants="NV30:NVC0">

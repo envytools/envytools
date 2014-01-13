@@ -18,13 +18,19 @@
 	<reg32 offset="0x018" name="UNK018" variants="NVC0:NVC1 NVC8:NVD9">
 		<bitfield low="30" high="31" name="UNK30"/> <!-- 3/3/0 -->
 	</reg32>
-	<reg32 offset="0x01c" name="UNK01C">
-		<bitfield pos="0" name="UNK0"/>
+	<reg32 offset="0x01c" name="PCI">
+		<bitfield pos="0" name="PCIE_VERSION">
+			<value value="0" name="1"/>
+			<value value="1" name="2"/>
+		</bitfield>
 		<bitfield pos="1" name="PCI_CLASS">
 			<value value="0" name="DISPLAY"/> <!-- 030000/030200 -->
 			<value value="1" name="MULTIMEDIA"/> <!-- 048000 -->
 		</bitfield>
-		<bitfield pos="7" name="UNK7"/>
+		<bitfield pos="7" name="PCIE_SPEED">
+			<value value="0" name="2P5GT"/>
+			<value value="1" name="FULL"/> <!-- 5 or 8 -->
+		</bitfield>
 	</reg32>
 	<reg32 offset="0x028" name="UNK028"/> <!-- 800/ffffffff/0 -->
 	<reg32 offset="0x030" name="DESIGN_GPC_COUNT"/>
