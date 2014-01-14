@@ -540,17 +540,16 @@
 	</array>
 	<array offset="0x8000" name="CCACHE" stride="0x800" length="1">
 		<reg32 offset="0x00" name="CTX_UNK00"/>
-		<reg32 offset="0x04" name="HUB2GPC_ADDR" shr="8"/>
-		<reg32 offset="0x08" name="HUB2GPC_CONF">
-			<bitfield low="0" high="7" name="UNK0"/>
-			<bitfield low="8" high="10" name="UNK8"/>
-			<bitfield pos="31" name="UNK31"/>
+		<reg32 offset="0x04" name="HUB2ESETUP_ADDR" shr="8"/>
+		<reg32 offset="0x08" name="HUB2ESETUP_CONF">
+			<bitfield low="0" high="10" name="SIZE" shr="8"/>
+			<bitfield pos="31" name="VALID"/>
 		</reg32>
-		<reg32 offset="0x0c" name="HUB2ESETUP_ADDR" shr="8"/>
-		<reg32 offset="0x10" name="HUB2ESETUP_CONF">
-			<bitfield low="0" high="10" name="UNK0"/>
-			<bitfield low="11" high="15" name="UNK11"/>
-			<bitfield pos="31" name="UNK31"/>
+		<reg32 offset="0x0c" name="HUB2GPC_ADDR" shr="8"/>
+		<reg32 offset="0x10" name="HUB2GPC_CONF">
+			<bitfield low="0" high="7" name="SIZE" shr="8"/>
+			<bitfield low="8" high="15" name="UNK8"/>
+			<bitfield pos="31" name="VALID"/>
 		</reg32>
 		<reg32 offset="0x14" name="CTX_UNK14"/>
 		<reg32 offset="0x18" name="CTX_UNK18"/>
@@ -812,7 +811,7 @@
 		<array offset="0x000" name="POLY" stride="0x200" length="1">
 			<reg32 offset="0x048" name="POLY2ESETUP">
 				<bitfield low="0" high="27" name="ADDRESS" shr="12"/>
-				<bitfield pos="28" name="UNK28"/>
+				<bitfield pos="28" name="VALID"/>
 			</reg32>
 			<reg32 offset="0x054" name="PM_UNK054"/>
 			<reg32 offset="0x05c" name="TFB_UNFUCKUP_OFFSET_QUERIES">
@@ -1174,12 +1173,12 @@
 			<reg32 offset="0x00" name="CTX_UNK00"/>
 			<reg32 offset="0x08" name="HUB2ESETUP_ADDR" shr="8"/>
 			<reg32 offset="0x0c" name="HUB2ESETUP_CONF">
-				<bitfield low="0" high="10" name="UNK0"/>
-				<bitfield pos="31" name="UNK31"/>
+				<bitfield low="0" high="10" name="SIZE" shr="8"/>
+				<bitfield pos="31" name="VALID"/>
 			</reg32>
 			<reg32 offset="0x10" name="POLY2ESETUP">
 				<bitfield low="0" high="27" name="ADDRESS" shr="12"/>
-				<bitfield pos="31" name="UNK31"/>
+				<bitfield pos="31" name="VALID"/>
 			</reg32>
 			<reg32 offset="0x1c" name="PM_UNK1C"/>
 			<reg32 offset="0x24" name="TRAP">
@@ -1261,7 +1260,7 @@
 			</reg32>
 			<reg32 offset="0x04" name="HUB2GPC_ADDR" shr="8"/>
 			<reg32 offset="0x08" name="HUB2GPC_CONF">
-				<bitfield low="0" high="7" name="UNK0"/>
+				<bitfield low="0" high="7" name="SIZE" shr="8"/>
 			</reg32>
 			<reg32 offset="0x14" name="CTX_UNK14"/>
 			<reg32 offset="0x28" name="TRAP">
