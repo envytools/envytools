@@ -34,7 +34,7 @@
 	</reg32>
 	<reg32 offset="0x028" name="UNK028"/> <!-- 800/ffffffff/0 -->
 	<reg32 offset="0x030" name="DESIGN_GPC_COUNT"/>
-	<reg32 offset="0x034" name="DESIGN_TP_PER_GPC_COUNT"/>
+	<reg32 offset="0x034" name="DESIGN_TPC_PER_GPC_COUNT"/>
 	<reg32 offset="0x038" name="DESIGN_PART_COUNT"/>
 	<reg32 offset="0x03c" name="DESIGN_MC_COUNT" variants="NVC1:NVC8 NVD9-"/>
 	<reg32 offset="0x040" name="DESIGN_UNK_ZCULL_PER_GPC_COUNT" variants="NVC1:NVC8 NVD9-"/>
@@ -50,7 +50,7 @@
 		<bitfield low="12" high="17" name="UNK12" variants="NVE4-"/>
 	</reg32>
 	<reg32 offset="0x104" name="HW_GPC_DISABLE_MASK"/>
-	<reg32 offset="0x108" name="HW_TP_DISABLE_MASK" length="8"/>
+	<reg32 offset="0x108" name="HW_TPC_DISABLE_MASK" length="8"/>
 	<reg32 offset="0x128" name="HW_UNK_ZCULL_DISABLE_MASK" length="8"/>
 	<reg32 offset="0x148" name="HW_PART_DISABLE_MASK"/>
 	<reg32 offset="0x14c" name="HW_UNK0_DISABLE_MASK"/>
@@ -68,7 +68,7 @@
 		<bitfield low="12" high="17" name="UNK12" variants="NVE4-"/>
 	</reg32>
 	<reg32 offset="0x184" name="SW_GPC_DISABLE_MASK"/>
-	<reg32 offset="0x188" name="SW_TP_DISABLE_MASK" length="8"/>
+	<reg32 offset="0x188" name="SW_TPC_DISABLE_MASK" length="8"/>
 	<reg32 offset="0x1a8" name="SW_UNK_ZCULL_DISABLE_MASK" length="8"/>
 	<reg32 offset="0x1c8" name="SW_PART_DISABLE_MASK"/>
 	<reg32 offset="0x1cc" name="SW_UNK0_DISABLE_MASK"/> <!-- 1 on NVD9, 0 on NVC1 and NVE4? -->

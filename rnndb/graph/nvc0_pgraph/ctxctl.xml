@@ -258,7 +258,7 @@
 <group name="nvc0_gpc_ctxctl">
 	<use-group name="nvc0_ctxctl"/>
 	<reg32 offset="0x608" name="UNITS">
-		<bitfield low="0" high="4" name="TP_COUNT"/>
+		<bitfield low="0" high="4" name="TPC_COUNT"/>
 		<bitfield low="16" high="20" name="UNK_ZCULL_COUNT"/>
 	</reg32>
 	<reg32 offset="0x614" name="RED_SWITCH">
@@ -303,14 +303,14 @@
 		<bitfield pos="1" name="ZCULL"/>
 		<bitfield pos="2" name="CCACHE"/>
 		<bitfield pos="3" name="ESETUP"/>
-		<bitfield low="16" high="23" name="TP"/>
+		<bitfield low="16" high="23" name="TPC"/>
 	</reg32>
 	<reg32 offset="0xc94" name="TRAP_EN">
 		<bitfield pos="0" name="PROP"/>
 		<bitfield pos="1" name="ZCULL"/>
 		<bitfield pos="2" name="CCACHE"/>
 		<bitfield pos="3" name="ESETUP"/>
-		<bitfield low="16" high="23" name="TP"/>
+		<bitfield low="16" high="23" name="TPC"/>
 	</reg32>
 </group>
 

@@ -61,18 +61,18 @@
 </enum>
 
 <enum name="NVC0_VM_GPCCLIENT">
-	<value value="0x00" name="TP0_L1"/>
-	<value value="0x01" name="TP0_TEX"/>
-	<value value="0x02" name="TP0_POLY"/>
-	<value value="0x03" name="TP1_L1"/>
-	<value value="0x04" name="TP1_TEX"/>
-	<value value="0x05" name="TP1_POLY"/>
-	<value value="0x06" name="TP2_L1"/>
-	<value value="0x07" name="TP2_TEX"/>
-	<value value="0x08" name="TP2_POLY"/>
-	<value value="0x09" name="TP3_L1"/>
-	<value value="0x0a" name="TP3_TEX"/>
-	<value value="0x0b" name="TP3_POLY"/>
+	<value value="0x00" name="TPC0_L1"/>
+	<value value="0x01" name="TPC0_TEX"/>
+	<value value="0x02" name="TPC0_POLY"/>
+	<value value="0x03" name="TPC1_L1"/>
+	<value value="0x04" name="TPC1_TEX"/>
+	<value value="0x05" name="TPC1_POLY"/>
+	<value value="0x06" name="TPC2_L1"/>
+	<value value="0x07" name="TPC2_TEX"/>
+	<value value="0x08" name="TPC2_POLY"/>
+	<value value="0x09" name="TPC3_L1"/>
+	<value value="0x0a" name="TPC3_TEX"/>
+	<value value="0x0b" name="TPC3_POLY"/>
 	<value value="0x0c" name="ESETUP"/>
 	<value value="0x0d" name="CCACHE"/>
 	<value value="0x0e" name="CTXCTL"/>

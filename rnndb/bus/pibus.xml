@@ -32,12 +32,12 @@
 			<bitfield pos="8" name="PUNK0828" variants="NVC0:NVE4"/>
 			<bitfield pos="9" name="PXBAR_U4" variants="NVC0:NVE4"/>
 			<bitfield pos="10" name="PUNK130"/>
-			<bitfield pos="11" name="TP3" variants="NVC0:NVE4"/>
-			<bitfield pos="12" name="TP2" variants="NVC0:NVE4"/>
-			<bitfield pos="13" name="TP1" variants="NVC0:NVE4"/>
-			<bitfield pos="14" name="TP0" variants="NVC0:NVE4"/>
-			<bitfield pos="11" name="TP0" variants="NVE4-"/>
-			<bitfield pos="12" name="TP1" variants="NVE4-"/>
+			<bitfield pos="11" name="TPC3" variants="NVC0:NVE4"/>
+			<bitfield pos="12" name="TPC2" variants="NVC0:NVE4"/>
+			<bitfield pos="13" name="TPC1" variants="NVC0:NVE4"/>
+			<bitfield pos="14" name="TPC0" variants="NVC0:NVE4"/>
+			<bitfield pos="11" name="TPC0" variants="NVE4-"/>
+			<bitfield pos="12" name="TPC1" variants="NVE4-"/>
 			<bitfield pos="15" name="PIBUS_MMIO" variants="NVC0:NVE4"/>
 			<bitfield pos="16" name="CTXCTL"/>
 			<bitfield pos="20" name="PGRAPH_GPC_UNK3000" variants="NVE4-"/>

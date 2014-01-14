@@ -422,7 +422,7 @@
 		</reg32>
 		<reg32 offset="0x44" name="TRAP_UNK44"/>
 		<reg32 offset="0x54" name="CTX_UNK54"/>
-		<reg32 offset="0x70" name="GPC_TPCNT" length="4"> <!-- ctx-switched -->
+		<reg32 offset="0x70" name="GPC_TPCCNT" length="4"> <!-- ctx-switched -->
 			<bitfield low="0" high="3" name="0"/>
 			<bitfield low="4" high="7" name="1"/>
 			<bitfield low="8" high="11" name="2"/>
@@ -444,10 +444,10 @@
 		<reg32 offset="0x00" name="UNK00"> <!-- ctx-switched -->
 			<doc>Affects the maximum number of MPs used for compute shader grids.
 			This includes layout the layout of the TEMP area.
-			Values seen: 0x201 for 1 GPC with 2 TPs and 0x804 for 4 GPCs with 2 TPs each.
+			Values seen: 0x201 for 1 GPC with 2 TPCs and 0x804 for 4 GPCs with 2 TPCs each.
 			</doc>
-			<bitfield low="0" high="7" name="UNK0"/>
-			<bitfield low="8" high="15" name="MP_COUNT"/><!-- guess -->
+			<bitfield low="0" high="7" name="GPCCNT"/>
+			<bitfield low="8" high="15" name="TPCCNT"/><!-- guess -->
 		</reg32>
 		<reg32 offset="0x10" name="CTX_UNK10"/>
 	</array>
@@ -462,7 +462,7 @@
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
 		<reg32 offset="0x020" name="CTX_UNK20"/>
-		<reg32 offset="0x028" name="GPC_TPCNT" length="4"> <!-- ctx-switched -->
+		<reg32 offset="0x028" name="GPC_TPCCNT" length="4"> <!-- ctx-switched -->
 			<bitfield low="0" high="3" name="0"/>
 			<bitfield low="4" high="7" name="1"/>
 			<bitfield low="8" high="11" name="2"/>
@@ -472,7 +472,7 @@
 			<bitfield low="24" high="27" name="6"/>
 			<bitfield low="28" high="31" name="7"/>
 		</reg32>
-		<reg32 offset="0x0a8" name="TP_GPCID" length="0x40">
+		<reg32 offset="0x0a8" name="TPC_GPCID" length="0x40">
 			<bitfield low="0" high="4" name="0"/>
 			<bitfield low="8" high="12" name="1"/>
 			<bitfield low="16" high="20" name="2"/>
@@ -527,7 +527,7 @@
 	<array offset="0x7800" name="TPBUS" stride="0x800" length="1">
 		<reg32 offset="0x04" name="CTX_UNK04"/>
 		<reg32 offset="0x08" name="PM_UNK08"/>
-		<reg32 offset="0x0c" name="TP_GPCID" length="44"> <!-- ctx-switched -->
+		<reg32 offset="0x0c" name="TPC_GPCID" length="44"> <!-- ctx-switched -->
 			<bitfield low="0" high="4" name="0"/>
 			<bitfield low="5" high="9" name="1"/>
 			<bitfield low="10" high="14" name="2"/>

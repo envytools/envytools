@@ -603,7 +603,7 @@ The card where they redesigned everything again.
 
     - split into a central HUB managing everything and several GPCs
       doing all actual work
-    - GPCs further split into a common part and several TPs
+    - GPCs further split into a common part and several TPCs
     - using falcon for context switching
     - D3D11 support
 
@@ -615,7 +615,7 @@ The card where they redesigned everything again.
       - per-partition middle memory controllers: compression, ECC, ... [PMFB]
       - a single "hub" memory controller: VM control, TLB control, ... [PFFB]
 
-  - memory partitions, GPCs, TPs have independent register areas, as well
+  - memory partitions, GPCs, TPCs have independent register areas, as well
     as "broadcast" areas that can be used to control all units at once
   - second PCOPY engine
   - redesigned PCOUNTER, now having multiple more or less independent subunits
@@ -671,7 +671,7 @@ The card where they redesigned everything again.
 Chipsets in NVC0 family:
 
 ===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ===== ======
-core  hda   id    name   GPCs TPs  PARTs MCs ZCULLs PCOPYs CRTCs PPCs SUBPs SPOONs
+core  hda   id    name   GPCs TPCs PARTs MCs ZCULLs PCOPYs CRTCs PPCs SUBPs SPOONs
 pciid pciid                   /GPC           /GPC                /GPC /PART
 ===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ===== ======
 06cX+ 0be5  NVC0  GF100  4    4    6     [6] [4]    [2]    [2]   \-   2     3
@@ -691,6 +691,6 @@ pciid pciid                   /GPC           /GPC                /GPC /PART
 128X+ 0e0f  NV108 GK208  1    2    1     1   4      3      4     1    2     2
 ===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ===== ======
 
-.. todo:: it is said that one of the GPCs [0th one] has only one TP on NVE6
+.. todo:: it is said that one of the GPCs [0th one] has only one TPC on NVE6
 
 .. todo:: what the fuck is NVF1?

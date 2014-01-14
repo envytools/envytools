@@ -120,7 +120,7 @@
 	<array offset="0xb00" name="TPBUS" stride="0x100" length="1">
 		<reg32 offset="0x00" name="CTX_UNK00"/>
 		<reg32 offset="0x04" name="PM_UNK04"/>
-		<reg32 offset="0x08" name="TP_GPCID" length="44"> <!-- ctx-switched -->
+		<reg32 offset="0x08" name="TPC_GPCID" length="44"> <!-- ctx-switched -->
 			<bitfield low="0" high="4" name="0"/>
 			<bitfield low="5" high="9" name="1"/>
 			<bitfield low="10" high="14" name="2"/>
@@ -134,14 +134,14 @@
 		</reg32>
 	</array>
 	<array offset="0xc00" name="TPCONF" stride="0x080" length="1">
-		<reg32 offset="0x08" name="TPCNT"/> <!-- ctx-switched -->
-		<reg32 offset="0x10" name="TPID" length="8"/> <!-- ctx-switched -->
+		<reg32 offset="0x08" name="TPCCNT"/> <!-- ctx-switched -->
+		<reg32 offset="0x10" name="TPCID" length="8"/> <!-- ctx-switched -->
 		<reg32 offset="0x40" name="CTX_UNK40" variants="NVE4-"/>
 		<reg32 offset="0x6c" name="CTX_UNK6C" variants="NVE4-"/>
 	</array>
 	<array offset="0xc80" name="UNKC80" stride="0x080" length="1">
 		<reg32 offset="0x00" name="CTX_UNK00"/>
-		<reg32 offset="0xc" name="TPCNT"/> <!-- ctx-switched -->
+		<reg32 offset="0xc" name="TPCCNT"/> <!-- ctx-switched -->
 	</array>
 	<array offset="0xd00" name="UNKD00" stride="0x080" length="1">
 	</array>
@@ -163,8 +163,8 @@
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
 	</array>
-	<array name="TP_BROADCAST" offset="0x1800" stride="0x800" length="1">
-		<use-group name="nvc0_tp"/>
+	<array name="TPC_ALL" offset="0x1800" stride="0x800" length="1">
+		<use-group name="nvc0_tpc"/>
 	</array>
 
 	<array name="CTXCTL" offset="0x2000" stride="0x1000" length="1">
@@ -175,15 +175,15 @@
 		<use-group name="nvc0_ppc"/>
 	</array>
 
-	<array name="PPC_BROADCAST" offset="0x3e00" stride="0x200" length="1" variants="NVE4-">
+	<array name="PPC_ALL" offset="0x3e00" stride="0x200" length="1" variants="NVE4-">
 		<use-group name="nvc0_ppc"/>
 	</array>
 
 	<array offset="0x3000" stride="0x1000" length="1" name="UNK3000" variants="NVE4-">
 	</array>
 
-	<array name="TP" offset="0x4000" stride="0x800" length="8">
-		<use-group name="nvc0_tp"/>
+	<array name="TPC" offset="0x4000" stride="0x800" length="8">
+		<use-group name="nvc0_tpc"/>
 	</array>
 </group>
 

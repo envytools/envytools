@@ -7,7 +7,7 @@
 <import file="nvchipsets.xml" />
 <import file="graph/nv50_pgraph.xml" />
 
-<group name="nvc0_tp">
+<group name="nvc0_tpc">
 	<array offset="0x000" name="POLY" stride="0x200" length="1">
 		<reg32 offset="0x048" name="POLY2ESETUP">
 			<bitfield low="0" high="27" name="ADDRESS" shr="12"/>
@@ -19,7 +19,7 @@
 			since the last time TFB_BUFFER_OFFSET (9097/0390) was written.
 			Set it to 1 to make it return the full/absolute offset, which is required
 			for a sane implementation of transform feedback.
-			(Setting only on GPC[0].TP[0] seems enough.)</doc>
+			(Setting only on GPC[0].TPC[0] seems enough.)</doc>
 		</reg32>
 		<reg32 offset="0x060" name="VSTATUS" access="r">
 			<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
@@ -38,7 +38,7 @@
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
-		<reg32 offset="0x088" name="TPID"/> <!-- ctx-switched -->
+		<reg32 offset="0x088" name="TPCID"/> <!-- ctx-switched -->
 	</array>
 	<array offset="0x200" name="TEX" stride="0x100" length="1">
 		<reg32 offset="0x00" name="CTX_UNK00"/>
@@ -76,7 +76,7 @@
 	</array>
 	<!-- moved to GPC+0x3000 on NVE4 -->
 	<array offset="0x300" name="TPBUS" variants="NVC0:NVE4" stride="0x100" length="1">
-		<reg32 offset="0x00" name="TP_GPCID" length="44"> <!-- ctx-switched -->
+		<reg32 offset="0x00" name="TPC_GPCID" length="44"> <!-- ctx-switched -->
 			<bitfield low="0" high="4" name="0"/>
 			<bitfield low="5" high="9" name="1"/>
 			<bitfield low="10" high="14" name="2"/>
@@ -109,13 +109,13 @@
 	</array>
 	<array offset="0x480" name="L1" stride="0x80" length="1">
 		<reg32 offset="0x0c" name="TRAP">
-			<bitfield pos="1" name="GLOBAL_MAP_READ"/> <!-- not passed up to TP.TRAP, causes VM fault -->
-			<bitfield pos="2" name="GLOBAL_MAP_WRITE"/> <!-- not passed up to TP.TRAP, causes VM fault -->
+			<bitfield pos="1" name="GLOBAL_MAP_READ"/> <!-- not passed up to TPC.TRAP, causes VM fault -->
+			<bitfield pos="2" name="GLOBAL_MAP_WRITE"/> <!-- not passed up to TPC.TRAP, causes VM fault -->
 			<bitfield pos="30" name="CLEAR"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
 		<reg32 offset="0x28" name="PM_UNK28"/>
-		<reg32 offset="0x68" name="TPID"/> <!-- ctx-switched -->
+		<reg32 offset="0x68" name="TPCID"/> <!-- ctx-switched -->
 		<reg32 offset="0x74" name="CTX_UNK74"/>
 	</array>
 	<array offset="0x500" name="MASTER" stride="0x100" length="1">
@@ -248,7 +248,7 @@
 			<bitfield pos="2" name="6"/>
 			<bitfield pos="3" name="7"/>
 		</reg32>
-		<reg32 offset="0x098" name="TPID"/> <!-- ctx-switched -->
+		<reg32 offset="0x098" name="TPCID"/> <!-- ctx-switched -->
 		<reg32 offset="0x0a4" name="CCACHE_CTRL">
 			<bitfield pos="0" name="CODE_FLUSH_TRIGGER"/>
 			<bitfield pos="1" name="CBUF_FLUSH_TRIGGER"/>

@@ -60,7 +60,7 @@ Registers in FIFO range:
 
 Registers in MC range:
 604/18100H HUB_UNITS		PART/GPC count
-608/18200G GPC_UNITS		TP/ZCULL count
+608/18200G GPC_UNITS		TPC/ZCULL count
 60c/18300H ???			[XXX]
 610/18400H ???			[XXX]
 614/18500  RED_SWITCH		enable/power/pause master control
