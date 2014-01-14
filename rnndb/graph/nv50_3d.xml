@@ -178,7 +178,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0d40" name="CLIPID_REGION_HORIZ" type="xw16" length="4" stride="8"/>
 		<reg32 offset="0x0d44" name="CLIPID_REGION_VERT" type="yh16" length="4" stride="8"/>
 		<reg32 offset="0x0d60" name="UNK0D60">
-			<doc>Goes to MP, 0x1000 by default, 16-bit</doc>
+			<doc>Goes to MP, VATTR by default, 16-bit</doc>
 		</reg32>
 		<reg32 offset="0x0d64" name="UNK0D64">
 			<doc>Goes to ROP, 0x04e3bfdf by default</doc>
@@ -197,7 +197,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="0xa" name="UNK0A" variants="NV84_3D-"/>
 		</reg32>
 		<reg32 offset="0x0d6c" name="UNK0D6C" type="xy16" length="2">
-			<doc>Goes to 1cxx, 2cxx.</doc>
+			<doc>Goes to TRAST, ZCULL.</doc>
 		</reg32>
 		<reg32 offset="0x0d74" name="VERTEX_BUFFER_FIRST"/>
 		<reg32 offset="0x0d78" name="VERTEX_BUFFER_COUNT"/>
@@ -205,7 +205,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>This determines where depth values are clipped before the
 			viewport transformation, whereas DEPTH_RANGE applies after it.
 			If true, the permitted depth range is [0,1], otherwise [-1,1].
-			Goes to 14xx.</doc>
+			Goes to VCLIP.</doc>
 		</reg32>
 		<reg32 offset="0x0d80" name="CLEAR_COLOR" length="4" type="float"/>
 		<reg32 offset="0x0d90" name="CLEAR_DEPTH" type="float"/>
@@ -280,10 +280,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Whether primitive restart applies to drawing via VERTEX_BUFFER_FIRST,COUNT.</doc>
 		</reg32>
 		<reg32 offset="0x0dec" name="UNK0DEC" type="boolean">
-			<doc>Goes to vfetch. 1 by default.</doc>
+			<doc>Goes to VFETCH. 1 by default.</doc>
 		</reg32>
 		<reg32 offset="0x0df0" name="UNK0DF0">
-			<doc>Goes to vfetch. 0x40 by default.</doc>
+			<doc>Goes to VFETCH. 0x40 by default.</doc>
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield low="4" high="11" name="UNK1"/>
 		</reg32>
@@ -341,7 +341,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x0f84" name="VERTEX_RUNOUT_ADDRESS_HIGH"/>
 		<reg32 offset="0x0f88" name="VERTEX_RUNOUT_ADDRESS_LOW"/>
 		<reg32 offset="0x0f8c" name="UNK0F8C" type="boolean">
-			<doc>Goes to 14xx.</doc>
+			<doc>Goes to VCLIP.</doc>
 		</reg32>
 		<reg32 offset="0x0f90" name="COLOR_MASK_COMMON" type="boolean">
 			<doc>If enabled, only COLOR_MASK(0) works and affects all RTs.</doc>
@@ -350,25 +350,25 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Accepts 0-1?, same as turing UNK032C</doc>
 		</reg32>
 		<reg32 offset="0x0f98" name="UNK0F98" type="boolean">
-			<doc>Goes to 8cxx. 1 by default.</doc>
+			<doc>Goes to RAST. 1 by default.</doc>
 		</reg32>
 		<reg32 offset="0x0f9c" name="DEPTH_BOUNDS" length="2" type="float"/>
 		<reg32 offset="0x0fa4" name="FP_ADDRESS_HIGH"/>
 		<reg32 offset="0x0fa8" name="FP_ADDRESS_LOW"/>
 		<reg32 offset="0x0fac" name="UNK0FAC">
-			<doc>Goes to MP, 34xx. Default is 0xff101.</doc>
+			<doc>Goes to MP, RMASK. Default is 0xff101.</doc>
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield pos="1" name="UNK2" variants="NVA0_3D-"/>
 			<bitfield low="4" high="19" name="UNK1"/>
 		</reg32>
 		<reg32 offset="0x0fb0" name="UNK0FB0" type="boolean">
-			<doc>Goes to ROP, TPDMA, 2cxx.</doc>
+			<doc>Goes to ROP, PROP, ZCULL.</doc>
 		</reg32>
 		<reg32 offset="0x0fb4" name="UNK0FB4">
-			<doc>Accepts 0-2, goes to 1cxx, clipid.</doc>
+			<doc>Accepts 0-2, goes to TRAST, CLIPID.</doc>
 		</reg32>
 		<reg32 offset="0x0fb8" name="UNK0FB8">
-			<doc>0-0x1f, goes to eng2d</doc>
+			<doc>0-0x1f, goes to ENG2D</doc>
 		</reg32>
 		<reg32 offset="0x0fbc" name="MSAA_MASK" length="4"/>
 		<reg32 offset="0x0fcc" name="CLIPID_ADDRESS_HIGH"/>
@@ -377,12 +377,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="VIEWPORT_ID" high="7" low="0" type="int"/>
 		</reg32>
 		<reg32 offset="0x0fd8" name="UNK0FD8">
-			<doc>Goes to vfetch</doc>
+			<doc>Goes to VFETCH</doc>
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield pos="4" name="UNK1"/>
 		</reg32>
 		<reg32 offset="0x0fdc" name="UNK0FDC" type="boolean">
-			<doc>Goes to TPDMA.</doc>
+			<doc>Goes to PROP.</doc>
 		</reg32>
 		<reg32 offset="0x0fe0" name="ZETA_ADDRESS_HIGH"/>
 		<reg32 offset="0x0fe4" name="ZETA_ADDRESS_LOW"/>
@@ -398,7 +398,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="Y" high="15" low="0" type="int"/>
 		</reg32>
 		<reg32 offset="0x0ffc" name="UNK0FFC" varset="chipset" variants="NV84-">
-			<doc>0-0xff, goes to 14xx.</doc>
+			<doc>0-0xff, goes to VCLIP.</doc>
 		</reg32>
 		<reg32 offset="0x1000" name="VERTEX_ARRAY_PER_INSTANCE" length="16" type="boolean"/>
 		<reg32 offset="0x1040" name="UNK1040" length="16">
@@ -407,15 +407,15 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1080" name="VERTEX_ARRAY_LIMIT_HIGH" length="16" stride="8"/>
 		<reg32 offset="0x1084" name="VERTEX_ARRAY_LIMIT_LOW" length="16" stride="8"/>
 		<reg32 offset="0x1100" name="UNK1100" varset="chipset" variants="NV84-">
-			<doc>0-3, goes to 24xx, 1cxx. 3 by default.</doc>
+			<doc>0-3, goes to ATTR, TRAST. 3 by default.</doc>
 		</reg32>
 		<reg32 offset="0x1104" name="UNK1104" variants="NV84_3D-">
-			<doc>Goes to 2cxx.</doc>
+			<doc>Goes to ZCULL.</doc>
 			<bitfield low="0" high="15" name="0" align="0x40" max="0x2000"/>
 			<bitfield low="16" high="31" name="1" align="0x40" max="0x2000"/>
 		</reg32>
 		<reg32 offset="0x1108" name="UNK1108" variants="NV84_3D-">
-			<doc>Goes to 2cxx.</doc>
+			<doc>Goes to ZCULL.</doc>
 			<bitfield pos="0" name="0"/>
 			<bitfield pos="4" name="1"/>
 		</reg32>
@@ -423,7 +423,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Doesn't seem to do anything.</doc>
 		</reg32>
 		<reg32 offset="0x1110" name="UNK1110" type="boolean" variants="NV84_3D-">
-			<doc>Goes to 1cxx, 1 by default.</doc>
+			<doc>Goes to TRAST, 1 by default.</doc>
 		</reg32>
 		<reg32 offset="0x1114" name="WRCACHE_FLUSH" variants="NV84_3D-"/>
 		<reg32 offset="0x1118" name="VERTEX_ID_BASE" variants="NV84_3D-">
@@ -446,7 +446,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="0" high="3" low="0" type="nv50_vic"/>
 		</reg32>
 		<reg32 offset="0x1140" name="UNK1140" variants="NVA3_3D-">
-			<doc>0 or 0x10. Goes to tpdma, MP, ROP.</doc>
+			<doc>0 or 0x10. Goes to PROP, MP, ROP.</doc>
 		</reg32>
 		<reg32 offset="0x1144" name="UNK1144" variants="NVA0_3D-">
 			<doc>Doesn't seem to do anything.</doc>
@@ -482,7 +482,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="MAP7" high="27" low="25" type="int"/>
 		</reg32>
 		<reg32 offset="0x1220" name="UNK1220">
-			<doc>0-0xc, goes to 1cxx</doc>
+			<doc>0-0xc, goes to TRAST</doc>
 		</reg32>
 		<reg32 offset="0x1224" name="RT_ARRAY_MODE">
 			<bitfield name="LAYERS" high="15" low="0" type="int"/>
@@ -657,7 +657,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<reg32 offset="0x1398" name="STENCIL_FRONT_MASK"/>
 		<reg32 offset="0x139c" name="STENCIL_FRONT_FUNC_MASK"/>
 		<reg32 offset="0x13a0" name="UNK13A0">
-			<doc>0-2, goes to 84xx</doc>
+			<doc>0-2, goes to GEOM</doc>
 		</reg32>
 		<reg32 offset="0x13a4" name="DRAW_TFB_BASE" variants="NVA0_3D-"/>
 		<reg32 offset="0x13a8" name="FRAG_COLOR_CLAMP_EN">
@@ -694,7 +694,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Goes to MP. 0x80 by default.</doc>
 		</reg32>
 		<reg32 offset="0x1408" name="UNK1408">
-			<doc>0-0xf, goes to 1cxx, 5 by default.</doc>
+			<doc>0-0xf, goes to TRAST, 5 by default.</doc>
 		</reg32>
 		<reg32 offset="0x140c" name="VP_START_ID"/>
 		<reg32 offset="0x1410" name="GP_START_ID"/>
@@ -703,7 +703,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Goes to ddata. Hm.</doc>
 		</reg32>
 		<reg32 offset="0x141c" name="UNK141C">
-			<doc>Bits 0x07fff000. Goes to 84xx, MP. 0x01000000 by default. Scan pending. This is one of the magic3 motherfuckers. GP-related?</doc>
+			<doc>Bits 0x07fff000. Goes to RAST, MP. 0x01000000 by default. Scan pending. This is one of the magic3 motherfuckers. GP-related?</doc>
 		</reg32>
 		<reg32 offset="0x1420" name="GP_VERTEX_OUTPUT_COUNT" type="uint" min="1" max="0x400"/>
 		<reg32 offset="0x142c" name="VERTEX_ARRAY_FLUSH">
@@ -847,7 +847,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x15ac" name="UNK15AC">
-			<doc>0-3, 3 by default, goes to TPDMA.</doc>
+			<doc>0-3, 3 by default, goes to PROP.</doc>
 		</reg32>
 		<reg32 offset="0x15b0" name="UNK15B0">
 			<doc>Same as turing UNK30C. Per-shader type?</doc>
@@ -864,7 +864,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Goes to ROP.</doc>
 		</reg32>
 		<reg32 offset="0x15c8" name="UNK15C8" variants="NVA3_3D-">
-			<doc>0-2. Goes to ROP, TPDMA.</doc>
+			<doc>0-2. Goes to ROP, PROP.</doc>
 		</reg32>
 		<reg32 offset="0x15cc" name="LAYER">
 			<bitfield name="IDX" high="15" low="0">
@@ -1036,12 +1036,12 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield pos="4" name="ENABLE"/>
 		</reg32>
 		<reg32 offset="0x16a0" name="UNK16A0" variants="NVA3_3D-" type="boolean">
-			<doc>Goes to tpdma. 1 by default.</doc>
+			<doc>Goes to PROP. 1 by default.</doc>
 		</reg32>
 		<reg32 offset="0x16ac" name="VP_RESULT_MAP_SIZE" type="int"/>
 		<reg32 offset="0x16b0" name="VP_REG_ALLOC_TEMP" type="int"/>
 		<reg32 offset="0x16b4" name="UNK16B4" variants="NVA0_3D-">
-			<doc>Goes to tpdma, MP, 1cxx.</doc>
+			<doc>Goes to PROP, MP, TRAST.</doc>
 			<bitfield pos="0" name="UNK0"/>
 			<bitfield pos="1" name="UNK1" variants="NVA3_3D-"/>
 		</reg32>
@@ -1155,17 +1155,17 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x1958" name="ZCULL_INVALIDATE"/>
 		<reg32 offset="0x1960" name="UNK1960" variants="NVA3_3D-">
-			<doc>Goes to ropm. 0x11 by default.</doc>
+			<doc>Goes to [ZC]BAR[?]. 0x11 by default.</doc>
 			<bitfield pos="0" name="0"/>
 			<bitfield pos="4" name="1"/>
 		</reg32>
 		<reg32 offset="0x1968" name="UNK1968">
-			<doc>Goes to 2cxx.</doc>
+			<doc>Goes to ZCULL.</doc>
 			<bitfield pos="0" name="0"/>
 			<bitfield pos="4" name="1"/>
 		</reg32>
 		<reg32 offset="0x196c" name="FP_CTRL_UNK196C"><!-- 0x11 if DEPR written -->
-			<doc>0x11 if DEPR written. Goes to 2cxx.</doc>
+			<doc>0x11 if DEPR written. Goes to ZCULL.</doc>
 			<bitfield pos="0" name="0"/>
 			<bitfield pos="4" name="1"/>
 		</reg32>
@@ -1191,7 +1191,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		</reg32>
 		<reg32 offset="0x19bc" name="DEPTH_BOUNDS_EN" type="boolean"/>
 		<reg32 offset="0x19c0" name="UNK19C0" type="boolean">
-			<doc>Goes to tpdma, ROP.</doc>
+			<doc>Goes to PROP, ROP.</doc>
 		</reg32>
 		<reg32 offset="0x19c4" name="LOGIC_OP_ENABLE" type="boolean"/>
 		<reg32 offset="0x19c8" name="LOGIC_OP" type="gl_logic_op"/>
@@ -1210,7 +1210,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Writes param to CLIPID subrectangle specified by intersection of SCREEN_SCISSOR and CLIPID_FILL_RECT.</doc>
 		</reg32>
 		<reg32 offset="0x19d8" name="UNK19D8" length="2">
-			<doc>Accepts: 2-6, 8, a, c, e, 10. Goes to 14xx, translated
+			<doc>Accepts: 2-6, 8, a, c, e, 10. Goes to VCLIP, translated
 			first. ctxvals bits 0-3 and 4-7 == val >> 1, bit 8 == val&amp;1.
 			</doc>
 		</reg32>
@@ -1222,11 +1222,11 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="A" high="15" low="12" type="boolean" />
 		</reg32>
 		<reg32 offset="0x1a20" name="UNK1A20">
-			<doc>Goes to 1cxx. 0-0xff.</doc>
+			<doc>Goes to TRAST. 0-0xff.</doc>
 		</reg32>
 		<reg32 offset="0x1a24" name="DELAY"/>
 		<reg32 offset="0x1a28" name="UNK1A28">
-			<doc>Goes to vfetch, 4 by default.</doc>
+			<doc>Goes to VFETCH, 4 by default.</doc>
 			<bitfield low="0" high="7" name="0">
 				<doc>Anything non-0.</doc>
 			</bitfield>
@@ -1236,16 +1236,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Accepts anything. Same as turing UNK0330. Value seems ignored.</doc>
 		</reg32>
 		<reg32 offset="0x1a30" name="UNK1A30">
-			<doc>Accepts anything. Same as turing UNK0340. Goes to vfetch, 14xx, 10xx, MP, strmout, 84xx.</doc>
+			<doc>Accepts anything. Same as turing UNK0340. Goes to VFETCH, VCLIP, VATTR, MP, STRMOUT, GEOM.</doc>
 		</reg32>
 		<reg32 offset="0x1a34" name="UNK1A34">
-			<doc>Accepts anything. Same as turing UNK0344. Goes to tex, MP.</doc>
+			<doc>Accepts anything. Same as turing UNK0344. Goes to TEX, MP.</doc>
 		</reg32>
 		<reg32 offset="0x1a38" name="UNK1A38">
 			<doc>Accepts anything. Same as turing UNK0348. Value seems ignored.</doc>
 		</reg32>
 		<reg32 offset="0x1a3c" name="UNK1A3C">
-			<doc>Accepts anything. Same as turing UNK034C. Goes to tpdma, ROP.</doc>
+			<doc>Accepts anything. Same as turing UNK034C. Goes to PROP, ROP.</doc>
 		</reg32>
 		<reg32 offset="0x1a40" name="UNK1A40" length="16">
 			<doc>Doesn't seem to do anything...</doc>
@@ -1300,13 +1300,13 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 				<value value="0x0" name="UNK00"/> <!-- STRMOUT -->
 				<value value="0x1" name="VFETCH"/> <!-- STRMOUT -->
 				<value value="0x2" name="VP"/> <!-- STRMOUT -->
-				<value value="0x4" name="RAST"/> <!-- CROP -->
+				<value value="0x4" name="RAST"/> <!-- CBAR -->
 				<value value="0x5" name="STRMOUT"/> <!-- STRMOUT -->
 				<value value="0x6" name="GP"/> <!-- STRMOUT -->
-				<value value="0x7" name="ZCULL"/> <!-- ZROP -->
-				<value value="0xa" name="TPROP"/> <!-- CROP -->
-				<value value="0xc" name="UNK0C"/> <!-- CROP -->
-				<value value="0xf" name="CROP"/> <!-- CROP -->
+				<value value="0x7" name="ZCULL"/> <!-- ZBAR -->
+				<value value="0xa" name="PROP"/> <!-- CBAR -->
+				<value value="0xc" name="UNK0C"/> <!-- CBAR -->
+				<value value="0xf" name="CROP"/> <!-- CBAR -->
 			</bitfield>
 			<bitfield pos="16" name="SYNC_COND">
 				<value value="0" name="NEQUAL"/>

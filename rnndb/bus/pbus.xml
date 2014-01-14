@@ -167,14 +167,14 @@
 		</reg32>
 
 		<reg32 offset="0x540" name="HWUNITS_0" variants="NV50:NVC0">
-			<bitfield low="0" high="15" name="TP_MASK">
-				<doc>Selects which TPs are enabled</doc>
+			<bitfield low="0" high="15" name="TPC_MASK">
+				<doc>Selects which TPCs are enabled</doc>
 			</bitfield>
 			<bitfield low="16" high="23" name="PART_MASK">
 				<doc>Selects which memory partitions are enabled</doc>
 			</bitfield>
 			<bitfield low="24" high="27" name="MP_MASK">
-				<doc>Selects which MPs inside each TP are enabled</doc>
+				<doc>Selects which MPs inside each TPC are enabled</doc>
 			</bitfield>
 			<bitfield pos="28" name="UNK28">
 				<doc>Not setting bit 28 causes the card to die.</doc>

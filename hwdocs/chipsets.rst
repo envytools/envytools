@@ -538,7 +538,7 @@ redesigned memory subsystem, complete with a paging MMU [see :ref:`nv50-vm`].
 
   - developped in parallel with NV98
   - VP2 again, no VP3
-  - PGRAPH rearranged to make room for more MPs/TPs
+  - PGRAPH rearranged to make room for more MPs/TPCs
   - streamout enhancements [ARB_transform_feedback2]
   - CUDA ISA 1.3: 64-bit g[] atomics, s[] atomics, voting, fp64 support
 
@@ -563,25 +563,25 @@ redesigned memory subsystem, complete with a paging MMU [see :ref:`nv50-vm`].
 
 The chipsets in this family are:
 
-=========== ===== ==== =========== === ====== ========== ======
-core pciid  hda   id   name        TPs MPs/TP partitions notes
+=========== ===== ==== =========== ==== ======= ===== ======
+core pciid  hda   id   name        TPCs MPs/TPC PARTs notes
             pciid
-=========== ===== ==== =========== === ====== ========== ======
-019X        \-    NV50 G80         8   2      6
-040X        \-    NV84 G84         2   2      2
-042X        \-    NV86 G86         1   2      2
-060X+       \-    NV92 G92         8   2      4
-062X+       \-    NV94 G94         4   2      4
-064X+       \-    NV96 G96         2   2      2
-06eX+       \-    NV98 G98         1   1      1
-05eX+       \-    NVA0 G200        10  3      8
-084X+       \-    NVAA MCP77/MCP78 1   1      1          IGP
-086X+       \-    NVAC MCP79/MCP7A 1   2      1          IGP
-0caX+       0be4  NVA3 GT215       4   3      4
-0a2X+       0be2  NVA5 GT216       2   3      2
-0a6X+ 10cX+ 0be3  NVA8 GT218       1   2      1
-08aX+       \-    NVAF MCP89       2   3      2          IGP
-=========== ===== ==== =========== === ====== ========== ======
+=========== ===== ==== =========== ==== ======= ===== ======
+019X        \-    NV50 G80         8    2       6
+040X        \-    NV84 G84         2    2       2
+042X        \-    NV86 G86         1    2       2
+060X+       \-    NV92 G92         8    2       4
+062X+       \-    NV94 G94         4    2       4
+064X+       \-    NV96 G96         2    2       2
+06eX+       \-    NV98 G98         1    1       1
+05eX+       \-    NVA0 G200        10   3       8
+084X+       \-    NVAA MCP77/MCP78 1    1       1     IGP
+086X+       \-    NVAC MCP79/MCP7A 1    2       1     IGP
+0caX+       0be4  NVA3 GT215       4    3       4
+0a2X+       0be2  NVA5 GT216       2    3       2
+0a6X+ 10cX+ 0be3  NVA8 GT218       1    2       1
+08aX+       \-    NVAF MCP89       2    3       2     IGP
+=========== ===== ==== =========== ==== ======= ===== ======
 
 Like NV40, these are just the maximal numbers.
 

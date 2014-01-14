@@ -21,8 +21,8 @@ MMIO registers
 
 PFUSE's MMIO range is 0x021000-0x022000.
 
-MMIO 0x21144: TP_DISABLE_MASK
-  The TP disable mask.
+MMIO 0x21144: TPC_DISABLE_MASK
+  The TPC disable mask.
 
 MMIO 0x21148: PART_DISABLE_MASK
   The PART disable mask.
