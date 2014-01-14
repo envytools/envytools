@@ -156,19 +156,19 @@
 	<reg32 offset="0x013c" name="INTR_EN">
 		<brief>Interrupt enable</brief>
 		<doc>A bitmask of events that will cause interrupts, same bit assignments as in INTR reg.</doc>
-		<bitfield pos="0" / name="NOTIFY">
-		<bitfield pos="1" / name="QUERY">
-		<bitfield pos="2" / name="SYNC">
-		<bitfield pos="4" / name="ILLEGAL_MTHD">
-		<bitfield pos="5" / name="ILLEGAL_CLASS">
-		<bitfield pos="6" / name="DOUBLE_NOTIFY">
-		<bitfield pos="12" / name="CONTEXT_SWITCH">
-		<bitfield pos="16" / name="BUFFER_NOTIFY">
-		<bitfield pos="20" / name="DATA_ERROR">
-		<bitfield pos="21" / name="TRAP">
-		<bitfield pos="22" / name="UNK22">
-		<bitfield pos="24" / name="SINGLE_STEP">
-		<bitfield pos="25" / name="CTXCTL_SINGLE_STEP">
+		<bitfield pos="0" name="NOTIFY"/>
+		<bitfield pos="1" name="QUERY"/>
+		<bitfield pos="2" name="SYNC"/>
+		<bitfield pos="4" name="ILLEGAL_MTHD"/>
+		<bitfield pos="5" name="ILLEGAL_CLASS"/>
+		<bitfield pos="6" name="DOUBLE_NOTIFY"/>
+		<bitfield pos="12" name="CONTEXT_SWITCH"/>
+		<bitfield pos="16" name="BUFFER_NOTIFY"/>
+		<bitfield pos="20" name="DATA_ERROR"/>
+		<bitfield pos="21" name="TRAP"/>
+		<bitfield pos="22" name="UNK22"/>
+		<bitfield pos="24" name="SINGLE_STEP"/>
+		<bitfield pos="25" name="CTXCTL_SINGLE_STEP"/>
 	</reg32>
 
 	<reg32 offset="0x0200" name="ICMD_CMD" />
