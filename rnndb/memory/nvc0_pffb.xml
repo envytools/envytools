@@ -27,7 +27,7 @@
 				<value value="1" name="64KB"/>
 			</bitfield>
 			<!-- ... -->
-			<bitfield low="28" high="29" name="BYPASS_TARGET" type="nv50_target"/>
+			<bitfield low="28" high="29" name="BYPASS_TARGET" type="nv50_mem_target"/>
 			<bitfield pos="31" name="BYPASS_ENABLE"/> <!-- when set, virtual -> linear translation is a noop, and target is taken from above -->
 		</reg32>
 		<reg32 offset="0x34" name="TLB_FLUSH_PAGE">
