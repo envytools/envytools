@@ -258,7 +258,7 @@ The chipsets are:
 ===== =======  =========  =======  ========
 pciid chipset  pixel      texture  notes
                pipelines  units
-	       and ROPs
+               and ROPs
 ===== =======  =========  =======  ========
 0100* NV10     4          4        the first GeForce card [GeForce 256]
 0150* NV15     4          8        the high-end card of GeForce 2 lineup [GeForce 2 Ti, ...]
@@ -312,7 +312,7 @@ The chipsets are:
 ===== =======  =======  =========  =======  ========
 pciid chipset  vertex   pixel      texture  notes
                shaders  pipelines  units
-	                and ROPs
+                        and ROPs
 ===== =======  =======  =========  =======  ========
 0200* NV20     1        4          8        the only chipset of GeForce 3 lineup [GeForce 3 Ti, ...]
 02a0* NV2A     2        4          8        the XBOX IGP [XGPU]
@@ -379,7 +379,7 @@ The chipsets are:
 ===== =======  =======  =========  ========
 pciid chipset  vertex   pixel      notes
                shaders  pipelines
-	                and ROPs
+                        and ROPs
 ===== =======  =======  =========  ========
 030X  NV30     2        8          high-end chipset [GeForce FX 5800]
 033X  NV35     3        8          very high-end chipset [GeForce FX 59X0]
