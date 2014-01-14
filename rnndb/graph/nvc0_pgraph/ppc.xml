@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+
+<group name="nvc0_ppc">
+	<reg32 offset="0x014" name="PM_UNK014"/>
+	<reg32 offset="0x024" name="CTX_UNK024"/>
+	<reg32 offset="0x0c0" name="CTX_UNK0C0"/>
+	<reg32 offset="0x0c4" name="CTX_UNK0C4"/>
+	<reg32 offset="0x0e4" name="CTX_UNK0E4"/>
+	<reg32 offset="0x100" name="TP_GPCID" length="44"> <!-- ctx-switched -->
+		<bitfield low="0" high="4" name="0"/>
+		<bitfield low="5" high="9" name="1"/>
+		<bitfield low="10" high="14" name="2"/>
+		<bitfield low="15" high="19" name="3"/>
+		<bitfield low="20" high="24" name="4"/>
+		<bitfield low="25" high="29" name="5"/>
+	</reg32>
+	<reg32 offset="0x1d0" name="UNK1D0"> <!-- ctx-switched -->
+		<bitfield low="0" high="7" name="ROP_COUNT"/>
+		<bitfield low="8" high="15" name="GPC_COUNT"/>
+		<bitfield low="16" high="28" name="UNK16"/>
+	</reg32>
+	<reg32 offset="0x1e0" name="CTX_UNK1E0"/>
+	<reg32 offset="0x1e4" name="CTX_UNK1E4"/>
+</group>
+
+</database>

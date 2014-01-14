@@ -211,7 +211,7 @@
 <import file="graph/nv03_pgraph.xml" />
 <import file="graph/nv04_pgraph.xml" />
 <import file="graph/nv50_pgraph.xml" />
-<import file="graph/nvc0_pgraph.xml" />
+<import file="graph/nvc0_pgraph/pgraph.xml" />
 <import file="graph/nv03_pdma.xml" />
 
 <!-- 600000 - 600fff PFB -->
