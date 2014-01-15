@@ -303,6 +303,7 @@
 		<bitfield pos="1" name="ZCULL"/>
 		<bitfield pos="2" name="CCACHE"/>
 		<bitfield pos="3" name="ESETUP"/>
+		<bitfield low="4" high="5" name="PPC"/>
 		<bitfield low="16" high="23" name="TPC"/>
 	</reg32>
 	<reg32 offset="0xc94" name="TRAP_EN">
@@ -310,6 +311,7 @@
 		<bitfield pos="1" name="ZCULL"/>
 		<bitfield pos="2" name="CCACHE"/>
 		<bitfield pos="3" name="ESETUP"/>
+		<bitfield low="4" high="5" name="PPC"/>
 		<bitfield low="16" high="23" name="TPC"/>
 	</reg32>
 </group>
