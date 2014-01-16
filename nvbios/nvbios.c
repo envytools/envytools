@@ -1265,6 +1265,38 @@ int main(int argc, char **argv) {
 		printf("\n");
 	}
 
+	if (io_condition_tbl_ptr && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
+		printf ("IO Condition table at 0x%x: %d conditions:\n", io_condition_tbl_ptr, maxiocond+1);
+		for (i = 0; i <= maxiocond; i++) {
+			uint16_t offset = io_condition_tbl_ptr + 5 * i;
+			printcmd(offset, 5);
+			printf ("[0x%02x] 0x%04x[0x%02x] & 0x%02x == 0x%02x\n",
+				i, le16(offset),
+				bios->data[offset + 2],
+				bios->data[offset + 3],
+				bios->data[offset + 4]);
+		}
+		printf("\n");
+	}
+
+	if (io_flag_condition_tbl_ptr && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
+		printf ("IO Flag Condition table at 0x%x: %d conditions:\n", io_flag_condition_tbl_ptr, maxiofcond+1);
+		for (i = 0; i <= maxiofcond; i++) {
+			uint16_t offset = io_flag_condition_tbl_ptr + 9 * i;
+			printcmd(offset, 9);
+			printf("[0x%02x] BIOS[0x%04x + 0x%04x[0x%02x] & 0x%02x >> %d] & 0x%02x == 0x%02x\n",
+			       i,
+			       le16(offset + 5),
+			       le16(offset),
+			       bios->data[offset + 2],
+			       bios->data[offset + 3],
+			       bios->data[offset + 4],
+			       bios->data[offset + 7],
+			       bios->data[offset + 8]);
+		}
+		printf("\n");
+	}
+
 	if (macro_index_tbl_ptr && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
 		printf ("Macro index table at 0x%x: %d macro indices:\n", macro_index_tbl_ptr, maxmi+1);
 		for (i = 0; i <= maxmi; i++) {
