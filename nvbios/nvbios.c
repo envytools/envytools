@@ -1232,11 +1232,16 @@ int main(int argc, char **argv) {
 		printf ("\n");
 		for (i = 0; i < entries; i++) {
 			uint16_t table = le16(disp_script_tbl_ptr + hlen + i * rlen);
-			if (!table)
+			if (!table || rhlen < 10)
 				continue;
-			uint32_t entry = le32(table);
 			uint8_t configs = bios->data[table+5];
-			printf ("Subtable %d at 0x%x for 0x%08x:\n", i, table, entry);
+			printf ("Subtable %d at 0x%x, type 0x%x, mask 0x%x, %d configs:\n", i, table, le16(table), le32(table+2) | (ver <= 0x20 ? 0xc0 : 0), configs);
+
+			printf("Scripts: 0x%04x 0x%04x",
+			       le16(table + 6), le16(table + 8));
+			if (rhlen >= 12)
+				printf(" 0x%04x", le16(table + 10));
+			printf("\n");
 			printhex(table, rhlen + configs * 6);
 			printf("\n");
 		}
