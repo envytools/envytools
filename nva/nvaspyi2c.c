@@ -204,11 +204,13 @@ void print_debug()
 
 void process_set_affinity(int cpu)
 {
+#ifdef __linux__
 	cpu_set_t  mask;
 	CPU_ZERO(&mask);
 	CPU_SET(cpu, &mask);
 	if (sched_setaffinity(0, sizeof(mask), &mask) < 0)
 		perror("sched_setaffinity");
+#endif
 }
 
 int main(int argc, char **argv)
