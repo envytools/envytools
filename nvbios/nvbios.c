@@ -1231,6 +1231,7 @@ int main(int argc, char **argv) {
 		printhex(disp_script_tbl_ptr, hlen + rlen * entries);
 		printf ("\n");
 		for (i = 0; i < entries; i++) {
+			int j;
 			uint16_t table = le16(disp_script_tbl_ptr + hlen + i * rlen);
 			if (!table || rhlen < 10)
 				continue;
@@ -1242,6 +1243,10 @@ int main(int argc, char **argv) {
 			if (rhlen >= 12)
 				printf(" 0x%04x", le16(table + 10));
 			printf("\n");
+			for (j = 0; j < configs; j++) {
+				uint16_t offset = table + rhlen + 6 * j;
+				printf("Config %d: match: 0x%04x, clkcmp[0]: 0x%04x, clkcmp[1]: 0x%04x\n", j, le16(offset), le16(offset + 2), le16(offset + 4));
+			}
 			printhex(table, rhlen + configs * 6);
 			printf("\n");
 		}
