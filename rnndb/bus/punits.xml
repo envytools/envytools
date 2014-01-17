@@ -16,6 +16,7 @@
 	<reg32 offset="0x008" name="UNK008"/> <!-- 32-bit -->
 	<reg32 offset="0x00c" name="UNK00C"/> <!-- 32-bit; 2 on NVC0, NVD7, NVCF, NVE4, NVF1; 0 on NVC1, NVD9 -->
 	<reg32 offset="0x018" name="UNK018" variants="NVC0:NVC1 NVC8:NVD9">
+		<!-- corresponds to HWUNITS_0 UNK30 and UNK31 probably -->
 		<bitfield low="30" high="31" name="UNK30"/> <!-- 3/3/0 -->
 	</reg32>
 	<reg32 offset="0x01c" name="PCI">
@@ -45,7 +46,7 @@
 		<bitfield pos="1" name="PVDEC_PPPP"/>
 		<bitfield pos="2" name="PVLD"/>
 		<bitfield pos="3" name="PVENC" variants="NVD9-"/> <!-- XXX: why is it on NVD9? -->
-		<bitfield pos="4" name="UNK4"/> <!-- not present anyway on any card I've seen -->
+		<bitfield pos="4" name="UNK4"/> <!-- affects UNK0 disable -->
 		<bitfield low="8" high="11" name="PCOPY_MASK"/> <!-- 2 bits on NVC0:NVC1, 4 bits on NVC1:NVE4, 3 bits on NVE4- -->
 		<bitfield low="12" high="17" name="UNK12" variants="NVE4-"/>
 	</reg32>
@@ -54,8 +55,8 @@
 	<reg32 offset="0x128" name="HW_UNK_ZCULL_DISABLE_MASK" length="8"/>
 	<reg32 offset="0x148" name="HW_PART_DISABLE_MASK"/>
 	<reg32 offset="0x14c" name="HW_UNK0_DISABLE_MASK"/>
-	<reg32 offset="0x150" name="HW_MC_DISABLE_MASK" variants="NVC1-"/>
-	<reg32 offset="0x154" name="HW_UNK2_DISABLE_MASK"/>
+	<reg32 offset="0x150" name="HW_UNK1_DISABLE_MASK" variants="NVC1-"/>
+	<reg32 offset="0x154" name="HW_MC_DISABLE_MASK"/>
 	<reg32 offset="0x158" name="HW_UNK3_DISABLE_MASK" variants="NVC1-"/>
 	<reg32 offset="0x15c" name="HW_CRTC_DISABLE_MASK" variants="NVD9-"/>
 	<reg32 offset="0x180" name="SW_MISC_DISABLE">
@@ -71,9 +72,10 @@
 	<reg32 offset="0x188" name="SW_TPC_DISABLE_MASK" length="8"/>
 	<reg32 offset="0x1a8" name="SW_UNK_ZCULL_DISABLE_MASK" length="8"/>
 	<reg32 offset="0x1c8" name="SW_PART_DISABLE_MASK"/>
-	<reg32 offset="0x1cc" name="SW_UNK0_DISABLE_MASK"/> <!-- 1 on NVD9, 0 on NVC1 and NVE4? -->
-	<reg32 offset="0x1d0" name="SW_MC_DISABLE_MASK" variants="NVC1-"/> <!-- 1 on NVD9, 4 on NVE4, 2 on NVC1 -->
-	<reg32 offset="0x1d4" name="SW_UNK2_DISABLE_MASK"/> <!-- related to PBFB? --> <!-- 1 on NVD9, 4 on NVE4, 6 on NVC1??? -->
+	<!-- the following two are tied to partitions -->
+	<reg32 offset="0x1cc" name="SW_UNK0_DISABLE_MASK"/> <!-- needs MISC_DISABLE.UNK4 set to be noticed --> <!-- 1 on NVD9, 0 on NVC1 and NVE4? -->
+	<reg32 offset="0x1d0" name="SW_UNK1_DISABLE_MASK" variants="NVC1-"/> <!-- 1 on NVD9, 4 on NVE4, 2 on NVC1 -->
+	<reg32 offset="0x1d4" name="SW_MC_DISABLE_MASK"/> <!-- 6 on NVC1??? -->
 	<reg32 offset="0x1d8" name="SW_UNK3_DISABLE_MASK" variants="NVC1-"/> <!-- 8 on NVC1, NVD9 and NVE4 -->
 	<reg32 offset="0x1dc" name="SW_CRTC_DISABLE_MASK" variants="NVD9-"/>
 </array>
