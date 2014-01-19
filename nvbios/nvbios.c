@@ -1221,13 +1221,18 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	if (disp_script_tbl_ptr && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
-		uint8_t ver = bios->data[disp_script_tbl_ptr];
+	int clkcmps = 0;
+	char clkcmp_locs[0xffff] = {0};
+	char dispscript_locs[0xffff] = {0};
+	uint8_t disp_ver = bios->data[disp_script_tbl_ptr];
+	if (disp_ver != 0x20 && disp_ver != 0x21)
+		disp_ver = 0;
+	if (disp_script_tbl_ptr && disp_ver && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
 		uint8_t hlen = bios->data[disp_script_tbl_ptr+1];
 		uint8_t rlen = bios->data[disp_script_tbl_ptr+2];
 		uint8_t entries = bios->data[disp_script_tbl_ptr+3];
 		uint8_t rhlen = bios->data[disp_script_tbl_ptr+4];
-		printf ("Display script table at 0x%x, version %d:\n", disp_script_tbl_ptr, ver);
+		printf ("Display script table at 0x%x, version 0x%02x:\n", disp_script_tbl_ptr, disp_ver);
 		printhex(disp_script_tbl_ptr, hlen + rlen * entries);
 		printf ("\n");
 		for (i = 0; i < entries; i++) {
@@ -1236,21 +1241,66 @@ int main(int argc, char **argv) {
 			if (!table || rhlen < 10)
 				continue;
 			uint8_t configs = bios->data[table+5];
-			printf ("Subtable %d at 0x%x, type 0x%x, mask 0x%x, %d configs:\n", i, table, le16(table), le32(table+2) | (ver <= 0x20 ? 0xc0 : 0), configs);
+			printf ("Subtable %d at 0x%x, type 0x%x, mask 0x%x, %d configs:\n", i, table, le16(table), le32(table+2) | (disp_ver <= 0x20 ? 0xc0 : 0), configs);
 
 			printf("Scripts: 0x%04x 0x%04x",
 			       le16(table + 6), le16(table + 8));
-			if (rhlen >= 12)
+			dispscript_locs[le16(table + 6)] = 1;
+			dispscript_locs[le16(table + 8)] = 1;
+			if (rhlen >= 12) {
 				printf(" 0x%04x", le16(table + 10));
+				dispscript_locs[le16(table + 10)] = 1;
+			}
 			printf("\n");
 			for (j = 0; j < configs; j++) {
 				uint16_t offset = table + rhlen + 6 * j;
-				printf("Config %d: match: 0x%04x, clkcmp[0]: 0x%04x, clkcmp[1]: 0x%04x\n", j, le16(offset), le16(offset + 2), le16(offset + 4));
+				uint16_t clkcmp0 = le16(offset + 2);
+				uint16_t clkcmp1 = le16(offset + 4);
+				printf("Config %d: match: 0x%04x, clkcmp[0]: 0x%04x, clkcmp[1]: 0x%04x\n", j, le16(offset), clkcmp0, clkcmp1);
+				if (clkcmp0 && !clkcmp_locs[clkcmp0]) {
+					clkcmps++;
+					clkcmp_locs[clkcmp0] = 1;
+				}
+				if (clkcmp1 && !clkcmp_locs[clkcmp1]) {
+					clkcmps++;
+					clkcmp_locs[clkcmp1] = 1;
+				}
 			}
 			printhex(table, rhlen + configs * 6);
 			printf("\n");
 		}
 		printf("\n");
+	}
+
+	if (clkcmps && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
+		printf("Display Clock Comparison Arrays:\n");
+		for (i = 2; i <= 0xffff; i++) {
+			uint16_t freq, script;
+			if (!clkcmp_locs[i]) continue;
+			do {
+				freq = le16(i);
+				script = le16(i + 2);
+				printf("0x%04x: %6d kHz -> script at 0x%04x\n", i, freq, script);
+				dispscript_locs[script] = 1;
+				i += 4;
+			} while (freq != 0);
+		}
+		printf("\n");
+	}
+	if (disp_script_tbl_ptr && disp_ver && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
+		for (i = 2; i <= 0xffff; i++) {
+			if (!dispscript_locs[i]) continue;
+			printf("Display script at 0x%04x:\n", i);
+			printscript(i);
+			printf("\n");
+
+			while (callspos < callsnum) {
+				uint16_t soff = calls[callspos++];
+				printf ("Subroutine at 0x%x:\n", soff);
+				printscript(soff);
+				printf("\n");
+			}
+		}
 	}
 
 	if (condition_tbl_ptr && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
