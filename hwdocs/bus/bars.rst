@@ -53,8 +53,8 @@ is non-prefetchable memory.
 
 The registers inside this BAR are 32-bit, with the exception of areas that are
 aliases of the byte-oriented VGA legacy IO ports. They should be accessed
-through aligned 32-bit memory reads/writes. On pre-NV11 cards, the registers
-are always little endian, on NV11+ cards endianness of the whole area can be
+through aligned 32-bit memory reads/writes. On pre-NV1A cards, the registers
+are always little endian, on NV1A+ cards endianness of the whole area can be
 selected by a switch in PMC. The endianness switch, however, only affects
 BAR0 accesses to the MMIO space - accesses from inside the card are always
 little-endian.

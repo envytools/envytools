@@ -50,7 +50,7 @@
 			<bitfield pos="9" name="MODE" variants="NV40-" type="nv04_pfifo_channel_mode"/>
 			<bitfield pos="12" name="SWITCH"/>
 		</reg32>
-		<reg32 offset="0x054" name="UNK54" variants="NV11-">
+		<reg32 offset="0x054" name="UNK54" variants="NV1A-">
 			<bitfield high="9" low="0" name="UNK0">
 				<doc>Reads as 2 on init.</doc>
 			</bitfield>
@@ -80,11 +80,11 @@
 			<bitfield pos="16" name="DMA_PTE"/>
 			<bitfield pos="18" name="UNK18" variants="NV40-"/>
 			<bitfield pos="19" name="UNK19" variants="NV40-"/>
-			<bitfield pos="20" name="SEMAPHORE" variants="NV11-" />
+			<bitfield pos="20" name="SEMAPHORE" variants="NV1A-" />
 			<bitfield pos="21" name="UNK21" variants="NV40-"/>
 			<bitfield pos="22" name="UNK22" variants="NV40-"/>
 			<bitfield pos="23" name="UNK23" variants="NV40-"/>
-			<bitfield pos="24" name="ACQUIRE_TIMEOUT" variants="NV11-" /> <!-- XXX: make sure. Also check on NV40. -->
+			<bitfield pos="24" name="ACQUIRE_TIMEOUT" variants="NV1A-" /> <!-- XXX: make sure. Also check on NV40. -->
 		</reg32>
 		<reg32 offset="0x140" name="INTR_EN">
 			<bitfield pos="0" name="CACHE_ERROR"/>
@@ -94,11 +94,11 @@
 			<bitfield pos="16" name="DMA_PTE"/>
 			<bitfield pos="18" name="UNK18" variants="NV40-"/>
 			<bitfield pos="19" name="UNK19" variants="NV40-"/>
-			<bitfield pos="20" name="SEMAPHORE" variants="NV11-" />
+			<bitfield pos="20" name="SEMAPHORE" variants="NV1A-" />
 			<bitfield pos="21" name="UNK21" variants="NV40-"/>
 			<bitfield pos="22" name="UNK22" variants="NV40-"/>
 			<bitfield pos="23" name="UNK23" variants="NV40-"/>
-			<bitfield pos="24" name="ACQUIRE_TIMEOUT" variants="NV11-" /> <!-- XXX: make sure. Also check on NV40. -->
+			<bitfield pos="24" name="ACQUIRE_TIMEOUT" variants="NV1A-" /> <!-- XXX: make sure. Also check on NV40. -->
 		</reg32>
 		<reg32 offset="0x210" name="RAMHT">
 			<bitfield high="8" low="4" name="ADDRESS" shr="12"/>
@@ -119,7 +119,7 @@
 		<reg32 offset="0x214" name="RAMFC" variants="NV04:NV40">
 			<bitfield high="8" low="1" name="ADDRESS" variants="NV04:NV10" shr="9"/>
 			<bitfield high="8" low="2" name="ADDRESS" variants="NV10-" shr="10"/>
-			<bitfield pos="16" name="LARGE" variants="NV11-"/>
+			<bitfield pos="16" name="LARGE" variants="NV1A-"/>
 			<bitfield high="23" low="17" name="UNK17" variants="NV17-">
 				<doc>Init to 0x45.</doc>
 			</bitfield>
@@ -342,7 +342,7 @@
 				<bitfield pos="4" name="BUSY"/>
 				<bitfield pos="8" name="EMPTY"/>
 				<bitfield pos="12" name="SUSPENDED"/>
-				<bitfield pos="16" name="UNK16" variants="NV11-"/>
+				<bitfield pos="16" name="UNK16" variants="NV1A-"/>
 				<bitfield high="31" low="24" name="UNK24" variants="NV40-"/>
 			</reg32>
 			<reg32 offset="0x024" name="DMA_FETCH">
@@ -351,7 +351,7 @@
 				<bitfield high="19" low="16" name="MAX_REQS" variants="NV04:NV05"/>
 				<bitfield high="20" low="16" name="MAX_REQS" variants="NV05:NV40"/>
 				<bitfield high="22" low="16" name="MAX_REQS" variants="NV40-"/>
-				<bitfield pos="31" name="ENDIAN" variants="NV11-">
+				<bitfield pos="31" name="ENDIAN" variants="NV1A-">
 					<value value="0" name="LITTLE" />
 					<value value="1" name="BIG" />
 				</bitfield>
@@ -365,9 +365,9 @@
 				<bitfield high="28" low="18" name="METHOD_COUNT"/>
 				<bitfield high="31" low="29" name="ERROR">
 					<value value="0" name="NONE"/>
-					<value value="1" name="CALL_SUBR_ACTIVE" variants="NV11-"/>
+					<value value="1" name="CALL_SUBR_ACTIVE" variants="NV1A-"/>
 					<value value="2" name="INVALID_MTHD"/>
-					<value value="3" name="RET_SUBR_INACTIVE" variants="NV11-"/>
+					<value value="3" name="RET_SUBR_INACTIVE" variants="NV1A-"/>
 					<value value="4" name="INVALID_CMD"/>
 					<value value="6" name="MEM_FAULT"/>
 				</bitfield>
@@ -390,8 +390,8 @@
 			<reg32 offset="0x040" name="DMA_PUT"/>
 			<reg32 offset="0x044" name="DMA_GET"/>
 			<reg32 offset="0x048" name="REF" variants="NV10-"/>
-			<reg32 offset="0x04c" name="SUBROUTINE" variants="NV11-">
-				<bitfield pos="0" name="ACTIVE" variants="NV11:NV40"/>
+			<reg32 offset="0x04c" name="SUBROUTINE" variants="NV1A-">
+				<bitfield pos="0" name="ACTIVE" variants="NV1A:NV40"/>
 				<bitfield high="31" low="2" name="RETURN" shr="2"/>
 			</reg32>
 			<reg32 offset="0x050" name="PULL0">
@@ -399,8 +399,8 @@
 				<bitfield pos="4" name="HASH_FAILED"/>
 				<bitfield pos="8" name="DEVICE_SOFTWARE"/>
 				<bitfield pos="12" name="HASH_BUSY"/>
-				<bitfield pos="16" name="ACQUIRE_BUSY" variants="NV11-"/>
-				<bitfield high="23" low="20" name="SEMAPHORE_ERROR" variants="NV11-">
+				<bitfield pos="16" name="ACQUIRE_BUSY" variants="NV1A-"/>
+				<bitfield high="23" low="20" name="SEMAPHORE_ERROR" variants="NV1A-">
 					<value value="0" name="NONE"/>
 					<!-- XXX: figure out wtf they mean. Doesn't seem to be consistent. -->
 					<value value="1" name="INVALID_OPERAND"/>
@@ -409,8 +409,8 @@
 			</reg32>
 			<reg32 offset="0x054" name="PULL1">
 				<bitfield high="3" low="0" name="ENGINE" type="nv04_pfifo_engine"/>
-				<bitfield pos="4" name="ACQUIRE_ACTIVE" variants="NV11-"/>
-				<bitfield high="17" low="16" name="SEMAPHORE_TARGET" variants="NV11-">
+				<bitfield pos="4" name="ACQUIRE_ACTIVE" variants="NV1A-"/>
+				<bitfield high="17" low="16" name="SEMAPHORE_TARGET" variants="NV1A-">
 					<value value="0" name="NVM"/>
 					<value value="2" name="PCI"/>
 					<value value="3" name="AGP"/>
@@ -422,12 +422,12 @@
 				<bitfield high="23" low="0" name="INSTANCE" variants="NV40-"/>
 				<bitfield pos="24" name="VALID" variants="NV40-"/>
 			</reg32>
-			<reg32 offset="0x060" name="ACQUIRE_TIMEOUT" variants="NV11-">
+			<reg32 offset="0x060" name="ACQUIRE_TIMEOUT" variants="NV1A-">
 				<bitfield high="30" low="0" name="TIMEOUT"/>
 			</reg32>
-			<reg32 offset="0x064" name="ACQUIRE_TIMESTAMP" variants="NV11-"/>
-			<reg32 offset="0x068" name="ACQUIRE_VALUE" variants="NV11-"/>
-			<reg32 offset="0x06c" name="SEMAPHORE" variants="NV11-">
+			<reg32 offset="0x064" name="ACQUIRE_TIMESTAMP" variants="NV1A-"/>
+			<reg32 offset="0x068" name="ACQUIRE_VALUE" variants="NV1A-"/>
+			<reg32 offset="0x06c" name="SEMAPHORE" variants="NV1A-">
 				<bitfield pos="0" name="CTXDMA_VALID"/>
 				<bitfield high="11" low="2" name="OFFSET" shr="2"/>
 				<bitfield high="31" low="12" name="PAGE" shr="12"/>

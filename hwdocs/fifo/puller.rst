@@ -31,10 +31,10 @@ Method        Present on Name                   Description
 0x0028        NVAF-      ???                    ???                                   
 0x002c        NVAF-      ???                    ???                                   
 0x0050        NV10-      REF_CNT                :ref:`Writes the ref counter <fifo-mthd-ref>`
-0x0060        NV11:NVC0  DMA_SEMAPHORE          :ref:`DMA object for semaphores <fifo-mthd-semaphore>`
-0x0064        NV11-      SEMAPHORE_OFFSET       :ref:`Old-style semaphore address <fifo-mthd-semaphore>`                                               
-0x0068        NV11-      SEMAPHORE_ACQUIRE      :ref:`Old-style semaphore acquire trigger and payload <fifo-mthd-semaphore>`
-0x006c        NV11-      SEMAPHORE_RELEASE      :ref:`Old-style semaphore release trigger and payload <fifo-mthd-semaphore>`
+0x0060        NV1A:NVC0  DMA_SEMAPHORE          :ref:`DMA object for semaphores <fifo-mthd-semaphore>`
+0x0064        NV1A-      SEMAPHORE_OFFSET       :ref:`Old-style semaphore address <fifo-mthd-semaphore>`                                               
+0x0068        NV1A-      SEMAPHORE_ACQUIRE      :ref:`Old-style semaphore acquire trigger and payload <fifo-mthd-semaphore>`
+0x006c        NV1A-      SEMAPHORE_RELEASE      :ref:`Old-style semaphore release trigger and payload <fifo-mthd-semaphore>`
 0x0070        NVC0-      ???                    ???
 0x0074        NVC0-      ???                    ???
 0x0078        NVC0-      ???                    ???
@@ -127,10 +127,10 @@ b3      last_subc           01:04  last used subchannel
 b5[8]   engines             NV04+  engines bound to subchannels
 b5      last_engine         NV04+  last used engine
 b32     ref                 NV10+  reference counter [shared with pusher]
-bool    acquire_active      NV11+  semaphore acquire in progress
-b32     acquire_timeout     NV11+  semaphore acquire timeout
-b32     acquire_timestamp   NV11+  semaphore acquire timestamp
-b32     acquire_value       NV11+  semaphore acquire value
+bool    acquire_active      NV1A+  semaphore acquire in progress
+b32     acquire_timeout     NV1A+  semaphore acquire timeout
+b32     acquire_timestamp   NV1A+  semaphore acquire timestamp
+b32     acquire_value       NV1A+  semaphore acquire value
 dmaobj  dma_semaphore       11:C0  semaphore DMA object
 b12/16  semaphore_offset    11:C0  old-style semaphore address
 bool    semaphore_off_val   50:C0  semaphore_offset valid
@@ -336,7 +336,7 @@ mthd 0x0050 / 0x014: REF_CNT [NV10:]
 Semaphores
 ----------
 
-NV11 PFIFO introduced a concept of "semaphores". A semaphore is a 32-bit word
+NV1A PFIFO introduced a concept of "semaphores". A semaphore is a 32-bit word
 located in memory. NV84 also introduced "long" semaphores, which are 4-word
 memory structures that include a normal semaphore word and a timestamp.
 
@@ -345,12 +345,12 @@ operations are NOT the familiar P/V semaphore operations, they're just fancy
 names for "wait until value == X" and "write X".
 
 There are two "versions" of the semaphore functionality. The "old-style"
-semaphores are implemented by NV11:NVC0 cards. The "new-style" semaphores
+semaphores are implemented by NV1A:NVC0 cards. The "new-style" semaphores
 are supported by NV84+ cards. The differences are:
 
 Old-style semaphores
 
-- limitted addressing range: 12-bit [NV11:NV50] or 16-bit [NV50:NVC0] offset
+- limitted addressing range: 12-bit [NV1A:NV50] or 16-bit [NV50:NVC0] offset
   in a DMA object. Thus a special DMA object is required.
 - release writes a single word
 - acquire supports only "wait for value equal to X" mode
@@ -363,7 +363,7 @@ New-style semaphores
   or equal X" modes
 
 Semaphores have to be 4-byte aligned. All values are stored with endianness
-selected by big_endian flag [NV11:NV50] or by PFIFO endianness [NV50+]
+selected by big_endian flag [NV1A:NV50] or by PFIFO endianness [NV50+]
 
 On pre-NVC0, both old-style semaphores and new-style semaphores use the DMA
 object stored in dma_semaphore, which can be set through DMA_SEMAPHORE method.
@@ -374,7 +374,7 @@ manually].
 
 Old-style semaphores read/write the location specified in semaphore_offset,
 which can be set by SEMAPHORE_OFFSET method. The offset has to be divisible
-by 4 and fit in 12 bits [NV11:NV50] or 16 bits [NV50:NVC0]. An acquire is
+by 4 and fit in 12 bits [NV1A:NV50] or 16 bits [NV50:NVC0]. An acquire is
 triggered by using the SEMAPHORE_ACQUIRE mthd with the expected value as the
 parameter - further command processing will halt until the memory location
 contains the selected value. A release is triggered by using the
@@ -407,7 +407,7 @@ waits for a value that, ANDed with semaphore_sequence, gives a non-0 result
 Failures of semaphore-related methods will trigger the SEMAPHORE error. The
 SEMAPHORE error has several subtypes, depending on card generation.
 
-NV11:NV50 SEMAPHORE error subtypes:
+NV1A:NV50 SEMAPHORE error subtypes:
 
 - 1: INVALID_OPERAND: wrong parameter to a method
 - 2: INVALID_STATE: attempt to acquire/release without proper setup
@@ -432,7 +432,7 @@ not REd yet.
 
 .. todo:: RE timeouts
 
-mthd 0x0060 / 0x018: DMA_SEMAPHORE [O] [NV11:NVC0]
+mthd 0x0060 / 0x018: DMA_SEMAPHORE [O] [NV1A:NVC0]
 ::
 
 	obj = RAMHT_LOOKUP(param).addr;
@@ -449,7 +449,7 @@ mthd 0x0060 / 0x018: DMA_SEMAPHORE [O] [NV11:NVC0]
 
 .. todo:: is there ANY way to make NV50 reject non-DMA object classes?
 
-mthd 0x0064 / 0x019: SEMAPHORE_OFFSET [NV11-]
+mthd 0x0064 / 0x019: SEMAPHORE_OFFSET [NV1A-]
 ::
 
 	if (chipset < NV50) {
@@ -467,7 +467,7 @@ mthd 0x0064 / 0x019: SEMAPHORE_OFFSET [NV11-]
 		semaphore_address[0:31] = param;
 	}
 
-mthd 0x0068 / 0x01a: SEMAPHORE_ACQUIRE [NV11-]
+mthd 0x0068 / 0x01a: SEMAPHORE_ACQUIRE [NV1A-]
 ::
 
 	if (chipset < NV50 && !dma_semaphore)
@@ -499,7 +499,7 @@ mthd 0x0068 / 0x01a: SEMAPHORE_ACQUIRE [NV11-]
 		}
 	}
 
-mthd 0x006c / 0x01b: SEMAPHORE_RELEASE [NV11-]
+mthd 0x006c / 0x01b: SEMAPHORE_RELEASE [NV1A-]
 ::
 
 	if (chipset < NV50 && !dma_semaphore)

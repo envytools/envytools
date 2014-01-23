@@ -50,7 +50,7 @@
 				<value value="2" name="IBM"/>
 			</bitfield>
 		</reg32>
-		<reg32 offset="0x004" name="ENDIAN" variants="NV11-"/>
+		<reg32 offset="0x004" name="ENDIAN" variants="NV1A-"/>
 		<reg32 offset="0x008" name="BOOT_2" variants="NV92-"/>
 		<bitset name="nv_pmc_intr" inline="yes">
 			<bitfield pos="0" name="PAUDIO" variants="NV01"/>

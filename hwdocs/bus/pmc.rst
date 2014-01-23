@@ -26,7 +26,7 @@ MMIO register list
 Address        Variants  Name                   Description
 ============== ========= ====================== ====================
 000000         all       ID                     :ref:`card identification <pmc-mmio-id>`
-000004         NV11-     ENDIAN                 :ref:`endian switch <pmc-mmio-endian>`
+000004         NV1A-     ENDIAN                 :ref:`endian switch <pmc-mmio-endian>`
 000008         NV92-     BOOT_2                 :ref:`??? <pmc-mmio-id>`
 000100         all       INTR_HOST              :ref:`interrupt status - host <pmc-mmio-intr>`
 000104         NVA3-     INTR_NRHOST            :ref:`interrupt status - non-redirectable host <pmc-mmio-intr>`
@@ -129,7 +129,7 @@ either little or big endian, and affects all accesses to BAR0 and, if present,
 BAR2/BAR3 - see :ref:`bars` for more details. It is controlled by the ENDIAN
 register:
 
-MMIO 0x000004: ENDIAN [NV11-]
+MMIO 0x000004: ENDIAN [NV1A-]
   When read, returns 0x01000001 if in big-endian mode, 0 if in little-endian
   mode. When written, if bit 24 of the written value is 1, flips the endian
   switch to the opposite value, otherwise does nothing.
@@ -139,7 +139,7 @@ by the endian switch - thus the read value was chosen to be unaffected by
 wrong endian setting, while write behavior was chosen so that writing "1" in
 either endianness will switch the card to that endianness.
 
-This register and the endian switch don't exist on pre-NV11 cards - they're
+This register and the endian switch don't exist on pre-NV1A cards - they're
 always little-endian.
 
 Note that this switch is also used by NV50+ PFIFO as its default endianness

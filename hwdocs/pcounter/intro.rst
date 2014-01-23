@@ -13,10 +13,10 @@ Introduction
 ============
 
 PCOUNTER is the card units that contains performance monitoring counters.
-It is present on NV10+ GPUs, with the exception of NV11, NV17, NV18 for
+It is present on NV10+ GPUs, with the exception of NV11, NV1A, NV17, NV18 for
 unknown reasons.
 
-.. todo:: why? any others excluded? NV1A, NV25, NV2A, NV30, NV36 pending a check
+.. todo:: why? any others excluded? NV25, NV2A, NV30, NV36 pending a check
 
 PCOUNTER is actually made of several identical hardware counter units, one
 for each so-called domain. Each PCOUNTER domain can potentially run on

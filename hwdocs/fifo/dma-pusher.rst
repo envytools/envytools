@@ -50,8 +50,8 @@ b32    dcount_shadow    NV05: number of already-processed methods in cmd
 bool   dma_state.ni     NV10+ Current command's NI flag
 bool   dma_state.lenp   NV50+ [#I]_ Large NI command length pending
 b32    ref              NV10+ reference counter [shared with puller]
-bool   subr_active      NV11+ [#O]_ Subroutine active
-b32    subr_return      NV11+ [#O]_ subroutine return address
+bool   subr_active      NV1A+ [#O]_ Subroutine active
+b32    subr_return      NV1A+ [#O]_ subroutine return address
 bool   big_endian       11:50 [#S]_ pushbuffer endian switch
 bool   sli_enable       NV50+ [#S]_ SLI cond command enabled
 b12    sli_mask         NV50+ [#S]_ SLI cond mask
@@ -180,7 +180,7 @@ by 4, and treats the word as the next word in the command stream. dma_get
 can also move through the control flow commands: jump [sets dma_get to param],
 call [copies dma_get to subr_return, sets subr_active and sets dma_get to
 param], and return [unsets subr_active, copies subr_return to dma_get]. The
-calls and returns are only available on NV11+ cards.
+calls and returns are only available on NV1A+ cards.
 
 The pushbuffer is accessed through the dma_pushbuffer DMA object. On NV04, the
 DMA object has to be located in PCI or AGP memory. On NV05+, any DMA object is
@@ -188,8 +188,8 @@ valid. At all times, dma_get has to be <= dma_limit. Going past the limit or
 getting a VM fault when attempting to read from pushbuffer results in raising
 DMA_PUSHER error of type MEM_FAULT.
 
-On pre-NV11 cards, the word read from pushbuffer is always treated as
-little-endian. On NV11:NV50 cards, the endianness is determined by the
+On pre-NV1A cards, the word read from pushbuffer is always treated as
+little-endian. On NV1A:NV50 cards, the endianness is determined by the
 big_endian flag. On NV50+, the PFIFO endianness is a global switch.
 
 .. todo:: What about NVC0?
@@ -201,7 +201,7 @@ subr_return. Why dma_put writing supports it is a mystery.
 The usual way to use NV04-style mode is:
 
 1. Allocate a big circular buffer
-2. [NV11+] if you intend to use subroutines, allocate space for them and write
+2. [NV1A+] if you intend to use subroutines, allocate space for them and write
    them out
 3. Point dma_pushbuffer to the buffer, set dma_get and dma_put to its start
 4. To submit commands:
@@ -291,12 +291,12 @@ first word. The word has to match one of the following forms:
 ================================ ====================================
 000CCCCCCCCCCC00SSSMMMMMMMMMMM00 increasing methods     [NV04+]
 0000000000000001MMMMMMMMMMMMXX00 SLI conditional    [NV40+, if enabled]
-00000000000000100000000000000000 return [NV11+, NV04-style only]
+00000000000000100000000000000000 return [NV1A+, NV04-style only]
 0000000000000011SSSMMMMMMMMMMM00 long non-increasing methods    [IB only]
 001JJJJJJJJJJJJJJJJJJJJJJJJJJJ00 old jump   [NV04+, NV04-style only]
 010CCCCCCCCCCC00SSSMMMMMMMMMMM00 non-increasing methods [NV10+]
-JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ01 jump       [NV11+, NV04-style only]
-JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ10 call       [NV11+, NV04-style only]
+JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ01 jump       [NV1A+, NV04-style only]
+JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ10 call       [NV1A+, NV04-style only]
 ================================ ====================================
 
 .. todo:: do an exhaustive scan of commands
@@ -352,9 +352,9 @@ NV04 control flow commands
 
 ================================ ====================================
 001JJJJJJJJJJJJJJJJJJJJJJJJJJJ00 old jump   [NV04+]
-JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ01 jump       [NV11+]
-JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ10 call       [NV11+]
-00000000000000100000000000000000 return [NV11+]
+JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ01 jump       [NV1A+]
+JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJ10 call       [NV1A+]
+00000000000000100000000000000000 return [NV1A+]
 ================================ ====================================
 
 For jumps and calls, J..JJ is bits 2-28 or 2-31 of the target address. The
@@ -362,7 +362,7 @@ remaining bits of target are forced to 0.
 
 The jump commands simply set dma_get to the target - the next command will be
 read from there. There are two commands, since NV04 originally supported only
-29-bit addresses, and used high bits as command type. NV11 introduced the new
+29-bit addresses, and used high bits as command type. NV1A introduced the new
 jump command that instead uses low bits as type, and allows access to full 32
 bits of address range.
 
@@ -453,7 +453,7 @@ The pusher pseudocode - pre-NVC0
                         try {
                                 if (!ib_enable && dma_get >= dma_limit)
                                         throw DMA_PUSHER(MEM_FAULT);
-                                if (chipset < NV11)
+                                if (chipset < NV1A)
                                         word = READ_DMAOBJ_32(dma_pushbuffer, dma_get, LE);
                                 else if (chipset < NV50)
                                         word = READ_DMAOBJ_32(dma_pushbuffer, dma_get, big_endian?BE:LE);
@@ -490,18 +490,18 @@ The pusher pseudocode - pre-NVC0
                                         /* old jump */
                                         dma_get_jmp_shadow = dma_get;
                                         dma_get = word & 0x1fffffff;
-                                } else if ((word & 3) == 1 && !ib_enable && chipset >= NV11) {
+                                } else if ((word & 3) == 1 && !ib_enable && chipset >= NV1A) {
                                         /* jump */
                                         dma_get_jmp_shadow = dma_get;
                                         dma_get = word & 0xfffffffc;
-                                } else if ((word & 3) == 2 && !ib_enable && chipset >= NV11) {
+                                } else if ((word & 3) == 2 && !ib_enable && chipset >= NV1A) {
                                         /* call */
                                         if (subr_active)
                                                 throw DMA_PUSHER(CALL_SUBR_ACTIVE);
                                         subr_return = dma_get;
                                         subr_active = 1;
                                         dma_get = word & 0xfffffffc;
-                                } else if (word == 0x00020000 && !ib_enable && chipset >= NV11) {
+                                } else if (word == 0x00020000 && !ib_enable && chipset >= NV1A) {
                                         /* return */
                                         if (!subr_active)
                                                 throw DMA_PUSHER(RET_SUBR_INACTIVE);

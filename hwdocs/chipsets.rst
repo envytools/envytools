@@ -234,10 +234,13 @@ The notable changes in this generation are:
   - introduced vblank wait PGRAPH commands
   - minor 3d engine additions [logic operation, ...]
 
-- NV11:
+- NV1A:
 
   - big endian mode
   - PFIFO: semaphores and subroutines
+
+- NV11:
+
   - dual head support, meant for laptops with flat panel + external display
 
 - NV17:

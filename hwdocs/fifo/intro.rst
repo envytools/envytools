@@ -175,8 +175,8 @@ the CACHE for certain optimisation when submitting PGRAPH commands.
 Method execution is described in detail in :ref:`DMA puller <fifo-puller>`
 and engine-specific documentation.
 
-Pre-NV11, PFIFO treats everything as little-endian. NV11 introduced big-endian
-mode, which affects pushbuffer/IB reads and semaphores. On NV11:NV50 cards,
+Pre-NV1A, PFIFO treats everything as little-endian. NV1A introduced big-endian
+mode, which affects pushbuffer/IB reads and semaphores. On NV1A:NV50 cards,
 the endian can be selected per channel via big_endian flag. On NV50+ cards,
 PFIFO endianness is a global switch.
 

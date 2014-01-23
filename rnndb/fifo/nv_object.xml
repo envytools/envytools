@@ -266,10 +266,10 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			</bitfield>
 		</reg32>
 		<reg32 offset="0x50" name="REF_CNT" variants="NV10-"/>
-		<reg32 offset="0x60" name="DMA_SEMAPHORE" variants="NV11:NVC0" type="object"/>
-		<reg32 offset="0x64" name="SEMAPHORE_OFFSET" variants="NV11-"/>
-		<reg32 offset="0x68" name="SEMAPHORE_ACQUIRE" variants="NV11-"/>
-		<reg32 offset="0x6c" name="SEMAPHORE_RELEASE" variants="NV11-"/>
+		<reg32 offset="0x60" name="DMA_SEMAPHORE" variants="NV1A:NVC0" type="object"/>
+		<reg32 offset="0x64" name="SEMAPHORE_OFFSET" variants="NV1A-"/>
+		<reg32 offset="0x68" name="SEMAPHORE_ACQUIRE" variants="NV1A-"/>
+		<reg32 offset="0x6c" name="SEMAPHORE_RELEASE" variants="NV1A-"/>
 		<reg32 offset="0x70" name="UNK70" variants="NVC0-"/>
 		<reg32 offset="0x74" name="UNK74" variants="NVC0-"/>
 		<reg32 offset="0x78" name="UNK78" variants="NVC0-"/>
