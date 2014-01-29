@@ -471,15 +471,15 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<bitfield name="BGRA" pos="31" type="boolean"/><!-- swizzle VP input -->
 		</reg32>
 		<reg32 offset="0x121c" name="RT_CONTROL">
-			<bitfield name="COUNT" high="3" low="0" type="int"/>
-			<bitfield name="MAP0" high="6" low="4" type="int"/> <!-- MAP0 doesn't seem to work for some reason -->
-			<bitfield name="MAP1" high="9" low="7" type="int"/>
-			<bitfield name="MAP2" high="12" low="10" type="int"/>
-			<bitfield name="MAP3" high="15" low="13" type="int"/>
-			<bitfield name="MAP4" high="18" low="16" type="int"/>
-			<bitfield name="MAP5" high="21" low="19" type="int"/>
-			<bitfield name="MAP6" high="24" low="22" type="int"/>
-			<bitfield name="MAP7" high="27" low="25" type="int"/>
+			<bitfield name="COUNT" high="3" low="0" type="uint"/>
+			<bitfield name="MAP0" high="6" low="4" type="uint"/> <!-- MAP0 doesn't seem to work for some reason -->
+			<bitfield name="MAP1" high="9" low="7" type="uint"/>
+			<bitfield name="MAP2" high="12" low="10" type="uint"/>
+			<bitfield name="MAP3" high="15" low="13" type="uint"/>
+			<bitfield name="MAP4" high="18" low="16" type="uint"/>
+			<bitfield name="MAP5" high="21" low="19" type="uint"/>
+			<bitfield name="MAP6" high="24" low="22" type="uint"/>
+			<bitfield name="MAP7" high="27" low="25" type="uint"/>
 		</reg32>
 		<reg32 offset="0x1220" name="UNK1220">
 			<doc>0-0xc, goes to TRAST</doc>
