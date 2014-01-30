@@ -1,9 +1,0 @@
-TOC
-
-0. Introduction
-1. Linear interpolation process
-2. Quadratic interpolation process
-3. The methods
-
-
-[XXX: write me]

@@ -1,9 +1,0 @@
-TOC
-
-0. Introduction
-1. Methods
-2. IFM operation
-3. ITM operation
-
-[XXX: write me]
-

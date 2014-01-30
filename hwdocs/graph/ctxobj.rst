@@ -1,30 +1,26 @@
-TOC
+===============
+Context objects
+===============
 
-0. Introduction
-1. BETA
-2. ROP
-3. CHROMA and PLANE
-4. CLIP
-5. BETA4
-6. Surface setup
-6.1. SURF
-6.2. SURF2D
-6.3. SURF3D
-6.4. SWZSURF
+.. contents::
 
 
-= Introducton =
+Introducton
+===========
 
-[XXX: write me]
+.. todo:: write m
 
 
-= BETA =
+.. _obj-beta:
+
+BETA
+====
 
 The BETA object family deals with setting the beta factor for the BLEND
 operation. The objects in this family are:
 
- - objtype 0x01: NV01_BETA [NV01:NV04]
- - class 0x0012: NV01_BETA [NV04:NV84]
+- objtype 0x01: NV01_BETA [NV01:NV04]
+- class 0x0012: NV01_BETA [NV04:NV84]
 
 The methods are:
 
@@ -40,7 +36,7 @@ mthd 0x300: BETA [NV01_BETA]
   Sets the beta factor. The parameter is a signed fixed-point number with
   a sign bit and 31 fractional bits. Note that negative values are clamped
   to 0, and only 8 fractional bits are actually implemented in hardware.
-Operation:
+Operation::
 	if (param & 0x80000000) /* signed < 0 */
 		BETA = 0;
 	else
@@ -48,18 +44,21 @@ Operation:
 
 mthd 0x200: PATCH_BETA_OUTPUT [NV01_BETA] [NV04:NV20]
   Reserved for plugging a beta patchcord to output beta factor into.
-Operation:
+Operation::
 	throw(UNIMPLEMENTED_MTHD);
 
 
-= ROP =
+.. _obj-rop:
+
+ROP
+===
 
 The ROP object family deals with setting the ROP [raster operation]. The ROP
 value thus set is only used in the ROP_* operation modes. The objects in this
 family are:
 
- - objtype 0x02: NV01_ROP [NV01:NV04]
- - class 0x0043: NV01_ROP [NV04:NV84]
+- objtype 0x02: NV01_ROP [NV01:NV04]
+- class 0x0043: NV01_ROP [NV04:NV84]
 
 The methods are:
 
@@ -84,21 +83,25 @@ Operation:
 	throw(UNIMPLEMENTED_MTHD);
 
 
-= CHROMA and PLANE =
+.. _obj-chroma:
+.. _obj-plane:
+
+CHROMA and PLANE
+================
 
 The CHROMA object family deals with setting the color for the color key. The
 color key is only used when enabled in options for a given graph object. The
 objects in this family are:
 
- - objtype 0x03: NV01_CHROMA [NV01:NV04]
- - class 0x0017: NV01_CHROMA [NV04:NV50]
- - class 0x0057: NV04_CHROMA [NV04:NV84]
+- objtype 0x03: NV01_CHROMA [NV01:NV04]
+- class 0x0017: NV01_CHROMA [NV04:NV50]
+- class 0x0057: NV04_CHROMA [NV04:NV84]
 
 The PLANE object family deals with setting the color for plane masking. The
 plane mask operation is only done when enabled in options for a given graph
 object. The objects in this family are:
 
- - objtype 0x04: NV01_PLANE [NV01:NV04]
+- objtype 0x04: NV01_PLANE [NV01:NV04]
 
 For both objects, colors are internally stored in A1R10G10B10 format. [XXX:
 check NV04+]
@@ -114,9 +117,9 @@ The methods for these families are:
 0300   COLOR_FORMAT [NV04-]
 0304   COLOR
 
-mthd 0x304: COLOR [*_CHROMA, NV01_PLANE]
+mthd 0x304: COLOR [\*_CHROMA, NV01_PLANE]
   Sets the color.
-Operation:
+Operation::
 	struct {
 		int B : 10;
 		int G : 10;
@@ -131,22 +134,26 @@ Operation:
 		PLANE = tmp;
 	else
 		CHROMA = tmp;
-[XXX: check NV03+]
 
-mthd 0x200: PATCH_IMAGE_OUTPUT [*_CHROMA, NV01_PLANE] [NV04:NV20]
+.. todo:: check NV03+
+
+mthd 0x200: PATCH_IMAGE_OUTPUT [\*_CHROMA, NV01_PLANE] [NV04:NV20]
   Reserved for plugging an image patchcord to output the color into.
-Operation:
+Operation::
 	throw(UNIMPLEMENTED_MTHD);
 
 
-= CLIP =
+.. _obj-clip:
+
+CLIP
+====
 
 The CLIP object family deals with setting up the user clip rectangle. The user
 clip rectangle is only used when enabled in options for a given graph object.
 The objects in this family are:
 
- - objtype 0x05: NV01_CLIP [NV01:NV04]
- - class 0x0019: NV01_CLIP [NV04:NV84]
+- objtype 0x05: NV01_CLIP [NV01:NV04]
+- class 0x0019: NV01_CLIP [NV04:NV84]
 
 The methods for this family are:
 
@@ -160,10 +167,13 @@ The methods for this family are:
 0304   SIZE
 
 The clip rectangle state can be loaded in two ways:
- - submit CORNER method twice, with upper-left and bottom-right corners
- - submit CORNER method with upper-right corner, then SIZE method
+
+- submit CORNER method twice, with upper-left and bottom-right corners
+- submit CORNER method with upper-right corner, then SIZE method
+
 To enable that, clip rectangle method operation is a bit unusual.
-[XXX: check if still applies on NV03+]
+
+.. todo:: check if still applies on NV03+
 
 Note that the clip rectangle state is internally stored relative to the
 absolute top-left corner of the framebuffer, while coordinates used in
@@ -173,37 +183,42 @@ mthd 0x300: CORNER [NV01_CLIP]
   Sets a corner of the clipping rectangle.
   bits 0-15: X coordinate
   bits 16-31: Y coordinate
-Operation:
+Operation::
 	ABS_UCLIP_XMIN = ABS_UCLIP_XMAX;
 	ABS_UCLIP_YMIN = ABS_UCLIP_YMAX;
 	ABS_UCLIP_XMAX = CANVAS_MIN.X + param.X;
 	ABS_UCLIP_YMAX = CANVAS_MIN.Y + param.Y;
-[XXX: check NV03+]
+
+.. todo:: check NV03+
 
 mthd 0x304: SIZE [NV01_CLIP]
   Sets the size of the clipping rectangle.
   bits 0-15: width
   bits 16-31: height
-Operation:
+Operation::
 	ABS_UCLIP_XMIN = ABS_UCLIP_XMAX;
 	ABS_UCLIP_YMIN = ABS_UCLIP_YMAX;
 	ABS_UCLIP_XMAX += param.X;
 	ABS_UCLIP_YMAX += param.Y;
-[XXX: check NV03+]
+
+.. todo:: check NV03+
 
 mthd 0x200: PATCH_IMAGE_OUTPUT [NV01_CLIP] [NV04:NV20]
   Reserved for plugging an image patchcord to output the rectangle into.
-Operation:
+Operation::
 	throw(UNIMPLEMENTED_MTHD);
 
 
-= BETA4 =
+.. _obj-beta4:
+
+BETA4
+=====
 
 The BETA4 object family deals with setting the per-component beta factors for
 the BLEND_PREMULT and SRCCOPY_PREMULT operations. The objects in this family
 are:
 
- - class 0x0072: NV04_BETA4 [NV04:NV84]
+- class 0x0072: NV04_BETA4 [NV04:NV84]
 
 The methods are:
 
@@ -221,35 +236,48 @@ mthd 0x300: BETA4 [NV04_BETA4]
   bits 8-15: G
   bits 16-23: R
   bits 24-31: A
-Operation:
+Operation::
 	/* XXX: figure it out */
 
 mthd 0x200: PATCH_BETA_OUTPUT [NV04_BETA4] [NV04:NV20]
   Reserved for plugging a beta patchcord to output beta factors into.
-Operation:
+Operation::
 	throw(UNIMPLEMENTED_MTHD);
 
 
-= Surface setup =
+Surface setup
+=============
 
-[XXX: write me]
-
-
-== SURF ==
-
-[XXX: write me]
+.. todo:: write me
 
 
-== SURF2D ==
+.. _obj-surf:
 
-[XXX: write me]
+SURF
+----
 
-
-== SURF3D ==
-
-[XXX: write me]
+.. todo:: write me
 
 
-== SWZSURF ==
+.. _obj-surf2d:
 
-[XXX: write me]
+SURF2D
+------
+
+.. todo:: write me
+
+
+.. _obj-surf3d:
+
+SURF3D
+------
+
+.. todo:: write me
+
+
+.. _obj-swzsurf:
+
+SWZSURF
+-------
+
+.. todo:: write me

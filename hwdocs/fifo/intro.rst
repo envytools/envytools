@@ -4,6 +4,9 @@
 FIFO overview
 =============
 
+.. contents::
+
+
 Introduction
 ============
 

@@ -1,4 +1,3 @@
-.. _graph-intro:
 .. _nv50-pgraph:
 .. _nv50-pgraph-vfetch:
 .. _nv50-pgraph-strmout:
@@ -13,25 +12,26 @@ PGRAPH: 2d/3d graphics and compute engine
 
 Contents:
 
+.. rubric:: PGRAPH, user perspective
+
 .. toctree::
+
+    intro
+    m2mf
+    2d
+    pattern
+    ctxobj
+    solid
+    ifc
+    blit
+    ifm
+    nv01-tex
+    gdi
+    sifm
 
 ::
 
-    PGRAPH, user perspective
-    [**   ] graph/intro.txt - Overview of graph objects, functionality common between object classes
-    [     ] graph/m2mf.txt - The memory copying objects
-    [**   ] graph/2d.txt - Overview of the 2D pipeline
-    [**** ] graph/pattern.txt - 2D pattern
-    [**   ] graph/ctxobj.txt - graph context objects
-    [**   ] graph/solid.txt - 2d solid shape rendering
-    [     ] graph/ifc.txt - 2d image from cpu upload
-    [     ] graph/nv01-blit.txt - BLIT object
-    [     ] graph/nv01-ifm.txt - image to/from memory objects
-    [     ] graph/nv01-tex.txt - NV01 textured quad objects
     [     ] graph/nv03-3d.txt - NV03-style 3D objects
-    [     ] graph/nv03-gdi.txt - GDI object
-    [     ] graph/nv03-sifm.txt - scaled image from memory object
-    [     ] graph/nv04-dvd.txt - YCbCr blending object
     [     ] graph/nv10-3d.txt - NV10 Celsius 3D objects
     [     ] graph/nv20-3d.txt - NV20 Kelvin 3D objects
     [     ] graph/nv30-3d.txt - NV30 Rankine 3D objects
