@@ -1,12 +1,12 @@
-TOC
+====================================
+Overview of VP2/VP3/VP4 vµc hardware
+====================================
 
-0. Introduction
-1. The MMIO registers - VP2
-2. The MMIO registers - VP3/VP4
-3. Interrupts
+.. contents::
 
 
-= Introduction =
+Introduction
+============
 
 vµc is a microprocessor unit used as the second stage of the VP2 [in H.264
 mode only], VP3 and VP4 video decoding pipelines. The same name is also used
@@ -23,26 +23,29 @@ VP3 and VP4, it is located inside the PVDEC engine [see vdec/vp3/pvdec.txt].
 
 The vµc unit is made of the following subunits:
 
- - the vµc microcprocessor - oversees everything and does the calculations
-   that are not performance-sensitive enough to be done in hardware
- - MBRING input and parsing circuitry - reads bitstream data parsed by the VLD
- - MVSURF input and output circuitry - the MVSURF is a storage buffer attached
-   to all reference pictures in H.264 and to P pictures in VC-1, MPEG-4. It
-   stores the motion vectors and other data used for direct prediction in B
-   pictures. There are two MVSURFs that can be used: the output MVSURF that
-   will store the data of the current picture, and the input MVSURF that
-   should store the data for the first picture in L1 list [H.264] or the
-   last P picture [other codecs]
- - VPRINGs output circuitry [VP2 only] - the VPRINGs are ring buffers filled
-   by vµc with instructions for various VP subunits. There are three VPRINGs:
-   VPRING_DEBLOCK used for deblocking commands, VPRIND_RESIDUAL used for the
-   residual transform coefficients, and VPRINT_CTRL used for the motion
-   vectors and other control data.
- - direct VP connection [VP3, VP4 only] - the VP3+ vµc is directly connected
-   to the VP engine, instead of relying on ring buffers in memory.
+- the vµc microcprocessor - oversees everything and does the calculations
+  that are not performance-sensitive enough to be done in hardware
+- MBRING input and parsing circuitry - reads bitstream data parsed by the VLD
+- MVSURF input and output circuitry - the MVSURF is a storage buffer attached
+  to all reference pictures in H.264 and to P pictures in VC-1, MPEG-4. It
+  stores the motion vectors and other data used for direct prediction in B
+  pictures. There are two MVSURFs that can be used: the output MVSURF that
+  will store the data of the current picture, and the input MVSURF that
+  should store the data for the first picture in L1 list [H.264] or the
+  last P picture [other codecs]
+- VPRINGs output circuitry [VP2 only] - the VPRINGs are ring buffers filled
+  by vµc with instructions for various VP subunits. There are three VPRINGs:
+  VPRING_DEBLOCK used for deblocking commands, VPRIND_RESIDUAL used for the
+  residual transform coefficients, and VPRINT_CTRL used for the motion
+  vectors and other control data.
+- direct VP connection [VP3, VP4 only] - the VP3+ vµc is directly connected
+  to the VP engine, instead of relying on ring buffers in memory.
 
 
-== The MMIO registers - VP2 ==
+.. _pbsp-vuc-mmio:
+
+The MMIO registers - VP2
+========================
 
 The vµc registers are located in PBSP XLMI space at addresses 0x08000:0x10000
 [BAR0 addresses 0x103200:0x103400]. They are:
@@ -90,7 +93,10 @@ The vµc registers are located in PBSP XLMI space at addresses 0x08000:0x10000
 0c300/10330c: MBRING_READ_AVAIL - the bytes left to read in MBRING
 
 
-== The MMIO registers - VP3/VP4 ==
+.. _pvdec-io-vuc:
+
+The MMIO registers - VP3/VP4
+============================
 
 The vµc registers are located in PVDEC falcon IO space at addresses 0x10000:0x14000
 [BAR0 addresses 0x085400:0x085500]. They are:
@@ -133,6 +139,9 @@ The vµc registers are located in PVDEC falcon IO space at addresses 0x10000:0x1
 13100/0854c4: ??? [XXX]
 
 
-== Interrupts ==
+.. _pvdec-intr-vuc:
 
-[XXX: write me]
+Interrupts
+==========
+
+.. todo:: write me

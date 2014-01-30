@@ -1,0 +1,1165 @@
+===================
+VP2/VP3/VP4 vµc ISA
+===================
+
+.. contents::
+
+
+Introduction
+============
+
+This file deals with description of the ISA used by the vµc microprocessor,
+which is described in vdec/vuc/intro.txt.
+
+The microprocessor registers, instructions and memory spaces are mostly 16-bit
+oriented. There are 3 ISA register files:
+
+- $r0-$r15, 16-bit general-purpose registers, for arithmetic and addressing
+
+  - $r0: read-only and hardwired to 0
+  - $r1-$r15: read/write
+
+- $p0-$p15, 1-bit predicate registers, for conditional execution
+
+  - $p0: read/write
+  - $p1: read only and hardwired to !$p0
+  - $p2-$p14: read/write
+  - $p15: read-only and hardwired to 1
+
+- $sr0-$sr63, 16-bit special registers
+
+  - $sr0/$asel: A neighbour read selection  [VP2 only]  [vdec/vuc/vreg.txt]
+  - $sr1/$bsel: B neighbour read selection  [VP2 only]  [vdec/vuc/vreg.txt]
+  - $sr2/$spidx: [sub]partition selection           [vdec/vuc/vreg.txt]
+  - $sr3/$baddr: B neighbour read address   [VP2 only]  [vdec/vuc/vreg.txt]
+  - $sr3/$absel: A and B neighbour selection    [VP3+ only] [vdec/vuc/vreg.txt]
+  - $sr4/$h2v: host to vµc scratch register         [vdec/vuc/isa.txt]
+  - $sr5/$v2h: vµc to host scratch register         [vdec/vuc/isa.txt]
+  - $sr6/$stat: a control/status register           [vdec/vuc/isa.txt]
+  - $sr7/$parm: video parameters                [vdec/vuc/vreg.txt]
+  - $sr8/$pc: program counter                   [vdec/vuc/isa.txt]
+  - $sr9/$cspos: call stack position                [vdec/vuc/isa.txt]
+  - $sr10/$cstop: call stack top                [vdec/vuc/isa.txt]
+  - $sr11/$rpitab: RPI lut pointer      [VP2 only]  [vdec/vuc/vreg.txt]
+  - $sr12/$lhi: long arithmetic high word           [vdec/vuc/isa.txt]
+  - $sr13/$llo: long arithmetic low word            [vdec/vuc/isa.txt]
+  - $sr14/$pred: alias of $p register file          [vdec/vuc/isa.txt]
+  - $sr15/$icnt: cycle counter                  [vdec/vuc/isa.txt]
+  - $sr16/$mvxl0: motion vector L0 X component          [vdec/vuc/vreg.txt]
+  - $sr17/$mvyl0: motion vector L0 Y component          [vdec/vuc/vreg.txt]
+  - $sr18/$mvxl1: motion vector L1 X component          [vdec/vuc/vreg.txt]
+  - $sr19/$mvyl1: motion vector L1 Y component          [vdec/vuc/vreg.txt]
+  - $sr20/$refl0: L0 refidx                 [vdec/vuc/vreg.txt]
+  - $sr21/$refl1: L1 refidx                 [vdec/vuc/vreg.txt]
+  - $sr22/$rpil0: L0 RPI                    [vdec/vuc/vreg.txt]
+  - $sr23/$rpil1: L1 RPI                    [vdec/vuc/vreg.txt]
+  - $sr24/$mbflags: macroblock flags                [vdec/vuc/vreg.txt]
+  - $sr25/$qpy: luma quantiser and intra chroma pred mode   [vdec/vuc/vreg.txt]
+  - $sr26/$qpc: chroma quantisers               [vdec/vuc/vreg.txt]
+  - $sr27/$mbpart: macroblock partitioning schema       [vdec/vuc/vreg.txt]
+  - $sr28/$mbxy: macroblock X and Y position            [vdec/vuc/vreg.txt]
+  - $sr29/$mbaddr: macroblock address               [vdec/vuc/vreg.txt]
+  - $sr30/$mbtype: macroblock type              [vdec/vuc/vreg.txt]
+  - $sr31/$submbtype: submacroblock types   [VP2 only]  [vdec/vuc/vreg.txt]
+  - $sr31/???: ??? [XXX]            [VP3+ only] [vdec/vuc/vreg.txt]
+  - $sr32/$amvxl0: A neighbour's $mvxl0         [vdec/vuc/vreg.txt]
+  - $sr33/$amvyl0: A neighbour's $mvyl0         [vdec/vuc/vreg.txt]
+  - $sr34/$amvxl1: A neighbour's $mvxl1         [vdec/vuc/vreg.txt]
+  - $sr35/$amvyl1: A neighbour's $mvyl1         [vdec/vuc/vreg.txt]
+  - $sr36/$arefl0: A neighbour's $refl0         [vdec/vuc/vreg.txt]
+  - $sr37/$arefl1: A neighbour's $refl1         [vdec/vuc/vreg.txt]
+  - $sr38/$arpil0: A neighbour's $rpil0         [vdec/vuc/vreg.txt]
+  - $sr39/$arpil1: A neighbour's $rpil1         [vdec/vuc/vreg.txt]
+  - $sr40/$ambflags: A neighbour's $mbflags         [vdec/vuc/vreg.txt]
+  - $sr41/$aqpy: A neighbour's $qpy     [VP2 only]  [vdec/vuc/vreg.txt]
+  - $sr42/$aqpc: A neighbour's $qpc     [VP2 only]  [vdec/vuc/vreg.txt]
+  - $sr48/$bmvxl0: B neighbour's $mvxl0         [vdec/vuc/vreg.txt]
+  - $sr49/$bmvyl0: B neighbour's $mvyl0         [vdec/vuc/vreg.txt]
+  - $sr50/$bmvxl1: B neighbour's $mvxl1         [vdec/vuc/vreg.txt]
+  - $sr51/$bmvyl1: B neighbour's $mvyl1         [vdec/vuc/vreg.txt]
+  - $sr52/$brefl0: B neighbour's $refl0         [vdec/vuc/vreg.txt]
+  - $sr53/$brefl1: B neighbour's $refl1         [vdec/vuc/vreg.txt]
+  - $sr54/$brpil0: B neighbour's $rpil0         [vdec/vuc/vreg.txt]
+  - $sr55/$brpil1: B neighbour's $rpil1         [vdec/vuc/vreg.txt]
+  - $sr56/$bmbflags: B neighbour's $mbflags         [vdec/vuc/vreg.txt]
+  - $sr57/$bqpy: B neighbour's $qpy             [vdec/vuc/vreg.txt]
+  - $sr58/$bqpc: B neighbour's $qpc             [vdec/vuc/vreg.txt]
+
+There are 7 address spaces the vµc can access:
+
+- D[] - user data                   [vdec/vuc/isa.txt]
+- PWT[] - pred weight table data, read-only. This space is filled when
+  a packet of type 4 is read from the MBRING. Byte-addressed, 0x200
+  bytes long, loads are in byte units.
+- VP[] - VPRING output data, write-only. Data stored here will be written to
+  VPRING_DEBLOCK and VPRING_CTRL when corresponding commands are
+  invoked. Byte-addressed, 0x400 bytes long. Stores are in byte or
+  word units depending on the address.
+- MVSI[] - MVSURF input data [read-only]        [vdec/vuc/mvsurf.txt]
+- MVSO[] - MVSURF output data [write-only]      [vdec/vuc/mvsurf.txt]
+- B6[] - io address space? [XXX]
+- B7[] - io address space? [XXX]
+
+The vµc code resides in the code space, separate from the above spaces. The
+code space is a dedicated SRAM of 0x800 instruction words. An instruction word
+consists of 40 bits on VP2, 30 bits on VP3.
+
+
+The delays
+==========
+
+The vµc lacks interlocks - on every cycle when vµc microcprocessor is active
+and not sleeping/waiting, one instruction begins execution. Most instructions
+finish in one cycle. However, when an instruction takes more than one cycle to
+finish, vµc will continue to fetch and execute subsequent instructions even
+if they have dependencies on the current instruction - it is thus required to
+manually insert nops in the code or schedule instructions to avoid such
+situations.
+
+An X-cycle instruction happens in three phases:
+
+- cycle 0: source read - the inputs to the instruction are gathered
+- cycles 0..(X-1): result computation -
+- cycle X: destination writeout - the results are stored into the destination
+  registers
+
+For example, add $r1 $r2 $r3 is a 1-cycle instruction. On cycle 0, the sources
+are read and the result is computed. On cycle 1, in parallel with executing
+the next instruction, the result is written out to $r1.
+
+The extra cycle for destination writeout means that, in general, it's required
+to have at least 1 unrelated instruction between writing a register and reading
+it. However, vµc implements store-to-load forwarding for some common cases -
+the result value, which is already known on cycle (X-1), is transferred
+directly into the next instruction, if there's a match betwen the next
+instruction's source register index and current instruction's destination
+register index. Store-to-load forwarding happens in the following situations:
+
+- all $r register reads and writes
+- all $p register reads and writes, except by accessing them through $pred
+  special register
+- $lhi/$llo register reads and writes done implicitely by long arithmetic
+  instructions
+
+Store-to-load forwarding does NOT happen in the following situations:
+
+- $sr register reads and writes
+
+Example 1:
+    ::
+        add $r1 $r2 $r3
+        add $r4 $r1 $r5
+
+    No delay needed, store-to-load forwarding happens:
+
+    - cycle 0: $r2 and $r3 read, $r2+$r3 computed
+    - cycle 1: $r5 read, previous result read due to l-t-s forwarding match
+      for $r1, prev+$r5 computed, previous result written to $r1
+    - cycle 2: next instruction begins execution, insn 1 result written to
+      $r5
+
+Example 2 [missing delay]:
+    ::
+        add $mvxl0 $r2 $r3
+        add $r4 $mvxl0 $r5
+
+    Delay needed, but not supplied - store-to-load forwarding doesn't
+    happen and old value is read:
+
+    - cycle 0: $r2 and $r3 read, $r2+$r3 computed
+    - cycle 1: $mvxl0 and $r5 read, $mvxl0+$r5 computed, previous result
+      written to $mvxl0
+    - cycle 2: next instruction begins execution, insn 1 result written to
+      $r5
+
+    Code is equivalent to::
+ 
+        $r4 = $mvxl0 + $r5;
+        $mvxl0 = $r2 + $r3;
+
+Example 3 [proper delay]:
+    ::
+        add $mvxl0 $r2 $r3
+        nop
+        add $r4 $mvxl0 $r5
+
+    Delay needed and supplied:
+
+    - cycle 0: $r2 and $r3 read, $r2+$r3 computed
+    - cycle 1: nop executes, previous result written to $mvxl0
+    - cycle 2: new $mvxl0 and $r5 read, $mvxl0+$r5 computed
+    - cycle 3: next instruction begins execution, insn 2 result written to
+      $r5
+
+    Code is equivalent to::
+
+        $mvxl0 = $r2 + $r3;
+        $r4 = $mvxl0 + $r5;
+
+Since long-running instructions use execution units during their execution,
+it's usually forbidden to launch other instructions using the same execution
+units until the first instruction is finished. When such execution unit
+conflict happens, the old instruction is aborted.
+
+It is possible that two instructions with different write delays will try to
+perform a register write in the same cycle (e.g. ld-nop-mov sequence). If the
+write destinations are different, both writes will happen as expected. If the
+write destinations are the same, destination carries the value of the last
+write.
+
+The branch instructions take two cycles to finish - the instruction after the
+jump [the delay slot] is executed regardless of whether the jump is taken or
+not.
+
+
+The opcode format
+=================
+
+The opcode bits are:
+
+- 0-4: opcode selection [OP]
+- 5-6, base opcodes: predicate output mode [POM]
+
+  - 00: $p &= predicate output
+  - 01: $p \|= predicate output
+  - 10: $p = predicate output
+  - 11: predicate output discarded
+
+- 7, base opcodes: predicate output negation flag [PON]
+- 5-7, special opcodes: special opcode class selection [OC]
+
+  - 000: control flow
+  - 001: io control
+  - 010: predicate manipulation
+  - 100: load/store
+  - 101: multiplication
+
+- 8-11: source 1 [SRC1]
+- 12-15: source 2 [SRC2]
+- 16-19: destionation [DST]
+- 8-18: branch target [BTARG]
+- 20-23: predicate [PRED]
+- 24-25: extra bits for immediate and $sr [EXT]
+- 26: opcode type 0 [OT0]
+- 27: source 2 immediate flag [IMMF]
+- 28: opcode type 1 [OT1]
+- 29: predicate enable flag [PE]
+- 30-32: relative branch predicate [RBP] - VP2 only
+- 33: relative branch predicate negation flag [RBN] - VP2 only
+- 34-39: relative branch target [RBT] - VP2 only
+
+On VP2, a single instruction word holds two instruction slots - the normal
+instruction slot in bits 0-29, and the relative branch instruction slot in
+bits 30-39. When the instruction is executed, both instruction slots are
+executed simultanously and independently.
+
+The relative branch slot can hold only one type of instruction, which is the
+relative branch. The main slot can hold all other types of instructions.
+It's possible to encode two different jumps in one opcode by utilising both the
+branch slot and the main instruction slot for a branch. The branch will take
+place if any of the two branch conditions match. If both branch conditions
+match, the actual branch executed is the one in the main slot.
+
+On VP3+, the relative branch slot no longer exists, and the main slot makes up
+the whole instruction word.
+
+There are two major types of opcodes that can be stored in the main slot: base
+opcodes and special opcodes. The type of instruction in the main slot is
+determined by OT0 and OT1 bits:
+
+- OT0 = 0, OT1 = 0: base opcode, $r destination, $r source 1
+- OT0 = 1, OT1 = 0: base opcode, $r destination, $sr source 1
+- OT0 = 0, OT1 = 1: base opcode, $sr destination, $r source 1
+- OT0 = 1, OT1 = 1: special opcode
+
+For base opcodes, the OP bits determine the final opcode:
+
+- 00000: slct      [slct form] select
+- 00001: mov       [mov form]  move
+- 00100: add       [binary form]   add
+- 00101: sub       [binary form]   substract
+- 00110: subr      [binary form]   substract reverse   [VP2 only]
+- 00110: avgs      [binary form]   average signed      [VP3+ only]
+- 00111: avgu      [binary form]   average unsigned    [VP3+ only]
+- 01000: setgt     [set form]  set if greater than
+- 01001: setlt     [set form]  set if less than
+- 01010: seteq     [set form]  set if equal to
+- 01011: setlep    [set form]  set if less or equal and positive
+- 01100: clamplep  [binary form]   clamp to less or equal and positive
+- 01101: clamps    [binary form]   clamp signed
+- 01110: sext      [binary form]   sign extension
+- 01111: setzero   [set form]  set if both zero    [VP2 only]
+- 01111: div2s     [unary form]    divide by 2 signed  [VP3+ only]
+- 10000: bset      [binary form]   bit set
+- 10001: bclr      [binary form]   bit clear
+- 10010: btest     [set form]  bit test
+- 10100: hswap     [unary form]    swap reg halves
+- 10101: shl       [binary form]   shift left
+- 10110: shr       [binary form]   shift right
+- 10111: sar       [binary form]   shift arithmetic right
+- 11000: and       [binary form]   bitwise and
+- 11001: or        [binary form]   bitwise or
+- 11010: xor       [binary form]   bitwise xor
+- 11011: not       [unary form]    bitwise not
+- 11100: lut       [binary form]   video LUT lookup
+- 11101: min       [binary form]   minimum         [VP3+ only]
+- 11110: max       [binary form]   maximum         [VP3+ only]
+
+For special opcodes, the OC bits determine the opcode class, and OP bits
+further determine the opcode inside that class. The classes and opcodes are:
+
+- OC 000: control flow
+
+  - 00000: bra      [branch form]       branch
+  - 00010: call     [branch form]       call
+  - 00011: ret      [simple form]       return
+  - 00100: sleep    [simple form]       sleep
+  - 00101: wstc     [immediate form]    wait for status bit clear
+  - 00110: wsts     [immediate form]    wait for status bit set
+
+- OC 001: io control
+
+  - 00000: clicnt   [simple form]       clear instruction counter
+  - 00001: ??? [XXX]    [simple form]
+  - 00010: ??? [XXX]    [simple form]
+  - 00011: ??? [XXX]    [simple form]
+  - 00100: mbiread  [simple form]       macroblock input read
+  - 00101: ??? [XXX]    [simple form]
+  - 00110: ??? [XXX]    [simple form]
+  - 01000: mbinext  [simple form]       macroblock input next
+  - 01001: mvsread  [simple form]       MVSURF read
+  - 01010: mvswrite [simple form]       MVSURF write
+  - 01011: ??? [XXX]    [simple form]
+  - 01100: ??? [XXX]    [simple form]
+
+- OC 010: predicate manipulation
+
+  - xxx00: and      [predicate form]    and
+  - xxx01: or       [predicate form]    or
+  - xxx10: xor      [predicate form]    xor
+  - xxx11: nop      [simple form]       no operation
+
+- OC 100: load/store
+
+  - xxxx0: st       [store form]        store
+  - xxxx1: ld       [load form]     load
+
+- OC 101: long arithmetic
+
+  - 00000: lmulu    [long binary form]  long multiply unsigned
+  - 00001: lmuls    [long binary form]  long multiply signed
+  - 00010: lsrr     [long unary form]   long shift right with round
+  - 00100: ladd     [long unary form]   long add            [VP3+ only]
+  - 01000: lsar     [long unary form]   long shift right arithmetic [VP3+ only]
+  - 01100: ldivu    [long unary form]   long divide unsigned        [VP4 only]
+
+All main slot opcodes can be predicated by an arbitrary $p register. The PE
+bit enables predication. If PE bit is 1, the main slot instruction will only
+have an effect if the $p register selected by PRED field has value 1. Note
+that PE bit also has an effect on instruction format - longer immediates are
+allowed, and the predicate destination field changes.
+
+Note that, for some formats, opcode fields may be used for multiple purposes.
+For example, mov instruction with PE=1 and IMMF=1 uses PRED bitfield both as
+the predicate selector and as the middle part of the immediate operand. Such
+formats should be avoided unless it can be somehow guaranteed that the value
+in the field will fit all purposes it's used for.
+
+The base opcodes have the following operands:
+
+- binary form: pdst, dst, src1, src2
+- unary form:  pdst, dst, src1
+- set form:    pdst, src1, src2
+- slct form:   pdst, dst, pred, src1, src2
+- mov form:    pdst, dst, lsrc
+
+The operands and their encodings are:
+
+- pdst: predicate destination - this operand is special, as it can be used
+  in several modes. First, the instruction generates a boolean predicate
+  result. Then, if PON bit is set, this output is negated. Finally, it is
+  stored to a $p register in one of 4 modes:
+
+  - POM = 00: $p &= output
+  - POM = 01: $p \|= output
+  - POM = 10: $p = output
+  - POM = 11: output is discarded
+
+  The $p output register is:
+
+  - PE = 0: $p register selected by PRED field
+  - PE = 1: $p register selected by DST field
+
+- dst: main destination
+
+  - OT0 = 1 or OT1 = 0: $r register selected by DST field
+  - OT0 = 0 and OT1 = 1: $sr register selected by DST [low bits] and EXT
+    [high bits] fields
+- pred - predicate source
+
+  - all cases: $p register selected by PRED field
+
+- src1: first source
+
+  - OT0 = 0 or OT1 = 1: $r register selected by SRC1 field,
+  - OT0 = 1 and OT1 = 0: $sr register selected by SRC1 [low bits] and EXT
+    [high bits] fields.
+
+- src2: second source
+
+  - IMMF = 0: $r register selected by SRC2 field
+  - IMMF = 1 and OT0 = OT1:. zero-extended 6-bit immediate value stored in
+    SRC2 [low bits] and EXT [high bits] fields.
+  - IMMF = 1 and OT0 != OT1: zero-extended 4-bit immediate value stored in
+    SRC2 field.
+
+- lsrc: long source
+
+  - IMMF = 0: $r register selected by SRC2 field
+  - IMMF = 1 and OT1 = 0:. zero-extended 14-bit immediate value stored in
+    SRC1 [low bits], SRC2 [low middle bits], PRED [high middle bits] and EXT
+    [high bits] fields.
+  - IMMF = 1 and OT1 = 1:. zero-extended 12-bit immediate value stored in
+    SRC1 [low bits], SRC2 [middle bits] and PRED [high bits] fields
+
+The special opcodes have the following operands:
+
+- simple form:     [none]
+- immediate form:  imm4
+- branch form:     btarg
+- predicate form:  spdst, psrc1, psrc2
+- store form:      space[dst + src1 * 2], src2 [if IMMF is 0]
+- store form:      space[src1 + stoff], src2   [if IMMF is 1]
+- load form:       dst, space[src1 + ldoff]    [if IMMF is 0]
+- load form:       dst, space[src1 + src2]     [if IMMF is 1]
+- long binary form:    src1, src2
+- long unary form: src2
+
+The operands and their encodings are:
+
+- src1, src2, dst: like for base opcodes
+- imm4: 4-bit immediate
+
+  - all cases: 4-bit immediate stored in SRC2 field
+
+- btarg: code address
+
+  - all cases: 11-bit immediate stored in BTARG field
+
+- spdst: predicate destination
+
+  - PE = 0: $p register selected by PRED field
+  - PE = 1: $p register selected by DST field
+
+- psrc1: predicate source 1, optionally negated
+
+  - all cases: $p register selected by SRC1 field, negated if bit 3 of OP
+    field is set
+
+- psrc2: predicate source 2, optionally negated
+
+  - all cases: $p register selected by SRC2 field, negated if bit 2 of OP
+    field is set
+
+- space: memory space selection, OP field bits 1-4:
+
+  - 0000: D[]
+  - 0001: PWT[] - ld only
+  - 0010: VP[] - st only
+  - 0100: MVSI[] - ld only
+  - 0101: MVSO[] - st only
+  - 0110: B6[]
+  - 0111: B7[]
+
+- stoff: store offset
+
+  - PE = 0: 10-bit zero-extended immediate stored in DST [low bits], PRED
+    [middle bits] and EXT [high bits] fields
+  - PE = 1: 6-bit zero-extended immediate stored in DST [low bits] and EXT
+    [high bits] fields
+
+- ldoff: load offset
+
+  - PE = 0: 10-bit zero-extended immediate stored in SRC2 [low bits], PRED
+    [middle bits] and EXT [high bits] fields
+  - PE = 1: 6-bit zero-extended immediate stored in SRC2 [low bits] and EXT
+    [high bits] fields
+
+
+The code space and execution control
+====================================
+
+The vµc executes instructions from dedicated code SRAM. The code SRAM is made
+of 0x800 cells, with each cell holding one opcode. Thus, a cell is 40 bits
+wide on VP2, 30 bits wide on VP3+. The code space is addressed in opcode
+units, with addresses 0-0x7ff. The only way to access the code space other
+than via executing instructions from it is through the code port:
+
+BAR0 0x103288 / XLMI 0x0a200: CODE_CONTROL [VP2]
+BAR0 0x085440 / I[0x11000]: CODE_CONTROL [VP3+]
+  bits 0-10: ADDR, cell address to access by CODE_WINDOW
+  bit 16: STATE, code execution control: 0 - code is being executed,
+    CODE_WINDOW doesn't work, 1 - microprocessor is halted, CODE_WINDOW is
+    enabled
+
+BAR0 0x10328c / XLMI 0x0a300: CODE_WINDOW [VP2]
+BAR0 0x085444 / I[0x11100]: CODE_WINDOW [VP3+]
+  Accesses the code space - see below
+
+On VP3+, reading or writing the CODE_WINDOW register will cause a read/write
+of the code space cell selected by ADDR, with the cell value taken from /
+appearing at bits 0-29 of CODE_WINDOW. ADDR is auto-incremented by 1 with each
+access.
+
+On VP2, since code space cells are 40 bits long, accessing a cell requires two
+accesses to CODE_WINDOW. The cell is divided into 32-bit low part and 8-bit
+high part. There is an invisible 1-bit flipflop that selects whether the high
+part or the low part will be accessed next. The low part is accessed first,
+then the high part. Writing CODE_CONTROL will reset the flipflop to the low
+part. Accessing CODE_WINDOW with the flipflop set to the low part will access
+the low part, then switch the flipflop to the high part. Accessing CODE_WINDOW
+with the flipflop set to the high part will access the high part [through bits
+0-7 of CODE_WINDOW], switch the flipflop to the low part, and auto-increment
+ADDR by 1. In addition, writes through CODE_WINDOW are buffered - writing the
+low part writes a shadow register, writing the high part assembles it with the
+current shadow register value and writes the concatenated result to the code
+space.
+
+The STATE bit is used to control vµc execution. This bit is set to 1 when the
+vµc is reset. When this bit is changed from 1 to 0, the vµc starts executing
+instructions starting from code address 0. When this bit is changed from 1 to
+0, the vµc execution is halted.
+
+
+The data space
+==============
+
+D[] is a read-write memory space consisting of 0x800 16-bit cells. Every
+address in range 0-0x7ff corresponds to one cell. The D[] space is used for
+three purposes:
+
+- to store general-purpose data by microcode/host and communicate between
+  the microcode and the host
+- to store the RPI table, a mapping from bitstream reference indices to hw
+  surface indices [RPIs], used directly by hardware [vdec/vuc/vreg.txt]
+- to store the REF table, a mapping from RPIs to surface VM addresses, used
+  directly by hardware [VP3+] [vdec/vuc/vreg.txt]
+
+On VP2, the D[] space can be accessed from the host directly by using the DATA
+window:
+
+BAR0 0x103200 + (i >> 6) * 4 [index i & 0x3f] / XLMI 0x08000 + i * 4, i < 0x800: DATA[i] [VP2]
+  Accesses the data space - low 16 bits of DATA[i] go to D[] cell i, high 16
+  bits are unused.
+
+On VP3+, the DATA window also exists, but cells are accessed in pairs:
+
+BAR0 0x085400 + (i >> 6) * 4 [index i & 0x3f] / I[0x10000 + i * 4], i < 0x400: DATA[i] [VP3+]
+  Accesses the data space - low 16 bits of DATA[i] go to D[] cell i*2, high 16
+  bits go to D[] cell i*2+1.
+
+The D[] space can be both read and written via the DATA window.
+
+
+Instruction reference
+=====================
+
+In the pseudocode, all intermediate computation results and temporary
+variables are assumed to be infinite-precision signed integers: non-negative
+integers are padded at the left with infinite number of 0 bits, while negative
+integers are padded with infinite number of 1 bits.
+
+When assigning a result to a finite-precision register, any extra bits are
+chopped off. When reading a value from a finite-precision register, it's
+padded with infinite number of 0 bits at the left by default. A sign-extension
+read, where the register value is padded with infinite number of copies of its
+MSB instead, is written as SEX(reg).
+
+Operators used in the pseudocode behave as in C.
+
+Some instructions are described elsewhere. They are:
+
+- lut      [vdec/vuc/vreg.txt]
+- sleep    [in $stat register description]
+- wstc     [in $stat register description]
+- wsts     [in $stat register description]
+- clicnt   [XXX]
+- mbiread  [vdec/vuc/vreg.txt]
+- mbinext  [vdec/vuc/vreg.txt]
+- mvsread  [vdec/vuc/mvsurf.txt]
+- mvswrite [vdec/vuc/mvsurf.txt]
+
+
+Data movement instructions: slct, mov
+-------------------------------------
+
+mov sets the destination to the value of the only source. slct sets the
+destination to the value of one of the sources, as selected by a predicate.
+
+Instruction: slct pdst, dst, pred, src1, src2
+Opcode: base opcode, OP = 00000
+Operation::
+    result = (pred ? src1 : src2);
+    dst = result;
+    pdst = result & 1;
+Execution time: 1 cycle
+Predicate output: LSB of normal result
+
+Instruction: mov pdst, dst, lsrc
+Opcode: base opcode, OP = 00001
+Operation::
+    result = lsrc;
+    dst = result;
+    pdst = result & 1;
+Execution time: 1 cycle
+Predicate output: LSB of normal result
+
+
+Addition instructions: add, sub, subr, avgs, avgu
+-------------------------------------------------
+
+add performs an addition of two 16-bit quantities, sub and subr perform
+substraction, subr with reversed order of operands. avgs and avgu compute
+signed and unsigned average of two sources, rounding up. If predicate output
+is used, the predicate is set to the lowest bit of the result.
+
+Instructions::
+    add pdst, dst, src1, src2   OP=00100
+    sub pdst, dst, src1, src2   OP=00101
+    subr pdst, dst, src1, src2  OP=00110 [VP2 only]
+    avgs pdst, dst, src1, src2  OP=00110 [VP3+ only]
+    avgu pdst, dst, src1, src2  OP=00111 [VP3+ only]
+Opcode: base opcode, OP as above
+Operation::
+    if (op == add) result = src1 + src2;
+    if (op == sub) result = src1 - src2;
+    if (op == subr) result = src2 - src1;
+    if (op == avgs) result = (SEX(src1) + SEX(src2) + 1) >> 1;
+    if (op == avgu) result = (src1 + src2 + 1) >> 1;
+    dst = result;
+    pdst = result & 1;
+Execution time: 1 cycle
+Predicate output: LSB of normal result
+
+
+Comparison instructions: setgt, setlt, seteq, setlep, setzero
+-------------------------------------------------------------
+
+setgt, setlt, seteq perform signed >, <, == comparison on two source operands
+and return the result as pdst. setlep returns 1 if src1 is in range [0, src2].
+All comparisons are signed 16-bit. setzero returns 1 if both src1 and src2 are
+equal to 0.
+
+Instructions::
+    setgt pdst, src1, src2      OP=01000
+    setlt pdst, src1, src2      OP=01001
+    seteq pdst, src1, src2      OP=01010
+    setlep pdst, src1, src2     OP=01011
+    setzero pdst, src1, src2    OP=01111 [VP2 only]
+Opcode: base opcode, OP as above
+Operation::
+    if (op == setgt) result = SEX(src1) < SEX(src2);
+    if (op == setlt) result = SEX(src1) > SEX(src2);
+    if (op == seteq) result = src1 == src2;
+    if (op == setlep) result = SEX(src1) <= SEX(src2) && SEX(src1) >= 0;
+    if (op == setzero) result = src1 == 0 && src2 == 0;
+    pdst = result;
+Execution time: 1 cycle
+Predicate output: the comparison result
+
+
+Clamping and sign extension instructions: clamplep, clamps, sext
+----------------------------------------------------------------
+
+clamplep clamps src1 to [0, src2] range. clamps, like the xtensa instruction
+of the same name, clamps src1 to [-(1 << src2), (1 << src2) - 1] range, ie.
+to the set of (src2+1)-bit signed integers. sext, like the xteansa and falcon
+instructions of the same name, replaces bits src2 and up with a copy of bit
+src2, effectively doing a sign extension from a (src2+1)-bit signed number.
+
+Instructions::
+    clamplep pdst, dst, src1, src2  OP=01100
+    clamps pdst, dst, src1, src2    OP=01101
+    sext pdst, dst, src1, src2  OP=01110
+Opcode: base opcode, OP as above
+Operation::
+    if (op == clamplep) {
+        result = src1;
+        presult = 0;
+        if (SEX(src1) < 0) {
+            presult = 1;
+            result = 0;
+        }
+        if (SEX(src1) > SEX(src2)) {
+            presult = 1;
+            result = src2;
+        }
+    }
+    if (op == clamps) {
+        bit = src2 & 0xf;
+        result = src1;
+        presult = 0;
+        if (SEX(src1) < -(1 << bit)) {
+            result = -(1 << bit);
+            presult = 1;
+        }
+        if (SEX(src1) > (1 << bit) - 1) {
+            result = (1 << bit) - 1;
+            presult = 1;
+        }
+    }
+    if (op == sext) {
+        bit = src2 & 0xf;
+        presult = src1 >> bit & 1;
+        if (presult)
+            result = jrc1 | -(1 << bit);
+        else
+            result = src1 & ((1 << bit) - 1);
+    }
+    dst = result;
+    pdst = presult;
+Execution time: 1 cycle
+Predicate output:
+    clamplep, clamps: 1 if clamping happened
+    sext: 1 if result < 0
+
+
+Division by 2 instruction: div2s
+--------------------------------
+
+div2s divides a signed number by 2, rounding to 0.
+
+Instructions::
+    div2s pdst, dst, src1       OP=01111 [VP3+ only]
+Opcode: base opcode, OP as above
+Operation::
+    if (SEX(src1) < 0) {
+        result = (SEX(src1) + 1) >> 1;
+    } else {
+        result = src1 >> 1;
+    }
+    dst = result;
+    pdst = result < 0;
+Execution time: 1 cycle
+Predicate output: 1 if result is negative
+
+
+Bit manipulation instructions: bset, bclr, btest
+------------------------------------------------
+
+bset and bclr set or clear a single bit in a value. btest copies a selected
+bit to a $p register.
+
+Instructions::
+    bset pdst, dst, src1, src2  OP=10000
+    bclr pdst, dst, src1, src2  OP=10001
+    btest pdst, src1, src2      OP=10010
+Opcode: base opcode, OP as above
+Operation::
+    bit = src2 & 0xf;
+    if (op == bset) {
+        result = src1 | 1 << bit;
+        presult = result & 1;
+        dst = result;
+    }
+    if (op == bclr) {
+        dst = result = src1 & ~(1 << bit)
+        presult = result & 1;
+        dst = result;
+    }
+    if (op == btest) {
+        presult = src1 >> bit & 1;
+    }
+    pdst = presult;
+Execution time: 1 cycle
+Predicate output:
+    bset, bclr: bit 0 of the result
+    btest: the selected bit
+
+
+Swapping reg halves: hswap
+--------------------------
+
+hswap, like the falcon instruction of the same name, rotates a value by half its
+size, which is always 8 bits for vµc.
+
+Instructions::
+    hswap pdst, dst, src1       OP=10100
+Opcode: base opcode, OP as above
+Operation::
+    result = src1 >> 8 | src1 << 8;
+    dst = result;
+    pdst = result & 1;
+Execution time: 1 cycle
+Predicate output: bit 0 of the result
+
+
+Shift instructions: shl, shr, sar
+---------------------------------
+
+shl does a left shift, shr does a logical right shift, sar does an arithmetic
+right shift.
+
+Instructions::
+    shl pdst, dst, src1, src2   OP=10101
+    shr pdst, dst, src1, src2   OP=10110
+    sar pdst, dst, src1, src2   OP=10111
+Opcode: base opcode, OP as above
+Operation::
+    shift = src2 & 0xf;
+    if (op == shl) {
+        result = src1 << shift;
+        presult = result >> 16 & 1;
+    }
+    if (op == shr) {
+        result = src1 >> shift;
+        if (shift != 0) {
+            presult = presult = src1 >> (shift - 1) & 1;
+        } else {
+            presult = 0;
+        }
+    }
+    if (op == sar) {
+        result = SEX(src1) >> shift;
+        if (shift != 0) {
+            presult = presult = src1 >> (shift - 1) & 1;
+        } else {
+            presult = 0;
+        }
+    }
+    dst = result;
+    pdst = presult;
+Execution time: 1 cycle
+Predicate output: the last bit shifted out
+
+
+Bitwise instructions: and, or, xor, not
+---------------------------------------
+
+No comment.
+
+Instructions::
+    and pdst, dst, src1, src2   OP=11000
+    or pdst, dst, src1, src2    OP=11001
+    xor pdst, dst, src1, src2   OP=11010
+    not pdst, dst, src1     OP=11011
+Opcode: base opcode, OP as above
+Operation::
+    if (op == and) result = src1 & src2;
+    if (op == or) result = src1 | src2;
+    if (op == xor) result = src1 ^ src2;
+    if (op == not) result = ~src1;
+    dst = result;
+    pdst = result & 1;
+Execution time: 1 cycle
+Predicate output: bit 0 of the result
+
+
+Minmax instructions: min, max
+-----------------------------
+
+These instructions perform the signed min/max operations.
+
+Instructions::
+    min pdst, dst, src1, src2   OP=11101 [VP3+ only]
+    max pdst, dst, src1, src2   OP=11110 [VP3+ only]
+Opcode: base opcode, OP as above
+Operation::
+    if (op == min) which = (SEX(src2) < SEX(src1));
+    if (op == max) which = (SEX(src2) >= SEX(src1));
+    dst = (which ? src2 : src1);
+    pdst = which;
+Execution time: 1 cycle
+Predicate output: 0 if src1 is selected as the result, 1 if src2 is selected
+
+
+Predicate instructions: and, or, xor
+------------------------------------
+
+These instruction perform the corresponding logical ops on $p registers. Note
+that one of both inputs can be negates, as mentioned in psrc1/psrc2 operand
+description.
+
+Instructions::
+    and spdst, psrc1, psrc2     OP=xxx00
+    or spdst, psrc1, psrc2      OP=xxx01
+    xor spdst, psrc1, psrc2     OP=xxx10
+Opcode: special opcode with OC=010, OP as above. Note that bits 2 and 3 of OP
+        are used for psrc1 and psrc2 negation flags.
+Operation::
+    if (op == and) spdst = psrc1 & psrc2;
+    if (op == or) spdst = psrc1 | psrc2;
+    if (op == xor) spdst = psrc1 ^ psrc2;
+Execution time: 1 cycle
+
+
+No operation: nop
+-----------------
+
+Does nothing.
+
+Instructions::
+    nop             OP=xxx11
+Opcode: special opcode with OC=010, OP as above.
+Operation::
+    /* nothing */
+Execution time: 1 cycle
+
+
+Long multiplication instructions: lmulu, lmuls
+----------------------------------------------
+
+These instructions perform signed and unsigned 16x11 -> 32 bit multiplication.
+src1 holds the 16-bit source, while low 11 bits of src2 hold the 11-bit
+source. The result is written to $lhi:$llo.
+
+Instructions::
+    lmulu src1, src2        OP=00000
+    lmuls src1, src2        OP=00001
+Opcode: special opcode with OC=101, OP as above
+Operation::
+    if (op == umul) {
+        result = src1 * (src2 & 0x7ff);
+    if (op == smul) {
+        /* sign extension from 11-bit number */
+        s2 = src2 & 0x7ff;
+        if (s2 & 0x400)
+            s2 -= 0x800;
+        result = SEX(src1) * s2;
+    }
+    $llo = result;
+    $lhi = result >> 16;
+Execution time: 3 cycles
+Execution unit conflicts: lmulu, lmuls, lsrr, ladd, lsar, ldivu
+
+
+Long arithmetic unary instructions: lsrr, ladd, lsar, ldivu
+-----------------------------------------------------------
+
+These instruction operate on the 32-bit quantity in $lhi:$llo. ladd adds
+a signed 16-bit quantity to it. lsar shifts it right arithmetically by
+a given amount. ldivu does an unsigned 32/16 -> 32 division. lsrr divides
+it by 2^(src2 + 1), rounding to nearest with ties rounded up.
+
+Instructions::
+    lsrr src2       OP=00010
+    ladd src2       OP=00100 [VP3+ only]
+    lsar src2       OP=01000 [VP3+ only]
+    ldivu src2      OP=01100 [VP4 only]
+Opcode: special opcode with OC=101, OP as above
+Operation::
+    val = SEX($lhi) << 16 | $llo;
+    if (op == lsrr) {
+        bit = src2 & 0x1f;
+        val += 1 << bit;
+        val >>= (bit + 1);
+    }
+    if (op == ladd) val += SEX(src2);
+    if (op == lsar) val >>= src2 & 0x1f;
+    if (op == ldivu)
+        val &= 0xffffffff;
+        if (src2)
+            val /= src2;
+        else
+            val = 0xffffffff;
+    }
+    $llo = val;
+    $lhi = val >> 16;
+Execution time:
+    lsrr: 1 cycle
+    ladd: 1 cycle
+    lsar: 1 cycle
+    ldivu: 34 cycles
+Execution unit conflicts: lmulu, lmuls, lsrr, ladd, lsar, ldivu
+
+
+Control flow instructions: bra, call, ret
+-----------------------------------------
+
+.. todo:: write me
+
+* Flow:
+    0x00: [bra TARGET]
+          bra IMM?
+        Branch to address.
+        Delay: 1 instruction
+    
+    0x02: [call TARGET]
+          call IMM?
+        XXX: stack and calling convention
+    0x03: [ret]
+          ret
+        TODO: delay (blob: 1)
+        XXX: stack and calling convention
+
+
+Memory access instructions: ld, st
+----------------------------------
+
+These instructions load and store values from/to one of the memory spaces
+available to the vµc microprocessor. The exact semantics of such operation
+depend on the space being accessed.
+
+Instructions::
+    st space[dst + src1 * 2], src2  OP=xxxx0    [if IMMF is 0]
+    st space[src1 + stoff], src2    OP=xxxx0    [if IMMF is 1]
+    ld dst, space[src1 + ldoff] OP=xxxx1    [if IMMF is 0]
+    ld dst, space[src1 + src2]  OP=xxxx1    [if IMMF is 1]
+Opcode: Special opcode with OC=100, OP as above. Note that btis 1-4 of OP are
+        used to select memory space.
+Operation::
+    if (op == st)
+        space.STORE(address, src2);
+    else
+        dst = space.LOAD(address);
+Execution time:
+    ld: 3 cycles
+    st: 1 cycle
+
+
+The scratch special registers
+=============================
+
+The vµc has two 16-bit scratch registers that may be used for communication
+between vµc and the host [xtensa/falcon code counts at the host in this case].
+One of them is for host -> vµc direction, the other for vµc -> host.
+
+The host -> vµc register is called $h2v. It's RW on the host side, RO on vµc
+side. Writing this register causes bit 11 of $stat register to light up and
+stay up until $h2v is read on vµc side.
+
+$sr4/$h2v: host->vµc 16-bit scratch register. Reading this register will
+clear bit 11 of $stat. This register is read-only.
+
+BAR0 0x103290 / XLMI 0x0a400: H2V [VP2]
+BAR0 0x085450 / I[0x11400]: H2V [VP3+]
+  A read-write alias of $h2v. Does not clear $stat bit 11 when read. Writing
+  sets bit 11 of $stat
+
+$stat bit 11: $h2v write pending. This bit is set when H2V is written by host,
+cleared when $h2v is read by vµc.
+
+The vµc -> host register is called $v2h. It's RW on the vµc side, RO on host
+side. Writing this register causes an interrupt to be triggered.
+
+$sr5/$v2h: vµc->host 16-bit scratch register, read-write. Writing this
+register will trigger V2H vµc interrupt.
+
+BAR0 0x103294 / XLMI 0x0a500: V2H [VP2]
+BAR0 0x085454 / I[0x11500]: V2H [VP3+]
+  A read-only alias of $v2h.
+
+
+The $stat special register
+==========================
+
+Every bit in this register performs a different function. All of them can be
+read. For the ones that can be written, value 0 serves as a noop, while value
+1 triggers some operation.
+
+$sr6/$stat: Control and status register.
+
+  - bit 0 [VP2]: VPRING_DEBLOCK buffer 0 write trigger    [vdec/vuc/vpring.txt]
+  - bit 1 [VP2]: VPRING_DEBLOCK buffer 1 write trigger    [vdec/vuc/vpring.txt]
+  - bit 2 [VP2]: VPRING_CTRL buffer 0 write trigger   [vdec/vuc/vpring.txt]
+  - bit 3 [VP2]: VPRING_CTRL buffer 1 write trigger   [vdec/vuc/vpring.txt]
+  - bit 0 [VP3+]: ??? [XXX]
+  - bit 1 [VP3+]: ??? [XXX]
+  - bit 2 [VP3+]: ??? [XXX]
+  - bit 3 [VP3+]: ??? [XXX]
+  - bit 4: ??? [XXX]
+  - bit 5: mvsread done status                [vdec/vuc/mvsurf.txt]
+  - bit 6: MVSURF_OUT full status             [vdec/vuc/mvsurf.txt]
+  - bit 7: mvswrite busy status               [vdec/vuc/mvsurf.txt]
+  - bit 8: ??? [XXX]
+  - bit 9: ??? [XXX]
+  - bit 10: macroblock input available            [vdec/vuc/vreg.txt]
+  - bit 11: $h2v write pending                [vdec/vuc/isa.txt]
+  - bit 12: watchdog triggered                [vdec/vuc/isa.txt]
+  - bit 13 [VP4+?]: ??? [XXX]
+  - bit 14: user-controlled pulse PCOUNTER signal     [vdec/vuc/perf.txt]
+  - bit 15: user-controlled continuousPCOUNTER signal [vdec/vuc/perf.txt]
+
+Three special instructions are available that read $stat implicitely. sleep
+instruction switches to a low-power sleep mode until bit 10 or bit 11 is set.
+wstc instruction does a busy-wait until a selected bit in $stat goes to 0,
+wsts likewise waits until a selected bit goes to 1.
+
+On VP3+, a read-only alias of $stat is available in the MMIO space:
+
+BAR0 0x0854bc / I[0x12f00]: STAT
+  Aliases $stat vµc register, read only.
+
+
+Sleep instruction: sleep
+------------------------
+
+This instruction waits until a full macroblock has been read from the MBRING
+[ie. $stat bit 10 is set] or host writes $h2v register [ie. $stat bit 11 is
+set]. While this instruction is waiting, vµc microprocessor goes into a low
+power mode, and sends 0 on its "busy" signal, thus counting as idle.
+
+Instructions::
+    sleep           OP=00100
+Opcode: special opcode with OC=001, OP as above
+Operation::
+    while (!($stat & 0xc00)) idle();
+Execution time: as long as necessary, at least 1 cycle, blocks subsequent
+    instructions until finished
+
+
+Wait for status bit instructions: wstc, wsts
+--------------------------------------------
+
+These instructions wait for a given $stat bit to become 0 [wstc] or 1 [wsts].
+Execution of all subsequent instructions is delayed until this happens.
+
+Instructions::
+    wstc imm4       OP=00101
+    wsts imm4       OP=00110
+Opcode: special opcode with OC=001, OP as above
+Operation::
+    while (($stat >> imm4 & 1) != (op == wsts));
+Execution time: as long as necessary, at least 1 cycle, blocks subsequent
+    instructions until finished
+
+
+The watchdog counter 
+====================
+
+.. todo:: write me
+
+
+Clear watchdog counter instruction: clicnt
+------------------------------------------
+
+.. todo:: write me
+
+
+Misc special registers
+======================
+
+This section describes various special registers that don't fit anywhere else.
+
+$sr8/$pc: The program counter. When read, always returns the address of the
+instruction doing the read.
+
+BAR0 0x10329c / XLMI 0x0a700: PC [VP2]
+BAR0 0x08545c / I[0x11700]: PC [VP3+]
+  A host-accessible alias of $pc. Shows the address of currently executing
+  instruction.
+
+$sr12/$lhi: long arithmetic high word register
+$sr13/$llo: long arithmetic low word register
+
+These two registers together make a 32-bit quantity used in long arithmetic
+operations - see the documentation of long arithmetic instructions for
+details. These registers may be read after long arithmetic instructions to
+get their results. On VP3+, these registers may be written manually, on VP2
+they're read-only and only modifiable by long arithmetic instructions.
+
+$sr14/$pred: predicate register file alias
+
+This register aliases the $p register file - bit X corresponds to $pX. The
+bits behave like the corresponding $p registers - bit 15 is read-only and
+always 1, while bit 1 is read-only and is always the negation of bit 0.

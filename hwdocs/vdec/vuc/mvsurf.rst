@@ -1,6 +1,8 @@
-TOC
+======================
+VP2/VP3/VP4 vµc MVSURF
+======================
 
-0. Introduction
+
 1. MVSURF format
 2. MVSURF_OUT setup
 3. MVSURF_IN setup
@@ -10,7 +12,8 @@ TOC
 7. Reading MVSURF: mvsread
 
 
-= Introduction =
+Introduction
+============
 
 H.264, VC-1 and MPEG4 all support "direct" prediction mode where the forward
 and backward motion vectors for a macroblock are calculated from co-located
@@ -45,20 +48,25 @@ units of macroblock pairs - see details below.
 
 A single MVSURF entry, corresponding to a single macroblock, consists of:
 
- - for the whole macroblock:
-   - frame/field flag [1 bit]: for H.264, 1 if mb_field_decoding_flag set or
-     in a field picture; for MPEG4, 1 if field-predicted macroblock
-   - inter/intra flag [1 bit]: 1 for intra macroblocks
- - for each partition:
-   - RPI [5 bits]: the persistent id of the reference picture used for this
-     subpartition and the top/bottom field selector, if applicable - same as
-     the $rpil0/$rpil1 value.
- - for each subpartition of each partition:
-   - X component of motion vector [14 bits]
-   - Y component of motion vector [12 bits]
-   - zero flag [1 bit]: set if both components of motion vector are in -1..1
-     range and refIdx [not RPI] is 0 - partial term used in H.264 colZeroFlag
-     computation
+- for the whole macroblock:
+
+  - frame/field flag [1 bit]: for H.264, 1 if mb_field_decoding_flag set or
+    in a field picture; for MPEG4, 1 if field-predicted macroblock
+  - inter/intra flag [1 bit]: 1 for intra macroblocks
+
+- for each partition:
+
+  - RPI [5 bits]: the persistent id of the reference picture used for this
+    subpartition and the top/bottom field selector, if applicable - same as
+    the $rpil0/$rpil1 value.
+
+- for each subpartition of each partition:
+
+  - X component of motion vector [14 bits]
+  - Y component of motion vector [12 bits]
+  - zero flag [1 bit]: set if both components of motion vector are in -1..1
+    range and refIdx [not RPI] is 0 - partial term used in H.264 colZeroFlag
+    computation
 
 For H.264, the RPI and motion vector are from the partition's L0 prediction
 if present, L1 otherwise. Since vµc was originally designed for H.264,
@@ -69,52 +77,56 @@ and 4x4 subpartitions. Partitions and subpartitions are indexed in the same
 way as for $spidx.
 
 
-= MVSURF format =
+MVSURF format
+=============
 
 A single macroblock is represented by 0x10 32-bit LE words in MVSURF. Each
 word has the following format [i refers to word index, 0-15]:
 
- - bits 0-13, each word: X component of motion vector for subpartition i.
- - bits 14-25, each word: Y component of motion vector for subpartition i.
- - bits 26-30, word 0, 4, 8, 12: RPI for partition i>>2.
- - bit 26, word 1, 5, 9, 13: zero flag for subpartition i-1
- - bit 27, word 1, 5, 9, 13: zero flag for subpartition i
- - bit 28, word 1, 5, 9, 13: zero flag for subpartition i+1
- - bit 29, word 1, 5, 9, 13: zero flag for subpartition i+2
- - bit 26, word 15: frame/field flag for the macroblock
- - bit 27, word 15: inter/intra flag for the macroblock
+- bits 0-13, each word: X component of motion vector for subpartition i.
+- bits 14-25, each word: Y component of motion vector for subpartition i.
+- bits 26-30, word 0, 4, 8, 12: RPI for partition i>>2.
+- bit 26, word 1, 5, 9, 13: zero flag for subpartition i-1
+- bit 27, word 1, 5, 9, 13: zero flag for subpartition i
+- bit 28, word 1, 5, 9, 13: zero flag for subpartition i+1
+- bit 29, word 1, 5, 9, 13: zero flag for subpartition i+2
+- bit 26, word 15: frame/field flag for the macroblock
+- bit 27, word 15: inter/intra flag for the macroblock
 
 
-= MVSURF_OUT setup =
+MVSURF_OUT setup
+================
 
 The MVSURF_OUT has three different output modes:
 
- - field picture output mode: each write writes one MVSURF macroblock and
-   skips one MVSURF macroblock, each line is passed once
- - MBAFF frame picture output mode: each write writes one MVSURF macroblock,
-   each line is passed once
- - non-MBAFF frame picture output mode: each write writes one MVSURF
-   macroblock and skips one macroblock, each line is passed twice, with first
-   pass writing even-numbered macroblocks, second pass writing odd-numbered
-   macroblocks
+- field picture output mode: each write writes one MVSURF macroblock and
+  skips one MVSURF macroblock, each line is passed once
+- MBAFF frame picture output mode: each write writes one MVSURF macroblock,
+  each line is passed once
+- non-MBAFF frame picture output mode: each write writes one MVSURF
+  macroblock and skips one macroblock, each line is passed twice, with first
+  pass writing even-numbered macroblocks, second pass writing odd-numbered
+  macroblocks
 
-#===#===#===#
-|   |   |   |  field: 0, 2, 4, 6, 8, 10 or 1, 3, 5, 7, 9, 11
-| 0 | 2 | 4 |
-|   |   |   |  MBAFF frame: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
-+---+---+---+
-|   |   |   |  non-MBAFF frame: 0, 2, 4, 1, 3, 5, 6, 8, 10, 7, 9, 11
-| 1 | 3 | 5 |
-|   |   |   |
-#===#===#===#
-|   |   |   |
-| 6 | 8 |10 |
-|   |   |   |
-+---+---+---+
-|   |   |   |
-| 7 | 9 |11 |
-|   |   |   |
-#===#===#===#
+::
+
+    #===#===#===#
+    |   |   |   |  field: 0, 2, 4, 6, 8, 10 or 1, 3, 5, 7, 9, 11
+    | 0 | 2 | 4 |
+    |   |   |   |  MBAFF frame: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11
+    +---+---+---+
+    |   |   |   |  non-MBAFF frame: 0, 2, 4, 1, 3, 5, 6, 8, 10, 7, 9, 11
+    | 1 | 3 | 5 |
+    |   |   |   |
+    #===#===#===#
+    |   |   |   |
+    | 6 | 8 |10 |
+    |   |   |   |
+    +---+---+---+
+    |   |   |   |
+    | 7 | 9 |11 |
+    |   |   |   |
+    #===#===#===#
 
 The following registers control MVSURF_OUT behavior:
 
@@ -155,13 +167,14 @@ position indicated by POS.MBADDR, LEFT.X is decremented by 1, and POS.MBADDR
 is incremented by 1 [MBAFF frame] or 2 [field, non-MBAFF frame]. If this
 causes LEFT.X to drop to 0, a new pass is started, as follows:
 
- - LEFT.X is reset to PARM.WIDTH
- - LEFT.Y is decreased by 1
- - POS.PASS_ODD is flipped
- - if non-MBAFF frame picture mode is in use:
-   - if PASS_ODD is 1, POS.MBADDR is decreased by PARM.WIDTH * 2 and bit 0
-     is set to 1
-   - otherwise [PASS_ODD is 0], POS.MBADDR bit 0 is set to 0
+- LEFT.X is reset to PARM.WIDTH
+- LEFT.Y is decreased by 1
+- POS.PASS_ODD is flipped
+- if non-MBAFF frame picture mode is in use:
+
+  - if PASS_ODD is 1, POS.MBADDR is decreased by PARM.WIDTH * 2 and bit 0
+    is set to 1
+  - otherwise [PASS_ODD is 0], POS.MBADDR bit 0 is set to 0
 
 When either LEFT.X or LEFT.Y is 0, writes to MVSURF_OUT are ignored.
 
@@ -175,32 +188,35 @@ for writes, mvswrite instruction will be ignored and shouldn't be attempted
 until this bit drops to 0 [when MEMIF accepts more data].
 
 
-= MVSURF_IN setup =
+MVSURF_IN setup
+===============
 
 The MVSURF_OUT has two input modes:
 
- - interlaced mode: used for field and MBAFF frame pictures, each read reads
-   one macroblock pair, each line is passed once
- - progressive mode: used for non-MBAFF frame pictures, each read reads one
-   macroblock pair, each line is passed twice
+- interlaced mode: used for field and MBAFF frame pictures, each read reads
+  one macroblock pair, each line is passed once
+- progressive mode: used for non-MBAFF frame pictures, each read reads one
+  macroblock pair, each line is passed twice
 
-#===#===#===#
-|   |   |   |  interlaced: 0&1, 2&3, 4&5, 6&7, 8&9, 10&11
-| 0 | 2 | 4 |
-|   |   |   |  progressive: 0&1, 2&3, 4&5, 0&1, 2&3, 4&5, 6&7, 8&9, 10&11, 6&7, 8&9, 10&11
-+---+---+---+
-|   |   |   |
-| 1 | 3 | 5 |
-|   |   |   |
-#===#===#===#
-|   |   |   |
-| 6 | 8 |10 |
-|   |   |   |
-+---+---+---+
-|   |   |   |
-| 7 | 9 |11 |
-|   |   |   |
-#===#===#===#
+::
+
+    #===#===#===#
+    |   |   |   |  interlaced: 0&1, 2&3, 4&5, 6&7, 8&9, 10&11
+    | 0 | 2 | 4 |
+    |   |   |   |  progressive: 0&1, 2&3, 4&5, 0&1, 2&3, 4&5, 6&7, 8&9, 10&11, 6&7, 8&9, 10&11
+    +---+---+---+
+    |   |   |   |
+    | 1 | 3 | 5 |
+    |   |   |   |
+    #===#===#===#
+    |   |   |   |
+    | 6 | 8 |10 |
+    |   |   |   |
+    +---+---+---+
+    |   |   |   |
+    | 7 | 9 |11 |
+    |   |   |   |
+    #===#===#===#
 
 The following registers control MVSURF_IN behavior:
 
@@ -238,13 +254,16 @@ position indicated by POS.MBPADDR, LEFT.X is decremented by 1, and POS.MBPADDR
 is incremented by 1. If this causes LEFT.X to drop to 0, a new line or a new
 pass over the same line is started:
 
- - LEFT.X is reset to PARM.WIDTH
- - if progressive mode is in use and POS.PASS is 0:
-   - PASS is set to 1
-   - POS.MBPADDR is decreased by PARM.WIDTH
- - otherwise [interlaced mode is in use or PASS is 1]:
-   - PASS is set to 0
-   - LEFT.Y is decremented by 1
+- LEFT.X is reset to PARM.WIDTH
+- if progressive mode is in use and POS.PASS is 0:
+
+  - PASS is set to 1
+  - POS.MBPADDR is decreased by PARM.WIDTH
+
+- otherwise [interlaced mode is in use or PASS is 1]:
+
+  - PASS is set to 0
+  - LEFT.Y is decremented by 1
 
 When either LEFT.X or LEFT.Y is 0, reads from MVSURF_IN will fail and won't
 affect MVSURF_IN registers in any way.
@@ -259,56 +278,61 @@ previous one until the end.
 The MVSURF_IN always operates on units of macroblock pairs. This means that
 the following special handling is necessary:
 
- - field pictures: use interlaced mode, execute mvsread for each processed
-   macroblock
- - MBAFF frame pictures: use interlaced mode, execute mvsread for each
-   processed macroblock pair [when starting to process the first macroblock in
-   pair].
- - non-MBAFF frame pictures: use progressive mode, execute mvsread for each
-   processed macroblock
+- field pictures: use interlaced mode, execute mvsread for each processed
+  macroblock
+- MBAFF frame pictures: use interlaced mode, execute mvsread for each
+  processed macroblock pair [when starting to process the first macroblock in
+  pair].
+- non-MBAFF frame pictures: use progressive mode, execute mvsread for each
+  processed macroblock
 
 In all cases, Care must be taken to use the right macroblock from the pair in
 computations.
 
 
-= MVSO[] address space =
+MVSO[] address space
+====================
 
 MVSO[] is a write-only memory space consisting of 0x80 16-bit cells. Every
 address in range 0-0x7f corresponds to one cell. However, not all cells and
 not all bits of each cell are actually used. The usable cells are:
 
- - MVSO[i * 8 + 0], i in 0..15: X component of motion vector for subpartition i
- - MVSO[i * 8 + 1], i in 0..15: Y component of motion vector for subpartition i
- - MVSO[i * 0x20 + j * 8 + 2], i in 0..3, j in 0..3: RPI of partition i, j is
-   ignored
- - MVSO[i * 8 + 3], i in 0..15: the "zero flag" for subpartition i
- - MVSO[i * 0x20 + 4], i in 0..15: macroblock flags, i is ignored:
-    - bit 0: frame/field flag
-    - bit 1: inter/intra flag
- - MVSO[i * 0x20 + 5], i in 0..15: macroblock partitioning schema, same
-   format as $mbpart register, i is ignored [10 bits used]
+- MVSO[i * 8 + 0], i in 0..15: X component of motion vector for subpartition i
+- MVSO[i * 8 + 1], i in 0..15: Y component of motion vector for subpartition i
+- MVSO[i * 0x20 + j * 8 + 2], i in 0..3, j in 0..3: RPI of partition i, j is
+  ignored
+- MVSO[i * 8 + 3], i in 0..15: the "zero flag" for subpartition i
+- MVSO[i * 0x20 + 4], i in 0..15: macroblock flags, i is ignored:
+
+  - bit 0: frame/field flag
+  - bit 1: inter/intra flag
+
+- MVSO[i * 0x20 + 5], i in 0..15: macroblock partitioning schema, same
+  format as $mbpart register, i is ignored [10 bits used]
 
 If the address of some datum has some ignored fields, writing to any two
 addresses with only the ignored fields differing will actually access the
 same data.
 
 
-= MVSI[] address space =
+MVSI[] address space
+====================
 
 MVSI[] is a read-only memory space consisting of 0x100 16-bit cells. Every
 address in range 0-0xff corresponds to one cell. The cells are:
 
- - MVSI[mb * 0x80 + i * 8 + 0], i in 0..15: X component of motion vector for
-   subpartition i [sign extended to 16 bits]
- - MVSI[mb * 0x80 + i * 8 + 1], i in 0..15: Y component of motion vector for
-   subpartition i [sign extended to 16 bits]
- - MVSI[mb * 0x80 + i * 0x20 + j * 8 + 2], i in 0..3, j in 0..3: RPI of
-   partition i, j is ignored
- - MVSI[mb * 0x80 + i * 8 + 3], i in 0..15: the "zero flag" for subpartition i
- - MVSI[mb * 0x80 + i * 8 + 4 + j], i in 0..15, j in 0..3: macroblock flags,
-   i and j are ignored:
-    - bit 0: frame/field flag
-    - bit 1: inter/intra flag
+- MVSI[mb * 0x80 + i * 8 + 0], i in 0..15: X component of motion vector for
+  subpartition i [sign extended to 16 bits]
+- MVSI[mb * 0x80 + i * 8 + 1], i in 0..15: Y component of motion vector for
+  subpartition i [sign extended to 16 bits]
+- MVSI[mb * 0x80 + i * 0x20 + j * 8 + 2], i in 0..3, j in 0..3: RPI of
+  partition i, j is ignored
+- MVSI[mb * 0x80 + i * 8 + 3], i in 0..15: the "zero flag" for subpartition i
+- MVSI[mb * 0x80 + i * 8 + 4 + j], i in 0..15, j in 0..3: macroblock flags,
+  i and j are ignored:
+
+  - bit 0: frame/field flag
+  - bit 1: inter/intra flag
 
 mb is 0 for the top macroblock in pair, 1 for the bottom macroblock.
 
@@ -320,7 +344,8 @@ implicitely accessed by some fixed-function vµc hardware to calculate MV
 predictors and other values.
 
 
-= Writing MVSURF: mvswrite =
+Writing MVSURF: mvswrite
+========================
 
 Data is sent to MVSURF_OUT via the mvswrite instruction. A single invocation
 of mvswrite writes a single macroblock. The data is gathered from MVSO[]
@@ -350,7 +375,7 @@ bit 6 of $stat is set to 1 on the same cycle as bit 7.
 Instructions:
 	mvswrite
 Opcode: special opcode, OP=01010, OPC=001
-Operation:
+Operation::
 	b32 tmp[0x10] = { 0 };
 	if (MVSURF_OUT.no_space_left())
 		break;
@@ -382,7 +407,8 @@ Execution time: 18 cycles [submission to MVSURF_OUT port only, doesn't include
 Execution unit conflicts: mvswrite
 
 
-= Reading MVSURF: mvsread =
+Reading MVSURF: mvsread
+=======================
 
 Data is read from MVSURF_IN via the mvsread instruction. A single invocation
 of mvsread reads a single macroblock pair. The data is storred into MVSI[]
@@ -405,7 +431,7 @@ is 0, even though no mvsread execution is in progress.
 Instructions:
 	mvsread
 Opcode: special opcode, OP=01001, OPC=001
-Operation:
+Operation::
 	b32 tmp[2][0x10];
 	$stat[5] = 0; /* cycle 1 */
 	MVSURF_IN.read(tmp); /* arbitrarily long */
