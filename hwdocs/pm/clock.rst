@@ -15,6 +15,7 @@ the card type.
 Contents:
 
 .. toctree::
+   :titlesonly:
 
    nv01-clock
    nv40-clock

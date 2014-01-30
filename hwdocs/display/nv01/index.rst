@@ -4,5 +4,7 @@ NV01 display subsystem
 Contents:
 
 .. toctree::
-    pfb
-    pdac
+   :titlesonly:
+
+   pfb
+   pdac

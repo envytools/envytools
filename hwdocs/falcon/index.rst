@@ -4,6 +4,7 @@ falcon microprocessor
 Contents:
 
 .. toctree::
+   :titlesonly:
 
    intro
    isa

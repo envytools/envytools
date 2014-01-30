@@ -78,61 +78,176 @@ VM users
 
 VM is used by several clients, which are identified by VM client id:
 
-==== ========== =========== ================ ============
-Id   Present on Name        Engines          Description
-==== ========== =========== ================ ============
-0    all        STRMOUT     PGRAPH           :ref:`PGRAPH streamout writes <nv50-pgraph-strmout>`
-3    all        DISPATCH    PGRAPH           :ref:`PGRAPH context save/restore, NOTIFY, QUERY, COND, and m2mf <nv50-pgraph-dispatch>`
-4    all        PFIFO_WRITE PFIFO, PFIFO_BG, :ref:`non-blocking write accesses by PFIFO, for FIFOs and BARs <nv50-pfifo-vm>`
-                            PEEPHOLE, BAR   
-5    all        CCACHE      PGRAPH           :ref:`PGRAPH c[], code, TIC, and TSC accesses <nv50-pgraph-ccache>`
-6    VP1-VP2    PVPE        PMPEG, PME, PVP1 :ref:`VM front-end for PMPEG + PME [NV50 only] + PVP1 [NV50 only] <pvpe>`
-6    VP3        PPPP        PPPP             :ref:`pppp`
-7    all        CLIPID      PGRAPH           :ref:`PGRAPH window clip id reads/writes <nv50-pgraph-clipid>`
-8    all        PFIFO_READ  PFIFO, PFIFO_BG  :ref:`reads by PFIFO, for FIFOs and BARs <nv50-pfifo-vm>`
-                            PEEPHOLE, BAR   
-9    all        VFETCH      PGRAPH           :ref:`PGRAPH vertex array fetch <nv50-pgraph-vfetch>`
-0xa  all        TEXTURE     PGRAPH           :ref:`PGRAPH texture fetches <nv50-pgraph-texture>`
-0xb  all        ROP         PGRAPH           :ref:`PGRAPH raster output and CUDA global/local memory accesses <nv50-pgraph-rop>`
-0xc  VP2        PVP2        PVP2             :ref:`pvp2`
-0xc  VP3-       PVDEC       PVDEC            :ref:`pvdec`
-0xd  VP2        PBSP        PBSP             :ref:`pbsp`
-0xd  VP3-       PVLD        PVLD             :ref:`pvld`
-0xe  VP2        PCRYPT2     PCRYPT2          :ref:`pcrypt2`
-0xe  VP3        PCRYPT3     PCRYPT3          :ref:`pcrypt3`
-0xf  NV84-      PCOUNTER    PCOUNTER         :ref:`pcounter`
-0x11 NVA3-      PDAEMON     PDAEMON          :ref:`pdaemon`
-0x13 NVA3-      PCOPY       PCOPY            :ref:`pcopy`
-0x14 NVAF-      PVCOMP      PVCOMP           :ref:`pvcomp`
-==== ========== =========== ================ ============
+.. enum:: nv50-vm-client
+
+   .. value:: 0x00 STRMOUT
+      :engine: PGRAPH
+      :ref: nv50-vm-client-strmout
+
+      PGRAPH streamout writes
+
+   .. value:: 0x03 DISPATCH
+      :engine: PGRAPH
+      :ref: nv50-vm-client-dispatch
+
+      PGRAPH context save/restore, NOTIFY, QUERY, COND, and m2mf
+
+   .. value:: 0x04 PFIFO_WRITE
+      :engine: PFIFO PFIFO_BG PEEPHOLE BAR
+      :ref: nv50-vm-client-pfifo-write
+      
+      Non-blocking write accesses by PFIFO, for FIFOs and BARs
+
+   .. value:: 0x05 CCACHE
+      :engine: PGRAPH
+      :ref: nv50-vm-client-ccache
+
+      PGRAPH c[], code, TIC, and TSC accesses
+
+   .. value:: 0x06 PVPE VP1,VP2
+      :engine: PMPEG PME PVP1
+      :ref: nv50-vm-client-pvpe
+
+      VM front-end for PMPEG + PME [NV50 only] + PVP1 [NV50 only]
+
+   .. value:: 0x06 PPPP VP3,VP4
+      :engine: PPPP
+      :ref: nv50-vm-client-pppp
+
+   .. value:: 0x07 CLIPID
+      :engine: PGRAPH
+      :ref: nv50-vm-client-clipid
+    
+      PGRAPH window clip id reads/writes
+
+   .. value:: 0x08 PFIFO_READ
+      :engine: PFIFO PFIFO_BG PEEPHOLE BAR
+      :ref: nv50-vm-client-pfifo-read
+
+      Reads by PFIFO, for FIFOs and BARs
+
+   .. value:: 0x09 VFETCH
+      :engine: PGRAPH
+      :ref: nv50-vm-client-vfetch
+
+      PGRAPH vertex array fetch
+
+   .. value:: 0x0a TEXTURE
+      :engine: PGRAPH
+      :ref: nv50-vm-client-texture
+
+      PGRAPH texture fetches
+
+   .. value:: 0x0b PROP
+      :engine: PGRAPH
+      :ref: nv50-vm-client-prop
+
+      PGRAPH raster output and CUDA global/local memory accesses
+
+   .. value:: 0x0c PVP2 VP2
+      :engine: PVP2
+      :ref: pvp2
+
+   .. value:: 0x0c PVDEC VP3,VP4
+      :engine: PVDEC
+      :ref: pvdec
+
+   .. value:: 0x0d PBSP VP2
+      :engine: PBSP
+      :ref: pbsp
+
+   .. value:: 0x0d PVLD VP3,VP4
+      :engine: PVLD
+      :ref: pvld
+
+   .. value:: 0x0e PCRYPT2 VP2
+      :engine: PCRYPT2
+      :ref: nv50-vm-client-pcrypt2
+      
+   .. value:: 0x0e PCRYPT3 VP3
+      :engine: PCRYPT3
+      :ref: pcrypt3
+
+   .. value:: 0x0f PCOUNTER NV84:
+      :engine: PCOUNTER
+      :ref: nv50-vm-client-pcounter
+
+   .. value:: 0x11 PDAEMON NVA3:
+      :engine: PDAEMON
+      :ref: pdaemon
+
+   .. value:: 0x13 PCOPY NVA3:
+      :engine: PCOPY
+      :ref: pcopy
+
+   .. value:: 0x14 PVCOMP NVAF:
+      :engine: PVCOMP
+      :ref: pvcomp
 
 A related concept is VM engine, which is a group of clients that share TLBs
 and stay on the same channel at any single moment. It's possible for a client
 to be part of several VM engines. The engines are:
 
-==== ========== =============== ============
-Id   Present on Name            Description
-==== ========== =============== ============
-0    all        PGRAPH          :ref:`nv50-pgraph`
-1    VP1        PVP1            :ref:`pvp1`
-1    VP2        PVP2            :ref:`pvp2`
-1    VP3-       PVDEC           :ref:`pvdec`
-4    all        PEEPHOLE        :ref:`peephole`
-5    all        PFIFO           :ref:`nv50-pfifo`
-6    all        BAR             :ref:`nv50-host-mem`
-7    VP1        PME             :ref:`pme`
-7    NVAF-      PVCOMP          :ref:`pvcomp`
-8    VP1-VP2    PMPEG           :ref:`pmpeg`
-8    VP3-       PPPP            :ref:`pppp`
-9    VP2        PBSP            :ref:`pbsp`
-9    VP3-       PVLD            :ref:`pvld`
-0xa  VP2        PCRYPT2         :ref:`pcrypt2`
-0xa  VP3        PCRYPT3         :ref:`pcrypt3`
-0xb  NV84-      PCOUNTER        :ref:`pcounter`
-0xc  NV84-      PFIFO_BG        :ref:`handles background semaphore acquire polling <nv50-pfifo-bg>`
-0xd  NVA3-      PCOPY           :ref:`pcopy`
-0xe  NVA3-      PDAEMON         :ref:`pdaemon`
-==== ========== =============== ============
+.. enum:: nv50-vm-engine
+
+   .. value:: 0x0 PGRAPH
+      :ref: nv50-vm-engine-pgraph
+
+   .. value:: 0x1 PVP1 VP1
+      :ref: pvp1
+
+   .. value:: 0x1 PVP2 VP2
+      :ref: pvp2
+
+   .. value:: 0x1 PVDEC VP3,VP4
+      :ref: pvdec
+
+   .. value:: 0x4 PEEPHOLE
+      :ref: nv50-vm-engine-peephole
+
+   .. value:: 0x5 PFIFO
+      :ref: nv50-vm-engine-pfifo
+
+   .. value:: 0x6 BAR
+      :ref: nv50-vm-engine-bar
+
+   .. value:: 0x7 PME VP1
+      :ref: pme
+
+   .. value:: 0x7 PVCOMP NVAF:
+      :ref: pvcomp
+
+   .. value:: 0x8 PMPEG VP1,VP2
+      :ref: pmpeg
+
+   .. value:: 0x8 PPPP VP3,VP4
+      :ref: pppp
+
+   .. value:: 0x9 PBSP VP2
+      :ref: pbsp
+
+   .. value:: 0x9 PVLD VP3,VP4
+      :ref: pvld
+
+   .. value:: 0xa PCRYPT2 VP2
+      :ref: pcrypt2
+
+   .. value:: 0xa PCRYPT3 VP3
+      :ref: pcrypt3
+
+   .. value:: 0xb PCOUNTER NV84:
+      :ref: pcounter
+
+   .. value:: 0xc PFIFO_BG NV84:
+      :ref: nv50-vm-engine-pfifo-bg
+
+      Handles background semaphore acquire polling.
+
+   .. value:: 0xd PCOPY NVA3:
+      :ref: pcopy
+
+   .. value:: 0xe PDAEMON NVA3:
+      :ref: pdaemon
 
 Client+engine combination doesn't, however, fully identify the source of the
 access - to disambiguate that, DMA slot ids are used. The set of DMA slot

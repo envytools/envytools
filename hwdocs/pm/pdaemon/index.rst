@@ -7,6 +7,7 @@ PDAEMON: card management microprocesor
 Contents:
 
 .. toctree::
+   :titlesonly:
 
    falcon
    io

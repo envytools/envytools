@@ -4,7 +4,7 @@ nVidia hardware documentation
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :titlesonly:
 
    intro
    chipsets

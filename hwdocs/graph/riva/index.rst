@@ -4,7 +4,8 @@ NV03 graphics engine
 Contents:
 
 .. toctree::
+   :titlesonly:
 
-    pgraph
-    pdma
-    3d
+   pgraph
+   pdma
+   3d

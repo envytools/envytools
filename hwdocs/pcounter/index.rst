@@ -4,7 +4,9 @@ Performance counters
 Contents:
 
 .. toctree::
-    intro
-    nv10
-    nv40
-    nvc0
+   :titlesonly:
+
+   intro
+   nv10
+   nv40
+   nvc0
