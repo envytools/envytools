@@ -25,7 +25,7 @@ Address range   Name    Description
 100000:101000   PDMA    :ref:`system memory DMA engine <nv01-pdma-mmio>`
 101000:102000   PTIMER  :ref:`time measurement and time-based alarms <ptimer-mmio-nv01>`
 300000:301000   PAUDIO  :ref:`audio capture and playback device <nv01-paudio-mmio>`
-400000:401000   PGRAPH  accelerated drawing engine [`<graph/nv01-pgraph.txt>`_]
+400000:401000   PGRAPH  :ref:`accelerated drawing engine <nv01-pgraph-mmio>`
 600000:601000   PFB     :ref:`VRAM and video output control <nv01-pfb-mmio>`
 602000:603000   PRAM    :ref:`RAMIN layout control <nv01-pram-mmio>`
 604000:605000   ???     :ref:`??? <nv01-pramunk1-mmio>`
@@ -93,12 +93,12 @@ Address range   Name     Variants  Reference                      Description
 300000:400000   PROM     NV04:NV50 :ref:`prom-mmio`               ROM access window
                          except
                          IGPs
-400000:401000   PGRAPH   NV03:NV04 `<graph/nv03-pgraph.txt>`_     accelerated 2d/3d drawing engine
-401000:402000   PDMA     NV03:NV04 `<graph/nv03-pdma.txt>`_       system memory DMA engine
-400000:402000   PGRAPH   NV04:NV40 `<graph/nv04-pgraph.txt>`_     accelerated 2d/3d drawing engine
-                                   `<graph/nv10-pgraph.txt>`_
-                                   `<graph/nv20-pgraph.txt>`_
-400000:410000   PGRAPH   NV40:NV50 `<graph/nv40-pgraph.txt>`_     accelerated 2d/3d drawing engine
+400000:401000   PGRAPH   NV03:NV04 :ref:`nv03-pgraph-mmio`        accelerated 2d/3d drawing engine
+401000:402000   PDMA     NV03:NV04 :ref:`nv03-pdma-mmio`          system memory DMA engine
+400000:402000   PGRAPH   NV04:NV40 :ref:`nv04-pgraph-mmio`        accelerated 2d/3d drawing engine
+                                   :ref:`nv10-pgraph-mmio`    
+                                   :ref:`nv20-pgraph-mmio`    
+400000:410000   PGRAPH   NV40:NV50 :ref:`nv40-pgraph-mmio`        accelerated 2d/3d drawing engine
 600000:601000   PCRTC    NV04:NV50 :ref:`pcrtc-mmio`              more CRTC controls
 601000:602000   PRMCIO   all       :ref:`prmcio-mmio`             aliases VGA CRTC and attribute controller registers
 602000:603000   PCRTC2   NV11:NV20 :ref:`pcrtc-mmio`              like PCRTC, but for second head
@@ -173,7 +173,7 @@ Address range  Port  Name          Variants  Reference                        De
 280000:2a0000  ROOT  ???           NVAF      ???                              ???
 2ff000:300000  IBUS  PBRIDGE_PCI   IGPs      :ref:`pbus-mmio`                 access to PCI config registers of the GPU's upstream PCIE bridge
 300000:400000  IBUS  PROM          all       :ref:`prom-mmio`                 ROM access window
-400000:410000  IBUS  PGRAPH        all       `<graph/nv50-pgraph.txt>`_       accelerated 2d/3d drawing and CUDA engine
+400000:410000  IBUS  PGRAPH        all       :ref:`nv50-pgraph-mmio`          accelerated 2d/3d drawing and CUDA engine
 601000:602000  IBUS  PRMIO         all       :ref:`nv50-prmio-mmio`           aliases VGA registers
 610000:640000  IBUS  PDISPLAY      all       :ref:`pdisplay-mmio`             the DMA FIFO controlled unified display engine
 640000:650000  IBUS  DISPLAY_USER  all       :ref:`display-user-mmio`         DMA submission to PDISPLAY
@@ -254,7 +254,7 @@ Address range  Port  Name          Variants  Reference                        De
 1c3000:1c4000  IBUS  ???           NVD9-     :ref:`punk1c3-io`                some falcon engine
 200000:201000  ???   PMEDIA        all       :ref:`pmedia-mmio`               mediaport
 300000:380000  IBUS  PROM          all       :ref:`prom-mmio`                 ROM access window
-400000:600000  IBUS  PGRAPH        all       `<graph/nvc0-pgraph.txt>`_       accelerated 2d/3d drawing and CUDA engine
+400000:600000  IBUS  PGRAPH        all       :ref:`nvc0-pgraph-mmio`          accelerated 2d/3d drawing and CUDA engine
 601000:602000  IBUS  PRMIO         all       :ref:`nv50-prmio-mmio`           aliases VGA registers
 610000:6c0000  IBUS  PDISPLAY      all       :ref:`pdisplay-mmio`             the DMA FIFO controlled unified display engine
 700000:800000  ROOT  PMEM          all       :ref:`pmem-mmio`                 indirect VRAM/host memory access

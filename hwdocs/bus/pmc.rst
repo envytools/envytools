@@ -168,7 +168,7 @@ On NV01, the bits are:
 - 0: :ref:`PAUDIO <nv01-paudio>`
 - 4: :ref:`PDMA <nv01-pdma>` and :ref:`PTIMER <ptimer>`
 - 8: :ref:`PFIFO <nv01-pfifo>`
-- 12: PGRAPH [graph/nv01-pgraph.txt]
+- 12: :ref:`PGRAPH <nv01-pgraph>`
 - 16: :ref:`PRM <nv01-prm>`
 - 24: :ref:`PFB <nv01-pfb>`
 
@@ -177,7 +177,7 @@ On NV03:NV04, the bits are:
 - 0: ??? [XXX]
 - 4: :ref:`PMEDIA <pmedia>`
 - 8: :ref:`PFIFO <nv01-pfifo>`
-- 12: PGRAPH [graph/nv03-pgraph.txt] and PDMA [graph/nv03-pdma.txt]
+- 12: :ref:`PGRAPH <nv03-pgraph>` and :ref:`PDMA <nv03-pdma>`
 - 16: :ref:`PTIMER <ptimer>`
 - 20: :ref:`PFB <nv03-pfb>`
 - 24: :ref:`PCRTC <pcrtc>`
@@ -189,15 +189,19 @@ On NV04:NV50, the bits are:
 - 1: :ref:`PVPE <pvpe>` [NV17-]
 - 4: :ref:`PMEDIA <pmedia>`
 - 8: :ref:`PFIFO <nv04-pfifo>`
-- 12: PGRAPH [graph/nv04-pgraph.txt, graph/nv10-pgraph.txt, graph/nv20-pgraph.txt, graph/nv40-pgraph.txt]
-- 13: PGRAPH CS??? apparently exists on some late NV4x... [graph/nv40-pgraph.txt] [NV4?-]
-- [XXX: figure out the CS thing, figure out the variants. Known not to exist on NV40, NV43, NV44, NV49]
+- 12: :ref:`PGRAPH <nv04-pgraph>` [NV04:NV10]
+- 12: :ref:`PGRAPH <nv10-pgraph>` [NV10:NV20]
+- 12: :ref:`PGRAPH <nv20-pgraph>` [NV20:NV40]
+- 12: :ref:`PGRAPH <nv40-pgraph>` [NV40:NV50]
+- 13: PGRAPH CS??? apparently exists on some late NV4x... [NV4?-]
 - 16: :ref:`PTIMER <ptimer>`
 - 20: PFB [:ref:`NV03 <nv03-pfb>`, :ref:`NV10 <nv10-pfb>`, :ref:`NV40 <nv40-pfb>`, :ref:`NV44 <nv44-pfb>`]
 - 24: :ref:`PCRTC <pcrtc>`
 - 25: :ref:`PCRTC2 <pcrtc>` [NV11-]
 - 26: :ref:`PTV <ptv>` [NV17:NV20, NV25:NV50]
 - 28: :ref:`PRAMDAC.VIDEO <pvideo>` [NV04:NV10] or :ref:`PVIDEO <pvideo>` [NV10:NV50]
+
+.. todo:: figure out the CS thing, figure out the variants. Known not to exist on NV40, NV43, NV44, NV4E, NV49; known to exist on NV63
 
 On NV50:NVC0, the bits are:
 
@@ -206,7 +210,7 @@ On NV50:NVC0, the bits are:
 - 1: :ref:`PPPP <pppp>` [NV98:NVA0 NVAA-]
 - 4: :ref:`PMEDIA <pmedia>`
 - 8: :ref:`PFIFO <nv50-pfifo>`
-- 12: PGRAPH [graph/nv50-pgraph.txt]
+- 12: :ref:`PGRAPH <nv50-pgraph>`
 - 13: :ref:`PCOPY <pcopy>` [NVA3-]
 - 14: :ref:`PCRYPT2 <pcrypt2>` [NV84:NV98 NVA0:NVAA]
 - 14: :ref:`PCRYPT3 <pcrypt3>` [NV98:NVA0 NVAA:NVA3]
@@ -245,7 +249,7 @@ On NVC0+, the bits are:
 - 6: :ref:`PCOPY[0] <pcopy>`
 - 7: :ref:`PCOPY[1] <pcopy>`
 - 8: :ref:`PFIFO <nvc0-pfifo>`
-- 12: PGRAPH [graph/nvc0-pgraph.txt]
+- 12: :ref:`PGRAPH <nvc0-pgraph>`
 - 13: :ref:`PDAEMON <pdaemon>`
 - 15: :ref:`PVLD <pvld>`
 - 16: :ref:`PTIMER <ptimer>`
@@ -370,10 +374,10 @@ The input interrupts are, for NV01:
 - 0: :ref:`PAUDIO <nv01-paudio-intr>`
 - 4: :ref:`PDMA <nv01-pdma-intr>`
 - 8: :ref:`PFIFO <nv01-pfifo-intr>`
-- 12: PGRAPH [graph/nv01-pgraph.txt]
+- 12: :ref:`PGRAPH <nv01-pgraph-intr>`
 - 16: :ref:`PRM <nv01-prm-intr>`
 - 20: :ref:`PTIMER <ptimer-intr>`
-- 24: PGRAPH's vblank interrupt [graph/nv01-pgraph.txt]
+- 24: :ref:`PGRAPH's vblank interrupt <nv01-pgraph-intr-vblank>`
 - 28: software
 
 .. todo:: check
@@ -382,8 +386,8 @@ For NV03:
 
 - 4: :ref:`PMEDIA <pmedia-intr>`
 - 8: :ref:`PFIFO <nv01-pfifo-intr>`
-- 12: PGRAPH [graph/nv03-pgraph.txt]
-- 13: PDMA [graph/nv03-pdma.txt]
+- 12: :ref:`PGRAPH <nv03-pgraph>`
+- 13: :ref:`PDMA <nv03-pdma>`
 - 16: :ref:`PRAMDAC.VIDEO <pvideo-intr>`
 - 20: :ref:`PTIMER <ptimer-intr>`
 - 24: :ref:`PGRAPH's vblank interrupt <pcrtc-intr>`
@@ -395,7 +399,7 @@ For NV04:NV50:
 - 0: :ref:`PVPE <pvpe-intr>` [NV17:NV20 and NV25:NV50]
 - 4: :ref:`PMEDIA <pmedia-intr>`
 - 8: :ref:`PFIFO <nv04-pfifo-intr>`
-- 12: PGRAPH [graph/nv04-pgraph.txt, graph/nv10-pgraph.txt, graph/nv20-pgraph.txt, graph/nv40-pgraph.txt]
+- 12: :ref:`PGRAPH <nv04-pgraph-intr>`
 - 16: :ref:`PRAMDAC.VIDEO <pvideo-intr>` [NV04:NV10] or :ref:`PVIDEO <pvideo-intr>` [NV10:NV50]
 - 20: :ref:`PTIMER <ptimer-intr>`
 - 24: :ref:`PCRTC <pcrtc-intr>`
@@ -411,7 +415,7 @@ For NV50:NVC0:
 - 8: :ref:`PFIFO <nv50-pfifo-intr>` - has separate NRHOST line on NVA3+
 - 9: ??? [NVA3?-]
 - 11: ??? [NVA3?-]
-- 12: PGRAPH [graph/nv50-pgraph.txt]
+- 12: :ref:`PGRAPH <nv50-pgraph-intr>`
 - 13: ??? [NVA3?-]
 - 14: :ref:`PCRYPT2 <pcrypt2-intr>` [NV84:NV98 NVA0:NVAA]
 - 14: :ref:`PCRYPT3 <pcrypt3-falcon>` [NV98:NVA0 NVAA:NVA3]
@@ -444,7 +448,7 @@ For NVC0+:
 - 7: :ref:`PCOPY[2] <pcopy-intr>` [NVE4-] - has separate NRHOST line
 - 8: :ref:`PFIFO <nvc0-pfifo-intr>`
 - 9: ???
-- 12: PGRAPH [graph/nvc0-pgraph.txt] - has separate NRHOST line
+- 12: :ref:`PGRAPH <nvc0-pgraph-intr>` - has separate NRHOST line
 - 13: :ref:`PBFB <pbfb-intr>`
 - 15: :ref:`PVLD <pvld-falcon>` - has separate NRHOST line
 - 16: :ref:`PVENC <pvenc-falcon>` [NVE4-] - has separate NRHOST line
