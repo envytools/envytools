@@ -34,17 +34,20 @@ space accesses from host that failed for some reason.
 MMIO register list - NV01
 =========================
 
-======== ========= =============
-Address  Name      Description
-======== ========= =============
-0x101100 INTR      :ref:`interrupt status / acknowledge <ptimer-mmio-intr>`
-0x101140 INTR_EN   :ref:`interrupt enable <ptimer-mmio-intr>`
-0x101200 CLOCK_DIV :ref:`clock divider <ptimer-mmio-clock-ratio>`
-0x101210 CLOCK_MUL :ref:`clock multiplier <ptimer-mmio-clock-ratio>`
-0x101400 TIME_LOW  :ref:`low part of the time counter <ptimer-mmio-time>`
-0x101404 TIME_HIGH :ref:`high part of the time counter <ptimer-mmio-time>`
-0x101410 ALARM     :ref:`the TIME_LOW value to interrupt on <ptimer-mmio-alarm>`
-======== ========= =============
+.. space:: 8 nv01-ptimer 0x1000 time measurement and time-based alarms
+   MMIO 0x101000 [NV01:NV03]
+
+   ======== ========= =============
+   Address  Name      Description
+   ======== ========= =============
+   0x101100 INTR      :ref:`interrupt status / acknowledge <ptimer-mmio-intr>`
+   0x101140 INTR_EN   :ref:`interrupt enable <ptimer-mmio-intr>`
+   0x101200 CLOCK_DIV :ref:`clock divider <ptimer-mmio-clock-ratio>`
+   0x101210 CLOCK_MUL :ref:`clock multiplier <ptimer-mmio-clock-ratio>`
+   0x101400 TIME_LOW  :ref:`low part of the time counter <ptimer-mmio-time>`
+   0x101404 TIME_HIGH :ref:`high part of the time counter <ptimer-mmio-time>`
+   0x101410 ALARM     :ref:`the TIME_LOW value to interrupt on <ptimer-mmio-alarm>`
+   ======== ========= =============
 
 
 .. _ptimer-mmio-nv03:
@@ -52,25 +55,28 @@ Address  Name      Description
 MMIO register list - NV03-
 ==========================
 
-======== ========= =============== =============
-Address  Variants  Name            Description
-======== ========= =============== =============
-0x009060 NV50-     ???             ???
-0x009064 NV50-     ???             ???
-0x009080 NV17:NV20 ???             ???
-         NV25:NV50               
-0x009080 NVC0-     ???             ???
-0x009084 NV41-     MMIO_FAULT_ADDR address and type of last MMIO fault
-0x009088 NV41-     MMIO_FAULT_DATA data written on last MMIO fault
-0x009100 all       INTR            :ref:`interrupt status / acknowledge <ptimer-mmio-intr>`
-0x009140 all       INTR_EN         :ref:`interrupt enable <ptimer-mmio-intr>`
-0x009200 all       CLOCK_DIV       :ref:`clock divider <ptimer-mmio-clock-ratio>`
-0x009210 all       CLOCK_MUL       :ref:`clock multiplier <ptimer-mmio-clock-ratio>`
-0x009220 NV41-     CLOCK_SOURCE    :ref:`clock source selection <ptimer-mmio-clock-source>`
-0x009400 all       TIME_LOW        :ref:`low part of the time counter <ptimer-mmio-time>`
-0x009410 all       TIME_HIGH       :ref:`high part of the time counter <ptimer-mmio-time>`
-0x009420 all       ALARM           :ref:`the TIME_LOW value to interrupt on <ptimer-mmio-alarm>`
-======== ========= =============== =============
+.. space:: 8 nv03-ptimer 0x1000 time measurement and time-based alarms
+   MMIO 0x009000 [NV03:]
+
+   ======== ========= =============== =============
+   Address  Variants  Name            Description
+   ======== ========= =============== =============
+   0x009060 NV50-     ???             ???
+   0x009064 NV50-     ???             ???
+   0x009080 NV17:NV20 ???             ???
+            NV25:NV50               
+   0x009080 NVC0-     ???             ???
+   0x009084 NV41-     MMIO_FAULT_ADDR address and type of last MMIO fault
+   0x009088 NV41-     MMIO_FAULT_DATA data written on last MMIO fault
+   0x009100 all       INTR            :ref:`interrupt status / acknowledge <ptimer-mmio-intr>`
+   0x009140 all       INTR_EN         :ref:`interrupt enable <ptimer-mmio-intr>`
+   0x009200 all       CLOCK_DIV       :ref:`clock divider <ptimer-mmio-clock-ratio>`
+   0x009210 all       CLOCK_MUL       :ref:`clock multiplier <ptimer-mmio-clock-ratio>`
+   0x009220 NV41-     CLOCK_SOURCE    :ref:`clock source selection <ptimer-mmio-clock-source>`
+   0x009400 all       TIME_LOW        :ref:`low part of the time counter <ptimer-mmio-time>`
+   0x009410 all       TIME_HIGH       :ref:`high part of the time counter <ptimer-mmio-time>`
+   0x009420 all       ALARM           :ref:`the TIME_LOW value to interrupt on <ptimer-mmio-alarm>`
+   ======== ========= =============== =============
 
 .. todo:: figure out 9060-9080
 .. todo:: document MMIO_FAULT_*

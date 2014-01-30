@@ -22,33 +22,36 @@ The PMC's MMIO range is 0x0000:0x1000. It is always active.
 MMIO register list
 ==================
 
-============== ========= ====================== ====================
-Address        Variants  Name                   Description
-============== ========= ====================== ====================
-000000         all       ID                     :ref:`card identification <pmc-mmio-id>`
-000004         NV1A-     ENDIAN                 :ref:`endian switch <pmc-mmio-endian>`
-000008         NV92-     BOOT_2                 :ref:`??? <pmc-mmio-id>`
-000100         all       INTR_HOST              :ref:`interrupt status - host <pmc-mmio-intr>`
-000104         NVA3-     INTR_NRHOST            :ref:`interrupt status - non-redirectable host <pmc-mmio-intr>`
-000108         NVA3-     INTR_DAEMON            :ref:`interrupt status - PDAEMON <pmc-mmio-intr>`
-000100         all       INTR_EN_HOST           :ref:`interrupt enable - host <pmc-mmio-intr>`
-000144         NVA3-     INTR_EN_NRHOST         :ref:`interrupt enable - non-redirectable host <pmc-mmio-intr>`
-000148         NVA3-     INTR_EN_DAEMON         :ref:`interrupt enable - PDAEMON <pmc-mmio-intr>`
-000160         all       INTR_LN_HOST           :ref:`interrupt line state - host <pmc-mmio-intr>`
-000164         NVA3-     INTR_LN_NRHOST         :ref:`interrupt line state - non-redirectable host <pmc-mmio-intr>`
-000168         NVA3-     INTR_LN_DAEMON         :ref:`interrupt line state - PDAEMON <pmc-mmio-intr>`
-000200         all       ENABLE                 :ref:`engine master enable <pmc-mmio-enable>`
-000204         NVC0-     SUBFIFO_ENABLE         :ref:`PSUBFIFO enables <pmc-mmio-enable>`
-000208         NVC0-     ???                    :ref:`??? [related to enable?] <pmc-mmio-enable>`
-00020c         NVC4-     ???                    :ref:`??? [related to enable?] <pmc-mmio-enable>`
-000260:000274  NVC0-     ???                    :ref:`??? related to PFIFO engines <pmc-mmio-enable>`
-000300         NV17-     VRAM_HIDE_LOW          :ref:`VRAM hidden area low address and enable <pmc-mmio-vram-hide>`
-000304         NV17-     VRAM_HIDE_HIGH         :ref:`VRAM hidden area high address <pmc-mmio-vram-hide>`
-000640         NVA3-     INTR_MASK_HOST         :ref:`interrupt mask - host <pmc-mmio-intr>`
-000644         NVA3-     INTR_MASK_NRHOST       :ref:`interrupt mask - non-redirectable host <pmc-mmio-intr>`
-000648         NVA3-     INTR_MASK_PDAEMON      :ref:`interrupt mask - PDAEMON <pmc-mmio-intr>`
-000a00         NV94-     NEW_ID                 :ref:`card identification <pmc-mmio-id>`
-============== ========= ====================== ====================
+.. space:: 8 pmc 0x1000 card master control
+   MMIO 0x000000
+
+   ============== ========= ====================== ====================
+   Address        Variants  Name                   Description
+   ============== ========= ====================== ====================
+   000000         all       ID                     :ref:`card identification <pmc-mmio-id>`
+   000004         NV1A-     ENDIAN                 :ref:`endian switch <pmc-mmio-endian>`
+   000008         NV92-     BOOT_2                 :ref:`??? <pmc-mmio-id>`
+   000100         all       INTR_HOST              :ref:`interrupt status - host <pmc-mmio-intr>`
+   000104         NVA3-     INTR_NRHOST            :ref:`interrupt status - non-redirectable host <pmc-mmio-intr>`
+   000108         NVA3-     INTR_DAEMON            :ref:`interrupt status - PDAEMON <pmc-mmio-intr>`
+   000100         all       INTR_EN_HOST           :ref:`interrupt enable - host <pmc-mmio-intr>`
+   000144         NVA3-     INTR_EN_NRHOST         :ref:`interrupt enable - non-redirectable host <pmc-mmio-intr>`
+   000148         NVA3-     INTR_EN_DAEMON         :ref:`interrupt enable - PDAEMON <pmc-mmio-intr>`
+   000160         all       INTR_LN_HOST           :ref:`interrupt line state - host <pmc-mmio-intr>`
+   000164         NVA3-     INTR_LN_NRHOST         :ref:`interrupt line state - non-redirectable host <pmc-mmio-intr>`
+   000168         NVA3-     INTR_LN_DAEMON         :ref:`interrupt line state - PDAEMON <pmc-mmio-intr>`
+   000200         all       ENABLE                 :ref:`engine master enable <pmc-mmio-enable>`
+   000204         NVC0-     SUBFIFO_ENABLE         :ref:`PSUBFIFO enables <pmc-mmio-enable>`
+   000208         NVC0-     ???                    :ref:`??? [related to enable?] <pmc-mmio-enable>`
+   00020c         NVC4-     ???                    :ref:`??? [related to enable?] <pmc-mmio-enable>`
+   000260:000274  NVC0-     ???                    :ref:`??? related to PFIFO engines <pmc-mmio-enable>`
+   000300         NV17-     VRAM_HIDE_LOW          :ref:`VRAM hidden area low address and enable <pmc-mmio-vram-hide>`
+   000304         NV17-     VRAM_HIDE_HIGH         :ref:`VRAM hidden area high address <pmc-mmio-vram-hide>`
+   000640         NVA3-     INTR_MASK_HOST         :ref:`interrupt mask - host <pmc-mmio-intr>`
+   000644         NVA3-     INTR_MASK_NRHOST       :ref:`interrupt mask - non-redirectable host <pmc-mmio-intr>`
+   000648         NVA3-     INTR_MASK_PDAEMON      :ref:`interrupt mask - PDAEMON <pmc-mmio-intr>`
+   000a00         NV94-     NEW_ID                 :ref:`card identification <pmc-mmio-id>`
+   ============== ========= ====================== ====================
 
 .. todo:: figure out 208, 20c, 260
 
