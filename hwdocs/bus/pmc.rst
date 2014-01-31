@@ -14,8 +14,6 @@ PMC is the "master control" engine of the card. Its purpose is to provide
 card identication, manage enable/disable bits of other engines, and handle
 top-level interrupt routing.
 
-The PMC's MMIO range is 0x0000:0x1000. It is always active.
-
 
 .. _pmc-mmio:
 
@@ -23,40 +21,36 @@ MMIO register list
 ==================
 
 .. space:: 8 pmc 0x1000 card master control
-   MMIO 0x000000
+   0x000 ID pmc-id-nv01 NV01:NV04
+   0x000 ID pmc-id-nv04 NV04:NV10
+   0x000 ID pmc-id-nv10 NV10:
+   0x004 ENDIAN pmc-endian NV1A:
+   0x008 BOOT_2 pmc-boot-2 NV92:
+   0x100 INTR_HOST pmc-intr-host
+   0x104 INTR_NRHOST pmc-intr-nrhost NVA3:
+   0x108 INTR_DAEMON pmc-intr-daemon NVA3:
+   0x140 INTR_ENABLE_HOST pmc-intr-enable-host
+   0x144 INTR_ENABLE_NRHOST pmc-intr-enable-nrhost NVA3:
+   0x148 INTR_ENABLE_DAEMON pmc-intr-enable-daemon NVA3:
+   0x160 INTR_LINE_HOST pmc-intr-line-host
+   0x164 INTR_LINE_NRHOST pmc-intr-line-nrhost NVA3:
+   0x168 INTR_LINE_DAEMON pmc-intr-line-daemon NVA3:
+   0x17c INTR_PMFB pmc-intr-pmfb NVC0:
+   0x180 INTR_PBFB pmc-intr-pbfb NVC0:
+   0x200 ENABLE pmc-enable
+   0x204 SPOON_ENABLE pmc-spoon-enable NVC0:
+   0x208 ENABLE_UNK08 pmc-enable-unk08 NVC0:
+   0x20c ENABLE_UNK0C pmc-enable-unk0c NVC4:
+   0x260[6] FIFO_ENG_UNK260 pmc-fifo-eng-unk260 NVC0:
+   0x300 VRAM_HIDE_LOW pmc-vram-hide-low NV17:NVF0
+   0x304 VRAM_HIDE_HIGH pmc-vram-hide-high NV17:NVF0
+   0x640 INTR_MASK_HOST pmc-intr-mask-host NVA3:
+   0x644 INTR_MASK_NRHOST pmc-intr-mask-nrhost NVA3:
+   0x648 INTR_MASK_DAEMON pmc-intr-mask-daemon NVA3:
+   0xa00 NEW_ID pmc-new-id NV94:
 
-   ============== ========= ====================== ====================
-   Address        Variants  Name                   Description
-   ============== ========= ====================== ====================
-   000000         all       ID                     :ref:`card identification <pmc-mmio-id>`
-   000004         NV1A-     ENDIAN                 :ref:`endian switch <pmc-mmio-endian>`
-   000008         NV92-     BOOT_2                 :ref:`??? <pmc-mmio-id>`
-   000100         all       INTR_HOST              :ref:`interrupt status - host <pmc-mmio-intr>`
-   000104         NVA3-     INTR_NRHOST            :ref:`interrupt status - non-redirectable host <pmc-mmio-intr>`
-   000108         NVA3-     INTR_DAEMON            :ref:`interrupt status - PDAEMON <pmc-mmio-intr>`
-   000100         all       INTR_EN_HOST           :ref:`interrupt enable - host <pmc-mmio-intr>`
-   000144         NVA3-     INTR_EN_NRHOST         :ref:`interrupt enable - non-redirectable host <pmc-mmio-intr>`
-   000148         NVA3-     INTR_EN_DAEMON         :ref:`interrupt enable - PDAEMON <pmc-mmio-intr>`
-   000160         all       INTR_LN_HOST           :ref:`interrupt line state - host <pmc-mmio-intr>`
-   000164         NVA3-     INTR_LN_NRHOST         :ref:`interrupt line state - non-redirectable host <pmc-mmio-intr>`
-   000168         NVA3-     INTR_LN_DAEMON         :ref:`interrupt line state - PDAEMON <pmc-mmio-intr>`
-   000200         all       ENABLE                 :ref:`engine master enable <pmc-mmio-enable>`
-   000204         NVC0-     SUBFIFO_ENABLE         :ref:`PSUBFIFO enables <pmc-mmio-enable>`
-   000208         NVC0-     ???                    :ref:`??? [related to enable?] <pmc-mmio-enable>`
-   00020c         NVC4-     ???                    :ref:`??? [related to enable?] <pmc-mmio-enable>`
-   000260:000274  NVC0-     ???                    :ref:`??? related to PFIFO engines <pmc-mmio-enable>`
-   000300         NV17-     VRAM_HIDE_LOW          :ref:`VRAM hidden area low address and enable <pmc-mmio-vram-hide>`
-   000304         NV17-     VRAM_HIDE_HIGH         :ref:`VRAM hidden area high address <pmc-mmio-vram-hide>`
-   000640         NVA3-     INTR_MASK_HOST         :ref:`interrupt mask - host <pmc-mmio-intr>`
-   000644         NVA3-     INTR_MASK_NRHOST       :ref:`interrupt mask - non-redirectable host <pmc-mmio-intr>`
-   000648         NVA3-     INTR_MASK_PDAEMON      :ref:`interrupt mask - PDAEMON <pmc-mmio-intr>`
-   000a00         NV94-     NEW_ID                 :ref:`card identification <pmc-mmio-id>`
-   ============== ========= ====================== ====================
+   The PMC register range is always active.
 
-.. todo:: figure out 208, 20c, 260
-
-
-.. _pmc-mmio-id:
 
 Card identification
 ===================
@@ -65,7 +59,6 @@ The main register used to identify the card is the ID register. However,
 the ID register has different formats depending on the chipset family:
 
 .. reg:: 32 pmc-id-nv01 card identification
-   MMIO 0x000000: ID [NV01:NV04]
 
    - bits 0-3: minor revision.
    - bits 4-7: major revision.
@@ -78,7 +71,6 @@ the ID register has different formats depending on the chipset family:
    - bits 28-31: foundry - 0 is SGS, 1 is Helios, 2 is TMSC
 
 .. reg:: 32 pmc-id-nv04 card identification
-   MMIO 0x000000: ID [NV04:NV10]
 
    - bits 0-3: ???
    - bits 4-11: always 0
@@ -90,7 +82,6 @@ the ID register has different formats depending on the chipset family:
    - bits 28-31: foundry - 0 is SGS, 1 is Helios, 2 is TMSC
 
 .. reg:: 32 pmc-id-nv10 card identification
-   MMIO 0x000000: ID [NV10-]
 
    - bits 0-7: stepping
    - bits 16-19: device id [NV10:NV92]
@@ -111,7 +102,6 @@ NV92[?] introduced another identification register in PMC, with unknown
 purpose:
 
 .. reg:: 32 pmc-boot-2 ???
-   MMIO 0x000008: BOOT_2 [NV92?-]
 
    ???
  
@@ -120,7 +110,6 @@ purpose:
 NV94 introduced a new identification register with rearranged bitfields:
 
 .. reg:: 32 pmc-new-id card identification
-   MMIO 0x000a00: NEW_ID
 
    - bits 0-7: device id
    - bits 8-11: same value as BOOT_2 register
@@ -132,8 +121,6 @@ NV94 introduced a new identification register with rearranged bitfields:
    a random screwup?
 
 
-.. _pmc-mmio-endian:
-
 Endian switch
 =============
 
@@ -143,7 +130,6 @@ BAR2/BAR3 - see :ref:`bars` for more details. It is controlled by the ENDIAN
 register:
 
 .. reg:: 32 pmc-endian endian switch
-   MMIO 0x000004: ENDIAN [NV1A-]
 
    When read, returns 0x01000001 if in big-endian mode, 0 if in little-endian
    mode. When written, if bit 24 of the written value is 1, flips the endian
@@ -164,7 +150,6 @@ The MMIO areas containing aliases of 8-bit VGA registers are unaffected by
 this switch, despite being in BAR0.
 
 
-.. _pmc-mmio-enable:
 .. _pmc-enable:
 
 Engine enables
@@ -174,7 +159,6 @@ PMC contains the main engine enable register, which is used to turn whole
 engines on and off:
 
 .. reg:: 32 pmc-enable engine master enable
-   MMIO 0x000200: ENABLE
 
    When given bit is set to 0, the corresponding engine is disabled, when set
    to 1, it is enabled. Most engines disappear from MMIO space and reset to
@@ -284,7 +268,6 @@ On NVC0+, the bits are:
 NVC0 also introduced SUBFIFO_ENABLE register:
 
 .. reg:: 32 pmc-spoon-enable PSPOON enables
-   MMIO 0x000204: SUBFIFO_ENABLE
 
    Enables PFIFO's PSUBFIFOs. Bit i corresponds to PSUBFIFO[i]. See
    :ref:`NVC0+ PFIFO <nvc0-psubfifo>` for details.
@@ -293,13 +276,11 @@ There are also two other registers looking like ENABLE, but with seemingly
 no effect and currently unknown purpose:
 
 .. reg:: 32 pmc-enable-unk08 ??? related to enable
-   MMIO 0x000208: ??? [NVC0-]
 
    Has the same bits as ENABLE, comes up as all-1 on boot, except for PDISPLAY
    bit which comes up as 0.
 
 .. reg:: 32 pmc-enable-unk0c ??? related to enable
-   MMIO 0x00020c: ??? [NVC4-]
 
    Has bits which correspond to PFIFO engines in ENABLE, ie.
 
@@ -313,14 +294,12 @@ no effect and currently unknown purpose:
    Comes up as all-1.
 
 .. reg:: 32 pmc-fifo-eng-unk260 ??? related to PFIFO engines
-   MMIO 0x000260+i*4, i<6: ??? [NVC0-]
 
    Single-bit registers, 6 of them.
 
 .. todo:: RE these three
 
 
-.. _pmc-mmio-intr:
 .. _pmc-intr:
 .. _pdaemon-intr-pmc-daemon:
 
@@ -345,7 +324,6 @@ is identical to HOST, but doesn't go through the PDAEMON redirection circuitry.
 .. todo:: change all this duplication to indexing
 
 .. reg:: 32 pmc-intr-host interrupt status - host
-   MMIO 0x000100: INTR_HOST
 
    Interrupt status. Bits 0-30 are hardware interrupts, bit 31 is software
    interrupt. 1 if the relevant input interrupt line is active and, for NVA3+
@@ -355,17 +333,14 @@ is identical to HOST, but doesn't go through the PDAEMON redirection circuitry.
    where it works even if masked.
 
 .. reg:: 32 pmc-intr-nrhost interrupt status - non-redirectable host
-   MMIO 0x000104: INTR_NRHOST [NVA3-]
 
-   Like :reg:`pmc-intr-host`, but for NRHOST.
+   Like :obj:`pmc-intr-host`, but for NRHOST.
 
 .. reg:: 32 pmc-intr-daemon interrupt status - PDAEMON
-   MMIO 0x000108: INTR_DAEMON [NVA3-]
 
-   Like :reg:`pmc-intr-host`, but for DAEMON.
+   Like :obj:`pmc-intr-host`, but for DAEMON.
 
 .. reg:: 32 pmc-intr-enable-host interrupt enable - host
-   MMIO 0x000140: INTR_EN_HOST
 
   - bit 0: hardware interrupt enable - if 1, and any of bits 0-30 of INTR_* are
     active, the corresponding output interrupt line will be asserted.
@@ -373,34 +348,28 @@ is identical to HOST, but doesn't go through the PDAEMON redirection circuitry.
     corresponding output interrupt line will be asserted.
 
 .. reg:: 32 pmc-intr-enable-nrhost interrupt enable - non-redirectable host
-   MMIO 0x000144: INTR_EN_NRHOST [NVA3-]
 
-   Like :reg:`pmc-intr-enable-nrhost`, but for NRHOST.
+   Like :obj:`pmc-intr-enable-nrhost`, but for NRHOST.
 
 .. reg:: 32 pmc-intr-enable-daemon interrupt enable - PDAEMON
-   MMIO 0x000148: INTR_EN_DAEMON [NVA3-]
 
-   Like :reg:`pmc-intr-enable-host`, but for DAEMON.
+   Like :obj:`pmc-intr-enable-host`, but for DAEMON.
 
 .. reg:: 32 pmc-intr-line-host interrupt line status - host
-   MMIO 0x000160: INTR_LN_HOST
 
    Provides a way to peek at the status of corresponding output interrupt line.
    On NV01:NVC0, 0 if the output line is active, 1 if inactive. On NVC0+, 1 if
    active, 0 if inactive.
 
 .. reg:: 32 pmc-intr-line-nrhost interrupt line status - non-redirectable host
-   MMIO 0x000164: INTR_LN_NRHOST [NVA3-]
 
-   Like :reg:`pmc-intr-line-host`, but for NRHOST.
+   Like :obj:`pmc-intr-line-host`, but for NRHOST.
 
 .. reg:: 32 pmc-intr-line-daemon interrupt line status - PDAEMON
-   MMIO 0x000168: INTR_LN_DAEMON [NVA3-]
 
-   Like :reg:`pmc-intr-line-host`, but for DAEMON.
+   Like :obj:`pmc-intr-line-host`, but for DAEMON.
 
 .. reg:: 32 pmc-intr-mask-host interrupt mask - host
-   MMIO 0x000640: INTR_MASK_HOST [NVA3-]
 
    Interrupt mask. If a bit is set to 0 here, it'll be masked off to always-0
    in the INTR_* register, otherwise it'll be connected to the corresponding
@@ -411,14 +380,12 @@ is identical to HOST, but doesn't go through the PDAEMON redirection circuitry.
    enabled.
 
 .. reg:: 32 pmc-intr-mask-nrhost interrupt mask - non-redirectable host
-   MMIO 0x000644: INTR_MASK_NRHOST [NVA3-]
 
-   Like :reg:`pmc-intr-mask-host`, but for NRHOST.
+   Like :obj:`pmc-intr-mask-host`, but for NRHOST.
 
 .. reg:: 32 pmc-intr-mask-daemon interrupt mask - PDAEMON
-   MMIO 0x000648: INTR_MASK_DAEMON [NVA3-]
 
-   Like :reg:`pmc-intr-mask-host`, but for DAEMON.
+   Like :obj:`pmc-intr-mask-host`, but for DAEMON.
 
 The HOST and NRHOST output interrupt lines are connected to the PCI INTA pin
 on the card. HOST goes through PDAEMON's HOST interrupt redirection circuitry
@@ -532,19 +499,16 @@ For NVC0+:
 .. todo:: document these two
 
 .. reg:: 32 pmc-intr-pmfb PMFB interrupt status
-   MMIO 0x00017c: INTR_PMFB [NVC0-]
 
    Bit x == interrupt for PMFB part x pending.
 
 .. reg:: 32 pmc-intr-pbfb PBFB interrupt status
-   MMIO 0x000180: INTR_PBFB [NVC0-]
 
    Bit x == interrupt for PBFB part x pending.
 
 .. todo:: verify variants for these?
 
 
-.. _pmc-mmio-vram-hide:
 .. _pmc-vram-hide:
 
 VRAM hidden area
@@ -554,14 +518,12 @@ NV17/NV20 added a feature to disable host reads through selected range of
 VRAM. The registers are:
 
 .. reg:: 32 pmc-vram-hide-low VRAM hidden area low address
-   MMIO 0x000300: VRAM_HIDE_LOW
 
    - bits 0-28: address of start of the hidden area. bits 0-1 are ignored, the
      area is always 4-byte aligned.
    - bit 31: hidden area enabled
 
 .. reg:: 32 pmc-vram-hide-high VRAM hidden area high address
-   MMIO 0x000304: VRAM_HIDE_HIGH
 
    - bits 0-28: address of end of the hidden area. bits 0-1 are ignored, the
      area is always 4-byte aligned.

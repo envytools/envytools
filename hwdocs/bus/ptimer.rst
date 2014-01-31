@@ -35,20 +35,13 @@ MMIO register list - NV01
 =========================
 
 .. space:: 8 nv01-ptimer 0x1000 time measurement and time-based alarms
-   MMIO 0x101000 [NV01:NV03]
-
-   ======== ========= =============
-   Address  Name      Description
-   ======== ========= =============
-   0x101100 INTR      :ref:`interrupt status / acknowledge <ptimer-mmio-intr>`
-   0x101140 INTR_EN   :ref:`interrupt enable <ptimer-mmio-intr>`
-   0x101200 CLOCK_DIV :ref:`clock divider <ptimer-mmio-clock-ratio>`
-   0x101210 CLOCK_MUL :ref:`clock multiplier <ptimer-mmio-clock-ratio>`
-   0x101400 TIME_LOW  :ref:`low part of the time counter <ptimer-mmio-time>`
-   0x101404 TIME_HIGH :ref:`high part of the time counter <ptimer-mmio-time>`
-   0x101410 ALARM     :ref:`the TIME_LOW value to interrupt on <ptimer-mmio-alarm>`
-   ======== ========= =============
-
+   0x100 INTR ptimer-intr
+   0x140 INTR_ENABLE ptimer-intr-enable
+   0x200 CLOCK_DIV ptimer-clock-div
+   0x210 CLOCK_MUL ptimer-clock-mul
+   0x400 TIME_LOW ptimer-time-low
+   0x404 TIME_HIGH ptimer-time-high
+   0x410 ALARM ptimer-alarm
 
 .. _ptimer-mmio-nv03:
 
@@ -56,33 +49,24 @@ MMIO register list - NV03-
 ==========================
 
 .. space:: 8 nv03-ptimer 0x1000 time measurement and time-based alarms
-   MMIO 0x009000 [NV03:]
-
-   ======== ========= =============== =============
-   Address  Variants  Name            Description
-   ======== ========= =============== =============
-   0x009060 NV50-     ???             ???
-   0x009064 NV50-     ???             ???
-   0x009080 NV17:NV20 ???             ???
-            NV25:NV50               
-   0x009080 NVC0-     ???             ???
-   0x009084 NV41-     MMIO_FAULT_ADDR address and type of last MMIO fault
-   0x009088 NV41-     MMIO_FAULT_DATA data written on last MMIO fault
-   0x009100 all       INTR            :ref:`interrupt status / acknowledge <ptimer-mmio-intr>`
-   0x009140 all       INTR_EN         :ref:`interrupt enable <ptimer-mmio-intr>`
-   0x009200 all       CLOCK_DIV       :ref:`clock divider <ptimer-mmio-clock-ratio>`
-   0x009210 all       CLOCK_MUL       :ref:`clock multiplier <ptimer-mmio-clock-ratio>`
-   0x009220 NV41-     CLOCK_SOURCE    :ref:`clock source selection <ptimer-mmio-clock-source>`
-   0x009400 all       TIME_LOW        :ref:`low part of the time counter <ptimer-mmio-time>`
-   0x009410 all       TIME_HIGH       :ref:`high part of the time counter <ptimer-mmio-time>`
-   0x009420 all       ALARM           :ref:`the TIME_LOW value to interrupt on <ptimer-mmio-alarm>`
-   ======== ========= =============== =============
+   0x060 ??? ptimer-unk060 NV50:
+   0x064 ??? ptimer-unk064 NV50:
+   0x080 ??? ptimer-unk080-nv17 NV17:NV20,NV25:NV50
+   0x080 ??? ptimer-unk080-nvc0 NVC0:
+   0x084 MMIO_FAULT_ADDR ptimer-unk060 NV41:
+   0x088 MMIO_FAULT_DATA ptimer-unk060 NV41:
+   0x100 INTR ptimer-intr
+   0x140 INTR_ENABLE ptimer-intr-enable
+   0x200 CLOCK_DIV ptimer-clock-div
+   0x210 CLOCK_MUL ptimer-clock-mul
+   0x220 CLOCK_SOURCE ptimer-clock-source NV41:
+   0x400 TIME_LOW ptimer-time-low
+   0x410 TIME_HIGH ptimer-time-high
+   0x420 ALARM ptimer-alarm
 
 .. todo:: figure out 9060-9080
 .. todo:: document MMIO_FAULT_*
 
-
-.. _ptimer-mmio-clock-source:
 
 The clock source
 ================
@@ -107,7 +91,6 @@ internal clock generator and the switch is configured by the CLOCK_SOURCE
 register:
 
 .. reg:: 32 ptimer-clock-source clock source selection
-   MMIO 0x009220: CLOCK_SOURCE [NV41-]
 
    - bits 0-7: INTERNAL_MUL - specifies the multiplier of internal clock
      generator minus 1
@@ -123,8 +106,6 @@ than what PTIMER logic itself is clocked at, which is equal to the external
 clock.
 
 
-.. _ptimer-mmio-clock-ratio:
-
 The clock ratio
 ===============
 
@@ -133,14 +114,10 @@ before being used for counting. The converter multiplies the frequency by
 the specified ratio. The registers are:
 
 .. reg:: 32 ptimer-clock-div clock divider
-   MMIO 0x101200: CLOCK_DIV [NV01:NV03]
-   MMIO 0x009200: CLOCK_DIV [NV03-]
 
    - bits 0-15: clock divider - should not be 0
 
 .. reg:: 32 ptimer-clock-mul clock multiplier
-   MMIO 0x101210: CLOCK_MUL [NV01:NV03]
-   MMIO 0x009210: CLOCK_MUL [NV03-]
 
    - bits 0-15: clock multiplier - has to be between 0 and the clock divider,
      0 stops the counter entirely
@@ -150,7 +127,6 @@ not possible to get a higher frequency than the clock source - the converter
 will misbehave.
 
 
-.. _ptimer-mmio-time:
 .. _ptimer-perf-time-b12:
 
 The time counter
@@ -159,15 +135,11 @@ The time counter
 PTIMER's clock is a 56-bit value that is spread across two 32-bit registers:
 
 .. reg:: 32 ptimer-time-low low part of the time counter
-   MMIO 0x101400: TIME_LOW [NV01:NV03]
-   MMIO 0x009400: TIME_LOW [NV03-]
 
    - bits 5-31: low 27 bits of the counter
    - bits 0-4: always 0
 
 .. reg:: 32 ptimer-time-high high part of the time counter
-   MMIO 0x101404: TIME_HIGH [NV01:NV03]
-   MMIO 0x009410: TIME_HIGH [NV03-]
 
    - bits 0-28: high 29 bits of the counter
    - bits 29-31: always 0
@@ -209,8 +181,6 @@ again until it succeeds.
 
 
 .. _ptimer-intr:
-.. _ptimer-mmio-intr:
-.. _ptimer-mmio-alarm:
 
 The alarm and interrupts
 ========================
@@ -219,16 +189,12 @@ PTIMER can also be used to trigger an interrupt when TIME_LOW matches
 a specified value. The registers dealing with interrupts are:
 
 .. reg:: 32 ptimer-intr interrupt status/acknowledge
-   MMIO 0x101100: INTR [NV01:NV03]
-   MMIO 0x009100: INTR [NV03-]
 
    Status of interrupts generated by PTIMER. On read, returns 1 for bits
    corresponding to pending interrupts. On write, if 1 is written to a bit,
    its interrupt gets cleared, if 0 is written nothing happens.
 
 .. reg:: 32 ptimer-intr-enable interrupt enable
-   MMIO 0x101140: INTR_EN [NV01:NV03]
-   MMIO 0x009140: INTR_EN [NV03-]
 
    Interrupt enable bitmask. Set to enable, clear to disable. Interrupts that
    are masked will still show up in INTR when they're triggered, but won't
@@ -242,8 +208,6 @@ The bitfields common to these registers are:
 The alarm time is set in:
 
 .. reg:: 32 ptimer-alarm the TIME_LOW value to interrupt on
-   MMIO 0x101410: ALARM [NV01:NV03]
-   MMIO 0x009420: ALARM [NV03-]
 
    - bits 5-31: alarm time - when this equals the value of bits 5-31 of TIME_LOW,
      the ALARM interrupt will be triggered
