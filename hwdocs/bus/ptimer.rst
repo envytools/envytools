@@ -53,8 +53,8 @@ MMIO register list - NV03-
    0x064 ??? ptimer-unk064 NV50:
    0x080 ??? ptimer-unk080-nv17 NV17:NV20,NV25:NV50
    0x080 ??? ptimer-unk080-nvc0 NVC0:
-   0x084 MMIO_FAULT_ADDR ptimer-unk060 NV41:
-   0x088 MMIO_FAULT_DATA ptimer-unk060 NV41:
+   0x084 MMIO_FAULT_ADDR ptimer-mmio-fault-addr NV41:
+   0x088 MMIO_FAULT_DATA ptimer-mmio-fault-data NV41:
    0x100 INTR ptimer-intr
    0x140 INTR_ENABLE ptimer-intr-enable
    0x200 CLOCK_DIV ptimer-clock-div
@@ -212,3 +212,33 @@ The alarm time is set in:
    - bits 5-31: alarm time - when this equals the value of bits 5-31 of TIME_LOW,
      the ALARM interrupt will be triggered
    - bits 0-4: always 0
+
+
+Unknown registers
+=================
+
+.. todo:: figure these out
+
+.. reg:: 32 ptimer-unk060 ???
+
+   ???
+
+.. reg:: 32 ptimer-unk064 ???
+
+   ???
+
+.. reg:: 32 ptimer-unk080-nv17 ???
+
+   ???
+
+.. reg:: 32 ptimer-unk080-nvc0 ???
+
+   ???
+
+.. reg:: 32 ptimer-mmio-fault-data ???
+
+   .. todo:: write me
+
+.. reg:: 32 ptimer-mmio-fault-addr ???
+
+   .. todo:: write me

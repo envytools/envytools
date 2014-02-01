@@ -97,8 +97,7 @@ class ObjectDescription(Directive):
 
 
 class EnvyReg(ObjectDescription):
-    required_arguments = 2
-    optional_arguments = 1
+    required_arguments = 3
     final_argument_whitespace = True
 
     def make_obj(self):
@@ -114,8 +113,7 @@ class EnvyReg(ObjectDescription):
 
 
 class EnvySpace(ObjectDescription):
-    required_arguments = 3
-    optional_arguments = 1
+    required_arguments = 4
     final_argument_whitespace = True
     option_spec = {
         'root': directives.unchanged,
