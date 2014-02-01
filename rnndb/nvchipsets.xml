@@ -142,6 +142,9 @@
 	<value value="0xe6" name="NVE6">
 		<brief>GK106</brief>
 	</value>
+	<value value="0xea" name="NVEA">
+		<brief>GK20A</brief>
+	</value>
 	<value value="0xf0" name="NVF0">
 		<brief>GK110</brief>
 	</value>
