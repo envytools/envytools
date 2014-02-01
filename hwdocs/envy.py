@@ -188,10 +188,12 @@ def envy_resolve(app, doctree, fromdocname):
         for sp, pos, name, variants in obj.uplinks:
             signode = addnodes.desc_signature('', '')
             signode['first'] = False
-            text = '{} {}: {}'.format(sp.name, pos, name)
-            if variants is not None:
-                text += ' [{}]'.format(variants)
+            signode += make_refnode(app.builder, fromdocname, sp.docname, sp.iname + '-' + sp.name, addnodes.desc_addname(sp.name, sp.name), sp.name)
+            text = ' {}: {}'.format(pos, name)
             signode += addnodes.desc_name(text, text)
+            if variants is not None:
+                text = ' [{}]'.format(variants)
+                signode += addnodes.desc_annotation(text, text)
             links.append(signode)
         holder.replace_self(links)
 
@@ -205,7 +207,7 @@ def envy_resolve(app, doctree, fromdocname):
         table = nodes.table()
         headers = [(1, 'Address'), (1, 'Name'), (10, 'Description')]
         if add_variant:
-            headers.append((1, 'Variants'))
+            headers.insert(1, (1, 'Variants'))
         tgroup = nodes.tgroup(cols=len(headers))
         table += tgroup
         for colwidth, header in headers:
@@ -223,19 +225,16 @@ def envy_resolve(app, doctree, fromdocname):
         tbody = nodes.tbody()
         tgroup += tbody
         for pos, name, child, variants in obj.subs:
-            contents = [pos, name, child.name]
-            if add_variant:
-                contents.append('all' if variants is None else variants)
             row = nodes.row()
             row += wrap_text_entry(pos)
+            if add_variant:
+                row += wrap_text_entry('all' if variants is None else variants)
             row += wrap_text_entry(name)
             entry = nodes.entry()
             para = nodes.paragraph()
             entry += para
             para += make_refnode(app.builder, fromdocname, child.docname, child.iname + '-' + child.name, nodes.Text(child.brief, child.brief), obj.brief)
             row += entry
-            if add_variant:
-                row += wrap_text_entry('all' if variants is None else variants)
             tbody += row
         holder.replace_self([table])
 
