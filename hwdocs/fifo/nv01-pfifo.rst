@@ -6,13 +6,6 @@ NV01:NV04 PFIFO engine
 
 .. contents::
 
-.. note::
-
-    This file deals only with NV01:NV04 PFIFO. For other GPUs, read:
-
-    * NV04:NV50 - :ref:`NV04:NV50 PFIFO<nv04-pfifo>`
-    * NV50:NVC0 - :ref:`NV50:NVC0 PFIFO<nv50-pfifo>`
-    * NVC0+ - :ref:`NVC0+ PFIFO<nvc0-pfifo>`
 
 Introduction
 ============
@@ -25,16 +18,16 @@ PFIFO is controlled by PMC.ENABLE bit 8 and is connected to PMC interrupt 8.
 Setting PMC.ENABLE bit 8 to 0 forces the following registers to 0 [but doesn't
 otherwise affect PFIFO]:
 
-- WAIT_RETRY
-- INTR_EN
-- RAMHT [on NV03 only]
-- RAMFC [on NV03 only] - forced to 0x1c00 instead
-- RAMRO [on NV03 only] - forced to 0x1e00 instead
-- CACHES
-- CACHE*.PUSH_ACCESS
-- CACHE*.PULL_CTRL bit 0
-- CACHE1.DMA_CTRL
-- CACHE1.PULL_STATE [on NV03 only]
+- :obj:`WAIT_RETRY <pfifo-wait-retry>`
+- :obj:`INTR_ENABLE <nv01-pfifo-intr-enable>`
+- :obj:`RAMHT <nv01-pfifo-ramht>` [on NV03 only]
+- :obj:`RAMFC <nv01-pfifo-ramfc>` [on NV03 only] - forced to 0x1c00 instead
+- :obj:`RAMRO <nv01-pfifo-ramro>` [on NV03 only] - forced to 0x1e00 instead
+- :obj:`CHSW_ENABLE <nv01-pfifo-chsw-enable>`
+- :obj:`CACHE*.PUSH_ACCESS <nv01-pfifo-cache-push-access>`
+- :obj:`CACHE*.PULL_CTRL <nv01-pfifo-cache-pull-ctrl>` bit 0
+- :obj:`CACHE1.DMA_CTRL <nv01-pfifo-dma-ctrl>`
+- :obj:`CACHE1.PULL_STATE <nv01-pfifo-cache-pull-state>` [on NV03 only]
 
 
 .. _nv01-pfifo-mmio:
@@ -43,69 +36,61 @@ The MMIO registers
 ==================
 
 .. space:: 8 nv01-pfifo 0x2000 MMIO-mapped FIFO submission to PGRAPH
+   0x0040 WAIT_RETRY pfifo-wait-retry
+   0x0080 CACHE_ERROR pfifo-cache-error
+   0x0100 INTR nv01-pfifo-intr
+   0x0140 INTR_ENABLE nv01-pfifo-intr-enable
+   0x0200 CONFIG nv01-pfifo-config
+   0x0210 RAMHT nv01-pfifo-ramht NV03:
+   0x0214 RAMFC nv01-pfifo-ramfc NV03:
+   0x0218 RAMRO nv01-pfifo-ramro NV03:
+   0x0400 RUNOUT_STATUS pfifo-runout-status
+   0x0410 RUNOUT_PUT pfifo-runout-put
+   0x0420 RUNOUT_GET pfifo-runout-get
+   0x0500 CHSW_ENABLE nv01-pfifo-chsw-enable
+   0x0800 DEVICE nv01-pfifo-device
+   0x1000 CACHE0 nv01-pfifo-cache0
+   0x1200 CACHE1 nv01-pfifo-cache1
 
-   .. todo:: connect
+.. space:: 8 nv01-pfifo-cache0 0x200 aux cache
+   0x000 PUSH_ACCESS nv01-pfifo-cache-push-access
+   0x010 CHID nv01-pfifo-cache-chid NV01:NV03
+   0x020 STATUS nv01-pfifo-cache-status NV01:NV03
+   0x030 PUT nv01-pfifo-cache-put NV01:NV03
+   0x004 CHID nv01-pfifo-cache-chid NV03:NV04
+   0x010 PUT nv01-pfifo-cache-put NV03:NV04
+   0x014 STATUS nv01-pfifo-cache-status NV03:NV04
+   0x040 PULL_CTRL nv01-pfifo-cache-pull-ctrl
+   0x050 PULL_STATE nv01-pfifo-cache-pull-state NV01:NV03
+   0x070 PUT nv01-pfifo-cache-get
+   0x080 CTX nv01-pfifo-cache-ctx
+   0x100 ADDR nv01-pfifo-cache-addr
+   0x104 DATA nv01-pfifo-cache-data
 
-   =============== ===================== ============
-   Address         Name                  Description
-   =============== ===================== ============
-   002040          WAIT_RETRY            ??? [XXX]
-   002080          CACHE_ERROR           puller error status
-   002100          INTR                  interrupt status / acknowledge
-   002140          INTR_EN               interrupt enable
-   002200          CONFIG                pusher configuration
-   002210 [3]_     RAMHT                 RAMHT pointer and configuration
-   002214 [3]_     RAMFC                 RAMFC pointer
-   002218 [3]_     RAMRO                 RAMRO pointer and configuration
-   002400          RUNOUT_STATUS         RAMRO status
-   002410          RUNOUT_PUT            RAMRO write pointer
-   002420          RUNOUT_GET            RAMRO read pointer
-   002500          CACHES_REASSIGN       CACHE channel switch control
-   002800          DEVICE                PGRAPH engine status ?
-   003000          CACHE0.PUSH_ACCESS    CACHE0 pusher enable
-   003010 [1]_     CACHE0.CHID           CACHE0 channel ID
-   003020 [1]_     CACHE0.STATUS         CACHE0 status
-   003030 [1]_     CACHE0.PUT            CACHE0 pusher write pointer
-   003004 [3]_     CACHE0.CHID           CACHE0 channel ID
-   003010 [3]_     CACHE0.PUT            CACHE0 pusher write pointer
-   003014 [3]_     CACHE0.STATUS         CACHE0 status
-   003040          CACHE0.PULL_CTRL      CACHE0 puller control
-   003050 [1]_     CACHE0.PULL_STATE     CACHE0 puller state
-   003070          CACHE0.GET            CACHE0 puller read pointer
-   003080          CACHE0.CTX            CACHE0 puller context
-   003100          CACHE0.ADDR           CACHE0 entry - address
-   003104          CACHE0.DATA           CACHE0 entry - data
-   003200          CACHE1.PUSH_ACCESS    CACHE1 pusher enable
-   003210 [1]_     CACHE1.CHID           CACHE1 channel ID
-   003220 [1]_     CACHE1.STATUS         CACHE1 status
-   003230 [1]_     CACHE1.PUT            CACHE1 pusher write pointer
-   003204 [3]_     CACHE1.CHID           CACHE1 channel ID
-   003210 [3]_     CACHE1.PUT            CACHE1 pusher write pointer
-   003214 [3]_     CACHE1.STATUS         CACHE1 status
-   003218 [3]_     CACHE1.DMA_STATE      CACHE1 DMA pusher state
-   003220 [3]_     CACHE1.DMA_CTRL       CACHE1 DMA pusher control and status
-   003224 [3]_     CACHE1.DMA_COUNT      CACHE1 DMA pusher data buffer counter
-   003228 [3]_     CACHE1.DMA_GET        CACHE1 DMA pusher data buffer pointer
-   00322c [3]_     CACHE1.DMA_TARGET     CACHE1 DMA pusher data buffer target
-   003230 [3]_     CACHE1.DMA_TLB_TAG    CACHE1 DMA pusher data buffer TLB tag
-   003234 [3]_     CACHE1.DMA_TLB_PTE    CACHE1 DMA pusher data buffer TLB entry
-   003238 [3]_     CACHE1.DMA_PT_INST    CACHE1 DMA pusher data buffer page table address
-   003240          CACHE1.PULL_CTRL      CACHE1 puller control
-   003250          CACHE1.PULL_STATE     CACHE1 puller state
-   003270          CACHE1.GET            CACHE1 puller read pointer
-   003280+i*16     CACHE1.CTX[8]         CACHE1 puller context
-   003300+i*8 [2]_ CACHE1.ADDR[32]       CACHE1 entries - address
-   003304+i*8 [2]_ CACHE1.DATA[32]       CACHE1 entries - data
-   003400+i*8 [4]_ CACHE1.ADDR[64]       CACHE1 entries - address
-   003404+i*8 [4]_ CACHE1.DATA[64]       CACHE1 entries - data
-   =============== ===================== ============
-
-
-.. [0] available on NV01, NV03 and NV03T cards
-.. [1] available on NV01 only
-.. [2] available on NV01 and NV03, but not NV03T
-.. [3] available on NV03 and NV03T, but not NV01
-.. [4] available on NV03T only
+.. space:: 8 nv01-pfifo-cache1 0xe00 main cache
+   0x000 PUSH_ACCESS nv01-pfifo-cache-push-access
+   0x010 CHID nv01-pfifo-cache-chid NV01:NV03
+   0x020 STATUS nv01-pfifo-cache-status NV01:NV03
+   0x030 PUT nv01-pfifo-cache-put NV01:NV03
+   0x004 CHID nv01-pfifo-cache-chid NV03:NV04
+   0x010 PUT nv01-pfifo-cache-put NV03:NV04
+   0x014 STATUS nv01-pfifo-cache-status NV03:NV04
+   0x018 DMA_STATE nv01-pfifo-dma-state NV03:NV04
+   0x020 DMA_CTRL nv01-pfifo-dma-ctrl NV03:NV04
+   0x024 DMA_COUNT nv01-pfifo-dma-count NV03:NV04
+   0x028 DMA_GET nv01-pfifo-dma-get NV03:NV04
+   0x02c DMA_TARGET nv01-pfifo-dma-target NV03:NV04
+   0x030 DMA_TLB_TAG nv01-pfifo-dma-tlb-tag NV03:NV04
+   0x034 DMA_TLB_PTE nv01-pfifo-dma-tlb-pte NV03:NV04
+   0x038 DMA_PT nv01-pfifo-dma-pt NV03:NV04
+   0x040 PULL_CTRL nv01-pfifo-cache-pull-ctrl
+   0x050 PULL_STATE nv01-pfifo-cache-pull-state
+   0x070 PUT nv01-pfifo-cache-get
+   0x080 CTX[8/0x10] nv01-pfifo-cache-ctx
+   0x100 ADDR[0x20/8] nv01-pfifo-cache-addr NV01:NV03T
+   0x104 DATA[0x20/8] nv01-pfifo-cache-data NV01:NV03T
+   0x200 ADDR[0x40/8] nv01-pfifo-cache-addr NV03T:NV04
+   0x204 DATA[0x40/8] nv01-pfifo-cache-data NV03T:NV04
 
 
 .. _nv01-pfifo-intr:
@@ -115,14 +100,18 @@ Interrupt reporting
 
 The following registers deal with reporting PFIFO interrupts:
 
-MMIO 0x002100: INTR
-  Status of interrupts generated by PFIFO. On read, returns 1 for bits
-  corresponding to pending interrupts. On write, if 1 is written to a bit,
-  its interrupt gets cleared, if 0 is written nothing happens.
-MMIO 0x002140: INTR_EN
-  Interrupt enable bitmask. Set to enable, clear to disable. Interrupts that
-  are masked will still show up in INTR when they're triggered, but won't
-  cause the PFIFO interrupt line to go active.
+.. reg:: 32 nv01-pfifo-intr interrupt status / acknowledge
+
+   Status of interrupts generated by PFIFO. On read, returns 1 for bits
+   corresponding to pending interrupts. On write, if 1 is written to a bit,
+   its interrupt gets cleared, if 0 is written nothing happens.
+
+.. reg:: 32 nv01-pfifo-intr-enable interrupt enable
+
+   Interrupt enable bitmask. Set to enable, clear to disable. Interrupts that
+   are masked will still show up in INTR when they're triggered, but won't
+   cause the PFIFO interrupt line to go active.
+
 The bitfields common to these registers are:
   === =============== ===========
   Bit Name            Description
@@ -134,7 +123,9 @@ The bitfields common to these registers are:
   16  DMA_PTE         the DMA pusher got a page fault when reading the command stream [NV03+]
   === =============== ===========
 
-.. todo:: CACHE_ERROR reg
+.. reg:: 32 pfifo-cache-error puller error status
+
+   .. todo:: write me
 
 The memory structures
 =====================
@@ -154,39 +145,47 @@ In addition to these, NV03 also uses the page table part of standard DMA
 object structure to access the DMA command buffer.
 
 On NV01, these three structures reside at fixed addresses in RAMIN, selected
-based on the PRAM size configuration [see :ref:`NV01 RAMIN configuration <nv01-pram-mmio-config>`]. There are
+based on the PRAM size configuration [see :obj:`nv01-pram-config`]. There are
 special MMIO areas provided for easy access to them. On NV03, the structures
 can be located anywhere in the first 64kB of RAMIN, settable via the
 configuration registers:
 
-MMIO 0x002210: RAMHT [NV03-]
-  bits 12-15 bits 12-15 of RAMHT start address inside RAMIN
+.. reg:: 32 nv01-pfifo-ramht RAMHT pointer and configuration
 
-  bits 16-17 RAMHT size
-    = ========
-    0 0x1000 bytes
-    1 0x2000 bytes
-    2 0x4000 bytes
-    3 0x8000 bytes
-    = ========
+   - bits 12-15 bits 12-15 of RAMHT start address inside RAMIN
 
-  The RAMHT address always has to be 0x1000-byte aligned.
+   - bits 16-17 RAMHT size
 
-MMIO 0x002214: RAMFC [NV03-]
-  bits 9-15: bits 9-15 of RAMFC start address inside RAMIN
+     = ========
+     0 0x1000 bytes
+     1 0x2000 bytes
+     2 0x4000 bytes
+     3 0x8000 bytes
+     = ========
 
-  The RAMFC address always has to be 0x200-byte aligned.
+   The RAMHT address always has to be 0x1000-byte aligned.
 
-MMIO 0x002218: RAMRO [NV03-]
-  bits 9-15: bits 9-15 of RAMRO start address inside RAMIN
 
-  bit 16: RAMRO size
-    = =========
-    0 0x200 bytes [64 entries]
-    1 0x2000 bytes [1024 entries]
-    = =========
+.. reg:: 32 nv01-pfifo-ramfc RAMFC pointer
 
-  The RAMRO address always has to be 0x200-byte aligned.
+   - bits 9-15: bits 9-15 of RAMFC start address inside RAMIN
+
+   The RAMFC address always has to be 0x200-byte aligned.
+
+
+.. reg:: 32 nv01-pfifo-ramro RAMRO pointer and configuration
+
+   - bits 9-15: bits 9-15 of RAMRO start address inside RAMIN
+
+   - bit 16: RAMRO size
+
+     = =========
+     0 0x200 bytes [64 entries]
+     1 0x2000 bytes [1024 entries]
+     = =========
+
+   The RAMRO address always has to be 0x200-byte aligned.
+
 
 The cache
 =========
@@ -211,13 +210,43 @@ manually disabled].
 
 The CACHE1 entries are indexed in Gray code instead of normal binary code.
 
-.. todo::
+.. todo:: document gray code
 
-.. todo:: CACHE access regs
+.. reg:: 32 nv01-pfifo-cache-push-access pusher enable
 
-.. todo:: GET/PUT regs
+   .. todo:: write me
 
-.. todo:: status regs
+.. reg:: 32 nv01-pfifo-cache-pull-ctrl puller control
+
+   .. todo:: write me
+
+.. reg:: 32 nv01-pfifo-cache-chid channel ID
+
+   .. todo:: write me
+
+.. reg:: 32 nv01-pfifo-cache-get puller read pointer
+
+   .. todo:: write me
+
+.. reg:: 32 nv01-pfifo-cache-put pusher write pointer
+
+   .. todo:: write me
+
+.. reg:: 32 nv01-pfifo-cache-pull-state puller state
+
+   .. todo:: write me
+
+.. reg:: 32 nv01-pfifo-cache-status status
+
+   .. todo:: write me
+
+.. reg:: 32 nv01-pfifo-cache-addr cache entry - method & subchannel
+
+   .. todo:: write me
+
+.. reg:: 32 nv01-pfifo-cache-data cache entry - data
+
+   .. todo:: write me
 
 
 The pusher
@@ -225,11 +254,23 @@ The pusher
 
 .. todo:: write me
 
+.. reg:: 32 nv01-pfifo-config pusher configuration
+
+   .. todo:: write me
+
+.. reg:: 32 nv01-pfifo-chsw-enable CACHE channel switch control
+
+   .. todo:: write me
+
 
 FIFO submission area
 --------------------
 
 .. todo:: write me
+
+.. space:: 8 nv01-user 0x2000 PFIFO MMIO submission area
+
+   .. todo:: document me
 
 
 .. _nv01-pfifo-ramro:
@@ -239,6 +280,18 @@ RAMRO
 
 .. todo:: write me
 
+.. reg:: 32 pfifo-runout-status RAMRO status
+
+   .. todo:: write me
+
+.. reg:: 32 pfifo-runout-put RAMRO write pointer
+
+   .. todo:: write me
+
+.. reg:: 32 pfifo-runout-get RAMRO read pointer
+
+   .. todo:: write me
+
 
 .. _nv03-pfifo-dma:
 
@@ -247,11 +300,47 @@ DMA submission
 
 .. todo:: write me
 
+.. reg:: 32 nv01-pfifo-dma-state DMA pusher state
+
+   .. todo:: write me
+
+.. reg:: 32 nv01-pfifo-dma-ctrl DMA pusher control and status
+
+   .. todo:: write me
+
+.. reg:: 32 nv01-pfifo-dma-count DMA push buffer counter
+
+   .. todo:: write me
+
+.. reg:: 32 nv01-pfifo-dma-get DMA push buffer pointer
+
+   .. todo:: write me
+
+.. reg:: 32 nv01-pfifo-dma-target DMA push buffer target
+
+   .. todo:: write me
+
+.. reg:: 32 nv01-pfifo-dma-tlb-tag DMA push buffer TLB tag
+
+   .. todo:: write me
+
+.. reg:: 32 nv01-pfifo-dma-tlb-entry DMA push buffer TLB entry
+
+   .. todo:: write me
+
+.. reg:: 32 nv01-pfifo-dma-pt DMA push buffer page table
+
+   .. todo:: write me
+
 
 The puller
 ==========
 
 .. todo:: write me
+
+.. reg:: 32 nv01-pfifo-cache-ctx puller context
+
+   .. todo:: write me
 
 
 .. _nv01-pfifo-ramfc:
@@ -270,9 +359,13 @@ RAMHT
 .. todo:: write me
 
 
-USER submission area
-====================
+Unknown registers
+=================
 
-.. space:: 8 nv01-user 0x2000 PFIFO MMIO submission area
-   
-   .. todo:: document me
+.. reg:: 32 pfifo-wait-retry ???
+
+   .. todo:: write me
+
+.. reg:: 32 nv01-pfifo-device PGRAPH engine status?
+
+   .. todo:: write me
