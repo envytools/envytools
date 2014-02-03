@@ -324,7 +324,7 @@ DMA submission
 
    .. todo:: write me
 
-.. reg:: 32 nv01-pfifo-dma-tlb-entry DMA push buffer TLB entry
+.. reg:: 32 nv01-pfifo-dma-tlb-pte DMA push buffer TLB entry
 
    .. todo:: write me
 
