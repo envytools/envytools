@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<database xmlns="http://nouveau.freedesktop.org/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
+<import file="copyright.xml"/>
+
+<import file="nvchipsets.xml" />
+<import file="falcon.xml" />
+<import file="nv50_defs.xml" />
+
+<group name="nvc0_hw_blk">
+	<reg32 offset="0x00" name="BLCG"/>
+	<reg32 offset="0x04" name="SLCG"/>
+	<reg32 offset="0x08" name="ELPG0"/>
+	<reg32 offset="0x0c" name="ELPG1"/>
+</group>
+
+<group name="nvc0_hw_pgblk">
+	<reg32 offset="0x00" name="ELPG0"/>
+	<reg32 offset="0x04" name="ELPG1"/>
+</group>
+
+<group name="nvc0_hw_cgblk">
+	<reg32 offset="0x00" name="BLCG"/>
+	<reg32 offset="0x04" name="SLCG"/>
+</group>
+
+</database>

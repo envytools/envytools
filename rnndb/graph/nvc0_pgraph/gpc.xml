@@ -7,6 +7,7 @@
 <import file="nvchipsets.xml" />
 <import file="graph/nv50_pgraph.xml" />
 <import file="graph/nvc0_pgraph/ctxctl.xml" />
+<import file="graph/nvc0_pgraph/hw_blk.xml" />
 <import file="graph/nvc0_pgraph/tpc.xml" />
 <import file="graph/nvc0_pgraph/ppc.xml" />
 
@@ -14,6 +15,7 @@
 	<array offset="0x380" name="UNK380" stride="0x080" length="1">
 		<reg32 offset="0x00" name="CTX_UNK00"/>
 		<reg32 offset="0x04" name="PM_UNK04"/>
+		<reg32 offset="0x08" name="SLCG"/>
 	</array>
 	<array offset="0x400" name="PROP" stride="0x100" length="1">
 		<reg32 offset="0x00" name="CTX_UNK00"/>
@@ -47,14 +49,26 @@
 		<reg32 offset="0xa0" name="PM_UNKA0"/>
 	</array>
 	<array offset="0x500" name="UNK500" stride="0x100" length="1">
+		<stripe offset="0x00" name="HW_CGBLK">
+			<use-group name="nvc0_hw_cgblk"/>
+		</stripe>
+		<stripe offset="0x10" name="HW_PGBLK">
+			<use-group name="nvc0_hw_pgblk"/>
+		</stripe>
 	</array>
 	<array offset="0x600" name="UNK600" stride="0x080" length="1">
 		<reg32 offset="0x00" name="CTX_UNK00"/>
 		<reg32 offset="0x04" name="PM_UNK04"/>
+		<stripe offset="0x8" name="HW_BLK">
+			<use-group name="nvc0_hw_blk"/>
+		</stripe>
 	</array>
 	<array offset="0x680" name="UNK680" stride="0x080" length="1">
 		<reg32 offset="0x00" name="PM_UNK00"/>
 		<reg32 offset="0x04" name="CTX_UNK04"/>
+		<stripe offset="0x8" name="HW_BLK">
+			<use-group name="nvc0_hw_blk"/>
+		</stripe>
 	</array>
 	<array offset="0x700" name="UNK700" stride="0x080" length="1">
 		<reg32 offset="0x00" name="CTX_UNK00"/>
@@ -63,6 +77,9 @@
 		<reg32 offset="0x0c" name="CTX_UNK0C"/>
 		<reg32 offset="0x10" name="CTX_UNK10"/>
 		<reg32 offset="0x14" name="PM_UNK14"/>
+		<stripe offset="0x18" name="HW_BLK">
+			<use-group name="nvc0_hw_blk"/>
+		</stripe>
 	</array>
 	<array offset="0x800" name="ESETUP" stride="0x080" length="1">
 		<reg32 offset="0x00" name="CTX_UNK00"/>
@@ -80,8 +97,13 @@
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
-		<reg32 offset="0x28" name="JOE"/> <!-- XXX: ctx-switched? -->
+		<stripe offset="0x28" name="HW_CGBLK"> <!-- XXX: ctx-switched? -->
+			<use-group name="nvc0_hw_cgblk"/>
+		</stripe>
 		<reg32 offset="0x30" name="CTX_UNK30"/>
+		<stripe offset="0x40" name="HW_PGBLK0">
+			<use-group name="nvc0_hw_pgblk"/>
+		</stripe>
 	</array>
 	<array offset="0x880" name="FFB" stride="0x080" length="1">
 		<reg32 offset="0x2c" name="PART_CONFIG">
@@ -104,6 +126,9 @@
 		<reg32 offset="0x24" name="CTX_UNK24"/>
 		<reg32 offset="0x28" name="CTX_UNK28"/>
 		<reg32 offset="0x2c" name="CTX_UNK2C"/>
+		<stripe offset="0x70" name="HW_BLK">
+			<use-group name="nvc0_hw_blk"/>
+		</stripe>
 	</array>
 	<array offset="0x980" name="UNK980" stride="0x080" length="1">
 	</array>
@@ -132,22 +157,40 @@
 			<bitfield low="0" high="7" name="ROP_COUNT"/>
 			<bitfield low="8" high="15" name="GPC_COUNT"/>
 		</reg32>
+		<stripe offset="0xbc" name="HW_BLK">
+			<use-group name="nvc0_hw_blk"/>
+		</stripe>
 	</array>
 	<array offset="0xc00" name="TPCONF" stride="0x080" length="1">
 		<reg32 offset="0x08" name="TPCCNT"/> <!-- ctx-switched -->
 		<reg32 offset="0x10" name="TPCID" length="8"/> <!-- ctx-switched -->
 		<reg32 offset="0x40" name="CTX_UNK40" variants="NVE4-"/>
 		<reg32 offset="0x6c" name="CTX_UNK6C" variants="NVE4-"/>
+		<stripe offset="0x70" name="HW_BLK">
+			<use-group name="nvc0_hw_blk"/>
+		</stripe>
 	</array>
 	<array offset="0xc80" name="UNKC80" stride="0x080" length="1">
 		<reg32 offset="0x00" name="CTX_UNK00"/>
 		<reg32 offset="0xc" name="TPCCNT"/> <!-- ctx-switched -->
+		<stripe offset="0x70" name="HW_BLK">
+			<use-group name="nvc0_hw_blk"/>
+		</stripe>
 	</array>
 	<array offset="0xd00" name="UNKD00" stride="0x080" length="1">
+		<stripe offset="0x70" name="HW_BLK">
+			<use-group name="nvc0_hw_blk"/>
+		</stripe>
 	</array>
 	<array offset="0xe00" name="UNKE00" stride="0x100" length="1">
+		<stripe offset="0xc" name="HW_BLK">
+			<use-group name="nvc0_hw_blk"/>
+		</stripe>
 	</array>
 	<array offset="0xf00" name="UNKF00" stride="0x100" length="1">
+		<stripe offset="0xc" name="HW_BLK">
+			<use-group name="nvc0_hw_blk"/>
+		</stripe>
 	</array>
 	<array offset="0x1000" name="CCACHE" stride="0x100" length="1">
 		<reg32 offset="0x00" name="CACHE_CTRL"> <!-- ctx-switched -->
@@ -158,10 +201,16 @@
 			<bitfield low="0" high="7" name="SIZE" shr="8"/>
 		</reg32>
 		<reg32 offset="0x14" name="CTX_UNK14"/>
+		<stripe offset="0x20" name="HW_CGBLK">
+			<use-group name="nvc0_hw_cgblk"/>
+		</stripe>
 		<reg32 offset="0x28" name="TRAP">
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
+		<reg32 offset="0x30" name="ELPG0"/>
+		<reg32 offset="0x38" name="BLCG1"/>
+		<reg32 offset="0x50" name="ELPG1"/>
 	</array>
 	<array name="TPC_ALL" offset="0x1800" stride="0x800" length="1">
 		<use-group name="nvc0_tpc"/>

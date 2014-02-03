@@ -6,6 +6,7 @@
 
 <import file="nvchipsets.xml" />
 <import file="graph/nv50_pgraph.xml" />
+<import file="graph/nvc0_pgraph/hw_blk.xml" />
 <import file="graph/nvc0_pgraph/ctxctl.xml" />
 <import file="graph/nvc0_pgraph/gpc.xml" />
 <import file="graph/nvc0_pgraph/rop.xml" />
@@ -338,6 +339,10 @@
 		<reg32 offset="0x1a8" name="NOTIFY_COMPUTE_ADDRESS_HIGH" variants="NVE4-"/>
 		<reg32 offset="0x1ac" name="NOTIFY_COMPUTE_ADDRESS_LOW" variants="NVE4-"/>
 
+		<stripe offset="0x1f0" name="HW_BLK">
+			<use-group name="nvc0_hw_blk"/>
+		</stripe>
+
 		<reg32 offset="0x200" name="CTX_CACHE" length="8" variants="NVC0:NVE4"/>
 		<reg32 offset="0x200" name="CTX_CACHE" length="4" variants="NVE4-"/> <!-- 3d, compute, upload, 2d -->
 	</array>
@@ -422,6 +427,9 @@
 		</reg32>
 		<reg32 offset="0x44" name="TRAP_UNK44"/>
 		<reg32 offset="0x54" name="CTX_UNK54"/>
+		<stripe offset="0x60" name="HW_BLK">
+			<use-group name="nvc0_hw_blk"/>
+		</stripe>
 		<reg32 offset="0x70" name="GPC_TPCCNT" length="4"> <!-- ctx-switched -->
 			<bitfield low="0" high="3" name="0"/>
 			<bitfield low="4" high="7" name="1"/>
@@ -434,6 +442,11 @@
 		</reg32>
 	</array>
 	<array offset="0x5900" name="UNK5900" stride="0x100" length="1">
+		<stripe offset="0x0c" name="HW_CGBLK">
+			<use-group name="nvc0_hw_cgblk"/>
+		</stripe>
+		<reg32 offset="0x14" name="ELPG0"/>
+		<reg32 offset="0x24" name="ELPG1"/>
 	</array>
 	<array offset="0x5a00" name="UNK5A00" stride="0x100" length="1">
 		<reg32 offset="0x00" name="CTX_UNK00"/>
@@ -450,8 +463,14 @@
 			<bitfield low="8" high="15" name="TPCCNT"/><!-- guess -->
 		</reg32>
 		<reg32 offset="0x10" name="CTX_UNK10"/>
+		<stripe offset="0xf0" name="HW_BLK">
+			<use-group name="nvc0_hw_blk"/>
+		</stripe>
 	</array>
 	<array offset="0x6000" name="UNK6000" stride="0x800" length="1">
+		<stripe offset="0x0" name="HW_BLK">
+			<use-group name="nvc0_hw_blk"/>
+		</stripe>
 		<reg32 offset="0x018" name="TRAP_UNK0">
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
@@ -496,10 +515,9 @@
 		</stripe>
 	</stripe>
 	<array offset="0x7000" name="SKED" stride="0x400" length="1" variants="NVE4-">
-		<reg32 offset="0x00" name="JOE"/>
-		<reg32 offset="0x04" name="UNK04"/>
-		<reg32 offset="0x08" name="UNK08"/>
-		<reg32 offset="0x0c" name="UNK0C"/>
+		<stripe offset="0x0" name="HW_BLK">
+			<use-group name="nvc0_hw_blk"/>
+		</stripe>
 		<reg32 offset="0x10" name="UNK10"/>
 		<reg32 offset="0x20" name="TRAP">
 			<doc>This reports compute program launch check errors
@@ -539,6 +557,9 @@
 			<bitfield low="0" high="7" name="ROP_COUNT"/>
 			<bitfield low="8" high="15" name="GPC_COUNT"/>
 		</reg32>
+		<stripe offset="0xc0" name="HW_BLK">
+			<use-group name="nvc0_hw_blk"/>
+		</stripe>
 	</array>
 	<array offset="0x8000" name="CCACHE" stride="0x800" length="1">
 		<reg32 offset="0x00" name="CTX_UNK00"/>
@@ -559,6 +580,9 @@
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
+		<stripe offset="0x40" name="HW_BLK">
+			<use-group name="nvc0_hw_blk"/>
+		</stripe>
 		<reg32 offset="0x64" name="CTX_UNK64"/>
 	</array>
 

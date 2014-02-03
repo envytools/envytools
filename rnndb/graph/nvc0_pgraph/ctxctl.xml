@@ -7,6 +7,7 @@
 <import file="nvchipsets.xml" />
 <import file="falcon.xml" />
 <import file="nv50_defs.xml" />
+<import file="graph/nvc0_pgraph/hw_blk.xml" />
 
 <group name="nvc0_ctxctl">
 	<use-group name="falcon_base"/>
@@ -225,10 +226,12 @@
 		<bitfield pos="10" name="ENABLE_ROP"/>
 	</reg32>
 
-	<reg32 offset="0xc14" name="INTR_UP_ROUTE" type="nvc0_ctxctl_iroute">
-		<doc>Indexed falcon register, in 19 copies. Index i determines the source
-		of interrupt i. Source for interrupt 19 is hardwired to 0x2b [WATCHDOG].</doc>
-	</reg32>
+	<stripe offset="0x890" name="HW_BLK">
+		<use-group name="nvc0_hw_blk"/>
+	</stripe>
+
+	<reg32 offset="0x8b0" name="BLCG1"/>
+
 	<reg32 offset="0xc00" name="ENGINE_STATUS">
 		<bitfield pos="0" name="CHSW_PENDING"/>
 		<bitfield pos="1" name="CHAN_VALID"/>
@@ -249,6 +252,10 @@
 		<bitfield pos="2" name="IDLE"/>
 		<bitfield pos="3" name="PAUSE"/>
 	</reg32>
+	<reg32 offset="0xc14" name="INTR_UP_ROUTE" type="nvc0_ctxctl_iroute">
+		<doc>Indexed falcon register, in 19 copies. Index i determines the source
+		of interrupt i. Source for interrupt 19 is hardwired to 0x2b [WATCHDOG].</doc>
+	</reg32>
 	<reg32 offset="0xc18" name="INTR_UP_STATUS"/>
 	<reg32 offset="0xc1c" name="INTR_UP_SET"/>
 	<reg32 offset="0xc20" name="INTR_UP_CLEAR"/>
@@ -268,6 +275,10 @@
 		<bitfield pos="11" name="UNK11"/>
 	</reg32>
 	<reg32 offset="0x618" name="MYINDEX"/>
+	<stripe offset="0x890" name="HW_BLK">
+		<use-group name="nvc0_hw_blk"/>
+	</stripe>
+	<reg32 offset="0x8b0" name="BLCG1"/>
 	<reg32 offset="0xc80" name="VSTATUS_0" access="r">
 		<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
 		<bitfield low="3" high="5" name="UNK1" type="NV50_VSTATUS"/>
