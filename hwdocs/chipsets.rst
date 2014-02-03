@@ -580,7 +580,7 @@ core pciid  hda   id   name        TPCs MPs/TPC PARTs notes
 05eX+       \-    NVA0 G200        10   3       8
 084X+       \-    NVAA MCP77/MCP78 1    1       1     IGP
 086X+       \-    NVAC MCP79/MCP7A 1    2       1     IGP
-0caX+       0be4  NVA3 GT215       4    3       4
+0caX+       0be4  NVA3 GT215       4    3       2
 0a2X+       0be2  NVA5 GT216       2    3       2
 0a6X+ 10cX+ 0be3  NVA8 GT218       1    2       1
 08aX+       \-    NVAF MCP89       2    3       2     IGP
@@ -590,8 +590,7 @@ Like NV40, these are just the maximal numbers.
 
 The pci vendor id is 0x10de.
 
-.. todo:: geometry information not verified for G92, G94, G96, MCP77, GT215, GT218
-
+.. todo:: geometry information not verified for G94, G96, MCP77, GT218
 
 
 NVC0 family
