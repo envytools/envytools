@@ -13,12 +13,12 @@ Intruduction
 .. todo:: write me
 
 
-.. _nv01-pgraph-mmio:
-
 MMIO registers
 ==============
 
-.. todo:: write me
+.. space:: 8 nv01-pgraph 0x1000 accelerated drawing engine
+
+   .. todo:: write me
 
 
 .. _nv01-pgraph-intr:
@@ -209,6 +209,86 @@ the options field are:
 
 Method submission
 =================
+
+.. space:: 8 nv01-ubeta 0x2000 BETA object
+
+   .. todo:: write me
+
+.. space:: 8 nv01-urop 0x2000 ROP object
+
+   .. todo:: write me
+
+.. space:: 8 nv01-uchroma 0x2000 CHROMA object
+
+   .. todo:: write me
+
+.. space:: 8 nv01-uplane 0x2000 PLANE object
+
+   .. todo:: write me
+
+.. space:: 8 nv01-uclip 0x2000 CLIP object
+
+   .. todo:: write me
+
+.. space:: 8 nv01-upattern 0x2000 PATTERN object
+
+   .. todo:: write me
+
+.. space:: 8 nv01-upoint 0x2000 POINT object
+
+   .. todo:: write me
+
+.. space:: 8 nv01-uline 0x2000 LINE object
+
+   .. todo:: write me
+
+.. space:: 8 nv01-ulin 0x2000 LIN object
+
+   .. todo:: write me
+
+.. space:: 8 nv01-utri 0x2000 TRI object
+
+   .. todo:: write me
+
+.. space:: 8 nv01-urect 0x2000 RECT object
+
+   .. todo:: write me
+
+.. space:: 8 nv01-ublit 0x2000 BLIT object
+
+   .. todo:: write me
+
+.. space:: 8 nv01-uifc 0x2000 IFC object
+
+   .. todo:: write me
+
+.. space:: 8 nv01-ubitmap 0x2000 BITMAP object
+
+   .. todo:: write me
+
+.. space:: 8 nv01-uifm 0x2000 IFM object
+
+   .. todo:: write me
+
+.. space:: 8 nv01-uitm 0x2000 ITM object
+
+   .. todo:: write me
+
+.. space:: 8 nv01-utexlin 0x2000 TEXLIN object
+
+   .. todo:: write me
+
+.. space:: 8 nv01-utexquad 0x2000 TEXUAD object
+
+   .. todo:: write me
+
+.. space:: 8 nv01-utexlinbeta 0x2000 TEXLINBETA object
+
+   .. todo:: write me
+
+.. space:: 8 nv01-utexquadbeta 0x2000 TEXQUADBETA object
+
+   .. todo:: write me
 
 .. todo:: write me
 

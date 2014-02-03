@@ -20,7 +20,9 @@ Introduction
 PROM read access
 ================
 
-.. todo:: write me
+.. space:: 8 nv01-prom 0x8000 ROM access window
+
+   .. todo:: write me
 
 
 .. _prom-mmio-rom-timings:
@@ -43,9 +45,9 @@ PROM write access - SPI
 .. todo:: write me
 
 
-.. _palt-mmio:
-
 PALT space
 ==========
 
-.. todo:: write me
+.. space:: 8 nv01-palt 0x8000 external memory access window
+
+   .. todo:: write me

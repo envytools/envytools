@@ -13,19 +13,19 @@ Introduction
 .. todo:: write me
 
 
-.. _nv01-paudio-mmio:
-
 MMIO registers
 ==============
 
-.. todo:: write me
+.. space:: 8 nv01-paudio 0x1000 audio capture and playback device
+
+   .. todo:: write me
 
 
 .. _nv01-paudio-intr:
 
 Interrupts
 ==========
- 
+
 .. todo:: write me
 
 

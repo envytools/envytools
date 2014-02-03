@@ -35,16 +35,9 @@ To learn the size of VRAM, read the `PFB.VRAM_SIZE register <nv01-pfb-mmio-vram-
 MMIO registers
 ==============
 
-There is only one MMIO register in PRAM range:
+.. space:: 8 nv01-pram 0x1000 RAMIN layout control
+   0x200 CONFIG nv01-pram-config
 
-======== ====== =============
-Address  Name   Description
-======== ====== =============
-0x602200 CONFIG :ref:`Selects RAMIN fixed area layout and size <nv01-pram-mmio-config>`
-======== ====== =============
-
-
-.. _nv01-fb-mmio:
 
 The framebuffer
 ===============
@@ -75,12 +68,13 @@ supposed to ever be displayed.
 
 The framebuffer is mapped straight to MMIO area:
 
-MMIO 0x1000000:0x2000000
-    Address range mapped straight to the framebuffer. Can be accessed in
-    arbitrarily-sized units.
+.. todo:: space?
 
+.. space:: 8 nv01-fb 0x1000000 VRAM access area
 
-.. _nv01-pram-mmio-config:
+   Address range mapped straight to the framebuffer. Can be accessed in
+   arbitrarily-sized units.
+
 
 RAMIN
 =====
@@ -113,12 +107,14 @@ anywhere in RAMIN - including space taken up by one of the other areas, but
 that's not a particularly good idea. For the fixed areas, the layout is
 selected by PRAM.CONFIG register:
 
-MMIO 0x602200: CONFIG
-  Selects RAMIN fixed areas layout, one of:
-    0: 0x1000-byte RAMHT, 0x800-byte RAMRO and RAMFC
-    1: 0x2000-byte RAMHT, 0x1000-byte RAMRO and RAMFC
-    2: 0x4000-byte RAMHT, 0x2000-byte RAMRO and RAMFC, *buggy*
-    3: 0x8000-byte RAMHT, 0x4000-byte RAMRO and RAMFC
+.. reg:: 32 nv01-pram-config selects RAMIN fixed area layout and size
+
+   Selects RAMIN fixed areas layout, one of:
+
+   - 0: 0x1000-byte RAMHT, 0x800-byte RAMRO and RAMFC
+   - 1: 0x2000-byte RAMHT, 0x1000-byte RAMRO and RAMFC
+   - 2: 0x4000-byte RAMHT, 0x2000-byte RAMRO and RAMFC, *buggy*
+   - 3: 0x8000-byte RAMHT, 0x4000-byte RAMRO and RAMFC
 
 The addresses of fixed RAMIN areas for various configurations are:
 
@@ -149,12 +145,29 @@ RAMIN access areas
 
 The MMIO ranges that are mapped to VRAM areas are:
 
-- 640000:648000 PRAMHT - mapped to RAMHT area
-- 648000:64c000 PRAMFC - mapped to RAMFC area
-- 650000:654000 PRAMRO - mapped to RAMRO area
-- 604000:605000 ??? - mapped to UNK1 area
-- 606000:607000 ??? - mapped to UNK2 area
-- 700000:800000 PRAMIN - mapped to RAMIN area
+.. space:: 8 nv01-pramht 0x8000 RAMHT access
+
+   Mapped to RAMHT area
+
+.. space:: 8 nv01-pramfc 0x4000 RAMFC access
+
+   Mapped to RAMFC area
+
+.. space:: 8 nv01-pramro 0x4000 RAMRO access
+
+   Mapped to RAMRO area
+
+.. space:: 8 nv01-pramunk1 0x1000 UNK1 access
+
+   Mapped to UNK1 area
+
+.. space:: 8 nv01-pramunk2 0x1000 UNK2 access
+
+   Mapped to UNK2 area
+
+.. space:: 8 nv01-pramin 0x100000 RAMIN access
+
+   Mapped to RAMIN area
 
 If any of the above MMIO areas happens to be larger than the underlying VRAM
 area it is mapped to, higher addresses will wrap over to the beginning of

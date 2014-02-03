@@ -13,20 +13,20 @@ Introduction
 .. todo:: figure out what the fuck this engine does
 
 
-.. _nv01-prm-mmio:
-
 The MMIO registers
 ==================
 
-.. todo:: write me
+.. space:: 8 nv01-prm 0x8000 VGA compatibility control
 
+   .. todo:: write me
 
-.. _nv01-prmio-mmio:
 
 The IO ports
 ============
 
-.. todo:: write me
+.. space:: 8 nv01-prmio 0x1000 VGA and ISA sound compat IO port access
+
+   .. todo:: write me
 
 
 .. _nv01-vga-regs:
@@ -53,12 +53,12 @@ SR 0x04: MEMORY_CONTROL
     - 1: chained mode
 
 
-.. _nv01-prmfb-mmio:
-
 The VGA memory window
 =====================
 
-.. todo:: write me
+.. space:: 8 nv01-prmfb 0x20000 aliases VGA memory window
+
+   .. todo:: write me
 
 
 .. _nv01-prm-intr:

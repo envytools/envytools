@@ -26,36 +26,40 @@ In addition to this range, PBUS also owns :ref:`PEEPHOLE <peephole-mmio>` and
 
 The registers in the PBUS area are:
 
-============= ========= ===============
-Range         Variants  Description
-============= ========= ===============
-001000:0010f0 NV04-     :ref:`DEBUG registers <pbus-mmio-debug>`
-0010f0:0010f4 NV11:NV50 :ref:`PWM - PWM generators <pbus-mmio-pwm>`
-001100:001200 NV03-     :ref:`interrupts <pbus-mmio-intr>`
-001200:001208 NV04:NV50 :ref:`ROM control <prom-mmio-rom-timings>`
-001300:001380 NV17:NV20 :ref:`HWSQ - hardware sequencer <hwsq-mmio>`
-              NV25:NVC0
-001380:001400 NV41:NV50 :ref:`VGA_STACK <pbus-mmio-vga-stack>`
-001400:001500 NV17:NV20 :ref:`HWSQ - hardware sequencer <hwsq-mmio>`
-              NV25:NVC0
-001500:001540 ???       :ref:`DEBUG registers <pbus-mmio-debug>`
-001540:001550 NV40:NVC0 HWUNITS - enabling/disabling optional hardware subunits [see below]
-00155c:001578 NV30:NV84 :ref:`PEEPHOLE - indirect memory access <peephole-mmio>`
-001578:001580 NV41:NVC0 :ref:`HWSQ - hardware sequencer <hwsq-mmio>`
-001580:0015a0 NV17:NV20 CLOCK_GATE - clock gating registers [see below]
-              NV25:NVC0
-0015b0:0015c0 NV43:NV50 :ref:`THERM - thermal sensor <nv43-therm-mmio>`
-0015f4:001604 NV41:NV50 :ref:`PWM - PWM generators <pbus-mmio-pwm>`
-001700:001800 TC        :ref:`HOST_MEM - host memory access setup <pbus-mmio-nv44-host-mem>`
-001700:001800 NV50:NVC0 :ref:`HOST_MEM - host memory access setup <pbus-mmio-nv50-host-mem>`
-001700:001800 NVC0-     :ref:`HOST_MEM - host memory access setup <pbus-mmio-nvc0-host-mem>`
-001800:001a00 NV01:NV50 :ref:`PCI - PCI configuration space <pbus-mmio-pci>`
-001900:001980 NV50:NVC0 :ref:`REMAP - BAR1 remapping circuitry <pbus-mmio-nv50-remap>`
-001980:001a00 NV50:NVC0 :ref:`P2P - NV50 P2P slave <pbus-mmio-nv50-p2p>`
-001a14        NVA3:NVC0 :ref:`IBUS_TIMEOUT - controls timeout length for accessing MMIO via IBUS <pbus-mmio-ibus-timeout>`
-============= ========= ===============
+.. space:: 8 pbus 0x1000 bus control
 
-.. todo:: loads and loads of unknown registers not shown
+   .. todo:: connect
+
+   ============= ========= ===============
+   Range         Variants  Description
+   ============= ========= ===============
+   001000:0010f0 NV04-     :ref:`DEBUG registers <pbus-mmio-debug>`
+   0010f0:0010f4 NV11:NV50 :ref:`PWM - PWM generators <pbus-mmio-pwm>`
+   001100:001200 NV03-     :ref:`interrupts <pbus-mmio-intr>`
+   001200:001208 NV04:NV50 :ref:`ROM control <prom-mmio-rom-timings>`
+   001300:001380 NV17:NV20 :ref:`HWSQ - hardware sequencer <hwsq-mmio>`
+                 NV25:NVC0
+   001380:001400 NV41:NV50 :ref:`VGA_STACK <pbus-mmio-vga-stack>`
+   001400:001500 NV17:NV20 :ref:`HWSQ - hardware sequencer <hwsq-mmio>`
+                 NV25:NVC0
+   001500:001540 ???       :ref:`DEBUG registers <pbus-mmio-debug>`
+   001540:001550 NV40:NVC0 HWUNITS - enabling/disabling optional hardware subunits [see below]
+   00155c:001578 NV30:NV84 :ref:`PEEPHOLE - indirect memory access <peephole-mmio>`
+   001578:001580 NV41:NVC0 :ref:`HWSQ - hardware sequencer <hwsq-mmio>`
+   001580:0015a0 NV17:NV20 CLOCK_GATE - clock gating registers [see below]
+                 NV25:NVC0
+   0015b0:0015c0 NV43:NV50 :ref:`THERM - thermal sensor <nv43-therm-mmio>`
+   0015f4:001604 NV41:NV50 :ref:`PWM - PWM generators <pbus-mmio-pwm>`
+   001700:001800 TC        :ref:`HOST_MEM - host memory access setup <pbus-mmio-nv44-host-mem>`
+   001700:001800 NV50:NVC0 :ref:`HOST_MEM - host memory access setup <pbus-mmio-nv50-host-mem>`
+   001700:001800 NVC0-     :ref:`HOST_MEM - host memory access setup <pbus-mmio-nvc0-host-mem>`
+   001800:001a00 NV01:NV50 :ref:`PCI - PCI configuration space <pbus-mmio-pci>`
+   001900:001980 NV50:NVC0 :ref:`REMAP - BAR1 remapping circuitry <pbus-mmio-nv50-remap>`
+   001980:001a00 NV50:NVC0 :ref:`P2P - NV50 P2P slave <pbus-mmio-nv50-p2p>`
+   001a14        NVA3:NVC0 :ref:`IBUS_TIMEOUT - controls timeout length for accessing MMIO via IBUS <pbus-mmio-ibus-timeout>`
+   ============= ========= ===============
+
+   .. todo:: loads and loads of unknown registers not shown
 
 
 .. _pbus-mmio-debug:

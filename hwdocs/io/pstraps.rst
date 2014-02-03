@@ -56,13 +56,8 @@ controlling ROM timings.
 MMIO register list
 ==================
 
-NV01 registers:
-
-======== ====== =============
-Address  Name   Description
-======== ====== =============
-0x608000 STRAPS :ref:`straps value <pstraps-mmio-nv01-straps>`
-======== ====== =============
+.. space:: 8 nv01-pstraps 0x1000 straps readout
+   0x000 STRAPS nv01-pstraps-straps
 
 NV03+ registers:
 
@@ -93,25 +88,24 @@ Address  Present on      Name              Description
 .. todo:: 0x101028, 0x10102c, 0x101030, 0x101040
 
 
-.. _pstraps-mmio-nv01-straps:
-
 NV01 straps
 ===========
 
 On NV01, all straps bits are available in a single register:
 
-MMIO 0x608000: STRAPS
-  - bits 0-1: memory type
-    - 0 - VRAM
-    - 3 - DRAM
-  - bits 2-3: board type
-    - 0 - motherboard
-    - 1 - adapter #1 [normal add-on cards use this value]
-    - 2 - adapter #2
-    - 3 - adapter #3
-  - bit 4: bus type
-    - 0 - PCI
-    - 1 - VESA local bus
+.. reg:: 32 nv01-pstraps-straps straps value
+
+   - bits 0-1: memory type
+     - 0 - VRAM
+     - 3 - DRAM
+   - bits 2-3: board type
+     - 0 - motherboard
+     - 1 - adapter #1 [normal add-on cards use this value]
+     - 2 - adapter #2
+     - 3 - adapter #3
+   - bit 4: bus type
+     - 0 - PCI
+     - 1 - VESA local bus
 
 
 .. _pstraps-mmio-nv03-straps:

@@ -60,11 +60,13 @@ class ObjectDescription(Directive):
         node.name = obj.name
         obj.docname = self.env.docname
 
+        objects = self.env.domaindata['envy']['objects']
+
         signode = addnodes.desc_signature('', '')
         signode['first'] = True
         node.append(signode)
         self.make_signature(obj, signode)
-        if not noindex:
+        if not noindex and self.name not in objects:
             # only add target and index entry if this is the first
             # description of the object with this name in this desc block
             #self.add_target_and_index(self.name, sig, signode)
@@ -81,7 +83,6 @@ class ObjectDescription(Directive):
 
         node.append(uplink_placeholder(self.name))
 
-        objects = self.env.domaindata['envy']['objects']
         if self.name in objects:
             other = objects[self.name]
             self.state_machine.reporter.warning('duplicate object {}, other instance in {}'.format(self.name, self.env.doc2path(other.docname)))
@@ -231,7 +232,7 @@ def envy_resolve(app, doctree, fromdocname):
             entry = nodes.entry()
             para = nodes.paragraph()
             entry += para
-            para += make_refnode(app.builder, fromdocname, child.docname, child.iname + '-' + child.name, nodes.Text(child.brief, child.brief), obj.brief)
+            para += make_refnode(app.builder, fromdocname, child.docname, child.iname + '-' + child.name, nodes.Text(child.brief, child.brief), child.brief)
             row += entry
             tbody += row
         holder.replace_self([table])

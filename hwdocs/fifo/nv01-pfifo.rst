@@ -42,59 +42,63 @@ otherwise affect PFIFO]:
 The MMIO registers
 ==================
 
-=============== ===================== ============
-Address         Name                  Description
-=============== ===================== ============
-002040          WAIT_RETRY            ??? [XXX]
-002080          CACHE_ERROR           puller error status
-002100          INTR                  interrupt status / acknowledge
-002140          INTR_EN               interrupt enable
-002200          CONFIG                pusher configuration
-002210 [3]_     RAMHT                 RAMHT pointer and configuration
-002214 [3]_     RAMFC                 RAMFC pointer
-002218 [3]_     RAMRO                 RAMRO pointer and configuration
-002400          RUNOUT_STATUS         RAMRO status
-002410          RUNOUT_PUT            RAMRO write pointer
-002420          RUNOUT_GET            RAMRO read pointer
-002500          CACHES_REASSIGN       CACHE channel switch control
-002800          DEVICE                PGRAPH engine status ?
-003000          CACHE0.PUSH_ACCESS    CACHE0 pusher enable
-003010 [1]_     CACHE0.CHID           CACHE0 channel ID
-003020 [1]_     CACHE0.STATUS         CACHE0 status
-003030 [1]_     CACHE0.PUT            CACHE0 pusher write pointer
-003004 [3]_     CACHE0.CHID           CACHE0 channel ID
-003010 [3]_     CACHE0.PUT            CACHE0 pusher write pointer
-003014 [3]_     CACHE0.STATUS         CACHE0 status
-003040          CACHE0.PULL_CTRL      CACHE0 puller control
-003050 [1]_     CACHE0.PULL_STATE     CACHE0 puller state
-003070          CACHE0.GET            CACHE0 puller read pointer
-003080          CACHE0.CTX            CACHE0 puller context
-003100          CACHE0.ADDR           CACHE0 entry - address
-003104          CACHE0.DATA           CACHE0 entry - data
-003200          CACHE1.PUSH_ACCESS    CACHE1 pusher enable
-003210 [1]_     CACHE1.CHID           CACHE1 channel ID
-003220 [1]_     CACHE1.STATUS         CACHE1 status
-003230 [1]_     CACHE1.PUT            CACHE1 pusher write pointer
-003204 [3]_     CACHE1.CHID           CACHE1 channel ID
-003210 [3]_     CACHE1.PUT            CACHE1 pusher write pointer
-003214 [3]_     CACHE1.STATUS         CACHE1 status
-003218 [3]_     CACHE1.DMA_STATE      CACHE1 DMA pusher state
-003220 [3]_     CACHE1.DMA_CTRL       CACHE1 DMA pusher control and status
-003224 [3]_     CACHE1.DMA_COUNT      CACHE1 DMA pusher data buffer counter
-003228 [3]_     CACHE1.DMA_GET        CACHE1 DMA pusher data buffer pointer
-00322c [3]_     CACHE1.DMA_TARGET     CACHE1 DMA pusher data buffer target
-003230 [3]_     CACHE1.DMA_TLB_TAG    CACHE1 DMA pusher data buffer TLB tag
-003234 [3]_     CACHE1.DMA_TLB_PTE    CACHE1 DMA pusher data buffer TLB entry
-003238 [3]_     CACHE1.DMA_PT_INST    CACHE1 DMA pusher data buffer page table address
-003240          CACHE1.PULL_CTRL      CACHE1 puller control
-003250          CACHE1.PULL_STATE     CACHE1 puller state
-003270          CACHE1.GET            CACHE1 puller read pointer
-003280+i*16     CACHE1.CTX[8]         CACHE1 puller context
-003300+i*8 [2]_ CACHE1.ADDR[32]       CACHE1 entries - address
-003304+i*8 [2]_ CACHE1.DATA[32]       CACHE1 entries - data
-003400+i*8 [4]_ CACHE1.ADDR[64]       CACHE1 entries - address
-003404+i*8 [4]_ CACHE1.DATA[64]       CACHE1 entries - data
-=============== ===================== ============
+.. space:: 8 nv01-pfifo 0x2000 MMIO-mapped FIFO submission to PGRAPH
+
+   .. todo:: connect
+
+   =============== ===================== ============
+   Address         Name                  Description
+   =============== ===================== ============
+   002040          WAIT_RETRY            ??? [XXX]
+   002080          CACHE_ERROR           puller error status
+   002100          INTR                  interrupt status / acknowledge
+   002140          INTR_EN               interrupt enable
+   002200          CONFIG                pusher configuration
+   002210 [3]_     RAMHT                 RAMHT pointer and configuration
+   002214 [3]_     RAMFC                 RAMFC pointer
+   002218 [3]_     RAMRO                 RAMRO pointer and configuration
+   002400          RUNOUT_STATUS         RAMRO status
+   002410          RUNOUT_PUT            RAMRO write pointer
+   002420          RUNOUT_GET            RAMRO read pointer
+   002500          CACHES_REASSIGN       CACHE channel switch control
+   002800          DEVICE                PGRAPH engine status ?
+   003000          CACHE0.PUSH_ACCESS    CACHE0 pusher enable
+   003010 [1]_     CACHE0.CHID           CACHE0 channel ID
+   003020 [1]_     CACHE0.STATUS         CACHE0 status
+   003030 [1]_     CACHE0.PUT            CACHE0 pusher write pointer
+   003004 [3]_     CACHE0.CHID           CACHE0 channel ID
+   003010 [3]_     CACHE0.PUT            CACHE0 pusher write pointer
+   003014 [3]_     CACHE0.STATUS         CACHE0 status
+   003040          CACHE0.PULL_CTRL      CACHE0 puller control
+   003050 [1]_     CACHE0.PULL_STATE     CACHE0 puller state
+   003070          CACHE0.GET            CACHE0 puller read pointer
+   003080          CACHE0.CTX            CACHE0 puller context
+   003100          CACHE0.ADDR           CACHE0 entry - address
+   003104          CACHE0.DATA           CACHE0 entry - data
+   003200          CACHE1.PUSH_ACCESS    CACHE1 pusher enable
+   003210 [1]_     CACHE1.CHID           CACHE1 channel ID
+   003220 [1]_     CACHE1.STATUS         CACHE1 status
+   003230 [1]_     CACHE1.PUT            CACHE1 pusher write pointer
+   003204 [3]_     CACHE1.CHID           CACHE1 channel ID
+   003210 [3]_     CACHE1.PUT            CACHE1 pusher write pointer
+   003214 [3]_     CACHE1.STATUS         CACHE1 status
+   003218 [3]_     CACHE1.DMA_STATE      CACHE1 DMA pusher state
+   003220 [3]_     CACHE1.DMA_CTRL       CACHE1 DMA pusher control and status
+   003224 [3]_     CACHE1.DMA_COUNT      CACHE1 DMA pusher data buffer counter
+   003228 [3]_     CACHE1.DMA_GET        CACHE1 DMA pusher data buffer pointer
+   00322c [3]_     CACHE1.DMA_TARGET     CACHE1 DMA pusher data buffer target
+   003230 [3]_     CACHE1.DMA_TLB_TAG    CACHE1 DMA pusher data buffer TLB tag
+   003234 [3]_     CACHE1.DMA_TLB_PTE    CACHE1 DMA pusher data buffer TLB entry
+   003238 [3]_     CACHE1.DMA_PT_INST    CACHE1 DMA pusher data buffer page table address
+   003240          CACHE1.PULL_CTRL      CACHE1 puller control
+   003250          CACHE1.PULL_STATE     CACHE1 puller state
+   003270          CACHE1.GET            CACHE1 puller read pointer
+   003280+i*16     CACHE1.CTX[8]         CACHE1 puller context
+   003300+i*8 [2]_ CACHE1.ADDR[32]       CACHE1 entries - address
+   003304+i*8 [2]_ CACHE1.DATA[32]       CACHE1 entries - data
+   003400+i*8 [4]_ CACHE1.ADDR[64]       CACHE1 entries - address
+   003404+i*8 [4]_ CACHE1.DATA[64]       CACHE1 entries - data
+   =============== ===================== ============
 
 
 .. [0] available on NV01, NV03 and NV03T cards
@@ -264,3 +268,11 @@ RAMHT
 =====
 
 .. todo:: write me
+
+
+USER submission area
+====================
+
+.. space:: 8 nv01-user 0x2000 PFIFO MMIO submission area
+   
+   .. todo:: document me

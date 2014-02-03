@@ -15,12 +15,12 @@ Introduction
 .. todo:: write me
 
 
-.. _nv01-pdac-mmio:
-
 The MMIO registers
 ==================
 
-.. todo:: write me
+.. space:: 8 nv01-pdac 0x1000 DAC control
+
+   .. todo:: write me
 
 
 The DAC registers
