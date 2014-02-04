@@ -34,11 +34,8 @@
 			<bitfield low="27" high="29" name="UNK9" type="NV50_VSTATUS"/>
 		</reg32>
 		<reg32 offset="0x064" name="CTX_UNK064"/>
-		<stripe offset="0x68" name="HW_CGBLK">
-			<use-group name="nvc0_hw_cgblk"/>
-		</stripe>
-		<stripe offset="0x70" name="HW_PGBLK">
-			<use-group name="nvc0_hw_pgblk"/>
+		<stripe offset="0x68" name="HW_BLK">
+			<use-group name="nvc0_hw_blk"/>
 		</stripe>
 		<reg32 offset="0x084" name="TRAP">
 			<bitfield name="CLEAR" pos="30" />
@@ -112,11 +109,8 @@
 			<use-group name="nvc0_hw_pgblk"/>
 		</stripe>
 		<reg32 offset="0xc4" name="CTX_UNKC4" variants="NVE4-"/>
-		<stripe offset="0xcc" name="HW_CGBLK9">
-			<use-group name="nvc0_hw_cgblk"/>
-		</stripe>
-		<stripe offset="0xd4" name="HW_PGBLK4">
-			<use-group name="nvc0_hw_pgblk"/>
+		<stripe offset="0xcc" name="HW_BLK" variants="NVC4-">
+			<use-group name="nvc0_hw_blk"/>
 		</stripe>
 		<reg32 offset="0xdc" name="VSTATUS_1" access="r">
 			<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
@@ -142,6 +136,9 @@
 		</reg32>
 		<reg32 offset="0xe0" name="CTX_UNKE0"/>
 		<reg32 offset="0xe4" name="CTX_UNKE4"/>
+		<stripe offset="0xe8" name="HW_BLK">
+			<use-group name="nvc0_hw_blk"/>
+		</stripe>
 	</array>
 	<array offset="0x400" name="UNK400" stride="0x80" length="1">
 		<reg32 offset="0x00" name="CTX_UNK00"/>
@@ -205,6 +202,11 @@
 		</reg32>
 		<reg32 offset="0x20" name="CTX_UNK20" variants="NVC0:NVE4"/>
 		<reg32 offset="0x24" name="CTX_UNK24" variants="NVC0:NVE4"/>
+		<stripe offset="0x30" name="HW_CGBLK" variants="NVC0:NVE4">
+			<use-group name="nvc0_hw_cgblk"/>
+		</stripe>
+		<reg32 offset="0x38" name="ELPG0"/>
+		<reg32 offset="0x40" name="ELPG1"/>
 	</array>
 	<array offset="0x600" name="MP" stride="0x200" length="1">
 		<reg32 offset="0x000" name="PM_UNK000" variants="NVC0:NVE4"/>
@@ -375,41 +377,51 @@
 		<reg32 offset="0x170" name="CTX_UNK170" variants="NVE4-"/> <!-- ctx-switched -->
 		<reg32 offset="0x178" name="CTX_UNK178" variants="NVE4-"/> <!-- ctx-switched -->
 		<reg32 offset="0x17c" name="CTX_UNK17C" variants="NVE4-"/> <!-- ctx-switched -->
-		<reg32 offset="0x190" name="BLCG0"/>
-		<stripe offset="0x1a0" name="HW_PGBLK0">
+		<reg32 offset="0x190" name="BLCG0" variants="NVE4-"/>
+		<stripe offset="0x1a0" name="HW_PGBLK0" variants="NVE4-">
 			<use-group name="nvc0_hw_pgblk"/>
 		</stripe>
-		<stripe offset="0x1a8" name="HW_PGBLK1">
+		<stripe offset="0x1a8" name="HW_PGBLK1" variants="NVE4-">
 			<use-group name="nvc0_hw_pgblk"/>
 		</stripe>
-		<stripe offset="0x1b0" name="HW_PGBLK2">
+		<stripe offset="0x1b0" name="HW_PGBLK2" variants="NVC4-">
 			<use-group name="nvc0_hw_pgblk"/>
 		</stripe>
-		<stripe offset="0x1b8" name="HW_PGBLK3">
+		<stripe offset="0x1b8" name="HW_PGBLK3" variants="NVC4-">
 			<use-group name="nvc0_hw_pgblk"/>
 		</stripe>
-		<stripe offset="0x1c0" name="HW_PGBLK4">
+		<stripe offset="0x1c0" name="HW_PGBLK4" variants="NVE4-">
 			<use-group name="nvc0_hw_pgblk"/>
 		</stripe>
-		<stripe offset="0x1c8" name="HW_PGBLK5">
+		<stripe offset="0x1c0" name="HW_BLK0" variants="NVC0:NVE4">
+			<use-group name="nvc0_hw_blk"/>
+		</stripe>
+		<stripe offset="0x1c8" name="HW_PGBLK5" variants="NVE4-">
 			<use-group name="nvc0_hw_pgblk"/>
 		</stripe>
-		<stripe offset="0x1d0" name="HW_CGBLK1">
+		<stripe offset="0x1d0" name="HW_CGBLK1" variants="NVE4-">
 			<use-group name="nvc0_hw_cgblk"/>
 		</stripe>
-		<stripe offset="0x1d8" name="HW_CGBLK2">
+		<stripe offset="0x1d4" name="HW_BLK1" variants="NVC0:NVE4">
+			<use-group name="nvc0_hw_blk"/>
+		</stripe>
+		<stripe offset="0x1d8" name="HW_CGBLK2" variants="NVE4-">
 			<use-group name="nvc0_hw_cgblk"/>
 		</stripe>
-		<stripe offset="0x1e0" name="HW_CGBLK3">
+		<stripe offset="0x1e0" name="HW_CGBLK3" variants="NVE4-">
 			<use-group name="nvc0_hw_cgblk"/>
 		</stripe>
-		<stripe offset="0x1e8" name="HW_CGBLK4">
+		<stripe offset="0x1e8" name="HW_CGBLK4" variants="NVE4-">
 			<use-group name="nvc0_hw_cgblk"/>
 		</stripe>
-		<stripe offset="0x1f0" name="HW_CGBLK5">
+		<stripe offset="0x1e8" name="HW_BLK2" variants="NVC0:NVE4">
+			<use-group name="nvc0_hw_blk"/>
+		</stripe>
+
+		<stripe offset="0x1f0" name="HW_CGBLK5" variants="NVE4-">
 			<use-group name="nvc0_hw_cgblk"/>
 		</stripe>
-		<stripe offset="0x1f8" name="HW_CGBLK6">
+		<stripe offset="0x1f8" name="HW_CGBLK6" variants="NVE4-">
 			<use-group name="nvc0_hw_cgblk"/>
 		</stripe>
 	</array>

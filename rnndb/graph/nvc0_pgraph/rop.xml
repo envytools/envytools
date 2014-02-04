@@ -42,11 +42,15 @@
 		</reg32>
 		<reg32 offset="0x80" name="CTX_UNK80"/>
 		<reg32 offset="0x88" name="PM_UNK88" length="2"/>
-		<stripe offset="0xa8" name="HW_CGBLK">
+		<stripe offset="0xa8" name="HW_CGBLK0">
 			<use-group name="nvc0_hw_cgblk"/>
 		</stripe>
-		<reg32 offset="0xb0" name="BLCG1"/>
-		<reg32 offset="0xb8" name="BLCG2"/>
+		<stripe offset="0xb0" name="HW_CGBLK1">
+			<use-group name="nvc0_hw_cgblk"/>
+		</stripe>
+		<stripe offset="0xb8" name="HW_CGBLK1">
+			<use-group name="nvc0_hw_cgblk"/>
+		</stripe>
 		<stripe offset="0xc0" name="HW_PGBLK0">
 			<use-group name="nvc0_hw_pgblk"/>
 		</stripe>
@@ -78,7 +82,7 @@
 		<bitfield pos="6" name="POWER_ROP"/>
 		<bitfield pos="10" name="ENABLE_ROP"/>
 	</reg32>
-	<reg32 offset="0x224" name="SLCG0"/>
+	<reg32 offset="0x224" name="SLCG0" variants="NVE4-"/>
 	<stripe offset="0x280" name="HW_CGBLK1">
 		<use-group name="nvc0_hw_cgblk"/>
 	</stripe>
@@ -97,7 +101,7 @@
 	<stripe offset="0x2a8" name="HW_CGBLK6">
 		<use-group name="nvc0_hw_cgblk"/>
 	</stripe>
-	<stripe offset="0x2c0" name="HW_CGBLK0">
+	<stripe offset="0x2c0" name="HW_PGBLK0">
 		<use-group name="nvc0_hw_pgblk"/>
 	</stripe>
 	<stripe offset="0x2c8" name="HW_PGBLK1">

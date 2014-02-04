@@ -15,7 +15,7 @@
 	<array offset="0x380" name="UNK380" stride="0x080" length="1">
 		<reg32 offset="0x00" name="CTX_UNK00"/>
 		<reg32 offset="0x04" name="PM_UNK04"/>
-		<reg32 offset="0x08" name="SLCG"/>
+		<reg32 offset="0x08" name="SLCG" variants="NVE4-"/>
 	</array>
 	<array offset="0x400" name="PROP" stride="0x100" length="1">
 		<reg32 offset="0x00" name="CTX_UNK00"/>
@@ -204,7 +204,7 @@
 			<bitfield low="0" high="7" name="SIZE" shr="8"/>
 		</reg32>
 		<reg32 offset="0x14" name="CTX_UNK14"/>
-		<stripe offset="0x20" name="HW_CGBLK">
+		<stripe offset="0x20" name="HW_CGBLK0">
 			<use-group name="nvc0_hw_cgblk"/>
 		</stripe>
 		<reg32 offset="0x28" name="TRAP">
@@ -212,7 +212,9 @@
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
 		<reg32 offset="0x30" name="ELPG0"/>
-		<reg32 offset="0x38" name="BLCG1"/>
+		<stripe offset="0x38" name="HW_CGBLK1">
+			<use-group name="nvc0_hw_cgblk"/>
+		</stripe>
 		<reg32 offset="0x50" name="ELPG1"/>
 	</array>
 	<array name="TPC_ALL" offset="0x1800" stride="0x800" length="1">

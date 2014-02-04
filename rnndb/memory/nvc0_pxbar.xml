@@ -18,18 +18,20 @@
 	</array>
 
 	<array name="UNK1800" offset="0x1800" stride="0x80" length="1">
-		<reg32 offset="0x20" name="BLCG"/>
-		<stripe offset="0x10" name="HW_PGBLK">
+		<reg32 offset="0x20" name="BLCG" />
+		<stripe offset="0x10" name="HW_PGBLK" variants="NVE4-">
 			<use-group name="nvc0_hw_pgblk"/>
 		</stripe>
 	</array>
 
-	<stripe offset="0x1be0" name="HW_BLK">
+	<stripe offset="0x1be0" name="HW_BLK" variants="NVE4-">
 		<use-group name="nvc0_hw_blk"/>
 	</stripe>
 
 	<array name="GPC_UNK2" offset="0x1c00" stride="0x20" length="32">
-
+		<stripe offset="0x00" name="HW_BLK" variants="NVC0:NVE4">
+			<use-group name="nvc0_hw_blk"/>
+		</stripe>
 	</array>
 
 	<array name="GPC_UNK3" offset="0x2000" stride="0x40" length="32">
