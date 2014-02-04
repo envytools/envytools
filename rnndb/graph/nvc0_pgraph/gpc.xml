@@ -106,12 +106,15 @@
 		</stripe>
 	</array>
 	<array offset="0x880" name="FFB" stride="0x080" length="1">
+		<reg32 offset="0x18" name="BLCG"/>
+		<reg32 offset="0x20" name="ELPG0"/>
 		<reg32 offset="0x2c" name="PART_CONFIG">
 			<bitfield low="0" high="3" name="PART_COUNT"/>
 			<bitfield pos="4" name="MEM_SPLIT_ENABLE"/>
 		</reg32>
 		<reg32 offset="0x34" name="UNK34_ADDR" shr="8"/>
 		<reg32 offset="0x38" name="UNK38_ADDR" shr="8"/>
+		<reg32 offset="0x3c" name="ELPG1"/>
 		<reg32 offset="0x48" name="PM_UNK48"/>
 		<reg32 offset="0x58" name="CTX_UNK58"/>
 		<reg32 offset="0x60" name="CTX_UNK60"/>

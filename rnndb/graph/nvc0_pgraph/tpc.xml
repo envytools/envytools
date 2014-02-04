@@ -169,10 +169,11 @@
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
 		<reg32 offset="0x28" name="PM_UNK28"/>
-		<stripe offset="0x54" name="HW_CGBLK0">
+		<reg32 offset="0x4c" name="BLCG0"/>
+		<stripe offset="0x54" name="HW_CGBLK1">
 			<use-group name="nvc0_hw_cgblk"/>
 		</stripe>
-		<stripe offset="0x5c" name="HW_CGBLK1">
+		<stripe offset="0x5c" name="HW_CGBLK2">
 			<use-group name="nvc0_hw_cgblk"/>
 		</stripe>
 		<reg32 offset="0x64" name="ELPG0"/>

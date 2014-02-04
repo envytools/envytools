@@ -18,9 +18,16 @@
 	</array>
 
 	<array name="UNK1800" offset="0x1800" stride="0x80" length="1">
-
+		<reg32 offset="0x20" name="BLCG"/>
+		<stripe offset="0x10" name="HW_PGBLK">
+			<use-group name="nvc0_hw_pgblk"/>
+		</stripe>
 	</array>
-	
+
+	<stripe offset="0x1be0" name="HW_BLK">
+		<use-group name="nvc0_hw_blk"/>
+	</stripe>
+
 	<array name="GPC_UNK2" offset="0x1c00" stride="0x20" length="32">
 
 	</array>
