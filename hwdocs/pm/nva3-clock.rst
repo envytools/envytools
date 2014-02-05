@@ -40,14 +40,20 @@ and the other clocks are set up in PCLOCK area.
 .. todo:: write me
 
 
-.. _nva3-pclock-mmio:
-.. _nva3-pioclock-mmio:
-.. _nva3-pcontrol-mmio:
-
 MMIO registers
 ==============
 
-.. todo:: write me
+.. space:: 8 nva3-pclock 0x1000 PLL control
+
+   .. todo:: write me
+
+.. space:: 8 nva3-pioclock 0x800 I/O PLL control
+
+   .. todo:: write me
+
+.. space:: 8 nva3-pcontrol 0x1000 misc clock control
+
+   .. todo:: write me
 
 
 .. _nva3-clock-tclk:

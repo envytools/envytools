@@ -96,4 +96,8 @@ IO registers:
 IO registers
 ============
 
+.. space:: 8 pvenc 0x1000 H.264 video encoding engine
+
+   .. todo:: write me
+
 .. todo:: write me

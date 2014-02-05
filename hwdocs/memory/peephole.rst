@@ -51,12 +51,17 @@ Address  Present on Name                  Description
 0x001564 NV30:NV84  PEEPHOLE_W_DATA       :ref:`write port data <peephole-mmio-w>`
 0x001570 NV30:NV84  PEEPHOLE_RW_ADDR      :ref:`read-write port address <peephole-mmio-rw>`
 0x001574 NV30:NV84  PEEPHOLE_RW_DATA      :ref:`read-write port data <peephole-mmio-rw>`
-0x060000 NV84:NVC0  PEEPHOLE_W_ADDR       :ref:`write port address <peephole-mmio-w>`
-0x060004 NV84:NVC0  PEEPHOLE_W_DATA       :ref:`write port data <peephole-mmio-w>`
-0x06000c NVC0-      PEEPHOLE_RW_ADDR_HIGH :ref:`read-write port address, high part <peephole-mmio-rw>`
-0x060010 NV84-      PEEPHOLE_RW_ADDR_LOW  :ref:`read-write port address, low part <peephole-mmio-rw>`
-0x060014 NV84-      PEEPHOLE_RW_DATA      :ref:`read-write port data <peephole-mmio-rw>`
 ======== ========== ===================== ====================
+
+.. space:: 8 peephole 0x1000 indirect VM access
+
+   .. todo:: convert
+
+   0x060000 NV84:NVC0  PEEPHOLE_W_ADDR       :ref:`write port address <peephole-mmio-w>`
+   0x060004 NV84:NVC0  PEEPHOLE_W_DATA       :ref:`write port data <peephole-mmio-w>`
+   0x06000c NVC0-      PEEPHOLE_RW_ADDR_HIGH :ref:`read-write port address, high part <peephole-mmio-rw>`
+   0x060010 NV84-      PEEPHOLE_RW_ADDR_LOW  :ref:`read-write port address, low part <peephole-mmio-rw>`
+   0x060014 NV84-      PEEPHOLE_RW_DATA      :ref:`read-write port data <peephole-mmio-rw>`
 
 In addition, PEEPHOLE uses PBUS interrupt #12 for its write port.
 

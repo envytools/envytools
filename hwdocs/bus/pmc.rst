@@ -246,7 +246,7 @@ On NVC0+, the bits are:
 - 2: :ref:`PXBAR <pxbar>`
 - 3: :ref:`PMFB <pmfb>`
 - 4: :ref:`PMEDIA <pmedia>`
-- 5: :ref:`PIBUS <pibus>`
+- 5: :ref:`PRING <pring>`
 - 6: :ref:`PCOPY[0] <pcopy>`
 - 7: :ref:`PCOPY[1] <pcopy>`
 - 8: :ref:`PFIFO <nvc0-pfifo>`
@@ -269,8 +269,8 @@ NVC0 also introduced SUBFIFO_ENABLE register:
 
 .. reg:: 32 pmc-spoon-enable PSPOON enables
 
-   Enables PFIFO's PSUBFIFOs. Bit i corresponds to PSUBFIFO[i]. See
-   :ref:`NVC0+ PFIFO <nvc0-psubfifo>` for details.
+   Enables PFIFO's PSPOONs. Bit i corresponds to PSPOON[i]. See
+   :ref:`NVC0+ PFIFO <nvc0-pspoon>` for details.
 
 There are also two other registers looking like ENABLE, but with seemingly
 no effect and currently unknown purpose:
@@ -491,7 +491,7 @@ For NVC0+:
 - 27: :ref:`PFFB <pffb-intr>`
 - 28: :ref:`PBUS <pbus-intr>` - has separate NRHOST line
 - 29: :ref:`PPCI <ppci-intr>`
-- 30: :ref:`PIBUS <pibus-intr>`
+- 30: :ref:`PRING <pring-intr>`
 - 31: software
 
 .. todo:: unknowns

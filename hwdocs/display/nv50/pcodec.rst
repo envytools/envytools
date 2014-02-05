@@ -15,9 +15,9 @@ Introduction
 .. todo:: write me
 
 
-.. _pcodec-mmio:
-
 MMIO registers
 ==============
 
-.. todo:: write me
+.. space:: 8 pcodec 0x1000 HDA codec for HDMI audio
+
+   .. todo:: write me

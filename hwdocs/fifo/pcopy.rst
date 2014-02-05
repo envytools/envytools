@@ -109,4 +109,8 @@ Status bits:
     1    MEMIF   :ref:`Memory interface <falcon-memif>` and :ref:`COPY <pcopy>`
     ==== ======= ===========
 
+.. space:: 8 pcopy 0x1000 memory copy engine
+
+   .. todo:: write me
+
 .. todo:: describe PCOPY

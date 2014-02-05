@@ -42,7 +42,6 @@ FIFO submission area
 
    .. todo:: document me
 
-
 .. space:: 8 nv40-dma-user 0x1000 PFIFO DMA submission area
 
    .. todo:: document me

@@ -76,6 +76,10 @@ IO registers:
 IO registers
 ============
 
+.. space:: 8 pcrypt3 0x1000 VP3 cryptographic engine
+
+   .. todo:: write me
+
 ============ =============== =========== ===========
 Host         Falcon          Name        Description
 ============ =============== =========== ===========

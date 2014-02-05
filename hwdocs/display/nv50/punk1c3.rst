@@ -83,6 +83,10 @@ IO registers:
 IO registers
 ============
 
+.. space:: 8 punk1c3 0x1000 ???
+
+   .. todo:: write me
+
 The IO registers:
 
 =========== ===== ============

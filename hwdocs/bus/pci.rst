@@ -26,6 +26,10 @@ MMIO registers
 
    .. todo:: write me
 
+.. space:: 8 pbridge-pci 0x1000 access to PCI config registers of the GPU's upstream PCIE bridge
+
+   .. todo:: write me
+
 
 .. _ppci-intr:
 

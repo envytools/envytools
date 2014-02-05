@@ -15,12 +15,12 @@ Introduction
 .. todo:: write me
 
 
-.. _pffb-mmio:
-
 MMIO registers
 ==============
 
-.. todo:: write me
+.. space:: 8 pffb 0x800 front memory interface and VM control
+
+   .. todo:: write me
 
 
 .. _pffb-intr:

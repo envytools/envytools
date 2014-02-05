@@ -146,12 +146,12 @@ Power management
 .. todo:: write me
 
 
-.. _ptherm-mmio:
-
 MMIO registers
 ==============
 
-.. todo:: write me
+.. space:: 8 ptherm 0x800 thermal sensor
+
+   .. todo:: write me
 
 
 .. _ptherm-intr:

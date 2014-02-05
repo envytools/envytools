@@ -132,9 +132,13 @@ class EnvySpace(ObjectDescription):
         for sub in subs:
             pos, name, ref, *rest = sub.split()
             if rest:
-                variants, = rest
+                variants, *rest = rest
             else:
                 variants = None
+            if rest:
+                tags, = rest
+            else:
+                tags = None
             obj.presubs.append((pos, name, ref, variants))
         self.locs = []
         return obj

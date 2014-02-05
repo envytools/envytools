@@ -15,9 +15,9 @@ Introduction
 .. todo:: write me
 
 
-.. _punits-mmio:
-
 MMIO registers
 ==============
 
-.. todo:: write me
+.. space:: 8 punits 0x400 control over enabled card units
+
+   .. todo:: write me

@@ -15,9 +15,9 @@ Introduction
 .. todo:: write me
 
 
-.. _pkfuse-mmio:
-
 MMIO registers
 ==============
 
-.. todo:: write me
+.. space:: 8 pkfuse 0x1000 efuses storing secret key stuff
+
+   .. todo:: write me

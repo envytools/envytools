@@ -15,13 +15,16 @@ Introduction
 .. todo:: write me
 
 
-.. _pdisplay-mmio:
-.. _display-user-mmio:
-
 MMIO registers
 ==============
 
-.. todo:: write me
+.. space:: 8 nv50-pdisplay 0xb0000 unified display engine
+
+   .. todo:: write me
+
+.. space:: 8 nvd9-pdisplay 0xb0000 unified display engine
+
+   .. todo:: write me
 
 
 .. _pdisplay-intr:

@@ -40,13 +40,16 @@ the MPLLs are set up in PMCLOCK area, and the other clocks are set up in
 PCLOCK area.
 
 
-.. _nvc0-pclock-mmio:
-.. _nvc0-pioclock-mmio:
-
 MMIO registers
 ==============
 
-.. todo:: write me
+.. space:: 8 nvc0-pclock 0x8000 clock control
+
+   .. todo:: write me
+
+.. space:: 8 nvc0-pioclock 0x800 I/O clock control
+
+   .. todo:: write me
 
 
 .. _nvc0-clock-tclk:

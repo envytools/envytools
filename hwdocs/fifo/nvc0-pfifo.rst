@@ -6,15 +6,6 @@ NVC0+ PFIFO engine
 
 .. contents::
 
-.. todo:: write me
-
-.. note::
-
-    This file deals only with NVC0+ PFIFO. For other GPUs, read:
-
-    * NV01:NV04 - :ref:`nv01-pfifo`
-    * NV04:NV50 - :ref:`nv04-pfifo`
-    * NV50:NVC0 - :ref:`nv50-pfifo`
 
 Introduction
 ============
@@ -22,14 +13,26 @@ Introduction
 .. todo:: write me
 
 
-.. _nvc0-pfifo-mmio:
-.. _nvc0-pfifo-mmio-bypass:
-.. _nvc0-pfifo-mmio-chan:
-
 MMIO registers
 ==============
 
-.. todo:: write me
+.. space:: 8 nvc0-pfifo 0x2000 DMA FIFO submission to engines
+
+   .. todo:: write me
+
+.. space:: 8 nvc0-pfifo-pio 0x1000 PFIFO PIO submission
+
+   .. todo:: write me
+
+.. space:: 8 nvc0-pfifo-unk1c0000 0x1000 PFIFO ???
+
+   .. todo:: write me
+
+.. space:: 8 nvc0-pfifo-chan 0x10000 PFIFO channel table
+   
+   Related to PFIFO and playlist?
+
+   .. todo:: write me
 
 
 .. _nvc0-pfifo-intr:

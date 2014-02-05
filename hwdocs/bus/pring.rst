@@ -1,7 +1,7 @@
-.. _pibus:
+.. _pring:
 
 ========================
-PIBUS: Card internal bus
+PRING: Card internal bus
 ========================
 
 .. contents::
@@ -15,15 +15,15 @@ Introduction
 .. todo:: write me
 
 
-.. _pibus-mmio:
-
 MMIO registers
 ==============
 
-.. todo:: write me
+.. space:: 8 pring 0x10000 card internal bus
+
+   .. todo:: write me
 
 
-.. _pibus-intr:
+.. _pring-intr:
 
 Interrupts
 ==========
@@ -31,7 +31,7 @@ Interrupts
 .. todo:: write me
 
 
-.. _pbus-intr-mmio-ibus-err:
+.. _pbus-intr-mmio-ring-err:
 
 PBUS interrupts
 ===============

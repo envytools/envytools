@@ -15,9 +15,9 @@ Introduction
 .. todo:: write me
 
 
-.. _pxbar-mmio:
-
 MMIO registers
 ==============
 
-.. todo:: write me
+.. space:: 8 pxbar 0x4000 crossbar between memory controllers and GPCs
+
+   .. todo:: write me

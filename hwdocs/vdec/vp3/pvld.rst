@@ -167,6 +167,10 @@ VLD unit
 IO registers
 ------------
 
+.. space:: 8 pvld 0x1000 VP3 variable length decoding engine
+
+   .. todo:: write me
+
 .. todo:: write me
 
 

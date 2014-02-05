@@ -117,8 +117,8 @@ MMIO 0x001100: INTR [NV03-]
   - bit 0: BUS_ERROR - ??? [NV03:NV50]
   - bit 1: MMIO_DISABLED_ENG - MMIO access from host failed due to accessing
     an area disabled via PMC.ENABLE [NVC0-] [XXX: document]
-  - bit 2: MMIO_IBUS_ERR - :ref:`MMIO access from host failed due to some error in
-    IBUS <pbus-intr-mmio-ibus-err>` [NVC0-]
+  - bit 2: MMIO_RING_ERR - :ref:`MMIO access from host failed due to some error in
+    PRING <pbus-intr-mmio-ring-err>` [NVC0-]
   - bit 3: MMIO_FAULT - MMIO access from host failed due to other reasons
     [NV41-] [XXX: document]
   - bit 4: GPIO_0_RISE - :ref:`GPIO #0 went from 0 to 1 [NV10:NV31] <nv10-gpio-intr>`

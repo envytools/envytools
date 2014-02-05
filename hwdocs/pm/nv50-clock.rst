@@ -44,14 +44,20 @@ and the other clocks are set up in PCLOCK area.
 .. todo:: write me
 
 
-.. _nv50-pclock-mmio:
-.. _nv50-pioclock-mmio:
-.. _nv50-pcontrol-mmio:
-
 MMIO registers
 ==============
 
-.. todo:: write me
+.. space:: 8 nv50-pclock 0x1000 PLL control
+
+   .. todo:: write me
+
+.. space:: 8 nv50-pioclock 0x800 I/O PLL control
+
+   .. todo:: write me
+
+.. space:: 8 nv50-pcontrol 0x1000 misc clock control
+
+   .. todo:: write me
 
 
 .. _nv50-clock-hclk:

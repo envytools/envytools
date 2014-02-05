@@ -1,13 +1,12 @@
-.. _pcrypt2:
+.. _nvc0-pspoon:
 
-==============================
-PCRYPT2: AES encryption engine
-==============================
+====================
+NVC0+ PSPOON engines
+====================
 
 .. contents::
 
 .. todo:: write me
-
 
 Introduction
 ============
@@ -18,12 +17,12 @@ Introduction
 MMIO registers
 ==============
 
-.. space:: 8 pcrypt2 0x1000 VP2 cryptography engine
+.. space:: 8 pspoon 0x2000 PFIFO's DMA submission engine
 
    .. todo:: write me
 
 
-.. _pcrypt2-intr:
+.. _nvc0-pspoon-intr:
 
 Interrupts
 ==========

@@ -146,8 +146,6 @@ NV10
 .. todo:: wtf is CYCLES_ALT for?
 
 
-.. _nv40-pcounter-mmio:
-
 NV40
 ----
 
@@ -191,12 +189,12 @@ NV40
     00a800+i*0x20+j*4,j<8 STATUS[i][j] - input status
 
 
-.. _nvc0-pcounter-mmio:
-
 NVC0
 ----
 
-.. todo:: write me
+.. space:: 8 nvc0-pcounter 0x40000 performance monitoring counters
+
+   .. todo:: write me
 
 
 .. _pcounter-signal:

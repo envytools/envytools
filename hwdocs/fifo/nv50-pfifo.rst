@@ -6,16 +6,6 @@ NV50:NVC0 PFIFO engine
 
 .. contents::
 
-.. todo:: write me
-
-.. note::
-
-    This file deals only with NV50:NVC0 PFIFO. For other GPUs, read:
-
-    * NV01:NV04 - :ref:`nv01-pfifo`
-    * NV04:NV50 - :ref:`nv04-pfifo`
-    * NVC0+ - :ref:`nvc0-pfifo`
-
 
 Introduction
 ============
@@ -23,13 +13,16 @@ Introduction
 .. todo:: write me
 
 
-.. _nv50-pfifo-mmio:
-.. _nv50-pfifo-mmio-cache:
-
 MMIO registers
 ==============
 
-.. todo:: write me
+.. space:: 8 nv50-pfifo 0x2000 DMA FIFO submission to engines
+
+   .. todo:: write me
+
+.. space:: 8 nv50-pfifo-cache 0x1000 PFIFO cache data
+
+   .. todo:: write me
 
 
 .. _nv50-pfifo-intr:
@@ -55,3 +48,17 @@ Channel switching
 =================
 
 .. todo:: write me
+
+
+FIFO submission area
+====================
+
+.. todo:: write me
+
+.. space:: 8 nv50-pio-user 0x2000 PFIFO MMIO submission area
+
+   .. todo:: document me
+
+.. space:: 8 nv50-dma-user 0x2000 PFIFO DMA submission area
+
+   .. todo:: document me

@@ -92,6 +92,10 @@ IO registers:
 IO registers
 ============
 
+.. space:: 8 pvcomp 0x1000 video compositor engine
+
+   .. todo:: write me
+
 .. todo:: write me
 
 

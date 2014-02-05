@@ -55,8 +55,10 @@ Address        Variants            Name
 
 .. todo:: cleanup, crossref
 
+.. space:: 8 phwsq-large-code 0x1000 extended HWSQ code space
 
-.. _pbus-hwsq-new-code-mmio:
+   .. todo:: writ me
+
 
 Code space
 ==========

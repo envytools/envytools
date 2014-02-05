@@ -4,6 +4,10 @@
 IO register space
 =================
 
+.. space:: 8 pdaemon 0x1000 card management engine
+
+   .. todo:: write me
+
 On NVA3:NVD9, PDAEMON uses the "classic" falcon addressing scheme: I[] space
 addresses are shifted left by 6 wrt the offsets in MMIO window - ie. I[0x12300]
 can be accessed through MMIO address 0x10a48c, and registers are usually 0x100

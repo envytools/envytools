@@ -16,17 +16,20 @@ Introduction
 
 
 .. _pbus-mmio-nv50-host-mem:
-.. _nv50-pflush-mmio:
 
 MMIO registers
 ==============
 
 .. todo:: write me
 
+.. space:: 8 nv50-pflush 0x1000 used to flush BAR writes
 
-.. _pmem-mmio:
+   .. todo:: write me
+
 
 PMEM range
 ==========
 
-.. todo:: write me
+.. space:: 8 pmem 0x100000 indirect VRAM/host memory access
+
+   .. todo:: write me

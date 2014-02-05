@@ -16,12 +16,15 @@ Introduction
 
 
 .. _pbus-mmio-nvc0-host-mem:
-.. _nvc0-pflush-mmio:
 
 MMIO registers
 ==============
 
 .. todo:: write me
+
+.. space:: 8 nvc0-pflush 0x1000 used to flush BAR writes
+
+   .. todo:: write me
 
 
 .. _pbus-intr-host-mem-timeout:

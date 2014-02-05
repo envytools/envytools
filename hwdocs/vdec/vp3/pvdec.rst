@@ -143,6 +143,10 @@ MEMIF ports:
 IO registers
 ============
 
+.. space:: 8 pvdec 0x1000 VP3 video decoding engine
+
+   .. todo:: write me
+
 ============ =============== ========== =========== ===========
 Host         Falcon          Present on Name        Description
 ============ =============== ========== =========== ===========

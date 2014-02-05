@@ -14,6 +14,6 @@ Contents:
    prma
    nv01-prm
    pfuse
-   pibus
+   pring
    punits
    pci

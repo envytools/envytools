@@ -15,10 +15,13 @@ Introduction
 .. todo:: write me
 
 
-.. _pnvio-mmio:
-.. _pgpio-mmio:
-
 MMIO registers
 ==============
 
-.. todo:: write me
+.. space:: 8 pnvio 0x800 GPIOs, I2C buses, PWM fan control, and other external devices
+
+   .. todo:: write me
+
+.. space:: 8 pgpio 0x1000 GPIOs and I2C buses
+
+   .. todo:: write me
