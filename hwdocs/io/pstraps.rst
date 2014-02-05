@@ -51,41 +51,27 @@ On NV03:NV04 cards, the PSTRAPS area is also home to an unrelated register
 controlling ROM timings.
 
 
-.. _pstraps-mmio:
-
 MMIO register list
 ==================
 
 .. space:: 8 nv01-pstraps 0x1000 straps readout
    0x000 STRAPS nv01-pstraps-straps
 
-NV03+ registers:
-
-no annotation - available on all NV03+ cards
-[1] - available on NV03:NV04 only
-[2] - available on NV18:NV20 and NV25+ only
-[3] - available on NVD9+ only
-
-======== =============== ================= ================
-Address  Present on      Name              Description
-======== =============== ================= ================
-0x101000 all             STRAPS0_PRIMARY   :ref:`straps set 0 primary value <pstraps-mmio-nv03-straps>`
-0x101004 NV18:NV20 NV25- STRAPS0_SELECT    :ref:`straps set 0 select mask <pstraps-mmio-nv03-straps>`
-0x101008 NV18:NV20 NV25- STRAPS0_SECONDARY :ref:`straps set 0 secondary value <pstraps-mmio-nv03-straps>`
-0x10100c NV18:NV20 NV25- STRAPS1_PRIMARY   :ref:`straps set 1 primary value <pstraps-mmio-nv03-straps>`
-0x101010 NV18:NV20 NV25- STRAPS1_SELECT    :ref:`straps set 1 select mask <pstraps-mmio-nv03-straps>`
-0x101014 NV18:NV20 NV25- STRAPS1_SECONDARY :ref:`straps set 1 secondary value <pstraps-mmio-nv03-straps>`
-0x101028 NVD9-           ???               RO 0
-0x10102c NVD9-           ???               RO 0
-0x101030 NVD9-           ???               RW mask ff
-0x101034 NVD9-           STRAPS2_PRIMARY   :ref:`straps set 2 primary value <pstraps-mmio-nv03-straps>`
-0x101038 NVD9-           STRAPS2_SELECT    :ref:`straps set 2 select mask <pstraps-mmio-nv03-straps>`
-0x10103c NVD9-           STRAPS2_SECONDARY :ref:`straps set 2 secondary value <pstraps-mmio-nv03-straps>`
-0x101040 NVD9-           ???               RO 0
-0x101200 NV03:NV04       ROM_TIMINGS       :ref:`ROM timing configuration <prom-mmio-rom-timings>`
-======== =============== ================= ================
-
-.. todo:: 0x101028, 0x10102c, 0x101030, 0x101040
+.. space:: 8 nv03-pstraps 0x1000 straps readout
+   0x000 STRAPS0_PRIMARY nv03-pstraps-straps-primary
+   0x004 STRAPS0_SELECT nv03-pstraps-straps-select NV18:NV20,NV25:
+   0x008 STRAPS0_SECONDARY nv03-pstraps-straps-secondary NV18:NV20,NV25:
+   0x00c STRAPS1_PRIMARY nv03-pstraps-straps-primary NV18:NV20,NV25:
+   0x010 STRAPS1_SELECT nv03-pstraps-straps-select NV18:NV20,NV25:
+   0x014 STRAPS1_SECONDARY nv03-pstraps-straps-secondary NV18:NV20,NV25:
+   0x028 UNK28 nv03-pstraps-unk28 NVD9:
+   0x02c UNK2C nv03-pstraps-unk2c NVD9:
+   0x030 UNK30 nv03-pstraps-unk30 NVD9:
+   0x034 STRAPS2_PRIMARY nv03-pstraps-straps-primary NVD9:
+   0x038 STRAPS2_SELECT nv03-pstraps-straps-select NVD9:
+   0x03c STRAPS2_SECONDARY nv03-pstraps-straps-secondary NVD9:
+   0x040 UNK40 nv03-pstraps-unk40 NVD9:
+   0x200 ROM_TIMINGS prom-rom-timings NV03:NV04
 
 
 NV01 straps
@@ -113,11 +99,8 @@ On NV01, all straps bits are available in a single register:
 NV03+ straps readout/override registers
 =======================================
 
-MMIO 0x101000: STRAPS0_PRIMARY
+.. reg:: 32 nv03-pstraps-straps-primary straps primary value
 
-MMIO 0x10100c: STRAPS1_PRIMARY [NV18:NV20 and NV25+ only]
-
-MMIO 0x101034: STRAPS2_PRIMARY [NVD9+ only]
   - bits 0-30: straps primary value
   - bit 31: override enable [NV04+ only]
 
@@ -126,11 +109,8 @@ is restored to the original straps as read by the card on reset. If bit 31
 is 1, override is enabled, and the straps value is set to the value written
 by host.
 
-MMIO 0x101004: STRAPS0_SELECT [NV18:NV20 and NV25+ only]
+.. reg:: 32 nv03-pstraps-straps-select straps select mask
 
-MMIO 0x101010: STRAPS1_SELECT [NV18:NV20 and NV25+ only]
-
-MMIO 0x101038: STRAPS2_SELECT [NVD9+ only]
   - bits 0-30: strap source selection for strap bit X
 
 When corresponding bit is set to 1, the card takes its value from the main
@@ -138,11 +118,8 @@ straps value, when corresponding bit is set to 0, the card takes its value from
 the secondary value. This register is always writable and not affected by
 override enable.
 
-MMIO 0x101008: STRAPS0_SECONDARY [NV18:NV20 and NV25+ only]
+.. reg:: 32 nv03-pstraps-straps-secondary straps secondary value
 
-MMIO 0x101014: STRAPS1_SECONDARY [NV18:NV20 and NV25+ only]
-
-MMIO 0x10103c: STRAPS2_SECONDARY [NVD9+ only]
   - bits 0-30: straps secondary value
 
 This register is always writable and not affected by override enable.
@@ -314,3 +291,31 @@ For BAR1 size, the two parts are summed, and BAR1 size is computed as follows:
 - 8 16GB
 - 9 32GB
 - 10 64GB
+
+
+Unknown registers
+=================
+
+.. reg:: 32 nv03-pstraps-unk28 ???
+
+   RO 0
+
+   .. todo:: RE me
+
+.. reg:: 32 nv03-pstraps-unk2c ???
+
+   RO 0
+
+   .. todo:: RE me
+
+.. reg:: 32 nv03-pstraps-unk30 ???
+
+   RW mask ff
+
+   .. todo:: RE me
+
+.. reg:: 32 nv03-pstraps-unk40 ???
+
+   RO 0
+
+   .. todo:: RE me

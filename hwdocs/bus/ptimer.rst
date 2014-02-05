@@ -29,8 +29,6 @@ space accesses from host that failed for some reason.
 .. todo:: document that some day].
 
 
-.. _ptimer-mmio-nv01:
-
 MMIO register list - NV01
 =========================
 
@@ -43,7 +41,6 @@ MMIO register list - NV01
    0x404 TIME_HIGH ptimer-time-high
    0x410 ALARM ptimer-alarm
 
-.. _ptimer-mmio-nv03:
 
 MMIO register list - NV03-
 ==========================
@@ -63,9 +60,6 @@ MMIO register list - NV03-
    0x400 TIME_LOW ptimer-time-low
    0x410 TIME_HIGH ptimer-time-high
    0x420 ALARM ptimer-alarm
-
-.. todo:: figure out 9060-9080
-.. todo:: document MMIO_FAULT_*
 
 
 The clock source
@@ -127,6 +121,7 @@ not possible to get a higher frequency than the clock source - the converter
 will misbehave.
 
 
+.. _ptimer-time:
 .. _ptimer-perf-time-b12:
 
 The time counter
@@ -242,3 +237,5 @@ Unknown registers
 .. reg:: 32 ptimer-mmio-fault-addr ???
 
    .. todo:: write me
+
+.. todo:: document MMIO_FAULT_*

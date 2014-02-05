@@ -103,12 +103,12 @@ The MMIO registers are similiar among PCOUNTER revisions, but their placement
 is very different.
 
 
-.. _nv10-pcounter-mmio:
-
 NV10
 ----
 
-.. todo:: convert
+.. space:: 8 nv10-pcounter 0x1000 performance monitoring counters
+
+   .. todo:: convert
 
 ::
 
@@ -151,7 +151,9 @@ NV10
 NV40
 ----
 
-.. todo:: convert
+.. space:: 8 nv40-pcounter 0x1000 performance monitoring counters
+
+   .. todo:: convert
 
 ::
 

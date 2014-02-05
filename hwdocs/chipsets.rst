@@ -18,7 +18,7 @@ engines, and registers, with very minor exceptions. Such cards can however
 still differ in the external devices they contain: output connectors,
 encoders, capture chips, temperature sensors, fan controllers, installed
 memory, supported clocks, etc. You can get the chipset id of a card by reading
-from its :ref:`PMC area <pmc-mmio-id>`.
+from its :ref:`PMC area <pmc-id>`.
 
 The chipset id is usually written as NVxx, where xx is the id written as
 uppercase hexadecimal number. Note that, while cards before NV10 used another

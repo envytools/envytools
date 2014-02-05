@@ -15,8 +15,6 @@ Introduction
 .. todo:: write me
 
 
-.. _prom-mmio:
-
 PROM read access
 ================
 
@@ -24,13 +22,25 @@ PROM read access
 
    .. todo:: write me
 
+.. space:: 8 nv03-prom 0x10000 ROM access window
 
-.. _prom-mmio-rom-timings:
+   .. todo:: write me
+
+.. space:: 8 nv17-prom 0x20000 ROM access window
+
+   .. todo:: write me
+
+.. space:: 8 nva0-prom 0x80000 ROM access window
+
+   .. todo:: write me
+
 
 PROM timings
 ============
 
-.. todo:: write me
+.. reg:: 32 prom-rom-timings ROM timing configuration
+
+   .. todo:: write me
 
 
 PROM write access - parallel

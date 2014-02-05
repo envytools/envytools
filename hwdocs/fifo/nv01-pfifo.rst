@@ -30,8 +30,6 @@ otherwise affect PFIFO]:
 - :obj:`CACHE1.PULL_STATE <nv01-pfifo-cache-pull-state>` [on NV03 only]
 
 
-.. _nv01-pfifo-mmio:
-
 The MMIO registers
 ==================
 

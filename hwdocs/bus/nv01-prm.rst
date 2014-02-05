@@ -56,7 +56,7 @@ SR 0x04: MEMORY_CONTROL
 The VGA memory window
 =====================
 
-.. space:: 8 nv01-prmfb 0x20000 aliases VGA memory window
+.. space:: 8 nv01-prmfb 0x20000 VGA memory window access
 
    .. todo:: write me
 

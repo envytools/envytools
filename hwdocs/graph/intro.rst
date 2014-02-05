@@ -387,7 +387,7 @@ to be written by PGRAPH. The notifier structure is:
 base+0x0:
     64-bit timestamp - written by PGRAPH with current PTIMER time as of
     the notifier write. The timestamp is a concatenation of current
-    values of :ref:`TIME_LOW and TIME_HIGH registers <ptimer-mmio-time>`
+    values of :ref:`TIME_LOW and TIME_HIGH registers <ptimer-time>`
     When big-endian mode is in effect, this becomes a 64-bit
     big-endian number as expected.
 base+0x8:

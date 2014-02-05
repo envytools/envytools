@@ -15,10 +15,13 @@ Introduction
 .. todo:: write me
 
 
-.. _nv50-prmio-mmio:
-.. _nv50-prmfb-mmio:
-
 MMIO registers
 ==============
 
-.. todo:: write me
+.. space:: 8 nv50-prmio 0x1000 VGA registers
+
+   .. todo:: write me
+
+.. space:: 8 nv50-prmfb 0x20000 VGA memory window access
+
+   .. todo:: write me

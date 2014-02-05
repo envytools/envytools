@@ -15,9 +15,11 @@ Introduction
 .. todo:: write me
 
 
-.. _nv04-pramin-mmio:
-
 RAMIN
 =====
 
 .. todo:: write me
+
+.. space:: 8 nv04-pramin 0x100000 RAMIN access
+
+   .. todo:: write me

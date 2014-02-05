@@ -1,12 +1,10 @@
 .. _prma:
 
-===========================
-PRMA: Real mode MMIO access
-===========================
+==========================
+PRMA: Real mode BAR access
+==========================
 
 .. contents::
-
-.. todo:: write me
 
 
 Introduction
@@ -15,15 +13,48 @@ Introduction
 .. todo:: write me
 
 
-.. _prma-mmio:
-
 The MMIO registers
 ==================
 
-.. todo:: write me
+.. space:: 8 prma 0x1000 real mode BAR access
+   0x080 CTRL prma-ctrl NV50:
+   0x084 SCRATCH prma-scratch NV50:
+   0x100 SIG prma-sig
+   0x104 ADDR prma-addr
+   0x10c DATA_PARTIAL prma-data-partial
+   0x114 DATA_PARTIAL_INC prma-data-partial NV03:NV04
 
+.. space:: 8 nv03-rma 0x100 real mode BAR access
+   0x00 SIG prma-sig
+   0x04 ADDR prma-addr
+   0x08 DATA prma-data
+   0x0c DATA_PARTIAL prma-data-partial
+   0x10 DATA_INC prma-data NV03:NV04
+   0x14 DATA_PARTIAL_INC prma-data-partial NV03:NV04
 
-Operation
-=========
+   On NV03:NV04, this space is accessible through PCI BAR #2.
 
-.. todo:: write me
+.. reg:: 32 prma-sig signature
+
+   Read-only register, always reads as 0x2b16d065. Can be used as a signature,
+   to verify the RMA space is visible.
+
+.. reg:: 32 prma-addr BAR address
+
+   .. todo:: write me
+
+.. reg:: 32 prma-data BAR data
+
+   .. todo:: write me
+
+.. reg:: 32 prma-data-partial BAR partial data for 8/16-bit accesses
+
+   .. todo:: write me
+
+.. reg:: 32 prma-ctrl RMA enable & register selection
+
+   .. todo:: write me
+
+.. reg:: 32 prma-scratch scratch register
+
+   .. todo:: write me

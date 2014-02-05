@@ -15,13 +15,18 @@ Introduction
 .. todo:: write me
 
 
-.. _pcrtc-mmio:
-.. _prmcio-mmio:
-
 MMIO registers
 ==============
 
 .. todo:: write me
+
+.. space:: 8 pcrtc 0x1000 CRTC controls
+
+   .. todo:: write me
+
+.. space:: 8 prmcio 0x1000 VGA CRTC & attribute controller registers
+
+   .. todo:: write me
 
 
 .. _pcrtc-intr:

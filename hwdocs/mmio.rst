@@ -69,106 +69,95 @@ NV03:NV50 MMIO map
 ==================
 
 .. space:: 8 nv03-mmio 0x1000000 -
-   0x0000000 PMC pmc
-   0x0001000 PBUS pbus
-   0x0002000 PFIFO nv01-pfifo NV03:NV04
-   0x0009000 PTIMER nv03-ptimer
+   0x000000 PMC pmc
+   0x001000 PBUS pbus
+   0x002000 PFIFO nv01-pfifo NV03:NV04
+   0x002000 PFIFO nv04-pfifo NV04:NV50
+   0x004000 UNK004000 nv03-unk004000 NV03:NV04
+   0x004000 PCLOCK nv40-pclock NV40:NV50
+   0x005000 UNK005000 nv04-unk005000 NV04:NV30
+   0x007000 PRMA prma
+   0x008000 PVIDEO pvideo NV10:NV50
+   0x009000 PTIMER nv03-ptimer
+   0x00a000 PCOUNTER nv10-pcounter NV10:NV40
+   0x00a000 PCOUNTER nv40-pcounter NV40:NV50
+   0x00b000 PVPE pvpe NV17:NV20,NV30:NV50
+   0x00c000 PCONTROL nv40-pcontrol NV40:NV50
+   0x00d000 PTV ptv NV17:NV20,NV30:NV50
+   0x00f000 PVP1 pvp1 NV41:NV50
+   0x088000 PPCI ppci NV40:NV50
+   0x090000 PFIFO_CACHE nv40-pfifo-cache NV40:NV50
+   0x0a0000 PRMFB nv03-prmfb
+   0x0c0000 PRMVIO prmvio NV03:NV40
+   0x0c0000 PRMVIO[2/0x2000] prmvio NV40:NV50
+   0x100000 PFB nv03-pfb NV03:NV10
+   0x100000 PFB nv10-pfb NV10:NV40
+   0x100000 PFB nv40-pfb NV40:NV50&!TC
+   0x100000 PFB nv44-pfb NV44:NV50&TC
+   0x101000 PSTRAPS nv03-pstraps
+   0x102000 UNK102000 nv4e-unk102000 IGP4X
+   0x110000 PROM nv03-prom NV03:NV04
+   0x200000 PMEDIA pmedia
+   0x300000 PROM nv03-prom NV04:NV17,NV20:NV25
+   0x300000 PROM nv17-prom NV17:NV20,NV20:NV50
+   0x400000 PGRAPH nv03-pgraph NV03:NV04
+   0x400000 PGRAPH nv04-pgraph NV04:NV10
+   0x400000 PGRAPH nv10-pgraph NV10:NV20
+   0x400000 PGRAPH nv20-pgraph NV20:NV40
+   0x400000 PGRAPH nv40-pgraph NV40:NV50
+   0x401000 PDMA nv03-pdma NV03:NV04
+   0x600000 PCRTC pcrtc NV04:NV11,NV20:NV25
+   0x600000 PCRTC[2/0x2000] pcrtc NV11:NV20,NV25:NV50
+   0x601000 PRMCIO prmcio NV03:NV11,NV20:NV25
+   0x601000 PRMCIO[2/0x2000] prmcio NV11:NV20,NV25:NV50
+   0x680000 PRAMDAC pramdac NV03:NV11,NV20:NV25
+   0x680000 PRAMDAC[2/0x2000] pramdac NV11:NV20,NV25:NV50
+   0x681000 PRMDIO prmdio NV03:NV11,NV20:NV25
+   0x681000 PRMDIO[2/0x2000] prmdio NV11:NV20,NV25:NV50
+   0x700000 PRAMIN nv04-pramin NV04:NV50
+   0x0800000[chid:0x80][subc:8] USER nv01-user NV03:NV04
+   0x0800000[chid:0x10][subc:8] USER nv04-user NV04:NV10
+   0x0800000[chid:0x20][subc:8] USER nv04-user NV10:NV50
+   0x0c00000[chid:0x200] DMA_USER nv40-dma-user NV40:NV50
 
-   =============== ======== ========= ============================== ======================
-   Address range   Name     Variants  Reference                      Description
-   =============== ======== ========= ============================== ======================
-   000000:001000   PMC      all       :ref:`pmc-mmio`                card master control
-   001000:002000   PBUS     all       :ref:`pbus-mmio`               bus control
-   002000:004000   PFIFO    all       :ref:`nv01-pfifo-mmio`         MMIO and DMA FIFO submission to PGRAPH and VPE
-                                      :ref:`nv04-pfifo-mmio`
-   004000:005000   ???      NV03:NV10 ???                            ???
-   004000:005000   PCLOCK   NV40:NV50 :ref:`nv40-pclock-mmio`        PLL control
-   005000:006000   ???      all       ???                            ???
-   007000:008000   PRMA     all       :ref:`prma-mmio`               access to BAR0/BAR1 from real mode
-   008000:009000   PVIDEO   NV10:NV50 :ref:`pvideo-mmio`             video overlay
-   009000:00a000   PTIMER   all       :ref:`ptimer-mmio-nv03`        time measurement and time-based alarms
-   00a000:00b000   PCOUNTER NV10:NV50 :ref:`nv10-pcounter-mmio`      performance monitoring counters
-                                      :ref:`nv40-pcounter-mmio`
-   00b000:00c000   PVPE     NV17:NV20 :ref:`pvpe-mmio`               MPEG2 decoding engine
-                            NV30:NV50 
-   00c000:00d000   PCONTROL NV40:NV50 :ref:`nv40-pcontrol-mmio`      control of misc stuff
-   00d000:00e000   PTV      NV17:NV20 :ref:`ptv-mmio`                TV encoder
-                            NV30:NV50 
-   00f000:010000   PVP1     NV41:NV50 :ref:`pvp1-mmio`               VP1 video processing engine
-   088000:089000   PPCI     NV40:NV50 :ref:`ppci-mmio`               PCI config space access
-   090000:0a0000   PFIFO    NV40:NV50 :ref:`nv04-pfifo-mmio-cache`   part of PFIFO cache
-   0a0000:0c0000   PRMFB    all       :ref:`prmfb-mmio`              aliases VGA memory window
-   0c0000:0c1000   PRMVIO   all       :ref:`prmvio-mmio`             aliases VGA sequencer and graphics controller registers
-   0c2000:0c3000   PRMVIO2  NV40:NV50 :ref:`prmvio-mmio`             like PRMVIO, but for second head
-   100000:101000   PFB      all       :ref:`nv03-pfb-mmio`           memory interface and PCIE GART
-                            except    :ref:`nv03-pfb-mmio`    
-                            IGPs      :ref:`nv40-pfb-mmio`    
-                                      :ref:`nv44-pfb-mmio`    
-   101000:102000   PSTRAPS  all       :ref:`pstraps-mmio`            straps readout / override
-                            except
-                            IGPs
-   102000:103000   ???      NV40+     ???                            ???
-                            IGPs only
-   110000:120000   PROM     NV03:NV04 :ref:`prom-mmio`               ROM access window
-   200000:201000   PMEDIA   all       :ref:`pmedia-mmio`             mediaport
-                            except
-                            IGPs
-   300000:400000   PROM     NV04:NV50 :ref:`prom-mmio`               ROM access window
-                            except
-                            IGPs
-   400000:401000   PGRAPH   NV03:NV04 :ref:`nv03-pgraph-mmio`        accelerated 2d/3d drawing engine
-   401000:402000   PDMA     NV03:NV04 :ref:`nv03-pdma-mmio`          system memory DMA engine
-   400000:402000   PGRAPH   NV04:NV40 :ref:`nv04-pgraph-mmio`        accelerated 2d/3d drawing engine
-                                      :ref:`nv10-pgraph-mmio`    
-                                      :ref:`nv20-pgraph-mmio`    
-   400000:410000   PGRAPH   NV40:NV50 :ref:`nv40-pgraph-mmio`        accelerated 2d/3d drawing engine
-   600000:601000   PCRTC    NV04:NV50 :ref:`pcrtc-mmio`              more CRTC controls
-   601000:602000   PRMCIO   all       :ref:`prmcio-mmio`             aliases VGA CRTC and attribute controller registers
-   602000:603000   PCRTC2   NV11:NV20 :ref:`pcrtc-mmio`              like PCRTC, but for second head
-                            NV25:NV50
-   603000:604000   PRMCIO2  NV11:NV20 :ref:`prmcio-mmio`             like PRMCIO, but for second head
-                            NV25:NV50
-   680000:681000   PRAMDAC  all       :ref:`pramdac-mmio`            RAMDAC, video overlay, cursor, and PLL control
-   681000:682000   PRMDIO   all       :ref:`prmdio-mmio`             aliases VGA palette registers
-   682000:683000   PRAMDAC2 NV11:NV20 :ref:`pramdac-mmio`            like PRAMDAC, but for second head
-                            NV25:NV50
-   683000:684000   PRMDIO2  NV11:NV20 :ref:`prmdio-mmio`             like PRMDIO, but for second head
-                            NV25:NV50
-   700000:800000   PRAMIN   NV04:NV50 :ref:`nv04-pramin-mmio`        RAMIN access
-   800000:1000000  USER     all       :ref:`fifo-user-mmio-pio`      PFIFO MMIO and DMA submission area
-                                      :ref:`fifo-user-mmio-dma`
-   c00000:1000000  NEW_USER NV40:NV50 :ref:`fifo-user-mmio-dma`      PFIFO DMA submission area
-   =============== ======== ========= ============================== ======================
-
-.. todo:: check PSTRAPS on IGPs
+   .. todo:: check UNK005000 variants [verified not present on NV35, present on NV11]
+   .. todo:: check PCOUNTER variants
+   .. todo:: some IGP don't have PVPE/PVP1
+   .. todo:: check PSTRAPS on IGPs
+   .. todo:: check PROM on IGPs
+   .. todo:: PMEDIA not on IGPs and some other cards?
+   .. todo:: PFB not on IGPs
 
 
 NV50:NVC0 MMIO map
 ==================
 
 .. space:: 8 nv50-mmio 0x1000000 -
-   0x0000000 PMC pmc
-   0x0001000 PBUS pbus
-   0x0009000 PTIMER nv03-ptimer
+   0x000000 PMC pmc
+   0x001000 PBUS pbus
+   0x009000 PTIMER nv03-ptimer
+   0x101000 PSTRAPS nv03-pstraps
+   0x300000 PROM nv17-prom NV50:NVA0
+   0x300000 PROM nva0-prom NVA0:
 
    ============== ===== ============= ========= ================================ ======================
    Address range  Port  Name          Variants  Reference                        Description
    ============== ===== ============= ========= ================================ ======================
-   000000:001000  ROOT  PMC           all       :ref:`pmc-mmio`                  card master control
-   001000:002000  ROOT  PBUS          all       :ref:`pbus-mmio`                 bus control
+   000000:001000  ROOT  PMC           all       :obj:`pmc`                       card master control
+   001000:002000  ROOT  PBUS          all       :obj:`pbus`                      bus control
    002000:004000  ROOT  PFIFO         all       :ref:`nv50-pfifo-mmio`           DMA FIFO submission to execution engines
    004000:005000  IBUS  PCLOCK        NV50:NVA3 :ref:`nv50-pclock-mmio`          PLL control
    004000:005000  IBUS  PCLOCK        NVA3:NVC0 :ref:`nva3-pclock-mmio`          PLL control
-   007000:008000  ROOT  PRMA          all       :ref:`prma-mmio`                 access to BAR0 from real mode
-   009000:00a000  ROOT  PTIMER        all       :ref:`ptimer-mmio-nv03`          time measurement and time-based alarms
-   00a000:00b000  IBUS  PCOUNTER      all       :ref:`nv40-pcounter-mmio`        performance monitoring counters
-   00b000:00c000  IBUS  PVPE          all       :ref:`pvpe-mmio`                 MPEG2 decoding engine
+   007000:008000  ROOT  PRMA          all       :obj:`prma`                      access to BAR0 from real mode
+   009000:00a000  ROOT  PTIMER        all       :obj:`nv03-ptimer`               time measurement and time-based alarms
+   00a000:00b000  IBUS  PCOUNTER      all       :obj:`nv40-pcounter`             performance monitoring counters
+   00b000:00c000  IBUS  PVPE          all       :obj:`pvpe`                      MPEG2 decoding engine
    00c000:00d000  IBUS  PCONTROL      NV50:NVA3 :ref:`nv50-pcontrol-mmio`        control of misc stuff
    00c000:00d000  IBUS  PCONTROL      NVA3:NVC0 :ref:`nva3-pcontrol-mmio`        control of misc stuff
    00e000:00e800  IBUS  PNVIO         all       :ref:`pnvio-mmio`                GPIOs, I2C buses, PWM fan control, and other external devices
    00e800:00f000  IBUS  PIOCLOCK      NV50:NVA3 :ref:`nv50-pioclock-mmio`        PNVIO's clock setup
    00e800:00f000  IBUS  PIOCLOCK      NVA3:NVC0 :ref:`nva3-pioclock-mmio`        PNVIO's clock setup
-   00f000:010000  IBUS  PVP1          VP1       :ref:`pvp1-mmio`                 VP1 video processing engine
+   00f000:010000  IBUS  PVP1          VP1       :obj:`pvp1`                      VP1 video processing engine
    00f000:010000  IBUS  PVP2          VP2       :ref:`pvp2-mmio`                 VP2 xtensa video processing engine
    010000:020000  ROOT  ???           all       ???                              has something to do with PCI config spaces of other devices?
    020000:021000  IBUS  PTHERM        all       :ref:`ptherm-mmio`               thermal sensor
@@ -182,13 +171,13 @@ NV50:NVC0 MMIO map
    085000:086000  IBUS  PVDEC         VP3, VP4  :ref:`pvdec-io`                  VP3 video decoding engine
    086000:087000  IBUS  PPPP          VP3, VP4  :ref:`pppp-io`                   VP3 video postprocessing engine
    087000:088000  IBUS  PCRYPT3       VP3       :ref:`pcrypt3-io`                VP3 cryptographic engine
-   088000:089000  IBUS  PPCI          all       :ref:`ppci-mmio`                 PCI config space access
+   088000:089000  IBUS  PPCI          all       :obj:`ppci`                      PCI config space access
    089000:08a000  IBUS  ???           NV84:NVC0 ???                              ???
-   08a000:08b000  IBUS  PPCI_HDA      NVA3:NVC0 :ref:`ppci-hda-mmio`             PCI config space access for the HDA codec function
+   08a000:08b000  IBUS  PPCI_HDA      NVA3:NVC0 :obj:`ppci-hda`                  PCI config space access for the HDA codec function
    090000:0a0000  ROOT  PFIFO cache   all       :ref:`nv50-pfifo-mmio-cache`     part of PFIFO
-   0a0000:0c0000  ROOT  PRMFB         all       :ref:`nv50-prmfb-mmio`           aliases VGA memory window
+   0a0000:0c0000  ROOT  PRMFB         all       :obj:`nv50-prmfb`                aliases VGA memory window
    100000:101000  IBUS  PFB           all       :ref:`nv50-pfb-mmio`             memory interface and VM control
-   101000:102000  IBUS  PSTRAPS       all       :ref:`pstraps-mmio`              straps readout / override
+   101000:102000  IBUS  PSTRAPS       all       :obj:`nv03-pstraps`              straps readout / override
    102000:103000  IBUS  PCRYPT2       VP2       :ref:`pcrypt2-mmio`              VP2 cryptographic engine
    102000:103000  ROOT  ???           IGPs only ???                              ???
    103000:104000  IBUS  PBSP          VP2       :ref:`pbsp-mmio`                 VP2 BSP engine
@@ -197,12 +186,12 @@ NV50:NVC0 MMIO map
    109000:10a000  IBUS  PKFUSE        NVA3:NVC0 :ref:`pkfuse-mmio`               efuses storing secret key stuff
    10a000:10b000  IBUS  PDAEMON       NVA3:NVC0 :ref:`pdaemon-io`                a falcon engine used to run management code in background
    1c1000:1c2000  IBUS  PVCOMP        NVAF:NVC0 :ref:`pvcomp-io`                 video compositor engine
-   200000:201000  IBUS  PMEDIA        all       :ref:`pmedia-mmio`               mediaport
+   200000:201000  IBUS  PMEDIA        all       :obj:`pmedia`                    mediaport
    280000:2a0000  ROOT  ???           NVAF      ???                              ???
    2ff000:300000  IBUS  PBRIDGE_PCI   IGPs      :ref:`pbus-mmio`                 access to PCI config registers of the GPU's upstream PCIE bridge
-   300000:400000  IBUS  PROM          all       :ref:`prom-mmio`                 ROM access window
+   300000:400000  IBUS  PROM          all       :obj:`nv17-prom`                 ROM access window
    400000:410000  IBUS  PGRAPH        all       :ref:`nv50-pgraph-mmio`          accelerated 2d/3d drawing and CUDA engine
-   601000:602000  IBUS  PRMIO         all       :ref:`nv50-prmio-mmio`           aliases VGA registers
+   601000:602000  IBUS  PRMIO         all       :obj:`nv50-prmio`                aliases VGA registers
    610000:640000  IBUS  PDISPLAY      all       :ref:`pdisplay-mmio`             the DMA FIFO controlled unified display engine
    640000:650000  IBUS  DISPLAY_USER  all       :ref:`display-user-mmio`         DMA submission to PDISPLAY
    700000:800000  ROOT  PMEM          all       :ref:`pmem-mmio`                 indirect VRAM/host memory access
@@ -225,19 +214,21 @@ NVC0+ MMIO map
 ==============
 
 .. space:: 8 nvc0-mmio 0x1000000 -
-   0x0000000 PMC pmc
-   0x0001000 PBUS pbus
-   0x0009000 PTIMER nv03-ptimer
+   0x000000 PMC pmc
+   0x001000 PBUS pbus
+   0x009000 PTIMER nv03-ptimer
+   0x101000 PSTRAPS nv03-pstraps
+   0x300000 PROM nva0-prom
 
    ============== ===== ============= ========= ================================ ======================
    Address range  Port  Name          Variants  Reference                        Description
    ============== ===== ============= ========= ================================ ======================
-   000000:001000  ROOT  PMC           all       :ref:`pmc-mmio`                  card master control
-   001000:002000  ROOT  PBUS          all       :ref:`pbus-mmio`                 bus control
+   000000:001000  ROOT  PMC           all       :obj:`pmc`                       card master control
+   001000:002000  ROOT  PBUS          all       :obj:`pbus`                      bus control
    002000:004000  ROOT  PFIFO         all       :ref:`nvc0-pfifo-mmio`           DMA FIFO submission to execution engines
    005000:006000  ROOT  PFIFO_BYPASS  all       :ref:`nvc0-pfifo-mmio-bypass`    PFIFO bypass interface
-   007000:008000  ROOT  PRMA          all       :ref:`prma-mmio`                 access to BAR0 from real mode
-   009000:00a000  ROOT  PTIMER        all       :ref:`ptimer-mmio-nv03`          time measurement and time-based alarms
+   007000:008000  ROOT  PRMA          all       :ref:`prma`                      access to BAR0 from real mode
+   009000:00a000  ROOT  PTIMER        all       :obj:`nv03-ptimer`               time measurement and time-based alarms
    00c800:00cc00  IBUS  ???           all       ???                              ???
    00cc00:00d000  IBUS  ???           all       ???                              ???
    00d000:00e000  IBUS  PGPIO         NVD9-     :ref:`pgpio-mmio`                GPIOs, I2C buses
@@ -255,15 +246,15 @@ NVC0+ MMIO map
    084000:085000  IBUS  PVLD          all       :ref:`pvld-io`                   VP3 VLD engine
    085000:086000  IBUS  PVDEC         all       :ref:`pvdec-io`                  VP3 video decoding engine
    086000:087000  IBUS  PPPP          all       :ref:`pppp-io`                   VP3 video postprocessing engine
-   088000:089000  IBUS  PPCI          all       :ref:`ppci-mmio`                 PCI config space access
+   088000:089000  IBUS  PPCI          all       :obj:`ppci`                      PCI config space access
    089000:08a000  IBUS  ???           NVC0:NVE4 ???                              ???
-   08a000:08b000  IBUS  PPCI_HDA      all       :ref:`ppci-hda-mmio`             PCI config space access for the HDA codec function
+   08a000:08b000  IBUS  PPCI_HDA      all       :obj:`ppci-hda`                  PCI config space access for the HDA codec function
    08b000:08f000  IBUS  ???           NVE4-     ???                              seems to be a new version of former 89000 area
-   0a0000:0c0000  both  PRMFB         all       :ref:`nv50-prmfb-mmio`           aliases VGA memory window
+   0a0000:0c0000  both  PRMFB         all       :obj:`nv50-prmfb`                aliases VGA memory window
    100700:100800  IBUS  PBFB_COMMON   all       :ref:`pbfb-mmio`                 some regs shared between PBFBs???
    100800:100e00  IBUS  PFFB          all       :ref:`pffb-mmio`                 front memory interface and VM control
    100f00:101000  IBUS  PFFB          all       :ref:`pffb-mmio`                 front memory interface and VM control
-   101000:102000  IBUS  PSTRAPS       all       :ref:`pstraps-mmio`              straps readout / override
+   101000:102000  IBUS  PSTRAPS       all       :obj:`nv03-pstraps`              straps readout / override
    104000:105000  IBUS  PCOPY[0]      NVC0:NVE4 :ref:`pcopy-io`                  memory copy engine #0
    105000:106000  IBUS  PCOPY[1]      NVC0:NVE4 :ref:`pcopy-io`                  memory copy engine #1
    104000:105000  IBUS  PCOPY[0]      NVE4-     :ref:`pcopy-mmio`                memory copy engine #0
@@ -285,10 +276,10 @@ NVC0+ MMIO map
    1c0000:1c1000  ROOT  ???           all       ???                              related to PFIFO and playlist?
    1c2000:1c3000  IBUS  PVENC         NVE4-     :ref:`pvenc-io`                  H.264 video encoding engine
    1c3000:1c4000  IBUS  ???           NVD9-     :ref:`punk1c3-io`                some falcon engine
-   200000:201000  ???   PMEDIA        all       :ref:`pmedia-mmio`               mediaport
-   300000:380000  IBUS  PROM          all       :ref:`prom-mmio`                 ROM access window
+   200000:201000  ???   PMEDIA        all       :obj:`pmedia`                    mediaport
+   300000:380000  IBUS  PROM          all       :obj:`nva0-prom`                 ROM access window
    400000:600000  IBUS  PGRAPH        all       :ref:`nvc0-pgraph-mmio`          accelerated 2d/3d drawing and CUDA engine
-   601000:602000  IBUS  PRMIO         all       :ref:`nv50-prmio-mmio`           aliases VGA registers
+   601000:602000  IBUS  PRMIO         all       :obj:`nv50-prmio`                aliases VGA registers
    610000:6c0000  IBUS  PDISPLAY      all       :ref:`pdisplay-mmio`             the DMA FIFO controlled unified display engine
    700000:800000  ROOT  PMEM          all       :ref:`pmem-mmio`                 indirect VRAM/host memory access
    800000:810000  ROOT  PFIFO_CHAN    NVE4-     :ref:`nvc0-pfifo-mmio-chan`      PFIFO channel table
@@ -320,3 +311,19 @@ NVD9 MMIO errors
 - badf3000: access to GPC/PART targets before initialising them?
 
 - badf5000: ??? seen on accesses to PIBUS own areas and some PCOUNTER regs
+
+
+Unknown ranges
+==============
+
+.. space:: 8 nv03-unk004000 0x1000 ???
+
+   .. todo:: RE me
+
+.. space:: 8 nv04-unk005000 0x1000 ???
+
+   .. todo:: RE me
+
+.. space:: 8 nv4e-unk102000 0x1000 ???
+
+   .. todo:: RE me

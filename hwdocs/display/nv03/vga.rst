@@ -15,10 +15,13 @@ Introduction
 .. todo:: write me
 
 
-.. _prmvio-mmio:
-.. _prmfb-mmio:
-
 MMIO registers
 ==============
 
-.. todo:: write me
+.. space:: 8 prmvio 0x1000 VGA sequencer & graph controller registers
+
+   .. todo:: write me
+
+.. space:: 8 nv03-prmfb 0x20000 VGA memory window access
+
+   .. todo:: write me

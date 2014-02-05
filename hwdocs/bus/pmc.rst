@@ -15,8 +15,6 @@ card identication, manage enable/disable bits of other engines, and handle
 top-level interrupt routing.
 
 
-.. _pmc-mmio:
-
 MMIO register list
 ==================
 
@@ -51,6 +49,8 @@ MMIO register list
 
    The PMC register range is always active.
 
+
+.. _pmc-id:
 
 Card identification
 ===================

@@ -15,13 +15,16 @@ Introduction
 .. todo:: write me
 
 
-.. _ppci-mmio:
-.. _ppci-hda-mmio:
-
 MMIO registers
 ==============
 
-.. todo:: write me
+.. space:: 8 ppci 0x1000 PCI configuration access window
+
+   .. todo:: write me
+
+.. space:: 8 ppci-hda 0x1000 HDA codec PCI configuration access window
+
+   .. todo:: write me
 
 
 .. _ppci-intr:

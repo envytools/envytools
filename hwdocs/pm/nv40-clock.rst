@@ -33,13 +33,16 @@ through PRAMDAC like on NV03.
 .. todo:: write me
 
 
-.. _nv40-pclock-mmio:
-.. _nv40-pcontrol-mmio:
-
 MMIO registers
 ==============
 
-.. todo:: write me
+.. space:: 8 nv40-pclock 0x1000 PLL control
+
+   .. todo:: write me
+
+.. space:: 8 nv40-pcontrol 0x1000 misc clock control
+
+   .. todo:: write me
 
 
 .. _nv40-clock-hclk:
