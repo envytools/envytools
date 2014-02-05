@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
+#include <pciaccess.h>
 
 int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val) {
 	void *rawbase = 0;
@@ -71,6 +72,24 @@ int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val) {
 					return 0;
 				case 8:
 					*(volatile uint64_t *)raw = val;
+					return 0;
+				default:
+					return NVA_ERR_REGSZ;
+			}
+		case NVA_REGSPACE_IOBAR:
+			if (!regspace->card->iobar)
+				return NVA_ERR_NOSPC;
+			if (addr > regspace->card->iobarlen - regspace->regsz)
+				return NVA_ERR_RANGE;
+			switch (regspace->regsz) {
+				case 1:
+					pci_io_write8(regspace->card->iobar, addr, val);
+					return 0;
+				case 2:
+					pci_io_write16(regspace->card->iobar, addr, val);
+					return 0;
+				case 4:
+					pci_io_write32(regspace->card->iobar, addr, val);
 					return 0;
 				default:
 					return NVA_ERR_REGSZ;
@@ -284,6 +303,24 @@ int nva_rd(struct nva_regspace *regspace, uint32_t addr, uint64_t *val) {
 				default:
 					return NVA_ERR_REGSZ;
 			}
+		case NVA_REGSPACE_IOBAR:
+			if (!regspace->card->iobar)
+				return NVA_ERR_NOSPC;
+			if (addr > regspace->card->iobarlen - regspace->regsz)
+				return NVA_ERR_RANGE;
+			switch (regspace->regsz) {
+				case 1:
+					*val = pci_io_read8(regspace->card->iobar, addr);
+					return 0;
+				case 2:
+					*val = pci_io_read16(regspace->card->iobar, addr);
+					return 0;
+				case 4:
+					*val = pci_io_read32(regspace->card->iobar, addr);
+					return 0;
+				default:
+					return NVA_ERR_REGSZ;
+			}
 		case NVA_REGSPACE_PDAC:
 			if (regspace->card->chipset.chipset != 0x01)
 				return NVA_ERR_NOSPC;
@@ -469,6 +506,8 @@ int nva_rstype(const char *name) {
 		return NVA_REGSPACE_BAR2;
 	if (!strcmp(name, "ramin"))
 		return NVA_REGSPACE_BAR2;
+	if (!strcmp(name, "iobar"))
+		return NVA_REGSPACE_IOBAR;
 	if (!strcmp(name, "pdac"))
 		return NVA_REGSPACE_PDAC;
 	if (!strcmp(name, "eeprom"))
@@ -505,6 +544,7 @@ int nva_rsdefsz(struct nva_regspace *regspace) {
 		case NVA_REGSPACE_BAR0:
 		case NVA_REGSPACE_BAR1:
 		case NVA_REGSPACE_BAR2:
+		case NVA_REGSPACE_IOBAR:
 		case NVA_REGSPACE_PIPE:
 		case NVA_REGSPACE_RDI:
 		case NVA_REGSPACE_VCOMP_CODE:

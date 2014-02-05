@@ -32,6 +32,7 @@
 struct nva_card *nva_cards = 0;
 int nva_cardsnum = 0;
 int nva_cardsmax = 0;
+int nva_vgaarberr = 0;
 
 struct pci_id_match nv_match[4] = {
 	{0x104a, 0x0009, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0},
@@ -45,6 +46,7 @@ int nva_init() {
 	ret = pci_system_init();
 	if (ret)
 		return -1;
+	nva_vgaarberr = pci_device_vgaarb_init();
 	int i;
 
 	for (i = 0; i < ARRAY_SIZE(nv_match); i++) {
@@ -62,6 +64,7 @@ int nva_init() {
 				fprintf (stderr, "WARN: Can't probe %04x:%02x:%02x.%x\n", dev->domain, dev->bus, dev->dev, dev->func);
 				continue;
 			}
+			pci_device_enable(dev);
 			c.pci = dev;
 			ADDARRAY(nva_cards, c);
 		}
@@ -91,7 +94,7 @@ int nva_init() {
 				nva_cards[i].bar1 = 0;
 			}
 		}
-		if (dev->regions[2].size) {
+		if (dev->regions[2].size && !dev->regions[2].is_IO) {
 			nva_cards[i].hasbar2 = 1;
 			nva_cards[i].bar2len = dev->regions[2].size;
 			ret = pci_device_map_range(dev, dev->regions[2].base_addr, dev->regions[2].size, PCI_DEV_MAP_FLAG_WRITABLE, &nva_cards[i].bar2);
@@ -105,6 +108,15 @@ int nva_init() {
 			if (ret) {
 				nva_cards[i].bar2 = 0;
 			}
+		}
+		int iobar = -1;
+		if (dev->regions[2].size && dev->regions[2].is_IO)
+			iobar = 2;
+		if (dev->regions[5].size && dev->regions[5].is_IO)
+			iobar = 5;
+		if (iobar != -1) {
+			nva_cards[i].iobar = pci_device_open_io(dev, dev->regions[iobar].base_addr, dev->regions[iobar].size);
+			nva_cards[i].iobarlen = dev->regions[iobar].size;
 		}
 		uint32_t pmc_id = nva_rd32(i, 0);
 		parse_pmc_id(pmc_id, &nva_cards[i].chipset);
