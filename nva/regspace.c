@@ -54,6 +54,9 @@ int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val) {
 			if (!regspace->card->hasbar2)
 				return NVA_ERR_NOSPC;
 			goto raw;
+		case NVA_REGSPACE_RAWMEM:
+			rawbase = regspace->card->rawmem;
+			rawlen = 0x100000;
 		raw:
 			if (!rawbase)
 				return NVA_ERR_MAP;
@@ -90,6 +93,24 @@ int nva_wr(struct nva_regspace *regspace, uint32_t addr, uint64_t val) {
 					return 0;
 				case 4:
 					pci_io_write32(regspace->card->iobar, addr, val);
+					return 0;
+				default:
+					return NVA_ERR_REGSZ;
+			}
+		case NVA_REGSPACE_RAWIO:
+			if (!regspace->card->rawio)
+				return NVA_ERR_NOSPC;
+			if (addr > 0x10000 - regspace->regsz)
+				return NVA_ERR_RANGE;
+			switch (regspace->regsz) {
+				case 1:
+					pci_io_write8(regspace->card->rawio, addr, val);
+					return 0;
+				case 2:
+					pci_io_write16(regspace->card->rawio, addr, val);
+					return 0;
+				case 4:
+					pci_io_write32(regspace->card->rawio, addr, val);
 					return 0;
 				default:
 					return NVA_ERR_REGSZ;
@@ -281,6 +302,9 @@ int nva_rd(struct nva_regspace *regspace, uint32_t addr, uint64_t *val) {
 			rawbase = regspace->card->bar2;
 			rawlen = regspace->card->bar2len;
 			goto raw;
+		case NVA_REGSPACE_RAWMEM:
+			rawbase = regspace->card->rawmem;
+			rawlen = 0x100000;
 		raw:
 			if (!rawbase)
 				return NVA_ERR_MAP;
@@ -317,6 +341,24 @@ int nva_rd(struct nva_regspace *regspace, uint32_t addr, uint64_t *val) {
 					return 0;
 				case 4:
 					*val = pci_io_read32(regspace->card->iobar, addr);
+					return 0;
+				default:
+					return NVA_ERR_REGSZ;
+			}
+		case NVA_REGSPACE_RAWIO:
+			if (!regspace->card->rawio)
+				return NVA_ERR_NOSPC;
+			if (addr > 0x10000 - regspace->regsz)
+				return NVA_ERR_RANGE;
+			switch (regspace->regsz) {
+				case 1:
+					*val = pci_io_read8(regspace->card->rawio, addr);
+					return 0;
+				case 2:
+					*val = pci_io_read16(regspace->card->rawio, addr);
+					return 0;
+				case 4:
+					*val = pci_io_read32(regspace->card->rawio, addr);
 					return 0;
 				default:
 					return NVA_ERR_REGSZ;
@@ -508,6 +550,10 @@ int nva_rstype(const char *name) {
 		return NVA_REGSPACE_BAR2;
 	if (!strcmp(name, "iobar"))
 		return NVA_REGSPACE_IOBAR;
+	if (!strcmp(name, "rawmem"))
+		return NVA_REGSPACE_RAWMEM;
+	if (!strcmp(name, "rawio"))
+		return NVA_REGSPACE_RAWIO;
 	if (!strcmp(name, "pdac"))
 		return NVA_REGSPACE_PDAC;
 	if (!strcmp(name, "eeprom"))

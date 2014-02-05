@@ -41,6 +41,8 @@ struct nva_card {
 	size_t bar2len;
 	struct pci_io_handle *iobar;
 	size_t iobarlen;
+	void *rawmem;
+	struct pci_io_handle *rawio;
 };
 
 int nva_init();
@@ -94,6 +96,8 @@ struct nva_regspace {
 		NVA_REGSPACE_BAR1,
 		NVA_REGSPACE_BAR2,
 		NVA_REGSPACE_IOBAR,
+		NVA_REGSPACE_RAWMEM,
+		NVA_REGSPACE_RAWIO,
 		NVA_REGSPACE_PDAC,
 		NVA_REGSPACE_EEPROM,
 		NVA_REGSPACE_VGA_CR,

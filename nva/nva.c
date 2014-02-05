@@ -109,6 +109,9 @@ int nva_init() {
 				nva_cards[i].bar2 = 0;
 			}
 		}
+		/* ignore errors */
+		pci_device_map_legacy(dev, 0, 0x100000, PCI_DEV_MAP_FLAG_WRITABLE, &nva_cards[i].rawmem);
+		nva_cards[i].rawio = pci_legacy_open_io(dev, 0, 0x10000);
 		int iobar = -1;
 		if (dev->regions[2].size && dev->regions[2].is_IO)
 			iobar = 2;
