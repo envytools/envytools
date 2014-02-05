@@ -133,6 +133,8 @@ class EnvySpace(ObjectDescription):
             pos, name, ref, *rest = sub.split()
             if rest:
                 variants, *rest = rest
+                if variants == '*':
+                    variants = None
             else:
                 variants = None
             if rest:
