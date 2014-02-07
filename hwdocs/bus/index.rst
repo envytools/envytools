@@ -12,7 +12,6 @@ Contents:
    pbus
    hwsq
    prma
-   nv01-prm
    pfuse
    pring
    punits

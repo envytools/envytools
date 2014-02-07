@@ -8,3 +8,4 @@ Contents:
 
    pfb
    pdac
+   prm
