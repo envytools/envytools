@@ -31,8 +31,8 @@
 	<reg32 offset="0x200" name="CONFIG_0">
 		<bitfield pos="0" name="TEXT"/>
 		<bitfield pos="4" name="DAC_WIDTH">
-			<value value="0" name="BITS_8"/>
-			<value value="1" name="BITS_6"/>
+			<value value="0" name="BITS_6"/>
+			<value value="1" name="BITS_8"/>
 		</bitfield>
 	</reg32>
 	<reg32 offset="0x400" name="UNK400">
