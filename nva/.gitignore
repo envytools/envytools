@@ -30,6 +30,8 @@ nvafucstart
 nvamemtiming
 nv01post
 nv01dump
+nvammiotracereplay
+nvaspyi2c
 libnva.a
 libnva.so
 nvapy.c
