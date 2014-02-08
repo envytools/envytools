@@ -38,25 +38,33 @@ The MMIO registers
    in fact effectively 8-bit (with high 24 bits ignored on write, returned as
    0 on reads).
 
+   This range is always active.
+
 
 The DAC registers
 =================
 
-The inner DAC registers are accessed by the following MMIO registers:
+The DAC has a lot of registers, and only a handful are available directly in
+the MMIO space. Most of its registers are so-called "inner DAC registers",
+are selected by a 16-bit index, and can be accessed by indexed data port in
+MMIO space:
 
-.. reg:: 8 nv01-pdac-index-low indirect DAC register index, low part
+.. reg:: 32 nv01-pdac-index-low indirect DAC register index, low part
 
-   .. todo:: write me
+   Stores low 8 bits of the register index to be accessed.
 
-.. reg:: 8 nv01-pdac-index-high indirect DAC register index, high part
+.. reg:: 32 nv01-pdac-index-high indirect DAC register index, high part
 
-   .. todo:: write me
+   Stores high 8 bits of the register index to be accessed.
 
-.. reg:: 8 nv01-pdac-data indirect DAC register data
+.. reg:: 32 nv01-pdac-data indirect DAC register data
 
-   .. todo:: write me
+   All accesses to this register are forwarded to :obj:`nv01-dac` register
+   selected by the above two index registers. After every access, the index
+   stored in the index registers is incremented by 1 (with proper carry
+   between high and low part).
 
-The registers are:
+The inner DAC registers are:
 
 .. space:: 8 nv01-dac 0x10000 -
    0x0004 CONFIG_0 nv01-dac-config-0
@@ -66,8 +74,6 @@ The registers are:
    0x000b PAL_GREEN nv01-dac-pal-green
 
    .. todo:: write me
-
-.. todo:: write me
 
 
 Clocks
@@ -139,14 +145,14 @@ The state is stored in the following internal DAC registers:
 
 The palette access registers are:
 
-.. reg:: 8 nv01-pdac-pal-write Palette write index
+.. reg:: 32 nv01-pdac-pal-write Palette write index
 
    When written, sets the current mode to write, sets the current index
    to the written value, and sets the current color to red.
 
    When read, returns the current index.
 
-.. reg:: 8 nv01-pdac-pal-read Palette read index
+.. reg:: 32 nv01-pdac-pal-read Palette read index
 
    When written, sets the current mode to read, sets the current index
    to the written value + 1, and sets the current color to red. When read,
@@ -157,7 +163,7 @@ The palette access registers are:
    the current mode in low 2 bits (same values as in CURRENT_MODE), junk
    in high 6 bits.
 
-.. reg:: 8 nv01-pdac-pal-data Palette data
+.. reg:: 32 nv01-pdac-pal-data Palette data
 
    When written: If the current color is red or green, store the value as the
    current value for the corresponding color. Otherwise, write the palette
@@ -174,7 +180,7 @@ The palette access registers are:
 Like on VGA, whenever the display pipeline needs a color index looked up, it
 is first ANDed together with the value of the palette index mask register:
 
-.. reg:: 8 nv01-pdac-pal-mask Palette index mask
+.. reg:: 32 nv01-pdac-pal-mask Palette index mask
 
    Stores the palette index mask.
 
@@ -198,7 +204,7 @@ DAC config
 Joystick
 ========
 
-.. reg:: 8 nv01-pdac-game-port ISA-like game port
+.. reg:: 32 nv01-pdac-game-port ISA-like game port
 
    .. todo:: write me
 
