@@ -67,17 +67,118 @@ MMIO space:
 The inner DAC registers are:
 
 .. space:: 8 nv01-dac 0x10000 -
+   0x0000 VENDOR_ID nv01-dac-vendor-id
+   0x0001 DEVICE_ID nv01-dac-device-id
+   0x0002 REVISION_ID nv01-dac-revision-id
    0x0004 CONFIG_0 nv01-dac-config-0
+   0x0005 CONFIG_1 nv01-dac-config-1
+   0x0006 DDCIN nv01-dac-ddcin
    0x0008 PAL_INDEX nv01-dac-pal-index
    0x0009 PAL_STATE nv01-dac-pal-state
    0x000a PAL_RED nv01-dac-pal-red
    0x000b PAL_GREEN nv01-dac-pal-green
+   0x000c POWERDOWN_0 nv01-dac-powerdown-0
+   0x000d POWERDOWN_1 nv01-dac-powerdown-1
+   0x000e POWERDOWN_2 nv01-dac-powerdown-2
+   0x0010[nv01-dac-clock/4] PLL_M nv01-dac-pll-m
+   0x0011[nv01-dac-clock/4] PLL_N nv01-dac-pll-n
+   0x0012[nv01-dac-clock/4] PLL_O nv01-dac-pll-o
+   0x0013[nv01-dac-clock/4] PLL_P nv01-dac-pll-p
 
-   .. todo:: write me
+   .. todo:: regs 0x1c and up
+
+
+DAC identification
+==================
+
+The DAC can be identified by reading the 3 ID registers:
+
+.. reg:: 8 nv01-dac-vendor-id Vendor ID
+
+   The DAC vendor ID:
+
+   - 0x44: SGS
+
+   Read-only.
+
+.. reg:: 8 nv01-dac-device-id Device ID
+
+   The DAC device ID:
+
+   - 0x32: STG1732
+   - 0x64: STG1764
+
+   Read-only.
+
+.. reg:: 8 nv01-dac-revision-id Revision ID
+
+   The DAC revision ID. No idea about the values, mine is 0xb2 [STG1764].
+
+   Read-only.
+
+
+Powerdown registers
+===================
+
+Parts of DAC functionality can be powered down when not used via powerdown
+registers:
+
+.. reg:: 8 nv01-dac-powerdown-0 Subunit powerdown 0
+
+   - bits 0-2: ???
+   - bit 3: ??? powered down by default by BIOS
+   - bits 4-6: ???
+   - bit 7: ??? powered down by default by BIOS
+
+   .. todo:: RE me
+
+.. reg:: 8 nv01-dac-powerdown-1 Subunit powerdown 1
+
+   - bit 0: MPLL - powering that down will permanently hang the card
+   - bit 1: VPLL
+   - bit 2: APLL
+   - bit 3: CRYSTAL - powering that down isn't a good idea either
+   - bits 4-7: ???
+
+   .. todo:: RE me
+
+.. reg:: 8 nv01-dac-powerdown-2 Subunit powerdown 2
+
+   - bits 0-3: ???
+
+   .. todo:: RE me
 
 
 Clocks
 ======
+
+The DAC contains 3 PLLs, corresponding to the three clocks that NV01 uses:
+
+- 0: MEMORY, used to control memory and PGRAPH operations
+- 1: AUDIO, used to control PAUDIO operations
+- 2: VIDEO, used to control scanout
+
+Each PLL is controlled by 4 DAC registers:
+
+.. reg:: 8 nv01-dac-pll-m PLL M parameter
+
+   .. todo:: write me
+
+.. reg:: 8 nv01-dac-pll-n PLL N parameter
+
+   .. todo:: write me
+
+.. reg:: 8 nv01-dac-pll-o PLL O parameter
+
+   - bits 0-3: ???
+
+   .. todo:: write me
+
+.. reg:: 8 nv01-dac-pll-p PLL P parameter
+
+   - bits 0-3: ???
+
+   .. todo:: write me
 
 .. todo:: write me
 
@@ -182,7 +283,7 @@ is first ANDed together with the value of the palette index mask register:
 
 .. reg:: 32 nv01-pdac-pal-mask Palette index mask
 
-   Stores the palette index mask.
+   Stores the palette index mask. This register is set to 0xff on DAC reset.
 
 
 DAC config
@@ -192,13 +293,43 @@ DAC config
 
 .. reg:: 8 nv01-dac-config-0 Configuration 0
 
+   - bits 0-3: ???
+
    - bit 4: PAL_READ_READ, selects :obj:`nv01-pdac-pal-read` value returned on
      reads
 
      - 0: INDEX, current index will be returned
      - 1: MODE, current mode will be returned (like on VGA)
 
+   - bits 5-6: ???
+
    .. todo:: write me
+
+.. reg:: 8 nv01-dac-config-1 Configuration 1
+
+   - bits 0-4: ???
+   - bit 5: ??? writing as 1 causes register to reset to 0
+   - bit 6: ???
+   - bit 7: ???, read-only, toggling randomly
+
+   .. todo:: write me
+
+
+DDC input
+=========
+
+The DAC supports DDC1 input. DDC1 protocol, as opposed to modern I2C-based
+DDC2 protocol, is fully unidirectional. The monitor continuously sends the
+entire EDID block in an endless cycle on the ID1 pin, clocked by the VSYNC
+signal from card. On NV01, the ID1 line is connected to DDCIN pin on the DAC.
+The raw state of this line is exposed directly as a DAC register:
+
+.. reg:: 8 nv01-dac-ddcin DDC1 input
+
+   - bit 0: Current state of the DDCIN line, read-only
+
+To quickly read the EDID block, software can do bit-banging on the VSYNC line
+via :obj:`nv01-pfb-power-sync` register.
 
 
 Joystick
