@@ -84,8 +84,12 @@ The inner DAC registers are:
    0x0011[nv01-dac-clock/4] PLL_N nv01-dac-pll-n
    0x0012[nv01-dac-clock/4] PLL_O nv01-dac-pll-o
    0x0013[nv01-dac-clock/4] PLL_P nv01-dac-pll-p
+   0x0300[2/2] SATURN_PORT_DATA nv01-dac-saturn-port-data
+   0x0301[2/2] SATURN_PORT_MODE nv01-dac-saturn-port-mode
 
-   .. todo:: regs 0x1c and up
+   .. todo:: regs 0x1c-0xff
+   .. todo:: regs 0x1xx and 0x5xx
+   .. todo:: regs 0xf0xx
 
 
 DAC identification
@@ -345,4 +349,28 @@ Joystick
 Saturn ports
 ============
 
-.. todo:: write me
+The saturn ports are controlled by simple GPIO:
+
+.. reg:: 8 nv01-dac-saturn-port-data Saturn port data
+
+   - bits 0-6: state of relevant saturn port pin. Read only if configured
+     as input, read-write if configured as output.
+
+.. reg:: 8 nv01-dac-saturn-port-data Saturn port mode
+
+   - bits 0-6: mode of relevant saturn port pin:
+
+     - 0: OUTPUT
+     - 1: INPUT
+
+The bit assignments are:
+
+- 0: DATA[0]
+- 1: DATA[1]
+- 2: DATA[2]
+- 3: DATA[3]
+- 4: SENSE
+- 5: SELECT[1]
+- 6: SELECT[0]
+
+.. todo:: some newer DACs have more functionality?
