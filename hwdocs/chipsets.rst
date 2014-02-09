@@ -590,7 +590,7 @@ Like NV40, these are just the maximal numbers.
 
 The pci vendor id is 0x10de.
 
-.. todo:: geometry information not verified for G94, G96, MCP77, GT218
+.. todo:: geometry information not verified for G94, MCP77
 
 
 NVC0 family
