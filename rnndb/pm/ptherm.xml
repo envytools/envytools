@@ -100,6 +100,25 @@
 	<value value="3" name="131072"/>
 </enum>
 
+<enum name="nvc0_ptherm_gate_ctrl_state" inline="yes">
+	<value name="RUN" value="0" />
+	<value name="AUTO" value="1" />
+	<value name="STOP" value="2" />
+</enum>
+
+<bitset name="nvc0_ptherm_gate_ctrl" inline="yes">
+	<bitfield low="0" high="1" name="ENG_CLK" type="nvc0_ptherm_gate_ctrl_state"/>
+	<bitfield low="2" high="3" name="BLK_CLK" type="nvc0_ptherm_gate_ctrl_state"/>
+	<bitfield low="4" high="5" name="ENG_PWR" type="nvc0_ptherm_gate_ctrl_state"/>
+	<bitfield low="6" high="7" name="BLK_PWR" type="nvc0_ptherm_gate_ctrl_state"/>
+	<bitfield low="8" high="12" name="ENG_FILTER"/>
+	<bitfield low="13" high="15" name="ENG_MANT"/>
+	<bitfield low="16" high="19" name="ENG_DLY_BEFORE"/>
+	<bitfield low="20" high="23" name="ENG_DLY_AFTER"/>
+	<bitfield low="24" high="27" name="BLK_DLY_BEFORE"/>
+	<bitfield low="28" high="31" name="BLK_DLY_AFTER"/>
+</bitset>
+
 <!-- Doc:
 	Frequency-switching modulation rate, alternate between clocks based on something like PWM
 -->
@@ -645,6 +664,10 @@
 		<bitfield pos="18" name="FSRM_4_ACTIVE" />
 		<bitfield pos="19" name="THERMAL_PROTECT_ACTIVE" />
 	</reg32>
+
+	<reg32 offset="0x200" name="ENG_GATE_CTRL" type="nvc0_ptherm_gate_ctrl" length="24"/>
+	<reg32 offset="0x288" name="FECS_IDLE_FILTER" />
+	<reg32 offset="0x28c" name="HUBMMU_IDLE_FILTER" />
 
 	<reg32 offset="0x308" name="UNK308" variants="NVC0-">
 		<bitfield low="0" high="7" name="UNK0" /> <!-- RO -->
