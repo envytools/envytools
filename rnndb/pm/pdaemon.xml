@@ -118,7 +118,6 @@
 		<bitfield pos="6" name="PPPP"/>
 		<bitfield pos="7" name="BFB_PART0_REQ" variants="NVC0-"/> <!-- confirmed with GPU-z on windows, variant set thanks to mmiotraces -->
 		<bitfield pos="8" name="FB_PART0_REQ" variants="NVA3-NVC0"/> <!-- needs to be confirmed -->
-		<bitfield pos="8" name="BFB_NISO" variants="NVE4-"/>
 		<bitfield pos="9" name="BFB_NISO" variants="NVE4-"/>
 		<bitfield pos="12" name="PMFB" variants="NVE4-"/>
 		<bitfield pos="19" name="PCOPY0"/>
