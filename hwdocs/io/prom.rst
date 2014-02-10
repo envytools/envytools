@@ -38,7 +38,11 @@ PROM read access
 PROM timings
 ============
 
-.. reg:: 32 prom-rom-timings ROM timing configuration
+.. reg:: 32 nv03-prom-rom-timings ROM timing configuration
+
+   .. todo:: write me
+
+.. reg:: 32 nv10-prom-rom-timings ROM timing configuration
 
    .. todo:: write me
 
@@ -51,6 +55,10 @@ PROM write access - parallel
 
 PROM write access - SPI
 =======================
+
+.. reg:: 32 prom-spi-ctrl SPI ROM direct access
+
+   .. todo:: write me
 
 .. todo:: write me
 

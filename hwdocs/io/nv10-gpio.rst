@@ -38,3 +38,11 @@ Interrupts
 ==========
 
 .. todo:: write me
+
+.. reg:: 32 pbus-intr-gpio GPIO interrupt status/acknowledge
+
+   .. todo:: write me
+
+.. reg:: 32 pbus-intr-gpio-enable GPIO interrupt enable
+
+   .. todo:: write me

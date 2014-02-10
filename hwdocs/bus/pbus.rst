@@ -27,16 +27,28 @@ In addition to this range, PBUS also owns :ref:`PEEPHOLE <peephole-mmio>` and
 The registers in the PBUS area are:
 
 .. space:: 8 pbus 0x1000 bus control
+   0x084 DEBUG_1 pbus-debug-1 NV04:
+   0x098 DEBUG_6 pbus-debug-6 NV17:NV20,NV25:
+   0x100 INTR pbus-intr NV03:
+   0x104 INTR_GPIO pbus-intr-gpio NV31:NV50
+   0x140 INTR_ENABLE pbus-intr-enable NV03:
+   0x144 INTR_GPIO_ENABLE pbus-intr-gpio-enable NV31:NV50
+   0x144 INTR_ENABLE_NRHOST pbus-intr-enable-nrhost NVC0:
+   0x150 INTR_USER0_TRIGGER pbus-intr-user-trigger NV50:
+   0x154[4] INTR_USER0_SCRATCH pbus-intr-user-scratch NV50:
+   0x170 INTR_USER1_TRIGGER pbus-intr-user-trigger NVC0:
+   0x174[4] INTR_USER1_SCRATCH pbus-intr-user-scratch NVC0:
+   0x200 ROM_TIMINGS nv03-prom-rom-timings NV04:NV10
+   0x200 ROM_TIMINGS nv10-prom-rom-timings NV10:NV50
+   0x204 ROM_SPI_CTRL prom-spi-ctrl NV17:NV20,NV25:NV50
+   0xa14 IBUS_TIMEOUT pbus-ibus-timeout NVA3:NVC0
 
    .. todo:: connect
 
    ============= ========= ===============
    Range         Variants  Description
    ============= ========= ===============
-   001000:0010f0 NV04-     :ref:`DEBUG registers <pbus-mmio-debug>`
    0010f0:0010f4 NV11:NV50 :ref:`PWM - PWM generators <pbus-mmio-pwm>`
-   001100:001200 NV03-     :ref:`interrupts <pbus-mmio-intr>`
-   001200:001208 NV04:NV50 :ref:`ROM control <prom-mmio-rom-timings>`
    001300:001380 NV17:NV20 :ref:`HWSQ - hardware sequencer <hwsq-mmio>`
                  NV25:NVC0
    001380:001400 NV41:NV50 :ref:`VGA_STACK <pbus-mmio-vga-stack>`
@@ -56,13 +68,10 @@ The registers in the PBUS area are:
    001800:001a00 NV01:NV50 :ref:`PCI - PCI configuration space <pbus-mmio-pci>`
    001900:001980 NV50:NVC0 :ref:`REMAP - BAR1 remapping circuitry <pbus-mmio-nv50-remap>`
    001980:001a00 NV50:NVC0 :ref:`P2P - NV50 P2P slave <pbus-mmio-nv50-p2p>`
-   001a14        NVA3:NVC0 :ref:`IBUS_TIMEOUT - controls timeout length for accessing MMIO via IBUS <pbus-mmio-ibus-timeout>`
    ============= ========= ===============
 
    .. todo:: loads and loads of unknown registers not shown
 
-
-.. _pbus-mmio-debug:
 
 DEBUG registers
 ===============
@@ -70,35 +79,24 @@ DEBUG registers
 DEBUG registers store misc hardware control bits. They're mostly unknown, and
 usually group together unrelated bits. The known bits include:
 
-MMIO 0x001084: DEBUG_1 [NV04-]
-  bit 11: FUSE_READOUT_ENABLE - enables reads from fuses in :ref:`PFUSE <pfuse>` [NV50:NVC0]
-  bit 28: HEADS_TIED - mirrors writes to :ref:`CRTC <pcrtc-mmio>`/:ref:`RAMDAC <pramdac-mmio>` registers on any head to
-          the other head too [NV11:NV20, NV25:NV50]
+.. reg:: 32 pbus-debug-1 misc stuff
 
-MMIO 0x001098: DEBUG_6 [NV17:NV20, NV25-]
-  bit 3: :ref:`HWSQ_ENABLE - enables HWSQ effects <hwsq-mmio>`
-  bit 4: :ref:`HWSQ_OVERRIDE_MODE - selects read value for HWSQ-overriden registers <hwsq-mmio>`
+   - bit 11: FUSE_READOUT_ENABLE - enables reads from fuses in :ref:`PFUSE <pfuse>` [NV50:NVC0]
+   - bit 28: HEADS_TIED - mirrors writes to :ref:`CRTC <pcrtc-mmio>`/:ref:`RAMDAC <pramdac-mmio>` registers on any head to
+     the other head too [NV11:NV20, NV25:NV50]
+
+.. reg:: 32 pbus-debug-6 misc stuff
+
+   - bit 3: :ref:`HWSQ_ENABLE - enables HWSQ effects <hwsq-mmio>`
+   - bit 4: :ref:`HWSQ_OVERRIDE_MODE - selects read value for HWSQ-overriden registers <hwsq-mmio>`
 
 .. todo:: document other known stuff
 
 
 .. _pbus-intr:
-.. _pbus-mmio-intr:
 
 Interrupts
 ==========
-
-The following registers deal with PBUS interrupts:
-
-- 001100 INTR - interrupt status [NV03-]
-- 001104 INTR_GPIO - :ref:`GPIO interrupt status [NV31:NV50] <nv10-gpio-intr>`
-- 001140 INTR - interrupt enable [NV03-]
-- 001144 INTR_GPIO_EN - :ref:`GPIO interrupt enable [NV31:NV50] <nv10-gpio-intr>`
-- 001144 INTE_EN_NRHOST - interrupt enable for the NRHOST line [NVC0-]
-- 001150 INTR_USER0_TRIGGER - user interrupt generation [NV50-]
-- 001154+i*4, i<4 INTR_USER0_SCRATCH - user interrupt generation [NV50-]
-- 001170 INTR_USER1_TRIGGER - user interrupt generation [NVC0-]
-- 001174+i*4, i<4 INTR_USER1_SCRATCH - user interrupt generation [NVC0-]
 
 .. todo:: cleanup
 
@@ -113,40 +111,43 @@ active and enabled for NRHOST [the bit in INTR_EN_NRHOST is 1].
 Most PBUS interrupts are reported via INTR register and enabled via INTR_EN
 and INTR_EN_NRHOST registers:
 
-MMIO 0x001100: INTR [NV03-]
-  - bit 0: BUS_ERROR - ??? [NV03:NV50]
-  - bit 1: MMIO_DISABLED_ENG - MMIO access from host failed due to accessing
-    an area disabled via PMC.ENABLE [NVC0-] [XXX: document]
-  - bit 2: MMIO_RING_ERR - :ref:`MMIO access from host failed due to some error in
-    PRING <pbus-intr-mmio-ring-err>` [NVC0-]
-  - bit 3: MMIO_FAULT - MMIO access from host failed due to other reasons
-    [NV41-] [XXX: document]
-  - bit 4: GPIO_0_RISE - :ref:`GPIO #0 went from 0 to 1 [NV10:NV31] <nv10-gpio-intr>`
-  - bit 7: HOST_MEM_TIMEOUT - :ref:`an access to memory from host timed out [NVC0-]
-    <pbus-intr-host-mem-timeout>`
-  - bit 8: GPIO_0_FALL - :ref:`GPIO #0 went from 1 to 0 [NV10:NV31] <nv10-gpio-intr>`
-  - bit 8: HOST_MEM_ZOMBIE - :ref:`an access to memory from host thought to have timed
-    out has finally succeeded [NVC0-] <pbus-intr-host-mem-zombie>`
-  - bit 12: PEEPHOLE_W_PAIR_MISMATCH - :ref:`violation of PEEPHOLE write port protocol
-    [NV30:NVC0] <pbus-intr-peephole-w-pair-mismatch>`
-  - bit 16: THERM_ALARM - Temperature is critical and requires actions
-    [NV43-] [:ref:`NV43 <nv43-therm-intr-alarm>`, :ref:`NV50 <ptherm-intr>`]
-  - bit 17: THERM_THRS_LOW - Temperature is lower than TEMP_RANGE.LOW
-    [NV43:NV50] [:ref:`NV43 <nv43-therm-intr-range>`]
-  - bit 18: THERM_THRS_HIGH - Temperature is higher than TEMP_RANGE.HIGH
-    [NV43:NV50] [:ref:`NV43 <nv43-therm-intr-range>`]
-  - bit 26: USER0 - user interrupt #0 [NV50-] [see below]
-  - bit 28: USER1 - user interrupt #1. Note that this interrupt cannot be
-    enabled for delivery to NRHOST line. [NVC0-] [see below]
+.. reg:: 32 pbus-intr interrupt status/acknowledge
+
+   - bit 0: BUS_ERROR - ??? [NV03:NV50]
+   - bit 1: MMIO_DISABLED_ENG - MMIO access from host failed due to accessing
+     an area disabled via PMC.ENABLE [NVC0-] [XXX: document]
+   - bit 2: MMIO_RING_ERR - :ref:`MMIO access from host failed due to some error in
+     PRING <pbus-intr-mmio-ring-err>` [NVC0-]
+   - bit 3: MMIO_FAULT - MMIO access from host failed due to other reasons
+     [NV41-] [XXX: document]
+   - bit 4: GPIO_0_RISE - :ref:`GPIO #0 went from 0 to 1 [NV10:NV31] <nv10-gpio-intr>`
+   - bit 7: HOST_MEM_TIMEOUT - :ref:`an access to memory from host timed out [NVC0-]
+     <pbus-intr-host-mem-timeout>`
+   - bit 8: GPIO_0_FALL - :ref:`GPIO #0 went from 1 to 0 [NV10:NV31] <nv10-gpio-intr>`
+   - bit 8: HOST_MEM_ZOMBIE - :ref:`an access to memory from host thought to have timed
+     out has finally succeeded [NVC0-] <pbus-intr-host-mem-zombie>`
+   - bit 12: PEEPHOLE_W_PAIR_MISMATCH - :ref:`violation of PEEPHOLE write port protocol
+     [NV30:NVC0] <pbus-intr-peephole-w-pair-mismatch>`
+   - bit 16: THERM_ALARM - Temperature is critical and requires actions
+     [NV43-] [:ref:`NV43 <nv43-therm-intr-alarm>`, :ref:`NV50 <ptherm-intr>`]
+   - bit 17: THERM_THRS_LOW - Temperature is lower than TEMP_RANGE.LOW
+     [NV43:NV50] [:ref:`NV43 <nv43-therm-intr-range>`]
+   - bit 18: THERM_THRS_HIGH - Temperature is higher than TEMP_RANGE.HIGH
+     [NV43:NV50] [:ref:`NV43 <nv43-therm-intr-range>`]
+   - bit 26: USER0 - user interrupt #0 [NV50-] [see below]
+   - bit 28: USER1 - user interrupt #1. Note that this interrupt cannot be
+     enabled for delivery to NRHOST line. [NVC0-] [see below]
 
 Writing the INTR register clears interrupts that correspond to bits that
 are set in the written value.
 
-MMIO 0x001140: INTR_EN [NV03-]
-  Same bitfields as in INTR.
+.. reg:: 32 pbus-intr-enable interrupt enable
 
-MMIO 0x001144: INTR_EN_NRHOST [NVC0-]
-  Same bitfields as in INTR, except USER1 is not present.
+   Same bitfields as in INTR.
+
+.. reg:: 32 pbus-intr-enable-nrhost NRHOST interrupt enable
+
+   Same bitfields as in INTR, except USER1 is not present.
 
 On NV40:NV50 GPUs, the PBUS additionally deals with GPIO change interrupts,
 which are reported via INTR_GPIO register and enabled via INTR_GPIO_EN
@@ -161,23 +162,17 @@ User interrupts
 NV50+ PBUS has one [NV50:NVC0] or two [NVC0-] user-triggerable interupts.
 These interrupts are triggered by writing any value to a trigger register:
 
-MMIO 0x001150: INTR_USER0_TRIGGER [NV50-]
-  Writing any value triggers the USER0 interrupt. This register is write-only.
+.. reg:: 32 intr-user-trigger user interrupt generation
 
-MMIO 0x001170: INTR_USER1_TRIGGER [NVC0-]
-  Writing any value triggers the USER1 interrupt. This register is write-only.
+   Writing any value triggers the USERx interrupt. This register is write-only.
 
 There are also 4 scratch registers per interrupt provided for software use.
 The hardware doesn't use their contents for anything:
 
-MMIO 0x001154+i*4, i < 4: INTR_USER0_SCRATCH[i] [NV50-]
-  32-bit scratch registers for USER0 interrupt.
+.. reg:: 32 intr-user-scratch user interrupt scratch register
 
-MMIO 0x001174+i*4, i < 4: INTR_USER1_SCRATCH[i] [NVC0-]
-  32-bit scratch registers for USER1 interrupt.
+   32-bit scratch registers for USERx interrupt.
 
-
-.. _pbus-mmio-ibus-timeout:
 
 NVA3 IBUS timeout
 =================
@@ -186,9 +181,10 @@ NVA3 IBUS timeout
 
 On NVA3:NVC0, the IBUS timeout is controlled by:
 
-MMIO 0x001a14: IBUS_TIMEOUT [NVA3:NVC0]
-  Specifies how many host cycles to wait for response on MMIO accesses
-  forwarded to the IBUS.
+.. reg:: 32 pbus-ibus-timeout IBUS timeout length
+
+   Specifies how many host cycles to wait for response on MMIO accesses
+   forwarded to the IBUS.
 
 .. todo:: verify that it's host cycles
 

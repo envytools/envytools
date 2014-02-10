@@ -71,7 +71,7 @@ MMIO register list
    0x038 STRAPS2_SELECT nv03-pstraps-straps-select NVD9:
    0x03c STRAPS2_SECONDARY nv03-pstraps-straps-secondary NVD9:
    0x040 UNK40 nv03-pstraps-unk40 NVD9:
-   0x200 ROM_TIMINGS prom-rom-timings NV03:NV04
+   0x200 ROM_TIMINGS nv03-prom-rom-timings NV03:NV04
 
 
 NV01 straps
