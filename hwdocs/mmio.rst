@@ -97,6 +97,7 @@ NV03:NV50 MMIO map
    0x101000 PSTRAPS nv03-pstraps
    0x102000 UNK102000 nv4e-unk102000 IGP4X
    0x110000 PROM nv03-prom NV03:NV04
+   0x120000 PALT nv03-palt NV03:NV04
    0x200000 PMEDIA pmedia
    0x300000 PROM nv03-prom NV04:NV17,NV20:NV25
    0x300000 PROM nv17-prom NV17:NV20,NV20:NV50
@@ -127,6 +128,8 @@ NV03:NV50 MMIO map
    .. todo:: check PROM on IGPs
    .. todo:: PMEDIA not on IGPs and some other cards?
    .. todo:: PFB not on IGPs
+
+   .. note:: fully verified on NV05
 
 
 NV50:NVC0 MMIO map

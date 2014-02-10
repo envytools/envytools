@@ -61,3 +61,7 @@ PALT space
 .. space:: 8 nv01-palt 0x8000 external memory access window
 
    .. todo:: write me
+
+.. space:: 8 nv03-palt 0x10000 external memory access window
+
+   .. todo:: write me
