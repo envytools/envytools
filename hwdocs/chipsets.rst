@@ -129,6 +129,12 @@ The chipset was jointly manufactured by SGS-Thomson and NVidia, earning it
 pci vendor id of 0x12d2. The pci device ids are 0x0008 and 0x0009. The device
 id of NV02 was supposed to be 0x0010.
 
+========= ======== =======
+id        chipset  date
+========= ======== =======
+0008/0009 NV01     09.1995
+========= ======== =======
+
 
 NV03 family: NV03, NV03T
 ------------------------
@@ -143,12 +149,12 @@ were also manufactured by SFS-Thomson and bear the code name of STG-3000.
 
 The pci vendor id is 0x12d2. The pci device ids are:
 
-==== =============
-id   chipset
-==== =============
-0018 original NV03
-0019 NV03T
-==== =============
+==== ============= ==========
+id   chipset       date
+==== ============= ==========
+0018 original NV03 ??.04.1997
+0019 NV03T         23.02.1998
+==== ============= ==========
 
 The NV03 GPU is made of the following functional blocks:
 
@@ -200,14 +206,14 @@ in RIVA TNT2 and Vanta cards.
 This is the first chip marked as solely nvidia chip, the pci vendor id is
 0x10de. The pci device ids are:
 
-===== =========
-id    chipset
-===== =========
-0020  NV04
-0028* NV05
-002c* NV05
-00a0  NV0A IGP
-===== =========
+===== ========= ==========
+id    chipset   date
+===== ========= ==========
+0020  NV04      23.03.1998
+0028* NV05      15.03.1998
+002c* NV05      15.03.1998
+00a0  NV0A IGP  08.09.1999
+===== ========= ==========
 
 .. todo:: what the fuck?
 
@@ -258,20 +264,20 @@ The notable changes in this generation are:
 
 The chipsets are:
 
-===== =======  =========  =======  ========
-pciid chipset  pixel      texture  notes
-               pipelines  units
-               and ROPs
-===== =======  =========  =======  ========
-0100* NV10     4          4        the first GeForce card [GeForce 256]
-0150* NV15     4          8        the high-end card of GeForce 2 lineup [GeForce 2 Ti, ...]
-01a0* NV1A     2          4        the IGP of GeForce 2 lineup [nForce]
-0110* NV11     2          4        the low-end card of GeForce 2 lineup [GeForce 2 MX]
-017X  NV17     2          4        the low-end card of GeForce 4 lineup [GeForce 4 MX]
-01fX  NV1F     2          4        the IGP of GeForce 4 lineup [nForce 2]
-018X  NV18     2          4        like NV17, but with added AGP x8 support
-00ff  NV18                         pciid faked by PCIE bridge
-===== =======  =========  =======  ========
+===== ======= ========= ======= ========== ========
+pciid chipset pixel     texture date       notes
+              pipelines units
+              and ROPs
+===== ======= ========= ======= ========== ========
+0100* NV10    4         4       11.10.1999 the first GeForce card [GeForce 256]
+0150* NV15    4         8       26.04.2000 the high-end card of GeForce 2 lineup [GeForce 2 Ti, ...]
+01a0* NV1A    2         4       04.06.2001 the IGP of GeForce 2 lineup [nForce]
+0110* NV11    2         4       28.06.2000 the low-end card of GeForce 2 lineup [GeForce 2 MX]
+017X  NV17    2         4       06.02.2002 the low-end card of GeForce 4 lineup [GeForce 4 MX]
+01fX  NV1F    2         4       01.10.2002 the IGP of GeForce 4 lineup [nForce 2]
+018X  NV18    2         4       25.09.2002 like NV17, but with added AGP x8 support
+00ff  NV18                                 pciid faked by PCIE bridge
+===== ======= ========= ======= ========== ========
 
 The pci vendor id is 0x10de.
 
@@ -312,16 +318,16 @@ and NV17 additions is NV25. Notable changes:
 
 The chipsets are:
 
-===== =======  =======  =========  =======  ========
-pciid chipset  vertex   pixel      texture  notes
-               shaders  pipelines  units
-                        and ROPs
-===== =======  =======  =========  =======  ========
-0200* NV20     1        4          8        the only chipset of GeForce 3 lineup [GeForce 3 Ti, ...]
-02a0* NV2A     2        4          8        the XBOX IGP [XGPU]
-025X  NV25     2        4          8        the high-end card of GeForce 4 lineup [GeForce 4 Ti]
-028X  NV28     2        4          8        like NV25, but with added AGP x8 support
-===== =======  =======  =========  =======  ========
+===== ======= ======= ========= ======= ========== ========
+pciid chipset vertex  pixel     texture date       notes
+              shaders pipelines units
+                      and ROPs
+===== ======= ======= ========= ======= ========== ========
+0200* NV20    1       4         8       27.02.2001 the only chipset of GeForce 3 lineup [GeForce 3 Ti, ...]
+02a0* NV2A    2       4         8       15.11.2001 the XBOX IGP [XGPU]
+025X  NV25    2       4         8       06.02.2002 the high-end card of GeForce 4 lineup [GeForce 4 Ti]
+028X  NV28    2       4         8       20.01.2003 like NV25, but with added AGP x8 support
+===== ======= ======= ========= ======= ========== ========
 
 NV2A is a chipset designed exclusively for the original xbox, and can't be
 found anywhere else. Like NV1A and NV1F, it's an IGP.
@@ -363,7 +369,7 @@ The infamous GeForce FX series. Notable changes:
 
 - NV36:
 
-  - a merge of NV31 and NV36 changes from NV30
+  - a merge of NV31 and NV35 changes from NV30
 
 - NV34:
 
@@ -379,22 +385,22 @@ The infamous GeForce FX series. Notable changes:
 
 The chipsets are:
 
-===== =======  =======  =========  ========
-pciid chipset  vertex   pixel      notes
-               shaders  pipelines
-                        and ROPs
-===== =======  =======  =========  ========
-030X  NV30     2        8          high-end chipset [GeForce FX 5800]
-033X  NV35     3        8          very high-end chipset [GeForce FX 59X0]
-031X  NV31     1        4          low-end chipset [GeForce FX 5600]
-034X  NV36     3        4          middle-end chipset [GeForce FX 5700]
-032X  NV34     1        4          low-end chipset [GeForce FX 5200]
-00fa  NV36                         pciid faked by PCIE bridge
-00fb  NV35                         pciid faked by PCIE bridge
-00fc  NV34                         pciid faked by PCIE bridge
-00fd  NV34                         pciid faked by PCIE bridge
-00fe  NV35                         pciid faked by PCIE bridge
-===== =======  =======  =========  ========
+===== ======= ======= ========= ========== ========
+pciid chipset vertex  pixel     date       notes
+              shaders pipelines
+                      and ROPs
+===== ======= ======= ========= ========== ========
+030X  NV30    2       8         27.01.2003 high-end chipset [GeForce FX 5800]
+033X  NV35    3       8         12.05.2003 very high-end chipset [GeForce FX 59X0]
+031X  NV31    1       4         06.03.2003 low-end chipset [GeForce FX 5600]
+034X  NV36    3       4         23.10.2003 middle-end chipset [GeForce FX 5700]
+032X  NV34    1       4         06.03.2003 low-end chipset [GeForce FX 5200]
+00fa  NV36                                 pciid faked by PCIE bridge
+00fb  NV35                                 pciid faked by PCIE bridge
+00fc  NV34                                 pciid faked by PCIE bridge
+00fd  NV34                                 pciid faked by PCIE bridge
+00fe  NV35                                 pciid faked by PCIE bridge
+===== ======= ======= ========= ========== ========
 
 The pci vendor id is 0x10de.
 
@@ -453,38 +459,39 @@ changes:
 
 The chipsets are [vertex shaders : pixel shaders : ROPs]:
 
-=========  ========== ================  ======= ======= ==== =====
-pciid      chipset id chipset names     vertex  pixel   ROPs notes
-                                        shaders shaders
-=========  ========== ================  ======= ======= ==== =====
-004X 021X  NV40/NV45  NV40/NV45/NV48    6       16      16   AGP
-00f0       NV40/NV45  NV40/NV45/NV48                         pciid faked by PCIE bridge
-00f8       NV40/NV45  NV40/NV45/NV48                         pciid faked by PCIE bridge
-00f9       NV40/NV45  NV40/NV45/NV48                         pciid faked by PCIE bridge
-00cX       NV41/NV42  NV41/NV42         5       12      12
-014X       NV43       NV43              3       8       4
-00f1       NV43       NV43                                   pciid faked by AGP bridge
-00f2       NV43       NV43                                   pciid faked by AGP bridge
-00f3       NV43       NV43                                   pciid faked by AGP bridge
-00f4       NV43       NV43                                   pciid faked by AGP bridge
-00f6       NV43       NV43                                   pciid faked by AGP bridge
-016X       NV44       NV44              3       4       2    TURBOCACHE
-022X       NV4A       NV44A             3       4       2    AGP
-009X       NV47       G70               8       24      16
-01dX       NV46       G72               3       4       2    TURBOCACHE
-029X       NV49       G71               8       24      16
-00f5       NV49       G71                                    pciid faked by AGP bridge
-02e3       NV49       G71                                    pciid faked by AGP bridge
-02e4       NV49       G71                                    pciid faked by AGP bridge
-039X       NV4B       G73               8       12      8
-02e0       NV4B       G73                                    pciid faked by AGP bridge
-02e1       NV4B       G73                                    pciid faked by AGP bridge
-02e2       NV4B       G73                                    pciid faked by AGP bridge
-024X       NV4E       C51               1       2       1    IGP, TURBOCACHE
-03dX       NV4C       MCP61             1       2       1    IGP, TURBOCACHE
-053X       NV67/NV68  MCP67/MCP68       1       2       2    IGP, TURBOCACHE
-07eX       NV63       MCP73             1       2       2    IGP, TURBOCACHE
-=========  ========== ================  ======= ======= ==== =====
+========= ========== ============== ======= ======= ==== ========== =====
+pciid     chipset id chipset names  vertex  pixel   ROPs date       notes
+                                    shaders shaders
+========= ========== ============== ======= ======= ==== ========== =====
+004X 021X NV40/NV45  NV40/NV45/NV48 6       16      16   14.04.2004 AGP
+00f0      NV40/NV45  NV40/NV45/NV48                                 pciid faked by PCIE bridge
+00f8      NV40/NV45  NV40/NV45/NV48                                 pciid faked by PCIE bridge
+00f9      NV40/NV45  NV40/NV45/NV48                                 pciid faked by PCIE bridge
+00cX      NV41/NV42  NV41/NV42      5       12      12   08.11.2004
+014X      NV43       NV43           3       8       4    12.08.2004
+00f1      NV43       NV43                                           pciid faked by AGP bridge
+00f2      NV43       NV43                                           pciid faked by AGP bridge
+00f3      NV43       NV43                                           pciid faked by AGP bridge
+00f4      NV43       NV43                                           pciid faked by AGP bridge
+00f6      NV43       NV43                                           pciid faked by AGP bridge
+016X      NV44       NV44           3       4       2    15.12.2004 TURBOCACHE
+022X      NV4A       NV44A          3       4       2    04.04.2005 AGP
+009X      NV47       G70            8       24      16   22.06.2005
+01dX      NV46       G72            3       4       2    18.01.2006 TURBOCACHE
+029X      NV49       G71            8       24      16   09.03.2006
+00f5      NV49       G71                                            pciid faked by AGP bridge
+02e3      NV49       G71                                            pciid faked by AGP bridge
+02e4      NV49       G71                                            pciid faked by AGP bridge
+039X      NV4B       G73            8       12      8    09.03.2006
+02e0      NV4B       G73                                            pciid faked by AGP bridge
+02e1      NV4B       G73                                            pciid faked by AGP bridge
+02e2      NV4B       G73                                            pciid faked by AGP bridge
+024X      NV4E       C51            1       2       1    20.10.2005 IGP, TURBOCACHE
+03dX      NV4C       MCP61          1       2       1    ??.06.2006 IGP, TURBOCACHE
+053X      NV67       MCP67          1       2       2    01.02.2006 IGP, TURBOCACHE
+053X      NV68       MCP68          1       2       2    ??.07.2007 IGP, TURBOCACHE
+07eX      NV63       MCP73          1       2       2    ??.07.2007 IGP, TURBOCACHE
+========= ========== ============== ======= ======= ==== ========== =====
 
 .. todo:: all geometry information unverified
 
@@ -566,25 +573,25 @@ redesigned memory subsystem, complete with a paging MMU [see :ref:`nv50-vm`].
 
 The chipsets in this family are:
 
-=========== ===== ==== =========== ==== ======= ===== ======
-core pciid  hda   id   name        TPCs MPs/TPC PARTs notes
+=========== ===== ==== =========== ==== ======= ===== ========== ======
+core pciid  hda   id   name        TPCs MPs/TPC PARTs date       notes
             pciid
-=========== ===== ==== =========== ==== ======= ===== ======
-019X        \-    NV50 G80         8    2       6
-040X        \-    NV84 G84         2    2       2
-042X        \-    NV86 G86         1    2       2
-060X+       \-    NV92 G92         8    2       4
-062X+       \-    NV94 G94         4    2       4
-064X+       \-    NV96 G96         2    2       2
-06eX+       \-    NV98 G98         1    1       1
-05eX+       \-    NVA0 G200        10   3       8
-084X+       \-    NVAA MCP77/MCP78 1    1       1     IGP
-086X+       \-    NVAC MCP79/MCP7A 1    2       1     IGP
-0caX+       0be4  NVA3 GT215       4    3       2
-0a2X+       0be2  NVA5 GT216       2    3       2
-0a6X+ 10cX+ 0be3  NVA8 GT218       1    2       1
-08aX+       \-    NVAF MCP89       2    3       2     IGP
-=========== ===== ==== =========== ==== ======= ===== ======
+=========== ===== ==== =========== ==== ======= ===== ========== ======
+019X        \-    NV50 G80         8    2       6     08.11.2006
+040X        \-    NV84 G84         2    2       2     17.04.2007
+042X        \-    NV86 G86         1    2       2     17.04.2007
+060X+       \-    NV92 G92         8    2       4     29.10.2007
+062X+       \-    NV94 G94         4    2       4     29.07.2008
+064X+       \-    NV96 G96         2    2       2     29.07.2008
+06eX+       \-    NV98 G98         1    1       1     04.12.2007
+05eX+       \-    NVA0 G200        10   3       8     16.06.2008
+084X+       \-    NVAA MCP77/MCP78 1    1       1     ??.06.2008 IGP
+086X+       \-    NVAC MCP79/MCP7A 1    2       1     ??.06.2008 IGP
+0caX+       0be4  NVA3 GT215       4    3       2     15.06.2009
+0a2X+       0be2  NVA5 GT216       2    3       2     15.06.2009
+0a6X+ 10cX+ 0be3  NVA8 GT218       1    2       1     15.06.2009
+08aX+       \-    NVAF MCP89       2    3       2     01.04.2010 IGP
+=========== ===== ==== =========== ==== ======= ===== ========== ======
 
 Like NV40, these are just the maximal numbers.
 
@@ -672,28 +679,28 @@ The card where they redesigned everything again.
 
 Chipsets in NVC0 family:
 
-===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ===== ======
-core  hda   id    name   GPCs TPCs PARTs MCs ZCULLs PCOPYs CRTCs PPCs SUBPs SPOONs
+===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ===== ====== ==========
+core  hda   id    name   GPCs TPCs PARTs MCs ZCULLs PCOPYs CRTCs PPCs SUBPs SPOONs date
 pciid pciid                   /GPC           /GPC                /GPC /PART
-===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ===== ======
-06cX+ 0be5  NVC0  GF100  4    4    6     [6] [4]    [2]    [2]   \-   2     3
-0e2X+ 0beb  NVC4  GF104  2    4    4     [4] [4]    [2]    [2]   \-   2     3
-0dcX+ 0be9  NVC3  GF106  1    4    3     [3] [4]    [2]    [2]   \-   2     3
-120X+ 0e0c  NVCE  GF114  2    4    4     [4] [4]    [2]    [2]   \-   2     3
-124X+ 0bee  NVCF  GF116  1    4    3     [3] [4]    [2]    [2]   \-   2     3
-0deX+ 0bea  NVC1  GF108  1    2    1     2   4      [2]    [2]   \-   2     1
-108X+ 0e09  NVC8  GF110  4    4    6     [6] [4]    [2]    [2]   \-   2     3
-104X* 0e08  NVD9  GF119  1    1    1     1   4      1      2     \-   1     1
-1140  \-    NVD7  GF117  1    2    1     1   4      1      4     1    2     1
-118X* 0e0a  NVE4  GK104  4    2    4     4   4      3      4     1    4     3
-0fcX* 0e1b  NVE7  GK107  1    2    2     2   4      3      4     1    4     3
-11cX+ 0e0b  NVE6  GK106  3    2    3     3   4      3      4     1    4     3
-\-    \-    NVEA  GK20A  ?    ?    ?     ?   ?      \-     \-    ?    ?     1
-100X+ 0e1a  NVF0  GK110  5    3    6     6   4      3      4     2    4     3
-100X+ 0e1a  NVF1  GK110B 5    3    6     6   4      3      4     2    4     3
-128X+ 0e0f  NV108 GK208  1    2    1     1   4      3      4     1    2     2
-138X+ 0fbc  NV117 GM107  1    5    2     2   4      3      4     2    4     2
-===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ===== ======
+===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ===== ====== ==========
+06cX+ 0be5  NVC0  GF100  4    4    6     [6] [4]    [2]    [2]   \-   2     3      26.03.2010
+0e2X+ 0beb  NVC4  GF104  2    4    4     [4] [4]    [2]    [2]   \-   2     3      12.07.2010
+0dcX+ 0be9  NVC3  GF106  1    4    3     [3] [4]    [2]    [2]   \-   2     3      03.09.2010
+120X+ 0e0c  NVCE  GF114  2    4    4     [4] [4]    [2]    [2]   \-   2     3      25.01.2011
+124X+ 0bee  NVCF  GF116  1    4    3     [3] [4]    [2]    [2]   \-   2     3      15.03.2011
+0deX+ 0bea  NVC1  GF108  1    2    1     2   4      [2]    [2]   \-   2     1      03.09.2010
+108X+ 0e09  NVC8  GF110  4    4    6     [6] [4]    [2]    [2]   \-   2     3      07.12.2010
+104X* 0e08  NVD9  GF119  1    1    1     1   4      1      2     \-   1     1      05.01.2011
+1140  \-    NVD7  GF117  1    2    1     1   4      1      4     1    2     1      ??.04.2012
+118X* 0e0a  NVE4  GK104  4    2    4     4   4      3      4     1    4     3      22.03.2012
+0fcX* 0e1b  NVE7  GK107  1    2    2     2   4      3      4     1    4     3      24.04.2012
+11cX+ 0e0b  NVE6  GK106  3    2    3     3   4      3      4     1    4     3      22.04.2012
+\-    \-    NVEA  GK20A  ?    ?    ?     ?   ?      \-     \-    ?    ?     1      ?
+100X+ 0e1a  NVF0  GK110  5    3    6     6   4      3      4     2    4     3      21.02.2013
+100X+ 0e1a  NVF1  GK110B 5    3    6     6   4      3      4     2    4     3      07.11.2013
+128X+ 0e0f  NV108 GK208  1    2    1     1   4      3      4     1    2     2      19.02.2013
+138X+ 0fbc  NV117 GM107  1    5    2     2   4      3      4     2    4     2      18.02.2014
+===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ===== ====== ==========
 
 .. todo:: it is said that one of the GPCs [0th one] has only one TPC on NVE6
 
