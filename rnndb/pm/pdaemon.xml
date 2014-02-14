@@ -421,7 +421,7 @@
 			<value name="BUSY" value="2" />
 			<value name="POWERING_UP" value="3" />
 			<value name="POWER_OFF" value="4" />
-		<bitfield>
+		</bitfield>
 		<bitfield low="3" high="6" name="PG_STATE" />
 		<bitfield pos="15" name="THRS_ERR" />
 		<bitfield pos="19" name="PPU_IDLE_PERIOD" />
