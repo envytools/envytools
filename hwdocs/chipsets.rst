@@ -481,9 +481,9 @@ pciid      chipset id chipset names     vertex  pixel   ROPs notes
 02e1       NV4B       G73                                    pciid faked by AGP bridge
 02e2       NV4B       G73                                    pciid faked by AGP bridge
 024X       NV4E       C51               1       2       1    IGP, TURBOCACHE
-03dX       NV4C       C61               1       2       1    IGP, TURBOCACHE
-053X       NV67/NV68  C67/C68           1       2       2    IGP, TURBOCACHE
-07eX       NV63       C73               1       2       2    IGP, TURBOCACHE
+03dX       NV4C       MCP61             1       2       1    IGP, TURBOCACHE
+053X       NV67/NV68  MCP67/MCP68       1       2       2    IGP, TURBOCACHE
+07eX       NV63       MCP73             1       2       2    IGP, TURBOCACHE
 =========  ========== ================  ======= ======= ==== =====
 
 .. todo:: all geometry information unverified

@@ -122,7 +122,7 @@ int envy_bios_parse_bit_i (struct envy_bios *bios, struct envy_bios_bit_entry *b
 			/* yeah, ain't this one hilarious... */
 			if ((bios->parts[0].pcir_device & 0xfff0) == 0x7e0) {
 				bios->chipset = 0x63;
-				bios->chipset_name = "C73";
+				bios->chipset_name = "MCP73";
 			} else {
 				bios->chipset = 0x4b;
 				bios->chipset_name = "G73";
@@ -134,11 +134,11 @@ int envy_bios_parse_bit_i (struct envy_bios *bios, struct envy_bios_bit_entry *b
 			break;
 		case 0x0561:
 			bios->chipset = 0x4c;
-			bios->chipset_name = "C61";
+			bios->chipset_name = "MCP61";
 			break;
 		case 0x0567:
 			bios->chipset = 0x67; /* or 0x68 */
-			bios->chipset_name = "C67/C68";
+			bios->chipset_name = "MCP67/MCP68";
 			break;
 		/* G80 */
 		case 0x6080:
@@ -172,11 +172,11 @@ int envy_bios_parse_bit_i (struct envy_bios *bios, struct envy_bios_bit_entry *b
 			break;
 		case 0x6277:
 			bios->chipset = 0xaa;
-			bios->chipset_name = "C77";
+			bios->chipset_name = "MCP77";
 			break;
 		case 0x6279:
 			bios->chipset = 0xac;
-			bios->chipset_name = "C79";
+			bios->chipset_name = "MCP79";
 			break;
 		/* GT212+ */
 		case 0x7015:
@@ -193,7 +193,7 @@ int envy_bios_parse_bit_i (struct envy_bios *bios, struct envy_bios_bit_entry *b
 			break;
 		case 0x7089:
 			bios->chipset = 0xaf;
-			bios->chipset_name = "C89";
+			bios->chipset_name = "MCP89";
 			break;
 		case 0x7000:
 			bios->chipset = 0xc0;
