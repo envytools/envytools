@@ -34,11 +34,15 @@ int nva_cardsnum = 0;
 int nva_cardsmax = 0;
 int nva_vgaarberr = 0;
 
-struct pci_id_match nv_match[] = {
+struct pci_id_match nv_gpu_match[] = {
 	{0x104a, 0x0009, PCI_MATCH_ANY, PCI_MATCH_ANY, 0, 0},
 	{0x12d2, PCI_MATCH_ANY, PCI_MATCH_ANY, PCI_MATCH_ANY, 0x30000, 0xffff0000},
 	{0x10de, PCI_MATCH_ANY, PCI_MATCH_ANY, PCI_MATCH_ANY, 0x30000, 0xffff0000},
 	{0x10de, PCI_MATCH_ANY, PCI_MATCH_ANY, PCI_MATCH_ANY, 0x48000, 0xffffff00},
+};
+
+struct pci_id_match nv_smu_match[] = {
+	{0x10de, PCI_MATCH_ANY, PCI_MATCH_ANY, PCI_MATCH_ANY, 0xb4000, 0xffffff00},
 };
 
 struct nva_card *nva_init_gpu(struct pci_device *dev) {
@@ -94,34 +98,61 @@ struct nva_card *nva_init_gpu(struct pci_device *dev) {
 	return card;
 }
 
+struct nva_card *nva_init_smu(struct pci_device *dev) {
+	struct nva_card *card = calloc(sizeof *card, 1);
+	if (!card)
+		return 0;
+	card->type = NVA_DEVICE_SMU;
+	card->pci = dev;
+	int ret = pci_device_map_range(dev, dev->regions[0].base_addr, dev->regions[0].size, PCI_DEV_MAP_FLAG_WRITABLE, &card->bar0);
+	if (ret) {
+		fprintf (stderr, "WARN: Can't probe %04x:%02x:%02x.%x\n", dev->domain, dev->bus, dev->dev, dev->func);
+		free(card);
+		return 0;
+	}
+	card->bar0len = dev->regions[0].size;
+	return card;
+}
+
+struct {
+	struct pci_id_match *match;
+	size_t len;
+	struct nva_card *(*func) (struct pci_device *dev);
+} nva_types[] = {
+	{ nv_gpu_match, ARRAY_SIZE(nv_gpu_match), nva_init_gpu },
+	{ nv_smu_match, ARRAY_SIZE(nv_smu_match), nva_init_smu },
+};
+
 int nva_init() {
 	int ret;
 	ret = pci_system_init();
 	if (ret)
 		return -1;
 	nva_vgaarberr = pci_device_vgaarb_init();
-	int i;
+	int i, j;
 
-	for (i = 0; i < ARRAY_SIZE(nv_match); i++) {
-		struct pci_device_iterator* it = pci_id_match_iterator_create(&nv_match[i]);
-		if (!it) {
-			pci_system_cleanup();
-			return -1;
-		}
-
-		struct pci_device *dev;
-		while ((dev = pci_device_next(it))) {
-			ret = pci_device_probe(dev);
-			if (ret) {
-				fprintf (stderr, "WARN: Can't probe %04x:%02x:%02x.%x\n", dev->domain, dev->bus, dev->dev, dev->func);
-				continue;
+	for (i = 0; i < ARRAY_SIZE(nva_types); i++) {
+		for (j = 0; j < nva_types[i].len; j++) {
+			struct pci_device_iterator* it = pci_id_match_iterator_create(&nva_types[i].match[j]);
+			if (!it) {
+				pci_system_cleanup();
+				return -1;
 			}
-			pci_device_enable(dev);
-			struct nva_card *card = nva_init_gpu(dev);
-			if (card)
-				ADDARRAY(nva_cards, card);
+
+			struct pci_device *dev;
+			while ((dev = pci_device_next(it))) {
+				ret = pci_device_probe(dev);
+				if (ret) {
+					fprintf (stderr, "WARN: Can't probe %04x:%02x:%02x.%x\n", dev->domain, dev->bus, dev->dev, dev->func);
+					continue;
+				}
+				pci_device_enable(dev);
+				struct nva_card *card = nva_types[i].func(dev);
+				if (card)
+					ADDARRAY(nva_cards, card);
+			}
+			pci_iterator_destroy(it);
 		}
-		pci_iterator_destroy(it);
 	}
 	return (nva_cardsnum == 0);
 }

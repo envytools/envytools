@@ -31,6 +31,10 @@ void list_gpu(struct nva_card *card) {
 	printf (" %s %08x\n", card->chipset.name, card->chipset.pmc_id);
 }
 
+void list_smu(struct nva_card *card) {
+	printf (" SMU\n");
+}
+
 int main() {
 	if (nva_init()) {
 		fprintf (stderr, "PCI init failure!\n");
@@ -44,6 +48,9 @@ int main() {
 		switch (card->type) {
 			case NVA_DEVICE_GPU:
 				list_gpu(card);
+				break;
+			case NVA_DEVICE_SMU:
+				list_smu(card);
 				break;
 			default:
 				abort();
