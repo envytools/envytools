@@ -16,7 +16,7 @@ cdef extern from "nva.h":
         unsigned bar2len
         int hasbar1
         int hasbar2
-    nva_card *nva_cards
+    nva_card **nva_cards
     int nva_cardsnum
     int nva_init()
     unsigned nva_grd32(void *base, unsigned addr)
@@ -78,4 +78,4 @@ if nva_init():
 
 cards = []
 for i in range(nva_cardsnum):
-    cards.append(nva_wrapcard(&nva_cards[i]))
+    cards.append(nva_wrapcard(nva_cards[i]))

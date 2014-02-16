@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
 			fprintf (stderr, "No cards found.\n");
 		return 1;
 	}
-	rs.card = &nva_cards[rs.cnum];
+	rs.card = nva_cards[rs.cnum];
 	if (rs.regsz == 0)
 		rs.regsz = nva_rsdefsz(&rs);
 	int32_t a, b = rs.regsz, i, j;

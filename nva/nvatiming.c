@@ -112,7 +112,7 @@ void time_pcounter_nv10(unsigned int cnum)
 	nva_wr32(cnum, 0xa624, 0);
 	nva_wr32(cnum, 0xa628, 0);
 	nva_wr32(cnum, 0xa62c, 0);
-	if (nva_cards[cnum].chipset.card_type >= 0x20) {
+	if (nva_cards[cnum]->chipset.card_type >= 0x20) {
 		nva_wr32(cnum, 0xa504, 0);
 		nva_wr32(cnum, 0xa50c, 0xffff);
 		nva_wr32(cnum, 0xa514, 0xffff);
@@ -126,7 +126,7 @@ void time_pcounter_nv10(unsigned int cnum)
 	nva_wr32(cnum, 0xa404, 0xffff);
 	sleep(1);
 	printf ("Set 0: %d Hz\n", nva_rd32(cnum, 0xa608));
-	if (nva_cards[cnum].chipset.card_type >= 0x20) {
+	if (nva_cards[cnum]->chipset.card_type >= 0x20) {
 		printf ("Set 1: %u Hz\n", nva_rd32(cnum, 0xa708));
 	}
 }
@@ -240,9 +240,9 @@ void time_pgraph_dispatch_clock(unsigned int card)
 	ptime_t t_start, t_end;
 	u32 reg;
 
-	if (nva_cards[card].chipset.card_type == 0x50)
+	if (nva_cards[card]->chipset.card_type == 0x50)
 		reg = 0x4008f8;
-	else if (nva_cards[card].chipset.card_type == 0xc0)
+	else if (nva_cards[card]->chipset.card_type == 0xc0)
 		reg = 0x4040f4;
 	else {
 		printf("pgraph_dispatch_clock is only available on nv50+ chipsets\n");
@@ -288,7 +288,7 @@ u64 crystal_type(unsigned int card)
 {
 	unsigned int crystal, chipset;
 
-	chipset = nva_cards[card].chipset.chipset;
+	chipset = nva_cards[card]->chipset.chipset;
 
 	crystal = (nva_rd32(card, 0x101000) & 0x40) >> 6;
 
@@ -333,7 +333,7 @@ void time_ptimer(unsigned int card)
 	printf("PTIMER's clock source: 1s = %llu cycles --> frequency = %f MHz\n",
 	       ptimer_default, ptimer_default/1000000.0);
 
-	if (nva_cards[card].chipset.card_type >= 0x40) {
+	if (nva_cards[card]->chipset.card_type >= 0x40) {
 		/* Calibrate to max frequency */
 		nva_wr32(card, 0x9200, 0x1);
 		nva_wr32(card, 0x9210, 0x1);
@@ -516,7 +516,7 @@ int main(int argc, char **argv)
 			fprintf (stderr, "No cards found.\n");
 		return 1;
 	} else
-		card = &nva_cards[cnum];
+		card = nva_cards[cnum];
 
 	/* activate all the engines */
 	pmc_enable = nva_rd32(cnum, 0x200);

@@ -66,7 +66,7 @@ int vbios_upload_pramin(int cnum, uint8_t *vbios, int length)
 	uint32_t ret = EUNK;
 	int i = 0;
 
-	if (nva_cards[cnum].chipset.chipset < 0x04) {
+	if (nva_cards[cnum]->chipset.chipset < 0x04) {
 		return ECARD;
 	}
 
@@ -74,9 +74,9 @@ int vbios_upload_pramin(int cnum, uint8_t *vbios, int length)
 	chksum(vbios, length);
 
 	fprintf(stderr, "Attempt to upload the vbios to card %i (nv%02x) using PRAMIN\n",
-			cnum, nva_cards[cnum].chipset.chipset);
+			cnum, nva_cards[cnum]->chipset.chipset);
 
-	if (nva_cards[cnum].chipset.card_type >= 0x50) {
+	if (nva_cards[cnum]->chipset.card_type >= 0x50) {
 		uint64_t vbios_vram = (uint64_t)(nva_rd32(cnum, 0x619f04) & ~0xff) << 8;
 
 		if (!vbios_vram)
@@ -93,7 +93,7 @@ int vbios_upload_pramin(int cnum, uint8_t *vbios, int length)
 
 	ret = EOK;
 
-	if (nva_cards[cnum].chipset.card_type >= 0x50)
+	if (nva_cards[cnum]->chipset.card_type >= 0x50)
 		nva_wr32(cnum, 0x1700, old_bar0_pramin);
 
 	return ret;

@@ -29,6 +29,9 @@
 #include "nvhw.h"
 
 struct nva_card {
+	enum {
+		NVA_DEVICE_GPU,
+	} type;
 	struct pci_device *pci;
 	struct chipset_info chipset;
 	void *bar0;
@@ -46,7 +49,7 @@ struct nva_card {
 };
 
 int nva_init();
-extern struct nva_card *nva_cards;
+extern struct nva_card **nva_cards;
 extern int nva_cardsnum;
 
 static inline uint32_t nva_grd32(void *base, uint32_t addr) {
@@ -66,19 +69,19 @@ static inline void nva_gwr8(void *base, uint32_t addr, uint32_t val) {
 }
 
 static inline uint32_t nva_rd32(int card, uint32_t addr) {
-	return nva_grd32(nva_cards[card].bar0, addr);
+	return nva_grd32(nva_cards[card]->bar0, addr);
 }
 
 static inline void nva_wr32(int card, uint32_t addr, uint32_t val) {
-	nva_gwr32(nva_cards[card].bar0, addr, val);
+	nva_gwr32(nva_cards[card]->bar0, addr, val);
 }
 
 static inline uint32_t nva_rd8(int card, uint32_t addr) {
-	return nva_grd8(nva_cards[card].bar0, addr);
+	return nva_grd8(nva_cards[card]->bar0, addr);
 }
 
 static inline void nva_wr8(int card, uint32_t addr, uint32_t val) {
-	nva_gwr8(nva_cards[card].bar0, addr, val);
+	nva_gwr8(nva_cards[card]->bar0, addr, val);
 }
 
 static inline uint32_t nva_mask(int cnum, uint32_t reg, uint32_t mask, uint32_t val)

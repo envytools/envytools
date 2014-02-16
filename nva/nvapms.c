@@ -78,7 +78,7 @@ pms_launch(int cnum, struct pms_ucode* pms, ptime_t *wall_time)
 	struct timeval wall_start, wall_end;
 	int i;
 
-	if (nva_cards[cnum].chipset.chipset < 0x90) {
+	if (nva_cards[cnum]->chipset.chipset < 0x90) {
 		pms_data = 0x001400;
 		pms_kick = 0x00000003;
 	} else {

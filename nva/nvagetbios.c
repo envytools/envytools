@@ -124,20 +124,20 @@ int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 	int i;
 
 	fprintf(stderr, "Attempt to extract the vbios from card %i (nv%02x) using PROM\n",
-			cnum, nva_cards[cnum].chipset.chipset);
+			cnum, nva_cards[cnum]->chipset.chipset);
 
 	int32_t prom_offset;
 	int32_t prom_size;
 	int32_t pbus_offset = 0;
 
-	if (nva_cards[cnum].chipset.chipset < 0x03) {
+	if (nva_cards[cnum]->chipset.chipset < 0x03) {
 		prom_offset = 0x610000;
 		prom_size = NV01_PROM_SIZE;
-	} else if (nva_cards[cnum].chipset.chipset < 0x04) {
+	} else if (nva_cards[cnum]->chipset.chipset < 0x04) {
 		prom_offset = 0x110000;
 		prom_size = NV03_PROM_SIZE;
 	} else {
-		if (nva_cards[cnum].chipset.chipset < 0x40)
+		if (nva_cards[cnum]->chipset.chipset < 0x40)
 			pbus_offset = 0x1800;
 		else
 			pbus_offset = 0x88000;
@@ -156,7 +156,7 @@ int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 		vbios[i] = nva_rd32(cnum, prom_offset + (i & ~3)) >> (i & 3) * 8;
 
 	ret = nv_ckbios(vbios);
-	if (nva_cards[cnum].chipset.chipset >= 0x04) {
+	if (nva_cards[cnum]->chipset.chipset >= 0x04) {
 		nva_wr32(cnum, pbus_offset + 0x50, pci_cfg_50);
 	}
 	*length = prom_size;
@@ -170,16 +170,16 @@ int vbios_extract_pramin(int cnum, uint8_t *vbios, int *length)
 	uint32_t ret = EUNK;
 	int i;
 
-	if (nva_cards[cnum].chipset.chipset < 0x04) {
+	if (nva_cards[cnum]->chipset.chipset < 0x04) {
 		fprintf(stderr, "Card %i (nv%02x) does not support PRAMIN!\n",
-				cnum, nva_cards[cnum].chipset.chipset);
+				cnum, nva_cards[cnum]->chipset.chipset);
 		return ECARD;
 	}
 
 	fprintf(stderr, "Attempt to extract the vbios from card %i (nv%02x) using PRAMIN\n",
-			cnum, nva_cards[cnum].chipset.chipset);
+			cnum, nva_cards[cnum]->chipset.chipset);
 
-	if (nva_cards[cnum].chipset.card_type >= 0x50) {
+	if (nva_cards[cnum]->chipset.card_type >= 0x50) {
 		uint64_t vbios_vram = (uint64_t)(nva_rd32(cnum, 0x619f04) & ~0xff) << 8;
 
 		if (!vbios_vram)
@@ -196,7 +196,7 @@ int vbios_extract_pramin(int cnum, uint8_t *vbios, int *length)
 		vbios[i] = nva_rd8(cnum, NV_PRAMIN_OFFSET + i);
 
 	ret = nv_ckbios(vbios);
-	if (nva_cards[cnum].chipset.card_type >= 0x50)
+	if (nva_cards[cnum]->chipset.card_type >= 0x50)
 		nva_wr32(cnum, 0x1700, old_bar0_pramin);
 
 	return ret;
@@ -245,7 +245,7 @@ int main(int argc, char **argv) {
 	}
 
 	if (source == NULL) {
-		if (nva_cards[cnum].chipset.chipset < 4)
+		if (nva_cards[cnum]->chipset.chipset < 4)
 			source = "PROM";
 		else
 			source = "PRAMIN";

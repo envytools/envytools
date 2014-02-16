@@ -24,7 +24,12 @@
 
 #include "nva.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <pciaccess.h>
+
+void list_gpu(struct nva_card *card) {
+	printf (" %s %08x\n", card->chipset.name, card->chipset.pmc_id);
+}
 
 int main() {
 	if (nva_init()) {
@@ -32,9 +37,17 @@ int main() {
 		return 1;
 	}
 	int i;
-	for (i = 0; i < nva_cardsnum; i++)
-		printf ("%d: %04x:%02x:%02x.%x %s %08x\n", i,
-				nva_cards[i].pci->domain, nva_cards[i].pci->bus, nva_cards[i].pci->dev, nva_cards[i].pci->func,
-				nva_cards[i].chipset.name, nva_cards[i].chipset.pmc_id);
+	for (i = 0; i < nva_cardsnum; i++) {
+		struct nva_card *card = nva_cards[i];
+		printf ("%d: %04x:%02x:%02x.%x", i, 
+			card->pci->domain, card->pci->bus, card->pci->dev, card->pci->func);
+		switch (card->type) {
+			case NVA_DEVICE_GPU:
+				list_gpu(card);
+				break;
+			default:
+				abort();
+		}
+	}
 	return 0;
 }

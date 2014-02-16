@@ -385,7 +385,7 @@ void find_host_mem_read_write(int cnum)
 {
 	uint32_t signals_real[0x100 * 8] = { 0 };
 	uint32_t signals_real_cycles[0x100 * 8] = { 0 };
-	struct pci_device *dev = nva_cards[cnum].pci;
+	struct pci_device *dev = nva_cards[cnum]->pci;
 	volatile uint8_t *bar1, val;
 	int ret, i, e;
 
@@ -566,18 +566,18 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	if (nva_cards[cnum].chipset.chipset < 0x10 ||
-	    nva_cards[cnum].chipset.chipset >= 0xc0)
+	if (nva_cards[cnum]->chipset.chipset < 0x10 ||
+	    nva_cards[cnum]->chipset.chipset >= 0xc0)
 	{
 		fprintf(stderr, "The chipset nv%x isn't currently supported\n",
-			nva_cards[cnum].chipset.chipset);
+			nva_cards[cnum]->chipset.chipset);
 		return 1;
 	}
 
 	/* Init */
 	nva_wr32(cnum, 0x200, 0xffffffff);
 
-	printf("Chipset nv%x:\n\n", nva_cards[cnum].chipset.chipset);
+	printf("Chipset nv%x:\n\n", nva_cards[cnum]->chipset.chipset);
 
 	poll_signals(cnum, signals_ref);
 	find_counter_noise(cnum);

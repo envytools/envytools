@@ -26,11 +26,11 @@
 #include "nva.h"
 
 uint32_t vram_rd32(int card, uint64_t addr) {
-	if (nva_cards[card].chipset.card_type < 3) {
+	if (nva_cards[card]->chipset.card_type < 3) {
 		return nva_rd32(card, 0x1000000 + addr);
-	} else if (nva_cards[card].chipset.card_type < 0x30) {
-		return nva_grd32(nva_cards[card].bar1, addr);
-	} else if (nva_cards[card].chipset.card_type < 0x50) {
+	} else if (nva_cards[card]->chipset.card_type < 0x30) {
+		return nva_grd32(nva_cards[card]->bar1, addr);
+	} else if (nva_cards[card]->chipset.card_type < 0x50) {
 		nva_wr32(card, 0x1570, addr);
 		return nva_rd32(card, 0x1574);
 	} else {
@@ -43,11 +43,11 @@ uint32_t vram_rd32(int card, uint64_t addr) {
 }
 
 void vram_wr32(int card, uint64_t addr, uint32_t val) {
-	if (nva_cards[card].chipset.card_type < 3) {
+	if (nva_cards[card]->chipset.card_type < 3) {
 		nva_wr32(card, 0x1000000 + addr, val);
-	} else if (nva_cards[card].chipset.card_type < 0x30) {
-		nva_gwr32(nva_cards[card].bar1, addr, val);
-	} else if (nva_cards[card].chipset.card_type < 0x50) {
+	} else if (nva_cards[card]->chipset.card_type < 0x30) {
+		nva_gwr32(nva_cards[card]->bar1, addr, val);
+	} else if (nva_cards[card]->chipset.card_type < 0x50) {
 		nva_wr32(card, 0x1570, addr);
 		nva_wr32(card, 0x1574, val);
 	} else {
