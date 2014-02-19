@@ -134,6 +134,7 @@
 	</bitfield>
 	<bitfield low="24" high="27" name="FP_CONFIG"/>
 	<bitfield pos="28" name="DEVICE_ID_4" type="hex" variants="NV92-"/>
+	<bitfield pos="30" name="DEVICE_ID_5" type="hex" variants="NVD9-"/>
 </bitset>
 
 <bitset name="nv50_straps1" inline="yes">

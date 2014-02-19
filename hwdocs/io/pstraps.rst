@@ -249,6 +249,7 @@ Set 0:
 
 - bits 24-27: flat panel config [used to select entry from fp mode table]
 - bit 28: DEVICE_ID bit 4 [NV92-]
+- bit 30: DEVICE_ID bit 5 [NVD9-]
 - bits 29-30: ?
 
 Set 1:
