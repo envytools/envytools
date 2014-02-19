@@ -566,6 +566,43 @@
 		<bitfield low="24" high="25" name="FILTER1_DIVIDER" type="nv84_therm_filter_div" />
 	</reg32>
 
+	<!-- XXX: there are ways to make the status regs do funky stuff -->
+	<reg32 offset="0x0c4" name="PWM_STATUS" variants="NVE4-">
+		<bitfield low="0" high="18" name="DIV" />
+		<bitfield pos="24" name="WENT_FULL_SPEED" /> <!-- set to clear -->
+	</reg32>
+	<reg32 offset="0x0c8" name="PWM_STATUS_1" variants="NVE4-">
+		<bitfield low="0" high="18" name="DUTY" />
+	</reg32>
+
+	<reg32 offset="0x0cd" name="PWM_DIV_1" variants="NVE4-">
+		<bitfield low="0" high="12" name="DIV" />
+		<bitfield pos="24" name="UNK24" />
+		<bitfield pos="25" name="UNK25" />
+	</reg32>
+	<reg32 offset="0x0d0" name="PWM_DUTY_1" variants="NVE4-">
+		<bitfield low="0" high="12" name="DUTY" />
+		<bitfield pos="24" name="UNK24" />
+	</reg32>
+
+	<reg32 offset="0x0d0" name="PWM_CFG" variants="NVD7-">
+		<bitfield low="0" high="2" name="UNK0" />
+		<bitfield pos="30" name="UNK30" variants="NVD7:NVF0"/>
+		<bitfield pos="31" name="ENABLE" />
+	</reg32>
+
+	<reg32 offset="0x0d8" name="PWM_DIV_2" variants="NVD7-">
+		<bitfield low="0" high="12" name="DIV" />
+		<bitfield pos="24" name="UNK24" />
+		<bitfield pos="25" name="UNK25" variants="NVD7:NVF0" />
+		<bitfield pos="26" name="UNK26" variants="NVD7:NVF0" />
+	</reg32>
+	<reg32 offset="0x0dc" name="PWM_DUTY_2" variants="NVD7-">
+		<bitfield low="0" high="12" name="DUTY" />
+		<bitfield pos="30" name="COMMIT" />
+		<bitfield pos="31" name="COMMIT_PENDING" />
+	</reg32>
+
 	<reg32 offset="0x0fc" name="INTR_DISPATCH" type="nv50_therm_intr" variants="NVA3-">
 		<doc>One bit per interrupt, 0 selects delivery to PMC line 19, 1 selects delivery
 		to PDAEMON falcon interrupt 12</doc>
