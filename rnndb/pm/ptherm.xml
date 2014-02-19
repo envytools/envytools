@@ -585,19 +585,19 @@
 		<bitfield pos="24" name="UNK24" />
 	</reg32>
 
-	<reg32 offset="0x0d0" name="PWM_CFG" variants="NVD7-">
+	<reg32 offset="0x0d0" name="PWM_CFG" variants="NVD9-">
 		<bitfield low="0" high="2" name="UNK0" />
-		<bitfield pos="30" name="UNK30" variants="NVD7:NVF0"/>
+		<bitfield pos="30" name="UNK30" variants="NVD9:NVF0"/>
 		<bitfield pos="31" name="ENABLE" />
 	</reg32>
 
-	<reg32 offset="0x0d8" name="PWM_DIV_2" variants="NVD7-">
+	<reg32 offset="0x0d8" name="PWM_DIV_2" variants="NVD9-">
 		<bitfield low="0" high="12" name="DIV" />
 		<bitfield pos="24" name="UNK24" />
-		<bitfield pos="25" name="UNK25" variants="NVD7:NVF0" />
-		<bitfield pos="26" name="UNK26" variants="NVD7:NVF0" />
+		<bitfield pos="25" name="UNK25" variants="NVD9:NVF0" />
+		<bitfield pos="26" name="UNK26" variants="NVD9:NVF0" />
 	</reg32>
-	<reg32 offset="0x0dc" name="PWM_DUTY_2" variants="NVD7-">
+	<reg32 offset="0x0dc" name="PWM_DUTY_2" variants="NVD9-">
 		<bitfield low="0" high="12" name="DUTY" />
 		<bitfield pos="30" name="COMMIT" />
 		<bitfield pos="31" name="COMMIT_PENDING" />
