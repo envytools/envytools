@@ -692,6 +692,7 @@ pciid pciid                   /GPC           /GPC                /GPC /PART
 100X+ 0e1a  NVF0  GK110  5    3    6     6   4      3      4     2    4     3
 100X+ 0e1a  NVF1  GK110B 5    3    6     6   4      3      4     2    4     3
 128X+ 0e0f  NV108 GK208  1    2    1     1   4      3      4     1    2     2
+138X+ 0fbc  NV117 GM107  1    5    2     2   4      3      4     2    4     2
 ===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ===== ======
 
 .. todo:: it is said that one of the GPCs [0th one] has only one TPC on NVE6
@@ -699,3 +700,5 @@ pciid pciid                   /GPC           /GPC                /GPC /PART
 .. todo:: what the fuck is NVF1?
 
 .. todo:: GK20A
+
+.. todo:: another design counter available on GM107
