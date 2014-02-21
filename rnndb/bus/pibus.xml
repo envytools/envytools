@@ -92,9 +92,9 @@
 			<bitfield pos="7" name="PPCI_PP2P"/>
 			<bitfield pos="9" name="PCOPY0"/>
 			<bitfield pos="10" name="PCOPY1"/>
-			<bitfield pos="11" name="PVDEC"/>
-			<bitfield pos="12" name="PPPP"/>
-			<bitfield pos="13" name="PVLD"/>
+			<bitfield pos="11" name="PVDEC" variants="NVC0:NV117"/>
+			<bitfield pos="12" name="PPPP" variants="NVC0:NV117"/>
+			<bitfield pos="13" name="PVLD" variants="NVC0:NV117"/>
 			<bitfield pos="17" name="PDAEMON"/>
 			<bitfield pos="18" name="PTHERM"/>
 			<bitfield pos="20" name="PCODEC"/>

@@ -207,7 +207,8 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x9197" name="NVC1_3D" variants="NVC1:NVC8"/>
 	<value value="0x9297" name="NVC8_3D" variants="NVC8:NVE4"/>
 	<value value="0xa097" name="NVE4_3D" variants="NVE4:NVF0"/>
-	<value value="0xa197" name="NVF0_3D" variants="NVF0-"/>
+	<value value="0xa197" name="NVF0_3D" variants="NVF0:NV117"/>
+	<value value="0xb097" name="NV117_3D" variants="NV117-"/>
 
 	<!-- nv50+ non-3D objects -->
 	<value value="0x502d" name="NV50_2D" variants="NV50:NVC0"/>
@@ -218,13 +219,16 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="0x90c0" name="NVC0_COMPUTE" variants="NVC0:NVE4"/>
 	<value value="0x92c0" name="NVC8_COMPUTE" variants="NVC8:NVE4"/>
 	<value value="0xa0c0" name="NVE4_COMPUTE" variants="NVE4:NVF0"/>
-	<value value="0xa1c0" name="NVF0_COMPUTE" variants="NVF0-"/>
+	<value value="0xa1c0" name="NVF0_COMPUTE" variants="NVF0:NV117"/>
+	<value value="0xb0c0" name="NV117_COMPUTE" variants="NV117-"/>
 
+	<!-- non-graph objects checked in hardware -->
 	<value value="0x74c1" name="NV84_CRYPT2" variants="NV84:NV98 NVA0"/>
 	
 	<value value="0xa0b5" name="NVE4_COPY" variants="NVE4-"/>
+	<value value="0xb0b5" name="NV117_COPY" variants="NV117-"/>
 
-	<!-- MPEG -->
+	<!-- non-graph objects *not* checked in hardware, but with functionality implemented in hardware - the values have meaning to driver only -->
 	<value value="0x3174" name="NV31_MPEG" variants="NV31:NV84"/>
 	<value value="0x8274" name="NV84_MPEG" variants="NV84:NV98 NVA0"/>
 	<value value="0x4075" name="NV40_ME" variants="NV40:NV84"/>

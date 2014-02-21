@@ -55,7 +55,7 @@
 		<bitset name="nv_pmc_intr" inline="yes">
 			<bitfield pos="0" name="PAUDIO" variants="NV01"/>
 			<bitfield pos="0" name="PVPE" variants="NV17:NV98 NVA0:NVAA"/>
-			<bitfield pos="0" name="PPPP" variants="NV98:NVA0 NVAA-"/>
+			<bitfield pos="0" name="PPPP" variants="NV98:NVA0 NVAA:NV117"/>
 			<bitfield pos="4" name="PDMA" variants="NV01"/>
 			<bitfield pos="4" name="PMEDIA" variants="NV03-"/>
 			<bitfield pos="5" name="PCOPY0" variants="NVC0-"/>
@@ -73,13 +73,15 @@
 			<bitfield pos="14" name="UNK14" variants="NVA3:NVAF" />
 			<bitfield pos="14" name="PVCOMP" variants="NVAF:NVC0"/>
 			<bitfield pos="15" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield pos="15" name="PVLD" variants="NV98:NVA0 NVAA-"/>
+			<bitfield pos="15" name="PVLD" variants="NV98:NVA0 NVAA:NV117"/>
+			<bitfield pos="15" name="PUNK087" variants="NV117-"/>
 			<bitfield pos="16" name="PRM" variants="NV01"/>
 			<bitfield pos="16" name="PVIDEO" variants="NV03:NV50"/>
 			<bitfield pos="16" name="UNK16" variants="NVA3:NVC0" />
 			<bitfield pos="16" name="PVENC" variants="NVE4-" />
 			<bitfield pos="17" name="PVP2" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield pos="17" name="PVDEC" variants="NV98:NVA0 NVAA-"/>
+			<bitfield pos="17" name="PVDEC" variants="NV98:NVA0 NVAA:NV117"/>
+			<bitfield pos="17" name="PUNK084" variants="NV117-"/>
 			<bitfield pos="18" name="PDAEMON" variants="NVA3:NVC0"/>
 			<bitfield pos="18" name="PTHERM" variants="NVC0-"/>
 			<bitfield pos="19" name="PTHERM" variants="NVA3:NVC0" />
@@ -130,7 +132,7 @@
 			<bitfield pos="0" name="PAUDIO" variants="NV01"/>
 			<bitfield pos="0" name="UNK0" variants="NV03:NV04 NV10-"/>
 			<bitfield pos="1" name="PVPE" variants="NV17:NV98 NVA0"/>
-			<bitfield pos="1" name="PPPP" variants="NV98 NVAA-"/>
+			<bitfield pos="1" name="PPPP" variants="NV98:NVA0 NVAA:NV117"/>
 			<bitfield pos="2" name="PXBAR" variants="NVC0-"/>
 			<bitfield pos="3" name="PMFB" variants="NVC0-"/>
 			<bitfield pos="4" name="PDMA" variants="NV01"/>
@@ -145,12 +147,14 @@
 			<bitfield pos="14" name="PCRYPT2" variants="NV84:NV98 NVA0:NVAA"/>
 			<bitfield pos="14" name="PCRYPT3" variants="NV98:NVA0 NVAA:NVA3"/>
 			<bitfield pos="14" name="PVCOMP" variants="NVAF:NVC0"/>
+			<bitfield pos="14" name="PUNK087" variants="NV117-"/>
 			<bitfield pos="15" name="PBSP" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield pos="15" name="PVLD" variants="NV98:NVA0 NVAA-"/>
+			<bitfield pos="15" name="PVLD" variants="NV98:NVA0 NVAA:NV117"/>
+			<bitfield pos="15" name="PUNK084" variants="NV117-"/>
 			<bitfield pos="16" name="PRM" variants="NV01"/>
 			<bitfield pos="16" name="PTIMER" variants="NV03-"/>
 			<bitfield pos="17" name="PVP2" variants="NV84:NV98 NVA0:NVAA"/>
-			<bitfield pos="17" name="PVDEC" variants="NV98:NVA0 NVAA-"/>
+			<bitfield pos="17" name="PVDEC" variants="NV98:NVA0 NVAA:NV117"/>
 			<bitfield pos="18" name="PVENC" variants="NVE4-"/>
 			<bitfield pos="20" name="PFB" variants="NV03:NVC0"/>
 			<bitfield pos="20" name="PBFB" variants="NVC0-"/>

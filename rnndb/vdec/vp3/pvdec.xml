@@ -41,7 +41,7 @@
 	<value value="4" name="MPEG4" variants="NVA3-"/>
 </enum>
 
-<array name="PVDEC" offset="0x85000" stride="0x1000" length="1" variants="NV98:NVA0 NVAA-">
+<array name="PVDEC" offset="0x85000" stride="0x1000" length="1" variants="NV98:NVA0 NVAA:NV117">
 	<use-group name="falcon_base"/>
 	<use-group name="falcon_memif"/>
 	<stripe variants="NVC0:NVD9">

@@ -27,7 +27,7 @@
 	<bitfield pos="4" name="UNK4" variants="NVC0-"/>
 </bitset>
 
-<array name="PVLD" offset="0x84000" stride="0x1000" length="1" variants="NV98:NVA0 NVAA-">
+<array name="PVLD" offset="0x84000" stride="0x1000" length="1" variants="NV98:NVA0 NVAA:NV117">
 	<use-group name="falcon_base"/>
 	<use-group name="falcon_memif"/>
 	<stripe variants="NVA3-">

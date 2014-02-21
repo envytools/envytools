@@ -12,12 +12,12 @@
 
 <enum name="nvc0_pfifo_engine" inline="yes">
 	<value value="0" name="PGRAPH"/>
-	<value value="1" name="PVDEC"/>
-	<value value="2" name="PPPP"/>
-	<value value="3" name="PVLD"/>
+	<value value="1" name="PVDEC" variants="NVC0:NV117"/>
+	<value value="2" name="PPPP" variants="NVC0:NV117"/>
+	<value value="3" name="PVLD" variants="NVC0:NV117"/>
 	<value value="4" name="PCOPY0"/>
 	<value value="5" name="PCOPY1"/>
-	<value value="6" name="PVENC"/>
+	<value value="6" name="PVENC" variants="NVE4:NV117"/>
 	<value value="0x1f" name="NONE" variants="NVC0:NVE4"/>
 </enum>
 
@@ -151,12 +151,12 @@
 	<reg32 offset="0x628" name="ENGINE_INTR_ENABLE" type="nvc0_pfifo_engine_intr" variants="NVC0:NVE4"/>
 	<reg32 offset="0x62c" name="ENG_FAULT"> <!-- write 1 to clear -->
 		<bitfield pos="0" name="PGRAPH"/>
-		<bitfield pos="1" name="PVDEC"/>
-		<bitfield pos="2" name="PPPP"/>
-		<bitfield pos="3" name="PVLD"/>
+		<bitfield pos="1" name="PVDEC" variants="NVC0:NV117"/>
+		<bitfield pos="2" name="PPPP" variants="NVC0:NV117"/>
+		<bitfield pos="3" name="PVLD" variants="NVC0:NV117"/>
 		<bitfield pos="4" name="PCOPY0"/>
 		<bitfield pos="5" name="PCOPY1"/>
-		<bitfield pos="6" name="PVENC" variants="NVE4-"/>
+		<bitfield pos="6" name="PVENC" variants="NVE4:NV117"/>
 	</reg32>
 	<reg32 offset="0x630" name="ENG_FREEZE">
 		<bitfield pos="0" name="PGRAPH"/>

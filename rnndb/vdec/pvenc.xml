@@ -30,7 +30,13 @@
 	<bitfield pos="12" name="UNK12"/>
 </bitset>
 
-<array name="PVENC" offset="0x1c2000" stride="0x1000" length="1" variants="NVE4-">
+<array name="PVENC" offset="0x1c2000" stride="0x1000" length="1" variants="NVE4:NV117">
+	<use-group name="falcon_base"/>
+	<use-group name="falcon_memif"/>
+	<!-- XXX -->
+</array>
+
+<array name="PVENC" offset="0x1c8000" stride="0x2000" length="1" variants="NV117-">
 	<use-group name="falcon_base"/>
 	<use-group name="falcon_memif"/>
 	<!-- XXX -->
