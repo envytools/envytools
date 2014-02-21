@@ -99,6 +99,7 @@ is:
   - NVC0 subfamily: NVC0, NVC4, NVC3, NVCE, NVCF, NVC1, NVC8
   - NVD9 subfamily: NVD9, NVD7
   - NVE4 subfamily: NVE4, NVE7, NVE6, NVEA, NVF0, NVF1, NV108
+  - NV117 subfamily: NV117
 
 Whenever a range of chipsets is mentioned in the documentation, it's written as
 "NVxx:NVyy". This is left-inclusive, right-noninclusive range of chipset ids
@@ -276,7 +277,6 @@ pciid chipset pixel     texture date       notes
 017X  NV17    2         4       06.02.2002 the low-end card of GeForce 4 lineup [GeForce 4 MX]
 01fX  NV1F    2         4       01.10.2002 the IGP of GeForce 4 lineup [nForce 2]
 018X  NV18    2         4       25.09.2002 like NV17, but with added AGP x8 support
-00ff  NV18                                 pciid faked by PCIE bridge
 ===== ======= ========= ======= ========== ========
 
 The pci vendor id is 0x10de.
@@ -395,11 +395,6 @@ pciid chipset vertex  pixel     date       notes
 031X  NV31    1       4         06.03.2003 low-end chipset [GeForce FX 5600]
 034X  NV36    3       4         23.10.2003 middle-end chipset [GeForce FX 5700]
 032X  NV34    1       4         06.03.2003 low-end chipset [GeForce FX 5200]
-00fa  NV36                                 pciid faked by PCIE bridge
-00fb  NV35                                 pciid faked by PCIE bridge
-00fc  NV34                                 pciid faked by PCIE bridge
-00fd  NV34                                 pciid faked by PCIE bridge
-00fe  NV35                                 pciid faked by PCIE bridge
 ===== ======= ======= ========= ========== ========
 
 The pci vendor id is 0x10de.
@@ -464,36 +459,25 @@ pciid     chipset id chipset names  vertex  pixel   ROPs date       notes
                                     shaders shaders
 ========= ========== ============== ======= ======= ==== ========== =====
 004X 021X NV40/NV45  NV40/NV45/NV48 6       16      16   14.04.2004 AGP
-00f0      NV40/NV45  NV40/NV45/NV48                                 pciid faked by PCIE bridge
-00f8      NV40/NV45  NV40/NV45/NV48                                 pciid faked by PCIE bridge
-00f9      NV40/NV45  NV40/NV45/NV48                                 pciid faked by PCIE bridge
 00cX      NV41/NV42  NV41/NV42      5       12      12   08.11.2004
 014X      NV43       NV43           3       8       4    12.08.2004
-00f1      NV43       NV43                                           pciid faked by AGP bridge
-00f2      NV43       NV43                                           pciid faked by AGP bridge
-00f3      NV43       NV43                                           pciid faked by AGP bridge
-00f4      NV43       NV43                                           pciid faked by AGP bridge
-00f6      NV43       NV43                                           pciid faked by AGP bridge
 016X      NV44       NV44           3       4       2    15.12.2004 TURBOCACHE
 022X      NV4A       NV44A          3       4       2    04.04.2005 AGP
 009X      NV47       G70            8       24      16   22.06.2005
 01dX      NV46       G72            3       4       2    18.01.2006 TURBOCACHE
 029X      NV49       G71            8       24      16   09.03.2006
-00f5      NV49       G71                                            pciid faked by AGP bridge
-02e3      NV49       G71                                            pciid faked by AGP bridge
-02e4      NV49       G71                                            pciid faked by AGP bridge
 039X      NV4B       G73            8       12      8    09.03.2006
-02e0      NV4B       G73                                            pciid faked by AGP bridge
-02e1      NV4B       G73                                            pciid faked by AGP bridge
-02e2      NV4B       G73                                            pciid faked by AGP bridge
 024X      NV4E       C51            1       2       1    20.10.2005 IGP, TURBOCACHE
 03dX      NV4C       MCP61          1       2       1    ??.06.2006 IGP, TURBOCACHE
 053X      NV67       MCP67          1       2       2    01.02.2006 IGP, TURBOCACHE
 053X      NV68       MCP68          1       2       2    ??.07.2007 IGP, TURBOCACHE
 07eX      NV63       MCP73          1       2       2    ??.07.2007 IGP, TURBOCACHE
+\-        NV??       RSX            ?       ?       ?    11.11.2006 FlexIO bus interface, used in PS3
 ========= ========== ============== ======= ======= ==== ========== =====
 
 .. todo:: all geometry information unverified
+
+.. todo:: any information on the RSX?
 
 It's not clear how NV40 is different from NV45, or NV41 from NV42,
 or NV67 from NV68 - they even share pciid ranges.
@@ -573,25 +557,25 @@ redesigned memory subsystem, complete with a paging MMU [see :ref:`nv50-vm`].
 
 The chipsets in this family are:
 
-=========== ===== ==== =========== ==== ======= ===== ========== ======
-core pciid  hda   id   name        TPCs MPs/TPC PARTs date       notes
-            pciid
-=========== ===== ==== =========== ==== ======= ===== ========== ======
-019X        \-    NV50 G80         8    2       6     08.11.2006
-040X        \-    NV84 G84         2    2       2     17.04.2007
-042X        \-    NV86 G86         1    2       2     17.04.2007
-060X+       \-    NV92 G92         8    2       4     29.10.2007
-062X+       \-    NV94 G94         4    2       4     29.07.2008
-064X+       \-    NV96 G96         2    2       2     29.07.2008
-06eX+       \-    NV98 G98         1    1       1     04.12.2007
-05eX+       \-    NVA0 G200        10   3       8     16.06.2008
-084X+       \-    NVAA MCP77/MCP78 1    1       1     ??.06.2008 IGP
-086X+       \-    NVAC MCP79/MCP7A 1    2       1     ??.06.2008 IGP
-0caX+       0be4  NVA3 GT215       4    3       2     15.06.2009
-0a2X+       0be2  NVA5 GT216       2    3       2     15.06.2009
-0a6X+ 10cX+ 0be3  NVA8 GT218       1    2       1     15.06.2009
-08aX+       \-    NVAF MCP89       2    3       2     01.04.2010 IGP
-=========== ===== ==== =========== ==== ======= ===== ========== ======
+===== ===== ==== =========== ==== ======= ===== ========== ======
+core  hda   id   name        TPCs MPs/TPC PARTs date       notes
+pciid pciid
+===== ===== ==== =========== ==== ======= ===== ========== ======
+019X  \-    NV50 G80         8    2       6     08.11.2006
+040X  \-    NV84 G84         2    2       2     17.04.2007
+042X  \-    NV86 G86         1    2       2     17.04.2007
+060X+ \-    NV92 G92         8    2       4     29.10.2007
+062X+ \-    NV94 G94         4    2       4     29.07.2008
+064X+ \-    NV96 G96         2    2       2     29.07.2008
+06eX+ \-    NV98 G98         1    1       1     04.12.2007
+05eX+ \-    NVA0 G200        10   3       8     16.06.2008
+084X+ \-    NVAA MCP77/MCP78 1    1       1     ??.06.2008 IGP
+086X+ \-    NVAC MCP79/MCP7A 1    2       1     ??.06.2008 IGP
+0caX+ 0be4  NVA3 GT215       4    3       2     15.06.2009
+0a2X+ 0be2  NVA5 GT216       2    3       2     15.06.2009
+0a6X+ 0be3  NVA8 GT218       1    2       1     15.06.2009
+08aX+ \-    NVAF MCP89       2    3       2     01.04.2010 IGP
+===== ===== ==== =========== ==== ======= ===== ========== ======
 
 Like NV40, these are just the maximal numbers.
 

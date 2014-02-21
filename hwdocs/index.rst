@@ -8,6 +8,7 @@ Contents:
 
    intro
    chipsets
+   pciid
    mmio
 
    bus/index
