@@ -165,7 +165,10 @@
 			<bitfield pos="30" name="CLEAR"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
-		<reg32 offset="0x28" name="PM_UNK28"/>
+		<reg32 offset="0x28" name="PM">
+			<bitfield low="0" high="5" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
 		<reg32 offset="0x4c" name="BLCG0"/>
 		<stripe offset="0x54" name="HW_CGBLK1">
 			<use-group name="nvc0_hw_cgblk"/>
