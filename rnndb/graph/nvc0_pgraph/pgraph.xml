@@ -331,7 +331,14 @@
 		<reg32 offset="0xe0" name="NOTIFY_M2MF_ADDRESS_HIGH" />
 		<reg32 offset="0xe4" name="NOTIFY_M2MF_ADDRESS_LOW" />
 
-		<reg32 offset="0x15c" name="PM_UNK15C"/>
+		<reg32 offset="0x15c" name="PM_UNK15C">
+			<bitfield low="0" high="4" name="SEL"/>
+			<bitfield pos="31" name="ENABLE" variants="NVF0-"/>
+		</reg32>
+
+		<reg32 offset="0x170" name="PM_UNK170">
+			<bitfield low="0" high="5" name="SEL"/>
+		</reg32>
 
 		<!-- before NVE4 shared with 3d -->
 		<reg32 offset="0x1a0" name="COND_COMPUTE_ADDRESS_HIGH" variants="NVE4-"/>
@@ -426,6 +433,10 @@
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
 		<reg32 offset="0x44" name="TRAP_UNK44"/>
+		<reg32 offset="0x50" name="PM_UNK50" variants="NVD9-">
+			<bitfield low="0" high="4" name="SEL"/>
+			<bitfield pos="31" name="ENABLE" variants="NVF0-"/>
+		</reg32>
 		<reg32 offset="0x54" name="CTX_UNK54"/>
 		<stripe offset="0x60" name="HW_BLK">
 			<use-group name="nvc0_hw_blk"/>
@@ -442,11 +453,20 @@
 		</reg32>
 	</array>
 	<array offset="0x5900" name="UNK5900" stride="0x100" length="1">
+		<reg32 offset="0x8" name="PM_UNK8">
+			<bitfield low="0" high="4" name="SEL"/>
+			<bitfield pos="31" name="ENABLE" variants="NVE4-"/>
+		</reg32>
 		<stripe offset="0x0c" name="HW_CGBLK">
 			<use-group name="nvc0_hw_cgblk"/>
 		</stripe>
 		<reg32 offset="0x14" name="ELPG0"/>
 		<reg32 offset="0x24" name="ELPG1"/>
+		<reg32 offset="0x28" name="PM_UNK28" variants="NVE4-">
+			<bitfield low="0" high="18" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x2c" name="PM_UNK2C"/>
 	</array>
 	<array offset="0x5a00" name="UNK5A00" stride="0x100" length="1">
 		<reg32 offset="0x00" name="CTX_UNK00"/>
@@ -463,6 +483,10 @@
 			<bitfield low="8" high="15" name="TPCCNT"/><!-- guess -->
 		</reg32>
 		<reg32 offset="0x10" name="CTX_UNK10"/>
+		<reg32 offset="0x50" name="PM_UNK50" variants="NVE4-">
+			<bitfield low="0" high="18" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
 		<stripe offset="0xf0" name="HW_BLK" variants="NVE4-">
 			<use-group name="nvc0_hw_blk"/>
 		</stripe>
@@ -484,6 +508,10 @@
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
 		<reg32 offset="0x020" name="CTX_UNK20"/>
+		<reg32 offset="0x024" name="PM_UNK24">
+			<bitfield low="0" high="6" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
 		<reg32 offset="0x028" name="GPC_TPCCNT" length="4"> <!-- ctx-switched -->
 			<bitfield low="0" high="3" name="0"/>
 			<bitfield low="4" high="7" name="1"/>
@@ -510,6 +538,17 @@
 		<reg32 offset="0x4c8" name="CTX_UNK4C8"/>
 		<reg32 offset="0x4cc" name="CTX_UNK4CC"/>
 		<reg32 offset="0x4d0" name="CTX_UNK4D0" length="8"/>
+		<reg32 offset="0x4f0" name="PM_UNK4F0" variants="NVD9-">
+			<bitfield low="0" high="2" name="SEL0"/>
+			<bitfield low="8" high="14" name="SEL1"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x4f4" name="PM_UNK4F4" variants="NVD9-">
+			<bitfield low="0" high="18" name="SEL"/>
+		</reg32>
+		<reg32 offset="0x4f8" name="PM_UNK4F8" variants="NVD9-">
+			<bitfield low="0" high="18" name="SEL"/>
+		</reg32>
 		<reg32 offset="0x4fc" name="CTX_UNK4FC"/>
 	</array>
 	<stripe offset="0x6800" stride="0x400" length="2">
@@ -521,7 +560,10 @@
 		<stripe offset="0x0" name="HW_BLK" variants="NVE4-">
 			<use-group name="nvc0_hw_blk"/>
 		</stripe>
-		<reg32 offset="0x10" name="UNK10"/>
+		<reg32 offset="0x10" name="PM_UNK10">
+			<bitfield low="0" high="6" name="SEL"/>
+			<bitfield pos="31" name="ENABLE" />
+		</reg32>
 		<reg32 offset="0x20" name="TRAP">
 			<doc>This reports compute program launch check errors
 			(in the "launch descriptor") on a0c0.</doc>
@@ -579,9 +621,17 @@
 		</reg32>
 		<reg32 offset="0x14" name="CTX_UNK14"/>
 		<reg32 offset="0x18" name="CTX_UNK18"/>
+		<reg32 offset="0x28" name="PM_UNK28">
+			<bitfield low="0" high="4" name="SEL"/>
+			<bitfield pos="31" name="ENABLE" variants="NVE4-"/>
+		</reg32>
 		<reg32 offset="0x30" name="TRAP">
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
+		</reg32>
+		<reg32 offset="0x3c" name="PM_UNK3C">
+			<bitfield low="0" high="4" name="SEL"/>
+			<bitfield pos="31" name="ENABLE" variants="NVF0-"/>
 		</reg32>
 		<stripe offset="0x40" name="HW_BLK">
 			<use-group name="nvc0_hw_blk"/>

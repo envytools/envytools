@@ -46,7 +46,20 @@
 			<bitfield low="0" high="7" name="STORAGE_TYPE"/>
 		</reg32>
 		<reg32 offset="0x50" name="CTX_UNK50" length="9"/>
-		<reg32 offset="0xa0" name="PM_UNKA0"/>
+		<reg32 offset="0xa0" name="PM_UNKA0">
+			<bitfield low="0" high="7" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0xa4" name="PM_UNKA4" variants="NVD9-">
+			<bitfield low="0" high="2" name="SEL0"/>
+			<bitfield low="8" high="15" name="SEL1"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0xa8" name="PM_UNKA8" variants="NVD9-">
+			<bitfield low="0" high="14" name="SEL0"/>
+			<bitfield low="16" high="30" name="SEL1"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
 	</array>
 	<array offset="0x500" name="UNK500" stride="0x100" length="1">
 		<stripe offset="0x00" name="HW_CGBLK">
@@ -92,6 +105,15 @@
 			<bitfield low="0" high="27" name="ADDRESS" shr="12"/>
 			<bitfield pos="31" name="VALID"/>
 		</reg32>
+		<reg32 offset="0x14" name="PM_UNK14">
+			<bitfield low="0" high="9" name="SEL0"/>
+			<bitfield low="16" high="25" name="SEL1"/>
+		</reg32>
+		<reg32 offset="0x18" name="PM_UNK18">
+			<bitfield low="0" high="9" name="SEL0"/>
+			<bitfield pos="15" name="UNK15"/>
+			<bitfield low="16" high="31" name="SEL1"/>
+		</reg32>
 		<reg32 offset="0x1c" name="PM_UNK1C"/>
 		<reg32 offset="0x24" name="TRAP">
 			<bitfield name="CLEAR" pos="30" />
@@ -116,6 +138,9 @@
 		<reg32 offset="0x38" name="UNK38_ADDR" shr="8"/>
 		<reg32 offset="0x3c" name="ELPG1"/>
 		<reg32 offset="0x48" name="PM_UNK48"/>
+		<reg32 offset="0x4c" name="PM_UNK4c" />
+		<reg32 offset="0x50" name="PM_UNK50" />
+		<reg32 offset="0x54" name="PM_UNK54" />
 		<reg32 offset="0x58" name="CTX_UNK58"/>
 		<reg32 offset="0x60" name="CTX_UNK60"/>
 		<reg32 offset="0x68" name="CTX_UNK68" length="6"/>
@@ -125,6 +150,9 @@
 			<bitfield name="CLEAR" pos="30" />
 			<bitfield name="ENABLE" pos="31" />
 		</reg32>
+		<reg32 offset="0x10" name="PM_UNK10" />
+		<reg32 offset="0x14" name="PM_UNK14" />
+		<reg32 offset="0x18" name="PM_UNK18" />
 		<reg32 offset="0x1c" name="CTX_UNK1C"/>
 		<reg32 offset="0x24" name="CTX_UNK24"/>
 		<reg32 offset="0x28" name="CTX_UNK28"/>
@@ -134,6 +162,10 @@
 		</stripe>
 	</array>
 	<array offset="0x980" name="UNK980" stride="0x080" length="1">
+		<reg32 offset="0x00" name="PM_UNK00" />
+		<reg32 offset="0x04" name="PM_UNK04" />
+		<reg32 offset="0x08" name="PM_UNK08" />
+		<reg32 offset="0x0c" name="PM_UNK0c" />
 	</array>
 	<array offset="0xa00" name="UNKA00" stride="0x20" length="8">
 		<!-- connected with the weird secondary strand set thing -->
@@ -165,9 +197,18 @@
 		</stripe>
 	</array>
 	<array offset="0xc00" name="TPCONF" stride="0x080" length="1">
+		<reg32 offset="0x04" name="PM_UNK04">
+			<bitfield low="0" high="6" name="SEL"/>
+			<bitfield pos="31" name="ENABLE" variants="NVE4-"/>
+		</reg32>
 		<reg32 offset="0x08" name="TPCCNT"/> <!-- ctx-switched -->
 		<reg32 offset="0x10" name="TPCID" length="8"/> <!-- ctx-switched -->
 		<reg32 offset="0x40" name="CTX_UNK40" variants="NVE4-"/>
+		<reg32 offset="0x64" name="PM_UNK64" variants="NVD9-">
+			<bitfield low="0" high="6" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x68" name="PM_UNK68" />
 		<reg32 offset="0x6c" name="CTX_UNK6C" variants="NVE4-"/>
 		<stripe offset="0x70" name="HW_BLK">
 			<use-group name="nvc0_hw_blk"/>
@@ -175,25 +216,66 @@
 	</array>
 	<array offset="0xc80" name="UNKC80" stride="0x080" length="1">
 		<reg32 offset="0x00" name="CTX_UNK00"/>
+		<reg32 offset="0x08" name="PM_UNK08">
+			<bitfield low="0" high="5" name="SEL"/>
+			<bitfield pos="31" name="ENABLE" variants="NVE4-"/>
+		</reg32>
 		<reg32 offset="0xc" name="TPCCNT"/> <!-- ctx-switched -->
+		<reg32 offset="0x34" name="PM_UNK34" variants="NVD9-">
+			<bitfield low="0" high="18" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x38" name="PM_UNK38" variants="NVD9-"/>
 		<stripe offset="0x70" name="HW_BLK">
 			<use-group name="nvc0_hw_blk"/>
 		</stripe>
 	</array>
 	<array offset="0xd00" name="UNKD00" stride="0x080" length="1">
+		<reg32 offset="0x00" name="PM_UNK00">
+			<bitfield low="0" high="4" name="SEL"/>
+			<bitfield pos="31" name="ENABLE" variants="NVE4-"/>
+		</reg32>
+		<reg32 offset="0x28" name="PM_UNK28" variants="NVD9-">
+			<bitfield low="0" high="18" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x2c" name="PM_UNK2C" variants="NVD9-"/>
 		<stripe offset="0x70" name="HW_BLK">
 			<use-group name="nvc0_hw_blk"/>
 		</stripe>
 	</array>
 	<array offset="0xe00" name="UNKE00" stride="0x100" length="1">
+		<reg32 offset="0x08" name="PM_UNK08">
+			<bitfield low="0" high="4" name="SEL"/>
+			<bitfield pos="31" name="ENABLE" variants="NVE4-"/>
+		</reg32>
 		<stripe offset="0xc" name="HW_BLK">
 			<use-group name="nvc0_hw_blk"/>
 		</stripe>
+		<reg32 offset="0x1c" name="PM_UNK1C" variants="NVD9-">
+			<bitfield low="0" high="18" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x20" name="PM_UNK20" variants="NVD9-"/>
 	</array>
 	<array offset="0xf00" name="UNKF00" stride="0x100" length="1">
+		<reg32 offset="0x00" name="PM_UNK00">
+			<bitfield low="0" high="9" name="SEL" variants="NVD9:NVF0"/>
+			<bitfield low="0" high="11" name="SEL" variants="NVF0-"/>
+		</reg32>
+		<reg32 offset="0x08" name="PM_UNK08">
+			<bitfield low="0" high="4" name="SEL"/>
+			<bitfield pos="31" name="ENABLE" variants="NVE4-"/>
+		</reg32>
 		<stripe offset="0xc" name="HW_BLK">
 			<use-group name="nvc0_hw_blk"/>
 		</stripe>
+		<reg32 offset="0x1c" name="PM_UNK1C" variants="NVD9-">
+			<bitfield low="0" high="18" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0x20" name="PM_UNK20" variants="NVD9-"/>
+		<reg32 offset="0x24" name="PM_UNK24" variants="NVD9-"/>
 	</array>
 	<array offset="0x1000" name="CCACHE" stride="0x100" length="1">
 		<reg32 offset="0x00" name="CACHE_CTRL"> <!-- ctx-switched -->
@@ -203,7 +285,13 @@
 		<reg32 offset="0x08" name="HUB2GPC_CONF">
 			<bitfield low="0" high="7" name="SIZE" shr="8"/>
 		</reg32>
+		<reg32 offset="0x0c" name="PM_UNK0C">
+			<bitfield low="0" high="2" name="SEL"/>
+		</reg32>
 		<reg32 offset="0x14" name="CTX_UNK14"/>
+		<reg32 offset="0x18" name="PM_UNK18">
+			<bitfield low="0" high="2" name="SEL"/>
+		</reg32>
 		<stripe offset="0x20" name="HW_CGBLK0">
 			<use-group name="nvc0_hw_cgblk"/>
 		</stripe>
