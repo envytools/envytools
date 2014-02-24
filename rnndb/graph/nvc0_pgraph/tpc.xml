@@ -9,11 +9,26 @@
 
 <group name="nvc0_tpc">
 	<array offset="0x000" name="POLY" stride="0x200" length="1">
+		<reg32 offset="0x00c" name="PM_UNK00C">
+			<bitfield low="0" high="3" name="SEL" variants="NVC0:NVD9" />
+			<bitfield low="0" high="4" name="SEL" variants="NVD9:NVE4" />
+			<bitfield low="0" high="5" name="SEL" variants="NVE4-" />
+		</reg32>
+		<reg32 offset="0x044" name="PM_UNK044">
+			<bitfield low="0" high="1" name="SEL"/>
+		</reg32>
 		<reg32 offset="0x048" name="POLY2ESETUP">
 			<bitfield low="0" high="27" name="ADDRESS" shr="12"/>
 			<bitfield pos="28" name="VALID"/>
 		</reg32>
-		<reg32 offset="0x054" name="PM_UNK054"/>
+		<reg32 offset="0x050" name="PM_UNK050">
+			<bitfield low="0" high="1" name="SEL" variants="NVC0:NVE4"/>
+			<bitfield low="0" high="2" name="SEL" variants="NVE4-"/>
+		</reg32>
+		<reg32 offset="0x054" name="PM_UNK054">
+			<bitfield low="0" high="7" name="SEL"/>
+		</reg32>
+		<reg32 offset="0x58" name="PM_UNK58"/>
 		<reg32 offset="0x05c" name="TFB_UNFUCKUP_OFFSET_QUERIES">
 			<doc>If set to 0, the 9097/1b0c/0d005002 query will return bytes written
 			since the last time TFB_BUFFER_OFFSET (9097/0390) was written.
@@ -108,8 +123,35 @@
 		<stripe offset="0xa0" name="HW_PGBLK3">
 			<use-group name="nvc0_hw_pgblk"/>
 		</stripe>
+		<reg32 offset="0xb0" name="PM_UNKB0">
+			<bitfield low="0" high="5" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0xb4" name="PM_UNKB4">
+			<bitfield low="0" high="28" name="UNK0" variants="NVD9:NVE4"/>
+			<bitfield low="0" high="30" name="UNK0" variants="NVE4-"/>
+		</reg32>
+		<reg32 offset="0xb8" name="PM_UNKB8">
+			<bitfield low="0" high="7" name="SEL"/>
+			<bitfield pos="31" name="ENABLE" variants="NVD9-"/>
+		</reg32>
+		<reg32 offset="0xbc" name="PM_UNKBC">
+			<bitfield low="0" high="3" name="SEL0"/>
+			<bitfield low="8" high="10" name="SEL1" variants="NVC0:NVF0"/>
+			<bitfield low="8" high="11" name="SEL1" variants="NVF0-"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<reg32 offset="0xc0" name="PM_UNKC0">
+			<bitfield low="0" high="2" name="SEL" variants="NVC0:NVE4"/>
+			<bitfield low="0" high="3" name="SEL" variants="NVE4-"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
 		<reg32 offset="0xc4" name="CTX_UNKC4" variants="NVE4-"/>
-		<stripe offset="0xcc" name="HW_BLK" variants="NVC4-">
+		<reg32 offset="0xc8" name="PM_UNKC8" variants="NVD9-">
+			<bitfield low="0" high="4" name="SEL"/>
+			<bitfield pos="31" name="ENABLE"/>
+		</reg32>
+		<stripe offset="0xcc" name="HW_BLK" variants="NVD9-">
 			<use-group name="nvc0_hw_blk"/>
 		</stripe>
 		<reg32 offset="0xdc" name="VSTATUS_1" access="r">
@@ -159,16 +201,25 @@
 		</stripe>
 	</array>
 	<array offset="0x480" name="L1" stride="0x80" length="1">
+		<reg32 offset="0x00" name="PM_UNK00" variants="NVE4-"/>
+		<reg32 offset="0x04" name="PM_UNK04" variants="NVE4-"/>
 		<reg32 offset="0x0c" name="TRAP">
 			<bitfield pos="1" name="GLOBAL_MAP_READ"/> <!-- not passed up to TPC.TRAP, causes VM fault -->
 			<bitfield pos="2" name="GLOBAL_MAP_WRITE"/> <!-- not passed up to TPC.TRAP, causes VM fault -->
 			<bitfield pos="30" name="CLEAR"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
+		<reg32 offset="0x18" name="PM_UNK18"/>
 		<reg32 offset="0x28" name="PM">
 			<bitfield low="0" high="5" name="SEL"/>
 			<bitfield pos="31" name="ENABLE"/>
 		</reg32>
+		<reg32 offset="0x30" name="PM_UNK30"/>
+		<reg32 offset="0x34" name="PM_UNK34"/>
+		<reg32 offset="0x38" name="PM_UNK38"/>
+		<reg32 offset="0x3c" name="PM_UNK3c"/>
+		<reg32 offset="0x40" name="PM_UNK40"/>
+		<reg32 offset="0x44" name="PM_UNK44"/>
 		<reg32 offset="0x4c" name="BLCG0"/>
 		<stripe offset="0x54" name="HW_CGBLK1">
 			<use-group name="nvc0_hw_cgblk"/>
@@ -202,6 +253,9 @@
 			<bitfield pos="1" name="MP"/>
 			<bitfield pos="2" name="POLY"/>
 			<bitfield pos="3" name="L1C"/>
+		</reg32>
+		<reg32 offset="0x10" name="PM_UNK10">
+			<bitfield low="0" high="7" name="SEL"/>
 		</reg32>
 		<reg32 offset="0x20" name="CTX_UNK20" variants="NVC0:NVE4"/>
 		<reg32 offset="0x24" name="CTX_UNK24" variants="NVC0:NVE4"/>
@@ -317,13 +371,23 @@
 			<bitfield pos="3" name="7"/>
 		</reg32>
 		<reg32 offset="0x098" name="TPCID"/> <!-- ctx-switched -->
+		<reg32 offset="0x0a0" name="PM_UNK0A0"/>
 		<reg32 offset="0x0a4" name="CCACHE_CTRL">
 			<bitfield pos="0" name="CODE_FLUSH_TRIGGER"/>
 			<bitfield pos="1" name="CBUF_FLUSH_TRIGGER"/>
 		</reg32>
+		<reg32 offset="0x0a8" name="PM_UNK0A8"/>
 		<reg32 offset="0x0ac" name="CTX_UNK0AC" variants="NVE4-"/>
 		<reg32 offset="0x0b0" name="CTX_UNK0B0" variants="NVE4-"/>
+		<reg32 offset="0x0b4" name="PM_UNK0B4"/>
+		<reg32 offset="0x0b8" name="PM_UNK0B8"/>
+		<reg32 offset="0x0bc" name="PM_UNK0BC"/>
+		<reg32 offset="0x0c0" name="PM_UNK0C0"/>
 		<reg32 offset="0x0c8" name="CTX_UNK0C8" variants="NVE4-"/>
+		<reg32 offset="0x0dc" name="PM_UNK0DC"/>
+		<reg32 offset="0xe4" name="PM_UNKE4" variants="NVE4-"/>
+		<reg32 offset="0x100" name="PM_UNK100"/>
+		<reg32 offset="0x174" name="PM_UNK174"/>
 		<reg32 offset="0x128" name="VSTATUS" access="r">
 			<bitfield low="0" high="2" name="UNK0" type="NV50_VSTATUS"/>
 			<bitfield low="3" high="5" name="UNK1" type="NV50_VSTATUS"/>

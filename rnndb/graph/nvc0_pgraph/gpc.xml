@@ -245,6 +245,7 @@
 		</stripe>
 	</array>
 	<array offset="0xe00" name="UNKE00" stride="0x100" length="1">
+		<reg32 offset="0x00" name="PM_UNK00"/>
 		<reg32 offset="0x08" name="PM_UNK08">
 			<bitfield low="0" high="4" name="SEL"/>
 			<bitfield pos="31" name="ENABLE" variants="NVE4-"/>
