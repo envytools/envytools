@@ -17,6 +17,10 @@
 	<stripe offset="0x28" name="HW_BLK0">
 		<use-group name="nvc0_hw_blk"/>
 	</stripe>
+	<reg32 offset="0x38" name="TRAP">
+		<bitfield name="CLEAR" pos="30" />
+		<bitfield name="ENABLE" pos="31" />
+	</reg32>
 	<reg32 offset="0x0c0" name="CTX_UNK0C0"/>
 	<reg32 offset="0x0c4" name="CTX_UNK0C4"/>
 	<reg32 offset="0x0cc" name="PM_UNK0CC"/>
