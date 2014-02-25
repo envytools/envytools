@@ -337,8 +337,14 @@
 			<bitfield pos="31" name="ENABLE" variants="NVF0-"/>
 		</reg32>
 
-		<reg32 offset="0x170" name="PM_UNK170">
-			<bitfield low="0" high="5" name="SEL"/>
+		<reg32 offset="0x170" name="PWR_MODE" variants="NVD9-">
+			<bitfield low="0" high="1" name="MODE">
+				<value value="0" name="AUTO" />
+				<value value="1" name="UNK1" />
+				<value value="2" name="FORCE_ON" />
+				<value value="3" name="UNK3" />
+			</bitfield>
+			<bitfield pos="4" name="TRIGGER"/>
 		</reg32>
 
 		<!-- before NVE4 shared with 3d -->
