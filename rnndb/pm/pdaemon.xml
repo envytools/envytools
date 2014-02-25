@@ -218,17 +218,14 @@
 	<reg32 offset="0x6a4" name="IREDIR_TIMEOUT_ENABLE"/>
 
 	<!-- 6c0:7a0: lots of unknown probably FIFO engine related crap, different for NVA3:NVE4 and NVE4+ -->
-	<reg32 offset="0x6c0" name="PG_IDLEFILTH" variants="NVE4-"/>
-	<reg32 offset="0x6d4" name="PG_UNKD0_IDLEFILTH" variants="NVE4-"/>
+	<reg32 offset="0x6c0" name="PG_IDLEFILTH" length="9" variants="NVA3:NVE4"/>
+	<reg32 offset="0x6c0" name="PG_IDLEFILTH" length="2" variants="NVE4-"/>
 
-	<reg32 offset="0x6d0" name="PG_UNKD0_IDLEFILTH" variants="NVE4-"/>
+	<reg32 offset="0x6e8" name="PG_PMU_IDLEFILTH" length="2" variants="NVE4-"/>
 
-	<reg32 offset="0x6e8" name="PG_PPU_IDLEFILTH" variants="NVE4-"/>
-	<reg32 offset="0x6ec" name="PG_PPU_IDLEFILTH" variants="NVE4-"/>
+	<reg32 offset="0x6f0" name="PG_UNKF0_IDLEFILTH" length="4" variants="NVA3:NVE4"/>
 
-	<reg32 offset="0x6f8" name="PG_UNKF8_IDLEFILTH" variants="NVE4-"/>
-
-	<reg32 offset="0x760" name="PG_INTREN" variants="NVE4-">
+	<reg32 offset="0x760" name="PG_INTREN" variants="NVE4-" length="8">
 		<bitfield pos="0" name="STATE" type="nve4_pdaemon_pg_state" />
 		<bitfield pos="4" name="DONE" type="nve4_pdaemon_pg_state" />
 		<bitfield pos="8" name="CTX_RESTORE" type="nve4_pdaemon_pg_state" />
@@ -414,7 +411,7 @@
 	</array>
 	<!-- 800+: NVD9+ unknown crap -->
 
-	<reg32 offset="0xaa8" name="PG_STAT" variants="NVE4-">
+	<reg32 offset="0xaa8" name="PG_STAT" variants="NVE4-" length="8">
 		<bitfield low="0" high="2" name="ENG_STATE">
 			<value name="IDLE" value="0" />
 			<value name="POWERING_DOWN" value="1" />
