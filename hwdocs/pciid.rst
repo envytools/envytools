@@ -111,7 +111,10 @@ device id         product
 ``0x0540-0x0563`` :ref:`MCP67 <pci-ids-mcp67>`
 ``0x0568-0x0569`` :ref:`MCP77 <pci-ids-mcp77>`
 ``0x056a-0x056f`` :ref:`MCP73 <pci-ids-mcp73>`
-``0x0580-0x058f`` SATA controller (AHCI mode), seen on MCP73 and MCP77 [?]
+``0x0570-0x057f`` MCP* ethernet alt ID
+``0x0580-0x058f`` MCP* SATA alt ID
+``0x0590-0x059f`` MCP* HDA alt ID
+``0x05a0-0x05af`` MCP* IDE alt ID
 ``0x05b0-0x05bf`` :ref:`BR04 <pci-ids-br04>`
 ``0x05e0-0x05ff`` :ref:`G200 <pci-ids-g200>`
 ``0x0600-0x061f`` :ref:`G92 <pci-ids-g92>`
@@ -123,6 +126,7 @@ device id         product
 ``0x07c0-0x07df`` :ref:`MCP73 <pci-ids-mcp73>`
 ``0x07e0-0x07ef`` :ref:`MCP73 GPU <pci-ids-mcp73-gpu>`
 ``0x07f0-0x07fe`` :ref:`MCP73 <pci-ids-mcp73>`
+``0x0800-0x081a`` :ref:`C73 <pci-ids-c73>`
 ``0x0840-0x085f`` :ref:`MCP77 GPU <pci-ids-mcp77-gpu>`
 ``0x0860-0x087f`` :ref:`MCP79 GPU <pci-ids-mcp79-gpu>`
 ``0x08a0-0x08bf`` :ref:`MCP89 GPU <pci-ids-mcp89-gpu>`
@@ -1914,7 +1918,7 @@ device id  product
 MCP55
 -----
 
-Standalone or paired with C51 or C55.
+Standalone or paired with C51, C55 or C73.
 
 ========== ========================================================
 device id  product
@@ -2072,6 +2076,36 @@ device id  product
 ========== ========================================================
 
 
+.. _pci-ids-c73:
+
+C73
+---
+
+Paired with MCP55.
+
+========== ========================================================
+device id  product
+========== ========================================================
+``0x0800`` C73 host bridge
+``0x0808`` C73 memory controller #1
+``0x0809`` C73 memory controller #2
+``0x080a`` C73 memory controller #3
+``0x080b`` C73 memory controller #4
+``0x080c`` C73 memory controller #5
+``0x080d`` C73 memory controller #6
+``0x080e`` C73 memory controller #7/#17
+``0x080f`` C73 memory controller #10
+``0x0810`` C73 memory controller #11
+``0x0811`` C73 memory controller #12
+``0x0812`` C73 memory controller #13
+``0x0813`` C73 memory controller #14
+``0x0814`` C73 memory controller #15
+``0x0815`` C73 PCI-Express x? port #0
+``0x0817`` C73 PCI-Express x? port #0
+``0x081a`` C73 memory controller #16
+========== ========================================================
+
+
 .. _pci-ids-mcp73:
 
 MCP73
@@ -2136,49 +2170,48 @@ MCP77
 
 Standalone.
 
-========== ========================================================
-device id  product
-========== ========================================================
-``0x0568`` MCP77 memory controller #14
-``0x0569`` MCP77 IGP bridge
-``0x0751`` MCP77 memory controller #12
-``0x0752`` MCP77 SMBus controller
-``0x0753`` MCP77 SMU
-``0x0754`` MCP77 memory controller #0
-``0x0759`` MCP77 IDE controller
-``0x075a`` MCP77 PCI subtractive bridge
-``0x075b`` MCP77 PCI-Express x1/x4 port
-``0x075c`` MCP77 LPC bridge
-``0x075d`` MCP77 LPC bridge
-``0x075e`` MCP77 LPC bridge
-``0x0760`` MCP77 ethernet controller (class 0200)
-``0x0761`` MCP77 ethernet controller [?]
-``0x0762`` MCP77 ethernet controller [?]
-``0x0763`` MCP77 ethernet controller [?]
-``0x0774`` MCP77 HDA
-``0x0775`` MCP77 HDA [?]
-``0x0776`` MCP77 HDA [?]
-``0x0777`` MCP77 HDA [?]
-``0x0778`` MCP77 PCI-Express 2.0 x8/x16 port
-``0x0779`` MCP77 PCI-Express 2.0 x8 port
-``0x077a`` MCP77 PCI-Express x1 port
-``0x077b`` MCP77 USB controller #0
-``0x077c`` MCP77 USB 2.0 controller #0
-``0x077d`` MCP77 USB controller #1
-``0x077e`` MCP77 USB 2.0 controller #1
-``0x0ad0`` MCP77 SATA controller (compatibility mode)
-``0x0ad1`` MCP77 SATA controller (compatibility mode) [?]
-``0x0ad2`` MCP77 SATA controller (compatibility mode) [?]
-``0x0ad3`` MCP77 SATA controller (compatibility mode) [?]
-``0x0ad4`` MCP77 SATA controller (AHCI mode)
-``0x0ad5`` MCP77 SATA controller (AHCI mode) [?]
-``0x0ad6`` MCP77 SATA controller (AHCI mode) [?]
-``0x0ad7`` MCP77 SATA controller (AHCI mode) [?]
-``0x0ad8`` MCP77 SATA controller (RAID mode)
-``0x0ad9`` MCP77 SATA controller (RAID mode) [?]
-``0x0ada`` MCP77 SATA controller (RAID mode) [?]
-``0x0adb`` MCP77 SATA controller (RAID mode) [?]
-========== ========================================================
+================= ========================================================
+device id         product
+================= ========================================================
+``0x0568``        MCP77 memory controller #14
+``0x0569``        MCP77 IGP bridge
+``0x0570-0x057f`` MCP* ethernet controller (class 0200 alt) [XXX]
+``0x0580-0x058f`` MCP* SATA controller (alt ID) [XXX]
+``0x0590-0x059f`` MCP* HDA (alt ID) [XXX]
+``0x05a0-0x05af`` MCP* IDE (alt ID) [XXX]
+``0x0751``        MCP77 memory controller #12
+``0x0752``        MCP77 SMBus controller
+``0x0753``        MCP77 SMU
+``0x0754``        MCP77 memory controller #0
+``0x0759``        MCP77 IDE controller
+``0x075a``        MCP77 PCI subtractive bridge
+``0x075b``        MCP77 PCI-Express x1/x4 port
+``0x075c``        MCP77 LPC bridge
+``0x075d``        MCP77 LPC bridge
+``0x075e``        MCP77 LPC bridge
+``0x0760``        MCP77 ethernet controller (class 0200)
+``0x0761``        MCP77 ethernet controller [?]
+``0x0762``        MCP77 ethernet controller [?]
+``0x0763``        MCP77 ethernet controller [?]
+``0x0764``        MCP77 ethernet controller (class 0680)
+``0x0765``        MCP77 ethernet controller [?]
+``0x0766``        MCP77 ethernet controller [?]
+``0x0767``        MCP77 ethernet controller [?]
+``0x0774``        MCP77 HDA
+``0x0775``        MCP77 HDA [?]
+``0x0776``        MCP77 HDA [?]
+``0x0777``        MCP77 HDA [?]
+``0x0778``        MCP77 PCI-Express 2.0 x8/x16 port
+``0x0779``        MCP77 PCI-Express 2.0 x8 port
+``0x077a``        MCP77 PCI-Express x1 port
+``0x077b``        MCP77 USB controller #0
+``0x077c``        MCP77 USB 2.0 controller #0
+``0x077d``        MCP77 USB controller #1
+``0x077e``        MCP77 USB 2.0 controller #1
+``0x0ad0-0x0ad3`` MCP77 SATA controller (compatibility mode)
+``0x0ad4-0x0ad7`` MCP77 SATA controller (AHCI mode)
+``0x0ad8-0x0adb`` MCP77 SATA controller (RAID mode)
+================= ========================================================
 
 
 .. _pci-ids-mcp79:
@@ -2188,66 +2221,60 @@ MCP79
 
 Standalone.
 
-========== ========================================================
-device id  product
-========== ========================================================
-``0x0a80`` MCP79 host bridge
-``0x0a81`` MCP79 host bridge [?]
-``0x0a82`` MCP79 host bridge
-``0x0a83`` MCP79 host bridge
-``0x0a84`` MCP79 host bridge
-``0x0a85`` MCP79 host bridge [?]
-``0x0a86`` MCP79 host bridge
-``0x0a87`` MCP79 host bridge [?]
-``0x0a88`` MCP79 memory controller #1
-``0x0a89`` MCP79 memory controller #33
-``0x0a8d`` MCP79 memory controller #13
-``0x0a8e`` MCP79 memory controller #14
-``0x0a8f`` MCP79 memory controller #15
-``0x0a90`` MCP79 memory controller #16
-``0x0a94`` MCP79 memory controller #23
-``0x0a95`` MCP79 memory controller #24
-``0x0a98`` MCP79 memory controller #34
-``0x0aa0`` MCP79 IGP bridge
-``0x0aa2`` MCP79 SMBus controller
-``0x0aa3`` MCP79 SMU
-``0x0aa4`` MCP79 memory controller #31
-``0x0aa5`` MCP79 USB controller #0
-``0x0aa6`` MCP79 USB 2.0 controller #0
-``0x0aa7`` MCP79 USB controller #1
-``0x0aa8`` MCP79 USB controller [?]
-``0x0aa9`` MCP79 USB 2.0 controller #1
-``0x0aaa`` MCP79 USB 2.0 controller [?]
-``0x0aab`` MCP79 PCI subtractive bridge
-``0x0aac`` MCP79 LPC bridge
-``0x0aad`` MCP79 LPC bridge
-``0x0aae`` MCP79 LPC bridge
-``0x0aaf`` MCP79 LPC bridge
-``0x0ab0`` MCP79 ethernet controller (class 0200)
-``0x0ab1`` MCP79 ethernet controller [?]
-``0x0ab2`` MCP79 ethernet controller [?]
-``0x0ab3`` MCP79 ethernet controller [?]
-``0x0ab4`` MCP79 SATA controller (compatibility mode) [?]
-``0x0ab5`` MCP79 SATA controller (compatibility mode)
-``0x0ab6`` MCP79 SATA controller (compatibility mode) [?]
-``0x0ab7`` MCP79 SATA controller (compatibility mode) [?]
-``0x0ab8`` MCP79 SATA controller (AHCI mode)
-``0x0ab9`` MCP79 SATA controller (AHCI mode)
-``0x0aba`` MCP79 SATA controller (AHCI mode) [?]
-``0x0abb`` MCP79 SATA controller (AHCI mode) [?]
-``0x0abc`` MCP79 SATA controller (RAID mode)
-``0x0abd`` MCP79 SATA controller (RAID mode) [?]
-``0x0abe`` MCP79 SATA controller (RAID mode) [?]
-``0x0abf`` MCP79 SATA controller (RAID mode) [?]
-``0x0ac0`` MCP79 HDA
-``0x0ac1`` MCP79 HDA [?]
-``0x0ac2`` MCP79 HDA [?]
-``0x0ac3`` MCP79 HDA [?]
-``0x0ac4`` MCP79 PCI-Express 2.0 x16 port
-``0x0ac5`` MCP79 PCI-Express 2.0 x4/x8 port
-``0x0ac6`` MCP79 PCI-Express 2.0 x1/x4 port
-``0x0ac7`` MCP79 PCI-Express 2.0 x1 port
-``0x0ac8`` MCP79 PCI-Express 2.0 x4 port
+================= ========================================================
+device id         product
+================= ========================================================
+``0x0570-0x057f`` MCP* ethernet controller (class 0200 alt) [XXX]
+``0x0580-0x058f`` MCP* SATA controller (alt ID) [XXX]
+``0x0590-0x059f`` MCP* HDA (alt ID) [XXX]
+``0x0a80``        MCP79 host bridge
+``0x0a81``        MCP79 host bridge [?]
+``0x0a82``        MCP79 host bridge
+``0x0a83``        MCP79 host bridge
+``0x0a84``        MCP79 host bridge
+``0x0a85``        MCP79 host bridge [?]
+``0x0a86``        MCP79 host bridge
+``0x0a87``        MCP79 host bridge [?]
+``0x0a88``        MCP79 memory controller #1
+``0x0a89``        MCP79 memory controller #33
+``0x0a8d``        MCP79 memory controller #13
+``0x0a8e``        MCP79 memory controller #14
+``0x0a8f``        MCP79 memory controller #15
+``0x0a90``        MCP79 memory controller #16
+``0x0a94``        MCP79 memory controller #23
+``0x0a95``        MCP79 memory controller #24
+``0x0a98``        MCP79 memory controller #34
+``0x0aa0``        MCP79 IGP bridge
+``0x0aa2``        MCP79 SMBus controller
+``0x0aa3``        MCP79 SMU
+``0x0aa4``        MCP79 memory controller #31
+``0x0aa5``        MCP79 USB controller #0
+``0x0aa6``        MCP79 USB 2.0 controller #0
+``0x0aa7``        MCP79 USB controller #1
+``0x0aa8``        MCP79 USB controller [?]
+``0x0aa9``        MCP79 USB 2.0 controller #1
+``0x0aaa``        MCP79 USB 2.0 controller [?]
+``0x0aab``        MCP79 PCI subtractive bridge
+``0x0aac``        MCP79 LPC bridge
+``0x0aad``        MCP79 LPC bridge
+``0x0aae``        MCP79 LPC bridge
+``0x0aaf``        MCP79 LPC bridge
+``0x0ab0``        MCP79 ethernet controller (class 0200)
+``0x0ab1``        MCP79 ethernet controller [?]
+``0x0ab2``        MCP79 ethernet controller [?]
+``0x0ab3``        MCP79 ethernet controller [?]
+``0x0ab4-0x0ab7`` MCP79 SATA controller (compatibility mode)
+``0x0ab8-0x0abb`` MCP79 SATA controller (AHCI mode)
+``0x0abc-0x0abc`` MCP79 SATA controller (RAID mode) [XXX: actually 0x0ab0-0xabb are accepted by hw without trickery]
+``0x0ac0``        MCP79 HDA
+``0x0ac1``        MCP79 HDA [?]
+``0x0ac2``        MCP79 HDA [?]
+``0x0ac3``        MCP79 HDA [?]
+``0x0ac4``        MCP79 PCI-Express 2.0 x16 port
+``0x0ac5``        MCP79 PCI-Express 2.0 x4/x8 port
+``0x0ac6``        MCP79 PCI-Express 2.0 x1/x4 port
+``0x0ac7``        MCP79 PCI-Express 2.0 x1 port
+``0x0ac8``        MCP79 PCI-Express 2.0 x4 port
 ========== ========================================================
 
 
@@ -2258,43 +2285,33 @@ MCP89
 
 Standalone.
 
-========== ========================================================
-device id  product
-========== ========================================================
-``0x0d60`` MCP89 host bridge
-``0x0d68`` MCP89 memory controller #1
-``0x0d69`` MCP89 memory controller #33
-``0x0d6d`` MCP89 memory controller #10
-``0x0d6e`` MCP89 memory controller #11
-``0x0d6f`` MCP89 memory controller #12
-``0x0d70`` MCP89 memory controller #13
-``0x0d71`` MCP89 memory controller #20
-``0x0d72`` MCP89 memory controller #21
-``0x0d75`` MCP89 memory controller #110
-``0x0d76`` MCP89 IGP bridge
-``0x0d79`` MCP89 SMBus controller
-``0x0d7a`` MCP89 SMU
-``0x0d7b`` MCP89 memory controller #31
-``0x0d7d`` MCP89 ethernet controller (class 0200)
-``0x0d80`` MCP89 LPC bridge
-``0x0d84`` MCP89 SATA controller (compatibility mode) [?]
-``0x0d85`` MCP89 SATA controller (compatibility mode)
-``0x0d86`` MCP89 SATA controller (compatibility mode) [?]
-``0x0d87`` MCP89 SATA controller (compatibility mode) [?]
-``0x0d88`` MCP89 SATA controller (AHCI mode)
-``0x0d89`` MCP89 SATA controller (AHCI mode) [?]
-``0x0d8a`` MCP89 SATA controller (AHCI mode) [?]
-``0x0d8b`` MCP89 SATA controller (AHCI mode) [?]
-``0x0d8c`` MCP89 SATA controller (RAID mode) [?]
-``0x0d8d`` MCP89 SATA controller (RAID mode) [?]
-``0x0d8e`` MCP89 SATA controller (RAID mode) [?]
-``0x0d8f`` MCP89 SATA controller (RAID mode) [?]
-``0x0d94`` MCP89 HDA
-``0x0d95`` MCP89 HDA [?]
-``0x0d96`` MCP89 HDA [?]
-``0x0d97`` MCP89 HDA [?]
-``0x0d9a`` MCP89 PCI-Express x1 port #0
-``0x0d9b`` MCP89 PCI-Express x1 port #1
-``0x0d9c`` MCP89 USB controller
-``0x0d9d`` MCP89 USB 2.0 controller
-========== ========================================================
+================= ========================================================
+device id         product
+================= ========================================================
+``0x0580-0x058f`` MCP* SATA controller (alt ID) [XXX]
+``0x0590-0x059f`` MCP* HDA (alt ID) [XXX]
+``0x0d60``        MCP89 host bridge
+``0x0d68``        MCP89 memory controller #1
+``0x0d69``        MCP89 memory controller #33
+``0x0d6d``        MCP89 memory controller #10
+``0x0d6e``        MCP89 memory controller #11
+``0x0d6f``        MCP89 memory controller #12
+``0x0d70``        MCP89 memory controller #13
+``0x0d71``        MCP89 memory controller #20
+``0x0d72``        MCP89 memory controller #21
+``0x0d75``        MCP89 memory controller #110
+``0x0d76``        MCP89 IGP bridge
+``0x0d79``        MCP89 SMBus controller
+``0x0d7a``        MCP89 SMU
+``0x0d7b``        MCP89 memory controller #31
+``0x0d7d``        MCP89 ethernet controller (class 0200)
+``0x0d80``        MCP89 LPC bridge
+``0x0d84-0x0d87`` MCP89 SATA controller (compatibility mode)
+``0x0d88-0x0d8b`` MCP89 SATA controller (AHCI mode)
+``0x0d8c-0x0d8f`` MCP89 SATA controller (RAID mode)
+``0x0d94-0x0d97`` MCP89 HDA [XXX: actually 1-0xf]
+``0x0d9a``        MCP89 PCI-Express x1 port #0
+``0x0d9b``        MCP89 PCI-Express x1 port #1
+``0x0d9c``        MCP89 USB controller
+``0x0d9d``        MCP89 USB 2.0 controller
+================= ========================================================
