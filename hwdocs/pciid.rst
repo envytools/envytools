@@ -135,12 +135,14 @@ device id         product
 ``0x0a80-0x0ac8`` :ref:`MCP79 <pci-ids-mcp79>`
 ``0x0ad0-0x0adb`` :ref:`MCP77 <pci-ids-mcp77>`
 ``0x0be0-0x0bef`` :ref:`GPU HDA <pci-ids-gpu-hda>`
+``0x0bf0-0x0bf1`` :ref:`T20 <pci-ids-t20>`
 ``0x0ca0-0x0cbf`` :ref:`GT215 <pci-ids-gt215>`
 ``0x0d60-0x0d9d`` :ref:`MCP89 <pci-ids-mcp89>`
 ``0x0dc0-0x0ddf`` :ref:`GF106 <pci-ids-gf106>`
 ``0x0de0-0x0dff`` :ref:`GF108 <pci-ids-gf108>`
 ``0x0e00``        GVI SDI input
-``0x0e01-0x0e1f`` :ref:`GPU HDA <pci-ids-gpu-hda>`
+``0x0e01-0x0e1b`` :ref:`GPU HDA <pci-ids-gpu-hda>`
+``0x0e1c-0x0e1d`` :ref:`T30 <pci-ids-t30>`
 ``0x0e20-0x0e3f`` :ref:`GF104 <pci-ids-gf104>`
 ``0x0f00-0x0f1f`` :ref:`GF108 <pci-ids-gf108>` extra IDs
 ``0x0fb0-0x0fbf`` :ref:`GPU HDA <pci-ids-gpu-hda>`
@@ -2315,3 +2317,33 @@ device id         product
 ``0x0d9c``        MCP89 USB controller
 ``0x0d9d``        MCP89 USB 2.0 controller
 ================= ========================================================
+
+
+Tegra
+=====
+
+
+.. _pci-ids-t20:
+
+T20
+---
+
+========== ========================================================
+device id  product
+========== ========================================================
+``0x0bf0`` T20 PCI-Express x? port #0
+``0x0bf1`` T20 PCI-Express x? port #1
+========== ========================================================
+
+
+.. _pci-ids-t30:
+
+T30
+---
+
+========== ========================================================
+device id  product
+========== ========================================================
+``0x0e1c`` T30 PCI-Express x? port #0
+``0x0e1d`` T30 PCI-Express x? port #1
+========== ========================================================
