@@ -53,7 +53,7 @@ device id         product
 ``0x0050-0x005f`` :ref:`CK804 <pci-ids-ck804>`
 ``0x0060-0x006e`` :ref:`MCP2 <pci-ids-mcp2>`
 ``0x006f-0x007f`` :ref:`C19 <pci-ids-c19>`
-``0x0080-0x008f`` :ref:`MCP2 <pci-ids-mcp2a>`
+``0x0080-0x008f`` :ref:`MCP2A <pci-ids-mcp2a>`
 ``0x0090-0x009f`` :ref:`G70 <pci-ids-g70>`
 ``0x00c0-0x00cf`` :ref:`NV41/NV42 <pci-ids-nv41>`
 ``0x00a0``        NV0A [Aladdin TNT2]
@@ -2101,7 +2101,7 @@ device id  product
 ``0x0813`` C73 memory controller #14
 ``0x0814`` C73 memory controller #15
 ``0x0815`` C73 PCI-Express x? port #0
-``0x0817`` C73 PCI-Express x? port #0
+``0x0817`` C73 PCI-Express x? port #1
 ``0x081a`` C73 memory controller #16
 ========== ========================================================
 
