@@ -18,6 +18,7 @@ The nvidia GPUs expose the following areas to the outside world through PCI:
 - VRAM aperture: BAR1 - memory, 0x1000000 bytes or more depending on card type [NV03+ only]
 - indirect memory access IO ports: BAR2 - 0x100 bytes of IO port space [NV03 only]
 - ???: BAR2 [only NV1x IGPs?]
+- ???: BAR2 [only NV20?]
 - RAMIN aperture: BAR2 or BAR3 - memory, 0x1000000 bytes or more depending on card type [NV40+]
 - indirect memory access IO ports: BAR5 - 0x80 bytes of IO port space [NV50+]
 - PCI ROM aperture
