@@ -20,7 +20,7 @@ MMIO registers
 
    .. todo:: write me
 
-.. space:: 8 nv40-pfifo-cache 0x1000 PFIFO cache data
+.. space:: 8 nv40-pfifo-cache 0x2000 PFIFO cache data
 
    .. todo:: write me
 
