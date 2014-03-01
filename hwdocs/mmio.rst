@@ -74,8 +74,10 @@ NV03:NV50 MMIO map
    0x002000 PFIFO nv01-pfifo NV03:NV04
    0x002000 PFIFO nv04-pfifo NV04:NV50
    0x004000 UNK004000 nv03-unk004000 NV03:NV04
+   0x004000 UNK004000 nv34-unk004000 NV34:NV40
    0x004000 PCLOCK nv40-pclock NV40:NV50
-   0x005000 UNK005000 nv04-unk005000 NV04:NV30
+   0x005000 UNK005000 nv04-unk005000 NV04:NV40,IGP4X
+   0x006000 UNK006000 unk006000 NV20:NV34
    0x007000 PRMA prma
    0x008000 PVIDEO pvideo NV10:NV50
    0x009000 PTIMER nv03-ptimer
@@ -84,6 +86,7 @@ NV03:NV50 MMIO map
    0x00b000 PVPE pvpe NV17:NV20,NV30:NV50
    0x00c000 PCONTROL nv40-pcontrol NV40:NV50
    0x00d000 PTV ptv NV17:NV20,NV30:NV50
+   0x00e000 UNK00E000 unk00e000 NV17:NV20
    0x00f000 PVP1 pvp1 NV41:NV50
    0x088000 PPCI ppci NV40:NV50
    0x090000 PFIFO_CACHE nv40-pfifo-cache NV40:NV50
@@ -91,16 +94,16 @@ NV03:NV50 MMIO map
    0x0c0000 PRMVIO prmvio NV03:NV40
    0x0c0000[2/0x2000] PRMVIO prmvio NV40:NV50
    0x100000 PFB nv03-pfb NV03:NV10
-   0x100000 PFB nv10-pfb NV10:NV40
+   0x100000 PFB nv10-pfb NV10:NV40&!IGP1X
    0x100000 PFB nv40-pfb NV40:NV50&!TC
    0x100000 PFB nv44-pfb NV44:NV50&TC
-   0x101000 PSTRAPS nv03-pstraps
-   0x102000 UNK102000 nv4e-unk102000 IGP4X
+   0x101000 PSTRAPS nv03-pstraps !NV1A
+   0x102000 UNK102000 nv4e-unk102000 NV63
    0x110000 PROM nv03-prom NV03:NV04
    0x120000 PALT nv03-palt NV03:NV04
-   0x200000 PMEDIA pmedia
+   0x200000 PMEDIA pmedia !IGP4X
    0x300000 PROM nv03-prom NV04:NV17,NV20:NV25
-   0x300000 PROM nv17-prom NV17:NV20,NV20:NV50
+   0x300000 PROM nv17-prom NV17:NV20,NV25:NV50&!IGP4X
    0x400000 PGRAPH nv03-pgraph NV03:NV04
    0x400000 PGRAPH nv04-pgraph NV04:NV10
    0x400000 PGRAPH nv10-pgraph NV10:NV20
@@ -115,21 +118,33 @@ NV03:NV50 MMIO map
    0x680000[2/0x2000] PRAMDAC pramdac NV11:NV20,NV25:NV50
    0x681000 PRMDIO prmdio NV03:NV11,NV20:NV25
    0x681000[2/0x2000] PRMDIO prmdio NV11:NV20,NV25:NV50
+   0x6e0000 UNK6E0000 unk6e0000 NV17:NV40
    0x700000 PRAMIN nv04-pramin NV04:NV50
    0x0800000[chid:0x80][subc:8] USER nv01-user NV03:NV04
    0x0800000[chid:0x10][subc:8] USER nv04-user NV04:NV10
    0x0800000[chid:0x20][subc:8] USER nv04-user NV10:NV50
    0x0c00000[chid:0x200] DMA_USER nv40-dma-user NV40:NV50
 
-   .. todo:: check UNK005000 variants [verified not present on NV35, present on NV11]
+   .. todo:: check UNK005000 variants [sorta present on NV35, NV34, NV4E, NV63; present on NV05, NV11, NV17, NV1A, NV20; not present on NV44]
    .. todo:: check PCOUNTER variants
-   .. todo:: some IGP don't have PVPE/PVP1
+   .. todo:: some IGP don't have PVPE/PVP1 [NV4E: present, but without PME; NV63: not present at all]
    .. todo:: check PSTRAPS on IGPs
    .. todo:: check PROM on IGPs
-   .. todo:: PMEDIA not on IGPs and some other cards?
+   .. todo:: PMEDIA not on IGPs [NV63 and NV4E: not present] and some other cards?
    .. todo:: PFB not on IGPs
+   .. todo:: merge PCRTC+PRMCIO/PRAMDAC+PRMDIO?
+   .. todo:: UNK6E0000 variants
+   .. todo:: UNK006000 variants
+   .. todo:: UNK00E000 variants
+   .. todo:: 102000 variants; present on NV63, not NV4E
 
-   .. note:: fully verified on NV05
+   .. note:: fully verified on NV03, NV05, NV11, NV17, NV34, NV35, NV44, NV4E, NV63
+   
+   .. note::
+   
+      NV1A and NV20 don't have second PCRTC/PRAMDAC, but still have the
+      decoding circuitry for them. This may cause the card to hang when
+      accessing these ranges. The same applies for NV2x and PVPE.
 
 
 NV50:NVC0 MMIO map
@@ -290,6 +305,30 @@ Unknown ranges
    .. todo:: RE me
 
 .. space:: 8 nv04-unk005000 0x1000 ???
+
+   rules.xml says HOST_DIAG
+
+   .. todo:: RE me
+
+.. space:: 8 unk006000 0x1000 ???
+
+   Reads as all 0xdeadbeef
+
+   .. todo:: RE me
+
+.. space:: 8 unk00e000 0x1000 ???
+
+   Reads cause device hang
+
+   .. todo:: RE me
+
+.. space:: 8 unk6e0000 0x1000 ???
+
+   rules.xml says PREMAP
+
+   .. todo:: RE me
+
+.. space:: 8 nv34-unk004000 0x1000 ???
 
    .. todo:: RE me
 
