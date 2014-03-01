@@ -188,6 +188,10 @@ NV40
     00a7e0+i*4 QUAD_ACK_TRIGGER - used to ack counter data in quad event mode
     00a800+i*0x20+j*4,j<8 STATUS[i][j] - input status
 
+.. todo:: NV4E has no PCOUNTER, but has a7f4/a7f8 registers
+
+.. todo:: NV63 also has a7f4/a7f8 but also has normal PCOUNTER
+
 
 NVC0
 ----
