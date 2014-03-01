@@ -1767,6 +1767,8 @@ device id  product
 ``0x006f`` C19 memory controller #3
 ``0x0070`` C19 host bridge
 ``0x0071`` C19 host bridge
+``0x0072`` C19 host bridge [?]
+``0x0073`` C19 host bridge [?]
 ``0x0074`` C19 memory controller #1
 ``0x0075`` C19 memory controller #2
 ``0x0076`` C19 memory controller #10
@@ -2089,6 +2091,13 @@ Paired with MCP55.
 device id  product
 ========== ========================================================
 ``0x0800`` C73 host bridge
+``0x0801`` C73 host bridge [?]
+``0x0802`` C73 host bridge [?]
+``0x0803`` C73 host bridge [?]
+``0x0804`` C73 host bridge [?]
+``0x0805`` C73 host bridge [?]
+``0x0806`` C73 host bridge [?]
+``0x0807`` C73 host bridge [?]
 ``0x0808`` C73 memory controller #1
 ``0x0809`` C73 memory controller #2
 ``0x080a`` C73 memory controller #3
@@ -2127,7 +2136,9 @@ device id  product
 ``0x07c1`` MCP73 host bridge
 ``0x07c2`` MCP73 host bridge [?]
 ``0x07c3`` MCP73 host bridge
+``0x07c4`` MCP73 host bridge [?]
 ``0x07c5`` MCP73 host bridge
+``0x07c6`` MCP73 host bridge [?]
 ``0x07c7`` MCP73 host bridge
 ``0x07c8`` MCP73 memory controller #34
 ``0x07cb`` MCP73 memory controller #1
@@ -2185,6 +2196,9 @@ device id         product
 ``0x0752``        MCP77 SMBus controller
 ``0x0753``        MCP77 SMU
 ``0x0754``        MCP77 memory controller #0
+``0x0755``        MCP77 memory controller #0 [?]
+``0x0756``        MCP77 memory controller #0 [?]
+``0x0757``        MCP77 memory controller #0 [?]
 ``0x0759``        MCP77 IDE controller
 ``0x075a``        MCP77 PCI subtractive bridge
 ``0x075b``        MCP77 PCI-Express x1/x4 port
