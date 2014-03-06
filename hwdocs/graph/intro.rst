@@ -476,9 +476,9 @@ Operation::
     if (!cur_grobj.NOTIFY_VALID) {
         /* DMA notify object not set, or needs to be swapped in by sw */
         throw(INVALID_NOTIFY);
-    } else if ((param > 0 && chipset == NV01)
-            || (param > 15 && chipset >= NV03 && chipset < NV04)
-            || (param > 1 && chipset >= NV04)) {
+    } else if ((param > 0 && gpu == NV01)
+            || (param > 15 && gpu >= NV03 && gpu < NV04)
+            || (param > 1 && gpu >= NV04)) {
         /* XXX: what state is changed? */
         throw(INVALID_VALUE);
     } else if (NOTIFY_PENDING) {

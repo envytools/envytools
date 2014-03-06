@@ -1,8 +1,8 @@
-.. _chipsets:
+.. _gpu:
 
-========
-Chipsets
-========
+=========
+GPU chips
+=========
 
 .. contents::
 
@@ -12,27 +12,27 @@ Introduction
 
 Each nvidia GPU has several identifying numbers that can be used to determine
 supported features, the engines it contains, and the register set. The most
-important of these numbers is an 8-bit number known as the "chipset id".
-If two cards have the same chipset id, their GPUs support identical features,
+important of these numbers is an 8-bit number known as the "GPU id".
+If two cards have the same GPU id, their GPUs support identical features,
 engines, and registers, with very minor exceptions. Such cards can however
 still differ in the external devices they contain: output connectors,
 encoders, capture chips, temperature sensors, fan controllers, installed
-memory, supported clocks, etc. You can get the chipset id of a card by reading
+memory, supported clocks, etc. You can get the GPU id of a card by reading
 from its :ref:`PMC area <pmc-id>`.
 
-The chipset id is usually written as NVxx, where xx is the id written as
+The GPU id is usually written as NVxx, where xx is the id written as
 uppercase hexadecimal number. Note that, while cards before NV10 used another
-format for their ID register and don't have the chipset id stored directly,
+format for their ID register and don't have the GPU id stored directly,
 they are usually considered as NV01-NV05 anyway.
 
-Nvidia uses "chipset code names" in their materials. They started out
-identical to the chipset id, but diverged midway through the NV40 series
+Nvidia uses "GPU code names" in their materials. They started out
+identical to the GPU id, but diverged midway through the NV40 series
 and started using a different numbering. However, for the most part nvidia
-code names correspond 1 to 1 with the chipset ids.
+code names correspond 1 to 1 with the GPU ids.
 
-The chipset id has a one-to-many relationship with pci device ids. Note that
-the last few bits [0-6 depending on chipset id] of PCI device id are
-changeable through straps [see :ref:`pstraps`]. When pci ids of a chipset are
+The GPU id has a mostly one-to-many relationship with pci device ids. Note that
+the last few bits [0-6 depending on GPU] of PCI device id are
+changeable through straps [see :ref:`pstraps`]. When pci ids of a GPU are
 listed in this file, the following shorthands are used:
 
 1234
@@ -47,32 +47,32 @@ listed in this file, the following shorthands are used:
     PCI device ids 0x1240-0x127X, choosable by straps
 
 
-The chipset families
-====================
+The GPU families
+================
 
-The chipsets can roughly be grouped into 9 families: NV01, NV03, NV04, NV10,
+The GPUs can roughly be grouped into 9 families: NV01, NV03, NV04, NV10,
 NV20, NV30, NV40, NV50, NVC0. This aligns with big revisions of PGRAPH, the
 drawing engine of the card. While most functionality was introduced in sync
 with PGRAPH revisions, some other functionality [notably video decoding
-hardware] gets added in chipsets late in a chipset family and sometimes
-doesn't even get to the first chipset in the next chipset family. For example,
+hardware] gets added in GPUs late in a GPU family and sometimes
+doesn't even get to the first GPU in the next GPU family. For example,
 NV11 expanded upon the previous NV15 chipswt by adding dual-head support, while
 NV20 added new PGRAPH revision with shaders, but didn't have dual-head - the
-first chipset to feature both was NV25.
+first GPU to feature both was NV25.
 
-Also note that a bigger chipset id doesn't always mean a newer card / card
+Also note that a bigger GPU id doesn't always mean a newer card / card
 with more features: there were quite a few places where the numbering actually
 went backwards. For example, NV11 came out later than NV15 and added several
 features.
 
-Nvidia's card release cycle always has the most powerful high-end chipsets
+Nvidia's card release cycle always has the most powerful high-end GPU
 first, subsequently filling in the lower-end positions with new cut-down
-chipsets. This means that newer cards in a single sub-family get progressively
-smaller, but also more featureful - the first chipsets to introduce minor
+GPUs. This means that newer cards in a single sub-family get progressively
+smaller, but also more featureful - the first GPUs to introduce minor
 changes like DX10.1 support or new video decoding are usually the low-end
 ones.
 
-The full known chipset list, sorted roughly according to introduced features,
+The full known GPU list, sorted roughly according to introduced features,
 is:
 
 - NV01 family: NV01
@@ -101,10 +101,10 @@ is:
   - NVE4 subfamily: NVE4, NVE7, NVE6, NVEA, NVF0, NVF1, NV108
   - NV117 subfamily: NV117
 
-Whenever a range of chipsets is mentioned in the documentation, it's written as
-"NVxx:NVyy". This is left-inclusive, right-noninclusive range of chipset ids
-as sorted in the preceding list. For example, NVA0:NVA8 means chipsets NVA0,
-NVAA, NVAC, NVA3, NVA5. NV20:NV30 effectively means all NV20 family cards.
+Whenever a range of GPUs is mentioned in the documentation, it's written as
+"NVxx:NVyy". This is left-inclusive, right-noninclusive range of GPU ids
+as sorted in the preceding list. For example, NVA0:NVA8 means GPUs NVA0,
+NVAA, NVAC, NVA3, NVA5. NV20:NV30 effectively means all NV20 family GPUs.
 
 
 NV01 family: NV01
@@ -126,22 +126,22 @@ another card based on quadratic surfaces, but it got stuck in development hell
 and never got released. Apparently it never got to the stage of functioning
 silicon.
 
-The chipset was jointly manufactured by SGS-Thomson and NVidia, earning it
+The GPU was jointly manufactured by SGS-Thomson and NVidia, earning it
 pci vendor id of 0x12d2. The pci device ids are 0x0008 and 0x0009. The device
 id of NV02 was supposed to be 0x0010.
 
-========= ======== =======
-id        chipset  date
-========= ======== =======
-0008/0009 NV01     09.1995
-========= ======== =======
+========= ==== =======
+id        GPU  date
+========= ==== =======
+0008/0009 NV01 09.1995
+========= ==== =======
 
 
 NV03 family: NV03, NV03T
 ------------------------
 
 The first [moderately] sane GPUs from nvidia, and also the first to use AGP
-bus. There are two chips in this family, and confusingly both use chipset id
+bus. There are two chips in this family, and confusingly both use GPU id
 NV03, but can be told apart by revision. The original NV03 is used in RIVA 128
 cards, while the revised NV03, known as NV03T, is used in RIVA 128 ZX. NV03
 supports AGP 1x and a maximum of 4MB of VRAM, while NV03T supports AGP 2x and
@@ -151,7 +151,7 @@ were also manufactured by SFS-Thomson and bear the code name of STG-3000.
 The pci vendor id is 0x12d2. The pci device ids are:
 
 ==== ============= ==========
-id   chipset       date
+id   GPU           date
 ==== ============= ==========
 0018 original NV03 ??.04.1997
 0019 NV03T         23.02.1998
@@ -208,7 +208,7 @@ This is the first chip marked as solely nvidia chip, the pci vendor id is
 0x10de. The pci device ids are:
 
 ===== ========= ==========
-id    chipset   date
+id    GPU       date
 ===== ========= ==========
 0020  NV04      23.03.1998
 0028* NV05      15.03.1998
@@ -263,21 +263,21 @@ The notable changes in this generation are:
 
 .. todo:: what were the GPIOs for?
 
-The chipsets are:
+The GPUs are:
 
-===== ======= ========= ======= ========== ========
-pciid chipset pixel     texture date       notes
-              pipelines units
-              and ROPs
-===== ======= ========= ======= ========== ========
-0100* NV10    4         4       11.10.1999 the first GeForce card [GeForce 256]
-0150* NV15    4         8       26.04.2000 the high-end card of GeForce 2 lineup [GeForce 2 Ti, ...]
-01a0* NV1A    2         4       04.06.2001 the IGP of GeForce 2 lineup [nForce]
-0110* NV11    2         4       28.06.2000 the low-end card of GeForce 2 lineup [GeForce 2 MX]
-017X  NV17    2         4       06.02.2002 the low-end card of GeForce 4 lineup [GeForce 4 MX]
-01fX  NV1F    2         4       01.10.2002 the IGP of GeForce 4 lineup [nForce 2]
-018X  NV18    2         4       25.09.2002 like NV17, but with added AGP x8 support
-===== ======= ========= ======= ========== ========
+===== ==== ========= ======= ========== ========
+pciid GPU  pixel     texture date       notes
+           pipelines units
+           and ROPs
+===== ==== ========= ======= ========== ========
+0100* NV10 4         4       11.10.1999 the first GeForce card [GeForce 256]
+0150* NV15 4         8       26.04.2000 the high-end card of GeForce 2 lineup [GeForce 2 Ti, ...]
+01a0* NV1A 2         4       04.06.2001 the IGP of GeForce 2 lineup [nForce]
+0110* NV11 2         4       28.06.2000 the low-end card of GeForce 2 lineup [GeForce 2 MX]
+017X  NV17 2         4       06.02.2002 the low-end card of GeForce 4 lineup [GeForce 4 MX]
+01fX  NV1F 2         4       01.10.2002 the IGP of GeForce 4 lineup [nForce 2]
+018X  NV18 2         4       25.09.2002 like NV17, but with added AGP x8 support
+===== ==== ========= ======= ========== ========
 
 The pci vendor id is 0x10de.
 
@@ -316,20 +316,20 @@ and NV17 additions is NV25. Notable changes:
 
   - AGP x8 support
 
-The chipsets are:
+The GPUs are:
 
-===== ======= ======= ========= ======= ========== ========
-pciid chipset vertex  pixel     texture date       notes
-              shaders pipelines units
-                      and ROPs
-===== ======= ======= ========= ======= ========== ========
-0200* NV20    1       4         8       27.02.2001 the only chipset of GeForce 3 lineup [GeForce 3 Ti, ...]
-02a0* NV2A    2       4         8       15.11.2001 the XBOX IGP [XGPU]
-025X  NV25    2       4         8       06.02.2002 the high-end card of GeForce 4 lineup [GeForce 4 Ti]
-028X  NV28    2       4         8       20.01.2003 like NV25, but with added AGP x8 support
-===== ======= ======= ========= ======= ========== ========
+===== ==== ======= ========= ======= ========== ========
+pciid GPU  vertex  pixel     texture date       notes
+           shaders pipelines units
+                   and ROPs
+===== ==== ======= ========= ======= ========== ========
+0200* NV20 1       4         8       27.02.2001 the only GPU of GeForce 3 lineup [GeForce 3 Ti, ...]
+02a0* NV2A 2       4         8       15.11.2001 the XBOX IGP [XGPU]
+025X  NV25 2       4         8       06.02.2002 the high-end GPU of GeForce 4 lineup [GeForce 4 Ti]
+028X  NV28 2       4         8       20.01.2003 like NV25, but with added AGP x8 support
+===== ==== ======= ========= ======= ========== ========
 
-NV2A is a chipset designed exclusively for the original xbox, and can't be
+NV2A is a GPU designed exclusively for the original xbox, and can't be
 found anywhere else. Like NV1A and NV1F, it's an IGP.
 
 .. todo:: verify all sorts of stuff on NV2A
@@ -363,7 +363,7 @@ The infamous GeForce FX series. Notable changes:
 
 - NV31:
 
-  - no NV35 changes, this chipset is derived from NV30
+  - no NV35 changes, this GPU is derived from NV30
   - 2-stage PLLs split into two registers
   - VPE engine extended to work as a PFIFO engine
 
@@ -383,19 +383,19 @@ The infamous GeForce FX series. Notable changes:
 
 .. todo:: figure out 3d engine changes
 
-The chipsets are:
+The GPUs are:
 
-===== ======= ======= ========= ========== ========
-pciid chipset vertex  pixel     date       notes
-              shaders pipelines
-                      and ROPs
-===== ======= ======= ========= ========== ========
-030X  NV30    2       8         27.01.2003 high-end chipset [GeForce FX 5800]
-033X  NV35    3       8         12.05.2003 very high-end chipset [GeForce FX 59X0]
-031X  NV31    1       4         06.03.2003 low-end chipset [GeForce FX 5600]
-034X  NV36    3       4         23.10.2003 middle-end chipset [GeForce FX 5700]
-032X  NV34    1       4         06.03.2003 low-end chipset [GeForce FX 5200]
-===== ======= ======= ========= ========== ========
+===== ==== ======= ========= ========== ========
+pciid GPU  vertex  pixel     date       notes
+           shaders pipelines
+                   and ROPs
+===== ==== ======= ========= ========== ========
+030X  NV30 2       8         27.01.2003 high-end GPU [GeForce FX 5800]
+033X  NV35 3       8         12.05.2003 very high-end GPU [GeForce FX 59X0]
+031X  NV31 1       4         06.03.2003 low-end GPU [GeForce FX 5600]
+034X  NV36 3       4         23.10.2003 middle-end GPU [GeForce FX 5700]
+032X  NV34 1       4         06.03.2003 low-end GPU [GeForce FX 5200]
+===== ==== ======= ========= ========== ========
 
 The pci vendor id is 0x10de.
 
@@ -405,8 +405,7 @@ NV40 family
 
 This family was the first to feature PCIE cards, and many fundamental areas
 got significant changes, which later paved the way for NV50. It is also the
-family where chipset ids started to diverge from nvidia code names. The
-changes:
+family where GPU ids started to diverge from nvidia code names. The changes:
 
 - NV40:
 
@@ -452,28 +451,28 @@ changes:
 .. todo:: more changes
 .. todo:: figure out 3d engine changes
 
-The chipsets are [vertex shaders : pixel shaders : ROPs]:
+The GPUs are [vertex shaders : pixel shaders : ROPs]:
 
-========= ========== ============== ======= ======= ==== ========== =====
-pciid     chipset id chipset names  vertex  pixel   ROPs date       notes
-                                    shaders shaders
-========= ========== ============== ======= ======= ==== ========== =====
-004X 021X NV40/NV45  NV40/NV45/NV48 6       16      16   14.04.2004 AGP
-00cX      NV41/NV42  NV41/NV42      5       12      12   08.11.2004
-014X      NV43       NV43           3       8       4    12.08.2004
-016X      NV44       NV44           3       4       2    15.12.2004 TURBOCACHE
-022X      NV4A       NV44A          3       4       2    04.04.2005 AGP
-009X      NV47       G70            8       24      16   22.06.2005
-01dX      NV46       G72            3       4       2    18.01.2006 TURBOCACHE
-029X      NV49       G71            8       24      16   09.03.2006
-039X      NV4B       G73            8       12      8    09.03.2006
-024X      NV4E       C51            1       2       1    20.10.2005 IGP, TURBOCACHE
-03dX      NV4C       MCP61          1       2       1    ??.06.2006 IGP, TURBOCACHE
-053X      NV67       MCP67          1       2       2    01.02.2006 IGP, TURBOCACHE
-053X      NV68       MCP68          1       2       2    ??.07.2007 IGP, TURBOCACHE
-07eX      NV63       MCP73          1       2       2    ??.07.2007 IGP, TURBOCACHE
-\-        NV??       RSX            ?       ?       ?    11.11.2006 FlexIO bus interface, used in PS3
-========= ========== ============== ======= ======= ==== ========== =====
+========= ========= ============== ======= ======= ==== ========== =====
+pciid     GPU id    GPU names      vertex  pixel   ROPs date       notes
+                                   shaders shaders
+========= ========= ============== ======= ======= ==== ========== =====
+004X 021X NV40/NV45 NV40/NV45/NV48 6       16      16   14.04.2004 AGP
+00cX      NV41/NV42 NV41/NV42      5       12      12   08.11.2004
+014X      NV43      NV43           3       8       4    12.08.2004
+016X      NV44      NV44           3       4       2    15.12.2004 TURBOCACHE
+022X      NV4A      NV44A          3       4       2    04.04.2005 AGP
+009X      NV47      G70            8       24      16   22.06.2005
+01dX      NV46      G72            3       4       2    18.01.2006 TURBOCACHE
+029X      NV49      G71            8       24      16   09.03.2006
+039X      NV4B      G73            8       12      8    09.03.2006
+024X      NV4E      C51            1       2       1    20.10.2005 IGP, TURBOCACHE
+03dX      NV4C      MCP61          1       2       1    ??.06.2006 IGP, TURBOCACHE
+053X      NV67      MCP67          1       2       2    01.02.2006 IGP, TURBOCACHE
+053X      NV68      MCP68          1       2       2    ??.07.2007 IGP, TURBOCACHE
+07eX      NV63      MCP73          1       2       2    ??.07.2007 IGP, TURBOCACHE
+\-        NV??      RSX            ?       ?       ?    11.11.2006 FlexIO bus interface, used in PS3
+========= ========= ============== ======= ======= ==== ========== =====
 
 .. todo:: all geometry information unverified
 
@@ -555,7 +554,7 @@ redesigned memory subsystem, complete with a paging MMU [see :ref:`nv50-vm`].
 
   - added PVCOMP, the video compositor engine
 
-The chipsets in this family are:
+The GPUs in this family are:
 
 ===== ===== ==== =========== ==== ======= ===== ========== ======
 core  hda   id   name        TPCs MPs/TPC PARTs date       notes
@@ -661,7 +660,7 @@ The card where they redesigned everything again.
 
 .. todo:: figure out PGRAPH/PFIFO changes
 
-Chipsets in NVC0 family:
+GPUs in NVC0 family:
 
 ===== ===== ===== ====== ==== ==== ===== === ====== ====== ===== ==== ===== ====== ==========
 core  hda   id    name   GPCs TPCs PARTs MCs ZCULLs PCOPYs CRTCs PPCs SUBPs SPOONs date

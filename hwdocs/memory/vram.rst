@@ -135,8 +135,8 @@ The consequences of subpartition/partition existence:
 Memory addressing
 =================
 
-While memory addressing is highly dependent on chipset family, the basic
-approach is outlined here.
+While memory addressing is highly dependent on GPU family, the basic approach
+is outlined here.
 
 The bits of a memory address are, in sequence, assigned to:
 

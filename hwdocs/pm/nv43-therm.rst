@@ -10,12 +10,12 @@ NV43:NV50 thermal monitoring
 Introduction
 ============
 
-THERM is an area present in PBUS on NV43:NV50 chipsets. This area is reponsible
+THERM is an area present in PBUS on NV43:NV50 GPUs. This area is reponsible
 for temperature monitoring, probably on low-end and middle-range GPUs since
 high-end cards have been using LM89/ADT7473 for a long time.
 Beside some configuration knobs, THERM can generate IRQs to the HOST when the
 temperature goes over a configurable ALARM threshold or outside a configurable
-temperature range. This range has been replaced by PTHERM on nv50+ chipsets.
+temperature range. This range has been replaced by PTHERM on nv50+ GPUs.
 
 THERM's MMIO range is 0x15b0:0x15c0. There are two major variants of this range:
 
@@ -134,7 +134,7 @@ MMIO 0x15b0: CFG0 [NV47:NV50]
   - bits 16-29: SENSOR_OFFSET signed
 
 Starting temperature readouts requires to flip a few switches that are
-chipset-dependent:
+GPU-dependent:
 
 MMIO 0x15b0: CFG0 [NV43:NV47]
   - bit 24: DISABLE
@@ -162,7 +162,7 @@ Alarm
 -----
 
 THERM features the ability to set up an alarm that will trigger interrupt
-PBUS #16 when SENSOR_RAW > ALARM_HIGH. NV43-47 chipsets require ALARM_INTR_EN
+PBUS #16 when SENSOR_RAW > ALARM_HIGH. NV43-47 GPUs require ALARM_INTR_EN
 to be set in order to get the IRQ. You may need to set bits 0x40001 in 0x15a0
 and 1 in 0x15a4. Their purpose has not been understood yet even though they
 may be releated to automatic downclocking.

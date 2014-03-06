@@ -21,7 +21,7 @@ or the data lines of the the write circuitry.
 MMIO registers
 ==============
 
-.. space:: 8 pfuse 0x1000 efuses storing chipset options
+.. space:: 8 pfuse 0x1000 efuses storing GPU options
    0x144 TPC_DISABLE_MASK pfuse-tpc-disable-mask NV50:NVC0
    0x148 PART_DISABLE_MASK pfuse-part-disable-mask NV50:NVC0
    0x1a0 TEMP_CAL_SLOPE_MUL_OFFSET pfuse-temp-cal-slope-mul-offset

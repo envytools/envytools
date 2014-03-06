@@ -143,7 +143,7 @@ needed to ensure that small mipmaps of a large surface don't use needlessly
 large tiles. Pseudocode::
 
     bytes_per_roptile_x = 64;
-    if (chipset < NVC0)
+    if (gpu < NVC0)
         bytes_per_roptile_y = 4;
     else
         bytes_per_roptile_y = 8;

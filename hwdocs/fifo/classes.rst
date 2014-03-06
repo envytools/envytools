@@ -96,7 +96,7 @@ crypt           a PCRYPT2 engine object representing crypto functionality
 Sorted by class:
 
 ======= ======= ======= =============== ====
-Class   Type    Subtype Chipsets        Name
+Class   Type    Subtype GPUs            Name
 ======= ======= ======= =============== ====
 0002    dma             NV04:NVC0       DMA_FROM_MEMORY
 0003    dma             NV04:NVC0       DMA_TO_MEMORY
@@ -219,7 +219,7 @@ a1c0    comp    kepler  NVF0:...        NVF0_COMPUTE
 Sorted by type:
 
 ======= ======= ======= =============== ====
-Class   Type    Subtype Chipsets        Name
+Class   Type    Subtype GPUs            Name
 ======= ======= ======= =============== ====
 0030    null            NV04:NVC0       NULL
 ------- ------- ------- --------------- ----

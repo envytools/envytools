@@ -75,7 +75,7 @@ possible - not all of them are included on all cards.
 
 In summary, a card contains:
 
-- a GPU chipset [see :ref:`chipsets` for a list]
+- a GPU chip [see :ref:`gpu` for a list]
 - a PCI, AGP, or PCI-Express host interface
 - on-board GPU memory [aka VRAM] - depending on GPU, various memory types can
   be supported: VRAM, EDO, SGRAM, SDR, DDR, DDR2, GDDR3, DDR3, GDDR5.

@@ -56,7 +56,7 @@ Card identification
 ===================
 
 The main register used to identify the card is the ID register. However,
-the ID register has different formats depending on the chipset family:
+the ID register has different formats depending on the GPU family:
 
 .. reg:: 32 pmc-id-nv01 card identification
 
@@ -66,7 +66,7 @@ the ID register has different formats depending on the chipset family:
      NV03, revisions equal or higher than 0x20 mean NV03T.
    - bits 8-11: implementation - always 1 except on NV02
    - bits 12-15: always 0
-   - bits 16-19: chipset - 1 is NV01, 2 is NV02, 3 is NV03 or NV03T
+   - bits 16-19: GPU - 1 is NV01, 2 is NV02, 3 is NV03 or NV03T
    - bits 20-27: always 0
    - bits 28-31: foundry - 0 is SGS, 1 is Helios, 2 is TMSC
 
@@ -90,9 +90,9 @@ the ID register has different formats depending on the chipset family:
      The value of this bitfield is equal to low 4, 5, or 6 bits of the PCI
      device id. The bitfield size and position changed between cards due to
      varying amount of changeable bits. See :ref:`pstraps` and
-     :ref:`chipsets` for more details.
-   - bits 20-27: chipset id.
-     This is THE chipset id that comes after "NV". See :ref:`chipsets` for the
+     :ref:`gpu` for more details.
+   - bits 20-27: GPU id.
+     This is THE GPU id that comes after "NV". See :ref:`gpu` for the
      list.
    - bits 28-31: ???
 
@@ -114,7 +114,7 @@ NV94 introduced a new identification register with rearranged bitfields:
    - bits 0-7: device id
    - bits 8-11: same value as BOOT_2 register
    - bits 12-19: stepping
-   - bits 20-27: chipset id
+   - bits 20-27: GPU id
 
 .. todo:: there are cards where the steppings don't match
    between registers - does this mean something or is it just
@@ -327,7 +327,7 @@ is identical to HOST, but doesn't go through the PDAEMON redirection circuitry.
 
    Interrupt status. Bits 0-30 are hardware interrupts, bit 31 is software
    interrupt. 1 if the relevant input interrupt line is active and, for NVA3+
-   chipsets, enabled in INTR_MASK_*. Bits 0-30 are read-only, bit 31 can be
+   GPUs, enabled in INTR_MASK_*. Bits 0-30 are read-only, bit 31 can be
    written to set/clear the software interrupt. Bit 31 can only be set to 1 if
    software interrupts are enabled in INTR_MASK_*, except for NRHOST on NVC0+,
    where it works even if masked.
@@ -535,5 +535,5 @@ of the BAR/PEEPHOLE/PRAMIN/PMEM is used for the comparison, not the actual
 VRAM address - thus the selected window will cover a different thing in each
 affected space.
 
-The VRAM hidden area functionality got silently nuked on NVC0+ chipsets. The
+The VRAM hidden area functionality got silently nuked on NVC0+ GPUs. The
 registers are still present, but they don't do anything.

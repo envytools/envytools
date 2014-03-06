@@ -12,7 +12,7 @@ NV01:NV40 clocks
 Introduction
 ============
 
-NV01:NV40 chipsets have the following clocks:
+NV01:NV40 GPUs have the following clocks:
 
 - core clock [NVPLL]: used to clock the graphics engine - on NV04+ cards only
 - memory clock [MPLL]: used to clock memory and, before NV04, the graphics

@@ -227,7 +227,7 @@ a GPC/partition.
 On NV10:NV20, there's only one domain. On NV20:NV40 there are 2 domains.
 On NV40+ there can be up to 8 domains per domain set. On all GPUs, there
 can be up to 256 signals per domain. The available signals and domains
-depend heavily on the chipset. The signals are packed tightly, so even
+depend heavily on the GPU. The signals are packed tightly, so even
 a signal common to two GPUs may be at different position between them.
 The lists of known domains and signals may be found in :ref:`pcounter-signal-nv10`,
 :ref:`pcounter-signal-nv40`, :ref:`pcounter-signal-nvc0`.
@@ -992,7 +992,7 @@ On every cycle::
             if (CLRFLAG) FLAG = 0;
             if (START) {
                 CTR_CYCLES = CTR_CYCLES_ALT = 0;
-                if (chipset < NV15 || EVENT_CTR_PERIOD == ONE)
+                if (gpu < NV15 || EVENT_CTR_PERIOD == ONE)
                     CTR_EVENT = 0;
                 SINGLE_STATE = COUNTING;
             }

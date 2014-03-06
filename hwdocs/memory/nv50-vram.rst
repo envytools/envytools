@@ -114,7 +114,7 @@ one switches partitions roughly every 4 blocks. However, to make sure
 addresses don't "bleed" between large page bounduaries, long partition cycle
 reverts to switching partitions every block near large page bounduaries::
 
-    if partition_cycle == LONG and chipset == NV50:
+    if partition_cycle == LONG and gpu == NV50:
         # round down to 4 * partition_count multiple
         group_start = block_index / (4 * partition_count) * 4 * partition_count
         group_end = group_start + 4 * partition_count - 1

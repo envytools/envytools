@@ -62,7 +62,7 @@ little-endian.
 
 A particularly important subarea of MMIO space is PMC, the card's master
 control. This subarea is present on all nvidia GPUs at addresses 0x000000
-through 0x000fff. It contains the card chipset information, Big Red Switches
+through 0x000fff. It contains GPU id information, Big Red Switches
 for engines that can be turned off, and master interrupt control. It's
 described in more detail in :ref:`pmc`.
 

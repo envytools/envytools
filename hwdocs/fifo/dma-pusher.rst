@@ -453,9 +453,9 @@ The pusher pseudocode - pre-NVC0
                         try {
                                 if (!ib_enable && dma_get >= dma_limit)
                                         throw DMA_PUSHER(MEM_FAULT);
-                                if (chipset < NV1A)
+                                if (gpu < NV1A)
                                         word = READ_DMAOBJ_32(dma_pushbuffer, dma_get, LE);
-                                else if (chipset < NV50)
+                                else if (gpu < NV50)
                                         word = READ_DMAOBJ_32(dma_pushbuffer, dma_get, big_endian?BE:LE);
                                 else
                                         word = READ_DMAOBJ_32(dma_pushbuffer, dma_get, pfifo_endian);
@@ -490,18 +490,18 @@ The pusher pseudocode - pre-NVC0
                                         /* old jump */
                                         dma_get_jmp_shadow = dma_get;
                                         dma_get = word & 0x1fffffff;
-                                } else if ((word & 3) == 1 && !ib_enable && chipset >= NV1A) {
+                                } else if ((word & 3) == 1 && !ib_enable && gpu >= NV1A) {
                                         /* jump */
                                         dma_get_jmp_shadow = dma_get;
                                         dma_get = word & 0xfffffffc;
-                                } else if ((word & 3) == 2 && !ib_enable && chipset >= NV1A) {
+                                } else if ((word & 3) == 2 && !ib_enable && gpu >= NV1A) {
                                         /* call */
                                         if (subr_active)
                                                 throw DMA_PUSHER(CALL_SUBR_ACTIVE);
                                         subr_return = dma_get;
                                         subr_active = 1;
                                         dma_get = word & 0xfffffffc;
-                                } else if (word == 0x00020000 && !ib_enable && chipset >= NV1A) {
+                                } else if (word == 0x00020000 && !ib_enable && gpu >= NV1A) {
                                         /* return */
                                         if (!subr_active)
                                                 throw DMA_PUSHER(RET_SUBR_INACTIVE);
@@ -514,7 +514,7 @@ The pusher pseudocode - pre-NVC0
                                         dma_state.mcnt = (word >> 18) & 0x7ff;
                                         dma_state.ni = 0;
                                         dcount_shadow = 0;
-                                } else if ((word & 0xe0030003) == 0x40000000 && chipset >= NV10) {
+                                } else if ((word & 0xe0030003) == 0x40000000 && gpu >= NV10) {
                                         /* non-increasing methods */
                                         dma_state.mthd = (word >> 2) & 0x7ff;
                                         dma_state.subc = (word >> 13) & 7;

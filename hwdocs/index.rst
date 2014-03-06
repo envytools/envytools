@@ -7,7 +7,7 @@ Contents:
    :titlesonly:
 
    intro
-   chipsets
+   gpu
    pciid
    mmio
 

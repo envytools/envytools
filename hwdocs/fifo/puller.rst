@@ -56,7 +56,7 @@ RAMHT and the FIFO objects
 ==========================
 
 As has been already mentioned, each channel has 8 "subchannels" which can be
-bound to engine objects. On pre-NVC0 cards, these objects and DMA objects
+bound to engine objects. On pre-NVC0 GPUs, these objects and DMA objects
 are collectively known as "FIFO objects". FIFO objects and RAMHT don't exist
 on NVC0+ PFIFO.
 
@@ -70,8 +70,8 @@ NV04:NVC0
 ---------
 
 Internally, a FIFO object is a [usually small] block of data residing in
-"instance memory". The instance memory is RAMIN for pre-nv50 cards, and the
-channel structure for nv50+ cards. The first few bits of a FIFO object
+"instance memory". The instance memory is RAMIN for pre-nv50 GPUs, and the
+channel structure for nv50+ GPUs. The first few bits of a FIFO object
 determine its 'class'. Class is 8 bits on NV04:NV25, 12 bits on NV25:NV40,
 16 bits on NV40:NVC0.
 
@@ -120,7 +120,7 @@ Puller state
 ============
 
 ======= =================== ====== =====================================
-type    name                cards  description
+type    name                GPUs   description
 ======= =================== ====== =====================================
 b24[8]  ctx                 01:04  objects bound to subchannels
 b3      last_subc           01:04  last used subchannel
@@ -167,7 +167,7 @@ following fields:
 
 The context for objects is stored directly in their RAMHT entries.
 
-On NV04+ cards, the puller doesn't care about bound objects - this information
+On NV04+ GPUs, the puller doesn't care about bound objects - this information
 is supposed to be stored by the engine itself as part of its state. The puller
 only remembers what engine each subchannel is bound to. On NV04:NVC0 When
 method 0 is executed, the puller looks up the object in RAMHT, getting engine
@@ -197,7 +197,7 @@ idle.
 
 .. todo:: verify this on all card families.
 
-On NV04:NVC0 cards, methods 0x180-0x1fc are treated specially: while other
+On NV04:NVC0 GPUs, methods 0x180-0x1fc are treated specially: while other
 methods are forwarded directly to engine without modification, these methods
 are expected to take object handles as parameters and will be looked up in
 RAMHT by the puller before forwarding. Ie. the engine will get the object's
@@ -210,7 +210,7 @@ mthd 0x0000 / 0x000: OBJECT
 
 ::
 
-	if (chipset < NV04) {
+	if (gpu < NV04) {
 		b24 newctx = RAMHT_LOOKUP(param);
 		if (newctx & 0x800000) {
 			/* engine == PGRAPH */
@@ -226,9 +226,9 @@ mthd 0x0000 / 0x000: OBJECT
 			throw CACHE_ERROR(EMPTY_SUBCHANNEL);
 		}
 	} else {
-		/* NV04+ chipset */
+		/* NV04+ GPU */
 		b5 engine; b16 eparam;
-		if (chipset >= NVC0) {
+		if (gpu >= NVC0) {
 			eparam = param & 0xffff;
 			engine = param >> 16 & 0x1f;
 			/* XXX: behavior with more bitfields? does it forward the whole thing? */
@@ -254,7 +254,7 @@ mthd 0x0100-0x3ffc / 0x040-0xfff: [forwarded to engine]
 
 ::
 
-	if (chipset < NV04) {
+	if (gpu < NV04) {
 		if (subc != last_subc) {
 			if (ctx[subc] & 0x800000) {
 				/* engine == PGRAPH */
@@ -282,7 +282,7 @@ mthd 0x0100-0x3ffc / 0x040-0xfff: [forwarded to engine]
 		}
 	} else {
 		/* NV04+ */
-		if (chipset < NVC0 && mthd >= 0x180/4 && mthd < 0x200/4) {
+		if (gpu < NVC0 && mthd >= 0x180/4 && mthd < 0x200/4) {
 			param = RAMHT_LOOKUP(param).addr;
 		}
 		if (engines[subc] != last_engine) {
@@ -345,8 +345,8 @@ operations are NOT the familiar P/V semaphore operations, they're just fancy
 names for "wait until value == X" and "write X".
 
 There are two "versions" of the semaphore functionality. The "old-style"
-semaphores are implemented by NV1A:NVC0 cards. The "new-style" semaphores
-are supported by NV84+ cards. The differences are:
+semaphores are implemented by NV1A:NVC0 GPUs. The "new-style" semaphores
+are supported by NV84+ GPUs. The differences are:
 
 Old-style semaphores
 
@@ -367,7 +367,7 @@ selected by big_endian flag [NV1A:NV50] or by PFIFO endianness [NV50+]
 
 On pre-NVC0, both old-style semaphores and new-style semaphores use the DMA
 object stored in dma_semaphore, which can be set through DMA_SEMAPHORE method.
-Note that this method is buggy on pre-NV50 cards and accepts only *write-only*
+Note that this method is buggy on pre-NV50 GPUs and accepts only *write-only*
 DMA objects of class 0x0002. You have to work around the bug by preparing such
 DMA objects [or using a kernel that intercepts the error and does the binding
 manually].
@@ -426,17 +426,17 @@ NVC0 SEMAPHORE error subtypes:
 If the acquire doesn't immediately succeed, the acquire parameters are written
 to puller state, and the read will be periodically retried. Further puller
 processing will be blocked on current channel until acquire succeeds. Note
-that, on NV84+ cards, the retry reads are issued from SEMAPHORE_BG VM engine
+that, on NV84+ GPUs, the retry reads are issued from SEMAPHORE_BG VM engine
 instead of the PFIFO VM engine. There's also apparently a timeout, but it's
 not REd yet.
 
 .. todo:: RE timeouts
 
 mthd 0x0060 / 0x018: DMA_SEMAPHORE [O] [NV1A:NVC0]
-::
+  ::
 
 	obj = RAMHT_LOOKUP(param).addr;
-	if (chipset < NV50) {
+	if (gpu < NV50) {
 		if (OBJECT_CLASS(obj) != 2)
 			throw SEMAPHORE(INVALID_OPERAND);
 		if (DMAOBJ_RIGHTS(obj) != WO)
@@ -450,13 +450,13 @@ mthd 0x0060 / 0x018: DMA_SEMAPHORE [O] [NV1A:NVC0]
 .. todo:: is there ANY way to make NV50 reject non-DMA object classes?
 
 mthd 0x0064 / 0x019: SEMAPHORE_OFFSET [NV1A-]
-::
+  ::
 
-	if (chipset < NV50) {
+	if (gpu < NV50) {
 		if (param & ~0xffc)
 			throw SEMAPHORE(INVALID_OPERAND);
 		semaphore_offset = param;
-	} else if (chipset < NVC0) {
+	} else if (gpu < NVC0) {
 		if (param & 3)
 			throw SEMAPHORE(ADDRESS_UNALIGNED);
 		if (param & 0xffff0000)
@@ -468,15 +468,15 @@ mthd 0x0064 / 0x019: SEMAPHORE_OFFSET [NV1A-]
 	}
 
 mthd 0x0068 / 0x01a: SEMAPHORE_ACQUIRE [NV1A-]
-::
+  ::
 
-	if (chipset < NV50 && !dma_semaphore)
+	if (gpu < NV50 && !dma_semaphore)
 		/* unbound DMA object */
 		throw SEMAPHORE(INVALID_STATE);
-	if (chipset >= NV50 && !semaphore_off_val)
+	if (gpu >= NV50 && !semaphore_off_val)
 		throw SEMAPHORE(INVALID_STATE);
 	b32 word;
-	if (chipset < NV50) {
+	if (gpu < NV50) {
 		word = READ_DMAOBJ_32(dma_semaphore, semaphore_offset, big_endian?BE:LE);
 	} else {
 		try {
@@ -493,21 +493,21 @@ mthd 0x0068 / 0x01a: SEMAPHORE_ACQUIRE [NV1A-]
 		acquire_value = param;
 		acquire_timestamp = ???;
 		/* XXX: figure out timestamp/timeout business */
-		if (chipset >= NV50) {
+		if (gpu >= NV50) {
 			acquire_mode = 0;
 			acquire_source = 0;
 		}
 	}
 
 mthd 0x006c / 0x01b: SEMAPHORE_RELEASE [NV1A-]
-::
+  ::
 
-	if (chipset < NV50 && !dma_semaphore)
+	if (gpu < NV50 && !dma_semaphore)
 		/* unbound DMA object */
 		throw SEMAPHORE(INVALID_STATE);
-	if (chipset >= NV50 && !semaphore_off_val)
+	if (gpu >= NV50 && !semaphore_off_val)
 		throw SEMAPHORE(INVALID_STATE);
-	if (chipset < NV50) {
+	if (gpu < NV50) {
 		WRITE_DMAOBJ_32(dma_semaphore, semaphore_offset, param, big_endian?BE:LE);
 	} else {
 		try {
@@ -518,21 +518,21 @@ mthd 0x006c / 0x01b: SEMAPHORE_RELEASE [NV1A-]
 	}
 
 mthd 0x0010 / 0x004: SEMAPHORE_ADDRESS_HIGH [NV84:]
-::
+  ::
 
 	if (param & 0xffffff00)
 		throw SEMAPHORE(ADDRESS_TOO_LARGE);
 	semaphore_address[32:39] = param;
 
 mthd 0x0014 / 0x005: SEMAPHORE_ADDRESS_LOW [NV84:]
-::
+  ::
 
 	if (param & 3)
 		throw SEMAPHORE(ADDRESS_UNALIGNED);
 	semaphore_address[0:31] = param;
 
 mthd 0x0018 / 0x006: SEMAPHORE_SEQUENCE [NV84:]
-::
+  ::
 
 	semaphore_sequence = param;
 
@@ -543,14 +543,14 @@ mthd 0x001c / 0x007: SEMAPHORE_TRIGGER [NV84:]
     - 4: ACQUIRE_GEQUAL
     - 8: ACQUIRE_MASK [NVC0-]
 
-.. todo:: bit 12 does something on NVC0?
+  .. todo:: bit 12 does something on NVC0?
 
-::
+  ::
 
 	op = param & 7;
 	b64 timestamp = PTIMER_GETTIME();
 	if (param == 2) {
-		if (chipset < NVC0) {
+		if (gpu < NVC0) {
 			try {
 				WRITE_DMAOBJ_32(dma_semaphore, semaphore_address+0x0, param, pfifo_endian);
 				WRITE_DMAOBJ_32(dma_semaphore, semaphore_address+0x4, 0, pfifo_endian);
@@ -565,7 +565,7 @@ mthd 0x001c / 0x007: SEMAPHORE_TRIGGER [NV84:]
 		}
 	} else {
 		b32 word;
-		if (chipset < NVC0) {
+		if (gpu < NVC0) {
 			try {
 				word = READ_DMAOBJ_32(dma_semaphore, semaphore_address, pfifo_endian);
 			} catch (VM_FAULT) {

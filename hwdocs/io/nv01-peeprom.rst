@@ -12,7 +12,7 @@ Introduction
 
 NV01 cards, in addition to the usual BIOS ROM, have a small Microwire EEPROM
 on board. The EEPROM is organised as 128 8-bit cells. It is used to store
-an unique chip ID as well as driver data. The chipset has a Microwire master
+an unique chip ID as well as driver data. The GPU has a Microwire master
 controller and can natively read and write the EEPROM.
 
 The user interface to the controller is known as PEEPROM and its MMIO range is

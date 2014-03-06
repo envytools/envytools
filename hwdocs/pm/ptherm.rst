@@ -66,7 +66,7 @@ by the host driver.
 NV84+
 ----
 
-On NV84+ chipsets, the internal sensor has a higher resolution as it returns the
+On NV84+ GPUs, the internal sensor has a higher resolution as it returns the
 temperature with a 0.5°C accuracy. It is factory-calibrated but it can be
 overridden by the software. The calibration is composed of an offset and a slope:
 

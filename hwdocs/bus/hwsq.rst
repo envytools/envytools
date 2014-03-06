@@ -196,7 +196,7 @@ Opcode: 0x00-0x3f - wait #wait_length shl #(wait_shift * 2)
 Flags
 =====
 
-The main purpose of HWSQ on pre-NV41 chipsets is to twiddle various bits in
+The main purpose of HWSQ on pre-NV41 GPUs is to twiddle various bits in
 registers all around the card. They're called "HWSQ flags". There are 32
 flags. A flag can be in one of 3 states:
 
@@ -296,7 +296,7 @@ data and address opcodes. They take a 16-bit parameter, filling the high 16
 bits with the high 16 bits of previously used value.
 
 Thus, there are 2 32-bit state registers used for MMIO poke opcodes: ADDR
-and DATA. Both of these registers are per-slot on chipsets that have two
+and DATA. Both of these registers are per-slot on GPUs that have two
 executions slots. These registers are not directly accessible through MMIO.
 
 Opcode: 0xe2 <b0:7> <b8:15> <b16:23> <b24:31> - data #imm32 [NV41+]
