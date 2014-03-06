@@ -29,7 +29,7 @@ storage, and can be bound to at least the following slots on the engines:
 .. todo:: NVC0 ZCULL?
 
 Surfaces on nv50+ cards come in two types: linear and tiled. Linear surfaces
-have a simple format, but they're are limitted to 2 dimensions only, don't
+have a simple format, but they're are limited to 2 dimensions only, don't
 support arrays nor mipmapping when used as textures, cannot be used for zeta
 buffers, and have lower performance than tiled textures. Tiled surfaces
 can have up to three dimensions, can be put into arrays and be mipmapped,
@@ -483,6 +483,7 @@ The following multisample modes exist:
   - 12-15: sample 7 associations: 0, 1, 2, 3
 
 - mode 0x9: MS4_CS12 [2×2]
+
   - sample 0: (0x0.6, 0x0.1) [0,0]
   - sample 1: (0x0.f, 0x0.6) [1,0]
   - sample 2: (0x0.1, 0x0.a) [0,1]
@@ -848,7 +849,7 @@ It contains up to three components: the depth component [called Z], optionally
 the stencil component [called S], and if coverage sampling is in use, the
 coverage component [called C].
 
-The Z component can be a 32-bit float, a 24-bit normalized unsinged integer, or
+The Z component can be a 32-bit float, a 24-bit normalized unsigned integer, or
 [on NVA0+] a 16-bit normalized unsigned integer. The S component, if present,
 is always an 8-bit raw integer.
 
@@ -993,7 +994,7 @@ types:
 - small scale [SSR] - roptiles rearranged inside a single 4kB page, used for
   non-0 storage types
 - large scale [LSR] - large blocks of memory rearranged, based on internal
-  VRAM geometry. Bounduaries between VRAM areas using NONE/SSR and LSR need
+  VRAM geometry. Boundaries between VRAM areas using NONE/SSR and LSR need
   to be properly aligned in physical space to prevent conflicts.
 
 Long range reordering is described in detail in :ref:`nv50-vram`.
