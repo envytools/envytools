@@ -40,6 +40,7 @@ static const struct {
 	"nv50", &nv50_isa_s,
 	"nvc0", &nvc0_isa_s,
 	"gk110", &gk110_isa_s,
+	"gm107", &gm107_isa_s,
 	"ctx", &ctx_isa_s,
 	"falcon", &falcon_isa_s,
 	"fuc", &falcon_isa_s, /* XXX remove some day */
