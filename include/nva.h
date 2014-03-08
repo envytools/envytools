@@ -31,6 +31,7 @@
 struct nva_card {
 	enum {
 		NVA_DEVICE_GPU,
+		NVA_DEVICE_APU,
 		NVA_DEVICE_SMU,
 	} type;
 	struct pci_device *pci;
