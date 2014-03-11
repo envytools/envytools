@@ -36,6 +36,12 @@ static struct rbitfield ctargoff = { { 23, 24 }, RBF_SIGNED, .pcrel = 1, .addend
 #define BTARG atomctarg, &ctargoff
 #define CTARG atomctarg, &ctargoff
 
+static struct rbitfield bptargoff = { { 23, 20 } };
+#define BPTARG atomctarg, &bptargoff
+
+static struct rbitfield actargoff = { { 23, 32 } };
+#define ACTARG atomctarg, &actargoff
+
 
 /*
  * Misc number fields
@@ -937,6 +943,22 @@ static struct insn tabshflmod[] = {
 	{ 0x0000000600000000ull, 0x0000000600000000ull, N("bfly")},
 	{ 0, 0, OOPS },
 };
+static struct insn tabrtt[] = {
+	{ 0x0, 0xc, N("") },
+	{ 0x4, 0xc, N("terminate") },
+	{ 0x8, 0xc, N("fallthrough") },
+	{ 0xc, 0xc, N("preempted") },
+	{ 0, 0, OOPS },
+};
+static struct insn tabbpt[] = {
+	{ 0x000, 0x700, N("drain_illegal") },
+	{ 0x100, 0x700, N("cal") },
+	{ 0x200, 0x700, N("pause") },
+	{ 0x300, 0x700, N("trap") },
+	{ 0x400, 0x700, N("int") },
+	{ 0x500, 0x700, N("drain") },
+	{ 0, 0, OOPS },
+};
 
 /*
  * Opcode format
@@ -1090,12 +1112,25 @@ static struct insn tabp[] = {
 };
 
 static struct insn tabc[] = {
+	{ 0x0000000000000000ull, 0xff80000000000000ull, N("bpt"), T(bpt), BPTARG },
 	{ 0x0800000000000000ull, 0xfc00000000000000ull, N("sched"), SCHED },
+	{ 0x1100000000000000ull, 0xff80000000000000ull, N("call"), N("abs"), ACTARG },
 	{ 0x1200000000000000ull, 0xff80000000000000ull, T(p), T(cc), N("bra"), BTARG },
 	{ 0x1300000000000000ull, 0xff80000000000000ull, N("call"), CTARG },
+	{ 0x1380000000000000ull, 0xff80000000000000ull, N("preret"), BTARG },
+	{ 0x1400000000000000ull, 0xff80000000000000ull, N("prelongjmp"), BTARG },
 	{ 0x1480000000000000ull, 0xff80000000000000ull, N("joinat"), BTARG },
+	{ 0x1500000000000000ull, 0xff80000000000000ull, N("prebrk"), BTARG },
+	{ 0x1580000000000000ull, 0xff80000000000000ull, N("precont"), BTARG },
 	{ 0x1800000000000000ull, 0xff80000000000000ull, T(p), T(cc), N("exit") },
+	{ 0x1880000000000000ull, 0xff80000000000000ull, T(p), T(cc), N("longjmp") },
 	{ 0x1900000000000000ull, 0xff80000000000000ull, T(p), T(cc), N("ret") },
+	{ 0x1980000000000000ull, 0xff80000000000000ull, T(p), T(cc), N("discard") },
+	{ 0x1a00000000000000ull, 0xff80000000000000ull, T(p), T(cc), N("brk") },
+	{ 0x1a80000000000000ull, 0xff80000000000000ull, T(p), T(cc), N("cont") },
+	{ 0x1b00000000000000ull, 0xff80000000000000ull, N("rtt"), T(rtt) },
+	{ 0x1b80000000000000ull, 0xff80000000000000ull, N("quadon") },
+	{ 0x1c00000000000000ull, 0xff80000000000000ull, N("quadpop") },
 
 	{ 0x2000000000000000ull, 0xfc80000000000000ull, T(p), T(logop38), N("b32"), DST, SRC1, LIMM },
 	{ 0x4000000000000000ull, 0xf180000000000000ull, T(p), N("add"), T(ftz3a), N("f32"), DST, T(neg3b), T(abs39), SRC1, LIMM },
