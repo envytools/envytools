@@ -667,9 +667,13 @@ static struct insn tabtexgrsrc2[] = {
 	{ 0x0800004000000000ull, 0x080001c000000000ull, N("g___"), TSRC21 },
 	{ 0x0800008000000000ull, 0x080001c000000000ull, N("ggg_"), TSRC23 },
 	{ 0x080000c000000000ull, 0x080001c000000000ull, N("gggg"), TSRC24 },
-   { 0, 0, SRC2 },
+	{ 0, 0, SRC2 },
 	{ 0, 0, OOPS },
 };
+F(ltex, 31, N("all"), N("live"))
+F1(texms, 0x2b, N("ms"))
+F(lodf, 44, N("lzero"), N("llod"))
+
 static struct insn tabtconst[] = {
 	{ 0x4000000000000000ull, 0xc000000000000000ull, TCONST },
 	{ 0, 0, OOPS },
@@ -697,6 +701,16 @@ static struct insn tablodt[] = {
 	{ 0x0000300000000000ull, 0x0000700000000000ull, N("llod") },
 	{ 0x0000600000000000ull, 0x0000700000000000ull, N("lbiasa") },
 	{ 0x0000700000000000ull, 0x0000700000000000ull, N("lloda") },
+	{ 0, 0, OOPS },
+};
+static struct insn tabtexquery[] = {
+	{ 0x0000000002000000ull, 0x000000007e000000ull, N("tdims") },
+	{ 0x0000000004000000ull, 0x000000007e000000ull, N("ttype") },
+	{ 0x000000000a000000ull, 0x000000007e000000ull, N("tsamplepos") },
+	{ 0x0000000020000000ull, 0x000000007e000000ull, N("sfilter") },
+	{ 0x0000000024000000ull, 0x000000007e000000ull, N("slod") },
+	{ 0x0000000028000000ull, 0x000000007e000000ull, N("swrap") },
+	{ 0x000000002c000000ull, 0x000000007e000000ull, N("sbcolor") },
 	{ 0, 0, OOPS },
 };
 
@@ -1041,10 +1055,13 @@ static struct insn tabm[] = {
 	{ 0x25c0000000000002ull, 0x3fc0000000000003ull, N("cvt"), T(frm2a), T(cvti2fdst), T(neg30), T(abs34), T(cvti2fsrc) },
 	{ 0x27c0000000000002ull, 0x3fc0000000000003ull, N("rshf"), N("b32"), DST, SESTART, T(us64_28), SRC1, SRC3, SEEND, T(shfclamp), T(is2) }, // XXX: check is2 and bits 0x29,0x33(swap srcs ?)
 	{ 0x2800000000000002ull, 0x3fc0000000000003ull, N("mul"), DST, T(us32_39), SRC1, T(us32_3a), LIMM },
+	{ 0x7000000000000002ull, 0x7c00000000000003ull, N("texfetch"), T(texm), T(lodf), T(texms), T(ltex), TDST, T(text), T(texsrc1), T(texsrc2) }, // XXX: args are wrong
 	{ 0x7400000000000002ull, 0x7f80000000000003ull, T(lane0e), N("mov"), N("b32"), DST, LIMM },
 	{ 0x7480000000000002ull, 0x7f80000000000003ull, N("interp"), T(interpmode), N("f32"), DST, IATTR, SRC2, SRC1, SRC3 },
-	{ 0x7600000000000002ull, 0x7fc0000000000003ull, N("texgrad"), T(texm), TDST, T(text), TCONST, T(texgrsrc1), T(texgrsrc2) },
+	{ 0x7540000000000002ull, 0x7fc0000000000003ull, N("texquery"), T(texm), T(ltex), TDST, T(text), T(texquery), SRC1, SRC2 }, // XXX: check src args
+	{ 0x7600000000000002ull, 0x7fc0000000000003ull, N("texgrad"), T(texm), T(ltex), TDST, T(text), TCONST, T(texgrsrc1), T(texgrsrc2) },
 	{ 0x7700000000000002ull, 0x7fc0000000000003ull, N("texbar"), TEXBARIMM },
+	{ 0x7800000000000002ull, 0x7fc0000000000003ull, N("texfetch"), T(texm), T(lodf), T(texms), T(ltex), TDST, T(text), N("ind"), T(texsrc1), T(texsrc2) }, // XXX: args are wrong
 	{ 0x7880000000000002ull, 0x7fc0000000000003ull, N("shfl"), T(shflmod), N("b32"), DST, PDST2, SRC1, T(sflane), T(sfmask)},
 	{ 0x7a00000000000002ull, 0x7fc0000000000003ull, N("ld"), T(lldstt), T(llcop), T(lldstd), LOCAL },
 	{ 0x7a40000000000002ull, 0x7fc0000000000003ull, N("ld"), T(lldstt), T(lldstd), SHARED },
@@ -1056,9 +1073,9 @@ static struct insn tabm[] = {
 	{ 0x7cc00000001c0002ull, 0x7fc00000001c0c03ull, N("membar"), N("cta") },
 	{ 0x7cc00000001c0402ull, 0x7fc00000001c0c03ull, N("membar"), N("gl") },
 	{ 0x7cc00000001c0802ull, 0x7fc00000001c0c03ull, N("membar"), N("sys") },
-	// { 0x7000000000000002ull, 0x7fc0000000000003ull, N("tex"), T(texm), T(lodt), TDST, T(text), T(tconst), T(texsrc1), T(texsrc2) },
-	{ 0x7d80000000000002ull, 0x7fc0000000000003ull, N("tex"), T(texm), T(lodt), TDST, T(text), N("ind"), T(texsrc1), T(texsrc2) },
-	{ 0x7e00000000000002ull, 0x7fc0000000000003ull, N("texgrad"), T(texm), TDST, T(text), N("ind"), T(texgrsrc1), T(texgrsrc2) },
+	{ 0x7d40000000000002ull, 0x7fc0000000000003ull, N("texquery"), T(texm), T(ltex), TDST, T(text), T(texquery), N("ind"), SRC1, SRC2 }, // XXX: check src args
+	{ 0x7d80000000000002ull, 0x7fc0000000000003ull, N("tex"), T(texm), T(lodt), T(ltex), TDST, T(text), N("ind"), T(texsrc1), T(texsrc2) },
+	{ 0x7e00000000000002ull, 0x7fc0000000000003ull, N("texgrad"), T(texm), T(ltex), TDST, T(text), N("ind"), T(texgrsrc1), T(texgrsrc2) },
 	{ 0x7ec0000000000002ull, 0x7fc0000000000003ull, N("ld"), N("b32"), DST, ATTR, SRC1, SRC3 },
 	{ 0x7f00000000000002ull, 0x7fc0000000000003ull, N("st"), N("b32"), ATTR, DST, SRC1, SRC3 },
 	{ 0x0540000800000002ull, 0x3fc0000800000003ull, N("bar"), N("arrive"), BAR, OOPS},
