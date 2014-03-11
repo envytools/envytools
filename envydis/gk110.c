@@ -323,7 +323,7 @@ static struct insn tabsetit[] = {
 	{ 0x0078000000000000ull, 0x0078000000000000ull, N("true") },
 	{ 0, 0, OOPS },
 };
-static struct insn tabsetlop[] = {
+static struct insn tabsetlop3[] = {
 	{ 0x00001c0000000000ull, 0x00031c0000000000ull, N("") }, // noop, really "and $p7"
 	{ 0x0000000000000000ull, 0x0003000000000000ull, N("and"), T(pnot2d), PSRC3 },
 	{ 0x0001000000000000ull, 0x0003000000000000ull, N("or"), T(pnot2d), PSRC3 },
@@ -331,11 +331,11 @@ static struct insn tabsetlop[] = {
 	{ 0, 0, OOPS, T(pnot2d), PSRC3 },
 };
 static struct insn tabsetlop2[] = {
-	// { 0x00001c0000000000ull, 0x00031c0000000000ull, N("") }, // noop, really "and $p7"
-	{ 0x0000000000000000ull, 0x0000000018000000ull, N("and"), T(pnot11), PSRC1 },
-	{ 0x0000000008000000ull, 0x0000000018000000ull, N("or"), T(pnot11), PSRC1 },
-	{ 0x0000000010000000ull, 0x0000000018000000ull, N("xor"), T(pnot11), PSRC1 },
-	{ 0, 0, OOPS, T(pnot11), PSRC1 },
+	{ 0x0000000700000000ull, 0x0000000718000000ull, N("") }, // noop, really "and $p7"
+	{ 0x0000000000000000ull, 0x0000000018000000ull, N("and"), T(pnot23), PSRC2 },
+	{ 0x0000000008000000ull, 0x0000000018000000ull, N("or"), T(pnot23), PSRC2 },
+	{ 0x0000000010000000ull, 0x0000000018000000ull, N("xor"), T(pnot23), PSRC2 },
+	{ 0, 0, OOPS, T(pnot23), PSRC2 },
 };
 
 static struct insn tablane2a[] = {
@@ -1019,19 +1019,20 @@ observed flag changes:
 
 static struct insn tabm[] = {
 	{ 0x8400000000000002ull, 0xbfc0000000000003ull, T(sfuop), T(sat35), N("f32"), DST, T(neg33), T(abs31), SRC1 },
-	{ 0x8480000000000002ull, 0xffc0000000000003ull, N("set"), PDST, PDSTN, T(setlop2), T(pnot23), PSRC2, T(setlop)},
+	{ 0x8440000000000002ull, 0xffc0000000000003ull, N("set"), DST, T(pnot11), PSRC1, T(setlop2), T(setlop3) },
+	{ 0x8480000000000002ull, 0xffc0000000000003ull, N("set"), PDST, PDSTN, T(pnot11), PSRC1, T(setlop2), T(setlop3)},
 	{ 0x8640000000000002ull, 0xbfc0000000000003ull, N("mov"), N("b32"), DST, SREG },
-	{ 0x0000000000000002ull, 0x38c0000000000003ull, N("set"), T(ftz3a), N("b32"), DST, T(setit), N("f32"), T(neg2e), T(abs39), SRC1, T(neg38), T(abs2f), T(is2), T(setlop) }, // XXX: find f32 dst
-	{ 0x0800000000000002ull, 0x3cc0000000000003ull, N("set"), N("b32"), DST, T(setit), N("f64"), T(neg2e), T(abs39), SRC1D, T(neg38), T(abs2f), T(ds2), T(setlop) },
+	{ 0x0000000000000002ull, 0x38c0000000000003ull, N("set"), T(ftz3a), N("b32"), DST, T(setit), N("f32"), T(neg2e), T(abs39), SRC1, T(neg38), T(abs2f), T(is2), T(setlop3) }, // XXX: find f32 dst
+	{ 0x0800000000000002ull, 0x3cc0000000000003ull, N("set"), N("b32"), DST, T(setit), N("f64"), T(neg2e), T(abs39), SRC1D, T(neg38), T(abs2f), T(ds2), T(setlop3) },
 	{ 0x0c00000000000002ull, 0x3e00000000000003ull, N("fma"), T(ftz38), T(sat35),  T(frm36), N("f32"), DST, T(neg33), SRC1, T(is2w3), T(neg34), T(is3) },
 	{ 0x1000000000000002ull, 0x3c00000000000003ull, T(addop3a), T(sat35), DST, T(acout32), SESTART, N("mul"), T(high39), T(us32_33), SRC1, T(us32_38), T(is2w3), SEEND, T(is3), T(acin34) }, // XXX: order of us32
 	{ 0x1a00000000000002ull, 0x3fc0000000000003ull, N("slct"), N("b32"), DST, SRC1, T(is2w3), T(isetit), T(us32_33), T(is3) }, // XXX: check us32_33
-	{ 0x1a80000000000002ull, 0x3f80000000000003ull, N("set"), N("b32"), DST, T(isetit), T(us32_33), SRC1, T(is2), T(setlop) },
-	{ 0x1b00000000000002ull, 0x3f80000000000003ull, N("set"), PDST, PDSTN, T(isetit), T(us32_33), SRC1, T(is2), T(acin2e), T(setlop) },
+	{ 0x1a80000000000002ull, 0x3f80000000000003ull, N("set"), N("b32"), DST, T(isetit), T(us32_33), SRC1, T(is2), T(setlop3) },
+	{ 0x1b00000000000002ull, 0x3f80000000000003ull, N("set"), PDST, PDSTN, T(isetit), T(us32_33), SRC1, T(is2), T(acin2e), T(setlop3) },
 	{ 0x1b80000000000002ull, 0x3f80000000000003ull, N("fma"), T(frm35), N("f64"), DSTD, T(neg33), SRC1D, T(ds2w3), T(neg34), T(ds3) },
-	{ 0x1c00000000000002ull, 0x3f80000000000003ull, N("set"), PDST, PDSTN, T(setit), N("f64"), T(neg2e), T(abs9), SRC1D, T(neg8), T(abs2f), T(ds2), T(setlop) },
+	{ 0x1c00000000000002ull, 0x3f80000000000003ull, N("set"), PDST, PDSTN, T(setit), N("f64"), T(neg2e), T(abs9), SRC1D, T(neg8), T(abs2f), T(ds2), T(setlop3) },
 	{ 0x1d00000000000002ull, 0x3f80000000000003ull, N("slct"), T(ftz32), N("b32"), DST, SRC1, T(is2w3), T(setit), N("f32"), T(is3) },
-	{ 0x1d80000000000002ull, 0x3f80000000000003ull, N("set"), T(ftz32), PDST, PDSTN, T(setit), N("f32"), T(neg2e), T(abs9), SRC1, T(neg8), T(abs2f), T(is2), T(setlop) },
+	{ 0x1d80000000000002ull, 0x3f80000000000003ull, N("set"), T(ftz32), PDST, PDSTN, T(setit), N("f32"), T(neg2e), T(abs9), SRC1, T(neg8), T(abs2f), T(is2), T(setlop3) },
 	{ 0x1f00000000000002ull, 0x3fc0000000000003ull, N("out"), T(emit), T(restart), DST, SRC1, T(is2) },
 	{ 0x1f40000000000002ull, 0x3fc0000000000003ull, N("sad"), T(us32_33), DST, SRC1, T(is2w3), T(is3) },
 	{ 0x1f80000000000002ull, 0x3fc0000000000003ull, N("ins"), N("b32"), DST, SRC1, T(is2w3), T(is3) },
@@ -1101,7 +1102,7 @@ static struct insn tabm[] = {
 
 static struct insn tabi[] = {
 	{ 0x4000000000000001ull, 0xf580000000000003ull, T(addop3b), T(sat39), N("b32"), DST, SRC1, LIMM },
-	{ 0x8200000000000001ull, 0xf780000000000003ull, N("set"), T(ftz3a), N("b32"), DST, T(setit), N("f32"), T(neg2e), T(abs39), SRC1, T(neg3b), FIMM, T(setlop) }, // XXX: find f32 dst
+	{ 0x8200000000000001ull, 0xf780000000000003ull, N("set"), T(ftz3a), N("b32"), DST, T(setit), N("f32"), T(neg2e), T(abs39), SRC1, T(neg3b), FIMM, T(setlop3) }, // XXX: find f32 dst
 	{ 0x0040000000000001ull, 0x37c0000000000003ull, N("popc"), N("b32"), DST, T(not2a), SRC1, T(i3bi2) },
 	{ 0x0080000000000001ull, 0x37c0000000000003ull, T(addop), T(sat35), N("b32"), DST, T(acout32), SRC1, T(i3bi2) },
 	{ 0x00c0000000000001ull, 0x37c0000000000003ull, T(addop), N("b32"), DST, N("shl"), SRC1, SHCNT, T(i3bi2)},
@@ -1116,15 +1117,15 @@ static struct insn tabi[] = {
 	{ 0x0400000000000001ull, 0x37c0000000000003ull, N("mul"), T(frm2a), T(neg3b), N("f64"), DSTD, SRC1D, T(di2) },
 	{ 0x0500000000000001ull, 0x37c0000000000003ull, N("selp"), DST, SRC1, T(i3bi2), T(pnot2d), PSRC3 },
 	{ 0x07c0000000000001ull, 0x37c0000000000003ull, N("rshf"), N("b32"), DST, SESTART, T(us64_28), SRC1, SRC3, SEEND, T(shfclamp), T(sui2b) }, // d = (s1 >> s2) | (s3 << (32 - s2))
-	{ 0x9000000000000001ull, 0xb580000000000003ull, N("set"), N("b32"), DST, T(setit), N("f64"), T(neg2e), T(abs39), SRC1D, T(neg3b), DIMM, T(setlop) },
+	{ 0x9000000000000001ull, 0xb580000000000003ull, N("set"), N("b32"), DST, T(setit), N("f64"), T(neg2e), T(abs39), SRC1D, T(neg3b), DIMM, T(setlop3) },
 	{ 0x9400000000000001ull, 0xb6c0000000000003ull, N("fma"), T(ftz38), T(sat35), T(frm36), N("f32"), DST, T(neg3b), SRC1, FIMM, T(neg34), SRC3 }, // TODO: find LIMM form
 	{ 0xa000000000000001ull, 0xb400000000000003ull, T(addop3a), T(sat39), DST, SESTART, N("mul"), T(us32_33), SRC1, T(us32_38), I3BIMM, SEEND, SRC3 },
 	{ 0xb200000000000001ull, 0xb780000000000003ull, N("slct"), N("b32"), DST, SRC1, I3BIMM, T(isetit), T(us32_33), SRC3 }, // XXX: check us32_33
-	{ 0xb280000000000001ull, 0xb780000000000003ull, N("set"), N("b32"), DST, T(isetit), T(us32_33), SRC1, I3BIMM, T(setlop) },
-	{ 0xb300000000000001ull, 0xb780000000000003ull, N("set"), N("b32"), PDST, PDSTN, T(isetit), T(us32_33), SRC1, I3BIMM, T(setlop) },
-	{ 0xb400000000000001ull, 0xb780000000000003ull, N("set"), PDST, PDSTN, T(setit), N("f64"), T(neg2e), T(abs9), SRC1D, T(neg3b), DIMM, T(setlop) },
+	{ 0xb280000000000001ull, 0xb780000000000003ull, N("set"), N("b32"), DST, T(isetit), T(us32_33), SRC1, I3BIMM, T(setlop3) },
+	{ 0xb300000000000001ull, 0xb780000000000003ull, N("set"), N("b32"), PDST, PDSTN, T(isetit), T(us32_33), SRC1, I3BIMM, T(setlop3) },
+	{ 0xb400000000000001ull, 0xb780000000000003ull, N("set"), PDST, PDSTN, T(setit), N("f64"), T(neg2e), T(abs9), SRC1D, T(neg3b), DIMM, T(setlop3) },
 	{ 0xb500000000000001ull, 0xb780000000000003ull, N("slct"), T(ftz32), N("b32"), DST, SRC1, T(neg3b), FIMM, T(setit), N("f32"), SRC3 },
-	{ 0xb580000000000001ull, 0xb780000000000003ull, N("set"), T(ftz32), PDST, PDSTN, T(setit), N("f32"), T(neg2e), T(abs9), SRC1, T(neg3b), FIMM, T(setlop) },
+	{ 0xb580000000000001ull, 0xb780000000000003ull, N("set"), T(ftz32), PDST, PDSTN, T(setit), N("f32"), T(neg2e), T(abs9), SRC1, T(neg3b), FIMM, T(setlop3) },
 	{ 0xb700000000000001ull, 0xb7c0000000000003ull, N("out"), T(emit), T(restart), DST, SRC1, I3BIMM },
 	{ 0xb740000000000001ull, 0xb7c0000000000003ull, N("sad"), T(us32_33), DST, SRC1, I3BIMM, SRC3 },
 	{ 0xb780000000000001ull, 0xb7c0000000000003ull, N("ins"), N("b32"), DST, SRC1, I3BIMM, SRC3 },
