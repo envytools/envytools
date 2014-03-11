@@ -775,6 +775,7 @@ F1(rev2b, 0x2b, N("rev"))
 F1(rint, 0x2d, T(frmi))
 
 F1(acout32, 0x32, CC)
+F1(acout37, 0x37, CC)
 F1(acin2e, 0x2e, CC)
 F1(acin34, 0x34, CC)
 
@@ -988,7 +989,7 @@ static struct insn tabm[] = {
 	{ 0x1f80000000000002ull, 0x3fc0000000000003ull, N("ins"), N("b32"), DST, SRC1, T(is2w3), T(is3) },
 	{ 0x1fc0000000000002ull, 0x3fc0000000000003ull, N("lshf"), N("b32"), DST, SESTART, N("b64"), SRC1, SRC3, SEEND, T(shfclamp), T(is2) }, // XXX: check is2 and bits 0x29,0x33(swap srcs ?)
 	{ 0x2148000000000002ull, 0x3fc8000000000003ull, N("shr"), N("s32"), DST, SRC1, T(is2) }, // XXX: find shl and wrap bits
-	{ 0x2000000000000002ull, 0xfa80000000000003ull, N("mul"), T(ftz38), T(sat3a), N("f32"), DST, SRC1, LIMM },
+	{ 0x2000000000000002ull, 0xfa00000000000003ull, N("mul"), T(ftz38), T(sat3a), N("f32"), DST, T(acout37), SRC1, LIMM }, // XXX: double-check LIMM offset
 	{ 0x2040000000000002ull, 0x3fc0000000000003ull, N("popc"), N("b32"), DST, T(not2a), SRC1, T(not2b), T(is2) }, // popc(src1 & src2)
 	{ 0x2080000000000002ull, 0x3fc0000000000003ull, T(addop), T(sat35), N("b32"), DST, T(acout32), SRC1, T(is2), T(acin2e) },
 	{ 0x20c0000000000002ull, 0x3fc0000000000003ull, T(addop), N("b32"), DST, N("shl"), SRC1, SHCNT, T(is2) },     //XXX: cin, cout
