@@ -1112,12 +1112,14 @@ static struct insn tabp[] = {
 };
 
 F1(lim, 0x8, N("lim"))
+F1(brawarp, 0x9, N("allwarp"))
 
 static struct insn tabc[] = {
 	{ 0x0000000000000000ull, 0xff80000000000000ull, N("bpt"), T(bpt), BPTARG },
 	{ 0x0800000000000000ull, 0xfc00000000000000ull, N("sched"), SCHED },
+	{ 0x1080000000000000ull, 0xff80000000000000ull, T(p), T(cc), N("bra"), T(lim), T(brawarp), N("abs"), ACTARG },
 	{ 0x1100000000000000ull, 0xff80000000000000ull, N("call"), T(lim), N("abs"), ACTARG },
-	{ 0x1200000000000000ull, 0xff80000000000000ull, T(p), T(cc), N("bra"), T(lim), BTARG },
+	{ 0x1200000000000000ull, 0xff80000000000000ull, T(p), T(cc), N("bra"), T(lim), T(brawarp), BTARG },
 	{ 0x1300000000000000ull, 0xff80000000000000ull, N("call"), T(lim), CTARG },
 	{ 0x1380000000000000ull, 0xff80000000000000ull, N("preret"), T(lim), BTARG },
 	{ 0x1400000000000000ull, 0xff80000000000000ull, N("prelongjmp"), BTARG },
