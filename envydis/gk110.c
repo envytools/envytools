@@ -139,6 +139,8 @@ static struct bitfield src1_bf = { 0xa, 8 };
 static struct bitfield src2_bf = { 0x17, 8 };
 static struct bitfield src3_bf = { 0x2a, 8 };
 static struct bitfield pred_bf = { 0x12, 3 };
+static struct bitfield psrc1_bf = { 0xe, 3 };
+static struct bitfield psrc2_bf = { 0x20, 3 };
 static struct bitfield psrc3_bf = { 0x2a, 3 };
 static struct bitfield sreg_bf = { 0x17, 8 };
 
@@ -151,6 +153,8 @@ static struct reg src2_r = { &src2_bf, "r", .specials = reg_sr };
 static struct reg src2d_r = { &src2_bf, "r", "d", .specials = reg_sr };
 static struct reg src3_r = { &src3_bf, "r", .specials = reg_sr };
 static struct reg src3d_r = { &src3_bf, "r", "d", .specials = reg_sr };
+static struct reg psrc1_r = { &psrc1_bf, "p", .specials = pred_sr, .cool = 1 };
+static struct reg psrc2_r = { &psrc2_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg psrc3_r = { &psrc3_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdst_r = { &pdst_bf, "p", .specials = pred_sr, .cool = 1 };
 static struct reg pdstn_r = { &pdstn_bf, "p", .specials = pred_sr, .cool = 1 };
@@ -172,6 +176,8 @@ static struct reg sreg_r = { &sreg_bf, "sr", .specials = sreg_sr, .always_specia
 #define SRC2D atomreg, &src2d_r
 #define SRC3 atomreg, &src3_r
 #define SRC3D atomreg, &src3d_r
+#define PSRC1 atomreg, &psrc1_r
+#define PSRC2 atomreg, &psrc2_r
 #define PSRC3 atomreg, &psrc3_r
 #define CC atomreg, &cc_r
 #define SREG atomreg, &sreg_r
@@ -245,6 +251,8 @@ static struct mem tcmem_m = { "c", 0, 0, &tcmem_imm };
 F(gmem, 0x37, GLOBAL, GLOBALD)
 
 F1(pnot2d, 0x2d, N("not"))
+F1(pnot23, 0x23, N("not"))
+F1(pnot11, 0x11, N("not"))
 
 static struct insn tabfrmi[] = {
 	{ 0x0000000000000000ull, 0x00000c0000000000ull, N("rni") },
@@ -312,6 +320,13 @@ static struct insn tabsetlop[] = {
 	{ 0x0001000000000000ull, 0x0003000000000000ull, N("or"), T(pnot2d), PSRC3 },
 	{ 0x0002000000000000ull, 0x0003000000000000ull, N("xor"), T(pnot2d), PSRC3 },
 	{ 0, 0, OOPS, T(pnot2d), PSRC3 },
+};
+static struct insn tabsetlop2[] = {
+	// { 0x00001c0000000000ull, 0x00031c0000000000ull, N("") }, // noop, really "and $p7"
+	{ 0x0000000000000000ull, 0x0000000018000000ull, N("and"), T(pnot11), PSRC1 },
+	{ 0x0000000008000000ull, 0x0000000018000000ull, N("or"), T(pnot11), PSRC1 },
+	{ 0x0000000010000000ull, 0x0000000018000000ull, N("xor"), T(pnot11), PSRC1 },
+	{ 0, 0, OOPS, T(pnot11), PSRC1 },
 };
 
 static struct insn tablane2a[] = {
@@ -956,6 +971,7 @@ observed flag changes:
 
 static struct insn tabm[] = {
 	{ 0x8400000000000002ull, 0xbfc0000000000003ull, T(sfuop), N("f32"), DST, T(neg33), T(abs31), SRC1 },
+	{ 0x8480000000000002ull, 0xffc0000000000003ull, N("set"), PDST, PDSTN, T(setlop2), T(pnot23), PSRC2, T(setlop)},
 	{ 0x8640000000000002ull, 0xbfc0000000000003ull, N("mov"), N("b32"), DST, SREG },
 	{ 0x0000000000000002ull, 0x38c0000000000003ull, N("set"), T(ftz3a), N("b32"), DST, T(setit), N("f32"), T(neg2e), T(abs39), SRC1, T(neg38), T(abs2f), T(is2), T(setlop) }, // XXX: find f32 dst
 	{ 0x0800000000000002ull, 0x3cc0000000000003ull, N("set"), N("b32"), DST, T(setit), N("f64"), T(neg2e), T(abs39), SRC1D, T(neg38), T(abs2f), T(ds2), T(setlop) },
@@ -1017,6 +1033,7 @@ static struct insn tabm[] = {
 	{ 0x7cc00000001c0002ull, 0x7fc00000001c0c03ull, N("membar"), N("cta") },
 	{ 0x7cc00000001c0402ull, 0x7fc00000001c0c03ull, N("membar"), N("gl") },
 	{ 0x7cc00000001c0802ull, 0x7fc00000001c0c03ull, N("membar"), N("sys") },
+	// { 0x7000000000000002ull, 0x7fc0000000000003ull, N("tex"), T(texm), T(lodt), TDST, T(text), T(tconst), T(texsrc1), T(texsrc2) },
 	{ 0x7d80000000000002ull, 0x7fc0000000000003ull, N("tex"), T(texm), T(lodt), TDST, T(text), N("ind"), T(texsrc1), T(texsrc2) },
 	{ 0x7e00000000000002ull, 0x7fc0000000000003ull, N("texgrad"), T(texm), TDST, T(text), N("ind"), T(texgrsrc1), T(texgrsrc2) },
 	{ 0x7ec0000000000002ull, 0x7fc0000000000003ull, N("ld"), N("b32"), DST, ATTR, SRC1, SRC3 },
