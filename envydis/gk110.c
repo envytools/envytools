@@ -226,6 +226,7 @@ static struct rbitfield lcmem_imm = { { 0x17, 16 }, RBF_SIGNED };
 static struct rbitfield lmem_imm = { { 0x17, 24 }, RBF_SIGNED };
 static struct rbitfield smem_imm = { { 0x17, 24 }, RBF_SIGNED };
 static struct rbitfield tcmem_imm = { { 0x2f, 8 }, .shr = 2 }; // XXX: could be 13 bits
+static struct rbitfield fcmem_imm = { { 0x17, 8 }, RBF_SIGNED };
 static struct bitfield cmem_idx = { 0x25, 5 };
 static struct bitfield lcmem_idx = { 0x27, 5 };
 
@@ -238,6 +239,7 @@ static struct mem gdmem_m = { "g", 0, &src1d_r, &gmem_imm };
 static struct mem cmem_m = { "c", &cmem_idx, 0, &cmem_imm };
 static struct mem lcmem_m = { "c", &lcmem_idx, &src1_r, &lcmem_imm };
 static struct mem tcmem_m = { "c", 0, 0, &tcmem_imm };
+static struct mem vba_m = { "p", 0, &src1_r, &fcmem_imm };
 
 #define ATTR atommem, &amem_m
 #define IATTR atommem, &iamem_m
@@ -248,6 +250,7 @@ static struct mem tcmem_m = { "c", 0, 0, &tcmem_imm };
 #define CONST atommem, &cmem_m
 #define LCONST atommem, &lcmem_m
 #define TCONST atommem, &tcmem_m
+#define VBA atommem, &vba_m
 
 
 /*
@@ -1080,6 +1083,7 @@ static struct insn tabm[] = {
 	{ 0x7e00000000000002ull, 0x7fc0000000000003ull, N("texgrad"), T(texm), T(ltex), TDST, T(text), N("ind"), T(texgrsrc1), T(texgrsrc2) },
 	{ 0x7ec0000000000002ull, 0x7fc0000000000003ull, N("ld"), N("b32"), DST, ATTR, SRC1, SRC3 },
 	{ 0x7f00000000000002ull, 0x7fc0000000000003ull, N("st"), N("b32"), ATTR, DST, SRC1, SRC3 },
+	{ 0x7f80000000000002ull, 0x7fc0000000000003ull, N("ld"), N("b32"), DST, VBA },
 	{ 0x0540000800000002ull, 0x3fc0000800000003ull, N("bar"), N("arrive"), BAR, OOPS},
 	{ 0x0540000000000002ull, 0x3fc0000000000003ull, N("bar"), BAR, OOPS},
 	{ 0xe000000000000002ull, 0xffc0000000000003ull, N("ext"), T(rev2b), T(us32_33), DST, SRC1, SRC2},  //XXX? can't find CONST
