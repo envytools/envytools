@@ -973,6 +973,8 @@ static struct insn tabbpt[] = {
 	{ 0x500, 0x700, N("drain") },
 	{ 0, 0, OOPS },
 };
+F1(emit, 0x2a, N("emit"))
+F1(restart, 0x2b, N("restart"))
 
 /*
  * Opcode format
@@ -1111,6 +1113,7 @@ static struct insn tabi[] = {
 	{ 0xb400000000000001ull, 0xb780000000000003ull, N("set"), PDST, PDSTN, T(setit), N("f64"), T(neg2e), T(abs9), SRC1D, T(neg3b), DIMM, T(setlop) },
 	{ 0xb500000000000001ull, 0xb780000000000003ull, N("slct"), T(ftz32), N("b32"), DST, SRC1, T(neg3b), FIMM, T(setit), N("f32"), SRC3 },
 	{ 0xb580000000000001ull, 0xb780000000000003ull, N("set"), T(ftz32), PDST, PDSTN, T(setit), N("f32"), T(neg2e), T(abs9), SRC1, T(neg3b), FIMM, T(setlop) },
+	{ 0xb700000000000001ull, 0xb7c0000000000003ull, N("out"), T(emit), T(restart), DST, SRC1, I3BIMM },
 	{ 0xb740000000000001ull, 0xb7c0000000000003ull, N("sad"), T(us32_33), DST, SRC1, I3BIMM, SRC3 },
 	{ 0xb780000000000001ull, 0xb7c0000000000003ull, N("ins"), N("b32"), DST, SRC1, I3BIMM, SRC3 },
 	{ 0x2000000000000001ull, 0x3fc0000000000003ull, N("tex"), T(texm), T(lodt), TDST, T(text), T(tconst), T(texsrc1), T(texsrc2) },
