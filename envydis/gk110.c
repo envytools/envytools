@@ -324,14 +324,14 @@ static struct insn tabsetit[] = {
 	{ 0, 0, OOPS },
 };
 static struct insn tabsetlop3[] = {
-	{ 0x00001c0000000000ull, 0x00031c0000000000ull, N("") }, // noop, really "and $p7"
+	{ 0x00001c0000000000ull, 0x00031c0000000000ull }, // noop, really "and $p7"
 	{ 0x0000000000000000ull, 0x0003000000000000ull, N("and"), T(pnot2d), PSRC3 },
 	{ 0x0001000000000000ull, 0x0003000000000000ull, N("or"), T(pnot2d), PSRC3 },
 	{ 0x0002000000000000ull, 0x0003000000000000ull, N("xor"), T(pnot2d), PSRC3 },
 	{ 0, 0, OOPS, T(pnot2d), PSRC3 },
 };
 static struct insn tabsetlop2[] = {
-	{ 0x0000000700000000ull, 0x0000000718000000ull, N("") }, // noop, really "and $p7"
+	{ 0x0000000700000000ull, 0x0000000718000000ull }, // noop, really "and $p7"
 	{ 0x0000000000000000ull, 0x0000000018000000ull, N("and"), T(pnot23), PSRC2 },
 	{ 0x0000000008000000ull, 0x0000000018000000ull, N("or"), T(pnot23), PSRC2 },
 	{ 0x0000000010000000ull, 0x0000000018000000ull, N("xor"), T(pnot23), PSRC2 },
