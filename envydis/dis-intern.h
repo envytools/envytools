@@ -179,7 +179,7 @@ struct atom {
 struct insn {
 	ull val;
 	ull mask;
-	struct atom atoms[16];
+	struct atom atoms[32];
 	int fmask;
 	int ptype;
 };
