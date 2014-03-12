@@ -985,6 +985,47 @@ static struct insn tabbpt[] = {
 F1(emit, 0x2a, N("emit"))
 F1(restart, 0x2b, N("restart"))
 
+// for quadop
+static struct insn tabqs1[] = {
+	{ 0x0000000000000000ull, 0x0000700000000000ull, N("l0") },
+	{ 0x0000100000000000ull, 0x0000700000000000ull, N("l1") },
+	{ 0x0000200000000000ull, 0x0000700000000000ull, N("l2") },
+	{ 0x0000300000000000ull, 0x0000700000000000ull, N("l3") },
+	{ 0x0000400000000000ull, 0x0000700000000000ull, N("dx") },
+	{ 0x0000500000000000ull, 0x0000700000000000ull, N("dy") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabqop0[] = {
+	{ 0x0000000000000000ull, 0x0000006000000000ull, N("add") },
+	{ 0x0000002000000000ull, 0x0000006000000000ull, N("subr") },
+	{ 0x0000004000000000ull, 0x0000006000000000ull, N("sub") },
+	{ 0x0000006000000000ull, 0x0000006000000000ull, N("mov2") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabqop1[] = {
+	{ 0x0000000000000000ull, 0x0000001800000000ull, N("add") },
+	{ 0x0000000800000000ull, 0x0000001800000000ull, N("subr") },
+	{ 0x0000001000000000ull, 0x0000001800000000ull, N("sub") },
+	{ 0x0000001800000000ull, 0x0000001800000000ull, N("mov2") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabqop2[] = {
+	{ 0x0000000000000000ull, 0x0000000600000000ull, N("add") },
+	{ 0x0000000200000000ull, 0x0000000600000000ull, N("subr") },
+	{ 0x0000000400000000ull, 0x0000000600000000ull, N("sub") },
+	{ 0x0000000600000000ull, 0x0000000600000000ull, N("mov2") },
+	{ 0, 0, OOPS },
+};
+
+static struct insn tabqop3[] = {
+	{ 0x0000000000000000ull, 0x0000000100000000ull, N("add") },
+	{ 0x0000000100000000ull, 0x0000000100000000ull, N("sub") },
+	{ 0, 0, OOPS },
+};
+
 /*
  * Opcode format
  *
@@ -1093,6 +1134,7 @@ static struct insn tabm[] = {
 	{ 0x7ec0000000000002ull, 0x7fc0000000000003ull, N("ld"), N("b32"), DST, ATTR, SRC1, SRC3 },
 	{ 0x7f00000000000002ull, 0x7fc0000000000003ull, N("st"), N("b32"), ATTR, DST, SRC1, SRC3 },
 	{ 0x7f80000000000002ull, 0x7fc0000000000003ull, N("ld"), N("b32"), DST, VBA },
+	{ 0x7fc0000000000002ull, 0x7fc0000000000003ull, N("quadop"), T(ftz2f), T(frm2a), N("f32"), T(qop0), T(qop1), T(qop2), T(qop3), DST, T(acout32), T(dtex), T(qs1), SRC1, SRC2 },
 	{ 0x0540000800000002ull, 0x3fc0000800000003ull, N("bar"), N("arrive"), BAR, OOPS},
 	{ 0x0540000000000002ull, 0x3fc0000000000003ull, N("bar"), BAR, OOPS},
 	{ 0xe000000000000002ull, 0xffc0000000000003ull, N("ext"), T(rev2b), T(us32_33), DST, SRC1, SRC2},  //XXX? can't find CONST
