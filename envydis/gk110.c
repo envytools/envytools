@@ -950,6 +950,13 @@ static struct insn tablldstd[] = {
 	{ 0x0030000000000000ull, 0x0038000000000000ull, DSTQ },
 	{ 0, 0, OOPS },
 };
+static struct insn tabaldstd[] = {
+	{ 0x0000000000000000ull, 0x000c000000000000ull, N("b32") },
+	{ 0x0004000000000000ull, 0x000c000000000000ull, N("b64") },
+	{ 0x0008000000000000ull, 0x000c000000000000ull, N("b96") },
+	{ 0x000c000000000000ull, 0x000c000000000000ull, N("b128") },
+	{ 0, 0, OOPS },
+};
 static struct insn tabprmtmod[] = {
 	{ 0x0008000000000000ull, 0x0038000000000000ull, N("f4e")},
 	{ 0x0010000000000000ull, 0x0038000000000000ull, N("b4e")},
@@ -1133,8 +1140,8 @@ static struct insn tabm[] = {
 	{ 0x7d40000000000002ull, 0x7fc0000000000003ull, N("texquery"), T(texm), T(ltex), TDST, T(text), T(texquery), N("ind"), SRC1, SRC2 }, // XXX: check src args
 	{ 0x7d80000000000002ull, 0x7fc0000000000003ull, N("tex"), T(texm), T(lodt), T(texoff), T(texf), TDST, T(text), N("ind"), T(texsrc1), T(texsrc2) },
 	{ 0x7e00000000000002ull, 0x7fc0000000000003ull, N("texgrad"), T(texm), T(ltex), TDST, T(text), N("ind"), T(texgrsrc1), T(texgrsrc2) },
-	{ 0x7ec0000000000002ull, 0x7fc0000000000003ull, N("ld"), N("b32"), DST, ATTR, SRC1, SRC3 },
-	{ 0x7f00000000000002ull, 0x7fc0000000000003ull, N("st"), N("b32"), ATTR, DST, SRC1, SRC3 },
+	{ 0x7ec0000000000002ull, 0x7fc0000000000003ull, N("ld"), T(aldstd), DST, ATTR, SRC1, SRC3 },
+	{ 0x7f00000000000002ull, 0x7fc0000000000003ull, N("st"), T(aldstd), ATTR, DST, SRC1, SRC3 },
 	{ 0x7f80000000000002ull, 0x7fc0000000000003ull, N("ld"), N("b32"), DST, VBA },
 	{ 0x7fc0000000000002ull, 0x7fc0000000000003ull, N("quadop"), T(ftz2f), T(frm2a), N("f32"), T(qop0), T(qop1), T(qop2), T(qop3), DST, T(acout32), T(dtex), T(qs1), SRC1, SRC2 },
 	{ 0x0540000800000002ull, 0x3fc0000800000003ull, N("bar"), N("arrive"), BAR, OOPS},
