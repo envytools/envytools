@@ -799,8 +799,10 @@ F1(abs2f, 0x2f, N("abs")) // setp f32 src2
 F1(abs31, 0x31, N("abs")) // add f32 src1
 F1(abs34, 0x34, N("abs")) // add f32,f64 src2
 F1(abs39, 0x39, N("abs")) // add f32 long immediate
-F1(not2a, 0x2a, N("not")) // popc
+F1(not2a, 0x2a, N("not")) // popc, logop src1
 F1(not2b, 0x2b, N("not")) // logop src2
+F1(not3a, 0x3a, N("not")) // logop src1
+F1(not3b, 0x3b, N("not")) // logop src2
 
 F1(rev2b, 0x2b, N("rev"))
 
@@ -1082,11 +1084,11 @@ static struct insn tabm[] = {
 	{ 0x8440000000000002ull, 0xffc0000000000003ull, N("set"), DST, T(pnot11), PSRC1, T(setlop2), T(setlop3) },
 	{ 0x8480000000000002ull, 0xffc0000000000003ull, N("set"), PDST, PDSTN, T(pnot11), PSRC1, T(setlop2), T(setlop3)},
 	{ 0x8640000000000002ull, 0xbfc0000000000003ull, N("mov"), N("b32"), DST, SREG },
-	{ 0x0000000000000002ull, 0x38c0000000000003ull, N("set"), T(ftz3a), N("b32"), DST, T(setit), N("f32"), T(neg2e), T(abs39), SRC1, T(neg38), T(abs2f), T(is2), T(setlop3) }, // XXX: find f32 dst
+	{ 0x0000000000000002ull, 0x3880000000000003ull, N("set"), T(ftz3a), N("b32"), DST, T(setit), N("f32"), T(neg2e), T(abs39), SRC1, T(neg38), T(abs2f), T(is2), T(setlop3) }, // XXX: find f32 dst
 	{ 0x0800000000000002ull, 0x3cc0000000000003ull, N("set"), N("b32"), DST, T(setit), N("f64"), T(neg2e), T(abs39), SRC1D, T(neg38), T(abs2f), T(ds2), T(setlop3) },
 	{ 0x0c00000000000002ull, 0x3e00000000000003ull, N("fma"), T(ftz38), T(sat35),  T(frm36), N("f32"), DST, T(neg33), SRC1, T(is2w3), T(neg34), T(is3) },
 	{ 0x1000000000000002ull, 0x3c00000000000003ull, T(addop3a), T(sat35), DST, T(acout32), SESTART, N("mul"), T(high39), T(us32_33), SRC1, T(us32_38), T(is2w3), SEEND, T(is3), T(acin34) }, // XXX: order of us32
-	{ 0x1a00000000000002ull, 0x3fc0000000000003ull, N("slct"), N("b32"), DST, SRC1, T(is2w3), T(isetit), T(us32_33), T(is3) }, // XXX: check us32_33
+	{ 0x1a00000000000002ull, 0x3f80000000000003ull, N("slct"), N("b32"), DST, SRC1, T(is2w3), T(isetit), T(us32_33), T(is3) }, // XXX: check us32_33
 	{ 0x1a80000000000002ull, 0x3f80000000000003ull, N("set"), N("b32"), DST, T(isetit), T(us32_33), SRC1, T(is2), T(setlop3) },
 	{ 0x1b00000000000002ull, 0x3f80000000000003ull, N("set"), PDST, PDSTN, T(isetit), T(us32_33), SRC1, T(is2), T(acin2e), T(setlop3) },
 	{ 0x1b80000000000002ull, 0x3f80000000000003ull, N("fma"), T(frm35), N("f64"), DSTD, T(neg33), SRC1D, T(ds2w3), T(neg34), T(ds3) },
@@ -1104,7 +1106,7 @@ static struct insn tabm[] = {
 	{ 0x2100000000000002ull, 0x3fc0000000000003ull, T(minmax), T(us32_33), DST, SRC1, T(is2) },
 	{ 0x2180000000000002ull, 0x3fc0000000000003ull, N("bfind"), T(shiftamt), T(us32_33), DST, T(not2b), T(is2) },   //XXX: eyeballed is2, check cout
 	{ 0x21c0000000000002ull, 0x3fc0000000000003ull, N("mul"), T(high2a), DST, T(acout32), T(us32_2b), SRC1, T(us32_2c), T(is2) }, // XXX: order of us32
-	{ 0x2200000000000002ull, 0x3fc0000000000003ull, T(logop), N("b32"), DST, SRC1, T(not2b), T(is2) },
+	{ 0x2200000000000002ull, 0x3fc0000000000003ull, T(logop), N("b32"), DST, T(not2a), SRC1, T(not2b), T(is2) },
 	{ 0x2240000000000002ull, 0x3fc0000000000003ull, N("shl"), N("b32"), DST, SRC1, T(shclamp), T(is2) },
 	{ 0x2280000000000002ull, 0x3fc0000000000003ull, T(minmax), N("f64"), DSTD, T(neg33), T(abs31), SRC1D, T(neg30), T(abs34), T(ds2) },
 	{ 0x22c0000000000002ull, 0x3fc0000000000003ull, N("add"), T(ftz2f), T(sat35), T(frm2a), N("f32"), DST, T(neg33), T(abs31), SRC1, T(neg30), T(abs34), T(is2) },
@@ -1171,7 +1173,7 @@ static struct insn tabi[] = {
 	{ 0x0100000000000001ull, 0x37c0000000000003ull, T(minmax), T(us32_33), DST, SRC1, T(i3bi2) },
 	{ 0x0140000000000001ull, 0x37c0000000000003ull, N("shr"), T(us32_33), DST, SRC1, T(shclamp), T(sui2b) },
 	{ 0x01c0000000000001ull, 0x37c0000000000003ull, N("mul"), T(high2a), DST, T(us32_2b), SRC1, T(us32_2c), T(i3bi2) }, // XXX: order of us32, TODO: find LIMM form
-	{ 0x0200000000000001ull, 0x37c0000000000003ull, T(logop), N("b32"), DST, SRC1, T(i3bi2) },
+	{ 0x0200000000000001ull, 0x37c0000000000003ull, T(logop), N("b32"), DST, T(not3a), SRC1, T(not3b), T(i3bi2) },
 	{ 0x0240000000000001ull, 0x37c0000000000003ull, N("shl"), N("b32"), DST, SRC1, T(shclamp), T(sui2b) },
 	{ 0x0280000000000001ull, 0x37c0000000000003ull, T(minmax), N("f64"), DST, T(neg33), T(abs31), SRC1, T(neg3b), T(di2) },
 	{ 0x02c0000000000001ull, 0x37c0000000000003ull, N("add"), T(ftz2f), T(sat35), T(frm2a), N("f32"), DST, T(neg33), T(abs31), SRC1, T(neg3b), T(fi2) },
