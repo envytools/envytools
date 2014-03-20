@@ -160,6 +160,10 @@ parse_valgrind(struct state *s)
 			   " 0x%*x:0x%x type 0x%x", &val[0], &val[1]);
 		if (i == 2)
 			add_object(s, val[0], val[1]);
+
+		i = sscanf(s->parse.buf, "--%d-- ", &m);
+		if (i < 1)
+			printf("%s", s->parse.buf);
 	}
 
 	for (i = 0; i <= 3 && (i == 0 || c[i - 1] == ','); i++) {
