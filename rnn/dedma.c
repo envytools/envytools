@@ -213,7 +213,7 @@ flush_dma(struct state *s, struct ent *e)
 
 		pretty_header(s, e);
 	} else {
-		if (dma->addr == 0)
+		if (dma->addr == 0 && !s->subchan[dma->subchan])
 			s->subchan[dma->subchan] = get_object(s, x);
 
 		pretty_method(s, e, x);
