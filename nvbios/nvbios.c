@@ -1627,8 +1627,8 @@ int main(int argc, char **argv) {
 		switch(version) {
 		case 0x10:
 			for (i=0; i < entry_count; i++) {
-				printf ("-- ID = %u: voltage_min = %u, voltage_max = %u [µV] --\n",
-					i, le32(start), le32(start+4));
+				printf ("-- ID = %u: voltage_min = %8u, voltage_max = %8u [µV] unks: %8i %6i %6i--\n",
+					i, le32(start), le32(start+4), le32(start+8), le32(start+12), le32(start+16));
 				printcmd(start, entry_length);
 				printf("\n\n");
 
