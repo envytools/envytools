@@ -186,6 +186,7 @@ static int trytypeattr (struct rnndb *db, char *file, xmlNode *node, xmlAttr *at
 	} else if (!strcmp(attr->name, "radix")) {
 		ti->radix = getnumattrib(db, file, node->line, attr);
 		ti->radixvalid = 1;
+		return 1;
 	}
 	return 0;
 }
