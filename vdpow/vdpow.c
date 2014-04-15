@@ -102,7 +102,7 @@ static int open_map(void)
 {
 	if (nva_init()) {
 		fprintf(stderr, "NVA init failed\n");
-		return 0;
+		return 1;
 	}
 	if (!nva_cardsnum) {
 		fprintf(stderr, "Cannot find any valid card!\n");
@@ -555,11 +555,12 @@ static void fuzz_mpeg(VdpVideoMixer mix, VdpVideoSurface *surf, VdpOutputSurface
 		template[i].f_code[1][0] = 0xf;
 		template[i].f_code[1][1] = 0xf;
 	}
+	struct fuzz fuzzy_d = { 13, 1, "picture_coding_type", 1, { 4 } };
 
 	struct fuzz fuzzy[] = {
 	  { 8, 4, "slice_count", 1, { input_height / 16 + 1 } },
 	  { 12, 1, "picture_structure", 0, { 1, 3 } },
-	  { 13, 1, "picture_coding_type", 0, { 1, 4 } },
+	  { 13, 1, "picture_coding_type", 0, { 1, 3 } },
 	  { 14, 1, "intra_dc_precision", 0, { 0, 3 } },
 	  { 15, 1, "frame_pred_frame_dct", 0, { 0, 1 } },
 	  { 16, 1, "concealment_motion_vectors", 0, { 0, 1 } },
@@ -571,8 +572,6 @@ static void fuzz_mpeg(VdpVideoMixer mix, VdpVideoSurface *surf, VdpOutputSurface
 	  { 22, 1, "full_pel_backward_vector", 0, { 0, 1 } },
 	};
 
-//	ok(vdp_decoder_create(dev, VDP_DECODER_PROFILE_MPEG1, input_width, input_height, 2, &dec));
-//	vdp_decoder_destroy(dec);
 	ok(vdp_decoder_create(dev, VDP_DECODER_PROFILE_MPEG2_MAIN, input_width, input_height, 2, &dec));
 
 	clear_data();
@@ -597,8 +596,18 @@ static void fuzz_mpeg(VdpVideoMixer mix, VdpVideoSurface *surf, VdpOutputSurface
 			}
 		}
 	}
-	fprintf(stderr, "Done, destroying renderer\n");
+	fprintf(stderr, "Done, destroying MPEG-2 renderer\n");
 	free(ref);
+	vdp_decoder_destroy(dec);
+
+	ok(vdp_decoder_create(dev, VDP_DECODER_PROFILE_MPEG1, input_width, input_height, 2, &dec));
+	clear_data();
+	action_mpeg(dec, surf[0], &template[0], &ref[0], NULL, 0, 0);
+
+	info = template[0];
+	info.picture_coding_type = 4;
+	action_mpeg(dec, surf[0], &info, &ref[0], &fuzzy_d, template[0].picture_coding_type, 4);
+
 	vdp_decoder_destroy(dec);
 }
 
@@ -1165,10 +1174,10 @@ int main(int argc, char *argv[]) {
    ok(vdp_video_mixer_create(dev, ARRAY_SIZE(mixer_features), mixer_features,
                              ARRAY_SIZE(mixer_parameters), mixer_parameters, mixer_values, &mixer));
 
-   fuzz_vc1(mixer, surf, osurf);
    fuzz_mpeg(mixer, surf, osurf);
    fuzz_h263(mixer, surf, osurf);
    fuzz_h264(mixer, surf, osurf);
+   fuzz_vc1(mixer, surf, osurf);
 
    vdp_video_mixer_destroy(mixer);
    for (i = ARRAY_SIZE(surf); i > 0; i--) {
