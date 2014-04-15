@@ -183,48 +183,61 @@ struct h264_picparm_vp { // 700..a00
 	uint32_t stride1, stride2; // 04 08
 	uint32_t ofs[6]; // 0c..24 in-image offset
 
-	uint32_t u24; // nfi ac8 ?
+	uint32_t tmp_stride;
 	uint32_t bucket_size; // 28 bucket size
 	uint32_t inter_ring_data_size; // 2c
 
-	unsigned f0 : 1; // 0 0x01: into 640 shifted by 3, 540 shifted by 5, half size something?
-	unsigned f1 : 1; // 1 0x02: into vuc ofs 56
-	unsigned weighted_pred_flag : 1; // 2 0x04
-	unsigned f3 : 1; // 3 0x08: into vuc ofs 68
-	unsigned is_reference : 1; // 4
-	unsigned interlace : 1; // 5 !field_pic_flag
-	unsigned bottom_field_flag : 1; // 6
-	unsigned f7 : 1; // 7 0x80: nfi yet
+	union {
+		struct {
+			unsigned mb_adaptive_frame_field_flag : 1; // 0
+			unsigned direct_8x8_inference_flag : 1; // 1 0x02: into vuc ofs 56
+			unsigned weighted_pred_flag : 1; // 2 0x04
+			unsigned constrained_intra_pred_flag : 1; // 3 0x08: into vuc ofs 68
+			unsigned is_reference : 1; // 4
+			unsigned interlace : 1; // 5 field_pic_flag
+			unsigned bottom_field_flag : 1; // 6
+			unsigned second_field : 1; // 7 0x80: nfi yet
 
-	signed log2_max_frame_num_minus4 : 4; // 31 0..3
-	unsigned u31_45 : 2; // 31 4..5
-	unsigned pic_order_cnt_type : 2; // 31 6..7
-	signed pic_init_qp_minus26 : 6; // 32 0..5
-	signed chroma_qp_index_offset : 5; // 32 6..10
-	signed second_chroma_qp_index_offset : 5; // 32 11..15
+			signed log2_max_frame_num_minus4 : 4; // 31 0..3
+			unsigned chroma_format_idc : 2; // 31 4..5
+			unsigned pic_order_cnt_type : 2; // 31 6..7
+			signed pic_init_qp_minus26 : 6; // 32 0..5
+			signed chroma_qp_index_offset : 5; // 32 6..10
+			signed second_chroma_qp_index_offset : 5; // 32 11..15
+		};
+		unsigned f1;
+	};
 
-	unsigned weighted_bipred_idc : 2; // 34 0..1
-	unsigned fifo_dec_index : 7; // 34 2..8
-	unsigned tmp_idx : 5; // 34 9..13
-	unsigned frame_number : 16; // 34 14..29
-	unsigned u34_3030 : 1; // 34 30..30 pp.u34[30:30]
-	unsigned u34_3131 : 1; // 34 31..31 pad?
+	union {
+		struct {
+			unsigned weighted_bipred_idc : 2; // 34 0..1
+			unsigned fifo_dec_index : 7; // 34 2..8
+			unsigned tmp_idx : 5; // 34 9..13
+			unsigned frame_number : 16; // 34 14..29
+			unsigned u34_3030 : 1; // 34 30..30 pp.u34[30:30]
+			unsigned u34_3131 : 1; // 34 31..31 pad?
+		};
+		unsigned f2;
+	};
 
 	uint32_t field_order_cnt[2]; // 38, 3c
 
 	struct { // 40
-		// 0x00223102
-		// nfi (needs: top_is_reference, bottom_is_reference, is_long_term, maybe some other state that was saved..
-		unsigned fifo_idx : 7; // 00 0..6
-		unsigned tmp_idx : 5; // 00 7..11
-		unsigned unk12 : 1; // 00 12 not seen yet, but set, maybe top_is_reference
-		unsigned unk13 : 1; // 00 13 not seen yet, but set, maybe bottom_is_reference?
-		unsigned unk14 : 1; // 00 14 skipped?
-		unsigned notseenyet : 1; // 00 15 pad?
-		unsigned unk16 : 1; // 00 16
-		unsigned unk17 : 4; // 00 17..20
-		unsigned unk21 : 4; // 00 21..24
-		unsigned pad : 7; // 00 d25..31
+		union {
+			struct {
+				unsigned fifo_idx : 7; // 00 0..6
+				unsigned tmp_idx : 5; // 00 7..11
+				unsigned top_is_reference : 1; // 00 12
+				unsigned bottom_is_reference : 1; // 00 13
+				unsigned is_long_term : 1; // 00 14
+				unsigned notseenyet : 1; // 00 15 pad?
+				unsigned field_pic_flag : 1; // 00 16
+				unsigned top_field_marking : 4; // 00 17..20
+				unsigned bottom_field_marking : 4; // 00 21..24
+				unsigned pad : 7; // 00 d25..31
+			};
+			unsigned f3;
+		};
 
 		uint32_t field_order_cnt[2]; // 04,08
 		uint32_t frame_idx; // 0c
@@ -245,6 +258,9 @@ struct struct_define {
 		unsigned member_ofs;
 		unsigned member_sizeof;
 		unsigned member_array_length;
+		unsigned member_min;
+		unsigned member_mask;
+
 		enum struct_define_type {
 			PAD = 0,
 			BITFIELD,
@@ -254,129 +270,11 @@ struct struct_define {
 	} members[64];
 };
 
-#define _PAD(from, x) { #x, offsetof(struct from, x), sizeof(((struct from*)NULL)->x), 1, PAD }
-#define _(from, x) { #x, offsetof(struct from, x), sizeof(((struct from*)NULL)->x), 1, NORMAL }
+#define _PAD(from, x) { #x, offsetof(struct from, x), sizeof(((struct from*)NULL)->x), 1, 1, ~0U, PAD }
+#define _(from, x) { #x, offsetof(struct from, x), sizeof(((struct from*)NULL)->x), 1, 1, ~0U, NORMAL }
 #define _ARRAY(from, x) { #x, offsetof(struct from, x), sizeof(((struct from*)NULL)->x[0]), \
-			  sizeof(((struct from*)NULL)->x)/sizeof(((struct from*)NULL)->x[0]), ARRAY }
-
-struct struct_define defines_bsp[] = {
-{ "mpeg1/2 bsp", {
-#define STRUCT mpeg12_picparm_bsp
-	_(STRUCT, width),
-	_(STRUCT, height),
-	_(STRUCT, picture_structure),
-	_(STRUCT, picture_coding_type),
-	_(STRUCT, intra_dc_precision),
-	_(STRUCT, frame_pred_frame_dct),
-	_(STRUCT, concealment_motion_vectors),
-	_(STRUCT, intra_vlc_format),
-	_PAD(STRUCT, pad),
-	_ARRAY(STRUCT, f_code[0]),
-	_ARRAY(STRUCT, f_code[1]),
-#undef STRUCT
-}},
-{ "vc-1 bsp", {
-#define STRUCT vc1_picparm_bsp
-	_(STRUCT, width),
-	_(STRUCT, height),
-	_(STRUCT, profile),
-	_(STRUCT, postprocflag),
-	_(STRUCT, pulldown),
-	_(STRUCT, interlaced),
-	_(STRUCT, tfcntrflag),
-	_(STRUCT, finterpflag),
-	_(STRUCT, psf),
-	_PAD(STRUCT, pad),
-	_(STRUCT, multires),
-	_(STRUCT, syncmarker),
-	_(STRUCT, rangered),
-	_(STRUCT, maxbframes),
-	_(STRUCT, dquant),
-	_(STRUCT, panscan_flag),
-	_(STRUCT, refdist_flag),
-	_(STRUCT, quantizer),
-	_(STRUCT, extended_mv),
-	_(STRUCT, extended_dmv),
-	_(STRUCT, overlap),
-	_(STRUCT, vstransform),
-
-#undef STRUCT
-}},
-{ "h264 bsp", {
-#define STRUCT h264_picparm_bsp
-	_(STRUCT, unk00),
-	_(STRUCT, log2_max_frame_num_minus4),
-	_(STRUCT, pic_order_cnt_type),
-	_(STRUCT, log2_max_pic_order_cnt_lsb_minus4),
-	_(STRUCT, delta_pic_order_always_zero_flag),
-	_(STRUCT, frame_mbs_only_flag),
-	_(STRUCT, direct_8x8_inference_flag),
-	_(STRUCT, width_mb),
-	_(STRUCT, height_mb),
-
-	/* picparm2 */
-	_(STRUCT, entropy_coding_mode_flag),
-	_(STRUCT, pic_order_present_flag),
-	_PAD(STRUCT, unk),
-	_PAD(STRUCT, pad1),
-	_PAD(STRUCT, pad2),
-	_(STRUCT, num_ref_idx_l0_active_minus1),
-	_(STRUCT, num_ref_idx_l1_active_minus1),
-	_(STRUCT, weighted_pred_flag),
-	_(STRUCT, weighted_bipred_idc),
-	_(STRUCT, pic_init_qp_minus26),
-	_(STRUCT, deblocking_filter_control_present_flag),
-	_(STRUCT, redundant_pic_cnt_present_flag),
-	_(STRUCT, transform_8x8_mode_flag),
-	_(STRUCT, mb_adaptive_frame_field_flag),
-	_(STRUCT, field_pic_flag),
-	_(STRUCT, bottom_field_flag),
-	_PAD(STRUCT, real_pad),
-#undef STRUCT
-}},
-{ "mpeg4 bsp", {
-#define STRUCT mpeg4_picparm_bsp
-	_(STRUCT, width),
-	_(STRUCT, height),
-	_(STRUCT, vop_time_increment_size),
-	_(STRUCT, interlaced),
-	_(STRUCT, resync_marker_disable),
-#undef STRUCT
-}},
-};
-
-struct struct_define defines_vp[] = {
-{ "mpeg1/2 vp", {
-#define STRUCT mpeg12_picparm_vp
-#undef STRUCT
-}},
-{ "vc-1 vp", {
-#define STRUCT vc1_picparm_vp
-	_(STRUCT, bucket_size),
-	_PAD(STRUCT, pad),
-	_(STRUCT, inter_ring_data_size),
-	_(STRUCT, unk0c),
-	_(STRUCT, unk10),
-	_ARRAY(STRUCT, ofs),
-	_(STRUCT, width),
-	_(STRUCT, height),
-	_(STRUCT, profile),
-	_(STRUCT, loopfilter),
-	_(STRUCT, u32),
-	_(STRUCT, dquant),
-	_(STRUCT, overlap),
-	_(STRUCT, quantizer),
-	_(STRUCT, u36),
-	_PAD(STRUCT, pad2),
-#undef STRUCT
-}},
-{ "h264 vp", {
-#define STRUCT h264_picparm_vp
-#undef STRUCT
-}},
-{ "mpeg4 vp", {
-}},
-};
+			  sizeof(((struct from*)NULL)->x)/sizeof(((struct from*)NULL)->x[0]), 1, ~0U, ARRAY }
+#define _BF(from, bf, x) { #x, offsetof(struct from, bf), sizeof(((struct from*)NULL)->bf), 1, (struct from){ .x = 1 }.bf, (struct from){ .x = ~0 }.bf, BITFIELD }
 
 static void compare(char *oldstruct, char *newstruct, unsigned size, struct struct_define *strdata)
 {
@@ -404,12 +302,19 @@ static void compare(char *oldstruct, char *newstruct, unsigned size, struct stru
 		for (j = 0; j < cur->member_array_length; ++j, ofs += cur->member_sizeof)
 			if (memcmp(&oldstruct[ofs], &newstruct[ofs], cur->member_sizeof)) {
 				switch (cur->member_sizeof) {
-					case 4:
-						printf("%s member %s differs: %08x now %08x\n",
-						       name, cur->member_name,
-						       *(uint32_t*)&oldstruct[ofs],
-						       *(uint32_t*)&newstruct[ofs]);
+					case 4: {
+						uint32_t old, new;
+
+						old = *(uint32_t*)&oldstruct[ofs] & cur->member_mask;
+						new = *(uint32_t*)&newstruct[ofs] & cur->member_mask;
+
+						if (old != new) {
+							printf("%s member %s differs: %08x now %08x\n",
+							       name, cur->member_name,
+							       old / cur->member_min, new / cur->member_min);
+						}
 						break;
+					}
 					case 2:
 						printf("%s member %s differs: %04x now %04x\n",
 						       name, cur->member_name,
@@ -510,6 +415,157 @@ int main(int argc, char **argv)
 	unsigned maps[MAX_SEQS];
 	unsigned lastmap = -1;
 
+
+	struct struct_define defines_bsp[] = {
+	{ "mpeg1/2 bsp", {
+	#define STRUCT mpeg12_picparm_bsp
+		_(STRUCT, width),
+		_(STRUCT, height),
+		_(STRUCT, picture_structure),
+		_(STRUCT, picture_coding_type),
+		_(STRUCT, intra_dc_precision),
+		_(STRUCT, frame_pred_frame_dct),
+		_(STRUCT, concealment_motion_vectors),
+		_(STRUCT, intra_vlc_format),
+		_PAD(STRUCT, pad),
+		_ARRAY(STRUCT, f_code[0]),
+		_ARRAY(STRUCT, f_code[1]),
+	#undef STRUCT
+	}},
+	{ "vc-1 bsp", {
+	#define STRUCT vc1_picparm_bsp
+		_(STRUCT, width),
+		_(STRUCT, height),
+		_(STRUCT, profile),
+		_(STRUCT, postprocflag),
+		_(STRUCT, pulldown),
+		_(STRUCT, interlaced),
+		_(STRUCT, tfcntrflag),
+		_(STRUCT, finterpflag),
+		_(STRUCT, psf),
+		_PAD(STRUCT, pad),
+		_(STRUCT, multires),
+		_(STRUCT, syncmarker),
+		_(STRUCT, rangered),
+		_(STRUCT, maxbframes),
+		_(STRUCT, dquant),
+		_(STRUCT, panscan_flag),
+		_(STRUCT, refdist_flag),
+		_(STRUCT, quantizer),
+		_(STRUCT, extended_mv),
+		_(STRUCT, extended_dmv),
+		_(STRUCT, overlap),
+		_(STRUCT, vstransform),
+
+	#undef STRUCT
+	}},
+	{ "h264 bsp", {
+	#define STRUCT h264_picparm_bsp
+		_(STRUCT, unk00),
+		_(STRUCT, log2_max_frame_num_minus4),
+		_(STRUCT, pic_order_cnt_type),
+		_(STRUCT, log2_max_pic_order_cnt_lsb_minus4),
+		_(STRUCT, delta_pic_order_always_zero_flag),
+		_(STRUCT, frame_mbs_only_flag),
+		_(STRUCT, direct_8x8_inference_flag),
+		_(STRUCT, width_mb),
+		_(STRUCT, height_mb),
+
+		/* picparm2 */
+		_(STRUCT, entropy_coding_mode_flag),
+		_(STRUCT, pic_order_present_flag),
+		_PAD(STRUCT, unk),
+		_PAD(STRUCT, pad1),
+		_PAD(STRUCT, pad2),
+		_(STRUCT, num_ref_idx_l0_active_minus1),
+		_(STRUCT, num_ref_idx_l1_active_minus1),
+		_(STRUCT, weighted_pred_flag),
+		_(STRUCT, weighted_bipred_idc),
+		_(STRUCT, pic_init_qp_minus26),
+		_(STRUCT, deblocking_filter_control_present_flag),
+		_(STRUCT, redundant_pic_cnt_present_flag),
+		_(STRUCT, transform_8x8_mode_flag),
+		_(STRUCT, mb_adaptive_frame_field_flag),
+		_(STRUCT, field_pic_flag),
+		_(STRUCT, bottom_field_flag),
+		_PAD(STRUCT, real_pad),
+	#undef STRUCT
+	}},
+	{ "mpeg4 bsp", {
+	#define STRUCT mpeg4_picparm_bsp
+		_(STRUCT, width),
+		_(STRUCT, height),
+		_(STRUCT, vop_time_increment_size),
+		_(STRUCT, interlaced),
+		_(STRUCT, resync_marker_disable),
+	#undef STRUCT
+	}},
+	};
+
+	struct struct_define defines_vp[] = {
+	{ "mpeg1/2 vp", {
+	#define STRUCT mpeg12_picparm_vp
+	#undef STRUCT
+	}},
+	{ "vc-1 vp", {
+	#define STRUCT vc1_picparm_vp
+		_(STRUCT, bucket_size),
+		_PAD(STRUCT, pad),
+		_(STRUCT, inter_ring_data_size),
+		_(STRUCT, unk0c),
+		_(STRUCT, unk10),
+		_ARRAY(STRUCT, ofs),
+		_(STRUCT, width),
+		_(STRUCT, height),
+		_(STRUCT, profile),
+		_(STRUCT, loopfilter),
+		_(STRUCT, u32),
+		_(STRUCT, dquant),
+		_(STRUCT, overlap),
+		_(STRUCT, quantizer),
+		_(STRUCT, u36),
+		_PAD(STRUCT, pad2),
+	#undef STRUCT
+	}},
+	{ "h264 vp", {
+	#define STRUCT h264_picparm_vp
+		_(STRUCT, width),
+		_(STRUCT, height),
+		_(STRUCT, stride1),
+		_(STRUCT, stride2),
+		_ARRAY(STRUCT, ofs),
+		_(STRUCT, tmp_stride),
+		_(STRUCT, bucket_size),
+		_(STRUCT, inter_ring_data_size),
+		_BF(STRUCT, f1, mb_adaptive_frame_field_flag),
+		_BF(STRUCT, f1, direct_8x8_inference_flag),
+		_BF(STRUCT, f1, weighted_pred_flag),
+		_BF(STRUCT, f1, constrained_intra_pred_flag),
+		_BF(STRUCT, f1, is_reference),
+		_BF(STRUCT, f1, interlace),
+		_BF(STRUCT, f1, bottom_field_flag),
+		_BF(STRUCT, f1, second_field),
+		_BF(STRUCT, f1, log2_max_frame_num_minus4),
+		_BF(STRUCT, f1, chroma_format_idc),
+		_BF(STRUCT, f1, pic_order_cnt_type),
+		_BF(STRUCT, f1, pic_init_qp_minus26),
+		_BF(STRUCT, f1, chroma_qp_index_offset),
+		_BF(STRUCT, f1, second_chroma_qp_index_offset),
+
+		_BF(STRUCT, f2, weighted_bipred_idc),
+		_BF(STRUCT, f2, fifo_dec_index),
+		_BF(STRUCT, f2, tmp_idx),
+		_BF(STRUCT, f2, frame_number),
+		_BF(STRUCT, f2, u34_3030),
+		_BF(STRUCT, f2, u34_3131),
+		_(STRUCT, field_order_cnt[0]),
+		_(STRUCT, field_order_cnt[1]),
+	#undef STRUCT
+	}},
+	{ "mpeg4 vp", {
+	}},
+	};
+
 	/* Sanity check, make sure we didn't leave any holes.. */
 	for (n = 0; n < sizeof(defines_bsp)/sizeof(*defines_bsp); ++n) {
 		struct struct_members *cur;
@@ -528,7 +584,7 @@ int main(int argc, char **argv)
 		int prev_end = 0;
 
 		for (i = 0, cur = defines_vp[n].members; cur->member_name; ++i, ++cur) {
-			assert(cur->member_ofs == prev_end);
+			assert(cur->member_ofs == prev_end || cur->member_min > 1);
 			prev_end = cur->member_ofs + cur->member_sizeof * cur->member_array_length;
 		}
 	}
