@@ -334,6 +334,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<brief>You tried to use a point size slot out of range of VP/GP outputs.</brief>
 	</value>
 
+	<!-- Are 0x51/0x53 only available on nvc0+? -->
+	<value value="0x51" name="M2MF_LINE_LENGTH_EXCEEDS_PITCH_IN">
+		<brief>You tried to use a line length larger than the pitch of a linear source.</brief>
+	</value>
+	<value value="0x53" name="M2MF_LINE_LENGTH_EXCEEDS_PITCH_OUT">
+		<brief>You tried to use a line length larger than the pitch of a linear destination.</brief>
+	</value>
+
 	<value value="0x98" name="RT_LINEAR_WITH_ZETA_NVC0">
 		<brief>You tried to use linear RTs with ZETA enabled.</brief>
 	</value>
