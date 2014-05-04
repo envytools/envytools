@@ -322,7 +322,7 @@ class TypeUnprep:
             [bitfield.copy(file) for bitfield in self.bitfields],
             [val.copy(file) for val in self.vals],
             self.shr,
-            self.add
+            self.add,
             self.min,
             self.max,
             self.align,
@@ -595,8 +595,8 @@ def parseenum(db, file, node):
             db.estatus = 1
 
 def parsebitfield(db, file, node):
-    name, high, low, pos, varset, variants, type, shr, min, max, align, radix = getattrs(
-        node, ['name', 'high', 'low', 'pos', 'varset', 'variants', 'type', 'shr', 'min', 'max', 'align', 'radix'], db, file)
+    name, high, low, pos, varset, variants, type, shr, add, min, max, align, radix = getattrs(
+        node, ['name', 'high', 'low', 'pos', 'varset', 'variants', 'type', 'shr', 'add', 'min', 'max', 'align', 'radix'], db, file)
     if pos is not None and high is None and low is None:
         high = low = int(pos)
     elif high is not None and low is not None and pos is None:
@@ -606,6 +606,7 @@ def parsebitfield(db, file, node):
         sys.stderr.write("{}: bitfield {} has invalid placement attr\n".format(file, name))
         db.estatus = 1
     shr = 0 if shr is None else int(shr, 0)
+    add = 0 if add is None else int(add, 0)
     min = None if min is None else int(min, 0)
     max = None if max is None else int(max, 0)
     align = None if align is None else int(align, 0)
@@ -630,7 +631,7 @@ def parsebitfield(db, file, node):
         sys.stderr.write("{}: bitfield has wrong placement\n".format(file))
         db.estatus = 1
         return None
-    return Bitfield(name, low, high, Varinfo(None, varset, variants), TypeUnprep(type, bitfields, vals, shr, min, max, align, radix), file)
+    return Bitfield(name, low, high, Varinfo(None, varset, variants), TypeUnprep(type, bitfields, vals, shr, add, min, max, align, radix), file)
 
 def parsebitset(db, file, node):
     name, bare, inline, prefixstr, varsetstr, variantsstr = getattrs(node, ['name', 'bare', 'inline', 'prefix', 'varset', 'variants'], db, file)
@@ -693,12 +694,13 @@ def parsestripe(db, file, node, full):
     return Stripe(name, offset, length, stride, full, elems, Varinfo(prefix, varset, variants), file)
 
 def parsereg(db, file, node, width):
-    name, offset, length, stride, varset, variants, access, type, shr, min, max, align, radix = getattrs(
-            node, ['name', 'offset', 'length', 'stride', 'varset', 'variants', 'access', 'type', 'shr', 'min', 'max', 'align', 'radix'], db, file)
+    name, offset, length, stride, varset, variants, access, type, shr, add, min, max, align, radix = getattrs(
+            node, ['name', 'offset', 'length', 'stride', 'varset', 'variants', 'access', 'type', 'shr', 'add', 'min', 'max', 'align', 'radix'], db, file)
     offset = int(offset, 0)
     length = 1 if length is None else int(length, 0)
     stride = None if stride is None else int(stride, 0)
     shr = 0 if shr is None else int(shr, 0)
+    add = 0 if add is None else int(add, 0)
     min = None if min is None else int(min, 0)
     max = None if max is None else int(max, 0)
     align = None if align is None else int(align, 0)
@@ -724,7 +726,7 @@ def parsereg(db, file, node, width):
         sys.stderr.write("{}: nameless register\n".format(file))
         db.estatus = 1
         return None
-    return Reg(name, width, access, offset, length, stride, Varinfo(None, varset, variants), TypeUnprep(type, bitfields, vals, shr, min, max, align, radix), file)
+    return Reg(name, width, access, offset, length, stride, Varinfo(None, varset, variants), TypeUnprep(type, bitfields, vals, shr, add, min, max, align, radix), file)
 
 def parsegroup(db, file, node):
     name, = getattrs(node, ['name'], db, file)
