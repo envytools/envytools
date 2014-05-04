@@ -107,7 +107,8 @@ static uint32_t float16i(uint16_t val)
 			/* denormalized number: */
 			int shift = __builtin_clz(frac) - 21;
 			frac <<= shift;
-			expn = -shift;
+			frac &= 0x3ff;
+			expn = 1 - shift;
 		} else {
 			/* +/- zero: */
 			return sign;
