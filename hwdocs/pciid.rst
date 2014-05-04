@@ -2021,12 +2021,12 @@ device id  product
 ``0x044f`` MCP65 SATA controller (AHCI mode) [?]
 ``0x0450`` MCP65 ethernet controller (class 0200)
 ``0x0451`` MCP65 ethernet controller [?]
-``0x0452`` MCP65 ethernet controller [?]
+``0x0452`` MCP65 ethernet controller (class 0680)
 ``0x0453`` MCP65 ethernet controller [?]
-``0x0454`` MCP65 USB controller
-``0x0455`` MCP65 USB 2.0 controller
-``0x0456`` MCP65 USB controller [?]
-``0x0457`` MCP65 USB controller [?]
+``0x0454`` MCP65 USB controller #0
+``0x0455`` MCP65 USB 2.0 controller #0
+``0x0456`` MCP65 USB controller #1
+``0x0457`` MCP65 USB 2.0 controller #1
 ``0x0458`` MCP65 PCI-Express x8/x16 port
 ``0x0459`` MCP65 PCI-Express x8 port
 ``0x045a`` MCP65 PCI-Express x1/x2 port
@@ -2281,7 +2281,7 @@ device id         product
 ``0x0ab3``        MCP79 ethernet controller [?]
 ``0x0ab4-0x0ab7`` MCP79 SATA controller (compatibility mode)
 ``0x0ab8-0x0abb`` MCP79 SATA controller (AHCI mode)
-``0x0abc-0x0abc`` MCP79 SATA controller (RAID mode) [XXX: actually 0x0ab0-0xabb are accepted by hw without trickery]
+``0x0abc-0x0abf`` MCP79 SATA controller (RAID mode) [XXX: actually 0x0ab0-0xabb are accepted by hw without trickery]
 ``0x0ac0``        MCP79 HDA
 ``0x0ac1``        MCP79 HDA [?]
 ``0x0ac2``        MCP79 HDA [?]
