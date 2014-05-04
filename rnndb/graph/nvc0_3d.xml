@@ -330,22 +330,22 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		        Values 1-8 are interpretted as log2(limit)+1. Value 0xf means unlimitted.</doc>
 		</reg32>
 		<reg32 offset="0x0d68" name="COUNTER_ENABLE">
-			<bitfield pos="0x0" name="UNK00"/>
-			<bitfield pos="0x1" name="UNK01"/>
-			<bitfield pos="0x2" name="UNK02"/>
-			<bitfield pos="0x3" name="UNK03"/>
-			<bitfield pos="0x4" name="UNK04"/>
-			<bitfield pos="0x5" name="EMITTED_PRIMITIVES"/><!-- not tested -->
-			<bitfield pos="0x6" name="UNK06"/><!-- different GENERATED_PRIMITIVES ? -->
-			<bitfield pos="0x7" name="UNK07"/>
-			<bitfield pos="0x8" name="UNK08"/>
-			<bitfield pos="0x9" name="UNK09"/>
-			<bitfield pos="0xa" name="GENERATED_PRIMITIVES"/><!-- for query 09005002 -->
-			<bitfield pos="0xb" name="UNK0B"/>
-			<bitfield pos="0xc" name="UNK0C"/>
-			<bitfield pos="0xd" name="UNK0D"/>
-			<bitfield pos="0xe" name="UNK0E"/>
-			<bitfield pos="0xf" name="UNK0F"/>
+			<bitfield pos="0" name="UNK00"/>
+			<bitfield pos="1" name="UNK01"/>
+			<bitfield pos="2" name="UNK02"/>
+			<bitfield pos="3" name="UNK03"/>
+			<bitfield pos="4" name="UNK04"/>
+			<bitfield pos="5" name="EMITTED_PRIMITIVES"/><!-- not tested -->
+			<bitfield pos="6" name="UNK06"/><!-- different GENERATED_PRIMITIVES ? -->
+			<bitfield pos="7" name="UNK07"/>
+			<bitfield pos="8" name="UNK08"/>
+			<bitfield pos="9" name="UNK09"/>
+			<bitfield pos="10" name="GENERATED_PRIMITIVES"/><!-- for query 09005002 -->
+			<bitfield pos="11" name="UNK0B"/>
+			<bitfield pos="12" name="UNK0C"/>
+			<bitfield pos="13" name="UNK0D"/>
+			<bitfield pos="14" name="UNK0E"/>
+			<bitfield pos="15" name="UNK0F"/>
 		</reg32>
 		<reg32 offset="0x0d6c" name="UNK0D6C" type="xy16" length="2"/>
 		<reg32 offset="0x0d74" name="VERTEX_BUFFER_FIRST"/>
@@ -1256,7 +1256,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<reg32 offset="0x14" name="TILE_MODE"/>
 		</stripe>
 		<stripe offset="0x2800" length="4" stride="0x80">
-			<reg32 name="TFB_VARYING_LOCS" length="32"/>
+			<reg32 offset="0" name="TFB_VARYING_LOCS" length="32"/>
 		</stripe>
 		<reg32 offset="0x335c" name="MP_PM_SET" length="8"/>
 		<reg32 offset="0x337c" name="MP_PM_SIGSEL" length="8" variants="NVC0_3D:NVE4_3D"/>

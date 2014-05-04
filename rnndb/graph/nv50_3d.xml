@@ -185,17 +185,17 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<doc>Goes to ROP, 0x04e3bfdf by default</doc>
 		</reg32>
 		<reg32 offset="0x0d68" name="COUNTER_ENABLE">
-			<bitfield pos="0x0" name="VFETCH_VERTICES"/>
-			<bitfield pos="0x1" name="VFETCH_PRIMITIVES"/>
-			<bitfield pos="0x2" name="VP_LAUNCHES"/>
-			<bitfield pos="0x3" name="GP_LAUNCHES"/>
-			<bitfield pos="0x4" name="GP_PRIMITIVES_OUT"/>
-			<bitfield pos="0x5" name="TRANSFORM_FEEDBACK"/>
-			<bitfield pos="0x6" name="GENERATED_PRIMITIVES"/>
-			<bitfield pos="0x7" name="RAST_PRIMITIVES_PRECLIP"/>
-			<bitfield pos="0x8" name="RAST_PRIMITIVES_POSTCLIP"/>
-			<bitfield pos="0x9" name="FP_PIXELS"/>
-			<bitfield pos="0xa" name="UNK0A" variants="NV84_3D-"/>
+			<bitfield pos="0" name="VFETCH_VERTICES"/>
+			<bitfield pos="1" name="VFETCH_PRIMITIVES"/>
+			<bitfield pos="2" name="VP_LAUNCHES"/>
+			<bitfield pos="3" name="GP_LAUNCHES"/>
+			<bitfield pos="4" name="GP_PRIMITIVES_OUT"/>
+			<bitfield pos="5" name="TRANSFORM_FEEDBACK"/>
+			<bitfield pos="6" name="GENERATED_PRIMITIVES"/>
+			<bitfield pos="7" name="RAST_PRIMITIVES_PRECLIP"/>
+			<bitfield pos="8" name="RAST_PRIMITIVES_POSTCLIP"/>
+			<bitfield pos="9" name="FP_PIXELS"/>
+			<bitfield pos="10" name="UNK0A" variants="NV84_3D-"/>
 		</reg32>
 		<reg32 offset="0x0d6c" name="UNK0D6C" type="xy16" length="2">
 			<doc>Goes to TRAST, ZCULL.</doc>
