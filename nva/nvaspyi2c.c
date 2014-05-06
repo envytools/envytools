@@ -158,6 +158,7 @@ bool i2c_add_data(struct i2c_state *i2c, uint8_t scl, uint8_t sda)
 							     " Device(0x%.02x) %c ACK(%i) ",
 							     i2c->byte >> 1, (i2c->byte & 1)?'R':'W', sda);
 				}
+				i2c->addr = i2c->byte;
 				if ((i2c->byte & 0xfe) != i2c->addr) {
 					i2c->st = ERROR;
 				}
@@ -277,7 +278,7 @@ int main(int argc, char **argv)
 		if (ret || i2c.st == ERROR) {
 			debugoff += snprintf(debugbuf + debugoff, sizeof(debugbuf) - debugoff,
 					     "%.02x:%.02x %s %.04x (status = %i, polls = %.04i)%s\n",
-					     i2c.addr, i2c.reg, (i2c.addr & 1)?"<=W=":"=R=>",
+					     i2c.addr, i2c.reg, (i2c.addr & 1)?"=R=>":"<=W=",
 					     i2c.data, i2c.st, polls, (i2c.st == ERROR)?": ERR":"");
 			print_debug();
 			polls = 0;
