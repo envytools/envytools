@@ -143,7 +143,7 @@ The registers in Tesla ISA are:
   - $sr4-$sr7 aka $pm0-$pm3: :ref:`MP performance counters <nv50-mp-pm>`.
 
   - $sr8 aka $sampleid [NVA3-]: the sample ID. Useful only in fragment
-    pointers when sample shading is enabled.
+    programs when sample shading is enabled.
 
 The memory spaces in Tesla ISA are:
 
