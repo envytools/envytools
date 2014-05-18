@@ -244,6 +244,8 @@ There's also a fair bit of implicit state stored per-warp for control flow:
 
 .. todo:: discard mask should be somewhere too?
 
+.. todo:: call limit counter
+
 Other resources available to CUDA code are:
 
 - $t0-$t129: up to 130 textures per 3d program type, up to 128 for compute
@@ -273,8 +275,8 @@ can be distinguished as follows:
 word 0 word 0 word 1   instruction type
 bit 0  bit 1  bits 0-1
 ====== ====== ======== =================
-0      0      -        short normal
-0      1      -        short control
+0      0      \-       short normal
+0      1      \-       short control
 1      0      0        long normal
 1      0      1        long normal with ``join``
 1      0      2        long normal with ``exit``
@@ -347,6 +349,234 @@ Other fields
 ------------
 
 .. todo:: write me
+
+Opcode map
+----------
+
+.. list-table:: Opcode map
+   :header-rows: 1
+
+   * - Primary opcode
+     - short normal
+     - long immediate
+     - long normal, secondary 0
+     - long normal, secondary 1
+     - long normal, secondary 2
+     - long normal, secondary 3
+     - long normal, secondary 4
+     - long normal, secondary 5
+     - long normal, secondary 6
+     - long normal, secondary 7
+     - short control
+     - long control
+   * - ``0x0``
+     - \-
+     - \-
+     - :ref:`ld a[] <tesla-opg-ld-a>`
+     - :ref:`mov from $c <tesla-opg-mov-r-c>`
+     - :ref:`mov from $a <tesla-opg-mov-r-a>`
+     - :ref:`mov from $sr <tesla-opg-mov-r-sr>`
+     - :ref:`st o[] <tesla-opg-st-o>`
+     - :ref:`mov to $c <tesla-opg-mov-c-r>`
+     - :ref:`shl to $a <tesla-opg-shl-a>`
+     - :ref:`st s[] <tesla-opg-st-s>`
+     - \-
+     - :ref:`discard <tesla-opg-discard>`
+   * - ``0x1``
+     - :ref:`mov <tesla-opg-short-mov>`
+     - :ref:`mov <tesla-opg-imm-mov>`
+     - :ref:`mov <tesla-opg-mov>`
+     - :ref:`ld c[] <tesla-opg-ld-c>`
+     - :ref:`ld s[] <tesla-opg-ld-s>`
+     - :ref:`vote <tesla-opg-vote>`
+     - \-
+     - \-
+     - \-
+     - \-
+     - \-
+     - :ref:`bra <tesla-opg-bra>`
+   * - ``0x2``
+     - :ref:`add/sub <tesla-opg-short-add>`
+     - :ref:`add/sub <tesla-opg-imm-add>`
+     - :ref:`add/sub <tesla-opg-add>`
+     - \-
+     - \-
+     - \-
+     - \-
+     - \-
+     - \-
+     - \-
+     - \-
+     - :ref:`call <tesla-opg-call>`
+   * - ``0x3``
+     - :ref:`add/sub <tesla-opg-short-add>`
+     - :ref:`add/sub <tesla-opg-imm-add>`
+     - :ref:`add/sub <tesla-opg-add>`
+     - \-
+     - \-
+     - :ref:`set <tesla-opg-set>`
+     - :ref:`max <tesla-opg-max>`
+     - :ref:`min <tesla-opg-min>`
+     - :ref:`shl <tesla-opg-shl>`
+     - :ref:`shr <tesla-opg-shr>`
+     - \-
+     - :ref:`ret <tesla-opg-ret>`
+   * - ``0x4``
+     - :ref:`mul <tesla-opg-short-mul>`
+     - :ref:`mul <tesla-opg-imm-mul>`
+     - :ref:`mul <tesla-opg-mul>`
+     - \-
+     - \-
+     - \-
+     - \-
+     - \-
+     - \-
+     - \-
+     - \-
+     - :ref:`prebrk <tesla-opg-prebrk>`
+   * - ``0x5``
+     - :ref:`sad <tesla-opg-short-sad>`
+     - \-
+     - :ref:`sad <tesla-opg-sad>`
+     - \-
+     - \-
+     - \-
+     - \-
+     - \-
+     - \-
+     - \-
+     - \-
+     - :ref:`brk <tesla-opg-brk>`
+   * - ``0x6``
+     - :ref:`mul+add <tesla-opg-short-mul-add>`
+     - :ref:`mul+add <tesla-opg-imm-mul-add>`
+     - :ref:`mul+add <tesla-opg-mul-add>`
+     - :ref:`mul+add <tesla-opg-mul-add>`
+     - :ref:`mul+add <tesla-opg-mul-add>`
+     - :ref:`mul+add <tesla-opg-mul-add>`
+     - :ref:`mul+add <tesla-opg-mul-add>`
+     - :ref:`mul+add <tesla-opg-mul-add>`
+     - :ref:`mul+add <tesla-opg-mul-add>`
+     - :ref:`mul+add <tesla-opg-mul-add>`
+     - \-
+     - :ref:`quadon <tesla-opg-quadon>`
+   * - ``0x7``
+     - :ref:`mul+add <tesla-opg-short-mul-add>`
+     - :ref:`mul+add <tesla-opg-imm-mul-add>`
+     - :ref:`mul+add <tesla-opg-mul-add>`
+     - :ref:`mul+add <tesla-opg-mul-add>`
+     - :ref:`mul+add <tesla-opg-mul-add>`
+     - :ref:`mul+add <tesla-opg-mul-add>`
+     - :ref:`mul+add <tesla-opg-mul-add>`
+     - :ref:`mul+add <tesla-opg-mul-add>`
+     - :ref:`mul+add <tesla-opg-mul-add>`
+     - :ref:`mul+add <tesla-opg-mul-add>`
+     - \-
+     - :ref:`quadpop <tesla-opg-quadpop>`
+   * - ``0x8``
+     - :ref:`interp <tesla-opg-short-interp>`
+     - \-
+     - :ref:`interp <tesla-opg-interp>`
+     - \-
+     - \-
+     - \-
+     - \-
+     - \-
+     - \-
+     - \-
+     - \-
+     - :ref:`bar <tesla-opg-bar>`
+   * - ``0x9``
+     - :ref:`rcp <tesla-opg-short-rcp>`
+     - \-
+     - :ref:`rcp <tesla-opg-rcp>`
+     - \-
+     - :ref:`rsqrt <tesla-opg-rsqrt>`
+     - :ref:`lg2 <tesla-opg-lg2>`
+     - :ref:`sin <tesla-opg-sin>`
+     - :ref:`cos <tesla-opg-cos>`
+     - :ref:`ex2 <tesla-opg-ex2>`
+     - \-
+     - :ref:`trap <tesla-opg-short-trap>`
+     - :ref:`trap <tesla-opg-trap>`
+   * - ``0xa``
+     - \-
+     - \-
+     - :ref:`cvt i2i <tesla-opg-cvt-i2i>`
+     - :ref:`cvt i2i <tesla-opg-cvt-i2i>`
+     - :ref:`cvt i2f <tesla-opg-cvt-i2f>`
+     - :ref:`cvt i2f <tesla-opg-cvt-i2f>`
+     - :ref:`cvt f2i <tesla-opg-cvt-f2i>`
+     - :ref:`cvt f2i <tesla-opg-cvt-f2i>`
+     - :ref:`cvt f2f <tesla-opg-cvt-f2f>`
+     - :ref:`cvt f2f <tesla-opg-cvt-f2f>`
+     - \-
+     - :ref:`joinat <tesla-opg-joinat>`
+   * - ``0xb``
+     - :ref:`fadd <tesla-opg-short-fadd>`
+     - :ref:`fadd <tesla-opg-imm-fadd>`
+     - :ref:`fadd <tesla-opg-fadd>`
+     - :ref:`fadd <tesla-opg-fadd>`
+     - \-
+     - :ref:`fset <tesla-opg-fset>`
+     - :ref:`fmax <tesla-opg-fmax>`
+     - :ref:`fmin <tesla-opg-fmin>`
+     - :ref:`presin/preex2 <tesla-opg-pre>`
+     - \-
+     - :ref:`brkpt <tesla-opg-short-brkpt>`
+     - :ref:`brkpt <tesla-opg-brkpt>`
+   * - ``0xc``
+     - :ref:`fmul <tesla-opg-short-fmul>`
+     - :ref:`fmul <tesla-opg-imm-fmul>`
+     - :ref:`fmul <tesla-opg-fmul>`
+     - \-
+     - :ref:`fslct <tesla-opg-fslct>`
+     - :ref:`fslct <tesla-opg-fslct>`
+     - :ref:`quadop <tesla-opg-quadop>`
+     - \-
+     - \-
+     - \-
+     - \-
+     - :ref:`bra c[] <tesla-opg-bra-c>`
+   * - ``0xd``
+     - \-
+     - :ref:`logic op <tesla-opg-imm-logop>`
+     - :ref:`logic op <tesla-opg-logop>`
+     - :ref:`add $a <tesla-opg-add-a>`
+     - :ref:`ld l[] <tesla-opg-ld-l>`
+     - :ref:`st l[] <tesla-opg-st-l>`
+     - :ref:`ld g[] <tesla-opg-ld-g>`
+     - :ref:`st g[] <tesla-opg-st-g>`
+     - :ref:`red g[] <tesla-opg-red-g>`
+     - :ref:`atomic g[] <tesla-opg-atomic-g>`
+     - \-
+     - :ref:`preret <tesla-opg-preret>`
+   * - ``0xe``
+     - :ref:`fmul+fadd <tesla-opg-short-fmul-fadd>`
+     - :ref:`fmul+fadd <tesla-opg-imm-fmul-fadd>`
+     - :ref:`fmul+fadd <tesla-opg-fmul-fadd>`
+     - :ref:`fmul+fadd <tesla-opg-fmul-fadd>`
+     - :ref:`dfma <tesla-opg-dfma>`
+     - :ref:`dadd <tesla-opg-dadd>`
+     - :ref:`dmul <tesla-opg-dmul>`
+     - :ref:`dmin <tesla-opg-dmin>`
+     - :ref:`dmax <tesla-opg-dmax>`
+     - :ref:`dset <tesla-opg-dset>`
+     - \-
+     - \-
+   * - ``0xf``
+     - :ref:`texauto/fetch <tesla-opg-short-tex>`
+     - \-
+     - :ref:`texauto/fetch <tesla-opg-tex>`
+     - :ref:`texbias <tesla-opg-texbias>`
+     - :ref:`texlod <tesla-opg-texlod>`
+     - :ref:`tex misc <tesla-opg-texmisc>`
+     - :ref:`texcsaa/gather <tesla-opg-texcsaa>`
+     - ???
+     - :ref:`emit/restart <tesla-opg-emit>`
+     - :ref:`nop/pmevent <tesla-opg-nop>`
+     - \-
+     - \-
 
 
 Conventions
@@ -1101,34 +1331,8 @@ TBD
 
 ::
 
-    Control instructions:
-
-    They don't seem to have short or immediate forms, nor use op2. Needs to be
-    checked some day.
-
-    op  tested  pred    insn
-    0   F   +   discard
-    1   *   +   bra
-    2   *   -   call
-    3   *   +   ret     
-    4   *   -   breakaddr
-    5   *   +   break
-    6   *   -   quadon
-    7   *   -   quadpop
-    8   C   -   bar sync
-    9   *   -   trap
-    a   *   -   joinat
-    b   C   ?   brkpt   sm11
-    c   !C
-    d   !C
-    e   !C
-    f   !C
-
     Short instructions:
 
-    Usual format:
-
-    0x00000003: set to 0
     0x000000fc: S*DST
     0x00000100: flag1
     0x00007e00: S*SRC or S*SHARED
@@ -1138,34 +1342,9 @@ TBD
     0x00800000: use S*CONST
     0x01000000: use S*SHARED
     0x0e000000: addressing
-    0xf0000000: opcode
-
-    op  tested  insn
-    0   !CF
-    1   *   mov
-    2   *   add
-    3   *   add
-    4   *   mul
-    5   *   sad
-    6   *   madd
-    7   *   madd
-    8   F !C    interp
-    9   *   rcp
-    a
-    b   *   add f32
-    c   *   mul f32
-    d   !CF
-    e   *   madd f32
-    f   *   tex
 
     Immediate instructions:
 
-    Looks like there are no immediate instructions with non-0 op2, but let's check
-    anyway.
-
-    Usual format:
-
-    0x0000000000000003: set to 1
     0x00000000000000fc: S*DST
     0x0000000000000100: flag1
     0x0000000000007e00: S*SRC or S*SHARED
@@ -1175,202 +1354,24 @@ TBD
     0x0000000000800000: -
     0x0000000001000000: use S*SHARED
     0x000000000e000000: addressing
-    0x00000000f0000000: opcode
-    0x0000000300000000: set to 3
+
     0x0ffffffc00000000: IMMD, high part
-    0x1000000000000000: -
-    0xe000000000000000: op2
-
-    op  op2 tested  insn
-    0   0   !C
-    1   0   *   mov
-    2   0   *   add
-    3   0   *   add
-    4   0   *   mul
-    5   0   !C
-    6   0   *   madd
-    7   0   *   madd
-    8   0   !C
-    9   0   !C
-    a   0   !C
-    b   0   *   add f32
-    c   0   *   mul f32
-    d   0   *   bitop
-    e   0   *   madd f32
-    f   0   !C
-
-    All non-0 op2's were tried on CP and didn't work.
-
 
     Long instructions
 
-    Mostly, destination is in L*DST or LLDST, sources are in:
-     - 1: L*SRC or L*SHARED
-     - 2: L*SRC2 or L*CONST2, or SHCNT for shift insns
-     - 3: L*SRC3 or L*CONST3
-
-    Some insns can also set $c registers with MCDST, or read them eith COND.
-
-    Usual format:
-
-    0x0000000000000003: set to 1
     0x00000000000001fc: L*DST
     0x000000000000fe00: L*SRC or L*SHARED
     0x00000000007f0000: L*SRC2 or L*CONST2
     0x0000000000800000: use L*CONST2
     0x0000000001000000: use L*CONST3
     0x000000000e000000: addressing
-    0x00000000f0000000: opcode
-    0x0000000300000000: 0 normal, 1 with exit, 2 with join
+
     0x0000000400000000: addressing
     0x0000000800000000: $o DST instead of $r
     0x0000003000000000: $c reg to set
     0x0000004000000000: enable setting that $c.
-    0x00000f8000000000: predicate condition
-    0x0000300000000000: $c to use for predicate and/or carry input
+
     0x001fc00000000000: L*SRC3 or L*CONST3
     0x0020000000000000: use L*SHARED
     0x03c0000000000000: c[] space to use
     0x0c00000000000000: misc flags
-    0x1000000000000000: -
-    0xe000000000000000: op2
-
-    [op2 shifted left to be in alignment with the hexit you see]
-
-    op  op2 tested  insn
-    0   0   !FC mov from a[]
-    0   2   *   mov from $c
-    0   4   *   mov from $a
-    0   6   *   mov from special reg
-    0   8   !FC
-    0   a   *   mov to $c
-    0   c   *   shl to $a
-    0   e   C   mov to s[]  XXX WTF? does something on FP
-
-    1   0   *   mov
-    1   2   *   mov from c[]
-    1   4   C !F    mov from s[]    sm11
-    1   6   C   vote        sm12
-    1   8   !FC
-    1   a   !FC
-    1   c   !FC
-    1   e   !FC
-
-    2   0   *   add
-    2   2   !FC
-    2   4   !FC
-    2   6   !FC
-    2   8   !FC
-    2   a   !FC
-    2   c   !FC
-    2   e   !FC
-
-    3   0   *   add
-    3   2   !FC
-    3   4   !FC
-    3   6   *   set
-    3   8   *   max
-    3   a   *   min
-    3   c   *   shl
-    3   e   *   shr
-
-    4   0   *   mul
-    4   2   !C
-    4   4   !C
-    4   6   !C
-    4   8   !C
-    4   a   !C
-    4   c   !C
-    4   e   !C
-
-    5   0   *   sad
-    5   2   !FC
-    5   4   !FC
-    5   6   !FC
-    5   8   !FC
-    5   a   !FC
-    5   c   !FC
-    5   e   !FC
-
-    6   0   *   madd
-    6   2   *   madd
-    6   4   *   madd
-    6   6   *   madd
-    6   8   *   madd
-    6   a   *   madd
-    6   c   *   madd
-    6   e   *   madd
-
-    7   0   *   madd
-    7   2       XXX ??? \
-    7   4       XXX ??? |
-    7   6       XXX ??? |
-    7   8       XXX ??? | seem to be copies of 6/6 for some reason.
-    7   a       XXX ??? |
-    7   c       XXX ??? |
-    7   e       XXX ??? /
-
-    8   0   F !C    interp
-    8   2   !FC
-    8   4   !FC
-    8   6   !FC
-    8   8   !FC
-    8   a   !FC
-    8   c   !FC
-    8   e   !FC
-
-    9   0   *   rcp f32
-    9   2   !FC
-    9   4   *   rsqrt f32
-    9   6   *   lg2 f32
-    9   8   *   sin f32
-    9   a   *   cos f32
-    9   c   *   ex2 f32
-    9   e   !FC
-
-    a   *   *   cvt
-
-    b   0   *   add f32
-    b   2   *   add f32
-    b   4   !FC
-    b   6   *   set f32
-    b   8   *   max f32
-    b   a   *   min f32
-    b   c   *   pre f32
-    b   e   !FC
-
-    c   0   *   mul f32
-    c   2   !FC
-    c   4   *   slct f32
-    c   6   *   slct f32 neg
-    c   8   *   quadop
-    c   a   !FC
-    c   c   !FC
-    c   e   !FC
-
-    d   0   *   bitop
-    d   2   *   add from $a to $a
-    d   4   *   mov from l[]
-    d   6   *   mov to l[]
-    d   8   C   mov from g[]        weird format
-    d   a   C   mov to g[]
-    d   c   C   atom g[]
-    d   e   C   ld atom g[]
-
-    e   0   *   madd f32
-    e   2   *   madd f32
-    e   4   C   madd f64
-    e   6   C   add f64
-    e   8   C   mul f64
-    e   a   C   min f64
-    e   c   C   max f64
-    e   e   C   set f64
-
-    f   0   *   tex
-    f   2   *   tex
-    f   4   *   tex
-    f   6   *   tex
-    f   8   *   tex
-    f   a   C   XXX ??? looks like it does exactly nothing.
-    f   c   G !C    emit,restart
-    f   e   */C nop/pmevent
