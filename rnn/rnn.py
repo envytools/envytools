@@ -246,10 +246,11 @@ class TypeFloat:
     pass
 
 class TypeFixed:
-    def __init__(self, min, max, radix):
+    def __init__(self, min=None, max=None, radix=0, signed=False):
         self.min = min
         self.max = max
         self.radix = radix
+        self.signed = signed
 
 class TypeUnprep:
     def __init__(self, name, bitfields, vals, shr, add, min, max, align, radix):
