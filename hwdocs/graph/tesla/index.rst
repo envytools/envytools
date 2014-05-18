@@ -9,5 +9,5 @@ Contents:
    pgraph
    ctxctl
    3d
-   isa
    compute
+   cuda/index
