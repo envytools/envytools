@@ -157,54 +157,6 @@
  */
 
 /*
- * General instruction format
- * 
- * Machine code is read in 64-bit naturaly-aligned chunks, consisting of two
- * 32-bit words. If bit 0 of first word is 0, this chunk consists of two
- * single-word short instructions. Otherwise, it's a double-word instruction.
- * For double-word instructions, bits 0x20-0x21 further determine its type:
- *  00: long
- *  01: long with exit after it
- *  10: long with join before it
- *  11: immediate
- *
- * Short, long, and immediate instructions each have separate encoding tables.
- *
- * All [?] long instructions can be predicated. $c register number to be used
- * is in 0x2c-0x2d, 0x27-0x2b specifies condition to be checked in that register:
- *  code   $c formula		meaning for sub/cmp	meaning for set-to-res
- *  00000: never
- *  00001: (S & ~Z) ^ O		s/f <			<0
- *  00010: Z & ~S		=			0
- *  00011: S ^ (Z | O)		s/f <=			<=0
- *  00100: ~Z & ~(S ^ O)	s/f >			>0
- *  00101: ~Z			<>			<>0
- *  00110: ~(S ^ O)		s/f >=			>=0
- *  00111: ~Z | ~S		s/f ordered		not nan
- *  01000: Z & S		unordered		nan
- *  01001: S ^ O		s/f < or unordered	<0 or nan
- *  01010: Z			= or unordered		0 or nan
- *  01011: Z | (S ^ O)		s/f <= or unordered	<=0 or nan
- *  01100: ~S ^ (Z | O)		s/f > or undordered	>0 or nan
- *  01101: S | ~Z		s/f <> or unordered	not 0
- *  01110: (Z | ~S) ^ O		s/f >= or unordered	>=0
- *  01111: always
- *  10000: O			signed overflow
- *  10001: C			u >=
- *  10010: C & ~Z		u >
- *  10011: S			result <0		<0
- *  11100: ~S			result >=0		>=0
- *  11101: Z | ~C		u <=
- *  11110: ~C			u <
- *  11111: ~O			no signed overflow
- *
- * Bit 1 is yet another instruction subtype: 0 is normal instruction, 1 is
- * a control instruction [branches and stuff like that]. For all types and
- * subtypes, the major opcode field is 0x1c-0x1f. For long instructions,
- * 0x3d-0x3f is subopcode. From there on, there is little regularity.
- */
-
-/*
  * Misc. hack alerts:
  *  - 0x2c-0x2d is read twice in addc instructions: it selects $c to use for
  *    a carry flag, and selects $c to use for conditional execution. Printing
