@@ -290,7 +290,8 @@ Long instructions can only be stored on addresses divisible by 8 bytes (ie.
 on even word address).  In other words, short instructions usually have to
 be issued in pairs (the only exception is when a block starts with a short
 instruction on an odd word address).  This is not a problem, as all short
-instructions have a long equivalent.
+instructions have a long equivalent.  Attempting to execute a non-aligned
+long instruction results in UNALIGNED_LONG_INSTRUCTION decode error.
 
 Long normal instructions can have a ``join`` or ``exit`` instruction tacked on.
 In this case, the extra instruction is executed together with the main
@@ -299,10 +300,15 @@ instruction.
 The instruction group is determined by the opcode fields:
 
 - word 0 bits 28-31: primary opcode field
-- word 1 bits 29-31: secondary opcode field (long normal instructions only)
+- word 1 bits 29-31: secondary opcode field (long instructions only)
+
+Note that only long immediate and long control instructions always have the
+secondary opcode equal to 0.
 
 The exact instruction of an instruction group is determined by group-specific
-encoding.
+encoding.  Attempting to execute an instruction whose primary/secondary opcode
+doesn't map to a valid instruction group results in ILLEGAL_OPCODE decode
+error.
 
 Other fields
 ------------
@@ -516,10 +522,54 @@ autoincrement flag:
   with this addressing mode can emulate a direct operand.
 
 - if flag is 1, memory address used is simply ``$aX``, but after the memory
-  access is done, the ``$aX`` will be increased by ``offset * factor``.  It is
-  an error to use ``$a0`` with this addressing mode.
+  access is done, the ``$aX`` will be increased by ``offset * factor``.
+  Attempting to use ``$a0`` (or ``$a5``/``a6``) with this addressing mode
+  results in ILLEGAL_POSTINCR decode error.
+
+.. todo:: figure out where and how $a7 can be used.  Seems to be a decode
+   error more often than not...
 
 .. todo:: what address field is used in long control instructions?
+
+Shared memory access
+--------------------
+
+Most instructions can use an s[] memory access as the first source operand.
+When s[] access is used, it can be used in one of 4 modes:
+
+- 0: ``u8`` - read a byte with zero extension, multiplication factor is 1
+- 1: ``u16`` - read a half-word with zero extension, factor is 2
+- 2: ``s16`` - read a half-word with sign extension, factor is 2
+- 3: ``b32`` - read a word, factor is 4
+
+The corresponding source 1 field is split into two subfields.  The high 2
+bits select s[] access mode, while the low 4 or 5 bits select the offset.
+Shared memory operands are always indirect operands.  The operands are:
+
+- ``SSSRC1`` (short shared word source 1): use short source 1 field, all modes
+  valid.
+- ``LSSRC1`` (long shared word source 1): use long source 1 field, all modes
+  valid.
+- ``SSHSRC1`` (short shared halfword source 1): use short source 1 field, valid
+  modes ``u8``, ``u16``, ``s16``.
+- ``LSHSRC1`` (long shared halfword source 1): use long source 1 field, valid
+  modes ``u8``, ``u16``, ``s16``.
+- ``SSUHSRC1`` (short shared unsigned halfword source 1): use short source 1
+  field, valid modes ``u8``, ``u16``.
+- ``LSUHSRC1`` (long shared unsigned halfword source 1): use long source 1
+  field, valid modes ``u8``, ``u16``.
+- ``SSSHSRC1`` (short shared signed halfword source 1): use short source 1
+  field, valid modes ``u8``, ``s16``.
+- ``LSSHSRC1`` (long shared signed halfword source 1): use long source 1
+  field, valid modes ``u8``, ``s16``.
+- ``LSBSRC1`` (long shared byte source 1): use long source 1 field, only ``u8``
+  mode valid.
+
+Attempting to use ``b32`` mode when it's not valid (because source 1 has
+16-bit width) results in ILLEGAL_MEMORY_SIZE decode error.  Attempting to use
+``u16``/``s16`` mode that is invalid because the sign is wrong results in
+ILLEGAL_MEMORY_SIGN decode error.  Attempting to use mode other than ``u8`` for
+``cvt`` instruction with u8 source results in ILLEGAL_MEMORY_BYTE decode error.
 
 Destination fields
 ------------------
