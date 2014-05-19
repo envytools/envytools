@@ -724,7 +724,7 @@
 			<bitfield pos="1" name="STACK_MISMATCH"/>
 			<bitfield pos="2" name="QUADON_ACTIVE"/>
 			<bitfield pos="3" name="TIMEOUT"/>
-			<bitfield pos="4" name="INVALID_OPCODE"/>
+			<bitfield pos="4" name="DECODE_ERROR"/>
 			<bitfield pos="5" name="PM_OVERFLOW"/>
 			<bitfield pos="6" name="BREAKPOINT" variants="NV84-"/>
 			<bitfield pos="7" name="UNK7" variants="NVA0-"/>
@@ -744,15 +744,42 @@
 			<bitfield pos="60" name="UNK60"/>
 			<bitfield pos="61" name="UNK61" variants="NVA0-"/>
 		</reg64>
-		<reg32 offset="0x20" name="UNK20">
-			<bitfield low="0" high="28" name="UNK0"/>
+		<reg64 offset="0x20" name="DECODE_ERROR">
+			<bitfield pos="0" name="TRAP_INSTRUCTION"/>
+			<bitfield pos="1" name="ILLEGAL_OPCODE"/>
+			<bitfield pos="2" name="UNK2"/>
+			<bitfield pos="3" name="UNK3"/>
+			<bitfield pos="4" name="UNK4"/>
+			<bitfield pos="5" name="UNK5"/>
+			<bitfield pos="6" name="UNK6"/>
+			<bitfield pos="7" name="UNK7"/>
+			<bitfield pos="8" name="UNALIGNED_LONG_INSTRUCTION"/>
+			<bitfield pos="9" name="ILLEGAL_POSTINCR"/>
+			<bitfield pos="10" name="LD_A_ST_O_NON_VP_GP"/>
+			<bitfield pos="11" name="UNK11"/>
+			<bitfield pos="12" name="UNK12"/>
+			<bitfield pos="13" name="UNK13"/>
+			<bitfield pos="14" name="INTERP_NON_FP"/>
+			<bitfield pos="15" name="EMIT_NON_GP"/>
+			<bitfield pos="16" name="UNK16"/>
+			<bitfield pos="17" name="UNK17"/>
+			<bitfield pos="18" name="UNK18"/>
+			<bitfield pos="19" name="UNK19"/>
+			<bitfield pos="20" name="UNK20"/> <!-- XXX has something to do with $a7? -->
+			<bitfield pos="21" name="UNK21"/>
+			<bitfield pos="22" name="UNK22"/>
+			<bitfield pos="23" name="ILLEGAL_MEMORY_BYTE"/>
+			<bitfield pos="24" name="ILLEGAL_MEMORY_SIGN"/>
+			<bitfield pos="25" name="ILLEGAL_MEMORY_SIZE"/>
+			<bitfield pos="26" name="UNK26"/>
+			<bitfield pos="27" name="UNK27"/>
+			<bitfield pos="28" name="UNK28"/>
 			<bitfield pos="29" name="UNK29" variants="NV84-"/>
-			<bitfield low="30" high="31" name="UNK30" variants="NVA0-"/>
-		</reg32>
-		<reg32 offset="0x24" name="PC_CURRENT">
-			<bitfield low="0" high="23" name="ADDR"/>
-			<bitfield low="24" high="28" name="WARP"/>
-		</reg32>
+			<bitfield pos="30" name="UNK30" variants="NVA0-"/>
+			<bitfield pos="31" name="UNK31" variants="NVA0-"/>
+			<bitfield low="32" high="55" name="ADDR"/>
+			<bitfield low="56" high="60" name="WARP"/>
+		</reg64>
 		<reg64 offset="0x28" name="PM_COUNTER" length="4"/>
 		<reg64 offset="0x38" name="PM_FUNC">
 			<bitfield low="0" high="15" name="0"/>
