@@ -271,18 +271,18 @@ Instructions are stored in C[] space as 32-bit little-endian words.  There
 are short (1 word) and long (2 words) instructions.  The instruction type
 can be distinguished as follows:
 
-====== ====== ======== =================
-word 0 word 0 word 1   instruction type
-bit 0  bit 1  bits 0-1
-====== ====== ======== =================
-0      0      \-       short normal
-0      1      \-       short control
-1      0      0        long normal
-1      0      1        long normal with ``join``
-1      0      2        long normal with ``exit``
-1      0      3        long immediate
-1      1      any      long control
-====== ====== ======== =================
+======== ======== =================
+word 0   word 1   instruction type
+bits 0-1 bits 0-1
+======== ======== =================
+0        \-       short normal
+1        0        long normal
+1        1        long normal with ``join``
+1        2        long normal with ``exit``
+1        3        long immediate
+2        \-       short control
+3        any      long control
+======== ======== =================
 
 .. todo:: you sure of control instructions with non-0 w1b0-1?
 
@@ -304,6 +304,111 @@ The instruction group is determined by the opcode fields:
 The exact instruction of an instruction group is determined by group-specific
 encoding.
 
+Other fields
+------------
+
+Other fields used in instructions are quite instruction-specific. However,
+some common bitfields exist. For short normal instructions, these are:
+
+- bits 0-1: 0 (select short normal instruction)
+- bits 2-7: destination
+- bit 8: modifier 1
+- bits 9-14: source 1
+- bit 15: modifier 2
+- bits 16-21: source 2
+- bit 22: modifier 3
+- bit 23: source 2 type
+- bit 24: source 1 type
+- bit 25: $a postincrement flag
+- bits 26-27: address register
+- bits 28-31: primary opcode
+
+For long immediate instructions:
+
+- word 0:
+
+  - bits 0-1: 1 (select long non-control instruction)
+  - bits 2-7: destination
+  - bit 8: modifier 1
+  - bits 9-14: source 1
+  - bit 15: modifier 2
+  - bits 16-21: immediate low 6 bits
+  - bit 22: modifier 3
+  - bit 23: unused
+  - bit 24: source 1 type
+  - bit 25: $a postincrement flag
+  - bits 26-27: address register
+  - bits 28-31: primary opcode
+
+- word 1:
+
+  - bits 0-1: 3 (select long immediate instruction)
+  - bits 2-27: immediate high 26 bits
+  - bit 28: unused
+  - bits 29-31: always 0
+
+For long normal instructions:
+
+- word 0:
+
+  - bits 0-1: 1 (select long non-control instruction)
+  - bits 2-8: destination
+  - bits 9-15: source 1
+  - bits 16-22: source 2
+  - bit 23: source 2 type
+  - bit 24: source 3 type
+  - bit 25: $a postincrement flag
+  - bits 26-27: address register low 2 bits
+  - bits 28-31: primary opcode
+
+- word 1:
+
+  - bits 0-1: 0 (no extra instruction), 1 (``join``), or 2 (``exit``)
+  - bit 2: address register high bit
+  - bit 3: destination type
+  - bits 4-5: destination $c register
+  - bit 6: $c write enable
+  - bits 7-11: predicate
+  - bits 12-13: source $c register
+  - bits 14-20: source 3
+  - bit 21: source 1 type
+  - bits 22-25: c[] space index
+  - bit 26: modifier 1
+  - bit 27: modifier 2
+  - bit 28: unused
+  - bits 29-31: secondary opcode
+
+Note that short and long immediate instructions have 6-bit source/destination
+fields, while long normal instructions have 7-bit ones.  This means only half
+the registers can be accessed in such instructions ($r0-$r63, $r0l-$r31h).
+
+For long control instructions:
+
+- word 0:
+
+  - bits 0-1: 3 (select long control instruction)
+  - bits 9-24: code address low 18 bits
+  - bits 28-31: primary opcode
+
+- word 1:
+
+  - bit 6: modifier 1
+  - bits 7-11: predicate
+  - bits 12-13: source $c register
+  - bits 14-19: code address high 6 bits
+
+.. todo:: what about other bits? ignored or must be 0?
+
+Note that many other bitfields can be in use, depending on instruction.  These
+are just the most common ones.
+
+Whenever a half-register ($rXl or $rXh) is stored in a field, bit 0 of that
+field selects high or low part (0 is low, 1 is high), and bits 1 and up select
+$r index.  Whenever a double register ($rXd) is stored in a field, the index
+of the low word register is stored.  If the value stored is not divisible by 2,
+the instruction is illegal.  Likewise, for quad registers ($rXq), the lowest
+word register is stored, and the index has to be divisible by 4.
+
 Predicates
 ----------
 
@@ -311,8 +416,9 @@ Most long normal and long control instructions can be predicated. A predicated
 instruction is only executed if a condition, computed based on a selected $c
 register, evaluates to 1. The instruction fields involved in predicates are:
 
-- word 1 bits 7-11: predicate
-- word 1 bits 12-13: $c register to use
+- word 1 bits 7-11: predicate field - selects a boolean function of the $c
+  register
+- word 1 bits 12-13: $c source field - selects the $c register to use
 
 The predicates are:
 
@@ -345,10 +451,119 @@ encoding name       description                condition formula
 ``0x1f`` ``no``     no overflow                ~O
 ======== ========== ========================== =================
 
-Other fields
-------------
+Some instructions read $c registers directly.  The operand ``CSRC`` refers
+to the $c register selected by the $c source field.  Note that, on such
+instructions, the $c register used for predicating is necessarily the same
+as the input register.  Thus, one must generally avoid predicating instructions
+with $c input.
 
-.. todo:: write me
+$c destination field
+--------------------
+
+Most normal long instructions can optionally write status information about
+their result to a $c register.  The $c destination is selected by $c
+destination field, located in word 1 bits 4-5, and $c destination enable field,
+located in word 1 bit 6.  The operands using these fields are:
+
+- ``FCDST`` (forced condition destination): $c0-$c3, as selected by $c
+  destination field.
+- ``CDST`` (condition destination):
+
+  - if $c destination enable field is 0, no destination is used (condition
+    output is discarded).
+  - if $c destination enable field is 1, same as ``FCDST``.
+
+Memory addressing
+-----------------
+
+Some instructions can access one of the memory spaces available to CUDA code.
+There are two kinds of such instructions:
+
+- Ordinary instructions that happen to be used with memory operands.  They
+  have very limitted direct addressing range (since they fit the address in 6
+  or 7 bits normally used for register selection) and may lack indirect
+  addressing capabilities.
+- Dedicated load/store instructions.  They have full 16-bit direct addressing
+  range and have indirect addressing capabilities.
+
+The following instruction fields are involved in memory addressing:
+
+- word 0 bit 25: autoincrement flag
+- word 0 bits 26-27: $a low field
+- word 1 bit 2: $a high field
+- word 0 bits 9-16: long offset field (used for dedicated load/store
+  instructions)
+
+There are two operands used in memory addressing:
+
+- ``SASRC`` (short address source): $a0-$a3, as selected by $a low field.
+- ``LASRC`` (long address source): $a0-$a7, as selected by concatenation of $a
+  low and high fields.
+
+Every memory operand has an associated offset field and multiplication factor
+(a constant, usually equal to the access size).  Memory operands also come in
+two kinds: direct (no $a field) and indirect ($a field used).
+
+For direct operands, the memory address used is simply the value of the offset
+field times the multiplication factor.
+
+For indirect operands, the memory address used depends on the value of the
+autoincrement flag:
+
+- if flag is 0, memory address used is ``$aX + offset * factor``, where $a
+  register is selected by ``SASRC`` (for short and long immediate instructions)
+  or ``LASRC`` (for long normal instructions) operand.  Note that using ``$a0``
+  with this addressing mode can emulate a direct operand.
+
+- if flag is 1, memory address used is simply ``$aX``, but after the memory
+  access is done, the ``$aX`` will be increased by ``offset * factor``.  It is
+  an error to use ``$a0`` with this addressing mode.
+
+.. todo:: what address field is used in long control instructions?
+
+Destination fields
+------------------
+
+Most short and long immediate instructions use the short destination field for 
+selecting instruction destination.  The field is located in word 0 bits 2-7.
+There are two common operands using that field:
+
+- ``SDST`` (short word destination): GPR $r0-$r63, as selected by the short
+  destination field.
+- ``SHDST`` (short halfword destination): GPR half $r0l-$r31h, as selected
+  by the short destination field.
+
+Most normal long instructions use the long destination field for selecting
+instruction destination.  The field is located in word 0 bits 2-8.  This
+field is usually used together with destination type field, located in word
+1 bit 3.  The common operands using these fields are:
+
+- ``LRDST`` (long register word destination): GPR $r0-$r127, as selected by
+  the long destination field.
+- ``LRHDST`` (long register halfword destination): GPR half $r0l-$r63h,
+  as selected by the long destination field.
+- ``LDST`` (long word destination):
+
+  - if destination type field is 0, same as ``LRDST``.
+  - if destination type field is 1, and long destination field is equal to 127,
+    no destination is used (ie. operation result is discarded).  This is used
+    on instructions that are executed only for their $c output.
+  - if destination type field is 1, and long destination field is not equal to
+    127, o[] space is written, as a direct memory operand with long
+    destination field as the offset field and multiplier factor 4.
+
+- ``LHDST`` (long halfword destination):
+
+  - if destination type field is 0, same as ``LRHDST``.
+  - if destination type field is 1, and long destination field is equal to 127,
+    no destination is used (ie. operation result is discarded).
+  - if destination type field is 1, and long destination field is not equal to
+    127, o[] space is written, as a direct memory operand with long
+    destination field as the offset field and multiplier factor 2.  Since
+    o[] can only be written with 32-bit accesses, the address is rounded down
+    to a multiple of 4, and the 16-bit result is duplicated in both low and
+    high half of the 32-bit value written in o[] space.  This makes it pretty
+    much useless.
 
 Opcode map
 ----------
@@ -1326,52 +1541,3 @@ TBD
     Also a modifier. Switches to other diverged execution paths on the same
     stack level, until they've all reached the join point, then pops off the
     entry and continues execution with a rejoined path.
-
--------
-
-::
-
-    Short instructions:
-
-    0x000000fc: S*DST
-    0x00000100: flag1
-    0x00007e00: S*SRC or S*SHARED
-    0x00008000: flag2
-    0x003f0000: S*SRC2 or S*CONST
-    0x00400000: flag3
-    0x00800000: use S*CONST
-    0x01000000: use S*SHARED
-    0x0e000000: addressing
-
-    Immediate instructions:
-
-    0x00000000000000fc: S*DST
-    0x0000000000000100: flag1
-    0x0000000000007e00: S*SRC or S*SHARED
-    0x0000000000008000: flag2
-    0x00000000003f0000: IMMD, low part
-    0x0000000000400000: flag3
-    0x0000000000800000: -
-    0x0000000001000000: use S*SHARED
-    0x000000000e000000: addressing
-
-    0x0ffffffc00000000: IMMD, high part
-
-    Long instructions
-
-    0x00000000000001fc: L*DST
-    0x000000000000fe00: L*SRC or L*SHARED
-    0x00000000007f0000: L*SRC2 or L*CONST2
-    0x0000000000800000: use L*CONST2
-    0x0000000001000000: use L*CONST3
-    0x000000000e000000: addressing
-
-    0x0000000400000000: addressing
-    0x0000000800000000: $o DST instead of $r
-    0x0000003000000000: $c reg to set
-    0x0000004000000000: enable setting that $c.
-
-    0x001fc00000000000: L*SRC3 or L*CONST3
-    0x0020000000000000: use L*SHARED
-    0x03c0000000000000: c[] space to use
-    0x0c00000000000000: misc flags
