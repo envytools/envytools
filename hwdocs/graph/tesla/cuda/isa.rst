@@ -552,6 +552,8 @@ field is usually used together with destination type field, located in word
     127, o[] space is written, as a direct memory operand with long
     destination field as the offset field and multiplier factor 4.
 
+  .. todo:: verify the 127 special treatment part and direct addressing
+
 - ``LHDST`` (long halfword destination):
 
   - if destination type field is 0, same as ``LRHDST``.
@@ -564,6 +566,12 @@ field is usually used together with destination type field, located in word
     to a multiple of 4, and the 16-bit result is duplicated in both low and
     high half of the 32-bit value written in o[] space.  This makes it pretty
     much useless.
+
+- ``LDDST`` (long double destination): GPR pair $r0d-$r126d, as selected by
+  the long destination field.
+
+- ``LQDST`` (long quad destination): GPR quad $r0q-$r124q, as selected by
+  the long destination field.
 
 Opcode map
 ----------
