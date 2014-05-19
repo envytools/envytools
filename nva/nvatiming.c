@@ -29,8 +29,8 @@
 #include <string.h>
 #include <getopt.h>
 #include <assert.h>
+#include <stdlib.h>
 #include "nva.h"
-#include "rnn.h"
 
 typedef unsigned char u8;
 typedef unsigned short u16;

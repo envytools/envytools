@@ -28,8 +28,8 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <getopt.h>
+#include <stdlib.h>
 #include "nva.h"
-#include "rnn.h"
 
 #define SIGNALS_LENGTH 0x100
 #define SIGNAL_VALUE(_signal, _set, _index) ((_signal)[(_set) * (0x20 * 8) + (_index)])
