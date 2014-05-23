@@ -46,7 +46,7 @@
 
 static void chksum(uint8_t *data, unsigned int length)
 {
-	uint16_t i;
+	unsigned int i;
 	uint8_t sum = 0;
 
 	data[length-1] = 0;
