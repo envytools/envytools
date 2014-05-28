@@ -16,6 +16,39 @@ types of shaders (vertex, geometry, fragment, and compute) use nearly the
 same ISA and execute on the same processors (called streaming
 multiprocessors).
 
+The Tesla CUDA ISA is used on Tesla generation GPUs (G8x, G9x, G200, GT21x,
+MCP77, MCP79, MCP89).  Older GPUs have separate ISAs for vertex and fragment
+programs.  Newer GPUs use Fermi, Kepler2, or Maxwell ISAs.
+
+Variants
+--------
+
+There are seversal variants of Tesla ISA (and the corresponding
+multiprocessors).  The features added to the ISA after the first iteration
+are:
+
+- breakpoints [G84:]
+- new barriers [G84:]
+- atomic operations on g[] space [G84:]
+- load from s[] instruction [G84:]
+- lockable s[] memory [G200:]
+- double-precision floating point [G200 *only*]
+- 64-bit atomic add on g[] space [G200:]
+- vote instructions [G200:]
+- D3D10.1 additions [GT215:]:
+  - $sampleid register (for sample shading)
+  - texprep cube instruction (for cubemap array access)
+  - texquerylod instruction
+  - texgather instruction
+- preret and indirect bra instructions [GT215:]?
+
+.. todo:: check variants for preret/indirect bra
+
+.. _tesla-warp:
+
+Warps and thread types
+----------------------
+
 Programs on Tesla MPs are executed in units called "warps".  A warp is a group
 of 32 individual threads executed together.  All threads in a warp share common
 instruction pointer, and always execute the same instruction, but have
@@ -64,6 +97,9 @@ not.  There are 4 warp types, corresponding to 4 program types:
   memory, and its size is selected by the user as part of block configuration.
   Compute warps also have random R/W access to so-called global memory areas,
   which can be arbitrarily mapped to card VM by the user.
+
+Registers
+---------
 
 The registers in Tesla ISA are:
 
@@ -142,8 +178,11 @@ The registers in Tesla ISA are:
 
   - $sr4-$sr7 aka $pm0-$pm3: :ref:`MP performance counters <nv50-mp-pm>`.
 
-  - $sr8 aka $sampleid [NVA3-]: the sample ID. Useful only in fragment
+  - $sr8 aka $sampleid [GT215:]: the sample ID. Useful only in fragment
     programs when sample shading is enabled.
+
+Memory
+------
 
 The memory spaces in Tesla ISA are:
 
@@ -207,6 +246,9 @@ The memory spaces in Tesla ISA are:
 
 .. todo:: when no-one's looking, rename the a[], p[], v[] spaces to something
    sane.
+
+Other execution state and resources
+-----------------------------------
 
 There's also a fair bit of implicit state stored per-warp for control flow:
 

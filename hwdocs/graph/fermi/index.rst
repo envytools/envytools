@@ -9,6 +9,6 @@ Contents:
    pgraph
    macro
    ctxctl/index
+   cuda/index
    3d
-   isa
    compute
