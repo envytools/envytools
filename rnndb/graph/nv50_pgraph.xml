@@ -1035,9 +1035,11 @@
 		</array>
 		<array offset="0x300" name="MPC" stride="0x100" length="1">
 			<reg32 offset="0x04" name="CONFIG">
-				<!-- if 0: traps kill offending warp, brkpt is a nop
-				     if 1: traps & brkpt pause offending warp -->
-				<bitfield pos="13" name="MP_DEBUG_ENABLE"/>
+				<!--
+			       		if 0: traps & brkpt pause offending warp
+					if 1: traps kill offending warp, brkpt is a nop
+				-->
+				<bitfield pos="13" name="MP_DEBUG_DISABLE"/>
 			</reg32>
 			<reg32 offset="0x1c" name="TRAP">
 				<bitfield low="0" high="30" name="TRAP" type="nv50_mpc_trap"/>
