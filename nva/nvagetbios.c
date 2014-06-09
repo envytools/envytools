@@ -123,7 +123,7 @@ int vbios_extract_prom(int cnum, uint8_t *vbios, int *length)
 	uint32_t ret = EUNK;
 	int i;
 
-	fprintf(stderr, "Attempt to extract the vbios from card %i (nv%02x) using PROM\n",
+	fprintf(stderr, "Attempt to extract the vbios from card %i (nv%02x) using PROM.\n",
 			cnum, nva_cards[cnum]->chipset.chipset);
 
 	int32_t prom_offset;
@@ -176,7 +176,7 @@ int vbios_extract_pramin(int cnum, uint8_t *vbios, int *length)
 		return ECARD;
 	}
 
-	fprintf(stderr, "Attempt to extract the vbios from card %i (nv%02x) using PRAMIN\n",
+	fprintf(stderr, "Attempt to extract the vbios from card %i (nv%02x) using PRAMIN.\n",
 			cnum, nva_cards[cnum]->chipset.chipset);
 
 	if (nva_cards[cnum]->chipset.card_type >= 0x50) {
@@ -253,8 +253,11 @@ int main(int argc, char **argv) {
 	}
 
 	/* Extraction */
-	if (strcasecmp(source, "pramin") == 0)
+	if (strcasecmp(source, "pramin") == 0) {
 		result = vbios_extract_pramin(cnum, vbios, &length);
+		if (result == ESIG)
+			fprintf(stderr, "You may want to run nvagetbios -s prom instead!\n");
+	}
 	else if (strcasecmp(source, "prom") == 0)
 		result = vbios_extract_prom(cnum, vbios, &length);
 	else {
@@ -268,6 +271,11 @@ int main(int argc, char **argv) {
 		/* print the vbios on stdout */
 		fwrite(vbios, 1, length, stdout);
 	}
+
+	if (result == EOK)
+		fprintf(stderr, "Vbios extracted successfully!\n");
+	else if (result == ESIG)
+		fprintf(stderr, "Vbios extracted but it may be corrupted!\n");
 
 	return result != EOK;
 }
