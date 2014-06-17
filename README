@@ -7,7 +7,8 @@ anywhere else will result in a de-facto fork!
 
 Subdirectories:
 
- - hwdocs: plain-text documentation of the GPUs (in-sync HTML version at http://envytools.rtfd.org)
+ - docs: plain-text documentation of the GPUs, nVidia binary driver, and
+   the tools (in-sync HTML version at http://envytools.rtfd.org)
  - envydis: Disassembler and assembler for various ISAs found on nvidia GPUs
  - rnn: Tools and libraries for the rules-ng-ng XML register database format
  - rnndb: rnn database of nvidia MMIO registers, FIFO methods, and memory

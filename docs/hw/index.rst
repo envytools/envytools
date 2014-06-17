@@ -23,13 +23,4 @@ Contents:
    pcounter/index
    display/index
 
-   todo
-
 .. todo:: convert glossary
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`search`
