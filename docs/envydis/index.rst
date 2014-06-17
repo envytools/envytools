@@ -35,7 +35,7 @@ Input subranging
 
   Assume the start of input to be at address <base> in code segment
 
-.. option:: <skip>
+.. option:: -s <skip>
 
   Skip/discard that many bytes of input before starting to read code
 
