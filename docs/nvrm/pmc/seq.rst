@@ -99,13 +99,13 @@ Opcode    Params    Description
 0x13      1         :ref:`WAIT <falcon-seq-op-wait>`
 0x14
 0x15
-0x16      1         :ref:`EXIT <falcon_seq-op-exit>`
+0x16      1         :ref:`EXIT <falcon-seq-op-exit>`
 0x17      1         :ref:`COMPARE last value <falcon-seq-op-cmp>`
 0x18      1         :ref:`BRANCH EQ <falcon-seq-op-branch-eq>`
 0x19      1         :ref:`BRANCH NEQ <falcon-seq-op-branch-neq>`
 0x1a      1         :ref:`BRANCH LT <falcon-seq-op-branch-lt>`
 0x1b      1         :ref:`BRANCH GT <falcon-seq-op-branch-gt>`
-0x1c      1         :ref:`BRANCH <falcon_seq-op-branch>`
+0x1c      1         :ref:`BRANCH <falcon-seq-op-branch>`
 0x1d      0         :ref:`IRQ_DISABLE <falcon-seq-op-irq-disable>`
 0x1e      0         :ref:`IRQ_ENABLE <falcon-seq-op-irq-enable>`
 0x1f      1         :ref:`AND last value, register <falcon-seq-op-and-ind-last>`
