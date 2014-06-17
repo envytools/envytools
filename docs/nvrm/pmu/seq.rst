@@ -10,7 +10,7 @@ Introduction
 ============
 
 NVIDIA uses PDAEMON for power-management related functions, including DVFS. For this
-they extended the firmware, PMC, with a scripting language called seq. Scripts are
+they extended the firmware, PMU, with a scripting language called seq. Scripts are
 uploaded through :ref:`falcon data I/O <falcon-io-data>`.
 
 .. _falcon-seq-isa:
@@ -30,7 +30,7 @@ A script ends with 0x0. In the pseudo-code in the rest of this document, the fol
 - op aliases \*pc & 0xffff
 - params aliases (\*pc & 0xffff0000) >> 16
 - param[] points to the first parameter, the first word after \*pc
-- PMC reserves 0x5c bytes on the stack for general usage, starting at sp+0x24
+- PMU reserves 0x5c bytes on the stack for general usage, starting at sp+0x24
 - scratch[] is a pointer to scratchpad memory from 0x3e0 onward.
 
 Stack layout
@@ -90,9 +90,9 @@ Opcode    Params    Description
 0x0a      0         :ref:`READ last register <falcon-seq-op-read-last>`
 0x0b      1         :ref:`READ last register <falcon-seq-op-read-last>`
 0x0c      1         :ref:`READ last register <falcon-seq-op-read-last>`
-0x0d      0         :ref:`WRITE last register <falcon-seq-op-read-last>`
-0x0e      1         :ref:`WRITE last register <falcon-seq-op-read-last>`
-0x0f      1         :ref:`WRITE last register <falcon-seq-op-read-last>`
+0x0d      0         :ref:`WRITE last register <falcon-seq-op-write-last>`
+0x0e      1         :ref:`WRITE last register <falcon-seq-op-write-last>`
+0x0f      1         :ref:`WRITE last register <falcon-seq-op-write-last>`
 0x10      0         :ref:`EXIT <falcon-seq-op-exit>`
 0x11      0         :ref:`EXIT <falcon-seq-op-exit>`
 0x12      0         :ref:`EXIT <falcon-seq-op-exit>`
