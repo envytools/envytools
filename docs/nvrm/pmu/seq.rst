@@ -721,7 +721,7 @@ Operation:
                 exit(pc);
 
         idx = param[0];
-        if(idx >= unk3e0.u08)
+        if(idx >= out_words.u08)
                 exit(pc);
         
         flag_eq = 0;
@@ -841,7 +841,7 @@ Operation:
         if (call_timer_wait(seq_cb_wait, param[0], param[1]))
                 break;
 
-        unk3ec[2] |= 1;
+        val_ret |= 1;
         flag_eq = 1;
 
 .. _falcon-seq-op-irq-disable:
