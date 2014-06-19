@@ -97,8 +97,8 @@ Opcode    Params    Description
 0x11      0         :ref:`EXIT <falcon-seq-op-exit>`
 0x12      0         :ref:`EXIT <falcon-seq-op-exit>`
 0x13      1         :ref:`WAIT <falcon-seq-op-wait>`
-0x14
-0x15
+0x14      2         :ref:`WAIT STATUS <falcon-seq-op-wait-status>`
+0x15      2         :ref:`WAIT BITMASK last <falcon-seq-op-wait-bitmask-last>`
 0x16      1         :ref:`EXIT <falcon-seq-op-exit>`
 0x17      1         :ref:`COMPARE last value <falcon-seq-op-cmp>`
 0x18      1         :ref:`BRANCH EQ <falcon-seq-op-branch-eq>`
@@ -146,7 +146,7 @@ SET last
 Set the last register/value in scratch memory.
 
 Opcode:
-	0x00
+        0x00
         0x01
 Parameters:
         1
@@ -692,16 +692,16 @@ Operation:
     ::
 
         target = param[0].s16;
-	if(target >= in_words)
-		exit(target);
+        if(target >= in_words)
+                exit(target);
 
-	word_exit = $r9.s16
-	target &= 0xffff;
-	target <<= 2;
-	pc = in_start + target;
-	
+        word_exit = $r9.s16
+        target &= 0xffff;
+        target <<= 2;
+        pc = in_start + target;
+
         if(pc >= in_end)
-		exit(in_end);
+                exit(in_end);
 
 .. _falcon-seq-op-cmp-out:
 
@@ -755,6 +755,95 @@ Operation:
                 mmrd(0);
         call_timer_wait_nf(param[0]);
 
+.. _falcon-seq-op-wait-status:
+
+WAIT STATUS
+-----------
+Shifts val_ret left by 1 position, and waits until a status bit is set/unset. Sets flag_eq and the LSB of val_ret on success. The second parameter contains the timeout. The first parameter encodes the desired status:
+
+======== ========================
+param[0] Test
+======== ========================
+0        UNKNOWN(0x01)
+1        !UNKNOWN(0x01)
+2        FB_PAUSED
+3        !FB_PAUSED
+4        CRTC0_VBLANK
+5        !CRTC0_VBLANK
+6        CRTC1_VBLANK
+7        !CRTC1_VBLANK
+8        CRTC0_HBLANK
+9        !CRTC0_HBLANK
+10       CRTC1_HBLANK
+11       !CRTC1_HBLANK
+======== ========================
+
+Todo:
+        Why isn't flag_eq unset on failure?
+Opcode:
+        0x14
+Parameters:
+        2
+Operation:
+    ::
+
+        val_ret *= 2;
+        test_params[1] = param[0] & 1;
+        test_params[2] = I[0x7c4];
+
+        switch ((param[0] & ~1) - 2) {
+                default:
+                        test_params[0] = 0x01;
+                        break;
+                case 0:
+                        test_params[0] = 0x04;
+                        break;
+                case 2:
+                        test_params[0] = 0x08;
+                        break;
+                case 4:
+                        test_params[0] = 0x20;
+                        break;
+                case 6:
+                        test_params[0] = 0x10;
+                        break;
+                case 8:
+                        test_params[0] = 0x40;
+                        break;
+        }
+
+        if (call_timer_wait(&input_bittest, test_params, param[1])) {
+                flag_eq = 1;
+                val_ret |= 1;
+        }
+
+.. _falcon-seq-op-wait-bitmask-last:
+
+WAIT BITMASK last
+-----------------
+Shifts val_ret left by 1 position, and waits until the AND operation of the register pointed in reg_last and the first parameter equals val_last. Sets flag_eq and the LSB of val_ret on success. The first parameter encodes the bitmask to test. The second parameter contains the timeout.
+
+Todo:
+        Why isn't flag_eq unset on failure?
+
+Opcode:
+        0x15
+Parameters:
+        2
+Operation:
+    ::
+
+        b32 seq_cb_wait(b32 parm) {
+                return (mmrd(last_reg) & parm) == last_val;
+        }
+
+        val_ret *= 2;
+        if (call_timer_wait(seq_cb_wait, param[0], param[1]))
+                break;
+
+        unk3ec[2] |= 1;
+        flag_eq = 1;
+
 .. _falcon-seq-op-irq-disable:
 
 IRQ_DISABLE
@@ -774,7 +863,7 @@ Operation:
 .. _falcon-seq-op-irq-enable:
 
 IRQ_ENABLE
------------
+----------
 Decrement reference counter ``irqlock_lvl``, enable IRQs if 0.
 
 Opcode:
