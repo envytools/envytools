@@ -13,6 +13,7 @@ configure_file(rnn_path.h.in rnn_path.h ESCAPE_QUOTES)
 include_directories(${PROJECT_BINARY_DIR})
 
 add_library(rnn rnn.c rnndec.c)
+add_library(seq seq.c)
 
 add_executable(demmio demmio.c)
 add_executable(headergen headergen.c)
@@ -22,7 +23,7 @@ add_executable(rnncheck rnncheck.c)
 add_executable(mmt_bin2text mmt_bin2text.c mmt_bin2text_nvidia.c)
 
 target_link_libraries(rnn ${LIBXML2_LIBRARIES} envyutil)
-target_link_libraries(demmio envy nvhw rnn)
+target_link_libraries(demmio envy nvhw rnn seq)
 target_link_libraries(headergen rnn)
 target_link_libraries(dedma rnn)
 target_link_libraries(lookup rnn)

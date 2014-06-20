@@ -29,6 +29,7 @@
 #include "dis.h"
 #include "util.h"
 #include "nvhw.h"
+#include "seq.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
@@ -62,6 +63,15 @@ struct cctx {
 	uint64_t bar0, bar0l, bar1, bar1l, bar2, bar2l;
 	struct i2c_ctx i2cb[10];
 	int crx0, crx1;
+	struct {
+		uint32_t len;
+		uint32_t script[2048];
+		enum {
+			SEQ_NONE = 0,
+			SEQ_PRINT,
+			SEQ_SKIP,
+		} action;
+	} seq;
 };
 
 struct cctx *cctx = 0;
@@ -323,6 +333,15 @@ int main(int argc, char **argv) {
 						envydis(hwsq_isa, stdout, cc->hwsq, 0, cc->hwsqnext & 0x3fc, var, 0, 0, 0, colors);
 						cc->hwsqip = 0;
 					}
+					/* Seq */
+					if (cc->seq.action == SEQ_SKIP && addr != 0x10a1c4) {
+						cc->seq.action = SEQ_NONE;
+					} else if (cc->seq.action == SEQ_PRINT && addr != 0x10a1c4) {
+						seq_print(cc->seq.script, cc->seq.len);
+						cc->seq.len = 0;
+						cc->seq.action = SEQ_NONE;
+					}
+
 					if (addr == 0 && !cc->chipset.chipset) {
 						parse_pmc_id(value, &cc->chipset);
 						if (cc->chipset.chipset) {
@@ -394,6 +413,27 @@ int main(int argc, char **argv) {
 						cc->hwsqip = 1;
 						cc->hwsqnext = addr + 4;
 						skip = 1;
+					} else if (addr == 0x10a1c4) {
+						if (cc->seq.action == SEQ_NONE) {
+							/* Crude test whether this vaguely looks like an opcode..
+							 * print will do a more thorough check */
+							if ((value & 0xfc00ffc0) == 0 && value != 0) {
+								cc->seq.action = SEQ_PRINT;
+							} else {
+								cc->seq.action = SEQ_SKIP;
+							}
+						}
+
+						if(cc->seq.action == SEQ_PRINT) {
+							if (cc->seq.len < 2048) {
+								cc->seq.script[cc->seq.len] = value;
+								cc->seq.len++;
+							} else {
+								printf("[%d] PDAEMON  %06"PRIx64" Script too long, skipping\n", cci, addr);
+								cc->seq.len = 0;
+								cc->seq.action = SEQ_SKIP;
+							}
+						}
 					} else if (addr == 0x400324 && cc->chipset.card_type >= 0x40 && cc->chipset.card_type <= 0x50) {
 						cc->ctxpos = value;
 					} else if (addr == 0x400328 && cc->chipset.card_type >= 0x40 && cc->chipset.card_type <= 0x50) {
