@@ -24,9 +24,9 @@ add_subdirectory(nvhw)
 add_subdirectory(hwtest)
 
 # Get the list of hwdoc files to install them in a flat directory
-file(GLOB_RECURSE HWDOCS_SRC hwdocs/*)
+file(GLOB_RECURSE HWDOCS_SRC docs/*)
 # Get the full patch to .gitignore and remove it from the list
-file(GLOB GITIGNORE hwdocs/.gitignore)
+file(GLOB GITIGNORE docs/.gitignore)
 list(REMOVE_ITEM HWDOCS_SRC ${GITIGNORE})
 
 install(DIRECTORY include/ DESTINATION include/envytools)
