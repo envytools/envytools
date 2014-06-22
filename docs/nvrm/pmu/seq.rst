@@ -120,7 +120,7 @@ Opcode    Params    Description
 0x28      1         :ref:`READ OUT last register <falcon-seq-op-read-out-last-reg>`
 0x29      1         :ref:`READ OUT indirect last register <falcon-seq-op-read-out-last-reg>`
 0x2a      2         :ref:`ADD OUT <falcon-seq-op-add-out>`
-0x17      1         :ref:`COMPARE OUT <falcon-seq-op-cmp-out>`
+0x2b      1         :ref:`COMPARE OUT <falcon-seq-op-cmp-out>`
 0x2c      1         :ref:`OR last value, register <falcon-seq-op-or-ind-last>`
 0x2d      2         XXX: Display-related
 0x2e      1         :ref:`WAIT <falcon-seq-op-wait>`
