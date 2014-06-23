@@ -46,6 +46,7 @@ if (NOT DISABLE_NVA)
 			nvaxtinsn
 			nvavucstart
 			nvafucstart
+			nvagetpmu
 			nvaupload
 			nvadownload
 			evotiming
