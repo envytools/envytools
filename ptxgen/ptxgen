@@ -62,7 +62,7 @@ sub gen_ptx{
 }
 my $ver  = $v||"3.1";
 my $arch = $a||"sm_35";
-my $dir  = $d||"./data";
+my $dir  = $d||"./data/ptx";
 $dir.="/";
 
 #shorthands
