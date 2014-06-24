@@ -759,7 +759,9 @@ Operation:
 
 WAIT STATUS
 -----------
-Shifts val_ret left by 1 position, and waits until a status bit is set/unset. Sets flag_eq and the LSB of val_ret on success. The second parameter contains the timeout. The first parameter encodes the desired status:
+Shifts val_ret left by 1 position, and waits until a status bit is set/unset. Sets flag_eq and the LSB of val_ret on success. The second parameter contains the timeout.The first parameter encodes the desired status.
+
+*Old blob*
 
 ======== ========================
 param[0] Test
@@ -778,13 +780,35 @@ param[0] Test
 11       !CRTC1_HBLANK
 ======== ========================
 
+*New blob*
+
+In newer blobs (like 337.25), bit 16 encodes negation. Bit 8:10 the status type to wait for, and where applicable bit 0 chooses the CRTC.
+
+======== ========================
+param[0] Test
+======== ========================
+0x0      CRTC0_VBLANK
+0x1      CRTC1_VBLANK
+0x100    CRTC0_HBLANK
+0x101    CRTC1_HBLANK
+0x300    FB_PAUSED
+0x400    PGRAPH_IDLE
+0x10000  !CRTC0_VBLANK
+0x10001  !CRTC1_VBLANK
+0x10100  !CRTC0_HBLANK
+0x10101  !CRTC1_HBLANK
+0x10300  !FB_PAUSED
+0x10400  !PGRAPH_IDLE
+======== ========================
+
 Todo:
         Why isn't flag_eq unset on failure?
+        Find out switching point from old to new format?
 Opcode:
         0x14
 Parameters:
         2
-Operation:
+Operation *OLD BLOB*:
     ::
 
         val_ret *= 2;
@@ -815,6 +839,50 @@ Operation:
         if (call_timer_wait(&input_bittest, test_params, param[1])) {
                 flag_eq = 1;
                 val_ret |= 1;
+        }
+        
+Operation *NEW BLOB*:
+    ::
+
+        b32 func(b32 *) *f;
+        unk3ec[2] <<= 1;
+
+        test_params[2] = 0x1f100; // 7c4
+        test_params[1] = (param[0] >> 16) & 0x1;
+
+        switch(param[0] & 0xffff) {
+        case 0x0:
+                test_params[0] = 0x8;
+                f = &input_test
+                break;
+        case 0x1:
+                test_params[0] = 0x20;
+                f = &input_test
+                break;
+        case 0x100:
+                test_params[0] = 0x10;
+                f = &input_test
+                break;
+        case 0x101:
+                test_params[0] = 0x40;
+                f = &input_test
+                break;
+        case 0x300:
+                test_params[0] = 0x04;
+                f = &input_test
+                break;
+        case 0x400:
+                test_params[0] = 0x400;
+                f = &pgraph_test;
+                break;
+        default:
+                f = NULL;
+                break;
+        }
+
+        if(f && timer_wait(f, param, timeout) != 0) {
+                unk3e8 = 1;
+                unk3ec[2] |= 1;
         }
 
 .. _falcon-seq-op-wait-bitmask-last:
