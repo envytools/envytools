@@ -114,7 +114,7 @@ const struct seq_op seq_ops[] = {
 	OP("MOV TS",2),
 	OP("EXIT",1),
 	OP("EXIT",1),
-	OP("EXIT",1),
+	OP("NOP",0),
 	OP("EXIT",1),
 	OP("EXIT",1),
 	OP_ADD(2),
