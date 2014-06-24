@@ -27,7 +27,7 @@
 
 <bitset name="nva3_pll_src" inline="yes">
 	<doc>VCO = (2 * VCO_SRC) / VCO_DIV</doc>
-	<bitfield pos="0" name="UNK0"/>
+	<bitfield pos="0" name="VCO_ENABLE"/>
 	<bitfield low="4" high="5" name="VCO_SRC">
 		<value value="0" name="RPLL1"/>
 		<value value="1" name="RPLL1"/>
@@ -39,7 +39,8 @@
 		<value value="1" name="108000"/>
 	</bitfield>
 	<bitfield pos="8" name="ENABLE"/>
-	<bitfield low="9" high="10" name="UNK9"/>
+	<bitfield pos="9" name="CRYSTAL_DISABLE"/>
+	<bitfield pos="10" name="108000"/>
 	<bitfield low="12" high="13" name="OUTPUT">
 		<value value="0" name="CRYSTAL"/>
 		<value value="1" name="DISABLED"/>
@@ -103,8 +104,8 @@
 		</doc>
 	</reg32>
 
-	<!-- isn't used by the blob. All the bits writable -->
-	<reg32 offset="0x04c" name="UNK4C" />
+	<!-- 00c048: 00000000 00008301 00000000 *-->
+	<reg32 offset="0x048" name="UNK048" />
 
 	<reg32 offset="0x050" name="CLOCK_SOURCE">
 		<!-- mode 1 and 3 are the same. 0 and 2 crash the card -->
