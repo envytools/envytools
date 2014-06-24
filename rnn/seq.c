@@ -148,6 +148,7 @@ seq_print(uint32_t *script, uint32_t len)
 	unsigned int pc, op, size;
 	char *reg0;
 	unsigned int reg1, i;
+	const char *wait_op;
 
 	/* Validate script, bail if invalid */
 	for(pc = 0; pc < len; pc += size) {
@@ -225,8 +226,35 @@ seq_print(uint32_t *script, uint32_t len)
 			seq_out_op(pc,op,"%u ns\n",script[pc+1]);
 			break;
 		case 0x14:
-			/* XXX: Something changed between the ISA I re'd and the one observed in traces */
-			seq_out_op(pc,op,"%s, %u ns\n",seq_wait_status[script[pc+1] & 0xff],script[pc+2]);
+			//seq_out_op(pc,op,"%s, %u ns\n",seq_wait_status[script[pc+1] & 0xff],script[pc+2]);
+			switch(script[pc+1] & 0xffff) {
+			case 0x0:
+				wait_op = "CRTC0_VBLANK";
+				break;
+			case 0x1:
+				wait_op = "CRTC1_VBLANK";
+				break;
+			case 0x100:
+				wait_op = "CRTC0_HBLANK";
+				break;
+			case 0x101:
+				wait_op = "CRTC1_HBLANK";
+				break;
+			case 0x300:
+				wait_op = "FB_PAUSED   ";
+				break;
+			case 0x400:
+				wait_op = "PGRAPH_IDLE ";
+				break;
+			default:
+				seq_out(pc,"Invalid param %08x for op 0x14\n", script[pc+1]);
+			}
+
+			if(script[pc+1] & 0x10000) {
+				seq_out_op(pc,op,"!%s , %u ns\n",wait_op,script[pc+2]);
+			} else {
+				seq_out_op(pc,op,"%s  , %u ns\n",wait_op,script[pc+2]);
+			}
 			break;
 		case 0x15:
 			seq_out_op(pc,op,"R[last_reg] & 0x%08x == val_last, %u ns\n",script[pc+1],script[pc+2]);
