@@ -131,6 +131,8 @@ Opcode    Params    Description
 0x33      1         :ref:`AND OUT indirect last value <falcon-seq-op-and-out>`
 0x34      1         :ref:`WRITE OUT TIMESTAMP <falcon-seq-op-write-out-ts>`
 0x35      1         :ref:`WRITE OUT TIMESTAMP indirect <falcon-seq-op-write-out-ts>`
+0x3b      1         :ref:`ADD last value, OUT <falcon-seq-op-add-last-out>`
+0x3c      1         :ref:`ADD last value, OUT indirect <falcon-seq-op-add-last-out>`
 other     0         :ref:`EXIT <falcon-seq-op-exit>`
 ========= ========= =================================================================
 
@@ -533,6 +535,34 @@ Operation:
         }
 
         out_start[idx] |= scratch->val_last;
+
+.. _falcon-seq-op-or-out:
+
+ADD last value, OUT
+-------------------
+Add a value in OUT to val_last.
+
+Opcode:
+        0x3b
+        0x3c
+Parameters:
+        1
+Operation:
+    ::
+
+        if (!out_start)
+                exit(pc);
+        idx = param[0];
+        if(idx >= out_len)
+                exit(pc);
+
+        /* Indirect
+        if(!op & 0x1) {
+                idx = out_start[idx];
+                if (idx >= out_words.u08)
+                        exit(pc);
+        }
+        val_last += out_start[idx];
 
 .. _falcon-seq-op-and-out:
 
