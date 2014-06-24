@@ -540,7 +540,7 @@ Operation:
 
         out_start[idx] |= scratch->val_last;
 
-.. _falcon-seq-op-or-out:
+.. _falcon-seq-op-add-last-out:
 
 ADD last value, OUT
 -------------------
