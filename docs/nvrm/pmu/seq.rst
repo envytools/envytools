@@ -74,6 +74,9 @@ u32     val_ret     Holds a return value written back to sp[80] after successful
 Opcodes
 =======
 
+XXX: Gaps are all sorts of exit routines. Not clear how the exit procedure works
+wrt status propagation.
+
 ========= ========= =================================================================
 Opcode    Params    Description
 ========= ========= =================================================================
@@ -131,6 +134,7 @@ Opcode    Params    Description
 0x33      1         :ref:`AND OUT indirect last value <falcon-seq-op-and-out>`
 0x34      1         :ref:`WRITE OUT TIMESTAMP <falcon-seq-op-write-out-ts>`
 0x35      1         :ref:`WRITE OUT TIMESTAMP indirect <falcon-seq-op-write-out-ts>`
+0x38      0         NOP
 0x3b      1         :ref:`ADD last value, OUT <falcon-seq-op-add-last-out>`
 0x3c      1         :ref:`ADD last value, OUT indirect <falcon-seq-op-add-last-out>`
 other     0         :ref:`EXIT <falcon-seq-op-exit>`
