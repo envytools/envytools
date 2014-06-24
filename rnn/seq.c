@@ -112,6 +112,13 @@ const struct seq_op seq_ops[] = {
 	OP_AND(2),
 	OP("MOV TS",2),
 	OP("MOV TS",2),
+	OP("EXIT",1),
+	OP("EXIT",1),
+	OP("EXIT",1),
+	OP("EXIT",1),
+	OP("EXIT",1),
+	OP_ADD(2),
+	OP_ADD(2),
 };
 
 const char * const seq_wait_status[] = {
@@ -168,7 +175,7 @@ seq_print(uint32_t *script, uint32_t len)
 		op = script[pc] & 0xffff;
 		size = (script[pc] & 0xffff0000) >> 16;
 
-		if(op > 0x35) {
+		if(op > 0x3c) {
 			seq_out(pc,"Invalid op\n");
 			return;
 		}
@@ -311,10 +318,12 @@ seq_print(uint32_t *script, uint32_t len)
 			seq_out_op(pc,op,"OUT[OUT[0x%x]] :=  %08x\n", script[pc+1], script[pc+2]);
 			break;
 		case 0x26:
-			seq_out_op(pc,op,"val_last      :=  OUT[0x%x]\n", script[pc+1]);
+		case 0x3b:
+			seq_out_op(pc,op,"val_last      %s OUT[0x%x]\n", seq_ops[op].binop, script[pc+1]);
 			break;
 		case 0x27:
-			seq_out_op(pc,op,"val_last      :=  OUT[OUT[0x%x]]\n", script[pc+1]);
+		case 0x3c:
+			seq_out_op(pc,op,"val_last      %s OUT[OUT[0x%x]]\n", seq_ops[op].binop, script[pc+1]);
 			break;
 		case 0x28:
 			seq_out_op(pc,op,"reg_last      :=  OUT[0x%x]\n", script[pc+1]);
@@ -338,6 +347,7 @@ seq_print(uint32_t *script, uint32_t len)
 			seq_out_op(pc,op,"OUT[OUT[0x%x]]\n", script[pc+1]);
 			break;
 		default:
+			seq_out_op(pc,op,"\n");
 			break;
 		}
 	}
