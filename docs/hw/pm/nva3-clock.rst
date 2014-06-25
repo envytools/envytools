@@ -56,6 +56,12 @@ MMIO registers
    .. todo:: write me
 
 
+PLL Source
+----------
+.. image:: nva3-pll_src.svg
+   :width: 725px
+   :alt: PLL source circuitry
+
 .. _nva3-clock-tclk:
 
 TCLK: timer clock
