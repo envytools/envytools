@@ -40,7 +40,7 @@
 	</bitfield>
 	<bitfield pos="8" name="ENABLE"/>
 	<bitfield pos="9" name="CRYSTAL_DISABLE"/>
-	<bitfield pos="10" name="108000"/>
+	<bitfield pos="10" name="OUT_ALT"/>
 	<bitfield low="12" high="13" name="OUTPUT">
 		<value value="0" name="CRYSTAL"/>
 		<value value="1" name="DISABLED"/>
