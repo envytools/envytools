@@ -56,11 +56,17 @@ MMIO registers
    .. todo:: write me
 
 
-PLL Source
-----------
+Clock source
+---------------
 .. image:: nva3-pll_src.svg
    :width: 725px
    :alt: PLL source circuitry
+
+PLL-based clock
+--------------------
+.. image:: nva3-clk.svg
+   :width: 410px
+   :alt: PLL-based clock
 
 .. _nva3-clock-tclk:
 

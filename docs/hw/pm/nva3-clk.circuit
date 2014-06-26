@@ -1,0 +1,45 @@
+<!DOCTYPE KTechlab>
+<document type="circuit" >
+ <item x="60" y="316" z="0" type="ec/dac" id="dac" flip="0" angle="0" >
+  <data value="2" type="number" id="numBits" />
+  <data value="5" type="number" id="range" />
+ </item>
+ <item x="180" y="196" z="1" type="ec/dac" id="dac__1" flip="0" angle="0" >
+  <data value="5" type="number" id="numBits" />
+  <data value="5" type="number" id="range" />
+ </item>
+ <item x="60" y="252" z="2" type="ec/dac" id="dac__2" flip="0" angle="0" >
+  <data value="2" type="number" id="numBits" />
+  <data value="5" type="number" id="range" />
+ </item>
+ <item x="52" y="92" z="3" type="ec/external_connection" id="external_connection" flip="0" angle="270" >
+  <data value="PLL.BYPASS_LOCK_TEST" type="string" id="name" />
+ </item>
+ <item x="116" y="92" z="4" type="ec/external_connection" id="external_connection__3" flip="0" angle="270" >
+  <data value="PLL.POWER_ON" type="string" id="name" />
+ </item>
+ <item x="84" y="92" z="5" type="ec/external_connection" id="external_connection__4" flip="0" angle="270" >
+  <data value="PLL.ENABLE" type="string" id="name" />
+ </item>
+ <item x="260" y="92" z="6" type="ec/external_connection" id="external_connection__5" flip="0" angle="270" >
+  <data value="PLL.BYPASS" type="string" id="name" />
+ </item>
+ <item x="20" y="92" z="7" type="ec/external_connection" id="external_connection__6" flip="0" angle="270" >
+  <data value="PLL.COEFF" type="string" id="name" />
+ </item>
+ <item x="380" y="220" z="8" type="ec/logic_output" id="logic_output" flip="0" angle="0" />
+ <item x="316" y="220" z="9" type="ec/multiplexer" id="multiplexer" flip="0" angle="0" >
+  <data value="1" type="number" id="addressSize" />
+ </item>
+ <item x="52" y="164" z="10" type="ec/inverter" id="not" flip="0" angle="90" />
+ <connector start-node-is-child="1" manual-route="1" end-node-parent="logic_output" route="44,27,45,27," end-node-cid="n1" start-node-parent="multiplexer" start-node-cid="X" id="connector" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="1" end-node-parent="multiplexer" route="32,13,32,14,32,15,32,16,32,17,32,18,32,19,32,20,32,21,32,22,32,23,32,24,32,25,33,25,34,25," end-node-cid="A0" start-node-parent="external_connection__5" start-node-cid="n1" id="connector__10" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="1" end-node-parent="dac__1" route="14,13,14,14,14,15,14,16,14,17,14,18,14,19,14,20,15,20,16,20,17,20," end-node-cid="0" start-node-parent="external_connection__3" start-node-cid="n1" id="connector__11" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="1" end-node-parent="dac__1" route="10,13,10,14,10,15,10,16,10,17,10,18,10,19,10,20,10,21,10,22,11,22,12,22,13,22,14,22,15,22,16,22,17,22," end-node-cid="1" start-node-parent="external_connection__4" start-node-cid="n1" id="connector__12" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="1" end-node-parent="dac__1" route="2,13,2,14,2,15,2,16,2,17,2,18,2,19,2,20,2,21,2,22,2,23,2,24,2,25,2,26,3,26,4,26,5,26,6,26,7,26,8,26,9,26,10,26,11,26,12,26,13,26,14,26,15,26,16,26,17,26," end-node-cid="3" start-node-parent="external_connection__6" start-node-cid="n1" id="connector__13" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="1" end-node-parent="not" route="6,13,6,14,6,15,6,16,6,17,6,18," end-node-cid="n1" start-node-parent="external_connection" start-node-cid="n1" id="connector__14" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="1" end-node-parent="dac__1" route="6,22,6,23,6,24,7,24,8,24,9,24,10,24,11,24,12,24,13,24,14,24,15,24,16,24,17,24," end-node-cid="2" start-node-parent="not" start-node-cid="p1" id="connector__15" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="1" end-node-parent="multiplexer" route="27,24,28,24,28,25,28,26,28,27,29,27,30,27,31,27,32,27,33,27,34,27," end-node-cid="X0" start-node-parent="dac__1" start-node-cid="Out" id="connector__7" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="1" end-node-parent="multiplexer" route="12,38,13,38,14,38,15,38,16,38,17,38,18,38,19,38,20,38,21,38,22,38,23,38,24,38,25,38,26,38,27,38,28,38,28,37,28,36,28,35,28,34,28,33,28,32,28,31,28,30,28,29,29,29,30,29,31,29,32,29,33,29,34,29," end-node-cid="X1" start-node-parent="dac" start-node-cid="Out" id="connector__8" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="1" end-node-parent="dac__1" route="12,30,13,30,13,29,13,28,14,28,15,28,16,28,17,28," end-node-cid="4" start-node-parent="dac__2" start-node-cid="Out" id="connector__9" end-node-is-child="1" />
+</document>

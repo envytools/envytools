@@ -1,0 +1,115 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20001102//EN" "http://www.w3.org/TR/2000/CR-SVG-20001102/DTD/svg-20001102.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" width="404" x="-4" y="0" height="356" id="/home/roy/Projects/nouveau/envytools/docs/hw/pm/nva3-clk" >
+ <rect width="408" x="-4" y="6" height="350" style="stroke:rgb(0,0,0);stroke-width:0;fill:rgb(255,255,255);" />
+ <rect width="408" x="-4" y="6" height="350" style="stroke:rgb(0,0,0);stroke-width:0;fill:rgb(255,255,255);" />
+ <line style="stroke:rgb(0,0,0);stroke-width:1;fill:none;" y1="220" y2="220" x1="356" x2="364" />
+ <line style="stroke:rgb(0,0,0);stroke-width:1;fill:none;" y1="108" y2="204" x1="260" x2="260" />
+ <line style="stroke:rgb(0,0,0);stroke-width:1;fill:none;" y1="204" y2="204" x1="260" x2="276" />
+ <line style="stroke:rgb(0,0,0);stroke-width:1;fill:none;" y1="108" y2="164" x1="116" x2="116" />
+ <line style="stroke:rgb(0,0,0);stroke-width:1;fill:none;" y1="164" y2="164" x1="116" x2="140" />
+ <line style="stroke:rgb(0,0,0);stroke-width:1;fill:none;" y1="108" y2="180" x1="84" x2="84" />
+ <line style="stroke:rgb(0,0,0);stroke-width:1;fill:none;" y1="180" y2="180" x1="84" x2="140" />
+ <line style="stroke:rgb(0,0,0);stroke-width:1;fill:none;" y1="108" y2="212" x1="20" x2="20" />
+ <line style="stroke:rgb(0,0,0);stroke-width:1;fill:none;" y1="212" y2="212" x1="20" x2="140" />
+ <line style="stroke:rgb(0,0,0);stroke-width:1;fill:none;" y1="108" y2="148" x1="52" x2="52" />
+ <line style="stroke:rgb(0,0,0);stroke-width:1;fill:none;" y1="180" y2="196" x1="52" x2="52" />
+ <line style="stroke:rgb(0,0,0);stroke-width:1;fill:none;" y1="196" y2="196" x1="52" x2="140" />
+ <line style="stroke:rgb(0,0,0);stroke-width:1;fill:none;" y1="196" y2="196" x1="220" x2="228" />
+ <line style="stroke:rgb(0,0,0);stroke-width:1;fill:none;" y1="196" y2="220" x1="228" x2="228" />
+ <line style="stroke:rgb(0,0,0);stroke-width:1;fill:none;" y1="220" y2="220" x1="228" x2="276" />
+ <line style="stroke:rgb(0,0,0);stroke-width:1;fill:none;" y1="308" y2="308" x1="100" x2="228" />
+ <line style="stroke:rgb(0,0,0);stroke-width:1;fill:none;" y1="308" y2="236" x1="228" x2="228" />
+ <line style="stroke:rgb(0,0,0);stroke-width:1;fill:none;" y1="236" y2="236" x1="228" x2="276" />
+ <line style="stroke:rgb(0,0,0);stroke-width:1;fill:none;" y1="244" y2="244" x1="100" x2="108" />
+ <line style="stroke:rgb(0,0,0);stroke-width:1;fill:none;" y1="244" y2="228" x1="108" x2="108" />
+ <line style="stroke:rgb(0,0,0);stroke-width:1;fill:none;" y1="228" y2="228" x1="108" x2="140" />
+ <polygon points="28 292 91 292 91 339 28 339" style="stroke:rgb(0,0,0);stroke-width:0.9;fill:rgb(247,247,255);" />
+ <polyline points="28 292 91 292 91 339 28 339" style="stroke:rgb(0,0,0);stroke-width:0.9;fill:none;" />
+ <line transform="matrix(-1,0,0,-1,100,308)" style="stroke:rgb(0,0,0);stroke-width:1;fill:rgb(0,0,0);" y1="0" y2="0" x1="0" x2="8" />
+ <text x="60" y="311" transform="matrix(1,0,0,1,1.57525e-05,0.000105767)" style="fill:rgb(0,0,0);stroke-width:0;font-size:8px;font-style:normal;font-weight:400;font-family:Sans Serif;" text-anchor="middle" >xxCLK</text>
+ <text x="60" y="321" transform="matrix(1,0,0,1,1.57525e-05,0.000105767)" style="fill:rgb(0,0,0);stroke-width:0;font-size:8px;font-style:normal;font-weight:400;font-family:Sans Serif;" text-anchor="middle" >(PLL_SRC)</text>
+ <polygon points="148 148 211 148 211 243 148 243" transform="matrix(1,0,0,1,1.57525e-05,0.000105767)" style="stroke:rgb(0,0,0);stroke-width:0.9;fill:rgb(247,247,255);" />
+ <polyline points="148 148 211 148 211 243 148 243" transform="matrix(1,0,0,1,1.57525e-05,0.000105767)" style="stroke:rgb(0,0,0);stroke-width:0.9;fill:none;" />
+ <line transform="matrix(1,0,0,1,140,164)" style="stroke:rgb(0,0,0);stroke-width:1;fill:rgb(0,0,0);" y1="0" y2="0" x1="0" x2="8" />
+ <line transform="matrix(0.999999,0,0,0.999999,140,180)" style="stroke:rgb(0,0,0);stroke-width:1;fill:rgb(0,0,0);" y1="0" y2="0" x1="0" x2="8" />
+ <line transform="matrix(0.999999,0,0,0.999999,140,196)" style="stroke:rgb(0,0,0);stroke-width:1;fill:rgb(0,0,0);" y1="0" y2="0" x1="0" x2="8" />
+ <line transform="matrix(0.999999,0,0,0.999999,140,212)" style="stroke:rgb(0,0,0);stroke-width:1;fill:rgb(0,0,0);" y1="0" y2="0" x1="0" x2="8" />
+ <line transform="matrix(0.999999,0,0,0.999999,140,228)" style="stroke:rgb(0,0,0);stroke-width:1;fill:rgb(0,0,0);" y1="0" y2="0" x1="0" x2="8" />
+ <line transform="matrix(-0.999999,0,0,-0.999999,220,196)" style="stroke:rgb(0,0,0);stroke-width:1;fill:rgb(0,0,0);" y1="0" y2="0" x1="0" x2="8" />
+ <text x="152" y="167" transform="matrix(0.999999,0,0,0.999999,0.000119269,0.000238088)" style="fill:rgb(0,0,0);stroke-width:0;font-size:10px;font-style:normal;font-weight:400;font-family:Sans Serif;" text-anchor="left" >PWR</text>
+ <text x="152" y="183" transform="matrix(0.999999,0,0,0.999999,0.000119269,0.000238088)" style="fill:rgb(0,0,0);stroke-width:0;font-size:10px;font-style:normal;font-weight:400;font-family:Sans Serif;" text-anchor="left" >EN</text>
+ <text x="152" y="199" transform="matrix(0.999999,0,0,0.999999,0.000119269,0.000238088)" style="fill:rgb(0,0,0);stroke-width:0;font-size:10px;font-style:normal;font-weight:400;font-family:Sans Serif;" text-anchor="left" >LOCK_TEST</text>
+ <text x="152" y="215" transform="matrix(0.999999,0,0,0.999999,0.000119269,0.000238088)" style="fill:rgb(0,0,0);stroke-width:0;font-size:10px;font-style:normal;font-weight:400;font-family:Sans Serif;" text-anchor="left" >COEFF</text>
+ <text x="152" y="231" transform="matrix(0.999999,0,0,0.999999,0.000119269,0.000238088)" style="fill:rgb(0,0,0);stroke-width:0;font-size:10px;font-style:normal;font-weight:400;font-family:Sans Serif;" text-anchor="left" >CLK</text>
+ <text x="195" y="168" transform="matrix(0.999999,0,0,0.999999,0.000119269,0.000238088)" style="fill:rgb(0,0,0);stroke-width:0;font-size:8px;font-style:normal;font-weight:400;font-family:Sans Serif;" text-anchor="middle" >xxPLL</text>
+ <polygon points="28 228 91 228 91 275 28 275" transform="matrix(0.999999,0,0,0.999999,0.000119269,0.000238088)" style="stroke:rgb(0,0,0);stroke-width:0.9;fill:rgb(247,247,255);" />
+ <polyline points="28 228 91 228 91 275 28 275" transform="matrix(0.999999,0,0,0.999999,0.000119269,0.000238088)" style="stroke:rgb(0,0,0);stroke-width:0.9;fill:none;" />
+ <line transform="matrix(-0.999999,0,0,-0.999999,100,244)" style="stroke:rgb(0,0,0);stroke-width:1;fill:rgb(0,0,0);" y1="0" y2="0" x1="0" x2="8" />
+ <text x="60" y="247" transform="matrix(0.999999,0,0,0.999999,0.000135021,0.000322251)" style="fill:rgb(0,0,0);stroke-width:0;font-size:8px;font-style:normal;font-weight:400;font-family:Sans Serif;" text-anchor="middle" >xxPLL_SRC</text>
+ <text x="60" y="257" transform="matrix(0.999999,0,0,0.999999,0.000135021,0.000322251)" style="fill:rgb(0,0,0);stroke-width:0;font-size:8px;font-style:normal;font-weight:400;font-family:Sans Serif;" text-anchor="middle" >(PLL_SRC)</text>
+ <g style="stroke:rgb(0,0,0);stroke-width:0.9;fill:rgb(247,247,255);" >
+  <circle cx="52" cy="92" transform="matrix(0,-0.999999,0.999999,0,-39.9998,144)" style="stroke:rgb(0,0,0);stroke-width:0.9;fill:rgb(247,247,255);" r="8" />
+  <line transform="matrix(0,-0.999999,0.999999,0,-39.9998,144)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(247,247,255);" y1="90" y2="90" x1="47" x2="56" />
+  <line transform="matrix(0,-0.999999,0.999999,0,-39.9998,144)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(247,247,255);" y1="87" y2="90" x1="52" x2="56" />
+  <line transform="matrix(0,-0.999999,0.999999,0,-39.9998,144)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(247,247,255);" y1="93" y2="93" x1="47" x2="56" />
+  <line transform="matrix(0,-0.999999,0.999999,0,-39.9998,144)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(247,247,255);" y1="93" y2="96" x1="47" x2="52" />
+ </g>
+ <line transform="matrix(0,-0.999999,0.999999,0,52.0001,108)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(0,0,0);" y1="0" y2="0" x1="0" x2="8" />
+ <text x="67" y="97" transform="matrix(0,-0.999998,0.999998,0,-24.9998,159)" style="fill:rgb(0,0,0);stroke-width:0;font-size:10px;font-style:normal;font-weight:400;font-family:Sans Serif;" text-anchor="middle" >PLL.BYPASS_LOCK_TEST</text>
+ <g style="stroke:rgb(0,0,0);stroke-width:0.9;fill:rgb(247,247,255);" >
+  <circle cx="116" cy="92" transform="matrix(0,-0.999998,0.999998,0,24.0001,208)" style="stroke:rgb(0,0,0);stroke-width:0.9;fill:rgb(247,247,255);" r="8" />
+  <line transform="matrix(0,-0.999998,0.999998,0,24.0001,208)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(247,247,255);" y1="90" y2="90" x1="111" x2="120" />
+  <line transform="matrix(0,-0.999998,0.999998,0,24.0001,208)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(247,247,255);" y1="87" y2="90" x1="116" x2="120" />
+  <line transform="matrix(0,-0.999998,0.999998,0,24.0001,208)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(247,247,255);" y1="93" y2="93" x1="111" x2="120" />
+  <line transform="matrix(0,-0.999998,0.999998,0,24.0001,208)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(247,247,255);" y1="93" y2="96" x1="111" x2="116" />
+ </g>
+ <line transform="matrix(0,-0.999998,0.999998,0,116,108)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(0,0,0);" y1="0" y2="0" x1="0" x2="8" />
+ <text x="132" y="98" transform="matrix(0,-0.999998,0.999998,0,38.0001,224)" style="fill:rgb(0,0,0);stroke-width:0;font-size:10px;font-style:normal;font-weight:400;font-family:Sans Serif;" text-anchor="middle" >PLL.POWER_ON</text>
+ <g style="stroke:rgb(0,0,0);stroke-width:0.9;fill:rgb(247,247,255);" >
+  <circle cx="84" cy="92" transform="matrix(0,-0.999998,0.999998,0,-7.9998,176)" style="stroke:rgb(0,0,0);stroke-width:0.9;fill:rgb(247,247,255);" r="8" />
+  <line transform="matrix(0,-0.999998,0.999998,0,-7.9998,176)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(247,247,255);" y1="90" y2="90" x1="79" x2="88" />
+  <line transform="matrix(0,-0.999998,0.999998,0,-7.9998,176)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(247,247,255);" y1="87" y2="90" x1="84" x2="88" />
+  <line transform="matrix(0,-0.999998,0.999998,0,-7.9998,176)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(247,247,255);" y1="93" y2="93" x1="79" x2="88" />
+  <line transform="matrix(0,-0.999998,0.999998,0,-7.9998,176)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(247,247,255);" y1="93" y2="96" x1="79" x2="84" />
+ </g>
+ <line transform="matrix(0,-0.999998,0.999998,0,84,108)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(0,0,0);" y1="0" y2="0" x1="0" x2="8" />
+ <text x="99" y="97" transform="matrix(0,-0.999998,0.999998,0,7.00018,191)" style="fill:rgb(0,0,0);stroke-width:0;font-size:10px;font-style:normal;font-weight:400;font-family:Sans Serif;" text-anchor="middle" >PLL.ENABLE</text>
+ <g style="stroke:rgb(0,0,0);stroke-width:0.9;fill:rgb(247,247,255);" >
+  <circle cx="260" cy="92" transform="matrix(0,-0.999998,0.999998,0,168,352)" style="stroke:rgb(0,0,0);stroke-width:0.9;fill:rgb(247,247,255);" r="8" />
+  <line transform="matrix(0,-0.999998,0.999998,0,168,352)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(247,247,255);" y1="90" y2="90" x1="255" x2="264" />
+  <line transform="matrix(0,-0.999998,0.999998,0,168,352)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(247,247,255);" y1="87" y2="90" x1="260" x2="264" />
+  <line transform="matrix(0,-0.999998,0.999998,0,168,352)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(247,247,255);" y1="93" y2="93" x1="255" x2="264" />
+  <line transform="matrix(0,-0.999998,0.999998,0,168,352)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(247,247,255);" y1="93" y2="96" x1="255" x2="260" />
+ </g>
+ <line transform="matrix(0,-0.999998,0.999998,0,260,108)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(0,0,0);" y1="0" y2="0" x1="0" x2="8" />
+ <text x="275" y="97" transform="matrix(0,-0.999998,0.999998,0,183,367)" style="fill:rgb(0,0,0);stroke-width:0;font-size:10px;font-style:normal;font-weight:400;font-family:Sans Serif;" text-anchor="middle" >PLL.BYPASS</text>
+ <g style="stroke:rgb(0,0,0);stroke-width:0.9;fill:rgb(247,247,255);" >
+  <circle cx="20" cy="92" transform="matrix(0,-0.999998,0.999998,0,-71.9996,112)" style="stroke:rgb(0,0,0);stroke-width:0.9;fill:rgb(247,247,255);" r="8" />
+  <line transform="matrix(0,-0.999998,0.999998,0,-71.9996,112)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(247,247,255);" y1="90" y2="90" x1="15" x2="24" />
+  <line transform="matrix(0,-0.999998,0.999998,0,-71.9996,112)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(247,247,255);" y1="87" y2="90" x1="20" x2="24" />
+  <line transform="matrix(0,-0.999998,0.999998,0,-71.9996,112)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(247,247,255);" y1="93" y2="93" x1="15" x2="24" />
+  <line transform="matrix(0,-0.999998,0.999998,0,-71.9996,112)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(247,247,255);" y1="93" y2="96" x1="15" x2="20" />
+ </g>
+ <line transform="matrix(0,-0.999998,0.999998,0,20.0002,108)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(0,0,0);" y1="0" y2="0" x1="0" x2="8" />
+ <text x="35" y="97" transform="matrix(0,-0.999998,0.999998,0,-56.9996,127)" style="fill:rgb(0,0,0);stroke-width:0;font-size:10px;font-style:normal;font-weight:400;font-family:Sans Serif;" text-anchor="middle" >PLL.COEFF</text>
+ <circle cx="380" cy="220" transform="matrix(0.999998,0,0,0.999998,0.000263179,0.000434881)" style="stroke:rgb(0,0,0);stroke-width:0.9;fill:rgb(255,255,255);" r="8" />
+ <line transform="matrix(0.999997,0,0,0.999997,363.999,220)" style="stroke:rgb(0,0,0);stroke-width:1;fill:rgb(0,0,0);" y1="0" y2="0" x1="0" x2="8" />
+ <polygon points="284 188 347 188 347 251 284 251" transform="matrix(0.999997,0,0,0.999997,0.000304135,0.000459635)" style="stroke:rgb(0,0,0);stroke-width:0.9;fill:rgb(247,247,255);" />
+ <polyline points="284 188 347 188 347 251 284 251" transform="matrix(0.999997,0,0,0.999997,0.000304135,0.000459635)" style="stroke:rgb(0,0,0);stroke-width:0.9;fill:none;" />
+ <line transform="matrix(0.999997,0,0,0.999997,276,204)" style="stroke:rgb(0,0,0);stroke-width:1;fill:rgb(0,0,0);" y1="0" y2="0" x1="0" x2="8" />
+ <line transform="matrix(-0.999997,0,0,-0.999997,355.999,220)" style="stroke:rgb(0,0,0);stroke-width:1;fill:rgb(0,0,0);" y1="0" y2="0" x1="0" x2="8" />
+ <line transform="matrix(0.999997,0,0,0.999997,276,220)" style="stroke:rgb(0,0,0);stroke-width:1;fill:rgb(0,0,0);" y1="0" y2="0" x1="0" x2="8" />
+ <line transform="matrix(0.999997,0,0,0.999997,276,236)" style="stroke:rgb(0,0,0);stroke-width:1;fill:rgb(0,0,0);" y1="0" y2="0" x1="0" x2="8" />
+ <text x="298" y="207" transform="matrix(0.999997,0,0,0.999997,0.000437356,0.000558651)" style="fill:rgb(0,0,0);stroke-width:0;font-size:10px;font-style:normal;font-weight:400;font-family:Sans Serif;" text-anchor="middle" >A0</text>
+ <text x="332" y="223" transform="matrix(0.999997,0,0,0.999997,0.000437356,0.000558651)" style="fill:rgb(0,0,0);stroke-width:0;font-size:8px;font-style:normal;font-weight:400;font-family:Sans Serif;" text-anchor="middle" >OUT</text>
+ <text x="298" y="223" transform="matrix(0.999997,0,0,0.999997,0.000437356,0.000558651)" style="fill:rgb(0,0,0);stroke-width:0;font-size:10px;font-style:normal;font-weight:400;font-family:Sans Serif;" text-anchor="middle" >X0</text>
+ <text x="298" y="239" transform="matrix(0.999997,0,0,0.999997,0.000437356,0.000558651)" style="fill:rgb(0,0,0);stroke-width:0;font-size:10px;font-style:normal;font-weight:400;font-family:Sans Serif;" text-anchor="middle" >X1</text>
+ <g style="stroke:rgb(0,0,0);stroke-width:0.9;fill:rgb(247,247,255);" >
+  <polygon points="44 156 54 164 44 172" transform="matrix(0,0.999997,-0.999997,0,216,112)" style="stroke:rgb(0,0,0);stroke-width:0.9;fill:rgb(247,247,255);" />
+  <polyline points="44 156 54 164 44 172" transform="matrix(0,0.999997,-0.999997,0,216,112)" style="stroke:rgb(0,0,0);stroke-width:0.9;fill:none;" />
+  <circle cx="57.5" cy="164.5" transform="matrix(0,0.999997,-0.999997,0,216,112)" style="stroke:rgb(0,0,0);stroke-width:0.9;fill:rgb(247,247,255);" r="3.5" />
+ </g>
+ <line transform="matrix(0,0.999997,-0.999997,0,52.0003,148)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(0,0,0);" y1="0" y2="0" x1="0" x2="8" />
+ <line transform="matrix(0,-0.999997,0.999997,0,52.0003,180)" style="stroke:rgb(0,0,0);stroke-width:inf;fill:rgb(0,0,0);" y1="0" y2="0" x1="0" x2="8" />
+</svg>
