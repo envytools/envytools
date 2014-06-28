@@ -81,8 +81,9 @@ void mmt_dump_next()
 	fprintf(stderr, "\n");
 }
 
-void mmt_check_eor(uint8_t e)
+void mmt_check_eor(int size)
 {
+	uint8_t e = mmt_buf[mmt_idx + size - 1];
 	if (e != EOR)
 	{
 		fprintf(stderr, "message does not end with EOR byte: 0x%02x\n", e);
@@ -93,6 +94,7 @@ void mmt_check_eor(uint8_t e)
 
 void mmt_decode(const struct mmt_decode_funcs *funcs, void *state)
 {
+	int size;
 	while (1)
 	{
 		struct mmt_message *msg = mmt_load_data(1);
@@ -112,74 +114,83 @@ void mmt_decode(const struct mmt_decode_funcs *funcs, void *state)
 		else if (msg->type == 'r') // read
 		{
 			struct mmt_read *w;
-			w = mmt_load_data(sizeof(struct mmt_read) + 1);
-			w = mmt_load_data(sizeof(struct mmt_read) + 1 + w->len);
+			size = sizeof(struct mmt_read) + 1;
+			w = mmt_load_data(size);
+			size += w->len;
+			w = mmt_load_data(size);
 
-			mmt_check_eor(mmt_buf[mmt_idx + sizeof(*w) + w->len]);
+			mmt_check_eor(size);
 
 			if (funcs->memread)
 				funcs->memread(w, state);
 
-			mmt_idx += sizeof(*w) + w->len + 1;
+			mmt_idx += size;
 		}
 		else if (msg->type == 'w') // write
 		{
 			struct mmt_write *w;
-			w = mmt_load_data(sizeof(struct mmt_write) + 1);
-			w = mmt_load_data(sizeof(struct mmt_write) + 1 + w->len);
+			size = sizeof(struct mmt_write) + 1;
+			w = mmt_load_data(size);
+			size += w->len;
+			w = mmt_load_data(size);
 
-			mmt_check_eor(mmt_buf[mmt_idx + sizeof(*w) + w->len]);
+			mmt_check_eor(size);
 
 			if (funcs->memwrite)
 				funcs->memwrite(w, state);
 
-			mmt_idx += sizeof(*w) + w->len + 1;
+			mmt_idx += size;
 		}
 		else if (msg->type == 'm') // mmap
 		{
-			struct mmt_mmap *mm = mmt_load_data(sizeof(struct mmt_mmap) + 1);
+			size = sizeof(struct mmt_mmap) + 1;
+			struct mmt_mmap *mm = mmt_load_data(size);
 
-			mmt_check_eor(mmt_buf[mmt_idx + sizeof(*mm)]);
+			mmt_check_eor(size);
 
 			if (funcs->mmap)
 				funcs->mmap(mm, state);
 
-			mmt_idx += sizeof(*mm) + 1;
+			mmt_idx += size;
 		}
 		else if (msg->type == 'u') // unmap
 		{
-			struct mmt_unmap *mm = mmt_load_data(sizeof(struct mmt_unmap) + 1);
+			size = sizeof(struct mmt_unmap) + 1;
+			struct mmt_unmap *mm = mmt_load_data(size);
 
-			mmt_check_eor(mmt_buf[mmt_idx + sizeof(*mm)]);
+			mmt_check_eor(size);
 
 			if (funcs->munmap)
 				funcs->munmap(mm, state);
 
-			mmt_idx += sizeof(*mm) + 1;
+			mmt_idx += size;
 		}
 		else if (msg->type == 'e') // mremap
 		{
-			struct mmt_mremap *mm = mmt_load_data(sizeof(struct mmt_mremap) + 1);
+			size = sizeof(struct mmt_mremap) + 1;
+			struct mmt_mremap *mm = mmt_load_data(size);
 
-			mmt_check_eor(mmt_buf[mmt_idx + sizeof(*mm)]);
+			mmt_check_eor(size);
 
 			if (funcs->mremap)
 				funcs->mremap(mm, state);
 
-			mmt_idx += sizeof(*mm) + 1;
+			mmt_idx += size;
 		}
 		else if (msg->type == 'o') // open
 		{
+			size = sizeof(struct mmt_open) + 1;
 			struct mmt_open *o;
-			o = mmt_load_data(sizeof(struct mmt_open) + 1);
-			o = mmt_load_data(sizeof(struct mmt_open) + 1 + o->path.len);
+			o = mmt_load_data(size);
+			size += o->path.len;
+			o = mmt_load_data(size);
 
-			mmt_check_eor(mmt_buf[mmt_idx + sizeof(*o) + o->path.len]);
+			mmt_check_eor(size);
 
 			if (funcs->open)
 				funcs->open(o, state);
 
-			mmt_idx += sizeof(*o) + o->path.len + 1;
+			mmt_idx += size;
 		}
 		else if (msg->type == 'n') // nvidia / nouveau
 			mmt_decode_nvidia((struct mmt_nvidia_decode_funcs *)funcs, state);

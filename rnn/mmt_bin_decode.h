@@ -7,7 +7,7 @@
 extern unsigned char mmt_buf[MMT_BUF_SIZE];
 extern int mmt_idx;
 
-void mmt_check_eor(uint8_t e);
+void mmt_check_eor(int sz);
 void *mmt_load_data(int sz);
 void mmt_dump_next();
 
