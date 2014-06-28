@@ -20,7 +20,7 @@ add_executable(headergen headergen.c)
 add_executable(dedma dedma.c dedma_cache.c dedma_back.c)
 add_executable(lookup lookup.c)
 add_executable(rnncheck rnncheck.c)
-add_executable(mmt_bin2text mmt_bin2text.c mmt_bin2text_nvidia.c)
+add_executable(mmt_bin2dedma mmt_bin2dedma.c mmt_bin2dedma_nvidia.c mmt_bin_decode.c mmt_bin_decode_nvidia.c)
 
 target_link_libraries(rnn ${LIBXML2_LIBRARIES} envyutil)
 target_link_libraries(demmio envy nvhw rnn seq)
