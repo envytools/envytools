@@ -36,3 +36,4 @@ libnva.a
 libnva.so
 nvapy.c
 nvapy.so
+nvagetpmu
