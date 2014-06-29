@@ -21,6 +21,7 @@ add_executable(dedma dedma.c dedma_cache.c dedma_back.c)
 add_executable(lookup lookup.c)
 add_executable(rnncheck rnncheck.c)
 add_executable(mmt_bin2dedma mmt_bin2dedma.c mmt_bin2dedma_nvidia.c mmt_bin_decode.c mmt_bin_decode_nvidia.c)
+add_executable(demmt demmt.c mmt_bin_decode.c mmt_bin_decode_nvidia.c demmt_pushbuf.c)
 
 target_link_libraries(rnn ${LIBXML2_LIBRARIES} envyutil)
 target_link_libraries(demmio envy nvhw rnn seq)
@@ -28,6 +29,7 @@ target_link_libraries(headergen rnn)
 target_link_libraries(dedma rnn)
 target_link_libraries(lookup rnn)
 target_link_libraries(rnncheck rnn)
+target_link_libraries(demmt rnn)
 
 install(TARGETS demmio headergen rnn dedma lookup
 	RUNTIME DESTINATION bin

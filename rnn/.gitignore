@@ -10,3 +10,4 @@ rnn_path.h
 __pycache__
 libseq.a
 mmt_bin2dedma
+demmt
