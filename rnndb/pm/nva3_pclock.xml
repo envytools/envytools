@@ -29,8 +29,8 @@
 	<doc>VCO = (2 * VCO_SRC) / VCO_DIV</doc>
 	<bitfield pos="0" name="VCO_ENABLE"/>
 	<bitfield low="4" high="5" name="VCO_SRC">
-		<value value="0" name="RPLL1"/>
-		<value value="1" name="RPLL1"/>
+		<value value="0" name="CRYSTAL"/>
+		<value value="1" name="NONE"/>
 		<value value="2" name="RPLL1"/>
 		<value value="3" name="RPLL2"/>
 	</bitfield>
@@ -71,7 +71,7 @@
 	<reg32 name="VCLK1" offset="0x180" type="nva3_pll_src"/>
 	<reg32 name="VCLK2" offset="0x184" type="nva3_pll_src"/>
 	<reg32 name="TCLK" offset="0x190" type="nva3_pll_src"/>
-	<reg32 name="CLK13" offset="0x194" type="nva3_pll_src"/>
+	<reg32 name="HCLK" offset="0x194" type="nva3_pll_src"/>
 	<reg32 name="CLK14" offset="0x198" type="nva3_pll_src"/> <!-- not on NVAF -->
 	<reg32 name="CLK32" offset="0x1a0" type="nva3_pll_src"/>
 	<reg32 name="VDCLK" offset="0x1a4" type="nva3_pll_src"/>
@@ -91,9 +91,9 @@
 
 		<bitfield low="28" high="29" name="HOST"> <!-- guess from nv50 -->
 			<doc>Gets post-multiplied by HOST_MUL.</doc>
-			<value value="0" name="HREF"/>
-			<value value="2" name="HCLK" variants="NV84-"/>
-			<value value="3" name="HCLK"/>
+			<value value="0" name="HCLK"/>
+			<value value="2" name="277MHz"/>
+			<value value="3" name="277MHz"/>
 		</bitfield>
 	</reg32>
 

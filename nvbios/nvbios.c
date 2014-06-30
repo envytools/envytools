@@ -1555,6 +1555,7 @@ int main(int argc, char **argv) {
 					strncpy(sub_entry_engine[2], "memclk", 10);
 					strncpy(sub_entry_engine[3], "vdec", 10);
 					strncpy(sub_entry_engine[4], "unka0", 10);
+					strncpy(sub_entry_engine[5], "host", 10);
 
 					printf ("\n-- ID 0x%x Voltage entry %d PCIe link width %d --\n",
 						id, voltage, pcie_width );
