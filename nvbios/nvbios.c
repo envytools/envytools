@@ -2,7 +2,7 @@
  * Copyright (C) 2010-2011 Marcin Kościelnicki <koriakin@0x04.net>
  * Copyright (C) 2010-2011 Martin Peres <martin.peres@ensi-bourges.fr>
  * Copyright (C) 2010-2011 Emil Velikov <emil.l.velikov@gmail.com>
- * Copyright (C) 2011 Roy Spliet <r.spliet@student.tudelft.nl>
+ * Copyright (C) 2011 Roy Spliet <rspliet@eclipso.eu>
  * All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
@@ -1466,7 +1466,7 @@ int main(int argc, char **argv) {
 		printf("%i performance levels\n", entry_count);
 		for (i=0; i < entry_count; i++) {
 			uint16_t id, fan, voltage, memscript;
-			uint16_t core, shader = 0, memclk, vdec = 0;
+			uint16_t core, shader = 0, memclk, vdec = 0, freq = 0;
 			uint8_t pcie_width = 0xff;
 			uint8_t timing_id = 0xff;
 
@@ -1596,7 +1596,12 @@ int main(int argc, char **argv) {
 				for(e=0; e < subentry_count; e++) {
 					printf("	%i:", e);
 					printcmd(start + mode_info_length + (e*subentry_size), subentry_size);
-					printf(" : %s freq = %u MHz\n", sub_entry_engine[e], le16(start+subent(e)) & 0xfff);
+					freq = le16(start+subent(e));
+					printf(" : %s freq = %u MHz", sub_entry_engine[e], freq & 0x3fff);
+					if(freq & 0x8000 && strncmp(sub_entry_engine[i],"memclk",6))
+						printf(" (force no PLL)\n");
+					else
+						printf("\n");
 				}
 			}
 			printf("\n\n");
