@@ -65,6 +65,8 @@ struct rnndomain *domain;
 struct rnndb *rnndb;
 int chipset;
 int guess_invalid_pushbuf = 1;
+int invalid_pushbufs_visible = 1;
+int decode_invalid_buffers = 1;
 
 static void dump(int id)
 {
@@ -143,12 +145,23 @@ static void dump_writes(int id)
 		{
 			if (left >= 4)
 			{
-				pushbuf_decode(&state, *(uint32_t *)(data + addr), pushbuf_desc);
-				if (guess_invalid_pushbuf && !state.pushbuf_invalid && state.size > left / 4)
+				if (state.pushbuf_invalid == 0 || decode_invalid_buffers)
 				{
-					mmt_log("command size (%d) is bigger than number of left possible commands (%d), marking this buffer invalid\n", state.size, left / 4);
-					state.pushbuf_invalid = 1;
+					pushbuf_decode(&state, *(uint32_t *)(data + addr), pushbuf_desc);
+					if (guess_invalid_pushbuf && !state.pushbuf_invalid && state.size > left / 4)
+					{
+						mmt_log("command size (%d) is bigger than number of left possible commands (%d), marking this buffer invalid\n", state.size, left / 4);
+						state.pushbuf_invalid = 1;
+					}
+
+					if (state.pushbuf_invalid == 1 && !decode_invalid_buffers)
+						pushbuf_desc[0] = 0;
 				}
+				else
+					pushbuf_desc[0] = 0;
+
+				if (state.pushbuf_invalid == 1 && invalid_pushbufs_visible == 0)
+					break;
 
 				fprintf(stdout, "w %d:0x%04x, 0x%08x  %s%s\n", id, addr, *(uint32_t *)(data + addr), state.pushbuf_invalid ? "INVALID " : "", pushbuf_desc);
 				addr += 4;
@@ -783,6 +796,8 @@ static void usage()
 			"  -m 'chipset'\tset chipset version\n"
 			"  -c\t\tdo not \"compress\" obvious buffer clears\n"
 			"  -i\t\tdo not guess invalid pushbufs\n"
+			"  -d\t\thide invalid pushbufs\n"
+			"  -e\t\tdo not decode invalid pushbufs\n"
 			"\n");
 	exit(1);
 }
@@ -808,6 +823,10 @@ int main(int argc, char *argv[])
 			compress_clears = 0;
 		else if (!strcmp(argv[i], "-i"))
 			guess_invalid_pushbuf = 0;
+		else if (!strcmp(argv[i], "-d"))
+			invalid_pushbufs_visible = 0;
+		else if (!strcmp(argv[i], "-e"))
+			decode_invalid_buffers = 0;
 		else
 			usage();
 	}
