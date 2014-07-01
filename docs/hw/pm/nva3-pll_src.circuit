@@ -6,23 +6,23 @@
  <item x="268" y="148" z="3" type="ec/and" id="and__40" flip="0" angle="0" >
   <data value="2" type="number" id="numInput" />
  </item>
- <item x="220" y="156" z="7" type="ec/clock_input" id="clock_input" flip="0" angle="0" >
+ <item x="60" y="244" z="7" type="ec/clock_input" id="clock_input" flip="0" angle="0" >
   <data value="0.5" type="number" id="high-time" />
   <data value="0.5" type="number" id="low-time" />
  </item>
- <item x="164" y="324" z="20" type="ec/clock_input" id="clock_input__193" flip="0" angle="0" >
+ <item x="60" y="356" z="20" type="ec/clock_input" id="clock_input__193" flip="0" angle="0" >
   <data value="0.25" type="number" id="high-time" />
   <data value="0.25" type="number" id="low-time" />
  </item>
- <item x="164" y="364" z="21" type="ec/clock_input" id="clock_input__197" flip="0" angle="0" >
+ <item x="60" y="388" z="21" type="ec/clock_input" id="clock_input__197" flip="0" angle="0" >
   <data value="0.1" type="number" id="high-time" />
   <data value="0.1" type="number" id="low-time" />
  </item>
- <item x="76" y="236" z="8" type="ec/clock_input" id="clock_input__64" flip="0" angle="0" >
+ <item x="60" y="276" z="8" type="ec/clock_input" id="clock_input__64" flip="0" angle="0" >
   <data value="1e-06" type="number" id="high-time" />
   <data value="1e-06" type="number" id="low-time" />
  </item>
- <item x="76" y="268" z="9" type="ec/clock_input" id="clock_input__68" flip="0" angle="0" >
+ <item x="60" y="308" z="9" type="ec/clock_input" id="clock_input__68" flip="0" angle="0" >
   <data value="1e-06" type="number" id="high-time" />
   <data value="9e-06" type="number" id="low-time" />
  </item>
@@ -33,20 +33,23 @@
  <item x="604" y="68" z="10" type="ec/external_connection" id="external_connection" flip="0" angle="270" >
   <data value="ENABLE" type="string" id="name" />
  </item>
- <item x="156" y="68" z="16" type="ec/external_connection" id="external_connection__161" flip="0" angle="270" >
+ <item x="164" y="68" z="16" type="ec/external_connection" id="external_connection__161" flip="0" angle="270" >
   <data value="VCO_DIV" type="string" id="name" />
  </item>
- <item x="188" y="68" z="17" type="ec/external_connection" id="external_connection__166" flip="0" angle="270" >
+ <item x="196" y="68" z="17" type="ec/external_connection" id="external_connection__166" flip="0" angle="270" >
   <data value="VCO_ENABLE" type="string" id="name" />
  </item>
- <item x="36" y="68" z="19" type="ec/external_connection" id="external_connection__188" flip="0" angle="270" >
-  <data value="OUTPUT1" type="string" id="name" />
+ <item x="28" y="68" z="19" type="ec/external_connection" id="external_connection__188" flip="0" angle="270" >
+  <data value="OUTPUT_1" type="string" id="name" />
  </item>
  <item x="484" y="68" z="22" type="ec/external_connection" id="external_connection__205" flip="0" angle="270" >
   <data value="OUT_ALT" type="string" id="name" />
  </item>
- <item x="108" y="68" z="11" type="ec/external_connection" id="external_connection__75" flip="0" angle="270" >
-  <data value="VCO_SRC" type="string" id="name" />
+ <item x="108" y="68" z="24" type="ec/external_connection" id="external_connection__56" flip="0" angle="270" >
+  <data value="VCO_SRC[0]" type="string" id="name" />
+ </item>
+ <item x="76" y="68" z="11" type="ec/external_connection" id="external_connection__75" flip="0" angle="270" >
+  <data value="VCO_SRC[1]" type="string" id="name" />
  </item>
  <item x="236" y="68" z="12" type="ec/external_connection" id="external_connection__82" flip="0" angle="270" >
   <data value="CRYSTAL_DISABLE" type="string" id="name" />
@@ -67,36 +70,40 @@
  <item x="548" y="236" z="1" type="ec/multiplexer" id="multiplexer" flip="0" angle="0" >
   <data value="1" type="number" id="addressSize" />
  </item>
- <item x="276" y="324" z="18" type="ec/multiplexer" id="multiplexer__180" flip="0" angle="0" >
+ <item x="276" y="356" z="18" type="ec/multiplexer" id="multiplexer__180" flip="0" angle="0" >
   <data value="1" type="number" id="addressSize" />
  </item>
  <item x="388" y="188" z="2" type="ec/multiplexer" id="multiplexer__27" flip="0" angle="0" >
   <data value="2" type="number" id="addressSize" />
  </item>
- <item x="164" y="244" z="5" type="ec/multiplexer" id="multiplexer__51" flip="0" angle="0" >
-  <data value="1" type="number" id="addressSize" />
+ <item x="164" y="252" z="5" type="ec/multiplexer" id="multiplexer__51" flip="0" angle="0" >
+  <data value="2" type="number" id="addressSize" />
  </item>
  <item x="236" y="116" z="23" type="ec/inverter" id="not" flip="0" angle="90" />
  <connector start-node-is-child="1" manual-route="1" end-node-parent="and" route="73,29,74,29,75,29,76,29,77,29," end-node-cid="in1" start-node-parent="multiplexer" start-node-cid="X" id="connector" end-node-is-child="1" />
  <connector start-node-is-child="1" manual-route="1" end-node-parent="multiplexer__27" route="39,28,40,28,41,28,42,28,43,28," end-node-cid="X3" start-node-parent="dac" start-node-cid="Out" id="connector__157" end-node-is-child="1" />
- <connector start-node-is-child="1" manual-route="1" end-node-parent="dac" route="19,10,19,11,19,12,19,13,19,14,19,15,19,16,19,17,19,18,19,19,19,20,19,21,19,22,19,23,19,24,20,24,21,24,22,24,23,24,24,24,25,24,25,25,25,26,25,27,25,28,26,28,27,28,28,28,29,28," end-node-cid="1" start-node-parent="external_connection__161" start-node-cid="n1" id="connector__173" end-node-is-child="1" />
- <connector start-node-is-child="1" manual-route="1" end-node-parent="dac" route="23,10,23,11,23,12,23,13,23,14,23,15,23,16,23,17,23,18,23,19,23,20,23,21,23,22,24,22,25,22,26,22,27,22,27,23,27,24,27,25,27,26,28,26,29,26," end-node-cid="0" start-node-parent="external_connection__166" start-node-cid="n1" id="connector__174" end-node-is-child="1" />
- <connector start-node-is-child="1" manual-route="1" end-node-parent="multiplexer__27" route="39,40,39,39,39,38,39,37,39,36,39,35,39,34,39,33,39,32,39,31,39,30,39,29,39,28,39,27,39,26,40,26,41,26,42,26,43,26," end-node-cid="X2" start-node-parent="multiplexer__180" start-node-cid="X" id="connector__185" end-node-is-child="1" />
- <connector start-node-is-child="1" manual-route="1" end-node-parent="multiplexer__180" route="23,45,24,45,24,44,24,43,24,42,25,42,26,42,27,42,28,42,29,42," end-node-cid="X1" start-node-parent="clock_input__197" start-node-cid="p1" id="connector__199" end-node-is-child="1" />
- <connector start-node-is-child="1" manual-route="1" end-node-parent="multiplexer" route="23,45,24,45,24,46,25,46,26,46,27,46,28,46,29,46,30,46,31,46,32,46,33,46,34,46,35,46,36,46,37,46,38,46,39,46,40,46,41,46,42,46,43,46,44,46,45,46,46,46,47,46,48,46,49,46,50,46,51,46,52,46,53,46,54,46,54,45,54,44,54,43,54,42,54,41,54,40,54,39,54,38,54,37,54,36,54,35,54,34,54,33,54,32,54,31,55,31,56,31,57,31,58,31,59,31,60,31,61,31,62,31,63,31," end-node-cid="X1" start-node-parent="clock_input__197" start-node-cid="p1" id="connector__200" end-node-is-child="1" />
- <connector start-node-is-child="1" manual-route="1" end-node-parent="multiplexer__180" route="23,40,24,40,25,40,26,40,27,40,28,40,29,40," end-node-cid="X0" start-node-parent="clock_input__193" start-node-cid="p1" id="connector__201" end-node-is-child="1" />
- <connector start-node-is-child="1" manual-route="1" end-node-parent="multiplexer__180" route="4,10,4,11,4,12,4,13,4,14,4,15,4,16,4,17,4,18,4,19,4,20,4,21,4,22,4,23,4,24,4,25,4,26,4,27,4,28,4,29,4,30,4,31,4,32,4,33,4,34,4,35,4,36,5,36,6,36,7,36,8,36,9,36,10,36,11,36,12,36,13,36,14,36,15,36,16,36,17,36,18,36,19,36,20,36,21,36,22,36,23,36,24,36,24,37,24,38,25,38,26,38,27,38,28,38,29,38," end-node-cid="A0" start-node-parent="external_connection__188" start-node-cid="n1" id="connector__202" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="0" end-node-parent="multiplexer__27" route="39,44,40,44,40,43,40,42,40,41,40,40,40,39,40,38,40,37,40,36,40,35,40,34,40,33,40,32,40,31,40,30,40,29,40,28,40,27,40,26,41,26,42,26,43,26," end-node-cid="X2" start-node-parent="multiplexer__180" start-node-cid="X" id="connector__185" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="0" end-node-parent="multiplexer__180" route="10,44,11,44,12,44,13,44,14,44,15,44,16,44,17,44,18,44,19,44,20,44,21,44,22,44,23,44,24,44,25,44,26,44,27,44,28,44,29,44," end-node-cid="X0" start-node-parent="clock_input__193" start-node-cid="p1" id="connector__201" end-node-is-child="1" />
  <connector start-node-is-child="1" manual-route="1" end-node-parent="multiplexer" route="60,10,60,11,60,12,60,13,60,14,60,15,60,16,60,17,60,18,60,19,60,20,60,21,60,22,60,23,60,24,60,25,60,26,60,27,61,27,62,27,63,27," end-node-cid="A0" start-node-parent="external_connection__205" start-node-cid="n1" id="connector__207" end-node-is-child="1" />
  <connector start-node-is-child="1" manual-route="1" end-node-parent="multiplexer__27" route="36,18,37,18,37,19,37,20,37,21,37,22,38,22,39,22,40,22,41,22,42,22,43,22," end-node-cid="X0" start-node-parent="and__40" start-node-cid="p1" id="connector__45" end-node-is-child="1" />
- <connector start-node-is-child="1" manual-route="0" end-node-parent="not" route="29,10,29,11,29,12," end-node-cid="n1" start-node-parent="external_connection__82" start-node-cid="n1" id="connector__52" end-node-is-child="1" />
- <connector start-node-is-child="1" manual-route="0" end-node-parent="and__40" route="29,16,29,17,30,17," end-node-cid="in0" start-node-parent="not" start-node-cid="p1" id="connector__53" end-node-is-child="1" />
- <connector start-node-is-child="1" manual-route="1" end-node-parent="dac" route="25,30,26,30,27,30,28,30,29,30," end-node-cid="2" start-node-parent="multiplexer__51" start-node-cid="X" id="connector__54" end-node-is-child="1" />
- <connector start-node-is-child="1" manual-route="0" end-node-parent="and__40" route="30,19," end-node-cid="in1" start-node-parent="clock_input" start-node-cid="p1" id="connector__61" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="0" end-node-parent="multiplexer__51" route="10,38,11,38,11,37,11,36,12,36,13,36,14,36,15,36," end-node-cid="X3" start-node-parent="clock_input__68" start-node-cid="p1" id="connector__49" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="0" end-node-parent="multiplexer__51" route="10,34,11,34,12,34,13,34,14,34,15,34," end-node-cid="X2" start-node-parent="clock_input__64" start-node-cid="p1" id="connector__50" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="1" end-node-parent="not" route="29,10,29,11,29,12," end-node-cid="n1" start-node-parent="external_connection__82" start-node-cid="n1" id="connector__52" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="1" end-node-parent="and__40" route="29,16,29,17,30,17," end-node-cid="in0" start-node-parent="not" start-node-cid="p1" id="connector__53" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="0" end-node-parent="multiplexer" route="10,48,11,48,11,49,11,50,12,50,13,50,14,50,15,50,16,50,17,50,18,50,19,50,20,50,21,50,22,50,23,50,24,50,25,50,26,50,27,50,28,50,29,50,30,50,31,50,32,50,33,50,34,50,35,50,36,50,37,50,38,50,39,50,40,50,41,50,42,50,43,50,44,50,45,50,46,50,47,50,48,50,49,50,50,50,51,50,52,50,53,50,54,50,54,49,54,48,54,47,54,46,54,45,54,44,54,43,54,42,54,41,54,40,54,39,54,38,54,37,54,36,54,35,54,34,54,33,54,32,54,31,55,31,56,31,57,31,58,31,59,31,60,31,61,31,62,31,63,31," end-node-cid="X1" start-node-parent="clock_input__197" start-node-cid="p1" id="connector__64" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="0" end-node-parent="multiplexer__180" route="10,48,11,48,11,47,11,46,12,46,13,46,14,46,15,46,16,46,17,46,18,46,19,46,20,46,21,46,22,46,23,46,24,46,25,46,26,46,27,46,28,46,29,46," end-node-cid="X1" start-node-parent="clock_input__197" start-node-cid="p1" id="connector__70" end-node-is-child="1" />
  <connector start-node-is-child="1" manual-route="1" end-node-parent="and" route="75,10,75,11,75,12,75,13,75,14,75,15,75,16,75,17,75,18,75,19,75,20,75,21,75,22,75,23,75,24,75,25,75,26,75,27,76,27,77,27," end-node-cid="in0" start-node-parent="external_connection" start-node-cid="n1" id="connector__72" end-node-is-child="1" />
- <connector start-node-is-child="1" manual-route="1" end-node-parent="multiplexer__51" route="13,10,13,11,13,12,13,13,13,14,13,15,13,16,13,17,13,18,13,19,13,20,13,21,13,22,13,23,13,24,13,25,13,26,13,27,13,28,14,28,15,28," end-node-cid="A0" start-node-parent="external_connection__75" start-node-cid="n1" id="connector__77" end-node-is-child="1" />
- <connector start-node-is-child="1" manual-route="1" end-node-parent="multiplexer__51" route="12,29,13,29,13,30,14,30,15,30," end-node-cid="X0" start-node-parent="clock_input__64" start-node-cid="p1" id="connector__78" end-node-is-child="1" />
- <connector start-node-is-child="1" manual-route="1" end-node-parent="multiplexer__51" route="12,33,13,33,13,32,14,32,15,32," end-node-cid="X1" start-node-parent="clock_input__68" start-node-cid="p1" id="connector__79" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="1" end-node-parent="dac" route="20,10,20,11,20,12,20,13,20,14,20,15,20,16,20,17,20,18,20,19,20,20,20,21,21,21,22,21,23,21,24,21,25,21,25,22,25,23,25,24,25,25,25,26,25,27,25,28,26,28,27,28,28,28,29,28," end-node-cid="1" start-node-parent="external_connection__161" start-node-cid="n1" id="connector__73" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="1" end-node-parent="dac" route="24,10,24,11,24,12,24,13,24,14,24,15,24,16,24,17,24,18,24,19,24,20,25,20,26,20,26,21,26,22,26,23,26,24,26,25,26,26,27,26,28,26,29,26," end-node-cid="0" start-node-parent="external_connection__166" start-node-cid="n1" id="connector__74" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="1" end-node-parent="multiplexer__51" route="13,10,13,11,13,12,13,13,13,14,13,15,13,16,13,17,13,18,13,19,13,20,13,21,13,22,13,23,13,24,13,25,13,26,14,26,15,26," end-node-cid="A0" start-node-parent="external_connection__56" start-node-cid="n1" id="connector__76" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="1" end-node-parent="dac" route="25,30,26,30,27,30,28,30,29,30," end-node-cid="2" start-node-parent="multiplexer__51" start-node-cid="X" id="connector__77" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="1" end-node-parent="multiplexer__51" route="9,10,9,11,9,12,9,13,9,14,9,15,9,16,9,17,9,18,9,19,9,20,9,21,9,22,9,23,9,24,9,25,9,26,9,27,9,28,10,28,11,28,12,28,13,28,14,28,15,28," end-node-cid="A1" start-node-parent="external_connection__75" start-node-cid="n1" id="connector__78" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="0" end-node-id="node1" route="30,19,29,19,28,19,27,19,26,19,25,19,24,19,23,19,22,19,21,19,20,19,19,19,18,19,17,19,16,19,15,19,14,19,14,20,14,21,14,22,14,23,14,24,14,25,14,26,14,27,14,28,14,29,14,30," start-node-parent="and__40" start-node-cid="in1" id="connector__79" end-node-is-child="0" />
+ <connector start-node-is-child="1" manual-route="0" end-node-id="node1" route="10,30,11,30,12,30,13,30,14,30," start-node-parent="clock_input" start-node-cid="p1" id="connector__80" end-node-is-child="0" />
+ <connector start-node-is-child="0" manual-route="0" start-node-id="node1" end-node-parent="multiplexer__51" route="14,30,15,30," end-node-cid="X0" id="connector__81" end-node-is-child="1" />
+ <connector start-node-is-child="1" manual-route="1" end-node-parent="multiplexer__180" route="3,10,3,11,3,12,3,13,3,14,3,15,3,16,3,17,3,18,3,19,3,20,3,21,3,22,3,23,3,24,3,25,3,26,3,27,3,28,3,29,3,30,3,31,3,32,3,33,3,34,3,35,3,36,3,37,3,38,3,39,3,40,4,40,5,40,6,40,7,40,8,40,9,40,10,40,11,40,11,41,11,42,12,42,13,42,14,42,15,42,16,42,17,42,18,42,19,42,20,42,21,42,22,42,23,42,24,42,25,42,26,42,27,42,28,42,29,42," end-node-cid="A0" start-node-parent="external_connection__188" start-node-cid="n1" id="connector__82" end-node-is-child="1" />
  <connector start-node-is-child="1" manual-route="1" end-node-parent="multiplexer" route="53,22,54,22,54,23,54,24,54,25,54,26,54,27,54,28,54,29,55,29,56,29,57,29,58,29,59,29,60,29,61,29,62,29,63,29," end-node-cid="X0" start-node-parent="multiplexer__27" start-node-cid="X" id="connector__85" end-node-is-child="1" />
  <connector start-node-is-child="1" manual-route="1" end-node-parent="multiplexer__27" route="38,10,38,11,39,11,39,12,39,13,39,14,39,15,39,16,39,17,39,18,39,19,39,20,40,20,41,20,42,20,43,20," end-node-cid="A1" start-node-parent="external_connection__92" start-node-cid="n1" id="connector__94" end-node-is-child="1" />
  <connector start-node-is-child="1" manual-route="1" end-node-parent="multiplexer__27" route="42,10,42,11,42,12,42,13,42,14,42,15,42,16,42,17,42,18,43,18," end-node-cid="A0" start-node-parent="external_connection__88" start-node-cid="n1" id="connector__95" end-node-is-child="1" />
+ <node x="116" y="244" id="node1" />
 </document>
