@@ -59,6 +59,16 @@
 		<bitfield low="27" high="28" name="UNK27"/> <!-- always on -->
 	</reg32>
 	<reg32 offset="0x004" name="MPLL_COEF" type="nva3_pll_coef"/>
+	<reg32 offset="0x018" name="MPLL_UNK18">
+		<bitfield pos="14" name="UNK14">
+			<doc>Corresponds with rammap entry header byte 4 bit 0</doc>
+		</bitfield>
+		<bitfield pos="15" name="CLOCK">
+			<value value="0" name="MPLL"/>
+			<value value="1" name="MCLK"/>
+		</bitfield>
+		<bitfield pos="28" name="BELOW_750MHz"/>
+	</reg32>
 
 	<reg32 name="NVPLL_SRC" offset="0x120" type="nva3_pll_src"/>
 	<reg32 name="SPLL_SRC" offset="0x124" type="nva3_pll_src"/>
@@ -83,6 +93,9 @@
 	<reg32 offset="0x204" name="NVPLL_COEF" type="nva3_pll_coef"/>
 	<reg32 offset="0x220" name="SPLL_CTRL" type="nva3_pll_ctrl"/>
 	<reg32 offset="0x224" name="SPLL_COEF" type="nva3_pll_coef"/>
+	<reg32 offset="0x240" name="UNK240">
+		<bitfield pos="1" name="UNK1"/><!-- Always set to 0 by blob? -->
+	</reg32>
 </array>
 
 <array offset="0xc000" name="PCONTROL" stride="0x1000" variants="NVA3:NVC0" length="1">

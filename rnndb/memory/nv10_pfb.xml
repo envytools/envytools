@@ -92,6 +92,14 @@
 </group>
 
 <array name="PFB" offset="0x100000" stride="0x1000" length="1" variants="NV10:NVC0">
+	<reg32 offset="0x2c" name="UNK2C" variants="NVA3:NVC0">
+		<bitfield low="0" high="6" name="DELAY">
+			<doc>
+				Unknown what this is precisely, but it's set linear to core speed
+				max(ceil(core kHz/15133), 18)
+			</doc>
+		</bitfield>
+	</reg32>
 
 	<!-- one per partition, actually; not on IGPs -->
 	<reg32 offset="0x34" name="PART_PM_SEL" variants="NV84:NVC0" length="8">
