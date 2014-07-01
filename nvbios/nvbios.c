@@ -1408,6 +1408,7 @@ int main(int argc, char **argv) {
 		uint8_t extra_data_length = 8, extra_data_count = 0;
 		uint8_t subentry_offset = 0, subentry_size = 0, subentry_count = 0;
 		uint16_t start = bios->power.perf.offset;
+		uint16_t id = 0;
 		uint8_t ram_cfg = strap?(strap & 0x1c) >> 2:0xff;
 		char sub_entry_engine[16][11] = { "unk" };
 		int e;
@@ -1457,6 +1458,9 @@ int main(int argc, char **argv) {
 		else
 			printf("Version unknown\n");
 
+		if (version == 0x40 && header_length >= 12)
+			printf("Boot perflvl: 0x%x\n", bios->data[start+11]);
+
 		printf("Header:\n");
 		printcmd(start, header_length>0?header_length:10);
 		printf ("\n");
@@ -1465,7 +1469,7 @@ int main(int argc, char **argv) {
 
 		printf("%i performance levels\n", entry_count);
 		for (i=0; i < entry_count; i++) {
-			uint16_t id, fan, voltage, memscript;
+			uint16_t fan, voltage, memscript;
 			uint16_t core, shader = 0, memclk, vdec = 0, freq = 0;
 			uint8_t pcie_width = 0xff;
 			uint8_t timing_id = 0xff;
