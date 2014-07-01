@@ -10,6 +10,7 @@ struct pushbuf_decode_state
 	int addr;
 	int size;
 	int skip;
+	int pushbuf_invalid;
 };
 
 void pushbuf_decode_start(struct pushbuf_decode_state *state);

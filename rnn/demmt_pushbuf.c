@@ -213,11 +213,32 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 		}
 
 		decode_header(state, data, output);
+		if (guess_invalid_pushbuf && subchans[state->subchan] == NULL && state->addr != 0 && state->pushbuf_invalid == 0)
+		{
+			mmt_log("subchannel %d does not have bound object and first command does not bind it, marking this buffer invalid\n", state->subchan);
+			state->pushbuf_invalid = 1;
+		}
 	}
 	else
 	{
-		if (state->addr == 0 && subchans[state->subchan] == NULL)
-			subchans[state->subchan] = get_object(data);
+		if (state->addr == 0)
+		{
+			if (subchans[state->subchan] == NULL)
+			{
+				if (guess_invalid_pushbuf && state->pushbuf_invalid)
+					mmt_log("this is invalid buffer, not going to bind object 0x%08x to subchannel %d\n", data, state->subchan);
+				else
+					subchans[state->subchan] = get_object(data);
+			}
+			else
+			{
+				if (guess_invalid_pushbuf && data != subchans[state->subchan]->handle)
+				{
+					mmt_log("subchannel %d is already taken, marking this buffer invalid\n", state->subchan);
+					state->pushbuf_invalid = 1;
+				}
+			}
+		}
 
 		decode_method(state, data, output);
 
