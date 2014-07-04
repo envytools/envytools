@@ -68,6 +68,7 @@ int chipset;
 int guess_invalid_pushbuf = 1;
 int invalid_pushbufs_visible = 1;
 int decode_invalid_buffers = 1;
+int m2mf_hack_enabled = 0;
 
 static void dump(int id)
 {
@@ -804,6 +805,7 @@ static void usage()
 			"  -i\t\tdo not guess invalid pushbufs\n"
 			"  -d\t\thide invalid pushbufs\n"
 			"  -e\t\tdo not decode invalid pushbufs\n"
+			"  -b\t\tenable hacky IB trick detection, will be removed when proper IB support lands\n"
 			"\n");
 	exit(1);
 }
@@ -833,6 +835,8 @@ int main(int argc, char *argv[])
 			invalid_pushbufs_visible = 0;
 		else if (!strcmp(argv[i], "-e"))
 			decode_invalid_buffers = 0;
+		else if (!strcmp(argv[i], "-b"))
+			m2mf_hack_enabled = 1;
 		else
 			usage();
 	}

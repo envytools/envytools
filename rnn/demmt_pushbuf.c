@@ -255,6 +255,16 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 			mmt_log("subchannel %d does not have bound object and first command does not bind it, marking this buffer invalid\n", state->subchan);
 			state->pushbuf_invalid = 1;
 		}
+
+		// XXX HACK
+		if (m2mf_hack_enabled &&
+				subchans[state->subchan] && subchans[state->subchan]->handle == 0x9039 &&
+				state->addr == 0x0304 && state->incr == 0)
+		{
+			mmt_log("IB trick detected, assuming next word after this one is NOT M2MF.DATA%s\n", "");
+			state->size = 0;
+		}
+		// XXX END HACK
 	}
 	else
 	{

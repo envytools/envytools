@@ -11,5 +11,6 @@ extern struct rnndomain *domain;
 extern struct rnndb *rnndb;
 extern int chipset;
 extern int guess_invalid_pushbuf;
+extern int m2mf_hack_enabled;
 
 #endif
