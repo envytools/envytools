@@ -305,3 +305,41 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 void pushbuf_decode_end(struct pushbuf_decode_state *state)
 {
 }
+
+
+void ib_decode_start(struct ib_decode_state *state)
+{
+	memset(state, 0, sizeof(*state));
+}
+
+void ib_decode(struct ib_decode_state *state, uint32_t data, char *output)
+{
+	if ((state->word & 1) == 0)
+	{
+		state->address = data & 0xfffffffc;
+		if (data & 0x3)
+			mmt_log("invalid ib entry, low2: %d\n", data & 0x3);
+
+		sprintf(output, "IB: addrlow: 0x%08lx", state->address);
+	}
+	else
+	{
+		state->address |= data & 0xff;
+		state->unk8 = (data >> 8) & 0x1;
+		state->not_main = (data >> 9) & 0x1;
+		state->size = (data & 0x7fffffff) >> 10;
+		state->no_prefetch = data >> 31;
+		sprintf(output, "IB: address: 0x%08lx, size: %d", state->address, state->size);
+		if (state->not_main)
+			strcat(output, ", not_main");
+		if (state->no_prefetch)
+			strcat(output, ", no_prefetch?");
+		if (state->unk8)
+			strcat(output, ", unk8");
+	}
+	state->word++;
+}
+
+void ib_decode_end(struct ib_decode_state *state)
+{
+}

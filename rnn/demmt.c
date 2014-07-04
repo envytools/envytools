@@ -49,7 +49,12 @@ struct buffer
 	uint64_t start;
 	uint64_t data1;
 	uint64_t data2;
-	struct pushbuf_decode_state state;
+	enum BUFTYPE { PUSH, IB } type;
+	union
+	{
+		struct pushbuf_decode_state pushbuf;
+		struct ib_decode_state ib;
+	} state;
 };
 #define MAX_ID 1024
 
@@ -61,6 +66,7 @@ static int writes_since_last_full_dump = 0; // NOTE: you cannot rely too much on
 static int writes_since_last_dump = 0;
 static int last_wreg_id = -1;
 static int compress_clears = 1;
+static int ib_buffer = -1;
 
 struct rnndomain *domain;
 struct rnndb *rnndb;
@@ -91,7 +97,8 @@ static void dump_and_abort(int id)
 static void dump_writes(int id)
 {
 	struct region *cur = wreg_head[id];
-	struct pushbuf_decode_state *state = &buffers[id]->state;
+	struct pushbuf_decode_state *state = &buffers[id]->state.pushbuf;
+	struct ib_decode_state *ibstate = &buffers[id]->state.ib;
 	char pushbuf_desc[1024];
 	mmt_log("currently buffered writes for id: %d:\n", id);
 	while (cur)
@@ -101,7 +108,7 @@ static void dump_writes(int id)
 		uint32_t addr = cur->start;
 
 		int left = cur->end - addr;
-		if (compress_clears && *(uint32_t *)(data + addr) == 0)
+		if (compress_clears && buffers[id]->type == PUSH && *(uint32_t *)(data + addr) == 0)
 		{
 			uint32_t addr_start = addr;
 			while (addr < cur->end)
@@ -144,33 +151,46 @@ static void dump_writes(int id)
 			fprintf(stdout, "w %d:0x%04x-0x%04x, 0x00000000\n", id, addr_start, addr);
 		}
 
-		if (addr != state->next_command_offset)
+		if (buffers[id]->type == IB)
+			ib_decode_start(ibstate);
+		else
 		{
-			mmt_log("restarting pushbuf decode on buffer %d: %x != %x\n", id, addr, state->next_command_offset);
-			pushbuf_decode_start(state);
-		}
+			if (addr != state->next_command_offset)
+			{
+				mmt_log("restarting pushbuf decode on buffer %d: %x != %x\n", id, addr, state->next_command_offset);
+				pushbuf_decode_start(state);
+			}
 
-		// this is temporary, will be removed when proper IB support lands
-		if (state->pushbuf_invalid == 1)
-		{
-			mmt_log("restarting pushbuf decode on buffer %d\n", id);
-			pushbuf_decode_start(state);
+			// this is temporary, will be removed when proper IB support lands
+			if (state->pushbuf_invalid == 1)
+			{
+				mmt_log("restarting pushbuf decode on buffer %d\n", id);
+				pushbuf_decode_start(state);
+			}
 		}
 
 		while (addr < cur->end)
 		{
 			if (left >= 4)
 			{
-				if (state->pushbuf_invalid == 0 || decode_invalid_buffers)
-					pushbuf_decode(state, *(uint32_t *)(data + addr), pushbuf_desc);
+				if (buffers[id]->type == IB)
+				{
+					ib_decode(ibstate, *(uint32_t *)(data + addr), pushbuf_desc);
+					fprintf(stdout, "w %d:0x%04x, 0x%08x  %s\n", id, addr, *(uint32_t *)(data + addr), pushbuf_desc);
+				}
 				else
-					pushbuf_desc[0] = 0;
+				{
+					if (state->pushbuf_invalid == 0 || decode_invalid_buffers)
+						pushbuf_decode(state, *(uint32_t *)(data + addr), pushbuf_desc);
+					else
+						pushbuf_desc[0] = 0;
 
-				if (state->pushbuf_invalid == 1 && invalid_pushbufs_visible == 0)
-					break;
+					if (state->pushbuf_invalid == 1 && invalid_pushbufs_visible == 0)
+						break;
 
-				fprintf(stdout, "w %d:0x%04x, 0x%08x  %s%s\n", id, addr, *(uint32_t *)(data + addr), state->pushbuf_invalid ? "INVALID " : "", pushbuf_desc);
-				state->next_command_offset = addr + 4;
+					state->next_command_offset = addr + 4;
+					fprintf(stdout, "w %d:0x%04x, 0x%08x  %s%s\n", id, addr, *(uint32_t *)(data + addr), state->pushbuf_invalid ? "INVALID " : "", pushbuf_desc);
+				}
 
 				addr += 4;
 				left -= 4;
@@ -189,7 +209,10 @@ static void dump_writes(int id)
 			}
 		}
 
-		pushbuf_decode_end(state);
+		if (buffers[id]->type == IB)
+			ib_decode_end(ibstate);
+		else
+			pushbuf_decode_end(state);
 
 		cur = cur->next;
 	}
@@ -575,6 +598,8 @@ static void demmt_mmap(struct mmt_mmap *mm, void *state)
 	buffers[mm->id]->start = mm->start;
 	buffers[mm->id]->length = mm->len;
 	buffers[mm->id]->offset = mm->offset;
+	if (mm->id == ib_buffer)
+		buffers[mm->id]->type = IB;
 }
 
 static void demmt_munmap(struct mmt_unmap *mm, void *state)
@@ -608,7 +633,8 @@ static void demmt_mremap(struct mmt_mremap *mm, void *state)
 	buffers[mm->id]->offset = mm->offset;
 	buffers[mm->id]->data1 = mm->data1;
 	buffers[mm->id]->data2 = mm->data2;
-	memcpy(&buffers[mm->id]->state, &oldbuf->state, sizeof(struct pushbuf_decode_state));
+	buffers[mm->id]->type = oldbuf->type;
+	memcpy(&buffers[mm->id]->state, &oldbuf->state, sizeof(buffers[mm->id]->state));
 	memcpy(buffers[mm->id]->data, oldbuf->data, min(mm->len, oldbuf->length));
 
 	free(oldbuf->data);
@@ -731,6 +757,8 @@ static void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
 	buffers[mm->id]->offset = mm->offset;
 	buffers[mm->id]->data1 = mm->data1;
 	buffers[mm->id]->data2 = mm->data2;
+	if (mm->id == ib_buffer)
+		buffers[mm->id]->type = IB;
 }
 
 static void demmt_nv_unmap(struct mmt_nvidia_unmap *mm, void *state)
@@ -820,6 +848,7 @@ static void usage()
 			"  -d\t\thide invalid pushbufs\n"
 			"  -e\t\tdo not decode invalid pushbufs\n"
 			"  -b\t\tenable hacky IB trick detection, will be removed when proper IB support lands\n"
+			"  -n id\t\tassume buffer \"id\" contains IB entries\n"
 			"\n");
 	exit(1);
 }
@@ -851,6 +880,12 @@ int main(int argc, char *argv[])
 			decode_invalid_buffers = 0;
 		else if (!strcmp(argv[i], "-b"))
 			m2mf_hack_enabled = 1;
+		else if (!strcmp(argv[i], "-n"))
+		{
+			if (i + 1 >= argc)
+				usage();
+			ib_buffer = strtoul(argv[++i], NULL, 10);
+		}
 		else
 			usage();
 	}
