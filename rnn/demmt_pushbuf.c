@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2010 Francisco Jerez.
+ * Copyright (C) 2014 Marcin Ślusarz <marcin.slusarz@gmail.com>.
  * All Rights Reserved.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
