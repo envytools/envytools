@@ -41,25 +41,7 @@ struct region
 	struct region *next;
 };
 
-struct buffer
-{
-	unsigned char *data;
-	int length;
-	uint64_t mmap_offset;
-	uint64_t cpu_start;
-	uint64_t data1;
-	uint64_t data2;
-	uint64_t gpu_start;
-	enum BUFTYPE { PUSH, IB } type;
-	union
-	{
-		struct pushbuf_decode_state pushbuf;
-		struct ib_decode_state ib;
-	} state;
-};
-#define MAX_ID 1024
-
-static struct buffer *buffers[MAX_ID] = { NULL };
+struct buffer *buffers[MAX_ID] = { NULL };
 static struct region *wreg_head[MAX_ID] = { NULL };
 static struct region *wreg_last[MAX_ID] = { NULL };
 static int wreg_count = 0;
@@ -196,7 +178,9 @@ static void dump_writes(int id)
 				}
 				else
 				{
-					if (state->pushbuf_invalid == 0 || decode_invalid_buffers)
+					if (ib_buffer != -1)
+						pushbuf_desc[0] = 0;
+					else if (state->pushbuf_invalid == 0 || decode_invalid_buffers)
 						pushbuf_decode(state, *(uint32_t *)(data + addr), pushbuf_desc);
 					else
 						pushbuf_desc[0] = 0;

@@ -310,12 +310,34 @@ void pushbuf_decode_end(struct pushbuf_decode_state *state)
 void ib_decode_start(struct ib_decode_state *state)
 {
 	memset(state, 0, sizeof(*state));
+	pushbuf_decode_start(&state->pstate);
+}
+
+static void ib_print(struct ib_decode_state *state)
+{
+	char cmdoutput[1024];
+	uint64_t cur = state->address - state->last_buffer->gpu_start;
+	uint64_t end = cur + state->size * 4;
+
+	while (cur < end)
+	{
+		uint32_t cmd = *(uint32_t *)&state->last_buffer->data[cur];
+		pushbuf_decode(&state->pstate, cmd, cmdoutput);
+		fprintf(stdout, "PB: 0x%08x %s\n", cmd, cmdoutput);
+		cur += 4;
+	}
 }
 
 void ib_decode(struct ib_decode_state *state, uint32_t data, char *output)
 {
 	if ((state->word & 1) == 0)
 	{
+		if (state->last_buffer)
+		{
+			ib_print(state);
+			state->last_buffer = NULL;
+		}
+
 		state->address = data & 0xfffffffc;
 		if (data & 0x3)
 			mmt_log("invalid ib entry, low2: %d\n", data & 0x3);
@@ -324,6 +346,8 @@ void ib_decode(struct ib_decode_state *state, uint32_t data, char *output)
 	}
 	else
 	{
+		int i;
+
 		state->address |= data & 0xff;
 		state->unk8 = (data >> 8) & 0x1;
 		state->not_main = (data >> 9) & 0x1;
@@ -336,10 +360,39 @@ void ib_decode(struct ib_decode_state *state, uint32_t data, char *output)
 			strcat(output, ", no_prefetch?");
 		if (state->unk8)
 			strcat(output, ", unk8");
+
+		struct buffer *buf = NULL;
+		for (i = 0; i < MAX_ID; ++i)
+		{
+			struct buffer *b = buffers[i];
+			if (!b || !b->gpu_start)
+				continue;
+			if (state->address >= b->gpu_start && state->address < b->gpu_start + b->length)
+			{
+				buf = b;
+				break;
+			}
+		}
+
+		state->last_buffer = buf;
+		if (buf)
+		{
+			char cmdoutput[32];
+
+			sprintf(cmdoutput, ", buffer id: %d", i);
+			strcat(output, cmdoutput);
+		}
 	}
 	state->word++;
 }
 
 void ib_decode_end(struct ib_decode_state *state)
 {
+	if (state->last_buffer)
+	{
+		ib_print(state);
+		state->last_buffer = NULL;
+	}
+
+	pushbuf_decode_end(&state->pstate);
 }

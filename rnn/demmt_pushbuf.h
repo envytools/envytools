@@ -23,6 +23,9 @@ struct ib_decode_state
 	int not_main;
 	int size;
 	int no_prefetch;
+
+	struct pushbuf_decode_state pstate;
+	struct buffer *last_buffer;
 };
 
 void pushbuf_add_object(uint32_t handle, uint32_t class);
