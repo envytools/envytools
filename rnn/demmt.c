@@ -45,10 +45,11 @@ struct buffer
 {
 	unsigned char *data;
 	int length;
-	uint64_t offset;
-	uint64_t start;
+	uint64_t mmap_offset;
+	uint64_t cpu_start;
 	uint64_t data1;
 	uint64_t data2;
+	uint64_t gpu_start;
 	enum BUFTYPE { PUSH, IB } type;
 	union
 	{
@@ -590,17 +591,48 @@ static void demmt_memwrite(struct mmt_write *w, void *state)
 	writes_since_last_full_dump += w->len;
 }
 
+struct unk_map
+{
+	uint32_t data1;
+	uint32_t data2;
+	uint64_t mmap_offset;
+	struct unk_map *next;
+};
+
+static struct unk_map *unk_maps = NULL;
+
 static void demmt_mmap(struct mmt_mmap *mm, void *state)
 {
 	mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx\n",
 			(void *)mm->start, mm->len, mm->id, mm->offset);
 	buffers[mm->id] = calloc(1, sizeof(struct buffer));
 	buffers[mm->id]->data = calloc(mm->len, 1);
-	buffers[mm->id]->start = mm->start;
+	buffers[mm->id]->cpu_start = mm->start;
 	buffers[mm->id]->length = mm->len;
-	buffers[mm->id]->offset = mm->offset;
+	buffers[mm->id]->mmap_offset = mm->offset;
 	if (mm->id == ib_buffer)
 		buffers[mm->id]->type = IB;
+
+	struct unk_map *tmp = unk_maps, *prev;
+	while (tmp)
+	{
+		if (tmp->mmap_offset == mm->offset)
+		{
+			mmt_log("binding data1: 0x%08x, data2: 0x%08x to buffer id: %d\n", tmp->data1, tmp->data2, mm->id);
+			buffers[mm->id]->data1 = tmp->data1;
+			buffers[mm->id]->data2 = tmp->data2;
+
+			if (tmp == unk_maps)
+				unk_maps = tmp->next;
+			else
+				prev->next = tmp->next;
+			free(tmp);
+
+			break;
+		}
+		prev = tmp;
+		tmp = tmp->next;
+	}
 }
 
 static void demmt_munmap(struct mmt_unmap *mm, void *state)
@@ -629,9 +661,9 @@ static void demmt_mremap(struct mmt_mremap *mm, void *state)
 
 	buffers[mm->id] = calloc(1, sizeof(struct buffer));
 	buffers[mm->id]->data = calloc(mm->len, 1);
-	buffers[mm->id]->start = mm->start;
+	buffers[mm->id]->cpu_start = mm->start;
 	buffers[mm->id]->length = mm->len;
-	buffers[mm->id]->offset = mm->offset;
+	buffers[mm->id]->mmap_offset = mm->offset;
 	buffers[mm->id]->data1 = mm->data1;
 	buffers[mm->id]->data2 = mm->data2;
 	buffers[mm->id]->type = oldbuf->type;
@@ -714,21 +746,26 @@ static void demmt_nv_call_method(struct mmt_nvidia_call_method *m, void *state)
 static void demmt_nv_create_mapped(struct mmt_nvidia_create_mapped_object *p, void *state)
 {
 	int i;
-	mmt_log("create mapped object: address: %p, data1: 0x%08x, data2: 0x%08x, type: 0x%08x\n",
-			(void *)p->addr, p->obj1, p->obj2, p->type);
+	mmt_log("create mapped object: mmap_offset: %p, data1: 0x%08x, data2: 0x%08x, type: 0x%08x\n",
+			(void *)p->mmap_offset, p->data1, p->data2, p->type);
 
-	if (p->addr == 0)
+	if (p->mmap_offset == 0)
 		return;
 
 	for (i = 0; i < MAX_ID; ++i)
-		if (buffers[i] && buffers[i]->offset == p->addr)
+		if (buffers[i] && buffers[i]->mmap_offset == p->mmap_offset)
 		{
-			buffers[i]->data1 = p->obj1;
-			buffers[i]->data2 = p->obj2;
+			buffers[i]->data1 = p->data1;
+			buffers[i]->data2 = p->data2;
 			return;
 		}
 
-	mmt_log("couldn't find buffer%s\n", "");
+	struct unk_map *m = malloc(sizeof(struct unk_map));
+	m->data1 = p->data1;
+	m->data2 = p->data2;
+	m->mmap_offset = p->mmap_offset;
+	m->next = unk_maps;
+	unk_maps = m;
 }
 
 static void demmt_nv_create_dma_object(struct mmt_nvidia_create_dma_object *create, void *state)
@@ -740,30 +777,52 @@ static void demmt_nv_create_dma_object(struct mmt_nvidia_create_dma_object *crea
 static void demmt_nv_alloc_map(struct mmt_nvidia_alloc_map *alloc, void *state)
 {
 	int i;
-	mmt_log("allocate map: address: %p, data1: 0x%08x, data2: 0x%08x\n",
-			(void *)alloc->addr, alloc->obj1, alloc->obj2);
+	mmt_log("allocate map: mmap_offset: %p, data1: 0x%08x, data2: 0x%08x\n",
+			(void *)alloc->mmap_offset, alloc->data1, alloc->data2);
 
 	for (i = 0; i < MAX_ID; ++i)
-		if (buffers[i] && buffers[i]->offset == alloc->addr)
+		if (buffers[i] && buffers[i]->mmap_offset == alloc->mmap_offset)
 		{
-			buffers[i]->data1 = alloc->obj1;
-			buffers[i]->data2 = alloc->obj2;
+			buffers[i]->data1 = alloc->data1;
+			buffers[i]->data2 = alloc->data2;
 			return;
 		}
 
-	mmt_log("couldn't find buffer%s\n", "");
+	struct unk_map *m = malloc(sizeof(struct unk_map));
+	m->data1 = alloc->data1;
+	m->data2 = alloc->data2;
+	m->mmap_offset = alloc->mmap_offset;
+	m->next = unk_maps;
+	unk_maps = m;
 }
 
 static void demmt_nv_gpu_map(struct mmt_nvidia_gpu_map *map, void *state)
 {
-	mmt_log("gpu map: data1: 0x%08x, data2: 0x%08x, data3: 0x%08x, addr: 0x%08x, len: 0x%08x\n",
-			map->data1, map->data2, map->data3, map->addr, map->len);
+	int i;
+	mmt_log("gpu map: data1: 0x%08x, data2: 0x%08x, data3: 0x%08x, gpu_start: 0x%08x, len: 0x%08x\n",
+			map->data1, map->data2, map->data3, map->gpu_start, map->len);
+	for (i = 0; i < MAX_ID; ++i)
+		if (buffers[i] && buffers[i]->data1 == map->data1 && buffers[i]->data2 == map->data3 && buffers[i]->length == map->len)
+		{
+			buffers[i]->gpu_start = map->gpu_start;
+			mmt_log("setting gpu address for buffer %d to 0x%08lx\n", i, buffers[i]->gpu_start);
+			break;
+		}
 }
 
 static void demmt_nv_gpu_unmap(struct mmt_nvidia_gpu_unmap *unmap, void *state)
 {
-	mmt_log("gpu unmap: data1: 0x%08x, data2: 0x%08x, data3: 0x%08x, addr: 0x%08x\n",
-			unmap->data1, unmap->data2, unmap->data3, unmap->addr);
+	int i;
+	mmt_log("gpu unmap: data1: 0x%08x, data2: 0x%08x, data3: 0x%08x, gpu_start: 0x%08x\n",
+			unmap->data1, unmap->data2, unmap->data3, unmap->gpu_start);
+	for (i = 0; i < MAX_ID; ++i)
+		if (buffers[i] && buffers[i]->data1 == unmap->data1 && buffers[i]->data2 == unmap->data3 &&
+				buffers[i]->gpu_start == unmap->gpu_start)
+		{
+			mmt_log("clearing gpu address for buffer %d (was: 0x%08lx)\n", i, buffers[i]->gpu_start);
+			buffers[i]->gpu_start = 0;
+			break;
+		}
 }
 
 static void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
@@ -772,9 +831,9 @@ static void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
 			(void *)mm->start, mm->len, mm->id, mm->offset, mm->data1, mm->data2);
 	buffers[mm->id] = calloc(1, sizeof(struct buffer));
 	buffers[mm->id]->data = calloc(mm->len, 1);
-	buffers[mm->id]->start = mm->start;
+	buffers[mm->id]->cpu_start = mm->start;
 	buffers[mm->id]->length = mm->len;
-	buffers[mm->id]->offset = mm->offset;
+	buffers[mm->id]->mmap_offset = mm->offset;
 	buffers[mm->id]->data1 = mm->data1;
 	buffers[mm->id]->data2 = mm->data2;
 	if (mm->id == ib_buffer)
@@ -784,11 +843,11 @@ static void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
 static void demmt_nv_unmap(struct mmt_nvidia_unmap *mm, void *state)
 {
 	int i;
-	mmt_log("nv_munmap: address: %p, data1: 0x%08x, data2: 0x%08x\n",
-			(void *)mm->addr, mm->obj1, mm->obj2);
+	mmt_log("nv_munmap: mmap_offset: %p, data1: 0x%08x, data2: 0x%08x\n",
+			(void *)mm->mmap_offset, mm->data1, mm->data2);
 
 	for (i = 0; i < MAX_ID; ++i)
-		if (buffers[i] && buffers[i]->offset == mm->addr)
+		if (buffers[i] && buffers[i]->mmap_offset == mm->mmap_offset)
 		{
 			free(buffers[i]->data);
 			free(buffers[i]);

@@ -93,7 +93,7 @@ static void txt_nv_call_method(struct mmt_nvidia_call_method *m, void *state)
 
 static void txt_nv_create_mapped(struct mmt_nvidia_create_mapped_object *p, void *state)
 {
-	fprintf(stdout, PFX "create mapped object 0x%08x:0x%08x type=0x%08x 0x%08lx\n", p->obj1, p->obj2, p->type, p->addr);
+	fprintf(stdout, PFX "create mapped object 0x%08x:0x%08x type=0x%08x 0x%08lx\n", p->data1, p->data2, p->type, p->mmap_offset);
 }
 
 static void txt_nv_create_dma_object(struct mmt_nvidia_create_dma_object *create, void *state)
@@ -103,17 +103,17 @@ static void txt_nv_create_dma_object(struct mmt_nvidia_create_dma_object *create
 
 static void txt_nv_alloc_map(struct mmt_nvidia_alloc_map *alloc, void *state)
 {
-	fprintf(stdout, PFX "allocate map 0x%08x:0x%08x 0x%08lx\n", alloc->obj1, alloc->obj2, alloc->addr);
+	fprintf(stdout, PFX "allocate map 0x%08x:0x%08x 0x%08lx\n", alloc->data1, alloc->data2, alloc->mmap_offset);
 }
 
 static void txt_nv_gpu_map(struct mmt_nvidia_gpu_map *map, void *state)
 {
-	fprintf(stdout, PFX "gpu map 0x%08x:0x%08x:0x%08x, addr 0x%08x, len 0x%08x\n", map->data1, map->data2, map->data3, map->addr, map->len);
+	fprintf(stdout, PFX "gpu map 0x%08x:0x%08x:0x%08x, addr 0x%08x, len 0x%08x\n", map->data1, map->data2, map->data3, map->gpu_start, map->len);
 }
 
 static void txt_nv_gpu_unmap(struct mmt_nvidia_gpu_unmap *unmap, void *state)
 {
-	fprintf(stdout, PFX "gpu unmap 0x%08x:0x%08x:0x%08x addr 0x%08x\n", unmap->data1, unmap->data2, unmap->data3, unmap->addr);
+	fprintf(stdout, PFX "gpu unmap 0x%08x:0x%08x:0x%08x addr 0x%08x\n", unmap->data1, unmap->data2, unmap->data3, unmap->gpu_start);
 }
 
 static void txt_nv_mmap(struct mmt_nvidia_mmap *map, void *state)
@@ -124,7 +124,7 @@ static void txt_nv_mmap(struct mmt_nvidia_mmap *map, void *state)
 
 static void txt_nv_unmap(struct mmt_nvidia_unmap *unmap, void *state)
 {
-	fprintf(stdout, PFX "deallocate map 0x%08x:0x%08x 0x%08lx\n", unmap->obj1, unmap->obj2, unmap->addr);
+	fprintf(stdout, PFX "deallocate map 0x%08x:0x%08x 0x%08lx\n", unmap->data1, unmap->data2, unmap->mmap_offset);
 }
 
 static void txt_nv_bind(struct mmt_nvidia_bind *bnd, void *state)

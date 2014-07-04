@@ -58,10 +58,10 @@ struct mmt_nvidia_call_method
 struct mmt_nvidia_create_mapped_object
 {
 	struct mmt_message_nv msg_type;
-	uint32_t obj1;
-	uint32_t obj2;
+	uint32_t data1;
+	uint32_t data2;
 	uint32_t type;
-	uint64_t addr;
+	uint64_t mmap_offset;
 } __packed;
 
 struct mmt_nvidia_create_dma_object
@@ -75,9 +75,9 @@ struct mmt_nvidia_create_dma_object
 struct mmt_nvidia_alloc_map
 {
 	struct mmt_message_nv msg_type;
-	uint32_t obj1;
-	uint32_t obj2;
-	uint64_t addr;
+	uint32_t data1;
+	uint32_t data2;
+	uint64_t mmap_offset;
 } __packed;
 
 struct mmt_nvidia_gpu_map
@@ -86,7 +86,7 @@ struct mmt_nvidia_gpu_map
 	uint32_t data1;
 	uint32_t data2;
 	uint32_t data3;
-	uint32_t addr;
+	uint32_t gpu_start;
 	uint32_t len;
 } __packed;
 
@@ -96,7 +96,7 @@ struct mmt_nvidia_gpu_unmap
 	uint32_t data1;
 	uint32_t data2;
 	uint32_t data3;
-	uint32_t addr;
+	uint32_t gpu_start;
 } __packed;
 
 struct mmt_nvidia_bind
@@ -120,9 +120,9 @@ struct mmt_nvidia_mmap
 struct mmt_nvidia_unmap
 {
 	struct mmt_message_nv msg_type;
-	uint32_t obj1;
-	uint32_t obj2;
-	uint64_t addr;
+	uint32_t data1;
+	uint32_t data2;
+	uint64_t mmap_offset;
 } __packed;
 
 struct mmt_nvidia_create_driver_object
