@@ -271,8 +271,11 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 			{
 				if (guess_invalid_pushbuf && data != subchans[state->subchan]->handle)
 				{
-					mmt_log("subchannel %d is already taken, marking this buffer invalid\n", state->subchan);
-					state->pushbuf_invalid = 1;
+					if (state->pushbuf_invalid == 0)
+					{
+						mmt_log("subchannel %d is already taken, marking this buffer invalid\n", state->subchan);
+						state->pushbuf_invalid = 1;
+					}
 				}
 			}
 		}
