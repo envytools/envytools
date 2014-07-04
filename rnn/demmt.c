@@ -621,11 +621,13 @@ static void demmt_open(struct mmt_open *o, void *state)
 
 static void demmt_nv_create_object(struct mmt_nvidia_create_object *create, void *state)
 {
+	mmt_log("create object: obj1: 0x%08x, obj2: 0x%08x, class: 0x%08x\n", create->obj1, create->obj2, create->class);
 	pushbuf_add_object(create->obj2, create->class);
 }
 
 static void demmt_nv_destroy_object(struct mmt_nvidia_destroy_object *destroy, void *state)
 {
+	mmt_log("destroy object: obj1: 0x%08x, obj2: 0x%08x\n", destroy->obj1, destroy->obj2);
 }
 
 static void demmt_nv_ioctl_pre(struct mmt_nvidia_ioctl_pre *ctl, void *state)
@@ -660,6 +662,7 @@ static void demmt_nv_memory_dump_cont(struct mmt_buf *b, void *state)
 
 static void demmt_nv_call_method(struct mmt_nvidia_call_method *m, void *state)
 {
+	mmt_log("call method: data1: 0x%08x, data2: 0x%08x\n", m->data1, m->data2);
 }
 
 static void demmt_nv_create_mapped(struct mmt_nvidia_create_mapped_object *p, void *state)
@@ -684,6 +687,8 @@ static void demmt_nv_create_mapped(struct mmt_nvidia_create_mapped_object *p, vo
 
 static void demmt_nv_create_dma_object(struct mmt_nvidia_create_dma_object *create, void *state)
 {
+	mmt_log("create dma object, name: 0x%08x, type: 0x%08x, parent: 0x%08x\n",
+			create->name, create->type, create->parent);
 }
 
 static void demmt_nv_alloc_map(struct mmt_nvidia_alloc_map *alloc, void *state)
@@ -705,10 +710,14 @@ static void demmt_nv_alloc_map(struct mmt_nvidia_alloc_map *alloc, void *state)
 
 static void demmt_nv_gpu_map(struct mmt_nvidia_gpu_map *map, void *state)
 {
+	mmt_log("gpu map: data1: 0x%08x, data2: 0x%08x, data3: 0x%08x, addr: 0x%08x, len: 0x%08x\n",
+			map->data1, map->data2, map->data3, map->addr, map->len);
 }
 
 static void demmt_nv_gpu_unmap(struct mmt_nvidia_gpu_unmap *unmap, void *state)
 {
+	mmt_log("gpu unmap: data1: 0x%08x, data2: 0x%08x, data3: 0x%08x, addr: 0x%08x\n",
+			unmap->data1, unmap->data2, unmap->data3, unmap->addr);
 }
 
 static void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
@@ -744,18 +753,22 @@ static void demmt_nv_unmap(struct mmt_nvidia_unmap *mm, void *state)
 
 static void demmt_nv_bind(struct mmt_nvidia_bind *bnd, void *state)
 {
+	mmt_log("bind: data1: 0x%08x, data2: 0x%08x\n", bnd->data1, bnd->data2);
 }
 
 static void demmt_nv_create_driver_object(struct mmt_nvidia_create_driver_object *create, void *state)
 {
+	mmt_log("create driver object: obj1: 0x%08x, obj2: 0x%08x, addr: 0x%08lx\n", create->obj1, create->obj2, create->addr);
 }
 
 static void demmt_nv_create_device_object(struct mmt_nvidia_create_device_object *create, void *state)
 {
+	mmt_log("create device object: obj1: 0x%08x\n", create->obj1);
 }
 
 static void demmt_nv_create_context_object(struct mmt_nvidia_create_context_object *create, void *state)
 {
+	mmt_log("create context object: obj1: 0x%08x\n", create->obj1);
 }
 
 static void demmt_nv_call_method_data(struct mmt_nvidia_call_method_data *call, void *state)
@@ -764,6 +777,7 @@ static void demmt_nv_call_method_data(struct mmt_nvidia_call_method_data *call, 
 
 static void demmt_nv_ioctl_4d(struct mmt_nvidia_ioctl_4d *ctl, void *state)
 {
+	mmt_log("ioctl4d: %s\n", ctl->str.data);
 }
 
 static void demmt_nv_mmiotrace_mark(struct mmt_nvidia_mmiotrace_mark *mark, void *state)
