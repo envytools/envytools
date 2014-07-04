@@ -69,6 +69,7 @@ static int last_wreg_id = -1;
 static int compress_clears = 1;
 static int ib_buffer = -1;
 static int dump_ioctls = 0;
+static int print_gpu_addresses = 0;
 
 struct rnndomain *domain;
 struct rnndb *rnndb;
@@ -101,7 +102,12 @@ static void dump_writes(int id)
 	struct region *cur = wreg_head[id];
 	struct pushbuf_decode_state *state = &buffers[id]->state.pushbuf;
 	struct ib_decode_state *ibstate = &buffers[id]->state.ib;
+	uint64_t gpu_start = buffers[id]->gpu_start;
 	char pushbuf_desc[1024];
+	char comment[2][50];
+	comment[0][0] = 0;
+	comment[1][0] = 0;
+
 	mmt_log("currently buffered writes for id: %d:\n", id);
 	while (cur)
 	{
@@ -150,7 +156,12 @@ static void dump_writes(int id)
 				state->next_command_offset = addr;
 
 			mmt_log("all zeroes between 0x%04x and 0x%04x\n", addr_start, addr);
-			fprintf(stdout, "w %d:0x%04x-0x%04x, 0x00000000\n", id, addr_start, addr);
+			if (print_gpu_addresses && gpu_start)
+			{
+				sprintf(comment[0], " (gpu=0x%08lx)", gpu_start + addr_start);
+				sprintf(comment[1], " (gpu=0x%08lx)", gpu_start + addr);
+			}
+			fprintf(stdout, "w %d:0x%04x%s-0x%04x%s, 0x00000000\n", id, addr_start, comment[0], addr, comment[1]);
 		}
 
 		if (buffers[id]->type == IB)
@@ -173,12 +184,15 @@ static void dump_writes(int id)
 
 		while (addr < cur->end)
 		{
+			if (print_gpu_addresses && gpu_start)
+				sprintf(comment[0], " (gpu=0x%08lx)", gpu_start + addr);
+
 			if (left >= 4)
 			{
 				if (buffers[id]->type == IB)
 				{
 					ib_decode(ibstate, *(uint32_t *)(data + addr), pushbuf_desc);
-					fprintf(stdout, "w %d:0x%04x, 0x%08x  %s\n", id, addr, *(uint32_t *)(data + addr), pushbuf_desc);
+					fprintf(stdout, "w %d:0x%04x%s, 0x%08x  %s\n", id, addr, comment[0], *(uint32_t *)(data + addr), pushbuf_desc);
 				}
 				else
 				{
@@ -191,7 +205,7 @@ static void dump_writes(int id)
 						break;
 
 					state->next_command_offset = addr + 4;
-					fprintf(stdout, "w %d:0x%04x, 0x%08x  %s%s\n", id, addr, *(uint32_t *)(data + addr), state->pushbuf_invalid ? "INVALID " : "", pushbuf_desc);
+					fprintf(stdout, "w %d:0x%04x%s, 0x%08x  %s%s\n", id, addr, comment[0], *(uint32_t *)(data + addr), state->pushbuf_invalid ? "INVALID " : "", pushbuf_desc);
 				}
 
 				addr += 4;
@@ -199,13 +213,13 @@ static void dump_writes(int id)
 			}
 			else if (left >= 2)
 			{
-				fprintf(stdout, "w %d:0x%04x, 0x%04x\n", id, addr, *(uint16_t *)(data + addr));
+				fprintf(stdout, "w %d:0x%04x%s, 0x%04x\n", id, addr, comment[0], *(uint16_t *)(data + addr));
 				addr += 2;
 				left -= 2;
 			}
 			else
 			{
-				fprintf(stdout, "w %d:0x%04x, 0x%02x\n", id, addr, *(uint8_t *)(data + addr));
+				fprintf(stdout, "w %d:0x%04x%s, 0x%02x\n", id, addr, comment[0], *(uint8_t *)(data + addr));
 				++addr;
 				--left;
 			}
@@ -525,13 +539,19 @@ static void clear_buffered_writes()
 
 static void demmt_memread(struct mmt_read *w, void *state)
 {
+	char comment[50];
+	if (print_gpu_addresses && buffers[w->id]->gpu_start)
+		sprintf(comment, " (gpu=0x%08lx)", buffers[w->id]->gpu_start + w->offset);
+	else
+		comment[0] = 0;
+
 	if (w->len == 1)
-		fprintf(stdout, "r %d:0x%04x, 0x%02x\n", w->id, w->offset, w->data[0]);
+		fprintf(stdout, "r %d:0x%04x%s, 0x%02x\n", w->id, w->offset, comment, w->data[0]);
 	else if (w->len == 2)
-		fprintf(stdout, "r %d:0x%04x, 0x%04x\n", w->id, w->offset, *(uint16_t *)(w->data));
+		fprintf(stdout, "r %d:0x%04x%s, 0x%04x\n", w->id, w->offset, comment, *(uint16_t *)(w->data));
 	else if (w->len == 4 || w->len == 8 || w->len == 16 || w->len == 32)
 	{
-		fprintf(stdout, "r %d:0x%04x, ", w->id, w->offset);
+		fprintf(stdout, "r %d:0x%04x%s, ", w->id, w->offset, comment);
 		int i;
 		for (i = 0; i < w->len; i += 4)
 			fprintf(stdout, "0x%08x ", *(uint32_t *)(w->data + i));
@@ -929,6 +949,7 @@ static void usage()
 			"  -b\t\tenable hacky IB trick detection, will be removed when proper IB support lands\n"
 			"  -n id\t\tassume buffer \"id\" contains IB entries\n"
 			"  -o\t\tdump ioctl data\n"
+			"  -g\t\tprint gpu addresses\n"
 			"\n");
 	exit(1);
 }
@@ -968,6 +989,8 @@ int main(int argc, char *argv[])
 		}
 		else if (!strcmp(argv[i], "-o"))
 			dump_ioctls = 1;
+		else if (!strcmp(argv[i], "-g"))
+			print_gpu_addresses = 1;
 		else
 			usage();
 	}
