@@ -67,6 +67,7 @@ static int writes_since_last_dump = 0;
 static int last_wreg_id = -1;
 static int compress_clears = 1;
 static int ib_buffer = -1;
+static int dump_ioctls = 0;
 
 struct rnndomain *domain;
 struct rnndb *rnndb;
@@ -656,26 +657,45 @@ static void demmt_nv_destroy_object(struct mmt_nvidia_destroy_object *destroy, v
 	mmt_log("destroy object: obj1: 0x%08x, obj2: 0x%08x\n", destroy->obj1, destroy->obj2);
 }
 
+static void ioctl_data_print(struct mmt_buf *data)
+{
+	int i;
+	if (!dump_ioctls)
+		return;
+
+	mmt_log_cont(", data:%s", "");
+	for (i = 0; i < data->len; ++i)
+		mmt_log_cont(" 0x%08x", ((uint32_t *)data->data)[i]);
+}
+
 static void demmt_nv_ioctl_pre(struct mmt_nvidia_ioctl_pre *ctl, void *state)
 {
+	mmt_log("ioctl pre  0x%02x (0x%08x)", ctl->id & 0xff, ctl->id);
+	ioctl_data_print(&ctl->data);
 	if (1)
 	{
 		if (wreg_count)
 		{
-			mmt_log("ioctl 0x%02x (0x%08x), flushing buffered writes\n", ctl->id & 0xff, ctl->id);
+			mmt_log_cont(", flushing buffered writes%s\n", "");
 			dump_buffered_writes(1);
 			clear_buffered_writes();
 			mmt_log("%s\n", "");
 		}
 		else
-			mmt_log("ioctl 0x%02x (0x%08x), no dirty buffers\n", ctl->id & 0xff, ctl->id);
+			mmt_log_cont(", no dirty buffers%s\n", "");
 	}
 	else
-		mmt_log("ioctl 0x%02x (0x%08x)\n", ctl->id & 0xff, ctl->id);
+		mmt_log_cont("%s\n", "");
 }
 
 static void demmt_nv_ioctl_post(struct mmt_nvidia_ioctl_post *ctl, void *state)
 {
+	if (dump_ioctls)
+	{
+		mmt_log("ioctl post 0x%02x (0x%08x)", ctl->id & 0xff, ctl->id);
+		ioctl_data_print(&ctl->data);
+		mmt_log_cont("%s\n", "");
+	}
 }
 
 static void demmt_nv_memory_dump(struct mmt_nvidia_memory_dump *d, void *state)
@@ -849,6 +869,7 @@ static void usage()
 			"  -e\t\tdo not decode invalid pushbufs\n"
 			"  -b\t\tenable hacky IB trick detection, will be removed when proper IB support lands\n"
 			"  -n id\t\tassume buffer \"id\" contains IB entries\n"
+			"  -o\t\tdump ioctl data\n"
 			"\n");
 	exit(1);
 }
@@ -886,6 +907,8 @@ int main(int argc, char *argv[])
 				usage();
 			ib_buffer = strtoul(argv[++i], NULL, 10);
 		}
+		else if (!strcmp(argv[i], "-o"))
+			dump_ioctls = 1;
 		else
 			usage();
 	}
