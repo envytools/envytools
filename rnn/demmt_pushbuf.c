@@ -187,13 +187,50 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 				state->incr = 0;
 			else if (mode == 5)
 				state->incr = 1;
-			else
+			else if (mode == 1)
 				state->incr = state->size;
-
-			if (mode == 4)
+			else if (mode == 4)
 			{
 				decode_method(state, state->size, output);
 				state->size = 0;
+				return;
+			}
+			else if (mode == 0)
+			{
+				state->incr = 1;
+				state->size = (data & 0x1ffc0000) >> 18;
+				int type = (data & 0x30000) >> 16;
+				if (type != 0)
+				{
+					state->incr = 0;//?
+					state->size = 0;
+					sprintf(output, "SLI %d", type);
+					//TODO: decode fully
+					return;
+				}
+
+				if (!state->pushbuf_invalid)
+					mmt_log("unusual, old-style inc mthd%s\n", "");
+			}
+			else if (mode == 2)
+			{
+				state->incr = 0;
+				state->size = (data & 0x1ffc0000) >> 18;
+				int type = (data & 0x30000) >> 16;
+				if (type != 0)
+				{
+					state->size = 0;
+					sprintf(output, "invalid old-style non-inc mthd, type: %d", type);
+					return;
+				}
+
+				if (!state->pushbuf_invalid)
+					mmt_log("unusual, old-style non-inc mthd%s\n", "");
+			}
+			else
+			{
+				state->size = 0;
+				sprintf(output, "unknown mode %d", mode);
 				return;
 			}
 		}
