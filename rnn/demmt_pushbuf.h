@@ -11,6 +11,7 @@ struct pushbuf_decode_state
 	int size;
 	int skip;
 	int pushbuf_invalid;
+	int next_command_offset;
 };
 
 void pushbuf_decode_start(struct pushbuf_decode_state *state);

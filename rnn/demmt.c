@@ -49,6 +49,7 @@ struct buffer
 	uint64_t start;
 	uint64_t data1;
 	uint64_t data2;
+	struct pushbuf_decode_state state;
 };
 #define MAX_ID 1024
 
@@ -89,7 +90,7 @@ static void dump_and_abort(int id)
 static void dump_writes(int id)
 {
 	struct region *cur = wreg_head[id];
-	struct pushbuf_decode_state state;
+	struct pushbuf_decode_state *state = &buffers[id]->state;
 	char pushbuf_desc[1024];
 	mmt_log("currently buffered writes for id: %d:\n", id);
 	while (cur)
@@ -135,35 +136,41 @@ static void dump_writes(int id)
 						break;
 				}
 			}
+			if (addr_start == state->next_command_offset)
+				state->next_command_offset = addr;
+
 			mmt_log("all zeroes between 0x%04x and 0x%04x\n", addr_start, addr);
 			fprintf(stdout, "w %d:0x%04x-0x%04x, 0x00000000\n", id, addr_start, addr);
 		}
 
-		pushbuf_decode_start(&state);
+		if (addr != state->next_command_offset)
+		{
+			mmt_log("restarting pushbuf decode on buffer %d: %x != %x\n", id, addr, state->next_command_offset);
+			pushbuf_decode_start(state);
+		}
+
+		// this is temporary, will be removed when proper IB support lands
+		if (state->pushbuf_invalid == 1)
+		{
+			mmt_log("restarting pushbuf decode on buffer %d\n", id);
+			pushbuf_decode_start(state);
+		}
 
 		while (addr < cur->end)
 		{
 			if (left >= 4)
 			{
-				if (state.pushbuf_invalid == 0 || decode_invalid_buffers)
-				{
-					pushbuf_decode(&state, *(uint32_t *)(data + addr), pushbuf_desc);
-					if (guess_invalid_pushbuf && !state.pushbuf_invalid && state.size > left / 4)
-					{
-						mmt_log("command size (%d) is bigger than number of left possible commands (%d), marking this buffer invalid\n", state.size, left / 4);
-						state.pushbuf_invalid = 1;
-					}
-
-					if (state.pushbuf_invalid == 1 && !decode_invalid_buffers)
-						pushbuf_desc[0] = 0;
-				}
+				if (state->pushbuf_invalid == 0 || decode_invalid_buffers)
+					pushbuf_decode(state, *(uint32_t *)(data + addr), pushbuf_desc);
 				else
 					pushbuf_desc[0] = 0;
 
-				if (state.pushbuf_invalid == 1 && invalid_pushbufs_visible == 0)
+				if (state->pushbuf_invalid == 1 && invalid_pushbufs_visible == 0)
 					break;
 
-				fprintf(stdout, "w %d:0x%04x, 0x%08x  %s%s\n", id, addr, *(uint32_t *)(data + addr), state.pushbuf_invalid ? "INVALID " : "", pushbuf_desc);
+				fprintf(stdout, "w %d:0x%04x, 0x%08x  %s%s\n", id, addr, *(uint32_t *)(data + addr), state->pushbuf_invalid ? "INVALID " : "", pushbuf_desc);
+				state->next_command_offset = addr + 4;
+
 				addr += 4;
 				left -= 4;
 			}
@@ -181,7 +188,7 @@ static void dump_writes(int id)
 			}
 		}
 
-		pushbuf_decode_end(&state);
+		pushbuf_decode_end(state);
 
 		cur = cur->next;
 	}
@@ -562,13 +569,11 @@ static void demmt_mmap(struct mmt_mmap *mm, void *state)
 {
 	mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx\n",
 			(void *)mm->start, mm->len, mm->id, mm->offset);
-	buffers[mm->id] = malloc(sizeof(struct buffer));
+	buffers[mm->id] = calloc(1, sizeof(struct buffer));
 	buffers[mm->id]->data = calloc(mm->len, 1);
 	buffers[mm->id]->start = mm->start;
 	buffers[mm->id]->length = mm->len;
 	buffers[mm->id]->offset = mm->offset;
-	buffers[mm->id]->data1 = 0;
-	buffers[mm->id]->data2 = 0;
 }
 
 static void demmt_munmap(struct mmt_unmap *mm, void *state)
@@ -595,13 +600,14 @@ static void demmt_mremap(struct mmt_mremap *mm, void *state)
 
 	struct buffer *oldbuf = buffers[mm->id];
 
-	buffers[mm->id] = malloc(sizeof(struct buffer));
+	buffers[mm->id] = calloc(1, sizeof(struct buffer));
 	buffers[mm->id]->data = calloc(mm->len, 1);
 	buffers[mm->id]->start = mm->start;
 	buffers[mm->id]->length = mm->len;
 	buffers[mm->id]->offset = mm->offset;
 	buffers[mm->id]->data1 = mm->data1;
 	buffers[mm->id]->data2 = mm->data2;
+	memcpy(&buffers[mm->id]->state, &oldbuf->state, sizeof(struct pushbuf_decode_state));
 	memcpy(buffers[mm->id]->data, oldbuf->data, min(mm->len, oldbuf->length));
 
 	free(oldbuf->data);
@@ -708,7 +714,7 @@ static void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
 {
 	mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, data1: 0x%08lx, data2: 0x%08lx\n",
 			(void *)mm->start, mm->len, mm->id, mm->offset, mm->data1, mm->data2);
-	buffers[mm->id] = malloc(sizeof(struct buffer));
+	buffers[mm->id] = calloc(1, sizeof(struct buffer));
 	buffers[mm->id]->data = calloc(mm->len, 1);
 	buffers[mm->id]->start = mm->start;
 	buffers[mm->id]->length = mm->len;
