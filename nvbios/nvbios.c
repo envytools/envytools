@@ -1243,6 +1243,11 @@ int main(int argc, char **argv) {
 			uint8_t configs = bios->data[table+5];
 			printf ("Subtable %d at 0x%x, type 0x%x, mask 0x%x, %d configs:\n", i, table, le16(table), le32(table+2) | (disp_ver <= 0x20 ? 0xc0 : 0), configs);
 
+			if (le16(table) > 0xff) {
+				printf ("Unknown type, skipping.\n");
+				continue;
+			}
+
 			printf("Scripts: 0x%04x 0x%04x",
 			       le16(table + 6), le16(table + 8));
 			dispscript_locs[le16(table + 6)] = 1;
