@@ -339,7 +339,7 @@ void ib_decode(struct ib_decode_state *state, uint32_t data, char *output)
 	{
 		int i;
 
-		state->address |= data & 0xff;
+		state->address |= ((uint64_t)(data & 0xff)) << 32;
 		state->unk8 = (data >> 8) & 0x1;
 		state->not_main = (data >> 9) & 0x1;
 		state->size = (data & 0x7fffffff) >> 10;
