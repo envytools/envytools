@@ -11,6 +11,14 @@ extern int find_ib_buffer;
 #define mmt_log_cont(fmt, ...)     do { if (!find_ib_buffer) fprintf(stdout, fmt, __VA_ARGS__); } while (0)
 #define mmt_error(fmt, ...)        do { fprintf(stderr, fmt, __VA_ARGS__); } while (0)
 
+struct region
+{
+	struct region *prev;
+	uint32_t start;
+	uint32_t end;
+	struct region *next;
+};
+
 struct buffer
 {
 	unsigned char *data;
@@ -26,6 +34,8 @@ struct buffer
 		struct pushbuf_decode_state pushbuf;
 		struct ib_decode_state ib;
 	} state;
+	struct region *written_regions;
+	struct region *written_region_last;
 };
 
 #define MAX_ID 1024
