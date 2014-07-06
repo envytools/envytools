@@ -21,6 +21,7 @@ struct region
 
 struct buffer
 {
+	int id;
 	unsigned char *data;
 	int length;
 	uint64_t mmap_offset;
@@ -36,10 +37,10 @@ struct buffer
 	} state;
 	struct region *written_regions;
 	struct region *written_region_last;
+	struct buffer *prev, *next;
 };
 
-#define MAX_ID 1024
-extern struct buffer *buffers[MAX_ID];
+extern struct buffer *buffers_list;
 
 extern struct rnndomain *domain;
 extern struct rnndb *rnndb;

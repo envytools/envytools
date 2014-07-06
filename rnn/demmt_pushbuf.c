@@ -337,8 +337,6 @@ void ib_decode(struct ib_decode_state *state, uint32_t data, char *output)
 	}
 	else
 	{
-		int i;
-
 		state->address |= ((uint64_t)(data & 0xff)) << 32;
 		state->unk8 = (data >> 8) & 0x1;
 		state->not_main = (data >> 9) & 0x1;
@@ -352,17 +350,13 @@ void ib_decode(struct ib_decode_state *state, uint32_t data, char *output)
 		if (state->unk8)
 			strcat(output, ", unk8");
 
-		struct buffer *buf = NULL;
-		for (i = 0; i < MAX_ID; ++i)
+		struct buffer *buf;
+		for (buf = buffers_list; buf != NULL; buf = buf->next)
 		{
-			struct buffer *b = buffers[i];
-			if (!b || !b->gpu_start)
+			if (!buf->gpu_start)
 				continue;
-			if (state->address >= b->gpu_start && state->address < b->gpu_start + b->length)
-			{
-				buf = b;
+			if (state->address >= buf->gpu_start && state->address < buf->gpu_start + buf->length)
 				break;
-			}
 		}
 
 		state->last_buffer = buf;
@@ -370,7 +364,7 @@ void ib_decode(struct ib_decode_state *state, uint32_t data, char *output)
 		{
 			char cmdoutput[32];
 
-			sprintf(cmdoutput, ", buffer id: %d", i);
+			sprintf(cmdoutput, ", buffer id: %d", buf->id);
 			strcat(output, cmdoutput);
 		}
 	}

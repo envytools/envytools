@@ -33,7 +33,10 @@
 #include "rnndec.h"
 #include "util.h"
 
-struct buffer *buffers[MAX_ID] = { NULL };
+#define MAX_ID 1024
+static struct buffer *buffers[MAX_ID] = { NULL };
+
+struct buffer *buffers_list = NULL;
 static int wreg_count = 0;
 static int writes_since_last_full_dump = 0; // NOTE: you cannot rely too much on this value - it includes overwrites
 static int writes_since_last_dump = 0;
@@ -51,30 +54,29 @@ int invalid_pushbufs_visible = 1;
 int decode_invalid_buffers = 1;
 int find_ib_buffer = 0;
 
-static void dump(int id)
+static void dump(struct buffer *buf)
 {
-	struct region *cur = buffers[id]->written_regions;
-	mmt_log("currently buffered writes for id: %d:\n", id);
+	struct region *cur = buf->written_regions;
+	mmt_log("currently buffered writes for id: %d:\n", buf->id);
 	while (cur)
 	{
 		mmt_log("<0x%08x, 0x%08x>\n", cur->start, cur->end);
 		cur = cur->next;
 	}
-	mmt_log("end of buffered writes for id: %d\n", id);
+	mmt_log("end of buffered writes for id: %d\n", buf->id);
 }
 
-static void dump_and_abort(int id)
+static void dump_and_abort(struct buffer *buf)
 {
-	dump(id);
+	dump(buf);
 	abort();
 }
 
-static void dump_writes(int id)
+static void dump_writes(struct buffer *buf)
 {
-	struct region *cur = buffers[id]->written_regions;
-	struct pushbuf_decode_state *state = &buffers[id]->state.pushbuf;
-	struct ib_decode_state *ibstate = &buffers[id]->state.ib;
-	uint64_t gpu_start = buffers[id]->gpu_start;
+	struct region *cur = buf->written_regions;
+	struct pushbuf_decode_state *state = &buf->state.pushbuf;
+	struct ib_decode_state *ibstate = &buf->state.ib;
 	char pushbuf_desc[1024];
 	char comment[2][50];
 	comment[0][0] = 0;
@@ -84,19 +86,19 @@ static void dump_writes(int id)
 	{
 		if (cur->start != 0 || cur->end < 8)
 			return;
-		uint32_t *data = (uint32_t *)buffers[id]->data;
+		uint32_t *data = (uint32_t *)buf->data;
 		if (!data[0] || !data[1])
 			return;
 		if (data[0] & 0x3)
 			return;
 		uint64_t gpu_addr = (((uint64_t)(data[1] & 0xff)) << 32) | (data[0] & 0xfffffffc);
-		int i;
-		for (i = 0; i < MAX_ID; ++i)
+		struct buffer *buf2;
+		for (buf2 = buffers_list; buf2 != NULL; buf2 = buf2->next)
 		{
-			if (buffers[i] && buffers[i]->gpu_start == gpu_addr &&
-					buffers[i]->length >= 4 * ((data[1] & 0x7fffffff) >> 10))
+			if (buf2->gpu_start == gpu_addr &&
+				buf2->length >= 4 * ((data[1] & 0x7fffffff) >> 10))
 			{
-				fprintf(stdout, "possible IB buffer: %d\n", id);
+				fprintf(stdout, "possible IB buffer: %d\n", buf->id);
 				break;
 			}
 		}
@@ -104,15 +106,15 @@ static void dump_writes(int id)
 		return;
 	}
 
-	mmt_log("currently buffered writes for id: %d:\n", id);
+	mmt_log("currently buffered writes for id: %d:\n", buf->id);
 	while (cur)
 	{
 		mmt_log("<0x%08x, 0x%08x>\n", cur->start, cur->end);
-		unsigned char *data = buffers[id]->data;
+		unsigned char *data = buf->data;
 		uint32_t addr = cur->start;
 
 		int left = cur->end - addr;
-		if (compress_clears && buffers[id]->type == PUSH && *(uint32_t *)(data + addr) == 0)
+		if (compress_clears && buf->type == PUSH && *(uint32_t *)(data + addr) == 0)
 		{
 			uint32_t addr_start = addr;
 			while (addr < cur->end)
@@ -152,42 +154,42 @@ static void dump_writes(int id)
 				state->next_command_offset = addr;
 
 			mmt_log("all zeroes between 0x%04x and 0x%04x\n", addr_start, addr);
-			if (print_gpu_addresses && gpu_start)
+			if (print_gpu_addresses && buf->gpu_start)
 			{
-				sprintf(comment[0], " (gpu=0x%08lx)", gpu_start + addr_start);
-				sprintf(comment[1], " (gpu=0x%08lx)", gpu_start + addr);
+				sprintf(comment[0], " (gpu=0x%08lx)", buf->gpu_start + addr_start);
+				sprintf(comment[1], " (gpu=0x%08lx)", buf->gpu_start + addr);
 			}
-			fprintf(stdout, "w %d:0x%04x%s-0x%04x%s, 0x00000000\n", id, addr_start, comment[0], addr, comment[1]);
+			fprintf(stdout, "w %d:0x%04x%s-0x%04x%s, 0x00000000\n", buf->id, addr_start, comment[0], addr, comment[1]);
 		}
 
-		if (buffers[id]->type == IB)
+		if (buf->type == IB)
 			ib_decode_start(ibstate);
 		else
 		{
 			if (addr != state->next_command_offset)
 			{
-				mmt_log("restarting pushbuf decode on buffer %d: %x != %x\n", id, addr, state->next_command_offset);
+				mmt_log("restarting pushbuf decode on buffer %d: %x != %x\n", buf->id, addr, state->next_command_offset);
 				pushbuf_decode_start(state);
 			}
 
 			if (state->pushbuf_invalid == 1)
 			{
-				mmt_log("restarting pushbuf decode on buffer %d\n", id);
+				mmt_log("restarting pushbuf decode on buffer %d\n", buf->id);
 				pushbuf_decode_start(state);
 			}
 		}
 
 		while (addr < cur->end)
 		{
-			if (print_gpu_addresses && gpu_start)
-				sprintf(comment[0], " (gpu=0x%08lx)", gpu_start + addr);
+			if (print_gpu_addresses && buf->gpu_start)
+				sprintf(comment[0], " (gpu=0x%08lx)", buf->gpu_start + addr);
 
 			if (left >= 4)
 			{
-				if (buffers[id]->type == IB)
+				if (buf->type == IB)
 				{
 					ib_decode(ibstate, *(uint32_t *)(data + addr), pushbuf_desc);
-					fprintf(stdout, "w %d:0x%04x%s, 0x%08x  %s\n", id, addr, comment[0], *(uint32_t *)(data + addr), pushbuf_desc);
+					fprintf(stdout, "w %d:0x%04x%s, 0x%08x  %s\n", buf->id, addr, comment[0], *(uint32_t *)(data + addr), pushbuf_desc);
 				}
 				else
 				{
@@ -202,7 +204,7 @@ static void dump_writes(int id)
 						break;
 
 					state->next_command_offset = addr + 4;
-					fprintf(stdout, "w %d:0x%04x%s, 0x%08x  %s%s\n", id, addr, comment[0], *(uint32_t *)(data + addr), state->pushbuf_invalid ? "INVALID " : "", pushbuf_desc);
+					fprintf(stdout, "w %d:0x%04x%s, 0x%08x  %s%s\n", buf->id, addr, comment[0], *(uint32_t *)(data + addr), state->pushbuf_invalid ? "INVALID " : "", pushbuf_desc);
 				}
 
 				addr += 4;
@@ -210,38 +212,38 @@ static void dump_writes(int id)
 			}
 			else if (left >= 2)
 			{
-				fprintf(stdout, "w %d:0x%04x%s, 0x%04x\n", id, addr, comment[0], *(uint16_t *)(data + addr));
+				fprintf(stdout, "w %d:0x%04x%s, 0x%04x\n", buf->id, addr, comment[0], *(uint16_t *)(data + addr));
 				addr += 2;
 				left -= 2;
 			}
 			else
 			{
-				fprintf(stdout, "w %d:0x%04x%s, 0x%02x\n", id, addr, comment[0], *(uint8_t *)(data + addr));
+				fprintf(stdout, "w %d:0x%04x%s, 0x%02x\n", buf->id, addr, comment[0], *(uint8_t *)(data + addr));
 				++addr;
 				--left;
 			}
 		}
 
-		if (buffers[id]->type == IB)
+		if (buf->type == IB)
 			ib_decode_end(ibstate);
 		else
 			pushbuf_decode_end(state);
 
 		cur = cur->next;
 	}
-	mmt_log("end of buffered writes for id: %d\n", id);
+	mmt_log("end of buffered writes for id: %d\n", buf->id);
 }
 
-static void check_sanity(int id)
+static void check_sanity(struct buffer *buf)
 {
-	struct region *cur = buffers[id]->written_regions;
+	struct region *cur = buf->written_regions;
 	if (!cur)
 		return;
 
 	if (cur->prev)
 	{
 		mmt_error("%s", "start->prev != NULL\n");
-		dump_and_abort(id);
+		dump_and_abort(buf);
 	}
 
 	while (cur)
@@ -249,7 +251,7 @@ static void check_sanity(int id)
 		if (cur->start >= cur->end)
 		{
 			mmt_error("cur->start >= cur->end 0x%x 0x%x\n", cur->start, cur->end);
-			dump_and_abort(id);
+			dump_and_abort(buf);
 		}
 
 		if (cur->next)
@@ -257,7 +259,7 @@ static void check_sanity(int id)
 			if (cur->end >= cur->next->start)
 			{
 				mmt_error("cur->end >= cur->next->start 0x%x 0x%x\n", cur->end, cur->next->start);
-				dump_and_abort(id);
+				dump_and_abort(buf);
 			}
 		}
 
@@ -265,9 +267,9 @@ static void check_sanity(int id)
 	}
 }
 
-static void check_coverage(const struct mmt_write *w)
+static void check_coverage(const struct mmt_write *w, struct buffer *buf)
 {
-	struct region *cur = buffers[w->id]->written_regions;
+	struct region *cur = buf->written_regions;
 
 	while (cur)
 	{
@@ -278,10 +280,10 @@ static void check_coverage(const struct mmt_write *w)
 	}
 
 	mmt_error("region <0x%08x, 0x%08x> was not added!\n", w->offset, w->offset + w->len);
-	dump_and_abort(w->id);
+	dump_and_abort(buf);
 }
 
-static void drop_entry(struct region *reg, int id)
+static void drop_entry(struct region *reg, struct buffer *buf)
 {
 	struct region *prev = reg->prev;
 	struct region *next = reg->next;
@@ -292,7 +294,7 @@ static void drop_entry(struct region *reg, int id)
 	else
 	{
 		mmt_debug("new head is at <0x%08x, 0x%08x>\n", next->start, next->end);
-		buffers[id]->written_regions = next;
+		buf->written_regions = next;
 	}
 
 	if (next)
@@ -300,11 +302,11 @@ static void drop_entry(struct region *reg, int id)
 	else
 	{
 		mmt_debug("new last is at <0x%08x, 0x%08x>\n", prev->start, prev->end);
-		buffers[id]->written_region_last = prev;
+		buf->written_region_last = prev;
 	}
 }
 
-static void maybe_merge_with_next(struct region *cur, int id)
+static void maybe_merge_with_next(struct region *cur, struct buffer *buf)
 {
 	// next exists?
 	if (!cur->next)
@@ -320,10 +322,10 @@ static void maybe_merge_with_next(struct region *cur, int id)
 	if (cur->next->end <= cur->end)
 	{
 		// drop next one
-		drop_entry(cur->next, id);
+		drop_entry(cur->next, buf);
 
 		// and see if next^2 should be merged
-		maybe_merge_with_next(cur, id);
+		maybe_merge_with_next(cur, buf);
 	}
 	else
 	{
@@ -335,11 +337,11 @@ static void maybe_merge_with_next(struct region *cur, int id)
 		cur->end = cur->next->end;
 
 		// and drop next entry
-		drop_entry(cur->next, id);
+		drop_entry(cur->next, buf);
 	}
 }
 
-static void maybe_merge_with_previous(struct region *cur, int id)
+static void maybe_merge_with_previous(struct region *cur, struct buffer *buf)
 {
 	// previous exists?
 	if (!cur->prev)
@@ -355,10 +357,10 @@ static void maybe_merge_with_previous(struct region *cur, int id)
 	if (cur->prev->start >= cur->start)
 	{
 		// just drop previous entry
-		drop_entry(cur->prev, id);
+		drop_entry(cur->prev, buf);
 
 		// and see if previous^2 should be merged
-		maybe_merge_with_previous(cur, id);
+		maybe_merge_with_previous(cur, buf);
 	}
 	else
 	{
@@ -370,7 +372,7 @@ static void maybe_merge_with_previous(struct region *cur, int id)
 		cur->start = cur->prev->start;
 
 		// and drop previous entry
-		drop_entry(cur->prev, id);
+		drop_entry(cur->prev, buf);
 	}
 }
 
@@ -383,35 +385,36 @@ static void register_write(const struct mmt_write *w)
 		abort();
 	}
 
-	if (buffers[id] == NULL)
+	struct buffer *buf = buffers[id];
+	if (buf == NULL)
 	{
 		mmt_error("buffer %d does not exist\n", id);
-		dump_and_abort(id);
+		abort();
 	}
 
-	if (buffers[id]->length < w->offset + w->len)
+	if (buf->length < w->offset + w->len)
 	{
 		mmt_error("buffer %d is too small (%d) for write starting at %d and length %d\n",
-				id, buffers[id]->length, w->offset, w->len);
-		dump_and_abort(id);
+				id, buf->length, w->offset, w->len);
+		dump_and_abort(buf);
 	}
 
-	memcpy(buffers[id]->data + w->offset, w->data, w->len);
+	memcpy(buf->data + w->offset, w->data, w->len);
 
-	struct region *cur = buffers[id]->written_regions;
+	struct region *cur = buf->written_regions;
 
 	if (cur == NULL)
 	{
-		buffers[id]->written_regions = cur = malloc(sizeof(struct region));
+		buf->written_regions = cur = malloc(sizeof(struct region));
 		cur->start = w->offset;
 		cur->end = w->offset + w->len;
 		cur->prev = NULL;
 		cur->next = NULL;
-		buffers[id]->written_region_last = cur;
+		buf->written_region_last = cur;
 		return;
 	}
 
-	struct region *last_reg = buffers[id]->written_region_last;
+	struct region *last_reg = buf->written_region_last;
 	if (w->offset == last_reg->end)
 	{
 		mmt_debug("extending last entry <0x%08x, 0x%08x> right by %d\n",
@@ -430,7 +433,7 @@ static void register_write(const struct mmt_write *w)
 		cur->prev = last_reg;
 		cur->next = NULL;
 		last_reg->next = cur;
-		buffers[id]->written_region_last = cur;
+		buf->written_region_last = cur;
 		return;
 	}
 
@@ -444,7 +447,7 @@ static void register_write(const struct mmt_write *w)
 			mmt_debug("... and extending last entry <0x%08x, 0x%08x> left to 0x%08x\n",
 					last_reg->start, last_reg->end, w->offset);
 			last_reg->start = w->offset;
-			maybe_merge_with_previous(last_reg, id);
+			maybe_merge_with_previous(last_reg, buf);
 		}
 		return;
 	}
@@ -456,7 +459,7 @@ static void register_write(const struct mmt_write *w)
 		{
 			mmt_debug("extending entry <0x%08x, 0x%08x> by %d\n", cur->start, cur->end, w->len);
 			cur->end += w->len;
-			maybe_merge_with_next(cur, id);
+			maybe_merge_with_next(cur, buf);
 			return;
 		}
 		cur = cur->next;
@@ -481,56 +484,59 @@ static void register_write(const struct mmt_write *w)
 		if (cur->prev)
 			cur->prev->next = tmp;
 		else
-			buffers[id]->written_regions = tmp;
+			buf->written_regions = tmp;
 		cur->prev = tmp;
-		maybe_merge_with_previous(tmp, id);
+		maybe_merge_with_previous(tmp, buf);
 		return;
 	}
 
 	// now it ends in current and starts before
 	cur->start = w->offset;
-	maybe_merge_with_previous(cur, id);
+	maybe_merge_with_previous(cur, buf);
 }
 
 static void dump_buffered_writes(int full)
 {
-	int i;
 	mmt_log("CURRENTLY BUFFERED WRITES, number of buffers: %d, buffered writes: %d (0x%x) (/4 = %d (0x%x))\n",
 			wreg_count, writes_since_last_full_dump, writes_since_last_full_dump,
 			writes_since_last_full_dump / 4, writes_since_last_full_dump / 4);
-	for (i = 0; i < MAX_ID; ++i)
-		if (buffers[i] && buffers[i]->written_regions)
-			dump(i);
+	struct buffer *buf;
+	for (buf = buffers_list; buf != NULL; buf = buf->next)
+		if (buf->written_regions)
+			dump(buf);
 	mmt_log("%s\n", "END OF CURRENTLY BUFFERED WRITES");
 	if (full)
 	{
-		for (i = 0; i < MAX_ID; ++i)
-			if (buffers[i] && buffers[i]->written_regions)
-				dump_writes(i);
+		for (buf = buffers_list; buf != NULL; buf = buf->next)
+			if (buf->written_regions)
+				dump_writes(buf);
 		writes_since_last_full_dump = 0;
 	}
 	writes_since_last_dump = 0;
 }
 
+static void free_written_regions(struct buffer *buf)
+{
+	struct region *cur = buf->written_regions, *next;
+	if (!cur)
+		return;
+
+	while (cur)
+	{
+		next = cur->next;
+		free(cur);
+		cur = next;
+	}
+
+	buf->written_regions = NULL;
+	buf->written_region_last = NULL;
+}
+
 static void clear_buffered_writes()
 {
-	int i;
-	for (i = 0; i < MAX_ID; ++i)
-	{
-		struct region *cur = buffers[i] ? buffers[i]->written_regions : NULL, *next;
-		if (!cur)
-			continue;
-
-		while (cur)
-		{
-			next = cur->next;
-			free(cur);
-			cur = next;
-		}
-
-		buffers[i]->written_regions = NULL;
-		buffers[i]->written_region_last = NULL;
-	}
+	struct buffer *buf;
+	for (buf = buffers_list; buf != NULL; buf = buf->next)
+		free_written_regions(buf);
 	wreg_count = 0;
 	last_wreg_id = -1;
 }
@@ -541,8 +547,9 @@ static void demmt_memread(struct mmt_read *w, void *state)
 		return;
 
 	char comment[50];
-	if (print_gpu_addresses && buffers[w->id]->gpu_start)
-		sprintf(comment, " (gpu=0x%08lx)", buffers[w->id]->gpu_start + w->offset);
+	struct buffer *buf = buffers[w->id];
+	if (print_gpu_addresses && buf->gpu_start)
+		sprintf(comment, " (gpu=0x%08lx)", buf->gpu_start + w->offset);
 	else
 		comment[0] = 0;
 
@@ -603,10 +610,11 @@ static void demmt_memwrite(struct mmt_write *w, void *state)
 			}
 		}
 	}
-	int wreg_existed = buffers[w->id]->written_regions != NULL;
+	struct buffer *buf = buffers[w->id];
+	int wreg_existed = buf->written_regions != NULL;
 	register_write(w);
-	check_sanity(w->id);
-	check_coverage(w);
+	check_sanity(buf);
+	check_coverage(w, buf);
 	if (!wreg_existed)
 		wreg_count++;
 	writes_since_last_full_dump += w->len;
@@ -626,13 +634,21 @@ static void demmt_mmap(struct mmt_mmap *mm, void *state)
 {
 	mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx\n",
 			(void *)mm->start, mm->len, mm->id, mm->offset);
-	buffers[mm->id] = calloc(1, sizeof(struct buffer));
-	buffers[mm->id]->data = calloc(mm->len, 1);
-	buffers[mm->id]->cpu_start = mm->start;
-	buffers[mm->id]->length = mm->len;
-	buffers[mm->id]->mmap_offset = mm->offset;
+	struct buffer *buf;
+	buf = calloc(1, sizeof(struct buffer));
+	buf->id = mm->id;
+	buf->data = calloc(mm->len, 1);
+	buf->cpu_start = mm->start;
+	buf->length = mm->len;
+	buf->mmap_offset = mm->offset;
 	if (mm->id == ib_buffer)
-		buffers[mm->id]->type = IB;
+		buf->type = IB;
+	if (buffers_list)
+		buffers_list->prev = buf;
+	buf->next = buffers_list;
+
+	buffers[buf->id] = buf;
+	buffers_list = buf;
 
 	struct unk_map *tmp = unk_maps, *prev;
 	while (tmp)
@@ -640,8 +656,8 @@ static void demmt_mmap(struct mmt_mmap *mm, void *state)
 		if (tmp->mmap_offset == mm->offset)
 		{
 			mmt_log("binding data1: 0x%08x, data2: 0x%08x to buffer id: %d\n", tmp->data1, tmp->data2, mm->id);
-			buffers[mm->id]->data1 = tmp->data1;
-			buffers[mm->id]->data2 = tmp->data2;
+			buf->data1 = tmp->data1;
+			buf->data2 = tmp->data2;
 
 			if (tmp == unk_maps)
 				unk_maps = tmp->next;
@@ -656,13 +672,25 @@ static void demmt_mmap(struct mmt_mmap *mm, void *state)
 	}
 }
 
+static void buffer_free(struct buffer *buf)
+{
+	free_written_regions(buf);
+	if (buf->prev)
+		buf->prev->next = buf->next;
+	if (buf->next)
+		buf->next->prev = buf->prev;
+	free(buf->data);
+	buffers[buf->id] = NULL;
+	if (buffers_list == buf)
+		buffers_list = buf->next;
+	free(buf);
+}
+
 static void demmt_munmap(struct mmt_unmap *mm, void *state)
 {
 	mmt_log("munmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, data1: 0x%08lx, data2: 0x%08lx\n",
 			(void *)mm->start, mm->len, mm->id, mm->offset, mm->data1, mm->data2);
-	free(buffers[mm->id]->data);
-	free(buffers[mm->id]);
-	buffers[mm->id] = NULL;
+	buffer_free(buffers[mm->id]);
 }
 
 static void demmt_mremap(struct mmt_mremap *mm, void *state)
@@ -765,18 +793,18 @@ static void demmt_nv_call_method(struct mmt_nvidia_call_method *m, void *state)
 
 static void demmt_nv_create_mapped(struct mmt_nvidia_create_mapped_object *p, void *state)
 {
-	int i;
 	mmt_log("create mapped object: mmap_offset: %p, data1: 0x%08x, data2: 0x%08x, type: 0x%08x\n",
 			(void *)p->mmap_offset, p->data1, p->data2, p->type);
 
 	if (p->mmap_offset == 0)
 		return;
 
-	for (i = 0; i < MAX_ID; ++i)
-		if (buffers[i] && buffers[i]->mmap_offset == p->mmap_offset)
+	struct buffer *buf;
+	for (buf = buffers_list; buf != NULL; buf = buf->next)
+		if (buf->mmap_offset == p->mmap_offset)
 		{
-			buffers[i]->data1 = p->data1;
-			buffers[i]->data2 = p->data2;
+			buf->data1 = p->data1;
+			buf->data2 = p->data2;
 			return;
 		}
 
@@ -796,15 +824,15 @@ static void demmt_nv_create_dma_object(struct mmt_nvidia_create_dma_object *crea
 
 static void demmt_nv_alloc_map(struct mmt_nvidia_alloc_map *alloc, void *state)
 {
-	int i;
 	mmt_log("allocate map: mmap_offset: %p, data1: 0x%08x, data2: 0x%08x\n",
 			(void *)alloc->mmap_offset, alloc->data1, alloc->data2);
 
-	for (i = 0; i < MAX_ID; ++i)
-		if (buffers[i] && buffers[i]->mmap_offset == alloc->mmap_offset)
+	struct buffer *buf;
+	for (buf = buffers_list; buf != NULL; buf = buf->next)
+		if (buf->mmap_offset == alloc->mmap_offset)
 		{
-			buffers[i]->data1 = alloc->data1;
-			buffers[i]->data2 = alloc->data2;
+			buf->data1 = alloc->data1;
+			buf->data2 = alloc->data2;
 			return;
 		}
 
@@ -818,29 +846,29 @@ static void demmt_nv_alloc_map(struct mmt_nvidia_alloc_map *alloc, void *state)
 
 static void demmt_nv_gpu_map(struct mmt_nvidia_gpu_map *map, void *state)
 {
-	int i;
 	mmt_log("gpu map: data1: 0x%08x, data2: 0x%08x, data3: 0x%08x, gpu_start: 0x%08x, len: 0x%08x\n",
 			map->data1, map->data2, map->data3, map->gpu_start, map->len);
-	for (i = 0; i < MAX_ID; ++i)
-		if (buffers[i] && buffers[i]->data1 == map->data1 && buffers[i]->data2 == map->data3 && buffers[i]->length == map->len)
+	struct buffer *buf;
+	for (buf = buffers_list; buf != NULL; buf = buf->next)
+		if (buf->data1 == map->data1 && buf->data2 == map->data3 && buf->length == map->len)
 		{
-			buffers[i]->gpu_start = map->gpu_start;
-			mmt_log("setting gpu address for buffer %d to 0x%08lx\n", i, buffers[i]->gpu_start);
+			buf->gpu_start = map->gpu_start;
+			mmt_log("setting gpu address for buffer %d to 0x%08lx\n", buf->id, buf->gpu_start);
 			break;
 		}
 }
 
 static void demmt_nv_gpu_unmap(struct mmt_nvidia_gpu_unmap *unmap, void *state)
 {
-	int i;
 	mmt_log("gpu unmap: data1: 0x%08x, data2: 0x%08x, data3: 0x%08x, gpu_start: 0x%08x\n",
 			unmap->data1, unmap->data2, unmap->data3, unmap->gpu_start);
-	for (i = 0; i < MAX_ID; ++i)
-		if (buffers[i] && buffers[i]->data1 == unmap->data1 && buffers[i]->data2 == unmap->data3 &&
-				buffers[i]->gpu_start == unmap->gpu_start)
+	struct buffer *buf;
+	for (buf = buffers_list; buf != NULL; buf = buf->next)
+		if (buf->data1 == unmap->data1 && buf->data2 == unmap->data3 &&
+				buf->gpu_start == unmap->gpu_start)
 		{
-			mmt_log("clearing gpu address for buffer %d (was: 0x%08lx)\n", i, buffers[i]->gpu_start);
-			buffers[i]->gpu_start = 0;
+			mmt_log("clearing gpu address for buffer %d (was: 0x%08lx)\n", buf->id, buf->gpu_start);
+			buf->gpu_start = 0;
 			break;
 		}
 }
@@ -849,29 +877,35 @@ static void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
 {
 	mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, data1: 0x%08lx, data2: 0x%08lx\n",
 			(void *)mm->start, mm->len, mm->id, mm->offset, mm->data1, mm->data2);
-	buffers[mm->id] = calloc(1, sizeof(struct buffer));
-	buffers[mm->id]->data = calloc(mm->len, 1);
-	buffers[mm->id]->cpu_start = mm->start;
-	buffers[mm->id]->length = mm->len;
-	buffers[mm->id]->mmap_offset = mm->offset;
-	buffers[mm->id]->data1 = mm->data1;
-	buffers[mm->id]->data2 = mm->data2;
+	struct buffer *buf;
+	buf = calloc(1, sizeof(struct buffer));
+	buf->id = mm->id;
+	buf->data = calloc(mm->len, 1);
+	buf->cpu_start = mm->start;
+	buf->length = mm->len;
+	buf->mmap_offset = mm->offset;
+	buf->data1 = mm->data1;
+	buf->data2 = mm->data2;
 	if (mm->id == ib_buffer)
-		buffers[mm->id]->type = IB;
+		buf->type = IB;
+	if (buffers_list)
+		buffers_list->prev = buf;
+	buf->next = buffers_list;
+
+	buffers[buf->id] = buf;
+	buffers_list = buf;
 }
 
 static void demmt_nv_unmap(struct mmt_nvidia_unmap *mm, void *state)
 {
-	int i;
 	mmt_log("nv_munmap: mmap_offset: %p, data1: 0x%08x, data2: 0x%08x\n",
 			(void *)mm->mmap_offset, mm->data1, mm->data2);
 
-	for (i = 0; i < MAX_ID; ++i)
-		if (buffers[i] && buffers[i]->mmap_offset == mm->mmap_offset)
+	struct buffer *buf;
+	for (buf = buffers_list; buf != NULL; buf = buf->next)
+		if (buf->mmap_offset == mm->mmap_offset)
 		{
-			free(buffers[i]->data);
-			free(buffers[i]);
-			buffers[i] = NULL;
+			buffer_free(buf);
 			return;
 		}
 
