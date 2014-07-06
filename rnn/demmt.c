@@ -687,21 +687,20 @@ static void demmt_mremap(struct mmt_mremap *mm, void *state)
 		mmt_log("%s\n", "");
 	}
 
-	struct buffer *oldbuf = buffers[mm->id];
+	struct buffer *buf = buffers[mm->id];
 
-	buffers[mm->id] = calloc(1, sizeof(struct buffer));
-	buffers[mm->id]->data = calloc(mm->len, 1);
-	buffers[mm->id]->cpu_start = mm->start;
-	buffers[mm->id]->length = mm->len;
-	buffers[mm->id]->mmap_offset = mm->offset;
-	buffers[mm->id]->data1 = mm->data1;
-	buffers[mm->id]->data2 = mm->data2;
-	buffers[mm->id]->type = oldbuf->type;
-	memcpy(&buffers[mm->id]->state, &oldbuf->state, sizeof(buffers[mm->id]->state));
-	memcpy(buffers[mm->id]->data, oldbuf->data, min(mm->len, oldbuf->length));
+	if (mm->len != buf->length)
+	{
+		buf->data = realloc(buf->data, mm->len);
+		if (mm->len > buf->length)
+			memset(buf->data + buf->length, 0, mm->len - buf->length);
+	}
 
-	free(oldbuf->data);
-	free(oldbuf);
+	buf->cpu_start = mm->start;
+	buf->length = mm->len;
+	buf->mmap_offset = mm->offset;
+	buf->data1 = mm->data1;
+	buf->data2 = mm->data2;
 }
 
 static void demmt_open(struct mmt_open *o, void *state)
