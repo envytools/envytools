@@ -111,9 +111,19 @@ static void txt_nv_gpu_map(struct mmt_nvidia_gpu_map *map, void *state)
 	fprintf(stdout, PFX "gpu map 0x%08x:0x%08x:0x%08x, addr 0x%08x, len 0x%08x\n", map->data1, map->data2, map->data3, map->gpu_start, map->len);
 }
 
+static void txt_nv_gpu_map2(struct mmt_nvidia_gpu_map2 *map, void *state)
+{
+	fprintf(stdout, PFX "gpu map 0x%08x:0x%08x:0x%08x, addr 0x%08lx, len 0x%08x\n", map->data1, map->data2, map->data3, map->gpu_start, map->len);
+}
+
 static void txt_nv_gpu_unmap(struct mmt_nvidia_gpu_unmap *unmap, void *state)
 {
 	fprintf(stdout, PFX "gpu unmap 0x%08x:0x%08x:0x%08x addr 0x%08x\n", unmap->data1, unmap->data2, unmap->data3, unmap->gpu_start);
+}
+
+static void txt_nv_gpu_unmap2(struct mmt_nvidia_gpu_unmap2 *unmap, void *state)
+{
+	fprintf(stdout, PFX "gpu unmap 0x%08x:0x%08x:0x%08x addr 0x%08lx\n", unmap->data1, unmap->data2, unmap->data3, unmap->gpu_start);
 }
 
 static void txt_nv_mmap(struct mmt_nvidia_mmap *map, void *state)
@@ -188,7 +198,9 @@ const struct mmt_nvidia_decode_funcs txt_nvidia_funcs =
 	txt_nv_create_dma_object,
 	txt_nv_alloc_map,
 	txt_nv_gpu_map,
+	txt_nv_gpu_map2,
 	txt_nv_gpu_unmap,
+	txt_nv_gpu_unmap2,
 	txt_nv_mmap,
 	txt_nv_unmap,
 	txt_nv_bind,

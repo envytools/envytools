@@ -890,15 +890,15 @@ static void demmt_nv_alloc_map(struct mmt_nvidia_alloc_map *alloc, void *state)
 	unk_maps = m;
 }
 
-static void demmt_nv_gpu_map(struct mmt_nvidia_gpu_map *map, void *state)
+static void demmt_nv_gpu_map(uint32_t data1, uint32_t data2, uint32_t data3, uint64_t gpu_start, uint32_t len, void *state)
 {
-	mmt_log("gpu map: data1: 0x%08x, data2: 0x%08x, data3: 0x%08x, gpu_start: 0x%08x, len: 0x%08x\n",
-			map->data1, map->data2, map->data3, map->gpu_start, map->len);
+	mmt_log("gpu map: data1: 0x%08x, data2: 0x%08x, data3: 0x%08x, gpu_start: 0x%08lx, len: 0x%08x\n",
+			data1, data2, data3, gpu_start, len);
 	struct buffer *buf;
 	for (buf = buffers_list; buf != NULL; buf = buf->next)
-		if (buf->data1 == map->data1 && buf->data2 == map->data3 && buf->length == map->len)
+		if (buf->data1 == data1 && buf->data2 == data3 && buf->length == len)
 		{
-			buf->gpu_start = map->gpu_start;
+			buf->gpu_start = gpu_start;
 			mmt_log("setting gpu address for buffer %d to 0x%08lx\n", buf->id, buf->gpu_start);
 			return;
 		}
@@ -906,38 +906,48 @@ static void demmt_nv_gpu_map(struct mmt_nvidia_gpu_map *map, void *state)
 	struct unk_map *tmp;
 	for (tmp = unk_maps; tmp != NULL; tmp = tmp->next)
 	{
-		if (tmp->data1 == map->data1 && tmp->data2 == map->data3)
+		if (tmp->data1 == data1 && tmp->data2 == data3)
 		{
 			mmt_log("TODO: unk buffer found, demmt_nv_gpu_map needs to be updated!%s\n", "");
 			break;
 		}
 	}
 
-	mmt_log("registering gpu only buffer, size: %d\n", map->len);
+	mmt_log("registering gpu only buffer, size: %d\n", len);
 	buf = calloc(1, sizeof(struct buffer));
 	buf->id = -1;
 	//will allocate when needed
 	//buf->data = calloc(map->len, 1);
 	buf->cpu_start = 0;
-	buf->gpu_start = map->gpu_start;
-	buf->length = map->len;
+	buf->gpu_start = gpu_start;
+	buf->length = len;
 	buf->mmap_offset = 0;
-	buf->data1 = map->data1;
-	buf->data2 = map->data3;
+	buf->data1 = data1;
+	buf->data2 = data3;
 	if (gpu_only_buffers_list)
 		gpu_only_buffers_list->prev = buf;
 	buf->next = gpu_only_buffers_list;
 	gpu_only_buffers_list = buf;
 }
 
-static void demmt_nv_gpu_unmap(struct mmt_nvidia_gpu_unmap *unmap, void *state)
+static void demmt_nv_gpu_map1(struct mmt_nvidia_gpu_map *map, void *state)
 {
-	mmt_log("gpu unmap: data1: 0x%08x, data2: 0x%08x, data3: 0x%08x, gpu_start: 0x%08x\n",
-			unmap->data1, unmap->data2, unmap->data3, unmap->gpu_start);
+	demmt_nv_gpu_map(map->data1, map->data2, map->data3, map->gpu_start, map->len, state);
+}
+
+static void demmt_nv_gpu_map2(struct mmt_nvidia_gpu_map2 *map, void *state)
+{
+	demmt_nv_gpu_map(map->data1, map->data2, map->data3, map->gpu_start, map->len, state);
+}
+
+static void demmt_nv_gpu_unmap(uint32_t data1, uint32_t data2, uint32_t data3, uint64_t gpu_start, void *state)
+{
+	mmt_log("gpu unmap: data1: 0x%08x, data2: 0x%08x, data3: 0x%08x, gpu_start: 0x%08lx\n",
+			data1, data2, data3, gpu_start);
 	struct buffer *buf;
 	for (buf = buffers_list; buf != NULL; buf = buf->next)
-		if (buf->data1 == unmap->data1 && buf->data2 == unmap->data3 &&
-				buf->gpu_start == unmap->gpu_start)
+		if (buf->data1 == data1 && buf->data2 == data3 &&
+				buf->gpu_start == gpu_start)
 		{
 			mmt_log("clearing gpu address for buffer %d (was: 0x%08lx)\n", buf->id, buf->gpu_start);
 			buf->gpu_start = 0;
@@ -946,7 +956,7 @@ static void demmt_nv_gpu_unmap(struct mmt_nvidia_gpu_unmap *unmap, void *state)
 
 	for (buf = gpu_only_buffers_list; buf != NULL; buf = buf->next)
 	{
-		if (buf->data1 == unmap->data1 && buf->data2 == unmap->data3 && buf->gpu_start == unmap->gpu_start)
+		if (buf->data1 == data1 && buf->data2 == data3 && buf->gpu_start == gpu_start)
 		{
 			mmt_log("deregistering gpu only buffer of size %d\n", buf->length);
 			buffer_free(buf);
@@ -955,6 +965,16 @@ static void demmt_nv_gpu_unmap(struct mmt_nvidia_gpu_unmap *unmap, void *state)
 	}
 
 	mmt_log("gpu only buffer not found%s\n", "");
+}
+
+static void demmt_nv_gpu_unmap1(struct mmt_nvidia_gpu_unmap *unmap, void *state)
+{
+	demmt_nv_gpu_unmap(unmap->data1, unmap->data2, unmap->data3, unmap->gpu_start, state);
+}
+
+static void demmt_nv_gpu_unmap2(struct mmt_nvidia_gpu_unmap2 *unmap, void *state)
+{
+	demmt_nv_gpu_unmap(unmap->data1, unmap->data2, unmap->data3, unmap->gpu_start, state);
 }
 
 static void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
@@ -1053,8 +1073,10 @@ const struct mmt_nvidia_decode_funcs demmt_funcs =
 	demmt_nv_create_mapped,
 	demmt_nv_create_dma_object,
 	demmt_nv_alloc_map,
-	demmt_nv_gpu_map,
-	demmt_nv_gpu_unmap,
+	demmt_nv_gpu_map1,
+	demmt_nv_gpu_map2,
+	demmt_nv_gpu_unmap1,
+	demmt_nv_gpu_unmap2,
 	demmt_nv_mmap,
 	demmt_nv_unmap,
 	demmt_nv_bind,

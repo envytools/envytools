@@ -173,6 +173,18 @@ void mmt_decode_nvidia(struct mmt_nvidia_decode_funcs *funcs, void *state)
 
 		mmt_idx += size;
 	}
+	else if (nv->subtype == 'G')
+	{
+		size = sizeof(struct mmt_nvidia_gpu_map2) + 1;
+		struct mmt_nvidia_gpu_map2 *map = mmt_load_data(size);
+
+		mmt_check_eor(size);
+
+		if (funcs->gpu_map2)
+			funcs->gpu_map2(map, state);
+
+		mmt_idx += size;
+	}
 	else if (nv->subtype == 'h')
 	{
 		size = sizeof(struct mmt_nvidia_gpu_unmap) + 1;
@@ -182,6 +194,18 @@ void mmt_decode_nvidia(struct mmt_nvidia_decode_funcs *funcs, void *state)
 
 		if (funcs->gpu_unmap)
 			funcs->gpu_unmap(unmap, state);
+
+		mmt_idx += size;
+	}
+	else if (nv->subtype == 'H')
+	{
+		size = sizeof(struct mmt_nvidia_gpu_unmap2) + 1;
+		struct mmt_nvidia_gpu_unmap2 *unmap = mmt_load_data(size);
+
+		mmt_check_eor(size);
+
+		if (funcs->gpu_unmap2)
+			funcs->gpu_unmap2(unmap, state);
 
 		mmt_idx += size;
 	}

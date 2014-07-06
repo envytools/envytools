@@ -90,6 +90,16 @@ struct mmt_nvidia_gpu_map
 	uint32_t len;
 } __packed;
 
+struct mmt_nvidia_gpu_map2
+{
+	struct mmt_message_nv msg_type;
+	uint32_t data1;
+	uint32_t data2;
+	uint32_t data3;
+	uint64_t gpu_start;
+	uint32_t len;
+} __packed;
+
 struct mmt_nvidia_gpu_unmap
 {
 	struct mmt_message_nv msg_type;
@@ -97,6 +107,15 @@ struct mmt_nvidia_gpu_unmap
 	uint32_t data2;
 	uint32_t data3;
 	uint32_t gpu_start;
+} __packed;
+
+struct mmt_nvidia_gpu_unmap2
+{
+	struct mmt_message_nv msg_type;
+	uint32_t data1;
+	uint32_t data2;
+	uint32_t data3;
+	uint64_t gpu_start;
 } __packed;
 
 struct mmt_nvidia_bind
@@ -179,7 +198,9 @@ struct mmt_nvidia_decode_funcs
 	void (*create_dma_object)(struct mmt_nvidia_create_dma_object *create, void *state);
 	void (*alloc_map)(struct mmt_nvidia_alloc_map *alloc, void *state);
 	void (*gpu_map)(struct mmt_nvidia_gpu_map *map, void *state);
+	void (*gpu_map2)(struct mmt_nvidia_gpu_map2 *map, void *state);
 	void (*gpu_unmap)(struct mmt_nvidia_gpu_unmap *unmap, void *state);
+	void (*gpu_unmap2)(struct mmt_nvidia_gpu_unmap2 *unmap, void *state);
 	void (*mmap)(struct mmt_nvidia_mmap *map, void *state);
 	void (*unmap)(struct mmt_nvidia_unmap *unmap, void *state);
 	void (*bind)(struct mmt_nvidia_bind *bnd, void *state);
