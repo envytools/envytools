@@ -72,6 +72,7 @@ void pushbuf_add_object(uint32_t handle, uint32_t class)
 		obj->handle = handle;
 		obj->class = class;
 		obj->ctx = rnndec_newcontext(rnndb);
+		obj->ctx->colors = colors;
 
 		v = NULL;
 		FINDARRAY(chs->vals, v, v->value == chipset);
@@ -131,9 +132,9 @@ static void decode_method(struct pushbuf_decode_state *state, uint32_t data, cha
 
 	/* get an object name */
 	if (obj && obj->name)
-		asprintf(&dec_obj, "%s", obj->name);
+		asprintf(&dec_obj, "%s%s%s", colors->rname, obj->name, colors->reset);
 	else
-		asprintf(&dec_obj, "OBJ%X", obj ? obj->class : 0);
+		asprintf(&dec_obj, "%sOBJ%X%s", colors->err, obj ? obj->class : 0, colors->reset);
 
 	/* get the method name and value */
 	if (obj)
@@ -146,7 +147,7 @@ static void decode_method(struct pushbuf_decode_state *state, uint32_t data, cha
 		free(ai);
 	}
 	else
-		asprintf(&dec_addr, "0x%x", state->addr);
+		asprintf(&dec_addr, "%s0x%x%s", colors->err, state->addr, colors->reset);
 
 	/* write it */
 	if (state->addr == 0)

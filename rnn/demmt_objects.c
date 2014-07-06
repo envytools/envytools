@@ -108,8 +108,7 @@ void demmt_parse_command(uint32_t class_, int mthd, uint32_t data)
 							struct varinfo *var = varinfo_new(isa_nvc0->vardata);
 
 							envydis(isa_nvc0, stdout, code_buffer->data + reg->start + 20 * 4, 0, \
-									reg->end - reg->start - 20 * 4, var, 0, NULL, 0,
-									/*1 ? &envy_def_colors :*/ &envy_null_colors);
+									reg->end - reg->start - 20 * 4, var, 0, NULL, 0, colors);
 							varinfo_del(var);
 							break;
 						}

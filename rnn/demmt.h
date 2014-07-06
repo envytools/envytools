@@ -7,6 +7,7 @@
 extern int find_ib_buffer;
 extern int quiet;
 extern int disassembly_shaders;
+extern const struct envy_colors *colors;
 
 #define mmt_debug(fmt, ...)        do { if (MMT_DEBUG)                 fprintf(stderr, fmt, __VA_ARGS__); } while (0)
 #define mmt_log(fmt, ...)          do { if (!find_ib_buffer && !quiet) fprintf(stdout, "%64s" fmt, " ", __VA_ARGS__); } while (0)

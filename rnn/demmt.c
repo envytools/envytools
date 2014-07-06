@@ -57,6 +57,7 @@ int decode_invalid_buffers = 1;
 int find_ib_buffer = 0;
 int quiet = 0;
 int disassembly_shaders = 1;
+const struct envy_colors *colors = NULL;
 
 static void dump(struct buffer *buf)
 {
@@ -1076,8 +1077,9 @@ static void usage()
 			"  -o\t\tdump ioctl data\n"
 			"  -q\t\t(quiet) print only the most important data (for now only pushbufs from IB's)\n"
 			"  -a\t\tdisable shader disassembly\n"
+			"  -c\t\tenable colors\n"
 			"\n"
-			"  -c\t\tdo not \"compress\" obvious buffer clears\n"
+			"  -s\t\tdo not \"compress\" obvious buffer clears\n"
 			"  -i\t\tdo not guess invalid pushbufs\n"
 			"  -d\t\thide invalid pushbufs\n"
 			"  -e\t\tdo not decode invalid pushbufs\n"
@@ -1102,7 +1104,7 @@ int main(int argc, char *argv[])
 				chip += 2;
 			chipset = strtoul(chip, NULL, 16);
 		}
-		else if (!strcmp(argv[i], "-c"))
+		else if (!strcmp(argv[i], "-s"))
 			compress_clears = 0;
 		else if (!strcmp(argv[i], "-i"))
 			guess_invalid_pushbuf = 0;
@@ -1126,12 +1128,16 @@ int main(int argc, char *argv[])
 			quiet = 1;
 		else if (!strcmp(argv[i], "-a"))
 			disassembly_shaders = 0;
+		else if (!strcmp(argv[i], "-c"))
+			colors = &envy_def_colors;
 		else
 			usage();
 	}
 
 	if (chipset == 0)
 		usage();
+	if (!colors)
+		colors = &envy_null_colors;
 
 	/* set up an rnn context */
 	rnn_init();
