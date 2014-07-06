@@ -1279,9 +1279,12 @@ int main(int argc, char **argv) {
 
 	if (clkcmps && (printmask & ENVY_BIOS_PRINT_SCRIPTS)) {
 		printf("Display Clock Comparison Arrays:\n");
-		for (i = 2; i <= 0xffff; i++) {
+		for (i = 2; i <= 0xffff;) {
 			uint16_t freq, script;
-			if (!clkcmp_locs[i]) continue;
+			if (!clkcmp_locs[i]) {
+				i++;
+				continue;
+			}
 			do {
 				freq = le16(i);
 				script = le16(i + 2);
