@@ -43,6 +43,8 @@ struct buffer
 
 extern struct buffer *buffers_list;
 
+extern struct buffer *gpu_only_buffers_list;
+
 extern struct rnndomain *domain;
 extern struct rnndb *rnndb;
 extern int chipset;

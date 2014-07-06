@@ -37,6 +37,8 @@
 static struct buffer *buffers[MAX_ID] = { NULL };
 
 struct buffer *buffers_list = NULL;
+struct buffer *gpu_only_buffers_list = NULL; // merge it into buffers_list?
+
 static int wreg_count = 0;
 static int writes_since_last_full_dump = 0; // NOTE: you cannot rely too much on this value - it includes overwrites
 static int writes_since_last_dump = 0;
@@ -638,7 +640,7 @@ struct unk_map
 	struct unk_map *next;
 };
 
-static struct unk_map *unk_maps = NULL;
+static struct unk_map *unk_maps = NULL; // merge it into buffers_list?
 
 static void demmt_mmap(struct mmt_mmap *mm, void *state)
 {
@@ -690,9 +692,17 @@ static void buffer_free(struct buffer *buf)
 	if (buf->next)
 		buf->next->prev = buf->prev;
 	free(buf->data);
-	buffers[buf->id] = NULL;
-	if (buffers_list == buf)
-		buffers_list = buf->next;
+	if (buf->id >= 0)
+	{
+		buffers[buf->id] = NULL;
+		if (buffers_list == buf)
+			buffers_list = buf->next;
+	}
+	else
+	{
+		if (gpu_only_buffers_list == buf)
+			gpu_only_buffers_list = buf->next;
+	}
 	free(buf);
 }
 
@@ -700,6 +710,7 @@ static void demmt_munmap(struct mmt_unmap *mm, void *state)
 {
 	mmt_log("munmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, data1: 0x%08lx, data2: 0x%08lx\n",
 			(void *)mm->start, mm->len, mm->id, mm->offset, mm->data1, mm->data2);
+	// clear cpu_start only?
 	buffer_free(buffers[mm->id]);
 }
 
@@ -818,6 +829,15 @@ static void demmt_nv_create_mapped(struct mmt_nvidia_create_mapped_object *p, vo
 			return;
 		}
 
+	for (buf = gpu_only_buffers_list; buf != NULL; buf = buf->next)
+	{
+		if (buf->data1 == p->data1 && buf->data2 == p->data2)
+		{
+			mmt_log("TODO: gpu only buffer found, demmt_nv_create_mapped needs to be updated!%s\n", "");
+			break;
+		}
+	}
+
 	struct unk_map *m = malloc(sizeof(struct unk_map));
 	m->data1 = p->data1;
 	m->data2 = p->data2;
@@ -846,6 +866,15 @@ static void demmt_nv_alloc_map(struct mmt_nvidia_alloc_map *alloc, void *state)
 			return;
 		}
 
+	for (buf = gpu_only_buffers_list; buf != NULL; buf = buf->next)
+	{
+		if (buf->data1 == alloc->data1 && buf->data2 == alloc->data2)
+		{
+			mmt_log("TODO: gpu only buffer found, demmt_nv_alloc_map needs to be updated!%s\n", "");
+			break;
+		}
+	}
+
 	struct unk_map *m = malloc(sizeof(struct unk_map));
 	m->data1 = alloc->data1;
 	m->data2 = alloc->data2;
@@ -864,8 +893,34 @@ static void demmt_nv_gpu_map(struct mmt_nvidia_gpu_map *map, void *state)
 		{
 			buf->gpu_start = map->gpu_start;
 			mmt_log("setting gpu address for buffer %d to 0x%08lx\n", buf->id, buf->gpu_start);
+			return;
+		}
+
+	struct unk_map *tmp;
+	for (tmp = unk_maps; tmp != NULL; tmp = tmp->next)
+	{
+		if (tmp->data1 == map->data1 && tmp->data2 == map->data3)
+		{
+			mmt_log("TODO: unk buffer found, demmt_nv_gpu_map needs to be updated!%s\n", "");
 			break;
 		}
+	}
+
+	mmt_log("registering gpu only buffer, size: %d\n", map->len);
+	buf = calloc(1, sizeof(struct buffer));
+	buf->id = -1;
+	//will allocate when needed
+	//buf->data = calloc(map->len, 1);
+	buf->cpu_start = 0;
+	buf->gpu_start = map->gpu_start;
+	buf->length = map->len;
+	buf->mmap_offset = 0;
+	buf->data1 = map->data1;
+	buf->data2 = map->data3;
+	if (gpu_only_buffers_list)
+		gpu_only_buffers_list->prev = buf;
+	buf->next = gpu_only_buffers_list;
+	gpu_only_buffers_list = buf;
 }
 
 static void demmt_nv_gpu_unmap(struct mmt_nvidia_gpu_unmap *unmap, void *state)
@@ -879,8 +934,20 @@ static void demmt_nv_gpu_unmap(struct mmt_nvidia_gpu_unmap *unmap, void *state)
 		{
 			mmt_log("clearing gpu address for buffer %d (was: 0x%08lx)\n", buf->id, buf->gpu_start);
 			buf->gpu_start = 0;
-			break;
+			return;
 		}
+
+	for (buf = gpu_only_buffers_list; buf != NULL; buf = buf->next)
+	{
+		if (buf->data1 == unmap->data1 && buf->data2 == unmap->data3 && buf->gpu_start == unmap->gpu_start)
+		{
+			mmt_log("deregistering gpu only buffer of size %d\n", buf->length);
+			buffer_free(buf);
+			return;
+		}
+	}
+
+	mmt_log("gpu only buffer not found%s\n", "");
 }
 
 static void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
@@ -888,6 +955,16 @@ static void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
 	mmt_log("mmap: address: %p, length: 0x%08lx, id: %d, offset: 0x%08lx, data1: 0x%08lx, data2: 0x%08lx\n",
 			(void *)mm->start, mm->len, mm->id, mm->offset, mm->data1, mm->data2);
 	struct buffer *buf;
+
+	for (buf = gpu_only_buffers_list; buf != NULL; buf = buf->next)
+	{
+		if (buf->data1 == mm->data1 && buf->data2 == mm->data2)
+		{
+			mmt_log("TODO: gpu only buffer found, demmt_nv_mmap needs to be updated!%s\n", "");
+			break;
+		}
+	}
+
 	buf = calloc(1, sizeof(struct buffer));
 	buf->id = mm->id;
 	buf->data = calloc(mm->len, 1);
@@ -915,6 +992,7 @@ static void demmt_nv_unmap(struct mmt_nvidia_unmap *mm, void *state)
 	for (buf = buffers_list; buf != NULL; buf = buf->next)
 		if (buf->mmap_offset == mm->mmap_offset)
 		{
+			// clear cpu_start only?
 			buffer_free(buf);
 			return;
 		}
