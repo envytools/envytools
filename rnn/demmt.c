@@ -56,6 +56,7 @@ int invalid_pushbufs_visible = 1;
 int decode_invalid_buffers = 1;
 int find_ib_buffer = 0;
 int quiet = 0;
+int disassembly_shaders = 1;
 
 static void dump(struct buffer *buf)
 {
@@ -202,7 +203,7 @@ static void dump_writes(struct buffer *buf)
 					if (ib_buffer != -1 || quiet)
 						pushbuf_desc[0] = 0;
 					else if (state->pushbuf_invalid == 0 || decode_invalid_buffers)
-						pushbuf_decode(state, *(uint32_t *)(data + addr), pushbuf_desc);
+						pushbuf_decode(state, *(uint32_t *)(data + addr), pushbuf_desc, NULL);
 					else
 						pushbuf_desc[0] = 0;
 
@@ -385,7 +386,112 @@ static void maybe_merge_with_previous(struct region *cur, struct buffer *buf)
 	}
 }
 
-static void register_write(const struct mmt_write *w)
+void buffer_register_write(struct buffer *buf, uint32_t offset, uint8_t len, const void *data)
+{
+	if (buf->length < offset + len)
+	{
+		mmt_error("buffer %d is too small (%d) for write starting at %d and length %d\n",
+				buf->id, buf->length, offset, len);
+		dump_and_abort(buf);
+	}
+
+	memcpy(buf->data + offset, data, len);
+
+	struct region *cur = buf->written_regions;
+
+	if (cur == NULL)
+	{
+		buf->written_regions = cur = malloc(sizeof(struct region));
+		cur->start = offset;
+		cur->end = offset + len;
+		cur->prev = NULL;
+		cur->next = NULL;
+		buf->written_region_last = cur;
+		return;
+	}
+
+	struct region *last_reg = buf->written_region_last;
+	if (offset == last_reg->end)
+	{
+		mmt_debug("extending last entry <0x%08x, 0x%08x> right by %d\n",
+				last_reg->start, last_reg->end, len);
+		last_reg->end += len;
+		return;
+	}
+
+	if (offset > last_reg->end)
+	{
+		mmt_debug("adding last entry <0x%08x, 0x%08x> after <0x%08x, 0x%08x>\n",
+				offset, offset + len, last_reg->start, last_reg->end);
+		cur = malloc(sizeof(struct region));
+		cur->start = offset;
+		cur->end = offset + len;
+		cur->prev = last_reg;
+		cur->next = NULL;
+		last_reg->next = cur;
+		buf->written_region_last = cur;
+		return;
+	}
+
+	if (offset + len > last_reg->end)
+	{
+		mmt_debug("extending last entry <0x%08x, 0x%08x> right to 0x%08x\n",
+				last_reg->start, last_reg->end, offset + len);
+		last_reg->end = offset + len;
+		if (offset < last_reg->start)
+		{
+			mmt_debug("... and extending last entry <0x%08x, 0x%08x> left to 0x%08x\n",
+					last_reg->start, last_reg->end, offset);
+			last_reg->start = offset;
+			maybe_merge_with_previous(last_reg, buf);
+		}
+		return;
+	}
+
+
+	while (offset + len > cur->end) // if we will ever crash on cur being NULL then it means we screwed up earlier
+	{
+		if (cur->end == offset) // optimization
+		{
+			mmt_debug("extending entry <0x%08x, 0x%08x> by %d\n", cur->start, cur->end, len);
+			cur->end += len;
+			maybe_merge_with_next(cur, buf);
+			return;
+		}
+		cur = cur->next;
+	}
+
+	// now it ends before end of current
+
+	// does it start in this one?
+	if (offset >= cur->start)
+		return;
+
+	// does it end before start of current one?
+	if (offset + len < cur->start)
+	{
+		mmt_debug("adding new entry <0x%08x, 0x%08x> before <0x%08x, 0x%08x>\n",
+				offset, offset + len, cur->start, cur->end);
+		struct region *tmp = malloc(sizeof(struct region));
+		tmp->start = offset;
+		tmp->end = offset + len;
+		tmp->prev = cur->prev;
+		tmp->next = cur;
+		if (cur->prev)
+			cur->prev->next = tmp;
+		else
+			buf->written_regions = tmp;
+		cur->prev = tmp;
+		maybe_merge_with_previous(tmp, buf);
+		return;
+	}
+
+	// now it ends in current and starts before
+	cur->start = offset;
+	maybe_merge_with_previous(cur, buf);
+}
+
+static void memwrite(const struct mmt_write *w)
 {
 	uint32_t id = w->id;
 	if (id >= MAX_ID)
@@ -401,107 +507,7 @@ static void register_write(const struct mmt_write *w)
 		abort();
 	}
 
-	if (buf->length < w->offset + w->len)
-	{
-		mmt_error("buffer %d is too small (%d) for write starting at %d and length %d\n",
-				id, buf->length, w->offset, w->len);
-		dump_and_abort(buf);
-	}
-
-	memcpy(buf->data + w->offset, w->data, w->len);
-
-	struct region *cur = buf->written_regions;
-
-	if (cur == NULL)
-	{
-		buf->written_regions = cur = malloc(sizeof(struct region));
-		cur->start = w->offset;
-		cur->end = w->offset + w->len;
-		cur->prev = NULL;
-		cur->next = NULL;
-		buf->written_region_last = cur;
-		return;
-	}
-
-	struct region *last_reg = buf->written_region_last;
-	if (w->offset == last_reg->end)
-	{
-		mmt_debug("extending last entry <0x%08x, 0x%08x> right by %d\n",
-				last_reg->start, last_reg->end, w->len);
-		last_reg->end += w->len;
-		return;
-	}
-
-	if (w->offset > last_reg->end)
-	{
-		mmt_debug("adding last entry <0x%08x, 0x%08x> after <0x%08x, 0x%08x>\n",
-				w->offset, w->offset + w->len, last_reg->start, last_reg->end);
-		cur = malloc(sizeof(struct region));
-		cur->start = w->offset;
-		cur->end = w->offset + w->len;
-		cur->prev = last_reg;
-		cur->next = NULL;
-		last_reg->next = cur;
-		buf->written_region_last = cur;
-		return;
-	}
-
-	if (w->offset + w->len > last_reg->end)
-	{
-		mmt_debug("extending last entry <0x%08x, 0x%08x> right to 0x%08x\n",
-				last_reg->start, last_reg->end, w->offset + w->len);
-		last_reg->end = w->offset + w->len;
-		if (w->offset < last_reg->start)
-		{
-			mmt_debug("... and extending last entry <0x%08x, 0x%08x> left to 0x%08x\n",
-					last_reg->start, last_reg->end, w->offset);
-			last_reg->start = w->offset;
-			maybe_merge_with_previous(last_reg, buf);
-		}
-		return;
-	}
-
-
-	while (w->offset + w->len > cur->end) // if we will ever crash on cur being NULL then it means we screwed up earlier
-	{
-		if (cur->end == w->offset) // optimization
-		{
-			mmt_debug("extending entry <0x%08x, 0x%08x> by %d\n", cur->start, cur->end, w->len);
-			cur->end += w->len;
-			maybe_merge_with_next(cur, buf);
-			return;
-		}
-		cur = cur->next;
-	}
-
-	// now it ends before end of current
-
-	// does it start in this one?
-	if (w->offset >= cur->start)
-		return;
-
-	// does it end before start of current one?
-	if (w->offset + w->len < cur->start)
-	{
-		mmt_debug("adding new entry <0x%08x, 0x%08x> before <0x%08x, 0x%08x>\n",
-				w->offset, w->offset + w->len, cur->start, cur->end);
-		struct region *tmp = malloc(sizeof(struct region));
-		tmp->start = w->offset;
-		tmp->end = w->offset + w->len;
-		tmp->prev = cur->prev;
-		tmp->next = cur;
-		if (cur->prev)
-			cur->prev->next = tmp;
-		else
-			buf->written_regions = tmp;
-		cur->prev = tmp;
-		maybe_merge_with_previous(tmp, buf);
-		return;
-	}
-
-	// now it ends in current and starts before
-	cur->start = w->offset;
-	maybe_merge_with_previous(cur, buf);
+	buffer_register_write(buf, w->offset, w->len, w->data);
 }
 
 static void dump_buffered_writes(int full)
@@ -624,7 +630,7 @@ static void demmt_memwrite(struct mmt_write *w, void *state)
 	}
 	struct buffer *buf = buffers[w->id];
 	int wreg_existed = buf->written_regions != NULL;
-	register_write(w);
+	memwrite(w);
 	check_sanity(buf);
 	check_coverage(w, buf);
 	if (!wreg_existed)
@@ -1069,6 +1075,7 @@ static void usage()
 			"  -g\t\tprint gpu addresses\n"
 			"  -o\t\tdump ioctl data\n"
 			"  -q\t\t(quiet) print only the most important data (for now only pushbufs from IB's)\n"
+			"  -a\t\tdisable shader disassembly\n"
 			"\n"
 			"  -c\t\tdo not \"compress\" obvious buffer clears\n"
 			"  -i\t\tdo not guess invalid pushbufs\n"
@@ -1117,6 +1124,8 @@ int main(int argc, char *argv[])
 			find_ib_buffer = 1;
 		else if (!strcmp(argv[i], "-q"))
 			quiet = 1;
+		else if (!strcmp(argv[i], "-a"))
+			disassembly_shaders = 0;
 		else
 			usage();
 	}

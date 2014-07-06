@@ -31,7 +31,7 @@ struct ib_decode_state
 void pushbuf_add_object(uint32_t handle, uint32_t class);
 
 void pushbuf_decode_start(struct pushbuf_decode_state *state);
-void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *output);
+void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *output, int *addr);
 void pushbuf_decode_end(struct pushbuf_decode_state *state);
 
 void ib_decode_start(struct ib_decode_state *state);

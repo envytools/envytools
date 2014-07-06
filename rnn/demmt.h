@@ -6,6 +6,7 @@
 #define MMT_DEBUG 0
 extern int find_ib_buffer;
 extern int quiet;
+extern int disassembly_shaders;
 
 #define mmt_debug(fmt, ...)        do { if (MMT_DEBUG)                 fprintf(stderr, fmt, __VA_ARGS__); } while (0)
 #define mmt_log(fmt, ...)          do { if (!find_ib_buffer && !quiet) fprintf(stdout, "%64s" fmt, " ", __VA_ARGS__); } while (0)
@@ -49,5 +50,7 @@ extern struct rnndomain *domain;
 extern struct rnndb *rnndb;
 extern int chipset;
 extern int guess_invalid_pushbuf;
+
+void buffer_register_write(struct buffer *buf, uint32_t offset, uint8_t len, const void *data);
 
 #endif

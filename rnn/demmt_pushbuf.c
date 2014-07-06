@@ -31,6 +31,7 @@
 #include "util.h"
 #include "demmt.h"
 #include "demmt_pushbuf.h"
+#include "demmt_objects.h"
 
 void pushbuf_decode_start(struct pushbuf_decode_state *state)
 {
@@ -160,8 +161,10 @@ static void decode_method(struct pushbuf_decode_state *state, uint32_t data, cha
 	free(dec_obj);
 }
 
-void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *output)
+void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *output, int *addr)
 {
+	if (addr)
+		*addr = -1;
 	if (state->skip)
 	{
 		strcpy(output, "SKIP");
@@ -194,6 +197,8 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 			{
 				decode_method(state, state->size, output);
 				state->size = 0;
+				if (addr)
+					*addr = state->addr;
 				return;
 			}
 			else if (mode == 0)
@@ -207,6 +212,8 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 					state->size = 0;
 					sprintf(output, "SLI %d", type);
 					//TODO: decode fully
+					if (addr)
+						*addr = state->addr;
 					return;
 				}
 
@@ -282,6 +289,8 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 		}
 
 		decode_method(state, data, output);
+		if (addr)
+			*addr = state->addr;
 
 		if (state->incr)
 		{
@@ -313,8 +322,14 @@ static void ib_print(struct ib_decode_state *state)
 	while (cur < end)
 	{
 		uint32_t cmd = *(uint32_t *)&state->last_buffer->data[cur];
-		pushbuf_decode(&state->pstate, cmd, cmdoutput);
+		int curaddr;
+		pushbuf_decode(&state->pstate, cmd, cmdoutput, &curaddr);
 		fprintf(stdout, "PB: 0x%08x %s\n", cmd, cmdoutput);
+
+		struct obj *obj = subchans[state->pstate.subchan];
+		if (obj)
+			demmt_parse_command(obj->class, curaddr, cmd);
+
 		cur += 4;
 	}
 }
