@@ -25,6 +25,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #include "mmt_bin_decode.h"
 #include "mmt_bin_decode_nvidia.h"
@@ -1101,6 +1103,7 @@ static void usage()
 			"  -q\t\t(quiet) print only the most important data (for now only pushbufs from IB's)\n"
 			"  -a\t\tdisable shader disassembly\n"
 			"  -c\t\tenable colors\n"
+			"  -l file\tuse \"file\" as input\n"
 			"\n"
 			"  -s\t\tdo not \"compress\" obvious buffer clears\n"
 			"  -i\t\tdo not guess invalid pushbufs\n"
@@ -1112,6 +1115,7 @@ static void usage()
 
 int main(int argc, char *argv[])
 {
+	const char *filename = NULL;
 	int i;
 	if (argc < 2)
 		usage();
@@ -1153,6 +1157,12 @@ int main(int argc, char *argv[])
 			disassemble_shaders = 0;
 		else if (!strcmp(argv[i], "-c"))
 			colors = &envy_def_colors;
+		else if (!strcmp(argv[i], "-l"))
+		{
+			if (i + 1 >= argc)
+				usage();
+			filename = argv[++i];
+		}
 		else
 			usage();
 	}
@@ -1169,6 +1179,16 @@ int main(int argc, char *argv[])
 	rnn_parsefile(rnndb, "fifo/nv_objects.xml");
 	rnn_prepdb(rnndb);
 	domain = rnn_finddomain(rnndb, "NV01_SUBCHAN");
+
+	if (filename)
+	{
+		close(0);
+		if (open(filename, O_RDONLY) != 0)
+		{
+			perror("open");
+			exit(1);
+		}
+	}
 
 	mmt_decode(&demmt_funcs.base, NULL);
 	dump_buffered_writes(1);
