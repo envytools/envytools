@@ -56,7 +56,7 @@ int invalid_pushbufs_visible = 1;
 int decode_invalid_buffers = 1;
 int find_ib_buffer = 0;
 int quiet = 0;
-int disassembly_shaders = 1;
+int disassemble_shaders = 1;
 const struct envy_colors *colors = NULL;
 
 static void dump(struct buffer *buf)
@@ -1149,7 +1149,7 @@ int main(int argc, char *argv[])
 		else if (!strcmp(argv[i], "-q"))
 			quiet = 1;
 		else if (!strcmp(argv[i], "-a"))
-			disassembly_shaders = 0;
+			disassemble_shaders = 0;
 		else if (!strcmp(argv[i], "-c"))
 			colors = &envy_def_colors;
 		else

@@ -6,7 +6,7 @@
 #define MMT_DEBUG 0
 extern int find_ib_buffer;
 extern int quiet;
-extern int disassembly_shaders;
+extern int disassemble_shaders;
 extern const struct envy_colors *colors;
 
 #define mmt_debug(fmt, ...)        do { if (MMT_DEBUG)                 fprintf(stderr, fmt, __VA_ARGS__); } while (0)

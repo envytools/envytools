@@ -65,7 +65,7 @@ static const struct disisa *isa_nvc0 = NULL;
 
 void demmt_parse_command(uint32_t class_, int mthd, uint32_t data)
 {
-	if (!disassembly_shaders)
+	if (!disassemble_shaders)
 		return;
 
 	if (class_ == 0x9197) // NVC1_3D
