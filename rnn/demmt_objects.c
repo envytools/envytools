@@ -189,19 +189,19 @@ static struct
 {
 	uint64_t code_address;
 	struct buffer *code_buffer;
-} nvc1_3d = { 0, NULL };
+} nvc0_nvc1_3d = { 0, NULL };
 
-static void decode_nvc1_3d(int mthd, uint32_t data)
+static void decode_nvc0_nvc1_3d(int mthd, uint32_t data)
 {
 	if (mthd == 0x1608) // CODE_ADDRESS_HIGH
-		nvc1_3d.code_address = ((uint64_t)data) << 32;
+		nvc0_nvc1_3d.code_address = ((uint64_t)data) << 32;
 	else if (mthd == 0x160c) // CODE_ADDRESS_LOW
 	{
-		nvc1_3d.code_address |= data;
-		nvc1_3d.code_buffer = find_buffer_by_gpu_address(nvc1_3d.code_address);
-		mmt_debug("code address: 0x%08lx, buffer found: %d\n", nvc1_3d.code_address, nvc1_3d.code_buffer ? 1 : 0);
+		nvc0_nvc1_3d.code_address |= data;
+		nvc0_nvc1_3d.code_buffer = find_buffer_by_gpu_address(nvc0_nvc1_3d.code_address);
+		mmt_debug("code address: 0x%08lx, buffer found: %d\n", nvc0_nvc1_3d.code_address, nvc0_nvc1_3d.code_buffer ? 1 : 0);
 	}
-	else if (nvc1_3d.code_buffer && mthd >= 0x2000 && mthd < 0x2000 + 0x40 * 6 && (mthd & 0x4) == 4) // SP
+	else if (nvc0_nvc1_3d.code_buffer && mthd >= 0x2000 && mthd < 0x2000 + 0x40 * 6 && (mthd & 0x4) == 4) // SP
 	{
 		int i;
 		for (i = 0; i < 6; ++i)
@@ -209,7 +209,7 @@ static void decode_nvc1_3d(int mthd, uint32_t data)
 			{
 				mmt_debug("start id[%d]: 0x%08x\n", i, data);
 				struct region *reg;
-				for (reg = nvc1_3d.code_buffer->written_regions; reg != NULL; reg = reg->next)
+				for (reg = nvc0_nvc1_3d.code_buffer->written_regions; reg != NULL; reg = reg->next)
 				{
 					if (reg->start == data)
 					{
@@ -218,7 +218,7 @@ static void decode_nvc1_3d(int mthd, uint32_t data)
 							uint32_t x;
 							mmt_debug("CODE: %s\n", "");
 							for (x = reg->start + 20 * 4; x < reg->end; x += 4)
-								mmt_debug("0x%08x ", *(uint32_t *)(nvc1_3d.code_buffer->data + x));
+								mmt_debug("0x%08x ", *(uint32_t *)(nvc0_nvc1_3d.code_buffer->data + x));
 							mmt_debug("%s\n", "");
 						}
 
@@ -226,7 +226,7 @@ static void decode_nvc1_3d(int mthd, uint32_t data)
 							isa_nvc0 = ed_getisa("nvc0");
 						struct varinfo *var = varinfo_new(isa_nvc0->vardata);
 
-						envydis(isa_nvc0, stdout, nvc1_3d.code_buffer->data + reg->start + 20 * 4, 0,
+						envydis(isa_nvc0, stdout, nvc0_nvc1_3d.code_buffer->data + reg->start + 20 * 4, 0,
 								reg->end - reg->start - 20 * 4, var, 0, NULL, 0, colors);
 						varinfo_del(var);
 						break;
@@ -413,55 +413,64 @@ static const struct gpu_object nvaf_objs[] =
 static const struct gpu_object nvc0_objs[] =
 {
 		{ 0x9039, decode_nvc0_m2mf },
+		{ 0x9097, decode_nvc0_nvc1_3d },
 		END_OF_OBJS
 };
 
 static const struct gpu_object nvc4_objs[] =
 {
 		{ 0x9039, decode_nvc0_m2mf },
+		{ 0x9097, decode_nvc0_nvc1_3d },
 		END_OF_OBJS
 };
 
 static const struct gpu_object nvc3_objs[] =
 {
 		{ 0x9039, decode_nvc0_m2mf },
+		{ 0x9097, decode_nvc0_nvc1_3d },
 		END_OF_OBJS
 };
 
 static const struct gpu_object nvce_objs[] =
 {
 		{ 0x9039, decode_nvc0_m2mf },
+		{ 0x9097, decode_nvc0_nvc1_3d },
 		END_OF_OBJS
 };
 
 static const struct gpu_object nvcf_objs[] =
 {
 		{ 0x9039, decode_nvc0_m2mf },
+		{ 0x9097, decode_nvc0_nvc1_3d },
 		END_OF_OBJS
 };
 
 static const struct gpu_object nvc1_objs[] =
 {
 		{ 0x9039, decode_nvc0_m2mf },
-		{ 0x9197, decode_nvc1_3d },
+		{ 0x9197, decode_nvc0_nvc1_3d },
+		{ 0x9097, decode_nvc0_nvc1_3d },
 		END_OF_OBJS
 };
 
 static const struct gpu_object nvc8_objs[] =
 {
 		{ 0x9039, decode_nvc0_m2mf },
+		{ 0x9097, decode_nvc0_nvc1_3d },
 		END_OF_OBJS
 };
 
 static const struct gpu_object nvd9_objs[] =
 {
 		{ 0x9039, decode_nvc0_m2mf },
+		{ 0x9097, decode_nvc0_nvc1_3d },
 		END_OF_OBJS
 };
 
 static const struct gpu_object nvd7_objs[] =
 {
 		{ 0x9039, decode_nvc0_m2mf },
+		{ 0x9097, decode_nvc0_nvc1_3d },
 		END_OF_OBJS
 };
 
