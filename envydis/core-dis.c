@@ -396,6 +396,13 @@ struct dis_res {
 //	uint32_t *umask;
 };
 
+static void dis_del_res(struct dis_res *dres)
+{
+	easm_del_insn(dres->insn);
+
+	free(dres);
+}
+
 static struct easm_sinsn *dis_parse_sinsn(struct disctx *ctx, enum dis_status *status, int *spos);
 
 static struct easm_expr *dis_parse_expr(struct disctx *ctx, enum dis_status *status, int *spos) {
@@ -493,6 +500,11 @@ struct dis_res *do_dis(struct decoctx *deco, uint32_t cur) {
 	res->endmark = ctx->endmark;
 	/* XXX unused status */
 	res->insn = dis_parse_insn(ctx, &res->status);
+
+	for (i = 0; i < ctx->atomsnum; ++i)
+		free(ctx->atoms[i]);
+	free(ctx->atoms);
+
 	return res;
 }
 
@@ -656,6 +668,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 						cur += dres->oplen;
 					else
 						active = 0;
+					dis_del_res(dres);
 				} else {
 					cur++;
 				}
@@ -669,6 +682,7 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 				cur += dres->oplen;
 			else
 				cur++;
+			dis_del_res(dres);
 		}
 	}
 	cur = 0;
@@ -844,6 +858,9 @@ void envydis (const struct disisa *isa, FILE *out, uint8_t *code, uint32_t start
 		}
 		fprintf (out, "%s\n", cols->reset);
 		cur += dres->oplen;
+
+		dis_del_res(dres);
 	}
 	free(ctx->marks);
+	free(ctx->names);
 }
