@@ -12,6 +12,7 @@ struct pushbuf_decode_state
 	int skip;
 	int pushbuf_invalid;
 	int next_command_offset;
+	int long_command;
 };
 
 struct ib_decode_state

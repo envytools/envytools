@@ -119,7 +119,9 @@ static void decode_header(struct pushbuf_decode_state *state, uint32_t data, cha
 				state->size, state->subchan, (obj ? obj->handle : 0), state->addr,
 			    (state->incr ? "increment" : "constant"));
 	else
-		output[0] = 0;
+		sprintf(output, "size ?, subchannel %d (object handle 0x%x), offset 0x%04x, %s",
+				state->subchan, (obj ? obj->handle : 0), state->addr,
+			    (state->incr ? "increment" : "constant"));
 }
 
 static void decode_method(struct pushbuf_decode_state *state, uint32_t data, char *output)
@@ -209,12 +211,13 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 				int type = (data & 0x30000) >> 16;
 				if (type != 0)
 				{
-					state->incr = 0;//?
 					state->size = 0;
-					sprintf(output, "SLI %d", type);
-					//TODO: decode fully
-					if (addr)
-						*addr = state->addr;
+					if (type == 1)
+						sprintf(output, "SLI cond, mask: 0x%x", (data & 0xfff0) >> 4);
+					else if (type == 2)
+						sprintf(output, "SLI user mask store: 0x%x", (data & 0xfff0) >> 4);
+					else if (type == 3)
+						sprintf(output, "SLI cond from user mask");
 					return;
 				}
 
@@ -245,17 +248,72 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 		}
 		else
 		{
-			if (data & 0x20000000)
+			if (state->long_command)
 			{
-				sprintf(output, "# jump to 0x%x", data & 0x1fffffff);
-				state->skip = 1;
+				state->size = data & 0xffffff;
+				state->long_command = 0;
+				sprintf(output, "size %d", state->size);
+				if (addr)
+					*addr = state->addr;
 				return;
 			}
 
-			state->addr = data & 0x1fff;
+			int mode = (data & 0xe0000000) >> 29;
+			state->addr = data & 0x1ffc;
 			state->subchan = (data & 0xe000) >> 13;
 			state->size = (data & 0x1ffc0000) >> 18;
-			state->incr = data & 0x40000000 ? 0 : state->size;
+
+			if (mode == 0)
+			{
+				if (data & 0x3)
+					mmt_log("bottom 2 bits are not 0 as supposed: %d\n", data & 3);
+				int type = (data & 0x30000) >> 16;
+				if (type == 0)
+					state->incr = state->size;
+				else if (type == 1)
+				{
+					state->size = 0;
+					sprintf(output, "SLI cond, mask: 0x%x", (data & 0xfff0) >> 4);
+					return;
+				}
+				else if (type == 2)
+				{
+					state->size = 0;
+					sprintf(output, "return");
+					return;
+				}
+				else if (type == 3)
+				{
+					state->incr = 0;
+					state->size = 0;
+					state->long_command = 1;
+				}
+			}
+			else if (mode == 1)
+			{
+				if (data & 0x3)
+					mmt_log("bottom 2 bits are not 0 as supposed: %d\n", data & 3);
+				sprintf(output, "jump (old) to 0x%x", data & 0x1ffffffc);
+				return;
+			}
+			else if (mode == 2)
+			{
+				if (data & 0x3)
+					mmt_log("bottom 2 bits are not 0 as supposed: %d\n", data & 3);
+				state->incr = 0;
+			}
+			else
+			{
+				int type = data & 0x3;
+				if (type == 1)
+					sprintf(output, "jump to 0x%x", data & 0xfffffffc);
+				else if (type == 2)
+					sprintf(output, "call 0x%x", data & 0xfffffffc);
+				else
+					sprintf(output, "unknown type %d", type);
+				state->size = 0;
+				return;
+			}
 		}
 
 		decode_header(state, data, output);
