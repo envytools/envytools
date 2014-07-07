@@ -30,6 +30,7 @@
 #include "mmt_bin_decode_nvidia.h"
 #include "demmt.h"
 #include "demmt_pushbuf.h"
+#include "demmt_objects.h"
 #include "rnndec.h"
 #include "util.h"
 
@@ -1158,6 +1159,7 @@ int main(int argc, char *argv[])
 
 	if (chipset == 0)
 		usage();
+	demmt_object_init_chipset(chipset);
 	if (!colors)
 		colors = &envy_null_colors;
 

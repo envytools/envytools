@@ -253,8 +253,6 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 				state->size = data & 0xffffff;
 				state->long_command = 0;
 				sprintf(output, "size %d", state->size);
-				if (addr)
-					*addr = state->addr;
 				return;
 			}
 
