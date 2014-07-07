@@ -164,7 +164,7 @@ static void decode_method(struct pushbuf_decode_state *state, uint32_t data, cha
 	free(dec_obj);
 }
 
-void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *output, int *addr)
+void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *output, int *addr, int safe)
 {
 	if (addr)
 		*addr = -1;
@@ -334,12 +334,17 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 			}
 			else
 			{
-				if (guess_invalid_pushbuf && data != subchans[state->subchan]->handle)
+				if (data != subchans[state->subchan]->handle)
 				{
-					if (state->pushbuf_invalid == 0)
+					if (safe)
+						subchans[state->subchan] = get_object(data);
+					else
 					{
-						mmt_log("subchannel %d is already taken, marking this buffer invalid\n", state->subchan);
-						state->pushbuf_invalid = 1;
+						if (guess_invalid_pushbuf && state->pushbuf_invalid == 0)
+						{
+							mmt_log("subchannel %d is already taken, marking this buffer invalid\n", state->subchan);
+							state->pushbuf_invalid = 1;
+						}
 					}
 				}
 			}
@@ -380,7 +385,7 @@ static void ib_print(struct ib_decode_state *state)
 	{
 		uint32_t cmd = *(uint32_t *)&state->last_buffer->data[cur];
 		int curaddr;
-		pushbuf_decode(&state->pstate, cmd, cmdoutput, &curaddr);
+		pushbuf_decode(&state->pstate, cmd, cmdoutput, &curaddr, 1);
 		fprintf(stdout, "PB: 0x%08x %s\n", cmd, cmdoutput);
 
 		struct obj *obj = subchans[state->pstate.subchan];
