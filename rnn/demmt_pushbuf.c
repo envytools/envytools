@@ -177,7 +177,7 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 
 	if (state->size == 0)
 	{
-		if (data == 0)
+		if (data == 0 && !state->long_command)
 		{
 			strcpy(output, "NOP");
 			return;
