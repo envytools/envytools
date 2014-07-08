@@ -111,11 +111,11 @@ static struct
 	struct buffer *fp_buffer;
 	uint64_t gp_address;
 	struct buffer *gp_buffer;
-} nva3_3d = { 0, NULL, 0, NULL, 0, NULL };
+} nv50_3d = { 0, NULL, 0, NULL, 0, NULL };
 
 static const struct disisa *isa_nv50 = NULL;
 
-static void nva3_3d_disassemble(struct buffer *buf, const char *mode, uint32_t start_id)
+static void nv50_3d_disassemble(struct buffer *buf, const char *mode, uint32_t start_id)
 {
 	if (!buf)
 		return;
@@ -138,8 +138,20 @@ static void nva3_3d_disassemble(struct buffer *buf, const char *mode, uint32_t s
 
 		if (!isa_nv50)
 			isa_nv50 = ed_getisa("nv50");
+
 		struct varinfo *var = varinfo_new(isa_nv50->vardata);
-		varinfo_set_variant(var, "nva3");
+
+		if (chipset == 0x50)
+			varinfo_set_variant(var, "nv50");
+		else if (chipset >= 0x84 && chipset <= 0x98)
+			varinfo_set_variant(var, "nv84");
+		else if (chipset == 0xa0)
+			varinfo_set_variant(var, "nva0");
+		else if (chipset >= 0xaa && chipset <= 0xac)
+			varinfo_set_variant(var, "nvaa");
+		else if ((chipset >= 0xa3 && chipset <= 0xa8) || chipset == 0xaf)
+			varinfo_set_variant(var, "nva3");
+
 		varinfo_set_mode(var, mode);
 
 		envydis(isa_nv50, stdout, buf->data + reg->start, 0,
@@ -149,38 +161,38 @@ static void nva3_3d_disassemble(struct buffer *buf, const char *mode, uint32_t s
 	}
 }
 
-static void decode_nva3_3d(int mthd, uint32_t data)
+static void decode_nv50_3d(int mthd, uint32_t data)
 {
 	if (mthd == 0x0f7c) // VP_ADDRESS_HIGH
-		nva3_3d.vp_address = ((uint64_t)data) << 32;
+		nv50_3d.vp_address = ((uint64_t)data) << 32;
 	else if (mthd == 0x0f80) // VP_ADDRESS_LOW
 	{
-		nva3_3d.vp_address |= data;
-		nva3_3d.vp_buffer = find_buffer_by_gpu_address(nva3_3d.vp_address);
-		mmt_debug("vp address: 0x%08lx, buffer found: %d\n", nva3_3d.vp_address, nva3_3d.vp_buffer ? 1 : 0);
+		nv50_3d.vp_address |= data;
+		nv50_3d.vp_buffer = find_buffer_by_gpu_address(nv50_3d.vp_address);
+		mmt_debug("vp address: 0x%08lx, buffer found: %d\n", nv50_3d.vp_address, nv50_3d.vp_buffer ? 1 : 0);
 	}
 	else if (mthd == 0x0fa4) // FP_ADDRESS_HIGH
-		nva3_3d.fp_address = ((uint64_t)data) << 32;
+		nv50_3d.fp_address = ((uint64_t)data) << 32;
 	else if (mthd == 0x0fa8) // FP_ADDRESS_LOW
 	{
-		nva3_3d.fp_address |= data;
-		nva3_3d.fp_buffer = find_buffer_by_gpu_address(nva3_3d.fp_address);
-		mmt_debug("fp address: 0x%08lx, buffer found: %d\n", nva3_3d.fp_address, nva3_3d.fp_buffer ? 1 : 0);
+		nv50_3d.fp_address |= data;
+		nv50_3d.fp_buffer = find_buffer_by_gpu_address(nv50_3d.fp_address);
+		mmt_debug("fp address: 0x%08lx, buffer found: %d\n", nv50_3d.fp_address, nv50_3d.fp_buffer ? 1 : 0);
 	}
 	else if (mthd == 0x0f70) // GP_ADDRESS_HIGH
-		nva3_3d.gp_address = ((uint64_t)data) << 32;
+		nv50_3d.gp_address = ((uint64_t)data) << 32;
 	else if (mthd == 0x0f74) // GP_ADDRESS_LOW
 	{
-		nva3_3d.gp_address |= data;
-		nva3_3d.gp_buffer = find_buffer_by_gpu_address(nva3_3d.gp_address);
-		mmt_debug("gp address: 0x%08lx, buffer found: %d\n", nva3_3d.gp_address, nva3_3d.gp_buffer ? 1 : 0);
+		nv50_3d.gp_address |= data;
+		nv50_3d.gp_buffer = find_buffer_by_gpu_address(nv50_3d.gp_address);
+		mmt_debug("gp address: 0x%08lx, buffer found: %d\n", nv50_3d.gp_address, nv50_3d.gp_buffer ? 1 : 0);
 	}
 	else if (mthd == 0x140c) // VP_START_ID
-		nva3_3d_disassemble(nva3_3d.vp_buffer, "vp", data);
+		nv50_3d_disassemble(nv50_3d.vp_buffer, "vp", data);
 	else if (mthd == 0x1414) // FP_START_ID
-		nva3_3d_disassemble(nva3_3d.fp_buffer, "fp", data);
+		nv50_3d_disassemble(nv50_3d.fp_buffer, "fp", data);
 	else if (mthd == 0x1410) // GP_START_ID
-		nva3_3d_disassemble(nva3_3d.gp_buffer, "gp", data);
+		nv50_3d_disassemble(nv50_3d.gp_buffer, "gp", data);
 }
 
 static const struct disisa *isa_nvc0 = NULL;
@@ -326,87 +338,98 @@ static const struct gpu_object *nv63_objs = no_objs;
 static const struct gpu_object nv50_objs[] =
 {
 		{ 0x502d, decode_nv50_2d },
+		{ 0x5097, decode_nv50_3d },
 		END_OF_OBJS
 };
 
 static const struct gpu_object nv84_objs[] =
 {
 		{ 0x502d, decode_nv50_2d },
+		{ 0x8297, decode_nv50_3d },
 		END_OF_OBJS
 };
 
 static const struct gpu_object nv86_objs[] =
 {
 		{ 0x502d, decode_nv50_2d },
+		{ 0x8297, decode_nv50_3d },
 		END_OF_OBJS
 };
 
 static const struct gpu_object nv92_objs[] =
 {
 		{ 0x502d, decode_nv50_2d },
+		{ 0x8297, decode_nv50_3d },
 		END_OF_OBJS
 };
 
 static const struct gpu_object nv94_objs[] =
 {
 		{ 0x502d, decode_nv50_2d },
+		{ 0x8297, decode_nv50_3d },
 		END_OF_OBJS
 };
 
 static const struct gpu_object nv96_objs[] =
 {
 		{ 0x502d, decode_nv50_2d },
+		{ 0x8297, decode_nv50_3d },
 		END_OF_OBJS
 };
 
 static const struct gpu_object nv98_objs[] =
 {
 		{ 0x502d, decode_nv50_2d },
+		{ 0x8297, decode_nv50_3d },
 		END_OF_OBJS
 };
 
 static const struct gpu_object nva0_objs[] =
 {
 		{ 0x502d, decode_nv50_2d },
+		{ 0x8397, decode_nv50_3d },
 		END_OF_OBJS
 };
 
 static const struct gpu_object nvaa_objs[] =
 {
 		{ 0x502d, decode_nv50_2d },
+		{ 0x8397, decode_nv50_3d },
 		END_OF_OBJS
 };
 
 static const struct gpu_object nvac_objs[] =
 {
 		{ 0x502d, decode_nv50_2d },
+		{ 0x8397, decode_nv50_3d },
 		END_OF_OBJS
 };
 
 static const struct gpu_object nva3_objs[] =
 {
 		{ 0x502d, decode_nv50_2d },
-		{ 0x8597, decode_nva3_3d },
+		{ 0x8597, decode_nv50_3d },
 		END_OF_OBJS
 };
 
 static const struct gpu_object nva5_objs[] =
 {
 		{ 0x502d, decode_nv50_2d },
-		{ 0x8597, decode_nva3_3d },
+		{ 0x8597, decode_nv50_3d },
 		END_OF_OBJS
 };
 
 static const struct gpu_object nva8_objs[] =
 {
 		{ 0x502d, decode_nv50_2d },
-		{ 0x8597, decode_nva3_3d },
+		{ 0x8597, decode_nv50_3d },
 		END_OF_OBJS
 };
 
 static const struct gpu_object nvaf_objs[] =
 {
 		{ 0x502d, decode_nv50_2d },
+		{ 0x8697, decode_nv50_3d },
 		END_OF_OBJS
 };
 
