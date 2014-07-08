@@ -114,7 +114,7 @@ static void decode_header(struct pushbuf_decode_state *state, uint32_t data, cha
 {
 	struct obj *obj = subchans[state->subchan];
 
-	if (state->size)
+	if (!state->long_command)
 		sprintf(output, "size %d, subchannel %d (object handle 0x%x), offset 0x%04x, %s",
 				state->size, state->subchan, (obj ? obj->handle : 0), state->addr,
 			    (state->incr ? "increment" : "constant"));
