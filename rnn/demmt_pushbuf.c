@@ -260,55 +260,63 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 			state->addr = data & 0x1ffc;
 			state->subchan = (data & 0xe000) >> 13;
 			state->size = (data & 0x1ffc0000) >> 18;
+			int type = data & 3;
 
-			if (mode == 0)
+			if (type == 0)
 			{
-				if (data & 0x3)
-					mmt_log("bottom 2 bits are not 0 as supposed: %d\n", data & 3);
-				int type = (data & 0x30000) >> 16;
-				if (type == 0)
-					state->incr = state->size;
-				else if (type == 1)
+				if (mode == 0)
 				{
-					state->size = 0;
-					sprintf(output, "SLI cond, mask: 0x%x", (data & 0xfff0) >> 4);
+					type = (data & 0x30000) >> 16;
+					if (type == 0)
+						state->incr = state->size;
+					else if (type == 1)
+					{
+						state->size = 0;
+						sprintf(output, "SLI cond, mask: 0x%x", (data & 0xfff0) >> 4);
+						return;
+					}
+					else if (type == 2)
+					{
+						state->size = 0;
+						sprintf(output, "return");
+						return;
+					}
+					else if (type == 3)
+					{
+						state->incr = 0;
+						state->size = 0;
+						state->long_command = 1;
+					}
+				}
+				else if (mode == 1)
+				{
+					sprintf(output, "jump (old) to 0x%x", data & 0x1ffffffc);
 					return;
 				}
-				else if (type == 2)
-				{
-					state->size = 0;
-					sprintf(output, "return");
-					return;
-				}
-				else if (type == 3)
-				{
+				else if (mode == 2)
 					state->incr = 0;
+				else
+				{
+					sprintf(output, "unknown mode, top 3 bits: %d", mode);
 					state->size = 0;
-					state->long_command = 1;
+					return;
 				}
 			}
-			else if (mode == 1)
+			else if (type == 1)
 			{
-				if (data & 0x3)
-					mmt_log("bottom 2 bits are not 0 as supposed: %d\n", data & 3);
-				sprintf(output, "jump (old) to 0x%x", data & 0x1ffffffc);
+				sprintf(output, "jump to 0x%x", data & 0xfffffffc);
+				state->size = 0;
 				return;
 			}
-			else if (mode == 2)
+			else if (type == 2)
 			{
-				if (data & 0x3)
-					mmt_log("bottom 2 bits are not 0 as supposed: %d\n", data & 3);
-				state->incr = 0;
+				sprintf(output, "call 0x%x", data & 0xfffffffc);
+				state->size = 0;
+				return;
 			}
 			else
 			{
-				int type = data & 0x3;
-				if (type == 1)
-					sprintf(output, "jump to 0x%x", data & 0xfffffffc);
-				else if (type == 2)
-					sprintf(output, "call 0x%x", data & 0xfffffffc);
-				else
-					sprintf(output, "unknown type %d", type);
+				sprintf(output, "unknown type, bottom 2 bits: %d", type);
 				state->size = 0;
 				return;
 			}
