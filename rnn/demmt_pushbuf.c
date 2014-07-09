@@ -164,15 +164,16 @@ static void decode_method(struct pushbuf_decode_state *state, uint32_t data, cha
 	free(dec_obj);
 }
 
-void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *output, int *addr, int safe)
+/* returns 0 when decoding should continue, anything else: next command gpu address */
+uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *output, int *mthd, int safe)
 {
-	if (addr)
-		*addr = -1;
+	if (mthd)
+		*mthd = -1;
 	if (state->skip)
 	{
 		strcpy(output, "SKIP");
 		state->skip--;
-		return;
+		return 0;
 	}
 
 	if (state->size == 0)
@@ -180,7 +181,7 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 		if (data == 0 && !state->long_command)
 		{
 			strcpy(output, "NOP");
-			return;
+			return 0;
 		}
 
 		if (chipset >= 0xc0)
@@ -200,9 +201,9 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 			{
 				decode_method(state, state->size, output);
 				state->size = 0;
-				if (addr)
-					*addr = state->addr;
-				return;
+				if (mthd)
+					*mthd = state->addr;
+				return 0;
 			}
 			else if (mode == 0)
 			{
@@ -218,7 +219,7 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 						sprintf(output, "SLI user mask store: 0x%x", (data & 0xfff0) >> 4);
 					else if (type == 3)
 						sprintf(output, "SLI cond from user mask");
-					return;
+					return 0;
 				}
 
 				if (!state->pushbuf_invalid)
@@ -233,7 +234,7 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 				{
 					state->size = 0;
 					sprintf(output, "invalid old-style non-inc mthd, type: %d", type);
-					return;
+					return 0;
 				}
 
 				if (!state->pushbuf_invalid)
@@ -243,7 +244,7 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 			{
 				state->size = 0;
 				sprintf(output, "unknown mode %d", mode);
-				return;
+				return 0;
 			}
 		}
 		else
@@ -253,7 +254,7 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 				state->size = data & 0xffffff;
 				state->long_command = 0;
 				sprintf(output, "size %d", state->size);
-				return;
+				return 0;
 			}
 
 			int mode = (data & 0xe0000000) >> 29;
@@ -273,13 +274,13 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 					{
 						state->size = 0;
 						sprintf(output, "SLI cond, mask: 0x%x", (data & 0xfff0) >> 4);
-						return;
+						return 0;
 					}
 					else if (type == 2)
 					{
 						state->size = 0;
 						sprintf(output, "return");
-						return;
+						return 0;
 					}
 					else if (type == 3)
 					{
@@ -291,7 +292,7 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 				else if (mode == 1)
 				{
 					sprintf(output, "jump (old) to 0x%x", data & 0x1ffffffc);
-					return;
+					return 1;
 				}
 				else if (mode == 2)
 					state->incr = 0;
@@ -299,26 +300,27 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 				{
 					sprintf(output, "unknown mode, top 3 bits: %d", mode);
 					state->size = 0;
-					return;
+					return 0;
 				}
 			}
 			else if (type == 1)
 			{
-				sprintf(output, "jump to 0x%x", data & 0xfffffffc);
+				uint32_t addr = data & 0xfffffffc;
+				sprintf(output, "jump to 0x%x", addr);
 				state->size = 0;
-				return;
+				return addr;
 			}
 			else if (type == 2)
 			{
 				sprintf(output, "call 0x%x", data & 0xfffffffc);
 				state->size = 0;
-				return;
+				return 0; // XXX
 			}
 			else
 			{
 				sprintf(output, "unknown type, bottom 2 bits: %d", type);
 				state->size = 0;
-				return;
+				return 0;
 			}
 		}
 
@@ -359,8 +361,8 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 		}
 
 		decode_method(state, data, output);
-		if (addr)
-			*addr = state->addr;
+		if (mthd)
+			*mthd = state->addr;
 
 		if (state->incr)
 		{
@@ -370,6 +372,8 @@ void pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *out
 
 		state->size--;
 	}
+
+	return 0;
 }
 
 void pushbuf_decode_end(struct pushbuf_decode_state *state)
@@ -383,25 +387,38 @@ void ib_decode_start(struct ib_decode_state *state)
 	pushbuf_decode_start(&state->pstate);
 }
 
-static void ib_print(struct ib_decode_state *state)
+static uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct buffer *buffer, uint64_t gpu_address, int commands)
 {
 	char cmdoutput[1024];
-	uint64_t cur = state->address - state->last_buffer->gpu_start;
-	uint64_t end = cur + state->size * 4;
+	uint64_t cur = gpu_address - buffer->gpu_start;
+	uint64_t end = cur + commands * 4;
+	uint64_t nextaddr;
 
 	while (cur < end)
 	{
-		uint32_t cmd = *(uint32_t *)&state->last_buffer->data[cur];
-		int curaddr;
-		pushbuf_decode(&state->pstate, cmd, cmdoutput, &curaddr, 1);
+		uint32_t cmd = *(uint32_t *)&buffer->data[cur];
+		int mthd;
+		nextaddr = pushbuf_decode(pstate, cmd, cmdoutput, &mthd, 1);
+		if (nextaddr)
+		{
+			mmt_log("decoding aborted, cmd: \"%s\", nextaddr: 0x%08lx\n", cmdoutput, nextaddr);
+			return nextaddr;
+		}
 		fprintf(stdout, "PB: 0x%08x %s\n", cmd, cmdoutput);
 
-		struct obj *obj = subchans[state->pstate.subchan];
+		struct obj *obj = subchans[pstate->subchan];
 		if (obj)
-			demmt_parse_command(obj->class, curaddr, cmd);
+			demmt_parse_command(obj->class, mthd, cmd);
 
 		cur += 4;
 	}
+
+	return gpu_address + commands * 4;
+}
+
+static void ib_print(struct ib_decode_state *state)
+{
+	pushbuf_print(&state->pstate, state->last_buffer, state->address, state->size);
 }
 
 void ib_decode(struct ib_decode_state *state, uint32_t data, char *output)
@@ -463,6 +480,93 @@ void ib_decode_end(struct ib_decode_state *state)
 		ib_print(state);
 		state->last_buffer = NULL;
 	}
+
+	pushbuf_decode_end(&state->pstate);
+}
+
+void user_decode_start(struct user_decode_state *state)
+{
+	memset(state, 0, sizeof(*state));
+	pushbuf_decode_start(&state->pstate);
+}
+
+static void user_print(struct user_decode_state *state)
+{
+	struct buffer *buf = state->last_buffer;
+	if (state->dma_put < state->prev_dma_put)
+	{
+		uint64_t nextaddr = pushbuf_print(&state->pstate, buf, state->prev_dma_put,
+										(buf->gpu_start + buf->length - state->prev_dma_put) / 4);
+		if (state->dma_put >= buf->gpu_start && state->dma_put < buf->gpu_start + buf->length &&
+				  nextaddr >= buf->gpu_start &&       nextaddr < buf->gpu_start + buf->length &&
+				  nextaddr <= state->dma_put &&
+				  nextaddr <= 0xffffffff)
+		{
+			mmt_log("pushbuffer wraparound%s\n", "\n");
+			state->prev_dma_put = nextaddr;
+		}
+		else
+		{
+			mmt_log("confused, dma_put: 0x%x, nextaddr: 0x%lx, buffer: <0x%08lx,0x%08lx>, resetting state\n",
+					state->dma_put, nextaddr, buf->gpu_start, buf->gpu_start + buf->length);
+			state->last_buffer = NULL;
+			state->prev_dma_put = state->dma_put;
+			return;
+		}
+	}
+
+	pushbuf_print(&state->pstate, buf, state->prev_dma_put, (state->dma_put - state->prev_dma_put) / 4);
+	state->prev_dma_put = state->dma_put;
+}
+
+void user_decode(struct user_decode_state *state, uint32_t addr, uint32_t data, char *output)
+{
+	struct buffer *buf = state->last_buffer;
+	if (buf && state->prev_dma_put != state->dma_put)
+		user_print(state);
+
+	if (addr != 0x40) // DMA_PUT
+	{
+		output[0] = 0;
+		return;
+	}
+
+	if (buf)
+		if (data < buf->gpu_start || data >= buf->gpu_start + buf->length)
+			buf = NULL;
+
+	if (!buf)
+	{
+		for (buf = buffers_list; buf != NULL; buf = buf->next)
+		{
+			if (!buf->gpu_start)
+				continue;
+			if (data >= buf->gpu_start && data < buf->gpu_start + buf->length)
+			{
+				state->prev_dma_put = buf->gpu_start;
+				break;
+			}
+		}
+	}
+
+	state->last_buffer = buf;
+	if (buf)
+		state->dma_put = data;
+
+	sprintf(output, "DMA_PUT: 0x%08x", data);
+	if (buf)
+	{
+		char cmdoutput[32];
+
+		sprintf(cmdoutput, ", buffer id: %d", buf->id);
+		strcat(output, cmdoutput);
+	}
+}
+
+void user_decode_end(struct user_decode_state *state)
+{
+	if (state->last_buffer && state->prev_dma_put != state->dma_put)
+		user_print(state);
 
 	pushbuf_decode_end(&state->pstate);
 }

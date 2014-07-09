@@ -47,17 +47,18 @@ static int writes_since_last_full_dump = 0; // NOTE: you cannot rely too much on
 static int writes_since_last_dump = 0;
 static int last_wreg_id = -1;
 static int compress_clears = 1;
-static int ib_buffer = -1;
+static int pb_pointer_buffer = -1;
 static int dump_ioctls = 0;
 static int print_gpu_addresses = 0;
 
 struct rnndomain *domain;
 struct rnndb *rnndb;
 int chipset;
+int ib_supported;
 int guess_invalid_pushbuf = 1;
 int invalid_pushbufs_visible = 1;
 int decode_invalid_buffers = 1;
-int find_ib_buffer = 0;
+int find_pb_pointer = 0;
 int quiet = 0;
 int disassemble_shaders = 1;
 const struct envy_colors *colors = NULL;
@@ -87,29 +88,54 @@ static void dump_writes(struct buffer *buf)
 	struct region *cur = buf->written_regions;
 	struct pushbuf_decode_state *state = &buf->state.pushbuf;
 	struct ib_decode_state *ibstate = &buf->state.ib;
+	struct user_decode_state *ustate = &buf->state.user;
 	char pushbuf_desc[1024];
 	char comment[2][50];
 	comment[0][0] = 0;
 	comment[1][0] = 0;
 
-	if (find_ib_buffer)
+	if (find_pb_pointer)
 	{
-		if (cur->start != 0 || cur->end < 8)
-			return;
-		uint32_t *data = (uint32_t *)buf->data;
-		if (!data[0] || !data[1])
-			return;
-		if (data[0] & 0x3)
-			return;
-		uint64_t gpu_addr = (((uint64_t)(data[1] & 0xff)) << 32) | (data[0] & 0xfffffffc);
-		struct buffer *buf2;
-		for (buf2 = buffers_list; buf2 != NULL; buf2 = buf2->next)
+		if (ib_supported)
 		{
-			if (buf2->gpu_start == gpu_addr &&
-				buf2->length >= 4 * ((data[1] & 0x7fffffff) >> 10))
+			if (cur->start != 0 || cur->end < 8)
+				return;
+			uint32_t *data = (uint32_t *)buf->data;
+			if (!data[0] || !data[1])
+				return;
+			if (data[0] & 0x3)
+				return;
+			uint64_t gpu_addr = (((uint64_t)(data[1] & 0xff)) << 32) | (data[0] & 0xfffffffc);
+			struct buffer *buf2;
+			for (buf2 = buffers_list; buf2 != NULL; buf2 = buf2->next)
 			{
-				fprintf(stdout, "possible IB buffer: %d\n", buf->id);
-				break;
+				if (buf2->gpu_start == gpu_addr &&
+					buf2->length >= 4 * ((data[1] & 0x7fffffff) >> 10))
+				{
+					fprintf(stdout, "possible IB buffer: %d\n", buf->id);
+					break;
+				}
+			}
+		}
+		else
+		{
+			if (buf->type == USER) // already checked
+				return;
+			if (cur->start != 0x40 || cur->end < 0x44)
+				return;
+			uint32_t gpu_addr = *(uint32_t *)&(buf->data[0x40]);
+			if (!gpu_addr)
+				return;
+
+			struct buffer *buf2;
+			for (buf2 = buffers_list; buf2 != NULL; buf2 = buf2->next)
+			{
+				if (gpu_addr >= buf2->gpu_start && gpu_addr < buf2->gpu_start + buf2->length)
+				{
+					fprintf(stdout, "possible USER buffer: %d\n", buf->id);
+					buf->type = USER;
+					break;
+				}
 			}
 		}
 
@@ -174,7 +200,7 @@ static void dump_writes(struct buffer *buf)
 
 		if (buf->type == IB)
 			ib_decode_start(ibstate);
-		else
+		else if (buf->type == PUSH)
 		{
 			if (addr != state->next_command_offset)
 			{
@@ -187,6 +213,11 @@ static void dump_writes(struct buffer *buf)
 				mmt_log("restarting pushbuf decode on buffer %d\n", buf->id);
 				pushbuf_decode_start(state);
 			}
+		}
+		else if (buf->type == USER)
+		{
+			if (0)
+				user_decode_start(ustate);
 		}
 
 		while (addr < cur->end)
@@ -202,9 +233,9 @@ static void dump_writes(struct buffer *buf)
 					if (!quiet)
 						fprintf(stdout, "w %d:0x%04x%s, 0x%08x  %s\n", buf->id, addr, comment[0], *(uint32_t *)(data + addr), pushbuf_desc);
 				}
-				else
+				else if (buf->type == PUSH)
 				{
-					if (ib_buffer != -1 || quiet)
+					if (pb_pointer_buffer != -1 || quiet)
 						pushbuf_desc[0] = 0;
 					else if (state->pushbuf_invalid == 0 || decode_invalid_buffers)
 						pushbuf_decode(state, *(uint32_t *)(data + addr), pushbuf_desc, NULL, 0);
@@ -217,6 +248,12 @@ static void dump_writes(struct buffer *buf)
 					state->next_command_offset = addr + 4;
 					if (!quiet)
 						fprintf(stdout, "w %d:0x%04x%s, 0x%08x  %s%s\n", buf->id, addr, comment[0], *(uint32_t *)(data + addr), state->pushbuf_invalid ? "INVALID " : "", pushbuf_desc);
+				}
+				else if (buf->type == USER)
+				{
+					user_decode(ustate, addr, *(uint32_t *)(data + addr), pushbuf_desc);
+					if (!quiet)
+						fprintf(stdout, "w %d:0x%04x%s, 0x%08x  %s\n", buf->id, addr, comment[0], *(uint32_t *)(data + addr), pushbuf_desc);
 				}
 
 				addr += 4;
@@ -240,8 +277,10 @@ static void dump_writes(struct buffer *buf)
 
 		if (buf->type == IB)
 			ib_decode_end(ibstate);
-		else
+		else if (buf->type == PUSH)
 			pushbuf_decode_end(state);
+		else if (buf->type == USER)
+			user_decode_end(ustate);
 
 		cur = cur->next;
 	}
@@ -562,7 +601,7 @@ static void clear_buffered_writes()
 
 static void demmt_memread(struct mmt_read *w, void *state)
 {
-	if (find_ib_buffer)
+	if (find_pb_pointer)
 		return;
 
 	char comment[50];
@@ -663,8 +702,13 @@ static void demmt_mmap(struct mmt_mmap *mm, void *state)
 	buf->cpu_start = mm->start;
 	buf->length = mm->len;
 	buf->mmap_offset = mm->offset;
-	if (mm->id == ib_buffer)
-		buf->type = IB;
+	if (mm->id == pb_pointer_buffer)
+	{
+		if (ib_supported)
+			buf->type = IB;
+		else
+			buf->type = USER;
+	}
 	if (buffers_list)
 		buffers_list->prev = buf;
 	buf->next = buffers_list;
@@ -1003,8 +1047,13 @@ static void demmt_nv_mmap(struct mmt_nvidia_mmap *mm, void *state)
 	buf->mmap_offset = mm->offset;
 	buf->data1 = mm->data1;
 	buf->data2 = mm->data2;
-	if (mm->id == ib_buffer)
-		buf->type = IB;
+	if (mm->id == pb_pointer_buffer)
+	{
+		if (ib_supported)
+			buf->type = IB;
+		else
+			buf->type = USER;
+	}
 	if (buffers_list)
 		buffers_list->prev = buf;
 	buf->next = buffers_list;
@@ -1096,8 +1145,8 @@ static void usage()
 	fprintf(stderr, "Usage: demmt [OPTION]\n"
 			"Decodes binary trace files generated by Valgrind MMT. Reads standard input.\n\n"
 			"  -m 'chipset'\tset chipset version\n"
-			"  -f\t\tfind possible IB(s)\n"
-			"  -n id\t\tset buffer \"id\" as IB\n"
+			"  -f\t\tfind possible IB(s) on >= tesla or USER on < tesla\n"
+			"  -n id\t\tset buffer \"id\" as IB on >= tesla or USER on < tesla\n"
 			"  -g\t\tprint gpu addresses\n"
 			"  -o\t\tdump ioctl data\n"
 			"  -q\t\t(quiet) print only the most important data (for now only pushbufs from IB's)\n"
@@ -1143,14 +1192,14 @@ int main(int argc, char *argv[])
 		{
 			if (i + 1 >= argc)
 				usage();
-			ib_buffer = strtoul(argv[++i], NULL, 10);
+			pb_pointer_buffer = strtoul(argv[++i], NULL, 10);
 		}
 		else if (!strcmp(argv[i], "-o"))
 			dump_ioctls = 1;
 		else if (!strcmp(argv[i], "-g"))
 			print_gpu_addresses = 1;
 		else if (!strcmp(argv[i], "-f"))
-			find_ib_buffer = 1;
+			find_pb_pointer = 1;
 		else if (!strcmp(argv[i], "-q"))
 			quiet = 1;
 		else if (!strcmp(argv[i], "-a"))
@@ -1169,6 +1218,8 @@ int main(int argc, char *argv[])
 
 	if (chipset == 0)
 		usage();
+	ib_supported = chipset >= 0x80 || chipset == 0x50;
+
 	demmt_object_init_chipset(chipset);
 	if (!colors)
 		colors = &envy_null_colors;
