@@ -64,7 +64,7 @@ static struct
 	int data_offset;
 } nv50_2d = { 0, 0, NULL, 0, 0 };
 
-static void decode_nv50_2d(int mthd, uint32_t data)
+static void decode_nv50_2d(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
 {
 	if (mthd == 0x0220) // DST_ADDRESS_HIGH
 	{
@@ -161,7 +161,7 @@ static void nv50_3d_disassemble(struct buffer *buf, const char *mode, uint32_t s
 	}
 }
 
-static void decode_nv50_3d(int mthd, uint32_t data)
+static void decode_nv50_3d(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
 {
 	if (mthd == 0x0f7c) // VP_ADDRESS_HIGH
 		nv50_3d.vp_address = ((uint64_t)data) << 32;
@@ -196,14 +196,19 @@ static void decode_nv50_3d(int mthd, uint32_t data)
 }
 
 static const struct disisa *isa_nvc0 = NULL;
+static const struct disisa *isa_macro = NULL;
 
 static struct
 {
 	uint64_t code_address;
 	struct buffer *code_buffer;
+
+	struct buffer *macro_buffer;
+	int last_macro_code_pos;
+	int cur_macro_code_pos;
 } nvc0_nvc1_3d = { 0, NULL };
 
-static void decode_nvc0_nvc1_3d(int mthd, uint32_t data)
+static void decode_nvc0_nvc1_3d(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
 {
 	if (mthd == 0x1608) // CODE_ADDRESS_HIGH
 		nvc0_nvc1_3d.code_address = ((uint64_t)data) << 32;
@@ -252,6 +257,41 @@ static void decode_nvc0_nvc1_3d(int mthd, uint32_t data)
 				break;
 			}
 	}
+	else if (mthd == 0x0114) // GRAPH.MACRO_CODE_POS
+	{
+		struct buffer *buf = nvc0_nvc1_3d.macro_buffer;
+		if (buf == NULL)
+		{
+			nvc0_nvc1_3d.macro_buffer = buf = calloc(1, sizeof(struct buffer));
+			buf->id = -1;
+			buf->length = 0x2000;
+			buf->data = calloc(buf->length, 1);
+		}
+		nvc0_nvc1_3d.last_macro_code_pos = data * 4;
+		nvc0_nvc1_3d.cur_macro_code_pos = data * 4;
+	}
+	else if (mthd == 0x0118) // GRAPH.MACRO_CODE_DATA
+	{
+		struct buffer *buf = nvc0_nvc1_3d.macro_buffer;
+		if (nvc0_nvc1_3d.cur_macro_code_pos >= buf->length)
+			mmt_log("not enough space for more macro code, truncating%s\n", "");
+		else
+		{
+			buffer_register_write(buf, nvc0_nvc1_3d.cur_macro_code_pos, 4, &data);
+			nvc0_nvc1_3d.cur_macro_code_pos += 4;
+			if (pstate->size == 0)
+			{
+				if (!isa_macro)
+					isa_macro = ed_getisa("macro");
+				struct varinfo *var = varinfo_new(isa_macro->vardata);
+
+				envydis(isa_macro, stdout, buf->data + nvc0_nvc1_3d.last_macro_code_pos, 0,
+						(nvc0_nvc1_3d.cur_macro_code_pos - nvc0_nvc1_3d.last_macro_code_pos) / 4,
+						var, 0, NULL, 0, colors);
+				varinfo_del(var);
+			}
+		}
+	}
 }
 
 static struct
@@ -261,7 +301,7 @@ static struct
 	int data_offset;
 } nvc0_m2mf = { 0, NULL, 0 };
 
-static void decode_nvc0_m2mf(int mthd, uint32_t data)
+static void decode_nvc0_m2mf(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
 {
 	if (mthd == 0x0238) // OFFSET_OUT_HIGH
 	{
@@ -299,7 +339,7 @@ static void decode_nvc0_m2mf(int mthd, uint32_t data)
 static const struct gpu_object
 {
 	uint32_t class_;
-	void (*fun)(int, uint32_t);
+	void (*fun)(struct pushbuf_decode_state *, int, uint32_t);
 }
 objs[] =
 {

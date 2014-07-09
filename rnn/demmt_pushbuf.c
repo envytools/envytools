@@ -44,7 +44,7 @@ struct obj
 	uint32_t class;
 	char *name;
 	struct rnndeccontext *ctx;
-	void (*decoder)(int, uint32_t);
+	void (*decoder)(struct pushbuf_decode_state *, int, uint32_t);
 };
 
 static struct obj *subchans[8] = { NULL };
@@ -412,7 +412,7 @@ static uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct buffer
 		{
 			struct obj *obj = subchans[pstate->subchan];
 			if (obj && obj->decoder)
-				obj->decoder(mthd, cmd);
+				obj->decoder(pstate, mthd, cmd);
 		}
 
 		cur += 4;
