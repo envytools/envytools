@@ -1220,7 +1220,6 @@ int main(int argc, char *argv[])
 		usage();
 	ib_supported = chipset >= 0x80 || chipset == 0x50;
 
-	demmt_object_init_chipset(chipset);
 	if (!colors)
 		colors = &envy_null_colors;
 

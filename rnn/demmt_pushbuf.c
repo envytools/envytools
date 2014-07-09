@@ -44,6 +44,7 @@ struct obj
 	uint32_t class;
 	char *name;
 	struct rnndeccontext *ctx;
+	void (*decoder)(int, uint32_t);
 };
 
 static struct obj *subchans[8] = { NULL };
@@ -73,6 +74,7 @@ void pushbuf_add_object(uint32_t handle, uint32_t class)
 		obj->class = class;
 		obj->ctx = rnndec_newcontext(rnndb);
 		obj->ctx->colors = colors;
+		obj->decoder = demmt_get_decoder(class);
 
 		v = NULL;
 		FINDARRAY(chs->vals, v, v->value == chipset);
@@ -406,9 +408,12 @@ static uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct buffer
 		}
 		fprintf(stdout, "PB: 0x%08x %s\n", cmd, cmdoutput);
 
-		struct obj *obj = subchans[pstate->subchan];
-		if (obj)
-			demmt_parse_command(obj->class, mthd, cmd);
+		if (disassemble_shaders)
+		{
+			struct obj *obj = subchans[pstate->subchan];
+			if (obj && obj->decoder)
+				obj->decoder(mthd, cmd);
+		}
 
 		cur += 4;
 	}
