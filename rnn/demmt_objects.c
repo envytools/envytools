@@ -225,10 +225,15 @@ static void decode_nvc0_nvc1_3d(int mthd, uint32_t data)
 				{
 					if (reg->start == data)
 					{
+						uint32_t x;
+						fprintf(stdout, "HEADER:\n");
+						for (x = reg->start; x < reg->start + 20 * 4; x += 4)
+							fprintf(stdout, "0x%08x\n", *(uint32_t *)(nvc0_nvc1_3d.code_buffer->data + x));
+
+						fprintf(stdout, "CODE:\n");
 						if (MMT_DEBUG)
 						{
 							uint32_t x;
-							mmt_debug("CODE: %s\n", "");
 							for (x = reg->start + 20 * 4; x < reg->end; x += 4)
 								mmt_debug("0x%08x ", *(uint32_t *)(nvc0_nvc1_3d.code_buffer->data + x));
 							mmt_debug("%s\n", "");
