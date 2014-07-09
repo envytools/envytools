@@ -53,6 +53,11 @@ static int print_gpu_addresses = 0;
 
 struct rnndomain *domain;
 struct rnndb *rnndb;
+static struct rnndb *rnndb_nv50_texture;
+struct rnndeccontext *nv50_texture_ctx;
+struct rnndomain *tsc_domain;
+struct rnndomain *tic_domain;
+
 int chipset;
 int ib_supported;
 int guess_invalid_pushbuf = 1;
@@ -1229,6 +1234,20 @@ int main(int argc, char *argv[])
 	rnn_parsefile(rnndb, "fifo/nv_objects.xml");
 	rnn_prepdb(rnndb);
 	domain = rnn_finddomain(rnndb, "NV01_SUBCHAN");
+
+	rnndb_nv50_texture = rnn_newdb();
+	rnn_parsefile(rnndb_nv50_texture, "graph/nv50_texture.xml");
+	rnn_prepdb(rnndb_nv50_texture);
+
+	nv50_texture_ctx = rnndec_newcontext(rnndb_nv50_texture);
+	nv50_texture_ctx->colors = colors;
+
+	struct rnnvalue *v = NULL;
+	struct rnnenum *chs = rnn_findenum(rnndb, "chipset");
+	FINDARRAY(chs->vals, v, v->value == chipset);
+	rnndec_varadd(nv50_texture_ctx, "chipset", v ? v->name : "NV01");
+	tic_domain = rnn_finddomain(rnndb_nv50_texture, "TIC");
+	tsc_domain = rnn_finddomain(rnndb_nv50_texture, "TSC");
 
 	if (filename)
 	{

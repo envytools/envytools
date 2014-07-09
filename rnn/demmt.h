@@ -50,6 +50,10 @@ extern struct buffer *gpu_only_buffers_list;
 
 extern struct rnndomain *domain;
 extern struct rnndb *rnndb;
+extern struct rnndeccontext *nv50_texture_ctx;
+extern struct rnndomain *tsc_domain;
+extern struct rnndomain *tic_domain;
+
 extern int chipset;
 extern int ib_supported;
 extern int guess_invalid_pushbuf;
