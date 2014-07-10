@@ -38,6 +38,14 @@ void pushbuf_decode_start(struct pushbuf_decode_state *state)
 	memset(state, 0, sizeof(*state));
 }
 
+#define ADDR_CACHE_SIZE 400
+struct cache_entry
+{
+	int addr;
+	struct rnndecaddrinfo *info;
+	struct cache_entry *next;
+};
+
 struct obj
 {
 	uint32_t handle;
@@ -45,6 +53,7 @@ struct obj
 	char *name;
 	struct rnndeccontext *ctx;
 	void (*decoder)(struct pushbuf_decode_state *, int, uint32_t);
+	struct cache_entry *cache[ADDR_CACHE_SIZE];
 };
 
 static struct obj *subchans[8] = { NULL };
@@ -128,8 +137,8 @@ static void decode_header(struct pushbuf_decode_state *state, uint32_t data, cha
 
 static void decode_method(struct pushbuf_decode_state *state, uint32_t data, char *output)
 {
-	struct rnndecaddrinfo *ai;
 	struct obj *obj = subchans[state->subchan];
+	int addr = state->addr;
 	char *dec_obj = NULL;
 	char *dec_addr = NULL;
 	char *dec_val = NULL;
@@ -143,18 +152,30 @@ static void decode_method(struct pushbuf_decode_state *state, uint32_t data, cha
 	/* get the method name and value */
 	if (obj)
 	{
-		ai = rnndec_decodeaddr(obj->ctx, domain, state->addr, 1);
+		struct rnndecaddrinfo *ai;
+		int bucket = (addr * (addr + 3)) % ADDR_CACHE_SIZE;
+		struct cache_entry *entry = obj->cache[bucket];
+		while (entry && entry->addr != addr)
+			entry = entry->next;
+		if (entry)
+			ai = entry->info;
+		else
+		{
+			entry = malloc(sizeof(struct cache_entry));
+			entry->addr = addr;
+			entry->info = ai = rnndec_decodeaddr(obj->ctx, domain, addr, 1);
+			entry->next = obj->cache[bucket];
+			obj->cache[bucket] = entry;
+		}
 
 		dec_addr = ai->name;
 		dec_val = rnndec_decodeval(obj->ctx, ai->typeinfo, data, ai->width);
-
-		free(ai);
 	}
 	else
-		asprintf(&dec_addr, "%s0x%x%s", colors->err, state->addr, colors->reset);
+		asprintf(&dec_addr, "%s0x%x%s", colors->err, addr, colors->reset);
 
 	/* write it */
-	if (state->addr == 0)
+	if (addr == 0)
 		sprintf(output, "  %s mapped to subchannel %d", dec_obj, state->subchan);
 	else if (dec_val)
 		sprintf(output, "  %s.%s = %s", dec_obj, dec_addr, dec_val);
@@ -162,7 +183,6 @@ static void decode_method(struct pushbuf_decode_state *state, uint32_t data, cha
 		sprintf(output, "  %s.%s", dec_obj, dec_addr);
 
 	free(dec_val);
-	free(dec_addr);
 	free(dec_obj);
 }
 
