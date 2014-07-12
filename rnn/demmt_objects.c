@@ -310,40 +310,42 @@ static void decode_nvc0_3d(struct pushbuf_decode_state *pstate, int mthd, uint32
 	{
 		int i;
 		for (i = 0; i < 6; ++i)
-			if (mthd == 0x2004 + i * 0x40) // SP[i].START_ID
+		{
+			if (mthd != 0x2004 + i * 0x40) // SP[i].START_ID
+				continue;
+
+			mmt_debug("start id[%d]: 0x%08x\n", i, data);
+			struct region *reg;
+			for (reg = nvc0_3d.code_buffer->written_regions; reg != NULL; reg = reg->next)
 			{
-				mmt_debug("start id[%d]: 0x%08x\n", i, data);
-				struct region *reg;
-				for (reg = nvc0_3d.code_buffer->written_regions; reg != NULL; reg = reg->next)
+				if (reg->start != data)
+					continue;
+
+				uint32_t x;
+				fprintf(stdout, "HEADER:\n");
+				for (x = reg->start; x < reg->start + 20 * 4; x += 4)
+					fprintf(stdout, "0x%08x\n", *(uint32_t *)(nvc0_3d.code_buffer->data + x));
+
+				fprintf(stdout, "CODE:\n");
+				if (MMT_DEBUG)
 				{
-					if (reg->start == data)
-					{
-						uint32_t x;
-						fprintf(stdout, "HEADER:\n");
-						for (x = reg->start; x < reg->start + 20 * 4; x += 4)
-							fprintf(stdout, "0x%08x\n", *(uint32_t *)(nvc0_3d.code_buffer->data + x));
-
-						fprintf(stdout, "CODE:\n");
-						if (MMT_DEBUG)
-						{
-							uint32_t x;
-							for (x = reg->start + 20 * 4; x < reg->end; x += 4)
-								mmt_debug("0x%08x ", *(uint32_t *)(nvc0_3d.code_buffer->data + x));
-							mmt_debug("%s\n", "");
-						}
-
-						if (!isa_nvc0)
-							isa_nvc0 = ed_getisa("nvc0");
-						struct varinfo *var = varinfo_new(isa_nvc0->vardata);
-
-						envydis(isa_nvc0, stdout, nvc0_3d.code_buffer->data + reg->start + 20 * 4, 0,
-								reg->end - reg->start - 20 * 4, var, 0, NULL, 0, colors);
-						varinfo_del(var);
-						break;
-					}
+					uint32_t x;
+					for (x = reg->start + 20 * 4; x < reg->end; x += 4)
+						mmt_debug("0x%08x ", *(uint32_t *)(nvc0_3d.code_buffer->data + x));
+					mmt_debug("%s\n", "");
 				}
+
+				if (!isa_nvc0)
+					isa_nvc0 = ed_getisa("nvc0");
+				struct varinfo *var = varinfo_new(isa_nvc0->vardata);
+
+				envydis(isa_nvc0, stdout, nvc0_3d.code_buffer->data + reg->start + 20 * 4, 0,
+						reg->end - reg->start - 20 * 4, var, 0, NULL, 0, colors);
+				varinfo_del(var);
 				break;
 			}
+			break;
+		}
 	}
 	else if (mthd == 0x0114) // GRAPH.MACRO_CODE_POS
 	{
