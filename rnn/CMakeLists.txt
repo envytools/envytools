@@ -31,7 +31,7 @@ target_link_libraries(lookup rnn)
 target_link_libraries(rnncheck rnn)
 target_link_libraries(demmt rnn envy)
 
-install(TARGETS demmio headergen rnn dedma lookup
+install(TARGETS demmio headergen rnn dedma lookup demmt mmt_bin2dedma
 	RUNTIME DESTINATION bin
 	LIBRARY DESTINATION lib${LIB_SUFFIX}
 	ARCHIVE DESTINATION lib${LIB_SUFFIX})
