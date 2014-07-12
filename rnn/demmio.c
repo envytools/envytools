@@ -208,32 +208,6 @@ void doi2cw (struct cctx *cc, struct i2c_ctx *ctx, int byte) {
 	ctx->last = byte;
 }
 
-FILE *open_input(char *filename) {
-	const char * const tab[][2] = {
-		{ ".gz", "zcat" },
-		{ ".Z", "zcat" },
-		{ ".bz2", "bzcat" },
-		{ ".xz", "xzcat" },
-	};
-	int i;
-	int flen = strlen(filename);
-	for (i = 0; i < sizeof tab / sizeof tab[0]; i++) {
-		int elen = strlen(tab[i][0]);
-		if (flen > elen && !strcmp(filename + flen - elen, tab[i][0])) {
-			fprintf (stderr, "Compressed trace detected, trying to decompress...\n");
-			char *cmd = malloc(flen + strlen(tab[i][1]) + 2);
-			FILE *res;
-			strcpy(cmd, tab[i][1]);
-			strcat(cmd, " ");
-			strcat(cmd, filename);
-			res = popen(cmd, "r");
-			free(cmd);
-			return res;
-		}
-	}
-	return fopen(filename, "r");
-}
-
 int main(int argc, char **argv) {
 	char *file = NULL;
 	int c,use_colors=1;

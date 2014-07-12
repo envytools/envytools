@@ -113,6 +113,8 @@ void print_escaped_astr(FILE *out, struct astr *astr);
 
 char *aprintf(const char *format, ...);
 
+FILE *open_input(const char *filename);
+
 #ifdef NDEBUG
 #undef assert
 #define UNUSED(x) ((void)(x))
