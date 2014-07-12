@@ -142,6 +142,7 @@ static void decode_method(struct pushbuf_decode_state *state, uint32_t data, cha
 	char *dec_obj = NULL;
 	char *dec_addr = NULL;
 	char *dec_val = NULL;
+	int free_dec_addr = 0;
 
 	/* get an object name */
 	if (obj && obj->name)
@@ -172,7 +173,10 @@ static void decode_method(struct pushbuf_decode_state *state, uint32_t data, cha
 		dec_val = rnndec_decodeval(obj->ctx, ai->typeinfo, data, ai->width);
 	}
 	else
+	{
 		asprintf(&dec_addr, "%s0x%x%s", colors->err, addr, colors->reset);
+		free_dec_addr = 1;
+	}
 
 	/* write it */
 	if (addr == 0)
@@ -182,6 +186,8 @@ static void decode_method(struct pushbuf_decode_state *state, uint32_t data, cha
 	else
 		sprintf(output, "  %s.%s", dec_obj, dec_addr);
 
+	if (free_dec_addr)
+		free(dec_addr);
 	free(dec_val);
 	free(dec_obj);
 }
