@@ -31,8 +31,9 @@
 #include "mmt_bin_decode.h"
 #include "mmt_bin_decode_nvidia.h"
 #include "demmt.h"
-#include "demmt_pushbuf.h"
+#include "demmt_drm.h"
 #include "demmt_objects.h"
+#include "demmt_pushbuf.h"
 #include "rnndec.h"
 #include "util.h"
 
@@ -828,31 +829,75 @@ static void ioctl_data_print(struct mmt_buf *data)
 		mmt_log_cont(" 0x%08x", ((uint32_t *)data->data)[i]);
 }
 
+static void decode_ioctl_id(uint32_t id, uint8_t *dir, uint8_t *type, uint8_t *nr, uint16_t *size)
+{
+	*nr =    id & 0x000000ff;
+	*type = (id & 0x0000ff00) >> 8;
+	*size = (id & 0x3fff0000) >> 16;
+	*dir =  (id & 0xc0000000) >> 30;
+}
+
+static char *dir_desc[] = { "?", "w", "r", "rw" };
+
 static void demmt_nv_ioctl_pre(struct mmt_nvidia_ioctl_pre *ctl, void *state)
 {
-	mmt_log("ioctl pre  0x%02x (0x%08x)", ctl->id & 0xff, ctl->id);
-	ioctl_data_print(&ctl->data);
+	uint8_t dir, type, nr;
+	uint16_t size;
+	decode_ioctl_id(ctl->id, &dir, &type, &nr, &size);
+	int print_raw = 1;
+
+	if (type == 0x64) // DRM
+		print_raw = demmt_drm_ioctl_pre(dir, nr, size, &ctl->data, state);
+	else if (type == 0x46) // nvidia
+	{ }
+	print_raw = print_raw || dump_ioctls;
+
+	if (print_raw)
+	{
+		mmt_log("ioctl pre  0x%02x (0x%08x), dir: %2s, size: %4d", nr, ctl->id, dir_desc[dir], size);
+		if (size != ctl->data.len)
+			mmt_log_cont(", data.len: %d", ctl->data.len);
+
+		ioctl_data_print(&ctl->data);
+	}
+
 	if (1)
 	{
 		if (wreg_count)
 		{
-			mmt_log_cont(", flushing buffered writes%s\n", "");
+			if (print_raw)
+				mmt_log_cont(", flushing buffered writes%s\n", "");
+			else
+				mmt_log("flushing buffered writes%s\n", "");
 			dump_buffered_writes(1);
 			clear_buffered_writes();
 			mmt_log("%s\n", "");
 		}
-		else
+		else if (print_raw)
 			mmt_log_cont(", no dirty buffers%s\n", "");
 	}
-	else
+	else if (print_raw)
 		mmt_log_cont("%s\n", "");
 }
 
 static void demmt_nv_ioctl_post(struct mmt_nvidia_ioctl_post *ctl, void *state)
 {
-	if (dump_ioctls)
+	uint8_t dir, type, nr;
+	uint16_t size;
+	decode_ioctl_id(ctl->id, &dir, &type, &nr, &size);
+	int print_raw = 0;
+
+	if (type == 0x64) // DRM
+		print_raw = demmt_drm_ioctl_post(dir, nr, size, &ctl->data, state);
+	else if (type == 0x46) // nvidia
+	{ }
+	print_raw = print_raw || dump_ioctls;
+
+	if (print_raw)
 	{
-		mmt_log("ioctl post 0x%02x (0x%08x)", ctl->id & 0xff, ctl->id);
+		mmt_log("ioctl post 0x%02x (0x%08x), dir: %2s, size: %4d", nr, ctl->id, dir_desc[dir], size);
+		if (size != ctl->data.len)
+			mmt_log_cont(", data.len: %d", ctl->data.len);
 		ioctl_data_print(&ctl->data);
 		mmt_log_cont("%s\n", "");
 	}

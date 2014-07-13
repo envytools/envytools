@@ -9,6 +9,7 @@ extern int quiet;
 extern int disassemble_shaders;
 extern const struct envy_colors *colors;
 
+#include <stdio.h>
 #define mmt_debug(fmt, ...)        do { if (MMT_DEBUG)                  fprintf(stderr, fmt, __VA_ARGS__); } while (0)
 #define mmt_log(fmt, ...)          do { if (!find_pb_pointer && !quiet) fprintf(stdout, "%64s" fmt, " ", __VA_ARGS__); } while (0)
 #define mmt_log_cont(fmt, ...)     do { if (!find_pb_pointer && !quiet) fprintf(stdout, fmt, __VA_ARGS__); } while (0)
