@@ -824,7 +824,7 @@ static void ioctl_data_print(struct mmt_buf *data)
 		return;
 
 	mmt_log_cont(", data:%s", "");
-	for (i = 0; i < data->len; ++i)
+	for (i = 0; i < data->len / 4; ++i)
 		mmt_log_cont(" 0x%08x", ((uint32_t *)data->data)[i]);
 }
 
