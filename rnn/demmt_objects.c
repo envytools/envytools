@@ -296,93 +296,9 @@ static struct
 	struct buffer *tic_buffer;
 } nvc0_3d = { 0, NULL };
 
-static void decode_nvc0_3d(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+static int decode_nvc0_3d_tsc_tic(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
 {
-	if (mthd == 0x1608) // CODE_ADDRESS_HIGH
-		nvc0_3d.code_address = ((uint64_t)data) << 32;
-	else if (mthd == 0x160c) // CODE_ADDRESS_LOW
-	{
-		nvc0_3d.code_address |= data;
-		nvc0_3d.code_buffer = find_buffer_by_gpu_address(nvc0_3d.code_address);
-		mmt_debug("code address: 0x%08lx, buffer found: %d\n", nvc0_3d.code_address, nvc0_3d.code_buffer ? 1 : 0);
-	}
-	else if (nvc0_3d.code_buffer && mthd >= 0x2000 && mthd < 0x2000 + 0x40 * 6 && (mthd & 0x4) == 4) // SP
-	{
-		int i;
-		for (i = 0; i < 6; ++i)
-		{
-			if (mthd != 0x2004 + i * 0x40) // SP[i].START_ID
-				continue;
-
-			mmt_debug("start id[%d]: 0x%08x\n", i, data);
-			struct region *reg;
-			for (reg = nvc0_3d.code_buffer->written_regions; reg != NULL; reg = reg->next)
-			{
-				if (reg->start != data)
-					continue;
-
-				uint32_t x;
-				fprintf(stdout, "HEADER:\n");
-				for (x = reg->start; x < reg->start + 20 * 4; x += 4)
-					fprintf(stdout, "0x%08x\n", *(uint32_t *)(nvc0_3d.code_buffer->data + x));
-
-				fprintf(stdout, "CODE:\n");
-				if (MMT_DEBUG)
-				{
-					uint32_t x;
-					for (x = reg->start + 20 * 4; x < reg->end; x += 4)
-						mmt_debug("0x%08x ", *(uint32_t *)(nvc0_3d.code_buffer->data + x));
-					mmt_debug("%s\n", "");
-				}
-
-				if (!isa_nvc0)
-					isa_nvc0 = ed_getisa("nvc0");
-				struct varinfo *var = varinfo_new(isa_nvc0->vardata);
-
-				envydis(isa_nvc0, stdout, nvc0_3d.code_buffer->data + reg->start + 20 * 4, 0,
-						reg->end - reg->start - 20 * 4, var, 0, NULL, 0, colors);
-				varinfo_del(var);
-				break;
-			}
-			break;
-		}
-	}
-	else if (mthd == 0x0114) // GRAPH.MACRO_CODE_POS
-	{
-		struct buffer *buf = nvc0_3d.macro_buffer;
-		if (buf == NULL)
-		{
-			nvc0_3d.macro_buffer = buf = calloc(1, sizeof(struct buffer));
-			buf->id = -1;
-			buf->length = 0x2000;
-			buf->data = calloc(buf->length, 1);
-		}
-		nvc0_3d.last_macro_code_pos = data * 4;
-		nvc0_3d.cur_macro_code_pos = data * 4;
-	}
-	else if (mthd == 0x0118) // GRAPH.MACRO_CODE_DATA
-	{
-		struct buffer *buf = nvc0_3d.macro_buffer;
-		if (nvc0_3d.cur_macro_code_pos >= buf->length)
-			mmt_log("not enough space for more macro code, truncating%s\n", "");
-		else
-		{
-			buffer_register_write(buf, nvc0_3d.cur_macro_code_pos, 4, &data);
-			nvc0_3d.cur_macro_code_pos += 4;
-			if (pstate->size == 0)
-			{
-				if (!isa_macro)
-					isa_macro = ed_getisa("macro");
-				struct varinfo *var = varinfo_new(isa_macro->vardata);
-
-				envydis(isa_macro, stdout, buf->data + nvc0_3d.last_macro_code_pos, 0,
-						(nvc0_3d.cur_macro_code_pos - nvc0_3d.last_macro_code_pos) / 4,
-						var, 0, NULL, 0, colors);
-				varinfo_del(var);
-			}
-		}
-	}
-	else if (mthd == 0x155c) // TSC_ADDRESS_HIGH
+	if (mthd == 0x155c) // TSC_ADDRESS_HIGH
 		nvc0_3d.tsc_address = ((uint64_t)data) << 32;
 	else if (mthd == 0x1560) // TSC_ADDRESS_LOW
 	{
@@ -427,6 +343,102 @@ static void decode_nvc0_3d(struct pushbuf_decode_state *pstate, int mthd, uint32
 			}
 		}
 	}
+	else
+		return 0;
+	return 1;
+}
+
+static void decode_nvc0_3d(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+{
+	if (mthd == 0x1608) // CODE_ADDRESS_HIGH
+		nvc0_3d.code_address = ((uint64_t)data) << 32;
+	else if (mthd == 0x160c) // CODE_ADDRESS_LOW
+	{
+		nvc0_3d.code_address |= data;
+		nvc0_3d.code_buffer = find_buffer_by_gpu_address(nvc0_3d.code_address);
+		mmt_debug("code address: 0x%08lx, buffer found: %d\n", nvc0_3d.code_address, nvc0_3d.code_buffer ? 1 : 0);
+	}
+	else if (nvc0_3d.code_buffer && mthd >= 0x2000 && mthd < 0x2000 + 0x40 * 6 && (mthd & 0x4) == 4) // SP
+	{
+		int i;
+		for (i = 0; i < 6; ++i)
+		{
+			if (mthd != 0x2004 + i * 0x40) // SP[i].START_ID
+				continue;
+
+			mmt_debug("start id[%d]: 0x%08x\n", i, data);
+			struct region *reg;
+			for (reg = nvc0_3d.code_buffer->written_regions; reg != NULL; reg = reg->next)
+			{
+				if (reg->start != data)
+					continue;
+
+				uint32_t x;
+				fprintf(stdout, "HEADER:\n");
+				for (x = reg->start; x < reg->start + 20 * 4; x += 4)
+					fprintf(stdout, "0x%08x\n", *(uint32_t *)(nvc0_3d.code_buffer->data + x));
+
+				fprintf(stdout, "CODE:\n");
+				if (MMT_DEBUG)
+				{
+					uint32_t x;
+					for (x = reg->start + 20 * 4; x < reg->end; x += 4)
+						mmt_debug("0x%08x ", *(uint32_t *)(nvc0_3d.code_buffer->data + x));
+					mmt_debug("%s\n", "");
+				}
+
+				if (!isa_nvc0)
+					isa_nvc0 = ed_getisa("nvc0");
+				struct varinfo *var = varinfo_new(isa_nvc0->vardata);
+
+				if (chipset >= 0xe4)
+					varinfo_set_variant(var, "nve4");
+
+				envydis(isa_nvc0, stdout, nvc0_3d.code_buffer->data + reg->start + 20 * 4, 0,
+						reg->end - reg->start - 20 * 4, var, 0, NULL, 0, colors);
+				varinfo_del(var);
+				break;
+			}
+			break;
+		}
+	}
+	else if (mthd == 0x0114) // GRAPH.MACRO_CODE_POS
+	{
+		struct buffer *buf = nvc0_3d.macro_buffer;
+		if (buf == NULL)
+		{
+			nvc0_3d.macro_buffer = buf = calloc(1, sizeof(struct buffer));
+			buf->id = -1;
+			buf->length = 0x2000;
+			buf->data = calloc(buf->length, 1);
+		}
+		nvc0_3d.last_macro_code_pos = data * 4;
+		nvc0_3d.cur_macro_code_pos = data * 4;
+	}
+	else if (mthd == 0x0118) // GRAPH.MACRO_CODE_DATA
+	{
+		struct buffer *buf = nvc0_3d.macro_buffer;
+		if (nvc0_3d.cur_macro_code_pos >= buf->length)
+			mmt_log("not enough space for more macro code, truncating%s\n", "");
+		else
+		{
+			buffer_register_write(buf, nvc0_3d.cur_macro_code_pos, 4, &data);
+			nvc0_3d.cur_macro_code_pos += 4;
+			if (pstate->size == 0)
+			{
+				if (!isa_macro)
+					isa_macro = ed_getisa("macro");
+				struct varinfo *var = varinfo_new(isa_macro->vardata);
+
+				envydis(isa_macro, stdout, buf->data + nvc0_3d.last_macro_code_pos, 0,
+						(nvc0_3d.cur_macro_code_pos - nvc0_3d.last_macro_code_pos) / 4,
+						var, 0, NULL, 0, colors);
+				varinfo_del(var);
+			}
+		}
+	}
+	else if (chipset < 0xe0 && decode_nvc0_3d_tsc_tic(pstate, mthd, data))
+	{ }
 }
 
 static struct
@@ -471,6 +483,48 @@ static void decode_nvc0_m2mf(struct pushbuf_decode_state *pstate, int mthd, uint
 	}
 }
 
+static struct
+{
+	uint64_t offset_out;
+	struct buffer *offset_out_buffer;
+	int data_offset;
+} nve0_p2mf = { 0, NULL, 0 };
+
+static void decode_nve0_p2mf(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+{
+	if (mthd == 0x0188) // UPLOAD.DST_ADDRESS_HIGH
+	{
+		nve0_p2mf.offset_out = ((uint64_t)data) << 32;
+		nve0_p2mf.offset_out_buffer = NULL;
+	}
+	else if (mthd == 0x018c) // UPLOAD.DST_ADDRESS_LOW
+		nve0_p2mf.offset_out |= data;
+	else if (mthd == 0x01b0) // UPLOAD.EXEC
+	{
+		int flags_ok = (data & 0x1) == 0x1 ? 1 : 0;
+		mmt_debug("p2mf exec: 0x%08x linear: %d\n", data, flags_ok);
+		if (flags_ok)
+			nve0_p2mf.offset_out_buffer = find_buffer_by_gpu_address(nve0_p2mf.offset_out);
+
+		if (!flags_ok || nve0_p2mf.offset_out_buffer == NULL)
+		{
+			nve0_p2mf.offset_out = 0;
+			nve0_p2mf.offset_out_buffer = NULL;
+		}
+		if (nve0_p2mf.offset_out_buffer)
+			nve0_p2mf.data_offset = nve0_p2mf.offset_out - nve0_p2mf.offset_out_buffer->gpu_start;
+	}
+	else if (mthd == 0x01b4) // UPLOAD.DATA
+	{
+		mmt_debug("p2mf data: 0x%08x\n", data);
+		if (nve0_p2mf.offset_out_buffer)
+		{
+			buffer_register_write(nve0_p2mf.offset_out_buffer, nve0_p2mf.data_offset, 4, &data);
+			nve0_p2mf.data_offset += 4;
+		}
+	}
+}
+
 static const struct gpu_object
 {
 	uint32_t class_;
@@ -488,6 +542,8 @@ objs[] =
 		{ 0x9097, decode_nvc0_3d },
 		{ 0x9197, decode_nvc0_3d },
 		{ 0x9297, decode_nvc0_3d },
+		{ 0xa040, decode_nve0_p2mf },
+		{ 0xa097, decode_nvc0_3d },
 		{ 0, NULL}
 };
 
