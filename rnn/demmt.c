@@ -60,7 +60,7 @@ struct rnndeccontext *nv50_texture_ctx;
 struct rnndeccontext *nvc0_shaders_ctx;
 struct rnndomain *tsc_domain;
 struct rnndomain *tic_domain;
-struct rnndomain *nvc0_vp_header_domain, *nvc0_fp_header_domain, *nvc0_gp_header_domain;
+struct rnndomain *nvc0_vp_header_domain, *nvc0_fp_header_domain, *nvc0_gp_header_domain, *nvc0_tcp_header_domain, *nvc0_tep_header_domain;
 
 int chipset;
 int ib_supported;
@@ -1307,6 +1307,8 @@ int main(int argc, char *argv[])
 	nvc0_vp_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "NVC0_VP_HEADER");
 	nvc0_fp_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "NVC0_FP_HEADER");
 	nvc0_gp_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "NVC0_GP_HEADER");
+	nvc0_tcp_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "NVC0_TCP_HEADER");
+	nvc0_tep_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "NVC0_TEP_HEADER");
 
 	if (filename)
 	{

@@ -384,11 +384,15 @@ static void decode_nvc0_3d(struct pushbuf_decode_state *pstate, int mthd, uint32
 				int program = (data >> 4) & 0x7;
 				if (program == 0 || program == 1) // VP
 					nvc0_3d.shaders[i] = nvc0_vp_header_domain;
+				else if (program == 2) // TCP
+					nvc0_3d.shaders[i] = nvc0_tcp_header_domain;
+				else if (program == 3) // TEP
+					nvc0_3d.shaders[i] = nvc0_tep_header_domain;
 				else if (program == 4) // GP
 					nvc0_3d.shaders[i] = nvc0_gp_header_domain;
 				else if (program == 5) // FP
 					nvc0_3d.shaders[i] = nvc0_fp_header_domain;
-				else // TCP/TEP
+				else
 					nvc0_3d.shaders[i] = NULL;
 				break;
 			}
