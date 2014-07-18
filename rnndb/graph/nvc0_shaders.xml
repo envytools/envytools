@@ -36,6 +36,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<bitfield pos="16" name="GMEM_ENABLE"/>
 		<bitfield pos="17" name="UNK17"/><!-- default 1 -->
 		<bitfield pos="26" name="LMEM_ENABLE"/>
+		<bitfield pos="27" name="FP64_ENABLE"/>
 	</reg32>
 	<reg32 offset="0x04" name="LMEM_POS_ALLOC" type="uint" max="0xffffff">
 		<doc>Aligned to 0x10.</doc>
@@ -85,6 +86,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<bitfield pos="16" name="GMEM_ENABLE"/>
 		<bitfield pos="17" name="UNK17"/><!-- default 1 -->
 		<bitfield pos="26" name="LMEM_ENABLE"/>
+		<bitfield pos="27" name="FP64_ENABLE"/>
 		<bitfield high="31" low="28" name="UNK28"/><!-- default 0x1, 0xf for point output -->
 	</reg32>
 	<reg32 offset="0x04" name="1">
@@ -138,6 +140,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 		<bitfield pos="16" name="GMEM_ENABLE"/>
 		<bitfield pos="17" name="UNK17"/><!-- default 1 -->
 		<bitfield pos="26" name="LMEM_ENABLE"/>
+		<bitfield pos="27" name="FP64_ENABLE"/>
 	</reg32>
 	<reg32 offset="0x04" name="LMEM_POS_ALLOC" type="uint" max="0xffffff"/>
 	<reg32 offset="0x08" name="LMEM_NEG_ALLOC" type="uint" max="0xffffff"/>
