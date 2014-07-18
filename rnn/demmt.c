@@ -55,9 +55,12 @@ static int print_gpu_addresses = 0;
 struct rnndomain *domain;
 struct rnndb *rnndb;
 static struct rnndb *rnndb_nv50_texture;
+static struct rnndb *rnndb_nvc0_shaders;
 struct rnndeccontext *nv50_texture_ctx;
+struct rnndeccontext *nvc0_shaders_ctx;
 struct rnndomain *tsc_domain;
 struct rnndomain *tic_domain;
+struct rnndomain *nvc0_vp_header_domain, *nvc0_fp_header_domain, *nvc0_gp_header_domain;
 
 int chipset;
 int ib_supported;
@@ -1287,12 +1290,23 @@ int main(int argc, char *argv[])
 	nv50_texture_ctx = rnndec_newcontext(rnndb_nv50_texture);
 	nv50_texture_ctx->colors = colors;
 
+	rnndb_nvc0_shaders = rnn_newdb();
+	rnn_parsefile(rnndb_nvc0_shaders, "graph/nvc0_shaders.xml");
+	rnn_prepdb(rnndb_nvc0_shaders);
+
+	nvc0_shaders_ctx = rnndec_newcontext(rnndb_nvc0_shaders);
+	nvc0_shaders_ctx->colors = colors;
+
 	struct rnnvalue *v = NULL;
 	struct rnnenum *chs = rnn_findenum(rnndb, "chipset");
 	FINDARRAY(chs->vals, v, v->value == chipset);
 	rnndec_varadd(nv50_texture_ctx, "chipset", v ? v->name : "NV01");
 	tic_domain = rnn_finddomain(rnndb_nv50_texture, "TIC");
 	tsc_domain = rnn_finddomain(rnndb_nv50_texture, "TSC");
+
+	nvc0_vp_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "NVC0_VP_HEADER");
+	nvc0_fp_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "NVC0_FP_HEADER");
+	nvc0_gp_header_domain = rnn_finddomain(rnndb_nvc0_shaders, "NVC0_GP_HEADER");
 
 	if (filename)
 	{

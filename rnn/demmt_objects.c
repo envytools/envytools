@@ -294,6 +294,8 @@ static struct
 
 	uint64_t tic_address;
 	struct buffer *tic_buffer;
+
+	struct rnndomain *shaders[6];
 } nvc0_3d = { 0, NULL };
 
 static int decode_nvc0_3d_tsc_tic(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
@@ -348,6 +350,20 @@ static int decode_nvc0_3d_tsc_tic(struct pushbuf_decode_state *pstate, int mthd,
 	return 1;
 }
 
+static void decode_nvc0_p_header(int idx, uint32_t *data, struct rnndomain *header_domain)
+{
+	struct rnndecaddrinfo *ai = rnndec_decodeaddr(nvc0_shaders_ctx, header_domain, idx * 4, 1);
+
+	char *dec_addr = ai->name;
+	char *dec_val = rnndec_decodeval(nvc0_shaders_ctx, ai->typeinfo, data[idx], ai->width);
+
+	fprintf(stdout, "0x%08x   %s = %s\n", data[idx], dec_addr, dec_val);
+
+	free(ai);
+	free(dec_val);
+	free(dec_addr);
+}
+
 static void decode_nvc0_3d(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
 {
 	if (mthd == 0x1608) // CODE_ADDRESS_HIGH
@@ -358,11 +374,25 @@ static void decode_nvc0_3d(struct pushbuf_decode_state *pstate, int mthd, uint32
 		nvc0_3d.code_buffer = find_buffer_by_gpu_address(nvc0_3d.code_address);
 		mmt_debug("code address: 0x%08lx, buffer found: %d\n", nvc0_3d.code_address, nvc0_3d.code_buffer ? 1 : 0);
 	}
-	else if (nvc0_3d.code_buffer && mthd >= 0x2000 && mthd < 0x2000 + 0x40 * 6 && (mthd & 0x4) == 4) // SP
+	else if (nvc0_3d.code_buffer && mthd >= 0x2000 && mthd < 0x2000 + 0x40 * 6) // SP
 	{
 		int i;
 		for (i = 0; i < 6; ++i)
 		{
+			if (mthd == 0x2000 + i * 0x40) // SP[i].SELECT
+			{
+				int program = (data >> 4) & 0x7;
+				if (program == 0 || program == 1) // VP
+					nvc0_3d.shaders[i] = nvc0_vp_header_domain;
+				else if (program == 4) // GP
+					nvc0_3d.shaders[i] = nvc0_gp_header_domain;
+				else if (program == 5) // FP
+					nvc0_3d.shaders[i] = nvc0_fp_header_domain;
+				else // TCP/TEP
+					nvc0_3d.shaders[i] = NULL;
+				break;
+			}
+
 			if (mthd != 0x2004 + i * 0x40) // SP[i].START_ID
 				continue;
 
@@ -375,8 +405,12 @@ static void decode_nvc0_3d(struct pushbuf_decode_state *pstate, int mthd, uint32
 
 				uint32_t x;
 				fprintf(stdout, "HEADER:\n");
-				for (x = reg->start; x < reg->start + 20 * 4; x += 4)
-					fprintf(stdout, "0x%08x\n", *(uint32_t *)(nvc0_3d.code_buffer->data + x));
+				if (nvc0_3d.shaders[i])
+					for (x = 0; x < 20; ++x)
+						decode_nvc0_p_header(x, (uint32_t *)(nvc0_3d.code_buffer->data + reg->start), nvc0_3d.shaders[i]);
+				else
+					for (x = reg->start; x < reg->start + 20 * 4; x += 4)
+						fprintf(stdout, "0x%08x\n", *(uint32_t *)(nvc0_3d.code_buffer->data + x));
 
 				fprintf(stdout, "CODE:\n");
 				if (MMT_DEBUG)

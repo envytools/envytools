@@ -52,8 +52,10 @@ extern struct buffer *gpu_only_buffers_list;
 extern struct rnndomain *domain;
 extern struct rnndb *rnndb;
 extern struct rnndeccontext *nv50_texture_ctx;
+extern struct rnndeccontext *nvc0_shaders_ctx;
 extern struct rnndomain *tsc_domain;
 extern struct rnndomain *tic_domain;
+extern struct rnndomain *nvc0_vp_header_domain, *nvc0_fp_header_domain, *nvc0_gp_header_domain;
 
 extern int chipset;
 extern int ib_supported;
