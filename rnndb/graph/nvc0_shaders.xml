@@ -27,6 +27,33 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<value value="3" name="LINEAR"/>
 </enum>
 
+<group name="sp_attrs">
+	<reg32 offset="0x14" name="ATTR_EN_0"/><!-- 0x000 - 0x07c -->
+	<reg32 offset="0x18" name="ATTR_EN_1"/><!-- 0x080 - 0x0fc -->
+	<reg32 offset="0x1c" name="ATTR_EN_2"/><!-- 0x100 - 0x17c -->
+	<reg32 offset="0x20" name="ATTR_EN_3"/><!-- 0x180 - 0x1fc -->
+	<reg32 offset="0x24" name="ATTR_EN_4"/><!-- 0x200 - 0x27c -->
+	<reg32 offset="0x28" name="ATTR_EN_5"><!-- 0x280 - 0x2fc -->
+		<bitfield pos="30" name="INSTANCE_ID"/>
+		<bitfield pos="31" name="VERTEX_ID"/>
+	</reg32>
+	<reg32 offset="0x2c" name="11"/>
+	<reg32 offset="0x30" name="12"/>
+	<reg32 offset="0x34" name="EXPORT_EN_0"><!-- 0x040 - 0x0bc -->
+		<bitfield pos="11" name="PSIZE"/>
+		<bitfield high="15" low="12" name="HPOS"/>
+	</reg32>
+	<reg32 offset="0x38" name="EXPORT_EN_1"/><!-- 0x0c0 - 0x13c -->
+	<reg32 offset="0x3c" name="EXPORT_EN_2"/><!-- 0x140 - 0x1bc -->
+	<reg32 offset="0x40" name="EXPORT_EN_3"/><!-- 0x1c0 - 0x23c -->
+	<reg32 offset="0x44" name="EXPORT_EN_4"/><!-- 0x240 - 0x2bc -->
+	<reg32 offset="0x48" name="EXPORT_EN_5"><!-- 0x2c0 - 0x2dc -->
+		<bitfield high="7" low="0" name="CLIP_DISTANCE"/>
+		<bitfield high="13" low="12" name="UNK12"/>
+	</reg32>
+	<reg32 offset="0x4c" name="19"/>
+</group>
+
 <domain name="NVC0_VP_HEADER" size="0x50">
 	<reg32 offset="0" name="0">
 		<bitfield high="7" low="0" name="MAGIC">
@@ -52,29 +79,67 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<reg32 offset="0x10" name="4">
 		<bitfield high="19" low="12" name="UNK12"/><!-- ? default 0xff -->
 	</reg32>
-	<reg32 offset="0x14" name="ATTR_EN_0"/><!-- 0x000 - 0x07c -->
-	<reg32 offset="0x18" name="ATTR_EN_1"/><!-- 0x080 - 0x0fc -->
-	<reg32 offset="0x1c" name="ATTR_EN_2"/><!-- 0x100 - 0x17c -->
-	<reg32 offset="0x20" name="ATTR_EN_3"/><!-- 0x180 - 0x1fc -->
-	<reg32 offset="0x24" name="ATTR_EN_4"/><!-- 0x200 - 0x27c -->
-	<reg32 offset="0x28" name="ATTR_EN_5"><!-- 0x280 - 0x2fc -->
-		<bitfield pos="30" name="INSTANCE_ID"/>
-		<bitfield pos="31" name="VERTEX_ID"/>
+	<use-group name="sp_attrs"/>
+</domain>
+
+<domain name="NVC0_TCP_HEADER" size="0x50">
+	<reg32 offset="0" name="0">
+		<bitfield high="7" low="0" name="MAGIC">
+			<value value="0x61" name="TCP_MAGIC"/>
+		</bitfield>
+		<bitfield high="12" low="10" name="KIND" type="NVC0_SHADER_KIND"/>
+		<bitfield pos="16" name="GMEM_ENABLE"/>
+		<bitfield pos="17" name="UNK17"/><!-- default 1 -->
+		<bitfield pos="26" name="LMEM_ENABLE"/>
+		<bitfield pos="27" name="FP64_ENABLE"/>
 	</reg32>
-	<reg32 offset="0x2c" name="11"/>
-	<reg32 offset="0x30" name="12"/>
-	<reg32 offset="0x34" name="EXPORT_EN_0"><!-- 0x040 - 0x0bc -->
-		<bitfield pos="11" name="PSIZE"/>
-		<bitfield high="15" low="12" name="HPOS"/>
+	<reg32 offset="0x04" name="1">
+		<bitfield high="23" low="0" name="LMEM_POS_ALLOC" type="uint"/>
+		<bitfield high="31" low="24" name="PATCH_CONSTANTS" type="uint"/>
 	</reg32>
-	<reg32 offset="0x38" name="EXPORT_EN_1"/><!-- 0x0c0 - 0x13c -->
-	<reg32 offset="0x3c" name="EXPORT_EN_2"/><!-- 0x140 - 0x1bc -->
-	<reg32 offset="0x40" name="EXPORT_EN_3"/><!-- 0x1c0 - 0x23c -->
-	<reg32 offset="0x44" name="EXPORT_EN_4"/><!-- 0x240 - 0x2bc -->
-	<reg32 offset="0x48" name="EXPORT_EN_5"><!-- 0x2c0 - 0x2dc -->
-		<bitfield high="7" low="0" name="CLIP_DISTANCE"/>
+	<reg32 offset="0x08" name="2">
+		<bitfield high="23" low="0" name="LMEM_NEG_ALLOC" type="uint"/>
+		<bitfield high="29" low="24" name="VERTICES_OUT" type="uint" max="32"/>
 	</reg32>
-	<reg32 offset="0x4c" name="19"/>
+	<reg32 offset="0x0c" name="WARP_CSTACK_SIZE" type="uint" max="0x1fffff">
+		<doc>Aligned to 0x200. Maximum depends on NVC0_3D_TEMP_SIZE.
+		48 slots for each 0x200 bytes.
+		If this is 0, only the 16 on-chip slots are available.</doc>
+	</reg32>
+	<reg32 offset="0x10" name="4">
+		<bitfield high="19" low="12" name="MIN_OUT_READ_SLOT"/><!-- parallel reads -->
+		<bitfield high="31" low="24" name="MAX_OUT_READ_SLOT"/>
+	</reg32>
+	<use-group name="sp_attrs"/>
+</domain>
+
+<domain name="NVC0_TEP_HEADER" size="0x50">
+	<reg32 offset="0" name="0">
+		<bitfield high="7" low="0" name="MAGIC">
+			<value value="0x61" name="TEP_MAGIC"/>
+		</bitfield>
+		<bitfield high="12" low="10" name="KIND" type="NVC0_SHADER_KIND"/>
+		<bitfield pos="16" name="GMEM_ENABLE"/>
+		<bitfield pos="17" name="UNK17"/><!-- default 1 -->
+		<bitfield pos="26" name="LMEM_ENABLE"/>
+		<bitfield pos="27" name="FP64_ENABLE"/>
+	</reg32>
+	<reg32 offset="0x04" name="1">
+		<bitfield high="23" low="0" name="LMEM_POS_ALLOC" type="uint"/>
+	</reg32>
+	<reg32 offset="0x08" name="2">
+		<bitfield high="23" low="0" name="LMEM_NEG_ALLOC" type="uint"/>
+	</reg32>
+	<reg32 offset="0x0c" name="WARP_CSTACK_SIZE" type="uint" max="0x1fffff">
+		<doc>Aligned to 0x200. Maximum depends on NVC0_3D_TEMP_SIZE.
+		48 slots for each 0x200 bytes.
+		If this is 0, only the 16 on-chip slots are available.</doc>
+	</reg32>
+	<reg32 offset="0x10" name="4">
+		<bitfield high="19" low="12" name="MIN_OUT_READ_SLOT"/><!-- parallel reads -->
+		<bitfield high="31" low="24" name="MAX_OUT_READ_SLOT"/>
+	</reg32>
+	<use-group name="sp_attrs"/>
 </domain>
 
 <domain name="NVC0_GP_HEADER" size="0x50">
@@ -107,26 +172,7 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 	<reg32 offset="0x10" name="4">
 		<bitfield high="8" low="0" name="MAX_OUTPUT_VERTS"/>
 	</reg32>
-	<reg32 offset="0x14" name="ATTR_EN_0"/><!-- 0x000 - 0x07c -->
-	<reg32 offset="0x18" name="ATTR_EN_1"/><!-- 0x080 - 0x0fc -->
-	<reg32 offset="0x1c" name="ATTR_EN_2"/><!-- 0x100 - 0x17c -->
-	<reg32 offset="0x20" name="ATTR_EN_3"/><!-- 0x180 - 0x1fc -->
-	<reg32 offset="0x24" name="ATTR_EN_4"/><!-- 0x200 - 0x27c -->
-	<reg32 offset="0x28" name="ATTR_EN_5"/><!-- 0x280 - 0x2fc -->
-	<reg32 offset="0x2c" name="11"/>
-	<reg32 offset="0x30" name="12"/>
-	<reg32 offset="0x34" name="EXPORT_EN_0"><!-- 0x040 - 0x0bc -->
-		<bitfield pos="11" name="PSIZE"/>
-		<bitfield high="15" low="12" name="HPOS"/>
-	</reg32>
-	<reg32 offset="0x38" name="EXPORT_EN_1"/><!-- 0x0c0 - 0x13c -->
-	<reg32 offset="0x3c" name="EXPORT_EN_2"/><!-- 0x140 - 0x1bc -->
-	<reg32 offset="0x40" name="EXPORT_EN_3"/><!-- 0x1c0 - 0x23c -->
-	<reg32 offset="0x44" name="EXPORT_EN_4"/><!-- 0x240 - 0x2bc -->
-	<reg32 offset="0x48" name="EXPORT_EN_5"><!-- 0x2c0 - 0x2dc -->
-		<bitfield high="7" low="0" name="CLIP_DISTANCE"/>
-	</reg32>
-	<reg32 offset="0x4c" name="19"/>
+	<use-group name="sp_attrs"/>
 </domain>
 
 <domain name="NVC0_FP_HEADER" size="0x50">
