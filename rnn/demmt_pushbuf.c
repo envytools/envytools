@@ -432,7 +432,7 @@ uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct buffer *buffe
 			mmt_log("decoding aborted, cmd: \"%s\", nextaddr: 0x%08lx\n", cmdoutput, nextaddr);
 			return nextaddr;
 		}
-		fprintf(stdout, "PB: 0x%08x %s\n", cmd, cmdoutput);
+		fprintf(stdout, "PB: 0x%08x %s", cmd, cmdoutput);
 
 		if (disassemble_shaders)
 		{
@@ -440,6 +440,8 @@ uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct buffer *buffe
 			if (obj && obj->decoder)
 				obj->decoder(pstate, mthd, cmd);
 		}
+
+		fprintf(stdout, "\n");
 
 		cur += 4;
 	}

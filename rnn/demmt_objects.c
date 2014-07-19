@@ -56,54 +56,6 @@ static struct buffer *find_buffer_by_gpu_address(uint64_t addr)
 	return ret;
 }
 
-static struct
-{
-	uint64_t dst_address;
-	uint32_t dst_linear;
-	struct buffer *dst_buffer;
-	int find_dst_buffer;
-	int data_offset;
-} nv50_2d = { 0, 0, NULL, 0, 0 };
-
-static void decode_nv50_2d(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
-{
-	if (mthd == 0x0220) // DST_ADDRESS_HIGH
-	{
-		nv50_2d.dst_address = ((uint64_t)data) << 32;
-		nv50_2d.dst_buffer = NULL;
-		nv50_2d.find_dst_buffer = 1;
-	}
-	else if (mthd == 0x0224) // DST_ADDRESS_LOW
-		nv50_2d.dst_address |= data;
-	else if (mthd == 0x0204) // DST_LINEAR
-		nv50_2d.dst_linear = data;
-	else if (mthd == 0x0860) // SIFC_DATA
-	{
-		if (nv50_2d.dst_buffer == NULL && nv50_2d.find_dst_buffer)
-		{
-			nv50_2d.find_dst_buffer = 0;
-
-			if (nv50_2d.dst_linear)
-			{
-				nv50_2d.dst_buffer = find_buffer_by_gpu_address(nv50_2d.dst_address);
-
-				if (nv50_2d.dst_buffer)
-				{
-					mmt_debug("buffer found: 0x%08lx\n", nv50_2d.dst_buffer->gpu_start);
-					nv50_2d.data_offset = nv50_2d.dst_address - nv50_2d.dst_buffer->gpu_start;
-				}
-			}
-		}
-
-		if (nv50_2d.dst_buffer != NULL)
-		{
-			mmt_debug("2d sifc_data: 0x%08x\n", data);
-			buffer_register_write(nv50_2d.dst_buffer, nv50_2d.data_offset, 4, &data);
-			nv50_2d.data_offset += 4;
-		}
-	}
-}
-
 static void decode_tsc(uint32_t tsc, int idx, uint32_t *data)
 {
 	struct rnndecaddrinfo *ai = rnndec_decodeaddr(nv50_texture_ctx, tsc_domain, idx * 4, 1);
@@ -111,7 +63,7 @@ static void decode_tsc(uint32_t tsc, int idx, uint32_t *data)
 	char *dec_addr = ai->name;
 	char *dec_val = rnndec_decodeval(nv50_texture_ctx, ai->typeinfo, data[idx], ai->width);
 
-	fprintf(stdout, "TSC[%d]: 0x%08x   %s = %s\n", tsc, data[idx], dec_addr, dec_val);
+	fprintf(stdout, "\nTSC[%d]: 0x%08x   %s = %s", tsc, data[idx], dec_addr, dec_val);
 
 	free(ai);
 	free(dec_val);
@@ -125,7 +77,7 @@ static void decode_tic(uint32_t tic, int idx, uint32_t *data)
 	char *dec_addr = ai->name;
 	char *dec_val = rnndec_decodeval(nv50_texture_ctx, ai->typeinfo, data[idx], ai->width);
 
-	fprintf(stdout, "TIC[%d]: 0x%08x   %s = %s\n", tic, data[idx], dec_addr, dec_val);
+	fprintf(stdout, "\nTIC[%d]: 0x%08x   %s = %s", tic, data[idx], dec_addr, dec_val);
 
 	free(ai);
 	free(dec_val);
@@ -156,6 +108,7 @@ static void nv50_3d_disassemble(struct buffer *buf, const char *mode, uint32_t s
 {
 	if (!buf)
 		return;
+	fprintf(stdout, "\n");
 
 	mmt_debug("%s_start id 0x%08x\n", mode, start_id);
 	struct region *reg;
@@ -277,6 +230,68 @@ static void decode_nv50_3d(struct pushbuf_decode_state *pstate, int mthd, uint32
 	}
 }
 
+static struct
+{
+	uint64_t dst_address;
+	uint32_t dst_linear;
+	struct buffer *dst_buffer;
+	int check_dst_buffer;
+	int data_offset;
+} nv50_2d = { 0, 0, NULL, 0, 0 };
+
+static void decode_nv50_2d(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+{
+	if (mthd == 0x0220) // DST_ADDRESS_HIGH
+	{
+		nv50_2d.dst_address = ((uint64_t)data) << 32;
+		nv50_2d.dst_buffer = NULL;
+	}
+	else if (mthd == 0x0224) // DST_ADDRESS_LOW
+	{
+		nv50_2d.dst_address |= data;
+		nv50_2d.dst_buffer = find_buffer_by_gpu_address(nv50_2d.dst_address);
+		nv50_2d.check_dst_buffer = nv50_2d.dst_buffer != NULL;
+
+		if (nv50_2d.dst_buffer)
+		{
+			struct buffer *buf = nv50_2d.dst_buffer;
+			int offset = nv50_2d.data_offset = nv50_2d.dst_address - buf->gpu_start;
+
+			if (buf == nv50_3d.vp_buffer)
+				fprintf(stdout, " [VP+0x%x]", offset);
+			else if (buf == nv50_3d.fp_buffer)
+				fprintf(stdout, " [FP+0x%x]", offset);
+			else if (buf == nv50_3d.gp_buffer)
+				fprintf(stdout, " [GP+0x%x]", offset);
+			else if (buf == nv50_3d.tic_buffer)
+				fprintf(stdout, " [TIC+0x%x]", offset);
+			else if (buf == nv50_3d.tsc_buffer)
+				fprintf(stdout, " [TSC+0x%x]", offset);
+		}
+		else
+			mmt_debug("buffer not found%s\n", "");
+	}
+	else if (mthd == 0x0204) // DST_LINEAR
+		nv50_2d.dst_linear = data;
+	else if (mthd == 0x0860) // SIFC_DATA
+	{
+		if (nv50_2d.check_dst_buffer)
+		{
+			nv50_2d.check_dst_buffer = 0;
+
+			if (!nv50_2d.dst_linear)
+				nv50_2d.dst_buffer = NULL;
+		}
+
+		if (nv50_2d.dst_buffer != NULL)
+		{
+			mmt_debug("2d sifc_data: 0x%08x\n", data);
+			buffer_register_write(nv50_2d.dst_buffer, nv50_2d.data_offset, 4, &data);
+			nv50_2d.data_offset += 4;
+		}
+	}
+}
+
 static const struct disisa *isa_nvc0 = NULL;
 static const struct disisa *isa_macro = NULL;
 
@@ -357,7 +372,7 @@ static void decode_nvc0_p_header(int idx, uint32_t *data, struct rnndomain *head
 	char *dec_addr = ai->name;
 	char *dec_val = rnndec_decodeval(nvc0_shaders_ctx, ai->typeinfo, data[idx], ai->width);
 
-	fprintf(stdout, "0x%08x   %s = %s\n", data[idx], dec_addr, dec_val);
+	fprintf(stdout, "\n0x%08x   %s = %s", data[idx], dec_addr, dec_val);
 
 	free(ai);
 	free(dec_val);
@@ -408,15 +423,15 @@ static void decode_nvc0_3d(struct pushbuf_decode_state *pstate, int mthd, uint32
 					continue;
 
 				uint32_t x;
-				fprintf(stdout, "HEADER:\n");
+				fprintf(stdout, "\nHEADER:");
 				if (nvc0_3d.shaders[i])
 					for (x = 0; x < 20; ++x)
 						decode_nvc0_p_header(x, (uint32_t *)(nvc0_3d.code_buffer->data + reg->start), nvc0_3d.shaders[i]);
 				else
 					for (x = reg->start; x < reg->start + 20 * 4; x += 4)
-						fprintf(stdout, "0x%08x\n", *(uint32_t *)(nvc0_3d.code_buffer->data + x));
+						fprintf(stdout, "\n0x%08x", *(uint32_t *)(nvc0_3d.code_buffer->data + x));
 
-				fprintf(stdout, "CODE:\n");
+				fprintf(stdout, "\nCODE:\n");
 				if (MMT_DEBUG)
 				{
 					uint32_t x;
@@ -495,24 +510,34 @@ static void decode_nvc0_m2mf(struct pushbuf_decode_state *pstate, int mthd, uint
 		nvc0_m2mf.offset_out_buffer = NULL;
 	}
 	else if (mthd == 0x023c) // OFFSET_OUT_LOW
+	{
 		nvc0_m2mf.offset_out |= data;
+		nvc0_m2mf.offset_out_buffer = find_buffer_by_gpu_address(nvc0_m2mf.offset_out);
+		if (nvc0_m2mf.offset_out_buffer)
+		{
+			struct buffer *buf = nvc0_m2mf.offset_out_buffer;
+			int offset = nvc0_m2mf.data_offset = nvc0_m2mf.offset_out - buf->gpu_start;
+
+			if (buf == nvc0_3d.code_buffer)
+				fprintf(stdout, " [CODE_ADDRESS+0x%x]", offset);
+			else if (buf == nvc0_3d.tic_buffer)
+				fprintf(stdout, " [TIC+0x%x]", offset);
+			else if (buf == nvc0_3d.tsc_buffer)
+				fprintf(stdout, " [TSC+0x%x]", offset);
+		}
+		else
+			mmt_debug("buffer not found%s\n", "");
+	}
 	else if (mthd == 0x0300) // EXEC
 	{
 		int flags_ok = (data & 0x111) == 0x111 ? 1 : 0;
 		mmt_debug("m2mf exec: 0x%08x push&linear: %d\n", data, flags_ok);
-		if (flags_ok)
-			nvc0_m2mf.offset_out_buffer = find_buffer_by_gpu_address(nvc0_m2mf.offset_out);
 
 		if (!flags_ok || nvc0_m2mf.offset_out_buffer == NULL)
 		{
 			nvc0_m2mf.offset_out = 0;
 			nvc0_m2mf.offset_out_buffer = NULL;
 		}
-		else
-			mmt_debug("buffer not found%s\n", "");
-
-		if (nvc0_m2mf.offset_out_buffer)
-			nvc0_m2mf.data_offset = nvc0_m2mf.offset_out - nvc0_m2mf.offset_out_buffer->gpu_start;
 	}
 	else if (mthd == 0x0304) // DATA
 	{
@@ -540,24 +565,35 @@ static void decode_nve0_p2mf(struct pushbuf_decode_state *pstate, int mthd, uint
 		nve0_p2mf.offset_out_buffer = NULL;
 	}
 	else if (mthd == 0x018c) // UPLOAD.DST_ADDRESS_LOW
+	{
 		nve0_p2mf.offset_out |= data;
+		nve0_p2mf.offset_out_buffer = find_buffer_by_gpu_address(nve0_p2mf.offset_out);
+
+		if (nve0_p2mf.offset_out_buffer)
+		{
+			struct buffer *buf = nve0_p2mf.offset_out_buffer;
+			int offset = nve0_p2mf.data_offset = nve0_p2mf.offset_out - buf->gpu_start;
+
+			if (buf == nvc0_3d.code_buffer)
+				fprintf(stdout, " [CODE_ADDRESS+0x%x]", offset);
+			else if (buf == nvc0_3d.tic_buffer)
+				fprintf(stdout, " [TIC+0x%x]", offset);
+			else if (buf == nvc0_3d.tsc_buffer)
+				fprintf(stdout, " [TSC+0x%x]", offset);
+		}
+		else
+			mmt_debug("buffer not found%s\n", "");
+	}
 	else if (mthd == 0x01b0) // UPLOAD.EXEC
 	{
 		int flags_ok = (data & 0x1) == 0x1 ? 1 : 0;
 		mmt_debug("p2mf exec: 0x%08x linear: %d\n", data, flags_ok);
-		if (flags_ok)
-			nve0_p2mf.offset_out_buffer = find_buffer_by_gpu_address(nve0_p2mf.offset_out);
 
 		if (!flags_ok || nve0_p2mf.offset_out_buffer == NULL)
 		{
 			nve0_p2mf.offset_out = 0;
 			nve0_p2mf.offset_out_buffer = NULL;
 		}
-		else
-			mmt_debug("buffer not found%s\n", "");
-
-		if (nve0_p2mf.offset_out_buffer)
-			nve0_p2mf.data_offset = nve0_p2mf.offset_out - nve0_p2mf.offset_out_buffer->gpu_start;
 	}
 	else if (mthd == 0x01b4) // UPLOAD.DATA
 	{
