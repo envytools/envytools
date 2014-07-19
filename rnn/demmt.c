@@ -70,6 +70,7 @@ int decode_invalid_buffers = 1;
 int find_pb_pointer = 0;
 int quiet = 0;
 int disassemble_shaders = 1;
+int indent_logs = 1;
 const struct envy_colors *colors = NULL;
 
 static void dump(struct buffer *buf)
@@ -1206,6 +1207,7 @@ static void usage()
 			"  -a\t\tdisable shader disassembly\n"
 			"  -c\t\tenable colors\n"
 			"  -l file\tuse \"file\" as input (can be compressed by gzip / bzip2 / xz)\n"
+			"  -t\t\tdeindent logs\n"
 			"\n"
 			"  -s\t\tdo not \"compress\" obvious buffer clears\n"
 			"  -i\t\tdo not guess invalid pushbufs\n"
@@ -1265,6 +1267,8 @@ int main(int argc, char *argv[])
 				usage();
 			filename = argv[++i];
 		}
+		else if (!strcmp(argv[i], "-t"))
+			indent_logs = 0;
 		else
 			usage();
 	}
