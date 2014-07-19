@@ -42,6 +42,8 @@ void pushbuf_decode_start(struct pushbuf_decode_state *state);
 uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *output, int *addr, int safe);
 void pushbuf_decode_end(struct pushbuf_decode_state *state);
 
+uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct buffer *buffer, uint64_t gpu_address, int commands);
+
 void ib_decode_start(struct ib_decode_state *state);
 void ib_decode(struct ib_decode_state *state, uint32_t data, char *output);
 void ib_decode_end(struct ib_decode_state *state);

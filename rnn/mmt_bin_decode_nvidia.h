@@ -184,6 +184,12 @@ struct mmt_nvidia_mmiotrace_mark
 	struct mmt_buf str;
 } __packed;
 
+struct mmt_nouveau_pushbuf_data
+{
+	struct mmt_message_nv msg_type;
+	struct mmt_buf data;
+} __packed;
+
 struct mmt_nvidia_decode_funcs
 {
 	const struct mmt_decode_funcs base;
@@ -210,6 +216,7 @@ struct mmt_nvidia_decode_funcs
 	void (*call_method_data)(struct mmt_nvidia_call_method_data *call, void *state);
 	void (*ioctl_4d)(struct mmt_nvidia_ioctl_4d *ctl, void *state);
 	void (*mmiotrace_mark)(struct mmt_nvidia_mmiotrace_mark *mark, void *state);
+	void (*nouveau_gem_pushbuf_data)(struct mmt_nouveau_pushbuf_data *data, void *state);
 };
 
 void mmt_decode_nvidia(struct mmt_nvidia_decode_funcs *funcs, void *state);

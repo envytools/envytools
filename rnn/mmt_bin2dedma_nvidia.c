@@ -209,7 +209,8 @@ const struct mmt_nvidia_decode_funcs txt_nvidia_funcs =
 	txt_nv_create_context_object,
 	txt_nv_call_method_data,
 	txt_nv_ioctl_4d,
-	txt_nv_mmiotrace_mark
+	txt_nv_mmiotrace_mark,
+	NULL // nouveau_gem_pushbuf_data
 };
 
 const struct mmt_nvidia_decode_funcs txt_nvidia_funcs_empty = {};

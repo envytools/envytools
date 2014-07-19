@@ -408,4 +408,38 @@ int demmt_drm_ioctl_post(uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf 
 
 	return 0;
 }
+
+void demmt_nouveau_gem_pushbuf_data(struct mmt_nouveau_pushbuf_data *data, void *state)
+{
+	struct mmt_buf *buffers_mmt_buf = (void *)&data->data.data;
+	struct drm_nouveau_gem_pushbuf_bo *buffers = (void *)&buffers_mmt_buf->data;
+	struct mmt_buf *push_mmt_buf = ((void *)buffers) + buffers_mmt_buf->len;
+	struct drm_nouveau_gem_pushbuf_push *push = (void *)&push_mmt_buf->data;
+	struct mmt_buf *relocs_mmt_buf = ((void *)push) + push_mmt_buf->len;
+	struct drm_nouveau_gem_pushbuf_reloc *relocs = (void *)&relocs_mmt_buf->data;
+
+	int nr_buffers = buffers_mmt_buf->len / sizeof(buffers[0]);
+	int nr_push = push_mmt_buf->len / sizeof(push[0]);
+	int nr_relocs = relocs_mmt_buf->len / sizeof(relocs[0]);
+	int i;
+
+	mmt_log("%sDRM_NOUVEAU_GEM_PUSHBUF%s data, nr_buffers: %s%d%s, nr_relocs: %s%d%s, nr_push: %s%d%s\n",
+			colors->rname, colors->reset, colors->num, nr_buffers, colors->reset,
+			colors->num, nr_relocs, colors->reset, colors->num, nr_push, colors->reset);
+	for (i = 0; i < nr_buffers; ++i)
+		mmt_log("buffer[%d]: handle: %s%d%s, read_domains: 0x%x, write_domains: 0x%x, valid_domains: 0x%x, presumed.valid: %d, presumed.domain: 0x%x, presumed.offset: %s0x%lx%s\n",
+				i, colors->num, buffers[i].handle, colors->reset, buffers[i].read_domains,
+				buffers[i].write_domains, buffers[i].valid_domains,
+				buffers[i].presumed.valid, buffers[i].presumed.domain, colors->eval,
+				buffers[i].presumed.offset, colors->reset);
+	for (i = 0; i < nr_relocs; ++i)
+		mmt_log("relocs[%d]: reloc_bo_index: %d, reloc_bo_offset: %d, bo_index: %d, flags: 0x%x, data: 0x%x, vor: 0x%x, tor: 0x%x\n",
+				i, relocs[i].reloc_bo_index, relocs[i].reloc_bo_offset,
+				relocs[i].bo_index, relocs[i].flags, relocs[i].data,
+				relocs[i].vor, relocs[i].tor);
+	for (i = 0; i < nr_push; ++i)
+		mmt_log("push[%d]: bo_index: %d, offset: %s%ld%s, length: %s%ld%s\n",
+				i, push[i].bo_index, colors->num, push[i].offset, colors->reset,
+				colors->num, push[i].length, colors->reset);
+}
 #endif

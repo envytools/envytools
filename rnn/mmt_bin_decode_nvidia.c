@@ -326,6 +326,21 @@ void mmt_decode_nvidia(struct mmt_nvidia_decode_funcs *funcs, void *state)
 
 		mmt_idx += size;
 	}
+	else if (nv->subtype == 'P')
+	{
+		struct mmt_nouveau_pushbuf_data *data;
+		size = sizeof(struct mmt_nouveau_pushbuf_data) + 1;
+		data = mmt_load_data(size);
+		size += data->data.len;
+		data = mmt_load_data(size);
+
+		mmt_check_eor(size);
+
+		if (funcs->nouveau_gem_pushbuf_data)
+			funcs->nouveau_gem_pushbuf_data(data, state);
+
+		mmt_idx += size;
+	}
 	else
 	{
 		fprintf(stderr, "ioctl\n");

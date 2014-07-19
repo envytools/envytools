@@ -1191,7 +1191,8 @@ const struct mmt_nvidia_decode_funcs demmt_funcs =
 	demmt_nv_create_context_object,
 	demmt_nv_call_method_data,
 	demmt_nv_ioctl_4d,
-	demmt_nv_mmiotrace_mark
+	demmt_nv_mmiotrace_mark,
+	demmt_nouveau_gem_pushbuf_data
 };
 
 static void usage()

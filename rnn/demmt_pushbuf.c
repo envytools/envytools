@@ -415,7 +415,7 @@ void ib_decode_start(struct ib_decode_state *state)
 	pushbuf_decode_start(&state->pstate);
 }
 
-static uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct buffer *buffer, uint64_t gpu_address, int commands)
+uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct buffer *buffer, uint64_t gpu_address, int commands)
 {
 	char cmdoutput[1024];
 	uint64_t cur = gpu_address - buffer->gpu_start;
