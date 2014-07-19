@@ -167,10 +167,10 @@ static void nv50_3d_disassemble(struct buffer *buf, const char *mode, uint32_t s
 		if (MMT_DEBUG)
 		{
 			uint32_t x;
-			mmt_debug("CODE: %s\n", "");
+			mmt_debug("CODE: %s", "");
 			for (x = reg->start; x < reg->end; x += 4)
-				mmt_debug("0x%08x ", *(uint32_t *)(buf->data + x));
-			mmt_debug("%s\n", "");
+				mmt_debug_cont("0x%08x ", *(uint32_t *)(buf->data + x));
+			mmt_debug_cont("%s\n", "");
 		}
 
 		if (!isa_nv50)
@@ -420,9 +420,10 @@ static void decode_nvc0_3d(struct pushbuf_decode_state *pstate, int mthd, uint32
 				if (MMT_DEBUG)
 				{
 					uint32_t x;
+					mmt_debug("%s", "");
 					for (x = reg->start + 20 * 4; x < reg->end; x += 4)
-						mmt_debug("0x%08x ", *(uint32_t *)(nvc0_3d.code_buffer->data + x));
-					mmt_debug("%s\n", "");
+						mmt_debug_cont("0x%08x ", *(uint32_t *)(nvc0_3d.code_buffer->data + x));
+					mmt_debug_cont("%s\n", "");
 				}
 
 				if (!isa_nvc0)
@@ -507,6 +508,9 @@ static void decode_nvc0_m2mf(struct pushbuf_decode_state *pstate, int mthd, uint
 			nvc0_m2mf.offset_out = 0;
 			nvc0_m2mf.offset_out_buffer = NULL;
 		}
+		else
+			mmt_debug("buffer not found%s\n", "");
+
 		if (nvc0_m2mf.offset_out_buffer)
 			nvc0_m2mf.data_offset = nvc0_m2mf.offset_out - nvc0_m2mf.offset_out_buffer->gpu_start;
 	}
@@ -549,6 +553,9 @@ static void decode_nve0_p2mf(struct pushbuf_decode_state *pstate, int mthd, uint
 			nve0_p2mf.offset_out = 0;
 			nve0_p2mf.offset_out_buffer = NULL;
 		}
+		else
+			mmt_debug("buffer not found%s\n", "");
+
 		if (nve0_p2mf.offset_out_buffer)
 			nve0_p2mf.data_offset = nve0_p2mf.offset_out - nve0_p2mf.offset_out_buffer->gpu_start;
 	}
