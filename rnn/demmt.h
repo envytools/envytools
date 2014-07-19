@@ -48,7 +48,7 @@ struct buffer
 	struct buffer *prev, *next;
 };
 
-#define MAX_ID 1024
+#define MAX_ID 16 * 1024
 extern struct buffer *buffers[MAX_ID];
 extern struct buffer *buffers_list;
 
