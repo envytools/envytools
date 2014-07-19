@@ -2,6 +2,7 @@
 #define DEMMT_H
 
 #include "demmt_pushbuf.h"
+#include "colors.h"
 
 #define MMT_DEBUG 0
 extern int find_pb_pointer;
