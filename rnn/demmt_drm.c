@@ -28,6 +28,9 @@
 #include <drm.h>
 #include <nouveau_drm.h>
 #include "util.h"
+#include <string.h>
+
+#define MAX_GEM_BUFFERS 1024
 
 static void dump_drm_nouveau_gem_info(struct drm_nouveau_gem_info *info)
 {
@@ -74,7 +77,7 @@ static void dump_drm_nouveau_gem_info(struct drm_nouveau_gem_info *info)
 	while (len++ < 14)
 		mmt_log_cont("%s", " ");
 
-	mmt_log_cont("%s (0x%x), size: %s%8ld%s, offset: %s0x%-8lx%s, map_handle: %s0x%-10lx%s, tile_mode: %s0x%02x%s, tile_flags: %s0x%04x%s",
+	mmt_log_cont("%s (0x%x), size: %s0x%-8lx%s, gpu_start: %s0x%-8lx%s, mmap_offset: %s0x%-10lx%s, tile_mode: %s0x%02x%s, tile_flags: %s0x%04x%s",
 			colors->reset, info->domain, colors->num, info->size, colors->reset,
 			colors->mem, info->offset, colors->reset, colors->num, info->map_handle,
 			colors->reset, colors->iname, info->tile_mode, colors->reset,
@@ -323,6 +326,8 @@ int demmt_drm_ioctl_post(uint8_t dir, uint8_t nr, uint16_t size, struct mmt_buf 
 
 		mmt_log("%sDRM_NOUVEAU_GEM_NEW%s post, ", colors->rname, colors->reset);
 		dump_drm_nouveau_gem_new(g);
+
+		register_gpu_only_buffer(g->info.offset, g->info.size, g->info.map_handle, 0, 0);
 	}
 	else if (nr == DRM_COMMAND_BASE + DRM_NOUVEAU_GEM_PUSHBUF)
 	{
@@ -427,7 +432,7 @@ void demmt_nouveau_gem_pushbuf_data(struct mmt_nouveau_pushbuf_data *data, void 
 			colors->rname, colors->reset, colors->num, nr_buffers, colors->reset,
 			colors->num, nr_relocs, colors->reset, colors->num, nr_push, colors->reset);
 	for (i = 0; i < nr_buffers; ++i)
-		mmt_log("buffer[%d]: handle: %s%d%s, read_domains: 0x%x, write_domains: 0x%x, valid_domains: 0x%x, presumed.valid: %d, presumed.domain: 0x%x, presumed.offset: %s0x%lx%s\n",
+		mmt_log("buffer[%d]: handle: %s%d%s, read_domains: 0x%x, write_domains: 0x%x, valid_domains: 0x%x, presumed.valid: %d, presumed.domain: 0x%x, presumed.gpu_start: %s0x%lx%s\n",
 				i, colors->num, buffers[i].handle, colors->reset, buffers[i].read_domains,
 				buffers[i].write_domains, buffers[i].valid_domains,
 				buffers[i].presumed.valid, buffers[i].presumed.domain, colors->eval,
@@ -438,8 +443,32 @@ void demmt_nouveau_gem_pushbuf_data(struct mmt_nouveau_pushbuf_data *data, void 
 				relocs[i].bo_index, relocs[i].flags, relocs[i].data,
 				relocs[i].vor, relocs[i].tor);
 	for (i = 0; i < nr_push; ++i)
-		mmt_log("push[%d]: bo_index: %d, offset: %s%ld%s, length: %s%ld%s\n",
+		mmt_log("push[%d]: bo_index: %d, offset: %s0x%lx%s, length: %s0x%lx%s\n",
 				i, push[i].bo_index, colors->num, push[i].offset, colors->reset,
 				colors->num, push[i].length, colors->reset);
+
+	struct pushbuf_decode_state pstate;
+	pushbuf_decode_start(&pstate);
+
+	for (i = 0; i < nr_push; ++i)
+	{
+		uint64_t gpu_start = buffers[push[i].bo_index].presumed.offset;
+
+		struct buffer *buf;
+		for (buf = buffers_list; buf != NULL; buf = buf->next)
+		{
+			if (!buf->gpu_start)
+				continue;
+			if (gpu_start >= buf->gpu_start && gpu_start < buf->gpu_start + buf->length)
+				break;
+		}
+
+		if (buf)
+			pushbuf_print(&pstate, buf, gpu_start + push[i].offset, push[i].length / 4);
+		else
+			mmt_error("couldn't find buffer 0x%lx\n", gpu_start);
+	}
+
+	pushbuf_decode_end(&pstate);
 }
 #endif

@@ -16,7 +16,8 @@ static inline int demmt_drm_ioctl_post(uint8_t dir, uint8_t nr, uint16_t size, s
 {
 	return 1;
 }
-void demmt_nouveau_gem_pushbuf_data(struct mmt_nouveau_pushbuf_data *data, void *state)
+
+static inline void demmt_nouveau_gem_pushbuf_data(struct mmt_nouveau_pushbuf_data *data, void *state)
 {
 }
 #endif

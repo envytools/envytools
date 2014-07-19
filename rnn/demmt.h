@@ -47,6 +47,8 @@ struct buffer
 	struct buffer *prev, *next;
 };
 
+#define MAX_ID 1024
+extern struct buffer *buffers[MAX_ID];
 extern struct buffer *buffers_list;
 
 extern struct buffer *gpu_only_buffers_list;
@@ -62,7 +64,9 @@ extern struct rnndomain *nvc0_vp_header_domain, *nvc0_fp_header_domain, *nvc0_gp
 extern int chipset;
 extern int ib_supported;
 extern int guess_invalid_pushbuf;
+extern int is_nouveau;
 
 void buffer_register_write(struct buffer *buf, uint32_t offset, uint8_t len, const void *data);
+void register_gpu_only_buffer(uint64_t gpu_start, int len, uint64_t mmap_offset, uint64_t data1, uint64_t data2);
 
 #endif

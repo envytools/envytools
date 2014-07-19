@@ -37,8 +37,7 @@
 #include "rnndec.h"
 #include "util.h"
 
-#define MAX_ID 1024
-static struct buffer *buffers[MAX_ID] = { NULL };
+struct buffer *buffers[MAX_ID] = { NULL };
 
 struct buffer *buffers_list = NULL;
 struct buffer *gpu_only_buffers_list = NULL; // merge it into buffers_list?
@@ -71,6 +70,7 @@ int find_pb_pointer = 0;
 int quiet = 0;
 int disassemble_shaders = 1;
 int indent_logs = 1;
+int is_nouveau = 0;
 const struct envy_colors *colors = NULL;
 
 static void dump(struct buffer *buf)
@@ -245,7 +245,7 @@ static void dump_writes(struct buffer *buf)
 				}
 				else if (buf->type == PUSH)
 				{
-					if (pb_pointer_buffer != -1 || quiet)
+					if (pb_pointer_buffer != -1 || quiet || is_nouveau)
 						pushbuf_desc[0] = 0;
 					else if (state->pushbuf_invalid == 0 || decode_invalid_buffers)
 						pushbuf_decode(state, *(uint32_t *)(data + addr), pushbuf_desc, NULL, 0);
@@ -699,6 +699,28 @@ struct unk_map
 	struct unk_map *next;
 };
 
+static void buffer_free(struct buffer *buf)
+{
+	free_written_regions(buf);
+	if (buf->prev)
+		buf->prev->next = buf->next;
+	if (buf->next)
+		buf->next->prev = buf->prev;
+	free(buf->data);
+	if (buf->id >= 0)
+	{
+		buffers[buf->id] = NULL;
+		if (buffers_list == buf)
+			buffers_list = buf->next;
+	}
+	else
+	{
+		if (gpu_only_buffers_list == buf)
+			gpu_only_buffers_list = buf->next;
+	}
+	free(buf);
+}
+
 static struct unk_map *unk_maps = NULL; // merge it into buffers_list?
 
 static void demmt_mmap(struct mmt_mmap *mm, void *state)
@@ -746,28 +768,17 @@ static void demmt_mmap(struct mmt_mmap *mm, void *state)
 		prev = tmp;
 		tmp = tmp->next;
 	}
-}
 
-static void buffer_free(struct buffer *buf)
-{
-	free_written_regions(buf);
-	if (buf->prev)
-		buf->prev->next = buf->next;
-	if (buf->next)
-		buf->next->prev = buf->prev;
-	free(buf->data);
-	if (buf->id >= 0)
+	struct buffer *gpubuf;
+	for (gpubuf = gpu_only_buffers_list; gpubuf != NULL; gpubuf = gpubuf->next)
 	{
-		buffers[buf->id] = NULL;
-		if (buffers_list == buf)
-			buffers_list = buf->next;
+		if (mm->offset == gpubuf->mmap_offset)
+		{
+			buf->gpu_start = gpubuf->gpu_start;
+			buffer_free(gpubuf);
+			break;
+		}
 	}
-	else
-	{
-		if (gpu_only_buffers_list == buf)
-			gpu_only_buffers_list = buf->next;
-	}
-	free(buf);
 }
 
 static void demmt_munmap(struct mmt_unmap *mm, void *state)
@@ -851,7 +862,10 @@ static void demmt_nv_ioctl_pre(struct mmt_nvidia_ioctl_pre *ctl, void *state)
 	int print_raw = 1;
 
 	if (type == 0x64) // DRM
+	{
+		is_nouveau = 1;
 		print_raw = demmt_drm_ioctl_pre(dir, nr, size, &ctl->data, state);
+	}
 	else if (type == 0x46) // nvidia
 	{ }
 	print_raw = print_raw || dump_ioctls;
@@ -991,6 +1005,26 @@ static void demmt_nv_alloc_map(struct mmt_nvidia_alloc_map *alloc, void *state)
 	unk_maps = m;
 }
 
+void register_gpu_only_buffer(uint64_t gpu_start, int len, uint64_t mmap_offset, uint64_t data1, uint64_t data2)
+{
+	struct buffer *buf;
+	mmt_log("registering gpu only buffer, gpu_address: 0x%lx, size: 0x%x\n", gpu_start, len);
+	buf = calloc(1, sizeof(struct buffer));
+	buf->id = -1;
+	//will allocate when needed
+	//buf->data = calloc(map->len, 1);
+	buf->cpu_start = 0;
+	buf->gpu_start = gpu_start;
+	buf->length = len;
+	buf->mmap_offset = mmap_offset;
+	buf->data1 = data1;
+	buf->data2 = data2;
+	if (gpu_only_buffers_list)
+		gpu_only_buffers_list->prev = buf;
+	buf->next = gpu_only_buffers_list;
+	gpu_only_buffers_list = buf;
+}
+
 static void demmt_nv_gpu_map(uint32_t data1, uint32_t data2, uint32_t data3, uint64_t gpu_start, uint32_t len, void *state)
 {
 	mmt_log("gpu map: data1: 0x%08x, data2: 0x%08x, data3: 0x%08x, gpu_start: 0x%08lx, len: 0x%08x\n",
@@ -1014,21 +1048,7 @@ static void demmt_nv_gpu_map(uint32_t data1, uint32_t data2, uint32_t data3, uin
 		}
 	}
 
-	mmt_log("registering gpu only buffer, size: %d\n", len);
-	buf = calloc(1, sizeof(struct buffer));
-	buf->id = -1;
-	//will allocate when needed
-	//buf->data = calloc(map->len, 1);
-	buf->cpu_start = 0;
-	buf->gpu_start = gpu_start;
-	buf->length = len;
-	buf->mmap_offset = 0;
-	buf->data1 = data1;
-	buf->data2 = data3;
-	if (gpu_only_buffers_list)
-		gpu_only_buffers_list->prev = buf;
-	buf->next = gpu_only_buffers_list;
-	gpu_only_buffers_list = buf;
+	register_gpu_only_buffer(gpu_start, len, 0, data1, data3);
 }
 
 static void demmt_nv_gpu_map1(struct mmt_nvidia_gpu_map *map, void *state)
