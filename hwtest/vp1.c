@@ -32,9 +32,6 @@
 struct vp1_ctx {
 	uint32_t r[31];
 	uint32_t c[4];
-	uint32_t res;
-	uint32_t s1;
-	uint32_t imm;
 };
 
 static uint32_t read_r(struct vp1_ctx *ctx, int idx) {
@@ -171,9 +168,6 @@ static void simulate_op(struct vp1_ctx *ctx, uint32_t opcode) {
 				res = -s1;
 				cr = cond_s_f(res, 0);
 			}
-			ctx->s1 = s1;
-			ctx->imm = imm;
-			ctx->res = res;
 			write_r(ctx, dst, res);
 			write_c_s(ctx, cdst, cr);
 			break;
