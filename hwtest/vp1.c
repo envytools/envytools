@@ -31,6 +31,7 @@
 
 struct vp1_ctx {
 	uint32_t r[31];
+	uint32_t v[32][4];
 	uint32_t c[4];
 };
 
@@ -43,6 +44,26 @@ static uint32_t read_r(struct vp1_ctx *ctx, int idx) {
 static void write_r(struct vp1_ctx *ctx, int idx, uint32_t val) {
 	if (idx < 31)
 		ctx->r[idx] = val;
+}
+
+static void write_v(struct vp1_ctx *ctx, int idx, uint8_t *val) {
+	int i, j;
+	for (i = 0; i < 4; i++) {
+		uint32_t tmp = 0;
+		for (j = 0; j < 4; j++) {
+			tmp |= val[i*4 + j] << j * 8;
+		}
+		ctx->v[idx][i] = tmp;
+	}
+}
+
+static void read_v(struct vp1_ctx *ctx, int idx, uint8_t *val) {
+	int i, j;
+	for (i = 0; i < 4; i++) {
+		for (j = 0; j < 4; j++) {
+			val[i*4 + j] = ctx->v[idx][i] >> 8 * j;
+		}
+	}
 }
 
 static void write_c_s(struct vp1_ctx *ctx, int idx, uint32_t val) {
@@ -123,7 +144,7 @@ static uint8_t vp1_shrb(int32_t a, uint8_t b) {
 	}
 }
 
-static void simulate_op(struct vp1_ctx *ctx, uint32_t opcode) {
+static void simulate_op_s(struct vp1_ctx *ctx, uint32_t opcode) {
 	uint32_t op = opcode >> 24 & 0x7f;
 	uint32_t src1 = opcode >> 14 & 0x1f;
 	uint32_t src2 = opcode >> 9 & 0x1f;
@@ -494,15 +515,206 @@ static void simulate_op(struct vp1_ctx *ctx, uint32_t opcode) {
 	}
 }
 
+static void simulate_op_v(struct vp1_ctx *ctx, uint32_t opcode) {
+	uint32_t op = opcode >> 24 & 0x3f;
+	uint32_t src1 = opcode >> 14 & 0x1f;
+	uint32_t src2 = opcode >> 9 & 0x1f;
+	uint32_t dst = opcode >> 19 & 0x1f;
+	uint32_t imm = opcode >> 3 & 0xff;
+	uint8_t s1[16];
+	uint8_t s2[16];
+	uint8_t d[16];
+	int32_t ss1, ss2, sub, sres;
+	int i;
+	int shift;
+	switch (op) {
+		case 0x01:
+		case 0x11:
+		case 0x21:
+		case 0x31:
+			read_v(ctx, src1, s1);
+			read_v(ctx, src2, s2);
+			for (i = 0; i < 16; i++) {
+				int n = !!(opcode & 8);
+				ss1 = s1[i];
+				ss2 = s2[i];
+				if (op & 0x20) {
+					ss2 = ((opcode & 1) << 5 | src2) << 2;
+				}
+				if (opcode & 4)
+					ss1 = (int8_t)ss1 << (n ? 0 : 1);
+				if (opcode & 2)
+					ss2 = (int8_t)ss2 << (n ? 0 : 1);
+				sub = ss1 * ss2;
+				sres = sub;
+				/* to deal with the shift easier */
+				sres <<= 4;
+				/* first, shift */
+				shift = extrs(opcode, 5, 3);
+				if (shift < 0) 
+					sres >>= -shift;
+				else
+					sres <<= shift;
+				if (op & 0x10 || n) {
+					if (opcode & 0x100) {
+						if (opcode & 0x10)
+							sres += 0x8;
+						else
+							sres += 0x800;
+					}
+					if (op & 0x10) {
+						if (sres < 0)
+							sres = 0;
+						if (sres >= 0x100000)
+							sres = 0x100000 - 1;
+					} else {
+						if (sres < -0x80000)
+							sres = -0x80000;
+						if (sres >= 0x80000)
+							sres = 0x80000 - 1;
+					}
+					if (opcode & 0x10)
+						sres >>= 4;
+					else
+						sres >>= 12;
+				} else {
+					if (opcode & 0x100) {
+						if (opcode & 0x10)
+							sres += 0x10;
+						else
+							sres += 0x1000;
+					}
+					if (sres < -0x100000)
+						sres = -0x100000;
+					if (sres >= 0x100000)
+						sres = 0x100000 - 1;
+					if (opcode & 0x10)
+						sres >>= 5;
+					else
+						sres >>= 13;
+				}
+				d[i] = sres;
+			}
+			write_v(ctx, dst, d);
+			break;
+		case 0x08:
+		case 0x09:
+		case 0x0a:
+		case 0x0b:
+		case 0x0c:
+		case 0x0d:
+		case 0x0e:
+		case 0x18:
+		case 0x19:
+		case 0x1a:
+		case 0x1c:
+		case 0x1d:
+		case 0x1e:
+		case 0x28:
+		case 0x29:
+		case 0x2c:
+		case 0x2e:
+		case 0x38:
+		case 0x39:
+		case 0x3c:
+		case 0x3e:
+			read_v(ctx, src1, s1);
+			read_v(ctx, src2, s2);
+			for (i = 0; i < 16; i++) {
+				ss1 = s1[i];
+				ss2 = s2[i];
+				if (op & 0x20) {
+					ss2 = imm;
+				}
+				if (!(op & 0x10)) {
+					ss1 = (int8_t)ss1;
+					ss2 = (int8_t)ss2;
+				}
+				switch (op & 0xf) {
+					case 0x8:
+						sres = vp1_min(ss1, ss2);
+						break;
+					case 0x9:
+						sres = vp1_max(ss1, ss2);
+						break;
+					case 0xa:
+						sres = vp1_abs(ss1);
+						break;
+					case 0xb:
+						sres = -ss1;
+						break;
+					case 0xc:
+						sres = ss1 + ss2;
+						break;
+					case 0xd:
+						sres = ss1 - ss2;
+						break;
+					case 0xe:
+						sres = vp1_shrb(ss1, ss2);
+						break;
+				}
+				if ((op & 0xf) != 0xe) {
+					if (op & 0x10) {
+						if (sres >= 0x100)
+							sres = 0x100 - 1;
+						if (sres < 0)
+							sres = 0;
+					} else {
+						if (sres >= 0x80)
+							sres = 0x80 - 1;
+						if (sres < -0x80)
+							sres = -0x80;
+					}
+				}
+				d[i] = sres;
+			}
+			write_v(ctx, dst, d);
+			break;
+		case 0x2d:
+			for (i = 0; i < 16; i++)
+				d[i] = imm;
+			write_v(ctx, dst, d);
+			break;
+	}
+}
+
 static int test_isa_s(struct hwtest_ctx *ctx) {
-	int i, j;
+	int i, j, k;
 	nva_wr32(ctx->cnum, 0x200, 0xfffffffd);
 	nva_wr32(ctx->cnum, 0x200, 0xffffffff);
 	for (i = 0; i < 1000000; i++) {
-		uint32_t opcode = (uint32_t)jrand48(ctx->rand48);
-		uint32_t op = opcode >> 24 & 0x7f;
-		if (op == 0x6a || op == 0x6b)
-			continue;
+		uint32_t opcode_s = (uint32_t)jrand48(ctx->rand48);
+		uint32_t opcode_v = (uint32_t)jrand48(ctx->rand48);
+		uint32_t op_s = opcode_s >> 24 & 0x7f;
+		uint32_t op_v = opcode_v >> 24 & 0x3f;
+		if (op_s == 0x6a || op_s == 0x6b)
+			opcode_s = 0x4f000000;
+		if (
+			op_v == 0x02 ||
+			op_v == 0x05 ||
+			op_v == 0x07 ||
+			op_v == 0x10 ||
+			op_v == 0x12 ||
+			op_v == 0x14 ||
+			op_v == 0x15 ||
+			op_v == 0x17 ||
+			op_v == 0x1b ||
+			op_v == 0x1f ||
+			op_v == 0x22 ||
+			op_v == 0x24 ||
+			op_v == 0x25 ||
+			op_v == 0x27 ||
+			op_v == 0x2a ||
+			op_v == 0x2b ||
+			op_v == 0x2f ||
+			op_v == 0x32 ||
+			op_v == 0x33 ||
+			op_v == 0x36 ||
+			op_v == 0x37 ||
+			op_v == 0x3a ||
+			op_v == 0x3b ||
+			op_v == 0x3d)
+			opcode_v = 0xbf000000;
 		struct vp1_ctx octx, ectx, nctx;
 		for (j = 0; j < 31; j++) {
 			uint32_t val = jrand48(ctx->rand48);
@@ -512,24 +724,50 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			}
 			octx.r[j] = val;
 		}
+		for (j = 0; j < 32; j++) {
+			for (k = 0; k < 4; k++) {
+				uint32_t val = jrand48(ctx->rand48);
+				int which = jrand48(ctx->rand48) & 0xf;
+				if (which < 4) {
+					val &= ~(0x7f << which * 8);
+				}
+				octx.v[j][k] = val;
+			}
+		}
 		for (j = 0; j < 4; j++)
 			octx.c[j] = nva_rd32(ctx->cnum, 0xf680 + j * 4);
 		ectx = octx;
 		for (j = 0; j < 31; j++) {
 			nva_wr32(ctx->cnum, 0xf780 + j * 4, octx.r[j]);
 		}
-		nva_wr32(ctx->cnum, 0xf44c, opcode);
+		for (j = 0; j < 32; j++) {
+			for (k = 0; k < 4; k++) {
+				nva_wr32(ctx->cnum, 0xf000 + j * 4 + k * 0x80, octx.v[j][k]);
+			}
+		}
+		nva_wr32(ctx->cnum, 0xf44c, opcode_s);
+		nva_wr32(ctx->cnum, 0xf450, opcode_v);
 		nva_wr32(ctx->cnum, 0xf458, 1);
-		simulate_op(&ectx, opcode);
+		simulate_op_s(&ectx, opcode_s);
+		simulate_op_v(&ectx, opcode_v);
 		/* XXX wait? */
 		for (j = 0; j < 31; j++)
 			nctx.r[j] = nva_rd32(ctx->cnum, 0xf780 + j * 4);
+		for (j = 0; j < 32; j++)
+			for (k = 0; k < 4; k++)
+				nctx.v[j][k] = nva_rd32(ctx->cnum, 0xf000 + j * 4 + k * 0x80);
 		for (j = 0; j < 4; j++)
 			nctx.c[j] = nva_rd32(ctx->cnum, 0xf680 + j * 4);
 		if (memcmp(&ectx, &nctx, sizeof ectx)) {
-			printf("Mismatch on try %d for insn 0x%08"PRIx32"\n", i, opcode);
+			printf("Mismatch on try %d for insn 0x%08"PRIx32" 0x%08"PRIx32"\n", i, opcode_s, opcode_v);
 			printf("what        initial    expected   real\n");
 #define IPRINT(name, x) printf(name "0x%08x 0x%08x 0x%08x%s\n", j, octx.x, ectx.x, nctx.x, (nctx.x != ectx.x ? " *" : ""))
+#define IIPRINT(name, x) printf(name "0x%08x 0x%08x 0x%08x%s\n", j, k, octx.x, ectx.x, nctx.x, (nctx.x != ectx.x ? " *" : ""))
+			for (j = 0; j < 32; j++) {
+				for (k = 0; k < 4; k++) {
+					IIPRINT("V[0x%02x][%d]   ", v[j][k]);
+				}
+			}
 			for (j = 0; j < 31; j++) {
 				IPRINT("R[0x%02x]   ", r[j]);
 			}
