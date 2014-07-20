@@ -68,7 +68,7 @@ int invalid_pushbufs_visible = 1;
 int decode_invalid_buffers = 1;
 int find_pb_pointer = 0;
 int quiet = 0;
-int disassemble_shaders = 1;
+int decode_object_state = 1;
 int indent_logs = 1;
 int is_nouveau = 0;
 int force_pushbuf_decoding = 0;
@@ -1241,7 +1241,7 @@ static void usage()
 			"  -g\t\tprint gpu addresses\n"
 			"  -o\t\tdump ioctl data\n"
 			"  -q\t\t(quiet) print only the most important data (pushbufs from IB / USER, disassembled code, TSCs, TICs, etc)\n"
-			"  -a\t\tdisable shader disassembly\n"
+			"  -a\t\tdisable decoding of object state (shader disassembly, TSCs, TICs, etc)\n"
 			"  -c\t\tenable colors\n"
 			"  -l file\tuse \"file\" as input (can be compressed by gzip / bzip2 / xz)\n"
 			"  -t\t\tdeindent logs\n"
@@ -1296,7 +1296,7 @@ int main(int argc, char *argv[])
 		else if (!strcmp(argv[i], "-q"))
 			quiet = 1;
 		else if (!strcmp(argv[i], "-a"))
-			disassemble_shaders = 0;
+			decode_object_state = 0;
 		else if (!strcmp(argv[i], "-c"))
 			colors = &envy_def_colors;
 		else if (!strcmp(argv[i], "-l"))

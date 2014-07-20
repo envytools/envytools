@@ -7,7 +7,7 @@
 #define MMT_DEBUG 0
 extern int find_pb_pointer;
 extern int quiet;
-extern int disassemble_shaders;
+extern int decode_object_state;
 extern int indent_logs;
 extern const struct envy_colors *colors;
 

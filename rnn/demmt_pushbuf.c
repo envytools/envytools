@@ -434,7 +434,7 @@ uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct buffer *buffe
 		}
 		fprintf(stdout, "PB: 0x%08x %s", cmd, cmdoutput);
 
-		if (disassemble_shaders)
+		if (decode_object_state)
 		{
 			struct obj *obj = subchans[pstate->subchan];
 			if (obj && obj->decoder)
