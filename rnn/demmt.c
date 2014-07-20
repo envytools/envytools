@@ -212,16 +212,19 @@ static void dump_writes(struct buffer *buf)
 			ib_decode_start(ibstate);
 		else if (buf->type == PUSH)
 		{
-			if (addr != state->next_command_offset)
+			if (pb_pointer_buffer == -1 && !is_nouveau)
 			{
-				mmt_log("restarting pushbuf decode on buffer %d: %x != %x\n", buf->id, addr, state->next_command_offset);
-				pushbuf_decode_start(state);
-			}
+				if (addr != state->next_command_offset)
+				{
+					mmt_log("restarting pushbuf decode on buffer %d: %x != %x\n", buf->id, addr, state->next_command_offset);
+					pushbuf_decode_start(state);
+				}
 
-			if (state->pushbuf_invalid == 1)
-			{
-				mmt_log("restarting pushbuf decode on buffer %d\n", buf->id);
-				pushbuf_decode_start(state);
+				if (state->pushbuf_invalid == 1)
+				{
+					mmt_log("restarting pushbuf decode on buffer %d\n", buf->id);
+					pushbuf_decode_start(state);
+				}
 			}
 		}
 		else if (buf->type == USER)
