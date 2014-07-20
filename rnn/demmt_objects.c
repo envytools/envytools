@@ -309,8 +309,6 @@ static struct
 
 	uint64_t tic_address;
 	struct buffer *tic_buffer;
-
-	struct rnndomain *shaders[6];
 } nvc0_3d = { 0, NULL };
 
 static int decode_nvc0_3d_tsc_tic(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
@@ -379,6 +377,22 @@ static void decode_nvc0_p_header(int idx, uint32_t *data, struct rnndomain *head
 	free(dec_addr);
 }
 
+static struct rnndomain *nvc0_p_header_domain(int program)
+{
+	if (program == 0 || program == 1) // VP
+		return nvc0_vp_header_domain;
+	else if (program == 2) // TCP
+		return nvc0_tcp_header_domain;
+	else if (program == 3) // TEP
+		return nvc0_tep_header_domain;
+	else if (program == 4) // GP
+		return nvc0_gp_header_domain;
+	else if (program == 5) // FP
+		return nvc0_fp_header_domain;
+	else
+		return NULL;
+}
+
 static void decode_nvc0_3d(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
 {
 	if (mthd == 0x1608) // CODE_ADDRESS_HIGH
@@ -394,24 +408,6 @@ static void decode_nvc0_3d(struct pushbuf_decode_state *pstate, int mthd, uint32
 		int i;
 		for (i = 0; i < 6; ++i)
 		{
-			if (mthd == 0x2000 + i * 0x40) // SP[i].SELECT
-			{
-				int program = (data >> 4) & 0x7;
-				if (program == 0 || program == 1) // VP
-					nvc0_3d.shaders[i] = nvc0_vp_header_domain;
-				else if (program == 2) // TCP
-					nvc0_3d.shaders[i] = nvc0_tcp_header_domain;
-				else if (program == 3) // TEP
-					nvc0_3d.shaders[i] = nvc0_tep_header_domain;
-				else if (program == 4) // GP
-					nvc0_3d.shaders[i] = nvc0_gp_header_domain;
-				else if (program == 5) // FP
-					nvc0_3d.shaders[i] = nvc0_fp_header_domain;
-				else
-					nvc0_3d.shaders[i] = NULL;
-				break;
-			}
-
 			if (mthd != 0x2004 + i * 0x40) // SP[i].START_ID
 				continue;
 
@@ -423,10 +419,13 @@ static void decode_nvc0_3d(struct pushbuf_decode_state *pstate, int mthd, uint32
 					continue;
 
 				uint32_t x;
+				x = *(uint32_t *)(nvc0_3d.code_buffer->data + reg->start);
+				int program = (x >> 10) & 0x7;
+				struct rnndomain *header_domain = nvc0_p_header_domain(program);
 				fprintf(stdout, "\nHEADER:");
-				if (nvc0_3d.shaders[i])
+				if (header_domain)
 					for (x = 0; x < 20; ++x)
-						decode_nvc0_p_header(x, (uint32_t *)(nvc0_3d.code_buffer->data + reg->start), nvc0_3d.shaders[i]);
+						decode_nvc0_p_header(x, (uint32_t *)(nvc0_3d.code_buffer->data + reg->start), header_domain);
 				else
 					for (x = reg->start; x < reg->start + 20 * 4; x += 4)
 						fprintf(stdout, "\n0x%08x", *(uint32_t *)(nvc0_3d.code_buffer->data + x));
