@@ -257,16 +257,16 @@ static void decode_nv50_2d(struct pushbuf_decode_state *pstate, int mthd, uint32
 			struct buffer *buf = nv50_2d.dst_buffer;
 			nv50_2d.data_offset = nv50_2d.dst_address - buf->gpu_start;
 
-			if (buf == nv50_3d.vp_buffer && nv50_3d.vp_address - buf->gpu_start >= 0)
-				fprintf(stdout, " [VP+0x%lx]", nv50_3d.vp_address - buf->gpu_start);
-			if (buf == nv50_3d.fp_buffer && nv50_3d.fp_address - buf->gpu_start >= 0)
-				fprintf(stdout, " [FP+0x%lx]", nv50_3d.fp_address - buf->gpu_start);
-			if (buf == nv50_3d.gp_buffer && nv50_3d.gp_address - buf->gpu_start >= 0)
-				fprintf(stdout, " [GP+0x%lx]", nv50_3d.gp_address - buf->gpu_start);
-			if (buf == nv50_3d.tic_buffer && nv50_3d.tic_address - buf->gpu_start >= 0)
-				fprintf(stdout, " [TIC+0x%lx]", nv50_3d.tic_address - buf->gpu_start);
-			if (buf == nv50_3d.tsc_buffer && nv50_3d.tsc_address - buf->gpu_start >= 0)
-				fprintf(stdout, " [TSC+0x%lx]", nv50_3d.tsc_address - buf->gpu_start);
+			if (buf == nv50_3d.vp_buffer && nv50_2d.dst_address - nv50_3d.vp_address >= 0)
+				fprintf(stdout, " [VP+0x%lx]", nv50_2d.dst_address - nv50_3d.vp_address);
+			if (buf == nv50_3d.fp_buffer && nv50_2d.dst_address - nv50_3d.fp_address >= 0)
+				fprintf(stdout, " [FP+0x%lx]", nv50_2d.dst_address - nv50_3d.fp_address);
+			if (buf == nv50_3d.gp_buffer && nv50_2d.dst_address - nv50_3d.gp_address >= 0)
+				fprintf(stdout, " [GP+0x%lx]", nv50_2d.dst_address - nv50_3d.gp_address);
+			if (buf == nv50_3d.tic_buffer && nv50_2d.dst_address - nv50_3d.tic_address >= 0)
+				fprintf(stdout, " [TIC+0x%lx]", nv50_2d.dst_address - nv50_3d.tic_address);
+			if (buf == nv50_3d.tsc_buffer && nv50_2d.dst_address - nv50_3d.tsc_address >= 0)
+				fprintf(stdout, " [TSC+0x%lx]", nv50_2d.dst_address - nv50_3d.tsc_address);
 		}
 		else
 			mmt_debug("buffer not found%s\n", "");
@@ -518,12 +518,12 @@ static void decode_nvc0_m2mf(struct pushbuf_decode_state *pstate, int mthd, uint
 			struct buffer *buf = nvc0_m2mf.offset_out_buffer;
 			nvc0_m2mf.data_offset = nvc0_m2mf.offset_out - buf->gpu_start;
 
-			if (buf == nvc0_3d.code_buffer && nvc0_3d.code_address - buf->gpu_start >= 0)
-				fprintf(stdout, " [CODE_ADDRESS+0x%lx]", nvc0_3d.code_address - buf->gpu_start);
-			if (buf == nvc0_3d.tic_buffer && nvc0_3d.tic_address - buf->gpu_start >= 0)
-				fprintf(stdout, " [TIC+0x%lx]", nvc0_3d.tic_address - buf->gpu_start);
-			if (buf == nvc0_3d.tsc_buffer && nvc0_3d.tsc_address - buf->gpu_start >= 0)
-				fprintf(stdout, " [TSC+0x%lx]", nvc0_3d.tsc_address - buf->gpu_start);
+			if (buf == nvc0_3d.code_buffer && nvc0_m2mf.offset_out - nvc0_3d.code_address >= 0)
+				fprintf(stdout, " [CODE_ADDRESS+0x%lx]", nvc0_m2mf.offset_out - nvc0_3d.code_address);
+			if (buf == nvc0_3d.tic_buffer && nvc0_m2mf.offset_out - nvc0_3d.tic_address >= 0)
+				fprintf(stdout, " [TIC+0x%lx]", nvc0_m2mf.offset_out - nvc0_3d.tic_address);
+			if (buf == nvc0_3d.tsc_buffer && nvc0_m2mf.offset_out - nvc0_3d.tsc_address >= 0)
+				fprintf(stdout, " [TSC+0x%lx]", nvc0_m2mf.offset_out - nvc0_3d.tsc_address);
 		}
 		else
 			mmt_debug("buffer not found%s\n", "");
@@ -574,12 +574,12 @@ static void decode_nve0_p2mf(struct pushbuf_decode_state *pstate, int mthd, uint
 			struct buffer *buf = nve0_p2mf.offset_out_buffer;
 			nve0_p2mf.data_offset = nve0_p2mf.offset_out - buf->gpu_start;
 
-			if (buf == nvc0_3d.code_buffer && nvc0_3d.code_address - buf->gpu_start >= 0)
-				fprintf(stdout, " [CODE_ADDRESS+0x%lx]", nvc0_3d.code_address - buf->gpu_start);
-			if (buf == nvc0_3d.tic_buffer && nvc0_3d.tic_address - buf->gpu_start >= 0)
-				fprintf(stdout, " [TIC+0x%lx]", nvc0_3d.tic_address - buf->gpu_start);
-			if (buf == nvc0_3d.tsc_buffer && nvc0_3d.tsc_address - buf->gpu_start >= 0)
-				fprintf(stdout, " [TSC+0x%lx]", nvc0_3d.tsc_address - buf->gpu_start);
+			if (buf == nvc0_3d.code_buffer && nve0_p2mf.offset_out - nvc0_3d.code_address >= 0)
+				fprintf(stdout, " [CODE_ADDRESS+0x%lx]", nve0_p2mf.offset_out - nvc0_3d.code_address);
+			if (buf == nvc0_3d.tic_buffer && nve0_p2mf.offset_out - nvc0_3d.tic_address >= 0)
+				fprintf(stdout, " [TIC+0x%lx]", nve0_p2mf.offset_out - nvc0_3d.tic_address);
+			if (buf == nvc0_3d.tsc_buffer && nve0_p2mf.offset_out - nvc0_3d.tsc_address >= 0)
+				fprintf(stdout, " [TSC+0x%lx]", nve0_p2mf.offset_out - nvc0_3d.tsc_address);
 		}
 		else
 			mmt_debug("buffer not found%s\n", "");
