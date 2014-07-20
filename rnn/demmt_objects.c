@@ -480,6 +480,7 @@ static void decode_nvc0_3d(struct pushbuf_decode_state *pstate, int mthd, uint32
 			nvc0_3d.cur_macro_code_pos += 4;
 			if (pstate->size == 0)
 			{
+				fprintf(stdout, "\n");
 				if (!isa_macro)
 					isa_macro = ed_getisa("macro");
 				struct varinfo *var = varinfo_new(isa_macro->vardata);
