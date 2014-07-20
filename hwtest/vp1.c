@@ -597,6 +597,23 @@ static void simulate_op_v(struct vp1_ctx *ctx, uint32_t opcode) {
 			}
 			write_v(ctx, dst, d);
 			break;
+		case 0x2a:
+		case 0x2b:
+		case 0x2f:
+		case 0x3a:
+			read_v(ctx, src1, s1);
+			for (i = 0; i < 16; i++) {
+				if (op == 0x2a)
+					d[i] = s1[i] & imm;
+				else if (op == 0x2b)
+					d[i] = s1[i] ^ imm;
+				else if (op == 0x2f)
+					d[i] = s1[i] | imm;
+				else if (op == 0x3a)
+					d[i] = s1[i];
+			}
+			write_v(ctx, dst, d);
+			break;
 		case 0x08:
 		case 0x09:
 		case 0x0a:
@@ -617,6 +634,7 @@ static void simulate_op_v(struct vp1_ctx *ctx, uint32_t opcode) {
 		case 0x38:
 		case 0x39:
 		case 0x3c:
+		case 0x3d:
 		case 0x3e:
 			read_v(ctx, src1, s1);
 			read_v(ctx, src2, s2);
@@ -704,16 +722,11 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			op_v == 0x24 ||
 			op_v == 0x25 ||
 			op_v == 0x27 ||
-			op_v == 0x2a ||
-			op_v == 0x2b ||
-			op_v == 0x2f ||
 			op_v == 0x32 ||
 			op_v == 0x33 ||
 			op_v == 0x36 ||
 			op_v == 0x37 ||
-			op_v == 0x3a ||
-			op_v == 0x3b ||
-			op_v == 0x3d)
+			op_v == 0x3b)
 			opcode_v = 0xbf000000;
 		struct vp1_ctx octx, ectx, nctx;
 		for (j = 0; j < 31; j++) {
