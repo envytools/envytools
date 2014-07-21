@@ -1572,7 +1572,7 @@ int main(int argc, char **argv) {
 
 					printf ("\n-- ID 0x%x Voltage entry %d PCIe link width %d --\n",
 						id, voltage, pcie_width );
-				} else {
+				} else if (bios->chipset < 0xe4) {
 					strncpy(sub_entry_engine[0], "hub06", 10);
 					strncpy(sub_entry_engine[1], "hub01", 10);
 					strncpy(sub_entry_engine[2], "copy", 10);
@@ -1582,6 +1582,18 @@ int main(int argc, char **argv) {
 					strncpy(sub_entry_engine[6], "vdec", 10);
 					strncpy(sub_entry_engine[10], "daemon", 10);
 					strncpy(sub_entry_engine[11], "hub07", 10);
+
+					printf ("\n-- ID 0x%x Voltage entry %d PCIe link width %d --\n",
+						id, voltage, pcie_width );
+				} else {
+					strncpy(sub_entry_engine[0], "shader", 10);
+					strncpy(sub_entry_engine[1], "hub07", 10);
+					strncpy(sub_entry_engine[2], "rop", 10);
+					strncpy(sub_entry_engine[3], "memclk", 10);
+					strncpy(sub_entry_engine[4], "hub06", 10);
+					strncpy(sub_entry_engine[5], "hub01", 10);
+					strncpy(sub_entry_engine[6], "vdec", 10);
+					strncpy(sub_entry_engine[7], "daemon", 10);
 
 					printf ("\n-- ID 0x%x Voltage entry %d PCIe link width %d --\n",
 						id, voltage, pcie_width );
