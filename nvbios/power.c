@@ -368,7 +368,7 @@ void envy_bios_print_power_budget(struct envy_bios *bios, FILE *out, unsigned ma
 	if (mask & ENVY_BIOS_PRINT_VERBOSE) fprintf(out, "\n");
 
 	for (i = 0; i < budget->entriesnum; i++) {
-		fprintf(out, "%s %i: min = %u W, avg = %u mW, peak = %u mW (unkn12 = %u)\n",
+		fprintf(out, "%s %i: min = %u mW, avg = %u mW, peak = %u mW (unkn12 = %u)\n",
 			ram_cfg == i?"*":" ", i, budget->entries[i].min,
 			budget->entries[i].avg, budget->entries[i].peak,
 			budget->entries[i].unkn12
