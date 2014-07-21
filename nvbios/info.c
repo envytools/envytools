@@ -233,9 +233,18 @@ int envy_bios_parse_bit_i (struct envy_bios *bios, struct envy_bios_bit_entry *b
 			bios->chipset = 0xe4;
 			bios->chipset_name = "GK104";
 			break;
+		case 0x8006:
+			bios->chipset = 0xe6;
+			bios->chipset_name = "GK106";
+			break;
 		case 0x8007:
 			bios->chipset = 0xe7;
 			bios->chipset_name = "GK107";
+			break;
+		/* GM117 */
+		case 0x8207:
+			bios->chipset = 0x117;
+			bios->chipset_name = "GM117";
 			break;
 	}
 	if (envy_bios_parse_dacload(bios))
