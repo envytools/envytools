@@ -151,54 +151,79 @@ static void nv50_3d_disassemble(struct buffer *buf, const char *mode, uint32_t s
 	}
 }
 
-static void decode_nv50_3d_verbose(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+static void decode_nv50_3d_terse(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
 {
+	struct buffer *buf;
 	if (mthd == 0x0f7c) // VP_ADDRESS_HIGH
 		nv50_3d.vp_address = ((uint64_t)data) << 32;
 	else if (mthd == 0x0f80) // VP_ADDRESS_LOW
 	{
 		nv50_3d.vp_address |= data;
-		nv50_3d.vp_buffer = find_buffer_by_gpu_address(nv50_3d.vp_address);
-		mmt_debug("vp address: 0x%08lx, buffer found: %d\n", nv50_3d.vp_address, nv50_3d.vp_buffer ? 1 : 0);
+		buf = nv50_3d.vp_buffer = find_buffer_by_gpu_address(nv50_3d.vp_address);
+		fprintf(stdout, " [0x%lx]", nv50_3d.vp_address);
+		if (buf && nv50_3d.vp_address != buf->gpu_start)
+			fprintf(stdout, " [0x%lx+0x%lx]", buf->gpu_start, nv50_3d.vp_address - buf->gpu_start);
 	}
 	else if (mthd == 0x0fa4) // FP_ADDRESS_HIGH
 		nv50_3d.fp_address = ((uint64_t)data) << 32;
 	else if (mthd == 0x0fa8) // FP_ADDRESS_LOW
 	{
 		nv50_3d.fp_address |= data;
-		nv50_3d.fp_buffer = find_buffer_by_gpu_address(nv50_3d.fp_address);
-		mmt_debug("fp address: 0x%08lx, buffer found: %d\n", nv50_3d.fp_address, nv50_3d.fp_buffer ? 1 : 0);
+		buf = nv50_3d.fp_buffer = find_buffer_by_gpu_address(nv50_3d.fp_address);
+		fprintf(stdout, " [0x%lx]", nv50_3d.fp_address);
+		if (buf && nv50_3d.fp_address != buf->gpu_start)
+			fprintf(stdout, " [0x%lx+0x%lx]", buf->gpu_start, nv50_3d.fp_address - buf->gpu_start);
 	}
 	else if (mthd == 0x0f70) // GP_ADDRESS_HIGH
 		nv50_3d.gp_address = ((uint64_t)data) << 32;
 	else if (mthd == 0x0f74) // GP_ADDRESS_LOW
 	{
 		nv50_3d.gp_address |= data;
-		nv50_3d.gp_buffer = find_buffer_by_gpu_address(nv50_3d.gp_address);
-		mmt_debug("gp address: 0x%08lx, buffer found: %d\n", nv50_3d.gp_address, nv50_3d.gp_buffer ? 1 : 0);
+		buf = nv50_3d.gp_buffer = find_buffer_by_gpu_address(nv50_3d.gp_address);
+		fprintf(stdout, " [0x%lx]", nv50_3d.gp_address);
+		if (buf && nv50_3d.gp_address != buf->gpu_start)
+			fprintf(stdout, " [0x%lx+0x%lx]", buf->gpu_start, nv50_3d.gp_address - buf->gpu_start);
 	}
-	else if (mthd == 0x140c) // VP_START_ID
-		nv50_3d_disassemble(nv50_3d.vp_buffer, "vp", data);
-	else if (mthd == 0x1414) // FP_START_ID
-		nv50_3d_disassemble(nv50_3d.fp_buffer, "fp", data);
-	else if (mthd == 0x1410) // GP_START_ID
-		nv50_3d_disassemble(nv50_3d.gp_buffer, "gp", data);
 	else if (mthd == 0x155c) // TSC_ADDRESS_HIGH
 		nv50_3d.tsc_address = ((uint64_t)data) << 32;
 	else if (mthd == 0x1560) // TSC_ADDRESS_LOW
 	{
 		nv50_3d.tsc_address |= data;
-		nv50_3d.tsc_buffer = find_buffer_by_gpu_address(nv50_3d.tsc_address);
-		mmt_debug("tsc address: 0x%08lx, buffer found: %d\n", nv50_3d.tsc_address, nv50_3d.tsc_buffer ? 1 : 0);
+		buf = nv50_3d.tsc_buffer = find_buffer_by_gpu_address(nv50_3d.tsc_address);
+		fprintf(stdout, " [0x%lx]", nv50_3d.tsc_address);
+		if (buf && nv50_3d.tsc_address != buf->gpu_start)
+			fprintf(stdout, " [0x%lx+0x%lx]", buf->gpu_start, nv50_3d.tsc_address - buf->gpu_start);
 	}
 	else if (mthd == 0x1574) // TIC_ADDRESS_HIGH
 		nv50_3d.tic_address = ((uint64_t)data) << 32;
 	else if (mthd == 0x1578) // TIC_ADDRESS_LOW
 	{
 		nv50_3d.tic_address |= data;
-		nv50_3d.tic_buffer = find_buffer_by_gpu_address(nv50_3d.tic_address);
-		mmt_debug("tic address: 0x%08lx, buffer found: %d\n", nv50_3d.tic_address, nv50_3d.tic_buffer ? 1 : 0);
+		buf = nv50_3d.tic_buffer = find_buffer_by_gpu_address(nv50_3d.tic_address);
+		fprintf(stdout, " [0x%lx]", nv50_3d.tic_address);
+		if (buf && nv50_3d.tic_address != buf->gpu_start)
+			fprintf(stdout, " [0x%lx+0x%lx]", buf->gpu_start, nv50_3d.tic_address - buf->gpu_start);
 	}
+}
+
+static void decode_nv50_3d_verbose(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+{
+	if (mthd == 0x0f80) // VP_ADDRESS_LOW
+		mmt_debug("buffer found: %d\n", nv50_3d.vp_buffer ? 1 : 0);
+	else if (mthd == 0x0fa8) // FP_ADDRESS_LOW
+		mmt_debug("buffer found: %d\n", nv50_3d.fp_buffer ? 1 : 0);
+	else if (mthd == 0x0f74) // GP_ADDRESS_LOW
+		mmt_debug("buffer found: %d\n", nv50_3d.gp_buffer ? 1 : 0);
+	else if (mthd == 0x140c) // VP_START_ID
+		nv50_3d_disassemble(nv50_3d.vp_buffer, "vp", data);
+	else if (mthd == 0x1414) // FP_START_ID
+		nv50_3d_disassemble(nv50_3d.fp_buffer, "fp", data);
+	else if (mthd == 0x1410) // GP_START_ID
+		nv50_3d_disassemble(nv50_3d.gp_buffer, "gp", data);
+	else if (mthd == 0x1560) // TSC_ADDRESS_LOW
+		mmt_debug("buffer found: %d\n", nv50_3d.tsc_buffer ? 1 : 0);
+	else if (mthd == 0x1578) // TIC_ADDRESS_LOW
+		mmt_debug("buffer found: %d\n", nv50_3d.tic_buffer ? 1 : 0);
 	else if (mthd >= 0x1444 && mthd < 0x1448 + 0x8 * 3)
 	{
 		int i;
@@ -252,10 +277,14 @@ static void decode_nv50_2d_terse(struct pushbuf_decode_state *pstate, int mthd, 
 		nv50_2d.dst_buffer = find_buffer_by_gpu_address(nv50_2d.dst_address);
 		nv50_2d.check_dst_buffer = nv50_2d.dst_buffer != NULL;
 
+		fprintf(stdout, " [0x%lx]", nv50_2d.dst_address);
 		if (nv50_2d.dst_buffer)
 		{
 			struct buffer *buf = nv50_2d.dst_buffer;
 			nv50_2d.data_offset = nv50_2d.dst_address - buf->gpu_start;
+
+			if (nv50_2d.data_offset)
+				fprintf(stdout, " [0x%lx+0x%x]", buf->gpu_start, nv50_2d.data_offset);
 
 			if (buf == nv50_3d.vp_buffer && nv50_2d.dst_address - nv50_3d.vp_address >= 0)
 				fprintf(stdout, " [VP+0x%lx]", nv50_2d.dst_address - nv50_3d.vp_address);
@@ -267,7 +296,6 @@ static void decode_nv50_2d_terse(struct pushbuf_decode_state *pstate, int mthd, 
 				fprintf(stdout, " [TIC+0x%lx]", nv50_2d.dst_address - nv50_3d.tic_address);
 			if (buf == nv50_3d.tsc_buffer && nv50_2d.dst_address - nv50_3d.tsc_address >= 0)
 				fprintf(stdout, " [TSC+0x%lx]", nv50_2d.dst_address - nv50_3d.tsc_address);
-			fprintf(stdout, " [0x%lx+0x%x]", buf->gpu_start, nv50_2d.data_offset);
 		}
 	}
 }
@@ -275,10 +303,7 @@ static void decode_nv50_2d_terse(struct pushbuf_decode_state *pstate, int mthd, 
 static void decode_nv50_2d_verbose(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
 {
 	if (mthd == 0x0224) // DST_ADDRESS_LOW
-	{
-		if (!nv50_2d.dst_buffer)
-			mmt_debug("buffer not found%s\n", "");
-	}
+		mmt_debug("buffer found: %d\n", nv50_2d.dst_buffer ? 1 : 0);
 	else if (mthd == 0x0204) // DST_LINEAR
 		nv50_2d.dst_linear = data;
 	else if (mthd == 0x0860) // SIFC_DATA
@@ -319,58 +344,6 @@ static struct
 	struct buffer *tic_buffer;
 } nvc0_3d = { 0, NULL };
 
-static int decode_nvc0_3d_tsc_tic(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
-{
-	if (mthd == 0x155c) // TSC_ADDRESS_HIGH
-		nvc0_3d.tsc_address = ((uint64_t)data) << 32;
-	else if (mthd == 0x1560) // TSC_ADDRESS_LOW
-	{
-		nvc0_3d.tsc_address |= data;
-		nvc0_3d.tsc_buffer = find_buffer_by_gpu_address(nvc0_3d.tsc_address);
-		mmt_debug("tsc address: 0x%08lx, buffer found: %d\n", nvc0_3d.tsc_address, nvc0_3d.tsc_buffer ? 1 : 0);
-	}
-	else if (mthd == 0x1574) // TIC_ADDRESS_HIGH
-		nvc0_3d.tic_address = ((uint64_t)data) << 32;
-	else if (mthd == 0x1578) // TIC_ADDRESS_LOW
-	{
-		nvc0_3d.tic_address |= data;
-		nvc0_3d.tic_buffer = find_buffer_by_gpu_address(nvc0_3d.tic_address);
-		mmt_debug("tic address: 0x%08lx, buffer found: %d\n", nvc0_3d.tic_address, nvc0_3d.tic_buffer ? 1 : 0);
-	}
-	else if (mthd >= 0x2400 && mthd < 0x2404 + 0x20 * 5)
-	{
-		int i;
-		for (i = 0; i < 5; ++i)
-		{
-			if (nvc0_3d.tsc_buffer && mthd == 0x2400 + i * 0x20) // BIND_TSC[i]
-			{
-				int j, tsc = (data >> 12) & 0xfff;
-				mmt_debug("bind tsc[%d]: 0x%08x\n", i, tsc);
-				uint32_t *tsc_data = (uint32_t *)&nvc0_3d.tsc_buffer->data[32 * tsc];
-
-				for (j = 0; j < 8; ++j)
-					decode_tsc(tsc, j, tsc_data);
-
-				break;
-			}
-			if (nvc0_3d.tic_buffer && mthd == 0x2404 + i * 0x20) // BIND_TIC[i]
-			{
-				int j, tic = (data >> 9) & 0x1ffff;
-				mmt_debug("bind tic[%d]: 0x%08x\n", i, tic);
-				uint32_t *tic_data = (uint32_t *)&nvc0_3d.tic_buffer->data[32 * tic];
-
-				for (j = 0; j < 8; ++j)
-					decode_tic(tic, j, tic_data);
-
-				break;
-			}
-		}
-	}
-	else
-		return 0;
-	return 1;
-}
-
 static void decode_nvc0_p_header(int idx, uint32_t *data, struct rnndomain *header_domain)
 {
 	struct rnndecaddrinfo *ai = rnndec_decodeaddr(nvc0_shaders_ctx, header_domain, idx * 4, 1);
@@ -401,16 +374,44 @@ static struct rnndomain *nvc0_p_header_domain(int program)
 		return NULL;
 }
 
-static void decode_nvc0_3d_verbose(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+static void decode_nvc0_3d_terse(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
 {
 	if (mthd == 0x1608) // CODE_ADDRESS_HIGH
 		nvc0_3d.code_address = ((uint64_t)data) << 32;
 	else if (mthd == 0x160c) // CODE_ADDRESS_LOW
 	{
 		nvc0_3d.code_address |= data;
-		nvc0_3d.code_buffer = find_buffer_by_gpu_address(nvc0_3d.code_address);
-		mmt_debug("code address: 0x%08lx, buffer found: %d\n", nvc0_3d.code_address, nvc0_3d.code_buffer ? 1 : 0);
+		struct buffer *buf = nvc0_3d.code_buffer = find_buffer_by_gpu_address(nvc0_3d.code_address);
+		fprintf(stdout, " [0x%lx]", nvc0_3d.code_address);
+		if (buf && nvc0_3d.code_address != buf->gpu_start)
+			fprintf(stdout, " [0x%lx+0x%lx]", buf->gpu_start, nvc0_3d.code_address - buf->gpu_start);
 	}
+	else if (mthd == 0x155c) // TSC_ADDRESS_HIGH
+		nvc0_3d.tsc_address = ((uint64_t)data) << 32;
+	else if (mthd == 0x1560) // TSC_ADDRESS_LOW
+	{
+		nvc0_3d.tsc_address |= data;
+		struct buffer *buf = nvc0_3d.tsc_buffer = find_buffer_by_gpu_address(nvc0_3d.tsc_address);
+		fprintf(stdout, " [0x%lx]", nvc0_3d.tsc_address);
+		if (buf && nvc0_3d.tsc_address != buf->gpu_start)
+			fprintf(stdout, " [0x%lx+0x%lx]", buf->gpu_start, nvc0_3d.tsc_address - buf->gpu_start);
+	}
+	else if (mthd == 0x1574) // TIC_ADDRESS_HIGH
+		nvc0_3d.tic_address = ((uint64_t)data) << 32;
+	else if (mthd == 0x1578) // TIC_ADDRESS_LOW
+	{
+		nvc0_3d.tic_address |= data;
+		struct buffer *buf = nvc0_3d.tic_buffer = find_buffer_by_gpu_address(nvc0_3d.tic_address);
+		fprintf(stdout, " [0x%lx]", nvc0_3d.tic_address);
+		if (buf && nvc0_3d.tic_address != buf->gpu_start)
+			fprintf(stdout, " [0x%lx+0x%lx]", buf->gpu_start, nvc0_3d.tic_address - buf->gpu_start);
+	}
+}
+
+static void decode_nvc0_3d_verbose(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+{
+	if (mthd == 0x160c) // CODE_ADDRESS_LOW
+		mmt_debug("buffer found: %d\n", nvc0_3d.code_buffer ? 1 : 0);
 	else if (nvc0_3d.code_buffer && mthd >= 0x2000 && mthd < 0x2000 + 0x40 * 6) // SP
 	{
 		int i;
@@ -498,8 +499,39 @@ static void decode_nvc0_3d_verbose(struct pushbuf_decode_state *pstate, int mthd
 			}
 		}
 	}
-	else if (chipset < 0xe0 && decode_nvc0_3d_tsc_tic(pstate, mthd, data))
-	{ }
+	else if (mthd == 0x1560) // TSC_ADDRESS_LOW
+		mmt_debug("buffer found: %d\n", nvc0_3d.tsc_buffer ? 1 : 0);
+	else if (mthd == 0x1578) // TIC_ADDRESS_LOW
+		mmt_debug("buffer found: %d\n", nvc0_3d.tic_buffer ? 1 : 0);
+	else if (chipset < 0xe0 && mthd >= 0x2400 && mthd < 0x2404 + 0x20 * 5)
+	{
+		int i;
+		for (i = 0; i < 5; ++i)
+		{
+			if (nvc0_3d.tsc_buffer && mthd == 0x2400 + i * 0x20) // BIND_TSC[i]
+			{
+				int j, tsc = (data >> 12) & 0xfff;
+				mmt_debug("bind tsc[%d]: 0x%08x\n", i, tsc);
+				uint32_t *tsc_data = (uint32_t *)&nvc0_3d.tsc_buffer->data[32 * tsc];
+
+				for (j = 0; j < 8; ++j)
+					decode_tsc(tsc, j, tsc_data);
+
+				break;
+			}
+			if (nvc0_3d.tic_buffer && mthd == 0x2404 + i * 0x20) // BIND_TIC[i]
+			{
+				int j, tic = (data >> 9) & 0x1ffff;
+				mmt_debug("bind tic[%d]: 0x%08x\n", i, tic);
+				uint32_t *tic_data = (uint32_t *)&nvc0_3d.tic_buffer->data[32 * tic];
+
+				for (j = 0; j < 8; ++j)
+					decode_tic(tic, j, tic_data);
+
+				break;
+			}
+		}
+	}
 }
 
 static struct
@@ -520,10 +552,15 @@ static void decode_nvc0_m2mf_terse(struct pushbuf_decode_state *pstate, int mthd
 	{
 		nvc0_m2mf.offset_out |= data;
 		nvc0_m2mf.offset_out_buffer = find_buffer_by_gpu_address(nvc0_m2mf.offset_out);
+		fprintf(stdout, " [0x%lx]", nvc0_m2mf.offset_out);
+
 		if (nvc0_m2mf.offset_out_buffer)
 		{
 			struct buffer *buf = nvc0_m2mf.offset_out_buffer;
 			nvc0_m2mf.data_offset = nvc0_m2mf.offset_out - buf->gpu_start;
+
+			if (nvc0_m2mf.data_offset)
+				fprintf(stdout, " [0x%lx+0x%x]", buf->gpu_start, nvc0_m2mf.data_offset);
 
 			if (buf == nvc0_3d.code_buffer && nvc0_m2mf.offset_out - nvc0_3d.code_address >= 0)
 				fprintf(stdout, " [CODE_ADDRESS+0x%lx]", nvc0_m2mf.offset_out - nvc0_3d.code_address);
@@ -531,7 +568,6 @@ static void decode_nvc0_m2mf_terse(struct pushbuf_decode_state *pstate, int mthd
 				fprintf(stdout, " [TIC+0x%lx]", nvc0_m2mf.offset_out - nvc0_3d.tic_address);
 			if (buf == nvc0_3d.tsc_buffer && nvc0_m2mf.offset_out - nvc0_3d.tsc_address >= 0)
 				fprintf(stdout, " [TSC+0x%lx]", nvc0_m2mf.offset_out - nvc0_3d.tsc_address);
-			fprintf(stdout, " [0x%lx+0x%x]", buf->gpu_start, nvc0_m2mf.data_offset);
 		}
 	}
 }
@@ -539,10 +575,7 @@ static void decode_nvc0_m2mf_terse(struct pushbuf_decode_state *pstate, int mthd
 static void decode_nvc0_m2mf_verbose(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
 {
 	if (mthd == 0x023c) // OFFSET_OUT_LOW
-	{
-		if (!nvc0_m2mf.offset_out_buffer)
-			mmt_debug("buffer not found%s\n", "");
-	}
+		mmt_debug("buffer found: %d\n", nvc0_m2mf.offset_out_buffer ? 1 : 0);
 	else if (mthd == 0x0300) // EXEC
 	{
 		int flags_ok = (data & 0x111) == 0x111 ? 1 : 0;
@@ -583,11 +616,15 @@ static void decode_nve0_p2mf_terse(struct pushbuf_decode_state *pstate, int mthd
 	{
 		nve0_p2mf.offset_out |= data;
 		nve0_p2mf.offset_out_buffer = find_buffer_by_gpu_address(nve0_p2mf.offset_out);
+		fprintf(stdout, " [0x%lx]", nve0_p2mf.offset_out);
 
 		if (nve0_p2mf.offset_out_buffer)
 		{
 			struct buffer *buf = nve0_p2mf.offset_out_buffer;
 			nve0_p2mf.data_offset = nve0_p2mf.offset_out - buf->gpu_start;
+
+			if (nve0_p2mf.data_offset)
+				fprintf(stdout, " [0x%lx+0x%x]", buf->gpu_start, nve0_p2mf.data_offset);
 
 			if (buf == nvc0_3d.code_buffer && nve0_p2mf.offset_out - nvc0_3d.code_address >= 0)
 				fprintf(stdout, " [CODE_ADDRESS+0x%lx]", nve0_p2mf.offset_out - nvc0_3d.code_address);
@@ -595,7 +632,6 @@ static void decode_nve0_p2mf_terse(struct pushbuf_decode_state *pstate, int mthd
 				fprintf(stdout, " [TIC+0x%lx]", nve0_p2mf.offset_out - nvc0_3d.tic_address);
 			if (buf == nvc0_3d.tsc_buffer && nve0_p2mf.offset_out - nvc0_3d.tsc_address >= 0)
 				fprintf(stdout, " [TSC+0x%lx]", nve0_p2mf.offset_out - nvc0_3d.tsc_address);
-			fprintf(stdout, " [0x%lx+0x%x]", buf->gpu_start, nve0_p2mf.data_offset);
 		}
 	}
 }
@@ -603,10 +639,7 @@ static void decode_nve0_p2mf_terse(struct pushbuf_decode_state *pstate, int mthd
 static void decode_nve0_p2mf_verbose(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
 {
 	if (mthd == 0x018c) // UPLOAD.DST_ADDRESS_LOW
-	{
-		if (!nve0_p2mf.offset_out_buffer)
-			mmt_debug("buffer not found%s\n", "");
-	}
+		mmt_debug("buffer found: %d\n", nve0_p2mf.offset_out_buffer ? 1 : 0);
 	else if (mthd == 0x01b0) // UPLOAD.EXEC
 	{
 		int flags_ok = (data & 0x1) == 0x1 ? 1 : 0;
@@ -631,18 +664,18 @@ static void decode_nve0_p2mf_verbose(struct pushbuf_decode_state *pstate, int mt
 
 static const struct gpu_object_decoder objs[] =
 {
-		{ 0x502d, decode_nv50_2d_terse, decode_nv50_2d_verbose },
-		{ 0x5097, NULL, decode_nv50_3d_verbose },
-		{ 0x8297, NULL, decode_nv50_3d_verbose },
-		{ 0x8397, NULL, decode_nv50_3d_verbose },
-		{ 0x8597, NULL, decode_nv50_3d_verbose },
-		{ 0x8697, NULL, decode_nv50_3d_verbose },
+		{ 0x502d, decode_nv50_2d_terse,   decode_nv50_2d_verbose },
+		{ 0x5097, decode_nv50_3d_terse,   decode_nv50_3d_verbose },
+		{ 0x8297, decode_nv50_3d_terse,   decode_nv50_3d_verbose },
+		{ 0x8397, decode_nv50_3d_terse,   decode_nv50_3d_verbose },
+		{ 0x8597, decode_nv50_3d_terse,   decode_nv50_3d_verbose },
+		{ 0x8697, decode_nv50_3d_terse,   decode_nv50_3d_verbose },
 		{ 0x9039, decode_nvc0_m2mf_terse, decode_nvc0_m2mf_verbose },
-		{ 0x9097, NULL, decode_nvc0_3d_verbose },
-		{ 0x9197, NULL, decode_nvc0_3d_verbose },
-		{ 0x9297, NULL, decode_nvc0_3d_verbose },
+		{ 0x9097, decode_nvc0_3d_terse,   decode_nvc0_3d_verbose },
+		{ 0x9197, decode_nvc0_3d_terse,   decode_nvc0_3d_verbose },
+		{ 0x9297, decode_nvc0_3d_terse,   decode_nvc0_3d_verbose },
 		{ 0xa040, decode_nve0_p2mf_terse, decode_nve0_p2mf_verbose },
-		{ 0xa097, NULL, decode_nvc0_3d_verbose },
+		{ 0xa097, decode_nvc0_3d_terse,   decode_nvc0_3d_verbose },
 		{ 0, NULL, NULL }
 };
 
