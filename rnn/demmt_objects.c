@@ -23,6 +23,7 @@
  */
 
 #include "demmt.h"
+#include "demmt_objects.h"
 #include "dis.h"
 #include "rnndec.h"
 #include <stdlib.h>
@@ -63,7 +64,7 @@ static void decode_tsc(uint32_t tsc, int idx, uint32_t *data)
 	char *dec_addr = ai->name;
 	char *dec_val = rnndec_decodeval(nv50_texture_ctx, ai->typeinfo, data[idx], ai->width);
 
-	fprintf(stdout, "\nTSC[%d]: 0x%08x   %s = %s", tsc, data[idx], dec_addr, dec_val);
+	fprintf(stdout, "TSC[%d]: 0x%08x   %s = %s\n", tsc, data[idx], dec_addr, dec_val);
 
 	free(ai);
 	free(dec_val);
@@ -77,7 +78,7 @@ static void decode_tic(uint32_t tic, int idx, uint32_t *data)
 	char *dec_addr = ai->name;
 	char *dec_val = rnndec_decodeval(nv50_texture_ctx, ai->typeinfo, data[idx], ai->width);
 
-	fprintf(stdout, "\nTIC[%d]: 0x%08x   %s = %s", tic, data[idx], dec_addr, dec_val);
+	fprintf(stdout, "TIC[%d]: 0x%08x   %s = %s\n", tic, data[idx], dec_addr, dec_val);
 
 	free(ai);
 	free(dec_val);
@@ -108,7 +109,6 @@ static void nv50_3d_disassemble(struct buffer *buf, const char *mode, uint32_t s
 {
 	if (!buf)
 		return;
-	fprintf(stdout, "\n");
 
 	mmt_debug("%s_start id 0x%08x\n", mode, start_id);
 	struct region *reg;
@@ -151,7 +151,7 @@ static void nv50_3d_disassemble(struct buffer *buf, const char *mode, uint32_t s
 	}
 }
 
-static void decode_nv50_3d(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+static void decode_nv50_3d_verbose(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
 {
 	if (mthd == 0x0f7c) // VP_ADDRESS_HIGH
 		nv50_3d.vp_address = ((uint64_t)data) << 32;
@@ -239,7 +239,7 @@ static struct
 	int data_offset;
 } nv50_2d = { 0, 0, NULL, 0, 0 };
 
-static void decode_nv50_2d(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+static void decode_nv50_2d_terse(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
 {
 	if (mthd == 0x0220) // DST_ADDRESS_HIGH
 	{
@@ -269,7 +269,14 @@ static void decode_nv50_2d(struct pushbuf_decode_state *pstate, int mthd, uint32
 				fprintf(stdout, " [TSC+0x%lx]", nv50_2d.dst_address - nv50_3d.tsc_address);
 			fprintf(stdout, " [0x%lx+0x%x]", buf->gpu_start, nv50_2d.data_offset);
 		}
-		else
+	}
+}
+
+static void decode_nv50_2d_verbose(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+{
+	if (mthd == 0x0224) // DST_ADDRESS_LOW
+	{
+		if (!nv50_2d.dst_buffer)
 			mmt_debug("buffer not found%s\n", "");
 	}
 	else if (mthd == 0x0204) // DST_LINEAR
@@ -371,7 +378,7 @@ static void decode_nvc0_p_header(int idx, uint32_t *data, struct rnndomain *head
 	char *dec_addr = ai->name;
 	char *dec_val = rnndec_decodeval(nvc0_shaders_ctx, ai->typeinfo, data[idx], ai->width);
 
-	fprintf(stdout, "\n0x%08x   %s = %s", data[idx], dec_addr, dec_val);
+	fprintf(stdout, "0x%08x   %s = %s\n", data[idx], dec_addr, dec_val);
 
 	free(ai);
 	free(dec_val);
@@ -394,7 +401,7 @@ static struct rnndomain *nvc0_p_header_domain(int program)
 		return NULL;
 }
 
-static void decode_nvc0_3d(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+static void decode_nvc0_3d_verbose(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
 {
 	if (mthd == 0x1608) // CODE_ADDRESS_HIGH
 		nvc0_3d.code_address = ((uint64_t)data) << 32;
@@ -423,15 +430,15 @@ static void decode_nvc0_3d(struct pushbuf_decode_state *pstate, int mthd, uint32
 				x = *(uint32_t *)(nvc0_3d.code_buffer->data + reg->start);
 				int program = (x >> 10) & 0x7;
 				struct rnndomain *header_domain = nvc0_p_header_domain(program);
-				fprintf(stdout, "\nHEADER:");
+				fprintf(stdout, "HEADER:\n");
 				if (header_domain)
 					for (x = 0; x < 20; ++x)
 						decode_nvc0_p_header(x, (uint32_t *)(nvc0_3d.code_buffer->data + reg->start), header_domain);
 				else
 					for (x = reg->start; x < reg->start + 20 * 4; x += 4)
-						fprintf(stdout, "\n0x%08x", *(uint32_t *)(nvc0_3d.code_buffer->data + x));
+						fprintf(stdout, "0x%08x\n", *(uint32_t *)(nvc0_3d.code_buffer->data + x));
 
-				fprintf(stdout, "\nCODE:\n");
+				fprintf(stdout, "CODE:\n");
 				if (MMT_DEBUG)
 				{
 					uint32_t x;
@@ -480,7 +487,6 @@ static void decode_nvc0_3d(struct pushbuf_decode_state *pstate, int mthd, uint32
 			nvc0_3d.cur_macro_code_pos += 4;
 			if (pstate->size == 0)
 			{
-				fprintf(stdout, "\n");
 				if (!isa_macro)
 					isa_macro = ed_getisa("macro");
 				struct varinfo *var = varinfo_new(isa_macro->vardata);
@@ -503,7 +509,7 @@ static struct
 	int data_offset;
 } nvc0_m2mf = { 0, NULL, 0 };
 
-static void decode_nvc0_m2mf(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+static void decode_nvc0_m2mf_terse(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
 {
 	if (mthd == 0x0238) // OFFSET_OUT_HIGH
 	{
@@ -527,7 +533,14 @@ static void decode_nvc0_m2mf(struct pushbuf_decode_state *pstate, int mthd, uint
 				fprintf(stdout, " [TSC+0x%lx]", nvc0_m2mf.offset_out - nvc0_3d.tsc_address);
 			fprintf(stdout, " [0x%lx+0x%x]", buf->gpu_start, nvc0_m2mf.data_offset);
 		}
-		else
+	}
+}
+
+static void decode_nvc0_m2mf_verbose(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+{
+	if (mthd == 0x023c) // OFFSET_OUT_LOW
+	{
+		if (!nvc0_m2mf.offset_out_buffer)
 			mmt_debug("buffer not found%s\n", "");
 	}
 	else if (mthd == 0x0300) // EXEC
@@ -559,7 +572,7 @@ static struct
 	int data_offset;
 } nve0_p2mf = { 0, NULL, 0 };
 
-static void decode_nve0_p2mf(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+static void decode_nve0_p2mf_terse(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
 {
 	if (mthd == 0x0188) // UPLOAD.DST_ADDRESS_HIGH
 	{
@@ -584,7 +597,14 @@ static void decode_nve0_p2mf(struct pushbuf_decode_state *pstate, int mthd, uint
 				fprintf(stdout, " [TSC+0x%lx]", nve0_p2mf.offset_out - nvc0_3d.tsc_address);
 			fprintf(stdout, " [0x%lx+0x%x]", buf->gpu_start, nve0_p2mf.data_offset);
 		}
-		else
+	}
+}
+
+static void decode_nve0_p2mf_verbose(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+{
+	if (mthd == 0x018c) // UPLOAD.DST_ADDRESS_LOW
+	{
+		if (!nve0_p2mf.offset_out_buffer)
 			mmt_debug("buffer not found%s\n", "");
 	}
 	else if (mthd == 0x01b0) // UPLOAD.EXEC
@@ -609,33 +629,28 @@ static void decode_nve0_p2mf(struct pushbuf_decode_state *pstate, int mthd, uint
 	}
 }
 
-static const struct gpu_object
+static const struct gpu_object_decoder objs[] =
 {
-	uint32_t class_;
-	void (*fun)(struct pushbuf_decode_state *, int, uint32_t);
-}
-objs[] =
-{
-		{ 0x502d, decode_nv50_2d },
-		{ 0x5097, decode_nv50_3d },
-		{ 0x8297, decode_nv50_3d },
-		{ 0x8397, decode_nv50_3d },
-		{ 0x8597, decode_nv50_3d },
-		{ 0x8697, decode_nv50_3d },
-		{ 0x9039, decode_nvc0_m2mf },
-		{ 0x9097, decode_nvc0_3d },
-		{ 0x9197, decode_nvc0_3d },
-		{ 0x9297, decode_nvc0_3d },
-		{ 0xa040, decode_nve0_p2mf },
-		{ 0xa097, decode_nvc0_3d },
-		{ 0, NULL}
+		{ 0x502d, decode_nv50_2d_terse, decode_nv50_2d_verbose },
+		{ 0x5097, NULL, decode_nv50_3d_verbose },
+		{ 0x8297, NULL, decode_nv50_3d_verbose },
+		{ 0x8397, NULL, decode_nv50_3d_verbose },
+		{ 0x8597, NULL, decode_nv50_3d_verbose },
+		{ 0x8697, NULL, decode_nv50_3d_verbose },
+		{ 0x9039, decode_nvc0_m2mf_terse, decode_nvc0_m2mf_verbose },
+		{ 0x9097, NULL, decode_nvc0_3d_verbose },
+		{ 0x9197, NULL, decode_nvc0_3d_verbose },
+		{ 0x9297, NULL, decode_nvc0_3d_verbose },
+		{ 0xa040, decode_nve0_p2mf_terse, decode_nve0_p2mf_verbose },
+		{ 0xa097, NULL, decode_nvc0_3d_verbose },
+		{ 0, NULL, NULL }
 };
 
-void *demmt_get_decoder(uint32_t class_)
+const struct gpu_object_decoder *demmt_get_decoder(uint32_t class_)
 {
-	const struct gpu_object *o;
+	const struct gpu_object_decoder *o;
 	for (o = objs; o->class_ != 0; o++)
 		if (o->class_ == class_)
-			return o->fun;
+			return o;
 	return NULL;
 }

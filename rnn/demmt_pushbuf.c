@@ -52,7 +52,7 @@ struct obj
 	uint32_t class;
 	char *name;
 	struct rnndeccontext *ctx;
-	void (*decoder)(struct pushbuf_decode_state *, int, uint32_t);
+	const struct gpu_object_decoder *decoder;
 	struct cache_entry *cache[ADDR_CACHE_SIZE];
 };
 
@@ -434,14 +434,14 @@ uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct buffer *buffe
 		}
 		fprintf(stdout, "PB: 0x%08x %s", cmd, cmdoutput);
 
-		if (decode_object_state)
-		{
-			struct obj *obj = subchans[pstate->subchan];
-			if (obj && obj->decoder)
-				obj->decoder(pstate, mthd, cmd);
-		}
+		struct obj *obj = subchans[pstate->subchan];
+		if (decode_object_state && obj && obj->decoder && obj->decoder->decode_terse)
+			obj->decoder->decode_terse(pstate, mthd, cmd);
 
 		fprintf(stdout, "\n");
+
+		if (decode_object_state && obj && obj->decoder && obj->decoder->decode_verbose)
+			obj->decoder->decode_verbose(pstate, mthd, cmd);
 
 		cur += 4;
 	}
