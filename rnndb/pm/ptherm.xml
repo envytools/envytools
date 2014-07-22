@@ -671,6 +671,8 @@
 		<bitfield low="8" high="10" name="THRESHOLD_4" />
 	</reg32>
 
+	<!-- 160 is used for idle clock lowering on my nve6, as it used to be,
+	     will need to investigate further about that! -->
 	<reg32 offset="0x160" name="FSRM_2" length="4" variants="NVC0-">
 		<bitfield low="0" high="5" name="DIV2" />
 		<bitfield pos="7" name="UNK7" />
@@ -698,7 +700,7 @@
 		<bitfield low="8" high="15" name="CUR_FSRM" /> <!-- RO -->
 		<bitfield pos="16" name="UNK16" />
 		<bitfield pos="17" name="FSRM_3_ACTIVE" />
-		<bitfield pos="18" name="FSRM_4_ACTIVE" />
+		<bitfield pos="18" name="FSRM_4_ACTIVE" /> <!-- may mean IDLE -->
 		<bitfield pos="19" name="THERMAL_PROTECT_ACTIVE" />
 	</reg32>
 
