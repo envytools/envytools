@@ -50,14 +50,14 @@ xsi:schemaLocation="http://nouveau.freedesktop.org/ rules-ng.xsd">
 			<value value="0x0d" name="24_8"/>
 			<value value="0x0e" name="8_24"/>
 			<value value="0x0f" name="32"/>
-			<value value="0x10" name="BPTC_FLOAT"/>
-			<value value="0x11" name="BPTC_UFLOAT"/>
+			<value value="0x10" name="BPTC_FLOAT" variants="NVC0-"/>
+			<value value="0x11" name="BPTC_UFLOAT" variants="NVC0-"/>
 			<value value="0x12" name="4_4_4_4"/>
 			<value value="0x13" name="1_5_5_5"/>
 			<value value="0x14" name="5_5_5_1"/>
 			<value value="0x15" name="5_6_5"/>
 			<value value="0x16" name="5_5_6"/>
-			<value value="0x17" name="BPTC"/>
+			<value value="0x17" name="BPTC" variants="NVC0-"/>
 			<value value="0x18" name="8_8"/>
 			<value value="0x1b" name="16"/>
 			<value value="0x1d" name="8"/>
