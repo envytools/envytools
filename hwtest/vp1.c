@@ -69,6 +69,30 @@ static void read_v(struct vp1_ctx *ctx, int idx, uint8_t *val) {
 	}
 }
 
+static void write_c_a_f(struct vp1_ctx *ctx, int idx, uint32_t val) {
+	uint32_t cr = 0;
+	if (val & 0x80000000)
+		cr |= 0x100;
+	if (!val)
+		cr |= 0x200;
+	if (idx < 4) {
+		ctx->c[idx] &= ~0x300;
+		ctx->c[idx] |= cr;
+	}
+}
+
+static void write_c_a_h(struct vp1_ctx *ctx, int idx, uint32_t val) {
+	uint32_t cr = 0;
+	uint32_t lo = val & 0xffff;
+	uint32_t hi = val >> 16 & 0x3fff;
+	if (lo >= hi)
+		cr |= 0x400;
+	if (idx < 4) {
+		ctx->c[idx] &= ~0x400;
+		ctx->c[idx] |= cr;
+	}
+}
+
 static void write_c_s(struct vp1_ctx *ctx, int idx, uint32_t val) {
 	if (idx < 4) {
 		ctx->c[idx] &= ~0xff;
@@ -149,11 +173,108 @@ static uint8_t vp1_shrb(int32_t a, uint8_t b) {
 	}
 }
 
-static void simulate_op_a(struct vp1_ctx *ctx, uint32_t opcode) {
-	uint32_t op = opcode >> 24 & 0x1f;
+static int vp1_mangle_reg(int reg, int cond, int flag) {
+	if (flag == 4) {
+		return (reg & 0x1c) | ((reg + (cond >> flag)) & 3);
+	} else {
+		return reg ^ ((cond >> flag) & 1);
+	}
 }
 
-static void simulate_op_s(int chipset, struct vp1_ctx *ctx, uint32_t opcode) {
+static uint32_t vp1_hadd(uint32_t a, uint32_t b) {
+	return (a & ~0xffff) | ((a + b) & 0xffff);
+}
+
+static void simulate_op_a(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t opcode) {
+	uint32_t op = opcode >> 24 & 0x1f;
+	uint32_t src1 = opcode >> 14 & 0x1f;
+	uint32_t src2 = opcode >> 9 & 0x1f;
+	uint32_t dst = opcode >> 19 & 0x1f;
+	uint32_t s1 = octx->a[src1];
+	uint32_t s2 = octx->a[src2];
+	int flag = opcode >> 5 & 0xf;
+	uint32_t cond = octx->c[opcode >> 3 & 3];
+	uint32_t res;
+	int src2s = vp1_mangle_reg(src2, cond, flag);
+	uint32_t s2s = octx->a[src2s];
+	switch (op) {
+		case 0x0a:
+			res = octx->a[dst];
+			res = vp1_hadd(res, s2s);
+			ctx->a[dst] = res;
+			write_c_a_h(ctx, opcode & 7, res);
+			break;
+		case 0x0b:
+			res = s1 + s2s;
+			ctx->a[dst] = res;
+			write_c_a_f(ctx, opcode & 7, res);
+			break;
+		case 0x0c:
+			ctx->a[dst] &= ~0xffff;
+			ctx->a[dst] |= opcode & 0xffff;
+			break;
+		case 0x0d:
+			ctx->a[dst] &= ~0xffff0000;
+			ctx->a[dst] |= opcode << 16 & 0xffff0000;
+			break;
+		case 0x13:
+			switch (opcode >> 3 & 0xf) {
+				case 0x0:
+					res = 0;
+					break;
+				case 0x1:
+					res = ~s1 & ~s2;
+					break;
+				case 0x2:
+					res = ~s1 & s2;
+					break;
+				case 0x3:
+					res = ~s1;
+					break;
+				case 0x4:
+					res = s1 & ~s2;
+					break;
+				case 0x5:
+					res = ~s2;
+					break;
+				case 0x6:
+					res = s1 ^ s2;
+					break;
+				case 0x7:
+					res = ~s1 | ~s2;
+					break;
+				case 0x8:
+					res = s1 & s2;
+					break;
+				case 0x9:
+					res = ~s1 ^ s2;
+					break;
+				case 0xa:
+					res = s2;
+					break;
+				case 0xb:
+					res = ~s1 | s2;
+					break;
+				case 0xc:
+					res = s1;
+					break;
+				case 0xd:
+					res = s1 | ~s2;
+					break;
+				case 0xe:
+					res = s1 | s2;
+					break;
+				case 0xf:
+					res = 0xffffffff;
+					break;
+			}
+			ctx->a[dst] = res;
+			write_c_a_f(ctx, opcode & 7, res);
+			break;
+	}
+}
+
+static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t opcode, int chipset) {
 	uint32_t op = opcode >> 24 & 0x7f;
 	uint32_t src1 = opcode >> 14 & 0x1f;
 	uint32_t src2 = opcode >> 9 & 0x1f;
@@ -162,17 +283,11 @@ static void simulate_op_s(int chipset, struct vp1_ctx *ctx, uint32_t opcode) {
 	uint32_t cdst = opcode & 7;
 	uint32_t cr, res, s1, s2, s2s;
 	int flag = opcode >> 5 & 0xf;
-	uint32_t cond;
-	int src2s;
 	int32_t sub, ss1, ss2;
 	int i;
 	int u;
-	cond = ctx->c[opcode >> 3 & 3];
-	if (flag == 4) {
-		src2s = (src2 & 0x1c) | ((src2 + (cond >> flag)) & 3);
-	} else {
-		src2s = src2 ^ ((cond >> flag) & 1);
-	}
+	uint32_t cond = octx->c[opcode >> 3 & 3];
+	int src2s = vp1_mangle_reg(src2, cond, flag);
 	switch (op) {
 		case 0x08:
 		case 0x09:
@@ -203,8 +318,8 @@ static void simulate_op_s(int chipset, struct vp1_ctx *ctx, uint32_t opcode) {
 		case 0x3d:
 		case 0x3e:
 			u = !!(op & 0x10);
-			s1 = read_r(ctx, src1);
-			s2 = read_r(ctx, src2s);
+			s1 = read_r(octx, src1);
+			s2 = read_r(octx, src2s);
 			res = 0;
 			for (i = 0; i < 4; i++) {
 				ss1 = s1 >> i * 8;
@@ -269,8 +384,8 @@ static void simulate_op_s(int chipset, struct vp1_ctx *ctx, uint32_t opcode) {
 		case 0x31:
 		case 0x32:
 			u = !!(op & 0x10);
-			s1 = read_r(ctx, src1);
-			s2 = read_r(ctx, src2);
+			s1 = read_r(octx, src1);
+			s2 = read_r(octx, src2);
 			res = 0;
 			for (i = 0; i < 4; i++) {
 				if (opcode & 4)
@@ -315,7 +430,7 @@ static void simulate_op_s(int chipset, struct vp1_ctx *ctx, uint32_t opcode) {
 		case 0x25:
 		case 0x26:
 		case 0x27:
-			s1 = read_r(ctx, src1);
+			s1 = read_r(octx, src1);
 			imm = opcode >> 3 & 0xff;
 			imm *= 0x01010101;
 			if (op == 0x25) {
@@ -345,9 +460,9 @@ static void simulate_op_s(int chipset, struct vp1_ctx *ctx, uint32_t opcode) {
 		case 0x5c:
 		case 0x5d:
 		case 0x5e:
-			s1 = read_r(ctx, src1);
-			s2 = read_r(ctx, src2);
-			s2s = read_r(ctx, src2s);
+			s1 = read_r(octx, src1);
+			s2 = read_r(octx, src2);
+			s2s = read_r(octx, src2s);
 			if (op == 0x41 || op == 0x51) {
 				res = sext(s1, 15) * sext(s2s, 15);
 				cr = cond_s_f(res, s1, chipset);
@@ -445,7 +560,7 @@ static void simulate_op_s(int chipset, struct vp1_ctx *ctx, uint32_t opcode) {
 		case 0x7c:
 		case 0x7d:
 		case 0x7e:
-			s1 = read_r(ctx, src1);
+			s1 = read_r(octx, src1);
 			if (op == 0x61 || op == 0x71) {
 				res = sext(s1, 15) * imm;
 				cr = cond_s_f(res, s1, chipset);
@@ -524,7 +639,7 @@ static void simulate_op_s(int chipset, struct vp1_ctx *ctx, uint32_t opcode) {
 	}
 }
 
-static void simulate_op_v(struct vp1_ctx *ctx, uint32_t opcode) {
+static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t opcode) {
 	uint32_t op = opcode >> 24 & 0x3f;
 	uint32_t src1 = opcode >> 14 & 0x1f;
 	uint32_t src2 = opcode >> 9 & 0x1f;
@@ -541,8 +656,8 @@ static void simulate_op_v(struct vp1_ctx *ctx, uint32_t opcode) {
 		case 0x11:
 		case 0x21:
 		case 0x31:
-			read_v(ctx, src1, s1);
-			read_v(ctx, src2, s2);
+			read_v(octx, src1, s1);
+			read_v(octx, src2, s2);
 			for (i = 0; i < 16; i++) {
 				int n = !!(opcode & 8);
 				ss1 = s1[i];
@@ -610,7 +725,7 @@ static void simulate_op_v(struct vp1_ctx *ctx, uint32_t opcode) {
 		case 0x2b:
 		case 0x2f:
 		case 0x3a:
-			read_v(ctx, src1, s1);
+			read_v(octx, src1, s1);
 			for (i = 0; i < 16; i++) {
 				if (op == 0x2a)
 					d[i] = s1[i] & imm;
@@ -645,8 +760,8 @@ static void simulate_op_v(struct vp1_ctx *ctx, uint32_t opcode) {
 		case 0x3c:
 		case 0x3d:
 		case 0x3e:
-			read_v(ctx, src1, s1);
-			read_v(ctx, src2, s2);
+			read_v(octx, src1, s1);
+			read_v(octx, src2, s2);
 			for (i = 0; i < 16; i++) {
 				ss1 = s1[i];
 				ss2 = s2[i];
@@ -705,7 +820,7 @@ static void simulate_op_v(struct vp1_ctx *ctx, uint32_t opcode) {
 	}
 }
 
-static void simulate_op_b(struct vp1_ctx *ctx, uint32_t opcode) {
+static void simulate_op_b(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t opcode) {
 	uint32_t op = opcode >> 24 & 0x1f;
 	uint32_t cr = 0x2000;
 	uint32_t cond = opcode & 7;
@@ -715,7 +830,7 @@ static void simulate_op_b(struct vp1_ctx *ctx, uint32_t opcode) {
 		case 0x03:
 		case 0x05:
 		case 0x07:
-			val = ctx->b[opcode >> 3 & 3];
+			val = octx->b[opcode >> 3 & 3];
 			if (val & 0xff) {
 				val -= 1;
 			} else {
@@ -778,34 +893,29 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			op_a == 0x00 || /* vector load + autoincr */
 			op_a == 0x01 || /* vector load + autoincr */
 			op_a == 0x02 || /* scalar load + autoincr */
-			op_a == 0x03 ||
-			op_a == 0x04 ||
-			op_a == 0x05 ||
-			op_a == 0x06 ||
-			op_a == 0x07 || /* fuckup */
+			op_a == 0x03 || /* [xdld] */
+			op_a == 0x04 || /* [store] */
+			op_a == 0x05 || /* [store] */
+			op_a == 0x06 || /* [store] */
+			op_a == 0x07 || /* [xdst] fuckup */
 			op_a == 0x08 || /* vector load + autoincr */
 			op_a == 0x09 ||
-			op_a == 0x0a ||
-			op_a == 0x0b ||
-			op_a == 0x0c ||
-			op_a == 0x0d ||
-			op_a == 0x0e || /* fuckup */
-			op_a == 0x0f || /* fuckup */
+			op_a == 0x0e || /* [xdbar] fuckup */
+			op_a == 0x0f || /* [xdwait] fuckup */
 			op_a == 0x10 || /* vector load + autoincr */
 			op_a == 0x11 || /* vector load + autoincr */
 			op_a == 0x12 || /* scalar load + autoincr */
-			op_a == 0x13 ||
-			op_a == 0x14 ||
-			op_a == 0x15 ||
-			op_a == 0x16 ||
+			op_a == 0x14 || /* [store] */
+			op_a == 0x15 || /* [store] */
+			op_a == 0x16 || /* [store] */
 			op_a == 0x17 || /* vector load */
 			op_a == 0x18 || /* vector load */
 			op_a == 0x19 || /* vector load */
 			op_a == 0x1a || /* scalar load */
 			op_a == 0x1b || /* fuckup */
-			op_a == 0x1c ||
-			op_a == 0x1d ||
-			op_a == 0x1e)
+			op_a == 0x1c || /* [store] */
+			op_a == 0x1d || /* [store] */
+			op_a == 0x1e) /* [store] */
 			opcode_a = 0xdf000000;
 		struct vp1_ctx octx, ectx, nctx;
 		octx.uc_cfg = jrand48(ctx->rand48) & 0x111;
@@ -866,10 +976,10 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		nva_wr32(ctx->cnum, 0xf450, opcode_v);
 		nva_wr32(ctx->cnum, 0xf454, opcode_b);
 		nva_wr32(ctx->cnum, 0xf458, 1);
-		simulate_op_a(&ectx, opcode_a);
-		simulate_op_s(ctx->chipset, &ectx, opcode_s);
-		simulate_op_v(&ectx, opcode_v);
-		simulate_op_b(&ectx, opcode_b);
+		simulate_op_a(&octx, &ectx, opcode_a);
+		simulate_op_s(&octx, &ectx, opcode_s, ctx->chipset);
+		simulate_op_v(&octx, &ectx, opcode_v);
+		simulate_op_b(&octx, &ectx, opcode_b);
 		/* XXX wait? */
 		nctx.uc_cfg = nva_rd32(ctx->cnum, 0xf540);
 		for (j = 0; j < 32; j++)
