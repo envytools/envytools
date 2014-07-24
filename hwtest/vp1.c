@@ -30,6 +30,7 @@
 #include <unistd.h>
 
 struct vp1_ctx {
+	uint32_t uc_cfg;
 	uint32_t r[31];
 	uint32_t v[32][4];
 	uint32_t c[4];
@@ -560,9 +561,9 @@ static void simulate_op_v(struct vp1_ctx *ctx, uint32_t opcode) {
 				if (op & 0x10 || n) {
 					if (opcode & 0x100) {
 						if (opcode & 0x10)
-							sres += 0x8;
+							sres += 0x7 + !(ctx->uc_cfg & 1);
 						else
-							sres += 0x800;
+							sres += 0x7ff + !(ctx->uc_cfg & 1);
 					}
 					if (op & 0x10) {
 						if (sres < 0)
@@ -582,9 +583,9 @@ static void simulate_op_v(struct vp1_ctx *ctx, uint32_t opcode) {
 				} else {
 					if (opcode & 0x100) {
 						if (opcode & 0x10)
-							sres += 0x10;
+							sres += 0xf + !(ctx->uc_cfg & 1);
 						else
-							sres += 0x1000;
+							sres += 0xfff + !(ctx->uc_cfg & 1);
 					}
 					if (sres < -0x100000)
 						sres = -0x100000;
@@ -731,6 +732,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			op_v == 0x3b)
 			opcode_v = 0xbf000000;
 		struct vp1_ctx octx, ectx, nctx;
+		octx.uc_cfg = jrand48(ctx->rand48) & 0x111;
 		for (j = 0; j < 31; j++) {
 			uint32_t val = jrand48(ctx->rand48);
 			int which = jrand48(ctx->rand48) & 0xf;
@@ -752,6 +754,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		for (j = 0; j < 4; j++)
 			octx.c[j] = nva_rd32(ctx->cnum, 0xf680 + j * 4);
 		ectx = octx;
+		nva_wr32(ctx->cnum, 0xf540, octx.uc_cfg);
 		for (j = 0; j < 31; j++) {
 			nva_wr32(ctx->cnum, 0xf780 + j * 4, octx.r[j]);
 		}
@@ -766,6 +769,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		simulate_op_s(ctx->chipset, &ectx, opcode_s);
 		simulate_op_v(&ectx, opcode_v);
 		/* XXX wait? */
+		nctx.uc_cfg = nva_rd32(ctx->cnum, 0xf540);
 		for (j = 0; j < 31; j++)
 			nctx.r[j] = nva_rd32(ctx->cnum, 0xf780 + j * 4);
 		for (j = 0; j < 32; j++)
@@ -776,8 +780,10 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		if (memcmp(&ectx, &nctx, sizeof ectx)) {
 			printf("Mismatch on try %d for insn 0x%08"PRIx32" 0x%08"PRIx32"\n", i, opcode_s, opcode_v);
 			printf("what        initial    expected   real\n");
+#define PRINT(name, x) printf(name "0x%08x 0x%08x 0x%08x%s\n", octx.x, ectx.x, nctx.x, (nctx.x != ectx.x ? " *" : ""))
 #define IPRINT(name, x) printf(name "0x%08x 0x%08x 0x%08x%s\n", j, octx.x, ectx.x, nctx.x, (nctx.x != ectx.x ? " *" : ""))
 #define IIPRINT(name, x) printf(name "0x%08x 0x%08x 0x%08x%s\n", j, k, octx.x, ectx.x, nctx.x, (nctx.x != ectx.x ? " *" : ""))
+			PRINT("UC_CFG ", uc_cfg);
 			for (j = 0; j < 32; j++) {
 				for (k = 0; k < 4; k++) {
 					IIPRINT("V[0x%02x][%d]   ", v[j][k]);
