@@ -707,6 +707,35 @@ static void simulate_op_v(struct vp1_ctx *ctx, uint32_t opcode) {
 
 static void simulate_op_b(struct vp1_ctx *ctx, uint32_t opcode) {
 	uint32_t op = opcode >> 24 & 0x1f;
+	uint32_t cr = 0x2000;
+	uint32_t cond = opcode & 7;
+	uint32_t val;
+	switch (op) {
+		case 0x01:
+		case 0x03:
+		case 0x05:
+		case 0x07:
+			val = ctx->b[opcode >> 3 & 3];
+			if (val & 0xff) {
+				val -= 1;
+			} else {
+				val |= val >> 8;
+			}
+			ctx->b[cond & 3] = val;
+			if (val & 0xff)
+				cr = 0;
+			break;
+		case 0x10:
+			cond = opcode >> 19 & 3;
+			ctx->b[cond] = opcode & 0xffff;
+			if (opcode & 0xff)
+				cr = 0;
+			break;
+	}
+	if (cond < 4 && op != 0x0f && op != 0x0a && op != 0x1f) {
+		ctx->c[cond] &= ~0x2000;
+		ctx->c[cond] |= cr;
+	}
 }
 
 static int test_isa_s(struct hwtest_ctx *ctx) {
@@ -721,7 +750,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		uint32_t op_a = opcode_a >> 24 & 0x1f;
 		uint32_t op_s = opcode_s >> 24 & 0x7f;
 		uint32_t op_v = opcode_v >> 24 & 0x3f;
-		uint32_t op_b = opcode_b >> 24 & 0x1f;
+		//uint32_t op_b = opcode_b >> 24 & 0x1f;
 		if (op_s == 0x6a || op_s == 0x6b)
 			opcode_s = 0x4f000000;
 		if (
@@ -745,10 +774,39 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			op_v == 0x37 ||
 			op_v == 0x3b)
 			opcode_v = 0xbf000000;
-		if (op_a != 0x1f)
+		if (
+			op_a == 0x00 || /* vector load + autoincr */
+			op_a == 0x01 || /* vector load + autoincr */
+			op_a == 0x02 || /* scalar load + autoincr */
+			op_a == 0x03 ||
+			op_a == 0x04 ||
+			op_a == 0x05 ||
+			op_a == 0x06 ||
+			op_a == 0x07 || /* fuckup */
+			op_a == 0x08 || /* vector load + autoincr */
+			op_a == 0x09 ||
+			op_a == 0x0a ||
+			op_a == 0x0b ||
+			op_a == 0x0c ||
+			op_a == 0x0d ||
+			op_a == 0x0e || /* fuckup */
+			op_a == 0x0f || /* fuckup */
+			op_a == 0x10 || /* vector load + autoincr */
+			op_a == 0x11 || /* vector load + autoincr */
+			op_a == 0x12 || /* scalar load + autoincr */
+			op_a == 0x13 ||
+			op_a == 0x14 ||
+			op_a == 0x15 ||
+			op_a == 0x16 ||
+			op_a == 0x17 || /* vector load */
+			op_a == 0x18 || /* vector load */
+			op_a == 0x19 || /* vector load */
+			op_a == 0x1a || /* scalar load */
+			op_a == 0x1b || /* fuckup */
+			op_a == 0x1c ||
+			op_a == 0x1d ||
+			op_a == 0x1e)
 			opcode_a = 0xdf000000;
-		if (op_b != 0x0f)
-			opcode_b = 0xef000000;
 		struct vp1_ctx octx, ectx, nctx;
 		octx.uc_cfg = jrand48(ctx->rand48) & 0x111;
 		for (j = 0; j < 32; j++) {
@@ -778,7 +836,12 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			}
 		}
 		for (j = 0; j < 32; j++) {
-			octx.b[j] = jrand48(ctx->rand48) & 0xffff;;
+			uint32_t val = jrand48(ctx->rand48) & 0xffff;;
+			int which = jrand48(ctx->rand48) & 0x7;
+			if (which < 2) {
+				val &= ~(0x7f << which * 8);
+			}
+			octx.b[j] = val;
 		}
 		for (j = 0; j < 4; j++)
 			octx.c[j] = nva_rd32(ctx->cnum, 0xf680 + j * 4);
