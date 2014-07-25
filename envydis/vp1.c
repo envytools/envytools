@@ -39,6 +39,10 @@ static struct bitfield compoff = { 3, 2 };
 static struct bitfield logopoff = { 3, 4 };
 static struct bitfield baruoff = { 3, 2 };
 static struct bitfield barwoff = { 20, 2 };
+static struct bitfield rbimmoff = { 3, 8 };
+static struct bitfield rbimmmuloff = { { 9, 5, 0, 1 }, .shr=2 };
+static struct bitfield rbimmaltoff = { 0, 8 };
+static struct bitfield shiftoff = { { 5, 3 }, BF_SIGNED };
 #define ABTARG atombtarg, &abtargoff
 #define BTARG atombtarg, &btargoff
 #define CTARG atomctarg, &btargoff
@@ -51,6 +55,10 @@ static struct bitfield barwoff = { 20, 2 };
 #define LOGOP atomimm, &logopoff
 #define BARU atomimm, &baruoff
 #define BARW atomimm, &barwoff
+#define RBIMM atomimm, &rbimmoff
+#define RBIMMMUL atomimm, &rbimmmuloff
+#define RBIMMALT atomimm, &rbimmaltoff
+#define SHIFT atomimm, &shiftoff
 
 /*
  * Register fields
@@ -116,6 +124,7 @@ static struct reg adstd_r = { &dst_bf, "a", "d" };
 static struct reg asrc1_r = { &src1_bf, "a" };
 static struct reg asrc2_r = { &src2_bf, "a" };
 static struct reg rsrc2_r = { &src2_bf, "r", .specials = rreg_sr };
+static struct reg vsrc2_r = { &src2_bf, "v" };
 static struct reg asrc1d_r = { &src1_bf, "a", "d" };
 static struct reg asrc2d_r = { &src2_bf, "a", "d" };
 static struct reg rsrc2d_r = { &src2_bf, "r", "d" };
@@ -166,6 +175,7 @@ static struct reg ldstl_r = { &cdstp_bf, "l" };
 #define ASRC1D atomreg, &asrc1d_r
 #define ASRC2 atomreg, &asrc2_r
 #define RSRC2 atomreg, &rsrc2_r
+#define VSRC2 atomreg, &vsrc2_r
 #define ASRC2D atomreg, &asrc2d_r
 #define RSRC2D atomreg, &rsrc2d_r
 #define ASRC2Q atomreg, &asrc2q_r
@@ -201,6 +211,13 @@ F(xdimm, 13, XDIMM, );
 
 F(barldsti, 19, N("st"), N("ld"));
 F(barldstr, 0, N("st"), N("ld"));
+
+F(usd, 28, N("s"), N("u"))
+F(uss1, 2, N("s"), N("u"))
+F(uss2, 1, N("s"), N("u"))
+F1(rnd, 8, N("rnd"))
+F(fi, 3, N("fract"), N("int"))
+F(hilo, 4, N("hi"), N("lo"))
 
 static struct insn tabaslctop[] = {
 	{ 0x00000000, 0x000001e0, SESTART, N("slct"), CSRCP, N("sf"), ASRC2D, SEEND },
@@ -263,6 +280,27 @@ static struct insn tabpred[] = {
 };
 
 static struct insn tabm[] = {
+	{ 0x01000000, 0xef000000, N("bmul"), T(rnd), T(usd), RDST, T(uss1), RSRC1, T(uss2), RSRC2 },
+	{ 0x02000000, 0xef000000, N("bmula"), T(rnd), T(usd), RDST, T(uss1), RSRC1, T(uss2), RSRC2 },
+	{ 0x08000000, 0xef000000, N("bmin"), T(usd), RDST, T(mcdst), RSRC1, T(slctop) },
+	{ 0x09000000, 0xef000000, N("bmax"), T(usd), RDST, T(mcdst), RSRC1, T(slctop) },
+	{ 0x0a000000, 0xef000000, N("babs"), T(usd), RDST, T(mcdst), RSRC1 },
+	{ 0x0b000000, 0xef000000, N("bneg"), T(usd), RDST, T(mcdst), RSRC1 },
+	{ 0x0c000000, 0xef000000, N("badd"), T(usd), RDST, T(mcdst), RSRC1, T(slctop) },
+	{ 0x0d000000, 0xef000000, N("bsub"), T(usd), RDST, T(mcdst), RSRC1, T(slctop) },
+	{ 0x0e000000, 0xef000000, N("bshr"), T(usd), RDST, T(mcdst), RSRC1, T(slctop) },
+	{ 0x21000000, 0xef000000, N("bmul"), T(rnd), T(usd), RDST, T(uss1), RSRC1, T(uss2), RBIMMMUL },
+	{ 0x22000000, 0xef000000, N("bmula"), T(rnd), T(usd), RDST, T(uss1), RSRC1, T(uss2), RBIMMALT },
+	{ 0x25000000, 0xff000000, N("band"), RDST, RSRC1, RBIMM },
+	{ 0x26000000, 0xff000000, N("bor"), RDST, RSRC1, RBIMM },
+	{ 0x27000000, 0xff000000, N("bxor"), RDST, RSRC1, RBIMM },
+	{ 0x28000000, 0xef000000, N("bmin"), T(usd), RDST, T(mcdst), RSRC1, RBIMM },
+	{ 0x29000000, 0xef000000, N("bmax"), T(usd), RDST, T(mcdst), RSRC1, RBIMM },
+	{ 0x2a000000, 0xef000000, N("babs"), T(usd), RDST, T(mcdst), RSRC1 },
+	{ 0x2b000000, 0xef000000, N("bneg"), T(usd), RDST, T(mcdst), RSRC1 },
+	{ 0x2c000000, 0xef000000, N("badd"), T(usd), RDST, T(mcdst), RSRC1, RBIMM },
+	{ 0x2d000000, 0xef000000, N("bsub"), T(usd), RDST, T(mcdst), RSRC1, RBIMM },
+	{ 0x2e000000, 0xef000000, N("bshr"), T(usd), RDST, T(mcdst), RSRC1, RBIMM },
 	{ 0x41000000, 0xef000000, N("mul"), RDST, T(mcdst), RSRC1, T(slctop) },
 	{ 0x42000008, 0xff000078, N("nor"), RDST, T(mcdst), RSRC1, RSRC2 },
 	{ 0x42000010, 0xff000078, N("and"), RDST, T(mcdst), N("not"), RSRC1, RSRC2 },
@@ -278,6 +316,9 @@ static struct insn tabm[] = {
 	/* what the fuck is 0x45? */
 	{ 0x48000000, 0xef000000, N("min"), RDST, T(mcdst), RSRC1, T(slctop) },
 	{ 0x49000000, 0xef000000, N("max"), RDST, T(mcdst), RSRC1, T(slctop) },
+	/* also 7a, but who can know what the official opcode is... */
+	{ 0x4a000000, 0xef000000, N("abs"), RDST, T(mcdst), RSRC1 },
+	{ 0x4b000000, 0xef000000, N("neg"), RDST, T(mcdst), RSRC1 },
 	{ 0x4c000000, 0xef000000, N("add"), RDST, T(mcdst), RSRC1, T(slctop) },
 	{ 0x4d000000, 0xef000000, N("sub"), RDST, T(mcdst), RSRC1, T(slctop) },
 	{ 0x4e000000, 0xff000000, N("sar"), RDST, T(mcdst), RSRC1, T(slctop) },
@@ -320,6 +361,25 @@ static struct insn tabm[] = {
 	{ 0x7b000000, 0xff000000, N("neg"), RDST, T(mcdst), RSRC1 },
 	{ 0x7e000000, 0xff000000, N("shr"), RDST, T(mcdst), RSRC1, IMM },
 	{ 0x60000000, 0xe0000000, OOPS, RDST, T(mcdst), RSRC1, IMM },
+	{ 0x81000000, 0xef000000, N("bmul"), T(fi), T(hilo), T(rnd), T(usd), VDST, T(uss1), VSRC1, T(uss2), VSRC2, SHIFT },
+	{ 0x88000000, 0xef000000, N("bmin"), T(usd), VDST, VSRC1, VSRC2 },
+	{ 0x89000000, 0xef000000, N("bmax"), T(usd), VDST, VSRC1, VSRC2 },
+	{ 0x8a000000, 0xef000000, N("babs"), T(usd), VDST, VSRC1 },
+	{ 0x8b000000, 0xff000000, N("bneg"), T(usd), VDST, VSRC1 },
+	{ 0x8c000000, 0xef000000, N("badd"), T(usd), VDST, VSRC1, VSRC2 },
+	{ 0x8d000000, 0xef000000, N("bsub"), T(usd), VDST, VSRC1, VSRC2 },
+	{ 0x8e000000, 0xef000000, N("bshr"), T(usd), VDST, VSRC1, VSRC2 },
+	{ 0xa1000000, 0xef000000, N("bmul"), T(fi), T(hilo), T(rnd), T(usd), VDST, T(uss1), VSRC1, T(uss2), RBIMMMUL, SHIFT },
+	{ 0xa8000000, 0xef000000, N("bmin"), T(usd), VDST, VSRC1, RBIMM },
+	{ 0xa9000000, 0xef000000, N("bmax"), T(usd), VDST, VSRC1, RBIMM },
+	{ 0xac000000, 0xef000000, N("badd"), T(usd), VDST, VSRC1, RBIMM },
+	{ 0xbd000000, 0xff000000, N("bsub"), T(usd), VDST, VSRC1, RBIMM },
+	{ 0xae000000, 0xef000000, N("bshr"), T(usd), VDST, VSRC1, RBIMM },
+	{ 0xaa000000, 0xff000000, N("band"), VDST, VSRC1, RBIMM },
+	{ 0xab000000, 0xff000000, N("bxor"), VDST, VSRC1, RBIMM },
+	{ 0xaf000000, 0xff000000, N("bor"), VDST, VSRC1, RBIMM },
+	{ 0xba000000, 0xff000000, N("mov"), VDST, VSRC1 },
+	{ 0xad000000, 0xff000000, N("bmov"), VDST, RBIMM },
 	{ 0xbf000000, 0xff000000, N("vnop"), IGNALL },
 	{ 0xc00001c0, 0xff0001f8, N("ld"), VDST, MEMSR, T(mcdst) },
 	{ 0xc10001c0, 0xff0001f8, N("ld"), VDST, N("vert"), MEMSR, T(mcdst) },
