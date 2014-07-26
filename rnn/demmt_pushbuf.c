@@ -195,6 +195,7 @@ static void decode_method(struct pushbuf_decode_state *state, uint32_t data, cha
 /* returns 0 when decoding should continue, anything else: next command gpu address */
 uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *output, int *mthd, int safe)
 {
+	state->mthd_data_available = 0;
 	if (mthd)
 		*mthd = -1;
 	if (state->skip)
@@ -227,6 +228,8 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 				state->incr = state->size;
 			else if (mode == 4)
 			{
+				state->mthd_data_available = 1;
+				state->mthd_data = state->size;
 				decode_method(state, state->size, output);
 				state->size = 0;
 				if (mthd)
@@ -361,6 +364,9 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 	}
 	else
 	{
+		state->mthd_data_available = 1;
+		state->mthd_data = data;
+
 		if (state->addr == 0)
 		{
 			if (subchans[state->subchan] == NULL)
@@ -435,13 +441,13 @@ uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct buffer *buffe
 		fprintf(stdout, "PB: 0x%08x %s", cmd, cmdoutput);
 
 		struct obj *obj = subchans[pstate->subchan];
-		if (decode_object_state && obj && obj->decoder && obj->decoder->decode_terse)
-			obj->decoder->decode_terse(pstate, mthd, cmd);
+		if (decode_object_state && pstate->mthd_data_available && obj && obj->decoder && obj->decoder->decode_terse)
+			obj->decoder->decode_terse(pstate, mthd, pstate->mthd_data);
 
 		fprintf(stdout, "\n");
 
-		if (decode_object_state && obj && obj->decoder && obj->decoder->decode_verbose)
-			obj->decoder->decode_verbose(pstate, mthd, cmd);
+		if (decode_object_state && pstate->mthd_data_available && obj && obj->decoder && obj->decoder->decode_verbose)
+			obj->decoder->decode_verbose(pstate, mthd, pstate->mthd_data);
 
 		cur += 4;
 	}

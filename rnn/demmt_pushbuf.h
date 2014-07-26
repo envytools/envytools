@@ -13,6 +13,8 @@ struct pushbuf_decode_state
 	int pushbuf_invalid;
 	int next_command_offset;
 	int long_command;
+	int mthd_data_available;
+	uint32_t mthd_data;
 };
 
 struct ib_decode_state
