@@ -117,8 +117,11 @@ static struct
 	struct addr_n_buf offset_out;
 } nv50_m2mf;
 
-static void decode_nv50_m2mf_terse(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+static void decode_nv50_m2mf_terse(struct pushbuf_decode_state *pstate)
 {
+	int mthd = pstate->mthd;
+	uint32_t data = pstate->mthd_data;
+
 	if (mthd == 0x0238) // OFFSET_IN_HIGH
 		anb_set_high(&nv50_m2mf.offset_in, data);
 	else if (mthd == 0x030c) // OFFSET_IN_LOW
@@ -191,8 +194,11 @@ static void nv50_3d_disassemble(struct buffer *buf, const char *mode, uint32_t s
 	}
 }
 
-static void decode_nv50_3d_terse(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+static void decode_nv50_3d_terse(struct pushbuf_decode_state *pstate)
 {
+	int mthd = pstate->mthd;
+	uint32_t data = pstate->mthd_data;
+
 	if (mthd == 0x0f7c) // VP_ADDRESS_HIGH
 		anb_set_high(&nv50_3d.vp, data);
 	else if (mthd == 0x0f80) // VP_ADDRESS_LOW
@@ -248,8 +254,11 @@ static void decode_nv50_3d_terse(struct pushbuf_decode_state *pstate, int mthd, 
 	}
 }
 
-static void decode_nv50_3d_verbose(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+static void decode_nv50_3d_verbose(struct pushbuf_decode_state *pstate)
 {
+	int mthd = pstate->mthd;
+	uint32_t data = pstate->mthd_data;
+
 	if (mthd == 0x0f80) // VP_ADDRESS_LOW
 		mmt_debug("buffer found: %d\n", nv50_3d.vp.buffer ? 1 : 0);
 	else if (mthd == 0x0fa8) // FP_ADDRESS_LOW
@@ -307,8 +316,11 @@ static struct
 	int data_offset;
 } nv50_2d;
 
-static void decode_nv50_2d_terse(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+static void decode_nv50_2d_terse(struct pushbuf_decode_state *pstate)
 {
+	int mthd = pstate->mthd;
+	uint32_t data = pstate->mthd_data;
+
 	if (mthd == 0x0220) // DST_ADDRESS_HIGH
 		anb_set_high(&nv50_2d.dst, data);
 	else if (mthd == 0x0224) // DST_ADDRESS_LOW
@@ -325,8 +337,11 @@ static void decode_nv50_2d_terse(struct pushbuf_decode_state *pstate, int mthd, 
 		anb_set_low(&nv50_2d.src, data);
 }
 
-static void decode_nv50_2d_verbose(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+static void decode_nv50_2d_verbose(struct pushbuf_decode_state *pstate)
 {
+	int mthd = pstate->mthd;
+	uint32_t data = pstate->mthd_data;
+
 	if (mthd == 0x0224) // DST_ADDRESS_LOW
 		mmt_debug("buffer found: %d\n", nv50_2d.dst.buffer ? 1 : 0);
 	else if (mthd == 0x0204) // DST_LINEAR
@@ -425,8 +440,11 @@ static struct rnndomain *nvc0_p_header_domain(int program)
 		return NULL;
 }
 
-static void decode_nvc0_3d_terse(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+static void decode_nvc0_3d_terse(struct pushbuf_decode_state *pstate)
 {
+	int mthd = pstate->mthd;
+	uint32_t data = pstate->mthd_data;
+
 	if (mthd == 0x1608) // CODE_ADDRESS_HIGH
 		anb_set_high(&nvc0_3d.code, data);
 	else if (mthd == 0x160c) // CODE_ADDRESS_LOW
@@ -498,8 +516,11 @@ static void decode_nvc0_3d_terse(struct pushbuf_decode_state *pstate, int mthd, 
 	}
 }
 
-static void decode_nvc0_3d_verbose(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+static void decode_nvc0_3d_verbose(struct pushbuf_decode_state *pstate)
 {
+	int mthd = pstate->mthd;
+	uint32_t data = pstate->mthd_data;
+
 	if (mthd == 0x160c) // CODE_ADDRESS_LOW
 		mmt_debug("buffer found: %d\n", nvc0_3d.code.buffer ? 1 : 0);
 	else if (nvc0_3d.code.buffer && mthd >= 0x2000 && mthd < 0x2000 + 0x40 * 6) // SP
@@ -631,8 +652,11 @@ static struct
 	struct addr_n_buf dst;
 } nvc0_2d;
 
-static void decode_nvc0_2d_terse(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+static void decode_nvc0_2d_terse(struct pushbuf_decode_state *pstate)
 {
+	int mthd = pstate->mthd;
+	uint32_t data = pstate->mthd_data;
+
 	if (decode_nv01_graph_terse(pstate, mthd, data, &nvc0_2d.graph))
 	{ }
 	else if (mthd == 0x0250) // SRC_ADDRESS_HIGH
@@ -653,8 +677,11 @@ static struct
 	int data_offset;
 } nvc0_m2mf;
 
-static void decode_nvc0_m2mf_terse(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+static void decode_nvc0_m2mf_terse(struct pushbuf_decode_state *pstate)
 {
+	int mthd = pstate->mthd;
+	uint32_t data = pstate->mthd_data;
+
 	if (mthd == 0x0238) // OFFSET_OUT_HIGH
 		anb_set_high(&nvc0_m2mf.offset_out, data);
 	else if (mthd == 0x023c) // OFFSET_OUT_LOW
@@ -674,8 +701,11 @@ static void decode_nvc0_m2mf_terse(struct pushbuf_decode_state *pstate, int mthd
 		anb_set_low(&nvc0_m2mf.query, data);
 }
 
-static void decode_nvc0_m2mf_verbose(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+static void decode_nvc0_m2mf_verbose(struct pushbuf_decode_state *pstate)
 {
+	int mthd = pstate->mthd;
+	uint32_t data = pstate->mthd_data;
+
 	if (mthd == 0x023c) // OFFSET_OUT_LOW
 		mmt_debug("buffer found: %d\n", nvc0_m2mf.offset_out.buffer ? 1 : 0);
 	else if (mthd == 0x0300) // EXEC
@@ -706,8 +736,11 @@ static struct
 	int data_offset;
 } nve0_p2mf;
 
-static void decode_nve0_p2mf_terse(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+static void decode_nve0_p2mf_terse(struct pushbuf_decode_state *pstate)
 {
+	int mthd = pstate->mthd;
+	uint32_t data = pstate->mthd_data;
+
 	if (mthd == 0x0188) // UPLOAD.DST_ADDRESS_HIGH
 		anb_set_high(&nve0_p2mf.upload_dst, data);
 	else if (mthd == 0x018c) // UPLOAD.DST_ADDRESS_LOW
@@ -719,8 +752,11 @@ static void decode_nve0_p2mf_terse(struct pushbuf_decode_state *pstate, int mthd
 	}
 }
 
-static void decode_nve0_p2mf_verbose(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+static void decode_nve0_p2mf_verbose(struct pushbuf_decode_state *pstate)
 {
+	int mthd = pstate->mthd;
+	uint32_t data = pstate->mthd_data;
+
 	if (mthd == 0x018c) // UPLOAD.DST_ADDRESS_LOW
 		mmt_debug("buffer found: %d\n", nve0_p2mf.upload_dst.buffer ? 1 : 0);
 	else if (mthd == 0x01b0) // UPLOAD.EXEC
@@ -752,8 +788,11 @@ static struct
 	struct addr_n_buf query;
 } nve0_copy;
 
-static void decode_nve0_copy_terse(struct pushbuf_decode_state *pstate, int mthd, uint32_t data)
+static void decode_nve0_copy_terse(struct pushbuf_decode_state *pstate)
 {
+	int mthd = pstate->mthd;
+	uint32_t data = pstate->mthd_data;
+
 	if (mthd == 0x0400) // SRC_ADDRESS_HIGH
 		anb_set_high(&nve0_copy.src, data);
 	else if (mthd == 0x0404) // SRC_ADDRESS_LOW

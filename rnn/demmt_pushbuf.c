@@ -41,7 +41,7 @@ void pushbuf_decode_start(struct pushbuf_decode_state *state)
 #define ADDR_CACHE_SIZE 400
 struct cache_entry
 {
-	int addr;
+	int mthd;
 	struct rnndecaddrinfo *info;
 	struct cache_entry *next;
 };
@@ -121,7 +121,7 @@ static struct obj *get_object(uint32_t handle)
 	return NULL;
 }
 
-static void decode_header(struct pushbuf_decode_state *state, uint32_t data, char *output)
+static void decode_header(struct pushbuf_decode_state *state, char *output)
 {
 	struct obj *obj = subchans[state->subchan];
 
@@ -135,14 +135,14 @@ static void decode_header(struct pushbuf_decode_state *state, uint32_t data, cha
 			    (state->incr ? "increment" : "constant"));
 }
 
-static void decode_method(struct pushbuf_decode_state *state, uint32_t data, char *output)
+static void decode_method(struct pushbuf_decode_state *state, char *output)
 {
 	struct obj *obj = subchans[state->subchan];
-	int addr = state->addr;
+	int mthd = state->mthd;
 	char *dec_obj = NULL;
-	char *dec_addr = NULL;
+	char *dec_mthd = NULL;
 	char *dec_val = NULL;
-	int free_dec_addr = 0;
+	int free_dec_mthd = 0;
 
 	/* get an object name */
 	if (obj && obj->name)
@@ -154,50 +154,50 @@ static void decode_method(struct pushbuf_decode_state *state, uint32_t data, cha
 	if (obj)
 	{
 		struct rnndecaddrinfo *ai;
-		int bucket = (addr * (addr + 3)) % ADDR_CACHE_SIZE;
+		int bucket = (mthd * (mthd + 3)) % ADDR_CACHE_SIZE;
 		struct cache_entry *entry = obj->cache[bucket];
-		while (entry && entry->addr != addr)
+		while (entry && entry->mthd != mthd)
 			entry = entry->next;
 		if (entry)
 			ai = entry->info;
 		else
 		{
 			entry = malloc(sizeof(struct cache_entry));
-			entry->addr = addr;
-			entry->info = ai = rnndec_decodeaddr(obj->ctx, domain, addr, 1);
+			entry->mthd = mthd;
+			entry->info = ai = rnndec_decodeaddr(obj->ctx, domain, mthd, 1);
 			entry->next = obj->cache[bucket];
 			obj->cache[bucket] = entry;
 		}
 
-		dec_addr = ai->name;
-		dec_val = rnndec_decodeval(obj->ctx, ai->typeinfo, data, ai->width);
+		dec_mthd = ai->name;
+		dec_val = rnndec_decodeval(obj->ctx, ai->typeinfo, state->mthd_data, ai->width);
 	}
 	else
 	{
-		asprintf(&dec_addr, "%s0x%x%s", colors->err, addr, colors->reset);
-		free_dec_addr = 1;
+		asprintf(&dec_mthd, "%s0x%x%s", colors->err, mthd, colors->reset);
+		free_dec_mthd = 1;
 	}
 
 	/* write it */
-	if (addr == 0)
+	if (mthd == 0)
 		sprintf(output, "  %s mapped to subchannel %d", dec_obj, state->subchan);
 	else if (dec_val)
-		sprintf(output, "  %s.%s = %s", dec_obj, dec_addr, dec_val);
+		sprintf(output, "  %s.%s = %s", dec_obj, dec_mthd, dec_val);
 	else
-		sprintf(output, "  %s.%s", dec_obj, dec_addr);
+		sprintf(output, "  %s.%s", dec_obj, dec_mthd);
 
-	if (free_dec_addr)
-		free(dec_addr);
+	if (free_dec_mthd)
+		free(dec_mthd);
 	free(dec_val);
 	free(dec_obj);
 }
 
 /* returns 0 when decoding should continue, anything else: next command gpu address */
-uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *output, int *mthd, int safe)
+uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *output, int safe)
 {
+	state->mthd = -1;
 	state->mthd_data_available = 0;
-	if (mthd)
-		*mthd = -1;
+
 	if (state->skip)
 	{
 		strcpy(output, "SKIP");
@@ -228,12 +228,11 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 				state->incr = state->size;
 			else if (mode == 4)
 			{
+				state->mthd = state->addr;
 				state->mthd_data_available = 1;
 				state->mthd_data = state->size;
-				decode_method(state, state->size, output);
+				decode_method(state, output);
 				state->size = 0;
-				if (mthd)
-					*mthd = state->addr;
 				return 0;
 			}
 			else if (mode == 0)
@@ -355,7 +354,8 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 			}
 		}
 
-		decode_header(state, data, output);
+		state->mthd = state->addr;
+		decode_header(state, output);
 		if (guess_invalid_pushbuf && subchans[state->subchan] == NULL && state->addr != 0 && state->pushbuf_invalid == 0)
 		{
 			mmt_log("subchannel %d does not have bound object and first command does not bind it, marking this buffer invalid\n", state->subchan);
@@ -364,6 +364,7 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 	}
 	else
 	{
+		state->mthd = state->addr;
 		state->mthd_data_available = 1;
 		state->mthd_data = data;
 
@@ -394,9 +395,7 @@ uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char 
 			}
 		}
 
-		decode_method(state, data, output);
-		if (mthd)
-			*mthd = state->addr;
+		decode_method(state, output);
 
 		if (state->incr)
 		{
@@ -431,8 +430,7 @@ uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct buffer *buffe
 	while (cur < end)
 	{
 		uint32_t cmd = *(uint32_t *)&buffer->data[cur];
-		int mthd;
-		nextaddr = pushbuf_decode(pstate, cmd, cmdoutput, &mthd, 1);
+		nextaddr = pushbuf_decode(pstate, cmd, cmdoutput, 1);
 		if (nextaddr)
 		{
 			mmt_log("decoding aborted, cmd: \"%s\", nextaddr: 0x%08lx\n", cmdoutput, nextaddr);
@@ -442,12 +440,12 @@ uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct buffer *buffe
 
 		struct obj *obj = subchans[pstate->subchan];
 		if (decode_object_state && pstate->mthd_data_available && obj && obj->decoder && obj->decoder->decode_terse)
-			obj->decoder->decode_terse(pstate, mthd, pstate->mthd_data);
+			obj->decoder->decode_terse(pstate);
 
 		fprintf(stdout, "\n");
 
 		if (decode_object_state && pstate->mthd_data_available && obj && obj->decoder && obj->decoder->decode_verbose)
-			obj->decoder->decode_verbose(pstate, mthd, pstate->mthd_data);
+			obj->decoder->decode_verbose(pstate);
 
 		cur += 4;
 	}

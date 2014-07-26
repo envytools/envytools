@@ -262,7 +262,7 @@ static void dump_writes(struct buffer *buf)
 					if (!force_pushbuf_decoding)
 						pushbuf_desc[0] = 0;
 					else if (state->pushbuf_invalid == 0 || decode_invalid_buffers)
-						pushbuf_decode(state, *(uint32_t *)(data + addr), pushbuf_desc, NULL, 0);
+						pushbuf_decode(state, *(uint32_t *)(data + addr), pushbuf_desc, 0);
 					else
 						pushbuf_desc[0] = 0;
 

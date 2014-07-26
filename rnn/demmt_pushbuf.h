@@ -13,6 +13,7 @@ struct pushbuf_decode_state
 	int pushbuf_invalid;
 	int next_command_offset;
 	int long_command;
+	int mthd;
 	int mthd_data_available;
 	uint32_t mthd_data;
 };
@@ -41,7 +42,7 @@ struct user_decode_state
 void pushbuf_add_object(uint32_t handle, uint32_t class);
 
 void pushbuf_decode_start(struct pushbuf_decode_state *state);
-uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *output, int *addr, int safe);
+uint64_t pushbuf_decode(struct pushbuf_decode_state *state, uint32_t data, char *output, int safe);
 void pushbuf_decode_end(struct pushbuf_decode_state *state);
 
 uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct buffer *buffer, uint64_t gpu_address, int commands);

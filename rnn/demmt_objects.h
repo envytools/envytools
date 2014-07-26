@@ -8,9 +8,9 @@ struct gpu_object_decoder
 {
 	uint32_t class_;
 	// do not use newlines or any logging macros (mmt_debug, mmt_log, etc); always called first
-	void (*decode_terse)(struct pushbuf_decode_state *, int, uint32_t);
+	void (*decode_terse)(struct pushbuf_decode_state *);
 	// do whatever you like to do
-	void (*decode_verbose)(struct pushbuf_decode_state *, int, uint32_t);
+	void (*decode_verbose)(struct pushbuf_decode_state *);
 };
 
 const struct gpu_object_decoder *demmt_get_decoder(uint32_t class_);
