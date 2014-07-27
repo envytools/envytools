@@ -2,6 +2,30 @@
 #define DEMMT_PUSHBUF_H
 
 #include <stdint.h>
+#include "rnndec.h"
+
+#define ADDR_CACHE_SIZE 400
+struct cache_entry
+{
+	int mthd;
+	struct rnndecaddrinfo *info;
+	struct cache_entry *next;
+};
+
+#define OBJECT_SIZE (0x8000 * 4)
+
+struct obj
+{
+	uint32_t handle;
+	uint32_t class;
+	char *name;
+	struct rnndeccontext *ctx;
+	const struct gpu_object_decoder *decoder;
+	struct cache_entry *cache[ADDR_CACHE_SIZE];
+	struct buffer *data;
+};
+
+extern struct obj *subchans[8];
 
 struct pushbuf_decode_state
 {
@@ -55,4 +79,6 @@ void user_decode_start(struct user_decode_state *state);
 void user_decode(struct user_decode_state *state, uint32_t addr, uint32_t data, char *output);
 void user_decode_end(struct user_decode_state *state);
 
+void decode_method_raw(int mthd, uint32_t data, struct obj *obj, char *dec_obj,
+		char *dec_mthd, char *dec_val);
 #endif

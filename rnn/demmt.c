@@ -33,6 +33,7 @@
 #include "mmt_bin_decode_nvidia.h"
 #include "demmt.h"
 #include "demmt_drm.h"
+#include "demmt_macro.h"
 #include "demmt_objects.h"
 #include "demmt_pushbuf.h"
 #include "rnndec.h"
@@ -1249,6 +1250,7 @@ static void usage()
 			"  -a\t\tdisable decoding of object state (shader disassembly, TSCs, TICs, etc)\n"
 			"  -t\t\tdeindent logs\n"
 			"  -x\t\tforce pushbuf decoding even without pushbuf pointer\n"
+			"  -r\t\tenable verbose macro interpreter\n"
 			"\n"
 			"  -s\t\tdo not \"compress\" obvious buffer clears\n"
 			"  -i\t\tdo not guess invalid pushbufs\n"
@@ -1318,6 +1320,8 @@ int main(int argc, char *argv[])
 			indent_logs = 0;
 		else if (!strcmp(argv[i], "-x"))
 			force_pushbuf_decoding = 1;
+		else if (!strcmp(argv[i], "-r"))
+			macro_verbose = 1;
 		else
 			usage();
 	}

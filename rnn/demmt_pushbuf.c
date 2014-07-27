@@ -38,25 +38,7 @@ void pushbuf_decode_start(struct pushbuf_decode_state *state)
 	memset(state, 0, sizeof(*state));
 }
 
-#define ADDR_CACHE_SIZE 400
-struct cache_entry
-{
-	int mthd;
-	struct rnndecaddrinfo *info;
-	struct cache_entry *next;
-};
-
-struct obj
-{
-	uint32_t handle;
-	uint32_t class;
-	char *name;
-	struct rnndeccontext *ctx;
-	const struct gpu_object_decoder *decoder;
-	struct cache_entry *cache[ADDR_CACHE_SIZE];
-};
-
-static struct obj *subchans[8] = { NULL };
+struct obj *subchans[8] = { NULL };
 #define MAX_OBJECTS 256
 static struct obj objects[MAX_OBJECTS];
 
@@ -135,24 +117,19 @@ static void decode_header(struct pushbuf_decode_state *state, char *output)
 			    (state->incr ? "increment" : "constant"));
 }
 
-static void decode_method(struct pushbuf_decode_state *state, char *output)
+void decode_method_raw(int mthd, uint32_t data, struct obj *obj, char *dec_obj,
+		char *dec_mthd, char *dec_val)
 {
-	struct obj *obj = subchans[state->subchan];
-	int mthd = state->mthd;
-	char *dec_obj = NULL;
-	char *dec_mthd = NULL;
-	char *dec_val = NULL;
-	int free_dec_mthd = 0;
-
 	/* get an object name */
 	if (obj && obj->name)
-		asprintf(&dec_obj, "%s%s%s", colors->rname, obj->name, colors->reset);
+		sprintf(dec_obj, "%s%s%s", colors->rname, obj->name, colors->reset);
 	else
-		asprintf(&dec_obj, "%sOBJ%X%s", colors->err, obj ? obj->class : 0, colors->reset);
+		sprintf(dec_obj, "%sOBJ%X%s", colors->err, obj ? obj->class : 0, colors->reset);
 
 	/* get the method name and value */
 	if (obj)
 	{
+		char *tmp;
 		struct rnndecaddrinfo *ai;
 		int bucket = (mthd * (mthd + 3)) % ADDR_CACHE_SIZE;
 		struct cache_entry *entry = obj->cache[bucket];
@@ -169,27 +146,34 @@ static void decode_method(struct pushbuf_decode_state *state, char *output)
 			obj->cache[bucket] = entry;
 		}
 
-		dec_mthd = ai->name;
-		dec_val = rnndec_decodeval(obj->ctx, ai->typeinfo, state->mthd_data, ai->width);
+		strcpy(dec_mthd,  ai->name);
+		tmp = rnndec_decodeval(obj->ctx, ai->typeinfo, data, ai->width);
+		if (tmp)
+		{
+			strcpy(dec_val, tmp);
+			free(tmp);
+		}
+		else
+			sprintf(dec_val, "%s0x%x%s", colors->err, data, colors->reset);
 	}
 	else
 	{
-		asprintf(&dec_mthd, "%s0x%x%s", colors->err, mthd, colors->reset);
-		free_dec_mthd = 1;
+		sprintf(dec_mthd, "%s0x%x%s", colors->err, mthd, colors->reset);
+		sprintf(dec_val, "%s0x%x%s", colors->err, data, colors->reset);
 	}
+}
 
-	/* write it */
-	if (mthd == 0)
+static void decode_method(struct pushbuf_decode_state *state, char *output)
+{
+	struct obj *obj = subchans[state->subchan];
+	static char dec_obj[1000], dec_mthd[1000], dec_val[1000];
+
+	decode_method_raw(state->mthd, state->mthd_data, obj, dec_obj, dec_mthd, dec_val);
+
+	if (state->mthd == 0)
 		sprintf(output, "  %s mapped to subchannel %d", dec_obj, state->subchan);
-	else if (dec_val)
-		sprintf(output, "  %s.%s = %s", dec_obj, dec_mthd, dec_val);
 	else
-		sprintf(output, "  %s.%s", dec_obj, dec_mthd);
-
-	if (free_dec_mthd)
-		free(dec_mthd);
-	free(dec_val);
-	free(dec_obj);
+		sprintf(output, "  %s.%s = %s", dec_obj, dec_mthd, dec_val);
 }
 
 /* returns 0 when decoding should continue, anything else: next command gpu address */
@@ -439,8 +423,28 @@ uint64_t pushbuf_print(struct pushbuf_decode_state *pstate, struct buffer *buffe
 		fprintf(stdout, "PB: 0x%08x %s", cmd, cmdoutput);
 
 		struct obj *obj = subchans[pstate->subchan];
-		if (decode_object_state && pstate->mthd_data_available && obj && obj->decoder && obj->decoder->decode_terse)
-			obj->decoder->decode_terse(pstate);
+
+		if (obj)
+		{
+			if (obj->data == NULL)
+			{
+				obj->data = calloc(1, sizeof(struct buffer));
+				obj->data->id = -1;
+				obj->data->length = OBJECT_SIZE;
+				obj->data->data = calloc(obj->data->length, 1);
+			}
+
+			if (pstate->mthd_data_available)
+			{
+				if (pstate->mthd < OBJECT_SIZE)
+					buffer_register_write(obj->data, pstate->mthd, 4, &pstate->mthd_data);
+				else
+					mmt_log("not enough space for object data 0x%x\n", pstate->mthd);
+
+				if (decode_object_state && obj->decoder && obj->decoder->decode_terse)
+					obj->decoder->decode_terse(pstate);
+			}
+		}
 
 		fprintf(stdout, "\n");
 

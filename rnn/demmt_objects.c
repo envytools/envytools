@@ -24,6 +24,7 @@
 
 #include "demmt.h"
 #include "demmt_objects.h"
+#include "demmt_macro.h"
 #include "dis.h"
 #include "rnndec.h"
 #include <stdlib.h>
@@ -383,16 +384,12 @@ static int decode_nv01_graph_terse(struct pushbuf_decode_state *pstate, int mthd
 }
 
 static const struct disisa *isa_nvc0 = NULL;
-static const struct disisa *isa_macro = NULL;
 
 static struct
 {
+	struct macro_state macro;
+
 	struct addr_n_buf code;
-
-	struct buffer *macro_buffer;
-	int last_macro_code_pos;
-	int cur_macro_code_pos;
-
 	struct addr_n_buf tsc;
 	struct addr_n_buf tic;
 	struct addr_n_buf query;
@@ -575,41 +572,6 @@ static void decode_nvc0_3d_verbose(struct pushbuf_decode_state *pstate)
 			break;
 		}
 	}
-	else if (mthd == 0x0114) // GRAPH.MACRO_CODE_POS
-	{
-		struct buffer *buf = nvc0_3d.macro_buffer;
-		if (buf == NULL)
-		{
-			nvc0_3d.macro_buffer = buf = calloc(1, sizeof(struct buffer));
-			buf->id = -1;
-			buf->length = 0x2000;
-			buf->data = calloc(buf->length, 1);
-		}
-		nvc0_3d.last_macro_code_pos = data * 4;
-		nvc0_3d.cur_macro_code_pos = data * 4;
-	}
-	else if (mthd == 0x0118) // GRAPH.MACRO_CODE_DATA
-	{
-		struct buffer *buf = nvc0_3d.macro_buffer;
-		if (nvc0_3d.cur_macro_code_pos >= buf->length)
-			mmt_log("not enough space for more macro code, truncating%s\n", "");
-		else
-		{
-			buffer_register_write(buf, nvc0_3d.cur_macro_code_pos, 4, &data);
-			nvc0_3d.cur_macro_code_pos += 4;
-			if (pstate->size == 0)
-			{
-				if (!isa_macro)
-					isa_macro = ed_getisa("macro");
-				struct varinfo *var = varinfo_new(isa_macro->vardata);
-
-				envydis(isa_macro, stdout, buf->data + nvc0_3d.last_macro_code_pos, 0,
-						(nvc0_3d.cur_macro_code_pos - nvc0_3d.last_macro_code_pos) / 4,
-						var, 0, NULL, 0, colors);
-				varinfo_del(var);
-			}
-		}
-	}
 	else if (mthd == 0x1560) // TSC_ADDRESS_LOW
 		mmt_debug("buffer found: %d\n", nvc0_3d.tsc.buffer ? 1 : 0);
 	else if (mthd == 0x1578) // TIC_ADDRESS_LOW
@@ -643,6 +605,8 @@ static void decode_nvc0_3d_verbose(struct pushbuf_decode_state *pstate)
 			}
 		}
 	}
+	else if (decode_macro(pstate, &nvc0_3d.macro))
+	{ }
 }
 
 static struct
