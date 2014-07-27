@@ -145,6 +145,8 @@ static struct
 	struct addr_n_buf cb_def;
 	struct addr_n_buf vertex_runout;
 	struct addr_n_buf rt[8];
+	struct addr_n_buf vertex_array_start[16];
+	struct addr_n_buf vertex_array_limit[16];
 } nv50_3d;
 
 static const struct disisa *isa_nv50 = NULL;
@@ -249,6 +251,40 @@ static void decode_nv50_3d_terse(struct pushbuf_decode_state *pstate)
 			else if (mthd == 0x0204 + i * 32) // RT[i]_ADDRESS_LOW
 			{
 				anb_set_low(&nv50_3d.rt[i], data);
+				break;
+			}
+		}
+	}
+	else if (mthd >= 0x0904 && mthd < 0x0904 + 16 * 16)
+	{
+		int i;
+		for (i = 0; i < 16; ++i)
+		{
+			if (mthd == 0x0904 + i * 16) // VERTEX_ARRAY_START_HIGH[i]
+			{
+				anb_set_high(&nv50_3d.vertex_array_start[i], data);
+				break;
+			}
+			else if (mthd == 0x0908 + i * 16) // VERTEX_ARRAY_START_LOW[i]
+			{
+				anb_set_low(&nv50_3d.vertex_array_start[i], data);
+				break;
+			}
+		}
+	}
+	else if (mthd >= 0x1080 && mthd < 0x1080 + 16 * 8)
+	{
+		int i;
+		for (i = 0; i < 16; ++i)
+		{
+			if (mthd == 0x1080 + i * 8) // VERTEX_ARRAY_LIMIT_HIGH[i]
+			{
+				anb_set_high(&nv50_3d.vertex_array_limit[i], data);
+				break;
+			}
+			else if (mthd == 0x1084 + i * 8) // VERTEX_ARRAY_LIMIT_LOW[i]
+			{
+				anb_set_low(&nv50_3d.vertex_array_limit[i], data);
 				break;
 			}
 		}
@@ -402,6 +438,10 @@ static struct
 	struct addr_n_buf rt[8];
 	struct addr_n_buf index_array_start;
 	struct addr_n_buf index_array_limit;
+	struct addr_n_buf cb;
+	struct addr_n_buf vertex_array_start[32];
+	struct addr_n_buf vertex_array_limit[32];
+	struct addr_n_buf image[8];
 
 	struct nv01_graph graph;
 	struct nv01_subchan subchan;
@@ -490,6 +530,10 @@ static void decode_nvc0_3d_terse(struct pushbuf_decode_state *pstate)
 		anb_set_high(&nvc0_3d.index_array_limit, data);
 	else if (mthd == 0x17d4) // INDEX_ARRAY_LIMIT_LOW
 		anb_set_low(&nvc0_3d.index_array_limit, data);
+	else if (mthd == 0x2384) // CB_ADDRESS_HIGH
+		anb_set_high(&nvc0_3d.cb, data);
+	else if (mthd == 0x2388) // CB_ADDRESS_LOW
+		anb_set_low(&nvc0_3d.cb, data);
 	else if (decode_nv01_subchan_terse(pstate, mthd, data, &nvc0_3d.subchan))
 	{ }
 	else if (decode_nv01_graph_terse(pstate, mthd, data, &nvc0_3d.graph))
@@ -507,6 +551,57 @@ static void decode_nvc0_3d_terse(struct pushbuf_decode_state *pstate)
 			else if (mthd == 0x0804 + i * 64) // RT[i]_ADDRESS_LOW
 			{
 				anb_set_low(&nvc0_3d.rt[i], data);
+				break;
+			}
+		}
+	}
+	else if (mthd >= 0x1c04 && mthd < 0x1c04 + 32 * 16)
+	{
+		int i;
+		for (i = 0; i < 32; ++i)
+		{
+			if (mthd == 0x1c04 + i * 16) // VERTEX_ARRAY_START_HIGH[i]
+			{
+				anb_set_high(&nvc0_3d.vertex_array_start[i], data);
+				break;
+			}
+			else if (mthd == 0x1c08 + i * 16) // VERTEX_ARRAY_START_LOW[i]
+			{
+				anb_set_low(&nvc0_3d.vertex_array_start[i], data);
+				break;
+			}
+		}
+	}
+	else if (mthd >= 0x1f00 && mthd < 0x1f00 + 32 * 8)
+	{
+		int i;
+		for (i = 0; i < 32; ++i)
+		{
+			if (mthd == 0x1f00 + i * 8) // VERTEX_ARRAY_LIMIT_HIGH[i]
+			{
+				anb_set_high(&nvc0_3d.vertex_array_limit[i], data);
+				break;
+			}
+			else if (mthd == 0x1f04 + i * 8) // VERTEX_ARRAY_LIMIT_LOW[i]
+			{
+				anb_set_low(&nvc0_3d.vertex_array_limit[i], data);
+				break;
+			}
+		}
+	}
+	else if (chipset < 0xe0 && mthd >= 0x2700 && mthd < 0x2700 + 8 * 0x20)
+	{
+		int i;
+		for (i = 0; i < 8; ++i)
+		{
+			if (mthd == 0x2700 + i * 0x20) // IMAGE.ADDRESS_HIGH[i]
+			{
+				anb_set_high(&nvc0_3d.image[i], data);
+				break;
+			}
+			else if (mthd == 0x2704 + i * 0x20) // IMAGE.ADDRESS_LOW[i]
+			{
+				anb_set_low(&nvc0_3d.image[i], data);
 				break;
 			}
 		}
