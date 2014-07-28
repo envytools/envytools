@@ -36,6 +36,7 @@ struct vp1_ctx {
 	uint32_t v[32][4];
 	uint32_t b[4];
 	uint32_t c[4];
+	uint32_t m[64];
 };
 
 static uint32_t read_r(struct vp1_ctx *ctx, int idx) {
@@ -185,6 +186,61 @@ static uint32_t vp1_hadd(uint32_t a, uint32_t b) {
 	return (a & ~0xffff) | ((a + b) & 0xffff);
 }
 
+static uint32_t vp1_logop(uint32_t s1, uint32_t s2, int logop) {
+	uint32_t res = 0;
+	switch (logop) {
+		case 0x0:
+			res = 0;
+			break;
+		case 0x1:
+			res = ~s1 & ~s2;
+			break;
+		case 0x2:
+			res = ~s1 & s2;
+			break;
+		case 0x3:
+			res = ~s1;
+			break;
+		case 0x4:
+			res = s1 & ~s2;
+			break;
+		case 0x5:
+			res = ~s2;
+			break;
+		case 0x6:
+			res = s1 ^ s2;
+			break;
+		case 0x7:
+			res = ~s1 | ~s2;
+			break;
+		case 0x8:
+			res = s1 & s2;
+			break;
+		case 0x9:
+			res = ~s1 ^ s2;
+			break;
+		case 0xa:
+			res = s2;
+			break;
+		case 0xb:
+			res = ~s1 | s2;
+			break;
+		case 0xc:
+			res = s1;
+			break;
+		case 0xd:
+			res = s1 | ~s2;
+			break;
+		case 0xe:
+			res = s1 | s2;
+			break;
+		case 0xf:
+			res = 0xffffffff;
+			break;
+	}
+	return res;
+}
+
 static void simulate_op_a(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t opcode) {
 	uint32_t op = opcode >> 24 & 0x1f;
 	uint32_t src1 = opcode >> 14 & 0x1f;
@@ -218,63 +274,14 @@ static void simulate_op_a(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			ctx->a[dst] |= opcode << 16 & 0xffff0000;
 			break;
 		case 0x13:
-			switch (opcode >> 3 & 0xf) {
-				case 0x0:
-					res = 0;
-					break;
-				case 0x1:
-					res = ~s1 & ~s2;
-					break;
-				case 0x2:
-					res = ~s1 & s2;
-					break;
-				case 0x3:
-					res = ~s1;
-					break;
-				case 0x4:
-					res = s1 & ~s2;
-					break;
-				case 0x5:
-					res = ~s2;
-					break;
-				case 0x6:
-					res = s1 ^ s2;
-					break;
-				case 0x7:
-					res = ~s1 | ~s2;
-					break;
-				case 0x8:
-					res = s1 & s2;
-					break;
-				case 0x9:
-					res = ~s1 ^ s2;
-					break;
-				case 0xa:
-					res = s2;
-					break;
-				case 0xb:
-					res = ~s1 | s2;
-					break;
-				case 0xc:
-					res = s1;
-					break;
-				case 0xd:
-					res = s1 | ~s2;
-					break;
-				case 0xe:
-					res = s1 | s2;
-					break;
-				case 0xf:
-					res = 0xffffffff;
-					break;
-			}
+			res = vp1_logop(s1, s2, opcode >> 3 & 0xf);
 			ctx->a[dst] = res;
 			write_c_a_f(ctx, opcode & 7, res);
 			break;
 	}
 }
 
-static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t opcode, int chipset) {
+static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t opcode, int chipset, int op_b) {
 	uint32_t op = opcode >> 24 & 0x7f;
 	uint32_t src1 = opcode >> 14 & 0x1f;
 	uint32_t src2 = opcode >> 9 & 0x1f;
@@ -288,6 +295,7 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 	int u;
 	uint32_t cond = octx->c[opcode >> 3 & 3];
 	int src2s = vp1_mangle_reg(src2, cond, flag);
+	int rfile = opcode >> 3 & 0x1f;
 	switch (op) {
 		case 0x08:
 		case 0x09:
@@ -467,56 +475,7 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 				res = sext(s1, 15) * sext(s2s, 15);
 				cr = cond_s_f(res, s1, chipset);
 			} else if (op == 0x42) {
-				switch (opcode >> 3 & 0xf) {
-					case 0x0:
-						res = 0;
-						break;
-					case 0x1:
-						res = ~s1 & ~s2;
-						break;
-					case 0x2:
-						res = ~s1 & s2;
-						break;
-					case 0x3:
-						res = ~s1;
-						break;
-					case 0x4:
-						res = s1 & ~s2;
-						break;
-					case 0x5:
-						res = ~s2;
-						break;
-					case 0x6:
-						res = s1 ^ s2;
-						break;
-					case 0x7:
-						res = ~s1 | ~s2;
-						break;
-					case 0x8:
-						res = s1 & s2;
-						break;
-					case 0x9:
-						res = ~s1 ^ s2;
-						break;
-					case 0xa:
-						res = s2;
-						break;
-					case 0xb:
-						res = ~s1 | s2;
-						break;
-					case 0xc:
-						res = s1;
-						break;
-					case 0xd:
-						res = s1 | ~s2;
-						break;
-					case 0xe:
-						res = s1 | s2;
-						break;
-					case 0xf:
-						res = 0xffffffff;
-						break;
-				}
+				res = vp1_logop(s1, s2, opcode >> 3 & 0xf);
 				cr = cond_s(res, chipset);
 			} else if (op == 0x48 || op == 0x58) {
 				res = vp1_min(s1, s2s);
@@ -606,6 +565,58 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			break;
 		case 0x45:
 			write_r(ctx, src1, ((int32_t)read_r(ctx, src1) >> 4));
+			break;
+		case 0x6a:
+			switch (rfile) {
+				case 0x00:
+				case 0x01:
+				case 0x02:
+				case 0x03:
+				case 0x12:
+					ctx->v[dst][rfile & 3] = read_r(ctx, src1);
+					break;
+				case 0x0b:
+					if (dst < 4) 
+						ctx->b[dst] = read_r(ctx, src1) & 0xffff;
+					break;
+				case 0x0c:
+					ctx->a[dst] = read_r(ctx, src1);
+					break;
+				case 0x14:
+					ctx->m[dst] = read_r(ctx, src1);
+					break;
+				case 0x15:
+					ctx->m[32 + dst] = read_r(ctx, src1);
+					break;
+			}
+			write_c_s(ctx, cdst, 0);
+			break;
+		case 0x6b:
+			switch (rfile) {
+				case 0x00:
+				case 0x01:
+				case 0x02:
+				case 0x03:
+					write_r(ctx, dst, octx->v[src1][rfile]);
+					break;
+				case 0x0b:
+					if (op_b != 0x1f)
+						write_r(ctx, dst, octx->b[src1 & 3]);
+					break;
+				case 0x0c:
+					write_r(ctx, dst, octx->a[src1]);
+					break;
+				case 0x0d:
+					write_r(ctx, dst, src1 < 4 ? octx->c[src1] : 0);
+					break;
+				case 0x14:
+					write_r(ctx, dst, octx->m[src1]);
+					break;
+				case 0x15:
+					write_r(ctx, dst, octx->m[32 + src1]);
+					break;
+			}
+			write_c_s(ctx, cdst, 0);
 			break;
 		case 0x1f:
 		case 0x2f:
@@ -745,6 +756,7 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 		case 0x0c:
 		case 0x0d:
 		case 0x0e:
+		case 0x14:
 		case 0x18:
 		case 0x19:
 		case 0x1a:
@@ -773,6 +785,9 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 					ss2 = (int8_t)ss2;
 				}
 				switch (op & 0xf) {
+					case 0x4:
+						sres = vp1_logop(ss1, ss2, opcode >> 3 & 0xf) & 0xff;
+						break;
 					case 0x8:
 						sres = vp1_min(ss1, ss2);
 						break;
@@ -857,24 +872,38 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 	int i, j, k;
 	nva_wr32(ctx->cnum, 0x200, 0xfffffffd);
 	nva_wr32(ctx->cnum, 0x200, 0xffffffff);
-	for (i = 0; i < 1000000; i++) {
+	for (i = 0; i < 10000000; i++) {
 		uint32_t opcode_a = (uint32_t)jrand48(ctx->rand48);
 		uint32_t opcode_s = (uint32_t)jrand48(ctx->rand48);
 		uint32_t opcode_v = (uint32_t)jrand48(ctx->rand48);
 		uint32_t opcode_b = (uint32_t)jrand48(ctx->rand48);
+		if (!(jrand48(ctx->rand48) & 0xf)) {
+			/* help luck a bit */
+			opcode_s &= ~0x7e000000;
+			opcode_s |= 0x6a000000;
+		}
 		uint32_t op_a = opcode_a >> 24 & 0x1f;
 		uint32_t op_s = opcode_s >> 24 & 0x7f;
 		uint32_t op_v = opcode_v >> 24 & 0x3f;
-		//uint32_t op_b = opcode_b >> 24 & 0x1f;
-		if (op_s == 0x6a || op_s == 0x6b)
-			opcode_s = 0x4f000000;
+		uint32_t op_b = opcode_b >> 24 & 0x1f;
+		if (op_s == 0x6a || op_s == 0x6b) {
+			int rfile = opcode_s >> 3 & 0x1f;
+			int reg = opcode_s >> 14 & 0x1f;
+			if (
+				rfile == 8 ||
+				rfile == 9 ||
+				rfile == 0xa ||
+				rfile == 0x16 ||
+				rfile == 0x17 ||
+				rfile == 0x18)
+				opcode_s = 0x4f000000;
+		}
 		if (
 			op_v == 0x02 ||
 			op_v == 0x05 ||
 			op_v == 0x07 ||
 			op_v == 0x10 ||
 			op_v == 0x12 ||
-			op_v == 0x14 ||
 			op_v == 0x15 ||
 			op_v == 0x17 ||
 			op_v == 0x1b ||
@@ -899,7 +928,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			op_a == 0x06 || /* [store] */
 			op_a == 0x07 || /* [xdst] fuckup */
 			op_a == 0x08 || /* vector load + autoincr */
-			op_a == 0x09 ||
+			op_a == 0x09 || /* vector load + autoincr */
 			op_a == 0x0e || /* [xdbar] fuckup */
 			op_a == 0x0f || /* [xdwait] fuckup */
 			op_a == 0x10 || /* vector load + autoincr */
@@ -955,6 +984,14 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		}
 		for (j = 0; j < 4; j++)
 			octx.c[j] = nva_rd32(ctx->cnum, 0xf680 + j * 4);
+		for (j = 0; j < 64; j++) {
+			uint32_t val = jrand48(ctx->rand48);
+			int which = jrand48(ctx->rand48) & 0xf;
+			if (which < 4) {
+				val &= ~(0x7f << which * 8);
+			}
+			octx.m[j] = val;
+		}
 		ectx = octx;
 		nva_wr32(ctx->cnum, 0xf540, octx.uc_cfg);
 		for (j = 0; j < 32; j++) {
@@ -971,13 +1008,16 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		for (j = 0; j < 4; j++) {
 			nva_wr32(ctx->cnum, 0xf580 + j * 4, octx.b[j]);
 		}
+		for (j = 0; j < 64; j++) {
+			nva_wr32(ctx->cnum, 0xfa00 + j * 4, octx.m[j]);
+		}
 		nva_wr32(ctx->cnum, 0xf448, opcode_a);
 		nva_wr32(ctx->cnum, 0xf44c, opcode_s);
 		nva_wr32(ctx->cnum, 0xf450, opcode_v);
 		nva_wr32(ctx->cnum, 0xf454, opcode_b);
 		nva_wr32(ctx->cnum, 0xf458, 1);
 		simulate_op_a(&octx, &ectx, opcode_a);
-		simulate_op_s(&octx, &ectx, opcode_s, ctx->chipset);
+		simulate_op_s(&octx, &ectx, opcode_s, ctx->chipset, op_b);
 		simulate_op_v(&octx, &ectx, opcode_v);
 		simulate_op_b(&octx, &ectx, opcode_b);
 		/* XXX wait? */
@@ -993,6 +1033,8 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			nctx.c[j] = nva_rd32(ctx->cnum, 0xf680 + j * 4);
 		for (j = 0; j < 4; j++)
 			nctx.b[j] = nva_rd32(ctx->cnum, 0xf580 + j * 4);
+		for (j = 0; j < 64; j++)
+			nctx.m[j] = nva_rd32(ctx->cnum, 0xfa00 + j * 4);
 		if (memcmp(&ectx, &nctx, sizeof ectx)) {
 			printf("Mismatch on try %d for insn 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32"\n", i, opcode_a, opcode_s, opcode_v, opcode_b);
 			printf("what        initial    expected   real\n");
@@ -1016,6 +1058,9 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			}
 			for (j = 0; j < 4; j++) {
 				IPRINT("C[%d] ", c[j]);
+			}
+			for (j = 0; j < 64; j++) {
+				IPRINT("M[%02x] ", m[j]);
 			}
 			return HWTEST_RES_FAIL;
 		}
