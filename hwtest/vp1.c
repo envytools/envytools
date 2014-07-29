@@ -761,6 +761,26 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			}
 			write_v(ctx, dst, d);
 			break;
+		case 0x10:
+			read_v(octx, src1, s1);
+			read_v(octx, src1 | 1, s2);
+			read_v(octx, src2, s3);
+			shift = extrs(opcode, 5, 3);
+			for (i = 0; i < 16; i++) {
+				int32_t factor = s3[i] << (shift + 4);
+				sres = s2[i] * (0x1000 - factor) + s1[i] * factor;
+				if (opcode & 0x100) {
+					sres += 0x7ff + !(ctx->uc_cfg & 1);
+				}
+				if (sres > 0xfffff)
+					sres = 0xfffff;
+				if (sres < 0)
+					sres = 0;
+				sres >>= 12;
+				d[i] = sres;
+			}
+			write_v(ctx, dst, d);
+			break;
 		case 0x1b:
 			read_v(octx, src1, s1);
 			read_v(octx, src2, s2);
@@ -987,7 +1007,6 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			op_v == 0x27 || /* scary hidden state, looks sinusoidal, but does not mutate */
 			op_v == 0x37 || /* scary hidden state, looks sinusoidal, but does not mutate */
 			op_v == 0x36 || /* scary hidden state, looks sinusoidal */
-			op_v == 0x10 || /* doesn't like hwtest, behaves normally otherwise... */
 			op_v == 0x05 || /* use scalar input */
 			op_v == 0x15 || /* use scalar input */
 			op_v == 0x33 || /* use scalar input */

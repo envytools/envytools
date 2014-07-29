@@ -134,6 +134,7 @@ static struct reg asrc2q_r = { &src2_bf, "a", "q" };
 static struct reg rsrc2q_r = { &src2_bf, "r", "q" };
 static struct reg rsrc1_r = { &src1_bf, "r", .specials = rreg_sr };
 static struct reg vsrc1_r = { &src1_bf, "v" };
+static struct reg vsrc1d_r = { &src1_bf, "v", "d" };
 static struct reg csrc1_r = { &csrc1_bf, "c" };
 static struct reg dsrc1_r = { &dsrc1_bf, "d" };
 static struct reg xsrc1_r = { &xsrc1_bf, "x" };
@@ -165,6 +166,7 @@ static struct reg ldstl_r = { &cdstp_bf, "l" };
 #define ASRC1 atomreg, &asrc1_r
 #define RSRC1 atomreg, &rsrc1_r
 #define VSRC1 atomreg, &vsrc1_r
+#define VSRC1D atomreg, &vsrc1d_r
 #define CSRC1 atomreg, &csrc1_r
 #define DSRC1 atomreg, &dsrc1_r
 #define XSRC1 atomreg, &xsrc1_r
@@ -373,6 +375,7 @@ static struct insn tabm[] = {
 	{ 0x8c000000, 0xef000000, N("badd"), T(usd), VDST, VSRC1, VSRC2 },
 	{ 0x8d000000, 0xef000000, N("bsub"), T(usd), VDST, VSRC1, VSRC2 },
 	{ 0x8e000000, 0xef000000, N("bshr"), T(usd), VDST, VSRC1, VSRC2 },
+	{ 0x90000000, 0xff000000, N("blrp"), T(rnd), VDST, VSRC1D, VSRC2, SHIFT },
 	{ 0x94000008, 0xff000078, N("nor"), VDST, VSRC1, VSRC2 },
 	{ 0x94000010, 0xff000078, N("and"), VDST, N("not"), VSRC1, VSRC2 },
 	{ 0x94000020, 0xff000078, N("and"), VDST, VSRC1, N("not"), VSRC2 },
