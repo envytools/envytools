@@ -749,6 +749,21 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			}
 			write_v(ctx, dst, d);
 			break;
+		case 0x25:
+			read_v(octx, src1, s1);
+			read_v(octx, src2, s2);
+			for (i = 0; i < 16; i++) {
+				ss1 = (int8_t) s1[i];
+				ss2 = (int8_t) s2[i];
+				ss1 = vp1_abs(ss1);
+				ss2 = vp1_abs(ss2);
+				sres = vp1_min(ss1, ss2);
+				if (sres == 0x80)
+					sres = 0x7f;
+				d[i] = sres;
+			}
+			write_v(ctx, dst, d);
+			break;
 		case 0x08:
 		case 0x09:
 		case 0x0a:
@@ -910,7 +925,6 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			op_v == 0x1f ||
 			op_v == 0x22 ||
 			op_v == 0x24 ||
-			op_v == 0x25 ||
 			op_v == 0x27 ||
 			op_v == 0x32 ||
 			op_v == 0x33 ||
