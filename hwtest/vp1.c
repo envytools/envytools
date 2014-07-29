@@ -654,12 +654,14 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 	uint32_t op = opcode >> 24 & 0x3f;
 	uint32_t src1 = opcode >> 14 & 0x1f;
 	uint32_t src2 = opcode >> 9 & 0x1f;
+	uint32_t src3 = opcode >> 4 & 0x1f;
 	uint32_t dst = opcode >> 19 & 0x1f;
 	uint32_t imm = opcode >> 3 & 0xff;
 	uint8_t s1[16];
 	uint8_t s2[16];
+	uint8_t s3[16];
 	uint8_t d[16];
-	int32_t ss1, ss2, sub, sres;
+	int32_t ss1, ss2, ss3, sub, sres;
 	int i;
 	int shift;
 	switch (op) {
@@ -749,17 +751,30 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			}
 			write_v(ctx, dst, d);
 			break;
+		case 0x24:
 		case 0x25:
 			read_v(octx, src1, s1);
 			read_v(octx, src2, s2);
+			read_v(octx, src3, s3);
 			for (i = 0; i < 16; i++) {
 				ss1 = (int8_t) s1[i];
 				ss2 = (int8_t) s2[i];
-				ss1 = vp1_abs(ss1);
-				ss2 = vp1_abs(ss2);
-				sres = vp1_min(ss1, ss2);
-				if (sres == 0x80)
-					sres = 0x7f;
+				ss3 = (int8_t) s3[i];
+				if (op == 0x25) {
+					ss1 = vp1_abs(ss1);
+					ss2 = vp1_abs(ss2);
+					sres = vp1_min(ss1, ss2);
+					if (sres == 0x80)
+						sres = 0x7f;
+				} else {
+					if (ss1 > ss3 && ss2 > ss3) {
+						sres = vp1_min(ss1, ss2);
+					} else if (ss1 < ss3 && ss2 < ss3) {
+						sres = vp1_max(ss1, ss2);
+					} else {
+						sres = ss3;
+					}
+				}
 				d[i] = sres;
 			}
 			write_v(ctx, dst, d);
@@ -915,19 +930,18 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		}
 		if (
 			op_v == 0x02 ||
-			op_v == 0x05 ||
+			op_v == 0x05 || /* use scalar input */
 			op_v == 0x07 ||
 			op_v == 0x10 ||
 			op_v == 0x12 ||
-			op_v == 0x15 ||
+			op_v == 0x15 || /* use scalar input */
 			op_v == 0x17 ||
 			op_v == 0x1b ||
 			op_v == 0x1f ||
 			op_v == 0x22 ||
-			op_v == 0x24 ||
 			op_v == 0x27 ||
 			op_v == 0x32 ||
-			op_v == 0x33 ||
+			op_v == 0x33 || /* use scalar input */
 			op_v == 0x36 ||
 			op_v == 0x37 ||
 			op_v == 0x3b)
