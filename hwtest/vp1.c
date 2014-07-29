@@ -751,6 +751,27 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			}
 			write_v(ctx, dst, d);
 			break;
+		case 0x1b:
+			read_v(octx, src1, s1);
+			read_v(octx, src2, s2);
+			read_v(octx, src3, s3);
+			for (i = 0; i < 16; i++) {
+				int comp, which;
+				if (opcode & 8) {
+					comp = s3[i] >> 4 & 0xf;
+					which = s3[i] & 1;
+				} else {
+					comp = s3[i] & 0xf;
+					which = s3[i] >> 4 & 1;
+				}
+				if (which) {
+					d[i] = s2[comp];
+				} else {
+					d[i] = s1[comp];
+				}
+			}
+			write_v(ctx, dst, d);
+			break;
 		case 0x24:
 		case 0x25:
 			read_v(octx, src1, s1);
@@ -929,22 +950,21 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 				opcode_s = 0x4f000000;
 		}
 		if (
-			op_v == 0x02 ||
+			op_v == 0x02 || /* scary hidden state, looks sinusoidal */
+			op_v == 0x12 || /* scary hidden state, looks sinusoidal */
+			op_v == 0x22 || /* scary hidden state, looks sinusoidal */
+			op_v == 0x32 || /* scary hidden state, looks sinusoidal */
+			op_v == 0x07 || /* scary hidden state, looks sinusoidal, but does not mutate */
+			op_v == 0x17 || /* scary hidden state, looks sinusoidal, but does not mutate */
+			op_v == 0x27 || /* scary hidden state, looks sinusoidal, but does not mutate */
+			op_v == 0x37 || /* scary hidden state, looks sinusoidal, but does not mutate */
+			op_v == 0x36 || /* scary hidden state, looks sinusoidal */
+			op_v == 0x10 || /* doesn't like hwtest, behaves normally otherwise... */
 			op_v == 0x05 || /* use scalar input */
-			op_v == 0x07 ||
-			op_v == 0x10 ||
-			op_v == 0x12 ||
 			op_v == 0x15 || /* use scalar input */
-			op_v == 0x17 ||
-			op_v == 0x1b ||
-			op_v == 0x1f ||
-			op_v == 0x22 ||
-			op_v == 0x27 ||
-			op_v == 0x32 ||
 			op_v == 0x33 || /* use scalar input */
-			op_v == 0x36 ||
-			op_v == 0x37 ||
-			op_v == 0x3b)
+			op_v == 0x1f || /* looks doable */
+			op_v == 0x3b) /* reads some unknown scary thing */
 			opcode_v = 0xbf000000;
 		if (
 			op_a == 0x00 || /* vector load + autoincr */
