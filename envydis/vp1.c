@@ -103,6 +103,7 @@ static struct bitfield csrc1_bf = { 14, 2 };
 static struct bitfield zsrc1_bf = { 14, 1 };
 static struct bitfield xsrc1_bf = { 14, 5, 3, 1 };
 static struct bitfield src2_bf = { 9, 5 };
+static struct bitfield src3_bf = { 4, 5 };
 static struct bitfield csrcp_bf = { 3, 2 };
 static struct bitfield cdstp_bf = { 0, 2 };
 static struct bitfield mcdst_bf = { 0, 3 };
@@ -125,6 +126,7 @@ static struct reg asrc1_r = { &src1_bf, "a" };
 static struct reg asrc2_r = { &src2_bf, "a" };
 static struct reg rsrc2_r = { &src2_bf, "r", .specials = rreg_sr };
 static struct reg vsrc2_r = { &src2_bf, "v" };
+static struct reg vsrc3_r = { &src3_bf, "v" };
 static struct reg asrc1d_r = { &src1_bf, "a", "d" };
 static struct reg asrc2d_r = { &src2_bf, "a", "d" };
 static struct reg rsrc2d_r = { &src2_bf, "r", "d" };
@@ -176,6 +178,7 @@ static struct reg ldstl_r = { &cdstp_bf, "l" };
 #define ASRC2 atomreg, &asrc2_r
 #define RSRC2 atomreg, &rsrc2_r
 #define VSRC2 atomreg, &vsrc2_r
+#define VSRC3 atomreg, &vsrc3_r
 #define ASRC2D atomreg, &asrc2d_r
 #define RSRC2D atomreg, &rsrc2d_r
 #define ASRC2Q atomreg, &asrc2q_r
@@ -218,6 +221,7 @@ F(uss2, 1, N("s"), N("u"))
 F1(rnd, 8, N("rnd"))
 F(fi, 3, N("fract"), N("int"))
 F(hilo, 4, N("hi"), N("lo"))
+F(swz, 3, N("lo"), N("hi"))
 
 static struct insn tabaslctop[] = {
 	{ 0x00000000, 0x000001e0, SESTART, N("slct"), CSRCP, N("sf"), ASRC2D, SEEND },
@@ -369,7 +373,21 @@ static struct insn tabm[] = {
 	{ 0x8c000000, 0xef000000, N("badd"), T(usd), VDST, VSRC1, VSRC2 },
 	{ 0x8d000000, 0xef000000, N("bsub"), T(usd), VDST, VSRC1, VSRC2 },
 	{ 0x8e000000, 0xef000000, N("bshr"), T(usd), VDST, VSRC1, VSRC2 },
+	{ 0x94000008, 0xff000078, N("nor"), VDST, VSRC1, VSRC2 },
+	{ 0x94000010, 0xff000078, N("and"), VDST, N("not"), VSRC1, VSRC2 },
+	{ 0x94000020, 0xff000078, N("and"), VDST, VSRC1, N("not"), VSRC2 },
+	{ 0x94000030, 0xff000078, N("xor"), VDST, VSRC1, VSRC2 },
+	{ 0x94000038, 0xff000078, N("nand"), VDST, VSRC1, VSRC2 },
+	{ 0x94000040, 0xff000078, N("and"), VDST, VSRC1, VSRC2 },
+	{ 0x94000048, 0xff000078, N("nxor"), VDST, VSRC1, VSRC2 },
+	{ 0x94000058, 0xff000078, N("or"), VDST, N("not"), VSRC1, VSRC2 },
+	{ 0x94000068, 0xff000078, N("or"), VDST, VSRC1, N("not"), VSRC2 },
+	{ 0x94000070, 0xff000078, N("or"), VDST, VSRC1, VSRC2 },
+	{ 0x94000000, 0xff000000, N("logop"), VDST, VSRC1, VSRC2, LOGOP },
+	{ 0x9b000000, 0xff000000, N("bswz"), VDST, VSRC1, VSRC2, T(swz), VSRC3 },
 	{ 0xa1000000, 0xef000000, N("bmul"), T(fi), T(hilo), T(rnd), T(usd), VDST, T(uss1), VSRC1, T(uss2), RBIMMMUL, SHIFT },
+	{ 0xa4000000, 0xff000000, N("bmed"), VDST, VSRC1, VSRC2, VSRC3 },
+	{ 0xa5000000, 0xff000000, N("bminabs"), VDST, VSRC1, VSRC2 },
 	{ 0xa8000000, 0xef000000, N("bmin"), T(usd), VDST, VSRC1, RBIMM },
 	{ 0xa9000000, 0xef000000, N("bmax"), T(usd), VDST, VSRC1, RBIMM },
 	{ 0xac000000, 0xef000000, N("badd"), T(usd), VDST, VSRC1, RBIMM },
