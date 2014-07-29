@@ -385,6 +385,7 @@ static struct insn tabm[] = {
 	{ 0x94000070, 0xff000078, N("or"), VDST, VSRC1, VSRC2 },
 	{ 0x94000000, 0xff000000, N("logop"), VDST, VSRC1, VSRC2, LOGOP },
 	{ 0x9b000000, 0xff000000, N("bswz"), VDST, VSRC1, VSRC2, T(swz), VSRC3 },
+	{ 0x9f000000, 0xff000000, N("badd9"), VDST, VSRC1, VSRC2, VSRC3 },
 	{ 0xa1000000, 0xef000000, N("bmul"), T(fi), T(hilo), T(rnd), T(usd), VDST, T(uss1), VSRC1, T(uss2), RBIMMMUL, SHIFT },
 	{ 0xa4000000, 0xff000000, N("bmed"), VDST, VSRC1, VSRC2, VSRC3 },
 	{ 0xa5000000, 0xff000000, N("bminabs"), VDST, VSRC1, VSRC2 },

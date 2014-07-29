@@ -70,6 +70,15 @@ static void read_v(struct vp1_ctx *ctx, int idx, uint8_t *val) {
 	}
 }
 
+static void read_v16(struct vp1_ctx *ctx, int idx, uint16_t *val) {
+	int i, j;
+	for (i = 0; i < 4; i++) {
+		for (j = 0; j < 2; j++) {
+			val[i*2 + j] = ctx->v[idx][i] >> 16 * j;
+		}
+	}
+}
+
 static void write_c_a_f(struct vp1_ctx *ctx, int idx, uint32_t val) {
 	uint32_t cr = 0;
 	if (val & 0x80000000)
@@ -660,6 +669,7 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 	uint8_t s1[16];
 	uint8_t s2[16];
 	uint8_t s3[16];
+	uint16_t s16[16];
 	uint8_t d[16];
 	int32_t ss1, ss2, ss3, sub, sres;
 	int i;
@@ -769,6 +779,24 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 				} else {
 					d[i] = s1[comp];
 				}
+			}
+			write_v(ctx, dst, d);
+			break;
+		case 0x1f:
+			read_v(octx, src1, s1);
+			read_v16(octx, src2, s16);
+			read_v16(octx, src3, s16+8);
+			for (i = 0; i < 16; i++) {
+				if (s16[i] & 0x100)
+					ss2 = s16[i] | -0x100;
+				else
+					ss2 = s16[i] & 0xff;
+				sres = s1[i] + ss2;
+				if (sres < 0)
+					sres = 0;
+				if (sres > 0xff)
+					sres = 0xff;
+				d[i] = sres;
 			}
 			write_v(ctx, dst, d);
 			break;
@@ -963,7 +991,6 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			op_v == 0x05 || /* use scalar input */
 			op_v == 0x15 || /* use scalar input */
 			op_v == 0x33 || /* use scalar input */
-			op_v == 0x1f || /* looks doable */
 			op_v == 0x3b) /* reads some unknown scary thing */
 			opcode_v = 0xbf000000;
 		if (
