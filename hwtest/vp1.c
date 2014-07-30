@@ -40,6 +40,10 @@ struct vp1_ctx {
 	uint32_t m[64];
 };
 
+struct vp1_s2v {
+	uint8_t vcsel;
+};
+
 static uint32_t read_r(struct vp1_ctx *ctx, int idx) {
 	if (idx < 31)
 		return ctx->r[idx];
@@ -291,7 +295,7 @@ static void simulate_op_a(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 	}
 }
 
-static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t opcode, int chipset, int op_b) {
+static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t opcode, struct vp1_s2v *s2v, int chipset, int op_b) {
 	uint32_t op = opcode >> 24 & 0x7f;
 	uint32_t src1 = opcode >> 14 & 0x1f;
 	uint32_t src2 = opcode >> 9 & 0x1f;
@@ -575,6 +579,7 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 			break;
 		case 0x45:
 			write_r(ctx, src1, ((int32_t)read_r(ctx, src1) >> 4));
+			s2v->vcsel = 0x80 | (opcode >> 19 & 0x1f) | (opcode << 5 & 0x20);
 			break;
 		case 0x6a:
 			switch (rfile) {
@@ -657,10 +662,16 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 		case 0x7f:
 			write_c_s(ctx, cdst, 0);
 			break;
+		case 0x04:
+		case 0x05:
+		case 0x0f:
+		case 0x24:
+			s2v->vcsel = 0x80 | (opcode >> 19 & 0x1f) | (opcode << 5 & 0x20);
+			break;
 	}
 }
 
-static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t opcode) {
+static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t opcode, struct vp1_s2v *s2v) {
 	uint32_t op = opcode >> 24 & 0x3f;
 	uint32_t src1 = opcode >> 14 & 0x1f;
 	uint32_t src2 = opcode >> 9 & 0x1f;
@@ -675,8 +686,18 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 	uint8_t d[16];
 	int32_t ss1, ss2, ss3, sub, sres;
 	uint32_t cr = 0;
+	uint16_t scond;
 	int i;
 	int shift;
+	int flag = opcode >> 5 & 0xf;
+	uint32_t cond = octx->c[opcode >> 3 & 3];
+	int src2s = vp1_mangle_reg(src2, cond, flag);
+	int vcsel = opcode & 3, vcpart = 0, vcmode = 0;
+	if (s2v->vcsel) {
+		vcsel = s2v->vcsel & 3;
+		vcpart = s2v->vcsel >> 2 & 1;
+		vcmode = s2v->vcsel >> 3 & 7;
+	}
 	switch (op) {
 		case 0x01:
 		case 0x11:
@@ -758,6 +779,40 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 					cr |= 1 << (16 + i);
 			}
 			write_v(ctx, dst, d);
+			if (vci < 4)
+				ctx->vc[vci] = cr;
+			break;
+		case 0x0f:
+			read_v(octx, src1, s1);
+			read_v(octx, src1 | 1, s2);
+			read_v(octx, src2s, s3);
+			cond = octx->vc[vcsel] >> (vcpart * 16) & 0xffff;
+			cond |= octx->vc[vcsel | 1] >> (vcpart * 16) << 16;
+			static const int tab[8][16] = {
+				{  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 },
+				{  2,  2,  2,  2,  6,  6,  6,  6, 10, 10, 10, 10, 14, 14, 14, 14 },
+				{  4,  5,  4,  5,  4,  5,  4,  5, 12, 13, 12, 13, 12, 13, 12, 13 },
+				{  0,  0,  2,  0,  4,  4,  6,  4,  8,  8, 10,  8, 12, 12, 14, 12 },
+				{  1,  1,  1,  3,  5,  5,  5,  7,  9,  9,  9, 11, 13, 13, 13, 15 },
+				{  0,  0,  2,  2,  4,  4,  6,  6,  8,  8, 10, 10, 12, 12, 14, 14 },
+				{  1,  1,  1,  1,  5,  5,  5,  5,  9,  9,  9,  9, 13, 13, 13, 13 },
+				{  0,  2,  4,  6,  8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30 },
+			};
+			scond = 0;
+			for (i = 0; i < 16; i++) {
+				if (cond & 1 << tab[vcmode][i])
+					scond |= 1 << i;
+			}
+			for (i = 0; i < 16; i++) {
+				ss1 = vp1_abs(s1[i] - s3[i]);
+				if (ss1 == s2[i])
+					cr |= 1 << (16 + i);
+				cond = ss1 < s2[i];
+				cond <<= 1;
+				cond |= scond >> i & 1;
+				if (opcode & 1 << (19 + cond))
+					cr |= 1 << i;
+			}
 			if (vci < 4)
 				ctx->vc[vci] = cr;
 			break;
@@ -1015,6 +1070,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 	nva_wr32(ctx->cnum, 0x200, 0xfffffffd);
 	nva_wr32(ctx->cnum, 0x200, 0xffffffff);
 	for (i = 0; i < 10000000; i++) {
+		struct vp1_s2v s2v = { 0 };
 		uint32_t opcode_a = (uint32_t)jrand48(ctx->rand48);
 		uint32_t opcode_s = (uint32_t)jrand48(ctx->rand48);
 		uint32_t opcode_v = (uint32_t)jrand48(ctx->rand48);
@@ -1053,7 +1109,6 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			op_v == 0x05 || /* use scalar input */
 			op_v == 0x15 || /* use scalar input */
 			op_v == 0x33 || /* use scalar input */
-			op_v == 0x0f || /* affects $vc */
 			0)
 			opcode_v = 0xbf000000;
 		if (
@@ -1161,8 +1216,8 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		nva_wr32(ctx->cnum, 0xf454, opcode_b);
 		nva_wr32(ctx->cnum, 0xf458, 1);
 		simulate_op_a(&octx, &ectx, opcode_a);
-		simulate_op_s(&octx, &ectx, opcode_s, ctx->chipset, op_b);
-		simulate_op_v(&octx, &ectx, opcode_v);
+		simulate_op_s(&octx, &ectx, opcode_s, &s2v, ctx->chipset, op_b);
+		simulate_op_v(&octx, &ectx, opcode_v, &s2v);
 		simulate_op_b(&octx, &ectx, opcode_b);
 		/* XXX wait? */
 		nctx.uc_cfg = nva_rd32(ctx->cnum, 0xf540);
