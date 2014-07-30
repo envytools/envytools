@@ -38,6 +38,7 @@ struct vp1_ctx {
 	uint32_t b[4];
 	uint32_t c[4];
 	uint32_t m[64];
+	uint32_t x[16];
 };
 
 struct vp1_s2v {
@@ -603,6 +604,9 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 				case 0x15:
 					ctx->m[32 + dst] = read_r(ctx, src1);
 					break;
+				case 0x18:
+					ctx->x[dst & 0xf] = read_r(ctx, src1);
+					break;
 			}
 			write_c_s(ctx, cdst, 0);
 			break;
@@ -629,6 +633,9 @@ static void simulate_op_s(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 					break;
 				case 0x15:
 					write_r(ctx, dst, octx->m[32 + src1]);
+					break;
+				case 0x18:
+					write_r(ctx, dst, octx->x[src1 & 0xf]);
 					break;
 			}
 			write_c_s(ctx, cdst, 0);
@@ -1092,8 +1099,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 				rfile == 9 ||
 				rfile == 0xa ||
 				rfile == 0x16 ||
-				rfile == 0x17 ||
-				rfile == 0x18)
+				rfile == 0x17)
 				opcode_s = 0x4f000000;
 		}
 		if (
@@ -1141,6 +1147,14 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			opcode_a = 0xdf000000;
 		struct vp1_ctx octx, ectx, nctx;
 		octx.uc_cfg = jrand48(ctx->rand48) & 0x111;
+		for (j = 0; j < 16; j++) {
+			uint32_t val = jrand48(ctx->rand48);
+			int which = jrand48(ctx->rand48) & 0xf;
+			if (which < 4) {
+				val &= ~(0x7f << which * 8);
+			}
+			octx.x[j] = val;
+		}
 		for (j = 0; j < 32; j++) {
 			uint32_t val = jrand48(ctx->rand48);
 			int which = jrand48(ctx->rand48) & 0xf;
@@ -1192,6 +1206,11 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		octx.vc[2] = nva_rd32(ctx->cnum, 0xf100);
 		octx.vc[3] = nva_rd32(ctx->cnum, 0xf180);
 		ectx = octx;
+		for (j = 0; j < 16; j++) {
+			nva_wr32(ctx->cnum, 0xf780, octx.x[j]);
+			nva_wr32(ctx->cnum, 0xf44c, 0x6a0000c0 | j << 19);
+			nva_wr32(ctx->cnum, 0xf458, 1);
+		}
 		nva_wr32(ctx->cnum, 0xf540, octx.uc_cfg);
 		for (j = 0; j < 32; j++) {
 			nva_wr32(ctx->cnum, 0xf600 + j * 4, octx.a[j]);
@@ -1240,6 +1259,11 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 		nctx.vc[1] = nva_rd32(ctx->cnum, 0xf080);
 		nctx.vc[2] = nva_rd32(ctx->cnum, 0xf100);
 		nctx.vc[3] = nva_rd32(ctx->cnum, 0xf180);
+		for (j = 0; j < 16; j++) {
+			nva_wr32(ctx->cnum, 0xf44c, 0x6b0000c0 | j << 14);
+			nva_wr32(ctx->cnum, 0xf458, 1);
+			nctx.x[j] = nva_rd32(ctx->cnum, 0xf780);
+		}
 		if (memcmp(&ectx, &nctx, sizeof ectx)) {
 			printf("Mismatch on try %d for insn 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32"\n", i, opcode_a, opcode_s, opcode_v, opcode_b);
 			printf("what        initial    expected   real\n");
@@ -1269,6 +1293,9 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			}
 			for (j = 0; j < 64; j++) {
 				IPRINT("M[%02x] ", m[j]);
+			}
+			for (j = 0; j < 16; j++) {
+				IPRINT("X[%01x] ", x[j]);
 			}
 			return HWTEST_RES_FAIL;
 		}
