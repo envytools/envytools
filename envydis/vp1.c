@@ -91,17 +91,17 @@ static struct sreg rreg_sr[] = {
 	{ -1 },
 };
 static struct bitfield dst_bf = { 19, 5 };
-static struct bitfield ydst_bf = { 19, 4 };
+static struct bitfield xdst_bf = { 19, 4 };
 static struct bitfield ddst_bf = { 19, 3 };
 static struct bitfield cdst_bf = { 19, 2 };
-static struct bitfield zdst_bf = { 19, 1 };
+static struct bitfield fdst_bf = { 19, 1 };
 static struct bitfield src1_bf = { 14, 5 };
-static struct bitfield xdst_bf = { 19, 5, 3, 1 };
-static struct bitfield ysrc1_bf = { 14, 4 };
+static struct bitfield mdst_bf = { 19, 5, 3, 1 };
+static struct bitfield xsrc1_bf = { 14, 4 };
 static struct bitfield dsrc1_bf = { 14, 3 };
 static struct bitfield csrc1_bf = { 14, 2 };
-static struct bitfield zsrc1_bf = { 14, 1 };
-static struct bitfield xsrc1_bf = { 14, 5, 3, 1 };
+static struct bitfield fsrc1_bf = { 14, 1 };
+static struct bitfield msrc1_bf = { 14, 5, 3, 1 };
 static struct bitfield src2_bf = { 9, 5 };
 static struct bitfield src3_bf = { 4, 5 };
 static struct bitfield csrcp_bf = { 3, 2 };
@@ -115,8 +115,8 @@ static struct reg ddst_r = { &ddst_bf, "d" };
 static struct reg cdst_r = { &cdst_bf, "c" };
 static struct reg ldst_r = { &cdst_bf, "l" };
 static struct reg xdst_r = { &xdst_bf, "x" };
-static struct reg ydst_r = { &ydst_bf, "y" };
-static struct reg zdst_r = { &zdst_bf, "z" };
+static struct reg mdst_r = { &mdst_bf, "m" };
+static struct reg fdst_r = { &fdst_bf, "f" };
 static struct reg srdst_r = { &dst_bf, "sr", .specials = sreg_sr, .always_special = 1 };
 static struct reg midst_r = { &dst_bf, "mi", .specials = sreg_mi, .always_special = 1 };
 static struct reg ucdst_r = { &dst_bf, "uc", .specials = sreg_uc, .always_special = 1 };
@@ -138,8 +138,8 @@ static struct reg vsrc1d_r = { &src1_bf, "v", "d" };
 static struct reg csrc1_r = { &csrc1_bf, "c" };
 static struct reg dsrc1_r = { &dsrc1_bf, "d" };
 static struct reg xsrc1_r = { &xsrc1_bf, "x" };
-static struct reg ysrc1_r = { &ysrc1_bf, "y" };
-static struct reg zsrc1_r = { &zsrc1_bf, "z" };
+static struct reg msrc1_r = { &msrc1_bf, "m" };
+static struct reg fsrc1_r = { &fsrc1_bf, "f" };
 static struct reg srsrc1_r = { &src1_bf, "sr", .specials = sreg_sr, .always_special = 1 };
 static struct reg misrc1_r = { &src1_bf, "mi", .specials = sreg_mi, .always_special = 1 };
 static struct reg ucsrc1_r = { &src1_bf, "uc", .specials = sreg_uc, .always_special = 1 };
@@ -158,8 +158,8 @@ static struct reg vc_r = { 0, "vc" };
 #define CDST atomreg, &cdst_r
 #define LDST atomreg, &ldst_r
 #define XDST atomreg, &xdst_r
-#define YDST atomreg, &ydst_r
-#define ZDST atomreg, &zdst_r
+#define MDST atomreg, &mdst_r
+#define FDST atomreg, &fdst_r
 #define SRDST atomreg, &srdst_r
 #define MIDST atomreg, &midst_r
 #define UCDST atomreg, &ucdst_r
@@ -172,8 +172,8 @@ static struct reg vc_r = { 0, "vc" };
 #define CSRC1 atomreg, &csrc1_r
 #define DSRC1 atomreg, &dsrc1_r
 #define XSRC1 atomreg, &xsrc1_r
-#define YSRC1 atomreg, &ysrc1_r
-#define ZSRC1 atomreg, &zsrc1_r
+#define MSRC1 atomreg, &msrc1_r
+#define FSRC1 atomreg, &fsrc1_r
 #define SRSRC1 atomreg, &srsrc1_r
 #define MISRC1 atomreg, &misrc1_r
 #define UCSRC1 atomreg, &ucsrc1_r
@@ -349,10 +349,10 @@ static struct insn tabm[] = {
 	{ 0x6a000050, 0xff0000f8, N("mov"), UCDST, RSRC1, IGNCD },
 	{ 0x6a000058, 0xff0000f8, N("mov"), SLDST, RSRC1, IGNCD },
 	{ 0x6a000060, 0xff0000f8, N("mov"), ADST, RSRC1, IGNCD },
-	{ 0x6a0000a0, 0xff0000f0, N("mov"), XDST, RSRC1, IGNCD },
+	{ 0x6a0000a0, 0xff0000f0, N("mov"), MDST, RSRC1, IGNCD },
 	{ 0x6a0000b0, 0xff0000f8, N("mov"), DDST, RSRC1, IGNCD },
-	{ 0x6a0000b8, 0xff0000f8, N("mov"), ZDST, RSRC1, IGNCD },
-	{ 0x6a0000c0, 0xff0000f8, N("mov"), YDST, RSRC1, IGNCD },
+	{ 0x6a0000b8, 0xff0000f8, N("mov"), FDST, RSRC1, IGNCD },
+	{ 0x6a0000c0, 0xff0000f8, N("mov"), XDST, RSRC1, IGNCD },
 	{ 0x6b000000, 0xff0000e0, N("mov"), RDST, VSRC1, COMP, IGNCD },
 	{ 0x6b000040, 0xff0000f8, N("mov"), RDST, SRSRC1, IGNCD },
 	{ 0x6b000048, 0xff0000f8, N("mov"), RDST, MISRC1, IGNCD },
@@ -360,10 +360,10 @@ static struct insn tabm[] = {
 	{ 0x6b000058, 0xff0000f8, N("mov"), RDST, SLSRC1, IGNCD },
 	{ 0x6b000060, 0xff0000f8, N("mov"), RDST, ASRC1, IGNCD },
 	{ 0x6b000068, 0xff0000f8, N("mov"), RDST, CSRC1, IGNCD },
-	{ 0x6b0000a0, 0xff0000f0, N("mov"), RDST, XSRC1, IGNCD },
+	{ 0x6b0000a0, 0xff0000f0, N("mov"), RDST, MSRC1, IGNCD },
 	{ 0x6b0000b0, 0xff0000f8, N("mov"), RDST, DSRC1, IGNCD },
-	{ 0x6b0000b8, 0xff0000f8, N("mov"), RDST, ZSRC1, IGNCD },
-	{ 0x6b0000c0, 0xff0000f8, N("mov"), RDST, YSRC1, IGNCD },
+	{ 0x6b0000b8, 0xff0000f8, N("mov"), RDST, FSRC1, IGNCD },
+	{ 0x6b0000c0, 0xff0000f8, N("mov"), RDST, XSRC1, IGNCD },
 	{ 0x6c000000, 0xef000000, N("add"), RDST, T(mcdst), RSRC1, IMM },
 	{ 0x6d000000, 0xef000000, N("sub"), RDST, T(mcdst), RSRC1, IMM },
 	{ 0x6e000000, 0xff000000, N("sar"), RDST, T(mcdst), RSRC1, IMM },
