@@ -407,7 +407,7 @@ static struct insn tabm[] = {
 	{ 0xaf000000, 0xff000000, N("bor"), VDST, T(vcdst), VSRC1, RBIMM },
 	{ 0xba000000, 0xff000000, N("mov"), VDST, T(vcdst), VSRC1 },
 	{ 0xbb000000, 0xff000000, N("mov"), VDST, VC },
-	{ 0xad000000, 0xff000000, N("bmov"), VDST, RBIMM },
+	{ 0xad000000, 0xff000000, N("bmov"), VDST, T(vcdst), RBIMM },
 	{ 0xbf000000, 0xff000000, N("vnop"), IGNALL },
 	{ 0xc00001c0, 0xff0001f8, N("ld"), VDST, MEMSR, T(mcdst) },
 	{ 0xc10001c0, 0xff0001f8, N("ld"), VDST, N("vert"), MEMSR, T(mcdst) },
