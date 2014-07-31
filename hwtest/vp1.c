@@ -35,6 +35,7 @@ struct vp1_ctx {
 	uint32_t r[31];
 	uint32_t v[32][4];
 	uint32_t vc[4];
+	uint32_t va[16];
 	uint32_t b[4];
 	uint32_t c[4];
 	uint32_t m[64];
@@ -700,16 +701,26 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 	uint32_t cond = octx->c[opcode >> 3 & 3];
 	int src2s = vp1_mangle_reg(src2, cond, flag);
 	int vcsel = opcode & 3, vcpart = 0, vcmode = 0;
+	int subop = op & 0xf;
 	if (s2v->vcsel) {
 		vcsel = s2v->vcsel & 3;
 		vcpart = s2v->vcsel >> 2 & 1;
 		vcmode = s2v->vcsel >> 3 & 7;
 	}
 	switch (op) {
+		case 0x00:
+		case 0x20:
 		case 0x01:
 		case 0x11:
 		case 0x21:
 		case 0x31:
+		case 0x02:
+		case 0x12:
+		case 0x22:
+		case 0x32:
+		case 0x03:
+		case 0x13:
+		case 0x23:
 			read_v(octx, src1, s1);
 			read_v(octx, src2, s2);
 			for (i = 0; i < 16; i++) {
@@ -723,50 +734,50 @@ static void simulate_op_v(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 					ss1 = (int8_t)ss1 << (n ? 0 : 1);
 				if (opcode & 2)
 					ss2 = (int8_t)ss2 << (n ? 0 : 1);
-				sub = ss1 * ss2;
 				shift = extrs(opcode, 5, 3);
-				sres = sub << (shift + 4);
-				if (op & 0x10 || n) {
-					if (opcode & 0x100) {
-						if (opcode & 0x10)
-							sres += 0x7 + !(ctx->uc_cfg & 1);
-						else
-							sres += 0x7ff + !(ctx->uc_cfg & 1);
-					}
-					if (op & 0x10) {
-						if (sres < 0)
-							sres = 0;
-						if (sres >= 0x100000)
-							sres = 0x100000 - 1;
-					} else {
-						if (sres < -0x80000)
-							sres = -0x80000;
-						if (sres >= 0x80000)
-							sres = 0x80000 - 1;
-					}
-					if (opcode & 0x10)
-						sres >>= 4;
-					else
-						sres >>= 12;
-				} else {
-					if (opcode & 0x100) {
-						if (opcode & 0x10)
-							sres += 0xf + !(ctx->uc_cfg & 1);
-						else
-							sres += 0xfff + !(ctx->uc_cfg & 1);
-					}
-					if (sres < -0x100000)
-						sres = -0x100000;
-					if (sres >= 0x100000)
-						sres = 0x100000 - 1;
-					if (opcode & 0x10)
-						sres >>= 5;
-					else
-						sres >>= 13;
+				sub = ss1 * ss2;
+				if (n)
+					sub <<= 8;
+				int rshift = -shift;
+				if (n)
+					rshift += 7;
+				else if (op & 0x10)
+					rshift -= 1;
+				int hlshift = rshift + 1;
+				if (!(opcode & 0x10))
+					rshift += 8;
+				if (opcode & 0x100 && rshift >= 0) {
+					sub += 1 << rshift;
+					if (octx->uc_cfg & 1)
+						sub--;
 				}
-				d[i] = sres;
+				if (subop == 2 || subop == 3) {
+					sub += ctx->va[i];
+				}
+				ctx->va[i] = sub;
+				if (subop == 1 || subop == 2) {
+					if (hlshift >= 0)
+						sres = sub >> hlshift;
+					else
+						sres = sub << -hlshift;
+					if (op & 0x10) {
+						if (sres < -0)
+							sres = -0;
+						if (sres > 0xffff)
+							sres = 0xffff;
+					} else {
+						if (sres < -0x8000)
+							sres = -0x8000;
+						if (sres > 0x7fff)
+							sres = 0x7fff;
+					}
+					if (!(opcode & 0x10))
+						sres >>= 8;
+					d[i] = sres;
+				}
 			}
-			write_v(ctx, dst, d);
+			if (subop == 1 || subop == 2)
+				write_v(ctx, dst, d);
 			break;
 		case 0x2a:
 		case 0x2b:
@@ -1072,10 +1083,105 @@ static void simulate_op_b(struct vp1_ctx *octx, struct vp1_ctx *ctx, uint32_t op
 	}
 }
 
+static void read_va(struct hwtest_ctx *ctx, uint32_t *va) {
+	int i;
+	/*
+	 * Read vector accumulator.
+	 *
+	 * This is a complex process, performed in seven steps for each component:
+	 *
+	 * 1. Prepare consts in vector registers: 0, -1, 0.5
+	 * 2. As long as the value is non-negative (as determined by signed readout),
+	 *    decrease it by 1.
+	 * 3. As long as the value is negative, increase it by 1.
+	 * 4. The value is now in [0, 1) range. Determine original integer part
+	 *    from the number of increases and decreases.
+	 * 5. Read out high 8 bits of the fractional part, using unsigned readout.
+	 * 6. Read out low 8 bits of the fractional part, using unsigned readout.
+	 * 7. Increase/decrease by 1 the correct number of times to restore original
+	 *    integer part.
+	 */
+	for (i = 0; i < 16; i++) {
+		/* prepare the consts */
+		uint8_t consts[3][16] = { 0 };
+		int j, k, l;
+		consts[1][i] = 0x80;
+		consts[2][i] = 0x40;
+		for (j = 0; j < 3; j++) {
+			for (k = 0; k < 4; k++) {
+				uint32_t val = 0;
+				for (l = 0; l < 4; l++)
+					val |= consts[j][k * 4 + l] << l * 8;
+				nva_wr32(ctx->cnum, 0xf000 + j * 4 + k * 0x80, val);
+			}
+		}
+		/* init int part counter */
+		int ctr = 0;
+		/* while non-negative, decrement... */
+		while (1) {
+			/* read */
+			nva_wr32(ctx->cnum, 0xf450, 0x82180000); /* $v3 = $va += 0 * 0, signed */
+			nva_wr32(ctx->cnum, 0xf458, 1);
+			uint8_t val = nva_rd32(ctx->cnum, 0xf00c + (i >> 2) * 0x80) >> (i & 3) * 8;
+			/* if negative, break */
+			if (val & 0x80)
+				break;
+			nva_wr32(ctx->cnum, 0xf450, 0x82184406); /* $va += -1 * 0.5 */
+			nva_wr32(ctx->cnum, 0xf458, 1);
+			nva_wr32(ctx->cnum, 0xf450, 0x82184406); /* $va += -1 * 0.5 */
+			nva_wr32(ctx->cnum, 0xf458, 1);
+			ctr++;
+		}
+		/* while negative, increment... */
+		while (1) {
+			/* read */
+			nva_wr32(ctx->cnum, 0xf450, 0x82180000); /* $v3 = $va += 0 * 0, signed */
+			nva_wr32(ctx->cnum, 0xf458, 1);
+			uint8_t val = nva_rd32(ctx->cnum, 0xf00c + (i >> 2) * 0x80) >> (i & 3) * 8;
+			/* if non-negative, break */
+			if (!(val & 0x80))
+				break;
+			nva_wr32(ctx->cnum, 0xf450, 0x82184206); /* $va += -1 * -1 */
+			nva_wr32(ctx->cnum, 0xf458, 1);
+			ctr--;
+		}
+		/* read high */
+		nva_wr32(ctx->cnum, 0xf450, 0x92180000); /* $v3 = #va += 0 * 0, unsigned */
+		nva_wr32(ctx->cnum, 0xf458, 1);
+		uint8_t fh = nva_rd32(ctx->cnum, 0xf00c + (i >> 2) * 0x80) >> (i & 3) * 8;
+		/* read low */
+		nva_wr32(ctx->cnum, 0xf450, 0x92180010); /* $v3 = #va += 0 * 0, unsigned, low */
+		nva_wr32(ctx->cnum, 0xf458, 1);
+		uint8_t fl = nva_rd32(ctx->cnum, 0xf00c + (i >> 2) * 0x80) >> (i & 3) * 8;
+		/* write the result */
+		va[i] = ctr << 16 | fh << 8 | fl;
+		/* restore */
+		while (ctr > 0) {
+			nva_wr32(ctx->cnum, 0xf450, 0x82184206); /* $va += -1 * -1 */
+			nva_wr32(ctx->cnum, 0xf458, 1);
+			ctr--;
+		}
+		while (ctr < 0) {
+			nva_wr32(ctx->cnum, 0xf450, 0x82184406); /* $va += -1 * 0.5 */
+			nva_wr32(ctx->cnum, 0xf458, 1);
+			nva_wr32(ctx->cnum, 0xf450, 0x82184406); /* $va += -1 * 0.5 */
+			nva_wr32(ctx->cnum, 0xf458, 1);
+			ctr++;
+		}
+	}
+}
+
 static int test_isa_s(struct hwtest_ctx *ctx) {
 	int i, j, k;
 	nva_wr32(ctx->cnum, 0x200, 0xfffffffd);
 	nva_wr32(ctx->cnum, 0x200, 0xffffffff);
+	/* clear $va */
+	nva_wr32(ctx->cnum, 0xf000, 0x00000000);
+	nva_wr32(ctx->cnum, 0xf080, 0x00000000);
+	nva_wr32(ctx->cnum, 0xf100, 0x00000000);
+	nva_wr32(ctx->cnum, 0xf180, 0x00000000);
+	nva_wr32(ctx->cnum, 0xf450, 0x80000000);
+	nva_wr32(ctx->cnum, 0xf458, 0x00000001);
 	for (i = 0; i < 10000000; i++) {
 		struct vp1_s2v s2v = { 0 };
 		uint32_t opcode_a = (uint32_t)jrand48(ctx->rand48);
@@ -1103,15 +1209,18 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 				opcode_s = 0x4f000000;
 		}
 		if (
-			op_v == 0x02 || /* scary hidden state, looks sinusoidal */
-			op_v == 0x12 || /* scary hidden state, looks sinusoidal */
-			op_v == 0x22 || /* scary hidden state, looks sinusoidal */
-			op_v == 0x32 || /* scary hidden state, looks sinusoidal */
-			op_v == 0x07 || /* scary hidden state, looks sinusoidal, but does not mutate */
-			op_v == 0x17 || /* scary hidden state, looks sinusoidal, but does not mutate */
-			op_v == 0x27 || /* scary hidden state, looks sinusoidal, but does not mutate */
-			op_v == 0x37 || /* scary hidden state, looks sinusoidal, but does not mutate */
-			op_v == 0x36 || /* scary hidden state, looks sinusoidal */
+			op_v == 0x07 || /* $va */
+			op_v == 0x17 || /* $va */
+			op_v == 0x27 || /* $va */
+			op_v == 0x37 || /* $va */
+			op_v == 0x36 || /* $va */
+			op_v == 0x04 || /* $va */
+			op_v == 0x06 || /* $va */
+			op_v == 0x16 || /* $va */
+			op_v == 0x26 || /* $va */
+			op_v == 0x30 || /* $va */
+			op_v == 0x34 || /* $va */
+			op_v == 0x35 || /* $va */
 			op_v == 0x05 || /* use scalar input */
 			op_v == 0x15 || /* use scalar input */
 			op_v == 0x33 || /* use scalar input */
@@ -1199,6 +1308,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			}
 			octx.m[j] = val;
 		}
+		read_va(ctx, octx.va);
 		nva_wr32(ctx->cnum, 0xf450, 0xbb000000);
 		nva_wr32(ctx->cnum, 0xf458, 1);
 		octx.vc[0] = nva_rd32(ctx->cnum, 0xf000);
@@ -1264,6 +1374,7 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			nva_wr32(ctx->cnum, 0xf458, 1);
 			nctx.x[j] = nva_rd32(ctx->cnum, 0xf780);
 		}
+		read_va(ctx, nctx.va);
 		if (memcmp(&ectx, &nctx, sizeof ectx)) {
 			printf("Mismatch on try %d for insn 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32" 0x%08"PRIx32"\n", i, opcode_a, opcode_s, opcode_v, opcode_b);
 			printf("what        initial    expected   real\n");
@@ -1273,6 +1384,9 @@ static int test_isa_s(struct hwtest_ctx *ctx) {
 			PRINT("UC_CFG ", uc_cfg);
 			for (j = 0; j < 4; j++) {
 				IPRINT("VC[%d] ", vc[j]);
+			}
+			for (j = 0; j < 16; j++) {
+				IPRINT("VA[%d] ", va[j]);
 			}
 			for (j = 0; j < 32; j++) {
 				IPRINT("A[0x%02x]   ", a[j]);
